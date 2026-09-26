@@ -1,5 +1,8 @@
 import { playStage, type StageOutcome } from '../campaign/campaign';
 import { claimOffline, type OfflineRewards } from '../campaign/offline';
+import { equip, unequip } from '../equipment/equipment';
+import { playWithEquipment, type StageOutcomeWithDrops } from '../equipment/drops';
+import type { EquipmentConfig, EquipmentContext } from '../equipment/load';
 import { changeJob } from '../progression/jobChange';
 import { GameRuleError, type GameContext, type ProgressEvent } from '../progression/types';
 import type { SaveState } from '../save/schema';
@@ -18,21 +21,24 @@ function levelUps(events: readonly FeatureEvent[]): number {
   return events.filter((e) => e.type === 'levelUp').length;
 }
 
-function recordBattle(out: StageOutcome, day: string): StageOutcome {
+function recordBattle<O extends StageOutcome>(out: O, day: string): O {
   let s = recordActivity(out.save, day, 'stage_attempt');
   if (out.result.winner === 'A') s = recordActivity(s, day, 'stage_win');
   s = recordActivity(s, day, 'hero_level_up', levelUps(out.events));
   return { ...out, save: s };
 }
 
-/** playStage + stage_attempt, stage_win (при победе), hero_level_up (по событиям levelUp). */
-export function actPlayStage(save: SaveState, day: string, stageId: string, seed: number, ctx: GameContext): StageOutcome {
-  return recordBattle(playStage(save, stageId, seed, ctx), day);
+/**
+ * playStage + stage_attempt, stage_win (при победе), hero_level_up (по событиям levelUp).
+ * K6: при ctx.equipment бой идёт с экипировкой героев, при победе — выпадение предметов (drops).
+ */
+export function actPlayStage(save: SaveState, day: string, stageId: string, seed: number, ctx: GameContext & { equipment?: EquipmentConfig }): StageOutcomeWithDrops {
+  return recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => playStage(save, stageId, seed, c)), day);
 }
 
-/** skipStage (K7) + те же события, что у actPlayStage: пропущенный бой засчитывается как сыгранный. */
-export function actSkipStage(save: SaveState, day: string, stageId: string, seed: number, ctx: GameContext): StageOutcome {
-  return recordBattle(skipStage(save, stageId, seed, ctx), day);
+/** skipStage (K7) + те же события и выпадение K6, что у actPlayStage: пропущенный бой засчитывается как сыгранный. */
+export function actSkipStage(save: SaveState, day: string, stageId: string, seed: number, ctx: GameContext & { equipment?: EquipmentConfig }): StageOutcomeWithDrops {
+  return recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => skipStage(save, stageId, seed, c)), day);
 }
 
 /** claimOffline + offline_claim (только если что-то получено) + hero_level_up. */
@@ -63,4 +69,14 @@ export function actUseFastRewards(save: SaveState, day: string, ctx: FeatureCont
   let s = recordActivity(out.save, day, 'fast_rewards');
   s = recordActivity(s, day, 'hero_level_up', levelUps(out.events));
   return { ...out, save: s };
+}
+
+/** K6. equip (надеть, предмет из того же слота — в инвентарь). Заданий не засчитывает. */
+export function actEquip(save: SaveState, heroId: string, itemInstanceId: string, ctx: EquipmentContext): SaveState {
+  return equip(save, heroId, itemInstanceId, ctx);
+}
+
+/** K6. unequip (снять в инвентарь). */
+export function actUnequip(save: SaveState, itemInstanceId: string): SaveState {
+  return unequip(save, itemInstanceId);
 }

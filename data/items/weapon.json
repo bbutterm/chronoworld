@@ -1,0 +1,173 @@
+{
+  "items": [
+    {
+      "id": "knife",
+      "name": "Нож",
+      "slot": "weapon",
+      "rarity": "common",
+      "stats": {
+        "atk": 6
+      }
+    },
+    {
+      "id": "dagger",
+      "name": "Кинжал",
+      "slot": "weapon",
+      "rarity": "common",
+      "stats": {
+        "atk": 8,
+        "spd": 2
+      },
+      "jobs": [
+        "thief",
+        "merchant"
+      ]
+    },
+    {
+      "id": "sword",
+      "name": "Меч",
+      "slot": "weapon",
+      "rarity": "common",
+      "stats": {
+        "atk": 10
+      },
+      "jobs": [
+        "swordman",
+        "merchant"
+      ]
+    },
+    {
+      "id": "bow",
+      "name": "Лук",
+      "slot": "weapon",
+      "rarity": "common",
+      "stats": {
+        "atk": 10
+      },
+      "jobs": [
+        "archer"
+      ]
+    },
+    {
+      "id": "rod",
+      "name": "Жезл",
+      "slot": "weapon",
+      "rarity": "common",
+      "stats": {
+        "atk": 9,
+        "hp": 40
+      },
+      "jobs": [
+        "mage",
+        "acolyte"
+      ]
+    },
+    {
+      "id": "gladius",
+      "name": "Гладиус",
+      "slot": "weapon",
+      "rarity": "rare",
+      "stats": {
+        "atk": 18,
+        "spd": 3
+      },
+      "jobs": [
+        "swordman",
+        "thief",
+        "merchant"
+      ]
+    },
+    {
+      "id": "composite_bow",
+      "name": "Составной лук",
+      "slot": "weapon",
+      "rarity": "rare",
+      "stats": {
+        "atk": 20
+      },
+      "jobs": [
+        "archer"
+      ]
+    },
+    {
+      "id": "staff",
+      "name": "Посох",
+      "slot": "weapon",
+      "rarity": "rare",
+      "stats": {
+        "atk": 17,
+        "hp": 80
+      },
+      "jobs": [
+        "mage",
+        "acolyte"
+      ]
+    },
+    {
+      "id": "mace",
+      "name": "Булава",
+      "slot": "weapon",
+      "rarity": "rare",
+      "stats": {
+        "atk": 16,
+        "def": 4
+      },
+      "jobs": [
+        "acolyte",
+        "merchant"
+      ]
+    },
+    {
+      "id": "claymore",
+      "name": "Клеймор",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 34
+      },
+      "jobs": [
+        "swordman"
+      ]
+    },
+    {
+      "id": "arbalest",
+      "name": "Арбалет",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 32,
+        "spd": 4
+      },
+      "jobs": [
+        "archer"
+      ]
+    },
+    {
+      "id": "katar",
+      "name": "Катар",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 30,
+        "spd": 6
+      },
+      "jobs": [
+        "thief"
+      ]
+    },
+    {
+      "id": "wizardry_staff",
+      "name": "Посох чародея",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 30,
+        "hp": 150
+      },
+      "jobs": [
+        "mage",
+        "acolyte"
+      ]
+    }
+  ]
+}

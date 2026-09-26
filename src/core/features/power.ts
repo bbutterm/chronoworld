@@ -1,5 +1,7 @@
 import { enemySquad } from '../campaign/campaign';
 import type { UnitDef } from '../content/schema';
+import { withGear } from '../equipment/equipment';
+import type { EquipmentConfig } from '../equipment/load';
 import { buildUnit } from '../progression/stats';
 import type { HeroState, SaveState } from '../save/schema';
 import type { FeatureContext } from './config';
@@ -18,17 +20,21 @@ export function unitPower(unit: UnitDef, ctx: FeatureContext): number {
   return Math.round(s.hp * k.hp + s.atk * k.atk + s.def * k.def + s.spd * k.spd + k.perActive * actives + k.perPassive * passives);
 }
 
-/** K2. Мощь героя игрока = unitPower(buildUnit(hero)). */
-export function heroPower(hero: HeroState, ctx: FeatureContext): number {
-  return unitPower(buildUnit(hero, ctx), ctx);
+/**
+ * K2. Мощь героя игрока = unitPower(buildUnit(hero)).
+ * K6: с save и ctx.equipment — с экипировкой героя из save.inventory (иначе без неё).
+ */
+export function heroPower(hero: HeroState, ctx: FeatureContext & { equipment?: EquipmentConfig }, save?: SaveState): number {
+  return unitPower(buildUnit(hero, save ? withGear(ctx, save) : ctx), ctx);
 }
 
-/** K2. Мощь отряда = сумма мощи героев в слотах save.squad (пустые и неизвестные слоты — 0). */
-export function squadPower(save: SaveState, ctx: FeatureContext): number {
+/** K2. Мощь отряда = сумма мощи героев в слотах save.squad (пустые и неизвестные слоты — 0), K6: с экипировкой. */
+export function squadPower(save: SaveState, ctx: FeatureContext & { equipment?: EquipmentConfig }): number {
+  const gctx = withGear(ctx, save);
   let sum = 0;
   for (const id of save.squad) {
     const hero = id === null ? undefined : save.heroes.find((h) => h.id === id);
-    if (hero) sum += heroPower(hero, ctx);
+    if (hero) sum += heroPower(hero, gctx);
   }
   return sum;
 }

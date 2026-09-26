@@ -52,16 +52,38 @@ export function heroSkills(hero: HeroState, ctx: GameContext): HeroSkills {
   return { basic: job.basic, actives: order.filter((s) => !isPassive(s)), passives: order.filter(isPassive) };
 }
 
-/** Герой игрока → юнит боя. id юнита = id героя. */
-export function buildUnit(hero: HeroState, ctx: GameContext): UnitDef {
+/** K6. Плоская прибавка экипировки к статам героя (сумма статов надетых предметов). */
+export interface StatBonus {
+  hp: number;
+  atk: number;
+  def: number;
+  spd: number;
+}
+
+/**
+ * K6. Необязательная часть контекста: прибавки экипировки по id героя. Заполняет equipment/withGear(ctx, save),
+ * чтобы playStage/skipStage (они вызывают buildUnit(hero, ctx)) учитывали экипировку без знания о save.inventory.
+ */
+export interface GearLookup {
+  heroGear?: Readonly<Record<string, StatBonus>>;
+}
+
+/**
+ * Герой игрока → юнит боя. id юнита = id героя.
+ * K6: к статам профессии прибавляется экипировка — явный gear, иначе ctx.heroGear[hero.id], иначе ничего.
+ */
+export function buildUnit(hero: HeroState, ctx: GameContext & GearLookup, gear?: StatBonus): UnitDef {
   const job = getJob(ctx, hero.job);
   const skills = heroSkills(hero, ctx);
+  const base = statsAt(job, hero.jobLevel);
+  const g = gear ?? ctx.heroGear?.[hero.id];
+  const stats: Stats = g ? { ...base, hp: base.hp + g.hp, atk: base.atk + g.atk, def: base.def + g.def, spd: base.spd + g.spd } : base;
   return {
     id: hero.id,
     name: hero.name,
     kind: 'hero',
     role: job.role,
-    stats: statsAt(job, hero.jobLevel),
+    stats,
     skills: { basic: skills.basic, ult: skills.actives[skills.actives.length - 1], passives: skills.passives },
     visual: job.visual,
   };
