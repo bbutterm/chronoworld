@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_boss2",
+  "name": "Тёмный шаман",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 3500,
+    "atk": 70,
+    "def": 15,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob_boss2_curse",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "boss2",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

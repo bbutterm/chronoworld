@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_elite",
+  "name": "Орк-вожак",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 1000,
+    "atk": 55,
+    "def": 12,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_elite_smash",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "elite",
+    "hitFx": "fx_hit"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_boss1",
+  "name": "Король гоблинов",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 3000,
+    "atk": 65,
+    "def": 18,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_boss1_quake",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "boss1",
+    "hitFx": "fx_hit"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_elite_smash",
+  "name": "Сокрушение",
+  "description": "Сильный удар с шансом оглушить.",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.8
+    },
+    {
+      "type": "status",
+      "chance": 0.3,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}
