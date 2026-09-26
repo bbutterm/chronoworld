@@ -33,7 +33,8 @@ export class PrepScene extends Phaser.Scene {
   create(): void {
     this.slotViews = [];
     this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920);
-    text(this, GAME_W / 2, 60, 'Подготовка к бою', 60, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
+    button(this, 110, 60, 180, 90, 'k:buttonLong_beige', '‹ Назад', () => this.scene.start('Home'), 32);
+    text(this, GAME_W / 2 + 60, 60, 'Тестовый бой', 60, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
     text(this, GAME_W / 2, 125, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать героя.', 28, '#c8cbd4', {
       wordWrap: { width: 1000 },
     });
@@ -63,7 +64,7 @@ export class PrepScene extends Phaser.Scene {
     });
     this.startBtn = button(this, 810, 1820, 460, 130, 'ui_btn_primary', 'В бой!', () => {
       if (!squads.A.some(Boolean) || !squads.B.some(Boolean)) return;
-      this.scene.start('Battle', { seed: (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0 });
+      this.scene.start('Battle', { mode: 'test', seed: (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0 });
     });
 
     this.refresh();
@@ -128,7 +129,7 @@ export class PrepScene extends Phaser.Scene {
         const spriteId = CONTENT.units[id].visual.sprite;
         const view = spriteView(this, spriteId);
         // Спрайт в слоте чуть меньше, чем в бою.
-        v.hero.setTexture(view.key, 0).setOrigin(view.originX, view.originY).setScale((view.size / v.hero.frame.height) * 0.72);
+        v.hero.setTexture(view.key, 0).setOrigin(view.originX, view.originY).setScale((view.size / v.hero.frame.height) * 0.62);
         const idle = anim(view, spriteId, 'idle');
         if (idle) v.hero.play({ key: idle, repeat: -1 });
         else v.hero.stop();

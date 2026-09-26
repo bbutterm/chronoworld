@@ -1,53 +1,103 @@
 import Phaser from 'phaser';
-import type { BattleResult } from '../../core';
-import { CONTENT } from '../content';
-import { portraitKey } from '../sprites';
+import { GAME } from '../content';
+import { describeEvents, nextOpenStage } from '../flow';
 import { GAME_W } from '../layout';
+import { session } from '../session';
+import { portraitKey } from '../sprites';
 import { button, panel, text } from '../ui';
+import type { ResultData } from './BattleScene';
+import { portrait } from '../screen';
+
+const MAX_EVENT_LINES = 5;
 
 export class ResultScene extends Phaser.Scene {
   constructor() {
     super('Result');
   }
 
-  create(data: { result: BattleResult }): void {
+  create(data: ResultData): void {
     const r = data.result;
+    const stage = data.stage;
     const win = r.winner === 'A';
+    const compact = !!stage;
     this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920).setAlpha(0.5);
-    this.add.image(GAME_W / 2, 250, win ? 'ui_victory' : 'ui_defeat').setDisplaySize(900, 400);
-    panel(this, GAME_W / 2, 1150, 1050, 1080, 'ui_panel');
+    this.add.image(GAME_W / 2, compact ? 190 : 250, win ? 'ui_victory' : 'ui_defeat').setDisplaySize(compact ? 760 : 900, compact ? 338 : 400);
+    const top = compact ? 380 : 470;
+    panel(this, GAME_W / 2, (top + 1730) / 2, 1050, 1730 - top + 20, 'ui_panel');
     const reason = r.reason === 'timeout' ? 'Время вышло — атакующий проиграл' : win ? 'Отряд противника уничтожен' : 'Ваш отряд уничтожен';
-    text(this, GAME_W / 2, 510, `${reason}\nДлительность ${r.duration.toFixed(1)} с · seed ${r.seed}`, 32, '#d6d9e0', { lineSpacing: 8 });
+    let y = top + 50;
+    text(this, GAME_W / 2, y, `${reason} · ${r.duration.toFixed(1)} с`, 32, '#d6d9e0');
+    y += 60;
 
-    // Сводка: почему победила сторона — кто сколько нанёс, вылечил и заблокировал.
-    const cols = [150, 400, 560, 720, 870, 990];
-    const heads = ['', 'Урон', 'Лечение', 'Щит', 'Ульты', 'Жив'];
-    let y = 640;
-    for (const side of ['A', 'B'] as const) {
-      text(this, GAME_W / 2, y, side === 'A' ? 'Ваш отряд' : 'Противник', 38, side === 'A' ? '#9fe0a6' : '#f0a0a0');
-      y += 55;
-      heads.forEach((h, i) => text(this, cols[i], y, h, 26, '#f3dfb8'));
-      y += 50;
-      const units = r.units.filter((u) => u.side === side);
-      const maxDmg = Math.max(1, ...Object.values(r.report).map((x) => x.damageDealt));
-      for (const u of units) {
-        const rep = r.report[u.uid];
-        this.add.image(60, y, portraitKey(CONTENT.units[u.unitId].visual.sprite)).setDisplaySize(70, 70).setAlpha(rep.alive ? 1 : 0.4);
-        text(this, cols[0] + 20, y, CONTENT.units[u.unitId].name, 30).setOrigin(0, 0.5);
-        this.add.rectangle(cols[1] - 70, y + 24, 140 * (rep.damageDealt / maxDmg), 6, 0xd64545).setOrigin(0, 0.5);
-        text(this, cols[1], y, String(rep.damageDealt), 30);
-        text(this, cols[2], y, String(rep.healingDone), 30, '#7dff8f');
-        text(this, cols[3], y, String(rep.shieldGiven), 30, '#bcd6ff');
-        text(this, cols[4], y, String(rep.ults), 30, '#ffd84a');
-        text(this, cols[5], y, rep.alive ? '✓' : '✗', 30, rep.alive ? '#9fe0a6' : '#f0a0a0');
-        y += 85;
+    if (stage) {
+      const events = stage.outcome.events;
+      const rewards = events.find((e) => e.type === 'rewards');
+      if (rewards && rewards.type === 'rewards') {
+        text(this, GAME_W / 2, y, `Награда: золото +${rewards.gold} · опыт +${rewards.jobExp} каждому`, 36, '#ffd84a', {
+          fontStyle: 'bold',
+          stroke: '#000000',
+          strokeThickness: 5,
+        });
+      } else {
+        text(this, GAME_W / 2, y, 'Награды нет. Прокачайте героев или смените профессию.', 30, '#f0a0a0');
       }
-      y += 30;
+      y += 55;
+      const lines = describeEvents(events, stage.outcome.save, GAME);
+      const shown = lines.slice(0, MAX_EVENT_LINES);
+      if (lines.length > shown.length) shown.push(`…и ещё ${lines.length - shown.length}`);
+      for (const line of shown) {
+        const hot = line.startsWith('Смена профессии');
+        text(this, GAME_W / 2, y, line, hot ? 34 : 30, hot ? '#ffd84a' : '#9fe0a6', { stroke: '#000000', strokeThickness: 4, fontStyle: hot ? 'bold' : 'normal' });
+        y += hot ? 48 : 42;
+      }
+      y += 15;
     }
 
-    button(this, 270, 1820, 440, 130, 'ui_btn_secondary', 'Изменить отряд', () => this.scene.start('Prep'));
-    button(this, 810, 1820, 440, 130, 'ui_btn_primary', 'Ещё раз', () =>
-      this.scene.start('Battle', { seed: (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0 }),
-    );
+    // Сводка: почему победила сторона — кто сколько нанёс, вылечил и заблокировал.
+    // Высота строки — чтобы обе таблицы влезли до кнопок.
+    const headers = compact ? 2 * (42 + 42 + 10) : 2 * (55 + 50 + 30);
+    const row = Phaser.Math.Clamp(Math.floor((1700 - y - headers) / Math.max(1, r.units.length)), 56, 85);
+    const cols = [150, 400, 560, 720, 870, 990];
+    const heads = ['', 'Урон', 'Лечение', 'Щит', 'Ульты', 'Жив'];
+    const maxDmg = Math.max(1, ...Object.values(r.report).map((x) => x.damageDealt));
+    const fs = compact ? 26 : 30;
+    for (const side of ['A', 'B'] as const) {
+      text(this, GAME_W / 2, y, side === 'A' ? 'Ваш отряд' : 'Противник', compact ? 32 : 38, side === 'A' ? '#9fe0a6' : '#f0a0a0');
+      y += compact ? 42 : 55;
+      heads.forEach((h, i) => text(this, cols[i], y, h, compact ? 22 : 26, '#f3dfb8'));
+      y += compact ? 42 : 50;
+      for (const u of r.units.filter((x) => x.side === side)) {
+        const rep = r.report[u.uid];
+        const def = data.defs[u.unitId];
+        portrait(this, 60, y, portraitKey(def?.visual.sprite ?? u.unitId), row - 10).setAlpha(rep.alive ? 1 : 0.4);
+        text(this, cols[0] + 20, y, def?.name ?? u.unitId, fs).setOrigin(0, 0.5);
+        this.add.rectangle(cols[1] - 70, y + 22, 140 * (rep.damageDealt / maxDmg), 6, 0xd64545).setOrigin(0, 0.5);
+        text(this, cols[1], y, String(rep.damageDealt), fs);
+        text(this, cols[2], y, String(rep.healingDone), fs, '#7dff8f');
+        text(this, cols[3], y, String(rep.shieldGiven), fs, '#bcd6ff');
+        text(this, cols[4], y, String(rep.ults), fs, '#ffd84a');
+        text(this, cols[5], y, rep.alive ? '✓' : '✗', fs, rep.alive ? '#9fe0a6' : '#f0a0a0');
+        y += row;
+      }
+      y += compact ? 10 : 30;
+    }
+
+    if (stage) {
+      const next = win ? nextOpenStage(session.save, stage.stageId, GAME) : null;
+      const bw = 330;
+      button(this, 190, 1830, bw, 130, 'k:buttonLong_beige', 'К кампании', () => this.scene.start('Campaign'), 38);
+      button(this, 540, 1830, bw, 130, 'ui_btn_secondary', 'Повторить', () => this.scene.start('Battle', { mode: 'stage', stageId: stage.stageId }), 38);
+      const nextBtn = button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Дальше', () => {
+        if (next) this.scene.start('Stage', { stageId: next.id });
+      }, 40);
+      if (!next) nextBtn.container.setAlpha(0.4).disableInteractive();
+      return;
+    }
+
+    button(this, 190, 1830, 330, 130, 'k:buttonLong_beige', 'Главная', () => this.scene.start('Home'), 38);
+    button(this, 540, 1830, 330, 130, 'ui_btn_secondary', 'Отряд', () => this.scene.start('Prep'), 38);
+    button(this, 890, 1830, 330, 130, 'ui_btn_primary', 'Ещё раз', () =>
+      this.scene.start('Battle', { mode: 'test', seed: (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0 }),
+    38);
   }
 }

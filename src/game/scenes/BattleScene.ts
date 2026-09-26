@@ -1,7 +1,21 @@
 import Phaser from 'phaser';
-import { COMBAT, simulateBattle, type BattleEvent, type BattleResult, type UnitDef, type UnitSnapshot } from '../../core';
+import {
+  buildUnit,
+  COMBAT,
+  enemySquad,
+  getStage,
+  playStage,
+  simulateBattle,
+  type BattleEvent,
+  type BattleResult,
+  type StageOutcome,
+  type UnitDef,
+  type UnitSnapshot,
+} from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
-import { CONTENT } from '../content';
+import { CONTENT, GAME } from '../content';
+import { stageSeed } from '../flow';
+import { commit, session } from '../session';
 import { GAME_W } from '../layout';
 import { anim, hitDelay, spriteView, type SpriteView } from '../sprites';
 import { playback, playbackSpeeds, squads } from '../state';
@@ -36,8 +50,23 @@ interface UnitView {
   moveTween: Phaser.Tweens.Tween | null;
 }
 
+/** Тестовый бой (отряды экрана подготовки) или этап кампании (отряд из сохранения). */
+export type BattleData = { mode?: 'test'; seed: number } | { mode: 'stage'; stageId: string };
+
+/** Что получает экран итогов. */
+export interface ResultData {
+  result: BattleResult;
+  /** Описания юнитов боя по unitId (у героев игрока и врагов этапа их нет в CONTENT.units). */
+  defs: Record<string, UnitDef>;
+  /** Только для этапа: итог с новым сохранением и событиями прогрессии. */
+  stage?: { stageId: string; outcome: StageOutcome };
+}
+
 export class BattleScene extends Phaser.Scene {
   private result!: BattleResult;
+  private defs: Record<string, UnitDef> = {};
+  private stage?: ResultData['stage'];
+  private committed = false;
   private views = new Map<string, UnitView>();
   private cursor = 0;
   private clock = 0;
@@ -48,18 +77,43 @@ export class BattleScene extends Phaser.Scene {
     super('Battle');
   }
 
-  create(data: { seed: number }): void {
+  create(data: BattleData): void {
     this.views.clear();
     this.cursor = 0;
     this.clock = 0;
     this.finished = false;
-    this.result = simulateBattle(CONTENT, squads.A, squads.B, data.seed);
+    this.committed = false;
+    let title = 'Тестовый бой';
+    if (data.mode === 'stage') {
+      // Бой считает ядро (playStage); сцена только проигрывает лог. Сохраняем, когда бой закончится.
+      const save = session.save;
+      let outcome: StageOutcome;
+      try {
+        outcome = playStage(save, data.stageId, stageSeed(save), GAME);
+      } catch (e) {
+        console.warn(e);
+        this.finished = true;
+        this.scene.start('Campaign');
+        return;
+      }
+      this.result = outcome.result;
+      this.stage = { stageId: data.stageId, outcome };
+      this.defs = {};
+      for (const h of save.heroes) if (save.squad.includes(h.id)) this.defs[h.id] = buildUnit(h, GAME);
+      for (const u of enemySquad(data.stageId, GAME)) if (u) this.defs[u.id] = u;
+      const st = getStage(GAME, data.stageId);
+      title = `Этап ${st.globalIndex + 1}. ${st.name}`;
+    } else {
+      this.result = simulateBattle(CONTENT, squads.A, squads.B, data.seed);
+      this.stage = undefined;
+      this.defs = CONTENT.units;
+    }
 
     this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920);
-    panel(this, GAME_W / 2, 130, 520, 200, 'ui_panel');
-    text(this, GAME_W / 2, 85, 'Бой', 56, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
+    panel(this, GAME_W / 2, 130, 760, 200, 'ui_panel');
+    text(this, GAME_W / 2, 85, title, title.length > 20 ? 42 : 52, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
     this.timeText = text(this, GAME_W / 2, 150, '', 40, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
-    text(this, GAME_W / 2, 195, `seed ${data.seed}`, 22, '#e0cfb0');
+    text(this, GAME_W / 2, 195, `seed ${this.result.seed}`, 22, '#e0cfb0');
 
     const speedBtn = button(this, 180, 360, 280, 110, 'ui_btn_speed', `${playback.speed}x`, () => {
       const i = playbackSpeeds.indexOf(playback.speed);
@@ -78,7 +132,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private buildUnit(snap: UnitSnapshot): void {
-    const def = CONTENT.units[snap.unitId];
+    const def = this.defs[snap.unitId];
     const spriteId = def.visual.sprite;
     const look = spriteView(this, spriteId);
     const sprite = this.add.sprite(0, 0, look.key, 0).setOrigin(look.originX, look.originY);
@@ -266,9 +320,19 @@ export class BattleScene extends Phaser.Scene {
       case 'end':
         this.finished = true;
         this.timeText.setText(`${fmt(this.result.duration)} / ${fmt(COMBAT.timeLimitSeconds)}`);
-        this.time.delayedCall(animate ? 1200 : 150, () => this.scene.start('Result', { result: this.result }));
+        this.commitStage();
+        this.time.delayedCall(animate ? 1200 : 150, () =>
+          this.scene.start('Result', { result: this.result, defs: this.defs, stage: this.stage } satisfies ResultData),
+        );
         return;
     }
+  }
+
+  /** Итог этапа записывается один раз — в конце боя (и при «Пропустить»). */
+  private commitStage(): void {
+    if (!this.stage || this.committed) return;
+    this.committed = true;
+    commit(this.stage.outcome.save);
   }
 
   // ---------- анимации ----------

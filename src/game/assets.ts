@@ -47,6 +47,7 @@ export const hasAsset = (id: string) => id in MANIFEST;
 
 /** Текстура и кадр для id из манифеста (кадр атласа или отдельная картинка/плейсхолдер). */
 export function tex(scene: Phaser.Scene, id: string, pressed = false): { key: string; frame?: string } {
+  if (id.startsWith(KENNEY_PREFIX)) return kenney(scene, id.slice(KENNEY_PREFIX.length), pressed);
   const a = MANIFEST[id];
   if (a?.atlas && a.frame && scene.textures.exists(a.atlas)) {
     return { key: a.atlas, frame: pressed && a.pressed ? a.pressed : a.frame };
@@ -55,7 +56,24 @@ export function tex(scene: Phaser.Scene, id: string, pressed = false): { key: st
 }
 
 export function sliceOf(id: string): [number, number, number, number] {
+  if (id.startsWith(KENNEY_PREFIX)) return id.includes('panel_') ? [16, 16, 16, 16] : [12, 12, 12, 12];
   return MANIFEST[id]?.slice ?? [16, 16, 16, 16];
+}
+
+/**
+ * Кадры атласа Kenney UI без записи в манифесте: id вида `k:panel_blue` (имя кадра без .png).
+ * Нажатое состояние — кадр `<имя>_pressed`, если он есть в атласе. Атлас не загрузился — плейсхолдер-панель.
+ */
+const KENNEY_PREFIX = 'k:';
+const KENNEY_ATLAS = 'ui_kenney';
+export const kframe = (name: string) => `${KENNEY_PREFIX}${name}`;
+
+function kenney(scene: Phaser.Scene, name: string, pressed: boolean): { key: string; frame?: string } {
+  if (!scene.textures.exists(KENNEY_ATLAS)) return { key: 'ui_panel' };
+  const atlas = scene.textures.get(KENNEY_ATLAS);
+  const p = `${name}_pressed.png`;
+  if (pressed && atlas.has(p)) return { key: KENNEY_ATLAS, frame: p };
+  return atlas.has(`${name}.png`) ? { key: KENNEY_ATLAS, frame: `${name}.png` } : { key: 'ui_panel' };
 }
 
 /** Для всех id без текстуры (нет файла или не загрузился) рисует цветной прямоугольник с подписью. */

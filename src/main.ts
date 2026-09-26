@@ -1,5 +1,11 @@
 import Phaser from 'phaser';
 import { BootScene } from './game/scenes/BootScene';
+import { HomeScene } from './game/scenes/HomeScene';
+import { CampaignScene } from './game/scenes/CampaignScene';
+import { StageScene } from './game/scenes/StageScene';
+import { HeroesScene } from './game/scenes/HeroesScene';
+import { HeroScene } from './game/scenes/HeroScene';
+import { JobChangeScene } from './game/scenes/JobChangeScene';
 import { PrepScene } from './game/scenes/PrepScene';
 import { BattleScene } from './game/scenes/BattleScene';
 import { ResultScene } from './game/scenes/ResultScene';
@@ -15,5 +21,5 @@ new Phaser.Game({
     width: GAME_W,
     height: GAME_H,
   },
-  scene: [BootScene, PrepScene, BattleScene, ResultScene],
+  scene: [BootScene, HomeScene, CampaignScene, StageScene, HeroesScene, HeroScene, JobChangeScene, PrepScene, BattleScene, ResultScene],
 });
