@@ -1,18 +1,26 @@
 import Phaser from 'phaser';
 import { COMBAT, HEROES, type Side } from '../../core';
-import { hasArt, heroBattle, heroPortrait } from '../assets';
+import { hasArt, heroBattle, heroPortrait, tex } from '../assets';
 import { describeHero } from '../describe';
 import { ARENA_TOP, GAME_W, slotPos } from '../layout';
 import { squads } from '../state';
-import { button, text } from '../ui';
+import { button, panel, text } from '../ui';
 
 const SLOT_SIZE = 160;
 /** На экране подготовки поле чуть выше, чтобы под ним поместились кнопки. */
 const DY = -80;
 
+interface SlotView {
+  side: Side;
+  slot: number;
+  bg: Phaser.GameObjects.NineSlice;
+  hero: Phaser.GameObjects.Image;
+  label: Phaser.GameObjects.Text;
+}
+
 export class PrepScene extends Phaser.Scene {
   private selected: { side: Side; slot: number } = { side: 'A', slot: 0 };
-  private slotViews: { side: Side; slot: number; bg: Phaser.GameObjects.Image; hero: Phaser.GameObjects.Image; label: Phaser.GameObjects.Text }[] = [];
+  private slotViews: SlotView[] = [];
   private info!: Phaser.GameObjects.Text;
   private startBtn!: ReturnType<typeof button>;
 
@@ -23,31 +31,35 @@ export class PrepScene extends Phaser.Scene {
   create(): void {
     this.slotViews = [];
     this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920);
-    text(this, GAME_W / 2, 70, 'Подготовка к бою', 64, '#ffe9a8');
-    text(this, GAME_W / 2, 140, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать героя.', 30, '#c8cbd4', {
+    text(this, GAME_W / 2, 60, 'Подготовка к бою', 60, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
+    text(this, GAME_W / 2, 125, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать героя.', 28, '#c8cbd4', {
       wordWrap: { width: 1000 },
     });
 
+    panel(this, GAME_W / 2, 280, 1050, 230, 'ui_panel');
     this.buildPicker();
 
-    this.info = text(this, GAME_W / 2, 500, '', 30, '#e6e6e6', { lineSpacing: 10, wordWrap: { width: 1020 } });
+    panel(this, GAME_W / 2, 490, 1050, 160, 'ui_panel_light');
+    this.info = text(this, GAME_W / 2, 490, 'Нажмите на героя, чтобы увидеть его статы', 28, '#4a3520', {
+      lineSpacing: 8,
+      wordWrap: { width: 1000 },
+    });
 
-    text(this, 270, ARENA_TOP - 110, 'Ваш отряд', 40, '#9fe0a6');
-    text(this, 810, ARENA_TOP - 110, 'Противник', 40, '#f0a0a0');
-    text(this, 150, ARENA_TOP - 55, 'тыл', 26, '#8a8f9c');
-    text(this, 390, ARENA_TOP - 55, 'фронт', 26, '#8a8f9c');
-    text(this, 690, ARENA_TOP - 55, 'фронт', 26, '#8a8f9c');
-    text(this, 930, ARENA_TOP - 55, 'тыл', 26, '#8a8f9c');
+    text(this, 270, ARENA_TOP - 110, 'Ваш отряд', 40, '#9fe0a6', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
+    text(this, 810, ARENA_TOP - 110, 'Противник', 40, '#f0a0a0', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
+    for (const [x, label] of [[150, 'тыл'], [390, 'фронт'], [690, 'фронт'], [930, 'тыл']] as const) {
+      text(this, x, ARENA_TOP - 55, label, 26, '#b8bcc8');
+    }
 
     for (const side of ['A', 'B'] as Side[]) {
       for (let slot = 0; slot < COMBAT.slots.count; slot++) this.buildSlot(side, slot);
     }
 
-    button(this, 270, 1820, 440, 130, 'ui_btn_secondary', 'Враг = мой отряд', () => {
+    button(this, 270, 1820, 460, 130, 'ui_btn_secondary', 'Враг = мой отряд', () => {
       squads.B = [...squads.A];
       this.refresh();
     });
-    this.startBtn = button(this, 810, 1820, 440, 130, 'ui_btn_primary', 'В бой!', () => {
+    this.startBtn = button(this, 810, 1820, 460, 130, 'ui_btn_primary', 'В бой!', () => {
       if (!squads.A.some(Boolean) || !squads.B.some(Boolean)) return;
       this.scene.start('Battle', { seed: (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0 });
     });
@@ -57,11 +69,12 @@ export class PrepScene extends Phaser.Scene {
 
   private buildPicker(): void {
     const ids = Object.keys(HEROES);
-    const step = GAME_W / ids.length;
+    const step = 1000 / ids.length;
     ids.forEach((id, i) => {
-      const x = step * (i + 0.5);
-      const img = this.add.image(x, 320, heroPortrait(id)).setDisplaySize(150, 150).setInteractive({ useHandCursor: true });
-      text(this, x, 420, HEROES[id].name, 30);
+      const x = 40 + step * (i + 0.5);
+      panel(this, x, 262, 150, 150, 'ui_slot_filled');
+      const img = this.add.image(x, 262, heroPortrait(id)).setDisplaySize(140, 140).setInteractive({ useHandCursor: true });
+      text(this, x, 362, HEROES[id].name, 28, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
       img.on('pointerdown', () => this.pickHero(id));
       img.on('pointerover', () => this.info.setText(describeHero(HEROES[id])));
     });
@@ -69,9 +82,10 @@ export class PrepScene extends Phaser.Scene {
 
   private buildSlot(side: Side, slot: number): void {
     const { x, y } = slotPos(side, slot, DY);
-    const bg = this.add.image(x, y, 'ui_slot_empty').setDisplaySize(SLOT_SIZE, SLOT_SIZE).setInteractive({ useHandCursor: true });
-    const hero = this.add.image(x, y, 'ui_slot_empty').setDisplaySize(SLOT_SIZE - 16, SLOT_SIZE - 16);
-    const label = text(this, x, y + SLOT_SIZE / 2 + 16, '', 26);
+    const bg = panel(this, x, y, SLOT_SIZE, SLOT_SIZE, 'ui_slot_empty');
+    bg.setInteractive({ useHandCursor: true });
+    const hero = this.add.image(x, y, heroBattle('guard')).setDisplaySize(SLOT_SIZE + 20, SLOT_SIZE + 20);
+    const label = text(this, x, y + SLOT_SIZE / 2 + 18, '', 26, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
     bg.on('pointerdown', () => this.onSlot(side, slot));
     this.slotViews.push({ side, slot, bg, hero, label });
   }
@@ -102,10 +116,11 @@ export class PrepScene extends Phaser.Scene {
     for (const v of this.slotViews) {
       const id = squads[v.side][v.slot];
       const isSel = this.selected.side === v.side && this.selected.slot === v.slot;
-      v.bg.setTexture(isSel ? 'ui_slot_selected' : id ? 'ui_slot_filled' : 'ui_slot_empty').setDisplaySize(SLOT_SIZE, SLOT_SIZE);
+      const t = tex(this, isSel ? 'ui_slot_selected' : id ? 'ui_slot_filled' : 'ui_slot_empty');
+      v.bg.setTexture(t.key, t.frame);
       v.hero.setVisible(!!id);
       if (id) {
-        v.hero.setTexture(heroBattle(id)).setDisplaySize(SLOT_SIZE - 16, SLOT_SIZE - 16);
+        v.hero.setTexture(heroBattle(id)).setDisplaySize(SLOT_SIZE + 20, SLOT_SIZE + 20);
         v.hero.setFlipX(v.side === 'B' && hasArt(heroBattle(id)));
       }
       v.label.setText(id ? HEROES[id].name : '');

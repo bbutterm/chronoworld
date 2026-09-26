@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { HEROES, type BattleResult } from '../../core';
 import { heroPortrait } from '../assets';
 import { GAME_W } from '../layout';
-import { button, text } from '../ui';
+import { button, panel, text } from '../ui';
 
 export class ResultScene extends Phaser.Scene {
   constructor() {
@@ -13,9 +13,10 @@ export class ResultScene extends Phaser.Scene {
     const r = data.result;
     const win = r.winner === 'A';
     this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920).setAlpha(0.5);
-    this.add.image(GAME_W / 2, 260, win ? 'ui_victory' : 'ui_defeat').setDisplaySize(900, 400);
+    this.add.image(GAME_W / 2, 250, win ? 'ui_victory' : 'ui_defeat').setDisplaySize(900, 400);
+    panel(this, GAME_W / 2, 1150, 1050, 1080, 'ui_panel');
     const reason = r.reason === 'timeout' ? 'Время вышло — атакующий проиграл' : win ? 'Отряд противника уничтожен' : 'Ваш отряд уничтожен';
-    text(this, GAME_W / 2, 520, `${reason}\nДлительность ${r.duration.toFixed(1)} с · seed ${r.seed}`, 32, '#d6d9e0', { lineSpacing: 8 });
+    text(this, GAME_W / 2, 510, `${reason}\nДлительность ${r.duration.toFixed(1)} с · seed ${r.seed}`, 32, '#d6d9e0', { lineSpacing: 8 });
 
     // Сводка: почему победила сторона — кто сколько нанёс, вылечил и заблокировал.
     const cols = [150, 400, 560, 720, 870, 990];
@@ -24,7 +25,7 @@ export class ResultScene extends Phaser.Scene {
     for (const side of ['A', 'B'] as const) {
       text(this, GAME_W / 2, y, side === 'A' ? 'Ваш отряд' : 'Противник', 38, side === 'A' ? '#9fe0a6' : '#f0a0a0');
       y += 55;
-      heads.forEach((h, i) => text(this, cols[i], y, h, 26, '#8a8f9c'));
+      heads.forEach((h, i) => text(this, cols[i], y, h, 26, '#f3dfb8'));
       y += 50;
       const units = r.units.filter((u) => u.side === side);
       const maxDmg = Math.max(1, ...Object.values(r.report).map((x) => x.damageDealt));

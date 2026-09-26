@@ -271,7 +271,7 @@
       "w": 128,
       "h": 128,
       "color": "#ffffff",
-      "label": "удар",
+      "label": "",
       "shape": "circle"
     },
     "fx_arrow": {
@@ -279,7 +279,7 @@
       "w": 128,
       "h": 128,
       "color": "#c9e07a",
-      "label": "стрела",
+      "label": "",
       "shape": "circle"
     },
     "fx_magic": {
@@ -287,7 +287,7 @@
       "w": 128,
       "h": 128,
       "color": "#7ac9ff",
-      "label": "магия",
+      "label": "",
       "shape": "circle"
     },
     "fx_heal": {
@@ -295,15 +295,15 @@
       "w": 128,
       "h": 128,
       "color": "#7aff9a",
-      "label": "лечение",
+      "label": "",
       "shape": "circle"
     },
     "fx_shield": {
       "file": null,
       "w": 128,
       "h": 128,
-      "color": "#cfe3ff",
-      "label": "щит",
+      "color": "#8fb8ff",
+      "label": "",
       "shape": "circle"
     },
     "fx_death": {
@@ -311,7 +311,7 @@
       "w": 128,
       "h": 128,
       "color": "#9a9a9a",
-      "label": "облачко",
+      "label": "",
       "shape": "circle"
     },
     "hero_guard_sheet": {
