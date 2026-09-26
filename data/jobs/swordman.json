@@ -1,0 +1,39 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "swordman",
+  "name": "Мечник",
+  "description": "Первая профессия ветки ближнего боя.",
+  "tier": 1,
+  "from": [
+    "novice"
+  ],
+  "maxJobLevel": 50,
+  "role": "tank",
+  "baseStats": {
+    "hp": 1200,
+    "atk": 80,
+    "def": 35,
+    "spd": 95
+  },
+  "growth": {
+    "hp": 60,
+    "atk": 5,
+    "def": 2,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "swordman_bash"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "swordman_endure"
+    }
+  ],
+  "visual": {
+    "sprite": "warrior",
+    "hitFx": "fx_hit"
+  }
+}

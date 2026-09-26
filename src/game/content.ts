@@ -1,4 +1,5 @@
-import { buildContent, type RawFile } from '../core';
+import progressionJson from '../../data/progression.json';
+import { buildContent, COMBAT, ProgressionConfigSchema, type GameContext, type RawFile } from '../core';
 
 const toFiles = (mods: Record<string, unknown>): RawFile[] =>
   Object.entries(mods)
@@ -6,10 +7,19 @@ const toFiles = (mods: Record<string, unknown>): RawFile[] =>
     .map(([file, data]) => ({ file, data }));
 
 /** Весь контент из data/units и data/skills собирается при сборке — новые файлы подхватываются сами. */
-export const CONTENT = buildContent(
-  toFiles(import.meta.glob('../../data/units/*.json', { eager: true, import: 'default' })),
-  toFiles(import.meta.glob('../../data/skills/*.json', { eager: true, import: 'default' })),
-);
+export const CONTENT = buildContent({
+  units: toFiles(import.meta.glob('../../data/units/*.json', { eager: true, import: 'default' })),
+  skills: toFiles(import.meta.glob('../../data/skills/*.json', { eager: true, import: 'default' })),
+  jobs: toFiles(import.meta.glob('../../data/jobs/*.json', { eager: true, import: 'default' })),
+  chapters: toFiles(import.meta.glob('../../data/campaign/*.json', { eager: true, import: 'default' })),
+});
+
+/** Контекст для прогрессии и кампании. */
+export const GAME: GameContext = {
+  content: CONTENT,
+  progression: ProgressionConfigSchema.parse(progressionJson),
+  combat: COMBAT,
+};
 
 const ROLE_ORDER = ['tank', 'damage', 'support', 'healer'];
 

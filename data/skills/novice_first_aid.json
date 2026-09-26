@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "novice_first_aid",
+  "name": "Первая помощь",
+  "description": "Лечит себя.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.5
+    }
+  ]
+}

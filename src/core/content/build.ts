@@ -1,10 +1,22 @@
-import { SkillSchema, UnitSchema, type SkillDef, type UnitDef } from './schema';
+import { ChapterSchema, type ChapterDef, type StageInfo } from '../campaign/schema';
+import { validateCampaign } from '../campaign/validate';
+import { JobSchema, type JobDef } from '../progression/schema';
+import { validateJobs } from '../progression/validate';
 import type { Content } from '../types';
+import { SkillSchema, UnitSchema, type SkillDef, type UnitDef } from './schema';
+import type { z } from 'zod';
 
 export interface RawFile {
   /** Путь или имя файла — для понятных ошибок. */
   file: string;
   data: unknown;
+}
+
+export interface RawContent {
+  units: RawFile[];
+  skills: RawFile[];
+  jobs?: RawFile[];
+  chapters?: RawFile[];
 }
 
 export class ContentError extends Error {
@@ -13,30 +25,31 @@ export class ContentError extends Error {
   }
 }
 
-/** Проверяет файлы юнитов и навыков по схемам и перекрёстным ссылкам, собирает реестр. */
-export function buildContent(unitFiles: RawFile[], skillFiles: RawFile[]): Content {
-  const problems: string[] = [];
-  const skills: Record<string, SkillDef> = {};
-  const units: Record<string, UnitDef> = {};
+function parseAll<T extends { id: string }>(files: RawFile[], schema: z.ZodType<T>, what: string, problems: string[]): Record<string, T> {
+  const out: Record<string, T> = {};
+  for (const f of files) {
+    const r = schema.safeParse(f.data);
+    if (!r.success) {
+      for (const i of r.error.issues) problems.push(`${f.file}: ${i.path.join('.') || '(корень)'} — ${i.message}`);
+      continue;
+    }
+    if (out[r.data.id]) problems.push(`${f.file}: ${what} ${r.data.id} уже объявлен`);
+    out[r.data.id] = r.data;
+  }
+  return out;
+}
 
-  for (const f of skillFiles) {
-    const r = SkillSchema.safeParse(f.data);
-    if (!r.success) {
-      for (const i of r.error.issues) problems.push(`${f.file}: ${i.path.join('.') || '(корень)'} — ${i.message}`);
-      continue;
-    }
-    if (skills[r.data.id]) problems.push(`${f.file}: навык ${r.data.id} уже объявлен`);
-    skills[r.data.id] = r.data;
-  }
-  for (const f of unitFiles) {
-    const r = UnitSchema.safeParse(f.data);
-    if (!r.success) {
-      for (const i of r.error.issues) problems.push(`${f.file}: ${i.path.join('.') || '(корень)'} — ${i.message}`);
-      continue;
-    }
-    if (units[r.data.id]) problems.push(`${f.file}: юнит ${r.data.id} уже объявлен`);
-    units[r.data.id] = r.data;
-  }
+/** Проверяет файлы контента по схемам и перекрёстным ссылкам, собирает реестр. */
+export function buildContent(raw: RawContent): Content {
+  const problems: string[] = [];
+  const skills = parseAll<SkillDef>(raw.skills, SkillSchema as z.ZodType<SkillDef>, 'навык', problems);
+  const units = parseAll<UnitDef>(raw.units, UnitSchema as z.ZodType<UnitDef>, 'юнит', problems);
+  const jobs = parseAll<JobDef>(raw.jobs ?? [], JobSchema as z.ZodType<JobDef>, 'профессия', problems);
+  const chapterMap = parseAll<ChapterDef>(raw.chapters ?? [], ChapterSchema as z.ZodType<ChapterDef>, 'глава', problems);
+
+  const chapters = Object.values(chapterMap).sort((a, b) => a.order - b.order);
+  const stages: StageInfo[] = [];
+  for (const c of chapters) c.stages.forEach((s, index) => stages.push({ ...s, chapter: c.id, index, globalIndex: stages.length }));
 
   for (const s of Object.values(skills)) {
     if (s.fallback && !skills[s.fallback]) problems.push(`навык ${s.id}: fallback ${s.fallback} не найден`);
@@ -58,6 +71,10 @@ export function buildContent(unitFiles: RawFile[], skillFiles: RawFile[]): Conte
     if (basic?.trigger) problems.push(`юнит ${u.id}: обычная атака ${basic.id} не может иметь trigger`);
   }
 
+  const content: Content = { units, skills, jobs, chapters, stages };
+  validateJobs(content, problems);
+  validateCampaign(content, problems);
+
   if (problems.length) throw new ContentError(problems);
-  return { units, skills };
+  return content;
 }

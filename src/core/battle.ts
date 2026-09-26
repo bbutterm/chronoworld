@@ -32,10 +32,11 @@ export function slotPosition(side: Side, slot: number, cfg: CombatConfig = COMBA
 
 export function createUnits(squad: Squad, side: Side, content: Content, cfg: CombatConfig = COMBAT): Unit[] {
   const units: Unit[] = [];
-  squad.forEach((unitId, slot) => {
-    if (!unitId) return;
-    const def = content.units[unitId];
-    if (!def) throw new Error(`Неизвестный юнит: ${unitId}`);
+  squad.forEach((entry, slot) => {
+    if (!entry) return;
+    const def = typeof entry === 'string' ? content.units[entry] : entry;
+    if (!def) throw new Error(`Неизвестный юнит: ${String(entry)}`);
+    const unitId = def.id;
     const skill = (id: string) => {
       const s = content.skills[id];
       if (!s) throw new Error(`Юнит ${unitId}: неизвестный навык ${id}`);

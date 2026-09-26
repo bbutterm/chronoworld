@@ -34,10 +34,10 @@ export function unitDef(id: string, patch: Json = {}, stats: Json = {}): Json {
 /** Контент из объектов; навык shot (дальняя атака) добавляется всегда. */
 export function content(units: Json[], skills: Json[] = []): Content {
   const all = [skill('shot'), skill('hit', { range: 'melee' }), ...skills];
-  return buildContent(
-    units.map((data, i) => ({ file: `unit${i}`, data })),
-    all.map((data, i) => ({ file: `skill${i}`, data })),
-  );
+  return buildContent({
+    units: units.map((data, i) => ({ file: `unit${i}`, data })),
+    skills: all.map((data, i) => ({ file: `skill${i}`, data })),
+  });
 }
 
 /** Юнит боя для тестов выбора цели. */

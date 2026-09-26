@@ -1,11 +1,12 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { buildContent, type Content, type RawFile } from '../../src/core';
+import { buildContent, COMBAT, ProgressionConfigSchema, type Content, type GameContext, type RawFile } from '../../src/core';
 
 export const ROOT = resolve(import.meta.dirname, '../..');
 
 export function readJsonDir(dir: string): RawFile[] {
   const abs = join(ROOT, dir);
+  if (!existsSync(abs)) return [];
   return readdirSync(abs)
     .filter((f) => f.endsWith('.json'))
     .sort()
@@ -21,5 +22,19 @@ export function readJsonDir(dir: string): RawFile[] {
 
 /** Контент с диска (для CLI и тестов). В браузере — src/game/content.ts через import.meta.glob. */
 export function loadContent(): Content {
-  return buildContent(readJsonDir('data/units'), readJsonDir('data/skills'));
+  return buildContent({
+    units: readJsonDir('data/units'),
+    skills: readJsonDir('data/skills'),
+    jobs: readJsonDir('data/jobs'),
+    chapters: readJsonDir('data/campaign'),
+  });
+}
+
+/** Контекст для функций прогрессии и кампании. */
+export function loadGameContext(): GameContext {
+  return {
+    content: loadContent(),
+    progression: ProgressionConfigSchema.parse(JSON.parse(readFileSync(join(ROOT, 'data/progression.json'), 'utf8'))),
+    combat: COMBAT,
+  };
 }

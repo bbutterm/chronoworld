@@ -1,15 +1,27 @@
+import type { ChapterDef, StageInfo } from './campaign/schema';
 import type { SkillDef, StatMods, StatusDef, UnitDef } from './content/schema';
+import type { JobDef } from './progression/schema';
 
 export type { Effect, SkillDef, StatMods, StatusDef, Stats, TargetDef, UnitDef } from './content/schema';
 
 export type Side = 'A' | 'B';
 
-/** Отряд: 5 слотов (0–1 фронт, 2–4 тыл), null — пустой слот. */
-export type Squad = (string | null)[];
+/**
+ * Отряд: 5 слотов (0–1 фронт, 2–4 тыл). В слоте — id юнита из data/units,
+ * готовый UnitDef (герой игрока из профессии, усиленный монстр этапа) или null.
+ */
+export type Squad = (string | UnitDef | null)[];
+
+/** Отряд только из id юнитов (CLI, тестовый бой). */
+export type SquadIds = (string | null)[];
 
 export interface Content {
   units: Record<string, UnitDef>;
   skills: Record<string, SkillDef>;
+  jobs: Record<string, JobDef>;
+  chapters: ChapterDef[];
+  /** Все этапы по порядку кампании. */
+  stages: StageInfo[];
 }
 
 export interface CombatConfig {

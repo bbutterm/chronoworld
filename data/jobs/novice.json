@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "novice",
+  "name": "Новичок",
+  "description": "Все начинают здесь. На джобе 10 — выбор первой профессии.",
+  "tier": 0,
+  "from": [],
+  "maxJobLevel": 10,
+  "role": "damage",
+  "baseStats": {
+    "hp": 600,
+    "atk": 50,
+    "def": 10,
+    "spd": 100
+  },
+  "growth": {
+    "hp": 40,
+    "atk": 4,
+    "def": 1,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 5,
+      "skill": "novice_first_aid"
+    }
+  ],
+  "visual": {
+    "sprite": "novice",
+    "hitFx": "fx_hit"
+  }
+}

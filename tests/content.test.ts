@@ -7,10 +7,10 @@ import { generateSchemas } from '../scripts/lib/schemas';
 import { skill, unitDef } from './helpers';
 
 const build = (units: object[], skills: object[]) =>
-  buildContent(
-    units.map((data, i) => ({ file: `u${i}.json`, data })),
-    skills.map((data, i) => ({ file: `s${i}.json`, data })),
-  );
+  buildContent({
+    units: units.map((data, i) => ({ file: `u${i}.json`, data })),
+    skills: skills.map((data, i) => ({ file: `s${i}.json`, data })),
+  });
 
 const problems = (fn: () => unknown): string[] => {
   try {

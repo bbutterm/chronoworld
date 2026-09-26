@@ -42,6 +42,12 @@ if (content) {
     if (id && !(id in manifest)) errors.push(`${owner}: ${field} = "${id}" — нет в assets/manifest.json`);
   };
   const usedSprites = new Set<string>();
+  for (const j of Object.values(content.jobs)) {
+    usedSprites.add(j.visual.sprite);
+    if (!registry[j.visual.sprite]) warnings.push(`профессия ${j.id}: спрайта "${j.visual.sprite}" нет в реестре — будет плейсхолдер`);
+    asset(`профессия ${j.id}`, 'visual.projectile', j.visual.projectile);
+    asset(`профессия ${j.id}`, 'visual.hitFx', j.visual.hitFx);
+  }
   for (const u of Object.values(content.units)) {
     usedSprites.add(u.visual.sprite);
     if (!registry[u.visual.sprite]) warnings.push(`юнит ${u.id}: спрайта "${u.visual.sprite}" нет в реестре — будет плейсхолдер`);
@@ -49,7 +55,10 @@ if (content) {
     asset(`юнит ${u.id}`, 'visual.hitFx', u.visual.hitFx);
   }
   for (const s of Object.values(content.skills)) asset(`навык ${s.id}`, 'icon', s.icon);
-  const referenced = new Set(Object.values(content.units).flatMap((u) => [u.skills.basic, u.skills.ult, ...u.skills.passives]));
+  const referenced = new Set([
+    ...Object.values(content.units).flatMap((u) => [u.skills.basic, u.skills.ult, ...u.skills.passives]),
+    ...Object.values(content.jobs).flatMap((j) => [j.basic, ...j.skills.map((s) => s.skill)]),
+  ]);
   for (const s of Object.values(content.skills)) {
     const isFallback = Object.values(content.skills).some((o) => o.fallback === s.id);
     if (!referenced.has(s.id) && !isFallback) warnings.push(`навык ${s.id} ни у кого не используется`);
@@ -97,7 +106,10 @@ for (const w of warnings) console.log(`⚠ ${w}`);
 for (const e of errors) console.log(`✗ ${e}`);
 if (content) {
   const count = (k: string) => Object.values(content!.units).filter((u) => u.kind === k).length;
-  console.log(`\nЮнитов: ${Object.keys(content.units).length} (героев ${count('hero')}, монстров ${count('monster')}, боссов ${count('boss')}), навыков: ${Object.keys(content.skills).length}`);
+  console.log(
+    `\nЮнитов: ${Object.keys(content.units).length} (героев ${count('hero')}, монстров ${count('monster')}, боссов ${count('boss')}), ` +
+      `навыков: ${Object.keys(content.skills).length}, профессий: ${Object.keys(content.jobs).length}, этапов: ${content.stages.length}`,
+  );
 }
 console.log(errors.length ? `\nОшибок: ${errors.length}` : '\nКонтент в порядке ✓');
 process.exit(errors.length ? 1 : 0);

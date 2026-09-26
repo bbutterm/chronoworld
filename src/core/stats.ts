@@ -1,13 +1,13 @@
 import { simulateBattle, type BattleOptions } from './battle';
-import type { Content, Squad } from './types';
+import type { Content, Squad, SquadIds } from './types';
 
 type HeroId = string;
 
 /** "guard,warrior,-,mage,priest" → отряд; "-" или пусто — пустой слот. */
-export function parseSquad(text: string, slots = 5): Squad {
+export function parseSquad(text: string, slots = 5): SquadIds {
   const parts = text.split(',').map((s) => s.trim());
   if (parts.length > slots) throw new Error(`В отряде не больше ${slots} слотов: ${text}`);
-  const squad: Squad = parts.map((p) => (p === '' || p === '-' ? null : p));
+  const squad: SquadIds = parts.map((p) => (p === '' || p === '-' ? null : p));
   while (squad.length < slots) squad.push(null);
   return squad;
 }
@@ -84,7 +84,7 @@ export interface SwapResult {
  * Проверка «зеркала»: в базовом отряде по очереди меняем одного героя на каждого другого
  * и прогоняем против исходного отряда с обеих сторон.
  */
-export function swapCheck(content: Content, base: Squad, n: number, heroIds: HeroId[], opts: BattleOptions = {}): SwapResult[] {
+export function swapCheck(content: Content, base: SquadIds, n: number, heroIds: HeroId[], opts: BattleOptions = {}): SwapResult[] {
   const results: SwapResult[] = [];
   base.forEach((from, slot) => {
     for (const to of heroIds) {

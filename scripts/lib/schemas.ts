@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SkillSchema, UnitSchema } from '../../src/core';
+import { ChapterSchema, JobSchema, SkillSchema, UnitSchema } from '../../src/core';
 
 /** JSON Schema для подсказок и проверки в редакторе (VS Code подхватывает по полю $schema). */
 export function generateSchemas(): Record<string, string> {
@@ -8,5 +8,7 @@ export function generateSchemas(): Record<string, string> {
   return {
     'data/schema/unit.schema.json': gen(UnitSchema, 'Юнит (герой, монстр, босс)'),
     'data/schema/skill.schema.json': gen(SkillSchema, 'Навык (обычная атака, ульта, пассивка)'),
+    'data/schema/job.schema.json': gen(JobSchema, 'Профессия (джоб)'),
+    'data/schema/chapter.schema.json': gen(ChapterSchema, 'Глава кампании'),
   };
 }
