@@ -10,7 +10,7 @@ Idle-RPG в духе AFK Arena, которая будет жить в Telegram �
 npm install
 npm run dev          # http://localhost:5173, в DevTools включите мобильный вьюпорт
 npm test             # юнит-тесты механики боя и контента
-npm run check        # проверка контента + типы + тесты — перед коммитом
+npm run check        # проверка контента + типы + тесты — перед коммитом (то же гоняет CI на каждый пуш: .github/workflows/check.yml)
 npm run sim -- --n 1000                                   # зеркальный бой отрядов по умолчанию
 npm run sim -- --a guard,warrior,archer,mage,priest --b guard,assassin,archer,mage,priest --n 1000
 npm run sim -- --log --seed 7                             # лог одного боя
