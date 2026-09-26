@@ -1,0 +1,4029 @@
+{
+  "schema": 2,
+  "columns": 8,
+  "classes": {
+    "hero": {
+      "cell": [
+        224,
+        192
+      ],
+      "anchor": [
+        104,
+        144
+      ],
+      "anims": [
+        "idle",
+        "walk",
+        "attack",
+        "cast",
+        "hurt",
+        "death"
+      ]
+    },
+    "monster": {
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "anims": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ]
+    },
+    "boss": {
+      "cell": [
+        256,
+        256
+      ],
+      "anchor": [
+        112,
+        216
+      ],
+      "anims": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ]
+    }
+  },
+  "anims": {
+    "idle": {
+      "frames": 4,
+      "ms": 150,
+      "loop": true
+    },
+    "walk": {
+      "frames": 8,
+      "ms": 90,
+      "loop": true
+    },
+    "attack": {
+      "frames": 6,
+      "ms": 80,
+      "hitFrame": 3
+    },
+    "cast": {
+      "frames": 6,
+      "ms": 100,
+      "hitFrame": 4
+    },
+    "hurt": {
+      "frames": 3,
+      "ms": 100
+    },
+    "death": {
+      "frames": 4,
+      "ms": 150
+    }
+  },
+  "animOverrides": {
+    "monster": {
+      "walk": {
+        "frames": 6,
+        "ms": 100
+      },
+      "death": {
+        "frames": 5,
+        "ms": 120
+      }
+    },
+    "boss": {
+      "walk": {
+        "frames": 6,
+        "ms": 100
+      },
+      "death": {
+        "frames": 5,
+        "ms": 120
+      }
+    }
+  },
+  "sprites": [
+    {
+      "id": "guard",
+      "class": "hero",
+      "file": "sprites/heroes/guard.png",
+      "source": {
+        "job": "Crusader",
+        "jobId": 14,
+        "gender": "male",
+        "head": 1,
+        "weaponView": 2,
+        "shieldView": 1,
+        "itemId": 1101,
+        "shieldItemId": 2101,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3,
+        "cast": 4
+      },
+      "bbox": {
+        "idle": [
+          78,
+          59,
+          161,
+          152
+        ],
+        "walk": [
+          82,
+          63,
+          130,
+          153
+        ],
+        "attack": [
+          56,
+          62,
+          213,
+          184
+        ],
+        "cast": [
+          56,
+          63,
+          213,
+          184
+        ],
+        "hurt": [
+          67,
+          72,
+          117,
+          150
+        ],
+        "death": [
+          68,
+          109,
+          136,
+          172
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -24,
+            -82,
+            57,
+            8
+          ],
+          [
+            -25,
+            -84,
+            55,
+            8
+          ],
+          [
+            -26,
+            -85,
+            56,
+            8
+          ],
+          [
+            -25,
+            -83,
+            57,
+            8
+          ]
+        ],
+        "walk": [
+          [
+            -15,
+            -81,
+            16,
+            8
+          ],
+          [
+            -15,
+            -80,
+            19,
+            8
+          ],
+          [
+            -22,
+            -78,
+            25,
+            9
+          ],
+          [
+            -19,
+            -79,
+            19,
+            6
+          ],
+          [
+            -15,
+            -81,
+            15,
+            6
+          ],
+          [
+            -13,
+            -80,
+            18,
+            7
+          ],
+          [
+            -18,
+            -78,
+            26,
+            8
+          ],
+          [
+            -18,
+            -79,
+            19,
+            8
+          ]
+        ],
+        "attack": [
+          [
+            -20,
+            -82,
+            57,
+            8
+          ],
+          [
+            -17,
+            -81,
+            35,
+            8
+          ],
+          [
+            -16,
+            -81,
+            36,
+            8
+          ],
+          [
+            -48,
+            -65,
+            109,
+            38
+          ],
+          [
+            -25,
+            -63,
+            107,
+            40
+          ],
+          [
+            -25,
+            -62,
+            109,
+            19
+          ]
+        ],
+        "cast": [
+          [
+            -22,
+            -80,
+            33,
+            12
+          ],
+          [
+            -19,
+            -81,
+            28,
+            8
+          ],
+          [
+            -16,
+            -81,
+            36,
+            8
+          ],
+          [
+            -48,
+            -65,
+            109,
+            38
+          ],
+          [
+            -25,
+            -63,
+            107,
+            40
+          ],
+          [
+            -25,
+            -62,
+            108,
+            23
+          ]
+        ],
+        "hurt": [
+          [
+            -33,
+            -72,
+            13,
+            6
+          ],
+          [
+            -37,
+            -70,
+            12,
+            6
+          ],
+          [
+            -33,
+            -72,
+            13,
+            6
+          ]
+        ],
+        "death": [
+          [
+            -36,
+            -35,
+            32,
+            28
+          ],
+          [
+            -36,
+            -35,
+            32,
+            28
+          ],
+          [
+            -36,
+            -35,
+            32,
+            28
+          ],
+          [
+            -36,
+            -35,
+            32,
+            28
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "walk": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          2,
+          3,
+          5,
+          6,
+          8
+        ],
+        "cast": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "hurt": [
+          0,
+          1,
+          2
+        ],
+        "death": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 6,
+        "walk": 8,
+        "attack": 9,
+        "cast": 6,
+        "hurt": 3,
+        "death": 1
+      },
+      "sourceCacheFiles": {
+        "idle": "guard_idle_38_w2_s1.png",
+        "walk": "guard_walk_14_w2_s1.png",
+        "attack": "guard_attack_86_w2_s1.png",
+        "cast": "guard_cast_102_w2_s1.png",
+        "hurt": "guard_hurt_54_w2_s1.png",
+        "death": "guard_death_70_w2_s1.png"
+      },
+      "sourceActions": {
+        "idle": 38,
+        "walk": 14,
+        "attack": 86,
+        "cast": 102,
+        "hurt": 54,
+        "death": 70
+      },
+      "sourceAlphaValues": [],
+      "portrait": "sprites/portraits/guard.png"
+    },
+    {
+      "id": "warrior",
+      "class": "hero",
+      "file": "sprites/heroes/warrior.png",
+      "source": {
+        "job": "Knight",
+        "jobId": 7,
+        "gender": "male",
+        "head": 1,
+        "weaponView": 3,
+        "shieldView": 0,
+        "itemId": 1151,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3,
+        "cast": 4
+      },
+      "bbox": {
+        "idle": [
+          89,
+          61,
+          153,
+          152
+        ],
+        "walk": [
+          81,
+          59,
+          134,
+          151
+        ],
+        "attack": [
+          54,
+          57,
+          198,
+          173
+        ],
+        "cast": [
+          78,
+          62,
+          132,
+          154
+        ],
+        "hurt": [
+          69,
+          67,
+          126,
+          150
+        ],
+        "death": [
+          64,
+          98,
+          137,
+          152
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -15,
+            -83,
+            47,
+            8
+          ],
+          [
+            -14,
+            -81,
+            49,
+            8
+          ],
+          [
+            -14,
+            -80,
+            49,
+            8
+          ],
+          [
+            -15,
+            -82,
+            47,
+            8
+          ]
+        ],
+        "walk": [
+          [
+            -14,
+            -85,
+            14,
+            7
+          ],
+          [
+            -19,
+            -84,
+            19,
+            7
+          ],
+          [
+            -23,
+            -82,
+            30,
+            7
+          ],
+          [
+            -22,
+            -83,
+            25,
+            7
+          ],
+          [
+            -16,
+            -85,
+            14,
+            5
+          ],
+          [
+            -20,
+            -84,
+            18,
+            4
+          ],
+          [
+            -23,
+            -82,
+            28,
+            6
+          ],
+          [
+            -19,
+            -83,
+            18,
+            7
+          ]
+        ],
+        "attack": [
+          [
+            -46,
+            -87,
+            21,
+            2
+          ],
+          [
+            -50,
+            -87,
+            21,
+            2
+          ],
+          [
+            -23,
+            -87,
+            33,
+            1
+          ],
+          [
+            -20,
+            -64,
+            94,
+            29
+          ],
+          [
+            -19,
+            -64,
+            55,
+            29
+          ],
+          [
+            -18,
+            -64,
+            40,
+            15
+          ]
+        ],
+        "cast": [
+          [
+            -26,
+            -82,
+            28,
+            10
+          ],
+          [
+            -26,
+            -82,
+            28,
+            10
+          ],
+          [
+            -26,
+            -82,
+            28,
+            10
+          ],
+          [
+            -26,
+            -82,
+            28,
+            10
+          ],
+          [
+            -26,
+            -82,
+            28,
+            10
+          ],
+          [
+            -26,
+            -82,
+            28,
+            10
+          ]
+        ],
+        "hurt": [
+          [
+            -32,
+            -77,
+            22,
+            6
+          ],
+          [
+            -35,
+            -76,
+            20,
+            4
+          ],
+          [
+            -32,
+            -77,
+            22,
+            6
+          ]
+        ],
+        "death": [
+          [
+            -40,
+            -46,
+            33,
+            8
+          ],
+          [
+            -40,
+            -46,
+            33,
+            8
+          ],
+          [
+            -40,
+            -46,
+            33,
+            8
+          ],
+          [
+            -40,
+            -46,
+            33,
+            8
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "walk": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          2,
+          3,
+          5,
+          6,
+          8
+        ],
+        "cast": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "hurt": [
+          0,
+          1,
+          2
+        ],
+        "death": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 6,
+        "walk": 8,
+        "attack": 9,
+        "cast": 6,
+        "hurt": 3,
+        "death": 1
+      },
+      "sourceCacheFiles": {
+        "idle": "warrior_idle_38_w3_s0.png",
+        "walk": "warrior_walk_14_w3_s0.png",
+        "attack": "warrior_attack_86_w3_s0.png",
+        "cast": "warrior_cast_102_w3_s0.png",
+        "hurt": "warrior_hurt_54_w3_s0.png",
+        "death": "warrior_death_70_w3_s0.png"
+      },
+      "sourceActions": {
+        "idle": 38,
+        "walk": 14,
+        "attack": 86,
+        "cast": 102,
+        "hurt": 54,
+        "death": 70
+      },
+      "sourceAlphaValues": [],
+      "portrait": "sprites/portraits/warrior.png"
+    },
+    {
+      "id": "assassin",
+      "class": "hero",
+      "file": "sprites/heroes/assassin.png",
+      "source": {
+        "job": "Assassin",
+        "jobId": 12,
+        "gender": "male",
+        "head": 1,
+        "weaponView": 16,
+        "shieldView": 0,
+        "itemId": 1252,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3,
+        "cast": 4
+      },
+      "bbox": {
+        "idle": [
+          82,
+          60,
+          131,
+          154
+        ],
+        "walk": [
+          83,
+          60,
+          136,
+          149
+        ],
+        "attack": [
+          72,
+          59,
+          176,
+          153
+        ],
+        "cast": [
+          79,
+          56,
+          141,
+          153
+        ],
+        "hurt": [
+          74,
+          79,
+          124,
+          151
+        ],
+        "death": [
+          63,
+          102,
+          125,
+          155
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -18,
+            -84,
+            25,
+            9
+          ],
+          [
+            -22,
+            -82,
+            24,
+            10
+          ],
+          [
+            -22,
+            -82,
+            25,
+            10
+          ],
+          [
+            -18,
+            -83,
+            27,
+            9
+          ]
+        ],
+        "walk": [
+          [
+            -13,
+            -84,
+            18,
+            3
+          ],
+          [
+            -19,
+            -83,
+            31,
+            3
+          ],
+          [
+            -21,
+            -81,
+            29,
+            3
+          ],
+          [
+            -20,
+            -82,
+            24,
+            5
+          ],
+          [
+            -13,
+            -84,
+            18,
+            5
+          ],
+          [
+            -19,
+            -83,
+            32,
+            5
+          ],
+          [
+            -21,
+            -81,
+            25,
+            5
+          ],
+          [
+            -19,
+            -82,
+            18,
+            2
+          ]
+        ],
+        "attack": [
+          [
+            -22,
+            -85,
+            18,
+            8
+          ],
+          [
+            -27,
+            -79,
+            29,
+            1
+          ],
+          [
+            -26,
+            -76,
+            65,
+            9
+          ],
+          [
+            -28,
+            -75,
+            72,
+            9
+          ],
+          [
+            -32,
+            -84,
+            51,
+            9
+          ],
+          [
+            -20,
+            -84,
+            49,
+            9
+          ]
+        ],
+        "cast": [
+          [
+            -18,
+            -88,
+            17,
+            6
+          ],
+          [
+            -22,
+            -70,
+            37,
+            9
+          ],
+          [
+            -21,
+            -86,
+            18,
+            8
+          ],
+          [
+            -25,
+            -87,
+            18,
+            8
+          ],
+          [
+            -25,
+            -87,
+            18,
+            8
+          ],
+          [
+            -20,
+            -85,
+            14,
+            8
+          ]
+        ],
+        "hurt": [
+          [
+            -27,
+            -64,
+            20,
+            7
+          ],
+          [
+            -30,
+            -65,
+            17,
+            5
+          ],
+          [
+            -27,
+            -64,
+            20,
+            7
+          ]
+        ],
+        "death": [
+          [
+            -41,
+            -42,
+            21,
+            11
+          ],
+          [
+            -41,
+            -42,
+            21,
+            11
+          ],
+          [
+            -41,
+            -42,
+            21,
+            11
+          ],
+          [
+            -41,
+            -42,
+            21,
+            11
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "walk": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          7
+        ],
+        "cast": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "hurt": [
+          0,
+          1,
+          2
+        ],
+        "death": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 6,
+        "walk": 8,
+        "attack": 8,
+        "cast": 6,
+        "hurt": 3,
+        "death": 1
+      },
+      "sourceCacheFiles": {
+        "idle": "assassin_idle_38_w16_s0.png",
+        "walk": "assassin_walk_14_w16_s0.png",
+        "attack": "assassin_cast_94_w16_s0.png",
+        "cast": "assassin_cast_102_w16_s0.png",
+        "hurt": "assassin_hurt_54_w16_s0.png",
+        "death": "assassin_death_70_w16_s0.png"
+      },
+      "sourceActions": {
+        "idle": 38,
+        "walk": 14,
+        "attack": 94,
+        "cast": 102,
+        "hurt": 54,
+        "death": 70
+      },
+      "sourceAlphaValues": [],
+      "portrait": "sprites/portraits/assassin.png"
+    },
+    {
+      "id": "archer",
+      "class": "hero",
+      "file": "sprites/heroes/archer.png",
+      "source": {
+        "job": "Hunter",
+        "jobId": 11,
+        "gender": "male",
+        "head": 1,
+        "weaponView": 11,
+        "shieldView": 0,
+        "itemId": 1701,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3,
+        "cast": 4
+      },
+      "bbox": {
+        "idle": [
+          89,
+          59,
+          137,
+          152
+        ],
+        "walk": [
+          84,
+          63,
+          130,
+          150
+        ],
+        "attack": [
+          82,
+          62,
+          138,
+          153
+        ],
+        "cast": [
+          82,
+          58,
+          144,
+          150
+        ],
+        "hurt": [
+          82,
+          75,
+          125,
+          152
+        ],
+        "death": [
+          67,
+          108,
+          135,
+          160
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -15,
+            -85,
+            31,
+            8
+          ],
+          [
+            -15,
+            -82,
+            32,
+            8
+          ],
+          [
+            -14,
+            -83,
+            31,
+            8
+          ],
+          [
+            -15,
+            -85,
+            33,
+            8
+          ]
+        ],
+        "walk": [
+          [
+            -12,
+            -81,
+            14,
+            6
+          ],
+          [
+            -12,
+            -80,
+            19,
+            6
+          ],
+          [
+            -19,
+            -78,
+            26,
+            6
+          ],
+          [
+            -17,
+            -79,
+            21,
+            4
+          ],
+          [
+            -12,
+            -81,
+            13,
+            4
+          ],
+          [
+            -16,
+            -80,
+            19,
+            3
+          ],
+          [
+            -20,
+            -78,
+            25,
+            3
+          ],
+          [
+            -18,
+            -79,
+            20,
+            6
+          ]
+        ],
+        "attack": [
+          [
+            -16,
+            -80,
+            25,
+            7
+          ],
+          [
+            -15,
+            -82,
+            34,
+            7
+          ],
+          [
+            -21,
+            -81,
+            32,
+            9
+          ],
+          [
+            -22,
+            -77,
+            28,
+            9
+          ],
+          [
+            -22,
+            -77,
+            28,
+            9
+          ],
+          [
+            -21,
+            -79,
+            27,
+            9
+          ]
+        ],
+        "cast": [
+          [
+            -14,
+            -76,
+            24,
+            6
+          ],
+          [
+            -14,
+            -73,
+            24,
+            6
+          ],
+          [
+            -14,
+            -72,
+            23,
+            6
+          ],
+          [
+            -22,
+            -85,
+            6,
+            5
+          ],
+          [
+            -21,
+            -86,
+            9,
+            5
+          ],
+          [
+            -19,
+            -71,
+            40,
+            6
+          ]
+        ],
+        "hurt": [
+          [
+            -21,
+            -69,
+            21,
+            8
+          ],
+          [
+            -22,
+            -69,
+            18,
+            7
+          ],
+          [
+            -21,
+            -69,
+            21,
+            8
+          ]
+        ],
+        "death": [
+          [
+            -37,
+            -36,
+            31,
+            16
+          ],
+          [
+            -37,
+            -36,
+            31,
+            16
+          ],
+          [
+            -37,
+            -36,
+            31,
+            16
+          ],
+          [
+            -37,
+            -36,
+            31,
+            16
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "walk": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          7
+        ],
+        "cast": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "hurt": [
+          0,
+          1,
+          2
+        ],
+        "death": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 6,
+        "walk": 8,
+        "attack": 8,
+        "cast": 6,
+        "hurt": 3,
+        "death": 1
+      },
+      "sourceCacheFiles": {
+        "idle": "archer_idle_38_w11_s0.png",
+        "walk": "archer_walk_14_w11_s0.png",
+        "attack": "archer_cast_94_w11_s0.png",
+        "cast": "archer_cast_102_w11_s0.png",
+        "hurt": "archer_hurt_54_w11_s0.png",
+        "death": "archer_death_70_w11_s0.png"
+      },
+      "sourceActions": {
+        "idle": 38,
+        "walk": 14,
+        "attack": 94,
+        "cast": 102,
+        "hurt": 54,
+        "death": 70
+      },
+      "sourceAlphaValues": [],
+      "portrait": "sprites/portraits/archer.png"
+    },
+    {
+      "id": "mage",
+      "class": "hero",
+      "file": "sprites/heroes/mage.png",
+      "source": {
+        "job": "Wizard",
+        "jobId": 9,
+        "gender": "male",
+        "head": 1,
+        "weaponView": 10,
+        "shieldView": 0,
+        "itemId": 1601,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3,
+        "cast": 4
+      },
+      "bbox": {
+        "idle": [
+          86,
+          61,
+          124,
+          152
+        ],
+        "walk": [
+          84,
+          61,
+          130,
+          152
+        ],
+        "attack": [
+          54,
+          50,
+          152,
+          153
+        ],
+        "cast": [
+          73,
+          57,
+          131,
+          151
+        ],
+        "hurt": [
+          76,
+          74,
+          122,
+          149
+        ],
+        "death": [
+          65,
+          106,
+          140,
+          158
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -18,
+            -81,
+            20,
+            8
+          ],
+          [
+            -16,
+            -82,
+            20,
+            8
+          ],
+          [
+            -16,
+            -83,
+            20,
+            8
+          ],
+          [
+            -16,
+            -82,
+            20,
+            8
+          ]
+        ],
+        "walk": [
+          [
+            -13,
+            -83,
+            15,
+            8
+          ],
+          [
+            -15,
+            -82,
+            20,
+            8
+          ],
+          [
+            -20,
+            -80,
+            26,
+            8
+          ],
+          [
+            -17,
+            -81,
+            23,
+            7
+          ],
+          [
+            -13,
+            -83,
+            17,
+            6
+          ],
+          [
+            -17,
+            -82,
+            21,
+            4
+          ],
+          [
+            -19,
+            -80,
+            26,
+            7
+          ],
+          [
+            -16,
+            -81,
+            22,
+            8
+          ]
+        ],
+        "attack": [
+          [
+            -19,
+            -81,
+            48,
+            9
+          ],
+          [
+            -14,
+            -92,
+            26,
+            9
+          ],
+          [
+            -13,
+            -94,
+            27,
+            9
+          ],
+          [
+            -50,
+            -71,
+            39,
+            9
+          ],
+          [
+            -42,
+            -71,
+            39,
+            9
+          ],
+          [
+            -42,
+            -71,
+            39,
+            9
+          ]
+        ],
+        "cast": [
+          [
+            -20,
+            -87,
+            18,
+            2
+          ],
+          [
+            -20,
+            -87,
+            17,
+            2
+          ],
+          [
+            -31,
+            -74,
+            27,
+            7
+          ],
+          [
+            -20,
+            -77,
+            19,
+            7
+          ],
+          [
+            -17,
+            -78,
+            17,
+            7
+          ],
+          [
+            -17,
+            -78,
+            17,
+            7
+          ]
+        ],
+        "hurt": [
+          [
+            -22,
+            -70,
+            18,
+            5
+          ],
+          [
+            -28,
+            -70,
+            10,
+            3
+          ],
+          [
+            -22,
+            -70,
+            18,
+            5
+          ]
+        ],
+        "death": [
+          [
+            -39,
+            -38,
+            36,
+            14
+          ],
+          [
+            -39,
+            -38,
+            36,
+            14
+          ],
+          [
+            -39,
+            -38,
+            36,
+            14
+          ],
+          [
+            -39,
+            -38,
+            36,
+            14
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "walk": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          2,
+          3,
+          5,
+          6,
+          8
+        ],
+        "cast": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "hurt": [
+          0,
+          1,
+          2
+        ],
+        "death": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 6,
+        "walk": 8,
+        "attack": 9,
+        "cast": 6,
+        "hurt": 3,
+        "death": 1
+      },
+      "sourceCacheFiles": {
+        "idle": "mage_idle_38_w10_s0.png",
+        "walk": "mage_walk_14_w10_s0.png",
+        "attack": "mage_attack_86_w10_s0.png",
+        "cast": "mage_cast_102_w10_s0.png",
+        "hurt": "mage_hurt_54_w10_s0.png",
+        "death": "mage_death_70_w10_s0.png"
+      },
+      "sourceActions": {
+        "idle": 38,
+        "walk": 14,
+        "attack": 86,
+        "cast": 102,
+        "hurt": 54,
+        "death": 70
+      },
+      "sourceAlphaValues": [],
+      "portrait": "sprites/portraits/mage.png"
+    },
+    {
+      "id": "priest",
+      "class": "hero",
+      "file": "sprites/heroes/priest.png",
+      "source": {
+        "job": "Priest",
+        "jobId": 8,
+        "gender": "female",
+        "head": 1,
+        "weaponView": 8,
+        "shieldView": 0,
+        "itemId": 1504,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3,
+        "cast": 4
+      },
+      "bbox": {
+        "idle": [
+          86,
+          61,
+          123,
+          153
+        ],
+        "walk": [
+          86,
+          61,
+          132,
+          151
+        ],
+        "attack": [
+          68,
+          60,
+          152,
+          153
+        ],
+        "cast": [
+          88,
+          58,
+          123,
+          152
+        ],
+        "hurt": [
+          73,
+          71,
+          121,
+          154
+        ],
+        "death": [
+          57,
+          107,
+          128,
+          161
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -17,
+            -82,
+            19,
+            9
+          ],
+          [
+            -18,
+            -81,
+            18,
+            9
+          ],
+          [
+            -17,
+            -82,
+            18,
+            9
+          ],
+          [
+            -16,
+            -83,
+            18,
+            9
+          ]
+        ],
+        "walk": [
+          [
+            -11,
+            -83,
+            18,
+            7
+          ],
+          [
+            -14,
+            -82,
+            22,
+            7
+          ],
+          [
+            -18,
+            -80,
+            28,
+            7
+          ],
+          [
+            -16,
+            -81,
+            23,
+            5
+          ],
+          [
+            -11,
+            -83,
+            20,
+            3
+          ],
+          [
+            -14,
+            -82,
+            22,
+            2
+          ],
+          [
+            -18,
+            -80,
+            28,
+            4
+          ],
+          [
+            -16,
+            -81,
+            23,
+            7
+          ]
+        ],
+        "attack": [
+          [
+            -36,
+            -81,
+            20,
+            7
+          ],
+          [
+            -24,
+            -83,
+            20,
+            6
+          ],
+          [
+            -24,
+            -84,
+            20,
+            6
+          ],
+          [
+            -20,
+            -68,
+            48,
+            9
+          ],
+          [
+            -17,
+            -68,
+            48,
+            9
+          ],
+          [
+            -17,
+            -68,
+            48,
+            9
+          ]
+        ],
+        "cast": [
+          [
+            -16,
+            -83,
+            19,
+            8
+          ],
+          [
+            -16,
+            -85,
+            16,
+            7
+          ],
+          [
+            -16,
+            -86,
+            13,
+            7
+          ],
+          [
+            -16,
+            -86,
+            13,
+            7
+          ],
+          [
+            -16,
+            -83,
+            13,
+            7
+          ],
+          [
+            -16,
+            -82,
+            14,
+            7
+          ]
+        ],
+        "hurt": [
+          [
+            -26,
+            -72,
+            17,
+            10
+          ],
+          [
+            -31,
+            -73,
+            13,
+            9
+          ],
+          [
+            -26,
+            -72,
+            17,
+            10
+          ]
+        ],
+        "death": [
+          [
+            -47,
+            -37,
+            24,
+            17
+          ],
+          [
+            -47,
+            -37,
+            24,
+            17
+          ],
+          [
+            -47,
+            -37,
+            24,
+            17
+          ],
+          [
+            -47,
+            -37,
+            24,
+            17
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "walk": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          2,
+          3,
+          5,
+          6,
+          8
+        ],
+        "cast": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "hurt": [
+          0,
+          1,
+          2
+        ],
+        "death": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 6,
+        "walk": 8,
+        "attack": 9,
+        "cast": 6,
+        "hurt": 3,
+        "death": 1
+      },
+      "sourceCacheFiles": {
+        "idle": "priest_idle_38_w8_s0.png",
+        "walk": "priest_walk_14_w8_s0.png",
+        "attack": "priest_attack_86_w8_s0.png",
+        "cast": "priest_cast_102_w8_s0.png",
+        "hurt": "priest_hurt_54_w8_s0.png",
+        "death": "priest_death_70_w8_s0.png"
+      },
+      "sourceActions": {
+        "idle": 38,
+        "walk": 14,
+        "attack": 86,
+        "cast": 102,
+        "hurt": 54,
+        "death": 70
+      },
+      "sourceAlphaValues": [],
+      "portrait": "sprites/portraits/priest.png"
+    },
+    {
+      "id": "melee",
+      "class": "monster",
+      "file": "sprites/monsters/melee.png",
+      "source": {
+        "job": "Zombie",
+        "jobId": 1015,
+        "gender": "none",
+        "head": 0,
+        "weaponView": 0,
+        "shieldView": 0,
+        "itemId": 0,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3
+      },
+      "bbox": {
+        "idle": [
+          77,
+          53,
+          125,
+          134
+        ],
+        "walk": [
+          74,
+          51,
+          129,
+          134
+        ],
+        "attack": [
+          71,
+          54,
+          168,
+          136
+        ],
+        "hurt": [
+          63,
+          13,
+          166,
+          136
+        ],
+        "death": [
+          76,
+          56,
+          146,
+          151
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -17,
+            -64,
+            25,
+            14
+          ],
+          [
+            -19,
+            -66,
+            23,
+            14
+          ],
+          [
+            -23,
+            -67,
+            19,
+            14
+          ],
+          [
+            -18,
+            -66,
+            22,
+            14
+          ]
+        ],
+        "walk": [
+          [
+            -18,
+            -64,
+            25,
+            14
+          ],
+          [
+            -16,
+            -66,
+            29,
+            13
+          ],
+          [
+            -22,
+            -68,
+            25,
+            12
+          ],
+          [
+            -26,
+            -65,
+            26,
+            10
+          ],
+          [
+            -19,
+            -68,
+            25,
+            8
+          ],
+          [
+            -19,
+            -69,
+            25,
+            10
+          ]
+        ],
+        "attack": [
+          [
+            -18,
+            -64,
+            25,
+            14
+          ],
+          [
+            -26,
+            -65,
+            16,
+            14
+          ],
+          [
+            -29,
+            -64,
+            16,
+            14
+          ],
+          [
+            -28,
+            -66,
+            16,
+            14
+          ],
+          [
+            -27,
+            -66,
+            16,
+            14
+          ],
+          [
+            -26,
+            -55,
+            68,
+            16
+          ]
+        ],
+        "hurt": [
+          [
+            -18,
+            -64,
+            25,
+            14
+          ],
+          [
+            -28,
+            -83,
+            45,
+            13
+          ],
+          [
+            -37,
+            -107,
+            66,
+            16
+          ]
+        ],
+        "death": [
+          [
+            -24,
+            -64,
+            30,
+            14
+          ],
+          [
+            -21,
+            -50,
+            46,
+            16
+          ],
+          [
+            -5,
+            -42,
+            45,
+            19
+          ],
+          [
+            -4,
+            -40,
+            44,
+            31
+          ],
+          [
+            -4,
+            -8,
+            44,
+            31
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          6,
+          13,
+          19
+        ],
+        "walk": [
+          0,
+          4,
+          8,
+          12,
+          16,
+          20
+        ],
+        "attack": [
+          0,
+          4,
+          7,
+          11,
+          14,
+          18
+        ],
+        "hurt": [
+          0,
+          2,
+          5
+        ],
+        "death": [
+          0,
+          3,
+          6,
+          10,
+          13
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 20,
+        "walk": 21,
+        "attack": 19,
+        "hurt": 6,
+        "death": 14
+      },
+      "sourceCacheFiles": {
+        "idle": "melee_idle_6_w0_s0.png",
+        "walk": "melee_walk_14_w0_s0.png",
+        "attack": "melee_attack_22_w0_s0.png",
+        "hurt": "melee_hurt_30_w0_s0.png",
+        "death": "melee_death_38_w0_s0.png"
+      },
+      "sourceActions": {
+        "idle": 6,
+        "walk": 14,
+        "attack": 22,
+        "hurt": 30,
+        "death": 38
+      },
+      "sourceAlphaValues": []
+    },
+    {
+      "id": "ranged",
+      "class": "monster",
+      "file": "sprites/monsters/ranged.png",
+      "source": {
+        "job": "Archer Skeleton",
+        "jobId": 1016,
+        "gender": "none",
+        "head": 0,
+        "weaponView": 0,
+        "shieldView": 0,
+        "itemId": 0,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3
+      },
+      "bbox": {
+        "idle": [
+          81,
+          47,
+          138,
+          135
+        ],
+        "walk": [
+          80,
+          46,
+          122,
+          132
+        ],
+        "attack": [
+          79,
+          20,
+          156,
+          133
+        ],
+        "hurt": [
+          73,
+          33,
+          137,
+          133
+        ],
+        "death": [
+          33,
+          33,
+          160,
+          131
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -19,
+            -73,
+            38,
+            13
+          ],
+          [
+            -19,
+            -71,
+            37,
+            15
+          ],
+          [
+            -19,
+            -72,
+            38,
+            14
+          ],
+          [
+            -19,
+            -73,
+            38,
+            13
+          ]
+        ],
+        "walk": [
+          [
+            -20,
+            -72,
+            21,
+            12
+          ],
+          [
+            -19,
+            -74,
+            21,
+            9
+          ],
+          [
+            -20,
+            -71,
+            22,
+            8
+          ],
+          [
+            -19,
+            -74,
+            20,
+            1
+          ],
+          [
+            -20,
+            -72,
+            21,
+            12
+          ],
+          [
+            -19,
+            -74,
+            21,
+            9
+          ]
+        ],
+        "attack": [
+          [
+            -19,
+            -73,
+            38,
+            13
+          ],
+          [
+            -19,
+            -86,
+            44,
+            13
+          ],
+          [
+            -19,
+            -100,
+            56,
+            13
+          ],
+          [
+            -19,
+            -81,
+            50,
+            13
+          ],
+          [
+            -19,
+            -81,
+            50,
+            13
+          ],
+          [
+            -21,
+            -77,
+            45,
+            13
+          ]
+        ],
+        "hurt": [
+          [
+            -20,
+            -73,
+            37,
+            13
+          ],
+          [
+            -27,
+            -87,
+            23,
+            11
+          ],
+          [
+            -27,
+            -87,
+            23,
+            11
+          ]
+        ],
+        "death": [
+          [
+            -28,
+            -87,
+            22,
+            11
+          ],
+          [
+            -47,
+            -80,
+            42,
+            2
+          ],
+          [
+            -54,
+            -50,
+            42,
+            5
+          ],
+          [
+            -60,
+            -57,
+            53,
+            6
+          ],
+          [
+            -67,
+            -32,
+            60,
+            3
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "walk": [
+          0,
+          1,
+          2,
+          3,
+          0,
+          1
+        ],
+        "attack": [
+          0,
+          2,
+          3,
+          5,
+          6,
+          8
+        ],
+        "hurt": [
+          0,
+          2,
+          5
+        ],
+        "death": [
+          0,
+          5,
+          10,
+          16,
+          21
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 6,
+        "walk": 4,
+        "attack": 9,
+        "hurt": 6,
+        "death": 22
+      },
+      "sourceCacheFiles": {
+        "idle": "ranged_idle_6_w0_s0.png",
+        "walk": "ranged_walk_14_w0_s0.png",
+        "attack": "ranged_attack_22_w0_s0.png",
+        "hurt": "ranged_hurt_30_w0_s0.png",
+        "death": "ranged_death_38_w0_s0.png"
+      },
+      "sourceActions": {
+        "idle": 6,
+        "walk": 14,
+        "attack": 22,
+        "hurt": 30,
+        "death": 38
+      },
+      "sourceAlphaValues": []
+    },
+    {
+      "id": "tank",
+      "class": "monster",
+      "file": "sprites/monsters/tank.png",
+      "source": {
+        "job": "Willow",
+        "jobId": 1010,
+        "gender": "none",
+        "head": 0,
+        "weaponView": 0,
+        "shieldView": 0,
+        "itemId": 0,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3
+      },
+      "bbox": {
+        "idle": [
+          68,
+          60,
+          135,
+          134
+        ],
+        "walk": [
+          66,
+          59,
+          130,
+          133
+        ],
+        "attack": [
+          58,
+          55,
+          140,
+          138
+        ],
+        "hurt": [
+          58,
+          56,
+          137,
+          133
+        ],
+        "death": [
+          16,
+          16,
+          232,
+          206
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -32,
+            -60,
+            34,
+            14
+          ],
+          [
+            -32,
+            -58,
+            35,
+            14
+          ],
+          [
+            -32,
+            -58,
+            35,
+            14
+          ],
+          [
+            -32,
+            -59,
+            34,
+            14
+          ]
+        ],
+        "walk": [
+          [
+            -28,
+            -61,
+            29,
+            10
+          ],
+          [
+            -28,
+            -61,
+            29,
+            10
+          ],
+          [
+            -34,
+            -58,
+            28,
+            12
+          ],
+          [
+            -34,
+            -61,
+            30,
+            13
+          ],
+          [
+            -32,
+            -58,
+            28,
+            10
+          ],
+          [
+            -32,
+            -58,
+            28,
+            10
+          ]
+        ],
+        "attack": [
+          [
+            -30,
+            -65,
+            31,
+            18
+          ],
+          [
+            -42,
+            -58,
+            29,
+            14
+          ],
+          [
+            -39,
+            -57,
+            27,
+            14
+          ],
+          [
+            -35,
+            -52,
+            40,
+            14
+          ],
+          [
+            -27,
+            -52,
+            32,
+            14
+          ],
+          [
+            -27,
+            -52,
+            32,
+            14
+          ]
+        ],
+        "hurt": [
+          [
+            -32,
+            -60,
+            34,
+            13
+          ],
+          [
+            -39,
+            -61,
+            37,
+            7
+          ],
+          [
+            -42,
+            -64,
+            34,
+            4
+          ]
+        ],
+        "death": [
+          [
+            -34,
+            -32,
+            36,
+            31
+          ],
+          [
+            -34,
+            -32,
+            36,
+            31
+          ],
+          [
+            -59,
+            -68,
+            84,
+            59
+          ],
+          [
+            -84,
+            -104,
+            132,
+            86
+          ],
+          [
+            -53,
+            -39,
+            53,
+            28
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          1,
+          3,
+          4
+        ],
+        "walk": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          1,
+          2,
+          4,
+          5,
+          6
+        ],
+        "hurt": [
+          0,
+          2,
+          5
+        ],
+        "death": [
+          0,
+          1,
+          2,
+          3,
+          21
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 5,
+        "walk": 8,
+        "attack": 7,
+        "hurt": 6,
+        "death": 22
+      },
+      "sourceCacheFiles": {
+        "idle": "tank_idle_6_w0_s0.png",
+        "walk": "tank_walk_14_w0_s0.png",
+        "attack": "tank_attack_22_w0_s0.png",
+        "hurt": "tank_hurt_30_w0_s0.png",
+        "death": "tank_death_38_w0_s0.png"
+      },
+      "sourceActions": {
+        "idle": 6,
+        "walk": 14,
+        "attack": 22,
+        "hurt": 30,
+        "death": 38
+      },
+      "sourceAlphaValues": [
+        224,
+        240,
+        244,
+        252,
+        254
+      ],
+      "samplingExceptions": {
+        "death": "Oversized FX frames skipped with owner approval; x1 source indices recorded."
+      }
+    },
+    {
+      "id": "fast",
+      "class": "monster",
+      "file": "sprites/monsters/fast.png",
+      "source": {
+        "job": "Poring",
+        "jobId": 1002,
+        "gender": "none",
+        "head": 0,
+        "weaponView": 0,
+        "shieldView": 0,
+        "itemId": 0,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3
+      },
+      "bbox": {
+        "idle": [
+          81,
+          89,
+          121,
+          128
+        ],
+        "walk": [
+          81,
+          79,
+          121,
+          123
+        ],
+        "attack": [
+          82,
+          80,
+          136,
+          123
+        ],
+        "hurt": [
+          72,
+          90,
+          119,
+          126
+        ],
+        "death": [
+          35,
+          56,
+          165,
+          183
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -17,
+            -30,
+            19,
+            6
+          ],
+          [
+            -18,
+            -30,
+            20,
+            7
+          ],
+          [
+            -19,
+            -31,
+            21,
+            8
+          ],
+          [
+            -18,
+            -26,
+            20,
+            7
+          ]
+        ],
+        "walk": [
+          [
+            -18,
+            -28,
+            18,
+            3
+          ],
+          [
+            -18,
+            -27,
+            20,
+            3
+          ],
+          [
+            -19,
+            -31,
+            21,
+            -1
+          ],
+          [
+            -16,
+            -36,
+            18,
+            -5
+          ],
+          [
+            -17,
+            -41,
+            16,
+            -7
+          ],
+          [
+            -19,
+            -35,
+            17,
+            -4
+          ]
+        ],
+        "attack": [
+          [
+            -17,
+            -28,
+            19,
+            3
+          ],
+          [
+            -18,
+            -27,
+            20,
+            3
+          ],
+          [
+            2,
+            -33,
+            36,
+            -2
+          ],
+          [
+            2,
+            -35,
+            36,
+            -4
+          ],
+          [
+            -7,
+            -40,
+            27,
+            -9
+          ],
+          [
+            -13,
+            -31,
+            21,
+            0
+          ]
+        ],
+        "hurt": [
+          [
+            -17,
+            -30,
+            19,
+            6
+          ],
+          [
+            -27,
+            -29,
+            11,
+            3
+          ],
+          [
+            -28,
+            -29,
+            10,
+            3
+          ]
+        ],
+        "death": [
+          [
+            -18,
+            -29,
+            20,
+            3
+          ],
+          [
+            -31,
+            -41,
+            35,
+            18
+          ],
+          [
+            -41,
+            -47,
+            42,
+            40
+          ],
+          [
+            -65,
+            -64,
+            65,
+            63
+          ],
+          [
+            -36,
+            -21,
+            46,
+            15
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "walk": [
+          0,
+          2,
+          4,
+          5,
+          7,
+          9
+        ],
+        "attack": [
+          0,
+          5,
+          11,
+          16,
+          22,
+          27
+        ],
+        "hurt": [
+          0,
+          2,
+          4
+        ],
+        "death": [
+          0,
+          2,
+          4,
+          6,
+          16
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 4,
+        "walk": 10,
+        "attack": 28,
+        "hurt": 5,
+        "death": 17
+      },
+      "sourceCacheFiles": {
+        "idle": "fast_idle_6_w0_s0.png",
+        "walk": "fast_walk_14_w0_s0.png",
+        "attack": "fast_attack_22_w0_s0.png",
+        "hurt": "fast_hurt_30_w0_s0.png",
+        "death": "fast_death_38_w0_s0.png"
+      },
+      "sourceActions": {
+        "idle": 6,
+        "walk": 14,
+        "attack": 22,
+        "hurt": 30,
+        "death": 38
+      },
+      "sourceAlphaValues": [
+        89,
+        100,
+        105,
+        226,
+        242
+      ],
+      "samplingExceptions": {
+        "death": "Oversized FX frames skipped with owner approval; x1 source indices recorded."
+      }
+    },
+    {
+      "id": "elite",
+      "class": "monster",
+      "file": "sprites/monsters/elite.png",
+      "source": {
+        "job": "Golden Thief Bug",
+        "jobId": 1086,
+        "gender": "none",
+        "head": 0,
+        "weaponView": 0,
+        "shieldView": 0,
+        "itemId": 0,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3
+      },
+      "bbox": {
+        "idle": [
+          66,
+          79,
+          135,
+          129
+        ],
+        "walk": [
+          67,
+          77,
+          131,
+          129
+        ],
+        "attack": [
+          62,
+          70,
+          177,
+          139
+        ],
+        "hurt": [
+          60,
+          76,
+          131,
+          129
+        ],
+        "death": [
+          62,
+          79,
+          133,
+          134
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -33,
+            -41,
+            31,
+            9
+          ],
+          [
+            -33,
+            -41,
+            31,
+            9
+          ],
+          [
+            -34,
+            -41,
+            35,
+            9
+          ],
+          [
+            -34,
+            -41,
+            35,
+            9
+          ]
+        ],
+        "walk": [
+          [
+            -33,
+            -41,
+            31,
+            9
+          ],
+          [
+            -30,
+            -43,
+            28,
+            5
+          ],
+          [
+            -33,
+            -41,
+            31,
+            9
+          ],
+          [
+            -30,
+            -43,
+            28,
+            5
+          ],
+          [
+            -33,
+            -41,
+            31,
+            9
+          ],
+          [
+            -30,
+            -43,
+            28,
+            5
+          ]
+        ],
+        "attack": [
+          [
+            -33,
+            -41,
+            31,
+            9
+          ],
+          [
+            -33,
+            -44,
+            31,
+            9
+          ],
+          [
+            -21,
+            -50,
+            63,
+            12
+          ],
+          [
+            -10,
+            -47,
+            77,
+            19
+          ],
+          [
+            -14,
+            -49,
+            73,
+            17
+          ],
+          [
+            -38,
+            -45,
+            46,
+            17
+          ]
+        ],
+        "hurt": [
+          [
+            -33,
+            -41,
+            31,
+            9
+          ],
+          [
+            -40,
+            -44,
+            24,
+            9
+          ],
+          [
+            -40,
+            -44,
+            24,
+            9
+          ]
+        ],
+        "death": [
+          [
+            -34,
+            -41,
+            30,
+            9
+          ],
+          [
+            -34,
+            -41,
+            30,
+            9
+          ],
+          [
+            -35,
+            -38,
+            33,
+            13
+          ],
+          [
+            -38,
+            -39,
+            33,
+            14
+          ],
+          [
+            -38,
+            -39,
+            33,
+            14
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "walk": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "attack": [
+          0,
+          6,
+          12,
+          19,
+          25,
+          31
+        ],
+        "hurt": [
+          0,
+          2,
+          4
+        ],
+        "death": [
+          0,
+          1,
+          2,
+          3,
+          3
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 4,
+        "walk": 2,
+        "attack": 32,
+        "hurt": 5,
+        "death": 4
+      },
+      "sourceCacheFiles": {
+        "idle": "boss_ch1_idle_6_w0_s0.png",
+        "walk": "boss_ch1_walk_14_w0_s0.png",
+        "attack": "boss_ch1_attack_22_w0_s0.png",
+        "hurt": "boss_ch1_hurt_30_w0_s0.png",
+        "death": "boss_ch1_death_38_w0_s0.png"
+      },
+      "sourceActions": {
+        "idle": 6,
+        "walk": 14,
+        "attack": 22,
+        "hurt": 30,
+        "death": 38
+      },
+      "sourceAlphaValues": []
+    },
+    {
+      "id": "boss1",
+      "class": "boss",
+      "file": "sprites/bosses/boss1.png",
+      "source": {
+        "job": "Orc Hero",
+        "jobId": 1087,
+        "gender": "none",
+        "head": 0,
+        "weaponView": 0,
+        "shieldView": 0,
+        "itemId": 0,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3
+      },
+      "bbox": {
+        "idle": [
+          70,
+          63,
+          142,
+          225
+        ],
+        "walk": [
+          66,
+          62,
+          163,
+          225
+        ],
+        "attack": [
+          70,
+          66,
+          162,
+          226
+        ],
+        "hurt": [
+          46,
+          65,
+          140,
+          227
+        ],
+        "death": [
+          38,
+          19,
+          231,
+          226
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -34,
+            -151,
+            28,
+            9
+          ],
+          [
+            -41,
+            -152,
+            30,
+            9
+          ],
+          [
+            -42,
+            -153,
+            30,
+            9
+          ],
+          [
+            -38,
+            -152,
+            28,
+            9
+          ]
+        ],
+        "walk": [
+          [
+            -35,
+            -153,
+            49,
+            9
+          ],
+          [
+            -46,
+            -148,
+            34,
+            3
+          ],
+          [
+            -43,
+            -151,
+            35,
+            2
+          ],
+          [
+            -33,
+            -154,
+            51,
+            1
+          ],
+          [
+            -41,
+            -149,
+            45,
+            9
+          ],
+          [
+            -38,
+            -151,
+            43,
+            8
+          ]
+        ],
+        "attack": [
+          [
+            -37,
+            -150,
+            22,
+            10
+          ],
+          [
+            -40,
+            -150,
+            21,
+            10
+          ],
+          [
+            -40,
+            -150,
+            21,
+            10
+          ],
+          [
+            -42,
+            -144,
+            50,
+            10
+          ],
+          [
+            -41,
+            -144,
+            50,
+            10
+          ],
+          [
+            -41,
+            -144,
+            50,
+            10
+          ]
+        ],
+        "hurt": [
+          [
+            -64,
+            -140,
+            16,
+            11
+          ],
+          [
+            -66,
+            -140,
+            14,
+            11
+          ],
+          [
+            -34,
+            -151,
+            28,
+            9
+          ]
+        ],
+        "death": [
+          [
+            -39,
+            -149,
+            41,
+            6
+          ],
+          [
+            -74,
+            -197,
+            119,
+            6
+          ],
+          [
+            -37,
+            -136,
+            61,
+            9
+          ],
+          [
+            -32,
+            -133,
+            73,
+            10
+          ],
+          [
+            -32,
+            -133,
+            28,
+            10
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          3,
+          6,
+          9
+        ],
+        "walk": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          2,
+          5,
+          7,
+          10,
+          12
+        ],
+        "hurt": [
+          0,
+          4,
+          8
+        ],
+        "death": [
+          0,
+          7,
+          14,
+          21,
+          28
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 10,
+        "walk": 8,
+        "attack": 13,
+        "hurt": 9,
+        "death": 29
+      },
+      "sourceCacheFiles": {
+        "idle": "boss_ch2_idle_6_w0_s0.png",
+        "walk": "boss_ch2_walk_14_w0_s0.png",
+        "attack": "boss_ch2_attack_22_w0_s0.png",
+        "hurt": "boss_ch2_hurt_30_w0_s0.png",
+        "death": "boss_ch2_death_38_w0_s0.png"
+      },
+      "sourceActions": {
+        "idle": 6,
+        "walk": 14,
+        "attack": 22,
+        "hurt": 30,
+        "death": 38
+      },
+      "sourceAlphaValues": [
+        87,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        200
+      ]
+    },
+    {
+      "id": "boss2",
+      "class": "boss",
+      "file": "sprites/bosses/boss2.png",
+      "source": {
+        "job": "Baphomet",
+        "jobId": 1039,
+        "gender": "none",
+        "head": 0,
+        "weaponView": 0,
+        "shieldView": 0,
+        "itemId": 0,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3
+      },
+      "bbox": {
+        "idle": [
+          83,
+          101,
+          184,
+          231
+        ],
+        "walk": [
+          73,
+          98,
+          178,
+          236
+        ],
+        "attack": [
+          49,
+          101,
+          175,
+          236
+        ],
+        "hurt": [
+          40,
+          96,
+          187,
+          231
+        ],
+        "death": [
+          33,
+          95,
+          188,
+          248
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -29,
+            -115,
+            62,
+            15
+          ],
+          [
+            -28,
+            -113,
+            72,
+            15
+          ],
+          [
+            -27,
+            -103,
+            70,
+            14
+          ],
+          [
+            -28,
+            -111,
+            64,
+            15
+          ]
+        ],
+        "walk": [
+          [
+            -32,
+            -118,
+            64,
+            13
+          ],
+          [
+            -32,
+            -118,
+            64,
+            13
+          ],
+          [
+            -39,
+            -112,
+            66,
+            9
+          ],
+          [
+            -31,
+            -117,
+            65,
+            4
+          ],
+          [
+            -31,
+            -113,
+            60,
+            20
+          ],
+          [
+            -30,
+            -113,
+            61,
+            20
+          ]
+        ],
+        "attack": [
+          [
+            -29,
+            -115,
+            62,
+            15
+          ],
+          [
+            -50,
+            -111,
+            48,
+            15
+          ],
+          [
+            -63,
+            -109,
+            63,
+            15
+          ],
+          [
+            -29,
+            -88,
+            50,
+            19
+          ],
+          [
+            -31,
+            -87,
+            48,
+            20
+          ],
+          [
+            -31,
+            -87,
+            48,
+            20
+          ]
+        ],
+        "hurt": [
+          [
+            -29,
+            -115,
+            62,
+            15
+          ],
+          [
+            -72,
+            -120,
+            75,
+            10
+          ],
+          [
+            -72,
+            -120,
+            75,
+            10
+          ]
+        ],
+        "death": [
+          [
+            -29,
+            -115,
+            62,
+            15
+          ],
+          [
+            -71,
+            -119,
+            76,
+            11
+          ],
+          [
+            -72,
+            -120,
+            75,
+            10
+          ],
+          [
+            -71,
+            -121,
+            72,
+            13
+          ],
+          [
+            -79,
+            -82,
+            56,
+            32
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          2,
+          5,
+          7
+        ],
+        "walk": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          7
+        ],
+        "hurt": [
+          0,
+          2,
+          5
+        ],
+        "death": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 8,
+        "walk": 8,
+        "attack": 8,
+        "hurt": 6,
+        "death": 5
+      },
+      "sourceCacheFiles": {
+        "idle": "boss_ch3_idle_6_w0_s0.png",
+        "walk": "boss_ch3_walk_14_w0_s0.png",
+        "attack": "boss_ch3_attack_22_w0_s0.png",
+        "hurt": "boss_ch3_hurt_30_w0_s0.png",
+        "death": "boss_ch3_death_38_w0_s0.png"
+      },
+      "sourceActions": {
+        "idle": 6,
+        "walk": 14,
+        "attack": 22,
+        "hurt": 30,
+        "death": 38
+      },
+      "sourceAlphaValues": []
+    }
+  ],
+  "notes": [
+    "All frames rendered at native x1 with enableShadow=false and ACT (0,0) at the per-class anchor.",
+    "Class cells and anchors expanded with user approval to avoid ACT-origin clipping.",
+    "Willow/Poring death indices skip oversized ACT explosion effects (exception to uniform sampling).",
+    "Ordinary weapon items omit item_db View; weaponView here is renderer weapon-type ID. Guard shield item View 1."
+  ]
+}
