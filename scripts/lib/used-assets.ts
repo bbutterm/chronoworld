@@ -10,7 +10,7 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { buildRegistry, type LegacySprites, type SpritesV2 } from '../../src/pipeline/sprites';
+import { buildRegistry, type LegacySprites, type SpritesV2 } from '../../src/pipeline/sprites.ts';
 
 export const ASSETS_DIR = 'assets';
 

@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
-import { ASSETS_DIR, collectUsedAssets } from './scripts/lib/used-assets';
+import { ASSETS_DIR, collectUsedAssets } from './scripts/lib/used-assets.ts';
 
 /**
  * O: в dist попадают только ассеты, которые игра может запросить (scripts/lib/used-assets.ts),
