@@ -27,6 +27,18 @@ assets/sprites.legacy.json  старые листы assets/ro в формате 
 | `npm run sim -- --a <отряд> --log --seed 7` | лог одного боя по событиям |
 | `npm run check` | content:check + типы + тесты — перед коммитом |
 
+## Контекст игры
+
+Все данные из `data/` собираются в один полный контекст (`FullContext`) одной функцией ядра — `buildGameContext(raw)` из `src/core/context.ts`:
+контент (юниты, навыки, профессии, кампания) → `progression.json` → быстрые награды/мощь/задания (`quests.json`) → экипировка (`items/`, `drops.json`) →
+башня (`tower.json`) → поручения и достижения (`bounties.json`, `achievements.json`).
+
+- Игра: `src/game/content.ts` читает файлы через `import.meta.glob` и вызывает `buildGameContext` (`GAME`, `CONTENT`).
+- Node (баланс, тесты, `content:check`): `readRawGameData()` / `loadFullContext()` из `scripts/lib/content-node.ts`.
+
+Каждый файл проверяется независимо, ошибки собираются в один список с именами файлов — `npm run content:check` показывает всё сразу,
+а битые данные в игре дают `ContentError` при старте. Новый конфиг добавляйте в `RawGameData` и `collectGameContext`, а не в каждое место отдельно.
+
 ## Порядок добавления юнита
 
 1. `npm run content:new -- unit knight --from warrior` → `data/units/knight.json`.

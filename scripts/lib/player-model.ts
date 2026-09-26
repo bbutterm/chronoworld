@@ -2,8 +2,6 @@
  * Модель игрока для инструмента баланса (T7, v2 — пакет L). Только вызовы ядра (обёртки act* и функции K1–K10) —
  * правила здесь не повторяются. Меняйте PLAYER_MODEL (или передавайте свой конфиг в runBalance) — игровые данные не трогаем.
  */
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import {
   achievementStatus,
   actChangeJob,
@@ -34,31 +32,15 @@ import {
   stageStatus,
   startBounty,
   towerUnlocked,
-  withEquipment,
-  withFeatures,
-  withMeta,
-  withTower,
-  type EquipmentContext,
-  type FeatureContext,
+  type FullContext,
   type GameContext,
-  type MetaContext,
   type SaveState,
-  type TowerContext,
 } from '../../src/core';
-import { loadEquipmentFiles, loadGameContext, ROOT } from './content-node';
+import { loadFullContext } from './content-node';
 
-/** Полный контекст: кампания + K-функции + экипировка + башня + поручения/достижения. */
-export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext;
-
-const readJson = (file: string): unknown => JSON.parse(readFileSync(join(ROOT, file), 'utf8'));
-
-/** Собрать полный контекст из data/ (как UI): withFeatures → withEquipment → withTower → withMeta. */
-export function loadFullContext(): FullContext {
-  const features = withFeatures(loadGameContext(), readJson('data/progression.json'), readJson('data/quests.json'));
-  const equipment = withEquipment(features, loadEquipmentFiles(), readJson('data/drops.json'));
-  const tower = withTower(equipment, readJson('data/tower.json'));
-  return withMeta(tower, readJson('data/bounties.json'), readJson('data/achievements.json'));
-}
+/** Полный контекст (тип из ядра) и его сборка из data/ — переэкспорт для scripts/balance.ts и тестов. */
+export type { FullContext };
+export { loadFullContext };
 
 export interface PlayerModel {
   /** Сессий в день. */

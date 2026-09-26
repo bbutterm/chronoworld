@@ -4,61 +4,36 @@ import dropsJson from '../../data/drops.json';
 import progressionJson from '../../data/progression.json';
 import questsJson from '../../data/quests.json';
 import towerJson from '../../data/tower.json';
-import {
-  buildContent,
-  COMBAT,
-  ProgressionConfigSchema,
-  withEquipment,
-  withFeatures,
-  withMeta,
-  withTower,
-  type EquipmentContext,
-  type FeatureContext,
-  type GameContext,
-  type MetaContext,
-  type RawFile,
-  type TowerContext,
-} from '../core';
+import { buildGameContext, type FullContext, type RawFile } from '../core';
+
+export type { FullContext };
 
 const toFiles = (mods: Record<string, unknown>): RawFile[] =>
   Object.entries(mods)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([file, data]) => ({ file, data }));
 
-/** Весь контент из data/units и data/skills собирается при сборке — новые файлы подхватываются сами. */
-export const CONTENT = buildContent({
+/**
+ * Контекст для всех экранов — та же сборка, что в Node (scripts/lib/content-node.ts → loadFullContext): buildGameContext.
+ * Файлы data/units, skills, jobs, campaign, items собираются при сборке — новые подхватываются сами.
+ * Битый конфиг — ContentError при старте со списком всех проблем; `npm run content:check` ловит это раньше.
+ */
+export const GAME: FullContext = buildGameContext({
   units: toFiles(import.meta.glob('../../data/units/*.json', { eager: true, import: 'default' })),
   skills: toFiles(import.meta.glob('../../data/skills/*.json', { eager: true, import: 'default' })),
   jobs: toFiles(import.meta.glob('../../data/jobs/*.json', { eager: true, import: 'default' })),
   chapters: toFiles(import.meta.glob('../../data/campaign/*.json', { eager: true, import: 'default' })),
+  items: toFiles(import.meta.glob('../../data/items/*.json', { eager: true, import: 'default' })),
+  progression: progressionJson,
+  quests: questsJson,
+  drops: dropsJson,
+  tower: towerJson,
+  bounties: bountiesJson,
+  achievements: achievementsJson,
 });
 
-const BASE: GameContext = {
-  content: CONTENT,
-  progression: ProgressionConfigSchema.parse(progressionJson),
-  combat: COMBAT,
-};
-
-/** Полный контекст игры: прогрессия и кампания + K-функции (быстрые награды, мощь, задания), экипировка, башня,
- * пресеты / поручения / достижения (K8–K10). */
-export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext;
-
-/**
- * Контекст для всех экранов. Битый конфиг (progression/quests/items/drops/tower/bounties/achievements) — ошибка при старте
- * с описанием поля (FeatureError / EquipmentError / TowerError / MetaError), `npm run content:check` ловит это раньше.
- */
-export const GAME: FullContext = withMeta(
-  withTower(
-    withEquipment(
-      withFeatures(BASE, progressionJson, questsJson),
-      toFiles(import.meta.glob('../../data/items/*.json', { eager: true, import: 'default' })),
-      dropsJson,
-    ),
-    towerJson,
-  ),
-  bountiesJson,
-  achievementsJson,
-);
+/** Юниты, навыки, профессии и этапы кампании. */
+export const CONTENT = GAME.content;
 
 const ROLE_ORDER = ['tank', 'damage', 'support', 'healer'];
 
