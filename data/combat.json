@@ -17,7 +17,8 @@
     "meleeRange": 170,
     "moveSpeed": 320,
     "dashSeconds": 0.25,
-    "stackAngles": [0, 35, -35, 70, -70]
+    "stackAngles": [0, 35, -35, 70, -70],
+    "retargetSeconds": 3
   },
   "slots": {
     "count": 5,

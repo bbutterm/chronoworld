@@ -40,11 +40,16 @@ export interface SpriteDef {
   scale: number;
   anims: Partial<Record<AnimName, AnimDef>>;
   portrait?: string;
+  /** Высота фигуры в стойке над точкой ног, px листа (из bbox idle). Нужна для подписи и центра тела. */
+  top?: number;
   source: 'v2' | 'legacy';
 }
 
-/** Масштаб на экране для спрайтов v2 (родной размер RO ×1 → ×2). */
-export const V2_SCALE = 2;
+/**
+ * Масштаб на экране для спрайтов v2 (родной размер RO ×1 → ×2.5):
+ * герой в стойке ~90 px листа → ~230 px на поле 1080×1920.
+ */
+export const V2_SCALE = 2.5;
 
 interface V2Class {
   cell: [number, number];
@@ -63,7 +68,15 @@ export interface SpritesV2 {
   classes: Record<string, V2Class>;
   anims: Record<string, V2Anim>;
   animOverrides?: Record<string, Record<string, Partial<V2Anim>>>;
-  sprites: { id: string; class: string; file: string; portrait?: string; hitFrames?: Record<string, number> }[];
+  sprites: {
+    id: string;
+    class: string;
+    file: string;
+    portrait?: string;
+    hitFrames?: Record<string, number>;
+    /** Габариты кадров анимации в клетке: [x0, y0, x1, y1]. */
+    bbox?: Record<string, [number, number, number, number]>;
+  }[];
 }
 
 export function normalizeV2(json: SpritesV2): SpriteDef[] {
@@ -91,6 +104,7 @@ export function normalizeV2(json: SpritesV2): SpriteDef[] {
       scale: V2_SCALE,
       anims,
       portrait: s.portrait,
+      top: s.bbox?.idle ? Math.max(0, cls.anchor[1] - s.bbox.idle[1]) : undefined,
       source: 'v2' as const,
     };
   });

@@ -7,8 +7,6 @@ import { anim, hitDelay, spriteView, type SpriteView } from '../sprites';
 import { playback, playbackSpeeds, squads } from '../state';
 import { button, panel, text } from '../ui';
 
-/** Центр тела над точкой ног — туда летят снаряды и всплывают цифры. */
-const BODY = 90;
 const BAR_W = 150;
 /** Полёт снаряда, мс на 1x. */
 const PROJECTILE_MS = 220;
@@ -93,7 +91,8 @@ export class BattleScene extends Phaser.Scene {
     const shieldBar = bar(8, 'ui_bar_shield', 5).setVisible(false);
     const energyBack = this.add.image(0, 32, 'ui_bar_back').setDisplaySize(BAR_W + 6, 12);
     const energyBar = bar(32, 'ui_bar_energy', 8);
-    const nameY = -Math.min(look.size * look.originY, 240) - 8;
+    // Подпись — сразу над макушкой (высота фигуры в стойке из bbox листа).
+    const nameY = -look.height - 22;
     const name = text(this, 0, nameY, def.name, 24, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
     const bars = [barBack, hpBar, shieldBar, energyBack, energyBar, name];
     const node = this.add.container(snap.x, snap.y, [sprite, ...bars]).setDepth(snap.y);
@@ -193,12 +192,12 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'passive': {
         const v = this.views.get(e.unit)!;
-        if (animate) this.floating(v.node.x, v.node.y - BODY - 110, e.name, '#c9a0ff', 28);
+        if (animate) this.floating(v.node.x, v.node.y - v.look.height - 60, e.name, '#c9a0ff', 28);
         return;
       }
       case 'skip': {
         const v = this.views.get(e.unit)!;
-        if (animate) this.floating(v.node.x, v.node.y - BODY - 110, 'оглушён', '#ffcf6b', 28);
+        if (animate) this.floating(v.node.x, v.node.y - v.look.height - 60, 'оглушён', '#ffcf6b', 28);
         return;
       }
       case 'damage': {
@@ -248,7 +247,7 @@ export class BattleScene extends Phaser.Scene {
       case 'status': {
         const v = this.views.get(e.target)!;
         if (animate && e.action === 'apply') {
-          this.atImpact(e.source, animate, () => this.floating(v.node.x, v.node.y - BODY - 80, e.name, '#ffcf6b', 26));
+          this.atImpact(e.source, animate, () => this.floating(v.node.x, v.node.y - v.look.height - 30, e.name, '#ffcf6b', 26));
         }
         return;
       }
@@ -344,8 +343,9 @@ export class BattleScene extends Phaser.Scene {
 
   // ---------- мелочи ----------
 
+  /** Центр тела над точкой ног — туда летят снаряды и всплывают цифры. */
   private body(v: UnitView): [number, number] {
-    return [v.node.x, v.node.y - BODY];
+    return [v.node.x, v.node.y - v.look.height * 0.5];
   }
 
   private redraw(v: UnitView): void {

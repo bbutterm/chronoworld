@@ -190,7 +190,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         u.x = to[0];
         u.y = to[1];
         u.moving = null;
-        if (u.range !== Infinity) u.engage = target;
+        if (u.range !== Infinity) setEngage(u, target);
         return;
       }
     }
@@ -228,11 +228,50 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
 
   // ---------- движение ----------
 
+  /**
+   * Застревание ближнего бойца: сколько секунд он не в досягаемости цели и не приближается к ней.
+   * Хранится вне Unit, чтобы не менять общий тип.
+   */
+  const stuck = new Map<Unit, { time: number; lastDist: number }>();
+  const retargetSeconds = cfg.movement.retargetSeconds ?? 3;
+
+  const setEngage = (u: Unit, target: Unit | null) => {
+    u.engage = target;
+    stuck.delete(u);
+  };
+
   /** Ближний боец выбирает, с кем сражаться: первая цель обычной атаки. */
   const pickEngage = (u: Unit) => {
     if (u.engage?.alive) return;
     const targets = selectTargets(u, u.basic.target, allies(u), enemies(u), rng, cfg);
-    u.engage = targets.find((x) => x.side !== u.side) ?? null;
+    setEngage(u, targets.find((x) => x.side !== u.side) ?? null);
+  };
+
+  /**
+   * Не может дойти до цели дольше retargetSeconds — берёт ближайшего живого врага
+   * (кроме недостижимой цели; если других нет — продолжает идти к ней).
+   */
+  const checkStuck = (u: Unit) => {
+    const target = u.engage;
+    if (!target?.alive) return;
+    const d = dist(u, target);
+    if (d <= u.range + 0.5) {
+      stuck.delete(u);
+      return;
+    }
+    const s = stuck.get(u) ?? { time: 0, lastDist: Infinity };
+    // Идёт к цели и расстояние сокращается — не застрял.
+    if (d < s.lastDist - 1) s.lastDist = d;
+    else s.time += cfg.tickSeconds;
+    stuck.set(u, s);
+    if (s.time + 1e-9 < retargetSeconds) return;
+    const other = enemies(u)
+      .filter((x) => x.alive && x !== target)
+      .sort((x, y) => dist(u, x) - dist(u, y) || x.slot - y.slot)[0];
+    if (other) {
+      setEngage(u, other);
+      u.moving = null;
+    } else stuck.delete(u);
   };
 
   const planMove = (u: Unit) => {
@@ -361,6 +400,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       for (const u of all) if (u.alive) stepMove(u);
       const melee = all.filter((u) => u.alive && u.range !== Infinity);
       for (const u of melee) pickEngage(u);
+      for (const u of melee) checkStuck(u);
       for (const u of melee) planMove(u);
 
       const ready: Unit[] = [];
