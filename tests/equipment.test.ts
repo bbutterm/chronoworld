@@ -138,8 +138,10 @@ describe('K6 надеть / снять', () => {
     const s = game(['knife']);
     const knife = s.inventory.items[0].id;
     const e = actEquip(s, 'h1', knife, ctx);
-    expect(e).toEqual(equip(s, 'h1', knife, ctx));
-    expect(actUnequip(e, knife)).toEqual(s);
+    // K10: actEquip ещё засчитывает достижение items_equipped — остальное как у equip.
+    expect({ ...e, achievements: undefined }).toEqual({ ...equip(s, 'h1', knife, ctx), achievements: undefined });
+    expect(e.achievements.counters.items_equipped).toBe(1);
+    expect({ ...actUnequip(e, knife), achievements: undefined }).toEqual({ ...s, achievements: undefined });
   });
 
   it('addItems: id экземпляров уникальны и детерминированы', () => {

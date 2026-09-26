@@ -3,6 +3,7 @@ import { claimOffline, type OfflineRewards } from '../campaign/offline';
 import { equip, unequip } from '../equipment/equipment';
 import { playWithEquipment, type StageOutcomeWithDrops } from '../equipment/drops';
 import type { EquipmentConfig, EquipmentContext } from '../equipment/load';
+import { syncAchievementCounters, trackAchievement } from '../meta/achievements';
 import { changeJob } from '../progression/jobChange';
 import { GameRuleError, type GameContext, type ProgressEvent } from '../progression/types';
 import type { SaveState } from '../save/schema';
@@ -14,7 +15,9 @@ import { skipStage } from './skip';
 
 /**
  * Обёртки над действиями игрока для UI: вызывают функцию ядра и засчитывают события ежедневных заданий
- * (K5) на день day. Сами функции ядра (playStage, claimOffline, changeJob…) заданий не знают.
+ * (K5) на день day, а также счётчики достижений (K10: battles_won, jobs_changed, items_equipped и
+ * «максимумы» stages_cleared / tower_floor / hero_max_job_level). Сами функции ядра (playStage, claimOffline,
+ * changeJob…) ни заданий, ни достижений не знают.
  * Все обёртки чистые; ошибки исходных функций пробрасываются как есть, без записи активности.
  */
 
@@ -26,6 +29,7 @@ function recordBattle<O extends StageOutcome>(out: O, day: string): O {
   let s = recordActivity(out.save, day, 'stage_attempt');
   if (out.result.winner === 'A') s = recordActivity(s, day, 'stage_win');
   s = recordActivity(s, day, 'hero_level_up', levelUps(out.events));
+  s = syncAchievementCounters(trackAchievement(s, 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
   return { ...out, save: s };
 }
 
@@ -52,6 +56,7 @@ export function actClaimOffline(
   const out = claimOffline(save, now, ctx);
   let s = recordActivity(out.save, day, 'offline_claim', out.rewards.gold > 0 || out.rewards.jobExp > 0 ? 1 : 0);
   s = recordActivity(s, day, 'hero_level_up', levelUps(out.events));
+  s = syncAchievementCounters(s);
   return { ...out, save: s };
 }
 
@@ -61,7 +66,8 @@ export function actChangeJob(save: SaveState, day: string, heroId: string, jobId
   if (!hero) throw new GameRuleError('unknown_hero', `Герой ${heroId} не найден`);
   const r = changeJob(hero, jobId, ctx);
   const next: SaveState = { ...save, heroes: save.heroes.map((h) => (h.id === heroId ? r.hero : h)) };
-  return { save: recordActivity(next, day, 'job_change'), events: r.events };
+  const s = syncAchievementCounters(trackAchievement(recordActivity(next, day, 'job_change'), 'jobs_changed', 1, 'add'));
+  return { save: s, events: r.events };
 }
 
 /** useFastRewards (K1) + fast_rewards + hero_level_up. */
@@ -69,12 +75,13 @@ export function actUseFastRewards(save: SaveState, day: string, ctx: FeatureCont
   const out = useFastRewards(save, day, ctx);
   let s = recordActivity(out.save, day, 'fast_rewards');
   s = recordActivity(s, day, 'hero_level_up', levelUps(out.events));
+  s = syncAchievementCounters(s);
   return { ...out, save: s };
 }
 
-/** K6. equip (надеть, предмет из того же слота — в инвентарь). Заданий не засчитывает. */
+/** K6. equip (надеть, предмет из того же слота — в инвентарь). Заданий не засчитывает. K10: items_equipped + 1. */
 export function actEquip(save: SaveState, heroId: string, itemInstanceId: string, ctx: EquipmentContext): SaveState {
-  return equip(save, heroId, itemInstanceId, ctx);
+  return trackAchievement(equip(save, heroId, itemInstanceId, ctx), 'items_equipped', 1, 'add');
 }
 
 /** K6. unequip (снять в инвентарь). */
@@ -87,5 +94,6 @@ export function actClimbTower(save: SaveState, day: string, seed: number, ctx: T
   const out = climbTower(save, seed, ctx);
   let s = recordActivity(out.save, day, 'tower_attempt');
   s = recordActivity(s, day, 'hero_level_up', levelUps(out.events));
+  s = syncAchievementCounters(trackAchievement(s, 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
   return { ...out, save: s };
 }

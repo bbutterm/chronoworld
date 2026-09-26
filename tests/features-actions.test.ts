@@ -75,7 +75,8 @@ describe('обёртки действий засчитывают задания'
     const ups = base.events.filter((e) => e.type === 'levelUp').length;
     expect(out.result).toEqual(base.result);
     expect(out.save.daily.quests).toEqual({ stage_attempt: 1, stage_win: 1, ...(ups ? { hero_level_up: ups } : {}) });
-    expect({ ...out.save, daily: undefined }).toEqual({ ...base.save, daily: undefined });
+    // K10: обёртка ещё засчитывает достижения (battles_won, stages_cleared…).
+    expect({ ...out.save, daily: undefined, achievements: undefined }).toEqual({ ...base.save, daily: undefined, achievements: undefined });
   });
 
   it('actPlayStage: поражение — только попытка', () => {

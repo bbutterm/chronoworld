@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { GameContext } from '../progression/types';
-import { DEFAULT_DAY, emptyDaily, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
+import { DEFAULT_DAY, emptyBounties, emptyDaily, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
 
 /**
  * Новая игра: progression.heroes.count героев стартовой профессии, джоб 1,
@@ -32,6 +32,9 @@ export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY
     currency: { gems: 0 },
     tower: { floor: 0 },
     inventory: { items: [] },
+    presets: [],
+    bounties: emptyBounties(),
+    achievements: { counters: {}, claimed: [] },
   };
 }
 
@@ -74,7 +77,39 @@ export const MIGRATIONS: Record<number, (old: any) => any> = {
     tower: old.tower ?? { floor: 0 },
     inventory: old.inventory ?? { items: [] },
   }),
+  /**
+   * Версия 2 → 3 (K8/K9/K10): presets = [], пустая доска поручений (обновится при первом ensureBoard),
+   * achievements = { counters, claimed: [] }. Счётчики-«максимумы», которые видны из самого сохранения,
+   * засчитываются сразу: stages_cleared (число пройденных этапов), tower_floor, hero_max_job_level —
+   * чтобы старые игроки не начинали достижения с нуля. Накопительные счётчики (бои, смены профессий…) — с нуля.
+   * Уже существующие поля не перезаписываются.
+   */
+  2: (old) => ({
+    ...old,
+    version: 3,
+    presets: old.presets ?? [],
+    bounties: old.bounties ?? emptyBounties(),
+    achievements: old.achievements ?? { counters: derivedCounters(old), claimed: [] },
+  }),
 };
+
+/** Счётчики достижений, которые можно восстановить из старого сохранения (структура не гарантирована). */
+function derivedCounters(old: any): Record<string, number> {
+  const out: Record<string, number> = {};
+  const cleared = old?.campaign?.cleared;
+  if (Array.isArray(cleared) && cleared.length > 0) out.stages_cleared = new Set(cleared).size;
+  const floor = old?.tower?.floor;
+  if (Number.isInteger(floor) && floor > 0) out.tower_floor = floor;
+  if (Array.isArray(old?.heroes)) {
+    let max = 0;
+    for (const h of old.heroes) {
+      if (Number.isInteger(h?.jobLevel) && h.jobLevel > max) max = h.jobLevel;
+      if (Array.isArray(h?.jobHistory)) for (const j of h.jobHistory) if (Number.isInteger(j?.jobLevel) && j.jobLevel > max) max = j.jobLevel;
+    }
+    if (max > 0) out.hero_max_job_level = max;
+  }
+  return out;
+}
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
