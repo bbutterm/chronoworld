@@ -9,7 +9,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ContentError, simulateBattle, type Content } from '../src/core';
+import { ContentError, parseFeaturesConfig, simulateBattle, type Content } from '../src/core';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
 import { loadContent, ROOT } from './lib/content-node';
@@ -94,6 +94,13 @@ if (content) {
       errors.push(`юнит ${u.id}: бой упал — ${String(e)}`);
     }
   }
+}
+
+// Конфиги функций (быстрые награды, мощь, ежедневные задания)
+try {
+  parseFeaturesConfig(readJson('data/progression.json'), readJson('data/quests.json'));
+} catch (e) {
+  errors.push(`data/progression.json / data/quests.json: ${e instanceof Error ? e.message : String(e)}`);
 }
 
 // 4. JSON-схемы
