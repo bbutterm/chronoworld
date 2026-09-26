@@ -1,0 +1,24 @@
+{
+  "actionThreshold": 1000,
+  "tickSeconds": 0.1,
+  "timeLimitSeconds": 90,
+  "damage": {
+    "defScale": 100,
+    "varianceMin": 0.95,
+    "varianceMax": 1.05,
+    "minDamage": 1
+  },
+  "basicAttack": { "k": 1.0 },
+  "basicHeal": { "k": 1.0 },
+  "energy": {
+    "max": 100,
+    "perBasicAction": 25,
+    "perHitTaken": 10
+  },
+  "slots": {
+    "count": 5,
+    "front": [0, 1],
+    "back": [2, 3, 4],
+    "lane": [1, 3, 0, 2, 4]
+  }
+}

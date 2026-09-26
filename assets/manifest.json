@@ -1,0 +1,284 @@
+{
+  "_comment": "Все ассеты подключаются по id. file: null — рисуется плейсхолдер (цветной прямоугольник с подписью). Чтобы подключить арт, положите PNG в assets/ и пропишите путь в file.",
+  "assets": {
+    "hero_guard_battle": {
+      "file": null,
+      "w": 320,
+      "h": 320,
+      "color": "#4a6fa5",
+      "label": "Страж"
+    },
+    "hero_guard_portrait": {
+      "file": null,
+      "w": 256,
+      "h": 256,
+      "color": "#4a6fa5",
+      "label": "Страж"
+    },
+    "ui_ult_guard": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#4a6fa5",
+      "label": "Ульта"
+    },
+    "hero_warrior_battle": {
+      "file": null,
+      "w": 320,
+      "h": 320,
+      "color": "#b5523b",
+      "label": "Воин"
+    },
+    "hero_warrior_portrait": {
+      "file": null,
+      "w": 256,
+      "h": 256,
+      "color": "#b5523b",
+      "label": "Воин"
+    },
+    "ui_ult_warrior": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#b5523b",
+      "label": "Ульта"
+    },
+    "hero_assassin_battle": {
+      "file": null,
+      "w": 320,
+      "h": 320,
+      "color": "#6b4c8a",
+      "label": "Ассасин"
+    },
+    "hero_assassin_portrait": {
+      "file": null,
+      "w": 256,
+      "h": 256,
+      "color": "#6b4c8a",
+      "label": "Ассасин"
+    },
+    "ui_ult_assassin": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#6b4c8a",
+      "label": "Ульта"
+    },
+    "hero_archer_battle": {
+      "file": null,
+      "w": 320,
+      "h": 320,
+      "color": "#4f8a4c",
+      "label": "Лучник"
+    },
+    "hero_archer_portrait": {
+      "file": null,
+      "w": 256,
+      "h": 256,
+      "color": "#4f8a4c",
+      "label": "Лучник"
+    },
+    "ui_ult_archer": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#4f8a4c",
+      "label": "Ульта"
+    },
+    "hero_mage_battle": {
+      "file": null,
+      "w": 320,
+      "h": 320,
+      "color": "#3b7fb5",
+      "label": "Маг"
+    },
+    "hero_mage_portrait": {
+      "file": null,
+      "w": 256,
+      "h": 256,
+      "color": "#3b7fb5",
+      "label": "Маг"
+    },
+    "ui_ult_mage": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#3b7fb5",
+      "label": "Ульта"
+    },
+    "hero_priest_battle": {
+      "file": null,
+      "w": 320,
+      "h": 320,
+      "color": "#c9a94a",
+      "label": "Жрица"
+    },
+    "hero_priest_portrait": {
+      "file": null,
+      "w": 256,
+      "h": 256,
+      "color": "#c9a94a",
+      "label": "Жрица"
+    },
+    "ui_ult_priest": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#c9a94a",
+      "label": "Ульта"
+    },
+    "bg_arena": {
+      "file": null,
+      "w": 1080,
+      "h": 1920,
+      "color": "#2b2f3a",
+      "label": "Арена"
+    },
+    "ui_bar_hp_ally": {
+      "file": null,
+      "w": 64,
+      "h": 16,
+      "color": "#3cb44b",
+      "label": "HP"
+    },
+    "ui_bar_hp_enemy": {
+      "file": null,
+      "w": 64,
+      "h": 16,
+      "color": "#d64545",
+      "label": "HP"
+    },
+    "ui_bar_energy": {
+      "file": null,
+      "w": 64,
+      "h": 16,
+      "color": "#f2c230",
+      "label": "EN"
+    },
+    "ui_bar_back": {
+      "file": null,
+      "w": 64,
+      "h": 16,
+      "color": "#1a1a1a",
+      "label": ""
+    },
+    "ui_bar_shield": {
+      "file": null,
+      "w": 64,
+      "h": 16,
+      "color": "#dfe8f0",
+      "label": ""
+    },
+    "ui_slot_empty": {
+      "file": null,
+      "w": 200,
+      "h": 200,
+      "color": "#3a3f4b",
+      "label": "Пусто"
+    },
+    "ui_slot_filled": {
+      "file": null,
+      "w": 200,
+      "h": 200,
+      "color": "#50586a",
+      "label": ""
+    },
+    "ui_slot_selected": {
+      "file": null,
+      "w": 200,
+      "h": 200,
+      "color": "#8a7a2a",
+      "label": ""
+    },
+    "ui_btn_primary": {
+      "file": null,
+      "w": 360,
+      "h": 120,
+      "color": "#2f8f5b",
+      "label": ""
+    },
+    "ui_btn_secondary": {
+      "file": null,
+      "w": 360,
+      "h": 120,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_btn_speed": {
+      "file": null,
+      "w": 360,
+      "h": 120,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_btn_skip": {
+      "file": null,
+      "w": 360,
+      "h": 120,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_victory": {
+      "file": null,
+      "w": 900,
+      "h": 400,
+      "color": "#c9a94a",
+      "label": "ПОБЕДА"
+    },
+    "ui_defeat": {
+      "file": null,
+      "w": 900,
+      "h": 400,
+      "color": "#6b2b2b",
+      "label": "ПОРАЖЕНИЕ"
+    },
+    "fx_hit": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#ffffff",
+      "label": "удар",
+      "shape": "circle"
+    },
+    "fx_arrow": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#c9e07a",
+      "label": "стрела",
+      "shape": "circle"
+    },
+    "fx_magic": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#7ac9ff",
+      "label": "магия",
+      "shape": "circle"
+    },
+    "fx_heal": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#7aff9a",
+      "label": "лечение",
+      "shape": "circle"
+    },
+    "fx_shield": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#cfe3ff",
+      "label": "щит",
+      "shape": "circle"
+    },
+    "fx_death": {
+      "file": null,
+      "w": 128,
+      "h": 128,
+      "color": "#9a9a9a",
+      "label": "облачко",
+      "shape": "circle"
+    }
+  }
+}

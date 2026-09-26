@@ -1,0 +1,5 @@
+{
+  "defaultSquadA": ["guard", "warrior", "archer", "mage", "priest"],
+  "defaultSquadB": ["guard", "warrior", "archer", "mage", "priest"],
+  "playback": { "speeds": [1, 2] }
+}
