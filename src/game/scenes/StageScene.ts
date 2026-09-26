@@ -1,22 +1,20 @@
 import Phaser from 'phaser';
-import { actSkipStage, enemySquad, getStage, squadPower, stagePower, stageStatus } from '../../core';
-import { CONTENT, GAME } from '../content';
-import { assignSlot, formatNumber, heroSprite, POWER_COLORS, powerTone, stageSeed } from '../flow';
+import { actSkipStage, autoFormation, enemySquad, getStage, squadPower, stagePower, stageStatus } from '../../core';
+import { GAME } from '../content';
+import { formatNumber, POWER_COLORS, powerTone, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, portrait, screen } from '../screen';
 import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
 import { button, panel, text, toast } from '../ui';
 import { squadDefs, type ResultData } from './BattleScene';
+import { SLOT_W, slotX, SquadEditor } from '../squadEditor';
 
-const SLOT_W = 196;
-const slotX = (i: number) => GAME_W / 2 + (i - 2) * (SLOT_W + 12);
 
 /** Подготовка к этапу: враги, награда, ваш отряд (слот → герой), «В бой». */
 export class StageScene extends Phaser.Scene {
   private stageId!: string;
-  private selected = 0;
-  private squadLayer!: Phaser.GameObjects.Container;
+  private editor!: SquadEditor;
   private fightBtns: ReturnType<typeof button>[] = [];
   private powerText!: Phaser.GameObjects.Text;
   private enemyPower = 0;
@@ -27,22 +25,21 @@ export class StageScene extends Phaser.Scene {
 
   create(data: { stageId: string }): void {
     this.stageId = data.stageId;
-    this.selected = Math.max(0, session.save.squad.indexOf(null));
     const stage = getStage(GAME, this.stageId);
     screen(this, `Этап ${stage.globalIndex + 1}${stage.boss ? ' · БОСС' : ''}`, null, { to: 'Campaign' });
 
     // --- Противник ---
     card(this, GAME_W / 2, 440, 1050, 480);
     text(this, GAME_W / 2, 240, stage.name, 44, '#ffe9a8', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
-    text(this, GAME_W / 2, 295, 'Противник', 32, '#f0a0a0');
+    text(this, GAME_W / 2, 280, 'Противник', 32, '#f0a0a0');
     enemySquad(this.stageId, GAME).forEach((u, i) => {
       const x = slotX(i);
-      panel(this, x, 450, SLOT_W, 220, u ? 'ui_slot_filled' : 'ui_slot_empty');
-      text(this, x, 355, i < 2 ? 'фронт' : 'тыл', 24, '#b8bcc8');
+      panel(this, x, 480, SLOT_W, 290, u ? 'ui_slot_filled' : 'ui_slot_empty');
+      text(this, x, 322, i < 2 ? 'фронт' : 'тыл', 26, '#b8bcc8');
       if (!u) return;
-      portrait(this, x, 440, portraitKey(u.visual.sprite), 150);
-      text(this, x, 590, u.name, 26, u.kind === 'boss' ? '#ff9a8a' : '#ffffff', { stroke: '#000000', strokeThickness: 4, wordWrap: { width: SLOT_W } });
-      text(this, x, 630, `HP ${u.stats.hp} · ATK ${u.stats.atk}`, 22, '#e0cfb0');
+      portrait(this, x, 420, portraitKey(u.visual.sprite), 140);
+      text(this, x, 525, u.name, 26, u.kind === 'boss' ? '#ff9a8a' : '#ffffff', { stroke: '#000000', strokeThickness: 4, wordWrap: { width: SLOT_W - 10 } });
+      text(this, x, 590, `HP ${u.stats.hp}\nATK ${u.stats.atk}`, 26, '#e0cfb0', { stroke: '#000000', strokeThickness: 3, lineSpacing: 0 });
     });
 
     // --- Награда ---
@@ -62,13 +59,17 @@ export class StageScene extends Phaser.Scene {
     this.enemyPower = stagePower(this.stageId, GAME);
     this.powerText = text(this, GAME_W / 2, 780, '', 30, '#ffffff', { fontStyle: 'bold', stroke: '#2a1a0a', strokeThickness: 6 });
 
-    // --- Ваш отряд и выбор героев ---
+    // --- Ваш отряд и выбор героев (K8: общий редактор, авто-расстановка, пресеты) ---
     card(this, GAME_W / 2, 1230, 1050, 800);
-    text(this, GAME_W / 2, 870, 'Ваш отряд', 36, '#9fe0a6', { fontStyle: 'bold' });
-    text(this, GAME_W / 2, 905, 'Выберите слот, затем героя. Нажмите на выбранный слот ещё раз — убрать.', 24, '#e0cfb0', {
+    text(this, GAME_W / 2, 868, 'Ваш отряд', 36, '#9fe0a6', { fontStyle: 'bold' });
+    text(this, GAME_W / 2, 910, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать.', 26, '#e0cfb0', {
       wordWrap: { width: 980 },
     });
-    this.squadLayer = this.add.container(0, 0);
+    this.editor = new SquadEditor(this, 1100, 1395, () => this.onSquadChange());
+    button(this, GAME_W / 2 - 250, 1570, 440, 90, 'ui_btn_secondary', 'Авто', () => this.auto(), 36);
+    button(this, GAME_W / 2 + 250, 1570, 440, 90, 'k:buttonLong_beige', 'Пресеты отряда', () =>
+      this.scene.start('Squad', { back: { to: 'Stage', data: { stageId: this.stageId } } }),
+    34);
 
     if (first) {
       this.fightBtns = [button(this, GAME_W / 2, GAME_H - 110, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), 56)];
@@ -79,47 +80,12 @@ export class StageScene extends Phaser.Scene {
         button(this, GAME_W / 2 + 260, GAME_H - 110, 480, 150, 'ui_btn_primary', 'Повторить', () => this.fight(), 48),
       ];
     }
-    this.drawSquad();
+    this.editor.draw();
   }
 
-  private drawSquad(): void {
-    this.squadLayer.removeAll(true);
+  /** Мощь отряда против противника и доступность «В бой» — после каждого изменения отряда. */
+  private onSquadChange(): void {
     const save = session.save;
-    const add = <T extends Phaser.GameObjects.GameObject>(o: T) => {
-      this.squadLayer.add(o);
-      return o;
-    };
-
-    save.squad.forEach((heroId, i) => {
-      const x = slotX(i);
-      const y = 1095;
-      const sel = i === this.selected;
-      const bg = add(panel(this, x, y, SLOT_W, 250, sel ? 'ui_slot_selected' : heroId ? 'ui_slot_filled' : 'ui_slot_empty'));
-      bg.setInteractive({ useHandCursor: true }).on('pointerup', () => this.onSlot(i));
-      add(text(this, x, y - 140, i < 2 ? 'фронт' : 'тыл', 22, '#b8bcc8'));
-      const hero = heroId ? save.heroes.find((h) => h.id === heroId) : undefined;
-      if (!hero) {
-        add(text(this, x, y, 'пусто', 26, sel ? '#4a3520' : '#9a9aa0'));
-        return;
-      }
-      add(portrait(this, x, y - 25, portraitKey(heroSprite(hero, GAME)), 150));
-      add(text(this, x, y + 75, hero.name, 28, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 }));
-      add(text(this, x, y + 108, `${CONTENT.jobs[hero.job]?.name ?? hero.job} · ${hero.jobLevel}`, 22, '#ffe9a8', { stroke: '#000000', strokeThickness: 4 }));
-    });
-
-    add(text(this, GAME_W / 2, 1270, 'Герои', 32, '#ffe9a8'));
-    const step = Math.min(200, 1000 / save.heroes.length);
-    save.heroes.forEach((h, i) => {
-      const x = GAME_W / 2 + (i - (save.heroes.length - 1) / 2) * step;
-      const y = 1420;
-      const inSquad = save.squad.indexOf(h.id);
-      const bg = add(panel(this, x, y, step - 14, 220, inSquad >= 0 ? 'ui_slot_filled' : 'ui_slot_selected'));
-      bg.setInteractive({ useHandCursor: true }).on('pointerup', () => this.onHero(h.id));
-      add(portrait(this, x, y - 20, portraitKey(heroSprite(h, GAME)), 130)).setAlpha(inSquad >= 0 ? 0.55 : 1);
-      add(text(this, x, y + 70, h.name, 26, '#ffffff', { stroke: '#000000', strokeThickness: 5 }));
-      if (inSquad >= 0) add(text(this, x, y - 85, `слот ${inSquad + 1}`, 22, '#9fe0a6', { stroke: '#000000', strokeThickness: 4 }));
-    });
-
     const ready = save.squad.some(Boolean);
     for (const b of this.fightBtns) b.container.setAlpha(ready ? 1 : 0.45);
     const mine = squadPower(save, GAME);
@@ -128,25 +94,12 @@ export class StageScene extends Phaser.Scene {
       .setColor(POWER_COLORS[powerTone(mine, this.enemyPower)]);
   }
 
-  private onSlot(i: number): void {
-    const save = session.save;
-    if (i === this.selected && save.squad[i]) {
-      if (save.squad.filter(Boolean).length === 1) {
-        toast(this, 'В отряде должен остаться хотя бы один герой');
-        return;
-      }
-      commit({ ...save, squad: assignSlot(save.squad, i, null) });
-    }
-    this.selected = i;
-    this.drawSquad();
-  }
-
-  private onHero(heroId: string): void {
-    const save = session.save;
-    commit({ ...save, squad: assignSlot(save.squad, this.selected, heroId) });
-    const nextEmpty = session.save.squad.indexOf(null);
-    if (nextEmpty >= 0) this.selected = nextEmpty;
-    this.drawSquad();
+  /** K8: авто-расстановка сильнейших героев. */
+  private auto(): void {
+    const squad = autoFormation(session.save, GAME);
+    commit({ ...session.save, squad });
+    this.editor.draw();
+    toast(this, 'Отряд расставлен автоматически');
   }
 
   private fight(): void {

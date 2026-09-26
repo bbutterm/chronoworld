@@ -3,6 +3,8 @@ import type { Side } from '../core';
 
 export const GAME_W = 1080;
 export const GAME_H = 1920;
+/** Высота шапки экрана (название, золото, гемы). */
+export const HEADER_H = 150;
 
 /** Арена — нижние 2/3 экрана. Координаты поля в ядре совпадают с экранными (ширина 1080). */
 export const ARENA_TOP = 700;

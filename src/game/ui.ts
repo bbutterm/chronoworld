@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { sliceOf, tex } from './assets';
-import { FONT } from './layout';
+import { FONT, HEADER_H } from './layout';
 
 /** Kenney UI нарисован мелко: 9-slice строим в меньшем размере и увеличиваем, чтобы рамки были заметны. */
 const UI_SCALE = 2.5;
@@ -63,6 +63,100 @@ export function button(
   return { container, setLabel: (s) => t.setText(s), label: t };
 }
 
+/** Опасное действие (сброс и т. п.): коричневая кнопка с красной подписью — заметна, но не спутать с основной. */
+export function dangerButton(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  label: string,
+  onClick: () => void,
+  fontSize = 36,
+): ReturnType<typeof button> {
+  const b = button(scene, x, y, w, h, 'k:buttonLong_brown', label, onClick, fontSize);
+  b.label.setColor('#ff8a7a').setStroke('#2a0804', 6);
+  return b;
+}
+
+/**
+ * Вертикальная прокрутка списка: контейнер с маской в полосе [top, bottom], тянется пальцем и колёсиком.
+ * Кнопки внутри оборачивают обработчик в `tap(fn)` — он не сработает после протяжки и вне видимой полосы
+ * (маска Phaser не отсекает ввод).
+ */
+export class ScrollArea {
+  readonly content: Phaser.GameObjects.Container;
+  private height = 0;
+  private dragFrom: { y: number; scroll: number } | null = null;
+  private dragged = false;
+  /** Открыто модальное окно поверх списка — прокрутка и нажатия в списке выключены. */
+  locked = false;
+
+  constructor(
+    private readonly scene: Phaser.Scene,
+    private readonly top: number,
+    private readonly bottom: number,
+  ) {
+    this.content = scene.add.container(0, top);
+    const g = scene.make.graphics({}, false);
+    g.fillStyle(0xffffff).fillRect(0, top, scene.scale.gameSize.width, bottom - top);
+    this.content.setMask(g.createGeometryMask());
+    scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
+      this.dragged = false;
+      this.dragFrom = this.inside(p) && !this.locked ? { y: p.y, scroll: this.content.y } : null;
+    });
+    scene.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+      if (!this.dragFrom || !p.isDown) return;
+      if (Math.abs(p.y - this.dragFrom.y) > 14) this.dragged = true;
+      if (this.dragged) this.scrollTo(this.dragFrom.scroll + (p.y - this.dragFrom.y));
+    });
+    scene.input.on('pointerup', () => {
+      this.dragFrom = null;
+    });
+    scene.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => {
+      if (!this.locked) this.scrollTo(this.content.y - dy);
+    });
+  }
+
+  /** Высота содержимого (для границ прокрутки). */
+  setContentHeight(h: number): void {
+    this.height = h;
+    this.scrollTo(this.content.y);
+  }
+
+  /** Сдвиг содержимого: 0 — в самом верху. */
+  get offset(): number {
+    return this.top - this.content.y;
+  }
+
+  set offset(v: number) {
+    this.scrollTo(this.top - v);
+  }
+
+  private scrollTo(y: number): void {
+    const min = this.top - Math.max(0, this.height - (this.bottom - this.top));
+    this.content.y = Phaser.Math.Clamp(y, min, this.top);
+  }
+
+  private inside(p: Phaser.Input.Pointer): boolean {
+    return p.y >= this.top && p.y <= this.bottom;
+  }
+
+  /** Обработчик нажатия для объекта в списке: игнорирует протяжку и нажатия вне видимой полосы. */
+  tap(fn: () => void): () => void {
+    return () => {
+      const p = this.scene.input.activePointer;
+      if (this.locked || this.dragged || !this.inside(p)) return;
+      fn();
+    };
+  }
+
+  add<T extends Phaser.GameObjects.GameObject>(o: T): T {
+    this.content.add(o);
+    return o;
+  }
+}
+
 /** Кадр атласа Kenney как картинка (иконки, галочки); `name` — имя кадра без .png. */
 export function icon(scene: Phaser.Scene, x: number, y: number, name: string, size: number): Phaser.GameObjects.Image {
   const t = tex(scene, `k:${name}`);
@@ -86,12 +180,13 @@ export function progressBar(
   return scene.add.container(x, y, [back, fill]);
 }
 
-/** Всплывающее сообщение сверху экрана, исчезает само. */
+/** Всплывающее сообщение под шапкой экрана (не закрывает название и валюту), исчезает само. */
 export function toast(scene: Phaser.Scene, message: string, color = '#ffe9a8', ms = 3500): void {
   const w = scene.scale.gameSize.width;
   const t = text(scene, 0, 0, message, 34, color, { wordWrap: { width: w - 160 }, lineSpacing: 6 });
-  const bg = scene.add.rectangle(0, 0, w - 100, t.height + 50, 0x000000, 0.82).setStrokeStyle(3, 0xc8a060);
-  const c = scene.add.container(w / 2, 200 + t.height / 2, [bg, t]).setDepth(10000).setAlpha(0);
+  const bgH = t.height + 50;
+  const bg = scene.add.rectangle(0, 0, w - 100, bgH, 0x000000, 0.88).setStrokeStyle(3, 0xc8a060);
+  const c = scene.add.container(w / 2, HEADER_H + 24 + bgH / 2, [bg, t]).setDepth(10000).setAlpha(0);
   scene.tweens.add({ targets: c, alpha: 1, duration: 200 });
   scene.tweens.add({ targets: c, alpha: 0, delay: ms, duration: 400, onComplete: () => c.destroy() });
 }

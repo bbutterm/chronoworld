@@ -7,13 +7,19 @@ import {
   RARITIES,
   SLOTS,
   stageStatus,
+  type AchievementView,
   type ActivityKind,
+  type Bounty,
   type EquipmentContext,
   type GameContext,
   type HeroState,
   type ItemDef,
   type ItemInstance,
   type ItemStats,
+  type MetaContext,
+  type MetaEvent,
+  type MetaRewards,
+  type Preset,
   type QuestStatus,
   type Rarity,
   type SaveState,
@@ -66,7 +72,7 @@ export function currentStage(save: SaveState, ctx: GameContext): StageInfo | und
 }
 
 /** Строки для экрана итогов/тоста по событиям прогрессии (без повторов «доступна смена профессии»). */
-export function describeEvents(events: readonly TowerEvent[], save: SaveState, ctx: GameContext): string[] {
+export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save: SaveState, ctx: GameContext): string[] {
   const heroName = (id: string) => save.heroes.find((h) => h.id === id)?.name ?? id;
   const skillName = (id: string) => ctx.content.skills[id]?.name ?? id;
   const jobName = (id: string) => ctx.content.jobs[id]?.name ?? id;
@@ -209,4 +215,89 @@ export function questDestination(event: ActivityKind): 'Campaign' | 'Home' | 'He
     case 'tower_attempt':
       return 'Tower';
   }
+}
+
+// ---------- K8. Пресеты ----------
+
+/** Имя нового пресета: «Отряд N» с наименьшим свободным N. */
+export function nextPresetName(presets: readonly Pick<Preset, 'name'>[]): string {
+  const names = new Set(presets.map((p) => p.name));
+  let n = 1;
+  while (names.has(`Отряд ${n}`)) n++;
+  return `Отряд ${n}`;
+}
+
+/** Совпадает ли пресет с текущим отрядом (подсветка «выбран»). */
+export function presetMatches(preset: Pick<Preset, 'squad'>, squad: readonly (string | null)[]): boolean {
+  return preset.squad.length === squad.length && preset.squad.every((id, i) => id === squad[i]);
+}
+
+// ---------- K9. Поручения ----------
+
+export const BOUNTY_RARITY_NAMES: Record<string, string> = { common: 'Обычное', rare: 'Редкое', epic: 'Эпическое' };
+export const BOUNTY_RARITY_COLORS: Record<string, string> = { common: '#e6e2d6', rare: '#6fb8ff', epic: '#d890ff' };
+
+/** Длительность поручения: «30 мин», «2 ч», «1 ч 30 мин». */
+export function durationText(minutes: number): string {
+  const m = Math.max(0, Math.round(minutes));
+  const h = Math.floor(m / 60);
+  if (h === 0) return `${m} мин`;
+  return m % 60 ? `${h} ч ${m % 60} мин` : `${h} ч`;
+}
+
+/** Обратный отсчёт: «1:05:09», «4:07»; 0 — «готово». */
+export function countdownText(ms: number): string {
+  if (ms <= 0) return 'готово';
+  const total = Math.ceil(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const sec = total % 60;
+  const p = (n: number) => String(n).padStart(2, '0');
+  return h > 0 ? `${h}:${p(m)}:${p(sec)}` : `${m}:${p(sec)}`;
+}
+
+/** Награда K9/K10 одной строкой: «300 зол. · 50 опыта · 5 гем.» (нулевые не пишем). */
+export function metaRewardsText(r: MetaRewards, jobExpSuffix = ''): string {
+  const parts: string[] = [];
+  if (r.gold) parts.push(`${formatNumber(r.gold)} зол.`);
+  if (r.jobExp) parts.push(`${formatNumber(r.jobExp)} опыта${jobExpSuffix}`);
+  if (r.gems) parts.push(`${r.gems} гем.`);
+  return parts.join(' · ') || '—';
+}
+
+/** Сколько поручений завершено и ждут «Забрать» (для значка на главной). */
+export function finishedBounties(save: SaveState, now: number): number {
+  return save.bounties.active.filter((b) => now >= b.endsAt).length;
+}
+
+/**
+ * Можно ли отправить выбранных героев на поручение: причина отказа или null.
+ * Проверки те же, что в startBounty (число героев, роль), — чтобы кнопка «Отправить» была неактивной заранее.
+ */
+export function bountyPickBlocker(bounty: Bounty, heroIds: readonly string[], save: SaveState, ctx: MetaContext): string | null {
+  if (heroIds.length !== bounty.heroCount) return `Выберите героев: ${heroIds.length} / ${bounty.heroCount}`;
+  if (bounty.role) {
+    const ok = heroIds.some((id) => {
+      const h = save.heroes.find((x) => x.id === id);
+      return h ? ctx.content.jobs[h.job]?.role === bounty.role : false;
+    });
+    if (!ok) return `Нужен герой с ролью «${ROLE_NAMES[bounty.role] ?? bounty.role}»`;
+  }
+  return null;
+}
+
+// ---------- K10. Достижения ----------
+
+/** Сколько достижений можно забрать. */
+export function claimableAchievements(views: readonly AchievementView[]): number {
+  return views.filter((a) => a.done && !a.claimed).length;
+}
+
+/** Порядок на экране: готовые к получению, затем в процессе (ближе к цели — выше), полученные — в конце. */
+export function sortAchievements(views: readonly AchievementView[]): AchievementView[] {
+  const group = (a: AchievementView) => (a.claimed ? 2 : a.done ? 0 : 1);
+  return views
+    .map((a, i) => ({ a, i }))
+    .sort((x, y) => group(x.a) - group(y.a) || (group(x.a) === 1 ? y.a.progress / y.a.target - x.a.progress / x.a.target : 0) || x.i - y.i)
+    .map((x) => x.a);
 }

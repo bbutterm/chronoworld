@@ -12,6 +12,9 @@ import { ResultScene } from './game/scenes/ResultScene';
 import { QuestsScene } from './game/scenes/QuestsScene';
 import { TowerScene } from './game/scenes/TowerScene';
 import { InventoryScene } from './game/scenes/InventoryScene';
+import { SquadScene } from './game/scenes/SquadScene';
+import { BountiesScene } from './game/scenes/BountiesScene';
+import { AchievementsScene } from './game/scenes/AchievementsScene';
 import { GAME_H, GAME_W } from './game/layout';
 
 const game = new Phaser.Game({
@@ -24,7 +27,7 @@ const game = new Phaser.Game({
     width: GAME_W,
     height: GAME_H,
   },
-  scene: [BootScene, HomeScene, CampaignScene, StageScene, HeroesScene, HeroScene, JobChangeScene, PrepScene, BattleScene, ResultScene, QuestsScene, TowerScene, InventoryScene],
+  scene: [BootScene, HomeScene, CampaignScene, StageScene, HeroesScene, HeroScene, JobChangeScene, PrepScene, BattleScene, ResultScene, QuestsScene, TowerScene, InventoryScene, SquadScene, BountiesScene, AchievementsScene],
 });
 
 // Для отладки и скриншотов (Playwright): window.__game.scene.start('Tower') и т. п. Только в dev-сборке.

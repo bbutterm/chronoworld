@@ -45,9 +45,15 @@ export class QuestsScene extends Phaser.Scene {
 
   private milestone(m: MilestoneView, x: number, y: number): void {
     const ready = m.reached && !m.claimed;
-    const frame = m.claimed ? 'k:buttonSquare_grey' : ready ? 'k:buttonSquare_blue' : 'k:buttonSquare_beige';
+    // Готовый к получению порог — светлая рамка с золотым свечением и пульсом; не достигнутый — тёмный.
+    const frame = m.claimed ? 'k:buttonSquare_grey' : ready ? 'k:buttonSquare_beige' : 'k:buttonSquare_brown';
     const x0 = Math.min(x, BAR_X + BAR_W - 20);
+    if (ready) {
+      const glow = this.add.rectangle(x0, y, 128, 128, 0xffd84a, 0.35).setStrokeStyle(6, 0xffd84a);
+      this.tweens.add({ targets: glow, alpha: 0.35, yoyo: true, repeat: -1, duration: 600 });
+    }
     const b = button(this, x0, y, 104, 104, frame, String(m.points), () => this.claimMilestone(m), 34);
+    if (m.claimed) b.label.setColor('#6a6a70');
     if (m.claimed) icon(this, x0 + 36, y - 36, 'iconCheck_bronze', 44);
     if (ready) {
       badge(this, x0 + 42, y - 44, 1);

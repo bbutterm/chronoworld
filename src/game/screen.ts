@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_H, GAME_W } from './layout';
+import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { session, takeWarnings } from './session';
 import { formatNumber } from './flow';
 import { button, icon, panel, text, toast } from './ui';
@@ -14,7 +14,7 @@ const TABS: { scene: NavTab; label: string }[] = [
 
 /** Высота нижней навигации; контент экрана — между шапкой и ней. */
 export const NAV_H = 170;
-export const HEADER_H = 150;
+export { HEADER_H };
 export const CONTENT_TOP = HEADER_H + 20;
 export const CONTENT_BOTTOM = GAME_H - NAV_H - 20;
 

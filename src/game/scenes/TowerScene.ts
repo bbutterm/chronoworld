@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
 import { heroPower, squadPower, towerFloor, towerStatus, unitPower, withGear } from '../../core';
 import { GAME } from '../content';
-import { currentStage, formatNumber, heroSprite, POWER_COLORS, powerTone } from '../flow';
+import { formatNumber, heroSprite, POWER_COLORS, powerTone } from '../flow';
 import { GAME_W } from '../layout';
 import { card, CONTENT_TOP, gemIcon, portrait, screen } from '../screen';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
-import { button, icon, panel, text, toast } from '../ui';
+import { button, icon, panel, text } from '../ui';
 
 const SLOT_W = 190;
 const slotX = (i: number) => GAME_W / 2 + (i - 2) * (SLOT_W + 12);
@@ -97,7 +97,9 @@ export class TowerScene extends Phaser.Scene {
     // --- Отряд ---
     this.squad(cy + 740);
 
-    button(this, GAME_W / 2, 1650, 640, 140, 'ui_btn_primary', 'Штурм', () => this.assault(), 56);
+    // K8: отряд общий с кампанией, но редактируется прямо отсюда.
+    button(this, 260, 1650, 420, 140, 'ui_btn_secondary', 'Изменить отряд', () => this.editSquad(), 38);
+    button(this, 760, 1650, 520, 140, 'ui_btn_primary', 'Штурм', () => this.assault(), 56);
   }
 
   /** Лестница: 4 ближайших этажа сверху вниз, следующий подсвечен, босс-этажи красные, пройденный — внизу. */
@@ -121,8 +123,9 @@ export class TowerScene extends Phaser.Scene {
   private squad(y: number): void {
     const save = session.save;
     const gctx = withGear(GAME, save);
-    card(this, GAME_W / 2, y + 115, 1040, 250, true);
-    text(this, GAME_W / 2, y + 20, 'Ваш отряд (как в кампании)', 30, '#4a3520', { fontStyle: 'bold' });
+    const bg = card(this, GAME_W / 2, y + 115, 1040, 250, true);
+    bg.setInteractive({ useHandCursor: true }).on('pointerup', () => this.editSquad());
+    text(this, GAME_W / 2, y + 22, 'Ваш отряд (общий с кампанией) — нажмите, чтобы изменить', 28, '#4a3520', { fontStyle: 'bold' });
     save.squad.forEach((id, i) => {
       const x = slotX(i);
       const hero = id ? save.heroes.find((h) => h.id === id) : undefined;
@@ -135,11 +138,13 @@ export class TowerScene extends Phaser.Scene {
     });
   }
 
+  private editSquad(): void {
+    this.scene.start('Squad', { back: { to: 'Tower' } });
+  }
+
   private assault(): void {
     if (!session.save.squad.some(Boolean)) {
-      toast(this, 'Поставьте в отряд хотя бы одного героя (экран этапа кампании)');
-      const cur = currentStage(session.save, GAME);
-      if (cur) this.scene.start('Stage', { stageId: cur.id });
+      this.editSquad();
       return;
     }
     this.scene.start('Battle', { mode: 'tower' });

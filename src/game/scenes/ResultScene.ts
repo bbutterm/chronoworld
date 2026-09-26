@@ -78,7 +78,7 @@ export class ResultScene extends Phaser.Scene {
     for (const side of ['A', 'B'] as const) {
       text(this, GAME_W / 2, y, side === 'A' ? 'Ваш отряд' : 'Противник', compact ? 32 : 38, side === 'A' ? '#9fe0a6' : '#f0a0a0');
       y += compact ? 42 : 55;
-      heads.forEach((h, i) => text(this, cols[i], y, h, compact ? 22 : 26, '#f3dfb8'));
+      heads.forEach((h, i) => text(this, cols[i], y, h, 26, '#f3dfb8'));
       y += compact ? 42 : 50;
       for (const u of r.units.filter((x) => x.side === side)) {
         const rep = r.report[u.uid];

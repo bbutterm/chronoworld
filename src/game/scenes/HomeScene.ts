@@ -1,16 +1,18 @@
 import Phaser from 'phaser';
-import { actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
+import { achievementStatus, actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
 import { GAME } from '../content';
-import { claimableCount, currentStage, describeEvents, formatNumber } from '../flow';
+import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber } from '../flow';
 import { GAME_W } from '../layout';
 import { badge, card, confirm, gemIcon, screen } from '../screen';
 import { commit, now, resetProgress, session, today } from '../session';
-import { button, icon, text, toast } from '../ui';
+import { button, dangerButton, icon, text, toast } from '../ui';
 
-/** Главная: сундук офлайн-наград, быстрые награды (K1), задания (K5), башня (K4), кампания, тестовый бой, сброс. */
+/** Главная: сундук офлайн-наград, быстрые награды (K1), плитки задания (K5) / башня (K4) / поручения (K9) / достижения (K10), кампания, тестовый бой, сброс. */
 export class HomeScene extends Phaser.Scene {
   private chestText!: Phaser.GameObjects.Text;
   private claimBtn!: ReturnType<typeof button>;
+  /** Сколько поручений было завершено при отрисовке плитки (раз в секунду сверяем — значок не отстаёт). */
+  private bountiesDone = 0;
 
   constructor() {
     super('Home');
@@ -23,9 +25,9 @@ export class HomeScene extends Phaser.Scene {
     this.tiles();
 
     const cur = currentStage(session.save, GAME);
-    button(this, GAME_W / 2, 1400, 780, 140, 'ui_btn_primary', cur ? `В кампанию · этап ${cur.globalIndex + 1}` : 'В кампанию', () => this.scene.start('Campaign'), 46);
-    button(this, 300, 1570, 460, 110, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'), 36);
-    button(this, 800, 1570, 400, 110, 'k:buttonLong_grey', 'Сбросить', () =>
+    button(this, GAME_W / 2, 1480, 780, 130, 'ui_btn_primary', cur ? `В кампанию · этап ${cur.globalIndex + 1}` : 'В кампанию', () => this.scene.start('Campaign'), 46);
+    button(this, 300, 1640, 460, 100, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'), 36);
+    dangerButton(this, 800, 1640, 400, 100, 'Сбросить', () =>
       confirm(this, 'Сбросить весь прогресс? Герои, этапы, золото и предметы пропадут.', 'Сбросить', () =>
         confirm(this, 'Точно? Отменить будет нельзя.', 'Да, сбросить', () => {
           resetProgress();
@@ -66,6 +68,8 @@ export class HomeScene extends Phaser.Scene {
           : `Накоплено за ${h} ч ${m} мин\nЗолото +${formatNumber(r.gold)}   Опыт +${formatNumber(r.jobExp)} каждому`,
     );
     this.claimBtn.container.setAlpha(r.gold > 0 || r.jobExp > 0 ? 1 : 0.45);
+    // Поручение завершилось, пока игрок на главной, — обновить плитку и значок.
+    if (finishedBounties(session.save, now()) !== this.bountiesDone) this.scene.restart();
   }
 
   private claim(): void {
@@ -138,33 +142,47 @@ export class HomeScene extends Phaser.Scene {
     });
   }
 
-  // ---------- Задания и башня ----------
+  // ---------- Плитки 2×2: задания, башня, поручения, достижения ----------
 
   private tiles(): void {
     const save = session.save;
-    const y = 1130;
+    const y1 = 1090;
+    const y2 = 1285;
+    const [xl, xr] = [280, 800];
     const qs = questStatus(save, GAME, today());
-    this.tile(280, y, 'Задания', `Активность ${qs.activity} / ${qs.maxActivity}`, '#9fe0a6', () => this.scene.start('Quests'));
-    badge(this, 280 + 215, y - 95, claimableCount(qs));
+    this.tile(xl, y1, 'Задания', `Активность ${qs.activity} / ${qs.maxActivity}`, '#9fe0a6', () => this.scene.start('Quests'));
+    badge(this, xl + 215, y1 - 72, claimableCount(qs));
 
     const ts = towerStatus(save, GAME);
     if (ts.unlocked) {
       const sub = ts.next === null ? 'Вершина взята!' : `Этаж ${ts.floor} · дальше ${ts.next}`;
-      this.tile(800, y, 'Башня', sub, '#ffd84a', () => this.scene.start('Tower'));
+      this.tile(xr, y1, 'Башня', sub, '#ffd84a', () => this.scene.start('Tower'));
     } else {
       const stage = GAME.content.stages.find((s) => s.id === ts.unlockAfterStage);
       const hint = stage ? `Откроется после этапа ${stage.globalIndex + 1}` : 'Пока закрыта';
-      const t = this.tile(800, y, 'Башня', hint, '#b8bcc8', () => toast(this, `Башня испытаний: ${hint.toLowerCase()} кампании`));
+      const t = this.tile(xr, y1, 'Башня', hint, '#b8bcc8', () => toast(this, `Башня испытаний: ${hint.toLowerCase()} кампании`));
       t.setAlpha(0.75);
-      icon(this, 800 + 200, y - 80, 'iconCross_grey', 44);
+      icon(this, xr + 200, y1 - 55, 'iconCross_grey', 44);
     }
+
+    const done = finishedBounties(save, now());
+    const active = save.bounties.active.length;
+    const bsub = done ? `Готово: ${done} — заберите` : active ? `В работе: ${active}` : 'Отправьте героев';
+    this.tile(xl, y2, 'Поручения', bsub, done ? '#9fe0a6' : '#e0cfb0', () => this.scene.start('Bounties'));
+    this.bountiesDone = done;
+    badge(this, xl + 215, y2 - 72, done);
+
+    const views = achievementStatus(save, GAME);
+    const got = views.filter((a) => a.claimed).length;
+    this.tile(xr, y2, 'Достижения', `Получено ${got} / ${views.length}`, '#6fb8ff', () => this.scene.start('Achievements', { from: 'Home' }));
+    badge(this, xr + 215, y2 - 72, claimableAchievements(views));
   }
 
   private tile(x: number, y: number, title: string, sub: string, subColor: string, onClick: () => void): Phaser.GameObjects.NineSlice {
-    const bg = card(this, x, y, 500, 230);
+    const bg = card(this, x, y, 500, 180);
     bg.setInteractive({ useHandCursor: true }).on('pointerup', onClick);
-    text(this, x, y - 40, title, 46, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 6 });
-    text(this, x, y + 40, sub, 30, subColor, { stroke: '#000000', strokeThickness: 4, wordWrap: { width: 440 } });
+    text(this, x, y - 30, title, 44, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 6 });
+    text(this, x, y + 38, sub, 30, subColor, { stroke: '#000000', strokeThickness: 4, wordWrap: { width: 460 } });
     return bg;
   }
 

@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
-import { availableJobChanges, expToNext, heroEquipment, heroPower, squadPower, withGear, type HeroState } from '../../core';
+import { achievementStatus, availableJobChanges, expToNext, heroEquipment, heroPower, squadPower, withGear, type HeroState } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { formatNumber, heroSprite, ROLE_NAMES } from '../flow';
+import { claimableAchievements, formatNumber, heroSprite, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
-import { card, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
+import { badge, card, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
 import { button, icon, progressBar, text } from '../ui';
@@ -20,9 +20,13 @@ export class HeroesScene extends Phaser.Scene {
     const heroes = save.heroes;
     // Мощь отряда (K2) и вход в инвентарь (K6).
     const barY = CONTENT_TOP + 50;
-    text(this, 40, barY, `Мощь отряда: ${formatNumber(squadPower(save, GAME))}`, 38, '#ffd84a', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setOrigin(0, 0.5);
+    text(this, 30, barY - 22, 'Мощь отряда', 28, '#e0cfb0').setOrigin(0, 0.5);
+    text(this, 30, barY + 22, formatNumber(squadPower(save, GAME)), 38, '#ffd84a', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setOrigin(0, 0.5);
     const free = save.inventory.items.filter((i) => i.equippedBy === null).length;
-    button(this, 840, barY, 360, 100, 'ui_btn_secondary', `Инвентарь${free ? ` (${free})` : ''}`, () => this.scene.start('Inventory', {}), 36);
+    button(this, 480, barY, 300, 100, 'ui_btn_secondary', `Инвентарь${free ? ` (${free})` : ''}`, () => this.scene.start('Inventory', {}), 34);
+    // K10: достижения — отсюда и с главной.
+    button(this, 810, barY, 330, 100, 'ui_btn_secondary', 'Достижения', () => this.scene.start('Achievements', { from: 'Heroes' }), 34);
+    badge(this, 810 + 150, barY - 42, claimableAchievements(achievementStatus(save, GAME)));
 
     const listTop = CONTENT_TOP + 120;
     const gap = 20;

@@ -1,3 +1,5 @@
+import achievementsJson from '../../data/achievements.json';
+import bountiesJson from '../../data/bounties.json';
 import dropsJson from '../../data/drops.json';
 import progressionJson from '../../data/progression.json';
 import questsJson from '../../data/quests.json';
@@ -8,10 +10,12 @@ import {
   ProgressionConfigSchema,
   withEquipment,
   withFeatures,
+  withMeta,
   withTower,
   type EquipmentContext,
   type FeatureContext,
   type GameContext,
+  type MetaContext,
   type RawFile,
   type TowerContext,
 } from '../core';
@@ -35,20 +39,25 @@ const BASE: GameContext = {
   combat: COMBAT,
 };
 
-/** Полный контекст игры: прогрессия и кампания + K-функции (быстрые награды, мощь, задания), экипировка, башня. */
-export type FullContext = FeatureContext & EquipmentContext & TowerContext;
+/** Полный контекст игры: прогрессия и кампания + K-функции (быстрые награды, мощь, задания), экипировка, башня,
+ * пресеты / поручения / достижения (K8–K10). */
+export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext;
 
 /**
- * Контекст для всех экранов. Битый конфиг (progression/quests/items/drops/tower) — ошибка при старте
- * с описанием поля (FeatureError / EquipmentError / TowerError), `npm run content:check` ловит это раньше.
+ * Контекст для всех экранов. Битый конфиг (progression/quests/items/drops/tower/bounties/achievements) — ошибка при старте
+ * с описанием поля (FeatureError / EquipmentError / TowerError / MetaError), `npm run content:check` ловит это раньше.
  */
-export const GAME: FullContext = withTower(
-  withEquipment(
-    withFeatures(BASE, progressionJson, questsJson),
-    toFiles(import.meta.glob('../../data/items/*.json', { eager: true, import: 'default' })),
-    dropsJson,
+export const GAME: FullContext = withMeta(
+  withTower(
+    withEquipment(
+      withFeatures(BASE, progressionJson, questsJson),
+      toFiles(import.meta.glob('../../data/items/*.json', { eager: true, import: 'default' })),
+      dropsJson,
+    ),
+    towerJson,
   ),
-  towerJson,
+  bountiesJson,
+  achievementsJson,
 );
 
 const ROLE_ORDER = ['tank', 'damage', 'support', 'healer'];
