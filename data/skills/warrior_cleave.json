@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "warrior_cleave",
+  "name": "Размах",
+  "description": "Удар по всему фронту врага.",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.6
+    }
+  ],
+  "icon": "icon_ult_warrior"
+}

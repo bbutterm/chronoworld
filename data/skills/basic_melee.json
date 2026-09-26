@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "basic_melee",
+  "name": "Удар",
+  "description": "Обычная атака ближнего боя: бьёт того, с кем сражается.",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.0
+    }
+  ]
+}

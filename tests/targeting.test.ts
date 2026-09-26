@@ -1,80 +1,71 @@
 import { describe, expect, it } from 'vitest';
-import { Rng, lowestHp, neighbor, pickBasicTarget, randomAlive } from '../src/core';
-import { cfg, hero, unit } from './helpers';
+import { Rng, TargetSchema, selectTargets } from '../src/core';
+import { cfg, unit } from './helpers';
 
-const enemies = () => [0, 1, 2, 3, 4].map((s) => unit('B', s));
+const T = (t: Record<string, unknown>) => TargetSchema.parse(t);
+const rng = () => new Rng(1);
 
-describe('pickBasicTarget', () => {
-  it('ближний бой бьёт ближайшего по линии героя фронта', () => {
-    // линии: слот0=1, слот1=3, слот2=0, слот3=2, слот4=4
-    expect(pickBasicTarget(unit('A', 0), [], enemies(), cfg)?.target.uid).toBe('B0');
-    expect(pickBasicTarget(unit('A', 1), [], enemies(), cfg)?.target.uid).toBe('B1');
-    expect(pickBasicTarget(unit('A', 4), [], enemies(), cfg)?.target.uid).toBe('B1');
-    expect(pickBasicTarget(unit('A', 2), [], enemies(), cfg)?.target.uid).toBe('B0');
+// Враги: фронт — слоты 0,1; тыл — 2,3,4.
+const enemies = () => [
+  unit('B', 0, 690, 1125),
+  unit('B', 1, 690, 1535),
+  unit('B', 2, 930, 920),
+  unit('B', 3, 930, 1330),
+  unit('B', 4, 930, 1740),
+];
+
+describe('selectTargets', () => {
+  it('nearest по реальному расстоянию', () => {
+    const me = unit('A', 1, 390, 1535);
+    expect(selectTargets(me, T({ side: 'enemy', pick: 'nearest', row: 'front' }), [], enemies(), rng(), cfg).map((u) => u.uid)).toEqual(['B1']);
+    const top = unit('A', 2, 150, 920);
+    expect(selectTargets(top, T({ side: 'enemy', pick: 'nearest', row: 'front' }), [], enemies(), rng(), cfg)[0].uid).toBe('B0');
   });
 
-  it('равенство расстояний — меньший слот', () => {
-    // слот 3 (линия 2) равноудалён от B0 (1) и B1 (3)
-    expect(pickBasicTarget(unit('A', 3), [], enemies(), cfg)?.target.uid).toBe('B0');
-  });
-
-  it('если фронт пуст — бьёт тыл', () => {
+  it('ряд пуст — берём другой ряд (rowFallback), иначе никого', () => {
     const e = enemies();
     e[0].alive = false;
     e[1].alive = false;
-    expect(pickBasicTarget(unit('A', 1), [], e, cfg)?.target.uid).toBe('B3');
+    const me = unit('A', 0, 390, 1125);
+    // B2 и B3 на одном расстоянии — меньший слот
+    expect(selectTargets(me, T({ side: 'enemy', pick: 'nearest', row: 'front' }), [], e, rng(), cfg)[0].uid).toBe('B2');
+    expect(selectTargets(me, T({ side: 'enemy', pick: 'nearest', row: 'front', rowFallback: false }), [], e, rng(), cfg)).toEqual([]);
   });
 
-  it('дальний бой по умолчанию бьёт фронт, с правилом «тыл» — тыл', () => {
-    const ranged = hero({ attack: 'ranged' });
-    const sniper = hero({ attack: 'ranged', targetRule: 'back' });
-    expect(pickBasicTarget(unit('A', 4, {}, ranged), [], enemies(), cfg)?.target.uid).toBe('B1');
-    expect(pickBasicTarget(unit('A', 4, {}, sniper), [], enemies(), cfg)?.target.uid).toBe('B4');
-  });
-
-  it('лекарь лечит союзника с наименьшим процентом HP', () => {
-    const healer = unit('A', 4, {}, hero({ attack: 'healer' }));
-    const allies = [unit('A', 0, { hp: 900, maxHp: 1800 }), unit('A', 1, { hp: 400, maxHp: 1000 }), healer];
-    const pick = pickBasicTarget(healer, allies, enemies(), cfg);
-    expect(pick).toMatchObject({ heal: true });
-    expect(pick?.target.uid).toBe('A1');
-  });
-
-  it('лекарь без раненых союзников атакует', () => {
-    const healer = unit('A', 4, {}, hero({ attack: 'healer' }));
-    const pick = pickBasicTarget(healer, [healer], enemies(), cfg);
-    expect(pick).toMatchObject({ heal: false });
-    expect(pick?.target.side).toBe('B');
-  });
-
-  it('нет живых врагов — нет цели', () => {
-    const e = enemies().map((u) => ({ ...u, alive: false }));
-    expect(pickBasicTarget(unit('A', 0), [], e, cfg)).toBeUndefined();
-  });
-});
-
-describe('цели ульт', () => {
-  it('наименьший HP, равенство — меньший слот', () => {
+  it('lowestHp и lowestHpPct, равенство — меньший слот', () => {
     const e = enemies();
     e[3].hp = 100;
     e[4].hp = 100;
-    expect(lowestHp(e)?.uid).toBe('B3');
+    const me = unit('A', 0, 390, 1125);
+    expect(selectTargets(me, T({ side: 'enemy', pick: 'lowestHp' }), [], e, rng(), cfg)[0].uid).toBe('B3');
+    const allies = [unit('A', 0, 0, 0, { hp: 900, maxHp: 1800 }), unit('A', 1, 0, 0, { hp: 400, maxHp: 1000 })];
+    expect(selectTargets(allies[0], T({ side: 'ally', pick: 'lowestHpPct', includeSelf: true }), allies, [], rng(), cfg)[0].uid).toBe('A1');
   });
 
-  it('случайная цель — только живые и по seed', () => {
+  it('onlyWounded: никого раненых — пустой список', () => {
+    const allies = [unit('A', 0, 0, 0), unit('A', 1, 0, 0)];
+    expect(selectTargets(allies[0], T({ side: 'ally', pick: 'lowestHpPct', includeSelf: true, onlyWounded: true }), allies, [], rng(), cfg)).toEqual([]);
+  });
+
+  it('союзники: без includeSelf себя не берём; nearest count 2 с собой = я + ближайший', () => {
+    const allies = [unit('A', 0, 390, 1125), unit('A', 1, 390, 1535), unit('A', 2, 150, 920)];
+    expect(selectTargets(allies[0], T({ side: 'ally', pick: 'all' }), allies, [], rng(), cfg).map((u) => u.uid)).toEqual(['A1', 'A2']);
+    expect(selectTargets(allies[0], T({ side: 'ally', pick: 'nearest', count: 2, includeSelf: true }), allies, [], rng(), cfg).map((u) => u.uid)).toEqual(['A0', 'A2']);
+  });
+
+  it('random — только живые, без повторов, по seed', () => {
     const e = enemies();
     e[0].alive = false;
-    const r1 = new Rng(3);
-    const r2 = new Rng(3);
-    for (let i = 0; i < 50; i++) {
-      const a = randomAlive(e, r1);
-      expect(a?.alive).toBe(true);
-      expect(a?.uid).toBe(randomAlive(e, r2)?.uid);
-    }
+    const t = T({ side: 'enemy', pick: 'random', count: 3 });
+    const a = selectTargets(unit('A', 0, 0, 0), t, [], e, new Rng(5), cfg).map((u) => u.uid);
+    const b = selectTargets(unit('A', 0, 0, 0), t, [], e, new Rng(5), cfg).map((u) => u.uid);
+    expect(a).toEqual(b);
+    expect(new Set(a).size).toBe(3);
+    expect(a).not.toContain('B0');
   });
 
-  it('сосед — ближайший союзник по линии', () => {
-    const allies = [unit('A', 0), unit('A', 1), unit('A', 2)];
-    expect(neighbor(allies[0], allies, cfg)?.uid).toBe('A2');
+  it('self', () => {
+    const me = unit('A', 0, 0, 0);
+    expect(selectTargets(me, T({ side: 'ally', pick: 'self' }), [me], [], rng(), cfg)).toEqual([me]);
   });
 });

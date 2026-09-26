@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "guard_shield_wall",
+  "name": "Стена щитов",
+  "description": "Щит себе и ближайшему союзнику.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "nearest",
+    "count": 2,
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.2
+    }
+  ],
+  "icon": "icon_ult_guard"
+}

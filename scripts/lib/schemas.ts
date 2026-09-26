@@ -1,0 +1,12 @@
+import { z } from 'zod';
+import { SkillSchema, UnitSchema } from '../../src/core';
+
+/** JSON Schema для подсказок и проверки в редакторе (VS Code подхватывает по полю $schema). */
+export function generateSchemas(): Record<string, string> {
+  const gen = (schema: z.ZodType, title: string) =>
+    JSON.stringify({ title, ...z.toJSONSchema(schema, { io: 'input', unrepresentable: 'any' }) }, null, 2) + '\n';
+  return {
+    'data/schema/unit.schema.json': gen(UnitSchema, 'Юнит (герой, монстр, босс)'),
+    'data/schema/skill.schema.json': gen(SkillSchema, 'Навык (обычная атака, ульта, пассивка)'),
+  };
+}

@@ -9,10 +9,16 @@
     "preview": "vite preview --host",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "sim": "tsx scripts/sim.ts"
+    "sim": "tsx scripts/sim.ts",
+    "content:check": "tsx scripts/content-check.ts",
+    "content:schema": "tsx scripts/content-schema.ts",
+    "content:new": "tsx scripts/content-new.ts",
+    "assets:legacy": "tsx scripts/assets-legacy.ts",
+    "check": "npm run content:check && npm run typecheck && npm test"
   },
   "dependencies": {
-    "phaser": "^3.90.0"
+    "phaser": "^3.90.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

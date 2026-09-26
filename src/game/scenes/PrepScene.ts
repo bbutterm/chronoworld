@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
-import { COMBAT, HEROES, type Side } from '../../core';
-import { hasArt, heroBattle, heroPortrait, tex } from '../assets';
-import { describeHero } from '../describe';
+import { COMBAT, type Side } from '../../core';
+import { tex } from '../assets';
+import { CONTENT, heroIds } from '../content';
+import { describeUnit } from '../describe';
+import { anim, portraitKey, spriteView } from '../sprites';
 import { ARENA_TOP, GAME_W, slotPos } from '../layout';
 import { squads } from '../state';
 import { button, panel, text } from '../ui';
@@ -14,7 +16,7 @@ interface SlotView {
   side: Side;
   slot: number;
   bg: Phaser.GameObjects.NineSlice;
-  hero: Phaser.GameObjects.Image;
+  hero: Phaser.GameObjects.Sprite;
   label: Phaser.GameObjects.Text;
 }
 
@@ -68,23 +70,26 @@ export class PrepScene extends Phaser.Scene {
   }
 
   private buildPicker(): void {
-    const ids = Object.keys(HEROES);
+    const ids = heroIds();
     const step = 1000 / ids.length;
     ids.forEach((id, i) => {
       const x = 40 + step * (i + 0.5);
       panel(this, x, 262, 150, 150, 'ui_slot_filled');
-      const img = this.add.image(x, 262, heroPortrait(id)).setDisplaySize(140, 140).setInteractive({ useHandCursor: true });
-      text(this, x, 362, HEROES[id].name, 28, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
+      const u = CONTENT.units[id];
+      const img = this.add.image(x, 262, portraitKey(u.visual.sprite)).setDisplaySize(140, 140).setInteractive({ useHandCursor: true });
+      text(this, x, 362, u.name, 28, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
       img.on('pointerdown', () => this.pickHero(id));
-      img.on('pointerover', () => this.info.setText(describeHero(HEROES[id])));
+      img.on('pointerover', () => this.info.setText(describeUnit(u, CONTENT)));
     });
   }
 
   private buildSlot(side: Side, slot: number): void {
-    const { x, y } = slotPos(side, slot, DY);
+    const feet = slotPos(side, slot, DY);
+    const x = feet.x;
+    const y = feet.y - SLOT_SIZE / 2 + 10;
     const bg = panel(this, x, y, SLOT_SIZE, SLOT_SIZE, 'ui_slot_empty');
     bg.setInteractive({ useHandCursor: true });
-    const hero = this.add.image(x, y, heroBattle('guard')).setDisplaySize(SLOT_SIZE + 20, SLOT_SIZE + 20);
+    const hero = this.add.sprite(x, feet.y, '__DEFAULT');
     const label = text(this, x, y + SLOT_SIZE / 2 + 18, '', 26, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
     bg.on('pointerdown', () => this.onSlot(side, slot));
     this.slotViews.push({ side, slot, bg, hero, label });
@@ -95,7 +100,7 @@ export class PrepScene extends Phaser.Scene {
     if (same && squads[side][slot]) squads[side][slot] = null;
     this.selected = { side, slot };
     const id = squads[side][slot];
-    if (id) this.info.setText(describeHero(HEROES[id]));
+    if (id) this.info.setText(describeUnit(CONTENT.units[id], CONTENT));
     this.refresh();
   }
 
@@ -106,7 +111,7 @@ export class PrepScene extends Phaser.Scene {
     const existing = squad.indexOf(id);
     if (existing >= 0) squad[existing] = squad[slot];
     squad[slot] = id;
-    this.info.setText(describeHero(HEROES[id]));
+    this.info.setText(describeUnit(CONTENT.units[id], CONTENT));
     const nextEmpty = squad.findIndex((h) => !h);
     if (nextEmpty >= 0) this.selected = { side, slot: nextEmpty };
     this.refresh();
@@ -120,10 +125,16 @@ export class PrepScene extends Phaser.Scene {
       v.bg.setTexture(t.key, t.frame);
       v.hero.setVisible(!!id);
       if (id) {
-        v.hero.setTexture(heroBattle(id)).setDisplaySize(SLOT_SIZE + 20, SLOT_SIZE + 20);
-        v.hero.setFlipX(v.side === 'B' && hasArt(heroBattle(id)));
+        const spriteId = CONTENT.units[id].visual.sprite;
+        const view = spriteView(this, spriteId);
+        // Спрайт в слоте чуть меньше, чем в бою.
+        v.hero.setTexture(view.key, 0).setOrigin(view.originX, view.originY).setScale((view.size / v.hero.frame.height) * 0.72);
+        const idle = anim(view, spriteId, 'idle');
+        if (idle) v.hero.play({ key: idle, repeat: -1 });
+        else v.hero.stop();
+        v.hero.setFlipX(v.side === 'B' && view.art);
       }
-      v.label.setText(id ? HEROES[id].name : '');
+      v.label.setText(id ? CONTENT.units[id].name : '');
     }
     const ready = squads.A.some(Boolean) && squads.B.some(Boolean);
     this.startBtn.container.setAlpha(ready ? 1 : 0.4);

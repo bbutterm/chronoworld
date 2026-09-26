@@ -7,8 +7,7 @@ describe('Rng', () => {
     const a = new Rng(42);
     const b = new Rng(42);
     const seqA = Array.from({ length: 10 }, () => a.next());
-    const seqB = Array.from({ length: 10 }, () => b.next());
-    expect(seqA).toEqual(seqB);
+    expect(Array.from({ length: 10 }, () => b.next())).toEqual(seqA);
     expect(new Rng(43).next()).not.toBe(seqA[0]);
   });
 
@@ -27,7 +26,6 @@ describe('calcDamage', () => {
     const rng = new Rng(5);
     for (let i = 0; i < 1000; i++) {
       const dmg = calcDamage(100, 1, 100, rng, cfg);
-      // 100 × 100 / 200 = 50 → [47.5; 52.5] → floor
       expect(dmg).toBeGreaterThanOrEqual(47);
       expect(dmg).toBeLessThanOrEqual(52);
       expect(Number.isInteger(dmg)).toBe(true);

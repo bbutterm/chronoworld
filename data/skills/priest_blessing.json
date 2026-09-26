@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "priest_blessing",
+  "name": "Благословение",
+  "description": "Лечит всех союзников.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.7
+    }
+  ],
+  "icon": "icon_ult_priest"
+}

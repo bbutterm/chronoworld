@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "basic_ranged",
+  "name": "Выстрел",
+  "description": "Обычная атака дальнего боя по ближайшему врагу фронта.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.0
+    }
+  ]
+}

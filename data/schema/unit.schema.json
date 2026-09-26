@@ -1,0 +1,115 @@
+{
+  "title": "Юнит (герой, монстр, босс)",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "hero",
+        "monster",
+        "boss"
+      ]
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "tank",
+        "damage",
+        "healer",
+        "support"
+      ]
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "hp": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "atk": {
+          "type": "number",
+          "minimum": 0
+        },
+        "def": {
+          "type": "number",
+          "minimum": 0
+        },
+        "spd": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "moveSpeed": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "hp",
+        "atk",
+        "def",
+        "spd"
+      ]
+    },
+    "skills": {
+      "type": "object",
+      "properties": {
+        "basic": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "ult": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "passives": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        }
+      },
+      "required": [
+        "basic"
+      ]
+    },
+    "visual": {
+      "type": "object",
+      "properties": {
+        "sprite": {
+          "type": "string"
+        },
+        "projectile": {
+          "type": "string"
+        },
+        "hitFx": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "sprite"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "kind",
+    "role",
+    "stats",
+    "skills",
+    "visual"
+  ]
+}

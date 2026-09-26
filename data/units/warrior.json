@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "warrior",
+  "name": "Воин",
+  "kind": "hero",
+  "role": "damage",
+  "stats": {
+    "hp": 1300,
+    "atk": 110,
+    "def": 35,
+    "spd": 110
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "warrior_cleave",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "warrior",
+    "hitFx": "fx_hit"
+  }
+}

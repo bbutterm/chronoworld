@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
-import { HEROES, type BattleResult } from '../../core';
-import { heroPortrait } from '../assets';
+import type { BattleResult } from '../../core';
+import { CONTENT } from '../content';
+import { portraitKey } from '../sprites';
 import { GAME_W } from '../layout';
 import { button, panel, text } from '../ui';
 
@@ -31,8 +32,8 @@ export class ResultScene extends Phaser.Scene {
       const maxDmg = Math.max(1, ...Object.values(r.report).map((x) => x.damageDealt));
       for (const u of units) {
         const rep = r.report[u.uid];
-        this.add.image(60, y, heroPortrait(u.heroId)).setDisplaySize(70, 70).setAlpha(rep.alive ? 1 : 0.4);
-        text(this, cols[0] + 20, y, HEROES[u.heroId].name, 30).setOrigin(0, 0.5);
+        this.add.image(60, y, portraitKey(CONTENT.units[u.unitId].visual.sprite)).setDisplaySize(70, 70).setAlpha(rep.alive ? 1 : 0.4);
+        text(this, cols[0] + 20, y, CONTENT.units[u.unitId].name, 30).setOrigin(0, 0.5);
         this.add.rectangle(cols[1] - 70, y + 24, 140 * (rep.damageDealt / maxDmg), 6, 0xd64545).setOrigin(0, 0.5);
         text(this, cols[1], y, String(rep.damageDealt), 30);
         text(this, cols[2], y, String(rep.healingDone), 30, '#7dff8f');

@@ -1,71 +1,66 @@
+import type { SkillDef, StatMods, StatusDef, UnitDef } from './content/schema';
+
+export type { Effect, SkillDef, StatMods, StatusDef, Stats, TargetDef, UnitDef } from './content/schema';
+
 export type Side = 'A' | 'B';
-export type HeroId = string;
-export type AttackType = 'melee' | 'ranged' | 'healer';
 
-export interface Stats {
-  hp: number;
-  atk: number;
-  def: number;
-  spd: number;
+/** Отряд: 5 слотов (0–1 фронт, 2–4 тыл), null — пустой слот. */
+export type Squad = (string | null)[];
+
+export interface Content {
+  units: Record<string, UnitDef>;
+  skills: Record<string, SkillDef>;
 }
-
-export type EffectTarget =
-  | 'enemyFrontRow'
-  | 'enemyLowestHp'
-  | 'enemyRandom'
-  | 'enemyAll'
-  | 'allyAll'
-  | 'selfAndNeighbor';
-
-export type Effect =
-  | { type: 'damage'; target: EffectTarget; k: number; hits?: number }
-  | { type: 'heal'; target: EffectTarget; k: number }
-  | { type: 'shield'; target: EffectTarget; pctMaxHp: number };
-
-export interface HeroDef {
-  name: string;
-  role: string;
-  position: 'front' | 'back';
-  attack: AttackType;
-  /** Для дальнего боя: 'back' — бьёт в тыл врага. */
-  targetRule?: 'front' | 'back';
-  stats: Stats;
-  ult: { name: string; effects: Effect[] };
-}
-
-export type HeroesConfig = Record<HeroId, HeroDef>;
 
 export interface CombatConfig {
   actionThreshold: number;
   tickSeconds: number;
   timeLimitSeconds: number;
   damage: { defScale: number; varianceMin: number; varianceMax: number; minDamage: number };
-  basicAttack: { k: number };
-  basicHeal: { k: number };
   energy: { max: number; perBasicAction: number; perHitTaken: number };
-  slots: { count: number; front: number[]; back: number[]; lane: number[] };
+  movement: { meleeRange: number; moveSpeed: number; dashSeconds: number; stackAngles: number[] };
+  slots: { count: number; front: number[]; back: number[] };
+  field: { width: number; slotsA: [number, number][] };
 }
 
-/** Отряд: 5 слотов, null — пустой слот. Индексы из combat.slots (0–1 фронт, 2–4 тыл). */
-export type Squad = (HeroId | null)[];
+export interface ActiveStatus {
+  def: StatusDef;
+  turnsLeft: number;
+  /** ATK наложившего на момент наложения (для урона за ход). */
+  sourceAtk: number;
+  source: string;
+}
 
 export interface Unit {
   /** Уникальный id юнита в бою, например "A2". */
   uid: string;
   side: Side;
   slot: number;
-  heroId: HeroId;
-  def: HeroDef;
+  unitId: string;
+  def: UnitDef;
+  basic: SkillDef;
+  ult?: SkillDef;
+  passives: SkillDef[];
   maxHp: number;
   hp: number;
-  atk: number;
-  armor: number;
-  spd: number;
+  base: { atk: number; def: number; spd: number };
   energy: number;
   gauge: number;
   shield: number;
   alive: boolean;
+  statuses: ActiveStatus[];
+  /** Позиция на поле (точка ног), единицы поля из combat.field. */
+  x: number;
+  y: number;
+  moveSpeed: number;
+  /** Дальность обычной атаки: meleeRange для ближнего боя, Infinity для остальных. */
+  range: number;
+  /** Цель сражения ближнего бойца: к ней он идёт и её бьёт. */
+  engage: Unit | null;
+  moving: { toX: number; toY: number } | null;
 }
+
+export type StatMod = keyof StatMods;
 
 interface BaseEvent {
   /** Время события в секундах боя. */
@@ -75,15 +70,19 @@ interface BaseEvent {
 export type BattleEvent = BaseEvent &
   (
     | { type: 'turn'; unit: string }
+    | { type: 'skip'; unit: string; reason: 'stun' }
+    | { type: 'move'; unit: string; from: [number, number]; to: [number, number]; duration: number; kind: 'walk' | 'dash' }
     | {
         type: 'attack';
         unit: string;
+        skill: string;
         targets: string[];
         kind: 'melee' | 'ranged' | 'heal';
         /** Энергия атакующего после действия. */
         energy: number;
       }
-    | { type: 'ult'; unit: string; name: string }
+    | { type: 'ult'; unit: string; skill: string; name: string; targets: string[] }
+    | { type: 'passive'; unit: string; skill: string; name: string }
     | {
         type: 'damage';
         source: string;
@@ -93,10 +92,13 @@ export type BattleEvent = BaseEvent &
         hp: number;
         shield: number;
         energy: number;
+        dot?: boolean;
       }
     | { type: 'heal'; source: string; target: string; amount: number; hp: number }
     | { type: 'buff'; source: string; target: string; kind: 'shield'; amount: number; shield: number }
-    | { type: 'death'; unit: string }
+    | { type: 'status'; source: string; target: string; status: string; name: string; turns: number; action: 'apply' | 'expire' }
+    | { type: 'energy'; unit: string; energy: number }
+    | { type: 'death'; unit: string; killer: string | null }
     | { type: 'end'; winner: Side; reason: 'wipe' | 'timeout' }
   );
 
@@ -104,13 +106,15 @@ export interface UnitSnapshot {
   uid: string;
   side: Side;
   slot: number;
-  heroId: HeroId;
+  unitId: string;
   maxHp: number;
+  x: number;
+  y: number;
 }
 
 export interface UnitReport {
   uid: string;
-  heroId: HeroId;
+  unitId: string;
   damageDealt: number;
   healingDone: number;
   shieldGiven: number;

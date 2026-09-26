@@ -22,52 +22,28 @@ interface AssetEntry {
   gradient?: string[];
   /** Пиксель-арт: масштабировать без сглаживания. */
   pixelArt?: boolean;
-  /** Спрайтшит: кадры w×h, ряд = анимация. */
-  sheet?: { columns: number; anims: Record<string, { row: number; frames: number; ms: number[] }> };
 }
 
 const MANIFEST = (manifestJson as unknown as { assets: Record<string, AssetEntry> }).assets;
-
-export const heroBattle = (heroId: string) => `hero_${heroId}_battle`;
-export const heroPortrait = (heroId: string) => `hero_${heroId}_portrait`;
-export const heroSheet = (heroId: string) => `hero_${heroId}_sheet`;
-export const ultIcon = (heroId: string) => `ui_ult_${heroId}`;
-/** Ключ анимации спрайтшита, например "hero_guard_sheet:attack". */
-export const animKey = (sheetId: string, name: string) => `${sheetId}:${name}`;
 
 /** Ставит в очередь загрузки все ассеты с файлом. */
 export function queueAssets(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
     if (!a.file) continue;
     if (a.atlasXml) scene.load.atlasXML(id, a.file, a.atlasXml);
-    else if (a.sheet) scene.load.spritesheet(id, a.file, { frameWidth: a.w, frameHeight: a.h });
     else scene.load.image(id, a.file);
   }
 }
 
-/** После загрузки: фильтр для пиксель-арта и анимации из рядов спрайтшитов. */
+/** После загрузки: фильтр для пиксель-арта. */
 export function setupLoadedAssets(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
-    if (!a.file || !scene.textures.exists(id)) continue;
-    if (a.pixelArt) scene.textures.get(id).setFilter(Phaser.Textures.FilterMode.NEAREST);
-    if (!a.sheet) continue;
-    for (const [name, anim] of Object.entries(a.sheet.anims)) {
-      const key = animKey(id, name);
-      if (scene.anims.exists(key)) continue;
-      const frames = Array.from({ length: anim.frames }, (_, i) => ({
-        key: id,
-        frame: anim.row * a.sheet!.columns + i,
-        duration: anim.ms[i] ?? anim.ms[0],
-      }));
-      scene.anims.create({ key, frames });
-    }
+    if (a.file && a.pixelArt && scene.textures.exists(id)) scene.textures.get(id).setFilter(Phaser.Textures.FilterMode.NEAREST);
   }
 }
 
-/** Есть ли загруженный спрайтшит с анимациями (иначе рисуем статичную картинку). */
-export function hasSheet(scene: Phaser.Scene, id: string): boolean {
-  return !!MANIFEST[id]?.sheet && !!MANIFEST[id]?.file && scene.textures.exists(id);
-}
+/** Есть ли id в манифесте ассетов (для проверки ссылок из контента). */
+export const hasAsset = (id: string) => id in MANIFEST;
 
 /** Текстура и кадр для id из манифеста (кадр атласа или отдельная картинка/плейсхолдер). */
 export function tex(scene: Phaser.Scene, id: string, pressed = false): { key: string; frame?: string } {
@@ -85,7 +61,7 @@ export function sliceOf(id: string): [number, number, number, number] {
 /** Для всех id без текстуры (нет файла или не загрузился) рисует цветной прямоугольник с подписью. */
 export function buildPlaceholders(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
-    if (scene.textures.exists(id) || a.sheet || a.atlasXml) continue;
+    if (scene.textures.exists(id) || a.atlasXml) continue;
     if (a.atlas && scene.textures.exists(a.atlas)) continue;
     const w = a.w || 128;
     const h = a.h || 128;

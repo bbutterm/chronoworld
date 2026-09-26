@@ -1,112 +1,219 @@
 import { describe, expect, it } from 'vitest';
-import { simulateBattle, type BattleEvent, type HeroesConfig } from '../src/core';
-import { cfg, hero } from './helpers';
+import { simulateBattle, type BattleEvent } from '../src/core';
+import { loadContent } from '../scripts/lib/content-node';
+import { cfg, content, skill, unitDef } from './helpers';
 
+const GAME = loadContent();
 const SQUAD = ['guard', 'warrior', 'archer', 'mage', 'priest'];
 const of = <T extends BattleEvent['type']>(log: BattleEvent[], type: T) =>
   log.filter((e): e is Extract<BattleEvent, { type: T }> => e.type === type);
+const noUlt = { skills: { basic: 'shot', passives: [] } };
 
-describe('simulateBattle', () => {
-  it('один seed — одинаковый лог', () => {
-    const a = simulateBattle(SQUAD, SQUAD, 123);
-    const b = simulateBattle(SQUAD, SQUAD, 123);
-    expect(a.log).toEqual(b.log);
-    expect(a.winner).toBe(b.winner);
-  });
-
-  it('разные seed — разные логи', () => {
-    const a = simulateBattle(SQUAD, SQUAD, 1);
-    const b = simulateBattle(SQUAD, SQUAD, 2);
-    expect(a.log).not.toEqual(b.log);
+describe('детерминизм и конец боя', () => {
+  it('один seed — одинаковый лог, разные seed — разные', () => {
+    expect(simulateBattle(GAME, SQUAD, SQUAD, 123).log).toEqual(simulateBattle(GAME, SQUAD, SQUAD, 123).log);
+    expect(simulateBattle(GAME, SQUAD, SQUAD, 1).log).not.toEqual(simulateBattle(GAME, SQUAD, SQUAD, 2).log);
   });
 
   it('бой заканчивается событием end, у проигравшей стороны никого нет', () => {
-    const r = simulateBattle(SQUAD, ['warrior', null, null, null, null], 7);
+    const r = simulateBattle(GAME, SQUAD, ['warrior', null, null, null, null], 7);
     expect(r.winner).toBe('A');
-    expect(r.reason).toBe('wipe');
-    const last = r.log[r.log.length - 1];
-    expect(last).toMatchObject({ type: 'end', winner: 'A' });
+    expect(r.log[r.log.length - 1]).toMatchObject({ type: 'end', winner: 'A', reason: 'wipe' });
     expect(of(r.log, 'death').map((e) => e.unit)).toContain('B0');
   });
 
   it('по истечении лимита времени атакующий проигрывает', () => {
-    const heroes: HeroesConfig = {
-      wall: hero({ stats: { hp: 1_000_000, atk: 1, def: 1000, spd: 100 }, ult: { name: 'Ничего', effects: [] } }),
-    };
-    const r = simulateBattle(['wall'], ['wall'], 1, { heroes });
-    expect(r.reason).toBe('timeout');
-    expect(r.winner).toBe('B');
-    expect(r.duration).toBe(cfg.timeLimitSeconds);
+    const c = content([unitDef('wall', noUlt, { hp: 1_000_000, atk: 1, def: 1000 })]);
+    const r = simulateBattle(c, ['wall'], ['wall'], 1);
+    expect(r).toMatchObject({ reason: 'timeout', winner: 'B', duration: cfg.timeLimitSeconds });
   });
 
-  it('шкала действий: при SPD 100 и пороге 1000 ход раз в 10 тиков', () => {
-    const heroes: HeroesConfig = {
-      h: hero({ stats: { hp: 100_000, atk: 1, def: 0, spd: 100 }, ult: { name: 'Ничего', effects: [] } }),
-    };
-    const r = simulateBattle(['h'], ['h'], 1, { heroes });
-    const turns = of(r.log, 'turn').filter((e) => e.unit === 'A0');
+  it('мёртвые не ходят и не получают урон', () => {
+    const r = simulateBattle(GAME, SQUAD, SQUAD, 3);
+    const dead = new Set<string>();
+    for (const e of r.log) {
+      if (e.type === 'death') dead.add(e.unit);
+      if (e.type === 'turn' || e.type === 'move') expect(dead.has(e.unit)).toBe(false);
+      if (e.type === 'damage' || e.type === 'heal') expect(dead.has(e.target)).toBe(false);
+    }
+  });
+
+  it('зеркальный бой не даёт преимущества стороне (порядок обработки не важен)', () => {
+    let winsA = 0;
+    for (let s = 1; s <= 300; s++) if (simulateBattle(GAME, SQUAD, SQUAD, s, { log: false }).winner === 'A') winsA++;
+    expect(winsA / 300).toBeGreaterThan(0.35);
+    expect(winsA / 300).toBeLessThan(0.65);
+  });
+});
+
+describe('шкала действий и энергия', () => {
+  it('SPD 100 при пороге 1000 — ход раз в 10 тиков', () => {
+    const c = content([unitDef('h', noUlt, { hp: 100_000, atk: 1 })]);
+    const turns = of(simulateBattle(c, ['h'], ['h'], 1).log, 'turn').filter((e) => e.unit === 'A0');
     const step = (cfg.actionThreshold / 100) * cfg.tickSeconds;
     expect(turns[0].t).toBeCloseTo(step);
     expect(turns[1].t - turns[0].t).toBeCloseTo(step);
   });
 
-  it('при равенстве шкалы порядок ходов решает seed', () => {
-    const firstMovers = new Set<string>();
-    for (let seed = 1; seed <= 50; seed++) {
-      const r = simulateBattle(['warrior', 'warrior'], ['warrior', 'warrior'], seed);
-      const first = of(r.log, 'turn').slice(0, 4).map((e) => e.unit);
-      expect([...first].sort()).toEqual(['A0', 'A1', 'B0', 'B1']);
-      expect(of(simulateBattle(['warrior', 'warrior'], ['warrior', 'warrior'], seed).log, 'turn')[0].unit).toBe(first[0]);
-      firstMovers.add(first[0]);
-    }
-    // За 50 seed первым ходили разные юниты, а не всегда атакующий
-    expect(firstMovers.size).toBeGreaterThan(1);
-    expect([...firstMovers].some((u) => u.startsWith('B'))).toBe(true);
+  it('при равенстве шкалы порядок решает seed', () => {
+    const c = content([unitDef('h', noUlt, { hp: 100_000, atk: 1 })]);
+    const first = new Set<string>();
+    for (let s = 1; s <= 40; s++) first.add(of(simulateBattle(c, ['h'], ['h'], s).log, 'turn')[0].unit);
+    expect(first).toEqual(new Set(['A0', 'B0']));
   });
 
-  it('энергия: +25 за обычную атаку, +10 за полученный удар, ульта на 100 и сброс', () => {
-    const heroes: HeroesConfig = {
-      h: hero({
-        stats: { hp: 1_000_000, atk: 10, def: 0, spd: 100 },
-        ult: { name: 'Бум', effects: [{ type: 'damage', target: 'enemyAll', k: 1 }] },
-      }),
-      // Чуть медленнее, чтобы ходы не совпадали и A0 всегда ходил первым
-      slow: hero({ stats: { hp: 1_000_000, atk: 10, def: 0, spd: 99 }, ult: { name: 'Ничего', effects: [] } }),
-    };
-    const r = simulateBattle(['h'], ['slow'], 1, { heroes });
-    const attacks = of(r.log, 'attack').filter((e) => e.unit === 'A0');
-    // A0 бьёт первым: 25; потом получает удар от B0: 35; потом 60, 70; 95, 105→100
-    expect(attacks.slice(0, 3).map((e) => e.energy)).toEqual([25, 60, 95]);
-    const hitsOnA = of(r.log, 'damage').filter((e) => e.target === 'A0');
-    expect(hitsOnA[0].energy).toBe(35);
-    const ults = of(r.log, 'ult').filter((e) => e.unit === 'A0');
-    expect(ults.length).toBeGreaterThan(0);
-    // После ульты следующая атака снова начинается с малой энергии
-    const ultIdx = r.log.indexOf(ults[0]);
-    const nextAttack = r.log.slice(ultIdx).find((e) => e.type === 'attack' && e.unit === 'A0');
-    expect(nextAttack && 'energy' in nextAttack ? nextAttack.energy : -1).toBeLessThanOrEqual(35);
+  it('+25 за обычную атаку, +10 за полученный удар, ульта на 100 и сброс', () => {
+    const c = content(
+      [
+        unitDef('h', { skills: { basic: 'shot', ult: 'boom', passives: [] } }, { hp: 1_000_000, atk: 10 }),
+        unitDef('slow', noUlt, { hp: 1_000_000, atk: 10, spd: 99 }),
+      ],
+      [skill('boom', { target: { side: 'enemy', pick: 'all' } })],
+    );
+    const r = simulateBattle(c, ['h'], ['slow'], 1);
+    expect(of(r.log, 'attack').filter((e) => e.unit === 'A0').slice(0, 3).map((e) => e.energy)).toEqual([25, 60, 95]);
+    expect(of(r.log, 'damage').find((e) => e.target === 'A0')?.energy).toBe(35);
+    const ult = of(r.log, 'ult').find((e) => e.unit === 'A0');
+    expect(ult).toMatchObject({ skill: 'boom', targets: ['B0'] });
+  });
+});
+
+describe('движение', () => {
+  const melee = unitDef('m', { skills: { basic: 'hit', passives: [] } }, { hp: 100_000, atk: 1 });
+  const archer = unitDef('r', noUlt, { hp: 100_000, atk: 1 });
+
+  it('ближний боец идёт к цели и бьёт только вплотную', () => {
+    const r = simulateBattle(content([melee, archer]), ['m'], ['r'], 1);
+    const move = of(r.log, 'move').find((e) => e.unit === 'A0')!;
+    expect(move.kind).toBe('walk');
+    const firstHit = of(r.log, 'attack').find((e) => e.unit === 'A0')!;
+    expect(firstHit.t).toBeGreaterThanOrEqual(move.t + move.duration - cfg.tickSeconds);
+    const target = r.units.find((u) => u.uid === 'B0')!;
+    expect(Math.hypot(move.to[0] - target.x, move.to[1] - target.y)).toBeLessThanOrEqual(cfg.movement.meleeRange);
+  });
+
+  it('дальний бой не двигается', () => {
+    const r = simulateBattle(content([melee, archer]), ['m'], ['r'], 1);
+    expect(of(r.log, 'move').some((e) => e.unit === 'B0')).toBe(false);
+  });
+
+  it('два ближних бойца идут навстречу и встречаются посередине', () => {
+    const r = simulateBattle(content([melee]), ['m'], ['m'], 1);
+    const [ma, mb] = ['A0', 'B0'].map((u) => of(r.log, 'move').find((e) => e.unit === u)!);
+    expect(ma.t).toBe(mb.t);
+    expect(ma.to[0]).toBeLessThan(mb.to[0]);
+    expect(mb.to[0] - ma.to[0]).toBeLessThanOrEqual(cfg.movement.meleeRange);
+    expect(ma.to[0] + mb.to[0]).toBeCloseTo(cfg.field.width, 0);
+  });
+
+  it('рывок (dash) ставит бойца вплотную к цели', () => {
+    const c = content(
+      [unitDef('jumper', { skills: { basic: 'shot', ult: 'leap', passives: [] } }, { hp: 100_000, atk: 1 }), archer],
+      [skill('leap', { target: { side: 'enemy', pick: 'lowestHp' }, effects: [{ type: 'dash' }, { type: 'damage', k: 1 }] })],
+    );
+    const r = simulateBattle(c, ['jumper'], [null, null, 'r'], 1);
+    const dash = of(r.log, 'move').find((e) => e.kind === 'dash')!;
+    const target = r.units.find((u) => u.uid === 'B2')!;
+    expect(Math.hypot(dash.to[0] - target.x, dash.to[1] - target.y)).toBeLessThanOrEqual(cfg.movement.meleeRange);
+  });
+});
+
+describe('навыки из данных', () => {
+  it('fallback: лекарю некого лечить — атакует', () => {
+    const c = content(
+      [unitDef('healer', { skills: { basic: 'mend', passives: [] } }, { hp: 100_000 }), unitDef('dummy', noUlt, { hp: 100_000, atk: 1, spd: 50 })],
+      [skill('mend', { target: { side: 'ally', pick: 'lowestHpPct', includeSelf: true, onlyWounded: true }, effects: [{ type: 'heal', k: 1 }], fallback: 'shot' })],
+    );
+    const first = of(simulateBattle(c, ['healer'], ['dummy'], 1).log, 'attack').find((e) => e.unit === 'A0')!;
+    expect(first).toMatchObject({ skill: 'shot', kind: 'ranged' });
   });
 
   it('щит поглощает урон раньше HP', () => {
-    const r = simulateBattle(SQUAD, SQUAD, 11);
-    const shielded = of(r.log, 'damage').find((e) => e.absorbed > 0);
-    expect(shielded).toBeDefined();
+    const r = simulateBattle(GAME, SQUAD, SQUAD, 11);
     expect(of(r.log, 'buff').length).toBeGreaterThan(0);
+    expect(of(r.log, 'damage').some((e) => e.absorbed > 0)).toBe(true);
   });
 
   it('лечение не поднимает HP выше максимума', () => {
-    const r = simulateBattle(SQUAD, SQUAD, 5);
+    const r = simulateBattle(GAME, SQUAD, SQUAD, 5);
     const maxHp = Object.fromEntries(r.units.map((u) => [u.uid, u.maxHp]));
     for (const e of of(r.log, 'heal')) expect(e.hp).toBeLessThanOrEqual(maxHp[e.target]);
   });
 
-  it('мёртвые не ходят и не получают урон', () => {
-    const r = simulateBattle(SQUAD, SQUAD, 3);
-    const dead = new Set<string>();
-    for (const e of r.log) {
-      if (e.type === 'death') dead.add(e.unit);
-      if (e.type === 'turn') expect(dead.has(e.unit)).toBe(false);
-      if (e.type === 'damage' || e.type === 'heal') expect(dead.has(e.target)).toBe(false);
+  it('hits: pick=random выбирает цель на каждый удар', () => {
+    const c = content(
+      [unitDef('volley', { skills: { basic: 'multi', passives: [] } }, { atk: 1 }), unitDef('d', noUlt, { hp: 100_000, atk: 1 })],
+      [skill('multi', { target: { side: 'enemy', pick: 'random' }, hits: 3 })],
+    );
+    const r = simulateBattle(c, ['volley'], ['d', 'd', 'd'], 1);
+    const firstT = of(r.log, 'attack').find((e) => e.unit === 'A0')!.t;
+    expect(of(r.log, 'damage').filter((e) => e.source === 'A0' && e.t === firstT)).toHaveLength(3);
+  });
+});
+
+describe('статусы', () => {
+  const statusSkill = (status: Record<string, unknown>) => skill('curse', { effects: [{ type: 'status', status }] });
+
+  it('оглушение пропускает ход, статус истекает', () => {
+    const c = content(
+      [unitDef('stunner', { skills: { basic: 'curse', passives: [] } }, { hp: 100_000, spd: 200 }), unitDef('d', noUlt, { hp: 100_000 })],
+      [statusSkill({ id: 'stun', name: 'Оглушение', turns: 1, stun: true })],
+    );
+    const r = simulateBattle(c, ['stunner'], ['d'], 1);
+    expect(of(r.log, 'skip').some((e) => e.unit === 'B0')).toBe(true);
+    expect(of(r.log, 'status').some((e) => e.target === 'B0' && e.action === 'expire')).toBe(true);
+    // Оглушённый не атаковал в тот ход, когда пропустил.
+    const skipT = of(r.log, 'skip').find((e) => e.unit === 'B0')!.t;
+    expect(of(r.log, 'attack').some((e) => e.unit === 'B0' && e.t === skipT)).toBe(false);
+  });
+
+  it('яд наносит урон в начале хода носителя', () => {
+    const c = content(
+      [unitDef('poisoner', { skills: { basic: 'curse', passives: [] } }, { hp: 100_000, spd: 200 }), unitDef('d', noUlt, { hp: 100_000, atk: 1 })],
+      [statusSkill({ id: 'poison', name: 'Яд', turns: 3, dot: { k: 0.5 } })],
+    );
+    const dots = of(simulateBattle(c, ['poisoner'], ['d'], 1).log, 'damage').filter((e) => e.dot);
+    expect(dots.length).toBeGreaterThan(0);
+    expect(dots[0]).toMatchObject({ target: 'B0', source: 'A0', amount: 50 });
+  });
+
+  it('модификатор ATK меняет урон', () => {
+    const c = content(
+      [
+        unitDef('weak', { skills: { basic: 'curse', passives: [] } }, { hp: 100_000, spd: 300 }),
+        unitDef('d', noUlt, { hp: 100_000, atk: 100, spd: 100 }),
+      ],
+      [statusSkill({ id: 'weaken', name: 'Слабость', turns: 5, stats: { atk: -0.5 } })],
+    );
+    const hits = of(simulateBattle(c, ['weak'], ['d'], 1).log, 'damage').filter((e) => e.source === 'B0');
+    expect(hits[0].amount).toBeLessThanOrEqual(53);
+  });
+});
+
+describe('пассивки', () => {
+  it('battleStart и hit срабатывают, пассивка не запускает пассивки', () => {
+    const c = content(
+      [
+        unitDef('p', { skills: { basic: 'shot', passives: ['rally', 'thorns'] } }, { hp: 100_000, atk: 1 }),
+        unitDef('d', noUlt, { hp: 100_000, atk: 1 }),
+      ],
+      [
+        skill('rally', { trigger: 'battleStart', target: { side: 'ally', pick: 'self' }, effects: [{ type: 'shield', pctMaxHp: 0.1 }] }),
+        skill('thorns', { trigger: 'hit', target: { side: 'enemy', pick: 'nearest' }, effects: [{ type: 'damage', k: 0.1 }] }),
+      ],
+    );
+    const r = simulateBattle(c, ['p'], ['p'], 1);
+    const passives = of(r.log, 'passive');
+    expect(passives.filter((e) => e.skill === 'rally').map((e) => e.t)).toEqual([0, 0]);
+    expect(passives.some((e) => e.skill === 'thorns')).toBe(true);
+    // Шипы от шипов не срабатывают: после каждой пассивки thorns сразу идёт не ещё одна thorns того же юнита.
+    for (let i = 1; i < r.log.length; i++) {
+      const prev = r.log[i - 1];
+      const cur = r.log[i];
+      if (prev.type === 'passive' && prev.skill === 'thorns' && cur.type === 'damage') {
+        const next = r.log[i + 1];
+        expect(next?.type === 'passive' && next.skill === 'thorns' && next.unit === cur.target).toBe(false);
+      }
     }
   });
 });

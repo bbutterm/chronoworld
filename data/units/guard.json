@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "guard",
+  "name": "Страж",
+  "kind": "hero",
+  "role": "tank",
+  "stats": {
+    "hp": 1550,
+    "atk": 60,
+    "def": 60,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "guard_shield_wall",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "guard",
+    "hitFx": "fx_hit"
+  }
+}

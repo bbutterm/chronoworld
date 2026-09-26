@@ -1,35 +1,20 @@
-import type { Effect, HeroDef } from '../core';
+import type { Content, UnitDef } from '../core';
 
 const ROLE: Record<string, string> = { tank: 'Танк', damage: 'Урон', healer: 'Лекарь', support: 'Поддержка' };
-const ATTACK: Record<string, string> = { melee: 'ближний бой', ranged: 'дальний бой', healer: 'лечение' };
 
-const pct = (v: number) => `${Math.round(v * 100)}%`;
-
-/** Описание ульты собирается из конфига, чтобы числа жили в одном месте. */
-export function describeEffect(e: Effect): string {
-  switch (e.type) {
-    case 'damage': {
-      const where: Record<string, string> = {
-        enemyFrontRow: 'по всему фронту врага',
-        enemyLowestHp: 'по врагу с наименьшим HP',
-        enemyRandom: 'по случайным врагам',
-        enemyAll: 'по всем врагам',
-      };
-      const hits = e.hits && e.hits > 1 ? `${e.hits} удара ` : 'Урон ';
-      return `${hits}${where[e.target] ?? e.target} ×${e.k}`;
-    }
-    case 'heal':
-      return `Лечит всех союзников на ${e.k} ATK`;
-    case 'shield':
-      return `Щит себе и соседу на ${pct(e.pctMaxHp)} их HP`;
-  }
-}
-
-export function describeHero(h: HeroDef): string {
-  const s = h.stats;
-  return [
-    `${h.name} — ${ROLE[h.role] ?? h.role}, ${ATTACK[h.attack]}, ${h.position === 'front' ? 'фронт' : 'тыл'}`,
+/** Описание юнита собирается из данных: статы + описания навыков. */
+export function describeUnit(u: UnitDef, content: Content): string {
+  const s = u.stats;
+  const basic = content.skills[u.skills.basic];
+  const ult = u.skills.ult ? content.skills[u.skills.ult] : undefined;
+  const lines = [
+    `${u.name} — ${ROLE[u.role] ?? u.role}, ${basic?.range === 'melee' ? 'ближний бой' : 'дальний бой'}`,
     `HP ${s.hp}   ATK ${s.atk}   DEF ${s.def}   SPD ${s.spd}`,
-    `Ульта «${h.ult.name}»: ${h.ult.effects.map(describeEffect).join('; ')}`,
-  ].join('\n');
+  ];
+  if (ult) lines.push(`Ульта «${ult.name}»: ${ult.description ?? ''}`);
+  for (const p of u.skills.passives) {
+    const sk = content.skills[p];
+    if (sk) lines.push(`Пассивка «${sk.name}»: ${sk.description ?? ''}`);
+  }
+  return lines.join('\n');
 }

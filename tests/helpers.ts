@@ -1,40 +1,69 @@
-import { COMBAT, HEROES } from '../src/core';
-import type { CombatConfig, HeroDef, HeroesConfig, Unit } from '../src/core';
+import { buildContent, COMBAT, type CombatConfig, type Content } from '../src/core';
+import type { Unit } from '../src/core';
 
 export const cfg: CombatConfig = COMBAT;
 
-export function hero(overrides: Partial<HeroDef> & { stats?: Partial<HeroDef['stats']> } = {}): HeroDef {
-  return {
-    name: 'Тест',
-    role: 'damage',
-    position: 'front',
-    attack: 'melee',
-    ult: { name: 'Ульта', effects: [{ type: 'damage', target: 'enemyAll', k: 1 }] },
-    ...overrides,
-    stats: { hp: 1000, atk: 100, def: 0, spd: 100, ...overrides.stats },
-  };
-}
+type Json = Record<string, unknown>;
 
-export function unit(side: 'A' | 'B', slot: number, patch: Partial<Unit> = {}, def: HeroDef = hero()): Unit {
+/** Навык для тестов: по умолчанию — обычная атака дальнего боя по ближайшему. */
+export function skill(id: string, patch: Json = {}): Json {
   return {
-    uid: `${side}${slot}`,
-    side,
-    slot,
-    heroId: 'test',
-    def,
-    maxHp: def.stats.hp,
-    hp: def.stats.hp,
-    atk: def.stats.atk,
-    armor: def.stats.def,
-    spd: def.stats.spd,
-    energy: 0,
-    gauge: 0,
-    shield: 0,
-    alive: true,
+    id,
+    name: id,
+    range: 'ranged',
+    target: { side: 'enemy', pick: 'nearest' },
+    effects: [{ type: 'damage', k: 1 }],
     ...patch,
   };
 }
 
-export function withHeroes(extra: HeroesConfig): HeroesConfig {
-  return { ...HEROES, ...extra };
+/** Юнит для тестов. */
+export function unitDef(id: string, patch: Json = {}, stats: Json = {}): Json {
+  return {
+    id,
+    name: id,
+    kind: 'hero',
+    role: 'damage',
+    stats: { hp: 1000, atk: 100, def: 0, spd: 100, ...stats },
+    skills: { basic: 'shot', passives: [] },
+    visual: { sprite: id },
+    ...patch,
+  };
+}
+
+/** Контент из объектов; навык shot (дальняя атака) добавляется всегда. */
+export function content(units: Json[], skills: Json[] = []): Content {
+  const all = [skill('shot'), skill('hit', { range: 'melee' }), ...skills];
+  return buildContent(
+    units.map((data, i) => ({ file: `unit${i}`, data })),
+    all.map((data, i) => ({ file: `skill${i}`, data })),
+  );
+}
+
+/** Юнит боя для тестов выбора цели. */
+export function unit(side: 'A' | 'B', slot: number, x: number, y: number, patch: Partial<Unit> = {}): Unit {
+  return {
+    uid: `${side}${slot}`,
+    side,
+    slot,
+    unitId: 'u',
+    def: {} as Unit['def'],
+    basic: {} as Unit['basic'],
+    passives: [],
+    maxHp: 1000,
+    hp: 1000,
+    base: { atk: 100, def: 0, spd: 100 },
+    energy: 0,
+    gauge: 0,
+    shield: 0,
+    alive: true,
+    statuses: [],
+    x,
+    y,
+    moveSpeed: 300,
+    range: Infinity,
+    engage: null,
+    moving: null,
+    ...patch,
+  };
 }

@@ -1,6 +1,7 @@
 import { simulateBattle, type BattleOptions } from './battle';
-import { HEROES } from './config';
-import type { HeroId, Squad } from './types';
+import type { Content, Squad } from './types';
+
+type HeroId = string;
 
 /** "guard,warrior,-,mage,priest" → отряд; "-" или пусто — пустой слот. */
 export function parseSquad(text: string, slots = 5): Squad {
@@ -31,7 +32,7 @@ export interface SeriesResult {
   units: UnitAggregate[];
 }
 
-export function runSeries(squadA: Squad, squadB: Squad, n: number, seedStart = 1, opts: BattleOptions = {}): SeriesResult {
+export function runSeries(content: Content, squadA: Squad, squadB: Squad, n: number, seedStart = 1, opts: BattleOptions = {}): SeriesResult {
   let winsA = 0;
   let timeouts = 0;
   let totalDuration = 0;
@@ -40,7 +41,7 @@ export function runSeries(squadA: Squad, squadB: Squad, n: number, seedStart = 1
   const acc = new Map<string, UnitAggregate>();
 
   for (let i = 0; i < n; i++) {
-    const r = simulateBattle(squadA, squadB, seedStart + i, { ...opts, log: false });
+    const r = simulateBattle(content, squadA, squadB, seedStart + i, { ...opts, log: false });
     if (r.winner === 'A') winsA++;
     if (r.reason === 'timeout') timeouts++;
     totalDuration += r.duration;
@@ -49,7 +50,7 @@ export function runSeries(squadA: Squad, squadB: Squad, n: number, seedStart = 1
     for (const rep of Object.values(r.report)) {
       let a = acc.get(rep.uid);
       if (!a) {
-        a = { uid: rep.uid, heroId: rep.heroId, avgDamage: 0, avgHealing: 0, avgShield: 0, avgUlts: 0, survival: 0 };
+        a = { uid: rep.uid, heroId: rep.unitId, avgDamage: 0, avgHealing: 0, avgShield: 0, avgUlts: 0, survival: 0 };
         acc.set(rep.uid, a);
       }
       a.avgDamage += rep.damageDealt / n;
@@ -83,15 +84,15 @@ export interface SwapResult {
  * Проверка «зеркала»: в базовом отряде по очереди меняем одного героя на каждого другого
  * и прогоняем против исходного отряда с обеих сторон.
  */
-export function swapCheck(base: Squad, n: number, heroIds: HeroId[] = Object.keys(HEROES), opts: BattleOptions = {}): SwapResult[] {
+export function swapCheck(content: Content, base: Squad, n: number, heroIds: HeroId[], opts: BattleOptions = {}): SwapResult[] {
   const results: SwapResult[] = [];
   base.forEach((from, slot) => {
     for (const to of heroIds) {
       if (to === from) continue;
       const modified = [...base];
       modified[slot] = to;
-      const asAttacker = runSeries(modified, base, n, 1, opts).winRateA;
-      const asDefender = 1 - runSeries(base, modified, n, 1, opts).winRateA;
+      const asAttacker = runSeries(content, modified, base, n, 1, opts).winRateA;
+      const asDefender = 1 - runSeries(content, base, modified, n, 1, opts).winRateA;
       results.push({ slot, from, to, winRate: (asAttacker + asDefender) / 2 });
     }
   });

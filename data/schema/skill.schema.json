@@ -1,0 +1,275 @@
+{
+  "title": "Навык (обычная атака, ульта, пассивка)",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "range": {
+      "default": "ranged",
+      "type": "string",
+      "enum": [
+        "melee",
+        "ranged"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "side": {
+          "type": "string",
+          "enum": [
+            "enemy",
+            "ally"
+          ]
+        },
+        "pick": {
+          "type": "string",
+          "enum": [
+            "nearest",
+            "lowestHp",
+            "lowestHpPct",
+            "random",
+            "all",
+            "self"
+          ]
+        },
+        "row": {
+          "default": "any",
+          "type": "string",
+          "enum": [
+            "front",
+            "back",
+            "any"
+          ]
+        },
+        "rowFallback": {
+          "default": true,
+          "type": "boolean"
+        },
+        "count": {
+          "default": 1,
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "includeSelf": {
+          "default": false,
+          "type": "boolean"
+        },
+        "onlyWounded": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "side",
+        "pick"
+      ]
+    },
+    "hits": {
+      "default": 1,
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "effects": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "damage"
+              },
+              "k": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "type",
+              "k"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "heal"
+              },
+              "k": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "type",
+              "k"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "shield"
+              },
+              "pctMaxHp": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "type",
+              "pctMaxHp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "status"
+              },
+              "status": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "turns": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "stats": {
+                    "type": "object",
+                    "properties": {
+                      "atk": {
+                        "type": "number"
+                      },
+                      "def": {
+                        "type": "number"
+                      },
+                      "spd": {
+                        "type": "number"
+                      }
+                    },
+                    "description": "Модификаторы статов в долях: 0.2 = +20%, -0.3 = −30%"
+                  },
+                  "stun": {
+                    "type": "boolean"
+                  },
+                  "dot": {
+                    "type": "object",
+                    "properties": {
+                      "k": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    },
+                    "required": [
+                      "k"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "turns"
+                ]
+              },
+              "chance": {
+                "default": 1,
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "type",
+              "status"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "energy"
+              },
+              "amount": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "type",
+              "amount"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "dash"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          }
+        ]
+      }
+    },
+    "fallback": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "battleStart",
+        "turnStart",
+        "hit",
+        "kill",
+        "allyDeath"
+      ]
+    },
+    "chance": {
+      "default": 1,
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "target",
+    "effects"
+  ]
+}

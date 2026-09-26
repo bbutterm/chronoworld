@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mage",
+  "name": "Маг",
+  "kind": "hero",
+  "role": "damage",
+  "stats": {
+    "hp": 900,
+    "atk": 150,
+    "def": 15,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mage_firestorm",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "mage",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

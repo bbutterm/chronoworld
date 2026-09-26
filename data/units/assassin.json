@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "assassin",
+  "name": "Ассасин",
+  "kind": "hero",
+  "role": "damage",
+  "stats": {
+    "hp": 780,
+    "atk": 125,
+    "def": 20,
+    "spd": 120
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "assassin_leap",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "assassin",
+    "hitFx": "fx_hit"
+  }
+}
