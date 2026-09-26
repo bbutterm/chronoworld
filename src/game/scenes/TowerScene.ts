@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { markHint } from '../hints';
 import { heroPower, squadPower, towerFloor, towerStatus, unitPower, withGear } from '../../core';
 import { GAME } from '../content';
 import { formatNumber, heroSprite, POWER_COLORS, powerTone } from '../flow';
@@ -20,6 +21,7 @@ export class TowerScene extends Phaser.Scene {
 
   create(): void {
     screen(this, 'Башня испытаний', 'Home', { to: 'Home' });
+    markHint('tower_open');
     const save = session.save;
     const st = towerStatus(save, GAME);
     const top = CONTENT_TOP;

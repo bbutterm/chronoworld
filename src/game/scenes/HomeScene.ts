@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { achievementStatus, actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
 import { GAME } from '../content';
-import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber } from '../flow';
-import { GAME_W } from '../layout';
-import { badge, card, confirm, gemIcon, screen } from '../screen';
+import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, jobChangeReadyCount } from '../flow';
+import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
+import { GAME_H, GAME_W } from '../layout';
+import { badge, card, confirm, gemIcon, NAV_H, screen } from '../screen';
 import { commit, now, resetProgress, session, today } from '../session';
-import { button, dangerButton, icon, pressable, text, toast } from '../ui';
-import { C, FS } from '../theme';
+import { button, dangerButton, hintPointer, icon, pressable, text, toast } from '../ui';
+import { C, FS, TOUCH } from '../theme';
 
 /** Главная: сундук офлайн-наград, быстрые награды (K1), плитки задания (K5) / башня (K4) / поручения (K9) / достижения (K10), кампания, тестовый бой, сброс. */
 export class HomeScene extends Phaser.Scene {
@@ -14,24 +15,35 @@ export class HomeScene extends Phaser.Scene {
   private claimBtn!: ReturnType<typeof button>;
   /** Сколько поручений было завершено при отрисовке плитки (раз в секунду сверяем — значок не отстаёт). */
   private bountiesDone = 0;
+  /** R: показанная подсказка (одна за раз) и её указатель. */
+  private hintId: HintId | null = null;
+  private hintView: Phaser.GameObjects.Container | null = null;
 
   constructor() {
     super('Home');
   }
 
   create(): void {
+    this.hintId = null;
+    this.hintView = null;
     screen(this, 'Лагерь героев', 'Home');
     this.chest();
     this.fastRewards();
     this.tiles();
 
     const cur = currentStage(session.save, GAME);
-    button(this, GAME_W / 2, 1480, 780, 130, 'ui_btn_primary', cur ? `В кампанию · этап ${cur.globalIndex + 1}` : 'В кампанию', () => this.scene.start('Campaign'), FS.h1);
-    button(this, 300, 1640, 460, 100, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'), FS.h3);
-    dangerButton(this, 800, 1640, 400, 100, 'Сбросить', () =>
+    button(this, GAME_W / 2, 1480, 780, 130, 'ui_btn_primary', cur ? `В кампанию · этап ${cur.globalIndex + 1}` : 'В кампанию', () => {
+      markHint('home_campaign');
+      this.scene.start('Campaign');
+    }, FS.h1);
+    button(this, 215, 1640, 390, 100, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'), FS.h3);
+    this.resetHintsLink(560, 1640);
+    dangerButton(this, 885, 1640, 330, 100, 'Сбросить', () =>
       confirm(this, 'Сбросить весь прогресс? Герои, этапы, золото и предметы пропадут.', 'Сбросить', () =>
         confirm(this, 'Точно? Отменить будет нельзя.', 'Да, сбросить', () => {
           resetProgress();
+          // Новая игра — новичок: подсказки первой сессии снова нужны.
+          resetHints();
           this.scene.restart();
         }),
       ),
@@ -69,6 +81,7 @@ export class HomeScene extends Phaser.Scene {
           : `Накоплено за ${h} ч ${m} мин\nЗолото +${formatNumber(r.gold)}   Опыт +${formatNumber(r.jobExp)} каждому`,
     );
     this.claimBtn.container.setAlpha(r.gold > 0 || r.jobExp > 0 ? 1 : 0.45);
+    this.updateHint(r.gold > 0 || r.jobExp > 0);
     // Поручение завершилось, пока игрок на главной, — обновить плитку и значок.
     if (finishedBounties(session.save, now()) !== this.bountiesDone) this.scene.restart();
   }
@@ -80,7 +93,43 @@ export class HomeScene extends Phaser.Scene {
       return;
     }
     commit(r.save);
+    markHint('chest_claim');
     this.restartWithToast([`Собрано: золото +${r.rewards.gold}, опыт +${r.rewards.jobExp}`, ...describeEvents(r.events, r.save, GAME)]);
+  }
+
+  // ---------- R. Подсказки первой сессии ----------
+
+  /** Одна подсказка на следующем полезном действии; пересчитывается раз в секунду (сундук наполняется). */
+  private updateHint(chestHasIncome: boolean): void {
+    const save = session.save;
+    const id = pickHomeHint({
+      cleared: save.campaign.cleared.length,
+      chestHasIncome,
+      jobChangeReady: jobChangeReadyCount(save, GAME) > 0,
+      towerUnlocked: towerStatus(save, GAME).unlocked,
+    });
+    if (id === this.hintId) return;
+    this.hintView?.destroy();
+    this.hintView = null;
+    this.hintId = id;
+    if (!id) return;
+    const msg = HINT_TEXT[id];
+    if (id === 'home_campaign') this.hintView = hintPointer(this, GAME_W / 2, 1480, msg, 'below', { w: 780, h: 130 });
+    if (id === 'chest_claim') this.hintView = hintPointer(this, GAME_W / 2, 640, msg, 'below', { w: 460, h: 100 });
+    if (id === 'tower_open') this.hintView = hintPointer(this, 800, 1090, msg, 'below', { w: 500, h: 180 });
+    // Вкладка «Герои» — средняя в нижней навигации.
+    if (id === 'job_change') this.hintView = hintPointer(this, GAME_W / 2, GAME_H - NAV_H / 2 + 4, msg, 'above', { w: GAME_W / 3 - 30, h: NAV_H - 40 });
+  }
+
+  /** Маленькая ссылка «Сбросить подсказки» рядом со «Сбросить» (цель нажатия — не ниже TOUCH). */
+  private resetHintsLink(x: number, y: number): void {
+    const t = text(this, x, y, 'Сбросить\nподсказки', FS.small, C.muted, { stroke: C.stroke, strokeThickness: 3, lineSpacing: 2 });
+    this.add.rectangle(x, y + t.height / 2 + 4, t.width * 0.8, 3, 0xe0cfb0, 0.7);
+    pressable(this, this.add.zone(x, y, 230, TOUCH), 230, TOUCH, () => {
+      resetHints();
+      this.scene.restart();
+      this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, 'Подсказки покажутся снова'));
+    });
   }
 
   // ---------- K1. Быстрые награды ----------
@@ -157,7 +206,10 @@ export class HomeScene extends Phaser.Scene {
     const ts = towerStatus(save, GAME);
     if (ts.unlocked) {
       const sub = ts.next === null ? 'Вершина взята!' : `Этаж ${ts.floor} · дальше ${ts.next}`;
-      this.tile(xr, y1, 'Башня', sub, C.gold, () => this.scene.start('Tower'));
+      this.tile(xr, y1, 'Башня', sub, C.gold, () => {
+        markHint('tower_open');
+        this.scene.start('Tower');
+      });
     } else {
       const stage = GAME.content.stages.find((s) => s.id === ts.unlockAfterStage);
       const hint = stage ? `Откроется после этапа ${stage.globalIndex + 1}` : 'Пока закрыта';

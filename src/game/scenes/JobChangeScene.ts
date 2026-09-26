@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { markHint } from '../hints';
 import { actChangeJob, availableJobChanges } from '../../core';
 import { CONTENT, GAME } from '../content';
 import { describeEvents, ROLE_NAMES, statsLine } from '../flow';
@@ -17,6 +18,7 @@ export class JobChangeScene extends Phaser.Scene {
 
   create(data: { heroId: string }): void {
     const hero = session.save.heroes.find((h) => h.id === data.heroId);
+    markHint('job_change');
     screen(this, 'Смена профессии', null, { to: 'Hero', data: { heroId: data.heroId } });
     if (!hero) return;
     const options = availableJobChanges(hero, GAME);

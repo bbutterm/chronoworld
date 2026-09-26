@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { session, takeWarnings } from './session';
-import { formatNumber } from './flow';
+import { GAME } from './content';
+import { formatNumber, jobChangeReadyCount } from './flow';
 import { button, ellipsize, icon, panel, text, toast } from './ui';
 import { C, FS, TINT } from './theme';
 
@@ -48,6 +49,8 @@ export function screen(scene: Phaser.Scene, title: string, active: NavTab | null
       button(scene, w * (i + 0.5), GAME_H - NAV_H / 2 + 4, w - 30, NAV_H - 40, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label, () => {
         if (!on) scene.scene.start(t.scene);
       }, FS.h2);
+      // R: значок «Герои», когда кто-то может сменить профессию.
+      if (t.scene === 'Heroes') badge(scene, w * (i + 1) - 50, GAME_H - NAV_H + 30, jobChangeReadyCount(session.save, GAME));
     });
   }
   for (const w of takeWarnings()) toast(scene, w, C.error, 6000);

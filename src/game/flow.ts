@@ -2,6 +2,7 @@
  * Чистые помощники экранов (без Phaser) — их проверяют тесты tests/game-flow.test.ts.
  */
 import {
+  availableJobChanges,
   canEquip,
   getJob,
   RARITIES,
@@ -65,6 +66,29 @@ export function nextOpenStage(save: SaveState, stageId: string, ctx: GameContext
   const next = cur ? ctx.content.stages[cur.globalIndex + 1] : undefined;
   if (!next) return null;
   return stageStatus(save, next.id, ctx) === 'locked' ? null : next;
+}
+
+/** R. Почему авто-прохождение остановилось (null — идёт дальше). */
+export type AutoStop = 'defeat' | 'chapter_end' | 'no_next' | 'replay';
+
+/**
+ * R. Авто-прохождение кампании: какой этап запустить после боя на stageId, или почему остановиться.
+ * Идёт только по новым этапам. Останавливается на поражении, на конце главы, если следующий этап
+ * закрыт/отсутствует и если он уже пройден (повтор старого этапа не запускает цепочку повторов).
+ */
+export function autoNextStage(save: SaveState, stageId: string, win: boolean, ctx: GameContext): { next: StageInfo | null; stop: AutoStop | null } {
+  if (!win) return { next: null, stop: 'defeat' };
+  const cur = ctx.content.stages.find((s) => s.id === stageId);
+  const next = nextOpenStage(save, stageId, ctx);
+  if (!next) return { next: null, stop: 'no_next' };
+  if (cur && next.chapter !== cur.chapter) return { next: null, stop: 'chapter_end' };
+  if (stageStatus(save, next.id, ctx) === 'cleared') return { next: null, stop: 'replay' };
+  return { next, stop: null };
+}
+
+/** R. Сколько героев могут сменить профессию прямо сейчас (значок вкладки «Герои»). */
+export function jobChangeReadyCount(save: SaveState, ctx: GameContext): number {
+  return save.heroes.filter((h) => ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0).length;
 }
 
 /** Этап, на который стоит вести игрока: первый не пройденный открытый, иначе последний. */

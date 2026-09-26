@@ -5,14 +5,19 @@ import { describeEvents, formatNumber, questDestination, untilReset } from '../f
 import { GAME_W } from '../layout';
 import { badge, card, CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
 import { commit, session, today } from '../session';
-import { button, emptyState, icon, progressBar, text, toast } from '../ui';
+import { button, emptyState, icon, progressBar, ScrollArea, text, toast } from '../ui';
 import { C, FS, TINT } from '../theme';
 
 const BAR_X = 110;
 const BAR_W = 860;
+/** Высота строки задания: фиксированная, список прокручивается (R). */
+const ROW_H = 190;
+const ROW_GAP = 14;
 
 /** K5. Ежедневные задания: полоса активности с наградами-порогами и список заданий. */
 export class QuestsScene extends Phaser.Scene {
+  private area!: ScrollArea;
+
   constructor() {
     super('Quests');
   }
@@ -39,10 +44,12 @@ export class QuestsScene extends Phaser.Scene {
     for (const m of st.milestones) this.milestone(m, BAR_X + (BAR_W * m.points) / Math.max(1, st.maxActivity), barY);
 
     // --- Задания ---
-    const listTop = top + 430;
-    if (!st.quests.length) emptyState(this, GAME_W / 2, listTop + 200, 'На сегодня заданий нет.\nНовые появятся после полуночи.');
-    const rowH = Math.min(190, (CONTENT_BOTTOM - listTop) / Math.max(1, st.quests.length));
-    st.quests.forEach((q, i) => this.questRow(q, listTop + rowH * (i + 0.5), rowH - 14));
+    // R: строки не сжимаются — список тянется пальцем (ScrollArea).
+    const listTop = top + 420;
+    this.area = new ScrollArea(this, listTop, CONTENT_BOTTOM + 10);
+    if (!st.quests.length) this.area.add(emptyState(this, GAME_W / 2, 200, 'На сегодня заданий нет.\nНовые появятся после полуночи.'));
+    st.quests.forEach((q, i) => this.questRow(q, ROW_H * (i + 0.5), ROW_H - ROW_GAP));
+    this.area.setContentHeight(ROW_H * st.quests.length);
   }
 
   private milestone(m: MilestoneView, x: number, y: number): void {
@@ -65,28 +72,30 @@ export class QuestsScene extends Phaser.Scene {
   }
 
   private questRow(q: QuestView, y: number, h: number): void {
-    card(this, GAME_W / 2, y, 1040, h, q.claimed);
+    const a = this.area;
+    a.add(card(this, GAME_W / 2, y, 1040, h, q.claimed));
     const dark = q.claimed;
-    text(this, 70, y - h * 0.22, q.name, FS.body, dark ? C.ink : C.text, {
+    a.add(text(this, 70, y - h * 0.22, q.name, FS.body, dark ? C.ink : C.text, {
       fontStyle: 'bold',
       stroke: dark ? C.none : C.stroke,
       strokeThickness: dark ? 0 : 4,
       align: 'left',
       wordWrap: { width: 640 },
-    }).setOrigin(0, 0.5);
-    progressBar(this, 70, y + h * 0.22, 440, 30, q.progress / q.target, q.done ? TINT.gold : TINT.success);
-    text(this, 290, y + h * 0.22, `${q.progress} / ${q.target}`, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4 });
-    text(this, 600, y + h * 0.22, `+${q.points} очк.`, FS.body, dark ? C.inkMuted : C.success, { fontStyle: 'bold' });
+    }).setOrigin(0, 0.5));
+    a.add(progressBar(this, 70, y + h * 0.22, 440, 30, q.progress / q.target, q.done ? TINT.gold : TINT.success));
+    a.add(text(this, 290, y + h * 0.22, `${q.progress} / ${q.target}`, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4 }));
+    a.add(text(this, 600, y + h * 0.22, `+${q.points} очк.`, FS.body, dark ? C.inkMuted : C.success, { fontStyle: 'bold' }));
 
     const bx = 880;
     if (q.claimed) {
-      icon(this, bx - 60, y, 'iconCheck_bronze', 56);
-      text(this, bx + 20, y, 'Готово', FS.body, C.ink, { fontStyle: 'bold' });
+      a.add(icon(this, bx - 60, y, 'iconCheck_bronze', 56));
+      a.add(text(this, bx + 20, y, 'Готово', FS.body, C.ink, { fontStyle: 'bold' }));
     } else if (q.done) {
-      const b = button(this, bx, y, 250, 110, 'ui_btn_primary', 'Забрать', () => this.claim(q), FS.h3);
+      const b = button(this, bx, y, 250, 110, 'ui_btn_primary', 'Забрать', a.tap(() => this.claim(q)), FS.h3);
+      a.add(b.container);
       this.tweens.add({ targets: b.container, scale: 1.05, yoyo: true, repeat: -1, duration: 700 });
     } else {
-      button(this, bx, y, 250, 110, 'k:buttonLong_beige', 'Перейти', () => this.scene.start(questDestination(q.event)), FS.h3);
+      a.add(button(this, bx, y, 250, 110, 'k:buttonLong_beige', 'Перейти', a.tap(() => this.scene.start(questDestination(q.event))), FS.h3).container);
     }
   }
 

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { markHint } from '../hints';
 import { stageStatus } from '../../core';
 import { CONTENT, GAME } from '../content';
 import { currentStage } from '../flow';
@@ -22,6 +23,7 @@ export class CampaignScene extends Phaser.Scene {
     const ci = Phaser.Math.Clamp(data?.chapter ?? Math.max(0, chapters.findIndex((c) => c.id === cur?.chapter)), 0, chapters.length - 1);
     const chapter = chapters[ci];
     screen(this, 'Кампания', 'Campaign');
+    markHint('home_campaign');
     if (!chapter) {
       text(this, GAME_W / 2, 600, 'В data/campaign нет глав', FS.h2);
       return;

@@ -295,6 +295,39 @@ export function progressBar(
   return scene.add.container(x, y, [back, fill]);
 }
 
+/**
+ * R. Указатель подсказки на цель (x, y): пульсирующее кольцо, прыгающая стрелка и плашка с одной строкой.
+ * side — где плашка относительно цели; target — размер цели (рамка пульсирует вокруг неё).
+ * Ничего не перехватывает: нажатия проходят к кнопке под ним.
+ */
+export function hintPointer(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  message: string,
+  side: 'above' | 'below',
+  target: { w: number; h: number },
+): Phaser.GameObjects.Container {
+  const w = scene.scale.gameSize.width;
+  const ring = scene.add.rectangle(x, y, target.w + 24, target.h + 24).setStrokeStyle(8, TINT.gold, 1);
+  scene.tweens.add({ targets: ring, scaleX: 1 + 40 / target.w, scaleY: 1 + 40 / target.h, alpha: 0.15, duration: 800, repeat: -1 });
+  const dir = side === 'above' ? -1 : 1;
+  // Стрелка — вплотную к рамке, плашка — сразу за стрелкой: подсказка занимает как можно меньше места.
+  const ay = y + dir * (target.h / 2 + 36);
+  // Стрелка остриём к цели: над целью — вниз, под целью — вверх.
+  const arrow = side === 'above' ? scene.add.triangle(x, ay, 0, 0, 64, 0, 32, 46, TINT.gold) : scene.add.triangle(x, ay, 0, 46, 64, 46, 32, 0, TINT.gold);
+  arrow.setStrokeStyle(4, TINT.header);
+  scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, repeat: -1, duration: 450, ease: 'Sine.easeInOut' });
+  const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
+  const bw = Math.min(w - 60, t.width + 60);
+  const bh = t.height + 22;
+  const by = ay + dir * (28 + bh / 2);
+  const bx = Phaser.Math.Clamp(x, bw / 2 + 30, w - bw / 2 - 30);
+  const bg = scene.add.rectangle(bx, by, bw, bh, 0x000000, 0.85).setStrokeStyle(4, TINT.gold);
+  t.setPosition(bx, by);
+  return scene.add.container(0, 0, [ring, arrow, bg, t]).setDepth(8000);
+}
+
 /** Всплывающее сообщение под шапкой экрана (не закрывает название и валюту), исчезает само. */
 export function toast(scene: Phaser.Scene, message: string, color: string = C.title, ms = 3500): void {
   const w = scene.scale.gameSize.width;
