@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_tank_guard",
+  "name": "Стена щитов",
+  "description": "Щит на себя.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.25
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_fast",
+  "name": "Волк",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 380,
+    "atk": 38,
+    "def": 4,
+    "spd": 130
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_fast_lunge",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "fast",
+    "hitFx": "fx_hit"
+  }
+}

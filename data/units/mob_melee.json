@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_melee",
+  "name": "Гоблин",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 450,
+    "atk": 40,
+    "def": 6,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "melee",
+    "hitFx": "fx_hit"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_ranged",
+  "name": "Гоблин-лучник",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 350,
+    "atk": 42,
+    "def": 4,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "ranged",
+    "hitFx": "fx_hit",
+    "projectile": "fx_arrow"
+  }
+}

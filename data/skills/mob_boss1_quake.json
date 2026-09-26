@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_boss1_quake",
+  "name": "Землетрясение",
+  "description": "Удар по всем врагам.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    }
+  ]
+}

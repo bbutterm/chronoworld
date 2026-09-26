@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_boss2_curse",
+  "name": "Проклятие",
+  "description": "Урон и яд по всем врагам.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.6
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "poison",
+        "name": "Яд",
+        "turns": 3,
+        "dot": {
+          "k": 0.2
+        }
+      }
+    }
+  ]
+}
