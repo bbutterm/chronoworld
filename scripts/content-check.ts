@@ -9,7 +9,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildEquipment, ContentError, parseFeaturesConfig, simulateBattle, type Content } from '../src/core';
+import { buildEquipment, ContentError, parseFeaturesConfig, simulateBattle, withTower, type Content } from '../src/core';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
 import { loadContent, loadGameContext, readJsonDir, ROOT } from './lib/content-node';
@@ -109,6 +109,15 @@ if (content) {
     buildEquipment(readJsonDir('data/items'), readJson('data/drops.json'), loadGameContext());
   } catch (e) {
     errors.push(`data/items / data/drops.json: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+// Башня испытаний
+if (content) {
+  try {
+    withTower(loadGameContext(), readJson('data/tower.json'));
+  } catch (e) {
+    errors.push(`data/tower.json: ${e instanceof Error ? e.message : String(e)}`);
   }
 }
 

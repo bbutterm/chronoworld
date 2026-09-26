@@ -1,0 +1,325 @@
+{
+  "$schema": "../schema/chapter.schema.json",
+  "id": "chapter2",
+  "name": "Глава 2. Проклятые топи",
+  "order": 2,
+  "stages": [
+    {
+      "id": "ch2_s1",
+      "name": "Гнилая гать",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob2_melee",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 220,
+        "gold": 275
+      },
+      "offlinePerMinute": {
+        "jobExp": 12,
+        "gold": 25
+      }
+    },
+    {
+      "id": "ch2_s2",
+      "name": "Туманная низина",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob2_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 240,
+        "gold": 300
+      },
+      "offlinePerMinute": {
+        "jobExp": 13,
+        "gold": 27
+      }
+    },
+    {
+      "id": "ch2_s3",
+      "name": "Гончие топей",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob2_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_melee",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob2_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 260,
+        "gold": 325
+      },
+      "offlinePerMinute": {
+        "jobExp": 14,
+        "gold": 29
+      }
+    },
+    {
+      "id": "ch2_s4",
+      "name": "Кочки и засада",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob2_tank",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 280,
+        "gold": 350
+      },
+      "offlinePerMinute": {
+        "jobExp": 15,
+        "gold": 31
+      }
+    },
+    {
+      "id": "ch2_s5",
+      "name": "Лагерь берсерков",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob2_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 300,
+        "gold": 375
+      },
+      "offlinePerMinute": {
+        "jobExp": 16,
+        "gold": 33
+      }
+    },
+    {
+      "id": "ch2_s6",
+      "name": "Живая трясина",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob2_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 320,
+        "gold": 400
+      },
+      "offlinePerMinute": {
+        "jobExp": 17,
+        "gold": 35
+      }
+    },
+    {
+      "id": "ch2_s7",
+      "name": "Вой в тумане",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob2_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 340,
+        "gold": 425
+      },
+      "offlinePerMinute": {
+        "jobExp": 18,
+        "gold": 37
+      }
+    },
+    {
+      "id": "ch2_s8",
+      "name": "Ярость орды",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob2_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 360,
+        "gold": 450
+      },
+      "offlinePerMinute": {
+        "jobExp": 19,
+        "gold": 39
+      }
+    },
+    {
+      "id": "ch2_s9",
+      "name": "Врата капища",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob2_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 380,
+        "gold": 475
+      },
+      "offlinePerMinute": {
+        "jobExp": 20,
+        "gold": 41
+      }
+    },
+    {
+      "id": "ch2_s10",
+      "name": "Капище шамана",
+      "boss": true,
+      "enemies": [
+        {
+          "unit": "mob2_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob2_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob_boss2",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob2_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 640,
+        "gold": 950
+      },
+      "offlinePerMinute": {
+        "jobExp": 21,
+        "gold": 43
+      }
+    }
+  ]
+}

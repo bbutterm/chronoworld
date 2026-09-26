@@ -6,6 +6,7 @@ import type { EquipmentConfig, EquipmentContext } from '../equipment/load';
 import { changeJob } from '../progression/jobChange';
 import { GameRuleError, type GameContext, type ProgressEvent } from '../progression/types';
 import type { SaveState } from '../save/schema';
+import { climbTower, type TowerContext, type TowerOutcome } from '../tower/tower';
 import type { FeatureContext, FeatureEvent } from './config';
 import { useFastRewards, type FastRewards } from './fastRewards';
 import { recordActivity } from './quests';
@@ -17,7 +18,7 @@ import { skipStage } from './skip';
  * Все обёртки чистые; ошибки исходных функций пробрасываются как есть, без записи активности.
  */
 
-function levelUps(events: readonly FeatureEvent[]): number {
+function levelUps(events: readonly { type: string }[]): number {
   return events.filter((e) => e.type === 'levelUp').length;
 }
 
@@ -79,4 +80,12 @@ export function actEquip(save: SaveState, heroId: string, itemInstanceId: string
 /** K6. unequip (снять в инвентарь). */
 export function actUnequip(save: SaveState, itemInstanceId: string): SaveState {
   return unequip(save, itemInstanceId);
+}
+
+/** climbTower (K4) + tower_attempt (за каждый штурм, и победу, и поражение) + hero_level_up. */
+export function actClimbTower(save: SaveState, day: string, seed: number, ctx: TowerContext): TowerOutcome {
+  const out = climbTower(save, seed, ctx);
+  let s = recordActivity(out.save, day, 'tower_attempt');
+  s = recordActivity(s, day, 'hero_level_up', levelUps(out.events));
+  return { ...out, save: s };
 }

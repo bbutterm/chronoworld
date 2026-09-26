@@ -1,6 +1,6 @@
 # Как добавлять контент
 
-Подробно по разделам: [профессии](content/jobs.md) · [кампания](content/campaign.md) · [баланс-тул](content/balance.md) · [быстрые награды, мощь, задания](content/features.md).
+Подробно по разделам: [профессии](content/jobs.md) · [кампания](content/campaign.md) · [баланс-тул](content/balance.md) · [быстрые награды, мощь, задания](content/features.md) · [башня](content/tower.md) · [экипировка](content/equipment.md).
 
 Юниты (герои, монстры, боссы) и навыки — это JSON-файлы. Код трогать не нужно: игра и симулятор подхватывают новые файлы сами.
 

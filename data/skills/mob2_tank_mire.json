@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob2_tank_mire",
+  "name": "Трясина",
+  "description": "Щит на себя (трясина принимает удары).",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.2
+    }
+  ]
+}
