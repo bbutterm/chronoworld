@@ -14,7 +14,7 @@
     "perHitTaken": 10
   },
   "movement": {
-    "meleeRange": 170,
+    "meleeRange": 210,
     "moveSpeed": 320,
     "dashSeconds": 0.25,
     "stackAngles": [0, 35, -35, 70, -70],
