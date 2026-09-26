@@ -15,7 +15,8 @@
     "content:schema": "tsx scripts/content-schema.ts",
     "content:new": "tsx scripts/content-new.ts",
     "assets:legacy": "tsx scripts/assets-legacy.ts",
-    "check": "npm run content:check && npm run typecheck && npm test"
+    "check": "npm run content:check && npm run typecheck && npm test",
+    "e2e": "node scripts/e2e.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0",
