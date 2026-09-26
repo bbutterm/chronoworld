@@ -5,7 +5,8 @@ import { describeEvents, formatNumber, questDestination, untilReset } from '../f
 import { GAME_W } from '../layout';
 import { badge, card, CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
 import { commit, session, today } from '../session';
-import { button, icon, progressBar, text, toast } from '../ui';
+import { button, emptyState, icon, progressBar, text, toast } from '../ui';
+import { C, FS, TINT } from '../theme';
 
 const BAR_X = 110;
 const BAR_W = 860;
@@ -23,22 +24,23 @@ export class QuestsScene extends Phaser.Scene {
     // --- Активность ---
     const top = CONTENT_TOP;
     card(this, GAME_W / 2, top + 200, 1040, 400);
-    text(this, GAME_W / 2, top + 55, `Очки активности: ${st.activity} / ${st.maxActivity}`, 40, '#ffe9a8', {
+    text(this, GAME_W / 2, top + 55, `Очки активности: ${st.activity} / ${st.maxActivity}`, FS.h2, C.title, {
       fontStyle: 'bold',
-      stroke: '#3a2412',
+      stroke: C.titleStroke,
       strokeThickness: 6,
     });
-    const reset = text(this, GAME_W / 2, top + 105, '', 28, '#e0cfb0');
+    const reset = text(this, GAME_W / 2, top + 105, '', FS.small, C.muted);
     const tick = () => reset.setText(`Задания обновятся через ${untilReset(new Date())}`);
     tick();
     this.time.addEvent({ delay: 30_000, loop: true, callback: tick });
 
     const barY = top + 200;
-    progressBar(this, BAR_X, barY, BAR_W, 34, st.maxActivity ? st.activity / st.maxActivity : 0, 0x6fd06f);
+    progressBar(this, BAR_X, barY, BAR_W, 34, st.maxActivity ? st.activity / st.maxActivity : 0, TINT.success);
     for (const m of st.milestones) this.milestone(m, BAR_X + (BAR_W * m.points) / Math.max(1, st.maxActivity), barY);
 
     // --- Задания ---
     const listTop = top + 430;
+    if (!st.quests.length) emptyState(this, GAME_W / 2, listTop + 200, 'На сегодня заданий нет.\nНовые появятся после полуночи.');
     const rowH = Math.min(190, (CONTENT_BOTTOM - listTop) / Math.max(1, st.quests.length));
     st.quests.forEach((q, i) => this.questRow(q, listTop + rowH * (i + 0.5), rowH - 14));
   }
@@ -52,39 +54,39 @@ export class QuestsScene extends Phaser.Scene {
       const glow = this.add.rectangle(x0, y, 128, 128, 0xffd84a, 0.35).setStrokeStyle(6, 0xffd84a);
       this.tweens.add({ targets: glow, alpha: 0.35, yoyo: true, repeat: -1, duration: 600 });
     }
-    const b = button(this, x0, y, 104, 104, frame, String(m.points), () => this.claimMilestone(m), 34);
-    if (m.claimed) b.label.setColor('#6a6a70');
+    const b = button(this, x0, y, 104, 104, frame, String(m.points), () => this.claimMilestone(m), FS.h3);
+    if (m.claimed) b.label.setColor(C.disabled);
     if (m.claimed) icon(this, x0 + 36, y - 36, 'iconCheck_bronze', 44);
     if (ready) {
       badge(this, x0 + 42, y - 44, 1);
       this.tweens.add({ targets: b.container, scale: 1.08, yoyo: true, repeat: -1, duration: 600 });
     }
-    text(this, x0, y + 95, rewardText(m.rewards), 28, m.claimed ? '#9a9aa0' : '#ffffff', { stroke: '#000000', strokeThickness: 4, lineSpacing: 2 });
+    text(this, x0, y + 95, rewardText(m.rewards), FS.small, m.claimed ? C.disabled : C.text, { stroke: C.stroke, strokeThickness: 4, lineSpacing: 2 });
   }
 
   private questRow(q: QuestView, y: number, h: number): void {
     card(this, GAME_W / 2, y, 1040, h, q.claimed);
     const dark = q.claimed;
-    text(this, 70, y - h * 0.22, q.name, 32, dark ? '#4a3520' : '#ffffff', {
+    text(this, 70, y - h * 0.22, q.name, FS.body, dark ? C.ink : C.text, {
       fontStyle: 'bold',
-      stroke: dark ? '#00000000' : '#000000',
+      stroke: dark ? C.none : C.stroke,
       strokeThickness: dark ? 0 : 4,
       align: 'left',
       wordWrap: { width: 640 },
     }).setOrigin(0, 0.5);
-    progressBar(this, 70, y + h * 0.22, 440, 30, q.progress / q.target, q.done ? 0xffd84a : 0x6fd06f);
-    text(this, 290, y + h * 0.22, `${q.progress} / ${q.target}`, 26, '#ffffff', { stroke: '#000000', strokeThickness: 4 });
-    text(this, 600, y + h * 0.22, `+${q.points} очк.`, 30, dark ? '#6a4a2a' : '#9fe0a6', { fontStyle: 'bold' });
+    progressBar(this, 70, y + h * 0.22, 440, 30, q.progress / q.target, q.done ? TINT.gold : TINT.success);
+    text(this, 290, y + h * 0.22, `${q.progress} / ${q.target}`, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4 });
+    text(this, 600, y + h * 0.22, `+${q.points} очк.`, FS.body, dark ? C.inkMuted : C.success, { fontStyle: 'bold' });
 
     const bx = 880;
     if (q.claimed) {
       icon(this, bx - 60, y, 'iconCheck_bronze', 56);
-      text(this, bx + 20, y, 'Готово', 32, '#4a3520', { fontStyle: 'bold' });
+      text(this, bx + 20, y, 'Готово', FS.body, C.ink, { fontStyle: 'bold' });
     } else if (q.done) {
-      const b = button(this, bx, y, 250, 110, 'ui_btn_primary', 'Забрать', () => this.claim(q), 38);
+      const b = button(this, bx, y, 250, 110, 'ui_btn_primary', 'Забрать', () => this.claim(q), FS.h3);
       this.tweens.add({ targets: b.container, scale: 1.05, yoyo: true, repeat: -1, duration: 700 });
     } else {
-      button(this, bx, y, 250, 110, 'k:buttonLong_beige', 'Перейти', () => this.scene.start(questDestination(q.event)), 36);
+      button(this, bx, y, 250, 110, 'k:buttonLong_beige', 'Перейти', () => this.scene.start(questDestination(q.event)), FS.h3);
     }
   }
 
@@ -94,7 +96,7 @@ export class QuestsScene extends Phaser.Scene {
       commit(r.save);
       this.restartWithToast(`«${q.name}»: +${r.points} очков активности`);
     } catch (e) {
-      toast(this, e instanceof Error ? e.message : String(e), '#ffb4a0');
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
   }
 
@@ -112,13 +114,13 @@ export class QuestsScene extends Phaser.Scene {
       commit(r.save);
       this.restartWithToast([`Награда за ${m.points} очков: ${rewardText(r.rewards).replace(/\n/g, ', ')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))].join('\n'));
     } catch (e) {
-      toast(this, e instanceof Error ? e.message : String(e), '#ffb4a0');
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
   }
 
   private restartWithToast(message: string): void {
     this.scene.restart();
-    this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, message, '#9fe0a6', 4000));
+    this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, message, C.success, 4000));
   }
 }
 

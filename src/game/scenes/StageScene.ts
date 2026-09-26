@@ -1,15 +1,15 @@
 import Phaser from 'phaser';
 import { actSkipStage, autoFormation, enemySquad, getStage, squadPower, stagePower, stageStatus } from '../../core';
-import { GAME } from '../content';
-import { formatNumber, POWER_COLORS, powerTone, stageSeed } from '../flow';
+import { CONTENT, GAME } from '../content';
+import { formatNumber, POWER_COLORS, powerTone, stageSeed, statsLine } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, portrait, screen } from '../screen';
 import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
-import { button, panel, text, toast } from '../ui';
+import { button, ellipsize, panel, text, toast } from '../ui';
 import { squadDefs, type ResultData } from './BattleScene';
 import { SLOT_W, slotX, SquadEditor } from '../squadEditor';
-
+import { C, FS, TOUCH } from '../theme';
 
 /** Подготовка к этапу: враги, награда, ваш отряд (слот → герой), «В бой». */
 export class StageScene extends Phaser.Scene {
@@ -26,20 +26,23 @@ export class StageScene extends Phaser.Scene {
   create(data: { stageId: string }): void {
     this.stageId = data.stageId;
     const stage = getStage(GAME, this.stageId);
-    screen(this, `Этап ${stage.globalIndex + 1}${stage.boss ? ' · БОСС' : ''}`, null, { to: 'Campaign' });
+    // «Назад» — в главу этого этапа, а не в текущую главу игрока.
+    const chapter = Math.max(0, CONTENT.chapters.findIndex((c) => c.id === stage.chapter));
+    screen(this, `Этап ${stage.globalIndex + 1}${stage.boss ? ' · БОСС' : ''}`, null, { to: 'Campaign', data: { chapter } });
 
     // --- Противник ---
     card(this, GAME_W / 2, 440, 1050, 480);
-    text(this, GAME_W / 2, 240, stage.name, 44, '#ffe9a8', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
-    text(this, GAME_W / 2, 280, 'Противник', 32, '#f0a0a0');
+    text(this, GAME_W / 2, 232, stage.name, FS.h2, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
+    text(this, GAME_W / 2, 284, 'Противник', FS.small, C.enemy);
     enemySquad(this.stageId, GAME).forEach((u, i) => {
       const x = slotX(i);
       panel(this, x, 480, SLOT_W, 290, u ? 'ui_slot_filled' : 'ui_slot_empty');
-      text(this, x, 322, i < 2 ? 'фронт' : 'тыл', 26, '#b8bcc8');
+      text(this, x, 322, i < 2 ? 'фронт' : 'тыл', FS.caption, C.dim);
       if (!u) return;
       portrait(this, x, 420, portraitKey(u.visual.sprite), 140);
-      text(this, x, 525, u.name, 26, u.kind === 'boss' ? '#ff9a8a' : '#ffffff', { stroke: '#000000', strokeThickness: 4, wordWrap: { width: SLOT_W - 10 } });
-      text(this, x, 590, `HP ${u.stats.hp}\nATK ${u.stats.atk}`, 26, '#e0cfb0', { stroke: '#000000', strokeThickness: 3, lineSpacing: 0 });
+      // Имя — в одну строку с многоточием: перенос налезал на статы.
+      ellipsize(text(this, x, 525, u.name, FS.caption, u.kind === 'boss' ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }), SLOT_W - 16);
+      text(this, x, 585, statsLine(u.stats, '\n', ['hp', 'atk']), FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3, lineSpacing: 2 });
     });
 
     // --- Награда ---
@@ -51,33 +54,33 @@ export class StageScene extends Phaser.Scene {
       GAME_W / 2,
       730,
       `${first ? 'Награда' : `Повтор (×${k})`}:  золото ${Math.floor(stage.rewards.gold * k)} · опыт ${Math.floor(stage.rewards.jobExp * k)} каждому`,
-      30,
-      '#4a3520',
+      FS.body,
+      C.ink,
       { fontStyle: 'bold' },
     );
     // K2: мощь отряда против мощи врагов. Обводка тёмная, чтобы цвет читался на светлой карточке.
     this.enemyPower = stagePower(this.stageId, GAME);
-    this.powerText = text(this, GAME_W / 2, 780, '', 30, '#ffffff', { fontStyle: 'bold', stroke: '#2a1a0a', strokeThickness: 6 });
+    this.powerText = text(this, GAME_W / 2, 780, '', FS.body, C.text, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 });
 
     // --- Ваш отряд и выбор героев (K8: общий редактор, авто-расстановка, пресеты) ---
     card(this, GAME_W / 2, 1230, 1050, 800);
-    text(this, GAME_W / 2, 868, 'Ваш отряд', 36, '#9fe0a6', { fontStyle: 'bold' });
-    text(this, GAME_W / 2, 910, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать.', 26, '#e0cfb0', {
+    text(this, GAME_W / 2, 868, 'Ваш отряд', FS.h3, C.success, { fontStyle: 'bold' });
+    text(this, GAME_W / 2, 910, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать.', FS.caption, C.muted, {
       wordWrap: { width: 980 },
     });
     this.editor = new SquadEditor(this, 1100, 1395, () => this.onSquadChange());
-    button(this, GAME_W / 2 - 250, 1570, 440, 90, 'ui_btn_secondary', 'Авто', () => this.auto(), 36);
-    button(this, GAME_W / 2 + 250, 1570, 440, 90, 'k:buttonLong_beige', 'Пресеты отряда', () =>
+    button(this, GAME_W / 2 - 250, 1570, 440, TOUCH, 'ui_btn_secondary', 'Авто', () => this.auto(), FS.h3);
+    button(this, GAME_W / 2 + 250, 1570, 440, TOUCH, 'k:buttonLong_beige', 'Пресеты отряда', () =>
       this.scene.start('Squad', { back: { to: 'Stage', data: { stageId: this.stageId } } }),
-    34);
+    FS.h3);
 
     if (first) {
-      this.fightBtns = [button(this, GAME_W / 2, GAME_H - 110, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), 56)];
+      this.fightBtns = [button(this, GAME_W / 2, GAME_H - 110, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), FS.hero)];
     } else {
       // K7: пройденный этап можно повторить с просмотром боя или сразу получить итог.
       this.fightBtns = [
-        button(this, GAME_W / 2 - 260, GAME_H - 110, 480, 150, 'ui_btn_secondary', 'Пропустить бой', () => this.skipBattle(), 42),
-        button(this, GAME_W / 2 + 260, GAME_H - 110, 480, 150, 'ui_btn_primary', 'Повторить', () => this.fight(), 48),
+        button(this, GAME_W / 2 - 260, GAME_H - 110, 480, 150, 'ui_btn_secondary', 'Пропустить бой', () => this.skipBattle(), FS.h2),
+        button(this, GAME_W / 2 + 260, GAME_H - 110, 480, 150, 'ui_btn_primary', 'Повторить', () => this.fight(), FS.h1),
       ];
     }
     this.editor.draw();
@@ -124,7 +127,7 @@ export class StageScene extends Phaser.Scene {
       commit(outcome.save);
       this.scene.start('Result', { result: outcome.result, defs, stage: { stageId: this.stageId, outcome, skipped: true } } satisfies ResultData);
     } catch (e) {
-      toast(this, e instanceof Error ? e.message : String(e), '#ffb4a0');
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
   }
 }

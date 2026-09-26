@@ -1,4 +1,5 @@
 import type { Content, UnitDef } from '../core';
+import { statsLine } from './flow';
 
 const ROLE: Record<string, string> = { tank: 'Танк', damage: 'Урон', healer: 'Лекарь', support: 'Поддержка' };
 
@@ -9,7 +10,7 @@ export function describeUnit(u: UnitDef, content: Content): string {
   const ult = u.skills.ult ? content.skills[u.skills.ult] : undefined;
   const lines = [
     `${u.name} — ${ROLE[u.role] ?? u.role}, ${basic?.range === 'melee' ? 'ближний бой' : 'дальний бой'}`,
-    `HP ${s.hp}   ATK ${s.atk}   DEF ${s.def}   SPD ${s.spd}`,
+    statsLine(s, '   '),
   ];
   if (ult) lines.push(`Ульта «${ult.name}»: ${ult.description ?? ''}`);
   for (const p of u.skills.passives) {

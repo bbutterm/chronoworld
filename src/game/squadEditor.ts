@@ -6,7 +6,8 @@ import { GAME_W } from './layout';
 import { portrait } from './screen';
 import { commit, session } from './session';
 import { portraitKey } from './sprites';
-import { panel, text, toast } from './ui';
+import { ellipsize, panel, pressable, text, toast } from './ui';
+import { C, FS } from './theme';
 
 export const SLOT_W = 196;
 export const slotX = (i: number) => GAME_W / 2 + (i - 2) * (SLOT_W + 12);
@@ -50,16 +51,16 @@ export class SquadEditor {
       const y = this.slotsY;
       const sel = i === this.selected;
       const bg = add(panel(scene, x, y, SLOT_W, 250, sel ? 'ui_slot_selected' : heroId ? 'ui_slot_filled' : 'ui_slot_empty'));
-      bg.setInteractive({ useHandCursor: true }).on('pointerup', () => this.onSlot(i));
-      add(text(scene, x, y - 143, i < 2 ? 'фронт' : 'тыл', 26, '#b8bcc8', { stroke: '#000000', strokeThickness: 3 }));
+      pressable(scene, bg, SLOT_W, 250, () => this.onSlot(i));
+      add(text(scene, x, y - 143, i < 2 ? 'фронт' : 'тыл', FS.caption, C.dim, { stroke: C.stroke, strokeThickness: 3 }));
       const hero = heroId ? save.heroes.find((h) => h.id === heroId) : undefined;
       if (!hero) {
-        add(text(scene, x, y, 'пусто', 28, sel ? '#4a3520' : '#9a9aa0'));
+        add(text(scene, x, y, 'пусто', FS.small, sel ? C.ink : C.disabled));
         return;
       }
       add(portrait(scene, x, y - 30, portraitKey(heroSprite(hero, GAME)), 140));
-      add(text(scene, x, y + 68, hero.name, 28, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 }));
-      add(text(scene, x, y + 102, `${CONTENT.jobs[hero.job]?.name ?? hero.job} · ${hero.jobLevel}`, 26, '#ffe9a8', { stroke: '#000000', strokeThickness: 4 }));
+      add(ellipsize(text(scene, x, y + 68, hero.name, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), SLOT_W - 16));
+      add(ellipsize(text(scene, x, y + 102, `${CONTENT.jobs[hero.job]?.name ?? hero.job} · ${hero.jobLevel}`, FS.caption, C.title, { stroke: C.stroke, strokeThickness: 4 }), SLOT_W - 16));
     });
 
     const n = Math.max(1, save.heroes.length);
@@ -69,11 +70,11 @@ export class SquadEditor {
       const y = this.heroesY;
       const inSquad = save.squad.indexOf(h.id);
       const bg = add(panel(scene, x, y, step - 12, 220, inSquad >= 0 ? 'ui_slot_filled' : 'ui_slot_selected'));
-      bg.setInteractive({ useHandCursor: true }).on('pointerup', () => this.onHero(h.id));
+      pressable(scene, bg, step - 12, 220, () => this.onHero(h.id));
       add(portrait(scene, x, y - 28, portraitKey(heroSprite(h, GAME)), 120)).setAlpha(inSquad >= 0 ? 0.55 : 1);
-      add(text(scene, x, y + 50, h.name, 28, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 }));
-      add(text(scene, x, y + 84, formatNumber(heroPower(h, gctx)), 26, '#ffd84a', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 }));
-      if (inSquad >= 0) add(text(scene, x, y - 88, `слот ${inSquad + 1}`, 26, '#9fe0a6', { stroke: '#000000', strokeThickness: 4 }));
+      add(ellipsize(text(scene, x, y + 50, h.name, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), step - 24));
+      add(text(scene, x, y + 84, formatNumber(heroPower(h, gctx)), FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }));
+      if (inSquad >= 0) add(text(scene, x, y - 88, `слот ${inSquad + 1}`, FS.caption, C.success, { stroke: C.stroke, strokeThickness: 4 }));
     });
     this.onChange();
   }
