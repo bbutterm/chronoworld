@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  DEFAULT_DAY,
   deserialize,
   loadOrNew,
   MemoryStorage,
@@ -19,6 +20,13 @@ import { LocalStorageAdapter, SAVE_KEY } from '../src/game/storage';
 
 const ctx = loadGameContext();
 const fixtureV0 = readFileSync(join(import.meta.dirname, 'fixtures/save-v0.json'), 'utf8');
+const fixtureV1 = readFileSync(join(import.meta.dirname, 'fixtures/save-v1.json'), 'utf8');
+const V2_DEFAULTS = {
+  daily: { day: DEFAULT_DAY, fastRewardsUsed: 0, quests: {}, claimedQuests: [], activityClaimed: [] },
+  currency: { gems: 0 },
+  tower: { floor: 0 },
+  inventory: { items: [] },
+};
 
 function played() {
   const s = newGame(ctx, 1000);
@@ -28,6 +36,10 @@ function played() {
   s.resources.gold = 321;
   s.offline.lastClaimAt = 5000;
   s.battleSeq = 7;
+  s.daily = { day: '2026-09-26', fastRewardsUsed: 2, quests: { stage_win: 3 }, claimedQuests: ['win_stages'], activityClaimed: [20] };
+  s.currency.gems = 15;
+  s.tower.floor = 4;
+  s.inventory.items = [{ id: 'i1', itemId: 'sword_common', equippedBy: 'h1' }];
   return s;
 }
 
@@ -48,6 +60,19 @@ describe('сохранение', () => {
     expect(SaveStateSchema.parse(s)).toEqual(s);
     expect(newGame(ctx, 123)).toEqual(s);
     expect(s.heroes).toHaveLength(ctx.progression.heroes.count);
+    expect(s).toMatchObject(V2_DEFAULTS);
+  });
+
+  it('newGame с днём: суточные счётчики на этот день', () => {
+    const s = newGame(ctx, 1, '2026-09-26');
+    expect(s.daily.day).toBe('2026-09-26');
+    expect(SaveStateSchema.parse(s)).toEqual(s);
+  });
+
+  it('неверный день в сохранении → SaveError', () => {
+    const bad = JSON.parse(serialize(newGame(ctx, 1)));
+    bad.daily.day = '26.09.2026';
+    expectSaveError(JSON.stringify(bad), /daily\.day/);
   });
 
   it('serialize → deserialize — то же состояние', () => {
@@ -117,8 +142,27 @@ describe('сохранение', () => {
     expect(s.heroes[0]).toMatchObject({ id: 'h1', job: 'swordman', jobLevel: 3, jobExp: 40 });
     expect(s).not.toHaveProperty('gold');
     expect(s).not.toHaveProperty('lastOfflineAt');
+    expect(s).toMatchObject(V2_DEFAULTS);
     // После миграции сохраняется уже в текущем формате.
     expect(deserialize(serialize(s))).toEqual(s);
+  });
+
+  it('миграция: сохранение версии 1 (фикстура) поднимается до 2 с полями по умолчанию', () => {
+    const raw = JSON.parse(fixtureV1);
+    expect(raw.version).toBe(1);
+    const s = deserialize(fixtureV1);
+    expect(s.version).toBe(2);
+    expect(s).toEqual({ ...raw, version: 2, ...V2_DEFAULTS });
+    expect(deserialize(serialize(s))).toEqual(s);
+  });
+
+  it('миграция 1 → 2 не меняет исходный объект и не затирает уже существующие поля', () => {
+    const raw = JSON.parse(fixtureV1);
+    const copy = structuredClone(raw);
+    const out = MIGRATIONS[1]({ ...raw, currency: { gems: 7 } });
+    expect(raw).toEqual(copy);
+    expect(out.currency).toEqual({ gems: 7 });
+    expect(out.tower).toEqual({ floor: 0 });
   });
 
   it('миграция v0 без времени офлайна берёт createdAt', () => {
@@ -133,6 +177,10 @@ describe('сохранение', () => {
 });
 
 describe('loadOrNew / persist', () => {
+  it('loadOrNew передаёт день в новую игру', () => {
+    expect(loadOrNew(new MemoryStorage(), ctx, 1, '2026-01-02').save.daily.day).toBe('2026-01-02');
+  });
+
   it('пустое хранилище → новая игра', () => {
     const r = loadOrNew(new MemoryStorage(), ctx, 777);
     expect(r.source).toBe('new');
