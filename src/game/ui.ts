@@ -39,7 +39,7 @@ export function button(
   label: string,
   onClick: () => void,
   fontSize = 44,
-): { container: Phaser.GameObjects.Container; setLabel: (s: string) => void } {
+): { container: Phaser.GameObjects.Container; setLabel: (s: string) => void; label: Phaser.GameObjects.Text } {
   const bg = panel(scene, 0, 0, w, h, textureId);
   const dark = DARK_TEXT.has(textureId);
   const t = text(scene, 0, -4, label, fontSize, dark ? '#4a3520' : '#ffffff', {
@@ -60,7 +60,7 @@ export function button(
     setPressed(false);
     onClick();
   });
-  return { container, setLabel: (s) => t.setText(s) };
+  return { container, setLabel: (s) => t.setText(s), label: t };
 }
 
 /** Кадр атласа Kenney как картинка (иконки, галочки); `name` — имя кадра без .png. */

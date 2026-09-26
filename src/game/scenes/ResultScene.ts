@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GAME } from '../content';
-import { describeEvents, nextOpenStage } from '../flow';
+import { describeEvents, itemStatsText, nextOpenStage, RARITY_COLORS } from '../flow';
 import { GAME_W } from '../layout';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
@@ -18,31 +18,45 @@ export class ResultScene extends Phaser.Scene {
   create(data: ResultData): void {
     const r = data.result;
     const stage = data.stage;
+    const tower = data.tower;
     const win = r.winner === 'A';
-    const compact = !!stage;
+    const compact = !!stage || !!tower;
     this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920).setAlpha(0.5);
     this.add.image(GAME_W / 2, compact ? 190 : 250, win ? 'ui_victory' : 'ui_defeat').setDisplaySize(compact ? 760 : 900, compact ? 338 : 400);
     const top = compact ? 380 : 470;
     panel(this, GAME_W / 2, (top + 1730) / 2, 1050, 1730 - top + 20, 'ui_panel');
     const reason = r.reason === 'timeout' ? 'Время вышло — атакующий проиграл' : win ? 'Отряд противника уничтожен' : 'Ваш отряд уничтожен';
     let y = top + 50;
-    text(this, GAME_W / 2, y, `${reason} · ${r.duration.toFixed(1)} с`, 32, '#d6d9e0');
+    const where = tower ? `Башня, этаж ${tower.floor} · ` : stage?.skipped ? 'Бой пропущен · ' : '';
+    text(this, GAME_W / 2, y, `${where}${reason} · ${r.duration.toFixed(1)} с`, 30, '#d6d9e0');
     y += 60;
 
-    if (stage) {
-      const events = stage.outcome.events;
+    const outcome = stage?.outcome ?? tower?.outcome;
+    if (outcome) {
+      const events = outcome.events;
       const rewards = events.find((e) => e.type === 'rewards');
       if (rewards && rewards.type === 'rewards') {
-        text(this, GAME_W / 2, y, `Награда: золото +${rewards.gold} · опыт +${rewards.jobExp} каждому`, 36, '#ffd84a', {
+        text(this, GAME_W / 2, y, `Награда: золото +${rewards.gold} · опыт +${rewards.jobExp} каждому`, 34, '#ffd84a', {
           fontStyle: 'bold',
           stroke: '#000000',
           strokeThickness: 5,
         });
       } else {
-        text(this, GAME_W / 2, y, 'Награды нет. Прокачайте героев или смените профессию.', 30, '#f0a0a0');
+        text(this, GAME_W / 2, y, tower ? 'Этаж не взят. Усильте отряд и попробуйте снова.' : 'Награды нет. Прокачайте героев или смените профессию.', 30, '#f0a0a0');
       }
       y += 55;
-      const lines = describeEvents(events, stage.outcome.save, GAME);
+      // K6: выпавшие предметы — цветом редкости.
+      for (const d of stage?.outcome.drops ?? []) {
+        const def = GAME.equipment.items[d.itemId];
+        const t = text(this, GAME_W / 2, y, `Трофей: ${def?.name ?? d.itemId}${def ? `  (${itemStatsText(def.stats)})` : ''}`, 32, def ? RARITY_COLORS[def.rarity] : '#ffffff', {
+          fontStyle: 'bold',
+          stroke: '#000000',
+          strokeThickness: 5,
+        });
+        this.tweens.add({ targets: t, scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
+        y += 50;
+      }
+      const lines = describeEvents(events, outcome.save, GAME);
       const shown = lines.slice(0, MAX_EVENT_LINES);
       if (lines.length > shown.length) shown.push(`…и ещё ${lines.length - shown.length}`);
       for (const line of shown) {
@@ -80,6 +94,13 @@ export class ResultScene extends Phaser.Scene {
         y += row;
       }
       y += compact ? 10 : 30;
+    }
+
+    if (tower) {
+      button(this, 190, 1830, 330, 130, 'k:buttonLong_beige', 'Главная', () => this.scene.start('Home'), 38);
+      button(this, 540, 1830, 330, 130, 'ui_btn_secondary', 'К башне', () => this.scene.start('Tower'), 38);
+      button(this, 890, 1830, 330, 130, 'ui_btn_primary', win ? 'Выше' : 'Ещё раз', () => this.scene.start('Battle', { mode: 'tower' }), 40);
+      return;
     }
 
     if (stage) {

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_H, GAME_W } from './layout';
 import { session, takeWarnings } from './session';
+import { formatNumber } from './flow';
 import { button, icon, panel, text, toast } from './ui';
 
 export type NavTab = 'Campaign' | 'Heroes' | 'Home';
@@ -31,7 +32,7 @@ export function screen(scene: Phaser.Scene, title: string, active: NavTab | null
     strokeThickness: 8,
   }).setOrigin(back ? 0.5 : 0, 0.5);
   if (back) button(scene, 110, HEADER_H / 2, 180, 100, 'k:buttonLong_beige', back.label ?? '‹ Назад', () => scene.scene.start(back.to, back.data), 34);
-  goldLabel(scene);
+  currencyLabels(scene);
 
   if (active) {
     scene.add.rectangle(GAME_W / 2, GAME_H - NAV_H / 2, GAME_W, NAV_H, 0x1d140c, 0.95);
@@ -47,14 +48,31 @@ export function screen(scene: Phaser.Scene, title: string, active: NavTab | null
   for (const w of takeWarnings()) toast(scene, w, '#ffb4a0', 6000);
 }
 
-function goldLabel(scene: Phaser.Scene): void {
-  const x = GAME_W - 60;
-  const t = text(scene, x, HEADER_H / 2, String(session.save.resources.gold), 44, '#ffd84a', {
-    fontStyle: 'bold',
-    stroke: '#000000',
-    strokeThickness: 6,
-  }).setOrigin(1, 0.5);
-  icon(scene, x - t.width - 36, HEADER_H / 2, 'iconCircle_beige', 44).setTint(0xffc83a);
+/** Золото и гемы в правом углу шапки — друг под другом, чтобы не наезжать на заголовок. */
+function currencyLabels(scene: Phaser.Scene): void {
+  const x = GAME_W - 50;
+  const row = (y: number, value: number, color: string, tint: number, gem: boolean) => {
+    const t = text(scene, x, y, formatNumber(value), 40, color, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setOrigin(1, 0.5);
+    const ix = x - t.width - 30;
+    if (gem) gemIcon(scene, ix, y, 38);
+    else icon(scene, ix, y, 'iconCircle_beige', 40).setTint(tint);
+  };
+  row(HEADER_H / 2 - 30, session.save.resources.gold, '#ffd84a', 0xffc83a, false);
+  row(HEADER_H / 2 + 32, session.save.currency.gems, '#9fe8ff', 0x6fd8ff, true);
+}
+
+/** Гем — ромб (своей иконки в атласе нет). */
+export function gemIcon(scene: Phaser.Scene, x: number, y: number, size: number): Phaser.GameObjects.Polygon {
+  const h = size / 2;
+  return scene.add.polygon(x, y, [h * 0.8, 0, h * 1.6, h * 0.8, h * 0.8, h * 2, 0, h * 0.8], 0x6fd8ff).setStrokeStyle(3, 0x1d4a66);
+}
+
+/** Красный кружок с числом (непрочитанные награды). count ≤ 0 — ничего. */
+export function badge(scene: Phaser.Scene, x: number, y: number, count: number): Phaser.GameObjects.Container | null {
+  if (count <= 0) return null;
+  const c = scene.add.circle(0, 0, 28, 0xd63a2a).setStrokeStyle(4, 0xffffff);
+  const t = text(scene, 0, -1, String(count), 32, '#ffffff', { fontStyle: 'bold' });
+  return scene.add.container(x, y, [c, t]).setDepth(50);
 }
 
 /** Карточка-панель с рамкой из атласа. */

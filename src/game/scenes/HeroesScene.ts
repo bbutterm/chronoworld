@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import { availableJobChanges, expToNext, type HeroState } from '../../core';
+import { availableJobChanges, expToNext, heroEquipment, heroPower, squadPower, withGear, type HeroState } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { heroSprite, ROLE_NAMES } from '../flow';
+import { formatNumber, heroSprite, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
-import { icon, progressBar, text } from '../ui';
+import { button, icon, progressBar, text } from '../ui';
 
 /** Список героев: профессия, джоб-уровень, полоса опыта; нажатие — карточка героя. */
 export class HeroesScene extends Phaser.Scene {
@@ -16,13 +16,22 @@ export class HeroesScene extends Phaser.Scene {
 
   create(): void {
     screen(this, 'Герои', 'Heroes');
-    const heroes = session.save.heroes;
+    const save = session.save;
+    const heroes = save.heroes;
+    // Мощь отряда (K2) и вход в инвентарь (K6).
+    const barY = CONTENT_TOP + 50;
+    text(this, 40, barY, `Мощь отряда: ${formatNumber(squadPower(save, GAME))}`, 38, '#ffd84a', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setOrigin(0, 0.5);
+    const free = save.inventory.items.filter((i) => i.equippedBy === null).length;
+    button(this, 840, barY, 360, 100, 'ui_btn_secondary', `Инвентарь${free ? ` (${free})` : ''}`, () => this.scene.start('Inventory', {}), 36);
+
+    const listTop = CONTENT_TOP + 120;
     const gap = 20;
-    const h = Math.min(270, (CONTENT_BOTTOM - CONTENT_TOP - gap * (heroes.length - 1)) / heroes.length);
-    heroes.forEach((hero, i) => this.heroCard(hero, CONTENT_TOP + h / 2 + i * (h + gap), h));
+    const h = Math.min(270, (CONTENT_BOTTOM - listTop - gap * (heroes.length - 1)) / heroes.length);
+    const gctx = withGear(GAME, save);
+    heroes.forEach((hero, i) => this.heroCard(hero, listTop + h / 2 + i * (h + gap), h, heroPower(hero, gctx)));
   }
 
-  private heroCard(hero: HeroState, y: number, h: number): void {
+  private heroCard(hero: HeroState, y: number, h: number, power: number): void {
     const job = CONTENT.jobs[hero.job];
     const bg = card(this, GAME_W / 2, y, 1020, h);
     bg.setInteractive({ useHandCursor: true }).on('pointerup', () => this.scene.start('Hero', { heroId: hero.id }));
@@ -33,7 +42,10 @@ export class HeroesScene extends Phaser.Scene {
     const x = 300;
     text(this, x, y - h / 2 + 55, hero.name, 46, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setOrigin(0, 0.5);
     const squadSlot = session.save.squad.indexOf(hero.id);
-    if (squadSlot >= 0) text(this, 960, y - h / 2 + 55, `в отряде`, 26, '#9fe0a6').setOrigin(1, 0.5);
+    if (squadSlot >= 0) text(this, 700, y - h / 2 + 55, 'в отряде', 28, '#9fe0a6').setOrigin(0, 0.5);
+    text(this, 990, y - h / 2 + 55, `Мощь ${formatNumber(power)}`, 32, '#ffd84a', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 }).setOrigin(1, 0.5);
+    const gear = heroEquipment(session.save, hero.id).length;
+    text(this, 990, y - 10, `снаряжение ${gear}/4`, 28, gear ? '#6fb8ff' : '#9a9aa0').setOrigin(1, 0.5);
     text(this, x, y - 10, `${job?.name ?? hero.job} · ${ROLE_NAMES[job?.role ?? ''] ?? ''}`, 32, '#ffe9a8').setOrigin(0, 0.5);
 
     const max = job?.maxJobLevel ?? hero.jobLevel;

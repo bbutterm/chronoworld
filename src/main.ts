@@ -9,9 +9,12 @@ import { JobChangeScene } from './game/scenes/JobChangeScene';
 import { PrepScene } from './game/scenes/PrepScene';
 import { BattleScene } from './game/scenes/BattleScene';
 import { ResultScene } from './game/scenes/ResultScene';
+import { QuestsScene } from './game/scenes/QuestsScene';
+import { TowerScene } from './game/scenes/TowerScene';
+import { InventoryScene } from './game/scenes/InventoryScene';
 import { GAME_H, GAME_W } from './game/layout';
 
-new Phaser.Game({
+const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
   backgroundColor: '#11131a',
@@ -21,5 +24,8 @@ new Phaser.Game({
     width: GAME_W,
     height: GAME_H,
   },
-  scene: [BootScene, HomeScene, CampaignScene, StageScene, HeroesScene, HeroScene, JobChangeScene, PrepScene, BattleScene, ResultScene],
+  scene: [BootScene, HomeScene, CampaignScene, StageScene, HeroesScene, HeroScene, JobChangeScene, PrepScene, BattleScene, ResultScene, QuestsScene, TowerScene, InventoryScene],
 });
+
+// Для отладки и скриншотов (Playwright): window.__game.scene.start('Tower') и т. п. Только в dev-сборке.
+if (import.meta.env.DEV) (window as unknown as { __game: Phaser.Game }).__game = game;

@@ -1,21 +1,26 @@
 import Phaser from 'phaser';
 import {
+  actClimbTower,
+  actPlayStage,
   buildUnit,
   COMBAT,
   enemySquad,
   getStage,
-  playStage,
   simulateBattle,
+  towerFloor,
+  withGear,
   type BattleEvent,
   type BattleResult,
-  type StageOutcome,
+  type SaveState,
+  type StageOutcomeWithDrops,
+  type TowerOutcome,
   type UnitDef,
   type UnitSnapshot,
 } from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
 import { stageSeed } from '../flow';
-import { commit, session } from '../session';
+import { commit, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { anim, hitDelay, spriteView, type SpriteView } from '../sprites';
 import { playback, playbackSpeeds, squads } from '../state';
@@ -50,22 +55,33 @@ interface UnitView {
   moveTween: Phaser.Tweens.Tween | null;
 }
 
-/** Тестовый бой (отряды экрана подготовки) или этап кампании (отряд из сохранения). */
-export type BattleData = { mode?: 'test'; seed: number } | { mode: 'stage'; stageId: string };
+/** Тестовый бой (отряды экрана подготовки), этап кампании или этаж башни (отряд из сохранения). */
+export type BattleData = { mode?: 'test'; seed: number } | { mode: 'stage'; stageId: string } | { mode: 'tower' };
 
 /** Что получает экран итогов. */
 export interface ResultData {
   result: BattleResult;
   /** Описания юнитов боя по unitId (у героев игрока и врагов этапа их нет в CONTENT.units). */
   defs: Record<string, UnitDef>;
-  /** Только для этапа: итог с новым сохранением и событиями прогрессии. */
-  stage?: { stageId: string; outcome: StageOutcome };
+  /** Только для этапа: итог с новым сохранением, событиями прогрессии и выпавшими предметами. skipped — бой пропущен (K7). */
+  stage?: { stageId: string; outcome: StageOutcomeWithDrops; skipped?: boolean };
+  /** Только для башни: какой этаж штурмовали и итог. */
+  tower?: { floor: number; outcome: TowerOutcome };
+}
+
+/** Герои отряда с экипировкой — описания для боя и экрана итогов. */
+export function squadDefs(save: SaveState): Record<string, UnitDef> {
+  const ctx = withGear(GAME, save);
+  const defs: Record<string, UnitDef> = {};
+  for (const h of save.heroes) if (save.squad.includes(h.id)) defs[h.id] = buildUnit(h, ctx);
+  return defs;
 }
 
 export class BattleScene extends Phaser.Scene {
   private result!: BattleResult;
   private defs: Record<string, UnitDef> = {};
   private stage?: ResultData['stage'];
+  private tower?: ResultData['tower'];
   private committed = false;
   private views = new Map<string, UnitView>();
   private cursor = 0;
@@ -84,12 +100,15 @@ export class BattleScene extends Phaser.Scene {
     this.finished = false;
     this.committed = false;
     let title = 'Тестовый бой';
+    this.stage = undefined;
+    this.tower = undefined;
     if (data.mode === 'stage') {
-      // Бой считает ядро (playStage); сцена только проигрывает лог. Сохраняем, когда бой закончится.
+      // Бой считает ядро (actPlayStage: экипировка, выпадение, задания); сцена только проигрывает лог.
+      // Сохраняем, когда бой закончится.
       const save = session.save;
-      let outcome: StageOutcome;
+      let outcome: StageOutcomeWithDrops;
       try {
-        outcome = playStage(save, data.stageId, stageSeed(save), GAME);
+        outcome = actPlayStage(save, today(), data.stageId, stageSeed(save), GAME);
       } catch (e) {
         console.warn(e);
         this.finished = true;
@@ -98,11 +117,26 @@ export class BattleScene extends Phaser.Scene {
       }
       this.result = outcome.result;
       this.stage = { stageId: data.stageId, outcome };
-      this.defs = {};
-      for (const h of save.heroes) if (save.squad.includes(h.id)) this.defs[h.id] = buildUnit(h, GAME);
+      this.defs = squadDefs(save);
       for (const u of enemySquad(data.stageId, GAME)) if (u) this.defs[u.id] = u;
       const st = getStage(GAME, data.stageId);
       title = `Этап ${st.globalIndex + 1}. ${st.name}`;
+    } else if (data.mode === 'tower') {
+      const save = session.save;
+      let outcome: TowerOutcome;
+      try {
+        outcome = actClimbTower(save, today(), stageSeed(save), GAME);
+      } catch (e) {
+        console.warn(e);
+        this.finished = true;
+        this.scene.start('Tower');
+        return;
+      }
+      this.result = outcome.result;
+      this.tower = { floor: outcome.floor, outcome };
+      this.defs = squadDefs(save);
+      for (const u of towerFloor(outcome.floor, GAME).enemies) if (u) this.defs[u.id] = u;
+      title = `Башня · этаж ${outcome.floor}`;
     } else {
       this.result = simulateBattle(CONTENT, squads.A, squads.B, data.seed);
       this.stage = undefined;
@@ -322,17 +356,18 @@ export class BattleScene extends Phaser.Scene {
         this.timeText.setText(`${fmt(this.result.duration)} / ${fmt(COMBAT.timeLimitSeconds)}`);
         this.commitStage();
         this.time.delayedCall(animate ? 1200 : 150, () =>
-          this.scene.start('Result', { result: this.result, defs: this.defs, stage: this.stage } satisfies ResultData),
+          this.scene.start('Result', { result: this.result, defs: this.defs, stage: this.stage, tower: this.tower } satisfies ResultData),
         );
         return;
     }
   }
 
-  /** Итог этапа записывается один раз — в конце боя (и при «Пропустить»). */
+  /** Итог этапа или этажа записывается один раз — в конце боя (и при «Пропустить»). */
   private commitStage(): void {
-    if (!this.stage || this.committed) return;
+    const out = this.stage?.outcome ?? this.tower?.outcome;
+    if (!out || this.committed) return;
     this.committed = true;
-    commit(this.stage.outcome.save);
+    commit(out.save);
   }
 
   // ---------- анимации ----------
