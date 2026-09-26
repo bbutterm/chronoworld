@@ -34,6 +34,32 @@ export function setPlaybackSpeed(speed: number): void {
   }
 }
 
+/**
+ * R. «Авто: следующий этап» (как авто-бой в AFK-играх): после победы в кампании через AUTO_DELAY_MS
+ * сам запускается следующий открытый этап. Настройка, не прогресс — живёт в localStorage.
+ */
+export const AUTO_KEY = 'chronoworld.autoAdvance';
+export const AUTO_DELAY_MS = 2000;
+
+function loadAuto(): boolean {
+  try {
+    return globalThis.localStorage?.getItem(AUTO_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export const autoAdvance = { on: loadAuto() };
+
+export function setAutoAdvance(on: boolean): void {
+  autoAdvance.on = on;
+  try {
+    globalThis.localStorage?.setItem(AUTO_KEY, on ? '1' : '0');
+  } catch {
+    // Не запомнили — не страшно.
+  }
+}
+
 /** Следующая скорость по кругу (1x → 2x → … → 1x). */
 export function nextPlaybackSpeed(): number {
   const i = playbackSpeeds.indexOf(playback.speed);

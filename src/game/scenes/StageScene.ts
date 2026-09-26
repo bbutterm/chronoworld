@@ -6,7 +6,8 @@ import { GAME_H, GAME_W } from '../layout';
 import { card, portrait, screen } from '../screen';
 import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
-import { button, ellipsize, panel, text, toast } from '../ui';
+import { button, ellipsize, hintPointer, panel, text, toast } from '../ui';
+import { HINT_TEXT, hintDone, markHint } from '../hints';
 import { squadDefs, type ResultData } from './BattleScene';
 import { SLOT_W, slotX, SquadEditor } from '../squadEditor';
 import { C, FS, TOUCH } from '../theme';
@@ -76,6 +77,8 @@ export class StageScene extends Phaser.Scene {
 
     if (first) {
       this.fightBtns = [button(this, GAME_W / 2, GAME_H - 110, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), FS.hero)];
+      // R: подсказка новичку — первый бой.
+      if (!hintDone('stage_fight')) hintPointer(this, GAME_W / 2, GAME_H - 110, HINT_TEXT.stage_fight, 'above', { w: 640, h: 150 });
     } else {
       // K7: пройденный этап можно повторить с просмотром боя или сразу получить итог.
       this.fightBtns = [
@@ -110,6 +113,7 @@ export class StageScene extends Phaser.Scene {
       toast(this, 'Поставьте в отряд хотя бы одного героя');
       return;
     }
+    markHint('stage_fight');
     this.scene.start('Battle', { mode: 'stage', stageId: this.stageId });
   }
 
@@ -125,6 +129,7 @@ export class StageScene extends Phaser.Scene {
       const defs = squadDefs(save);
       for (const u of enemySquad(this.stageId, GAME)) if (u) defs[u.id] = u;
       commit(outcome.save);
+      markHint('stage_fight');
       this.scene.start('Result', { result: outcome.result, defs, stage: { stageId: this.stageId, outcome, skipped: true } } satisfies ResultData);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);

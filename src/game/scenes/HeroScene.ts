@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { hintDone } from '../hints';
 import { availableJobChanges, expToNext, heroGearStats, heroPower, heroSkills, heroSlots, SLOTS, statsAt, type HeroState, type Slot } from '../../core';
 import { CONTENT, GAME } from '../content';
 import { formatNumber, heroSprite, itemStatsText, lockedJobSkills, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
@@ -6,7 +7,7 @@ import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
 import { session } from '../session';
 import { anim, portraitKey, spriteView } from '../sprites';
-import { button, ellipsize, panel, pressable, progressBar, ScrollArea, text } from '../ui';
+import { button, ellipsize, hintPointer, panel, pressable, progressBar, ScrollArea, text } from '../ui';
 import { C, FS, TINT } from '../theme';
 
 const SKILL_ROW_H = 124;
@@ -103,6 +104,8 @@ export class HeroScene extends Phaser.Scene {
       button(this, GAME_W / 2, CONTENT_BOTTOM - 65, 700, 130, 'ui_btn_primary', 'Сменить профессию', () =>
         this.scene.start('JobChange', { heroId: hero.id }),
       );
+      // R: подсказка первой смены профессии.
+      if (!hintDone('job_change')) hintPointer(this, GAME_W / 2, CONTENT_BOTTOM - 65, 'Смена профессии доступна — выберите новую', 'above', { w: 700, h: 130 });
     }
   }
 

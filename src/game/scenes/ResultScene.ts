@@ -1,17 +1,22 @@
 import Phaser from 'phaser';
 import { GAME } from '../content';
-import { describeEvents, formatNumber, itemStatsText, nextOpenStage, RARITY_COLORS } from '../flow';
+import { autoNextStage, describeEvents, formatNumber, itemStatsText, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
 import type { BattleResult, Side } from '../../core';
 import { GAME_W } from '../layout';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
-import { button, panel, text } from '../ui';
+import { button, icon, panel, progressBar, text } from '../ui';
+import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
+import { C, FS, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
 import { portrait } from '../screen';
 
 const MAX_EVENT_LINES = 5;
 
 export class ResultScene extends Phaser.Scene {
+  /** R: идущий обратный отсчёт авто-прохождения (null — нет). */
+  private autoTimer: Phaser.Time.TimerEvent | null = null;
+
   constructor() {
     super('Result');
   }
@@ -22,6 +27,7 @@ export class ResultScene extends Phaser.Scene {
     const tower = data.tower;
     const win = r.winner === 'A';
     const compact = !!stage || !!tower;
+    this.autoTimer = null;
     this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920).setAlpha(0.5);
     this.add.image(GAME_W / 2, compact ? 190 : 250, win ? 'ui_victory' : 'ui_defeat').setDisplaySize(compact ? 760 : 900, compact ? 338 : 400);
     const top = compact ? 380 : 470;
@@ -71,7 +77,9 @@ export class ResultScene extends Phaser.Scene {
     // Сводка: почему победила сторона — кто сколько нанёс, вылечил и заблокировал.
     // Высота строки — чтобы обе таблицы влезли до кнопок.
     const headers = compact ? 2 * (40 + 38 + 10) : 2 * (55 + 50 + 30);
-    const row = Phaser.Math.Clamp(Math.floor((1700 - y - headers) / Math.max(1, r.units.length)), 56, 85);
+    // Под этапом кампании — строка «Авто: следующий этап» (R), таблица заканчивается выше.
+    const tableBottom = stage ? 1610 : 1700;
+    const row = Phaser.Math.Clamp(Math.floor((tableBottom - y - headers) / Math.max(1, r.units.length)), 56, 85);
     const cols = [150, 430, 590, 740, 870, 985];
     const heads = ['', 'Урон', 'Лечение', 'Щит', 'Ульты', 'Жив'];
     const maxDmg = Math.max(1, ...Object.values(r.report).map((x) => x.damageDealt));
@@ -129,6 +137,7 @@ export class ResultScene extends Phaser.Scene {
         if (next) this.scene.start('Stage', { stageId: next.id });
       }, 40);
       if (!next) nextBtn.container.setAlpha(0.4).disableInteractive();
+      this.autoRow(stage.stageId, win);
       return;
     }
 
@@ -138,7 +147,78 @@ export class ResultScene extends Phaser.Scene {
       this.scene.start('Battle', { mode: 'test', seed: (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0 }),
     38);
   }
+
+  /**
+   * R. «Авто: следующий этап» (как авто-бой в AFK Arena): переключатель запоминается; если он включён и бой
+   * выигран, через AUTO_DELAY_MS сам стартует следующий новый этап главы. Любое касание экрана отменяет отсчёт.
+   */
+  private autoRow(stageId: string, win: boolean): void {
+    const y = 1680;
+    const plan = autoNextStage(session.save, stageId, win, GAME);
+    let mark: Phaser.GameObjects.Image | null = null;
+    const toggle = button(this, 280, y, 520, TOUCH, 'k:buttonLong_beige', 'Авто: следующий этап', () => {
+      setAutoAdvance(!autoAdvance.on);
+      drawMark();
+      if (autoAdvance.on) start();
+      else cancel('Авто выключено');
+    }, FS.small);
+    toggle.label.setX(28);
+    const drawMark = () => {
+      mark?.destroy();
+      mark = icon(this, 28 - toggle.label.width / 2 - 34, -4, autoAdvance.on ? 'iconCheck_bronze' : 'iconCross_grey', 44);
+      toggle.container.add(mark);
+    };
+    drawMark();
+
+    const status = text(this, 790, y - 16, '', FS.small, C.muted, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 480 } });
+    const bar = progressBar(this, 580, y + 32, 420, 16, 0, TINT.gold).setVisible(false);
+    const fill = bar.list[1] as Phaser.GameObjects.Rectangle;
+    const fullW = 420 - 4;
+
+    const cancelOnTap = () => cancel('Авто отменено — нажмите «Дальше»');
+    const cancel = (msg: string) => {
+      this.autoTimer?.remove();
+      this.autoTimer = null;
+      this.input.off('pointerdown', cancelOnTap);
+      bar.setVisible(false);
+      status.setText(msg).setColor(C.muted);
+    };
+    const start = () => {
+      if (!plan.next) {
+        status.setText(AUTO_STOP_TEXT[plan.stop ?? 'no_next']).setColor(plan.stop === 'defeat' ? C.danger : C.warning);
+        return;
+      }
+      const next = plan.next;
+      // Время считаем тиками таймера (они замирают на паузе сцены), а не часами игры.
+      const STEP = 100;
+      let elapsed = -STEP;
+      bar.setVisible(true);
+      const tick = () => {
+        elapsed += STEP;
+        const left = Math.max(0, AUTO_DELAY_MS - elapsed);
+        status.setText(`Этап ${next.globalIndex + 1} через ${(left / 1000).toFixed(1)} с\nкоснитесь экрана — отмена`).setColor(C.gold);
+        fill.width = fullW * (1 - left / AUTO_DELAY_MS);
+        if (left > 0) return;
+        cancel('');
+        this.scene.start('Battle', { mode: 'stage', stageId: next.id });
+      };
+      tick();
+      this.autoTimer = this.time.addEvent({ delay: STEP, loop: true, callback: tick });
+      // Касание в любом месте (в том числе по кнопкам внизу) — отмена отсчёта.
+      this.input.on('pointerdown', cancelOnTap);
+    };
+
+    if (autoAdvance.on) start();
+    else status.setText('Включите — бои пойдут сами до конца главы');
+  }
 }
+
+const AUTO_STOP_TEXT: Record<AutoStop, string> = {
+  defeat: 'Поражение — авто остановлено',
+  chapter_end: 'Глава пройдена — авто остановлено',
+  no_next: 'Дальше этапов нет',
+  replay: 'Это повтор — авто идёт только по новым этапам',
+};
 
 /** MVP стороны — больше всех урона (при равенстве — лечение + щит). Никто ничего не сделал — нет MVP. */
 export function mvpOf(r: BattleResult, side: Side): string | null {

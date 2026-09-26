@@ -16,6 +16,8 @@ const SHOTS = resolve(process.env.E2E_SHOTS_DIR ?? join(tmpdir(), `idle-rpg-e2e-
 const GAME_W = 1080;
 /** Задержка ответа на картинки при первой загрузке — чтобы увидеть экран загрузки. */
 const ASSET_DELAY_MS = 700;
+/** Чуть дольше отсчёта авто-прохождения (AUTO_DELAY_MS в src/game/state.ts). */
+const AUTO_WAIT_MS = 2300;
 
 const log = (...a) => console.log('[e2e]', ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -118,6 +120,16 @@ async function main() {
       if (!pos) throw new Error(`В сцене ${sceneKey} нет текста «${label}»`);
       await clickGame(pos[0], pos[1]);
     };
+    /** Есть ли в сцене видимый текст, начинающийся с prefix (в контейнерах тоже). */
+    const hasText = (sceneKey, prefix) =>
+      page.evaluate(
+        ([k, p]) =>
+          window.__game.scene
+            .getScene(k)
+            .children.list.flatMap((o) => (o.list ? [o, ...o.list] : [o]))
+            .some((o) => o.type === 'Text' && o.visible && o.text.startsWith(p)),
+        [sceneKey, prefix],
+      );
 
     // 1. Чистый старт: пустой localStorage, картинки чуть придержаны — видно экран загрузки.
     await page.goto(URL);
@@ -134,6 +146,8 @@ async function main() {
     await page.unroute(/\.(png|webp|jpg)$/);
     if (!(await page.locator('canvas').count())) throw new Error('canvas не найден');
     await shot('home');
+    // R: новичку на главной показана подсказка «В кампанию»; она не перехватывает нажатия.
+    if (!(await hasText('Home', 'Начните с кампании'))) problems.push('нет подсказки новичку на главной');
 
     // 2. Главная → Кампания → этап 1 → В бой.
     await clickText('Home', 'Кампания');
@@ -156,6 +170,31 @@ async function main() {
     await sleep(600);
     await shot('result');
 
+    // R: «Авто: следующий этап» — включаем, ждём сам старт этапа 2, на его итоге отсчёт отменяем касанием.
+    await clickText('Result', 'Авто: следующий этап');
+    await waitScene('Battle', 10000);
+    const autoFlag = await page.evaluate(() => localStorage.getItem('chronoworld.autoAdvance'));
+    if (autoFlag !== '1') problems.push(`авто-прохождение не запомнилось: ${autoFlag}`);
+    if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
+    await waitScene('Result');
+    // Отсчёт идёт 2 с: придерживаем его таймер, снимаем экран, отпускаем и отменяем касанием.
+    const counting = await page.evaluate(() => {
+      const sc = window.__game.scene.getScene('Result');
+      const on = sc.children.list.some((o) => o.type === 'Text' && o.visible && o.text.startsWith('Этап 3 через'));
+      if (on && sc.autoTimer) sc.autoTimer.paused = true;
+      return on;
+    });
+    if (counting) {
+      await shot('result-auto');
+      await page.evaluate(() => {
+        const t = window.__game.scene.getScene('Result').autoTimer;
+        if (t) t.paused = false;
+      });
+      await clickGame(540, 200); // касание по баннеру «Победа» — отмена
+      await sleep(AUTO_WAIT_MS);
+      if (!(await page.evaluate(() => window.__game.scene.isActive('Result')))) problems.push('касание не отменило авто-прохождение');
+      else if (!(await hasText('Result', 'Авто отменено'))) problems.push('нет подписи «Авто отменено»');
+    } else log('этап 2 не выигран — отсчёта авто нет');
     // 4. Итог → К кампании → Главная → Герои → герой → назад.
     await clickText('Result', 'К кампании');
     await waitScene('Campaign');
