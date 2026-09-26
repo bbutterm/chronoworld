@@ -1,5 +1,5 @@
 {
-  "_comment": "Все ассеты подключаются по id. file: null — рисуется плейсхолдер (цветной прямоугольник с подписью). Чтобы подключить арт, положите PNG в assets/ и пропишите путь в file.",
+  "_comment": "Все ассеты подключаются по id. file — путь внутри assets/; atlas+frame — кадр из атласа; slice — 9-slice [л,п,в,н]; file: null — плейсхолдер.",
   "assets": {
     "hero_guard_battle": {
       "file": "ro/stills/hero_guard_battle.png",
@@ -150,101 +150,117 @@
       "w": 1080,
       "h": 1920,
       "color": "#2b2f3a",
-      "label": "Арена"
-    },
-    "ui_bar_hp_ally": {
-      "file": null,
-      "w": 64,
-      "h": 16,
-      "color": "#3cb44b",
-      "label": "HP"
-    },
-    "ui_bar_hp_enemy": {
-      "file": null,
-      "w": 64,
-      "h": 16,
-      "color": "#d64545",
-      "label": "HP"
-    },
-    "ui_bar_energy": {
-      "file": null,
-      "w": 64,
-      "h": 16,
-      "color": "#f2c230",
-      "label": "EN"
-    },
-    "ui_bar_back": {
-      "file": null,
-      "w": 64,
-      "h": 16,
-      "color": "#1a1a1a",
-      "label": ""
-    },
-    "ui_bar_shield": {
-      "file": null,
-      "w": 64,
-      "h": 16,
-      "color": "#dfe8f0",
-      "label": ""
+      "label": "",
+      "gradient": [
+        "#1b2030",
+        "#2a3326",
+        "#3c4a30"
+      ]
     },
     "ui_slot_empty": {
-      "file": null,
+      "file": "ui/ui_slot_empty.png",
       "w": 200,
       "h": 200,
       "color": "#3a3f4b",
       "label": "Пусто"
     },
     "ui_slot_filled": {
-      "file": null,
-      "w": 200,
-      "h": 200,
-      "color": "#50586a",
-      "label": ""
+      "atlas": "ui_kenney",
+      "frame": "panelInset_brown.png",
+      "w": 0,
+      "h": 0,
+      "color": "#000000",
+      "label": "",
+      "slice": [
+        12,
+        12,
+        12,
+        12
+      ]
     },
     "ui_slot_selected": {
-      "file": null,
-      "w": 200,
-      "h": 200,
-      "color": "#8a7a2a",
-      "label": ""
+      "atlas": "ui_kenney",
+      "frame": "panelInset_beigeLight.png",
+      "w": 0,
+      "h": 0,
+      "color": "#000000",
+      "label": "",
+      "slice": [
+        12,
+        12,
+        12,
+        12
+      ]
     },
     "ui_btn_primary": {
-      "file": null,
-      "w": 360,
-      "h": 120,
-      "color": "#2f8f5b",
-      "label": ""
+      "atlas": "ui_kenney",
+      "frame": "buttonLong_brown.png",
+      "w": 0,
+      "h": 0,
+      "color": "#000000",
+      "label": "",
+      "slice": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "pressed": "buttonLong_brown_pressed.png"
     },
     "ui_btn_secondary": {
-      "file": null,
-      "w": 360,
-      "h": 120,
-      "color": "#4a5263",
-      "label": ""
+      "atlas": "ui_kenney",
+      "frame": "buttonLong_blue.png",
+      "w": 0,
+      "h": 0,
+      "color": "#000000",
+      "label": "",
+      "slice": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "pressed": "buttonLong_blue_pressed.png"
     },
     "ui_btn_speed": {
-      "file": null,
-      "w": 360,
-      "h": 120,
-      "color": "#4a5263",
-      "label": ""
+      "atlas": "ui_kenney",
+      "frame": "buttonLong_beige.png",
+      "w": 0,
+      "h": 0,
+      "color": "#000000",
+      "label": "",
+      "slice": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "pressed": "buttonLong_beige_pressed.png"
     },
     "ui_btn_skip": {
-      "file": null,
-      "w": 360,
-      "h": 120,
-      "color": "#4a5263",
-      "label": ""
+      "atlas": "ui_kenney",
+      "frame": "buttonLong_beige.png",
+      "w": 0,
+      "h": 0,
+      "color": "#000000",
+      "label": "",
+      "slice": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "pressed": "buttonLong_beige_pressed.png"
     },
     "ui_victory": {
-      "file": null,
+      "file": "ui/ui_result_victory.png",
       "w": 900,
       "h": 400,
       "color": "#c9a94a",
       "label": "ПОБЕДА"
     },
     "ui_defeat": {
-      "file": null,
+      "file": "ui/ui_result_defeat.png",
       "w": 900,
       "h": 400,
       "color": "#6b2b2b",
@@ -663,6 +679,77 @@
           }
         }
       }
+    },
+    "ui_kenney": {
+      "file": "ui/kenney_uipack_rpg_sheet.png",
+      "atlasXml": "ui/kenney_uipack_rpg_sheet.xml",
+      "w": 512,
+      "h": 512,
+      "color": "#000000",
+      "label": ""
+    },
+    "ui_bar_hp_ally": {
+      "file": "ui/ui_hp_player.png",
+      "w": 256,
+      "h": 18,
+      "color": "#3cb44b",
+      "label": ""
+    },
+    "ui_bar_hp_enemy": {
+      "file": "ui/ui_hp_enemy.png",
+      "w": 256,
+      "h": 18,
+      "color": "#d64545",
+      "label": ""
+    },
+    "ui_bar_energy": {
+      "file": "ui/ui_energy.png",
+      "w": 256,
+      "h": 18,
+      "color": "#f2c230",
+      "label": ""
+    },
+    "ui_bar_back": {
+      "file": "ui/ui_bar_base.png",
+      "w": 256,
+      "h": 18,
+      "color": "#1a1a1a",
+      "label": ""
+    },
+    "ui_bar_shield": {
+      "file": null,
+      "w": 64,
+      "h": 16,
+      "color": "#dfe8f0",
+      "label": ""
+    },
+    "ui_panel": {
+      "atlas": "ui_kenney",
+      "frame": "panel_brown.png",
+      "w": 0,
+      "h": 0,
+      "color": "#000000",
+      "label": "",
+      "slice": [
+        16,
+        16,
+        16,
+        16
+      ]
+    },
+    "ui_panel_light": {
+      "atlas": "ui_kenney",
+      "frame": "panel_beigeLight.png",
+      "w": 0,
+      "h": 0,
+      "color": "#000000",
+      "label": "",
+      "slice": [
+        16,
+        16,
+        16,
+        16
+      ]
     }
   }
 }

@@ -1,0 +1,114 @@
+{
+  "source_url": "https://kenney.nl/media/pages/assets/ui-pack-rpg-expansion/7ec4a46657-1677661824/kenney_ui-pack-rpg-expansion.zip",
+  "source_zip_sha256": "c69c30c09d74df542842e4ec811735b6d260cd6c9e2ee261d7b894d259a6adb4",
+  "license": "CC0, bundled in KENNEY_LICENSE.txt",
+  "assets": [
+    "assets/ui/ui_hp_player.png",
+    "assets/ui/ui_hp_enemy.png",
+    "assets/ui/ui_energy.png",
+    "assets/ui/ui_bar_base.png",
+    "assets/ui/ui_slot_empty.png",
+    "assets/ui/ui_slot_occupied.png",
+    "assets/ui/ui_slot_selected.png",
+    "assets/ui/ui_button_primary.png",
+    "assets/ui/ui_button_secondary.png",
+    "assets/ui/ui_button_speed.png",
+    "assets/ui/ui_button_speed_2x.png",
+    "assets/ui/ui_button_skip.png",
+    "assets/ui/ui_result_victory.png",
+    "assets/ui/ui_result_defeat.png",
+    "assets/ui/kenney_uipack_rpg_sheet.png"
+  ],
+  "nine_slice": {
+    "ui_hp_player.png": {
+      "left": 9,
+      "right": 9,
+      "top": 0,
+      "bottom": 0,
+      "repeat": "stretch",
+      "source": "Kenney barGreen"
+    },
+    "ui_hp_enemy.png": {
+      "left": 9,
+      "right": 9,
+      "top": 0,
+      "bottom": 0,
+      "repeat": "stretch",
+      "source": "Kenney barRed"
+    },
+    "ui_energy.png": {
+      "left": 9,
+      "right": 9,
+      "top": 0,
+      "bottom": 0,
+      "repeat": "stretch",
+      "source": "Kenney barYellow"
+    },
+    "ui_bar_base.png": {
+      "left": 9,
+      "right": 9,
+      "top": 0,
+      "bottom": 0,
+      "repeat": "stretch",
+      "source": "Kenney barBack"
+    },
+    "ui_button_primary.png": {
+      "left": 12,
+      "right": 12,
+      "top": 12,
+      "bottom": 12,
+      "repeat": "stretch",
+      "source": "Kenney buttonLong_brown"
+    },
+    "ui_button_secondary.png": {
+      "left": 12,
+      "right": 12,
+      "top": 12,
+      "bottom": 12,
+      "repeat": "stretch",
+      "source": "Kenney buttonLong_blue"
+    },
+    "ui_button_speed.png": {
+      "left": 12,
+      "right": 12,
+      "top": 12,
+      "bottom": 12,
+      "repeat": "stretch",
+      "source": "Kenney buttonLong_beige"
+    },
+    "ui_button_speed_2x.png": {
+      "left": 12,
+      "right": 12,
+      "top": 12,
+      "bottom": 12,
+      "repeat": "stretch",
+      "source": "Kenney buttonLong_beige"
+    },
+    "ui_button_skip.png": {
+      "left": 12,
+      "right": 12,
+      "top": 12,
+      "bottom": 12,
+      "repeat": "stretch",
+      "source": "Kenney buttonLong_brown"
+    },
+    "ui_result_victory.png": {
+      "left": 48,
+      "right": 48,
+      "top": 48,
+      "bottom": 48,
+      "repeat": "stretch",
+      "source": "Kenney panel_beigeLight"
+    },
+    "ui_result_defeat.png": {
+      "left": 48,
+      "right": 48,
+      "top": 48,
+      "bottom": 48,
+      "repeat": "stretch",
+      "source": "Kenney panel_blue"
+    }
+  },
+  "original_atlas": "kenney_uipack_rpg_sheet.png",
+  "original_atlas_metadata": "kenney_uipack_rpg_sheet.xml"
+}
