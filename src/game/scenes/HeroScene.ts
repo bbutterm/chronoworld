@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import { availableJobChanges, expToNext, heroSkills, statsAt, type HeroState } from '../../core';
+import { availableJobChanges, expToNext, heroGearStats, heroPower, heroSkills, heroSlots, SLOTS, statsAt, type HeroState, type Slot } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { heroSprite, lockedJobSkills, ROLE_NAMES } from '../flow';
+import { formatNumber, heroSprite, itemStatsText, lockedJobSkills, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES } from '../flow';
 import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
 import { session } from '../session';
 import { anim, portraitKey, spriteView } from '../sprites';
-import { button, progressBar, text } from '../ui';
+import { button, panel, progressBar, text } from '../ui';
 
 interface SkillRow {
   id: string;
@@ -40,6 +40,11 @@ export class HeroScene extends Phaser.Scene {
     text(this, x, top + 180, `Джоб ${hero.jobLevel} / ${max}`, 36, '#ffffff', { fontStyle: 'bold' }).setOrigin(0, 0.5);
     progressBar(this, x, top + 235, 600, 34, atMax ? 1 : hero.jobExp / need, atMax ? 0xffd84a : 0x6fd06f);
     text(this, x + 300, top + 235, atMax ? 'максимальный уровень' : `опыт ${hero.jobExp} / ${need}`, 24, '#ffffff', { stroke: '#000000', strokeThickness: 4 });
+    text(this, 1010, top + 60, `Мощь ${formatNumber(heroPower(hero, GAME, session.save))}`, 36, '#ffd84a', {
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 6,
+    }).setOrigin(1, 0.5);
     const history = hero.jobHistory.map((h) => `${CONTENT.jobs[h.job]?.name ?? h.job} ${h.jobLevel}`);
     if (history.length) text(this, x, top + 295, `Путь: ${history.join(' → ')} → ${job?.name ?? hero.job}`, 24, '#b8bcc8').setOrigin(0, 0.5);
 
@@ -47,20 +52,27 @@ export class HeroScene extends Phaser.Scene {
     const sy = top + 410;
     card(this, GAME_W / 2, sy, 1040, 110, true);
     if (job) {
+      // Статы с экипировкой (K6): крупно — итог, мелко — рост за уровень и прибавка предметов.
       const s = statsAt(job, hero.jobLevel);
       const g = job.growth;
-      const cells: [string, number, number][] = [
-        ['HP', s.hp, g.hp],
-        ['ATK', s.atk, g.atk],
-        ['DEF', s.def, g.def],
-        ['SPD', s.spd, g.spd],
+      const gear = heroGearStats(session.save, hero.id, GAME);
+      const cells: [string, number, number, number][] = [
+        ['HP', s.hp, g.hp, gear.hp],
+        ['ATK', s.atk, g.atk, gear.atk],
+        ['DEF', s.def, g.def, gear.def],
+        ['SPD', s.spd, g.spd, gear.spd],
       ];
-      cells.forEach(([name, v, grow], i) => {
+      cells.forEach(([name, v, grow, plus], i) => {
         const cx = 150 + i * 260;
-        text(this, cx, sy - 16, `${name} ${v}`, 36, '#4a3520', { fontStyle: 'bold' });
-        text(this, cx, sy + 26, grow ? `+${grow} за уровень` : '—', 22, '#7a5a3a');
+        text(this, cx, sy - 16, `${name} ${v + plus}`, 36, plus ? '#1f5a9a' : '#4a3520', { fontStyle: 'bold' });
+        text(this, cx, sy + 28, `${grow ? `+${grow}/ур.` : ''}${plus ? `  (+${plus} экип.)` : ''}` || '—', 24, '#7a5a3a');
       });
     }
+
+    // --- Экипировка: 4 слота ---
+    const gy = sy + 170;
+    const slots = heroSlots(session.save, hero.id, GAME);
+    SLOTS.forEach((slot, i) => this.gearSlot(hero, slot, slots[slot], 150 + i * 260, gy));
 
     // --- Навыки ---
     const skills = heroSkills(hero, GAME);
@@ -70,17 +82,18 @@ export class HeroScene extends Phaser.Scene {
     for (const l of lockedJobSkills(hero.job, hero.jobLevel, GAME)) rows.push({ id: l.skill, kind: '', locked: l.jobLevel });
 
     const changes = availableJobChanges(hero, GAME);
-    const listTop = sy + 90;
-    const listBottom = CONTENT_BOTTOM - (changes.length ? 150 : 0);
+    const nextTier = (job?.tier ?? 2) + 1;
+    const listTop = gy + 120;
+    // Внизу — кнопка смены профессии или подсказка, когда она откроется.
+    const listBottom = CONTENT_BOTTOM - (changes.length ? 150 : nextTier <= 2 ? 70 : 0);
     const rowH = Math.min(120, (listBottom - listTop - 20) / rows.length);
     const listH = rowH * rows.length + 20;
     card(this, GAME_W / 2, listTop + listH / 2, 1040, listH);
     rows.forEach((r, i) => this.skillRow(r, listTop + 10 + rowH * (i + 0.5), rowH));
 
-    const nextTier = (job?.tier ?? 2) + 1;
     if (!changes.length && nextTier <= 2) {
       const need = GAME.progression.jobChange.tierLevel[String(nextTier) as '1' | '2'];
-      text(this, GAME_W / 2, listTop + listH + 60, `Смена профессии откроется на джобе ${need}`, 32, '#ffe9a8', {
+      text(this, GAME_W / 2, listTop + listH + 40, `Смена профессии откроется на джобе ${need}`, 32, '#ffe9a8', {
         stroke: '#000000',
         strokeThickness: 5,
       });
@@ -90,6 +103,20 @@ export class HeroScene extends Phaser.Scene {
         this.scene.start('JobChange', { heroId: hero.id }),
       );
     }
+  }
+
+  private gearSlot(hero: HeroState, slot: Slot, item: ReturnType<typeof heroSlots>[Slot], x: number, y: number): void {
+    const bg = panel(this, x, y, 244, 200, item ? 'ui_slot_filled' : 'ui_slot_empty');
+    bg.setInteractive({ useHandCursor: true }).on('pointerup', () => this.scene.start('Inventory', { heroId: hero.id, slot }));
+    text(this, x, y - 70, SLOT_NAMES[slot], 28, '#b8bcc8');
+    if (!item) {
+      text(this, x, y + 10, '+', 72, '#8a8f99', { fontStyle: 'bold' });
+      return;
+    }
+    const color = RARITY_COLORS[item.def.rarity];
+    this.add.rectangle(x, y - 46, 200, 5, Phaser.Display.Color.HexStringToColor(color).color);
+    text(this, x, y + 5, item.def.name, 30, color, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5, wordWrap: { width: 230 } });
+    text(this, x, y + 62, itemStatsText(item.def.stats), 24, '#ffffff', { stroke: '#000000', strokeThickness: 4, wordWrap: { width: 230 } }).setMaxLines(2);
   }
 
   private skillRow(r: SkillRow, y: number, h: number): void {

@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
-import { enemySquad, getStage, stageStatus } from '../../core';
+import { actSkipStage, enemySquad, getStage, squadPower, stagePower, stageStatus } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { assignSlot, heroSprite } from '../flow';
+import { assignSlot, formatNumber, heroSprite, POWER_COLORS, powerTone, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, portrait, screen } from '../screen';
-import { commit, session } from '../session';
+import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
 import { button, panel, text, toast } from '../ui';
+import { squadDefs, type ResultData } from './BattleScene';
 
 const SLOT_W = 196;
 const slotX = (i: number) => GAME_W / 2 + (i - 2) * (SLOT_W + 12);
@@ -16,7 +17,9 @@ export class StageScene extends Phaser.Scene {
   private stageId!: string;
   private selected = 0;
   private squadLayer!: Phaser.GameObjects.Container;
-  private fightBtn!: ReturnType<typeof button>;
+  private fightBtns: ReturnType<typeof button>[] = [];
+  private powerText!: Phaser.GameObjects.Text;
+  private enemyPower = 0;
 
   constructor() {
     super('Stage');
@@ -45,16 +48,19 @@ export class StageScene extends Phaser.Scene {
     // --- Награда ---
     const first = stageStatus(session.save, this.stageId, GAME) !== 'cleared';
     const k = first ? 1 : GAME.progression.campaign.replayRewardMultiplier;
-    card(this, GAME_W / 2, 755, 1050, 110, true);
+    card(this, GAME_W / 2, 755, 1050, 130, true);
     text(
       this,
       GAME_W / 2,
-      755,
+      730,
       `${first ? 'Награда' : `Повтор (×${k})`}:  золото ${Math.floor(stage.rewards.gold * k)} · опыт ${Math.floor(stage.rewards.jobExp * k)} каждому`,
-      32,
+      30,
       '#4a3520',
       { fontStyle: 'bold' },
     );
+    // K2: мощь отряда против мощи врагов. Обводка тёмная, чтобы цвет читался на светлой карточке.
+    this.enemyPower = stagePower(this.stageId, GAME);
+    this.powerText = text(this, GAME_W / 2, 780, '', 30, '#ffffff', { fontStyle: 'bold', stroke: '#2a1a0a', strokeThickness: 6 });
 
     // --- Ваш отряд и выбор героев ---
     card(this, GAME_W / 2, 1230, 1050, 800);
@@ -64,7 +70,15 @@ export class StageScene extends Phaser.Scene {
     });
     this.squadLayer = this.add.container(0, 0);
 
-    this.fightBtn = button(this, GAME_W / 2, GAME_H - 110, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), 56);
+    if (first) {
+      this.fightBtns = [button(this, GAME_W / 2, GAME_H - 110, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), 56)];
+    } else {
+      // K7: пройденный этап можно повторить с просмотром боя или сразу получить итог.
+      this.fightBtns = [
+        button(this, GAME_W / 2 - 260, GAME_H - 110, 480, 150, 'ui_btn_secondary', 'Пропустить бой', () => this.skipBattle(), 42),
+        button(this, GAME_W / 2 + 260, GAME_H - 110, 480, 150, 'ui_btn_primary', 'Повторить', () => this.fight(), 48),
+      ];
+    }
     this.drawSquad();
   }
 
@@ -107,7 +121,11 @@ export class StageScene extends Phaser.Scene {
     });
 
     const ready = save.squad.some(Boolean);
-    this.fightBtn.container.setAlpha(ready ? 1 : 0.45);
+    for (const b of this.fightBtns) b.container.setAlpha(ready ? 1 : 0.45);
+    const mine = squadPower(save, GAME);
+    this.powerText
+      .setText(`Мощь: ваш отряд ${formatNumber(mine)}  ·  противник ${formatNumber(this.enemyPower)}`)
+      .setColor(POWER_COLORS[powerTone(mine, this.enemyPower)]);
   }
 
   private onSlot(i: number): void {
@@ -137,5 +155,23 @@ export class StageScene extends Phaser.Scene {
       return;
     }
     this.scene.start('Battle', { mode: 'stage', stageId: this.stageId });
+  }
+
+  /** K7: бой считается без проигрывания — сразу экран итогов. */
+  private skipBattle(): void {
+    const save = session.save;
+    if (!save.squad.some(Boolean)) {
+      toast(this, 'Поставьте в отряд хотя бы одного героя');
+      return;
+    }
+    try {
+      const outcome = actSkipStage(save, today(), this.stageId, stageSeed(save), GAME);
+      const defs = squadDefs(save);
+      for (const u of enemySquad(this.stageId, GAME)) if (u) defs[u.id] = u;
+      commit(outcome.save);
+      this.scene.start('Result', { result: outcome.result, defs, stage: { stageId: this.stageId, outcome, skipped: true } } satisfies ResultData);
+    } catch (e) {
+      toast(this, e instanceof Error ? e.message : String(e), '#ffb4a0');
+    }
   }
 }

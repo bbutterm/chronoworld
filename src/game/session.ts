@@ -11,8 +11,12 @@ const storage = new LocalStorageAdapter();
 /** Предупреждения для игрока, которые покажет ближайший экран (тостом). */
 const warnings: string[] = [];
 
+export const now = () => Date.now();
+/** День игрока по локальному времени — его получают все ежедневные механики (act*-обёртки, задания). */
+export const today = () => localDay(new Date());
+
 function boot(): SaveState {
-  const r = loadOrNew(storage, GAME, Date.now());
+  const r = loadOrNew(storage, GAME, now(), today());
   if (r.source === 'reset') warnings.push(`Сохранение не удалось прочитать, начата новая игра. ${r.error?.message ?? ''}`.trim());
   if (!storage.available) warnings.push('Хранилище браузера недоступно — прогресс сохранится только до перезагрузки страницы.');
   // Новая игра записывается сразу, чтобы время сундука шло с первого запуска. Битое сохранение
@@ -35,11 +39,8 @@ export function commit(save: SaveState): void {
 
 /** Начать заново: новая игра сразу записывается поверх старой. */
 export function resetProgress(): void {
-  commit(newGame(GAME, now()));
+  commit(newGame(GAME, now(), today()));
 }
-
-export const now = () => Date.now();
-export const today = () => localDay(new Date());
 
 /** Забрать накопившиеся предупреждения (каждое показывается один раз). */
 export function takeWarnings(): string[] {

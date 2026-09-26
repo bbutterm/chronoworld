@@ -23,8 +23,11 @@ export function queueSprites(scene: Phaser.Scene, ids: string[]): void {
   }
 }
 
-/** После загрузки: анимации, фильтр без сглаживания; для отсутствующих — плейсхолдеры. */
-export function setupSprites(scene: Phaser.Scene, ids: string[], labels: Record<string, string>): void {
+/**
+ * После загрузки: анимации, фильтр без сглаживания; для отсутствующих — плейсхолдеры-силуэты цвета роли
+ * (roles: id спрайта → tank/damage/healer/support).
+ */
+export function setupSprites(scene: Phaser.Scene, ids: string[], roles: Record<string, string> = {}): void {
   for (const id of new Set(ids)) {
     const s = SPRITES[id];
     const key = spriteKey(id);
@@ -39,7 +42,7 @@ export function setupSprites(scene: Phaser.Scene, ids: string[], labels: Record<
         });
       }
     } else {
-      placeholder(scene, key, 128, 128, labels[id] ?? id, true);
+      placeholder(scene, key, 128, 128, roles[id], true);
     }
     const pk = portraitKey(id);
     if (scene.textures.exists(pk)) scene.textures.get(pk).setFilter(Phaser.Textures.FilterMode.NEAREST);
@@ -48,7 +51,7 @@ export function setupSprites(scene: Phaser.Scene, ids: string[], labels: Record<
       const idle = s.anims.idle;
       const frame = scene.textures.getFrame(key, (idle?.row ?? 0) * s.columns);
       if (frame) portraitFromFrame(scene, pk, key, frame);
-    } else placeholder(scene, pk, 128, 128, labels[id] ?? id, false);
+    } else placeholder(scene, pk, 128, 128, roles[id], false);
   }
 }
 
@@ -91,23 +94,157 @@ function portraitFromFrame(scene: Phaser.Scene, pk: string, key: string, frame: 
   scene.textures.remove(tmp);
 }
 
-function placeholder(scene: Phaser.Scene, key: string, w: number, h: number, label: string, body: boolean): void {
+/** Цвета ролей для силуэтов-плейсхолдеров: основной и тёмный (контур, фон портрета). */
+export const ROLE_COLORS: Record<string, [string, string]> = {
+  tank: ['#5b8be0', '#1e3566'],
+  damage: ['#e0644f', '#5e2018'],
+  healer: ['#5cc26a', '#1c4d24'],
+  support: ['#e0b048', '#5a4210'],
+};
+const NEUTRAL: [string, string] = ['#9a9aa8', '#3a3a44'];
+
+/**
+ * Плейсхолдер юнита без арта: силуэт человечка цвета роли с предметом роли
+ * (танк — щит, урон — меч, лекарь — посох с крестом, поддержка — флажок).
+ * body = true — фигура в полный рост, ноги у низа клетки (как у спрайтов); false — портрет по пояс.
+ */
+function placeholder(scene: Phaser.Scene, key: string, w: number, h: number, role: string | undefined, body: boolean): void {
   if (scene.textures.exists(key)) return;
   const t = scene.textures.createCanvas(key, w, h);
   if (!t) return;
   const ctx = t.getContext();
-  let hash = 0;
-  for (const ch of label) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  ctx.fillStyle = `hsl(${hash % 360}, 45%, 45%)`;
-  // Тело стоит на «ногах» (низ клетки), как у настоящих спрайтов.
-  if (body) ctx.fillRect(w * 0.25, h * 0.2, w * 0.5, h * 0.74);
-  else ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = '#fff';
-  ctx.font = `bold ${Math.round(Math.min(w / (label.length * 0.6), 28))}px sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(label, w / 2, body ? h * 0.55 : h / 2);
+  const [main, dark] = (role && ROLE_COLORS[role]) || NEUTRAL;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+
+  if (body) {
+    // Тень под ногами.
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.5, h * 0.94, w * 0.24, h * 0.04, 0, 0, Math.PI * 2);
+    ctx.fill();
+    figure(ctx, w * 0.5, h * 0.94, h * 0.78, main, dark);
+    prop(ctx, role, w * 0.5, h * 0.94, h * 0.78, main, dark);
+  } else {
+    // Портрет: круглый тёмный фон и фигура по пояс крупно.
+    ctx.fillStyle = dark;
+    ctx.beginPath();
+    ctx.arc(w / 2, h / 2, w / 2 - 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(w / 2, h / 2, w / 2 - 2, 0, Math.PI * 2);
+    ctx.clip();
+    figure(ctx, w * 0.5, h * 1.72, h * 1.5, main, dark);
+    ctx.restore();
+    ctx.strokeStyle = main;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(w / 2, h / 2, w / 2 - 4, 0, Math.PI * 2);
+    ctx.stroke();
+  }
   t.refresh();
+}
+
+/** Человечек: ноги, туловище-трапеция, руки, голова. (cx, feet) — точка ног, size — рост. */
+function figure(ctx: CanvasRenderingContext2D, cx: number, feet: number, size: number, main: string, dark: string): void {
+  const u = size / 100;
+  const y = (v: number) => feet - v * u;
+  ctx.fillStyle = main;
+  ctx.strokeStyle = dark;
+  ctx.lineWidth = Math.max(2, 3 * u);
+  const shape = (draw: () => void) => {
+    ctx.beginPath();
+    draw();
+    ctx.fill();
+    ctx.stroke();
+  };
+  // Ноги.
+  shape(() => ctx.roundRect(cx - 14 * u, y(30), 11 * u, 30 * u, 4 * u));
+  shape(() => ctx.roundRect(cx + 3 * u, y(30), 11 * u, 30 * u, 4 * u));
+  // Руки.
+  shape(() => ctx.roundRect(cx - 27 * u, y(70), 10 * u, 34 * u, 5 * u));
+  shape(() => ctx.roundRect(cx + 17 * u, y(70), 10 * u, 34 * u, 5 * u));
+  // Туловище.
+  shape(() => {
+    ctx.moveTo(cx - 22 * u, y(72));
+    ctx.lineTo(cx + 22 * u, y(72));
+    ctx.lineTo(cx + 16 * u, y(28));
+    ctx.lineTo(cx - 16 * u, y(28));
+    ctx.closePath();
+  });
+  // Голова.
+  shape(() => ctx.arc(cx, y(86), 13 * u, 0, Math.PI * 2));
+  // Блик — чтобы силуэт не был плоским.
+  ctx.fillStyle = 'rgba(255,255,255,0.22)';
+  ctx.beginPath();
+  ctx.arc(cx - 4 * u, y(90), 5 * u, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+/** Предмет роли в правой руке (или щит спереди у танка). */
+function prop(ctx: CanvasRenderingContext2D, role: string | undefined, cx: number, feet: number, size: number, main: string, dark: string): void {
+  const u = size / 100;
+  const y = (v: number) => feet - v * u;
+  ctx.strokeStyle = dark;
+  ctx.lineWidth = Math.max(2, 3 * u);
+  switch (role) {
+    case 'tank':
+      ctx.fillStyle = '#d8dce6';
+      ctx.beginPath();
+      ctx.moveTo(cx - 34 * u, y(66));
+      ctx.lineTo(cx - 10 * u, y(66));
+      ctx.lineTo(cx - 10 * u, y(44));
+      ctx.lineTo(cx - 22 * u, y(32));
+      ctx.lineTo(cx - 34 * u, y(44));
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = main;
+      ctx.fillRect(cx - 24 * u, y(60), 4 * u, 20 * u);
+      return;
+    case 'damage':
+      ctx.strokeStyle = '#e8ecf4';
+      ctx.lineWidth = Math.max(3, 5 * u);
+      ctx.beginPath();
+      ctx.moveTo(cx + 24 * u, y(38));
+      ctx.lineTo(cx + 40 * u, y(84));
+      ctx.stroke();
+      ctx.strokeStyle = dark;
+      ctx.lineWidth = Math.max(2, 4 * u);
+      ctx.beginPath();
+      ctx.moveTo(cx + 16 * u, y(44));
+      ctx.lineTo(cx + 32 * u, y(38));
+      ctx.stroke();
+      return;
+    case 'healer':
+      ctx.strokeStyle = '#a07040';
+      ctx.lineWidth = Math.max(3, 4 * u);
+      ctx.beginPath();
+      ctx.moveTo(cx + 30 * u, y(2));
+      ctx.lineTo(cx + 30 * u, y(92));
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(cx + 27 * u, y(104), 6 * u, 16 * u);
+      ctx.fillRect(cx + 22 * u, y(99), 16 * u, 6 * u);
+      return;
+    case 'support':
+      ctx.strokeStyle = '#a07040';
+      ctx.lineWidth = Math.max(3, 4 * u);
+      ctx.beginPath();
+      ctx.moveTo(cx + 30 * u, y(10));
+      ctx.lineTo(cx + 30 * u, y(96));
+      ctx.stroke();
+      ctx.fillStyle = main;
+      ctx.beginPath();
+      ctx.moveTo(cx + 31 * u, y(96));
+      ctx.lineTo(cx + 50 * u, y(88));
+      ctx.lineTo(cx + 31 * u, y(78));
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      return;
+  }
 }
 
 /** Всё, что нужно сцене, чтобы поставить спрайт юнита. */

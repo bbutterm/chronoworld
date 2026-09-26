@@ -1,5 +1,20 @@
+import dropsJson from '../../data/drops.json';
 import progressionJson from '../../data/progression.json';
-import { buildContent, COMBAT, ProgressionConfigSchema, type GameContext, type RawFile } from '../core';
+import questsJson from '../../data/quests.json';
+import towerJson from '../../data/tower.json';
+import {
+  buildContent,
+  COMBAT,
+  ProgressionConfigSchema,
+  withEquipment,
+  withFeatures,
+  withTower,
+  type EquipmentContext,
+  type FeatureContext,
+  type GameContext,
+  type RawFile,
+  type TowerContext,
+} from '../core';
 
 const toFiles = (mods: Record<string, unknown>): RawFile[] =>
   Object.entries(mods)
@@ -14,12 +29,27 @@ export const CONTENT = buildContent({
   chapters: toFiles(import.meta.glob('../../data/campaign/*.json', { eager: true, import: 'default' })),
 });
 
-/** Контекст для прогрессии и кампании. */
-export const GAME: GameContext = {
+const BASE: GameContext = {
   content: CONTENT,
   progression: ProgressionConfigSchema.parse(progressionJson),
   combat: COMBAT,
 };
+
+/** Полный контекст игры: прогрессия и кампания + K-функции (быстрые награды, мощь, задания), экипировка, башня. */
+export type FullContext = FeatureContext & EquipmentContext & TowerContext;
+
+/**
+ * Контекст для всех экранов. Битый конфиг (progression/quests/items/drops/tower) — ошибка при старте
+ * с описанием поля (FeatureError / EquipmentError / TowerError), `npm run content:check` ловит это раньше.
+ */
+export const GAME: FullContext = withTower(
+  withEquipment(
+    withFeatures(BASE, progressionJson, questsJson),
+    toFiles(import.meta.glob('../../data/items/*.json', { eager: true, import: 'default' })),
+    dropsJson,
+  ),
+  towerJson,
+);
 
 const ROLE_ORDER = ['tank', 'damage', 'support', 'healer'];
 

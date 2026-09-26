@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
-import { availableJobChanges, changeJob } from '../../core';
+import { actChangeJob, availableJobChanges } from '../../core';
 import { CONTENT, GAME } from '../content';
 import { describeEvents, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
-import { commit, session } from '../session';
+import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
 import { button, text, toast } from '../ui';
 
@@ -110,14 +110,14 @@ export class JobChangeScene extends Phaser.Scene {
     const save = session.save;
     const hero = save.heroes.find((h) => h.id === heroId);
     if (!hero) return;
-    let r: ReturnType<typeof changeJob>;
+    let r: ReturnType<typeof actChangeJob>;
     try {
-      r = changeJob(hero, jobId, GAME);
+      r = actChangeJob(save, today(), heroId, jobId, GAME);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), '#ffb4a0');
       return;
     }
-    const next = { ...save, heroes: save.heroes.map((h) => (h.id === heroId ? r.hero : h)) };
+    const next = r.save;
     commit(next);
     const lines = describeEvents(r.events, next, GAME);
     this.scene.start('Hero', { heroId });

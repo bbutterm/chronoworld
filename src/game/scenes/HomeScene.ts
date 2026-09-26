@@ -1,13 +1,13 @@
 import Phaser from 'phaser';
-import { claimOffline, offlineRewards } from '../../core';
+import { actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
 import { GAME } from '../content';
-import { describeEvents } from '../flow';
+import { claimableCount, currentStage, describeEvents, formatNumber } from '../flow';
 import { GAME_W } from '../layout';
-import { card, confirm, screen } from '../screen';
-import { commit, now, resetProgress, session } from '../session';
+import { badge, card, confirm, gemIcon, screen } from '../screen';
+import { commit, now, resetProgress, session, today } from '../session';
 import { button, icon, text, toast } from '../ui';
 
-/** Главная: сундук офлайн-наград, тестовый бой, сброс прогресса. */
+/** Главная: сундук офлайн-наград, быстрые награды (K1), задания (K5), башня (K4), кампания, тестовый бой, сброс. */
 export class HomeScene extends Phaser.Scene {
   private chestText!: Phaser.GameObjects.Text;
   private claimBtn!: ReturnType<typeof button>;
@@ -18,34 +18,40 @@ export class HomeScene extends Phaser.Scene {
 
   create(): void {
     screen(this, 'Лагерь героев', 'Home');
-    const cap = GAME.progression.offline.capHours;
+    this.chest();
+    this.fastRewards();
+    this.tiles();
 
-    // Сундук: пока нет арта — рамка из атласа, «крышка» и замок.
-    card(this, GAME_W / 2, 620, 960, 760);
-    text(this, GAME_W / 2, 300, 'Сундук офлайн-наград', 46, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 6 });
-    card(this, GAME_W / 2, 520, 440, 260, true);
-    this.add.rectangle(GAME_W / 2, 430, 440, 60, 0x8a5a2b).setStrokeStyle(6, 0x3a2412);
-    icon(this, GAME_W / 2, 520, 'iconCircle_brown', 90).setTint(0xffd84a);
-    this.chestText = text(this, GAME_W / 2, 750, '', 38, '#ffffff', { lineSpacing: 10, stroke: '#000000', strokeThickness: 4 });
-    text(this, GAME_W / 2, 850, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, 28, '#e0cfb0', {
-      wordWrap: { width: 860 },
-    });
-    this.claimBtn = button(this, GAME_W / 2, 950, 520, 130, 'ui_btn_primary', 'Собрать', () => this.claim());
-
-    button(this, GAME_W / 2, 1180, 700, 130, 'ui_btn_secondary', 'В кампанию', () => this.scene.start('Campaign'));
-    button(this, GAME_W / 2, 1340, 700, 130, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'));
-    button(this, GAME_W / 2, 1560, 560, 110, 'k:buttonLong_grey', 'Сбросить прогресс', () =>
-      confirm(this, 'Сбросить весь прогресс? Герои, этапы и золото пропадут.', 'Сбросить', () =>
+    const cur = currentStage(session.save, GAME);
+    button(this, GAME_W / 2, 1400, 780, 140, 'ui_btn_primary', cur ? `В кампанию · этап ${cur.globalIndex + 1}` : 'В кампанию', () => this.scene.start('Campaign'), 46);
+    button(this, 300, 1570, 460, 110, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'), 36);
+    button(this, 800, 1570, 400, 110, 'k:buttonLong_grey', 'Сбросить', () =>
+      confirm(this, 'Сбросить весь прогресс? Герои, этапы, золото и предметы пропадут.', 'Сбросить', () =>
         confirm(this, 'Точно? Отменить будет нельзя.', 'Да, сбросить', () => {
           resetProgress();
           this.scene.restart();
         }),
       ),
-    38);
+    36);
 
     this.refresh();
     // Сундук считаем раз в секунду, а не каждый кадр.
     this.time.addEvent({ delay: 1000, loop: true, callback: () => this.refresh() });
+  }
+
+  // ---------- сундук ----------
+
+  private chest(): void {
+    const cap = GAME.progression.offline.capHours;
+    card(this, GAME_W / 2, 445, 1000, 520);
+    text(this, GAME_W / 2, 235, 'Сундук офлайн-наград', 44, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 6 });
+    // Пока нет арта — рамка из атласа, «крышка» и замок.
+    card(this, GAME_W / 2, 350, 320, 140, true);
+    this.add.rectangle(GAME_W / 2, 295, 320, 40, 0x8a5a2b).setStrokeStyle(6, 0x3a2412);
+    icon(this, GAME_W / 2, 355, 'iconCircle_brown', 64).setTint(0xffd84a);
+    this.chestText = text(this, GAME_W / 2, 485, '', 34, '#ffffff', { lineSpacing: 8, stroke: '#000000', strokeThickness: 4 });
+    text(this, GAME_W / 2, 565, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, 28, '#e0cfb0', { wordWrap: { width: 900 } });
+    this.claimBtn = button(this, GAME_W / 2, 640, 460, 100, 'ui_btn_primary', 'Собрать', () => this.claim(), 40);
   }
 
   private refresh(): void {
@@ -57,22 +63,114 @@ export class HomeScene extends Phaser.Scene {
         ? 'Пройдите первый этап кампании,\nчтобы сундук начал наполняться'
         : r.gold === 0 && r.jobExp === 0
           ? 'Сундук пуст — награды\nкопятся каждую минуту'
-          : `Накоплено за ${h} ч ${m} мин\nЗолото +${r.gold}   Опыт +${r.jobExp} каждому`,
+          : `Накоплено за ${h} ч ${m} мин\nЗолото +${formatNumber(r.gold)}   Опыт +${formatNumber(r.jobExp)} каждому`,
     );
     this.claimBtn.container.setAlpha(r.gold > 0 || r.jobExp > 0 ? 1 : 0.45);
   }
 
   private claim(): void {
-    const before = session.save;
-    const r = claimOffline(before, now(), GAME);
+    const r = actClaimOffline(session.save, now(), today(), GAME);
     if (r.rewards.gold === 0 && r.rewards.jobExp === 0) {
       toast(this, 'Сундук пока пуст');
       return;
     }
     commit(r.save);
-    const lines = [`Собрано: золото +${r.rewards.gold}, опыт +${r.rewards.jobExp}`, ...describeEvents(r.events, r.save, GAME)];
+    this.restartWithToast([`Собрано: золото +${r.rewards.gold}, опыт +${r.rewards.jobExp}`, ...describeEvents(r.events, r.save, GAME)]);
+  }
+
+  // ---------- K1. Быстрые награды ----------
+
+  private fastRewards(): void {
+    const save = session.save;
+    const hours = GAME.features.fastRewards.hours;
+    const preview = fastRewardsPreview(save, GAME);
+    const st = fastRewardsStatus(save, today(), GAME);
+    const y = 855;
+    card(this, GAME_W / 2, y, 1000, 250);
+    text(this, 80, y - 78, `Быстрые награды · ${hours} ч`, 42, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 6 }).setOrigin(0, 0.5);
+    const noIncome = preview.gold <= 0 && preview.jobExp <= 0;
+    text(
+      this,
+      80,
+      y - 10,
+      noIncome ? 'Откроются после первого этапа кампании' : `+${formatNumber(preview.gold)} золота, +${formatNumber(preview.jobExp)} опыта каждому`,
+      30,
+      '#ffffff',
+      { align: 'left', wordWrap: { width: 600 }, stroke: '#000000', strokeThickness: 4 },
+    ).setOrigin(0, 0.5);
+    const left = st.nextCost === null ? 'На сегодня всё — приходите завтра' : `Осталось сегодня: ${st.usesLeft} (бесплатно: ${st.freeLeft})`;
+    text(this, 80, y + 62, left, 28, '#e0cfb0').setOrigin(0, 0.5);
+
+    const bx = 840;
+    const label = st.nextCost === null ? 'Лимит' : st.nextCost === 0 ? 'Бесплатно' : `${st.nextCost}`;
+    const btn = button(this, bx, y, 280, 130, st.nextCost === 0 ? 'ui_btn_primary' : 'ui_btn_secondary', label, () => this.useFast(), 38);
+    if (st.nextCost !== null && st.nextCost > 0) {
+      // Цена: ромб гема + число.
+      btn.label.setX(22);
+      btn.container.add(gemIcon(this, 22 - btn.label.width / 2 - 30, -4, 36));
+    }
+    if (st.nextCost === null || noIncome) btn.container.setAlpha(0.45);
+  }
+
+  private useFast(): void {
+    const save = session.save;
+    const day = today();
+    const st = fastRewardsStatus(save, day, GAME);
+    const preview = fastRewardsPreview(save, GAME);
+    if (st.nextCost === null) {
+      toast(this, 'Быстрые награды на сегодня закончились');
+      return;
+    }
+    if (preview.gold <= 0 && preview.jobExp <= 0) {
+      toast(this, 'Пройдите хотя бы один этап кампании, чтобы получать быстрые награды');
+      return;
+    }
+    const price = st.nextCost === 0 ? 'Бесплатно.' : `Цена: ${st.nextCost} гемов (у вас ${save.currency.gems}).`;
+    const q = `Забрать ${GAME.features.fastRewards.hours} ч дохода сразу?\nЗолото +${formatNumber(preview.gold)}, опыт +${formatNumber(preview.jobExp)} каждому.\n${price}`;
+    confirm(this, q, 'Забрать', () => {
+      try {
+        const r = actUseFastRewards(session.save, day, GAME);
+        commit(r.save);
+        this.restartWithToast([`Быстрые награды: золото +${r.rewards.gold}, опыт +${r.rewards.jobExp}`, ...describeEvents(r.events, r.save, GAME)]);
+      } catch (e) {
+        toast(this, e instanceof Error ? e.message : String(e), '#ffb4a0');
+      }
+    });
+  }
+
+  // ---------- Задания и башня ----------
+
+  private tiles(): void {
+    const save = session.save;
+    const y = 1130;
+    const qs = questStatus(save, GAME, today());
+    this.tile(280, y, 'Задания', `Активность ${qs.activity} / ${qs.maxActivity}`, '#9fe0a6', () => this.scene.start('Quests'));
+    badge(this, 280 + 215, y - 95, claimableCount(qs));
+
+    const ts = towerStatus(save, GAME);
+    if (ts.unlocked) {
+      const sub = ts.next === null ? 'Вершина взята!' : `Этаж ${ts.floor} · дальше ${ts.next}`;
+      this.tile(800, y, 'Башня', sub, '#ffd84a', () => this.scene.start('Tower'));
+    } else {
+      const stage = GAME.content.stages.find((s) => s.id === ts.unlockAfterStage);
+      const hint = stage ? `Откроется после этапа ${stage.globalIndex + 1}` : 'Пока закрыта';
+      const t = this.tile(800, y, 'Башня', hint, '#b8bcc8', () => toast(this, `Башня испытаний: ${hint.toLowerCase()} кампании`));
+      t.setAlpha(0.75);
+      icon(this, 800 + 200, y - 80, 'iconCross_grey', 44);
+    }
+  }
+
+  private tile(x: number, y: number, title: string, sub: string, subColor: string, onClick: () => void): Phaser.GameObjects.NineSlice {
+    const bg = card(this, x, y, 500, 230);
+    bg.setInteractive({ useHandCursor: true }).on('pointerup', onClick);
+    text(this, x, y - 40, title, 46, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 6 });
+    text(this, x, y + 40, sub, 30, subColor, { stroke: '#000000', strokeThickness: 4, wordWrap: { width: 440 } });
+    return bg;
+  }
+
+  /** Перезапустить экран и показать тост уже на новом экземпляре сцены. */
+  private restartWithToast(lines: string[]): void {
     this.scene.restart();
-    // Тост после рестарта — на новом экземпляре сцены.
     this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, lines.join('\n'), '#9fe0a6', 5000));
   }
 }
