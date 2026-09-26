@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME } from '../content';
-import { describeEvents, itemStatsText, nextOpenStage, RARITY_COLORS } from '../flow';
+import { describeEvents, formatNumber, itemStatsText, nextOpenStage, RARITY_COLORS } from '../flow';
+import type { BattleResult, Side } from '../../core';
 import { GAME_W } from '../layout';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
@@ -69,30 +70,46 @@ export class ResultScene extends Phaser.Scene {
 
     // Сводка: почему победила сторона — кто сколько нанёс, вылечил и заблокировал.
     // Высота строки — чтобы обе таблицы влезли до кнопок.
-    const headers = compact ? 2 * (42 + 42 + 10) : 2 * (55 + 50 + 30);
+    const headers = compact ? 2 * (40 + 38 + 10) : 2 * (55 + 50 + 30);
     const row = Phaser.Math.Clamp(Math.floor((1700 - y - headers) / Math.max(1, r.units.length)), 56, 85);
-    const cols = [150, 400, 560, 720, 870, 990];
+    const cols = [150, 430, 590, 740, 870, 985];
     const heads = ['', 'Урон', 'Лечение', 'Щит', 'Ульты', 'Жив'];
     const maxDmg = Math.max(1, ...Object.values(r.report).map((x) => x.damageDealt));
-    const fs = compact ? 26 : 30;
+    const mvp = mvpOf(r, 'A');
+    const fs = compact ? 27 : 30;
     for (const side of ['A', 'B'] as const) {
-      text(this, GAME_W / 2, y, side === 'A' ? 'Ваш отряд' : 'Противник', compact ? 32 : 38, side === 'A' ? '#9fe0a6' : '#f0a0a0');
-      y += compact ? 42 : 55;
-      heads.forEach((h, i) => text(this, cols[i], y, h, 26, '#f3dfb8'));
-      y += compact ? 42 : 50;
-      for (const u of r.units.filter((x) => x.side === side)) {
-        const rep = r.report[u.uid];
-        const def = data.defs[u.unitId];
-        portrait(this, 60, y, portraitKey(def?.visual.sprite ?? u.unitId), row - 10).setAlpha(rep.alive ? 1 : 0.4);
-        text(this, cols[0] + 20, y, def?.name ?? u.unitId, fs).setOrigin(0, 0.5);
-        this.add.rectangle(cols[1] - 70, y + 22, 140 * (rep.damageDealt / maxDmg), 6, 0xd64545).setOrigin(0, 0.5);
-        text(this, cols[1], y, String(rep.damageDealt), fs);
-        text(this, cols[2], y, String(rep.healingDone), fs, '#7dff8f');
-        text(this, cols[3], y, String(rep.shieldGiven), fs, '#bcd6ff');
-        text(this, cols[4], y, String(rep.ults), fs, '#ffd84a');
-        text(this, cols[5], y, rep.alive ? '✓' : '✗', fs, rep.alive ? '#9fe0a6' : '#f0a0a0');
-        y += row;
-      }
+      text(this, GAME_W / 2, y, side === 'A' ? 'Ваш отряд' : 'Противник', compact ? 32 : 38, side === 'A' ? '#9fe0a6' : '#f0a0a0', { fontStyle: 'bold' });
+      y += compact ? 40 : 55;
+      heads.forEach((h, i) => text(this, cols[i], y, h, 24, '#c8b89a'));
+      y += compact ? 38 : 50;
+      r.units
+        .filter((x) => x.side === side)
+        .forEach((u, i) => {
+          const rep = r.report[u.uid];
+          const def = data.defs[u.unitId];
+          const isMvp = u.uid === mvp;
+          // Полосатые строки читаются легче; строка MVP — золотая.
+          if (isMvp) this.add.rectangle(GAME_W / 2, y, 1000, row - 6, 0xffd84a, 0.18).setStrokeStyle(3, 0xffd84a, 0.9);
+          else if (i % 2 === 0) this.add.rectangle(GAME_W / 2, y, 1000, row - 6, 0x000000, 0.18);
+          const alpha = rep.alive ? 1 : 0.5;
+          portrait(this, 70, y, portraitKey(def?.visual.sprite ?? u.unitId), row - 12).setAlpha(alpha);
+          if (isMvp) crown(this, 70 + (row - 12) / 2 - 6, y - (row - 12) / 2 + 6, 22);
+          const name = text(this, cols[0] - 20, isMvp ? y - 10 : y, def?.name ?? u.unitId, fs, isMvp ? '#ffe9a8' : '#ffffff', {
+            fontStyle: isMvp ? 'bold' : 'normal',
+          })
+            .setOrigin(0, 0.5)
+            .setAlpha(alpha);
+          if (name.width > cols[1] - 70 - name.x) name.setScale((cols[1] - 70 - name.x) / name.width);
+          if (isMvp) text(this, cols[0] - 20, y + 20, 'MVP · лучший урон', 20, '#ffd84a', { fontStyle: 'bold' }).setOrigin(0, 0.5);
+          this.add.rectangle(cols[1] - 60, y + 22, 120 * (rep.damageDealt / maxDmg), 6, 0xd64545).setOrigin(0, 0.5);
+          const dim = (n: number, color: string) => (n > 0 ? color : '#6a6e78');
+          text(this, cols[1], y - 2, formatNumber(rep.damageDealt), fs, dim(rep.damageDealt, isMvp ? '#ffd84a' : '#ffffff'), { fontStyle: isMvp ? 'bold' : 'normal' });
+          text(this, cols[2], y, formatNumber(rep.healingDone), fs, dim(rep.healingDone, '#7dff8f'));
+          text(this, cols[3], y, formatNumber(rep.shieldGiven), fs, dim(rep.shieldGiven, '#bcd6ff'));
+          text(this, cols[4], y, String(rep.ults), fs, dim(rep.ults, '#ffd84a'));
+          text(this, cols[5], y, rep.alive ? '✓' : '✗', fs, rep.alive ? '#9fe0a6' : '#f0a0a0', { fontStyle: 'bold' });
+          y += row;
+        });
       y += compact ? 10 : 30;
     }
 
@@ -121,4 +138,28 @@ export class ResultScene extends Phaser.Scene {
       this.scene.start('Battle', { mode: 'test', seed: (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0 }),
     38);
   }
+}
+
+/** MVP стороны — больше всех урона (при равенстве — лечение + щит). Никто ничего не сделал — нет MVP. */
+export function mvpOf(r: BattleResult, side: Side): string | null {
+  let best: string | null = null;
+  let score = 0;
+  for (const u of r.units) {
+    if (u.side !== side) continue;
+    const rep = r.report[u.uid];
+    const s = rep.damageDealt * 1e6 + rep.healingDone + rep.shieldGiven;
+    if (s > score) {
+      score = s;
+      best = u.uid;
+    }
+  }
+  return best;
+}
+
+/** Корона MVP — многоугольник (своей иконки в атласе нет). size — ширина. */
+function crown(scene: Phaser.Scene, x: number, y: number, size: number): void {
+  const w = size;
+  const h = size * 0.7;
+  const pts = [0, h, 0, h * 0.25, w * 0.25, h * 0.55, w * 0.5, 0, w * 0.75, h * 0.55, w, h * 0.25, w, h];
+  scene.add.polygon(x, y, pts, 0xffd84a).setStrokeStyle(3, 0x7a4a00).setDisplaySize(size * 1.6, h * 1.6);
 }
