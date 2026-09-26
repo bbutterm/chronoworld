@@ -126,7 +126,7 @@ function describeIssues(error: z.ZodError): string {
 
 /**
  * Из строки: JSON.parse → миграции по полю version (MIGRATIONS[v] переводит v → v+1)
- * → SaveStateSchema.parse → проверка ссылок (отряд ссылается на существующих героев, id героев уникальны).
+ * → SaveStateSchema.parse → проверка ссылок (id героев и предметов уникальны; отряд, надетые предметы и поручения ссылаются на существующих героев; герой в отряде один раз).
  * Любая проблема → SaveError с понятным русским текстом.
  */
 export function deserialize(text: string): SaveState {
@@ -165,9 +165,26 @@ export function deserialize(text: string): SaveState {
     if (ids.has(h.id)) throw new SaveError(`Сохранение повреждено: герой ${h.id} встречается дважды.`);
     ids.add(h.id);
   }
+  const inSquad = new Set<string>();
   save.squad.forEach((id, i) => {
-    if (id !== null && !ids.has(id)) throw new SaveError(`Сохранение повреждено: в слоте отряда ${i + 1} неизвестный герой ${id}.`);
+    if (id === null) return;
+    if (!ids.has(id)) throw new SaveError(`Сохранение повреждено: в слоте отряда ${i + 1} неизвестный герой ${id}.`);
+    if (inSquad.has(id)) throw new SaveError(`Сохранение повреждено: герой ${id} стоит в отряде дважды.`);
+    inSquad.add(id);
   });
+  const itemIds = new Set<string>();
+  for (const it of save.inventory.items) {
+    if (itemIds.has(it.id)) throw new SaveError(`Сохранение повреждено: предмет ${it.id} встречается дважды.`);
+    itemIds.add(it.id);
+    if (it.equippedBy !== null && !ids.has(it.equippedBy)) {
+      throw new SaveError(`Сохранение повреждено: предмет ${it.id} надет на неизвестного героя ${it.equippedBy}.`);
+    }
+  }
+  for (const b of save.bounties.active) {
+    for (const h of b.heroIds) {
+      if (!ids.has(h)) throw new SaveError(`Сохранение повреждено: на поручении неизвестный герой ${h}.`);
+    }
+  }
   return save;
 }
 

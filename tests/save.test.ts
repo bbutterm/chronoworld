@@ -363,3 +363,23 @@ describe('LocalStorageAdapter', () => {
     expect(a.load()).toBe('z');
   });
 });
+
+describe('deserialize: логические противоречия', () => {
+  const ctx2 = loadGameContext();
+  const base = () => JSON.parse(serialize(newGame(ctx2, 0)));
+  it('герой дважды в отряде', () => {
+    const s = base();
+    s.squad[1] = s.squad[0];
+    expect(() => deserialize(JSON.stringify(s))).toThrow(/дважды/);
+  });
+  it('предмет на неизвестном герое и повтор id предмета', () => {
+    const s = base();
+    s.inventory.items = [{ id: 'it1', itemId: 'x', equippedBy: 'ghost' }];
+    expect(() => deserialize(JSON.stringify(s))).toThrow(/неизвестного героя/);
+    s.inventory.items = [
+      { id: 'it1', itemId: 'x', equippedBy: null },
+      { id: 'it1', itemId: 'y', equippedBy: null },
+    ];
+    expect(() => deserialize(JSON.stringify(s))).toThrow(/дважды/);
+  });
+});
