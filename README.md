@@ -14,6 +14,7 @@ npm run check        # проверка контента + типы + тесты
 npm run sim -- --n 1000                                   # зеркальный бой отрядов по умолчанию
 npm run sim -- --a guard,warrior,archer,mage,priest --b guard,assassin,archer,mage,priest --n 1000
 npm run sim -- --log --seed 7                             # лог одного боя
+npm run balance      # прогресс модельного игрока по дням → balance.csv (docs/content/balance.md)
 npm run build        # статическая сборка в dist/ (под Vercel/Netlify)
 ```
 
