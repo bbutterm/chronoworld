@@ -81,6 +81,8 @@ export interface SpriteView {
   key: string;
   /** Высота клетки на экране. */
   size: number;
+  /** Высота фигуры над ногами на экране (макушка) — для подписи, полосок и центра тела. */
+  height: number;
   /** Смещение origin, чтобы ноги стояли в точке юнита. */
   originX: number;
   originY: number;
@@ -93,9 +95,13 @@ export function spriteView(scene: Phaser.Scene, id: string): SpriteView {
   const s = SPRITES[id];
   const key = spriteKey(id);
   if (s && scene.anims.exists(animKey(id, 'idle'))) {
-    return { key, size: s.cell[1] * s.scale, originX: s.anchor[0] / s.cell[0], originY: s.anchor[1] / s.cell[1], def: s, art: true };
+    const size = s.cell[1] * s.scale;
+    const originY = s.anchor[1] / s.cell[1];
+    // Нет bbox (старые листы) — считаем, что фигура занимает 85% клетки над ногами.
+    const height = s.top !== undefined ? s.top * s.scale : Math.min(size * originY * 0.85, 240);
+    return { key, size, height, originX: s.anchor[0] / s.cell[0], originY, def: s, art: true };
   }
-  return { key, size: 200, originX: 0.5, originY: 0.94, art: false };
+  return { key, size: 200, height: 160, originX: 0.5, originY: 0.94, art: false };
 }
 
 /** Ключ анимации с учётом замен или null, если у спрайта нет ни её, ни замены. */

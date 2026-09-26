@@ -30,7 +30,14 @@ export interface CombatConfig {
   timeLimitSeconds: number;
   damage: { defScale: number; varianceMin: number; varianceMax: number; minDamage: number };
   energy: { max: number; perBasicAction: number; perHitTaken: number };
-  movement: { meleeRange: number; moveSpeed: number; dashSeconds: number; stackAngles: number[] };
+  movement: {
+    meleeRange: number;
+    moveSpeed: number;
+    dashSeconds: number;
+    stackAngles: number[];
+    /** Ближний боец не может дойти до цели дольше стольких секунд — берёт ближайшего врага. */
+    retargetSeconds: number;
+  };
   slots: { count: number; front: number[]; back: number[] };
   field: { width: number; slotsA: [number, number][] };
 }
