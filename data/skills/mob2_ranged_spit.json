@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob2_ranged_spit",
+  "name": "Ядовитый плевок",
+  "description": "Плевок с ядом в самого раненого врага.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHpPct"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.3
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "poison",
+        "name": "Яд",
+        "turns": 2,
+        "dot": {
+          "k": 0.15
+        }
+      }
+    }
+  ]
+}

@@ -18,3 +18,4 @@ export * from './campaign/offline';
 export * from './save/schema';
 export * from './save/save';
 export * from './features';
+export * from './tower';

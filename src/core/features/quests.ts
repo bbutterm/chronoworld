@@ -6,7 +6,7 @@ import { rollDay } from './daily';
 import { FeatureError } from './errors';
 
 /** Виды событий, из которых считаются ежедневные задания. */
-export const ACTIVITY_KINDS = ['stage_win', 'stage_attempt', 'offline_claim', 'fast_rewards', 'job_change', 'hero_level_up'] as const;
+export const ACTIVITY_KINDS = ['stage_win', 'stage_attempt', 'offline_claim', 'fast_rewards', 'job_change', 'hero_level_up', 'tower_attempt'] as const;
 export type ActivityKind = (typeof ACTIVITY_KINDS)[number];
 
 const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в нижнем регистре, цифры и _');

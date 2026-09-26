@@ -1,0 +1,334 @@
+{
+  "$schema": "../schema/chapter.schema.json",
+  "id": "chapter3",
+  "name": "Глава 3. Костяные чертоги",
+  "order": 3,
+  "stages": [
+    {
+      "id": "ch3_s1",
+      "name": "Склеп у входа",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 400,
+        "gold": 500
+      },
+      "offlinePerMinute": {
+        "jobExp": 22,
+        "gold": 45
+      }
+    },
+    {
+      "id": "ch3_s2",
+      "name": "Зал стражей",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 420,
+        "gold": 525
+      },
+      "offlinePerMinute": {
+        "jobExp": 23,
+        "gold": 47
+      }
+    },
+    {
+      "id": "ch3_s3",
+      "name": "Призрачная охота",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 440,
+        "gold": 550
+      },
+      "offlinePerMinute": {
+        "jobExp": 24,
+        "gold": 49
+      }
+    },
+    {
+      "id": "ch3_s4",
+      "name": "Костяной строй",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 460,
+        "gold": 575
+      },
+      "offlinePerMinute": {
+        "jobExp": 25,
+        "gold": 51
+      }
+    },
+    {
+      "id": "ch3_s5",
+      "name": "Рыцарь у моста",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 480,
+        "gold": 600
+      },
+      "offlinePerMinute": {
+        "jobExp": 26,
+        "gold": 53
+      }
+    },
+    {
+      "id": "ch3_s6",
+      "name": "Катакомбы",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 500,
+        "gold": 625
+      },
+      "offlinePerMinute": {
+        "jobExp": 27,
+        "gold": 55
+      }
+    },
+    {
+      "id": "ch3_s7",
+      "name": "Стая теней",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 520,
+        "gold": 650
+      },
+      "offlinePerMinute": {
+        "jobExp": 28,
+        "gold": 57
+      }
+    },
+    {
+      "id": "ch3_s8",
+      "name": "Орден смерти",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 540,
+        "gold": 675
+      },
+      "offlinePerMinute": {
+        "jobExp": 29,
+        "gold": 59
+      }
+    },
+    {
+      "id": "ch3_s9",
+      "name": "Преддверие трона",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 560,
+        "gold": 700
+      },
+      "offlinePerMinute": {
+        "jobExp": 30,
+        "gold": 61
+      }
+    },
+    {
+      "id": "ch3_s10",
+      "name": "Трон лича",
+      "boss": true,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_boss",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 928,
+        "gold": 1377
+      },
+      "offlinePerMinute": {
+        "jobExp": 31,
+        "gold": 63
+      }
+    }
+  ]
+}

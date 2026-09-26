@@ -1,0 +1,57 @@
+{
+  "$comment": "Башня испытаний (K4). Этажи строятся по правилу, см. docs/content/tower.md. Все числа — заглушки до баланса.",
+  "unlockAfterStage": "ch1_s5",
+  "maxFloor": 100,
+  "bossEvery": 5,
+  "baseMult": 1.4,
+  "statGrowthPerFloor": 0.04,
+  "rewards": {
+    "gold": { "base": 100, "perFloor": 15 },
+    "jobExp": { "base": 60, "perFloor": 8 },
+    "bossMultiplier": 2,
+    "bossGems": 20
+  },
+  "bands": [
+    {
+      "fromFloor": 1,
+      "name": "Гоблинский ярус",
+      "layouts": [
+        [{ "unit": "mob_melee" }, { "unit": "mob_melee" }, { "unit": "mob_ranged" }, null, { "unit": "mob_ranged" }],
+        [{ "unit": "mob_fast" }, { "unit": "mob_melee" }, null, { "unit": "mob_fast" }, { "unit": "mob_ranged" }],
+        [{ "unit": "mob_tank" }, { "unit": "mob_melee" }, { "unit": "mob_ranged" }, { "unit": "mob_ranged" }, null],
+        [{ "unit": "mob_elite" }, { "unit": "mob_tank" }, { "unit": "mob_ranged" }, null, { "unit": "mob_ranged" }]
+      ],
+      "bossLayouts": [
+        [{ "unit": "mob_tank" }, { "unit": "mob_boss1" }, { "unit": "mob_ranged" }, null, { "unit": "mob_ranged" }],
+        [{ "unit": "mob_elite" }, { "unit": "mob_boss1" }, { "unit": "mob_ranged" }, { "unit": "mob_fast" }, null]
+      ]
+    },
+    {
+      "fromFloor": 20,
+      "name": "Болотный ярус",
+      "layouts": [
+        [{ "unit": "mob2_melee" }, { "unit": "mob2_melee" }, { "unit": "mob2_ranged" }, null, { "unit": "mob2_ranged" }],
+        [{ "unit": "mob2_fast" }, { "unit": "mob2_fast" }, { "unit": "mob2_ranged" }, { "unit": "mob2_fast" }, null],
+        [{ "unit": "mob2_tank" }, { "unit": "mob2_melee" }, { "unit": "mob2_ranged" }, { "unit": "mob2_ranged" }, null],
+        [{ "unit": "mob2_elite" }, { "unit": "mob2_tank" }, { "unit": "mob2_ranged" }, null, { "unit": "mob2_ranged" }]
+      ],
+      "bossLayouts": [
+        [{ "unit": "mob2_tank" }, { "unit": "mob2_elite" }, { "unit": "mob_boss2" }, null, { "unit": "mob2_ranged" }]
+      ]
+    },
+    {
+      "fromFloor": 40,
+      "name": "Костяной ярус",
+      "layouts": [
+        [{ "unit": "mob3_melee" }, { "unit": "mob3_melee" }, { "unit": "mob3_ranged" }, null, { "unit": "mob3_ranged" }],
+        [{ "unit": "mob3_fast" }, { "unit": "mob3_fast" }, { "unit": "mob3_ranged" }, { "unit": "mob3_fast" }, null],
+        [{ "unit": "mob3_tank" }, { "unit": "mob3_melee" }, { "unit": "mob3_ranged" }, { "unit": "mob3_ranged" }, null],
+        [{ "unit": "mob3_elite" }, { "unit": "mob3_tank" }, { "unit": "mob3_ranged" }, null, { "unit": "mob3_ranged" }]
+      ],
+      "bossLayouts": [
+        [{ "unit": "mob3_tank" }, { "unit": "mob3_elite" }, { "unit": "mob3_boss" }, { "unit": "mob3_ranged" }, null],
+        [{ "unit": "mob_boss1" }, { "unit": "mob3_elite" }, { "unit": "mob_boss2" }, null, { "unit": "mob3_ranged" }]
+      ]
+    }
+  ]
+}

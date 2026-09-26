@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob3_melee_rend",
+  "name": "Рассечь",
+  "description": "Удар, ослабляющий защиту цели.",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.3
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "armor_break",
+        "name": "Пробитая броня",
+        "turns": 2,
+        "stats": {
+          "def": -0.3
+        }
+      }
+    }
+  ]
+}

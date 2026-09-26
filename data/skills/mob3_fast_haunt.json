@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob3_fast_haunt",
+  "name": "Призрачный рывок",
+  "description": "Рывок к самому раненому врагу тыла, удар и страх (−ATK).",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.3
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "fear",
+        "name": "Страх",
+        "turns": 2,
+        "stats": {
+          "atk": -0.2
+        }
+      }
+    }
+  ]
+}
