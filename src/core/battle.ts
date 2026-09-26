@@ -150,7 +150,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   };
 
   const applyEffect = (u: Unit, e: Effect, target: Unit) => {
-    if (!target.alive) return;
+    // Q: исполнитель мог погибнуть посреди навыка (контратака цели) — остаток навыка не срабатывает.
+    if (!target.alive || !u.alive) return;
     switch (e.type) {
       case 'damage':
         applyDamage(u, u.uid, target, calcDamage(stat(u, 'atk'), e.k, stat(target, 'def'), rng, cfg));
@@ -199,7 +200,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   /** Применяет навык: цели выбираются заново на каждый удар при pick=random. */
   const useSkill = (u: Unit, skill: SkillDef, preset?: Unit[]): Unit[] => {
     const hit: Unit[] = [];
-    for (let i = 0; i < skill.hits; i++) {
+    for (let i = 0; i < skill.hits && u.alive; i++) {
       const targets = preset && i === 0 ? preset : selectTargets(u, skill.target, allies(u), enemies(u), rng, cfg);
       for (const target of targets) {
         if (!hit.includes(target)) hit.push(target);
