@@ -13,7 +13,7 @@ export const HINT_KEY = 'chronoworld.hints';
 export const HINT_TEXT: Record<HintId, string> = {
   home_campaign: 'Начните с кампании: первый этап ждёт',
   stage_fight: 'Отряд готов — жмите «В бой»',
-  chest_claim: 'Сундук наполнился — заберите награду',
+  chest_claim: 'Заберите награду из сундука',
   job_change: 'Смена профессии доступна — загляните в «Герои»',
   tower_open: 'Башня испытаний открыта!',
 };

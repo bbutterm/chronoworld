@@ -54,6 +54,8 @@ export const C = {
   info: '#6fb8ff',
   /** Противник. */
   enemy: '#f0a0a0',
+  /** Щит (таблица итогов боя). */
+  shield: '#bcd6ff',
   /** Тёмный текст на светлой карточке (ui_panel_light, выбранный слот). */
   ink: '#4a3520',
   inkMuted: '#6a4a2a',
@@ -81,6 +83,8 @@ export const TINT = {
   info: 0x6fb8ff,
   danger: 0xd64545,
   badge: 0xd63a2a,
+  /** Подложка чекбокса (выключен) и тёмные плашки. */
+  checkOff: 0x1a120a,
   /** Затемнение нажатой карточки. */
   pressed: 0x000000,
 } as const;

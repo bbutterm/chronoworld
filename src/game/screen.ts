@@ -4,7 +4,7 @@ import { session, takeWarnings } from './session';
 import { GAME } from './content';
 import { formatNumber, jobChangeReadyCount } from './flow';
 import { button, ellipsize, icon, panel, text, toast } from './ui';
-import { C, FS, TINT } from './theme';
+import { C, FS, SP, TINT } from './theme';
 
 export type NavTab = 'Campaign' | 'Heroes' | 'Home';
 
@@ -25,8 +25,15 @@ export const CONTENT_BOTTOM = GAME_H - NAV_H - 20;
  * и накопившиеся предупреждения о сохранении.
  * back — кнопка «‹ Назад» в шапке: всегда ведёт на логического родителя экрана (карточка героя → список героев,
  * этап → его глава кампании и т. д.), а не «куда-то на главную».
+ * opts.settings — шестерёнка в шапке слева от валюты (S: настройки и редкие действия главной).
  */
-export function screen(scene: Phaser.Scene, title: string, active: NavTab | null, back?: { label?: string; to: string; data?: object }): void {
+export function screen(
+  scene: Phaser.Scene,
+  title: string,
+  active: NavTab | null,
+  back?: { label?: string; to: string; data?: object },
+  opts: { settings?: () => void } = {},
+): void {
   scene.add.image(GAME_W / 2, GAME_H / 2, 'bg_arena').setDisplaySize(GAME_W, GAME_H).setAlpha(0.45);
   scene.add.rectangle(GAME_W / 2, HEADER_H / 2, GAME_W, HEADER_H, 0x1d140c, 0.92);
   scene.add.rectangle(GAME_W / 2, HEADER_H, GAME_W, 6, 0xc8a060);
@@ -35,10 +42,17 @@ export function screen(scene: Phaser.Scene, title: string, active: NavTab | null
     stroke: C.titleStroke,
     strokeThickness: 8,
   }).setOrigin(back ? 0.5 : 0, 0.5);
-  // Длинное название не должно наезжать на «Назад» и валюту справа.
-  ellipsize(t, back ? 520 : 680);
   if (back) button(scene, 110, HEADER_H / 2, 180, 100, 'k:buttonLong_beige', back.label ?? '‹ Назад', () => scene.scene.start(back.to, back.data), FS.h3);
-  currencyLabels(scene);
+  const currencyLeft = currencyLabels(scene);
+  let titleRight = currencyLeft - SP.m;
+  if (opts.settings) {
+    const gx = currencyLeft - SP.m - GEAR_SIZE / 2;
+    const gear = button(scene, gx, HEADER_H / 2, GEAR_SIZE, GEAR_SIZE, 'k:buttonSquare_beige', '', opts.settings);
+    gear.container.add(gearIcon(scene, 0, -3, 56)).setName('settings');
+    titleRight = gx - GEAR_SIZE / 2 - SP.m;
+  }
+  // Длинное название не должно наезжать на «Назад», шестерёнку и валюту справа.
+  ellipsize(t, back ? Math.min(520, 2 * (titleRight - t.x)) : Math.min(680, titleRight - t.x));
 
   if (active) {
     scene.add.rectangle(GAME_W / 2, GAME_H - NAV_H / 2, GAME_W, NAV_H, 0x1d140c, 0.95);
@@ -56,17 +70,46 @@ export function screen(scene: Phaser.Scene, title: string, active: NavTab | null
   for (const w of takeWarnings()) toast(scene, w, C.error, 6000);
 }
 
-/** Золото и гемы в правом углу шапки — друг под другом, чтобы не наезжать на заголовок. */
-function currencyLabels(scene: Phaser.Scene): void {
+/** Размер кнопки-шестерёнки в шапке (цель нажатия — не меньше TOUCH). */
+const GEAR_SIZE = 100;
+
+/** Золото и гемы в правом углу шапки — друг под другом, чтобы не наезжать на заголовок. Возвращает левый край. */
+function currencyLabels(scene: Phaser.Scene): number {
   const x = GAME_W - 50;
   const row = (y: number, value: number, color: string, tint: number, gem: boolean) => {
     const t = text(scene, x, y, formatNumber(value), FS.h2, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(1, 0.5);
     const ix = x - t.width - 30;
     if (gem) gemIcon(scene, ix, y, 38);
     else icon(scene, ix, y, 'iconCircle_beige', 40).setTint(tint);
+    return ix - 20;
   };
-  row(HEADER_H / 2 - 30, session.save.resources.gold, C.gold, 0xffc83a, false);
-  row(HEADER_H / 2 + 32, session.save.currency.gems, C.gem, 0x6fd8ff, true);
+  return Math.min(
+    row(HEADER_H / 2 - 30, session.save.resources.gold, C.gold, 0xffc83a, false),
+    row(HEADER_H / 2 + 32, session.save.currency.gems, C.gem, 0x6fd8ff, true),
+  );
+}
+
+/** Шестерёнка (своей иконки в атласе нет): зубцы, диск и отверстие. size — внешний диаметр. */
+export function gearIcon(scene: Phaser.Scene, x: number, y: number, size: number): Phaser.GameObjects.Graphics {
+  const g = scene.add.graphics({ x, y });
+  const r = size / 2;
+  const ink = Phaser.Display.Color.HexStringToColor(C.ink).color;
+  g.fillStyle(ink, 1);
+  const teeth = 8;
+  for (let i = 0; i < teeth; i++) {
+    const a = (i / teeth) * Math.PI * 2;
+    const pts = [
+      [-r * 0.17, -r * 0.62],
+      [r * 0.17, -r * 0.62],
+      [r * 0.14, -r],
+      [-r * 0.14, -r],
+    ].map(([px, py]) => new Phaser.Math.Vector2(px * Math.cos(a) - py * Math.sin(a), px * Math.sin(a) + py * Math.cos(a)));
+    g.fillPoints(pts, true);
+  }
+  g.fillCircle(0, 0, r * 0.72);
+  g.fillStyle(0xe8d4a8, 1);
+  g.fillCircle(0, 0, r * 0.3);
+  return g;
 }
 
 /** Гем — ромб (своей иконки в атласе нет). */

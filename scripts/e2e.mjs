@@ -103,14 +103,12 @@ async function main() {
       const s = box.width / GAME_W;
       await page.mouse.click(box.x + gx * s, box.y + gy * s);
     };
-    /** Найти текст в активной сцене (точное совпадение) и кликнуть по его центру. */
+    /** Найти текст в активной сцене (точное совпадение, в том числе во вложенных контейнерах) и кликнуть по его центру. */
     const clickText = async (sceneKey, label) => {
       const pos = await page.evaluate(
         ([k, l]) => {
-          const sc = window.__game.scene.getScene(k);
-          const found = sc.children.list
-            .flatMap((o) => (o.list ? [o, ...o.list] : [o]))
-            .find((o) => o.type === 'Text' && o.text === l && o.visible);
+          const all = (list) => list.flatMap((o) => (o.list ? [o, ...all(o.list)] : [o]));
+          const found = all(window.__game.scene.getScene(k).children.list).find((o) => o.type === 'Text' && o.text === l && o.visible);
           if (!found) return null;
           const b = found.getBounds();
           return [b.centerX, b.centerY];
@@ -120,16 +118,42 @@ async function main() {
       if (!pos) throw new Error(`В сцене ${sceneKey} нет текста «${label}»`);
       await clickGame(pos[0], pos[1]);
     };
-    /** Есть ли в сцене видимый текст, начинающийся с prefix (в контейнерах тоже). */
+    /** Кликнуть по объекту с именем (setName) — для кнопок без подписи, например шестерёнки настроек. */
+    const clickNamed = async (sceneKey, name) => {
+      const pos = await page.evaluate(
+        ([k, n]) => {
+          const o = window.__game.scene.getScene(k).children.getByName(n);
+          if (!o) return null;
+          const b = o.getBounds();
+          return [b.centerX, b.centerY];
+        },
+        [sceneKey, name],
+      );
+      if (!pos) throw new Error(`В сцене ${sceneKey} нет объекта «${name}»`);
+      await clickGame(pos[0], pos[1]);
+    };
+    /** Есть ли в сцене видимый текст, начинающийся с prefix (во вложенных контейнерах тоже). */
     const hasText = (sceneKey, prefix) =>
       page.evaluate(
-        ([k, p]) =>
-          window.__game.scene
-            .getScene(k)
-            .children.list.flatMap((o) => (o.list ? [o, ...o.list] : [o]))
-            .some((o) => o.type === 'Text' && o.visible && o.text.startsWith(p)),
+        ([k, p]) => {
+          const all = (list) => list.flatMap((o) => (o.list ? [o, ...all(o.list)] : [o]));
+          return all(window.__game.scene.getScene(k).children.list).some((o) => o.type === 'Text' && o.visible && o.text.startsWith(p));
+        },
         [sceneKey, prefix],
       );
+    /**
+     * S: плашка подсказки не закрывает другие элементы управления. hintPointer кладёт в контейнер
+     * hintOverlap (площадь перекрытия; 0 — чисто).
+     */
+    const checkHint = async (sceneKey, what) => {
+      const h = await page.evaluate((k) => {
+        const c = window.__game.scene.getScene(k).children.list.find((o) => o.getData?.('hintBox'));
+        return c ? { overlap: c.getData('hintOverlap'), side: c.getData('hintSide') } : null;
+      }, sceneKey);
+      if (!h) problems.push(`${what}: подсказки нет`);
+      else if (h.overlap !== 0) problems.push(`${what}: плашка подсказки закрывает кнопки (перекрытие ${h.overlap}, сторона ${h.side})`);
+      else log(`${what}: подсказка ${h.side === 'above' ? 'над' : 'под'} целью, кнопки не закрыты`);
+    };
 
     // 1. Чистый старт: пустой localStorage, картинки чуть придержаны — видно экран загрузки.
     await page.goto(URL);
@@ -148,6 +172,7 @@ async function main() {
     await shot('home');
     // R: новичку на главной показана подсказка «В кампанию»; она не перехватывает нажатия.
     if (!(await hasText('Home', 'Начните с кампании'))) problems.push('нет подсказки новичку на главной');
+    await checkHint('Home', 'главная');
 
     // 2. Главная → Кампания → этап 1 → В бой.
     await clickText('Home', 'Кампания');
@@ -155,6 +180,7 @@ async function main() {
     await clickText('Campaign', '1');
     await waitScene('Stage');
     await shot('stage');
+    await checkHint('Stage', 'этап');
     await clickText('Stage', 'В бой');
     await waitScene('Battle');
 
@@ -169,6 +195,12 @@ async function main() {
     await waitScene('Result');
     await sleep(600);
     await shot('result');
+    // S: таблица итогов не наезжает на строку «Авто: следующий этап».
+    const lay = await page.evaluate(() => {
+      const sc = window.__game.scene.getScene('Result');
+      return { tableEnd: sc.tableEnd, autoTop: sc.autoTop };
+    });
+    if (!(lay.tableEnd <= lay.autoTop)) problems.push(`итог: таблица (низ ${lay.tableEnd}) наезжает на «Авто» (верх ${lay.autoTop})`);
 
     // R: «Авто: следующий этап» — включаем, ждём сам старт этапа 2, на его итоге отсчёт отменяем касанием.
     await clickText('Result', 'Авто: следующий этап');
@@ -208,8 +240,18 @@ async function main() {
     await clickText('Hero', '‹ Назад');
     await waitScene('Heroes');
 
-    // 5. Тестовый бой (отряды из data/phase0.json) — там бой длинный: ждём баннер ульты для скриншота.
-    await page.evaluate(() => window.__game.scene.getScene('Heroes').scene.start('Battle', { mode: 'test', seed: 7 }));
+    // 5. Настройки (S): шестерёнка в шапке главной → окно → «Тестовый бой» → экран отряда.
+    await clickText('Heroes', 'Главная');
+    await waitScene('Home');
+    await clickNamed('Home', 'settings');
+    await sleep(200);
+    if (!(await hasText('Home', 'Версия '))) problems.push('в настройках нет версии');
+    if (!(await hasText('Home', 'Сбросить прогресс'))) problems.push('в настройках нет «Сбросить прогресс»');
+    await shot('settings');
+    await clickText('Home', 'Тестовый бой');
+    await waitScene('Prep');
+    // Тестовый бой (отряды из data/phase0.json, seed 7) — там бой длинный: ждём баннер ульты для скриншота.
+    await page.evaluate(() => window.__game.scene.getScene('Prep').scene.start('Battle', { mode: 'test', seed: 7 }));
     await waitScene('Battle');
     const banner = await page
       .waitForFunction(

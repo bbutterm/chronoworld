@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { sliceOf, tex } from './assets';
 import { FONT, HEADER_H } from './layout';
 import { C, FS, TINT, TOUCH } from './theme';
+import { HINT_GEOM, placeCallout, type HintSide, type Rect } from './hintLayout';
 
 /**
  * Событие «отменить нажатие» (на scene.input — его слушатели снимаются при остановке сцены):
@@ -296,8 +297,10 @@ export function progressBar(
 }
 
 /**
- * R. Указатель подсказки на цель (x, y): пульсирующее кольцо, прыгающая стрелка и плашка с одной строкой.
- * side — где плашка относительно цели; target — размер цели (рамка пульсирует вокруг неё).
+ * R/S. Указатель подсказки на цель (x, y): пульсирующее кольцо, прыгающая стрелка и плашка с одной строкой.
+ * side — предпочтительная сторона плашки ('auto' — без предпочтения). Сторону и сдвиг вбок выбирает placeCallout
+ * (hintLayout.ts), чтобы плашка не закрывала другие элементы управления сцены: все интерактивные объекты,
+ * кроме самой цели, плюс opts.avoid. target — размер цели (рамка пульсирует вокруг неё).
  * Ничего не перехватывает: нажатия проходят к кнопке под ним.
  */
 export function hintPointer(
@@ -305,27 +308,64 @@ export function hintPointer(
   x: number,
   y: number,
   message: string,
-  side: 'above' | 'below',
+  side: HintSide | 'auto',
   target: { w: number; h: number },
+  opts: { avoid?: Rect[] } = {},
 ): Phaser.GameObjects.Container {
   const w = scene.scale.gameSize.width;
+  const h = scene.scale.gameSize.height;
   const ring = scene.add.rectangle(x, y, target.w + 24, target.h + 24).setStrokeStyle(8, TINT.gold, 1);
   scene.tweens.add({ targets: ring, scaleX: 1 + 40 / target.w, scaleY: 1 + 40 / target.h, alpha: 0.15, duration: 800, repeat: -1 });
-  const dir = side === 'above' ? -1 : 1;
-  // Стрелка — вплотную к рамке, плашка — сразу за стрелкой: подсказка занимает как можно меньше места.
-  const ay = y + dir * (target.h / 2 + 36);
+  const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
+  const box = { w: Math.min(w - 60, t.width + 60), h: t.height + 22 };
+  const plan = placeCallout({ x, y, ...target }, box, {
+    prefer: side === 'auto' ? undefined : side,
+    avoid: [...controlRects(scene, x, y), ...(opts.avoid ?? [])],
+    top: HEADER_H + 8,
+    bottom: h,
+    width: w,
+  });
+  const dir = plan.side === 'above' ? -1 : 1;
+  const ay = plan.arrowY;
   // Стрелка остриём к цели: над целью — вниз, под целью — вверх.
-  const arrow = side === 'above' ? scene.add.triangle(x, ay, 0, 0, 64, 0, 32, 46, TINT.gold) : scene.add.triangle(x, ay, 0, 46, 64, 46, 32, 0, TINT.gold);
+  const g = HINT_GEOM;
+  const arrow =
+    plan.side === 'above'
+      ? scene.add.triangle(x, ay, 0, 0, g.arrowW, 0, g.arrowW / 2, g.arrowH, TINT.gold)
+      : scene.add.triangle(x, ay, 0, g.arrowH, g.arrowW, g.arrowH, g.arrowW / 2, 0, TINT.gold);
   arrow.setStrokeStyle(4, TINT.header);
   scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, repeat: -1, duration: 450, ease: 'Sine.easeInOut' });
-  const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
-  const bw = Math.min(w - 60, t.width + 60);
-  const bh = t.height + 22;
-  const by = ay + dir * (28 + bh / 2);
-  const bx = Phaser.Math.Clamp(x, bw / 2 + 30, w - bw / 2 - 30);
-  const bg = scene.add.rectangle(bx, by, bw, bh, 0x000000, 0.85).setStrokeStyle(4, TINT.gold);
-  t.setPosition(bx, by);
-  return scene.add.container(0, 0, [ring, arrow, bg, t]).setDepth(8000);
+  const b = plan.box;
+  const bg = scene.add.rectangle(b.x + b.w / 2, b.y + b.h / 2, b.w, b.h, 0x000000, 0.85).setStrokeStyle(4, TINT.gold);
+  t.setPosition(b.x + b.w / 2, b.y + b.h / 2);
+  const c = scene.add.container(0, 0, [ring, arrow, bg, t]).setDepth(8000);
+  // Для e2e и отладки: где оказалась плашка и что она закрыла.
+  c.setData('hintBox', b).setData('hintOverlap', plan.overlap).setData('hintSide', plan.side);
+  return c;
+}
+
+/**
+ * Прямоугольники всех интерактивных объектов сцены (кнопки, карточки, вкладки), кроме того, что под точкой
+ * (x, y) — это сама цель подсказки, — и полноэкранных затемнений модальных окон.
+ */
+function controlRects(scene: Phaser.Scene, x: number, y: number): Rect[] {
+  const sw = scene.scale.gameSize.width;
+  const sh = scene.scale.gameSize.height;
+  const out: Rect[] = [];
+  const walk = (list: Phaser.GameObjects.GameObject[]) => {
+    for (const o of list) {
+      if (o instanceof Phaser.GameObjects.Container) walk(o.list);
+      if (!o.input?.enabled) continue;
+      const any = o as unknown as { getBounds?: () => Phaser.Geom.Rectangle; visible?: boolean };
+      if (!any.getBounds || any.visible === false) continue;
+      const r = any.getBounds();
+      if (r.width >= sw * 0.9 && r.height >= sh * 0.9) continue;
+      if (r.contains(x, y)) continue;
+      out.push({ x: r.x, y: r.y, w: r.width, h: r.height });
+    }
+  };
+  walk(scene.children.list);
+  return out;
 }
 
 /** Всплывающее сообщение под шапкой экрана (не закрывает название и валюту), исчезает само. */

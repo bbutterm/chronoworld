@@ -3,6 +3,7 @@ import { newGame, type SaveState } from '../src/core';
 import { autoNextStage, jobChangeReadyCount } from '../src/game/flow';
 import { HINT_KEY, hintDone, markHint, pickHomeHint, reloadHints, resetHints, type HintId } from '../src/game/hints';
 import { loadGameContext } from '../scripts/lib/content-node';
+import { placeCallout } from '../src/game/hintLayout';
 
 const ctx = loadGameContext();
 const stages = ctx.content.stages;
@@ -105,5 +106,44 @@ describe('R: авто-прохождение кампании', () => {
     const need = ctx.progression.jobChange.tierLevel['1'];
     const heroes = save.heroes.map((h, i) => (i === 0 ? { ...h, jobLevel: need } : h));
     expect(jobChangeReadyCount({ ...save, heroes }, ctx)).toBe(1);
+  });
+});
+
+describe('S: плашка подсказки не закрывает другие кнопки (placeCallout)', () => {
+  const screen = { top: 158, bottom: 1920, width: 1080 };
+  const box = { w: 560, h: 60 };
+
+  it('предпочтительная сторона, если она свободна', () => {
+    const p = placeCallout({ x: 540, y: 1390, w: 780, h: 130 }, box, { ...screen, prefer: 'below', avoid: [] });
+    expect(p.side).toBe('below');
+    expect(p.overlap).toBe(0);
+    expect(p.box.y).toBeGreaterThan(1390 + 65);
+  });
+
+  it('«В бой» внизу: плашка над кнопкой, «Авто»/«Пресеты» на своём месте не закрыты', () => {
+    const fight = { x: 540, y: 1810, w: 640, h: 150 };
+    // Старое место ряда (1570) — плашка их задевала; новое (1540) — нет.
+    const old = [{ x: 70, y: 1522, w: 440, h: 96 }, { x: 570, y: 1522, w: 440, h: 96 }];
+    const now = [{ x: 70, y: 1492, w: 440, h: 96 }, { x: 570, y: 1492, w: 440, h: 96 }];
+    const bad = placeCallout(fight, box, { ...screen, prefer: 'above', avoid: old });
+    expect(bad.overlap).toBeGreaterThan(0);
+    expect(bad.box.y + bad.box.h).toBeLessThanOrEqual(1920); // не за экраном, хоть и с перекрытием
+    const ok = placeCallout(fight, box, { ...screen, prefer: 'above', avoid: now });
+    expect(ok).toMatchObject({ side: 'above', overlap: 0 });
+  });
+
+  it('сдвиг вбок: плашка обходит соседнюю кнопку и всё ещё накрывает стрелку', () => {
+    const fastBtn = { x: 700, y: 705, w: 280, h: 110 };
+    const p = placeCallout({ x: 540, y: 563, w: 460, h: 96 }, box, { ...screen, prefer: 'below', avoid: [fastBtn] });
+    expect(p).toMatchObject({ side: 'below', overlap: 0 });
+    expect(p.box.x + p.box.w).toBeLessThanOrEqual(fastBtn.x);
+    expect(p.box.x).toBeLessThanOrEqual(540 - 32);
+    expect(p.box.x + p.box.w).toBeGreaterThanOrEqual(540 + 32);
+  });
+
+  it('предпочтительная сторона занята — выбирается другая', () => {
+    const above = { x: 0, y: 820, w: 1080, h: 100 };
+    const p = placeCallout({ x: 540, y: 1000, w: 400, h: 100 }, box, { ...screen, prefer: 'above', avoid: [above] });
+    expect(p).toMatchObject({ side: 'below', overlap: 0 });
   });
 });

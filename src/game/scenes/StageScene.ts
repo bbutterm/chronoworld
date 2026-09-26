@@ -12,6 +12,12 @@ import { squadDefs, type ResultData } from './BattleScene';
 import { SLOT_W, slotX, SquadEditor } from '../squadEditor';
 import { C, FS, TOUCH } from '../theme';
 
+/**
+ * Ряд «Авто» / «Пресеты отряда» (S): поднят так, чтобы между ним и «В бой» влезла плашка подсказки
+ * (≈125 ед. над кнопкой боя) — она не закрывает эти кнопки.
+ */
+const SQUAD_BTN_Y = 1540;
+
 /** Подготовка к этапу: враги, награда, ваш отряд (слот → герой), «В бой». */
 export class StageScene extends Phaser.Scene {
   private stageId!: string;
@@ -64,21 +70,19 @@ export class StageScene extends Phaser.Scene {
     this.powerText = text(this, GAME_W / 2, 780, '', FS.body, C.text, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 });
 
     // --- Ваш отряд и выбор героев (K8: общий редактор, авто-расстановка, пресеты) ---
-    card(this, GAME_W / 2, 1230, 1050, 800);
+    card(this, GAME_W / 2, 1220, 1050, 780);
     text(this, GAME_W / 2, 868, 'Ваш отряд', FS.h3, C.success, { fontStyle: 'bold' });
     text(this, GAME_W / 2, 910, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать.', FS.caption, C.muted, {
       wordWrap: { width: 980 },
     });
-    this.editor = new SquadEditor(this, 1100, 1395, () => this.onSquadChange());
-    button(this, GAME_W / 2 - 250, 1570, 440, TOUCH, 'ui_btn_secondary', 'Авто', () => this.auto(), FS.h3);
-    button(this, GAME_W / 2 + 250, 1570, 440, TOUCH, 'k:buttonLong_beige', 'Пресеты отряда', () =>
+    this.editor = new SquadEditor(this, 1100, 1365, () => this.onSquadChange());
+    button(this, GAME_W / 2 - 250, SQUAD_BTN_Y, 440, TOUCH, 'ui_btn_secondary', 'Авто', () => this.auto(), FS.h3);
+    button(this, GAME_W / 2 + 250, SQUAD_BTN_Y, 440, TOUCH, 'k:buttonLong_beige', 'Пресеты отряда', () =>
       this.scene.start('Squad', { back: { to: 'Stage', data: { stageId: this.stageId } } }),
     FS.h3);
 
     if (first) {
       this.fightBtns = [button(this, GAME_W / 2, GAME_H - 110, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), FS.hero)];
-      // R: подсказка новичку — первый бой.
-      if (!hintDone('stage_fight')) hintPointer(this, GAME_W / 2, GAME_H - 110, HINT_TEXT.stage_fight, 'above', { w: 640, h: 150 });
     } else {
       // K7: пройденный этап можно повторить с просмотром боя или сразу получить итог.
       this.fightBtns = [
@@ -87,6 +91,8 @@ export class StageScene extends Phaser.Scene {
       ];
     }
     this.editor.draw();
+    // R: подсказка новичку — первый бой. После отряда: hintPointer обходит все кнопки сцены («Авто», «Пресеты»).
+    if (first && !hintDone('stage_fight')) hintPointer(this, GAME_W / 2, GAME_H - 110, HINT_TEXT.stage_fight, 'above', { w: 640, h: 150 });
   }
 
   /** Мощь отряда против противника и доступность «В бой» — после каждого изменения отряда. */
