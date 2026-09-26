@@ -203,7 +203,6 @@ export function simulateBattle(squadA: Squad, squadB: Squad, seed: number, opts:
     else dealDamage(u, pick.target, cfg.basicAttack.k);
   };
 
-  const sideOrder = (s: Side) => (s === 'A' ? 0 : 1);
   const maxTicks = Math.round(cfg.timeLimitSeconds / cfg.tickSeconds);
 
   try {
@@ -216,8 +215,11 @@ export function simulateBattle(squadA: Squad, squadB: Squad, seed: number, opts:
         u.gauge += u.spd;
         if (u.gauge >= cfg.actionThreshold) ready.push(u);
       }
-      // Кто сильнее перешагнул порог — ходит раньше; при равенстве атакующая сторона, затем меньший слот.
-      ready.sort((x, y) => y.gauge - x.gauge || sideOrder(x.side) - sideOrder(y.side) || x.slot - y.slot);
+      // Кто сильнее перешагнул порог — ходит раньше; при равенстве порядок решает seed.
+      if (ready.length > 1) {
+        const tieKey = new Map(ready.map((u) => [u, rng.next()]));
+        ready.sort((x, y) => y.gauge - x.gauge || tieKey.get(x)! - tieKey.get(y)!);
+      }
       for (const u of ready) {
         if (!u.alive) continue;
         u.gauge = 0;

@@ -27,6 +27,12 @@ describe('симулятор', () => {
     expect(r.avgDuration).toBeLessThanOrEqual(45);
   });
 
+  it('зеркальный бой близок к 50/50 (порядок при равенстве решает seed)', () => {
+    const r = runSeries(SQUAD, SQUAD, 1000);
+    expect(r.winRateA).toBeGreaterThan(0.45);
+    expect(r.winRateA).toBeLessThan(0.55);
+  });
+
   it('ни одна замена героя в зеркальном отряде не даёт винрейт выше 65%', () => {
     const worst = swapCheck(SQUAD, 300).reduce((m, r) => Math.max(m, r.winRate), 0);
     expect(worst).toBeLessThanOrEqual(0.65);

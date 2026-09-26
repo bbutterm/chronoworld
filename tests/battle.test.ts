@@ -50,10 +50,18 @@ describe('simulateBattle', () => {
     expect(turns[1].t - turns[0].t).toBeCloseTo(step);
   });
 
-  it('при равенстве шкалы первым ходит атакующий, затем меньший слот', () => {
-    const r = simulateBattle(['warrior', 'warrior'], ['warrior', 'warrior'], 1);
-    const first = of(r.log, 'turn').slice(0, 4).map((e) => e.unit);
-    expect(first).toEqual(['A0', 'A1', 'B0', 'B1']);
+  it('при равенстве шкалы порядок ходов решает seed', () => {
+    const firstMovers = new Set<string>();
+    for (let seed = 1; seed <= 50; seed++) {
+      const r = simulateBattle(['warrior', 'warrior'], ['warrior', 'warrior'], seed);
+      const first = of(r.log, 'turn').slice(0, 4).map((e) => e.unit);
+      expect([...first].sort()).toEqual(['A0', 'A1', 'B0', 'B1']);
+      expect(of(simulateBattle(['warrior', 'warrior'], ['warrior', 'warrior'], seed).log, 'turn')[0].unit).toBe(first[0]);
+      firstMovers.add(first[0]);
+    }
+    // За 50 seed первым ходили разные юниты, а не всегда атакующий
+    expect(firstMovers.size).toBeGreaterThan(1);
+    expect([...firstMovers].some((u) => u.startsWith('B'))).toBe(true);
   });
 
   it('энергия: +25 за обычную атаку, +10 за полученный удар, ульта на 100 и сброс', () => {
@@ -62,8 +70,10 @@ describe('simulateBattle', () => {
         stats: { hp: 1_000_000, atk: 10, def: 0, spd: 100 },
         ult: { name: 'Бум', effects: [{ type: 'damage', target: 'enemyAll', k: 1 }] },
       }),
+      // Чуть медленнее, чтобы ходы не совпадали и A0 всегда ходил первым
+      slow: hero({ stats: { hp: 1_000_000, atk: 10, def: 0, spd: 99 }, ult: { name: 'Ничего', effects: [] } }),
     };
-    const r = simulateBattle(['h'], ['h'], 1, { heroes });
+    const r = simulateBattle(['h'], ['slow'], 1, { heroes });
     const attacks = of(r.log, 'attack').filter((e) => e.unit === 'A0');
     // A0 бьёт первым: 25; потом получает удар от B0: 35; потом 60, 70; 95, 105→100
     expect(attacks.slice(0, 3).map((e) => e.energy)).toEqual([25, 60, 95]);
