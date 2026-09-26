@@ -1,0 +1,3304 @@
+{
+  "schema": 1,
+  "sprites": [
+    {
+      "key": "guard",
+      "kind": "hero",
+      "phase": 0,
+      "original_name": "Crusader",
+      "source_job_id": 14,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_guard.png",
+      "still": "assets/ro/stills/hero_guard_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=14&gender=male&head=1&action=6",
+          "source_sha256": "06e0d3d2976008e8fb2d85ca38738c410177933f106f3a93c088d7450eca54de",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=14&gender=male&head=1&action=38",
+          "source_sha256": "0db96ba94cd2a42e5b0cb89ce4db8f84f2fd211579099cda8bc6fb9554fb6bc2",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=14&gender=male&head=1&action=46",
+          "source_sha256": "670ac82538c343f2187680f06f8a8b2c7724f317695bb1eec747b1e86dc19944",
+          "scale": 3,
+          "distinct_rgba_frames": 5
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=14&gender=male&head=1&action=54",
+          "source_sha256": "24db8639e851429ebdf00b93ea51af3eeda272250ca33c593f305382ed034b71",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=14&gender=male&head=1&action=70",
+          "source_sha256": "efdd89c5a961b6d5b098b206e083806819f360e4d9fd3e42490b267287fba597",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_guard_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "warrior",
+      "kind": "hero",
+      "phase": 0,
+      "original_name": "Knight",
+      "source_job_id": 7,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_warrior.png",
+      "still": "assets/ro/stills/hero_warrior_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=7&gender=male&head=1&action=6",
+          "source_sha256": "104aaf6ac7aa95914f7fb0f747d1851d409889d1a12de30ea7e1426dcaafcf36",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=7&gender=male&head=1&action=38",
+          "source_sha256": "9e0ba57efaa3591a62193f43c83748d8694dd7d6b5cc9d8eef03c0ae95f814ed",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=7&gender=male&head=1&action=46",
+          "source_sha256": "8a712dae08e8c84690d1e8e56b4eaa6b0a0a1579297ada2aae59d6203799ad17",
+          "scale": 3,
+          "distinct_rgba_frames": 4
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=7&gender=male&head=1&action=54",
+          "source_sha256": "cd25e84ea793063c839f97c6a78f8a32d9b8b151d2742f7d9f137d6275bca6fe",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=7&gender=male&head=1&action=70",
+          "source_sha256": "80550823169187b83daddb031efacc9172bd1bf9058535b6cad67a94647ec068",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_warrior_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "assassin",
+      "kind": "hero",
+      "phase": 0,
+      "original_name": "Assassin",
+      "source_job_id": 12,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_assassin.png",
+      "still": "assets/ro/stills/hero_assassin_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=12&gender=male&head=1&action=6",
+          "source_sha256": "1b14cc2f5649b337b4089f8ce9b3f857b93cedbb8e101a9ebb35793be964d008",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=12&gender=male&head=1&action=38",
+          "source_sha256": "9b2fc166bf600f037e1622941ef06aed334205aca49d502e2370cd7f3dd84eae",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=12&gender=male&head=1&action=46",
+          "source_sha256": "32875a4f4305a67efe4fa3df585390b73b65e25b1a7d3302cf834031c74ee9ac",
+          "scale": 3,
+          "distinct_rgba_frames": 4
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=12&gender=male&head=1&action=54",
+          "source_sha256": "b2eafde78203a1dee65d913fb2523b68a86eb56f9c9260ea40090e0ec0230616",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=12&gender=male&head=1&action=70",
+          "source_sha256": "c68acb4fc230fb6afda57e5340ce7ff9da4a963914bdd50f29cc42ab965fe032",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_assassin_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "archer",
+      "kind": "hero",
+      "phase": 0,
+      "original_name": "Hunter",
+      "source_job_id": 11,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_archer.png",
+      "still": "assets/ro/stills/hero_archer_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=11&gender=male&head=1&action=6",
+          "source_sha256": "a6dbb8e1ab1bf712b855c656136fdb11e5bb47570b9ae65f904547180a36f637",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=11&gender=male&head=1&action=38",
+          "source_sha256": "0e88c4d4141f678c074ad7edc2c9eb2e151d9c76fb2ede48f48c2126f05ded71",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=11&gender=male&head=1&action=46",
+          "source_sha256": "516fb6a18db0a55ae30c169e57122af7624e465a7e88ec6670e87cebac7d68cc",
+          "scale": 3,
+          "distinct_rgba_frames": 4
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=11&gender=male&head=1&action=54",
+          "source_sha256": "c5da695638e5d3da1fa512e69cd533725f4fd0a3a3ef6a935f1f8ac0d162e826",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=11&gender=male&head=1&action=70",
+          "source_sha256": "b9013321710e45c058a0dd3c5c2f7f29799c1388085cdceed7102ae2d2611a8c",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_archer_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "mage",
+      "kind": "hero",
+      "phase": 0,
+      "original_name": "Wizard",
+      "source_job_id": 9,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_mage.png",
+      "still": "assets/ro/stills/hero_mage_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=9&gender=male&head=1&action=6",
+          "source_sha256": "faafde9a579ffe0724491d047f7d862750d3f2ff6e8115165781fbd6ef003b67",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=9&gender=male&head=1&action=38",
+          "source_sha256": "dd81986960a676d94260e0cafaf72024c31d803511e842b3d3b4616dc1b088b9",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=9&gender=male&head=1&action=46",
+          "source_sha256": "a67b75805bdef0233801eb3057c8ccbb3e15ddaccd9bd9d6af8eaaeaef53042c",
+          "scale": 3,
+          "distinct_rgba_frames": 4
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=9&gender=male&head=1&action=54",
+          "source_sha256": "a25469d6f88719bb20b8d262e91105ffe6adfc385971e4c286cecaf3351880b7",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=9&gender=male&head=1&action=70",
+          "source_sha256": "3561a10fe86482f64a638022697820f68c29d162a03444a2ba8d2af6fc26f021",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_mage_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "priestess",
+      "kind": "hero",
+      "phase": 0,
+      "original_name": "Priest",
+      "source_job_id": 8,
+      "gender": "female",
+      "sheet": "assets/ro/sheets/hero_priestess.png",
+      "still": "assets/ro/stills/hero_priestess_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=8&gender=female&head=1&action=6",
+          "source_sha256": "faba50901056f8ea2052e6bb2967861a93812bf0484f450d52126bfc69644bdc",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=8&gender=female&head=1&action=38",
+          "source_sha256": "a40199cf3530e0915c997e6da70ee849aa3d81d76c421576d85988e778e9adac",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=8&gender=female&head=1&action=46",
+          "source_sha256": "84e7d236a1b818cf05026777c43432df69d37a14f2571c80c7877873a5226292",
+          "scale": 3,
+          "distinct_rgba_frames": 4
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=8&gender=female&head=1&action=54",
+          "source_sha256": "3a486c009af0cec1f74466971efac3ab04420c299bce2e0044fa7acedf5f42e2",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=8&gender=female&head=1&action=70",
+          "source_sha256": "d17a77c517c0671f4bfb2aa147c98f34e410e9e256bc4e79e89aab81e9c1e324",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_priestess_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "blacksmith",
+      "kind": "hero",
+      "phase": 2,
+      "original_name": "Blacksmith",
+      "source_job_id": 10,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_blacksmith.png",
+      "still": "assets/ro/stills/hero_blacksmith_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=10&gender=male&head=1&action=6",
+          "source_sha256": "008ce59fdb17dc9072c4d73f2c044aa6ceea9e1eb69cdfcd187265a2579199ff",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=10&gender=male&head=1&action=38",
+          "source_sha256": "268c419a8ba588d7207d3fcecff6d9ee65006b436fc00c7b460c9671970f203f",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=10&gender=male&head=1&action=46",
+          "source_sha256": "484c5dc7ac740f29e861f481593ff53d7e34aef91328f468e4e513efd1deed3c",
+          "scale": 3,
+          "distinct_rgba_frames": 4
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=10&gender=male&head=1&action=54",
+          "source_sha256": "07ec4e36af3c7e3de4f309db566324744f388c5a01fe1e163ba5c6c07143f00f",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=10&gender=male&head=1&action=70",
+          "source_sha256": "01edb6ed15eebb9049b9208f205ad0caa4d5419aa39b8404f07851f44f5e6dd4",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_blacksmith_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "monk",
+      "kind": "hero",
+      "phase": 2,
+      "original_name": "Monk",
+      "source_job_id": 15,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_monk.png",
+      "still": "assets/ro/stills/hero_monk_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=15&gender=male&head=1&action=6",
+          "source_sha256": "d93484113322f021b65824df9c89c73917d18d70afbc5192a4c80343c0e9c42d",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=15&gender=male&head=1&action=38",
+          "source_sha256": "3750b3c5428d9a22d45d9abf8c5335bf34afb6aa923206a9744f46555dbcb488",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=15&gender=male&head=1&action=46",
+          "source_sha256": "341e6f27536413cace604b0313b9cc96f84a19b092751c16033d0271535fea6e",
+          "scale": 3,
+          "distinct_rgba_frames": 5
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=15&gender=male&head=1&action=54",
+          "source_sha256": "1d266951ac5221b6feaf2bc6f324ffda0b3ddbffdf873d5c356c76d4e0234c52",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=15&gender=male&head=1&action=70",
+          "source_sha256": "225a183856c3f32f8b8400781640b7bb1d388e4da7efb0d5a0f0024b13f71340",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_monk_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "sage",
+      "kind": "hero",
+      "phase": 2,
+      "original_name": "Sage",
+      "source_job_id": 16,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_sage.png",
+      "still": "assets/ro/stills/hero_sage_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=16&gender=male&head=1&action=6",
+          "source_sha256": "4d3bb883550963f8fbfb3ed911198ff1cb1195d67cfea6e896078e7afc23e571",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=16&gender=male&head=1&action=38",
+          "source_sha256": "da6640cc051adc24ca74628faf4d0aca4ce357a55f99be4171c49c0c7932256c",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=16&gender=male&head=1&action=46",
+          "source_sha256": "330c790f17204a6f1f108ff3ec966a317b49d9554a8f67e9dd0234639a5ba995",
+          "scale": 2,
+          "distinct_rgba_frames": 5
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=16&gender=male&head=1&action=54",
+          "source_sha256": "e6803f172e5b0c8e506cabe3106e7ae8ee5b84f34dd4d0c49cc5ca954488c84f",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=16&gender=male&head=1&action=70",
+          "source_sha256": "4a09fdd09e8ff1f98672dd975def63e68220f83f1b367bf0434e20234bd3faae",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_sage_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "rogue",
+      "kind": "hero",
+      "phase": 2,
+      "original_name": "Rogue",
+      "source_job_id": 17,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_rogue.png",
+      "still": "assets/ro/stills/hero_rogue_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=17&gender=male&head=1&action=6",
+          "source_sha256": "02165790b34caec08c0878b42802ec3d2f584f73224e396613f7bdfcb47653d9",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=17&gender=male&head=1&action=38",
+          "source_sha256": "eabaa0ae6f003a43edc9bb86f1ef7180a520e765ac4378308c24d7fb2f7658fd",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=17&gender=male&head=1&action=46",
+          "source_sha256": "672b6c98dc38ebeeacec06b7aac67c70b40187622571f7c8fbae76f460e2013e",
+          "scale": 2,
+          "distinct_rgba_frames": 5
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=17&gender=male&head=1&action=54",
+          "source_sha256": "6e10cf33410ad1484e85313f1ab5360d324a5e2cb972304c596db0c04fcb8743",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=17&gender=male&head=1&action=70",
+          "source_sha256": "9470fad9175a7588aad16722104ce12e4e24531be793706684ead03dcdd5bd09",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_rogue_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "alchemist",
+      "kind": "hero",
+      "phase": 2,
+      "original_name": "Alchemist",
+      "source_job_id": 18,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_alchemist.png",
+      "still": "assets/ro/stills/hero_alchemist_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=18&gender=male&head=1&action=6",
+          "source_sha256": "7f4f858b2ca7e5ec19746964e12e2aaa49c8804cd0016cefaa4b4ac7afb93a92",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=18&gender=male&head=1&action=38",
+          "source_sha256": "6d337422c68112d23bfdb67bff7eb0697b40945c3632426e4222c5cff1344bf3",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=18&gender=male&head=1&action=46",
+          "source_sha256": "5353b10821f390e06702e929540e4f92f755060584b73707d2df5ffa9653e49b",
+          "scale": 3,
+          "distinct_rgba_frames": 5
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=18&gender=male&head=1&action=54",
+          "source_sha256": "266a416d117aa957ac61a887594da7072019c854e385e33af5e521efda4b4ab6",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=18&gender=male&head=1&action=70",
+          "source_sha256": "5193b29c8386520b192bd54f64e78f536d95d2eaa257628aa786d5e4ec63d528",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_alchemist_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "bard",
+      "kind": "hero",
+      "phase": 2,
+      "original_name": "Bard",
+      "source_job_id": 19,
+      "gender": "male",
+      "sheet": "assets/ro/sheets/hero_bard.png",
+      "still": "assets/ro/stills/hero_bard_battle.png",
+      "canvas_px": [
+        1920,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 6,
+      "rows": [
+        "idle",
+        "ready",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=19&gender=male&head=1&action=6",
+          "source_sha256": "131e1d28a294f4175628a4b26524dbb36e037fae7eb4c037149e1c7b4ec39d2a",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "ready": {
+          "row": 1,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=19&gender=male&head=1&action=38",
+          "source_sha256": "722c65ac08bcdc7c658511d806f13cc6f31b9aed2ef032a8c7dd2ef34254a1ed",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 46,
+          "source_url": "https://assets.latam-tools.com.br/image?job=19&gender=male&head=1&action=46",
+          "source_sha256": "43347d1ce8f3023e930796adce800bd57115856247b23c66ca0664d576d2ff4d",
+          "scale": 3,
+          "distinct_rgba_frames": 5
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 54,
+          "source_url": "https://assets.latam-tools.com.br/image?job=19&gender=male&head=1&action=54",
+          "source_sha256": "3ad84e1e76b8e02c33ddc8417531dd745164f2a283d2b987a98b1f296232da29",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 1,
+          "duration_ms": [
+            100
+          ],
+          "source_action": 70,
+          "source_url": "https://assets.latam-tools.com.br/image?job=19&gender=male&head=1&action=70",
+          "source_sha256": "bf5ec3029a799b6d09604c26c5496effedd8f6d9cfd42975daaa0e2b67bafbcb",
+          "scale": 3,
+          "distinct_rgba_frames": 1
+        }
+      },
+      "portrait": "assets/ro/portraits/hero_bard_portrait.png",
+      "portrait_note": "Pixel-enlarged upper half of idle sprite; not a hand-painted portrait"
+    },
+    {
+      "key": "melee",
+      "kind": "enemy",
+      "phase": 1,
+      "original_name": "Orc Warrior",
+      "source_job_id": 1023,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_melee.png",
+      "still": "assets/ro/stills/enemy_melee.png",
+      "canvas_px": [
+        5440,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 17,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 17,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1023&action=6",
+          "source_sha256": "9401f066a3c5cd82516b3f0b954ffb074db7aefb5acb017670b97859e8aa7c17",
+          "scale": 3,
+          "distinct_rgba_frames": 5
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 10,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1023&action=14",
+          "source_sha256": "c64100a9e39f5bb5395cf330135e64c17276883866f46f9970b5808d7b08acba",
+          "scale": 2,
+          "distinct_rgba_frames": 10
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 9,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1023&action=22",
+          "source_sha256": "f58f985f750d233655d6741d1d0bec497f33b1b578a94958da3db202bab43122",
+          "scale": 2,
+          "distinct_rgba_frames": 7
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 3,
+          "duration_ms": [
+            100,
+            100,
+            100
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1023&action=30",
+          "source_sha256": "33b099811e5b47e5fe0a82a61cd40109b0842e72ea988b5176b72a5f9f3c087a",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 12,
+          "duration_ms": [
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1023&action=38",
+          "source_sha256": "09517a5d7d2b6e4be23c59b8a842b022768f62f923b933b5d2e6e6654faf303e",
+          "scale": 2,
+          "distinct_rgba_frames": 6
+        }
+      }
+    },
+    {
+      "key": "ranged",
+      "kind": "enemy",
+      "phase": 1,
+      "original_name": "Archer Skeleton",
+      "source_job_id": 1016,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_ranged.png",
+      "still": "assets/ro/stills/enemy_ranged.png",
+      "canvas_px": [
+        7040,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 22,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1016&action=6",
+          "source_sha256": "94a30e9b4cc0cef9bd4a0bcb3007634822f9a3f2d2352471258c6145e65fce4d",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 4,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1016&action=14",
+          "source_sha256": "7cb269d03c099f979db5a541d59ebffcec6cfb9a805a5785e108400029174d2e",
+          "scale": 3,
+          "distinct_rgba_frames": 4
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 9,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1016&action=22",
+          "source_sha256": "deb79d08938fccf411c154c4de7929ec529fc880d1c2549af9cc109f0b918a08",
+          "scale": 2,
+          "distinct_rgba_frames": 8
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1016&action=30",
+          "source_sha256": "638e17dd5a39acf5bdbe7c50022e1e2afd12fabe273c98ed8e060e2b873d0d7d",
+          "scale": 3,
+          "distinct_rgba_frames": 2
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 22,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1016&action=38",
+          "source_sha256": "930308e69c1dc97770dee81cf4b8056c7aeb8c683a154237fb8bf5711d00e375",
+          "scale": 2,
+          "distinct_rgba_frames": 22
+        }
+      }
+    },
+    {
+      "key": "tank",
+      "kind": "enemy",
+      "phase": 1,
+      "original_name": "Elder Willow",
+      "source_job_id": 1033,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_tank.png",
+      "still": "assets/ro/stills/enemy_tank.png",
+      "canvas_px": [
+        6720,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 21,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 4,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1033&action=6",
+          "source_sha256": "c9b7f43950e7df5085f3e0c3a5911a3a5dca0baf6e276b6698584d6d90c570a4",
+          "scale": 4,
+          "distinct_rgba_frames": 5
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 8,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1033&action=14",
+          "source_sha256": "d2793d821fd7ce49af3ae08742bcf539036941bdaba9550df2a8071e6544063b",
+          "scale": 4,
+          "distinct_rgba_frames": 4
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 7,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1033&action=22",
+          "source_sha256": "0bd3e722dc3f1b2816c4977fcd128b4ae8aeabdb63394f32313f6ea49541e4ef",
+          "scale": 3,
+          "distinct_rgba_frames": 5
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 6,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1033&action=30",
+          "source_sha256": "f1de0b949d2d0fc13773520f0d270b37ff0c5d75e8893542a59dd4d4b8903738",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 21,
+          "duration_ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1033&action=38",
+          "source_sha256": "70acaa227dd957568a582b875daad47a290ad3a6f8c3f48ea372c0852e918f23",
+          "scale": 0.5220338983050847,
+          "distinct_rgba_frames": 21
+        }
+      }
+    },
+    {
+      "key": "fast",
+      "kind": "enemy",
+      "phase": 1,
+      "original_name": "Poring",
+      "source_job_id": 1002,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_fast.png",
+      "still": "assets/ro/stills/enemy_fast.png",
+      "canvas_px": [
+        8960,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 28,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 7,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 4,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1002&action=6",
+          "source_sha256": "89110e72637ec752a73cfa033f6ed2930c6fe89197997e5d226b2f6c8c9f867a",
+          "scale": 7,
+          "distinct_rgba_frames": 4
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 10,
+          "duration_ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1002&action=14",
+          "source_sha256": "3e9806d179f2f13a265cd95d4c3d49c2389a1ed7f03118c1501b17c6fa9228ba",
+          "scale": 6,
+          "distinct_rgba_frames": 9
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 28,
+          "duration_ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1002&action=22",
+          "source_sha256": "1ff8cd682d351b9408725c5678aac1a26c73c8546e0adc5442e4929a4df3effc",
+          "scale": 5,
+          "distinct_rgba_frames": 19
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1002&action=30",
+          "source_sha256": "fa49477fc817aac3dd37732415552d6f0ad172e1bb7fc556737e5d870115f4a5",
+          "scale": 6,
+          "distinct_rgba_frames": 4
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 17,
+          "duration_ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1002&action=38",
+          "source_sha256": "3f2247c2240f53711ac858f6a578fb037f2c90d76f6467f2734e3533d33a559b",
+          "scale": 0.9032258064516129,
+          "distinct_rgba_frames": 17
+        }
+      }
+    },
+    {
+      "key": "boss_ch1",
+      "kind": "enemy",
+      "phase": 1,
+      "original_name": "Mistress",
+      "source_job_id": 1059,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_boss_ch1.png",
+      "still": "assets/ro/stills/enemy_boss_ch1.png",
+      "canvas_px": [
+        7200,
+        2400
+      ],
+      "cell_px": [
+        480,
+        480
+      ],
+      "columns": 15,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 5,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 12,
+          "duration_ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1059&action=6",
+          "source_sha256": "cb682daf274267781d7f5938e835340197b7f484e02f58d13c01c5b4f6edd423",
+          "scale": 5,
+          "distinct_rgba_frames": 6
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 12,
+          "duration_ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1059&action=14",
+          "source_sha256": "cb682daf274267781d7f5938e835340197b7f484e02f58d13c01c5b4f6edd423",
+          "scale": 5,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 9,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1059&action=22",
+          "source_sha256": "16a904e6c2cf20aecea17323c6ef033105e82f5b6f58e72327efbcc452e0c6b0",
+          "scale": 3,
+          "distinct_rgba_frames": 9
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 5,
+          "duration_ms": [
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1059&action=30",
+          "source_sha256": "682d4a9e75d949d497534d6c7cfc7308b3861d6cd518e3affc3f79e1964f4c26",
+          "scale": 4,
+          "distinct_rgba_frames": 5
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 15,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1059&action=38",
+          "source_sha256": "70000d59a8cf6d7eb546a2e78556ec43d69faf4dbd994d1d31d41c68d24da0db",
+          "scale": 4,
+          "distinct_rgba_frames": 15
+        }
+      }
+    },
+    {
+      "key": "boss_ch2",
+      "kind": "enemy",
+      "phase": 1,
+      "original_name": "Osiris",
+      "source_job_id": 1038,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_boss_ch2.png",
+      "still": "assets/ro/stills/enemy_boss_ch2.png",
+      "canvas_px": [
+        6720,
+        2400
+      ],
+      "cell_px": [
+        480,
+        480
+      ],
+      "columns": 14,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 5,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 6,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1038&action=6",
+          "source_sha256": "5d44d7d9fb0231c4b70c0d38e9f9b671856924c1f678053a44d78c0435b9408a",
+          "scale": 5,
+          "distinct_rgba_frames": 6
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 8,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1038&action=14",
+          "source_sha256": "ba346d36fd9c2e392d1c5151751f536eb1fb353d5428264e1706ea7954af5682",
+          "scale": 5,
+          "distinct_rgba_frames": 8
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 14,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1038&action=22",
+          "source_sha256": "6ef1711a18ed017ac26b59dd2c9d10d219dc89094de80a20351c9f03cc972ffd",
+          "scale": 4,
+          "distinct_rgba_frames": 10
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1038&action=30",
+          "source_sha256": "6c2d58c0a584f6a8153bd8f50c9814381229b6a73b30088fe13cedda3ec17855",
+          "scale": 4,
+          "distinct_rgba_frames": 3
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 12,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1038&action=38",
+          "source_sha256": "d6d004b95cfa46d0881d163a0965e610a9b164cbbc743ae3cc0cfc42b10f52b5",
+          "scale": 3,
+          "distinct_rgba_frames": 5
+        }
+      }
+    },
+    {
+      "key": "boss_ch3",
+      "kind": "enemy",
+      "phase": 1,
+      "original_name": "Baphomet",
+      "source_job_id": 1039,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_boss_ch3.png",
+      "still": "assets/ro/stills/enemy_boss_ch3.png",
+      "canvas_px": [
+        3840,
+        2400
+      ],
+      "cell_px": [
+        480,
+        480
+      ],
+      "columns": 8,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 8,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1039&action=6",
+          "source_sha256": "386d4b8277f7ace50dffde9713e8964a3ff6f1253d6e97619d5ffcd40d3b8d17",
+          "scale": 3,
+          "distinct_rgba_frames": 8
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 8,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1039&action=14",
+          "source_sha256": "67d344a74f94fb6f7adebc60a5fdf54ed36dc3795ce260202e949e6cb5304c1a",
+          "scale": 3,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 8,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1039&action=22",
+          "source_sha256": "d117edfed970c4e20ebd402ca84189d8e3b8aa1b5c0479d4afc2f16d33c02413",
+          "scale": 3,
+          "distinct_rgba_frames": 5
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 6,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1039&action=30",
+          "source_sha256": "5cfa32efcbd623fe9f2d4928ccbc0cac925ec8de7589dc47bf7b2c62f1ec90ce",
+          "scale": 3,
+          "distinct_rgba_frames": 3
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 5,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1039&action=38",
+          "source_sha256": "4c440b0b05700648c89583305950bf3f7c676c437ef7252c526f54693d8ed663",
+          "scale": 2,
+          "distinct_rgba_frames": 5
+        }
+      }
+    },
+    {
+      "key": "armored",
+      "kind": "enemy",
+      "phase": 2,
+      "original_name": "Raydric",
+      "source_job_id": 1163,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_armored.png",
+      "still": "assets/ro/stills/enemy_armored.png",
+      "canvas_px": [
+        10880,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 34,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 2,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 6,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1163&action=6",
+          "source_sha256": "0676c5ad73d175c99090cb3340ee5386775fd20a295a8c7c122371a2effebd9d",
+          "scale": 2,
+          "distinct_rgba_frames": 6
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 8,
+          "duration_ms": [
+            37,
+            37,
+            37,
+            37,
+            37,
+            37,
+            37,
+            37
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1163&action=14",
+          "source_sha256": "b309f00bf05ece13881090e00a5c5ffa9b2b7278ab80017bb6f7d7087c44fc5e",
+          "scale": 2,
+          "distinct_rgba_frames": 8
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 13,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1163&action=22",
+          "source_sha256": "ec3ee483acca4ccadf1994dc2e418b154c4a31faf7e8c9818d3abf68515a2dc0",
+          "scale": 1,
+          "distinct_rgba_frames": 10
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 7,
+          "duration_ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1163&action=30",
+          "source_sha256": "e7b5e9d46ffccb3f107108d2960f6aa68e9492b7dfa07d6fae11846a78a39e41",
+          "scale": 2,
+          "distinct_rgba_frames": 4
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 34,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1163&action=38",
+          "source_sha256": "bdaabba6ba87bab656034f1f946114af78569065706dc6e289ec1249f0071d1a",
+          "scale": 2,
+          "distinct_rgba_frames": 33
+        }
+      }
+    },
+    {
+      "key": "ambusher",
+      "kind": "enemy",
+      "phase": 2,
+      "original_name": "Mimic",
+      "source_job_id": 1191,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_ambusher.png",
+      "still": "assets/ro/stills/enemy_ambusher.png",
+      "canvas_px": [
+        4480,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 14,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 7,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 8,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1191&action=6",
+          "source_sha256": "c81cbd7829cfeeee51419b74f871b64654dad3788cdb00a8c884311911f31f2a",
+          "scale": 7,
+          "distinct_rgba_frames": 7
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 10,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1191&action=14",
+          "source_sha256": "6fab672d27f32d576b809398f265c6bd02218a1d8c4839a2f2a3007ec1f37c0d",
+          "scale": 4,
+          "distinct_rgba_frames": 10
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 14,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1191&action=22",
+          "source_sha256": "72d0e96dbcae1f5730aa0cd486ce64341b492e946e0075a74ffff0456bdbf2a4",
+          "scale": 1,
+          "distinct_rgba_frames": 14
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 4,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1191&action=30",
+          "source_sha256": "4588d450f9ad6a88f3dabb2aaf90c3ded3cc6d6b4ef06839c9335104ad6c9425",
+          "scale": 6,
+          "distinct_rgba_frames": 4
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 13,
+          "duration_ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1191&action=38",
+          "source_sha256": "e3eaa317b9de818f43a262fc8d8bf1d9e955771e12a35cf40c048b21fced9006",
+          "scale": 1,
+          "distinct_rgba_frames": 13
+        }
+      }
+    },
+    {
+      "key": "flying",
+      "kind": "enemy",
+      "phase": 2,
+      "original_name": "Gargoyle",
+      "source_job_id": 1253,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_flying.png",
+      "still": "assets/ro/stills/enemy_flying.png",
+      "canvas_px": [
+        9280,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 29,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 16,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1253&action=6",
+          "source_sha256": "54a4dbd882db7b29dc368698a5f665eef50bd8e8f939fd0bbea09398d61fc521",
+          "scale": 3,
+          "distinct_rgba_frames": 8
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 16,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1253&action=14",
+          "source_sha256": "54a4dbd882db7b29dc368698a5f665eef50bd8e8f939fd0bbea09398d61fc521",
+          "scale": 3,
+          "distinct_rgba_frames": 8
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 12,
+          "duration_ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1253&action=22",
+          "source_sha256": "a79979bffdadc6dc1cb408237ab78c1bc5959962b8af0e8a8acb9333fac865de",
+          "scale": 2,
+          "distinct_rgba_frames": 7
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 8,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1253&action=30",
+          "source_sha256": "7b9b88810dcddb61f3aaed7f4a7bd366a2b028786edb35e73e69eb896c097a1a",
+          "scale": 2,
+          "distinct_rgba_frames": 6
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 29,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1253&action=38",
+          "source_sha256": "a0e2f2eaa1c4c27d1f3fd1307e23f59242a129a261d93699098877facfcfff1d",
+          "scale": 2,
+          "distinct_rgba_frames": 24
+        }
+      }
+    },
+    {
+      "key": "dark_caster",
+      "kind": "enemy",
+      "phase": 2,
+      "original_name": "Dark Priest",
+      "source_job_id": 1198,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_dark_caster.png",
+      "still": "assets/ro/stills/enemy_dark_caster.png",
+      "canvas_px": [
+        2560,
+        1600
+      ],
+      "cell_px": [
+        320,
+        320
+      ],
+      "columns": 8,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 2,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 6,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1198&action=6",
+          "source_sha256": "3fa7ef8ee5ba819a93d1fd752fb59817551d2e3b8f8a698fe400e461ecdf86d7",
+          "scale": 2,
+          "distinct_rgba_frames": 6
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 8,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1198&action=14",
+          "source_sha256": "d9f17969933af8d7029653b810a749d11565736c8efab466dce35c6a90880a1c",
+          "scale": 2,
+          "distinct_rgba_frames": 8
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 8,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1198&action=22",
+          "source_sha256": "e31c4723a88962ed91e4df5a870db05026ce44902415a01d1285b668b07b9008",
+          "scale": 2,
+          "distinct_rgba_frames": 8
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 4,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1198&action=30",
+          "source_sha256": "98b3492ffb5041df8f93c529362a93c36eb050eb9c097c30f2380e59ae268598",
+          "scale": 2,
+          "distinct_rgba_frames": 4
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 7,
+          "duration_ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1198&action=38",
+          "source_sha256": "039cd4b47ca73e063dde10c7a2fd8a8cf3c30ca7bc37e7b12fa1d69860ed46a5",
+          "scale": 2,
+          "distinct_rgba_frames": 7
+        }
+      }
+    },
+    {
+      "key": "boss_ch4",
+      "kind": "enemy",
+      "phase": 2,
+      "original_name": "Moonlight Flower",
+      "source_job_id": 1150,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_boss_ch4.png",
+      "still": "assets/ro/stills/enemy_boss_ch4.png",
+      "canvas_px": [
+        7680,
+        2400
+      ],
+      "cell_px": [
+        480,
+        480
+      ],
+      "columns": 16,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 5,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 6,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1150&action=6",
+          "source_sha256": "52e8f3889b2d181982999d58a78eac70dc0a81f9936c812aa7f6a70aa8e2676e",
+          "scale": 5,
+          "distinct_rgba_frames": 6
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 11,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1150&action=14",
+          "source_sha256": "496138e38b3fdc465ed61cdba8eff2cb464328d423cd9137ef754eff6077984a",
+          "scale": 4,
+          "distinct_rgba_frames": 11
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 12,
+          "duration_ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1150&action=22",
+          "source_sha256": "2a508ece518036fccfb90ffe8673b14fffe33df35e7b149ea94c8d8bea5952a0",
+          "scale": 3,
+          "distinct_rgba_frames": 12
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 4,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1150&action=30",
+          "source_sha256": "2cd6a88cfa95680aa675ed51ea58f23ba65574030d1a7bc61a57e807f102b88f",
+          "scale": 4,
+          "distinct_rgba_frames": 4
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 16,
+          "duration_ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1150&action=38",
+          "source_sha256": "5474d471d2eb1f1ffc80d64df66add5bbd26ffebf8726984c0740ac545dfe59e",
+          "scale": 3,
+          "distinct_rgba_frames": 15
+        }
+      }
+    },
+    {
+      "key": "boss_ch5",
+      "kind": "enemy",
+      "phase": 2,
+      "original_name": "Drake",
+      "source_job_id": 1112,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_boss_ch5.png",
+      "still": "assets/ro/stills/enemy_boss_ch5.png",
+      "canvas_px": [
+        6720,
+        2400
+      ],
+      "cell_px": [
+        480,
+        480
+      ],
+      "columns": 14,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 3,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 9,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1112&action=6",
+          "source_sha256": "fce76d0605713cbeea2ba4e1af0454713b0230be7dd75d93f5ca6740bbea562d",
+          "scale": 3,
+          "distinct_rgba_frames": 9
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 9,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1112&action=14",
+          "source_sha256": "1568323fc99cf43af817cf355d5a27fa8a15c5b1ffa8ca2d1ce7459990d1a4f9",
+          "scale": 3,
+          "distinct_rgba_frames": 9
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 7,
+          "duration_ms": [
+            37,
+            37,
+            37,
+            37,
+            37,
+            37,
+            37
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1112&action=22",
+          "source_sha256": "aa6db105d4937e9c33c73f1ce99c64329597b8f3d47b5458477e82d0d2a2e917",
+          "scale": 3,
+          "distinct_rgba_frames": 7
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 5,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1112&action=30",
+          "source_sha256": "7a5695c4cf3579e566812939ee4103dd3cdf055c39edcf8badc3ca6facda55f2",
+          "scale": 3,
+          "distinct_rgba_frames": 5
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 14,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1112&action=38",
+          "source_sha256": "2a988aaeae39e58f10c91ef70f0e57bafbac71bbf4d0efdd639307da73083c5c",
+          "scale": 2,
+          "distinct_rgba_frames": 11
+        }
+      }
+    },
+    {
+      "key": "boss_ch6",
+      "kind": "enemy",
+      "phase": 2,
+      "original_name": "Dark Lord",
+      "source_job_id": 1272,
+      "gender": null,
+      "sheet": "assets/ro/sheets/enemy_boss_ch6.png",
+      "still": "assets/ro/stills/enemy_boss_ch6.png",
+      "canvas_px": [
+        15360,
+        2400
+      ],
+      "cell_px": [
+        480,
+        480
+      ],
+      "columns": 32,
+      "rows": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "scale_nearest_integer": 2,
+      "anchor": "bottom-center; padding 6",
+      "source_license": "Original Ragnarok Online art; user states they have repository-use rights",
+      "actions": {
+        "idle": {
+          "row": 0,
+          "frame_count": 12,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 6,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1272&action=6",
+          "source_sha256": "88f33d6257109069a1aa505101d77013f4d798fabfb73ad80386a58681ea824e",
+          "scale": 2,
+          "distinct_rgba_frames": 6
+        },
+        "walk": {
+          "row": 1,
+          "frame_count": 12,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 14,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1272&action=14",
+          "source_sha256": "5940d9783c84253729b8663517a27cd9383d1b2d038064c5123e50fb9d2ff427",
+          "scale": 2,
+          "distinct_rgba_frames": 6
+        },
+        "attack": {
+          "row": 2,
+          "frame_count": 32,
+          "duration_ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "source_action": 22,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1272&action=22",
+          "source_sha256": "100b834c5d01b393fdc01ab69f094f0135bd3d529caf9ce54bbc111cb5e495b7",
+          "scale": 1,
+          "distinct_rgba_frames": 16
+        },
+        "hurt": {
+          "row": 3,
+          "frame_count": 10,
+          "duration_ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "source_action": 30,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1272&action=30",
+          "source_sha256": "04abae97e179b5d7d2104890b5f4db772967789605c0e9c494518104bfaed677",
+          "scale": 2,
+          "distinct_rgba_frames": 7
+        },
+        "death": {
+          "row": 4,
+          "frame_count": 20,
+          "duration_ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "source_action": 38,
+          "source_url": "https://assets.latam-tools.com.br/image?job=1272&action=38",
+          "source_sha256": "1203123bf1f5ea1b180ca08e8b22d40d594e4df095775a54ceec6e629000d422",
+          "scale": 1,
+          "distinct_rgba_frames": 16
+        }
+      }
+    }
+  ],
+  "icons": [
+    {
+      "file": "assets/ro/icons/ui_ult_guard.png",
+      "hero": "guard",
+      "skill_id": 251,
+      "url": "https://assets.latam-tools.com.br/icons/skill/251.png",
+      "source_sha256": "9863859673bec1884f5c2d3f4339fd99cbe14a76e2473c1a750010044d154109",
+      "source_size": [
+        24,
+        24
+      ]
+    },
+    {
+      "file": "assets/ro/icons/ui_ult_warrior.png",
+      "hero": "warrior",
+      "skill_id": 5,
+      "url": "https://assets.latam-tools.com.br/icons/skill/5.png",
+      "source_sha256": "cc5f376e429f9749e92214ce97313092e1301fbbe3b3d1458d70b7f39f8693c3",
+      "source_size": [
+        24,
+        24
+      ]
+    },
+    {
+      "file": "assets/ro/icons/ui_ult_assassin.png",
+      "hero": "assassin",
+      "skill_id": 136,
+      "url": "https://assets.latam-tools.com.br/icons/skill/136.png",
+      "source_sha256": "e9d07fa3d9a981af8c707a9a104e8f4af63bb7d620f260e54f473d840044c706",
+      "source_size": [
+        24,
+        24
+      ]
+    },
+    {
+      "file": "assets/ro/icons/ui_ult_archer.png",
+      "hero": "archer",
+      "skill_id": 46,
+      "url": "https://assets.latam-tools.com.br/icons/skill/46.png",
+      "source_sha256": "d0fa0741daf226450434c1c1fc40f6da07e605450b92c64fb2b3c6543ce0cddc",
+      "source_size": [
+        24,
+        24
+      ]
+    },
+    {
+      "file": "assets/ro/icons/ui_ult_mage.png",
+      "hero": "mage",
+      "skill_id": 19,
+      "url": "https://assets.latam-tools.com.br/icons/skill/19.png",
+      "source_sha256": "e5d57615ee1be01e5f30fa6a7420146aa51f1e0fb4706fe46f6d0d213ed869be",
+      "source_size": [
+        24,
+        24
+      ]
+    },
+    {
+      "file": "assets/ro/icons/ui_ult_priestess.png",
+      "hero": "priestess",
+      "skill_id": 28,
+      "url": "https://assets.latam-tools.com.br/icons/skill/28.png",
+      "source_sha256": "5284bfd5dc36e9419b6792108ea2f128e19b490365706c6c941a0e9b384a4096",
+      "source_size": [
+        24,
+        24
+      ]
+    }
+  ],
+  "errors": [],
+  "source_renderer": "https://github.com/adsonpleal/ragassets",
+  "layout": "rows are named actions; columns are chronological frames; unused cells fully transparent"
+}
