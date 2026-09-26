@@ -1,6 +1,6 @@
 /**
  * Проверка всего контента одной командой.  npm run content:check
- *   1. data/units и data/skills — по схемам и перекрёстным ссылкам;
+ *   1. весь data/ — одна сборка buildGameContext (как в игре): схемы и перекрёстные ссылки, все ошибки сразу;
  *   2. ссылки на ассеты: спрайты (реестр), снаряды, эффекты, иконки (assets/manifest.json);
  *   3. спрайтшиты: файл есть, размер сходится с сеткой, лист не больше 2048 px;
  *   4. JSON-схемы для редактора не устарели;
@@ -9,10 +9,10 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildEquipment, ContentError, parseFeaturesConfig, parseMetaConfig, simulateBattle, withTower, type Content } from '../src/core';
+import { collectGameContext, simulateBattle } from '../src/core';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
-import { loadContent, loadGameContext, readJsonDir, ROOT } from './lib/content-node';
+import { readRawGameData, ROOT } from './lib/content-node';
 import { pngSize } from './lib/png';
 import { generateSchemas } from './lib/schemas';
 
@@ -20,13 +20,15 @@ const errors: string[] = [];
 const warnings: string[] = [];
 const readJson = <T>(rel: string): T | undefined => (existsSync(join(ROOT, rel)) ? (JSON.parse(readFileSync(join(ROOT, rel), 'utf8')) as T) : undefined);
 
-// 1. Контент
-let content: Content | undefined;
-try {
-  content = loadContent();
-} catch (e) {
-  if (e instanceof ContentError) errors.push(...e.problems);
-  else throw e;
+// 1. Весь контент и конфиги — одна сборка, как в игре (src/game/content.ts) и в балансе (loadFullContext)
+const built = collectGameContext(readRawGameData());
+errors.push(...built.problems);
+const content = built.content;
+if (built.ctx) {
+  const roles = new Set(Object.values(built.ctx.content.jobs).map((j) => j.role));
+  for (const b of built.ctx.meta.bounties.templates) {
+    if (b.role && !roles.has(b.role)) errors.push(`data/bounties.json: поручение ${b.id} требует роль ${b.role}, которой нет ни у одной профессии`);
+  }
 }
 
 if (content) {
@@ -94,44 +96,6 @@ if (content) {
       errors.push(`юнит ${u.id}: бой упал — ${String(e)}`);
     }
   }
-}
-
-// Конфиги функций (быстрые награды, мощь, ежедневные задания)
-try {
-  parseFeaturesConfig(readJson('data/progression.json'), readJson('data/quests.json'));
-} catch (e) {
-  errors.push(`data/progression.json / data/quests.json: ${e instanceof Error ? e.message : String(e)}`);
-}
-
-// Экипировка: предметы и таблицы выпадения
-if (content) {
-  try {
-    buildEquipment(readJsonDir('data/items'), readJson('data/drops.json'), loadGameContext());
-  } catch (e) {
-    errors.push(`data/items / data/drops.json: ${e instanceof Error ? e.message : String(e)}`);
-  }
-}
-
-// Башня испытаний
-if (content) {
-  try {
-    withTower(loadGameContext(), readJson('data/tower.json'));
-  } catch (e) {
-    errors.push(`data/tower.json: ${e instanceof Error ? e.message : String(e)}`);
-  }
-}
-
-// Поручения, пресеты, достижения
-try {
-  const meta = parseMetaConfig(readJson('data/bounties.json'), readJson('data/achievements.json'));
-  if (content) {
-    const roles = new Set(Object.values(content.jobs).map((j) => j.role));
-    for (const b of meta.bounties.templates) {
-      if (b.role && !roles.has(b.role)) errors.push(`data/bounties.json: поручение ${b.id} требует роль ${b.role}, которой нет ни у одной профессии`);
-    }
-  }
-} catch (e) {
-  errors.push(`data/bounties.json / data/achievements.json: ${e instanceof Error ? e.message : String(e)}`);
 }
 
 // 4. JSON-схемы
