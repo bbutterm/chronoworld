@@ -9,7 +9,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildEquipment, ContentError, parseFeaturesConfig, simulateBattle, withTower, type Content } from '../src/core';
+import { buildEquipment, ContentError, parseFeaturesConfig, parseMetaConfig, simulateBattle, withTower, type Content } from '../src/core';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
 import { loadContent, loadGameContext, readJsonDir, ROOT } from './lib/content-node';
@@ -119,6 +119,19 @@ if (content) {
   } catch (e) {
     errors.push(`data/tower.json: ${e instanceof Error ? e.message : String(e)}`);
   }
+}
+
+// Поручения, пресеты, достижения
+try {
+  const meta = parseMetaConfig(readJson('data/bounties.json'), readJson('data/achievements.json'));
+  if (content) {
+    const roles = new Set(Object.values(content.jobs).map((j) => j.role));
+    for (const b of meta.bounties.templates) {
+      if (b.role && !roles.has(b.role)) errors.push(`data/bounties.json: поручение ${b.id} требует роль ${b.role}, которой нет ни у одной профессии`);
+    }
+  }
+} catch (e) {
+  errors.push(`data/bounties.json / data/achievements.json: ${e instanceof Error ? e.message : String(e)}`);
 }
 
 // 4. JSON-схемы
