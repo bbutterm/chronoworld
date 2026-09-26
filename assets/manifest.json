@@ -2,130 +2,148 @@
   "_comment": "Все ассеты подключаются по id. file: null — рисуется плейсхолдер (цветной прямоугольник с подписью). Чтобы подключить арт, положите PNG в assets/ и пропишите путь в file.",
   "assets": {
     "hero_guard_battle": {
-      "file": null,
+      "file": "ro/stills/hero_guard_battle.png",
       "w": 320,
       "h": 320,
       "color": "#4a6fa5",
-      "label": "Страж"
+      "label": "Страж",
+      "pixelArt": true
     },
     "hero_guard_portrait": {
-      "file": null,
+      "file": "ro/portraits/hero_guard_portrait.png",
       "w": 256,
       "h": 256,
       "color": "#4a6fa5",
-      "label": "Страж"
+      "label": "Страж",
+      "pixelArt": true
     },
     "ui_ult_guard": {
-      "file": null,
+      "file": "ro/icons/ui_ult_guard.png",
       "w": 128,
       "h": 128,
       "color": "#4a6fa5",
-      "label": "Ульта"
+      "label": "Ульта",
+      "pixelArt": true
     },
     "hero_warrior_battle": {
-      "file": null,
+      "file": "ro/stills/hero_warrior_battle.png",
       "w": 320,
       "h": 320,
       "color": "#b5523b",
-      "label": "Воин"
+      "label": "Воин",
+      "pixelArt": true
     },
     "hero_warrior_portrait": {
-      "file": null,
+      "file": "ro/portraits/hero_warrior_portrait.png",
       "w": 256,
       "h": 256,
       "color": "#b5523b",
-      "label": "Воин"
+      "label": "Воин",
+      "pixelArt": true
     },
     "ui_ult_warrior": {
-      "file": null,
+      "file": "ro/icons/ui_ult_warrior.png",
       "w": 128,
       "h": 128,
       "color": "#b5523b",
-      "label": "Ульта"
+      "label": "Ульта",
+      "pixelArt": true
     },
     "hero_assassin_battle": {
-      "file": null,
+      "file": "ro/stills/hero_assassin_battle.png",
       "w": 320,
       "h": 320,
       "color": "#6b4c8a",
-      "label": "Ассасин"
+      "label": "Ассасин",
+      "pixelArt": true
     },
     "hero_assassin_portrait": {
-      "file": null,
+      "file": "ro/portraits/hero_assassin_portrait.png",
       "w": 256,
       "h": 256,
       "color": "#6b4c8a",
-      "label": "Ассасин"
+      "label": "Ассасин",
+      "pixelArt": true
     },
     "ui_ult_assassin": {
-      "file": null,
+      "file": "ro/icons/ui_ult_assassin.png",
       "w": 128,
       "h": 128,
       "color": "#6b4c8a",
-      "label": "Ульта"
+      "label": "Ульта",
+      "pixelArt": true
     },
     "hero_archer_battle": {
-      "file": null,
+      "file": "ro/stills/hero_archer_battle.png",
       "w": 320,
       "h": 320,
       "color": "#4f8a4c",
-      "label": "Лучник"
+      "label": "Лучник",
+      "pixelArt": true
     },
     "hero_archer_portrait": {
-      "file": null,
+      "file": "ro/portraits/hero_archer_portrait.png",
       "w": 256,
       "h": 256,
       "color": "#4f8a4c",
-      "label": "Лучник"
+      "label": "Лучник",
+      "pixelArt": true
     },
     "ui_ult_archer": {
-      "file": null,
+      "file": "ro/icons/ui_ult_archer.png",
       "w": 128,
       "h": 128,
       "color": "#4f8a4c",
-      "label": "Ульта"
+      "label": "Ульта",
+      "pixelArt": true
     },
     "hero_mage_battle": {
-      "file": null,
+      "file": "ro/stills/hero_mage_battle.png",
       "w": 320,
       "h": 320,
       "color": "#3b7fb5",
-      "label": "Маг"
+      "label": "Маг",
+      "pixelArt": true
     },
     "hero_mage_portrait": {
-      "file": null,
+      "file": "ro/portraits/hero_mage_portrait.png",
       "w": 256,
       "h": 256,
       "color": "#3b7fb5",
-      "label": "Маг"
+      "label": "Маг",
+      "pixelArt": true
     },
     "ui_ult_mage": {
-      "file": null,
+      "file": "ro/icons/ui_ult_mage.png",
       "w": 128,
       "h": 128,
       "color": "#3b7fb5",
-      "label": "Ульта"
+      "label": "Ульта",
+      "pixelArt": true
     },
     "hero_priest_battle": {
-      "file": null,
+      "file": "ro/stills/hero_priestess_battle.png",
       "w": 320,
       "h": 320,
       "color": "#c9a94a",
-      "label": "Жрица"
+      "label": "Жрица",
+      "pixelArt": true
     },
     "hero_priest_portrait": {
-      "file": null,
+      "file": "ro/portraits/hero_priestess_portrait.png",
       "w": 256,
       "h": 256,
       "color": "#c9a94a",
-      "label": "Жрица"
+      "label": "Жрица",
+      "pixelArt": true
     },
     "ui_ult_priest": {
-      "file": null,
+      "file": "ro/icons/ui_ult_priestess.png",
       "w": 128,
       "h": 128,
       "color": "#c9a94a",
-      "label": "Ульта"
+      "label": "Ульта",
+      "pixelArt": true
     },
     "bg_arena": {
       "file": null,
@@ -279,6 +297,372 @@
       "color": "#9a9a9a",
       "label": "облачко",
       "shape": "circle"
+    },
+    "hero_guard_sheet": {
+      "file": "ro/sheets/hero_guard.png",
+      "w": 320,
+      "h": 320,
+      "color": "#4a6fa5",
+      "label": "Страж",
+      "pixelArt": true,
+      "sheet": {
+        "columns": 6,
+        "anims": {
+          "idle": {
+            "row": 0,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "ready": {
+            "row": 1,
+            "frames": 6,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "attack": {
+            "row": 2,
+            "frames": 5,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "hurt": {
+            "row": 3,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "death": {
+            "row": 4,
+            "frames": 1,
+            "ms": [
+              100
+            ]
+          }
+        }
+      }
+    },
+    "hero_warrior_sheet": {
+      "file": "ro/sheets/hero_warrior.png",
+      "w": 320,
+      "h": 320,
+      "color": "#b5523b",
+      "label": "Воин",
+      "pixelArt": true,
+      "sheet": {
+        "columns": 6,
+        "anims": {
+          "idle": {
+            "row": 0,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "ready": {
+            "row": 1,
+            "frames": 6,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "attack": {
+            "row": 2,
+            "frames": 5,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "hurt": {
+            "row": 3,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "death": {
+            "row": 4,
+            "frames": 1,
+            "ms": [
+              100
+            ]
+          }
+        }
+      }
+    },
+    "hero_assassin_sheet": {
+      "file": "ro/sheets/hero_assassin.png",
+      "w": 320,
+      "h": 320,
+      "color": "#6b4c8a",
+      "label": "Ассасин",
+      "pixelArt": true,
+      "sheet": {
+        "columns": 6,
+        "anims": {
+          "idle": {
+            "row": 0,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "ready": {
+            "row": 1,
+            "frames": 6,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "attack": {
+            "row": 2,
+            "frames": 5,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "hurt": {
+            "row": 3,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "death": {
+            "row": 4,
+            "frames": 1,
+            "ms": [
+              100
+            ]
+          }
+        }
+      }
+    },
+    "hero_archer_sheet": {
+      "file": "ro/sheets/hero_archer.png",
+      "w": 320,
+      "h": 320,
+      "color": "#4f8a4c",
+      "label": "Лучник",
+      "pixelArt": true,
+      "sheet": {
+        "columns": 6,
+        "anims": {
+          "idle": {
+            "row": 0,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "ready": {
+            "row": 1,
+            "frames": 6,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "attack": {
+            "row": 2,
+            "frames": 5,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "hurt": {
+            "row": 3,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "death": {
+            "row": 4,
+            "frames": 1,
+            "ms": [
+              100
+            ]
+          }
+        }
+      }
+    },
+    "hero_mage_sheet": {
+      "file": "ro/sheets/hero_mage.png",
+      "w": 320,
+      "h": 320,
+      "color": "#3b7fb5",
+      "label": "Маг",
+      "pixelArt": true,
+      "sheet": {
+        "columns": 6,
+        "anims": {
+          "idle": {
+            "row": 0,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "ready": {
+            "row": 1,
+            "frames": 6,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "attack": {
+            "row": 2,
+            "frames": 5,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "hurt": {
+            "row": 3,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "death": {
+            "row": 4,
+            "frames": 1,
+            "ms": [
+              100
+            ]
+          }
+        }
+      }
+    },
+    "hero_priest_sheet": {
+      "file": "ro/sheets/hero_priestess.png",
+      "w": 320,
+      "h": 320,
+      "color": "#c9a94a",
+      "label": "Жрица",
+      "pixelArt": true,
+      "sheet": {
+        "columns": 6,
+        "anims": {
+          "idle": {
+            "row": 0,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "ready": {
+            "row": 1,
+            "frames": 6,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "attack": {
+            "row": 2,
+            "frames": 5,
+            "ms": [
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "hurt": {
+            "row": 3,
+            "frames": 3,
+            "ms": [
+              100,
+              100,
+              100
+            ]
+          },
+          "death": {
+            "row": 4,
+            "frames": 1,
+            "ms": [
+              100
+            ]
+          }
+        }
+      }
     }
   }
 }

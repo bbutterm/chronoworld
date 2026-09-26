@@ -1,18 +1,23 @@
 import Phaser from 'phaser';
 import { COMBAT, HEROES, simulateBattle, type BattleEvent, type BattleResult, type UnitSnapshot } from '../../core';
-import { hasArt, heroBattle } from '../assets';
+import { animKey, hasArt, hasSheet, heroBattle, heroSheet, ultIcon } from '../assets';
 import { GAME_W, slotPos } from '../layout';
 import { playback, playbackSpeeds, squads } from '../state';
 import { button, text } from '../ui';
 
 const SPRITE = 140;
+/** Клетка спрайтшита на экране: персонаж занимает её нижнюю часть. */
+const CELL = 250;
 const BAR_W = 150;
 
 interface UnitView {
   snap: UnitSnapshot;
   x: number;
   y: number;
-  sprite: Phaser.GameObjects.Image;
+  sprite: Phaser.GameObjects.Sprite;
+  /** Позиция ног спрайта (origin 0.5, 1). */
+  feetY: number;
+  sheet: string | null;
   hpBar: Phaser.GameObjects.Image;
   shieldBar: Phaser.GameObjects.Image;
   energyBar: Phaser.GameObjects.Image;
@@ -58,9 +63,17 @@ export class BattleScene extends Phaser.Scene {
 
   private buildUnit(snap: UnitSnapshot): void {
     const { x, y } = slotPos(snap.side, snap.slot);
-    const sprite = this.add.image(x, y, heroBattle(snap.heroId)).setDisplaySize(SPRITE, SPRITE)
-      .setFlipX(snap.side === 'B' && hasArt(heroBattle(snap.heroId)));
-    const barY = y + SPRITE / 2 + 14;
+    const feetY = y + SPRITE / 2;
+    const sheetId = heroSheet(snap.heroId);
+    const sheet = hasSheet(this, sheetId) ? sheetId : null;
+    const size = sheet || hasArt(heroBattle(snap.heroId)) ? CELL : SPRITE;
+    const sprite = this.add
+      .sprite(x, feetY, sheet ?? heroBattle(snap.heroId))
+      .setOrigin(0.5, 1)
+      .setDisplaySize(size, size)
+      .setFlipX(snap.side === 'B' && (!!sheet || hasArt(heroBattle(snap.heroId))));
+    if (sheet) sprite.play({ key: animKey(sheet, 'ready'), repeat: -1, startFrame: snap.slot % 3 });
+    const barY = feetY + 14;
     this.add.image(x, barY, 'ui_bar_back').setDisplaySize(BAR_W + 6, 20);
     const hpBar = this.add
       .image(x - BAR_W / 2, barY, snap.side === 'A' ? 'ui_bar_hp_ally' : 'ui_bar_hp_enemy')
@@ -69,12 +82,14 @@ export class BattleScene extends Phaser.Scene {
     const shieldBar = this.add.image(x - BAR_W / 2, barY - 5, 'ui_bar_shield').setOrigin(0, 0.5).setDisplaySize(0, 5);
     this.add.image(x, barY + 16, 'ui_bar_back').setDisplaySize(BAR_W + 6, 12);
     const energyBar = this.add.image(x - BAR_W / 2, barY + 16, 'ui_bar_energy').setOrigin(0, 0.5).setDisplaySize(0, 7);
-    text(this, x, y - SPRITE / 2 - 16, HEROES[snap.heroId].name, 24);
+    text(this, x, feetY - (size === CELL ? 238 : SPRITE + 16), HEROES[snap.heroId].name, 24);
     this.views.set(snap.uid, {
       snap,
       x,
       y,
       sprite,
+      feetY,
+      sheet,
       hpBar,
       shieldBar,
       energyBar,
@@ -113,6 +128,7 @@ export class BattleScene extends Phaser.Scene {
         v.energy = e.energy;
         this.redraw(v);
         if (!animate) return;
+        this.playAnim(v, 'attack');
         const target = this.views.get(e.targets[0]);
         if (!target) return;
         if (e.kind === 'melee') this.lunge(v, target);
@@ -125,6 +141,9 @@ export class BattleScene extends Phaser.Scene {
         this.redraw(v);
         if (!animate) return;
         this.floating(v.x, v.y - 140, e.name, '#ffd84a', 34);
+        this.playAnim(v, 'attack');
+        const icon = this.add.image(v.x, v.y - 200, ultIcon(v.snap.heroId)).setDisplaySize(72, 72);
+        this.tweens.add({ targets: icon, y: icon.y - 40, alpha: 0, duration: 900 / playback.speed, onComplete: () => icon.destroy() });
         this.tweens.add({ targets: v.sprite, scale: v.sprite.scale * 1.25, duration: 140, yoyo: true });
         return;
       }
@@ -138,7 +157,8 @@ export class BattleScene extends Phaser.Scene {
         const hpPart = e.amount - e.absorbed;
         this.floating(v.x + rnd(40), v.y - 40 + rnd(20), hpPart > 0 ? `-${hpPart}` : `(${e.absorbed})`, hpPart > 0 ? '#ffffff' : '#bcd6ff');
         this.flash(v);
-        this.fx(v, 'fx_hit', 0.8);
+        if (v.alive && v.sprite.anims.currentAnim?.key !== animKey(v.sheet ?? '', 'attack')) this.playAnim(v, 'hurt');
+        this.fx(v, 'fx_hit', 0.45, 200, 0.5);
         return;
       }
       case 'heal': {
@@ -167,7 +187,14 @@ export class BattleScene extends Phaser.Scene {
         v.hp = 0;
         v.shield = 0;
         this.redraw(v);
-        if (animate) {
+        if (v.sheet) {
+          // В спрайтшите есть кадр смерти — просто держим его.
+          v.sprite.play(animKey(v.sheet, 'death'));
+          if (animate) {
+            this.fx(v, 'fx_death', 1.6, 600);
+            this.tweens.add({ targets: v.sprite, alpha: 0.5, duration: 400 });
+          } else v.sprite.setAlpha(0.5);
+        } else if (animate) {
           this.fx(v, 'fx_death', 1.6, 600);
           this.tweens.add({ targets: v.sprite, alpha: 0.2, angle: v.snap.side === 'A' ? -90 : 90, duration: 400 });
         } else {
@@ -192,13 +219,24 @@ export class BattleScene extends Phaser.Scene {
 
   private pulse(uid: string): void {
     const v = this.views.get(uid)!;
-    this.tweens.add({ targets: v.sprite, y: v.y - 14, duration: 90, yoyo: true });
+    this.tweens.add({ targets: v.sprite, y: v.feetY - 14, duration: 90, yoyo: true });
+  }
+
+  /** Разовая анимация из спрайтшита, потом снова боевая стойка. */
+  private playAnim(v: UnitView, name: 'attack' | 'hurt'): void {
+    if (!v.sheet || !v.alive) return;
+    const sheet = v.sheet;
+    v.sprite.anims.timeScale = playback.speed;
+    v.sprite.play(animKey(sheet, name));
+    v.sprite.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+      if (v.alive) v.sprite.play({ key: animKey(sheet, 'ready'), repeat: -1 });
+    });
   }
 
   private lunge(v: UnitView, target: UnitView): void {
     const dx = (target.x - v.x) * 0.35;
     const dy = (target.y - v.y) * 0.35;
-    this.tweens.add({ targets: v.sprite, x: v.x + dx, y: v.y + dy, duration: 110, yoyo: true, onComplete: () => v.sprite.setPosition(v.x, v.y) });
+    this.tweens.add({ targets: v.sprite, x: v.x + dx, y: v.feetY + dy, duration: 110, yoyo: true, onComplete: () => v.sprite.setPosition(v.x, v.feetY) });
   }
 
   private projectile(from: UnitView, to: UnitView, tex: string): void {
@@ -211,8 +249,8 @@ export class BattleScene extends Phaser.Scene {
     this.time.delayedCall(70, () => v.sprite.clearTint());
   }
 
-  private fx(v: UnitView, tex: string, scale: number, duration = 250): void {
-    const img = this.add.image(v.x, v.y, tex).setDisplaySize(SPRITE * scale, SPRITE * scale).setAlpha(0.8);
+  private fx(v: UnitView, tex: string, scale: number, duration = 250, alpha = 0.8): void {
+    const img = this.add.image(v.x, v.y, tex).setDisplaySize(SPRITE * scale, SPRITE * scale).setAlpha(alpha);
     this.tweens.add({ targets: img, alpha: 0, scale: img.scale * 1.2, duration: duration / playback.speed, onComplete: () => img.destroy() });
   }
 

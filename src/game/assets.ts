@@ -9,24 +9,58 @@ interface AssetEntry {
   color: string;
   label: string;
   shape?: 'rect' | 'circle';
+  /** Пиксель-арт: масштабировать без сглаживания. */
+  pixelArt?: boolean;
+  /** Спрайтшит: кадры w×h, ряд = анимация. */
+  sheet?: { columns: number; anims: Record<string, { row: number; frames: number; ms: number[] }> };
 }
 
 const MANIFEST = (manifestJson as unknown as { assets: Record<string, AssetEntry> }).assets;
 
 export const heroBattle = (heroId: string) => `hero_${heroId}_battle`;
 export const heroPortrait = (heroId: string) => `hero_${heroId}_portrait`;
+export const heroSheet = (heroId: string) => `hero_${heroId}_sheet`;
+export const ultIcon = (heroId: string) => `ui_ult_${heroId}`;
+/** Ключ анимации спрайтшита, например "hero_guard_sheet:attack". */
+export const animKey = (sheetId: string, name: string) => `${sheetId}:${name}`;
 
 /** Ставит в очередь загрузки все ассеты с файлом. */
 export function queueAssets(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
-    if (a.file) scene.load.image(id, a.file);
+    if (!a.file) continue;
+    if (a.sheet) scene.load.spritesheet(id, a.file, { frameWidth: a.w, frameHeight: a.h });
+    else scene.load.image(id, a.file);
   }
+}
+
+/** После загрузки: фильтр для пиксель-арта и анимации из рядов спрайтшитов. */
+export function setupLoadedAssets(scene: Phaser.Scene): void {
+  for (const [id, a] of Object.entries(MANIFEST)) {
+    if (!a.file || !scene.textures.exists(id)) continue;
+    if (a.pixelArt) scene.textures.get(id).setFilter(Phaser.Textures.FilterMode.NEAREST);
+    if (!a.sheet) continue;
+    for (const [name, anim] of Object.entries(a.sheet.anims)) {
+      const key = animKey(id, name);
+      if (scene.anims.exists(key)) continue;
+      const frames = Array.from({ length: anim.frames }, (_, i) => ({
+        key: id,
+        frame: anim.row * a.sheet!.columns + i,
+        duration: anim.ms[i] ?? anim.ms[0],
+      }));
+      scene.anims.create({ key, frames });
+    }
+  }
+}
+
+/** Есть ли загруженный спрайтшит с анимациями (иначе рисуем статичную картинку). */
+export function hasSheet(scene: Phaser.Scene, id: string): boolean {
+  return !!MANIFEST[id]?.sheet && !!MANIFEST[id]?.file && scene.textures.exists(id);
 }
 
 /** Для всех id без текстуры (нет файла или не загрузился) рисует цветной прямоугольник с подписью. */
 export function buildPlaceholders(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
-    if (scene.textures.exists(id)) continue;
+    if (scene.textures.exists(id) || a.sheet) continue;
     const tex = scene.textures.createCanvas(id, a.w, a.h);
     if (!tex) continue;
     const ctx = tex.getContext();

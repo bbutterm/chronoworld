@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { buildPlaceholders, queueAssets } from '../assets';
+import { buildPlaceholders, queueAssets, setupLoadedAssets } from '../assets';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -13,6 +13,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
+    setupLoadedAssets(this);
     buildPlaceholders(this);
     this.scene.start('Prep');
   }
