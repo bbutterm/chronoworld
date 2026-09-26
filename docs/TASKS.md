@@ -1,5 +1,23 @@
 # Пул задач: ядро прогрессии и кампании
 
+> **Обновление (контракты готовы).** Типы, схемы и сигнатуры уже в коде: `src/core/progression/*`, `src/core/campaign/*`, `src/core/save/*`, `data/progression.json`. Реализованы: `statsAt`, `heroSkills`, `buildUnit`, `expToNext`, `addJobExp`, `availableJobChanges`, `changeJob`, `newGame`. Заглушки с точным контрактом в JSDoc: кампания, офлайн, serialize/deserialize — обязательные случаи перечислены в `it.todo` в `tests/campaign.test.ts`, `tests/offline.test.ts`, `tests/save.test.ts`. Спрайты v2 в `assets/sprites/` уже подключены реестром.
+
+## Работа сабагентами — волны и владение файлами
+
+Каждый сабагент работает в своём git worktree, трогает **только свои файлы**, коммитит в своей ветке с зелёным `npm run check`; оркестратор сливает ветки по порядку и прогоняет `npm run check` после каждого слияния.
+
+| Волна | Пакет | Задачи | Файлы-владения |
+| --- | --- | --- | --- |
+| 1 | **A. Профессии** | T2 (контент) | `data/jobs/**`, `data/skills/job_*.json`, `src/core/progression/validate.ts`, `tests/jobs.test.ts`, `docs/content/jobs.md` |
+| 1 | **B. Кампания и офлайн** | T5, T6 | `src/core/campaign/**`, `data/campaign/**`, `data/units/mob_*.json`, `tests/campaign.test.ts`, `tests/offline.test.ts`, `docs/content/campaign.md` |
+| 1 | **C. Сохранение** | T1 | `src/core/save/save.ts`, `src/game/storage.ts`, `tests/save.test.ts` |
+| 1 | **D. CI и бой** | T0, T9 | `.github/**`, `src/core/battle.ts`, `tests/battle-edge.test.ts` |
+| 2 | **E. Баланс-тул** | T7 | `scripts/balance.ts`, `package.json` (скрипт), `docs/content/balance.md` |
+| 2 | **F. Экраны** | T8 | `src/game/**` (кроме `storage.ts`), `src/main.ts` |
+| 3 | Оркестратор | слияние, отчёт | `docs/REPORTS/**`, `docs/QUESTIONS.md`, `README.md`, `docs/CONTENT.md` (ссылки на `docs/content/*`) |
+
+Общие файлы (`src/core/index.ts`, `src/core/types.ts`, схемы) меняет только оркестратор; если сабагенту нужна правка — описывает её в отчёте.
+
 Задачи для автономной работы агента. Цель — **тонкий срез**: этапы кампании → опыт → джоб-уровни → смена профессии → навыки → сохранение, всё на данных и с тестами. Баланс, арт и Telegram — не сейчас.
 
 ## Правила для агента
