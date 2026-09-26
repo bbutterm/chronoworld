@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "createdAt": 1700000000000,
+  "heroes": [
+    { "id": "h1", "name": "Алан", "job": "swordman", "jobLevel": 3, "jobExp": 40, "jobHistory": [{ "job": "novice", "jobLevel": 10 }] },
+    { "id": "h2", "name": "Бэлла", "job": "novice", "jobLevel": 8, "jobExp": 0, "jobHistory": [] },
+    { "id": "h3", "name": "Вик", "job": "novice", "jobLevel": 1, "jobExp": 5, "jobHistory": [] },
+    { "id": "h4", "name": "Грета", "job": "novice", "jobLevel": 1, "jobExp": 0, "jobHistory": [] },
+    { "id": "h5", "name": "Дорн", "job": "novice", "jobLevel": 1, "jobExp": 0, "jobHistory": [] }
+  ],
+  "squad": ["h1", "h2", "h3", null, "h5"],
+  "campaign": { "cleared": ["ch1_s1", "ch1_s2", "ch1_s3"] },
+  "resources": { "gold": 250 },
+  "offline": { "lastClaimAt": 1700003600000 },
+  "battleSeq": 12,
+  "daily": { "day": "2026-09-25", "fastRewardsUsed": 1, "quests": { "stage_win": 2 }, "claimedQuests": [], "activityClaimed": [] },
+  "currency": { "gems": 30 },
+  "tower": { "floor": 4 },
+  "inventory": { "items": [{ "id": "it1", "itemId": "knife", "equippedBy": "h1" }] }
+}

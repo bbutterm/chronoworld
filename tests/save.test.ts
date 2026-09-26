@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_DAY,
   deserialize,
+  emptyBounties,
   loadOrNew,
   MemoryStorage,
   MIGRATIONS,
@@ -21,11 +22,16 @@ import { LocalStorageAdapter, SAVE_KEY } from '../src/game/storage';
 const ctx = loadGameContext();
 const fixtureV0 = readFileSync(join(import.meta.dirname, 'fixtures/save-v0.json'), 'utf8');
 const fixtureV1 = readFileSync(join(import.meta.dirname, 'fixtures/save-v1.json'), 'utf8');
+const fixtureV2 = readFileSync(join(import.meta.dirname, 'fixtures/save-v2.json'), 'utf8');
 const V2_DEFAULTS = {
   daily: { day: DEFAULT_DAY, fastRewardsUsed: 0, quests: {}, claimedQuests: [], activityClaimed: [] },
   currency: { gems: 0 },
   tower: { floor: 0 },
   inventory: { items: [] },
+};
+const V3_DEFAULTS = {
+  presets: [],
+  bounties: { board: [], lastRefreshDay: DEFAULT_DAY, refreshesUsed: 0, active: [] },
 };
 
 function played() {
@@ -40,6 +46,16 @@ function played() {
   s.currency.gems = 15;
   s.tower.floor = 4;
   s.inventory.items = [{ id: 'i1', itemId: 'sword_common', equippedBy: 'h1' }];
+  s.presets = [{ id: 'p1', name: 'Штурм', squad: ['h1', null, null, null, null] }];
+  s.bounties = {
+    board: [{ id: 'b_2026-09-26_0_1', templateId: 'patrol', rarity: 'common', durationMinutes: 30, heroCount: 1, role: null, rewards: { gold: 1, jobExp: 2, gems: 0 } }],
+    lastRefreshDay: '2026-09-26',
+    refreshesUsed: 1,
+    active: [
+      { id: 'b_2026-09-26_0_2', templateId: 'escort', rarity: 'common', durationMinutes: 60, heroCount: 1, role: 'tank', rewards: { gold: 5, jobExp: 0, gems: 1 }, heroIds: ['h1'], startedAt: 10, endsAt: 3_600_010 },
+    ],
+  };
+  s.achievements = { counters: { battles_won: 3, stages_cleared: 2 }, claimed: ['first_stage'] };
   return s;
 }
 
@@ -61,6 +77,8 @@ describe('сохранение', () => {
     expect(newGame(ctx, 123)).toEqual(s);
     expect(s.heroes).toHaveLength(ctx.progression.heroes.count);
     expect(s).toMatchObject(V2_DEFAULTS);
+    expect(s).toMatchObject({ ...V3_DEFAULTS, achievements: { counters: {}, claimed: [] } });
+    expect(s.bounties).toEqual(emptyBounties());
   });
 
   it('newGame с днём: суточные счётчики на этот день', () => {
@@ -143,17 +161,60 @@ describe('сохранение', () => {
     expect(s).not.toHaveProperty('gold');
     expect(s).not.toHaveProperty('lastOfflineAt');
     expect(s).toMatchObject(V2_DEFAULTS);
+    expect(s).toMatchObject(V3_DEFAULTS);
+    expect(s.achievements).toEqual({ counters: { stages_cleared: 2, hero_max_job_level: 10 }, claimed: [] });
     // После миграции сохраняется уже в текущем формате.
     expect(deserialize(serialize(s))).toEqual(s);
   });
 
-  it('миграция: сохранение версии 1 (фикстура) поднимается до 2 с полями по умолчанию', () => {
+  it('миграция: сохранение версии 1 (фикстура) поднимается до текущей с полями по умолчанию', () => {
     const raw = JSON.parse(fixtureV1);
     expect(raw.version).toBe(1);
     const s = deserialize(fixtureV1);
-    expect(s.version).toBe(2);
-    expect(s).toEqual({ ...raw, version: 2, ...V2_DEFAULTS });
+    expect(s.version).toBe(3);
+    expect(s).toEqual({
+      ...raw,
+      version: 3,
+      ...V2_DEFAULTS,
+      ...V3_DEFAULTS,
+      // Максимумы из самого сохранения: 2 пройденных этапа, лучший джоб-уровень 10 (h2 и история h1).
+      achievements: { counters: { stages_cleared: 2, hero_max_job_level: 10 }, claimed: [] },
+    });
     expect(deserialize(serialize(s))).toEqual(s);
+  });
+
+  it('миграция: сохранение версии 2 (фикстура) поднимается до 3, поля v2 не меняются', () => {
+    const raw = JSON.parse(fixtureV2);
+    expect(raw.version).toBe(2);
+    const s = deserialize(fixtureV2);
+    expect(s).toEqual({
+      ...raw,
+      version: 3,
+      ...V3_DEFAULTS,
+      achievements: { counters: { stages_cleared: 3, tower_floor: 4, hero_max_job_level: 10 }, claimed: [] },
+    });
+    expect(deserialize(serialize(s))).toEqual(s);
+  });
+
+  it('миграция 2 → 3 не меняет исходный объект и не затирает уже существующие поля', () => {
+    const raw = JSON.parse(fixtureV2);
+    const copy = structuredClone(raw);
+    const presets = [{ id: 'p1', name: 'x', squad: [null, null, null, null, null] }];
+    const out = MIGRATIONS[2]({ ...raw, presets });
+    expect(raw).toEqual(copy);
+    expect(out.presets).toBe(presets);
+    expect(out.bounties).toEqual(emptyBounties());
+    // Битые поля старого сохранения не роняют миграцию — счётчики просто не выводятся.
+    expect(MIGRATIONS[2]({ version: 2, heroes: 'x', tower: null }).achievements).toEqual({ counters: {}, claimed: [] });
+  });
+
+  it('v3: битая доска поручений → SaveError с путём', () => {
+    const bad = JSON.parse(serialize(played()));
+    bad.bounties.active[0].heroIds = [];
+    expectSaveError(JSON.stringify(bad), /bounties\.active\.0\.heroIds/);
+    const bad2 = JSON.parse(serialize(played()));
+    bad2.presets[0].squad = ['h1'];
+    expectSaveError(JSON.stringify(bad2), /presets\.0\.squad/);
   });
 
   it('миграция 1 → 2 не меняет исходный объект и не затирает уже существующие поля', () => {
