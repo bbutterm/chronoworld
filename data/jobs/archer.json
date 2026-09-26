@@ -1,0 +1,52 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "archer",
+  "name": "Лучник",
+  "description": "Стрелок дальнего боя. Дальше — Охотник или Бард.",
+  "tier": 1,
+  "from": [
+    "novice"
+  ],
+  "maxJobLevel": 50,
+  "role": "damage",
+  "baseStats": {
+    "hp": 900,
+    "atk": 95,
+    "def": 15,
+    "spd": 105
+  },
+  "growth": {
+    "hp": 40,
+    "atk": 5,
+    "def": 1,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_archer_double_strafe"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_archer_owls_eye"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_archer_arrow_shower"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_archer_vultures_eye"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_archer_charge_arrow"
+    }
+  ],
+  "visual": {
+    "sprite": "archer",
+    "hitFx": "fx_hit",
+    "projectile": "fx_arrow"
+  }
+}

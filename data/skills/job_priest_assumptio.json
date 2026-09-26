@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_priest_assumptio",
+  "name": "Ассумптио",
+  "description": "Лечит всех союзников и даёт +25% защиты на 3 хода.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.5
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "assumptio",
+        "name": "Ассумптио",
+        "turns": 3,
+        "stats": {
+          "def": 0.25
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_blacksmith_adrenaline_rush",
+  "name": "Выброс адреналина",
+  "description": "В начале боя: +15% скорости всем союзникам на 3 хода.",
+  "range": "ranged",
+  "trigger": "battleStart",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "adrenaline_rush",
+        "name": "Выброс адреналина",
+        "turns": 3,
+        "stats": {
+          "spd": 0.15
+        }
+      }
+    }
+  ]
+}

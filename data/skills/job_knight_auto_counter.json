@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_knight_auto_counter",
+  "name": "Контратака",
+  "description": "Когда по рыцарю попали: шанс 30% ударить в ответ.",
+  "range": "ranged",
+  "trigger": "hit",
+  "chance": 0.3,
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_merchant_pushcart",
+  "name": "Тележка",
+  "description": "В начале боя: щит 15% HP себе.",
+  "range": "ranged",
+  "trigger": "battleStart",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.15
+    }
+  ]
+}

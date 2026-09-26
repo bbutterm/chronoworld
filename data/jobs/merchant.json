@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "merchant",
+  "name": "Торговец",
+  "description": "Бьёт золотом и тележкой. Дальше — Кузнец или Алхимик.",
+  "tier": 1,
+  "from": [
+    "novice"
+  ],
+  "maxJobLevel": 50,
+  "role": "support",
+  "baseStats": {
+    "hp": 1050,
+    "atk": 85,
+    "def": 25,
+    "spd": 95
+  },
+  "growth": {
+    "hp": 50,
+    "atk": 4,
+    "def": 1.5,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_merchant_mammonite"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_merchant_pushcart"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_merchant_cart_revolution"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_merchant_crazy_uproar"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_merchant_overcharge"
+    }
+  ],
+  "visual": {
+    "sprite": "merchant",
+    "hitFx": "fx_hit"
+  }
+}

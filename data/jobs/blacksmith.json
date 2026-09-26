@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "blacksmith",
+  "name": "Кузнец",
+  "description": "Вторая профессия Торговца: молот и оружие.",
+  "tier": 2,
+  "from": [
+    "merchant"
+  ],
+  "maxJobLevel": 50,
+  "role": "damage",
+  "baseStats": {
+    "hp": 2650,
+    "atk": 220,
+    "def": 75,
+    "spd": 95
+  },
+  "growth": {
+    "hp": 65,
+    "atk": 6,
+    "def": 2,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_blacksmith_hammer_fall"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_blacksmith_adrenaline_rush"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_blacksmith_power_thrust"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_blacksmith_tempering"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_blacksmith_cart_termination"
+    }
+  ],
+  "visual": {
+    "sprite": "blacksmith",
+    "hitFx": "fx_hit"
+  }
+}

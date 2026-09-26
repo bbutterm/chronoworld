@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "thief",
+  "name": "Вор",
+  "description": "Быстрый боец с ядом. Дальше — Ассасин или Разбойник.",
+  "tier": 1,
+  "from": [
+    "novice"
+  ],
+  "maxJobLevel": 50,
+  "role": "damage",
+  "baseStats": {
+    "hp": 950,
+    "atk": 90,
+    "def": 18,
+    "spd": 115
+  },
+  "growth": {
+    "hp": 40,
+    "atk": 5,
+    "def": 1,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_thief_envenom"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_thief_improve_dodge"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_thief_steal"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_thief_double_attack"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_thief_sand_attack"
+    }
+  ],
+  "visual": {
+    "sprite": "assassin",
+    "hitFx": "fx_hit"
+  }
+}

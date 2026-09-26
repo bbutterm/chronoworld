@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_crusader_faith",
+  "name": "Праведный гнев",
+  "description": "Когда погибает союзник: +20% атаки и защиты себе на 3 хода.",
+  "range": "ranged",
+  "trigger": "allyDeath",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "faith",
+        "name": "Праведный гнев",
+        "turns": 3,
+        "stats": {
+          "atk": 0.2,
+          "def": 0.2
+        }
+      }
+    }
+  ]
+}

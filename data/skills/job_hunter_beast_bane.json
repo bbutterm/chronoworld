@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_hunter_beast_bane",
+  "name": "Гроза зверей",
+  "description": "В начале боя: +15% атаки себе на 5 ходов.",
+  "range": "ranged",
+  "trigger": "battleStart",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "beast_bane",
+        "name": "Гроза зверей",
+        "turns": 5,
+        "stats": {
+          "atk": 0.15
+        }
+      }
+    }
+  ]
+}

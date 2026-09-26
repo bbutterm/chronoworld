@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "rogue",
+  "name": "Разбойник",
+  "description": "Вторая профессия Вора: грабёж и разоружение.",
+  "tier": 2,
+  "from": [
+    "thief"
+  ],
+  "maxJobLevel": 50,
+  "role": "damage",
+  "baseStats": {
+    "hp": 2250,
+    "atk": 240,
+    "def": 50,
+    "spd": 115
+  },
+  "growth": {
+    "hp": 55,
+    "atk": 7,
+    "def": 1.5,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_rogue_back_stab"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_rogue_snatcher"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_rogue_raid"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_rogue_gank"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_rogue_strip_weapon"
+    }
+  ],
+  "visual": {
+    "sprite": "rogue",
+    "hitFx": "fx_hit"
+  }
+}

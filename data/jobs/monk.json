@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "monk",
+  "name": "Монах",
+  "description": "Вторая профессия Аколита: боевые искусства и Удар Асуры.",
+  "tier": 2,
+  "from": [
+    "acolyte"
+  ],
+  "maxJobLevel": 50,
+  "role": "damage",
+  "baseStats": {
+    "hp": 2500,
+    "atk": 230,
+    "def": 60,
+    "spd": 110
+  },
+  "growth": {
+    "hp": 55,
+    "atk": 7,
+    "def": 1.5,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_monk_triple_attack"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_monk_iron_hand"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_monk_investigate"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_monk_call_spirits"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_monk_asura_strike"
+    }
+  ],
+  "visual": {
+    "sprite": "monk",
+    "hitFx": "fx_hit"
+  }
+}

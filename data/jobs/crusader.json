@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "crusader",
+  "name": "Крестоносец",
+  "description": "Вторая профессия Мечника: святой щит отряда.",
+  "tier": 2,
+  "from": [
+    "swordman"
+  ],
+  "maxJobLevel": 50,
+  "role": "tank",
+  "baseStats": {
+    "hp": 3100,
+    "atk": 200,
+    "def": 110,
+    "spd": 95
+  },
+  "growth": {
+    "hp": 75,
+    "atk": 5,
+    "def": 3,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_crusader_holy_cross"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_crusader_auto_guard"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_crusader_devotion"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_crusader_faith"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_crusader_grand_cross"
+    }
+  ],
+  "visual": {
+    "sprite": "guard",
+    "hitFx": "fx_hit"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_bard_frost_joker",
+  "name": "Морозная шутка",
+  "description": "Урон всем врагам, шанс 25% заморозить.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.6
+    },
+    {
+      "type": "status",
+      "chance": 0.25,
+      "status": {
+        "id": "stun",
+        "name": "Заморозка",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

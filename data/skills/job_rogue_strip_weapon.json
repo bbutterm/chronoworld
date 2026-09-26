@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_rogue_strip_weapon",
+  "name": "Разоружение",
+  "description": "Удар и −40% атаки цели на 3 хода.",
+  "icon": "icon_ult_assassin",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.5
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "strip_weapon",
+        "name": "Разоружение",
+        "turns": 3,
+        "stats": {
+          "atk": -0.4
+        }
+      }
+    }
+  ]
+}

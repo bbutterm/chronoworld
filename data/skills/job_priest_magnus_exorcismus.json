@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_priest_magnus_exorcismus",
+  "name": "Магнус экзорцизмус",
+  "description": "Святой урон всем врагам.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.3
+    }
+  ]
+}

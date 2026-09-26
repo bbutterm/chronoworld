@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_alchemist_potion_pitcher",
+  "name": "Метание зелья",
+  "description": "Иногда в начале хода: лечит самого раненого союзника.",
+  "range": "ranged",
+  "trigger": "turnStart",
+  "chance": 0.3,
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true,
+    "onlyWounded": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1
+    }
+  ]
+}
