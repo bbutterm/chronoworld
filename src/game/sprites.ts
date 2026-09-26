@@ -44,17 +44,51 @@ export function setupSprites(scene: Phaser.Scene, ids: string[], labels: Record<
     const pk = portraitKey(id);
     if (scene.textures.exists(pk)) scene.textures.get(pk).setFilter(Phaser.Textures.FilterMode.NEAREST);
     else if (s && scene.textures.exists(key)) {
-      // Портрета нет — берём кадр стойки.
+      // Портрета нет — берём кадр стойки, обрезанный по фигуре (в клетке листа много пустоты).
       const idle = s.anims.idle;
       const frame = scene.textures.getFrame(key, (idle?.row ?? 0) * s.columns);
-      const c = scene.textures.createCanvas(pk, s.cell[0], s.cell[1]);
-      if (c && frame) {
-        c.drawFrame(key, frame.name);
-        c.refresh();
-        c.setFilter(Phaser.Textures.FilterMode.NEAREST);
-      }
+      if (frame) portraitFromFrame(scene, pk, key, frame);
     } else placeholder(scene, pk, 128, 128, labels[id] ?? id, false);
   }
+}
+
+/** Портрет из кадра: квадрат вокруг непрозрачных пикселей (один раз при загрузке). */
+function portraitFromFrame(scene: Phaser.Scene, pk: string, key: string, frame: Phaser.Textures.Frame): void {
+  const w = frame.cutWidth;
+  const h = frame.cutHeight;
+  const tmp = scene.textures.createCanvas(`${pk}__tmp`, w, h);
+  if (!tmp) return;
+  tmp.drawFrame(key, frame.name);
+  const data = tmp.getContext().getImageData(0, 0, w, h).data;
+  let x0 = w;
+  let y0 = h;
+  let x1 = -1;
+  let y1 = -1;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (data[(y * w + x) * 4 + 3] < 16) continue;
+      if (x < x0) x0 = x;
+      if (x > x1) x1 = x;
+      if (y < y0) y0 = y;
+      if (y > y1) y1 = y;
+    }
+  }
+  if (x1 < 0) {
+    x0 = 0;
+    y0 = 0;
+    x1 = w - 1;
+    y1 = h - 1;
+  }
+  const side = Math.ceil(Math.max(x1 - x0 + 1, y1 - y0 + 1) * 1.08);
+  const cx = (x0 + x1 + 1) / 2;
+  const cy = (y0 + y1 + 1) / 2;
+  const c = scene.textures.createCanvas(pk, side, side);
+  if (c) {
+    c.getContext().drawImage(tmp.getSourceImage() as HTMLCanvasElement, Math.round(cx - side / 2), Math.round(cy - side / 2), side, side, 0, 0, side, side);
+    c.refresh();
+    c.setFilter(Phaser.Textures.FilterMode.NEAREST);
+  }
+  scene.textures.remove(tmp);
 }
 
 function placeholder(scene: Phaser.Scene, key: string, w: number, h: number, label: string, body: boolean): void {

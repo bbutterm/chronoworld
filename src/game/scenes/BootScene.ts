@@ -3,7 +3,13 @@ import { buildPlaceholders, queueAssets, setupLoadedAssets } from '../assets';
 import { CONTENT } from '../content';
 import { queueSprites, setupSprites } from '../sprites';
 
-const units = () => Object.values(CONTENT.units);
+/** Все спрайты игры: профессии героев игрока и юниты (герои теста, монстры, боссы). id спрайта → подпись плейсхолдера. */
+function spriteLabels(): Record<string, string> {
+  const labels: Record<string, string> = {};
+  for (const j of Object.values(CONTENT.jobs)) labels[j.visual.sprite] ??= j.name;
+  for (const u of Object.values(CONTENT.units)) labels[u.visual.sprite] ??= u.name;
+  return labels;
+}
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -14,17 +20,14 @@ export class BootScene extends Phaser.Scene {
     // Файл не найден — не страшно, будет плейсхолдер.
     this.load.on('loaderror', (file: Phaser.Loader.File) => console.warn(`Ассет ${file.key} не загрузился, рисую плейсхолдер`));
     queueAssets(this);
-    queueSprites(this, units().map((u) => u.visual.sprite));
+    queueSprites(this, Object.keys(spriteLabels()));
   }
 
   create(): void {
     setupLoadedAssets(this);
     buildPlaceholders(this);
-    setupSprites(
-      this,
-      units().map((u) => u.visual.sprite),
-      Object.fromEntries(units().map((u) => [u.visual.sprite, u.name])),
-    );
-    this.scene.start('Prep');
+    const labels = spriteLabels();
+    setupSprites(this, Object.keys(labels), labels);
+    this.scene.start('Home');
   }
 }
