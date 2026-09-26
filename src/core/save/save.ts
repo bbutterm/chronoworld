@@ -1,12 +1,14 @@
 import { z } from 'zod';
 import type { GameContext } from '../progression/types';
-import { SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
+import { DEFAULT_DAY, emptyDaily, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
 
 /**
  * Новая игра: progression.heroes.count героев стартовой профессии, джоб 1,
  * отряд — первые 5 героев по слотам, кампания не начата. Время — параметром (ядро не читает часы).
+ * day — текущий день игрока 'YYYY-MM-DD' для суточных счётчиков (по умолчанию DEFAULT_DAY;
+ * при первом действии с новым днём счётчики всё равно сбросятся через rollDay).
  */
-export function newGame(ctx: GameContext, now: number): SaveState {
+export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY): SaveState {
   const h = ctx.progression.heroes;
   const heroes = Array.from({ length: h.count }, (_, i) => ({
     id: `h${i + 1}`,
@@ -26,6 +28,10 @@ export function newGame(ctx: GameContext, now: number): SaveState {
     resources: { gold: ctx.progression.newGame.gold },
     offline: { lastClaimAt: now },
     battleSeq: 0,
+    daily: emptyDaily(day),
+    currency: { gems: 0 },
+    tower: { floor: 0 },
+    inventory: { items: [] },
   };
 }
 
@@ -55,6 +61,19 @@ export const MIGRATIONS: Record<number, (old: any) => any> = {
       battleSeq: 0,
     };
   },
+  /**
+   * Версия 1 → 2 (K1/K5 + резерв K4/K6): добавлены daily (суточные счётчики на DEFAULT_DAY — сбросятся
+   * при первом действии), currency.gems = 0, tower.floor = 0, inventory.items = [].
+   * Уже существующие поля (например, из более поздней ветки) не перезаписываются.
+   */
+  1: (old) => ({
+    ...old,
+    version: 2,
+    daily: old.daily ?? emptyDaily(DEFAULT_DAY),
+    currency: old.currency ?? { gems: 0 },
+    tower: old.tower ?? { floor: 0 },
+    inventory: old.inventory ?? { items: [] },
+  }),
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -129,19 +148,19 @@ export interface LoadResult {
  * Загрузить игру из хранилища или начать новую. Никогда не бросает: битое сохранение → новая игра + ошибка
  * (source = reset). В хранилище ничего не пишет — битые данные остаются, пока вызывающий не сделает persist().
  */
-export function loadOrNew(storage: SaveStorage, ctx: GameContext, now: number): LoadResult {
+export function loadOrNew(storage: SaveStorage, ctx: GameContext, now: number, day: string = DEFAULT_DAY): LoadResult {
   let text: string | null;
   try {
     text = storage.load();
   } catch (e) {
-    return { save: newGame(ctx, now), source: 'reset', error: new SaveError(`Не удалось прочитать сохранение: ${e instanceof Error ? e.message : String(e)}.`) };
+    return { save: newGame(ctx, now, day), source: 'reset', error: new SaveError(`Не удалось прочитать сохранение: ${e instanceof Error ? e.message : String(e)}.`) };
   }
-  if (text === null) return { save: newGame(ctx, now), source: 'new' };
+  if (text === null) return { save: newGame(ctx, now, day), source: 'new' };
   try {
     return { save: deserialize(text), source: 'loaded' };
   } catch (e) {
     const error = e instanceof SaveError ? e : new SaveError(`Сохранение не читается: ${e instanceof Error ? e.message : String(e)}.`);
-    return { save: newGame(ctx, now), source: 'reset', error };
+    return { save: newGame(ctx, now, day), source: 'reset', error };
   }
 }
 

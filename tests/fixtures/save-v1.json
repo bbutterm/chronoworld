@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "createdAt": 1700000000000,
+  "heroes": [
+    { "id": "h1", "name": "Алан", "job": "swordman", "jobLevel": 3, "jobExp": 40, "jobHistory": [{ "job": "novice", "jobLevel": 10 }] },
+    { "id": "h2", "name": "Бэлла", "job": "novice", "jobLevel": 10, "jobExp": 0, "jobHistory": [] },
+    { "id": "h3", "name": "Вик", "job": "novice", "jobLevel": 1, "jobExp": 5, "jobHistory": [] },
+    { "id": "h4", "name": "Грета", "job": "novice", "jobLevel": 1, "jobExp": 0, "jobHistory": [] },
+    { "id": "h5", "name": "Дорн", "job": "novice", "jobLevel": 1, "jobExp": 0, "jobHistory": [] }
+  ],
+  "squad": ["h1", "h2", "h3", null, "h5"],
+  "campaign": { "cleared": ["ch1_s1", "ch1_s2"] },
+  "resources": { "gold": 250 },
+  "offline": { "lastClaimAt": 1700003600000 },
+  "battleSeq": 12
+}
