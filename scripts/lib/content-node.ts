@@ -38,3 +38,6 @@ export function loadGameContext(): GameContext {
     combat: COMBAT,
   };
 }
+
+/** Файлы предметов экипировки (для withEquipment / buildEquipment). */
+export const loadEquipmentFiles = () => readJsonDir('data/items');

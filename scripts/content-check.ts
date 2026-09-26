@@ -9,10 +9,10 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ContentError, parseFeaturesConfig, simulateBattle, type Content } from '../src/core';
+import { buildEquipment, ContentError, parseFeaturesConfig, simulateBattle, type Content } from '../src/core';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
-import { loadContent, ROOT } from './lib/content-node';
+import { loadContent, loadGameContext, readJsonDir, ROOT } from './lib/content-node';
 import { pngSize } from './lib/png';
 import { generateSchemas } from './lib/schemas';
 
@@ -101,6 +101,15 @@ try {
   parseFeaturesConfig(readJson('data/progression.json'), readJson('data/quests.json'));
 } catch (e) {
   errors.push(`data/progression.json / data/quests.json: ${e instanceof Error ? e.message : String(e)}`);
+}
+
+// Экипировка: предметы и таблицы выпадения
+if (content) {
+  try {
+    buildEquipment(readJsonDir('data/items'), readJson('data/drops.json'), loadGameContext());
+  } catch (e) {
+    errors.push(`data/items / data/drops.json: ${e instanceof Error ? e.message : String(e)}`);
+  }
 }
 
 // 4. JSON-схемы

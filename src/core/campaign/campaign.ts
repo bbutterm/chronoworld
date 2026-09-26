@@ -6,6 +6,7 @@ import { addJobExp } from '../progression/exp';
 import { buildUnit } from '../progression/stats';
 import { GameRuleError, type GameContext, type ProgressEvent } from '../progression/types';
 import type { StageInfo } from './schema';
+import { withGear } from '../equipment/equipment';
 
 export type StageStatus = 'locked' | 'open' | 'cleared';
 
@@ -72,6 +73,8 @@ export interface StageOutcome {
  * - поражение: только battleSeq.
  */
 export function playStage(save: SaveState, stageId: string, seed: number, ctx: GameContext): StageOutcome {
+  // Экипировка героев из сохранения (если в контексте есть предметы).
+  ctx = withGear(ctx, save);
   const stage = getStage(ctx, stageId);
   if (stageStatus(save, stageId, ctx) === 'locked') throw new GameRuleError('stage_locked', `Этап ${stage.name} ещё закрыт`);
 
