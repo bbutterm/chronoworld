@@ -2,7 +2,8 @@ import Phaser from 'phaser';
 import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { session, takeWarnings } from './session';
 import { formatNumber } from './flow';
-import { button, icon, panel, text, toast } from './ui';
+import { button, ellipsize, icon, panel, text, toast } from './ui';
+import { C, FS, TINT } from './theme';
 
 export type NavTab = 'Campaign' | 'Heroes' | 'Home';
 
@@ -21,17 +22,21 @@ export const CONTENT_BOTTOM = GAME_H - NAV_H - 20;
 /**
  * Общий каркас экрана: фон, шапка с названием и золотом, нижняя навигация (если active задан)
  * и накопившиеся предупреждения о сохранении.
+ * back — кнопка «‹ Назад» в шапке: всегда ведёт на логического родителя экрана (карточка героя → список героев,
+ * этап → его глава кампании и т. д.), а не «куда-то на главную».
  */
 export function screen(scene: Phaser.Scene, title: string, active: NavTab | null, back?: { label?: string; to: string; data?: object }): void {
   scene.add.image(GAME_W / 2, GAME_H / 2, 'bg_arena').setDisplaySize(GAME_W, GAME_H).setAlpha(0.45);
   scene.add.rectangle(GAME_W / 2, HEADER_H / 2, GAME_W, HEADER_H, 0x1d140c, 0.92);
   scene.add.rectangle(GAME_W / 2, HEADER_H, GAME_W, 6, 0xc8a060);
-  text(scene, back ? GAME_W / 2 + 40 : 60, HEADER_H / 2, title, 52, '#ffe9a8', {
+  const t = text(scene, back ? GAME_W / 2 + 40 : 60, HEADER_H / 2, title, FS.h1, C.title, {
     fontStyle: 'bold',
-    stroke: '#3a2412',
+    stroke: C.titleStroke,
     strokeThickness: 8,
   }).setOrigin(back ? 0.5 : 0, 0.5);
-  if (back) button(scene, 110, HEADER_H / 2, 180, 100, 'k:buttonLong_beige', back.label ?? '‹ Назад', () => scene.scene.start(back.to, back.data), 34);
+  // Длинное название не должно наезжать на «Назад» и валюту справа.
+  ellipsize(t, back ? 520 : 680);
+  if (back) button(scene, 110, HEADER_H / 2, 180, 100, 'k:buttonLong_beige', back.label ?? '‹ Назад', () => scene.scene.start(back.to, back.data), FS.h3);
   currencyLabels(scene);
 
   if (active) {
@@ -42,23 +47,23 @@ export function screen(scene: Phaser.Scene, title: string, active: NavTab | null
       const on = t.scene === active;
       button(scene, w * (i + 0.5), GAME_H - NAV_H / 2 + 4, w - 30, NAV_H - 40, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label, () => {
         if (!on) scene.scene.start(t.scene);
-      }, 42);
+      }, FS.h2);
     });
   }
-  for (const w of takeWarnings()) toast(scene, w, '#ffb4a0', 6000);
+  for (const w of takeWarnings()) toast(scene, w, C.error, 6000);
 }
 
 /** Золото и гемы в правом углу шапки — друг под другом, чтобы не наезжать на заголовок. */
 function currencyLabels(scene: Phaser.Scene): void {
   const x = GAME_W - 50;
   const row = (y: number, value: number, color: string, tint: number, gem: boolean) => {
-    const t = text(scene, x, y, formatNumber(value), 40, color, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setOrigin(1, 0.5);
+    const t = text(scene, x, y, formatNumber(value), FS.h2, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(1, 0.5);
     const ix = x - t.width - 30;
     if (gem) gemIcon(scene, ix, y, 38);
     else icon(scene, ix, y, 'iconCircle_beige', 40).setTint(tint);
   };
-  row(HEADER_H / 2 - 30, session.save.resources.gold, '#ffd84a', 0xffc83a, false);
-  row(HEADER_H / 2 + 32, session.save.currency.gems, '#9fe8ff', 0x6fd8ff, true);
+  row(HEADER_H / 2 - 30, session.save.resources.gold, C.gold, 0xffc83a, false);
+  row(HEADER_H / 2 + 32, session.save.currency.gems, C.gem, 0x6fd8ff, true);
 }
 
 /** Гем — ромб (своей иконки в атласе нет). */
@@ -70,8 +75,8 @@ export function gemIcon(scene: Phaser.Scene, x: number, y: number, size: number)
 /** Красный кружок с числом (непрочитанные награды). count ≤ 0 — ничего. */
 export function badge(scene: Phaser.Scene, x: number, y: number, count: number): Phaser.GameObjects.Container | null {
   if (count <= 0) return null;
-  const c = scene.add.circle(0, 0, 28, 0xd63a2a).setStrokeStyle(4, 0xffffff);
-  const t = text(scene, 0, -1, String(count), 32, '#ffffff', { fontStyle: 'bold' });
+  const c = scene.add.circle(0, 0, 28, TINT.badge).setStrokeStyle(4, 0xffffff);
+  const t = text(scene, 0, -1, String(count), FS.body, C.text, { fontStyle: 'bold' });
   return scene.add.container(x, y, [c, t]).setDepth(50);
 }
 
@@ -85,7 +90,7 @@ export function confirm(scene: Phaser.Scene, question: string, yes: string, onYe
   const layer = scene.add.container(0, 0).setDepth(9000);
   const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
   const box = panel(scene, GAME_W / 2, GAME_H / 2, 900, 520, 'ui_panel');
-  const q = text(scene, GAME_W / 2, GAME_H / 2 - 90, question, 40, '#ffffff', { wordWrap: { width: 780 }, lineSpacing: 8 });
+  const q = text(scene, GAME_W / 2, GAME_H / 2 - 90, question, FS.h2, C.text, { wordWrap: { width: 780 }, lineSpacing: 8 });
   const close = () => layer.destroy();
   const ok = button(scene, GAME_W / 2 - 210, GAME_H / 2 + 150, 380, 120, 'ui_btn_primary', yes, () => {
     close();

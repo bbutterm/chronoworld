@@ -6,7 +6,8 @@ import { describeUnit } from '../describe';
 import { anim, portraitKey, spriteView } from '../sprites';
 import { ARENA_TOP, GAME_W, slotPos } from '../layout';
 import { squads } from '../state';
-import { button, panel, text } from '../ui';
+import { button, ellipsize, panel, pressable, text } from '../ui';
+import { C, FS, TOUCH } from '../theme';
 
 const SLOT_SIZE = 160;
 /** На экране подготовки поле чуть выше, чтобы под ним поместились кнопки. */
@@ -33,9 +34,9 @@ export class PrepScene extends Phaser.Scene {
   create(): void {
     this.slotViews = [];
     this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920);
-    button(this, 110, 60, 180, 90, 'k:buttonLong_beige', '‹ Назад', () => this.scene.start('Home'), 32);
-    text(this, GAME_W / 2 + 60, 60, 'Тестовый бой', 60, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
-    text(this, GAME_W / 2, 125, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать героя.', 28, '#c8cbd4', {
+    button(this, 110, 64, 180, TOUCH, 'k:buttonLong_beige', '‹ Назад', () => this.scene.start('Home'), FS.h3);
+    text(this, GAME_W / 2 + 60, 60, 'Тестовый бой', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 8 });
+    text(this, GAME_W / 2, 125, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать героя.', FS.small, C.dim, {
       wordWrap: { width: 1000 },
     });
 
@@ -43,15 +44,15 @@ export class PrepScene extends Phaser.Scene {
     this.buildPicker();
 
     panel(this, GAME_W / 2, 490, 1050, 160, 'ui_panel_light');
-    this.info = text(this, GAME_W / 2, 490, 'Нажмите на героя, чтобы увидеть его статы', 28, '#4a3520', {
+    this.info = text(this, GAME_W / 2, 490, 'Нажмите на героя, чтобы увидеть его статы', FS.small, C.ink, {
       lineSpacing: 8,
       wordWrap: { width: 1000 },
     });
 
-    text(this, 270, ARENA_TOP - 110, 'Ваш отряд', 40, '#9fe0a6', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
-    text(this, 810, ARENA_TOP - 110, 'Противник', 40, '#f0a0a0', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
+    text(this, 270, ARENA_TOP - 110, 'Ваш отряд', FS.h2, C.success, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
+    text(this, 810, ARENA_TOP - 110, 'Противник', FS.h2, C.enemy, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
     for (const [x, label] of [[150, 'тыл'], [390, 'фронт'], [690, 'фронт'], [930, 'тыл']] as const) {
-      text(this, x, ARENA_TOP - 55, label, 26, '#b8bcc8');
+      text(this, x, ARENA_TOP - 55, label, FS.caption, C.dim);
     }
 
     for (const side of ['A', 'B'] as Side[]) {
@@ -77,9 +78,8 @@ export class PrepScene extends Phaser.Scene {
       const x = 40 + step * (i + 0.5);
       panel(this, x, 262, 150, 150, 'ui_slot_filled');
       const u = CONTENT.units[id];
-      const img = this.add.image(x, 262, portraitKey(u.visual.sprite)).setDisplaySize(140, 140).setInteractive({ useHandCursor: true });
-      text(this, x, 362, u.name, 28, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
-      img.on('pointerdown', () => this.pickHero(id));
+      const img = pressable(this, this.add.image(x, 262, portraitKey(u.visual.sprite)).setDisplaySize(140, 140), 150, 150, () => this.pickHero(id));
+      ellipsize(text(this, x, 362, u.name, FS.small, C.text, { stroke: C.stroke, strokeThickness: 5 }), step - 10);
       img.on('pointerover', () => this.info.setText(describeUnit(u, CONTENT)));
     });
   }
@@ -89,10 +89,9 @@ export class PrepScene extends Phaser.Scene {
     const x = feet.x;
     const y = feet.y - SLOT_SIZE / 2 + 10;
     const bg = panel(this, x, y, SLOT_SIZE, SLOT_SIZE, 'ui_slot_empty');
-    bg.setInteractive({ useHandCursor: true });
     const hero = this.add.sprite(x, feet.y, '__DEFAULT');
-    const label = text(this, x, y + SLOT_SIZE / 2 + 18, '', 26, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
-    bg.on('pointerdown', () => this.onSlot(side, slot));
+    const label = text(this, x, y + SLOT_SIZE / 2 + 18, '', FS.caption, C.text, { stroke: C.stroke, strokeThickness: 5 });
+    pressable(this, bg, SLOT_SIZE, SLOT_SIZE, () => this.onSlot(side, slot));
     this.slotViews.push({ side, slot, bg, hero, label });
   }
 

@@ -5,7 +5,8 @@ import { currentStage } from '../flow';
 import { GAME_W } from '../layout';
 import { CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
 import { session } from '../session';
-import { button, icon, text, toast } from '../ui';
+import { button, ellipsize, icon, pressable, text, toast } from '../ui';
+import { C, FS, TOUCH } from '../theme';
 
 const NODE = 130;
 
@@ -22,13 +23,13 @@ export class CampaignScene extends Phaser.Scene {
     const chapter = chapters[ci];
     screen(this, 'Кампания', 'Campaign');
     if (!chapter) {
-      text(this, GAME_W / 2, 600, 'В data/campaign нет глав', 40);
+      text(this, GAME_W / 2, 600, 'В data/campaign нет глав', FS.h2);
       return;
     }
 
-    text(this, GAME_W / 2, CONTENT_TOP + 40, chapter.name, 44, '#ffe9a8', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
-    if (ci > 0) button(this, 70, CONTENT_TOP + 40, 100, 90, 'k:buttonSquare_beige', '‹', () => this.scene.restart({ chapter: ci - 1 }));
-    if (ci < chapters.length - 1) button(this, GAME_W - 70, CONTENT_TOP + 40, 100, 90, 'k:buttonSquare_beige', '›', () => this.scene.restart({ chapter: ci + 1 }));
+    text(this, GAME_W / 2, CONTENT_TOP + 40, chapter.name, FS.h2, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
+    if (ci > 0) button(this, 70, CONTENT_TOP + 40, TOUCH, TOUCH, 'k:buttonSquare_beige', '‹', () => this.scene.restart({ chapter: ci - 1 }), FS.hero);
+    if (ci < chapters.length - 1) button(this, GAME_W - 70, CONTENT_TOP + 40, TOUCH, TOUCH, 'k:buttonSquare_beige', '›', () => this.scene.restart({ chapter: ci + 1 }), FS.hero);
 
     const stages = CONTENT.stages.filter((s) => s.chapter === chapter.id);
     const top = CONTENT_TOP + 150;
@@ -52,8 +53,9 @@ export class CampaignScene extends Phaser.Scene {
         else this.scene.start('Stage', { stageId: s.id });
       };
       const node = button(this, x, y, size, size, frame, String(s.globalIndex + 1), open);
-      // Подпись тоже нажимается — большая цель для пальца.
-      this.add.zone(750, y, 580, Math.min(step, 130)).setInteractive({ useHandCursor: true }).on('pointerup', open);
+      // Подпись тоже нажимается — большая цель для пальца (с затемнением при нажатии, как у кнопок).
+      const zh = Math.max(TOUCH, Math.min(step, 130));
+      pressable(this, this.add.zone(750, y, 580, zh), 580, zh, open);
       if (s.boss) {
         this.add.circle(x, y, size * 0.72, 0xd64545, 0).setStrokeStyle(8, 0xd64545, st === 'locked' ? 0.4 : 1);
       }
@@ -67,11 +69,11 @@ export class CampaignScene extends Phaser.Scene {
         this.tweens.add({ targets: ring, scale: 1.12, alpha: 0.3, yoyo: true, repeat: -1, duration: 700 });
       }
       const lx = 470;
-      const color = st === 'locked' ? '#9a9aa0' : s.boss ? '#ff9a8a' : '#ffffff';
-      text(this, lx, y - 20, s.name, 40, color, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setOrigin(0, 0.5);
+      const color = st === 'locked' ? C.disabled : s.boss ? C.danger : C.text;
+      ellipsize(text(this, lx, y - 20, s.name, FS.h2, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), GAME_W - lx - 30);
       const status = st === 'cleared' ? 'пройден' : st === 'open' ? (s.boss ? 'БОСС · открыт' : 'открыт') : s.boss ? 'босс · закрыт' : 'закрыт';
-      text(this, lx, y + 24, status, 28, st === 'open' ? '#ffd84a' : st === 'cleared' ? '#9fe0a6' : '#b8bcc8', {
-        stroke: '#000000',
+      text(this, lx, y + 24, status, FS.small, st === 'open' ? C.gold : st === 'cleared' ? C.success : C.dim, {
+        stroke: C.stroke,
         strokeThickness: 4,
       }).setOrigin(0, 0.5);
     });

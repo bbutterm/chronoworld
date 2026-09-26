@@ -28,6 +28,8 @@ import {
   type TowerEvent,
 } from '../core';
 
+import { C } from './theme';
+
 export const ROLE_NAMES: Record<string, string> = { tank: 'Танк', damage: 'Урон', healer: 'Лекарь', support: 'Поддержка' };
 
 /** Локальная дата 'YYYY-MM-DD' (для ежедневных механик). */
@@ -118,7 +120,7 @@ export function powerTone(squad: number, enemy: number): PowerTone {
   return squad >= enemy * 0.8 ? 'close' : 'behind';
 }
 
-export const POWER_COLORS: Record<PowerTone, string> = { ahead: '#7dff8f', close: '#ffd84a', behind: '#ff7a6a' };
+export const POWER_COLORS: Record<PowerTone, string> = { ahead: C.positive, close: C.gold, behind: C.dangerStrong };
 
 /** Число с разбивкой по разрядам: 12345 → «12 345». */
 export function formatNumber(n: number): string {
@@ -132,21 +134,28 @@ export const RARITY_NAMES: Record<Rarity, string> = { common: 'Обычный', 
 export const RARITY_COLORS: Record<Rarity, string> = { common: '#e6e2d6', rare: '#6fb8ff', epic: '#d890ff' };
 export const RARITY_TINTS: Record<Rarity, number> = { common: 0x8a8f99, rare: 0x3d7fd6, epic: 0x9a4fd0 };
 
-const STAT_KEYS = ['hp', 'atk', 'def', 'spd'] as const;
-const STAT_LABELS: Record<(typeof STAT_KEYS)[number], string> = { hp: 'HP', atk: 'ATK', def: 'DEF', spd: 'SPD' };
+export const STAT_KEYS = ['hp', 'atk', 'def', 'spd'] as const;
+export type StatKey = (typeof STAT_KEYS)[number];
+/** Короткие подписи статов — одни на все экраны: ОЗ (очки здоровья), АТК, ЗАЩ, СКР (скорость). */
+export const STAT_LABELS: Record<StatKey, string> = { hp: 'ОЗ', atk: 'АТК', def: 'ЗАЩ', spd: 'СКР' };
 
-/** «+18 ATK · +3 SPD» (нулевые статы не пишем). */
+/** «ОЗ 450 · АТК 40 · ЗАЩ 12 · СКР 95» — все четыре стата (или только keys). */
+export function statsLine(stats: Partial<Record<StatKey, number>>, sep = ' · ', keys: readonly StatKey[] = STAT_KEYS): string {
+  return keys.map((k) => `${STAT_LABELS[k]} ${stats[k] ?? 0}`).join(sep);
+}
+
+/** «+18 АТК · +3 СКР» (нулевые статы не пишем). */
 export function itemStatsText(stats: ItemStats): string {
   const parts = STAT_KEYS.filter((k) => (stats[k] ?? 0) > 0).map((k) => `+${stats[k]} ${STAT_LABELS[k]}`);
   return parts.length ? parts.join(' · ') : 'без статов';
 }
 
-/** Разница статов при замене current на candidate (только ненулевые, по порядку HP ATK DEF SPD). */
+/** Разница статов при замене current на candidate (только ненулевые, по порядку ОЗ АТК ЗАЩ СКР). */
 export function statDiff(current: ItemStats | undefined, candidate: ItemStats): { stat: string; delta: number }[] {
   return STAT_KEYS.map((k) => ({ stat: STAT_LABELS[k], delta: (candidate[k] ?? 0) - (current?.[k] ?? 0) })).filter((d) => d.delta !== 0);
 }
 
-/** «+4 ATK  −2 SPD» или «без изменений». */
+/** «+4 АТК  −2 СКР» или «без изменений». */
 export function diffText(diff: { stat: string; delta: number }[]): string {
   if (!diff.length) return 'без изменений';
   return diff.map((d) => `${d.delta > 0 ? '+' : '−'}${Math.abs(d.delta)} ${d.stat}`).join('  ');

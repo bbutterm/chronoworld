@@ -13,8 +13,11 @@ import {
   powerTone,
   questDestination,
   statDiff,
+  statsLine,
+  STAT_LABELS,
   untilReset,
 } from '../src/game/flow';
+import { FS, TOUCH } from '../src/game/theme';
 import { loadEquipmentFiles, loadGameContext, ROOT } from '../scripts/lib/content-node';
 
 const json = (f: string) => JSON.parse(readFileSync(join(ROOT, f), 'utf8'));
@@ -43,16 +46,27 @@ describe('помощники экранов K1–K7', () => {
     expect(formatNumber(1234567.4)).toBe('1 234 567');
   });
 
+  it('P: короткие русские подписи статов одни на все экраны', () => {
+    expect(STAT_LABELS).toEqual({ hp: 'ОЗ', atk: 'АТК', def: 'ЗАЩ', spd: 'СКР' });
+    expect(statsLine({ hp: 450, atk: 40, def: 12, spd: 95 })).toBe('ОЗ 450 · АТК 40 · ЗАЩ 12 · СКР 95');
+    expect(statsLine({ hp: 450, atk: 40 }, '\n', ['hp', 'atk'])).toBe('ОЗ 450\nАТК 40');
+  });
+
+  it('P: токены темы — шрифт не меньше 26, цель нажатия не меньше 96', () => {
+    for (const size of Object.values(FS)) expect(size).toBeGreaterThanOrEqual(26);
+    expect(TOUCH).toBeGreaterThanOrEqual(96);
+  });
+
   it('itemStatsText / statDiff / diffText', () => {
-    expect(itemStatsText({ atk: 18, spd: 3 })).toBe('+18 ATK · +3 SPD');
+    expect(itemStatsText({ atk: 18, spd: 3 })).toBe('+18 АТК · +3 СКР');
     expect(itemStatsText({})).toBe('без статов');
     const d = statDiff({ atk: 18, spd: 3 }, { atk: 22, hp: 10 });
     expect(d).toEqual([
-      { stat: 'HP', delta: 10 },
-      { stat: 'ATK', delta: 4 },
-      { stat: 'SPD', delta: -3 },
+      { stat: 'ОЗ', delta: 10 },
+      { stat: 'АТК', delta: 4 },
+      { stat: 'СКР', delta: -3 },
     ]);
-    expect(diffText(d)).toBe('+10 HP  +4 ATK  −3 SPD');
+    expect(diffText(d)).toBe('+10 ОЗ  +4 АТК  −3 СКР');
     expect(diffText(statDiff(undefined, {}))).toBe('без изменений');
   });
 
