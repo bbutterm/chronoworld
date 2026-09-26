@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_mage_sp_recovery",
+  "name": "Восстановление SP",
+  "description": "В начале каждого хода: +10 энергии.",
+  "range": "ranged",
+  "trigger": "turnStart",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 10
+    }
+  ]
+}

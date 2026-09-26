@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_rogue_gank",
+  "name": "Грабёж",
+  "description": "После убийства врага: лечит себя.",
+  "range": "ranged",
+  "trigger": "kill",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1
+    }
+  ]
+}

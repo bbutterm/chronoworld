@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_mage_fire_bolt",
+  "name": "Огненная стрела",
+  "description": "Три огненные стрелы по случайным врагам.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random"
+  },
+  "hits": 3,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "priest",
+  "name": "Жрец",
+  "description": "Вторая профессия Аколита: лечение, щиты и изгнание нечисти.",
+  "tier": 2,
+  "from": [
+    "acolyte"
+  ],
+  "maxJobLevel": 50,
+  "role": "healer",
+  "baseStats": {
+    "hp": 2300,
+    "atk": 200,
+    "def": 55,
+    "spd": 100
+  },
+  "growth": {
+    "hp": 55,
+    "atk": 5,
+    "def": 1.5,
+    "spd": 0
+  },
+  "basic": "basic_heal",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_priest_magnificat"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_priest_kyrie_eleison"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_priest_impositio_manus"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_priest_magnus_exorcismus"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_priest_assumptio"
+    }
+  ],
+  "visual": {
+    "sprite": "priest",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

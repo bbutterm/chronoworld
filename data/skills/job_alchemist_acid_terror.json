@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_alchemist_acid_terror",
+  "name": "Кислотный террор",
+  "description": "Урон и −20% защиты цели на 3 хода.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.6
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "acid_terror",
+        "name": "Кислота",
+        "turns": 3,
+        "stats": {
+          "def": -0.2
+        }
+      }
+    }
+  ]
+}

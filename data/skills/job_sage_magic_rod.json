@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_sage_magic_rod",
+  "name": "Магический жезл",
+  "description": "Когда по мудрецу попали: шанс 30% получить +20 энергии.",
+  "range": "ranged",
+  "trigger": "hit",
+  "chance": 0.3,
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 20
+    }
+  ]
+}

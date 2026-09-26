@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_wizard_jupitel_thunder",
+  "name": "Гром Юпитера",
+  "description": "Удар молнии: урон и −20 энергии цели.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.6
+    },
+    {
+      "type": "energy",
+      "amount": -20
+    }
+  ]
+}

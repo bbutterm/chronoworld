@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_assassin_enchant_poison",
+  "name": "Отравленное оружие",
+  "description": "Иногда в начале хода: травит ближайшего врага на 3 хода.",
+  "range": "ranged",
+  "trigger": "turnStart",
+  "chance": 0.3,
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "poison",
+        "name": "Яд",
+        "turns": 3,
+        "dot": {
+          "k": 0.3
+        }
+      }
+    }
+  ]
+}

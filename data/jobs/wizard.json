@@ -1,0 +1,52 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "wizard",
+  "name": "Волшебник",
+  "description": "Вторая профессия Мага: разрушительная магия по площади.",
+  "tier": 2,
+  "from": [
+    "mage"
+  ],
+  "maxJobLevel": 50,
+  "role": "damage",
+  "baseStats": {
+    "hp": 1950,
+    "atk": 280,
+    "def": 40,
+    "spd": 100
+  },
+  "growth": {
+    "hp": 45,
+    "atk": 8,
+    "def": 1,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_wizard_jupitel_thunder"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_wizard_mystical_amplification"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_wizard_storm_gust"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_wizard_soul_drain"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_wizard_meteor_storm"
+    }
+  ],
+  "visual": {
+    "sprite": "mage",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

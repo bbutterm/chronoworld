@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_acolyte_heal",
+  "name": "Лечение",
+  "description": "Сильно лечит самого раненого союзника; если все целы — атакует.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true,
+    "onlyWounded": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 2.5
+    }
+  ],
+  "fallback": "basic_ranged"
+}

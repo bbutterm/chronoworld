@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "assassin",
+  "name": "Ассасин",
+  "description": "Вторая профессия Вора: катары, яд и удар из тени.",
+  "tier": 2,
+  "from": [
+    "thief"
+  ],
+  "maxJobLevel": 50,
+  "role": "damage",
+  "baseStats": {
+    "hp": 2150,
+    "atk": 260,
+    "def": 45,
+    "spd": 120
+  },
+  "growth": {
+    "hp": 50,
+    "atk": 8,
+    "def": 1.2,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_assassin_sonic_blow"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_assassin_katar_mastery"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_assassin_grimtooth"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_assassin_enchant_poison"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_assassin_venom_splasher"
+    }
+  ],
+  "visual": {
+    "sprite": "assassin",
+    "hitFx": "fx_hit"
+  }
+}

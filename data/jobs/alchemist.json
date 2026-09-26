@@ -1,0 +1,52 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "alchemist",
+  "name": "Алхимик",
+  "description": "Вторая профессия Торговца: зелья и кислота.",
+  "tier": 2,
+  "from": [
+    "merchant"
+  ],
+  "maxJobLevel": 50,
+  "role": "support",
+  "baseStats": {
+    "hp": 2450,
+    "atk": 200,
+    "def": 65,
+    "spd": 100
+  },
+  "growth": {
+    "hp": 60,
+    "atk": 6,
+    "def": 2,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_alchemist_acid_terror"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_alchemist_potion_pitcher"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_alchemist_demonstration"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_alchemist_chemical_protection"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_alchemist_acid_bomb"
+    }
+  ],
+  "visual": {
+    "sprite": "alchemist",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

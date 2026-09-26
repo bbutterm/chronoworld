@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_wizard_soul_drain",
+  "name": "Поглощение души",
+  "description": "После убийства врага: +40 энергии.",
+  "range": "ranged",
+  "trigger": "kill",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 40
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_archer_double_strafe",
+  "name": "Двойной выстрел",
+  "description": "Два выстрела по ближайшему врагу.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "hits": 2,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.1
+    }
+  ]
+}

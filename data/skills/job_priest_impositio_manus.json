@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_priest_impositio_manus",
+  "name": "Импозицио манус",
+  "description": "Иногда в начале хода: +15% атаки случайному союзнику на 2 хода.",
+  "range": "ranged",
+  "trigger": "turnStart",
+  "chance": 0.3,
+  "target": {
+    "side": "ally",
+    "pick": "random",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "impositio_manus",
+        "name": "Импозицио манус",
+        "turns": 2,
+        "stats": {
+          "atk": 0.15
+        }
+      }
+    }
+  ]
+}

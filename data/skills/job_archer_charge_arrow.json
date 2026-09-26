@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_archer_charge_arrow",
+  "name": "Отталкивающая стрела",
+  "description": "Мощный выстрел, отнимает у цели 30 энергии.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.5
+    },
+    {
+      "type": "energy",
+      "amount": -30
+    }
+  ]
+}

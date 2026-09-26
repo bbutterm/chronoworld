@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_sage_volcano",
+  "name": "Вулкан",
+  "description": "+25% атаки всем союзникам на 4 хода.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "volcano",
+        "name": "Вулкан",
+        "turns": 4,
+        "stats": {
+          "atk": 0.25
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_thief_double_attack",
+  "name": "Двойная атака",
+  "description": "Иногда в начале хода: дополнительный удар по ближайшему врагу.",
+  "range": "ranged",
+  "trigger": "turnStart",
+  "chance": 0.25,
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    }
+  ]
+}

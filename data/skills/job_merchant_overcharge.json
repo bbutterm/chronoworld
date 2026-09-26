@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_merchant_overcharge",
+  "name": "Наценка",
+  "description": "После убийства врага: +25 энергии.",
+  "range": "ranged",
+  "trigger": "kill",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 25
+    }
+  ]
+}

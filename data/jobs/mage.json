@@ -1,0 +1,52 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "mage",
+  "name": "Маг",
+  "description": "Стихийная магия с тыла. Дальше — Волшебник или Мудрец.",
+  "tier": 1,
+  "from": [
+    "novice"
+  ],
+  "maxJobLevel": 50,
+  "role": "damage",
+  "baseStats": {
+    "hp": 850,
+    "atk": 100,
+    "def": 12,
+    "spd": 100
+  },
+  "growth": {
+    "hp": 35,
+    "atk": 6,
+    "def": 1,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_mage_fire_bolt"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_mage_sp_recovery"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_mage_frost_diver"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_mage_energy_coat"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_mage_thunderstorm"
+    }
+  ],
+  "visual": {
+    "sprite": "mage",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "sage",
+  "name": "Мудрец",
+  "description": "Вторая профессия Мага: поддержка и ослабление врагов.",
+  "tier": 2,
+  "from": [
+    "mage"
+  ],
+  "maxJobLevel": 50,
+  "role": "support",
+  "baseStats": {
+    "hp": 2100,
+    "atk": 240,
+    "def": 45,
+    "spd": 105
+  },
+  "growth": {
+    "hp": 50,
+    "atk": 7,
+    "def": 1.2,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_sage_earth_spike"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_sage_free_cast"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_sage_dispell"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_sage_magic_rod"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_sage_volcano"
+    }
+  ],
+  "visual": {
+    "sprite": "sage",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

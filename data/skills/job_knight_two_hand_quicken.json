@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_knight_two_hand_quicken",
+  "name": "Двуручная спешка",
+  "description": "В начале боя: +25% скорости себе на 4 хода.",
+  "range": "ranged",
+  "trigger": "battleStart",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "two_hand_quicken",
+        "name": "Двуручная спешка",
+        "turns": 4,
+        "stats": {
+          "spd": 0.25
+        }
+      }
+    }
+  ]
+}

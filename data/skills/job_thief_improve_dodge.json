@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_thief_improve_dodge",
+  "name": "Уклонение",
+  "description": "Когда по вору попали: шанс 30% получить +20% защиты на 2 хода.",
+  "range": "ranged",
+  "trigger": "hit",
+  "chance": 0.3,
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "improve_dodge",
+        "name": "Уклонение",
+        "turns": 2,
+        "stats": {
+          "def": 0.2
+        }
+      }
+    }
+  ]
+}
