@@ -1,36 +1,36 @@
 import Phaser from 'phaser';
-import { actSkipStage, arrangeSquad, autoFormation, enemySquad, misplacedInFront, getStage, squadPower, stagePower, stageStatus } from '../../core';
+import { actSkipStage, autoFormation, enemySquad, getStage, stagePower, stageStatus } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { formatNumber, POWER_COLORS, powerTone, stageSeed, statsLine } from '../flow';
+import { formatNumber, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
-import { card, portrait, screen, unitTint } from '../screen';
+import { screen } from '../screen';
 import { commit, session, today } from '../session';
-import { portraitKey } from '../sprites';
-import { button, ellipsize, hintPointer, panel, text, toast } from '../ui';
+import { button, hintPointer, text, toast } from '../ui';
 import { HINT_TEXT, hintDone, markHint } from '../hints';
 import { startStageBattle } from '../dialogue';
 import { squadDefs, type ResultData } from './BattleScene';
-import { fitName, SLOT_W, slotX, SquadEditor } from '../squadEditor';
-import { C, FS, TOUCH } from '../theme';
-import { bump, countUp } from '../juice';
+import { FormationEditor } from '../squadEditor';
+import { C, FS } from '../theme';
+
+/** Геометрия экрана этапа (игровые единицы 1080×1920). */
+const L = {
+  titleY: 190,
+  rewardY: 240,
+  field: { top: 272, bottom: 1010 },
+  rosterHeadY: 1128,
+  roster: { top: 1180, bottom: 1704 },
+  fightY: GAME_H - 110,
+} as const;
 
 /**
- * Ряд «Авто» / «Пресеты отряда» (S): поднят так, чтобы между ним и «В бой» влезла плашка подсказки
- * (≈125 ед. над кнопкой боя) — она не закрывает эти кнопки.
+ * Подготовка к этапу в духе AFK Arena: сверху поле — ваш отряд слева (фронт ближе к врагу), противник справа,
+ * как они встанут в бою; снизу — все герои карточками (нажать — в отряд, перетащить — на место);
+ * «Авто», «Пресеты» и одна главная кнопка «В бой». Сюжет beforeStage — по «В бой».
  */
-const SQUAD_BTN_Y = 1540;
-
-/** Подготовка к этапу: враги, награда, ваш отряд (слот → герой), «В бой». */
 export class StageScene extends Phaser.Scene {
   private stageId!: string;
-  private editor!: SquadEditor;
+  private editor!: FormationEditor;
   private fightBtns: ReturnType<typeof button>[] = [];
-  private powerText!: Phaser.GameObjects.Text;
-  private enemyPower = 0;
-  /** Показанная мощь отряда (null — ещё не показана). */
-  private shownPower: number | null = null;
-  private tip!: Phaser.GameObjects.Text;
-  private rearrangeBtn!: ReturnType<typeof button>;
 
   constructor() {
     super('Stage');
@@ -38,104 +38,63 @@ export class StageScene extends Phaser.Scene {
 
   create(data: { stageId: string }): void {
     this.stageId = data.stageId;
-    this.shownPower = null;
     const stage = getStage(GAME, this.stageId);
     // «Назад» — в главу этого этапа, а не в текущую главу игрока.
     const chapter = Math.max(0, CONTENT.chapters.findIndex((c) => c.id === stage.chapter));
     screen(this, `Этап ${stage.globalIndex + 1}${stage.boss ? ' · БОСС' : ''}`, null, { to: 'Campaign', data: { chapter } });
 
-    // --- Противник ---
-    card(this, GAME_W / 2, 440, 1050, 480);
-    text(this, GAME_W / 2, 232, stage.name, FS.h2, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
-    text(this, GAME_W / 2, 284, 'Противник', FS.small, C.enemy);
-    enemySquad(this.stageId, GAME).forEach((u, i) => {
-      const x = slotX(i);
-      panel(this, x, 480, SLOT_W, 290, u ? 'ui_slot_filled' : 'ui_slot_empty');
-      text(this, x, 322, i < 2 ? 'фронт' : 'тыл', FS.caption, C.dim);
-      if (!u) return;
-      portrait(this, x, 405, portraitKey(u.visual.sprite), 130).setTint(unitTint(u.visual));
-      // T1-22: имя целиком — в две строки (перенос по пробелу или дефису), не влезает — чуть мельче; без многоточия.
-      fitName(text(this, x, 515, u.name, FS.caption, u.kind === 'boss' ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, lineSpacing: -4 }), SLOT_W - 14);
-      text(this, x, 588, statsLine(u.stats, '\n', ['hp', 'atk']), FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3, lineSpacing: 2 });
-    });
-
-    // --- Награда ---
+    // --- Этап и награда ---
     const first = stageStatus(session.save, this.stageId, GAME) !== 'cleared';
     const k = first ? 1 : GAME.progression.campaign.replayRewardMultiplier;
-    card(this, GAME_W / 2, 755, 1050, 130, true);
+    text(this, GAME_W / 2, L.titleY, stage.name, FS.h2, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 });
     text(
       this,
       GAME_W / 2,
-      730,
-      `${first ? 'Награда' : `Повтор (×${k})`}:  золото ${formatNumber(Math.floor(stage.rewards.gold * k))} · опыт ${formatNumber(Math.floor(stage.rewards.jobExp * k))} каждому`,
-      FS.body,
-      C.ink,
-      { fontStyle: 'bold' },
+      L.rewardY,
+      `${first ? 'Награда' : `Повтор (×${k})`}: золото ${formatNumber(Math.floor(stage.rewards.gold * k))} · опыт ${formatNumber(Math.floor(stage.rewards.jobExp * k))} каждому`,
+      FS.caption,
+      C.muted,
+      { stroke: C.stroke, strokeThickness: 4 },
     );
-    // K2: мощь отряда против мощи врагов. Обводка тёмная, чтобы цвет читался на светлой карточке.
-    this.enemyPower = stagePower(this.stageId, GAME);
-    this.powerText = text(this, GAME_W / 2, 780, '', FS.body, C.text, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 });
 
-    // --- Ваш отряд и выбор героев (K8: общий редактор, авто-расстановка, пресеты) ---
-    card(this, GAME_W / 2, 1220, 1050, 780);
-    text(this, GAME_W / 2, 868, 'Ваш отряд', FS.h3, C.success, { fontStyle: 'bold' });
-    this.tip = text(this, GAME_W / 2, 910, '', FS.caption, C.muted, { wordWrap: { width: 980 } });
-    // T1-20: стрелок или лекарь во фронте — предупреждение и «Переставить» (тот же состав, по ролям).
-    // Вторичная: главная кнопка экрана одна — «В бой»; предупреждение рядом выделено цветом.
-    this.rearrangeBtn = button(this, GAME_W - 175, 910, 290, 84, 'ui_btn_secondary', 'Переставить', () => this.rearrange(), FS.small);
-    this.rearrangeBtn.container.setName('rearrangeBtn');
-    this.editor = new SquadEditor(this, 1100, 1365, () => this.onSquadChange());
-    button(this, GAME_W / 2 - 250, SQUAD_BTN_Y, 440, TOUCH, 'ui_btn_secondary', 'Авто', () => this.auto(), FS.h3);
-    button(this, GAME_W / 2 + 250, SQUAD_BTN_Y, 440, TOUCH, 'k:buttonLong_beige', 'Пресеты отряда', () =>
+    // --- Поле (отряд против противника) и список героев ---
+    this.editor = new FormationEditor(this, {
+      field: L.field,
+      enemies: enemySquad(this.stageId, GAME),
+      enemyPower: stagePower(this.stageId, GAME),
+      roster: L.roster,
+      onChange: () => this.onSquadChange(),
+    });
+    text(this, 50, L.rosterHeadY, `Герои · ${session.save.heroes.length}`, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
+    button(this, 610, L.rosterHeadY, 220, 90, 'ui_btn_secondary', 'Авто', () => this.auto(), FS.h3);
+    button(this, 890, L.rosterHeadY, 300, 90, 'k:buttonLong_beige', 'Пресеты', () =>
       this.scene.start('Squad', { back: { to: 'Stage', data: { stageId: this.stageId } } }),
     FS.h3);
 
     if (first) {
-      this.fightBtns = [button(this, GAME_W / 2, GAME_H - 110, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), FS.hero)];
+      this.fightBtns = [button(this, GAME_W / 2, L.fightY, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), FS.hero)];
     } else {
       // K7: пройденный этап можно повторить с просмотром боя или сразу получить итог.
       this.fightBtns = [
-        button(this, GAME_W / 2 - 260, GAME_H - 110, 480, 150, 'ui_btn_secondary', 'Пропустить бой', () => this.skipBattle(), FS.h2),
-        button(this, GAME_W / 2 + 260, GAME_H - 110, 480, 150, 'ui_btn_primary', 'Повторить', () => this.fight(), FS.h1),
+        button(this, GAME_W / 2 - 260, L.fightY, 480, 150, 'ui_btn_secondary', 'Пропустить бой', () => this.skipBattle(), FS.h2),
+        button(this, GAME_W / 2 + 260, L.fightY, 480, 150, 'ui_btn_primary', 'Повторить', () => this.fight(), FS.h1),
       ];
     }
     this.editor.draw();
-    // R: подсказка новичку — первый бой. После отряда: hintPointer обходит все кнопки сцены («Авто», «Пресеты»).
-    if (first && !hintDone('stage_fight')) hintPointer(this, GAME_W / 2, GAME_H - 110, HINT_TEXT.stage_fight, 'above', { w: 640, h: 150 });
+    // R: подсказка новичку — первый бой. После отряда: hintPointer обходит все кнопки, слоты и карточки сцены.
+    if (first && !hintDone('stage_fight')) hintPointer(this, GAME_W / 2, L.fightY, HINT_TEXT.stage_fight, 'above', { w: 640, h: 150 });
   }
 
-  /** Мощь отряда против противника и доступность «В бой» — после каждого изменения отряда. */
+  /** Доступность «В бой» — после каждого изменения отряда (мощь и предупреждение рисует редактор). */
   private onSquadChange(): void {
-    const save = session.save;
-    const ready = save.squad.some(Boolean);
+    const ready = session.save.squad.some(Boolean);
     for (const b of this.fightBtns) b.container.setAlpha(ready ? 1 : 0.45);
-    const misplaced = misplacedInFront(save, GAME);
-    const names = misplaced.map((id) => save.heroes.find((h) => h.id === id)?.name ?? id);
-    this.rearrangeBtn.container.setVisible(misplaced.length > 0);
-    if (misplaced.length) this.tip.setText(`${names.join(', ')} во фронте — дальнему бою место в тылу`).setColor(C.warning).setX(40).setOrigin(0, 0.5);
-    else this.tip.setText('Выберите слот, затем героя. Повторное нажатие на слот — убрать.').setColor(C.muted).setX(GAME_W / 2).setOrigin(0.5);
-    ellipsize(this.tip, misplaced.length ? GAME_W - 380 : 1000);
-    const mine = squadPower(save, GAME);
-    // Мощь отсчитывается от прежней до новой, строка подпрыгивает (первый показ — сразу число).
-    const prev = this.shownPower;
-    this.shownPower = mine;
-    this.powerText.setColor(POWER_COLORS[powerTone(mine, this.enemyPower)]);
-    countUp(this, this.powerText, prev ?? mine, mine, (n) => `Мощь: ваш отряд ${formatNumber(n)}  ·  противник ${formatNumber(this.enemyPower)}`, { duration: 400 });
-    if (prev !== null && prev !== mine) bump(this, this.powerText, 1.08);
-  }
-
-  /** T1-20: тот же состав по ролям — танки и ближний бой вперёд, стрелки и лекари в тыл. */
-  private rearrange(): void {
-    commit({ ...session.save, squad: arrangeSquad(session.save, GAME) });
-    this.editor.draw();
-    toast(this, 'Отряд переставлен: дальний бой и лекари — в тылу');
   }
 
   /** K8: авто-расстановка сильнейших героев. */
   private auto(): void {
-    const squad = autoFormation(session.save, GAME);
-    commit({ ...session.save, squad });
-    this.editor.draw();
+    commit({ ...session.save, squad: autoFormation(session.save, GAME) });
+    this.editor.replaced();
     toast(this, 'Отряд расставлен автоматически');
   }
 
