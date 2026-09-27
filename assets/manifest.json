@@ -2,7 +2,7 @@
   "_comment": "Все ассеты подключаются по id. file — путь внутри assets/; atlas+frame — кадр из атласа; slice — 9-slice [л,п,в,н]; file: null — плейсхолдер.",
   "assets": {
     "bg_arena": {
-      "file": "backgrounds/bg_arena.png",
+      "file": "backgrounds/bg_arena.jpg",
       "w": 1080,
       "h": 1920,
       "color": "#2b2f3a",
