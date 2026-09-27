@@ -45,7 +45,7 @@
     }
   ],
   "visual": {
-    "sprite": "mage",
+    "sprite": "magician",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

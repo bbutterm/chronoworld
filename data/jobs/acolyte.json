@@ -49,7 +49,7 @@
     }
   ],
   "visual": {
-    "sprite": "priest",
+    "sprite": "acolyte",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

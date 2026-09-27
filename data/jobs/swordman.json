@@ -45,7 +45,7 @@
     }
   ],
   "visual": {
-    "sprite": "warrior",
+    "sprite": "swordman",
     "hitFx": "fx_hit"
   }
 }

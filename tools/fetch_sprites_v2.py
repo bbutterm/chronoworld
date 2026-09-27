@@ -15,9 +15,10 @@ from build_sprites_v2 import HEROES,MONSTERS,CACHE_ALIASES,HERO_ACTION,MON_ACTIO
 DEFAULT=Path.home()/'.cache/chronoworld/v2'
 URL='https://assets.latam-tools.com.br/image'
 
-def sources():
+def sources(only=None):
  tasks={}
  for name,(job,_,gender,w,s,_,_) in HEROES.items():
+  if only and name!=only:continue
   for anim,action in HERO_ACTION.items():
    if anim=='attack' and name in ('assassin','archer'):
     # Equipped attack variant 2 was fetched as cast_94 in original audit.
@@ -27,6 +28,7 @@ def sources():
    tasks[dest]={'job':job,'gender':gender,'head':1,'weapon':w,'shield':s,'action':action,
                 'enableShadow':'false','canvas':'512x640+256+480'}
  for name,(_,job) in MONSTERS.items():
+  if only and name!=only:continue
   for anim,action in MON_ACTION.items():
    dest=f'{CACHE_ALIASES.get(name,name)}_{anim}_{action}_w0_s0.png'
    tasks[dest]={'job':job,'action':action,'enableShadow':'false','canvas':'512x640+256+480'}
@@ -52,10 +54,12 @@ def fetch(item,cache):
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--cache',type=Path,default=DEFAULT)
- p.add_argument('--workers',type=int,default=6);args=p.parse_args();args.cache.mkdir(parents=True,exist_ok=True)
+ p.add_argument('--workers',type=int,default=6)
+ p.add_argument('--only',choices=[*HEROES,*MONSTERS],help='Fetch only one sprite identity (six hero/five monster actions)')
+ args=p.parse_args();args.cache.mkdir(parents=True,exist_ok=True)
  results=[]
  with ThreadPoolExecutor(max_workers=args.workers) as ex:
-  jobs={ex.submit(fetch,item,args.cache):item[0] for item in sources().items()}
+  jobs={ex.submit(fetch,item,args.cache):item[0] for item in sources(args.only).items()}
   for future in as_completed(jobs):
    try:results.append(future.result())
    except Exception as e:print('FAIL',jobs[future],e,flush=True);raise SystemExit(1)

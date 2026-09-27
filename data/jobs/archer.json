@@ -45,7 +45,7 @@
     }
   ],
   "visual": {
-    "sprite": "archer",
+    "sprite": "archer_first",
     "hitFx": "fx_hit",
     "projectile": "fx_arrow"
   }

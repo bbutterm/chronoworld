@@ -360,6 +360,41 @@
       "h": 96,
       "color": "#4a5263",
       "label": ""
+    },
+    "tile_grass_01": {
+      "file": "tiles/tile_grass_01.png",
+      "w": 128,
+      "h": 128,
+      "color": "#556b2f",
+      "label": "tile_grass_01"
+    },
+    "tile_grass_02": {
+      "file": "tiles/tile_grass_02.png",
+      "w": 128,
+      "h": 128,
+      "color": "#556b2f",
+      "label": "tile_grass_02"
+    },
+    "tile_grass_dry": {
+      "file": "tiles/tile_grass_dry.png",
+      "w": 128,
+      "h": 128,
+      "color": "#556b2f",
+      "label": "tile_grass_dry"
+    },
+    "tile_dirt": {
+      "file": "tiles/tile_dirt.png",
+      "w": 128,
+      "h": 128,
+      "color": "#556b2f",
+      "label": "tile_dirt"
+    },
+    "tile_stone": {
+      "file": "tiles/tile_stone.png",
+      "w": 128,
+      "h": 128,
+      "color": "#556b2f",
+      "label": "tile_stone"
     }
   }
 }

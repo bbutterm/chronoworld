@@ -58,8 +58,9 @@ export class HeroesScene extends Phaser.Scene {
     const x = 300;
     a.add(ellipsize(text(this, x, y - h / 2 + 55, hero.name, FS.h1, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), 380));
     const squadSlot = session.save.squad.indexOf(hero.id);
-    if (squadSlot >= 0) a.add(text(this, 700, y - h / 2 + 55, 'в отряде', FS.small, C.success).setOrigin(0, 0.5));
-    a.add(text(this, 990, y - h / 2 + 55, `Мощь ${formatNumber(power)}`, FS.body, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(1, 0.5));
+    const pw = a.add(text(this, 990, y - h / 2 + 55, `Мощь ${formatNumber(power)}`, FS.body, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(1, 0.5));
+    // «в отряде» — слева от мощи, как бы длинно она ни была записана.
+    if (squadSlot >= 0) a.add(text(this, 990 - pw.width - 20, y - h / 2 + 55, 'в отряде', FS.small, C.success).setOrigin(1, 0.5));
     const gear = heroEquipment(session.save, hero.id).length;
     a.add(text(this, 990, y - 10, `снаряжение ${gear}/4`, FS.small, gear ? C.info : C.disabled).setOrigin(1, 0.5));
     a.add(ellipsize(text(this, x, y - 10, `${job?.name ?? hero.job} · ${ROLE_NAMES[job?.role ?? ''] ?? ''}`, FS.body, C.title).setOrigin(0, 0.5), 440));

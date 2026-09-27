@@ -45,7 +45,7 @@
     }
   ],
   "visual": {
-    "sprite": "assassin",
+    "sprite": "thief",
     "hitFx": "fx_hit"
   }
 }
