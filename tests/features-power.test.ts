@@ -14,7 +14,7 @@ const unit = (patch: Partial<UnitDef> = {}): UnitDef => ({
   kind: 'hero',
   role: 'damage',
   stats: { hp: 1000, atk: 100, def: 20, spd: 100 },
-  skills: { basic: 'b', passives: [] },
+  skills: { basic: 'b', actives: [], passives: [] },
   visual: { sprite: 'x' },
   ...patch,
 });
@@ -24,8 +24,8 @@ describe('K2 мощь', () => {
     const k = ctx.features.power;
     const base = unit();
     expect(unitPower(base, ctx)).toBe(Math.round(1000 * k.hp + 100 * k.atk + 20 * k.def + 100 * k.spd));
-    const skilled = unit({ skills: { basic: 'b', ult: 'u', passives: ['p1', 'p2'] } });
-    expect(unitPower(skilled, ctx)).toBe(Math.round(unitPower(base, ctx) + k.perActive + 2 * k.perPassive));
+    const skilled = unit({ skills: { basic: 'b', ult: 'u', actives: ['a1'], passives: ['p1', 'p2'] } });
+    expect(unitPower(skilled, ctx)).toBe(Math.round(unitPower(base, ctx) + 2 * k.perActive + 2 * k.perPassive));
     expect(Number.isInteger(unitPower(unit({ stats: { hp: 333, atk: 7, def: 3, spd: 91 } }), ctx))).toBe(true);
   });
 

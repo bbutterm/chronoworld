@@ -49,7 +49,7 @@ describe('профессии', () => {
       jobHistory: chain.slice(0, -1).map((j) => ({ job: j.id, jobLevel: j.maxJobLevel })),
     }));
     const squad = heroes.map((h) => buildUnit(h, ctx));
-    expect(squad[0].skills.ult).toBeDefined();
+    expect(squad[0].skills.actives.length).toBeGreaterThan(0);
     const a = simulateBattle(ctx.content, squad, DEFAULT_SQUAD, 7, { log: false });
     const b = simulateBattle(ctx.content, DEFAULT_SQUAD, squad, 8, { log: false });
     expect(['A', 'B']).toContain(a.winner);

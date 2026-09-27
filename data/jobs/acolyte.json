@@ -28,6 +28,10 @@
       "skill": "job_acolyte_heal"
     },
     {
+      "jobLevel": 5,
+      "skill": "job_acolyte_divine_protection"
+    },
+    {
       "jobLevel": 10,
       "skill": "job_acolyte_blessing"
     },

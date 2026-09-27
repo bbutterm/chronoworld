@@ -11,6 +11,8 @@
     "includeSelf": true,
     "onlyWounded": true
   },
+  "cooldown": 3,
+  "priority": 10,
   "effects": [
     {
       "type": "heal",

@@ -10,6 +10,8 @@
     "pick": "nearest",
     "row": "front"
   },
+  "cooldown": 6,
+  "castTime": 1,
   "effects": [
     {
       "type": "damage",

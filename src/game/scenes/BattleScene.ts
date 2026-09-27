@@ -74,6 +74,11 @@ interface UnitView {
   inUlt: boolean;
   shieldBar: Phaser.GameObjects.Image;
   energyBar: Phaser.GameObjects.Image;
+  /** Полоса каста (на месте энергии): видна, пока юнит колдует. */
+  castBar: Phaser.GameObjects.Image;
+  castBack: Phaser.GameObjects.Image;
+  /** Идёт каст: начало и длительность в секундах боя. */
+  cast: { start: number; dur: number } | null;
   bars: Phaser.GameObjects.Components.Visible[];
   hp: number;
   shield: number;
@@ -242,11 +247,17 @@ export class BattleScene extends Phaser.Scene {
     const shieldBar = bar(8, 'ui_bar_shield', 5).setVisible(false);
     const energyBack = this.add.image(ox, 32, 'ui_bar_back').setDisplaySize(BAR_W + 6, 12);
     const energyBar = bar(32, 'ui_bar_energy', 8);
+    // Энергия нужна только тем, у кого есть ульта (монстры, боссы); герои применяют навыки по перезарядке.
+    const hasUlt = !!def.skills.ult;
+    energyBack.setVisible(hasUlt);
+    energyBar.setVisible(hasUlt);
+    const castBack = this.add.image(ox, 34, 'ui_bar_back').setDisplaySize(BAR_W + 6, 18).setVisible(false);
+    const castBar = bar(34, 'ui_bar_energy', 12).setTintFill(0xc7a4ff).setVisible(false);
     // Подпись — сразу над макушкой (высота фигуры в стойке из bbox листа), со сдвигом к своему тылу.
     const nameY = -look.height - 22;
     const name = text(this, ox, nameY, def.name, 23, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
-    const bars = [barBack, trailBar, hpBar, shieldBar, energyBack, energyBar, name];
-    const node = this.add.container(snap.x, snap.y, [sprite, ...bars]).setDepth(snap.y);
+    const bars = [barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
+    const node = this.add.container(snap.x, snap.y, [sprite, ...bars, castBack, castBar]).setDepth(snap.y);
 
     const v: UnitView = {
       snap,
@@ -267,6 +278,9 @@ export class BattleScene extends Phaser.Scene {
       inUlt: false,
       shieldBar,
       energyBar,
+      castBar,
+      castBack,
+      cast: null,
       bars,
       hp: snap.maxHp,
       shield: 0,
@@ -280,7 +294,7 @@ export class BattleScene extends Phaser.Scene {
     this.views.set(snap.uid, v);
     // Разовая анимация закончилась — вернуться к стойке/ходьбе. Один слушатель на юнита, а не на каждую атаку.
     sprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
-      if (v.alive) this.loop(v, v.moveTween ? 'walk' : 'idle');
+      if (v.alive) this.loop(v, v.moveTween ? 'walk' : v.cast ? 'cast' : 'idle');
     });
     this.loop(v, 'idle');
     this.redraw(v);
@@ -314,6 +328,7 @@ export class BattleScene extends Phaser.Scene {
 
   /** След HP и красный оттенок попадания (раньше — твин и таймер на каждый удар). */
   private animateUnit(v: UnitView, dt: number): void {
+    if (v.cast) cropBar(v.castBar, Phaser.Math.Clamp((this.clock - v.cast.start) / v.cast.dur, 0, 1));
     if (v.tintLeft > 0) {
       v.tintLeft -= dt;
       if (v.tintLeft <= 0) {
@@ -368,8 +383,11 @@ export class BattleScene extends Phaser.Scene {
         const v = this.views.get(e.unit)!;
         v.inUlt = false;
         v.energy = e.energy;
+        this.endCast(v);
         this.redraw(v);
         if (!animate) return;
+        // Активный навык — его название над головой (обычная атака без подписи).
+        if (e.name) this.headline(v, e.name, v.snap.side === 'A' ? '#ffe28a' : '#ffb0a0');
         const target = this.views.get(e.targets[0]);
         let impact = this.once(v, 'attack');
         if (e.kind !== 'melee' && target) {
@@ -388,6 +406,22 @@ export class BattleScene extends Phaser.Scene {
         if (!animate) return;
         v.impactAt = this.time.now + this.once(v, 'cast');
         this.spotlight(v, e.name, e.skill);
+        return;
+      }
+      case 'cast': {
+        const v = this.views.get(e.unit)!;
+        if (e.action === 'interrupt') {
+          this.endCast(v);
+          if (animate) this.headline(v, `${e.name} сбит`, '#ff9a8a');
+          return;
+        }
+        v.cast = { start: e.t, dur: e.duration };
+        v.castBack.setVisible(true);
+        v.castBar.setVisible(true);
+        cropBar(v.castBar, 0);
+        if (!animate) return;
+        this.headline(v, e.name, '#c9b6ff');
+        this.loop(v, 'cast');
         return;
       }
       case 'passive': {
@@ -487,7 +521,16 @@ export class BattleScene extends Phaser.Scene {
 
   // ---------- анимации ----------
 
-  private loop(v: UnitView, name: 'idle' | 'walk'): void {
+  /** Каст закончился или сбит: спрятать полосу, вернуть стойку. */
+  private endCast(v: UnitView): void {
+    if (!v.cast) return;
+    v.cast = null;
+    v.castBack.setVisible(false);
+    v.castBar.setVisible(false);
+    if (v.alive && !v.moveTween) this.loop(v, 'idle');
+  }
+
+  private loop(v: UnitView, name: 'idle' | 'walk' | 'cast'): void {
     const key = anim(v.look, v.spriteId, name);
     if (key && v.sprite.anims.currentAnim?.key !== key) v.sprite.play({ key, repeat: -1 });
   }
@@ -539,6 +582,7 @@ export class BattleScene extends Phaser.Scene {
     v.shield = 0;
     this.redraw(v);
     v.moveTween?.stop();
+    this.endCast(v);
     for (const b of v.bars) b.setVisible(false);
     v.node.setDepth(v.node.y - 1000);
     const key = anim(v.look, v.spriteId, 'death');

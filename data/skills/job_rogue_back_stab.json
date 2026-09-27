@@ -10,6 +10,7 @@
     "pick": "nearest",
     "row": "back"
   },
+  "cooldown": 8,
   "effects": [
     {
       "type": "dash"

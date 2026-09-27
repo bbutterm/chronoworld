@@ -9,6 +9,7 @@
     "pick": "nearest",
     "row": "front"
   },
+  "cooldown": 5,
   "effects": [
     {
       "type": "damage",

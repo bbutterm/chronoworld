@@ -9,6 +9,7 @@
     "side": "enemy",
     "pick": "lowestHpPct"
   },
+  "cooldown": 18,
   "effects": [
     {
       "type": "dash"

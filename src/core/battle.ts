@@ -52,6 +52,9 @@ export function createUnits(squad: Squad, side: Side, content: Content, cfg: Com
       def,
       basic,
       ult: def.skills.ult ? skill(def.skills.ult) : undefined,
+      actives: orderActives(def.skills.actives.map(skill)),
+      readyAt: {},
+      casting: null,
       passives: def.skills.passives.map(skill),
       maxHp: def.stats.hp,
       hp: def.stats.hp,
@@ -71,6 +74,14 @@ export function createUnits(squad: Squad, side: Side, content: Content, cfg: Com
     });
   });
   return units;
+}
+
+/** Порядок активных навыков: больший priority раньше, при равенстве — открытый позже (стоит дальше в списке). */
+export function orderActives(skills: SkillDef[]): SkillDef[] {
+  return skills
+    .map((s, i) => ({ s, i }))
+    .sort((x, y) => y.s.priority - x.s.priority || y.i - x.i)
+    .map((x) => x.s);
 }
 
 /** Стат с учётом статусов: база × (1 + сумма модификаторов), не меньше 0. */
@@ -100,7 +111,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const log: BattleEvent[] = [];
   const report: Record<string, UnitReport> = {};
   for (const u of all) {
-    report[u.uid] = { uid: u.uid, unitId: u.unitId, damageDealt: 0, healingDone: 0, shieldGiven: 0, damageTaken: 0, ults: 0, alive: true };
+    report[u.uid] = { uid: u.uid, unitId: u.unitId, damageDealt: 0, healingDone: 0, shieldGiven: 0, damageTaken: 0, ults: 0, skills: 0, alive: true };
   }
 
   let t = 0;
@@ -133,6 +144,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     target.alive = false;
     target.statuses = [];
     target.moving = null;
+    target.casting = null;
     report[target.uid].alive = false;
     emit({ t, type: 'death', unit: target.uid, killer: killer?.uid ?? null });
     if (killer) trigger(killer, 'kill');
@@ -180,6 +192,12 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         target.statuses = target.statuses.filter((s) => s.def.id !== e.status.id);
         target.statuses.push({ def: e.status, turnsLeft: e.status.turns, sourceAtk: stat(u, 'atk'), source: u.uid });
         emit({ t, type: 'status', source: u.uid, target: target.uid, status: e.status.id, name: e.status.name, turns: e.status.turns, action: 'apply' });
+        // Оглушение сбивает каст; навык не уходит в перезарядку.
+        if (e.status.stun && target.casting) {
+          const c = target.casting.skill;
+          target.casting = null;
+          emit({ t, type: 'cast', unit: target.uid, skill: c.id, name: c.name, duration: 0, action: 'interrupt' });
+        }
         return;
       }
       case 'energy':
@@ -281,7 +299,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
 
   const planMove = (u: Unit) => {
     const target = u.engage;
-    if (!target || u.moving || dist(u, target) <= reach(u, target)) return;
+    if (!target || u.moving || u.casting || dist(u, target) <= reach(u, target)) return;
     // Цель уже бежит ко мне — жду на месте, иначе бойцы разминутся.
     if (target.moving && target.engage === u) return;
     // Два ближних бойца нацелены друг на друга — оба идут навстречу и встречаются посередине
@@ -348,7 +366,9 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   /** true — юнит походил; false — не может сейчас (бежит или не дошёл), ждёт с полной шкалой. */
   const act = (u: Unit): boolean => {
     const useUlt = !!u.ult && u.energy >= cfg.energy.max && skillReady(u, u.ult);
-    if (!useUlt && !skillReady(u, u.basic)) return false;
+    // Готовый навык дальнего действия можно применить и не дойдя до цели.
+    const hasActive = !u.moving && u.actives.some((s) => (u.readyAt[s.id] ?? 0) <= t + 1e-9 && skillReady(u, s));
+    if (!useUlt && !hasActive && !skillReady(u, u.basic)) return false;
 
     emit({ t, type: 'turn', unit: u.uid });
     trigger(u, 'turnStart');
@@ -360,18 +380,70 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     if (!u.alive) return true;
     const stunned = u.statuses.some((s) => s.def.stun);
     if (stunned) emit({ t, type: 'skip', unit: u.uid, reason: 'stun' });
-    else if (useUlt && u.ult) {
+    else if (!useUlt && tryActive(u)) {
+      // активный навык применён или начат каст
+    } else if (useUlt && u.ult) {
       u.energy = 0;
       report[u.uid].ults++;
       const ult = u.ult;
       const targets = selectTargets(u, ult.target, allies(u), enemies(u), rng, cfg);
       emit({ t, type: 'ult', unit: u.uid, skill: ult.id, name: ult.name, targets: targets.map((x) => x.uid) });
       useSkill(u, ult, targets);
-    } else {
+    } else if (skillReady(u, u.basic)) {
       basicAction(u, u.basic);
     }
     tickStatuses(u);
     return true;
+  };
+
+  /** Цели активного навыка: ближний бьёт цель сражения (если дошёл), остальные — по селектору. Пусто — навык сейчас бесполезен. */
+  const activeTargets = (u: Unit, skill: SkillDef): Unit[] => {
+    if (skill.range === 'melee') {
+      const e = u.engage;
+      return e?.alive && dist(u, e) <= reach(u, e) + 0.5 ? [e] : [];
+    }
+    return selectTargets(u, skill.target, allies(u), enemies(u), rng, cfg);
+  };
+
+  const cooldownOf = (skill: SkillDef) => skill.cooldown ?? cfg.skills?.defaultCooldown ?? 8;
+
+  const fireActive = (u: Unit, skill: SkillDef, targets: Unit[]) => {
+    const cd = cooldownOf(skill);
+    u.readyAt[skill.id] = round2(t + cd);
+    report[u.uid].skills++;
+    addEnergy(u, cfg.energy.perBasicAction);
+    const kind = skill.effects.some((e) => e.type === 'heal') ? 'heal' : skill.range === 'melee' ? 'melee' : 'ranged';
+    emit({ t, type: 'attack', unit: u.uid, skill: skill.id, targets: targets.map((x) => x.uid), kind, energy: u.energy, name: skill.name, cooldown: cd });
+    useSkill(u, skill, targets);
+  };
+
+  /** Готовый активный навык с наибольшим приоритетом: применяет или начинает каст. false — готовых нет. */
+  const tryActive = (u: Unit): boolean => {
+    for (const skill of u.actives) {
+      if ((u.readyAt[skill.id] ?? 0) > t + 1e-9) continue;
+      const targets = activeTargets(u, skill);
+      if (targets.length === 0) continue;
+      if (skill.castTime > 0) {
+        u.casting = { skill, until: round2(t + skill.castTime) };
+        emit({ t, type: 'cast', unit: u.uid, skill: skill.id, name: skill.name, duration: skill.castTime, action: 'start' });
+      } else fireActive(u, skill, targets);
+      return true;
+    }
+    return false;
+  };
+
+  /** Каст закончился: цели выбираются в конце (кто-то мог умереть). Целей нет — каст пропал, перезарядка не идёт. */
+  const finishCast = (u: Unit) => {
+    const c = u.casting;
+    if (!c || t + 1e-9 < c.until) return;
+    u.casting = null;
+    u.gauge = 0;
+    const targets = activeTargets(u, c.skill);
+    if (targets.length === 0) {
+      emit({ t, type: 'cast', unit: u.uid, skill: c.skill.id, name: c.skill.name, duration: 0, action: 'interrupt' });
+      return;
+    }
+    fireActive(u, c.skill, targets);
   };
 
   const basicAction = (u: Unit, skill: SkillDef) => {
@@ -412,9 +484,11 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       for (const u of melee) checkStuck(u);
       for (const u of melee) planMove(u);
 
+      for (const u of all) if (u.alive && u.casting) finishCast(u);
+
       const ready: Unit[] = [];
       for (const u of all) {
-        if (!u.alive) continue;
+        if (!u.alive || u.casting) continue;
         u.gauge = Math.min(cfg.actionThreshold, u.gauge + stat(u, 'spd'));
         if (u.gauge >= cfg.actionThreshold) ready.push(u);
       }

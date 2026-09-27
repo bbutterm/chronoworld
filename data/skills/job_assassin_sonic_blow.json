@@ -11,6 +11,7 @@
     "row": "front"
   },
   "hits": 4,
+  "cooldown": 8,
   "effects": [
     {
       "type": "damage",

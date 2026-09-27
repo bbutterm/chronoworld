@@ -30,6 +30,8 @@ export interface CombatConfig {
   timeLimitSeconds: number;
   damage: { defScale: number; varianceMin: number; varianceMax: number; minDamage: number };
   energy: { max: number; perBasicAction: number; perHitTaken: number };
+  /** Активные навыки: перезарядка по умолчанию (с), если у навыка не задана. */
+  skills?: { defaultCooldown: number };
   movement: {
     meleeRange: number;
     moveSpeed: number;
@@ -63,6 +65,12 @@ export interface Unit {
   def: UnitDef;
   basic: SkillDef;
   ult?: SkillDef;
+  /** Активные навыки в порядке приоритета (первый — важнейший). */
+  actives: SkillDef[];
+  /** Когда навык снова готов: время боя (с) по id навыка. */
+  readyAt: Record<string, number>;
+  /** Идёт каст: навык и время окончания. */
+  casting: { skill: SkillDef; until: number } | null;
   passives: SkillDef[];
   maxHp: number;
   hp: number;
@@ -105,7 +113,11 @@ export type BattleEvent = BaseEvent &
         kind: 'melee' | 'ranged' | 'heal';
         /** Энергия атакующего после действия. */
         energy: number;
+        /** Активный навык: его название (у обычной атаки нет) и перезарядка в секундах. */
+        name?: string;
+        cooldown?: number;
       }
+    | { type: 'cast'; unit: string; skill: string; name: string; duration: number; action: 'start' | 'interrupt' }
     | { type: 'ult'; unit: string; skill: string; name: string; targets: string[] }
     | { type: 'passive'; unit: string; skill: string; name: string }
     | {
@@ -145,6 +157,8 @@ export interface UnitReport {
   shieldGiven: number;
   damageTaken: number;
   ults: number;
+  /** Сколько раз применены активные навыки. */
+  skills: number;
   alive: boolean;
 }
 

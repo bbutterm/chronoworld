@@ -2,23 +2,24 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_acolyte_blessing",
   "name": "Благословение",
-  "description": "В начале боя: +10% атаки всем союзникам на 3 хода.",
+  "description": "Благословение: +15% атаки всем союзникам на 4 хода.",
   "range": "ranged",
-  "trigger": "battleStart",
   "target": {
     "side": "ally",
     "pick": "all",
     "includeSelf": true
   },
+  "cooldown": 20,
+  "priority": 5,
   "effects": [
     {
       "type": "status",
       "status": {
         "id": "blessing",
         "name": "Благословение",
-        "turns": 3,
+        "turns": 4,
         "stats": {
-          "atk": 0.1
+          "atk": 0.15
         }
       }
     }

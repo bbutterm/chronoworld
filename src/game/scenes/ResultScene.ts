@@ -90,7 +90,7 @@ export class ResultScene extends Phaser.Scene {
     const headers = tableMinHeight(0, compact);
     const row = Phaser.Math.Clamp(Math.floor((tableBottom - y - headers) / Math.max(1, r.units.length)), ROW_MIN, 85);
     const cols = [150, 430, 590, 740, 870, 985];
-    const heads = ['', 'Урон', 'Лечение', 'Щит', 'Ульты', 'Жив'];
+    const heads = ['', 'Урон', 'Лечение', 'Щит', 'Навыки', 'Жив'];
     const maxDmg = Math.max(1, ...Object.values(r.report).map((x) => x.damageDealt));
     const mvp = mvpOf(r, 'A');
     const fs = compact ? FS.caption : FS.small;
@@ -123,7 +123,7 @@ export class ResultScene extends Phaser.Scene {
           text(this, cols[1], y - 2, formatNumber(rep.damageDealt), fs, dim(rep.damageDealt, isMvp ? C.gold : C.text), { fontStyle: isMvp ? 'bold' : 'normal' });
           text(this, cols[2], y, formatNumber(rep.healingDone), fs, dim(rep.healingDone, C.positive));
           text(this, cols[3], y, formatNumber(rep.shieldGiven), fs, dim(rep.shieldGiven, C.shield));
-          text(this, cols[4], y, String(rep.ults), fs, dim(rep.ults, C.gold));
+          text(this, cols[4], y, String(rep.ults + rep.skills), fs, dim(rep.ults + rep.skills, C.gold));
           text(this, cols[5], y, rep.alive ? '✓' : '✗', fs, rep.alive ? C.success : C.enemy, { fontStyle: 'bold' });
           y += row;
         });

@@ -80,6 +80,15 @@ export const SkillSchema = z.object({
   trigger: z.enum(['battleStart', 'turnStart', 'hit', 'kill', 'allyDeath']).optional(),
   /** Для пассивок: шанс срабатывания. */
   chance: z.number().min(0).max(1).default(1),
+  /**
+   * Для активных навыков (skills.actives): перезарядка в секундах боя. Не задана — combat.json skills.defaultCooldown.
+   * 0 — без перезарядки (например, «Огненная стрела» с долгим кастом).
+   */
+  cooldown: z.number().nonnegative().optional(),
+  /** Время каста в секундах: юнит стоит и колдует, эффект — в конце. Оглушение сбивает каст. */
+  castTime: z.number().nonnegative().default(0),
+  /** Приоритет среди активных: больше — раньше. При равенстве — навык, открытый позже. */
+  priority: z.number().default(0),
 });
 
 export const VisualSchema = z.object({
@@ -101,6 +110,8 @@ export const UnitSchema = z.object({
   skills: z.object({
     basic: id,
     ult: id.optional(),
+    /** Активные навыки с перезарядкой: в свой ход юнит применяет готовый навык с наибольшим приоритетом, иначе — basic. */
+    actives: z.array(id).default([]),
     passives: z.array(id).default([]),
   }),
   visual: VisualSchema,

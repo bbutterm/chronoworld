@@ -13,6 +13,9 @@
     "perBasicAction": 25,
     "perHitTaken": 10
   },
+  "skills": {
+    "defaultCooldown": 8
+  },
   "movement": {
     "meleeRange": 170,
     "moveSpeed": 320,

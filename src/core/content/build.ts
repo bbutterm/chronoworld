@@ -72,6 +72,10 @@ export function buildContent(raw: RawContent): Content {
     };
     ref(u.skills.basic, 'skills.basic');
     ref(u.skills.ult, 'skills.ult');
+    u.skills.actives.forEach((a, i) => {
+      ref(a, `skills.actives[${i}]`);
+      if (skills[a]?.trigger) problems.push(`юнит ${u.id}: активный навык ${a} с trigger (это пассивка)`);
+    });
     u.skills.passives.forEach((p, i) => {
       ref(p, `skills.passives[${i}]`);
       if (skills[p] && !skills[p].trigger) problems.push(`юнит ${u.id}: пассивка ${p} без trigger`);

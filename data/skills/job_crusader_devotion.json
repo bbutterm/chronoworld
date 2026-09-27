@@ -9,6 +9,8 @@
     "side": "ally",
     "pick": "lowestHpPct"
   },
+  "cooldown": 14,
+  "priority": 8,
   "effects": [
     {
       "type": "shield",

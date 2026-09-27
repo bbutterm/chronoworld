@@ -10,6 +10,7 @@
     "pick": "all",
     "row": "front"
   },
+  "cooldown": 18,
   "effects": [
     {
       "type": "damage",

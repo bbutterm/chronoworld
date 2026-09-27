@@ -9,13 +9,13 @@ import type { FeatureContext } from './config';
 /**
  * K2. Мощь юнита (число для экранов и баланса, на бой не влияет):
  *   round(hp·k.hp + atk·k.atk + def·k.def + spd·k.spd + k.perActive·A + k.perPassive·P),
- * k — data/progression.json → power; A — активные навыки сверх обычной атаки (у UnitDef это ульта: 0 или 1),
+ * k — data/progression.json → power; A — активные навыки сверх обычной атаки (ульта и skills.actives),
  * P — число пассивок. moveSpeed не учитывается.
  */
 export function unitPower(unit: UnitDef, ctx: FeatureContext): number {
   const k = ctx.features.power;
   const s = unit.stats;
-  const actives = unit.skills.ult ? 1 : 0;
+  const actives = (unit.skills.ult ? 1 : 0) + unit.skills.actives.length;
   const passives = unit.skills.passives.length;
   return Math.round(s.hp * k.hp + s.atk * k.atk + s.def * k.def + s.spd * k.spd + k.perActive * actives + k.perPassive * passives);
 }

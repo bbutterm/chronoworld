@@ -9,6 +9,8 @@
     "side": "enemy",
     "pick": "lowestHp"
   },
+  "cooldown": 25,
+  "castTime": 1.5,
   "effects": [
     {
       "type": "dash"

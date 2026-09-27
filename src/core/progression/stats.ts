@@ -24,7 +24,7 @@ export function statsAt(job: JobDef, jobLevel: number): Stats {
 
 export interface HeroSkills {
   basic: string;
-  /** Активные навыки по порядку открытия; последний — ульта. */
+  /** Активные навыки по порядку открытия (в бою — по перезарядке и приоритету, см. orderActives). */
   actives: string[];
   passives: string[];
 }
@@ -84,7 +84,7 @@ export function buildUnit(hero: HeroState, ctx: GameContext & GearLookup, gear?:
     kind: 'hero',
     role: job.role,
     stats,
-    skills: { basic: skills.basic, ult: skills.actives[skills.actives.length - 1], passives: skills.passives },
+    skills: { basic: skills.basic, actives: skills.actives, passives: skills.passives },
     visual: job.visual,
   };
 }

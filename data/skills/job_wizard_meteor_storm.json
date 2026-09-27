@@ -10,6 +10,8 @@
     "pick": "random"
   },
   "hits": 5,
+  "cooldown": 22,
+  "castTime": 3,
   "effects": [
     {
       "type": "damage",

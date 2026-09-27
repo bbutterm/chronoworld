@@ -9,6 +9,8 @@
     "side": "ally",
     "pick": "self"
   },
+  "cooldown": 25,
+  "priority": 5,
   "effects": [
     {
       "type": "status",

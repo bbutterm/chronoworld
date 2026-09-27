@@ -10,6 +10,9 @@
     "pick": "all",
     "includeSelf": true
   },
+  "cooldown": 25,
+  "castTime": 1,
+  "priority": 9,
   "effects": [
     {
       "type": "heal",

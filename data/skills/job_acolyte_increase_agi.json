@@ -2,22 +2,22 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_acolyte_increase_agi",
   "name": "Ускорение",
-  "description": "Иногда в начале хода: +20% скорости случайному союзнику на 2 хода.",
+  "description": "Повышение ловкости: +20% скорости всем союзникам на 4 хода.",
   "range": "ranged",
-  "trigger": "turnStart",
-  "chance": 0.3,
   "target": {
     "side": "ally",
-    "pick": "random",
+    "pick": "all",
     "includeSelf": true
   },
+  "cooldown": 16,
+  "priority": 5,
   "effects": [
     {
       "type": "status",
       "status": {
         "id": "increase_agi",
         "name": "Ускорение",
-        "turns": 2,
+        "turns": 4,
         "stats": {
           "spd": 0.2
         }

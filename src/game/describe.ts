@@ -13,6 +13,10 @@ export function describeUnit(u: UnitDef, content: Content): string {
     statsLine(s, '   '),
   ];
   if (ult) lines.push(`Ульта «${ult.name}»: ${ult.description ?? ''}`);
+  for (const a of u.skills.actives) {
+    const sk = content.skills[a];
+    if (sk) lines.push(`Навык «${sk.name}»: ${sk.description ?? ''}`);
+  }
   for (const p of u.skills.passives) {
     const sk = content.skills[p];
     if (sk) lines.push(`Пассивка «${sk.name}»: ${sk.description ?? ''}`);

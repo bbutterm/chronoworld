@@ -10,6 +10,8 @@
     "pick": "lowestHpPct",
     "includeSelf": true
   },
+  "cooldown": 10,
+  "priority": 8,
   "effects": [
     {
       "type": "shield",

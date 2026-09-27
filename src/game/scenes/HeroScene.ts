@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { hintDone } from '../hints';
-import { availableJobChanges, expToNext, heroGearStats, heroPower, heroSkills, heroSlots, SLOTS, statsAt, type HeroState, type Slot } from '../../core';
+import { availableJobChanges, COMBAT, expToNext, heroGearStats, heroPower, heroSkills, heroSlots, SLOTS, statsAt, type HeroState, type Slot } from '../../core';
 import { CONTENT, GAME } from '../content';
 import { formatNumber, heroSprite, itemStatsText, lockedJobSkills, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
 import { GAME_W } from '../layout';
@@ -77,7 +77,7 @@ export class HeroScene extends Phaser.Scene {
     // --- Навыки ---
     const skills = heroSkills(hero, GAME);
     const rows: SkillRow[] = [{ id: skills.basic, kind: 'Обычная атака' }];
-    skills.actives.forEach((id, i) => rows.push({ id, kind: i === skills.actives.length - 1 ? 'Ульта' : 'Активный' }));
+    for (const id of skills.actives) rows.push({ id, kind: activeKind(id) });
     for (const id of skills.passives) rows.push({ id, kind: 'Пассивный' });
     for (const l of lockedJobSkills(hero.job, hero.jobLevel, GAME)) rows.push({ id: l.skill, kind: '', locked: l.jobLevel });
 
@@ -136,7 +136,7 @@ export class HeroScene extends Phaser.Scene {
       a.add(this.add.rectangle(90, y, iconSize, iconSize, locked ? 0x444444 : 0x6b4a2a).setStrokeStyle(3, TINT.frame));
     }
     const kind = locked ? `откроется на джобе ${r.locked}` : r.kind;
-    const kindText = a.add(text(this, 1010, y - h * 0.24, kind, FS.caption, locked ? C.dim : r.kind === 'Ульта' ? C.gold : C.success).setOrigin(1, 0.5));
+    const kindText = a.add(text(this, 1010, y - h * 0.24, kind, FS.caption, locked ? C.dim : r.kind.startsWith('КД') ? C.gold : C.success).setOrigin(1, 0.5));
     a.add(ellipsize(text(this, 150, y - h * 0.24, `${sk?.name ?? r.id}`, FS.body, locked ? C.disabled : C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), 1010 - 150 - kindText.width - 20));
     if (sk?.description) {
       a.add(
@@ -165,4 +165,13 @@ export class HeroScene extends Phaser.Scene {
     const idle = anim(view, id, 'idle');
     if (idle) spr.play({ key: idle, repeat: -1 });
   }
+}
+
+/** Подпись активного навыка: перезарядка и каст (например «КД 5 с · каст 2 с»). */
+function activeKind(id: string): string {
+  const sk = CONTENT.skills[id];
+  const cd = sk?.cooldown ?? COMBAT.skills?.defaultCooldown ?? 8;
+  const parts = [cd > 0 ? `КД ${cd} с` : 'КД нет'];
+  if (sk?.castTime) parts.push(`каст ${sk.castTime} с`);
+  return parts.join(' · ');
 }

@@ -10,6 +10,9 @@
     "pick": "all",
     "includeSelf": true
   },
+  "cooldown": 25,
+  "castTime": 2,
+  "priority": 5,
   "effects": [
     {
       "type": "status",

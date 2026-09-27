@@ -17,10 +17,10 @@ describe('статы и навыки героя', () => {
     expect(heroSkills({ ...hero(), jobLevel: 5 }, ctx).actives).toEqual(['novice_first_aid']);
   });
 
-  it('buildUnit: последний активный навык — ульта, пассивки отдельно; бой детерминирован', () => {
+  it('buildUnit: активные навыки — в actives (без ульты), пассивки отдельно; бой детерминирован', () => {
     const h = { ...hero(), job: 'swordman', jobLevel: 10, jobHistory: [{ job: 'novice', jobLevel: 10 }] };
     const u = buildUnit(h, ctx);
-    expect(u.skills).toEqual({ basic: 'basic_melee', ult: 'swordman_bash', passives: ['swordman_endure'] });
+    expect(u.skills).toEqual({ basic: 'basic_melee', actives: ['novice_first_aid', 'swordman_bash'], passives: ['swordman_endure'] });
     const squad = [u, null, null, null, null];
     expect(simulateBattle(ctx.content, squad, ['warrior'], 3).log).toEqual(simulateBattle(ctx.content, squad, ['warrior'], 3).log);
   });

@@ -8,8 +8,12 @@
   "target": {
     "side": "ally",
     "pick": "all",
-    "includeSelf": true
+    "includeSelf": true,
+    "onlyWounded": true
   },
+  "cooldown": 16,
+  "castTime": 1.5,
+  "priority": 9,
   "effects": [
     {
       "type": "heal",

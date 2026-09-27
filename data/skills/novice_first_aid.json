@@ -6,8 +6,11 @@
   "range": "ranged",
   "target": {
     "side": "ally",
-    "pick": "self"
+    "pick": "self",
+    "onlyWounded": true
   },
+  "cooldown": 10,
+  "priority": 10,
   "effects": [
     {
       "type": "heal",

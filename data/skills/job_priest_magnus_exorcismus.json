@@ -9,6 +9,8 @@
     "side": "enemy",
     "pick": "all"
   },
+  "cooldown": 20,
+  "castTime": 3,
   "effects": [
     {
       "type": "damage",
