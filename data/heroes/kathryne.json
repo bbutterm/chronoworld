@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "kathryne",
+  "name": "Кэтрин Кейрон",
+  "gender": "f",
+  "job": "wizard",
+  "line": "mage",
+  "role": "damage",
+  "source": "summon",
+  "baseRarity": "purple",
+  "maxRarity": "red",
+  "statMods": {
+    "hp": 1.1,
+    "atk": 1.35,
+    "def": 1.05
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_wizard_jupitel_thunder"
+    },
+    {
+      "level": 10,
+      "skill": "job_wizard_mystical_amplification"
+    },
+    {
+      "level": 30,
+      "skill": "job_wizard_storm_gust"
+    },
+    {
+      "level": 50,
+      "skill": "job_wizard_meteor_storm"
+    }
+  ],
+  "bio": "Волшебница: гроза, буря и метеоритный дождь.",
+  "hook": "Сама выбрала Гефенскую башню вместо трона — и ни разу не пожалела."
+}

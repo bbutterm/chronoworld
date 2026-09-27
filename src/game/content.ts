@@ -1,8 +1,10 @@
 import achievementsJson from '../../data/achievements.json';
 import bountiesJson from '../../data/bounties.json';
+import cardsJson from '../../data/cards.json';
 import dropsJson from '../../data/drops.json';
 import progressionJson from '../../data/progression.json';
 import questsJson from '../../data/quests.json';
+import summonJson from '../../data/summon.json';
 import towerJson from '../../data/tower.json';
 import { buildGameContext, type FullContext, type RawFile } from '../core';
 
@@ -15,7 +17,7 @@ const toFiles = (mods: Record<string, unknown>): RawFile[] =>
 
 /**
  * Контекст для всех экранов — та же сборка, что в Node (scripts/lib/content-node.ts → loadFullContext): buildGameContext.
- * Файлы data/units, skills, jobs, campaign, items собираются при сборке — новые подхватываются сами.
+ * Файлы data/units, skills, jobs, campaign, heroes, items собираются при сборке — новые подхватываются сами.
  * Битый конфиг — ContentError при старте со списком всех проблем; `npm run content:check` ловит это раньше.
  */
 export const GAME: FullContext = buildGameContext({
@@ -23,8 +25,11 @@ export const GAME: FullContext = buildGameContext({
   skills: toFiles(import.meta.glob('../../data/skills/*.json', { eager: true, import: 'default' })),
   jobs: toFiles(import.meta.glob('../../data/jobs/*.json', { eager: true, import: 'default' })),
   chapters: toFiles(import.meta.glob('../../data/campaign/*.json', { eager: true, import: 'default' })),
+  heroes: toFiles(import.meta.glob('../../data/heroes/*.json', { eager: true, import: 'default' })),
   items: toFiles(import.meta.glob('../../data/items/*.json', { eager: true, import: 'default' })),
   progression: progressionJson,
+  cards: cardsJson,
+  summon: summonJson,
   quests: questsJson,
   drops: dropsJson,
   tower: towerJson,

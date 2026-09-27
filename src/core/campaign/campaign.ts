@@ -1,9 +1,12 @@
 import type { BattleResult } from '../types';
 import { simulateBattle } from '../battle';
 import type { UnitDef } from '../content/schema';
-import type { HeroState, SaveState } from '../save/schema';
-import { addJobExp } from '../progression/exp';
-import { buildUnit } from '../progression/stats';
+import type { SaveState } from '../save/schema';
+import { buildUnit } from '../heroes/card';
+import { addHeroExp } from '../heroes/level';
+import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/roster';
+import { addShards, replayShardCount, stageShardHero, stageShardReward } from '../heroes/shards';
+import { grantTavernWelcome } from '../heroes/summon';
 import { GameRuleError, type GameContext, type ProgressEvent } from '../progression/types';
 import type { StageInfo } from './schema';
 import { withGear } from '../equipment/equipment';
@@ -63,14 +66,34 @@ export interface StageOutcome {
 }
 
 /**
+ * Отряд игрока для боя: save.squad → buildUnit (null — пустой слот). GameRuleError: unknown_hero, empty_squad,
+ * duplicate_card (две копии одной карточки в отряде). heroIds — герои отряда по порядку слотов.
+ */
+export function squadUnits(save: SaveState, ctx: GameContext): { squad: (UnitDef | null)[]; heroIds: string[] } {
+  const heroIds: string[] = [];
+  const squad = save.squad.map((heroId) => {
+    if (heroId === null) return null;
+    const hero = save.heroes.find((h) => h.id === heroId);
+    if (!hero) throw new GameRuleError('unknown_hero', `Герой ${heroId} не найден`);
+    if (!heroIds.includes(hero.id)) heroIds.push(hero.id);
+    return buildUnit(hero, ctx);
+  });
+  if (heroIds.length === 0) throw new GameRuleError('empty_squad', 'В отряде нет героев');
+  if (duplicateCardsInSquad(save, save.squad).length) throw new GameRuleError('duplicate_card', 'В отряде может быть только одна копия каждой карточки');
+  return { squad, heroIds };
+}
+
+/**
  * T-B. Сыграть этап. Чистая функция: исходный save не меняется.
- * - GameRuleError('unknown_stage') / ('stage_locked') / ('empty_squad');
+ * - GameRuleError('unknown_stage') / ('stage_locked') / ('empty_squad') / ('duplicate_card');
  * - отряд игрока: save.squad → buildUnit(hero) (null — пустой слот);
  * - бой: simulateBattle(ctx.content, squad, enemySquad, seed, { combat: ctx.combat });
  * - battleSeq + 1 всегда;
- * - победа: награда целиком при первом прохождении, × replayRewardMultiplier при повторе (floor);
- *   золото в resources, jobExp каждому герою отряда через addJobExp; события rewards, stageCleared,
- *   stageUnlocked (для следующего этапа при первом прохождении), события addJobExp;
+ * - победа: награда целиком при первом прохождении, × replayRewardMultiplier при повторе (floor); золото в resources,
+ *   опыт (rewards.jobExp) — в общий пул героев resources.heroExp (уровни поднимает игрок: heroes/level.ts);
+ *   осколки героя этапа (heroes/shards.ts: первое прохождение — firstClear/bossFirstClear, повтор — шанс от seed);
+ *   рекрут (progression.heroes.recruits) и подарок Таверны (summon.unlockAfterStage) при первом прохождении;
+ *   события rewards, shards, stageCleared, stageUnlocked, heroJoined, tavernUnlocked;
  * - поражение: только battleSeq;
  * - P9 (T1-15): первая победа в кампании (cleared был пуст) при переданном now ставит offline.lastClaimAt = now —
  *   сундук копит время с первого пройденного этапа, а не с создания сохранения. Без now lastClaimAt не меняется.
@@ -82,65 +105,55 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   ctx = withGear(ctx, save);
   const stage = getStage(ctx, stageId);
   if (stageStatus(save, stageId, ctx) === 'locked') throw new GameRuleError('stage_locked', `Этап ${stage.name} ещё закрыт`);
-
-  const heroIds: string[] = [];
-  const squad = save.squad.map((heroId) => {
-    if (heroId === null) return null;
-    const hero = save.heroes.find((h) => h.id === heroId);
-    if (!hero) throw new GameRuleError('unknown_hero', `Герой ${heroId} не найден`);
-    if (!heroIds.includes(hero.id)) heroIds.push(hero.id);
-    return buildUnit(hero, ctx);
-  });
-  if (heroIds.length === 0) throw new GameRuleError('empty_squad', 'В отряде нет героев');
+  const { squad } = squadUnits(save, ctx);
 
   const result = simulateBattle(ctx.content, squad, enemySquad(stageId, ctx), seed, { combat: ctx.combat });
-  const next: SaveState = { ...save, battleSeq: save.battleSeq + 1 };
+  let next: SaveState = { ...save, battleSeq: save.battleSeq + 1 };
   const events: ProgressEvent[] = [];
   if (result.winner !== 'A') return { save: next, result, events };
 
   const firstTime = !save.campaign.cleared.includes(stage.id);
   const mult = firstTime ? 1 : ctx.progression.campaign.replayRewardMultiplier;
   const gold = Math.floor(stage.rewards.gold * mult);
-  const jobExp = Math.floor(stage.rewards.jobExp * mult);
+  const heroExp = Math.floor(stage.rewards.jobExp * mult);
 
   // P11 (T4-10): этап новее последнего пройденного меняет ставку сундука — накопленное до сих пор
   // фиксируется по старой ставке (offline.banked), дальше копится по новой.
   const prevLast = lastClearedStage(save, ctx);
   if (firstTime && prevLast && stage.globalIndex > prevLast.globalIndex && now !== undefined) next.offline = bankOffline(save, now, ctx).offline;
   next.resources = { ...save.resources, gold: save.resources.gold + gold };
+  next = addHeroExp(next, heroExp);
   if (firstTime) next.campaign = { ...save.campaign, cleared: [...save.campaign.cleared, stage.id] };
   if (firstTime && save.campaign.cleared.length === 0 && now !== undefined) next.offline = { ...save.offline, lastClaimAt: now };
 
-  events.push({ type: 'rewards', gold, jobExp, heroIds });
+  events.push({ type: 'rewards', gold, heroExp });
+  // Осколки героя этапа: первое прохождение — всегда, повтор — с шансом (от seed боя).
+  const shard = firstTime ? stageShardReward(save, stage, ctx) : (() => {
+    const t = stageShardHero(save, stage, ctx);
+    const n = t ? replayShardCount(seed, ctx) : 0;
+    return t && n > 0 ? { templateId: t, count: n } : null;
+  })();
+  if (shard) {
+    next = addShards(next, shard.templateId, shard.count);
+    events.push({ type: 'shards', templateId: shard.templateId, count: shard.count });
+  }
   events.push({ type: 'stageCleared', stageId: stage.id, firstTime });
   const following = ctx.content.stages[stage.globalIndex + 1];
   if (firstTime && following) events.push({ type: 'stageUnlocked', stageId: following.id });
 
-  const expEvents: ProgressEvent[] = [];
-  next.heroes = save.heroes.map((h): HeroState => {
-    if (!heroIds.includes(h.id)) return h;
-    const r = addJobExp(h, jobExp, ctx);
-    expEvents.push(...r.events);
-    return r.hero;
-  });
-  events.push(...expEvents);
   if (firstTime) {
     for (const rc of ctx.progression.heroes.recruits) {
-      if (rc.afterStage !== stage.id || next.heroes.some((h) => h.name === rc.name)) continue;
-      const hero = recruit(next.heroes, rc, ctx);
-      next.heroes = [...next.heroes, hero];
-      // В отряд — на первое свободное место (если есть).
-      const free = next.squad.indexOf(null);
-      if (free >= 0) next.squad = next.squad.map((id, i) => (i === free ? hero.id : id));
-      events.push({ type: 'heroJoined', heroId: hero.id, name: hero.name });
+      if (rc.afterStage !== stage.id || next.heroes.some((h) => h.templateId === rc.template)) continue;
+      const t = ctx.content.heroes[rc.template];
+      if (!t) continue;
+      const r = addHeroCard(next, rc.template, t.baseRarity);
+      // В отряд — на свободное место (передние — с первого слота, задние — с последнего), если есть.
+      next = { ...r.save, squad: placeInSquad(r.save.squad, r.hero, r.save, ctx) };
+      events.push({ type: 'heroJoined', heroId: r.hero.id, templateId: rc.template, name: t.name });
     }
+    const w = grantTavernWelcome(next, ctx);
+    next = w.save;
+    events.push(...w.events);
   }
   return { save: next, result, events };
-}
-
-/** Новый герой-Новичок джоба 1 со свободным id h<N>, имя и пол — из progression.heroes.recruits. */
-function recruit(heroes: HeroState[], rc: { name: string; gender: HeroState['gender'] }, ctx: GameContext): HeroState {
-  let n = heroes.length + 1;
-  while (heroes.some((h) => h.id === `h${n}`)) n++;
-  return { id: `h${n}`, name: rc.name, gender: rc.gender, job: ctx.progression.heroes.startJob, jobLevel: 1, jobExp: 0, jobHistory: [] };
 }

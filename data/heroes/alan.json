@@ -1,0 +1,67 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "alan",
+  "name": "Алан",
+  "gender": "m",
+  "job": "swordman",
+  "line": "swordman",
+  "role": "tank",
+  "source": "story",
+  "baseRarity": "green",
+  "maxRarity": "red",
+  "statMods": {
+    "hp": 1.1,
+    "atk": 0.9,
+    "def": 1.15
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "swordman_bash"
+    },
+    {
+      "level": 10,
+      "skill": "swordman_endure"
+    },
+    {
+      "level": 30,
+      "skill": "job_swordman_hp_recovery"
+    },
+    {
+      "level": 50,
+      "skill": "job_swordman_provoke"
+    }
+  ],
+  "forms": [
+    {
+      "rarity": "purple",
+      "job": "knight",
+      "role": "tank",
+      "statMods": {
+        "hp": 1.4,
+        "atk": 1.15,
+        "def": 1.45
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_swordman_provoke"
+        },
+        {
+          "level": 10,
+          "skill": "swordman_endure"
+        },
+        {
+          "level": 30,
+          "skill": "job_knight_auto_counter"
+        },
+        {
+          "level": 50,
+          "skill": "job_knight_bowling_bash"
+        }
+      ]
+    }
+  ],
+  "bio": "Мечник из деревни у Пронтеры. Щит, бравада и привычка вставать первым.",
+  "hook": "Хочет в рыцари Пронтеры, а капитан Гаррет не берёт — «пока не научишься отступать»."
+}

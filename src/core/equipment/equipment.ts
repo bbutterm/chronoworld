@@ -1,3 +1,4 @@
+import { heroJobId } from '../heroes/card';
 import type { GameContext } from '../progression/types';
 import type { GearLookup, StatBonus } from '../progression/stats';
 import type { HeroState, ItemInstance, SaveState } from '../save/schema';
@@ -74,7 +75,7 @@ function jobLine(ctx: GameContext, jobId: string): Set<string> {
 /** Может ли герой надеть предмет (ограничение jobs: профессия героя или её предок в списке). */
 export function canEquip(hero: HeroState, def: ItemDef, ctx: GameContext): boolean {
   if (!def.jobs) return true;
-  const line = jobLine(ctx, hero.job);
+  const line = jobLine(ctx, heroJobId(hero, ctx));
   return def.jobs.some((j) => line.has(j));
 }
 

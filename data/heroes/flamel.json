@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "flamel",
+  "name": "Фламель Эмюль",
+  "gender": "m",
+  "job": "alchemist",
+  "line": "merchant",
+  "role": "support",
+  "source": "summon",
+  "baseRarity": "purple",
+  "maxRarity": "red",
+  "statMods": {
+    "hp": 1.2,
+    "atk": 1.2,
+    "def": 1.1
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_alchemist_acid_terror"
+    },
+    {
+      "level": 10,
+      "skill": "job_alchemist_potion_pitcher"
+    },
+    {
+      "level": 30,
+      "skill": "job_alchemist_chemical_protection"
+    },
+    {
+      "level": 50,
+      "skill": "job_alchemist_acid_bomb"
+    }
+  ],
+  "bio": "Алхимик: кислота врагам, зелья и защита своим.",
+  "hook": "Ищет эликсир, который вернёт ему память о Лайтхалзене."
+}

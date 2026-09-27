@@ -51,7 +51,7 @@ export class StageScene extends Phaser.Scene {
       this,
       GAME_W / 2,
       L.rewardY,
-      `${first ? 'Награда' : `Повтор (×${k})`}: золото ${formatNumber(Math.floor(stage.rewards.gold * k))} · опыт ${formatNumber(Math.floor(stage.rewards.jobExp * k))} каждому`,
+      `${first ? 'Награда' : `Повтор (×${k})`}: золото ${formatNumber(Math.floor(stage.rewards.gold * k))} · опыт ${formatNumber(Math.floor(stage.rewards.jobExp * k))} в запас`,
       FS.caption,
       C.muted,
       { stroke: C.stroke, strokeThickness: 4 },

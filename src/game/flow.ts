@@ -2,14 +2,16 @@
  * Чистые помощники экранов (без Phaser) — их проверяют тесты tests/game-flow.test.ts.
  */
 import {
-  availableJobChanges,
+  ascendRequirement,
   canEquip,
-  expBankStatus,
   heroesWithGearUpgrades,
+  heroGender,
+  heroJobId,
+  heroName,
+  heroRole,
+  levelUpInfo,
   misplacedInFront,
   type GearContext,
-  getJob,
-  heroGender,
   RARITIES,
   SLOTS,
   stageStatus,
@@ -75,7 +77,7 @@ export function nextOpenStage(save: SaveState, stageId: string, ctx: GameContext
 }
 
 /** R. Почему авто-прохождение остановилось (null — идёт дальше). */
-export type AutoStop = 'defeat' | 'chapter_end' | 'no_next' | 'replay' | 'job_change';
+export type AutoStop = 'defeat' | 'chapter_end' | 'no_next' | 'replay';
 
 /**
  * R. Авто-прохождение кампании: какой этап запустить после боя на stageId, или почему остановиться.
@@ -84,8 +86,6 @@ export type AutoStop = 'defeat' | 'chapter_end' | 'no_next' | 'replay' | 'job_ch
  */
 export function autoNextStage(save: SaveState, stageId: string, win: boolean, ctx: GameContext): { next: StageInfo | null; stop: AutoStop | null } {
   if (!win) return { next: null, stop: 'defeat' };
-  // Кто-то готов сменить профессию — сначала это (иначе авто уведёт игрока дальше мимо важного выбора).
-  if (jobChangeReadyCount(save, ctx) > 0) return { next: null, stop: 'job_change' };
   const cur = ctx.content.stages.find((s) => s.id === stageId);
   const next = nextOpenStage(save, stageId, ctx);
   if (!next) return { next: null, stop: 'no_next' };
@@ -94,45 +94,27 @@ export function autoNextStage(save: SaveState, stageId: string, win: boolean, ct
   return { next, stop: null };
 }
 
-/** Первый герой, который может сменить профессию прямо сейчас (или undefined). */
-export function firstJobChangeReady(save: SaveState, ctx: GameContext): HeroState | undefined {
-  return save.heroes.find((h) => ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0);
+/** Герои отряда, которых можно «Улучшить» прямо сейчас (хватает опыта пула и золота, не предел). */
+export function levelUpReady(save: SaveState, ctx: GameContext): HeroState[] {
+  return save.heroes.filter((h) => save.squad.includes(h.id) && ctx.content.heroes[h.templateId] && levelUpInfo(save, h.id, ctx).canLevel);
 }
 
-/** Готовый к смене профессии герой, кроме exceptId (для «Ещё герой готов к профессии»). */
-export function otherJobChangeReady(save: SaveState, ctx: GameContext, exceptId?: string): HeroState | undefined {
-  return save.heroes.find((h) => h.id !== exceptId && ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0);
-}
-
-/**
- * Названия навыков, открытых сменой профессии (события skillUnlocked новой профессии). Событий нет —
- * навыки новой профессии, доступные на текущем джобе героя.
- */
-export function jobChangeSkills(events: readonly (TowerEvent | MetaEvent)[], hero: HeroState, ctx: GameContext): string[] {
-  const name = (id: string) => ctx.content.skills[id]?.name ?? id;
-  const unlocked = events.flatMap((e) => (e.type === 'skillUnlocked' && e.heroId === hero.id && e.job === hero.job ? [name(e.skill)] : []));
-  if (unlocked.length) return unlocked;
-  const job = ctx.content.jobs[hero.job];
-  return job ? job.skills.filter((s) => s.jobLevel <= hero.jobLevel).map((s) => name(s.skill)) : [];
-}
-
-/** Строка «Смена профессии доступна!» устарела, если сейчас никто не готов (профессию уже сменили). */
-export function dropStaleJobReady(lines: string[], save: SaveState, ctx: GameContext): string[] {
-  return jobChangeReadyCount(save, ctx) > 0 ? lines : lines.filter((l) => !l.startsWith('Смена профессии доступна'));
-}
-
-/** R. Сколько героев могут сменить профессию прямо сейчас (значок вкладки «Герои»). */
-export function jobChangeReadyCount(save: SaveState, ctx: GameContext): number {
-  return save.heroes.filter((h) => ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0).length;
+/** Карточки, которые можно вознести прямо сейчас (сюжетные — хватает осколков, золота и уровня; призывные — есть корм). */
+export function ascendReady(save: SaveState, ctx: GameContext): HeroState[] {
+  return save.heroes.filter((h) => {
+    if (!ctx.content.heroes[h.templateId]) return false;
+    const req = ascendRequirement(save, h.id, ctx);
+    return !!req && req.blockers.length === 0 && req.fodder.every((f) => f.candidates.length >= f.count);
+  });
 }
 
 /**
- * P10 (T1-08). Значок вкладки «Герои»: сколько героев ждут внимания — готовы сменить профессию или
- * могут надеть вещь получше из инвентаря (каждый герой считается один раз).
+ * P10 (T1-08). Значок вкладки «Герои»: сколько героев ждут внимания — можно вознести или могут надеть вещь получше
+ * из инвентаря (каждый герой считается один раз). «Улучшить» не считается — оно доступно почти всегда.
  */
 export function heroesBadgeCount(save: SaveState, ctx: GearContext & GameContext): number {
   const ids = new Set(heroesWithGearUpgrades(save, ctx));
-  for (const h of save.heroes) if (ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0) ids.add(h.id);
+  for (const h of ascendReady(save, ctx)) ids.add(h.id);
   return ids.size;
 }
 
@@ -142,25 +124,30 @@ export function currentStage(save: SaveState, ctx: GameContext): StageInfo | und
   return stages.find((s) => stageStatus(save, s.id, ctx) === 'open') ?? stages[stages.length - 1];
 }
 
-/** Строки для экрана итогов/тоста по событиям прогрессии (без повторов «доступна смена профессии»). */
+/** Строки для экрана итогов/тоста по событиям прогрессии. */
 export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save: SaveState, ctx: GameContext): string[] {
-  const heroName = (id: string) => save.heroes.find((h) => h.id === id)?.name ?? id;
+  const nameOf = (id: string) => {
+    const h = save.heroes.find((x) => x.id === id);
+    return h ? heroName(h, ctx) : id;
+  };
   const skillName = (id: string) => ctx.content.skills[id]?.name ?? id;
   const jobName = (id: string) => ctx.content.jobs[id]?.name ?? id;
+  const rarityName = (id: string) => ctx.cards.rarities.find((r) => r.id === id)?.name ?? id;
   const lines: string[] = [];
   // Несколько level-up подряд у одного героя — одна строка с итоговым уровнем.
   const levels = new Map<string, { from: number; to: number }>();
   for (const e of events) {
     if (e.type !== 'levelUp') continue;
     const l = levels.get(e.heroId);
-    levels.set(e.heroId, { from: Math.min(l?.from ?? Infinity, e.jobLevel - 1), to: Math.max(l?.to ?? 0, e.jobLevel) });
+    levels.set(e.heroId, { from: Math.min(l?.from ?? Infinity, e.level - 1), to: Math.max(l?.to ?? 0, e.level) });
   }
-  // T1-23: «уровень профессии было → стало» — новичку видно, что это повышение.
-  for (const [heroId, l] of levels) lines.push(`${heroName(heroId)}: ур. профессии ${l.from} → ${l.to}`);
+  for (const [heroId, l] of levels) lines.push(`${nameOf(heroId)}: ур. ${l.from} → ${l.to}`);
   for (const e of events) {
-    if (e.type === 'skillUnlocked') lines.push(`${heroName(e.heroId)}: новый навык «${skillName(e.skill)}»`);
+    if (e.type === 'skillUnlocked') lines.push(`${nameOf(e.heroId)}: новый навык «${skillName(e.skill)}»`);
     if (e.type === 'heroJoined') lines.unshift(`Новый герой в отряде: ${e.name}!`);
-    if (e.type === 'jobChanged') lines.push(`${heroName(e.heroId)}: ${jobName(e.from)} → ${jobName(e.to)}`);
+    if (e.type === 'ascended') lines.push(`${nameOf(e.heroId)}: ${rarityName(e.from)} → ${rarityName(e.to)}${e.jobChanged ? ` — теперь ${jobName(e.job)}!` : ''}`);
+    if (e.type === 'shards') lines.push(`Осколки героя ${ctx.content.heroes[e.templateId]?.name ?? e.templateId} +${e.count}`);
+    if (e.type === 'tavernUnlocked') lines.unshift(`Открыта Таверна! Подарок: гемы +${formatNumber(e.gems)}, свитки призыва +${e.scrolls}`);
     if (e.type === 'stageUnlocked') {
       const s = ctx.content.stages.find((x) => x.id === e.stageId);
       if (s) lines.push(`Открыт этап ${s.globalIndex + 1}: ${s.name}`);
@@ -168,18 +155,16 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save
   }
   const gems = events.reduce((sum, e) => sum + (e.type === 'gems' ? e.amount : 0), 0);
   if (gems > 0) lines.unshift(`Гемы +${formatNumber(gems)}`);
-  const jobReady = events.filter((e) => e.type === 'jobChangeAvailable');
-  if (jobReady.length) lines.push(`Смена профессии доступна! (${jobReady.map((e) => heroName(e.heroId)).join(', ')})`);
   return lines;
 }
 
 /**
- * P10 (T1-09). Порядок строк итогов: сначала ключевые события — новый герой, смена профессии, новые навыки,
- * рост уровня, — затем остальное (открытые этапы, гемы…). Внутри группы порядок сохраняется.
+ * P10 (T1-09). Порядок строк итогов: сначала ключевые события — новый герой, Таверна, вознесение, новые навыки,
+ * рост уровня, — затем остальное (осколки, открытые этапы, гемы…). Внутри группы порядок сохраняется.
  */
 export function keyEventsFirst(lines: readonly string[]): string[] {
   const rank = (l: string) =>
-    l.startsWith('Новый герой') ? 0 : l.startsWith('Смена профессии') ? 1 : l.includes('новый навык') ? 2 : l.includes('ур. профессии') ? 3 : l.includes(' → ') ? 1 : 4;
+    l.startsWith('Новый герой') ? 0 : l.startsWith('Открыта Таверна') ? 1 : l.includes(' → ') && !l.includes(': ур. ') ? 1 : l.includes('новый навык') ? 2 : l.includes(': ур. ') ? 3 : 4;
   return lines.map((l, i) => ({ l, i })).sort((a, b) => rank(a.l) - rank(b.l) || a.i - b.i).map((x) => x.l);
 }
 
@@ -188,63 +173,42 @@ export function decimal(n: number, digits?: number): string {
   return (digits === undefined ? String(n) : n.toFixed(digits)).replace('.', ',');
 }
 
-/** T1-23: «Ур. профессии 4 / 10» (без max — «Ур. профессии 4»). */
-export function jobLevelText(level: number, max?: number): string {
-  return `Ур. профессии ${level}${max === undefined ? '' : ` / ${max}`}`;
+/** «Ур. 4 / 20» (без max — «Ур. 4»). */
+export function levelText(level: number, max?: number): string {
+  return `Ур. ${level}${max === undefined ? '' : ` / ${max}`}`;
 }
 
-/**
- * P10 (T1-02). Подсказка «опыт копится» по героям save: кто стоит на максимуме профессии и копит опыт в запас.
- * full — у кого-то запас полон (дальнейший опыт пропадает): текст-предупреждение. null — никто не копит.
- */
-export function expBankNote(save: SaveState, ctx: GameContext): { text: string; full: boolean } | null {
-  const banking = save.heroes.filter((h) => ctx.content.jobs[h.job] && expBankStatus(h, ctx).banking);
-  if (!banking.length) return null;
-  const full = banking.filter((h) => expBankStatus(h, ctx).full);
-  if (full.length) return { text: `Запас опыта полон (${full.map((h) => h.name).join(', ')}) — смените профессию, иначе опыт сгорает`, full: true };
-  return { text: `Опыт копится — смените профессию (${banking.map((h) => h.name).join(', ')})`, full: false };
-}
-
-/** P10 (T1-02). Подпись к полосе опыта героя на максимуме: запас опыта или «макс.». */
-export function expBankLabel(hero: HeroState, ctx: GameContext): { text: string; full: boolean } | null {
-  const st = expBankStatus(hero, ctx);
-  if (!st.banking) return null;
-  return st.full ? { text: 'запас полон!', full: true } : { text: `в запасе ${formatNumber(st.banked)} / ${formatNumber(st.cap)}`, full: false };
+/** Опыт в запасе (пул) и сколько уровней он даст отряду: подпись для экранов. */
+export function poolText(save: SaveState): string {
+  return `Опыт в запасе: ${formatNumber(save.resources.heroExp)}`;
 }
 
 /**
  * P10 (T1-07). Совет после поражения на этапе — по делу, по порядку пользы:
- * вещи получше в инвентаре → смена профессии (только если доступна) → стрелки во фронте → свободные слоты
- * при запасных героях → прокачка. action — куда ведёт кнопка совета.
+ * вещи получше в инвентаре → «Улучшить» (хватает опыта) → вознесение → стрелки во фронте → свободные слоты при
+ * запасных героях → прокачка. action — куда ведёт кнопка совета.
  */
 export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): { text: string; action: 'Heroes' | 'Squad' | 'Campaign' | 'Home' } {
   if (heroesWithGearUpgrades(save, ctx).length) return { text: 'В инвентаре есть вещи получше — «Герои» → «Надеть лучшее».', action: 'Heroes' };
-  if (jobChangeReadyCount(save, ctx) > 0) return { text: 'Смена профессии доступна — она сильно усилит героя («Герои»).', action: 'Heroes' };
+  if (levelUpReady(save, ctx).length) return { text: 'Опыта хватает на новый уровень — «Герои» → герой → «Улучшить».', action: 'Heroes' };
+  if (ascendReady(save, ctx).length) return { text: 'Герой готов к вознесению — оно сильно его усилит («Герои»).', action: 'Heroes' };
   if (misplacedInFront(save, ctx).length) return { text: 'Стрелки и лекари стоят во фронте — «Отряд» → «Переставить».', action: 'Squad' };
   const free = save.heroes.filter((h) => !save.squad.includes(h.id)).length;
   if (free > 0 && save.squad.includes(null)) return { text: 'В отряде есть пустые места — возьмите всех героев («Отряд»).', action: 'Squad' };
-  return { text: 'Прокачайте героев: повторите пройденные этапы и заберите сундук на главной.', action: 'Home' };
-}
-
-/** Навык профессии, ещё не открытый у героя: имя и уровень открытия. */
-export function lockedJobSkills(jobId: string, jobLevel: number, ctx: GameContext): { skill: string; jobLevel: number }[] {
-  return getJob(ctx, jobId)
-    .skills.filter((s) => s.jobLevel > jobLevel)
-    .sort((a, b) => a.jobLevel - b.jobLevel);
+  return { text: 'Прокачайте героев: повторите пройденные этапы и заберите сундук на главной, затем «Улучшить».', action: 'Home' };
 }
 
 /**
- * id спрайта героя — от его текущей профессии и пола: `<спрайт профессии>_f` / `_m`, если такой лист есть в реестре,
- * иначе базовый лист профессии (он одного пола — см. genderedSpriteId). has — проверка реестра (для тестов).
+ * id спрайта героя — от класса карточки (с учётом формы) и её пола: `<спрайт класса>_f` / `_m`, если такой лист есть
+ * в реестре, иначе базовый лист класса (он одного пола — см. genderedSpriteId). visual.sprite шаблона побеждает.
+ * has — проверка реестра (для тестов).
  */
 export function heroSprite(hero: HeroState, ctx: GameContext, has: (id: string) => boolean = hasSprite): string {
-  return heroJobSprite(hero, hero.job, ctx, has);
-}
-
-/** Как выглядел бы герой в профессии jobId (варианты на экране смены профессии): лист профессии по полу героя. */
-export function heroJobSprite(hero: HeroState, jobId: string, ctx: GameContext, has: (id: string) => boolean = hasSprite): string {
-  const base = ctx.content.jobs[jobId]?.visual.sprite ?? jobId;
-  return genderedSpriteId(base, heroGender(hero, ctx.progression.heroes), has);
+  const own = ctx.content.heroes[hero.templateId]?.visual.sprite;
+  if (own) return own;
+  const job = ctx.content.heroes[hero.templateId] ? heroJobId(hero, ctx) : 'novice';
+  const base = ctx.content.jobs[job]?.visual.sprite ?? job;
+  return genderedSpriteId(base, heroGender(hero, ctx), has);
 }
 
 // ---------- K2. Мощь ----------
@@ -311,7 +275,10 @@ export interface InventoryRow {
  * Неизвестные контенту предметы — в конце.
  */
 export function inventoryRows(save: SaveState, ctx: EquipmentContext, slot?: Slot): InventoryRow[] {
-  const name = (id: string | null) => (id === null ? null : (save.heroes.find((h) => h.id === id)?.name ?? id));
+  const name = (id: string | null) => {
+    const h = id === null ? undefined : save.heroes.find((x) => x.id === id);
+    return id === null ? null : h ? heroName(h, ctx) : id;
+  };
   const rows = save.inventory.items
     .map((instance): InventoryRow => ({ instance, def: ctx.equipment.items[instance.itemId], wornBy: name(instance.equippedBy) }))
     .filter((r) => !slot || r.def?.slot === slot);
@@ -351,12 +318,13 @@ export function questDestination(event: ActivityKind): 'Campaign' | 'Home' | 'He
   switch (event) {
     case 'stage_win':
     case 'stage_attempt':
-    case 'hero_level_up':
       return 'Campaign';
     case 'offline_claim':
     case 'fast_rewards':
+    case 'summon':
       return 'Home';
-    case 'job_change':
+    case 'hero_level_up':
+    case 'hero_ascend':
       return 'Heroes';
     case 'tower_attempt':
       return 'Tower';
@@ -403,11 +371,12 @@ export function countdownText(ms: number): string {
 }
 
 /** Награда K9/K10 одной строкой: «300 зол. · 50 опыта · 5 гем.» (нулевые не пишем). */
-export function metaRewardsText(r: MetaRewards, jobExpSuffix = ''): string {
+export function metaRewardsText(r: Omit<MetaRewards, 'shards'> & { shards?: number }, jobExpSuffix = ''): string {
   const parts: string[] = [];
   if (r.gold) parts.push(`${formatNumber(r.gold)} зол.`);
   if (r.jobExp) parts.push(`${formatNumber(r.jobExp)} опыта${jobExpSuffix}`);
   if (r.gems) parts.push(`${formatNumber(r.gems)} гем.`);
+  if (r.shards) parts.push(`${formatNumber(r.shards)} оск.`);
   return parts.join(' · ') || '—';
 }
 
@@ -425,7 +394,7 @@ export function bountyPickBlocker(bounty: Bounty, heroIds: readonly string[], sa
   if (bounty.role) {
     const ok = heroIds.some((id) => {
       const h = save.heroes.find((x) => x.id === id);
-      return h ? ctx.content.jobs[h.job]?.role === bounty.role : false;
+      return h && ctx.content.heroes[h.templateId] ? heroRole(h, ctx) === bounty.role : false;
     });
     if (!ok) return `Нужен герой с ролью «${ROLE_NAMES[bounty.role] ?? bounty.role}»`;
   }

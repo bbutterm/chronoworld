@@ -1,0 +1,36 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "kai",
+  "name": "Кай",
+  "gender": "m",
+  "job": "mage",
+  "line": "mage",
+  "role": "damage",
+  "source": "summon",
+  "baseRarity": "green",
+  "maxRarity": "gold",
+  "statMods": {
+    "atk": 1.1,
+    "def": 0.9
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_mage_fire_bolt"
+    },
+    {
+      "level": 10,
+      "skill": "job_mage_sp_recovery"
+    },
+    {
+      "level": 30,
+      "skill": "job_mage_fire_ball"
+    },
+    {
+      "level": 50,
+      "skill": "job_mage_thunderstorm"
+    }
+  ],
+  "bio": "Маг огня и молний. Сначала жжёт, потом думает.",
+  "hook": "Спалил библиотеку Гефенской башни и теперь отрабатывает долг."
+}

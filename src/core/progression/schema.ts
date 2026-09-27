@@ -39,45 +39,14 @@ export const JobSchema = z.object({
 
 /** data/progression.json — правила прогрессии (числа — заглушки до баланса). */
 export const ProgressionConfigSchema = z.object({
-  jobChange: z.object({
-    /** Минимальный джоб-уровень для перехода на tier 1 и tier 2. */
-    tierLevel: z.object({ '1': z.number().int().positive(), '2': z.number().int().positive() }),
-    /** Сбрасывать ли джоб-уровень в 1 после смены профессии. */
-    resetJobLevel: z.boolean(),
-    /**
-     * P9 (T1-02). Опыт сверх максимума профессии (пока есть куда сменить) копится в hero.bankedExp — не больше,
-     * чем нужно следующему тиру с 1-го уровня на 1 + bankLevels, и переходит в новую профессию. 0 — не копить.
-     */
-    bankLevels: z.number().int().nonnegative().default(5),
-  }),
-  /** Остаются ли навыки прошлых профессий после смены. */
-  keepSkillsOnJobChange: z.boolean(),
-  /** Опыт до следующего уровня: floor(base × level^power). */
-  exp: z.object({
-    base: z.number().positive(),
-    power: z.number().positive(),
-    /** Своя кривая для тира профессии ("0" — Новичок: быстро до первой профессии). */
-    byTier: z.record(z.string(), z.object({ base: z.number().positive(), power: z.number().positive() })).optional(),
-  }),
+  $comment: z.string().optional(),
+  /**
+   * Сюжетные герои — карточки из data/heroes (source: story). start — отряд новой игры (зелёные, ур. 1),
+   * recruits — после первой победы на afterStage в отряд приходит карточка template (ур. 1).
+   */
   heroes: z.object({
-    count: z.number().int().positive(),
-    startJob: id,
-    /** Сюжетные стартовые герои: имя и фиксированный пол (часть образа героя). Героев больше, чем имён, — случайные из namePools. */
-    names: z.array(z.object({ name: z.string(), gender: GenderSchema })).min(1),
-    /**
-     * Новые герои по ходу кампании: после первой победы на afterStage в отряд приходит Новичок с этим именем и полом.
-     * formerNames — прежние имена этого героя в старых сохранениях (sanitizeSave переименует).
-     */
-    recruits: z
-      .array(z.object({ afterStage: id, name: z.string(), gender: GenderSchema, formerNames: z.array(z.string()).optional() }))
-      .default([]),
-    /**
-     * Имена для несюжетных героев (сверх names): пол случайный, но детерминированный от seed сохранения
-     * (progression/heroes.ts generatedHero), имя — из пула этого пола.
-     */
-    namePools: z.object({ m: z.array(z.string()).min(1), f: z.array(z.string()).min(1) }),
-    /** Пол по именам из старых сохранений (Бэлла, Вик…) — для миграции; неизвестное имя → 'm'. */
-    legacyNames: z.record(z.string(), GenderSchema).default({}),
+    start: z.array(id).min(1).max(5),
+    recruits: z.array(z.object({ afterStage: id, template: id })).default([]),
   }),
   campaign: z.object({
     /** Рост статов врагов за каждый этап по порядку (0.08 = +8%). */

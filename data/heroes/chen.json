@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "chen",
+  "name": "Чен Лю",
+  "gender": "m",
+  "job": "monk",
+  "line": "acolyte",
+  "role": "damage",
+  "source": "summon",
+  "baseRarity": "purple",
+  "maxRarity": "red",
+  "statMods": {
+    "hp": 1.2,
+    "atk": 1.3,
+    "def": 1.1
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_monk_triple_attack"
+    },
+    {
+      "level": 10,
+      "skill": "job_monk_iron_hand"
+    },
+    {
+      "level": 30,
+      "skill": "job_monk_call_spirits"
+    },
+    {
+      "level": 50,
+      "skill": "job_monk_asura_strike"
+    }
+  ],
+  "bio": "Монах: тройной удар, железные кулаки и Асура.",
+  "hook": "Дал обет молчания и нарушает его только ради боевого клича."
+}

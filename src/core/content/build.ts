@@ -1,5 +1,7 @@
 import { ChapterSchema, type ChapterDef, type StageInfo } from '../campaign/schema';
 import { validateCampaign } from '../campaign/validate';
+import { HeroTemplateSchema, type HeroTemplate } from '../heroes/schema';
+import { validateHeroes } from '../heroes/validate';
 import { JobSchema, type JobDef } from '../progression/schema';
 import { validateJobs } from '../progression/validate';
 import type { Content } from '../types';
@@ -17,6 +19,8 @@ export interface RawContent {
   skills: RawFile[];
   jobs?: RawFile[];
   chapters?: RawFile[];
+  /** data/heroes — шаблоны карточек героев. */
+  heroes?: RawFile[];
 }
 
 export class ContentError extends Error {
@@ -45,6 +49,7 @@ export function buildContent(raw: RawContent): Content {
   const skills = parseAll<SkillDef>(raw.skills, SkillSchema as z.ZodType<SkillDef>, 'навык', problems);
   const units = parseAll<UnitDef>(raw.units, UnitSchema as z.ZodType<UnitDef>, 'юнит', problems);
   const jobs = parseAll<JobDef>(raw.jobs ?? [], JobSchema as z.ZodType<JobDef>, 'профессия', problems);
+  const heroes = parseAll<HeroTemplate>(raw.heroes ?? [], HeroTemplateSchema as unknown as z.ZodType<HeroTemplate>, 'карточка', problems);
   const chapterMap = parseAll<ChapterDef>(raw.chapters ?? [], ChapterSchema as z.ZodType<ChapterDef>, 'глава', problems);
 
   const chapters = Object.values(chapterMap).sort((a, b) => a.order - b.order);
@@ -84,8 +89,9 @@ export function buildContent(raw: RawContent): Content {
     if (basic?.trigger) problems.push(`юнит ${u.id}: обычная атака ${basic.id} не может иметь trigger`);
   }
 
-  const content: Content = { units, skills, jobs, chapters, stages };
+  const content: Content = { units, skills, jobs, heroes, chapters, stages };
   validateJobs(content, problems);
+  validateHeroes(content, problems);
   validateCampaign(content, problems);
 
   if (problems.length) throw new ContentError(problems);

@@ -4,6 +4,7 @@ import {
   buildContent,
   buildGameContext,
   COMBAT,
+  parseHeroesConfig,
   ProgressionConfigSchema,
   type Content,
   type FullContext,
@@ -38,6 +39,7 @@ export function loadContent(): Content {
     skills: readJsonDir('data/skills'),
     jobs: readJsonDir('data/jobs'),
     chapters: readJsonDir('data/campaign'),
+    heroes: readJsonDir('data/heroes'),
   });
 }
 
@@ -54,8 +56,11 @@ export function readRawGameData(root: string = ROOT): RawGameData {
     skills: readJsonDir('data/skills', root),
     jobs: readJsonDir('data/jobs', root),
     chapters: readJsonDir('data/campaign', root),
+    heroes: readJsonDir('data/heroes', root),
     items: readJsonDir('data/items', root),
     progression: readJsonFile('data/progression.json', root),
+    cards: readJsonFile('data/cards.json', root),
+    summon: readJsonFile('data/summon.json', root),
     quests: readJsonFile('data/quests.json', root),
     drops: readJsonFile('data/drops.json', root),
     tower: readJsonFile('data/tower.json', root),
@@ -76,6 +81,7 @@ export function loadGameContext(): GameContext {
     content: loadContent(),
     progression: ProgressionConfigSchema.parse(JSON.parse(readFileSync(join(ROOT, 'data/progression.json'), 'utf8'))),
     combat: COMBAT,
+    ...parseHeroesConfig(readJsonFile('data/cards.json'), readJsonFile('data/summon.json')),
   };
 }
 

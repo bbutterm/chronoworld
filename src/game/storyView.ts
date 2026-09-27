@@ -1,7 +1,7 @@
 /**
  * Сюжет в UI без Phaser (тесты — tests/story.test.ts): кто говорит и чей портрет показать.
  */
-import { heroGender, knownGender, type Gender, type GameContext, type HeroState, type SaveState, type SpeakerDef, type StageInfo, type StoryContext, type StoryDef, type StoryScene } from '../core';
+import { heroGender, heroName, storyOrder, type Gender, type GameContext, type HeroState, type SaveState, type SpeakerDef, type StageInfo, type StoryContext, type StoryDef, type StoryScene } from '../core';
 import { genderedSpriteId } from '../pipeline/sprites';
 import { heroSprite } from './flow';
 import { hasSprite } from './spriteRegistry';
@@ -10,25 +10,31 @@ export interface SpeakerView {
   name: string;
   /** id спрайта для портрета; null — картинки нет (UI ставит иконку скина). */
   sprite: string | null;
-  /** Пол говорящего героя (из сохранения или по имени в progression.heroes) — для бюста; не герой — нет. */
+  /** Пол говорящего героя (из карточки или по имени сюжетной карточки) — для бюста; не герой — нет. */
   gender?: Gender;
 }
 
-/** hero1..heroN → герой сохранения по порядку. */
-export function speakerHero(key: string, save: SaveState) {
+/** hero1..heroN → карточка сюжетного героя N-го по порядку сюжета (progression.heroes: start, затем recruits), если она у игрока есть. */
+export function speakerHero(key: string, save: SaveState, ctx: GameContext) {
   const m = /^hero(\d+)$/.exec(key);
-  return m ? save.heroes[Number(m[1]) - 1] : undefined;
+  const templateId = m ? storyOrder(ctx)[Number(m[1]) - 1] : undefined;
+  return templateId ? save.heroes.find((h) => h.templateId === templateId) : undefined;
+}
+
+/** Пол сюжетной карточки по имени спикера (рекрут до вступления: «Грета» → f). */
+function genderByName(name: string, ctx: GameContext): Gender | undefined {
+  return Object.values(ctx.content.heroes).find((t) => t.name === name)?.gender;
 }
 
 /**
- * Спрайт портрета спикера: 'hero' — текущая профессия героя (нет героя — стартовая профессия);
+ * Спрайт портрета спикера: 'hero' — класс карточки героя (нет героя — лист Новичка);
  * 'unit:<id>' — спрайт юнита (юнита нет — null); иначе id профессии, а если такой нет — id спрайта как есть.
  * gender — пол говорящего: лист профессии `<спрайт>_<m|f>`, если есть (Грета с портретом novice → novice_f).
  */
 export function portraitSprite(portrait: string, ctx: GameContext, hero?: SaveState['heroes'][number], gender?: Gender): string | null {
   if (portrait === 'hero') {
     if (hero) return heroSprite(hero, ctx);
-    const start = ctx.content.jobs[ctx.progression.heroes.startJob]?.visual.sprite;
+    const start = ctx.content.jobs.novice?.visual.sprite;
     return start ? genderedSpriteId(start, gender, hasSprite) : null;
   }
   if (portrait.startsWith('unit:')) return ctx.content.units[portrait.slice(5)]?.visual.sprite ?? null;
@@ -36,14 +42,14 @@ export function portraitSprite(portrait: string, ctx: GameContext, hero?: SaveSt
   return job ? genderedSpriteId(job, gender, hasSprite) : portrait;
 }
 
-/** Имя и портрет спикера реплики. Имя героев hero1..heroN — из сохранения (игрок мог их переименовать). */
+/** Имя и портрет спикера реплики. Имя героев hero1..heroN — из карточки игрока. */
 export function speakerView(story: StoryDef | undefined, key: string, save: SaveState, ctx: GameContext): SpeakerView {
   const sp: SpeakerDef | undefined = story?.speakers[key];
-  const hero = speakerHero(key, save);
-  // Пол: герой сохранения (hero1..N) → сюжетный герой по имени спикера (рекрут до/после вступления) → нет.
-  const gender = hero ? heroGender(hero, ctx.progression.heroes) : sp ? knownGender(sp.name, ctx.progression.heroes) : undefined;
+  const hero = speakerHero(key, save, ctx);
+  // Пол: карточка героя (hero1..N) → сюжетная карточка по имени спикера (рекрут до вступления) → нет.
+  const gender = hero ? heroGender(hero, ctx) : sp ? genderByName(sp.name, ctx) : undefined;
   return {
-    name: hero?.name ?? sp?.name ?? key,
+    name: hero ? heroName(hero, ctx) : (sp?.name ?? key),
     sprite: sp ? portraitSprite(sp.portrait, ctx, hero, gender) : hero ? heroSprite(hero, ctx) : null,
     ...(gender ? { gender } : {}),
   };
@@ -89,7 +95,7 @@ export interface ChapterSummary {
   jobExp: number;
   /** Сколько предметов в инвентаре (трофеи). */
   items: number;
-  /** Герой, присоединившийся после босса главы (progression.heroes.recruits), если он уже в отряде. */
+  /** Герой, присоединившийся после босса главы (progression.heroes.recruits), если он уже у игрока. */
   recruit?: HeroState;
   /** Следующая глава (для «Глава N ›»): индекс в content.chapters, номер и название. */
   next?: { index: number; number: number; name: string };
@@ -102,8 +108,7 @@ export function chapterSummary(save: SaveState, chapterId: string, ctx: GameCont
   const cleared = stages.filter((s) => save.campaign.cleared.includes(s.id)).length;
   const last = stages[stages.length - 1];
   const rc = last ? ctx.progression.heroes.recruits.find((r) => r.afterStage === last.id) : undefined;
-  // Рекрут — последний герой с этим именем (имя из progression).
-  const recruit = rc ? [...save.heroes].reverse().find((h) => h.name === rc.name) : undefined;
+  const recruit = rc ? save.heroes.find((h) => h.templateId === rc.template) : undefined;
   const nextChapter = index >= 0 ? chapters[index + 1] : undefined;
   return {
     chapterId,

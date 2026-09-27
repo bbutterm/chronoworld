@@ -1,0 +1,231 @@
+{
+  "title": "Карточка героя (шаблон)",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "m",
+        "f"
+      ]
+    },
+    "job": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "line": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "tank",
+        "damage",
+        "healer",
+        "support"
+      ]
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "story",
+        "summon"
+      ]
+    },
+    "baseRarity": {
+      "type": "string",
+      "enum": [
+        "green",
+        "blue",
+        "purple",
+        "gold",
+        "red"
+      ]
+    },
+    "maxRarity": {
+      "type": "string",
+      "enum": [
+        "green",
+        "blue",
+        "purple",
+        "gold",
+        "red"
+      ]
+    },
+    "statMods": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "hp": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "atk": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "def": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "spd": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "skills": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "skill": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "required": [
+          "level",
+          "skill"
+        ]
+      }
+    },
+    "forms": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rarity": {
+            "type": "string",
+            "enum": [
+              "green",
+              "blue",
+              "purple",
+              "gold",
+              "red"
+            ]
+          },
+          "job": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "tank",
+              "damage",
+              "healer",
+              "support"
+            ]
+          },
+          "statMods": {
+            "default": {},
+            "type": "object",
+            "properties": {
+              "hp": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "atk": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "def": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "spd": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          },
+          "skills": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "level": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "skill": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                }
+              },
+              "required": [
+                "level",
+                "skill"
+              ]
+            }
+          }
+        },
+        "required": [
+          "rarity",
+          "job",
+          "skills"
+        ]
+      }
+    },
+    "visual": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "sprite": {
+          "type": "string"
+        },
+        "portrait": {
+          "type": "string"
+        }
+      }
+    },
+    "bio": {
+      "type": "string",
+      "maxLength": 160
+    },
+    "hook": {
+      "type": "string",
+      "maxLength": 200
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "gender",
+    "job",
+    "line",
+    "role",
+    "source",
+    "baseRarity",
+    "maxRarity",
+    "skills",
+    "bio",
+    "hook"
+  ]
+}

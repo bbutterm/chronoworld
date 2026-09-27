@@ -1,8 +1,7 @@
-import { addJobExp } from '../progression/exp';
-import { getJob } from '../progression/stats';
+import { heroName, heroRole } from '../heroes/card';
 import { Rng } from '../rng';
 import { DayStringSchema, type ActiveBounty, type Bounty, type HeroState, type SaveState } from '../save/schema';
-import { syncAchievementCounters, trackAchievement, type MetaEvent } from './achievements';
+import { grantMetaRewards, syncAchievementCounters, trackAchievement, type MetaEvent } from './achievements';
 import type { BountyTemplate, MetaContext, MetaRewards } from './config';
 import { MetaError } from './errors';
 
@@ -64,7 +63,7 @@ export function generateBoard(day: string, seed: number, refresh: number, ctx: M
       durationMinutes: t.durationMinutes,
       heroCount: t.heroCount,
       role: t.role,
-      rewards: { gold: t.rewards.gold, jobExp: t.rewards.jobExp, gems: t.rewards.gems },
+      rewards: { gold: t.rewards.gold, jobExp: t.rewards.jobExp, gems: t.rewards.gems, ...(t.rewards.shards ? { shards: t.rewards.shards } : {}) },
     };
   });
 }
@@ -129,10 +128,10 @@ export function startBounty(save: SaveState, bountyId: string, heroIds: readonly
   const heroes: HeroState[] = heroIds.map((id) => {
     const h = save.heroes.find((x) => x.id === id);
     if (!h) throw new MetaError('unknown_hero', `Герой ${id} не найден`);
-    if (busy.has(id)) throw new MetaError('hero_busy', `${h.name} уже на другом поручении`);
+    if (busy.has(id)) throw new MetaError('hero_busy', `${heroName(h, ctx)} уже на другом поручении`);
     return h;
   });
-  if (b.role && !heroes.some((h) => getJob(ctx, h.job).role === b.role)) {
+  if (b.role && !heroes.some((h) => heroRole(h, ctx) === b.role)) {
     throw new MetaError('role_required', `Нужен хотя бы один герой с ролью «${ROLE_NAMES[b.role]}»`);
   }
   const active: ActiveBounty = { ...b, heroIds: [...heroIds], startedAt: now, endsAt: now + Math.round(b.durationMinutes * MINUTE_MS) };
@@ -167,8 +166,8 @@ export function bountyStatus(save: SaveState, now: number): BountyStatus {
 }
 
 /**
- * K9. Забрать награду завершённого поручения (now ≥ endsAt). Золото и гемы — в ресурсы, jobExp — каждому
- * герою группы (addJobExp; героев, которых уже нет, пропускаем). Герои освобождаются.
+ * K9. Забрать награду завершённого поручения (now ≥ endsAt). Золото и гемы — в ресурсы, jobExp — в общий пул опыта,
+ * shards — осколки «отстающему» сюжетному герою. Герои освобождаются.
  * Достижения: bounties_done + 1 и счётчики-максимумы (уровни героев).
  * MetaError: unknown_bounty (нет среди active), bounty_not_finished.
  */
@@ -179,28 +178,12 @@ export function claimBounty(save: SaveState, bountyId: string, now: number, ctx:
     const min = Math.ceil((b.endsAt - now) / MINUTE_MS);
     throw new MetaError('bounty_not_finished', `Поручение ещё не завершено (осталось ${min} мин.)`);
   }
-  const { gold, gems, jobExp } = b.rewards;
+  const rewards: MetaRewards = { gold: b.rewards.gold, gems: b.rewards.gems, jobExp: b.rewards.jobExp, shards: b.rewards.shards ?? 0 };
   const heroIds = b.heroIds.filter((id) => save.heroes.some((h) => h.id === id));
   const events: MetaEvent[] = [{ type: 'bountyDone', bountyId: b.id, heroIds }];
-  if (gold > 0 || jobExp > 0) events.push({ type: 'rewards', gold, jobExp, heroIds });
-  if (gems > 0) events.push({ type: 'gems', amount: gems });
-  let next: SaveState = {
-    ...save,
-    resources: { ...save.resources, gold: save.resources.gold + gold },
-    currency: { ...save.currency, gems: save.currency.gems + gems },
-    bounties: { ...save.bounties, active: save.bounties.active.filter((x) => x.id !== b.id) },
-    heroes:
-      jobExp > 0
-        ? save.heroes.map((h): HeroState => {
-            if (!heroIds.includes(h.id)) return h;
-            const r = addJobExp(h, jobExp, ctx);
-            events.push(...r.events);
-            return r.hero;
-          })
-        : save.heroes,
-  };
+  let next = grantMetaRewards({ ...save, bounties: { ...save.bounties, active: save.bounties.active.filter((x) => x.id !== b.id) } }, rewards, ctx, events);
   next = syncAchievementCounters(trackAchievement(next, 'bounties_done', 1, 'add'));
-  return { save: next, rewards: { gold, gems, jobExp }, events };
+  return { save: next, rewards, events };
 }
 
 /** Название поручения по шаблону (шаблон удалён из конфига — id шаблона). */

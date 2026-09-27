@@ -5,7 +5,7 @@
  * Выбор подсказки — чистые функции (их проверяет tests/game-hints.test.ts), рисование — hintPointer() в ui.ts.
  */
 
-export type HintId = 'home_campaign' | 'stage_fight' | 'chest_claim' | 'job_change' | 'tower_open' | 'equip_gear';
+export type HintId = 'home_campaign' | 'stage_fight' | 'chest_claim' | 'level_up' | 'tower_open' | 'equip_gear';
 
 export const HINT_KEY = 'chronoworld.hints';
 
@@ -14,7 +14,7 @@ export const HINT_TEXT: Record<HintId, string> = {
   home_campaign: 'Начните с кампании: первый этап ждёт',
   stage_fight: 'Отряд готов — жмите «В бой»',
   chest_claim: 'Заберите награду из сундука',
-  job_change: 'Смена профессии доступна — загляните в «Герои»',
+  level_up: 'Опыта хватает на новый уровень — «Герои» → «Улучшить»',
   tower_open: 'Башня испытаний открыта!',
   /** P10 (T1-08): в инвентаре лежат вещи лучше надетых. */
   equip_gear: 'Наденьте трофеи — загляните в «Герои»',
@@ -75,8 +75,8 @@ export interface HomeHintInput {
   cleared: number;
   /** В сундуке есть что забрать. */
   chestHasIncome: boolean;
-  /** Хоть один герой может сменить профессию. */
-  jobChangeReady: boolean;
+  /** Хоть одного героя отряда можно «Улучшить» (хватает опыта пула и золота). */
+  levelUpReady: boolean;
   towerUnlocked: boolean;
   /** P10 (T1-08): у кого-то из героев в инвентаре есть вещь лучше надетой. */
   gearUpgrade?: boolean;
@@ -84,12 +84,12 @@ export interface HomeHintInput {
 
 /**
  * Какую подсказку показать на главной (одну, самую нужную) или null.
- * Порядок: новичок → кампания; затем сундук, смена профессии, трофеи, башня.
+ * Порядок: новичок → кампания; затем сундук, «Улучшить», трофеи, башня.
  */
 export function pickHomeHint(s: HomeHintInput, isDone: (id: HintId) => boolean = hintDone): HintId | null {
   if (s.cleared === 0 && !isDone('home_campaign')) return 'home_campaign';
   if (s.chestHasIncome && !isDone('chest_claim')) return 'chest_claim';
-  if (s.jobChangeReady && !isDone('job_change')) return 'job_change';
+  if (s.levelUpReady && !isDone('level_up')) return 'level_up';
   if (s.gearUpgrade && !isDone('equip_gear')) return 'equip_gear';
   if (s.towerUnlocked && !isDone('tower_open')) return 'tower_open';
   return null;

@@ -1,13 +1,13 @@
 import { z } from 'zod';
 import { syncAchievementCounters } from '../meta/achievements';
-import { addJobExp } from '../progression/exp';
-import type { HeroState, SaveState } from '../save/schema';
+import { addHeroExp } from '../heroes/level';
+import type { SaveState } from '../save/schema';
 import type { FeatureContext, FeatureEvent } from './config';
 import { rollDay } from './daily';
 import { FeatureError } from './errors';
 
 /** Виды событий, из которых считаются ежедневные задания. */
-export const ACTIVITY_KINDS = ['stage_win', 'stage_attempt', 'offline_claim', 'fast_rewards', 'job_change', 'hero_level_up', 'tower_attempt'] as const;
+export const ACTIVITY_KINDS = ['stage_win', 'stage_attempt', 'offline_claim', 'fast_rewards', 'summon', 'hero_level_up', 'hero_ascend', 'tower_attempt'] as const;
 export type ActivityKind = (typeof ACTIVITY_KINDS)[number];
 
 const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в нижнем регистре, цифры и _');
@@ -26,7 +26,7 @@ export const QuestDefSchema = z.object({
 export const MilestoneRewardsSchema = z.object({
   gold: z.number().int().nonnegative().default(0),
   gems: z.number().int().nonnegative().default(0),
-  /** Опыт каждому герою (как у офлайн-сундука). */
+  /** Опыт в общий пул героев (как у офлайн-сундука). */
   jobExp: z.number().int().nonnegative().default(0),
 });
 
@@ -138,7 +138,7 @@ export function claimQuest(save: SaveState, day: string, questId: string, ctx: F
 
 /**
  * Забрать награду порога активности milestone (значение points из data/quests.json).
- * Золото и гемы — в ресурсы, jobExp — каждому герою через addJobExp. rollDay первым делом.
+ * Золото и гемы — в ресурсы, jobExp — в общий пул опыта героев. rollDay первым делом.
  * K10: как и другие награды с опытом (claimBounty, claimAchievement), обновляет счётчики-«максимумы» достижений.
  * FeatureError: unknown_milestone, not_enough_activity, milestone_already_claimed.
  */
@@ -155,21 +155,14 @@ export function claimActivity(
   const activity = activityPoints(s, ctx);
   if (activity < m.points) throw new FeatureError('not_enough_activity', `Нужно ${m.points} очков активности, сейчас ${activity}`);
   const { gold, gems, jobExp } = m.rewards;
-  const next: SaveState = {
+  const next: SaveState = addHeroExp({
     ...s,
     resources: { ...s.resources, gold: s.resources.gold + gold },
     currency: { ...s.currency, gems: s.currency.gems + gems },
     daily: { ...s.daily, activityClaimed: [...s.daily.activityClaimed, m.points] },
-  };
+  }, jobExp);
   const events: FeatureEvent[] = [{ type: 'activityClaimed', milestone: m.points }];
-  if (gold > 0 || jobExp > 0) events.push({ type: 'rewards', gold, jobExp, heroIds: s.heroes.map((h) => h.id) });
+  if (gold > 0 || jobExp > 0) events.push({ type: 'rewards', gold, heroExp: jobExp });
   if (gems > 0) events.push({ type: 'gems', amount: gems });
-  if (jobExp > 0) {
-    next.heroes = s.heroes.map((h): HeroState => {
-      const r = addJobExp(h, jobExp, ctx);
-      events.push(...r.events);
-      return r.hero;
-    });
-  }
   return { save: syncAchievementCounters(next), rewards: { gold, gems, jobExp }, events };
 }

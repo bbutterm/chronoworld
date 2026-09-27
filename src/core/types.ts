@@ -1,6 +1,7 @@
 import type { ChapterDef, StageInfo } from './campaign/schema';
 import type { SkillDef, StatMods, StatusDef, UnitDef } from './content/schema';
 import type { JobDef } from './progression/schema';
+import type { HeroTemplate } from './heroes/schema';
 
 export type { Effect, SkillDef, StatMods, StatusDef, Stats, TargetDef, UnitDef } from './content/schema';
 
@@ -19,6 +20,8 @@ export interface Content {
   units: Record<string, UnitDef>;
   skills: Record<string, SkillDef>;
   jobs: Record<string, JobDef>;
+  /** Шаблоны карточек героев (data/heroes). */
+  heroes: Record<string, HeroTemplate>;
   chapters: ChapterDef[];
   /** Все этапы по порядку кампании. */
   stages: StageInfo[];

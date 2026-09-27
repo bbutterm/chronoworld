@@ -9,11 +9,15 @@ const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в ниж
 export const ACHIEVEMENT_COUNTERS = {
   stages_cleared: 'max',
   tower_floor: 'max',
-  jobs_changed: 'add',
   items_equipped: 'add',
   bounties_done: 'add',
   battles_won: 'add',
-  hero_max_job_level: 'max',
+  /** Наибольший уровень карточки героя (v4; раньше — hero_max_job_level). */
+  hero_max_level: 'max',
+  /** Призвано карточек в Таверне. */
+  summons: 'add',
+  /** Вознесений карточек (корм или осколки). */
+  ascensions: 'add',
 } as const;
 export type AchievementCounter = keyof typeof ACHIEVEMENT_COUNTERS;
 export const ACHIEVEMENT_COUNTER_KEYS = Object.keys(ACHIEVEMENT_COUNTERS) as [AchievementCounter, ...AchievementCounter[]];
@@ -21,8 +25,10 @@ export const ACHIEVEMENT_COUNTER_KEYS = Object.keys(ACHIEVEMENT_COUNTERS) as [Ac
 export const MetaRewardsSchema = z.object({
   gold: z.number().int().nonnegative().default(0),
   gems: z.number().int().nonnegative().default(0),
-  /** Поручения: каждому герою группы; достижения: каждому герою. */
+  /** Опыт в общий пул героев. */
   jobExp: z.number().int().nonnegative().default(0),
+  /** Осколки «отстающего» сюжетного героя (heroes/shards.ts shardTarget). */
+  shards: z.number().int().nonnegative().default(0),
 });
 
 export const BountyTemplateSchema = z.object({
@@ -33,7 +39,7 @@ export const BountyTemplateSchema = z.object({
   durationMinutes: z.number().positive(),
   /** Сколько героев нужно отправить (ровно). */
   heroCount: z.number().int().min(1).max(5),
-  /** Хотя бы один герой этой роли (по профессии); null или нет поля — любая группа. */
+  /** Хотя бы один герой этой роли (по карточке); null или нет поля — любая группа. */
   role: UnitSchema.shape.role.nullable().default(null),
   rewards: MetaRewardsSchema,
 });

@@ -175,7 +175,7 @@ export class BountiesScene extends Phaser.Scene {
     a.add(text(this, 70, y - 8, BOUNTY_RARITY_NAMES[b.rarity] ?? b.rarity, FS.caption, color, { stroke: C.stroke, strokeThickness: 3 }).setOrigin(0, 0.5));
     const need = `${durationText(b.durationMinutes)} · героев: ${b.heroCount}${b.role ? ` · нужен ${(ROLE_NAMES[b.role] ?? b.role).toLowerCase()}` : ''}`;
     a.add(ellipsize(text(this, 260, y - 8, need, FS.small, C.text, { stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), 1000 - 260));
-    a.add(ellipsize(text(this, 70, y + 45, `Награда: ${metaRewardsText(b.rewards, ' каждому')}`, FS.small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), 940));
+    a.add(ellipsize(text(this, 70, y + 45, `Награда: ${metaRewardsText(b.rewards, ' в запас')}`, FS.small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), 940));
     // Золотая кнопка на экране — только «Забрать» (готово к получению); «Выбрать» — вторичная, карточка нажимается целиком.
     a.add(button(this, 895, y - 40, 200, TOUCH, 'ui_btn_secondary', 'Выбрать', a.tap(() => this.pick(b, busy)), FS.body).container);
   }
@@ -198,7 +198,7 @@ export class BountiesScene extends Phaser.Scene {
     layer.add(text(this, GAME_W / 2, cy - 420, bountyName(b, GAME), FS.h2, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }));
     const role = b.role ? `, среди них ${(ROLE_NAMES[b.role] ?? b.role).toLowerCase()}` : '';
     layer.add(text(this, GAME_W / 2, cy - 360, `${durationText(b.durationMinutes)} · нужно героев: ${b.heroCount}${role}`, FS.body, C.text));
-    layer.add(text(this, GAME_W / 2, cy - 315, `Награда: ${metaRewardsText(b.rewards, ' каждому')}`, FS.body, C.gold, { fontStyle: 'bold' }));
+    layer.add(text(this, GAME_W / 2, cy - 315, `Награда: ${metaRewardsText(b.rewards, ' в запас')}`, FS.body, C.gold, { fontStyle: 'bold' }));
 
     const tiles = this.add.container(0, 0);
     layer.add(tiles);
@@ -276,7 +276,7 @@ export class BountiesScene extends Phaser.Scene {
       const r = actClaimBounty(session.save, today(), b.id, now(), GAME);
       commit(r.save);
       queueRewardFly('Bounties', at, before);
-      const lines = [`«${bountyName(b, GAME)}»: ${metaRewardsText(r.rewards, ' каждому')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
+      const lines = [`«${bountyName(b, GAME)}»: ${metaRewardsText(r.rewards, ' в запас')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       this.scene.restart({ scroll: this.area.offset });
       this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4500)));
     } catch (e) {

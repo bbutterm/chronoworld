@@ -1,7 +1,8 @@
 import type { EquipmentConfig } from '../equipment/load';
 import type { FeatureContext } from '../features/config';
 import { heroPower } from '../features/power';
-import { getJob } from '../progression/stats';
+import { heroJobId, heroRole } from '../heroes/card';
+import { duplicateCardsInSquad } from '../heroes/roster';
 import type { GameContext } from '../progression/types';
 import type { HeroState, Preset, SaveState } from '../save/schema';
 import type { MetaContext } from './config';
@@ -12,7 +13,10 @@ export const FRONT_SLOTS = [0, 1] as const;
 export const BACK_SLOTS = [2, 3, 4] as const;
 const SQUAD_SIZE = 5;
 
-/** Проверить расстановку: 5 слотов, герои существуют и не повторяются. MetaError('invalid_squad' | 'unknown_hero'). */
+/**
+ * Проверить расстановку: 5 слотов, герои существуют и не повторяются, одна копия каждой карточки.
+ * MetaError('invalid_squad' | 'unknown_hero' | 'duplicate_card').
+ */
 function checkSquad(save: SaveState, squad: readonly (string | null)[]): (string | null)[] {
   if (squad.length !== SQUAD_SIZE) throw new MetaError('invalid_squad', `В отряде должно быть ${SQUAD_SIZE} слотов`);
   const seen = new Set<string>();
@@ -22,6 +26,7 @@ function checkSquad(save: SaveState, squad: readonly (string | null)[]): (string
     if (seen.has(id)) throw new MetaError('invalid_squad', `Герой ${id} стоит в отряде дважды`);
     seen.add(id);
   }
+  if (duplicateCardsInSquad(save, squad).length) throw new MetaError('duplicate_card', 'В отряде может быть только одна копия каждой карточки');
   return [...squad];
 }
 
@@ -71,12 +76,15 @@ export function savePreset(
 export function applyPreset(save: SaveState, presetId: string): SaveState {
   const p = save.presets.find((x) => x.id === presetId);
   if (!p) throw new MetaError('unknown_preset', `Пресет ${presetId} не найден`);
-  const ids = new Set(save.heroes.map((h) => h.id));
   const used = new Set<string>();
+  const cards = new Set<string>();
   const squad = p.squad.map((id) => {
-    if (id === null || !ids.has(id) || used.has(id)) return null;
-    used.add(id);
-    return id;
+    const hero = id === null ? undefined : save.heroes.find((h) => h.id === id);
+    // Нет героя, повтор или вторая копия карточки — пустой слот.
+    if (!hero || used.has(hero.id) || cards.has(hero.templateId)) return null;
+    used.add(hero.id);
+    cards.add(hero.templateId);
+    return hero.id;
   });
   return { ...save, squad };
 }
@@ -90,19 +98,19 @@ export function deletePreset(save: SaveState, presetId: string): SaveState {
 /**
  * Куда герой встаёт при авто-расстановке: 0 — танк, 1 — ближний бой (не лекарь),
  * 2 — дальний бой (не лекарь), 3 — лекарь. Меньше — ближе к передней линии.
- * Дальность — по обычной атаке профессии (skill.range).
+ * Роль — карточки (форма), дальность — по обычной атаке класса (skill.range).
  */
 export function formationRank(hero: HeroState, ctx: GameContext): number {
-  const job = getJob(ctx, hero.job);
-  if (job.role === 'tank') return 0;
-  if (job.role === 'healer') return 3;
-  return ctx.content.skills[job.basic]?.range === 'melee' ? 1 : 2;
+  const role = heroRole(hero, ctx);
+  if (role === 'tank') return 0;
+  if (role === 'healer') return 3;
+  return ctx.content.skills[ctx.content.jobs[heroJobId(hero, ctx)]?.basic ?? '']?.range === 'melee' ? 1 : 2;
 }
 
 /**
  * K8. Авто-расстановка. Возвращает новый squad (save не меняет).
  * 1. Берутся 5 самых сильных героев по heroPower (с экипировкой, если есть ctx.equipment); при равной мощи —
- *    по id героя по возрастанию.
+ *    по id героя по возрастанию. Одна копия каждой карточки (сильнейшая).
  * 2. «Передние» (танки, затем ближний бой; внутри — мощь ↓, id ↑) занимают слоты 0, 1, 2, 3, 4 по порядку
  *    первого свободного; «задние» (лекари, затем дальний бой; внутри — мощь ↓, id ↑) — с конца: 4, 3, 2, 1, 0.
  *    Так танки всегда в 0–1, лекари — в самом тылу, а при нехватке одной из групп другая занимает её слоты.
@@ -111,7 +119,16 @@ export function formationRank(hero: HeroState, ctx: GameContext): number {
 export function autoFormation(save: SaveState, ctx: FeatureContext & { equipment?: EquipmentConfig }): (string | null)[] {
   const rated = save.heroes.map((h) => ({ id: h.id, power: heroPower(h, ctx, save), rank: formationRank(h, ctx) }));
   const byPower = (a: (typeof rated)[number], b: (typeof rated)[number]) => b.power - a.power || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
-  const chosen = [...rated].sort(byPower).slice(0, SQUAD_SIZE);
+  const templates = new Set<string>();
+  const chosen = [...rated]
+    .sort(byPower)
+    .filter((r) => {
+      const t = save.heroes.find((h) => h.id === r.id)!.templateId;
+      if (templates.has(t)) return false;
+      templates.add(t);
+      return true;
+    })
+    .slice(0, SQUAD_SIZE);
   const squad: (string | null)[] = Array(SQUAD_SIZE).fill(null);
   const place = (id: string, order: readonly number[]) => {
     const slot = order.find((i) => squad[i] === null)!;

@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_thief_venom_knife",
+  "name": "Ядовитый нож",
+  "description": "Бросок ножа (×0,9) в самого раненого врага тыла и яд на 3 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHpPct",
+    "row": "back"
+  },
+  "cooldown": 8,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "poison",
+        "name": "Яд",
+        "turns": 3,
+        "dot": {
+          "k": 0.3
+        }
+      }
+    }
+  ]
+}

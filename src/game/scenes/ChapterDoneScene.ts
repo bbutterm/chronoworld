@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
 import { CONTENT, GAME } from '../content';
 import { playScenes } from '../dialogue';
-import { formatNumber, heroSprite, jobLevelText, ROLE_NAMES } from '../flow';
+import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, popIn, unitFigure } from '../screen';
-import { clearChapterDone } from '../../core';
+import { clearChapterDone, heroCard } from '../../core';
 import { commit, now, session } from '../session';
 import { SKIN } from '../skin';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
@@ -107,7 +107,7 @@ export class ChapterDoneScene extends Phaser.Scene {
     const ry = 1010;
     if (sum.recruit) {
       const hero = sum.recruit;
-      const job = CONTENT.jobs[hero.job];
+      const c = heroCard(hero, GAME);
       card(this, cx, ry, 1000, 620, true);
       text(this, cx, ry - 260, 'Новый герой в отряде!', FS.h2, C.inkGold, { fontStyle: 'bold' });
       // Тёплый отсвет за новым героем и тень под ногами.
@@ -115,8 +115,8 @@ export class ChapterDoneScene extends Phaser.Scene {
       this.tweens.add({ targets: halo, fillAlpha: { from: 0.06, to: 0.16 }, yoyo: true, repeat: -1, duration: 1400, ease: 'Sine.easeInOut' });
       this.add.ellipse(cx, ry + 110, 300, 60, 0x000000, 0.3);
       unitFigure(this, heroSprite(hero, GAME), cx, ry + 110, 300, { maxScale: 2 });
-      text(this, cx, ry + 180, `${hero.name} присоединяется к отряду`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
-      text(this, cx, ry + 240, `${job?.name ?? hero.job} · ${ROLE_NAMES[job?.role ?? ''] ?? ''} · ${jobLevelText(hero.jobLevel)}`, FS.body, C.inkMuted);
+      text(this, cx, ry + 180, `${c.name} присоединяется к отряду`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
+      text(this, cx, ry + 240, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
     } else {
       card(this, cx, ry, 1000, 300, true);
       text(this, cx, ry, 'Отряд готов к новым землям', FS.h2, C.ink, { fontStyle: 'bold' });

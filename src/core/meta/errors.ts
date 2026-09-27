@@ -7,6 +7,7 @@ export type MetaErrorCode =
   | 'preset_limit'
   | 'invalid_preset_name'
   | 'invalid_squad'
+  | 'duplicate_card'
   | 'unknown_hero'
   // K9 поручения
   | 'unknown_bounty'

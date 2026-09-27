@@ -1,0 +1,66 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "dorn",
+  "name": "Дорн",
+  "gender": "m",
+  "job": "thief",
+  "line": "thief",
+  "role": "damage",
+  "source": "story",
+  "baseRarity": "green",
+  "maxRarity": "red",
+  "statMods": {
+    "hp": 1.1,
+    "def": 1.1
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_thief_steal"
+    },
+    {
+      "level": 10,
+      "skill": "job_thief_improve_dodge"
+    },
+    {
+      "level": 30,
+      "skill": "job_thief_double_attack"
+    },
+    {
+      "level": 50,
+      "skill": "job_thief_sand_attack"
+    }
+  ],
+  "forms": [
+    {
+      "rarity": "purple",
+      "job": "rogue",
+      "role": "damage",
+      "statMods": {
+        "hp": 1.25,
+        "atk": 1.25,
+        "def": 1.2
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_thief_steal"
+        },
+        {
+          "level": 10,
+          "skill": "job_rogue_raid"
+        },
+        {
+          "level": 30,
+          "skill": "job_thief_improve_dodge"
+        },
+        {
+          "level": 50,
+          "skill": "job_rogue_strip_weapon"
+        }
+      ]
+    }
+  ],
+  "bio": "Бывший моркский громила: дерётся честно, если его не злить.",
+  "hook": "Должник гильдии воров Морока — откупается честной службой."
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "schema/summon.schema.json",
+  "$comment": "Таверна (призыв карточек за гемы и свитки). Шансы — по редкостям; baseRarities — какие шаблоны (source: summon) выпадают этой редкостью. Дизайн — docs/design/heroes.md, раздел 4. Числа одобрены владельцем 27.09.",
+  "unlockAfterStage": "ch1_s5",
+  "costs": { "single": 30, "ten": 270 },
+  "rates": [
+    { "rarity": "green", "chance": 0.64, "baseRarities": ["green"] },
+    { "rarity": "blue", "chance": 0.32, "baseRarities": ["green", "blue"] },
+    { "rarity": "purple", "chance": 0.04, "baseRarities": ["purple"] }
+  ],
+  "pity": { "rarity": "purple", "every": 30 },
+  "firstTen": { "rarity": "purple" },
+  "freePerDay": 1,
+  "welcome": { "gems": 150, "scrolls": 1 },
+  "storyShard": { "chance": 0.1, "count": 1 }
+}

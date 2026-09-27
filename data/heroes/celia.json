@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "celia",
+  "name": "Селия Альде",
+  "gender": "f",
+  "job": "sage",
+  "line": "mage",
+  "role": "support",
+  "source": "summon",
+  "baseRarity": "purple",
+  "maxRarity": "red",
+  "statMods": {
+    "hp": 1.25,
+    "atk": 1.15,
+    "def": 1.15
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_sage_earth_spike"
+    },
+    {
+      "level": 10,
+      "skill": "job_sage_free_cast"
+    },
+    {
+      "level": 30,
+      "skill": "job_sage_dispell"
+    },
+    {
+      "level": 50,
+      "skill": "job_sage_volcano"
+    }
+  ],
+  "bio": "Мудрец из Юно: земля, огонь и снятие чужих чар.",
+  "hook": "Читает книги быстрее, чем их пишут, — и ищет ту, которой нет."
+}
