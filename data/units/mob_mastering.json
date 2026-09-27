@@ -22,9 +22,8 @@
     ]
   },
   "visual": {
-    "sprite": "fast",
+    "sprite": "mastering",
     "hitFx": "fx_hit",
-    "tint": "#ffc2dc",
-    "scale": 2
+    "scale": 1.3
   }
 }
