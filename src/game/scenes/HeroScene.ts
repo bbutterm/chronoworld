@@ -50,7 +50,7 @@ export class HeroScene extends Phaser.Scene {
     this.add.rectangle(200, top + 175, 292, 292).setStrokeStyle(8, Phaser.Display.Color.HexStringToColor(rarityColor).color).setFillStyle(0, 0);
     this.heroSprite(hero, 200, top + 300);
     const x = 380;
-    text(this, x, top + 115, `${ROLE_NAMES[c.role] ?? ''} · ${CONTENT.skills[job?.basic ?? '']?.range === 'melee' ? 'ближний бой' : 'дальний бой'} · `, FS.body, C.muted).setOrigin(0, 0.5);
+    text(this, x, top + 115, `${ROLE_NAMES[c.role] ?? ''} · ${CONTENT.skills[job?.basic ?? '']?.range === 'melee' ? 'ближний бой' : 'дальний бой'}`, FS.body, C.muted).setOrigin(0, 0.5);
     const rarityLabel = text(this, 1010, top + 115, c.rarity.name, FS.body, rarityColor, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(1, 0.5);
     rarityLabel.setName('heroRarity');
     const info = levelUpInfo(session.save, hero.id, GAME);
@@ -62,19 +62,20 @@ export class HeroScene extends Phaser.Scene {
       strokeThickness: 6,
     }).setOrigin(1, 0.5);
     ellipsize(text(this, x, top + 60, c.jobName, FS.h1, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), 1010 - x - power.width - 20);
-    // «Улучшить»: цена следующего уровня; предел — «Вознести».
+    // «Улучшить» (справа, вне рамки фигуры): цена следующего уровня слева от кнопки; предел — «Вознести».
     const req = ascendRequirement(session.save, hero.id, GAME);
+    const bx = 1010 - 170;
     if (info.cost) {
-      const up = button(this, x + 170, top + 272, 340, 100, info.canLevel ? 'ui_btn_primary' : 'ui_btn_secondary', 'Улучшить', () => this.levelUp(hero!), FS.h3);
+      const up = button(this, bx, top + 272, 340, 100, info.canLevel ? 'ui_btn_primary' : 'ui_btn_secondary', 'Улучшить', () => this.levelUp(hero!), FS.h3);
       up.container.setName('levelUpBtn');
       if (!info.canLevel) up.container.setAlpha(0.6);
       const need = info.blocker === 'not_enough_exp' ? C.warning : C.muted;
-      text(this, x + 360, top + 252, `опыт ${formatNumber(info.cost.exp)}`, FS.caption, need).setOrigin(0, 0.5);
-      text(this, x + 360, top + 292, `золото ${formatNumber(info.cost.gold)}`, FS.caption, info.blocker === 'not_enough_gold' ? C.warning : C.muted).setOrigin(0, 0.5);
-      if (info.canLevel && !hintDone('level_up')) hintPointer(this, x + 170, top + 272, 'Опыт из запаса — в уровень героя', 'below', { w: 340, h: 100 });
+      text(this, x, top + 252, `опыт ${formatNumber(info.cost.exp)}`, FS.caption, need).setOrigin(0, 0.5);
+      text(this, x, top + 292, `золото ${formatNumber(info.cost.gold)}`, FS.caption, info.blocker === 'not_enough_gold' ? C.warning : C.muted).setOrigin(0, 0.5);
+      if (info.canLevel && !hintDone('level_up')) hintPointer(this, bx, top + 272, 'Опыт из запаса — в уровень героя', 'below', { w: 340, h: 100 });
     } else if (req) {
-      button(this, x + 170, top + 272, 340, 100, 'ui_btn_primary', 'Вознести', () => this.ascend(hero!), FS.h3).container.setName('ascendBtn');
-      text(this, x + 360, top + 272, ascendNote(req), FS.caption, req.blockers.length ? C.warning : C.muted, { wordWrap: { width: 1010 - x - 360 } }).setOrigin(0, 0.5);
+      button(this, bx, top + 272, 340, 100, 'ui_btn_primary', 'Вознести', () => this.ascend(hero!), FS.h3).container.setName('ascendBtn');
+      text(this, x, top + 272, ascendNote(req), FS.caption, req.blockers.length ? C.warning : C.muted, { wordWrap: { width: bx - 170 - x - 20 } }).setOrigin(0, 0.5);
     } else {
       text(this, x, top + 272, 'Максимальная редкость и уровень', FS.body, C.gold, { fontStyle: 'bold' }).setOrigin(0, 0.5);
     }

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Прохождение главы 1 через интерфейс, как новый игрок: новая игра → этапы 1–10 (Кампания → этап → «В бой» →
-// «Пропустить»; поражение — «Повторить»), на джобе 10 — смена профессии каждому герою кнопкой «Профессия ›» на итогах
-// (после выбора — показ новой профессии и возврат на итоги; следующий герой сам не открывается). Сюжетные диалоги:
+// Прохождение главы 1 через интерфейс, как новый игрок: новая игра (Алан, Бран, Вика — зелёные карточки ур. 1) →
+// этапы 1–10 (Кампания → этап → «В бой» → «Пропустить»; поражение — «Повторить»), после каждой победы опыт из общего
+// запаса тратится кнопкой «Улучшить» на карточке героя (по уровню самому низкому герою отряда). Сюжетные диалоги:
 // вступление главы пролистывается касаниями, остальные закрываются «Пропустить» (кнопка проверяется на перекрытие,
 // как и остальные). Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
 //   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке)
@@ -15,7 +15,6 @@ const PORT = Number(process.env.E2E_PORT ?? 5174);
 const URL = `http://localhost:${PORT}/`;
 const SHOTS = resolve(process.env.E2E_SHOTS_DIR ?? join(tmpdir(), `idle-rpg-ch1-${Date.now()}`));
 const GAME_W = 1080;
-const FIRST_JOBS = ['Мечник', 'Лучник', 'Аколит', 'Маг', 'Вор'];
 const MAX_TRIES = 5;
 const log = (...a) => console.log('[ch1]', ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -151,6 +150,44 @@ const tapThroughDialogue = async (sceneKey, shotName) => {
 let seenDialogues = 0;
 
 /**
+ * «Улучшить» через интерфейс: Герои → карточка героя (самого низкого уровня в отряде) → «Улучшить», пока опыта и
+ * золота хватает (уровень в сохранении перестал расти — стоп). Возвращает число поднятых уровней.
+ */
+const levelUpSquad = async (shotName) => {
+  await clickText('Campaign', 'ГЕРОИ');
+  await waitScene('Heroes');
+  let levels = 0;
+  const stuck = new Set();
+  for (let n = 0; n < 40; n++) {
+    const s = await save();
+    const squad = s.heroes.filter((h) => s.squad.includes(h.id) && !stuck.has(h.id)).sort((a, b) => a.level - b.level);
+    if (!squad.length) break;
+    const hero = squad[0];
+    await page.evaluate((id) => {
+      const active = window.__game.scene.getScenes(true)[0];
+      active.scene.start('Hero', { heroId: id });
+    }, hero.id);
+    await waitScene('Hero');
+    if (!(await findText('Hero', 'Улучшить'))) {
+      stuck.add(hero.id);
+      continue;
+    }
+    if (shotName && levels === 0) await shot(shotName);
+    await clickText('Hero', 'Улучшить');
+    await sleep(400);
+    await waitScene('Hero');
+    const after = (await save()).heroes.find((h) => h.id === hero.id);
+    if (after.level > hero.level) levels += after.level - hero.level;
+    else stuck.add(hero.id);
+  }
+  await clickText('Hero', 'ГЕРОИ');
+  await waitScene('Heroes');
+  await clickText('Heroes', 'КАМПАНИЯ');
+  await waitScene('Campaign');
+  return levels;
+};
+
+/**
  * T1-03: после финала главы — экран «Глава пройдена»: заголовок, карточка Греты, «История» (список увиденных сцен,
  * пересмотр одной сцены), «Глава 2 ›» ведёт на карту главы 2.
  */
@@ -224,57 +261,18 @@ try {
       await chapterDone();
       continue;
     }
+    await clickText('Result', 'К кампании');
+    await waitScene('Campaign');
+    await skipDialogues('Campaign');
+    const levels = await levelUpSquad(stage === 2 ? 'hero-levelup' : undefined);
     const s = await save();
-    const ready = s.heroes.filter((h) => h.job === 'novice' && h.jobLevel >= 10);
-    if (ready.length) {
-      await shot(`result${stage}-jobchange`);
-      // Смена профессии через интерфейс: «Профессия ›» на итогах → выбор → показ новой профессии → снова итоги.
-      // Следующий готовый герой сам не открывается — на итогах снова кнопка «Профессия ›».
-      for (const [k, h] of ready.entries()) {
-        await clickText('Result', 'Профессия ›');
-        await waitScene('JobChange');
-        const i = s.heroes.findIndex((x) => x.id === h.id);
-        await clickText('JobChange', FIRST_JOBS[i]);
-        await sleep(300);
-        if (k === 0) await shot('jobchange');
-        await clickText('JobChange', 'Выбрать');
-        await sleep(300);
-        await clickText('JobChange', 'Выбрать', true);
-        await page.waitForFunction(() => window.__game.scene.getScene('JobChange').revealing === true, null, { timeout: 5000 });
-        await sleep(900);
-        if (k === 0) await shot('jobchange-reveal');
-        await clickGame(540, 1500);
-        await waitScene('Result');
-        const job = (await save()).heroes[i].job;
-        log(`${h.name} → ${job}`);
-        if (job === 'novice') throw new Error(`${h.name}: профессия не сменилась`);
-        const more = k < ready.length - 1;
-        const hasBtn = (await findText('Result', 'Профессия ›')) !== null;
-        if (hasBtn !== more) throw new Error(`итоги после смены профессии: кнопка «Профессия ›» ${more ? 'пропала' : 'осталась'}`);
-      }
-      await shot('result-after-jobchange');
-      // Экран выбора для героя, который уже сменил профессию, недоступен: сразу возврат туда, откуда пришли.
-      await page.evaluate((id) => window.__game.scene.getScene('Result').scene.start('JobChange', { heroId: id, from: { to: 'Campaign' } }), ready[0].id);
-      await waitScene('Campaign');
-      if (await page.evaluate(() => window.__game.scene.isActive('JobChange'))) throw new Error('экран выбора профессии открылся повторно');
-      await skipDialogues('Campaign');
-      await clickText('Campaign', 'ГЕРОИ');
-      await waitScene('Heroes');
-      await clickGame(540, 430);
-      await waitScene('Hero');
-      await shot('hero-after-change');
-      // T1-04: вкладка «ГЕРОИ» с карточки героя ведёт к списку, подпись после нажатия остаётся под иконкой.
-      await clickText('Hero', 'ГЕРОИ');
-      await waitScene('Heroes');
-      await clickText('Heroes', 'КАМПАНИЯ');
-      await waitScene('Campaign');
-    } else {
-      await clickText('Result', 'К кампании');
-      await waitScene('Campaign');
-    }
+    log(`«Улучшить»: +${levels} ур. | ${s.heroes.map((h) => `${h.templateId} ${h.level}`).join(', ')} | в запасе ${s.resources.heroExp}`);
+    if (stage === 2 && levels === 0) throw new Error('после этапа 2 «Улучшить» не подняло ни одного уровня');
   }
   const s = await save();
-  log('итог:', s.heroes.map((h) => `${h.name} ${h.job} ${h.jobLevel}`).join(', '), '| пройдено этапов:', s.campaign.cleared.length);
+  log('итог:', s.heroes.map((h) => `${h.templateId} ${h.rarity} ${h.level}`).join(', '), '| пройдено этапов:', s.campaign.cleared.length);
+  if (!s.heroes.some((h) => h.templateId === 'greta')) throw new Error('после босса главы нет Греты');
+  if (!s.summon?.welcomeGiven) throw new Error('после этапа 5 не выдан подарок Таверны');
   log(`сюжетных сцен закрыто: ${seenDialogues}, в сохранении увидено: ${(s.seenScenes ?? []).join(', ')}`);
   if (!(s.seenScenes ?? []).includes('ch1_outro')) throw new Error('финальная сцена главы не показана');
   await shot('final');

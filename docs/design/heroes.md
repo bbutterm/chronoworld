@@ -65,7 +65,7 @@ stats(L) = (lineJob.baseStats + lineJob.growth × (L − 1)) × template.statMod
 | **Алан** `alan` | м | Мечник | танк | сюжет | 1 `swordman_bash` · 10 `swordman_endure` · 30 `job_swordman_hp_recovery` · 50 `job_swordman_provoke` | щит и бравада; statMods hp 1.1, def 1.15, atk 0.9 |
 | **Ирис** `iris` | ж | Мечница | урон | призыв | 1 `swordman_bash` · 10 `job_knight_two_hand_mastery` · 30 `job_swordman_magnum_break` · 50 ✚`job_swordman_auto_berserk` | двуручник, без щита; hp 0.9, def 0.75, atk 1.25, spd 1.05 |
 | **Бран** `bran` | м | Лучник | урон (одна цель) | сюжет | 1 `job_archer_double_strafe` · 10 `job_archer_owls_eye` · 30 `job_archer_vultures_eye` · 50 `job_archer_charge_arrow` | снайпер-скептик |
-| **Мэйлин** `meilin` | ж | Лучница | урон (площадь) | призыв | 1 `job_archer_arrow_shower` · 10 ✚`job_archer_improve_concentration` · 30 `job_archer_vultures_eye` · 50 `job_archer_charge_arrow` | дочь пайонского лесничего; atk 0.95, spd 1.1 |
+| **Мэйлин** `meilin` | ж | Лучница | урон (площадь) | призыв | 1 `job_archer_arrow_shower` · 10 ✚`job_archer_improve_concentration` · 30 `job_archer_charge_arrow` · 50 `job_archer_vultures_eye` | дочь пайонского лесничего; atk 0.95, spd 1.1 (фирменный навык ≠ Брана) |
 | **Вика** `vika` | ж | Аколит | лекарь | сюжет | 1 `job_acolyte_heal` · 5 `job_acolyte_divine_protection` · 10 `job_acolyte_blessing` · 50 `job_acolyte_angelus` | «бинты со мной» |
 | **Тео** `teo` | м | Аколит | поддержка | призыв | 1 `job_acolyte_holy_light` · 10 `job_acolyte_increase_agi` · 30 ✚`job_acolyte_signum_crucis` · 50 `job_acolyte_divine_protection` | боевой послушник: свет и баффы, лечит мало; atk 1.15 |
 | **Кай** `kai` | м | Маг | урон | призыв | 1 `job_mage_fire_bolt` · 10 `job_mage_sp_recovery` · 30 ✚`job_mage_fire_ball` · 50 `job_mage_thunderstorm` | огонь и молнии; atk 1.1, def 0.9 |
@@ -90,7 +90,7 @@ stats(L) = (lineJob.baseStats + lineJob.growth × (L − 1)) × template.statMod
 ### 1.2. Фиолетовые карточки вторых профессий (призыв)
 
 Имена — известные в RO герои второй профессии (Биолаборатория Лайтхалзена), это сразу «легенды» для фанатов.
-Спрайт — лист класса; пол не совпадает с листом → откат + ⚠, лист нужного пола — в issue #19.
+Спрайт — свой лист карточки (`visual.sprite`, листы владельца 27.09 по классу RO: `knight_m`, `crusader_m`, `hunter_f`, `bard_m`, `dancer_f`, `wizard_f`, `sage_f`, `assassin_m`, `rogue_f`, `priest_f`, `monk_m`, `blacksmith_m`, `alchemist_m`); у сюжетных — и у второй формы (`knight_m`, `hunter_m`, `priest_f`, `blacksmith_f`, `rogue_m`), у Алана — `swordman_m`. Нет своего листа — лист класса по полу, иначе базовый (⚠ content:check; сейчас без листа своего пола: Грета, Ирис, Лира, Мэйлин, Тео, Зара).
 
 | Карточка | Пол | Класс | Роль | Навыки (1 · 10 · 30 · 50) |
 | --- | --- | --- | --- | --- |
@@ -98,7 +98,7 @@ stats(L) = (lineJob.baseStats + lineJob.growth × (L − 1)) × template.statMod
 | Рандел Лоуренс `randel` | м | Крестоносец | танк | `job_crusader_holy_cross` · `job_crusader_auto_guard` · `job_crusader_devotion` · `job_crusader_grand_cross` |
 | Сесиль Деймон `cecil` | ж | Охотница | урон | `job_hunter_blitz_beat` · `job_hunter_beast_bane` · `job_hunter_steel_crow` · `job_hunter_claymore_trap` |
 | Альфоччо Базиль `alphoccio` | м | Бард | поддержка | `job_bard_musical_strike` · `job_bard_poem_of_bragi` · `job_bard_apple_of_idun` · `job_bard_whistle` |
-| Трентини `trentini` | ж | Танцовщица (`job: bard`) | поддержка/контроль | `job_bard_musical_strike` · `job_bard_whistle` · `job_bard_apple_of_idun` · `job_bard_frost_joker` (лист `bard_f`/`dancer` — нужен) |
+| Трентини `trentini` | ж | Танцовщица (`job: bard`) | поддержка/контроль | `job_bard_frost_joker` · `job_bard_whistle` · ✚`job_bard_scream` · `job_bard_apple_of_idun` (лист `dancer_f`) |
 | Кэтрин Кейрон `kathryne` | ж | Волшебница | урон | `job_wizard_jupitel_thunder` · `job_wizard_mystical_amplification` · `job_wizard_storm_gust` · `job_wizard_meteor_storm` |
 | Селия Альде `celia` | ж | Мудрец | поддержка | `job_sage_earth_spike` · `job_sage_free_cast` · `job_sage_dispell` · `job_sage_volcano` |
 | Эремес Гиль `eremes` | м | Ассасин | урон | `job_assassin_sonic_blow` · `job_assassin_katar_mastery` · `job_assassin_grimtooth` · `job_assassin_venom_splasher` |
@@ -114,7 +114,7 @@ stats(L) = (lineJob.baseStats + lineJob.growth × (L − 1)) × template.statMod
 `job_assassin_enchant_poison`, `job_hunter_ankle_snare`, `job_blacksmith_tempering`, `job_alchemist_demonstration`) —
 идут в сюжетные вторые формы (раздел 3) и будущие карточки.
 
-### 1.3. Новые навыки (✚, 8 штук; все, кроме «Удара сковородой», — настоящие навыки RO своей профессии)
+### 1.3. Новые навыки (✚, 9 штук; все, кроме «Удара сковородой», — настоящие навыки RO своей профессии)
 
 | id | Имя | Кратко |
 | --- | --- | --- |
@@ -126,6 +126,7 @@ stats(L) = (lineJob.baseStats + lineJob.growth × (L − 1)) × template.statMod
 | `job_mage_safety_wall` | Стена безопасности | актив: щит 20% ОЗ союзнику фронта с наименьшим ОЗ, КД 14 |
 | `job_merchant_frying_pan` | Удар сковородой | актив: урон ×1.6, шанс 30% оглушить; личный навык Греты (не RO — сюжетное исключение) |
 | `job_thief_venom_knife` | Ядовитый нож | актив (дальний): урон ×0.9 и яд на 3 хода самому раненому врагу тыла |
+| `job_bard_scream` | Крик | актив: шанс 25% оглушить каждого врага на 1 ход, КД 18 (Танцовщица: иначе у двух карточек Барда было бы 3 общих навыка) |
 
 ---
 
@@ -172,22 +173,25 @@ stats(L) = (lineJob.baseStats + lineJob.growth × (L − 1)) × template.statMod
 
 | Источник | Сколько | Чьи |
 | --- | --- | --- |
-| Первое прохождение этапа кампании | 3 (босс главы — 6) | герой этапа: по кругу среди сюжетных героев игрока (`stageShardHero`, видно до боя) |
-| Повтор пройденного этапа (победа) | шанс 10% — 1 | тот же герой этапа (от seed боя) |
+| Первое прохождение этапа кампании | 4 (босс главы — 8) | герой этапа — «отстающий» сюжетный герой (`stageShardHero` = `shardTarget`, видно до боя): рекруты догоняют тройку |
+| Повтор пройденного этапа (победа) | шанс 10% — 1 | тот же «отстающий» (от seed боя) |
 | Поручения редкие / эпические | 2 / 5 (`rewards.shards`) | «отстающий» сюжетный герой (`shardTarget`: ниже редкость, меньше осколков) |
 | Достижения | 5–10 у части (`rewards.shards`) | отстающий |
 | Таверна | шанс 10% за призыв — 1 | отстающий |
 
-К концу главы 3 (≈ уровень 20, предел зелёного) у каждого сюжетного героя набирается ≈ 20 осколков — первый переход.
+Модель игрока (`npm run playthrough`, только кампания): тройка становится синей в главе 2, Грета и Дорн — к середине главы 3,
+раньше, чем упрутся в предел зелёного (ур. 20); поручения и достижения ускоряют. Следующий переход (фиолетовый, ур. 40,
+40 осколков) — уже за пределами глав 1–3.
 Осколки героя, которого ещё нет в отряде (Грета до `ch1_s10`), не выпадают.
 
 ### Уровень
 
 Опыт героев — **общий пул** (`resources.heroExp`, как в GDD фазы 1 и в AFK): награды этапов, сундука, башни, поручений
 идут в пул, кнопка «Улучшить» на карточке тратит опыт + золото. Стоимость уровня L → L+1: опыт `floor(100 × L^1.5)`
-(нынешняя кривая `progression.exp`), золото `floor(20 × L^1.4)` (заглушка). Упор в предел редкости — кнопка «Вознести».
-Награды «опыт» в данных (`rewards.jobExp` этапов, сундука, башни, поручений, заданий) — это опыт **в пул**; числа умножены
-на размер отряда той поры (глава 1 ×3, глава 2 ×4, глава 3 ×5, остальное ×3), чтобы темп главы 1 остался прежним.
+(прежняя кривая `progression.exp`, теперь `data/cards.json → level`), золото `floor(20 × L^1.4)` (заглушка). Упор в предел
+редкости — кнопка «Вознести». Награды «опыт» в данных (`rewards.jobExp` этапов, сундука, башни, поручений, заданий) — это опыт
+**в пул**; все числа умножены на 3 (размер стартового отряда): темп главы 1 прежний (к боссу ур. 4–5), глава 3 по часам
+сундука — как раньше (`npm run playthrough -- 2 3 --idle`: ~100 ч на главы 1–3).
 
 ---
 

@@ -24,8 +24,8 @@
     { "track": "story", "from": "gold", "to": "red", "gold": 60000, "shards": 80 }
   ],
   "shards": {
-    "firstClear": 3,
-    "bossFirstClear": 6,
+    "firstClear": 4,
+    "bossFirstClear": 8,
     "replayChance": 0.1,
     "replayCount": 1
   }

@@ -99,17 +99,19 @@ const mctx = withMeta(featureCtx, bountiesJson, achievementsJson); // битый
   "counter": "tower_floor", "target": 5, "rewards": { "gems": 20 } }
 ```
 
-`rewards`: `gold`, `gems` — в ресурсы, `jobExp` — каждому герою (как пороги активности K5); пропущенные — 0.
+`rewards`: `gold`, `gems` — в ресурсы, `jobExp` — в общий пул опыта героев, `shards` — осколки «отстающему» сюжетному герою
+(`shardTarget`); пропущенные — 0.
 
 | Счётчик | Режим | Где считается |
 | --- | --- | --- |
 | `stages_cleared` | max | число пройденных этапов — после `actPlayStage`/`actSkipStage` и др. |
 | `tower_floor` | max | `save.tower.floor` — после `actClimbTower` |
-| `jobs_changed` | add | `actChangeJob` |
+| `summons` | add | `actSummon` (по числу карточек) |
+| `ascensions` | add | `actAscend` |
 | `items_equipped` | add | `actEquip` (каждое надевание) |
 | `bounties_done` | add | `claimBounty` |
 | `battles_won` | add | победы в `actPlayStage`, `actSkipStage`, `actClimbTower` |
-| `hero_max_job_level` | max | лучший джоб-уровень героев (с историей профессий) — после любых act* и наград |
+| `hero_max_level` | max | наибольший уровень карточки героя — после любых act* и наград (v4; в старых сохранениях был `hero_max_job_level`, миграция переносит) |
 
 - `trackAchievement(save, key, value, mode?)` — `add` копит, `max` хранит максимум (без `mode` — режим из таблицы).
 - `syncAchievementCounters(save)` — обновить все «максимумы» из состояния сохранения.

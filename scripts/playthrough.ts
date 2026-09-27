@@ -1,7 +1,7 @@
 /**
  * Прохождение главы как новый игрок: новая игра (Алан, Бран, Вика — зелёные карточки ур. 1) → этапы по порядку,
- * поражение — повтор с другим seed; после каждого боя игрок тратит общий пул опыта «Улучшить» (autoLevel: по одному
- * уровню самому низкому герою отряда, пока хватает опыта и золота) и возносит сюжетных героев, если хватает осколков.
+ * поражение — повтор с другим seed; после каждого боя игрок возносит сюжетных героев, которым хватает осколков (и золота,
+ * уровня), и тратит общий пул опыта «Улучшить» (autoLevel: по уровню самому низкому герою отряда, пока хватает).
  *   npx tsx scripts/playthrough.ts [chapterIndex=0] [maxTries=5] [--winrate N] [--idle]
  * Главы до chapterIndex проигрываются молча тем же способом (глава 2 — продолжение сохранения после главы 1).
  * --winrate N — перед первой попыткой этапа: доля побед на N seed'ах (как в docs/content/campaign.md).
@@ -9,7 +9,7 @@
  *          печатается, сколько часов сундука понадобилось (модель «игрок ждёт сундук», без Башни и экипировки).
  * Печатает по этапам: попытки, длительность победного боя, уровни героев. Код выхода 1 — глава не пройдена.
  */
-import { autoLevel, claimOffline, enemySquad, heroCard, newGame, playStage, type SaveState } from '../src/core';
+import { ascendHero, ascendRequirement, autoLevel, claimOffline, enemySquad, heroCard, newGame, playStage, type SaveState } from '../src/core';
 import { loadFullContext } from './lib/content-node';
 
 const ctx = loadFullContext();
@@ -20,6 +20,16 @@ const winrateN = process.argv.includes('--winrate') ? Number(process.argv[proces
 const idle = process.argv.includes('--idle');
 const MAX_IDLE_HOURS = 200;
 const HOUR = 3600_000;
+
+/** Как игрок: вознести сюжетных героев, которым хватает осколков, золота и уровня, затем «Улучшить» отряд. */
+function develop(s: SaveState): SaveState {
+  for (let guard = 0; guard < 10; guard++) {
+    const ready = s.heroes.find((h) => ctx.content.heroes[h.templateId]?.source === 'story' && ascendRequirement(s, h.id, ctx)?.blockers.length === 0);
+    if (!ready) break;
+    s = ascendHero(s, ready.id, [], ctx).save;
+  }
+  return autoLevel(s, ctx).save;
+}
 
 let save: SaveState = newGame(ctx, 0);
 const chapter = ctx.content.chapters[chapterIdx];
@@ -45,13 +55,13 @@ for (const s of ctx.content.stages) {
     for (let t = 0; t < maxTries && !won; t++) {
       tries++;
       const out = playStage(save, s.id, seed++, ctx);
-      save = autoLevel(out.save, ctx).save;
+      save = develop(out.save);
       won = out.result.winner === 'A';
       duration = out.result.duration;
     }
     if (won || !idle || hours >= MAX_IDLE_HOURS) break;
     hours++;
-    save = autoLevel(claimOffline(save, save.offline.lastClaimAt + HOUR, ctx).save, ctx).save;
+    save = develop(claimOffline(save, save.offline.lastClaimAt + HOUR, ctx).save);
   }
   idleTotal += hours;
   if (loud) {

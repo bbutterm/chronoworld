@@ -166,16 +166,24 @@ describe('вознесение сюжетных карточек (осколки
 });
 
 describe('источники осколков', () => {
-  it('этап кампании: герой этапа — по кругу среди сюжетных героев игрока; босс — больше', () => {
-    const s = newGame(ctx, 0);
+  it('этап кампании: осколки «отстающего» сюжетного героя (рекрут догоняет); босс — больше', () => {
+    let s = newGame(ctx, 0);
     const st = ctx.content.stages;
-    expect(st.slice(0, 6).map((x) => stageShardHero(s, x, ctx))).toEqual(['alan', 'bran', 'vika', 'alan', 'bran', 'vika']);
+    // Первые прохождения по очереди раздают осколки тройке поровну: Алан, Бран, Вика, Алан…
+    const order: string[] = [];
+    for (const x of st.slice(0, 6)) {
+      const r = stageShardReward(s, x, ctx)!;
+      order.push(r.templateId);
+      s = addShards(s, r.templateId, r.count);
+    }
+    expect(order).toEqual(['alan', 'bran', 'vika', 'alan', 'bran', 'vika']);
     const boss = st.find((x) => x.boss)!;
     expect(stageShardReward(s, boss, ctx)!.count).toBe(ctx.cards.shards.bossFirstClear);
-    expect(stageShardReward(s, st[0], ctx)).toEqual({ templateId: 'alan', count: ctx.cards.shards.firstClear });
-    // С Гретой — круг из четырёх.
+    expect(stageShardReward(newGame(ctx, 0), st[0], ctx)).toEqual({ templateId: 'alan', count: ctx.cards.shards.firstClear });
+    // Пришла Грета без осколков — следующие этапы дают ей, пока не догонит.
     const four = addHeroCard(s, 'greta', 'green').save;
-    expect(stageShardHero(four, st[3], ctx)).toBe('greta');
+    expect(stageShardHero(four, st[6], ctx)).toBe('greta');
+    expect(stageShardHero(addShards(four, 'greta', 2 * ctx.cards.shards.firstClear + 1), st[6], ctx)).toBe('alan');
   });
 
   it('повтор этапа: осколок с шансом replayChance, детерминированно по seed боя', () => {
@@ -193,9 +201,12 @@ describe('источники осколков', () => {
     for (let seed = 2; first.result.winner !== 'A'; seed++) first = playStage(s, s1, seed, ctx);
     expect(first.save.shards).toEqual({ alan: ctx.cards.shards.firstClear });
     let lucky = 0;
+    const total = (x: SaveState) => Object.values(x.shards).reduce((a, n) => a + n, 0);
     for (let seed = 1; seed <= 200; seed++) {
       const r = playStage(first.save, s1, seed, ctx);
-      const got = (r.save.shards.alan ?? 0) - (first.save.shards.alan ?? 0);
+      const got = total(r.save) - total(first.save);
+      // Осколок повтора — «отстающему» (у Алана уже 3 — Брану).
+      if (got > 0) expect(r.save.shards.bran).toBe(got);
       if (r.result.winner === 'A') expect(got).toBe(replayShardCount(seed, ctx));
       else expect(got).toBe(0);
       if (got > 0) lucky++;

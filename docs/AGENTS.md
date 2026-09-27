@@ -4,8 +4,8 @@
 Короткая памятка — `CLAUDE.md` в корне; «как добавить X» — [`CONTENT_RECIPES.md`](CONTENT_RECIPES.md); состояние — [`PROGRESS.md`](PROGRESS.md).
 Если что-то здесь разошлось с кодом — прав код, исправьте документ в том же коммите.
 
-Содержание: 1. Карта кода · 2. Модель данных · 3. Сохранение · 4. Бой · 5. Отрисовка · 6. Тесты · 7. Баланс ·
-8. Арт-пайплайн · 9. Деплой · 10. QA · 11. Грабли · 12. Глоссарий.
+Содержание: 1. Карта кода · 2. Модель данных · 2а. Карточки героев (API для экранов) · 3. Сохранение · 4. Бой ·
+5. Отрисовка · 6. Тесты · 7. Баланс · 8. Арт-пайплайн · 9. Деплой · 10. QA · 11. Грабли · 12. Глоссарий.
 
 ---
 
@@ -42,19 +42,18 @@
 | `content/schema.ts` | zod: юнит, навык, эффекты, статусы, цели, visual |
 | `content/build.ts` | `buildContent` — разбор файлов + перекрёстные ссылки навыков/юнитов, затем `validateJobs`, `validateCampaign`; `ContentError` |
 | `campaign/schema.ts`, `validate.ts` | глава и этап; проверки (id уникальны, враги monster/boss, boss-этап с боссом) |
-| `campaign/campaign.ts` | `stageStatus`, `enemySquad` (рост силы), `playStage` (награды, опыт, рекруты) |
+| `campaign/campaign.ts` | `stageStatus`, `enemySquad` (рост силы), `squadUnits` (отряд → юниты, одна копия карточки), `playStage` (награды, опыт в пул, осколки, рекруты, подарок Таверны) |
 | `campaign/offline.ts` | офлайн-сундук: накопление, лимит, «долг» при переводе часов, `bankOffline` |
-| `progression/schema.ts` | профессия (`JobSchema`), `data/progression.json` (`ProgressionConfigSchema`) |
-| `progression/stats.ts` | `statsAt`, `heroSkills` (открытые навыки), `buildUnit(hero, ctx)` — герой → юнит боя (+ экипировка) |
-| `progression/exp.ts` | `expToNext`, `addJobExp`, запас опыта на максимуме (`bankedExp`) |
-| `progression/jobChange.ts` | `availableJobChanges`, `changeJob` |
+| `progression/schema.ts` | профессия (`JobSchema`), `data/progression.json` (`ProgressionConfigSchema`: сюжетные карточки `heroes.start/recruits`) |
+| `progression/stats.ts` | `getJob`, `statsAt` (статы профессии на уровне); реэкспорт `buildUnit`/`heroSkills` из `heroes/card.ts` |
 | `progression/validate.ts` | проверки дерева профессий |
+| `heroes/*` | **карточки героев** (раздел 2а): `schema` (шаблон, `cards.json`, `summon.json`), `card` (статы, навыки, формы, `buildUnit`, `heroCard`), `level` («Улучшить», пул опыта), `merge` (вознесение), `shards` (осколки), `summon` (Таверна), `roster` (ростер, отряд), `migrate` (сохранение v3 → v4), `validate`/`config` (проверки) |
 | `story/schema.ts`, `story.ts` | сюжет: схема, `buildStory` (проверки), `pendingScenes`, `markScenesSeen`, очередь `storyQueue`, `queueChapterDone` |
-| `save/schema.ts`, `save.ts` | формат сохранения, `newGame`, `serialize`/`deserialize`, `MIGRATIONS`, `sanitizeSave`, `loadOrNew` |
-| `features/*` | K1 быстрые награды, K2 мощь, K5 ежедневные задания, K7 пропуск боя; `actions.ts` — обёртки `act*` для UI (засчитывают задания и достижения) |
+| `save/schema.ts`, `save.ts` | формат сохранения (v4), `newGame`, `serialize`/`deserialize`, `MIGRATIONS`, `sanitizeSave`, `loadOrNew` |
+| `features/*` | K1 быстрые награды, K2 мощь, K5 ежедневные задания, K7 пропуск боя; `actions.ts` — обёртки `act*` для UI (засчитывают задания и достижения, в т. ч. `actLevelUp`, `actAscend`, `actSummon`) |
 | `equipment/*` | K6 предметы, выпадение (`drops.ts`), надеть/снять, `withGear` |
 | `tower/*` | K4 башня: этажи по правилу из полос, `climbTower` |
-| `meta/*` | K8 пресеты и авторасстановка (`formation.ts`), K9 поручения (`bounties.ts`), K10 достижения |
+| `meta/*` | K8 пресеты, `setSquad`, авторасстановка (`formation.ts`), K9 поручения (`bounties.ts`), K10 достижения |
 
 ### Экраны `src/game/scenes` (Phaser)
 
@@ -67,10 +66,9 @@
 | `CampaignScene` (`Campaign`) | карта главы — тропа этапов снизу вверх; сюжет `chapterStart` |
 | `StageScene` (`Stage`) | подготовка к этапу: поле «отряд против противника» как в бою, список героев, «Авто», «Пресеты», «В бой»; сюжет `beforeStage` |
 | `BattleScene` (`Battle`) | проигрывание лога боя: спрайты, эффекты, баннеры ульт и босса, скорость 1x/2x, пауза, «Пропустить» |
-| `ResultScene` (`Result`) | итоги: награды, трофеи, MVP, «Профессия ›», авто-следующий этап; сюжет `afterStage` |
+| `ResultScene` (`Result`) | итоги: награды (опыт — в запас), трофеи, MVP, подсказка «Улучшить», авто-следующий этап; сюжет `afterStage` |
 | `ChapterDoneScene` (`ChapterDone`) | «Глава пройдена» (переживает перезагрузку через `save.pendingChapterDone`) |
-| `HeroesScene` / `HeroScene` | список героев / карточка героя (статы, навыки, экипировка) |
-| `JobChangeScene` (`JobChange`) | смена профессии и торжественный показ |
+| `HeroesScene` / `HeroScene` | список карточек (имя, класс, редкость цветом, уровень, «Можно вознести!», осколки) / карточка героя: класс, редкость, «Улучшить» (опыт пула + золото), «Вознести» (осколки / самый слабый корм), статы, навыки, экипировка. Минимум до пакета H4 (коллекция с фильтрами, экран вознесения) |
 | `SquadScene` (`Squad`) | то же поле и список героев без противника, «Авто», пресеты |
 | `InventoryScene`, `TowerScene`, `QuestsScene`, `BountiesScene`, `AchievementsScene` | инвентарь, башня, ежедневные задания, поручения, достижения |
 | `PrepScene` (`Prep`) | тестовый бой (только dev или `?dev=1`), отряды из `data/phase0.json` |
@@ -145,7 +143,8 @@ id везде — `^[a-z][a-z0-9_]*$`. JSON-схемы для редактора
 
 `id, name, kind (hero|monster|boss), role (tank|damage|healer|support), stats {hp, atk, def, spd, moveSpeed?},
 skills {basic, ult?, actives[], passives[]}, visual {sprite, projectile?, hitFx?, tint?, scale?}, bodyRadius?`.
-- Герои игрока строятся не отсюда, а из профессий (`buildUnit`); `kind: hero` в `data/units` — отряды тестового боя и `sim`.
+- Герои игрока строятся не отсюда, а из карточек (`data/heroes` → `buildUnit`); `kind: hero` в `data/units` — отряды тестового боя и `sim`.
+- `skillPower` — «сила навыков» (множитель урона/лечения/щита навыков, кроме обычной атаки); у карточек золотой/красной редкости.
 - `visual.tint` — перекраска листа (Дропс — оранжевый Поринг), `visual.scale` — масштаб фигуры (≤ 4).
 - `bodyRadius` не задан — `combat.json → movement.bodyRadius[kind]` (босс 90).
 
@@ -165,7 +164,9 @@ includeSelf, onlyWounded}, hits, effects[], fallback?, trigger?, chance, cooldow
 ### Профессии `data/jobs/<id>.json` (`JobSchema`)
 
 `tier (0 Новичок, 1 первая, 2 вторая), from[] (из каких профессий), maxJobLevel, role, baseStats, growth, basic,
-skills [{jobLevel, skill}], visual`. Статы: `baseStats + growth × (jobLevel − 1)`. На одном уровне — не больше одного навыка.
+skills [{jobLevel, skill}], visual`. **С v4 профессия — класс карточки героя**: даёт обычную атаку (`basic`), кривую статов
+**линии** (первой профессии ветки: `baseStats + growth × (L − 1)`), вид (`visual`); навыки карточки — в `data/heroes`,
+`skills` профессий остаются справочником (проверки линии навыков, `content:check`). Новичок — только корень дерева.
 Дерево (19): Новичок → Мечник (Рыцарь, Крестоносец), Маг (Волшебник, Мудрец), Лучник (Охотник, Бард), Аколит (Жрец, Монах),
 Торговец (Кузнец, Алхимик), Вор (Ассасин, Разбойник). Проверки — `progression/validate.ts` (достижимость от tier 0 и т. д.).
 Спрайт профессии — `visual.sprite` (Маг → `magician`, Волшебник → `mage`, Лучник → `archer_first`, Охотник → `archer`,
@@ -199,13 +200,29 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 
 ### Прогрессия `data/progression.json`
 
-- `jobChange.tierLevel` {1: 10, 2: 50}, `resetJobLevel`, `bankLevels` (запас опыта на максимуме), `keepSkillsOnJobChange`.
-- `exp`: `floor(base × level^power)` (100, 1.5); `exp.byTier["0"]` (4, 1.2) — быстрая кривая Новичка.
-- `heroes`: `count` 3, `startJob` novice, `names` [{name, gender}] (Алан м, Бран м, Вика ж), `recruits` [{afterStage, name, gender, formerNames?}] —
-  Грета ж после `ch1_s10` (прежнее имя «Грег» → переименование в `sanitizeSave`), Дорн м после `ch2_s10`; `namePools` {m, f} — имена
-  несюжетных героев (сверх `names`, пол случайный от seed сохранения — `progression/heroes.ts generatedHero`); `legacyNames` — пол имён старых сохранений.
-- `campaign`: `enemyStatGrowthPerStage` 0.08, `replayRewardMultiplier` 0.5. `offline`: `capHours` 12, `earlyExp`. `newGame.gold`.
+- `heroes`: `start` ["alan","bran","vika"] — сюжетные карточки новой игры (зелёные, ур. 1); `recruits` [{afterStage, template}] —
+  Грета после `ch1_s10`, Дорн после `ch2_s10` (карточка ур. 1 в свободный слот отряда). Имя, пол, класс — в `data/heroes`.
+- `campaign`: `enemyStatGrowthPerStage` 0.08, `replayRewardMultiplier` 0.5. `offline`: `capHours` 12, `earlyExp` (опыт сундука и
+  быстрых наград на первых этапах — не больше доли награды этапа в час). `newGame.gold`.
 - `fastRewards` (K1) и `power` (K2) — читает `features/config.ts`.
+- **Опыт наград** (`rewards.jobExp` этапов, `offlinePerMinute.jobExp`, башня, поручения, пороги заданий, достижения) — опыт **в общий
+  пул героев** `resources.heroExp` (v4); все числа умножены на 3 (размер стартового отряда) — темп прежний.
+
+### Карточки героев `data/heroes/<id>.json`, `data/cards.json`, `data/summon.json`
+
+- Шаблон (`HeroTemplateSchema`, `src/core/heroes/schema.ts`): `id, name, gender, job (класс), line (первая профессия ветки), role,
+  source (story|summon), baseRarity, maxRarity, statMods {hp,atk,def,spd}, skills [{level, skill}] (2–4), forms [{rarity, job, role?,
+  statMods, skills, visual?}] (только сюжетные — вторая профессия на фиолетовом), visual {sprite?}, bio (≤160), hook (≤200)`.
+- 25 карточек: сюжетные Алан, Бран, Вика, Грета, Дорн (зелёные → красный, форма Рыцарь/Охотник/Жрица/Кузнец/Разбойник); призывные
+  первые Ирис, Мэйлин, Тео, Кай, Лира, Отто, Зара (зелёные/синие → золотой); 13 фиолетовых вторых (герои Биолаборатории RO, → красный).
+  Таблицы — `docs/design/heroes.md`, раздел 1.
+- `data/cards.json`: `rarities` (5 по порядку: цвет, `maxLevel` 20/40/60/80/100, `statMult`, `skillPower`), `level` (цена уровня:
+  опыт `floor(100 × L^1.5)`, золото `floor(20 × L^1.4)`), `merge` (правила вознесения по дорожкам `first`/`second` — корм, `story` —
+  осколки + `minLevel`), `shards` (осколки этапов «отстающему» сюжетному герою: `firstClear` 4, `bossFirstClear` 8, повтор — шанс
+  `replayChance` 0.1).
+- `data/summon.json`: `unlockAfterStage` (ch1_s5), `costs` (30 / 270), `rates` (64/32/4% и какие `baseRarities` выпадают), `pity`
+  (30-й — фиолетовый), `firstTen`, `freePerDay`, `welcome` (150 гемов + 1 свиток), `storyShard` (шанс осколка за призыв).
+- Рецепт — `docs/CONTENT_RECIPES.md`, «Новая карточка героя».
 
 ### Правила боя `data/combat.json`
 
@@ -225,16 +242,74 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 
 ---
 
+## 2а. Карточки героев — API ядра для экранов (H4 «Герои», H5 «Таверна»)
+
+Всё — из `src/core` (`import { … } from '../core'`), чистые функции, время/день передаёт UI. Для записи — обёртки `act*`
+(засчитывают задания и достижения), результат — `commit(r.save)`. Ошибки правил — `HeroError` (`code`, русский `message` — в тост).
+
+**Чтение карточки**
+- `heroCard(hero, ctx)` → `{ name, gender, source, track, job, jobName, line, role, rarity {id,name,color,maxLevel,…}, maxRarity,
+  level, maxLevel, stats, skills [{skill, level, unlocked, passive}], nextForm? {rarity, job, jobName}, bio, hook, locked, isNew }` —
+  всё для карточки и плитки коллекции одним объектом.
+- Мелкие: `heroName`, `heroGender`, `heroJobId` (класс с учётом формы), `heroRole`, `heroLine`, `heroStats`, `heroSkillList`,
+  `heroSkills`, `heroSpriteOverride` (свой лист формы); спрайт по реестру — `src/game/flow.ts heroSprite(hero, ctx)`.
+- Редкости: `CARD_RARITIES`, `rarityDef(ctx, r)` (цвет, предел, множители), `maxLevelOf`, `nextRarity`, `rarityIndex`.
+- Мощь: `heroPower(hero, ctx, save)` (K2, с экипировкой).
+
+**«Улучшить» (уровень из общего пула опыта `save.resources.heroExp` + золото)**
+- `levelUpInfo(save, heroId, ctx)` → `{ level, maxLevel, cost {exp, gold} | null, canLevel, blocker ('max_level'|'not_enough_exp'|
+  'not_enough_gold'|null), affordable (сколько уровней по карману), pool, gold }`.
+- `actLevelUp(save, day, heroId, ctx, times = 1)` → `{ save, levels, spent, events }` (события `levelUp`, `skillUnlocked`);
+  `autoLevel(save, ctx, heroIds?)` — «Улучшить всех» (по уровню самому низкому). Цены — `levelUpCost`, `levelRangeCost`.
+
+**Вознесение**
+- `ascendRequirement(save, heroId, ctx)` → `null` (максимум) или `{ from, to, track, gold, minLevel?, shards? {templateId, have, need},
+  fodder [{kind 'same'|'line', rarity, count, candidates[]}], newJob? (вторая профессия сюжетного), blockers[] }`.
+- `autoFodder(save, heroId, ctx)` — самый слабый подходящий корм; `fodderBlocker(save, id, ctx)` — почему карточку нельзя в корм
+  (сюжетная, замок, отряд, пресет, поручение).
+- `actAscend(save, day, heroId, fodderIds, ctx)` → `{ save, events, refund {exp, gold}, consumed }` (событие `ascended {from, to, job,
+  jobChanged}`; сюжетным `fodderIds = []`, тратятся осколки).
+- Замок и «Новый!»: `setHeroLocked(save, heroId, bool)`, `markHeroSeen(save, heroId)`.
+
+**Осколки** — `save.shards[<шаблон>]`: `shardCount`, `stageShardHero(save, stage, ctx)` / `stageShardReward` (чьи и сколько осколков
+даст этап — для экрана подготовки), `shardTarget(save, ctx)` («отстающий»: ниже редкость → меньше осколков → по сюжету; ему идут
+осколки этапов, поручений, достижений, Таверны). Событие `shards`.
+
+**Таверна**
+- `summonStatus(save, day, ctx)` → `{ unlocked, unlockAfterStage, gems, scrolls, costs, freeLeft, untilPity, pityRarity, firstTenBonus,
+  firstTenRarity, total, can {gems1, gems10, scroll1, scroll10, free} }`.
+- `actSummon(save, day, count 1|10, pay 'gems'|'scroll'|'free', ctx)` → `{ save, results [{heroId, templateId, name, rarity, isNew,
+  guaranteed, shard?}], events }`. Результат уже в сохранении (детерминирован от `createdAt` и `summon.seq`) — анимацию показа строить по
+  `results`. Подарок открытия выдаёт `playStage` (событие `tavernUnlocked`); `grantTavernWelcome` — идемпотентно.
+- Пулы редкостей — `summonPool(ctx, rarity)`.
+
+**Отряд**: одна копия карточки — `duplicateCardsInSquad`, `templateInSquad` (серые дубли в ростере), `setSquad(save, squad)`
+(MetaError `duplicate_card`), `placeInSquad`; бой с дублем — `GameRuleError('duplicate_card')`. Ростер: `addHeroCard`, `newHeroId`,
+`ownedStoryTemplates`, `storyHero`, `storyOrder` (hero1…heroN сюжета).
+
+**Экраны-помощники** (`src/game/flow.ts`): `levelUpReady`, `ascendReady` (значок «Герои»), `levelText`, `describeEvents` (строки
+`levelUp`, `ascended`, `shards`, `heroJoined`, `tavernUnlocked`), `defeatAdvice`. Подсказка главной `level_up` (`hints.ts`).
+
+---
+
 ## 3. Сохранение
 
-- Формат — `SaveStateSchema` (`src/core/save/schema.ts`), `SAVE_VERSION = 3`; ключ localStorage `chronoworld.save.v1` (ключ не менялся).
+- Формат — `SaveStateSchema` (`src/core/save/schema.ts`), `SAVE_VERSION = 4`; ключ localStorage `chronoworld.save.v1` (ключ не менялся).
+- **v4 (карточки героев)**: `heroes[] = {id, templateId, rarity, level, locked?, isNew?}`, `resources.heroExp` (пул опыта),
+  `currency.scrolls`, `shards {шаблон: n}`, `summon {seq, total, sincePurple, firstTenDone, freeDay?, freeUsed?, welcomeGiven,
+  discovered[]}`, `notices?` (одноразовые сообщения — `sanitizeSave` отдаёт в `warnings` и убирает). Миграция v3 → v4 —
+  `src/core/heroes/migrate.ts` (заморожена, не читает `data/`): герой → сюжетная карточка по имени (Алан; Бран/Бэлла; Вика/Вик;
+  Грета/Грег; Дорн), иначе — свободная по порядку, шестой и дальше — призывная карточка линии; уровень тот же (вторая профессия — 40 + ур.),
+  редкость по пределу; `jobExp`, `bankedExp` и излишек уровней — в пул; +1 свиток и сообщение; `ch1_s5` пройден — подарок Таверны.
+  Счётчик достижений `hero_max_job_level` → `hero_max_level`. id героев не меняются.
 - `deserialize`: JSON → `MIGRATIONS[v]` по цепочке v → v+1 → zod → возврат неизвестных полей (`keepUnknownFields`, чтобы старая сборка
   не стёрла поля новой) → проверки целостности (дубли героев, неизвестные герои в отряде/предметах/поручениях). Версия новее сборки —
   `SaveError('newer_version')`, сохранение не затирается (только чтение).
 - Новое поле: если оно необязательное (`.optional()`/`.default()`) — версия не меняется (так добавлены `seenScenes`, `storyQueue`,
   `pendingChapterDone`, `revision`, `bankedExp`, `hero.gender` — его `sanitizeSave` выводит по имени, неизвестное → м). Обязательное — `SAVE_VERSION + 1` и миграция в `MIGRATIONS`, тест в `tests/save.test.ts`.
-- `sanitizeSave(save, ctx)` — подгоняет сохранение к текущему контенту: неизвестная профессия → профессия того же тира, неизвестные
-  предметы убираются; предупреждения показываются игроку тостом.
+- `sanitizeSave(save, ctx)` — подгоняет сохранение к текущему контенту: неизвестная карточка — экземпляр убирается вместе со ссылками,
+  редкость/уровень вне правил шаблона — к правилам, вторая копия карточки уходит из отряда, неизвестные предметы убираются; сообщения
+  миграции (`notices`) и правки показываются игроку тостом.
 - `src/game/storage.ts` (`SaveSlot`): ревизии против двух вкладок, резервные копии нечитаемых сохранений, работа при полном хранилище.
 
 ---
@@ -271,9 +346,10 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - **Спрайты v2** — `docs/SPRITE_SPEC.md`: родной масштаб RO ×1, лицом вправо, точка ног — anchor клетки. Сетки: герой 224×192
   (anchor 104,144; 6 рядов idle/walk/attack/cast/hurt/death), монстр 240×224 (100,120; 5 рядов без cast), босс 256×256 (112,216).
   8 колонок, лист ≤ 2048 px. Реестр — `assets/sprites/sprites.json` (schema 2); `assets/sprites/fixes.json` — пропуск битых кадров (`skip`).
-- **Пол героя → лист:** везде, где выбирается спрайт героя (`flow.ts heroSprite` / `heroJobSprite`, их зовут Герои, Герой,
-  Смена профессии, Отряд, Поручения, Башня, «Глава пройдена», диалоги; бой — `BattleScene squadDefs`), берётся
-  `<visual.sprite профессии>_f` / `_m` по `hero.gender`, если такой лист есть в `sprites.json`, иначе базовый лист
+- **Лист карточки героя:** везде, где выбирается спрайт героя (`flow.ts heroSprite`, его зовут Герои, Герой, Отряд, Поручения, Башня,
+  «Глава пройдена», диалоги; бой — `BattleScene squadDefs`): свой лист карточки (`visual.sprite` формы или шаблона — `knight_m`,
+  `priest_f`…, листы по имени класса RO), если он есть в реестре; иначе `<visual.sprite класса>_f` / `_m` по полу карточки, если такой
+  лист есть в `sprites.json`, иначе базовый лист
   (`pipeline/sprites.ts genderedSpriteId`). Базовые листы одного пола (`source.gender`): `acolyte`, `priest` — женские, остальные
   героические — мужские; так что женщина без `_f` выглядит мужским листом, мужчина-Аколит без `_m` — женским (терпимо до арта).
   Бюст в рамке (`portraitFrame.ts bustFor`): `hero_<база>_<m|f>_portrait.png` → бюст листа → портрет листа. Реестр для чистых
@@ -310,10 +386,11 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 
 ## 7. Баланс
 
-- **Цели:** этапы 1–9 главы 1 — 100% побед перед первой попыткой; босс главы 1 — около ⅔–80% (сейчас `mob_mastering` mult 0.81 → 82%
+- **Цели:** этапы 1–9 главы 1 — 100% побед перед первой попыткой; босс главы 1 — около ⅔–80% (сейчас `mob_mastering` mult 0.84 → 83–84%
   на 600 seed'ах). Главы 2–3 — «иди, упрись, забери сундук»: стены растут плавно, босс главы — 1–2 полных сундука.
 - **Метод (как подбирали босса главы 1):** `npm run playthrough -- 0 3 --winrate 600` — новая игра, этапы по порядку, перед каждым этапом
-  доля побед на 600 seed'ах текущим отрядом; меняли `mult` босса шагом 0.01–0.02 и смотрели кривую (0.80 → 88%, 0.82 → 74%, 0.84 → 47%).
+  доля побед на 600 seed'ах текущим отрядом; меняли `mult` босса шагом 0.01–0.02 и смотрели кривую (карточки v4, отряд Алан 5 / Бран 4 /
+  Вика 4: 0.81 → 97%, 0.83 → 91%, 0.84 → 83%, 0.85 → 74%, 0.86 → 57%, 0.90 → 4%).
   Кривая крутая — после любых правок боя, профессий, главы 1 — перемерить.
 - **Главы 2–3:** `npm run playthrough -- <1|2> 3 --idle --winrate 200` — при 3 поражениях подряд забирает офлайн-сундук за 1 час и
   печатает, сколько часов сундука понадобилось; `mult` подобраны так, чтобы Σhp/Σatk этапов не падали (тест) и ожидание росло плавно.
@@ -373,7 +450,11 @@ Vercel собирает `main` (`vercel.json`: `npm ci`, `npm run build`, `dist`
 - **Тест «1000 боёв»** меряет CPU-время и сравнивает с эталоном; при перегрузке контейнера возможен сбой — перезапустить, не ослаблять.
 - **Фон главы 4+** берётся по теме по кругу (`themeOfChapter` в `backdrops.ts`): файл `bg_battle_ch4.jpg` сейчас не будет показан
   (ищется `bg_battle_ch<номер темы 1–3>`). Для новой главы со своим фоном — расширить `THEMES`/поиск файла.
-- **Сохранения живут дольше кода:** не переименовывать id этапов/профессий/предметов/сцен; `sanitizeSave` спасает только профессии и предметы.
+- **Сохранения живут дольше кода:** не переименовывать id этапов/профессий/предметов/сцен/карточек (`data/heroes`); `sanitizeSave`
+  убирает неизвестные карточки и предметы. Старый формат (v3) читает замороженная миграция `heroes/migrate.ts` — её не трогать.
+- **Опыт наград — в пул, не героям:** `rewards.jobExp` в данных (этапы, башня, поручения, задания) — опыт в `resources.heroExp`,
+  уровни поднимает игрок («Улучшить»). Модель игрока (`playthrough`, `balance`) тратит пул сама (`autoLevel`).
+- **Одна копия карточки в отряде:** редактор отряда и пресеты проверяют (`setSquad`, `duplicate_card`), бой с дублем — ошибка.
 - **Владелец читает в мессенджере** — промты и отчёты простым текстом.
 
 ---
@@ -400,4 +481,5 @@ Vercel собирает `main` (`vercel.json`: `npm ci`, `npm run build`, `dist`
 | пресеты отряда, авторасстановка | presets / formation (K8) |
 | фронт / тыл | слоты 0–1 / 2–4 |
 | K1…K10, P1…P12, T1-xx…T5-xx, BUG-xxx | функции из GDD, пакеты FIXLIST, номера багов тестировщиков, сводный баг-лог |
-| Герои: Алан м, Бран м, Вика ж (старт), Грета ж, Дорн м (рекруты) | `progression.json → heroes.names / recruits` (`gender`) |
+| Герои: Алан м, Бран м, Вика ж (старт), Грета ж, Дорн м (рекруты) | сюжетные карточки `data/heroes/{alan,bran,vika,greta,dorn}.json`, `progression.json → heroes.start / recruits` |
+| карточка, шаблон, экземпляр, редкость (зелёный…красный), вознесение, корм, осколки, Таверна, пул опыта, «Улучшить» | hero card, template, instance, rarity, ascend/merge, fodder, hero shards, summon (tavern), `resources.heroExp`, level up |

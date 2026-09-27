@@ -83,9 +83,33 @@ id вида `chapterN` выводится сам (`ch<N>`).
    подхватываются сами для героинь / героев — в `data/jobs` ничего не менять. Нет варианта — базовый лист (его пол — `source.gender`;
    `acolyte`, `priest` — женские, остальные — мужские). Список недостающих — `docs/ART_EXTRACT_RO.md`, раздел 7.
 5. Предметы только для ветки — `data/items/*.json → jobs: ["<корень ветки>"]`.
-6. Экраны (Герои, Смена профессии, дерево) строятся из `data/jobs` сами. Для прогона главы ядром первые профессии заданы
-   в `scripts/playthrough.ts` (`FIRST_JOBS`).
-7. Проверка: content:check (достижимость от Новичка, уровни навыков, дымовой бой героя профессии на максимуме), `tests/jobs.test.ts`.
+6. **Профессия — класс карточки героя** (v4): чтобы игрок её увидел, нужна карточка с этим классом (рецепт 4а) — сюжетная форма
+   или призывная карточка. Навыки героям даёт карточка, а `skills` профессии — справочник «навыков своей линии» (⚠ content:check).
+7. Проверка: content:check (достижимость от Новичка, уровни навыков), `tests/jobs.test.ts`.
+
+## 4а. Новая карточка героя
+
+Дизайн и таблицы — `docs/design/heroes.md`; модель и API — `docs/AGENTS.md`, разделы 2 и 2а.
+
+1. Файл `data/heroes/<id>.json` (скопировать ближайшую: `cp data/heroes/iris.json data/heroes/<id>.json`). id — латиница, после
+   выпуска не менять (лежит в сохранениях). Поля:
+   - `name` (уникально, по-русски), `gender` (`m`/`f`), `job` — класс из `data/jobs`, `line` — первая профессия его ветки
+     (для Рыцаря — `swordman`), `role` (`tank|damage|healer|support` — своя у карточки, авторасстановка и поручения берут её);
+   - `source`: `summon` — выпадает в Таверне; `story` — выдаёт сюжет (тогда id в `data/progression.json → heroes.start` или `recruits`);
+   - редкости: первая профессия призыва — `baseRarity` `green` (выпадает зелёной и синей), `maxRarity` ≤ `gold`; вторая профессия —
+     `purple` → `red`; сюжетная — `green` → `red` + `forms: [{rarity: "purple", job: <вторая профессия линии>, role, statMods,
+     skills, visual}]`;
+   - `statMods` {hp, atk, def, spd} — множители к статам линии (танк: hp/def выше, atk ниже; сумма у вторых профессий ≈ ×1,2–1,3);
+   - `skills` — 2–4 навыка `[{level, skill}]`, уровни строго растут, первый — 1 (обычно 1/10/30/50), не выше предела `maxRarity`
+     (зелёный 20, синий 40, фиолетовый 60, золотой 80, красный 100). Навыки — своей линии; новый навык — рецепт 3;
+   - `visual.sprite` — свой лист (id из `assets/sprites/sprites.json`, например `wizard_f`), у формы — свой; нет — лист класса по полу;
+   - `bio` (≤ 160) и `hook` (≤ 200) — кто это и крючок для сцен.
+2. Правило различия (⚠): у карточек одного класса общих навыков ≤ 2, «фирменный» (последний) навык разный.
+3. В Таверне карточка появится сама (пулы — `data/summon.json → rates[].baseRarities`). Правила вознесения её дорожки уже есть
+   (`data/cards.json → merge`: `first`/`second` — корм, `story` — осколки); content:check проверит.
+4. Проверка: `npm run content:check` (схема, ссылки, навыки, редкости, дымовой бой на пределе каждой редкости, ⚠ пол листа),
+   `npm run check`; глазами — карточка в «Героях» (для призывной — вручную добавить в сохранение или призвать в Таверне).
+5. Арт: лист `<класс RO>_<m|f>` (например `sage_f`) по `docs/SPRITE_SPEC.md` + запись в `sprites.json` → `visual.sprite` карточки.
 
 ## 5. Новый этап
 
@@ -104,8 +128,9 @@ id вида `chapterN` выводится сам (`ch<N>`).
 4. **Сюжет** — рецепт 7 (вступление, сцена перед боссом с `bossIntro`, финал с крючком к следующей главе).
 5. **Фоны:** тема главы — по порядку (луг, топь, склеп, дальше по кругу, `backdrops.ts`). Файлы владельца — `assets/backgrounds/bg_battle_ch<N>.jpg`,
    `bg_map_ch<N>.jpg`; для N ≥ 4 сейчас нужна правка `backdrops.ts` (новая тема в `THEMES` и её рисование/файл) — иначе повторится тема 1–3.
-6. **Рекрут:** `data/progression.json → heroes.recruits` `{"afterStage": "ch4_s10", "name": "…", "gender": "m|f"}` (пол — часть образа героя) (сейчас максимум отряда 5 — рекрут
-   после главы 3 даст 6-го героя вне отряда; решить с владельцем).
+6. **Рекрут:** сюжетная карточка (рецепт 4а, `source: story`) + `data/progression.json → heroes.recruits` `{"afterStage": "ch4_s10",
+   "template": "<id карточки>"}` — приходит зелёной ур. 1 в свободный слот (сейчас максимум отряда 5 — рекрут после главы 3 даст
+   6-го героя вне отряда; решить с владельцем).
 7. **Башня:** новая полоса `data/tower.json → bands` `{"fromFloor": 60, "name": "…ярус", "layouts": [...], "bossLayouts": [...]}` из монстров главы.
 8. **Выпадение:** при желании своё правило `data/drops.json → rules` с `chapter: "chapter4"`.
 9. **Тесты:** `tests/chapters.test.ts` (число глав/этапов) — обновить; прохождение — `npm run playthrough -- 3 3 --idle --winrate 200`.
@@ -113,8 +138,9 @@ id вида `chapterN` выводится сам (`ch<N>`).
 ## 7. Новая сюжетная сцена
 
 1. Файл главы `data/story/<глава>.json` (нет — `npm run content:new -- story <глава>`).
-2. Спикеры: `speakers.<ключ> = {name, portrait}`; `hero1…heroN` — герои игрока (имя из сохранения, `portrait: "hero"`);
-   `portrait` — id профессии (`swordman`), id спрайта или `unit:<id юнита>`. Пол сюжетных героев фиксирован (`progression.heroes`) —
+2. Спикеры: `speakers.<ключ> = {name, portrait}`; `hero1…heroN` — сюжетные карточки игрока по порядку `progression.heroes`
+   (start, затем recruits: Алан, Бран, Вика, Грета, Дорн; имя и портрет — из карточки, `portrait: "hero"`);
+   `portrait` — id профессии (`swordman`), id спрайта или `unit:<id юнита>`. Пол сюжетных героев фиксирован (`data/heroes`) —
    род в их репликах ставить можно; рекрут до вступления — спикер со своим ключом и именем (`greta`), лист по его полу.
 3. Сцена: `{id (уникален по всем главам, например ch4_s5_after), trigger: chapterStart|beforeStage|afterStage, stageId (кроме chapterStart), lines}`;
    1–6 реплик, `text` ≤ 120 символов; `bossIntro` — только у beforeStage босс-этапа. Одна сцена на пару (trigger, этап).
@@ -131,11 +157,12 @@ id вида `chapterN` выводится сам (`ch<N>`).
 ## 9. Ежедневное задание, поручение, достижение
 
 - **Задание** — `data/quests.json → quests[]`: `{id, name, event, target, points}`; `event` — одно из `ACTIVITY_KINDS`
-  (`src/core/features/quests.ts`: stage_win, stage_attempt, offline_claim, fast_rewards, job_change, hero_level_up, tower_attempt).
+  (`src/core/features/quests.ts`: stage_win, stage_attempt, offline_claim, fast_rewards, summon, hero_level_up, hero_ascend, tower_attempt).
   Новый вид события — правка ядра (`ACTIVITY_KINDS` + запись в обёртке `act*` в `src/core/features/actions.ts`) и тест.
   Пороги активности — `milestones`.
-- **Поручение** — `data/bounties.json → templates[]`: `{id, name, rarity, durationMinutes, heroCount, role|null, rewards {gold, jobExp, gems}}`;
-  `role` должна быть у какой-то профессии (content:check). Баланс шаблонов — открытый вопрос владельцу (см. PROGRESS).
+- **Поручение** — `data/bounties.json → templates[]`: `{id, name, rarity, durationMinutes, heroCount, role|null, rewards {gold, jobExp,
+  gems, shards?}}`; `jobExp` — в общий пул, `shards` — осколки «отстающего» сюжетного героя; `role` должна быть у какой-то профессии
+  (content:check). Баланс шаблонов — открытый вопрос владельцу (см. PROGRESS).
 - **Достижение** — `data/achievements.json → achievements[]`: `{id, name, description, counter, target, rewards}`; `counter` — из
   `ACHIEVEMENT_COUNTERS` (`src/core/meta/config.ts`); новый счётчик — правка ядра + тест `tests/meta-achievements.test.ts`.
 - Подробно — `docs/content/features.md`, `docs/content/meta.md`.
@@ -160,6 +187,7 @@ id вида `chapterN` выводится сам (`ch<N>`).
 | Портрет 64×64 | `assets/sprites/portraits/<id>.png` | поле `portrait` в `sprites.json` |
 | Бюст героя | `assets/ro/portraits/hero_<id спрайта>_portrait.png` (вариант по полу — `hero_<id спрайта>_<f\|m>_portrait.png`) | сам (glob в `portraitFrame.ts`) |
 | Лист героя по полу | `<id спрайта>_f` / `_m` в `assets/sprites/sprites.json` | сам (`flow.ts heroSprite`, откат на базовый лист) |
+| Лист карточки героя (класс RO по имени: `knight_m`, `wizard_f`…) | `sprites.json` | `visual.sprite` карточки (`data/heroes`) или её формы; content:check ⚠ — у кого ещё откат по полу |
 | Битые кадры | — | `assets/sprites/fixes.json` → `{"<id>": {"skip": {"death": [2, 3]}}}` |
 | Иконка навыка | `assets/ui/icons/skill_<id навыка>.png` (квадрат, рисуется в 96×96) | сама; RO-иконка — `RO_SKILL_ICONS` |
 | Эффект | `assets/effects/<id>.png` (атлас) | `assets/effects/effects.json → effects` (cell, columns, frames, ms, anchor) и `→ skills` |
@@ -179,4 +207,6 @@ id вида `chapterN` выводится сам (`ch<N>`).
    в `data/units` не трогать ради одного этапа — монстр общий.
 4. Правило: Σhp и Σatk этапа не меньше предыдущего (`tests/chapters.test.ts` проверяет главы 2–3); `offlinePerMinute` растёт.
 5. Итог: `npm run balance` (14 дней всей экономики), записать таблицу и метод в `docs/content/campaign.md` (как для глав 1–3).
-6. После правок боя/профессий/главы 1 — перемерить босса главы 1 и `tests/chapter1-playthrough.test.ts`.
+6. После правок боя/профессий/карточек/главы 1 — перемерить босса главы 1 и `tests/chapter1-playthrough.test.ts`. Модель игрока
+   (`playthrough`, `balance`) тратит опыт пула сама (`autoLevel` — по уровню самому низкому герою отряда) и возносит сюжетных
+   героев за осколки; опыт этапов — в пул (прежние числа ×3).

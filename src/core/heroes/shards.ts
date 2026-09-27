@@ -8,8 +8,8 @@ import { rarityIndex } from './schema';
 
 /**
  * Осколки сюжетных героев (как в AFK): save.shards[<шаблон>]. Тратятся на вознесение сюжетной карточки (merge.ts).
- * Источники: первое прохождение этапа кампании (герой этапа — по кругу среди сюжетных героев игрока), повтор этапа
- * (шанс), поручения и достижения (rewards.shards → shardTarget), Таверна (summon.json → storyShard).
+ * Источники: первое прохождение этапа кампании и повтор (шанс) — «отстающему» сюжетному герою (stageShardHero),
+ * поручения и достижения (rewards.shards → shardTarget), Таверна (summon.json → storyShard).
  */
 
 /** Сколько осколков героя templateId. */
@@ -25,16 +25,16 @@ export function addShards(save: SaveState, templateId: string, count: number): S
 }
 
 /**
- * Чьи осколки даёт этап: сюжетные герои игрока по кругу (порядок сюжета) по номеру этапа в кампании.
- * Сюжетных героев нет — null. Видно до боя (экран подготовки этапа).
+ * Чьи осколки даёт этап: «отстающий» сюжетный герой игрока (shardTarget — ниже редкость, меньше осколков, по порядку
+ * сюжета), так рекруты (Грета, Дорн) догоняют стартовую тройку. Сюжетных героев нет — null. Видно до боя (экран
+ * подготовки этапа); stage — на будущее (свой герой у этапа), сейчас не влияет.
  */
-export function stageShardHero(save: Pick<SaveState, 'heroes'>, stage: Pick<StageInfo, 'globalIndex'>, ctx: GameContext): string | null {
-  const owned = ownedStoryTemplates(save, ctx);
-  return owned.length ? owned[stage.globalIndex % owned.length] : null;
+export function stageShardHero(save: Pick<SaveState, 'heroes' | 'shards'>, _stage: Pick<StageInfo, 'globalIndex'>, ctx: GameContext): string | null {
+  return shardTarget(save, ctx);
 }
 
 /** Осколки за первое прохождение этапа (без случайности): {templateId, count} или null. */
-export function stageShardReward(save: Pick<SaveState, 'heroes'>, stage: Pick<StageInfo, 'globalIndex' | 'boss'>, ctx: GameContext): { templateId: string; count: number } | null {
+export function stageShardReward(save: Pick<SaveState, 'heroes' | 'shards'>, stage: Pick<StageInfo, 'globalIndex' | 'boss'>, ctx: GameContext): { templateId: string; count: number } | null {
   const templateId = stageShardHero(save, stage, ctx);
   const count = stage.boss ? ctx.cards.shards.bossFirstClear : ctx.cards.shards.firstClear;
   return templateId && count > 0 ? { templateId, count } : null;

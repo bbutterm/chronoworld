@@ -101,8 +101,9 @@ const fctx = withFeatures(gameCtx, progressionJson, questsJson); // битый �
 | `stage_win` | победа в бою кампании |
 | `offline_claim` | сбор непустого офлайн-сундука |
 | `fast_rewards` | взяты быстрые награды |
-| `job_change` | смена профессии |
-| `hero_level_up` | каждый новый джоб-уровень любого героя |
+| `summon` | каждая карточка, призванная в Таверне |
+| `hero_level_up` | каждый уровень, поднятый «Улучшить» (`actLevelUp`) |
+| `hero_ascend` | вознесение карточки (`actAscend`) |
 
 Функции:
 
@@ -120,14 +121,18 @@ const fctx = withFeatures(gameCtx, progressionJson, questsJson); // битый �
 
 | Обёртка | Вызывает | Засчитывает |
 | --- | --- | --- |
-| `actPlayStage(save, day, stageId, seed, ctx)` | `playStage` | `stage_attempt`, `stage_win`, `hero_level_up` |
+| `actPlayStage(save, day, stageId, seed, ctx)` | `playStage` | `stage_attempt`, `stage_win` |
 | `actSkipStage(save, day, stageId, seed, ctx)` | `skipStage` | то же |
-| `actClaimOffline(save, now, day, ctx)` | `claimOffline` | `offline_claim` (если что-то получено), `hero_level_up` |
-| `actChangeJob(save, day, heroId, jobId, ctx)` | `changeJob` | `job_change` |
-| `actUseFastRewards(save, day, fctx)` | `useFastRewards` | `fast_rewards`, `hero_level_up` |
-| `actClaimQuest(save, day, questId, fctx)` | `claimQuest` | `hero_level_up` (сейчас задание даёт только очки — всегда 0) |
-| `actClaimActivity(save, day, milestone, fctx)` | `claimActivity` | `hero_level_up` (`jobExp` порога) |
-| `actClaimBounty(save, day, bountyId, now, mctx)` | `claimBounty` (K9) | `hero_level_up` (`jobExp` поручения) |
+| `actClaimOffline(save, now, day, ctx)` | `claimOffline` | `offline_claim` (если что-то получено) |
+| `actLevelUp(save, day, heroId, ctx, times?)` | `levelUpHero` | `hero_level_up` (по числу уровней) |
+| `actAscend(save, day, heroId, fodderIds, ctx)` | `ascendHero` | `hero_ascend` |
+| `actSummon(save, day, count, pay, ctx)` | `summon` | `summon` (по числу карточек) |
+| `actUseFastRewards(save, day, fctx)` | `useFastRewards` | `fast_rewards` |
+| `actClaimQuest(save, day, questId, fctx)` | `claimQuest` | — (только очки) |
+| `actClaimActivity(save, day, milestone, fctx)` | `claimActivity` | — (`jobExp` порога — в общий пул) |
+| `actClaimBounty(save, day, bountyId, now, mctx)` | `claimBounty` (K9) | — (`jobExp` — в пул, осколки — «отстающему») |
+
+С v4 (карточки героев) опыт всех наград идёт в общий пул `resources.heroExp`, уровни поднимает только «Улучшить».
 | `actClaimAchievement(save, day, id, mctx)` | `claimAchievement` (K10) | `hero_level_up` (`jobExp` достижения) |
 
 `hero_level_up` считает level-up из **всех** источников опыта: `hero_level_up += число событий levelUp` в ответе.

@@ -338,7 +338,7 @@ export function genStory(root: string, chapterId: string, _opts: Record<string, 
   writeNew(root, rel, { $schema: '../schema/story.schema.json', chapter: chapterId, speakers, scenes }, out);
   out.notes.push(
     `Сюжет ${rel}: сцены ${scenes.map((s) => s.id).join(', ')}. Реплики ≤ 120 символов, 1–6 на сцену.`,
-    'hero1…heroN — герои сохранения (имя из сохранения); portrait: hero | id профессии | id спрайта | unit:<id>.',
+    'hero1…heroN — сюжетные карточки игрока по порядку progression.heroes (имя из карточки); portrait: hero | id профессии | id спрайта | unit:<id>.',
   );
   return out;
 }
