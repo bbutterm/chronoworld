@@ -1,0 +1,34 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_mastering_sticky_slam",
+  "name": "Липкий плюх",
+  "description": "Прыжок в тыл к самому слабому врагу: урон и «Липкость» (−30% скорости) на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "cooldown": 12,
+  "priority": 3,
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "sticky",
+        "name": "Липкость",
+        "turns": 2,
+        "stats": {
+          "spd": -0.3
+        }
+      }
+    }
+  ]
+}

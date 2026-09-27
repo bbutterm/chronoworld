@@ -8,6 +8,7 @@
 data/units/<id>.json     юнит: статы, навыки, внешний вид
 data/skills/<id>.json    навык: кого бьёт и что делает
 data/combat.json         общие правила боя (шкала, энергия, дальность ближнего боя, скорость бега, поле)
+data/story/<chapter>.json  сюжет главы: спикеры и диалоговые сцены (раздел «Сюжет» ниже)
 data/schema/*.json       JSON-схемы для подсказок в редакторе (генерируются)
 assets/manifest.json     UI, эффекты, иконки — по id
 assets/sprites/          спрайтшиты v2 (формат — docs/SPRITE_SPEC.md)
@@ -119,6 +120,45 @@ assets/sprites.legacy.json  старые листы assets/ro в формате 
 **cooldown / castTime / priority** (для активных) — перезарядка и время каста в секундах, приоритет среди активных (больше — раньше; при равенстве — открытый позже). Без `cooldown` — `combat.json → skills.defaultCooldown`. В ход юнит применяет готовый навык с наибольшим приоритетом, для которого есть цели, иначе — обычную атаку. Каст сбивается оглушением.
 
 **trigger** (для пассивок) — `battleStart`, `turnStart`, `hit` (по носителю попали), `kill`, `allyDeath`; `chance` — шанс срабатывания. Пассивка не запускает другие пассивки.
+
+## Сюжет
+
+`data/story/<chapter>.json` — диалоги главы (пример — `data/story/chapter1.json`, замысел — `docs/design/chapter1.md`, разделы 5 и 7).
+Схема — `StorySchema` в `src/core/story/schema.ts` (JSON-схема для редактора — `data/schema/story.schema.json`).
+
+```json
+{
+  "$schema": "../schema/story.schema.json",
+  "chapter": "chapter1",                              // id главы из data/campaign
+  "speakers": {
+    "garret": { "name": "Капитан Гаррет", "portrait": "swordman" },
+    "hero1":  { "name": "Алан", "portrait": "hero" },
+    "boss":   { "name": "Мастеринг", "portrait": "unit:mob_mastering" }
+  },
+  "scenes": [
+    { "id": "ch1_intro", "trigger": "chapterStart", "lines": [{ "speaker": "garret", "text": "…" }] },
+    { "id": "ch1_s10_before", "trigger": "beforeStage", "stageId": "ch1_s10",
+      "bossIntro": { "title": "Мастеринг", "subtitle": "Король порингов" }, "lines": [ … ] },
+    { "id": "ch1_outro", "trigger": "afterStage", "stageId": "ch1_s10", "lines": [ … ] }
+  ]
+}
+```
+
+| Поле | Что это |
+| --- | --- |
+| `trigger` | `chapterStart` — при первом входе на карту главы (и перед первым этапом, если ещё не видели); `beforeStage` — перед первым боем этапа, до старта боя; `afterStage` — после первой победы, поверх экрана итогов |
+| `stageId` | обязателен для `beforeStage` / `afterStage`, этап должен быть из этой главы |
+| `bossIntro` | заголовок баннера босса — только у `beforeStage` босс-этапа |
+| `lines` | 1–6 реплик, `text` ≤ 120 символов |
+| `speaker` | ключ из `speakers`; `hero1`…`heroN` — герои сохранения по порядку, имя берётся из сохранения |
+| `portrait` | `hero` — текущая профессия героя; id профессии; id спрайта; `unit:<id>` — спрайт юнита. Нет картинки — иконка скина (content:check предупредит) |
+
+Каждая сцена показывается один раз: id увиденных — в сохранении (`seenScenes`), на повторах этапа сцен нет.
+Какую сцену показать, решает ядро: `pendingScenes(save, trigger, ctx)`; отметка — `markScenesSeen`. Диалог в игре — `src/game/dialogue.ts`
+(касание дописывает строку / листает, «Пропустить» закрывает сцену; в авто-прохождении строки листаются сами).
+
+`content:check` проверяет: глава и этапы существуют, этап из этой главы, спикеры объявлены, id сцен уникальны по всем главам,
+одна сцена на пару (`trigger`, `stageId`), `bossIntro` только у босс-этапа, длину реплик.
 
 ## Как устроен бой (коротко)
 

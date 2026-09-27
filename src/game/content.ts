@@ -30,6 +30,7 @@ export const GAME: FullContext = buildGameContext({
   tower: towerJson,
   bounties: bountiesJson,
   achievements: achievementsJson,
+  stories: toFiles(import.meta.glob('../../data/story/*.json', { eager: true, import: 'default' })),
 });
 
 /** Юниты, навыки, профессии и этапы кампании. */

@@ -1,5 +1,6 @@
 {
-  "$comment": "Сюжет главы 1. Пока не подключён к коду — спецификация в docs/design/chapter1.md, раздел 7. Реплики ≤ 120 символов. Сцена босса написана под Мастеринга (mob_mastering), а не текущего Героя орков.",
+  "$schema": "../schema/story.schema.json",
+  "$comment": "Сюжет главы 1. Формат — docs/CONTENT.md, раздел «Сюжет»; спецификация — docs/design/chapter1.md, раздел 7. Реплики ≤ 120 символов. Сцена босса написана под Мастеринга (mob_mastering), а не текущего Героя орков.",
   "chapter": "chapter1",
   "speakers": {
     "garret": { "name": "Капитан Гаррет", "portrait": "swordman" },

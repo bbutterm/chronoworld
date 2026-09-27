@@ -112,6 +112,11 @@ export const SaveStateSchema = z.object({
   bounties: BountiesStateSchema,
   /** v3 (K10). Достижения. */
   achievements: AchievementsStateSchema,
+  /**
+   * Увиденные сюжетные сцены (id из data/story) — каждая показывается один раз. Поле добавлено без смены версии:
+   * в старых сохранениях его нет — по умолчанию пусто.
+   */
+  seenScenes: z.array(z.string()).default([]),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;
