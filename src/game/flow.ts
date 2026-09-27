@@ -16,7 +16,7 @@ import {
   RARITIES,
   SLOTS,
   squadPower,
-  stagePower,
+  recommendedPower as coreRecommendedPower,
   stageStatus,
   type AchievementView,
   type ActivityKind,
@@ -244,12 +244,11 @@ export const POWER_TINTS: Record<PowerTone, number> = { ahead: 0x3fae4f, close: 
 export const POWER_VERDICT: Record<PowerTone, string> = { ahead: 'Сил хватает', close: 'Чуть не хватает', behind: 'Слабее' };
 
 /**
- * Рекомендуемая мощь этапа. Пока в ядре нет своей рекомендации от баланса — мощь врагов этапа (stagePower):
- * по прогону главы 1–2 моделью игрока (autoLevel + autoFormation) отряд с мощью ≥ врагов выигрывает почти всегда,
- * около 0,8–1 — через раз (ch1_s10 при 0,74 — 75 % побед, ch2_s5 при 0,94 — стена), ниже — редко.
+ * Рекомендуемая мощь этапа — из баланса (`recommendedPower` ядра, `data/progression.json` → power.recommended):
+ * отряд с такой мощью проходит этап с первых попыток; модель игрока не проигрывает ниже 0,85 от неё.
  */
 export function recommendedPower(stageId: string, ctx: FeatureContext): number {
-  return stagePower(stageId, ctx);
+  return coreRecommendedPower(stageId, ctx);
 }
 
 /** Мощь текущего отряда против рекомендуемой мощи этапа: числа, тон (цвет) и подпись для плашек. */

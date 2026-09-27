@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { newGame, squadPower, stagePower, type SaveState } from '../src/core';
+import { newGame, recommendedPower as coreRecommendedPower, squadPower, type SaveState } from '../src/core';
 import { CAMP_EXP, campLevel, campLevelCost, heroesNavBadge, leadHero, POWER_VERDICT, powerCheck, powerTone, recommendedPower } from '../src/game/flow';
 import { computeView } from '../src/game/viewLayout';
 import { loadFullContext } from '../scripts/lib/content-node';
@@ -9,8 +9,8 @@ const fresh = (): SaveState => newGame(ctx, 0);
 const stages = ctx.content.stages;
 
 describe('«Почти готово»: мощь отряда против рекомендуемой мощи этапа', () => {
-  it('рекомендуемая мощь — мощь врагов этапа, растёт по главе', () => {
-    for (const s of stages.slice(0, 3)) expect(recommendedPower(s.id, ctx)).toBe(stagePower(s.id, ctx));
+  it('рекомендуемая мощь — из баланса ядра, растёт по главе', () => {
+    for (const s of stages.slice(0, 3)) expect(recommendedPower(s.id, ctx)).toBe(coreRecommendedPower(s.id, ctx));
     expect(recommendedPower(stages[9].id, ctx)).toBeGreaterThan(recommendedPower(stages[0].id, ctx));
   });
 
