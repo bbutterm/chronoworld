@@ -13,7 +13,7 @@ EXPECTED={
  'monster':('idle','walk','attack','hurt','death'),
  'boss':('idle','walk','attack','hurt','death'),
 }
-REQUIRED={'guard','warrior','assassin','archer','mage','priest','melee','ranged','tank','fast','elite','boss1','boss2'}
+REQUIRED={'novice','guard','warrior','assassin','archer','mage','priest','melee','ranged','tank','fast','elite','boss1','boss2'}
 GRID={'hero':([224,192],[104,144]),'monster':([240,224],[100,120]),'boss':([256,256],[112,216])}
 EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16]}
 
@@ -27,12 +27,13 @@ def count_and_bbox(rgba):
  y,x=np.nonzero(a)
  return (int(x.min()),int(y.min()),int(x.max())+1,int(y.max())+1) if len(x) else None
 
-def check(path=DEFAULT,source_cache=None):
+def check(path=DEFAULT,source_cache=None,only=None):
  data=json.loads(Path(path).read_text());errors=[]
  def fail(msg):errors.append(msg)
  if data.get('schema')!=2 or data.get('columns')!=8:fail('schema=2 and columns=8 required')
  sprites=data.get('sprites',[])
  if {s['id'] for s in sprites}!=REQUIRED or len(sprites)!=len(REQUIRED):fail('missing/duplicate/extra sprite ids')
+ if only and only not in {s['id'] for s in sprites}:fail(f'unknown sprite id: {only}')
  for kind,anims in EXPECTED.items():
   cls=data['classes'].get(kind,{})
   if tuple(cls.get('anims',[]))!=anims:fail(f'{kind} animation order mismatch')
@@ -43,6 +44,7 @@ def check(path=DEFAULT,source_cache=None):
   if not (0<anchor[0]<cell[0] and 0<anchor[1]<cell[1]):fail(f'{kind} origin outside cell')
  for s in sprites:
   sid=s['id'];kind=s['class'];cfg=data['classes'][kind];cw,ch=cfg['cell'];ax,ay=cfg['anchor'];anims=cfg['anims']
+  if only and sid!=only:continue
   png=ROOT/'assets'/s['file'];portrait=s.get('portrait')
   if not png.is_file():fail(f'{sid} missing {png}');continue
   with Image.open(png) as raw:
@@ -108,4 +110,5 @@ def check(path=DEFAULT,source_cache=None):
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,default=DEFAULT);p.add_argument('--source-cache',type=Path)
- a=p.parse_args();check(a.manifest,a.source_cache)
+ p.add_argument('--only',help='Limit source/pixel validation to one sprite (manifest inventory is still checked)')
+ a=p.parse_args();check(a.manifest,a.source_cache,a.only)

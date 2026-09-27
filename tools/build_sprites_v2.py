@@ -14,6 +14,7 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'assets/sprites'
 DEFAULT_CACHE=Path.home()/'.cache/chronoworld/v2'
 HEROES={
+ 'novice':(0,'Novice','male',0,0,0,0),
  'guard':(14,'Crusader','male',2,1,1101,2101),
  'warrior':(7,'Knight','male',3,0,1151,0),
  'assassin':(12,'Assassin','male',16,0,1252,0),
@@ -66,7 +67,7 @@ def save_lossless(im,path,oxipng):
   if not np.array_equal(np.asarray(check.convert('RGBA')),np.asarray(im)):
    raise RuntimeError(f'lossy PNG conversion: {path}')
 
-def build(cache:Path,oxipng:Path):
+def build(cache:Path,oxipng:Path,only=None):
  # oxipng is optional; Pillow's lossless indexed PNG remains under budget.
  for kind in ('heroes','monsters','bosses','portraits'):(OUT/kind).mkdir(parents=True,exist_ok=True)
  data={'schema':2,'columns':8,'classes':CLASSES,'anims':ANIMS,'animOverrides':OVERRIDES,'sprites':[],
@@ -79,6 +80,13 @@ def build(cache:Path,oxipng:Path):
   specs.append((name,'hero',job,jobname,gender,weapon,shield,item,shielditem))
  for name,(mobname,mobid) in MONSTERS.items():
   specs.append((name,'boss' if name.startswith('boss') else 'monster',mobid,mobname,None,0,0,0,0))
+ if only:
+  specs=[spec for spec in specs if spec[0]==only]
+  if not specs:raise ValueError(f'unknown sprite id: {only}')
+  manifest=OUT/'sprites.json'
+  if not manifest.is_file():raise FileNotFoundError(f'--only requires existing {manifest}')
+  data=json.loads(manifest.read_text())
+  data['sprites']=[s for s in data['sprites'] if s['id']!=only]
  for name,kind,job,jobname,gender,weapon,shield,item,shielditem in specs:
   cfg=CLASSES[kind];cw,ch=cfg['cell'];ax,ay=cfg['anchor'];rows=cfg['anims']
   sheet=Image.new('RGBA',(cw*8,ch*len(rows)))
@@ -125,6 +133,7 @@ def build(cache:Path,oxipng:Path):
     out=OUT/'portraits'/f'{name}.png';save_lossless(portrait,out,oxipng)
     entry['portrait']=f'sprites/portraits/{name}.png'
   if exception_rows:entry['samplingExceptions']=exception_rows
+  if name=='novice':entry['sourceLimitations']={'cast':'RO action 102 is visually identical to ready/idle','death':'RO action 70 has one source frame; held to fill the v2 death row'}
   entry['sourceAlphaValues']=sorted(alphas)
   png=ROOT/'assets'/entry['file'];save_lossless(sheet,png,oxipng);data['sprites'].append(entry)
   print(name,kind,png.stat().st_size,'bytes',flush=True)
@@ -134,4 +143,5 @@ def build(cache:Path,oxipng:Path):
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--cache',type=Path,default=DEFAULT_CACHE)
  p.add_argument('--oxipng',type=Path,default=Path(os.environ.get('OXIPNG',shutil.which('oxipng') or '/root/artifacts/chronoworld-art/bin/oxipng')))
- a=p.parse_args();build(a.cache,a.oxipng)
+ p.add_argument('--only',help='Build/upsert a single ID without replacing the other manifest entries')
+ a=p.parse_args();build(a.cache,a.oxipng,a.only)

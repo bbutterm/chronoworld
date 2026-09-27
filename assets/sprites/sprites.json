@@ -4018,6 +4018,339 @@
         "death": 38
       },
       "sourceAlphaValues": []
+    },
+    {
+      "id": "novice",
+      "class": "hero",
+      "file": "sprites/heroes/novice.png",
+      "source": {
+        "job": "Novice",
+        "jobId": 0,
+        "gender": "male",
+        "head": 1,
+        "weaponView": 0,
+        "shieldView": 0,
+        "itemId": 0,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3,
+        "cast": 4
+      },
+      "bbox": {
+        "idle": [
+          80,
+          65,
+          130,
+          153
+        ],
+        "walk": [
+          84,
+          65,
+          132,
+          152
+        ],
+        "attack": [
+          76,
+          74,
+          135,
+          153
+        ],
+        "cast": [
+          80,
+          65,
+          130,
+          153
+        ],
+        "hurt": [
+          89,
+          78,
+          129,
+          155
+        ],
+        "death": [
+          66,
+          109,
+          131,
+          162
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -24,
+            -73,
+            26,
+            9
+          ],
+          [
+            -23,
+            -78,
+            26,
+            9
+          ],
+          [
+            -22,
+            -79,
+            26,
+            9
+          ],
+          [
+            -23,
+            -74,
+            26,
+            9
+          ]
+        ],
+        "walk": [
+          [
+            -13,
+            -79,
+            15,
+            8
+          ],
+          [
+            -13,
+            -78,
+            21,
+            8
+          ],
+          [
+            -20,
+            -76,
+            28,
+            8
+          ],
+          [
+            -17,
+            -77,
+            23,
+            8
+          ],
+          [
+            -13,
+            -79,
+            16,
+            7
+          ],
+          [
+            -13,
+            -78,
+            19,
+            5
+          ],
+          [
+            -17,
+            -76,
+            27,
+            8
+          ],
+          [
+            -13,
+            -77,
+            21,
+            8
+          ]
+        ],
+        "attack": [
+          [
+            -24,
+            -70,
+            27,
+            9
+          ],
+          [
+            -28,
+            -70,
+            27,
+            9
+          ],
+          [
+            -28,
+            -70,
+            27,
+            9
+          ],
+          [
+            -21,
+            -65,
+            31,
+            9
+          ],
+          [
+            -21,
+            -63,
+            31,
+            9
+          ],
+          [
+            -21,
+            -63,
+            27,
+            9
+          ]
+        ],
+        "cast": [
+          [
+            -24,
+            -73,
+            26,
+            9
+          ],
+          [
+            -24,
+            -76,
+            26,
+            9
+          ],
+          [
+            -23,
+            -78,
+            26,
+            9
+          ],
+          [
+            -22,
+            -79,
+            26,
+            9
+          ],
+          [
+            -22,
+            -77,
+            26,
+            9
+          ],
+          [
+            -23,
+            -74,
+            26,
+            9
+          ]
+        ],
+        "hurt": [
+          [
+            -11,
+            -64,
+            25,
+            11
+          ],
+          [
+            -15,
+            -66,
+            21,
+            9
+          ],
+          [
+            -11,
+            -64,
+            25,
+            11
+          ]
+        ],
+        "death": [
+          [
+            -38,
+            -35,
+            27,
+            18
+          ],
+          [
+            -38,
+            -35,
+            27,
+            18
+          ],
+          [
+            -38,
+            -35,
+            27,
+            18
+          ],
+          [
+            -38,
+            -35,
+            27,
+            18
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "walk": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          2,
+          3,
+          5,
+          6,
+          8
+        ],
+        "cast": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "hurt": [
+          0,
+          1,
+          2
+        ],
+        "death": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 6,
+        "walk": 8,
+        "attack": 9,
+        "cast": 6,
+        "hurt": 3,
+        "death": 1
+      },
+      "sourceCacheFiles": {
+        "idle": "novice_idle_38_w0_s0.png",
+        "walk": "novice_walk_14_w0_s0.png",
+        "attack": "novice_attack_86_w0_s0.png",
+        "cast": "novice_cast_102_w0_s0.png",
+        "hurt": "novice_hurt_54_w0_s0.png",
+        "death": "novice_death_70_w0_s0.png"
+      },
+      "sourceActions": {
+        "idle": 38,
+        "walk": 14,
+        "attack": 86,
+        "cast": 102,
+        "hurt": 54,
+        "death": 70
+      },
+      "sourceAlphaValues": [],
+      "portrait": "sprites/portraits/novice.png",
+      "sourceLimitations": {
+        "cast": "RO action 102 is visually identical to ready/idle",
+        "death": "RO action 70 has one source frame; held to fill the v2 death row"
+      }
     }
   ],
   "notes": [
