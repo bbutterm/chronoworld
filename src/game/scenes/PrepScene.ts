@@ -3,8 +3,9 @@ import { COMBAT, type Side } from '../../core';
 import { tex } from '../assets';
 import { CONTENT, heroIds } from '../content';
 import { describeUnit } from '../describe';
-import { anim, portraitKey, spriteView } from '../sprites';
+import { anim, portraitKey, spriteView, whenSprites } from '../sprites';
 import { ARENA_TOP, GAME_W, slotPos } from '../layout';
+import { portrait } from '../screen';
 import { squads } from '../state';
 import { button, ellipsize, panel, pressable, text } from '../ui';
 import { C, FS, TOUCH } from '../theme';
@@ -78,7 +79,7 @@ export class PrepScene extends Phaser.Scene {
       const x = 40 + step * (i + 0.5);
       panel(this, x, 262, 150, 150, 'ui_slot_filled');
       const u = CONTENT.units[id];
-      const img = pressable(this, this.add.image(x, 262, portraitKey(u.visual.sprite)).setDisplaySize(140, 140), 150, 150, () => this.pickHero(id));
+      const img = pressable(this, portrait(this, x, 262, portraitKey(u.visual.sprite), 140), 150, 150, () => this.pickHero(id));
       ellipsize(text(this, x, 362, u.name, FS.small, C.text, { stroke: C.stroke, strokeThickness: 5 }), step - 10);
       img.on('pointerover', () => this.info.setText(describeUnit(u, CONTENT)));
     });
@@ -118,6 +119,14 @@ export class PrepScene extends Phaser.Scene {
   }
 
   private refresh(): void {
+    // U: листы героев в слотах грузятся по требованию; пока грузятся — слоты рисуются без фигур.
+    const ids = [...squads.A, ...squads.B].filter((id): id is string => !!id).map((id) => CONTENT.units[id].visual.sprite);
+    whenSprites(this, ids, () => this.drawSlots());
+    const ready = squads.A.some(Boolean) && squads.B.some(Boolean);
+    this.startBtn.container.setAlpha(ready ? 1 : 0.4);
+  }
+
+  private drawSlots(): void {
     for (const v of this.slotViews) {
       const id = squads[v.side][v.slot];
       const isSel = this.selected.side === v.side && this.selected.slot === v.slot;
@@ -127,6 +136,12 @@ export class PrepScene extends Phaser.Scene {
       if (id) {
         const spriteId = CONTENT.units[id].visual.sprite;
         const view = spriteView(this, spriteId);
+        // Выбрали героя, чей лист ещё грузится, — фигура появится по следующему вызову (после загрузки).
+        if (!this.textures.exists(view.key)) {
+          v.hero.setVisible(false);
+          v.label.setText(CONTENT.units[id].name);
+          continue;
+        }
         // Спрайт в слоте чуть меньше, чем в бою.
         v.hero.setTexture(view.key, 0).setOrigin(view.originX, view.originY).setScale((view.size / v.hero.frame.height) * 0.62);
         const idle = anim(view, spriteId, 'idle');
@@ -136,7 +151,5 @@ export class PrepScene extends Phaser.Scene {
       }
       v.label.setText(id ? CONTENT.units[id].name : '');
     }
-    const ready = squads.A.some(Boolean) && squads.B.some(Boolean);
-    this.startBtn.container.setAlpha(ready ? 1 : 0.4);
   }
 }

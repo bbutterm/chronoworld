@@ -8,7 +8,8 @@ import { badge, card, confirm, gemIcon, NAV_H, screen } from '../screen';
 import { commit, now, resetProgress, session, today } from '../session';
 import { button, dangerButton, hintPointer, icon, panel, pressable, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT, TITLE_STYLE, TOUCH } from '../theme';
-import { nextPlaybackSpeed, playback, setPlaybackSpeed } from '../state';
+import { fps, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed } from '../state';
+import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
 
 /**
@@ -151,11 +152,11 @@ export class HomeScene extends Phaser.Scene {
     const shade = this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
     shade.on('pointerup', close);
     // Само окно тоже ловит нажатия — иначе касание по фону окна закрыло бы его.
-    const box = panel(this, cx, cy, 880, 1060, 'ui_panel').setInteractive();
+    const box = panel(this, cx, cy, 880, 1240, 'ui_panel').setInteractive();
     layer.add([shade, box]);
-    layer.add(text(this, cx, cy - 460, 'Настройки', FS.h1, C.title, TITLE_STYLE));
+    layer.add(text(this, cx, cy - 540, 'Настройки', FS.h1, C.title, TITLE_STYLE));
 
-    let y = cy - 350;
+    let y = cy - 430;
     layer.add(text(this, cx - bw / 2, y, 'Скорость боя', FS.h3, C.text, OUTLINE).setOrigin(0, 0.5));
     const speed = button(this, cx + bw / 2 - 110, y, 220, TOUCH, 'ui_btn_secondary', `${playback.speed}x`, () => {
       setPlaybackSpeed(nextPlaybackSpeed());
@@ -164,6 +165,19 @@ export class HomeScene extends Phaser.Scene {
     layer.add(speed.container);
     y += 70;
     layer.add(text(this, cx, y, 'Запоминается; меняется и прямо в бою', FS.small, C.muted));
+
+    // U: ограничение кадров — на слабых телефонах 30 вдвое снижает нагрузку и нагрев; бой не замедляется.
+    y += 90;
+    layer.add(text(this, cx - bw / 2, y, 'Частота кадров', FS.h3, C.text, OUTLINE).setOrigin(0, 0.5));
+    const fpsBtn = button(this, cx + bw / 2 - 110, y, 220, TOUCH, 'ui_btn_secondary', `${fps.cap} FPS`, () => {
+      setFpsCap(nextFpsCap());
+      lifecycle()?.setFpsCap(fps.cap);
+      fpsBtn.setLabel(`${fps.cap} FPS`);
+    }, FS.h3);
+    fpsBtn.container.setName('fpsCap');
+    layer.add(fpsBtn.container);
+    y += 70;
+    layer.add(text(this, cx, y, '30 — меньше нагрев и расход батареи', FS.small, C.muted));
 
     y += 110;
     layer.add(button(this, cx, y, bw, 110, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'), FS.h2).container);

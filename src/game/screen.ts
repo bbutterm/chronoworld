@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { session, takeWarnings } from './session';
 import { GAME } from './content';
+import { lazyPortrait } from './sprites';
 import { formatNumber, jobChangeReadyCount } from './flow';
 import { button, ellipsize, icon, panel, text, toast } from './ui';
 import { C, FS, SP, TINT } from './theme';
@@ -146,8 +147,13 @@ export function confirm(scene: Phaser.Scene, question: string, yes: string, onYe
   layer.add([shade, box, q, ok.container, cancel.container]);
 }
 
-/** Портрет, вписанный в квадрат size (портреты бывают неквадратными). */
+/**
+ * Портрет, вписанный в квадрат size (портреты бывают неквадратными). U: портрета ещё нет (лист не загружался) —
+ * сначала нейтральный силуэт, настоящий подставится, когда будет вырезан из листа.
+ */
 export function portrait(scene: Phaser.Scene, x: number, y: number, key: string, size: number): Phaser.GameObjects.Image {
   const img = scene.add.image(x, y, key);
-  return img.setScale(size / Math.max(img.width, img.height, 1));
+  const fit = () => img.setScale(size / Math.max(img.width, img.height, 1));
+  lazyPortrait(scene, key, img, fit);
+  return fit();
 }

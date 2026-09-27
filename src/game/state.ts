@@ -65,3 +65,35 @@ export function nextPlaybackSpeed(): number {
   const i = playbackSpeeds.indexOf(playback.speed);
   return playbackSpeeds[(i + 1) % playbackSpeeds.length];
 }
+
+/**
+ * U. Ограничение частоты кадров (настройка, не прогресс — localStorage): 60 — как у экрана, 30 — вдвое меньше
+ * работы CPU/GPU и нагрева на слабых телефонах. Бой считается по времени, так что на 30 он не замедляется.
+ */
+export const FPS_KEY = 'chronoworld.fpsCap';
+export const FPS_CAPS = [60, 30] as const;
+export type FpsCap = (typeof FPS_CAPS)[number];
+
+function loadFps(): FpsCap {
+  try {
+    const v = Number(globalThis.localStorage?.getItem(FPS_KEY));
+    if ((FPS_CAPS as readonly number[]).includes(v)) return v as FpsCap;
+  } catch {
+    // Хранилище недоступно — по умолчанию.
+  }
+  return 60;
+}
+
+export const fps = { cap: loadFps() };
+
+export function setFpsCap(cap: FpsCap): void {
+  fps.cap = cap;
+  try {
+    globalThis.localStorage?.setItem(FPS_KEY, String(cap));
+  } catch {
+    // Не запомнили — не страшно.
+  }
+}
+
+/** Следующее значение по кругу (60 → 30 → 60). */
+export const nextFpsCap = (): FpsCap => FPS_CAPS[(FPS_CAPS.indexOf(fps.cap) + 1) % FPS_CAPS.length];

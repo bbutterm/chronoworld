@@ -6,7 +6,7 @@ import { formatNumber, heroSprite, itemStatsText, lockedJobSkills, RARITY_COLORS
 import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
 import { session } from '../session';
-import { anim, portraitKey, spriteView } from '../sprites';
+import { anim, portraitKey, spriteView, whenSprites } from '../sprites';
 import { button, ellipsize, hintPointer, panel, pressable, progressBar, ScrollArea, text } from '../ui';
 import { C, FS, TINT } from '../theme';
 
@@ -147,8 +147,13 @@ export class HeroScene extends Phaser.Scene {
     }
   }
 
+  /** U: лист героя грузится при первом открытии карточки (и остаётся в кэше листов для боя). */
   private heroSprite(hero: HeroState, x: number, feetY: number): void {
     const id = heroSprite(hero, GAME);
+    whenSprites(this, [id], () => this.drawHero(id, x, feetY));
+  }
+
+  private drawHero(id: string, x: number, feetY: number): void {
     const view = spriteView(this, id);
     if (!view.art) {
       portrait(this, x, feetY - 120, portraitKey(id), 240);

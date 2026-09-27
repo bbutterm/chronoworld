@@ -92,7 +92,12 @@ async function main() {
     };
     /** Активна ли сцена (window.__game есть только в dev-сборке). */
     const waitScene = async (key, timeout = 15000) => {
-      await page.waitForFunction((k) => window.__game?.scene?.isActive(k), key, { timeout });
+      // U: листы юнитов грузятся по требованию — ждём, пока экран их догрузит (бой строится после загрузки).
+      await page.waitForFunction(
+        (k) => window.__game?.scene?.isActive(k) && !window.__sprites?.busy() && window.__game.scene.getScene(k).ready !== false,
+        key,
+        { timeout },
+      );
       await sleep(250);
       log(`сцена ${key}`);
     };
@@ -248,6 +253,14 @@ async function main() {
     if (!(await hasText('Home', 'Версия '))) problems.push('в настройках нет версии');
     if (!(await hasText('Home', 'Сбросить прогресс'))) problems.push('в настройках нет «Сбросить прогресс»');
     await shot('settings');
+    // U: ограничение FPS — 30 запоминается и включает ограничитель цикла Phaser; возвращаем 60.
+    await clickText('Home', '60 FPS');
+    await sleep(150);
+    const cap = await page.evaluate(() => ({ saved: localStorage.getItem('chronoworld.fpsCap'), limit: window.__game.loop.hasFpsLimit }));
+    if (cap.saved !== '30' || !cap.limit) problems.push(`30 FPS не включился: ${JSON.stringify(cap)}`);
+    await clickText('Home', '30 FPS');
+    await sleep(150);
+    if (await page.evaluate(() => window.__game.loop.hasFpsLimit)) problems.push('60 FPS: ограничитель не снялся');
     await clickText('Home', 'Тестовый бой');
     await waitScene('Prep');
     // Тестовый бой (отряды из data/phase0.json, seed 7) — там бой длинный: ждём баннер ульты для скриншота.
@@ -271,6 +284,22 @@ async function main() {
       await shot('battle-ult');
       await page.evaluate(() => window.__game.scene.resume('Battle'));
     } else log('ульта не случилась за 30 с — скриншот баннера пропущен');
+    // U: окно потеряло фокус (Mini App свёрнут) — игра спит и часы боя стоят; вернулись — бой идёт без скачка.
+    if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) {
+      const clock = () => page.evaluate(() => window.__game.scene.getScene('Battle').clock);
+      await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+      await sleep(100);
+      const c0 = await clock();
+      await sleep(1000);
+      const c1 = await clock();
+      const asleep = await page.evaluate(() => !window.__game.loop.running);
+      await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+      await sleep(60);
+      const c2 = await clock();
+      if (!asleep || c1 !== c0) problems.push(`пауза при потере фокуса не сработала: цикл спит ${asleep}, часы ${c0} → ${c1}`);
+      else if (c2 - c1 > 0.6) problems.push(`после паузы бой прыгнул вперёд на ${(c2 - c1).toFixed(2)} с`);
+      else log(`пауза: часы боя стояли (${c0.toFixed(2)} с), после возврата +${(c2 - c1).toFixed(2)} с`);
+    }
     await clickText('Battle', 'Пропустить');
     await waitScene('Result');
     await sleep(600);

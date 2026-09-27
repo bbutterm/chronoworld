@@ -7,6 +7,7 @@
 // и при утечках между боями (растут слушатели/твины/таймеры, объекты сцены не удаляются, куча пухнет).
 // Переменные: PERF_PORT (5185), PERF_RUNS (5), PERF_CPU (4), PERF_SEED (7), PERF_HEAP_LEAK_MB (8),
 // PERF_JSON=файл — сырые цифры, PERF_SNAPSHOT=файл — снимок кучи после боёв (для поиска удерживающих ссылок).
+// Память текстур меряется по экранам: главная, список героев, карточка героя, бой, главная после боёв.
 // Подробности и цифры: docs/content/performance.md.
 import { execSync, spawn } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
@@ -169,7 +170,18 @@ function installProbe() {
       }
       return { key, dims: dims.join('+'), bytes };
     });
-  /** Листы юнитов текущего боя. */
+  /** Все текстуры, МБ (w×h×4), и сколько из них листы юнитов spr_*. */
+  P.texMB = () => {
+    const all = P.textures();
+    const sum = (a) => a.reduce((s, t) => s + t.bytes, 0) / 1048576;
+    return { all: sum(all), sheets: sum(all.filter((t) => t.key.startsWith('spr_'))), count: all.length };
+  };
+  /** Сцена показана и дозагрузила листы (ленивая загрузка спрайтов; у старых сборок её нет). */
+  P.settled = (k) => {
+    if (!g.scene.isActive(k)) return false;
+    const sc = g.scene.getScene(k);
+    return !(window.__sprites?.busy() ?? false) && sc.ready !== false;
+  };
   /** Прототипы классов Phaser (для подсчёта живых экземпляров через CDP queryObjects) — берём у объектов боя. */
   P.grabProtos = () => {
     const sc = g.scene.getScene('Battle');
@@ -234,6 +246,32 @@ async function main() {
       return h.usedSize / 1048576;
     };
     const heap0 = await heapMB();
+
+    // Память текстур по экранам (без замедления CPU, до боёв).
+    const screens = [];
+    const texOn = async (name, key, data) => {
+      if (key) {
+        await page.waitForFunction(() => window.__game.scene.getScenes(true).length > 0, null, { timeout: 30000 });
+        await page.evaluate(([k, d]) => window.__game.scene.getScenes(true)[0].scene.start(k, d), [key, data]);
+        await page.waitForFunction((k) => window.__perf.settled(k), key ?? 'Home', { timeout: 60000 });
+        await sleep(800);
+      }
+      const t = await page.evaluate(() => window.__perf.texMB());
+      screens.push({ name, ...t });
+      log(`текстуры, ${name}: ${f1(t.all)} МБ (листы юнитов ${f1(t.sheets)}), текстур ${t.count}`);
+    };
+    await texOn('главная (после загрузки)');
+    await texOn('список героев', 'Heroes');
+    const heroId = await page.evaluate(() => {
+      try {
+        const s = JSON.parse(localStorage.getItem('chronoworld.save.v1') ?? 'null');
+        return (s?.heroes ?? s?.data?.heroes ?? s?.save?.heroes)?.[0]?.id ?? null;
+      } catch {
+        return null;
+      }
+    });
+    if (heroId) await texOn('карточка героя', 'Hero', { heroId });
+    await texOn('главная (после карточки)', 'Home');
     /**
      * Сколько живых (после сборки мусора) экземпляров Text/Image/Sprite/Container во всей игре
      * и сколько из них уже уничтожены, но удерживаются чьими-то ссылками (dead).
@@ -258,6 +296,7 @@ async function main() {
     };
 
     for (let i = 1; i <= RUNS; i++) {
+      await page.waitForFunction(() => window.__game.scene.getScenes(true).length > 0, null, { timeout: 30000 });
       const script0 = await scriptSec();
       await page.evaluate((seed) => {
         const P = window.__perf;
@@ -268,10 +307,12 @@ async function main() {
         P.on = true;
         window.__game.scene.getScenes(true)[0].scene.start('Battle', { mode: 'test', seed });
       }, SEED);
-      await page.waitForFunction(() => window.__game.scene.isActive('Battle'), null, { timeout: 30000 });
+      await page.waitForFunction(() => window.__perf.settled('Battle') || window.__game.scene.isActive('Result'), null, { timeout: 60000 });
       if (i === 1) {
         await page.evaluate(() => window.__perf.grabProtos());
         tex = await page.evaluate(() => ({ all: window.__perf.textures(), used: window.__perf.battleSprites() }));
+        const t = await page.evaluate(() => window.__perf.texMB());
+        screens.push({ name: 'бой', ...t });
       }
       await page.waitForFunction(() => window.__game.scene.isActive('Result'), null, { timeout: 180000, polling: 500 });
       const data = await page.evaluate(() => {
@@ -311,6 +352,7 @@ async function main() {
       await sleep(300);
     }
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+    await texOn(`главная (после ${RUNS} боёв)`, 'Home');
     if (process.env.PERF_SNAPSHOT) {
       const chunks = [];
       cdp.on('HeapProfiler.addHeapSnapshotChunk', (e) => chunks.push(e.chunk));
@@ -383,11 +425,13 @@ async function main() {
     console.log(`| из них уничтоженных, но удерживаемых ссылками | ${rows.map((r) => r.live.dead).join(' → ')} |`);
     console.log(`| текстуры всего, МБ (w×h×4) | ${f1(summary.texturesMB)} |`);
     console.log(`| из них листы юнитов spr_* / нужные этому бою, МБ | ${f1(summary.spritesMB)} / ${f1(summary.battleSpritesMB)} |`);
+    console.log('\n| экран | текстуры, МБ | из них листы юнитов, МБ | текстур |\n|---|---|---|---|');
+    for (const t of screens) console.log(`| ${t.name} | ${f1(t.all)} | ${f1(t.sheets)} | ${t.count} |`);
     console.log('\nЛисты юнитов, крупнейшие (* — нужен этому бою):');
     for (const t of [...spr].sort((a, b) => b.bytes - a.bytes).slice(0, 15)) {
       console.log(`  ${used.has(t.key) ? '*' : ' '} ${t.key.padEnd(28)} ${t.dims.padEnd(11)} ${mb(t.bytes).padStart(6)} МБ`);
     }
-    if (process.env.PERF_JSON) writeFileSync(process.env.PERF_JSON, JSON.stringify({ summary, rows, textures: tex.all, used: [...used] }, null, 2));
+    if (process.env.PERF_JSON) writeFileSync(process.env.PERF_JSON, JSON.stringify({ summary, screens, rows, textures: tex.all, used: [...used] }, null, 2));
   } catch (e) {
     problems.push(`сценарий: ${e.message}`);
   } finally {

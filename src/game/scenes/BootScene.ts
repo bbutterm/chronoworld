@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import { buildPlaceholders, queueAssets, setupLoadedAssets } from '../assets';
-import { CONTENT } from '../content';
+import { CONTENT, GAME } from '../content';
+import { heroSprite } from '../flow';
+import { session } from '../session';
 import { FONT, GAME_H, GAME_W } from '../layout';
-import { queueSprites, setupSprites } from '../sprites';
+import { queuePortraitFiles, requestPortrait, setupSprites } from '../sprites';
 
 /**
  * Все спрайты игры (профессии героев игрока и юниты: герои теста, монстры, боссы) → роль.
@@ -72,14 +74,25 @@ export class BootScene extends Phaser.Scene {
     });
 
     queueAssets(this);
-    queueSprites(this, Object.keys(spriteRoles()));
+    // U: листы юнитов (до 12 МБ каждый в памяти GPU) не грузим — только маленькие файлы портретов.
+    queuePortraitFiles(this, Object.keys(spriteRoles()));
   }
 
   create(): void {
     setupLoadedAssets(this);
     buildPlaceholders(this);
-    const roles = spriteRoles();
-    setupSprites(this, Object.keys(roles), roles);
-    this.scene.start('Home');
+    setupSprites(this, spriteRoles());
+    // Небольшой набор портретов сразу: герои игрока (список героев, отряд). Листы для них грузятся по одному
+    // и сразу выгружаются — в памяти остаются только портреты. Остальные портреты — по требованию экранов.
+    const own = [...new Set(session.save.heroes.map((h) => heroSprite(h, GAME)))];
+    let started = false;
+    const go = () => {
+      if (started) return;
+      started = true;
+      this.scene.start('Home');
+    };
+    void Promise.all(own.map((id) => requestPortrait(this.game, id))).then(go);
+    // Сеть подвисла — не держим игрока на экране загрузки: портреты догрузятся на экранах.
+    setTimeout(go, 4000);
   }
 }

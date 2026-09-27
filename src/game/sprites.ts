@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { buildRegistry, resolveAnim, type AnimName, type LegacySprites, type SpriteDef, type SpritesV2 } from '../pipeline/sprites';
+import { FONT } from './layout';
+import { SheetLru, textureBytes } from './spriteCache';
 
 const first = <T>(mods: Record<string, unknown>): T | undefined => Object.values(mods)[0] as T | undefined;
 
@@ -13,53 +15,253 @@ export const spriteKey = (id: string) => `spr_${id}`;
 export const portraitKey = (id: string) => `portrait_${id}`;
 const animKey = (id: string, name: AnimName) => `spr_${id}:${name}`;
 
-/** Ставит в загрузку только нужные спрайты (старые листы монстров огромные — не грузим зря). */
-export function queueSprites(scene: Phaser.Scene, ids: string[]): void {
+/** Размер сгенерированного портрета (канвас): дёшево держать все, экранам-спискам не нужны листы. */
+export const PORTRAIT_SIZE = 160;
+const PENDING_PORTRAIT = 'portrait__pending';
+const OVERLAY_DELAY_MS = 150;
+
+/** U. Листы юнитов в памяти: LRU с бюджетом и удержаниями активных сцен. */
+const lru = new SheetLru();
+/** Загрузки листов в процессе: id → промис. */
+const inflight = new Map<string, Promise<void>>();
+/** Роли спрайтов (id → tank/damage/…) — цвет плейсхолдера, если листа нет или он не загрузился. */
+let roles: Record<string, string> = {};
+
+export const isPortraitKey = (key: string) => key.startsWith('portrait_') && key !== PENDING_PORTRAIT;
+const idOfPortraitKey = (key: string) => key.slice('portrait_'.length);
+const sheetLoaded = (game: Phaser.Game, id: string) => game.textures.exists(spriteKey(id));
+
+/**
+ * При старте (BootScene): только файлы портретов (маленькие) — листы юнитов грузятся по требованию
+ * (whenSprites / ensureSprites / requestPortrait).
+ */
+export function queuePortraitFiles(scene: Phaser.Scene, ids: string[]): void {
   for (const id of new Set(ids)) {
     const s = SPRITES[id];
-    if (!s) continue;
-    scene.load.spritesheet(spriteKey(id), s.file, { frameWidth: s.cell[0], frameHeight: s.cell[1] });
-    if (s.portrait) scene.load.image(portraitKey(id), s.portrait);
+    if (s?.portrait) scene.load.image(portraitKey(id), s.portrait);
   }
 }
 
 /**
- * После загрузки: анимации, фильтр без сглаживания; для отсутствующих — плейсхолдеры-силуэты цвета роли
- * (roles: id спрайта → tank/damage/healer/support).
+ * После загрузки BootScene: запомнить роли; фильтр портретов-файлов; силуэты-плейсхолдеры для спрайтов без листа
+ * (spriteRoles: id спрайта → tank/damage/healer/support).
  */
-export function setupSprites(scene: Phaser.Scene, ids: string[], roles: Record<string, string> = {}): void {
-  for (const id of new Set(ids)) {
-    const s = SPRITES[id];
-    const key = spriteKey(id);
-    if (s && scene.textures.exists(key)) {
-      scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
-      for (const [name, a] of Object.entries(s.anims)) {
-        const k = animKey(id, name as AnimName);
-        if (scene.anims.exists(k) || !a) continue;
-        scene.anims.create({
-          key: k,
-          frames: Array.from({ length: a.frames }, (_, i) => ({ key, frame: a.row * s.columns + i, duration: a.ms[i] ?? a.ms[0] })),
-        });
-      }
-    } else {
-      placeholder(scene, key, 128, 128, roles[id], true);
-    }
+export function setupSprites(scene: Phaser.Scene, spriteRoles: Record<string, string>): void {
+  roles = spriteRoles;
+  const tm = scene.textures;
+  for (const id of Object.keys(spriteRoles)) {
     const pk = portraitKey(id);
-    if (scene.textures.exists(pk)) scene.textures.get(pk).setFilter(Phaser.Textures.FilterMode.NEAREST);
-    else if (s && scene.textures.exists(key)) {
-      // Портрета нет — берём кадр стойки, обрезанный по фигуре (в клетке листа много пустоты).
-      const idle = s.anims.idle;
-      const frame = scene.textures.getFrame(key, (idle?.row ?? 0) * s.columns);
-      if (frame) portraitFromFrame(scene, pk, key, frame);
-    } else placeholder(scene, pk, 128, 128, roles[id], false);
+    if (tm.exists(pk)) tm.get(pk).setFilter(Phaser.Textures.FilterMode.NEAREST);
+    if (SPRITES[id]) continue;
+    placeholder(tm, spriteKey(id), 128, 128, roles[id], true);
+    placeholder(tm, pk, 128, 128, roles[id], false);
   }
 }
 
-/** Портрет из кадра: квадрат вокруг непрозрачных пикселей (один раз при загрузке). */
-function portraitFromFrame(scene: Phaser.Scene, pk: string, key: string, frame: Phaser.Textures.Frame): void {
+function loadImage(url: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+/**
+ * Загрузить лист. Не загрузчиком сцены: тот сбрасывается при выключении сцены, а лист нужен и следующей.
+ * Не загрузился — плейсхолдер (как раньше в BootScene).
+ */
+function loadSheet(game: Phaser.Game, id: string): Promise<void> {
+  if (sheetLoaded(game, id)) return Promise.resolve();
+  const running = inflight.get(id);
+  if (running) return running;
+  const s = SPRITES[id];
+  const p = loadImage(s.file).then((img) => {
+    inflight.delete(id);
+    const tm = game.textures;
+    if (sheetLoaded(game, id)) return;
+    if (!img) {
+      console.warn(`Лист ${s.file} не загрузился, рисую плейсхолдер`);
+      placeholder(tm, spriteKey(id), 128, 128, roles[id], true);
+      placeholder(tm, portraitKey(id), 128, 128, roles[id], false);
+      return;
+    }
+    const key = spriteKey(id);
+    const tex = tm.addSpriteSheet(key, img, { frameWidth: s.cell[0], frameHeight: s.cell[1] });
+    if (!tex) return;
+    tex.setFilter(Phaser.Textures.FilterMode.NEAREST);
+    for (const [name, a] of Object.entries(s.anims)) {
+      const k = animKey(id, name as AnimName);
+      if (game.anims.exists(k) || !a) continue;
+      game.anims.create({
+        key: k,
+        frames: Array.from({ length: a.frames }, (_, i) => ({ key, frame: a.row * s.columns + i, duration: a.ms[i] ?? a.ms[0] })),
+      });
+    }
+    const pk = portraitKey(id);
+    if (!tm.exists(pk)) {
+      // Портрета нет — берём кадр стойки, обрезанный по фигуре (в клетке листа много пустоты). Один раз и навсегда.
+      const frame = tm.getFrame(key, (s.anims.idle?.row ?? 0) * s.columns);
+      if (frame) portraitFromFrame(tm, pk, key, frame);
+    }
+    lru.add(id, textureBytes(img.width, img.height));
+  });
+  inflight.set(id, p);
+  return p;
+}
+
+/** Выгрузить лист: анимации и текстура (портрет остаётся). */
+function unloadSheet(game: Phaser.Game, id: string): void {
+  for (const name of Object.keys(SPRITES[id]?.anims ?? {})) game.anims.remove(animKey(id, name as AnimName));
+  if (sheetLoaded(game, id)) game.textures.remove(spriteKey(id));
+}
+
+function trim(game: Phaser.Game): void {
+  for (const id of lru.trim()) unloadSheet(game, id);
+}
+
+/** Какие листы держит каждая сцена до своего выключения; поколение — чтобы опоздавшая загрузка не строила старую сцену. */
+const holds = new Map<Phaser.Scene, Set<string>>();
+const generation = new Map<Phaser.Scene, number>();
+const genOf = (scene: Phaser.Scene) => generation.get(scene) ?? 0;
+
+function holdFor(scene: Phaser.Scene, ids: string[]): void {
+  let set = holds.get(scene);
+  if (!set) {
+    const own = new Set<string>();
+    set = own;
+    holds.set(scene, own);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      holds.delete(scene);
+      generation.set(scene, genOf(scene) + 1);
+      for (const id of own) lru.release(id);
+      trim(scene.game);
+    });
+  }
+  for (const id of ids) {
+    if (set.has(id)) continue;
+    set.add(id);
+    lru.hold(id);
+  }
+}
+
+/** «Загрузка…» поверх сцены, если листы грузятся дольше OVERLAY_DELAY_MS. Возвращает «убрать». */
+function loadingOverlay(scene: Phaser.Scene): () => void {
+  let layer: Phaser.GameObjects.Container | null = null;
+  const gen = genOf(scene);
+  const timer = setTimeout(() => {
+    if (!scene.sys.isActive() || genOf(scene) !== gen) return;
+    const { width, height } = scene.scale.gameSize;
+    const shade = scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45).setInteractive();
+    const label = scene.add
+      .text(width / 2, height / 2, 'Загрузка…', { fontFamily: FONT, fontSize: '52px', color: '#ffffff', stroke: '#000000', strokeThickness: 8 })
+      .setOrigin(0.5);
+    layer = scene.add.container(0, 0, [shade, label]).setDepth(20000).setName('spritesLoading');
+  }, OVERLAY_DELAY_MS);
+  return () => {
+    clearTimeout(timer);
+    if (layer?.scene) layer.destroy();
+    layer = null;
+  };
+}
+
+/**
+ * U. Листы юнитов для сцены: грузит недостающие и держит их до выключения сцены (потом они уходят в LRU
+ * с бюджетом SHEET_BUDGET_BYTES, самые давние выгружаются). Всё уже в памяти — ready вызывается сразу
+ * (в том же кадре, без мигания); иначе — после загрузки, если сцена ещё та же. Дольше 150 мс — «Загрузка…».
+ */
+export function whenSprites(scene: Phaser.Scene, ids: string[], ready: () => void): void {
+  const game = scene.game;
+  const want = [...new Set(ids)].filter((id) => SPRITES[id]);
+  holdFor(scene, want);
+  for (const id of want) lru.touch(id);
+  const missing = want.filter((id) => !sheetLoaded(game, id));
+  if (!missing.length) {
+    ready();
+    return;
+  }
+  const gen = genOf(scene);
+  const done = loadingOverlay(scene);
+  void Promise.all(missing.map((id) => loadSheet(game, id))).then(() => {
+    done();
+    trim(game);
+    if (genOf(scene) === gen && scene.sys.isActive()) ready();
+  });
+}
+
+/** То же промисом. Сцену выключили до конца загрузки — тоже разрешается (строить уже нечего). */
+export function ensureSprites(scene: Phaser.Scene, ids: string[]): Promise<void> {
+  return new Promise((resolve) => {
+    const gen = genOf(scene);
+    whenSprites(scene, ids, resolve);
+    if (genOf(scene) === gen) scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => resolve());
+  });
+}
+
+/** Портреты генерируются по одному: пиковая память — один лист. */
+let portraitChain: Promise<void> = Promise.resolve();
+const portraitWaits = new Map<string, Promise<void>>();
+
+/**
+ * Портрет спрайта (portrait_<id>): есть — сразу; нет — загрузить лист, вырезать портрет и, если лист больше
+ * никому не нужен, сразу выгрузить (спискам героев листы не нужны).
+ */
+export function requestPortrait(game: Phaser.Game, id: string): Promise<void> {
+  const pk = portraitKey(id);
+  if (game.textures.exists(pk)) return Promise.resolve();
+  if (!SPRITES[id]) {
+    placeholder(game.textures, pk, 128, 128, roles[id], false);
+    return Promise.resolve();
+  }
+  const running = portraitWaits.get(id);
+  if (running) return running;
+  const p = portraitChain
+    .then(async () => {
+      if (game.textures.exists(pk)) return;
+      const had = sheetLoaded(game, id);
+      await loadSheet(game, id);
+      if (!had && !lru.isHeld(id)) {
+        lru.delete(id);
+        unloadSheet(game, id);
+      }
+    })
+    .finally(() => portraitWaits.delete(id));
+  portraitChain = p;
+  portraitWaits.set(id, p);
+  return p;
+}
+
+/** Заглушка на время генерации портрета — нейтральный силуэт. */
+function pendingPortrait(tm: Phaser.Textures.TextureManager): string {
+  placeholder(tm, PENDING_PORTRAIT, 128, 128, undefined, false);
+  return PENDING_PORTRAIT;
+}
+
+/**
+ * Портрет portrait_<id> на картинке: уже есть — ничего не делает; нет — ставит заглушку и подменяет,
+ * когда портрет готов (onReady — пересчитать размер).
+ */
+export function lazyPortrait(scene: Phaser.Scene, key: string, img: Phaser.GameObjects.Image, onReady: () => void): void {
+  if (scene.textures.exists(key) || !isPortraitKey(key)) return;
+  img.setTexture(pendingPortrait(scene.textures));
+  void requestPortrait(scene.game, idOfPortraitKey(key)).then(() => {
+    if (!img.scene || !scene.textures.exists(key)) return;
+    img.setTexture(key);
+    onReady();
+  });
+}
+
+/** Идёт ли загрузка листов (для e2e/perf: экран «досчитался»). */
+export const spritesBusy = () => inflight.size > 0 || portraitWaits.size > 0;
+
+/** Сводка кэша листов (отладка, perf). */
+export const spriteStats = () => ({ sheets: lru.ids(), bytes: lru.bytes, budget: lru.budget });
+
+/** Портрет из кадра: квадрат вокруг непрозрачных пикселей, уменьшенный до PORTRAIT_SIZE (один раз на спрайт). */
+function portraitFromFrame(tm: Phaser.Textures.TextureManager, pk: string, key: string, frame: Phaser.Textures.Frame): void {
   const w = frame.cutWidth;
   const h = frame.cutHeight;
-  const tmp = scene.textures.createCanvas(`${pk}__tmp`, w, h);
+  const tmp = tm.createCanvas(`${pk}__tmp`, w, h);
   if (!tmp) return;
   tmp.drawFrame(key, frame.name);
   const data = tmp.getContext().getImageData(0, 0, w, h).data;
@@ -85,13 +287,18 @@ function portraitFromFrame(scene: Phaser.Scene, pk: string, key: string, frame: 
   const side = Math.ceil(Math.max(x1 - x0 + 1, y1 - y0 + 1) * 1.08);
   const cx = (x0 + x1 + 1) / 2;
   const cy = (y0 + y1 + 1) / 2;
-  const c = scene.textures.createCanvas(pk, side, side);
+  const out = Math.min(side, PORTRAIT_SIZE);
+  const c = tm.createCanvas(pk, out, out);
   if (c) {
-    c.getContext().drawImage(tmp.getSourceImage() as HTMLCanvasElement, Math.round(cx - side / 2), Math.round(cy - side / 2), side, side, 0, 0, side, side);
+    const ctx = c.getContext();
+    // Уменьшаем со сглаживанием (без «лесенки»), в родном размере — как есть.
+    ctx.imageSmoothingEnabled = out < side;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(tmp.getSourceImage() as HTMLCanvasElement, Math.round(cx - side / 2), Math.round(cy - side / 2), side, side, 0, 0, out, out);
     c.refresh();
-    c.setFilter(Phaser.Textures.FilterMode.NEAREST);
+    c.setFilter(out < side ? Phaser.Textures.FilterMode.LINEAR : Phaser.Textures.FilterMode.NEAREST);
   }
-  scene.textures.remove(tmp);
+  tm.remove(tmp);
 }
 
 /** Цвета ролей для силуэтов-плейсхолдеров: основной и тёмный (контур, фон портрета). */
@@ -108,9 +315,9 @@ const NEUTRAL: [string, string] = ['#9a9aa8', '#3a3a44'];
  * (танк — щит, урон — меч, лекарь — посох с крестом, поддержка — флажок).
  * body = true — фигура в полный рост, ноги у низа клетки (как у спрайтов); false — портрет по пояс.
  */
-function placeholder(scene: Phaser.Scene, key: string, w: number, h: number, role: string | undefined, body: boolean): void {
-  if (scene.textures.exists(key)) return;
-  const t = scene.textures.createCanvas(key, w, h);
+function placeholder(tm: Phaser.Textures.TextureManager, key: string, w: number, h: number, role: string | undefined, body: boolean): void {
+  if (tm.exists(key)) return;
+  const t = tm.createCanvas(key, w, h);
   if (!t) return;
   const ctx = t.getContext();
   const [main, dark] = (role && ROLE_COLORS[role]) || NEUTRAL;

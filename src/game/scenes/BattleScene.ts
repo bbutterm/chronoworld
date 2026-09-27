@@ -22,7 +22,8 @@ import { CONTENT, GAME } from '../content';
 import { stageSeed } from '../flow';
 import { commit, session, today } from '../session';
 import { GAME_W } from '../layout';
-import { anim, hitDelay, spriteView, type SpriteView } from '../sprites';
+import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../sprites';
+import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
 import { DEPTH, FloatLayer, UltPresenter } from '../battleFx';
 import { button, panel, text } from '../ui';
@@ -125,6 +126,11 @@ export class BattleScene extends Phaser.Scene {
   private floats!: FloatLayer;
   /** Отложенные действия боя (момент удара, вылет снаряда) — своя очередь вместо таймера Phaser на каждый удар. */
   private readonly later = new Scheduler();
+  /**
+   * U: листы юнитов загружены и сцена построена. До этого бой не идёт (часы стоят), кнопок ещё нет.
+   * Публичное — e2e/perf ждут готовности.
+   */
+  ready = false;
 
   constructor() {
     super('Battle');
@@ -140,6 +146,7 @@ export class BattleScene extends Phaser.Scene {
     this.clock = 0;
     this.finished = false;
     this.committed = false;
+    this.ready = false;
     let title = 'Тестовый бой';
     this.stage = undefined;
     this.tower = undefined;
@@ -184,6 +191,13 @@ export class BattleScene extends Phaser.Scene {
       this.defs = CONTENT.units;
     }
 
+    // U: листы только этого боя — грузятся по требованию (уже в кэше — строим сразу, в этом же кадре).
+    const sprites = this.result.units.map((u) => this.defs[u.unitId].visual.sprite);
+    whenSprites(this, sprites, () => this.build(title));
+  }
+
+  private build(title: string): void {
+    this.ready = true;
     this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920);
     panel(this, GAME_W / 2, 130, 760, 200, 'ui_panel');
     text(this, GAME_W / 2, 85, title, title.length > 20 ? 42 : 52, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
@@ -269,7 +283,10 @@ export class BattleScene extends Phaser.Scene {
     this.redraw(v);
   }
 
-  update(_time: number, delta: number): void {
+  update(_time: number, rawDelta: number): void {
+    if (!this.ready) return;
+    // U: после паузы/подвисания бой не «прыгает» вперёд — шаг не больше MAX_FRAME_MS.
+    const delta = clampDelta(rawDelta);
     // Лёгкие анимации (цифры, вспышки, снаряды, след HP, оттенок попадания) идут и после конца боя — до смены сцены.
     const dt = delta * this.tweens.timeScale;
     this.later.step(dt);
@@ -318,7 +335,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private skip(): void {
-    if (this.finished) return;
+    if (this.finished || !this.ready) return;
     const log = this.result.log;
     while (this.cursor < log.length) this.play(log[this.cursor++], false);
   }
