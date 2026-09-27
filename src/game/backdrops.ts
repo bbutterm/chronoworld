@@ -118,7 +118,11 @@ export function setThemeBackground(bg: Phaser.GameObjects.Image, kind: Kind, t: 
       const tm = scene.game.textures;
       if (!tm.exists(fileId)) tm.addImage(fileId, el);
       // Сцена ещё та же — подменить нарисованный фон файлом.
-      if (bg.scene) bg.setTexture(fileId).setDisplaySize(FIELD_W, FIELD_H);
+      if (bg.scene) {
+        bg.setTexture(fileId).setDisplaySize(FIELD_W, FIELD_H);
+        // Поля вытянутого экрана уже продолжали прежний фон — продолжить новый.
+        if (bg.getData('bleed')) bleedImage(bg.scene, bg);
+      }
     };
     el.onerror = () => {
       loading.delete(fileId);
