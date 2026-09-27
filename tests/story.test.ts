@@ -143,7 +143,7 @@ describe('сюжет: спикеры', () => {
 
   it('hero1..N — имя из сохранения, портрет текущей профессии', () => {
     const s: SaveState = { ...save, heroes: save.heroes.map((h, i) => (i === 0 ? { ...h, name: 'Артур', job: 'swordman' } : h)) };
-    expect(speakerView(story, 'hero1', s, ctx)).toEqual({ name: 'Артур', sprite: ctx.content.jobs.swordman.visual.sprite });
+    expect(speakerView(story, 'hero1', s, ctx)).toEqual({ name: 'Артур', sprite: ctx.content.jobs.swordman.visual.sprite, gender: 'm' });
     expect(speakerView(story, 'hero2', s, ctx).sprite).toBe(ctx.content.jobs.novice.visual.sprite);
   });
 

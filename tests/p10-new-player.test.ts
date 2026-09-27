@@ -119,7 +119,7 @@ describe('P10 T1-07: совет после поражения', () => {
 
 describe('P10: тексты и итоги', () => {
   it('T1-09: ключевые события первыми', () => {
-    const lines = ['Открыт этап 3: Поляна', 'Алан: ур. профессии 2 → 3', 'Алан: новый навык «Удар»', 'Смена профессии доступна! (Алан)', 'Новый герой в отряде: Грег!'];
+    const lines = ['Открыт этап 3: Поляна', 'Алан: ур. профессии 2 → 3', 'Алан: новый навык «Удар»', 'Смена профессии доступна! (Алан)', 'Новый герой в отряде: Грета!'];
     expect(keyEventsFirst(lines)).toEqual([lines[4], lines[3], lines[2], lines[1], lines[0]]);
   });
 
@@ -156,17 +156,17 @@ describe('P10 T1-03: «Глава пройдена» и «История»', () 
     expect(sceneLabel(ctx.story.scenes.find((s) => s.id === 'ch1_intro')!, ctx)).toBe('Вступление');
   });
 
-  it('итоги главы: этапы, награды, рекрут Грег, следующая глава', () => {
+  it('итоги главы: этапы, награды, рекрут Грета, следующая глава', () => {
     const save = fresh();
     const done: SaveState = {
       ...save,
       campaign: { cleared: stages.map((s) => s.id) },
-      heroes: [...save.heroes, { id: 'h4', name: 'Грег', job: 'novice', jobLevel: 1, jobExp: 0, jobHistory: [] }],
+      heroes: [...save.heroes, { id: 'h4', name: 'Грета', gender: 'f', job: 'novice', jobLevel: 1, jobExp: 0, jobHistory: [] }],
     };
     const sum = chapterSummary(done, ch1, ctx);
     expect(sum).toMatchObject({ number: 1, cleared: stages.length, stages: stages.length });
     expect(sum.gold).toBe(stages.reduce((a, s) => a + s.rewards.gold, 0));
-    expect(sum.recruit?.name).toBe('Грег');
+    expect(sum.recruit?.name).toBe('Грета');
     expect(sum.next).toMatchObject({ index: 1, number: 2 });
   });
 

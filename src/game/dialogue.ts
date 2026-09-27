@@ -132,13 +132,14 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     if (auto) autoNext = scene.time.delayedCall(AUTO_LINE_MS + full.length * AUTO_CHAR_MS, advance);
   };
   let faceOf: string | null | undefined;
-  const setFace = (sprite: string | null) => {
+  const setFace = (sprite: string | null, gender?: 'm' | 'f') => {
     // Тот же говорящий — портрет не пересобираем (бюст уже на месте, без мигания).
-    if (sprite === faceOf) return;
-    faceOf = sprite;
+    const faceId = sprite && gender ? `${sprite}|${gender}` : sprite;
+    if (faceId === faceOf) return;
+    faceOf = faceId;
     face.removeAll(true);
     // Бюст RO (или портрет спрайта, или значок скина — framedPortrait сам выберет) в золотой рамке.
-    const fp = framedPortrait(scene, 0, 0, sprite, PORTRAIT + 30);
+    const fp = framedPortrait(scene, 0, 0, sprite, PORTRAIT + 30, gender);
     face.add(fp);
     // Смена говорящего — лёгкий «вдох» портрета.
     fp.setScale(0.92);
@@ -150,7 +151,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     const l = s.lines[i];
     const who = speakerView(story, l.speaker, session.save, GAME);
     nameText.setText(who.name);
-    setFace(who.sprite);
+    setFace(who.sprite, who.gender);
     full = l.text;
     shown = 0;
     body.setText('');

@@ -12,6 +12,7 @@ export * from './progression/types';
 export * from './progression/stats';
 export * from './progression/exp';
 export * from './progression/jobChange';
+export * from './progression/heroes';
 export * from './campaign/schema';
 export * from './campaign/campaign';
 export * from './campaign/offline';

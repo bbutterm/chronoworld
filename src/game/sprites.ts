@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { buildRegistry, resolveAnim, type AnimName, type LegacySprites, type SpriteDef, type SpriteFixes, type SpritesV2 } from '../pipeline/sprites';
 import { FONT, GAME_H, GAME_W } from './layout';
 import { SheetLru, textureBytes } from './spriteCache';
+import { setSpriteLookup } from './spriteRegistry';
 
 const first = <T>(mods: Record<string, unknown>): T | undefined => Object.values(mods)[0] as T | undefined;
 
@@ -11,6 +12,8 @@ export const SPRITES = buildRegistry(
   first<SpritesV2>(import.meta.glob('../../assets/sprites/sprites.json', { eager: true, import: 'default' })),
   first<SpriteFixes>(import.meta.glob('../../assets/sprites/fixes.json', { eager: true, import: 'default' })),
 );
+// Листы героев по полу (<спрайт>_f / _m) ищут чистые помощники flow.ts / storyView через spriteRegistry.
+setSpriteLookup((id) => !!SPRITES[id]);
 
 export const spriteKey = (id: string) => `spr_${id}`;
 export const portraitKey = (id: string) => `portrait_${id}`;

@@ -151,7 +151,7 @@ const tapThroughDialogue = async (sceneKey, shotName) => {
 let seenDialogues = 0;
 
 /**
- * T1-03: после финала главы — экран «Глава пройдена»: заголовок, карточка Грега, «История» (список увиденных сцен,
+ * T1-03: после финала главы — экран «Глава пройдена»: заголовок, карточка Греты, «История» (список увиденных сцен,
  * пересмотр одной сцены), «Глава 2 ›» ведёт на карту главы 2.
  */
 const chapterDone = async () => {
@@ -159,7 +159,7 @@ const chapterDone = async () => {
   await sleep(900);
   await shot('chapter-done');
   if (!(await findText('ChapterDone', 'Глава 1 пройдена!'))) throw new Error('нет заголовка «Глава 1 пройдена!»');
-  if (!(await hasTextPrefix('ChapterDone', 'Грег присоединяется'))) throw new Error('нет карточки нового героя (Грег)');
+  if (!(await hasTextPrefix('ChapterDone', 'Грета присоединяется'))) throw new Error('нет карточки нового героя (Грета)');
   await clickText('ChapterDone', 'История');
   await sleep(600);
   await shot('chapter-history');

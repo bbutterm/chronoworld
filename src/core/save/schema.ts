@@ -1,10 +1,16 @@
 import { z } from 'zod';
+import { GenderSchema } from '../progression/schema';
 
 export const SAVE_VERSION = 3;
 
 export const HeroStateSchema = z.object({
   id: z.string(),
   name: z.string(),
+  /**
+   * Пол героя (m/f): у сюжетных героев фиксирован (progression.heroes.names/recruits), у прочих — случайный от seed
+   * сохранения. Нет поля (старые сохранения) — sanitizeSave выводит по имени (progression/heroes.ts heroGender), иначе 'm'.
+   */
+  gender: GenderSchema.optional(),
   job: z.string(),
   jobLevel: z.number().int().positive(),
   /** Опыт внутри текущего уровня. */
