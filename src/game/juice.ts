@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import { formatNumber } from './flow';
 import { motion } from './state';
 import { TINT } from './theme';
+import { sfx } from './audio';
 
 /**
  * «Сочность» меню в духе AFK Arena — дёшево и сдержанно: награды летят к валюте в шапке, числа отсчитываются,
@@ -167,6 +168,8 @@ let pending: PendingFly | null = null;
  */
 export function queueRewardFly(sceneKey: string, from: Point, before: { gold: number; gems: number }, opts: { burst?: boolean } = {}): void {
   pending = { scene: sceneKey, from, gold: before.gold, gems: before.gems, burst: !!opts.burst };
+  // Звук — в момент нажатия «Забрать» (монеты прилетят уже на новом экране и звякнут каждая своим звуком).
+  sfx(opts.burst ? 'chest_open' : 'claim');
 }
 
 /**
@@ -260,6 +263,7 @@ function flyCoins(scene: Phaser.Scene, kind: 'gold' | 'gems', from: Point, to: P
           duration: 420 + i * 25,
           onComplete: () => {
             coin.destroy();
+            sfx(kind === 'gold' ? 'coin' : 'gem');
             if (first) {
               first = false;
               onFirst();

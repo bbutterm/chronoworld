@@ -6,6 +6,8 @@ import { worldPoint } from './viewport';
 import { C, FS, TINT, TOUCH } from './theme';
 import { HINT_GEOM, placeCallout, type HintSide, type Rect } from './hintLayout';
 import { barFrom, juiceOn } from './juice';
+import { sfx } from './audio';
+import type { SfxId } from './audioCatalog';
 
 /**
  * Событие «отменить нажатие» (на scene.input — его слушатели снимаются при остановке сцены):
@@ -72,8 +74,11 @@ export function button(
   label: string,
   onClick: () => void,
   fontSize: number = FS.h2,
-  /** repeat — переключатель по кругу (скорость, FPS): быстрые повторные нажатия не глушим. */
-  opts: { repeat?: boolean } = {},
+  /**
+   * repeat — переключатель по кругу (скорость, FPS): быстрые повторные нажатия не глушим.
+   * sound — звук нажатия (по умолчанию «тап»; null — без звука, например кнопка сама открывает окно со звуком).
+   */
+  opts: { repeat?: boolean; sound?: SfxId | null } = {},
 ): { container: Phaser.GameObjects.Container; setLabel: (s: string) => void; label: Phaser.GameObjects.Text } {
   const bg = panel(scene, 0, 0, w, h, textureId);
   const skin = skinKey(scene, textureId);
@@ -119,7 +124,10 @@ export function button(
   container.on('pointerup', () => {
     if (!armed) return;
     setPressed(false);
-    if (opts.repeat || ready()) onClick();
+    if (!opts.repeat && !ready()) return;
+    const sound = opts.sound === undefined ? 'ui_tap' : opts.sound;
+    if (sound) sfx(sound);
+    onClick();
   });
   // Отпустили вне кнопки или список начали тянуть — кнопка не должна остаться нажатой.
   scene.input.on('pointerup', release);
@@ -289,7 +297,9 @@ export function pressable<T extends Tappable>(scene: Phaser.Scene, target: T, w:
   target.on('pointerup', () => {
     if (!armed) return;
     set(false);
-    if (ready()) onTap();
+    if (!ready()) return;
+    sfx('ui_tap');
+    onTap();
   });
   scene.input.on('pointerup', release);
   scene.input.on(CANCEL_PRESS, release);
@@ -479,6 +489,9 @@ export function toast(scene: Phaser.Scene, message: string, color: string = C.ti
       y += e.h + TOAST_GAP;
     }
   };
+  // Ошибка — «нельзя», успех — мягкий колокольчик (награды звенят своими звуками, juice.ts).
+  if (color === C.error) sfx('ui_error');
+  else if (color === C.success) sfx('ui_notify');
   const same = stack.find((e) => e.message === message);
   if (same) {
     same.count++;

@@ -165,7 +165,7 @@ id вида `chapterN` выводится сам (`ch<N>`).
 | Эффект | `assets/effects/<id>.png` (атлас) | `assets/effects/effects.json → effects` (cell, columns, frames, ms, anchor) и `→ skills` |
 | Фон боя/карты главы | `assets/backgrounds/bg_battle_ch<N>.jpg`, `bg_map_ch<N>.jpg` | сам (glob в `backdrops.ts`), N — тема 1–3 |
 | UI (кнопки, панели, сундук, иконки) | `assets/ui/*.png` | `assets/manifest.json → assets.<id>` (`file`, `w`, `h`, `slice` для 9-slice); id скина из `skin.ts` — файл побеждает |
-| Звук | — | системы звука пока нет (issue #26): нужен загрузчик в `BootScene` и вызовы в сценах — отдельная задача |
+| Звук / музыка | `assets/audio/<id>.ogg` + `<id>.m4a` (id — `src/game/audioCatalog.ts`; музыка `music_*`, фоны `amb_*`) | сам (glob в `audio.ts`, файл побеждает заглушку); список и форматы — `docs/design/audio.md`, `docs/ART_EXTRACT_RO.md` 6.1 |
 
 После: `python3 tools/check_sprites.py`, `python3 -m unittest discover -s tests -p 'test_*.py'`, `npm run content:check`, `npm run assets:report`,
 глазами (`npm run dev`); отметить issue и `docs/qa/FIXLIST.md` «Ждёт графики».
