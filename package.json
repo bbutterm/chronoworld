@@ -17,7 +17,8 @@
     "assets:legacy": "tsx scripts/assets-legacy.ts",
     "assets:report": "tsx scripts/assets-report.ts",
     "check": "npm run content:check && npm run typecheck && npm test",
-    "e2e": "node scripts/e2e.mjs"
+    "e2e": "node scripts/e2e.mjs",
+    "perf": "node scripts/perf.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0",

@@ -24,8 +24,9 @@ import { commit, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { anim, hitDelay, spriteView, type SpriteView } from '../sprites';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
-import { DEPTH, UltPresenter } from '../battleFx';
+import { DEPTH, FloatLayer, UltPresenter } from '../battleFx';
 import { button, panel, text } from '../ui';
+import { ease, Scheduler } from '../perf';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -44,6 +45,8 @@ const TRAIL_MS = 450;
 const PROJECTILE_MS = 220;
 /** «Получил урон» не чаще, чем раз в столько мс, и не перебивает атаку. */
 const HURT_COOLDOWN = 500;
+/** Красная вспышка при попадании, мс на 1x. */
+const HURT_TINT_MS = 90;
 
 interface UnitView {
   snap: UnitSnapshot;
@@ -56,7 +59,12 @@ interface UnitView {
   /** Белый след под HP: показывает только что снятое здоровье и плавно догоняет. */
   trailBar: Phaser.GameObjects.Image;
   trail: number;
-  trailTween: Phaser.Tweens.Tween | null;
+  /** След догоняет HP: откуда, куда и сколько мс прошло (−1 — стоит). Считается в update, без твина на каждый удар. */
+  trailFrom: number;
+  trailTo: number;
+  trailT: number;
+  /** Сколько мс ещё держать красный оттенок попадания (0 — нет). */
+  tintLeft: number;
   /** Смещение подписи с именем от точки ног (y). */
   nameY: number;
   /** Столбик цифр: до какого времени занято каждое место. */
@@ -111,14 +119,23 @@ export class BattleScene extends Phaser.Scene {
   private clock = 0;
   private finished = false;
   private timeText!: Phaser.GameObjects.Text;
+  /** Последняя показанная секунда таймера — текст перерисовываем раз в секунду, а не каждый кадр. */
+  private shownSec = -1;
   private ult!: UltPresenter;
+  private floats!: FloatLayer;
+  /** Отложенные действия боя (момент удара, вылет снаряда) — своя очередь вместо таймера Phaser на каждый удар. */
+  private readonly later = new Scheduler();
 
   constructor() {
     super('Battle');
   }
 
   create(data: BattleData): void {
+    // Выключение сцены: забыть юнитов и пулы (объекты, твины и таймеры Phaser убирает сам). once — без накопления слушателей.
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
     this.views.clear();
+    this.later.clear();
+    this.shownSec = -1;
     this.cursor = 0;
     this.clock = 0;
     this.finished = false;
@@ -187,6 +204,7 @@ export class BattleScene extends Phaser.Scene {
     this.time.timeScale = playback.speed;
 
     this.ult = new UltPresenter(this);
+    this.floats = new FloatLayer(this);
     for (const u of this.result.units) this.buildUnit(u);
   }
 
@@ -223,7 +241,10 @@ export class BattleScene extends Phaser.Scene {
       hpBar,
       trailBar,
       trail: 1,
-      trailTween: null,
+      trailFrom: 1,
+      trailTo: 1,
+      trailT: -1,
+      tintLeft: 0,
       nameY,
       floatSlots: new Array<number>(FLOAT_SLOTS).fill(0),
       inUlt: false,
@@ -240,11 +261,20 @@ export class BattleScene extends Phaser.Scene {
       moveTween: null,
     };
     this.views.set(snap.uid, v);
+    // Разовая анимация закончилась — вернуться к стойке/ходьбе. Один слушатель на юнита, а не на каждую атаку.
+    sprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+      if (v.alive) this.loop(v, v.moveTween ? 'walk' : 'idle');
+    });
     this.loop(v, 'idle');
     this.redraw(v);
   }
 
   update(_time: number, delta: number): void {
+    // Лёгкие анимации (цифры, вспышки, снаряды, след HP, оттенок попадания) идут и после конца боя — до смены сцены.
+    const dt = delta * this.tweens.timeScale;
+    this.later.step(dt);
+    this.floats.step(dt);
+    for (const v of this.views.values()) this.animateUnit(v, dt);
     if (this.finished) return;
     this.clock += (delta / 1000) * playback.speed;
     const log = this.result.log;
@@ -252,7 +282,39 @@ export class BattleScene extends Phaser.Scene {
       this.play(log[this.cursor], true);
       this.cursor++;
     }
-    this.timeText.setText(`${fmt(Math.min(this.clock, this.result.duration))} / ${fmt(COMBAT.timeLimitSeconds)}`);
+    this.showTime(Math.min(this.clock, this.result.duration));
+  }
+
+  private showTime(s: number): void {
+    const sec = Math.floor(s);
+    if (sec === this.shownSec) return;
+    this.shownSec = sec;
+    this.timeText.setText(`${fmt(sec)} / ${fmt(COMBAT.timeLimitSeconds)}`);
+  }
+
+  /** След HP и красный оттенок попадания (раньше — твин и таймер на каждый удар). */
+  private animateUnit(v: UnitView, dt: number): void {
+    if (v.tintLeft > 0) {
+      v.tintLeft -= dt;
+      if (v.tintLeft <= 0) {
+        v.tintLeft = 0;
+        v.sprite.clearTint();
+      }
+    }
+    if (v.trailT < 0) return;
+    v.trailT += dt;
+    if (v.trailT <= TRAIL_DELAY) return;
+    const p = Math.min(1, (v.trailT - TRAIL_DELAY) / TRAIL_MS);
+    v.trail = v.trailFrom + (v.trailTo - v.trailFrom) * ease.quadIn(p);
+    cropBar(v.trailBar, v.trail);
+    if (p >= 1) v.trailT = -1;
+  }
+
+  private shutdown(): void {
+    this.views.clear();
+    this.later.clear();
+    this.floats?.clear();
+    this.ult?.clear();
   }
 
   private skip(): void {
@@ -265,7 +327,7 @@ export class BattleScene extends Phaser.Scene {
   private atImpact(sourceUid: string | null, animate: boolean, fn: () => void): void {
     const src = sourceUid ? this.views.get(sourceUid) : undefined;
     const wait = animate && src ? src.impactAt - this.time.now : 0;
-    if (wait > 0) this.time.delayedCall(wait, fn);
+    if (wait > 0) this.later.after(wait, fn);
     else fn();
   }
 
@@ -292,7 +354,7 @@ export class BattleScene extends Phaser.Scene {
         let impact = this.once(v, 'attack');
         if (e.kind !== 'melee' && target) {
           const tex = e.kind === 'heal' ? 'fx_heal' : (v.def.visual.projectile ?? 'fx_magic');
-          this.time.delayedCall(impact, () => this.projectile(v, target, tex));
+          this.later.after(impact, () => this.projectile(v, target, tex));
           impact += PROJECTILE_MS;
         }
         v.impactAt = this.time.now + impact;
@@ -382,7 +444,7 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'end':
         this.finished = true;
-        this.timeText.setText(`${fmt(this.result.duration)} / ${fmt(COMBAT.timeLimitSeconds)}`);
+        this.showTime(this.result.duration);
         this.commitStage();
         this.time.delayedCall(animate ? 1200 : 150, () =>
           this.scene.start('Result', { result: this.result, defs: this.defs, stage: this.stage, tower: this.tower } satisfies ResultData),
@@ -413,15 +475,12 @@ export class BattleScene extends Phaser.Scene {
     v.sprite.play(key);
     const total = v.sprite.anims.currentAnim?.duration ?? 0;
     v.busyUntil = this.time.now + total;
-    v.sprite.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
-      if (v.alive) this.loop(v, v.moveTween ? 'walk' : 'idle');
-    });
     return hitDelay(v.look, name);
   }
 
   private hurt(v: UnitView): void {
     v.sprite.setTint(0xff8080);
-    this.time.delayedCall(90, () => v.sprite.clearTint());
+    v.tintLeft = HURT_TINT_MS;
     if (!v.alive || this.time.now < v.busyUntil || this.time.now - v.lastHurt < HURT_COOLDOWN || v.moveTween) return;
     v.lastHurt = this.time.now;
     this.once(v, 'hurt');
@@ -463,18 +522,16 @@ export class BattleScene extends Phaser.Scene {
       v.sprite.play(key);
       if (animate) this.tweens.add({ targets: v.sprite, alpha: 0.55, delay: 400, duration: 400 });
       else v.sprite.setAlpha(0.55);
-    } else if (animate) {
-      this.tweens.add({ targets: v.sprite, alpha: 0.2, angle: v.snap.side === 'A' ? -90 : 90, duration: 400 });
-    } else v.sprite.setAlpha(0.2).setAngle(v.snap.side === 'A' ? -90 : 90);
+    } else {
+      // Листа смерти нет: тело просто падает — стойку больше не крутим.
+      v.sprite.anims.stop();
+      if (animate) this.tweens.add({ targets: v.sprite, alpha: 0.2, angle: v.snap.side === 'A' ? -90 : 90, duration: 400 });
+      else v.sprite.setAlpha(0.2).setAngle(v.snap.side === 'A' ? -90 : 90);
+    }
     if (animate) this.fx(v, 'fx_death', 1.6, 600);
   }
 
   // ---------- мелочи ----------
-
-  /** Центр тела над точкой ног — туда летят снаряды и всплывают цифры. */
-  private body(v: UnitView): [number, number] {
-    return [v.node.x, v.node.y - v.look.height * 0.5];
-  }
 
   /** Перерисовать полоски. animate — снятое HP уходит белым следом, иначе след сразу догоняет. */
   private redraw(v: UnitView, animate = false): void {
@@ -482,41 +539,28 @@ export class BattleScene extends Phaser.Scene {
     const pct = Phaser.Math.Clamp(v.hp / max, 0, 1);
     cropBar(v.hpBar, pct);
     if (pct >= v.trail || !animate) {
-      v.trailTween?.stop();
-      v.trailTween = null;
+      v.trailT = -1;
       v.trail = pct;
       cropBar(v.trailBar, pct);
     } else {
-      v.trailTween?.stop();
+      // След стоит TRAIL_DELAY, затем догоняет HP (Quad.easeIn) — в update (animateUnit).
       cropBar(v.trailBar, v.trail);
-      v.trailTween = this.tweens.addCounter({
-        from: v.trail,
-        to: pct,
-        delay: TRAIL_DELAY,
-        duration: TRAIL_MS,
-        ease: 'Quad.easeIn',
-        onUpdate: (tw) => {
-          v.trail = tw.getValue() ?? pct;
-          cropBar(v.trailBar, v.trail);
-        },
-      });
+      v.trailFrom = v.trail;
+      v.trailTo = pct;
+      v.trailT = 0;
     }
     cropBar(v.energyBar, v.energy / COMBAT.energy.max);
     v.shieldBar.setVisible(v.alive && v.shield > 0);
     cropBar(v.shieldBar, Math.min(1, v.shield / max));
   }
 
+  /** Снаряд и вспышки — из пула FloatLayer (вид как у прежних твинов). */
   private projectile(from: UnitView, to: UnitView, texId: string): void {
-    const [fx, fy] = this.body(from);
-    const [tx, ty] = this.body(to);
-    const p = this.add.image(fx, fy, texId).setDisplaySize(48, 48).setDepth(DEPTH.fx);
-    this.tweens.add({ targets: p, x: tx, y: ty, duration: PROJECTILE_MS, onComplete: () => p.destroy() });
+    this.floats.projectile(from.node.x, bodyY(from), to.node.x, bodyY(to), texId, 48, PROJECTILE_MS, DEPTH.fx);
   }
 
   private fx(v: UnitView, texId: string, scale: number, duration = 250, alpha = 0.8): void {
-    const [cx, cy] = this.body(v);
-    const img = this.add.image(cx, cy, texId).setDisplaySize(140 * scale, 140 * scale).setAlpha(alpha).setDepth(DEPTH.fx);
-    this.tweens.add({ targets: img, alpha: 0, scale: img.scale * 1.2, duration, onComplete: () => img.destroy() });
+    this.floats.flash(v.node.x, bodyY(v), texId, 140 * scale, alpha, duration, DEPTH.fx);
   }
 
   /**
@@ -527,28 +571,29 @@ export class BattleScene extends Phaser.Scene {
   private popNumber(v: UnitView, value: string, color: string, big = false, size = 40): void {
     const now = this.time.now;
     let slot = v.floatSlots.findIndex((t) => t <= now);
-    if (slot < 0) slot = v.floatSlots.indexOf(Math.min(...v.floatSlots));
+    if (slot < 0) {
+      slot = 0;
+      for (let i = 1; i < v.floatSlots.length; i++) if (v.floatSlots[i] < v.floatSlots[slot]) slot = i;
+    }
     v.floatSlots[slot] = now + FLOAT_SLOT_MS;
     const fs = big ? Math.round(size * 1.3) : size;
-    const [cx, cy] = this.body(v);
+    const cx = v.node.x;
+    const cy = bodyY(v);
     const nameBottom = v.node.y + v.nameY + 14;
     const top = Math.max(cy - 30, nameBottom + fs / 2 + FLOAT_RISE + 4);
     const x = cx + (v.snap.side === 'A' ? -34 : 34) + rnd(14);
     const y = top + slot * FLOAT_STEP;
-    const t = text(this, x, y, value, fs, color, { stroke: big ? '#5a2a00' : '#000000', strokeThickness: big ? 8 : 6, fontStyle: 'bold' }).setDepth(DEPTH.numbers + slot);
+    // Пул надписей: не больше MAX_FLOATS на экране, стиль и замер шрифта кэшируются.
+    const t = this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : '#000000', big ? 8 : 6, DEPTH.numbers + slot, FLOAT_RISE, big ? 650 : 450, big);
     // У края экрана цифру не обрезаем.
     t.x = Phaser.Math.Clamp(t.x, t.width / 2 + 8, GAME_W - t.width / 2 - 8);
-    if (big) this.tweens.add({ targets: t, scale: { from: 1.6, to: 1 }, duration: 220, ease: 'Back.easeOut' });
-    this.tweens.add({ targets: t, y: y - FLOAT_RISE, duration: 800, ease: 'Quad.easeOut' });
-    this.tweens.add({ targets: t, alpha: 0, delay: big ? 650 : 450, duration: 350, onComplete: () => t.destroy() });
   }
 
   /** Короткая подпись над именем (пассивка, статус, «оглушён») — уходит вверх, прочь от имени. */
   private headline(v: UnitView, value: string, color: string): void {
     const x = v.node.x + (v.snap.side === 'A' ? -UI_SHIFT : UI_SHIFT);
     const y = v.node.y + v.nameY - 34;
-    const t = text(this, x, y, value, 26, color, { stroke: '#000000', strokeThickness: 5, fontStyle: 'bold' }).setDepth(DEPTH.numbers);
-    this.tweens.add({ targets: t, y: y - 50, alpha: 0, duration: 1000, ease: 'Quad.easeOut', onComplete: () => t.destroy() });
+    this.floats.headline(x, y, value, 26, color, DEPTH.numbers);
   }
 
   /** Ульта: экран темнеет, кастер подсвечен поверх затемнения, сверху — баннер с названием. */
@@ -558,7 +603,7 @@ export class BattleScene extends Phaser.Scene {
     this.ult.glow(v.node.x, v.node.y);
     v.node.setDepth(DEPTH.spotlight + v.node.y / 10);
     this.tweens.add({ targets: v.node, scale: 1.12, duration: 160, yoyo: true, hold: 300, ease: 'Quad.easeOut' });
-    this.time.delayedCall(1000, () => v.node.setDepth(v.alive ? v.node.y : v.node.y - 1000));
+    this.later.after(1000, () => v.node.setDepth(v.alive ? v.node.y : v.node.y - 1000));
   }
 }
 
@@ -572,4 +617,6 @@ const fmt = (s: number) => {
   const sec = Math.floor(s);
   return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
 };
+/** Центр тела над точкой ног (y) — туда летят снаряды и всплывают цифры; x — это node.x. */
+const bodyY = (v: UnitView) => v.node.y - v.look.height * 0.5;
 const rnd = (spread: number) => (Math.random() - 0.5) * spread;
