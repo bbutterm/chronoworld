@@ -130,10 +130,9 @@ function diamond(c: Ctx, x: number, y: number, r: number, fill: string, edge = '
 }
 
 /** Рамка карточки W×H редкости rarity ('none' — серая неполученная): обод, орнамент, прозрачная середина. */
-function drawFrame(c: Ctx, W: number, H: number, rarity: CardRarity | 'none'): void {
+function drawFrame(c: Ctx, W: number, H: number, rarity: CardRarity | 'none', s: number): void {
   const p = rarityPalette(rarity);
   const tier = rarity === 'none' ? 0 : rarityIndex(rarity);
-  const s = W / 300;
   const R = 26 * s;
   const t = (9 + tier * 1.5) * s;
   const pad = 6 * s + t / 2;
@@ -340,15 +339,19 @@ export function raysTexture(scene: Phaser.Scene): string {
   });
 }
 
-/** Текстура рамки редкости размера w×h (кэш по редкости и размеру). */
-export function frameTexture(scene: Phaser.Scene, rarity: CardRarity | 'none', w: number, h: number): string {
+/**
+ * Текстура рамки редкости размера w×h (кэш по редкости, размеру и масштабу орнамента). scale — толщина обода и размер
+ * орнамента (1 — как у плитки шириной 300); по умолчанию w / 300.
+ */
+export function frameTexture(scene: Phaser.Scene, rarity: CardRarity | 'none', w: number, h: number, scale?: number): string {
   const W = Math.round(w);
   const H = Math.round(h);
+  const s = Math.round((scale ?? W / 300) * 100) / 100;
   // Корона, пламя и крылья выступают за обод — поле M со всех сторон (картинка по центру та же).
-  const M = Math.round(24 * (W / 300));
-  return canvasTex(scene, `hc_frame_${rarity}_${W}x${H}`, W + 2 * M, H + 2 * M, (c) => {
+  const M = Math.round(24 * s);
+  return canvasTex(scene, `hc_frame_${rarity}_${W}x${H}_${s}`, W + 2 * M, H + 2 * M, (c) => {
     c.translate(M, M);
-    drawFrame(c, W, H, rarity);
+    drawFrame(c, W, H, rarity, s);
   });
 }
 
@@ -363,9 +366,9 @@ export function backTexture(scene: Phaser.Scene, rarity: CardRarity | 'none'): s
  */
 export function rarityBackdrop(scene: Phaser.Scene, x: number, y: number, w: number, h: number, rarity: CardRarity): Phaser.GameObjects.Container {
   const box = scene.add.container(x, y);
-  const inset = w * 0.02;
+  const inset = 16;
   box.add(scene.add.image(0, 0, backTexture(scene, rarity)).setDisplaySize(w - inset * 2, h - inset * 2));
-  box.add(scene.add.image(0, 0, frameTexture(scene, rarity, w, h)));
+  box.add(scene.add.image(0, 0, frameTexture(scene, rarity, w, h, 1.6)));
   return box;
 }
 

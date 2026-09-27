@@ -56,6 +56,7 @@
           "skill": "job_priest_sanctuary"
         }
       ],
+      "promotion": "Собор Пронтеры посвящает Вику в жрицы. Руки больше не дрожат, когда рядом раненый.",
       "visual": {
         "sprite": "priest_f"
       }

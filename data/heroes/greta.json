@@ -58,6 +58,7 @@
           "skill": "job_blacksmith_power_thrust"
         }
       ],
+      "promotion": "Гильдия кузнецов Эйнброха вручает Грете молот мастера. Колокольчик она повесила на рукоять.",
       "visual": {
         "sprite": "blacksmith_f"
       }
