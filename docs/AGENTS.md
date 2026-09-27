@@ -121,7 +121,7 @@
 | `sim.ts` | серии боёв |
 | `playthrough.ts` | прохождение главы ядром, `--winrate`, `--idle` |
 | `balance.ts` + `lib/player-model.ts` | модель игрока на D дней (часы сессии, «крючки», рекомендуемая мощь) → CSV |
-| `balance-fit.ts` | регулятор `mult` глав 2–3 по графику прохождения (docs/content/balance.md) |
+| `balance-fit.ts` | регулятор `mult` глав (кроме главы 1) по окнам из `data/progression.json` → balance, `--chapter N` (docs/content/balance.md) |
 | `chapter-save.ts` | сохранение для визуального прогона главы (`npx tsx scripts/chapter-save.ts [jobLevel] [tier2|tier1] > save.json`) |
 | `e2e.mjs`, `e2e-chapter1.mjs`, `perf.mjs` | браузерные прогоны (Playwright глобальный) |
 | `assets-report.ts` + `lib/used-assets.ts` | какие ассеты нужны сборке |
@@ -405,7 +405,7 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
   рекомендуемой мощи. Этапы 1–9 главы 1 — 100% побед перед первой попыткой; босс главы 1 — 75–88% в среднем по выдачам Таверны
   (`mob_mastering` mult 1.16, тест `chapter1-playthrough`).
 - **Инструменты:** `npm run balance` (модель игрока с часами сессии, сводка «по часам» и «крючки»), `-- --fit-recommended`
-  (рекомендуемая мощь), `npx tsx scripts/balance-fit.ts` (регулятор `mult` глав 2–3 по графику).
+  (рекомендуемая мощь), `npx tsx scripts/balance-fit.ts` (регулятор `mult` глав по окнам `progression.json` → balance).
 - **Метод (как подбирали босса главы 1):** `npm run playthrough -- 0 3 --winrate 600` — новая игра, этапы по порядку, перед каждым этапом
   доля побед на 600 seed'ах текущим отрядом; меняли `mult` босса шагом 0.01–0.02 и смотрели кривую (карточки v4, отряд Алан 5 / Бран 4 /
   Вика 4: 0.81 → 97%, 0.83 → 91%, 0.84 → 83%, 0.85 → 74%, 0.86 → 57%, 0.90 → 4%).

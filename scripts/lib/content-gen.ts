@@ -279,7 +279,7 @@ export function genChapter(root: string, id: string, opts: Record<string, string
     'Дальше — чеклист «Новая глава» в docs/CONTENT_RECIPES.md: названия, составы и mult (npm run playthrough -- <индекс главы> 3 --idle),',
     'окна главы в scripts/balance-fit.ts (W и список файлов) → npx tsx scripts/balance-fit.ts, затем npm run balance -- --days 10 --fit-recommended',
     '(data/progression.json → power.recommendedStages); фоны assets/backgrounds/bg_battle_ch<N>.jpg / bg_map_ch<N>.jpg,',
-    'рекрут в data/progression.json → heroes.recruits, полоса башни data/tower.json → bands; тесты с жёстким числом глав — обновить.',
+    'рекрут в data/progression.json → heroes.recruits, полоса башни data/tower.json → bands; подгонка силы — npx tsx scripts/balance-fit.ts --chapter N.',
   );
   if (opts['no-story'] !== 'true') {
     const story = genStory(root, id, {});
