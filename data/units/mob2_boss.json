@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob2_boss",
+  "name": "Древняя ива",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 2800,
+    "atk": 100,
+    "def": 15,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob2_boss_rot_spores",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "tank",
+    "tint": "#5f7a3a",
+    "scale": 1.6,
+    "hitFx": "fx_hit"
+  }
+}

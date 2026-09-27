@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_dark_lord",
+  "name": "Тёмный лорд",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 3500,
+    "atk": 90,
+    "def": 18,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob3_boss_nova",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "dark_lord",
+    "scale": 0.8,
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}
