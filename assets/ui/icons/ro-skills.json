@@ -1,0 +1,487 @@
+{
+  "schema": 1,
+  "purpose": "chapter-1 RO skill icons; source PNG pixels x5 nearest",
+  "icons": [
+    {
+      "id": "nv_firstaid",
+      "file": "assets/ui/icons/skill_nv_firstaid.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/nv_firstaid.bmp",
+      "source_sha256": "274288d22c86e4c2374cb49e1bac469db25675e65dbe87898e6411d706b316f0",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "sm_bash",
+      "file": "assets/ui/icons/skill_sm_bash.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/sm_bash.bmp",
+      "source_sha256": "68b805aca5927f292e9a9e777ef736eb2e4c5bf9d9a37d64fbc30595737d17b7",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "sm_endure",
+      "file": "assets/ui/icons/skill_sm_endure.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/sm_endure.bmp",
+      "source_sha256": "1ff644b1ac34d9277bf810de9146c8054f1cc2a3d15d86095360eff01e6695e8",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "sm_magnum",
+      "file": "assets/ui/icons/skill_sm_magnum.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/sm_magnum.bmp",
+      "source_sha256": "35efe651b163c55217b029672ce048abacb2f36570f3eb51c41ebda7d68b1810",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "sm_recovery",
+      "file": "assets/ui/icons/skill_sm_recovery.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/sm_recovery.bmp",
+      "source_sha256": "7288c2c284cea17053138f9de522c5da82456aa13602fd0d155dd524e94c3afa",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "sm_provoke",
+      "file": "assets/ui/icons/skill_sm_provoke.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/sm_provoke.bmp",
+      "source_sha256": "54314c9bb28e5a0e5cf30345ad153e15e3d6225af55e56759eb34ceee850eefc",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "tf_poison",
+      "file": "assets/ui/icons/skill_tf_poison.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/tf_poison.bmp",
+      "source_sha256": "772739416dd31142797db335d05d602178bbaf7a65b224f8b227e76fab4f29ed",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "tf_miss",
+      "file": "assets/ui/icons/skill_tf_miss.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/tf_miss.bmp",
+      "source_sha256": "1b2f83be667b8ed3f94e300e43ea53c73853fd5b8eb2ef94084e0dd408a00dac",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "tf_steal",
+      "file": "assets/ui/icons/skill_tf_steal.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/tf_steal.bmp",
+      "source_sha256": "b9dca065bf9643498c6b395dbcebf79274898080f179e724e65823ede8cfab54",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "tf_double",
+      "file": "assets/ui/icons/skill_tf_double.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/tf_double.bmp",
+      "source_sha256": "ce2b916872b962a7c78f69db609c9dcac818f597f1edd7ee7cff726be2808aac",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "tf_sprinklesand",
+      "file": "assets/ui/icons/skill_tf_sprinklesand.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/tf_sprinklesand.bmp",
+      "source_sha256": "458ac05a767411ac3d6d3ed33793be05f9daae8c1f4ea4658fee1de600c035af",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "ac_double",
+      "file": "assets/ui/icons/skill_ac_double.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/ac_double.bmp",
+      "source_sha256": "a1aa8b46fa4fc4e39863ca6522cca8e9a7859846cfd76336f1ad579cec37c99c",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "ac_owl",
+      "file": "assets/ui/icons/skill_ac_owl.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/ac_owl.bmp",
+      "source_sha256": "303aed689e499a170415c238f9b955e345ccf942298a8a58601d28045be8104e",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "ac_shower",
+      "file": "assets/ui/icons/skill_ac_shower.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/ac_shower.bmp",
+      "source_sha256": "7a8841c548b1cd30151bb8da7285964fe5f5b208b772d9b1a776f08ab4a0fe15",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "ac_vulture",
+      "file": "assets/ui/icons/skill_ac_vulture.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/ac_vulture.bmp",
+      "source_sha256": "618dbf8778326ba5473dfc580f966477229b4f39767dc326c93d4cbeefbd7304",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "ac_chargearrow",
+      "file": "assets/ui/icons/skill_ac_chargearrow.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/ac_chargearrow.bmp",
+      "source_sha256": "5dca1058f13d6c644c1138fe030f34c3e0e60882779ebc6896ed628576faae53",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "mg_firebolt",
+      "file": "assets/ui/icons/skill_mg_firebolt.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mg_firebolt.bmp",
+      "source_sha256": "584655558a4097fe8ea61d64785f7cad5af678c417ef71265613ebc585bcbcfa",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "mg_srecovery",
+      "file": "assets/ui/icons/skill_mg_srecovery.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mg_srecovery.bmp",
+      "source_sha256": "fd00371c7b62c6d77f3fe373a32ab86e1881da7e6349be164a50c9ab19430720",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "mg_frostdiver",
+      "file": "assets/ui/icons/skill_mg_frostdiver.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mg_frostdiver.bmp",
+      "source_sha256": "310618b4652898f51049c4199b27a19e19111edfd1773589c5b539178ad45721",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "mg_energycoat",
+      "file": "assets/ui/icons/skill_mg_energycoat.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mg_energycoat.bmp",
+      "source_sha256": "338d80dca3c0e14d2f1ddfeff97eaa6cf75530c7bcd0668fed1e69eed749caf4",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "mg_thunderstorm",
+      "file": "assets/ui/icons/skill_mg_thunderstorm.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mg_thunderstorm.bmp",
+      "source_sha256": "ba53c23432b2aae70fb9bc4c157920789d49211cfe98fc362a8c966f6cee165e",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "al_heal",
+      "file": "assets/ui/icons/skill_al_heal.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/al_heal.bmp",
+      "source_sha256": "4e847d03558227b9e9cafead9acc2915b21d2ded9a207f533ca450db06ddb4f4",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "al_dp",
+      "file": "assets/ui/icons/skill_al_dp.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/al_dp.bmp",
+      "source_sha256": "d8d4af5ca3fecef16a10e7d3c511d8f117e52aef5d709321819c3f5e0c898ea0",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "al_blessing",
+      "file": "assets/ui/icons/skill_al_blessing.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/al_blessing.bmp",
+      "source_sha256": "992f8953663ab4aaf7fd3e4c4c0ed84c5801421ee8c9b2d0bba681953167da5a",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "al_holylight",
+      "file": "assets/ui/icons/skill_al_holylight.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/al_holylight.bmp",
+      "source_sha256": "6dbb2027a6258df3d271ece767cc7f5ef97f2dea9c4961daff43d78e8b27d8aa",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "al_incagi",
+      "file": "assets/ui/icons/skill_al_incagi.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/al_incagi.bmp",
+      "source_sha256": "178f56fe8be0717a5a923e3ad6734267ca67db09dfe42204729c69f431745203",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "pr_sanctuary",
+      "file": "assets/ui/icons/skill_pr_sanctuary.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/pr_sanctuary.bmp",
+      "source_sha256": "ff1b281039f691b14f6287b252f7f2d621875c0e89fff808a667bc0f008bde11",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "mc_mammonite",
+      "file": "assets/ui/icons/skill_mc_mammonite.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mc_mammonite.bmp",
+      "source_sha256": "b5fc0fbff6053b682d25ed11fb43f0336b438cd584c40f64bf40ed5c0996fda2",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "mc_pushcart",
+      "file": "assets/ui/icons/skill_mc_pushcart.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mc_pushcart.bmp",
+      "source_sha256": "f297e8c5549f63e5396bd0c5f58a0e907bedbd5c6a8d529c16e2e11eb7380c3b",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "mc_cartrevolution",
+      "file": "assets/ui/icons/skill_mc_cartrevolution.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mc_cartrevolution.bmp",
+      "source_sha256": "914cbeb4d7f666d76fba7e62caf4e6eb5eef2c8720a9c36659ee414723ca3931",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "mc_loud",
+      "file": "assets/ui/icons/skill_mc_loud.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mc_loud.bmp",
+      "source_sha256": "37890d5f23dd294756293f2001e2e15a2c02e163418973935468e541683af7ee",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "mc_overcharge",
+      "file": "assets/ui/icons/skill_mc_overcharge.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mc_overcharge.bmp",
+      "source_sha256": "9384e95d73f0fd5b21c1fb240f5383fc348c7ba33ea7e8e025ec4ef1f4991d23",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 5,
+      "padding": [
+        4,
+        4
+      ]
+    }
+  ],
+  "missing": []
+}
