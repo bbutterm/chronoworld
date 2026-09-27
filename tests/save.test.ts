@@ -32,6 +32,8 @@ const V2_DEFAULTS = {
 const V3_DEFAULTS = {
   presets: [],
   bounties: { board: [], lastRefreshDay: DEFAULT_DAY, refreshesUsed: 0, active: [] },
+  // Поле без смены версии: в старых сохранениях его нет — пусто.
+  seenScenes: [],
 };
 
 function played() {
