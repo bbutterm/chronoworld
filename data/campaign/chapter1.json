@@ -294,7 +294,7 @@
         },
         {
           "unit": "mob_mastering",
-          "mult": 0.67
+          "mult": 0.81
         },
         {
           "unit": "mob_drops",
