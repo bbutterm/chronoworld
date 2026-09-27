@@ -67,6 +67,8 @@ export function button(
   label: string,
   onClick: () => void,
   fontSize: number = FS.h2,
+  /** repeat — переключатель по кругу (скорость, FPS): быстрые повторные нажатия не глушим. */
+  opts: { repeat?: boolean } = {},
 ): { container: Phaser.GameObjects.Container; setLabel: (s: string) => void; label: Phaser.GameObjects.Text } {
   const bg = panel(scene, 0, 0, w, h, textureId);
   const skin = skinKey(scene, textureId);
@@ -106,7 +108,7 @@ export function button(
   container.on('pointerup', () => {
     if (!armed) return;
     setPressed(false);
-    if (ready()) onClick();
+    if (opts.repeat || ready()) onClick();
   });
   // Отпустили вне кнопки или список начали тянуть — кнопка не должна остаться нажатой.
   scene.input.on('pointerup', release);

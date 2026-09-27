@@ -94,7 +94,12 @@ const coveredBy = (sceneKey, label, last = false) =>
 const clickText = async (sceneKey, label, last = false) => {
   const pos = await findText(sceneKey, label, last);
   if (!pos) throw new Error(`В сцене ${sceneKey} нет текста «${label}»`);
-  const cover = await coveredBy(sceneKey, label, last);
+  // Короткое перекрытие (затемнение экрана на ульте в бою) пережидаем; постоянное — ошибка.
+  let cover = await coveredBy(sceneKey, label, last);
+  for (let i = 0; cover && i < 10; i++) {
+    await sleep(300);
+    cover = await coveredBy(sceneKey, label, last);
+  }
   if (cover) throw new Error(`В сцене ${sceneKey} «${label}» перекрыт: ${cover} — игрок его не видит`);
   await clickGame(pos[0], pos[1]);
 };

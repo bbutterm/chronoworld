@@ -33,7 +33,14 @@ export function installTransitions(): void {
     const fadeIn = () => {
       if (!targetKey) return;
       const to = this.get(targetKey);
-      to?.sys.events.once(Phaser.Scenes.Events.CREATE, () => to.cameras.main?.fadeIn(FADE_IN_MS, 0, 0, 0));
+      to?.sys.events.once(Phaser.Scenes.Events.CREATE, () => {
+        const cam = to.cameras.main;
+        if (!cam) return;
+        // Законченное проявление Phaser продолжает рисовать прозрачный прямоугольник на весь экран каждый кадр —
+        // на слабом телефоне это заметная лишняя заливка. Сбрасываем эффект, как только он закончился.
+        cam.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, () => cam.fadeEffect.reset());
+        cam.fadeIn(FADE_IN_MS, 0, 0, 0);
+      });
     };
     if (plain) {
       if (from && from.sys.settings.key !== 'Boot') fadeIn();

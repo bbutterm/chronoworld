@@ -90,8 +90,8 @@ export class HomeScene extends Phaser.Scene {
       this.add.rectangle(GAME_W / 2, y - 133, 300, 34, 0x8a5a2b).setStrokeStyle(6, 0x3a2412);
       icon(this, GAME_W / 2, y - 87, 'iconCircle_brown', 56).setTint(TINT.gold);
     }
-    this.chestText = text(this, GAME_W / 2, y + 2, '', FS.body, C.text, { lineSpacing: 8, ...OUTLINE });
-    text(this, GAME_W / 2, y + 56, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, FS.small, C.muted, { wordWrap: { width: 900 } });
+    this.chestText = text(this, GAME_W / 2, y - 6, '', FS.body, C.text, { lineSpacing: 8, ...OUTLINE });
+    text(this, GAME_W / 2, y + 60, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, FS.small, C.muted, { wordWrap: { width: 900 } });
     this.claimBtn = button(this, GAME_W / 2, L.claimY, 460, TOUCH, 'ui_btn_primary', 'Собрать', () => this.claim(), FS.h2);
   }
 
@@ -176,7 +176,7 @@ export class HomeScene extends Phaser.Scene {
     const speed = button(this, cx + bw / 2 - 110, y, 220, TOUCH, 'ui_btn_secondary', `${playback.speed}x`, () => {
       setPlaybackSpeed(nextPlaybackSpeed());
       speed.setLabel(`${playback.speed}x`);
-    }, FS.h2);
+    }, FS.h2, { repeat: true });
     layer.add(speed.container);
     y += 70;
     layer.add(text(this, cx, y, 'Запоминается; меняется и прямо в бою', FS.small, C.muted));
@@ -188,7 +188,7 @@ export class HomeScene extends Phaser.Scene {
       setFpsCap(nextFpsCap());
       lifecycle()?.setFpsCap(fps.cap);
       fpsBtn.setLabel(`${fps.cap} FPS`);
-    }, FS.h3);
+    }, FS.h3, { repeat: true });
     fpsBtn.container.setName('fpsCap');
     layer.add(fpsBtn.container);
     y += 70;
