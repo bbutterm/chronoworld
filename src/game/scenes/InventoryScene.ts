@@ -3,9 +3,9 @@ import { actEquip, actUnequip, heroSlots, SLOTS, type HeroState, type Slot } fro
 import { GAME } from '../content';
 import { diffText, equipBlocker, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, statDiff, type InventoryRow } from '../flow';
 import { GAME_W } from '../layout';
-import { card, CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
+import { card, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, screen } from '../screen';
 import { commit, session } from '../session';
-import { button, ellipsize, emptyState, ScrollArea, text, toast } from '../ui';
+import { button, ellipsize, ScrollArea, text, toast } from '../ui';
 import { C, FS, TOUCH } from '../theme';
 
 /**
@@ -60,7 +60,10 @@ export class InventoryScene extends Phaser.Scene {
     const listTop = top + 230;
     text(this, GAME_W / 2, listTop, rows.length ? 'Выберите предмет' : '', FS.body, C.title);
     if (!rows.length) {
-      emptyState(this, GAME_W / 2, listTop + 150, `Других предметов для слота «${SLOT_NAMES[slot]}» нет.\nОни выпадают за победы на этапах кампании.`);
+      emptyCard(this, listTop + 230, `Других предметов для слота «${SLOT_NAMES[slot]}» нет.\nОни выпадают за победы на этапах кампании.`, 'bag', {
+        label: 'В кампанию',
+        onClick: () => this.scene.start('Campaign'),
+      });
       return;
     }
     this.list(rows, listTop + 40, (row, y, a) => {
@@ -118,13 +121,14 @@ export class InventoryScene extends Phaser.Scene {
     const total = session.save.inventory.items.length;
     text(this, GAME_W / 2, top + 135, `Предметов: ${rows.length}${filter ? ` из ${total}` : ''}`, FS.body, C.muted);
     if (!rows.length) {
-      emptyState(
+      emptyCard(
         this,
-        GAME_W / 2,
-        top + 400,
+        top + 480,
         filter
           ? `Предметов для слота «${SLOT_NAMES[filter]}» пока нет.\nПопробуйте вкладку «Все» или пройдите ещё этапы кампании.`
           : 'Пока пусто.\nПредметы выпадают за победы на этапах кампании:\nпервое прохождение — гарантированно.',
+        'bag',
+        { label: 'В кампанию', onClick: () => this.scene.start('Campaign') },
       );
       return;
     }

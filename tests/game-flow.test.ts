@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { newGame, playStage, type ProgressEvent } from '../src/core';
-import { assignSlot, currentStage, describeEvents, localDay, lockedJobSkills, nextOpenStage, stageSeed } from '../src/game/flow';
+import { changeJob, newGame, playStage, type ProgressEvent } from '../src/core';
+import {
+  assignSlot,
+  currentStage,
+  describeEvents,
+  dropStaleJobReady,
+  jobChangeSkills,
+  localDay,
+  lockedJobSkills,
+  nextOpenStage,
+  otherJobChangeReady,
+  stageSeed,
+} from '../src/game/flow';
 import { loadGameContext } from '../scripts/lib/content-node';
 
 const ctx = loadGameContext();
@@ -61,5 +72,25 @@ describe('помощники экранов', () => {
     const b = playStage(save, stage, stageSeed(save), ctx);
     expect(a.result.winner).toBe(b.result.winner);
     expect(a.result.duration).toBe(b.result.duration);
+  });
+
+  it('смена профессии: следующий готовый герой, открытые навыки, устаревшая строка «доступна»', () => {
+    const base = newGame(ctx, 0);
+    const save = { ...base, heroes: base.heroes.map((h) => ({ ...h, jobLevel: 10, jobExp: 0 })) };
+    const [a, b] = save.heroes;
+    expect(otherJobChangeReady(save, ctx)?.id).toBe(a.id);
+    expect(otherJobChangeReady(save, ctx, a.id)?.id).toBe(b.id);
+    const c = changeJob(a, 'swordman', ctx);
+    const r = { events: c.events, save: { ...save, heroes: save.heroes.map((h) => (h.id === a.id ? c.hero : h)) } };
+    const hero = c.hero;
+    const skills = jobChangeSkills(r.events, hero, ctx);
+    expect(skills.length).toBeGreaterThan(0);
+    expect(skills).toContain(ctx.content.skills[ctx.content.jobs.swordman.skills.find((s) => s.jobLevel <= hero.jobLevel)!.skill].name);
+    expect(otherJobChangeReady(r.save, ctx, a.id)?.id).toBe(b.id);
+    const lines = ['Алан: джоб 10', 'Смена профессии доступна! (Алан)'];
+    expect(dropStaleJobReady(lines, r.save, ctx)).toEqual(lines);
+    const allDone = { ...r.save, heroes: r.save.heroes.map((h) => ({ ...h, job: 'swordman', jobLevel: 1 })) };
+    expect(otherJobChangeReady(allDone, ctx)).toBeUndefined();
+    expect(dropStaleJobReady(lines, allDone, ctx)).toEqual(['Алан: джоб 10']);
   });
 });

@@ -19,6 +19,10 @@ import { GAME_H, GAME_W } from './game/layout';
 import { installLifecycle, type LoopLike } from './game/lifecycle';
 import { spritesBusy, spriteStats } from './game/sprites';
 import { fps } from './game/state';
+import { installTransitions } from './game/transitions';
+
+// Затемнение между экранами и защита от двойного нажатия во время перехода.
+installTransitions();
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,

@@ -5,10 +5,11 @@ import { GAME } from '../content';
 import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, jobChangeReadyCount } from '../flow';
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
 import { GAME_H, GAME_W } from '../layout';
-import { badge, card, confirm, confirmOpen, gemIcon, NAV_H, screen } from '../screen';
+import { badge, card, confirm, confirmOpen, gemIcon, NAV_H, popIn, screen } from '../screen';
 import { commit, now, resetProgress, restartOnNewDay, session, today } from '../session';
 import { button, dangerButton, hintPointer, icon, panel, pressable, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT, TITLE_STYLE, TOUCH } from '../theme';
+import { SKIN_TINT, skinIcon } from '../skin';
 import { fps, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed } from '../state';
 import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
@@ -20,19 +21,19 @@ import { version } from '../../../package.json';
  */
 const L = {
   chestY: 390,
-  chestH: 460,
-  claimY: 563,
-  fastY: 771,
+  chestH: 440,
+  claimY: 530,
+  fastY: 825,
   fastH: 230,
   /** Кнопка быстрых наград чуть выше центра карточки: над плиткой «Башня» остаётся место для подсказки. */
-  fastBtnY: 760,
+  fastBtnY: 814,
   tileW: 500,
   tileH: 170,
   tileXL: 280,
   tileXR: 800,
-  tileY1: 1031,
-  tileY2: 1217,
-  campaignY: 1390,
+  tileY1: 1085,
+  tileY2: 1271,
+  campaignY: 1444,
   campaignH: 130,
 } as const;
 
@@ -83,15 +84,15 @@ export class HomeScene extends Phaser.Scene {
     text(this, GAME_W / 2, y - 187, 'Сундук офлайн-наград', FS.h2, C.title, TITLE_STYLE);
     if (hasArt('ui_chest_empty')) {
       // Сундук: пустой / наполняется / полный (текстура меняется в refresh).
-      this.chestImg = this.add.image(GAME_W / 2, y - 95, 'ui_chest_empty').setDisplaySize(170, 170);
+      this.chestImg = this.add.image(GAME_W / 2, y - 108, 'ui_chest_empty').setDisplaySize(140, 140);
     } else {
       // Нет арта — рамка из атласа, «крышка» и замок.
       card(this, GAME_W / 2, y - 95, 300, 110, true);
       this.add.rectangle(GAME_W / 2, y - 133, 300, 34, 0x8a5a2b).setStrokeStyle(6, 0x3a2412);
       icon(this, GAME_W / 2, y - 87, 'iconCircle_brown', 56).setTint(TINT.gold);
     }
-    this.chestText = text(this, GAME_W / 2, y + 25, '', FS.h3, C.text, { lineSpacing: 8, ...OUTLINE });
-    text(this, GAME_W / 2, y + 99, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, FS.small, C.muted, { wordWrap: { width: 900 } });
+    this.chestText = text(this, GAME_W / 2, y - 6, '', FS.body, C.text, { lineSpacing: 8, ...OUTLINE });
+    text(this, GAME_W / 2, y + 60, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, FS.small, C.muted, { wordWrap: { width: 900 } });
     this.claimBtn = button(this, GAME_W / 2, L.claimY, 460, TOUCH, 'ui_btn_primary', 'Собрать', () => this.claim(), FS.h2);
   }
 
@@ -110,7 +111,7 @@ export class HomeScene extends Phaser.Scene {
     if (this.chestImg) {
       const capMin = GAME.progression.offline.capHours * 60;
       const state = r.gold === 0 && r.jobExp === 0 ? 'empty' : r.minutes >= capMin * 0.9 ? 'full' : 'filling';
-      this.chestImg.setTexture(`ui_chest_${state}`).setDisplaySize(170, 170);
+      this.chestImg.setTexture(`ui_chest_${state}`).setDisplaySize(140, 140);
     }
     this.updateHint(r.gold > 0 || r.jobExp > 0);
     // Поручение завершилось, пока игрок на главной, — обновить плитку и значок.
@@ -178,7 +179,7 @@ export class HomeScene extends Phaser.Scene {
     const speed = button(this, cx + bw / 2 - 110, y, 220, TOUCH, 'ui_btn_secondary', `${playback.speed}x`, () => {
       setPlaybackSpeed(nextPlaybackSpeed());
       speed.setLabel(`${playback.speed}x`);
-    }, FS.h2);
+    }, FS.h2, { repeat: true });
     layer.add(speed.container);
     y += 70;
     layer.add(text(this, cx, y, 'Запоминается; меняется и прямо в бою', FS.small, C.muted));
@@ -190,7 +191,7 @@ export class HomeScene extends Phaser.Scene {
       setFpsCap(nextFpsCap());
       lifecycle()?.setFpsCap(fps.cap);
       fpsBtn.setLabel(`${fps.cap} FPS`);
-    }, FS.h3);
+    }, FS.h3, { repeat: true });
     fpsBtn.container.setName('fpsCap');
     layer.add(fpsBtn.container);
     y += 70;
@@ -223,6 +224,7 @@ export class HomeScene extends Phaser.Scene {
     layer.add(text(this, cx, y, `Версия ${version} · сборка ${import.meta.env.MODE}`, FS.small, C.dim));
     y += 120;
     layer.add(button(this, cx, y, 460, 120, 'ui_btn_primary', 'Закрыть', close, FS.h2).container);
+    popIn(this, layer, shade);
   }
 
   // ---------- K1. Быстрые награды ----------
@@ -307,7 +309,7 @@ export class HomeScene extends Phaser.Scene {
       const hint = stage ? `Откроется после этапа ${stage.globalIndex + 1}` : 'Пока закрыта';
       const t = this.tile(xr, y1, 'Башня', hint, C.dim, () => toast(this, `Башня испытаний: ${hint.toLowerCase()} кампании`));
       t.setAlpha(0.75);
-      icon(this, xr + 200, y1 - 55, 'iconCross_grey', 44);
+      this.add.image(xr + 205, y1 - 50, skinIcon('lock')).setDisplaySize(44, 44).setTint(SKIN_TINT.creamDim);
     }
 
     const done = finishedBounties(save, now());

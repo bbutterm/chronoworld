@@ -93,6 +93,28 @@ export function firstJobChangeReady(save: SaveState, ctx: GameContext): HeroStat
   return save.heroes.find((h) => ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0);
 }
 
+/** Готовый к смене профессии герой, кроме exceptId (для «Ещё герой готов к профессии»). */
+export function otherJobChangeReady(save: SaveState, ctx: GameContext, exceptId?: string): HeroState | undefined {
+  return save.heroes.find((h) => h.id !== exceptId && ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0);
+}
+
+/**
+ * Названия навыков, открытых сменой профессии (события skillUnlocked новой профессии). Событий нет —
+ * навыки новой профессии, доступные на текущем джобе героя.
+ */
+export function jobChangeSkills(events: readonly (TowerEvent | MetaEvent)[], hero: HeroState, ctx: GameContext): string[] {
+  const name = (id: string) => ctx.content.skills[id]?.name ?? id;
+  const unlocked = events.flatMap((e) => (e.type === 'skillUnlocked' && e.heroId === hero.id && e.job === hero.job ? [name(e.skill)] : []));
+  if (unlocked.length) return unlocked;
+  const job = ctx.content.jobs[hero.job];
+  return job ? job.skills.filter((s) => s.jobLevel <= hero.jobLevel).map((s) => name(s.skill)) : [];
+}
+
+/** Строка «Смена профессии доступна!» устарела, если сейчас никто не готов (профессию уже сменили). */
+export function dropStaleJobReady(lines: string[], save: SaveState, ctx: GameContext): string[] {
+  return jobChangeReadyCount(save, ctx) > 0 ? lines : lines.filter((l) => !l.startsWith('Смена профессии доступна'));
+}
+
 /** R. Сколько героев могут сменить профессию прямо сейчас (значок вкладки «Герои»). */
 export function jobChangeReadyCount(save: SaveState, ctx: GameContext): number {
   return save.heroes.filter((h) => ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0).length;

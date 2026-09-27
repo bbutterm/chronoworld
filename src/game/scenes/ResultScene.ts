@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GAME } from '../content';
-import { autoNextStage, describeEvents, firstJobChangeReady, formatNumber, itemStatsText, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
+import { autoNextStage, describeEvents, dropStaleJobReady, firstJobChangeReady, jobChangeReadyCount, formatNumber, itemStatsText, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
 import type { BattleResult, Side } from '../../core';
 import { GAME_W } from '../layout';
 import { session } from '../session';
@@ -9,7 +9,8 @@ import { button, panel, progressBar, text } from '../ui';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
-import { portrait, unitTint } from '../screen';
+import { badge, portrait, unitTint } from '../screen';
+import type { JobChangeData } from './JobChangeScene';
 import { skillIcon } from '../skillIcons';
 import { playStory, startStageBattle } from '../dialogue';
 
@@ -45,7 +46,13 @@ export class ResultScene extends Phaser.Scene {
     const compact = !!stage || !!tower;
     this.autoTimer = null;
     this.add.image(GAME_W / 2, 960, this.textures.exists('skin_bg_battle') ? 'skin_bg_battle' : 'bg_arena').setDisplaySize(GAME_W, 1920).setAlpha(0.5);
-    this.add.image(GAME_W / 2, compact ? 190 : 250, win ? 'ui_victory' : 'ui_defeat').setDisplaySize(compact ? 760 : 900, compact ? 338 : 400);
+    // Плашка итога — в стиле скина (своя текстура), с коротким «ударом» появления.
+    const bannerKey = this.textures.exists('skin_banner_victory') ? (win ? 'skin_banner_victory' : 'skin_banner_defeat') : win ? 'ui_victory' : 'ui_defeat';
+    const bannerW = compact ? 820 : 900;
+    const banner = this.add.image(GAME_W / 2, compact ? 200 : 250, bannerKey).setDisplaySize(bannerW, (bannerW * 300) / 900);
+    const bs = banner.scaleX;
+    banner.setScale(bs * 1.25).setAlpha(0);
+    this.tweens.add({ targets: banner, scale: bs, alpha: 1, duration: 320, ease: 'Back.easeOut' });
     const top = compact ? 380 : 470;
     panel(this, GAME_W / 2, (top + 1730) / 2, 1050, 1730 - top + 20, 'ui_panel');
     const reason = r.reason === 'timeout' ? 'Время вышло — атакующий проиграл' : win ? 'Отряд противника уничтожен' : 'Ваш отряд уничтожен';
@@ -76,7 +83,8 @@ export class ResultScene extends Phaser.Scene {
       // S: строк событий столько, чтобы таблица при минимальной высоте строки влезла до низа (не наезжала на «Авто»).
       const room = tableBottom - y - tableMinHeight(r.units.length, compact) - 15;
       const maxLines = Phaser.Math.Clamp(Math.floor(room / EVENT_LINE), 1, MAX_EVENT_LINES);
-      const lines = describeEvents(events, outcome.save, GAME);
+      // После смены профессии экран итогов открывается снова: «доступна смена профессии» уже неактуальна.
+      const lines = dropStaleJobReady(describeEvents(events, outcome.save, GAME), session.save, GAME);
       const shown = lines.slice(0, maxLines);
       if (lines.length > shown.length) shown[shown.length - 1] = `…и ещё ${lines.length - shown.length + 1}`;
       for (const line of shown) {
@@ -153,7 +161,10 @@ export class ResultScene extends Phaser.Scene {
       // Кто-то дорос до смены профессии — главная кнопка ведёт туда (по всем готовым героям подряд), а не дальше.
       const ready = win ? firstJobChangeReady(session.save, GAME) : undefined;
       if (ready) {
-        button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Профессия ›', () => this.scene.start('JobChange', { heroId: ready.id }), FS.h3).container.setName('jobChangeBtn');
+        // После смены профессии игрок возвращается сюда же; если готов ещё кто-то — снова эта кнопка (со счётчиком).
+        const from = { to: 'Result', data: this.sys.settings.data };
+        button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Профессия ›', () => this.scene.start('JobChange', { heroId: ready.id, from } satisfies JobChangeData), FS.h3).container.setName('jobChangeBtn');
+        badge(this, 890 + bw / 2 - 20, 1830 - 58, jobChangeReadyCount(session.save, GAME));
       } else {
         const nextBtn = button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Дальше', () => {
           if (next) this.scene.start('Stage', { stageId: next.id });

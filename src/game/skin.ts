@@ -267,6 +267,83 @@ export function buildSkin(scene: Phaser.Scene): void {
   disc('skin_node_open', ['#8a2a2a', '#3a1010'], '#6a2a22');
   disc('skin_node_boss', ['#5a1a4a', '#220a1c'], '#7a2a44');
 
+  // Искра (торжественные моменты: смена профессии) — мягкое свечение и четырёхлучевая звезда, белая (красится tint'ом).
+  canvas(scene, 'skin_spark', 64, 64, (c) => {
+    const g = c.createRadialGradient(32, 32, 0, 32, 32, 30);
+    g.addColorStop(0, 'rgba(255,255,255,0.9)');
+    g.addColorStop(0.25, 'rgba(255,255,255,0.35)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, 64, 64);
+    c.fillStyle = '#ffffff';
+    c.beginPath();
+    c.moveTo(32, 2); c.quadraticCurveTo(35, 29, 62, 32); c.quadraticCurveTo(35, 35, 32, 62); c.quadraticCurveTo(29, 35, 2, 32); c.quadraticCurveTo(29, 29, 32, 2);
+    c.fill();
+  });
+  // Лучи за фигурой героя: веер золотых клиньев, гаснущих к краю, и тёплое ядро.
+  canvas(scene, 'skin_rays', 512, 512, (c) => {
+    const cx = 256;
+    const g = c.createRadialGradient(cx, cx, 20, cx, cx, 256);
+    g.addColorStop(0, 'rgba(255,220,140,0.75)');
+    g.addColorStop(0.5, 'rgba(214,174,99,0.3)');
+    g.addColorStop(1, 'rgba(214,174,99,0)');
+    c.fillStyle = g;
+    const n = 16;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      c.beginPath();
+      c.moveTo(cx, cx);
+      c.arc(cx, cx, 256, a, a + (Math.PI / n) * 0.8);
+      c.closePath();
+      c.fill();
+    }
+    const core = c.createRadialGradient(cx, cx, 0, cx, cx, 150);
+    core.addColorStop(0, 'rgba(255,236,190,0.55)');
+    core.addColorStop(1, 'rgba(255,236,190,0)');
+    c.fillStyle = core;
+    c.fillRect(0, 0, 512, 512);
+  });
+  // Плашки «Победа» / «Поражение» в стиле скина (старые бежевые картинки к нему не подходят).
+  const banner = (key: string, label: string, face: [string, string], border: string) =>
+    canvas(scene, key, 900, 300, (c) => {
+      const W = 900;
+      const H = 300;
+      const g = c.createLinearGradient(0, 60, 0, 250);
+      g.addColorStop(0, '#2f2a22');
+      g.addColorStop(1, '#15130f');
+      rr(c, 40, 50, W - 80, 200, 30);
+      c.fillStyle = g;
+      c.fill();
+      c.shadowColor = border;
+      c.shadowBlur = 22;
+      c.lineWidth = 6;
+      c.strokeStyle = border;
+      c.stroke();
+      c.shadowBlur = 0;
+      rr(c, 56, 66, W - 112, 168, 22);
+      c.lineWidth = 2;
+      c.strokeStyle = 'rgba(255,240,210,0.14)';
+      c.stroke();
+      // Ромбы-заклёпки по бокам.
+      c.fillStyle = border;
+      for (const x of [90, W - 90]) {
+        c.beginPath(); c.moveTo(x, H / 2 - 16); c.lineTo(x + 12, H / 2); c.lineTo(x, H / 2 + 16); c.lineTo(x - 12, H / 2); c.closePath(); c.fill();
+      }
+      c.font = 'bold 100px Arial, "Helvetica Neue", sans-serif';
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.lineWidth = 12;
+      c.strokeStyle = '#120d07';
+      c.strokeText(label, W / 2, H / 2 + 4);
+      const tg = c.createLinearGradient(0, H / 2 - 50, 0, H / 2 + 50);
+      tg.addColorStop(0, face[0]);
+      tg.addColorStop(1, face[1]);
+      c.fillStyle = tg;
+      c.fillText(label, W / 2, H / 2 + 4);
+    });
+  banner('skin_banner_victory', 'ПОБЕДА', ['#fff0c0', '#d6a040'], SKIN.gold);
+  banner('skin_banner_defeat', 'ПОРАЖЕНИЕ', ['#ffc0b0', '#b8402e'], '#8a3a2e');
+
   // Лесной фон (как в референсе): градиент, силуэты крон двумя планами, лучи и светлячки.
   canvas(scene, 'skin_bg_forest', BG_W, BG_H, (c) => drawForest(c, BG_W, BG_H));
   // Поле боя главы 1: поляна на опушке (трава и земля — тайлы художника, если загружены).
