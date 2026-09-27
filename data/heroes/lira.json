@@ -1,0 +1,36 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "lira",
+  "name": "Лира",
+  "gender": "f",
+  "job": "mage",
+  "line": "mage",
+  "role": "support",
+  "source": "summon",
+  "baseRarity": "green",
+  "maxRarity": "gold",
+  "statMods": {
+    "hp": 1.1,
+    "atk": 0.9
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_mage_cold_bolt"
+    },
+    {
+      "level": 10,
+      "skill": "job_mage_energy_coat"
+    },
+    {
+      "level": 30,
+      "skill": "job_mage_frost_diver"
+    },
+    {
+      "level": 50,
+      "skill": "job_mage_safety_wall"
+    }
+  ],
+  "bio": "Маг льда и защиты: замедляет врагов и прикрывает своих.",
+  "hook": "Сестра Кая — чинит всё, что он сжёг."
+}

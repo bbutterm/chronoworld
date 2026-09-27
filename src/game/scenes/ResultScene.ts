@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GAME } from '../content';
-import { autoNextStage, decimal, defeatAdvice, describeEvents, dropStaleJobReady, expBankNote, firstJobChangeReady, jobChangeReadyCount, formatNumber, itemStatsText, keyEventsFirst, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
+import { autoNextStage, decimal, defeatAdvice, describeEvents, formatNumber, itemStatsText, keyEventsFirst, levelUpReady, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
 import type { BattleResult, Side } from '../../core';
 import { GAME_W } from '../layout';
 import { session } from '../session';
@@ -9,9 +9,8 @@ import { button, ellipsize, panel, progressBar, ScrollArea, text } from '../ui';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
-import { cornerBadge, portrait, unitTint } from '../screen';
+import { portrait, unitTint } from '../screen';
 import { countUp, juiceOn } from '../juice';
-import type { JobChangeData } from './JobChangeScene';
 import { skillIcon } from '../skillIcons';
 import { playStory, startStageBattle } from '../dialogue';
 import { chapterLastStage } from '../storyView';
@@ -86,10 +85,10 @@ export class ResultScene extends Phaser.Scene {
       const rewards = events.find((e) => e.type === 'rewards');
       if (rewards && rewards.type === 'rewards') {
         // Числа награды отсчитываются от нуля (juice.ts; «Уменьшить анимацию» — сразу итог).
-        const rewardLine = (k: number) => `Награда: золото +${formatNumber((rewards.gold * k) / 1000)} · опыт +${formatNumber((rewards.jobExp * k) / 1000)} каждому`;
+        const rewardLine = (k: number) => `Награда: золото +${formatNumber((rewards.gold * k) / 1000)} · опыт +${formatNumber((rewards.heroExp * k) / 1000)} в запас`;
         countUp(this, text(this, GAME_W / 2, y, rewardLine(1000), FS.body, C.gold, BOLD_OUTLINE), 0, 1000, rewardLine, { delay: 250, duration: 700 });
       } else {
-        // T1-07: совет по делу (вещи, профессия — только если доступна, расстановка, прокачка).
+        // T1-07: совет по делу (вещи, «Улучшить», вознесение, расстановка, прокачка).
         const advice = tower ? 'Этаж не взят. Усильте отряд и попробуйте снова.' : `Награды нет. ${defeatAdvice(session.save, GAME).text}`;
         text(this, GAME_W / 2, y, advice, FS.small, C.enemy, { ...OUTLINE, wordWrap: { width: 980 } });
         if (!tower) y += 20;
@@ -102,13 +101,12 @@ export class ResultScene extends Phaser.Scene {
         this.tweens.add({ targets: t, scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
         y += 50;
       }
-      // T1-09: все события, ключевые (новый герой, смена профессии, навыки, уровни) — первыми. Не влезают до таблицы —
+      // T1-09: все события, ключевые (новый герой, Таверна, вознесение, навыки, уровни) — первыми. Не влезают до таблицы —
       // список событий прокручивается пальцем, ничего не прячется под «…и ещё N».
-      const lines = keyEventsFirst(dropStaleJobReady(describeEvents(events, outcome.save, GAME), session.save, GAME));
-      // T1-02: опыт на максимуме профессии копится в запас — подсказать сменить профессию (полон — предупредить).
-      const bank = expBankNote(session.save, GAME);
-      const rows: { line: string; hot: boolean; warn?: boolean }[] = lines.map((line) => ({ line, hot: line.startsWith('Смена профессии') || line.startsWith('Новый герой') }));
-      if (bank) rows.splice(rows.findIndex((x) => !x.hot) < 0 ? rows.length : rows.findIndex((x) => !x.hot), 0, { line: bank.text, hot: bank.full, warn: bank.full });
+      const lines = keyEventsFirst(describeEvents(events, outcome.save, GAME));
+      const rows: { line: string; hot: boolean; warn?: boolean }[] = lines.map((line) => ({ line, hot: line.startsWith('Новый герой') || line.startsWith('Открыта Таверна') }));
+      // Опыт копится в общем запасе — подсказать «Улучшить», если хватает на уровень.
+      if (levelUpReady(session.save, GAME).length) rows.push({ line: `Опыт в запасе: ${formatNumber(session.save.resources.heroExp)} — «Герои» → «Улучшить»`, hot: false });
       const room = tableBottom - y - tableMinHeight(r.units.length, compact) - 15;
       const fitLines = Math.max(2, Math.floor(room / EVENT_LINE));
       // Строка события — в ширину панели: длинная мельчает (не меньше 24), потом «…» (не вылезает за края экрана).
@@ -216,26 +214,17 @@ export class ResultScene extends Phaser.Scene {
       }
       button(this, 190, 1830, bw, 130, 'k:buttonLong_beige', 'К кампании', () => this.scene.start('Campaign'), FS.h3);
       button(this, 540, 1830, bw, 130, 'ui_btn_secondary', 'Повторить', retry, FS.h3);
-      // Кто-то дорос до смены профессии — главная кнопка ведёт туда (по всем готовым героям подряд), а не дальше.
-      const ready = firstJobChangeReady(session.save, GAME);
-      if (ready) {
-        // После смены профессии игрок возвращается сюда же; если готов ещё кто-то — снова эта кнопка (со счётчиком).
-        const from = { to: 'Result', data: this.sys.settings.data };
-        button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Профессия ›', () => this.scene.start('JobChange', { heroId: ready.id, from } satisfies JobChangeData), FS.h3).container.setName('jobChangeBtn');
-        cornerBadge(this, 890, 1830, bw, 130, jobChangeReadyCount(session.save, GAME));
-      } else {
-        const nextBtn = button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Дальше', () => {
-          if (next) this.scene.start('Stage', { stageId: next.id });
-        }, FS.h2);
-        if (!next) nextBtn.container.setAlpha(0.4).disableInteractive();
-      }
+      const nextBtn = button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Дальше', () => {
+        if (next) this.scene.start('Stage', { stageId: next.id });
+      }, FS.h2);
+      if (!next) nextBtn.container.setAlpha(0.4).disableInteractive();
       const beginAuto = this.autoRow(stage.stageId, win);
       // Сюжет после первой победы на этапе — поверх итогов; авто-отсчёт — после него (в авто-режиме строки листаются
       // сами, медленно; финал главы — только касанием).
       const firstClear = stage.outcome.events.some((e) => e.type === 'stageCleared' && e.firstTime);
       const stageInfo = GAME.content.stages.find((x) => x.id === stage.stageId);
       // T1-03: первая победа над боссом главы — после финальной сцены экран «Глава пройдена» (ровно один раз:
-      // метка в данных сцены — при возврате на итоги, например после смены профессии, он не повторяется).
+      // метка в данных сцены — при возврате на итоги он не повторяется).
       const chapterDone = firstClear && !!stageInfo && chapterLastStage(stageInfo.chapter, GAME)?.id === stage.stageId && !(stage as ShownMark).chapterDoneShown;
       playStory(this, { type: 'afterStage', stageId: stage.stageId, firstClear }, () => {
         if (chapterDone && stageInfo) {
@@ -332,7 +321,6 @@ const AUTO_STOP_TEXT: Record<AutoStop, string> = {
   chapter_end: 'Глава пройдена — авто остановлено',
   no_next: 'Дальше этапов нет',
   replay: 'Это повтор — авто идёт только по новым этапам',
-  job_change: 'Смена профессии доступна — нажмите «Профессия»',
 };
 
 /** MVP стороны — больше всех урона (при равенстве — лечение + щит). Никто ничего не сделал — нет MVP. */

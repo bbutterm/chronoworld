@@ -1,0 +1,31 @@
+{
+  "version": 3,
+  "createdAt": 1758960000000,
+  "heroes": [
+    { "id": "h1", "name": "Алан", "gender": "m", "job": "swordman", "jobLevel": 12, "jobExp": 50, "jobHistory": [{ "job": "novice", "jobLevel": 10 }] },
+    { "id": "h2", "name": "Бэлла", "job": "archer", "jobLevel": 25, "jobExp": 0, "jobHistory": [{ "job": "novice", "jobLevel": 10 }] },
+    { "id": "h3", "name": "Вик", "job": "mage", "jobLevel": 50, "jobExp": 0, "jobHistory": [{ "job": "novice", "jobLevel": 10 }], "bankedExp": 300 },
+    { "id": "h4", "name": "Грег", "job": "novice", "jobLevel": 3, "jobExp": 7, "jobHistory": [] },
+    { "id": "h5", "name": "Дорн", "gender": "m", "job": "rogue", "jobLevel": 8, "jobExp": 0, "jobHistory": [{ "job": "novice", "jobLevel": 10 }, { "job": "thief", "jobLevel": 50 }] },
+    { "id": "h6", "name": "Ларс", "gender": "m", "job": "wizard", "jobLevel": 3, "jobExp": 0, "jobHistory": [{ "job": "novice", "jobLevel": 10 }, { "job": "mage", "jobLevel": 50 }] }
+  ],
+  "squad": ["h1", "h5", "h2", "h3", "h4"],
+  "campaign": { "cleared": ["ch1_s1", "ch1_s2", "ch1_s3", "ch1_s4", "ch1_s5", "ch1_s6"] },
+  "resources": { "gold": 1200 },
+  "offline": { "lastClaimAt": 1758963600000 },
+  "battleSeq": 40,
+  "daily": { "day": "2026-09-27", "fastRewardsUsed": 1, "quests": { "stage_win": 2, "job_change": 1 }, "claimedQuests": ["job_change"], "activityClaimed": [] },
+  "currency": { "gems": 80 },
+  "tower": { "floor": 6 },
+  "inventory": { "items": [{ "id": "it1", "itemId": "knife", "equippedBy": "h5" }, { "id": "it2", "itemId": "cotton_shirt", "equippedBy": "h1" }] },
+  "presets": [{ "id": "p1", "name": "Башня", "squad": ["h1", null, "h6", null, "h3"] }],
+  "bounties": {
+    "board": [],
+    "lastRefreshDay": "2026-09-27",
+    "refreshesUsed": 0,
+    "active": [{ "id": "b1", "templateId": "patrol", "rarity": "common", "durationMinutes": 30, "heroCount": 1, "role": null, "rewards": { "gold": 100, "jobExp": 20, "gems": 0 }, "heroIds": ["h6"], "startedAt": 1758963000000, "endsAt": 1758964800000 }]
+  },
+  "achievements": { "counters": { "stages_cleared": 6, "tower_floor": 6, "jobs_changed": 6, "hero_max_job_level": 50 }, "claimed": ["first_stage", "first_job"] },
+  "seenScenes": ["ch1_intro"],
+  "revision": 17
+}

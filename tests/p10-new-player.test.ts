@@ -3,7 +3,6 @@ import {
   actEquipBest,
   addItems,
   arrangeSquad,
-  changeJob,
   equip,
   gearUpgrades,
   heroesWithGearUpgrades,
@@ -12,18 +11,18 @@ import {
   newGame,
   type SaveState,
 } from '../src/core';
-import { decimal, defeatAdvice, expBankLabel, expBankNote, heroesBadgeCount, jobLevelText, keyEventsFirst } from '../src/game/flow';
+import { decimal, defeatAdvice, heroesBadgeCount, keyEventsFirst, levelText } from '../src/game/flow';
 import { pickHomeHint } from '../src/game/hints';
 import { chapterSummary, isChapterFinale, playTimeText, sceneLabel, seenChapterScenes } from '../src/game/storyView';
 import { loadFullContext } from '../scripts/lib/content-node';
 
 const ctx = loadFullContext();
 const fresh = (): SaveState => newGame(ctx, 1_700_000_000_000);
-const withJob = (save: SaveState, heroId: string, job: string): SaveState => {
-  const h = save.heroes.find((x) => x.id === heroId)!;
-  const r = changeJob({ ...h, jobLevel: 10, jobExp: 0 }, job, ctx);
-  return { ...save, heroes: save.heroes.map((x) => (x.id === heroId ? r.hero : x)) };
-};
+/** Заменить карточку героя heroId на templateId (зелёная). */
+const withCard = (save: SaveState, heroId: string, templateId: string): SaveState => ({
+  ...save,
+  heroes: save.heroes.map((x) => (x.id === heroId ? { ...x, templateId, rarity: 'green' } : x)),
+});
 
 describe('P10 T1-08: «Надеть лучшее»', () => {
   it('itemScore — веса мощи', () => {
@@ -57,29 +56,29 @@ describe('P10 T1-08: «Надеть лучшее»', () => {
     expect(gearUpgrades(worn, other.id, ctx).find((u) => u.slot === 'armor')?.itemId).toBe('cotton_shirt');
   });
 
-  it('вещь не своей профессии не предлагается', () => {
+  it('вещь не своего класса не предлагается', () => {
     const { save } = addItems(fresh(), ['bow']);
+    // Алан — Мечник: лук не его; Бран — Лучник.
     expect(gearUpgrades(save, save.heroes[0].id, ctx)).toEqual([]);
-    const archer = withJob(save, save.heroes[1].id, 'archer');
-    expect(gearUpgrades(archer, archer.heroes[1].id, ctx).map((u) => u.itemId)).toEqual(['bow']);
+    expect(gearUpgrades(save, save.heroes[1].id, ctx).map((u) => u.itemId)).toEqual(['bow']);
   });
 
   it('значок «Герои» считает героя один раз; подсказка «Наденьте трофеи» на главной', () => {
     const { save } = addItems(fresh(), ['cotton_shirt']);
     expect(heroesBadgeCount(save, ctx)).toBe(save.heroes.length);
     const none = () => false;
-    const base = { cleared: 3, chestHasIncome: false, jobChangeReady: false, towerUnlocked: false };
+    const base = { cleared: 3, chestHasIncome: false, levelUpReady: false, towerUnlocked: false };
     expect(pickHomeHint({ ...base, gearUpgrade: true }, none)).toBe('equip_gear');
-    expect(pickHomeHint({ ...base, gearUpgrade: true, jobChangeReady: true }, none)).toBe('job_change');
+    expect(pickHomeHint({ ...base, gearUpgrade: true, levelUpReady: true }, none)).toBe('level_up');
     expect(pickHomeHint({ ...base, gearUpgrade: true }, (id) => id === 'equip_gear')).toBeNull();
   });
 });
 
 describe('P10 T1-20: расстановка по ролям', () => {
   it('лучник во фронте — misplaced; arrangeSquad уводит его в тыл, состав тот же', () => {
+    // Алан — танк, Бран — лучник, Вика — лекарь.
     let save = fresh();
     const [a, b, c] = save.heroes;
-    save = withJob(withJob(withJob(save, a.id, 'swordman'), b.id, 'archer'), c.id, 'acolyte');
     save = { ...save, squad: [a.id, b.id, c.id, null, null] };
     expect(misplacedInFront(save, ctx)).toEqual([b.id]);
     const squad = arrangeSquad(save, ctx);
@@ -92,18 +91,21 @@ describe('P10 T1-20: расстановка по ролям', () => {
   it('только стрелки — переставлять некуда, предупреждения нет', () => {
     let save = fresh();
     const [a, b] = save.heroes;
-    save = withJob(withJob(save, a.id, 'archer'), b.id, 'mage');
+    save = withCard(save, a.id, 'kai');
     save = { ...save, squad: [a.id, b.id, null, null, null] };
     expect(misplacedInFront(save, ctx)).toEqual([]);
   });
 });
 
 describe('P10 T1-07: совет после поражения', () => {
-  it('смена профессии советуется только когда доступна', () => {
+  it('«Улучшить» советуется, только когда опыта хватает; вознесение — когда хватает осколков', () => {
     const save = fresh();
-    expect(defeatAdvice(save, ctx).text).not.toMatch(/профессии/);
-    const ready = { ...save, heroes: save.heroes.map((h) => ({ ...h, jobLevel: 10, jobExp: 0 })) };
-    expect(defeatAdvice(ready, ctx).text).toMatch(/Смена профессии доступна/);
+    expect(defeatAdvice(save, ctx).text).not.toMatch(/Опыта хватает/);
+    const rich = { ...save, resources: { gold: 1000, heroExp: 1000 } };
+    expect(defeatAdvice(rich, ctx)).toMatchObject({ action: 'Heroes' });
+    expect(defeatAdvice(rich, ctx).text).toMatch(/Опыта хватает на новый уровень/);
+    const shards = { ...save, resources: { gold: 5000, heroExp: 0 }, shards: { alan: 20 } };
+    expect(defeatAdvice(shards, ctx).text).toMatch(/вознесению/);
   });
 
   it('вещи получше — первым делом; стрелок во фронте — «Отряд»', () => {
@@ -111,7 +113,6 @@ describe('P10 T1-07: совет после поражения', () => {
     expect(defeatAdvice(save, ctx)).toMatchObject({ action: 'Heroes' });
     let s = fresh();
     const [a, b] = s.heroes;
-    s = withJob(withJob(s, a.id, 'swordman'), b.id, 'archer');
     s = { ...s, squad: [b.id, a.id, null, null, null] };
     expect(defeatAdvice(s, ctx)).toMatchObject({ action: 'Squad' });
   });
@@ -119,28 +120,17 @@ describe('P10 T1-07: совет после поражения', () => {
 
 describe('P10: тексты и итоги', () => {
   it('T1-09: ключевые события первыми', () => {
-    const lines = ['Открыт этап 3: Поляна', 'Алан: ур. профессии 2 → 3', 'Алан: новый навык «Удар»', 'Смена профессии доступна! (Алан)', 'Новый герой в отряде: Грета!'];
+    const lines = ['Открыт этап 3: Поляна', 'Алан: ур. 2 → 3', 'Алан: новый навык «Удар»', 'Бран: Синий → Фиолетовый — теперь Охотник!', 'Новый герой в отряде: Грета!'];
     expect(keyEventsFirst(lines)).toEqual([lines[4], lines[3], lines[2], lines[1], lines[0]]);
   });
 
-  it('T1-23: «Ур. профессии», дроби через запятую', () => {
-    expect(jobLevelText(4, 10)).toBe('Ур. профессии 4 / 10');
+  it('T1-23: «Ур. 4 / 20», дроби через запятую', () => {
+    expect(levelText(4, 20)).toBe('Ур. 4 / 20');
+    expect(levelText(4)).toBe('Ур. 4');
     expect(decimal(1.5)).toBe('1,5');
     expect(decimal(12.345, 1)).toBe('12,3');
   });
-
-  it('T1-02: «опыт копится» на максимуме новичка, «запас полон» — предупреждение', () => {
-    const save = fresh();
-    expect(expBankNote(save, ctx)).toBeNull();
-    const max = { ...save, heroes: save.heroes.map((h, i) => ({ ...h, jobLevel: 10, jobExp: 0, bankedExp: i === 0 ? 10 : 0 })) };
-    const note = expBankNote(max, ctx)!;
-    expect(note.full).toBe(false);
-    expect(note.text).toMatch(/Опыт копится — смените профессию/);
-    expect(expBankLabel(max.heroes[0], ctx)?.text).toMatch(/в запасе 10/);
-    const full = { ...max, heroes: max.heroes.map((h) => ({ ...h, bankedExp: 1e9 })) };
-    expect(expBankNote(full, ctx)?.full).toBe(true);
-    expect(expBankLabel(full.heroes[0], ctx)?.full).toBe(true);
-  });
+  // T1-02 («опыт копится» на максимуме Новичка) снят вместе с Новичками: опыт всегда в общем пуле (docs/design/heroes.md).
 });
 
 describe('P10 T1-03: «Глава пройдена» и «История»', () => {
@@ -161,12 +151,12 @@ describe('P10 T1-03: «Глава пройдена» и «История»', () 
     const done: SaveState = {
       ...save,
       campaign: { cleared: stages.map((s) => s.id) },
-      heroes: [...save.heroes, { id: 'h4', name: 'Грета', gender: 'f', job: 'novice', jobLevel: 1, jobExp: 0, jobHistory: [] }],
+      heroes: [...save.heroes, { id: 'h4', templateId: 'greta', rarity: 'green', level: 1 }],
     };
     const sum = chapterSummary(done, ch1, ctx);
     expect(sum).toMatchObject({ number: 1, cleared: stages.length, stages: stages.length });
     expect(sum.gold).toBe(stages.reduce((a, s) => a + s.rewards.gold, 0));
-    expect(sum.recruit?.name).toBe('Грета');
+    expect(sum.recruit?.templateId).toBe('greta');
     expect(sum.next).toMatchObject({ index: 1, number: 2 });
   });
 

@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_mage_cold_bolt",
+  "name": "Ледяная стрела",
+  "description": "Три ледяные стрелы (×0,7) в ближайшего врага фронта; шанс 30% замедлить (−20% скорости на 2 хода). Без перезарядки, долгий каст.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "hits": 3,
+  "cooldown": 0,
+  "castTime": 2,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.7
+    },
+    {
+      "type": "status",
+      "chance": 0.3,
+      "status": {
+        "id": "chill",
+        "name": "Озноб",
+        "turns": 2,
+        "stats": {
+          "spd": -0.2
+        }
+      }
+    }
+  ]
+}

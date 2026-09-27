@@ -290,6 +290,18 @@ async function main() {
     await clickGame(540, 430); // карточка первого героя
     await waitScene('Hero');
     await shot('hero');
+    // Карточка героя (минимум H1–H3): класс, редкость, «Улучшить» за опыт из общего запаса.
+    for (const t of ['Мечник', 'Зелёный', 'Улучшить']) if (!(await hasText('Hero', t))) problems.push(`карточка героя: нет «${t}»`);
+    const before = await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')));
+    const h1 = before.heroes.find((h) => h.templateId === 'alan');
+    await clickText('Hero', 'Улучшить');
+    await sleep(500);
+    await waitScene('Hero');
+    const after = await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')));
+    const h1after = after.heroes.find((h) => h.id === h1.id);
+    if (before.resources.heroExp >= 100 && h1after.level !== h1.level + 1) problems.push(`«Улучшить» не подняло уровень (${h1.level} → ${h1after.level}, запас ${before.resources.heroExp})`);
+    log(`«Улучшить»: ${h1.level} → ${h1after.level}, запас ${before.resources.heroExp} → ${after.resources.heroExp}`);
+    await shot('hero-levelup');
     await clickText('Hero', '‹ Назад');
     await waitScene('Heroes');
 

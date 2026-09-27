@@ -15,7 +15,7 @@ describe('инструмент баланса v2', () => {
     const lines = toCsv(RES2.rows).trim().split('\n');
     expect(lines[0]).toBe(
       'day,date,session,time_h,chapter,stage_reached,cleared_count,attempts,wins,losses,tower_floor,tower_attempts,' +
-        'gold,gems,items,squad_power,next_stage_power,avg_job_level,jobs,quests_claimed,bounties_done',
+        'gold,gems,items,squad_power,next_stage_power,avg_level,heroes,quests_claimed,bounties_done',
     );
     expect(lines).toHaveLength(1 + 2 * PLAYER_MODEL.sessionsPerDay);
     for (const l of lines.slice(1)) expect(l.split(',')).toHaveLength(CSV_COLUMNS.length);

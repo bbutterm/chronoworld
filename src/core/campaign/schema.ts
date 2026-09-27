@@ -12,7 +12,7 @@ export const StageSchema = z.object({
   enemies: z
     .array(z.object({ unit: id, mult: z.number().positive().default(1) }).nullable())
     .length(5),
-  /** Награда за победу (каждому герою отряда — jobExp целиком). */
+  /** Награда за победу (jobExp — в общий пул опыта героев, v4). */
   rewards: Reward,
   /** Доход офлайн-сундука в минуту, пока это последний пройденный этап. */
   offlinePerMinute: Reward,

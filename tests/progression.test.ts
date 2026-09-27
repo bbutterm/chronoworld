@@ -1,56 +1,48 @@
 import { describe, expect, it } from 'vitest';
-import { addJobExp, availableJobChanges, buildUnit, changeJob, expToNext, GameRuleError, heroSkills, newGame, simulateBattle, statsAt } from '../src/core';
+import { buildUnit, cardStats, heroSkills, heroStats, newGame, simulateBattle, statsAt } from '../src/core';
 import { loadGameContext } from '../scripts/lib/content-node';
 
 const ctx = loadGameContext();
-const hero = () => newGame(ctx, 0).heroes[0];
+const alan = () => newGame(ctx, 0).heroes[0];
 
-describe('статы и навыки героя', () => {
-  it('статы растут с джоб-уровнем', () => {
-    const job = ctx.content.jobs.novice;
+describe('статы и навыки карточки героя', () => {
+  it('статы профессии растут с уровнем (statsAt — линия карточки)', () => {
+    const job = ctx.content.jobs.swordman;
     expect(statsAt(job, 1).hp).toBe(job.baseStats.hp);
     expect(statsAt(job, 5).hp).toBe(job.baseStats.hp + job.growth.hp * 4);
   });
 
-  it('навык открывается ровно на своём уровне', () => {
-    expect(heroSkills({ ...hero(), jobLevel: 4 }, ctx).actives).toEqual([]);
-    expect(heroSkills({ ...hero(), jobLevel: 5 }, ctx).actives).toEqual(['novice_first_aid']);
+  it('статы карточки = статы линии × statMods × statMult редкости (округление)', () => {
+    const t = ctx.content.heroes.alan;
+    const line = statsAt(ctx.content.jobs.swordman, 10);
+    const s = cardStats(t, 10, 'green', ctx);
+    expect(s.hp).toBe(Math.round((ctx.content.jobs.swordman.baseStats.hp + ctx.content.jobs.swordman.growth.hp * 9) * (t.statMods.hp ?? 1)));
+    expect(s.atk).toBeLessThan(line.atk); // Алан — танк: atk × 0.9
+    expect(s.def).toBeGreaterThan(line.def); // def × 1.15
+    const blue = cardStats(t, 10, 'blue', ctx);
+    expect(blue.hp).toBe(Math.round((ctx.content.jobs.swordman.baseStats.hp + ctx.content.jobs.swordman.growth.hp * 9) * (t.statMods.hp ?? 1) * ctx.cards.rarities[1].statMult));
+    expect(heroStats({ ...alan(), level: 10 }, ctx)).toEqual(s);
+  });
+
+  it('навык открывается ровно на своём уровне (у Алана: 1 «Удар», 10 «Стойкость»)', () => {
+    expect(heroSkills({ ...alan(), level: 9 }, ctx)).toEqual({ basic: 'basic_melee', actives: ['swordman_bash'], passives: [] });
+    expect(heroSkills({ ...alan(), level: 10 }, ctx)).toEqual({ basic: 'basic_melee', actives: ['swordman_bash'], passives: ['swordman_endure'] });
   });
 
   it('buildUnit: активные навыки — в actives (без ульты), пассивки отдельно; бой детерминирован', () => {
-    const h = { ...hero(), job: 'swordman', jobLevel: 10, jobHistory: [{ job: 'novice', jobLevel: 10 }] };
-    const u = buildUnit(h, ctx);
-    expect(u.skills).toEqual({ basic: 'basic_melee', actives: ['novice_first_aid', 'swordman_bash'], passives: ['swordman_endure'] });
+    const u = buildUnit({ ...alan(), level: 10 }, ctx);
+    expect(u).toMatchObject({ id: 'h1', name: 'Алан', kind: 'hero', role: 'tank' });
+    expect(u.skills).toEqual({ basic: 'basic_melee', actives: ['swordman_bash'], passives: ['swordman_endure'] });
+    expect(u.skillPower).toBeUndefined();
     const squad = [u, null, null, null, null];
     expect(simulateBattle(ctx.content, squad, ['warrior'], 3).log).toEqual(simulateBattle(ctx.content, squad, ['warrior'], 3).log);
   });
-});
-
-describe('опыт и смена профессии', () => {
-  it('expToNext по формуле', () => {
-    expect(expToNext(1, ctx.progression)).toBe(Math.floor(ctx.progression.exp.base));
-  });
-
-  it('уровни, открытие навыка и доступность смены профессии', () => {
-    const { hero: h, events } = addJobExp(hero(), 1_000_000, ctx);
-    expect(h.jobLevel).toBe(ctx.content.jobs.novice.maxJobLevel);
-    expect(h.jobExp).toBe(0);
-    expect(events.filter((e) => e.type === 'levelUp')).toHaveLength(9);
-    expect(events).toContainEqual({ type: 'skillUnlocked', heroId: 'h1', job: 'novice', skill: 'novice_first_aid', jobLevel: 5 });
-    expect(events).toContainEqual({ type: 'jobChangeAvailable', heroId: 'h1', jobs: availableJobChanges(h, ctx) });
-  });
-
-  it('смена профессии: порог, история, сброс уровня; чужая ветка запрещена', () => {
-    expect(() => changeJob(hero(), 'swordman', ctx)).toThrow(GameRuleError);
-    const lvl10 = { ...hero(), jobLevel: 10 };
-    const { hero: h } = changeJob(lvl10, 'swordman', ctx);
-    expect(h).toMatchObject({ job: 'swordman', jobLevel: 1, jobHistory: [{ job: 'novice', jobLevel: 10 }] });
-    expect(heroSkills(h, ctx).actives).toContain('novice_first_aid');
-  });
 
   it('исходный герой не меняется', () => {
-    const h = hero();
-    addJobExp(h, 500, ctx);
-    expect(h.jobLevel).toBe(1);
+    const h = alan();
+    const copy = structuredClone(h);
+    buildUnit(h, ctx);
+    heroStats(h, ctx);
+    expect(h).toEqual(copy);
   });
 });

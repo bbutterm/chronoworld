@@ -121,6 +121,8 @@ export const UnitSchema = z.object({
   visual: VisualSchema,
   /** «Радиус тела» в единицах поля. Если не задан — из combat.json (movement.bodyRadius по kind). */
   bodyRadius: z.number().nonnegative().optional(),
+  /** «Сила навыков»: множитель урона, лечения и щита навыков (кроме обычной атаки). Карточки золотой/красной редкости. Нет — 1. */
+  skillPower: z.number().positive().optional(),
 });
 
 export type Stats = z.infer<typeof StatsSchema>;

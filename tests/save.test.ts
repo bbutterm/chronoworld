@@ -25,9 +25,22 @@ const fixtureV1 = readFileSync(join(import.meta.dirname, 'fixtures/save-v1.json'
 const fixtureV2 = readFileSync(join(import.meta.dirname, 'fixtures/save-v2.json'), 'utf8');
 const V2_DEFAULTS = {
   daily: { day: DEFAULT_DAY, fastRewardsUsed: 0, quests: {}, claimedQuests: [], activityClaimed: [] },
-  currency: { gems: 0 },
   tower: { floor: 0 },
   inventory: { items: [] },
+};
+/**
+ * v4 (карточки героев) у старых сохранений v0–v2 (фикстуры: Алан — Мечник 3, Бэлла — Новичок, Вик, Грета, Дорн):
+ * герои → сюжетные карточки по имени (Бэлла → Бран, Вик → Вика), тот же уровень, опыт в пул, свиток и сообщение.
+ */
+const V4_FROM_FIXTURE = {
+  heroes: [
+    { id: 'h1', templateId: 'alan', rarity: 'green', level: 3 },
+    { id: 'h2', templateId: 'bran', rarity: 'green', level: 10 },
+    { id: 'h3', templateId: 'vika', rarity: 'green', level: 1 },
+    { id: 'h4', templateId: 'greta', rarity: 'green', level: 1 },
+    { id: 'h5', templateId: 'dorn', rarity: 'green', level: 1 },
+  ],
+  shards: {},
 };
 const V3_DEFAULTS = {
   presets: [],
@@ -38,7 +51,12 @@ const V3_DEFAULTS = {
 
 function played() {
   const s = newGame(ctx, 1000);
-  s.heroes[0] = { ...s.heroes[0], job: 'swordman', jobLevel: 4, jobExp: 17, jobHistory: [{ job: 'novice', jobLevel: 10 }] };
+  s.heroes[0] = { ...s.heroes[0], rarity: 'blue', level: 24, locked: true };
+  s.heroes.push({ id: 'h4', templateId: 'iris', rarity: 'green', level: 3, isNew: true });
+  s.resources.heroExp = 1234;
+  s.shards = { alan: 7, bran: 2 };
+  s.currency.scrolls = 3;
+  s.summon = { seq: 2, total: 11, sincePurple: 5, firstTenDone: true, freeDay: '2026-09-26', freeUsed: 1, welcomeGiven: true, discovered: ['alan', 'bran', 'vika', 'iris'] };
   s.squad = [s.heroes[0].id, null, s.heroes[2].id, null, null];
   s.campaign.cleared = ['1-1', '1-2'];
   s.resources.gold = 321;
@@ -77,8 +95,10 @@ describe('сохранение', () => {
     const s = newGame(ctx, 123);
     expect(SaveStateSchema.parse(s)).toEqual(s);
     expect(newGame(ctx, 123)).toEqual(s);
-    expect(s.heroes).toHaveLength(ctx.progression.heroes.count);
-    expect(s).toMatchObject(V2_DEFAULTS);
+    expect(s.heroes.map((h) => h.templateId)).toEqual(ctx.progression.heroes.start);
+    expect(s.heroes.every((h) => h.rarity === 'green' && h.level === 1)).toBe(true);
+    expect(s).toMatchObject({ ...V2_DEFAULTS, currency: { gems: 0, scrolls: 0 }, resources: { gold: 0, heroExp: 0 }, shards: {} });
+    expect(s.summon).toMatchObject({ seq: 0, total: 0, sincePurple: 0, firstTenDone: false, welcomeGiven: false, discovered: ctx.progression.heroes.start });
     expect(s).toMatchObject({ ...V3_DEFAULTS, achievements: { counters: {}, claimed: [] } });
     expect(s.bounties).toEqual(emptyBounties());
   });
@@ -120,8 +140,11 @@ describe('сохранение', () => {
     expectSaveError(JSON.stringify(noGold), /resources\.gold/);
 
     const badHero = JSON.parse(serialize(newGame(ctx, 1)));
-    badHero.heroes[2].jobLevel = 0;
-    expectSaveError(JSON.stringify(badHero), /heroes\.2\.jobLevel/);
+    badHero.heroes[2].level = 0;
+    expectSaveError(JSON.stringify(badHero), /heroes\.2\.level/);
+    const badRarity = JSON.parse(serialize(newGame(ctx, 1)));
+    badRarity.heroes[0].rarity = 'pink';
+    expectSaveError(JSON.stringify(badRarity), /heroes\.0\.rarity/);
 
     const shortSquad = JSON.parse(serialize(newGame(ctx, 1)));
     shortSquad.squad = ['h1'];
@@ -153,18 +176,22 @@ describe('сохранение', () => {
     const s = deserialize(fixtureV0);
     expect(s.version).toBe(SAVE_VERSION);
     expect(s.createdAt).toBe(raw.createdAt);
-    expect(s.resources).toEqual({ gold: 250 });
+    // Опыт героев (jobExp 40 + 5) — в общий пул.
+    expect(s.resources).toEqual({ gold: 250, heroExp: 45 });
     expect(s.offline).toEqual({ lastClaimAt: raw.lastOfflineAt });
     expect(s.battleSeq).toBe(0);
     expect(s.squad).toEqual(raw.squad);
     expect(s.campaign.cleared).toEqual(['1-1', '1-2']);
-    expect(s.heroes.map((h) => h.jobHistory)).toEqual(raw.heroes.map(() => []));
-    expect(s.heroes[0]).toMatchObject({ id: 'h1', job: 'swordman', jobLevel: 3, jobExp: 40 });
+    expect(s).toMatchObject(V4_FROM_FIXTURE);
     expect(s).not.toHaveProperty('gold');
     expect(s).not.toHaveProperty('lastOfflineAt');
     expect(s).toMatchObject(V2_DEFAULTS);
     expect(s).toMatchObject(V3_DEFAULTS);
-    expect(s.achievements).toEqual({ counters: { stages_cleared: 2, hero_max_job_level: 10 }, claimed: [] });
+    // Компенсация — свиток призыва; Таверна не открыта (ch1_s5 не пройден) — подарка нет.
+    expect(s.currency).toEqual({ gems: 0, scrolls: 1 });
+    expect(s.summon).toMatchObject({ welcomeGiven: false, discovered: ['alan', 'bran', 'vika', 'greta', 'dorn'] });
+    expect(s.notices).toHaveLength(1);
+    expect(s.achievements).toEqual({ counters: { stages_cleared: 2, hero_max_level: 10 }, claimed: [] });
     // После миграции сохраняется уже в текущем формате.
     expect(deserialize(serialize(s))).toEqual(s);
   });
@@ -173,27 +200,35 @@ describe('сохранение', () => {
     const raw = JSON.parse(fixtureV1);
     expect(raw.version).toBe(1);
     const s = deserialize(fixtureV1);
-    expect(s.version).toBe(3);
-    expect(s).toEqual({
-      ...raw,
-      version: 3,
+    expect(s.version).toBe(SAVE_VERSION);
+    const { heroes: _h, resources: _r, ...rest } = raw;
+    expect(s).toMatchObject({
+      ...rest,
+      version: SAVE_VERSION,
       ...V2_DEFAULTS,
       ...V3_DEFAULTS,
-      // Максимумы из самого сохранения: 2 пройденных этапа, лучший джоб-уровень 10 (h2 и история h1).
-      achievements: { counters: { stages_cleared: 2, hero_max_job_level: 10 }, claimed: [] },
+      ...V4_FROM_FIXTURE,
+      resources: { gold: 250, heroExp: 45 },
+      currency: { gems: 0, scrolls: 1 },
+      // Максимумы из самого сохранения: 2 пройденных этапа, лучший уровень 10 (h2 и история h1).
+      achievements: { counters: { stages_cleared: 2, hero_max_level: 10 }, claimed: [] },
     });
     expect(deserialize(serialize(s))).toEqual(s);
   });
 
-  it('миграция: сохранение версии 2 (фикстура) поднимается до 3, поля v2 не меняются', () => {
+  it('миграция: сохранение версии 2 (фикстура) поднимается до текущей, поля v2 не меняются', () => {
     const raw = JSON.parse(fixtureV2);
     expect(raw.version).toBe(2);
     const s = deserialize(fixtureV2);
-    expect(s).toEqual({
-      ...raw,
-      version: 3,
+    const { heroes: _h, resources: _r, currency: _c, ...rest } = raw;
+    expect(s).toMatchObject({
+      ...rest,
+      version: SAVE_VERSION,
       ...V3_DEFAULTS,
-      achievements: { counters: { stages_cleared: 3, tower_floor: 4, hero_max_job_level: 10 }, claimed: [] },
+      heroes: V4_FROM_FIXTURE.heroes.map((h) => (h.id === 'h2' ? { ...h, level: 8 } : h)),
+      resources: { gold: 250, heroExp: 45 },
+      currency: { gems: 30, scrolls: 1 },
+      achievements: { counters: { stages_cleared: 3, tower_floor: 4, hero_max_level: 10 }, claimed: [] },
     });
     expect(deserialize(serialize(s))).toEqual(s);
   });

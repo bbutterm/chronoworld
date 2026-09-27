@@ -61,7 +61,7 @@ export class AchievementsScene extends Phaser.Scene {
     // На жёлтой (выполнено) полосе — тёмная подпись без обводки, на зелёной/серой — белая с обводкой.
     const onGold = a.done && !a.claimed;
     s.add(text(this, 290, y + 45, `${formatNumber(a.progress)} / ${formatNumber(a.target)}`, FS.caption, onGold ? C.titleStroke : C.text, { fontStyle: 'bold', stroke: onGold ? C.none : C.stroke, strokeThickness: onGold ? 0 : 4 }));
-    s.add(text(this, 540, y + 45, metaRewardsText(a.rewards, ' каждому'), FS.small, grey ? C.disabled : dark ? C.inkGold : C.gold, { fontStyle: 'bold', align: 'left', wordWrap: { width: 280 } }).setOrigin(0, 0.5));
+    s.add(text(this, 540, y + 45, metaRewardsText(a.rewards, ' в запас'), FS.small, grey ? C.disabled : dark ? C.inkGold : C.gold, { fontStyle: 'bold', align: 'left', wordWrap: { width: 280 } }).setOrigin(0, 0.5));
 
     const bx = 900;
     if (a.claimed) {
@@ -80,7 +80,7 @@ export class AchievementsScene extends Phaser.Scene {
       const r = actClaimAchievement(session.save, today(), a.id, GAME);
       commit(r.save);
       queueRewardFly('Achievements', at, before);
-      const lines = [`«${a.name}»: ${metaRewardsText(r.rewards, ' каждому')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
+      const lines = [`«${a.name}»: ${metaRewardsText(r.rewards, ' в запас')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       this.scene.restart({ from: this.from, scroll: this.area.offset } satisfies AchievementsData);
       this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4000)));
     } catch (e) {

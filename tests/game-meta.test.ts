@@ -51,10 +51,12 @@ describe('помощники экранов K8–K10', () => {
 
   it('bountyPickBlocker: число героев и роль — как в startBounty', () => {
     const save = newGame(ctx, 0, DAY);
-    const [h1, h2] = save.heroes.map((h) => h.id);
-    expect(bountyPickBlocker(bounty, [h1], save, ctx)).toMatch('1 / 2');
-    expect(bountyPickBlocker(bounty, [h1, h2], save, ctx)).toMatch('Танк');
-    expect(bountyPickBlocker({ ...bounty, role: null }, [h1, h2], save, ctx)).toBeNull();
+    // h1 — Алан (танк), h2 — Бран, h3 — Вика.
+    const [h1, h2, h3] = save.heroes.map((h) => h.id);
+    expect(bountyPickBlocker(bounty, [h2], save, ctx)).toMatch('1 / 2');
+    expect(bountyPickBlocker(bounty, [h2, h3], save, ctx)).toMatch('Танк');
+    expect(bountyPickBlocker(bounty, [h1, h2], save, ctx)).toBeNull();
+    expect(bountyPickBlocker({ ...bounty, role: null }, [h2, h3], save, ctx)).toBeNull();
   });
 
   it('finishedBounties считает завершённые, но не забранные', () => {

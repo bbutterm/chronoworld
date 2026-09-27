@@ -1,28 +1,42 @@
 import { z } from 'zod';
-import { GenderSchema } from '../progression/schema';
+import { CardRaritySchema } from '../heroes/schema';
 
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
+/**
+ * v4. Экземпляр карточки героя (docs/design/heroes.md): шаблон data/heroes/<templateId>.json, редкость и уровень.
+ * Имя, пол, класс, роль и навыки — из шаблона (heroes/card.ts heroCard). id экземпляра (h1, h2…) не меняется —
+ * на него ссылаются отряд, пресеты, поручения и надетые предметы.
+ */
 export const HeroStateSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  /**
-   * Пол героя (m/f): у сюжетных героев фиксирован (progression.heroes.names/recruits), у прочих — случайный от seed
-   * сохранения. Нет поля (старые сохранения) — sanitizeSave выводит по имени (progression/heroes.ts heroGender), иначе 'm'.
-   */
-  gender: GenderSchema.optional(),
-  job: z.string(),
-  jobLevel: z.number().int().positive(),
-  /** Опыт внутри текущего уровня. */
-  jobExp: z.number().int().nonnegative(),
-  /** Пройденные профессии и уровень, на котором с них ушли (для навыков при keepSkillsOnJobChange). */
-  jobHistory: z.array(z.object({ job: z.string(), jobLevel: z.number().int().positive() })).default([]),
-  /**
-   * P9 (T1-02). Опыт, накопленный на максимальном уровне профессии, пока герой не сменил её (не больше
-   * progression/exp.ts expBankCap). При смене профессии начисляется новой профессии. Нет поля — 0 (старые
-   * сохранения). UI: progression/exp.ts expBankStatus.
-   */
-  bankedExp: z.number().int().nonnegative().optional(),
+  templateId: z.string(),
+  rarity: CardRaritySchema,
+  level: z.number().int().positive(),
+  /** Замок: карточку нельзя отдать в корм. */
+  locked: z.boolean().optional(),
+  /** «Новый!» — карточка из Таверны, которую игрок ещё не открывал (UI снимает markHeroSeen). */
+  isNew: z.boolean().optional(),
+});
+
+/** v4. Состояние Таверны. */
+export const SummonStateSchema = z.object({
+  /** Номер следующего вызова summon — часть seed (hash(createdAt, seq)). */
+  seq: z.number().int().nonnegative(),
+  /** Всего призвано карточек. */
+  total: z.number().int().nonnegative(),
+  /** Призывов подряд без редкости гаранта (summon.json → pity). */
+  sincePurple: z.number().int().nonnegative(),
+  /** Первый призыв ×10 уже был (гарантированный фиолетовый выдан). */
+  firstTenDone: z.boolean(),
+  /** День последнего бесплатного призыва 'YYYY-MM-DD' (бесплатный доступен, только если день новее). */
+  freeDay: z.string().optional(),
+  /** Бесплатных призывов, взятых в freeDay. Нет поля — 1 (если freeDay есть). */
+  freeUsed: z.number().int().nonnegative().optional(),
+  /** Подарок открытия Таверны выдан. */
+  welcomeGiven: z.boolean(),
+  /** Шаблоны, которые у игрока когда-либо были (значок «Новый!» и будущая коллекция). */
+  discovered: z.array(z.string()),
 });
 
 /** День игрока 'YYYY-MM-DD' (вычисляет UI по своему часовому поясу, ядро получает строкой). */
@@ -63,9 +77,11 @@ export const PresetSchema = z.object({
 
 export const BountyRewardsSchema = z.object({
   gold: z.number().int().nonnegative(),
-  /** Опыт каждому герою, ходившему на поручение. */
+  /** Опыт в общий пул героев (v4; раньше — каждому герою группы). */
   jobExp: z.number().int().nonnegative(),
   gems: z.number().int().nonnegative(),
+  /** v4. Осколки «отстающего» сюжетного героя (heroes/shards.ts shardTarget). Нет поля — 0. */
+  shards: z.number().int().nonnegative().optional(),
 });
 
 /**
@@ -113,7 +129,8 @@ export const SaveStateSchema = z.object({
   /** 5 слотов отряда: id героя или null. */
   squad: z.array(z.string().nullable()).length(5),
   campaign: z.object({ cleared: z.array(z.string()) }),
-  resources: z.object({ gold: z.number().int().nonnegative() }),
+  /** v4: heroExp — общий пул опыта героев (тратится кнопкой «Улучшить», heroes/level.ts). */
+  resources: z.object({ gold: z.number().int().nonnegative(), heroExp: z.number().int().nonnegative() }),
   offline: z.object({
     lastClaimAt: z.number(),
     /**
@@ -135,7 +152,11 @@ export const SaveStateSchema = z.object({
   /** v2. Суточные счётчики (быстрые награды, задания). Сбрасываются при смене дня — features/daily.ts rollDay. */
   daily: DailyStateSchema,
   /** v2. Валюты сверх золота. gems — заглушка премиум-валюты (только из заданий, без реальных денег). */
-  currency: z.object({ gems: z.number().int().nonnegative() }),
+  currency: z.object({
+    gems: z.number().int().nonnegative(),
+    /** v4. Свитки призыва (1 свиток = 1 призыв в Таверне). */
+    scrolls: z.number().int().nonnegative(),
+  }),
   /** v2. Резерв под башню испытаний (K4): последний пройденный этаж, 0 — не начата. */
   tower: z.object({ floor: z.number().int().nonnegative() }),
   /** v2. Резерв под экипировку (K6): экземпляры предметов, equippedBy — id героя или null. */
@@ -146,6 +167,15 @@ export const SaveStateSchema = z.object({
   bounties: BountiesStateSchema,
   /** v3 (K10). Достижения. */
   achievements: AchievementsStateSchema,
+  /** v4. Осколки сюжетных героев: id шаблона → сколько. */
+  shards: z.record(z.string(), z.number().int().nonnegative()),
+  /** v4. Таверна. */
+  summon: SummonStateSchema,
+  /**
+   * v4. Одноразовые сообщения игроку (например, после миграции сохранения): sanitizeSave отдаёт их в warnings
+   * и убирает. Нет поля — сообщений нет.
+   */
+  notices: z.array(z.string()).optional(),
   /**
    * Увиденные сюжетные сцены (id из data/story) — каждая показывается один раз. Поле добавлено без смены версии:
    * в старых сохранениях его нет — по умолчанию пусто.
@@ -171,6 +201,7 @@ export const SaveStateSchema = z.object({
 
 export type HeroState = z.infer<typeof HeroStateSchema>;
 export type SaveState = z.infer<typeof SaveStateSchema>;
+export type SummonState = z.infer<typeof SummonStateSchema>;
 export type DailyState = z.infer<typeof DailyStateSchema>;
 export type ItemInstance = z.infer<typeof ItemInstanceSchema>;
 export type Preset = z.infer<typeof PresetSchema>;
@@ -188,6 +219,11 @@ export const DAILY_DAYS_KEEP = 60;
 /** Пустые суточные счётчики на день day. */
 export function emptyDaily(day: string): DailyState {
   return { day, fastRewardsUsed: 0, quests: {}, claimedQuests: [], activityClaimed: [] };
+}
+
+/** v4. Таверна новой игры. */
+export function emptySummon(): SummonState {
+  return { seq: 0, total: 0, sincePurple: 0, firstTenDone: false, welcomeGiven: false, discovered: [] };
 }
 
 /** v3. Пустая доска поручений (обновится при первом ensureBoard с настоящим днём). */

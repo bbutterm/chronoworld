@@ -122,6 +122,10 @@
     "bodyRadius": {
       "type": "number",
       "minimum": 0
+    },
+    "skillPower": {
+      "type": "number",
+      "exclusiveMinimum": 0
     }
   },
   "required": [

@@ -1,0 +1,38 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "iris",
+  "name": "Ирис",
+  "gender": "f",
+  "job": "swordman",
+  "line": "swordman",
+  "role": "damage",
+  "source": "summon",
+  "baseRarity": "green",
+  "maxRarity": "gold",
+  "statMods": {
+    "hp": 0.9,
+    "atk": 1.25,
+    "def": 0.75,
+    "spd": 1.05
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "swordman_bash"
+    },
+    {
+      "level": 10,
+      "skill": "job_knight_two_hand_mastery"
+    },
+    {
+      "level": 30,
+      "skill": "job_swordman_magnum_break"
+    },
+    {
+      "level": 50,
+      "skill": "job_swordman_auto_berserk"
+    }
+  ],
+  "bio": "Мечница с двуручником. Щит считает лишним весом.",
+  "hook": "Изгнана из ордена Пронтеры: бросила щит, чтобы вынести раненых."
+}

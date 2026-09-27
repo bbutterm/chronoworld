@@ -1,0 +1,66 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "bran",
+  "name": "Бран",
+  "gender": "m",
+  "job": "archer",
+  "line": "archer",
+  "role": "damage",
+  "source": "story",
+  "baseRarity": "green",
+  "maxRarity": "red",
+  "statMods": {},
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_archer_double_strafe"
+    },
+    {
+      "level": 10,
+      "skill": "job_archer_owls_eye"
+    },
+    {
+      "level": 30,
+      "skill": "job_archer_vultures_eye"
+    },
+    {
+      "level": 50,
+      "skill": "job_archer_charge_arrow"
+    }
+  ],
+  "forms": [
+    {
+      "rarity": "purple",
+      "job": "hunter",
+      "role": "damage",
+      "statMods": {
+        "hp": 1.2,
+        "atk": 1.3,
+        "def": 1.2
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_archer_double_strafe"
+        },
+        {
+          "level": 10,
+          "skill": "job_hunter_beast_bane"
+        },
+        {
+          "level": 30,
+          "skill": "job_hunter_ankle_snare"
+        },
+        {
+          "level": 50,
+          "skill": "job_hunter_blitz_beat"
+        }
+      ],
+      "visual": {
+        "sprite": "hunter_m"
+      }
+    }
+  ],
+  "bio": "Лучник-скептик: бьёт одну цель, но наверняка.",
+  "hook": "Ведёт счёт долгов Алана «на потом» — и однажды предъявит."
+}

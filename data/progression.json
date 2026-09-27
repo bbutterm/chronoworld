@@ -1,53 +1,21 @@
 {
-  "$comment": "Правила прогрессии. Все числа — заглушки до баланса (docs/GDD.md, раздел 8).",
-  "jobChange": {
-    "tierLevel": {
-      "1": 10,
-      "2": 50
-    },
-    "resetJobLevel": true,
-    "bankLevels": 5
-  },
-  "keepSkillsOnJobChange": true,
-  "exp": {
-    "base": 100,
-    "power": 1.5,
-    "byTier": {
-      "0": {
-        "base": 4,
-        "power": 1.2
-      }
-    }
-  },
+  "$comment": "Правила прогрессии. Все числа — заглушки до баланса. Сюжетные герои — карточки data/heroes (docs/design/heroes.md); уровни, редкости и вознесение — data/cards.json, Таверна — data/summon.json.",
   "heroes": {
-    "count": 3,
-    "startJob": "novice",
-    "names": [
-      { "name": "Алан", "gender": "m" },
-      { "name": "Бран", "gender": "m" },
-      { "name": "Вика", "gender": "f" }
+    "start": [
+      "alan",
+      "bran",
+      "vika"
     ],
     "recruits": [
       {
         "afterStage": "ch1_s10",
-        "name": "Грета",
-        "gender": "f",
-        "formerNames": ["Грег"]
+        "template": "greta"
       },
       {
         "afterStage": "ch2_s10",
-        "name": "Дорн",
-        "gender": "m"
+        "template": "dorn"
       }
-    ],
-    "namePools": {
-      "m": ["Ларс", "Эрик", "Ролан", "Кай", "Мартин", "Феликс", "Тобиас", "Хьюго"],
-      "f": ["Лина", "Ирма", "Эльза", "Нора", "Майя", "Ада", "Рина", "Сельма"]
-    },
-    "legacyNames": {
-      "Бэлла": "f",
-      "Вик": "m"
-    }
+    ]
   },
   "campaign": {
     "enemyStatGrowthPerStage": 0.08,

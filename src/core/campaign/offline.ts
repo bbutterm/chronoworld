@@ -1,12 +1,13 @@
 import type { SaveState } from '../save/schema';
 import type { StageInfo } from './schema';
-import { addJobExp } from '../progression/exp';
+import { addHeroExp } from '../heroes/level';
 import type { GameContext, ProgressEvent } from '../progression/types';
 
 export interface OfflineRewards {
   /** Засчитанные минуты (с учётом лимита). */
   minutes: number;
   gold: number;
+  /** Опыт в общий пул героев (resources.heroExp). */
   jobExp: number;
 }
 
@@ -25,7 +26,7 @@ export function lastClearedStage(save: SaveState, ctx: GameContext): StageInfo |
  * Золото — offlinePerMinute.gold × minutes. Опыт — offlinePerMinute.jobExp × minutes, а на первых
  * progression.offline.earlyExp.stages этапах кампании ещё и не больше
  * floor(rewards.jobExp × earlyExp.stageRewardsPerHour × minutes / 60) — чтобы быстрые награды в начале главы 1
- * не давали джоб 10 раньше этапа 4 (P9, T1-01). Дальше опыт растёт вместе со ставкой этапа.
+ * не обгоняли темп первых этапов (P9, T1-01). Дальше опыт растёт вместе со ставкой этапа.
  */
 export function idleIncome(stage: StageInfo, minutes: number, ctx: GameContext): { gold: number; jobExp: number } {
   let jobExp = stage.offlinePerMinute.jobExp * minutes;
@@ -101,7 +102,7 @@ export function bankOffline(save: SaveState, now: number, ctx: GameContext): Sav
 }
 
 /**
- * T-B. Забрать сундук: золото в ресурсы, jobExp каждому герою из save.heroes (через addJobExp),
+ * T-B. Забрать сундук: золото в ресурсы, jobExp — в общий пул опыта героев (resources.heroExp),
  * lastClaimAt = now и banked очищается — всегда, даже при нулевой награде (UI обязан записать результат,
  * иначе якорь не сдвинется, T4-06). При часах назад — долг (см. syncOfflineClock). Чистая функция.
  */
@@ -111,20 +112,14 @@ export function claimOffline(save: SaveState, now: number, ctx: GameContext): { 
   const s = syncOfflineClock(save, now, ctx);
   const { rewards, debtLeft } = accrue(s.offline, now, lastClearedStage(s, ctx), ctx);
   const events: ProgressEvent[] = [];
-  const next: SaveState = {
-    ...s,
-    resources: { ...s.resources, gold: s.resources.gold + rewards.gold },
-    offline: settled(s.offline, now, debtLeft),
-  };
-  if (rewards.gold > 0 || rewards.jobExp > 0) {
-    events.push({ type: 'rewards', gold: rewards.gold, jobExp: rewards.jobExp, heroIds: s.heroes.map((h) => h.id) });
-  }
-  if (rewards.jobExp > 0) {
-    next.heroes = s.heroes.map((h) => {
-      const r = addJobExp(h, rewards.jobExp, ctx);
-      events.push(...r.events);
-      return r.hero;
-    });
-  }
+  const next: SaveState = addHeroExp(
+    {
+      ...s,
+      resources: { ...s.resources, gold: s.resources.gold + rewards.gold },
+      offline: settled(s.offline, now, debtLeft),
+    },
+    rewards.jobExp,
+  );
+  if (rewards.gold > 0 || rewards.jobExp > 0) events.push({ type: 'rewards', gold: rewards.gold, heroExp: rewards.jobExp });
   return { save: next, rewards, events };
 }

@@ -8,6 +8,7 @@ import { COMBAT } from './config';
 import { buildContent, ContentError, type RawFile } from './content/build';
 import { buildItems, parseDrops, withEquipment, type EquipmentContext } from './equipment';
 import { parseFeaturesConfig, withFeatures, type FeatureContext } from './features';
+import { parseHeroesConfig, validateHeroesConfig } from './heroes/config';
 import { parseMetaConfig, withMeta, type MetaContext } from './meta';
 import { ProgressionConfigSchema } from './progression/schema';
 import type { GameContext } from './progression/types';
@@ -24,8 +25,14 @@ export interface RawGameData {
   skills: RawFile[];
   jobs: RawFile[];
   chapters: RawFile[];
+  /** data/heroes/*.json — шаблоны карточек героев. */
+  heroes: RawFile[];
   items: RawFile[];
   progression: unknown;
+  /** data/cards.json — редкости, уровень, вознесение, осколки. */
+  cards: unknown;
+  /** data/summon.json — Таверна. */
+  summon: unknown;
   quests: unknown;
   drops: unknown;
   tower: unknown;
@@ -71,6 +78,7 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
       skills: normalize(raw.skills),
       jobs: normalize(raw.jobs),
       chapters: normalize(raw.chapters),
+      heroes: normalize(raw.heroes ?? []),
     }),
   );
   const progression = stage('data/progression.json', () => {
@@ -81,8 +89,9 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     return r.data;
   });
   const items = normalize(raw.items);
+  const heroesCfg = stage('data/cards.json / data/summon.json', () => parseHeroesConfig(raw.cards, raw.summon));
 
-  if (!content || !progression) {
+  if (!content || !progression || !heroesCfg) {
     // Без контента перекрёстные проверки невозможны — проверяем хотя бы схемы остальных файлов.
     stage('data/progression.json / data/quests.json', () => parseFeaturesConfig(raw.progression, raw.quests));
     stage('data/items', () => buildItems(items));
@@ -96,7 +105,10 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     content,
     progression,
     combat: raw.combat ?? COMBAT,
+    cards: heroesCfg.cards,
+    summon: heroesCfg.summon,
   };
+  validateHeroesConfig(base, problems);
   const features = stage('data/progression.json / data/quests.json', () => withFeatures(base, raw.progression, raw.quests).features);
   const equipment = stage('data/items / data/drops.json', () => withEquipment(base, items, raw.drops).equipment);
   const tower = stage('data/tower.json', () => withTower(base, raw.tower).tower);

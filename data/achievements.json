@@ -1,20 +1,21 @@
 {
-  "$comment": "Достижения (K10): одноразовые цели. counter — ключ счётчика из src/core/meta/config.ts ACHIEVEMENT_COUNTERS. Числа — заглушки до баланса. Формат — docs/content/meta.md.",
+  "$comment": "Достижения (K10): одноразовые цели. counter — ключ счётчика из src/core/meta/config.ts ACHIEVEMENT_COUNTERS. Числа — заглушки до баланса. jobExp — опыт в общий пул, shards — осколки «отстающего» сюжетного героя. Формат — docs/content/meta.md.",
   "achievements": [
     { "id": "first_stage", "name": "Первые шаги", "description": "Пройдите 1 этап кампании", "counter": "stages_cleared", "target": 1, "rewards": { "gold": 100 } },
-    { "id": "stages_10", "name": "Путешественник", "description": "Пройдите 10 этапов кампании", "counter": "stages_cleared", "target": 10, "rewards": { "gems": 20 } },
+    { "id": "stages_10", "name": "Путешественник", "description": "Пройдите 10 этапов кампании", "counter": "stages_cleared", "target": 10, "rewards": { "gems": 20, "shards": 5 } },
     { "id": "stages_30", "name": "Покоритель земель", "description": "Пройдите 30 этапов кампании", "counter": "stages_cleared", "target": 30, "rewards": { "gems": 50 } },
     { "id": "battles_10", "name": "Боевое крещение", "description": "Победите в 10 боях", "counter": "battles_won", "target": 10, "rewards": { "gold": 300 } },
-    { "id": "battles_100", "name": "Ветеран", "description": "Победите в 100 боях", "counter": "battles_won", "target": 100, "rewards": { "gems": 50 } },
-    { "id": "tower_5", "name": "Восхождение", "description": "Поднимитесь на 5 этаж башни", "counter": "tower_floor", "target": 5, "rewards": { "gems": 20 } },
+    { "id": "battles_100", "name": "Ветеран", "description": "Победите в 100 боях", "counter": "battles_won", "target": 100, "rewards": { "gems": 50, "shards": 10 } },
+    { "id": "tower_5", "name": "Восхождение", "description": "Поднимитесь на 5 этаж башни", "counter": "tower_floor", "target": 5, "rewards": { "gems": 20, "shards": 5 } },
     { "id": "tower_20", "name": "Выше облаков", "description": "Поднимитесь на 20 этаж башни", "counter": "tower_floor", "target": 20, "rewards": { "gems": 50 } },
-    { "id": "first_job", "name": "Новое призвание", "description": "Смените профессию герою", "counter": "jobs_changed", "target": 1, "rewards": { "jobExp": 100 } },
-    { "id": "jobs_5", "name": "Мастер на все руки", "description": "Смените профессию 5 раз", "counter": "jobs_changed", "target": 5, "rewards": { "gems": 30 } },
+    { "id": "first_summon", "name": "Новое знакомство", "description": "Призовите героя в Таверне", "counter": "summons", "target": 1, "rewards": { "gold": 200 } },
+    { "id": "summons_30", "name": "Завсегдатай таверны", "description": "Призовите 30 героев", "counter": "summons", "target": 30, "rewards": { "gems": 30 } },
+    { "id": "first_ascend", "name": "Вознесение", "description": "Вознесите карточку героя на следующую редкость", "counter": "ascensions", "target": 1, "rewards": { "gems": 30, "shards": 5 } },
     { "id": "first_equip", "name": "При оружии", "description": "Наденьте предмет на героя", "counter": "items_equipped", "target": 1, "rewards": { "gold": 100 } },
     { "id": "equip_10", "name": "Снаряжённый отряд", "description": "Наденьте предметы 10 раз", "counter": "items_equipped", "target": 10, "rewards": { "gold": 500 } },
     { "id": "first_bounty", "name": "Исполнитель", "description": "Выполните поручение с доски", "counter": "bounties_done", "target": 1, "rewards": { "gold": 200 } },
     { "id": "bounties_20", "name": "Надёжный наёмник", "description": "Выполните 20 поручений", "counter": "bounties_done", "target": 20, "rewards": { "gems": 40 } },
-    { "id": "job_level_10", "name": "Опытный боец", "description": "Поднимите героя до 10-го уровня профессии", "counter": "hero_max_job_level", "target": 10, "rewards": { "gold": 300 } },
-    { "id": "job_level_40", "name": "Мастер профессии", "description": "Поднимите героя до 40-го уровня профессии", "counter": "hero_max_job_level", "target": 40, "rewards": { "gems": 50 } }
+    { "id": "job_level_10", "name": "Опытный боец", "description": "Поднимите героя до 10-го уровня", "counter": "hero_max_level", "target": 10, "rewards": { "gold": 300 } },
+    { "id": "job_level_40", "name": "Мастер своего дела", "description": "Поднимите героя до 40-го уровня", "counter": "hero_max_level", "target": 40, "rewards": { "gems": 50 } }
   ]
 }

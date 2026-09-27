@@ -2,7 +2,8 @@
  * Метрики строя боя (QA T2-05 / T1-13, BUG-045): насколько бой «читается» — держится ли у центра поля двумя линиями
  * или схлопывается в кучу у заднего ряда героев. Позиции — как их рисует сцена (move: равномерно from→to за duration).
  */
-import { buildUnit, enemySquad, newGame, simulateBattle, type BattleResult, type CombatConfig, type UnitDef } from '../src/core';
+import { buildUnit, enemySquad, simulateBattle, type BattleResult, type CombatConfig, type UnitDef } from '../src/core';
+import { cardHero, JOB_CARD } from './helpers';
 import type { loadFullContext } from '../scripts/lib/content-node';
 
 type FullContext = ReturnType<typeof loadFullContext>;
@@ -16,13 +17,9 @@ export const FORMATION_SQUADS: Record<number, (string | null)[]> = {
   5: ['swordman', 'thief', 'archer', 'mage', 'acolyte'],
 };
 
-export function heroSquad(ctx: FullContext, jobs: (string | null)[], jobLevel: number): (UnitDef | null)[] {
-  const base = newGame(ctx, 1).heroes[0];
-  return jobs.map((job, i) =>
-    job
-      ? buildUnit({ ...base, id: `h${i}`, name: `H${i}`, job, jobLevel, jobExp: 0, jobHistory: [{ job: 'novice', jobLevel: 10 }] }, ctx)
-      : null,
-  );
+/** Отряд карточек по классам (tests/helpers.ts JOB_CARD: Мечник — Алан, Вор — Дорн, Лучник — Бран, Маг — Кай, Аколит — Вика). */
+export function heroSquad(ctx: FullContext, jobs: (string | null)[], level: number): (UnitDef | null)[] {
+  return jobs.map((job, i) => (job ? buildUnit(cardHero(ctx, JOB_CARD[job], level, { id: `h${i}` }), ctx) : null));
 }
 
 export interface FormationStats {
