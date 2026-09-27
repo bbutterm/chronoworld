@@ -16,6 +16,7 @@ import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
 import { audioSettings, setAudioSettings, sfx } from '../audio';
 import { nextVolume, volumeLabel } from '../audioCore';
+import { tavernTile } from '../tavernEntry';
 
 /** Кнопка быстрых наград (центр по x). */
 const FAST_BTN_X = 840;
@@ -86,6 +87,8 @@ export class HomeScene extends Phaser.Scene {
     restartOnNewDay(this);
     screen(this, 'Лагерь героев', 'Home', undefined, { settings: () => this.openSettings() });
     this.blocks.push(collect(this.children, () => this.chest()));
+    // H5: вход в Таверну — медальон в правом верхнем углу карточки сундука (tavernEntry.ts).
+    tavernTile(this, 925, L.chestY - 90);
     this.blocks.push(collect(this.children, () => this.fastRewards()));
     this.tiles();
 

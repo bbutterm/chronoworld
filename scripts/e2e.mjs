@@ -364,6 +364,69 @@ async function main() {
     await waitScene('Result');
     await sleep(600);
     await shot('result-test');
+
+    // 6. H5 Таверна: после ch1_s5 (сохранение с пройденными этапами 1–5, подарок не забран) — плитка на главной →
+    // Таверна → «Забрать подарок» → «Призыв ×10» → карта, «Открыть все» → крупный показ фиолетовой → итог.
+    // Первый ×10 гарантирует фиолетовую.
+    await page.evaluate(() => {
+      const s = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
+      s.campaign.cleared = [...new Set([...s.campaign.cleared, 'ch1_s1', 'ch1_s2', 'ch1_s3', 'ch1_s4', 'ch1_s5'])];
+      s.summon.welcomeGiven = false;
+      // Гемы первой сессии (достижения, башня, задания) — вместе с подарком хватает на ×10.
+      s.currency.gems = 120;
+      localStorage.setItem('chronoworld.save.v1', JSON.stringify(s));
+    });
+    await page.reload();
+    await waitScene('Home', 30000);
+    await clickNamed('Home', 'tavernTile');
+    await waitScene('Tavern');
+    await sleep(400);
+    await shot('tavern');
+    for (const t of ['До гарантированной фиолетовой: 30', 'Первый призыв ×10', 'Бесплатно']) if (!(await hasText('Tavern', t))) problems.push(`Таверна: нет «${t}»`);
+    await clickText('Tavern', 'Забрать подарок');
+    await waitScene('Tavern');
+    await sleep(300);
+    const gemsAfterGift = await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')).currency.gems);
+    if (gemsAfterGift !== 270) problems.push(`Таверна: после подарка гемов ${gemsAfterGift}, ждали 270`);
+    await clickText('Tavern', 'Призыв ×10 (270)');
+    await page.waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'pick', null, { timeout: 20000 });
+    const reveal = await page.evaluate(() => {
+      const r = window.__game.scene.getScene('Tavern').reveal;
+      return { rarities: r.results.map((x) => x.rarity), first: { x: r.cards[0].slot.x, y: r.cards[0].slot.y } };
+    });
+    log(`Таверна: ×10 → ${reveal.rarities.join(', ')}`);
+    if (reveal.rarities.length !== 10) problems.push(`Таверна: карт ${reveal.rarities.length}, ждали 10`);
+    if (!reveal.rarities.includes('purple')) problems.push('Таверна: в первом ×10 нет фиолетовой');
+    await clickGame(reveal.first.x, reveal.first.y);
+    // В headless-браузере (программная отрисовка) кадров мало, а время игры идёт по кадрам — ждём по состоянию, не по часам.
+    const flipped = await page
+      .waitForFunction(() => window.__game.scene.getScene('Tavern').reveal.cards[0].flipped, null, { timeout: 30000 })
+      .then(() => true)
+      .catch(() => false);
+    await sleep(400);
+    await shot('tavern-reveal-mid');
+    if (!flipped) problems.push('Таверна: нажатие не перевернуло карту');
+    await clickText('Tavern', 'Открыть все');
+    const showcase = await page
+      .waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'showcase', null, { timeout: 60000, polling: 50 })
+      .then(() => true)
+      .catch(() => false);
+    if (showcase) {
+      await sleep(2500);
+      await shot('tavern-purple');
+      // Касание по затемнению показа (мимо будущих кнопок итога — показ мог уже закрыться сам).
+      await clickGame(540, 1420);
+    } else problems.push('Таверна: нет крупного показа фиолетовой');
+    await page.waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'done', null, { timeout: 60000 });
+    await sleep(500);
+    await shot('tavern-results');
+    for (const t of ['Итог призыва', 'К героям', 'Ещё ×10']) if (!(await hasText('Tavern', t))) problems.push(`Таверна, итог: нет «${t}»`);
+    const saved = await page.evaluate(() => {
+      const s = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
+      return { purple: s.heroes.filter((h) => h.rarity === 'purple').length, firstTenDone: s.summon.firstTenDone, gems: s.currency.gems };
+    });
+    if (!saved.purple || !saved.firstTenDone || saved.gems !== 0) problems.push(`Таверна: сохранение после ×10 ${JSON.stringify(saved)}`);
+    else log('Таверна: подарок, ×10 с фиолетовой, итог — ок');
   } catch (e) {
     problems.push(`сценарий: ${e.message}`);
     // Для разбора: какие сцены активны и как выглядел экран в момент падения.

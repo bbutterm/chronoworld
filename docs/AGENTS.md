@@ -71,6 +71,7 @@
 | `HeroesScene` / `HeroScene` | список карточек (имя, класс, редкость цветом, уровень, «Можно вознести!», осколки) / карточка героя: класс, редкость, «Улучшить» (опыт пула + золото), «Вознести» (осколки / самый слабый корм), статы, навыки, экипировка. Минимум до пакета H4 (коллекция с фильтрами, экран вознесения) |
 | `SquadScene` (`Squad`) | то же поле и список героев без противника, «Авто», пресеты |
 | `InventoryScene`, `TowerScene`, `QuestsScene`, `BountiesScene`, `AchievementsScene` | инвентарь, башня, ежедневные задания, поручения, достижения |
+| `TavernScene` | Таверна (H5): призыв карточек, показ «рубашкой вверх» с переворотом, итог; вход — `tavernTile` на главной |
 | `PrepScene` (`Prep`) | тестовый бой (только dev или `?dev=1`), отряды из `data/phase0.json` |
 
 ### Помощники `src/game`
@@ -89,6 +90,7 @@
 | `audio.ts`, `audioCatalog.ts`, `audioCore.ts`, `audioSynth.ts`, `sceneAudio.ts`, `battleAudio.ts` | звук (issue #26, `docs/design/audio.md`): `sfx(id)`, музыка по экрану, заглушки синтезом, файлы `assets/audio/<id>.ogg` побеждают; настройки «Музыка»/«Звуки»/«Без звука» |
 | `viewport.ts`, `viewLayout.ts` | вывод на экран телефона: безопасная зона, поля за краями, DPR |
 | `backdrops.ts` | фоны боя и карты по теме главы (луг/топь/склеп), рисуются кодом; файлы `assets/backgrounds/bg_{battle,map}_ch<N>.*` побеждают |
+| `tavern.ts`, `tavernArt.ts`, `tavernCard.ts`, `tavernEntry.ts` | Таверна: чистые помощники (порядок и ритм показа, раскладка карт, кнопки, гарант — тесты `tests/game-tavern.test.ts`), нарисованный зал и эффекты (файл `assets/backgrounds/bg_tavern.*` побеждает), карточка героя (временная, до общего `heroCard.ts`), плитка на главной со значком |
 | `ambient.ts` | тени под юнитами и частицы по теме |
 | `battleFx.ts` | слои глубины боя, затемнение и баннер ульты, цифры, пулы |
 | `skillFx.ts` | эффекты навыков кодом: круг каста, снаряды, площадь, искры |
@@ -283,6 +285,8 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
   guaranteed, shard?}], events }`. Результат уже в сохранении (детерминирован от `createdAt` и `summon.seq`) — анимацию показа строить по
   `results`. Подарок открытия выдаёт `playStage` (событие `tavernUnlocked`); `grantTavernWelcome` — идемпотентно.
 - Пулы редкостей — `summonPool(ctx, rarity)`.
+- Экран — `TavernScene` (`src/game/scenes/TavernScene.ts`): `actSummon` → `scene.restart({ reveal })` → показ по `results`
+  (для e2e `scene.reveal.phase`: deal → pick → flipping/showcase → done). Звук — `summonSound(rarity)`, его задержка = нарастание.
 
 **Отряд**: одна копия карточки — `duplicateCardsInSquad`, `templateInSquad` (серые дубли в ростере), `setSquad(save, squad)`
 (MetaError `duplicate_card`), `placeInSquad`; бой с дублем — `GameRuleError('duplicate_card')`. Ростер: `addHeroCard`, `newHeroId`,
