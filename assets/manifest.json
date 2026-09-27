@@ -2,16 +2,11 @@
   "_comment": "Все ассеты подключаются по id. file — путь внутри assets/; atlas+frame — кадр из атласа; slice — 9-slice [л,п,в,н]; file: null — плейсхолдер.",
   "assets": {
     "bg_arena": {
-      "file": null,
+      "file": "backgrounds/bg_arena.png",
       "w": 1080,
       "h": 1920,
       "color": "#2b2f3a",
-      "label": "",
-      "gradient": [
-        "#1b2030",
-        "#2a3326",
-        "#3c4a30"
-      ]
+      "label": ""
     },
     "ui_slot_empty": {
       "file": "ui/ui_slot_empty.png",
@@ -123,49 +118,49 @@
       "label": "ПОРАЖЕНИЕ"
     },
     "fx_hit": {
-      "file": null,
-      "w": 128,
-      "h": 128,
+      "file": "fx/fx_hit.png",
+      "w": 256,
+      "h": 256,
       "color": "#ffffff",
       "label": "",
       "shape": "circle"
     },
     "fx_arrow": {
-      "file": null,
-      "w": 128,
-      "h": 128,
+      "file": "fx/fx_arrow.png",
+      "w": 64,
+      "h": 64,
       "color": "#c9e07a",
       "label": "",
       "shape": "circle"
     },
     "fx_magic": {
-      "file": null,
-      "w": 128,
-      "h": 128,
+      "file": "fx/fx_magic.png",
+      "w": 256,
+      "h": 256,
       "color": "#7ac9ff",
       "label": "",
       "shape": "circle"
     },
     "fx_heal": {
-      "file": null,
-      "w": 128,
-      "h": 128,
+      "file": "fx/fx_heal.png",
+      "w": 256,
+      "h": 256,
       "color": "#7aff9a",
       "label": "",
       "shape": "circle"
     },
     "fx_shield": {
-      "file": null,
-      "w": 128,
-      "h": 128,
+      "file": "fx/fx_shield.png",
+      "w": 256,
+      "h": 256,
       "color": "#8fb8ff",
       "label": "",
       "shape": "circle"
     },
     "fx_death": {
-      "file": null,
-      "w": 128,
-      "h": 128,
+      "file": "fx/fx_death.png",
+      "w": 256,
+      "h": 256,
       "color": "#9a9a9a",
       "label": "",
       "shape": "circle"
@@ -288,6 +283,83 @@
       "color": "#c9a94a",
       "label": "Ульта",
       "pixelArt": true
+    },
+    "ui_chest_empty": {
+      "file": "ui/ui_chest_empty.png",
+      "w": 300,
+      "h": 300,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_chest_filling": {
+      "file": "ui/ui_chest_filling.png",
+      "w": 300,
+      "h": 300,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_chest_full": {
+      "file": "ui/ui_chest_full.png",
+      "w": 300,
+      "h": 300,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_nav_campaign": {
+      "file": "ui/ui_nav_campaign.png",
+      "w": 128,
+      "h": 128,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_nav_campaign_active": {
+      "file": "ui/ui_nav_campaign_active.png",
+      "w": 128,
+      "h": 128,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_nav_heroes": {
+      "file": "ui/ui_nav_heroes.png",
+      "w": 128,
+      "h": 128,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_nav_heroes_active": {
+      "file": "ui/ui_nav_heroes_active.png",
+      "w": 128,
+      "h": 128,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_nav_home": {
+      "file": "ui/ui_nav_home.png",
+      "w": 128,
+      "h": 128,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_nav_home_active": {
+      "file": "ui/ui_nav_home_active.png",
+      "w": 128,
+      "h": 128,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_icon_gold": {
+      "file": "ui/ui_icon_gold.png",
+      "w": 96,
+      "h": 96,
+      "color": "#4a5263",
+      "label": ""
+    },
+    "ui_icon_gem": {
+      "file": "ui/ui_icon_gem.png",
+      "w": 96,
+      "h": 96,
+      "color": "#4a5263",
+      "label": ""
     }
   }
 }

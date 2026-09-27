@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { hasArt } from '../assets';
 import { achievementStatus, actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
 import { GAME } from '../content';
 import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, jobChangeReadyCount } from '../flow';
@@ -41,6 +42,7 @@ const L = {
  */
 export class HomeScene extends Phaser.Scene {
   private chestText!: Phaser.GameObjects.Text;
+  private chestImg?: Phaser.GameObjects.Image;
   private claimBtn!: ReturnType<typeof button>;
   /** Сколько поручений было завершено при отрисовке плитки (раз в секунду сверяем — значок не отстаёт). */
   private bountiesDone = 0;
@@ -78,10 +80,15 @@ export class HomeScene extends Phaser.Scene {
     const y = L.chestY;
     card(this, GAME_W / 2, y, 1000, L.chestH);
     text(this, GAME_W / 2, y - 187, 'Сундук офлайн-наград', FS.h2, C.title, TITLE_STYLE);
-    // Пока нет арта — рамка из атласа, «крышка» и замок.
-    card(this, GAME_W / 2, y - 95, 300, 110, true);
-    this.add.rectangle(GAME_W / 2, y - 133, 300, 34, 0x8a5a2b).setStrokeStyle(6, 0x3a2412);
-    icon(this, GAME_W / 2, y - 87, 'iconCircle_brown', 56).setTint(TINT.gold);
+    if (hasArt('ui_chest_empty')) {
+      // Сундук: пустой / наполняется / полный (текстура меняется в refresh).
+      this.chestImg = this.add.image(GAME_W / 2, y - 95, 'ui_chest_empty').setDisplaySize(170, 170);
+    } else {
+      // Нет арта — рамка из атласа, «крышка» и замок.
+      card(this, GAME_W / 2, y - 95, 300, 110, true);
+      this.add.rectangle(GAME_W / 2, y - 133, 300, 34, 0x8a5a2b).setStrokeStyle(6, 0x3a2412);
+      icon(this, GAME_W / 2, y - 87, 'iconCircle_brown', 56).setTint(TINT.gold);
+    }
     this.chestText = text(this, GAME_W / 2, y + 25, '', FS.h3, C.text, { lineSpacing: 8, ...OUTLINE });
     text(this, GAME_W / 2, y + 99, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, FS.small, C.muted, { wordWrap: { width: 900 } });
     this.claimBtn = button(this, GAME_W / 2, L.claimY, 460, TOUCH, 'ui_btn_primary', 'Собрать', () => this.claim(), FS.h2);
@@ -99,6 +106,11 @@ export class HomeScene extends Phaser.Scene {
           : `Накоплено за ${h} ч ${m} мин\nЗолото +${formatNumber(r.gold)}   Опыт +${formatNumber(r.jobExp)} каждому`,
     );
     this.claimBtn.container.setAlpha(r.gold > 0 || r.jobExp > 0 ? 1 : 0.45);
+    if (this.chestImg) {
+      const capMin = GAME.progression.offline.capHours * 60;
+      const state = r.gold === 0 && r.jobExp === 0 ? 'empty' : r.minutes >= capMin * 0.9 ? 'full' : 'filling';
+      this.chestImg.setTexture(`ui_chest_${state}`).setDisplaySize(170, 170);
+    }
     this.updateHint(r.gold > 0 || r.jobExp > 0);
     // Поручение завершилось, пока игрок на главной, — обновить плитку и значок.
     // Не при открытом окне (настройки, подтверждение): перезапуск молча закрыл бы его — обновим, когда закроют.

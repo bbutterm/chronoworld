@@ -15,6 +15,7 @@ OUT=ROOT/'assets/sprites'
 DEFAULT_CACHE=Path.home()/'.cache/chronoworld/v2'
 HEROES={
  'novice':(0,'Novice','male',0,0,0,0),
+ 'merchant':(5,'Merchant','male',6,0,0,0),
  'guard':(14,'Crusader','male',2,1,1101,2101),
  'warrior':(7,'Knight','male',3,0,1151,0),
  'assassin':(12,'Assassin','male',16,0,1252,0),
@@ -134,6 +135,7 @@ def build(cache:Path,oxipng:Path,only=None):
     entry['portrait']=f'sprites/portraits/{name}.png'
   if exception_rows:entry['samplingExceptions']=exception_rows
   if name=='novice':entry['sourceLimitations']={'cast':'RO action 102 is visually identical to ready/idle','death':'RO action 70 has one source frame; held to fill the v2 death row'}
+  if name=='merchant':entry['sourceLimitations']={'walk':'RO renderer omits the axe during walking action 14 despite weaponView 6','death':'RO action 70 has one source frame; held to fill the v2 death row'}
   entry['sourceAlphaValues']=sorted(alphas)
   png=ROOT/'assets'/entry['file'];save_lossless(sheet,png,oxipng);data['sprites'].append(entry)
   print(name,kind,png.stat().st_size,'bytes',flush=True)

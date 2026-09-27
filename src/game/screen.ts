@@ -5,6 +5,7 @@ import { GAME } from './content';
 import { lazyPortrait } from './sprites';
 import { formatNumber, jobChangeReadyCount } from './flow';
 import { button, ellipsize, icon, panel, text, toast } from './ui';
+import { hasArt } from './assets';
 import { C, FS, SP, TINT } from './theme';
 
 export type NavTab = 'Campaign' | 'Heroes' | 'Home';
@@ -14,6 +15,9 @@ const TABS: { scene: NavTab; label: string }[] = [
   { scene: 'Heroes', label: 'Герои' },
   { scene: 'Home', label: 'Главная' },
 ];
+
+/** Имена иконок вкладок: ui_nav_<имя> и ui_nav_<имя>_active в assets/manifest.json. */
+const NAV_ICON: Record<NavTab, string> = { Campaign: 'campaign', Heroes: 'heroes', Home: 'home' };
 
 /** Высота нижней навигации; контент экрана — между шапкой и ней. */
 export const NAV_H = 170;
@@ -61,9 +65,18 @@ export function screen(
     const w = GAME_W / TABS.length;
     TABS.forEach((t, i) => {
       const on = t.scene === active;
-      button(scene, w * (i + 0.5), GAME_H - NAV_H / 2 + 4, w - 30, NAV_H - 40, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label, () => {
+      const bx = w * (i + 0.5);
+      const by = GAME_H - NAV_H / 2 + 4;
+      const btn = button(scene, bx, by, w - 30, NAV_H - 40, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label, () => {
         if (!on) scene.scene.start(t.scene);
       }, FS.h2);
+      // Иконка вкладки (арт ui_nav_*; нет файла — только подпись).
+      const iconId = `ui_nav_${NAV_ICON[t.scene]}${on ? '_active' : ''}`;
+      if (hasArt(iconId)) {
+        const size = NAV_H - 60;
+        btn.container.add(scene.add.image(-(w - 30) / 2 + size / 2 + 12, 0, iconId).setDisplaySize(size, size));
+        btn.label.setX(size / 2 + 4);
+      }
       // R: значок «Герои», когда кто-то может сменить профессию.
       if (t.scene === 'Heroes') badge(scene, w * (i + 1) - 50, GAME_H - NAV_H + 30, jobChangeReadyCount(session.save, GAME));
     });
@@ -80,7 +93,9 @@ function currencyLabels(scene: Phaser.Scene): number {
   const row = (y: number, value: number, color: string, tint: number, gem: boolean) => {
     const t = text(scene, x, y, formatNumber(value), FS.h2, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(1, 0.5);
     const ix = x - t.width - 30;
-    if (gem) gemIcon(scene, ix, y, 38);
+    const art = gem ? 'ui_icon_gem' : 'ui_icon_gold';
+    if (hasArt(art)) scene.add.image(ix, y, art).setDisplaySize(52, 52);
+    else if (gem) gemIcon(scene, ix, y, 38);
     else icon(scene, ix, y, 'iconCircle_beige', 40).setTint(tint);
     return ix - 20;
   };
