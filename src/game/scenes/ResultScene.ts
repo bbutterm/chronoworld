@@ -55,7 +55,7 @@ export class ResultScene extends Phaser.Scene {
     this.tweens.add({ targets: banner, scale: bs, alpha: 1, duration: 320, ease: 'Back.easeOut' });
     const top = compact ? 380 : 470;
     panel(this, GAME_W / 2, (top + 1730) / 2, 1050, 1730 - top + 20, 'ui_panel');
-    const reason = r.reason === 'timeout' ? 'Время вышло — атакующий проиграл' : win ? 'Отряд противника уничтожен' : 'Ваш отряд уничтожен';
+    const reason = r.reason === 'timeout' ? 'Время вышло — поражение' : win ? 'Отряд противника уничтожен' : 'Ваш отряд уничтожен';
     let y = top + 50;
     // Под этапом кампании — строка «Авто: следующий этап» (R), таблица заканчивается выше.
     const tableBottom = stage ? AUTO_Y - TOUCH / 2 - SP.s : 1700;
