@@ -4,7 +4,8 @@ import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, jobLevelText, ROLE_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, popIn, unitFigure } from '../screen';
-import { now, session } from '../session';
+import { clearChapterDone } from '../../core';
+import { commit, now, session } from '../session';
 import { SKIN } from '../skin';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
 import { chapterSummary, playTimeText, sceneLabel, seenChapterScenes } from '../storyView';
@@ -126,9 +127,11 @@ export class ChapterDoneScene extends Phaser.Scene {
     const hb = button(this, cx, 1480, 560, 120, 'ui_btn_secondary', 'История', () => openStoryHistory(this, data.chapterId), FS.h2);
     if (!history.length) hb.container.setAlpha(0.45).disableInteractive();
     const next = sum.next;
-    button(this, cx, 1700, 760, 170, 'ui_btn_primary', next ? `Глава ${next.number} ›` : 'К кампании', () =>
-      this.scene.start('Campaign', next ? { chapter: next.index } : {}),
-    FS.hero);
+    button(this, cx, 1700, 760, 170, 'ui_btn_primary', next ? `Глава ${next.number} ›` : 'К кампании', () => {
+      // Игрок ушёл с экрана — больше не показывать (метка в сохранении держала его на случай перезагрузки).
+      commit(clearChapterDone(session.save));
+      this.scene.start('Campaign', next ? { chapter: next.index } : {});
+    }, FS.hero);
     if (next) ellipsize(text(this, cx, 1820, next.name.replace(/^Глава\s*\d+\.\s*/, ''), FS.small, SKIN.creamDim, OUTLINE), 900);
   }
 }

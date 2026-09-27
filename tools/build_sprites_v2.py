@@ -63,6 +63,26 @@ ORIGINAL_RO_PROOF={
            'actSha256':'6aa2ba220860514cf3b1f47ff2a4eb1b8c95a0489b6935341821450b559f0ad2'},
 }
 
+# Per-sprite alpha fix applied to the finished sheet: every pixel with alpha >= threshold becomes fully opaque
+# (RGB untouched, alpha 0 stays 0). Mastering's ACT body is drawn at alpha 164 (plus 222/243/250 edges), which
+# reads as blur over the battlefield (commit 075cd1a made it opaque by hand; this reproduces that PNG exactly).
+# The manifest's sourceAlphaValues keep the ORIGINAL source alphas.
+OPAQUE_BODY={'mastering':1}
+
+def opaque_body(im,threshold):
+ arr=np.asarray(im.convert('RGBA')).copy()
+ a=arr[:,:,3];a[a>=threshold]=255
+ return Image.fromarray(arr,'RGBA')
+
+def apply_alpha_fixes(oxipng:Path,ids=None):
+ """Re-apply OPAQUE_BODY to existing sheets in place (idempotent; no renderer cache needed)."""
+ data=json.loads((OUT/'sprites.json').read_text())
+ for sid in ids or OPAQUE_BODY:
+  entry=next(s for s in data['sprites'] if s['id']==sid)
+  png=ROOT/'assets'/entry['file']
+  with Image.open(png) as im:fixed=opaque_body(im,OPAQUE_BODY[sid])
+  save_lossless(fixed,png,oxipng);print(sid,'opaque body',png.stat().st_size,'bytes',flush=True)
+
 def sample(total,target,death=False):
  if total>=target:return [round(i*(total-1)/(target-1)) for i in range(target)]
  if death:return list(range(total))+[total-1]*(target-total)
@@ -179,6 +199,7 @@ def build(cache:Path,oxipng:Path,only=None):
     'path':'data/sprite/몬스터/'+name+'.spr/.act',
     'host':'grf.robrowser.com', **ORIGINAL_RO_PROOF[name]}
   entry['sourceAlphaValues']=sorted(alphas)
+  if name in OPAQUE_BODY:sheet=opaque_body(sheet,OPAQUE_BODY[name])
   png=ROOT/'assets'/entry['file'];save_lossless(sheet,png,oxipng);data['sprites'].append(entry)
   print(name,kind,png.stat().st_size,'bytes',flush=True)
  (OUT/'sprites.json').write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
@@ -190,6 +211,8 @@ if __name__=='__main__':
  p.add_argument('--oxipng',type=Path,default=Path(os.environ.get('OXIPNG',shutil.which('oxipng') or '/root/artifacts/chronoworld-art/bin/oxipng')))
  p.add_argument('--only',help='Build/upsert a single ID without replacing the other manifest entries')
  p.add_argument('--from-v1',action='store_true',help='Only convert/upsert the legacy assets/ro v1 sheets (no renderer cache needed)')
+ p.add_argument('--alpha-fixes',action='store_true',help='Only re-apply OPAQUE_BODY to existing sheets (no renderer cache needed)')
  a=p.parse_args()
- if a.from_v1:upsert_v1(a.oxipng)
+ if a.alpha_fixes:apply_alpha_fixes(a.oxipng,[a.only] if a.only else None)
+ elif a.from_v1:upsert_v1(a.oxipng)
  else:build(a.cache,a.oxipng,a.only)

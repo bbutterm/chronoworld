@@ -91,7 +91,9 @@ export class BootScene extends Phaser.Scene {
     const go = () => {
       if (started) return;
       started = true;
-      this.scene.start('Home');
+      // Перезагрузка на «Глава пройдена» (или на финале главы перед ним) — сразу в кампанию: она доиграет
+      // финал из очереди и откроет экран снова.
+      this.scene.start(session.save.pendingChapterDone ? 'Campaign' : 'Home');
     };
     void Promise.all(own.map((id) => requestPortrait(this.game, id))).then(go);
     // Сеть подвисла — не держим игрока на экране загрузки: портреты догрузятся на экранах.

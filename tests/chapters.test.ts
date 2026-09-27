@@ -69,6 +69,15 @@ describe('K3 главы 2–3', () => {
     expect(new Set(later.map((u) => look(u.id))).size).toBe(later.length);
   });
 
+  it('монстры главы 2 не на листах монстров главы 1 (кроме ивы) и не на своих листах главы 3', () => {
+    const sheets = (ch: string) =>
+      new Set(stages.filter((s) => s.chapter === ch).flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)).filter((id) => /^mob2_/.test(id)).map((id) => ctx.content.units[id].visual.sprite));
+    const ch2 = sheets('chapter2');
+    const ch1 = new Set(stages.filter((s) => s.chapter === 'chapter1').flatMap((s) => s.enemies.filter((e) => e).map((e) => ctx.content.units[e!.unit].visual.sprite)));
+    expect([...ch2].filter((sp) => ch1.has(sp))).toEqual(['tank']);
+    for (const own of ['dark_priest', 'gargoyle', 'raydric', 'mimic', 'dark_lord']) expect(ch2.has(own), own).toBe(false);
+  });
+
   it('переход через границу глав открывает следующий этап', () => {
     expect(stageStatus(clearedUpTo(9), 'ch2_s1', ctx)).toBe('locked');
     expect(stageStatus(clearedUpTo(10), 'ch2_s1', ctx)).toBe('open');

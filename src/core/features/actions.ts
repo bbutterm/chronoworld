@@ -14,7 +14,7 @@ import type { FeatureContext, FeatureEvent } from './config';
 import { useFastRewards, type FastRewards } from './fastRewards';
 import { claimActivity, claimQuest, recordActivity, type MilestoneRewards } from './quests';
 import { skipStage } from './skip';
-import { queueAfterStage, type StoryContext } from '../story/story';
+import { queueAfterStage, queueChapterDone, type StoryContext } from '../story/story';
 
 /**
  * Обёртки над действиями игрока для UI: вызывают функцию ядра и засчитывают события ежедневных заданий
@@ -53,10 +53,14 @@ export function actPlayStage(
 }
 
 /** P11 (T4-05): сцена «после этапа» при первой победе встаёт в очередь сохранения вместе с самой победой. */
-function queueStory<O extends StageOutcome>(out: O, ctx: Partial<StoryContext>): O {
-  if (!ctx.story) return out;
+function queueStory<O extends StageOutcome>(out: O, ctx: GameContext & Partial<StoryContext>): O {
   let s = out.save;
-  for (const e of out.events) if (e.type === 'stageCleared') s = queueAfterStage(s, e.stageId, e.firstTime, { story: ctx.story });
+  for (const e of out.events) {
+    if (e.type !== 'stageCleared') continue;
+    if (ctx.story) s = queueAfterStage(s, e.stageId, e.firstTime, { story: ctx.story });
+    // «Глава пройдена» ждёт показа с той же записи, что и победа над боссом главы.
+    s = queueChapterDone(s, e.stageId, e.firstTime, ctx);
+  }
   return s === out.save ? out : { ...out, save: s };
 }
 

@@ -163,3 +163,28 @@ export function markScenesSeen(save: SaveState, ids: readonly string[]): SaveSta
   else delete next.storyQueue;
   return next;
 }
+
+/** Последний этап главы (босс): после его первой победы глава пройдена. */
+export function lastStageOfChapter(chapterId: string, ctx: GameContext): GameContext['content']['stages'][number] | undefined {
+  const stages = ctx.content.stages.filter((s) => s.chapter === chapterId);
+  return stages[stages.length - 1];
+}
+
+/**
+ * Первая победа на последнем этапе главы — в сохранение метка save.pendingChapterDone (экран «Глава пройдена»
+ * переживёт перезагрузку). Не первая победа или не последний этап — тот же объект save.
+ */
+export function queueChapterDone(save: SaveState, stageId: string, firstClear: boolean, ctx: GameContext): SaveState {
+  if (!firstClear) return save;
+  const stage = ctx.content.stages.find((s) => s.id === stageId);
+  if (!stage || lastStageOfChapter(stage.chapter, ctx)?.id !== stageId || save.pendingChapterDone === stage.chapter) return save;
+  return { ...save, pendingChapterDone: stage.chapter };
+}
+
+/** Игрок ушёл с экрана «Глава пройдена» — метку снять. Метки нет — тот же объект save. */
+export function clearChapterDone(save: SaveState): SaveState {
+  if (save.pendingChapterDone === undefined) return save;
+  const next = { ...save };
+  delete next.pendingChapterDone;
+  return next;
+}

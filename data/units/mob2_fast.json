@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob2_fast",
-  "name": "Болотный поринг",
+  "name": "Болотный жук",
   "kind": "monster",
   "role": "damage",
   "stats": {
@@ -16,8 +16,9 @@
     "passives": []
   },
   "visual": {
-    "sprite": "fast",
-    "tint": "#a88c5a",
+    "sprite": "elite",
+    "tint": "#6f8a4a",
+    "scale": 0.8,
     "hitFx": "fx_hit"
   }
 }
