@@ -5,8 +5,8 @@
   "kind": "boss",
   "role": "damage",
   "stats": {
-    "hp": 4000,
-    "atk": 75,
+    "hp": 3500,
+    "atk": 90,
     "def": 18,
     "spd": 100
   },

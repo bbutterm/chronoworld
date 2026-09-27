@@ -33,6 +33,13 @@ export const DailyStateSchema = z.object({
   claimedQuests: z.array(z.string()),
   /** Пороги очков активности, награда за которые уже получена сегодня. */
   activityClaimed: z.array(z.number().int().nonnegative()),
+  /**
+   * P11 (T4-07). Дни, суточный набор которых уже выдан (сброс счётчиков был или день принят «в долг»).
+   * Новый сброс вперёд — только для дня, которого здесь нет: переводом часов туда-обратно второй раз
+   * тот же день не получить, а после возврата часов из будущего сброс идёт с ближайшей реальной полуночи.
+   * Нет поля (старые сохранения) — считается [day]. Хранятся последние DAILY_DAYS_KEEP.
+   */
+  usedDays: z.array(DayStringSchema).optional(),
 });
 
 export const ItemInstanceSchema = z.object({
@@ -101,7 +108,22 @@ export const SaveStateSchema = z.object({
   squad: z.array(z.string().nullable()).length(5),
   campaign: z.object({ cleared: z.array(z.string()) }),
   resources: z.object({ gold: z.number().int().nonnegative() }),
-  offline: z.object({ lastClaimAt: z.number() }),
+  offline: z.object({
+    lastClaimAt: z.number(),
+    /**
+     * P11 (T4-06/T4-09). «Долг» сундука, мс: сколько времени уже выплачено наперёд, когда часы были впереди.
+     * При переводе часов назад якорь lastClaimAt сдвигается на now, а долг = min(скачок, лимит сундука) —
+     * следующие столько мс реального времени сундук не копит. Нет поля — 0.
+     */
+    debtMs: z.number().nonnegative().optional(),
+    /**
+     * P11 (T4-10). Накоплено по ставке прежних этапов: при первом прохождении этапа с новой ставкой доход
+     * до этого момента фиксируется здесь, а lastClaimAt = now. Минуты входят в общий лимит capHours.
+     */
+    banked: z
+      .object({ minutes: z.number().int().nonnegative(), gold: z.number().int().nonnegative(), jobExp: z.number().int().nonnegative() })
+      .optional(),
+  }),
   /** Счётчик боёв — из него UI делает seed следующего боя. */
   battleSeq: z.number().int().nonnegative(),
   /** v2. Суточные счётчики (быстрые награды, задания). Сбрасываются при смене дня — features/daily.ts rollDay. */
@@ -123,6 +145,16 @@ export const SaveStateSchema = z.object({
    * в старых сохранениях его нет — по умолчанию пусто.
    */
   seenScenes: z.array(z.string()).default([]),
+  /**
+   * P11 (T4-05). Сцены «после этапа», которые пора показать, но ещё не показаны (очередь). Попадают сюда
+   * вместе с победой (actPlayStage), уходят — когда показаны (markScenesSeen). Нет поля — пусто.
+   */
+  storyQueue: z.array(z.string()).optional(),
+  /**
+   * P11 (T4-01). Ревизия записи: растёт на 1 при каждой записи в хранилище. Вкладка, у которой ревизия
+   * меньше записанной, устарела и писать не должна. Нет поля — 0.
+   */
+  revision: z.number().int().nonnegative().optional(),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;
@@ -137,6 +169,9 @@ export type AchievementsState = z.infer<typeof AchievementsStateSchema>;
 
 /** День по умолчанию для newGame/миграций, пока UI не передал настоящий. */
 export const DEFAULT_DAY = '1970-01-01';
+
+/** P11 (T4-07). Сколько последних дней помнит daily.usedDays. */
+export const DAILY_DAYS_KEEP = 60;
 
 /** Пустые суточные счётчики на день day. */
 export function emptyDaily(day: string): DailyState {

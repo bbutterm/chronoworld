@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_eclipse",
+  "name": "Эклипс",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 1600,
+    "atk": 48,
+    "def": 8,
+    "spd": 140,
+    "moveSpeed": 380
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_eclipse_moon_leap",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "lunatic",
+    "tint": "#f2e08c",
+    "scale": 1.4,
+    "hitFx": "fx_hit"
+  }
+}

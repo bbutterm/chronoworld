@@ -70,7 +70,7 @@ describe('K5 ежедневные задания', () => {
     let s = recordActivity(fresh(), D1, 'stage_win', 2);
     s = claimQuest(s, D1, 'win', tctx).save;
     const next = recordActivity(s, D2, 'offline_claim');
-    expect(next.daily).toEqual({ day: D2, fastRewardsUsed: 0, quests: { offline_claim: 1 }, claimedQuests: [], activityClaimed: [] });
+    expect(next.daily).toMatchObject({ day: D2, fastRewardsUsed: 0, quests: { offline_claim: 1 }, claimedQuests: [], activityClaimed: [] });
     expect(questStatus(s, tctx, D2).quests.every((q) => q.progress === 0 && !q.claimed)).toBe(true);
   });
 

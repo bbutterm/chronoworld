@@ -6,7 +6,7 @@ import { claimableAchievements, claimableCount, currentStage, describeEvents, fi
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
 import { GAME_H, GAME_W } from '../layout';
 import { badge, card, confirm, confirmOpen, gemIcon, NAV_H, screen } from '../screen';
-import { commit, now, resetProgress, session, today } from '../session';
+import { commit, now, resetProgress, restartOnNewDay, session, today } from '../session';
 import { button, dangerButton, hintPointer, icon, panel, pressable, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT, TITLE_STYLE, TOUCH } from '../theme';
 import { fps, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed } from '../state';
@@ -57,6 +57,7 @@ export class HomeScene extends Phaser.Scene {
   create(): void {
     this.hintId = null;
     this.hintView = null;
+    restartOnNewDay(this);
     screen(this, 'Лагерь героев', 'Home', undefined, { settings: () => this.openSettings() });
     this.chest();
     this.fastRewards();
@@ -121,6 +122,8 @@ export class HomeScene extends Phaser.Scene {
   private claim(): void {
     const r = actClaimOffline(session.save, now(), today(), GAME);
     if (r.rewards.gold === 0 && r.rewards.jobExp === 0) {
+      // T4-06: пустой сбор всё равно записывается — ядро сдвигает якорь сундука (часы переводили).
+      commit(r.save);
       toast(this, 'Сундук пока пуст');
       return;
     }

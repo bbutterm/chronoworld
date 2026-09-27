@@ -11,7 +11,7 @@
   "effects": [
     {
       "type": "damage",
-      "k": 0.6
+      "k": 0.5
     },
     {
       "type": "status",
@@ -20,7 +20,7 @@
         "name": "Яд",
         "turns": 3,
         "dot": {
-          "k": 0.2
+          "k": 0.12
         }
       }
     }

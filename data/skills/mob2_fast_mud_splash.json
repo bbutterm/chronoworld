@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob2_fast_mud_splash",
+  "name": "Грязевой плюх",
+  "description": "Прыжок к врагу тыла с наименьшим HP: шлепок тиной — урон и «Тина» (−20% скорости) на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "mud",
+        "name": "Тина",
+        "turns": 2,
+        "stats": {
+          "spd": -0.2
+        }
+      }
+    }
+  ]
+}

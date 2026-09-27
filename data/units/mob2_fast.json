@@ -12,11 +12,12 @@
   },
   "skills": {
     "basic": "basic_melee",
-    "ult": "mob_fast_lunge",
+    "ult": "mob2_fast_mud_splash",
     "passives": []
   },
   "visual": {
     "sprite": "fast",
+    "tint": "#a88c5a",
     "hitFx": "fx_hit"
   }
 }

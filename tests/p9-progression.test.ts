@@ -152,9 +152,10 @@ describe('P9 / T1-15: сундук копит время с первой поб�
     expect(offlineRewards(save, won + 60_000, ctx).minutes).toBe(1);
     const viaAct = actPlayStage(newGame(ctx, created), day(0), ch1[0].id, 1, ctx, won);
     if (viaAct.result.winner === 'A') expect(viaAct.save.offline.lastClaimAt).toBe(won);
-    // Следующие победы время сундука не трогают.
+    // Следующие победы накопленное не теряют: час по ставке этапа 1 зафиксирован в banked (P11, T4-10).
     const later = clear(save, ch1[1].id, { n: 1 }, won + HOUR);
-    expect(later.offline.lastClaimAt).toBe(won);
+    expect(offlineRewards(later, won + HOUR, ctx).minutes).toBe(60);
+    expect(later.offline.banked?.minutes).toBe(60);
   });
 
   it('без now — прежнее поведение (lastClaimAt не меняется)', () => {
