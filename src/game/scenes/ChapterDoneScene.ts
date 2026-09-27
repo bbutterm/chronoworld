@@ -125,7 +125,7 @@ export class ChapterDoneScene extends Phaser.Scene {
     // --- Кнопки ---
     const history = seenChapterScenes(save, data.chapterId, GAME);
     const hb = button(this, cx, 1480, 560, 120, 'ui_btn_secondary', 'История', () => openStoryHistory(this, data.chapterId), FS.h2);
-    if (!history.length) hb.container.setAlpha(0.45).disableInteractive();
+    if (!history.length) hb.setEnabled(false).container.disableInteractive();
     const next = sum.next;
     button(this, cx, 1700, 760, 170, 'ui_btn_primary', next ? `Глава ${next.number} ›` : 'К кампании', () => {
       // Игрок ушёл с экрана — больше не показывать (метка в сохранении держала его на случай перезагрузки).

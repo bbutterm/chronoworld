@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 import { hasArt } from '../assets';
-import { achievementStatus, heroesWithGearUpgrades, actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
+import { achievementStatus, heroesWithGearUpgrades, stageStatus, actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
 import { GAME } from '../content';
-import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, levelUpReady } from '../flow';
+import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, levelUpReady, powerCheck } from '../flow';
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
 import { GAME_H, GAME_W, HEADER_H } from '../layout';
-import { card, confirm, confirmOpen, cornerBadge, gemIcon, NAV_H, popIn, screen } from '../screen';
+import { card, confirm, confirmOpen, cornerBadge, gemIcon, NAV_H, popIn, powerChip, screen } from '../screen';
 import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn } from '../juice';
 import { commit, now, resetProgress, restartOnNewDay, session, today } from '../session';
 import { button, dangerButton, hintPointer, icon, panel, pressable, text, toast } from '../ui';
@@ -97,7 +97,7 @@ export class HomeScene extends Phaser.Scene {
     });
     this.claimPulsing = false;
     restartOnNewDay(this);
-    screen(this, 'Лагерь героев', 'Home', undefined, { settings: () => this.openSettings() });
+    screen(this, 'Лагерь героев', 'Home', undefined, { settings: () => this.openSettings(), player: true });
     this.blocks.push(collect(this.children, () => this.chest()));
     // H5: вход в Таверну — медальон в правом верхнем углу карточки сундука (tavernEntry.ts).
     tavernTile(this, 925, L.chestY - 90);
@@ -112,9 +112,13 @@ export class HomeScene extends Phaser.Scene {
         markHint('home_campaign');
         this.scene.start('Campaign');
       }, FS.h1);
-      cta.label.setX(32);
-      cta.container.add(this.add.image(32 - cta.label.width / 2 - 44, -4, skinIcon('swords')).setDisplaySize(58, 58).setTint(0x3a2408));
+      // «Почти готово»: мощь отряда против рекомендуемой для следующего этапа — плашкой внизу кнопки.
+      const open = cur && stageStatus(session.save, cur.id, GAME) === 'open';
+      const labelY = open ? -24 : -4;
+      cta.label.setPosition(32, labelY);
+      cta.container.add(this.add.image(32 - cta.label.width / 2 - 44, labelY, skinIcon('swords')).setDisplaySize(58, 58).setTint(0x3a2408));
       ctaShine(this, cta.container, 780, L.campaignH);
+      if (open) cta.container.add(powerChip(this, 0, 30, powerCheck(session.save, cur.id, GAME), { minW: 420 }));
     });
     // Живой фон: несколько светлячков медленно поднимаются (без «Уменьшить анимацию»).
     motes(this, { x: 40, y: HEADER_H + 40, w: GAME_W - 80, h: L.campaignY - HEADER_H }, 7);
@@ -167,7 +171,7 @@ export class HomeScene extends Phaser.Scene {
           : `Накоплено за ${h} ч ${m} мин\nЗолото +${formatNumber(r.gold)}   Опыт +${formatNumber(r.jobExp)} в запас`,
     );
     const full = r.gold > 0 || r.jobExp > 0;
-    this.claimBtn.container.setAlpha(full ? 1 : 0.45);
+    this.claimBtn.setEnabled(full);
     // Есть что собрать — кнопка мягко пульсирует (один раз запускаем; пустой сундук бывает только после сбора — это перезапуск).
     if (full && !this.claimPulsing) {
       this.claimPulsing = true;
@@ -371,7 +375,7 @@ export class HomeScene extends Phaser.Scene {
       btn.label.setX(22);
       btn.container.add(gemIcon(this, 22 - btn.label.width / 2 - 30, -4, 36));
     }
-    if (st.nextCost === null || noIncome) btn.container.setAlpha(0.45);
+    if (st.nextCost === null || noIncome) btn.setEnabled(false);
     // Бесплатные быстрые награды — готовы к получению: пульс, как у «Собрать».
     else if (st.nextCost === 0) pulse(this, btn.container);
   }

@@ -120,7 +120,7 @@ export class InventoryScene extends Phaser.Scene {
         this.equip(hero, row, blocker),
       ), FS.h3);
       a.add(b.container);
-      if (blocker) b.container.setAlpha(0.6);
+      if (blocker) b.setEnabled(false);
     });
   }
 
