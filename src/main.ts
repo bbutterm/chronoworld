@@ -37,7 +37,7 @@ const startView = initialView();
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
-  backgroundColor: '#11131a',
+  backgroundColor: '#0a0907',
   // P8: холст — под размер окна и devicePixelRatio, мир 1080×1920 масштабирует камера сцены (viewport.ts).
   scale: {
     mode: Phaser.Scale.NONE,

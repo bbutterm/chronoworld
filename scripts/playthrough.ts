@@ -1,7 +1,9 @@
 /**
  * Прохождение главы как новый игрок: новая игра (Алан, Бран, Вика — зелёные карточки ур. 1) → этапы по порядку,
- * поражение — повтор с другим seed; после каждого боя игрок возносит сюжетных героев, которым хватает осколков (и золота,
- * уровня), и тратит общий пул опыта «Улучшить» (autoLevel: по уровню самому низкому герою отряда, пока хватает).
+ * поражение — повтор с другим seed; после каждого боя игрок (develop): в Таверне — бесплатный призыв, свитки (подарок
+ * открытия — первый ×10 после ch1_s5) и ×10 за гемы, отряд — autoFormation (5 сильнейших), возносит сюжетных героев,
+ * которым хватает осколков (и золота, уровня), и тратит общий пул опыта «Улучшить» (autoLevel: по уровню самому низкому
+ * герою отряда, пока хватает).
  *   npx tsx scripts/playthrough.ts [chapterIndex=0] [maxTries=5] [--winrate N] [--idle]
  * Главы до chapterIndex проигрываются молча тем же способом (глава 2 — продолжение сохранения после главы 1).
  * --winrate N — перед первой попыткой этапа: доля побед на N seed'ах (как в docs/content/campaign.md).
@@ -9,7 +11,7 @@
  *          печатается, сколько часов сундука понадобилось (модель «игрок ждёт сундук», без Башни и экипировки).
  * Печатает по этапам: попытки, длительность победного боя, уровни героев. Код выхода 1 — глава не пройдена.
  */
-import { ascendHero, ascendRequirement, autoLevel, claimOffline, enemySquad, heroCard, newGame, playStage, type SaveState } from '../src/core';
+import { ascendHero, ascendRequirement, autoFormation, autoLevel, claimOffline, enemySquad, heroCard, newGame, playStage, summon, summonStatus, type SaveState } from '../src/core';
 import { loadFullContext } from './lib/content-node';
 
 const ctx = loadFullContext();
@@ -21,13 +23,25 @@ const idle = process.argv.includes('--idle');
 const MAX_IDLE_HOURS = 200;
 const HOUR = 3600_000;
 
-/** Как игрок: вознести сюжетных героев, которым хватает осколков, золота и уровня, затем «Улучшить» отряд. */
+const DAY = '2026-01-01';
+
+/** Как игрок: Таверна (бесплатно, свитки, ×10 за гемы), отряд из сильнейших, вознести сюжетных героев, «Улучшить» отряд. */
 function develop(s: SaveState): SaveState {
+  const st = summonStatus(s, DAY, ctx);
+  if (st.unlocked) {
+    if (st.can.free) s = summon(s, ctx, { count: 1, pay: 'free', day: DAY }).save;
+    while (s.currency.scrolls >= 10) s = summon(s, ctx, { count: 10, pay: 'scroll', day: DAY }).save;
+    while (s.currency.gems >= ctx.summon.costs.ten) s = summon(s, ctx, { count: 10, pay: 'gems', day: DAY }).save;
+    s = { ...s, squad: autoFormation(s, ctx) };
+  }
   for (let guard = 0; guard < 10; guard++) {
     const ready = s.heroes.find((h) => ctx.content.heroes[h.templateId]?.source === 'story' && ascendRequirement(s, h.id, ctx)?.blockers.length === 0);
     if (!ready) break;
     s = ascendHero(s, ready.id, [], ctx).save;
   }
+  s = autoLevel(s, ctx).save;
+  // Новичок из Таверны после «Улучшить» может стать сильнее героя отряда — переставить и добрать уровни.
+  s = { ...s, squad: autoFormation(s, ctx) };
   return autoLevel(s, ctx).save;
 }
 
@@ -65,7 +79,7 @@ for (const s of ctx.content.stages) {
   }
   idleTotal += hours;
   if (loud) {
-    const levels = save.heroes.map((h) => {
+    const levels = save.squad.flatMap((id) => save.heroes.filter((h) => h.id === id)).map((h) => {
       const c = heroCard(h, ctx);
       return `${c.name} ${c.jobName} ${c.level}${c.rarity.id === 'green' ? '' : ` (${c.rarity.name})`}`;
     }).join(', ');

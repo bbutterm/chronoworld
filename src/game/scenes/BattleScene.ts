@@ -76,6 +76,14 @@ const CD_ICON = 26;
 const CD_GAP = 4;
 const CD_SLOTS = 3;
 const CD_DIM = 0.45;
+/** Лист шторок перезарядки: кадр 0 — пусто, 1 — золотая рамка готового, 1 + k — сектор k/CD_STEPS. */
+const CD_SHEET = 'cd_sweep_sheet';
+const CD_STEPS = 48;
+const CD_FRAME_EMPTY = 0;
+const CD_FRAME_READY = 1;
+/** Клетка листа (единицы игры): значок CD_ICON с рамкой 2 и обводкой; рисуется с плотностью CD_RES. */
+const CD_CELL = 32;
+const CD_RES = 2;
 /** Значки статусов над полоской HP: размер и сколько видно (остальные — счётчиком «+N» справа от значков). */
 const STATUS_ICON = 24;
 const STATUS_MAX = 2;
@@ -117,7 +125,8 @@ interface CdSkill {
 /** Место под значок перезарядки под полоской HP: какой навык в нём сейчас. */
 interface CdIcon {
   icon: Phaser.GameObjects.Image;
-  sweep: Phaser.GameObjects.Graphics;
+  /** Кадр листа шторок (CD_SHEET): пусто / золотая рамка / сектор k/48. */
+  sweep: Phaser.GameObjects.Image;
   x: number;
   y: number;
   s: CdSkill | null;
@@ -215,6 +224,8 @@ interface UnitView {
   stunned: boolean;
   frozen: boolean;
   stunStars?: Phaser.GameObjects.Image[];
+  /** Время вращения звёзд оглушения, мс боя. */
+  starT: number;
   /** Когда последний раз сыпали след рывка (время сцены). */
   lastTrail: number;
 }
@@ -253,6 +264,8 @@ export class BattleScene extends Phaser.Scene {
   private tower?: ResultData['tower'];
   private committed = false;
   private views = new Map<string, UnitView>();
+  /** Те же юниты массивом — обход в update() каждый кадр без итератора Map. */
+  private viewList: UnitView[] = [];
   private cursor = 0;
   private clock = 0;
   /** Какие пассивки уже подписывали в этом бою (unit:skill). */
@@ -293,6 +306,7 @@ export class BattleScene extends Phaser.Scene {
     // Выключение сцены: забыть юнитов и пулы (объекты, твины и таймеры Phaser убирает сам). once — без накопления слушателей.
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
     this.views.clear();
+    this.viewList.length = 0;
     this.later.clear();
     this.shownSec = -1;
     this.cursor = 0;
@@ -508,7 +522,7 @@ export class BattleScene extends Phaser.Scene {
       for (let i = 0; i < Math.min(CD_SLOTS, cdSkills.length); i++) {
         const x = ox - BAR_W / 2 + CD_ICON / 2 + i * (CD_ICON + CD_GAP);
         const icon = this.add.image(x, cy, '__DEFAULT').setDisplaySize(CD_ICON, CD_ICON);
-        const sweep = this.add.graphics();
+        const sweep = this.add.image(x, cy, cooldownSheet(this), CD_FRAME_EMPTY).setDisplaySize(CD_CELL, CD_CELL);
         cdIcons.push({ icon, sweep, x, y: cy, s: null, shown: -1 });
         bars.push(icon, sweep);
         parts.push(icon, sweep);
@@ -565,9 +579,11 @@ export class BattleScene extends Phaser.Scene {
       ...hitLook(def),
       stunned: false,
       frozen: false,
+      starT: 0,
       lastTrail: 0,
     };
     this.views.set(snap.uid, v);
+    this.viewList.push(v);
     this.assignCooldowns(v);
     // Разовая анимация закончилась — вернуться к стойке/ходьбе. Один слушатель на юнита, а не на каждую атаку.
     sprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
@@ -616,7 +632,8 @@ export class BattleScene extends Phaser.Scene {
     this.later.step(dt);
     this.floats.step(dt);
     this.sfx.step(dt);
-    for (const v of this.views.values()) this.animateUnit(v, dt);
+    const views = this.viewList;
+    for (let i = 0; i < views.length; i++) this.animateUnit(views[i], dt);
     if (this.finished) return;
     // Баннер босса: часы боя стоят, пока он на экране («Пропустить» работает — skip не ждёт часов).
     if (this.introLeft > 0) {
@@ -673,6 +690,7 @@ export class BattleScene extends Phaser.Scene {
   private shutdown(): void {
     this.createSeq++;
     this.views.clear();
+    this.viewList.length = 0;
     this.ambient = null;
     this.bossBar = null;
     // Сцена-синглтон живёт всю игру: ссылка на уничтоженный текст таймера держала бы его (и canvas) до следующего боя.
@@ -1158,10 +1176,8 @@ export class BattleScene extends Phaser.Scene {
     const top = Math.max(cy - 30, nameBottom + fs / 2 + FLOAT_RISE + 4);
     const x = cx + (v.snap.side === 'A' ? -34 : 34) + rnd(14);
     const y = top + slot * FLOAT_STEP;
-    // Пул надписей: не больше MAX_FLOATS на экране, стиль и замер шрифта кэшируются.
-    const t = this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : stroke, big ? 8 : 6, DEPTH.numbers + slot, FLOAT_RISE, big ? 650 : 450, big, v.snap.uid);
-    // У края экрана цифру не обрезаем.
-    t.x = clampX(t.x, t.width);
+    // Пул надписей: не больше MAX_FLOATS на экране, цифры — растровым шрифтом стиля; у края экрана цифра не обрезается.
+    this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : stroke, big ? 8 : 6, DEPTH.numbers + slot, FLOAT_RISE, big ? 650 : 450, big, v.snap.uid);
   }
 
   /**
@@ -1369,13 +1385,12 @@ export class BattleScene extends Phaser.Scene {
 
   private spinStars(v: UnitView, dt: number): void {
     const stars = v.stunStars!;
-    const t = (stars[0].getData('t') ?? 0) + (motion.reduced ? 0 : dt);
-    stars[0].setData('t', t);
+    const t = (v.starT += motion.reduced ? 0 : dt);
     const cy = -v.look.height - 4;
-    stars.forEach((st, i) => {
+    for (let i = 0; i < stars.length; i++) {
       const a = t * 0.006 + (i * Math.PI * 2) / stars.length;
-      st.setPosition(Math.cos(a) * STUN_R, cy + Math.sin(a) * 9).setAlpha(Math.sin(a) > 0 ? 1 : 0.55);
-    });
+      stars[i].setPosition(Math.cos(a) * STUN_R, cy + Math.sin(a) * 9).setAlpha(Math.sin(a) > 0 ? 1 : 0.55);
+    }
   }
 
   /** Значок статуса над HP: def — наложить/обновить, undefined — снять. Значки идут в ряд от левого края полоски. */
@@ -1424,36 +1439,69 @@ export class BattleScene extends Phaser.Scene {
     });
   }
 
-  /** Круговая «шторка» перезарядки: тёмный сектор по часовой стрелке от 12 часов, у готового — золотая рамка. */
+  /**
+   * Круговая «шторка» перезарядки: тёмный сектор по часовой стрелке от 12 часов, у готового — золотая рамка.
+   * Все 48 шагов сектора нарисованы заранее в лист (cooldownSheet) — здесь только смена кадра.
+   */
   private drawCooldown(c: CdIcon): void {
     const s = c.s;
     if (!s) return;
     const left = s.cd > 0 ? Phaser.Math.Clamp((s.readyAt - this.clock) / s.cd, 0, 1) : 0;
-    const q = Math.ceil(left * 48) / 48;
+    const k = Math.ceil(left * CD_STEPS);
+    const q = k / CD_STEPS;
     if (q === c.shown) return;
     c.shown = q;
-    const g = c.sweep.clear();
-    const r = CD_ICON / 2;
-    if (q > 0) {
-      // Сектор, спроецированный на квадрат значка (без маски): точки луча на границе квадрата.
-      const pts = [new Phaser.Math.Vector2(c.x, c.y)];
+    c.sweep.setFrame(k > 0 ? CD_FRAME_READY + k : CD_FRAME_READY);
+    c.icon.setAlpha(k > 0 ? CD_DIM : 1);
+  }
+}
+
+/**
+ * Лист шторок перезарядки (один на игру): те же фигуры, что раньше рисовал Graphics на каждый шаг, — тёмный сектор,
+ * спроецированный на квадрат значка (до 65 точек луча), и золотая скруглённая рамка готового навыка.
+ */
+function cooldownSheet(scene: Phaser.Scene): string {
+  if (scene.textures.exists(CD_SHEET)) return CD_SHEET;
+  const px = CD_CELL * CD_RES;
+  const frames = CD_STEPS + 2;
+  const cols = 10;
+  const rows = Math.ceil(frames / cols);
+  const tex = scene.textures.createCanvas(CD_SHEET, cols * px, rows * px)!;
+  const ctx = tex.getContext();
+  const r = CD_ICON / 2;
+  for (let f = 0; f < frames; f++) {
+    const ox = (f % cols) * px;
+    const oy = Math.floor(f / cols) * px;
+    tex.add(f, 0, ox, oy, px, px);
+    if (f === CD_FRAME_EMPTY) continue;
+    ctx.save();
+    ctx.translate(ox + px / 2, oy + px / 2);
+    ctx.scale(CD_RES, CD_RES);
+    ctx.beginPath();
+    if (f === CD_FRAME_READY) {
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(255, 216, 74, 0.95)';
+      ctx.roundRect(-r - 1, -r - 1, CD_ICON + 2, CD_ICON + 2, 5);
+      ctx.stroke();
+    } else {
+      const q = (f - CD_FRAME_READY) / CD_STEPS;
+      ctx.moveTo(0, 0);
       const steps = Math.max(2, Math.ceil(q * 64));
       for (let i = 0; i <= steps; i++) {
         const a = -Math.PI / 2 + (q * Math.PI * 2 * i) / steps;
         const cos = Math.cos(a);
         const sin = Math.sin(a);
         const k = r / Math.max(Math.abs(cos), Math.abs(sin));
-        pts.push(new Phaser.Math.Vector2(c.x + cos * k, c.y + sin * k));
+        ctx.lineTo(cos * k, sin * k);
       }
-      g.fillStyle(0x000000, 0.5 * CD_DIM);
-      g.fillPoints(pts, true);
-      c.icon.setAlpha(CD_DIM);
-    } else {
-      g.lineStyle(2, 0xffd84a, 0.95);
-      g.strokeRoundedRect(c.x - r - 1, c.y - r - 1, CD_ICON + 2, CD_ICON + 2, 5);
-      c.icon.setAlpha(1);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(0, 0, 0, ${0.5 * CD_DIM})`;
+      ctx.fill();
     }
+    ctx.restore();
   }
+  tex.refresh();
+  return CD_SHEET;
 }
 
 const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length);

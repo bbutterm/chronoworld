@@ -10,15 +10,15 @@
   ],
   "level": {
     "exp": { "base": 100, "power": 1.5 },
-    "gold": { "base": 20, "power": 1.4 }
+    "gold": { "base": 15, "power": 2 }
   },
   "merge": [
-    { "track": "first", "from": "green", "to": "blue", "gold": 1000, "fodder": [{ "kind": "same", "rarity": "green", "count": 2 }] },
+    { "track": "first", "from": "green", "to": "blue", "gold": 500, "fodder": [{ "kind": "same", "rarity": "green", "count": 2 }] },
     { "track": "first", "from": "blue", "to": "purple", "gold": 5000, "fodder": [{ "kind": "same", "rarity": "blue", "count": 1 }, { "kind": "line", "rarity": "blue", "count": 2 }] },
     { "track": "first", "from": "purple", "to": "gold", "gold": 20000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 1 }, { "kind": "line", "rarity": "purple", "count": 2 }] },
     { "track": "second", "from": "purple", "to": "gold", "gold": 20000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 2 }] },
     { "track": "second", "from": "gold", "to": "red", "gold": 60000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 1 }, { "kind": "line", "rarity": "purple", "count": 2 }] },
-    { "track": "story", "from": "green", "to": "blue", "gold": 1000, "shards": 20 },
+    { "track": "story", "from": "green", "to": "blue", "gold": 500, "shards": 20 },
     { "track": "story", "from": "blue", "to": "purple", "gold": 5000, "shards": 40, "minLevel": 40 },
     { "track": "story", "from": "purple", "to": "gold", "gold": 20000, "shards": 60 },
     { "track": "story", "from": "gold", "to": "red", "gold": 60000, "shards": 80 }

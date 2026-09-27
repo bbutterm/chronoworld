@@ -170,8 +170,10 @@ describe('уровень: общий пул опыта + золото («Улу�
   };
 
   it('стоимость уровня — data/cards.json → level', () => {
-    expect(levelUpCost(1, ctx)).toEqual({ exp: 100, gold: 20 });
-    expect(levelUpCost(4, ctx)).toEqual({ exp: 800, gold: Math.floor(20 * Math.pow(4, 1.4)) });
+    // Формула — floor(base × L^power) из data/cards.json → level (числа — заглушки баланса, docs/content/balance.md).
+    const c = ctx.cards.level;
+    expect(levelUpCost(1, ctx)).toEqual({ exp: c.exp.base, gold: c.gold.base });
+    expect(levelUpCost(4, ctx)).toEqual({ exp: Math.floor(c.exp.base * Math.pow(4, c.exp.power)), gold: Math.floor(c.gold.base * Math.pow(4, c.gold.power)) });
     const r = levelRangeCost(1, 4, ctx);
     expect(r.exp).toBe(levelUpCost(1, ctx).exp + levelUpCost(2, ctx).exp + levelUpCost(3, ctx).exp);
     expect(levelRangeCost(5, 5, ctx)).toEqual({ exp: 0, gold: 0 });
@@ -200,7 +202,7 @@ describe('уровень: общий пул опыта + золото («Улу�
 
   it('не хватает опыта или золота — ошибка без изменений; affordable считает, сколько уровней по карману', () => {
     expect(levelUpInfo(rich(99, 1000), 'h1', ctx)).toMatchObject({ canLevel: false, blocker: 'not_enough_exp', affordable: 0 });
-    expect(levelUpInfo(rich(1000, 19), 'h1', ctx)).toMatchObject({ canLevel: false, blocker: 'not_enough_gold' });
+    expect(levelUpInfo(rich(1000, levelUpCost(1, ctx).gold - 1), 'h1', ctx)).toMatchObject({ canLevel: false, blocker: 'not_enough_gold' });
     const two = levelUpCost(1, ctx).exp + levelUpCost(2, ctx).exp;
     expect(levelUpInfo(rich(two, 1000), 'h1', ctx).affordable).toBe(2);
     for (const [exp, gold, code] of [

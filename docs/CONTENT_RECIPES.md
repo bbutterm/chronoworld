@@ -9,7 +9,8 @@
 
 ## Генераторы `npm run content:new`
 
-Логика — `scripts/lib/content-gen.ts`, тест — `tests/content-new.test.ts`. Существующие файлы не перезаписываются (кроме главы в `stage`).
+Логика — `scripts/lib/content-gen.ts`, тест — `tests/content-new.test.ts`. Существующие файлы не перезаписываются (кроме главы в `stage`
+и `data/progression.json` в `hero --story`).
 Заготовки сразу проходят content:check; места «дописать руками» помечены строкой `TODO` — content:check выводит каждую как
 предупреждение `⚠ файл: путь.поля — TODO: …`. Перед слиянием в main TODO в `data/` быть не должно.
 
@@ -19,9 +20,11 @@
 | `unit <id> --kind monster` | пустой шаблон юнита (hero/monster/boss) |
 | `skill <id> [--from <id>]` | копия навыка или шаблон «урон k 1 по ближайшему» |
 | `boss <id> [--from mob_boss1] [--sprite <id>] [--name "…"]` | `data/units/<id>.json` (kind boss) + своя ульта `data/skills/<id>_ult.json` (копия ульты образца) |
-| `chapter <id> [--name "…"] [--order N] [--prefix chN] [--mobs a,b,c] [--boss <id>] [--no-story]` | `data/campaign/<id>.json`: 10 этапов `<prefix>_s1…s10` (3/4/5 врагов, 10-й — босс ×0.5), награды — продолжение прошлой главы +10%/этап; и `data/story/<id>.json` |
+| `chapter <id> [--name "…"] [--order N] [--prefix chN] [--mobs a,b,c] [--boss <id>] [--no-story]` | `data/campaign/<id>.json`: 10 этапов `<prefix>_s1…s10` (3/4/5 врагов, 10-й — босс ×0.5, все `mult` 1 — подобрать); экономика по формуле баланса: сундук `offlinePerMinute` +9%/этап от последнего этапа прошлой главы, золото 0.7 от опыта, `rewards` = 30 мин сундука (босс — 45); и `data/story/<id>.json` |
 | `stage <chapterId> [--from <stageId>] [--append]` | новый этап `<prefix>_s<N+1>` — копия соседнего, встаёт перед босс-этапом (или в конец) |
 | `story <chapterId>` | сюжет главы: `<prefix>_intro` (chapterStart), `<bossStage>_before` (beforeStage + bossIntro), `<prefix>_outro` (afterStage последнего этапа) |
+| `hero <id> --class <job> --gender m\|f [--rarity green\|blue\|purple] [--sprite <id>] [--name "…"]` | призывная карточка `data/heroes/<id>.json`: `line`, `role` — из класса; редкости по правилам (первая профессия — green (или blue) → gold, вторая — purple → red); навыки 1/10/30/50 из навыков класса, подобраны так, чтобы с карточками того же класса было ≤ 2 общих и другой фирменный (если нельзя — меньше навыков); `statMods` пустые; имя, bio, hook, `$comment` — TODO. В Таверну регистрировать не нужно |
+| `hero <id> --class <job 1-й профессии> --gender m\|f --story [--form <job 2-й>] [--after <stageId>]` | сюжетная карточка green → red + форма второй профессии на purple (`promotion` — TODO) и рекрут в `data/progression.json → heroes.recruits` (по умолчанию — после последнего этапа кампании) |
 
 Для `chapter` без `--mobs` берутся рядовые монстры последней главы, без `--boss` — `mob_boss1` (Герой орков); `--prefix` для
 id вида `chapterN` выводится сам (`ch<N>`).
@@ -91,7 +94,16 @@ id вида `chapterN` выводится сам (`ch<N>`).
 
 Дизайн и таблицы — `docs/design/heroes.md`; модель и API — `docs/AGENTS.md`, разделы 2 и 2а.
 
-1. Файл `data/heroes/<id>.json` (скопировать ближайшую: `cp data/heroes/iris.json data/heroes/<id>.json`). id — латиница, после
+0. **Генератор** (быстрый путь, заготовка сразу проходит content:check — только ⚠ TODO и ⚠ арта):
+   ```
+   npm run content:new -- hero nia --class hunter --gender f                    призывная, вторая профессия: purple → red
+   npm run content:new -- hero tom --class thief --gender m --rarity blue       призывная, первая профессия: blue → gold
+   npm run content:new -- hero mira --class archer --gender f --story --form bard --after ch4_s10   сюжетная + рекрут
+   ```
+   Дальше — дописать TODO (имя, bio, hook, `promotion` формы), подобрать `statMods` (п. 1), проверить навыки (п. 2), удалить `$comment`.
+   Список классов — ошибка генератора без `--class` его печатает. Несколько карточек подряд — просто несколько команд: каждая
+   учитывает уже созданные (навыки подбираются с оглядкой на карточки того же класса).
+1. Файл `data/heroes/<id>.json` (генератор или копия ближайшей: `cp data/heroes/iris.json data/heroes/<id>.json`). id — латиница, после
    выпуска не менять (лежит в сохранениях). Поля:
    - `name` (уникально, по-русски), `gender` (`m`/`f`), `job` — класс из `data/jobs`, `line` — первая профессия его ветки
      (для Рыцаря — `swordman`), `role` (`tank|damage|healer|support` — своя у карточки, авторасстановка и поручения берут её);
@@ -105,9 +117,12 @@ id вида `chapterN` выводится сам (`ch<N>`).
    - `visual.sprite` — свой лист (id из `assets/sprites/sprites.json`, например `wizard_f`), у формы — свой; нет — лист класса по полу;
    - `bio` (≤ 160) и `hook` (≤ 200) — кто это и крючок для сцен.
 2. Правило различия (⚠): у карточек одного класса общих навыков ≤ 2, «фирменный» (последний) навык разный.
-3. В Таверне карточка появится сама (пулы — `data/summon.json → rates[].baseRarities`). Правила вознесения её дорожки уже есть
-   (`data/cards.json → merge`: `first`/`second` — корм, `story` — осколки); content:check проверит.
-4. Проверка: `npm run content:check` (схема, ссылки, навыки, редкости, дымовой бой на пределе каждой редкости, ⚠ пол листа),
+3. В Таверне карточка появится сама (пулы — `data/summon.json → rates[].baseRarities`, регистрировать не нужно). Правила вознесения её
+   дорожки уже есть (`data/cards.json → merge`: `first`/`second` — корм, `story` — осколки); content:check проверит. Сюжетная — только
+   через `data/progression.json → heroes.start/recruits` (генератор с `--story` добавляет сам; нет — ✗).
+4. Проверка: `npm run content:check` (схема, ссылки, навыки, редкости, дымовой бой на пределе каждой редкости; раздел 8 —
+   `scripts/lib/content-check-heroes.ts`: ✗ лист карточки не находится ни свой, ни класса / призывную карточку Таверна не выдаёт
+   (baseRarity или maxRarity мимо `rates`); ⚠ своего листа нет в реестре, лист чужого пола, у листа нет портрета, общие навыки),
    `npm run check`; глазами — карточка в «Героях» (для призывной — вручную добавить в сохранение или призвать в Таверне).
 5. Арт: лист `<класс RO>_<m|f>` (например `sage_f`) по `docs/SPRITE_SPEC.md` + запись в `sprites.json` → `visual.sprite` карточки.
 
@@ -117,23 +132,48 @@ id вида `chapterN` выводится сам (`ch<N>`).
    Порядок в массиве `stages` = порядок в игре; id менять нельзя, если глава уже в проде.
 2. Поля: `name`, `enemies` (5 слотов, хотя бы один враг, только monster/boss), `mult`, `rewards`, `offlinePerMinute` (не меньше прошлого этапа).
 3. Сцена «перед/после этапа» — рецепт 7.
-4. Проверка: content:check; `tests/chapters.test.ts` ждёт ровно 10 этапов в главах 1–3 — обновить ожидание, если это осознанно; баланс — рецепт 13.
+4. Проверка: content:check; `tests/chapters.test.ts` проверяет структуру любой главы (босс — последний этап, id `<префикс>_s<N>`,
+   Σhp/Σatk не убывают) и ровно 10 этапов только у выпущенных глав 1–3; баланс — рецепт 13 (окно нового этапа регулятор возьмёт
+   у предыдущего этапа, если его нет в `data/progression.json → balance.windows`).
 
-## 6. Новая глава
+## 6. Новая глава: чеклист от заготовки до баланса
 
-1. Монстры (рецепт 1) и босс (рецепт 2) — сначала, генератор проверяет, что они есть.
-2. `npm run content:new -- chapter chapter4 --name "Глава 4. Пустыня Сограт" --mobs mob_a,mob_b,mob_c --boss mob_boss_x`
-   → `data/campaign/chapter4.json` (order = следующий) + `data/story/chapter4.json`.
-3. Дописать TODO: названия этапов, составы и `mult`, `$comment` удалить после баланса. Правило: Σhp и Σatk этапа не меньше предыдущего.
-4. **Сюжет** — рецепт 7 (вступление, сцена перед боссом с `bossIntro`, финал с крючком к следующей главе).
-5. **Фоны:** тема главы — по порядку (луг, топь, склеп, дальше по кругу, `backdrops.ts`). Файлы владельца — `assets/backgrounds/bg_battle_ch<N>.jpg`,
-   `bg_map_ch<N>.jpg`; для N ≥ 4 сейчас нужна правка `backdrops.ts` (новая тема в `THEMES` и её рисование/файл) — иначе повторится тема 1–3.
-6. **Рекрут:** сюжетная карточка (рецепт 4а, `source: story`) + `data/progression.json → heroes.recruits` `{"afterStage": "ch4_s10",
-   "template": "<id карточки>"}` — приходит зелёной ур. 1 в свободный слот (сейчас максимум отряда 5 — рекрут после главы 3 даст
-   6-го героя вне отряда; решить с владельцем).
-7. **Башня:** новая полоса `data/tower.json → bands` `{"fromFloor": 60, "name": "…ярус", "layouts": [...], "bossLayouts": [...]}` из монстров главы.
-8. **Выпадение:** при желании своё правило `data/drops.json → rules` с `chapter: "chapter4"`.
-9. **Тесты:** `tests/chapters.test.ts` (число глав/этапов) — обновить; прохождение — `npm run playthrough -- 3 3 --idle --winrate 200`.
+Порядок важен: каждая следующая команда опирается на предыдущую. Пример — глава 4 (индекс 3 в `playthrough`).
+
+1. **Монстры и босс.** Монстры — рецепт 1 (`npm run content:new -- unit mob4_x --from mob3_melee`), босс — рецепт 2
+   (`npm run content:new -- boss mob4_boss --from mob3_boss --name "…"`). Генератор главы проверяет, что они есть.
+2. **Заготовка:** `npm run content:new -- chapter chapter4 --name "Глава 4. Пустыня Сограт" --mobs mob4_a,mob4_b,mob4_c --boss mob4_boss`
+   → `data/campaign/chapter4.json` (order = следующий, этапы `ch4_s1…s10`) + `data/story/chapter4.json`. Без `--mobs` — монстры прошлой
+   главы. Сундук и награды уже посчитаны по формуле баланса (`docs/content/balance.md`, раздел 2) — не трогать без причины.
+3. **`npm run content:check`** — должны быть только ⚠ TODO (и ⚠ арта). Это точка «заготовка цела».
+4. **Дизайн этапов:** названия, составы (5 слотов), `mult` (стартовое 1, босс 0.5). Правило: Σhp и Σatk этапа не меньше предыдущего
+   (`tests/chapters.test.ts`). Первый грубый замер: `npm run playthrough -- 3 3 --idle` (часы сундука на этап).
+5. **Сюжет** — рецепт 7: TODO в `data/story/chapter4.json` (вступление, сцена перед боссом с `bossIntro`, финал с крючком).
+6. **Рекрут (если есть):** `npm run content:new -- hero <id> --class <1-я профессия> --gender m|f --story --after ch4_s10` (рецепт 4а);
+   спикер-рекрут в сюжете — рецепт 7. Сейчас максимум отряда 5 — шестой герой вне отряда (решить с владельцем).
+7. **Баланс по графику.** Скрипт не правится: регулятор сам находит главу в `data/campaign`. Окна первого прохождения (часы от начала
+   первой сессии) — `data/progression.json → balance`: без записей глава получает окна по правилу `balance.default` от босса прошлой
+   главы (гл. 4 — дни 5–7: `ch4_s1–s3 [108, 124.5]` … `ch4_s10 [150, 166.5]`, стена каждые 3 этапа; docs/content/balance.md, раздел 6).
+   Свой график — дописать окна этапов в `balance.windows` (`"ch4_s1": [108, 124.5]`, …). Затем:
+   `npx tsx scripts/balance-fit.ts 1 0.8 --dry --chapter 4` (где этапы относительно окон; первой строкой — окна главы) →
+   `npx tsx scripts/balance-fit.ts 15 0.7 --chapter 4` (подбирает `mult` целиком по этапу, держит монотонность Σ; лучший вариант
+   остаётся в `data/campaign`). Дней модели скрипт берёт сам (`balance.fitDays`, но не меньше, чем нужно окнам); `--days D` — вручную.
+8. **Рекомендуемая мощь:** `npm run balance -- --days 10 --fit-recommended` → печатает `power.recommendedStages`: перенести этапы новой
+   главы в `data/progression.json → power.recommendedStages` (только отличающиеся > 5% от общего коэффициента). `tests/balance.test.ts`
+   проверяет, что поражения модели — не ниже 0.85 рекомендуемой.
+9. **Итог экономики:** `npm run balance -- --days 10` — сводка «первое прохождение», стены, сигналы; записать итерацию и таблицу в
+   `docs/content/balance.md` (раздел 3) и `docs/content/campaign.md`.
+10. **Фоны:** тема главы — по порядку (луг, топь, склеп, дальше по кругу, `backdrops.ts`). Файлы владельца — `assets/backgrounds/bg_battle_ch<N>.jpg`,
+    `bg_map_ch<N>.jpg`; для N ≥ 4 нужна правка `backdrops.ts` (новая тема в `THEMES`) — иначе повторится тема 1–3. Арт — issue владельцу.
+11. **Башня:** новая полоса `data/tower.json → bands` `{"fromFloor": 80, "name": "…ярус", "layouts": [...], "bossLayouts": [...]}` из монстров главы.
+12. **Выпадение:** при желании своё правило `data/drops.json → rules` с `chapter: "chapter4"`.
+13. **Тесты** правок не требуют: `tests/chapters.test.ts` проверяет любую главу по структуре (order без повторов, этапы подряд,
+    босс — последний, id `<префикс>_s<N>`, Σhp/Σatk не убывают, граница глав открывает этап, каждый этап играется), точные числа —
+    только у выпущенных глав 1–3; `tests/content-new.test.ts` считает order и сундук от последней главы; `tests/balance-fit.test.ts` —
+    окна регулятора. Падают только незаконченная заготовка (TODO, провал Σ) — это шаги 4 и 14. Затем `npm run check`, `npm run e2e`.
+    Когда глава ушла в прод, её можно зафиксировать в `RELEASED` в `tests/chapters.test.ts` (id этапов попали в сохранения;
+    проверка ждёт 10 этапов `ch<N>_s1…s10`).
+14. **TODO → 0:** `npm run content:check` без ⚠ TODO, `$comment` заготовки удалён. Только после этого — PR в main.
 
 ## 7. Новая сюжетная сцена
 
@@ -202,12 +242,14 @@ id вида `chapterN` выводится сам (`ch<N>`).
 
 ## 13. Баланс главы
 
-1. Цель: главы 1 — этапы 1–9 100% побед перед первой попыткой, босс ~⅔–80%; дальше — плавные стены «забери сундук», босс — 1–2 полных сундука.
+1. Цель (`docs/content/balance.md`, раздел 1): главы 1 — этапы 1–9 100% побед перед первой попыткой, босс 75–88% в среднем по выдачам
+   Таверны; дальше — стены «забери сундук» на 1–2 сундука, глава 2 — дни 1–2, глава 3 — дни 3–5. Для новой главы — рецепт 6, шаги 7–9
+   (окна в `data/progression.json → balance`, регулятор `scripts/balance-fit.ts --chapter N`, затем `npm run balance -- --fit-recommended`).
 2. Замер: `npm run playthrough -- <индекс главы с 0> 3 --winrate 200` (--winrate 600 для точной цифры босса — минуты, в фон);
    для глав 2+ добавить `--idle` (печатает часы сундука на этап). Прошлые главы проигрываются молча.
 3. Крутить `mult` этапа (шаг 0.01–0.05; кривая у босса крутая: у Мастеринга 0.80 → 88%, 0.84 → 47%), затем состав. Статы монстра
    в `data/units` не трогать ради одного этапа — монстр общий.
-4. Правило: Σhp и Σatk этапа не меньше предыдущего (`tests/chapters.test.ts` проверяет главы 2–3); `offlinePerMinute` растёт.
+4. Правило: Σhp и Σatk этапа не меньше предыдущего (`tests/chapters.test.ts` проверяет все главы, кроме первой); `offlinePerMinute` растёт.
 5. Итог: `npm run balance` (14 дней всей экономики), записать таблицу и метод в `docs/content/campaign.md` (как для глав 1–3).
 6. После правок боя/профессий/карточек/главы 1 — перемерить босса главы 1 и `tests/chapter1-playthrough.test.ts`. Модель игрока
    (`playthrough`, `balance`) тратит опыт пула сама (`autoLevel` — по уровню самому низкому герою отряда) и возносит сюжетных

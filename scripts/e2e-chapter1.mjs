@@ -3,7 +3,9 @@
 // этапы 1–10 (Кампания → этап → «В бой» → «Пропустить»; поражение — «Повторить»), после каждой победы опыт из общего
 // запаса тратится кнопкой «Улучшить» на карточке героя (по уровню самому низкому герою отряда). Сюжетные диалоги:
 // вступление главы пролистывается касаниями, остальные закрываются «Пропустить» (кнопка проверяется на перекрытие,
-// как и остальные). Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
+// как и остальные). После этапа 5 (подарок Таверны: гемы и 10 свитков) — как игрок: Главная → Таверна → «Бесплатно»
+// и «Свитки ×10» → «Открыть все» → «Готово»; на экране этапа «Авто» ставит сильнейших (и перед каждым боем с этапа 6).
+// В журнале у каждой попытки — мощь отряда против рекомендуемой (stagePowerCheck). Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
 //   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке)
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -38,7 +40,17 @@ page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`));
 let shotN = 0;
 const shot = async (name) => page.screenshot({ path: join(SHOTS, `${String(++shotN).padStart(2, '0')}-${name}.png`) });
 const waitScene = async (key, timeout = 20000) => {
-  await page.waitForFunction((k) => window.__game?.scene?.isActive(k) && !window.__sprites?.busy() && window.__game.scene.getScene(k).ready !== false, key, { timeout });
+  try {
+    await page.waitForFunction((k) => window.__game?.scene?.isActive(k) && !window.__sprites?.busy() && window.__game.scene.getScene(k).ready !== false, key, { timeout });
+  } catch (e) {
+    const st = await page.evaluate((k) => ({
+      active: window.__game?.scene?.getScenes(true).map((x) => x.scene.key),
+      busy: window.__sprites?.busy(),
+      ready: window.__game?.scene?.getScene(k)?.ready,
+      stats: window.__sprites?.stats(),
+    }), key).catch(() => null);
+    throw new Error(`сцена ${key} не готова за ${timeout} мс: ${JSON.stringify(st)}\n${e.message}`);
+  }
   await sleep(300);
 };
 const clickGame = async (gx, gy) => {
@@ -89,6 +101,14 @@ const coveredBy = (sceneKey, label, last = false) =>
         // без интерактивного потомка на точке клика это не блокирующий слой.
         if (o.type === 'Container' && !o.input?.enabled &&
             !o.list?.some((c) => c.input?.enabled && c.getBounds?.().contains(b.centerX, b.centerY))) continue;
+        // Фигура юнита, догрузившаяся после кнопок (лист по требованию), — кадр атласа с прозрачными полями:
+        // не ловит ввод и в точке клика прозрачна — не помеха.
+        if ((o.type === 'Sprite' || o.type === 'Image') && !o.input?.enabled && o.getLocalPoint && o.frame) {
+          const p = o.getLocalPoint(b.centerX, b.centerY);
+          const fx = Math.floor(p.x), fy = Math.floor(p.y);
+          const inside = fx >= 0 && fy >= 0 && fx < o.frame.width && fy < o.frame.height;
+          if (!inside || !sc.textures.getPixelAlpha(fx, fy, o.texture.key, o.frame.name)) continue;
+        }
         // Фигура-обводка без заливки (кольцо текущего этапа, рамка выделения) не прячет то, что под ней.
         if (o.isFilled === false || o.fillAlpha === 0) continue;
         // Прокручиваемый список виден только в своей полосе (маска): ниже/выше неё он ничего не закрывает.
@@ -180,11 +200,81 @@ const levelUpSquad = async (shotName) => {
     if (after.level > hero.level) levels += after.level - hero.level;
     else stuck.add(hero.id);
   }
-  await clickText('Hero', 'ГЕРОИ');
-  await waitScene('Heroes');
-  await clickText('Heroes', 'КАМПАНИЯ');
+  // Вкладка «Кампания» прямо с карточки героя. Не через список «Герои»: там при длинном ростере (после Таверны)
+  // карточка под нижним краем списка (скрыта маской) перехватывает нажатие на вкладки навигации — баг ScrollArea.
+  await clickText('Hero', 'КАМПАНИЯ');
   await waitScene('Campaign');
   return levels;
+};
+
+/** Мощь отряда против рекомендуемой мощи этапа (для отчёта при поражении; считает ядро в браузере). */
+const powerLine = (stageId) =>
+  page.evaluate(async (id) => {
+    // Модули уже загружены vite-сервером — тот же экземпляр, что у игры.
+    const [{ stagePowerCheck }, { GAME }, { session }] = await Promise.all([
+      import('/src/core/features/power.ts'),
+      import('/src/game/content.ts'),
+      import('/src/game/session.ts'),
+    ]);
+    const c = stagePowerCheck(session.save, id, GAME);
+    return `мощь отряда ${c.squad} / рекомендуемая ${c.recommended} (${Math.round(c.ratio * 100)}%, ${c.verdict})`;
+  }, stageId);
+
+/**
+ * Таверна после этапа 5 (подарок открытия уже выдан кампанией): Кампания → Главная → плитка «Таверна» →
+ * «Бесплатно» (если есть) и «Свитки ×10» → «Открыть все» → итог (скриншот) → «Готово» → «‹ Назад» на главную.
+ */
+const visitTavern = async () => {
+  await clickText('Campaign', 'ГЛАВНАЯ');
+  await waitScene('Home');
+  await skipDialogues('Home');
+  await clickText('Home', 'Таверна');
+  await waitScene('Tavern');
+  await sleep(600);
+  await shot('tavern');
+  const before = (await save()).heroes.length;
+  const pulls = [];
+  if (await findText('Tavern', 'Бесплатно')) pulls.push('Бесплатно');
+  pulls.push('Свитки ×10');
+  const phase = () => page.evaluate(() => window.__game.scene.getScene('Tavern').reveal?.phase ?? null);
+  for (const label of pulls) {
+    const total = (await save()).summon.total;
+    await clickText('Tavern', label);
+    // Призыв записан в сохранение, сцена перезапущена с показом.
+    await page.waitForFunction((n) => JSON.parse(localStorage.getItem('chronoworld.save.v1')).summon.total > n, total, { timeout: 10000 });
+    await page.waitForFunction(() => ['pick', 'done'].includes(window.__game.scene.getScene('Tavern').reveal?.phase), null, { timeout: 20000 });
+    await sleep(300);
+    if ((await phase()) === 'pick') await clickText('Tavern', label === 'Свитки ×10' ? 'Открыть все' : 'Открыть', true);
+    await page.waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'done', null, { timeout: 30000 });
+    await sleep(800);
+    if (label === 'Свитки ×10') await shot('tavern-x10');
+    await clickText('Tavern', 'Готово', true);
+    // «Готово» перезапускает зал: показ закрыт.
+    await page.waitForFunction(() => window.__game.scene.isActive('Tavern') && window.__game.scene.getScene('Tavern').reveal === null, null, { timeout: 10000 });
+    await waitScene('Tavern');
+    log(`Таверна: «${label}» — призывов ${(await save()).summon.total}`);
+  }
+  const s = await save();
+  const got = s.heroes.slice(before).map((h) => `${h.templateId} ${h.rarity}`);
+  log(`Таверна: +${got.length} карт (${got.join(', ')}), свитков ${s.currency.scrolls}, гемов ${s.currency.gems}`);
+  if (got.length < 10) throw new Error(`Таверна: после «Свитки ×10» новых карт ${got.length}, ждали не меньше 10`);
+  await clickText('Tavern', '‹ Назад');
+  await waitScene('Home');
+  await clickText('Home', 'КАМПАНИЯ');
+  await waitScene('Campaign');
+  await skipDialogues('Campaign');
+};
+
+/** Экран этапа → «Авто» (сильнейшие герои по ролям) → «‹ Назад» на карту. */
+const autoSquad = async (stage, shotName) => {
+  await clickText('Campaign', String(stage));
+  await waitScene('Stage');
+  await clickText('Stage', 'Авто');
+  await sleep(500);
+  if (shotName) await shot(shotName);
+  await clickText('Stage', '‹ Назад');
+  await waitScene('Campaign');
+  await skipDialogues('Campaign');
 };
 
 /**
@@ -234,6 +324,11 @@ try {
         await skipDialogues('Campaign');
         await clickText('Campaign', String(stage));
         await waitScene('Stage');
+        // Как игрок с новыми героями из Таверны: перед боем — «Авто» (сильнейшие по ролям).
+        if (stage > 5) {
+          await clickText('Stage', 'Авто');
+          await sleep(400);
+        }
         if (stage === 1 || stage === 5 || stage === 10) await shot(`stage${stage}`);
         await clickText('Stage', 'В бой');
         // Сюжет перед боем (этапы 1, 4, 7, 10): бой не начнётся, пока диалог открыт.
@@ -254,7 +349,7 @@ try {
       // Сюжет после первой победы (этапы 4 и 10) — поверх итогов.
       await skipDialogues('Result', stage === 10 ? 'dialogue-outro' : undefined);
       won = (await save()).campaign.cleared.includes(`ch1_s${stage}`);
-      log(`этап ${stage}, попытка ${t}: ${won ? 'победа' : 'поражение'}`);
+      log(`этап ${stage}, попытка ${t}: ${won ? 'победа' : 'поражение'} | ${await powerLine(`ch1_s${stage}`)}`);
     }
     if (!won) throw new Error(`этап ${stage} не пройден за ${MAX_TRIES} попыток`);
     if (stage === 10) {
@@ -264,6 +359,14 @@ try {
     await clickText('Result', 'К кампании');
     await waitScene('Campaign');
     await skipDialogues('Campaign');
+    if (stage === 5) {
+      // Подарок Таверны выдан за этап 5 — призыв ×10 свитками, новые герои в отряд (Авто), затем «Улучшить».
+      if (!(await save()).summon?.welcomeGiven) throw new Error('после этапа 5 не выдан подарок Таверны');
+      await visitTavern();
+      await autoSquad(6, 'squad-auto');
+      const s = await save();
+      log(`отряд после «Авто»: ${s.squad.map((id) => { const h = s.heroes.find((x) => x.id === id); return h ? `${h.templateId} ${h.rarity} ${h.level}` : '—'; }).join(', ')}`);
+    }
     const levels = await levelUpSquad(stage === 2 ? 'hero-levelup' : undefined);
     const s = await save();
     log(`«Улучшить»: +${levels} ур. | ${s.heroes.map((h) => `${h.templateId} ${h.level}`).join(', ')} | в запасе ${s.resources.heroExp}`);

@@ -56,7 +56,7 @@
 | `npm run check` | content:check + typecheck + все vitest-тесты | ~15 с здесь; тест «1000 боёв быстрее 2 секунд» (`tests/sim.test.ts`) меряет CPU и сравнивает с эталоном — при сильной параллельной нагрузке перезапустить отдельно, а не ослаблять |
 | `npm test` | только vitest (`tests/**/*.test.ts`) | `npx vitest run tests/x.test.ts` — один файл |
 | `npm run content:check` | схемы, ссылки, ассеты, спрайтшиты, дымовой бой каждого юнита и профессии, TODO заготовок | ⚠ — предупреждения (не ошибки), ✗ — ошибки |
-| `npm run content:new -- <unit/skill/chapter/stage/story/boss> <id> …` | заготовки контента (`scripts/lib/content-gen.ts`) | не перезаписывает файлы; «TODO» в заготовках content:check покажет предупреждениями |
+| `npm run content:new -- <unit/skill/hero/chapter/stage/story/boss> <id> …` | заготовки контента (`scripts/lib/content-gen.ts`) | не перезаписывает файлы; «TODO» в заготовках content:check покажет предупреждениями |
 | `npm run content:schema` | перегенерировать `data/schema/*.json` после правки zod-схем | иначе content:check упадёт «устарел» |
 | `npm run playthrough -- [глава] [попыток] [--winrate N] [--idle]` | прохождение главы ядром как новый игрок; доля побед перед этапом | глава — индекс с 0; `--winrate 600` медленно (минуты) — в фон |
 | `npm run balance` | модель игрока на 14 дней → `balance.csv` (gitignored) | `-- --days 10 --sessions 6 --out /tmp/b.csv` |

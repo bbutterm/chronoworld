@@ -5,7 +5,7 @@ import { buildSkin } from '../skin';
 import { CONTENT, GAME } from '../content';
 import { heroSprite } from '../flow';
 import { session } from '../session';
-import { FONT, GAME_H, GAME_W } from '../layout';
+import { drawBoot } from '../bootLook';
 import { queuePortraitFiles, requestPortrait, setupSprites } from '../sprites';
 import { installAudio } from '../audio';
 import { sceneSoundOf } from '../sceneAudio';
@@ -24,25 +24,9 @@ function spriteRoles(): Record<string, string> {
 /** Ключ пакета загрузки в загрузчике (прод-сборка, vite.config.ts). */
 const PACK_KEY = '__boot_pack';
 
-const BAR_W = 760;
-const BAR_H = 44;
-const BAR_Y = GAME_H / 2 + 120;
-
-function style(size: number, color: string, bold = false): Phaser.Types.GameObjects.Text.TextStyle {
-  return {
-    fontFamily: FONT,
-    fontSize: `${size}px`,
-    color,
-    fontStyle: bold ? 'bold' : 'normal',
-    stroke: '#000000',
-    strokeThickness: bold ? 8 : 0,
-    align: 'center',
-  };
-}
-
 /**
- * Экран загрузки. Пока ничего не загружено, рисуем только примитивами (прямоугольники, текст):
- * название, полоса прогресса по событиям загрузчика и «Загрузка… N%». Файл не нашёлся — не ошибка:
+ * Экран загрузки. Пока ничего не загружено, рисуем маленькими canvas-текстурами (bootLook.ts):
+ * лента с названием, полоса прогресса по событиям загрузчика и «Загрузка… N%». Файл не нашёлся — не ошибка:
  * считаем такие файлы, пишем «не загрузилось N — будут заглушки» и идём дальше.
  */
 export class BootScene extends Phaser.Scene {
@@ -56,24 +40,15 @@ export class BootScene extends Phaser.Scene {
 
   preload(): void {
     this.failed = 0;
-    const cx = GAME_W / 2;
-    this.add.rectangle(cx, GAME_H / 2, GAME_W, GAME_H, 0x11131a);
-    this.add.text(cx, GAME_H / 2 - 200, 'Chronoworld', style(100, '#ffe9a8', true)).setOrigin(0.5);
-    this.add.rectangle(cx, GAME_H / 2 - 110, 460, 5, 0xc8a060);
-
-    this.add.rectangle(cx, BAR_Y, BAR_W + 14, BAR_H + 14, 0x000000).setStrokeStyle(4, 0xc8a060);
-    const fill = this.add.rectangle(cx - BAR_W / 2, BAR_Y, 0, BAR_H, 0xe0a82a).setOrigin(0, 0.5);
-    const shine = this.add.rectangle(cx - BAR_W / 2, BAR_Y - BAR_H / 4, 0, BAR_H / 4, 0xfff0b0, 0.7).setOrigin(0, 0.5);
-    const label = this.add.text(cx, BAR_Y + 80, 'Загрузка… 0%', style(42, '#ffffff')).setOrigin(0.5);
-    const hint = this.add.text(cx, BAR_Y + 145, '', style(28, '#8a8e98')).setOrigin(0.5);
+    // Лента, орнамент и полоса с фаской — как HTML-заставка (index.html), она сменяется этим кадром без скачка.
+    const { setProgress: drawProgress, label, hint } = drawBoot(this);
 
     // Надписи перерисовываются не чаще раза в кадр: файлы из пакета приходят пачкой, а каждый setText —
     // перерисовка canvas и загрузка текстуры (на слабом телефоне ~1 мс на надпись).
     let progress = 0;
     let hintText = '';
     const flush = () => {
-      fill.width = BAR_W * progress;
-      shine.width = BAR_W * progress;
+      drawProgress(progress);
       const text = `Загрузка… ${Math.round(progress * 100)}%`;
       if (label.text !== text) label.setText(text);
       if (hint.text !== hintText) hint.setText(hintText);

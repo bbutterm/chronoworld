@@ -5,7 +5,7 @@ import { CONTENT, GAME } from '../content';
 import { playScenes } from '../dialogue';
 import { isChapterFinale, seenChapterScenes } from '../storyView';
 import { openStoryHistory, startChapterDone } from './ChapterDoneScene';
-import { currentStage } from '../flow';
+import { currentStage, formatNumber, POWER_COLORS, powerCheck } from '../flow';
 import { GAME_W } from '../layout';
 import { CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
 import { session } from '../session';
@@ -114,6 +114,16 @@ export class CampaignScene extends Phaser.Scene {
         stroke: '#000000',
         strokeThickness: 4,
       }).setOrigin(right ? 0 : 1, 0.5);
+      // «Почти готово»: у текущего этапа — мощь отряда против рекомендуемой, цветом тона (зелёный / жёлтый / красный).
+      if (st === 'open') {
+        const pc = powerCheck(session.save, s.id, GAME);
+        const pw = text(this, lx, y + 60, `мощь ${formatNumber(pc.squad)} / ${formatNumber(pc.recommended)}${pc.tone === 'ahead' ? '' : ` · ${pc.verdict.toLowerCase()}`}`, FS.caption, POWER_COLORS[pc.tone], {
+          fontStyle: 'bold',
+          stroke: '#000000',
+          strokeThickness: 5,
+        }).setOrigin(right ? 0 : 1, 0.5).setName('stagePower');
+        ellipsize(pw, zw - 10);
+      }
     });
 
     // Живой фон карты: несколько искр поднимаются над тропой.

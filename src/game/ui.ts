@@ -63,6 +63,23 @@ const PRESS_DY = 6;
 
 const DARK_TEXT = new Set(['ui_btn_speed', 'ui_btn_skip', 'k:buttonLong_beige', 'k:buttonLong_grey', 'k:buttonSquare_beige', 'k:buttonSquare_grey']);
 
+/** Кнопка: контейнер, подпись и недоступное состояние. */
+export interface ButtonView {
+  container: Phaser.GameObjects.Container;
+  setLabel: (s: string) => void;
+  label: Phaser.GameObjects.Text;
+  /**
+   * Недоступна (false): серая «каменная» кнопка с приглушённой подписью и иконками, без свечения и блика —
+   * вместо полупрозрачности (сквозь неё просвечивал фон). Нажатие по-прежнему приходит в onClick
+   * (экран объясняет тостом, почему нельзя); кому нажатие не нужно — disableInteractive() сам.
+   */
+  setEnabled: (on: boolean) => ButtonView;
+}
+
+/** Текстура недоступной кнопки (skin.ts); нет скина — серый tint. */
+export const DISABLED_BTN = 'skin_btn_disabled';
+const DISABLED_TINT = 0x8a8a8a;
+
 /** Кнопка из 9-slice текстуры (или плейсхолдера) с подписью. */
 export function button(
   scene: Phaser.Scene,
@@ -79,7 +96,7 @@ export function button(
    * sound — звук нажатия (по умолчанию «тап»; null — без звука, например кнопка сама открывает окно со звуком).
    */
   opts: { repeat?: boolean; sound?: SfxId | null } = {},
-): { container: Phaser.GameObjects.Container; setLabel: (s: string) => void; label: Phaser.GameObjects.Text } {
+): ButtonView {
   const bg = panel(scene, 0, 0, w, h, textureId);
   const skin = skinKey(scene, textureId);
   // Скин: на золотой кнопке тёмная подпись, на тёмных плитках — кремовая (активная — золотая).
@@ -106,11 +123,14 @@ export function button(
   // мог сдвинуть её (подпись вкладки навигации под иконкой, T1-04) — после нажатия она должна вернуться туда же.
   let sunk = false;
   const ready = debounce();
+  let enabled = true;
   const setPressed = (p: boolean) => {
     armed = p;
     if (!bg.scene) return;
-    const f = tex(scene, textureId, p);
-    bg.setTexture(f.key, f.frame);
+    if (enabled) {
+      const f = tex(scene, textureId, p);
+      bg.setTexture(f.key, f.frame);
+    }
     if (p !== sunk) {
       t.y += p ? PRESS_DY : -PRESS_DY;
       sunk = p;
@@ -138,7 +158,37 @@ export function button(
     scene.input.off('pointerup', release);
     scene.input.off(CANCEL_PRESS, release);
   });
-  return { container, setLabel: (s) => t.setText(s), label: t };
+  const labelColor = color;
+  const view: ButtonView = {
+    container,
+    setLabel: (s) => t.setText(s),
+    label: t,
+    setEnabled: (on) => {
+      if (on === enabled || !bg.scene) return view;
+      enabled = on;
+      const grey = scene.textures.exists(DISABLED_BTN) && skin !== null;
+      if (on) {
+        const f = tex(scene, textureId, false);
+        bg.setTexture(f.key, f.frame);
+        bg.clearTint();
+      } else if (grey) bg.setTexture(DISABLED_BTN);
+      else bg.setTint(DISABLED_TINT);
+      t.setColor(on ? labelColor : C.disabled);
+      if (skin) t.setShadow(0, on && dark ? 2 : 3, on && dark ? 'rgba(255,244,210,0.55)' : 'rgba(0,0,0,0.85)', on && dark ? 0 : 3, false, true);
+      // Иконки и украшения внутри кнопки: иконки приглушены, свечение и блик (ADD) спрятаны.
+      for (const o of container.list) {
+        if (o === bg || o === t) continue;
+        const g = o as Phaser.GameObjects.Image;
+        if (g.blendMode === Phaser.BlendModes.ADD) g.setVisible(on);
+        else if (typeof g.setAlpha === 'function') {
+          if (!on) g.setData('enabledAlpha', g.alpha);
+          g.setAlpha(on ? ((g.getData('enabledAlpha') as number | undefined) ?? 1) : 0.4);
+        }
+      }
+      return view;
+    },
+  };
+  return view;
 }
 
 /** Опасное действие (сброс и т. п.): обычная тёмная плитка с красной подписью — не выделяется как активная и не спутать с основной (T3-23). */

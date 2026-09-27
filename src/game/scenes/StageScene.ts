@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import { actSkipStage, autoFormation, enemySquad, getStage, stagePower, stageStatus } from '../../core';
+import { actSkipStage, autoFormation, enemySquad, getStage, stageStatus } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { formatNumber, stageSeed } from '../flow';
+import { formatNumber, recommendedPower, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { screen } from '../screen';
 import { commit, session, today } from '../session';
@@ -63,7 +63,7 @@ export class StageScene extends Phaser.Scene {
     this.editor = new FormationEditor(this, {
       field: L.field,
       enemies: enemySquad(this.stageId, GAME),
-      enemyPower: stagePower(this.stageId, GAME),
+      enemyPower: recommendedPower(this.stageId, GAME),
       roster: L.roster,
       onChange: () => this.onSquadChange(),
     });
@@ -97,7 +97,7 @@ export class StageScene extends Phaser.Scene {
   /** Доступность «В бой» — после каждого изменения отряда (мощь и предупреждение рисует редактор). */
   private onSquadChange(): void {
     const ready = session.save.squad.some(Boolean);
-    for (const b of this.fightBtns) b.container.setAlpha(ready ? 1 : 0.45);
+    for (const b of this.fightBtns) b.setEnabled(ready);
   }
 
   /** K8: авто-расстановка сильнейших героев. */

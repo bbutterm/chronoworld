@@ -270,7 +270,7 @@ export class HeroScene extends Phaser.Scene {
         const asc = button(this, 560, ACT_Y - 18, 230, 96, canAscend ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести', () => this.openAscend(), FS.h3);
         asc.container.setName('ascendBtn');
         if (canAscend) pulse(this, asc.container, 1.05);
-        else asc.container.setAlpha(0.85);
+        else asc.setEnabled(false);
         const sub = req.shards ? `осколки ${req.shards.have}/${req.shards.need}` : canAscend ? 'корм готов!' : 'нужен корм';
         text(this, 560, ACT_Y + 55, sub, FS.caption, canAscend ? C.positive : C.muted, { stroke: C.stroke, strokeThickness: 4 });
       }
@@ -341,7 +341,7 @@ export class HeroScene extends Phaser.Scene {
       this.ui.deltas[i].setText(d > 0 ? `▲ +${d}` : gear[k] ? `+${gear[k]} экип.` : '').setColor(d > 0 ? C.positive : C.inkInfo);
     });
     if (this.ui.up) {
-      this.ui.up.container.setAlpha(info.canLevel ? 1 : 0.6);
+      this.ui.up.setEnabled(info.canLevel);
       this.ui.upGlow?.setAlpha(info.canLevel ? 0.55 : 0);
     }
     this.renderInfo(hero);

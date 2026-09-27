@@ -7,6 +7,8 @@
  *   npm run content:new -- stage chapter4                   этап перед босс-этапом главы
  *   npm run content:new -- story chapter4                   сюжет главы (если создавали главу с --no-story)
  *   npm run content:new -- boss mob_orc_lord --from mob_boss1 --sprite boss1
+ *   npm run content:new -- hero nia --class hunter --gender f                карточка героя (Таверна, редкость по классу)
+ *   npm run content:new -- hero mira --class archer --gender f --story --form bard --after ch4_s10   сюжетная + рекрут
  * Заготовки проходят content:check; строки «TODO» он показывает предупреждениями — их надо дописать.
  */
 import { ContentNewError, runContentNew } from './lib/content-gen';

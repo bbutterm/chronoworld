@@ -18,7 +18,7 @@
 | `package.json` | скрипты npm (см. `CLAUDE.md`), зависимости: phaser, zod; dev: vite, vitest, tsx, typescript |
 | `vite.config.ts` | сборка; плагин копирует в `dist` только используемые ассеты; в dev `assets/` отдаётся с корня |
 | `vercel.json`, `netlify.toml` | статический хостинг (Vercel — основной) |
-| `index.html` | контейнер `#game`, заглушка «Поверните телефон» для альбомной ориентации |
+| `index.html` | контейнер `#game`, заглушка «Поверните телефон» для альбомной ориентации, HTML-заставка `#splash` (inline CSS: лента, орнамент, полоса с фаской — те же числа и цвета, что `src/game/bootLook.ts`; меняете одно — меняйте и другое) |
 | `.github/workflows/check.yml` | CI на каждый push/PR: `npm ci`, `npm run check`, `npm run build` |
 | `data/` | весь контент и числа (раздел 2) |
 | `assets/` | арт: `sprites/` (листы v2), `effects/` (анимированные эффекты RO), `fx/` (статичные запасные эффекты), `ro/` (старые листы v1, бюсты, иконки ульт), `ui/` (Kenney UI + иконки навыков RO), `backgrounds/`, `tiles/`, `manifest.json` |
@@ -61,7 +61,7 @@
 
 | Сцена (ключ) | Назначение |
 | --- | --- |
-| `BootScene` (`Boot`) | экран загрузки: манифест, портреты, иконки навыков, скин; листы юнитов — лениво |
+| `BootScene` (`Boot`) | экран загрузки (вид — `bootLook.ts`: тёплый полумрак, лента «Chronoworld», полоса с фаской; совпадает с `#splash` в index.html): манифест, портреты, иконки навыков, скин; листы юнитов — лениво |
 | `HomeScene` (`Home`) | главная: офлайн-сундук, быстрые награды, плитки функций, «В кампанию», настройки за шестерёнкой |
 | `CampaignScene` (`Campaign`) | карта главы — тропа этапов снизу вверх; сюжет `chapterStart` |
 | `StageScene` (`Stage`) | подготовка к этапу: поле «отряд против противника» как в бою, список героев, «Авто», «Пресеты», «В бой»; сюжет `beforeStage` |
@@ -80,18 +80,18 @@
 | --- | --- |
 | `content.ts` | `GAME`/`CONTENT` — `buildGameContext` из `import.meta.glob('data/...')`; новые файлы подхватываются сами |
 | `session.ts`, `storage.ts`, `state.ts` | текущее сохранение и `commit`; localStorage (ключ `chronoworld.save.v1`, ревизии, бэкапы); настройки (скорость, авто, FPS, анимации) |
-| `skin.ts` | скин «тёмная бронза», рисуется кодом (плитки с фаской и металлической рамкой, кнопки с «толщиной», вкладки, «таблетка» валюты, лента, медальон, свечение, блик, орнамент шапки); файл из манифеста с тем же id побеждает |
+| `skin.ts` | скин «тёмная бронза», рисуется кодом (плитки с фаской и металлической рамкой, кнопки с «толщиной», вкладки, «таблетка» валюты, лента, медальон, свечение, блик, орнамент шапки, серая недоступная кнопка `skin_btn_disabled`); файл из манифеста с тем же id побеждает |
 | `decor.ts` | украшения экранов в духе AFK: `ribbon` (лента-заголовок), `medallion` (иконка в медальоне), `ctaShine` (блик по главной кнопке), `slowRays`, `glow`, `motes`, `sparkBurst`; движение выключается «Уменьшить анимацию» |
 | `theme.ts`, `layout.ts` | токены (шрифты `FS`, цвета `C`, `TOUCH`), размеры поля 1080×1920 |
-| `ui.ts` | кнопки, тексты, прокрутка, защита от двойного тапа, указатель подсказки |
-| `screen.ts` | каркас экрана: шапка, «Назад», валюта, нижняя навигация, портреты |
-| `flow.ts` | чистые помощники экранов без Phaser (тестируются) |
+| `ui.ts` | кнопки, тексты, прокрутка, защита от двойного тапа, указатель подсказки. Недоступная кнопка — `button(...).setEnabled(false)` (серый «камень», приглушённые подпись и иконки, без свечения/блика), а не `setAlpha`: нажатие по-прежнему приходит в onClick (экран объясняет тостом), кому не нужно — `.container.disableInteractive()` |
+| `screen.ts` | каркас экрана: шапка, «Назад», валюта, нижняя навигация, портреты. `screen(..., { player: true })` — плашка игрока на главной (лидер отряда в рамке, «уровень лагеря» `flow.ts campLevel`, полоска опыта). Вытянутый телефон (`topBand()` ≥ 84 ед. над полем, `view().safeTop`) — валюта уезжает в полосу над шапкой одной строкой. `powerChip`/`setPowerChip` — плашка «мощь отряда / рекомендуемая · вердикт» (главная, этап); значок «Герои»: число (вознести/вещь) или зелёная стрелка «можно Улучшить» (`flow.ts heroesNavBadge`) |
+| `flow.ts` | чистые помощники экранов без Phaser (тестируются). «Крючок»: `recommendedPower(stageId)` (пока = мощь врагов `stagePower`; появится рекомендация баланса в ядре — заменить здесь), `powerCheck` (мощь отряда, рекомендуемая, тон ahead/close/behind, вердикт «Сил хватает / Чуть не хватает / Слабее») — главная «В кампанию», узел текущего этапа в кампании, этап; `campLevel` — «уровень лагеря» из прогресса (этапы, этажи, уровни героев; `CAMP_EXP`, `campLevelCost`), `leadHero` — аватар; тесты `tests/game-polish.test.ts` |
 | `transitions.ts` | затемнение между экранами, блок ввода во время перехода |
 | `juice.ts` | «сочность» меню: летящие награды, отсчёт чисел, выезд списков; выключается «Уменьшить анимацию» |
 | `audio.ts`, `audioCatalog.ts`, `audioCore.ts`, `audioSynth.ts`, `sceneAudio.ts`, `battleAudio.ts` | звук (issue #26, `docs/design/audio.md`): `sfx(id)`, музыка по экрану, заглушки синтезом, файлы `assets/audio/<id>.ogg` побеждают; настройки «Музыка»/«Звуки»/«Без звука» |
 | `viewport.ts`, `viewLayout.ts` | вывод на экран телефона: безопасная зона, поля за краями, DPR |
 | `backdrops.ts` | фоны боя и карты по теме главы (луг/топь/склеп), рисуются кодом; файлы `assets/backgrounds/bg_{battle,map}_ch<N>.*` побеждают |
-| `tavern.ts`, `tavernArt.ts`, `tavernCard.ts`, `tavernEntry.ts` | Таверна: чистые помощники (порядок и ритм показа, раскладка карт, кнопки, гарант — тесты `tests/game-tavern.test.ts`), нарисованный зал и эффекты (файл `assets/backgrounds/bg_tavern.*` побеждает), карточка героя (временная, до общего `heroCard.ts`), плитка на главной со значком |
+| `tavern.ts`, `tavernArt.ts`, `tavernEntry.ts` | Таверна: чистые помощники (порядок и ритм показа, раскладка карт, кнопки, гарант — тесты `tests/game-tavern.test.ts`), нарисованный зал, рубашка карты и эффекты (файл `assets/backgrounds/bg_tavern.*` побеждает), плитка на главной со значком. Лицо карты призыва — общий `heroCard.ts drawHeroCard` (бюст на столе, фигура на крупной) |
 | `ambient.ts` | тени под юнитами и частицы по теме |
 | `battleFx.ts` | слои глубины боя, затемнение и баннер ульты, цифры, пулы |
 | `skillFx.ts` | эффекты навыков кодом: круг каста, снаряды, площадь, искры |
@@ -104,6 +104,7 @@
 | `hints.ts`, `hintLayout.ts` | подсказки первой сессии и их размещение |
 | `perf.ts`, `lifecycle.ts` | пулы объектов; пауза при сворачивании, ограничение FPS |
 | `itemIcons.ts`, `describe.ts`, `assets.ts` | иконки предметов кодом; описание юнита; загрузка манифеста и плейсхолдеры |
+| `bootLook.ts` | вид экрана загрузки (BootScene) маленькими canvas-текстурами до загрузки скина; `BOOT`/`BOOT_COLORS` — раскладка и цвета, повторены в CSS `#splash` index.html |
 | `heroCard.ts` | плитка карточки героя (общая для «Героев» и «Таверны»): `drawHeroCard(scene, x, y, hero \| template \| templateId, opts)` — рамка редкости с орнаментом, фон-сияние, лицо или фигура, значки линии и роли, имя, уровень, ромбы редкостей, метки; `rarityBackdrop`, `rarityPips`, `iconBadge`, `glowTexture`, `raysTexture` |
 | `heroesView.ts` | чистые помощники H4 (тесты `tests/game-heroes.test.ts`): фильтры и сортировка коллекции, листание, прибавка за уровень, `levelShortage`, `ascendPreview`, слоты корма, `shardSources` |
 | `squadEditor.ts`, `prepLayout.ts` | `FormationEditor` — подготовка к бою в духе AFK Arena: поле 2 фронт + 3 тыл по `combat.json field.slotsA` (герой в стойке, роль, уровень, мощь), список героев с прокруткой; нажатие — в лучший слот / убрать, перетаскивание из списка в слот и между слотами (касанием; цель — под «призраком» героя), «Переставить» при стрелках во фронте. `prepLayout.ts` — чистые правила (лучший слот, обмен, геометрия, жест), тесты `tests/game-prep.test.ts` |
@@ -114,12 +115,13 @@
 
 | Файл | Что |
 | --- | --- |
-| `content-check.ts` | `npm run content:check` — все проверки контента и ассетов |
-| `content-new.ts` + `lib/content-gen.ts` | `npm run content:new` — заготовки unit/skill/chapter/stage/story/boss |
+| `content-check.ts` + `lib/content-check-heroes.ts` | `npm run content:check` — все проверки контента и ассетов; карточки героев и Таверна (лист находится — свой или класса по полу, портрет, пол листа; призывную карточку Таверна выдаёт) — отдельный модуль, тест `tests/content-check-heroes.test.ts` |
+| `content-new.ts` + `lib/content-gen.ts` | `npm run content:new` — заготовки unit/skill/chapter/stage/story/boss/hero (карточка героя: `hero <id> --class <job> --gender m\|f [--rarity] [--story --form --after]`); глава — с экономикой по формуле баланса (сундук +9%/этап, награды 30/45 мин сундука). Рецепты и чеклист новой главы — `docs/CONTENT_RECIPES.md`, 4а и 6 |
 | `content-schema.ts` + `lib/schemas.ts` | JSON-схемы для редактора из zod |
 | `sim.ts` | серии боёв |
 | `playthrough.ts` | прохождение главы ядром, `--winrate`, `--idle` |
-| `balance.ts` + `lib/player-model.ts` | модель игрока на D дней → CSV |
+| `balance.ts` + `lib/player-model.ts` | модель игрока на D дней (часы сессии, «крючки», рекомендуемая мощь) → CSV |
+| `balance-fit.ts` | регулятор `mult` глав (кроме главы 1) по окнам из `data/progression.json` → balance, `--chapter N` (docs/content/balance.md) |
 | `chapter-save.ts` | сохранение для визуального прогона главы (`npx tsx scripts/chapter-save.ts [jobLevel] [tier2|tier1] > save.json`) |
 | `e2e.mjs`, `e2e-chapter1.mjs`, `perf.mjs` | браузерные прогоны (Playwright глобальный) |
 | `assets-report.ts` + `lib/used-assets.ts` | какие ассеты нужны сборке |
@@ -260,7 +262,11 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - Мелкие: `heroName`, `heroGender`, `heroJobId` (класс с учётом формы), `heroRole`, `heroLine`, `heroStats`, `heroSkillList`,
   `heroSkills`, `heroSpriteOverride` (свой лист формы); спрайт по реестру — `src/game/flow.ts heroSprite(hero, ctx)`.
 - Редкости: `CARD_RARITIES`, `rarityDef(ctx, r)` (цвет, предел, множители), `maxLevelOf`, `nextRarity`, `rarityIndex`.
-- Мощь: `heroPower(hero, ctx, save)` (K2, с экипировкой).
+- Мощь: `heroPower(hero, ctx, save)` (K2, с экипировкой), `squadPower(save, ctx)`, `stagePower(stageId, ctx)` (враги этапа).
+- **Рекомендуемая мощь этапа** (как в AFK над «В бой»): `recommendedPower(stageId, ctx)` — красивое число; `stagePowerCheck(save,
+  stageId, ctx)` → `{ squad, recommended, ratio, verdict 'easy'|'ok'|'hard'|'very_hard' }` (≥1.1 / ≥0.95 / ≥0.85 / ниже) — цвет и
+  подсказка «чуть-чуть не хватает — поднимите уровни». Коэффициенты — `data/progression.json → power.recommended*`, подбор —
+  `npm run balance -- --fit-recommended` (`docs/content/balance.md`, раздел 4).
 
 **«Улучшить» (уровень из общего пула опыта `save.resources.heroExp` + золото)**
 - `levelUpInfo(save, heroId, ctx)` → `{ level, maxLevel, cost {exp, gold} | null, canLevel, blocker ('max_level'|'not_enough_exp'|
@@ -394,8 +400,12 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 
 ## 7. Баланс
 
-- **Цели:** этапы 1–9 главы 1 — 100% побед перед первой попыткой; босс главы 1 — около ⅔–80% (сейчас `mob_mastering` mult 0.84 → 83–84%
-  на 600 seed'ах). Главы 2–3 — «иди, упрись, забери сундук»: стены растут плавно, босс главы — 1–2 полных сундука.
+- **Цели и итог баланса прогрессии (27.09)** — `docs/content/balance.md`: «Улучшить» каждые 1–2 боя в первые 30 мин, Таверна и первый
+  ×10 на ch1_s5, первое вознесение в конце главы 1, глава 2 — дни 1–2, глава 3 — дни 3–5, стены на 1–2 сундука, поражения при 85–95%
+  рекомендуемой мощи. Этапы 1–9 главы 1 — 100% побед перед первой попыткой; босс главы 1 — 75–88% в среднем по выдачам Таверны
+  (`mob_mastering` mult 1.16, тест `chapter1-playthrough`).
+- **Инструменты:** `npm run balance` (модель игрока с часами сессии, сводка «по часам» и «крючки»), `-- --fit-recommended`
+  (рекомендуемая мощь), `npx tsx scripts/balance-fit.ts` (регулятор `mult` глав по окнам `progression.json` → balance).
 - **Метод (как подбирали босса главы 1):** `npm run playthrough -- 0 3 --winrate 600` — новая игра, этапы по порядку, перед каждым этапом
   доля побед на 600 seed'ах текущим отрядом; меняли `mult` босса шагом 0.01–0.02 и смотрели кривую (карточки v4, отряд Алан 5 / Бран 4 /
   Вика 4: 0.81 → 97%, 0.83 → 91%, 0.84 → 83%, 0.85 → 74%, 0.86 → 57%, 0.90 → 4%).

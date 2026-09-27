@@ -2,12 +2,12 @@
  * Генераторы `npm run content:new` (scripts/lib/content-gen.ts): заготовки пишутся во временную копию data/
  * и должны собираться тем же buildGameContext, что и игра (без ошибок), а TODO — находиться для предупреждений content:check.
  */
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { collectGameContext, simulateBattle, enemySquad, newGame, buildUnit } from '../src/core';
-import { ContentNewError, findTodos, parseArgs, runContentNew } from '../scripts/lib/content-gen';
+import { collectGameContext, simulateBattle, enemySquad, newGame, buildUnit, validateHeroes } from '../src/core';
+import { BOSS_REWARD_MINUTES, CHEST_GROWTH, ContentNewError, findTodos, parseArgs, REWARD_MINUTES, runContentNew } from '../scripts/lib/content-gen';
 import { readJsonDir, readRawGameData, ROOT } from '../scripts/lib/content-node';
 
 let root = '';
@@ -48,12 +48,29 @@ describe('content:new — генераторы заготовок', () => {
   });
 
   it('chapter: 10 этапов (последний — босс) + сюжет; собирается без ошибок и играется', () => {
+    // Последняя глава до генерации (по order) — от неё считаются order и сундук новой; сколько глав в data — неважно.
+    const before = readdirSync(join(root, 'data/campaign'))
+      .filter((f) => f.endsWith('.json'))
+      .map((f) => ({ file: `data/campaign/${f}`, order: json(`data/campaign/${f}`).order as number }))
+      .sort((x, y) => x.order - y.order)
+      .at(-1)!;
     const r = run('chapter', 'chapter9', '--mobs', 'mob_fabre,mob_fast,mob_tank', '--boss', 'gen_boss');
     expect(r.written).toEqual(['data/campaign/chapter9.json', 'data/story/chapter9.json']);
     const ch = json('data/campaign/chapter9.json');
-    expect(ch.order).toBe(4);
+    expect(ch.order).toBe(before.order + 1);
     expect(ch.stages.map((s: { id: string }) => s.id)).toEqual(Array.from({ length: 10 }, (_, i) => `ch9_s${i + 1}`));
     expect(ch.stages.map((s: { boss: boolean }) => s.boss)).toEqual([...Array(9).fill(false), true]);
+    // Экономика — как у глав 2–3 (docs/content/balance.md): сундук +9%/этап от последнего этапа последней главы, золото 0.7,
+    // награда — 30 минут сундука (босс — 45).
+    const prevChest = json(before.file).stages.at(-1).offlinePerMinute.jobExp;
+    type R = { jobExp: number; gold: number };
+    const st = ch.stages as { rewards: R; offlinePerMinute: R; boss: boolean }[];
+    expect(st[0].offlinePerMinute.jobExp).toBe(Math.round(prevChest * CHEST_GROWTH));
+    for (const [i, s] of st.entries()) {
+      if (i > 0) expect(s.offlinePerMinute.jobExp / st[i - 1].offlinePerMinute.jobExp).toBeCloseTo(CHEST_GROWTH, 1);
+      expect(s.offlinePerMinute.gold).toBe(Math.round(s.offlinePerMinute.jobExp * 0.7));
+      expect(s.rewards.jobExp).toBe(s.offlinePerMinute.jobExp * (s.boss ? BOSS_REWARD_MINUTES : REWARD_MINUTES));
+    }
 
     const b = build();
     expect(b.problems).toEqual([]);
@@ -95,5 +112,56 @@ describe('content:new — генераторы заготовок', () => {
     expect(() => run('chapter', 'chapter10')).toThrow(ContentNewError);
     expect(() => run('chapter', 'chapter11', '--mobs', 'mob_boss1')).toThrow(/не монстр/);
     expect(build().problems).toEqual([]);
+  });
+
+  it('hero: призывные карточки первой и второй профессии — валидны, без предупреждений правил, TODO находятся', () => {
+    const r = run('hero', 'gen_thief', '--class', 'thief', '--gender', 'f');
+    expect(r.written).toEqual(['data/heroes/gen_thief.json']);
+    expect(json('data/heroes/gen_thief.json')).toMatchObject({ job: 'thief', line: 'thief', source: 'summon', baseRarity: 'green', maxRarity: 'gold', gender: 'f' });
+    run('hero', 'gen_blue', '--class', 'mage', '--gender', 'm', '--rarity', 'blue');
+    expect(json('data/heroes/gen_blue.json')).toMatchObject({ baseRarity: 'blue', maxRarity: 'gold' });
+    run('hero', 'gen_knight_f', '--class', 'knight', '--gender', 'f', '--sprite', 'knight_m');
+    const k = json('data/heroes/gen_knight_f.json');
+    expect(k).toMatchObject({ line: 'swordman', role: 'tank', baseRarity: 'purple', maxRarity: 'red', visual: { sprite: 'knight_m' } });
+    // У рыцаря 5 навыков, Сейрен занял 4 — генератор берёт меньше, но без > 2 общих и с другим фирменным.
+    expect(k.skills.length).toBeGreaterThanOrEqual(2);
+    expect(k.skills[0].level).toBe(1);
+
+    const b = build();
+    expect(b.problems).toEqual([]);
+    const warnings: string[] = [];
+    validateHeroes(b.ctx!.content, [], warnings);
+    expect(warnings.filter((w) => /gen_(thief|blue|knight_f)/.test(w))).toEqual([]);
+    // Каждая новая карточка выходит в бой.
+    for (const id of ['gen_thief', 'gen_blue', 'gen_knight_f']) {
+      const t = b.ctx!.content.heroes[id];
+      const unit = buildUnit({ id: 'x', templateId: id, rarity: t.maxRarity, level: 100 }, b.ctx!);
+      expect(simulateBattle(b.ctx!.content, [unit, null, null, null, null], [unit, null, null, null, null], 1, { log: false }).winner).toMatch(/^[AB]$|^draw$/);
+    }
+    const todos = findTodos('data/heroes/gen_thief.json', json('data/heroes/gen_thief.json'));
+    expect(todos.map((t) => t.split(' — ')[0])).toEqual(expect.arrayContaining(['data/heroes/gen_thief.json: name', 'data/heroes/gen_thief.json: bio', 'data/heroes/gen_thief.json: hook']));
+  });
+
+  it('hero --story: форма второй профессии и рекрут в progression.heroes.recruits', () => {
+    const r = run('hero', 'gen_story', '--class', 'archer', '--gender', 'f', '--story', '--form', 'bard', '--after', 'ch2_s5');
+    expect(r.written).toEqual(['data/heroes/gen_story.json', 'data/progression.json']);
+    const h = json('data/heroes/gen_story.json');
+    expect(h).toMatchObject({ source: 'story', baseRarity: 'green', maxRarity: 'red', forms: [{ rarity: 'purple', job: 'bard' }] });
+    expect(json('data/progression.json').heroes.recruits.at(-1)).toEqual({ afterStage: 'ch2_s5', template: 'gen_story' });
+    expect(build().problems).toEqual([]);
+  });
+
+  it('hero: ошибки ввода — понятный отказ, файлов не пишет', () => {
+    expect(() => run('hero', 'gen_x', '--gender', 'm')).toThrow(/--class/);
+    expect(() => run('hero', 'gen_x', '--class', 'nope', '--gender', 'm')).toThrow(/--class/);
+    expect(() => run('hero', 'gen_x', '--class', 'novice', '--gender', 'm')).toThrow(/Новичок/);
+    expect(() => run('hero', 'gen_x', '--class', 'mage')).toThrow(/--gender/);
+    expect(() => run('hero', 'gen_x', '--class', 'mage', '--gender', 'm', '--rarity', 'purple')).toThrow(/green или blue/);
+    expect(() => run('hero', 'gen_x', '--class', 'wizard', '--gender', 'm', '--rarity', 'green')).toThrow(/purple/);
+    expect(() => run('hero', 'gen_x', '--class', 'wizard', '--gender', 'm', '--story')).toThrow(/первая профессия/);
+    expect(() => run('hero', 'gen_x', '--class', 'mage', '--gender', 'm', '--story', '--form', 'knight')).toThrow(/--form/);
+    expect(() => run('hero', 'gen_x', '--class', 'mage', '--gender', 'm', '--story', '--after', 'ch9_s99')).toThrow(/--after/);
+    expect(() => run('hero', 'gen_thief', '--class', 'thief', '--gender', 'm')).toThrow(/уже есть/);
+    expect(existsSync(join(root, 'data/heroes/gen_x.json'))).toBe(false);
   });
 });

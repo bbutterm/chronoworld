@@ -9,6 +9,8 @@
  *   stage <chapterId> [--from <stageId>] [--append]      этап: копия соседнего, перед босс-этапом (или в конец с --append)
  *   story <chapterId>                                    сюжет главы: вступление, сцена перед боссом (bossIntro), финал
  *   boss <id> [--from <unitId>] [--sprite <spriteId>] [--name "…"]   босс + своя ульта <id>_ult
+ *   hero <id> --class <jobId> --gender m|f [--rarity green|blue|purple] [--story] [--form <jobId>] [--after <stageId>]
+ *        [--name "…"] [--sprite <spriteId>]            карточка героя data/heroes/<id>.json (docs/design/heroes.md)
  *
  * Все заготовки сразу проходят `npm run content:check`: ссылки только на существующие юниты, навыки и спрайты.
  * Места, которые надо дописать руками (названия, реплики, баланс), помечены строкой «TODO» — content:check
@@ -90,6 +92,7 @@ export const USAGE = [
   '  stage <chapterId> [--from <stageId>] [--append]',
   '  story <chapterId>',
   '  boss <id> [--from <unitId>] [--sprite <spriteId>] [--name "…"]',
+  '  hero <id> --class <jobId> --gender m|f [--rarity green|blue|purple] [--story] [--form <jobId>] [--after <stageId>] [--name "…"] [--sprite <spriteId>]',
 ].join('\n');
 
 // ---------- файлы ----------
@@ -197,6 +200,11 @@ export function genSkill(root: string, id: string, opts: Record<string, string>)
 /** Слоты по числу врагов: фронт первым, потом тыл. */
 const SLOT_ORDER: Record<number, number[]> = { 1: [0], 2: [0, 1], 3: [0, 1, 2], 4: [0, 1, 2, 4], 5: [0, 1, 2, 3, 4] };
 const scaleReward = (r: Reward, k: number): Reward => ({ jobExp: Math.round(r.jobExp * k), gold: Math.round(r.gold * k) });
+/** Экономика новой главы (docs/content/balance.md, раздел 2): сундук +9% за этап, золото 0.7 от опыта, награды — минуты сундука. */
+export const CHEST_GROWTH = 1.09;
+export const CHEST_GOLD = 0.7;
+export const REWARD_MINUTES = 30;
+export const BOSS_REWARD_MINUTES = 45;
 
 export function genChapter(root: string, id: string, opts: Record<string, string>): GenResult {
   const out: GenResult = { written: [], notes: [] };
@@ -225,10 +233,15 @@ export function genChapter(root: string, id: string, opts: Record<string, string
   const boss = unit(root, bossId);
   if (boss.kind !== 'boss') throw new ContentNewError(`--boss: ${bossId} — не босс (kind ${boss.kind})`);
 
-  // Награды — продолжение последнего этапа прошлой главы, +10% за этап.
+  // Экономика — как у глав 2–3 (docs/content/balance.md, раздел 2): сундук (offlinePerMinute) растёт геометрически,
+  // +9% за этап от последнего этапа прошлой главы, золото сундука — 0.7 от опыта; награда за первое прохождение —
+  // 30 минут сундука этого этапа (босс — 45 минут).
   const lastStage = last?.stages[last.stages.length - 1];
-  const baseR = lastStage?.rewards ?? { jobExp: 30, gold: 40 };
-  const baseO = lastStage?.offlinePerMinute ?? { jobExp: 2, gold: 5 };
+  const baseChest = lastStage?.offlinePerMinute.jobExp ?? 6;
+  const chestAt = (i: number): Reward => {
+    const jobExp = Math.round(baseChest * Math.pow(CHEST_GROWTH, i + 1));
+    return { jobExp, gold: Math.round(jobExp * CHEST_GOLD) };
+  };
   const stages: Stage[] = [];
   for (let i = 0; i < 9; i++) {
     const n = i < 3 ? 3 : i < 6 ? 4 : 5;
@@ -239,8 +252,8 @@ export function genChapter(root: string, id: string, opts: Record<string, string
       name: `${TODO}: этап ${i + 1}`,
       boss: false,
       enemies,
-      rewards: scaleReward(baseR, 1 + 0.1 * (i + 1)),
-      offlinePerMinute: scaleReward(baseO, 1 + 0.1 * (i + 1)),
+      rewards: scaleReward(chestAt(i), REWARD_MINUTES),
+      offlinePerMinute: chestAt(i),
     });
   }
   stages.push({
@@ -248,12 +261,12 @@ export function genChapter(root: string, id: string, opts: Record<string, string
     name: `${TODO}: логово босса`,
     boss: true,
     enemies: [{ unit: mobs[0], mult: 1 }, { unit: bossId, mult: 0.5 }, { unit: mobs[1 % mobs.length], mult: 1 }, { unit: mobs[2 % mobs.length], mult: 1 }, null],
-    rewards: scaleReward(baseR, 2.3),
-    offlinePerMinute: scaleReward(baseO, 2),
+    rewards: scaleReward(chestAt(9), BOSS_REWARD_MINUTES),
+    offlinePerMinute: chestAt(9),
   });
   const chapter: Chapter = {
     $schema: '../schema/chapter.schema.json',
-    $comment: `${TODO}: заготовка content:new — mult всех этапов = 1 (босс 0.5), подобрать по docs/CONTENT_RECIPES.md «Баланс главы»`,
+    $comment: `${TODO}: заготовка content:new — mult всех этапов = 1 (босс 0.5), подобрать по docs/CONTENT_RECIPES.md «Новая глава: чеклист» (playthrough, balance-fit, --fit-recommended); сундук и награды уже по формуле баланса`,
     id,
     name: opts.name ?? `${TODO}: Глава ${order}`,
     order,
@@ -262,9 +275,11 @@ export function genChapter(root: string, id: string, opts: Record<string, string
   writeNew(root, rel, chapter, out);
   out.notes.push(
     `Глава ${id}: этапы ${prefix}_s1…${prefix}_s10, монстры ${mobs.join(', ')}, босс ${bossId}.`,
-    'Дальше: названия этапов, составы и mult (npx tsx scripts/playthrough.ts <индекс главы> 3 --idle --winrate 200),',
-    'фоны assets/backgrounds/bg_battle_ch<N>.jpg / bg_map_ch<N>.jpg, рекрут в data/progression.json → heroes.recruits,',
-    'полоса башни в data/tower.json → bands; тесты с жёстким числом глав (tests/chapters.test.ts) — обновить.',
+    `Сундук ${stages[0].offlinePerMinute.jobExp}…${stages[9].offlinePerMinute.jobExp} опыта/мин (+9%/этап), награды — 30 мин сундука (босс 45).`,
+    'Дальше — чеклист «Новая глава» в docs/CONTENT_RECIPES.md: названия, составы и mult (npm run playthrough -- <индекс главы> 3 --idle),',
+    'окна главы в scripts/balance-fit.ts (W и список файлов) → npx tsx scripts/balance-fit.ts, затем npm run balance -- --days 10 --fit-recommended',
+    '(data/progression.json → power.recommendedStages); фоны assets/backgrounds/bg_battle_ch<N>.jpg / bg_map_ch<N>.jpg,',
+    'рекрут в data/progression.json → heroes.recruits, полоса башни data/tower.json → bands; подгонка силы — npx tsx scripts/balance-fit.ts --chapter N.',
   );
   if (opts['no-story'] !== 'true') {
     const story = genStory(root, id, {});
@@ -382,6 +397,211 @@ export function genBoss(root: string, id: string, opts: Record<string, string>):
   return out;
 }
 
+// ---------- hero (карточка героя) ----------
+
+interface JobJson {
+  id: string;
+  tier: number;
+  from: string[];
+  role: string;
+  skills: { jobLevel: number; skill: string }[];
+}
+interface HeroJson {
+  id: string;
+  name: string;
+  job: string;
+  source: string;
+  skills: { level: number; skill: string }[];
+}
+
+const RARITIES = ['green', 'blue', 'purple', 'gold', 'red'] as const;
+/** Уровни открытия навыков карточки (как у шаблонов data/heroes): 1, 10, 30, 50. */
+export const CARD_SKILL_LEVELS = [1, 10, 30, 50];
+
+function jobs(root: string): Record<string, JobJson> {
+  return Object.fromEntries(readJsonDirNames(join(root, 'data/jobs')).map((f) => readJson<JobJson>(root, `data/jobs/${f}`)).map((j) => [j.id, j]));
+}
+
+function heroTemplates(root: string): HeroJson[] {
+  const dir = join(root, 'data/heroes');
+  return existsSync(dir) ? readJsonDirNames(dir).map((f) => readJson<HeroJson>(root, `data/heroes/${f}`)) : [];
+}
+
+/** Первая профессия ветки (как lineOf ядра). */
+function lineOfJob(all: Record<string, JobJson>, jobId: string): string {
+  let cur = all[jobId];
+  const seen = new Set<string>();
+  while (cur && cur.tier > 1 && !seen.has(cur.id)) {
+    seen.add(cur.id);
+    const tier = cur.tier;
+    const parent = cur.from.map((f) => all[f]).find((j) => j && j.tier < tier);
+    if (!parent) break;
+    cur = parent;
+  }
+  return cur?.id ?? jobId;
+}
+
+/**
+ * Навыки новой карточки класса job: кандидаты — навыки профессии (data/jobs) и файлы data/skills/job_<job>_*.json;
+ * из них 4 (или сколько есть, минимум 2) так, чтобы с каждой карточкой того же класса было ≤ 2 общих навыков и другой
+ * «фирменный» (последний) навык — правила validateHeroes. Первый (ур. 1) — активный, не пассивка (trigger).
+ */
+export function pickCardSkills(root: string, job: JobJson, sameClass: HeroJson[]): { level: number; skill: string }[] {
+  const order = new Map<string, number>(job.skills.map((s) => [s.skill, s.jobLevel]));
+  for (const f of readJsonDirNames(join(root, 'data/skills'))) {
+    const sid = f.replace(/\.json$/, '');
+    if (sid.startsWith(`job_${job.id}_`) && !order.has(sid)) order.set(sid, 1000 + order.size);
+  }
+  const cands = [...order.entries()]
+    .filter(([sid]) => exists(root, `data/skills/${sid}.json`))
+    .sort((a, b) => a[1] - b[1])
+    .map(([sid]) => sid);
+  if (cands.length < 2) {
+    throw new ContentNewError(`у класса ${job.id} меньше двух навыков (data/jobs/${job.id}.json → skills, data/skills/job_${job.id}_*) — сначала добавьте навыки`);
+  }
+  const passive = new Set(cands.filter((sid) => !!readJson<Json>(root, `data/skills/${sid}.json`).trigger));
+  const sig = (t: HeroJson) => [...t.skills].sort((a, b) => a.level - b.level).at(-1)?.skill;
+  const sigs = new Set(sameClass.map(sig));
+  // Штраф: > 2 общих навыков с карточкой класса и тот же фирменный навык — нарушения (⚠ validateHeroes), пассивка первой — хуже;
+  // общие навыки сверх этого — лёгкий штраф (разнообразие).
+  const score = (pick: string[]) => {
+    let hard = pick.every((s) => passive.has(s)) ? 1 : 0;
+    let soft = 0;
+    for (const t of sameClass) {
+      const shared = t.skills.filter((s) => pick.includes(s.skill)).length;
+      hard += Math.max(0, shared - 2);
+      soft += shared;
+    }
+    if (sigs.has(pick[pick.length - 1])) hard += 1;
+    return { hard, soft };
+  };
+  const arrange = (acc: string[]) => {
+    const pick = [...acc];
+    const firstActive = pick.findIndex((s) => !passive.has(s));
+    if (firstActive > 0) pick.unshift(...pick.splice(firstActive, 1));
+    return pick;
+  };
+  let best: { pick: string[]; hard: number; soft: number } | undefined;
+  // 4 навыка, если так можно без нарушений; иначе меньше (минимум 2), иначе лучшие 4.
+  for (let n = Math.min(4, cands.length); n >= 2; n--) {
+    let bestN: typeof best;
+    const combo = (start: number, acc: string[]) => {
+      if (acc.length === n) {
+        const pick = arrange(acc);
+        const sc = score(pick);
+        if (!bestN || sc.hard < bestN.hard || (sc.hard === bestN.hard && sc.soft < bestN.soft)) bestN = { pick, ...sc };
+        return;
+      }
+      for (let i = start; i < cands.length; i++) combo(i + 1, [...acc, cands[i]]);
+    };
+    combo(0, []);
+    if (!best) best = bestN;
+    if (bestN && bestN.hard === 0) {
+      best = bestN;
+      break;
+    }
+  }
+  return best!.pick.map((skill, i) => ({ level: CARD_SKILL_LEVELS[i], skill }));
+}
+
+export function genHero(root: string, id: string, opts: Record<string, string>): GenResult {
+  const out: GenResult = { written: [], notes: [] };
+  checkId(id, 'hero');
+  const rel = `data/heroes/${id}.json`;
+  if (exists(root, rel)) throw new ContentNewError(`${rel} уже есть — не перезаписываю`);
+  const allJobs = jobs(root);
+  const job = opts.class ? allJobs[opts.class] : undefined;
+  const classes = Object.values(allJobs)
+    .filter((j) => j.tier > 0)
+    .map((j) => j.id)
+    .sort()
+    .join(', ');
+  if (!job) throw new ContentNewError(`--class: нужен id профессии из data/jobs (${classes}); получено: ${opts.class ?? 'ничего'}`);
+  if (job.tier < 1) throw new ContentNewError(`--class: ${job.id} — Новичок, карточка не может быть Новичком`);
+  const gender = opts.gender;
+  if (gender !== 'm' && gender !== 'f') throw new ContentNewError(`--gender: m или f (получено: ${gender ?? 'ничего'})`);
+  const story = opts.story === 'true';
+  const line = lineOfJob(allJobs, job.id);
+  // Редкости — правила validateHeroes (src/core/heroes/validate.ts).
+  const baseRarity = opts.rarity ?? (story || job.tier === 1 ? 'green' : 'purple');
+  if (!(RARITIES as readonly string[]).includes(baseRarity)) throw new ContentNewError(`--rarity: одна из ${RARITIES.join(', ')} (получено ${baseRarity})`);
+  if (story) {
+    if (job.tier !== 1) throw new ContentNewError(`--story: сюжетная карточка — первая профессия (tier 1), а ${job.id} — tier ${job.tier}; вторая профессия — форма (--form)`);
+    if (baseRarity !== 'green') throw new ContentNewError('--story: сюжетная карточка начинается с green');
+  } else if (job.tier === 1 && !['green', 'blue'].includes(baseRarity)) {
+    throw new ContentNewError(`--rarity: первая профессия из призыва — green или blue (получено ${baseRarity})`);
+  } else if (job.tier >= 2 && baseRarity !== 'purple') {
+    throw new ContentNewError(`--rarity: вторая профессия из призыва — purple (получено ${baseRarity})`);
+  }
+  const maxRarity = !story && job.tier === 1 ? 'gold' : 'red';
+  const templates = heroTemplates(root);
+  const sameClass = (j: string) => templates.filter((t) => t.job === j);
+  const others = sameClass(job.id).map((t) => t.id);
+  const hero: Json = {
+    $schema: '../schema/hero.schema.json',
+    $comment: `${TODO}: заготовка content:new — имя, bio, hook, statMods (отличие от карточек класса ${job.id}: ${others.join(', ') || 'нет'}), навыки; потом удалить $comment`,
+    id,
+    name: opts.name ?? `${TODO}: имя ${id}`,
+    gender,
+    job: job.id,
+    line,
+    role: job.role,
+    source: story ? 'story' : 'summon',
+    baseRarity,
+    maxRarity,
+    statMods: {},
+    skills: pickCardSkills(root, job, sameClass(job.id)),
+  };
+  if (story) {
+    const second = Object.values(allJobs)
+      .filter((j) => j.tier === 2 && lineOfJob(allJobs, j.id) === line)
+      .sort((a, b) => a.id.localeCompare(b.id));
+    const formJob = opts.form ? allJobs[opts.form] : second[0];
+    if (opts.form && (!formJob || !second.includes(formJob))) {
+      throw new ContentNewError(`--form: вторая профессия линии ${line} (${second.map((j) => j.id).join(', ') || 'нет'}); получено ${opts.form}`);
+    }
+    if (formJob) {
+      hero.forms = [
+        {
+          rarity: 'purple',
+          job: formJob.id,
+          role: formJob.role,
+          statMods: { hp: 1.2, atk: 1.2, def: 1.2 },
+          skills: pickCardSkills(root, formJob, sameClass(formJob.id)),
+          promotion: `${TODO}: строка истории при вознесении в ${formJob.id} (≤ 200 символов)`,
+          visual: {},
+        },
+      ];
+    }
+  }
+  hero.visual = opts.sprite ? { sprite: opts.sprite } : {};
+  hero.bio = `${TODO}: кто это (≤ 160 символов)`;
+  hero.hook = `${TODO}: крючок истории (≤ 200 символов)`;
+  // Сюжетную карточку игрок получает только через progression.heroes (иначе content:check — ошибка).
+  const progRel = 'data/progression.json';
+  const all = chapters(root).sort((a, b) => a.order - b.order);
+  const after = opts.after ?? all.at(-1)?.stages.at(-1)?.id;
+  if (story && (!after || !all.some((c) => c.stages.some((s) => s.id === after)))) throw new ContentNewError(`--after: этап ${after ?? '?'} не найден в data/campaign`);
+  writeNew(root, rel, hero, out);
+
+  if (story) {
+    const prog = readJson<{ heroes: { recruits: { afterStage: string; template: string }[] } }>(root, progRel);
+    prog.heroes.recruits.push({ afterStage: after!, template: id });
+    writeNew(root, progRel, prog, out, true);
+    out.notes.push(
+      `Сюжетная карточка: добавлена в ${progRel} → heroes.recruits (после ${after}; другой этап — --after или правкой файла).`,
+      'Представьте рекрута в сюжете главы (сцена afterStage того же этапа) — docs/CONTENT_RECIPES.md, «Карточка героя».',
+    );
+  } else {
+    out.notes.push(`Таверна: регистрировать не нужно — пул собирается сам (source summon, baseRarity ${baseRarity} есть в data/summon.json → rates[].baseRarities).`);
+  }
+  out.notes.push(
+    `Лист: ${opts.sprite ? `visual.sprite = ${opts.sprite}` : `своего нет — лист класса ${job.id} по полу (_${gender}), иначе базовый`}; content:check покажет, какой лист и портрет получатся.`,
+    'id карточки после релиза не переименовывать — он в сохранениях игроков.',
+  );
+  return out;
+}
+
 const GENERATORS: Record<string, (root: string, id: string, opts: Record<string, string>) => GenResult> = {
   unit: genUnit,
   skill: genSkill,
@@ -389,6 +609,7 @@ const GENERATORS: Record<string, (root: string, id: string, opts: Record<string,
   stage: genStage,
   story: genStory,
   boss: genBoss,
+  hero: genHero,
 };
 
 /** Точка входа CLI и тестов: argv без `node script`. Ошибка ввода — ContentNewError. */

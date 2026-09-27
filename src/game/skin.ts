@@ -343,6 +343,8 @@ export function buildSkin(scene: Phaser.Scene): void {
   const gold = { top: '#ffe6a6', bottom: '#b27a26', border: '#5a3a10', borderLight: '#fff2c8', lip: '#6e4512', gloss: 0.32 };
   canvas(scene, 'skin_btn_gold', S, S, (c) => tile(c, S, gold));
   canvas(scene, 'skin_btn_gold_pressed', S, S, (c) => tile(c, S, { ...gold, top: '#d9a54c', pressed: true }));
+  // Недоступная кнопка (ui.ts setEnabled(false)): серый «камень» — без тёплой бронзы и глянца, с той же «толщиной».
+  canvas(scene, 'skin_btn_disabled', S, S, (c) => tile(c, S, { top: '#3b3a37', bottom: '#262523', border: '#1d1c1a', borderLight: '#6b6962', lip: '#121110' }));
   // Опасное действие (сброс прогресса): тёмно-красная кнопка, кремовая подпись.
   const danger = { top: '#a63a2a', bottom: '#5e1a12', border: '#2a0804', borderLight: '#e0806a', lip: '#2a0804', gloss: 0.12 };
   canvas(scene, 'skin_btn_danger', S, S, (c) => tile(c, S, danger));

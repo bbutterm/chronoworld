@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 import { arrangeSquad, COMBAT, duplicateCardsInSquad, formationRank, heroCard, heroName, heroPower, misplacedInFront, squadPower, withGear, type HeroState, type UnitDef } from '../core';
 import { GAME } from './content';
-import { formatNumber, heroSprite, POWER_COLORS, powerTone } from './flow';
+import { formatNumber, heroSprite, POWER_COLORS, POWER_VERDICT, powerTone, type PowerTone } from './flow';
 import { bump, countUp, juiceOn } from './juice';
 import { GAME_W } from './layout';
 import { classifyGesture, dropHero, fieldSlots, hitSlot, removeAt, rosterOrder, swapSlots, tapHero, type Point, type SquadMove } from './prepLayout';
-import { card, portrait, unitFigure, unitTint } from './screen';
+import { card, portrait, powerChip, setPowerChip, unitFigure, unitTint } from './screen';
 import { commit, session } from './session';
 import { SKIN_TINT, skinIcon } from './skin';
 import { portraitKey } from './sprites';
@@ -30,7 +30,7 @@ export interface FormationOpts {
   field: { top: number; bottom: number };
   /** Противник этапа (слоты 0–4, как enemySquad) — рисуется справа; нет — поле только своего отряда. */
   enemies?: (UnitDef | null)[];
-  /** Мощь противника — цвет мощи отряда (ahead/close/behind). */
+  /** Рекомендуемая мощь этапа (flow.ts recommendedPower): «Нужно N», цвет мощи отряда и вердикт (ahead/close/behind). */
   enemyPower?: number;
   /** Полоса прокрутки списка героев. */
   roster: { top: number; bottom: number };
@@ -77,6 +77,8 @@ export class FormationEditor {
   private readonly thumb: Phaser.GameObjects.Rectangle;
   private readonly dragLayer: Phaser.GameObjects.Container;
   private readonly powerText: Phaser.GameObjects.Text;
+  /** Вердикт «сил хватает / чуть не хватает / слабее» (только у этапа). */
+  private verdict: Phaser.GameObjects.Container | null = null;
   private readonly tip: Phaser.GameObjects.Text;
   private readonly fixBtn: ReturnType<typeof button>;
   private slotViews: Phaser.GameObjects.Container[] = [];
@@ -133,7 +135,12 @@ export class FormationEditor {
     // Мощь: над своим отрядом; у этапа справа — мощь противника.
     this.powerText = text(scene, vs ? 268 : GAME_W / 2, field.top + 36, '', FS.h3, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
     if (vs) {
-      text(scene, 812, field.top + 36, `Противник ${formatNumber(opts.enemyPower ?? 0)}`, FS.h3, C.enemy, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
+      text(scene, 812, field.top + 36, `Нужно ${formatNumber(opts.enemyPower ?? 0)}`, FS.h3, C.enemy, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
+      // «Почти готово»: вердикт на разделителе — зелёный / жёлтый «чуть не хватает» / красный (обновляется в refreshInfo).
+      if (opts.enemyPower !== undefined) {
+        const pc = { squad: 0, recommended: opts.enemyPower, tone: 'ahead' as const, verdict: POWER_VERDICT.ahead };
+        this.verdict = powerChip(scene, 540, field.top + 36, pc, { label: pc.verdict }).setDepth(2);
+      }
       this.drawEnemies(opts.enemies ?? []);
     }
 
@@ -312,7 +319,15 @@ export class FormationEditor {
     const prev = this.shownPower;
     this.shownPower = mine;
     const enemy = this.opts.enemyPower;
-    if (enemy !== undefined) this.powerText.setColor(POWER_COLORS[powerTone(mine, enemy)]);
+    if (enemy !== undefined) {
+      const tone = powerTone(mine, enemy);
+      this.powerText.setColor(POWER_COLORS[tone]);
+      if (this.verdict) {
+        const was = this.verdict.getData('tone') as PowerTone;
+        setPowerChip(this.verdict, { squad: mine, recommended: enemy, tone, verdict: POWER_VERDICT[tone] }, POWER_VERDICT[tone]);
+        if (prev !== null && was !== tone) bump(this.scene, this.verdict, 1.15);
+      }
+    }
     const fmt = (n: number) => (enemy !== undefined ? `Мощь ${formatNumber(n)}` : `Мощь отряда: ${formatNumber(n)}`);
     countUp(this.scene, this.powerText, prev ?? mine, mine, fmt, { duration: 400 });
     if (prev !== null && prev !== mine) bump(this.scene, this.powerText, 1.08);

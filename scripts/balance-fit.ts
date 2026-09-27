@@ -1,0 +1,142 @@
+/**
+ * Регулятор сложности этапов глав по графику (docs/content/balance.md, «Как подобраны mult глав 2–3»).
+ *   npx tsx scripts/balance-fit.ts [итераций=1] [gamma=0.8] [--dry] [--chapter N|chapterN] [--days D]
+ * Главы — все из data/campaign (по order), кроме data/progression.json → balance.exclude; окна первого прохождения —
+ * balance.windows (глава без окон — правило balance.default, см. fitTargets в scripts/lib/player-model.ts).
+ * --chapter — править только эту главу (order или id; можно несколько раз), остальные главы — только как фон.
+ * --days — дней модели (по умолчанию balance.fitDays, поднимается сам, если окна дальше).
+ * Цикл: модель игрока (runBalance, PLAYER_MODEL) → когда пройден каждый этап (часы от начала первой сессии) →
+ * этап раньше окна W — умножить mult всех его врагов на (P(начало окна) / P(прохождение))^gamma (сложнее), позже окна —
+ * на (P(конец окна) / P(прохождение))^gamma (легче; дальше первого опоздавшего этапа не понижаем — их время сдвинуто им).
+ * P(t) — мощь отряда модели к моменту t. Соотношения mult внутри этапа не меняются (состав — как задумал дизайнер);
+ * после шага выдерживается монотонность Σhp/Σatk внутри главы (тест QA T5-21 в tests/chapters.test.ts) — этап целиком
+ * поднимается на 1%, пока не станет не слабее предыдущего. Лучший по сумме опозданий вариант остаётся в data/campaign.
+ * --dry — только показать, где этапы относительно окон. Награды этапов не трогает.
+ */
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { ROOT } from './lib/content-node';
+import { fitTargets, loadFullContext, runBalance, PLAYER_MODEL } from './lib/player-model';
+
+const argv = process.argv.slice(2);
+const flagValues = (name: string) => argv.flatMap((a, i) => (a === `--${name}` && argv[i + 1] !== undefined ? [argv[i + 1]] : []));
+const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && ['--chapter', '--days'].includes(argv[i - 1])));
+const iters = Number(positional[0] ?? 1);
+const gamma = Number(positional[1] ?? 0.8);
+const dry = argv.includes('--dry');
+
+interface Enemy { unit: string; mult?: number }
+interface Stage { id: string; enemies: (Enemy | null)[] }
+
+const ctx0 = loadFullContext();
+const targets = fitTargets(ctx0);
+if (targets.problems.length) {
+  for (const p of targets.problems) console.error(`✗ ${p}`);
+  process.exit(1);
+}
+const W = targets.windows;
+const DAYS = flagValues('days').length ? Number(flagValues('days').at(-1)) : targets.days;
+if (!Number.isInteger(DAYS) || DAYS < 1) throw new Error(`--days: нужно целое ≥ 1`);
+
+// Какие главы править: все с окнами или только --chapter.
+const wanted = flagValues('chapter');
+const fitChapters = wanted.length
+  ? wanted.map((w) => {
+      const c = ctx0.content.chapters.find((x) => x.id === w || String(x.order) === w);
+      if (!c) throw new Error(`--chapter ${w}: такой главы нет в data/campaign`);
+      if (!targets.chapters.some((t) => t.id === c.id)) throw new Error(`--chapter ${w}: глава ${c.id} в balance.exclude — регулятор её не трогает`);
+      return c.id;
+    })
+  : targets.chapters.map((t) => t.id);
+const fitSet = new Set(fitChapters);
+for (const t of targets.chapters)
+  if (fitSet.has(t.id) && t.source !== 'data') console.log(`${t.id}: окна ${t.source === 'default' ? 'по правилу balance.default' : 'частично из balance.windows'} — ${t.stages.map((s) => `${s} [${W.get(s)!.join(',')}]`).join(' ')}`);
+
+// Файл главы — по id внутри data/campaign/*.json.
+const chapterFile = new Map<string, string>();
+for (const f of readdirSync(join(ROOT, 'data/campaign')).filter((x) => x.endsWith('.json')).sort()) {
+  const path = join(ROOT, 'data/campaign', f);
+  chapterFile.set((JSON.parse(readFileSync(path, 'utf8')) as { id: string }).id, path);
+}
+const files = fitChapters.map((id) => chapterFile.get(id)!);
+const stageById = new Map(ctx0.content.stages.map((s) => [s.id, s]));
+
+let best = { score: Infinity, data: files.map((f) => readFileSync(f, 'utf8')) };
+for (let it = 0; it < iters; it++) {
+  const ctx = loadFullContext();
+  const growth = 1 + ctx.progression.campaign.enemyStatGrowthPerStage;
+  const res = runBalance(ctx, DAYS, PLAYER_MODEL);
+  const t0 = res.rows[0].time_h;
+  const end = res.rows[res.rows.length - 1].time_h - t0;
+  const clear = new Map(res.firstClears.map((f) => [f.stageId, f.time_h - t0]));
+  const battles = res.battles.map((b) => ({ t: b.t - t0, p: b.squadPower }));
+  const P = (t: number) => {
+    let best = 0;
+    for (const b of battles) if (b.t <= t + 0.2) best = Math.max(best, b.p);
+    return best || battles[0].p;
+  };
+  const factors: Record<string, number> = {};
+  const ids: string[] = []; // этапы с окнами по порядку кампании
+  let log = '';
+  let score = 0;
+  let blocked = false; // после первого опоздавшего этапа — только понижение не делаем (время сдвинуто им)
+  for (const s of ctx.content.stages) {
+    const w = W.get(s.id);
+    if (!w) continue;
+    ids.push(s.id);
+    const fit = fitSet.has(s.chapter);
+    const a = clear.get(s.id) ?? end + 24;
+    const [lo, hi] = w;
+    let f = 1;
+    if (a < lo) {
+      if (fit) score += Math.log((lo + 2) / (a + 2));
+      f = Math.min(1.25, Math.max(1.02, Math.pow(P(lo) / P(a), gamma)));
+    } else if (a > hi) {
+      if (fit) score += Math.log((a + 2) / (hi + 2));
+      if (!blocked) f = Math.max(0.8, Math.min(0.98, Math.pow(P(hi) / P(a), gamma)));
+      blocked = true;
+    }
+    factors[s.id] = f;
+    if (fit) log += `${s.id} ${a.toFixed(1)}[${lo},${hi}]×${f.toFixed(2)} `;
+  }
+  // Понижение этапа, упёртого в монотонность Σ, тянет вниз и предыдущий (наполовину).
+  for (let i = ids.length - 1; i > 0; i--) {
+    const f = factors[ids[i]];
+    if (f < 1 && stageById.get(ids[i - 1])!.chapter === stageById.get(ids[i])!.chapter) factors[ids[i - 1]] = Math.min(factors[ids[i - 1]], Math.sqrt(f));
+  }
+  console.log(`iter ${it}: score ${score.toFixed(2)}\n  ${log}`);
+  if (score < best.score) best = { score, data: files.map((f) => readFileSync(f, 'utf8')) };
+  if (dry) break;
+  if (it === iters - 1) {
+    files.forEach((f, i) => writeFileSync(f, best.data[i]));
+    console.log(`best score ${best.score.toFixed(2)} restored`);
+    break;
+  }
+  for (const file of files) {
+    const d = JSON.parse(readFileSync(file, 'utf8')) as { stages: Stage[] };
+    let prev: { hp: number; atk: number } | null = null;
+    d.stages.forEach((st) => {
+      const gi = stageById.get(st.id)!.globalIndex;
+      const k = factors[st.id] ?? 1;
+      for (const e of st.enemies) if (e) e.mult = Math.round((e.mult ?? 1) * k * 100) / 100;
+      const sum = () => {
+        let hp = 0;
+        let atk = 0;
+        for (const e of st.enemies) if (e) {
+          const u = ctx.content.units[e.unit];
+          hp += Math.round(u.stats.hp * (e.mult ?? 1) * Math.pow(growth, gi));
+          atk += Math.round(u.stats.atk * (e.mult ?? 1) * Math.pow(growth, gi));
+        }
+        return { hp, atk };
+      };
+      let cur = sum();
+      // Монотонность Σhp/Σatk: поднять весь этап (соотношения внутри этапа — как задумал дизайнер).
+      for (let g = 0; g < 200 && prev && (cur.hp < prev.hp * 1.003 || cur.atk < prev.atk * 1.003); g++) {
+        for (const e of st.enemies) if (e) e.mult = Math.round((e.mult ?? 1) * 1.01 * 100) / 100;
+        cur = sum();
+      }
+      prev = cur;
+    });
+    writeFileSync(file, JSON.stringify(d, null, 2) + '\n');
+  }
+}

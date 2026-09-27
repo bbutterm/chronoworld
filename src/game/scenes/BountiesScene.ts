@@ -65,7 +65,7 @@ export class BountiesScene extends Phaser.Scene {
     const left = refreshesLeft(save, today(), GAME);
     text(this, 40, CONTENT_TOP + 50, 'Герои на поручении\nпродолжают сражаться', FS.small, C.muted, { align: 'left', lineSpacing: 4 }).setOrigin(0, 0.5);
     const rb = button(this, 790, CONTENT_TOP + 50, 520, 100, left > 0 ? 'ui_btn_secondary' : 'k:buttonLong_grey', `Обновить доску (${left})`, () => this.refresh(), FS.h3);
-    if (left <= 0) rb.container.setAlpha(0.6);
+    if (left <= 0) rb.setEnabled(false);
 
     this.area = new ScrollArea(this, LIST_TOP, CONTENT_BOTTOM + 10);
     this.timers = [];
