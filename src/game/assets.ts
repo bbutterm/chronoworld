@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import manifestJson from '../../assets/manifest.json';
+import { SKIN_REPLACED } from '../pipeline/bootAssets';
 import { queueAnimatedFx } from './animatedFx';
+import { assetUrl } from './assetUrl';
 import { SKIN_FOR, SKIN_FORCE, SKIN_SLICE } from './skin';
 import { queueSkillIconFiles, skillIconFileKeys } from './skillIcons';
 
@@ -28,12 +30,6 @@ interface AssetEntry {
 }
 
 const MANIFEST = (manifestJson as unknown as { assets: Record<string, AssetEntry> }).assets;
-
-/**
- * T4-12. Файлы, которые при скине не показываются: скин рисует свои фон боя и баннеры итога (buildSkin),
- * а эти картинки — запасные на случай, если скина нет. Фон арены 1080×1920 — 7.9 МБ видеопамяти впустую.
- */
-const SKIN_REPLACED = new Set(['bg_arena', 'ui_victory', 'ui_defeat']);
 
 /** Ставит в очередь загрузки все ассеты с файлом. Анимированные эффекты боя — не здесь (ensureAnimatedFx). */
 export function queueAssets(scene: Phaser.Scene): void {
@@ -73,7 +69,7 @@ export function ensureAnimatedFx(game: Phaser.Game): void {
       game.textures.addSpriteSheet(key, img, { frameWidth: width, frameHeight: height })?.setFilter(Phaser.Textures.FilterMode.NEAREST);
     };
     img.onerror = () => console.warn(`Эффект ${file} не загрузился — в бою будет статичный`);
-    img.src = file;
+    img.src = assetUrl(file);
   });
 }
 

@@ -22,6 +22,16 @@ const SEED = Number(process.env.PERF_SEED ?? 7);
 /** Рост кучи между 2-м и последним боем, после которого считаем, что память течёт. */
 const HEAP_LEAK_MB = Number(process.env.PERF_HEAP_LEAK_MB ?? 8);
 
+/**
+ * Бюджет памяти текстур по экранам, МБ (w×h×4; docs/content/performance.md, «Бюджет текстур»). Слабый Android-WebView
+ * (2–3 ГБ ОЗУ) держит ~100–150 МБ текстур без потери WebGL-контекста; бой — самый тяжёлый экран.
+ * Превышение — провал perf: сначала искать, что лишнего грузится, а не поднимать бюджет.
+ */
+const TEX_BUDGET_MB = { 'главная (после карточки)': 40, главная: 28, 'список героев': 28, 'карточка героя': 40, бой: 96 };
+/** «главная (после N боёв)» — листы последних боёв в LRU (SHEET_BUDGET_BYTES) и эффекты боя. */
+const AFTER_BATTLES_MB = 80;
+const texBudget = (screen) => (/боёв|боя\)/.test(screen) ? AFTER_BATTLES_MB : Object.entries(TEX_BUDGET_MB).find(([k]) => screen.startsWith(k))?.[1]);
+
 const log = (...a) => console.log('[perf]', ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -428,8 +438,12 @@ async function main() {
     console.log(`| из них уничтоженных, но удерживаемых ссылками | ${rows.map((r) => r.live.dead).join(' → ')} |`);
     console.log(`| текстуры всего, МБ (w×h×4) | ${f1(summary.texturesMB)} |`);
     console.log(`| из них листы юнитов spr_* / нужные этому бою, МБ | ${f1(summary.spritesMB)} / ${f1(summary.battleSpritesMB)} |`);
-    console.log('\n| экран | текстуры, МБ | из них листы юнитов, МБ | текстур |\n|---|---|---|---|');
-    for (const t of screens) console.log(`| ${t.name} | ${f1(t.all)} | ${f1(t.sheets)} | ${t.count} |`);
+    console.log('\n| экран | текстуры, МБ | бюджет, МБ | из них листы юнитов, МБ | текстур |\n|---|---|---|---|---|');
+    for (const t of screens) {
+      const budget = texBudget(t.name);
+      console.log(`| ${t.name} | ${f1(t.all)} | ${budget ?? '—'} | ${f1(t.sheets)} | ${t.count} |`);
+      if (budget !== undefined && t.all > budget) problems.push(`текстуры на экране «${t.name}»: ${f1(t.all)} МБ — больше бюджета ${budget} МБ (TEX_BUDGET_MB в scripts/perf.mjs)`);
+    }
     console.log('\nЛисты юнитов, крупнейшие (* — нужен этому бою):');
     for (const t of [...spr].sort((a, b) => b.bytes - a.bytes).slice(0, 15)) {
       console.log(`  ${used.has(t.key) ? '*' : ' '} ${t.key.padEnd(28)} ${t.dims.padEnd(11)} ${mb(t.bytes).padStart(6)} МБ`);

@@ -1,0 +1,737 @@
+{
+ "effects/fx_arrow.png": {
+  "sha1": "ed6fbc89fc3b52948d6a58a3eac307f6c291d856",
+  "png": 721,
+  "webp": 596
+ },
+ "effects/fx_death.png": {
+  "sha1": "61911d8946f97b0cc3101e6e202697730bbe5ba2",
+  "png": 341143,
+  "webp": 246796
+ },
+ "effects/fx_heal.png": {
+  "sha1": "1e6ab62688049ae13c8310a8354d9c94b892b649",
+  "png": 281763,
+  "webp": 175608
+ },
+ "effects/fx_hit.png": {
+  "sha1": "d469358ed1c2c9083cea9356cc0b4a054c5ffcae",
+  "png": 141360,
+  "webp": 106332
+ },
+ "effects/fx_magic.png": {
+  "sha1": "47203f031fa5917623d1e5f1996e162b2326fbe3",
+  "png": 50919,
+  "webp": 32664
+ },
+ "effects/fx_shield.png": {
+  "sha1": "cbb57fccf7661c5fd897c466ce5aedcd29624e57",
+  "png": 189346,
+  "webp": 121296
+ },
+ "fx/fx_arrow.png": {
+  "sha1": "b244762cf2e5833cb527a7f674f53433fa6eb6a3",
+  "png": 3318,
+  "webp": 2678
+ },
+ "fx/fx_death.png": {
+  "sha1": "dbff239b1470d1f79ebae16943116c0e7ba6e3eb",
+  "png": 15557,
+  "webp": 7944
+ },
+ "fx/fx_heal.png": {
+  "sha1": "9a58442da80618f66b6fe1839d81442a9ac5661b",
+  "png": 20840,
+  "webp": 8674
+ },
+ "fx/fx_hit.png": {
+  "sha1": "4449d59a1c3e614ad97fae619e37636fdbcdcbe9",
+  "png": 23654,
+  "webp": 11278
+ },
+ "fx/fx_magic.png": {
+  "sha1": "19ae09b3205f9ee3e2e2b5a156a8e140098b4d5e",
+  "png": 34041,
+  "webp": 16484
+ },
+ "fx/fx_shield.png": {
+  "sha1": "a4d3ae35c18d93ae50dab6fb98a891f63d723524",
+  "png": 19866,
+  "webp": 10796
+ },
+ "ro/icons/ui_ult_archer.png": {
+  "sha1": "15ff325c2d7cc42ab76da6bce0caf0f4279c9005",
+  "png": 1116,
+  "webp": 418
+ },
+ "ro/icons/ui_ult_assassin.png": {
+  "sha1": "20da200d50dc3cc9f0b52c52cc27c481495199e1",
+  "png": 1081,
+  "webp": 408
+ },
+ "ro/icons/ui_ult_guard.png": {
+  "sha1": "c443b6fe8e2c8dc4d04184872ddb4c387ff62f27",
+  "png": 1014,
+  "webp": 346
+ },
+ "ro/icons/ui_ult_mage.png": {
+  "sha1": "eb51a6287eb74fc5e08d663dc2ce76705698116c",
+  "png": 857,
+  "webp": 278
+ },
+ "ro/icons/ui_ult_priestess.png": {
+  "sha1": "99f367cee639af9143f1f0bb22679cc7112960a4",
+  "png": 878,
+  "webp": 326
+ },
+ "ro/icons/ui_ult_warrior.png": {
+  "sha1": "d227454d163fe2ebd5e78a9d475baeeaf5b5e047",
+  "png": 1075,
+  "webp": 402
+ },
+ "ro/portraits/hero_alchemist_portrait.png": {
+  "sha1": "2b9c48cdecf07c4f6ee3f3317b3a90e17b8731e0",
+  "png": 2852,
+  "webp": 992
+ },
+ "ro/portraits/hero_archer_portrait.png": {
+  "sha1": "c2fab03f2d9a4a4d75ec85918c7f944a97bf41d6",
+  "png": 2982,
+  "webp": 1012
+ },
+ "ro/portraits/hero_assassin_portrait.png": {
+  "sha1": "8174fd3d1713205c0993bcbb41d2492080a6bd96",
+  "png": 3030,
+  "webp": 1046
+ },
+ "ro/portraits/hero_bard_portrait.png": {
+  "sha1": "cf8aaae21bf2e35482b7027d83b26b384a602445",
+  "png": 2739,
+  "webp": 954
+ },
+ "ro/portraits/hero_blacksmith_portrait.png": {
+  "sha1": "0d669d927560dde90018409e625d1bbf94e4260f",
+  "png": 3151,
+  "webp": 1078
+ },
+ "ro/portraits/hero_guard_portrait.png": {
+  "sha1": "8e4f4333faa4499c72cf7a22b2cae6f34a4b7a79",
+  "png": 3094,
+  "webp": 1052
+ },
+ "ro/portraits/hero_mage_portrait.png": {
+  "sha1": "681dc022d5eb26981d9fbf1ccdd3513b757328c8",
+  "png": 2680,
+  "webp": 926
+ },
+ "ro/portraits/hero_monk_portrait.png": {
+  "sha1": "17c4daa1197fe3c9ba3f7ff17f1a23bbba1ee444",
+  "png": 3045,
+  "webp": 1032
+ },
+ "ro/portraits/hero_priestess_portrait.png": {
+  "sha1": "7ebba7afb8bf81feb1fd875864f06a0b01527af9",
+  "png": 2911,
+  "webp": 1012
+ },
+ "ro/portraits/hero_rogue_portrait.png": {
+  "sha1": "5da76db50c269c48df08ae8e272771bf73add20b",
+  "png": 3100,
+  "webp": 1074
+ },
+ "ro/portraits/hero_sage_portrait.png": {
+  "sha1": "dbcc51b81c3acb9eb65e9020835a10bdaa476cc2",
+  "png": 3145,
+  "webp": 1084
+ },
+ "ro/portraits/hero_warrior_portrait.png": {
+  "sha1": "0a4261bcd9cb14bbf454b5caad45676caeae8aa0",
+  "png": 3077,
+  "webp": 1052
+ },
+ "sprites/bosses/boss1.png": {
+  "sha1": "f3c1faea0d82e8ec4871f1ee2025fe6e0237d9f6",
+  "png": 76447,
+  "webp": 33488
+ },
+ "sprites/bosses/boss2.png": {
+  "sha1": "3f6c214c8620864ca793a7943c56ce09cedb9847",
+  "png": 41931,
+  "webp": 30318
+ },
+ "sprites/bosses/dark_lord.png": {
+  "sha1": "b5c94f5954576b79ea28c795416b2f555422dcb0",
+  "png": 71509,
+  "webp": 38186
+ },
+ "sprites/bosses/drake.png": {
+  "sha1": "3c86a1d82ff6df4efe8e3cbb31c941a8c60e6bac",
+  "png": 105162,
+  "webp": 24620
+ },
+ "sprites/bosses/mastering.png": {
+  "sha1": "a0a7dd3ed2e1ef65e01a9e51bd8c10d0e869d5d8",
+  "png": 16110,
+  "webp": 9158
+ },
+ "sprites/bosses/mistress.png": {
+  "sha1": "8cdae88a548abf2ca568bc880e1eb11742994358",
+  "png": 15328,
+  "webp": 8814
+ },
+ "sprites/bosses/moonlight_flower.png": {
+  "sha1": "3278e25d51ddc1018694d78e12eba3221bd4dee7",
+  "png": 27070,
+  "webp": 16912
+ },
+ "sprites/bosses/osiris.png": {
+  "sha1": "685a24dd349cfe3079ec40a8ae299091c7adc662",
+  "png": 23466,
+  "webp": 15964
+ },
+ "sprites/bosses/rocker.png": {
+  "sha1": "26f4129f0c0ea3faf897fba40f5707618d2394c3",
+  "png": 30061,
+  "webp": 20532
+ },
+ "sprites/heroes/acolyte.png": {
+  "sha1": "f1a58ecf7a0090c59f3a279099d39347e9235152",
+  "png": 20474,
+  "webp": 17544
+ },
+ "sprites/heroes/alchemist.png": {
+  "sha1": "849617e01ecf668b5d5c6df39a565a1dd14eb3e5",
+  "png": 26607,
+  "webp": 12698
+ },
+ "sprites/heroes/archer.png": {
+  "sha1": "024a3203fd153f87dde702859d86a2701f2303c4",
+  "png": 22245,
+  "webp": 18760
+ },
+ "sprites/heroes/archer_first.png": {
+  "sha1": "7698b577760c82d56335360493047fe8d2549036",
+  "png": 21661,
+  "webp": 18172
+ },
+ "sprites/heroes/assassin.png": {
+  "sha1": "172fb2a24b8b46e054f4a996e0e7b7e6a049ca6f",
+  "png": 24960,
+  "webp": 20662
+ },
+ "sprites/heroes/bard.png": {
+  "sha1": "50787b4134a2a660c8ffaa25e99993f58fa2cdc4",
+  "png": 27096,
+  "webp": 13000
+ },
+ "sprites/heroes/blacksmith.png": {
+  "sha1": "0aeceded8bd1dc5a70e517970fa7567e33916bdb",
+  "png": 22007,
+  "webp": 10890
+ },
+ "sprites/heroes/guard.png": {
+  "sha1": "ca9baf44587a397b277a0c1d1cb538fe23e68934",
+  "png": 31511,
+  "webp": 22356
+ },
+ "sprites/heroes/mage.png": {
+  "sha1": "1137257dbb4e66849106eef6d812a9bac15e007d",
+  "png": 21782,
+  "webp": 17950
+ },
+ "sprites/heroes/magician.png": {
+  "sha1": "8a5c5341035f698d4dfe1c04e836563544cdd9db",
+  "png": 22277,
+  "webp": 18922
+ },
+ "sprites/heroes/merchant.png": {
+  "sha1": "41e8a66caccd4531545dc65eb94c513558fd16ce",
+  "png": 22540,
+  "webp": 18936
+ },
+ "sprites/heroes/monk.png": {
+  "sha1": "29ba88877e6338ae2d0d40d30f3a317b80a57119",
+  "png": 25184,
+  "webp": 12920
+ },
+ "sprites/heroes/novice.png": {
+  "sha1": "5596545be46b2c3408797105f35520c3971eeac5",
+  "png": 20503,
+  "webp": 16080
+ },
+ "sprites/heroes/priest.png": {
+  "sha1": "c26d7b7b4917a332ab5f780fae3a20b515614cfd",
+  "png": 21666,
+  "webp": 18170
+ },
+ "sprites/heroes/rogue.png": {
+  "sha1": "70667e1ff210ff6a91aacefa5487d37893273ad3",
+  "png": 25403,
+  "webp": 12382
+ },
+ "sprites/heroes/sage.png": {
+  "sha1": "32c42ecfd0883a97fed8dc610d01d9e14ea38fde",
+  "png": 26637,
+  "webp": 13726
+ },
+ "sprites/heroes/swordman.png": {
+  "sha1": "824f274ae1ffe72cd79a3ed935f7596ac76c69d9",
+  "png": 23322,
+  "webp": 19058
+ },
+ "sprites/heroes/thief.png": {
+  "sha1": "f2f35d99098d9c66fb7fab61a269fa9a6881c69e",
+  "png": 20488,
+  "webp": 17020
+ },
+ "sprites/heroes/warrior.png": {
+  "sha1": "21df216154df0dfcef717c37f4b971825b341324",
+  "png": 22622,
+  "webp": 18272
+ },
+ "sprites/monsters/dark_priest.png": {
+  "sha1": "ada533b3196805a6f9d43c99727d63dc5ea6f512",
+  "png": 28997,
+  "webp": 17612
+ },
+ "sprites/monsters/drops.png": {
+  "sha1": "a92d560a789b8292d22dc26779fe6527fb4aaec2",
+  "png": 11847,
+  "webp": 7790
+ },
+ "sprites/monsters/elite.png": {
+  "sha1": "90898543984bebb4a44d71c4aa76521db6797e36",
+  "png": 11205,
+  "webp": 7048
+ },
+ "sprites/monsters/fabre.png": {
+  "sha1": "b7b42ed6a9422a50054f3360d5b07a89fbdd3b40",
+  "png": 10430,
+  "webp": 5824
+ },
+ "sprites/monsters/fast.png": {
+  "sha1": "b68e2760817cb2c7391f0c1267299a0c7f0aadf9",
+  "png": 11842,
+  "webp": 7852
+ },
+ "sprites/monsters/gargoyle.png": {
+  "sha1": "ed48aff54e2db3cd63932289ed585c972e8950fc",
+  "png": 82402,
+  "webp": 20646
+ },
+ "sprites/monsters/lunatic.png": {
+  "sha1": "be351e6e2a0441633260b6497017cb80a75b5a5f",
+  "png": 6643,
+  "webp": 4574
+ },
+ "sprites/monsters/mandragora.png": {
+  "sha1": "8f77ec68e93418c99b18b0d06333611c65208185",
+  "png": 30138,
+  "webp": 17292
+ },
+ "sprites/monsters/melee.png": {
+  "sha1": "41663fbc6ccf6d1a92f52be0cd28074abcf6e10d",
+  "png": 19838,
+  "webp": 13972
+ },
+ "sprites/monsters/mimic.png": {
+  "sha1": "c126adf560b7e2eb20fa43cba746a4d07a19db47",
+  "png": 21086,
+  "webp": 13556
+ },
+ "sprites/monsters/poporing.png": {
+  "sha1": "6808b812460c446e4a8a3c57049c233296f07d62",
+  "png": 11849,
+  "webp": 7848
+ },
+ "sprites/monsters/ranged.png": {
+  "sha1": "a5fba430cffa4e810e04fe535324f8bd589af2c1",
+  "png": 25980,
+  "webp": 18890
+ },
+ "sprites/monsters/raydric.png": {
+  "sha1": "adeab631c81b4cba3ce9a4e4db84466f724e6407",
+  "png": 19905,
+  "webp": 12824
+ },
+ "sprites/monsters/tank.png": {
+  "sha1": "704cb163b78f5db665c004df95ef427c0c26ca22",
+  "png": 46191,
+  "webp": 24734
+ },
+ "sprites/portraits/acolyte.png": {
+  "sha1": "a63a2f729bdb6f84f4fa5b6670c7a268e66ceac4",
+  "png": 1033,
+  "webp": 952
+ },
+ "sprites/portraits/alchemist.png": {
+  "sha1": "7acefa104f0f57f171789d064b04c1eccc74fdbb",
+  "png": 1734,
+  "webp": 946
+ },
+ "sprites/portraits/archer.png": {
+  "sha1": "915da19835bbffe05065dae789a40e28735d3dd1",
+  "png": 1163,
+  "webp": 1060
+ },
+ "sprites/portraits/archer_first.png": {
+  "sha1": "2d32a797db1c972b5c446d9ed4b576acd2f68c32",
+  "png": 1126,
+  "webp": 1038
+ },
+ "sprites/portraits/assassin.png": {
+  "sha1": "84b4f9c670061d5cd0615797f176b82d2c09078b",
+  "png": 1175,
+  "webp": 1070
+ },
+ "sprites/portraits/bard.png": {
+  "sha1": "a3465d903b476edef40d2da934f7288dc1d41098",
+  "png": 1853,
+  "webp": 1044
+ },
+ "sprites/portraits/blacksmith.png": {
+  "sha1": "1a15ec2e48693e473f7adfc24a7ed645998c4132",
+  "png": 1879,
+  "webp": 1106
+ },
+ "sprites/portraits/guard.png": {
+  "sha1": "d9dc6dad0dc26eed6ddbbef4e010fb7100cbff52",
+  "png": 1405,
+  "webp": 1286
+ },
+ "sprites/portraits/mage.png": {
+  "sha1": "e33fba572498dd23477355d9d5d2d5f157b47b39",
+  "png": 1024,
+  "webp": 920
+ },
+ "sprites/portraits/magician.png": {
+  "sha1": "70e2eba383b2459b65ddb8234208ca4258bbe2e2",
+  "png": 1052,
+  "webp": 938
+ },
+ "sprites/portraits/merchant.png": {
+  "sha1": "e9f544f6dcb7658cc560ebf0e823ef6af2384b43",
+  "png": 1157,
+  "webp": 1018
+ },
+ "sprites/portraits/monk.png": {
+  "sha1": "40932ac9cc239e88222fa7b02a1d523caafc2909",
+  "png": 1703,
+  "webp": 892
+ },
+ "sprites/portraits/novice.png": {
+  "sha1": "8dca54a3a455ce54b2749e022c0adf5ac25d5baa",
+  "png": 976,
+  "webp": 890
+ },
+ "sprites/portraits/priest.png": {
+  "sha1": "f2bfcd3653705ef2a095b8efc0cc6f004842ddf8",
+  "png": 1072,
+  "webp": 978
+ },
+ "sprites/portraits/rogue.png": {
+  "sha1": "69cdf9b8fb7150cd4bf734377032d23e953dbce6",
+  "png": 1632,
+  "webp": 828
+ },
+ "sprites/portraits/sage.png": {
+  "sha1": "7177892762dfd85fa5816f4cf6b0fdfbcbcb282b",
+  "png": 1877,
+  "webp": 1068
+ },
+ "sprites/portraits/swordman.png": {
+  "sha1": "a9a977606842c9d6a83e33726f22f45b2935c0db",
+  "png": 1227,
+  "webp": 1084
+ },
+ "sprites/portraits/thief.png": {
+  "sha1": "5bdc8d94f45f2eeeb2635a262ce1fbef7a2a14ce",
+  "png": 1038,
+  "webp": 960
+ },
+ "sprites/portraits/warrior.png": {
+  "sha1": "a6ed4834725561079bac48c2428aaa54f2bad0e6",
+  "png": 1186,
+  "webp": 1028
+ },
+ "tiles/tile_dirt.png": {
+  "sha1": "6c849d13af0b6e29f6da117ae8b26125cd6547ad",
+  "png": 22546,
+  "webp": 13902
+ },
+ "tiles/tile_grass_01.png": {
+  "sha1": "23450630317248563237e76b6e60a76711534711",
+  "png": 22701,
+  "webp": 13226
+ },
+ "tiles/tile_grass_02.png": {
+  "sha1": "ff5799db782b006b37688b94617e776df655aeb0",
+  "png": 21660,
+  "webp": 12746
+ },
+ "tiles/tile_grass_dry.png": {
+  "sha1": "8184a9911c21bf8689a1654bb1084adf1641ef93",
+  "png": 21050,
+  "webp": 10308
+ },
+ "tiles/tile_stone.png": {
+  "sha1": "0d8b365e52e0c69592f4540d21be20768a411c8e",
+  "png": 25956,
+  "webp": 15268
+ },
+ "ui/icons/skill_ac_chargearrow.png": {
+  "sha1": "61285874fbae90c426ac6add4361c5c717722171",
+  "png": 1065,
+  "webp": 424
+ },
+ "ui/icons/skill_ac_double.png": {
+  "sha1": "6a3cfb89cadb1df97e8e054cfc4584fc12144691",
+  "png": 1183,
+  "webp": 454
+ },
+ "ui/icons/skill_ac_owl.png": {
+  "sha1": "fcfc73ff434f1a638ed97effc86a6433ba216650",
+  "png": 944,
+  "webp": 356
+ },
+ "ui/icons/skill_ac_shower.png": {
+  "sha1": "e4e77a516176b8fa45a669cea93b9b1a338006c6",
+  "png": 1265,
+  "webp": 480
+ },
+ "ui/icons/skill_ac_vulture.png": {
+  "sha1": "b49ae168f7d2e1582c7d23fc54a9ee46a7e58ac0",
+  "png": 1093,
+  "webp": 412
+ },
+ "ui/icons/skill_al_blessing.png": {
+  "sha1": "f39af8f8cf703583c64de9aefc2dbb553df1cbf4",
+  "png": 1034,
+  "webp": 372
+ },
+ "ui/icons/skill_al_dp.png": {
+  "sha1": "79791d3b58592ecf574041aa4fc791207535fce7",
+  "png": 924,
+  "webp": 342
+ },
+ "ui/icons/skill_al_heal.png": {
+  "sha1": "9d5ad90de66b5883986871025edb3454062c4059",
+  "png": 960,
+  "webp": 346
+ },
+ "ui/icons/skill_al_holylight.png": {
+  "sha1": "81a60d28b0dfed798583bfecb981d688c496c8ce",
+  "png": 1001,
+  "webp": 380
+ },
+ "ui/icons/skill_al_incagi.png": {
+  "sha1": "aa777c119fa271c867ba2a6df2e8a3793beeda76",
+  "png": 966,
+  "webp": 350
+ },
+ "ui/icons/skill_mc_cartrevolution.png": {
+  "sha1": "1fb57402f2df19b4f153303329d72ebb4bdb97be",
+  "png": 915,
+  "webp": 336
+ },
+ "ui/icons/skill_mc_loud.png": {
+  "sha1": "f7a979415c6eab8769612d296638dcf74476ed3f",
+  "png": 818,
+  "webp": 304
+ },
+ "ui/icons/skill_mc_mammonite.png": {
+  "sha1": "0dd5638aca707d4fc347c89287c1fd47a2da06cd",
+  "png": 1084,
+  "webp": 432
+ },
+ "ui/icons/skill_mc_overcharge.png": {
+  "sha1": "b11b0dcca9b304d7a06bd3b5b1560f775701097d",
+  "png": 878,
+  "webp": 328
+ },
+ "ui/icons/skill_mc_pushcart.png": {
+  "sha1": "01c1891da317eb337d51ffc641591c81980a2503",
+  "png": 849,
+  "webp": 322
+ },
+ "ui/icons/skill_mg_energycoat.png": {
+  "sha1": "cf7ca10bd4a0c8ab5894e130b1092a3fa6f97010",
+  "png": 950,
+  "webp": 312
+ },
+ "ui/icons/skill_mg_firebolt.png": {
+  "sha1": "1d85914039d36b9e475eb8b841f2841092ecbf0a",
+  "png": 928,
+  "webp": 316
+ },
+ "ui/icons/skill_mg_frostdiver.png": {
+  "sha1": "2e71b1ada4c5d8a89fc91c40b21e47a9d5012687",
+  "png": 862,
+  "webp": 302
+ },
+ "ui/icons/skill_mg_srecovery.png": {
+  "sha1": "de9230a74548b95773db3545ba707c391fcacb31",
+  "png": 855,
+  "webp": 328
+ },
+ "ui/icons/skill_mg_thunderstorm.png": {
+  "sha1": "5d6de357d95531e7a3b6c1ee886ff2ba0336048d",
+  "png": 1045,
+  "webp": 354
+ },
+ "ui/icons/skill_nv_firstaid.png": {
+  "sha1": "2fb60494afeee27377d05cfd4dabc49b76d18565",
+  "png": 788,
+  "webp": 270
+ },
+ "ui/icons/skill_pr_sanctuary.png": {
+  "sha1": "28cdab4714aee85fe41170922c07122ea87fa022",
+  "png": 800,
+  "webp": 276
+ },
+ "ui/icons/skill_sm_bash.png": {
+  "sha1": "1080d6aac3607f41b406c53440b541d8008e04d8",
+  "png": 1158,
+  "webp": 430
+ },
+ "ui/icons/skill_sm_endure.png": {
+  "sha1": "0bcbed7d26be266576c6a4429be558fdfd7fd4d8",
+  "png": 744,
+  "webp": 268
+ },
+ "ui/icons/skill_sm_magnum.png": {
+  "sha1": "180262ac17037f6d97baa168a78754b40112081b",
+  "png": 1244,
+  "webp": 450
+ },
+ "ui/icons/skill_sm_provoke.png": {
+  "sha1": "12947c0ab5e6bf12c0599f731f15920831970256",
+  "png": 827,
+  "webp": 304
+ },
+ "ui/icons/skill_sm_recovery.png": {
+  "sha1": "fa024054da066490bbcb506bb0e8a4d9d41a7e56",
+  "png": 843,
+  "webp": 326
+ },
+ "ui/icons/skill_tf_double.png": {
+  "sha1": "51ebff89498df4eef9a033e71a9fde173345d2b6",
+  "png": 923,
+  "webp": 334
+ },
+ "ui/icons/skill_tf_miss.png": {
+  "sha1": "6bacd594ec7e5508120967c4903421b6dc9e0a44",
+  "png": 941,
+  "webp": 348
+ },
+ "ui/icons/skill_tf_poison.png": {
+  "sha1": "bbf0c686c9c30527cf03fc15a840debbd0f62c53",
+  "png": 823,
+  "webp": 302
+ },
+ "ui/icons/skill_tf_sprinklesand.png": {
+  "sha1": "dc3775571ddec17afc889738fd4196cbdc00510a",
+  "png": 849,
+  "webp": 300
+ },
+ "ui/icons/skill_tf_steal.png": {
+  "sha1": "6ca7db68b62db4d85fea3a3f233955567538263f",
+  "png": 902,
+  "webp": 308
+ },
+ "ui/kenney_uipack_rpg_sheet.png": {
+  "sha1": "1a841d57dc3317beeb22eade9b3fe4e89c641a20",
+  "png": 32558,
+  "webp": 18672
+ },
+ "ui/ui_bar_base.png": {
+  "sha1": "1e97915c2d11938e1c5c82f4ce46ab2658368e9a",
+  "png": 357,
+  "webp": 148
+ },
+ "ui/ui_chest_empty.png": {
+  "sha1": "3ec00a91f76b1c95daba2f207575ec194fcbb7f5",
+  "png": 17705,
+  "webp": 12644
+ },
+ "ui/ui_chest_filling.png": {
+  "sha1": "3bdaad37303156154b743617aadfa3a0353e21fe",
+  "png": 17147,
+  "webp": 12260
+ },
+ "ui/ui_chest_full.png": {
+  "sha1": "e85284866e8430e39ac72f5c73a8e30c5931bd15",
+  "png": 24938,
+  "webp": 18416
+ },
+ "ui/ui_energy.png": {
+  "sha1": "63bab116593b112a188b75bb2c7a622dfe7e6d93",
+  "png": 614,
+  "webp": 272
+ },
+ "ui/ui_hp_enemy.png": {
+  "sha1": "d41a0b0fb513a6c0ad65bb52b4fc759c1d65a115",
+  "png": 629,
+  "webp": 276
+ },
+ "ui/ui_hp_player.png": {
+  "sha1": "c380f0fb00475476d967b2b2b32286f3d6b2a85f",
+  "png": 657,
+  "webp": 272
+ },
+ "ui/ui_icon_gem.png": {
+  "sha1": "b988aa366af4726c421bbfdf15046d425de52706",
+  "png": 4321,
+  "webp": 2948
+ },
+ "ui/ui_icon_gold.png": {
+  "sha1": "03a64ba8549790dfd6711a778eb7711b690aa628",
+  "png": 9967,
+  "webp": 7092
+ },
+ "ui/ui_nav_campaign.png": {
+  "sha1": "4f62779667d07496e131f60fcf7857a2f51152cf",
+  "png": 12464,
+  "webp": 7780
+ },
+ "ui/ui_nav_campaign_active.png": {
+  "sha1": "40129d675cac2bd1657c24b5faba9e217ea82a18",
+  "png": 15496,
+  "webp": 9640
+ },
+ "ui/ui_nav_heroes.png": {
+  "sha1": "5b75b711d5d1444bae08f5932631a3d37b3e5c28",
+  "png": 13409,
+  "webp": 7844
+ },
+ "ui/ui_nav_heroes_active.png": {
+  "sha1": "bb3f5ac269e7d5fea2c298789fef89b1877181ea",
+  "png": 15968,
+  "webp": 10240
+ },
+ "ui/ui_nav_home.png": {
+  "sha1": "499cd7dd549c346473ae74a1989fc45ab2cfa7eb",
+  "png": 13692,
+  "webp": 8066
+ },
+ "ui/ui_nav_home_active.png": {
+  "sha1": "6f5b8b42d4ed80389f47763fa3847777d7241f46",
+  "png": 16052,
+  "webp": 9800
+ },
+ "ui/ui_result_defeat.png": {
+  "sha1": "f64871bded30d824bf27e757e08acb96a14747bf",
+  "png": 11182,
+  "webp": 3316
+ },
+ "ui/ui_result_victory.png": {
+  "sha1": "93583feed30aa565bff98fced97ac6bd289f2a43",
+  "png": 8791,
+  "webp": 3040
+ },
+ "ui/ui_slot_empty.png": {
+  "sha1": "ec635ec06e37187e3b752d24973d8a750229b31c",
+  "png": 1243,
+  "webp": 386
+ }
+}

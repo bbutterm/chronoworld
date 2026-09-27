@@ -16,6 +16,8 @@
     "content:new": "tsx scripts/content-new.ts",
     "assets:legacy": "tsx scripts/assets-legacy.ts",
     "assets:report": "tsx scripts/assets-report.ts",
+    "assets:webp": "tsx scripts/assets-webp.ts",
+    "perf:load": "node scripts/perf-load.mjs",
     "check": "npm run content:check && npm run typecheck && npm test",
     "e2e": "node scripts/e2e.mjs",
     "perf": "node scripts/perf.mjs",
