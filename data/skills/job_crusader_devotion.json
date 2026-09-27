@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_crusader_devotion",
+  "name": "Самопожертвование",
+  "description": "Щит 20% HP самому раненому союзнику.",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct"
+  },
+  "cooldown": 14,
+  "priority": 8,
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.2
+    }
+  ]
+}

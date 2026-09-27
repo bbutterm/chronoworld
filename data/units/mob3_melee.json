@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob3_melee",
+  "name": "Костяной зомби",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 500,
+    "atk": 45,
+    "def": 8,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob3_melee_rend",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "melee",
+    "hitFx": "fx_hit"
+  }
+}

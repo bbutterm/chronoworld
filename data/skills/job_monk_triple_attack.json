@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_monk_triple_attack",
+  "name": "Тройная атака",
+  "description": "Три быстрых удара по цели.",
+  "icon": "icon_ult_priest",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "hits": 3,
+  "cooldown": 4,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.7
+    }
+  ]
+}

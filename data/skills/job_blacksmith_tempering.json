@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_blacksmith_tempering",
+  "name": "Закалка",
+  "description": "Когда по кузнецу попали: шанс 20% получить щит 10% HP.",
+  "range": "ranged",
+  "trigger": "hit",
+  "chance": 0.2,
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.1
+    }
+  ]
+}

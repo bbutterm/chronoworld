@@ -1,0 +1,52 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "hunter",
+  "name": "Охотник",
+  "description": "Вторая профессия Лучника: сокол и ловушки.",
+  "tier": 2,
+  "from": [
+    "archer"
+  ],
+  "maxJobLevel": 50,
+  "role": "damage",
+  "baseStats": {
+    "hp": 2100,
+    "atk": 250,
+    "def": 45,
+    "spd": 105
+  },
+  "growth": {
+    "hp": 50,
+    "atk": 7,
+    "def": 1.2,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_hunter_blitz_beat"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_hunter_beast_bane"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_hunter_ankle_snare"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_hunter_steel_crow"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_hunter_claymore_trap"
+    }
+  ],
+  "visual": {
+    "sprite": "archer",
+    "hitFx": "fx_hit",
+    "projectile": "fx_arrow"
+  }
+}

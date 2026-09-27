@@ -1,13 +1,57 @@
-# chronoworld
+# Idle Hero RPG (рабочее название)
 
-Игровые PNG-спрайтшиты: [`assets/ro/sheets/`](assets/ro/sheets/) — 12 героев, 8 рядовых врагов и 6 боссов. [Манифест кадров и длительностей](assets/ro/manifest.json) · [инструкция по подключению](assets/ro/README.md).
+Idle-RPG в духе AFK Arena, которая будет жить в Telegram как Mini App. Дизайн-документ: [docs/GDD.md](docs/GDD.md).
 
-Дополнительно: [боевые кадры 320×320 / боссы 480×480](assets/ro/stills/), [12 вырезок-портретов 256×256](assets/ro/portraits/), [6 иконок ульт 128×128](assets/ro/icons/). [UI-атлас и компоненты](assets/ui/) — 15 PNG: полосы, слоты, кнопки, плашки исхода; [9-slice параметры](assets/ui/manifest.json), [лицензия CC0](assets/ui/KENNEY_LICENSE.txt).
+**Состояние:** играбельный цикл по образцу AFK Arena — кампания (3 главы × 10 этапов), профессии как в RO (Новичок → 6 первых → 12 вторых), офлайн-сундук и быстрые награды, башня испытаний, экипировка, ежедневные задания, поручения, достижения, пресеты отряда. Числа — заглушки до баланса, часть арта — плейсхолдеры. Пока веб-сборка; Telegram Mini App — позже.
 
-[Каталог задач графики фаз 0–2](art-research/README.md) охватывает более широкий объём; наличие строки в каталоге **не** означает наличие PNG. [Пять бесшовных тайлов травы, сухой травы, земли и камня](assets/tiles/README.md) добавлены как первая партия поверхностей 128×128; переходы и игровые коллизии ещё не сделаны. Готовые самостоятельные ассеты приоритета 1 (фон арены 1080×1920, шесть **статических** FX, три состояния сундука, шесть навигационных и две валютные иконки) перечислены по ID в [`assets/manifest.json`](assets/manifest.json). Прозрачные PNG и UI/FX пересобираются командой `python3 tools/build_priority1_assets.py`; фоновый PNG получен из исходного генеративного изображения с затемнением верхней области под HUD. FX не содержат покадровой анимации. Манифест этого арт-репозитория — каталог PNG, его совместимость с игровым загрузчиком не проверялась. Репозиторий пока не содержит игровой код, поэтому подключение и проверка FPS в игре ещё не выполнялись.
+Последний отчёт: [docs/REPORTS/](docs/REPORTS/) · вопросы к владельцу: [docs/QUESTIONS.md](docs/QUESTIONS.md) · прогресс: [docs/PROGRESS.md](docs/PROGRESS.md).
 
-## Первые профессии v2
+## Запуск
 
-В [манифесте листов](assets/sprites/sprites.json) есть шесть отдельных первых профессий: [Мечник](assets/sprites/heroes/swordman.png) (`swordman`, job 1), [Маг](assets/sprites/heroes/magician.png) (`magician`, job 2), [Лучник](assets/sprites/heroes/archer_first.png) (`archer_first`, job 3), [Аколит](assets/sprites/heroes/acolyte.png) (`acolyte`, job 4, женский вариант), [Торговец](assets/sprites/heroes/merchant.png) (`merchant`, job 5), [Вор](assets/sprites/heroes/thief.png) (`thief`, job 6). К каждому листу есть портрет 64×64 в `assets/sprites/portraits/<id>.png`. `archer` оставлен Охотнику (job 11), поэтому первого Лучника назвали `archer_first`, не перезаписывая старый лист. Новичок (`novice`, job 0) — отдельно до выбора профессии.
+```bash
+npm install
+npm run dev          # http://localhost:5173, в DevTools включите мобильный вьюпорт
+npm test             # юнит-тесты механики боя и контента
+npm run check        # проверка контента + типы + тесты — перед коммитом (то же гоняет CI на каждый пуш: .github/workflows/check.yml)
+npm run sim -- --n 1000                                   # зеркальный бой отрядов по умолчанию
+npm run sim -- --a guard,warrior,archer,mage,priest --b guard,assassin,archer,mage,priest --n 1000
+npm run sim -- --log --seed 7                             # лог одного боя
+npm run balance      # прогресс модельного игрока по дням → balance.csv (docs/content/balance.md)
+npm run e2e          # прогон игры в браузере: Главная → бой → итоги (docs/content/e2e.md)
+npm run assets:report # какие ассеты используются, какие лишние, каких спрайтов не хватает
+npm run build        # статическая сборка в dist/ (под Vercel/Netlify)
+```
 
-Оружие видно в стойке и ударе (RO action 86); RO-рендерер скрывает его во время walk (action 14). Смерть у этих классов — один исходный кадр, удерживаемый четырьмя ячейками. Ограничения отмечены в записях манифеста. Для выборочной пересборки: `python3 tools/fetch_sprites_v2.py --only swordman`, затем `python3 tools/build_sprites_v2.py --only swordman` и `python3 tools/check_sprites.py --source-cache ~/.cache/chronoworld/v2 --only swordman` (подставьте нужный ID). Исходный APNG-кэш не коммитится.
+Отряд задаётся id юнитов через запятую по слотам: `0,1` — фронт, `2,3,4` — тыл, `-` — пустой слот.
+
+**Добавление героев, монстров и навыков — [docs/CONTENT.md](docs/CONTENT.md).** Формат спрайтов — [docs/SPRITE_SPEC.md](docs/SPRITE_SPEC.md).
+
+## Деплой (для проверки на телефоне)
+
+Сборка статическая (`dist/`), конфиги уже в репозитории: `vercel.json` и `netlify.toml`. Подключите репозиторий в Vercel или Netlify (ветка `claude/idle-hero-rpg-gdd-rolicg` или `main`) — сборка пойдёт без дополнительной настройки, ссылку можно открыть на телефоне. Telegram Mini App подключается позже поверх этой же ссылки (нужен HTTPS — у обоих сервисов он есть). Пошагово: [docs/DEPLOY.md](docs/DEPLOY.md).
+
+## Структура
+
+| Путь | Что там |
+| --- | --- |
+| `src/core/` | Ядро без Phaser, детерминированное: бой (поле, движение, навыки, статусы, пассивки, лог), `progression/` (профессии, опыт), `campaign/` (этапы, офлайн), `features/` (быстрые награды, мощь, задания, пропуск), `equipment/`, `tower/`, `meta/` (пресеты, поручения, достижения), `save/` (версии и миграции), `context.ts` (сборка всего контекста) |
+| `src/pipeline/` | Реестр спрайтов — общий для игры и скриптов |
+| `src/game/` | Phaser: экраны (Главная, Кампания, Этап, Бой, Итоги, Герои, Инвентарь, Башня, Задания, Отряд, Поручения, Достижения), `theme.ts` — токены интерфейса |
+| `data/` | Весь контент и числа: `units/`, `skills/`, `jobs/`, `campaign/`, `items/`, `combat.json`, `progression.json`, `quests.json`, `tower.json`, `drops.json`, `bounties.json`, `achievements.json`; `schema/` — JSON-схемы для редактора |
+| `assets/` | `sprites/` (спрайты v2), `ui/` (Kenney CC0), `ro/` (старые листы), `manifest.json` (UI, эффекты, иконки по id) |
+| `scripts/` | CLI: симулятор, проверка и заготовки контента, баланс, e2e, отчёт по ассетам |
+| `tests/` | Vitest: механика, контент, прогрессия, фазз-тесты (docs/content/testing.md) |
+| `docs/` | GDD, как добавлять контент (`CONTENT.md`, `content/*.md`), спецификация спрайтов, задачи, отчёты |
+
+## Арт
+
+Спрайты героев и врагов из Ragnarok Online лежат в [`assets/ro/`](assets/ro/) (владелец репозитория подтверждает права на использование). Там 12 героев, 8 рядовых врагов и 6 боссов: спрайтшиты, боевые кадры, портреты и иконки ульт. Покадровая разметка — в [`assets/ro/manifest.json`](assets/ro/manifest.json), инструкция — в [`assets/ro/README.md`](assets/ro/README.md). Задачи по графике фаз 0–2 — в [каталоге](art-research/README.md): наличие строки в каталоге **не** означает, что PNG уже есть.
+
+Интерфейс собран на [Kenney RPG UI (CC0)](assets/ui/): кнопки, панели, полосы HP и энергии, слоты, плашки итога.
+
+Спрайты v2 (`assets/sprites/`): 6 героев с оружием, 5 монстров, 2 босса — анимации стойки, ходьбы, атаки, каста, урона и смерти. Список недостающей графики с приоритетами — [docs/ART_NEEDED.md](docs/ART_NEEDED.md).
+
+## Как подключить арт
+
+- **Спрайты юнитов** — листы v2 в `assets/sprites/` + `sprites.json` (см. [docs/SPRITE_SPEC.md](docs/SPRITE_SPEC.md)); в юните `visual.sprite` = id спрайта. Старые листы `assets/ro` подключены через `assets/sprites.legacy.json`.
+- **UI, эффекты, иконки** — PNG в `assets/` и запись в `assets/manifest.json` по id. Код трогать не нужно.

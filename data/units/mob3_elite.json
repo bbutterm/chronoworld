@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob3_elite",
+  "name": "Проклятый жук-вор",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 1150,
+    "atk": 60,
+    "def": 14,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob3_elite_cleave",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "elite",
+    "hitFx": "fx_hit"
+  }
+}

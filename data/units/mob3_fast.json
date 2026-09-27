@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob3_fast",
+  "name": "Призрачный поринг",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 400,
+    "atk": 41,
+    "def": 5,
+    "spd": 140
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob3_fast_haunt",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "fast",
+    "hitFx": "fx_hit"
+  }
+}

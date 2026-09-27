@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_acolyte_divine_protection",
+  "name": "Божья защита",
+  "description": "Пассивно: в начале боя +15% защиты себе на 10 ходов.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "divine_protection",
+        "name": "Божья защита",
+        "turns": 10,
+        "stats": {
+          "def": 0.15
+        }
+      }
+    }
+  ],
+  "trigger": "battleStart"
+}

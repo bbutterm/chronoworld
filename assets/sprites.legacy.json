@@ -1,0 +1,2190 @@
+{
+  "sprites": [
+    {
+      "id": "guard",
+      "file": "ro/sheets/hero_guard.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_guard_portrait.png"
+    },
+    {
+      "id": "warrior",
+      "file": "ro/sheets/hero_warrior.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_warrior_portrait.png"
+    },
+    {
+      "id": "assassin",
+      "file": "ro/sheets/hero_assassin.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_assassin_portrait.png"
+    },
+    {
+      "id": "archer",
+      "file": "ro/sheets/hero_archer.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_archer_portrait.png"
+    },
+    {
+      "id": "mage",
+      "file": "ro/sheets/hero_mage.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_mage_portrait.png"
+    },
+    {
+      "id": "priest",
+      "file": "ro/sheets/hero_priestess.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_priestess_portrait.png"
+    },
+    {
+      "id": "blacksmith",
+      "file": "ro/sheets/hero_blacksmith.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_blacksmith_portrait.png"
+    },
+    {
+      "id": "monk",
+      "file": "ro/sheets/hero_monk.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_monk_portrait.png"
+    },
+    {
+      "id": "sage",
+      "file": "ro/sheets/hero_sage.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_sage_portrait.png"
+    },
+    {
+      "id": "rogue",
+      "file": "ro/sheets/hero_rogue.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_rogue_portrait.png"
+    },
+    {
+      "id": "alchemist",
+      "file": "ro/sheets/hero_alchemist.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_alchemist_portrait.png"
+    },
+    {
+      "id": "bard",
+      "file": "ro/sheets/hero_bard.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 6,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 1,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 1,
+          "ms": [
+            100
+          ],
+          "loop": false
+        }
+      },
+      "portrait": "ro/portraits/hero_bard_portrait.png"
+    },
+    {
+      "id": "melee",
+      "file": "ro/sheets/enemy_melee.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 17,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 17,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 10,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 9,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 3,
+          "ms": [
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 12,
+          "ms": [
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112,
+            112
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "ranged",
+      "file": "ro/sheets/enemy_ranged.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 22,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "ms": [
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 9,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 22,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "tank",
+      "file": "ro/sheets/enemy_tank.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 21,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 8,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 7,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 6,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 21,
+          "ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "fast",
+      "file": "ro/sheets/enemy_fast.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 28,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "ms": [
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 10,
+          "ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 28,
+          "ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 17,
+          "ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "boss_ch1",
+      "file": "ro/sheets/enemy_boss_ch1.png",
+      "cell": [
+        480,
+        480
+      ],
+      "anchor": [
+        240,
+        474
+      ],
+      "columns": 15,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 12,
+          "ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 12,
+          "ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 9,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 5,
+          "ms": [
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 15,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "boss_ch2",
+      "file": "ro/sheets/enemy_boss_ch2.png",
+      "cell": [
+        480,
+        480
+      ],
+      "anchor": [
+        240,
+        474
+      ],
+      "columns": 14,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 6,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 8,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 14,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 12,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "boss_ch3",
+      "file": "ro/sheets/enemy_boss_ch3.png",
+      "cell": [
+        480,
+        480
+      ],
+      "anchor": [
+        240,
+        474
+      ],
+      "columns": 8,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 8,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 8,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 8,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 6,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 5,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "armored",
+      "file": "ro/sheets/enemy_armored.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 34,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 6,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 8,
+          "ms": [
+            37,
+            37,
+            37,
+            37,
+            37,
+            37,
+            37,
+            37
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 13,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 7,
+          "ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 34,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "ambusher",
+      "file": "ro/sheets/enemy_ambusher.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 14,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 8,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 10,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 14,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 4,
+          "ms": [
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 13,
+          "ms": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "flying",
+      "file": "ro/sheets/enemy_flying.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 29,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 16,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 16,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 12,
+          "ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 8,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 29,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "dark_caster",
+      "file": "ro/sheets/enemy_dark_caster.png",
+      "cell": [
+        320,
+        320
+      ],
+      "anchor": [
+        160,
+        314
+      ],
+      "columns": 8,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 6,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 8,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 8,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 4,
+          "ms": [
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 7,
+          "ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "boss_ch4",
+      "file": "ro/sheets/enemy_boss_ch4.png",
+      "cell": [
+        480,
+        480
+      ],
+      "anchor": [
+        240,
+        474
+      ],
+      "columns": 16,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 6,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 11,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 12,
+          "ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 4,
+          "ms": [
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 16,
+          "ms": [
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62,
+            62
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "boss_ch5",
+      "file": "ro/sheets/enemy_boss_ch5.png",
+      "cell": [
+        480,
+        480
+      ],
+      "anchor": [
+        240,
+        474
+      ],
+      "columns": 14,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 9,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 9,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 7,
+          "ms": [
+            37,
+            37,
+            37,
+            37,
+            37,
+            37,
+            37
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 5,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 14,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "boss_ch6",
+      "file": "ro/sheets/enemy_boss_ch6.png",
+      "cell": [
+        480,
+        480
+      ],
+      "anchor": [
+        240,
+        474
+      ],
+      "columns": 32,
+      "scale": 0.781,
+      "anims": {
+        "idle": {
+          "row": 0,
+          "frames": 12,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 12,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 32,
+          "ms": [
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25,
+            25
+          ],
+          "loop": false
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 10,
+          "ms": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "loop": false
+        },
+        "death": {
+          "row": 4,
+          "frames": 20,
+          "ms": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "loop": false
+        }
+      }
+    }
+  ]
+}

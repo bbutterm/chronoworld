@@ -1,0 +1,39 @@
+{
+  "name": "idle-hero-rpg",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "sim": "tsx scripts/sim.ts",
+    "balance": "tsx scripts/balance.ts",
+    "content:check": "tsx scripts/content-check.ts",
+    "content:schema": "tsx scripts/content-schema.ts",
+    "content:new": "tsx scripts/content-new.ts",
+    "assets:legacy": "tsx scripts/assets-legacy.ts",
+    "assets:report": "tsx scripts/assets-report.ts",
+    "check": "npm run content:check && npm run typecheck && npm test",
+    "e2e": "node scripts/e2e.mjs",
+    "perf": "node scripts/perf.mjs",
+    "e2e:chapter1": "node scripts/e2e-chapter1.mjs",
+    "playthrough": "tsx scripts/playthrough.ts"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
+  },
+  "engines": {
+    "node": ">=20.11"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_mage_frost_diver",
+  "name": "Ледяной удар",
+  "description": "Урон и шанс 50% заморозить цель на ход.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "cooldown": 8,
+  "castTime": 1.5,
+  "priority": 1,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.5
+    },
+    {
+      "type": "status",
+      "chance": 0.5,
+      "status": {
+        "id": "stun",
+        "name": "Заморозка",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

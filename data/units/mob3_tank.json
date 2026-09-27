@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob3_tank",
+  "name": "Мёртвая ива",
+  "kind": "monster",
+  "role": "tank",
+  "stats": {
+    "hp": 950,
+    "atk": 32,
+    "def": 18,
+    "spd": 80
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_tank_guard",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "tank",
+    "hitFx": "fx_hit"
+  }
+}

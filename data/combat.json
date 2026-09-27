@@ -1,0 +1,75 @@
+{
+  "actionThreshold": 1000,
+  "tickSeconds": 0.1,
+  "timeLimitSeconds": 90,
+  "damage": {
+    "defScale": 100,
+    "varianceMin": 0.95,
+    "varianceMax": 1.05,
+    "minDamage": 1
+  },
+  "energy": {
+    "max": 100,
+    "perBasicAction": 25,
+    "perHitTaken": 10
+  },
+  "skills": {
+    "defaultCooldown": 8
+  },
+  "movement": {
+    "meleeRange": 170,
+    "moveSpeed": 320,
+    "dashSeconds": 0.25,
+    "stackAngles": [
+      0,
+      35,
+      -35,
+      65,
+      -65
+    ],
+    "retargetSeconds": 3,
+    "bodyRadius": {
+      "hero": 0,
+      "monster": 0,
+      "boss": 90
+    },
+    "crowdSquash": 0.8
+  },
+  "slots": {
+    "count": 5,
+    "front": [
+      0,
+      1
+    ],
+    "back": [
+      2,
+      3,
+      4
+    ]
+  },
+  "field": {
+    "width": 1080,
+    "slotsA": [
+      [
+        400,
+        1250
+      ],
+      [
+        400,
+        1570
+      ],
+      [
+        170,
+        1090
+      ],
+      [
+        170,
+        1410
+      ],
+      [
+        170,
+        1730
+      ]
+    ]
+  }
+}

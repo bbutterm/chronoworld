@@ -1,0 +1,56 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "acolyte",
+  "name": "Аколит",
+  "description": "Служитель церкви: лечит и благословляет. Дальше — Жрец или Монах.",
+  "tier": 1,
+  "from": [
+    "novice"
+  ],
+  "maxJobLevel": 50,
+  "role": "healer",
+  "baseStats": {
+    "hp": 950,
+    "atk": 80,
+    "def": 20,
+    "spd": 100
+  },
+  "growth": {
+    "hp": 45,
+    "atk": 4,
+    "def": 1,
+    "spd": 0
+  },
+  "basic": "basic_heal",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_acolyte_heal"
+    },
+    {
+      "jobLevel": 5,
+      "skill": "job_acolyte_divine_protection"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_acolyte_blessing"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_acolyte_holy_light"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_acolyte_increase_agi"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_acolyte_sanctuary"
+    }
+  ],
+  "visual": {
+    "sprite": "acolyte",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

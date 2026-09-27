@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_rogue_back_stab",
+  "name": "Удар в спину",
+  "description": "Рывок к ближайшему врагу тыла и удар.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "back"
+  },
+  "cooldown": 8,
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 2
+    }
+  ]
+}

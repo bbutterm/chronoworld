@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob3_boss_nova",
+  "name": "Мёртвая волна",
+  "description": "Урон по всем врагам и снижение их атаки.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "wither",
+        "name": "Увядание",
+        "turns": 2,
+        "stats": {
+          "atk": -0.15
+        }
+      }
+    }
+  ]
+}

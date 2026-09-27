@@ -1,0 +1,163 @@
+{
+  "title": "Профессия (джоб)",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "tier": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2
+    },
+    "from": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$"
+      }
+    },
+    "maxJobLevel": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "tank",
+        "damage",
+        "healer",
+        "support"
+      ]
+    },
+    "baseStats": {
+      "type": "object",
+      "properties": {
+        "hp": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "atk": {
+          "type": "number",
+          "minimum": 0
+        },
+        "def": {
+          "type": "number",
+          "minimum": 0
+        },
+        "spd": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "moveSpeed": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "hp",
+        "atk",
+        "def",
+        "spd"
+      ]
+    },
+    "growth": {
+      "type": "object",
+      "properties": {
+        "hp": {
+          "type": "number",
+          "minimum": 0
+        },
+        "atk": {
+          "type": "number",
+          "minimum": 0
+        },
+        "def": {
+          "type": "number",
+          "minimum": 0
+        },
+        "spd": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "hp",
+        "atk",
+        "def",
+        "spd"
+      ]
+    },
+    "basic": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "skills": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "jobLevel": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "skill": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "required": [
+          "jobLevel",
+          "skill"
+        ]
+      }
+    },
+    "visual": {
+      "type": "object",
+      "properties": {
+        "sprite": {
+          "type": "string"
+        },
+        "projectile": {
+          "type": "string"
+        },
+        "hitFx": {
+          "type": "string"
+        },
+        "tint": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      },
+      "required": [
+        "sprite"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "tier",
+    "maxJobLevel",
+    "role",
+    "baseStats",
+    "growth",
+    "basic",
+    "visual"
+  ]
+}

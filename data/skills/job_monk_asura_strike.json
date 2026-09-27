@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_monk_asura_strike",
+  "name": "Удар Асуры",
+  "description": "Рывок к самому слабому врагу и сокрушительный удар.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp"
+  },
+  "cooldown": 25,
+  "castTime": 1.5,
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 3.5
+    }
+  ]
+}

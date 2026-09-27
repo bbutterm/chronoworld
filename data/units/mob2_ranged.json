@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob2_ranged",
+  "name": "Скелет-лучник топей",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 360,
+    "atk": 44,
+    "def": 4,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob2_ranged_spit",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "ranged",
+    "hitFx": "fx_hit",
+    "projectile": "fx_arrow"
+  }
+}

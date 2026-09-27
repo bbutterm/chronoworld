@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_rogue_snatcher",
+  "name": "Ловкие руки",
+  "description": "Когда по разбойнику попали: шанс 25% получить +15 энергии.",
+  "range": "ranged",
+  "trigger": "hit",
+  "chance": 0.25,
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 15
+    }
+  ]
+}

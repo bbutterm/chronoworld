@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_archer_arrow_shower",
+  "name": "Дождь стрел",
+  "description": "Стрелы по всем врагам.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "cooldown": 10,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    }
+  ]
+}

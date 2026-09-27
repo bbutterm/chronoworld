@@ -1,0 +1,193 @@
+{
+  "title": "Башня испытаний",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "unlockAfterStage": {
+      "default": null,
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "maxFloor": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "bossEvery": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "baseMult": {
+      "default": 1,
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "statGrowthPerFloor": {
+      "type": "number",
+      "minimum": 0
+    },
+    "bands": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fromFloor": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "name": {
+            "type": "string"
+          },
+          "layouts": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "minItems": 5,
+              "maxItems": 5,
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "unit": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "mult": {
+                        "default": 1,
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    },
+                    "required": [
+                      "unit"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          },
+          "bossLayouts": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "minItems": 5,
+              "maxItems": 5,
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "unit": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "mult": {
+                        "default": 1,
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    },
+                    "required": [
+                      "unit"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "fromFloor",
+          "layouts",
+          "bossLayouts"
+        ]
+      }
+    },
+    "rewards": {
+      "type": "object",
+      "properties": {
+        "gold": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "number",
+              "minimum": 0
+            },
+            "perFloor": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "base",
+            "perFloor"
+          ]
+        },
+        "jobExp": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "number",
+              "minimum": 0
+            },
+            "perFloor": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "base",
+            "perFloor"
+          ]
+        },
+        "bossMultiplier": {
+          "default": 1,
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "bossGems": {
+          "default": 0,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "gold",
+        "jobExp"
+      ]
+    }
+  },
+  "required": [
+    "maxFloor",
+    "bossEvery",
+    "statGrowthPerFloor",
+    "bands",
+    "rewards"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "knight",
+  "name": "Рыцарь",
+  "description": "Вторая профессия Мечника: копьё и контратаки.",
+  "tier": 2,
+  "from": [
+    "swordman"
+  ],
+  "maxJobLevel": 50,
+  "role": "tank",
+  "baseStats": {
+    "hp": 2950,
+    "atk": 225,
+    "def": 95,
+    "spd": 100
+  },
+  "growth": {
+    "hp": 70,
+    "atk": 6,
+    "def": 2.5,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_knight_pierce"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_knight_two_hand_quicken"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_knight_brandish_spear"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_knight_auto_counter"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_knight_bowling_bash"
+    }
+  ],
+  "visual": {
+    "sprite": "warrior",
+    "hitFx": "fx_hit"
+  }
+}

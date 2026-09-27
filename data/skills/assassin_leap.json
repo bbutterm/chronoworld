@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "assassin_leap",
+  "name": "Прыжок",
+  "description": "Прыжок к врагу с наименьшим HP и удар.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.8
+    }
+  ],
+  "icon": "icon_ult_assassin"
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_wizard_mystical_amplification",
+  "name": "Усиление магии",
+  "description": "В начале боя: +30% атаки себе на 3 хода.",
+  "range": "ranged",
+  "trigger": "battleStart",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "mystical_amplification",
+        "name": "Усиление магии",
+        "turns": 3,
+        "stats": {
+          "atk": 0.3
+        }
+      }
+    }
+  ]
+}

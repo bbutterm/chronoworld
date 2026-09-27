@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "id": "bandana",
+      "name": "Бандана",
+      "slot": "helmet",
+      "rarity": "common",
+      "stats": {
+        "hp": 30,
+        "def": 2
+      }
+    },
+    {
+      "id": "cap",
+      "name": "Шапка",
+      "slot": "helmet",
+      "rarity": "common",
+      "stats": {
+        "def": 3
+      }
+    },
+    {
+      "id": "helm",
+      "name": "Шлем",
+      "slot": "helmet",
+      "rarity": "rare",
+      "stats": {
+        "hp": 70,
+        "def": 6
+      }
+    },
+    {
+      "id": "biretta",
+      "name": "Бирета",
+      "slot": "helmet",
+      "rarity": "rare",
+      "stats": {
+        "hp": 90,
+        "def": 3
+      },
+      "jobs": [
+        "mage",
+        "acolyte"
+      ]
+    },
+    {
+      "id": "crown",
+      "name": "Корона",
+      "slot": "helmet",
+      "rarity": "epic",
+      "stats": {
+        "hp": 160,
+        "def": 10
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "id": "sandals",
+      "name": "Сандалии",
+      "slot": "boots",
+      "rarity": "common",
+      "stats": {
+        "spd": 2
+      }
+    },
+    {
+      "id": "shoes",
+      "name": "Башмаки",
+      "slot": "boots",
+      "rarity": "common",
+      "stats": {
+        "hp": 30,
+        "spd": 1
+      }
+    },
+    {
+      "id": "boots",
+      "name": "Сапоги",
+      "slot": "boots",
+      "rarity": "rare",
+      "stats": {
+        "hp": 60,
+        "spd": 4
+      }
+    },
+    {
+      "id": "greaves",
+      "name": "Поножи",
+      "slot": "boots",
+      "rarity": "rare",
+      "stats": {
+        "def": 6,
+        "spd": 2
+      },
+      "jobs": [
+        "swordman",
+        "merchant"
+      ]
+    },
+    {
+      "id": "sleipnir",
+      "name": "Слейпнир",
+      "slot": "boots",
+      "rarity": "epic",
+      "stats": {
+        "hp": 120,
+        "spd": 8
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_knight_pierce",
+  "name": "Пронзание",
+  "description": "Два укола копьём по цели.",
+  "icon": "icon_ult_warrior",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "hits": 2,
+  "cooldown": 5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.2
+    }
+  ]
+}

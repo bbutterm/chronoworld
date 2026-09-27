@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "priest",
+  "name": "Жрица",
+  "kind": "hero",
+  "role": "healer",
+  "stats": {
+    "hp": 1050,
+    "atk": 70,
+    "def": 25,
+    "spd": 105
+  },
+  "skills": {
+    "basic": "basic_heal",
+    "ult": "priest_blessing",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "priest",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

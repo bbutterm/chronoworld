@@ -1,0 +1,33 @@
+{
+  "rules": [
+    {
+      "chapter": "chapter1",
+      "chance": 0.3,
+      "rarityWeights": {
+        "common": 85,
+        "rare": 14,
+        "epic": 1
+      },
+      "firstClearGuaranteed": true,
+      "firstClearRarityWeights": {
+        "common": 70,
+        "rare": 28,
+        "epic": 2
+      }
+    },
+    {
+      "chance": 0.35,
+      "rarityWeights": {
+        "common": 70,
+        "rare": 25,
+        "epic": 5
+      },
+      "firstClearGuaranteed": true,
+      "firstClearRarityWeights": {
+        "common": 50,
+        "rare": 42,
+        "epic": 8
+      }
+    }
+  ]
+}

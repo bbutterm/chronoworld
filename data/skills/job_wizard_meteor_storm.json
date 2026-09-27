@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_wizard_meteor_storm",
+  "name": "Метеоритный дождь",
+  "description": "Пять метеоров по случайным врагам.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random"
+  },
+  "hits": 5,
+  "cooldown": 22,
+  "castTime": 3,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    }
+  ]
+}

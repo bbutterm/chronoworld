@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_mage_thunderstorm",
+  "name": "Гроза",
+  "description": "Молнии по всем врагам.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "cooldown": 15,
+  "castTime": 3,
+  "priority": 2,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.2
+    }
+  ]
+}

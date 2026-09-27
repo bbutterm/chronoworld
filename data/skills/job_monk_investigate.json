@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_monk_investigate",
+  "name": "Проникающий удар",
+  "description": "Мощный удар ладонью.",
+  "icon": "icon_ult_priest",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "cooldown": 10,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.4
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_crusader_auto_guard",
+  "name": "Автозащита",
+  "description": "Когда по крестоносцу попали: шанс 25% получить щит 8% HP.",
+  "range": "ranged",
+  "trigger": "hit",
+  "chance": 0.25,
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.08
+    }
+  ]
+}

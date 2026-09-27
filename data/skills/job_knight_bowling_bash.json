@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_knight_bowling_bash",
+  "name": "Боулинг-удар",
+  "description": "Сокрушительный удар по двум врагам с шансом оглушить.",
+  "icon": "icon_ult_warrior",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front",
+    "count": 2
+  },
+  "cooldown": 15,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.2
+    },
+    {
+      "type": "status",
+      "chance": 0.3,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

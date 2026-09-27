@@ -1,0 +1,61 @@
+import { describe, expect, it } from 'vitest';
+import { addJobExp, claimOffline, newGame, offlineRewards, type SaveState } from '../src/core';
+import { loadGameContext } from '../scripts/lib/content-node';
+
+const ctx = loadGameContext();
+const stages = ctx.content.stages;
+const MIN = 60_000;
+const T0 = 1_000_000_000;
+
+/** Сохранение с пройденными этапами (в любом порядке), lastClaimAt = T0. */
+const saveWith = (cleared: string[]): SaveState => ({ ...newGame(ctx, T0), campaign: { cleared } });
+
+describe('офлайн-награды', () => {
+  it('ноль, пока нет пройденных этапов', () => {
+    expect(offlineRewards(saveWith([]), T0 + 60 * MIN, ctx)).toEqual({ minutes: 0, gold: 0, jobExp: 0 });
+  });
+
+  it('доход по последнему пройденному этапу × минуты', () => {
+    // Порядок в cleared не важен: берётся этап с максимальным globalIndex.
+    const save = saveWith([stages[2].id, stages[0].id, stages[1].id]);
+    const per = stages[2].offlinePerMinute;
+    expect(offlineRewards(save, T0 + 30 * MIN + 59_999, ctx)).toEqual({ minutes: 30, gold: per.gold * 30, jobExp: per.jobExp * 30 });
+    expect(offlineRewards(save, T0, ctx)).toEqual({ minutes: 0, gold: 0, jobExp: 0 });
+  });
+
+  it('лимит capHours', () => {
+    const save = saveWith([stages[0].id]);
+    const cap = ctx.progression.offline.capHours * 60;
+    const per = stages[0].offlinePerMinute;
+    const r = offlineRewards(save, T0 + 100 * 60 * MIN, ctx);
+    expect(r).toEqual({ minutes: cap, gold: per.gold * cap, jobExp: per.jobExp * cap });
+    expect(offlineRewards(save, T0 + cap * MIN, ctx)).toEqual(r);
+  });
+
+  it('часы переведены назад — ноль, lastClaimAt = now', () => {
+    const save = saveWith([stages[0].id]);
+    const now = T0 - 5 * 60 * MIN;
+    expect(offlineRewards(save, now, ctx)).toEqual({ minutes: 0, gold: 0, jobExp: 0 });
+    const out = claimOffline(save, now, ctx);
+    expect(out.rewards).toEqual({ minutes: 0, gold: 0, jobExp: 0 });
+    expect(out.events).toEqual([]);
+    expect(out.save).toEqual({ ...save, offline: { lastClaimAt: now } });
+  });
+
+  it('claimOffline: золото в ресурсы, опыт всем героям, повторный сбор сразу — ноль', () => {
+    const save = saveWith([stages[0].id]);
+    const copy = structuredClone(save);
+    const now = T0 + 90 * MIN;
+    const { save: next, rewards, events } = claimOffline(save, now, ctx);
+    expect(save).toEqual(copy);
+    expect(rewards.minutes).toBe(90);
+    expect(next.resources.gold).toBe(save.resources.gold + rewards.gold);
+    expect(next.offline.lastClaimAt).toBe(now);
+    for (const h of save.heroes) expect(next.heroes.find((x) => x.id === h.id)).toEqual(addJobExp(h, rewards.jobExp, ctx).hero);
+    expect(events[0]).toEqual({ type: 'rewards', gold: rewards.gold, jobExp: rewards.jobExp, heroIds: save.heroes.map((h) => h.id) });
+
+    const again = claimOffline(next, now, ctx);
+    expect(again.rewards).toEqual({ minutes: 0, gold: 0, jobExp: 0 });
+    expect(again.save).toEqual(next);
+  });
+});

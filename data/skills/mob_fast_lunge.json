@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_fast_lunge",
+  "name": "Прыжок",
+  "description": "Рывок к самому раненому врагу тыла и укус.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.4
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "items": [
+    {
+      "id": "cotton_shirt",
+      "name": "Хлопковая рубаха",
+      "slot": "armor",
+      "rarity": "common",
+      "stats": {
+        "hp": 60
+      }
+    },
+    {
+      "id": "adventurers_suit",
+      "name": "Костюм искателя",
+      "slot": "armor",
+      "rarity": "common",
+      "stats": {
+        "hp": 50,
+        "def": 3
+      }
+    },
+    {
+      "id": "chain_mail",
+      "name": "Кольчуга",
+      "slot": "armor",
+      "rarity": "rare",
+      "stats": {
+        "hp": 120,
+        "def": 8
+      }
+    },
+    {
+      "id": "silk_robe",
+      "name": "Шёлковая мантия",
+      "slot": "armor",
+      "rarity": "rare",
+      "stats": {
+        "hp": 150,
+        "def": 4
+      },
+      "jobs": [
+        "mage",
+        "acolyte"
+      ]
+    },
+    {
+      "id": "full_plate",
+      "name": "Латы",
+      "slot": "armor",
+      "rarity": "epic",
+      "stats": {
+        "hp": 260,
+        "def": 16
+      },
+      "jobs": [
+        "swordman",
+        "merchant"
+      ]
+    },
+    {
+      "id": "saint_robe",
+      "name": "Одеяние святого",
+      "slot": "armor",
+      "rarity": "epic",
+      "stats": {
+        "hp": 280,
+        "def": 10
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_acolyte_sanctuary",
+  "name": "Святилище",
+  "description": "Лечит всех союзников.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true,
+    "onlyWounded": true
+  },
+  "cooldown": 16,
+  "castTime": 1.5,
+  "priority": 9,
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.4
+    }
+  ]
+}

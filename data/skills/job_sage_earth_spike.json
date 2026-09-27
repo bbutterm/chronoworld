@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_sage_earth_spike",
+  "name": "Земляной шип",
+  "description": "Три шипа по случайным врагам.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random"
+  },
+  "hits": 3,
+  "cooldown": 0,
+  "castTime": 1.5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.7
+    }
+  ]
+}

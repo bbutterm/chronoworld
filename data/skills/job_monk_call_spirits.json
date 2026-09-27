@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_monk_call_spirits",
+  "name": "Призыв сфер",
+  "description": "Иногда в начале хода: +15 энергии.",
+  "range": "ranged",
+  "trigger": "turnStart",
+  "chance": 0.3,
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 15
+    }
+  ]
+}

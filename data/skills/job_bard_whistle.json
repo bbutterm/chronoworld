@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_bard_whistle",
+  "name": "Свист",
+  "description": "+20% скорости всем союзникам на 3 хода.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "cooldown": 20,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "whistle",
+        "name": "Свист",
+        "turns": 3,
+        "stats": {
+          "spd": 0.2
+        }
+      }
+    }
+  ]
+}

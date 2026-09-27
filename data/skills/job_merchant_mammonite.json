@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_merchant_mammonite",
+  "name": "Маммонит",
+  "description": "Удар, усиленный золотом.",
+  "icon": "icon_ult_guard",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "cooldown": 5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.2
+    }
+  ]
+}

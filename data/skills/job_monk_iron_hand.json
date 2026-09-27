@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_monk_iron_hand",
+  "name": "Железный кулак",
+  "description": "В начале боя: +20% атаки себе на 5 ходов.",
+  "range": "ranged",
+  "trigger": "battleStart",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "iron_hand",
+        "name": "Железный кулак",
+        "turns": 5,
+        "stats": {
+          "atk": 0.2
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_wizard_storm_gust",
+  "name": "Снежная буря",
+  "description": "Урон всем врагам, шанс 20% заморозить.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "cooldown": 18,
+  "castTime": 3,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.1
+    },
+    {
+      "type": "status",
+      "chance": 0.2,
+      "status": {
+        "id": "stun",
+        "name": "Заморозка",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

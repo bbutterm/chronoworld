@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_poporing",
+  "name": "Попоринг",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 470,
+    "atk": 40,
+    "def": 6,
+    "spd": 120
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_poporing_goo",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "fast",
+    "hitFx": "fx_hit",
+    "tint": "#9be36b"
+  }
+}

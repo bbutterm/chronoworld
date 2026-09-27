@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_hunter_ankle_snare",
+  "name": "Капкан",
+  "description": "Урон и обездвиживание цели на ход.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "cooldown": 12,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "chance": 1,
+      "status": {
+        "id": "stun",
+        "name": "Капкан",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}
