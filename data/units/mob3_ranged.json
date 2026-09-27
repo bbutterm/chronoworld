@@ -17,6 +17,7 @@
   },
   "visual": {
     "sprite": "ranged",
+    "tint": "#b7aee0",
     "hitFx": "fx_hit",
     "projectile": "fx_arrow"
   }

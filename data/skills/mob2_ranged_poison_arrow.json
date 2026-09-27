@@ -1,8 +1,8 @@
 {
   "$schema": "../schema/skill.schema.json",
-  "id": "mob2_ranged_spit",
-  "name": "Ядовитый плевок",
-  "description": "Плевок с ядом в самого раненого врага.",
+  "id": "mob2_ranged_poison_arrow",
+  "name": "Отравленная стрела",
+  "description": "Стрела, вымоченная в болотной жиже, — в самого раненого врага: урон и яд на 2 хода.",
   "range": "ranged",
   "target": {
     "side": "enemy",

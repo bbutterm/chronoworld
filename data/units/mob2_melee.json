@@ -17,6 +17,7 @@
   },
   "visual": {
     "sprite": "melee",
+    "tint": "#9fc27a",
     "hitFx": "fx_hit"
   }
 }

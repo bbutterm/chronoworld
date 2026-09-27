@@ -38,8 +38,19 @@ const problemsWith = (edit: (story: any) => void): string[] => {
 describe('сюжет: данные', () => {
   it('data/story/chapter1.json загружается в контекст', () => {
     expect(ctx.story.chapters.chapter1).toBeDefined();
-    expect(ids(ctx.story.scenes)).toEqual(['ch1_intro', 'ch1_s1_before', 'ch1_s4_before', 'ch1_s4_after', 'ch1_s7_before', 'ch1_s10_before', 'ch1_outro']);
-    expect(ctx.story.scenes.every((s) => s.chapter === 'chapter1')).toBe(true);
+    const ch1 = ctx.story.scenes.filter((s) => s.chapter === 'chapter1');
+    expect(ids(ch1)).toEqual(['ch1_intro', 'ch1_s1_before', 'ch1_s4_before', 'ch1_s4_after', 'ch1_s7_before', 'ch1_s10_before', 'ch1_outro']);
+  });
+
+  it('data/story/chapter2.json: вступление, сцена босса и знакомство с Дорном (QA T5-27)', () => {
+    const ch2 = ctx.story.scenes.filter((s) => s.chapter === 'chapter2');
+    expect(ids(ch2)).toEqual(['ch2_intro', 'ch2_s10_before', 'ch2_outro']);
+    expect(ch2.find((s) => s.id === 'ch2_s10_before')!.bossIntro?.title).toBe(ctx.content.units.mob_boss2.name);
+    const dorn = ctx.progression.heroes.recruits.find((r) => r.name === 'Дорн')!;
+    const outro = ch2.find((s) => s.id === 'ch2_outro')!;
+    expect(outro).toMatchObject({ trigger: 'afterStage', stageId: dorn.afterStage });
+    expect(outro.lines.some((l) => ctx.story.chapters.chapter2.speakers[l.speaker].name === 'Дорн')).toBe(true);
+    expect(ctx.story.scenes.every((s) => s.lines.every((l) => l.text.length <= 120))).toBe(true);
   });
 
   it('несуществующий этап и чужая глава — ошибки', () => {

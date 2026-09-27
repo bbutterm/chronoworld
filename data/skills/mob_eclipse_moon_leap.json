@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_eclipse_moon_leap",
+  "name": "Лунный прыжок",
+  "description": "Эклипс прыгает к самому раненому врагу тыла и бьёт задними лапами.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHpPct",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.8
+    }
+  ]
+}
