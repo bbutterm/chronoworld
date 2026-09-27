@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob3_elite_cleave",
   "name": "Проклятый таран",
-  "description": "Жук с разгону бьёт фронт панцирем: сильный удар, 30% оглушить.",
+  "description": "Мимик с разгону бьёт фронт окованной крышкой: сильный удар, 30% оглушить.",
   "range": "melee",
   "target": {
     "side": "enemy",
