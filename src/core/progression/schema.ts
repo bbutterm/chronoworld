@@ -3,6 +3,10 @@ import { StatsSchema, UnitSchema, VisualSchema } from '../content/schema';
 
 const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в нижнем регистре, цифры и _');
 
+/** Пол героя: m — мужской, f — женский. Выбирает лист спрайта `<спрайт>_m` / `<спрайт>_f` (если есть). */
+export const GenderSchema = z.enum(['m', 'f']);
+export type Gender = z.infer<typeof GenderSchema>;
+
 /**
  * Профессия (джоб). Герой игрока = профессия + джоб-уровень (+ история профессий).
  * Статы: baseStats + growth × (jobLevel − 1). Навыки открываются на уровнях из skills.
@@ -58,9 +62,22 @@ export const ProgressionConfigSchema = z.object({
   heroes: z.object({
     count: z.number().int().positive(),
     startJob: id,
-    names: z.array(z.string()).min(1),
-    /** Новые герои по ходу кампании: после первой победы на afterStage в отряд приходит Новичок с этим именем. */
-    recruits: z.array(z.object({ afterStage: id, name: z.string() })).default([]),
+    /** Сюжетные стартовые герои: имя и фиксированный пол (часть образа героя). Героев больше, чем имён, — случайные из namePools. */
+    names: z.array(z.object({ name: z.string(), gender: GenderSchema })).min(1),
+    /**
+     * Новые герои по ходу кампании: после первой победы на afterStage в отряд приходит Новичок с этим именем и полом.
+     * formerNames — прежние имена этого героя в старых сохранениях (sanitizeSave переименует).
+     */
+    recruits: z
+      .array(z.object({ afterStage: id, name: z.string(), gender: GenderSchema, formerNames: z.array(z.string()).optional() }))
+      .default([]),
+    /**
+     * Имена для несюжетных героев (сверх names): пол случайный, но детерминированный от seed сохранения
+     * (progression/heroes.ts generatedHero), имя — из пула этого пола.
+     */
+    namePools: z.object({ m: z.array(z.string()).min(1), f: z.array(z.string()).min(1) }),
+    /** Пол по именам из старых сохранений (Бэлла, Вик…) — для миграции; неизвестное имя → 'm'. */
+    legacyNames: z.record(z.string(), GenderSchema).default({}),
   }),
   campaign: z.object({
     /** Рост статов врагов за каждый этап по порядку (0.08 = +8%). */

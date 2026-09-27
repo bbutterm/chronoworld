@@ -20,7 +20,7 @@ import {
 } from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
-import { stageSeed } from '../flow';
+import { heroSprite, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { SKIN, SKIN_TINT } from '../skin';
@@ -218,7 +218,12 @@ export interface ResultData {
 export function squadDefs(save: SaveState): Record<string, UnitDef> {
   const ctx = withGear(GAME, save);
   const defs: Record<string, UnitDef> = {};
-  for (const h of save.heroes) if (save.squad.includes(h.id)) defs[h.id] = buildUnit(h, ctx);
+  for (const h of save.heroes) {
+    if (!save.squad.includes(h.id)) continue;
+    const def = buildUnit(h, ctx);
+    // Лист по полу героя (<спрайт>_f/_m, иначе базовый) — как на остальных экранах (flow.ts heroSprite).
+    defs[h.id] = { ...def, visual: { ...def.visual, sprite: heroSprite(h, GAME) } };
+  }
   return defs;
 }
 

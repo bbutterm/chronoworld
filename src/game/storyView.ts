@@ -1,13 +1,17 @@
 /**
  * Сюжет в UI без Phaser (тесты — tests/story.test.ts): кто говорит и чей портрет показать.
  */
-import type { GameContext, HeroState, SaveState, SpeakerDef, StageInfo, StoryContext, StoryDef, StoryScene } from '../core';
+import { heroGender, knownGender, type Gender, type GameContext, type HeroState, type SaveState, type SpeakerDef, type StageInfo, type StoryContext, type StoryDef, type StoryScene } from '../core';
+import { genderedSpriteId } from '../pipeline/sprites';
 import { heroSprite } from './flow';
+import { hasSprite } from './spriteRegistry';
 
 export interface SpeakerView {
   name: string;
   /** id спрайта для портрета; null — картинки нет (UI ставит иконку скина). */
   sprite: string | null;
+  /** Пол говорящего героя (из сохранения или по имени в progression.heroes) — для бюста; не герой — нет. */
+  gender?: Gender;
 }
 
 /** hero1..heroN → герой сохранения по порядку. */
@@ -19,20 +23,29 @@ export function speakerHero(key: string, save: SaveState) {
 /**
  * Спрайт портрета спикера: 'hero' — текущая профессия героя (нет героя — стартовая профессия);
  * 'unit:<id>' — спрайт юнита (юнита нет — null); иначе id профессии, а если такой нет — id спрайта как есть.
+ * gender — пол говорящего: лист профессии `<спрайт>_<m|f>`, если есть (Грета с портретом novice → novice_f).
  */
-export function portraitSprite(portrait: string, ctx: GameContext, hero?: SaveState['heroes'][number]): string | null {
-  if (portrait === 'hero') return hero ? heroSprite(hero, ctx) : (ctx.content.jobs[ctx.progression.heroes.startJob]?.visual.sprite ?? null);
+export function portraitSprite(portrait: string, ctx: GameContext, hero?: SaveState['heroes'][number], gender?: Gender): string | null {
+  if (portrait === 'hero') {
+    if (hero) return heroSprite(hero, ctx);
+    const start = ctx.content.jobs[ctx.progression.heroes.startJob]?.visual.sprite;
+    return start ? genderedSpriteId(start, gender, hasSprite) : null;
+  }
   if (portrait.startsWith('unit:')) return ctx.content.units[portrait.slice(5)]?.visual.sprite ?? null;
-  return ctx.content.jobs[portrait]?.visual.sprite ?? portrait;
+  const job = ctx.content.jobs[portrait]?.visual.sprite;
+  return job ? genderedSpriteId(job, gender, hasSprite) : portrait;
 }
 
 /** Имя и портрет спикера реплики. Имя героев hero1..heroN — из сохранения (игрок мог их переименовать). */
 export function speakerView(story: StoryDef | undefined, key: string, save: SaveState, ctx: GameContext): SpeakerView {
   const sp: SpeakerDef | undefined = story?.speakers[key];
   const hero = speakerHero(key, save);
+  // Пол: герой сохранения (hero1..N) → сюжетный герой по имени спикера (рекрут до/после вступления) → нет.
+  const gender = hero ? heroGender(hero, ctx.progression.heroes) : sp ? knownGender(sp.name, ctx.progression.heroes) : undefined;
   return {
     name: hero?.name ?? sp?.name ?? key,
-    sprite: sp ? portraitSprite(sp.portrait, ctx, hero) : hero ? heroSprite(hero, ctx) : null,
+    sprite: sp ? portraitSprite(sp.portrait, ctx, hero, gender) : hero ? heroSprite(hero, ctx) : null,
+    ...(gender ? { gender } : {}),
   };
 }
 

@@ -9,6 +9,7 @@ import {
   misplacedInFront,
   type GearContext,
   getJob,
+  heroGender,
   RARITIES,
   SLOTS,
   stageStatus,
@@ -32,7 +33,8 @@ import {
   type StageInfo,
   type TowerEvent,
 } from '../core';
-
+import { genderedSpriteId } from '../pipeline/sprites';
+import { hasSprite } from './spriteRegistry';
 import { C } from './theme';
 
 export const ROLE_NAMES: Record<string, string> = { tank: 'Танк', damage: 'Урон', healer: 'Лекарь', support: 'Поддержка' };
@@ -231,9 +233,18 @@ export function lockedJobSkills(jobId: string, jobLevel: number, ctx: GameContex
     .sort((a, b) => a.jobLevel - b.jobLevel);
 }
 
-/** id спрайта героя — от его текущей профессии. */
-export function heroSprite(hero: HeroState, ctx: GameContext): string {
-  return ctx.content.jobs[hero.job]?.visual.sprite ?? hero.job;
+/**
+ * id спрайта героя — от его текущей профессии и пола: `<спрайт профессии>_f` / `_m`, если такой лист есть в реестре,
+ * иначе базовый лист профессии (он одного пола — см. genderedSpriteId). has — проверка реестра (для тестов).
+ */
+export function heroSprite(hero: HeroState, ctx: GameContext, has: (id: string) => boolean = hasSprite): string {
+  return heroJobSprite(hero, hero.job, ctx, has);
+}
+
+/** Как выглядел бы герой в профессии jobId (варианты на экране смены профессии): лист профессии по полу героя. */
+export function heroJobSprite(hero: HeroState, jobId: string, ctx: GameContext, has: (id: string) => boolean = hasSprite): string {
+  const base = ctx.content.jobs[jobId]?.visual.sprite ?? jobId;
+  return genderedSpriteId(base, heroGender(hero, ctx.progression.heroes), has);
 }
 
 // ---------- K2. Мощь ----------
