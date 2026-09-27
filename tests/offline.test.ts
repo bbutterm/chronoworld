@@ -41,7 +41,8 @@ describe('офлайн-награды', () => {
     const out = claimOffline(save, now, ctx);
     expect(out.rewards).toEqual({ minutes: 0, gold: 0, jobExp: 0 });
     expect(out.events).toEqual([]);
-    expect(out.save).toEqual({ ...save, offline: { lastClaimAt: now } });
+    // P11 (T4-09): якорь = now, а скачок назад (5 ч, не больше лимита) — долг сундука.
+    expect(out.save).toEqual({ ...save, offline: { lastClaimAt: now, debtMs: 5 * 60 * MIN } });
   });
 
   it('claimOffline: золото в ресурсы, опыт всем героям, повторный сбор сразу — ноль', () => {

@@ -4,7 +4,7 @@ import { GAME } from '../content';
 import { describeEvents, formatNumber, questDestination, untilReset } from '../flow';
 import { GAME_W } from '../layout';
 import { badge, card, CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
-import { commit, session, today } from '../session';
+import { commit, restartOnNewDay, session, today } from '../session';
 import { button, emptyState, icon, progressBar, ScrollArea, text, toast } from '../ui';
 import { C, FS, TINT } from '../theme';
 
@@ -24,6 +24,7 @@ export class QuestsScene extends Phaser.Scene {
 
   create(): void {
     screen(this, 'Задания дня', 'Home', { to: 'Home' });
+    restartOnNewDay(this);
     const st = questStatus(session.save, GAME, today());
 
     // --- Активность ---

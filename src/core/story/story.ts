@@ -90,39 +90,76 @@ export type StoryTrigger =
 const seenSet = (save: SaveState) => new Set(save.seenScenes);
 
 /**
+ * P11 (T4-05). Поставить в очередь сохранения (save.storyQueue) сцену «после этапа» stageId, если этап пройден
+ * впервые и сцена не увидена. Зовётся вместе с победой (actPlayStage), чтобы сцена пережила перезагрузку
+ * до того, как её показали. Нечего ставить — тот же объект save.
+ */
+export function queueAfterStage(save: SaveState, stageId: string, firstClear: boolean, ctx: StoryContext): SaveState {
+  if (!firstClear) return save;
+  const seen = seenSet(save);
+  const queue = save.storyQueue ?? [];
+  const add = ctx.story.scenes.filter((s) => s.trigger === 'afterStage' && s.stageId === stageId && !seen.has(s.id) && !queue.includes(s.id)).map((s) => s.id);
+  return add.length ? { ...save, storyQueue: [...queue, ...add] } : save;
+}
+
+/** Сцены из очереди save.storyQueue (не увиденные, существующие), по порядку. */
+export function queuedScenes(save: SaveState, ctx: StoryContext): StoryScene[] {
+  const seen = seenSet(save);
+  const out: StoryScene[] = [];
+  for (const id of save.storyQueue ?? []) {
+    const s = ctx.story.scenes.find((x) => x.id === id);
+    if (s && !seen.has(id)) out.push(s);
+  }
+  return out;
+}
+
+/**
  * Сцены, которые надо показать сейчас, по порядку (обычно 0–1, перед первым этапом главы — до двух).
  * Только не увиденные (save.seenScenes) и только при первом прохождении:
  * - chapterStart — пока первый этап главы открыт и не пройден;
  * - beforeStage — пока этап не пройден (на повторах нет); перед первым этапом главы сначала chapterStart;
- * - afterStage — только при firstClear.
+ * - afterStage — при firstClear или если сцена этого этапа стоит в очереди save.storyQueue.
+ * P11 (T4-05): перед chapterStart и beforeStage сначала идут сцены из очереди (не показанные «после этапа»,
+ * например, прерванные перезагрузкой) — так они покажутся при следующем заходе на карту кампании.
  */
 export function pendingScenes(save: SaveState, trigger: StoryTrigger, ctx: GameContext & StoryContext): StoryScene[] {
   const seen = seenSet(save);
   const find = (pred: (s: StoryScene) => boolean) => ctx.story.scenes.filter((s) => !seen.has(s.id) && pred(s)).slice(0, 1);
   const chapterStart = (chapter: string) => find((s) => s.trigger === 'chapterStart' && s.chapter === chapter);
   const stage = 'stageId' in trigger ? ctx.content.stages.find((s) => s.id === trigger.stageId) : undefined;
+  const queued = queuedScenes(save, ctx);
+  const withQueue = (list: StoryScene[]) => [...queued, ...list.filter((s) => !queued.includes(s))];
 
   switch (trigger.type) {
     case 'chapterStart': {
       const first = ctx.content.stages.find((s) => s.chapter === trigger.chapter && s.index === 0);
-      if (!first || stageStatus(save, first.id, ctx) !== 'open') return [];
-      return chapterStart(trigger.chapter);
+      if (!first || stageStatus(save, first.id, ctx) !== 'open') return withQueue([]);
+      return withQueue(chapterStart(trigger.chapter));
     }
     case 'beforeStage': {
-      if (!stage || stageStatus(save, stage.id, ctx) !== 'open') return [];
+      if (!stage || stageStatus(save, stage.id, ctx) !== 'open') return withQueue([]);
       const before = find((s) => s.trigger === 'beforeStage' && s.stageId === stage.id);
-      return stage.index === 0 ? [...chapterStart(stage.chapter), ...before] : before;
+      return withQueue(stage.index === 0 ? [...chapterStart(stage.chapter), ...before] : before);
     }
     case 'afterStage': {
-      if (!stage || !trigger.firstClear) return [];
+      if (!stage) return [];
+      const inQueue = queued.filter((s) => s.trigger === 'afterStage' && s.stageId === stage.id);
+      if (inQueue.length) return inQueue;
+      if (!trigger.firstClear) return [];
       return find((s) => s.trigger === 'afterStage' && s.stageId === stage.id);
     }
   }
 }
 
-/** Пометить сцены увиденными (новое сохранение; уже увиденные не дублируются). */
+/** Пометить сцены увиденными (новое сохранение; уже увиденные не дублируются) и убрать их из очереди storyQueue. */
 export function markScenesSeen(save: SaveState, ids: readonly string[]): SaveState {
   const seen = seenSet(save);
   const add = ids.filter((id) => !seen.has(id) && seen.add(id));
-  return add.length ? { ...save, seenScenes: [...save.seenScenes, ...add] } : save;
+  const queue = save.storyQueue ?? [];
+  const rest = queue.filter((id) => !ids.includes(id));
+  if (!add.length && rest.length === queue.length) return save;
+  const next: SaveState = { ...save, seenScenes: add.length ? [...save.seenScenes, ...add] : save.seenScenes };
+  if (rest.length) next.storyQueue = rest;
+  else delete next.storyQueue;
+  return next;
 }

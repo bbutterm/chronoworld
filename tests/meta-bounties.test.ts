@@ -58,8 +58,9 @@ describe('K9 доска поручений', () => {
     expect(ensureBoard(a, D1, 99, ctx)).toBe(a);
     const b = ensureBoard(a, D2, 7, ctx);
     expect(b.bounties.board.map((x) => x.id)).not.toEqual(a.bounties.board.map((x) => x.id));
-    // Часы назад — ничего.
-    expect(ensureBoard(b, D1, 7, ctx)).toBe(b);
+    // Часы назад — доска и счётчик те же, день принимается (P11, T4-07).
+    const back = ensureBoard(b, D1, 7, ctx);
+    expect(back.bounties).toEqual({ ...b.bounties, lastRefreshDay: D1 });
     expect(codeOf(() => ensureBoard(s, '26.09.2026', 1, ctx))).toBe('invalid_day');
   });
 

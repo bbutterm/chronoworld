@@ -61,13 +61,14 @@ describe('rollDay', () => {
   it('новый день сбрасывает счётчики, тот же день — без изменений', () => {
     const s = { ...withStage(), daily: { day: D1, fastRewardsUsed: 3, quests: { stage_win: 2 }, claimedQuests: ['x'], activityClaimed: [20] } };
     expect(rollDay(s, D1)).toBe(s);
-    expect(rollDay(s, D2).daily).toEqual({ day: D2, fastRewardsUsed: 0, quests: {}, claimedQuests: [], activityClaimed: [] });
+    expect(rollDay(s, D2).daily).toEqual({ day: D2, fastRewardsUsed: 0, quests: {}, claimedQuests: [], activityClaimed: [], usedDays: [D1, D2] });
     expect(s.daily.fastRewardsUsed).toBe(3);
   });
 
-  it('день назад (часы переведены) — без сброса', () => {
+  it('день назад (часы переведены) — без сброса: день принимается, счётчики остаются', () => {
     const s = { ...withStage(), daily: { ...withStage().daily, fastRewardsUsed: 1 } };
-    expect(rollDay(s, '2026-09-25')).toBe(s);
+    const back = rollDay(s, '2026-09-25');
+    expect(back.daily).toEqual({ ...s.daily, day: '2026-09-25', usedDays: [s.daily.day] });
   });
 
   it('неверный формат дня → invalid_day', () => {
