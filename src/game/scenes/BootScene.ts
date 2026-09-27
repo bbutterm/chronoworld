@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { buildPlaceholders, queueAssets, setupLoadedAssets } from '../assets';
+import { assetUrl, bootPack, packPath, revokePack, unpack } from '../assetUrl';
 import { buildSkin } from '../skin';
 import { CONTENT, GAME } from '../content';
 import { heroSprite } from '../flow';
@@ -17,6 +18,9 @@ function spriteRoles(): Record<string, string> {
   for (const u of Object.values(CONTENT.units)) roles[u.visual.sprite] ??= u.role;
   return roles;
 }
+
+/** Ключ пакета загрузки в загрузчике (прод-сборка, vite.config.ts). */
+const PACK_KEY = '__boot_pack';
 
 const BAR_W = 760;
 const BAR_H = 44;
@@ -41,6 +45,8 @@ function style(size: number, color: string, bold = false): Phaser.Types.GameObje
  */
 export class BootScene extends Phaser.Scene {
   private failed = 0;
+  /** blob:-адреса файлов из пакета загрузки — освобождаются, когда загрузка закончилась. */
+  private packUrls: Map<string, string> | null = null;
 
   constructor() {
     super('Boot');
@@ -59,27 +65,83 @@ export class BootScene extends Phaser.Scene {
     const label = this.add.text(cx, BAR_Y + 80, 'Загрузка… 0%', style(42, '#ffffff')).setOrigin(0.5);
     const hint = this.add.text(cx, BAR_Y + 145, '', style(28, '#8a8e98')).setOrigin(0.5);
 
-    this.load.on('progress', (p: number) => {
-      fill.width = BAR_W * p;
-      shine.width = BAR_W * p;
-      label.setText(`Загрузка… ${Math.round(p * 100)}%`);
-    });
+    // Надписи перерисовываются не чаще раза в кадр: файлы из пакета приходят пачкой, а каждый setText —
+    // перерисовка canvas и загрузка текстуры (на слабом телефоне ~1 мс на надпись).
+    let progress = 0;
+    let hintText = '';
+    const flush = () => {
+      fill.width = BAR_W * progress;
+      shine.width = BAR_W * progress;
+      const text = `Загрузка… ${Math.round(progress * 100)}%`;
+      if (label.text !== text) label.setText(text);
+      if (hint.text !== hintText) hint.setText(hintText);
+    };
+    this.game.events.on(Phaser.Core.Events.PRE_RENDER, flush);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.game.events.off(Phaser.Core.Events.PRE_RENDER, flush));
+    const setProgress = (p: number) => (progress = p);
     this.load.on('filecomplete', (key: string) => {
-      if (!this.failed) hint.setText(key);
+      if (!this.failed && key !== PACK_KEY) hintText = key;
     });
     // Файл не найден — не страшно, будет плейсхолдер.
     this.load.on('loaderror', (file: Phaser.Loader.File) => {
+      if (file.key === PACK_KEY) return;
       this.failed++;
       console.warn(`Ассет ${file.key} не загрузился, рисую плейсхолдер`);
-      hint.setText(`Не загрузилось файлов: ${this.failed} — будут заглушки`).setColor('#ffb4a0');
+      hintText = `Не загрузилось файлов: ${this.failed} — будут заглушки`;
+      hint.setColor('#ffb4a0');
     });
 
-    queueAssets(this);
-    // U: листы юнитов (до 12 МБ каждый в памяти GPU) не грузим — только маленькие файлы портретов.
-    queuePortraitFiles(this, Object.keys(spriteRoles()));
+    const queueAll = () => {
+      queueAssets(this);
+      // U: листы юнитов (до 12 МБ каждый в памяти GPU) не грузим — только маленькие файлы портретов.
+      queuePortraitFiles(this, Object.keys(spriteRoles()));
+    };
+    const pack = bootPack();
+    if (!pack) {
+      // dev-сервер: файлы по одному, прогресс — по числу файлов.
+      this.load.on('progress', setProgress);
+      queueAll();
+      return;
+    }
+    // Прод: сначала пакет загрузки (один запрос, прогресс по байтам — 90 % полосы), затем те же файлы из него
+    // по blob:-адресам (без сети). Чего нет в пакете — грузится как раньше. Пакет не загрузился — всё по одному.
+    const PACK_SHARE = 0.9;
+    this.load.on('fileprogress', (file: Phaser.Loader.File, p: number) => {
+      if (file.key === PACK_KEY) setProgress(PACK_SHARE * p);
+    });
+    const rest = () => {
+      let total = 0;
+      let done = 0;
+      const tick = () => setProgress(PACK_SHARE + (1 - PACK_SHARE) * (total ? ++done / total : 1));
+      this.load.on('addfile', () => total++);
+      this.load.on('filecomplete', tick);
+      this.load.on('loaderror', tick);
+    };
+    this.load.binary(PACK_KEY, pack.url);
+    // Картинки из пакета — сразу в <img> по blob:-адресу, без второго XHR и второго Blob внутри Phaser.
+    this.load.imageLoadType = 'HTMLImageElement';
+    // Файл из пакета — по blob:-адресу, прочие — WebP-копия, если есть (assetUrl).
+    this.load.on('addfile', (key: string, _t: string, _l: unknown, file: Phaser.Loader.File) => {
+      if (key === PACK_KEY || typeof file.url !== 'string') return;
+      file.url = this.packUrls?.get(packPath(file.url)) ?? assetUrl(file.url);
+    });
+    this.load.once(`filecomplete-binary-${PACK_KEY}`, (_key: string, _type: string, data: ArrayBuffer) => {
+      this.cache.binary.remove(PACK_KEY);
+      this.packUrls = unpack(pack, data);
+      rest();
+      queueAll();
+    });
+    this.load.on('loaderror', (file: Phaser.Loader.File) => {
+      if (file.key !== PACK_KEY) return;
+      console.warn('Пакет загрузки не загрузился — грузим файлы по одному');
+      rest();
+      queueAll();
+    });
   }
 
   create(): void {
+    if (this.packUrls) revokePack(this.packUrls);
+    this.packUrls = null;
     setupLoadedAssets(this);
     buildSkin(this);
     buildPlaceholders(this);

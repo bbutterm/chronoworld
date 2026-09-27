@@ -64,6 +64,8 @@
 | `npm run e2e:chapter1` | глава 1 целиком через интерфейс, проверка перекрытия кнопок | порт 5174 (`E2E_PORT`); несколько минут — в фон |
 | `npm run perf` | замер боя в браузере (CPU ×4), утечки между боями | порт 5185 (`PERF_PORT`), `PERF_RUNS`, `PERF_JSON` |
 | `npm run assets:report` | какие ассеты попадут в dist, лишние, листы > 2048 px | |
+| `npm run assets:webp` | WebP без потерь для всех PNG из dist → `assets-webp/` (коммитить) | после замены/добавления арта; нужен Pillow; устаревшие копии сборка не берёт |
+| `npm run perf:load` | холодный старт прод-сборки: CPU ×4, Fast 3G — заставка, экран загрузки, главная | порт 5190 (`LOAD_PORT`), `LOAD_RUNS`, `LOAD_JSON` |
 | `npm run build` | tsc + vite build в `dist/` (как Vercel) | в dist копируются только используемые ассеты (`scripts/lib/used-assets.ts`) |
 | `python3 -m unittest discover -s tests -p 'test_*.py'` | проверки арт-пайплайна (листы, иконки, тайлы) | нужен Pillow/numpy; в `npm run check` не входят |
 

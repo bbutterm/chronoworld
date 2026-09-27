@@ -152,3 +152,26 @@ export function listAssetFiles(root: string): string[] {
   if (existsSync(base)) walk(base);
   return out.sort();
 }
+
+/**
+ * Файлы, которые грузит экран загрузки (BootScene): манифест (кроме заменённых скином), значки навыков и
+ * файлы портретов спрайтов из контента. Сборка кладёт их в «пакет загрузки» (vite.config.ts). Это только подсказка
+ * сборке: игра сама берёт из пакета то, что в нём есть, остальное грузит по отдельности.
+ */
+export function bootFiles(root: string, skinReplaced: ReadonlySet<string>): string[] {
+  const assets = join(root, ASSETS_DIR);
+  const manifest = readJson<{ assets: Record<string, ManifestEntry> }>(join(assets, 'manifest.json')) ?? { assets: {} };
+  const out = new Set<string>();
+  for (const [id, a] of Object.entries(manifest.assets)) {
+    if (!a.file || skinReplaced.has(id)) continue;
+    out.add(clean(a.file));
+    if (a.atlasXml) out.add(clean(a.atlasXml));
+  }
+  for (const f of skillIconFiles(root)) out.add(f);
+  const registry = buildRegistry(readJson(join(assets, 'sprites.legacy.json')), readJson(join(assets, 'sprites/sprites.json')));
+  for (const id of contentSpriteIds(root)) {
+    const p = registry[id]?.portrait;
+    if (p) out.add(clean(p));
+  }
+  return [...out].filter((f) => existsSync(join(assets, f))).sort();
+}

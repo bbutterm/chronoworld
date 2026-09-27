@@ -169,6 +169,8 @@ id вида `chapterN` выводится сам (`ch<N>`).
 
 После: `python3 tools/check_sprites.py`, `python3 -m unittest discover -s tests -p 'test_*.py'`, `npm run content:check`, `npm run assets:report`,
 глазами (`npm run dev`); отметить issue и `docs/qa/FIXLIST.md` «Ждёт графики».
+Новый или заменённый PNG — `npm run assets:webp` (WebP без потерь для прод-сборки, коммитить `assets-webp/`). Без этого
+файл уходит в игру как PNG (работает, просто тяжелее; `npm run build` предупредит), см. `docs/content/performance.md`, «Загрузка».
 
 ## 13. Баланс главы
 
