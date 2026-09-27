@@ -1,4 +1,4 @@
-import { enemySquad } from '../campaign/campaign';
+import { enemySquad, getStage } from '../campaign/campaign';
 import type { UnitDef } from '../content/schema';
 import { withGear } from '../equipment/equipment';
 import type { EquipmentConfig } from '../equipment/load';
@@ -42,4 +42,51 @@ export function squadPower(save: SaveState, ctx: FeatureContext & { equipment?: 
 /** K2. Мощь врагов этапа = сумма unitPower по enemySquad (с ростом по кривой кампании). */
 export function stagePower(stageId: string, ctx: FeatureContext): number {
   return enemySquad(stageId, ctx).reduce((sum, u) => sum + (u ? unitPower(u, ctx) : 0), 0);
+}
+
+/** Округлить до «красивого» числа: 2 значащие цифры до 10 000, дальше — 3 (1234 → 1200, 45 678 → 45 700). */
+function roundNice(n: number): number {
+  if (n <= 0) return 0;
+  const digits = n >= 10_000 ? 3 : 2;
+  const step = Math.pow(10, Math.max(0, Math.floor(Math.log10(n)) + 1 - digits));
+  return Math.round(n / step) * step;
+}
+
+/** Коэффициент рекомендуемой мощи этапа: power.recommendedStages[id] → recommendedBoss (босс) → recommended → 1. */
+export function recommendedFactor(stageId: string, ctx: FeatureContext): number {
+  const k = ctx.features.power;
+  const own = k.recommendedStages?.[stageId];
+  if (own !== undefined) return own;
+  const boss = getStage(ctx, stageId).boss;
+  return (boss ? (k.recommendedBoss ?? k.recommended) : k.recommended) ?? 1;
+}
+
+/**
+ * «Рекомендуемая мощь этапа» (как в AFK — число над кнопкой «В бой»): stagePower × recommendedFactor, округлено до
+ * красивого числа (2 значащие цифры, от 10 000 — 3). Сравнивается напрямую со squadPower (stagePowerCheck).
+ * Калибровка — моделью игрока (npm run balance -- --fit-recommended, docs/content/balance.md): с мощью ≥ рекомендуемой
+ * этап проходится с 1–2 попыток; 85–95% — «чуть-чуть не хватает», 1–2 уровня отряда решают.
+ */
+export function recommendedPower(stageId: string, ctx: FeatureContext): number {
+  return roundNice(stagePower(stageId, ctx) * recommendedFactor(stageId, ctx));
+}
+
+/** Насколько отряд готов к этапу: very_hard < 0.85 ≤ hard < 0.95 ≤ ok < 1.1 ≤ easy (доля от рекомендуемой). */
+export type PowerVerdict = 'easy' | 'ok' | 'hard' | 'very_hard';
+
+export interface StagePowerCheck {
+  squad: number;
+  recommended: number;
+  /** squad / recommended (0, если рекомендуемая 0). */
+  ratio: number;
+  verdict: PowerVerdict;
+}
+
+/** Мощь отряда против рекомендуемой мощи этапа — для экрана подготовки к бою и карты кампании. */
+export function stagePowerCheck(save: SaveState, stageId: string, ctx: FeatureContext & { equipment?: EquipmentConfig }): StagePowerCheck {
+  const squad = squadPower(save, ctx);
+  const recommended = recommendedPower(stageId, ctx);
+  const ratio = recommended > 0 ? squad / recommended : 0;
+  const verdict: PowerVerdict = ratio >= 1.1 ? 'easy' : ratio >= 0.95 ? 'ok' : ratio >= 0.85 ? 'hard' : 'very_hard';
+  return { squad, recommended, ratio, verdict };
 }

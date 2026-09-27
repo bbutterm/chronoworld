@@ -38,7 +38,10 @@ describe('строй боя (T2-05)', () => {
       const frontX = ctx.combat.field.slotsA[ctx.combat.slots.front[0]][0];
       const into = dashes.filter((e) => e.type === 'move' && e.to[0] < frontX);
       const back = dashes.filter((e) => e.type === 'move' && e.to[0] >= frontX);
-      expect(back.length, String(seed)).toBeGreaterThanOrEqual(into.length - (r.log.some((e) => e.type === 'death' && e.unit === boss.uid) ? 1 : 0));
+      // Последний прыжок может остаться без возврата, если бой кончился раньше: босс погиб или отряд героев пал
+      // (баланс 27.09: босс главы 1 рассчитан на отряд с Таверной, отряд ур. 1 здесь проигрывает).
+      const ended = r.log.some((e) => e.type === 'death' && e.unit === boss.uid) || r.winner === 'B';
+      expect(back.length, String(seed)).toBeGreaterThanOrEqual(into.length - (ended ? 1 : 0));
       // Не больше 3 фигур у одного юнита в радиусе 150 дольше секунды подряд.
       let run = 0;
       let worst = 0;

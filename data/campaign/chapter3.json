@@ -11,26 +11,26 @@
       "enemies": [
         {
           "unit": "mob3_melee",
-          "mult": 0.62
+          "mult": 1.03
         },
         {
           "unit": "mob3_tank",
-          "mult": 0.62
+          "mult": 1.03
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.62
+          "mult": 1.03
         },
         null,
         null
       ],
       "rewards": {
-        "jobExp": 1650,
-        "gold": 500
+        "jobExp": 2550,
+        "gold": 1770
       },
       "offlinePerMinute": {
-        "jobExp": 66,
-        "gold": 45
+        "jobExp": 85,
+        "gold": 59
       }
     },
     {
@@ -40,29 +40,29 @@
       "enemies": [
         {
           "unit": "mob3_tank",
-          "mult": 0.81
+          "mult": 1.05
         },
         {
           "unit": "mob3_melee",
-          "mult": 0.81
+          "mult": 1.05
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.81
+          "mult": 1.05
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.81
+          "mult": 1.05
         },
         null
       ],
       "rewards": {
-        "jobExp": 1710,
-        "gold": 525
+        "jobExp": 2790,
+        "gold": 1950
       },
       "offlinePerMinute": {
-        "jobExp": 69,
-        "gold": 47
+        "jobExp": 93,
+        "gold": 65
       }
     },
     {
@@ -72,32 +72,32 @@
       "enemies": [
         {
           "unit": "mob3_fast",
-          "mult": 0.88
+          "mult": 1.22
         },
         {
           "unit": "mob3_tank",
-          "mult": 0.32
+          "mult": 0.45
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.88
+          "mult": 1.22
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.88
+          "mult": 1.22
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.88
+          "mult": 1.22
         }
       ],
       "rewards": {
-        "jobExp": 1770,
-        "gold": 550
+        "jobExp": 3030,
+        "gold": 2130
       },
       "offlinePerMinute": {
-        "jobExp": 72,
-        "gold": 49
+        "jobExp": 101,
+        "gold": 71
       }
     },
     {
@@ -107,32 +107,32 @@
       "enemies": [
         {
           "unit": "mob3_melee",
-          "mult": 0.43
+          "mult": 0.67
         },
         {
           "unit": "mob3_tank",
-          "mult": 0.43
+          "mult": 0.67
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.89
+          "mult": 1.39
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.89
+          "mult": 1.39
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.89
+          "mult": 1.39
         }
       ],
       "rewards": {
-        "jobExp": 1830,
-        "gold": 575
+        "jobExp": 3300,
+        "gold": 2310
       },
       "offlinePerMinute": {
-        "jobExp": 75,
-        "gold": 51
+        "jobExp": 110,
+        "gold": 77
       }
     },
     {
@@ -142,32 +142,32 @@
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 0.62
+          "mult": 0.96
         },
         {
           "unit": "mob3_melee",
-          "mult": 0.62
+          "mult": 0.96
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.62
+          "mult": 0.96
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.62
+          "mult": 0.96
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.62
+          "mult": 0.96
         }
       ],
       "rewards": {
-        "jobExp": 1890,
-        "gold": 600
+        "jobExp": 3600,
+        "gold": 2520
       },
       "offlinePerMinute": {
-        "jobExp": 78,
-        "gold": 53
+        "jobExp": 120,
+        "gold": 84
       }
     },
     {
@@ -177,32 +177,32 @@
       "enemies": [
         {
           "unit": "mob3_tank",
-          "mult": 0.32
+          "mult": 0.49
         },
         {
           "unit": "mob3_tank",
-          "mult": 0.32
+          "mult": 0.49
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.88
+          "mult": 1.37
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.88
+          "mult": 1.37
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.88
+          "mult": 1.37
         }
       ],
       "rewards": {
-        "jobExp": 1950,
-        "gold": 625
+        "jobExp": 3930,
+        "gold": 2760
       },
       "offlinePerMinute": {
-        "jobExp": 81,
-        "gold": 55
+        "jobExp": 131,
+        "gold": 92
       }
     },
     {
@@ -212,32 +212,32 @@
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 0.57
+          "mult": 0.89
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.57
+          "mult": 0.89
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.57
+          "mult": 0.89
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.57
+          "mult": 0.89
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.57
+          "mult": 0.89
         }
       ],
       "rewards": {
-        "jobExp": 2010,
-        "gold": 650
+        "jobExp": 4290,
+        "gold": 3000
       },
       "offlinePerMinute": {
-        "jobExp": 84,
-        "gold": 57
+        "jobExp": 143,
+        "gold": 100
       }
     },
     {
@@ -247,32 +247,32 @@
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 0.38
+          "mult": 0.58
         },
         {
           "unit": "mob3_elite",
-          "mult": 0.38
+          "mult": 0.58
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.59
+          "mult": 0.91
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.59
+          "mult": 0.91
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.59
+          "mult": 0.91
         }
       ],
       "rewards": {
-        "jobExp": 2070,
-        "gold": 675
+        "jobExp": 4680,
+        "gold": 3270
       },
       "offlinePerMinute": {
-        "jobExp": 87,
-        "gold": 59
+        "jobExp": 156,
+        "gold": 109
       }
     },
     {
@@ -282,32 +282,32 @@
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 0.33
+          "mult": 0.51
         },
         {
           "unit": "mob3_tank",
-          "mult": 0.33
+          "mult": 0.51
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.67
+          "mult": 1.01
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.67
+          "mult": 1.01
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.67
+          "mult": 1.01
         }
       ],
       "rewards": {
-        "jobExp": 2130,
-        "gold": 700
+        "jobExp": 5100,
+        "gold": 3570
       },
       "offlinePerMinute": {
-        "jobExp": 90,
-        "gold": 61
+        "jobExp": 170,
+        "gold": 119
       }
     },
     {
@@ -317,32 +317,32 @@
       "enemies": [
         {
           "unit": "mob3_tank",
-          "mult": 0.22
+          "mult": 0.31
         },
         {
           "unit": "mob3_elite",
-          "mult": 0.22
+          "mult": 0.31
         },
         {
           "unit": "mob3_boss",
-          "mult": 0.44
+          "mult": 0.69
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.6
+          "mult": 0.91
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.6
+          "mult": 0.91
         }
       ],
       "rewards": {
-        "jobExp": 3234,
-        "gold": 1377
+        "jobExp": 8325,
+        "gold": 5850
       },
       "offlinePerMinute": {
-        "jobExp": 93,
-        "gold": 63
+        "jobExp": 185,
+        "gold": 130
       }
     }
   ]

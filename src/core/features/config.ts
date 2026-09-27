@@ -24,6 +24,15 @@ export const PowerConfigSchema = z.object({
   spd: z.number().nonnegative(),
   perActive: z.number().nonnegative(),
   perPassive: z.number().nonnegative(),
+  /**
+   * «Рекомендуемая мощь этапа» (recommendedPower) = мощь врагов × коэффициент: recommendedStages[id] (этапы, чей состав
+   * труднее или легче своей мощи), иначе recommendedBoss (босс-этап) или recommended; не задано — 1. Округляется до
+   * «красивого» числа. Коэффициенты подбирает модель игрока (npm run balance -- --fit-recommended, docs/content/balance.md):
+   * с мощью ≥ рекомендуемой этап проходится с 1–2 попыток, 85–95% — «чуть-чуть не хватает».
+   */
+  recommended: z.number().positive().optional(),
+  recommendedBoss: z.number().positive().optional(),
+  recommendedStages: z.record(z.string(), z.number().positive()).optional(),
 });
 
 /**

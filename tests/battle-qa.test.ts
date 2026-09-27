@@ -330,8 +330,11 @@ describe('QA T2 (бой) — регрессии пакета P1', () => {
         const land = Math.round((s.t + flight) * 100) / 100;
         const hits = of(r.log, 'damage').filter((e) => e.source === s.unit && e.target === s.targets[0] && !e.dot && e.t >= s.t - 1e-9 && e.t <= land + 1e-9);
         const died = dead.get(s.targets[0]);
+        const shooterDied = dead.get(s.unit);
+        // Стрелок погиб, пока стрела летела, — пропадает весь залп (battle.ts, landProjectiles).
+        if (shooterDied !== undefined && shooterDied < land) expect(hits, `${stage} t=${s.t} ${s.unit} (стрелок погиб)`).toEqual([]);
         // Цель умерла раньше или в тот же тик (от другого снаряда, приземлившегося первым) — стрела пропала.
-        if (died !== undefined && died < land) expect(hits, `${stage} t=${s.t} ${s.unit}`).toEqual([]);
+        else if (died !== undefined && died < land) expect(hits, `${stage} t=${s.t} ${s.unit}`).toEqual([]);
         else if (died === land) expect(hits.every((h) => h.t === land), `${stage} t=${s.t} ${s.unit}`).toBe(true);
         else if (r.duration >= land) {
           expect(hits.map((h) => h.t), `${stage} t=${s.t} ${s.unit}`).toEqual([land]);

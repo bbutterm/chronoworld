@@ -46,6 +46,17 @@
     "def": 1.5,
     "spd": 0.5,
     "perActive": 50,
-    "perPassive": 30
+    "perPassive": 30,
+    "recommended": 1,
+    "recommendedStages": {
+      "ch1_s10": 1.12,
+      "ch2_s3": 1.17,
+      "ch2_s4": 1.24,
+      "ch2_s7": 1.11,
+      "ch3_s2": 1.31,
+      "ch3_s4": 0.94,
+      "ch3_s5": 0.92,
+      "ch3_s10": 0.82
+    }
   }
 }
