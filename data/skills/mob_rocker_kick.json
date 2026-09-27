@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_rocker_kick",
+  "name": "Пинок кузнечика",
+  "description": "Прыжок и удар задними лапами с шансом оглушить.",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.6
+    },
+    {
+      "type": "status",
+      "chance": 0.25,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}
