@@ -104,7 +104,7 @@ export function collectUsedAssets(root: string): UsedAssets {
     v2: readJson(join(assets, 'sprites/sprites.json')),
     spriteIds: contentSpriteIds(root),
     skillIcons: skillIconFiles(root),
-    extra: [...bustFiles(root), ...themeBackgroundFiles(root)],
+    extra: [...bustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root)],
   });
 }
 
@@ -126,6 +126,16 @@ export function themeBackgroundFiles(root: string): string[] {
     .filter((n) => /^bg_(battle|map)_ch\d+\.(jpg|png|webp)$/.test(n))
     .sort()
     .map((n) => `backgrounds/${n}`);
+}
+
+/** Звуки и музыка от владельца (src/game/audio.ts): assets/audio/<id>.(ogg|m4a|mp3) — игра берёт подходящий формат. */
+export function audioFiles(root: string): string[] {
+  const dir = join(root, ASSETS_DIR, 'audio');
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((n) => /^[a-z0-9_]+\.(ogg|m4a|mp3)$/.test(n))
+    .sort()
+    .map((n) => `audio/${n}`);
 }
 
 /** assets/ui/icons/skill_*.png (src/game/skillIcons.ts грузит все такие файлы). */

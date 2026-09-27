@@ -6,6 +6,8 @@ import { heroSprite } from '../flow';
 import { session } from '../session';
 import { FONT, GAME_H, GAME_W } from '../layout';
 import { queuePortraitFiles, requestPortrait, setupSprites } from '../sprites';
+import { installAudio } from '../audio';
+import { sceneSoundOf } from '../sceneAudio';
 
 /**
  * Все спрайты игры (профессии героев игрока и юниты: герои теста, монстры, боссы) → роль.
@@ -84,6 +86,8 @@ export class BootScene extends Phaser.Scene {
     buildSkin(this);
     buildPlaceholders(this);
     setupSprites(this, spriteRoles());
+    // Звук (issue #26): шины громкости, заглушки, музыка экранов по старту сцен.
+    installAudio(this.game, sceneSoundOf);
     // Небольшой набор портретов сразу: герои игрока (список героев, отряд). Листы для них грузятся по одному
     // и сразу выгружаются — в памяти остаются только портреты. Остальные портреты — по требованию экранов.
     const own = [...new Set(session.save.heroes.map((h) => heroSprite(h, GAME)))];

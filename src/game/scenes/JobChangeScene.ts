@@ -12,6 +12,7 @@ import { button, ellipsize, pressable, ScrollArea, text, toast } from '../ui';
 import { C, FS, TINT } from '../theme';
 import { SKIN } from '../skin';
 import { skillIcon } from '../skillIcons';
+import { sfx } from '../audio';
 
 /** Куда вернуть игрока после смены профессии (или по «Назад»): экран, откуда он пришёл. */
 export interface JobChangeFrom {
@@ -181,6 +182,8 @@ export class JobChangeScene extends Phaser.Scene {
   private reveal(hero: HeroState, skills: string[]): void {
     this.revealing = true;
     this.area.locked = true;
+    // Фанфара смены профессии (как в RO), музыка на это время приглушается.
+    sfx('job_change');
     const cx = GAME_W / 2;
     const cy = 820;
     const job = CONTENT.jobs[hero.job];

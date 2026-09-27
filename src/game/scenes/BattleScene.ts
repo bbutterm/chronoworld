@@ -38,6 +38,7 @@ import { addThemeBackground, themeOfBattle, type Theme } from '../backdrops';
 import { Ambient, SHADOW_TEX } from '../ambient';
 import { skillIcon, statusIcon } from '../skillIcons';
 import type { SkillDef, StatusDef } from '../../core';
+import { battleSound } from '../battleAudio';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -710,6 +711,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private play(e: BattleEvent, animate: boolean): void {
+    battleSound(e, animate && !this.skipping, this.result, this.defs);
     switch (e.type) {
       case 'turn':
         return;
