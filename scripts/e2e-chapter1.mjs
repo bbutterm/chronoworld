@@ -44,8 +44,10 @@ const waitScene = async (key, timeout = 20000) => {
 };
 const clickGame = async (gx, gy) => {
   const box = await page.locator('canvas').boundingBox();
-  const s = box.width / GAME_W;
-  await page.mouse.click(box.x + gx * s, box.y + gy * s);
+  // Холст показывает мир с полями (src/game/viewport.ts): левый верхний угол — не 0,0, если окно не 9:16.
+  const v = (await page.evaluate(() => window.__view?.())) ?? { worldX: 0, worldY: 0, worldW: GAME_W };
+  const s = box.width / v.worldW;
+  await page.mouse.click(box.x + (gx - v.worldX) * s, box.y + (gy - v.worldY) * s);
 };
 /** Текст в сцене (точное совпадение; last — самый верхний по глубине, например кнопка модального окна). */
 const findText = (sceneKey, label, last = false) =>

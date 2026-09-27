@@ -133,6 +133,6 @@ export class SquadScene extends Phaser.Scene {
       } catch (e) {
         toast(this, e instanceof Error ? e.message : String(e), C.error);
       }
-    });
+    }, { danger: true });
   }
 }

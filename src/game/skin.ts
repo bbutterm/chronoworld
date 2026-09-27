@@ -225,6 +225,9 @@ export function buildSkin(scene: Phaser.Scene): void {
   canvas(scene, 'skin_btn_active', S, S, (c) => tile(c, S, { top: '#342c20', bottom: '#1d1914', border: SKIN.gold, glow: 'rgba(214,174,99,0.6)' }));
   canvas(scene, 'skin_btn_active_pressed', S, S, (c) => tile(c, S, { top: '#342c20', bottom: '#1d1914', border: SKIN.gold, pressed: true }));
   canvas(scene, 'skin_btn_gold', S, S, (c) => tile(c, S, { top: SKIN.goldLight, bottom: '#b7862f', border: '#6b4a1a' }));
+  // Опасное действие (сброс прогресса): тёмно-красная кнопка, кремовая подпись.
+  canvas(scene, 'skin_btn_danger', S, S, (c) => tile(c, S, { top: '#9a3426', bottom: '#5e1a12', border: '#2a0804' }));
+  canvas(scene, 'skin_btn_danger_pressed', S, S, (c) => tile(c, S, { top: '#5e1a12', bottom: '#4a140e', border: '#2a0804', pressed: true }));
   canvas(scene, 'skin_btn_gold_pressed', S, S, (c) => tile(c, S, { top: '#b7862f', bottom: '#9a6f25', border: '#6b4a1a', pressed: true }));
 
   // Иконки: белый контур, скруглённые концы.

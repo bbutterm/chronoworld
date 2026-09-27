@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { skinKey, sliceOf, tex } from './assets';
 import { SKIN, SKIN_DARK_LABEL } from './skin';
-import { FONT, HEADER_H } from './layout';
+import { FONT, GAME_H, GAME_W, HEADER_H } from './layout';
+import { worldPoint } from './viewport';
 import { C, FS, TINT, TOUCH } from './theme';
 import { HINT_GEOM, placeCallout, type HintSide, type Rect } from './hintLayout';
 
@@ -129,7 +130,7 @@ export function button(
   return { container, setLabel: (s) => t.setText(s), label: t };
 }
 
-/** Опасное действие (сброс и т. п.): коричневая кнопка с красной подписью — заметна, но не спутать с основной. */
+/** Опасное действие (сброс и т. п.): обычная тёмная плитка с красной подписью — не выделяется как активная и не спутать с основной (T3-23). */
 export function dangerButton(
   scene: Phaser.Scene,
   x: number,
@@ -140,7 +141,7 @@ export function dangerButton(
   onClick: () => void,
   fontSize: number = FS.h3,
 ): ReturnType<typeof button> {
-  const b = button(scene, x, y, w, h, 'k:buttonLong_brown', label, onClick, fontSize);
+  const b = button(scene, x, y, w, h, 'k:buttonLong_beige', label, onClick, fontSize);
   b.label.setColor('#ff8a7a').setStroke('#2a0804', 6);
   return b;
 }
@@ -166,7 +167,7 @@ export class ScrollArea {
     private readonly bottom: number,
   ) {
     this.content = scene.add.container(0, top);
-    const w = scene.scale.gameSize.width;
+    const w = GAME_W;
     const g = scene.make.graphics({}, false);
     g.fillStyle(0xffffff).fillRect(0, top, w, bottom - top);
     this.content.setMask(g.createGeometryMask());
@@ -175,16 +176,16 @@ export class ScrollArea {
     this.thumb = scene.add.rectangle(w - 6, top, 8, 40, TINT.frame, 0.8).setOrigin(0.5, 0).setDepth(20).setVisible(false);
     scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       this.dragged = false;
-      this.dragFrom = this.inside(p) && !this.locked ? { y: p.y, scroll: this.content.y } : null;
+      this.dragFrom = this.inside(p) && !this.locked ? { y: this.wy(p), scroll: this.content.y } : null;
     });
     scene.input.on('pointermove', (p: Phaser.Input.Pointer) => {
       if (!this.dragFrom || !p.isDown) return;
-      if (!this.dragged && Math.abs(p.y - this.dragFrom.y) > 14 && this.scrollable) {
+      if (!this.dragged && Math.abs(this.wy(p) - this.dragFrom.y) > 14 && this.scrollable) {
         this.dragged = true;
         // Палец тянет список — нажатая кнопка/карточка под ним отпускается (иначе остаётся «вдавленной»).
         scene.input.emit(CANCEL_PRESS);
       }
-      if (this.dragged) this.scrollTo(this.dragFrom.scroll + (p.y - this.dragFrom.y));
+      if (this.dragged) this.scrollTo(this.dragFrom.scroll + (this.wy(p) - this.dragFrom.y));
     });
     scene.input.on('pointerup', () => {
       this.dragFrom = null;
@@ -232,8 +233,14 @@ export class ScrollArea {
     this.thumb.setSize(8, th).setY(this.top + (view - th) * pct);
   }
 
+  /** Указатель — в пикселях холста; список живёт в координатах мира (камера масштабирует). */
+  private wy(p: Phaser.Input.Pointer): number {
+    return worldPoint(this.scene, p).y;
+  }
+
   private inside(p: Phaser.Input.Pointer): boolean {
-    return p.y >= this.top && p.y <= this.bottom;
+    const y = this.wy(p);
+    return y >= this.top && y <= this.bottom;
   }
 
   /** Обработчик нажатия для объекта в списке: игнорирует протяжку и нажатия вне видимой полосы. */
@@ -352,8 +359,8 @@ export function hintPointer(
   target: { w: number; h: number },
   opts: { avoid?: Rect[] } = {},
 ): Phaser.GameObjects.Container {
-  const w = scene.scale.gameSize.width;
-  const h = scene.scale.gameSize.height;
+  const w = GAME_W;
+  const h = GAME_H;
   const ring = scene.add.rectangle(x, y, target.w + 24, target.h + 24).setStrokeStyle(8, TINT.gold, 1);
   scene.tweens.add({ targets: ring, scaleX: 1 + 40 / target.w, scaleY: 1 + 40 / target.h, alpha: 0.15, duration: 800, repeat: -1 });
   const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
@@ -389,8 +396,8 @@ export function hintPointer(
  * (x, y) — это сама цель подсказки, — и полноэкранных затемнений модальных окон.
  */
 function controlRects(scene: Phaser.Scene, x: number, y: number): Rect[] {
-  const sw = scene.scale.gameSize.width;
-  const sh = scene.scale.gameSize.height;
+  const sw = GAME_W;
+  const sh = GAME_H;
   const out: Rect[] = [];
   const walk = (list: Phaser.GameObjects.GameObject[]) => {
     for (const o of list) {
@@ -408,15 +415,73 @@ function controlRects(scene: Phaser.Scene, x: number, y: number): Rect[] {
   return out;
 }
 
-/** Всплывающее сообщение под шапкой экрана (не закрывает название и валюту), исчезает само. */
+/** Одновременно видно не больше стольких тостов в одной стопке; более старые уходят раньше срока. */
+const TOAST_MAX = 3;
+const TOAST_GAP = 14;
+
+interface ToastEntry {
+  c: Phaser.GameObjects.Container;
+  h: number;
+  message: string;
+  count: number;
+  label: Phaser.GameObjects.Text;
+  hide: Phaser.Time.TimerEvent;
+  gone: boolean;
+}
+
+/** Стопки тостов сцены (сверху и посреди экрана). Сцена перезапустилась — стопки новые (объекты уничтожены). */
+const toastStacks = new WeakMap<Phaser.Scene, Record<'top' | 'middle', ToastEntry[]>>();
+
+/**
+ * Всплывающее сообщение под шапкой экрана (не закрывает название и валюту), исчезает само.
+ * T4-13: несколько тостов подряд встают стопкой друг под другом; такое же сообщение, пока оно на экране,
+ * не дублируется — у него появляется «×N» и продлевается показ.
+ * at: 'middle' — посреди экрана: сверху и снизу у экрана главные кнопки, их тост не закрывает.
+ */
 export function toast(scene: Phaser.Scene, message: string, color: string = C.title, ms = 3500, at: 'top' | 'middle' = 'top'): void {
-  const w = scene.scale.gameSize.width;
+  let stacks = toastStacks.get(scene);
+  if (!stacks) {
+    stacks = { top: [], middle: [] };
+    toastStacks.set(scene, stacks);
+  }
+  const stack = (stacks[at] = stacks[at].filter((e) => !e.gone && e.c.scene));
+  const dismiss = (e: ToastEntry) => {
+    if (e.gone) return;
+    e.gone = true;
+    e.hide.remove();
+    const i = stack.indexOf(e);
+    if (i >= 0) stack.splice(i, 1);
+    if (e.c.scene) scene.tweens.add({ targets: e.c, alpha: 0, duration: 300, onComplete: () => e.c.destroy() });
+    layout();
+  };
+  const top = at === 'middle' ? GAME_H * 0.46 : HEADER_H + 24;
+  const layout = () => {
+    // Сверху — от шапки вниз; посреди экрана — стопка по центру вокруг 46 % высоты.
+    const total = stack.reduce((n, e) => n + e.h, 0) + TOAST_GAP * Math.max(0, stack.length - 1);
+    let y = at === 'middle' ? top - total / 2 : top;
+    for (const e of stack) {
+      const cy = y + e.h / 2;
+      if (e.c.scene) scene.tweens.add({ targets: e.c, y: cy, duration: 180, ease: 'Sine.easeOut' });
+      y += e.h + TOAST_GAP;
+    }
+  };
+  const same = stack.find((e) => e.message === message);
+  if (same) {
+    same.count++;
+    same.label.setText(`${message} ×${same.count}`);
+    same.hide.reset({ delay: ms, callback: () => dismiss(same) });
+    return;
+  }
+  const w = GAME_W;
   const t = text(scene, 0, 0, message, FS.h3, color, { wordWrap: { width: w - 160 }, lineSpacing: 6 });
   const bgH = t.height + 50;
   const bg = scene.add.rectangle(0, 0, w - 100, bgH, 0x000000, 0.88).setStrokeStyle(3, 0xc8a060);
-  // middle — посреди экрана: сверху и снизу у экрана главные кнопки, их тост не закрывает.
-  const y = at === 'middle' ? scene.scale.gameSize.height * 0.46 : HEADER_H + 24 + bgH / 2;
-  const c = scene.add.container(w / 2, y, [bg, t]).setDepth(10000).setAlpha(0);
+  const prevBottom = stack.reduce((n, e) => n + e.h + TOAST_GAP, 0);
+  const c = scene.add.container(w / 2, (at === 'middle' ? top : top + prevBottom) + bgH / 2, [bg, t]).setDepth(10000).setAlpha(0);
   scene.tweens.add({ targets: c, alpha: 1, duration: 200 });
-  scene.tweens.add({ targets: c, alpha: 0, delay: ms, duration: 400, onComplete: () => c.destroy() });
+  const entry: ToastEntry = { c, h: bgH, message, count: 1, label: t, gone: false, hide: undefined as unknown as Phaser.Time.TimerEvent };
+  entry.hide = scene.time.delayedCall(ms, () => dismiss(entry));
+  stack.push(entry);
+  while (stack.length > TOAST_MAX) dismiss(stack[0]);
+  layout();
 }

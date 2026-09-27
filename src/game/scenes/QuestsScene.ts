@@ -139,6 +139,6 @@ function rewardText(r: MilestoneRewards): string {
   const parts: string[] = [];
   if (r.gold) parts.push(`${formatNumber(r.gold)} зол.`);
   if (r.gems) parts.push(`${r.gems} гем.`);
-  if (r.jobExp) parts.push(`${r.jobExp} оп.`);
+  if (r.jobExp) parts.push(`${formatNumber(r.jobExp)} опыта`);
   return parts.join('\n') || '—';
 }

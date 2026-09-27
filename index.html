@@ -4,14 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#11131a" />
-    <title>Idle Hero RPG — фаза 0</title>
+    <title>Chronoworld</title>
     <style>
       html, body { margin: 0; padding: 0; height: 100%; background: #11131a; overflow: hidden; touch-action: none; }
-      #game { width: 100%; height: 100%; }
+      #game { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      /* Безопасные отступы (вырез, «чёлка», полоска жестов) — читает src/game/viewport.ts. */
+      #safe-probe {
+        position: absolute; visibility: hidden; pointer-events: none;
+        padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+      }
+      /* P8: телефон в альбомной ориентации — игра портретная, просим повернуть (T3-01). */
+      #rotate {
+        display: none; position: fixed; inset: 0; z-index: 10;
+        background: #11131a; color: #f0cf8a; font: bold 22px Arial, "Helvetica Neue", sans-serif;
+        flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; padding: 24px; box-sizing: border-box;
+      }
+      #rotate small { color: #b8bcc8; font-weight: normal; font-size: 16px; }
+      #rotate .phone {
+        width: 44px; height: 76px; border: 4px solid #c8a060; border-radius: 9px; box-sizing: border-box;
+        animation: rotate-hint 2.4s ease-in-out infinite;
+      }
+      @keyframes rotate-hint { 0%, 30% { transform: rotate(-90deg); } 60%, 100% { transform: rotate(0deg); } }
+      @media (orientation: landscape) and (max-height: 540px) {
+        #rotate { display: flex; }
+      }
     </style>
   </head>
   <body>
     <div id="game"></div>
+    <div id="safe-probe"></div>
+    <div id="rotate" role="alert"><div class="phone"></div>Поверните телефон<small>Chronoworld играется в вертикальной ориентации</small></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

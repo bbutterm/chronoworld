@@ -29,14 +29,19 @@ interface AssetEntry {
 
 const MANIFEST = (manifestJson as unknown as { assets: Record<string, AssetEntry> }).assets;
 
-/** Ставит в очередь загрузки все ассеты с файлом. */
+/**
+ * T4-12. Файлы, которые при скине не показываются: скин рисует свои фон боя и баннеры итога (buildSkin),
+ * а эти картинки — запасные на случай, если скина нет. Фон арены 1080×1920 — 7.9 МБ видеопамяти впустую.
+ */
+const SKIN_REPLACED = new Set(['bg_arena', 'ui_victory', 'ui_defeat']);
+
+/** Ставит в очередь загрузки все ассеты с файлом. Анимированные эффекты боя — не здесь (ensureAnimatedFx). */
 export function queueAssets(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
-    if (!a.file) continue;
+    if (!a.file || SKIN_REPLACED.has(id)) continue;
     if (a.atlasXml) scene.load.atlasXML(id, a.file, a.atlasXml);
     else scene.load.image(id, a.file);
   }
-  queueAnimatedFx((key, file, width, height) => scene.load.spritesheet(key, file, { frameWidth: width, frameHeight: height }));
   // Значки навыков от художника (assets/ui/icons/skill_<id>.png), если есть; остальные рисует skillIcons.
   queueSkillIconFiles(scene);
 }
@@ -46,11 +51,30 @@ export function setupLoadedAssets(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
     if (a.file && a.pixelArt && scene.textures.exists(id)) scene.textures.get(id).setFilter(Phaser.Textures.FilterMode.NEAREST);
   }
-  queueAnimatedFx((key) => {
-    if (scene.textures.exists(key)) scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
-  });
   // Иконки навыков RO — пиксель-арт.
   for (const key of skillIconFileKeys()) if (scene.textures.exists(key)) scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+}
+
+let fxRequested = false;
+
+/**
+ * T4-12. Анимированные эффекты боя (≈ 14 МБ видеопамяти) грузятся не при старте, а когда игрок впервые идёт к бою
+ * (экран этапа, башня, бой — main.ts). Пока не загрузились, бой рисует статичные fx_* (battleFx сам проверяет текстуру).
+ * Загружаются один раз и остаются: повторные бои их не перезагружают.
+ */
+export function ensureAnimatedFx(game: Phaser.Game): void {
+  if (fxRequested) return;
+  fxRequested = true;
+  queueAnimatedFx((key, file, width, height) => {
+    if (game.textures.exists(key)) return;
+    const img = new Image();
+    img.onload = () => {
+      if (game.textures.exists(key)) return;
+      game.textures.addSpriteSheet(key, img, { frameWidth: width, frameHeight: height })?.setFilter(Phaser.Textures.FilterMode.NEAREST);
+    };
+    img.onerror = () => console.warn(`Эффект ${file} не загрузился — в бою будет статичный`);
+    img.src = file;
+  });
 }
 
 /** Есть ли id в манифесте ассетов (для проверки ссылок из контента). */
@@ -100,7 +124,7 @@ function kenney(scene: Phaser.Scene, name: string, pressed: boolean): { key: str
 /** Для всех id без текстуры (нет файла или не загрузился) рисует цветной прямоугольник с подписью. */
 export function buildPlaceholders(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
-    if (scene.textures.exists(id) || a.atlasXml) continue;
+    if (scene.textures.exists(id) || a.atlasXml || SKIN_REPLACED.has(id)) continue;
     if (a.atlas && scene.textures.exists(a.atlas)) continue;
     // Градиент-заглушка фона растягивается на экран (setDisplaySize) — рисуем в ¼ размера, это экономит ~7 МБ видеопамяти.
     const shrink = a.gradient ? 4 : 1;

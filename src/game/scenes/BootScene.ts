@@ -50,7 +50,7 @@ export class BootScene extends Phaser.Scene {
     this.failed = 0;
     const cx = GAME_W / 2;
     this.add.rectangle(cx, GAME_H / 2, GAME_W, GAME_H, 0x11131a);
-    this.add.text(cx, GAME_H / 2 - 200, 'Idle Hero RPG', style(100, '#ffe9a8', true)).setOrigin(0.5);
+    this.add.text(cx, GAME_H / 2 - 200, 'Chronoworld', style(100, '#ffe9a8', true)).setOrigin(0.5);
     this.add.rectangle(cx, GAME_H / 2 - 110, 460, 5, 0xc8a060);
 
     this.add.rectangle(cx, BAR_Y, BAR_W + 14, BAR_H + 14, 0x000000).setStrokeStyle(4, 0xc8a060);

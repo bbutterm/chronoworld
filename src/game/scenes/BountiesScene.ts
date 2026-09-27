@@ -200,7 +200,9 @@ export class BountiesScene extends Phaser.Scene {
     const send = button(this, GAME_W / 2 - 230, cy + 380, 420, 120, 'ui_btn_primary', 'Отправить', () => {
       const blocker = bountyPickBlocker(b, chosen, session.save, GAME);
       if (blocker) {
-        toast(this, blocker, C.error);
+        // T3-28: причина — в самом окне (строка статуса), а не тостом под шапкой за затемнением.
+        status.setText(blocker).setColor(C.error);
+        this.tweens.add({ targets: status, x: { from: GAME_W / 2 - 14, to: GAME_W / 2 }, duration: 260, ease: 'Elastic.easeOut' });
         return;
       }
       try {
@@ -245,7 +247,7 @@ export class BountiesScene extends Phaser.Scene {
           else if (chosen.length < b.heroCount) chosen.push(h.id);
           else if (b.heroCount === 1) chosen.splice(0, 1, h.id);
           else {
-            toast(this, `Уже выбрано ${b.heroCount} — снимите кого-нибудь`);
+            status.setText(`Уже выбрано ${b.heroCount} — снимите кого-нибудь`).setColor(C.error);
             return;
           }
           draw();
