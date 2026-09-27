@@ -10,6 +10,7 @@ import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
 import { portrait, unitTint } from '../screen';
+import { playStory, startStageBattle } from '../dialogue';
 
 const MAX_EVENT_LINES = 5;
 /** Шаг строки события, минимальная высота строки таблицы, центр строки «Авто: следующий этап». */
@@ -154,7 +155,10 @@ export class ResultScene extends Phaser.Scene {
         }, FS.h2);
         if (!next) nextBtn.container.setAlpha(0.4).disableInteractive();
       }
-      this.autoRow(stage.stageId, win);
+      const beginAuto = this.autoRow(stage.stageId, win);
+      // Сюжет после первой победы на этапе — поверх итогов; авто-отсчёт — после него (в авто-режиме строки листаются сами).
+      const firstClear = win && stage.outcome.events.some((e) => e.type === 'stageCleared' && e.firstTime);
+      playStory(this, { type: 'afterStage', stageId: stage.stageId, firstClear }, beginAuto, { auto: autoAdvance.on });
       return;
     }
 
@@ -168,8 +172,9 @@ export class ResultScene extends Phaser.Scene {
   /**
    * R. «Авто: следующий этап» (как авто-бой в AFK Arena): переключатель запоминается; если он включён и бой
    * выигран, через AUTO_DELAY_MS сам стартует следующий новый этап главы. Любое касание экрана отменяет отсчёт.
+   * Возвращает запуск отсчёта — его зовут, когда закрыт сюжетный диалог (если он был).
    */
-  private autoRow(stageId: string, win: boolean): void {
+  private autoRow(stageId: string, win: boolean): () => void {
     const y = AUTO_Y;
     this.autoTop = y - TOUCH / 2;
     const plan = autoNextStage(session.save, stageId, win, GAME);
@@ -222,7 +227,8 @@ export class ResultScene extends Phaser.Scene {
         fill.width = fullW * (1 - left / AUTO_DELAY_MS);
         if (left > 0) return;
         cancel('');
-        this.scene.start('Battle', { mode: 'stage', stageId: next.id });
+        // Сюжет перед новым этапом показывается и в авто-режиме — один раз, строки листаются сами.
+        startStageBattle(this, next.id, { auto: true });
       };
       tick();
       this.autoTimer = this.time.addEvent({ delay: STEP, loop: true, callback: tick });
@@ -230,8 +236,10 @@ export class ResultScene extends Phaser.Scene {
       this.input.on('pointerdown', cancelOnTap);
     };
 
-    if (autoAdvance.on) start();
-    else status.setText('Включите — бои пойдут сами до конца главы');
+    status.setText(autoAdvance.on ? '' : 'Включите — бои пойдут сами до конца главы');
+    return () => {
+      if (autoAdvance.on && !this.autoTimer) start();
+    };
   }
 }
 

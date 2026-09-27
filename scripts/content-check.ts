@@ -4,12 +4,14 @@
  *   2. ссылки на ассеты: спрайты (реестр), снаряды, эффекты, иконки (assets/manifest.json);
  *   3. спрайтшиты: файл есть, размер сходится с сеткой, лист не больше 2048 px;
  *   4. JSON-схемы для редактора не устарели;
- *   5. дымовой прогон: каждый юнит проводит бой без исключений.
+ *   5. дымовой прогон: каждый юнит проводит бой без исключений;
+ *   6. сюжет (data/story): схема и ссылки — в сборке (п. 1), здесь — портреты спикеров (нет картинки — предупреждение, будет иконка).
  * Код выхода 1, если есть ошибки. Предупреждения (например, нет арта — будет плейсхолдер) не мешают.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildUnit, collectGameContext, simulateBattle } from '../src/core';
+import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
 import { loadGameContext, readRawGameData, ROOT } from './lib/content-node';
@@ -87,6 +89,18 @@ if (content) {
     if (s.portrait && !existsSync(join(ROOT, 'assets', s.portrait))) errors.push(`спрайт ${id}: нет портрета assets/${s.portrait}`);
   }
 
+  // 6. Портреты спикеров сюжета: нет юнита/спрайта — в игре будет иконка скина.
+  const sctx = built.ctx;
+  for (const story of Object.values(sctx?.story.chapters ?? {})) {
+    for (const [key, sp] of Object.entries(story.speakers)) {
+      if (sp.portrait === 'hero' || !sctx) continue;
+      const sprite = portraitSprite(sp.portrait, sctx);
+      if (!sprite || !registry[sprite]) {
+        warnings.push(`сюжет ${story.chapter}: портрет спикера ${key} (${sp.portrait}) не найден — в игре будет иконка`);
+      }
+    }
+  }
+
   // 5. Дымовой прогон
   for (const u of Object.values(content.units)) {
     try {
@@ -121,7 +135,8 @@ if (content) {
   const count = (k: string) => Object.values(content!.units).filter((u) => u.kind === k).length;
   console.log(
     `\nЮнитов: ${Object.keys(content.units).length} (героев ${count('hero')}, монстров ${count('monster')}, боссов ${count('boss')}), ` +
-      `навыков: ${Object.keys(content.skills).length}, профессий: ${Object.keys(content.jobs).length}, этапов: ${content.stages.length}`,
+      `навыков: ${Object.keys(content.skills).length}, профессий: ${Object.keys(content.jobs).length}, этапов: ${content.stages.length}, ` +
+      `сюжетных сцен: ${built.ctx?.story.scenes.length ?? 0}`,
   );
 }
 console.log(errors.length ? `\nОшибок: ${errors.length}` : '\nКонтент в порядке ✓');

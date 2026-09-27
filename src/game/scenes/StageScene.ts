@@ -8,6 +8,7 @@ import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
 import { button, ellipsize, hintPointer, panel, text, toast } from '../ui';
 import { HINT_TEXT, hintDone, markHint } from '../hints';
+import { startStageBattle } from '../dialogue';
 import { squadDefs, type ResultData } from './BattleScene';
 import { SLOT_W, slotX, SquadEditor } from '../squadEditor';
 import { C, FS, TOUCH } from '../theme';
@@ -120,7 +121,8 @@ export class StageScene extends Phaser.Scene {
       return;
     }
     markHint('stage_fight');
-    this.scene.start('Battle', { mode: 'stage', stageId: this.stageId });
+    // Сюжет перед первым боем этапа (и вступление главы) — потом бой.
+    startStageBattle(this, this.stageId);
   }
 
   /** K7: бой считается без проигрывания — сразу экран итогов. */

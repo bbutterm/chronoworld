@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Прохождение главы 1 через интерфейс, как новый игрок: новая игра → этапы 1–10 (Кампания → этап → «В бой» →
 // «Пропустить»; поражение — «Повторить»), на джобе 10 — смена профессии каждому герою через «Герои» → карточка →
-// «Сменить профессию». Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
+// «Сменить профессию». Сюжетные диалоги: вступление главы пролистывается касаниями, остальные закрываются «Пропустить»
+// (кнопка проверяется на перекрытие, как и остальные). Падает при ошибках в консоли или если глава не пройдена.
+// Нужен глобальный Playwright.
 //   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке)
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -107,6 +109,32 @@ const hasTextPrefix = (sceneKey, prefix) =>
     [sceneKey, prefix],
   );
 const save = () => page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')));
+/** Открыт ли сюжетный диалог (src/game/dialogue.ts, слой 'dialogue') на сцене. */
+const dialogueOpen = (sceneKey) =>
+  page.evaluate((k) => !!window.__game.scene.isActive(k) && !!window.__game.scene.getScene(k).children.getByName('dialogue'), sceneKey);
+/** Закрыть все сюжетные сцены на экране кнопкой «Пропустить» (первую — со скриншотом). */
+const skipDialogues = async (sceneKey, shotName) => {
+  for (let n = 0; n < 6 && (await dialogueOpen(sceneKey)); n++) {
+    await sleep(700);
+    if (shotName && n === 0) await shot(shotName);
+    await clickText(sceneKey, 'Пропустить');
+    await sleep(400);
+    if (!(await dialogueOpen(sceneKey))) seenDialogues++;
+  }
+};
+/** Пролистать диалог касаниями по экрану: первое дописывает строку, второе — следующая. */
+const tapThroughDialogue = async (sceneKey, shotName) => {
+  let taps = 0;
+  for (; taps < 40 && (await dialogueOpen(sceneKey)); taps++) {
+    await sleep(350);
+    if (taps === 3 && shotName) await shot(shotName);
+    await clickGame(GAME_W / 2, 600);
+  }
+  if (await dialogueOpen(sceneKey)) throw new Error(`диалог на ${sceneKey} не закрылся касаниями`);
+  seenDialogues++;
+  log(`диалог пролистан касаниями: ${taps}`);
+};
+let seenDialogues = 0;
 
 let ok = false;
 try {
@@ -121,10 +149,19 @@ try {
       if (t === 1) {
         await clickText(await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key), 'КАМПАНИЯ');
         await waitScene('Campaign');
+        // Вступление главы — при первом входе на карту.
+        if (stage === 1) {
+          if (!(await dialogueOpen('Campaign'))) throw new Error('нет вступления главы на карте кампании');
+          await tapThroughDialogue('Campaign', 'dialogue-intro');
+        }
+        await skipDialogues('Campaign');
         await clickText('Campaign', String(stage));
         await waitScene('Stage');
         if (stage === 1 || stage === 5 || stage === 10) await shot(`stage${stage}`);
         await clickText('Stage', 'В бой');
+        // Сюжет перед боем (этапы 1, 4, 7, 10): бой не начнётся, пока диалог открыт.
+        await sleep(500);
+        await skipDialogues('Stage', stage === 10 ? 'dialogue-boss' : undefined);
       } else await clickText('Result', 'Повторить');
       await waitScene('Battle');
       if (stage === 1 || stage === 10) {
@@ -134,6 +171,8 @@ try {
       if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
       await waitScene('Result');
       await sleep(500);
+      // Сюжет после первой победы (этапы 4 и 10) — поверх итогов.
+      await skipDialogues('Result', stage === 10 ? 'dialogue-outro' : undefined);
       won = (await save()).campaign.cleared.includes(`ch1_s${stage}`);
       log(`этап ${stage}, попытка ${t}: ${won ? 'победа' : 'поражение'}`);
     }
@@ -167,6 +206,8 @@ try {
   }
   const s = await save();
   log('итог:', s.heroes.map((h) => `${h.name} ${h.job} ${h.jobLevel}`).join(', '), '| пройдено этапов:', s.campaign.cleared.length);
+  log(`сюжетных сцен закрыто: ${seenDialogues}, в сохранении увидено: ${(s.seenScenes ?? []).join(', ')}`);
+  if (!(s.seenScenes ?? []).includes('ch1_outro')) throw new Error('финальная сцена главы не показана');
   await shot('final');
   ok = problems.length === 0;
 } catch (e) {
