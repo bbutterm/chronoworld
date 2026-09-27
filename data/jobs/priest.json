@@ -28,6 +28,10 @@
       "skill": "job_priest_magnificat"
     },
     {
+      "jobLevel": 5,
+      "skill": "job_priest_sanctuary"
+    },
+    {
       "jobLevel": 10,
       "skill": "job_priest_kyrie_eleison"
     },

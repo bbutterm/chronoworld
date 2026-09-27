@@ -23,13 +23,13 @@
     "startJob": "novice",
     "names": [
       "Алан",
-      "Бэлла",
-      "Вик"
+      "Бран",
+      "Вика"
     ],
     "recruits": [
       {
         "afterStage": "ch1_s10",
-        "name": "Грета"
+        "name": "Грег"
       },
       {
         "afterStage": "ch2_s10",

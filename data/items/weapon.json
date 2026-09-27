@@ -63,6 +63,18 @@
       ]
     },
     {
+      "id": "axe",
+      "name": "Топор",
+      "slot": "weapon",
+      "rarity": "common",
+      "stats": {
+        "atk": 11
+      },
+      "jobs": [
+        "merchant"
+      ]
+    },
+    {
       "id": "gladius",
       "name": "Гладиус",
       "slot": "weapon",
@@ -99,8 +111,7 @@
         "hp": 80
       },
       "jobs": [
-        "mage",
-        "acolyte"
+        "mage"
       ]
     },
     {
@@ -115,6 +126,32 @@
       "jobs": [
         "acolyte",
         "merchant"
+      ]
+    },
+    {
+      "id": "knuckle",
+      "name": "Кастет",
+      "slot": "weapon",
+      "rarity": "rare",
+      "stats": {
+        "atk": 17,
+        "spd": 3
+      },
+      "jobs": [
+        "monk"
+      ]
+    },
+    {
+      "id": "violin",
+      "name": "Скрипка",
+      "slot": "weapon",
+      "rarity": "rare",
+      "stats": {
+        "atk": 17,
+        "hp": 60
+      },
+      "jobs": [
+        "bard"
       ]
     },
     {
@@ -152,7 +189,7 @@
         "spd": 6
       },
       "jobs": [
-        "thief"
+        "assassin"
       ]
     },
     {
@@ -165,8 +202,20 @@
         "hp": 150
       },
       "jobs": [
-        "mage",
-        "acolyte"
+        "mage"
+      ]
+    },
+    {
+      "id": "battle_axe",
+      "name": "Боевой топор",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 33,
+        "def": 3
+      },
+      "jobs": [
+        "blacksmith"
       ]
     }
   ]

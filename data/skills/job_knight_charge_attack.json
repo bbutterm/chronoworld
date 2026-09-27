@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_knight_charge_attack",
+  "name": "Атака с разбега",
+  "description": "Рывок к ближайшему врагу фронта и мощный удар двуручником (×2.4).",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "cooldown": 6,
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 2.4
+    }
+  ]
+}

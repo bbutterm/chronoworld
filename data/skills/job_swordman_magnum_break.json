@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "job_swordman_magnum_break",
-  "name": "Магнум брейк",
+  "name": "Магнум Брейк",
   "description": "Взрыв пламени: урон двум ближайшим врагам фронта.",
   "icon": "icon_ult_warrior",
   "range": "melee",

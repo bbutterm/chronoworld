@@ -27,7 +27,7 @@ describe('K3 главы 2–3', () => {
     }
   });
 
-  it('боссы глав: Тёмный шаман и Король-лич (плейсхолдер boss3)', () => {
+  it('боссы глав 2–3: Бафомет (mob_boss2) и mob3_boss (плейсхолдер boss3)', () => {
     const boss = (id: string) => stages.find((s) => s.id === id)!.enemies.filter((e) => e && ctx.content.units[e.unit].kind === 'boss').map((e) => e!.unit);
     expect(boss('ch2_s10')).toEqual(['mob_boss2']);
     expect(boss('ch3_s10')).toEqual(['mob3_boss']);
