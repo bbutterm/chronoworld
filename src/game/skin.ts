@@ -269,6 +269,9 @@ export function buildSkin(scene: Phaser.Scene): void {
 
   // Лесной фон (как в референсе): градиент, силуэты крон двумя планами, лучи и светлячки.
   canvas(scene, 'skin_bg_forest', BG_W, BG_H, (c) => drawForest(c, BG_W, BG_H));
+  // Поле боя главы 1: поляна на опушке (трава и земля — тайлы художника, если загружены).
+  const img = (key: string) => (scene.textures.exists(key) ? (scene.textures.get(key).getSourceImage() as CanvasImageSource) : null);
+  canvas(scene, 'skin_bg_battle', BG_W, BG_H, (c) => drawMeadow(c, BG_W, BG_H, img('tile_grass_01'), img('tile_dirt')));
 }
 
 const BG_W = 720;
@@ -427,6 +430,185 @@ function drawForest(c: Ctx, W: number, H: number): void {
   const v = c.createRadialGradient(W / 2, H * 0.5, W * 0.35, W / 2, H * 0.5, H * 0.72);
   v.addColorStop(0, 'rgba(0,0,0,0)');
   v.addColorStop(1, 'rgba(0,0,0,0.5)');
+  c.fillStyle = v;
+  c.fillRect(0, 0, W, H);
+}
+
+/**
+ * Поле боя «поляна на опушке»: сверху кромка леса в дымке, ниже трава (тайл tile_grass_01 или заливка),
+ * в центре вытоптанная земляная площадка (tile_dirt) с мягким краем — там стоят отряды (y ≈ 55–90% экрана),
+ * по краям кусты, камни, цветы; тени крон сверху и виньетка.
+ */
+function drawMeadow(c: Ctx, W: number, H: number, grass: CanvasImageSource | null, dirt: CanvasImageSource | null): void {
+  let seed = 23;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const between = (a: number, b: number) => a + rnd() * (b - a);
+  const horizon = H * 0.36;
+
+  // Небо и дальний лес.
+  const sky = c.createLinearGradient(0, 0, 0, horizon);
+  sky.addColorStop(0, '#7fb0a8');
+  sky.addColorStop(1, '#d3e6c6');
+  c.fillStyle = sky;
+  c.fillRect(0, 0, W, horizon + 10);
+  const crowns = (base: number, color: string, rMin: number, rMax: number, step: number) => {
+    c.fillStyle = color;
+    for (let x = -30; x < W + 40; x += between(step * 0.7, step * 1.3)) {
+      const r = between(rMin, rMax);
+      c.beginPath();
+      c.arc(x, base - r * 0.6, r, 0, Math.PI * 2);
+      c.arc(x + r * 0.6, base - r * 0.3, r * 0.8, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.fillRect(0, base - 4, W, 30);
+  };
+  crowns(horizon - 70, '#6f9878', 40, 70, 60);
+  // Высокие деревья кромки леса: ствол и крона в два тона (свет сверху слева).
+  const tall = (x: number, base: number, h: number) => {
+    c.fillStyle = '#3a2c1e';
+    c.fillRect(x - h * 0.03, base - h * 0.5, h * 0.06, h * 0.5);
+    const cy = base - h * 0.68;
+    const r = h * 0.2;
+    c.fillStyle = '#2e5a3a';
+    for (let i = 0; i < 6; i++) {
+      c.beginPath();
+      c.arc(x + between(-r, r) * 0.9, cy + between(-r, r) * 0.7, r * between(0.6, 0.9), 0, Math.PI * 2);
+      c.fill();
+    }
+    c.fillStyle = 'rgba(120,175,110,0.55)';
+    for (let i = 0; i < 4; i++) {
+      c.beginPath();
+      c.arc(x - r * 0.35 + between(-r, r) * 0.4, cy - r * 0.45 + between(-r, r) * 0.3, r * between(0.25, 0.45), 0, Math.PI * 2);
+      c.fill();
+    }
+  };
+  for (let x = -20; x < W + 40; x += between(70, 120)) tall(x, horizon - 10 + between(-10, 10), between(170, 260));
+  crowns(horizon - 20, '#3f6e4e', 50, 90, 80);
+  crowns(horizon + 10, '#2c5639', 60, 100, 95);
+
+  // Трава: тайл или заливка, к горизонту светлее (дымка).
+  if (grass) {
+    const pat = c.createPattern(grass, 'repeat');
+    if (pat) {
+      pat.setTransform(new DOMMatrix().scale(0.7));
+      c.fillStyle = pat;
+      c.fillRect(0, horizon, W, H - horizon);
+    }
+  } else {
+    c.fillStyle = '#4c7a4a';
+    c.fillRect(0, horizon, W, H - horizon);
+  }
+  const haze = c.createLinearGradient(0, horizon, 0, horizon + H * 0.18);
+  haze.addColorStop(0, 'rgba(190,215,180,0.55)');
+  haze.addColorStop(1, 'rgba(190,215,180,0)');
+  c.fillStyle = haze;
+  c.fillRect(0, horizon, W, H * 0.18);
+
+  // Тени крон на траве под кромкой леса.
+  c.fillStyle = 'rgba(10,30,15,0.25)';
+  for (let x = -20; x < W + 20; x += between(60, 110)) {
+    c.beginPath();
+    c.ellipse(x, horizon + between(15, 40), between(50, 90), between(14, 24), 0, 0, Math.PI * 2);
+    c.fill();
+  }
+
+  // Вытоптанная площадка: земля с мягким краем (рисуем в отдельный слой и гасим края радиальной маской).
+  const cx = W / 2;
+  const cy = H * 0.7;
+  const rx = W * 0.47;
+  const ry = H * 0.21;
+  const layer = document.createElement('canvas');
+  layer.width = W;
+  layer.height = H;
+  const l = layer.getContext('2d');
+  if (l) {
+    if (dirt) {
+      const pat = l.createPattern(dirt, 'repeat');
+      if (pat) {
+        pat.setTransform(new DOMMatrix().scale(0.8));
+        l.fillStyle = pat;
+      }
+    } else l.fillStyle = '#8a6a44';
+    l.fillRect(0, 0, W, H);
+    l.globalCompositeOperation = 'destination-in';
+    l.save();
+    l.translate(cx, cy);
+    l.scale(1, ry / rx);
+    const m = l.createRadialGradient(0, 0, rx * 0.55, 0, 0, rx);
+    m.addColorStop(0, 'rgba(0,0,0,0.85)');
+    m.addColorStop(1, 'rgba(0,0,0,0)');
+    l.fillStyle = m;
+    l.fillRect(-rx, -rx, rx * 2, rx * 2);
+    l.restore();
+    c.drawImage(layer, 0, 0);
+  }
+
+  // Пучки травы, цветы, камни.
+  for (let i = 0; i < 70; i++) {
+    const x = between(0, W);
+    const y = between(horizon + 30, H);
+    const inside = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 < 0.8;
+    if (inside) continue;
+    const k = (y - horizon) / (H - horizon);
+    c.strokeStyle = 'rgba(30,70,30,0.8)';
+    c.lineWidth = 1.5 + k * 1.5;
+    for (let j = 0; j < 5; j++) {
+      c.beginPath();
+      c.moveTo(x + j * 3, y);
+      c.lineTo(x + j * 3 + between(-6, 6), y - (8 + k * 14));
+      c.stroke();
+    }
+  }
+  const flowers = ['#f3e27a', '#f0f0e8', '#e8a0c8', '#9fc7ff'];
+  for (let i = 0; i < 60; i++) {
+    const x = between(0, W);
+    const y = between(horizon + 40, H);
+    if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 < 0.9) continue;
+    const k = (y - horizon) / (H - horizon);
+    c.fillStyle = flowers[i % flowers.length];
+    c.beginPath();
+    c.arc(x, y, 1.5 + k * 2.5, 0, Math.PI * 2);
+    c.fill();
+  }
+  for (let i = 0; i < 9; i++) {
+    const x = rnd() < 0.5 ? between(10, W * 0.18) : between(W * 0.82, W - 10);
+    const y = between(H * 0.5, H * 0.95);
+    const r = between(10, 22);
+    c.fillStyle = 'rgba(0,0,0,0.25)';
+    c.beginPath();
+    c.ellipse(x + 3, y + r * 0.5, r, r * 0.35, 0, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#8e948a';
+    c.beginPath();
+    c.ellipse(x, y, r, r * 0.65, 0, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.18)';
+    c.beginPath();
+    c.ellipse(x - r * 0.3, y - r * 0.25, r * 0.45, r * 0.25, 0, 0, Math.PI * 2);
+    c.fill();
+  }
+  // Кусты по бокам.
+  const bush = (x: number, y: number, r: number) => {
+    c.fillStyle = 'rgba(0,0,0,0.25)';
+    c.beginPath();
+    c.ellipse(x, y + r * 0.6, r * 1.3, r * 0.35, 0, 0, Math.PI * 2);
+    c.fill();
+    for (const [dx, dy, f, col] of [[-0.6, 0.1, 0.8, '#2d5a32'], [0.6, 0.15, 0.75, '#2d5a32'], [0, -0.2, 1, '#3a6e3c'], [-0.2, -0.45, 0.55, '#4f8a4c']] as const) {
+      c.fillStyle = col;
+      c.beginPath();
+      c.arc(x + dx * r, y + dy * r, r * f, 0, Math.PI * 2);
+      c.fill();
+    }
+  };
+  bush(30, H * 0.52, 55);
+  bush(W - 25, H * 0.58, 60);
+  bush(10, H * 0.93, 80);
+  bush(W - 5, H * 0.97, 85);
+
+  // Виньетка: края и низ темнее, центр поляны светлый.
+  const v = c.createRadialGradient(W / 2, H * 0.62, W * 0.4, W / 2, H * 0.62, H * 0.7);
+  v.addColorStop(0, 'rgba(0,0,0,0)');
+  v.addColorStop(1, 'rgba(0,15,5,0.55)');
   c.fillStyle = v;
   c.fillRect(0, 0, W, H);
 }

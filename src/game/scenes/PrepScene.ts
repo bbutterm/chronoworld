@@ -34,7 +34,7 @@ export class PrepScene extends Phaser.Scene {
 
   create(): void {
     this.slotViews = [];
-    this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920);
+    this.add.image(GAME_W / 2, 960, this.textures.exists('skin_bg_battle') ? 'skin_bg_battle' : 'bg_arena').setDisplaySize(GAME_W, 1920);
     button(this, 110, 64, 180, TOUCH, 'k:buttonLong_beige', '‹ Назад', () => this.scene.start('Home'), FS.h3);
     text(this, GAME_W / 2 + 60, 60, 'Тестовый бой', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 8 });
     text(this, GAME_W / 2, 125, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать героя.', FS.small, C.dim, {
