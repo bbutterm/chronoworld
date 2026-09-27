@@ -6,6 +6,7 @@ import { GAME_H, GAME_W } from '../layout';
 import { card, popIn, unitFigure } from '../screen';
 import { now, session } from '../session';
 import { SKIN } from '../skin';
+import { setThemeBackground, themeOfChapter } from '../backdrops';
 import { chapterSummary, playTimeText, sceneLabel, seenChapterScenes } from '../storyView';
 import { button, ellipsize, panel, text } from '../ui';
 import { C, FS, OUTLINE, TINT } from '../theme';
@@ -40,11 +41,33 @@ export class ChapterDoneScene extends Phaser.Scene {
     const save = session.save;
     const sum = chapterSummary(save, data.chapterId, GAME);
     const cx = GAME_W / 2;
-    this.add.image(cx, GAME_H / 2, 'skin_bg_forest').setDisplaySize(GAME_W, GAME_H);
+    // Фон — карта пройденной главы (луг, топь, склеп), притемнённая.
+    setThemeBackground(this.add.image(cx, GAME_H / 2, 'skin_bg_forest'), 'map', themeOfChapter(data.chapterId));
     this.add.rectangle(cx, GAME_H / 2, GAME_W, GAME_H, 0x07060a, 0.55);
     if (this.textures.exists('skin_rays')) {
       const rays = this.add.image(cx, 300, 'skin_rays').setDisplaySize(1200, 1200).setAlpha(0.35);
       this.tweens.add({ targets: rays, angle: 360, duration: 40000, repeat: -1 });
+      // Второй веер навстречу — светом, слабее: лучи переливаются.
+      const rays2 = this.add.image(cx, 300, 'skin_rays').setDisplaySize(820, 820).setAlpha(0).setBlendMode(Phaser.BlendModes.ADD);
+      this.tweens.add({ targets: rays2, alpha: 0.28, duration: 800 });
+      this.tweens.add({ targets: rays2, angle: -360, duration: 26000, repeat: -1 });
+    }
+    // Золотые искры медленно поднимаются по всему экрану (по кругу).
+    if (this.textures.exists('skin_spark')) {
+      for (let i = 0; i < 14; i++) {
+        const x0 = Phaser.Math.Between(60, GAME_W - 60);
+        const s = this.add.image(x0, GAME_H + 40, 'skin_spark').setTint(i % 3 ? 0xffd884 : 0xfff4d0).setScale(0.2 + Math.random() * 0.3).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0);
+        this.tweens.add({
+          targets: s,
+          y: Phaser.Math.Between(80, 700),
+          x: x0 + Phaser.Math.Between(-80, 80),
+          angle: 180,
+          alpha: { from: 0.85, to: 0 },
+          duration: 4200 + Math.random() * 2500,
+          delay: Math.random() * 4000,
+          repeat: -1,
+        });
+      }
     }
 
     // --- Заголовок ---
@@ -53,7 +76,19 @@ export class ChapterDoneScene extends Phaser.Scene {
     title.setScale(0.5).setAlpha(0);
     this.tweens.add({ targets: title, scale: 1, alpha: 1, duration: 450, ease: 'Back.easeOut' });
     const subtitle = sum.name.replace(/^Глава\s*\d+\.\s*/, '');
-    ellipsize(text(this, cx, 290, subtitle, FS.h2, SKIN.cream, { fontStyle: 'bold', ...OUTLINE }), 1000);
+    const sub = ellipsize(text(this, cx, 290, subtitle, FS.h2, SKIN.cream, { fontStyle: 'bold', ...OUTLINE }), 1000);
+    // Золотой разделитель под подзаголовком: две черты, гаснущие к краям, и ромб по центру.
+    const dy = 290 + sub.height / 2 + 18;
+    const g = this.add.graphics();
+    for (const d of [-1, 1]) {
+      for (let i = 0; i < 12; i++) {
+        g.fillStyle(TINT.gold, 1 - i / 12);
+        g.fillRect(cx + d * (26 + i * 16) - (d < 0 ? 16 : 0), dy - 2, 16, 4);
+      }
+    }
+    g.fillStyle(TINT.gold, 1).fillPoints([new Phaser.Math.Vector2(cx, dy - 12), new Phaser.Math.Vector2(cx + 12, dy), new Phaser.Math.Vector2(cx, dy + 12), new Phaser.Math.Vector2(cx - 12, dy)], true);
+    g.setAlpha(0);
+    this.tweens.add({ targets: g, alpha: 1, duration: 500, delay: 300 });
 
     // --- Итоги ---
     const sy = 480;
@@ -74,6 +109,9 @@ export class ChapterDoneScene extends Phaser.Scene {
       const job = CONTENT.jobs[hero.job];
       card(this, cx, ry, 1000, 620, true);
       text(this, cx, ry - 260, 'Новый герой в отряде!', FS.h2, C.inkGold, { fontStyle: 'bold' });
+      // Тёплый отсвет за новым героем и тень под ногами.
+      const halo = this.add.ellipse(cx, ry + 40, 420, 300, 0xffd27a, 0.1).setBlendMode(Phaser.BlendModes.ADD);
+      this.tweens.add({ targets: halo, fillAlpha: { from: 0.06, to: 0.16 }, yoyo: true, repeat: -1, duration: 1400, ease: 'Sine.easeInOut' });
       this.add.ellipse(cx, ry + 110, 300, 60, 0x000000, 0.3);
       unitFigure(this, heroSprite(hero, GAME), cx, ry + 110, 300, { maxScale: 2 });
       text(this, cx, ry + 180, `${hero.name} присоединяется к отряду`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');

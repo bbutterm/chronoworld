@@ -49,6 +49,12 @@ describe('O: used assets (что попадает в dist)', () => {
     expect(files).not.toContain('manifest.json');
   });
 
+  it('включает бюсты RO для портретов в рамке (диалоги, смена профессии)', () => {
+    expect(files).toContain('ro/portraits/hero_warrior_portrait.png');
+    expect(files).toContain('ro/portraits/hero_priestess_portrait.png');
+    expect(files).not.toContain('ro/stills/hero_warrior_battle.png');
+  });
+
   it('все нужные файлы лежат на диске', () => {
     const present = new Set(listAssetFiles(ROOT));
     expect(used.files.filter((f) => !present.has(f))).toEqual([]);

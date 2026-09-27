@@ -2,10 +2,9 @@ import Phaser from 'phaser';
 import { markScenesSeen, pendingScenes, type StoryScene, type StoryTrigger } from '../core';
 import { GAME } from './content';
 import { GAME_H, GAME_W } from './layout';
-import { portrait } from './screen';
+import { framedPortrait } from './portraitFrame';
 import { commit, session } from './session';
-import { skinIcon, SKIN, SKIN_TINT } from './skin';
-import { portraitKey, SPRITES } from './sprites';
+import { SKIN } from './skin';
 import { isChapterFinale, speakerView } from './storyView';
 import { button, panel, text } from './ui';
 import { FS, OUTLINE, TOUCH } from './theme';
@@ -88,10 +87,9 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   const top = PANEL_Y - PANEL_H / 2;
   const left = GAME_W / 2 - PANEL_W / 2;
 
-  // Портрет в рамке — наполовину над плашкой, слева.
+  // Портрет в золотой рамке — наполовину над плашкой, слева.
   const px = left + 40 + PORTRAIT / 2;
   const py = top - 20;
-  const frame = panel(scene, px, py, PORTRAIT + 20, PORTRAIT + 20, 'ui_slot_filled');
   const face = scene.add.container(px, py);
   const nameText = text(scene, px + PORTRAIT / 2 + 40, top + 44, '', FS.h2, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
   const body = text(scene, left + 50, top + 130, '', FS.body, SKIN.cream, {
@@ -101,7 +99,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   }).setOrigin(0, 0);
   const more = text(scene, GAME_W / 2 + PANEL_W / 2 - 40, PANEL_Y + PANEL_H / 2 - 40, '', FS.caption, SKIN.creamDim, OUTLINE).setOrigin(1, 0.5);
   const skip = button(scene, GAME_W / 2 + PANEL_W / 2 - 150, top - 70, 280, TOUCH, 'k:buttonLong_beige', 'Пропустить', () => close(), FS.h3);
-  layer.add([shade, box, frame, face, nameText, body, more, skip.container]);
+  layer.add([shade, box, face, nameText, body, more, skip.container]);
 
   let line = -1;
   let shown = 0;
@@ -133,15 +131,18 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     more.setText(line < s.lines.length - 1 ? `${line + 1}/${s.lines.length}  · коснитесь ›` : `${line + 1}/${s.lines.length}  · коснитесь — закрыть`);
     if (auto) autoNext = scene.time.delayedCall(AUTO_LINE_MS + full.length * AUTO_CHAR_MS, advance);
   };
+  let faceOf: string | null | undefined;
   const setFace = (sprite: string | null) => {
+    // Тот же говорящий — портрет не пересобираем (бюст уже на месте, без мигания).
+    if (sprite === faceOf) return;
+    faceOf = sprite;
     face.removeAll(true);
-    const size = PORTRAIT - 20;
-    // Картинки нет (новый юнит ещё без арта) — иконка скина вместо пустой текстуры.
-    if (!sprite || (!SPRITES[sprite] && !scene.textures.exists(portraitKey(sprite)))) {
-      face.add(scene.add.image(0, 0, skinIcon('swords')).setDisplaySize(size * 0.6, size * 0.6).setTint(SKIN_TINT.gold));
-      return;
-    }
-    face.add(portrait(scene, 0, 0, portraitKey(sprite), size));
+    // Бюст RO (или портрет спрайта, или значок скина — framedPortrait сам выберет) в золотой рамке.
+    const fp = framedPortrait(scene, 0, 0, sprite, PORTRAIT + 30);
+    face.add(fp);
+    // Смена говорящего — лёгкий «вдох» портрета.
+    fp.setScale(0.92);
+    scene.tweens.add({ targets: fp, scale: 1, duration: 160, ease: 'Back.easeOut' });
   };
   const showLine = (i: number) => {
     line = i;
