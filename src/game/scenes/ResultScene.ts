@@ -42,7 +42,7 @@ export class ResultScene extends Phaser.Scene {
     const win = r.winner === 'A';
     const compact = !!stage || !!tower;
     this.autoTimer = null;
-    this.add.image(GAME_W / 2, 960, 'bg_arena').setDisplaySize(GAME_W, 1920).setAlpha(0.5);
+    this.add.image(GAME_W / 2, 960, this.textures.exists('skin_bg_battle') ? 'skin_bg_battle' : 'bg_arena').setDisplaySize(GAME_W, 1920).setAlpha(0.5);
     this.add.image(GAME_W / 2, compact ? 190 : 250, win ? 'ui_victory' : 'ui_defeat').setDisplaySize(compact ? 760 : 900, compact ? 338 : 400);
     const top = compact ? 380 : 470;
     panel(this, GAME_W / 2, (top + 1730) / 2, 1050, 1730 - top + 20, 'ui_panel');
