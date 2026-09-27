@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "effects": [
+    {
+      "id": "fx_hit",
+      "file": "effects/fx_hit.png",
+      "cell": [
+        580,
+        440
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        278.0,
+        197.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "1",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "EF_HIT2 1; regular hit on target"
+      }
+    },
+    {
+      "id": "fx_arrow",
+      "file": "effects/fx_arrow.png",
+      "cell": [
+        66,
+        12
+      ],
+      "columns": 1,
+      "frames": 1,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        33.0,
+        28.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "ef_arrow_projectile",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "ef_arrow_projectile; single arrow frame, travel must tween at runtime"
+      }
+    },
+    {
+      "id": "fx_magic",
+      "file": "effects/fx_magic.png",
+      "cell": [
+        118,
+        140
+      ],
+      "columns": 8,
+      "frames": 8,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64.0,
+        142.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "182",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "EF_MAGICALATTHIT 182; magic attack hit; alpha below 24 removed to eliminate faint source quad outline"
+      }
+    },
+    {
+      "id": "fx_heal",
+      "file": "effects/fx_heal.png",
+      "cell": [
+        104,
+        256
+      ],
+      "columns": 8,
+      "frames": 17,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        49.0,
+        222.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "312",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "EF_HEAL 312; on target"
+      }
+    },
+    {
+      "id": "fx_death",
+      "file": "effects/fx_death.png",
+      "cell": [
+        220,
+        336
+      ],
+      "columns": 8,
+      "frames": 22,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 500,
+      "blend": "normal",
+      "anchor": [
+        97.4,
+        293.8
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "372",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 0.6511,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "EF_DEVIL 372; camera zoom 200"
+      }
+    },
+    {
+      "id": "fx_shield",
+      "file": "effects/fx_shield.png",
+      "cell": [
+        308,
+        304
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 83,
+      "blend": "normal",
+      "anchor": [
+        156.4,
+        259.8
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "169",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 0.6511,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "EF_ENERGYCOAT protective burst; no baked character; brief flash, not persistent dome"
+      }
+    }
+  ],
+  "skills": {}
+}

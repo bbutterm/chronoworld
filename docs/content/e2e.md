@@ -5,8 +5,9 @@
 
 ## Что нужно
 
-- Playwright, установленный **глобально** (`npm root -g`/playwright). Скрипт находит его сам
-  через `npm root -g` и ничего не устанавливает.
+- Playwright, установленный **глобально** (`npm root -g`/playwright) или локально:
+  `PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs npm run e2e`.
+  Скрипт ничего не устанавливает.
 - Уже скачанный Chromium для этого Playwright.
 - Свободный порт 5173 (или свой через `E2E_PORT`).
 

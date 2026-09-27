@@ -4,6 +4,7 @@
  *
  * Что считается нужным:
  *   - все `file` / `atlasXml` из assets/manifest.json (BootScene грузит манифест целиком);
+ *   - анимированные кадры из assets/effects/effects.json (отдельно от статичных fallback);
  *   - из реестра спрайтов (legacy + v2, v2 перекрывает по id) — только спрайты, на которые ссылается контент
  *     (visual.sprite у юнитов и профессий): лист `file` и `portrait`.
  * JSON-файлы manifest.json, sprites.json, sprites.legacy.json импортируются в бандл при сборке — копировать не нужно.
@@ -20,6 +21,7 @@ interface ManifestEntry {
 }
 export interface AssetInputs {
   manifest: { assets: Record<string, ManifestEntry> };
+  effects?: { effects: { id: string; file: string }[] };
   legacy?: LegacySprites;
   v2?: SpritesV2;
   /** id спрайтов, на которые ссылается контент. */
@@ -49,6 +51,7 @@ export function usedAssets(input: AssetInputs): UsedAssets {
     add(a.file, `manifest:${id}`);
     add(a.atlasXml, `manifest:${id}`);
   }
+  for (const effect of input.effects?.effects ?? []) add(effect.file, `effect:${effect.id}`);
   const registry = buildRegistry(input.legacy, input.v2);
   const missingSprites: string[] = [];
   for (const id of [...new Set(input.spriteIds)].sort()) {
@@ -85,6 +88,7 @@ export function collectUsedAssets(root: string): UsedAssets {
   const assets = join(root, ASSETS_DIR);
   return usedAssets({
     manifest: readJson(join(assets, 'manifest.json')) ?? { assets: {} },
+    effects: readJson(join(assets, 'effects/effects.json')),
     legacy: readJson(join(assets, 'sprites.legacy.json')),
     v2: readJson(join(assets, 'sprites/sprites.json')),
     spriteIds: contentSpriteIds(root),
