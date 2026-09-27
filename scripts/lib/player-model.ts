@@ -1004,3 +1004,70 @@ export function fitRecommended(
   }
   return out;
 }
+
+/** Цели регулятора сложности (scripts/balance-fit.ts) для глав из data/campaign. */
+export interface FitTargets {
+  /** Главы с окнами — все главы по order, кроме balance.exclude; source — откуда окна (data, частично data, правило default). */
+  chapters: { id: string; source: 'data' | 'partial' | 'default'; stages: string[] }[];
+  /** Окно [с, по] каждого этапа этих глав (часы от начала первой сессии). */
+  windows: Map<string, [number, number]>;
+  /** Дней модели игрока: не меньше balance.fitDays и хватает на все окна (+12 ч запаса). */
+  days: number;
+  /** Ошибки целей: окна у несуществующих этапов, exclude с неизвестной главой. */
+  problems: string[];
+}
+
+/** Правило окон для глав без своих окон, если в data/progression.json нет balance. */
+export const DEFAULT_FIT_RULE = { gapHours: 12, spanHours: 42, wallEvery: 3, windowHours: 16.5 };
+
+/**
+ * Окна первого прохождения из data/progression.json → balance. Глава с окнами — окна из data (этап без окна берёт окно
+ * предыдущего этапа, первые — первого заданного); глава без окон — правило default: начало = «с» окна босса прошлой главы
+ * + gapHours, этапы группами по wallEvery (одно «с» на группу, между группами — стена «забери сундук»), «с» групп —
+ * равномерно на spanHours (шаг 0.5 ч), «по» = «с» + windowHours. Новой главе хватает файла data/campaign/chapterN.json;
+ * точные окна — в balance.windows.
+ */
+export function fitTargets(ctx: GameContext): FitTargets {
+  const cfg = ctx.progression.balance ?? { fitDays: 7, exclude: [], windows: {}, default: DEFAULT_FIT_RULE };
+  const problems: string[] = [];
+  const stageIds = new Set(ctx.content.stages.map((s) => s.id));
+  for (const id of Object.keys(cfg.windows)) if (!stageIds.has(id)) problems.push(`balance.windows.${id}: этапа нет в data/campaign`);
+  const chapterIds = new Set(ctx.content.chapters.map((c) => c.id));
+  for (const id of cfg.exclude) if (!chapterIds.has(id)) problems.push(`balance.exclude: главы ${id} нет в data/campaign`);
+
+  const half = (x: number) => Math.round(x * 2) / 2;
+  const windows = new Map<string, [number, number]>();
+  const chapters: FitTargets['chapters'] = [];
+  let prevBossLo: number | null = null;
+  for (const ch of [...ctx.content.chapters].sort((a, b) => a.order - b.order)) {
+    const stages = ctx.content.stages.filter((s) => s.chapter === ch.id).map((s) => s.id);
+    if (cfg.exclude.includes(ch.id) || !stages.length) continue;
+    const own = stages.map((id) => cfg.windows[id] as [number, number] | undefined);
+    let source: FitTargets['chapters'][number]['source'];
+    let list: [number, number][];
+    if (own.some((w) => w)) {
+      source = own.every((w) => w) ? 'data' : 'partial';
+      let last = own.find((w) => w)!;
+      list = own.map((w) => {
+        if (w) last = w;
+        return [last[0], last[1]];
+      });
+    } else {
+      source = 'default';
+      const d = cfg.default;
+      const start = prevBossLo === null ? 0 : prevBossLo + d.gapHours;
+      const groups = Math.ceil(stages.length / d.wallEvery);
+      list = stages.map((_, i) => {
+        const g = Math.floor(i / d.wallEvery);
+        const lo = half(start + (groups > 1 ? (g * d.spanHours) / (groups - 1) : 0));
+        return [lo, half(lo + d.windowHours)];
+      });
+    }
+    stages.forEach((id, i) => windows.set(id, list[i]));
+    prevBossLo = list[list.length - 1][0];
+    chapters.push({ id: ch.id, source, stages });
+  }
+  const maxHi = Math.max(0, ...[...windows.values()].map((w) => w[1]));
+  const days = Math.max(cfg.fitDays, Math.ceil((maxHi + 12) / 24));
+  return { chapters, windows, days, problems };
+}

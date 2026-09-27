@@ -2,7 +2,7 @@
  * Генераторы `npm run content:new` (scripts/lib/content-gen.ts): заготовки пишутся во временную копию data/
  * и должны собираться тем же buildGameContext, что и игра (без ошибок), а TODO — находиться для предупреждений content:check.
  */
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -48,15 +48,21 @@ describe('content:new — генераторы заготовок', () => {
   });
 
   it('chapter: 10 этапов (последний — босс) + сюжет; собирается без ошибок и играется', () => {
+    // Последняя глава до генерации (по order) — от неё считаются order и сундук новой; сколько глав в data — неважно.
+    const before = readdirSync(join(root, 'data/campaign'))
+      .filter((f) => f.endsWith('.json'))
+      .map((f) => ({ file: `data/campaign/${f}`, order: json(`data/campaign/${f}`).order as number }))
+      .sort((x, y) => x.order - y.order)
+      .at(-1)!;
     const r = run('chapter', 'chapter9', '--mobs', 'mob_fabre,mob_fast,mob_tank', '--boss', 'gen_boss');
     expect(r.written).toEqual(['data/campaign/chapter9.json', 'data/story/chapter9.json']);
     const ch = json('data/campaign/chapter9.json');
-    expect(ch.order).toBe(4);
+    expect(ch.order).toBe(before.order + 1);
     expect(ch.stages.map((s: { id: string }) => s.id)).toEqual(Array.from({ length: 10 }, (_, i) => `ch9_s${i + 1}`));
     expect(ch.stages.map((s: { boss: boolean }) => s.boss)).toEqual([...Array(9).fill(false), true]);
-    // Экономика — как у глав 2–3 (docs/content/balance.md): сундук +9%/этап от последнего этапа прошлой главы, золото 0.7,
+    // Экономика — как у глав 2–3 (docs/content/balance.md): сундук +9%/этап от последнего этапа последней главы, золото 0.7,
     // награда — 30 минут сундука (босс — 45).
-    const prevChest = json('data/campaign/chapter3.json').stages.at(-1).offlinePerMinute.jobExp;
+    const prevChest = json(before.file).stages.at(-1).offlinePerMinute.jobExp;
     type R = { jobExp: number; gold: number };
     const st = ch.stages as { rewards: R; offlinePerMinute: R; boss: boolean }[];
     expect(st[0].offlinePerMinute.jobExp).toBe(Math.round(prevChest * CHEST_GROWTH));
