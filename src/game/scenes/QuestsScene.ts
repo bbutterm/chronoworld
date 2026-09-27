@@ -7,7 +7,7 @@ import { card, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../scree
 import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 import { commit, restartOnNewDay, session, today } from '../session';
 import { button, emptyState, progressBar, ScrollArea, text, toast } from '../ui';
-import { skinIcon } from '../skin';
+import { SKIN, SKIN_TINT, skinIcon } from '../skin';
 import { C, FS, TINT } from '../theme';
 
 /** Цвет галочки «получено» (как на лестнице Башни). */
@@ -68,8 +68,10 @@ export class QuestsScene extends Phaser.Scene {
       const glow = this.add.rectangle(x0, y, 128, 128, 0xffd84a, 0.35).setStrokeStyle(6, 0xffd84a);
       if (juiceOn()) this.tweens.add({ targets: glow, alpha: 0.35, yoyo: true, repeat: -1, duration: 600 });
     }
-    const b = button(this, x0, y, 104, 104, frame, String(m.points), () => this.claimMilestone(m, { x: x0, y }), FS.h3);
-    if (m.claimed) b.label.setColor(C.disabled);
+    // Порог — сундучок (как в AFK Arena) с числом очков на нижней кромке.
+    const b = button(this, x0, y, 104, 104, frame, String(m.points), () => this.claimMilestone(m, { x: x0, y }), FS.caption);
+    b.label.setY(30).setColor(m.claimed ? C.disabled : ready ? SKIN.goldLight : SKIN.cream).setStroke('#000000', 5);
+    b.container.addAt(this.add.image(0, -14, skinIcon('chest')).setDisplaySize(58, 58).setTint(m.claimed ? 0x6a6a70 : ready ? SKIN_TINT.gold : SKIN_TINT.creamDim), 1);
     if (m.claimed) this.add.image(x0 + 36, y - 36, skinIcon('check')).setDisplaySize(44, 44).setTint(SKIN_TINT_SUCCESS);
     if (ready) {
       cornerBadge(this, x0, y, 104, 104, 1);

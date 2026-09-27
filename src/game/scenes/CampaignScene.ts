@@ -13,6 +13,8 @@ import { button, ellipsize, pressable, text, toast } from '../ui';
 import { C, FS, TINT, TOUCH } from '../theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 import { screenBackground, setThemeBackground, themeOfChapter } from '../backdrops';
+import { glow, motes, ribbon } from '../decor';
+import { juiceOn } from '../juice';
 
 const NODE = 150;
 
@@ -37,7 +39,8 @@ export class CampaignScene extends Phaser.Scene {
     const bg = screenBackground(this);
     if (bg) setThemeBackground(bg, 'map', themeOfChapter(chapter.id));
 
-    text(this, GAME_W / 2, CONTENT_TOP + 40, chapter.name, FS.h2, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
+    // Название главы — на ленте (между стрелками глав).
+    ribbon(this, GAME_W / 2, CONTENT_TOP + 40, chapter.name, { size: FS.h2, minW: 520, maxW: 780 }).setDepth(5);
     if (ci > 0) button(this, 70, CONTENT_TOP + 40, TOUCH, TOUCH, 'k:buttonSquare_beige', '‹', () => this.scene.restart({ chapter: ci - 1 }), FS.hero);
     if (ci < chapters.length - 1) button(this, GAME_W - 70, CONTENT_TOP + 40, TOUCH, TOUCH, 'k:buttonSquare_beige', '›', () => this.scene.restart({ chapter: ci + 1 }), FS.hero);
 
@@ -69,6 +72,9 @@ export class CampaignScene extends Phaser.Scene {
         else this.scene.start('Stage', { stageId: s.id });
       };
       const key = st === 'open' ? 'skin_node_open' : st === 'cleared' ? 'skin_node_cleared' : s.boss ? 'skin_node_boss' : 'skin_node_locked';
+      // Текущий этап и босс подсвечены ореолом (текущий — «дышит»).
+      if (st === 'open') glow(this, x, y, size * 2.1, 0xffc860, 0.55, true);
+      else if (s.boss) glow(this, x, y, size * 1.9, 0xc04070, 0.35);
       pressable(this, this.add.image(x, y, key).setDisplaySize(size, size), size, size, open);
       text(this, x, y - 2, String(s.globalIndex + 1), size * 0.34, st === 'locked' ? SKIN.creamDim : SKIN.cream, {
         fontStyle: 'bold',
@@ -89,7 +95,7 @@ export class CampaignScene extends Phaser.Scene {
         const r = size * 0.56;
         const g = this.add.graphics({ x, y });
         g.lineStyle(6, TINT.gold, 0.9).strokeCircle(0, 0, r);
-        this.tweens.add({ targets: g, scale: 1.1, alpha: 0.35, yoyo: true, repeat: -1, duration: 700, ease: 'Sine.easeInOut' });
+        if (juiceOn()) this.tweens.add({ targets: g, scale: 1.1, alpha: 0.35, yoyo: true, repeat: -1, duration: 700, ease: 'Sine.easeInOut' });
       }
       // Подпись — сбоку от узла, в сторону центра экрана.
       const right = x < GAME_W / 2;
@@ -109,6 +115,9 @@ export class CampaignScene extends Phaser.Scene {
         strokeThickness: 4,
       }).setOrigin(right ? 0 : 1, 0.5);
     });
+
+    // Живой фон карты: несколько искр поднимаются над тропой.
+    motes(this, { x: 60, y: top, w: GAME_W - 120, h: bottom - top }, 6);
 
     // «История» (P3): пересмотр увиденных сцен главы. Справа внизу — там нет узлов и подписей этапов.
     if (seenChapterScenes(session.save, chapter.id, GAME).length) {

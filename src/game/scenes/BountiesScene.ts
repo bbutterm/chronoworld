@@ -172,6 +172,12 @@ export class BountiesScene extends Phaser.Scene {
     const bg = a.add(panel(this, GAME_W / 2, y, 1020, BOARD_H - 14, 'ui_panel'));
     pressable(this, bg, 1020, BOARD_H - 14, a.tap(() => this.pick(b, busy)));
     const color = BOUNTY_RARITY_COLORS[b.rarity] ?? C.text;
+    // Редкое и выше — цветная полоса у левого края карточки и лёгкий отсвет (видно ценность, не читая подпись).
+    if (b.rarity !== 'common') {
+      const tint = Phaser.Display.Color.HexStringToColor(color).color;
+      a.add(this.add.image(GAME_W / 2 - 300, y, 'skin_glow').setDisplaySize(700, BOARD_H).setTint(tint).setAlpha(0.1).setBlendMode(Phaser.BlendModes.ADD));
+      a.add(this.add.rectangle(GAME_W / 2 - 1020 / 2 + 16, y, 7, BOARD_H - 60, tint, 0.9));
+    }
     a.add(ellipsize(text(this, 70, y - 55, bountyName(b, GAME), FS.h3, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5), 700));
     a.add(text(this, 70, y - 8, BOUNTY_RARITY_NAMES[b.rarity] ?? b.rarity, FS.caption, color, { stroke: C.stroke, strokeThickness: 3 }).setOrigin(0, 0.5));
     const need = `${durationText(b.durationMinutes)} · героев: ${b.heroCount}${b.role ? ` · нужен ${(ROLE_NAMES[b.role] ?? b.role).toLowerCase()}` : ''}`;

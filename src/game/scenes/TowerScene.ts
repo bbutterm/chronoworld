@@ -9,6 +9,7 @@ import { session } from '../session';
 import { portraitKey } from '../sprites';
 import { fitName } from '../squadEditor';
 import { button, panel, pressable, text } from '../ui';
+import { ctaShine, glow, medallion, ribbon } from '../decor';
 import { SKIN, SKIN_TINT, skinIcon } from '../skin';
 import { C, FS } from '../theme';
 import { collect, staggerIn } from '../juice';
@@ -48,6 +49,9 @@ export class TowerScene extends Phaser.Scene {
     text(this, 80, top + 150, `${st.floor}`, 110, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 }).setOrigin(0, 0.5);
     text(this, 80, top + 240, `из ${st.maxFloor}`, FS.body, C.muted).setOrigin(0, 0.5);
     text(this, 80, top + 310, band?.name ?? '', FS.h3, C.success, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5);
+    // Между счётом и лестницей — медальон башни в тёплом ореоле.
+    glow(this, 470, top + 180, 300, 0xffc860, 0.35, true);
+    medallion(this, 470, top + 180, 190, 'tower');
     this.ladder(st.floor, st.maxFloor, 800, top + 30);
 
     if (st.next === null) {
@@ -59,11 +63,7 @@ export class TowerScene extends Phaser.Scene {
     const f = towerFloor(st.next, GAME);
     const cy = top + 410;
     card(this, GAME_W / 2, cy + 330, 1040, 660);
-    text(this, GAME_W / 2, cy + 45, `Этаж ${f.floor}${f.boss ? '  ·  БОСС' : ''}`, FS.h1, f.boss ? C.danger : C.title, {
-      fontStyle: 'bold',
-      stroke: C.stroke,
-      strokeThickness: 7,
-    });
+    ribbon(this, GAME_W / 2, cy + 45, `Этаж ${f.floor}${f.boss ? '  ·  БОСС' : ''}`, { size: FS.h2, minW: 420 });
     const slots: Phaser.GameObjects.GameObject[][] = [];
     f.enemies.forEach((u, i) => slots.push(collect(this.children, () => this.enemySlot(u, i, cy))));
     staggerIn(this, 'Tower', slots);
@@ -118,7 +118,11 @@ export class TowerScene extends Phaser.Scene {
 
     // K8: отряд общий с кампанией, но редактируется прямо отсюда.
     button(this, 260, 1650, 420, 140, 'ui_btn_secondary', 'Изменить отряд', () => this.editSquad(), FS.h3);
-    button(this, 760, 1650, 520, 140, 'ui_btn_primary', 'Штурм', () => this.assault(), FS.hero);
+    glow(this, 760, 1650, 128, 0xffc860, 0.2, true).setScale(700 / 128, 280 / 128);
+    const go = button(this, 760, 1650, 520, 140, 'ui_btn_primary', 'Штурм', () => this.assault(), FS.hero);
+    go.label.setX(30);
+    go.container.add(this.add.image(30 - go.label.width / 2 - 48, -4, skinIcon('swords')).setDisplaySize(62, 62).setTint(0x3a2408));
+    ctaShine(this, go.container, 520, 140);
   }
 
   /** Лестница: 4 ближайших этажа сверху вниз, следующий подсвечен, босс-этажи красные, пройденный — внизу. */
@@ -132,12 +136,10 @@ export class TowerScene extends Phaser.Scene {
       const done = n <= floor;
       const next = n === floor + 1;
       // Ступени в цветах скина: тёмная бронза, следующий этаж — золотая рамка, босс — красная.
-      const fill = done ? 0x16140f : boss ? 0x3a1712 : next ? 0x3a2f1c : 0x2b2721;
-      const border = next ? SKIN_TINT.gold : boss ? 0x8a3a2e : SKIN_TINT.bronze;
+      // Плитки скина (фаска, металлическая рамка); босс — красноватый оттенок.
       const w = 300 - i * 6;
-      const g = this.add.graphics();
-      g.fillStyle(fill, 1).fillRoundedRect(x - w / 2, y - h / 2, w, h, 14);
-      g.lineStyle(next ? 5 : 3, border, 1).strokeRoundedRect(x - w / 2, y - h / 2, w, h, 14);
+      const step = panel(this, x, y, w, h, next ? 'ui_slot_selected' : done ? 'ui_slot_empty' : 'ui_slot_filled');
+      if (boss && !next) step.setTint(0xff9a8a);
       const label = next ? `${n} · следующий` : `${n}${boss ? ' · босс' : ''}`;
       text(this, x, y, label, next ? FS.small : FS.body, done ? C.dim : next ? SKIN.goldLight : boss ? C.danger : SKIN.cream, { fontStyle: 'bold' });
       if (done) this.add.image(x + w / 2 - 34, y, skinIcon('check')).setDisplaySize(34, 34).setTint(0x9fe0a6);
