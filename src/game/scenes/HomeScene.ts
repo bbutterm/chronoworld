@@ -4,18 +4,22 @@ import { achievementStatus, heroesWithGearUpgrades, actClaimOffline, actUseFastR
 import { GAME } from '../content';
 import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, jobChangeReadyCount } from '../flow';
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
-import { GAME_H, GAME_W } from '../layout';
+import { GAME_H, GAME_W, HEADER_H } from '../layout';
 import { card, confirm, confirmOpen, cornerBadge, gemIcon, NAV_H, popIn, screen } from '../screen';
 import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn } from '../juice';
 import { commit, now, resetProgress, restartOnNewDay, session, today } from '../session';
 import { button, dangerButton, hintPointer, icon, panel, pressable, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT, TITLE_STYLE, TOUCH } from '../theme';
-import { SKIN_TINT, skinIcon } from '../skin';
+import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
+import { ctaShine, glow, medallion, motes, ribbon, slowRays } from '../decor';
 import { fps, motion, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed, setReducedMotion } from '../state';
 import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
 import { audioSettings, setAudioSettings, sfx } from '../audio';
 import { nextVolume, volumeLabel } from '../audioCore';
+
+/** Размер сундука офлайн-наград. */
+const CHEST = 180;
 
 /** Кнопка быстрых наград (центр по x). */
 const FAST_BTN_X = 840;
@@ -29,6 +33,10 @@ const L = {
   chestY: 390,
   chestH: 440,
   claimY: 530,
+  /** Сундук слева в карточке, текст и «Собрать» — справа от него (как панель наград AFK Arena). */
+  chestX: 200,
+  chestIconY: 380,
+  claimX: 640,
   fastY: 825,
   fastH: 230,
   /** Кнопка быстрых наград чуть выше центра карточки: над плиткой «Башня» остаётся место для подсказки. */
@@ -55,6 +63,8 @@ function devTools(): boolean {
 export class HomeScene extends Phaser.Scene {
   private chestText!: Phaser.GameObjects.Text;
   private chestImg?: Phaser.GameObjects.Image;
+  private chestRays?: Phaser.GameObjects.Image;
+  private chestGlow?: Phaser.GameObjects.Image;
   private claimBtn!: ReturnType<typeof button>;
   /** Сколько поручений было завершено при отрисовке плитки (раз в секунду сверяем — значок не отстаёт). */
   private bountiesDone = 0;
@@ -79,6 +89,8 @@ export class HomeScene extends Phaser.Scene {
       this.blocks = [];
       this.hintView = null;
       this.chestImg = undefined;
+      this.chestRays = undefined;
+      this.chestGlow = undefined;
       this.chestText = undefined as unknown as Phaser.GameObjects.Text;
       this.claimBtn = undefined as unknown as ReturnType<typeof button>;
     });
@@ -90,12 +102,19 @@ export class HomeScene extends Phaser.Scene {
     this.tiles();
 
     const cur = currentStage(session.save, GAME);
-    const campaign = collect(this.children, () =>
-      button(this, GAME_W / 2, L.campaignY, 780, L.campaignH, 'ui_btn_primary', cur ? `В кампанию · этап ${cur.globalIndex + 1}` : 'В кампанию', () => {
+    const campaign = collect(this.children, () => {
+      // Главная кнопка экрана: тёплый ореол, скрещённые мечи у подписи и пробегающий блик (как CTA в AFK Arena).
+      glow(this, GAME_W / 2, L.campaignY, 980, 0xffc860, 0.22, true).setScale(980 / 128, 260 / 128);
+      const cta = button(this, GAME_W / 2, L.campaignY, 780, L.campaignH, 'ui_btn_primary', cur ? `В кампанию · этап ${cur.globalIndex + 1}` : 'В кампанию', () => {
         markHint('home_campaign');
         this.scene.start('Campaign');
-      }, FS.h1),
-    );
+      }, FS.h1);
+      cta.label.setX(32);
+      cta.container.add(this.add.image(32 - cta.label.width / 2 - 44, -4, skinIcon('swords')).setDisplaySize(58, 58).setTint(0x3a2408));
+      ctaShine(this, cta.container, 780, L.campaignH);
+    });
+    // Живой фон: несколько светлячков медленно поднимаются (без «Уменьшить анимацию»).
+    motes(this, { x: 40, y: HEADER_H + 40, w: GAME_W - 80, h: L.campaignY - HEADER_H }, 7);
 
     // Подсказка строится по настоящим местам кнопок — до «выезда» блоков.
     this.refresh();
@@ -110,19 +129,27 @@ export class HomeScene extends Phaser.Scene {
     const cap = GAME.progression.offline.capHours;
     const y = L.chestY;
     card(this, GAME_W / 2, y, 1000, L.chestH);
-    text(this, GAME_W / 2, y - 187, 'Сундук офлайн-наград', FS.h2, C.title, TITLE_STYLE);
+    const cx = L.chestX;
+    const cy = L.chestIconY;
+    // Подложка под сундуком — тёмная ниша, чтобы лучи и сундук читались «в рамке».
+    this.add.image(cx, cy, 'skin_glow').setDisplaySize(330, 330).setTint(0x000000).setAlpha(0.5);
     if (hasArt('ui_chest_empty')) {
+      // За сундуком — медленные лучи и ореол, пока в нём что-то есть (refresh включает).
+      this.chestRays = slowRays(this, cx, cy, 300, 0.55).setVisible(false);
+      this.chestGlow = glow(this, cx, cy + 10, 240, 0xffd27a, 0.5, true).setVisible(false);
       // Сундук: пустой / наполняется / полный (текстура меняется в refresh).
-      this.chestImg = this.add.image(GAME_W / 2, y - 108, 'ui_chest_empty').setDisplaySize(140, 140);
+      this.chestImg = this.add.image(cx, cy, 'ui_chest_empty').setDisplaySize(CHEST, CHEST);
     } else {
       // Нет арта — рамка из атласа, «крышка» и замок.
-      card(this, GAME_W / 2, y - 95, 300, 110, true);
-      this.add.rectangle(GAME_W / 2, y - 133, 300, 34, 0x8a5a2b).setStrokeStyle(6, 0x3a2412);
-      icon(this, GAME_W / 2, y - 87, 'iconCircle_brown', 56).setTint(TINT.gold);
+      card(this, cx, cy + 10, 220, 110, true);
+      this.add.rectangle(cx, cy - 28, 220, 34, 0x8a5a2b).setStrokeStyle(6, 0x3a2412);
+      icon(this, cx, cy + 18, 'iconCircle_brown', 56).setTint(TINT.gold);
     }
-    this.chestText = text(this, GAME_W / 2, y - 6, '', FS.body, C.text, { lineSpacing: 8, ...OUTLINE });
-    text(this, GAME_W / 2, y + 60, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, FS.small, C.muted, { wordWrap: { width: 900 } });
-    this.claimBtn = button(this, GAME_W / 2, L.claimY, 460, TOUCH, 'ui_btn_primary', 'Собрать', () => this.claim(), FS.h2);
+    // Лента-заголовок у верхней кромки карточки (поверх лучей).
+    ribbon(this, GAME_W / 2, y - L.chestH / 2 + 46, 'Сундук офлайн-наград', { minW: 600, size: FS.h3 });
+    this.chestText = text(this, L.claimX, y - 50, '', FS.body, C.text, { lineSpacing: 8, ...OUTLINE });
+    text(this, L.claimX, y + 50, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, FS.small, C.muted, { wordWrap: { width: 600 }, lineSpacing: 4 });
+    this.claimBtn = button(this, L.claimX, L.claimY, 460, TOUCH + 10, 'ui_btn_primary', 'Собрать', () => this.claim(), FS.h2);
   }
 
   private refresh(): void {
@@ -146,7 +173,9 @@ export class HomeScene extends Phaser.Scene {
     if (this.chestImg) {
       const capMin = GAME.progression.offline.capHours * 60;
       const state = r.gold === 0 && r.jobExp === 0 ? 'empty' : r.minutes >= capMin * 0.9 ? 'full' : 'filling';
-      this.chestImg.setTexture(`ui_chest_${state}`).setDisplaySize(140, 140);
+      this.chestImg.setTexture(`ui_chest_${state}`).setDisplaySize(CHEST, CHEST);
+      this.chestRays?.setVisible(state !== 'empty');
+      this.chestGlow?.setVisible(state !== 'empty');
     }
     this.updateHint(r.gold > 0 || r.jobExp > 0);
     // Поручение завершилось, пока игрок на главной, — обновить плитку и значок.
@@ -167,7 +196,7 @@ export class HomeScene extends Phaser.Scene {
     commit(r.save);
     markHint('chest_claim');
     // Монеты вылетают из сундука и летят в золото в шапке (juice.ts).
-    queueRewardFly('Home', { x: GAME_W / 2, y: L.chestY - 108 }, before, { burst: true });
+    queueRewardFly('Home', { x: L.chestX, y: L.chestIconY }, before, { burst: true });
     this.restartWithToast([`Собрано: золото +${formatNumber(r.rewards.gold)}, опыт +${formatNumber(r.rewards.jobExp)}`, ...describeEvents(r.events, r.save, GAME)]);
   }
 
@@ -191,7 +220,7 @@ export class HomeScene extends Phaser.Scene {
     const msg = HINT_TEXT[id];
     // Сторону плашки выбирает hintPointer (S): так, чтобы не закрыть другие кнопки и плитки.
     if (id === 'home_campaign') this.hintView = hintPointer(this, GAME_W / 2, L.campaignY, msg, 'below', { w: 780, h: L.campaignH });
-    if (id === 'chest_claim') this.hintView = hintPointer(this, GAME_W / 2, L.claimY, msg, 'below', { w: 460, h: TOUCH });
+    if (id === 'chest_claim') this.hintView = hintPointer(this, L.claimX, L.claimY, msg, 'below', { w: 460, h: TOUCH + 10 });
     if (id === 'tower_open') this.hintView = hintPointer(this, L.tileXR, L.tileY1, msg, 'above', { w: L.tileW, h: L.tileH });
     // Вкладка «Герои» — средняя в нижней навигации.
     if (id === 'job_change' || id === 'equip_gear') this.hintView = hintPointer(this, GAME_W / 2, GAME_H - NAV_H / 2 + 4, msg, 'above', { w: GAME_W / 3 - 30, h: NAV_H - 40 });
@@ -211,7 +240,7 @@ export class HomeScene extends Phaser.Scene {
     // Само окно тоже ловит нажатия — иначе касание по фону окна закрыло бы его.
     const box = panel(this, cx, cy, 880, 1240, 'ui_panel').setInteractive();
     layer.add([shade, box]);
-    layer.add(text(this, cx, cy - 540, 'Настройки', FS.h1, C.title, TITLE_STYLE));
+    layer.add(ribbon(this, cx, cy - 545, 'Настройки', { size: FS.h1, minW: 460 }));
 
     let y = cy - 430;
     layer.add(text(this, cx - bw / 2, y, 'Скорость боя', FS.h3, C.text, OUTLINE).setOrigin(0, 0.5));
@@ -314,19 +343,22 @@ export class HomeScene extends Phaser.Scene {
     const st = fastRewardsStatus(save, today(), GAME);
     const y = L.fastY;
     card(this, GAME_W / 2, y, 1000, L.fastH);
-    text(this, 80, y - 72, `Быстрые награды · ${hours} ч`, FS.h2, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
+    // Медальон с песочными часами слева, тексты — правее него.
+    medallion(this, 120, y - 10, 120, 'hourglass');
+    const tx = 200;
+    text(this, tx, y - 72, `Быстрые награды · ${hours} ч`, FS.h2, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
     const noIncome = preview.gold <= 0 && preview.jobExp <= 0;
     text(
       this,
-      80,
+      tx,
       y - 6,
-      noIncome ? 'Откроются после первого этапа кампании' : `+${formatNumber(preview.gold)} золота, +${formatNumber(preview.jobExp)} опыта каждому`,
+      noIncome ? 'Откроются после этапа 1' : `+${formatNumber(preview.gold)} золота, +${formatNumber(preview.jobExp)} опыта`,
       FS.body,
       C.text,
-      { align: 'left', wordWrap: { width: 600 }, stroke: C.stroke, strokeThickness: 4 },
+      { align: 'left', wordWrap: { width: 490 }, stroke: C.stroke, strokeThickness: 4 },
     ).setOrigin(0, 0.5);
-    const left = st.nextCost === null ? 'На сегодня всё — приходите завтра' : `Осталось сегодня: ${st.usesLeft} (бесплатно: ${st.freeLeft})`;
-    text(this, 80, y + 72, left, FS.small, C.muted).setOrigin(0, 0.5);
+    const left = st.nextCost === null ? 'На сегодня всё — приходите завтра' : `Осталось сегодня: ${st.usesLeft} · бесплатно ${st.freeLeft}`;
+    text(this, tx, y + 72, left, FS.small, C.muted, { wordWrap: { width: 490 }, align: 'left' }).setOrigin(0, 0.5);
 
     const bx = FAST_BTN_X;
     const label = st.nextCost === null ? 'Лимит' : st.nextCost === 0 ? 'Бесплатно' : formatNumber(st.nextCost);
@@ -377,19 +409,19 @@ export class HomeScene extends Phaser.Scene {
     const [xl, xr] = [L.tileXL, L.tileXR];
     const qs = questStatus(save, GAME, today());
     const row1 = collect(this.children, () => {
-      this.tile(xl, y1, 'Задания', `Активность ${qs.activity} / ${qs.maxActivity}`, C.success, () => this.scene.start('Quests'));
+      this.tile(xl, y1, 'Задания', `Активность ${qs.activity} / ${qs.maxActivity}`, C.success, () => this.scene.start('Quests'), 'scroll');
       this.towerTile(xr, y1);
     });
     const row2 = collect(this.children, () => {
       const done = finishedBounties(save, now());
       const active = save.bounties.active.length;
       const bsub = done ? `Готово: ${done} — заберите` : active ? `В работе: ${active}` : 'Отправьте героев';
-      this.tile(xl, y2, 'Поручения', bsub, done ? C.success : C.muted, () => this.scene.start('Bounties'));
+      this.tile(xl, y2, 'Поручения', bsub, done ? C.success : C.muted, () => this.scene.start('Bounties'), 'flag');
       this.bountiesDone = done;
 
       const views = achievementStatus(save, GAME);
       const got = views.filter((a) => a.claimed).length;
-      this.tile(xr, y2, 'Достижения', `Получено ${got} / ${views.length}`, C.info, () => this.scene.start('Achievements', { from: 'Home' }));
+      this.tile(xr, y2, 'Достижения', `Получено ${got} / ${views.length}`, C.info, () => this.scene.start('Achievements', { from: 'Home' }), 'trophy');
     });
     this.blocks.push(row1, row2);
     // Значки — после «выезда» плиток на своих местах (не в группах): в правом верхнем углу, как у вкладки «Герои».
@@ -407,21 +439,26 @@ export class HomeScene extends Phaser.Scene {
       this.tile(xr, y1, 'Башня', sub, C.gold, () => {
         markHint('tower_open');
         this.scene.start('Tower');
-      });
+      }, 'tower');
     } else {
       const stage = GAME.content.stages.find((s) => s.id === ts.unlockAfterStage);
       const hint = stage ? `Откроется после этапа ${stage.globalIndex + 1}` : 'Пока закрыта';
-      const t = this.tile(xr, y1, 'Башня', hint, C.dim, () => toast(this, `Башня испытаний: ${hint.toLowerCase()} кампании`));
+      const t = this.tile(xr, y1, 'Башня', hint, C.dim, () => toast(this, `Башня испытаний: ${hint.toLowerCase()} кампании`), 'tower', true);
       t.setAlpha(0.75);
       // Закрыта — замок из скина в углу плитки (T1-11/T3-20: не «✖», который читается как «закрыть»).
       this.add.image(xr + L.tileW / 2 - 40, y1 - L.tileH / 2 + 34, skinIcon('lock')).setDisplaySize(44, 44).setTint(SKIN_TINT.creamDim);
     }
   }
 
-  private tile(x: number, y: number, title: string, sub: string, subColor: string, onClick: () => void): Phaser.GameObjects.NineSlice {
+  /** Плитка функции: медальон с иконкой слева, название и состояние справа от него. locked — иконка приглушена. */
+  private tile(x: number, y: number, title: string, sub: string, subColor: string, onClick: () => void, iconName: SkinIcon, locked = false): Phaser.GameObjects.NineSlice {
     const bg = pressable(this, card(this, x, y, L.tileW, L.tileH), L.tileW, L.tileH, onClick);
-    text(this, x, y - 30, title, FS.h2, C.title, TITLE_STYLE);
-    text(this, x, y + 36, sub, FS.body, subColor, { ...OUTLINE, wordWrap: { width: 460 } });
+    const left = x - L.tileW / 2;
+    medallion(this, left + 78, y, 116, iconName, locked ? SKIN_TINT.creamDim : SKIN_TINT.gold);
+    const tx = left + 150;
+    const tw = L.tileW - 150 - 24;
+    text(this, tx, y - 30, title, FS.h2, locked ? SKIN.creamDim : C.title, TITLE_STYLE).setOrigin(0, 0.5);
+    text(this, tx, y + 10, sub, FS.small, subColor, { ...OUTLINE, wordWrap: { width: tw }, align: 'left' }).setOrigin(0, 0);
     return bg;
   }
 

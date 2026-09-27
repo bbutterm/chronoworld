@@ -6,6 +6,8 @@ import { GAME_H, GAME_W } from '../layout';
 import { screen } from '../screen';
 import { commit, session, today } from '../session';
 import { button, hintPointer, text, toast } from '../ui';
+import { ctaShine, glow } from '../decor';
+import { skinIcon } from '../skin';
 import { HINT_TEXT, hintDone, markHint } from '../hints';
 import { startStageBattle } from '../dialogue';
 import { squadDefs, type ResultData } from './BattleScene';
@@ -72,13 +74,20 @@ export class StageScene extends Phaser.Scene {
     FS.h3);
 
     if (first) {
-      this.fightBtns = [button(this, GAME_W / 2, L.fightY, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), FS.hero)];
+      // Главная кнопка: ореол, скрещённые мечи и пробегающий блик.
+      glow(this, GAME_W / 2, L.fightY, 128, 0xffc860, 0.22, true).setScale(860 / 128, 300 / 128);
+      const fight = button(this, GAME_W / 2, L.fightY, 640, 150, 'ui_btn_primary', 'В бой', () => this.fight(), FS.hero);
+      fight.label.setX(34);
+      fight.container.add(this.add.image(34 - fight.label.width / 2 - 52, -4, skinIcon('swords')).setDisplaySize(68, 68).setTint(0x3a2408));
+      ctaShine(this, fight.container, 640, 150);
+      this.fightBtns = [fight];
     } else {
       // K7: пройденный этап можно повторить с просмотром боя или сразу получить итог.
       this.fightBtns = [
         button(this, GAME_W / 2 - 260, L.fightY, 480, 150, 'ui_btn_secondary', 'Пропустить бой', () => this.skipBattle(), FS.h2),
         button(this, GAME_W / 2 + 260, L.fightY, 480, 150, 'ui_btn_primary', 'Повторить', () => this.fight(), FS.h1),
       ];
+      ctaShine(this, this.fightBtns[1].container, 480, 150);
     }
     this.editor.draw();
     // R: подсказка новичку — первый бой. После отряда: hintPointer обходит все кнопки, слоты и карточки сцены.

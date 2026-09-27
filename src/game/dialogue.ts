@@ -99,7 +99,11 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   }).setOrigin(0, 0);
   const more = text(scene, GAME_W / 2 + PANEL_W / 2 - 40, PANEL_Y + PANEL_H / 2 - 40, '', FS.caption, SKIN.creamDim, OUTLINE).setOrigin(1, 0.5);
   const skip = button(scene, GAME_W / 2 + PANEL_W / 2 - 150, top - 70, 280, TOUCH, 'k:buttonLong_beige', 'Пропустить', () => close(), FS.h3);
-  layer.add([shade, box, face, nameText, body, more, skip.container]);
+  // Имя говорящего — на золотой кромке (табличка), текст реплики ниже неё.
+  const nameTrim = scene.add.image(px + PORTRAIT / 2 + 40, top + 82, 'skin_trim').setOrigin(0, 0.5).setDisplaySize(PANEL_W - PORTRAIT - 150, 10);
+  // Вверху плашки — тёплый отсвет, как от портрета.
+  const warm = scene.add.image(px + 60, top + 40, 'skin_glow').setDisplaySize(520, 260).setTint(0xffc870).setAlpha(0.14).setBlendMode(Phaser.BlendModes.ADD);
+  layer.add([shade, box, warm, nameTrim, face, nameText, body, more, skip.container]);
 
   let line = -1;
   let shown = 0;

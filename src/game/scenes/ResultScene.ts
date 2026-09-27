@@ -18,6 +18,7 @@ import { chapterLastStage } from '../storyView';
 import { startChapterDone } from './ChapterDoneScene';
 import { addThemeBackground, themeOfBattle } from '../backdrops';
 import { sfx } from '../audio';
+import { glow, slowRays, sparkBurst } from '../decor';
 
 /** Метка в данных итогов (ResultData.stage): «Глава пройдена» уже показан из этих итогов. */
 type ShownMark = { chapterDoneShown?: boolean };
@@ -63,10 +64,18 @@ export class ResultScene extends Phaser.Scene {
     // Плашка итога — в стиле скина (своя текстура), с коротким «ударом» появления.
     const bannerKey = this.textures.exists('skin_banner_victory') ? (win ? 'skin_banner_victory' : 'skin_banner_defeat') : win ? 'ui_victory' : 'ui_defeat';
     const bannerW = compact ? 820 : 900;
-    const banner = this.add.image(GAME_W / 2, compact ? 200 : 250, bannerKey).setDisplaySize(bannerW, (bannerW * 300) / 900);
+    const bannerY = compact ? 200 : 250;
+    // За плашкой: победа — медленные золотые лучи и тёплый ореол, поражение — тусклое красное свечение.
+    if (win) {
+      slowRays(this, GAME_W / 2, bannerY, 1100, 0.5);
+      glow(this, GAME_W / 2, bannerY, 128, 0xffd27a, 0.45).setScale(1000 / 128, 420 / 128);
+    } else glow(this, GAME_W / 2, bannerY, 128, 0xa02818, 0.4).setScale(1000 / 128, 380 / 128);
+    const banner = this.add.image(GAME_W / 2, bannerY, bannerKey).setDisplaySize(bannerW, (bannerW * 300) / 900);
     const bs = banner.scaleX;
     banner.setScale(bs * 1.25).setAlpha(0);
     this.tweens.add({ targets: banner, scale: bs, alpha: 1, duration: 320, ease: 'Back.easeOut' });
+    // Победа: искры разлетаются от плашки после её «удара» (без «Уменьшить анимацию»).
+    if (win) this.time.delayedCall(260, () => sparkBurst(this, GAME_W / 2, bannerY, bannerW));
     const top = compact ? 380 : 470;
     panel(this, GAME_W / 2, (top + 1730) / 2, 1050, 1730 - top + 20, 'ui_panel');
     const reason = r.reason === 'timeout' ? 'Время вышло — поражение' : win ? 'Отряд противника уничтожен' : 'Ваш отряд уничтожен';
@@ -165,13 +174,23 @@ export class ResultScene extends Phaser.Scene {
           const alpha = rep.alive ? 1 : 0.5;
           portrait(this, 70, y, portraitKey(def?.visual.sprite ?? u.unitId), row - 12).setAlpha(alpha).setTint(unitTint(def?.visual));
           if (isMvp) crown(this, 70 + (row - 12) / 2 - 6, y - (row - 12) / 2 + 6, 22);
-          const name = text(this, cols[0] - 20, isMvp ? y - 11 : y, def?.name ?? u.unitId, fs, isMvp ? C.title : C.text, {
+          const name = text(this, cols[0] - 20, y, def?.name ?? u.unitId, fs, isMvp ? C.title : C.text, {
             fontStyle: isMvp ? 'bold' : 'normal',
           })
             .setOrigin(0, 0.5)
             .setAlpha(alpha);
           if (name.width > cols[1] - 70 - name.x) name.setScale((cols[1] - 70 - name.x) / name.width);
-          if (isMvp) text(this, cols[0] - 20, y + 14, 'MVP', FS.caption, C.gold, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+          if (isMvp) {
+            // «MVP» — золотая плашка справа от имени; не влезает в строку — под именем (строка тогда выше).
+            const tag = text(this, 0, 0, 'MVP', FS.caption, '#2a1c08', { fontStyle: 'bold' });
+            const tw = tag.width + 16;
+            const room = cols[1] - 70 - (name.x + name.displayWidth + 12);
+            const [tx, ty] = room >= tw ? [name.x + name.displayWidth + 12 + tw / 2, y] : [cols[0] - 20 + tw / 2, y + 16];
+            if (room < tw) name.setY(y - 12);
+            this.add.rectangle(tx, ty, tw, tag.height + 2, TINT.gold).setStrokeStyle(2, 0x6b4a1a);
+            tag.setPosition(tx, ty);
+            this.children.bringToTop(tag);
+          }
           const dmgBar = this.add.rectangle(cols[1] - 60, y + 22, 120 * (rep.damageDealt / maxDmg), 6, TINT.danger).setOrigin(0, 0.5);
           if (juiceOn() && rep.damageDealt > 0) this.tweens.add({ targets: dmgBar, width: { from: 0, to: dmgBar.width }, delay: 300 + rowN * 50, duration: 550, ease: 'Cubic.easeOut' });
           const dim = (n: number, color: string) => (n > 0 ? color : C.placeholder);
