@@ -49,24 +49,33 @@
 Плюс портрет наставника **Капитан Гаррет** (Knight, м, седые — причёска 14 / 0, Two-Handed Sword) — лист `npc_garret`.
 
 ## 3. Вторые профессии — фиолетовые карточки (приоритет 2)
-Сейчас 6 из них собраны из старых рендеров без оружия, ходьбы и каста (`sourceLimitations` в `sprites.json`) — перерендерить.
+Рисовать не все 24 варианта, а только те, что реально используются карточками (`docs/design/heroes.md`):
+13 фиолетовых карточек-героев Биолаборатории + вторые профессии сюжетных героев. Итого **16 листов**.
+Сейчас 6 из вторых профессий собраны из старых рендеров без оружия, ходьбы и каста — эти перерендерить.
 
-| Класс RO (job id) | м — оружие | ж — оружие |
-| --- | --- | --- |
-| Knight (7) | Two-Handed Sword (1116) | Pike (1401) копьё |
-| Crusader (14) | Sword + Shield (2105) | Spear (1404) + Guard (2101) |
-| Hunter (11) | Hunter Bow (1718) | Crossbow (1713) |
-| Bard (19) / **Dancer (20)** | Violin (1901) — Бард только м | Rope/Whip (1950) — Танцовщица только ж |
-| Wizard (9) | Staff of Soul (1618) | Arc Wand (1610) |
-| Sage (16) | Book (1550) | Book (1550) |
-| Assassin (12) | Katar (1250) | Jur (1251) |
-| Rogue (17) | Cutlass (1123) | Composite Bow (1704) |
-| Priest (8) | Chain (1519) | Mace (1501) — лист есть, с оружием |
-| Monk (15) | Knuckle Dusters (1801) | Waghnak (1802) |
-| Blacksmith (10) | Hammer / Two-Handed Axe (1351) | Axe (1301) |
-| Alchemist (18) | Axe (1301) | Sword (1101) |
+| id листа | Класс RO (job id) | Пол | Кто использует | Оружие | Щит |
+| --- | --- | --- | --- | --- | --- |
+| `knight_m` | Knight (7) | м | Сейрен; Алан после возвышения | Two-Handed Sword (1116) | нет |
+| `crusader_m` | Crusader (14) | м | Рандел | Sword (1101) | Shield (2105) |
+| `hunter_m` | Hunter (11) | м | Бран после возвышения | Hunter Bow (1718) | нет |
+| `hunter_f` | Hunter (11) | ж | Сесиль | Crossbow (1713) | нет |
+| `bard_m` | Bard (19) | м | Альфоччо | Violin (1901) | нет |
+| `dancer_f` | Dancer (20) | ж | Трентини | Rope/Whip (1950) | нет |
+| `wizard_f` | Wizard (9) | ж | Кэтрин | Arc Wand (1610) | нет |
+| `sage_f` | Sage (16) | ж | Селия | Book (1550) | нет |
+| `assassin_m` | Assassin (12) | м | Эремес | Katar (1250) | нет |
+| `rogue_m` | Rogue (17) | м | Дорн после возвышения | Cutlass (1123) | нет |
+| `rogue_f` | Rogue (17) | ж | Герти | Composite Bow (1704) | нет |
+| `priest_f` | Priest (8) | ж | Маргарета; Вика после возвышения | Mace (1501) | нет |
+| `monk_m` | Monk (15) | м | Чен | Knuckle Dusters (1801) | нет |
+| `blacksmith_m` | Blacksmith (10) | м | Говард | Two-Handed Axe (1351) | нет |
+| `blacksmith_f` | Blacksmith (10) | ж | Грета после возвышения | Axe (1301) | нет |
+| `alchemist_m` | Alchemist (18) | м | Фламель | Axe (1301) | нет |
 
-id листов: `<класс>_m` / `<класс>_f` (например `knight_m`, `dancer_f`). Причёски — любые, но у м и ж одного класса разные цвета.
+Сюжетным героям после возвышения лучше отдельный вид со своей причёской (как в разделе 2): `hero_alan_knight`,
+`hero_bran_hunter`, `hero_vika_priest`, `hero_greta_blacksmith`, `hero_dorn_rogue`. Если некогда — хватит общих листов выше.
+Остальные варианты (Knight ж, Crusader ж, Wizard м, Sage м, Assassin ж, Priest м, Monk ж, Alchemist ж) — позже, когда
+появятся новые карточки.
 
 ## 4. Портреты для карточек (приоритет 2)
 Для каждой карточки — бюст 256×256 (как `assets/ro/portraits`): верхняя половина кадра idle/ready, увеличенная nearest,
