@@ -37,7 +37,18 @@
     },
     "crowdSquash": 0.8,
     "minSeparation": 70,
-    "meleeAoeRadius": 200
+    "meleeAoeRadius": 200,
+    "maxMeleePerTarget": 2,
+    "diveStay": [
+      "mob_lunatic_leap",
+      "assassin_leap",
+      "mob_eclipse_moon_leap",
+      "mob3_fast_haunt",
+      "job_assassin_venom_splasher",
+      "job_rogue_back_stab",
+      "job_monk_asura_strike"
+    ],
+    "diveReturnSeconds": 0.8
   },
   "slots": {
     "count": 5,
