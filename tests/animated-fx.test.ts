@@ -40,3 +40,11 @@ describe('RO animated effects', () => {
     expect(selectedAnimatedEffect('other', 'flash', true)).toBeUndefined();
   });
 });
+
+describe('эффекты навыков (effects.json → skills)', () => {
+  it('skillFx: нет привязки — undefined, без id — undefined', async () => {
+    const { skillFx } = await import('../src/game/animatedFx');
+    expect(skillFx(undefined)).toBeUndefined();
+    expect(skillFx('no_such_skill')).toBeUndefined();
+  });
+});

@@ -29,6 +29,7 @@ import { DEPTH, FloatLayer, UltPresenter } from '../battleFx';
 import { button, panel, text } from '../ui';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
+import { skillFx } from '../animatedFx';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -80,6 +81,8 @@ interface UnitView {
   castBack: Phaser.GameObjects.Image;
   /** Идёт каст: начало и длительность в секундах боя. */
   cast: { start: number; dur: number } | null;
+  /** Навык текущего действия (для эффекта попадания). */
+  lastSkill?: string;
   bars: Phaser.GameObjects.Components.Visible[];
   hp: number;
   shield: number;
@@ -383,6 +386,7 @@ export class BattleScene extends Phaser.Scene {
       case 'attack': {
         const v = this.views.get(e.unit)!;
         v.inUlt = false;
+        v.lastSkill = e.skill;
         v.energy = e.energy;
         this.endCast(v);
         this.redraw(v);
@@ -401,6 +405,7 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'ult': {
         const v = this.views.get(e.unit)!;
+        v.lastSkill = e.skill;
         v.energy = 0;
         v.inUlt = true;
         this.redraw(v);
@@ -454,7 +459,9 @@ export class BattleScene extends Phaser.Scene {
           this.popNumber(v, hpPart > 0 ? `-${hpPart}${big ? '!' : ''}` : `(${e.absorbed})`, color, big && hpPart > 0);
           this.hurt(v);
           const src = this.views.get(e.source);
-          this.fx(v, src?.def.visual.hitFx ?? 'fx_hit', 0.45, 200, 0.5);
+          const hit = hitFxOf(src);
+          if (hit === 'fx_magic') this.fx(v, hit, 1.7, 450, 0.95);
+          else this.fx(v, hit, 0.45, 200, 0.5);
         });
         return;
       }
@@ -485,7 +492,14 @@ export class BattleScene extends Phaser.Scene {
       case 'status': {
         const v = this.views.get(e.target)!;
         if (animate && e.action === 'apply') {
-          this.atImpact(e.source, animate, () => this.headline(v, e.name, '#ffcf6b'));
+          const src = this.views.get(e.source);
+          // Бафф союзнику (не свой яд/оглушение по врагу) — вспышка защиты из эффектов RO.
+          const ally = !!src && src.snap.side === v.snap.side;
+          const buff = ally ? skillFx(src?.lastSkill)?.buff ?? 'fx_shield' : null;
+          this.atImpact(e.source, animate, () => {
+            this.headline(v, e.name, '#ffcf6b');
+            if (buff) this.fx(v, buff, 1.2, 400);
+          });
         }
         return;
       }
@@ -674,6 +688,18 @@ export class BattleScene extends Phaser.Scene {
     this.tweens.add({ targets: v.node, scale: 1.12, duration: 160, yoyo: true, hold: 300, ease: 'Quad.easeOut' });
     this.later.after(1000, () => v.node.setDepth(v.alive ? v.node.y : v.node.y - 1000));
   }
+}
+
+/**
+ * Эффект попадания по навыку атакующего: явная привязка из effects.json (skills.<id>.hit), иначе магия
+ * (навык с кастом или дальний навык мага) — fx_magic, иначе эффект удара юнита (visual.hitFx).
+ */
+function hitFxOf(src: UnitView | undefined): string {
+  const mapped = skillFx(src?.lastSkill)?.hit;
+  if (mapped) return mapped;
+  const sk = src?.lastSkill ? CONTENT.skills[src.lastSkill] : undefined;
+  const magic = !!sk && (sk.castTime > 0 || (sk.range === 'ranged' && src?.def.visual.projectile === 'fx_magic'));
+  return magic ? 'fx_magic' : (src?.def.visual.hitFx ?? 'fx_hit');
 }
 
 /** Полоска заполняется обрезкой текстуры, чтобы скруглённые края не сжимались. */
