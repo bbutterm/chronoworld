@@ -14,6 +14,7 @@ import type { FeatureContext, FeatureEvent } from './config';
 import { useFastRewards, type FastRewards } from './fastRewards';
 import { claimActivity, claimQuest, recordActivity, type MilestoneRewards } from './quests';
 import { skipStage } from './skip';
+import { queueAfterStage, type StoryContext } from '../story/story';
 
 /**
  * Обёртки над действиями игрока для UI: вызывают функцию ядра и засчитывают события ежедневных заданий
@@ -45,15 +46,23 @@ export function actPlayStage(
   day: string,
   stageId: string,
   seed: number,
-  ctx: GameContext & { equipment?: EquipmentConfig },
+  ctx: GameContext & { equipment?: EquipmentConfig } & Partial<StoryContext>,
   now?: number,
 ): StageOutcomeWithDrops {
-  return recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => playStage(save, stageId, seed, c, now)), day);
+  return queueStory(recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => playStage(save, stageId, seed, c, now)), day), ctx);
+}
+
+/** P11 (T4-05): сцена «после этапа» при первой победе встаёт в очередь сохранения вместе с самой победой. */
+function queueStory<O extends StageOutcome>(out: O, ctx: Partial<StoryContext>): O {
+  if (!ctx.story) return out;
+  let s = out.save;
+  for (const e of out.events) if (e.type === 'stageCleared') s = queueAfterStage(s, e.stageId, e.firstTime, { story: ctx.story });
+  return s === out.save ? out : { ...out, save: s };
 }
 
 /** skipStage (K7) + те же события и выпадение K6, что у actPlayStage: пропущенный бой засчитывается как сыгранный. */
-export function actSkipStage(save: SaveState, day: string, stageId: string, seed: number, ctx: GameContext & { equipment?: EquipmentConfig }): StageOutcomeWithDrops {
-  return recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => skipStage(save, stageId, seed, c)), day);
+export function actSkipStage(save: SaveState, day: string, stageId: string, seed: number, ctx: GameContext & { equipment?: EquipmentConfig } & Partial<StoryContext>): StageOutcomeWithDrops {
+  return queueStory(recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => skipStage(save, stageId, seed, c)), day), ctx);
 }
 
 /** claimOffline + offline_claim (только если что-то получено) + hero_level_up. */

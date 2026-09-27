@@ -59,12 +59,16 @@ export function generateBoard(day: string, seed: number, refresh: number, ctx: M
 
 /**
  * K9. Автообновление доски при смене дня: day новее bounties.lastRefreshDay → новая доска (бесплатно),
- * счётчик ручных обновлений обнуляется. Тот же или более ранний день (часы назад) — тот же объект save.
+ * счётчик ручных обновлений обнуляется. Тот же день — тот же объект save; более ранний (часы назад) —
+ * день принимается, доска и счётчик не меняются (P11, T4-07).
  * Поручения в работе (active) не трогаются. UI вызывает при открытии экрана доски.
  */
 export function ensureBoard(save: SaveState, day: string, seed: number, ctx: MetaContext): SaveState {
   assertDay(day);
-  if (day <= save.bounties.lastRefreshDay) return save;
+  if (day === save.bounties.lastRefreshDay) return save;
+  // P11 (T4-07): часы переведены назад — доска и счётчик остаются, но день принимается: следующая
+  // реальная полночь снова обновит доску (раньше она замирала до сохранённого «будущего» дня).
+  if (day < save.bounties.lastRefreshDay) return { ...save, bounties: { ...save.bounties, lastRefreshDay: day } };
   return { ...save, bounties: { ...save.bounties, board: generateBoard(day, seed, 0, ctx), lastRefreshDay: day, refreshesUsed: 0 } };
 }
 
