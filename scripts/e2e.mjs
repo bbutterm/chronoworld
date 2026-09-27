@@ -201,6 +201,36 @@ async function main() {
     await waitScene('Stage');
     await shot('stage');
     await checkHint('Stage', 'этап');
+    // Подготовка: героя из слота 0 перетаскиваем в слот 4 (обмен), потом обратно. Цель — под «призраком»
+    // героя, он на 70 единиц выше пальца (src/game/squadEditor.ts, GHOST_LIFT).
+    {
+      const squadNow = async () => (await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')))).squad;
+      const slot = (i) => page.evaluate((i) => window.__game.scene.getScene('Stage').editor.slotPos(i), i);
+      const toCss = async (g) => {
+        const box = await page.locator('canvas').boundingBox();
+        const v = (await page.evaluate(() => window.__view?.())) ?? { worldX: 0, worldY: 0, worldW: GAME_W };
+        const s = box.width / v.worldW;
+        return { x: box.x + (g.x - v.worldX) * s, y: box.y + (g.y - v.worldY) * s };
+      };
+      const dragSlot = async (from, to) => {
+        const a = await toCss(await slot(from));
+        const t = await slot(to);
+        const b = await toCss({ x: t.x, y: t.y + 70 });
+        await page.mouse.move(a.x, a.y);
+        await page.mouse.down();
+        await page.mouse.move(b.x, b.y, { steps: 10 });
+        await sleep(100);
+        await page.mouse.up();
+        await sleep(400);
+      };
+      const before = await squadNow();
+      await dragSlot(0, 4);
+      const swapped = await squadNow();
+      if (swapped[4] !== before[0] || swapped[0] !== before[4]) problems.push(`подготовка: перетаскивание 0→4 не поменяло слоты: ${JSON.stringify(before)} → ${JSON.stringify(swapped)}`);
+      await dragSlot(4, 0);
+      if (JSON.stringify(await squadNow()) !== JSON.stringify(before)) problems.push('подготовка: обратное перетаскивание не вернуло отряд');
+      else log('подготовка: перетаскивание между слотами работает');
+    }
     await clickText('Stage', 'В бой');
     // Сюжет перед первым боем этапа.
     await sleep(500);
