@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob3_boss",
-  "name": "Тёмный лорд",
+  "name": "Верховный жрец",
   "kind": "boss",
   "role": "damage",
   "stats": {
@@ -16,8 +16,9 @@
     "passives": []
   },
   "visual": {
-    "sprite": "dark_lord",
-    "scale": 0.8,
+    "sprite": "dark_priest",
+    "tint": "#c9a0ff",
+    "scale": 1.5,
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

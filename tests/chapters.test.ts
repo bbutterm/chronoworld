@@ -29,11 +29,18 @@ describe('K3 главы 2–3', () => {
     }
   });
 
-  it('боссы глав 2–3: Бафомет (mob_boss2) и mob3_boss (Тёмный лорд, лист dark_lord)', () => {
+  it('боссы глав 2–3 — мини-боссы: Древняя ива (mob2_boss, лист ивы) и Верховный жрец (mob3_boss, лист Тёмного жреца)', () => {
     const boss = (id: string) => stages.find((s) => s.id === id)!.enemies.filter((e) => e && ctx.content.units[e.unit].kind === 'boss').map((e) => e!.unit);
-    expect(boss('ch2_s10')).toEqual(['mob_boss2']);
+    expect(boss('ch2_s10')).toEqual(['mob2_boss']);
     expect(boss('ch3_s10')).toEqual(['mob3_boss']);
-    expect(ctx.content.units.mob3_boss.visual.sprite).toBe('dark_lord');
+    expect(ctx.content.units.mob2_boss.visual.sprite).toBe('tank');
+    expect(ctx.content.units.mob3_boss.visual.sprite).toBe('dark_priest');
+  });
+
+  it('в главах 1–3 нет MVP RO: листов Золотого жука, Героя орков, Бафомета, Тёмного лорда и других MVP', () => {
+    const mvp = ['elite', 'boss1', 'boss2', 'dark_lord', 'osiris', 'drake', 'moonlight_flower', 'mistress'];
+    for (const s of stages)
+      for (const e of s.enemies) if (e) expect(mvp, `${s.id}: ${e.unit}`).not.toContain(ctx.content.units[e.unit].visual.sprite);
   });
 
   it('новые монстры глав 2–3 используют спрайты v2 и свои навыки', () => {
@@ -69,12 +76,13 @@ describe('K3 главы 2–3', () => {
     expect(new Set(later.map((u) => look(u.id))).size).toBe(later.length);
   });
 
-  it('монстры главы 2 не на листах монстров главы 1 (кроме ивы) и не на своих листах главы 3', () => {
+  it('монстры главы 2 не на листах монстров главы 1 (кроме ивы и кузнечика) и не на своих листах главы 3', () => {
+    // Ива и Рокер — перекрашены (tint, см. тест выше): Трясинная ива и Болотный кузнечик вместо жуков на листе Золотого жука.
     const sheets = (ch: string) =>
       new Set(stages.filter((s) => s.chapter === ch).flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)).filter((id) => /^mob2_/.test(id)).map((id) => ctx.content.units[id].visual.sprite));
     const ch2 = sheets('chapter2');
     const ch1 = new Set(stages.filter((s) => s.chapter === 'chapter1').flatMap((s) => s.enemies.filter((e) => e).map((e) => ctx.content.units[e!.unit].visual.sprite)));
-    expect([...ch2].filter((sp) => ch1.has(sp))).toEqual(['tank']);
+    expect([...ch2].filter((sp) => ch1.has(sp)).sort()).toEqual(['rocker', 'tank']);
     for (const own of ['dark_priest', 'gargoyle', 'raydric', 'mimic', 'dark_lord']) expect(ch2.has(own), own).toBe(false);
   });
 

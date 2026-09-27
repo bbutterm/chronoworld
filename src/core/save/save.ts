@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { generatedHero, normalizeHeroIdentity } from '../progression/heroes';
 import type { GameContext } from '../progression/types';
 import { DEFAULT_DAY, emptyBounties, emptyDaily, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
 
@@ -10,14 +11,13 @@ import { DEFAULT_DAY, emptyBounties, emptyDaily, SAVE_VERSION, SaveStateSchema, 
  */
 export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY): SaveState {
   const h = ctx.progression.heroes;
-  const heroes = Array.from({ length: h.count }, (_, i) => ({
-    id: `h${i + 1}`,
-    name: h.names[i % h.names.length],
-    job: h.startJob,
-    jobLevel: 1,
-    jobExp: 0,
-    jobHistory: [],
-  }));
+  const taken: string[] = [];
+  const heroes = Array.from({ length: h.count }, (_, i) => {
+    // Сюжетные — по порядку names с фиксированным полом; сверх них — случайный пол и имя от seed сохранения (now).
+    const who = h.names[i] ?? generatedHero(now, i, taken, h);
+    taken.push(who.name);
+    return { id: `h${i + 1}`, name: who.name, gender: who.gender, job: h.startJob, jobLevel: 1, jobExp: 0, jobHistory: [] };
+  });
   const squad = Array.from({ length: 5 }, (_, i) => heroes[i]?.id ?? null);
   return {
     version: SAVE_VERSION,
@@ -145,7 +145,9 @@ export function saveRevision(text: string | null | undefined): number {
  *   записей в jobHistory; из последней известной профессии истории), иначе последняя известная профессия
  *   из истории, иначе стартовая; уровень — не выше maxJobLevel новой профессии;
  * - записи jobHistory с неизвестными профессиями убираются;
- * - предметы, которых нет в ctx.equipment.items (если контекст с экипировкой), убираются.
+ * - предметы, которых нет в ctx.equipment.items (если контекст с экипировкой), убираются;
+ * - прежнее имя сюжетного рекрута (heroes.recruits[].formerNames, Грег → Грета) — текущее; нет пола — по имени
+ *   (progression/heroes.ts normalizeHeroIdentity; неизвестное имя → 'm', без предупреждения).
  * Каждая правка — строка в warnings (понятный русский текст). Ничего не правили — тот же объект save.
  */
 export function sanitizeSave(
@@ -155,7 +157,12 @@ export function sanitizeSave(
   const jobs = ctx.content.jobs;
   const warnings: string[] = [];
   let changed = false;
-  const heroes = save.heroes.map((h) => {
+  const heroes = save.heroes.map((orig) => {
+    const h = normalizeHeroIdentity(orig, ctx.progression.heroes);
+    if (h !== orig) {
+      changed = true;
+      if (h.name !== orig.name) warnings.push(`Герой ${orig.name} теперь зовётся ${h.name}.`);
+    }
     const history = h.jobHistory.filter((e) => jobs[e.job]);
     if (jobs[h.job] && history.length === h.jobHistory.length) return h;
     changed = true;

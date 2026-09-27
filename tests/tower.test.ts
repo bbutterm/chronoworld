@@ -142,9 +142,15 @@ describe('K4 башня: этажи', () => {
     expect(kinds(20, 39, false).every((u) => ch2.has(u))).toBe(true);
     const ch3 = chapterUnits('chapter3');
     expect(kinds(40, 59, false).every((u) => ch3.has(u))).toBe(true);
-    // Боссы леса — мини-боссы луга (Эклипс, Мастеринг, Вокал), MVP (Герой орков, Бафомет) — с 20 этажа.
+    // Боссы леса — мини-боссы луга (Эклипс, Мастеринг, Вокал), болота — мини-боссы топей; MVP RO — только с 40 этажа.
     expect(kinds(1, 19, true).sort()).toEqual(['mob_eclipse', 'mob_mastering', 'mob_vocal']);
-    expect(towerFloor(20, ctx).enemies.some((e) => e?.name === ctx.content.units.mob_boss1.name)).toBe(true);
+    expect(kinds(20, 39, true).sort()).toEqual(['mob2_boss', 'mob2_giant']);
+    expect(towerFloor(20, ctx).enemies.some((e) => e?.name === ctx.content.units.mob2_giant.name)).toBe(true);
+    const mvp = ['mob_boss1', 'mob_boss2', 'mob_dark_lord', 'mob_osiris', 'mob_drake', 'mob_moonlight', 'mob_mistress'];
+    expect(kinds(1, 39, true).filter((u) => mvp.includes(u))).toEqual([]);
+    const late = kinds(40, 79, true);
+    for (const u of mvp) expect(late, u).toContain(u);
+    expect(towerFloor(60, ctx).enemies.some((e) => e?.name === ctx.content.units.mob_boss1.name)).toBe(true);
   });
 
   it('неверный номер этажа → invalid_floor', () => {

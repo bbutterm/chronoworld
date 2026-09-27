@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob2_boss_rot_spores",
+  "name": "Гнилые споры",
+  "description": "Облако спор по всем врагам: урон и яд.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.5
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "poison",
+        "name": "Яд",
+        "turns": 3,
+        "dot": {
+          "k": 0.12
+        }
+      }
+    }
+  ]
+}

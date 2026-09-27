@@ -67,7 +67,7 @@
     },
     {
       "id": "ch2_s3",
-      "name": "Жучиная топь",
+      "name": "Скачущая трясина",
       "boss": false,
       "enemies": [
         {
@@ -134,7 +134,7 @@
     },
     {
       "id": "ch2_s5",
-      "name": "Логово жука",
+      "name": "Омут утопленника",
       "boss": false,
       "enemies": [
         {
@@ -271,7 +271,7 @@
     },
     {
       "id": "ch2_s9",
-      "name": "Врата капища",
+      "name": "Корни-ворота",
       "boss": false,
       "enemies": [
         {
@@ -306,7 +306,7 @@
     },
     {
       "id": "ch2_s10",
-      "name": "Капище Бафомета",
+      "name": "Сердце топей",
       "boss": true,
       "enemies": [
         {
@@ -314,8 +314,8 @@
           "mult": 0.24
         },
         {
-          "unit": "mob_boss2",
-          "mult": 0.5
+          "unit": "mob2_boss",
+          "mult": 0.48
         },
         {
           "unit": "mob2_ranged",
