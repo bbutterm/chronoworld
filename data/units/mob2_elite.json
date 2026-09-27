@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob2_elite",
-  "name": "Жук-вор топей",
+  "name": "Утопленник",
   "kind": "monster",
   "role": "damage",
   "stats": {
@@ -16,9 +16,9 @@
     "passives": []
   },
   "visual": {
-    "sprite": "elite",
-    "tint": "#c9b46a",
-    "scale": 1.15,
+    "sprite": "melee",
+    "tint": "#5d7f78",
+    "scale": 1.2,
     "hitFx": "fx_hit"
   }
 }

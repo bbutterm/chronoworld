@@ -251,7 +251,7 @@
             "mult": 1.09
           },
           {
-            "unit": "mob_boss1",
+            "unit": "mob2_giant",
             "mult": 1.09
           },
           {
@@ -270,7 +270,7 @@
             "mult": 1.01
           },
           {
-            "unit": "mob_mistress",
+            "unit": "mob2_giant",
             "mult": 1.01
           },
           {
@@ -289,7 +289,7 @@
             "mult": 1.08
           },
           {
-            "unit": "mob_drake",
+            "unit": "mob2_boss",
             "mult": 1.08
           },
           {
@@ -308,7 +308,7 @@
             "mult": 0.84
           },
           {
-            "unit": "mob_moonlight",
+            "unit": "mob2_boss",
             "mult": 0.84
           },
           {
@@ -456,7 +456,7 @@
             "mult": 0.91
           },
           {
-            "unit": "mob3_boss",
+            "unit": "mob_dark_lord",
             "mult": 0.91
           },
           null,
@@ -476,6 +476,166 @@
           },
           {
             "unit": "mob_boss2",
+            "mult": 0.63
+          },
+          null,
+          {
+            "unit": "mob3_ranged",
+            "mult": 0.63
+          }
+        ]
+      ]
+    },
+    {
+      "fromFloor": 60,
+      "name": "Ярус владык",
+      "layouts": [
+        [
+          {
+            "unit": "mob3_tank",
+            "mult": 1.25
+          },
+          {
+            "unit": "mob3_melee",
+            "mult": 1.25
+          },
+          {
+            "unit": "mob3_ranged",
+            "mult": 1.25
+          },
+          null,
+          {
+            "unit": "mob3_ranged",
+            "mult": 1.25
+          }
+        ],
+        [
+          {
+            "unit": "mob3_tank",
+            "mult": 1.14
+          },
+          {
+            "unit": "mob3_fast",
+            "mult": 1.14
+          },
+          {
+            "unit": "mob3_ranged",
+            "mult": 1.14
+          },
+          {
+            "unit": "mob3_fast",
+            "mult": 1.14
+          },
+          null
+        ],
+        [
+          {
+            "unit": "mob3_elite",
+            "mult": 1.34
+          },
+          {
+            "unit": "mob3_melee",
+            "mult": 1.34
+          },
+          {
+            "unit": "mob3_ranged",
+            "mult": 1.34
+          },
+          null,
+          {
+            "unit": "mob3_ranged",
+            "mult": 1.34
+          }
+        ],
+        [
+          {
+            "unit": "mob3_elite",
+            "mult": 1.01
+          },
+          {
+            "unit": "mob3_tank",
+            "mult": 1.01
+          },
+          {
+            "unit": "mob3_ranged",
+            "mult": 1.01
+          },
+          null,
+          {
+            "unit": "mob3_fast",
+            "mult": 1.01
+          }
+        ]
+      ],
+      "bossLayouts": [
+        [
+          {
+            "unit": "mob3_tank",
+            "mult": 0.97
+          },
+          {
+            "unit": "mob_boss1",
+            "mult": 0.97
+          },
+          {
+            "unit": "mob3_ranged",
+            "mult": 0.97
+          },
+          null,
+          {
+            "unit": "mob3_ranged",
+            "mult": 0.97
+          }
+        ],
+        [
+          {
+            "unit": "mob3_elite",
+            "mult": 0.76
+          },
+          {
+            "unit": "mob_drake",
+            "mult": 0.76
+          },
+          {
+            "unit": "mob3_ranged",
+            "mult": 0.76
+          },
+          {
+            "unit": "mob3_fast",
+            "mult": 0.76
+          },
+          null
+        ],
+        [
+          {
+            "unit": "mob3_tank",
+            "mult": 0.91
+          },
+          {
+            "unit": "mob3_elite",
+            "mult": 0.91
+          },
+          {
+            "unit": "mob_dark_lord",
+            "mult": 0.91
+          },
+          null,
+          {
+            "unit": "mob3_ranged",
+            "mult": 0.91
+          }
+        ],
+        [
+          {
+            "unit": "mob_mistress",
+            "mult": 0.63
+          },
+          {
+            "unit": "mob3_elite",
+            "mult": 0.63
+          },
+          {
+            "unit": "mob_moonlight",
             "mult": 0.63
           },
           null,
