@@ -7,17 +7,19 @@
  *   5. дымовой прогон: каждый юнит проводит бой без исключений; каждая карточка героя — на пределе каждой своей редкости;
  *   6. сюжет (data/story): схема и ссылки — в сборке (п. 1), здесь — портреты спикеров (нет картинки — предупреждение, будет иконка);
  *   7. строки «TODO» в data/ (заготовки npm run content:new) — предупреждения: их надо дописать до релиза;
- *   8. карточки героев (data/heroes): правила различия карточек одного класса и навыки своей линии — предупреждения
- *      (ошибки — в сборке, п. 1); листы: свой лист карточки есть в реестре, лист нужного пола (иначе откат — ⚠).
+ *   8. карточки героев (data/heroes) и Таверна — scripts/lib/content-check-heroes.ts: правила различия карточек одного
+ *      класса и навыки своей линии — ⚠ (ошибки навыков — в сборке, п. 1); итоговый лист карточки находится (свой или класса
+ *      по полу; не находится — ✗), свой лист в реестре, лист нужного пола, портрет у листа (нет — ⚠); призывная карточка,
+ *      которую Таверна не выдаёт (baseRarity/maxRarity мимо data/summon.json → rates) — ✗.
  * Код выхода 1, если есть ошибки. Предупреждения (например, нет арта — будет плейсхолдер) не мешают.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildUnit, CARD_RARITIES, collectGameContext, maxLevelOf, rarityIndex, simulateBattle, validateHeroes, type HeroState } from '../src/core';
-import { heroSprite } from '../src/game/flow';
+import { buildUnit, CARD_RARITIES, collectGameContext, maxLevelOf, rarityIndex, simulateBattle, validateHeroes } from '../src/core';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
+import { lintHeroes } from './lib/content-check-heroes';
 import { findTodos } from './lib/content-gen';
 import { readJsonDir, readRawGameData, ROOT } from './lib/content-node';
 import { pngSize } from './lib/png';
@@ -70,31 +72,17 @@ if (content) {
     ...Object.values(content.heroes).flatMap((t) => [...t.skills, ...t.forms.flatMap((f) => f.skills)].map((s) => s.skill)),
   ]);
 
-  // 8. Карточки героев: предупреждения правил и листы (свой лист, пол листа).
-  validateHeroes(content, [], warnings);
+  // 8. Карточки героев и Таверна: правила карточек, листы (свой / класса / пол), портреты, выдача Таверны.
   const sheetGender: Record<string, string | undefined> = {};
   for (const s of readJson<{ sprites: { id: string; source?: { gender?: string } }[] }>('assets/sprites/sprites.json')?.sprites ?? []) {
     sheetGender[s.id] = s.source?.gender === 'female' ? 'f' : s.source?.gender === 'male' ? 'm' : undefined;
   }
   if (built.ctx) {
-    const hctx = built.ctx;
-    const fallbacks: string[] = [];
-    for (const t of Object.values(content.heroes)) {
-      const own = [t.visual.sprite, ...t.forms.map((f) => f.visual.sprite)].filter((x): x is string => !!x);
-      for (const id of own) {
-        usedSprites.add(id);
-        if (!registry[id]) warnings.push(`карточка ${t.id}: листа "${id}" нет в реестре — будет лист класса`);
-      }
-      for (const r of [t.baseRarity, ...t.forms.map((f) => f.rarity)]) {
-        const hero: HeroState = { id: 'check', templateId: t.id, rarity: r, level: 1 };
-        const sprite = heroSprite(hero, hctx, (id) => id in registry);
-        usedSprites.add(sprite);
-        const g = sheetGender[sprite];
-        if (g && g !== t.gender) fallbacks.push(`${t.id}${r === t.baseRarity ? '' : ` (${r})`} → ${sprite}`);
-      }
-    }
-    if (fallbacks.length) warnings.push(`карточки без листа своего пола (откат на лист класса, арт — docs/ART_REQUEST_HEROES.md): ${fallbacks.join(', ')}`);
-  }
+    const lint = lintHeroes(built.ctx, registry, sheetGender);
+    errors.push(...lint.errors);
+    warnings.push(...lint.warnings);
+    for (const id of lint.sprites) usedSprites.add(id);
+  } else validateHeroes(content, [], warnings);
   for (const s of Object.values(content.skills)) {
     const isFallback = Object.values(content.skills).some((o) => o.fallback === s.id);
     if (!referenced.has(s.id) && !isFallback) warnings.push(`навык ${s.id} ни у кого не используется`);

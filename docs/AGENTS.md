@@ -115,8 +115,8 @@
 
 | Файл | Что |
 | --- | --- |
-| `content-check.ts` | `npm run content:check` — все проверки контента и ассетов |
-| `content-new.ts` + `lib/content-gen.ts` | `npm run content:new` — заготовки unit/skill/chapter/stage/story/boss |
+| `content-check.ts` + `lib/content-check-heroes.ts` | `npm run content:check` — все проверки контента и ассетов; карточки героев и Таверна (лист находится — свой или класса по полу, портрет, пол листа; призывную карточку Таверна выдаёт) — отдельный модуль, тест `tests/content-check-heroes.test.ts` |
+| `content-new.ts` + `lib/content-gen.ts` | `npm run content:new` — заготовки unit/skill/chapter/stage/story/boss/hero (карточка героя: `hero <id> --class <job> --gender m\|f [--rarity] [--story --form --after]`); глава — с экономикой по формуле баланса (сундук +9%/этап, награды 30/45 мин сундука). Рецепты и чеклист новой главы — `docs/CONTENT_RECIPES.md`, 4а и 6 |
 | `content-schema.ts` + `lib/schemas.ts` | JSON-схемы для редактора из zod |
 | `sim.ts` | серии боёв |
 | `playthrough.ts` | прохождение главы ядром, `--winrate`, `--idle` |
