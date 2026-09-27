@@ -701,7 +701,9 @@ export class BattleScene extends Phaser.Scene {
         this.atImpact(e.source, animate, () => {
           if (v.alive) this.setStatusIcon(v, e.status, def);
           if (!animate) return;
-          this.headline(v, e.name, '#ffcf6b');
+          // Бафф на весь отряд (Ускорение, Благословение): подпись не пишем над каждым — хватает искр и значка у HP.
+          const srcSkill = src?.lastSkill ? CONTENT.skills[src.lastSkill] : undefined;
+          if (!(ally && srcSkill?.target.pick === 'all')) this.headline(v, e.name, '#ffcf6b');
           if (ally) {
             this.fx(v, skillFx(src?.lastSkill)?.buff ?? 'fx_shield', 1.2, 400);
             this.sfx.buff(this.point(v), buffColor(def));
