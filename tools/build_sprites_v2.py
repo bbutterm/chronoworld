@@ -18,6 +18,7 @@ HEROES={
  'novice':(0,'Novice','male',0,0,0,0),
  'merchant':(5,'Merchant','male',6,0,0,0),
  'swordman':(1,'Swordman','male',2,0,0,0),
+ 'swordman_m':(1,'Swordman','male',2,2,1101,2103),
  'magician':(2,'Magician','male',10,0,0,0),
  'archer_first':(3,'Archer','male',11,0,0,0),
  'acolyte':(4,'Acolyte','female',8,0,0,0),
@@ -28,7 +29,35 @@ HEROES={
  'archer':(11,'Hunter','male',11,0,1701,0),
  'mage':(9,'Wizard','male',10,0,1601,0),
  'priest':(8,'Priest','female',8,0,1504,0),
+ # Card roster: renderer weapon-type IDs, not item_db View IDs.
+ 'knight_m':(7,'Knight','male',3,0,1116,0),
+ 'crusader_m':(14,'Crusader','male',2,3,1101,2105),
+ 'hunter_m':(11,'Hunter','male',11,0,1718,0),
+ 'hunter_f':(11,'Hunter','female',11,0,1713,0),
+ 'bard_m':(19,'Bard','male',13,0,1901,0),
+ 'dancer_f':(20,'Dancer','female',14,0,1950,0),
+ 'wizard_f':(9,'Wizard','female',10,0,1610,0),
+ 'sage_f':(16,'Sage','female',15,0,1550,0),
+ 'assassin_m':(12,'Assassin','male',16,0,1250,0),
+ 'rogue_m':(17,'Rogue','male',2,0,1123,0),
+ 'rogue_f':(17,'Rogue','female',11,0,1704,0),
+ 'priest_f':(8,'Priest','female',8,0,1501,0),
+ 'monk_m':(15,'Monk','male',12,0,1801,0),
+ 'blacksmith_m':(10,'Blacksmith','male',7,0,1351,0),
+ 'blacksmith_f':(10,'Blacksmith','female',6,0,1301,0),
+ 'alchemist_m':(18,'Alchemist','male',6,0,1301,0),
 }
+CARD_HEROES=('knight_m','crusader_m','hunter_m','hunter_f','bard_m','dancer_f',
+ 'wizard_f','sage_f','assassin_m','rogue_m','rogue_f','priest_f','monk_m',
+ 'blacksmith_m','blacksmith_f','alchemist_m')
+HERO_APPEARANCE={'swordman_m':(2,7),
+ 'knight_m':(1,3),'crusader_m':(8,0),'hunter_m':(5,3),'hunter_f':(12,1),
+ 'bard_m':(9,4),'dancer_f':(19,7),'wizard_f':(16,8),'sage_f':(13,5),
+ 'assassin_m':(4,0),'rogue_m':(10,2),'rogue_f':(20,2),'priest_f':(11,7),
+ 'monk_m':(6,4),'blacksmith_m':(3,1),'blacksmith_f':(19,1),'alchemist_m':(7,5)}
+CARD_WEAPON_NAMES=dict(zip(CARD_HEROES,(
+ 'Katana','Sword','Hunter Bow','Arbalest','Violin','Rope','Arc Wand','Book',
+ 'Jur','Haedonggum','Composite Bow','Club','Waghnakh','Battle Axe','Axe','Axe')))
 MONSTERS={'melee':('Zombie',1015),'ranged':('Archer Skeleton',1016),'tank':('Willow',1010),'fast':('Poring',1002),
           'elite':('Golden Thief Bug',1086),'boss1':('Orc Hero',1087),'boss2':('Baphomet',1039),
           'drops':('Drops',1113),'poporing':('Poporing',1031),'fabre':('Fabre',1007),
@@ -144,7 +173,13 @@ def build(cache:Path,oxipng:Path,only=None):
   cfg=CLASSES[kind];cw,ch=cfg['cell'];ax,ay=cfg['anchor'];rows=cfg['anims']
   sheet=Image.new('RGBA',(cw*8,ch*len(rows)))
   entry={'id':name,'class':kind,'file':f'sprites/{"heroes" if kind=="hero" else "bosses" if kind=="boss" else "monsters"}/{name}.png',
-         'source':{'job':jobname,'jobId':job,'gender':gender or 'none','head':1 if gender else 0,
+         'source':{'job':jobname,'jobId':job,'gender':gender or 'none',
+                   'head':HERO_APPEARANCE.get(name,(1,0))[0] if gender else 0,
+                   'headPalette':HERO_APPEARANCE.get(name,(1,-1))[1],
+                   'hair':{'style':HERO_APPEARANCE.get(name,(1,-1))[0],
+                           'palette':HERO_APPEARANCE.get(name,(1,-1))[1]},
+                   'weaponItemName':CARD_WEAPON_NAMES.get(name),
+                   'weaponItemView':None,
                    'weaponView':weapon,'shieldView':shield,'itemId':item,'shieldItemId':shielditem,
                    'renderer':'ragassets /image; ACT direction 6; shadow=false; native x1'},
          'hitFrames':{'attack':3,**({'cast':4} if kind=='hero' else {})},
@@ -155,7 +190,8 @@ def build(cache:Path,oxipng:Path,only=None):
    if kind=='hero' and name in ('assassin','archer') and anim=='attack':act=94
    # Assassin/Hunter need variant-2 equipped attack, but cast remains skill=102.
    actual_label='cast' if kind=='hero' and name in ('assassin','archer') and anim=='attack' else anim
-   cached=cache/f'{CACHE_ALIASES.get(name,name)}_{actual_label}_{act}_w{weapon}_s{shield}.png'
+   suffix=f'_h{HERO_APPEARANCE[name][0]}_p{HERO_APPEARANCE[name][1]}' if name in HERO_APPEARANCE else ''
+   cached=cache/f'{CACHE_ALIASES.get(name,name)}_{actual_label}_{act}_w{weapon}_s{shield}{suffix}.png'
    if not cached.is_file():raise FileNotFoundError(cached)
    src=Image.open(cached)
    conf=dict(ANIMS[anim]);conf.update(OVERRIDES.get(kind,{}).get(anim,{}));n=conf['frames']
@@ -187,6 +223,17 @@ def build(cache:Path,oxipng:Path,only=None):
     out=OUT/'portraits'/f'{name}.png';save_lossless(portrait,out,oxipng)
     entry['portrait']=f'sprites/portraits/{name}.png'
   if exception_rows:entry['samplingExceptions']=exception_rows
+  if name in CARD_HEROES:
+   entry['sourceLimitations']={
+    'equipment':'Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.',
+    'itemView':'The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.',
+    'death':'RO action 70 may have fewer distinct poses than four; repeated last pose is retained.'}
+  if name=='swordman_m':
+   entry['sourceLimitations']={
+    'appearance':'Requested hair color 0 rendered red; palette 7 yields dark brown in this renderer.',
+    'walk':'RO renderer omits sword and shield in walk action 14.',
+    'attack':'RO actions 46/86/94 omit the visible held sword and shield in attack frames; native renderer limitation.',
+    'death':'RO action 70 has one source frame; held to fill the v2 death row.'}
   if name=='novice':entry['sourceLimitations']={'cast':'RO action 102 is visually identical to ready/idle','death':'RO action 70 has one source frame; held to fill the v2 death row'}
   if name=='merchant':entry['sourceLimitations']={'walk':'RO renderer omits the axe during walking action 14 despite weaponView 6','death':'RO action 70 has one source frame; held to fill the v2 death row'}
   if name in ('swordman','magician','archer_first','acolyte','thief'):
