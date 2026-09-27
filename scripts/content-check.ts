@@ -58,7 +58,7 @@ if (content) {
   }
   for (const s of Object.values(content.skills)) asset(`навык ${s.id}`, 'icon', s.icon);
   const referenced = new Set([
-    ...Object.values(content.units).flatMap((u) => [u.skills.basic, u.skills.ult, ...u.skills.passives]),
+    ...Object.values(content.units).flatMap((u) => [u.skills.basic, u.skills.ult, ...u.skills.actives, ...u.skills.passives]),
     ...Object.values(content.jobs).flatMap((j) => [j.basic, ...j.skills.map((s) => s.skill)]),
   ]);
   for (const s of Object.values(content.skills)) {

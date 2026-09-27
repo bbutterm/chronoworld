@@ -131,6 +131,8 @@ try {
         await sleep(stage === 10 ? 5000 : 2500);
         await shot(`battle${stage}`);
       }
+      // Затемнение ульты накрывает экран на ~1 с — дождаться, пока оно сойдёт, и только тогда жать «Пропустить».
+      for (let i = 0; i < 20 && (await coveredBy('Battle', 'Пропустить')); i++) await sleep(200);
       if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
       await waitScene('Result');
       await sleep(500);
