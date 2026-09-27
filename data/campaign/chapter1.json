@@ -1,29 +1,29 @@
 {
   "$schema": "../schema/chapter.schema.json",
   "id": "chapter1",
-  "name": "Глава 1. Проклятый лес",
+  "name": "Глава 1. Зелёные луга",
   "order": 1,
   "stages": [
     {
       "id": "ch1_s1",
-      "name": "Опушка",
+      "name": "Луг у деревни",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob_melee",
-          "mult": 1
+          "unit": "mob_fast",
+          "mult": 0.6
+        },
+        {
+          "unit": "mob_fast",
+          "mult": 0.6
         },
         null,
-        {
-          "unit": "mob_ranged",
-          "mult": 1
-        },
         null,
         null
       ],
       "rewards": {
-        "jobExp": 40,
-        "gold": 50
+        "jobExp": 30,
+        "gold": 40
       },
       "offlinePerMinute": {
         "jobExp": 2,
@@ -32,27 +32,27 @@
     },
     {
       "id": "ch1_s2",
-      "name": "Тропа мертвецов",
+      "name": "Тропинка к ручью",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob_melee",
-          "mult": 1
+          "unit": "mob_fast",
+          "mult": 0.7
         },
         {
-          "unit": "mob_melee",
-          "mult": 1
+          "unit": "mob_fast",
+          "mult": 0.7
         },
         {
-          "unit": "mob_ranged",
-          "mult": 1
+          "unit": "mob_fast",
+          "mult": 0.7
         },
         null,
         null
       ],
       "rewards": {
-        "jobExp": 60,
-        "gold": 75
+        "jobExp": 45,
+        "gold": 55
       },
       "offlinePerMinute": {
         "jobExp": 3,
@@ -66,22 +66,22 @@
       "enemies": [
         {
           "unit": "mob_fast",
-          "mult": 1
+          "mult": 0.8
         },
         {
-          "unit": "mob_melee",
-          "mult": 1
+          "unit": "mob_drops",
+          "mult": 0.8
         },
-        null,
         {
           "unit": "mob_fast",
-          "mult": 1
+          "mult": 0.8
         },
+        null,
         null
       ],
       "rewards": {
-        "jobExp": 80,
-        "gold": 100
+        "jobExp": 70,
+        "gold": 70
       },
       "offlinePerMinute": {
         "jobExp": 4,
@@ -90,30 +90,30 @@
     },
     {
       "id": "ch1_s4",
-      "name": "Засада лучников",
+      "name": "Опушка леса",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob_melee",
-          "mult": 1
+          "unit": "mob_drops",
+          "mult": 0.85
+        },
+        {
+          "unit": "mob_fast",
+          "mult": 0.85
+        },
+        {
+          "unit": "mob_poporing",
+          "mult": 0.85
         },
         null,
         {
-          "unit": "mob_ranged",
-          "mult": 1
-        },
-        {
-          "unit": "mob_ranged",
-          "mult": 1
-        },
-        {
-          "unit": "mob_ranged",
-          "mult": 1
+          "unit": "mob_fast",
+          "mult": 0.85
         }
       ],
       "rewards": {
-        "jobExp": 100,
-        "gold": 125
+        "jobExp": 120,
+        "gold": 90
       },
       "offlinePerMinute": {
         "jobExp": 5,
@@ -122,30 +122,27 @@
     },
     {
       "id": "ch1_s5",
-      "name": "Ожившие ивы",
+      "name": "Светлый лес",
       "boss": false,
       "enemies": [
         {
           "unit": "mob_tank",
+          "mult": 0.9
+        },
+        {
+          "unit": "mob_fast",
           "mult": 1
         },
         {
-          "unit": "mob_melee",
-          "mult": 1
-        },
-        {
-          "unit": "mob_ranged",
+          "unit": "mob_drops",
           "mult": 1
         },
         null,
-        {
-          "unit": "mob_ranged",
-          "mult": 1
-        }
+        null
       ],
       "rewards": {
-        "jobExp": 120,
-        "gold": 150
+        "jobExp": 150,
+        "gold": 110
       },
       "offlinePerMinute": {
         "jobExp": 6,
@@ -154,19 +151,19 @@
     },
     {
       "id": "ch1_s6",
-      "name": "Стая порингов",
+      "name": "Ивовая роща",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob_fast",
+          "unit": "mob_tank",
           "mult": 1
         },
         {
-          "unit": "mob_fast",
+          "unit": "mob_tank",
           "mult": 1
         },
         {
-          "unit": "mob_ranged",
+          "unit": "mob_poporing",
           "mult": 1
         },
         {
@@ -176,8 +173,8 @@
         null
       ],
       "rewards": {
-        "jobExp": 140,
-        "gold": 175
+        "jobExp": 180,
+        "gold": 130
       },
       "offlinePerMinute": {
         "jobExp": 7,
@@ -186,11 +183,15 @@
     },
     {
       "id": "ch1_s7",
-      "name": "Щиты и стрелы",
+      "name": "Лесной ручей",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob_tank",
+          "unit": "mob_drops",
+          "mult": 1
+        },
+        {
+          "unit": "mob_poporing",
           "mult": 1
         },
         {
@@ -198,21 +199,17 @@
           "mult": 1
         },
         {
-          "unit": "mob_ranged",
+          "unit": "mob_fast",
           "mult": 1
         },
         {
-          "unit": "mob_ranged",
-          "mult": 1
-        },
-        {
-          "unit": "mob_ranged",
+          "unit": "mob_drops",
           "mult": 1
         }
       ],
       "rewards": {
-        "jobExp": 160,
-        "gold": 200
+        "jobExp": 210,
+        "gold": 150
       },
       "offlinePerMinute": {
         "jobExp": 8,
@@ -221,7 +218,7 @@
     },
     {
       "id": "ch1_s8",
-      "name": "Золотой жук",
+      "name": "Нора жука-вора",
       "boss": false,
       "enemies": [
         {
@@ -229,22 +226,22 @@
           "mult": 1
         },
         {
-          "unit": "mob_melee",
+          "unit": "mob_fast",
           "mult": 1
         },
         {
-          "unit": "mob_ranged",
+          "unit": "mob_drops",
           "mult": 1
         },
         null,
         {
-          "unit": "mob_ranged",
+          "unit": "mob_poporing",
           "mult": 1
         }
       ],
       "rewards": {
-        "jobExp": 180,
-        "gold": 225
+        "jobExp": 240,
+        "gold": 175
       },
       "offlinePerMinute": {
         "jobExp": 9,
@@ -253,7 +250,7 @@
     },
     {
       "id": "ch1_s9",
-      "name": "Предгорье",
+      "name": "Чаща",
       "boss": false,
       "enemies": [
         {
@@ -265,21 +262,21 @@
           "mult": 1
         },
         {
-          "unit": "mob_ranged",
+          "unit": "mob_poporing",
           "mult": 1
         },
         {
-          "unit": "mob_fast",
+          "unit": "mob_drops",
           "mult": 1
         },
         {
-          "unit": "mob_ranged",
+          "unit": "mob_poporing",
           "mult": 1
         }
       ],
       "rewards": {
-        "jobExp": 200,
-        "gold": 250
+        "jobExp": 270,
+        "gold": 200
       },
       "offlinePerMinute": {
         "jobExp": 10,
@@ -288,7 +285,7 @@
     },
     {
       "id": "ch1_s10",
-      "name": "Лагерь героя орков",
+      "name": "Лагерь орков в роще",
       "boss": true,
       "enemies": [
         {
@@ -297,21 +294,21 @@
         },
         {
           "unit": "mob_boss1",
-          "mult": 1
+          "mult": 0.8
         },
         {
-          "unit": "mob_ranged",
+          "unit": "mob_poporing",
           "mult": 1
         },
         null,
         {
-          "unit": "mob_ranged",
+          "unit": "mob_drops",
           "mult": 1
         }
       ],
       "rewards": {
-        "jobExp": 320,
-        "gold": 475
+        "jobExp": 350,
+        "gold": 400
       },
       "offlinePerMinute": {
         "jobExp": 11,

@@ -44,7 +44,12 @@ export const ProgressionConfigSchema = z.object({
   /** Остаются ли навыки прошлых профессий после смены. */
   keepSkillsOnJobChange: z.boolean(),
   /** Опыт до следующего уровня: floor(base × level^power). */
-  exp: z.object({ base: z.number().positive(), power: z.number().positive() }),
+  exp: z.object({
+    base: z.number().positive(),
+    power: z.number().positive(),
+    /** Своя кривая для тира профессии ("0" — Новичок: быстро до первой профессии). */
+    byTier: z.record(z.string(), z.object({ base: z.number().positive(), power: z.number().positive() })).optional(),
+  }),
   heroes: z.object({
     count: z.number().int().positive(),
     startJob: id,

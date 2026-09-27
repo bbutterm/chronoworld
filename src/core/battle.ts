@@ -400,7 +400,10 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const activeTargets = (u: Unit, skill: SkillDef): Unit[] => {
     if (skill.range === 'melee') {
       const e = u.engage;
-      return e?.alive && dist(u, e) <= reach(u, e) + 0.5 ? [e] : [];
+      if (!e?.alive || dist(u, e) > reach(u, e) + 0.5) return [];
+      // Одиночный удар — по цели сражения; удар по площади (pick all, count > 1) — по селектору, когда дошёл.
+      const aoe = skill.target.pick === 'all' || skill.target.count > 1;
+      return aoe ? selectTargets(u, skill.target, allies(u), enemies(u), rng, cfg) : [e];
     }
     return selectTargets(u, skill.target, allies(u), enemies(u), rng, cfg);
   };

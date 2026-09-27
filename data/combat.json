@@ -33,7 +33,7 @@
       "monster": 0,
       "boss": 90
     },
-    "crowdSquash": 0.55
+    "crowdSquash": 0.8
   },
   "slots": {
     "count": 5,

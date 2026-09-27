@@ -9,7 +9,7 @@ import { button, panel, progressBar, text } from '../ui';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
-import { portrait } from '../screen';
+import { portrait, unitTint } from '../screen';
 
 const MAX_EVENT_LINES = 5;
 /** Шаг строки события, минимальная высота строки таблицы, центр строки «Авто: следующий этап». */
@@ -109,7 +109,7 @@ export class ResultScene extends Phaser.Scene {
           if (isMvp) this.add.rectangle(GAME_W / 2, y, 1000, row - 6, TINT.gold, 0.18).setStrokeStyle(3, TINT.gold, 0.9);
           else if (i % 2 === 0) this.add.rectangle(GAME_W / 2, y, 1000, row - 6, TINT.pressed, 0.18);
           const alpha = rep.alive ? 1 : 0.5;
-          portrait(this, 70, y, portraitKey(def?.visual.sprite ?? u.unitId), row - 12).setAlpha(alpha);
+          portrait(this, 70, y, portraitKey(def?.visual.sprite ?? u.unitId), row - 12).setAlpha(alpha).setTint(unitTint(def?.visual));
           if (isMvp) crown(this, 70 + (row - 12) / 2 - 6, y - (row - 12) / 2 + 6, 22);
           const name = text(this, cols[0] - 20, isMvp ? y - 11 : y, def?.name ?? u.unitId, fs, isMvp ? C.title : C.text, {
             fontStyle: isMvp ? 'bold' : 'normal',

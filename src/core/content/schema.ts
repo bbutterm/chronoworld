@@ -98,6 +98,8 @@ export const VisualSchema = z.object({
   projectile: z.string().optional(),
   /** Эффект попадания (id ассета). */
   hitFx: z.string().optional(),
+  /** Перекраска спрайта и портрета ('#rrggbb'): вариант монстра на том же листе (Дропс — оранжевый поринг). */
+  tint: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
 });
 
 export const UnitSchema = z.object({

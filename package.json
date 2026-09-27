@@ -18,7 +18,9 @@
     "assets:report": "tsx scripts/assets-report.ts",
     "check": "npm run content:check && npm run typecheck && npm test",
     "e2e": "node scripts/e2e.mjs",
-    "perf": "node scripts/perf.mjs"
+    "perf": "node scripts/perf.mjs",
+    "e2e:chapter1": "node scripts/e2e-chapter1.mjs",
+    "playthrough": "tsx scripts/playthrough.ts"
   },
   "dependencies": {
     "phaser": "^3.90.0",
@@ -30,5 +32,8 @@
     "typescript": "^7.0.2",
     "vite": "^8.3.1",
     "vitest": "^5.0.2"
+  },
+  "engines": {
+    "node": ">=20.11"
   }
 }

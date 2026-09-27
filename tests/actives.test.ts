@@ -84,6 +84,16 @@ describe('активные навыки: перезарядка, приорит�
     expect(mine.slice(0, firstHeal).every((e) => e.skill === 'shot')).toBe(true);
   });
 
+  it('ближний навык по площади бьёт всех по селектору, а не только цель сражения', () => {
+    const c5 = content(
+      [unitDef('sw', { skills: { basic: 'hit', actives: ['magnum'], passives: [] } }, { hp: 1_000_000 }), dummy],
+      [skill('magnum', { range: 'melee', cooldown: 5, target: { side: 'enemy', pick: 'all' } })],
+    );
+    const r = simulateBattle(c5, ['sw'], ['dummy', 'dummy'], 1);
+    const m = of(r.log, 'attack').find((e) => e.unit === 'A0' && e.skill === 'magnum')!;
+    expect(m.targets).toHaveLength(2);
+  });
+
   it('детерминизм', () => {
     expect(simulateBattle(c, ['sw'], ['dummy'], 5).log).toEqual(simulateBattle(c, ['sw'], ['dummy'], 5).log);
   });

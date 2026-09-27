@@ -197,7 +197,7 @@ export function saveProblems(save: SaveState, ctx: FullContext): string[] {
       continue;
     }
     if (h.jobLevel > job.maxJobLevel) p.push(`герой ${h.id}: jobLevel ${h.jobLevel} > max ${job.maxJobLevel}`);
-    if (h.jobLevel < job.maxJobLevel && h.jobExp >= expToNext(h.jobLevel, ctx.progression)) p.push(`герой ${h.id}: jobExp ${h.jobExp} не превратился в уровень`);
+    if (h.jobLevel < job.maxJobLevel && h.jobExp >= expToNext(h.jobLevel, ctx.progression, job.tier)) p.push(`герой ${h.id}: jobExp ${h.jobExp} не превратился в уровень`);
     if (h.jobLevel >= job.maxJobLevel && h.jobExp !== 0) p.push(`герой ${h.id}: опыт ${h.jobExp} на максимальном уровне`);
     for (const j of h.jobHistory) if (!ctx.content.jobs[j.job]) p.push(`герой ${h.id}: в истории неизвестная профессия ${j.job}`);
   }

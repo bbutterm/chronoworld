@@ -4,7 +4,7 @@ import { heroPower, squadPower, towerFloor, towerStatus, unitPower, withGear } f
 import { GAME } from '../content';
 import { formatNumber, heroSprite, POWER_COLORS, powerTone } from '../flow';
 import { GAME_W } from '../layout';
-import { card, CONTENT_TOP, gemIcon, portrait, screen } from '../screen';
+import { card, CONTENT_TOP, gemIcon, portrait, screen, unitTint } from '../screen';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
 import { button, icon, panel, pressable, text } from '../ui';
@@ -69,7 +69,7 @@ export class TowerScene extends Phaser.Scene {
       text(this, x, y - 138, i < 2 ? 'фронт' : 'тыл', FS.caption, C.dim);
       if (!u) return;
       if (boss) this.add.rectangle(x, y, SLOT_W - 8, 222).setStrokeStyle(6, 0xd64545);
-      portrait(this, x, y - 20, portraitKey(u.visual.sprite), 150);
+      portrait(this, x, y - 20, portraitKey(u.visual.sprite), 150).setTint(unitTint(u.visual));
       text(this, x, y + 80, formatNumber(unitPower(u, GAME)), FS.body, boss ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
       if (boss) text(this, x, y - 95, 'БОСС', FS.small, C.text, { fontStyle: 'bold', backgroundColor: C.labelDanger, padding: { x: 10, y: 2 } });
     });

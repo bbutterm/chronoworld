@@ -4,9 +4,10 @@ import type { ProgressionConfig } from './schema';
 import { getJob } from './stats';
 import type { GameContext, ProgressEvent } from './types';
 
-/** Опыт от уровня level до level + 1: floor(base × level^power). */
-export function expToNext(level: number, cfg: ProgressionConfig): number {
-  return Math.floor(cfg.exp.base * Math.pow(level, cfg.exp.power));
+/** Опыт от уровня level до level + 1: floor(base × level^power); tier — тир профессии (своя кривая из exp.byTier). */
+export function expToNext(level: number, cfg: ProgressionConfig, tier?: number): number {
+  const c = (tier !== undefined && cfg.exp.byTier?.[String(tier)]) || cfg.exp;
+  return Math.max(1, Math.floor(c.base * Math.pow(level, c.power)));
 }
 
 /**
@@ -24,8 +25,8 @@ export function addJobExp(hero: HeroState, amount: number, ctx: GameContext): { 
     return { hero: next, events };
   }
   next.jobExp += Math.floor(amount);
-  while (next.jobLevel < job.maxJobLevel && next.jobExp >= expToNext(next.jobLevel, ctx.progression)) {
-    next.jobExp -= expToNext(next.jobLevel, ctx.progression);
+  while (next.jobLevel < job.maxJobLevel && next.jobExp >= expToNext(next.jobLevel, ctx.progression, job.tier)) {
+    next.jobExp -= expToNext(next.jobLevel, ctx.progression, job.tier);
     next.jobLevel++;
     events.push({ type: 'levelUp', heroId: hero.id, jobLevel: next.jobLevel });
     for (const s of job.skills) {

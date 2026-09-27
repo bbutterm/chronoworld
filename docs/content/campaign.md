@@ -15,17 +15,17 @@ data/progression.json        campaign.enemyStatGrowthPerStage, campaign.replayRe
 {
   "$schema": "../schema/chapter.schema.json",
   "id": "chapter1",
-  "name": "Глава 1. Проклятый лес",
+  "name": "Глава 1. Зелёные луга",
   "order": 1,                                  // порядок глав в кампании
   "stages": [
     {
       "id": "ch1_s1",                          // уникален по всей кампании
-      "name": "Опушка",
+      "name": "Луг у деревни",
       "boss": false,                           // true — босс-этап (нужен юнит kind boss)
       "enemies": [                             // ровно 5 слотов: 0–1 фронт, 2–4 тыл
-        { "unit": "mob_melee", "mult": 1 },    // mult — множитель hp/atk/def (по умолчанию 1)
+        { "unit": "mob_fast", "mult": 0.6 },   // mult — множитель hp/atk/def (по умолчанию 1)
         null,
-        { "unit": "mob_ranged" },
+        { "unit": "mob_drops" },
         null,
         null
       ],
@@ -37,6 +37,16 @@ data/progression.json        campaign.enemyStatGrowthPerStage, campaign.replayRe
 ```
 
 Этапы всех глав склеиваются в одну цепочку по `order`, у каждого этапа есть сквозной номер `globalIndex` (с 0).
+
+## Глава 1 «Зелёные луга» — стартовая
+
+Луг и светлый лес: поринги (`mob_fast`), Дропс (`mob_drops`, оранжевый) и Попоринг (`mob_poporing`, зелёный, ядовитая слизь) —
+варианты порингов на одном листе через `visual.tint`; дальше Ожившая ива, Золотой жук-вор, босс — Герой орков.
+Этапы 1–4 — пять Новичков; Новичку опыт считается своей кривой (`progression.exp.byTier["0"]`), так что к концу этапа 4
+все герои на джобе 10 и выбирают первую профессию (Герои → карточка → «Сменить профессию»). Этапы 5–10 — первые профессии.
+
+Проверка, что глава проходится с нуля: `npx tsx scripts/playthrough.ts` (ядро, по этапам: попытки, уровни, смена профессии),
+`node scripts/e2e-chapter1.mjs` (то же через интерфейс в браузере), тест `tests/chapter1-playthrough.test.ts`.
 
 ## Открытие этапов и награды
 

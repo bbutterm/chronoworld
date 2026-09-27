@@ -28,6 +28,7 @@ import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state'
 import { DEPTH, FloatLayer, UltPresenter } from '../battleFx';
 import { button, panel, text } from '../ui';
 import { ease, Scheduler } from '../perf';
+import { unitTint } from '../screen';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -235,7 +236,7 @@ export class BattleScene extends Phaser.Scene {
     const spriteId = def.visual.sprite;
     const look = spriteView(this, spriteId);
     const sprite = this.add.sprite(0, 0, look.key, 0).setOrigin(look.originX, look.originY);
-    sprite.setScale(look.size / sprite.frame.height).setFlipX(snap.side === 'B' && look.art);
+    sprite.setScale(look.size / sprite.frame.height).setFlipX(snap.side === 'B' && look.art).setTint(unitTint(def.visual));
     sprite.anims.timeScale = playback.speed;
 
     const ox = snap.side === 'A' ? -UI_SHIFT : UI_SHIFT;
@@ -333,7 +334,7 @@ export class BattleScene extends Phaser.Scene {
       v.tintLeft -= dt;
       if (v.tintLeft <= 0) {
         v.tintLeft = 0;
-        v.sprite.clearTint();
+        v.sprite.setTint(unitTint(v.def.visual));
       }
     }
     if (v.trailT < 0) return;

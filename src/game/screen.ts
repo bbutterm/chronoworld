@@ -179,3 +179,8 @@ export function portrait(scene: Phaser.Scene, x: number, y: number, key: string,
   lazyPortrait(scene, key, img, fit);
   return fit();
 }
+
+/** Цвет перекраски юнита (visual.tint) для setTint; нет — белый (без перекраски). */
+export function unitTint(visual: { tint?: string } | undefined): number {
+  return visual?.tint ? Phaser.Display.Color.HexStringToColor(visual.tint).color : 0xffffff;
+}

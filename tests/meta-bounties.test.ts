@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  addJobExp,
   bountyName,
   bountyStatus,
   busyHeroes,
@@ -151,9 +152,10 @@ describe('K9 доска поручений', () => {
     expect(r.save.currency.gems).toBe(s.currency.gems + 3);
     expect(r.save.bounties.active).toEqual([]);
     expect(busyHeroes(r.save)).toEqual([]);
-    const exp = (save: SaveState, id: string) => save.heroes.find((h) => h.id === id)!.jobExp;
-    expect(exp(r.save, 'h1')).toBe(exp(s, 'h1') + 20);
-    expect(exp(r.save, 'h3')).toBe(exp(s, 'h3'));
+    const hero = (save: SaveState, id: string) => save.heroes.find((h) => h.id === id)!;
+    // Опыт начислен через addJobExp (у Новичка 20 опыта — уже несколько уровней).
+    expect(hero(r.save, 'h1')).toEqual(addJobExp(hero(s, 'h1'), 20, ctx).hero);
+    expect(hero(r.save, 'h3')).toEqual(hero(s, 'h3'));
     expect(r.save.achievements.counters.bounties_done).toBe(1);
     expect(r.events[0]).toEqual({ type: 'bountyDone', bountyId: 'b1', heroIds: ['h1', 'h2'] });
     expect(r.events).toContainEqual({ type: 'gems', amount: 3 });

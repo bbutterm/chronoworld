@@ -67,7 +67,7 @@ export class HeroesScene extends Phaser.Scene {
 
     const max = job?.maxJobLevel ?? hero.jobLevel;
     const atMax = hero.jobLevel >= max;
-    const need = expToNext(hero.jobLevel, GAME.progression);
+    const need = expToNext(hero.jobLevel, GAME.progression, CONTENT.jobs[hero.job]?.tier);
     a.add(text(this, x, y + 45, `Джоб ${hero.jobLevel} / ${max}`, FS.body, C.text).setOrigin(0, 0.5));
     a.add(progressBar(this, x + 230, y + 45, 400, 32, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success));
     a.add(text(this, x + 430, y + 45, atMax ? 'макс.' : `${hero.jobExp} / ${need}`, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4 }));

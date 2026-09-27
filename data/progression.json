@@ -1,12 +1,59 @@
 {
   "$comment": "Правила прогрессии. Все числа — заглушки до баланса (docs/GDD.md, раздел 8).",
-  "jobChange": { "tierLevel": { "1": 10, "2": 50 }, "resetJobLevel": true },
+  "jobChange": {
+    "tierLevel": {
+      "1": 10,
+      "2": 50
+    },
+    "resetJobLevel": true
+  },
   "keepSkillsOnJobChange": true,
-  "exp": { "base": 100, "power": 1.5 },
-  "heroes": { "count": 5, "startJob": "novice", "names": ["Алан", "Бэлла", "Вик", "Грета", "Дорн"] },
-  "campaign": { "enemyStatGrowthPerStage": 0.08, "replayRewardMultiplier": 0.5 },
-  "offline": { "capHours": 12 },
-  "newGame": { "gold": 0 },
-  "fastRewards": { "hours": 2, "freePerDay": 1, "gemCosts": [50, 80, 100] },
-  "power": { "hp": 0.1, "atk": 2, "def": 1.5, "spd": 0.5, "perActive": 50, "perPassive": 30 }
+  "exp": {
+    "base": 100,
+    "power": 1.5,
+    "byTier": {
+      "0": {
+        "base": 4,
+        "power": 1.2
+      }
+    }
+  },
+  "heroes": {
+    "count": 5,
+    "startJob": "novice",
+    "names": [
+      "Алан",
+      "Бэлла",
+      "Вик",
+      "Грета",
+      "Дорн"
+    ]
+  },
+  "campaign": {
+    "enemyStatGrowthPerStage": 0.08,
+    "replayRewardMultiplier": 0.5
+  },
+  "offline": {
+    "capHours": 12
+  },
+  "newGame": {
+    "gold": 0
+  },
+  "fastRewards": {
+    "hours": 2,
+    "freePerDay": 1,
+    "gemCosts": [
+      50,
+      80,
+      100
+    ]
+  },
+  "power": {
+    "hp": 0.1,
+    "atk": 2,
+    "def": 1.5,
+    "spd": 0.5,
+    "perActive": 50,
+    "perPassive": 30
+  }
 }

@@ -3,7 +3,7 @@ import { actSkipStage, autoFormation, enemySquad, getStage, squadPower, stagePow
 import { CONTENT, GAME } from '../content';
 import { formatNumber, POWER_COLORS, powerTone, stageSeed, statsLine } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
-import { card, portrait, screen } from '../screen';
+import { card, portrait, screen, unitTint } from '../screen';
 import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
 import { button, ellipsize, hintPointer, panel, text, toast } from '../ui';
@@ -46,7 +46,7 @@ export class StageScene extends Phaser.Scene {
       panel(this, x, 480, SLOT_W, 290, u ? 'ui_slot_filled' : 'ui_slot_empty');
       text(this, x, 322, i < 2 ? 'фронт' : 'тыл', FS.caption, C.dim);
       if (!u) return;
-      portrait(this, x, 420, portraitKey(u.visual.sprite), 140);
+      portrait(this, x, 420, portraitKey(u.visual.sprite), 140).setTint(unitTint(u.visual));
       // Имя — в одну строку с многоточием: перенос налезал на статы.
       ellipsize(text(this, x, 525, u.name, FS.caption, u.kind === 'boss' ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }), SLOT_W - 16);
       text(this, x, 585, statsLine(u.stats, '\n', ['hp', 'atk']), FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3, lineSpacing: 2 });
