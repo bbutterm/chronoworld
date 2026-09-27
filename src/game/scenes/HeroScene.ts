@@ -9,6 +9,7 @@ import { session } from '../session';
 import { anim, portraitKey, spriteView, whenSprites } from '../sprites';
 import { button, ellipsize, hintPointer, panel, pressable, progressBar, ScrollArea, text } from '../ui';
 import { C, FS, TINT } from '../theme';
+import { skillIcon } from '../skillIcons';
 
 const SKILL_ROW_H = 124;
 
@@ -130,11 +131,10 @@ export class HeroScene extends Phaser.Scene {
     const sk = CONTENT.skills[r.id];
     const locked = r.locked !== undefined;
     const iconSize = Math.min(80, h - 16);
-    if (sk?.icon && this.textures.exists(sk.icon)) {
-      a.add(this.add.image(90, y, sk.icon).setDisplaySize(iconSize, iconSize).setAlpha(locked ? 0.35 : 1));
-    } else {
-      a.add(this.add.rectangle(90, y, iconSize, iconSize, locked ? 0x1a1916 : 0x2b2620).setStrokeStyle(3, locked ? 0x35302a : 0x5c4b31));
-    }
+    // Значок навыка (skillIcons: PNG художника или нарисованный кодом); закрытый — тусклый и серый.
+    const icon = this.add.image(90, y, skillIcon(this, sk)).setDisplaySize(iconSize, iconSize);
+    if (locked) icon.setAlpha(0.4).setTint(0x8a8a8a);
+    a.add(icon);
     const kind = locked ? `откроется на джобе ${r.locked}` : r.kind;
     const kindText = a.add(text(this, 1010, y - h * 0.24, kind, FS.caption, locked ? C.dim : r.kind.startsWith('КД') ? C.gold : C.success).setOrigin(1, 0.5));
     a.add(ellipsize(text(this, 150, y - h * 0.24, `${sk?.name ?? r.id}`, FS.body, locked ? C.disabled : C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), 1010 - 150 - kindText.width - 20));

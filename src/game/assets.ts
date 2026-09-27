@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import manifestJson from '../../assets/manifest.json';
 import { queueAnimatedFx } from './animatedFx';
 import { SKIN_FOR, SKIN_FORCE, SKIN_SLICE } from './skin';
+import { queueSkillIconFiles, skillIconFileKeys } from './skillIcons';
 
 interface AssetEntry {
   /** Путь внутри assets/ или null — тогда рисуется плейсхолдер. */
@@ -36,6 +37,8 @@ export function queueAssets(scene: Phaser.Scene): void {
     else scene.load.image(id, a.file);
   }
   queueAnimatedFx((key, file, width, height) => scene.load.spritesheet(key, file, { frameWidth: width, frameHeight: height }));
+  // Значки навыков от художника (assets/ui/icons/skill_<id>.png), если есть; остальные рисует skillIcons.
+  queueSkillIconFiles(scene);
 }
 
 /** После загрузки: фильтр для пиксель-арта. */
@@ -46,6 +49,8 @@ export function setupLoadedAssets(scene: Phaser.Scene): void {
   queueAnimatedFx((key) => {
     if (scene.textures.exists(key)) scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
   });
+  // Иконки навыков RO — пиксель-арт.
+  for (const key of skillIconFileKeys()) if (scene.textures.exists(key)) scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 }
 
 /** Есть ли id в манифесте ассетов (для проверки ссылок из контента). */

@@ -10,6 +10,7 @@ import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
 import { portrait, unitTint } from '../screen';
+import { skillIcon } from '../skillIcons';
 import { playStory, startStageBattle } from '../dialogue';
 
 const MAX_EVENT_LINES = 5;
@@ -124,7 +125,11 @@ export class ResultScene extends Phaser.Scene {
           text(this, cols[1], y - 2, formatNumber(rep.damageDealt), fs, dim(rep.damageDealt, isMvp ? C.gold : C.text), { fontStyle: isMvp ? 'bold' : 'normal' });
           text(this, cols[2], y, formatNumber(rep.healingDone), fs, dim(rep.healingDone, C.positive));
           text(this, cols[3], y, formatNumber(rep.shieldGiven), fs, dim(rep.shieldGiven, C.shield));
-          text(this, cols[4], y, String(rep.ults + rep.skills), fs, dim(rep.ults + rep.skills, C.gold));
+          // Главный навык юнита — значком слева от числа применений.
+          const mainSkill = def?.skills.actives[0] ?? def?.skills.ult;
+          const used = rep.ults + rep.skills;
+          if (mainSkill) this.add.image(cols[4] - 34, y, skillIcon(this, GAME.content.skills[mainSkill])).setDisplaySize(Math.min(40, row - 14), Math.min(40, row - 14)).setAlpha(used > 0 ? 1 : 0.45);
+          text(this, mainSkill ? cols[4] + 14 : cols[4], y, String(used), fs, dim(used, C.gold));
           text(this, cols[5], y, rep.alive ? '✓' : '✗', fs, rep.alive ? C.success : C.enemy, { fontStyle: 'bold' });
           y += row;
         });
