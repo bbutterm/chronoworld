@@ -74,39 +74,81 @@ function isFullScreen(o: { x: number; y: number; displayWidth: number; displayHe
   return Math.abs(o.x - GAME_W / 2) < 1 && Math.abs(o.y - GAME_H / 2) < 1 && Math.abs(o.displayWidth - GAME_W) < 1 && Math.abs(o.displayHeight - GAME_H) < 1;
 }
 
+/** Затемнение полей: вертикальный градиент от прозрачного к чёрному (одна маленькая общая текстура). */
+const FADE_TEX = '__bleed_fade';
+/** Насколько темнеет внешний край поля (у самой кромки экрана). */
+const FADE_ALPHA = 0.55;
+
+function fadeTexture(scene: Phaser.Scene): string {
+  if (scene.textures.exists(FADE_TEX)) return FADE_TEX;
+  const t = scene.textures.createCanvas(FADE_TEX, 4, 128);
+  if (!t) return '__WHITE';
+  const c = t.getContext();
+  const g = c.createLinearGradient(0, 0, 0, 128);
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(1, 'rgba(0,0,0,1)');
+  c.fillStyle = g;
+  c.fillRect(0, 0, 4, 128);
+  t.refresh();
+  return FADE_TEX;
+}
+
 /**
- * Полосы по краям полноэкранной картинки: крайняя строка/столбец текстуры, растянутые на поле.
- * Кладутся сразу над картинкой в списке отображения — всё, что нарисовано позже, остаётся сверху.
+ * Продолжение полноэкранной картинки на поля вытянутых/широких экранов: зеркальное отражение краевой полосы
+ * картинки (трава, камни, небо продолжаются без швов и без растянутых «полос»), углы — отражение углов, поверх —
+ * мягкое затемнение к кромке экрана (тёмный тон темы). Кладётся сразу над картинкой в списке отображения — всё,
+ * что нарисовано позже, остаётся сверху. Повторный вызов (картинке сменили текстуру) заменяет прежние полосы.
  */
 export function bleedImage(scene: Phaser.Scene, img: Phaser.GameObjects.Image): void {
+  const old = img.getData?.('bleed') as Phaser.GameObjects.Image[] | undefined;
+  old?.forEach((o) => o.destroy());
   const f = img.frame;
   const tex = f.texture;
-  const edge = 2;
-  const strip = (name: string, sx: number, sy: number, sw: number, sh: number, x: number, y: number, w: number, h: number) => {
-    const key = `bleed:${f.name}:${name}`;
+  const fw = f.cutWidth;
+  const fh = f.cutHeight;
+  // Сколько пикселей источника уходит на поле (картинка растянута на GAME_W×GAME_H).
+  const sh = Math.min(fh, Math.max(1, Math.round((BLEED_Y * fh) / GAME_H)));
+  const sw = Math.min(fw, Math.max(1, Math.round((BLEED_X * fw) / GAME_W)));
+  const parts: Phaser.GameObjects.Image[] = [];
+  const list = scene.children;
+  const put = (s: Phaser.GameObjects.Image, alpha: number) => {
+    s.setAlpha(alpha).setDepth(img.depth).setScrollFactor(img.scrollFactorX, img.scrollFactorY);
+    list.moveTo(s, list.getIndex(img) + 1 + parts.length);
+    parts.push(s);
+  };
+  const mirror = (name: string, sx: number, sy: number, w: number, h: number, x: number, y: number, dw: number, dh: number, flipX: boolean, flipY: boolean) => {
+    const key = `bleed:${f.name}:${name}:${w}x${h}`;
     if (!tex.has(key)) {
       // Новый кадр в текстуре с одним __BASE стал бы её кадром по умолчанию — возвращаем прежний.
       const first = tex.firstFrame;
-      tex.add(key, f.sourceIndex, f.cutX + sx, f.cutY + sy, sw, sh);
+      tex.add(key, f.sourceIndex, f.cutX + sx, f.cutY + sy, w, h);
       tex.firstFrame = first;
     }
-    const s = scene.add
-      .image(x, y, tex.key, key)
-      .setDisplaySize(w, h)
-      .setAlpha(img.alpha)
-      .setDepth(img.depth)
-      .setScrollFactor(img.scrollFactorX, img.scrollFactorY);
+    const s = scene.add.image(x, y, tex.key, key).setDisplaySize(dw + 1, dh + 1).setFlip(flipX, flipY);
     if (img.isTinted) s.setTint(img.tintTopLeft);
-    const list = scene.children;
-    list.moveTo(s, list.getIndex(img) + 1);
+    put(s, img.alpha);
   };
-  const fw = f.cutWidth;
-  const fh = f.cutHeight;
+  const L = -BLEED_X / 2;
+  const R = GAME_W + BLEED_X / 2;
+  const T = -BLEED_Y / 2;
+  const B = GAME_H + BLEED_Y / 2;
+  mirror('t', 0, 0, fw, sh, GAME_W / 2, T, GAME_W, BLEED_Y, false, true);
+  mirror('b', 0, fh - sh, fw, sh, GAME_W / 2, B, GAME_W, BLEED_Y, false, true);
+  mirror('l', 0, 0, sw, fh, L, GAME_H / 2, BLEED_X, GAME_H, true, false);
+  mirror('r', fw - sw, 0, sw, fh, R, GAME_H / 2, BLEED_X, GAME_H, true, false);
+  mirror('tl', 0, 0, sw, sh, L, T, BLEED_X, BLEED_Y, true, true);
+  mirror('tr', fw - sw, 0, sw, sh, R, T, BLEED_X, BLEED_Y, true, true);
+  mirror('bl', 0, fh - sh, sw, sh, L, B, BLEED_X, BLEED_Y, true, true);
+  mirror('br', fw - sw, fh - sh, sw, sh, R, B, BLEED_X, BLEED_Y, true, true);
+  // Затемнение к кромке: сверху и снизу — на всю ширину с углами, слева и справа — повёрнутый градиент.
+  const fade = fadeTexture(scene);
   const W = GAME_W + 2 * BLEED_X;
-  strip('t', 0, 0, fw, edge, GAME_W / 2, -BLEED_Y / 2, W, BLEED_Y + 1);
-  strip('b', 0, fh - edge, fw, edge, GAME_W / 2, GAME_H + BLEED_Y / 2, W, BLEED_Y + 1);
-  strip('l', 0, 0, edge, fh, -BLEED_X / 2, GAME_H / 2, BLEED_X + 1, GAME_H);
-  strip('r', fw - edge, 0, edge, fh, GAME_W + BLEED_X / 2, GAME_H / 2, BLEED_X + 1, GAME_H);
+  const a = img.alpha * FADE_ALPHA;
+  put(scene.add.image(GAME_W / 2, T, fade).setDisplaySize(W, BLEED_Y + 1).setFlipY(true), a);
+  put(scene.add.image(GAME_W / 2, B, fade).setDisplaySize(W, BLEED_Y + 1), a);
+  put(scene.add.image(L, GAME_H / 2, fade).setAngle(90).setDisplaySize(GAME_H, BLEED_X + 1), a);
+  put(scene.add.image(R, GAME_H / 2, fade).setAngle(-90).setDisplaySize(GAME_H, BLEED_X + 1), a);
+  img.setData('bleed', parts);
 }
 
 let installed = false;

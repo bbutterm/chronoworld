@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { GAME_H, GAME_W } from './layout';
 import { clamp01, ease, Pool } from './perf';
 import type { Area, Projectile } from './skillLook';
+import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey } from './animatedFx';
+import { motion } from './state';
 
 /**
  * Эффекты навыков в бою, нарисованные кодом: круг каста под кастером, свечение, снаряды со шлейфом,
@@ -23,7 +25,20 @@ const TEX = {
   bolt: 'sfx_bolt',
   arrow: 'sfx_arrow',
   rock: 'sfx_rock',
+  flame: 'sfx_flame',
+  cross: 'sfx_cross',
 } as const;
+
+/** Огненная стрела (RO Fire Bolt): стрелы падают сверху наискосок на цель одна за другой, каждая — взрыв огня. */
+export const FIRE_BOLT_MS = 300;
+export const FIRE_BOLT_STEP = 150;
+/** Цвета огня: ядро, пламя, угли. */
+const FIRE_CORE = 0xffe070;
+const FIRE_MAIN = 0xff8a20;
+const FIRE_DEEP = 0xff3c0c;
+/** Лечение: столб света и искры (бело-зелёные). */
+const HEAL_LIGHT = 0xd6ffd8;
+const HEAL_MAIN = 0x7dff8f;
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -134,6 +149,46 @@ export function buildSkillFxTextures(scene: Phaser.Scene): void {
     c.fillStyle = 'rgba(255,255,255,0.8)';
     c.beginPath(); c.moveTo(14, 8); c.lineTo(0, 1); c.lineTo(6, 8); c.lineTo(0, 15); c.closePath(); c.fill();
   });
+  // Пламя огненной стрелы — цветное (не красится): голова справа (белое ядро → жёлтый → оранжевый), хвост влево — красный.
+  canvasTex(scene, TEX.flame, 192, 64, (c) => {
+    const tail = c.createLinearGradient(0, 0, 170, 0);
+    tail.addColorStop(0, 'rgba(255,40,0,0)');
+    tail.addColorStop(0.45, 'rgba(255,70,10,0.55)');
+    tail.addColorStop(0.8, 'rgba(255,150,30,0.9)');
+    tail.addColorStop(1, 'rgba(255,210,80,1)');
+    c.fillStyle = tail;
+    c.shadowColor = '#ff6a10';
+    c.shadowBlur = 10;
+    // Хвост — вытянутая капля, сужается к концу; два языка пламени по краям.
+    c.beginPath();
+    c.moveTo(4, 32);
+    c.quadraticCurveTo(60, 14, 150, 13);
+    c.quadraticCurveTo(186, 32, 150, 51);
+    c.quadraticCurveTo(60, 50, 4, 32);
+    c.fill();
+    c.beginPath();
+    c.moveTo(30, 20); c.quadraticCurveTo(90, 8, 140, 20); c.quadraticCurveTo(90, 18, 30, 20);
+    c.moveTo(30, 44); c.quadraticCurveTo(90, 56, 140, 44); c.quadraticCurveTo(90, 46, 30, 44);
+    c.fill();
+    c.shadowBlur = 0;
+    c.globalCompositeOperation = 'lighter';
+    const head = c.createRadialGradient(152, 32, 0, 152, 32, 30);
+    head.addColorStop(0, 'rgba(255,255,255,1)');
+    head.addColorStop(0.3, 'rgba(255,245,170,1)');
+    head.addColorStop(0.65, 'rgba(255,170,40,0.85)');
+    head.addColorStop(1, 'rgba(255,90,10,0)');
+    c.fillStyle = head;
+    c.fillRect(110, 0, 82, 64);
+    c.globalCompositeOperation = 'source-over';
+  });
+  // Крестик лечения со свечением (белый, красится).
+  canvasTex(scene, TEX.cross, 32, 32, (c) => {
+    c.shadowColor = '#ffffff';
+    c.shadowBlur = 6;
+    c.fillStyle = '#ffffff';
+    c.fillRect(13, 4, 6, 24);
+    c.fillRect(4, 13, 24, 6);
+  });
   canvasTex(scene, TEX.rock, 48, 64, (c) => {
     const g = c.createLinearGradient(0, 0, 48, 0);
     g.addColorStop(0, '#ffffff');
@@ -228,6 +283,8 @@ export class SkillFx {
   private readonly sparks: Phaser.GameObjects.Particles.ParticleEmitter;
   private readonly motes: Phaser.GameObjects.Particles.ParticleEmitter;
   private readonly trail: Phaser.GameObjects.Particles.ParticleEmitter;
+  /** Крестики лечения, поднимающиеся вокруг цели. */
+  private readonly crosses: Phaser.GameObjects.Particles.ParticleEmitter;
   private readonly flashRect: Phaser.GameObjects.Rectangle;
 
   constructor(private readonly scene: Phaser.Scene) {
@@ -243,12 +300,15 @@ export class SkillFx {
     this.trail = scene.add
       .particles(0, 0, TEX.glow, { ...common, lifespan: 320, speed: { min: 0, max: 30 }, scale: { start: 0.7, end: 0 }, alpha: { start: 0.9, end: 0 }, maxParticles: 200 })
       .setDepth(SFX_DEPTH);
+    this.crosses = scene.add
+      .particles(0, 0, TEX.cross, { ...common, lifespan: { min: 800, max: 1200 }, speedY: { min: -150, max: -70 }, speedX: { min: -12, max: 12 }, scale: { start: 0.9, end: 0.3 }, alpha: { start: 1, end: 0 }, maxParticles: 60 })
+      .setDepth(SFX_DEPTH + 1);
     this.flashRect = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0xffffff, 1).setAlpha(0).setDepth(SFX_DEPTH + 5).setBlendMode(Phaser.BlendModes.ADD);
   }
 
   /** Скорость боя для частиц (живут по своему времени). */
   setSpeed(speed: number): void {
-    for (const e of [this.sparks, this.motes, this.trail]) e.timeScale = speed;
+    for (const e of [this.sparks, this.motes, this.trail, this.crosses]) e.timeScale = speed;
   }
 
   get activeCount(): number {
@@ -267,7 +327,7 @@ export class SkillFx {
   cancel(): void {
     for (const r of this.live) if (r.obj) this.images.release(r.obj);
     this.live.length = 0;
-    for (const e of [this.sparks, this.motes, this.trail]) e.killAll();
+    for (const e of [this.sparks, this.motes, this.trail, this.crosses]) e.killAll();
     this.flashRect.setAlpha(0);
   }
 
@@ -344,6 +404,26 @@ export class SkillFx {
     this.scene.cameras.main.shake(ms, intensity);
   }
 
+  /**
+   * Анимированный эффект RO (assets/effects, animatedFx.ts) из пула картинок: кадры по времени боя, ширина width,
+   * якорь листа — в точке (x, y), с оттенком. false — лист ещё не загружен (грузится лениво), рисуем без него.
+   */
+  animated(id: string, x: number, y: number, width: number, tint: number, delay = 0, alpha = 1, depth = SFX_DEPTH + 1): boolean {
+    const eff = animatedEffect(id);
+    const key = animatedFxKey(id);
+    if (!eff || !this.scene.textures.exists(key)) return false;
+    const o = this.img(key, x, y, tint, depth);
+    o.setFrame(0).setOrigin(eff.anchor[0] / eff.cell[0], eff.anchor[1] / eff.cell[1]);
+    o.setDisplaySize(width, (width * eff.cell[1]) / eff.cell[0]).setAlpha(alpha);
+    const dur = animatedFxDuration(eff);
+    this.run(o, dur, (p, im) => {
+      const f = animatedFrameAt(eff, p * dur);
+      im!.setVisible(f >= 0);
+      if (f >= 0) im!.setFrame(f);
+    }, delay);
+    return true;
+  }
+
   // ---------- удар ----------
 
   /** Попадание навыка: кольцо, свечение и искры в цвет стихии. big — крупнее. */
@@ -353,6 +433,60 @@ export class SkillFx {
     this.glow(p.x, p.y, 0xffffff, 0.5 * k, 1.6 * k, 180);
     this.glow(p.x, p.y, tint, 0.3 * k, 1.5 * k, 380, 0, 0.9, TEX.ring);
     this.burst(p.x, p.y, tint, big ? 18 : 12);
+  }
+
+  // ---------- огненная стрела ----------
+
+  /**
+   * Одна огненная стрела (RO Fire Bolt): большое пламя (~150 px) с ярким ядром и шлейфом падает сверху наискосок
+   * на цель (со стороны кастера) за FIRE_BOLT_MS, взрыв огня ~240 px со вспышкой, искрами и углями.
+   * last — последняя стрела залпа: короткая тряска экрана. «Уменьшить анимацию» — без шлейфа, тряски, вспышки и углей.
+   */
+  fireBolt(from: FxPoint, to: FxPoint, index: number, last: boolean, delay: number, onHit: () => void): void {
+    const reduced = motion.reduced;
+    const side = from.x <= to.x ? -1 : 1;
+    const tx = to.x + ((index % 3) - 1) * 22;
+    const ty = to.y + 10 - (index % 2) * 18;
+    const x0 = tx + side * (190 + (index % 2) * 40);
+    const y0 = ty - 620;
+    const angle = Math.atan2(ty - y0, tx - x0);
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const flame = this.img(TEX.flame, x0, y0, 0xffffff, SFX_DEPTH + 2);
+    flame.setOrigin(0.8, 0.5).setRotation(angle).setScale(0.82, 0.95);
+    const halo = this.img(TEX.glow, x0, y0, FIRE_MAIN, SFX_DEPTH + 1);
+    halo.setScale(2.4).setAlpha(0.55);
+    let frame = 0;
+    this.run(halo, FIRE_BOLT_MS, (p, im) => im!.setPosition(x0 + (tx - x0) * p, y0 + (ty - y0) * p), delay);
+    this.run(flame, FIRE_BOLT_MS, (p, im) => {
+      const x = x0 + (tx - x0) * p;
+      const y = y0 + (ty - y0) * p;
+      im!.setPosition(x, y).setScale(0.82 * (0.95 + 0.1 * Math.sin(p * 50)), 0.95);
+      frame++;
+      if (reduced) return;
+      this.trail.setParticleTint(frame % 2 ? FIRE_MAIN : FIRE_DEEP);
+      this.trail.emitParticleAt(x - cos * 60, y - sin * 60, 2);
+      if (frame % 3 === 0) this.burst(x, y, FIRE_CORE, 1);
+    }, delay, () => {
+      this.fireBurst(tx, ty, to.feet, last, reduced);
+      onHit();
+    });
+  }
+
+  /** Взрыв огня в точке попадания: белая вспышка, огненный шар ~240 px, кольцо по земле, искры, угли, лист fx_hit. */
+  private fireBurst(x: number, y: number, feet: number, last: boolean, reduced: boolean): void {
+    this.glow(x, y, FIRE_MAIN, 1, 3.8, 380, 0, 1);
+    this.glow(x, y, FIRE_CORE, 0.6, 2.2, 200, 0, 1);
+    this.glow(x, y, 0xffffff, 0.4, 1.2, 120, 0, 0.9);
+    this.burst(x, y, FIRE_CORE, reduced ? 8 : 18);
+    if (reduced) return;
+    this.glow(x, feet, FIRE_DEEP, 0.4, 2.4, 420, 0, 0.9, TEX.ring, 0.4);
+    this.animated('fx_hit', x, y, 250, 0xffb060, 0, 0.9);
+    this.rise(x, y + 30, FIRE_MAIN, 6, 50);
+    if (last) {
+      this.flash(0xff7a20, 0.1, 180);
+      this.shake(0.006, 160);
+    }
   }
 
   // ---------- снаряды ----------
@@ -533,11 +667,48 @@ export class SkillFx {
 
   // ---------- лечение и баффы ----------
 
-  /** Лечение: зелёные искры поднимаются столбом + мягкое свечение. */
+  /**
+   * Лечение (RO Heal): бело-зелёный столб света от земли через всю фигуру (~350 px, мягкие края), расходящееся
+   * кольцо по земле, поднимающиеся искры и крестики, свечение на теле. «Уменьшить анимацию» — только кольцо,
+   * свечение и несколько искр.
+   */
   heal(p: FxPoint, big = false): void {
-    this.glow(p.x, p.y, 0x7dff8f, 1, big ? 3.6 : 2.6, 520, 0, 0.8);
-    this.rise(p.x, p.feet, 0x9dff9a, big ? 14 : 9, 40);
-    this.rise(p.x, p.feet, 0xffffff, big ? 5 : 3, 30);
+    const k = big ? 1.15 : 1;
+    this.glow(p.x, p.feet, HEAL_MAIN, 0.4, 2.6 * k, 620, 0, 0.95, TEX.ring, 0.35);
+    this.glow(p.x, p.y, HEAL_MAIN, 1, 2.8 * k, 520, 0, 0.6);
+    if (motion.reduced) {
+      this.rise(p.x, p.feet, HEAL_LIGHT, 4, 36);
+      return;
+    }
+    const h = 350 * k;
+    // Столб: широкий зеленоватый и узкое белое ядро (текстура луча мягкая поперёк), растут от земли вверх.
+    for (const [w, tint, a] of [[150 * k, HEAL_MAIN, 0.75], [56 * k, 0xffffff, 0.9]] as const) {
+      const col = this.img(TEX.beam, p.x, p.feet, tint, SFX_DEPTH + 1);
+      col.setOrigin(0, 0.5).setRotation(-Math.PI / 2).setScale(0, w / 32).setAlpha(a);
+      this.run(col, 760, (q, im) => {
+        const up = ease.quadOut(clamp01(q / 0.25));
+        const fade = q < 0.55 ? 1 : 1 - (q - 0.55) / 0.45;
+        im!.setScale((h / 64) * up, (w / 32) * (1 - 0.35 * q)).setAlpha(a * fade);
+      });
+    }
+    this.glow(p.x, p.feet, HEAL_LIGHT, 0.6, 2.2 * k, 500, 0, 0.8, TEX.glow, 0.4);
+    this.rise(p.x, p.feet, 0xb4ffb0, big ? 14 : 10, 60);
+    this.rise(p.x, p.feet - 40, 0xffffff, big ? 6 : 4, 40);
+    this.crosses.setParticleTint(0xe4ffe0);
+    for (let i = 0; i < (big ? 7 : 5); i++) this.crosses.emitParticleAt(p.x + (Math.random() - 0.5) * 130, p.feet - 20 - Math.random() * 160, 1);
+  }
+
+  /** Кастер лечения: короткое святое свечение и круг под ногами. */
+  holyCast(p: FxPoint): void {
+    this.glow(p.x, p.y, 0xfff4c8, 1, 3, 420, 0, 0.7);
+    if (motion.reduced) return;
+    const c = this.img(TEX.circle, p.x, p.feet, HEAL_LIGHT, SFX_DEPTH - 1);
+    c.setScale(0.6, 0.22).setAlpha(0);
+    this.run(c, 560, (q, im) => {
+      const s = 0.6 + 0.55 * ease.quadOut(q);
+      im!.setScale(s, s * 0.36).setAlpha(q < 0.2 ? q / 0.2 : 1 - (q - 0.2) / 0.8).setRotation(q * 1.4);
+    });
+    this.rise(p.x, p.feet, 0xfff4c8, 5, 50);
   }
 
   /** Бафф: столб искр цвета статуса и кольцо под ногами. */
@@ -558,15 +729,20 @@ export class SkillFx {
 
   /** Искры, поднимающиеся с круга каста. */
   castMotes(x: number, feet: number, tint: number): void {
-    this.rise(x, feet, tint, 1, 70);
+    this.rise(x, feet, tint, motion.reduced ? 1 : 2, 110);
   }
 }
+
+/** Размер круга каста под кастером (256 px текстуры × CIRCLE_K ≈ 320 px в поперечнике). */
+const CIRCLE_K = 1.25;
 
 /** Круг под ногами (сжат по вертикали — «лежит» на земле), вращается; свечение-аура за фигурой. */
 export class CastRig {
   private readonly ground: Phaser.GameObjects.Container;
   private readonly outer: Phaser.GameObjects.Image;
   private readonly inner: Phaser.GameObjects.Image;
+  /** Мягкое свечение под кругом: круг читается и на светлой траве. */
+  private readonly glowDisc: Phaser.GameObjects.Image;
   private readonly aura: Phaser.GameObjects.Image;
   private t = 0;
   private moteAcc = 0;
@@ -581,7 +757,8 @@ export class CastRig {
   ) {
     this.outer = scene.add.image(0, 0, TEX.circle).setBlendMode(Phaser.BlendModes.ADD);
     this.inner = scene.add.image(0, 0, TEX.circle).setBlendMode(Phaser.BlendModes.ADD).setScale(0.55);
-    this.ground = scene.add.container(0, 0, [this.outer, this.inner]).setScale(0.95, 0.36).setVisible(false);
+    this.glowDisc = scene.add.image(0, 0, TEX.glow).setBlendMode(Phaser.BlendModes.ADD).setScale(4.2);
+    this.ground = scene.add.container(0, 0, [this.glowDisc, this.outer, this.inner]).setScale(CIRCLE_K, CIRCLE_K * 0.38).setVisible(false);
     this.aura = scene.add.image(0, -bodyH * 0.5, TEX.glow).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(bodyH * 1.3, bodyH * 1.5).setVisible(false);
     // Круг — под спрайтом (индекс 0), аура — тоже за фигурой.
     node.addAt(this.aura, 0);
@@ -594,6 +771,7 @@ export class CastRig {
     this.t = 0;
     this.outer.setTint(tint);
     this.inner.setTint(0xffffff);
+    this.glowDisc.setTint(tint);
     this.aura.setTint(tint);
     this.ground.setVisible(true).setAlpha(0);
     this.aura.setVisible(true).setAlpha(0);
@@ -615,11 +793,14 @@ export class CastRig {
     const pulse = 0.5 + 0.5 * Math.sin(this.t / 110);
     this.ground.setAlpha(fade * (0.75 + 0.25 * pulse));
     const grow = 0.85 + 0.25 * progress;
-    this.ground.setScale(0.95 * grow, 0.36 * grow);
-    this.inner.setAlpha(0.45 + 0.4 * progress);
+    this.ground.setScale(CIRCLE_K * grow, CIRCLE_K * 0.38 * grow);
+    this.inner.setAlpha(0.55 + 0.45 * progress);
+    this.glowDisc.setAlpha(0.35 + 0.3 * progress);
     this.aura.setAlpha(fade * (0.35 + 0.25 * pulse + 0.25 * progress));
     this.moteAcc += dt;
-    if (this.moteAcc > 70) {
+    // Искры поднимаются с круга всё чаще к концу каста (у огня — языки пламени вверх).
+    const every = motion.reduced ? 140 : 60 - 25 * progress;
+    if (this.moteAcc > every) {
       this.moteAcc = 0;
       this.fx.castMotes(this.node.x, this.node.y, this.tint);
     }

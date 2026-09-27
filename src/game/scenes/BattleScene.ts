@@ -6,6 +6,7 @@ import {
   COMBAT,
   enemySquad,
   getStage,
+  orderActives,
   simulateBattle,
   towerFloor,
   withGear,
@@ -31,7 +32,7 @@ import { button, panel, text } from '../ui';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
 import { skillFx } from '../animatedFx';
-import { SkillFx, type CastRig, type FxPoint } from '../skillFx';
+import { FIRE_BOLT_MS, FIRE_BOLT_STEP, SkillFx, type CastRig, type FxPoint } from '../skillFx';
 import { buffColor, ELEMENT_COLORS, lookOf } from '../skillLook';
 import { addThemeBackground, themeOfBattle, type Theme } from '../backdrops';
 import { Ambient, SHADOW_TEX } from '../ambient';
@@ -58,15 +59,24 @@ const HURT_COOLDOWN = 500;
 /** Красная вспышка при попадании, мс на 1x (перед ней HIT_FLASH_MS — белая заливка). */
 const HURT_TINT_MS = 90;
 const HIT_FLASH_MS = 45;
+/** Бело-зелёный отсвет на юните, которого вылечили, мс на 1x. */
+const HEAL_TINT_MS = 220;
 /** Полёт снаряда навыка (огненная стрела, ледяной осколок), мс на 1x, и шаг между снарядами одного навыка. */
 const SKILL_PROJECTILE_MS = 320;
 const SKILL_VOLLEY_STEP = 120;
-/** Значки перезарядки активных навыков под полоской HP героя. */
-const CD_ICON = 36;
-const CD_GAP = 5;
-/** Значки статусов над полоской HP: размер и сколько помещается в ряд над полоской (остальные ждут своей очереди). */
-const STATUS_ICON = 28;
-const STATUS_MAX = 4;
+/**
+ * Значки перезарядки активных навыков под полоской HP героя — спокойно, как в AFK Arena: мелкие, не больше CD_SLOTS
+ * (очередь «что будет готово следующим»: готовые первыми, дальше по времени готовности), пока навык перезаряжается —
+ * полупрозрачный (CD_DIM), готовый — полностью виден и в золотой рамке. Ряд уже полоски HP — не заходит к соседу.
+ */
+const CD_ICON = 26;
+const CD_GAP = 4;
+const CD_SLOTS = 3;
+const CD_DIM = 0.45;
+/** Значки статусов над полоской HP: размер и сколько видно (остальные — счётчиком «+N» справа от значков). */
+const STATUS_ICON = 24;
+const STATUS_MAX = 2;
+const STATUS_GAP = 3;
 /** Имена над юнитами (T2-15, T3-02): мелко, видны первые секунды боя, потом гаснут; касание юнита — показать снова. */
 const NAME_SIZE = 20;
 const NAME_SHOW_S = 3;
@@ -85,15 +95,22 @@ function statusDef(id: string): StatusDef | undefined {
   return statusDefs.get(id);
 }
 
-interface CdIcon {
+/** Перезарядка одного активного навыка героя. */
+interface CdSkill {
   skill: SkillDef;
+  /** Когда готов (время боя, с) и полная перезарядка. */
+  readyAt: number;
+  cd: number;
+  /** Порядок выбора в ядре (приоритет): при равной готовности раньше идёт тот, кого ядро выберет первым. */
+  order: number;
+}
+/** Место под значок перезарядки под полоской HP: какой навык в нём сейчас. */
+interface CdIcon {
   icon: Phaser.GameObjects.Image;
   sweep: Phaser.GameObjects.Graphics;
   x: number;
   y: number;
-  /** Когда готов (время боя, с) и полная перезарядка. */
-  readyAt: number;
-  cd: number;
+  s: CdSkill | null;
   /** Последняя нарисованная доля (чтобы не перерисовывать каждый кадр). */
   shown: number;
 }
@@ -148,9 +165,12 @@ interface UnitView {
   hitPlan: Map<string, number[]>;
   /** Значки статусов над HP (id статуса → картинка). */
   statusIcons: Map<string, Phaser.GameObjects.Image>;
+  /** Счётчик «+N» статусов, не поместившихся в ряд (создаётся при первой надобности). */
+  statusMore?: Phaser.GameObjects.Text;
   statusY: number;
   statusX0: number;
-  /** Перезарядка активных навыков (только у героев игрока). */
+  /** Перезарядка активных навыков (только у героев игрока) и места под значки. */
+  cdSkills: CdSkill[];
   cdIcons: CdIcon[];
   /** Идёт белая вспышка попадания (затем — красный оттенок). */
   flashFill: boolean;
@@ -440,18 +460,23 @@ export class BattleScene extends Phaser.Scene {
     const parts: Phaser.GameObjects.GameObject[] = [shadow, sprite, barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
     // Перезарядка активных навыков героев (как в AFK Arena): значки с круговой «шторкой» под полоской HP.
     const cdIcons: CdIcon[] = [];
+    const cdSkills: CdSkill[] = [];
     if (snap.side === 'A') {
-      const cy = (hasUlt ? 38 : 21) + 6 + CD_ICON / 2;
-      def.skills.actives.forEach((id, i) => {
-        const sk = CONTENT.skills[id];
-        if (!sk) return;
+      const known = def.skills.actives.map((id) => CONTENT.skills[id]).filter((sk): sk is SkillDef => !!sk);
+      orderActives(known).forEach((skill, order) => {
+        skillIcon(this, skill); // текстура значка — заранее, смена навыка в месте потом без рисования
+        cdSkills.push({ skill, readyAt: 0, cd: 0, order });
+      });
+      // Сразу под полоской HP (или энергии) с зазором 4 — в ряд от левого края полоски.
+      const cy = (hasUlt ? 38 : 24) + 4 + CD_ICON / 2;
+      for (let i = 0; i < Math.min(CD_SLOTS, cdSkills.length); i++) {
         const x = ox - BAR_W / 2 + CD_ICON / 2 + i * (CD_ICON + CD_GAP);
-        const icon = this.add.image(x, cy, skillIcon(this, sk)).setDisplaySize(CD_ICON, CD_ICON);
+        const icon = this.add.image(x, cy, '__DEFAULT').setDisplaySize(CD_ICON, CD_ICON);
         const sweep = this.add.graphics();
-        cdIcons.push({ skill: sk, icon, sweep, x, y: cy, readyAt: 0, cd: 0, shown: -1 });
+        cdIcons.push({ icon, sweep, x, y: cy, s: null, shown: -1 });
         bars.push(icon, sweep);
         parts.push(icon, sweep);
-      });
+      }
     }
     const node = this.add.container(snap.x, snap.y, [...parts, castBack, castBar, castLabel]).setDepth(snap.y);
 
@@ -482,8 +507,10 @@ export class BattleScene extends Phaser.Scene {
       nameText: name,
       hitPlan: new Map(),
       statusIcons: new Map(),
-      statusY: 14 - 7 - STATUS_ICON / 2 - 2,
+      // Над подложкой полоски HP (её верх — y 4) с зазором 2.
+      statusY: 4 - 2 - STATUS_ICON / 2,
       statusX0: ox - BAR_W / 2 + STATUS_ICON / 2,
+      cdSkills,
       cdIcons,
       flashFill: false,
       bars,
@@ -501,6 +528,7 @@ export class BattleScene extends Phaser.Scene {
       moveTween: null,
     };
     this.views.set(snap.uid, v);
+    this.assignCooldowns(v);
     // Разовая анимация закончилась — вернуться к стойке/ходьбе. Один слушатель на юнита, а не на каждую атаку.
     sprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
       if (v.alive) this.loop(v, v.moveTween ? 'walk' : v.cast ? 'cast' : 'idle');
@@ -604,6 +632,9 @@ export class BattleScene extends Phaser.Scene {
   private shutdown(): void {
     this.views.clear();
     this.ambient = null;
+    this.bossBar = null;
+    // Сцена-синглтон живёт всю игру: ссылка на уничтоженный текст таймера держала бы его (и canvas) до следующего боя.
+    this.timeText = undefined as unknown as Phaser.GameObjects.Text;
     this.later.clear();
     this.floats?.clear();
     this.sfx?.clear();
@@ -699,10 +730,11 @@ export class BattleScene extends Phaser.Scene {
         this.endCast(v);
         this.redraw(v);
         v.hitPlan.clear();
-        const cdIcon = e.cooldown !== undefined ? v.cdIcons.find((c) => c.skill.id === e.skill) : undefined;
-        if (cdIcon) {
-          cdIcon.readyAt = e.t + (e.cooldown ?? 0);
-          cdIcon.cd = e.cooldown ?? 0;
+        const cd = e.cooldown !== undefined ? v.cdSkills.find((c) => c.skill.id === e.skill) : undefined;
+        if (cd) {
+          cd.readyAt = e.t + (e.cooldown ?? 0);
+          cd.cd = e.cooldown ?? 0;
+          this.assignCooldowns(v);
         }
         if (!animate) return;
         const skill = CONTENT.skills[e.skill];
@@ -814,9 +846,16 @@ export class BattleScene extends Phaser.Scene {
           v.hp = e.hp;
           this.redraw(v, animate);
           if (animate && e.amount > 0) {
-            this.popNumber(v, `+${e.amount}`, '#7dff8f', false, 44);
-            this.fx(v, 'fx_heal', 0.8);
+            // RO Heal: крупное зелёное «+N» с тёмно-зелёной обводкой, столб света (skillFx.heal), лист fx_heal
+            // в рост фигуры и короткий бело-зелёный отсвет на самом юните.
+            this.popNumber(v, `+${e.amount}`, '#8dff9a', false, 54, '#0b3d12');
+            this.fx(v, 'fx_heal', 1.3);
             this.sfx.heal(this.point(v), e.amount >= v.snap.maxHp * 0.15);
+            if (v.tintLeft <= 0) {
+              v.sprite.setTint(0xc8ffcc);
+              v.flashFill = false;
+              v.tintLeft = HEAL_TINT_MS;
+            }
           }
         }, { on: v });
         return;
@@ -1032,7 +1071,7 @@ export class BattleScene extends Phaser.Scene {
    * сдвинуты к тылу юнита и поднимаются ровно до подписи с именем — не заезжая на неё.
    * big — удар ульты: крупнее, золотом, с «хлопком».
    */
-  private popNumber(v: UnitView, value: string, color: string, big = false, size = 40): void {
+  private popNumber(v: UnitView, value: string, color: string, big = false, size = 40, stroke = '#000000'): void {
     const now = this.time.now;
     let slot = v.floatSlots.findIndex((t) => t <= now);
     if (slot < 0) {
@@ -1048,7 +1087,7 @@ export class BattleScene extends Phaser.Scene {
     const x = cx + (v.snap.side === 'A' ? -34 : 34) + rnd(14);
     const y = top + slot * FLOAT_STEP;
     // Пул надписей: не больше MAX_FLOATS на экране, стиль и замер шрифта кэшируются.
-    const t = this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : '#000000', big ? 8 : 6, DEPTH.numbers + slot, FLOAT_RISE, big ? 650 : 450, big, v.snap.uid);
+    const t = this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : stroke, big ? 8 : 6, DEPTH.numbers + slot, FLOAT_RISE, big ? 650 : 450, big, v.snap.uid);
     // У края экрана цифру не обрезаем.
     t.x = clampX(t.x, t.width);
   }
@@ -1101,7 +1140,36 @@ export class BattleScene extends Phaser.Scene {
         if (tv) hits.push(tv);
       } else if (ev.type === 'attack' || ev.type === 'ult' || ev.type === 'turn') break;
     }
+    // Дальний навык по врагам летит снарядом (ядро, T2-10): его удары — в логе через projectileSeconds, а не в тот же
+    // момент. Без этого у огненной стрелы, ледяного осколка и т. п. не находилось целей и рисовалась обычная атака.
+    const flies = skill.range === 'ranged' && skill.target.side === 'enemy' && !skill.effects.some((ef) => ef.type === 'dash');
+    if (!hits.length && flies && t !== undefined && COMBAT.projectileSeconds) {
+      const land = Math.round((t + COMBAT.projectileSeconds) * 100) / 100;
+      for (let i = this.cursor + 1; i < log.length && log[i].t <= land + 1e-9; i++) {
+        const ev = log[i];
+        if (ev.t >= land - 1e-9 && ev.type === 'damage' && ev.source === v.snap.uid && !ev.dot) {
+          const tv = this.views.get(ev.target);
+          if (tv) hits.push(tv);
+        }
+      }
+    }
     const now = this.time.now;
+    // Огненная стрела (RO Fire Bolt): по стреле на удар, падают сверху одна за другой, каждая — взрыв огня.
+    if (/fire_bolt/.test(skill.id) && hits.length) {
+      const from = this.point(v);
+      let last = impact;
+      hits.forEach((tv, i) => {
+        const delay = impact + i * FIRE_BOLT_STEP;
+        this.sfx.fireBolt(from, this.point(tv), i, i === hits.length - 1, delay, () => {});
+        const at = now + delay + FIRE_BOLT_MS;
+        const q = v.hitPlan.get(tv.snap.uid);
+        if (q) q.push(at);
+        else v.hitPlan.set(tv.snap.uid, [at]);
+        last = delay + FIRE_BOLT_MS;
+      });
+      v.impactAt = now + last;
+      return true;
+    }
     if (look.projectile && hits.length) {
       const from = this.point(v);
       let last = impact;
@@ -1145,6 +1213,7 @@ export class BattleScene extends Phaser.Scene {
       const heal = skill.effects.some((e) => e.type === 'heal');
       const p = this.point(v);
       this.sfx.later(impact, () => {
+        if (heal) this.sfx.holyCast(p);
         this.sfx.glow(p.x, p.y, heal ? 0x7dff8f : tint, 1, 3.4, 450, 0, 0.9);
         this.sfx.rise(p.x, p.feet, heal ? 0x9dff9a : tint, 6, 40);
       });
@@ -1171,17 +1240,45 @@ export class BattleScene extends Phaser.Scene {
       v.node.add(img);
       v.statusIcons.set(id, img);
     } else return;
-    // В ряд над полоской помещается STATUS_MAX значков — остальные (самые новые) ждут, пока освободится место.
+    // Видно STATUS_MAX значков — остальные (самые новые) ждут, пока освободится место; их число — «+N» справа.
     let i = 0;
     for (const img of v.statusIcons.values()) {
-      img.setX(v.statusX0 + i * (STATUS_ICON + 2)).setVisible(i < STATUS_MAX);
+      img.setX(v.statusX0 + i * (STATUS_ICON + STATUS_GAP)).setVisible(i < STATUS_MAX);
       i++;
     }
+    const more = v.statusIcons.size - STATUS_MAX;
+    if (more > 0 && !v.statusMore) {
+      v.statusMore = text(this, 0, v.statusY, '', 18, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 }).setOrigin(0, 0.5);
+      v.node.add(v.statusMore);
+    }
+    if (v.statusMore) {
+      v.statusMore.setVisible(more > 0);
+      if (more > 0) v.statusMore.setText(`+${more}`).setX(v.statusX0 + STATUS_MAX * (STATUS_ICON + STATUS_GAP) - STATUS_ICON / 2);
+    }
+  }
+
+  /**
+   * Очередь значков перезарядки: готовые (по приоритету ядра), затем по времени готовности. Пересчёт — только когда
+   * навык применён (готовность других от времени не меняет их порядок), значок в месте меняется без создания объектов.
+   */
+  private assignCooldowns(v: UnitView): void {
+    if (!v.cdIcons.length) return;
+    const now = this.clock;
+    const queue = [...v.cdSkills].sort((a, b) => Math.max(a.readyAt, now) - Math.max(b.readyAt, now) || a.order - b.order);
+    v.cdIcons.forEach((c, i) => {
+      const s = queue[i] ?? null;
+      if (c.s === s) return;
+      c.s = s;
+      c.shown = -1;
+      if (s) c.icon.setTexture(skillIcon(this, s.skill)).setDisplaySize(CD_ICON, CD_ICON);
+    });
   }
 
   /** Круговая «шторка» перезарядки: тёмный сектор по часовой стрелке от 12 часов, у готового — золотая рамка. */
   private drawCooldown(c: CdIcon): void {
-    const left = c.cd > 0 ? Phaser.Math.Clamp((c.readyAt - this.clock) / c.cd, 0, 1) : 0;
+    const s = c.s;
+    if (!s) return;
+    const left = s.cd > 0 ? Phaser.Math.Clamp((s.readyAt - this.clock) / s.cd, 0, 1) : 0;
     const q = Math.ceil(left * 48) / 48;
     if (q === c.shown) return;
     c.shown = q;
@@ -1198,12 +1295,12 @@ export class BattleScene extends Phaser.Scene {
         const k = r / Math.max(Math.abs(cos), Math.abs(sin));
         pts.push(new Phaser.Math.Vector2(c.x + cos * k, c.y + sin * k));
       }
-      g.fillStyle(0x000000, 0.62);
+      g.fillStyle(0x000000, 0.5 * CD_DIM);
       g.fillPoints(pts, true);
-      c.icon.setAlpha(0.8);
+      c.icon.setAlpha(CD_DIM);
     } else {
-      g.lineStyle(2, 0xffd84a, 0.9);
-      g.strokeRoundedRect(c.x - r, c.y - r, CD_ICON, CD_ICON, 6);
+      g.lineStyle(2, 0xffd84a, 0.95);
+      g.strokeRoundedRect(c.x - r - 1, c.y - r - 1, CD_ICON + 2, CD_ICON + 2, 5);
       c.icon.setAlpha(1);
     }
   }

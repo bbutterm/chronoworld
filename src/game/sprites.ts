@@ -113,7 +113,9 @@ function loadSheet(game: Phaser.Game, id: string): Promise<void> {
 
 /** Выгрузить лист: анимации и текстура (портрет остаётся). */
 function unloadSheet(game: Phaser.Game, id: string): void {
-  for (const name of Object.keys(SPRITES[id]?.anims ?? {})) game.anims.remove(animKey(id, name as AnimName));
+  // destroy, а не anims.remove: remove только вынимает анимацию из менеджера, а её слушатели pauseall/resumeall
+  // остаются на нём навсегда (утечка по 2 слушателя на анимацию при каждой выгрузке листа — npm run perf).
+  for (const name of Object.keys(SPRITES[id]?.anims ?? {})) game.anims.get(animKey(id, name as AnimName))?.destroy();
   if (sheetLoaded(game, id)) game.textures.remove(spriteKey(id));
 }
 
