@@ -80,7 +80,14 @@ const coveredBy = (sceneKey, label, last = false) =>
       const i = order.indexOf(top);
       for (const o of order.slice(i + 1)) {
         // Подсказка новичку — рамка вокруг цели, прозрачная в середине: не помеха.
-        if (!o.visible || (o.alpha ?? 1) < 0.5 || !o.getBounds || o.name === 'hint') continue;
+        if (!o.visible || !o.getBounds || o.name === 'hint') continue;
+        // Ульта временно затемняет всю сцену до alpha=0.5, но её Rectangle не ловит ввод
+        // и не скрывает подпись кнопки. Интерактивные шторки диалогов/модалок всё ещё блокируют.
+        if ((o.alpha ?? 1) < 0.9 && !o.input?.enabled) continue;
+        // Контейнер большого спрайта включает прозрачные поля всей atlas-клетки;
+        // без интерактивного потомка на точке клика это не блокирующий слой.
+        if (o.type === 'Container' && !o.input?.enabled &&
+            !o.list?.some((c) => c.input?.enabled && c.getBounds?.().contains(b.centerX, b.centerY))) continue;
         // Фигура-обводка без заливки (кольцо текущего этапа, рамка выделения) не прячет то, что под ней.
         if (o.isFilled === false || o.fillAlpha === 0) continue;
         // Прокручиваемый список виден только в своей полосе (маска): ниже/выше неё он ничего не закрывает.
