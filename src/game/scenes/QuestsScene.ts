@@ -3,10 +3,15 @@ import { actClaimActivity, actClaimQuest, questStatus, type MilestoneRewards, ty
 import { GAME } from '../content';
 import { describeEvents, formatNumber, questDestination, untilReset } from '../flow';
 import { GAME_W } from '../layout';
-import { badge, card, CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
+import { card, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
+import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 import { commit, restartOnNewDay, session, today } from '../session';
-import { button, emptyState, icon, progressBar, ScrollArea, text, toast } from '../ui';
+import { button, emptyState, progressBar, ScrollArea, text, toast } from '../ui';
+import { skinIcon } from '../skin';
 import { C, FS, TINT } from '../theme';
+
+/** Цвет галочки «получено» (как на лестнице Башни). */
+const SKIN_TINT_SUCCESS = 0x9fe0a6;
 
 const BAR_X = 110;
 const BAR_W = 860;
@@ -41,7 +46,7 @@ export class QuestsScene extends Phaser.Scene {
     this.time.addEvent({ delay: 30_000, loop: true, callback: tick });
 
     const barY = top + 200;
-    progressBar(this, BAR_X, barY, BAR_W, 34, st.maxActivity ? st.activity / st.maxActivity : 0, TINT.success);
+    progressBar(this, BAR_X, barY, BAR_W, 34, st.maxActivity ? st.activity / st.maxActivity : 0, TINT.success, { key: 'quests:activity' });
     for (const m of st.milestones) this.milestone(m, BAR_X + (BAR_W * m.points) / Math.max(1, st.maxActivity), barY);
 
     // --- Задания ---
@@ -49,8 +54,9 @@ export class QuestsScene extends Phaser.Scene {
     const listTop = top + 420;
     this.area = new ScrollArea(this, listTop, CONTENT_BOTTOM + 10);
     if (!st.quests.length) this.area.add(emptyState(this, GAME_W / 2, 200, 'На сегодня заданий нет.\nНовые появятся после полуночи.'));
-    st.quests.forEach((q, i) => this.questRow(q, ROW_H * (i + 0.5), ROW_H - ROW_GAP));
+    const rows = st.quests.map((q, i) => collect(this.area.content, () => this.questRow(q, ROW_H * (i + 0.5), ROW_H - ROW_GAP)));
     this.area.setContentHeight(ROW_H * st.quests.length);
+    staggerIn(this, 'Quests', rows);
   }
 
   private milestone(m: MilestoneView, x: number, y: number): void {
@@ -60,14 +66,14 @@ export class QuestsScene extends Phaser.Scene {
     const x0 = Math.min(x, BAR_X + BAR_W - 20);
     if (ready) {
       const glow = this.add.rectangle(x0, y, 128, 128, 0xffd84a, 0.35).setStrokeStyle(6, 0xffd84a);
-      this.tweens.add({ targets: glow, alpha: 0.35, yoyo: true, repeat: -1, duration: 600 });
+      if (juiceOn()) this.tweens.add({ targets: glow, alpha: 0.35, yoyo: true, repeat: -1, duration: 600 });
     }
-    const b = button(this, x0, y, 104, 104, frame, String(m.points), () => this.claimMilestone(m), FS.h3);
+    const b = button(this, x0, y, 104, 104, frame, String(m.points), () => this.claimMilestone(m, { x: x0, y }), FS.h3);
     if (m.claimed) b.label.setColor(C.disabled);
-    if (m.claimed) icon(this, x0 + 36, y - 36, 'iconCheck_bronze', 44);
+    if (m.claimed) this.add.image(x0 + 36, y - 36, skinIcon('check')).setDisplaySize(44, 44).setTint(SKIN_TINT_SUCCESS);
     if (ready) {
-      badge(this, x0 + 42, y - 44, 1);
-      this.tweens.add({ targets: b.container, scale: 1.08, yoyo: true, repeat: -1, duration: 600 });
+      cornerBadge(this, x0, y, 104, 104, 1);
+      pulse(this, b.container, 1.08, 600);
     }
     text(this, x0, y + 95, rewardText(m.rewards), FS.small, m.claimed ? C.disabled : C.text, { stroke: C.stroke, strokeThickness: 4, lineSpacing: 2 });
   }
@@ -83,20 +89,27 @@ export class QuestsScene extends Phaser.Scene {
       align: 'left',
       wordWrap: { width: 640 },
     }).setOrigin(0, 0.5));
-    a.add(progressBar(this, 70, y + h * 0.22, 440, 30, q.progress / q.target, q.done ? TINT.gold : TINT.success));
-    a.add(text(this, 290, y + h * 0.22, `${q.progress} / ${q.target}`, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4 }));
+    a.add(progressBar(this, 70, y + h * 0.22, 440, 30, q.progress / q.target, q.done ? TINT.gold : TINT.success, { key: `quest:${q.id}` }));
+    // На жёлтой (выполнено) полосе — тёмная подпись без обводки (как в достижениях), на зелёной — белая с обводкой.
+    const onGold = q.done;
+    a.add(text(this, 290, y + h * 0.22, `${formatNumber(q.progress)} / ${formatNumber(q.target)}`, FS.caption, onGold ? C.titleStroke : C.text, {
+      fontStyle: 'bold',
+      stroke: onGold ? C.none : C.stroke,
+      strokeThickness: onGold ? 0 : 4,
+    }));
     a.add(text(this, 600, y + h * 0.22, `+${q.points} очк.`, FS.body, dark ? C.inkMuted : C.success, { fontStyle: 'bold' }));
 
     const bx = 880;
     if (q.claimed) {
-      a.add(icon(this, bx - 60, y, 'iconCheck_bronze', 56));
-      a.add(text(this, bx + 20, y, 'Готово', FS.body, C.ink, { fontStyle: 'bold' }));
+      // Галочка из скина (как на лестнице Башни) слева от подписи, без наложения.
+      const done = a.add(text(this, bx + 24, y, 'Готово', FS.body, C.success, { fontStyle: 'bold' }));
+      a.add(this.add.image(done.x - done.width / 2 - 34, y, skinIcon('check')).setDisplaySize(48, 48).setTint(SKIN_TINT_SUCCESS));
     } else if (q.done) {
       const b = button(this, bx, y, 250, 110, 'ui_btn_primary', 'Забрать', a.tap(() => this.claim(q)), FS.h3);
       a.add(b.container);
-      this.tweens.add({ targets: b.container, scale: 1.05, yoyo: true, repeat: -1, duration: 700 });
+      pulse(this, b.container);
     } else {
-      a.add(button(this, bx, y, 250, 110, 'k:buttonLong_beige', 'Перейти', a.tap(() => this.scene.start(questDestination(q.event))), FS.h3).container);
+      a.add(button(this, bx, y, 250, 110, 'ui_btn_secondary', 'Перейти', a.tap(() => this.scene.start(questDestination(q.event))), FS.h3).container);
     }
   }
 
@@ -110,7 +123,7 @@ export class QuestsScene extends Phaser.Scene {
     }
   }
 
-  private claimMilestone(m: MilestoneView): void {
+  private claimMilestone(m: MilestoneView, at: Point): void {
     if (m.claimed) {
       toast(this, 'Эта награда уже получена');
       return;
@@ -120,17 +133,20 @@ export class QuestsScene extends Phaser.Scene {
       return;
     }
     try {
+      const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = actClaimActivity(session.save, today(), m.points, GAME);
       commit(r.save);
-      this.restartWithToast([`Награда за ${m.points} очков: ${rewardText(r.rewards).replace(/\n/g, ', ')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))].join('\n'));
+      queueRewardFly('Quests', at, before);
+      this.restartWithToast([`Награда за ${m.points} очков: ${rewardText(r.rewards).replace(/\n/g, ', ')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))].join('\n'), true);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
   }
 
-  private restartWithToast(message: string): void {
+  /** fly — награда летит в валюту: тост после её полёта. */
+  private restartWithToast(message: string, fly = false): void {
     this.scene.restart();
-    this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, message, C.success, 4000));
+    this.events.once(Phaser.Scenes.Events.CREATE, () => (fly ? afterRewardFly(this, () => toast(this, message, C.success, 4000)) : toast(this, message, C.success, 4000)));
   }
 }
 
@@ -138,7 +154,7 @@ export class QuestsScene extends Phaser.Scene {
 function rewardText(r: MilestoneRewards): string {
   const parts: string[] = [];
   if (r.gold) parts.push(`${formatNumber(r.gold)} зол.`);
-  if (r.gems) parts.push(`${r.gems} гем.`);
+  if (r.gems) parts.push(`${formatNumber(r.gems)} гем.`);
   if (r.jobExp) parts.push(`${formatNumber(r.jobExp)} опыта`);
   return parts.join('\n') || '—';
 }

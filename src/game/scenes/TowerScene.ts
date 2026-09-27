@@ -11,6 +11,7 @@ import { fitName } from '../squadEditor';
 import { button, panel, pressable, text } from '../ui';
 import { SKIN, SKIN_TINT, skinIcon } from '../skin';
 import { C, FS } from '../theme';
+import { collect, staggerIn } from '../juice';
 
 const SLOT_W = 190;
 const slotX = (i: number) => GAME_W / 2 + (i - 2) * (SLOT_W + 12);
@@ -63,26 +64,37 @@ export class TowerScene extends Phaser.Scene {
       stroke: C.stroke,
       strokeThickness: 7,
     });
-    f.enemies.forEach((u, i) => {
-      const x = slotX(i);
-      const y = cy + 235;
-      const boss = u?.kind === 'boss';
-      panel(this, x, y, SLOT_W, 230, u ? 'ui_slot_filled' : 'ui_slot_empty');
-      text(this, x, y - 138, i < 2 ? 'фронт' : 'тыл', FS.caption, C.dim);
-      if (!u) return;
-      if (boss) this.add.rectangle(x, y, SLOT_W - 8, 222).setStrokeStyle(6, 0xd64545);
-      portrait(this, x, y - 38, portraitKey(u.visual.sprite), 116).setTint(unitTint(u.visual));
-      // T3-26: имя врага целиком (две строки при необходимости) и его мощь.
-      fitName(text(this, x, y + 45, u.name, FS.caption, boss ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, lineSpacing: -4 }), SLOT_W - 14);
-      text(this, x, y + 94, formatNumber(unitPower(u, GAME)), FS.small, boss ? C.danger : C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
-      if (boss) text(this, x, y - 95, 'БОСС', FS.small, C.text, { fontStyle: 'bold', backgroundColor: C.labelDanger, padding: { x: 10, y: 2 } });
-    });
+    const slots: Phaser.GameObjects.GameObject[][] = [];
+    f.enemies.forEach((u, i) => slots.push(collect(this.children, () => this.enemySlot(u, i, cy))));
+    staggerIn(this, 'Tower', slots);
+
+    this.floorFooter(f, cy);
+  }
+
+  /** Слот врага следующего этажа: рамка, «фронт/тыл», портрет, имя целиком и мощь. */
+  private enemySlot(u: ReturnType<typeof towerFloor>['enemies'][number], i: number, cy: number): void {
+    const x = slotX(i);
+    const y = cy + 235;
+    const boss = u?.kind === 'boss';
+    panel(this, x, y, SLOT_W, 230, u ? 'ui_slot_filled' : 'ui_slot_empty');
+    text(this, x, y - 138, i < 2 ? 'фронт' : 'тыл', FS.caption, C.dim);
+    if (!u) return;
+    if (boss) this.add.rectangle(x, y, SLOT_W - 8, 222).setStrokeStyle(6, 0xd64545);
+    portrait(this, x, y - 38, portraitKey(u.visual.sprite), 116).setTint(unitTint(u.visual));
+    // T3-26: имя врага целиком (две строки при необходимости) и его мощь.
+    fitName(text(this, x, y + 45, u.name, FS.caption, boss ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, lineSpacing: -4 }), SLOT_W - 14);
+    text(this, x, y + 94, formatNumber(unitPower(u, GAME)), FS.small, boss ? C.danger : C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
+    if (boss) text(this, x, y - 95, 'БОСС', FS.small, C.text, { fontStyle: 'bold', backgroundColor: C.labelDanger, padding: { x: 10, y: 2 } });
+  }
+
+  private floorFooter(f: ReturnType<typeof towerFloor>, cy: number): void {
+    const save = session.save;
 
     // Награда
     const ry = cy + 410;
     const r = f.rewards;
     const parts = [`золото +${formatNumber(r.gold)}`, `опыт +${formatNumber(r.jobExp)} каждому`];
-    const rt = text(this, GAME_W / 2, ry, `Награда: ${parts.join(' · ')}${r.gems ? ` · +${r.gems}` : ''}`, FS.body, C.gold, {
+    const rt = text(this, GAME_W / 2, ry, `Награда: ${parts.join(' · ')}${r.gems ? ` · +${formatNumber(r.gems)}` : ''}`, FS.body, C.gold, {
       fontStyle: 'bold',
       stroke: C.stroke,
       strokeThickness: 5,

@@ -165,7 +165,7 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save
     }
   }
   const gems = events.reduce((sum, e) => sum + (e.type === 'gems' ? e.amount : 0), 0);
-  if (gems > 0) lines.unshift(`Гемы +${gems}`);
+  if (gems > 0) lines.unshift(`Гемы +${formatNumber(gems)}`);
   const jobReady = events.filter((e) => e.type === 'jobChangeAvailable');
   if (jobReady.length) lines.push(`Смена профессии доступна! (${jobReady.map((e) => heroName(e.heroId)).join(', ')})`);
   return lines;
@@ -207,7 +207,7 @@ export function expBankNote(save: SaveState, ctx: GameContext): { text: string; 
 export function expBankLabel(hero: HeroState, ctx: GameContext): { text: string; full: boolean } | null {
   const st = expBankStatus(hero, ctx);
   if (!st.banking) return null;
-  return st.full ? { text: 'запас полон!', full: true } : { text: `в запасе ${st.banked} / ${st.cap}`, full: false };
+  return st.full ? { text: 'запас полон!', full: true } : { text: `в запасе ${formatNumber(st.banked)} / ${formatNumber(st.cap)}`, full: false };
 }
 
 /**
@@ -396,7 +396,7 @@ export function metaRewardsText(r: MetaRewards, jobExpSuffix = ''): string {
   const parts: string[] = [];
   if (r.gold) parts.push(`${formatNumber(r.gold)} зол.`);
   if (r.jobExp) parts.push(`${formatNumber(r.jobExp)} опыта${jobExpSuffix}`);
-  if (r.gems) parts.push(`${r.gems} гем.`);
+  if (r.gems) parts.push(`${formatNumber(r.gems)} гем.`);
   return parts.join(' · ') || '—';
 }
 

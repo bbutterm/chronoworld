@@ -8,6 +8,7 @@ import { button, ellipsize, emptyState, icon, panel, text, toast } from './ui';
 import { hasArt } from './assets';
 import { C, FS, SP, TINT } from './theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
+import { animateCurrency, heartbeat, type CurrencyPill } from './juice';
 
 export type NavTab = 'Campaign' | 'Heroes' | 'Home';
 
@@ -74,7 +75,7 @@ export function screen(
       btn.label.setY(34).setColor(on ? SKIN.goldLight : SKIN.creamDim);
       btn.container.add(scene.add.image(0, -18, skinIcon(NAV_ICON[t.scene])).setDisplaySize(60, 60).setTint(on ? SKIN_TINT.gold : SKIN_TINT.creamDim));
       // R: значок «Герои», когда кто-то может сменить профессию; P10 (T1-08) — или надеть вещь получше.
-      if (t.scene === 'Heroes') badge(scene, w * (i + 1) - 50, GAME_H - NAV_H + 30, heroesBadgeCount(session.save, GAME));
+      if (t.scene === 'Heroes') cornerBadge(scene, bx, by, w - 36, NAV_H - 30, heroesBadgeCount(session.save, GAME));
     });
   }
   for (const w of takeWarnings()) toast(scene, w, C.error, 6000);
@@ -97,26 +98,33 @@ function fitTitle(t: Phaser.GameObjects.Text, maxW: number): void {
 /** Размер кнопки-шестерёнки в шапке (цель нажатия — не меньше TOUCH). */
 const GEAR_SIZE = 100;
 
-/** Золото и гемы в правом углу шапки — друг под другом, чтобы не наезжать на заголовок. Возвращает левый край. */
+/**
+ * Золото и гемы в правом углу шапки — друг под другом, чтобы не наезжать на заголовок. Возвращает левый край.
+ * Каждая «таблетка» — контейнер с центром в её середине: подпрыгивает целиком, когда валюта меняется (juice.ts).
+ */
 function currencyLabels(scene: Phaser.Scene): number {
   const x = GAME_W - 50;
+  const pills: CurrencyPill[] = [];
   // Валюта — «таблетка» из скина: иконка и число, как монеты в референсе.
-  const row = (y: number, value: number, color: string, tint: number, gem: boolean) => {
-    const t = text(scene, x - 18, y, formatNumber(value), FS.h3, color, { fontStyle: 'bold' }).setOrigin(1, 0.5);
+  const row = (y: number, kind: CurrencyPill['kind'], value: number, color: string, tint: number) => {
+    const gem = kind === 'gems';
+    const t = text(scene, 0, 0, formatNumber(value), FS.h3, color, { fontStyle: 'bold' }).setOrigin(1, 0.5);
     const ix = x - 18 - t.width - 34;
     const pillW = x - ix + 34 + 6;
-    panel(scene, x - pillW / 2 + 6, y, pillW, 64, 'k:buttonLong_beige');
-    scene.children.bringToTop(t);
+    const cx = x - pillW / 2 + 6;
     const art = gem ? 'ui_icon_gem' : 'ui_icon_gold';
-    if (hasArt(art)) scene.add.image(ix, y, art).setDisplaySize(46, 46);
-    else if (gem) gemIcon(scene, ix, y, 34);
-    else icon(scene, ix, y, 'iconCircle_beige', 36).setTint(tint);
+    const ico = hasArt(art) ? scene.add.image(ix - cx, 0, art).setDisplaySize(46, 46) : gem ? gemIcon(scene, ix - cx, 0, 34) : icon(scene, ix - cx, 0, 'iconCircle_beige', 36).setTint(tint);
+    t.setPosition(x - 18 - cx, 0);
+    const box = scene.add.container(cx, y, [panel(scene, 0, 0, pillW, 64, 'k:buttonLong_beige'), ico, t]).setName(`pill_${kind}`);
+    pills.push({ kind, value, text: t, box, icon: { x: ix, y } });
     return x - pillW + 6 - 10;
   };
-  return Math.min(
-    row(HEADER_H / 2 - 30, session.save.resources.gold, C.gold, 0xffc83a, false),
-    row(HEADER_H / 2 + 32, session.save.currency.gems, C.gem, 0x6fd8ff, true),
+  const left = Math.min(
+    row(HEADER_H / 2 - 30, 'gold', session.save.resources.gold, C.gold, 0xffc83a),
+    row(HEADER_H / 2 + 32, 'gems', session.save.currency.gems, C.gem, 0x6fd8ff),
   );
+  animateCurrency(scene, pills);
+  return left;
 }
 
 /** Шестерёнка (своей иконки в атласе нет): зубцы, диск и отверстие. size — внешний диаметр. */
@@ -148,12 +156,24 @@ export function gemIcon(scene: Phaser.Scene, x: number, y: number, size: number)
   return scene.add.polygon(x, y, [h * 0.8, 0, h * 1.6, h * 0.8, h * 0.8, h * 2, 0, h * 0.8], 0x6fd8ff).setStrokeStyle(3, 0x1d4a66);
 }
 
-/** Красный кружок с числом (непрочитанные награды). count ≤ 0 — ничего. */
+/**
+ * Красный кружок с числом (готово к получению, есть что сделать). count ≤ 0 — ничего. Больше 99 — «99+».
+ * Один вид везде (навигация, плитки, кнопки): радиус 28, белая обводка, мягкое «сердцебиение» (juice.ts).
+ * Место — через cornerBadge (правый верхний угол цели), чтобы значки стояли одинаково.
+ */
 export function badge(scene: Phaser.Scene, x: number, y: number, count: number): Phaser.GameObjects.Container | null {
   if (count <= 0) return null;
+  const label = count > 99 ? '99+' : String(count);
   const c = scene.add.circle(0, 0, 28, TINT.badge).setStrokeStyle(4, 0xffffff);
-  const t = text(scene, 0, -1, String(count), FS.body, C.text, { fontStyle: 'bold' });
-  return scene.add.container(x, y, [c, t]).setDepth(50);
+  const t = text(scene, 0, -1, label, label.length > 2 ? FS.caption - 6 : FS.body, C.text, { fontStyle: 'bold' });
+  const box = scene.add.container(x, y, [c, t]).setDepth(50).setName('badge');
+  heartbeat(scene, box);
+  return box;
+}
+
+/** Значок в правом верхнем углу прямоугольника (центр cx, cy; размер w×h): на 22 внутрь от правого края, на 16 — от верхнего. */
+export function cornerBadge(scene: Phaser.Scene, cx: number, cy: number, w: number, h: number, count: number): Phaser.GameObjects.Container | null {
+  return badge(scene, cx + w / 2 - 22, cy - h / 2 + 16, count);
 }
 
 /** Карточка-панель с рамкой из атласа. */

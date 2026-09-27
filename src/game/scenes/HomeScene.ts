@@ -5,14 +5,18 @@ import { GAME } from '../content';
 import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, jobChangeReadyCount } from '../flow';
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
 import { GAME_H, GAME_W } from '../layout';
-import { badge, card, confirm, confirmOpen, gemIcon, NAV_H, popIn, screen } from '../screen';
+import { card, confirm, confirmOpen, cornerBadge, gemIcon, NAV_H, popIn, screen } from '../screen';
+import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn } from '../juice';
 import { commit, now, resetProgress, restartOnNewDay, session, today } from '../session';
 import { button, dangerButton, hintPointer, icon, panel, pressable, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT, TITLE_STYLE, TOUCH } from '../theme';
 import { SKIN_TINT, skinIcon } from '../skin';
-import { fps, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed } from '../state';
+import { fps, motion, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed, setReducedMotion } from '../state';
 import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
+
+/** Кнопка быстрых наград (центр по x). */
+const FAST_BTN_X = 840;
 
 /**
  * Раскладка главной (S): сундук, быстрые награды, плитки 2×2, «В кампанию». Между блоками оставлено место,
@@ -55,6 +59,10 @@ export class HomeScene extends Phaser.Scene {
   /** R: показанная подсказка (одна за раз) и её указатель. */
   private hintId: HintId | null = null;
   private hintView: Phaser.GameObjects.Container | null = null;
+  /** Объекты блоков главной (сундук, быстрые награды, ряды плиток) — для «выезда» при первом открытии. */
+  private blocks: Phaser.GameObjects.GameObject[][] = [];
+  /** «Собрать» уже пульсирует (сундук не пуст). */
+  private claimPulsing = false;
 
   constructor() {
     super('Home');
@@ -63,19 +71,25 @@ export class HomeScene extends Phaser.Scene {
   create(): void {
     this.hintId = null;
     this.hintView = null;
+    this.blocks = [];
+    this.claimPulsing = false;
     restartOnNewDay(this);
     screen(this, 'Лагерь героев', 'Home', undefined, { settings: () => this.openSettings() });
-    this.chest();
-    this.fastRewards();
+    this.blocks.push(collect(this.children, () => this.chest()));
+    this.blocks.push(collect(this.children, () => this.fastRewards()));
     this.tiles();
 
     const cur = currentStage(session.save, GAME);
-    button(this, GAME_W / 2, L.campaignY, 780, L.campaignH, 'ui_btn_primary', cur ? `В кампанию · этап ${cur.globalIndex + 1}` : 'В кампанию', () => {
-      markHint('home_campaign');
-      this.scene.start('Campaign');
-    }, FS.h1);
+    const campaign = collect(this.children, () =>
+      button(this, GAME_W / 2, L.campaignY, 780, L.campaignH, 'ui_btn_primary', cur ? `В кампанию · этап ${cur.globalIndex + 1}` : 'В кампанию', () => {
+        markHint('home_campaign');
+        this.scene.start('Campaign');
+      }, FS.h1),
+    );
 
+    // Подсказка строится по настоящим местам кнопок — до «выезда» блоков.
     this.refresh();
+    staggerIn(this, 'Home', [...this.blocks, campaign]);
     // Сундук считаем раз в секунду, а не каждый кадр.
     this.time.addEvent({ delay: 1000, loop: true, callback: () => this.refresh() });
   }
@@ -112,7 +126,13 @@ export class HomeScene extends Phaser.Scene {
           ? 'Сундук пуст — награды\nкопятся каждую минуту'
           : `Накоплено за ${h} ч ${m} мин\nЗолото +${formatNumber(r.gold)}   Опыт +${formatNumber(r.jobExp)} каждому`,
     );
-    this.claimBtn.container.setAlpha(r.gold > 0 || r.jobExp > 0 ? 1 : 0.45);
+    const full = r.gold > 0 || r.jobExp > 0;
+    this.claimBtn.container.setAlpha(full ? 1 : 0.45);
+    // Есть что собрать — кнопка мягко пульсирует (один раз запускаем; пустой сундук бывает только после сбора — это перезапуск).
+    if (full && !this.claimPulsing) {
+      this.claimPulsing = true;
+      pulse(this, this.claimBtn.container);
+    }
     if (this.chestImg) {
       const capMin = GAME.progression.offline.capHours * 60;
       const state = r.gold === 0 && r.jobExp === 0 ? 'empty' : r.minutes >= capMin * 0.9 ? 'full' : 'filling';
@@ -133,8 +153,11 @@ export class HomeScene extends Phaser.Scene {
       toast(this, 'Сундук пока пуст');
       return;
     }
+    const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
     commit(r.save);
     markHint('chest_claim');
+    // Монеты вылетают из сундука и летят в золото в шапке (juice.ts).
+    queueRewardFly('Home', { x: GAME_W / 2, y: L.chestY - 108 }, before, { burst: true });
     this.restartWithToast([`Собрано: золото +${formatNumber(r.rewards.gold)}, опыт +${formatNumber(r.rewards.jobExp)}`, ...describeEvents(r.events, r.save, GAME)]);
   }
 
@@ -203,6 +226,18 @@ export class HomeScene extends Phaser.Scene {
     y += 70;
     layer.add(text(this, cx, y, '30 — меньше нагрев и расход батареи', FS.small, C.muted));
 
+    // «Уменьшить анимацию»: без полёта наград, отсчёта чисел, пульса и «выезда» списков (juice.ts).
+    y += 90;
+    layer.add(text(this, cx - bw / 2, y, 'Уменьшить анимацию', FS.h3, C.text, OUTLINE).setOrigin(0, 0.5));
+    const motionBtn = button(this, cx + bw / 2 - 110, y, 220, TOUCH, 'ui_btn_secondary', motion.reduced ? 'Вкл' : 'Выкл', () => {
+      setReducedMotion(!motion.reduced);
+      motionBtn.setLabel(motion.reduced ? 'Вкл' : 'Выкл');
+    }, FS.h3, { repeat: true });
+    motionBtn.container.setName('reduceMotion');
+    layer.add(motionBtn.container);
+    y += 70;
+    layer.add(text(this, cx, y, 'Без полёта наград, пульса и «выезда» списков', FS.small, C.muted));
+
     y += 110;
     // T3-24/T5-26: тестовый бой — инструмент разработчика (dev-сборка или ?dev=1 в адресе), игроку не показываем.
     if (devTools()) {
@@ -267,8 +302,8 @@ export class HomeScene extends Phaser.Scene {
     const left = st.nextCost === null ? 'На сегодня всё — приходите завтра' : `Осталось сегодня: ${st.usesLeft} (бесплатно: ${st.freeLeft})`;
     text(this, 80, y + 72, left, FS.small, C.muted).setOrigin(0, 0.5);
 
-    const bx = 840;
-    const label = st.nextCost === null ? 'Лимит' : st.nextCost === 0 ? 'Бесплатно' : `${st.nextCost}`;
+    const bx = FAST_BTN_X;
+    const label = st.nextCost === null ? 'Лимит' : st.nextCost === 0 ? 'Бесплатно' : formatNumber(st.nextCost);
     const btn = button(this, bx, L.fastBtnY, 280, 110, st.nextCost === 0 ? 'ui_btn_primary' : 'ui_btn_secondary', label, () => this.useFast(), FS.h3);
     if (st.nextCost !== null && st.nextCost > 0) {
       // Цена: ромб гема + число.
@@ -276,6 +311,8 @@ export class HomeScene extends Phaser.Scene {
       btn.container.add(gemIcon(this, 22 - btn.label.width / 2 - 30, -4, 36));
     }
     if (st.nextCost === null || noIncome) btn.container.setAlpha(0.45);
+    // Бесплатные быстрые награды — готовы к получению: пульс, как у «Собрать».
+    else if (st.nextCost === 0) pulse(this, btn.container);
   }
 
   private useFast(): void {
@@ -291,13 +328,15 @@ export class HomeScene extends Phaser.Scene {
       toast(this, 'Пройдите хотя бы один этап кампании, чтобы получать быстрые награды');
       return;
     }
-    const price = st.nextCost === 0 ? 'Бесплатно.' : `Цена: ${st.nextCost} гемов (у вас ${save.currency.gems}).`;
+    const price = st.nextCost === 0 ? 'Бесплатно.' : `Цена: ${formatNumber(st.nextCost)} гемов (у вас ${formatNumber(save.currency.gems)}).`;
     const q = `Забрать ${GAME.features.fastRewards.hours} ч дохода сразу?\nЗолото +${formatNumber(preview.gold)}, опыт +${formatNumber(preview.jobExp)} каждому.\n${price}`;
     confirm(this, q, 'Забрать', () => {
       try {
+        const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
         const r = actUseFastRewards(session.save, day, GAME);
         commit(r.save);
-        this.restartWithToast([`Быстрые награды: золото +${r.rewards.gold}, опыт +${r.rewards.jobExp}`, ...describeEvents(r.events, r.save, GAME)]);
+        queueRewardFly('Home', { x: FAST_BTN_X, y: L.fastBtnY }, before);
+        this.restartWithToast([`Быстрые награды: золото +${formatNumber(r.rewards.gold)}, опыт +${formatNumber(r.rewards.jobExp)}`, ...describeEvents(r.events, r.save, GAME)]);
       } catch (e) {
         toast(this, e instanceof Error ? e.message : String(e), C.error);
       }
@@ -311,8 +350,30 @@ export class HomeScene extends Phaser.Scene {
     const [y1, y2] = [L.tileY1, L.tileY2];
     const [xl, xr] = [L.tileXL, L.tileXR];
     const qs = questStatus(save, GAME, today());
-    this.tile(xl, y1, 'Задания', `Активность ${qs.activity} / ${qs.maxActivity}`, C.success, () => this.scene.start('Quests'));
-    badge(this, xl + 215, y1 - 67, claimableCount(qs));
+    const row1 = collect(this.children, () => {
+      this.tile(xl, y1, 'Задания', `Активность ${qs.activity} / ${qs.maxActivity}`, C.success, () => this.scene.start('Quests'));
+      this.towerTile(xr, y1);
+    });
+    const row2 = collect(this.children, () => {
+      const done = finishedBounties(save, now());
+      const active = save.bounties.active.length;
+      const bsub = done ? `Готово: ${done} — заберите` : active ? `В работе: ${active}` : 'Отправьте героев';
+      this.tile(xl, y2, 'Поручения', bsub, done ? C.success : C.muted, () => this.scene.start('Bounties'));
+      this.bountiesDone = done;
+
+      const views = achievementStatus(save, GAME);
+      const got = views.filter((a) => a.claimed).length;
+      this.tile(xr, y2, 'Достижения', `Получено ${got} / ${views.length}`, C.info, () => this.scene.start('Achievements', { from: 'Home' }));
+    });
+    this.blocks.push(row1, row2);
+    // Значки — после «выезда» плиток на своих местах (не в группах): в правом верхнем углу, как у вкладки «Герои».
+    cornerBadge(this, xl, y1, L.tileW, L.tileH, claimableCount(qs));
+    cornerBadge(this, xl, y2, L.tileW, L.tileH, this.bountiesDone);
+    cornerBadge(this, xr, y2, L.tileW, L.tileH, claimableAchievements(achievementStatus(save, GAME)));
+  }
+
+  private towerTile(xr: number, y1: number): void {
+    const save = session.save;
 
     const ts = towerStatus(save, GAME);
     if (ts.unlocked) {
@@ -326,20 +387,9 @@ export class HomeScene extends Phaser.Scene {
       const hint = stage ? `Откроется после этапа ${stage.globalIndex + 1}` : 'Пока закрыта';
       const t = this.tile(xr, y1, 'Башня', hint, C.dim, () => toast(this, `Башня испытаний: ${hint.toLowerCase()} кампании`));
       t.setAlpha(0.75);
-      this.add.image(xr + 205, y1 - 50, skinIcon('lock')).setDisplaySize(44, 44).setTint(SKIN_TINT.creamDim);
+      // Закрыта — замок из скина в углу плитки (T1-11/T3-20: не «✖», который читается как «закрыть»).
+      this.add.image(xr + L.tileW / 2 - 40, y1 - L.tileH / 2 + 34, skinIcon('lock')).setDisplaySize(44, 44).setTint(SKIN_TINT.creamDim);
     }
-
-    const done = finishedBounties(save, now());
-    const active = save.bounties.active.length;
-    const bsub = done ? `Готово: ${done} — заберите` : active ? `В работе: ${active}` : 'Отправьте героев';
-    this.tile(xl, y2, 'Поручения', bsub, done ? C.success : C.muted, () => this.scene.start('Bounties'));
-    this.bountiesDone = done;
-    badge(this, xl + 215, y2 - 67, done);
-
-    const views = achievementStatus(save, GAME);
-    const got = views.filter((a) => a.claimed).length;
-    this.tile(xr, y2, 'Достижения', `Получено ${got} / ${views.length}`, C.info, () => this.scene.start('Achievements', { from: 'Home' }));
-    badge(this, xr + 215, y2 - 67, claimableAchievements(views));
   }
 
   private tile(x: number, y: number, title: string, sub: string, subColor: string, onClick: () => void): Phaser.GameObjects.NineSlice {
@@ -352,6 +402,6 @@ export class HomeScene extends Phaser.Scene {
   /** Перезапустить экран и показать тост уже на новом экземпляре сцены. */
   private restartWithToast(lines: string[]): void {
     this.scene.restart();
-    this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, lines.join('\n'), C.success, 5000));
+    this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 5000)));
   }
 }

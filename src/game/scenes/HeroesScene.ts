@@ -3,7 +3,8 @@ import { achievementStatus, availableJobChanges, expToNext, gearUpgrades, heroEq
 import { CONTENT, GAME } from '../content';
 import { claimableAchievements, expBankLabel, firstJobChangeReady, formatNumber, heroSprite, jobChangeReadyCount, jobLevelText, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
-import { badge, card, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
+import { card, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, portrait, screen } from '../screen';
+import { collect, pulse, staggerIn } from '../juice';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
 import { button, ellipsize, emptyState, hintPointer, pressable, progressBar, ScrollArea, text } from '../ui';
@@ -29,7 +30,7 @@ export class HeroesScene extends Phaser.Scene {
     button(this, 480, barY, 300, 100, 'ui_btn_secondary', `Инвентарь${free ? ` (${free})` : ''}`, () => this.scene.start('Inventory', {}), FS.h3);
     // K10: достижения — отсюда и с главной.
     button(this, 810, barY, 330, 100, 'ui_btn_secondary', 'Достижения', () => this.scene.start('Achievements', { from: 'Heroes' }), FS.h3);
-    badge(this, 810 + 150, barY - 42, claimableAchievements(achievementStatus(save, GAME)));
+    cornerBadge(this, 810, barY, 330, 100, claimableAchievements(achievementStatus(save, GAME)));
 
     // Кто-то готов сменить профессию — главное действие экрана наверху, а не только значок на карточке.
     const ready = firstJobChangeReady(save, GAME);
@@ -40,7 +41,7 @@ export class HeroesScene extends Phaser.Scene {
       FS.h3);
       b.container.setName('jobChangeBtn');
       ellipsize(b.label, 940);
-      badge(this, GAME_W / 2 + 480, listTop + 4, jobChangeReadyCount(save, GAME));
+      cornerBadge(this, GAME_W / 2, listTop + 50, 1000, 110, jobChangeReadyCount(save, GAME));
       listTop += 130;
     }
     const gap = 20;
@@ -53,7 +54,7 @@ export class HeroesScene extends Phaser.Scene {
     const fit = (CONTENT_BOTTOM - listTop - gap * (heroes.length - 1)) / heroes.length;
     const h = heroes.length <= 5 ? Math.min(270, fit) : 250;
     const gctx = withGear(GAME, save);
-    heroes.forEach((hero, i) => this.heroCard(hero, h / 2 + i * (h + gap), h, heroPower(hero, gctx)));
+    const rows = heroes.map((hero, i) => collect(this.area.content, () => this.heroCard(hero, h / 2 + i * (h + gap), h, heroPower(hero, gctx))));
     this.area.setContentHeight(heroes.length * (h + gap));
     // T1-08: один раз — подсказка «Наденьте трофеи» на первом герое, которому есть что надеть (смена профессии важнее).
     const gearHero = heroesWithGearUpgrades(save, GAME)[0];
@@ -62,6 +63,8 @@ export class HeroesScene extends Phaser.Scene {
       const cy = listTop + h / 2 + gi * (h + gap);
       if (cy + h / 2 <= CONTENT_BOTTOM) hintPointer(this, GAME_W / 2, cy, 'Наденьте трофеи — откройте героя', 'auto', { w: 1020, h });
     }
+    // «Выезд» карточек — после подсказки: она обходит кнопки по их настоящим местам.
+    staggerIn(this, 'Heroes', rows);
   }
 
   private area!: ScrollArea;
@@ -96,11 +99,14 @@ export class HeroesScene extends Phaser.Scene {
     const bx = x;
     const barW = 990 - x;
     const by = y + 92;
-    a.add(progressBar(this, bx, by, barW, 28, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success));
+    a.add(progressBar(this, bx, by, barW, 36, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success, { key: `hero:${hero.id}:${hero.job}:${hero.jobLevel}` }));
     // T1-02: на максимуме — «опыт копится» (запас), полон — предупреждение.
     const bank = expBankLabel(hero, GAME);
-    const barLabel = atMax ? (bank ? (bank.full ? 'запас опыта полон — смените профессию!' : `максимум · опыт копится (${bank.text})`) : 'максимальный уровень') : `опыт ${formatNumber(hero.jobExp)} / ${formatNumber(need)}`;
-    a.add(text(this, bx + barW / 2, by, barLabel, FS.caption, atMax ? (bank?.full ? '#8a1a0a' : '#2a1c08') : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 }));
+    // T3-20: подпись на жёлтой полосе — тёмная, короткая и целиком внутри полосы (длинная — мельче, потом «…»).
+    const barLabel = atMax ? (bank ? (bank.full ? 'запас опыта полон — смените профессию!' : `максимум · ${bank.text}`) : 'максимальный уровень') : `опыт ${formatNumber(hero.jobExp)} / ${formatNumber(need)}`;
+    const bl = a.add(text(this, bx + barW / 2, by, barLabel, FS.caption, atMax ? (bank?.full ? '#8a1a0a' : '#2a1c08') : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 }));
+    if (bl.width > barW - 24) bl.setFontSize(Math.max(24, Math.floor((FS.caption * (barW - 24)) / bl.width)));
+    ellipsize(bl, barW - 24);
 
     if (canChange) {
       // Золотая плашка «Профессия!» справа от полосы: видно, у кого смена профессии (нажатие — карточка героя).
@@ -110,7 +116,7 @@ export class HeroesScene extends Phaser.Scene {
       pill.fillStyle(TINT.gold, 1).fillRoundedRect(-tw / 2, -22, tw, 44, 22).lineStyle(3, 0x6b4a1a, 1).strokeRoundedRect(-tw / 2, -22, tw, 44, 22);
       const c = this.add.container(990 - tw / 2, y + 45, [pill, tag]);
       a.add(c);
-      this.tweens.add({ targets: c, scale: 1.08, yoyo: true, repeat: -1, duration: 600, ease: 'Sine.easeInOut' });
+      pulse(this, c, 1.08, 600);
     }
   }
 }

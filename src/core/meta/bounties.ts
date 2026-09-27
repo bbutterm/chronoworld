@@ -22,10 +22,18 @@ function boardSeed(seed: number, day: string, refresh: number): number {
   return h;
 }
 
-function pickTemplate(rng: Rng, ctx: MetaContext): BountyTemplate {
+/**
+ * Шаблон поручения: редкость по весам, затем шаблон этой редкости. T3-12: шаблон, уже стоящий на доске (used),
+ * не повторяется, пока в каталоге есть другие, — две одинаковые карточки подряд выглядели как дубль отрисовки.
+ * Веса делятся между редкостями, где ещё есть свободные шаблоны. Случайных чисел тратится столько же (детерминизм по seed).
+ */
+function pickTemplate(rng: Rng, ctx: MetaContext, used: ReadonlySet<string> = new Set()): BountyTemplate {
   const cfg = ctx.meta.bounties;
   // Порядок редкостей — как в JSON; редкости без шаблонов (вес 0) пропускаются.
-  const rarities = Object.entries(cfg.rarities).filter(([r, w]) => w > 0 && cfg.templates.some((t) => t.rarity === r));
+  const withTemplates = Object.entries(cfg.rarities).filter(([r, w]) => w > 0 && cfg.templates.some((t) => t.rarity === r));
+  // Редкости, где остались не выставленные на доску шаблоны; все исчерпаны — снова все (доска больше каталога).
+  const open = withTemplates.filter(([r]) => cfg.templates.some((t) => t.rarity === r && !used.has(t.id)));
+  const rarities = open.length ? open : withTemplates;
   const total = rarities.reduce((s, [, w]) => s + w, 0);
   let x = rng.next() * total;
   let rarity = rarities[rarities.length - 1][0];
@@ -36,15 +44,19 @@ function pickTemplate(rng: Rng, ctx: MetaContext): BountyTemplate {
     }
     x -= w;
   }
-  const pool = cfg.templates.filter((t) => t.rarity === rarity);
+  const all = cfg.templates.filter((t) => t.rarity === rarity);
+  const fresh = all.filter((t) => !used.has(t.id));
+  const pool = fresh.length ? fresh : all;
   return pool[rng.int(pool.length)];
 }
 
 /** Сгенерировать доску (boardSize поручений) — детерминированно по seed, day и номеру обновления. */
 export function generateBoard(day: string, seed: number, refresh: number, ctx: MetaContext): Bounty[] {
   const rng = new Rng(boardSeed(seed, day, refresh));
+  const used = new Set<string>();
   return Array.from({ length: ctx.meta.bounties.boardSize }, (_, i): Bounty => {
-    const t = pickTemplate(rng, ctx);
+    const t = pickTemplate(rng, ctx, used);
+    used.add(t.id);
     return {
       id: `b_${day}_${refresh}_${i + 1}`,
       templateId: t.id,

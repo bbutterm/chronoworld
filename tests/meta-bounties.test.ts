@@ -84,6 +84,20 @@ describe('K9 доска поручений', () => {
     expect(count.rare).toBeGreaterThan(count.epic ?? 0);
   });
 
+  it('T3-12: на доске нет двух одинаковых поручений, пока в каталоге хватает шаблонов', () => {
+    const catalog = ctx.meta.bounties.templates.length;
+    const size = ctx.meta.bounties.boardSize;
+    for (let seed = 0; seed < 300; seed++) {
+      const ids = generateBoard(D1, seed, 0, ctx).map((b) => b.templateId);
+      expect(new Set(ids).size).toBe(Math.min(size, catalog));
+    }
+    // Доска больше каталога — повторы допустимы, но доска полная.
+    const tiny = { ...ctx, meta: { ...ctx.meta, bounties: { ...ctx.meta.bounties, boardSize: catalog + 3 } } };
+    const big = generateBoard(D1, 5, 0, tiny);
+    expect(big).toHaveLength(catalog + 3);
+    expect(new Set(big.map((b) => b.templateId)).size).toBe(catalog);
+  });
+
   it('refreshBoard: ручные обновления ограничены dailyRefreshes, в новый день бесплатно', () => {
     const cfg = { ...bountiesJson, dailyRefreshes: 2 };
     const c2 = withMeta(loadGameContext(), cfg, read('data/achievements.json'));

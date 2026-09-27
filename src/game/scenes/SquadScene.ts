@@ -9,6 +9,7 @@ import { portraitKey } from '../sprites';
 import { SquadEditor } from '../squadEditor';
 import { button, dangerButton, emptyState, panel, text, toast } from '../ui';
 import { C, FS, TOUCH } from '../theme';
+import { bump, countUp } from '../juice';
 
 export interface SquadData {
   /** Куда вернуться («Готово» и «Назад»): экран этапа, башня… */
@@ -27,6 +28,8 @@ export class SquadScene extends Phaser.Scene {
   private editor!: SquadEditor;
   private powerText!: Phaser.GameObjects.Text;
   private presetLayer!: Phaser.GameObjects.Container;
+  /** Показанная мощь отряда (null — ещё не показана). */
+  private shownPower: number | null = null;
 
   constructor() {
     super('Squad');
@@ -34,6 +37,7 @@ export class SquadScene extends Phaser.Scene {
 
   create(data: SquadData = {}): void {
     this.back = data.back ?? { to: 'Home' };
+    this.shownPower = null;
     screen(this, 'Отряд', null, { to: this.back.to, data: this.back.data });
 
     this.powerText = text(this, GAME_W / 2, 205, '', FS.h2, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
@@ -50,7 +54,12 @@ export class SquadScene extends Phaser.Scene {
   }
 
   private refresh(): void {
-    this.powerText.setText(`Мощь отряда: ${formatNumber(squadPower(session.save, GAME))}`);
+    // Мощь отряда отсчитывается от прежней до новой и подпрыгивает (первый показ — сразу число).
+    const power = squadPower(session.save, GAME);
+    const prev = this.shownPower;
+    this.shownPower = power;
+    countUp(this, this.powerText, prev ?? power, power, (n) => `Мощь отряда: ${formatNumber(n)}`, { duration: 400 });
+    if (prev !== null && prev !== power) bump(this, this.powerText, 1.1);
     this.drawPresets();
   }
 
@@ -64,7 +73,7 @@ export class SquadScene extends Phaser.Scene {
     const max = GAME.meta.bounties.presets.max;
     add(text(this, 70, 1080, `Пресеты · ${save.presets.length} / ${max}`, FS.h2, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5));
     const full = save.presets.length >= max;
-    const saveBtn = button(this, 800, 1080, 400, TOUCH, full ? 'k:buttonLong_grey' : 'ui_btn_primary', 'Сохранить текущий', () => this.savePreset(), FS.body);
+    const saveBtn = button(this, 800, 1080, 400, TOUCH, full ? 'k:buttonLong_grey' : 'ui_btn_secondary', 'Сохранить текущий', () => this.savePreset(), FS.body);
     add(saveBtn.container);
     if (full) saveBtn.container.setAlpha(0.6);
 

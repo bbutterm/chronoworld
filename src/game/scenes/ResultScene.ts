@@ -5,11 +5,12 @@ import type { BattleResult, Side } from '../../core';
 import { GAME_W } from '../layout';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
-import { button, panel, progressBar, ScrollArea, text } from '../ui';
+import { button, ellipsize, panel, progressBar, ScrollArea, text } from '../ui';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
-import { badge, portrait, unitTint } from '../screen';
+import { cornerBadge, portrait, unitTint } from '../screen';
+import { countUp, juiceOn } from '../juice';
 import type { JobChangeData } from './JobChangeScene';
 import { skillIcon } from '../skillIcons';
 import { playStory, startStageBattle } from '../dialogue';
@@ -78,7 +79,9 @@ export class ResultScene extends Phaser.Scene {
       const events = outcome.events;
       const rewards = events.find((e) => e.type === 'rewards');
       if (rewards && rewards.type === 'rewards') {
-        text(this, GAME_W / 2, y, `Награда: золото +${rewards.gold} · опыт +${rewards.jobExp} каждому`, FS.body, C.gold, BOLD_OUTLINE);
+        // Числа награды отсчитываются от нуля (juice.ts; «Уменьшить анимацию» — сразу итог).
+        const rewardLine = (k: number) => `Награда: золото +${formatNumber((rewards.gold * k) / 1000)} · опыт +${formatNumber((rewards.jobExp * k) / 1000)} каждому`;
+        countUp(this, text(this, GAME_W / 2, y, rewardLine(1000), FS.body, C.gold, BOLD_OUTLINE), 0, 1000, rewardLine, { delay: 250, duration: 700 });
       } else {
         // T1-07: совет по делу (вещи, профессия — только если доступна, расстановка, прокачка).
         const advice = tower ? 'Этаж не взят. Усильте отряд и попробуйте снова.' : `Награды нет. ${defeatAdvice(session.save, GAME).text}`;
@@ -102,8 +105,13 @@ export class ResultScene extends Phaser.Scene {
       if (bank) rows.splice(rows.findIndex((x) => !x.hot) < 0 ? rows.length : rows.findIndex((x) => !x.hot), 0, { line: bank.text, hot: bank.full, warn: bank.full });
       const room = tableBottom - y - tableMinHeight(r.units.length, compact) - 15;
       const fitLines = Math.max(2, Math.floor(room / EVENT_LINE));
-      const drawRow = (x: { line: string; hot: boolean; warn?: boolean }, ly: number) =>
-        text(this, GAME_W / 2, ly, x.line, x.hot ? FS.body : FS.small, x.warn ? C.warning : x.hot ? C.gold : C.success, x.hot ? BOLD_OUTLINE : OUTLINE);
+      // Строка события — в ширину панели: длинная мельчает (не меньше 24), потом «…» (не вылезает за края экрана).
+      const drawRow = (x: { line: string; hot: boolean; warn?: boolean }, ly: number) => {
+        const t = text(this, GAME_W / 2, ly, x.line, x.hot ? FS.body : FS.small, x.warn ? C.warning : x.hot ? C.gold : C.success, x.hot ? BOLD_OUTLINE : OUTLINE);
+        const maxW = 990;
+        if (t.width > maxW) t.setFontSize(Math.max(24, Math.floor((Number.parseInt(String(t.style.fontSize), 10) * maxW) / t.width)));
+        return ellipsize(t, maxW);
+      };
       if (rows.length <= fitLines) {
         for (const x of rows) {
           drawRow(x, y);
@@ -130,6 +138,9 @@ export class ResultScene extends Phaser.Scene {
     const maxDmg = Math.max(1, ...Object.values(r.report).map((x) => x.damageDealt));
     const mvp = mvpOf(r, 'A');
     const fs = compact ? FS.caption : FS.small;
+    // Цифры таблицы отсчитываются строка за строкой, полосы урона вырастают (juice.ts).
+    let rowN = 0;
+    const tally = (t: Phaser.GameObjects.Text, n: number) => countUp(this, t, 0, n, formatNumber, { delay: 300 + rowN * 50, duration: 550 });
     for (const side of ['A', 'B'] as const) {
       text(this, GAME_W / 2, y, side === 'A' ? 'Ваш отряд' : 'Противник', compact ? FS.body : FS.h3, side === 'A' ? C.success : C.enemy, BOLD_OUTLINE);
       y += TITLE_GAP(compact);
@@ -155,11 +166,13 @@ export class ResultScene extends Phaser.Scene {
             .setAlpha(alpha);
           if (name.width > cols[1] - 70 - name.x) name.setScale((cols[1] - 70 - name.x) / name.width);
           if (isMvp) text(this, cols[0] - 20, y + 14, 'MVP', FS.caption, C.gold, { fontStyle: 'bold' }).setOrigin(0, 0.5);
-          this.add.rectangle(cols[1] - 60, y + 22, 120 * (rep.damageDealt / maxDmg), 6, TINT.danger).setOrigin(0, 0.5);
+          const dmgBar = this.add.rectangle(cols[1] - 60, y + 22, 120 * (rep.damageDealt / maxDmg), 6, TINT.danger).setOrigin(0, 0.5);
+          if (juiceOn() && rep.damageDealt > 0) this.tweens.add({ targets: dmgBar, width: { from: 0, to: dmgBar.width }, delay: 300 + rowN * 50, duration: 550, ease: 'Cubic.easeOut' });
           const dim = (n: number, color: string) => (n > 0 ? color : C.placeholder);
-          text(this, cols[1], y - 2, formatNumber(rep.damageDealt), fs, dim(rep.damageDealt, isMvp ? C.gold : C.text), { fontStyle: isMvp ? 'bold' : 'normal' });
-          text(this, cols[2], y, formatNumber(rep.healingDone), fs, dim(rep.healingDone, C.positive));
-          text(this, cols[3], y, formatNumber(rep.shieldGiven), fs, dim(rep.shieldGiven, C.shield));
+          tally(text(this, cols[1], y - 2, formatNumber(rep.damageDealt), fs, dim(rep.damageDealt, isMvp ? C.gold : C.text), { fontStyle: isMvp ? 'bold' : 'normal' }), rep.damageDealt);
+          tally(text(this, cols[2], y, formatNumber(rep.healingDone), fs, dim(rep.healingDone, C.positive)), rep.healingDone);
+          tally(text(this, cols[3], y, formatNumber(rep.shieldGiven), fs, dim(rep.shieldGiven, C.shield)), rep.shieldGiven);
+          rowN++;
           // Главный навык юнита — значком слева от числа применений.
           const mainSkill = def?.skills.actives[0] ?? def?.skills.ult;
           const used = rep.ults + rep.skills;
@@ -203,7 +216,7 @@ export class ResultScene extends Phaser.Scene {
         // После смены профессии игрок возвращается сюда же; если готов ещё кто-то — снова эта кнопка (со счётчиком).
         const from = { to: 'Result', data: this.sys.settings.data };
         button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Профессия ›', () => this.scene.start('JobChange', { heroId: ready.id, from } satisfies JobChangeData), FS.h3).container.setName('jobChangeBtn');
-        badge(this, 890 + bw / 2 - 20, 1830 - 58, jobChangeReadyCount(session.save, GAME));
+        cornerBadge(this, 890, 1830, bw, 130, jobChangeReadyCount(session.save, GAME));
       } else {
         const nextBtn = button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Дальше', () => {
           if (next) this.scene.start('Stage', { stageId: next.id });
