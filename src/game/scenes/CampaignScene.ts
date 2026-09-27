@@ -120,7 +120,9 @@ export class CampaignScene extends Phaser.Scene {
     const scenes = pendingScenes(session.save, { type: 'chapterStart', chapter: chapter.id }, GAME);
     const finale = scenes.find((s) => isChapterFinale(s, GAME));
     playScenes(this, scenes, () => {
-      if (finale) startChapterDone(this, { chapterId: finale.chapter });
+      // Экран «Глава пройдена» ждёт показа (перезагрузка на нём или на финале) — показать сейчас.
+      const done = finale?.chapter ?? session.save.pendingChapterDone;
+      if (done && GAME.content.chapters.some((c) => c.id === done)) startChapterDone(this, { chapterId: done });
     });
   }
 }

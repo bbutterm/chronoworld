@@ -15,7 +15,9 @@ class TestTerrainTiles(unittest.TestCase):
         for name in IDS:
             with self.subTest(name=name):
                 m=manifest[name]
-                self.assertEqual(m['kind'],'tile')
+                # Manifest entries are {file, w, h, color, label} (loader format, src/pipeline); tiles live in tiles/.
+                self.assertTrue(m['file'].startswith('tiles/'),m['file'])
+                self.assertEqual((m['w'],m['h']),(128,128))
                 p=ROOT/'assets'/m['file']
                 with Image.open(p) as im:
                     self.assertEqual(im.mode,'RGBA')

@@ -284,7 +284,7 @@ async function main() {
         const { objects } = await cdp.send('Runtime.queryObjects', { prototypeObjectId: proto.objectId, objectGroup: 'perf' });
         const { result: r } = await cdp.send('Runtime.callFunctionOn', {
           objectId: objects.objectId,
-          functionDeclaration: 'function () { return [this.length, this.filter((o) => !o.scene).length]; }',
+          functionDeclaration: 'function () { return [this.length, this.filter((o) => !o.scene && !Object.hasOwn(o, "constructor")).length]; }',
           returnByValue: true,
         });
         out[name] = r.value[0];
@@ -307,6 +307,9 @@ async function main() {
         P.on = true;
         window.__game.scene.getScenes(true)[0].scene.start('Battle', { mode: 'test', seed });
       }, SEED);
+      // scene.start из экрана итогов срабатывает на следующем шаге игры: пока Result ещё активен, «бой уже кончился»
+      // было бы ложным — ждём, пока итоги прошлого боя уйдут и бой начнётся (раньше 2-й бой мерился на середине).
+      await page.waitForFunction(() => !window.__game.scene.isActive('Result') && window.__game.scene.isActive('Battle'), null, { timeout: 60000 });
       await page.waitForFunction(() => window.__perf.settled('Battle') || window.__game.scene.isActive('Result'), null, { timeout: 60000 });
       if (i === 1) {
         await page.evaluate(() => window.__perf.grabProtos());

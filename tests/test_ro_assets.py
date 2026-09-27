@@ -65,4 +65,17 @@ class TestRoSprites(unittest.TestCase):
                 assert isinstance(px,tuple)
                 self.assertEqual(px[3],0)
 
+class TestV2AlphaFixes(unittest.TestCase):
+    def test_opaque_body_sheets_have_no_translucent_pixels(self):
+        # tools/build_sprites_v2.py OPAQUE_BODY: a rebuild must keep these sheets free of partial alpha.
+        import sys
+        sys.path.insert(0,str(ROOT/'tools'))
+        from build_sprites_v2 import OPAQUE_BODY
+        sprites={s['id']:s for s in json.loads((ROOT/'assets/sprites/sprites.json').read_text())['sprites']}
+        self.assertIn('mastering',OPAQUE_BODY)
+        for sid,threshold in OPAQUE_BODY.items():
+            with self.subTest(sprite=sid), Image.open(ROOT/'assets'/sprites[sid]['file']) as im:
+                alphas={a for _,a in im.convert('RGBA').getchannel('A').getcolors(256)}
+                self.assertTrue(alphas<={0,255} if threshold<=1 else not any(threshold<=a<255 for a in alphas),alphas)
+
 if __name__=='__main__':unittest.main()

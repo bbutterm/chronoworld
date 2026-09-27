@@ -72,6 +72,14 @@ export class HomeScene extends Phaser.Scene {
     this.hintId = null;
     this.hintView = null;
     this.blocks = [];
+    // Сцена-синглтон живёт всю игру: после выхода с главной не держать её уничтоженные объекты (npm run perf — «dead»).
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.blocks = [];
+      this.hintView = null;
+      this.chestImg = undefined;
+      this.chestText = undefined as unknown as Phaser.GameObjects.Text;
+      this.claimBtn = undefined as unknown as ReturnType<typeof button>;
+    });
     this.claimPulsing = false;
     restartOnNewDay(this);
     screen(this, 'Лагерь героев', 'Home', undefined, { settings: () => this.openSettings() });
