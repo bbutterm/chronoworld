@@ -9,6 +9,7 @@ import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
 import { button, ellipsize, emptyState, pressable, ScrollArea, text, toast } from '../ui';
 import { C, FS } from '../theme';
+import { skillIcon } from '../skillIcons';
 
 /** Выбор новой профессии из доступных веток. */
 export class JobChangeScene extends Phaser.Scene {
@@ -98,8 +99,9 @@ export class JobChangeScene extends Phaser.Scene {
     add(text(this, 90, y, 'Навыки профессии:', FS.small, C.ink, { fontStyle: 'bold' }).setOrigin(0, 0));
     y += 45;
     for (const sk of [...job.skills].sort((a, b) => a.jobLevel - b.jobLevel)) {
-      add(text(this, 90, y, `джоб ${sk.jobLevel}: ${CONTENT.skills[sk.skill]?.name ?? sk.skill}`, FS.small, C.ink).setOrigin(0, 0));
-      y += 42;
+      add(this.add.image(106, y + 18, skillIcon(this, CONTENT.skills[sk.skill])).setDisplaySize(40, 40));
+      add(text(this, 140, y, `джоб ${sk.jobLevel}: ${CONTENT.skills[sk.skill]?.name ?? sk.skill}`, FS.small, C.ink).setOrigin(0, 0));
+      y += 48;
     }
     this.area.setContentHeight(y + 10);
     this.detail.add(

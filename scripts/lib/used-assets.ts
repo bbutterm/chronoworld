@@ -26,6 +26,8 @@ export interface AssetInputs {
   v2?: SpritesV2;
   /** id спрайтов, на которые ссылается контент. */
   spriteIds: Iterable<string>;
+  /** Значки навыков от художника: пути внутри assets/ (ui/icons/skill_<id>.png) — грузятся все, что есть. */
+  skillIcons?: string[];
 }
 
 export interface UsedAssets {
@@ -52,6 +54,7 @@ export function usedAssets(input: AssetInputs): UsedAssets {
     add(a.atlasXml, `manifest:${id}`);
   }
   for (const effect of input.effects?.effects ?? []) add(effect.file, `effect:${effect.id}`);
+  for (const file of input.skillIcons ?? []) add(file, `skillIcon:${file.replace(/^.*\/|\.png$/g, '')}`);
   const registry = buildRegistry(input.legacy, input.v2);
   const missingSprites: string[] = [];
   for (const id of [...new Set(input.spriteIds)].sort()) {
@@ -92,7 +95,18 @@ export function collectUsedAssets(root: string): UsedAssets {
     legacy: readJson(join(assets, 'sprites.legacy.json')),
     v2: readJson(join(assets, 'sprites/sprites.json')),
     spriteIds: contentSpriteIds(root),
+    skillIcons: skillIconFiles(root),
   });
+}
+
+/** assets/ui/icons/skill_*.png (src/game/skillIcons.ts грузит все такие файлы). */
+export function skillIconFiles(root: string): string[] {
+  const dir = join(root, ASSETS_DIR, 'ui/icons');
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((n) => /^skill_[a-z0-9_]+\.png$/.test(n))
+    .sort()
+    .map((n) => `ui/icons/${n}`);
 }
 
 /** Все файлы в assets/ (пути внутри assets/, через `/`). */
