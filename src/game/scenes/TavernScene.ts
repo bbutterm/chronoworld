@@ -658,7 +658,8 @@ export class TavernScene extends Phaser.Scene {
       this.pull(again);
     }, FS.h3);
     if (!again) more.setEnabled(false);
-    const done = button(this, 880, y, 320, 130, 'ui_btn_secondary', 'Готово', () => this.scene.restart(), FS.h3);
+    // {} обязательно: без данных Phaser перезапускает сцену с прошлыми (reveal) и показ повторяется.
+    const done = button(this, 880, y, 320, 130, 'ui_btn_secondary', 'Готово', () => this.scene.restart({} satisfies TavernData), FS.h3);
     L.add([toHeroes.container, more.container, done.container]);
     if (again) {
       const price = again.pay === 'scroll' ? '10 свитков' : `${st.costs.ten} гемов`;
