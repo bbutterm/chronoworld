@@ -70,7 +70,7 @@ export class SquadScene extends Phaser.Scene {
     const full = save.presets.length >= max;
     const saveBtn = button(this, 810, L.presetsHeadY, 400, 90, full ? 'k:buttonLong_grey' : 'ui_btn_secondary', 'Сохранить текущий', () => this.savePreset(), FS.body);
     this.presetHead.add(saveBtn.container);
-    if (full) saveBtn.container.setAlpha(0.6);
+    if (full) saveBtn.setEnabled(false);
 
     const list = this.presetList;
     const add = <T extends Phaser.GameObjects.GameObject>(o: T) => list.add(o);

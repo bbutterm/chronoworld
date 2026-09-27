@@ -3,7 +3,10 @@ import { BLEED_X, BLEED_Y, GAME_H, GAME_W, HEADER_H } from './layout';
 import { session, takeWarnings } from './session';
 import { GAME } from './content';
 import { anim, lazyPortrait, portraitKey, spriteView, whenSprites } from './sprites';
-import { formatNumber, heroesBadgeCount } from './flow';
+import { campLevel, formatNumber, heroesNavBadge, heroSprite, leadHero, POWER_COLORS, POWER_TINTS, type PowerCheck, type PowerTone } from './flow';
+import { framedPortrait } from './portraitFrame';
+import { view } from './viewport';
+import { heroGender } from '../core';
 import { button, ellipsize, emptyState, icon, panel, text, toast } from './ui';
 import { hasArt } from './assets';
 import { C, FS, SP, TINT } from './theme';
@@ -40,7 +43,11 @@ export function screen(
   title: string,
   active: NavTab | null,
   back?: { label?: string; to: string; data?: object },
-  opts: { settings?: () => void } = {},
+  opts: {
+    settings?: () => void;
+    /** Главная: вместо названия — плашка игрока (аватар-лидер отряда, уровень лагеря, полоска опыта); title — её имя. */
+    player?: boolean;
+  } = {},
 ): void {
   // Фон 1080×1920 сам продолжается на поля вытянутых экранов (viewport.ts); шапка и навигация — тоже до краёв.
   scene.add.image(GAME_W / 2, GAME_H / 2, 'skin_bg_forest').setDisplaySize(GAME_W, GAME_H);
@@ -50,7 +57,15 @@ export function screen(
   scene.add.image(GAME_W / 2, HEADER_H + 1, 'skin_trim').setDisplaySize(fullW, 12);
   scene.add.image(GAME_W / 2, HEADER_H + 4, 'skin_ornament').setDisplaySize(180, 36);
   if (back) button(scene, 110, HEADER_H / 2, 180, 100, 'k:buttonLong_beige', back.label ?? '‹ Назад', () => scene.scene.start(back.to, back.data), FS.h3, { sound: 'ui_back' });
-  const currencyLeft = currencyLabels(scene);
+  // Вытянутый телефон: над шапкой видна полоса поля (до ~130–200 ед.). Валюта уходит туда одной строкой, как верхняя
+  // полоса ресурсов AFK Arena, — названию и плашке игрока в шапке достаётся вся ширина. На 9:16 полосы нет — всё как было.
+  const band = topBand();
+  let currencyLeft: number;
+  if (band >= BAND_MIN) {
+    bandStrip(scene, band);
+    currencyLabels(scene, -band / 2);
+    currencyLeft = GAME_W - 50 + SP.m;
+  } else currencyLeft = currencyLabels(scene);
   let titleRight = currencyLeft - SP.m;
   if (opts.settings) {
     const gx = currencyLeft - SP.m - GEAR_SIZE / 2;
@@ -60,9 +75,13 @@ export function screen(
   }
   // T3-08: название — между «‹ Назад» и валютой; длинное сначала мельчает, потом переносится на две строки.
   const titleLeft = back ? 200 + SP.m : 50;
-  const t = text(scene, back ? (titleLeft + titleRight) / 2 : titleLeft, HEADER_H / 2, title, FS.h1, SKIN.goldLight, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(back ? 0.5 : 0, 0.5);
-  t.setShadow(0, 4, 'rgba(0,0,0,0.7)', 4, true, true);
-  fitTitle(t, titleRight - titleLeft);
+  if (opts.player) playerPlate(scene, title, titleLeft - 20, titleRight);
+  else {
+    const t = text(scene, back ? (titleLeft + titleRight) / 2 : titleLeft, HEADER_H / 2, title, FS.h1, SKIN.goldLight, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(back ? 0.5 : 0, 0.5);
+    t.setShadow(0, 4, 'rgba(0,0,0,0.7)', 4, true, true);
+    t.setName('screenTitle');
+    fitTitle(t, titleRight - titleLeft);
+  }
 
   if (active) {
     // Панель навигации: тот же градиент, перевёрнутый (бронза сверху), и золотая кромка по верху.
@@ -83,11 +102,109 @@ export function screen(
       if (on) btn.container.add(scene.add.image(0, -18, 'skin_glow').setDisplaySize(150, 110).setTint(0xf0cf8a).setAlpha(0.35).setBlendMode(Phaser.BlendModes.ADD));
       btn.container.add(scene.add.image(0, -18, skinIcon(NAV_ICON[t.scene])).setDisplaySize(on ? 66 : 58, on ? 66 : 58).setTint(on ? SKIN_TINT.gold : SKIN_TINT.creamDim));
       btn.container.bringToTop(btn.label);
-      // R: значок «Герои», когда кто-то может сменить профессию; P10 (T1-08) — или надеть вещь получше.
-      if (t.scene === 'Heroes') cornerBadge(scene, bx, by, w - 36, NAV_H - 30, heroesBadgeCount(session.save, GAME));
+      // Значок «Герои»: число — можно вознести или надеть вещь получше (P10, T1-08); иначе зелёная стрелка —
+      // кто-то из отряда может «Улучшить» за опыт из запаса.
+      if (t.scene === 'Heroes') {
+        const b = heroesNavBadge(session.save, GAME);
+        if (b?.kind === 'count') cornerBadge(scene, bx, by, w - 36, NAV_H - 30, b.count);
+        else if (b?.kind === 'levelUp') levelUpBadge(scene, bx + (w - 36) / 2 - 22, by - (NAV_H - 30) / 2 + 16);
+      }
     });
   }
   for (const w of takeWarnings()) toast(scene, w, C.error, 6000);
+}
+
+/** Полоса над шапкой не ниже этого (ед. мира) — туда переезжает валюта. */
+const BAND_MIN = 84;
+
+/** Высота видимой полосы над полем на вытянутых экранах (ниже выреза), в ед. мира; 0 — полосы нет (9:16). */
+export function topBand(): number {
+  return Math.max(0, Math.min(BLEED_Y, -view().safeTop));
+}
+
+/** Полоса над шапкой: тонкая золотая кромка по низу отделяет строку ресурсов от шапки. */
+function bandStrip(scene: Phaser.Scene, band: number): void {
+  const fullW = GAME_W + 2 * BLEED_X;
+  scene.add.rectangle(GAME_W / 2, -band / 2, fullW, band, 0x000000, 0.35);
+  scene.add.image(GAME_W / 2, -2, 'skin_trim').setDisplaySize(fullW, 8).setAlpha(0.6);
+}
+
+/**
+ * Плашка игрока в шапке главной (как в AFK Arena): лидер отряда в рамке, уровень лагеря на медальоне у портрета,
+ * имя лагеря и полоска опыта до следующего уровня (flow.ts campLevel). Места — от left до right.
+ */
+function playerPlate(scene: Phaser.Scene, name: string, left: number, right: number): void {
+  const save = session.save;
+  const lead = leadHero(save);
+  const cy = HEADER_H / 2;
+  const size = 124;
+  const ax = left + size / 2;
+  scene.add.image(ax, cy, 'skin_glow').setDisplaySize(size * 1.5, size * 1.5).setTint(0xf0cf8a).setAlpha(0.18).setBlendMode(Phaser.BlendModes.ADD);
+  framedPortrait(scene, ax, cy - 2, lead ? heroSprite(lead, GAME) : null, size, lead ? heroGender(lead, GAME) : undefined).setName('playerAvatar');
+  const lv = campLevel(save);
+  // Уровень — на медальоне в правом нижнем углу портрета.
+  const mx = ax + size / 2 - 12;
+  const my = cy + size / 2 - 16;
+  scene.add.circle(mx, my, 27, 0x120d08).setStrokeStyle(4, SKIN_TINT.gold);
+  text(scene, mx, my - 1, String(lv.level), lv.level >= 100 ? FS.caption - 8 : FS.caption, SKIN.goldLight, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setName('campLevel');
+  const tx = ax + size / 2 + 26;
+  const w = Math.max(160, Math.min(330, right - tx));
+  const nm = text(scene, tx, cy - 38, name, FS.h3, SKIN.goldLight, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
+  nm.setShadow(0, 3, 'rgba(0,0,0,0.7)', 3, true, true);
+  ellipsize(nm, w + 60);
+  text(scene, tx, cy + 4, `Уровень лагеря ${lv.level}`, FS.caption, SKIN.cream, { stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5);
+  // Полоска опыта лагеря: утопленный жёлоб, золотая заливка с бликом.
+  const by = cy + 42;
+  const bh = 18;
+  const frac = Phaser.Math.Clamp(lv.exp / lv.need, 0, 1);
+  scene.add.rectangle(tx + w / 2, by, w + 6, bh + 6, 0x000000, 0.9).setStrokeStyle(2, SKIN_TINT.bronze);
+  if (frac > 0) {
+    scene.add.rectangle(tx, by, w * frac, bh, 0xd9a54c).setOrigin(0, 0.5);
+    scene.add.rectangle(tx, by - bh / 4, w * frac, bh / 3, 0xfff0b0, 0.55).setOrigin(0, 0.5);
+  }
+}
+
+/**
+ * Плашка «мощь отряда против рекомендуемой» (главная, этап): тёмная капсула с обводкой цвета тона — зелёный «сил хватает»,
+ * жёлтый «чуть не хватает», красный «слабее». label — свой текст (по умолчанию «⚔ 1 224 / 1 067 · вердикт»).
+ * Возвращает контейнер (data `tone`); setPowerChip — обновить на месте.
+ */
+export function powerChip(scene: Phaser.Scene, x: number, y: number, pc: PowerCheck, opts: { label?: string; minW?: number } = {}): Phaser.GameObjects.Container {
+  const box = scene.add.container(x, y).setName('powerChip');
+  const bg = scene.add.graphics();
+  const ico = scene.add.image(0, 0, skinIcon('swords')).setDisplaySize(34, 34);
+  const t = text(scene, 0, -1, '', FS.caption, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 });
+  box.add([bg, ico, t]);
+  box.setData({ bg, ico, t, minW: opts.minW ?? 0, fixed: opts.label });
+  setPowerChip(box, pc, opts.label);
+  return box;
+}
+
+export function setPowerChip(box: Phaser.GameObjects.Container, pc: PowerCheck, label?: string): void {
+  const bg = box.getData('bg') as Phaser.GameObjects.Graphics;
+  const ico = box.getData('ico') as Phaser.GameObjects.Image;
+  const t = box.getData('t') as Phaser.GameObjects.Text;
+  const tone: PowerTone = pc.tone;
+  t.setText(label ?? (box.getData('fixed') as string | undefined) ?? `${formatNumber(pc.squad)} / ${formatNumber(pc.recommended)} · ${pc.verdict}`).setColor(POWER_COLORS[tone]);
+  const h = 48;
+  const w = Math.max(box.getData('minW') as number, t.width + 34 + 44);
+  t.setX(22);
+  ico.setPosition(22 - t.width / 2 - 26, -1).setTint(Phaser.Display.Color.HexStringToColor(POWER_COLORS[tone]).color);
+  bg.clear();
+  bg.fillStyle(0x0d0a07, 0.92).fillRoundedRect(-w / 2, -h / 2, w, h, h / 2);
+  bg.lineStyle(3, POWER_TINTS[tone], 1).strokeRoundedRect(-w / 2, -h / 2, w, h, h / 2);
+  box.setData('tone', tone).setSize(w, h);
+}
+
+/** Зелёная стрелка «можно улучшить» (вкладка «Герои»): тот же вид, что метка canLevel на плитке карточки. */
+function levelUpBadge(scene: Phaser.Scene, x: number, y: number): Phaser.GameObjects.Container {
+  const disc = scene.add.circle(0, 0, 26, 0x1f6a28).setStrokeStyle(4, 0xb6f0a0);
+  const g = scene.add.graphics();
+  g.fillStyle(0xd8ffd0, 1).fillTriangle(0, -15, 13, 2, -13, 2);
+  g.fillRect(-6, 1, 12, 13);
+  const box = scene.add.container(x, y, [disc, g]).setDepth(50).setName('levelUpBadge');
+  heartbeat(scene, box);
+  return box;
 }
 
 /** Название экрана в ширину maxW: крупно, если влезает; иначе мельче (до FS.h3), потом две строки, потом «…». */
@@ -111,8 +228,8 @@ const GEAR_SIZE = 100;
  * Золото и гемы в правом углу шапки — друг под другом, чтобы не наезжать на заголовок. Возвращает левый край.
  * Каждая «таблетка» — контейнер с центром в её середине: подпрыгивает целиком, когда валюта меняется (juice.ts).
  */
-function currencyLabels(scene: Phaser.Scene): number {
-  const x = GAME_W - 50;
+function currencyLabels(scene: Phaser.Scene, rowY?: number): number {
+  let x = GAME_W - 50;
   const pills: CurrencyPill[] = [];
   // Валюта — «таблетка» из скина: иконка и число, как монеты в референсе.
   const row = (y: number, kind: CurrencyPill['kind'], value: number, color: string, tint: number) => {
@@ -131,10 +248,17 @@ function currencyLabels(scene: Phaser.Scene): number {
     pills.push({ kind, value, text: t, box, icon: { x: ix, y } });
     return x - pillW + 6 - 10;
   };
-  const left = Math.min(
-    row(HEADER_H / 2 - 30, 'gold', session.save.resources.gold, C.gold, 0xffc83a),
-    row(HEADER_H / 2 + 32, 'gems', session.save.currency.gems, C.gem, 0x6fd8ff),
-  );
+  let left: number;
+  if (rowY !== undefined) {
+    // Одной строкой в полосе над шапкой: гемы у края, золото левее.
+    x = row(rowY, 'gems', session.save.currency.gems, C.gem, 0x6fd8ff) - SP.s;
+    left = row(rowY, 'gold', session.save.resources.gold, C.gold, 0xffc83a);
+  } else {
+    left = Math.min(
+      row(HEADER_H / 2 - 30, 'gold', session.save.resources.gold, C.gold, 0xffc83a),
+      row(HEADER_H / 2 + 32, 'gems', session.save.currency.gems, C.gem, 0x6fd8ff),
+    );
+  }
   animateCurrency(scene, pills);
   return left;
 }

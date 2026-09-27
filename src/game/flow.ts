@@ -15,11 +15,14 @@ import {
   type GearContext,
   RARITIES,
   SLOTS,
+  squadPower,
+  stagePower,
   stageStatus,
   type AchievementView,
   type ActivityKind,
   type Bounty,
   type EquipmentContext,
+  type FeatureContext,
   type GameContext,
   type HeroState,
   type ItemDef,
@@ -117,6 +120,18 @@ export function heroesBadgeCount(save: SaveState, ctx: GearContext & GameContext
   const ids = new Set(heroesWithGearUpgrades(save, ctx));
   for (const h of ascendReady(save, ctx)) ids.add(h.id);
   return ids.size;
+}
+
+/**
+ * Значок вкладки «Герои»: красный кружок с числом (heroesBadgeCount — вознести, вещь получше) важнее; иначе, если
+ * кто-то из отряда может «Улучшить» за опыт из запаса, — зелёная стрелка «можно поднять уровень» (крючок AFK).
+ */
+export type HeroesNavBadge = { kind: 'count'; count: number } | { kind: 'levelUp' } | null;
+
+export function heroesNavBadge(save: SaveState, ctx: GearContext & GameContext): HeroesNavBadge {
+  const count = heroesBadgeCount(save, ctx);
+  if (count > 0) return { kind: 'count', count };
+  return levelUpReady(save, ctx).length > 0 ? { kind: 'levelUp' } : null;
 }
 
 /** Этап, на который стоит вести игрока: первый не пройденный открытый, иначе последний. */
@@ -223,6 +238,78 @@ export function powerTone(squad: number, enemy: number): PowerTone {
 }
 
 export const POWER_COLORS: Record<PowerTone, string> = { ahead: C.positive, close: C.gold, behind: C.dangerStrong };
+/** Числовые цвета тех же тонов (обводки, подложки плашек). */
+export const POWER_TINTS: Record<PowerTone, number> = { ahead: 0x3fae4f, close: 0xd6a92a, behind: 0xc2402f };
+/** Короткий вердикт на плашке «мощь отряда против этапа» («крючок»: вот-вот хватит). */
+export const POWER_VERDICT: Record<PowerTone, string> = { ahead: 'Сил хватает', close: 'Чуть не хватает', behind: 'Слабее' };
+
+/**
+ * Рекомендуемая мощь этапа. Пока в ядре нет своей рекомендации от баланса — мощь врагов этапа (stagePower):
+ * по прогону главы 1–2 моделью игрока (autoLevel + autoFormation) отряд с мощью ≥ врагов выигрывает почти всегда,
+ * около 0,8–1 — через раз (ch1_s10 при 0,74 — 75 % побед, ch2_s5 при 0,94 — стена), ниже — редко.
+ */
+export function recommendedPower(stageId: string, ctx: FeatureContext): number {
+  return stagePower(stageId, ctx);
+}
+
+/** Мощь текущего отряда против рекомендуемой мощи этапа: числа, тон (цвет) и подпись для плашек. */
+export interface PowerCheck {
+  squad: number;
+  recommended: number;
+  tone: PowerTone;
+  verdict: string;
+}
+
+export function powerCheck(save: SaveState, stageId: string, ctx: FeatureContext & EquipmentContext): PowerCheck {
+  const squad = squadPower(save, ctx);
+  const recommended = recommendedPower(stageId, ctx);
+  const tone = powerTone(squad, recommended);
+  return { squad, recommended, tone, verdict: POWER_VERDICT[tone] };
+}
+
+// ---------- Плашка игрока (шапка главной) ----------
+
+/**
+ * «Уровень лагеря» — уровень игрока, выведенный из прогресса (своего поля в сохранении нет): опыт лагеря =
+ * CAMP_EXP.stage за каждый пройденный этап + CAMP_EXP.floor за этаж башни + CAMP_EXP.heroLevel за каждый уровень
+ * героев сверх первого. Уровень L → L+1 стоит campLevelCost(L) (растёт линейно): первые уровни — за пару этапов.
+ */
+export const CAMP_EXP = { stage: 100, floor: 40, heroLevel: 10 } as const;
+
+export function campLevelCost(level: number): number {
+  return 200 + 100 * (level - 1);
+}
+
+export interface CampLevel {
+  level: number;
+  /** Опыт внутри текущего уровня и сколько нужно до следующего. */
+  exp: number;
+  need: number;
+  /** Весь опыт лагеря. */
+  total: number;
+}
+
+export function campLevel(save: SaveState): CampLevel {
+  const stages = new Set(save.campaign.cleared).size;
+  const heroLevels = save.heroes.reduce((sum, h) => sum + Math.max(0, h.level - 1), 0);
+  const total = stages * CAMP_EXP.stage + save.tower.floor * CAMP_EXP.floor + heroLevels * CAMP_EXP.heroLevel;
+  let level = 1;
+  let rest = total;
+  while (rest >= campLevelCost(level)) {
+    rest -= campLevelCost(level);
+    level++;
+  }
+  return { level, exp: rest, need: campLevelCost(level), total };
+}
+
+/** Лицо лагеря (аватар в шапке главной): первый герой отряда, иначе самый прокачанный. */
+export function leadHero(save: SaveState): HeroState | undefined {
+  for (const id of save.squad) {
+    const h = id === null ? undefined : save.heroes.find((x) => x.id === id);
+    if (h) return h;
+  }
+  return [...save.heroes].sort((a, b) => b.level - a.level)[0];
+}
 
 /** Число с разбивкой по разрядам: 12345 → «12 345». */
 export function formatNumber(n: number): string {

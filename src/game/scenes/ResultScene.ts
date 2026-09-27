@@ -236,7 +236,7 @@ export class ResultScene extends Phaser.Scene {
       const nextBtn = button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Дальше', () => {
         if (next) this.scene.start('Stage', { stageId: next.id });
       }, FS.h2);
-      if (!next) nextBtn.container.setAlpha(0.4).disableInteractive();
+      if (!next) nextBtn.setEnabled(false).container.disableInteractive();
       const beginAuto = this.autoRow(stage.stageId, win);
       // Сюжет после первой победы на этапе — поверх итогов; авто-отсчёт — после него (в авто-режиме строки листаются
       // сами, медленно; финал главы — только касанием).

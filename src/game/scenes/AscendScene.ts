@@ -249,7 +249,7 @@ export class AscendScene extends Phaser.Scene {
     const b = button(this, GAME_W / 2, by, 620, 140, ready ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести', () => this.confirmAscend(hero, req), FS.hero);
     b.container.setName('ascendConfirm');
     if (ready) pulse(this, b.container, 1.04);
-    else b.container.setAlpha(0.6);
+    else b.setEnabled(false);
   }
 
   private confirmAscend(hero: HeroState, req: AscendRequirement): void {

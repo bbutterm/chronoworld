@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { actSummon, addHeroCard, grantTavernWelcome, rarityDef, summonPool, summonStatus, type HeroState, type SummonResult, type SummonStatus } from '../../core';
+import { actSummon, addHeroCard, grantTavernWelcome, heroCard, rarityDef, summonPool, summonStatus, type HeroState, type SummonResult, type SummonStatus } from '../../core';
 import { SUMMON_REVEAL } from '../audioCatalog';
 import { sfx, summonSound } from '../audio';
 import { screenBackground } from '../backdrops';
@@ -30,11 +30,24 @@ import {
   type CardSlot,
   type PullOption,
 } from '../tavern';
-import { BEAM, CIRCLE, GLOW, SPARK, setTavernBackground, TAVERN_BG, TAVERN_BG_FILE, TAVERN_LIGHTS } from '../tavernArt';
-import { cardBack, rarityColor, summonCardFace } from '../tavernCard';
+import { BEAM, CARD_BACK, CIRCLE, GLOW, SPARK, setTavernBackground, TAVERN_BG, TAVERN_BG_FILE, TAVERN_LIGHTS } from '../tavernArt';
+import { drawHeroCard, heroCardSize } from '../heroCard';
 import { markTavernSeen } from '../tavernEntry';
 import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
 import { button, ellipsize, panel, progressBar, text, toast } from '../ui';
+
+/** Цвет редкости (#rrggbb) → число для tint и заливок. */
+const colorOf = (hex: string): number => Phaser.Display.Color.HexStringToColor(hex).color;
+
+/**
+ * Лицо карты призыва — общая плитка карточки героя (heroCard.ts, тот же вид, что в «Героях»): рамка редкости,
+ * бюст на маленьких картах стола, фигура в стойке на крупной (×1 и показ фиолетовой). Ширина — чтобы карта
+ * (высота = ширина × CARD_ASPECT) влезла в место w×h. Свечение и метки — свои у Таверны, у плитки выключены.
+ */
+function summonFace(scene: Phaser.Scene, x: number, y: number, w: number, h: number, hero: HeroState, big: boolean): Phaser.GameObjects.Container {
+  const cw = Math.floor(Math.min(w, h / heroCardSize(1).h));
+  return drawHeroCard(scene, x, y, hero, { w: cw, level: null, glow: false, figure: big ? 'sprite' : 'portrait' });
+}
 
 export interface TavernData {
   /** Показать призыв: результаты уже в сохранении (actSummon), экран только проигрывает показ. */
@@ -206,7 +219,7 @@ export class TavernScene extends Phaser.Scene {
     card(this, GAME_W / 2, y, 1000, st.firstTenBonus ? 200 : 150);
     const top = st.firstTenBonus ? y - 50 : y - 25;
     text(this, 80, top - 12, info.label, FS.h3, '#d8b8ff', { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5).setName('pityLabel');
-    progressBar(this, 80, top + 38, 920, 28, info.fraction, rarityColor(rarityDef(GAME, st.pityRarity).color), { key: 'tavern:pity' });
+    progressBar(this, 80, top + 38, 920, 28, info.fraction, colorOf(rarityDef(GAME, st.pityRarity).color), { key: 'tavern:pity' });
     if (st.firstTenBonus) {
       text(this, GAME_W / 2, y + 68, `Первый призыв ×10 — ${RARITY_CARD[st.firstTenRarity]} карта гарантирована!`, FS.small, C.gold, { fontStyle: 'bold', ...OUTLINE }).setName('firstTenNote');
     }
@@ -218,7 +231,7 @@ export class TavernScene extends Phaser.Scene {
     const small = (o: PullOption, x: number, y: number) => {
       const primary = o.id === 'free' && o.enabled;
       const b = button(this, x, y, 316, 116, primary ? 'ui_btn_primary' : 'ui_btn_secondary', o.label, () => this.pull(o), FS.h3, { sound: o.enabled ? 'ui_tap' : null });
-      if (!o.enabled) b.container.setAlpha(0.5);
+      if (!o.enabled) b.setEnabled(false);
       if (primary) pulse(this, b.container);
       return b;
     };
@@ -230,7 +243,7 @@ export class TavernScene extends Phaser.Scene {
       const b = button(this, x, y, 490, 150, 'ui_btn_primary', o.label, () => this.pull(o), FS.h2, { sound: o.enabled ? 'ui_tap' : null });
       b.label.setX(22);
       b.container.add(gemIcon(this, 22 - b.label.width / 2 - 34, -6, 40));
-      if (!o.enabled) b.container.setAlpha(0.5);
+      if (!o.enabled) b.setEnabled(false);
       return b;
     };
     const y2 = 1620;
@@ -276,7 +289,7 @@ export class TavernScene extends Phaser.Scene {
     let y = cy - 350;
     for (const r of GAME.summon.rates) {
       const def = rarityDef(GAME, r.rarity);
-      layer.add(this.add.rectangle(cx - 330, y, 44, 44, rarityColor(def.color)).setStrokeStyle(3, 0x000000));
+      layer.add(this.add.rectangle(cx - 330, y, 44, 44, colorOf(def.color)).setStrokeStyle(3, 0x000000));
       layer.add(text(this, cx - 280, y, def.name, FS.h3, def.color, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5));
       layer.add(text(this, cx + 360, y, `${String(Math.round(r.chance * 1000) / 10).replace('.', ',')}%`, FS.h3, C.text, { fontStyle: 'bold', ...OUTLINE }).setOrigin(1, 0.5));
       y += 80;
@@ -343,11 +356,12 @@ export class TavernScene extends Phaser.Scene {
 
   private makeCard(state: RevealState, i: number, slot: CardSlot, hero: HeroState, big: boolean): CardView {
     const r = state.results[i];
-    const col = rarityColor(rarityDef(GAME, r.rarity).color);
+    const col = colorOf(rarityDef(GAME, r.rarity).color);
     const root = this.add.container(slot.x, slot.y);
     const glow = this.add.image(0, 0, GLOW).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(slot.w * 2, slot.h * 1.7).setAlpha(0);
-    const back = cardBack(this, slot.w, slot.h);
-    const face = summonCardFace(this, 0, 0, slot.w, slot.h, hero, big).setVisible(false);
+    const face = summonFace(this, 0, 0, slot.w, slot.h, hero, big).setVisible(false);
+    // Рубашка — ровно по размеру лица: переворот не «прыгает».
+    const back = this.add.image(0, 0, CARD_BACK).setDisplaySize(face.getData('w') as number, face.getData('h') as number);
     root.add([glow, back, face]);
     root.setSize(slot.w, slot.h).setInteractive({ useHandCursor: true });
     const cv: CardView = { i, slot, root, glow, back, face, flipped: false, busy: false };
@@ -407,7 +421,7 @@ export class TavernScene extends Phaser.Scene {
     const tense = mode === 'tension' || (mode === 'tap' && tensionMs(rarity) > 0);
     const wait = tense ? summonSound(SOUND_RARITY[rarity]) : 60;
     const epic = tensionMs(rarity) >= tensionMs('purple');
-    const col = rarityColor(rarityDef(GAME, r.rarity).color);
+    const col = colorOf(rarityDef(GAME, r.rarity).color);
     const { root, glow, slot } = cv;
     this.children.bringToTop(state.layer);
     state.layer.bringToTop(root);
@@ -478,10 +492,10 @@ export class TavernScene extends Phaser.Scene {
       lineSpacing: -6,
     });
     if (r.guaranteed) {
-      // «Гарант» — лентой поверх верхнего края карты (над картой — метки ряда выше).
-      const gy = cv.slot.y - cv.slot.h / 2 + 4;
+      // «Гарант» — лентой у верхнего края карты, между значками класса и роли (выше — подписи ряда над ней).
+      const gy = cv.slot.y - (cv.face.getData('h') as number) / 2 + 30;
       const g = text(this, cv.slot.x, gy, 'гарант', FS.caption, C.text, { fontStyle: 'bold', ...OUTLINE });
-      const band = this.add.rectangle(cv.slot.x, gy, g.width + 24, 40, rarityColor(def.color), 0.95).setStrokeStyle(2, 0xf0cf8a);
+      const band = this.add.rectangle(cv.slot.x, gy, g.width + 24, 40, colorOf(def.color), 0.95).setStrokeStyle(2, 0xf0cf8a);
       state.layer.add([band, g]);
     }
     state.layer.add(t);
@@ -527,7 +541,7 @@ export class TavernScene extends Phaser.Scene {
     const prev = state.phase;
     state.phase = 'showcase';
     const def = rarityDef(GAME, r.rarity);
-    const col = rarityColor(def.color);
+    const col = colorOf(def.color);
     const box = this.add.container(0, 0).setDepth(DEPTH + 100).setName('showcase');
     const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x000000, 0.78).setInteractive();
     const beam = this.add.image(GAME_W / 2, 1300, BEAM).setOrigin(0.5, 1).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(620, 1500).setAlpha(0.8);
@@ -535,12 +549,13 @@ export class TavernScene extends Phaser.Scene {
     const ring = this.add.container(GAME_W / 2, 1180).setScale(1.3, 0.45);
     const circle = this.add.image(0, 0, CIRCLE).setTint(col).setAlpha(0.8).setBlendMode(Phaser.BlendModes.ADD);
     ring.add(circle);
-    const face = summonCardFace(this, GAME_W / 2, 900, 440, 620, hero, true);
+    const face = summonFace(this, GAME_W / 2, 880, 440, 620, hero, true);
+    const jobLine = text(this, GAME_W / 2, 530, `${heroCard(hero, GAME).jobName} · ${def.name}`, FS.h3, def.color, { fontStyle: 'bold', ...OUTLINE });
     const kind = RARITY_CARD[r.rarity];
     const head = text(this, GAME_W / 2, 440, `${kind.charAt(0).toUpperCase()}${kind.slice(1)} карта!`, FS.hero, def.color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 10 });
     const sub = text(this, GAME_W / 2, 1300, r.isNew ? 'Новый герой!' : 'дубль → на слияние', FS.h2, r.isNew ? C.gold : C.dim, { fontStyle: 'bold', ...OUTLINE });
     const hint = text(this, GAME_W / 2, 1420, 'Нажмите, чтобы продолжить', FS.small, C.muted, OUTLINE);
-    box.add([shade, beam, halo, ring, face, head, sub, hint]);
+    box.add([shade, beam, halo, ring, face, jobLine, head, sub, hint]);
     this.tweens.add({ targets: circle, angle: 360, duration: 9000, repeat: -1 });
     this.tweens.add({ targets: halo, alpha: { from: 0.8, to: 0.45 }, duration: 800, yoyo: true, repeat: -1 });
     face.setScale(0.6).setAlpha(0);
@@ -640,7 +655,7 @@ export class TavernScene extends Phaser.Scene {
       this.reveal = null;
       this.pull(again);
     }, FS.h3);
-    if (!again) more.container.setAlpha(0.5);
+    if (!again) more.setEnabled(false);
     const done = button(this, 880, y, 320, 130, 'ui_btn_secondary', 'Готово', () => this.scene.restart(), FS.h3);
     L.add([toHeroes.container, more.container, done.container]);
     if (again) {
