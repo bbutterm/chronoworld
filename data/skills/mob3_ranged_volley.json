@@ -1,8 +1,8 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "mob3_ranged_volley",
-  "name": "Залп костей",
-  "description": "Две стрелы по случайным врагам.",
+  "name": "Залп тьмы",
+  "description": "Два тёмных снаряда по случайным врагам.",
   "range": "ranged",
   "target": {
     "side": "enemy",

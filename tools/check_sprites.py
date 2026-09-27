@@ -15,7 +15,10 @@ EXPECTED={
 }
 REQUIRED={'novice','merchant','swordman','magician','archer_first','acolyte','thief',
           'guard','warrior','assassin','archer','mage','priest','melee','ranged','tank','fast','elite','boss1','boss2',
-          'drops','poporing','fabre','lunatic','mandragora','rocker','mastering'}
+          'drops','poporing','fabre','lunatic','mandragora','rocker','mastering',
+          # converted from legacy assets/ro v1 sheets (tools/ro_v1_to_v2.py)
+          'blacksmith','monk','sage','rogue','alchemist','bard',
+          'raydric','mimic','gargoyle','dark_priest','mistress','osiris','moonlight_flower','drake','dark_lord'}
 GRID={'hero':([224,192],[104,144]),'monster':([240,224],[100,120]),'boss':([256,256],[112,216])}
 EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
             'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}
@@ -66,8 +69,12 @@ def check(path=DEFAULT,source_cache=None,only=None):
    total=s.get('sourceFrameCounts',{}).get(anim,0)
    if not isinstance(total,int) or total<1:fail(f'{sid}:{anim} invalid source frame count')
    else:
-    expected=EXCEPTIONS[sid] if anim=='death' and sid in EXCEPTIONS else expected_indices(total,n,anim=='death')
-    if chosen!=expected:fail(f'{sid}:{anim} source sampling indices differ: {chosen} vs {expected}')
+    if anim in s.get('samplingExceptions',{}) and sid not in EXCEPTIONS:
+     # Documented skip of oversized FX frames: indices must stay in range and chronological.
+     if any(not 0<=i<total for i in chosen) or chosen!=sorted(chosen):fail(f'{sid}:{anim} exception indices out of range/order: {chosen}')
+    else:
+     expected=EXCEPTIONS[sid] if anim=='death' and sid in EXCEPTIONS else expected_indices(total,n,anim=='death')
+     if chosen!=expected:fail(f'{sid}:{anim} source sampling indices differ: {chosen} vs {expected}')
    for c in range(8):
     frame=img.crop((c*cw,row*ch,(c+1)*cw,(row+1)*ch));b=count_and_bbox(frame)
     if c<n:
@@ -78,7 +85,7 @@ def check(path=DEFAULT,source_cache=None,only=None):
       expected=(src_boxes[c][0]+ax,src_boxes[c][1]+ay,src_boxes[c][2]+ax,src_boxes[c][3]+ay)
       if b!=expected:fail(f'{sid}:{anim} frame {c} ACT origin/native bbox mismatch: {b} vs {expected}')
      used_alpha.update(int(v) for v in np.unique(np.asarray(frame)[:,:,3]) if 0<int(v)<255)
-     if source_cache and c<len(chosen):
+     if source_cache and c<len(chosen) and 'sourceCacheFiles' in s:  # v1-converted sheets have no APNG cache
       source_file=Path(source_cache)/s['sourceCacheFiles'][anim]
       if not source_file.is_file():fail(f'{sid}:{anim} source missing {source_file}')
       else:

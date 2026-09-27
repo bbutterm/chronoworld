@@ -1,6 +1,8 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { enemySquad, newGame, playStage, stageStatus, type SaveState } from '../src/core';
-import { loadGameContext } from '../scripts/lib/content-node';
+import { loadGameContext, ROOT } from '../scripts/lib/content-node';
 
 const ctx = loadGameContext();
 const stages = ctx.content.stages;
@@ -27,15 +29,16 @@ describe('K3 главы 2–3', () => {
     }
   });
 
-  it('боссы глав 2–3: Бафомет (mob_boss2) и mob3_boss (плейсхолдер boss3)', () => {
+  it('боссы глав 2–3: Бафомет (mob_boss2) и mob3_boss (Тёмный лорд, лист dark_lord)', () => {
     const boss = (id: string) => stages.find((s) => s.id === id)!.enemies.filter((e) => e && ctx.content.units[e.unit].kind === 'boss').map((e) => e!.unit);
     expect(boss('ch2_s10')).toEqual(['mob_boss2']);
     expect(boss('ch3_s10')).toEqual(['mob3_boss']);
-    expect(ctx.content.units.mob3_boss.visual.sprite).toBe('boss3');
+    expect(ctx.content.units.mob3_boss.visual.sprite).toBe('dark_lord');
   });
 
   it('новые монстры глав 2–3 используют спрайты v2 и свои навыки', () => {
-    const v2 = ['melee', 'ranged', 'tank', 'fast', 'elite'];
+    // Любой лист реестра v2 (глава 3 — листы RO Рейдрика, Мимика, Гаргульи, Тёмного жреца).
+    const v2 = (JSON.parse(readFileSync(join(ROOT, 'assets/sprites/sprites.json'), 'utf8')) as { sprites: { id: string }[] }).sprites.map((s) => s.id);
     for (const u of Object.values(ctx.content.units).filter((x) => /^mob[23]_/.test(x.id) && x.kind === 'monster')) {
       expect(v2).toContain(u.visual.sprite);
       expect(ctx.content.skills[u.skills.basic]).toBeDefined();

@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob3_boss",
-  "name": "Король-лич",
+  "name": "Тёмный лорд",
   "kind": "boss",
   "role": "damage",
   "stats": {
@@ -16,7 +16,8 @@
     "passives": []
   },
   "visual": {
-    "sprite": "boss3",
+    "sprite": "dark_lord",
+    "scale": 0.8,
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }
