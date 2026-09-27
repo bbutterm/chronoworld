@@ -298,13 +298,16 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     }
     const ax = target.moving ? target.moving.toX : target.x;
     const ay = target.moving ? target.moving.toY : target.y;
-    const d = Math.hypot(u.x - ax, u.y - ay) || 1;
-    // Несколько бойцов у одной цели встают веером, а не друг в друга.
-    const crowd = allies(u).filter((o) => o !== u && o.alive && o.engage === target && o.range !== Infinity).length;
+    // Несколько бойцов у одной цели встают веером со своей стороны (A — слева, B — справа),
+    // место в веере закреплено за бойцом по слоту — не пересекаются и не перебегают.
+    const crowd = allies(u)
+      .filter((o) => o.alive && o.engage === target && o.range !== Infinity)
+      .sort((x, y) => x.slot - y.slot)
+      .indexOf(u);
     const angles = cfg.movement.stackAngles;
-    const ang = ((angles[crowd % angles.length] ?? 0) * Math.PI) / 180;
-    const dx = (u.x - ax) / d;
-    const dy = (u.y - ay) / d;
+    const ang = ((angles[Math.max(0, crowd) % angles.length] ?? 0) * Math.PI) / 180;
+    const dx = u.side === 'A' ? -1 : 1;
+    const dy = 0;
     const r = reach(u, target) * 0.9;
     const toX = round2(ax + (dx * Math.cos(ang) - dy * Math.sin(ang)) * r);
     const toY = round2(ay + (dx * Math.sin(ang) + dy * Math.cos(ang)) * r);
