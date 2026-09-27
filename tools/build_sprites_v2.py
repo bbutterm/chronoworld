@@ -9,6 +9,7 @@ import argparse,json,os,shutil,subprocess,sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
+from ro_v1_to_v2 import V1_SPRITES,convert as convert_v1
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'assets/sprites'
@@ -88,9 +89,20 @@ def save_lossless(im,path,oxipng):
   if not np.array_equal(np.asarray(check.convert('RGBA')),np.asarray(im)):
    raise RuntimeError(f'lossy PNG conversion: {path}')
 
+def upsert_v1(oxipng:Path,ids=None):
+ """Convert legacy assets/ro v1 sheets (no renderer cache needed) and upsert them into sprites.json."""
+ manifest=OUT/'sprites.json';data=json.loads(manifest.read_text())
+ for sid in ids or V1_SPRITES:
+  if sid not in V1_SPRITES:raise ValueError(f'not a v1-converted sprite id: {sid}')
+  entry=convert_v1(sid,CLASSES,ANIMS,OVERRIDES,save_lossless,oxipng,OUT)
+  data['sprites']=[s for s in data['sprites'] if s['id']!=sid]+[entry]
+  print(sid,entry['class'],(ROOT/'assets'/entry['file']).stat().st_size,'bytes (from v1)',flush=True)
+ manifest.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+
 def build(cache:Path,oxipng:Path,only=None):
  # oxipng is optional; Pillow's lossless indexed PNG remains under budget.
  for kind in ('heroes','monsters','bosses','portraits'):(OUT/kind).mkdir(parents=True,exist_ok=True)
+ if only in V1_SPRITES:return upsert_v1(oxipng,[only])
  data={'schema':2,'columns':8,'classes':CLASSES,'anims':ANIMS,'animOverrides':OVERRIDES,'sprites':[],
        'notes':['All frames rendered at native x1 with enableShadow=false and ACT (0,0) at the per-class anchor.',
                 'Class cells and anchors expanded with user approval to avoid ACT-origin clipping.',
@@ -170,10 +182,14 @@ def build(cache:Path,oxipng:Path,only=None):
   png=ROOT/'assets'/entry['file'];save_lossless(sheet,png,oxipng);data['sprites'].append(entry)
   print(name,kind,png.stat().st_size,'bytes',flush=True)
  (OUT/'sprites.json').write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+ if not only:upsert_v1(oxipng)
  print('OUTPUT',OUT,'bytes',sum(p.stat().st_size for p in OUT.rglob('*') if p.is_file()))
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--cache',type=Path,default=DEFAULT_CACHE)
  p.add_argument('--oxipng',type=Path,default=Path(os.environ.get('OXIPNG',shutil.which('oxipng') or '/root/artifacts/chronoworld-art/bin/oxipng')))
  p.add_argument('--only',help='Build/upsert a single ID without replacing the other manifest entries')
- a=p.parse_args();build(a.cache,a.oxipng,a.only)
+ p.add_argument('--from-v1',action='store_true',help='Only convert/upsert the legacy assets/ro v1 sheets (no renderer cache needed)')
+ a=p.parse_args()
+ if a.from_v1:upsert_v1(a.oxipng)
+ else:build(a.cache,a.oxipng,a.only)

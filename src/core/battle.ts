@@ -1,7 +1,7 @@
 import { COMBAT } from './config';
 import { calcDamage, calcHeal } from './formulas';
 import { Rng } from './rng';
-import { dist, selectTargets } from './targeting';
+import { dist, inRow, selectTargets } from './targeting';
 import type {
   ActiveStatus,
   BattleEvent,
@@ -93,8 +93,11 @@ export function stat(u: Unit, key: StatMod): number {
 
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
-/** Дистанция удара ближнего бойца по цели: его дальность + «радиус тела» цели (боссы крупнее). */
-export const reach = (u: Unit, target: Unit): number => u.range + target.body;
+/**
+ * Дистанция удара ближнего бойца по цели: его дальность + «радиус тела» цели и свой (боссы крупнее).
+ * Симметрична: крупный боец не подпускает мелкого вплотную, к его телу (T2-05: герой не встаёт в спрайт босса).
+ */
+export const reach = (u: Unit, target: Unit): number => u.range + target.body + u.body;
 
 /**
  * Детерминированный авто-бой. A — атакующая сторона (игрок), B — защищающаяся.
@@ -171,7 +174,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     else if (!dot) trigger(target, 'hit');
   };
 
-  const applyEffect = (u: Unit, e: Effect, target: Unit) => {
+  const applyEffect = (u: Unit, e: Effect, target: Unit, skill?: SkillDef) => {
     // Q: исполнитель мог погибнуть посреди навыка (контратака цели) — остаток навыка не срабатывает.
     if (!target.alive || !u.alive) return;
     switch (e.type) {
@@ -237,11 +240,20 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         const tx = standX(target);
         const ty = standY(target);
         const d = Math.hypot(u.x - tx, u.y - ty);
-        const r = cfg.movement.meleeRange * 0.8 + target.body;
+        const r = cfg.movement.meleeRange * 0.8 + target.body + u.body;
         const dirX = d > 0 ? (u.x - tx) / d : u.side === 'A' ? -1 : 1;
         const dirY = d > 0 ? (u.y - ty) / d : 0;
         const spot = findSpot(u, tx, ty, dirX, dirY, r, target, 0);
         const to: [number, number] = [spot.x, spot.y];
+        // Прыжок в тыл (T2-05): не «ассасин» бьёт и возвращается к прежнему противнику, а не остаётся в тылу.
+        const prev = u.engage?.alive ? u.engage : null;
+        returns.delete(u);
+        dived.delete(u);
+        if (!inRow(target, 'front', cfg)) {
+          if (prev !== target && !(skill && diveStay.has(skill.id)))
+            returns.set(u, { at: round2(t + cfg.movement.dashSeconds + diveReturnSeconds), x: u.x, y: u.y, prev });
+          else dived.add(u);
+        }
         emit({ t, type: 'move', unit: u.uid, from: [round2(u.x), round2(u.y)], to, duration: cfg.movement.dashSeconds, kind: 'dash' });
         u.x = to[0];
         u.y = to[1];
@@ -259,7 +271,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       const targets = preset && i === 0 ? preset : selectTargets(u, skill.target, allies(u), enemies(u), rng, cfg);
       for (const target of targets) {
         if (!hit.includes(target)) hit.push(target);
-        for (const e of skill.effects) applyEffect(u, e, target);
+        for (const e of skill.effects) applyEffect(u, e, target, skill);
       }
     }
     return hit;
@@ -331,11 +343,88 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     stuck.delete(u);
   };
 
-  /** Ближний боец выбирает, с кем сражаться: первая цель обычной атаки. */
+  /**
+   * Ближний боец выбирает, с кем сражаться (T2-05 — строй вместо кучи): кандидаты — цели обычной атаки по порядку
+   * селектора; враг, прыгнувший в наш тыл, — последним; берётся первый, у кого меньше maxMeleePerTarget
+   * ближних противников, иначе — у кого их меньше всех.
+   * Цель прыгнула в наш тыл не на меня — я не гонюсь за ней, если есть кто-то ещё (держу линию).
+   */
   const pickEngage = (u: Unit) => {
-    if (u.engage?.alive) return;
-    const targets = selectTargets(u, u.basic.target, allies(u), enemies(u), rng, cfg);
-    setEngage(u, targets.find((x) => x.side !== u.side) ?? null);
+    const cur = u.engage;
+    if (cur?.alive && !(deep(cur) && cur.engage !== u && enemies(u).some((x) => x.alive && !deep(x)))) return;
+    // Порядок: цели обычной атаки (по её селектору), затем остальные враги по близости.
+    const pool = selectTargets(u, { ...u.basic.target, count: 99 }, allies(u), enemies(u), rng, cfg).filter((x) => x.side !== u.side);
+    const rest = enemies(u)
+      .filter((x) => x.alive && !pool.includes(x))
+      .sort((x, y) => dist(u, x) - dist(u, y) || x.slot - y.slot);
+    pool.push(...rest);
+    if (pool.length === 0) {
+      setEngage(u, null);
+      return;
+    }
+    const front = pool.filter((x) => !deep(x));
+    const cands = front.length > 0 ? front : pool;
+    let best = cands[0];
+    let bestN = Infinity;
+    for (const x of cands) {
+      const n = meleeOn(x, u);
+      if (n < maxPerTarget) {
+        best = x;
+        break;
+      }
+      if (n < bestN) {
+        bestN = n;
+        best = x;
+      }
+    }
+    setEngage(u, best);
+  };
+
+  /** Сколько ближних бойцов (кроме except) сражаются с target. */
+  const meleeOn = (target: Unit, except: Unit) => {
+    let n = 0;
+    for (const o of enemies(target)) if (o !== except && o.alive && o.engage === target && o.range !== Infinity) n++;
+    return n;
+  };
+
+  /** Прыгнул в тыл и остался там (до первого шага пешком). */
+  const dived = new Set<Unit>();
+  /** Юнит прыгнул в наш тыл и стоит за линией фронта чужой стороны. */
+  const frontX = cfg.field.slotsA[cfg.slots.front[0]]?.[0] ?? 0;
+  const deep = (o: Unit) => dived.has(o) && (o.side === 'B' ? standX(o) < frontX : standX(o) > cfg.field.width - frontX);
+  /** Юнит отошёл в свой тыл (ближе к заднему ряду своей стороны, чем к переднему). */
+  const rearX = (frontX + (cfg.field.slotsA[cfg.slots.back[0]]?.[0] ?? 0)) / 2;
+  const inRear = (o: Unit) => (o.side === 'A' ? standX(o) < rearX : standX(o) > cfg.field.width - rearX);
+
+  /** Прыгнувшие в тыл, которые вернутся к прежнему противнику. */
+  const returns = new Map<Unit, { at: number; x: number; y: number; prev: Unit | null }>();
+  const diveStay = new Set(cfg.movement.diveStay ?? []);
+  const diveReturnSeconds = cfg.movement.diveReturnSeconds ?? 0.8;
+  const maxPerTarget = cfg.movement.maxMeleePerTarget ?? Infinity;
+
+  /** Возврат после прыжка в тыл: рывком к прежнему противнику (или на место прыжка, если тот погиб). */
+  const diveBack = () => {
+    if (returns.size === 0) return;
+    for (const [u, r] of [...returns]) {
+      if (!u.alive) {
+        returns.delete(u);
+        continue;
+      }
+      if (t + 1e-9 < r.at || stunned(u) || u.casting) continue;
+      returns.delete(u);
+      // Назад — к прежнему противнику, если он держит линию; иначе — на место прыжка.
+      const prev = r.prev?.alive && !inRear(r.prev) ? r.prev : null;
+      const spot = prev
+        ? findSpot(u, standX(prev), standY(prev), u.side === 'A' ? -1 : 1, 0, reach(u, prev) * 0.9, prev, 0)
+        : clearance(u, null, r.x, r.y) >= minSep
+          ? { x: round2(r.x), y: round2(r.y) }
+          : findSpot(u, r.x, r.y, u.side === 'A' ? -1 : 1, 0, minSep, null, 0);
+      u.moving = null;
+      emit({ t, type: 'move', unit: u.uid, from: [round2(u.x), round2(u.y)], to: [spot.x, spot.y], duration: cfg.movement.dashSeconds, kind: 'dash' });
+      u.x = spot.x;
+      u.y = spot.y;
+      if (u.range !== Infinity) setEngage(u, prev);
+    }
   };
 
   /**
@@ -382,7 +471,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     let best = Infinity;
     for (const o of all) {
       if (o === u || o === target || !o.alive) continue;
-      best = Math.min(best, Math.hypot(standX(o) - x, standY(o) - y));
+      best = Math.min(best, Math.hypot(standX(o) - x, standY(o) - y) - o.body - u.body);
     }
     return best;
   };
@@ -426,9 +515,39 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     return fallback ?? { x: round2(clampX(cands[0].x)), y: round2(clampY(cands[0].y)) };
   };
 
+  /** К какой цели и точке стоянки идёт боец (для перепланирования, если цель ушла). */
+  const plans = new Map<Unit, { target: Unit; x: number; y: number }>();
+
+  /**
+   * Боец идёт к цели, а она сменилась или ушла со своей точки дальше чем на minSeparation, — путь пересчитывается
+   * (раз в 3 тика), а не доходит до устаревшей точки (T2-05: меньше беготни через поле).
+   */
+  const stalePlan = (u: Unit, target: Unit) => {
+    if (tickNo % 3 !== 0) return false;
+    const p = plans.get(u);
+    if (!p) return false;
+    return p.target !== target || Math.hypot(standX(target) - p.x, standY(target) - p.y) > Math.max(minSep, 1);
+  };
+
   const planMove = (u: Unit) => {
     const target = u.engage;
-    if (!target || u.moving || u.casting || stunned(u)) return;
+    if (!target || u.casting || stunned(u)) return;
+    if (!u.moving) {
+      planStep(u, target);
+      return;
+    }
+    if (!stalePlan(u, target)) return;
+    u.moving = null;
+    planStep(u, target);
+    // Новый путь не понадобился (уже в досягаемости) — остановка там, где стоит, чтобы сцена не дорисовала старый путь.
+    if (!u.moving) {
+      const at: [number, number] = [round2(u.x), round2(u.y)];
+      emit({ t, type: 'move', unit: u.uid, from: at, to: at, duration: 0, kind: 'walk' });
+    }
+  };
+
+  const planStep = (u: Unit, target: Unit) => {
+    plans.delete(u);
     if (dist(u, target) <= reach(u, target)) {
       // Проверка наложения — раз в 3 тика (0.3 с): незаметно глазу, дешевле для массовых прогонов.
       if (tickNo % 3 === 0) separate(u, target);
@@ -445,6 +564,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       const dx = (target.x - u.x) / d;
       const dy = (target.y - u.y) / d;
       startMove(u, u.x + dx * travel * share, u.y + dy * travel * share);
+      plans.delete(target);
       startMove(target, target.x - dx * travel * (1 - share), target.y - dy * travel * (1 - share));
       return;
     }
@@ -459,6 +579,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       .indexOf(u);
     const spot = findSpot(u, ax, ay, u.side === 'A' ? -1 : 1, 0, reach(u, target) * 0.9, target, crowd);
     startMove(u, spot.x, spot.y);
+    if (u.moving) plans.set(u, { target, x: ax, y: ay });
   };
 
   /**
@@ -494,6 +615,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     const toY = round2(clampY(y));
     const len = Math.hypot(toX - u.x, toY - u.y);
     if (len < 1) return;
+    dived.delete(u);
     u.moving = { toX, toY };
     emit({ t, type: 'move', unit: u.uid, from: [round2(u.x), round2(u.y)], to: [toX, toY], duration: round2(len / u.moveSpeed), kind: 'walk' });
   };
@@ -693,6 +815,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       landProjectiles();
       tickStatuses();
       for (const u of all) if (u.alive && !stunned(u)) stepMove(u);
+      diveBack();
       const melee = all.filter((u) => u.alive && u.range !== Infinity);
       for (const u of melee) pickEngage(u);
       for (const u of melee) checkStuck(u);

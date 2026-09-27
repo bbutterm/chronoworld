@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_moonlight",
+  "name": "Лунный цветок",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 2800,
+    "atk": 100,
+    "def": 15,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_boss2_curse",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "moonlight_flower",
+    "scale": 1.3,
+    "hitFx": "fx_hit"
+  }
+}

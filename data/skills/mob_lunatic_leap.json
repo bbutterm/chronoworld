@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_lunatic_leap",
+  "name": "Кроличий прыжок",
+  "description": "Прыжок через строй к врагу тыла с наименьшим HP и укус; Люнатик остаётся драться в тылу.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.4
+    }
+  ]
+}

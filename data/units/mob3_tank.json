@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob3_tank",
-  "name": "Мёртвая ива",
+  "name": "Рейдрик",
   "kind": "monster",
   "role": "tank",
   "stats": {
@@ -16,8 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "tank",
-    "tint": "#8c8599",
+    "sprite": "raydric",
     "hitFx": "fx_hit"
   }
 }

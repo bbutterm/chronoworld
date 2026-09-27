@@ -270,7 +270,7 @@
             "mult": 1.01
           },
           {
-            "unit": "mob_boss1",
+            "unit": "mob_mistress",
             "mult": 1.01
           },
           {
@@ -289,7 +289,7 @@
             "mult": 1.08
           },
           {
-            "unit": "mob_boss2",
+            "unit": "mob_drake",
             "mult": 1.08
           },
           {
@@ -308,7 +308,7 @@
             "mult": 0.84
           },
           {
-            "unit": "mob_boss2",
+            "unit": "mob_moonlight",
             "mult": 0.84
           },
           {
@@ -414,7 +414,7 @@
             "mult": 0.97
           },
           {
-            "unit": "mob_boss1",
+            "unit": "mob_osiris",
             "mult": 0.97
           },
           {
@@ -467,7 +467,7 @@
         ],
         [
           {
-            "unit": "mob_boss1",
+            "unit": "mob_osiris",
             "mult": 0.63
           },
           {

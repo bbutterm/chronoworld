@@ -119,7 +119,7 @@ describe('K4 башня: этажи', () => {
     expect(towerFloor(1, ctx).band).toBe(0);
     expect(towerFloor(20, ctx).band).toBe(1);
     expect(towerFloor(41, ctx).band).toBe(2);
-    expect(towerFloor(50, ctx).enemies.some((e) => e?.visual.sprite === 'boss3')).toBe(true);
+    expect(towerFloor(50, ctx).enemies.some((e) => e?.visual.sprite === 'dark_lord')).toBe(true);
     expect(towerFloor(55, ctx).enemies.filter((e) => e?.kind === 'boss')).toHaveLength(2);
   });
 

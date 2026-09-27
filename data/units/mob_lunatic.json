@@ -13,7 +13,7 @@
   },
   "skills": {
     "basic": "basic_melee",
-    "ult": "mob_fast_lunge",
+    "ult": "mob_lunatic_leap",
     "passives": []
   },
   "visual": {

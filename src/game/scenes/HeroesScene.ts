@@ -99,7 +99,7 @@ export class HeroesScene extends Phaser.Scene {
     a.add(progressBar(this, bx, by, barW, 28, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success));
     // T1-02: на максимуме — «опыт копится» (запас), полон — предупреждение.
     const bank = expBankLabel(hero, GAME);
-    const barLabel = atMax ? (bank ? (bank.full ? 'запас опыта полон — смените профессию!' : `максимум · опыт копится (${bank.text})`) : 'максимальный уровень') : `опыт ${hero.jobExp} / ${need}`;
+    const barLabel = atMax ? (bank ? (bank.full ? 'запас опыта полон — смените профессию!' : `максимум · опыт копится (${bank.text})`) : 'максимальный уровень') : `опыт ${formatNumber(hero.jobExp)} / ${formatNumber(need)}`;
     a.add(text(this, bx + barW / 2, by, barLabel, FS.caption, atMax ? (bank?.full ? '#8a1a0a' : '#2a1c08') : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 }));
 
     if (canChange) {

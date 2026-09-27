@@ -2,12 +2,12 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob_fast_lunge",
   "name": "Бросок",
-  "description": "Рывок к врагу тыла с наименьшим ОЗ и укус.",
+  "description": "Бросок на ближайшего врага переднего ряда и укус.",
   "range": "ranged",
   "target": {
     "side": "enemy",
-    "pick": "lowestHp",
-    "row": "back"
+    "pick": "nearest",
+    "row": "front"
   },
   "effects": [
     {

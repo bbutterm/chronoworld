@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_H, GAME_W, HEADER_H } from './layout';
+import { BLEED_X, BLEED_Y, GAME_H, GAME_W, HEADER_H } from './layout';
 import { session, takeWarnings } from './session';
 import { GAME } from './content';
 import { anim, lazyPortrait, portraitKey, spriteView, whenSprites } from './sprites';
@@ -40,10 +40,11 @@ export function screen(
   back?: { label?: string; to: string; data?: object },
   opts: { settings?: () => void } = {},
 ): void {
+  // Фон 1080×1920 сам продолжается на поля вытянутых экранов (viewport.ts); шапка и навигация — тоже до краёв.
   scene.add.image(GAME_W / 2, GAME_H / 2, 'skin_bg_forest').setDisplaySize(GAME_W, GAME_H);
-  scene.add.rectangle(GAME_W / 2, HEADER_H / 2, GAME_W, HEADER_H, SKIN.bg, 0.96);
-  scene.add.rectangle(GAME_W / 2, HEADER_H, GAME_W, 2, SKIN_TINT.bronze);
-  const t = text(scene, back ? GAME_W / 2 + 40 : 50, HEADER_H / 2, title, FS.h1, SKIN.cream, { fontStyle: 'bold' }).setOrigin(back ? 0.5 : 0, 0.5);
+  const fullW = GAME_W + 2 * BLEED_X;
+  scene.add.rectangle(GAME_W / 2, (HEADER_H - BLEED_Y) / 2, fullW, HEADER_H + BLEED_Y, SKIN.bg, 0.96);
+  scene.add.rectangle(GAME_W / 2, HEADER_H, fullW, 2, SKIN_TINT.bronze);
   if (back) button(scene, 110, HEADER_H / 2, 180, 100, 'k:buttonLong_beige', back.label ?? '‹ Назад', () => scene.scene.start(back.to, back.data), FS.h3);
   const currencyLeft = currencyLabels(scene);
   let titleRight = currencyLeft - SP.m;
@@ -53,11 +54,13 @@ export function screen(
     gear.container.add(scene.add.image(0, 0, skinIcon('gear')).setDisplaySize(56, 56).setTint(SKIN_TINT.gold)).setName('settings');
     titleRight = gx - GEAR_SIZE / 2 - SP.m;
   }
-  // Длинное название не должно наезжать на «Назад», шестерёнку и валюту справа.
-  ellipsize(t, back ? Math.min(520, 2 * (titleRight - t.x)) : Math.min(680, titleRight - t.x));
+  // T3-08: название — между «‹ Назад» и валютой; длинное сначала мельчает, потом переносится на две строки.
+  const titleLeft = back ? 200 + SP.m : 50;
+  const t = text(scene, back ? (titleLeft + titleRight) / 2 : titleLeft, HEADER_H / 2, title, FS.h1, SKIN.cream, { fontStyle: 'bold' }).setOrigin(back ? 0.5 : 0, 0.5);
+  fitTitle(t, titleRight - titleLeft);
 
   if (active) {
-    scene.add.rectangle(GAME_W / 2, GAME_H - NAV_H / 2, GAME_W, NAV_H, SKIN.bg, 0.9);
+    scene.add.rectangle(GAME_W / 2, GAME_H - (NAV_H - BLEED_Y) / 2, GAME_W + 2 * BLEED_X, NAV_H + BLEED_Y, SKIN.bg, 0.9);
     const w = GAME_W / TABS.length;
     TABS.forEach((t, i) => {
       const on = t.scene === active;
@@ -75,6 +78,20 @@ export function screen(
     });
   }
   for (const w of takeWarnings()) toast(scene, w, C.error, 6000);
+}
+
+/** Название экрана в ширину maxW: крупно, если влезает; иначе мельче (до FS.h3), потом две строки, потом «…». */
+function fitTitle(t: Phaser.GameObjects.Text, maxW: number): void {
+  for (const size of [FS.h1, FS.h2, FS.h3]) {
+    t.setFontSize(size);
+    if (t.width <= maxW) return;
+  }
+  const full = t.text;
+  t.setWordWrapWidth(maxW).setLineSpacing(-4);
+  if (t.height <= HEADER_H - 16 && t.width <= maxW) return;
+  t.setWordWrapWidth(null);
+  t.setText(full);
+  ellipsize(t, maxW);
 }
 
 /** Размер кнопки-шестерёнки в шапке (цель нажатия — не меньше TOUCH). */
@@ -151,24 +168,38 @@ export function confirmOpen(scene: Phaser.Scene): boolean {
   return !!scene.children.getByName(CONFIRM_NAME);
 }
 
-/** Модальное подтверждение: затемнение, вопрос, «Да» / «Отмена». */
-export function confirm(scene: Phaser.Scene, question: string, yes: string, onYes: () => void): void {
+/**
+ * Модальное подтверждение: затемнение, вопрос, «Да» / «Отмена».
+ * opts.danger — разрушительное действие (сброс, удаление): оно красное и справа, а золотая основная кнопка —
+ * безопасная «Отмена» (T3-23: не сбросить прогресс «на автомате»).
+ */
+export function confirm(scene: Phaser.Scene, question: string, yes: string, onYes: () => void, opts: { danger?: boolean } = {}): void {
   const layer = scene.add.container(0, 0).setDepth(9000).setName(CONFIRM_NAME);
   const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
-  const box = panel(scene, GAME_W / 2, GAME_H / 2, 900, 520, 'ui_panel');
-  const q = text(scene, GAME_W / 2, GAME_H / 2 - 90, question, FS.h2, C.text, { wordWrap: { width: 780 }, lineSpacing: 8 });
+  const q = text(scene, GAME_W / 2, 0, question, FS.h2, C.text, { wordWrap: { width: 780 }, lineSpacing: 8 });
+  // Высота окна — по тексту вопроса: без пустого провала между вопросом и кнопками.
+  const boxH = Math.max(400, q.height + 330);
+  const top = GAME_H / 2 - boxH / 2;
+  const box = panel(scene, GAME_W / 2, GAME_H / 2, 900, boxH, 'ui_panel');
+  q.setY(top + 90 + q.height / 2);
+  const btnY = top + boxH - 110;
   const close = () => layer.destroy();
-  const ok = button(scene, GAME_W / 2 - 210, GAME_H / 2 + 150, 380, 120, 'ui_btn_primary', yes, () => {
+  const doIt = () => {
     close();
     onYes();
-  });
-  const cancel = button(scene, GAME_W / 2 + 210, GAME_H / 2 + 150, 380, 120, 'k:buttonLong_beige', 'Отмена', close);
+  };
+  const danger = !!opts.danger;
+  const ok = button(scene, GAME_W / 2 + (danger ? 210 : -210), btnY, 380, 120, danger ? DANGER_BTN : 'ui_btn_primary', yes, doIt);
+  const cancel = button(scene, GAME_W / 2 + (danger ? -210 : 210), btnY, 380, 120, danger ? 'ui_btn_primary' : 'k:buttonLong_beige', 'Отмена', close);
   // Касание мимо окна — «Отмена» (окно само касания ловит, чтобы не закрываться от нажатия по нему).
   box.setInteractive();
   shade.on('pointerup', close);
   layer.add([shade, box, q, ok.container, cancel.container]);
   popIn(scene, layer, shade);
 }
+
+/** Красная кнопка опасного действия (текстура скина, buildSkin). */
+export const DANGER_BTN = 'skin_btn_danger';
 
 /** Появление модального окна: затемнение проявляется, окно чуть «вырастает» из центра экрана. */
 export function popIn(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, shade?: Phaser.GameObjects.GameObject): void {

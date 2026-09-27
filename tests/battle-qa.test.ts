@@ -420,7 +420,7 @@ describe('QA T2 (бой) — регрессии пакета P1', () => {
         if (e.type !== 'attack' || e.kind !== 'melee' || e.targets.length !== 1) return;
         const a = tr.pos(e.unit, e.t);
         const b = tr.pos(e.targets[0], e.t);
-        expect(Math.hypot(a[0] - b[0], a[1] - b[1]), `t=${e.t} ${e.unit}→${e.targets[0]}`).toBeLessThanOrEqual(MOVE.meleeRange + body(e.targets[0]) + 2);
+        expect(Math.hypot(a[0] - b[0], a[1] - b[1]), `t=${e.t} ${e.unit}→${e.targets[0]}`).toBeLessThanOrEqual(MOVE.meleeRange + body(e.targets[0]) + body(e.unit) + 2);
       });
     }
   });

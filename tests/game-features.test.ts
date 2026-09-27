@@ -52,8 +52,8 @@ describe('помощники экранов K1–K7', () => {
     expect(statsLine({ hp: 450, atk: 40 }, '\n', ['hp', 'atk'])).toBe('ОЗ 450\nАТК 40');
   });
 
-  it('P: токены темы — шрифт не меньше 26, цель нажатия не меньше 96', () => {
-    for (const size of Object.values(FS)) expect(size).toBeGreaterThanOrEqual(26);
+  it('P: токены темы — шрифт не меньше 30, цель нажатия не меньше 96', () => {
+    for (const size of Object.values(FS)) expect(size).toBeGreaterThanOrEqual(30);
     expect(TOUCH).toBeGreaterThanOrEqual(96);
   });
 
