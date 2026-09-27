@@ -137,7 +137,7 @@ describe('сюжет: спикеры', () => {
   });
 
   it('портрет-профессия и юнит без данных (Мастеринга ещё нет) — без падения', () => {
-    expect(speakerView(story, 'garret', save, ctx)).toEqual({ name: 'Капитан Гаррет', sprite: ctx.content.jobs.swordman.visual.sprite });
+    expect(speakerView(story, 'garret', save, ctx)).toEqual({ name: 'Капитан Гаррет', sprite: ctx.content.jobs.knight.visual.sprite });
     const m = speakerView(story, 'mastering', save, ctx);
     expect(m.name).toBe('Мастеринг');
     expect(m.sprite === null || typeof m.sprite === 'string').toBe(true);

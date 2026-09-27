@@ -2,7 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "merchant",
   "name": "Торговец",
-  "description": "Бьёт золотом и тележкой. Дальше — Кузнец или Алхимик.",
+  "description": "Бьёт монетами и тележкой. Дальше — Кузнец или Алхимик.",
   "tier": 1,
   "from": [
     "novice"

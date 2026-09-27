@@ -1,8 +1,8 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "mob_fast_lunge",
-  "name": "Прыжок",
-  "description": "Рывок к самому раненому врагу тыла и укус.",
+  "name": "Бросок",
+  "description": "Рывок к врагу тыла с наименьшим HP и укус.",
   "range": "ranged",
   "target": {
     "side": "enemy",

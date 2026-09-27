@@ -2,7 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "rogue",
   "name": "Разбойник",
-  "description": "Вторая профессия Вора: грабёж и разоружение.",
+  "description": "Вторая профессия Вора: грабёж, плагиат и разоружение.",
   "tier": 2,
   "from": [
     "thief"
@@ -29,7 +29,7 @@
     },
     {
       "jobLevel": 10,
-      "skill": "job_rogue_snatcher"
+      "skill": "job_rogue_gank"
     },
     {
       "jobLevel": 20,
@@ -37,7 +37,7 @@
     },
     {
       "jobLevel": 30,
-      "skill": "job_rogue_gank"
+      "skill": "job_rogue_plagiarism"
     },
     {
       "jobLevel": 40,

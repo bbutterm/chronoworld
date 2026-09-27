@@ -1,26 +1,18 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "job_crusader_faith",
-  "name": "Праведный гнев",
-  "description": "Когда погибает союзник: +20% атаки и защиты себе на 3 хода.",
+  "name": "Вера",
+  "description": "В начале боя: щит 15% HP себе (крепость веры).",
   "range": "ranged",
-  "trigger": "allyDeath",
+  "trigger": "battleStart",
   "target": {
     "side": "ally",
     "pick": "self"
   },
   "effects": [
     {
-      "type": "status",
-      "status": {
-        "id": "faith",
-        "name": "Праведный гнев",
-        "turns": 3,
-        "stats": {
-          "atk": 0.2,
-          "def": 0.2
-        }
-      }
+      "type": "shield",
+      "pctMaxHp": 0.15
     }
   ]
 }

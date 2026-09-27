@@ -2,7 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "novice",
   "name": "Новичок",
-  "description": "Все начинают здесь. На джобе 10 — выбор первой профессии.",
+  "description": "Все начинают здесь. На 10-м уровне профессии — выбор первого пути.",
   "tier": 0,
   "from": [],
   "maxJobLevel": 10,

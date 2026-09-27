@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "job_priest_magnus_exorcismus",
-  "name": "Магнус экзорцизмус",
+  "name": "Магнус Экзорцизмус",
   "description": "Святой урон всем врагам.",
   "icon": "icon_ult_priest",
   "range": "ranged",

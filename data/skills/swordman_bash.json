@@ -1,8 +1,8 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "swordman_bash",
-  "name": "Удар мечом",
-  "description": "Сильный удар по цели сражения.",
+  "name": "Баш",
+  "description": "Сильный удар (×2.0) по цели сражения.",
   "range": "melee",
   "target": {
     "side": "enemy",
