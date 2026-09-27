@@ -14,9 +14,11 @@ EXPECTED={
  'boss':('idle','walk','attack','hurt','death'),
 }
 REQUIRED={'novice','merchant','swordman','magician','archer_first','acolyte','thief',
-          'guard','warrior','assassin','archer','mage','priest','melee','ranged','tank','fast','elite','boss1','boss2'}
+          'guard','warrior','assassin','archer','mage','priest','melee','ranged','tank','fast','elite','boss1','boss2',
+          'drops','poporing','fabre','lunatic','mandragora','rocker','mastering'}
 GRID={'hero':([224,192],[104,144]),'monster':([240,224],[100,120]),'boss':([256,256],[112,216])}
-EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16]}
+EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
+            'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}
 
 def expected_indices(total,target,death):
  if total>=target:return [round(i*(total-1)/(target-1)) for i in range(target)]
