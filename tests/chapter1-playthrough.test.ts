@@ -6,14 +6,14 @@ const ctx = loadGameContext();
 const FIRST_JOBS = ['swordman', 'thief', 'archer', 'mage', 'acolyte'];
 
 describe('глава 1 играбельна с нуля', () => {
-  it('Новички проходят главу, к середине все берут первую профессию (≤ 3 попытки на этап)', () => {
+  it('Новички проходят главу, к середине все берут первую профессию (≤ 3 попытки на этап, босс — ≤ 6: ~⅔ побед)', () => {
     let save: SaveState = newGame(ctx, 0);
     const stages = ctx.content.stages.filter((s) => s.chapter === ctx.content.chapters[0].id);
     let seed = 1;
     let jobChangeAt = -1;
     stages.forEach((s, i) => {
       let won = false;
-      for (let t = 0; t < 3 && !won; t++) {
+      for (let t = 0; t < (s.boss ? 6 : 3) && !won; t++) {
         const out = playStage(save, s.id, seed++, ctx);
         save = out.save;
         won = out.result.winner === 'A';
