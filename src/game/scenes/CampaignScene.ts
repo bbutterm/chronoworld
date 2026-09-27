@@ -6,10 +6,11 @@ import { currentStage } from '../flow';
 import { GAME_W } from '../layout';
 import { CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
 import { session } from '../session';
-import { button, ellipsize, icon, pressable, text, toast } from '../ui';
+import { button, ellipsize, pressable, text, toast } from '../ui';
 import { C, FS, TOUCH } from '../theme';
+import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 
-const NODE = 130;
+const NODE = 150;
 
 /** Кампания: этапы главы снизу вверх, как тропа (закрыт / открыт / пройден / босс). */
 export class CampaignScene extends Phaser.Scene {
@@ -29,55 +30,81 @@ export class CampaignScene extends Phaser.Scene {
       return;
     }
 
-    text(this, GAME_W / 2, CONTENT_TOP + 40, chapter.name, FS.h2, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
+    text(this, GAME_W / 2, CONTENT_TOP + 40, chapter.name, FS.h2, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
     if (ci > 0) button(this, 70, CONTENT_TOP + 40, TOUCH, TOUCH, 'k:buttonSquare_beige', '‹', () => this.scene.restart({ chapter: ci - 1 }), FS.hero);
     if (ci < chapters.length - 1) button(this, GAME_W - 70, CONTENT_TOP + 40, TOUCH, TOUCH, 'k:buttonSquare_beige', '›', () => this.scene.restart({ chapter: ci + 1 }), FS.hero);
 
     const stages = CONTENT.stages.filter((s) => s.chapter === chapter.id);
-    const top = CONTENT_TOP + 150;
-    const bottom = CONTENT_BOTTOM - 70;
+    const top = CONTENT_TOP + 170;
+    const bottom = CONTENT_BOTTOM - 90;
     const step = stages.length > 1 ? (bottom - top) / (stages.length - 1) : 0;
-    // Тропа зигзагом слева, подписи — ровным столбцом справа, чтобы линии их не перечёркивали.
-    const pos = stages.map((_, i) => ({ x: i % 2 === 0 ? 170 : 340, y: bottom - step * i }));
+    // Тропа змейкой снизу вверх (как в референсе владельца), подпись — с той стороны, где больше места.
+    const pos = stages.map((_, i) => ({ x: GAME_W / 2 + Math.sin(i * 1.05 + 0.4) * 250, y: bottom - step * i }));
 
-    // Тропа между узлами — один Graphics на весь экран.
-    const g = this.add.graphics();
-    g.lineStyle(14, 0x6b4a2a, 0.9);
-    for (let i = 1; i < pos.length; i++) g.lineBetween(pos[i - 1].x, pos[i - 1].y, pos[i].x, pos[i].y);
+    // Деревянная тропа: гладкая кривая через все узлы — тёмная кромка, доска, светлые «гвозди».
+    if (pos.length > 1) {
+      const curve = new Phaser.Curves.Spline(pos.map((p) => new Phaser.Math.Vector2(p.x, p.y)));
+      const pts = curve.getSpacedPoints(pos.length * 24);
+      const g = this.add.graphics();
+      g.lineStyle(64, 0x0e0b07, 0.9).strokePoints(pts);
+      g.lineStyle(48, 0x5a3c22, 1).strokePoints(pts);
+      g.lineStyle(26, 0x6e4b2b, 1).strokePoints(pts);
+      g.fillStyle(0xc9a878, 0.5);
+      for (let i = 0; i < pts.length; i += 3) g.fillCircle(pts[i].x, pts[i].y, 3.5);
+    }
 
     stages.forEach((s, i) => {
       const st = stageStatus(session.save, s.id, GAME);
       const { x, y } = pos[i];
-      const frame = st === 'locked' ? 'k:buttonSquare_grey' : st === 'cleared' ? 'k:buttonSquare_brown' : 'k:buttonSquare_blue';
-      const size = s.boss ? NODE * 1.2 : NODE;
+      const size = s.boss ? NODE * 1.25 : NODE;
       const open = () => {
         if (st === 'locked') toast(this, 'Этап закрыт: сначала пройдите предыдущий');
         else this.scene.start('Stage', { stageId: s.id });
       };
-      const node = button(this, x, y, size, size, frame, String(s.globalIndex + 1), open);
-      // Подпись тоже нажимается — большая цель для пальца (с затемнением при нажатии, как у кнопок).
-      const zh = Math.max(TOUCH, Math.min(step, 130));
-      pressable(this, this.add.zone(750, y, 580, zh), 580, zh, open);
-      if (s.boss) {
-        this.add.circle(x, y, size * 0.72, 0xd64545, 0).setStrokeStyle(8, 0xd64545, st === 'locked' ? 0.4 : 1);
-      }
-      if (st === 'cleared') icon(this, x + size / 2 - 8, y - size / 2 + 8, 'iconCheck_bronze', 50);
-      if (st === 'locked') {
-        node.container.setAlpha(0.6);
-        icon(this, x + size / 2 - 8, y - size / 2 + 8, 'iconCross_grey', 40);
-      }
+      const key = st === 'open' ? 'skin_node_open' : st === 'cleared' ? 'skin_node_cleared' : s.boss ? 'skin_node_boss' : 'skin_node_locked';
+      pressable(this, this.add.image(x, y, key).setDisplaySize(size, size), size, size, open);
+      text(this, x, y - 2, String(s.globalIndex + 1), size * 0.34, st === 'locked' ? SKIN.creamDim : SKIN.cream, {
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 6,
+      });
+      // Значок в углу: замок (закрыт), галочка (пройден), корона-метка босса.
+      const badge = (name: SkinIcon, color: number) => {
+        const bx = x + size * 0.36;
+        const by = y + size * 0.34;
+        this.add.circle(bx, by, 26, 0x0d0e0b).setStrokeStyle(3, SKIN_TINT.bronze);
+        this.add.image(bx, by, skinIcon(name)).setDisplaySize(34, 34).setTint(color);
+      };
+      if (st === 'locked') badge('lock', SKIN_TINT.gold);
+      if (st === 'cleared') badge('check', 0x9fe0a6);
       if (st === 'open') {
-        const ring = this.add.circle(x, y, size * 0.8).setStrokeStyle(6, 0xffd84a);
-        this.tweens.add({ targets: ring, scale: 1.12, alpha: 0.3, yoyo: true, repeat: -1, duration: 700 });
+        // Прицел текущего этапа: красные риски по сторонам и мягкая пульсация.
+        const r = size * 0.62;
+        const g = this.add.graphics({ x, y });
+        g.fillStyle(0xb83a2a, 1);
+        for (let k = 0; k < 4; k++) {
+          const a = (k * Math.PI) / 2;
+          g.fillRect(Math.cos(a) * r - 7, Math.sin(a) * r - 7, 14, 14);
+        }
+        this.tweens.add({ targets: g, scale: 1.08, yoyo: true, repeat: -1, duration: 650, ease: 'Sine.easeInOut' });
       }
-      const lx = 470;
-      const color = st === 'locked' ? C.disabled : s.boss ? C.danger : C.text;
-      ellipsize(text(this, lx, y - 20, s.name, FS.h2, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), GAME_W - lx - 30);
-      const status = st === 'cleared' ? 'пройден' : st === 'open' ? (s.boss ? 'БОСС · открыт' : 'открыт') : s.boss ? 'босс · закрыт' : 'закрыт';
-      text(this, lx, y + 24, status, FS.small, st === 'open' ? C.gold : st === 'cleared' ? C.success : C.dim, {
-        stroke: C.stroke,
+      // Подпись — сбоку от узла, в сторону центра экрана.
+      const right = x < GAME_W / 2;
+      const lx = right ? x + size * 0.62 : x - size * 0.62;
+      const zh = Math.max(TOUCH, Math.min(step, 130));
+      const zx = right ? (lx + GAME_W - 20) / 2 : (20 + lx) / 2;
+      const zw = right ? GAME_W - 20 - lx : lx - 20;
+      pressable(this, this.add.zone(zx, y, zw, zh), zw, zh, open);
+      const color = st === 'locked' ? SKIN.creamDim : s.boss ? C.danger : SKIN.cream;
+      ellipsize(
+        text(this, lx, y - 18, s.name, FS.h3, color, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 }).setOrigin(right ? 0 : 1, 0.5),
+        zw - 10,
+      );
+      const status = st === 'cleared' ? 'пройден' : st === 'open' ? (s.boss ? 'БОСС · в бой' : 'в бой') : s.boss ? 'босс' : 'закрыт';
+      text(this, lx, y + 22, status, FS.caption, st === 'open' ? SKIN.goldLight : st === 'cleared' ? C.success : SKIN.creamDim, {
+        stroke: '#000000',
         strokeThickness: 4,
-      }).setOrigin(0, 0.5);
+      }).setOrigin(right ? 0 : 1, 0.5);
     });
   }
 }

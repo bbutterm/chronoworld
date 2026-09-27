@@ -119,7 +119,7 @@ try {
     let won = false;
     for (let t = 1; t <= MAX_TRIES && !won; t++) {
       if (t === 1) {
-        await clickText(await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key), 'Кампания');
+        await clickText(await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key), 'КАМПАНИЯ');
         await waitScene('Campaign');
         await clickText('Campaign', String(stage));
         await waitScene('Stage');

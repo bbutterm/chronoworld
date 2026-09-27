@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { sliceOf, tex } from './assets';
+import { skinKey, sliceOf, tex } from './assets';
+import { SKIN, SKIN_DARK_LABEL } from './skin';
 import { FONT, HEADER_H } from './layout';
 import { C, FS, TINT, TOUCH } from './theme';
 import { HINT_GEOM, placeCallout, type HintSide, type Rect } from './hintLayout';
@@ -31,6 +32,11 @@ export function text(
 export function panel(scene: Phaser.Scene, x: number, y: number, w: number, h: number, id: string, scale = UI_SCALE): Phaser.GameObjects.NineSlice {
   const t = tex(scene, id);
   const [l, r, tp, b] = sliceOf(id);
+  // Текстуры скина нарисованы в игровых единицах — без увеличения; углы не больше половины размера.
+  if (skinKey(scene, id)) {
+    const k = Math.min(l, w / 2 - 1, h / 2 - 1);
+    return scene.add.nineslice(x, y, t.key, t.frame, w, h, k, k, k, k);
+  }
   return scene.add.nineslice(x, y, t.key, t.frame, w / scale, h / scale, l, r, tp, b).setScale(scale);
 }
 
@@ -49,11 +55,14 @@ export function button(
   fontSize: number = FS.h2,
 ): { container: Phaser.GameObjects.Container; setLabel: (s: string) => void; label: Phaser.GameObjects.Text } {
   const bg = panel(scene, 0, 0, w, h, textureId);
-  const dark = DARK_TEXT.has(textureId);
-  const t = text(scene, 0, -4, label, fontSize, dark ? C.ink : C.text, {
+  const skin = skinKey(scene, textureId);
+  // Скин: на золотой кнопке тёмная подпись, на тёмных плитках — кремовая (активная — золотая).
+  const dark = skin ? SKIN_DARK_LABEL.has(skin) : DARK_TEXT.has(textureId);
+  const color = skin ? (dark ? '#2a1c08' : skin === 'skin_btn_active' ? SKIN.goldLight : SKIN.cream) : dark ? C.ink : C.text;
+  const t = text(scene, 0, -4, label, fontSize, color, {
     fontStyle: 'bold',
-    stroke: dark ? C.none : C.titleStroke,
-    strokeThickness: dark ? 0 : 5,
+    stroke: dark || skin ? C.none : C.titleStroke,
+    strokeThickness: dark || skin ? 0 : 5,
   });
   const container = scene.add.container(x, y, [bg, t]);
   // Цель нажатия не ниже TOUCH, даже если кнопка нарисована ниже.
