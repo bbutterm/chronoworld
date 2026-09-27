@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { buildRegistry, resolveAnim, type AnimName, type LegacySprites, type SpriteDef, type SpriteFixes, type SpritesV2 } from '../pipeline/sprites';
-import { FONT } from './layout';
+import { FONT, GAME_H, GAME_W } from './layout';
 import { SheetLru, textureBytes } from './spriteCache';
 
 const first = <T>(mods: Record<string, unknown>): T | undefined => Object.values(mods)[0] as T | undefined;
@@ -152,7 +152,8 @@ function loadingOverlay(scene: Phaser.Scene): () => void {
   const gen = genOf(scene);
   const timer = setTimeout(() => {
     if (!scene.sys.isActive() || genOf(scene) !== gen) return;
-    const { width, height } = scene.scale.gameSize;
+    const width = GAME_W;
+    const height = GAME_H;
     const shade = scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45).setInteractive();
     const label = scene.add
       .text(width / 2, height / 2, 'Загрузка…', { fontFamily: FONT, fontSize: '52px', color: '#ffffff', stroke: '#000000', strokeThickness: 8 })

@@ -41,6 +41,11 @@ const L = {
  * Главная: сундук офлайн-наград, быстрые награды (K1), плитки задания (K5) / башня (K4) / поручения (K9) / достижения (K10), кампания.
  * Тестовый бой, сброс подсказок и прогресса — в настройках (шестерёнка в шапке, S).
  */
+/** Инструменты разработчика (тестовый бой): dev-сборка или ?dev=1 в адресе. */
+function devTools(): boolean {
+  return import.meta.env.DEV || new URLSearchParams(location.search).has('dev');
+}
+
 export class HomeScene extends Phaser.Scene {
   private chestText!: Phaser.GameObjects.Text;
   private chestImg?: Phaser.GameObjects.Image;
@@ -130,7 +135,7 @@ export class HomeScene extends Phaser.Scene {
     }
     commit(r.save);
     markHint('chest_claim');
-    this.restartWithToast([`Собрано: золото +${r.rewards.gold}, опыт +${r.rewards.jobExp}`, ...describeEvents(r.events, r.save, GAME)]);
+    this.restartWithToast([`Собрано: золото +${formatNumber(r.rewards.gold)}, опыт +${formatNumber(r.rewards.jobExp)}`, ...describeEvents(r.events, r.save, GAME)]);
   }
 
   // ---------- R. Подсказки первой сессии ----------
@@ -198,8 +203,11 @@ export class HomeScene extends Phaser.Scene {
     layer.add(text(this, cx, y, '30 — меньше нагрев и расход батареи', FS.small, C.muted));
 
     y += 110;
-    layer.add(button(this, cx, y, bw, 110, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'), FS.h2).container);
-    y += 140;
+    // T3-24/T5-26: тестовый бой — инструмент разработчика (dev-сборка или ?dev=1 в адресе), игроку не показываем.
+    if (devTools()) {
+      layer.add(button(this, cx, y, bw, 110, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'), FS.h2).container);
+      y += 140;
+    }
     layer.add(
       button(this, cx, y, bw, 110, 'k:buttonLong_beige', 'Сбросить подсказки', () => {
         resetHints();
@@ -216,14 +224,22 @@ export class HomeScene extends Phaser.Scene {
             // Новая игра — новичок: подсказки первой сессии снова нужны.
             resetHints();
             this.scene.restart();
-          }),
-        ),
+          }, { danger: true }),
+        { danger: true }),
       FS.h2).container,
     );
     y += 130;
-    layer.add(text(this, cx, y, `Версия ${version} · сборка ${import.meta.env.MODE}`, FS.small, C.dim));
+    layer.add(text(this, cx, y, devTools() ? `Версия ${version} · сборка ${import.meta.env.MODE}` : `Chronoworld · версия ${version}`, FS.small, C.dim));
     y += 120;
     layer.add(button(this, cx, y, 460, 120, 'ui_btn_primary', 'Закрыть', close, FS.h2).container);
+    // Окно — по содержимому (без тестового боя оно ниже).
+    const boxTop = cy - 620;
+    const boxH = y + 100 - boxTop;
+    box.setSize(880, boxH);
+    box.input?.hitArea.setSize(880, boxH);
+    const shift = (1240 - boxH) / 2;
+    for (const o of layer.list) if (o !== shade && o !== box) (o as unknown as Phaser.GameObjects.Components.Transform).y += shift;
+    box.setY(cy);
     popIn(this, layer, shade);
   }
 

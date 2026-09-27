@@ -22,6 +22,36 @@ export interface InventoryData {
 }
 
 const ROW_H = 160;
+/** Сколько строк сверх видимых держать построенными выше и ниже окна прокрутки. */
+const ROW_BUFFER = 3;
+
+/** Строка списка: предмет и сколько таких же свободных в стопке (T4-11). */
+interface StackRow extends InventoryRow {
+  count: number;
+}
+
+/**
+ * T4-11: одинаковые свободные предметы — одной строкой «×N» (надетые — по одному: у каждого свой герой).
+ * Порядок — как у inventoryRows (первое появление предмета).
+ */
+export function stackRows(rows: InventoryRow[]): StackRow[] {
+  const out: StackRow[] = [];
+  const free = new Map<string, StackRow>();
+  for (const r of rows) {
+    if (r.instance.equippedBy !== null) {
+      out.push({ ...r, count: 1 });
+      continue;
+    }
+    const same = free.get(r.instance.itemId);
+    if (same) same.count++;
+    else {
+      const row = { ...r, count: 1 };
+      free.set(r.instance.itemId, row);
+      out.push(row);
+    }
+  }
+  return out;
+}
 
 export class InventoryScene extends Phaser.Scene {
   constructor() {
@@ -56,7 +86,7 @@ export class InventoryScene extends Phaser.Scene {
       text(this, 70, top + 110, 'Слот пуст', FS.h3, C.inkMuted, { fontStyle: 'bold' }).setOrigin(0, 0.5);
     }
 
-    const rows = inventoryRows(save, GAME, slot).filter((r) => r.instance.id !== cur?.instance.id);
+    const rows = stackRows(inventoryRows(save, GAME, slot).filter((r) => r.instance.id !== cur?.instance.id));
     const listTop = top + 230;
     text(this, GAME_W / 2, listTop, rows.length ? 'Выберите предмет' : '', FS.body, C.title);
     if (!rows.length) {
@@ -117,9 +147,12 @@ export class InventoryScene extends Phaser.Scene {
       }, FS.body);
     });
 
-    const rows = inventoryRows(session.save, GAME, filter ?? undefined);
+    const flat = inventoryRows(session.save, GAME, filter ?? undefined);
+    const rows = stackRows(flat);
     const total = session.save.inventory.items.length;
-    text(this, GAME_W / 2, top + 135, `Предметов: ${rows.length}${filter ? ` из ${total}` : ''}`, FS.body, C.muted);
+    const free = flat.filter((r) => r.instance.equippedBy === null).length;
+    // T3-11: в списке героев на кнопке — свободные предметы; здесь видно и все, и свободные.
+    text(this, GAME_W / 2, top + 135, `Предметов: ${flat.length}${filter ? ` из ${total}` : ''} · свободно: ${free}`, FS.body, C.muted);
     if (!rows.length) {
       emptyCard(
         this,
@@ -143,23 +176,50 @@ export class InventoryScene extends Phaser.Scene {
 
   // ---------- общее ----------
 
-  /** Строки списком с прокруткой пальцем (раньше были страницы ‹ ›). */
-  private list(rows: InventoryRow[], top: number, draw: (row: InventoryRow, y: number, area: ScrollArea) => void): void {
-    this.area = new ScrollArea(this, top, CONTENT_BOTTOM + 10);
-    rows.forEach((r, i) => draw(r, ROW_H * (i + 0.5), this.area));
-    this.area.setContentHeight(ROW_H * rows.length + 10);
+  /**
+   * Строки списком с прокруткой пальцем. T4-11: строятся только видимые строки (плюс запас ROW_BUFFER);
+   * при прокрутке ушедшие из окна уничтожаются, новые достраиваются — 3000 предметов открываются так же быстро, как 30.
+   */
+  private list(rows: StackRow[], top: number, draw: (row: StackRow, y: number, area: ScrollArea) => void): void {
+    const bottom = CONTENT_BOTTOM + 10;
+    const area = (this.area = new ScrollArea(this, top, bottom));
+    area.setContentHeight(ROW_H * rows.length + 10);
+    const built = new Map<number, Phaser.GameObjects.GameObject[]>();
+    let lastOffset = NaN;
+    const sync = () => {
+      const off = area.offset;
+      if (off === lastOffset) return;
+      lastOffset = off;
+      const from = Math.max(0, Math.floor(off / ROW_H) - ROW_BUFFER);
+      const to = Math.min(rows.length - 1, Math.ceil((off + bottom - top) / ROW_H) + ROW_BUFFER);
+      for (const [i, objs] of built) {
+        if (i >= from && i <= to) continue;
+        for (const o of objs) o.destroy();
+        built.delete(i);
+      }
+      for (let i = from; i <= to; i++) {
+        if (built.has(i)) continue;
+        const before = new Set(area.content.list);
+        draw(rows[i], ROW_H * (i + 0.5), area);
+        built.set(i, area.content.list.filter((o) => !before.has(o)));
+      }
+    };
+    sync();
+    this.events.on(Phaser.Scenes.Events.UPDATE, sync);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off(Phaser.Scenes.Events.UPDATE, sync));
   }
 
   private area!: ScrollArea;
 
   /** Строка предмета: полоса редкости, имя цветом редкости, слот и статы, пояснение справа снизу. */
-  private itemRow(row: InventoryRow, y: number, note: string, noteColor: string, textW = 670): void {
+  private itemRow(row: StackRow, y: number, note: string, noteColor: string, textW = 670): void {
     const a = this.area;
     a.add(card(this, GAME_W / 2, y, 1040, ROW_H - 12));
     const def = row.def;
     const color = def ? RARITY_COLORS[def.rarity] : C.disabled;
     a.add(this.add.rectangle(48, y, 12, ROW_H - 44, Phaser.Display.Color.HexStringToColor(color).color));
-    a.add(ellipsize(text(this, 75, y - 44, def?.name ?? `${row.instance.itemId} (нет в игре)`, FS.h3, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), textW));
+    const name = def?.name ?? `${row.instance.itemId} (нет в игре)`;
+    a.add(ellipsize(text(this, 75, y - 44, row.count > 1 ? `${name} ×${row.count}` : name, FS.h3, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), textW));
     a.add(
       ellipsize(
         text(this, 75, y, def ? `${RARITY_NAMES[def.rarity]} · ${SLOT_NAMES[def.slot]} · ${itemStatsText(def.stats)}` : 'статов не даёт', FS.small, C.text, {

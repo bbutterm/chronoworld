@@ -60,7 +60,10 @@ export class SquadEditor {
       }
       add(portrait(scene, x, y - 30, portraitKey(heroSprite(hero, GAME)), 140));
       add(ellipsize(text(scene, x, y + 68, hero.name, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), SLOT_W - 16));
-      add(ellipsize(text(scene, x, y + 102, `${CONTENT.jobs[hero.job]?.name ?? hero.job} · ${hero.jobLevel}`, FS.caption, C.title, { stroke: C.stroke, strokeThickness: 4 }), SLOT_W - 16));
+      // T3-09: профессия — своей строкой с полями внутри рамки, уровень — отдельной меткой в углу слота
+      // (раньше «Волшебник · 3» занимал всю ширину и налезал на рамку).
+      add(ellipsize(text(scene, x, y + 102, CONTENT.jobs[hero.job]?.name ?? hero.job, FS.caption, C.title, { stroke: C.stroke, strokeThickness: 4 }), SLOT_W - 28));
+      add(text(scene, x + SLOT_W / 2 - 14, y - 112, `ур. ${hero.jobLevel}`, FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(1, 0));
     });
 
     const n = Math.max(1, save.heroes.length);
@@ -74,7 +77,7 @@ export class SquadEditor {
       add(portrait(scene, x, y - 28, portraitKey(heroSprite(h, GAME)), 120)).setAlpha(inSquad >= 0 ? 0.55 : 1);
       add(ellipsize(text(scene, x, y + 50, h.name, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), step - 24));
       add(text(scene, x, y + 84, formatNumber(heroPower(h, gctx)), FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }));
-      if (inSquad >= 0) add(text(scene, x, y - 88, `слот ${inSquad + 1}`, FS.caption, C.success, { stroke: C.stroke, strokeThickness: 4 }));
+      if (inSquad >= 0) add(text(scene, x, y - 88, 'в отряде', FS.caption, C.success, { stroke: C.stroke, strokeThickness: 4 }));
     });
     this.onChange();
   }

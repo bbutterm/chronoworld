@@ -85,7 +85,7 @@ export class HeroesScene extends Phaser.Scene {
     // Есть плашка «Профессия!» — полоса короче, чтобы плашка встала справа от неё.
     const barW = canChange ? 250 : 400;
     a.add(progressBar(this, x + 230, y + 45, barW, 32, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success));
-    a.add(text(this, x + 230 + barW / 2, y + 45, atMax ? 'макс.' : `${hero.jobExp} / ${need}`, FS.caption, atMax ? '#2a1c08' : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 }));
+    a.add(text(this, x + 230 + barW / 2, y + 45, atMax ? 'макс.' : `${formatNumber(hero.jobExp)} / ${formatNumber(need)}`, FS.caption, atMax ? '#2a1c08' : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 }));
 
     if (canChange) {
       // Золотая плашка «Профессия!» справа от полосы: видно, у кого смена профессии (нажатие — карточка героя).

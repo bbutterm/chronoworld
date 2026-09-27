@@ -8,7 +8,7 @@ import { GAME_W } from '../layout';
 import { CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
 import { session } from '../session';
 import { button, ellipsize, pressable, text, toast } from '../ui';
-import { C, FS, TOUCH } from '../theme';
+import { C, FS, TINT, TOUCH } from '../theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 
 const NODE = 150;
@@ -79,15 +79,11 @@ export class CampaignScene extends Phaser.Scene {
       if (st === 'locked') badge('lock', SKIN_TINT.gold);
       if (st === 'cleared') badge('check', 0x9fe0a6);
       if (st === 'open') {
-        // Прицел текущего этапа: красные риски по сторонам и мягкая пульсация.
-        const r = size * 0.62;
+        // Текущий этап: пульсирующее золотое кольцо вокруг узла (T3-21: красные квадраты-«прицел» наезжали на подпись).
+        const r = size * 0.56;
         const g = this.add.graphics({ x, y });
-        g.fillStyle(0xb83a2a, 1);
-        for (let k = 0; k < 4; k++) {
-          const a = (k * Math.PI) / 2;
-          g.fillRect(Math.cos(a) * r - 7, Math.sin(a) * r - 7, 14, 14);
-        }
-        this.tweens.add({ targets: g, scale: 1.08, yoyo: true, repeat: -1, duration: 650, ease: 'Sine.easeInOut' });
+        g.lineStyle(6, TINT.gold, 0.9).strokeCircle(0, 0, r);
+        this.tweens.add({ targets: g, scale: 1.1, alpha: 0.35, yoyo: true, repeat: -1, duration: 700, ease: 'Sine.easeInOut' });
       }
       // Подпись — сбоку от узла, в сторону центра экрана.
       const right = x < GAME_W / 2;

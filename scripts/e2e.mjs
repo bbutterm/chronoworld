@@ -105,8 +105,10 @@ async function main() {
     const clickGame = async (gx, gy) => {
       const box = await page.locator('canvas').boundingBox();
       if (!box) throw new Error('canvas не найден');
-      const s = box.width / GAME_W;
-      await page.mouse.click(box.x + gx * s, box.y + gy * s);
+      // Холст показывает мир с полями (src/game/viewport.ts): левый верхний угол — не 0,0, если окно не 9:16.
+      const v = (await page.evaluate(() => window.__view?.())) ?? { worldX: 0, worldY: 0, worldW: GAME_W };
+      const s = box.width / v.worldW;
+      await page.mouse.click(box.x + (gx - v.worldX) * s, box.y + (gy - v.worldY) * s);
     };
     /** Найти текст в активной сцене (точное совпадение, в том числе во вложенных контейнерах) и кликнуть по его центру. */
     const clickText = async (sceneKey, label) => {
