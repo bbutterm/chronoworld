@@ -171,7 +171,8 @@ try {
         await skipDialogues('Stage', stage === 10 ? 'dialogue-boss' : undefined);
       } else await clickText('Result', 'Повторить');
       await waitScene('Battle');
-      if (stage === 1 || stage === 10) {
+      // Бой: первый этап, середина главы (новые монстры — Рокер, Мандрагора) и босс.
+      if (stage === 1 || stage === 5 || stage === 8 || stage === 10) {
         await sleep(stage === 10 ? 5000 : 2500);
         await shot(`battle${stage}`);
       }

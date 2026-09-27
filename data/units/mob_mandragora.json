@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_mandragora",
+  "name": "Мандрагора",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 460,
+    "atk": 46,
+    "def": 7,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob_mandragora_roots",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "mandragora",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

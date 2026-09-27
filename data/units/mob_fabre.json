@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_fabre",
+  "name": "Фабр",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 330,
+    "atk": 28,
+    "def": 5,
+    "spd": 90,
+    "moveSpeed": 240
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "fabre",
+    "hitFx": "fx_hit"
+  }
+}

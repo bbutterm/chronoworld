@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_monk_call_spirits",
   "name": "Призыв сфер",
-  "description": "Иногда в начале хода: +15 энергии.",
+  "description": "Иногда (30%) в начале хода: сфера духа — +15% атаки себе на 3 хода.",
   "range": "ranged",
   "trigger": "turnStart",
   "chance": 0.3,
@@ -12,8 +12,15 @@
   },
   "effects": [
     {
-      "type": "energy",
-      "amount": 15
+      "type": "status",
+      "status": {
+        "id": "spirit_sphere",
+        "name": "Сферы духа",
+        "turns": 3,
+        "stats": {
+          "atk": 0.15
+        }
+      }
     }
   ]
 }

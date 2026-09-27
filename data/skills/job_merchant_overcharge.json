@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_merchant_overcharge",
   "name": "Наценка",
-  "description": "После убийства врага: +25 энергии.",
+  "description": "После убийства врага: азарт наживы — +20% атаки себе на 3 хода.",
   "range": "ranged",
   "trigger": "kill",
   "target": {
@@ -11,8 +11,15 @@
   },
   "effects": [
     {
-      "type": "energy",
-      "amount": 25
+      "type": "status",
+      "status": {
+        "id": "overcharge",
+        "name": "Наценка",
+        "turns": 3,
+        "stats": {
+          "atk": 0.2
+        }
+      }
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "job_priest_impositio_manus",
-  "name": "Импозицио манус",
-  "description": "Импозицио манус: +20% атаки всем союзникам на 4 хода.",
+  "name": "Импозицио Манус",
+  "description": "+20% атаки всем союзникам на 4 хода.",
   "range": "ranged",
   "target": {
     "side": "ally",
@@ -16,7 +16,7 @@
       "type": "status",
       "status": {
         "id": "impositio_manus",
-        "name": "Импозицио манус",
+        "name": "Импозицио Манус",
         "turns": 4,
         "stats": {
           "atk": 0.2

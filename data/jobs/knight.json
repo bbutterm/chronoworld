@@ -2,7 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "knight",
   "name": "Рыцарь",
-  "description": "Вторая профессия Мечника: копьё и контратаки.",
+  "description": "Вторая профессия Мечника: двуручный меч, натиск и контратаки.",
   "tier": 2,
   "from": [
     "swordman"
@@ -25,7 +25,7 @@
   "skills": [
     {
       "jobLevel": 1,
-      "skill": "job_knight_pierce"
+      "skill": "job_knight_charge_attack"
     },
     {
       "jobLevel": 10,
@@ -33,7 +33,7 @@
     },
     {
       "jobLevel": 20,
-      "skill": "job_knight_brandish_spear"
+      "skill": "job_knight_two_hand_mastery"
     },
     {
       "jobLevel": 30,

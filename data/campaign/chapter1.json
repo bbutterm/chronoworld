@@ -10,12 +10,12 @@
       "boss": false,
       "enemies": [
         {
-          "unit": "mob_fast",
-          "mult": 0.6
+          "unit": "mob_fabre",
+          "mult": 0.7
         },
         {
-          "unit": "mob_fast",
-          "mult": 0.6
+          "unit": "mob_fabre",
+          "mult": 0.7
         },
         null,
         null,
@@ -32,15 +32,15 @@
     },
     {
       "id": "ch1_s2",
-      "name": "Тропинка к ручью",
+      "name": "Кроличья тропа",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob_fast",
+          "unit": "mob_lunatic",
           "mult": 0.7
         },
         {
-          "unit": "mob_fast",
+          "unit": "mob_lunatic",
           "mult": 0.7
         },
         {
@@ -73,8 +73,8 @@
           "mult": 0.8
         },
         {
-          "unit": "mob_fast",
-          "mult": 0.8
+          "unit": "mob_fabre",
+          "mult": 0.9
         },
         null,
         null
@@ -98,7 +98,7 @@
           "mult": 0.85
         },
         {
-          "unit": "mob_fast",
+          "unit": "mob_lunatic",
           "mult": 0.85
         },
         {
@@ -127,17 +127,20 @@
       "enemies": [
         {
           "unit": "mob_tank",
-          "mult": 0.7
+          "mult": 0.75
         },
         {
-          "unit": "mob_fast",
-          "mult": 0.9
+          "unit": "mob_rocker",
+          "mult": 0.85
         },
         {
-          "unit": "mob_drops",
-          "mult": 0.9
+          "unit": "mob_lunatic",
+          "mult": 0.75
         },
-        null,
+        {
+          "unit": "mob_mandragora",
+          "mult": 0.85
+        },
         null
       ],
       "rewards": {
@@ -160,14 +163,17 @@
         },
         {
           "unit": "mob_poporing",
-          "mult": 0.9
+          "mult": 0.85
         },
         {
-          "unit": "mob_fast",
-          "mult": 0.9
+          "unit": "mob_mandragora",
+          "mult": 0.8
         },
         null,
-        null
+        {
+          "unit": "mob_lunatic",
+          "mult": 0.8
+        }
       ],
       "rewards": {
         "jobExp": 180,
@@ -180,13 +186,9 @@
     },
     {
       "id": "ch1_s7",
-      "name": "Лесной ручей",
+      "name": "Тропа слизи",
       "boss": false,
       "enemies": [
-        {
-          "unit": "mob_drops",
-          "mult": 0.85
-        },
         {
           "unit": "mob_poporing",
           "mult": 0.85
@@ -195,10 +197,14 @@
           "unit": "mob_tank",
           "mult": 0.7
         },
+        {
+          "unit": "mob_drops",
+          "mult": 0.85
+        },
         null,
         {
-          "unit": "mob_fast",
-          "mult": 0.85
+          "unit": "mob_mandragora",
+          "mult": 0.8
         }
       ],
       "rewards": {
@@ -212,23 +218,26 @@
     },
     {
       "id": "ch1_s8",
-      "name": "Нора жука-вора",
+      "name": "Стрекочущий луг",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob_elite",
-          "mult": 0.7
-        },
-        {
-          "unit": "mob_fast",
+          "unit": "mob_rocker",
           "mult": 0.85
         },
         {
-          "unit": "mob_drops",
+          "unit": "mob_rocker",
           "mult": 0.85
+        },
+        {
+          "unit": "mob_lunatic",
+          "mult": 0.8
         },
         null,
-        null
+        {
+          "unit": "mob_mandragora",
+          "mult": 0.85
+        }
       ],
       "rewards": {
         "jobExp": 240,
@@ -245,8 +254,8 @@
       "boss": false,
       "enemies": [
         {
-          "unit": "mob_elite",
-          "mult": 0.7
+          "unit": "mob_rocker",
+          "mult": 0.72
         },
         {
           "unit": "mob_tank",
@@ -254,13 +263,16 @@
         },
         {
           "unit": "mob_poporing",
-          "mult": 0.85
+          "mult": 0.72
+        },
+        {
+          "unit": "mob_mandragora",
+          "mult": 0.72
         },
         {
           "unit": "mob_drops",
-          "mult": 0.85
-        },
-        null
+          "mult": 0.72
+        }
       ],
       "rewards": {
         "jobExp": 270,

@@ -20,7 +20,7 @@ import {
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
 import { stageSeed } from '../flow';
-import { commit, session, today } from '../session';
+import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { SKIN, SKIN_TINT } from '../skin';
 import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../sprites';
@@ -184,7 +184,7 @@ export class BattleScene extends Phaser.Scene {
       const save = session.save;
       let outcome: StageOutcomeWithDrops;
       try {
-        outcome = actPlayStage(save, today(), data.stageId, stageSeed(save), GAME);
+        outcome = actPlayStage(save, today(), data.stageId, stageSeed(save), GAME, now());
       } catch (e) {
         console.warn(e);
         this.finished = true;

@@ -2,9 +2,9 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_swordman_provoke",
   "name": "Провокация",
-  "description": "Удар и −25% защиты цели на 3 хода.",
+  "description": "Злит врага: −30% защиты цели на 3 хода. Урона не наносит.",
   "icon": "icon_ult_warrior",
-  "range": "melee",
+  "range": "ranged",
   "target": {
     "side": "enemy",
     "pick": "nearest",
@@ -13,17 +13,13 @@
   "cooldown": 10,
   "effects": [
     {
-      "type": "damage",
-      "k": 1.2
-    },
-    {
       "type": "status",
       "status": {
         "id": "provoke",
         "name": "Провокация",
         "turns": 3,
         "stats": {
-          "def": -0.25
+          "def": -0.3
         }
       }
     }
