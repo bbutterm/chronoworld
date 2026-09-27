@@ -17,6 +17,7 @@
   },
   "visual": {
     "sprite": "tank",
+    "tint": "#86a860",
     "hitFx": "fx_hit"
   }
 }

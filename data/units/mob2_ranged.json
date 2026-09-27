@@ -12,11 +12,12 @@
   },
   "skills": {
     "basic": "basic_ranged",
-    "ult": "mob2_ranged_spit",
+    "ult": "mob2_ranged_poison_arrow",
     "passives": []
   },
   "visual": {
     "sprite": "ranged",
+    "tint": "#b3cc8f",
     "hitFx": "fx_hit",
     "projectile": "fx_arrow"
   }

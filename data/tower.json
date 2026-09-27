@@ -4,8 +4,8 @@
   "unlockAfterStage": "ch1_s5",
   "maxFloor": 100,
   "bossEvery": 5,
-  "baseMult": 1.4,
-  "statGrowthPerFloor": 0.04,
+  "baseMult": 1,
+  "statGrowthPerFloor": 0.03,
   "rewards": {
     "gold": {
       "base": 100,
@@ -25,95 +25,138 @@
       "layouts": [
         [
           {
-            "unit": "mob_melee"
+            "unit": "mob_tank",
+            "mult": 1.63
           },
           {
-            "unit": "mob_melee"
+            "unit": "mob_fast",
+            "mult": 1.63
           },
           {
-            "unit": "mob_ranged"
+            "unit": "mob_drops",
+            "mult": 1.63
           },
           null,
           {
-            "unit": "mob_ranged"
+            "unit": "mob_mandragora",
+            "mult": 1.63
           }
         ],
         [
           {
-            "unit": "mob_fast"
+            "unit": "mob_tank",
+            "mult": 1.66
           },
           {
-            "unit": "mob_melee"
+            "unit": "mob_poporing",
+            "mult": 1.66
+          },
+          {
+            "unit": "mob_mandragora",
+            "mult": 1.66
           },
           null,
           {
-            "unit": "mob_fast"
-          },
-          {
-            "unit": "mob_ranged"
+            "unit": "mob_lunatic",
+            "mult": 1.66
           }
         ],
         [
           {
-            "unit": "mob_tank"
+            "unit": "mob_rocker",
+            "mult": 1.85
           },
           {
-            "unit": "mob_melee"
+            "unit": "mob_poporing",
+            "mult": 1.85
           },
           {
-            "unit": "mob_ranged"
+            "unit": "mob_drops",
+            "mult": 1.85
           },
           {
-            "unit": "mob_ranged"
+            "unit": "mob_mandragora",
+            "mult": 1.85
           },
           null
         ],
         [
           {
-            "unit": "mob_elite"
+            "unit": "mob_tank",
+            "mult": 1.63
           },
           {
-            "unit": "mob_tank"
+            "unit": "mob_rocker",
+            "mult": 1.63
           },
           {
-            "unit": "mob_ranged"
+            "unit": "mob_lunatic",
+            "mult": 1.63
           },
-          null,
           {
-            "unit": "mob_ranged"
-          }
+            "unit": "mob_mandragora",
+            "mult": 1.63
+          },
+          null
         ]
       ],
       "bossLayouts": [
         [
           {
-            "unit": "mob_tank"
+            "unit": "mob_fast",
+            "mult": 1.29
           },
           {
-            "unit": "mob_boss1"
+            "unit": "mob_eclipse",
+            "mult": 1.29
           },
           {
-            "unit": "mob_ranged"
+            "unit": "mob_lunatic",
+            "mult": 1.29
           },
           null,
           {
-            "unit": "mob_ranged"
+            "unit": "mob_lunatic",
+            "mult": 1.29
           }
         ],
         [
           {
-            "unit": "mob_elite"
+            "unit": "mob_fast",
+            "mult": 1.39
           },
           {
-            "unit": "mob_boss1"
+            "unit": "mob_mastering",
+            "mult": 1.39
           },
           {
-            "unit": "mob_ranged"
+            "unit": "mob_drops",
+            "mult": 1.39
           },
           {
-            "unit": "mob_fast"
+            "unit": "mob_poporing",
+            "mult": 1.39
           },
           null
+        ],
+        [
+          {
+            "unit": "mob_rocker",
+            "mult": 1.35
+          },
+          {
+            "unit": "mob_vocal",
+            "mult": 1.35
+          },
+          {
+            "unit": "mob_mandragora",
+            "mult": 1.35
+          },
+          null,
+          {
+            "unit": "mob_rocker",
+            "mult": 1.35
+          }
         ]
       ]
     },
@@ -123,79 +166,162 @@
       "layouts": [
         [
           {
-            "unit": "mob2_melee"
+            "unit": "mob2_tank",
+            "mult": 1.61
           },
           {
-            "unit": "mob2_melee"
+            "unit": "mob2_melee",
+            "mult": 1.61
           },
           {
-            "unit": "mob2_ranged"
+            "unit": "mob2_ranged",
+            "mult": 1.61
           },
           null,
           {
-            "unit": "mob2_ranged"
+            "unit": "mob2_ranged",
+            "mult": 1.61
           }
         ],
         [
           {
-            "unit": "mob2_fast"
+            "unit": "mob2_tank",
+            "mult": 1.37
           },
           {
-            "unit": "mob2_fast"
+            "unit": "mob2_fast",
+            "mult": 1.37
           },
           {
-            "unit": "mob2_ranged"
+            "unit": "mob_poporing",
+            "mult": 1.37
           },
           {
-            "unit": "mob2_fast"
+            "unit": "mob2_fast",
+            "mult": 1.37
           },
-          null
+          {
+            "unit": "mob2_ranged",
+            "mult": 1.37
+          }
         ],
         [
           {
-            "unit": "mob2_tank"
+            "unit": "mob2_elite",
+            "mult": 1.48
           },
           {
-            "unit": "mob2_melee"
+            "unit": "mob2_melee",
+            "mult": 1.48
           },
           {
-            "unit": "mob2_ranged"
-          },
-          {
-            "unit": "mob2_ranged"
-          },
-          null
-        ],
-        [
-          {
-            "unit": "mob2_elite"
-          },
-          {
-            "unit": "mob2_tank"
-          },
-          {
-            "unit": "mob2_ranged"
+            "unit": "mob2_ranged",
+            "mult": 1.48
           },
           null,
           {
-            "unit": "mob2_ranged"
+            "unit": "mob2_ranged",
+            "mult": 1.48
+          }
+        ],
+        [
+          {
+            "unit": "mob2_elite",
+            "mult": 1.25
+          },
+          {
+            "unit": "mob2_tank",
+            "mult": 1.25
+          },
+          {
+            "unit": "mob2_ranged",
+            "mult": 1.25
+          },
+          null,
+          {
+            "unit": "mob2_fast",
+            "mult": 1.25
           }
         ]
       ],
       "bossLayouts": [
         [
           {
-            "unit": "mob2_tank"
+            "unit": "mob2_tank",
+            "mult": 1.09
           },
           {
-            "unit": "mob2_elite"
+            "unit": "mob_boss1",
+            "mult": 1.09
           },
           {
-            "unit": "mob_boss2"
+            "unit": "mob2_ranged",
+            "mult": 1.09
           },
           null,
           {
-            "unit": "mob2_ranged"
+            "unit": "mob2_ranged",
+            "mult": 1.09
+          }
+        ],
+        [
+          {
+            "unit": "mob2_elite",
+            "mult": 1.01
+          },
+          {
+            "unit": "mob_boss1",
+            "mult": 1.01
+          },
+          {
+            "unit": "mob2_ranged",
+            "mult": 1.01
+          },
+          {
+            "unit": "mob2_fast",
+            "mult": 1.01
+          },
+          null
+        ],
+        [
+          {
+            "unit": "mob2_tank",
+            "mult": 1.08
+          },
+          {
+            "unit": "mob_boss2",
+            "mult": 1.08
+          },
+          {
+            "unit": "mob2_ranged",
+            "mult": 1.08
+          },
+          null,
+          {
+            "unit": "mob2_ranged",
+            "mult": 1.08
+          }
+        ],
+        [
+          {
+            "unit": "mob2_elite",
+            "mult": 0.84
+          },
+          {
+            "unit": "mob_boss2",
+            "mult": 0.84
+          },
+          {
+            "unit": "mob2_ranged",
+            "mult": 0.84
+          },
+          {
+            "unit": "mob2_fast",
+            "mult": 0.84
+          },
+          {
+            "unit": "mob2_ranged",
+            "mult": 0.84
           }
         ]
       ]
@@ -206,94 +332,156 @@
       "layouts": [
         [
           {
-            "unit": "mob3_melee"
+            "unit": "mob3_tank",
+            "mult": 1.25
           },
           {
-            "unit": "mob3_melee"
+            "unit": "mob3_melee",
+            "mult": 1.25
           },
           {
-            "unit": "mob3_ranged"
+            "unit": "mob3_ranged",
+            "mult": 1.25
           },
           null,
           {
-            "unit": "mob3_ranged"
+            "unit": "mob3_ranged",
+            "mult": 1.25
           }
         ],
         [
           {
-            "unit": "mob3_fast"
+            "unit": "mob3_tank",
+            "mult": 1.14
           },
           {
-            "unit": "mob3_fast"
+            "unit": "mob3_fast",
+            "mult": 1.14
           },
           {
-            "unit": "mob3_ranged"
+            "unit": "mob3_ranged",
+            "mult": 1.14
           },
           {
-            "unit": "mob3_fast"
-          },
-          null
-        ],
-        [
-          {
-            "unit": "mob3_tank"
-          },
-          {
-            "unit": "mob3_melee"
-          },
-          {
-            "unit": "mob3_ranged"
-          },
-          {
-            "unit": "mob3_ranged"
+            "unit": "mob3_fast",
+            "mult": 1.14
           },
           null
         ],
         [
           {
-            "unit": "mob3_elite"
+            "unit": "mob3_elite",
+            "mult": 1.34
           },
           {
-            "unit": "mob3_tank"
+            "unit": "mob3_melee",
+            "mult": 1.34
           },
           {
-            "unit": "mob3_ranged"
+            "unit": "mob3_ranged",
+            "mult": 1.34
           },
           null,
           {
-            "unit": "mob3_ranged"
+            "unit": "mob3_ranged",
+            "mult": 1.34
+          }
+        ],
+        [
+          {
+            "unit": "mob3_elite",
+            "mult": 1.01
+          },
+          {
+            "unit": "mob3_tank",
+            "mult": 1.01
+          },
+          {
+            "unit": "mob3_ranged",
+            "mult": 1.01
+          },
+          null,
+          {
+            "unit": "mob3_fast",
+            "mult": 1.01
           }
         ]
       ],
       "bossLayouts": [
         [
           {
-            "unit": "mob3_tank"
+            "unit": "mob3_tank",
+            "mult": 0.97
           },
           {
-            "unit": "mob3_elite"
+            "unit": "mob_boss1",
+            "mult": 0.97
           },
           {
-            "unit": "mob3_boss"
+            "unit": "mob3_ranged",
+            "mult": 0.97
+          },
+          null,
+          {
+            "unit": "mob3_ranged",
+            "mult": 0.97
+          }
+        ],
+        [
+          {
+            "unit": "mob3_elite",
+            "mult": 0.76
           },
           {
-            "unit": "mob3_ranged"
+            "unit": "mob_boss2",
+            "mult": 0.76
+          },
+          {
+            "unit": "mob3_ranged",
+            "mult": 0.76
+          },
+          {
+            "unit": "mob3_fast",
+            "mult": 0.76
           },
           null
         ],
         [
           {
-            "unit": "mob_boss1"
+            "unit": "mob3_tank",
+            "mult": 0.91
           },
           {
-            "unit": "mob3_elite"
+            "unit": "mob3_elite",
+            "mult": 0.91
           },
           {
-            "unit": "mob_boss2"
+            "unit": "mob3_boss",
+            "mult": 0.91
           },
           null,
           {
-            "unit": "mob3_ranged"
+            "unit": "mob3_ranged",
+            "mult": 0.91
+          }
+        ],
+        [
+          {
+            "unit": "mob_boss1",
+            "mult": 0.63
+          },
+          {
+            "unit": "mob3_elite",
+            "mult": 0.63
+          },
+          {
+            "unit": "mob_boss2",
+            "mult": 0.63
+          },
+          null,
+          {
+            "unit": "mob3_ranged",
+            "mult": 0.63
           }
         ]
       ]

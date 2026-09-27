@@ -11,15 +11,15 @@
       "enemies": [
         {
           "unit": "mob3_melee",
-          "mult": 1
+          "mult": 0.62
         },
         {
-          "unit": "mob3_melee",
-          "mult": 1
+          "unit": "mob3_tank",
+          "mult": 0.62
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.62
         },
         null,
         null
@@ -35,21 +35,24 @@
     },
     {
       "id": "ch3_s2",
-      "name": "Зал стражей",
+      "name": "Корни в склепе",
       "boss": false,
       "enemies": [
         {
           "unit": "mob3_tank",
-          "mult": 1
-        },
-        null,
-        {
-          "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.81
         },
         {
+          "unit": "mob3_melee",
+          "mult": 0.81
+        },
+        {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.81
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.81
         },
         null
       ],
@@ -69,20 +72,23 @@
       "enemies": [
         {
           "unit": "mob3_fast",
-          "mult": 1
+          "mult": 0.88
         },
         {
-          "unit": "mob3_fast",
-          "mult": 1
-        },
-        null,
-        {
-          "unit": "mob3_fast",
-          "mult": 1
+          "unit": "mob3_tank",
+          "mult": 0.32
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.88
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.88
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.88
         }
       ],
       "rewards": {
@@ -100,24 +106,24 @@
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
-          "mult": 1
-        },
-        {
           "unit": "mob3_melee",
-          "mult": 1
+          "mult": 0.43
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.43
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.89
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.89
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.89
         }
       ],
       "rewards": {
@@ -131,25 +137,28 @@
     },
     {
       "id": "ch3_s5",
-      "name": "Рыцарь у моста",
+      "name": "Жук у моста",
       "boss": false,
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 1
+          "mult": 0.62
         },
         {
           "unit": "mob3_melee",
-          "mult": 1
+          "mult": 0.62
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.62
         },
-        null,
+        {
+          "unit": "mob3_fast",
+          "mult": 0.62
+        },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.62
         }
       ],
       "rewards": {
@@ -168,21 +177,24 @@
       "enemies": [
         {
           "unit": "mob3_tank",
-          "mult": 1
+          "mult": 0.32
         },
         {
           "unit": "mob3_tank",
-          "mult": 1
+          "mult": 0.32
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.88
         },
         {
           "unit": "mob3_fast",
-          "mult": 1
+          "mult": 0.88
         },
-        null
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.88
+        }
       ],
       "rewards": {
         "jobExp": 650,
@@ -199,24 +211,24 @@
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_fast",
-          "mult": 1
+          "unit": "mob3_elite",
+          "mult": 0.57
         },
         {
           "unit": "mob3_fast",
-          "mult": 1
+          "mult": 0.57
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.57
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.57
         },
         {
           "unit": "mob3_fast",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.57
         }
       ],
       "rewards": {
@@ -235,20 +247,23 @@
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 1
+          "mult": 0.38
         },
         {
           "unit": "mob3_elite",
-          "mult": 1
+          "mult": 0.38
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.59
         },
-        null,
+        {
+          "unit": "mob3_fast",
+          "mult": 0.59
+        },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.59
         }
       ],
       "rewards": {
@@ -267,23 +282,23 @@
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 1
+          "mult": 0.33
         },
         {
           "unit": "mob3_tank",
-          "mult": 1
+          "mult": 0.33
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.67
         },
         {
           "unit": "mob3_fast",
-          "mult": 1
+          "mult": 0.67
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.67
         }
       ],
       "rewards": {
@@ -302,23 +317,23 @@
       "enemies": [
         {
           "unit": "mob3_tank",
-          "mult": 1
+          "mult": 0.22
         },
         {
           "unit": "mob3_elite",
-          "mult": 1
+          "mult": 0.22
         },
         {
           "unit": "mob3_boss",
-          "mult": 1
+          "mult": 0.45
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1
+          "mult": 0.6
         },
         {
-          "unit": "mob3_ranged",
-          "mult": 1
+          "unit": "mob3_fast",
+          "mult": 0.6
         }
       ],
       "rewards": {
