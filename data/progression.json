@@ -5,7 +5,8 @@
       "1": 10,
       "2": 50
     },
-    "resetJobLevel": true
+    "resetJobLevel": true,
+    "bankLevels": 5
   },
   "keepSkillsOnJobChange": true,
   "exp": {
@@ -42,7 +43,11 @@
     "replayRewardMultiplier": 0.5
   },
   "offline": {
-    "capHours": 12
+    "capHours": 12,
+    "earlyExp": {
+      "stages": 4,
+      "stageRewardsPerHour": 0.4
+    }
   },
   "newGame": {
     "gold": 0

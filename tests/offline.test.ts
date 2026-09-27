@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addJobExp, claimOffline, newGame, offlineRewards, type SaveState } from '../src/core';
+import { addJobExp, claimOffline, idleIncome, newGame, offlineRewards, type SaveState } from '../src/core';
 import { loadGameContext } from '../scripts/lib/content-node';
 
 const ctx = loadGameContext();
@@ -18,17 +18,19 @@ describe('офлайн-награды', () => {
   it('доход по последнему пройденному этапу × минуты', () => {
     // Порядок в cleared не важен: берётся этап с максимальным globalIndex.
     const save = saveWith([stages[2].id, stages[0].id, stages[1].id]);
-    const per = stages[2].offlinePerMinute;
-    expect(offlineRewards(save, T0 + 30 * MIN + 59_999, ctx)).toEqual({ minutes: 30, gold: per.gold * 30, jobExp: per.jobExp * 30 });
+    expect(offlineRewards(save, T0 + 30 * MIN + 59_999, ctx)).toEqual({ minutes: 30, ...idleIncome(stages[2], 30, ctx) });
     expect(offlineRewards(save, T0, ctx)).toEqual({ minutes: 0, gold: 0, jobExp: 0 });
+    // После ранних этапов (P9) — полная ставка offlinePerMinute.
+    const late = stages[6];
+    const per = late.offlinePerMinute;
+    expect(offlineRewards(saveWith([late.id]), T0 + 30 * MIN, ctx)).toEqual({ minutes: 30, gold: per.gold * 30, jobExp: per.jobExp * 30 });
   });
 
   it('лимит capHours', () => {
     const save = saveWith([stages[0].id]);
     const cap = ctx.progression.offline.capHours * 60;
-    const per = stages[0].offlinePerMinute;
     const r = offlineRewards(save, T0 + 100 * 60 * MIN, ctx);
-    expect(r).toEqual({ minutes: cap, gold: per.gold * cap, jobExp: per.jobExp * cap });
+    expect(r).toEqual({ minutes: cap, ...idleIncome(stages[0], cap, ctx) });
     expect(offlineRewards(save, T0 + cap * MIN, ctx)).toEqual(r);
   });
 

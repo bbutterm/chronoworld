@@ -70,9 +70,11 @@ export interface StageOutcome {
  * - победа: награда целиком при первом прохождении, × replayRewardMultiplier при повторе (floor);
  *   золото в resources, jobExp каждому герою отряда через addJobExp; события rewards, stageCleared,
  *   stageUnlocked (для следующего этапа при первом прохождении), события addJobExp;
- * - поражение: только battleSeq.
+ * - поражение: только battleSeq;
+ * - P9 (T1-15): первая победа в кампании (cleared был пуст) при переданном now ставит offline.lastClaimAt = now —
+ *   сундук копит время с первого пройденного этапа, а не с создания сохранения. Без now lastClaimAt не меняется.
  */
-export function playStage(save: SaveState, stageId: string, seed: number, ctx: GameContext): StageOutcome {
+export function playStage(save: SaveState, stageId: string, seed: number, ctx: GameContext, now?: number): StageOutcome {
   // Экипировка героев из сохранения (если в контексте есть предметы).
   ctx = withGear(ctx, save);
   const stage = getStage(ctx, stageId);
@@ -100,6 +102,7 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
 
   next.resources = { ...save.resources, gold: save.resources.gold + gold };
   if (firstTime) next.campaign = { ...save.campaign, cleared: [...save.campaign.cleared, stage.id] };
+  if (firstTime && save.campaign.cleared.length === 0 && now !== undefined) next.offline = { ...save.offline, lastClaimAt: now };
 
   events.push({ type: 'rewards', gold, jobExp, heroIds });
   events.push({ type: 'stageCleared', stageId: stage.id, firstTime });
