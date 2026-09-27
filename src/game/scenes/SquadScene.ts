@@ -6,10 +6,9 @@ import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, portrait, screen } from '../screen';
 import { commit, session } from '../session';
 import { portraitKey } from '../sprites';
-import { SquadEditor } from '../squadEditor';
-import { button, dangerButton, emptyState, panel, text, toast } from '../ui';
+import { FormationEditor } from '../squadEditor';
+import { button, dangerButton, emptyState, panel, ScrollArea, text, toast } from '../ui';
 import { C, FS, TOUCH } from '../theme';
-import { bump, countUp } from '../juice';
 
 export interface SquadData {
   /** Куда вернуться («Готово» и «Назад»): экран этапа, башня… */
@@ -17,19 +16,28 @@ export interface SquadData {
 }
 
 const ROW_H = 118;
-const LIST_TOP = 1140;
+
+/** Геометрия экрана «Отряд» (игровые единицы 1080×1920). */
+const L = {
+  field: { top: 168, bottom: 920 },
+  rosterHeadY: 1040,
+  roster: { top: 1090, bottom: 1362 },
+  presetsHeadY: 1428,
+  presets: { top: 1478, bottom: 1745 },
+  doneY: GAME_H - 90,
+} as const;
 
 /**
- * K8. Отряд: общий редактор слотов, «Авто» (авто-расстановка) и пресеты — сохранить текущий, поставить, удалить.
- * Открывается с экрана этапа и из башни, изменения сразу в сохранении (башня и кампания используют один отряд).
+ * K8. Отряд: поле (как встанут в бою) и все герои карточками — общий редактор с экраном этапа
+ * (нажать — в отряд, перетащить — на место, между слотами — обмен), «Авто» (авто-расстановка) и пресеты —
+ * сохранить текущий, поставить, удалить. Открывается с экрана этапа и из башни, изменения сразу в сохранении
+ * (башня и кампания используют один отряд).
  */
 export class SquadScene extends Phaser.Scene {
   private back: { to: string; data?: object } = { to: 'Home' };
-  private editor!: SquadEditor;
-  private powerText!: Phaser.GameObjects.Text;
-  private presetLayer!: Phaser.GameObjects.Container;
-  /** Показанная мощь отряда (null — ещё не показана). */
-  private shownPower: number | null = null;
+  private editor!: FormationEditor;
+  private presetHead!: Phaser.GameObjects.Container;
+  private presetList!: ScrollArea;
 
   constructor() {
     super('Squad');
@@ -37,51 +45,42 @@ export class SquadScene extends Phaser.Scene {
 
   create(data: SquadData = {}): void {
     this.back = data.back ?? { to: 'Home' };
-    this.shownPower = null;
     screen(this, 'Отряд', null, { to: this.back.to, data: this.back.data });
 
-    this.powerText = text(this, GAME_W / 2, 205, '', FS.h2, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
-    card(this, GAME_W / 2, 620, 1050, 740);
-    this.editor = new SquadEditor(this, 450, 745, () => this.refresh());
-    button(this, GAME_W / 2 - 250, 920, 440, 100, 'ui_btn_secondary', 'Авто', () => this.auto(), FS.h2);
-    text(this, GAME_W / 2 + 250, 920, 'Сильнейшие герои:\nтанки вперёд, лекари в тыл', FS.caption, C.muted, { lineSpacing: 2 });
+    this.editor = new FormationEditor(this, { field: L.field, roster: L.roster, onChange: () => this.drawPresets() });
+    text(this, 50, L.rosterHeadY, `Герои · ${session.save.heroes.length}`, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
+    text(this, 560, L.rosterHeadY, 'сильнейшие, по ролям', FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3 });
+    button(this, 890, L.rosterHeadY, 300, 90, 'ui_btn_secondary', 'Авто', () => this.auto(), FS.h3);
 
-    card(this, GAME_W / 2, 1385, 1050, 730);
-    this.presetLayer = this.add.container(0, 0);
+    card(this, GAME_W / 2, (L.presetsHeadY - 45 + L.presets.bottom + 10) / 2, 1050, L.presets.bottom + 10 - (L.presetsHeadY - 45));
+    this.presetHead = this.add.container(0, 0);
+    this.presetList = new ScrollArea(this, L.presets.top, L.presets.bottom);
     this.editor.draw();
 
-    button(this, GAME_W / 2, GAME_H - 100, 640, 130, 'ui_btn_primary', 'Готово', () => this.scene.start(this.back.to, this.back.data), FS.h1);
-  }
-
-  private refresh(): void {
-    // Мощь отряда отсчитывается от прежней до новой и подпрыгивает (первый показ — сразу число).
-    const power = squadPower(session.save, GAME);
-    const prev = this.shownPower;
-    this.shownPower = power;
-    countUp(this, this.powerText, prev ?? power, power, (n) => `Мощь отряда: ${formatNumber(n)}`, { duration: 400 });
-    if (prev !== null && prev !== power) bump(this, this.powerText, 1.1);
-    this.drawPresets();
+    button(this, GAME_W / 2, L.doneY, 640, 120, 'ui_btn_primary', 'Готово', () => this.scene.start(this.back.to, this.back.data), FS.h1);
   }
 
   private drawPresets(): void {
-    this.presetLayer.removeAll(true);
-    const add = <T extends Phaser.GameObjects.GameObject>(o: T) => {
-      this.presetLayer.add(o);
-      return o;
-    };
+    this.presetHead.removeAll(true);
+    const offset = this.presetList.offset;
+    this.presetList.clear();
     const save = session.save;
     const max = GAME.meta.bounties.presets.max;
-    add(text(this, 70, 1080, `Пресеты · ${save.presets.length} / ${max}`, FS.h2, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5));
+    this.presetHead.add(text(this, 50, L.presetsHeadY, `Пресеты · ${save.presets.length} / ${max}`, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5));
     const full = save.presets.length >= max;
-    const saveBtn = button(this, 800, 1080, 400, TOUCH, full ? 'k:buttonLong_grey' : 'ui_btn_secondary', 'Сохранить текущий', () => this.savePreset(), FS.body);
-    add(saveBtn.container);
+    const saveBtn = button(this, 810, L.presetsHeadY, 400, 90, full ? 'k:buttonLong_grey' : 'ui_btn_secondary', 'Сохранить текущий', () => this.savePreset(), FS.body);
+    this.presetHead.add(saveBtn.container);
     if (full) saveBtn.container.setAlpha(0.6);
 
+    const list = this.presetList;
+    const add = <T extends Phaser.GameObjects.GameObject>(o: T) => list.add(o);
     if (!save.presets.length) {
-      add(emptyState(this, GAME_W / 2, LIST_TOP + 150, 'Пресетов пока нет.\nСоберите отряд и нажмите «Сохранить текущий» —\nпотом его можно поставить одним нажатием.', 980));
+      add(emptyState(this, GAME_W / 2, (L.presets.bottom - L.presets.top) / 2, 'Пресетов пока нет. Соберите отряд и нажмите\n«Сохранить текущий» — потом его можно поставить одним нажатием.', 980));
       return;
     }
-    save.presets.forEach((p, i) => this.presetRow(p, LIST_TOP + ROW_H * (i + 0.5), add));
+    save.presets.forEach((p, i) => this.presetRow(p, ROW_H * (i + 0.5), add));
+    list.setContentHeight(ROW_H * save.presets.length);
+    list.offset = offset;
   }
 
   private presetRow(p: Preset, y: number, add: <T extends Phaser.GameObjects.GameObject>(o: T) => T): void {
@@ -101,14 +100,14 @@ export class SquadScene extends Phaser.Scene {
     if (current) {
       add(text(this, 800, y, 'Текущий', FS.body, C.inkSuccess, { fontStyle: 'bold' }));
     } else {
-      add(button(this, 800, y, 230, TOUCH, 'ui_btn_secondary', 'Поставить', () => this.apply(p), FS.body).container);
+      add(button(this, 800, y, 230, TOUCH, 'ui_btn_secondary', 'Поставить', this.presetList.tap(() => this.apply(p)), FS.body).container);
     }
-    add(dangerButton(this, 975, y, 110, TOUCH, '✕', () => this.remove(p), FS.h2).container);
+    add(dangerButton(this, 975, y, 110, TOUCH, '✕', this.presetList.tap(() => this.remove(p)), FS.h2).container);
   }
 
   private auto(): void {
     commit({ ...session.save, squad: autoFormation(session.save, GAME) });
-    this.editor.draw();
+    this.editor.replaced();
     toast(this, 'Отряд расставлен автоматически');
   }
 
@@ -117,7 +116,7 @@ export class SquadScene extends Phaser.Scene {
       const name = nextPresetName(session.save.presets);
       const r = savePreset(session.save, name, GAME);
       commit(r.save);
-      this.refresh();
+      this.drawPresets();
       toast(this, `Сохранён пресет «${r.preset.name}»`, C.success);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
@@ -127,7 +126,7 @@ export class SquadScene extends Phaser.Scene {
   private apply(p: Preset): void {
     try {
       commit(applyPreset(session.save, p.id));
-      this.editor.draw();
+      this.editor.replaced();
       toast(this, `Поставлен отряд «${p.name}»`, C.success);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
@@ -138,7 +137,7 @@ export class SquadScene extends Phaser.Scene {
     confirm(this, `Удалить пресет «${p.name}»?\nТекущий отряд не изменится.`, 'Удалить', () => {
       try {
         commit(deletePreset(session.save, p.id));
-        this.refresh();
+        this.drawPresets();
       } catch (e) {
         toast(this, e instanceof Error ? e.message : String(e), C.error);
       }
