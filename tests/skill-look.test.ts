@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { loadFullContext } from '../scripts/lib/content-node';
-import { buffColor, lookOf, statusIconOf } from '../src/game/skillLook';
+import { existsSync } from 'node:fs';
+import { buffColor, lookOf, RO_SKILL_ICONS, statusIconOf } from '../src/game/skillLook';
 import { skillIconFiles, usedAssets } from '../scripts/lib/used-assets';
 
 const skills = loadFullContext().content.skills;
@@ -46,6 +47,18 @@ describe('вид навыка (значок и эффекты боя)', () => {
     expect(statusIconOf(status('job_mage_frost_diver'))).toBe('stun');
     expect(statusIconOf(status('job_swordman_provoke'))).toBe('defDown');
     expect(buffColor(status('job_acolyte_increase_agi'))).not.toBe(buffColor(status('job_acolyte_blessing')));
+  });
+
+  it('иконки RO: каждый навык из таблицы существует, файл лежит в assets/ui/icons', () => {
+    for (const [id, ro] of Object.entries(RO_SKILL_ICONS)) {
+      expect(skills[id], id).toBeTruthy();
+      expect(existsSync(`assets/ui/icons/skill_${ro}.png`), ro).toBe(true);
+    }
+    // Все навыки первых профессий и новичка — с настоящей иконкой.
+    const ctx = loadFullContext();
+    for (const job of ['novice', 'swordman', 'thief', 'archer', 'mage', 'acolyte', 'merchant']) {
+      for (const s of ctx.content.jobs[job].skills) expect(RO_SKILL_ICONS[s.skill], `${job}: ${s.skill}`).toBeTruthy();
+    }
   });
 
   it('PNG значков от художника попадают в сборку', () => {

@@ -231,3 +231,42 @@ export function buffColor(st: StatusDef | undefined): number {
   if (icon === 'atkUp') return 0xffd84a;
   return 0xff8a6a;
 }
+
+/**
+ * Настоящие иконки Ragnarok Online (assets/ui/icons/skill_<roId>.png, см. ro-skills.json и docs/ART_EXTRACT_RO.md §2):
+ * наш id навыка → id иконки RO. Пиксель-арт кладётся в нашу рамку (стихия, активный/пассивный) без сглаживания.
+ */
+export const RO_SKILL_ICONS: Record<string, string> = {
+  novice_first_aid: 'nv_firstaid',
+  swordman_bash: 'sm_bash',
+  swordman_endure: 'sm_endure',
+  job_swordman_magnum_break: 'sm_magnum',
+  job_swordman_hp_recovery: 'sm_recovery',
+  job_swordman_provoke: 'sm_provoke',
+  job_thief_envenom: 'tf_poison',
+  job_thief_improve_dodge: 'tf_miss',
+  job_thief_steal: 'tf_steal',
+  job_thief_double_attack: 'tf_double',
+  job_thief_sand_attack: 'tf_sprinklesand',
+  job_archer_double_strafe: 'ac_double',
+  job_archer_owls_eye: 'ac_owl',
+  job_archer_arrow_shower: 'ac_shower',
+  job_archer_vultures_eye: 'ac_vulture',
+  job_archer_charge_arrow: 'ac_chargearrow',
+  job_mage_fire_bolt: 'mg_firebolt',
+  job_mage_sp_recovery: 'mg_srecovery',
+  job_mage_frost_diver: 'mg_frostdiver',
+  job_mage_energy_coat: 'mg_energycoat',
+  job_mage_thunderstorm: 'mg_thunderstorm',
+  job_acolyte_heal: 'al_heal',
+  job_acolyte_divine_protection: 'al_dp',
+  job_acolyte_blessing: 'al_blessing',
+  job_acolyte_holy_light: 'al_holylight',
+  job_acolyte_increase_agi: 'al_incagi',
+  job_acolyte_sanctuary: 'pr_sanctuary',
+  job_merchant_mammonite: 'mc_mammonite',
+  job_merchant_pushcart: 'mc_pushcart',
+  job_merchant_cart_revolution: 'mc_cartrevolution',
+  job_merchant_crazy_uproar: 'mc_loud',
+  job_merchant_overcharge: 'mc_overcharge',
+};

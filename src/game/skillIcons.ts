@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { SkillDef, StatusDef } from '../core';
-import { ELEMENT_COLORS, lookOf, statusIconOf, type Glyph, type SkillLook, type StatusIcon } from './skillLook';
+import { ELEMENT_COLORS, lookOf, RO_SKILL_ICONS, statusIconOf, type Glyph, type SkillLook, type StatusIcon } from './skillLook';
 
 /**
  * Значки навыков в стиле скина «тёмная бронза»: рамка (золотая у активных, приглушённая восьмиугольная у пассивок),
@@ -17,22 +17,30 @@ export const skillIconKey = (id: string) => `skill_${id}`;
 /** Готовые PNG значков (assets/ui/icons/skill_<id>.png) — известны при сборке. */
 const FILES = Object.keys(import.meta.glob('../../assets/ui/icons/skill_*.png', { query: '?url', import: 'default' }));
 
+/** Ключи текстур PNG значков (имя файла без .png). */
+export const skillIconFileKeys = (): string[] => FILES.map((f) => f.split('/').pop()!.replace(/\.png$/, ''));
+
 /** BootScene: поставить в очередь PNG значков (если есть). Путь — от корня assets, как в манифесте. */
 export function queueSkillIconFiles(scene: Phaser.Scene): void {
-  for (const f of FILES) {
-    const name = f.split('/').pop()!.replace(/\.png$/, '');
-    scene.load.image(name, `ui/icons/${name}.png`);
-  }
+  for (const name of skillIconFileKeys()) scene.load.image(name, `ui/icons/${name}.png`);
 }
 
-/** Ключ текстуры значка навыка; рисует его, если ещё нет. Неизвестный навык — нейтральный значок. */
+/** Ключ загруженной PNG иконки RO для навыка (если файл есть и загрузился). */
+const roKey = (id: string) => (RO_SKILL_ICONS[id] ? `skill_${RO_SKILL_ICONS[id]}` : undefined);
+
+/**
+ * Ключ текстуры значка навыка; рисует его, если ещё нет. Порядок: PNG `skill_<id>.png` как есть → иконка RO в нашей
+ * рамке → символ, нарисованный кодом. Неизвестный навык — нейтральный значок.
+ */
 export function skillIcon(scene: Phaser.Scene, skill: SkillDef | undefined): string {
   if (!skill) return ensureFallback(scene);
   const key = skillIconKey(skill.id);
   if (scene.textures.exists(key)) return key;
+  const ro = roKey(skill.id);
+  const art = ro && scene.textures.exists(ro) ? (scene.textures.get(ro).getSourceImage() as CanvasImageSource) : undefined;
   const t = scene.textures.createCanvas(key, SKILL_ICON_SIZE, SKILL_ICON_SIZE);
   if (!t) return ensureFallback(scene);
-  drawSkillIcon(t.getContext(), SKILL_ICON_SIZE, lookOf(skill));
+  drawSkillIcon(t.getContext(), SKILL_ICON_SIZE, lookOf(skill), art);
   t.refresh();
   return key;
 }
@@ -84,7 +92,7 @@ function mix(a: string, b: string, t: number): string {
 }
 
 /** Нарисовать значок в canvas size×size (экспорт — для листа-превью в тестах/скриптах). */
-export function drawSkillIcon(c: Ctx, size: number, look: SkillLook): void {
+export function drawSkillIcon(c: Ctx, size: number, look: SkillLook, art?: CanvasImageSource): void {
   const col = ELEMENT_COLORS[look.element];
   const passive = look.passive;
   const pad = size * 0.04;
@@ -112,16 +120,29 @@ export function drawSkillIcon(c: Ctx, size: number, look: SkillLook): void {
   v.addColorStop(1, 'rgba(0,0,0,0.55)');
   c.fillStyle = v;
   c.fillRect(0, 0, size, size);
-  if (look.aoe) rays(c, size, passive ? 'rgba(255,240,200,0.12)' : 'rgba(255,245,210,0.28)');
+  if (look.aoe && !art) rays(c, size, passive ? 'rgba(255,240,200,0.12)' : 'rgba(255,245,210,0.28)');
   c.restore();
 
-  // Символ.
-  c.save();
-  c.translate(size / 2, size / 2);
-  c.scale(size / 64, size / 64);
-  c.translate(-32, -32);
-  drawGlyph(c, look.glyph, glyphFill(look), passive);
-  c.restore();
+  if (art) {
+    // Иконка RO (пиксель-арт, прозрачный фон): крупно, без сглаживания, с тенью для читаемости на фоне стихии.
+    c.save();
+    c.imageSmoothingEnabled = false;
+    c.shadowColor = 'rgba(0,0,0,0.7)';
+    c.shadowBlur = size * 0.04;
+    c.shadowOffsetY = size * 0.015;
+    const a = size * 0.86;
+    c.globalAlpha = passive ? 0.88 : 1;
+    c.drawImage(art, (size - a) / 2, (size - a) / 2, a, a);
+    c.restore();
+  } else {
+    // Символ.
+    c.save();
+    c.translate(size / 2, size / 2);
+    c.scale(size / 64, size / 64);
+    c.translate(-32, -32);
+    drawGlyph(c, look.glyph, glyphFill(look), passive);
+    c.restore();
+  }
 
   // Рамка: активные — золотой скос с бликом, пассивки — тёмная бронза и пунктир внутри.
   shape();
