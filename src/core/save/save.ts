@@ -35,6 +35,7 @@ export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY
     presets: [],
     bounties: emptyBounties(),
     achievements: { counters: {}, claimed: [] },
+    seenScenes: [],
   };
 }
 

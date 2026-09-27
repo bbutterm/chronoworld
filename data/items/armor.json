@@ -37,11 +37,7 @@
       "stats": {
         "hp": 150,
         "def": 4
-      },
-      "jobs": [
-        "mage",
-        "acolyte"
-      ]
+      }
     },
     {
       "id": "full_plate",
@@ -65,7 +61,10 @@
       "stats": {
         "hp": 280,
         "def": 10
-      }
+      },
+      "jobs": [
+        "acolyte"
+      ]
     }
   ]
 }

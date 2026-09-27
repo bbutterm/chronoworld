@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_blacksmith_weapon_perfection",
+  "name": "Совершенство оружия",
+  "description": "+15% атаки всем союзникам на 4 хода.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "cooldown": 22,
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "weapon_perfection",
+        "name": "Совершенство оружия",
+        "turns": 4,
+        "stats": {
+          "atk": 0.15
+        }
+      }
+    }
+  ],
+  "priority": 5
+}

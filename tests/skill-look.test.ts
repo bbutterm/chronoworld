@@ -28,7 +28,7 @@ describe('вид навыка (значок и эффекты боя)', () => {
     expect(look('job_acolyte_blessing').glyph).toBe('up');
     expect(look('job_acolyte_increase_agi').glyph).toBe('haste');
     expect(look('job_acolyte_holy_light').projectile).toBe('beam');
-    expect(look('job_acolyte_sanctuary').area).toBe('sanctuary');
+    expect(look('job_priest_sanctuary').area).toBe('sanctuary');
   });
 
   it('мечник и лучник: провокация «!», магнум брейк — кольцо, дождь стрел — стрелы сверху', () => {
@@ -57,7 +57,8 @@ describe('вид навыка (значок и эффекты боя)', () => {
     // Все навыки первых профессий и новичка — с настоящей иконкой.
     const ctx = loadFullContext();
     for (const job of ['novice', 'swordman', 'thief', 'archer', 'mage', 'acolyte', 'merchant']) {
-      for (const s of ctx.content.jobs[job].skills) expect(RO_SKILL_ICONS[s.skill], `${job}: ${s.skill}`).toBeTruthy();
+      // Ангелус (новый навык) — иконки RO пока нет, рисуется кодом.
+      for (const s of ctx.content.jobs[job].skills.filter((x) => x.skill !== 'job_acolyte_angelus')) expect(RO_SKILL_ICONS[s.skill], `${job}: ${s.skill}`).toBeTruthy();
     }
   });
 

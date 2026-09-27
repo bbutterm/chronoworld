@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_monk_asura_strike",
   "name": "Удар Асуры",
-  "description": "Рывок к самому слабому врагу и сокрушительный удар.",
+  "description": "Рывок к врагу с наименьшим HP и сокрушительный удар (×3.5).",
   "icon": "icon_ult_priest",
   "range": "ranged",
   "target": {

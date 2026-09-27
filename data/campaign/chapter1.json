@@ -273,22 +273,25 @@
     },
     {
       "id": "ch1_s10",
-      "name": "Лагерь орков в роще",
+      "name": "Трон короля порингов",
       "boss": true,
       "enemies": [
         {
-          "unit": "mob_tank",
-          "mult": 0.7
+          "unit": "mob_fast",
+          "mult": 0.85
         },
         {
-          "unit": "mob_boss1",
-          "mult": 0.96
+          "unit": "mob_mastering",
+          "mult": 0.67
+        },
+        {
+          "unit": "mob_drops",
+          "mult": 0.85
         },
         {
           "unit": "mob_poporing",
           "mult": 0.85
         },
-        null,
         null
       ],
       "rewards": {

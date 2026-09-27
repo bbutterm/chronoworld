@@ -138,6 +138,17 @@ async function main() {
       await clickGame(pos[0], pos[1]);
     };
     /** Есть ли в сцене видимый текст, начинающийся с prefix (во вложенных контейнерах тоже). */
+    /** Сюжетный диалог (src/game/dialogue.ts) на сцене — закрыть «Пропустить» (все сцены подряд). */
+    const skipDialogues = async (sceneKey) => {
+      for (let n = 0; n < 6; n++) {
+        const open = await page.evaluate((k) => window.__game.scene.isActive(k) && !!window.__game.scene.getScene(k).children.getByName('dialogue'), sceneKey);
+        if (!open) return n;
+        await sleep(300);
+        await clickText(sceneKey, 'Пропустить');
+        await sleep(300);
+      }
+      return 6;
+    };
     const hasText = (sceneKey, prefix) =>
       page.evaluate(
         ([k, p]) => {
@@ -182,11 +193,16 @@ async function main() {
     // 2. Главная → Кампания → этап 1 → В бой.
     await clickText('Home', 'КАМПАНИЯ');
     await waitScene('Campaign');
+    // Сюжет: вступление главы при первом входе на карту.
+    if (!(await skipDialogues('Campaign'))) problems.push('нет вступления главы на карте кампании');
     await clickText('Campaign', '1');
     await waitScene('Stage');
     await shot('stage');
     await checkHint('Stage', 'этап');
     await clickText('Stage', 'В бой');
+    // Сюжет перед первым боем этапа.
+    await sleep(500);
+    if (!(await skipDialogues('Stage'))) problems.push('нет сюжета перед этапом 1');
     await waitScene('Battle');
 
     // 3. Бой: скорость 2x запоминается; ждём баннер ульты (если случится), затем «Пропустить».

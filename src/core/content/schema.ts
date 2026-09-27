@@ -100,6 +100,8 @@ export const VisualSchema = z.object({
   hitFx: z.string().optional(),
   /** Перекраска спрайта и портрета ('#rrggbb'): вариант монстра на том же листе (Дропс — оранжевый поринг). */
   tint: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  /** Масштаб фигуры в бою (1 — как в реестре спрайтов): босс на листе обычного монстра (Мастеринг — поринг ×2). */
+  scale: z.number().positive().max(4).optional(),
 });
 
 export const UnitSchema = z.object({

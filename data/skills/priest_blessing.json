@@ -1,8 +1,8 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "priest_blessing",
-  "name": "Благословение",
-  "description": "Лечит всех союзников.",
+  "name": "Молитва",
+  "description": "Молитва исцеляет всех союзников.",
   "range": "ranged",
   "target": {
     "side": "ally",

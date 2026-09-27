@@ -1,21 +1,20 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "job_knight_bowling_bash",
-  "name": "Боулинг-удар",
-  "description": "Сокрушительный удар по двум врагам с шансом оглушить.",
+  "name": "Боулинг Баш",
+  "description": "Размах двуручником по всем врагам фронта (×1.8), шанс 30% оглушить.",
   "icon": "icon_ult_warrior",
   "range": "melee",
   "target": {
     "side": "enemy",
-    "pick": "nearest",
-    "row": "front",
-    "count": 2
+    "pick": "all",
+    "row": "front"
   },
   "cooldown": 15,
   "effects": [
     {
       "type": "damage",
-      "k": 2.2
+      "k": 1.8
     },
     {
       "type": "status",
