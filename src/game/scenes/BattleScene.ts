@@ -22,6 +22,7 @@ import { CONTENT, GAME } from '../content';
 import { stageSeed } from '../flow';
 import { commit, session, today } from '../session';
 import { GAME_W } from '../layout';
+import { SKIN, SKIN_TINT } from '../skin';
 import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../sprites';
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
@@ -50,6 +51,15 @@ const PROJECTILE_MS = 220;
 const HURT_COOLDOWN = 500;
 /** Красная вспышка при попадании, мс на 1x. */
 const HURT_TINT_MS = 90;
+/** Баннер босса: появление, показ, угасание (мс на 1x). Бой стоит, пока баннер на экране (без угасания). */
+const BOSS_IN_MS = 220;
+const BOSS_HOLD_MS = 1100;
+const BOSS_OUT_MS = 400;
+/** Баннер босса — полосой через центр поля: кнопки скорости и «Пропустить» (y≈360) не закрывает. */
+const BOSS_BANNER_Y = 780;
+/** Полоска HP босса под верхней панелью (над кнопками). */
+const BOSS_BAR_Y = 282;
+const BOSS_BAR_W = 700;
 
 interface UnitView {
   snap: UnitSnapshot;
@@ -135,6 +145,10 @@ export class BattleScene extends Phaser.Scene {
   private shownSec = -1;
   private ult!: UltPresenter;
   private floats!: FloatLayer;
+  /** Сколько мс (с учётом скорости) бой ещё стоит ради баннера босса. */
+  private introLeft = 0;
+  /** Полоска HP босса наверху (только на босс-этапе). */
+  private bossBar: { uid: string; fill: Phaser.GameObjects.Image } | null = null;
   /** Отложенные действия боя (момент удара, вылет снаряда) — своя очередь вместо таймера Phaser на каждый удар. */
   private readonly later = new Scheduler();
   /**
@@ -159,6 +173,8 @@ export class BattleScene extends Phaser.Scene {
     this.finished = false;
     this.committed = false;
     this.ready = false;
+    this.introLeft = 0;
+    this.bossBar = null;
     let title = 'Тестовый бой';
     this.stage = undefined;
     this.tower = undefined;
@@ -232,14 +248,70 @@ export class BattleScene extends Phaser.Scene {
     this.ult = new UltPresenter(this);
     this.floats = new FloatLayer(this);
     for (const u of this.result.units) this.buildUnit(u);
+    if (this.stage && getStage(GAME, this.stage.stageId).boss) this.bossIntro();
+  }
+
+  /**
+   * Босс-этап: крупный баннер «имя босса · Босс главы» (скин «тёмная бронза», золото) на ~1.5 с, затем угасает;
+   * наверху — полоска HP босса. Баннер без интерактива: кнопки («Пропустить», скорость) работают сквозь показ.
+   */
+  private bossIntro(): void {
+    const boss = this.result.units.find((u) => u.side === 'B' && this.defs[u.unitId]?.kind === 'boss');
+    if (!boss) return;
+    const name = this.defs[boss.unitId].name;
+
+    const barX = GAME_W / 2 - BOSS_BAR_W / 2;
+    this.add.image(GAME_W / 2, BOSS_BAR_Y, 'ui_bar_back').setDisplaySize(BOSS_BAR_W + 12, 46);
+    const fill = this.add.image(barX, BOSS_BAR_Y, 'ui_bar_hp_enemy').setOrigin(0, 0.5).setDisplaySize(BOSS_BAR_W, 34);
+    text(this, GAME_W / 2, BOSS_BAR_Y, name, 28, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
+    this.bossBar = { uid: boss.uid, fill };
+    const v = this.views.get(boss.uid);
+    if (v) this.redraw(v);
+
+    const w = 960;
+    const h = 300;
+    const band = this.add.rectangle(0, 0, GAME_W, h + 80, 0x000000, 0.55);
+    const bg = this.textures.exists('skin_btn_active')
+      ? panel(this, 0, 0, w, h, 'skin_btn_active')
+      : this.add.rectangle(0, 0, w, h, 0x1d1914, 0.95).setStrokeStyle(6, SKIN_TINT.gold);
+    const inner = this.add.rectangle(0, 0, w - 36, h - 36).setStrokeStyle(2, SKIN_TINT.gold, 0.5);
+    const title = text(this, 0, -34, name.toUpperCase(), 104, SKIN.goldLight, { fontStyle: 'bold', stroke: '#2a1a08', strokeThickness: 12 });
+    if (title.width > w - 80) title.setScale((w - 80) / title.width);
+    const sub = text(this, 0, 82, 'Босс главы', 44, SKIN.cream, { stroke: '#000000', strokeThickness: 6 });
+    const lineW = 150;
+    const gap = sub.width / 2 + 30;
+    const lines = [-1, 1].map((d) => this.add.rectangle(d * (gap + lineW / 2), 82, lineW, 4, SKIN_TINT.gold));
+    const node = this.add
+      .container(GAME_W / 2, BOSS_BANNER_Y, [band, bg, inner, title, sub, ...lines])
+      .setDepth(DEPTH.banner + 10)
+      .setAlpha(0)
+      .setScale(1.15)
+      .setName('bossBanner');
+    this.introLeft = BOSS_IN_MS + BOSS_HOLD_MS;
+    this.cameras.main.shake(260, 0.004);
+    this.tweens.chain({
+      targets: node,
+      tweens: [
+        { alpha: 1, scale: 1, duration: BOSS_IN_MS, ease: 'Back.easeOut' },
+        { alpha: 1, duration: BOSS_HOLD_MS },
+        { alpha: 0, duration: BOSS_OUT_MS, ease: 'Quad.easeIn' },
+      ],
+      onComplete: () => node.destroy(),
+    });
   }
 
   private buildUnit(snap: UnitSnapshot): void {
     const def = this.defs[snap.unitId];
     const spriteId = def.visual.sprite;
-    const look = spriteView(this, spriteId);
-    const sprite = this.add.sprite(0, 0, look.key, 0).setOrigin(look.originX, look.originY);
-    sprite.setScale(look.size / sprite.frame.height).setFlipX(snap.side === 'B' && look.art).setTint(unitTint(def.visual));
+    // visual.scale — крупнее фигура (и выше подпись/полоски): босс на листе обычного монстра.
+    const base = spriteView(this, spriteId);
+    const k = def.visual.scale ?? 1;
+    const look = k === 1 ? base : { ...base, size: base.size * k, height: base.height * k };
+    // Отражение идёт от середины клетки, а якорь ног не в середине: у отражённого — зеркальный origin, иначе фигура
+    // уезжает от своих полосок (у поринга ×2 — заметно).
+    const flip = snap.side === 'B' && look.art;
+    const sprite = this.add.sprite(0, 0, look.key, 0).setOrigin(flip ? 1 - look.originX : look.originX, look.originY);
+    sprite.setScale(look.size / sprite.frame.height).setFlipX(flip).setTint(unitTint(def.visual));
     sprite.anims.timeScale = playback.speed;
 
     const ox = snap.side === 'A' ? -UI_SHIFT : UI_SHIFT;
@@ -314,6 +386,11 @@ export class BattleScene extends Phaser.Scene {
     this.floats.step(dt);
     for (const v of this.views.values()) this.animateUnit(v, dt);
     if (this.finished) return;
+    // Баннер босса: часы боя стоят, пока он на экране («Пропустить» работает — skip не ждёт часов).
+    if (this.introLeft > 0) {
+      this.introLeft -= dt;
+      return;
+    }
     this.clock += (delta / 1000) * playback.speed;
     const log = this.result.log;
     while (this.cursor < log.length && log[this.cursor].t <= this.clock) {
@@ -621,6 +698,7 @@ export class BattleScene extends Phaser.Scene {
     const max = v.snap.maxHp;
     const pct = Phaser.Math.Clamp(v.hp / max, 0, 1);
     cropBar(v.hpBar, pct);
+    if (this.bossBar?.uid === v.snap.uid) cropBar(this.bossBar.fill, pct);
     if (pct >= v.trail || !animate) {
       v.trailT = -1;
       v.trail = pct;

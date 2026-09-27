@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_mastering",
+  "name": "Мастеринг",
+  "kind": "boss",
+  "role": "tank",
+  "stats": {
+    "hp": 2600,
+    "atk": 55,
+    "def": 14,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_mastering_royal_bounce",
+    "actives": [
+      "mob_mastering_jelly_armor",
+      "mob_mastering_sticky_slam"
+    ],
+    "passives": [
+      "mob_mastering_kings_wrath"
+    ]
+  },
+  "visual": {
+    "sprite": "fast",
+    "hitFx": "fx_hit",
+    "tint": "#ffc2dc",
+    "scale": 2
+  }
+}

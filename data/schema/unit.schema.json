@@ -108,6 +108,11 @@
         "tint": {
           "type": "string",
           "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "scale": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 4
         }
       },
       "required": [

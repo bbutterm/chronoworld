@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { markHint } from '../hints';
 import { stageStatus } from '../../core';
 import { CONTENT, GAME } from '../content';
+import { playStory } from '../dialogue';
 import { currentStage } from '../flow';
 import { GAME_W } from '../layout';
 import { CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
@@ -106,5 +107,8 @@ export class CampaignScene extends Phaser.Scene {
         strokeThickness: 4,
       }).setOrigin(right ? 0 : 1, 0.5);
     });
+
+    // Сюжет: вступление главы — при первом входе на её карту (пока первый этап не пройден).
+    playStory(this, { type: 'chapterStart', chapter: chapter.id }, () => {});
   }
 }
