@@ -37,6 +37,9 @@ function codeOf(fn: () => unknown): string | undefined {
 }
 
 /** Новая игра + карточки [шаблон, редкость, уровень] (id h4, h5…), золото. */
+/** Цена вознесения зелёный → синий по дорожке (data/cards.json → merge; число — заглушка баланса). */
+const blueGold = (track: string) => ctx.cards.merge.find((m) => m.track === track && m.from === 'green')!.gold;
+
 function withCards(cards: [string, CardRarity, number?][], gold = 1_000_000): SaveState {
   let s: SaveState = { ...newGame(ctx, 0), resources: { gold, heroExp: 0 } };
   for (const [t, r, l] of cards) s = addHeroCard(s, t, r, { level: l ?? 1 }).save;
@@ -49,14 +52,14 @@ describe('вознесение призывных карточек (корм)', 
     let s = withCards([['iris', 'green', 12], ['iris', 'green', 5], ['iris', 'green']]);
     s = { ...s, inventory: { items: [{ id: 'it1', itemId: 'knife', equippedBy: 'h5' }] } };
     const req = ascendRequirement(s, 'h4', ctx)!;
-    expect(req).toMatchObject({ from: 'green', to: 'blue', track: 'first', gold: 1000, blockers: [] });
+    expect(req).toMatchObject({ from: 'green', to: 'blue', track: 'first', gold: blueGold('first'), blockers: [] });
     expect(req.fodder).toEqual([{ kind: 'same', rarity: 'green', count: 2, candidates: ['h6', 'h5'] }]);
     expect(autoFodder(s, 'h4', ctx)).toEqual(['h6', 'h5']);
     const r = ascendHero(s, 'h4', ['h5', 'h6'], ctx);
     expect(r.save.heroes.find((h) => h.id === 'h4')).toMatchObject({ rarity: 'blue', level: 12 });
     expect(r.save.heroes.some((h) => h.id === 'h5' || h.id === 'h6')).toBe(false);
     expect(r.refund).toEqual(levelRangeCost(1, 5, ctx));
-    expect(r.save.resources).toEqual({ gold: 1_000_000 - 1000 + r.refund.gold, heroExp: r.refund.exp });
+    expect(r.save.resources).toEqual({ gold: 1_000_000 - blueGold('first') + r.refund.gold, heroExp: r.refund.exp });
     expect(r.save.inventory.items[0].equippedBy).toBeNull();
     expect(r.events).toEqual([{ type: 'ascended', heroId: 'h4', from: 'green', to: 'blue', job: 'swordman', jobChanged: false }]);
     expect(r.consumed.sort()).toEqual(['h5', 'h6']);
@@ -114,7 +117,7 @@ describe('вознесение призывных карточек (корм)', 
     };
     expect(codeOf(() => ascendHero(busy, 'h4', ['h5', 'h6'], ctx))).toBe('fodder_busy');
     expect(fodderBlocker(s, 'h1', ctx)).toMatch(/сюжетный/);
-    expect(codeOf(() => ascendHero({ ...s, resources: { gold: 999, heroExp: 0 } }, 'h4', ['h5', 'h6'], ctx))).toBe('not_enough_gold');
+    expect(codeOf(() => ascendHero({ ...s, resources: { gold: blueGold('first') - 1, heroExp: 0 } }, 'h4', ['h5', 'h6'], ctx))).toBe('not_enough_gold');
     // Ошибка — save не меняется (чистая функция).
     const copy = structuredClone(s);
     codeOf(() => ascendHero(s, 'h4', ['h5'], ctx));
@@ -123,10 +126,10 @@ describe('вознесение призывных карточек (корм)', 
 });
 
 describe('вознесение сюжетных карточек (осколки героя)', () => {
-  it('зелёный → синий: 20 осколков + 1000 золота; корм не нужен и не принимается', () => {
+  it('зелёный → синий: 20 осколков + золото (merge story); корм не нужен и не принимается', () => {
     const s = withCards([['iris', 'green']]);
     const req = ascendRequirement(s, 'h1', ctx)!;
-    expect(req).toMatchObject({ track: 'story', to: 'blue', gold: 1000, shards: { templateId: 'alan', have: 0, need: 20 }, fodder: [] });
+    expect(req).toMatchObject({ track: 'story', to: 'blue', gold: blueGold('story'), shards: { templateId: 'alan', have: 0, need: 20 }, fodder: [] });
     expect(req.blockers).toEqual(['Не хватает осколков: 0 / 20']);
     expect(codeOf(() => ascendHero(s, 'h1', [], ctx))).toBe('not_enough_shards');
     const rich = addShards(s, 'alan', 25);
@@ -135,7 +138,7 @@ describe('вознесение сюжетных карточек (осколки
     const r = ascendHero(rich, 'h1', [], ctx);
     expect(r.save.heroes[0]).toMatchObject({ templateId: 'alan', rarity: 'blue', level: 1 });
     expect(r.save.shards.alan).toBe(5);
-    expect(r.save.resources.gold).toBe(rich.resources.gold - 1000);
+    expect(r.save.resources.gold).toBe(rich.resources.gold - blueGold('story'));
   });
 
   it('синий → фиолетовый — вторая профессия: 40 осколков, ур. 40; класс и навыки меняются (Алан → Рыцарь)', () => {

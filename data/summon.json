@@ -1,6 +1,6 @@
 {
   "$schema": "schema/summon.schema.json",
-  "$comment": "Таверна (призыв карточек за гемы и свитки). Шансы — по редкостям; baseRarities — какие шаблоны (source: summon) выпадают этой редкостью. Дизайн — docs/design/heroes.md, раздел 4. Числа одобрены владельцем 27.09.",
+  "$comment": "Таверна (призыв карточек за гемы и свитки). Шансы — по редкостям; baseRarities — какие шаблоны (source: summon) выпадают этой редкостью. Дизайн — docs/design/heroes.md, раздел 4. Числа одобрены владельцем 27.09; welcome.scrolls 1 → 10 (первый ×10 сразу при открытии) — баланс прогрессии 27.09, docs/content/balance.md.",
   "unlockAfterStage": "ch1_s5",
   "costs": { "single": 30, "ten": 270 },
   "rates": [
@@ -11,6 +11,6 @@
   "pity": { "rarity": "purple", "every": 30 },
   "firstTen": { "rarity": "purple" },
   "freePerDay": 1,
-  "welcome": { "gems": 150, "scrolls": 1 },
+  "welcome": { "gems": 150, "scrolls": 10 },
   "storyShard": { "chance": 0.1, "count": 1 }
 }

@@ -11,9 +11,9 @@
   ],
   "milestones": [
     { "points": 20, "rewards": { "gold": 200, "gems": 0, "jobExp": 0 } },
-    { "points": 40, "rewards": { "gold": 0, "gems": 20, "jobExp": 0 } },
+    { "points": 40, "rewards": { "gold": 0, "gems": 30, "jobExp": 0 } },
     { "points": 60, "rewards": { "gold": 0, "gems": 0, "jobExp": 300 } },
     { "points": 80, "rewards": { "gold": 500, "gems": 0, "jobExp": 0 } },
-    { "points": 100, "rewards": { "gold": 0, "gems": 50, "jobExp": 0 } }
+    { "points": 100, "rewards": { "gold": 0, "gems": 60, "jobExp": 0 } }
   ]
 }

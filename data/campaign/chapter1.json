@@ -81,7 +81,7 @@
       ],
       "rewards": {
         "jobExp": 210,
-        "gold": 70
+        "gold": 105
       },
       "offlinePerMinute": {
         "jobExp": 12,
@@ -113,7 +113,7 @@
       ],
       "rewards": {
         "jobExp": 360,
-        "gold": 90
+        "gold": 135
       },
       "offlinePerMinute": {
         "jobExp": 15,
@@ -144,8 +144,8 @@
         null
       ],
       "rewards": {
-        "jobExp": 450,
-        "gold": 110
+        "jobExp": 585,
+        "gold": 165
       },
       "offlinePerMinute": {
         "jobExp": 18,
@@ -159,25 +159,25 @@
       "enemies": [
         {
           "unit": "mob_tank",
-          "mult": 0.75
+          "mult": 1.12
         },
         {
           "unit": "mob_poporing",
-          "mult": 0.85
+          "mult": 1.27
         },
         {
           "unit": "mob_mandragora",
-          "mult": 0.8
+          "mult": 1.2
         },
         null,
         {
           "unit": "mob_lunatic",
-          "mult": 0.8
+          "mult": 1.2
         }
       ],
       "rewards": {
-        "jobExp": 540,
-        "gold": 130
+        "jobExp": 700,
+        "gold": 195
       },
       "offlinePerMinute": {
         "jobExp": 21,
@@ -191,25 +191,25 @@
       "enemies": [
         {
           "unit": "mob_poporing",
-          "mult": 0.85
+          "mult": 1.32
         },
         {
           "unit": "mob_tank",
-          "mult": 0.7
+          "mult": 1.08
         },
         {
           "unit": "mob_drops",
-          "mult": 0.85
+          "mult": 1.32
         },
         null,
         {
           "unit": "mob_mandragora",
-          "mult": 0.8
+          "mult": 1.24
         }
       ],
       "rewards": {
-        "jobExp": 630,
-        "gold": 150
+        "jobExp": 820,
+        "gold": 225
       },
       "offlinePerMinute": {
         "jobExp": 24,
@@ -223,25 +223,25 @@
       "enemies": [
         {
           "unit": "mob_rocker",
-          "mult": 0.85
+          "mult": 1.36
         },
         {
           "unit": "mob_rocker",
-          "mult": 0.85
+          "mult": 1.36
         },
         {
           "unit": "mob_lunatic",
-          "mult": 0.8
+          "mult": 1.28
         },
         null,
         {
           "unit": "mob_mandragora",
-          "mult": 0.85
+          "mult": 1.36
         }
       ],
       "rewards": {
-        "jobExp": 720,
-        "gold": 175
+        "jobExp": 935,
+        "gold": 260
       },
       "offlinePerMinute": {
         "jobExp": 27,
@@ -255,28 +255,28 @@
       "enemies": [
         {
           "unit": "mob_rocker",
-          "mult": 0.72
+          "mult": 1.22
         },
         {
           "unit": "mob_tank",
-          "mult": 0.7
+          "mult": 1.19
         },
         {
           "unit": "mob_poporing",
-          "mult": 0.72
+          "mult": 1.22
         },
         {
           "unit": "mob_mandragora",
-          "mult": 0.72
+          "mult": 1.22
         },
         {
           "unit": "mob_drops",
-          "mult": 0.72
+          "mult": 1.22
         }
       ],
       "rewards": {
-        "jobExp": 810,
-        "gold": 200
+        "jobExp": 1055,
+        "gold": 300
       },
       "offlinePerMinute": {
         "jobExp": 30,
@@ -290,25 +290,25 @@
       "enemies": [
         {
           "unit": "mob_fast",
-          "mult": 0.85
+          "mult": 1.17
         },
         {
           "unit": "mob_mastering",
-          "mult": 0.84
+          "mult": 1.16
         },
         {
           "unit": "mob_drops",
-          "mult": 0.85
+          "mult": 1.17
         },
         {
           "unit": "mob_poporing",
-          "mult": 0.85
+          "mult": 1.17
         },
         null
       ],
       "rewards": {
-        "jobExp": 1050,
-        "gold": 400
+        "jobExp": 1365,
+        "gold": 600
       },
       "offlinePerMinute": {
         "jobExp": 33,

@@ -119,7 +119,8 @@
 | `content-schema.ts` + `lib/schemas.ts` | JSON-схемы для редактора из zod |
 | `sim.ts` | серии боёв |
 | `playthrough.ts` | прохождение главы ядром, `--winrate`, `--idle` |
-| `balance.ts` + `lib/player-model.ts` | модель игрока на D дней → CSV |
+| `balance.ts` + `lib/player-model.ts` | модель игрока на D дней (часы сессии, «крючки», рекомендуемая мощь) → CSV |
+| `balance-fit.ts` | регулятор `mult` глав 2–3 по графику прохождения (docs/content/balance.md) |
 | `chapter-save.ts` | сохранение для визуального прогона главы (`npx tsx scripts/chapter-save.ts [jobLevel] [tier2|tier1] > save.json`) |
 | `e2e.mjs`, `e2e-chapter1.mjs`, `perf.mjs` | браузерные прогоны (Playwright глобальный) |
 | `assets-report.ts` + `lib/used-assets.ts` | какие ассеты нужны сборке |
@@ -260,7 +261,11 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - Мелкие: `heroName`, `heroGender`, `heroJobId` (класс с учётом формы), `heroRole`, `heroLine`, `heroStats`, `heroSkillList`,
   `heroSkills`, `heroSpriteOverride` (свой лист формы); спрайт по реестру — `src/game/flow.ts heroSprite(hero, ctx)`.
 - Редкости: `CARD_RARITIES`, `rarityDef(ctx, r)` (цвет, предел, множители), `maxLevelOf`, `nextRarity`, `rarityIndex`.
-- Мощь: `heroPower(hero, ctx, save)` (K2, с экипировкой).
+- Мощь: `heroPower(hero, ctx, save)` (K2, с экипировкой), `squadPower(save, ctx)`, `stagePower(stageId, ctx)` (враги этапа).
+- **Рекомендуемая мощь этапа** (как в AFK над «В бой»): `recommendedPower(stageId, ctx)` — красивое число; `stagePowerCheck(save,
+  stageId, ctx)` → `{ squad, recommended, ratio, verdict 'easy'|'ok'|'hard'|'very_hard' }` (≥1.1 / ≥0.95 / ≥0.85 / ниже) — цвет и
+  подсказка «чуть-чуть не хватает — поднимите уровни». Коэффициенты — `data/progression.json → power.recommended*`, подбор —
+  `npm run balance -- --fit-recommended` (`docs/content/balance.md`, раздел 4).
 
 **«Улучшить» (уровень из общего пула опыта `save.resources.heroExp` + золото)**
 - `levelUpInfo(save, heroId, ctx)` → `{ level, maxLevel, cost {exp, gold} | null, canLevel, blocker ('max_level'|'not_enough_exp'|
@@ -394,8 +399,12 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 
 ## 7. Баланс
 
-- **Цели:** этапы 1–9 главы 1 — 100% побед перед первой попыткой; босс главы 1 — около ⅔–80% (сейчас `mob_mastering` mult 0.84 → 83–84%
-  на 600 seed'ах). Главы 2–3 — «иди, упрись, забери сундук»: стены растут плавно, босс главы — 1–2 полных сундука.
+- **Цели и итог баланса прогрессии (27.09)** — `docs/content/balance.md`: «Улучшить» каждые 1–2 боя в первые 30 мин, Таверна и первый
+  ×10 на ch1_s5, первое вознесение в конце главы 1, глава 2 — дни 1–2, глава 3 — дни 3–5, стены на 1–2 сундука, поражения при 85–95%
+  рекомендуемой мощи. Этапы 1–9 главы 1 — 100% побед перед первой попыткой; босс главы 1 — 75–88% в среднем по выдачам Таверны
+  (`mob_mastering` mult 1.16, тест `chapter1-playthrough`).
+- **Инструменты:** `npm run balance` (модель игрока с часами сессии, сводка «по часам» и «крючки»), `-- --fit-recommended`
+  (рекомендуемая мощь), `npx tsx scripts/balance-fit.ts` (регулятор `mult` глав 2–3 по графику).
 - **Метод (как подбирали босса главы 1):** `npm run playthrough -- 0 3 --winrate 600` — новая игра, этапы по порядку, перед каждым этапом
   доля побед на 600 seed'ах текущим отрядом; меняли `mult` босса шагом 0.01–0.02 и смотрели кривую (карточки v4, отряд Алан 5 / Бран 4 /
   Вика 4: 0.81 → 97%, 0.83 → 91%, 0.84 → 83%, 0.85 → 74%, 0.86 → 57%, 0.90 → 4%).

@@ -5,18 +5,18 @@
   "maxFloor": 100,
   "bossEvery": 5,
   "baseMult": 1,
-  "statGrowthPerFloor": 0.03,
+  "statGrowthPerFloor": 0.05,
   "rewards": {
     "gold": {
       "base": 100,
       "perFloor": 15
     },
     "jobExp": {
-      "base": 180,
-      "perFloor": 24
+      "base": 90,
+      "perFloor": 12
     },
     "bossMultiplier": 2,
-    "bossGems": 20
+    "bossGems": 10
   },
   "bands": [
     {
