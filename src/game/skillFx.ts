@@ -27,7 +27,28 @@ const TEX = {
   rock: 'sfx_rock',
   flame: 'sfx_flame',
   cross: 'sfx_cross',
+  slash: 'sfx_slash',
+  claw: 'sfx_claw',
+  splat: 'sfx_splat',
+  star: 'sfx_star',
+  coin: 'sfx_coin',
+  bang: 'sfx_bang',
+  puff: 'sfx_puff',
+  streak: 'sfx_streak',
+  vine: 'sfx_vine',
 } as const;
+
+/** Звёздочка оглушения (белая, красится) — BattleScene крутит её над головой оглушённого. */
+export const STAR_TEX = TEX.star;
+
+/**
+ * Вид обычного удара по оружию/телу атакующего: разрез меча, укол кинжала, тупой удар, попадание стрелы,
+ * магическая искра, святая искра, укус/когти монстра, шлепок слизи.
+ */
+export type HitStyle = 'slash' | 'stab' | 'blunt' | 'arrow' | 'magic' | 'holy' | 'bite' | 'slime';
+
+/** Особый вид попадания навыка (на каждую цель, в момент удара). */
+export type SkillHit = 'bash' | 'envenom' | 'steal' | 'sand' | 'coins' | 'knock' | 'ice' | 'kick' | 'smash' | 'roots' | 'goo' | 'mud' | 'bite' | 'leap' | 'cart' | 'fire' | 'bounce';
 
 /** Огненная стрела (RO Fire Bolt): стрелы падают сверху наискосок на цель одна за другой, каждая — взрыв огня. */
 export const FIRE_BOLT_MS = 300;
@@ -189,6 +210,144 @@ export function buildSkillFxTextures(scene: Phaser.Scene): void {
     c.fillRect(13, 4, 6, 24);
     c.fillRect(4, 13, 24, 6);
   });
+  // Разрез: полумесяц выпуклостью вправо, тонкие концы; яркая кромка по внешнему краю.
+  canvasTex(scene, TEX.slash, 160, 160, (c) => {
+    c.shadowColor = '#ffffff';
+    c.shadowBlur = 12;
+    c.fillStyle = 'rgba(255,255,255,0.85)';
+    c.beginPath();
+    c.moveTo(66, 10);
+    c.quadraticCurveTo(156, 80, 66, 150);
+    c.quadraticCurveTo(122, 80, 66, 10);
+    c.fill();
+    c.shadowBlur = 0;
+    c.strokeStyle = '#ffffff';
+    c.lineWidth = 4;
+    c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(70, 16);
+    c.quadraticCurveTo(150, 80, 70, 144);
+    c.stroke();
+  });
+  // Когти/укус: три изогнутых царапины наискосок.
+  canvasTex(scene, TEX.claw, 96, 96, (c) => {
+    c.shadowColor = '#ffffff';
+    c.shadowBlur = 6;
+    c.fillStyle = '#ffffff';
+    for (let i = 0; i < 3; i++) {
+      const d = (i - 1) * 20;
+      c.beginPath();
+      c.moveTo(66 + d, 6);
+      c.quadraticCurveTo(66 + d, 52, 24 + d, 90);
+      c.quadraticCurveTo(54 + d, 50, 66 + d, 6);
+      c.fill();
+    }
+  });
+  // Шлепок слизи: капля с лепестками и брызгами.
+  canvasTex(scene, TEX.splat, 96, 96, (c) => {
+    c.fillStyle = '#ffffff';
+    const blob = (x: number, y: number, r: number) => {
+      c.beginPath();
+      c.arc(x, y, r, 0, Math.PI * 2);
+      c.fill();
+    };
+    // Неровная клякса: крупные перекрывающиеся доли (не «цветок»), несколько отлетевших капель.
+    blob(48, 50, 25);
+    for (const [a, d, r] of [[0.2, 16, 17], [1.5, 18, 14], [2.6, 15, 16], [3.7, 19, 12], [5.0, 16, 15]] as const) blob(48 + Math.cos(a) * d, 50 + Math.sin(a) * d, r);
+    for (const [a, d, r] of [[0.9, 38, 5], [2.2, 40, 4], [4.2, 37, 6], [5.6, 41, 3]] as const) blob(48 + Math.cos(a) * d, 50 + Math.sin(a) * d, r);
+    // Блик — светлее (после оттенка — светлый тон того же цвета).
+    c.globalCompositeOperation = 'destination-out';
+    c.fillStyle = 'rgba(0,0,0,0.3)';
+    blob(40, 40, 8);
+  });
+  // Звёздочка: пятиконечная, со свечением.
+  canvasTex(scene, TEX.star, 32, 32, (c) => {
+    c.shadowColor = '#ffffff';
+    c.shadowBlur = 4;
+    c.fillStyle = '#ffffff';
+    c.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + (i * Math.PI) / 5;
+      const r = i % 2 ? 5.5 : 13;
+      c.lineTo(16 + Math.cos(a) * r, 16 + Math.sin(a) * r);
+    }
+    c.closePath();
+    c.fill();
+  });
+  // Монета (цветная, не красится): золото с кромкой и бликом.
+  canvasTex(scene, TEX.coin, 32, 32, (c) => {
+    const g = c.createRadialGradient(12, 11, 2, 16, 16, 15);
+    g.addColorStop(0, '#fff6c0');
+    g.addColorStop(0.45, '#ffd040');
+    g.addColorStop(1, '#b8780e');
+    c.fillStyle = g;
+    c.beginPath(); c.arc(16, 16, 14, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = '#7a4a06';
+    c.lineWidth = 2;
+    c.stroke();
+    c.strokeStyle = 'rgba(122,74,6,0.8)';
+    c.beginPath(); c.arc(16, 16, 8, 0, Math.PI * 2); c.stroke();
+    c.fillStyle = 'rgba(255,255,255,0.9)';
+    c.fillRect(9, 9, 4, 3);
+  });
+  // «!» провокации (цветной): красный с тёмной обводкой.
+  canvasTex(scene, TEX.bang, 48, 104, (c) => {
+    c.lineJoin = 'round';
+    c.strokeStyle = '#3a0400';
+    c.lineWidth = 6;
+    c.fillStyle = '#ff3a26';
+    c.beginPath();
+    c.moveTo(12, 8); c.lineTo(36, 8); c.lineTo(30, 66); c.lineTo(18, 66); c.closePath();
+    c.stroke(); c.fill();
+    c.beginPath(); c.arc(24, 86, 10, 0, Math.PI * 2); c.stroke(); c.fill();
+    c.fillStyle = 'rgba(255,220,200,0.85)';
+    c.fillRect(16, 12, 5, 30);
+  });
+  // Клуб пыли/дыма: несколько мягких кругов (красится: пыль, песок, дым).
+  canvasTex(scene, TEX.puff, 64, 64, (c) => {
+    for (const [x, y, r] of [[32, 36, 20], [20, 30, 14], [44, 28, 15], [30, 20, 13], [46, 42, 12], [18, 44, 11]] as const) {
+      const g = c.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, 'rgba(255,255,255,0.85)');
+      g.addColorStop(0.6, 'rgba(255,255,255,0.45)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = g;
+      c.fillRect(0, 0, 64, 64);
+    }
+  });
+  // Полоса скорости: к правому краю ярче (голова), мягкая поперёк.
+  canvasTex(scene, TEX.streak, 128, 16, (c) => {
+    const g = c.createLinearGradient(0, 0, 128, 0);
+    g.addColorStop(0, 'rgba(255,255,255,0)');
+    g.addColorStop(0.7, 'rgba(255,255,255,0.7)');
+    g.addColorStop(1, 'rgba(255,255,255,1)');
+    c.fillStyle = g;
+    c.beginPath();
+    c.moveTo(0, 8); c.lineTo(120, 3); c.quadraticCurveTo(128, 8, 120, 13); c.closePath();
+    c.fill();
+  });
+  // Корень мандрагоры (цветной): изогнутый, сужается кверху, с шипами.
+  canvasTex(scene, TEX.vine, 48, 128, (c) => {
+    c.lineCap = 'round';
+    const path = () => {
+      c.beginPath();
+      c.moveTo(24, 126);
+      c.bezierCurveTo(6, 96, 42, 64, 20, 36);
+      c.quadraticCurveTo(12, 20, 30, 6);
+    };
+    c.strokeStyle = '#22320c';
+    c.lineWidth = 14;
+    path(); c.stroke();
+    c.strokeStyle = '#6e9a2c';
+    c.lineWidth = 9;
+    path(); c.stroke();
+    c.strokeStyle = 'rgba(190,230,110,0.8)';
+    c.lineWidth = 3;
+    path(); c.stroke();
+    c.fillStyle = '#4e7420';
+    for (const [x, y, d] of [[16, 96, -1], [30, 72, 1], [16, 48, -1], [26, 24, 1]] as const) {
+      c.beginPath(); c.moveTo(x, y - 5); c.lineTo(x + d * 12, y - 12); c.lineTo(x, y + 4); c.closePath(); c.fill();
+    }
+  });
   canvasTex(scene, TEX.rock, 48, 64, (c) => {
     const g = c.createLinearGradient(0, 0, 48, 0);
     g.addColorStop(0, '#ffffff');
@@ -272,7 +431,11 @@ export interface FxPoint {
   feet: number;
 }
 
-const MAX_LIVE = 160;
+const MAX_LIVE = 260;
+/** Тряска экрана не чаще, чем раз в столько мс (время сцены): только крупные удары, без дрожи на каждом. */
+const SHAKE_GAP_MS = 450;
+const ADD = Phaser.BlendModes.ADD;
+const NORMAL = Phaser.BlendModes.NORMAL;
 
 /** Через сколько мс после начала площадного эффекта «бьёт» (цифры урона) — то же, что возвращает area(). */
 const AREA_HIT: Record<Area, number> = { lightning: 120, ring: 110, quake: 110, arrows: 260, blizzard: 320, holy: 120, cloud: 150, sanctuary: 200 };
@@ -285,7 +448,16 @@ export class SkillFx {
   private readonly trail: Phaser.GameObjects.Particles.ParticleEmitter;
   /** Крестики лечения, поднимающиеся вокруг цели. */
   private readonly crosses: Phaser.GameObjects.Particles.ParticleEmitter;
+  /** Пыль, песок, дым (обычное смешивание — не светится). */
+  private readonly dustFx: Phaser.GameObjects.Particles.ParticleEmitter;
+  /** Монеты (Маммонит, Кража): летят вверх и падают. */
+  private readonly coinFx: Phaser.GameObjects.Particles.ParticleEmitter;
+  /** Звёздочки удара (Баш, пинок). */
+  private readonly starFx: Phaser.GameObjects.Particles.ParticleEmitter;
+  /** Капли слизи и яда (обычное смешивание, падают). */
+  private readonly blobFx: Phaser.GameObjects.Particles.ParticleEmitter;
   private readonly flashRect: Phaser.GameObjects.Rectangle;
+  private lastShake = -Infinity;
 
   constructor(private readonly scene: Phaser.Scene) {
     buildSkillFxTextures(scene);
@@ -303,12 +475,28 @@ export class SkillFx {
     this.crosses = scene.add
       .particles(0, 0, TEX.cross, { ...common, lifespan: { min: 800, max: 1200 }, speedY: { min: -150, max: -70 }, speedX: { min: -12, max: 12 }, scale: { start: 0.9, end: 0.3 }, alpha: { start: 1, end: 0 }, maxParticles: 60 })
       .setDepth(SFX_DEPTH + 1);
+    this.dustFx = scene.add
+      .particles(0, 0, TEX.puff, { emitting: false, lifespan: { min: 450, max: 800 }, speed: { min: 20, max: 110 }, angle: { min: 180, max: 360 }, scale: { start: 0.7, end: 1.6 }, alpha: { start: 0.8, end: 0 }, rotate: { min: 0, max: 360 }, maxParticles: 140 })
+      .setDepth(SFX_DEPTH - 1);
+    this.coinFx = scene.add
+      .particles(0, 0, TEX.coin, { emitting: false, lifespan: { min: 650, max: 900 }, speed: { min: 260, max: 460 }, angle: { min: 235, max: 305 }, gravityY: 1100, scale: { start: 1.1, end: 0.8 }, alpha: { start: 1, end: 0.2 }, rotate: { min: -180, max: 180 }, maxParticles: 60 })
+      .setDepth(SFX_DEPTH + 3);
+    this.starFx = scene.add
+      .particles(0, 0, TEX.star, { emitting: false, lifespan: { min: 380, max: 620 }, speed: { min: 140, max: 320 }, gravityY: 250, scale: { start: 1.2, end: 0.2 }, alpha: { start: 1, end: 0 }, rotate: { min: 0, max: 360 }, maxParticles: 80 })
+      .setDepth(SFX_DEPTH + 3);
+    this.blobFx = scene.add
+      .particles(0, 0, TEX.orb, { emitting: false, lifespan: { min: 380, max: 620 }, speed: { min: 150, max: 340 }, angle: { min: 200, max: 340 }, gravityY: 1000, scale: { start: 0.45, end: 0.15 }, alpha: { start: 0.95, end: 0.3 }, maxParticles: 100 })
+      .setDepth(SFX_DEPTH + 2);
     this.flashRect = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0xffffff, 1).setAlpha(0).setDepth(SFX_DEPTH + 5).setBlendMode(Phaser.BlendModes.ADD);
   }
 
   /** Скорость боя для частиц (живут по своему времени). */
   setSpeed(speed: number): void {
-    for (const e of [this.sparks, this.motes, this.trail, this.crosses]) e.timeScale = speed;
+    for (const e of this.emitters) e.timeScale = speed;
+  }
+
+  private get emitters(): Phaser.GameObjects.Particles.ParticleEmitter[] {
+    return [this.sparks, this.motes, this.trail, this.crosses, this.dustFx, this.coinFx, this.starFx, this.blobFx];
   }
 
   get activeCount(): number {
@@ -327,7 +515,7 @@ export class SkillFx {
   cancel(): void {
     for (const r of this.live) if (r.obj) this.images.release(r.obj);
     this.live.length = 0;
-    for (const e of [this.sparks, this.motes, this.trail, this.crosses]) e.killAll();
+    for (const e of this.emitters) e.killAll();
     this.flashRect.setAlpha(0);
   }
 
@@ -353,9 +541,10 @@ export class SkillFx {
 
   // ---------- примитивы ----------
 
-  private img(tex: string, x: number, y: number, tint: number, depth = SFX_DEPTH): Phaser.GameObjects.Image {
+  /** Картинка из пула: всё, что эффекты меняют (текстура, кадр, якорь, масштаб, поворот, оттенок, смешивание), сбрасывается. */
+  private img(tex: string, x: number, y: number, tint: number, depth = SFX_DEPTH, blend: Phaser.BlendModes = ADD): Phaser.GameObjects.Image {
     const o = this.images.acquire();
-    o.setTexture(tex).setPosition(x, y).setOrigin(0.5).setScale(1).setAngle(0).setAlpha(1).setTint(tint).setDepth(depth).setFlipX(false);
+    o.setTexture(tex).setPosition(x, y).setOrigin(0.5).setScale(1).setAngle(0).setAlpha(1).setTint(tint).setDepth(depth).setFlipX(false).setFlipY(false).setBlendMode(blend);
     return o;
   }
 
@@ -385,22 +574,74 @@ export class SkillFx {
     }, delay);
   }
 
+  /** «Уменьшить анимацию»: частиц вдвое меньше (эффект остаётся виден). */
+  private n(count: number): number {
+    return motion.reduced ? Math.ceil(count / 2) : count;
+  }
+
   burst(x: number, y: number, tint: number, count: number): void {
     this.sparks.setParticleTint(tint);
-    this.sparks.explode(count, x, y);
+    this.sparks.explode(this.n(count), x, y);
   }
 
   rise(x: number, y: number, tint: number, count: number, spreadX = 50): void {
     this.motes.setParticleTint(tint);
-    for (let i = 0; i < count; i++) this.motes.emitParticleAt(x + (Math.random() - 0.5) * spreadX * 2, y + (Math.random() - 0.5) * 30, 1);
+    for (let i = 0, k = this.n(count); i < k; i++) this.motes.emitParticleAt(x + (Math.random() - 0.5) * spreadX * 2, y + (Math.random() - 0.5) * 30, 1);
   }
 
+  /** Клубы пыли/дыма у земли (x ± spread). */
+  dust(x: number, y: number, tint: number, count: number, spread = 40): void {
+    this.dustFx.setParticleTint(tint);
+    for (let i = 0, k = this.n(count); i < k; i++) this.dustFx.emitParticleAt(x + (Math.random() - 0.5) * spread * 2, y - Math.random() * 16, 1);
+  }
+
+  /**
+   * Облако из клубов (картинки из пула, обычное смешивание): клубы разлетаются от центра, растут и тают.
+   * Плотнее частиц пыли — читается на траве и песке (смерть, песок в глаза, приземление).
+   */
+  puffCloud(x: number, y: number, tint: number, count: number, size: number, dur = 520, alpha = 0.85): void {
+    for (let i = 0, k = this.n(count); i < k; i++) {
+      const a = (i / k) * Math.PI * 2 + Math.random() * 0.8;
+      const r = size * (0.25 + Math.random() * 0.35);
+      const dx = Math.cos(a) * r;
+      const dy = Math.sin(a) * r * 0.5;
+      const o = this.img(TEX.puff, x, y, tint, SFX_DEPTH + 1, NORMAL);
+      const s0 = (size / 64) * (0.55 + Math.random() * 0.3);
+      o.setScale(s0 * 0.6).setAlpha(alpha).setRotation(Math.random() * Math.PI * 2);
+      this.run(o, dur, (q, im) => {
+        const e = ease.quadOut(q);
+        im!.setPosition(x + dx * (0.4 + e), y + dy * (0.4 + e) - 20 * q).setScale(s0 * (0.6 + 0.7 * e)).setAlpha(alpha * (q < 0.35 ? 1 : 1 - (q - 0.35) / 0.65));
+      });
+    }
+  }
+
+  stars(x: number, y: number, tint: number, count: number): void {
+    this.starFx.setParticleTint(tint);
+    this.starFx.explode(this.n(count), x, y);
+  }
+
+  coins(x: number, y: number, count: number): void {
+    this.coinFx.explode(this.n(count), x, y);
+  }
+
+  blobs(x: number, y: number, tint: number, count: number): void {
+    this.blobFx.setParticleTint(tint);
+    this.blobFx.explode(this.n(count), x, y);
+  }
+
+  /** Вспышка всего экрана; «Уменьшить анимацию» — без неё. */
   flash(tint: number, alpha = 0.25, dur = 220): void {
+    if (motion.reduced) return;
     this.flashRect.setFillStyle(tint, 1).setAlpha(alpha);
     this.run(null, dur, (p) => this.flashRect.setAlpha(alpha * (1 - p)));
   }
 
+  /** Тряска экрана — только на крупных ударах и не чаще SHAKE_GAP_MS; «Уменьшить анимацию» — без неё. */
   shake(intensity = 0.006, ms = 200): void {
+    if (motion.reduced) return;
+    const now = this.scene.time.now;
+    if (now - this.lastShake < SHAKE_GAP_MS) return;
+    this.lastShake = now;
     this.scene.cameras.main.shake(ms, intensity);
   }
 
@@ -433,6 +674,355 @@ export class SkillFx {
     this.glow(p.x, p.y, 0xffffff, 0.5 * k, 1.6 * k, 180);
     this.glow(p.x, p.y, tint, 0.3 * k, 1.5 * k, 380, 0, 0.9, TEX.ring);
     this.burst(p.x, p.y, tint, big ? 18 : 12);
+  }
+
+  // ---------- обычные удары ----------
+
+  /**
+   * Искра обычного удара по виду оружия/тела атакующего (dir — куда летит удар: 1 вправо, −1 влево).
+   * big — крупный удар (ульта, мощный навык, удар на ≥ 20% HP): вспышка крупнее, белое ядро, кольцо.
+   */
+  strike(style: HitStyle, p: FxPoint, dir: number, big: boolean, tint: number): void {
+    const k = big ? 1.35 : 1;
+    const x = p.x - dir * 10;
+    const y = p.y + (Math.random() - 0.5) * 24;
+    // Белая звёздочка-вспышка в точке удара — у всех видов, «щелчок» попадания.
+    this.glow(x, y, 0xffffff, 1.2 * k, 3 * k, 150, 0, 1, TEX.spark);
+    switch (style) {
+      case 'slash':
+        this.slash(x, y, dir, tint, 1.5 * k, -0.5 + Math.random() * 0.5);
+        this.burst(x + dir * 10, y, tint, big ? 10 : 6);
+        break;
+      case 'stab':
+        this.slash(x, y - 10, dir, tint, 1.2 * k, -0.25, 0, 0.5);
+        this.slash(x, y + 14, dir, tint, 1.2 * k, 0.35, 70, 0.5);
+        this.burst(x + dir * 8, y, tint, big ? 8 : 5);
+        break;
+      case 'blunt':
+        this.glow(x, y, tint, 0.8 * k, 3.2 * k, 240, 0, 1);
+        this.glow(x, y, tint, 0.3 * k, 1.8 * k, 260, 0, 0.95, TEX.ring);
+        this.stars(x, y, 0xffe890, big ? 7 : 4);
+        this.dust(p.x, p.feet, 0xd8c8a8, 3, 26);
+        break;
+      case 'arrow':
+        this.streakAt(x, y, dir, tint, 1.7 * k, 220);
+        this.glow(x + dir * 12, y, tint, 0.5 * k, 2.2 * k, 220, 0, 1);
+        this.glow(x + dir * 12, y, tint, 0.2 * k, 1.2 * k, 240, 0, 0.9, TEX.ring);
+        this.burst(x + dir * 10, y, 0xfff0d0, big ? 8 : 5);
+        break;
+      case 'magic':
+      case 'holy':
+        this.glow(x, y, tint, 0.8 * k, 3 * k, 320, 0, 1);
+        this.glow(x, y, tint, 0.3 * k, 1.7 * k, 340, 0, 0.95, TEX.ring);
+        this.burst(x, y, style === 'holy' ? 0xfff6c8 : tint, big ? 12 : 8);
+        break;
+      case 'bite':
+        this.claw(x, y, dir, tint, 1.45 * k);
+        this.burst(x, y, 0xffb0a0, big ? 6 : 4);
+        break;
+      case 'slime':
+        this.splat(x, y + 6, tint, 1.35 * k);
+        this.blobs(x, y, tint, big ? 8 : 5);
+        break;
+    }
+    if (big) {
+      this.glow(x, y, 0xffffff, 0.6, 3, 220, 0, 0.95);
+      this.glow(x, y, tint, 0.4, 2.6, 340, 0, 0.95, TEX.ring);
+      this.burst(x, y, 0xffffff, 6);
+    }
+  }
+
+  /**
+   * Разрез-полумесяц: вспыхивает, «проворачивается» в сторону удара и гаснет. angle — наклон (рад), delay — мс,
+   * sx — сжатие по ширине (укол — узкий). Под ним — белое ядро.
+   */
+  slash(x: number, y: number, dir: number, tint: number, scale: number, angle = 0, delay = 0, sx = 1): void {
+    const d = dir < 0 ? -1 : 1;
+    // Цветной полумесяц — обычным смешиванием (читается и на светлом/красном), белое ядро поверх — светится.
+    for (const [t, s, a, depth, blend] of [[tint, 1, 0.9, SFX_DEPTH + 2, NORMAL], [0xffffff, 0.72, 1, SFX_DEPTH + 3, ADD]] as const) {
+      const o = this.img(TEX.slash, x, y, t, depth, blend);
+      o.setFlipX(d < 0).setRotation(angle * d).setScale(scale * s * sx * 0.7, scale * s * 0.7).setAlpha(a);
+      this.run(o, 240, (q, im) => {
+        const g = 0.7 + 0.45 * ease.quadOut(clamp01(q / 0.5));
+        im!.setScale(scale * s * sx * g, scale * s * g).setRotation((angle + 0.55 * q) * d).setAlpha(a * (q < 0.35 ? 1 : 1 - (q - 0.35) / 0.65));
+      }, delay);
+    }
+  }
+
+  /** Когти/укус монстра: три царапины проступают по диагонали и гаснут. */
+  claw(x: number, y: number, dir: number, tint: number, scale: number, delay = 0): void {
+    const o = this.img(TEX.claw, x, y, tint, SFX_DEPTH + 2, NORMAL);
+    o.setFlipX(dir < 0).setScale(scale * 0.6).setAlpha(0.95);
+    this.run(o, 260, (q, im) => {
+      im!.setScale(scale * (0.6 + 0.5 * ease.quadOut(clamp01(q / 0.4)))).setAlpha(q < 0.4 ? 0.95 : 0.95 * (1 - (q - 0.4) / 0.6));
+    }, delay);
+  }
+
+  /** Шлепок слизи/яда (обычное смешивание): растекается и тает. */
+  splat(x: number, y: number, tint: number, scale: number, delay = 0, dur = 380): void {
+    const o = this.img(TEX.splat, x, y, tint, SFX_DEPTH + 1, NORMAL);
+    o.setScale(scale * 0.35).setAlpha(0.9).setRotation(Math.random() * Math.PI * 2);
+    this.run(o, dur, (q, im) => {
+      im!.setScale(scale * (0.35 + 0.85 * ease.quadOut(clamp01(q / 0.35)))).setAlpha(q < 0.5 ? 0.9 : 0.9 * (1 - (q - 0.5) / 0.5));
+    }, delay);
+  }
+
+  /** Полоса скорости (голова в точке x, y; dir — направление полёта). */
+  streakAt(x: number, y: number, dir: number, tint: number, scale: number, dur: number, delay = 0, angle = 0): void {
+    const o = this.img(TEX.streak, x, y, tint, SFX_DEPTH + 1);
+    o.setFlipX(dir < 0).setOrigin(dir < 0 ? 0 : 1, 0.5).setRotation(angle).setScale(scale * 1.4, scale);
+    this.run(o, dur, (q, im) => im!.setScale(scale * (1.4 - 0.6 * q), scale * (1 - 0.5 * q)).setAlpha(1 - q), delay);
+  }
+
+  // ---------- особые попадания навыков ----------
+
+  /** Попадание навыка с особым видом (на каждую цель). from — атакующий (монеты кражи летят к нему). */
+  skillHit(kind: SkillHit, p: FxPoint, dir: number, from?: FxPoint): void {
+    const x = p.x - dir * 8;
+    const y = p.y;
+    switch (kind) {
+      case 'bash': {
+        // Баш: красный крест-разрез, белая вспышка, звёзды.
+        this.slash(x, y, dir, 0xff3a2a, 1.45, -0.7);
+        this.slash(x, y, dir, 0xff6040, 1.3, 0.6, 50);
+        this.glow(x, y, 0xffffff, 0.5, 2.6, 180, 0, 1);
+        this.glow(x, y, 0xff4a2a, 0.8, 3.4, 320, 0, 0.9);
+        this.stars(x, y - 20, 0xffe060, 7);
+        this.burst(x, y, 0xffb070, 10);
+        break;
+      }
+      case 'envenom': {
+        // Отравление: разрез и зелёный всплеск с каплями, пузырьки яда.
+        this.slash(x, y, dir, 0xc8ff9a, 0.9, -0.3);
+        this.splat(x, y, 0x7ee03a, 1.7, 40);
+        this.blobs(x, y, 0x8fe04a, 9);
+        this.later(120, () => this.rise(p.x, p.y, 0xa6f060, 5, 26));
+        break;
+      }
+      case 'steal': {
+        // Кража: быстрый укол и монетка с блеском летит к вору.
+        this.slash(x, y, dir, 0xfff0c0, 0.75, -0.2, 0, 0.6);
+        this.coinFly(p, from ?? { x: p.x - dir * 200, y: p.y, feet: p.feet });
+        break;
+      }
+      case 'sand': {
+        // Песок в глаза: облако песка у лица.
+        this.puffCloud(p.x, p.y - 30, 0xe8c888, 7, 130, 620, 0.9);
+        this.dust(p.x, p.y - 20, 0xe6c88a, 6, 36);
+        this.burst(x, y - 20, 0xf0d8a0, 8);
+        break;
+      }
+      case 'coins': {
+        // Маммонит: удар и россыпь монет, золотое кольцо.
+        this.glow(x, y, 0xffd84a, 0.6, 3, 280, 0, 0.95);
+        this.glow(x, y, 0xffe890, 0.3, 1.8, 360, 0, 0.9, TEX.ring);
+        this.coins(x, y - 10, 12);
+        this.burst(x, y, 0xffe070, 8);
+        break;
+      }
+      case 'knock': {
+        // Отталкивающая стрела: удар, полосы отброса за целью, кольцо.
+        for (let i = 0; i < 3; i++) this.streakAt(p.x + dir * 70, p.y + (i - 1) * 26, dir, 0x9fe6ff, 1.4 - Math.abs(i - 1) * 0.3, 320, i * 30);
+        this.glow(x, y, 0xbff0ff, 0.6, 3, 280, 0, 1);
+        this.glow(x, y, 0x8fe6ff, 0.4, 2.4, 380, 0, 0.9, TEX.ring);
+        this.burst(x, y, 0xcff4ff, 12);
+        this.dust(p.x + dir * 30, p.feet, 0xd8c8a8, 4, 30);
+        break;
+      }
+      case 'ice': this.iceBurst(p); break;
+      case 'kick': {
+        // Пинок: звёздный удар, полосы, пыль.
+        this.strike('blunt', p, dir, true, 0xffc860);
+        this.stars(x, y - 10, 0xffe060, 8);
+        for (let i = 0; i < 2; i++) this.streakAt(x + dir * 40, y + (i ? 18 : -18), dir, 0xfff0c0, 1.5, 260, i * 40);
+        this.puffCloud(p.x, p.feet - 10, 0xd8c8a8, 4, 70, 420);
+        break;
+      }
+      case 'smash': {
+        this.glow(x, y, 0xffffff, 0.6, 2.6, 180, 0, 1);
+        this.glow(x, y, 0xffa040, 0.8, 3.6, 340, 0, 0.9);
+        this.glow(p.x, p.feet, 0xd8b080, 0.4, 3, 420, 0, 0.9, TEX.ring, 0.4);
+        this.stars(x, y, 0xffe060, 8);
+        this.puffCloud(p.x, p.feet - 10, 0xc8b090, 6, 110, 520);
+        break;
+      }
+      case 'roots': this.roots(p); break;
+      case 'goo':
+      case 'mud': {
+        const tint = kind === 'goo' ? 0x9be36b : 0x9a7a4a;
+        this.splat(x, y, tint, 1.8);
+        this.blobs(x, y, tint, 12);
+        if (kind === 'goo') this.later(100, () => this.rise(p.x, p.y, 0xb8f080, 4, 24));
+        break;
+      }
+      case 'bite': this.claw(x, y, dir, 0xff8a7a, 1.25); this.burst(x, y, 0xff9080, 6); break;
+      case 'leap': {
+        this.claw(x, y, dir, 0xff6a58, 1.6);
+        this.glow(x, y, 0xffffff, 1, 2.6, 160, 0, 1, TEX.spark);
+        this.puffCloud(p.x, p.feet - 10, 0xd8c8a8, 5, 90, 460);
+        break;
+      }
+      case 'cart': {
+        this.glow(x, y, 0xffc860, 0.5, 2.6, 260, 0, 0.9);
+        this.stars(x, y, 0xffe890, 4);
+        this.dust(p.x, p.feet, 0xc8b090, 6, 44);
+        break;
+      }
+      case 'fire': {
+        this.glow(x, y, FIRE_MAIN, 0.8, 3.2, 320, 0, 1);
+        this.glow(x, y, FIRE_CORE, 0.4, 1.6, 200, 0, 1);
+        this.burst(x, y, FIRE_CORE, 10);
+        this.rise(p.x, p.y + 20, FIRE_MAIN, 5, 30);
+        break;
+      }
+      case 'bounce': {
+        this.splat(x, y + 10, 0xff9ad0, 1.1);
+        this.blobs(x, y, 0xff9ad0, 6);
+        this.stars(x, y - 30, 0xffe060, 4);
+        break;
+      }
+    }
+  }
+
+  /** Монетка с блеском: подпрыгивает над целью и дугой летит к вору. */
+  private coinFly(from: FxPoint, to: FxPoint): void {
+    const o = this.img(TEX.coin, from.x, from.y - 30, 0xffffff, SFX_DEPTH + 3, NORMAL);
+    o.setScale(1.6);
+    const x0 = from.x;
+    const y0 = from.y - 30;
+    this.run(o, 560, (q, im) => {
+      const up = q < 0.35;
+      const t = up ? q / 0.35 : (q - 0.35) / 0.65;
+      const x = up ? x0 : x0 + (to.x - x0) * ease.quadOut(t);
+      const y = up ? y0 - 70 * ease.quadOut(t) : y0 - 70 + (to.y - 40 - (y0 - 70)) * t - Math.sin(t * Math.PI) * 60;
+      im!.setPosition(x, y).setScale(1.6 * Math.abs(Math.cos(q * 12)) + 0.2).setAlpha(q > 0.85 ? (1 - q) / 0.15 : 1);
+    });
+    this.later(190, () => {
+      this.glow(x0, y0 - 70, 0xfff4c0, 0.3, 1.6, 260, 0, 1, TEX.spark);
+      this.burst(x0, y0 - 70, 0xffe070, 5);
+    });
+  }
+
+  /** Ледяной удар: веер осколков из точки попадания, голубая вспышка, кольцо инея под ногами. */
+  iceBurst(p: FxPoint): void {
+    this.glow(p.x, p.y, 0xbfeaff, 0.8, 3.2, 360, 0, 1);
+    this.glow(p.x, p.y, 0xffffff, 0.4, 1.6, 180, 0, 1);
+    this.glow(p.x, p.feet, 0x8fdcff, 0.4, 2.6, 520, 0, 0.9, TEX.ring, 0.4);
+    const n = motion.reduced ? 4 : 7;
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (i - (n - 1) / 2) * 0.42;
+      const o = this.img(TEX.shard, p.x, p.y, 0xbfeeff, SFX_DEPTH + 2);
+      o.setRotation(a).setScale(0.3, 0.8);
+      this.run(o, 420, (q, im) => {
+        const r = 20 + 70 * ease.quadOut(q);
+        im!.setPosition(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r).setScale(0.3 + 0.6 * (1 - q), 0.8).setAlpha(1 - q * q);
+      });
+    }
+    this.burst(p.x, p.y, 0xdff6ff, 10);
+  }
+
+  /** Корни мандрагоры: три корня вырастают из земли вокруг ног цели, пыль. */
+  roots(p: FxPoint): void {
+    for (let i = 0; i < 5; i++) {
+      const d = i - 2;
+      const o = this.img(TEX.vine, p.x + d * 32, p.feet + 10 - Math.abs(d) * 4, 0xffffff, SFX_DEPTH + 1, NORMAL);
+      o.setOrigin(0.5, 1).setFlipX(d > 0).setScale(1.3, 0).setRotation(d * 0.22);
+      const h = 1.7 - Math.abs(d) * 0.25;
+      this.run(o, 950, (q, im) => {
+        const up = q < 0.25 ? ease.backOut(q / 0.25) : 1;
+        im!.setScale(1.3, h * up).setAlpha(q < 0.75 ? 1 : 1 - (q - 0.75) / 0.25);
+      }, Math.abs(d) * 50);
+    }
+    this.puffCloud(p.x, p.feet - 6, 0x9a8a5a, 5, 110, 480);
+    this.burst(p.x, p.feet - 10, 0xa6d060, 8);
+  }
+
+  // ---------- навыки целиком ----------
+
+  /** Магнум брейк: огненное кольцо вокруг мечника — вспышка, два кольца по земле, языки пламени наружу. */
+  magnumBreak(c: FxPoint, targets: FxPoint[]): void {
+    this.glow(c.x, c.y, FIRE_CORE, 1, 3.4, 260, 0, 1);
+    this.glow(c.x, c.y, FIRE_MAIN, 1.2, 6.5, 420, 0, 0.95);
+    this.glow(c.x, c.feet, FIRE_DEEP, 0.5, 7.5, 520, 0, 1, TEX.ring, 0.4);
+    this.glow(c.x, c.feet, FIRE_MAIN, 0.4, 5.5, 440, 80, 0.9, TEX.ring, 0.4);
+    const n = motion.reduced ? 6 : 12;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      const o = this.img(TEX.flame, c.x, c.feet - 30, 0xffffff, SFX_DEPTH + 2);
+      o.setRotation(a).setOrigin(0.8, 0.5).setScale(0.5, 0.45);
+      this.run(o, 420, (q, im) => {
+        const r = 30 + 250 * ease.quadOut(q);
+        im!.setPosition(c.x + Math.cos(a) * r, c.feet - 30 + Math.sin(a) * r * 0.45).setAlpha(1 - q).setScale(0.5 + 0.3 * q, 0.45 * (1 - q * 0.5));
+      });
+    }
+    this.burst(c.x, c.y, FIRE_CORE, 20);
+    this.dust(c.x, c.feet, 0x6a4a3a, 6, 90);
+    for (const p of targets) this.later(110, () => this.skillHit('fire', p, p.x >= c.x ? 1 : -1));
+    this.later(110, () => this.shake(0.005, 160));
+  }
+
+  /** Удар тележкой: широкий размах дугой по переднему ряду, пыль под целями. */
+  cartSwing(c: FxPoint, targets: FxPoint[], dir: number): void {
+    const cx = c.x + dir * 90;
+    this.slash(cx, c.y, dir, 0xffd890, 2.6, -1.1);
+    this.slash(cx, c.y + 20, dir, 0xffffff, 2.1, -0.9, 40, 0.8);
+    this.dust(c.x + dir * 60, c.feet, 0xc8b090, 8, 90);
+    for (const p of targets) this.later(90, () => this.skillHit('cart', p, dir));
+  }
+
+  /** Крик провокации: красное кольцо и свечение вокруг мечника. */
+  shout(c: FxPoint): void {
+    this.glow(c.x, c.y, 0xff4030, 0.6, 3, 360, 0, 0.8);
+    this.glow(c.x, c.y, 0xff5040, 0.4, 3.6, 420, 0, 0.95, TEX.ring);
+    this.glow(c.x, c.y, 0xff8070, 0.3, 2.6, 420, 90, 0.8, TEX.ring);
+  }
+
+  /** Провокация на цели: красный «!» над головой, красная аура, кольцо под ногами. */
+  provoke(p: FxPoint, headY: number): void {
+    const o = this.img(TEX.bang, p.x, headY - 40, 0xffffff, SFX_DEPTH + 4, NORMAL);
+    o.setScale(0);
+    this.run(o, 1100, (q, im) => {
+      const s = q < 0.18 ? ease.backOut(q / 0.18) : 1;
+      im!.setScale(0.9 * s).setY(headY - 40 - 10 * Math.sin(q * Math.PI)).setAlpha(q < 0.75 ? 1 : 1 - (q - 0.75) / 0.25);
+    });
+    const aura = this.img(TEX.glow, p.x, p.y, 0xff2a1a, SFX_DEPTH - 1);
+    aura.setScale(3, 4).setAlpha(0);
+    this.run(aura, 900, (q, im) => im!.setAlpha(0.7 * Math.abs(Math.sin(q * Math.PI * 2)) * (1 - q * 0.5)));
+    this.glow(p.x, p.feet, 0xff4030, 0.4, 2.4, 600, 0, 0.9, TEX.ring, 0.4);
+  }
+
+  /** Королевский прыжок (Мастеринг): ударная волна — кольца по земле от кастера, пыль, брызги слизи. */
+  royalBounce(c: FxPoint, targets: FxPoint[]): void {
+    for (let i = 0; i < 3; i++) this.glow(c.x, c.feet, i === 1 ? 0xffffff : 0xff9ad0, 0.5, 11 - i * 2, 620, i * 90, 0.95, TEX.ring, 0.38);
+    this.glow(c.x, c.feet - 40, 0xff9ad0, 1, 6, 420, 0, 0.8);
+    this.splat(c.x, c.feet - 20, 0xff9ad0, 2.2);
+    this.blobs(c.x, c.feet - 40, 0xff9ad0, 14);
+    this.puffCloud(c.x, c.feet - 10, 0xd8c8a8, 10, 260, 620);
+    for (const p of targets) this.later(140 + Math.abs(p.x - c.x) * 0.25, () => this.skillHit('bounce', p, p.x >= c.x ? 1 : -1));
+    this.later(60, () => {
+      this.shake(0.008, 260);
+      this.flash(0xffc0e0, 0.08, 180);
+    });
+  }
+
+  /** Облако смерти: клубы дыма у ног и светлая вспышка. */
+  deathPuff(p: FxPoint, big: boolean): void {
+    this.puffCloud(p.x, p.feet - 40, 0xeeeaf4, big ? 12 : 8, big ? 220 : 150, 700, 0.9);
+    this.glow(p.x, p.y, 0xffffff, 0.8, big ? 4 : 2.8, 380, 0, 0.6);
+    this.rise(p.x, p.feet, 0xe8e0ff, 5, 36);
+  }
+
+  /** Пыль из-под ног (рывок, приземление). */
+  dashDust(x: number, feet: number, dir: number): void {
+    this.puffCloud(x - dir * 24, feet - 8, 0xd8c8a8, 4, 80, 420, 0.8);
+  }
+
+  /** След рывка/прыжка: светящиеся частицы по пути тела. «Уменьшить анимацию» — без следа. */
+  dashTrail(x: number, y: number, tint: number): void {
+    if (motion.reduced) return;
+    this.glow(x, y, tint, 2.2, 0.6, 280, 0, 0.75);
+    this.trail.setParticleTint(tint);
+    this.trail.emitParticleAt(x, y, 2);
   }
 
   // ---------- огненная стрела ----------
@@ -478,12 +1068,11 @@ export class SkillFx {
     this.glow(x, y, FIRE_MAIN, 1, 3.8, 380, 0, 1);
     this.glow(x, y, FIRE_CORE, 0.6, 2.2, 200, 0, 1);
     this.glow(x, y, 0xffffff, 0.4, 1.2, 120, 0, 0.9);
-    this.burst(x, y, FIRE_CORE, reduced ? 8 : 18);
-    if (reduced) return;
+    this.burst(x, y, FIRE_CORE, 18);
     this.glow(x, feet, FIRE_DEEP, 0.4, 2.4, 420, 0, 0.9, TEX.ring, 0.4);
     this.animated('fx_hit', x, y, 250, 0xffb060, 0, 0.9);
     this.rise(x, y + 30, FIRE_MAIN, 6, 50);
-    if (last) {
+    if (last && !reduced) {
       this.flash(0xff7a20, 0.1, 180);
       this.shake(0.006, 160);
     }
@@ -498,25 +1087,31 @@ export class SkillFx {
   projectile(kind: Projectile, from: FxPoint, to: FxPoint, tint: number, dur: number, delay: number, onHit: () => void): void {
     if (kind === 'beam') return this.beam(from, to, tint, delay, onHit);
     if (kind === 'rock') return this.spikes(to, tint, delay, onHit);
+    if (kind === 'arrow') return this.glowArrow(from, to, tint, 1.3, dur, delay, onHit);
     let x0 = from.x;
     let y0 = from.y;
     if (kind === 'meteor') {
       x0 = to.x - 260;
       y0 = to.y - 760;
     }
-    const tex = kind === 'ice' ? TEX.shard : kind === 'arrow' ? TEX.arrow : TEX.orb;
-    const o = this.img(tex, x0, y0, tint, SFX_DEPTH + 1);
-    const core = kind === 'ice' || kind === 'arrow' ? null : this.img(TEX.orb, x0, y0, 0xffffff, SFX_DEPTH + 2);
+    const ice = kind === 'ice';
+    const o = this.img(ice ? TEX.shard : TEX.orb, x0, y0, tint, SFX_DEPTH + 1);
+    // Ядро: у огня/магии — белый шар, у ледяного осколка — ореол вокруг (осколок читается на траве).
+    const core = ice ? this.img(TEX.glow, x0, y0, 0xbfeeff, SFX_DEPTH) : this.img(TEX.orb, x0, y0, 0xffffff, SFX_DEPTH + 2);
     const size = kind === 'meteor' ? 1.9 : kind === 'fireball' ? 1.25 : kind === 'arcane' || kind === 'dark' || kind === 'poison' ? 1 : 1.1;
-    o.setScale(kind === 'ice' ? 1.1 : kind === 'arrow' ? 1.2 : size);
-    core?.setScale(size * 0.45);
+    o.setScale(ice ? 1.5 : size);
+    if (ice) core.setScale(2.6, 1.2).setAlpha(0.7);
+    else core.setScale(size * 0.45);
     const angle = Phaser.Math.RadToDeg(Math.atan2(to.y - y0, to.x - x0));
-    if (kind === 'ice' || kind === 'arrow') o.setAngle(angle);
-    // Лёгкая дуга по высоте (кроме метеора и стрел): снаряд «летит», а не ползёт.
-    const arc = kind === 'meteor' || kind === 'arrow' ? 0 : Math.min(120, Math.abs(to.x - x0) * 0.18);
+    if (ice) {
+      o.setAngle(angle);
+      core.setAngle(angle);
+    }
+    // Лёгкая дуга по высоте (кроме метеора): снаряд «летит», а не ползёт.
+    const arc = kind === 'meteor' ? 0 : Math.min(120, Math.abs(to.x - x0) * 0.18);
     let frame = 0;
     const d = kind === 'meteor' ? dur * 1.6 : dur;
-    if (core) this.run(core, d, (p, im) => {
+    this.run(core, d, (p, im) => {
       const x = x0 + (to.x - x0) * p;
       const y = y0 + (to.y - y0) * p - Math.sin(p * Math.PI) * arc;
       im!.setPosition(x, y);
@@ -531,6 +1126,33 @@ export class SkillFx {
       this.trail.setParticleTint(kind === 'fireball' || kind === 'meteor' ? (frame % 2 ? 0xffb040 : 0xff4a10) : tint);
       this.trail.emitParticleAt(x, y, kind === 'meteor' ? 3 : 1);
       if (kind === 'lightning' && frame % 3 === 0) this.burst(x, y, tint, 1);
+    }, delay, onHit);
+  }
+
+  /**
+   * Светящаяся стрела (Двойной выстрел, Отталкивающая стрела): древко в цвет навыка, яркий ореол вокруг,
+   * шлейф частиц; scale — крупнее для заряженной стрелы.
+   */
+  glowArrow(from: FxPoint, to: FxPoint, tint: number, scale: number, dur: number, delay: number, onHit: () => void): void {
+    const x0 = from.x;
+    const y0 = from.y - 10;
+    const ang = Math.atan2(to.y - y0, to.x - x0);
+    const halo = this.img(TEX.glow, x0, y0, tint, SFX_DEPTH + 1);
+    halo.setRotation(ang).setScale(2.2 * scale, 0.9 * scale).setAlpha(0.8);
+    const a = this.img(TEX.arrow, x0, y0, 0xffffff, SFX_DEPTH + 2);
+    a.setRotation(ang).setScale(1.25 * scale);
+    const tip = Math.cos(ang) * 30 * scale;
+    const tipY = Math.sin(ang) * 30 * scale;
+    let frame = 0;
+    const move = (p: number, im: Phaser.GameObjects.Image | null) => im!.setPosition(x0 + (to.x - x0) * p, y0 + (to.y - y0) * p);
+    this.run(halo, dur, move, delay);
+    this.run(a, dur, (p, im) => {
+      move(p, im);
+      frame++;
+      if (motion.reduced) return;
+      this.trail.setParticleTint(tint);
+      this.trail.emitParticleAt(im!.x - tip, im!.y - tipY, 1);
+      if (frame % 2 === 0) this.burst(im!.x, im!.y, tint, 1);
     }, delay, onHit);
   }
 
@@ -604,7 +1226,7 @@ export class SkillFx {
         return AREA_HIT[kind];
       }
       case 'arrows': {
-        for (const [i, p] of targets.entries()) for (let k = 0; k < 4; k++) this.fallingArrow(p, tint, i * 50 + k * 70);
+        for (const [i, p] of targets.entries()) for (let k = 0, n = motion.reduced ? 3 : 5; k < n; k++) this.fallingArrow(p, tint, i * 50 + k * 55);
         return AREA_HIT.arrows;
       }
       case 'blizzard': {
@@ -658,66 +1280,95 @@ export class SkillFx {
     const ty = p.feet - Math.random() * 60;
     const x0 = tx - 140;
     const y0 = ty - 560;
-    const a = this.img(TEX.arrow, x0, y0, tint, SFX_DEPTH + 1);
-    a.setAngle(Phaser.Math.RadToDeg(Math.atan2(ty - y0, tx - x0))).setScale(1.3);
-    this.run(a, 240, (q, im) => {
-      im!.setPosition(x0 + (tx - x0) * q, y0 + (ty - y0) * q);
-    }, delay, () => this.burst(tx, ty, 0xfff0d0, 3));
+    const ang = Math.atan2(ty - y0, tx - x0);
+    const halo = this.img(TEX.glow, x0, y0, tint, SFX_DEPTH);
+    halo.setRotation(ang).setScale(2.4, 0.7).setAlpha(0.75);
+    const a = this.img(TEX.arrow, x0, y0, 0xffffff, SFX_DEPTH + 1);
+    a.setRotation(ang).setScale(1.35);
+    const move = (q: number, im: Phaser.GameObjects.Image | null) => im!.setPosition(x0 + (tx - x0) * q, y0 + (ty - y0) * q);
+    this.run(halo, 240, move, delay);
+    this.run(a, 240, move, delay, () => {
+      this.burst(tx, ty, 0xfff0d0, 3);
+      this.glow(tx, ty, tint, 0.3, 1.4, 200, 0, 0.9);
+      this.dust(tx, ty, 0xd8c8a8, 1, 10);
+    });
   }
 
   // ---------- лечение и баффы ----------
 
   /**
    * Лечение (RO Heal): бело-зелёный столб света от земли через всю фигуру (~350 px, мягкие края), расходящееся
-   * кольцо по земле, поднимающиеся искры и крестики, свечение на теле. «Уменьшить анимацию» — только кольцо,
-   * свечение и несколько искр.
+   * кольцо по земле, поднимающиеся искры и крестики, свечение на теле. small — Первая помощь: столб ниже,
+   * крестик над головой. «Уменьшить анимацию» — столб не растёт, а проявляется на месте; частиц меньше.
    */
-  heal(p: FxPoint, big = false): void {
-    const k = big ? 1.15 : 1;
-    this.glow(p.x, p.feet, HEAL_MAIN, 0.4, 2.6 * k, 620, 0, 0.95, TEX.ring, 0.35);
+  heal(p: FxPoint, big = false, small = false): void {
+    const k = big ? 1.15 : small ? 0.6 : 1;
+    const reduced = motion.reduced;
+    this.glow(p.x, p.feet, HEAL_MAIN, 0.4, 2.6 * Math.max(k, 0.8), 620, 0, 0.95, TEX.ring, 0.35);
     this.glow(p.x, p.y, HEAL_MAIN, 1, 2.8 * k, 520, 0, 0.6);
-    if (motion.reduced) {
-      this.rise(p.x, p.feet, HEAL_LIGHT, 4, 36);
-      return;
-    }
     const h = 350 * k;
     // Столб: широкий зеленоватый и узкое белое ядро (текстура луча мягкая поперёк), растут от земли вверх.
     for (const [w, tint, a] of [[150 * k, HEAL_MAIN, 0.75], [56 * k, 0xffffff, 0.9]] as const) {
       const col = this.img(TEX.beam, p.x, p.feet, tint, SFX_DEPTH + 1);
-      col.setOrigin(0, 0.5).setRotation(-Math.PI / 2).setScale(0, w / 32).setAlpha(a);
+      col.setOrigin(0, 0.5).setRotation(-Math.PI / 2).setScale(reduced ? h / 64 : 0, w / 32).setAlpha(a);
       this.run(col, 760, (q, im) => {
-        const up = ease.quadOut(clamp01(q / 0.25));
-        const fade = q < 0.55 ? 1 : 1 - (q - 0.55) / 0.45;
+        const up = reduced ? 1 : ease.quadOut(clamp01(q / 0.25));
+        const fade = q < 0.55 ? (reduced ? Math.min(1, q / 0.15) : 1) : 1 - (q - 0.55) / 0.45;
         im!.setScale((h / 64) * up, (w / 32) * (1 - 0.35 * q)).setAlpha(a * fade);
       });
     }
     this.glow(p.x, p.feet, HEAL_LIGHT, 0.6, 2.2 * k, 500, 0, 0.8, TEX.glow, 0.4);
-    this.rise(p.x, p.feet, 0xb4ffb0, big ? 14 : 10, 60);
-    this.rise(p.x, p.feet - 40, 0xffffff, big ? 6 : 4, 40);
+    this.rise(p.x, p.feet, 0xb4ffb0, big ? 14 : small ? 5 : 10, 60 * k);
+    this.rise(p.x, p.feet - 40, 0xffffff, big ? 6 : 4, 40 * k);
     this.crosses.setParticleTint(0xe4ffe0);
-    for (let i = 0; i < (big ? 7 : 5); i++) this.crosses.emitParticleAt(p.x + (Math.random() - 0.5) * 130, p.feet - 20 - Math.random() * 160, 1);
+    const crosses = this.n(big ? 7 : small ? 3 : 5);
+    for (let i = 0; i < crosses; i++) this.crosses.emitParticleAt(p.x + (Math.random() - 0.5) * 130 * k, p.feet - 20 - Math.random() * 160 * k, 1);
+    if (small) {
+      // Первая помощь: крупный крестик всплывает над фигурой.
+      const c = this.img(TEX.cross, p.x, p.y - 30, 0x9dff9a, SFX_DEPTH + 3);
+      c.setScale(0);
+      this.run(c, 700, (q, im) => im!.setScale(2.2 * (q < 0.2 ? ease.backOut(q / 0.2) : 1)).setY(p.y - 30 - 60 * q).setAlpha(q < 0.6 ? 1 : 1 - (q - 0.6) / 0.4));
+    }
   }
 
   /** Кастер лечения: короткое святое свечение и круг под ногами. */
   holyCast(p: FxPoint): void {
     this.glow(p.x, p.y, 0xfff4c8, 1, 3, 420, 0, 0.7);
-    if (motion.reduced) return;
     const c = this.img(TEX.circle, p.x, p.feet, HEAL_LIGHT, SFX_DEPTH - 1);
     c.setScale(0.6, 0.22).setAlpha(0);
+    const spin = motion.reduced ? 0 : 1.4;
     this.run(c, 560, (q, im) => {
       const s = 0.6 + 0.55 * ease.quadOut(q);
-      im!.setScale(s, s * 0.36).setAlpha(q < 0.2 ? q / 0.2 : 1 - (q - 0.2) / 0.8).setRotation(q * 1.4);
+      im!.setScale(s, s * 0.36).setAlpha(q < 0.2 ? q / 0.2 : 1 - (q - 0.2) / 0.8).setRotation(q * spin);
     });
     this.rise(p.x, p.feet, 0xfff4c8, 5, 50);
   }
 
-  /** Бафф: столб искр цвета статуса и кольцо под ногами. */
+  /**
+   * Бафф (Благословение — золото, Ускорение — голубой, прочее — цвет статуса): кольцо под ногами, столб света,
+   * по спирали вверх поднимаются искры-звёздочки, блик над головой.
+   */
   buff(p: FxPoint, tint: number): void {
-    this.glow(p.x, p.feet, tint, 0.4, 2, 600, 0, 0.9, TEX.ring, 0.35);
-    const col = this.img(TEX.beam, p.x, p.feet - 110, tint, SFX_DEPTH);
-    col.setRotation(Math.PI / 2).setScale(220 / 64, 3).setAlpha(0);
-    this.run(col, 650, (q, im) => im!.setAlpha(0.7 * (q < 0.2 ? q / 0.2 : 1 - (q - 0.2) / 0.8)).setScale(220 / 64, 3 - q * 1.5));
-    this.rise(p.x, p.feet, tint, 12, 36);
+    this.glow(p.x, p.feet, tint, 0.4, 2.2, 640, 0, 0.95, TEX.ring, 0.35);
+    this.glow(p.x, p.feet, 0xffffff, 0.3, 1.4, 420, 60, 0.8, TEX.ring, 0.35);
+    for (const [w, t, a] of [[3.2, tint, 0.75], [1.2, 0xffffff, 0.8]] as const) {
+      const col = this.img(TEX.beam, p.x, p.feet, t, SFX_DEPTH);
+      col.setOrigin(0, 0.5).setRotation(-Math.PI / 2).setScale(260 / 64, w).setAlpha(0);
+      this.run(col, 700, (q, im) => im!.setAlpha(a * (q < 0.2 ? q / 0.2 : 1 - (q - 0.2) / 0.8)).setScale((260 / 64) * (0.8 + 0.2 * q), w * (1 - 0.4 * q)));
+    }
+    // Спираль искр: стартуют по кругу у ног с задержкой — поднимаются столбом.
+    const n = this.n(10);
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 4;
+      this.later(i * 35, () => {
+        this.motes.setParticleTint(i % 3 ? tint : 0xffffff);
+        this.motes.emitParticleAt(p.x + Math.cos(a) * 46, p.feet - 10 + Math.sin(a) * 12, 1);
+      });
+    }
+    this.later(260, () => {
+      this.glow(p.x, p.feet - 250, 0xffffff, 0.3, 1.5, 300, 0, 1, TEX.spark);
+      this.stars(p.x, p.feet - 230, tint, 3);
+    });
   }
 
   // ---------- каст ----------

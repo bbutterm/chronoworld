@@ -13,7 +13,10 @@ EXPECTED={
  'monster':('idle','walk','attack','hurt','death'),
  'boss':('idle','walk','attack','hurt','death'),
 }
-REQUIRED={'novice','merchant','swordman','magician','archer_first','acolyte','thief',
+REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first','acolyte','thief',
+          'knight_m','crusader_m','hunter_m','hunter_f','bard_m','dancer_f',
+          'wizard_f','sage_f','assassin_m','rogue_m','rogue_f','priest_f',
+          'monk_m','blacksmith_m','blacksmith_f','alchemist_m',
           'guard','warrior','assassin','archer','mage','priest','melee','ranged','tank','fast','elite','boss1','boss2',
           'drops','poporing','fabre','lunatic','mandragora','rocker','mastering',
           # converted from legacy assets/ro v1 sheets (tools/ro_v1_to_v2.py)

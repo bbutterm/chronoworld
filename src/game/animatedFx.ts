@@ -24,6 +24,8 @@ const effects = new Map<string, AnimatedEffect>(catalog.effects.map((effect) => 
 }]));
 
 export const animatedFxKey = (id: string): string => `anim_${id}`;
+/** Все анимированные эффекты каталога (бой ждёт их загрузки перед первым кадром). */
+export const animatedFxIds = (): string[] => [...effects.keys()];
 
 /** Эффекты навыка из effects.json → skills: hit — на цели урона, buff — на союзнике при наложении статуса. */
 export interface SkillFx {
