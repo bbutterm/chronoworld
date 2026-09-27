@@ -11,6 +11,12 @@ export const HeroStateSchema = z.object({
   jobExp: z.number().int().nonnegative(),
   /** Пройденные профессии и уровень, на котором с них ушли (для навыков при keepSkillsOnJobChange). */
   jobHistory: z.array(z.object({ job: z.string(), jobLevel: z.number().int().positive() })).default([]),
+  /**
+   * P9 (T1-02). Опыт, накопленный на максимальном уровне профессии, пока герой не сменил её (не больше
+   * progression/exp.ts expBankCap). При смене профессии начисляется новой профессии. Нет поля — 0 (старые
+   * сохранения). UI: progression/exp.ts expBankStatus.
+   */
+  bankedExp: z.number().int().nonnegative().optional(),
 });
 
 /** День игрока 'YYYY-MM-DD' (вычисляет UI по своему часовому поясу, ядро получает строкой). */

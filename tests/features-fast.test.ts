@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  idleIncome,
   FeatureError,
   fastRewardsPreview,
   fastRewardsStatus,
@@ -77,9 +78,8 @@ describe('rollDay', () => {
 describe('K1 быстрые награды', () => {
   it('preview = ставка последнего пройденного этапа × hours × 60; без этапов — нули', () => {
     const s = withStage();
-    const rate = ctx.content.stages[1].offlinePerMinute;
     const minutes = ctx.features.fastRewards.hours * 60;
-    expect(fastRewardsPreview(s, ctx)).toEqual({ minutes, gold: rate.gold * minutes, jobExp: rate.jobExp * minutes });
+    expect(fastRewardsPreview(s, ctx)).toEqual({ minutes, ...idleIncome(ctx.content.stages[1], minutes, ctx) });
     expect(fastRewardsPreview(newGame(ctx, 0), ctx)).toEqual({ minutes: 0, gold: 0, jobExp: 0 });
   });
 
