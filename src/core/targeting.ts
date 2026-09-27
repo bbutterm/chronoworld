@@ -14,7 +14,8 @@ export function inRow(u: Unit, row: 'front' | 'back', cfg: CombatConfig): boolea
  * случайность — только через rng боя.
  */
 export function selectTargets(actor: Unit, t: TargetDef, allies: Unit[], enemies: Unit[], rng: Rng, cfg: CombatConfig): Unit[] {
-  if (t.pick === 'self') return actor.alive ? [actor] : [];
+  // Лечение себя с onlyWounded при полном HP — целей нет: навык ждёт, ход и перезарядка не тратятся.
+  if (t.pick === 'self') return actor.alive && (!t.onlyWounded || actor.hp < actor.maxHp) ? [actor] : [];
 
   let pool = (t.side === 'enemy' ? enemies : allies).filter((u) => u.alive && (t.side === 'enemy' || t.includeSelf || u !== actor));
   if (t.onlyWounded) pool = pool.filter((u) => u.hp < u.maxHp);
