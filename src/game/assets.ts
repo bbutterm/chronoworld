@@ -81,8 +81,10 @@ export function buildPlaceholders(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
     if (scene.textures.exists(id) || a.atlasXml) continue;
     if (a.atlas && scene.textures.exists(a.atlas)) continue;
-    const w = a.w || 128;
-    const h = a.h || 128;
+    // Градиент-заглушка фона растягивается на экран (setDisplaySize) — рисуем в ¼ размера, это экономит ~7 МБ видеопамяти.
+    const shrink = a.gradient ? 4 : 1;
+    const w = Math.ceil((a.w || 128) / shrink);
+    const h = Math.ceil((a.h || 128) / shrink);
     const t = scene.textures.createCanvas(id, w, h);
     if (!t) continue;
     const ctx = t.getContext();
