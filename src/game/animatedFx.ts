@@ -24,6 +24,14 @@ const effects = new Map<string, AnimatedEffect>(catalog.effects.map((effect) => 
 }]));
 
 export const animatedFxKey = (id: string): string => `anim_${id}`;
+
+/** Эффекты навыка из effects.json → skills: hit — на цели урона, buff — на союзнике при наложении статуса. */
+export interface SkillFx {
+  hit?: string;
+  buff?: string;
+}
+const skillMap = (catalog as unknown as { skills?: Record<string, SkillFx> }).skills ?? {};
+export const skillFx = (skillId: string | undefined): SkillFx | undefined => (skillId ? skillMap[skillId] : undefined);
 export const animatedEffect = (id: string): AnimatedEffect | undefined => effects.get(id);
 export function selectedAnimatedEffect(id: string, kind: 'flash' | 'projectile', loaded: boolean): AnimatedEffect | undefined {
   if (!loaded || (kind === 'projectile' && id !== 'fx_arrow')) return undefined;
