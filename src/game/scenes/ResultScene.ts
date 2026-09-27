@@ -11,6 +11,8 @@ import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
 import { badge, portrait, unitTint } from '../screen';
 import type { JobChangeData } from './JobChangeScene';
+import { skillIcon } from '../skillIcons';
+import { playStory, startStageBattle } from '../dialogue';
 
 const MAX_EVENT_LINES = 5;
 /** Шаг строки события, минимальная высота строки таблицы, центр строки «Авто: следующий этап». */
@@ -131,7 +133,11 @@ export class ResultScene extends Phaser.Scene {
           text(this, cols[1], y - 2, formatNumber(rep.damageDealt), fs, dim(rep.damageDealt, isMvp ? C.gold : C.text), { fontStyle: isMvp ? 'bold' : 'normal' });
           text(this, cols[2], y, formatNumber(rep.healingDone), fs, dim(rep.healingDone, C.positive));
           text(this, cols[3], y, formatNumber(rep.shieldGiven), fs, dim(rep.shieldGiven, C.shield));
-          text(this, cols[4], y, String(rep.ults + rep.skills), fs, dim(rep.ults + rep.skills, C.gold));
+          // Главный навык юнита — значком слева от числа применений.
+          const mainSkill = def?.skills.actives[0] ?? def?.skills.ult;
+          const used = rep.ults + rep.skills;
+          if (mainSkill) this.add.image(cols[4] - 34, y, skillIcon(this, GAME.content.skills[mainSkill])).setDisplaySize(Math.min(40, row - 14), Math.min(40, row - 14)).setAlpha(used > 0 ? 1 : 0.45);
+          text(this, mainSkill ? cols[4] + 14 : cols[4], y, String(used), fs, dim(used, C.gold));
           text(this, cols[5], y, rep.alive ? '✓' : '✗', fs, rep.alive ? C.success : C.enemy, { fontStyle: 'bold' });
           y += row;
         });
@@ -165,7 +171,10 @@ export class ResultScene extends Phaser.Scene {
         }, FS.h2);
         if (!next) nextBtn.container.setAlpha(0.4).disableInteractive();
       }
-      this.autoRow(stage.stageId, win);
+      const beginAuto = this.autoRow(stage.stageId, win);
+      // Сюжет после первой победы на этапе — поверх итогов; авто-отсчёт — после него (в авто-режиме строки листаются сами).
+      const firstClear = win && stage.outcome.events.some((e) => e.type === 'stageCleared' && e.firstTime);
+      playStory(this, { type: 'afterStage', stageId: stage.stageId, firstClear }, beginAuto, { auto: autoAdvance.on });
       return;
     }
 
@@ -179,8 +188,9 @@ export class ResultScene extends Phaser.Scene {
   /**
    * R. «Авто: следующий этап» (как авто-бой в AFK Arena): переключатель запоминается; если он включён и бой
    * выигран, через AUTO_DELAY_MS сам стартует следующий новый этап главы. Любое касание экрана отменяет отсчёт.
+   * Возвращает запуск отсчёта — его зовут, когда закрыт сюжетный диалог (если он был).
    */
-  private autoRow(stageId: string, win: boolean): void {
+  private autoRow(stageId: string, win: boolean): () => void {
     const y = AUTO_Y;
     this.autoTop = y - TOUCH / 2;
     const plan = autoNextStage(session.save, stageId, win, GAME);
@@ -233,7 +243,8 @@ export class ResultScene extends Phaser.Scene {
         fill.width = fullW * (1 - left / AUTO_DELAY_MS);
         if (left > 0) return;
         cancel('');
-        this.scene.start('Battle', { mode: 'stage', stageId: next.id });
+        // Сюжет перед новым этапом показывается и в авто-режиме — один раз, строки листаются сами.
+        startStageBattle(this, next.id, { auto: true });
       };
       tick();
       this.autoTimer = this.time.addEvent({ delay: STEP, loop: true, callback: tick });
@@ -241,8 +252,10 @@ export class ResultScene extends Phaser.Scene {
       this.input.on('pointerdown', cancelOnTap);
     };
 
-    if (autoAdvance.on) start();
-    else status.setText('Включите — бои пойдут сами до конца главы');
+    status.setText(autoAdvance.on ? '' : 'Включите — бои пойдут сами до конца главы');
+    return () => {
+      if (autoAdvance.on && !this.autoTimer) start();
+    };
   }
 }
 

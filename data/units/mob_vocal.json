@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_vocal",
+  "name": "Вокал",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 2000,
+    "atk": 52,
+    "def": 11,
+    "spd": 110
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_vocal_song",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "rocker",
+    "tint": "#8fd06a",
+    "scale": 0.9,
+    "hitFx": "fx_hit"
+  }
+}

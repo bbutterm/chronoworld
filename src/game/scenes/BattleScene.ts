@@ -20,8 +20,9 @@ import {
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
 import { stageSeed } from '../flow';
-import { commit, session, today } from '../session';
+import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
+import { SKIN, SKIN_TINT } from '../skin';
 import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../sprites';
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
@@ -30,6 +31,10 @@ import { button, panel, text } from '../ui';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
 import { skillFx } from '../animatedFx';
+import { SkillFx, type CastRig, type FxPoint } from '../skillFx';
+import { buffColor, ELEMENT_COLORS, lookOf } from '../skillLook';
+import { skillIcon, statusIcon } from '../skillIcons';
+import type { SkillDef, StatusDef } from '../../core';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -48,8 +53,49 @@ const TRAIL_MS = 450;
 const PROJECTILE_MS = 220;
 /** «Получил урон» не чаще, чем раз в столько мс, и не перебивает атаку. */
 const HURT_COOLDOWN = 500;
-/** Красная вспышка при попадании, мс на 1x. */
+/** Красная вспышка при попадании, мс на 1x (перед ней HIT_FLASH_MS — белая заливка). */
 const HURT_TINT_MS = 90;
+const HIT_FLASH_MS = 45;
+/** Полёт снаряда навыка (огненная стрела, ледяной осколок), мс на 1x, и шаг между снарядами одного навыка. */
+const SKILL_PROJECTILE_MS = 320;
+const SKILL_VOLLEY_STEP = 120;
+/** Значки перезарядки активных навыков под полоской HP героя. */
+const CD_ICON = 36;
+const CD_GAP = 5;
+/** Значки статусов над полоской HP. */
+const STATUS_ICON = 28;
+
+/** Все статусы из навыков (id → описание) — для значка над HP по событию status. */
+let statusDefs: Map<string, StatusDef> | null = null;
+function statusDef(id: string): StatusDef | undefined {
+  if (!statusDefs) {
+    statusDefs = new Map();
+    for (const sk of Object.values(CONTENT.skills)) for (const e of sk.effects) if (e.type === 'status' && !statusDefs.has(e.status.id)) statusDefs.set(e.status.id, e.status);
+  }
+  return statusDefs.get(id);
+}
+
+interface CdIcon {
+  skill: SkillDef;
+  icon: Phaser.GameObjects.Image;
+  sweep: Phaser.GameObjects.Graphics;
+  x: number;
+  y: number;
+  /** Когда готов (время боя, с) и полная перезарядка. */
+  readyAt: number;
+  cd: number;
+  /** Последняя нарисованная доля (чтобы не перерисовывать каждый кадр). */
+  shown: number;
+}
+/** Баннер босса: появление, показ, угасание (мс на 1x). Бой стоит, пока баннер на экране (без угасания). */
+const BOSS_IN_MS = 220;
+const BOSS_HOLD_MS = 1100;
+const BOSS_OUT_MS = 400;
+/** Баннер босса — полосой через центр поля: кнопки скорости и «Пропустить» (y≈360) не закрывает. */
+const BOSS_BANNER_Y = 780;
+/** Полоска HP босса под верхней панелью (над кнопками). */
+const BOSS_BAR_Y = 282;
+const BOSS_BAR_W = 700;
 
 interface UnitView {
   snap: UnitSnapshot;
@@ -81,6 +127,21 @@ interface UnitView {
   castBack: Phaser.GameObjects.Image;
   /** Идёт каст: начало и длительность в секундах боя. */
   cast: { start: number; dur: number } | null;
+  /** Название навыка над полосой каста. */
+  castLabel: Phaser.GameObjects.Text;
+  nameText: Phaser.GameObjects.Text;
+  /** Круг каста и аура (создаются при первом касте). */
+  castRig?: CastRig;
+  /** Попадания текущего навыка по целям: время сцены (мс) каждого удара — цифры встают под свой снаряд. */
+  hitPlan: Map<string, number[]>;
+  /** Значки статусов над HP (id статуса → картинка). */
+  statusIcons: Map<string, Phaser.GameObjects.Image>;
+  statusY: number;
+  statusX0: number;
+  /** Перезарядка активных навыков (только у героев игрока). */
+  cdIcons: CdIcon[];
+  /** Идёт белая вспышка попадания (затем — красный оттенок). */
+  flashFill: boolean;
   /** Навык текущего действия (для эффекта попадания). */
   lastSkill?: string;
   bars: Phaser.GameObjects.Components.Visible[];
@@ -135,6 +196,11 @@ export class BattleScene extends Phaser.Scene {
   private shownSec = -1;
   private ult!: UltPresenter;
   private floats!: FloatLayer;
+  private sfx!: SkillFx;
+  /** Сколько мс (с учётом скорости) бой ещё стоит ради баннера босса. */
+  private introLeft = 0;
+  /** Полоска HP босса наверху (только на босс-этапе). */
+  private bossBar: { uid: string; fill: Phaser.GameObjects.Image } | null = null;
   /** Отложенные действия боя (момент удара, вылет снаряда) — своя очередь вместо таймера Phaser на каждый удар. */
   private readonly later = new Scheduler();
   /**
@@ -159,6 +225,8 @@ export class BattleScene extends Phaser.Scene {
     this.finished = false;
     this.committed = false;
     this.ready = false;
+    this.introLeft = 0;
+    this.bossBar = null;
     let title = 'Тестовый бой';
     this.stage = undefined;
     this.tower = undefined;
@@ -168,7 +236,7 @@ export class BattleScene extends Phaser.Scene {
       const save = session.save;
       let outcome: StageOutcomeWithDrops;
       try {
-        outcome = actPlayStage(save, today(), data.stageId, stageSeed(save), GAME);
+        outcome = actPlayStage(save, today(), data.stageId, stageSeed(save), GAME, now());
       } catch (e) {
         console.warn(e);
         this.finished = true;
@@ -221,6 +289,7 @@ export class BattleScene extends Phaser.Scene {
       setPlaybackSpeed(nextPlaybackSpeed());
       speedBtn.setLabel(`${playback.speed}x`);
       for (const v of this.views.values()) v.sprite.anims.timeScale = playback.speed;
+      this.sfx.setSpeed(playback.speed);
       this.tweens.timeScale = playback.speed;
       this.time.timeScale = playback.speed;
     });
@@ -231,15 +300,73 @@ export class BattleScene extends Phaser.Scene {
 
     this.ult = new UltPresenter(this);
     this.floats = new FloatLayer(this);
+    this.sfx = new SkillFx(this);
+    this.sfx.setSpeed(playback.speed);
     for (const u of this.result.units) this.buildUnit(u);
+    if (this.stage && getStage(GAME, this.stage.stageId).boss) this.bossIntro();
+  }
+
+  /**
+   * Босс-этап: крупный баннер «имя босса · Босс главы» (скин «тёмная бронза», золото) на ~1.5 с, затем угасает;
+   * наверху — полоска HP босса. Баннер без интерактива: кнопки («Пропустить», скорость) работают сквозь показ.
+   */
+  private bossIntro(): void {
+    const boss = this.result.units.find((u) => u.side === 'B' && this.defs[u.unitId]?.kind === 'boss');
+    if (!boss) return;
+    const name = this.defs[boss.unitId].name;
+
+    const barX = GAME_W / 2 - BOSS_BAR_W / 2;
+    this.add.image(GAME_W / 2, BOSS_BAR_Y, 'ui_bar_back').setDisplaySize(BOSS_BAR_W + 12, 46);
+    const fill = this.add.image(barX, BOSS_BAR_Y, 'ui_bar_hp_enemy').setOrigin(0, 0.5).setDisplaySize(BOSS_BAR_W, 34);
+    text(this, GAME_W / 2, BOSS_BAR_Y, name, 28, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
+    this.bossBar = { uid: boss.uid, fill };
+    const v = this.views.get(boss.uid);
+    if (v) this.redraw(v);
+
+    const w = 960;
+    const h = 300;
+    const band = this.add.rectangle(0, 0, GAME_W, h + 80, 0x000000, 0.55);
+    const bg = this.textures.exists('skin_btn_active')
+      ? panel(this, 0, 0, w, h, 'skin_btn_active')
+      : this.add.rectangle(0, 0, w, h, 0x1d1914, 0.95).setStrokeStyle(6, SKIN_TINT.gold);
+    const inner = this.add.rectangle(0, 0, w - 36, h - 36).setStrokeStyle(2, SKIN_TINT.gold, 0.5);
+    const title = text(this, 0, -34, name.toUpperCase(), 104, SKIN.goldLight, { fontStyle: 'bold', stroke: '#2a1a08', strokeThickness: 12 });
+    if (title.width > w - 80) title.setScale((w - 80) / title.width);
+    const sub = text(this, 0, 82, 'Босс главы', 44, SKIN.cream, { stroke: '#000000', strokeThickness: 6 });
+    const lineW = 150;
+    const gap = sub.width / 2 + 30;
+    const lines = [-1, 1].map((d) => this.add.rectangle(d * (gap + lineW / 2), 82, lineW, 4, SKIN_TINT.gold));
+    const node = this.add
+      .container(GAME_W / 2, BOSS_BANNER_Y, [band, bg, inner, title, sub, ...lines])
+      .setDepth(DEPTH.banner + 10)
+      .setAlpha(0)
+      .setScale(1.15)
+      .setName('bossBanner');
+    this.introLeft = BOSS_IN_MS + BOSS_HOLD_MS;
+    this.cameras.main.shake(260, 0.004);
+    this.tweens.chain({
+      targets: node,
+      tweens: [
+        { alpha: 1, scale: 1, duration: BOSS_IN_MS, ease: 'Back.easeOut' },
+        { alpha: 1, duration: BOSS_HOLD_MS },
+        { alpha: 0, duration: BOSS_OUT_MS, ease: 'Quad.easeIn' },
+      ],
+      onComplete: () => node.destroy(),
+    });
   }
 
   private buildUnit(snap: UnitSnapshot): void {
     const def = this.defs[snap.unitId];
     const spriteId = def.visual.sprite;
-    const look = spriteView(this, spriteId);
-    const sprite = this.add.sprite(0, 0, look.key, 0).setOrigin(look.originX, look.originY);
-    sprite.setScale(look.size / sprite.frame.height).setFlipX(snap.side === 'B' && look.art).setTint(unitTint(def.visual));
+    // visual.scale — крупнее фигура (и выше подпись/полоски): босс на листе обычного монстра.
+    const base = spriteView(this, spriteId);
+    const k = def.visual.scale ?? 1;
+    const look = k === 1 ? base : { ...base, size: base.size * k, height: base.height * k };
+    // Отражение идёт от середины клетки, а якорь ног не в середине: у отражённого — зеркальный origin, иначе фигура
+    // уезжает от своих полосок (у поринга ×2 — заметно).
+    const flip = snap.side === 'B' && look.art;
+    const sprite = this.add.sprite(0, 0, look.key, 0).setOrigin(flip ? 1 - look.originX : look.originX, look.originY);
+    sprite.setScale(look.size / sprite.frame.height).setFlipX(flip).setTint(unitTint(def.visual));
     sprite.anims.timeScale = playback.speed;
 
     const ox = snap.side === 'A' ? -UI_SHIFT : UI_SHIFT;
@@ -255,13 +382,32 @@ export class BattleScene extends Phaser.Scene {
     const hasUlt = !!def.skills.ult;
     energyBack.setVisible(hasUlt);
     energyBar.setVisible(hasUlt);
-    const castBack = this.add.image(ox, 34, 'ui_bar_back').setDisplaySize(BAR_W + 6, 18).setVisible(false);
-    const castBar = bar(34, 'ui_bar_energy', 12).setTintFill(0xc7a4ff).setVisible(false);
     // Подпись — сразу над макушкой (высота фигуры в стойке из bbox листа), со сдвигом к своему тылу.
     const nameY = -look.height - 22;
+    // Полоса каста — на месте имени (имя на время каста прячется), над ней — название навыка цветом стихии.
+    const castW = BAR_W + 20;
+    const castBack = this.add.image(ox, nameY + 4, 'ui_bar_back').setDisplaySize(castW + 6, 18).setVisible(false);
+    const castBar = this.add.image(ox - castW / 2, nameY + 4, 'ui_bar_energy').setOrigin(0, 0.5).setDisplaySize(castW, 12).setVisible(false);
+    const castLabel = text(this, ox, nameY - 20, '', 27, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setVisible(false);
     const name = text(this, ox, nameY, def.name, 23, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
-    const bars = [barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
-    const node = this.add.container(snap.x, snap.y, [sprite, ...bars, castBack, castBar]).setDepth(snap.y);
+    const bars: Phaser.GameObjects.Components.Visible[] = [barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
+    const parts: Phaser.GameObjects.GameObject[] = [sprite, barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
+    // Перезарядка активных навыков героев (как в AFK Arena): значки с круговой «шторкой» под полоской HP.
+    const cdIcons: CdIcon[] = [];
+    if (snap.side === 'A') {
+      const cy = (hasUlt ? 38 : 21) + 6 + CD_ICON / 2;
+      def.skills.actives.forEach((id, i) => {
+        const sk = CONTENT.skills[id];
+        if (!sk) return;
+        const x = ox - BAR_W / 2 + CD_ICON / 2 + i * (CD_ICON + CD_GAP);
+        const icon = this.add.image(x, cy, skillIcon(this, sk)).setDisplaySize(CD_ICON, CD_ICON);
+        const sweep = this.add.graphics();
+        cdIcons.push({ skill: sk, icon, sweep, x, y: cy, readyAt: 0, cd: 0, shown: -1 });
+        bars.push(icon, sweep);
+        parts.push(icon, sweep);
+      });
+    }
+    const node = this.add.container(snap.x, snap.y, [...parts, castBack, castBar, castLabel]).setDepth(snap.y);
 
     const v: UnitView = {
       snap,
@@ -285,6 +431,14 @@ export class BattleScene extends Phaser.Scene {
       castBar,
       castBack,
       cast: null,
+      castLabel,
+      nameText: name,
+      hitPlan: new Map(),
+      statusIcons: new Map(),
+      statusY: 14 - 7 - STATUS_ICON / 2 - 2,
+      statusX0: ox - BAR_W / 2 + STATUS_ICON / 2,
+      cdIcons,
+      flashFill: false,
       bars,
       hp: snap.maxHp,
       shield: 0,
@@ -312,8 +466,14 @@ export class BattleScene extends Phaser.Scene {
     const dt = delta * this.tweens.timeScale;
     this.later.step(dt);
     this.floats.step(dt);
+    this.sfx.step(dt);
     for (const v of this.views.values()) this.animateUnit(v, dt);
     if (this.finished) return;
+    // Баннер босса: часы боя стоят, пока он на экране («Пропустить» работает — skip не ждёт часов).
+    if (this.introLeft > 0) {
+      this.introLeft -= dt;
+      return;
+    }
     this.clock += (delta / 1000) * playback.speed;
     const log = this.result.log;
     while (this.cursor < log.length && log[this.cursor].t <= this.clock) {
@@ -332,9 +492,18 @@ export class BattleScene extends Phaser.Scene {
 
   /** След HP и красный оттенок попадания (раньше — твин и таймер на каждый удар). */
   private animateUnit(v: UnitView, dt: number): void {
-    if (v.cast) cropBar(v.castBar, Phaser.Math.Clamp((this.clock - v.cast.start) / v.cast.dur, 0, 1));
+    if (v.cast) {
+      const p = Phaser.Math.Clamp((this.clock - v.cast.start) / v.cast.dur, 0, 1);
+      cropBar(v.castBar, p);
+      v.castRig?.step(dt, p);
+    }
+    for (const c of v.cdIcons) this.drawCooldown(c);
     if (v.tintLeft > 0) {
       v.tintLeft -= dt;
+      if (v.flashFill && v.tintLeft <= HURT_TINT_MS) {
+        v.flashFill = false;
+        if (v.tintLeft > 0) v.sprite.setTint(0xff8080);
+      }
       if (v.tintLeft <= 0) {
         v.tintLeft = 0;
         v.sprite.setTint(unitTint(v.def.visual));
@@ -353,6 +522,7 @@ export class BattleScene extends Phaser.Scene {
     this.views.clear();
     this.later.clear();
     this.floats?.clear();
+    this.sfx?.clear();
     this.ult?.clear();
   }
 
@@ -362,10 +532,14 @@ export class BattleScene extends Phaser.Scene {
     while (this.cursor < log.length) this.play(log[this.cursor++], false);
   }
 
-  /** Отложить до момента удара источника (кадр удара анимации, полёт снаряда, рывок). */
-  private atImpact(sourceUid: string | null, animate: boolean, fn: () => void): void {
+  /**
+   * Отложить до момента удара источника (кадр удара анимации, полёт снаряда, рывок). target — если у навыка
+   * свой план попаданий (залп снарядов), удар по этой цели ждёт свой снаряд.
+   */
+  private atImpact(sourceUid: string | null, animate: boolean, fn: () => void, target?: string): void {
     const src = sourceUid ? this.views.get(sourceUid) : undefined;
-    const wait = animate && src ? src.impactAt - this.time.now : 0;
+    const planned = target ? src?.hitPlan.get(target)?.shift() : undefined;
+    const wait = animate && src ? (planned ?? src.impactAt) - this.time.now : 0;
     if (wait > 0) this.later.after(wait, fn);
     else fn();
   }
@@ -390,11 +564,20 @@ export class BattleScene extends Phaser.Scene {
         v.energy = e.energy;
         this.endCast(v);
         this.redraw(v);
+        v.hitPlan.clear();
+        const cdIcon = e.cooldown !== undefined ? v.cdIcons.find((c) => c.skill.id === e.skill) : undefined;
+        if (cdIcon) {
+          cdIcon.readyAt = e.t + (e.cooldown ?? 0);
+          cdIcon.cd = e.cooldown ?? 0;
+        }
         if (!animate) return;
-        // Активный навык — его название над головой (обычная атака без подписи).
-        if (e.name) this.headline(v, e.name, v.snap.side === 'A' ? '#ffe28a' : '#ffb0a0');
+        const skill = CONTENT.skills[e.skill];
+        // Активный навык — его название над головой (обычная атака без подписи). У навыка с кастом название
+        // уже висело над полосой каста — второй раз не пишем.
+        if (e.name && !skill?.castTime) this.headline(v, e.name, v.snap.side === 'A' ? '#ffe28a' : '#ffb0a0');
         const target = this.views.get(e.targets[0]);
         let impact = this.once(v, 'attack');
+        if (e.name && skill && this.skillVisual(v, skill, impact)) return;
         if (e.kind !== 'melee' && target) {
           const tex = e.kind === 'heal' ? 'fx_heal' : (v.def.visual.projectile ?? 'fx_magic');
           this.later.after(impact, () => this.projectile(v, target, tex));
@@ -410,8 +593,14 @@ export class BattleScene extends Phaser.Scene {
         v.inUlt = true;
         this.redraw(v);
         if (!animate) return;
-        v.impactAt = this.time.now + this.once(v, 'cast');
+        v.hitPlan.clear();
+        const impact = this.once(v, 'cast');
+        v.impactAt = this.time.now + impact;
         this.spotlight(v, e.name, e.skill);
+        const skill = CONTENT.skills[e.skill];
+        if (skill) this.skillVisual(v, skill, impact);
+        // Ульта босса — экран вздрагивает в момент удара.
+        if (v.def.kind === 'boss') this.sfx.later(Math.max(0, v.impactAt - this.time.now), () => this.sfx.shake(0.009, 280));
         return;
       }
       case 'cast': {
@@ -422,11 +611,16 @@ export class BattleScene extends Phaser.Scene {
           return;
         }
         v.cast = { start: e.t, dur: e.duration };
+        const sk = CONTENT.skills[e.skill];
+        const col = ELEMENT_COLORS[sk ? lookOf(sk).element : 'neutral'];
         v.castBack.setVisible(true);
-        v.castBar.setVisible(true);
+        v.castBar.setVisible(true).setTintFill(col.main);
+        v.castLabel.setText(e.name).setColor(col.light).setVisible(true);
+        v.nameText.setVisible(false);
         cropBar(v.castBar, 0);
         if (!animate) return;
-        this.headline(v, e.name, '#c9b6ff');
+        // Круг под ногами, аура и анимация каста — пока идёт каст.
+        (v.castRig ??= this.sfx.castRig(v.node, v.look.height)).show(col.main);
         this.loop(v, 'cast');
         return;
       }
@@ -455,14 +649,17 @@ export class BattleScene extends Phaser.Scene {
           this.redraw(v, animate);
           if (!animate) return;
           const hpPart = e.amount - e.absorbed;
-          const color = e.dot ? '#9be36b' : big && hpPart > 0 ? '#ffd84a' : hpPart > 0 ? '#ffffff' : '#bcd6ff';
-          this.popNumber(v, hpPart > 0 ? `-${hpPart}${big ? '!' : ''}` : `(${e.absorbed})`, color, big && hpPart > 0);
-          this.hurt(v);
           const src = this.views.get(e.source);
+          const sk = !e.dot && src?.lastSkill ? CONTENT.skills[src.lastSkill] : undefined;
+          const style = numberStyle(sk, src);
+          const color = e.dot ? '#9be36b' : big && hpPart > 0 ? '#ffd84a' : hpPart > 0 ? style.color : '#bcd6ff';
+          this.popNumber(v, hpPart > 0 ? `-${hpPart}${big ? '!' : ''}` : `(${e.absorbed})`, color, big && hpPart > 0, style.size);
+          this.hurt(v);
+          if (e.dot) return;
           const hit = hitFxOf(src);
           if (hit === 'fx_magic') this.fx(v, hit, 1.7, 450, 0.95);
           else this.fx(v, hit, 0.45, 200, 0.5);
-        });
+        }, e.dot ? undefined : e.target);
         return;
       }
       case 'heal': {
@@ -471,8 +668,9 @@ export class BattleScene extends Phaser.Scene {
           v.hp = e.hp;
           this.redraw(v, animate);
           if (animate && e.amount > 0) {
-            this.popNumber(v, `+${e.amount}`, '#7dff8f');
+            this.popNumber(v, `+${e.amount}`, '#7dff8f', false, 44);
             this.fx(v, 'fx_heal', 0.8);
+            this.sfx.heal(this.point(v), e.amount >= v.snap.maxHp * 0.15);
           }
         });
         return;
@@ -485,22 +683,32 @@ export class BattleScene extends Phaser.Scene {
           if (animate) {
             this.popNumber(v, `щит +${e.amount}`, '#bcd6ff', false, 30);
             this.fx(v, 'fx_shield', 1.4, 400);
+            this.sfx.buff(this.point(v), 0x9cc8ff);
           }
         });
         return;
       }
       case 'status': {
         const v = this.views.get(e.target)!;
-        if (animate && e.action === 'apply') {
-          const src = this.views.get(e.source);
-          // Бафф союзнику (не свой яд/оглушение по врагу) — вспышка защиты из эффектов RO.
-          const ally = !!src && src.snap.side === v.snap.side;
-          const buff = ally ? skillFx(src?.lastSkill)?.buff ?? 'fx_shield' : null;
-          this.atImpact(e.source, animate, () => {
-            this.headline(v, e.name, '#ffcf6b');
-            if (buff) this.fx(v, buff, 1.2, 400);
-          });
+        if (e.action === 'expire') {
+          this.setStatusIcon(v, e.status, undefined);
+          return;
         }
+        const def = statusDef(e.status);
+        const src = this.views.get(e.source);
+        // Бафф союзнику (не свой яд/оглушение по врагу) — вспышка защиты из эффектов RO и столб искр.
+        const ally = !!src && src.snap.side === v.snap.side;
+        this.atImpact(e.source, animate, () => {
+          if (v.alive) this.setStatusIcon(v, e.status, def);
+          if (!animate) return;
+          // Бафф на весь отряд (Ускорение, Благословение): подпись не пишем над каждым — хватает искр и значка у HP.
+          const srcSkill = src?.lastSkill ? CONTENT.skills[src.lastSkill] : undefined;
+          if (!(ally && srcSkill?.target.pick === 'all')) this.headline(v, e.name, '#ffcf6b');
+          if (ally) {
+            this.fx(v, skillFx(src?.lastSkill)?.buff ?? 'fx_shield', 1.2, 400);
+            this.sfx.buff(this.point(v), buffColor(def));
+          }
+        });
         return;
       }
       case 'energy': {
@@ -542,6 +750,9 @@ export class BattleScene extends Phaser.Scene {
     v.cast = null;
     v.castBack.setVisible(false);
     v.castBar.setVisible(false);
+    v.castLabel.setVisible(false);
+    v.nameText.setVisible(v.alive);
+    v.castRig?.hide();
     if (v.alive && !v.moveTween) this.loop(v, 'idle');
   }
 
@@ -561,8 +772,10 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private hurt(v: UnitView): void {
-    v.sprite.setTint(0xff8080);
-    v.tintLeft = HURT_TINT_MS;
+    // Белая вспышка, затем красный оттенок.
+    v.sprite.setTintFill(0xffffff);
+    v.flashFill = true;
+    v.tintLeft = HURT_TINT_MS + HIT_FLASH_MS;
     if (!v.alive || this.time.now < v.busyUntil || this.time.now - v.lastHurt < HURT_COOLDOWN || v.moveTween) return;
     v.lastHurt = this.time.now;
     this.once(v, 'hurt');
@@ -599,16 +812,22 @@ export class BattleScene extends Phaser.Scene {
     v.moveTween?.stop();
     this.endCast(v);
     for (const b of v.bars) b.setVisible(false);
+    // Павший — без вспышки попадания.
+    v.tintLeft = 0;
+    v.flashFill = false;
+    v.sprite.setTint(unitTint(v.def.visual));
+    for (const id of [...v.statusIcons.keys()]) this.setStatusIcon(v, id, undefined);
     v.node.setDepth(v.node.y - 1000);
     const key = anim(v.look, v.spriteId, 'death');
     if (key) {
       v.sprite.play(key);
-      if (animate) this.tweens.add({ targets: v.sprite, alpha: 0.55, delay: 400, duration: 400 });
+      // Тело темнеет, затем растворяется (как в AFK Arena) — поле не засоряется павшими.
+      if (animate) this.tweens.chain({ targets: v.sprite, tweens: [{ alpha: 0.55, delay: 400, duration: 400 }, { alpha: 0, delay: 700, duration: 600 }] });
       else v.sprite.setAlpha(0.55);
     } else {
       // Листа смерти нет: тело просто падает — стойку больше не крутим.
       v.sprite.anims.stop();
-      if (animate) this.tweens.add({ targets: v.sprite, alpha: 0.2, angle: v.snap.side === 'A' ? -90 : 90, duration: 400 });
+      if (animate) this.tweens.chain({ targets: v.sprite, tweens: [{ alpha: 0.2, angle: v.snap.side === 'A' ? -90 : 90, duration: 400 }, { alpha: 0, delay: 700, duration: 500 }] });
       else v.sprite.setAlpha(0.2).setAngle(v.snap.side === 'A' ? -90 : 90);
     }
     if (animate) this.fx(v, 'fx_death', 1.6, 600);
@@ -621,6 +840,7 @@ export class BattleScene extends Phaser.Scene {
     const max = v.snap.maxHp;
     const pct = Phaser.Math.Clamp(v.hp / max, 0, 1);
     cropBar(v.hpBar, pct);
+    if (this.bossBar?.uid === v.snap.uid) cropBar(this.bossBar.fill, pct);
     if (pct >= v.trail || !animate) {
       v.trailT = -1;
       v.trail = pct;
@@ -682,12 +902,158 @@ export class BattleScene extends Phaser.Scene {
   /** Ульта: экран темнеет, кастер подсвечен поверх затемнения, сверху — баннер с названием. */
   private spotlight(v: UnitView, skillName: string, skillId: string): void {
     this.ult.flashDim();
-    this.ult.showBanner(v.def.name, skillName, v.snap.side === 'A', CONTENT.skills[skillId]?.icon);
+    this.ult.showBanner(v.def.name, skillName, v.snap.side === 'A', skillIcon(this, CONTENT.skills[skillId]));
     this.ult.glow(v.node.x, v.node.y);
     v.node.setDepth(DEPTH.spotlight + v.node.y / 10);
     this.tweens.add({ targets: v.node, scale: 1.12, duration: 160, yoyo: true, hold: 300, ease: 'Quad.easeOut' });
     this.later.after(1000, () => v.node.setDepth(v.alive ? v.node.y : v.node.y - 1000));
   }
+
+  // ---------- навыки: снаряды, площадь, статусы, перезарядка ----------
+
+  /** Точка эффекта на юните: x, центр тела, ноги. */
+  private point(v: UnitView): FxPoint {
+    return { x: v.node.x, y: bodyY(v), feet: v.node.y };
+  }
+
+  /**
+   * Эффект навыка по стихии (skillLook): снаряды по каждому удару (огненная стрела — три огненных шара, у каждого своя
+   * цифра урона), площадь (гроза — молнии по всем целям), иначе — вспышка стихии на цели. Цели ударов берём из
+   * следующих событий лога с тем же временем (навык с random-целями бьёт разных врагов).
+   * false — у навыка нет особого вида, работает обычная атака.
+   */
+  private skillVisual(v: UnitView, skill: SkillDef, impact: number): boolean {
+    const look = lookOf(skill);
+    const tint = ELEMENT_COLORS[look.element].main;
+    const log = this.result.log;
+    const t = log[this.cursor]?.t;
+    const hits: UnitView[] = [];
+    for (let i = this.cursor + 1; i < log.length && log[i].t === t; i++) {
+      const ev = log[i];
+      if (ev.type === 'damage' && ev.source === v.snap.uid && !ev.dot) {
+        const tv = this.views.get(ev.target);
+        if (tv) hits.push(tv);
+      } else if (ev.type === 'attack' || ev.type === 'ult' || ev.type === 'turn') break;
+    }
+    const now = this.time.now;
+    if (look.projectile && hits.length) {
+      const from = this.point(v);
+      let last = impact;
+      hits.forEach((tv, i) => {
+        const delay = impact + i * SKILL_VOLLEY_STEP;
+        const flight = look.projectile === 'meteor' ? SKILL_PROJECTILE_MS * 1.6 : look.projectile === 'beam' ? 90 : look.projectile === 'rock' ? 120 : SKILL_PROJECTILE_MS;
+        const to = this.point(tv);
+        this.sfx.projectile(look.projectile!, from, to, tint, SKILL_PROJECTILE_MS, delay, () => this.sfx.impact(this.point(tv), tint, look.projectile === 'meteor'));
+        const at = now + delay + flight;
+        const q = v.hitPlan.get(tv.snap.uid);
+        if (q) q.push(at);
+        else v.hitPlan.set(tv.snap.uid, [at]);
+        last = delay + flight;
+      });
+      v.impactAt = now + last;
+      return true;
+    }
+    if (look.area) {
+      const uniq = [...new Set(hits)];
+      // Лечение по площади (Святилище) — круги под союзниками из событий heal.
+      if (look.area === 'sanctuary') {
+        for (let i = this.cursor + 1; i < log.length && log[i].t === t; i++) {
+          const ev = log[i];
+          if (ev.type === 'heal' && ev.source === v.snap.uid) {
+            const tv = this.views.get(ev.target);
+            if (tv && !uniq.includes(tv)) uniq.push(tv);
+          }
+        }
+      }
+      if (!uniq.length) return false;
+      const pts = uniq.map((u) => this.point(u));
+      const melee = skill.range === 'melee';
+      const center = melee ? this.point(v) : { x: avg(pts.map((p) => p.x)), y: avg(pts.map((p) => p.y)), feet: avg(pts.map((p) => p.feet)) };
+      const hitAt = this.sfx.areaAt(impact, look.area, pts, center, tint);
+      v.impactAt = now + hitAt;
+      if (uniq.length >= 3 && look.area !== 'sanctuary') this.sfx.later(hitAt, () => this.sfx.shake(0.005, 180));
+      return true;
+    }
+    // Навык на союзников (бафф, лечение): без снаряда — вспышка на кастере, эффекты — на целях (события heal/status).
+    if (!hits.length && skill.target.side === 'ally') {
+      const heal = skill.effects.some((e) => e.type === 'heal');
+      const p = this.point(v);
+      this.sfx.later(impact, () => {
+        this.sfx.glow(p.x, p.y, heal ? 0x7dff8f : tint, 1, 3.4, 450, 0, 0.9);
+        this.sfx.rise(p.x, p.feet, heal ? 0x9dff9a : tint, 6, 40);
+      });
+      v.impactAt = now + impact + 120;
+      return true;
+    }
+    // Ближний бой и прочее: вспышка стихии на целях в момент удара (обычный путь атаки задаёт impactAt).
+    if (hits.length && look.element !== 'physical') {
+      const uniq = [...new Set(hits)];
+      this.sfx.later(impact, () => uniq.forEach((tv) => this.sfx.impact(this.point(tv), tint)));
+    }
+    return false;
+  }
+
+  /** Значок статуса над HP: def — наложить/обновить, undefined — снять. Значки идут в ряд от левого края полоски. */
+  private setStatusIcon(v: UnitView, id: string, def: StatusDef | undefined): void {
+    const old = v.statusIcons.get(id);
+    if (!def) {
+      if (!old) return;
+      old.destroy();
+      v.statusIcons.delete(id);
+    } else if (!old) {
+      const img = this.add.image(0, v.statusY, statusIcon(this, def)).setDisplaySize(STATUS_ICON, STATUS_ICON);
+      v.node.add(img);
+      v.statusIcons.set(id, img);
+    } else return;
+    let i = 0;
+    for (const img of v.statusIcons.values()) img.setX(v.statusX0 + i++ * (STATUS_ICON + 2));
+  }
+
+  /** Круговая «шторка» перезарядки: тёмный сектор по часовой стрелке от 12 часов, у готового — золотая рамка. */
+  private drawCooldown(c: CdIcon): void {
+    const left = c.cd > 0 ? Phaser.Math.Clamp((c.readyAt - this.clock) / c.cd, 0, 1) : 0;
+    const q = Math.ceil(left * 48) / 48;
+    if (q === c.shown) return;
+    c.shown = q;
+    const g = c.sweep.clear();
+    const r = CD_ICON / 2;
+    if (q > 0) {
+      // Сектор, спроецированный на квадрат значка (без маски): точки луча на границе квадрата.
+      const pts = [new Phaser.Math.Vector2(c.x, c.y)];
+      const steps = Math.max(2, Math.ceil(q * 64));
+      for (let i = 0; i <= steps; i++) {
+        const a = -Math.PI / 2 + (q * Math.PI * 2 * i) / steps;
+        const cos = Math.cos(a);
+        const sin = Math.sin(a);
+        const k = r / Math.max(Math.abs(cos), Math.abs(sin));
+        pts.push(new Phaser.Math.Vector2(c.x + cos * k, c.y + sin * k));
+      }
+      g.fillStyle(0x000000, 0.62);
+      g.fillPoints(pts, true);
+      c.icon.setAlpha(0.8);
+    } else {
+      g.lineStyle(2, 0xffd84a, 0.9);
+      g.strokeRoundedRect(c.x - r, c.y - r, CD_ICON, CD_ICON, 6);
+      c.icon.setAlpha(1);
+    }
+  }
+}
+
+const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length);
+
+/**
+ * Цвет и размер цифры урона по навыку: обычная атака — белая, магия (стихийный навык, каст) — цветом стихии
+ * (огонь оранжевый, лёд голубой, молния жёлтая, прочая магия — сиреневая), активный навык — крупнее.
+ */
+function numberStyle(sk: SkillDef | undefined, src: UnitView | undefined): { color: string; size: number } {
+  if (!sk) return { color: '#ffffff', size: 40 };
+  const active = !!src && (src.def.skills.actives.includes(sk.id) || src.def.skills.ult === sk.id);
+  const el = lookOf(sk).element;
+  // Обычный выстрел мага (снаряд fx_magic) — тоже магия.
+  const magicShot = sk.range === 'ranged' && src?.def.visual.projectile === 'fx_magic';
+  const magic = (el !== 'physical' && (active || sk.castTime > 0)) || magicShot;
+  const color = !magic ? '#ffffff' : el === 'neutral' || el === 'dark' || el === 'physical' ? '#c8b0ff' : ELEMENT_COLORS[el].light;
+  return { color, size: active ? 46 : 40 };
 }
 
 /**

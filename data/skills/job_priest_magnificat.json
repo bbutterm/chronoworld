@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_priest_magnificat",
   "name": "Магнификат",
-  "description": "В начале боя: +20 энергии всем союзникам.",
+  "description": "В начале боя: +10% скорости всем союзникам на 5 ходов — навыки чаще.",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {
@@ -12,8 +12,15 @@
   },
   "effects": [
     {
-      "type": "energy",
-      "amount": 20
+      "type": "status",
+      "status": {
+        "id": "magnificat",
+        "name": "Магнификат",
+        "turns": 5,
+        "stats": {
+          "spd": 0.1
+        }
+      }
     }
   ]
 }

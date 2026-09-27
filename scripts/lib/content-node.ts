@@ -60,6 +60,7 @@ export function readRawGameData(): RawGameData {
     tower: readJsonFile('data/tower.json'),
     bounties: readJsonFile('data/bounties.json'),
     achievements: readJsonFile('data/achievements.json'),
+    stories: readJsonDir('data/story'),
   };
 }
 

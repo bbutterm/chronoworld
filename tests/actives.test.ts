@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { orderActives, simulateBattle, type BattleEvent, type SkillDef } from '../src/core';
-import { content, skill, unitDef } from './helpers';
+import { cfg, content, skill, unitDef } from './helpers';
 
 type Ev<T extends BattleEvent['type']> = Extract<BattleEvent, { type: T }>;
 const of = <T extends BattleEvent['type']>(log: BattleEvent[], type: T) => log.filter((e): e is Ev<T> => e.type === type);
@@ -89,7 +89,9 @@ describe('активные навыки: перезарядка, приорит�
       [unitDef('sw', { skills: { basic: 'hit', actives: ['magnum'], passives: [] } }, { hp: 1_000_000 }), dummy],
       [skill('magnum', { range: 'melee', cooldown: 5, target: { side: 'enemy', pick: 'all' } })],
     );
-    const r = simulateBattle(c5, ['sw'], ['dummy', 'dummy'], 1);
+    // Радиус задевания снят: здесь проверяется только выбор по селектору (радиус — tests/battle-qa.test.ts, T2-07).
+    const wide = { ...cfg, movement: { ...cfg.movement, meleeAoeRadius: 10_000 } };
+    const r = simulateBattle(c5, ['sw'], ['dummy', 'dummy'], 1, { combat: wide });
     const m = of(r.log, 'attack').find((e) => e.unit === 'A0' && e.skill === 'magnum')!;
     expect(m.targets).toHaveLength(2);
   });

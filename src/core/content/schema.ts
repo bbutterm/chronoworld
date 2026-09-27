@@ -42,12 +42,12 @@ export const TargetSchema = z.object({
 export const StatusSchema = z.object({
   id,
   name: z.string(),
-  /** Длительность в собственных ходах носителя. */
+  /** Длительность в «ходах»: ход = combat.json statusTurnSeconds секунд боя (одинаково для любого носителя). */
   turns: z.number().int().positive(),
   stats: StatModsSchema.optional(),
   /** Пропуск хода. */
   stun: z.boolean().optional(),
-  /** Урон в начале каждого хода носителя: ATK наложившего × k. */
+  /** Урон раз в «ход» (statusTurnSeconds) после наложения: ATK наложившего × k. */
   dot: z.object({ k: z.number().positive() }).optional(),
 });
 
@@ -100,6 +100,8 @@ export const VisualSchema = z.object({
   hitFx: z.string().optional(),
   /** Перекраска спрайта и портрета ('#rrggbb'): вариант монстра на том же листе (Дропс — оранжевый поринг). */
   tint: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  /** Масштаб фигуры в бою (1 — как в реестре спрайтов): босс на листе обычного монстра (Мастеринг — поринг ×2). */
+  scale: z.number().positive().max(4).optional(),
 });
 
 export const UnitSchema = z.object({

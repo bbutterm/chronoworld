@@ -35,6 +35,7 @@ export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY
     presets: [],
     bounties: emptyBounties(),
     achievements: { counters: {}, claimed: [] },
+    seenScenes: [],
   };
 }
 
@@ -111,6 +112,89 @@ function derivedCounters(old: any): Record<string, number> {
   return out;
 }
 
+/**
+ * P11 (T4-15). Вернуть в разобранный объект parsed ключи из исходного raw, которых в parsed нет
+ * (рекурсивно по вложенным объектам и массивам). Меняет parsed на месте и возвращает его.
+ */
+export function keepUnknownFields(parsed: unknown, raw: unknown): unknown {
+  if (Array.isArray(parsed) && Array.isArray(raw)) {
+    for (let i = 0; i < parsed.length; i++) parsed[i] = keepUnknownFields(parsed[i], raw[i]);
+  } else if (isRecord(parsed) && isRecord(raw)) {
+    for (const k of Object.keys(raw)) parsed[k] = k in parsed ? keepUnknownFields(parsed[k], raw[k]) : raw[k];
+  }
+  return parsed;
+}
+
+/**
+ * P11 (T4-01). Ревизия записанного сохранения (поле revision) без полной проверки; нет текста, не JSON
+ * или нет поля — 0.
+ */
+export function saveRevision(text: string | null | undefined): number {
+  if (!text) return 0;
+  try {
+    const r = (JSON.parse(text) as { revision?: unknown })?.revision;
+    return typeof r === 'number' && Number.isInteger(r) && r > 0 ? r : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * P11 (T4-04). Привести загруженное сохранение в соответствие с текущим контентом, чтобы экраны не падали:
+ * - профессия героя, которой больше нет в data/jobs → базовая профессия того же ранга (tier = число
+ *   записей в jobHistory; из последней известной профессии истории), иначе последняя известная профессия
+ *   из истории, иначе стартовая; уровень — не выше maxJobLevel новой профессии;
+ * - записи jobHistory с неизвестными профессиями убираются;
+ * - предметы, которых нет в ctx.equipment.items (если контекст с экипировкой), убираются.
+ * Каждая правка — строка в warnings (понятный русский текст). Ничего не правили — тот же объект save.
+ */
+export function sanitizeSave(
+  save: SaveState,
+  ctx: GameContext & { equipment?: { items: Record<string, unknown> } },
+): { save: SaveState; warnings: string[] } {
+  const jobs = ctx.content.jobs;
+  const warnings: string[] = [];
+  let changed = false;
+  const heroes = save.heroes.map((h) => {
+    const history = h.jobHistory.filter((e) => jobs[e.job]);
+    if (jobs[h.job] && history.length === h.jobHistory.length) return h;
+    changed = true;
+    if (jobs[h.job]) {
+      warnings.push(`Герой ${h.name}: из истории профессий убраны неизвестные профессии.`);
+      return { ...h, jobHistory: history };
+    }
+    const prev = history[history.length - 1];
+    const tier = h.jobHistory.length;
+    const sameTier = prev
+      ? Object.keys(jobs)
+          .sort()
+          .find((id) => jobs[id].tier === tier && jobs[id].from.includes(prev.job))
+      : undefined;
+    let job: string;
+    let rest = history;
+    if (sameTier) job = sameTier;
+    else if (prev) {
+      job = prev.job;
+      rest = history.slice(0, -1);
+    } else job = ctx.progression.heroes.startJob;
+    const jobLevel = Math.min(h.jobLevel, jobs[job].maxJobLevel);
+    warnings.push(`Герой ${h.name}: профессии «${h.job}» больше нет в игре — герой переведён в «${jobs[job].name}».`);
+    return { ...h, job, jobLevel, jobExp: jobLevel < h.jobLevel ? 0 : h.jobExp, jobHistory: rest };
+  });
+  const known = ctx.equipment?.items;
+  let items = save.inventory.items;
+  if (known) {
+    const kept = items.filter((it) => known[it.itemId]);
+    if (kept.length !== items.length) {
+      changed = true;
+      warnings.push(`Из инвентаря убраны предметы, которых больше нет в игре: ${items.length - kept.length}.`);
+      items = kept;
+    }
+  }
+  if (!changed) return { save, warnings };
+  return { save: { ...save, heroes, inventory: { ...save.inventory, items } }, warnings };
+}
+
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
@@ -143,7 +227,7 @@ export function deserialize(text: string): SaveState {
     throw new SaveError(`Сохранение повреждено: неверная версия ${JSON.stringify(version)}.`);
   }
   if (version > SAVE_VERSION) {
-    throw new SaveError(
+    throw new SaveError('newer_version',
       `Сохранение сделано более новой версией игры (формат ${version}, поддерживается до ${SAVE_VERSION}). Обновите игру.`,
     );
   }
@@ -159,7 +243,9 @@ export function deserialize(text: string): SaveState {
   }
   const parsed = SaveStateSchema.safeParse(cur);
   if (!parsed.success) throw new SaveError(`Сохранение повреждено: ${describeIssues(parsed.error)}.`);
-  const save = parsed.data;
+  // P11 (T4-15): поля, которых эта сборка не знает (добавлены более новой), возвращаются на место —
+  // схема их отбрасывает, а следующая запись иначе стёрла бы их навсегда.
+  const save = keepUnknownFields(parsed.data, cur) as SaveState;
   const ids = new Set<string>();
   for (const h of save.heroes) {
     if (ids.has(h.id)) throw new SaveError(`Сохранение повреждено: герой ${h.id} встречается дважды.`);
@@ -192,28 +278,36 @@ export interface LoadResult {
   save: SaveState;
   /** loaded — прочитали сохранение; new — сохранения не было; reset — сохранение битое, начата новая игра. */
   source: 'loaded' | 'new' | 'reset';
-  /** Почему пришлось начать заново (только при source = reset). */
+  /** Почему пришлось начать заново (только при source = reset). error.kind = newer_version — сохранение новее сборки. */
   error?: SaveError;
+  /** Прочитанный текст как есть (для резервной копии перед перезаписью, T4-02). */
+  raw?: string;
+  /** P11 (T4-04). Что поправлено при загрузке (sanitizeSave), для предупреждения игроку. */
+  warnings?: string[];
 }
 
 /**
  * Загрузить игру из хранилища или начать новую. Никогда не бросает: битое сохранение → новая игра + ошибка
  * (source = reset). В хранилище ничего не пишет — битые данные остаются, пока вызывающий не сделает persist().
+ * Прочитанное сохранение проходит sanitizeSave (T4-04): неизвестные профессии/предметы заменяются, warnings.
  */
 export function loadOrNew(storage: SaveStorage, ctx: GameContext, now: number, day: string = DEFAULT_DAY): LoadResult {
   let text: string | null;
   try {
     text = storage.load();
   } catch (e) {
-    return { save: newGame(ctx, now, day), source: 'reset', error: new SaveError(`Не удалось прочитать сохранение: ${e instanceof Error ? e.message : String(e)}.`) };
+    return { save: newGame(ctx, now, day), source: 'reset', error: new SaveError('read_failed', `Не удалось прочитать сохранение: ${e instanceof Error ? e.message : String(e)}.`) };
   }
   if (text === null) return { save: newGame(ctx, now, day), source: 'new' };
+  let save: SaveState;
   try {
-    return { save: deserialize(text), source: 'loaded' };
+    save = deserialize(text);
   } catch (e) {
     const error = e instanceof SaveError ? e : new SaveError(`Сохранение не читается: ${e instanceof Error ? e.message : String(e)}.`);
-    return { save: newGame(ctx, now, day), source: 'reset', error };
+    return { save: newGame(ctx, now, day), source: 'reset', error, raw: text };
   }
+  const fixed = sanitizeSave(save, ctx as GameContext & { equipment?: { items: Record<string, unknown> } });
+  return { save: fixed.save, source: 'loaded', raw: text, ...(fixed.warnings.length ? { warnings: fixed.warnings } : {}) };
 }
 
 /** Записать игру в хранилище. */
@@ -221,8 +315,16 @@ export function persist(storage: SaveStorage, save: SaveState): void {
   storage.save(serialize(save));
 }
 
+/** Вид ошибки сохранения: newer_version — формат новее сборки (не затирать!), read_failed — хранилище не читается. */
+export type SaveErrorKind = 'corrupt' | 'newer_version' | 'read_failed';
+
 export class SaveError extends Error {
   override name = 'SaveError';
+  readonly kind: SaveErrorKind;
+  constructor(kindOrMessage: SaveErrorKind | string, message?: string) {
+    super(message ?? kindOrMessage);
+    this.kind = message === undefined ? 'corrupt' : (kindOrMessage as SaveErrorKind);
+  }
 }
 
 /** Хранилище сохранений (LocalStorage в игре, память в тестах, облако Telegram позже). */

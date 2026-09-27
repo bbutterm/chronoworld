@@ -14,6 +14,8 @@ export type ProgressEvent =
   | { type: 'skillUnlocked'; heroId: string; job: string; skill: string; jobLevel: number }
   | { type: 'jobChangeAvailable'; heroId: string; jobs: string[] }
   | { type: 'jobChanged'; heroId: string; from: string; to: string }
+  /** P9 (T1-02). Опыт ушёл в запас героя на максимуме профессии: amount — сколько легло, banked — всего в запасе. */
+  | { type: 'expBanked'; heroId: string; amount: number; banked: number }
   | { type: 'stageCleared'; stageId: string; firstTime: boolean }
   | { type: 'stageUnlocked'; stageId: string }
   | { type: 'rewards'; gold: number; jobExp: number; heroIds: string[] }

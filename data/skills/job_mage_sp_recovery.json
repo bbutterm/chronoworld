@@ -2,17 +2,24 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_mage_sp_recovery",
   "name": "Восстановление SP",
-  "description": "В начале каждого хода: +10 энергии.",
+  "description": "В начале боя: +10% скорости себе на весь бой — чаще колдует.",
   "range": "ranged",
-  "trigger": "turnStart",
+  "trigger": "battleStart",
   "target": {
     "side": "ally",
     "pick": "self"
   },
   "effects": [
     {
-      "type": "energy",
-      "amount": 10
+      "type": "status",
+      "status": {
+        "id": "sp_recovery",
+        "name": "Восстановление SP",
+        "turns": 99,
+        "stats": {
+          "spd": 0.1
+        }
+      }
     }
   ]
 }

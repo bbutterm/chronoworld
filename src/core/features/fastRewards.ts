@@ -1,4 +1,4 @@
-import type { StageInfo } from '../campaign/schema';
+import { idleIncome, lastClearedStage } from '../campaign/offline';
 import { addJobExp } from '../progression/exp';
 import type { HeroState, SaveState } from '../save/schema';
 import type { FeatureContext, FeatureEvent } from './config';
@@ -12,23 +12,16 @@ export interface FastRewards {
   jobExp: number;
 }
 
-/** Последний пройденный этап (max globalIndex среди cleared) — его ставка задаёт доход, как у сундука. */
-function lastCleared(save: SaveState, ctx: FeatureContext): StageInfo | undefined {
-  const cleared = new Set(save.campaign.cleared);
-  let last: StageInfo | undefined;
-  for (const s of ctx.content.stages) if (cleared.has(s.id) && (!last || s.globalIndex > last.globalIndex)) last = s;
-  return last;
-}
-
 /**
- * K1. Что дадут быстрые награды сейчас: offlinePerMinute последнего пройденного этапа × fastRewards.hours × 60.
+ * K1. Что дадут быстрые награды сейчас: idleIncome последнего пройденного этапа за fastRewards.hours × 60 минут
+ * (опыт в начале кампании ограничен — P9, T1-01).
  * Лимит сундука (offline.capHours) не применяется. Нет пройденных этапов — нули. Время сундука не трогается.
  */
 export function fastRewardsPreview(save: SaveState, ctx: FeatureContext): FastRewards {
   const minutes = Math.floor(ctx.features.fastRewards.hours * 60);
-  const last = lastCleared(save, ctx);
+  const last = lastClearedStage(save, ctx);
   if (!last) return { minutes: 0, gold: 0, jobExp: 0 };
-  return { minutes, gold: last.offlinePerMinute.gold * minutes, jobExp: last.offlinePerMinute.jobExp * minutes };
+  return { minutes, ...idleIncome(last, minutes, ctx) };
 }
 
 export interface FastRewardsStatus {

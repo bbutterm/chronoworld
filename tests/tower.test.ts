@@ -101,9 +101,10 @@ describe('K4 башня: этажи', () => {
     const f9 = towerFloor(9, ctx); // полоса 1, 4 состава: 1 и 9 — один состав
     expect(f9.enemies.map((e) => e?.stats.hp ?? 0).every((hp, i) => hp >= (f1.enemies[i]?.stats.hp ?? 0))).toBe(true);
     expect(f9.enemies[0]!.stats.hp).toBeGreaterThan(f1.enemies[0]!.stats.hp);
-    const g = 1.4 * Math.pow(1.04, 8);
-    expect(f9.enemies[0]!.stats.atk).toBe(Math.round(ctx.content.units.mob_melee.stats.atk * g));
-    expect(f9.enemies[0]!.stats.spd).toBe(ctx.content.units.mob_melee.stats.spd);
+    const slot = ctx.tower.bands[0].layouts[0][0]!;
+    const g = slot.mult * ctx.tower.baseMult * Math.pow(1 + ctx.tower.statGrowthPerFloor, 8);
+    expect(f9.enemies[0]!.stats.atk).toBe(Math.round(ctx.content.units[slot.unit].stats.atk * g));
+    expect(f9.enemies[0]!.stats.spd).toBe(ctx.content.units[slot.unit].stats.spd);
     let prev = towerFloor(1, ctx).rewards;
     for (let n = 2; n <= ctx.tower.maxFloor; n++) {
       if (n % 5 === 0) continue;
@@ -117,10 +118,33 @@ describe('K4 башня: этажи', () => {
   it('полосы меняют пул врагов', () => {
     expect(towerFloor(1, ctx).band).toBe(0);
     expect(towerFloor(20, ctx).band).toBe(1);
-    expect(towerFloor(20, ctx).enemies.some((e) => e?.name === ctx.content.units.mob_boss2.name)).toBe(true);
     expect(towerFloor(41, ctx).band).toBe(2);
-    expect(towerFloor(40, ctx).enemies.some((e) => e?.visual.sprite === 'boss3')).toBe(true);
-    expect(towerFloor(45, ctx).enemies.filter((e) => e?.kind === 'boss')).toHaveLength(2);
+    expect(towerFloor(50, ctx).enemies.some((e) => e?.visual.sprite === 'boss3')).toBe(true);
+    expect(towerFloor(55, ctx).enemies.filter((e) => e?.kind === 'boss')).toHaveLength(2);
+  });
+
+  it('полосы по темам: лес — монстры главы 1, болото — главы 2, склепы — главы 3; MVP не раньше 20 этажа (QA T5-12)', () => {
+    const kinds = (from: number, to: number, boss: boolean) => {
+      const out = new Set<string>();
+      const bands = ctx.tower.bands;
+      // Какие юниты реально встают на этажи from…to (по составам полос этих этажей).
+      for (let n = from; n <= to; n++) {
+        const b = bands[towerFloor(n, ctx).band];
+        const list = n % ctx.tower.bossEvery === 0 ? b.bossLayouts : b.layouts;
+        for (const l of list) for (const e of l) if (e && (ctx.content.units[e.unit].kind === 'boss') === boss) out.add(e.unit);
+      }
+      return [...out];
+    };
+    const chapterUnits = (ch: string) => new Set(ctx.content.stages.filter((s) => s.chapter === ch).flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)));
+    const ch1 = chapterUnits('chapter1');
+    expect(kinds(1, 19, false).every((u) => ch1.has(u))).toBe(true);
+    const ch2 = chapterUnits('chapter2');
+    expect(kinds(20, 39, false).every((u) => ch2.has(u))).toBe(true);
+    const ch3 = chapterUnits('chapter3');
+    expect(kinds(40, 59, false).every((u) => ch3.has(u))).toBe(true);
+    // Боссы леса — мини-боссы луга (Эклипс, Мастеринг, Вокал), MVP (Герой орков, Бафомет) — с 20 этажа.
+    expect(kinds(1, 19, true).sort()).toEqual(['mob_eclipse', 'mob_mastering', 'mob_vocal']);
+    expect(towerFloor(20, ctx).enemies.some((e) => e?.name === ctx.content.units.mob_boss1.name)).toBe(true);
   });
 
   it('неверный номер этажа → invalid_floor', () => {

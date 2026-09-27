@@ -29,7 +29,10 @@ HEROES={
  'priest':(8,'Priest','female',8,0,1504,0),
 }
 MONSTERS={'melee':('Zombie',1015),'ranged':('Archer Skeleton',1016),'tank':('Willow',1010),'fast':('Poring',1002),
-          'elite':('Golden Thief Bug',1086),'boss1':('Orc Hero',1087),'boss2':('Baphomet',1039)}
+          'elite':('Golden Thief Bug',1086),'boss1':('Orc Hero',1087),'boss2':('Baphomet',1039),
+          'drops':('Drops',1113),'poporing':('Poporing',1031),'fabre':('Fabre',1007),
+          'lunatic':('Lunatic',1063),'mandragora':('Mandragora',1020),'rocker':('Rocker',1052),
+          'mastering':('Mastering',1090)}
 CACHE_ALIASES={'elite':'boss_ch1','boss1':'boss_ch2','boss2':'boss_ch3'}
 CLASSES={
  'hero':{'cell':[224,192],'anchor':[104,144],'anims':['idle','walk','attack','cast','hurt','death']},
@@ -43,9 +46,21 @@ OVERRIDES={'monster':{'walk':{'frames':6,'ms':100},'death':{'frames':5,'ms':120}
            'boss':{'walk':{'frames':6,'ms':100},'death':{'frames':5,'ms':120}}}
 MON_ACTION={'idle':6,'walk':14,'attack':22,'hurt':30,'death':38}
 HERO_ACTION={'idle':38,'walk':14,'attack':86,'cast':102,'hurt':54,'death':70}
-# Explicitly approved by owner: omit oversized ACT death FX intermediates while
-# retaining original first/last; per-monster exception to uniform sampling.
-DEATH_EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16]}
+# Omit oversized ACT death FX intermediates while retaining original first/last;
+# Willow/Poring have owner approval; new slime exceptions are documented in metadata.
+DEATH_EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
+                  'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}
+OVERSIZED_MONSTERS={'rocker'}  # ACT jumping walk/final death exceed the 240x224 cell at x1.
+# Independently downloaded original RO client SPR/ACT and compared the rendered
+# silhouettes/ACT frame counts with the ragassets APNG source. The independent
+# renderer differs by 1px rounding on some frames, so this is identity/provenance
+# evidence, not a claim that its output bytes equal the APNG output.
+ORIGINAL_RO_PROOF={
+ 'mandragora':{'sprSha256':'7a45e7d8aae94368ac08e6e437e1c6720d3eac330dcb88d52874aee15c91b8d7',
+               'actSha256':'7e6debecf489f16fbeaff9ab861fec23918aca2fe9d82c0f666cddeb881617cc'},
+ 'rocker':{'sprSha256':'cf0e10b825d965ef1f5784d4c037ecba537627b4621b8ddab58f51059e6fad7e',
+           'actSha256':'6aa2ba220860514cf3b1f47ff2a4eb1b8c95a0489b6935341821450b559f0ad2'},
+}
 
 def sample(total,target,death=False):
  if total>=target:return [round(i*(total-1)/(target-1)) for i in range(target)]
@@ -79,13 +94,13 @@ def build(cache:Path,oxipng:Path,only=None):
  data={'schema':2,'columns':8,'classes':CLASSES,'anims':ANIMS,'animOverrides':OVERRIDES,'sprites':[],
        'notes':['All frames rendered at native x1 with enableShadow=false and ACT (0,0) at the per-class anchor.',
                 'Class cells and anchors expanded with user approval to avoid ACT-origin clipping.',
-                'Willow/Poring death indices skip oversized ACT explosion effects (exception to uniform sampling).',
+                'Willow/Poring/Drops/Poporing death indices skip oversized ACT explosion effects (exception to uniform sampling).',
                 'Ordinary weapon items omit item_db View; weaponView here is renderer weapon-type ID. Guard shield item View 1.']}
  specs=[]
  for name,(job,jobname,gender,weapon,shield,item,shielditem) in HEROES.items():
   specs.append((name,'hero',job,jobname,gender,weapon,shield,item,shielditem))
  for name,(mobname,mobid) in MONSTERS.items():
-  specs.append((name,'boss' if name.startswith('boss') else 'monster',mobid,mobname,None,0,0,0,0))
+  specs.append((name,'boss' if name.startswith('boss') or name=='mastering' or name in OVERSIZED_MONSTERS else 'monster',mobid,mobname,None,0,0,0,0))
  if only:
   specs=[spec for spec in specs if spec[0]==only]
   if not specs:raise ValueError(f'unknown sprite id: {only}')
@@ -131,7 +146,8 @@ def build(cache:Path,oxipng:Path,only=None):
    entry['bbox'][anim]=[min(x[0] for x in bounds),min(x[1] for x in bounds),max(x[2] for x in bounds),max(x[3] for x in bounds)]
    entry['sourceFrameBboxes'][anim]=source_bounds;entry['sourceFrameIndices'][anim]=indices
    entry['sourceCacheFiles'][anim]=cached.name;entry['sourceActions'][anim]=act;entry['sourceFrameCounts'][anim]=getattr(src,'n_frames',1)
-   if anim=='death' and name in DEATH_EXCEPTIONS:exception_rows[anim]='Oversized FX frames skipped with owner approval; x1 source indices recorded.'
+   if anim=='death' and name in DEATH_EXCEPTIONS:
+    exception_rows[anim]='Oversized ACT death FX frames skipped without scaling; native first/last retained, source indices recorded.'
    if anim=='idle' and kind=='hero':
     # Native 64x64 head and shoulders of first ready pose; no resize.
     src.seek(indices[0]);raw=src.convert('RGBA')
@@ -144,6 +160,12 @@ def build(cache:Path,oxipng:Path,only=None):
   if name in ('swordman','magician','archer_first','acolyte','thief'):
    entry['sourceLimitations']={'walk':'RO renderer omits the equipped weapon during walking action 14',
                               'death':'RO action 70 has one source frame; held to fill the v2 death row'}
+  if name in OVERSIZED_MONSTERS:
+   entry['sourceLimitations']={'grid':'Boss-sized cell is required for the native x1 jumping walk and final death frame; the unit is not a boss in gameplay.'}
+  if name in ORIGINAL_RO_PROOF:
+   entry['source']['independentRoClientProof']={
+    'path':'data/sprite/몬스터/'+name+'.spr/.act',
+    'host':'grf.robrowser.com', **ORIGINAL_RO_PROOF[name]}
   entry['sourceAlphaValues']=sorted(alphas)
   png=ROOT/'assets'/entry['file'];save_lossless(sheet,png,oxipng);data['sprites'].append(entry)
   print(name,kind,png.stat().st_size,'bytes',flush=True)

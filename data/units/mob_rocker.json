@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_rocker",
+  "name": "Рокер",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 560,
+    "atk": 48,
+    "def": 9,
+    "spd": 110
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_rocker_kick",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "rocker",
+    "hitFx": "fx_hit",
+    "scale": 0.65
+  }
+}

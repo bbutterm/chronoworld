@@ -400,12 +400,14 @@ function controlRects(scene: Phaser.Scene, x: number, y: number): Rect[] {
 }
 
 /** Всплывающее сообщение под шапкой экрана (не закрывает название и валюту), исчезает само. */
-export function toast(scene: Phaser.Scene, message: string, color: string = C.title, ms = 3500): void {
+export function toast(scene: Phaser.Scene, message: string, color: string = C.title, ms = 3500, at: 'top' | 'middle' = 'top'): void {
   const w = scene.scale.gameSize.width;
   const t = text(scene, 0, 0, message, FS.h3, color, { wordWrap: { width: w - 160 }, lineSpacing: 6 });
   const bgH = t.height + 50;
   const bg = scene.add.rectangle(0, 0, w - 100, bgH, 0x000000, 0.88).setStrokeStyle(3, 0xc8a060);
-  const c = scene.add.container(w / 2, HEADER_H + 24 + bgH / 2, [bg, t]).setDepth(10000).setAlpha(0);
+  // middle — посреди экрана: сверху и снизу у экрана главные кнопки, их тост не закрывает.
+  const y = at === 'middle' ? scene.scale.gameSize.height * 0.46 : HEADER_H + 24 + bgH / 2;
+  const c = scene.add.container(w / 2, y, [bg, t]).setDepth(10000).setAlpha(0);
   scene.tweens.add({ targets: c, alpha: 1, duration: 200 });
   scene.tweens.add({ targets: c, alpha: 0, delay: ms, duration: 400, onComplete: () => c.destroy() });
 }

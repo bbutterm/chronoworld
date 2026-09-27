@@ -7,6 +7,7 @@ import { buildUnit } from '../progression/stats';
 import { GameRuleError, type GameContext, type ProgressEvent } from '../progression/types';
 import type { StageInfo } from './schema';
 import { withGear } from '../equipment/equipment';
+import { bankOffline, lastClearedStage } from './offline';
 
 export type StageStatus = 'locked' | 'open' | 'cleared';
 
@@ -70,9 +71,13 @@ export interface StageOutcome {
  * - победа: награда целиком при первом прохождении, × replayRewardMultiplier при повторе (floor);
  *   золото в resources, jobExp каждому герою отряда через addJobExp; события rewards, stageCleared,
  *   stageUnlocked (для следующего этапа при первом прохождении), события addJobExp;
- * - поражение: только battleSeq.
+ * - поражение: только battleSeq;
+ * - P9 (T1-15): первая победа в кампании (cleared был пуст) при переданном now ставит offline.lastClaimAt = now —
+ *   сундук копит время с первого пройденного этапа, а не с создания сохранения. Без now lastClaimAt не меняется.
+ * - P11 (T4-10): первая победа на этапе новее последнего пройденного при переданном now — bankOffline:
+ *   накопленное в сундуке фиксируется по прежней ставке.
  */
-export function playStage(save: SaveState, stageId: string, seed: number, ctx: GameContext): StageOutcome {
+export function playStage(save: SaveState, stageId: string, seed: number, ctx: GameContext, now?: number): StageOutcome {
   // Экипировка героев из сохранения (если в контексте есть предметы).
   ctx = withGear(ctx, save);
   const stage = getStage(ctx, stageId);
@@ -98,8 +103,13 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   const gold = Math.floor(stage.rewards.gold * mult);
   const jobExp = Math.floor(stage.rewards.jobExp * mult);
 
+  // P11 (T4-10): этап новее последнего пройденного меняет ставку сундука — накопленное до сих пор
+  // фиксируется по старой ставке (offline.banked), дальше копится по новой.
+  const prevLast = lastClearedStage(save, ctx);
+  if (firstTime && prevLast && stage.globalIndex > prevLast.globalIndex && now !== undefined) next.offline = bankOffline(save, now, ctx).offline;
   next.resources = { ...save.resources, gold: save.resources.gold + gold };
   if (firstTime) next.campaign = { ...save.campaign, cleared: [...save.campaign.cleared, stage.id] };
+  if (firstTime && save.campaign.cleared.length === 0 && now !== undefined) next.offline = { ...save.offline, lastClaimAt: now };
 
   events.push({ type: 'rewards', gold, jobExp, heroIds });
   events.push({ type: 'stageCleared', stageId: stage.id, firstTime });

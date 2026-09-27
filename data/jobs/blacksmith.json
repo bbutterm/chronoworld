@@ -2,7 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "blacksmith",
   "name": "Кузнец",
-  "description": "Вторая профессия Торговца: молот и оружие.",
+  "description": "Вторая профессия Торговца: молот и усиление оружия отряда.",
   "tier": 2,
   "from": [
     "merchant"
@@ -41,7 +41,7 @@
     },
     {
       "jobLevel": 40,
-      "skill": "job_blacksmith_cart_termination"
+      "skill": "job_blacksmith_weapon_perfection"
     }
   ],
   "visual": {

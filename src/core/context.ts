@@ -11,11 +11,12 @@ import { parseFeaturesConfig, withFeatures, type FeatureContext } from './featur
 import { parseMetaConfig, withMeta, type MetaContext } from './meta';
 import { ProgressionConfigSchema } from './progression/schema';
 import type { GameContext } from './progression/types';
+import { buildStory, type StoryContext } from './story/story';
 import { parseTowerConfig, withTower, type TowerContext } from './tower';
 import type { CombatConfig, Content } from './types';
 
 /** Полный контекст игры: прогрессия и кампания + K-функции, экипировка, башня, пресеты / поручения / достижения. */
-export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext;
+export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext;
 
 /** Сырые данные data/ — содержимое JSON без разбора. */
 export interface RawGameData {
@@ -30,6 +31,8 @@ export interface RawGameData {
   tower: unknown;
   bounties: unknown;
   achievements: unknown;
+  /** data/story/*.json — сюжет глав (нет — без сюжета). */
+  stories?: RawFile[];
   /** По умолчанию — data/combat.json (COMBAT). */
   combat?: CombatConfig;
 }
@@ -98,10 +101,11 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
   const equipment = stage('data/items / data/drops.json', () => withEquipment(base, items, raw.drops).equipment);
   const tower = stage('data/tower.json', () => withTower(base, raw.tower).tower);
   const meta = stage('data/bounties.json / data/achievements.json', () => withMeta(base, raw.bounties, raw.achievements).meta);
+  const story = stage('data/story', () => buildStory(normalize(raw.stories ?? []), content, problems));
 
-  if (problems.length || !features || !equipment || !tower || !meta) return { content, problems };
+  if (problems.length || !features || !equipment || !tower || !meta || !story) return { content, problems };
   return {
-    ctx: { ...base, features, equipment, tower, meta },
+    ctx: { ...base, features, equipment, tower, meta, story },
     content,
     problems,
   };

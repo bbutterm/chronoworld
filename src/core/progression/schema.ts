@@ -40,6 +40,11 @@ export const ProgressionConfigSchema = z.object({
     tierLevel: z.object({ '1': z.number().int().positive(), '2': z.number().int().positive() }),
     /** Сбрасывать ли джоб-уровень в 1 после смены профессии. */
     resetJobLevel: z.boolean(),
+    /**
+     * P9 (T1-02). Опыт сверх максимума профессии (пока есть куда сменить) копится в hero.bankedExp — не больше,
+     * чем нужно следующему тиру с 1-го уровня на 1 + bankLevels, и переходит в новую профессию. 0 — не копить.
+     */
+    bankLevels: z.number().int().nonnegative().default(5),
   }),
   /** Остаются ли навыки прошлых профессий после смены. */
   keepSkillsOnJobChange: z.boolean(),
@@ -63,7 +68,16 @@ export const ProgressionConfigSchema = z.object({
     /** Давать ли награду за повтор пройденного этапа и какую долю. */
     replayRewardMultiplier: z.number().min(0).max(1),
   }),
-  offline: z.object({ capHours: z.number().positive() }),
+  offline: z.object({
+    capHours: z.number().positive(),
+    /**
+     * P9 (T1-01). Опыт сундука и быстрых наград в начале кампании: пока последний пройденный этап — один из
+     * первых `stages` этапов кампании, опыт в час не больше stageRewardsPerHour × rewards.jobExp этого этапа
+     * (и не больше offlinePerMinute.jobExp × 60). Так быстрые награды ускоряют, но не перескакивают смену
+     * профессии после 4-го этапа. Нет поля — ограничения нет.
+     */
+    earlyExp: z.object({ stages: z.number().int().nonnegative(), stageRewardsPerHour: z.number().nonnegative() }).optional(),
+  }),
   newGame: z.object({ gold: z.number().int().nonnegative() }),
 });
 

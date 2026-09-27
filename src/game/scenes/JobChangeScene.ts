@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { markHint } from '../hints';
 import { actChangeJob, availableJobChanges, type HeroState } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { describeEvents, heroSprite, jobChangeSkills, otherJobChangeReady, ROLE_NAMES, statsLine } from '../flow';
+import { heroSprite, jobChangeSkills, otherJobChangeReady, ROLE_NAMES, statsLine } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
@@ -10,6 +10,7 @@ import { portraitKey } from '../sprites';
 import { button, ellipsize, pressable, ScrollArea, text, toast } from '../ui';
 import { C, FS, TINT } from '../theme';
 import { SKIN } from '../skin';
+import { skillIcon } from '../skillIcons';
 
 /** Куда вернуть игрока после смены профессии (или по «Назад»): экран, откуда он пришёл. */
 export interface JobChangeFrom {
@@ -135,9 +136,11 @@ export class JobChangeScene extends Phaser.Scene {
     y += 48;
     for (const sk of [...job.skills].sort((a, b) => a.jobLevel - b.jobLevel)) {
       const now = sk.jobLevel <= startLevel;
-      add(text(this, 90, y, CONTENT.skills[sk.skill]?.name ?? sk.skill, FS.small, now ? C.ink : C.inkMuted, { fontStyle: now ? 'bold' : 'normal' }).setOrigin(0, 0));
+      const ic = add(this.add.image(106, y + 18, skillIcon(this, CONTENT.skills[sk.skill])).setDisplaySize(40, 40));
+      if (!now) ic.setAlpha(0.6);
+      add(text(this, 140, y, CONTENT.skills[sk.skill]?.name ?? sk.skill, FS.small, now ? C.ink : C.inkMuted, { fontStyle: now ? 'bold' : 'normal' }).setOrigin(0, 0));
       add(text(this, 990, y, now ? 'сразу' : `джоб ${sk.jobLevel}`, FS.caption, now ? C.inkSuccess : C.inkMuted).setOrigin(1, 0));
-      y += 44;
+      y += 48;
     }
     this.area.setContentHeight(y + 10);
     this.detail.add(
@@ -160,11 +163,11 @@ export class JobChangeScene extends Phaser.Scene {
     }
     commit(r.save);
     const hero = r.save.heroes.find((h) => h.id === heroId)!;
-    this.reveal(hero, jobChangeSkills(r.events, hero, GAME), describeEvents(r.events, r.save, GAME));
+    this.reveal(hero, jobChangeSkills(r.events, hero, GAME));
   }
 
   /** Торжественный показ: вспышка, лучи, герой в новой профессии, её название и новые навыки. Касание или пауза — назад. */
-  private reveal(hero: HeroState, skills: string[], lines: string[]): void {
+  private reveal(hero: HeroState, skills: string[]): void {
     this.revealing = true;
     this.area.locked = true;
     const cx = GAME_W / 2;
@@ -231,7 +234,7 @@ export class JobChangeScene extends Phaser.Scene {
     const leave = () => {
       if (done || !this.sys.isActive()) return;
       done = true;
-      this.finish(hero, lines);
+      this.finish(hero);
     };
     shade.on('pointerup', () => {
       if (performance.now() - opened >= REVEAL_TAP_LOCK_MS) leave();
@@ -241,12 +244,13 @@ export class JobChangeScene extends Phaser.Scene {
   }
 
   /** Назад, откуда пришли; там — тост с итогом и, если кто-то ещё готов, об этом. */
-  private finish(hero: HeroState, lines: string[]): void {
+  private finish(hero: HeroState): void {
+    // Короткий тост посреди экрана: навыки уже показаны, а кнопку «Ещё герой готов…» (сверху или снизу) он не закрывает.
     const more = otherJobChangeReady(session.save, GAME, hero.id);
-    const msg = [...lines, ...(more ? [`Ещё герой готов к профессии: ${more.name}`] : [])].join('\n');
+    const msg = `${hero.name} — теперь ${CONTENT.jobs[hero.job]?.name ?? hero.job}` + (more ? `\nЕщё готов к профессии: ${more.name}` : '');
     const target = this.from.to;
     this.scene.start(target, this.from.data);
     const sc = this.scene.get(target);
-    sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, msg, C.success, 4500));
+    sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, msg, C.success, 2800, 'middle'));
   }
 }
