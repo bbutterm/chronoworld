@@ -90,6 +90,8 @@ export function button(
     stroke: dark || skin ? C.none : C.titleStroke,
     strokeThickness: dark || skin ? 0 : 5,
   });
+  // Скин: подпись тиснёная — на золоте светлый отблеск снизу, на тёмных плитках — тень.
+  if (skin) t.setShadow(0, dark ? 2 : 3, dark ? 'rgba(255,244,210,0.55)' : 'rgba(0,0,0,0.85)', dark ? 0 : 3, false, true);
   const container = scene.add.container(x, y, [bg, t]);
   // Цель нажатия не ниже TOUCH, даже если кнопка нарисована ниже.
   const hitH = Math.max(h, TOUCH);
@@ -351,8 +353,11 @@ export function progressBar(
   opts: { key?: string; delay?: number } = {},
 ): Phaser.GameObjects.Container {
   const p = Phaser.Math.Clamp(pct, 0, 1);
-  const back = scene.add.rectangle(0, 0, w, h, 0x1a120a).setOrigin(0, 0.5).setStrokeStyle(3, 0x000000, 0.6);
+  const back = scene.add.rectangle(0, 0, w, h, 0x120d08).setOrigin(0, 0.5).setStrokeStyle(3, 0x4a3b25, 1);
   const fill = scene.add.rectangle(2, 0, Math.max(0, (w - 4) * p), h - 6, color).setOrigin(0, 0.5);
+  // «Стекло» трубки: светлая полоса по верхней трети — полоса читается объёмной, а не плоской плашкой.
+  // Индекс 1 — по-прежнему заливка (Поручения и авто-прохождение двигают её ширину сами).
+  const glass = scene.add.rectangle(2, -(h - 6) / 4, w - 4, Math.max(2, (h - 6) / 3), 0xffffff, 0.16).setOrigin(0, 0.5);
   // Полоса с ключом доезжает до нового значения от прошлого показанного (при первом показе за сессию — от нуля).
   const from = opts.key ? barFrom(opts.key, p) : null;
   if (from !== null) {
@@ -360,7 +365,7 @@ export function progressBar(
     fill.width = full * Phaser.Math.Clamp(from, 0, 1);
     scene.tweens.add({ targets: fill, width: full * p, delay: opts.delay ?? 120, duration: 450, ease: 'Cubic.easeOut' });
   }
-  return scene.add.container(x, y, [back, fill]);
+  return scene.add.container(x, y, [back, fill, glass]);
 }
 
 /**

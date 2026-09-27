@@ -6,6 +6,7 @@ import { GAME_W } from '../layout';
 import { CONTENT_BOTTOM, CONTENT_TOP, screen, type NavTab } from '../screen';
 import { commit, session, today } from '../session';
 import { button, ellipsize, emptyState, panel, progressBar, ScrollArea, text, toast } from '../ui';
+import { medallion } from '../decor';
 import { skinIcon } from '../skin';
 import { C, FS, TINT } from '../theme';
 import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
@@ -67,6 +68,9 @@ export class AchievementsScene extends Phaser.Scene {
     if (a.claimed) {
       const got = s.add(text(this, bx + 25, y - 40, 'Получено', FS.small, C.disabled, { fontStyle: 'bold' }));
       s.add(this.add.image(got.x - got.width / 2 - 30, y - 40, skinIcon('check')).setDisplaySize(44, 44).setTint(0x9fe0a6).setAlpha(0.7));
+    } else if (!a.done) {
+      // В работе — справа тусклый медальон с кубком (строка не пустует, видно «за что»).
+      s.add(medallion(this, bx + 20, y - 8, 116, 'trophy', 0xa89d86).setAlpha(0.75));
     } else if (a.done) {
       const b = button(this, bx, y - 30, 230, 100, 'ui_btn_primary', 'Забрать', s.tap(() => this.claim(a, { x: bx, y: this.area.content.y + y - 30 })), FS.h3);
       s.add(b.container);

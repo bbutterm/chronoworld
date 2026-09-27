@@ -83,28 +83,113 @@ function canvas(scene: Phaser.Scene, key: string, w: number, h: number, draw: (c
   t.refresh();
 }
 
-/** Плитка: вертикальный градиент, рамка, тонкий блик сверху. pressed — темнее и без блика. */
-function tile(ctx: Ctx, s: number, o: { top: string; bottom: string; border: string; glow?: string; pressed?: boolean }): void {
-  const pad = 4;
-  const g = ctx.createLinearGradient(0, 0, 0, s);
+interface TileOpts {
+  top: string;
+  bottom: string;
+  border: string;
+  /** Светлая кромка рамки сверху (металл: светлее сверху, темнее снизу). Нет — рамка одним цветом. */
+  borderLight?: string;
+  glow?: string;
+  pressed?: boolean;
+  /** Кнопка: «толщина» снизу (тёмная кромка), нажатая — без неё и ниже. */
+  lip?: string;
+  /** Глянец верхней половины (золотая кнопка). */
+  gloss?: number;
+  /** Золотые заклёпки-ромбы в углах (рамки карточек). */
+  studs?: string;
+}
+
+/**
+ * Плитка в духе AFK Arena: тёмный внешний контур-тень, тело с вертикальным градиентом, металлическая рамка
+ * (светлее сверху), фаска — светлая линия по верху и тень по низу, тонкая внутренняя кромка; у кнопок — «толщина»
+ * снизу (нажатая проседает), у карточек — заклёпки в углах. Всё в пределах угла 9-slice (SKIN_SLICE).
+ */
+function tile(ctx: Ctx, s: number, o: TileOpts): void {
+  const pad = 5;
+  const lip = o.lip && !o.pressed ? 7 : 0;
+  const x = pad;
+  const w = s - pad * 2;
+  const y = pad + (o.lip && o.pressed ? 4 : 0);
+  const h = s - pad * 2 - lip - (o.lip && o.pressed ? 4 : 0);
+  // Внешний тёмный контур (отделяет плитку от любого фона) и мягкая тень.
+  ctx.save();
+  ctx.shadowColor = o.glow ?? 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur = o.glow ? 12 : 6;
+  ctx.shadowOffsetY = o.glow ? 0 : 2;
+  rr(ctx, x - 1, y - 1, w + 2, h + lip + 2, RADIUS + 1);
+  ctx.fillStyle = '#070605';
+  ctx.fill();
+  ctx.restore();
+  // «Толщина» кнопки снизу.
+  if (lip) {
+    rr(ctx, x, y + lip, w, h, RADIUS);
+    ctx.fillStyle = o.lip as string;
+    ctx.fill();
+  }
+  // Тело.
+  const g = ctx.createLinearGradient(0, y, 0, y + h);
   g.addColorStop(0, o.pressed ? o.bottom : o.top);
   g.addColorStop(1, o.bottom);
-  rr(ctx, pad, pad, s - pad * 2, s - pad * 2, RADIUS);
+  rr(ctx, x, y, w, h, RADIUS);
   ctx.fillStyle = g;
   ctx.fill();
-  if (o.glow) {
-    ctx.shadowColor = o.glow;
-    ctx.shadowBlur = 10;
+  ctx.save();
+  rr(ctx, x, y, w, h, RADIUS);
+  ctx.clip();
+  // Глянец: светлая верхняя половина с мягким краем.
+  if (o.gloss && !o.pressed) {
+    const gl = ctx.createLinearGradient(0, y, 0, y + h * 0.55);
+    gl.addColorStop(0, `rgba(255,255,255,${o.gloss})`);
+    gl.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gl;
+    ctx.fillRect(x, y, w, h * 0.55);
   }
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = o.border;
+  // Фаска: блик по верху, тень по низу.
+  const bev = ctx.createLinearGradient(0, y, 0, y + h);
+  bev.addColorStop(0, o.pressed ? 'rgba(0,0,0,0.25)' : 'rgba(255,236,200,0.10)');
+  bev.addColorStop(0.18, 'rgba(255,236,200,0)');
+  bev.addColorStop(0.8, 'rgba(0,0,0,0)');
+  bev.addColorStop(1, 'rgba(0,0,0,0.28)');
+  ctx.fillStyle = bev;
+  ctx.fillRect(x, y, w, h);
+  ctx.restore();
+  // Металлическая рамка.
+  rr(ctx, x + 1.5, y + 1.5, w - 3, h - 3, RADIUS - 1);
+  if (o.borderLight) {
+    const bg = ctx.createLinearGradient(0, y, 0, y + h);
+    bg.addColorStop(0, o.borderLight);
+    bg.addColorStop(0.5, o.border);
+    bg.addColorStop(1, o.border);
+    ctx.strokeStyle = bg;
+  } else ctx.strokeStyle = o.border;
+  ctx.lineWidth = 3.5;
   ctx.stroke();
-  ctx.shadowBlur = 0;
+  // Внутренняя кромка — тонкий светлый контур.
+  rr(ctx, x + 6, y + 6, w - 12, h - 12, RADIUS - 6);
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = o.pressed ? 'rgba(255,240,210,0.04)' : 'rgba(255,240,210,0.09)';
+  ctx.stroke();
+  // Верхний блик рамки — короткая светлая линия по центру (как отблеск на металле).
   if (!o.pressed) {
-    rr(ctx, pad + 5, pad + 5, s - pad * 2 - 10, s - pad * 2 - 10, RADIUS - 5);
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'rgba(255,240,210,0.07)';
+    const hl = ctx.createLinearGradient(x + RADIUS, 0, x + w - RADIUS, 0);
+    hl.addColorStop(0, 'rgba(255,245,215,0)');
+    hl.addColorStop(0.5, 'rgba(255,245,215,0.35)');
+    hl.addColorStop(1, 'rgba(255,245,215,0)');
+    ctx.strokeStyle = hl;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x + RADIUS, y + 3);
+    ctx.lineTo(x + w - RADIUS, y + 3);
     ctx.stroke();
+  }
+  if (o.studs) {
+    ctx.fillStyle = o.studs;
+    for (const [cx, cy] of [[x + 13, y + 13], [x + w - 13, y + 13], [x + 13, y + h - 13], [x + w - 13, y + h - 13]]) {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 4.5); ctx.lineTo(cx + 4.5, cy); ctx.lineTo(cx, cy + 4.5); ctx.lineTo(cx - 4.5, cy);
+      ctx.closePath();
+      ctx.fill();
+    }
   }
 }
 
@@ -204,6 +289,31 @@ const ICONS: Record<string, (ctx: Ctx) => void> = {
   next: (c) => {
     c.beginPath(); c.moveTo(26, 14); c.lineTo(44, 32); c.lineTo(26, 50); c.stroke();
   },
+  hourglass: (c) => {
+    c.beginPath();
+    c.moveTo(16, 8); c.lineTo(48, 8); c.moveTo(16, 56); c.lineTo(48, 56);
+    c.moveTo(20, 8); c.bezierCurveTo(20, 26, 32, 26, 32, 32); c.bezierCurveTo(32, 38, 20, 38, 20, 56);
+    c.moveTo(44, 8); c.bezierCurveTo(44, 26, 32, 26, 32, 32); c.bezierCurveTo(32, 38, 44, 38, 44, 56);
+    c.moveTo(25, 50); c.lineTo(39, 50);
+    c.stroke();
+  },
+  flag: (c) => {
+    c.beginPath();
+    c.moveTo(16, 58); c.lineTo(16, 8);
+    c.moveTo(16, 10); c.bezierCurveTo(28, 4, 36, 16, 50, 10); c.lineTo(50, 34); c.bezierCurveTo(36, 40, 28, 28, 16, 34);
+    c.stroke();
+  },
+  star: (c) => {
+    c.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + (i * Math.PI) / 5;
+      const r = i % 2 ? 11 : 24;
+      if (i) c.lineTo(32 + Math.cos(a) * r, 34 + Math.sin(a) * r);
+      else c.moveTo(32 + Math.cos(a) * r, 34 + Math.sin(a) * r);
+    }
+    c.closePath();
+    c.stroke();
+  },
 };
 
 export type SkinIcon = keyof typeof ICONS;
@@ -215,20 +325,38 @@ export const skinIcon = (name: SkinIcon) => `skin_ico_${name}`;
 export function buildSkin(scene: Phaser.Scene): void {
   const S = 128;
   const base = { top: SKIN.panelTop, bottom: SKIN.panelBottom };
-  canvas(scene, 'skin_panel', S, S, (c) => tile(c, S, { ...base, border: '#35302a' }));
-  canvas(scene, 'skin_panel_light', S, S, (c) => tile(c, S, { top: '#34302a', bottom: '#24211c', border: SKIN.bronze }));
-  canvas(scene, 'skin_slot', S, S, (c) => tile(c, S, { top: '#23201b', bottom: '#161512', border: SKIN.bronze }));
-  canvas(scene, 'skin_slot_empty', S, S, (c) => tile(c, S, { top: '#181713', bottom: '#11100d', border: '#2e2a24' }));
-  canvas(scene, 'skin_slot_selected', S, S, (c) => tile(c, S, { top: '#34302a', bottom: '#201d18', border: SKIN.gold, glow: SKIN.gold }));
-  canvas(scene, 'skin_btn', S, S, (c) => tile(c, S, { ...base, border: SKIN.bronze }));
-  canvas(scene, 'skin_btn_pressed', S, S, (c) => tile(c, S, { ...base, border: SKIN.bronze, pressed: true }));
-  canvas(scene, 'skin_btn_active', S, S, (c) => tile(c, S, { top: '#342c20', bottom: '#1d1914', border: SKIN.gold, glow: 'rgba(214,174,99,0.6)' }));
-  canvas(scene, 'skin_btn_active_pressed', S, S, (c) => tile(c, S, { top: '#342c20', bottom: '#1d1914', border: SKIN.gold, pressed: true }));
-  canvas(scene, 'skin_btn_gold', S, S, (c) => tile(c, S, { top: SKIN.goldLight, bottom: '#b7862f', border: '#6b4a1a' }));
+  const metal = { border: '#4a3b25', borderLight: '#a8864f' };
+  const stud = 'rgba(214,174,99,0.75)';
+  // Карточки: рамка «бронза», заклёпки в углах.
+  canvas(scene, 'skin_panel', S, S, (c) => tile(c, S, { ...base, ...metal, studs: stud }));
+  canvas(scene, 'skin_panel_light', S, S, (c) => tile(c, S, { top: '#38322a', bottom: '#25211b', border: SKIN.bronze, borderLight: '#b8955a', studs: stud }));
+  canvas(scene, 'skin_slot', S, S, (c) => tile(c, S, { top: '#28241e', bottom: '#161512', border: SKIN.bronze, borderLight: '#8d7248' }));
+  canvas(scene, 'skin_slot_empty', S, S, (c) => tile(c, S, { top: '#1a1915', bottom: '#11100d', border: '#2e2a24', borderLight: '#4a4236' }));
+  canvas(scene, 'skin_slot_selected', S, S, (c) => tile(c, S, { top: '#3a3327', bottom: '#201d18', border: SKIN.gold, borderLight: SKIN.goldLight, glow: SKIN.gold }));
+  // Кнопки: «толщина» снизу, нажатая проседает.
+  const btn = { top: '#3a3228', bottom: '#1f1b16', ...metal, lip: '#0f0c09' };
+  canvas(scene, 'skin_btn', S, S, (c) => tile(c, S, btn));
+  canvas(scene, 'skin_btn_pressed', S, S, (c) => tile(c, S, { ...btn, pressed: true }));
+  const active = { top: '#4a3b24', bottom: '#241d14', border: SKIN.goldDark, borderLight: SKIN.goldLight, lip: '#140f08' };
+  canvas(scene, 'skin_btn_active', S, S, (c) => tile(c, S, { ...active, glow: 'rgba(214,174,99,0.6)' }));
+  canvas(scene, 'skin_btn_active_pressed', S, S, (c) => tile(c, S, { ...active, pressed: true }));
+  const gold = { top: '#ffe6a6', bottom: '#b27a26', border: '#5a3a10', borderLight: '#fff2c8', lip: '#6e4512', gloss: 0.32 };
+  canvas(scene, 'skin_btn_gold', S, S, (c) => tile(c, S, gold));
+  canvas(scene, 'skin_btn_gold_pressed', S, S, (c) => tile(c, S, { ...gold, top: '#d9a54c', pressed: true }));
   // Опасное действие (сброс прогресса): тёмно-красная кнопка, кремовая подпись.
-  canvas(scene, 'skin_btn_danger', S, S, (c) => tile(c, S, { top: '#9a3426', bottom: '#5e1a12', border: '#2a0804' }));
-  canvas(scene, 'skin_btn_danger_pressed', S, S, (c) => tile(c, S, { top: '#5e1a12', bottom: '#4a140e', border: '#2a0804', pressed: true }));
-  canvas(scene, 'skin_btn_gold_pressed', S, S, (c) => tile(c, S, { top: '#b7862f', bottom: '#9a6f25', border: '#6b4a1a', pressed: true }));
+  const danger = { top: '#a63a2a', bottom: '#5e1a12', border: '#2a0804', borderLight: '#e0806a', lip: '#2a0804', gloss: 0.12 };
+  canvas(scene, 'skin_btn_danger', S, S, (c) => tile(c, S, danger));
+  canvas(scene, 'skin_btn_danger_pressed', S, S, (c) => tile(c, S, { ...danger, pressed: true }));
+  // Вкладки нижней навигации: плоские (без «толщины»), активная — золотая рамка и тёплое свечение.
+  canvas(scene, 'skin_tab', S, S, (c) => tile(c, S, { top: '#221e19', bottom: '#15130f', border: '#3a3022', borderLight: '#6a5638' }));
+  canvas(scene, 'skin_tab_pressed', S, S, (c) => tile(c, S, { top: '#221e19', bottom: '#15130f', border: '#3a3022', pressed: true }));
+  canvas(scene, 'skin_tab_active', S, S, (c) => tile(c, S, { top: '#4d3c22', bottom: '#1f1911', border: SKIN.gold, borderLight: SKIN.goldLight, glow: 'rgba(240,207,138,0.7)' }));
+  canvas(scene, 'skin_tab_active_pressed', S, S, (c) => tile(c, S, { top: '#4d3c22', bottom: '#1f1911', border: SKIN.gold, pressed: true }));
+  // «Таблетка» валюты: утопленное тёмное поле с бронзовой кромкой.
+  canvas(scene, 'skin_pill', S, S, (c) => {
+    tile(c, S, { top: '#0c0b09', bottom: '#1b1813', border: '#3a2f1f', borderLight: '#8a6e44', pressed: true });
+  });
+  buildDecor(scene);
 
   // Иконки: белый контур, скруглённые концы.
   for (const [name, draw] of Object.entries(ICONS)) {
@@ -306,52 +434,275 @@ export function buildSkin(scene: Phaser.Scene): void {
     c.fillStyle = core;
     c.fillRect(0, 0, 512, 512);
   });
-  // Плашки «Победа» / «Поражение» в стиле скина (старые бежевые картинки к нему не подходят).
-  const banner = (key: string, label: string, face: [string, string], border: string) =>
+  // Плашки «Победа» / «Поражение» в стиле скина: тёмная плита с металлической рамкой, лавровые ветви по бокам,
+  // ромб-герб сверху, надпись с градиентом и тёмной обводкой (как итоговые баннеры AFK Arena).
+  const banner = (key: string, label: string, face: [string, string], border: string, leaf: [string, string]) =>
     canvas(scene, key, 900, 300, (c) => {
       const W = 900;
       const H = 300;
-      const g = c.createLinearGradient(0, 60, 0, 250);
-      g.addColorStop(0, '#2f2a22');
-      g.addColorStop(1, '#15130f');
-      rr(c, 40, 50, W - 80, 200, 30);
+      const bx = 100;
+      const bw = W - 200;
+      // Лавровые ветви: листья по дуге от низа плиты вверх и наружу.
+      for (const d of [-1, 1]) {
+        const ox = W / 2 + d * (bw / 2 - 30);
+        for (let i = 0; i < 9; i++) {
+          const t = i / 8;
+          const ang = Math.PI * (0.62 - t * 0.6);
+          const lx = ox + d * Math.cos(ang) * 120 * (0.4 + t * 0.6) + d * 30;
+          const ly = 230 - t * 170;
+          for (const side of [-1, 1]) {
+            c.save();
+            c.translate(lx, ly);
+            c.rotate(d * (side * 0.7 - 0.2 - t * 0.5));
+            c.beginPath();
+            c.ellipse(side * 14, 0, 22 - t * 6, 8, 0, 0, Math.PI * 2);
+            const lg = c.createLinearGradient(0, -8, 0, 8);
+            lg.addColorStop(0, leaf[0]);
+            lg.addColorStop(1, leaf[1]);
+            c.fillStyle = lg;
+            c.fill();
+            c.lineWidth = 2;
+            c.strokeStyle = '#140d06';
+            c.stroke();
+            c.restore();
+          }
+        }
+      }
+      // Плита.
+      c.save();
+      c.shadowColor = 'rgba(0,0,0,0.7)';
+      c.shadowBlur = 16;
+      c.shadowOffsetY = 6;
+      rr(c, bx, 60, bw, 180, 30);
+      c.fillStyle = '#0a0806';
+      c.fill();
+      c.restore();
+      const g = c.createLinearGradient(0, 60, 0, 240);
+      g.addColorStop(0, '#3a3228');
+      g.addColorStop(1, '#141210');
+      rr(c, bx + 4, 64, bw - 8, 172, 26);
       c.fillStyle = g;
       c.fill();
+      c.save();
       c.shadowColor = border;
-      c.shadowBlur = 22;
+      c.shadowBlur = 20;
       c.lineWidth = 6;
-      c.strokeStyle = border;
+      const bg = c.createLinearGradient(0, 64, 0, 236);
+      bg.addColorStop(0, face[0]);
+      bg.addColorStop(0.5, border);
+      bg.addColorStop(1, border);
+      c.strokeStyle = bg;
       c.stroke();
-      c.shadowBlur = 0;
-      rr(c, 56, 66, W - 112, 168, 22);
+      c.restore();
+      rr(c, bx + 18, 78, bw - 36, 144, 18);
       c.lineWidth = 2;
-      c.strokeStyle = 'rgba(255,240,210,0.14)';
+      c.strokeStyle = 'rgba(255,240,210,0.16)';
       c.stroke();
-      // Ромбы-заклёпки по бокам.
+      // Ромбы-заклёпки по бокам и герб сверху.
       c.fillStyle = border;
-      for (const x of [90, W - 90]) {
+      for (const x of [bx + 44, W - bx - 44]) {
         c.beginPath(); c.moveTo(x, H / 2 - 16); c.lineTo(x + 12, H / 2); c.lineTo(x, H / 2 + 16); c.lineTo(x - 12, H / 2); c.closePath(); c.fill();
       }
-      c.font = 'bold 100px Arial, "Helvetica Neue", sans-serif';
+      const crest = (r: number, fill: string | CanvasGradient) => {
+        c.beginPath(); c.moveTo(W / 2, 62 - r); c.lineTo(W / 2 + r * 0.85, 62); c.lineTo(W / 2, 62 + r); c.lineTo(W / 2 - r * 0.85, 62); c.closePath();
+        c.fillStyle = fill; c.fill();
+      };
+      crest(34, '#0a0806');
+      const cg = c.createLinearGradient(0, 34, 0, 90);
+      cg.addColorStop(0, face[0]);
+      cg.addColorStop(1, border);
+      crest(28, cg);
+      crest(11, '#1a0e08');
+      // Надпись: крупно, но в ширину плиты.
+      let size = 100;
+      c.font = `bold ${size}px Arial, "Helvetica Neue", sans-serif`;
+      const maxW = bw - 150;
+      const mw = c.measureText(label).width;
+      if (mw > maxW) {
+        size = Math.floor((size * maxW) / mw);
+        c.font = `bold ${size}px Arial, "Helvetica Neue", sans-serif`;
+      }
       c.textAlign = 'center';
       c.textBaseline = 'middle';
       c.lineWidth = 12;
+      c.lineJoin = 'round';
       c.strokeStyle = '#120d07';
-      c.strokeText(label, W / 2, H / 2 + 4);
-      const tg = c.createLinearGradient(0, H / 2 - 50, 0, H / 2 + 50);
+      c.strokeText(label, W / 2, H / 2 + 10);
+      const tg = c.createLinearGradient(0, H / 2 - size / 2, 0, H / 2 + size / 2);
       tg.addColorStop(0, face[0]);
+      tg.addColorStop(0.55, face[1]);
       tg.addColorStop(1, face[1]);
       c.fillStyle = tg;
-      c.fillText(label, W / 2, H / 2 + 4);
+      c.fillText(label, W / 2, H / 2 + 10);
+      // Блик по верхней половине букв.
+      c.save();
+      c.globalCompositeOperation = 'source-atop';
+      c.fillStyle = 'rgba(255,255,255,0.18)';
+      c.fillRect(0, H / 2 - size / 2, W, size * 0.35);
+      c.restore();
     });
-  banner('skin_banner_victory', 'ПОБЕДА', ['#fff0c0', '#d6a040'], SKIN.gold);
-  banner('skin_banner_defeat', 'ПОРАЖЕНИЕ', ['#ffc0b0', '#b8402e'], '#8a3a2e');
+  banner('skin_banner_victory', 'ПОБЕДА', ['#fff0c0', '#d6a040'], SKIN.gold, ['#f0cf8a', '#8f6a2c']);
+  banner('skin_banner_defeat', 'ПОРАЖЕНИЕ', ['#ffc0b0', '#b8402e'], '#8a3a2e', ['#9a8a7a', '#4a3a30']);
 
   // Лесной фон (как в референсе): градиент, силуэты крон двумя планами, лучи и светлячки.
   canvas(scene, 'skin_bg_forest', BG_W, BG_H, (c) => drawForest(c, BG_W, BG_H));
   // Поле боя главы 1: поляна на опушке (трава и земля — тайлы художника, если загружены).
   const img = (key: string) => (scene.textures.exists(key) ? (scene.textures.get(key).getSourceImage() as CanvasImageSource) : null);
   canvas(scene, 'skin_bg_battle', BG_W, BG_H, (c) => drawMeadow(c, BG_W, BG_H, img('tile_grass_01'), img('tile_dirt')));
+}
+
+/**
+ * Украшения экранов (шапка, навигация, ленты заголовков, медальоны иконок, блики) — src/game/decor.ts.
+ * Все текстуры маленькие и рисуются один раз при загрузке.
+ */
+function buildDecor(scene: Phaser.Scene): void {
+  // Шапка и навигация: вертикальный градиент тёмная бронза (растягивается по ширине).
+  canvas(scene, 'skin_header_grad', 4, 256, (c) => {
+    const g = c.createLinearGradient(0, 0, 0, 256);
+    g.addColorStop(0, '#070605');
+    g.addColorStop(0.55, '#15120d');
+    g.addColorStop(1, '#2a2115');
+    c.fillStyle = g;
+    c.fillRect(0, 0, 4, 256);
+  });
+  // Золотая кромка: тёмная подложка, золотая линия с угасанием к краям, светлый блик.
+  canvas(scene, 'skin_trim', 512, 12, (c) => {
+    c.fillStyle = 'rgba(0,0,0,0.7)';
+    c.fillRect(0, 7, 512, 5);
+    const g = c.createLinearGradient(0, 0, 512, 0);
+    g.addColorStop(0, 'rgba(143,106,44,0.5)');
+    g.addColorStop(0.5, '#e8c67e');
+    g.addColorStop(1, 'rgba(143,106,44,0.5)');
+    c.fillStyle = g;
+    c.fillRect(0, 3, 512, 4);
+    c.fillStyle = 'rgba(255,240,200,0.35)';
+    c.fillRect(0, 3, 512, 1);
+  });
+  // Орнамент по центру кромки: ромб с «крыльями»-завитками.
+  canvas(scene, 'skin_ornament', 240, 48, (c) => {
+    const cx = 120;
+    const cy = 24;
+    c.lineCap = 'round';
+    c.strokeStyle = '#0a0806';
+    c.lineWidth = 7;
+    const wings = () => {
+      c.beginPath();
+      for (const d of [-1, 1]) {
+        c.moveTo(cx + d * 18, cy);
+        c.bezierCurveTo(cx + d * 44, cy - 16, cx + d * 70, cy + 10, cx + d * 100, cy);
+        c.moveTo(cx + d * 30, cy + 2);
+        c.bezierCurveTo(cx + d * 46, cy + 14, cx + d * 60, cy + 6, cx + d * 66, cy - 2);
+      }
+      c.stroke();
+    };
+    wings();
+    c.strokeStyle = '#d6ae63';
+    c.lineWidth = 3;
+    wings();
+    const dia = (r: number, fill: string | CanvasGradient) => {
+      c.beginPath();
+      c.moveTo(cx, cy - r); c.lineTo(cx + r * 0.8, cy); c.lineTo(cx, cy + r); c.lineTo(cx - r * 0.8, cy);
+      c.closePath();
+      c.fillStyle = fill;
+      c.fill();
+    };
+    dia(20, '#0a0806');
+    const g = c.createLinearGradient(0, cy - 16, 0, cy + 16);
+    g.addColorStop(0, '#fff0c0');
+    g.addColorStop(1, '#a8782c');
+    dia(15, g);
+    dia(6, '#5a1a14');
+  });
+  // Лента заголовка: тёмно-красное полотно с золотой кромкой и вырезами на концах (3-slice по горизонтали).
+  canvas(scene, 'skin_ribbon', 256, 96, (c) => {
+    const W = 256;
+    const H = 96;
+    const notch = 22;
+    const shape = (inset: number) => {
+      c.beginPath();
+      c.moveTo(inset, 10 + inset);
+      c.lineTo(W - inset, 10 + inset);
+      c.lineTo(W - notch - inset * 0.5, H / 2);
+      c.lineTo(W - inset, H - 10 - inset);
+      c.lineTo(inset, H - 10 - inset);
+      c.lineTo(notch + inset * 0.5, H / 2);
+      c.closePath();
+    };
+    c.save();
+    c.shadowColor = 'rgba(0,0,0,0.6)';
+    c.shadowBlur = 8;
+    c.shadowOffsetY = 3;
+    shape(0);
+    c.fillStyle = '#0a0706';
+    c.fill();
+    c.restore();
+    shape(3);
+    const g = c.createLinearGradient(0, 12, 0, H - 12);
+    g.addColorStop(0, '#7a2a1e');
+    g.addColorStop(0.5, '#5a1a12');
+    g.addColorStop(1, '#3a0e0a');
+    c.fillStyle = g;
+    c.fill();
+    c.lineWidth = 3;
+    const bg = c.createLinearGradient(0, 12, 0, H - 12);
+    bg.addColorStop(0, '#f0cf8a');
+    bg.addColorStop(1, '#8f6a2c');
+    c.strokeStyle = bg;
+    c.stroke();
+    shape(9);
+    c.lineWidth = 1.5;
+    c.strokeStyle = 'rgba(255,220,160,0.25)';
+    c.stroke();
+  });
+  // Медальон под иконку: бронзовый обод, тёмное поле, блик сверху.
+  canvas(scene, 'skin_medallion', 160, 160, (c) => {
+    const cx = 80;
+    c.save();
+    c.shadowColor = 'rgba(0,0,0,0.6)';
+    c.shadowBlur = 8;
+    c.shadowOffsetY = 3;
+    c.beginPath(); c.arc(cx, cx, 72, 0, Math.PI * 2); c.fillStyle = '#0a0806'; c.fill();
+    c.restore();
+    const rim = c.createLinearGradient(0, 10, 0, 150);
+    rim.addColorStop(0, '#f0cf8a');
+    rim.addColorStop(0.5, '#a8803e');
+    rim.addColorStop(1, '#4a3418');
+    c.beginPath(); c.arc(cx, cx, 68, 0, Math.PI * 2); c.fillStyle = rim; c.fill();
+    const face = c.createRadialGradient(cx, cx - 20, 6, cx, cx, 60);
+    face.addColorStop(0, '#4a3a26');
+    face.addColorStop(1, '#16120c');
+    c.beginPath(); c.arc(cx, cx, 58, 0, Math.PI * 2); c.fillStyle = face; c.fill();
+    c.lineWidth = 2; c.strokeStyle = 'rgba(0,0,0,0.7)'; c.stroke();
+    c.save();
+    c.beginPath(); c.arc(cx, cx, 58, 0, Math.PI * 2); c.clip();
+    const gl = c.createLinearGradient(0, 22, 0, 80);
+    gl.addColorStop(0, 'rgba(255,240,200,0.18)');
+    gl.addColorStop(1, 'rgba(255,240,200,0)');
+    c.fillStyle = gl;
+    c.fillRect(0, 0, 160, 80);
+    c.restore();
+  });
+  // Мягкое круглое свечение (белое — красится tint'ом).
+  canvas(scene, 'skin_glow', 128, 128, (c) => {
+    const g = c.createRadialGradient(64, 64, 0, 64, 64, 64);
+    g.addColorStop(0, 'rgba(255,255,255,0.9)');
+    g.addColorStop(0.4, 'rgba(255,255,255,0.35)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, 128, 128);
+  });
+  // Блик, пробегающий по главной кнопке: косая мягкая полоса.
+  canvas(scene, 'skin_shine', 96, 160, (c) => {
+    const g = c.createLinearGradient(0, 0, 96, 0);
+    g.addColorStop(0, 'rgba(255,255,255,0)');
+    g.addColorStop(0.5, 'rgba(255,255,255,0.75)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = g;
+    c.beginPath();
+    c.moveTo(40, 0); c.lineTo(96, 0); c.lineTo(56, 160); c.lineTo(0, 160);
+    c.closePath();
+    c.fill();
+  });
 }
 
 const BG_W = 720;

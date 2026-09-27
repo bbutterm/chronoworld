@@ -45,8 +45,10 @@ export function screen(
   // Фон 1080×1920 сам продолжается на поля вытянутых экранов (viewport.ts); шапка и навигация — тоже до краёв.
   scene.add.image(GAME_W / 2, GAME_H / 2, 'skin_bg_forest').setDisplaySize(GAME_W, GAME_H);
   const fullW = GAME_W + 2 * BLEED_X;
-  scene.add.rectangle(GAME_W / 2, (HEADER_H - BLEED_Y) / 2, fullW, HEADER_H + BLEED_Y, SKIN.bg, 0.96);
-  scene.add.rectangle(GAME_W / 2, HEADER_H, fullW, 2, SKIN_TINT.bronze);
+  // Шапка в несколько слоёв (как в AFK Arena): тёмный градиент к бронзе, золотая кромка и орнамент по центру.
+  scene.add.image(GAME_W / 2, (HEADER_H - BLEED_Y) / 2, 'skin_header_grad').setDisplaySize(fullW, HEADER_H + BLEED_Y).setAlpha(0.97);
+  scene.add.image(GAME_W / 2, HEADER_H + 1, 'skin_trim').setDisplaySize(fullW, 12);
+  scene.add.image(GAME_W / 2, HEADER_H + 4, 'skin_ornament').setDisplaySize(180, 36);
   if (back) button(scene, 110, HEADER_H / 2, 180, 100, 'k:buttonLong_beige', back.label ?? '‹ Назад', () => scene.scene.start(back.to, back.data), FS.h3, { sound: 'ui_back' });
   const currencyLeft = currencyLabels(scene);
   let titleRight = currencyLeft - SP.m;
@@ -58,23 +60,29 @@ export function screen(
   }
   // T3-08: название — между «‹ Назад» и валютой; длинное сначала мельчает, потом переносится на две строки.
   const titleLeft = back ? 200 + SP.m : 50;
-  const t = text(scene, back ? (titleLeft + titleRight) / 2 : titleLeft, HEADER_H / 2, title, FS.h1, SKIN.cream, { fontStyle: 'bold' }).setOrigin(back ? 0.5 : 0, 0.5);
+  const t = text(scene, back ? (titleLeft + titleRight) / 2 : titleLeft, HEADER_H / 2, title, FS.h1, SKIN.goldLight, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(back ? 0.5 : 0, 0.5);
+  t.setShadow(0, 4, 'rgba(0,0,0,0.7)', 4, true, true);
   fitTitle(t, titleRight - titleLeft);
 
   if (active) {
-    scene.add.rectangle(GAME_W / 2, GAME_H - (NAV_H - BLEED_Y) / 2, GAME_W + 2 * BLEED_X, NAV_H + BLEED_Y, SKIN.bg, 0.9);
+    // Панель навигации: тот же градиент, перевёрнутый (бронза сверху), и золотая кромка по верху.
+    scene.add.image(GAME_W / 2, GAME_H - (NAV_H - BLEED_Y) / 2, 'skin_header_grad').setDisplaySize(fullW, NAV_H + BLEED_Y).setFlipY(true).setAlpha(0.96);
+    scene.add.image(GAME_W / 2, GAME_H - NAV_H - 1, 'skin_trim').setDisplaySize(fullW, 12).setFlipY(true);
     const w = GAME_W / TABS.length;
     TABS.forEach((t, i) => {
       const on = t.scene === active;
       const bx = w * (i + 0.5);
       const by = GAME_H - NAV_H / 2;
       // Плитка вкладки как в референсе: контурная иконка и подпись капсом под ней; активная — золотая рамка.
-      const btn = button(scene, bx, by, w - 36, NAV_H - 30, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label.toUpperCase(), () => {
+      const btn = button(scene, bx, by, w - 36, NAV_H - 30, on ? 'skin_tab_active' : 'skin_tab', t.label.toUpperCase(), () => {
         // T1-04: на подэкранах вкладки (карточка героя, инвентарь) вкладка ведёт к её корневому экрану.
         if (!on || scene.scene.key !== t.scene) scene.scene.start(t.scene);
       }, FS.caption, { sound: 'ui_tab' });
       btn.label.setY(34).setColor(on ? SKIN.goldLight : SKIN.creamDim);
-      btn.container.add(scene.add.image(0, -18, skinIcon(NAV_ICON[t.scene])).setDisplaySize(60, 60).setTint(on ? SKIN_TINT.gold : SKIN_TINT.creamDim));
+      // Активная вкладка: тёплое свечение за иконкой, иконка крупнее.
+      if (on) btn.container.add(scene.add.image(0, -18, 'skin_glow').setDisplaySize(150, 110).setTint(0xf0cf8a).setAlpha(0.35).setBlendMode(Phaser.BlendModes.ADD));
+      btn.container.add(scene.add.image(0, -18, skinIcon(NAV_ICON[t.scene])).setDisplaySize(on ? 66 : 58, on ? 66 : 58).setTint(on ? SKIN_TINT.gold : SKIN_TINT.creamDim));
+      btn.container.bringToTop(btn.label);
       // R: значок «Герои», когда кто-то может сменить профессию; P10 (T1-08) — или надеть вещь получше.
       if (t.scene === 'Heroes') cornerBadge(scene, bx, by, w - 36, NAV_H - 30, heroesBadgeCount(session.save, GAME));
     });
@@ -116,7 +124,10 @@ function currencyLabels(scene: Phaser.Scene): number {
     const art = gem ? 'ui_icon_gem' : 'ui_icon_gold';
     const ico = hasArt(art) ? scene.add.image(ix - cx, 0, art).setDisplaySize(46, 46) : gem ? gemIcon(scene, ix - cx, 0, 34) : icon(scene, ix - cx, 0, 'iconCircle_beige', 36).setTint(tint);
     t.setPosition(x - 18 - cx, 0);
-    const box = scene.add.container(cx, y, [panel(scene, 0, 0, pillW, 64, 'k:buttonLong_beige'), ico, t]).setName(`pill_${kind}`);
+    // Утопленное поле с бронзовой кромкой; иконка — в тёплом ореоле у левого края.
+    const halo = scene.add.image(ix - cx, 0, 'skin_glow').setDisplaySize(70, 70).setTint(gem ? 0x6fd8ff : 0xffc83a).setAlpha(0.3).setBlendMode(Phaser.BlendModes.ADD);
+    t.setShadow(0, 2, 'rgba(0,0,0,0.9)', 2, true, true);
+    const box = scene.add.container(cx, y, [panel(scene, 0, 0, pillW, 64, 'skin_pill'), halo, ico, t]).setName(`pill_${kind}`);
     pills.push({ kind, value, text: t, box, icon: { x: ix, y } });
     return x - pillW + 6 - 10;
   };
