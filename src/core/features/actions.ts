@@ -3,14 +3,16 @@ import { claimOffline, type OfflineRewards } from '../campaign/offline';
 import { equip, unequip } from '../equipment/equipment';
 import { playWithEquipment, type StageOutcomeWithDrops } from '../equipment/drops';
 import type { EquipmentConfig, EquipmentContext } from '../equipment/load';
-import { syncAchievementCounters, trackAchievement } from '../meta/achievements';
+import { claimAchievement, syncAchievementCounters, trackAchievement, type MetaEvent } from '../meta/achievements';
+import { claimBounty } from '../meta/bounties';
+import type { MetaContext, MetaRewards } from '../meta/config';
 import { changeJob } from '../progression/jobChange';
 import { GameRuleError, type GameContext, type ProgressEvent } from '../progression/types';
 import type { SaveState } from '../save/schema';
 import { climbTower, type TowerContext, type TowerOutcome } from '../tower/tower';
 import type { FeatureContext, FeatureEvent } from './config';
 import { useFastRewards, type FastRewards } from './fastRewards';
-import { recordActivity } from './quests';
+import { claimActivity, claimQuest, recordActivity, type MilestoneRewards } from './quests';
 import { skipStage } from './skip';
 
 /**
@@ -98,4 +100,44 @@ export function actClimbTower(save: SaveState, day: string, seed: number, ctx: T
   s = recordActivity(s, day, 'hero_level_up', levelUps(out.events));
   s = syncAchievementCounters(trackAchievement(s, 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
   return { ...out, save: s };
+}
+
+/*
+ * Награды с опытом (задания, пороги активности, поручения, достижения): функции ядра сами обновляют
+ * счётчики-«максимумы» достижений, но дня не знают — hero_level_up засчитывают обёртки ниже.
+ * Рекурсии нет: засчитанный level-up только двигает счётчик daily.quests, ничего не забирает автоматически.
+ */
+function recordLevelUps<O extends { save: SaveState; events: readonly { type: string }[] }>(out: O, day: string): O {
+  return { ...out, save: recordActivity(out.save, day, 'hero_level_up', levelUps(out.events)) };
+}
+
+/** claimQuest + hero_level_up (сейчас задание даёт только очки, опыта нет — на будущее и для единообразия). */
+export function actClaimQuest(save: SaveState, day: string, questId: string, ctx: FeatureContext): { save: SaveState; points: number; events: FeatureEvent[] } {
+  return recordLevelUps(claimQuest(save, day, questId, ctx), day);
+}
+
+/** claimActivity + hero_level_up (jobExp порога активности). */
+export function actClaimActivity(
+  save: SaveState,
+  day: string,
+  milestone: number,
+  ctx: FeatureContext,
+): { save: SaveState; rewards: MilestoneRewards; events: FeatureEvent[] } {
+  return recordLevelUps(claimActivity(save, day, milestone, ctx), day);
+}
+
+/** K9. claimBounty + hero_level_up (jobExp поручения). */
+export function actClaimBounty(
+  save: SaveState,
+  day: string,
+  bountyId: string,
+  now: number,
+  ctx: MetaContext,
+): { save: SaveState; rewards: MetaRewards; events: MetaEvent[] } {
+  return recordLevelUps(claimBounty(save, bountyId, now, ctx), day);
+}
+
+/** K10. claimAchievement + hero_level_up (jobExp достижения). */
+export function actClaimAchievement(save: SaveState, day: string, id: string, ctx: MetaContext): { save: SaveState; rewards: MetaRewards; events: MetaEvent[] } {
+  return recordLevelUps(claimAchievement(save, id, ctx), day);
 }

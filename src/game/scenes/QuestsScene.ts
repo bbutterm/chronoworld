@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { claimActivity, claimQuest, questStatus, type MilestoneRewards, type MilestoneView, type QuestView } from '../../core';
+import { actClaimActivity, actClaimQuest, questStatus, type MilestoneRewards, type MilestoneView, type QuestView } from '../../core';
 import { GAME } from '../content';
 import { describeEvents, formatNumber, questDestination, untilReset } from '../flow';
 import { GAME_W } from '../layout';
@@ -101,7 +101,7 @@ export class QuestsScene extends Phaser.Scene {
 
   private claim(q: QuestView): void {
     try {
-      const r = claimQuest(session.save, today(), q.id, GAME);
+      const r = actClaimQuest(session.save, today(), q.id, GAME);
       commit(r.save);
       this.restartWithToast(`«${q.name}»: +${r.points} очков активности`);
     } catch (e) {
@@ -119,7 +119,7 @@ export class QuestsScene extends Phaser.Scene {
       return;
     }
     try {
-      const r = claimActivity(session.save, today(), m.points, GAME);
+      const r = actClaimActivity(session.save, today(), m.points, GAME);
       commit(r.save);
       this.restartWithToast([`Награда за ${m.points} очков: ${rewardText(r.rewards).replace(/\n/g, ', ')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))].join('\n'));
     } catch (e) {

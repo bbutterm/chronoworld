@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import {
+  actClaimBounty,
   bountyName,
   bountyStatus,
-  claimBounty,
   ensureBoard,
   refreshBoard,
   refreshesLeft,
@@ -263,7 +263,7 @@ export class BountiesScene extends Phaser.Scene {
 
   private claim(b: ActiveBountyView): void {
     try {
-      const r = claimBounty(session.save, b.id, now(), GAME);
+      const r = actClaimBounty(session.save, today(), b.id, now(), GAME);
       commit(r.save);
       const lines = [`«${bountyName(b, GAME)}»: ${metaRewardsText(r.rewards, ' каждому')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       this.scene.restart({ scroll: this.area.offset });

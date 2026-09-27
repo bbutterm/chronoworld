@@ -3,17 +3,27 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   actChangeJob,
+  actClaimAchievement,
+  actClaimActivity,
+  actClaimBounty,
   actClaimOffline,
+  actClaimQuest,
   actPlayStage,
   actSkipStage,
   actUseFastRewards,
+  claimAchievement,
+  claimActivity,
+  claimBounty,
+  claimQuest,
   FeatureError,
+  MetaError,
   GameRuleError,
   newGame,
   playStage,
   repeatStage,
   skipStage,
   withFeatures,
+  withMeta,
   type SaveState,
 } from '../src/core';
 import { loadGameContext } from '../scripts/lib/content-node';
@@ -126,5 +136,75 @@ describe('обёртки действий засчитывают задания'
     const next = actUseFastRewards(s, '2026-09-27', ctx).save;
     expect(next.daily).toMatchObject({ day: '2026-09-27', fastRewardsUsed: 1 });
     expect(next.daily.quests.fast_rewards).toBe(1);
+  });
+});
+
+describe('обёртки наград с опытом засчитывают hero_level_up', () => {
+  const mctx = withMeta(ctx, read('data/bounties.json'), read('data/achievements.json'));
+  const ups = (events: readonly { type: string }[]) => events.filter((e) => e.type === 'levelUp').length;
+  const base = () => newGame(mctx, 0, D1);
+
+  it('actClaimQuest: очки как у claimQuest; level-up задания только двигают счётчик, ничего не забирая', () => {
+    const s0 = base();
+    const s: SaveState = { ...s0, daily: { ...s0.daily, quests: { hero_level_up: 2 } } };
+    const out = actClaimQuest(s, D1, 'level_ups', mctx);
+    expect(out).toEqual(claimQuest(s, D1, 'level_ups', mctx));
+    expect(out.save.daily.claimedQuests).toEqual(['level_ups']);
+    expect(out.save.daily.quests).toEqual({ hero_level_up: 2 });
+    expect(() => actClaimQuest(out.save, D1, 'level_ups', mctx)).toThrow(FeatureError);
+  });
+
+  it('actClaimActivity: jobExp порога → hero_level_up, без автозабора задания level_ups', () => {
+    const s0 = base();
+    // 60 очков активности: три задания по 20.
+    const s: SaveState = { ...s0, daily: { ...s0.daily, claimedQuests: ['win_stages', 'offline_chest', 'fast_rewards'] } };
+    const plain = claimActivity(s, D1, 60, mctx);
+    const n = ups(plain.events);
+    expect(n).toBeGreaterThan(0);
+    const out = actClaimActivity(s, D1, 60, mctx);
+    expect(out.events).toEqual(plain.events);
+    expect(out.save.heroes).toEqual(plain.save.heroes);
+    expect(out.save.daily.quests).toEqual({ hero_level_up: n });
+    expect(out.save.daily.claimedQuests).toEqual(s.daily.claimedQuests);
+    expect(out.save.daily.activityClaimed).toEqual([60]);
+    expect({ ...out.save, daily: undefined }).toEqual({ ...plain.save, daily: undefined });
+    // Порог без опыта — счётчик не трогается.
+    expect(actClaimActivity(s, D1, 20, mctx).save.daily.quests).toEqual({});
+    expect(() => actClaimActivity(s0, D1, 60, mctx)).toThrow(FeatureError);
+  });
+
+  it('actClaimBounty: jobExp поручения → hero_level_up на день day', () => {
+    const s0 = base();
+    const hero = s0.heroes[0].id;
+    const s: SaveState = {
+      ...s0,
+      bounties: {
+        ...s0.bounties,
+        active: [
+          { id: 'b1', templateId: 'patrol', rarity: 'common', durationMinutes: 30, heroCount: 1, role: null, rewards: { gold: 10, jobExp: 500, gems: 0 }, heroIds: [hero], startedAt: 0, endsAt: 1000 },
+        ],
+      },
+    };
+    const plain = claimBounty(s, 'b1', 1000, mctx);
+    const n = ups(plain.events);
+    expect(n).toBeGreaterThan(0);
+    const out = actClaimBounty(s, D1, 'b1', 1000, mctx);
+    expect(out.events).toEqual(plain.events);
+    expect(out.save.daily.quests).toEqual({ hero_level_up: n });
+    expect(out.save.achievements).toEqual(plain.save.achievements);
+    expect(() => actClaimBounty(s, D1, 'b1', 999, mctx)).toThrow(MetaError);
+  });
+
+  it('actClaimAchievement: jobExp достижения → hero_level_up', () => {
+    const s0 = base();
+    const s: SaveState = { ...s0, achievements: { ...s0.achievements, counters: { ...s0.achievements.counters, jobs_changed: 1 } } };
+    const plain = claimAchievement(s, 'first_job', mctx);
+    const n = ups(plain.events);
+    expect(n).toBeGreaterThan(0);
+    const out = actClaimAchievement(s, D1, 'first_job', mctx);
+    expect(out.events).toEqual(plain.events);
+    expect(out.save.daily.quests).toEqual({ hero_level_up: n });
+    expect(out.save.achievements).toEqual(plain.save.achievements);
+    expect(() => actClaimAchievement(out.save, D1, 'first_job', mctx)).toThrow(MetaError);
   });
 });

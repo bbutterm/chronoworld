@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
-import { achievementStatus, claimAchievement, type AchievementView } from '../../core';
+import { achievementStatus, actClaimAchievement, type AchievementView } from '../../core';
 import { GAME } from '../content';
 import { claimableAchievements, describeEvents, formatNumber, metaRewardsText, sortAchievements } from '../flow';
 import { GAME_W } from '../layout';
 import { CONTENT_BOTTOM, CONTENT_TOP, screen, type NavTab } from '../screen';
-import { commit, session } from '../session';
+import { commit, session, today } from '../session';
 import { button, ellipsize, emptyState, icon, panel, progressBar, ScrollArea, text, toast } from '../ui';
 import { C, FS, TINT } from '../theme';
 
@@ -73,7 +73,7 @@ export class AchievementsScene extends Phaser.Scene {
 
   private claim(a: AchievementView): void {
     try {
-      const r = claimAchievement(session.save, a.id, GAME);
+      const r = actClaimAchievement(session.save, today(), a.id, GAME);
       commit(r.save);
       const lines = [`«${a.name}»: ${metaRewardsText(r.rewards, ' каждому')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       this.scene.restart({ from: this.from, scroll: this.area.offset } satisfies AchievementsData);

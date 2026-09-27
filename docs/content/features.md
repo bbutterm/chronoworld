@@ -125,6 +125,15 @@ const fctx = withFeatures(gameCtx, progressionJson, questsJson); // битый �
 | `actClaimOffline(save, now, day, ctx)` | `claimOffline` | `offline_claim` (если что-то получено), `hero_level_up` |
 | `actChangeJob(save, day, heroId, jobId, ctx)` | `changeJob` | `job_change` |
 | `actUseFastRewards(save, day, fctx)` | `useFastRewards` | `fast_rewards`, `hero_level_up` |
+| `actClaimQuest(save, day, questId, fctx)` | `claimQuest` | `hero_level_up` (сейчас задание даёт только очки — всегда 0) |
+| `actClaimActivity(save, day, milestone, fctx)` | `claimActivity` | `hero_level_up` (`jobExp` порога) |
+| `actClaimBounty(save, day, bountyId, now, mctx)` | `claimBounty` (K9) | `hero_level_up` (`jobExp` поручения) |
+| `actClaimAchievement(save, day, id, mctx)` | `claimAchievement` (K10) | `hero_level_up` (`jobExp` достижения) |
+
+`hero_level_up` считает level-up из **всех** источников опыта: `hero_level_up += число событий levelUp` в ответе.
+Счётчики достижений эти четыре функции ядра обновляют сами, обёртки их не дублируют. Рекурсии нет: засчитанный
+level-up только увеличивает `daily.quests.hero_level_up` — задание `level_ups` не забирается автоматически,
+игрок забирает его сам (`actClaimQuest`).
 
 ## K7. Повтор и пропуск боя
 
