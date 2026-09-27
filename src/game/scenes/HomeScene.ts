@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { hasArt } from '../assets';
-import { achievementStatus, actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
+import { achievementStatus, heroesWithGearUpgrades, actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
 import { GAME } from '../content';
 import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, jobChangeReadyCount } from '../flow';
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
@@ -143,6 +143,7 @@ export class HomeScene extends Phaser.Scene {
       chestHasIncome,
       jobChangeReady: jobChangeReadyCount(save, GAME) > 0,
       towerUnlocked: towerStatus(save, GAME).unlocked,
+      gearUpgrade: heroesWithGearUpgrades(save, GAME).length > 0,
     });
     if (id === this.hintId) return;
     this.hintView?.destroy();
@@ -155,7 +156,7 @@ export class HomeScene extends Phaser.Scene {
     if (id === 'chest_claim') this.hintView = hintPointer(this, GAME_W / 2, L.claimY, msg, 'below', { w: 460, h: TOUCH });
     if (id === 'tower_open') this.hintView = hintPointer(this, L.tileXR, L.tileY1, msg, 'above', { w: L.tileW, h: L.tileH });
     // Вкладка «Герои» — средняя в нижней навигации.
-    if (id === 'job_change') this.hintView = hintPointer(this, GAME_W / 2, GAME_H - NAV_H / 2 + 4, msg, 'above', { w: GAME_W / 3 - 30, h: NAV_H - 40 });
+    if (id === 'job_change' || id === 'equip_gear') this.hintView = hintPointer(this, GAME_W / 2, GAME_H - NAV_H / 2 + 4, msg, 'above', { w: GAME_W / 3 - 30, h: NAV_H - 40 });
   }
 
   // ---------- S. Настройки (шестерёнка в шапке) ----------

@@ -148,6 +148,32 @@ const tapThroughDialogue = async (sceneKey, shotName) => {
 };
 let seenDialogues = 0;
 
+/**
+ * T1-03: после финала главы — экран «Глава пройдена»: заголовок, карточка Грега, «История» (список увиденных сцен,
+ * пересмотр одной сцены), «Глава 2 ›» ведёт на карту главы 2.
+ */
+const chapterDone = async () => {
+  await waitScene('ChapterDone');
+  await sleep(900);
+  await shot('chapter-done');
+  if (!(await findText('ChapterDone', 'Глава 1 пройдена!'))) throw new Error('нет заголовка «Глава 1 пройдена!»');
+  if (!(await hasTextPrefix('ChapterDone', 'Грег присоединяется'))) throw new Error('нет карточки нового героя (Грег)');
+  await clickText('ChapterDone', 'История');
+  await sleep(600);
+  await shot('chapter-history');
+  if (!(await findText('ChapterDone', '▶  Финал главы'))) throw new Error('в «Истории» нет финала главы');
+  await clickText('ChapterDone', '▶  Финал главы');
+  await sleep(600);
+  if (!(await dialogueOpen('ChapterDone'))) throw new Error('«История»: сцена не открылась');
+  await skipDialogues('ChapterDone');
+  await clickText('ChapterDone', 'Глава 2 ›');
+  await waitScene('Campaign');
+  await skipDialogues('Campaign');
+  if (!(await hasTextPrefix('Campaign', 'Глава 2'))) throw new Error('«Глава 2 ›» открыл не карту главы 2');
+  await shot('chapter2-map');
+  log('экран «Глава пройдена» показан, «Глава 2 ›» — карта главы 2');
+};
+
 let ok = false;
 try {
   await page.goto(URL);
@@ -192,6 +218,10 @@ try {
       log(`этап ${stage}, попытка ${t}: ${won ? 'победа' : 'поражение'}`);
     }
     if (!won) throw new Error(`этап ${stage} не пройден за ${MAX_TRIES} попыток`);
+    if (stage === 10) {
+      await chapterDone();
+      continue;
+    }
     const s = await save();
     const ready = s.heroes.filter((h) => h.job === 'novice' && h.jobLevel >= 10);
     if (ready.length) {
@@ -231,6 +261,11 @@ try {
       await clickGame(540, 430);
       await waitScene('Hero');
       await shot('hero-after-change');
+      // T1-04: вкладка «ГЕРОИ» с карточки героя ведёт к списку, подпись после нажатия остаётся под иконкой.
+      await clickText('Hero', 'ГЕРОИ');
+      await waitScene('Heroes');
+      await clickText('Heroes', 'КАМПАНИЯ');
+      await waitScene('Campaign');
     } else {
       await clickText('Result', 'К кампании');
       await waitScene('Campaign');

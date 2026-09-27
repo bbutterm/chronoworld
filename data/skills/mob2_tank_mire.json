@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob2_tank_mire",
   "name": "Моховая кора",
-  "description": "Кору затягивает мхом и тиной: щит 20% HP себе.",
+  "description": "Кору затягивает мхом и тиной: щит 20% ОЗ себе.",
   "range": "ranged",
   "target": {
     "side": "ally",

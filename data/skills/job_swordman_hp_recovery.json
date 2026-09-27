@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "job_swordman_hp_recovery",
-  "name": "Восстановление HP",
+  "name": "Восстановление ОЗ",
   "description": "В начале каждого хода немного лечит себя.",
   "range": "ranged",
   "trigger": "turnStart",

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "assassin_leap",
   "name": "Прыжок",
-  "description": "Прыжок к врагу с наименьшим HP и удар.",
+  "description": "Прыжок к врагу с наименьшим ОЗ и удар.",
   "range": "ranged",
   "target": {
     "side": "enemy",

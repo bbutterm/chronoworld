@@ -5,7 +5,7 @@
  * Выбор подсказки — чистые функции (их проверяет tests/game-hints.test.ts), рисование — hintPointer() в ui.ts.
  */
 
-export type HintId = 'home_campaign' | 'stage_fight' | 'chest_claim' | 'job_change' | 'tower_open';
+export type HintId = 'home_campaign' | 'stage_fight' | 'chest_claim' | 'job_change' | 'tower_open' | 'equip_gear';
 
 export const HINT_KEY = 'chronoworld.hints';
 
@@ -16,6 +16,8 @@ export const HINT_TEXT: Record<HintId, string> = {
   chest_claim: 'Заберите награду из сундука',
   job_change: 'Смена профессии доступна — загляните в «Герои»',
   tower_open: 'Башня испытаний открыта!',
+  /** P10 (T1-08): в инвентаре лежат вещи лучше надетых. */
+  equip_gear: 'Наденьте трофеи — загляните в «Герои»',
 };
 
 function load(): Set<HintId> {
@@ -76,16 +78,19 @@ export interface HomeHintInput {
   /** Хоть один герой может сменить профессию. */
   jobChangeReady: boolean;
   towerUnlocked: boolean;
+  /** P10 (T1-08): у кого-то из героев в инвентаре есть вещь лучше надетой. */
+  gearUpgrade?: boolean;
 }
 
 /**
  * Какую подсказку показать на главной (одну, самую нужную) или null.
- * Порядок: новичок → кампания; затем сундук, смена профессии, башня.
+ * Порядок: новичок → кампания; затем сундук, смена профессии, трофеи, башня.
  */
 export function pickHomeHint(s: HomeHintInput, isDone: (id: HintId) => boolean = hintDone): HintId | null {
   if (s.cleared === 0 && !isDone('home_campaign')) return 'home_campaign';
   if (s.chestHasIncome && !isDone('chest_claim')) return 'chest_claim';
   if (s.jobChangeReady && !isDone('job_change')) return 'job_change';
+  if (s.gearUpgrade && !isDone('equip_gear')) return 'equip_gear';
   if (s.towerUnlocked && !isDone('tower_open')) return 'tower_open';
   return null;
 }
