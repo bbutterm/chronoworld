@@ -14,6 +14,8 @@ import { SKIN_TINT, skinIcon } from '../skin';
 import { fps, motion, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed, setReducedMotion } from '../state';
 import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
+import { audioSettings, setAudioSettings, sfx } from '../audio';
+import { nextVolume, volumeLabel } from '../audioCore';
 
 /** Кнопка быстрых наград (центр по x). */
 const FAST_BTN_X = 840;
@@ -245,6 +247,22 @@ export class HomeScene extends Phaser.Scene {
     layer.add(motionBtn.container);
     y += 70;
     layer.add(text(this, cx, y, 'Без полёта наград, пульса и «выезда» списков', FS.small, C.muted));
+
+    // Звук (issue #26): громкость музыки и звуков шагами по кругу, «Без звука» — всё молчит (громкости помнятся).
+    const volumeRow = (label: string, name: string, get: () => string, change: () => void) => {
+      y += 100;
+      layer.add(text(this, cx - bw / 2, y, label, FS.h3, C.text, OUTLINE).setOrigin(0, 0.5));
+      const btn = button(this, cx + bw / 2 - 110, y, 220, TOUCH, 'ui_btn_secondary', get(), () => {
+        change();
+        btn.setLabel(get());
+        sfx('ui_toggle');
+      }, FS.h3, { repeat: true, sound: null });
+      btn.container.setName(name);
+      layer.add(btn.container);
+    };
+    volumeRow('Музыка', 'musicVolume', () => volumeLabel(audioSettings.music), () => setAudioSettings({ music: nextVolume(audioSettings.music) }));
+    volumeRow('Звуки', 'sfxVolume', () => volumeLabel(audioSettings.sfx), () => setAudioSettings({ sfx: nextVolume(audioSettings.sfx) }));
+    volumeRow('Без звука', 'muteAll', () => (audioSettings.muted ? 'Вкл' : 'Выкл'), () => setAudioSettings({ muted: !audioSettings.muted }));
 
     y += 110;
     // T3-24/T5-26: тестовый бой — инструмент разработчика (dev-сборка или ?dev=1 в адресе), игроку не показываем.

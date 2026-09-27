@@ -10,6 +10,7 @@ import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
 import { itemCell } from '../itemIcons';
 import { staggerIn } from '../juice';
 import { markHint } from '../hints';
+import { sfx } from '../audio';
 
 /**
  * K6. Инвентарь.
@@ -141,6 +142,7 @@ export class InventoryScene extends Phaser.Scene {
   }
 
   private backToHero(heroId: string, message: string): void {
+    sfx('equip');
     this.scene.start('Hero', { heroId });
     const s = this.scene.get('Hero');
     s.events.once(Phaser.Scenes.Events.CREATE, () => toast(s, message, C.success, 3000));

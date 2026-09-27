@@ -9,6 +9,7 @@ import { hasArt } from './assets';
 import { C, FS, SP, TINT } from './theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { animateCurrency, heartbeat, type CurrencyPill } from './juice';
+import { sfx } from './audio';
 
 export type NavTab = 'Campaign' | 'Heroes' | 'Home';
 
@@ -46,12 +47,12 @@ export function screen(
   const fullW = GAME_W + 2 * BLEED_X;
   scene.add.rectangle(GAME_W / 2, (HEADER_H - BLEED_Y) / 2, fullW, HEADER_H + BLEED_Y, SKIN.bg, 0.96);
   scene.add.rectangle(GAME_W / 2, HEADER_H, fullW, 2, SKIN_TINT.bronze);
-  if (back) button(scene, 110, HEADER_H / 2, 180, 100, 'k:buttonLong_beige', back.label ?? '‹ Назад', () => scene.scene.start(back.to, back.data), FS.h3);
+  if (back) button(scene, 110, HEADER_H / 2, 180, 100, 'k:buttonLong_beige', back.label ?? '‹ Назад', () => scene.scene.start(back.to, back.data), FS.h3, { sound: 'ui_back' });
   const currencyLeft = currencyLabels(scene);
   let titleRight = currencyLeft - SP.m;
   if (opts.settings) {
     const gx = currencyLeft - SP.m - GEAR_SIZE / 2;
-    const gear = button(scene, gx, HEADER_H / 2, GEAR_SIZE, GEAR_SIZE, 'k:buttonSquare_beige', '', opts.settings);
+    const gear = button(scene, gx, HEADER_H / 2, GEAR_SIZE, GEAR_SIZE, 'k:buttonSquare_beige', '', opts.settings, FS.h2, { sound: null });
     gear.container.add(scene.add.image(0, 0, skinIcon('gear')).setDisplaySize(56, 56).setTint(SKIN_TINT.gold)).setName('settings');
     titleRight = gx - GEAR_SIZE / 2 - SP.m;
   }
@@ -71,7 +72,7 @@ export function screen(
       const btn = button(scene, bx, by, w - 36, NAV_H - 30, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label.toUpperCase(), () => {
         // T1-04: на подэкранах вкладки (карточка героя, инвентарь) вкладка ведёт к её корневому экрану.
         if (!on || scene.scene.key !== t.scene) scene.scene.start(t.scene);
-      }, FS.caption);
+      }, FS.caption, { sound: 'ui_tab' });
       btn.label.setY(34).setColor(on ? SKIN.goldLight : SKIN.creamDim);
       btn.container.add(scene.add.image(0, -18, skinIcon(NAV_ICON[t.scene])).setDisplaySize(60, 60).setTint(on ? SKIN_TINT.gold : SKIN_TINT.creamDim));
       // R: значок «Герои», когда кто-то может сменить профессию; P10 (T1-08) — или надеть вещь получше.
@@ -223,6 +224,7 @@ export const DANGER_BTN = 'skin_btn_danger';
 
 /** Появление модального окна: затемнение проявляется, окно чуть «вырастает» из центра экрана. */
 export function popIn(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, shade?: Phaser.GameObjects.GameObject): void {
+  sfx('ui_open');
   const rest = layer.list.filter((o) => o !== shade) as unknown as (Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Alpha)[];
   if (shade) scene.tweens.add({ targets: shade, alpha: { from: 0, to: 1 }, duration: 140 });
   // Масштаб контейнера — от центра экрана: сдвигаем начало координат в центр.
