@@ -147,7 +147,9 @@ describe('навыки из данных', () => {
     );
     const r = simulateBattle(c, ['volley'], ['d', 'd', 'd'], 1);
     const firstT = of(r.log, 'attack').find((e) => e.unit === 'A0')!.t;
-    expect(of(r.log, 'damage').filter((e) => e.source === 'A0' && e.t === firstT)).toHaveLength(3);
+    // Снаряды долетают через projectileSeconds — все три удара одного залпа приходят вместе.
+    const land = Math.round((firstT + (cfg.projectileSeconds ?? 0)) * 100) / 100;
+    expect(of(r.log, 'damage').filter((e) => e.source === 'A0' && e.t === land)).toHaveLength(3);
   });
 });
 
@@ -155,8 +157,9 @@ describe('статусы', () => {
   const statusSkill = (status: Record<string, unknown>) => skill('curse', { effects: [{ type: 'status', status }] });
 
   it('оглушение пропускает ход, статус истекает', () => {
+    // Оглушение на 1 «ход» (statusTurnSeconds): оглушающий медленнее, чтобы статус успевал истечь до обновления.
     const c = content(
-      [unitDef('stunner', { skills: { basic: 'curse', passives: [] } }, { hp: 100_000, spd: 200 }), unitDef('d', noUlt, { hp: 100_000 })],
+      [unitDef('stunner', { skills: { basic: 'curse', passives: [] } }, { hp: 100_000, spd: 60 }), unitDef('d', noUlt, { hp: 100_000 })],
       [statusSkill({ id: 'stun', name: 'Оглушение', turns: 1, stun: true })],
     );
     const r = simulateBattle(c, ['stunner'], ['d'], 1);

@@ -43,14 +43,32 @@ export interface CombatConfig {
     retargetSeconds: number;
     /** «Радиус тела» по виду юнита: ближний боец встаёт дальше от крупной цели (босса). */
     bodyRadius?: Partial<Record<'hero' | 'monster' | 'boss', number>>;
+    /** Минимальное расстояние между точками стоянки бойцов (единиц поля): свободное место у цели ищется с этим зазором. */
+    minSeparation?: number;
+    /** Ближний навык по площади задевает только врагов не дальше этого радиуса (+ радиус тела) от цели сражения. */
+    meleeAoeRadius?: number;
   };
+  /** Полёт снаряда дальней атаки (с): урон приходит позже, по погибшей к тому времени цели снаряд пропадает. */
+  projectileSeconds?: number;
+  /** Длительность статусов: «ход» статуса = столько секунд боя (одинаково для всех, не зависит от SPD носителя). */
+  statusTurnSeconds?: number;
   slots: { count: number; front: number[]; back: number[] };
-  field: { width: number; slotsA: [number, number][] };
+  field: {
+    width: number;
+    slotsA: [number, number][];
+    /** Границы поля для точек ног: юниты не уходят за край экрана. */
+    bounds?: { minX: number; maxX: number; minY: number; maxY: number };
+  };
 }
 
 export interface ActiveStatus {
   def: StatusDef;
-  turnsLeft: number;
+  /** Время боя (с), когда статус спадёт: turns × statusTurnSeconds от наложения. */
+  until: number;
+  /** Урон за ход (dot): время следующего тика. */
+  nextTick: number;
+  /** Порядок наложения — тики dot в один момент идут в этом порядке. */
+  seq: number;
   /** ATK наложившего на момент наложения (для урона за ход). */
   sourceAtk: number;
   source: string;
@@ -117,7 +135,16 @@ export type BattleEvent = BaseEvent &
         name?: string;
         cooldown?: number;
       }
-    | { type: 'cast'; unit: string; skill: string; name: string; duration: number; action: 'start' | 'interrupt' }
+    | {
+        type: 'cast';
+        unit: string;
+        skill: string;
+        name: string;
+        duration: number;
+        action: 'start' | 'interrupt';
+        /** Только для interrupt: stun — каст сбит оглушением; noTarget — к концу каста не осталось целей (каст пропал). */
+        reason?: 'stun' | 'noTarget';
+      }
     | { type: 'ult'; unit: string; skill: string; name: string; targets: string[] }
     | { type: 'passive'; unit: string; skill: string; name: string }
     | {
@@ -133,7 +160,17 @@ export type BattleEvent = BaseEvent &
       }
     | { type: 'heal'; source: string; target: string; amount: number; hp: number }
     | { type: 'buff'; source: string; target: string; kind: 'shield'; amount: number; shield: number }
-    | { type: 'status'; source: string; target: string; status: string; name: string; turns: number; action: 'apply' | 'expire' }
+    | {
+        type: 'status';
+        source: string;
+        target: string;
+        status: string;
+        name: string;
+        turns: number;
+        action: 'apply' | 'expire';
+        /** Для apply: длительность в секундах боя (turns × statusTurnSeconds). */
+        seconds?: number;
+      }
     | { type: 'energy'; unit: string; energy: number }
     | { type: 'death'; unit: string; killer: string | null }
     | { type: 'end'; winner: Side; reason: 'wipe' | 'timeout' }

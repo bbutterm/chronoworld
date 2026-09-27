@@ -16,8 +16,10 @@
   "skills": {
     "defaultCooldown": 8
   },
+  "projectileSeconds": 0.3,
+  "statusTurnSeconds": 1,
   "movement": {
-    "meleeRange": 170,
+    "meleeRange": 130,
     "moveSpeed": 320,
     "dashSeconds": 0.25,
     "stackAngles": [
@@ -33,7 +35,9 @@
       "monster": 0,
       "boss": 90
     },
-    "crowdSquash": 0.8
+    "crowdSquash": 0.8,
+    "minSeparation": 70,
+    "meleeAoeRadius": 200
   },
   "slots": {
     "count": 5,
@@ -49,6 +53,12 @@
   },
   "field": {
     "width": 1080,
+    "bounds": {
+      "minX": 70,
+      "maxX": 1010,
+      "minY": 900,
+      "maxY": 1840
+    },
     "slotsA": [
       [
         400,

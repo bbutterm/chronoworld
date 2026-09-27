@@ -42,12 +42,12 @@ export const TargetSchema = z.object({
 export const StatusSchema = z.object({
   id,
   name: z.string(),
-  /** Длительность в собственных ходах носителя. */
+  /** Длительность в «ходах»: ход = combat.json statusTurnSeconds секунд боя (одинаково для любого носителя). */
   turns: z.number().int().positive(),
   stats: StatModsSchema.optional(),
   /** Пропуск хода. */
   stun: z.boolean().optional(),
-  /** Урон в начале каждого хода носителя: ATK наложившего × k. */
+  /** Урон раз в «ход» (statusTurnSeconds) после наложения: ATK наложившего × k. */
   dot: z.object({ k: z.number().positive() }).optional(),
 });
 

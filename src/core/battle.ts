@@ -3,6 +3,7 @@ import { calcDamage, calcHeal } from './formulas';
 import { Rng } from './rng';
 import { dist, selectTargets } from './targeting';
 import type {
+  ActiveStatus,
   BattleEvent,
   BattleResult,
   CombatConfig,
@@ -115,10 +116,15 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   }
 
   let t = 0;
+  let tickNo = 0;
   let winner: Side = 'B';
   let reason: 'wipe' | 'timeout' = 'timeout';
   /** Глубина срабатывания пассивок: пассивка не запускает другие пассивки. */
   let passiveDepth = 0;
+  /** Секунд боя в одном «ходе» статуса. */
+  const turnSeconds = cfg.statusTurnSeconds ?? 1;
+  let statusSeq = 0;
+  const stunned = (u: Unit) => u.statuses.some((s) => s.def.stun);
 
   const emit = (e: BattleEvent) => {
     if (keepLog) log.push(e);
@@ -189,14 +195,34 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       case 'status': {
         if (e.chance < 1 && rng.next() >= e.chance) return;
         // Тот же статус не складывается — обновляется длительность.
-        target.statuses = target.statuses.filter((s) => s.def.id !== e.status.id);
-        target.statuses.push({ def: e.status, turnsLeft: e.status.turns, sourceAtk: stat(u, 'atk'), source: u.uid });
-        emit({ t, type: 'status', source: u.uid, target: target.uid, status: e.status.id, name: e.status.name, turns: e.status.turns, action: 'apply' });
-        // Оглушение сбивает каст; навык не уходит в перезарядку.
-        if (e.status.stun && target.casting) {
-          const c = target.casting.skill;
-          target.casting = null;
-          emit({ t, type: 'cast', unit: target.uid, skill: c.id, name: c.name, duration: 0, action: 'interrupt' });
+        // Длительность — во времени боя (T2-11): «N ходов» = N × statusTurnSeconds у любого носителя,
+        // наложенный на себя бафф не теряет ход сразу.
+        // Обновление не сбивает ритм урона за ход (иначе частое обновление яда не давало бы ему тикать).
+        const prev = target.statuses.find((s) => s.def.id === e.status.id);
+        target.statuses = target.statuses.filter((s) => s !== prev);
+        const seconds = round2(e.status.turns * turnSeconds);
+        target.statuses.push({
+          def: e.status,
+          until: round2(t + seconds),
+          nextTick: prev ? prev.nextTick : round2(t + turnSeconds),
+          seq: prev ? prev.seq : statusSeq++,
+          sourceAtk: stat(u, 'atk'),
+          source: u.uid,
+        });
+        emit({ t, type: 'status', source: u.uid, target: target.uid, status: e.status.id, name: e.status.name, turns: e.status.turns, action: 'apply', seconds });
+        if (e.status.stun) {
+          // Оглушение сбивает каст; навык не уходит в перезарядку.
+          if (target.casting) {
+            const c = target.casting.skill;
+            target.casting = null;
+            emit({ t, type: 'cast', unit: target.uid, skill: c.id, name: c.name, duration: 0, action: 'interrupt', reason: 'stun' });
+          }
+          // Оглушённый останавливается там, где стоит (T2-06).
+          if (target.moving) {
+            target.moving = null;
+            const at: [number, number] = [round2(target.x), round2(target.y)];
+            emit({ t, type: 'move', unit: target.uid, from: at, to: at, duration: 0, kind: 'walk' });
+          }
         }
         return;
       }
@@ -205,10 +231,17 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         emit({ t, type: 'energy', unit: target.uid, energy: target.energy });
         return;
       case 'dash': {
-        // Встать вплотную к цели со стороны, откуда пришёл, и сражаться с ней.
-        const d = dist(u, target) || 1;
+        // Встать вплотную к цели со стороны, откуда пришёл, и сражаться с ней —
+        // на свободное место в пределах поля (не в другого бойца, T2-03/T2-04).
+        // Цель на бегу — к точке, где она остановится.
+        const tx = standX(target);
+        const ty = standY(target);
+        const d = Math.hypot(u.x - tx, u.y - ty);
         const r = cfg.movement.meleeRange * 0.8 + target.body;
-        const to: [number, number] = [round2(target.x + ((u.x - target.x) / d) * r), round2(target.y + ((u.y - target.y) / d) * r)];
+        const dirX = d > 0 ? (u.x - tx) / d : u.side === 'A' ? -1 : 1;
+        const dirY = d > 0 ? (u.y - ty) / d : 0;
+        const spot = findSpot(u, tx, ty, dirX, dirY, r, target, 0);
+        const to: [number, number] = [spot.x, spot.y];
         emit({ t, type: 'move', unit: u.uid, from: [round2(u.x), round2(u.y)], to, duration: cfg.movement.dashSeconds, kind: 'dash' });
         u.x = to[0];
         u.y = to[1];
@@ -232,12 +265,47 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     return hit;
   };
 
+  /**
+   * Снаряды в полёте (T2-10): дальняя атака наносит эффекты через projectileSeconds.
+   * К приземлению погибшие цели выбывают (снаряд пропадает); погиб стрелок — пропадает весь залп.
+   */
+  const flying: { land: number; seq: number; u: Unit; skill: SkillDef; targets: Unit[] }[] = [];
+  let flySeq = 0;
+  const projectileSeconds = cfg.projectileSeconds ?? 0;
+
+  /** Применить атаку сразу или отправить снаряд (дальняя атака по врагу, не рывок). */
+  const launch = (u: Unit, skill: SkillDef, targets: Unit[]) => {
+    const projectile =
+      projectileSeconds > 0 && skill.range === 'ranged' && skill.target.side === 'enemy' && !skill.effects.some((e) => e.type === 'dash');
+    if (!projectile) {
+      useSkill(u, skill, targets);
+      return;
+    }
+    flying.push({ land: round2(t + projectileSeconds), seq: flySeq++, u, skill, targets });
+  };
+
+  const landProjectiles = () => {
+    if (flying.length === 0 || !flying.some((f) => f.land <= t + 1e-9)) return;
+    const due = flying.filter((f) => f.land <= t + 1e-9).sort((x, y) => x.land - y.land || x.seq - y.seq);
+    if (due.length === 0) return;
+    for (const f of due) flying.splice(flying.indexOf(f), 1);
+    for (const f of due) {
+      if (!f.u.alive) continue;
+      useSkill(f.u, f.skill, f.targets.filter((x) => x.alive));
+    }
+  };
+
+  /** Навык только лечит: полное HP — не цель (T2-01: пустое лечение не тратит ход, перезарядку и не шумит в логе). */
+  const healOnly = (s: SkillDef) => s.effects.every((e) => e.type === 'heal');
+  const wounded = (list: Unit[]) => list.filter((x) => x.hp < x.maxHp);
+
   function trigger(u: Unit, when: NonNullable<SkillDef['trigger']>) {
     if (passiveDepth > 0 || !u.alive) return;
     for (const p of u.passives) {
       if (p.trigger !== when) continue;
       if (p.chance < 1 && rng.next() >= p.chance) continue;
-      const targets = selectTargets(u, p.target, allies(u), enemies(u), rng, cfg);
+      let targets = selectTargets(u, p.target, allies(u), enemies(u), rng, cfg);
+      if (healOnly(p)) targets = wounded(targets);
       if (targets.length === 0) continue;
       passiveDepth++;
       try {
@@ -277,6 +345,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const checkStuck = (u: Unit) => {
     const target = u.engage;
     if (!target?.alive) return;
+    // Оглушённый стоит не по своей воле — это не застревание.
+    if (stunned(u)) return;
     const d = dist(u, target);
     if (d <= reach(u, target) + 0.5) {
       stuck.delete(u);
@@ -297,14 +367,78 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     } else stuck.delete(u);
   };
 
+  const bounds = cfg.field.bounds;
+  const minSep = cfg.movement.minSeparation ?? 0;
+  const inBounds = (x: number, y: number) => !bounds || (x >= bounds.minX && x <= bounds.maxX && y >= bounds.minY && y <= bounds.maxY);
+  const clampX = (x: number) => (bounds ? Math.min(bounds.maxX, Math.max(bounds.minX, x)) : x);
+  const clampY = (y: number) => (bounds ? Math.min(bounds.maxY, Math.max(bounds.minY, y)) : y);
+
+  /** Где юнит будет стоять: точка назначения, если идёт, иначе текущая позиция. */
+  const standX = (o: Unit) => (o.moving ? o.moving.toX : o.x);
+  const standY = (o: Unit) => (o.moving ? o.moving.toY : o.y);
+
+  /** Расстояние от точки до ближайшего чужого места стоянки (кроме самого юнита и его цели). */
+  const clearance = (u: Unit, target: Unit | null, x: number, y: number) => {
+    let best = Infinity;
+    for (const o of all) {
+      if (o === u || o === target || !o.alive) continue;
+      best = Math.min(best, Math.hypot(standX(o) - x, standY(o) - y));
+    }
+    return best;
+  };
+
+  /**
+   * Место у цели (T2-02…T2-05): веер stackAngles вокруг направления (dirX, dirY) на расстоянии r,
+   * сжатый по вертикали (crowdSquash). Первым пробуется «своё» место (prefer — индекс в веере),
+   * дальше — остальные, затем та же раскладка с другой стороны цели.
+   * Берётся первая точка в пределах поля и не ближе minSeparation к другим бойцам;
+   * если таких нет — самая свободная в пределах поля; если и таких нет — прижатая к краю.
+   */
+  const findSpot = (u: Unit, ax: number, ay: number, dirX: number, dirY: number, r: number, target: Unit | null, prefer: number) => {
+    const angles = cfg.movement.stackAngles.length > 0 ? cfg.movement.stackAngles : [0];
+    const squash = cfg.movement.crowdSquash ?? 1;
+    const order = angles.map((_, i) => i);
+    const first = Math.max(0, prefer) % angles.length;
+    order.splice(order.indexOf(first), 1);
+    order.unshift(first);
+    const cands: { x: number; y: number }[] = [];
+    for (const side of [1, -1])
+      for (const i of order) {
+        const ang = (angles[i] * Math.PI) / 180;
+        const dx = side * dirX;
+        const dy = side * dirY;
+        cands.push({
+          x: round2(ax + (dx * Math.cos(ang) - dy * Math.sin(ang)) * r),
+          y: round2(ay + (dx * Math.sin(ang) + dy * Math.cos(ang)) * r * squash),
+        });
+      }
+    let fallback: { x: number; y: number } | null = null;
+    let fallbackGap = -1;
+    for (const c of cands) {
+      if (!inBounds(c.x, c.y)) continue;
+      const gap = clearance(u, target, c.x, c.y);
+      if (gap >= minSep) return c;
+      if (gap > fallbackGap) {
+        fallbackGap = gap;
+        fallback = c;
+      }
+    }
+    return fallback ?? { x: round2(clampX(cands[0].x)), y: round2(clampY(cands[0].y)) };
+  };
+
   const planMove = (u: Unit) => {
     const target = u.engage;
-    if (!target || u.moving || u.casting || dist(u, target) <= reach(u, target)) return;
+    if (!target || u.moving || u.casting || stunned(u)) return;
+    if (dist(u, target) <= reach(u, target)) {
+      // Проверка наложения — раз в 3 тика (0.3 с): незаметно глазу, дешевле для массовых прогонов.
+      if (tickNo % 3 === 0) separate(u, target);
+      return;
+    }
     // Цель уже бежит ко мне — жду на месте, иначе бойцы разминутся.
     if (target.moving && target.engage === u) return;
     // Два ближних бойца нацелены друг на друга — оба идут навстречу и встречаются посередине
     // (с учётом скорости), чтобы ни одна сторона не получала преимущества от порядка обработки.
-    if (target.engage === u && target.range !== Infinity) {
+    if (target.engage === u && target.range !== Infinity && !stunned(target) && !target.casting) {
       const d = dist(u, target);
       const travel = d - Math.min(reach(u, target), reach(target, u)) * 0.9;
       const share = u.moveSpeed / (u.moveSpeed + target.moveSpeed);
@@ -314,28 +448,50 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       startMove(target, target.x - dx * travel * (1 - share), target.y - dy * travel * (1 - share));
       return;
     }
-    const ax = target.moving ? target.moving.toX : target.x;
-    const ay = target.moving ? target.moving.toY : target.y;
-    // Несколько бойцов у одной цели встают веером со своей стороны (A — слева, B — справа),
-    // место в веере закреплено за бойцом по слоту — не пересекаются и не перебегают.
-    // Веер сжат по вертикали (crowdSquash): толпа у цели плотная, все точки остаются в досягаемости.
+    const ax = standX(target);
+    const ay = standY(target);
+    // Несколько бойцов у одной цели встают веером со своей стороны (A — слева, B — справа).
+    // Первым пробуется место по слоту бойца (не перебегают), занятое другим — берётся соседнее свободное;
+    // точка за краем поля — заходят с другой стороны цели.
     const crowd = allies(u)
       .filter((o) => o.alive && o.engage === target && o.range !== Infinity)
       .sort((x, y) => x.slot - y.slot)
       .indexOf(u);
-    const angles = cfg.movement.stackAngles;
-    const ang = ((angles[Math.max(0, crowd) % angles.length] ?? 0) * Math.PI) / 180;
-    const dx = u.side === 'A' ? -1 : 1;
-    const dy = 0;
-    const r = reach(u, target) * 0.9;
-    const toX = round2(ax + (dx * Math.cos(ang) - dy * Math.sin(ang)) * r);
-    const toY = round2(ay + (dx * Math.sin(ang) + dy * Math.cos(ang)) * r * (cfg.movement.crowdSquash ?? 1));
-    startMove(u, toX, toY);
+    const spot = findSpot(u, ax, ay, u.side === 'A' ? -1 : 1, 0, reach(u, target) * 0.9, target, crowd);
+    startMove(u, spot.x, spot.y);
+  };
+
+  /**
+   * Боец уже в досягаемости, но стоит в другом (T2-02/T2-03): тот, кто пришёл позже, отходит на свободное место у цели.
+   * Кто уступает: ближний против стоящего дальнего — ближний; двое ближних — больший uid (детерминированно).
+   */
+  const separate = (u: Unit, target: Unit) => {
+    if (minSep <= 0) return;
+    const lim = (minSep * 0.6) ** 2;
+    let tooClose = false;
+    for (const o of all) {
+      if (o === u || !o.alive) continue;
+      const dx = standX(o) - u.x;
+      const dy = standY(o) - u.y;
+      if (dx * dx + dy * dy >= lim) continue;
+      if (o.range === Infinity || o.moving || o.casting || stunned(o) || o.uid < u.uid) {
+        tooClose = true;
+        break;
+      }
+    }
+    if (!tooClose) return;
+    const d = dist(u, target) || 1;
+    const dirX = (u.x - target.x) / d;
+    const dirY = (u.y - target.y) / d;
+    const spot = findSpot(u, target.x, target.y, dirX, dirY, reach(u, target) * 0.9, target, 1);
+    // Цель тоже считается: можно стоять и «в ней» (после рывка на бегущую цель).
+    if (clearance(u, null, spot.x, spot.y) <= clearance(u, null, u.x, u.y) + 1) return;
+    startMove(u, spot.x, spot.y);
   };
 
   const startMove = (u: Unit, x: number, y: number) => {
-    const toX = round2(x);
-    const toY = round2(y);
+    const toX = round2(clampX(x));
+    const toY = round2(clampY(y));
     const len = Math.hypot(toX - u.x, toY - u.y);
     if (len < 1) return;
     u.moving = { toX, toY };
@@ -365,22 +521,24 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
 
   /** true — юнит походил; false — не может сейчас (бежит или не дошёл), ждёт с полной шкалой. */
   const act = (u: Unit): boolean => {
+    // Оглушённый теряет ход, где бы ни стоял (T2-06).
+    if (stunned(u)) {
+      emit({ t, type: 'turn', unit: u.uid });
+      trigger(u, 'turnStart');
+      if (u.alive) emit({ t, type: 'skip', unit: u.uid, reason: 'stun' });
+      return true;
+    }
     const useUlt = !!u.ult && u.energy >= cfg.energy.max && skillReady(u, u.ult);
-    // Готовый навык дальнего действия можно применить и не дойдя до цели.
-    const hasActive = !u.moving && u.actives.some((s) => (u.readyAt[s.id] ?? 0) <= t + 1e-9 && skillReady(u, s));
-    if (!useUlt && !hasActive && !skillReady(u, u.basic)) return false;
+    // Готовый навык дальнего действия можно применить и не дойдя до цели. Навык без целей (лечение при полном HP)
+    // не готов: ход на него не тратится (T2-01).
+    const active = useUlt || u.moving ? null : pickActive(u);
+    if (!useUlt && !active && !skillReady(u, u.basic)) return false;
 
     emit({ t, type: 'turn', unit: u.uid });
     trigger(u, 'turnStart');
-
-    // Статусы носителя: урон за ход и оглушение.
-    for (const s of [...u.statuses]) {
-      if (s.def.dot && u.alive) applyDamage(null, s.source, u, Math.max(1, Math.floor(s.sourceAtk * s.def.dot.k)), true);
-    }
     if (!u.alive) return true;
-    const stunned = u.statuses.some((s) => s.def.stun);
-    if (stunned) emit({ t, type: 'skip', unit: u.uid, reason: 'stun' });
-    else if (!useUlt && tryActive(u)) {
+
+    if (active && startActive(u, active.skill, active.targets)) {
       // активный навык применён или начат каст
     } else if (useUlt && u.ult) {
       u.energy = 0;
@@ -392,20 +550,36 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     } else if (skillReady(u, u.basic)) {
       basicAction(u, u.basic);
     }
-    tickStatuses(u);
     return true;
   };
 
-  /** Цели активного навыка: ближний бьёт цель сражения (если дошёл), остальные — по селектору. Пусто — навык сейчас бесполезен. */
+  /**
+   * Цели активного навыка: ближний бьёт цель сражения (если дошёл), остальные — по селектору. Пусто — навык сейчас бесполезен.
+   * Навык только с лечением не выбирает целей с полным HP.
+   */
   const activeTargets = (u: Unit, skill: SkillDef): Unit[] => {
+    const heal = healOnly(skill);
     if (skill.range === 'melee') {
       const e = u.engage;
       if (!e?.alive || dist(u, e) > reach(u, e) + 0.5) return [];
-      // Одиночный удар — по цели сражения; удар по площади (pick all, count > 1) — по селектору, когда дошёл.
+      // Одиночный удар — по цели сражения; удар по площади (pick all, count > 1) — по селектору среди врагов
+      // рядом с целью сражения (T2-07: не через всё поле), цель сражения — всегда среди задетых.
       const aoe = skill.target.pick === 'all' || skill.target.count > 1;
-      return aoe ? selectTargets(u, skill.target, allies(u), enemies(u), rng, cfg) : [e];
+      if (!aoe || skill.target.side !== 'enemy') {
+        const out = aoe ? selectTargets(u, skill.target, allies(u), enemies(u), rng, cfg) : [e];
+        return heal ? wounded(out) : out;
+      }
+      const radius = cfg.movement.meleeAoeRadius ?? Infinity;
+      const near = enemies(u).filter((x) => x === e || dist(x, e) <= radius + x.body);
+      let out = selectTargets(u, skill.target, allies(u), near, rng, cfg);
+      if (!out.includes(e)) {
+        out = [e, ...out];
+        if (skill.target.pick !== 'all') out = out.slice(0, skill.target.count);
+      }
+      return out;
     }
-    return selectTargets(u, skill.target, allies(u), enemies(u), rng, cfg);
+    const out = selectTargets(u, skill.target, allies(u), enemies(u), rng, cfg);
+    return heal ? wounded(out) : out;
   };
 
   const cooldownOf = (skill: SkillDef) => skill.cooldown ?? cfg.skills?.defaultCooldown ?? 8;
@@ -417,25 +591,36 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     addEnergy(u, cfg.energy.perBasicAction);
     const kind = skill.effects.some((e) => e.type === 'heal') ? 'heal' : skill.range === 'melee' ? 'melee' : 'ranged';
     emit({ t, type: 'attack', unit: u.uid, skill: skill.id, targets: targets.map((x) => x.uid), kind, energy: u.energy, name: skill.name, cooldown: cd });
-    useSkill(u, skill, targets);
+    launch(u, skill, targets);
   };
 
-  /** Готовый активный навык с наибольшим приоритетом: применяет или начинает каст. false — готовых нет. */
-  const tryActive = (u: Unit): boolean => {
+  /** Готовый активный навык с наибольшим приоритетом, у которого есть цели. null — готовых нет. */
+  const pickActive = (u: Unit): { skill: SkillDef; targets: Unit[] } | null => {
     for (const skill of u.actives) {
       if ((u.readyAt[skill.id] ?? 0) > t + 1e-9) continue;
+      if (!skillReady(u, skill)) continue;
       const targets = activeTargets(u, skill);
-      if (targets.length === 0) continue;
-      if (skill.castTime > 0) {
-        u.casting = { skill, until: round2(t + skill.castTime) };
-        emit({ t, type: 'cast', unit: u.uid, skill: skill.id, name: skill.name, duration: skill.castTime, action: 'start' });
-      } else fireActive(u, skill, targets);
-      return true;
+      if (targets.length > 0) return { skill, targets };
     }
-    return false;
+    return null;
   };
 
-  /** Каст закончился: цели выбираются в конце (кто-то мог умереть). Целей нет — каст пропал, перезарядка не идёт. */
+  /** Применяет выбранный навык или начинает каст. Цели проверяются заново (начало хода могло их изменить). */
+  const startActive = (u: Unit, skill: SkillDef, picked: Unit[]): boolean => {
+    let targets = picked.filter((x) => x.alive);
+    if (healOnly(skill)) targets = wounded(targets);
+    if (targets.length === 0) return false;
+    if (skill.castTime > 0) {
+      u.casting = { skill, until: round2(t + skill.castTime) };
+      emit({ t, type: 'cast', unit: u.uid, skill: skill.id, name: skill.name, duration: skill.castTime, action: 'start' });
+    } else fireActive(u, skill, targets);
+    return true;
+  };
+
+  /**
+   * Каст закончился: цели выбираются в конце (кто-то мог умереть). Целей нет — каст пропал (reason noTarget, T2-09),
+   * перезарядка не идёт.
+   */
   const finishCast = (u: Unit) => {
     const c = u.casting;
     if (!c || t + 1e-9 < c.until) return;
@@ -443,7 +628,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     u.gauge = 0;
     const targets = activeTargets(u, c.skill);
     if (targets.length === 0) {
-      emit({ t, type: 'cast', unit: u.uid, skill: c.skill.id, name: c.skill.name, duration: 0, action: 'interrupt' });
+      emit({ t, type: 'cast', unit: u.uid, skill: c.skill.id, name: c.skill.name, duration: 0, action: 'interrupt', reason: 'noTarget' });
       return;
     }
     fireActive(u, c.skill, targets);
@@ -460,13 +645,36 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     addEnergy(u, cfg.energy.perBasicAction);
     const kind = skill.effects.some((e) => e.type === 'heal') ? 'heal' : skill.range === 'melee' ? 'melee' : 'ranged';
     emit({ t, type: 'attack', unit: u.uid, skill: skill.id, targets: targets.map((x) => x.uid), kind, energy: u.energy });
-    useSkill(u, skill, targets);
+    launch(u, skill, targets);
   };
 
-  const tickStatuses = (u: Unit) => {
-    for (const s of [...u.statuses]) {
-      s.turnsLeft--;
-      if (s.turnsLeft <= 0) {
+  /**
+   * Статусы идут по времени боя (T2-11), а не по ходам носителя: урон за ход тикает раз в statusTurnSeconds,
+   * статус спадает в until — и у бегущего, и у оглушённого (T2-06). Тики в один момент — в порядке наложения.
+   */
+  const tickStatuses = () => {
+    let due: { u: Unit; s: ActiveStatus }[] | null = null;
+    let expiring = false;
+    for (const u of all) {
+      if (!u.alive || u.statuses.length === 0) continue;
+      for (const s of u.statuses) {
+        if (s.def.dot && s.nextTick <= t + 1e-9 && s.nextTick <= s.until + 1e-9) (due ??= []).push({ u, s });
+        if (s.until <= t + 1e-9) expiring = true;
+      }
+    }
+    if (due) {
+      due.sort((x, y) => x.s.nextTick - y.s.nextTick || x.s.seq - y.s.seq);
+      for (const { u, s } of due) {
+        if (!u.alive || !u.statuses.includes(s)) continue;
+        s.nextTick = round2(s.nextTick + turnSeconds);
+        applyDamage(null, s.source, u, Math.max(1, Math.floor(s.sourceAtk * s.def.dot!.k)), true);
+      }
+    }
+    if (!expiring) return;
+    for (const u of all) {
+      if (!u.alive) continue;
+      for (const s of [...u.statuses]) {
+        if (s.until > t + 1e-9) continue;
         u.statuses = u.statuses.filter((x) => x !== s);
         emit({ t, type: 'status', source: s.source, target: u.uid, status: s.def.id, name: s.def.name, turns: 0, action: 'expire' });
       }
@@ -480,8 +688,11 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     for (const u of all) trigger(u, 'battleStart');
     for (let tick = 1; tick <= maxTicks; tick++) {
       t = Math.round(tick * cfg.tickSeconds * 1000) / 1000;
+      tickNo = tick;
 
-      for (const u of all) if (u.alive) stepMove(u);
+      landProjectiles();
+      tickStatuses();
+      for (const u of all) if (u.alive && !stunned(u)) stepMove(u);
       const melee = all.filter((u) => u.alive && u.range !== Infinity);
       for (const u of melee) pickEngage(u);
       for (const u of melee) checkStuck(u);
