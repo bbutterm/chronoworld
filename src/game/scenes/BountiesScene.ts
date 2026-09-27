@@ -28,6 +28,7 @@ import { commit, now, session, today } from '../session';
 import { portraitKey } from '../sprites';
 import { button, ellipsize, emptyState, panel, pressable, progressBar, ScrollArea, text, toast } from '../ui';
 import { C, FS, TINT, TOUCH } from '../theme';
+import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 
 const LIST_TOP = CONTENT_TOP + 120;
 const ACTIVE_H = 170;
@@ -67,6 +68,7 @@ export class BountiesScene extends Phaser.Scene {
 
     this.area = new ScrollArea(this, LIST_TOP, CONTENT_BOTTOM + 10);
     this.timers = [];
+    const rows: Phaser.GameObjects.GameObject[][] = [];
     let y = 0;
     if (!st.active.length && st.board.length) {
       this.area.add(emptyState(this, GAME_W / 2, y + 50, 'Сейчас никто не на поручении — выберите поручение ниже.', 980).setFontSize(FS.small));
@@ -75,7 +77,8 @@ export class BountiesScene extends Phaser.Scene {
     if (st.active.length) {
       y = this.header(y, `В работе · ${st.active.length}`);
       for (const b of st.active) {
-        this.activeRow(b, y + ACTIVE_H / 2);
+        const yy = y;
+        rows.push(collect(this.area.content, () => this.activeRow(b, yy + ACTIVE_H / 2)));
         y += ACTIVE_H;
       }
       y += 20;
@@ -85,12 +88,15 @@ export class BountiesScene extends Phaser.Scene {
       this.area.add(emptyState(this, GAME_W / 2, y + 90, 'Все поручения розданы.\nНовая доска — завтра или по кнопке «Обновить доску».'));
       y += 200;
     }
+    const busy = new Set(st.busyHeroes);
     for (const b of st.board) {
-      this.boardRow(b, y + BOARD_H / 2, new Set(st.busyHeroes));
+      const yy = y;
+      rows.push(collect(this.area.content, () => this.boardRow(b, yy + BOARD_H / 2, busy)));
       y += BOARD_H;
     }
     this.area.setContentHeight(y + 20);
     if (data.scroll) this.area.offset = data.scroll;
+    staggerIn(this, 'Bounties', rows);
 
     // Отсчёт — раз в секунду, а не каждый кадр. Поручение завершилось — перерисовать (появится «Забрать»).
     this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });
@@ -127,9 +133,9 @@ export class BountiesScene extends Phaser.Scene {
     this.heroFaces(b.heroIds, 100, y + 20, 64);
     a.add(text(this, 100 + b.heroIds.length * 72, y + 20, metaRewardsText(b.rewards), FS.small, b.done ? C.inkMuted : C.gold, { fontStyle: 'bold' }).setOrigin(0, 0.5));
     if (b.done) {
-      const btn = button(this, 880, y, 250, 110, 'ui_btn_primary', 'Забрать', a.tap(() => this.claim(b)), FS.h3);
+      const btn = button(this, 880, y, 250, 110, 'ui_btn_primary', 'Забрать', a.tap(() => this.claim(b, { x: 880, y: this.area.content.y + y })), FS.h3);
       a.add(btn.container);
-      this.tweens.add({ targets: btn.container, scale: 1.05, yoyo: true, repeat: -1, duration: 700 });
+      pulse(this, btn.container);
       return;
     }
     const label = a.add(text(this, 880, y - 45, countdownText(b.remainingMs), FS.h3, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }));
@@ -170,7 +176,8 @@ export class BountiesScene extends Phaser.Scene {
     const need = `${durationText(b.durationMinutes)} · героев: ${b.heroCount}${b.role ? ` · нужен ${(ROLE_NAMES[b.role] ?? b.role).toLowerCase()}` : ''}`;
     a.add(ellipsize(text(this, 260, y - 8, need, FS.small, C.text, { stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), 1000 - 260));
     a.add(ellipsize(text(this, 70, y + 45, `Награда: ${metaRewardsText(b.rewards, ' каждому')}`, FS.small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), 940));
-    a.add(button(this, 895, y - 40, 200, TOUCH, 'ui_btn_primary', 'Выбрать', a.tap(() => this.pick(b, busy)), FS.body).container);
+    // Золотая кнопка на экране — только «Забрать» (готово к получению); «Выбрать» — вторичная, карточка нажимается целиком.
+    a.add(button(this, 895, y - 40, 200, TOUCH, 'ui_btn_secondary', 'Выбрать', a.tap(() => this.pick(b, busy)), FS.body).container);
   }
 
   // ---------- выбор героев ----------
@@ -263,13 +270,15 @@ export class BountiesScene extends Phaser.Scene {
 
   // ---------- действия ----------
 
-  private claim(b: ActiveBountyView): void {
+  private claim(b: ActiveBountyView, at: Point): void {
     try {
+      const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = actClaimBounty(session.save, today(), b.id, now(), GAME);
       commit(r.save);
+      queueRewardFly('Bounties', at, before);
       const lines = [`«${bountyName(b, GAME)}»: ${metaRewardsText(r.rewards, ' каждому')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       this.scene.restart({ scroll: this.area.offset });
-      this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, lines.join('\n'), C.success, 4500));
+      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4500)));
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }

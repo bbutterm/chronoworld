@@ -97,3 +97,34 @@ export function setFpsCap(cap: FpsCap): void {
 
 /** Следующее значение по кругу (60 → 30 → 60). */
 export const nextFpsCap = (): FpsCap => FPS_CAPS[(FPS_CAPS.indexOf(fps.cap) + 1) % FPS_CAPS.length];
+
+/**
+ * «Уменьшить анимацию» (настройка, не прогресс — localStorage): без полёта наград, отсчёта чисел, пульса
+ * и «выезда» списков (juice.ts). Нет сохранённого выбора — как в системе (prefers-reduced-motion).
+ */
+export const MOTION_KEY = 'chronoworld.reduceMotion';
+
+function loadReducedMotion(): boolean {
+  try {
+    const v = globalThis.localStorage?.getItem(MOTION_KEY);
+    if (v === '1' || v === '0') return v === '1';
+  } catch {
+    // Хранилище недоступно — берём системную настройку.
+  }
+  try {
+    return !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
+
+export const motion = { reduced: loadReducedMotion() };
+
+export function setReducedMotion(on: boolean): void {
+  motion.reduced = on;
+  try {
+    globalThis.localStorage?.setItem(MOTION_KEY, on ? '1' : '0');
+  } catch {
+    // Не запомнили — не страшно.
+  }
+}

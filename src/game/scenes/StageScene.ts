@@ -12,6 +12,7 @@ import { startStageBattle } from '../dialogue';
 import { squadDefs, type ResultData } from './BattleScene';
 import { fitName, SLOT_W, slotX, SquadEditor } from '../squadEditor';
 import { C, FS, TOUCH } from '../theme';
+import { bump, countUp } from '../juice';
 
 /**
  * Ряд «Авто» / «Пресеты отряда» (S): поднят так, чтобы между ним и «В бой» влезла плашка подсказки
@@ -26,6 +27,8 @@ export class StageScene extends Phaser.Scene {
   private fightBtns: ReturnType<typeof button>[] = [];
   private powerText!: Phaser.GameObjects.Text;
   private enemyPower = 0;
+  /** Показанная мощь отряда (null — ещё не показана). */
+  private shownPower: number | null = null;
   private tip!: Phaser.GameObjects.Text;
   private rearrangeBtn!: ReturnType<typeof button>;
 
@@ -35,6 +38,7 @@ export class StageScene extends Phaser.Scene {
 
   create(data: { stageId: string }): void {
     this.stageId = data.stageId;
+    this.shownPower = null;
     const stage = getStage(GAME, this.stageId);
     // «Назад» — в главу этого этапа, а не в текущую главу игрока.
     const chapter = Math.max(0, CONTENT.chapters.findIndex((c) => c.id === stage.chapter));
@@ -63,7 +67,7 @@ export class StageScene extends Phaser.Scene {
       this,
       GAME_W / 2,
       730,
-      `${first ? 'Награда' : `Повтор (×${k})`}:  золото ${Math.floor(stage.rewards.gold * k)} · опыт ${Math.floor(stage.rewards.jobExp * k)} каждому`,
+      `${first ? 'Награда' : `Повтор (×${k})`}:  золото ${formatNumber(Math.floor(stage.rewards.gold * k))} · опыт ${formatNumber(Math.floor(stage.rewards.jobExp * k))} каждому`,
       FS.body,
       C.ink,
       { fontStyle: 'bold' },
@@ -77,7 +81,8 @@ export class StageScene extends Phaser.Scene {
     text(this, GAME_W / 2, 868, 'Ваш отряд', FS.h3, C.success, { fontStyle: 'bold' });
     this.tip = text(this, GAME_W / 2, 910, '', FS.caption, C.muted, { wordWrap: { width: 980 } });
     // T1-20: стрелок или лекарь во фронте — предупреждение и «Переставить» (тот же состав, по ролям).
-    this.rearrangeBtn = button(this, GAME_W - 175, 910, 290, 84, 'ui_btn_primary', 'Переставить', () => this.rearrange(), FS.small);
+    // Вторичная: главная кнопка экрана одна — «В бой»; предупреждение рядом выделено цветом.
+    this.rearrangeBtn = button(this, GAME_W - 175, 910, 290, 84, 'ui_btn_secondary', 'Переставить', () => this.rearrange(), FS.small);
     this.rearrangeBtn.container.setName('rearrangeBtn');
     this.editor = new SquadEditor(this, 1100, 1365, () => this.onSquadChange());
     button(this, GAME_W / 2 - 250, SQUAD_BTN_Y, 440, TOUCH, 'ui_btn_secondary', 'Авто', () => this.auto(), FS.h3);
@@ -111,9 +116,12 @@ export class StageScene extends Phaser.Scene {
     else this.tip.setText('Выберите слот, затем героя. Повторное нажатие на слот — убрать.').setColor(C.muted).setX(GAME_W / 2).setOrigin(0.5);
     ellipsize(this.tip, misplaced.length ? GAME_W - 380 : 1000);
     const mine = squadPower(save, GAME);
-    this.powerText
-      .setText(`Мощь: ваш отряд ${formatNumber(mine)}  ·  противник ${formatNumber(this.enemyPower)}`)
-      .setColor(POWER_COLORS[powerTone(mine, this.enemyPower)]);
+    // Мощь отсчитывается от прежней до новой, строка подпрыгивает (первый показ — сразу число).
+    const prev = this.shownPower;
+    this.shownPower = mine;
+    this.powerText.setColor(POWER_COLORS[powerTone(mine, this.enemyPower)]);
+    countUp(this, this.powerText, prev ?? mine, mine, (n) => `Мощь: ваш отряд ${formatNumber(n)}  ·  противник ${formatNumber(this.enemyPower)}`, { duration: 400 });
+    if (prev !== null && prev !== mine) bump(this, this.powerText, 1.08);
   }
 
   /** T1-20: тот же состав по ролям — танки и ближний бой вперёд, стрелки и лекари в тыл. */

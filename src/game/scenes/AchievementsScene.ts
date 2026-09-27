@@ -5,8 +5,10 @@ import { claimableAchievements, describeEvents, formatNumber, metaRewardsText, s
 import { GAME_W } from '../layout';
 import { CONTENT_BOTTOM, CONTENT_TOP, screen, type NavTab } from '../screen';
 import { commit, session, today } from '../session';
-import { button, ellipsize, emptyState, icon, panel, progressBar, ScrollArea, text, toast } from '../ui';
+import { button, ellipsize, emptyState, panel, progressBar, ScrollArea, text, toast } from '../ui';
+import { skinIcon } from '../skin';
 import { C, FS, TINT } from '../theme';
+import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 
 const ROW_H = 190;
 
@@ -39,9 +41,10 @@ export class AchievementsScene extends Phaser.Scene {
     this.area = new ScrollArea(this, CONTENT_TOP + 90, CONTENT_BOTTOM + 10);
     if (!views.length) emptyState(this, GAME_W / 2, CONTENT_TOP + 300, 'Достижений пока нет.');
     const list = sortAchievements(views);
-    list.forEach((a, i) => this.row(a, ROW_H * (i + 0.5)));
+    const rows = list.map((a, i) => collect(this.area.content, () => this.row(a, ROW_H * (i + 0.5))));
     this.area.setContentHeight(ROW_H * list.length + 20);
     if (data.scroll) this.area.offset = data.scroll;
+    staggerIn(this, 'Achievements', rows);
   }
 
   private row(a: AchievementView, y: number): void {
@@ -54,7 +57,7 @@ export class AchievementsScene extends Phaser.Scene {
     const stroke = { stroke: dark || grey ? C.none : C.stroke, strokeThickness: dark || grey ? 0 : 4 };
     s.add(ellipsize(text(this, 70, y - 55, a.name, FS.h3, main, { fontStyle: 'bold', ...stroke }).setOrigin(0, 0.5), 700));
     s.add(text(this, 70, y - 10, a.description, FS.small, grey ? C.disabled : dark ? C.inkMuted : C.muted, { align: 'left', wordWrap: { width: 680 } }).setOrigin(0, 0.5));
-    s.add(progressBar(this, 70, y + 45, 440, 30, a.progress / a.target, grey ? 0x6a6a70 : a.done ? TINT.gold : TINT.success));
+    s.add(progressBar(this, 70, y + 45, 440, 30, a.progress / a.target, grey ? 0x6a6a70 : a.done ? TINT.gold : TINT.success, { key: `ach:${a.id}` }));
     // На жёлтой (выполнено) полосе — тёмная подпись без обводки, на зелёной/серой — белая с обводкой.
     const onGold = a.done && !a.claimed;
     s.add(text(this, 290, y + 45, `${formatNumber(a.progress)} / ${formatNumber(a.target)}`, FS.caption, onGold ? C.titleStroke : C.text, { fontStyle: 'bold', stroke: onGold ? C.none : C.stroke, strokeThickness: onGold ? 0 : 4 }));
@@ -62,22 +65,24 @@ export class AchievementsScene extends Phaser.Scene {
 
     const bx = 900;
     if (a.claimed) {
-      s.add(icon(this, bx - 55, y - 40, 'iconCheck_bronze', 48)).setAlpha(0.7);
-      s.add(text(this, bx + 25, y - 40, 'Получено', FS.small, C.disabled, { fontStyle: 'bold' }));
+      const got = s.add(text(this, bx + 25, y - 40, 'Получено', FS.small, C.disabled, { fontStyle: 'bold' }));
+      s.add(this.add.image(got.x - got.width / 2 - 30, y - 40, skinIcon('check')).setDisplaySize(44, 44).setTint(0x9fe0a6).setAlpha(0.7));
     } else if (a.done) {
-      const b = button(this, bx, y - 30, 230, 100, 'ui_btn_primary', 'Забрать', s.tap(() => this.claim(a)), FS.h3);
+      const b = button(this, bx, y - 30, 230, 100, 'ui_btn_primary', 'Забрать', s.tap(() => this.claim(a, { x: bx, y: this.area.content.y + y - 30 })), FS.h3);
       s.add(b.container);
-      this.tweens.add({ targets: b.container, scale: 1.05, yoyo: true, repeat: -1, duration: 700 });
+      pulse(this, b.container);
     }
   }
 
-  private claim(a: AchievementView): void {
+  private claim(a: AchievementView, at: Point): void {
     try {
+      const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = actClaimAchievement(session.save, today(), a.id, GAME);
       commit(r.save);
+      queueRewardFly('Achievements', at, before);
       const lines = [`«${a.name}»: ${metaRewardsText(r.rewards, ' каждому')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       this.scene.restart({ from: this.from, scroll: this.area.offset } satisfies AchievementsData);
-      this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, lines.join('\n'), C.success, 4000));
+      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4000)));
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }

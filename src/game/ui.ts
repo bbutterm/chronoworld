@@ -5,6 +5,7 @@ import { FONT, GAME_H, GAME_W, HEADER_H } from './layout';
 import { worldPoint } from './viewport';
 import { C, FS, TINT, TOUCH } from './theme';
 import { HINT_GEOM, placeCallout, type HintSide, type Rect } from './hintLayout';
+import { barFrom, juiceOn } from './juice';
 
 /**
  * Событие «отменить нажатие» (на scene.input — его слушатели снимаются при остановке сцены):
@@ -336,10 +337,19 @@ export function progressBar(
   h: number,
   pct: number,
   color = 0x6fd06f,
+  /** key — полоса анимируется до нового значения (juice.ts barFrom); delay — задержка, мс. */
+  opts: { key?: string; delay?: number } = {},
 ): Phaser.GameObjects.Container {
   const p = Phaser.Math.Clamp(pct, 0, 1);
   const back = scene.add.rectangle(0, 0, w, h, 0x1a120a).setOrigin(0, 0.5).setStrokeStyle(3, 0x000000, 0.6);
   const fill = scene.add.rectangle(2, 0, Math.max(0, (w - 4) * p), h - 6, color).setOrigin(0, 0.5);
+  // Полоса с ключом доезжает до нового значения от прошлого показанного (при первом показе за сессию — от нуля).
+  const from = opts.key ? barFrom(opts.key, p) : null;
+  if (from !== null) {
+    const full = Math.max(0, w - 4);
+    fill.width = full * Phaser.Math.Clamp(from, 0, 1);
+    scene.tweens.add({ targets: fill, width: full * p, delay: opts.delay ?? 120, duration: 450, ease: 'Cubic.easeOut' });
+  }
   return scene.add.container(x, y, [back, fill]);
 }
 
@@ -361,8 +371,12 @@ export function hintPointer(
 ): Phaser.GameObjects.Container {
   const w = GAME_W;
   const h = GAME_H;
-  const ring = scene.add.rectangle(x, y, target.w + 24, target.h + 24).setStrokeStyle(8, TINT.gold, 1);
-  scene.tweens.add({ targets: ring, scaleX: 1 + 40 / target.w, scaleY: 1 + 40 / target.h, alpha: 0.15, duration: 800, repeat: -1 });
+  // T3-13: рамка (и её пульс) не выходит за поле и не уходит под нижний край: у края цель обводится плотнее.
+  const room = Math.max(0, Math.min(x - target.w / 2, w - x - target.w / 2, y - target.h / 2 - HEADER_H, h - y - target.h / 2));
+  const pad = Math.min(24, Math.max(8, room * 2 - 6));
+  const grow = Math.max(0, Math.min(40, room * 2 - pad - 8));
+  const ring = scene.add.rectangle(x, y, target.w + pad, target.h + pad).setStrokeStyle(8, TINT.gold, 1);
+  if (juiceOn()) scene.tweens.add({ targets: ring, scaleX: 1 + grow / (target.w + pad), scaleY: 1 + grow / (target.h + pad), alpha: grow > 0 ? 0.15 : 0.35, yoyo: grow <= 0, duration: 800, repeat: -1 });
   const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
   const box = { w: Math.min(w - 60, t.width + 60), h: t.height + 22 };
   const plan = placeCallout({ x, y, ...target }, box, {
@@ -381,7 +395,7 @@ export function hintPointer(
       ? scene.add.triangle(x, ay, 0, 0, g.arrowW, 0, g.arrowW / 2, g.arrowH, TINT.gold)
       : scene.add.triangle(x, ay, 0, g.arrowH, g.arrowW, g.arrowH, g.arrowW / 2, 0, TINT.gold);
   arrow.setStrokeStyle(4, TINT.header);
-  scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, repeat: -1, duration: 450, ease: 'Sine.easeInOut' });
+  if (juiceOn()) scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, repeat: -1, duration: 450, ease: 'Sine.easeInOut' });
   const b = plan.box;
   const bg = scene.add.rectangle(b.x + b.w / 2, b.y + b.h / 2, b.w, b.h, 0x000000, 0.85).setStrokeStyle(4, TINT.gold);
   t.setPosition(b.x + b.w / 2, b.y + b.h / 2);

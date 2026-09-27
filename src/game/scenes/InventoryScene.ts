@@ -6,7 +6,9 @@ import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, screen } from '../screen';
 import { commit, session } from '../session';
 import { button, ellipsize, ScrollArea, text, toast } from '../ui';
-import { C, FS, TOUCH } from '../theme';
+import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
+import { itemCell } from '../itemIcons';
+import { staggerIn } from '../juice';
 import { markHint } from '../hints';
 
 /**
@@ -23,6 +25,13 @@ export interface InventoryData {
 }
 
 const ROW_H = 160;
+/** Ячейка иконки предмета слева в строке и начало текста справа от неё. */
+const CELL = 112;
+const CELL_X = 38 + CELL / 2;
+const TEXT_X = CELL_X + CELL / 2 + 20;
+/** Ширина текста строки: до кнопки справа (её левый край ≈ 755) и во всю строку, если кнопки нет. */
+const TEXT_W = 740 - TEXT_X;
+const TEXT_W_FULL = 1020 - TEXT_X;
 /** Сколько строк сверх видимых держать построенными выше и ниже окна прокрутки. */
 const ROW_BUFFER = 3;
 
@@ -75,16 +84,18 @@ export class InventoryScene extends Phaser.Scene {
     const top = CONTENT_TOP;
 
     card(this, GAME_W / 2, top + 100, 1040, 200, true);
-    text(this, 70, top + 45, 'Надето сейчас', FS.small, C.inkMuted).setOrigin(0, 0.5);
+    text(this, TEXT_X, top + 45, 'Надето сейчас', FS.small, C.inkMuted).setOrigin(0, 0.5);
     if (cur) {
-      ellipsize(text(this, 70, top + 100, cur.def.name, FS.h2, RARITY_COLORS[cur.def.rarity], { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5), 660);
-      ellipsize(text(this, 70, top + 155, `${RARITY_NAMES[cur.def.rarity]} · ${itemStatsText(cur.def.stats)}`, FS.small, C.ink).setOrigin(0, 0.5), 660);
+      itemCell(this, CELL_X, top + 110, CELL, slot, Phaser.Display.Color.HexStringToColor(RARITY_COLORS[cur.def.rarity]).color, cur.instance.itemId);
+      ellipsize(text(this, TEXT_X, top + 100, cur.def.name, FS.h2, RARITY_COLORS[cur.def.rarity], { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5), TEXT_W);
+      ellipsize(text(this, TEXT_X, top + 155, `${RARITY_NAMES[cur.def.rarity]} · ${itemStatsText(cur.def.stats)}`, FS.small, C.ink).setOrigin(0, 0.5), TEXT_W);
       button(this, 880, top + 100, 250, 110, 'k:buttonLong_beige', 'Снять', () => {
         commit(actUnequip(session.save, cur.instance.id));
         this.backToHero(hero.id, `${hero.name}: снят предмет «${cur.def.name}»`);
       }, FS.h3);
     } else {
-      text(this, 70, top + 110, 'Слот пуст', FS.h3, C.inkMuted, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+      for (const o of itemCell(this, CELL_X, top + 110, CELL, slot, TINT.frame)) (o as Phaser.GameObjects.Image).setAlpha(0.35);
+      text(this, TEXT_X, top + 110, 'Слот пуст', FS.h3, C.inkMuted, { fontStyle: 'bold' }).setOrigin(0, 0.5);
     }
 
     const rows = stackRows(inventoryRows(save, GAME, slot).filter((r) => r.instance.id !== cur?.instance.id));
@@ -168,7 +179,7 @@ export class InventoryScene extends Phaser.Scene {
       return;
     }
     this.list(rows, top + 175, (row, y, a) => {
-      this.itemRow(row, y, row.wornBy ? `надет: ${row.wornBy}` : 'свободен', row.wornBy ? C.success : C.dim, row.instance.equippedBy ? 670 : 930);
+      this.itemRow(row, y, row.wornBy ? `надет: ${row.wornBy}` : 'свободен', row.wornBy ? C.success : C.dim, row.instance.equippedBy ? TEXT_W : TEXT_W_FULL);
       if (row.instance.equippedBy) {
         const heroId = row.instance.equippedBy;
         a.add(button(this, 880, y, 250, 100, 'k:buttonLong_beige', 'К герою', a.tap(() => this.scene.start('Hero', { heroId })), FS.body).container);
@@ -207,6 +218,8 @@ export class InventoryScene extends Phaser.Scene {
       }
     };
     sync();
+    // Первые видимые строки «выезжают» при первом открытии инвентаря за сессию (дальше строятся без анимации).
+    staggerIn(this, 'Inventory', [...built.values()]);
     this.events.on(Phaser.Scenes.Events.UPDATE, sync);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off(Phaser.Scenes.Events.UPDATE, sync));
   }
@@ -214,23 +227,25 @@ export class InventoryScene extends Phaser.Scene {
   private area!: ScrollArea;
 
   /** Строка предмета: полоса редкости, имя цветом редкости, слот и статы, пояснение справа снизу. */
-  private itemRow(row: StackRow, y: number, note: string, noteColor: string, textW = 670): void {
+  private itemRow(row: StackRow, y: number, note: string, noteColor: string, textW = TEXT_W): void {
     const a = this.area;
     a.add(card(this, GAME_W / 2, y, 1040, ROW_H - 12));
     const def = row.def;
     const color = def ? RARITY_COLORS[def.rarity] : C.disabled;
-    a.add(this.add.rectangle(48, y, 12, ROW_H - 44, Phaser.Display.Color.HexStringToColor(color).color));
+    // T3-27: ячейка с иконкой слота цветом редкости вместо цветной полоски; стопка — «×N» в углу ячейки.
+    for (const o of itemCell(this, CELL_X, y, CELL, def?.slot ?? null, Phaser.Display.Color.HexStringToColor(color).color, row.instance.itemId)) a.add(o);
+    if (row.count > 1) a.add(text(this, CELL_X + CELL / 2 - 6, y + CELL / 2 - 4, `×${row.count}`, FS.caption, C.text, { fontStyle: 'bold', ...OUTLINE }).setOrigin(1, 1));
     const name = def?.name ?? `${row.instance.itemId} (нет в игре)`;
-    a.add(ellipsize(text(this, 75, y - 44, row.count > 1 ? `${name} ×${row.count}` : name, FS.h3, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), textW));
+    a.add(ellipsize(text(this, TEXT_X, y - 44, name, FS.h3, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), textW));
     a.add(
       ellipsize(
-        text(this, 75, y, def ? `${RARITY_NAMES[def.rarity]} · ${SLOT_NAMES[def.slot]} · ${itemStatsText(def.stats)}` : 'статов не даёт', FS.small, C.text, {
+        text(this, TEXT_X, y, def ? `${RARITY_NAMES[def.rarity]} · ${SLOT_NAMES[def.slot]} · ${itemStatsText(def.stats)}` : 'статов не даёт', FS.small, C.text, {
           stroke: C.stroke,
           strokeThickness: 4,
         }).setOrigin(0, 0.5),
         textW,
       ),
     );
-    a.add(ellipsize(text(this, 75, y + 44, note, FS.small, noteColor, { stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), textW));
+    a.add(ellipsize(text(this, TEXT_X, y + 44, note, FS.small, noteColor, { stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), textW));
   }
 }
