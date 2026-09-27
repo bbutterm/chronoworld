@@ -7,7 +7,8 @@ import { GAME_W } from '../layout';
 import { card, CONTENT_TOP, gemIcon, portrait, screen, unitTint } from '../screen';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
-import { button, icon, panel, pressable, text } from '../ui';
+import { button, panel, pressable, text } from '../ui';
+import { SKIN, SKIN_TINT, skinIcon } from '../skin';
 import { C, FS } from '../theme';
 
 const SLOT_W = 190;
@@ -29,7 +30,7 @@ export class TowerScene extends Phaser.Scene {
     if (!st.unlocked) {
       const stage = GAME.content.stages.find((s) => s.id === st.unlockAfterStage);
       card(this, GAME_W / 2, top + 300, 1000, 500);
-      icon(this, GAME_W / 2, top + 160, 'iconCross_grey', 110);
+      this.add.image(GAME_W / 2, top + 160, skinIcon('lock')).setDisplaySize(120, 120).setTint(SKIN_TINT.gold);
       text(this, GAME_W / 2, top + 300, 'Башня пока закрыта', FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 });
       text(this, GAME_W / 2, top + 380, stage ? `Пройдите этап ${stage.globalIndex + 1} «${stage.name}» кампании` : 'Пройдите кампанию дальше', FS.h3, C.text, {
         wordWrap: { width: 880 },
@@ -115,11 +116,16 @@ export class TowerScene extends Phaser.Scene {
       const boss = n % GAME.tower.bossEvery === 0;
       const done = n <= floor;
       const next = n === floor + 1;
-      const color = done ? 0x4a4a4a : boss ? 0x8a2a22 : next ? 0x2f6b9a : 0x5a4028;
+      // Ступени в цветах скина: тёмная бронза, следующий этаж — золотая рамка, босс — красная.
+      const fill = done ? 0x16140f : boss ? 0x3a1712 : next ? 0x3a2f1c : 0x2b2721;
+      const border = next ? SKIN_TINT.gold : boss ? 0x8a3a2e : SKIN_TINT.bronze;
       const w = 300 - i * 6;
-      this.add.rectangle(x, y, w, h, color).setStrokeStyle(next ? 6 : 3, next ? 0xffd84a : 0x2a1a0a);
-      text(this, x, y, `${n}${boss ? ' · босс' : ''}`, FS.body, done ? C.dim : C.text, { fontStyle: 'bold' });
-      if (done) icon(this, x + w / 2 - 30, y, 'iconCheck_bronze', 36);
+      const g = this.add.graphics();
+      g.fillStyle(fill, 1).fillRoundedRect(x - w / 2, y - h / 2, w, h, 14);
+      g.lineStyle(next ? 5 : 3, border, 1).strokeRoundedRect(x - w / 2, y - h / 2, w, h, 14);
+      const label = next ? `${n} · следующий` : `${n}${boss ? ' · босс' : ''}`;
+      text(this, x, y, label, next ? FS.small : FS.body, done ? C.dim : next ? SKIN.goldLight : boss ? C.danger : SKIN.cream, { fontStyle: 'bold' });
+      if (done) this.add.image(x + w / 2 - 34, y, skinIcon('check')).setDisplaySize(34, 34).setTint(0x9fe0a6);
     });
   }
 

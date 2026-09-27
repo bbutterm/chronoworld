@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Прохождение главы 1 через интерфейс, как новый игрок: новая игра → этапы 1–10 (Кампания → этап → «В бой» →
-// «Пропустить»; поражение — «Повторить»), на джобе 10 — смена профессии каждому герою через «Герои» → карточка →
-// «Сменить профессию». Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
+// «Пропустить»; поражение — «Повторить»), на джобе 10 — смена профессии каждому герою кнопкой «Профессия ›» на итогах
+// (после выбора — показ новой профессии и возврат на итоги; следующий герой сам не открывается). Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
 //   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке)
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -142,22 +142,38 @@ try {
     const ready = s.heroes.filter((h) => h.job === 'novice' && h.jobLevel >= 10);
     if (ready.length) {
       await shot(`result${stage}-jobchange`);
-      // Смена профессии через интерфейс: кнопка на итогах, дальше экран выбора по каждому готовому герою подряд.
-      await clickText('Result', 'Профессия ›');
-      for (const h of ready) {
+      // Смена профессии через интерфейс: «Профессия ›» на итогах → выбор → показ новой профессии → снова итоги.
+      // Следующий готовый герой сам не открывается — на итогах снова кнопка «Профессия ›».
+      for (const [k, h] of ready.entries()) {
+        await clickText('Result', 'Профессия ›');
         await waitScene('JobChange');
         const i = s.heroes.findIndex((x) => x.id === h.id);
         await clickText('JobChange', FIRST_JOBS[i]);
         await sleep(300);
-        if (i === 0) await shot('jobchange');
+        if (k === 0) await shot('jobchange');
         await clickText('JobChange', 'Выбрать');
         await sleep(300);
         await clickText('JobChange', 'Выбрать', true);
-        await sleep(600);
+        await page.waitForFunction(() => window.__game.scene.getScene('JobChange').revealing === true, null, { timeout: 5000 });
+        await sleep(900);
+        if (k === 0) await shot('jobchange-reveal');
+        await clickGame(540, 1500);
+        await waitScene('Result');
         const job = (await save()).heroes[i].job;
         log(`${h.name} → ${job}`);
         if (job === 'novice') throw new Error(`${h.name}: профессия не сменилась`);
+        const more = k < ready.length - 1;
+        const hasBtn = (await findText('Result', 'Профессия ›')) !== null;
+        if (hasBtn !== more) throw new Error(`итоги после смены профессии: кнопка «Профессия ›» ${more ? 'пропала' : 'осталась'}`);
       }
+      await shot('result-after-jobchange');
+      // Экран выбора для героя, который уже сменил профессию, недоступен: сразу возврат туда, откуда пришли.
+      await page.evaluate((id) => window.__game.scene.getScene('Result').scene.start('JobChange', { heroId: id, from: { to: 'Campaign' } }), ready[0].id);
+      await waitScene('Campaign');
+      if (await page.evaluate(() => window.__game.scene.isActive('JobChange'))) throw new Error('экран выбора профессии открылся повторно');
+      await clickText('Campaign', 'ГЕРОИ');
+      await waitScene('Heroes');
+      await clickGame(540, 430);
       await waitScene('Hero');
       await shot('hero-after-change');
     } else {

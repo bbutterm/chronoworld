@@ -11,6 +11,20 @@ import { HINT_GEOM, placeCallout, type HintSide, type Rect } from './hintLayout'
  */
 const CANCEL_PRESS = 'ui-cancel-press';
 
+/** Повторное срабатывание одной и той же кнопки/карточки раньше этого срока — случайный двойной тап, игнорируем. */
+const REPEAT_MS = 300;
+
+/** Защита от двойного тапа: true — можно срабатывать (и запоминаем время). */
+function debounce(): () => boolean {
+  let last = -Infinity;
+  return () => {
+    const t = performance.now();
+    if (t - last < REPEAT_MS) return false;
+    last = t;
+    return true;
+  };
+}
+
 /** Kenney UI нарисован мелко: 9-slice строим в меньшем размере и увеличиваем, чтобы рамки были заметны. */
 const UI_SCALE = 2.5;
 
@@ -74,12 +88,15 @@ export function button(
   });
   // armed: палец опустился именно на эту кнопку; отпускание без него (или после протяжки списка) — не клик.
   let armed = false;
+  const ready = debounce();
   const setPressed = (p: boolean) => {
     armed = p;
     if (!bg.scene) return;
     const f = tex(scene, textureId, p);
     bg.setTexture(f.key, f.frame);
     t.setY(p ? 2 : -4);
+    // Нажатая кнопка чуть «проседает» — видно, что касание принято.
+    container.setScale(p ? 0.97 : 1);
   };
   const release = () => {
     if (armed) setPressed(false);
@@ -89,7 +106,7 @@ export function button(
   container.on('pointerup', () => {
     if (!armed) return;
     setPressed(false);
-    onClick();
+    if (ready()) onClick();
   });
   // Отпустили вне кнопки или список начали тянуть — кнопка не должна остаться нажатой.
   scene.input.on('pointerup', release);
@@ -235,6 +252,7 @@ export function pressable<T extends Tappable>(scene: Phaser.Scene, target: T, w:
   const parent = target.parentContainer;
   if (parent) parent.add(shade);
   let armed = false;
+  const ready = debounce();
   const set = (p: boolean) => {
     armed = p;
     if (!shade.scene) return;
@@ -252,7 +270,7 @@ export function pressable<T extends Tappable>(scene: Phaser.Scene, target: T, w:
   target.on('pointerup', () => {
     if (!armed) return;
     set(false);
-    onTap();
+    if (ready()) onTap();
   });
   scene.input.on('pointerup', release);
   scene.input.on(CANCEL_PRESS, release);

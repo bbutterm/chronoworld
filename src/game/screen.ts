@@ -2,9 +2,9 @@ import Phaser from 'phaser';
 import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { session, takeWarnings } from './session';
 import { GAME } from './content';
-import { lazyPortrait } from './sprites';
+import { anim, lazyPortrait, portraitKey, spriteView, whenSprites } from './sprites';
 import { formatNumber, jobChangeReadyCount } from './flow';
-import { button, ellipsize, icon, panel, text, toast } from './ui';
+import { button, ellipsize, emptyState, icon, panel, text, toast } from './ui';
 import { hasArt } from './assets';
 import { C, FS, SP, TINT } from './theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
@@ -162,7 +162,27 @@ export function confirm(scene: Phaser.Scene, question: string, yes: string, onYe
     onYes();
   });
   const cancel = button(scene, GAME_W / 2 + 210, GAME_H / 2 + 150, 380, 120, 'k:buttonLong_beige', 'Отмена', close);
+  // Касание мимо окна — «Отмена» (окно само касания ловит, чтобы не закрываться от нажатия по нему).
+  box.setInteractive();
+  shade.on('pointerup', close);
   layer.add([shade, box, q, ok.container, cancel.container]);
+  popIn(scene, layer, shade);
+}
+
+/** Появление модального окна: затемнение проявляется, окно чуть «вырастает» из центра экрана. */
+export function popIn(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, shade?: Phaser.GameObjects.GameObject): void {
+  const rest = layer.list.filter((o) => o !== shade) as unknown as (Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Alpha)[];
+  if (shade) scene.tweens.add({ targets: shade, alpha: { from: 0, to: 1 }, duration: 140 });
+  // Масштаб контейнера — от центра экрана: сдвигаем начало координат в центр.
+  const inner = scene.add.container(GAME_W / 2, GAME_H / 2);
+  for (const o of rest) {
+    layer.remove(o as unknown as Phaser.GameObjects.GameObject);
+    o.setPosition(o.x - GAME_W / 2, o.y - GAME_H / 2);
+    inner.add(o as unknown as Phaser.GameObjects.GameObject);
+  }
+  layer.add(inner);
+  inner.setScale(0.92).setAlpha(0);
+  scene.tweens.add({ targets: inner, scale: 1, alpha: 1, duration: 160, ease: 'Back.easeOut' });
 }
 
 /**
@@ -179,4 +199,54 @@ export function portrait(scene: Phaser.Scene, x: number, y: number, key: string,
 /** Цвет перекраски юнита (visual.tint) для setTint; нет — белый (без перекраски). */
 export function unitTint(visual: { tint?: string } | undefined): number {
   return visual?.tint ? Phaser.Display.Color.HexStringToColor(visual.tint).color : 0xffffff;
+}
+
+/**
+ * Фигура героя/юнита в стойке (анимация idle), ноги в (x, feetY), высота фигуры не больше height.
+ * Лист грузится по требованию; пока его нет (или арта нет вовсе) — портрет. onReady получает готовый объект.
+ */
+export function unitFigure(
+  scene: Phaser.Scene,
+  id: string,
+  x: number,
+  feetY: number,
+  height: number,
+  opts: { maxScale?: number; onReady?: (o: Phaser.GameObjects.Sprite | Phaser.GameObjects.Image) => void } = {},
+): void {
+  const onReady = opts.onReady;
+  whenSprites(scene, [id], () => {
+    if (!scene.sys.displayList) return;
+    const view = spriteView(scene, id);
+    if (!view.art) {
+      onReady?.(portrait(scene, x, feetY - height / 2, portraitKey(id), height));
+      return;
+    }
+    const spr = scene.add.sprite(x, feetY, view.key, 0).setOrigin(view.originX, view.originY);
+    // Пиксель-арт: по умолчанию не растягиваем (как в бою), крупный показ — до maxScale.
+    spr.setScale(Math.min(opts.maxScale ?? 1, height / Math.max(1, view.height)) * (view.size / spr.frame.height));
+    const idle = anim(view, id, 'idle');
+    if (idle) spr.play({ key: idle, repeat: -1 });
+    onReady?.(spr);
+  });
+}
+
+/**
+ * Пустой список: карточка с иконкой, подсказкой «что сделать» и (если есть) кнопкой этого действия —
+ * у игрока всегда есть очевидный следующий шаг, а не голый текст поверх фона.
+ */
+export function emptyCard(
+  scene: Phaser.Scene,
+  y: number,
+  message: string,
+  iconName: SkinIcon,
+  cta?: { label: string; onClick: () => void },
+): void {
+  const msg = emptyState(scene, GAME_W / 2, 0, message, 880);
+  const h = 120 + msg.height + 60 + (cta ? 150 : 0);
+  const top = y - h / 2;
+  card(scene, GAME_W / 2, y, 1000, h);
+  scene.children.bringToTop(msg);
+  scene.add.image(GAME_W / 2, top + 80, skinIcon(iconName)).setDisplaySize(80, 80).setTint(SKIN_TINT.gold).setAlpha(0.9);
+  msg.setY(top + 140 + msg.height / 2);
+  if (cta) button(scene, GAME_W / 2, top + h - 95, 560, 120, 'ui_btn_primary', cta.label, cta.onClick, FS.h2);
 }

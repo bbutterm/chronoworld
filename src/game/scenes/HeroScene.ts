@@ -2,13 +2,13 @@ import Phaser from 'phaser';
 import { hintDone } from '../hints';
 import { availableJobChanges, COMBAT, expToNext, heroGearStats, heroPower, heroSkills, heroSlots, SLOTS, statsAt, type HeroState, type Slot } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { formatNumber, heroSprite, itemStatsText, lockedJobSkills, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
+import { formatNumber, heroSprite, otherJobChangeReady, itemStatsText, lockedJobSkills, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
 import { GAME_W } from '../layout';
-import { card, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
+import { card, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
 import { session } from '../session';
-import { anim, portraitKey, spriteView, whenSprites } from '../sprites';
 import { button, ellipsize, hintPointer, panel, pressable, progressBar, ScrollArea, text } from '../ui';
 import { C, FS, TINT } from '../theme';
+import type { JobChangeData } from './JobChangeScene';
 
 const SKILL_ROW_H = 124;
 
@@ -42,7 +42,8 @@ export class HeroScene extends Phaser.Scene {
     const need = expToNext(hero.jobLevel, GAME.progression, CONTENT.jobs[hero.job]?.tier);
     text(this, x, top + 180, `Джоб ${hero.jobLevel} / ${max}`, FS.h3, C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5);
     progressBar(this, x, top + 235, 600, 34, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success);
-    text(this, x + 300, top + 235, atMax ? 'максимальный уровень' : `опыт ${hero.jobExp} / ${need}`, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4 });
+    // На золотой (полной) полосе — тёмная подпись: светлая с обводкой там не читалась.
+    text(this, x + 300, top + 235, atMax ? 'максимальный уровень' : `опыт ${hero.jobExp} / ${need}`, FS.caption, atMax ? '#2a1c08' : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 });
     const power = text(this, 1010, top + 60, `Мощь ${formatNumber(heroPower(hero, GAME, session.save))}`, FS.h3, C.gold, {
       fontStyle: 'bold',
       stroke: C.stroke,
@@ -82,10 +83,12 @@ export class HeroScene extends Phaser.Scene {
     for (const l of lockedJobSkills(hero.job, hero.jobLevel, GAME)) rows.push({ id: l.skill, kind: '', locked: l.jobLevel });
 
     const changes = availableJobChanges(hero, GAME);
+    // Этот герой уже сменил профессию, а другой готов — кнопка к нему (сами его экран выбора не открываем).
+    const other = changes.length ? undefined : otherJobChangeReady(session.save, GAME, hero.id);
     const nextTier = (job?.tier ?? 2) + 1;
     const listTop = gy + 120;
-    // Внизу — кнопка смены профессии или подсказка, когда она откроется.
-    const listBottom = CONTENT_BOTTOM - (changes.length ? 150 : nextTier <= 2 ? 70 : 0);
+    // Внизу — кнопка смены профессии (своей или другого героя) или подсказка, когда она откроется.
+    const listBottom = CONTENT_BOTTOM - (changes.length || other ? 150 : nextTier <= 2 ? 70 : 0);
     // Навыков может быть больше, чем влезает: список прокручивается пальцем внутри карточки.
     const listH = Math.min(listBottom - listTop, SKILL_ROW_H * rows.length + 20);
     card(this, GAME_W / 2, listTop + listH / 2, 1040, listH);
@@ -93,7 +96,13 @@ export class HeroScene extends Phaser.Scene {
     rows.forEach((r, i) => this.skillRow(r, SKILL_ROW_H * (i + 0.5), SKILL_ROW_H));
     this.skills.setContentHeight(SKILL_ROW_H * rows.length);
 
-    if (!changes.length && nextTier <= 2) {
+    if (other) {
+      const more = button(this, GAME_W / 2, CONTENT_BOTTOM - 65, 860, 130, 'ui_btn_primary', `Ещё герой готов к профессии: ${other.name} ›`, () =>
+        this.scene.start('JobChange', { heroId: other.id, from: { to: 'Hero', data: { heroId: hero.id } } } satisfies JobChangeData),
+      FS.h3);
+      more.container.setName('moreJobChangeBtn');
+      ellipsize(more.label, 820);
+    } else if (!changes.length && nextTier <= 2) {
       const need = GAME.progression.jobChange.tierLevel[String(nextTier) as '1' | '2'];
       text(this, GAME_W / 2, listTop + listH + 40, `Смена профессии откроется на джобе ${need}`, FS.body, C.title, {
         stroke: C.stroke,
@@ -102,7 +111,7 @@ export class HeroScene extends Phaser.Scene {
     }
     if (changes.length) {
       button(this, GAME_W / 2, CONTENT_BOTTOM - 65, 700, 130, 'ui_btn_primary', 'Сменить профессию', () =>
-        this.scene.start('JobChange', { heroId: hero.id }),
+        this.scene.start('JobChange', { heroId: hero.id, from: { to: 'Hero', data: { heroId: hero.id } } } satisfies JobChangeData),
       );
       // R: подсказка первой смены профессии.
       if (!hintDone('job_change')) hintPointer(this, GAME_W / 2, CONTENT_BOTTOM - 65, 'Смена профессии доступна — выберите новую', 'above', { w: 700, h: 130 });
@@ -147,23 +156,9 @@ export class HeroScene extends Phaser.Scene {
     }
   }
 
-  /** U: лист героя грузится при первом открытии карточки (и остаётся в кэше листов для боя). */
+  /** U: лист героя грузится при первом открытии карточки (и остаётся в кэше листов для боя). Фигура ~250 ед., как в бою. */
   private heroSprite(hero: HeroState, x: number, feetY: number): void {
-    const id = heroSprite(hero, GAME);
-    whenSprites(this, [id], () => this.drawHero(id, x, feetY));
-  }
-
-  private drawHero(id: string, x: number, feetY: number): void {
-    const view = spriteView(this, id);
-    if (!view.art) {
-      portrait(this, x, feetY - 120, portraitKey(id), 240);
-      return;
-    }
-    const spr = this.add.sprite(x, feetY, view.key, 0).setOrigin(view.originX, view.originY);
-    // Фигура ~240 px над ногами, как в бою, но в рамке карточки.
-    spr.setScale(Math.min(1, 250 / Math.max(1, view.height)) * (view.size / spr.frame.height));
-    const idle = anim(view, id, 'idle');
-    if (idle) spr.play({ key: idle, repeat: -1 });
+    unitFigure(this, heroSprite(hero, GAME), x, feetY, 250);
   }
 }
 

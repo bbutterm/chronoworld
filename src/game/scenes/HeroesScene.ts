@@ -1,13 +1,14 @@
 import Phaser from 'phaser';
 import { achievementStatus, availableJobChanges, expToNext, heroEquipment, heroPower, squadPower, withGear, type HeroState } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { claimableAchievements, formatNumber, heroSprite, ROLE_NAMES } from '../flow';
+import { claimableAchievements, firstJobChangeReady, formatNumber, heroSprite, jobChangeReadyCount, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
 import { badge, card, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
-import { button, ellipsize, emptyState, icon, pressable, progressBar, ScrollArea, text } from '../ui';
+import { button, ellipsize, emptyState, pressable, progressBar, ScrollArea, text } from '../ui';
 import { C, FS, TINT } from '../theme';
+import type { JobChangeData } from './JobChangeScene';
 
 /** Список героев: профессия, джоб-уровень, полоса опыта; нажатие — карточка героя. */
 export class HeroesScene extends Phaser.Scene {
@@ -29,7 +30,18 @@ export class HeroesScene extends Phaser.Scene {
     button(this, 810, barY, 330, 100, 'ui_btn_secondary', 'Достижения', () => this.scene.start('Achievements', { from: 'Heroes' }), FS.h3);
     badge(this, 810 + 150, barY - 42, claimableAchievements(achievementStatus(save, GAME)));
 
-    const listTop = CONTENT_TOP + 120;
+    // Кто-то готов сменить профессию — главное действие экрана наверху, а не только значок на карточке.
+    const ready = firstJobChangeReady(save, GAME);
+    let listTop = CONTENT_TOP + 120;
+    if (ready) {
+      const b = button(this, GAME_W / 2, listTop + 50, 1000, 110, 'ui_btn_primary', `Сменить профессию: ${ready.name} ›`, () =>
+        this.scene.start('JobChange', { heroId: ready.id, from: { to: 'Heroes' } } satisfies JobChangeData),
+      FS.h3);
+      b.container.setName('jobChangeBtn');
+      ellipsize(b.label, 940);
+      badge(this, GAME_W / 2 + 480, listTop + 4, jobChangeReadyCount(save, GAME));
+      listTop += 130;
+    }
     const gap = 20;
     this.area = new ScrollArea(this, listTop, CONTENT_BOTTOM + 10);
     if (!heroes.length) {
@@ -69,12 +81,21 @@ export class HeroesScene extends Phaser.Scene {
     const atMax = hero.jobLevel >= max;
     const need = expToNext(hero.jobLevel, GAME.progression, CONTENT.jobs[hero.job]?.tier);
     a.add(text(this, x, y + 45, `Джоб ${hero.jobLevel} / ${max}`, FS.body, C.text).setOrigin(0, 0.5));
-    a.add(progressBar(this, x + 230, y + 45, 400, 32, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success));
-    a.add(text(this, x + 430, y + 45, atMax ? 'макс.' : `${hero.jobExp} / ${need}`, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4 }));
+    const canChange = availableJobChanges(hero, GAME).length > 0;
+    // Есть плашка «Профессия!» — полоса короче, чтобы плашка встала справа от неё.
+    const barW = canChange ? 250 : 400;
+    a.add(progressBar(this, x + 230, y + 45, barW, 32, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success));
+    a.add(text(this, x + 230 + barW / 2, y + 45, atMax ? 'макс.' : `${hero.jobExp} / ${need}`, FS.caption, atMax ? '#2a1c08' : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 }));
 
-    if (availableJobChanges(hero, GAME).length > 0) {
-      a.add(icon(this, 960, y + 45, 'iconCircle_blue', 40).setTint(TINT.gold));
-      a.add(text(this, 930, y + 90, 'Смена профессии!', FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(1, 0.5));
+    if (canChange) {
+      // Золотая плашка «Профессия!» справа от полосы: видно, у кого смена профессии (нажатие — карточка героя).
+      const tag = text(this, 0, 0, 'Профессия!', FS.caption, '#2a1c08', { fontStyle: 'bold' });
+      const tw = tag.width + 36;
+      const pill = this.add.graphics();
+      pill.fillStyle(TINT.gold, 1).fillRoundedRect(-tw / 2, -22, tw, 44, 22).lineStyle(3, 0x6b4a1a, 1).strokeRoundedRect(-tw / 2, -22, tw, 44, 22);
+      const c = this.add.container(990 - tw / 2, y + 45, [pill, tag]);
+      a.add(c);
+      this.tweens.add({ targets: c, scale: 1.08, yoyo: true, repeat: -1, duration: 600, ease: 'Sine.easeInOut' });
     }
   }
 }
