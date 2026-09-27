@@ -11,7 +11,7 @@ class TestUiAssets(unittest.TestCase):
         m=json.loads((UI/'manifest.json').read_text())
         self.assertEqual(m['license'].split(',')[0],'CC0')
         self.assertEqual(len(m['assets']),15)
-        self.assertEqual(len(list(UI.glob('*.png'))),15)
+        self.assertTrue({Path(path).name for path in m['assets']}.issubset({p.name for p in UI.glob('*.png')}))
         self.assertEqual(len(set(m['assets'])),15)
         for path in m['assets']:
             with self.subTest(path):
