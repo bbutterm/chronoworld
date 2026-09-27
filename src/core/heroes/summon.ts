@@ -195,5 +195,8 @@ export function summon(
     results.push(result);
   }
   if (count === 10) next.summon = { ...next.summon, firstTenDone: true };
+  // Порядок ключей как в схеме — serialize(deserialize(x)) === x.
+  const { seq, total, sincePurple, firstTenDone, freeDay, freeUsed, welcomeGiven, discovered, ...rest } = next.summon;
+  next.summon = { seq, total, sincePurple, firstTenDone, ...(freeDay !== undefined ? { freeDay } : {}), ...(freeUsed !== undefined ? { freeUsed } : {}), welcomeGiven, discovered, ...rest };
   return { save: next, results, events };
 }

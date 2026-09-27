@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { heroName } from '../heroes/card';
+import { heroName, heroRole } from '../heroes/card';
 import { migrateV3toV4 } from '../heroes/migrate';
 import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/roster';
 import type { GameContext } from '../progression/types';
@@ -32,10 +32,10 @@ export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY
     summon: emptySummon(),
     seenScenes: [],
   };
-  for (const templateId of ctx.progression.heroes.start) {
-    const r = addHeroCard(save, templateId, ctx.content.heroes[templateId]?.baseRarity ?? 'green');
-    save = { ...r.save, squad: placeInSquad(r.save.squad, r.hero, r.save, ctx) };
-  }
+  for (const templateId of ctx.progression.heroes.start) save = addHeroCard(save, templateId, ctx.content.heroes[templateId]?.baseRarity ?? 'green').save;
+  // В отряд: передние — с первого слота, задние — с последнего, лекари — в самый тыл (как авто-расстановка).
+  const healersFirst = [...save.heroes].sort((a, b) => Number(heroRole(b, ctx) === 'healer') - Number(heroRole(a, ctx) === 'healer'));
+  for (const hero of healersFirst) save = { ...save, squad: placeInSquad(save.squad, hero, save, ctx) };
   return save;
 }
 

@@ -7,19 +7,21 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
-  actChangeJob,
+  actAscend,
   actClaimOffline,
   actClimbTower,
   actEquip,
+  actLevelUp,
   actPlayStage,
   actSkipStage,
+  actSummon,
   actUnequip,
   actUseFastRewards,
   addItems,
-  addJobExp,
   applyPreset,
+  autoFodder,
   autoFormation,
-  availableJobChanges,
+  maxLevelOf,
   claimAchievement,
   claimActivity,
   claimBounty,
@@ -35,6 +37,7 @@ import {
   Rng,
   savePreset,
   serialize,
+  setSquad,
   startBounty,
   stageStatus,
   syncAchievementCounters,
@@ -47,7 +50,6 @@ const ctx = loadFullContext();
 const STEPS = Number(process.env.FUZZ_STEPS ?? '') || 100;
 const DAY_MS = 86_400_000;
 const T0 = Date.UTC(2026, 0, 1, 12);
-const JOB_IDS = Object.keys(ctx.content.jobs).sort();
 const ITEM_IDS = Object.keys(ctx.equipment.items).sort();
 
 const pick = <T>(rng: Rng, arr: readonly T[]): T => arr[rng.int(arr.length)];
@@ -62,8 +64,8 @@ interface World {
 }
 
 /**
- * Стартовое состояние: новая игра, либо «ветеран» (герои прокачаны addJobExp, пройдена часть кампании,
- * есть гемы и предметы) — чтобы фазз доходил до смены профессий, башни и экипировки за 100 шагов.
+ * Стартовое состояние: новая игра, либо «ветеран» (карточки прокачаны, пройдена часть кампании, есть гемы, свитки,
+ * осколки, опыт в пуле и предметы) — чтобы фазз доходил до вознесения, Таверны, башни и экипировки за 100 шагов.
  */
 function start(rng: Rng): World {
   const dayIdx = rng.int(30);
@@ -72,10 +74,11 @@ function start(rng: Rng): World {
     const cleared = ctx.content.stages.slice(0, rng.int(ctx.content.stages.length + 1)).map((s) => s.id);
     save = {
       ...save,
-      heroes: save.heroes.map((h) => addJobExp(h, rng.int(200_000), ctx).hero),
+      heroes: save.heroes.map((h) => ({ ...h, level: 1 + rng.int(maxLevelOf(ctx, h.rarity)) })),
       campaign: { cleared },
-      currency: { gems: rng.int(500) },
-      resources: { gold: rng.int(100_000) },
+      currency: { gems: rng.int(500), scrolls: rng.int(15) },
+      resources: { gold: rng.int(100_000), heroExp: rng.int(200_000) },
+      shards: Object.fromEntries(ctx.progression.heroes.start.map((t) => [t, rng.int(60)])),
     };
     save = addItems(save, Array.from({ length: rng.int(12) }, () => pick(rng, ITEM_IDS))).save;
     save = syncAchievementCounters(save);
@@ -127,14 +130,23 @@ const OPS: [string, number, Op][] = [
     },
   ],
   ['fastRewards', 5, (w, _rng, day) => actUseFastRewards(w.save, day, ctx).save],
+  ['levelUp', 6, (w, rng, day) => actLevelUp(w.save, day, heroId(rng, w.save), ctx, 1 + rng.int(12)).save],
   [
-    'changeJob',
-    5,
+    'ascend',
+    3,
     (w, rng, day) => {
-      const hero = pick(rng, w.save.heroes);
-      const avail = availableJobChanges(hero, ctx);
-      const job = avail.length && rng.next() < 0.9 ? pick(rng, avail) : pick(rng, JOB_IDS);
-      return actChangeJob(w.save, day, rng.next() < 0.03 ? 'ghost' : hero.id, job, ctx).save;
+      const id = heroId(rng, w.save);
+      // Обычно — подобранный корм, иногда — случайные карточки (проверка отказов).
+      const fodder = rng.next() < 0.8 ? (autoFodder(w.save, id, ctx) ?? []) : heroGroup(rng, w.save, rng.int(4));
+      return actAscend(w.save, day, id, fodder, ctx).save;
+    },
+  ],
+  [
+    'summon',
+    4,
+    (w, rng, day) => {
+      const pay = pick(rng, ['gems', 'scroll', 'free'] as const);
+      return actSummon(w.save, day, rng.next() < 0.5 ? 1 : rng.next() < 0.9 ? 10 : 3, pay, ctx).save;
     },
   ],
   [
@@ -211,7 +223,8 @@ const OPS: [string, number, Op][] = [
       const from = id === null ? -1 : squad.indexOf(id);
       if (from >= 0) squad[from] = squad[slot];
       squad[slot] = id;
-      return { ...w.save, squad };
+      // Проверка ядра (одна копия карточки в отряде) — как в редакторе отряда.
+      return setSquad(w.save, squad);
     },
   ],
   [
@@ -282,7 +295,7 @@ describe('Q: фазз прогрессии и сохранения', () => {
     expect(failures, failures.join('\n')).toEqual([]);
     if (process.env.FUZZ_SEED === undefined) {
       // Фазз действительно доходит до ключевых действий, а не упирается в ошибки правил.
-      for (const name of ['playStage', 'skipStage', 'claimOffline', 'changeJob', 'equip', 'tower', 'startBounty', 'claimBounty', 'claimQuest', 'savePreset']) {
+      for (const name of ['playStage', 'skipStage', 'claimOffline', 'levelUp', 'ascend', 'summon', 'equip', 'tower', 'startBounty', 'claimBounty', 'claimQuest', 'savePreset']) {
         expect(stats.ok[name] ?? 0, `успешных ${name}`).toBeGreaterThan(0);
       }
     }
@@ -331,7 +344,7 @@ describe('Q: фазз испорченных сохранений', () => {
       }
       let raw: unknown = JSON.parse(serialize(w.save));
       // Иногда — «старая» версия формата, чтобы через порчу прошли и миграции.
-      if (rng.next() < 0.2) raw = { ...(raw as object), version: rng.int(3) };
+      if (rng.next() < 0.2) raw = { ...(raw as object), version: rng.int(4) };
       const text = rng.next() < 0.03 ? serialize(w.save).slice(0, rng.int(200)) : JSON.stringify(mutate(raw, rng));
       let loaded: SaveState;
       try {

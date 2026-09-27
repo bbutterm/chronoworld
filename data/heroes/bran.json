@@ -55,7 +55,10 @@
           "level": 50,
           "skill": "job_hunter_blitz_beat"
         }
-      ]
+      ],
+      "visual": {
+        "sprite": "hunter_m"
+      }
     }
   ],
   "bio": "Лучник-скептик: бьёт одну цель, но наверняка.",

@@ -178,7 +178,7 @@ describe('K4 башня: штурм', () => {
     expect(climbTower(s, 1, open).save.tower.floor).toBe(1);
   });
 
-  it('победа: этаж + 1, золото, опыт отряду, события; исходный save не меняется', () => {
+  it('победа: этаж + 1, золото, опыт в общий пул, события; исходный save не меняется', () => {
     const s = unlocked();
     const before = JSON.stringify(s);
     const out = climbTower(s, 7, easy);
@@ -191,11 +191,9 @@ describe('K4 башня: штурм', () => {
     expect(out.save.resources.gold).toBe(s.resources.gold + r.gold);
     expect(out.save.currency.gems).toBe(0);
     expect(out.events).toContainEqual({ type: 'towerFloorCleared', floor: 1, boss: false });
-    expect(out.events).toContainEqual({ type: 'rewards', gold: r.gold, jobExp: r.jobExp, heroIds: ['h1', 'h2', 'h3'] });
-    for (const h of out.save.heroes) {
-      const old = s.heroes.find((x) => x.id === h.id)!;
-      expect(h.jobLevel > old.jobLevel || h.jobExp > old.jobExp).toBe(true);
-    }
+    expect(out.events).toContainEqual({ type: 'rewards', gold: r.gold, heroExp: r.jobExp });
+    expect(out.save.resources.heroExp).toBe(s.resources.heroExp + r.jobExp);
+    expect(out.save.heroes).toEqual(s.heroes);
   });
 
   it('босс-этаж даёт гемы', () => {

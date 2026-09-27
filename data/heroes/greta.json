@@ -57,7 +57,10 @@
           "level": 50,
           "skill": "job_blacksmith_power_thrust"
         }
-      ]
+      ],
+      "visual": {
+        "sprite": "blacksmith_f"
+      }
     }
   ],
   "bio": "Торговка с тяжёлой сковородкой. Считает деньги быстрее, чем враги — удары.",

@@ -33,6 +33,9 @@
       "skill": "job_assassin_venom_splasher"
     }
   ],
+  "visual": {
+    "sprite": "assassin_m"
+  },
   "bio": "Ассасин: катары, яд и удар быстрее звука.",
   "hook": "Гильдия Морока считает его мёртвым. Он не спорит."
 }

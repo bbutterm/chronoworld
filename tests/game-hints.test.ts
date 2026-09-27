@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { newGame, type SaveState } from '../src/core';
-import { autoNextStage, jobChangeReadyCount } from '../src/game/flow';
+import { autoNextStage, heroesBadgeCount } from '../src/game/flow';
 import { HINT_KEY, hintDone, markHint, pickHomeHint, reloadHints, resetHints, type HintId } from '../src/game/hints';
-import { loadGameContext } from '../scripts/lib/content-node';
+import { loadFullContext, loadGameContext } from '../scripts/lib/content-node';
 import { placeCallout } from '../src/game/hintLayout';
 
 const ctx = loadGameContext();
@@ -11,14 +11,14 @@ const clearedUpTo = (save: SaveState, n: number): SaveState => ({ ...save, campa
 
 describe('R: подсказки первой сессии', () => {
   const none = () => false;
-  const base = { cleared: 0, chestHasIncome: false, jobChangeReady: false, towerUnlocked: false };
+  const base = { cleared: 0, chestHasIncome: false, levelUpReady: false, towerUnlocked: false };
 
-  it('новичок — «В кампанию»; после первой победы — сундук, смена профессии, башня', () => {
+  it('новичок — «В кампанию»; после первой победы — сундук, «Улучшить», башня', () => {
     expect(pickHomeHint(base, none)).toBe('home_campaign');
     expect(pickHomeHint({ ...base, cleared: 1 }, none)).toBeNull();
-    expect(pickHomeHint({ ...base, jobChangeReady: true }, (id) => id === 'home_campaign')).toBe('job_change');
+    expect(pickHomeHint({ ...base, levelUpReady: true }, (id) => id === 'home_campaign')).toBe('level_up');
     expect(pickHomeHint({ ...base, cleared: 1, chestHasIncome: true }, none)).toBe('chest_claim');
-    expect(pickHomeHint({ ...base, cleared: 3, jobChangeReady: true }, none)).toBe('job_change');
+    expect(pickHomeHint({ ...base, cleared: 3, levelUpReady: true }, none)).toBe('level_up');
     expect(pickHomeHint({ ...base, cleared: 9, towerUnlocked: true }, none)).toBe('tower_open');
   });
 
@@ -101,11 +101,11 @@ describe('R: авто-прохождение кампании', () => {
     expect(autoNextStage(clearedUpTo(save, stages.length), last.id, true, ctx).stop).toBe('no_next');
   });
 
-  it('значок «Герои»: сколько героев могут сменить профессию', () => {
-    expect(jobChangeReadyCount(save, ctx)).toBe(0);
-    const need = ctx.progression.jobChange.tierLevel['1'];
-    const heroes = save.heroes.map((h, i) => (i === 0 ? { ...h, jobLevel: need } : h));
-    expect(jobChangeReadyCount({ ...save, heroes }, ctx)).toBe(1);
+  it('значок «Герои»: сколько героев можно вознести (осколков, золота и уровня хватает)', () => {
+    const full = loadFullContext();
+    expect(heroesBadgeCount(save, full)).toBe(0);
+    const ready = { ...save, resources: { ...save.resources, gold: 5000 }, shards: { alan: 20, vika: 5 } };
+    expect(heroesBadgeCount(ready, full)).toBe(1);
   });
 });
 

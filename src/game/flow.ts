@@ -8,6 +8,7 @@ import {
   heroGender,
   heroJobId,
   heroName,
+  heroSpriteOverride,
   heroRole,
   levelUpInfo,
   misplacedInFront,
@@ -199,13 +200,13 @@ export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): {
 }
 
 /**
- * id спрайта героя — от класса карточки (с учётом формы) и её пола: `<спрайт класса>_f` / `_m`, если такой лист есть
- * в реестре, иначе базовый лист класса (он одного пола — см. genderedSpriteId). visual.sprite шаблона побеждает.
- * has — проверка реестра (для тестов).
+ * id спрайта героя: свой лист карточки (visual.sprite формы или шаблона: knight_m, priest_f…), если он есть в реестре;
+ * иначе лист класса карточки (с учётом формы) по полу — `<спрайт класса>_f` / `_m`, если такой есть, иначе базовый лист
+ * класса (он одного пола — см. genderedSpriteId). has — проверка реестра (для тестов).
  */
 export function heroSprite(hero: HeroState, ctx: GameContext, has: (id: string) => boolean = hasSprite): string {
-  const own = ctx.content.heroes[hero.templateId]?.visual.sprite;
-  if (own) return own;
+  const own = heroSpriteOverride(hero, ctx);
+  if (own && has(own)) return own;
   const job = ctx.content.heroes[hero.templateId] ? heroJobId(hero, ctx) : 'novice';
   const base = ctx.content.jobs[job]?.visual.sprite ?? job;
   return genderedSpriteId(base, heroGender(hero, ctx), has);

@@ -81,10 +81,10 @@ export class ResultScene extends Phaser.Scene {
       const rewards = events.find((e) => e.type === 'rewards');
       if (rewards && rewards.type === 'rewards') {
         // Числа награды отсчитываются от нуля (juice.ts; «Уменьшить анимацию» — сразу итог).
-        const rewardLine = (k: number) => `Награда: золото +${formatNumber((rewards.gold * k) / 1000)} · опыт +${formatNumber((rewards.jobExp * k) / 1000)} в запас`;
+        const rewardLine = (k: number) => `Награда: золото +${formatNumber((rewards.gold * k) / 1000)} · опыт +${formatNumber((rewards.heroExp * k) / 1000)} в запас`;
         countUp(this, text(this, GAME_W / 2, y, rewardLine(1000), FS.body, C.gold, BOLD_OUTLINE), 0, 1000, rewardLine, { delay: 250, duration: 700 });
       } else {
-        // T1-07: совет по делу (вещи, профессия — только если доступна, расстановка, прокачка).
+        // T1-07: совет по делу (вещи, «Улучшить», вознесение, расстановка, прокачка).
         const advice = tower ? 'Этаж не взят. Усильте отряд и попробуйте снова.' : `Награды нет. ${defeatAdvice(session.save, GAME).text}`;
         text(this, GAME_W / 2, y, advice, FS.small, C.enemy, { ...OUTLINE, wordWrap: { width: 980 } });
         if (!tower) y += 20;

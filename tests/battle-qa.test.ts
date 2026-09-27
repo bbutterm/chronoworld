@@ -1,11 +1,12 @@
 /**
  * Регрессии по отчёту QA «бой» (docs/qa/tester2-battle.md, пакет P1): по тесту на баг.
- * Сиды и отряды — из отчёта: герои без экипировки, история профессий «Послушник 10» (тир-2 — ещё первая профессия 50).
+ * Сиды и отряды — из отчёта (герои без экипировки); с v4 отряды — карточки героев тех же классов (tests/helpers.ts JOB_CARD),
+ * «Новички» — синтетические юниты профессии novice (её «Первая помощь» — проверка лечения себя).
  */
 import { describe, expect, it } from 'vitest';
-import { buildUnit, enemySquad, newGame, simulateBattle, type BattleEvent, type BattleResult, type UnitDef } from '../src/core';
+import { buildUnit, enemySquad, simulateBattle, statsAt, type BattleEvent, type BattleResult, type UnitDef } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
-import { cfg, content, skill, unitDef } from './helpers';
+import { cardHero, cfg, content, skill, unitDef } from './helpers';
 
 const ctx = loadFullContext();
 const C = ctx.content;
@@ -16,31 +17,25 @@ const BOUNDS = COMBAT.field.bounds!;
 type Ev<T extends BattleEvent['type']> = Extract<BattleEvent, { type: T }>;
 const of = <T extends BattleEvent['type']>(log: BattleEvent[], type: T) => log.filter((e): e is Ev<T> => e.type === type);
 
+/** Отряды карточек: tier1 — Мечник, Вор, Лучник, Маг, Аколит; tier1b — с Торговкой; tier1i — призывные первые; tier2 — фиолетовые. */
 const SQUADS: Record<string, string[]> = {
-  tier1: ['swordman', 'thief', 'archer', 'mage', 'acolyte'],
-  tier1b: ['swordman', 'merchant', 'archer', 'mage', 'acolyte'],
+  tier1: ['alan', 'dorn', 'bran', 'kai', 'vika'],
+  tier1b: ['alan', 'greta', 'bran', 'kai', 'vika'],
+  tier1i: ['iris', 'zara', 'meilin', 'lira', 'teo'],
   novice: ['novice', 'novice', 'novice', 'novice', 'novice'],
-  tier2: ['knight', 'crusader', 'hunter', 'wizard', 'priest'],
+  tier2: ['seyren', 'randel', 'cecil', 'kathryne', 'margaretha'],
 };
-const parent: Record<string, string> = {};
-for (const j of Object.values(C.jobs)) for (const f of j.from ?? []) parent[j.id] ??= f;
 
-function squad(name: string, jobLevel: number): UnitDef[] {
-  const base = newGame(ctx, 1).heroes[0];
-  return SQUADS[name].map((job, i) =>
-    buildUnit(
-      {
-        ...base,
-        id: `h${i}`,
-        name: `H${i}`,
-        job,
-        jobLevel,
-        jobExp: 0,
-        jobHistory: job === 'novice' ? [] : [{ job: 'novice', jobLevel: 10 }, ...(C.jobs[job].tier === 2 ? [{ job: parent[job], jobLevel: 50 }] : [])],
-      },
-      ctx,
-    ),
-  );
+/** Новичок профессии novice (карточек-новичков нет): статы и навыки профессии на уровне lvl (≤ 10). */
+function novice(i: number, lvl: number): UnitDef {
+  const job = C.jobs.novice;
+  const level = Math.min(lvl, job.maxJobLevel);
+  const open = job.skills.filter((s) => s.jobLevel <= level).map((s) => s.skill);
+  return { id: `h${i}`, name: `H${i}`, kind: 'hero', role: job.role, stats: statsAt(job, level), skills: { basic: job.basic, actives: open, passives: [] }, visual: job.visual };
+}
+
+function squad(name: string, level: number): UnitDef[] {
+  return SQUADS[name].map((t, i) => (t === 'novice' ? novice(i, level) : buildUnit(cardHero(ctx, t, level, { id: `h${i}` }), ctx)));
 }
 
 const fight = (name: string, jobLevel: number, stageId: string, seed: number) => {
@@ -117,7 +112,7 @@ describe('QA T2 (бой) — регрессии пакета P1', () => {
   it('T2-01: лечение себя с onlyWounded и «Восстановление HP» не срабатывают при полном HP', () => {
     // «Первая помощь» — только раненым героем; лечений на 0 нет (в т.ч. «Восстановление HP» Мечника).
     let aids = 0;
-    for (const [name, lvl] of [['tier1', 1], ['tier1', 30], ['tier1b', 10]] as const)
+    for (const [name, lvl] of [['tier1', 1], ['tier1', 30], ['tier1b', 10], ['novice', 10]] as const)
       for (const stage of ['ch1_s1', 'ch1_s5', 'ch1_s10', 'ch2_s5'])
         for (const seed of [QA.stage1.seed, 1, 2]) {
           const { r: b } = fight(name, lvl, stage, seed);
@@ -241,8 +236,9 @@ describe('QA T2 (бой) — регрессии пакета P1', () => {
     check(r, 'synthetic');
   });
 
-  it('T2-07: ближний удар по площади задевает только врагов рядом с целью (этап 5, джоб 30, seed 1)', () => {
-    const { r } = fight('tier1', 30, 'ch1_s5', 1);
+  it('T2-07: ближний удар по площади задевает только врагов рядом с целью (этап 5, ур. 30, seed 1)', () => {
+    // «Магнум Брейк» — у Ирис с ур. 30.
+    const { r } = fight('tier1i', 30, 'ch1_s5', 1);
     const body = (uid: string) => {
       const u = r.units.find((x) => x.uid === uid)!;
       const def = u.side === 'B' ? enemySquad('ch1_s5', ctx)[u.slot] : null;

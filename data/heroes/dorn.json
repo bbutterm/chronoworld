@@ -58,7 +58,10 @@
           "level": 50,
           "skill": "job_rogue_strip_weapon"
         }
-      ]
+      ],
+      "visual": {
+        "sprite": "rogue_m"
+      }
     }
   ],
   "bio": "Бывший моркский громила: дерётся честно, если его не злить.",

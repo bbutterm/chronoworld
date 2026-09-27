@@ -46,7 +46,7 @@ describe('сюжет: данные', () => {
     const ch2 = ctx.story.scenes.filter((s) => s.chapter === 'chapter2');
     expect(ids(ch2)).toEqual(['ch2_intro', 'ch2_s10_before', 'ch2_outro']);
     expect(ch2.find((s) => s.id === 'ch2_s10_before')!.bossIntro?.title).toBe(ctx.content.units.mob2_boss.name);
-    const dorn = ctx.progression.heroes.recruits.find((r) => r.name === 'Дорн')!;
+    const dorn = ctx.progression.heroes.recruits.find((r) => r.template === 'dorn')!;
     const outro = ch2.find((s) => s.id === 'ch2_outro')!;
     expect(outro).toMatchObject({ trigger: 'afterStage', stageId: dorn.afterStage });
     expect(outro.lines.some((l) => ctx.story.chapters.chapter2.speakers[l.speaker].name === 'Дорн')).toBe(true);
@@ -141,10 +141,18 @@ describe('сюжет: спикеры', () => {
   const story = ctx.story.chapters.chapter1;
   const save = newGame(ctx, 1000);
 
-  it('hero1..N — имя из сохранения, портрет текущей профессии', () => {
-    const s: SaveState = { ...save, heroes: save.heroes.map((h, i) => (i === 0 ? { ...h, name: 'Артур', job: 'swordman' } : h)) };
-    expect(speakerView(story, 'hero1', s, ctx)).toEqual({ name: 'Артур', sprite: ctx.content.jobs.swordman.visual.sprite, gender: 'm' });
-    expect(speakerView(story, 'hero2', s, ctx).sprite).toBe(ctx.content.jobs.novice.visual.sprite);
+  it('hero1..N — сюжетные карточки по порядку (start, recruits): имя и портрет класса карточки', () => {
+    expect(speakerView(story, 'hero1', save, ctx)).toEqual({ name: 'Алан', sprite: ctx.content.jobs.swordman.visual.sprite, gender: 'm' });
+    expect(speakerView(story, 'hero2', save, ctx).sprite).toBe(ctx.content.jobs.archer.visual.sprite);
+    // Порядок в save.heroes не важен: hero1 — всегда Алан.
+    const shuffled: SaveState = { ...save, heroes: [...save.heroes].reverse() };
+    expect(speakerView(story, 'hero1', shuffled, ctx).name).toBe('Алан');
+    // Алан вознесён до фиолетового — портрет второй профессии (Рыцарь).
+    const knight: SaveState = { ...save, heroes: save.heroes.map((h, i) => (i === 0 ? { ...h, rarity: 'purple', level: 40 } : h)) };
+    expect(speakerView(story, 'hero1', knight, ctx).sprite).toBe(ctx.content.jobs.knight.visual.sprite);
+    // Грета (hero4) ещё не пришла — имя и пол из спикера главы 2.
+    const v = speakerView(ctx.story.chapters.chapter2, 'hero4', save, ctx);
+    expect(v).toMatchObject({ name: 'Грета', gender: 'f' });
   });
 
   it('портрет-профессия и юнит без данных (Мастеринга ещё нет) — без падения', () => {

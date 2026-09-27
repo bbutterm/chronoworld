@@ -2,7 +2,6 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
-  addJobExp,
   bountyName,
   bountyStatus,
   busyHeroes,
@@ -146,12 +145,12 @@ describe('K9 доска поручений', () => {
     expect(codeOf(() => startBounty(s, 'b1', ['h1', 'h1'], 0, ctx))).toBe('duplicate_hero');
     expect(codeOf(() => startBounty(s, 'b1', ['h1', 'h99'], 0, ctx))).toBe('unknown_hero');
     const tank = withBounty({ role: 'tank' });
-    expect(codeOf(() => startBounty(tank, 'b1', ['h1', 'h2'], 0, ctx))).toBe('role_required');
-    const withTank = { ...tank, heroes: tank.heroes.map((h) => (h.id === 'h2' ? { ...h, job: 'swordman' } : h)) };
-    expect(startBounty(withTank, 'b1', ['h1', 'h2'], 0, ctx).bounties.active).toHaveLength(1);
+    // Бран и Вика — не танки; Алан (h1) — танк по карточке.
+    expect(codeOf(() => startBounty(tank, 'b1', ['h2', 'h3'], 0, ctx))).toBe('role_required');
+    expect(startBounty(tank, 'b1', ['h1', 'h2'], 0, ctx).bounties.active).toHaveLength(1);
   });
 
-  it('bountyStatus и claimBounty: только после окончания, награда группе, достижение', () => {
+  it('bountyStatus и claimBounty: только после окончания, опыт в пул, достижение', () => {
     const s = startBounty(withBounty(), 'b1', ['h1', 'h2'], 1000, ctx);
     const end = 1000 + 30 * MIN;
     const st = bountyStatus(s, end - MIN);
@@ -163,15 +162,14 @@ describe('K9 доска поручений', () => {
     expect(codeOf(() => claimBounty(s, 'b1', end - 1, ctx))).toBe('bounty_not_finished');
     expect(codeOf(() => claimBounty(s, 'b9', end, ctx))).toBe('unknown_bounty');
     const r = claimBounty(s, 'b1', end, ctx);
-    expect(r.rewards).toEqual({ gold: 100, jobExp: 20, gems: 3 });
+    expect(r.rewards).toEqual({ gold: 100, jobExp: 20, gems: 3, shards: 0 });
     expect(r.save.resources.gold).toBe(s.resources.gold + 100);
     expect(r.save.currency.gems).toBe(s.currency.gems + 3);
     expect(r.save.bounties.active).toEqual([]);
     expect(busyHeroes(r.save)).toEqual([]);
-    const hero = (save: SaveState, id: string) => save.heroes.find((h) => h.id === id)!;
-    // Опыт начислен через addJobExp (у Новичка 20 опыта — уже несколько уровней).
-    expect(hero(r.save, 'h1')).toEqual(addJobExp(hero(s, 'h1'), 20, ctx).hero);
-    expect(hero(r.save, 'h3')).toEqual(hero(s, 'h3'));
+    // Опыт — в общий пул героев, уровни не меняются.
+    expect(r.save.resources.heroExp).toBe(s.resources.heroExp + 20);
+    expect(r.save.heroes).toEqual(s.heroes);
     expect(r.save.achievements.counters.bounties_done).toBe(1);
     expect(r.events[0]).toEqual({ type: 'bountyDone', bountyId: 'b1', heroIds: ['h1', 'h2'] });
     expect(r.events).toContainEqual({ type: 'gems', amount: 3 });

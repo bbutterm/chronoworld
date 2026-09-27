@@ -63,14 +63,18 @@ export interface ActiveForm {
   role: HeroTemplate['role'];
   statMods: CardStatMods;
   skills: CardSkill[];
+  /** Свой лист спрайта формы (или базовой формы шаблона). */
+  sprite?: string;
   /** Редкость, с которой действует форма (undefined — базовая форма шаблона). */
   fromRarity?: CardRarity;
 }
 
 export function activeForm(t: HeroTemplate, rarity: CardRarity): ActiveForm {
-  let form: ActiveForm = { job: t.job, role: t.role, statMods: t.statMods, skills: t.skills };
+  let form: ActiveForm = { job: t.job, role: t.role, statMods: t.statMods, skills: t.skills, ...(t.visual.sprite ? { sprite: t.visual.sprite } : {}) };
   for (const f of t.forms) {
-    if (rarityIndex(f.rarity) <= rarityIndex(rarity)) form = { job: f.job, role: f.role ?? t.role, statMods: f.statMods, skills: f.skills, fromRarity: f.rarity };
+    if (rarityIndex(f.rarity) <= rarityIndex(rarity)) {
+      form = { job: f.job, role: f.role ?? t.role, statMods: f.statMods, skills: f.skills, fromRarity: f.rarity, ...(f.visual.sprite ? { sprite: f.visual.sprite } : {}) };
+    }
   }
   return form;
 }
@@ -82,6 +86,9 @@ export const heroGender = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext
 /** Класс (id профессии) карточки сейчас — с учётом формы. */
 export const heroJobId = (hero: Pick<HeroState, 'templateId' | 'rarity'>, ctx: GameContext): string => activeForm(tmpl(hero, ctx), hero.rarity).job;
 export const heroRole = (hero: Pick<HeroState, 'templateId' | 'rarity'>, ctx: GameContext): HeroTemplate['role'] => activeForm(tmpl(hero, ctx), hero.rarity).role;
+/** Свой лист спрайта карточки сейчас (форма или шаблон); undefined — лист класса по полу (решает UI по реестру листов). */
+export const heroSpriteOverride = (hero: Pick<HeroState, 'templateId' | 'rarity'>, ctx: GameContext): string | undefined =>
+  ctx.content.heroes[hero.templateId] ? activeForm(tmpl(hero, ctx), hero.rarity).sprite : undefined;
 /** Линия карточки (первая профессия ветки). */
 export const heroLine = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext): string => tmpl(hero, ctx).line;
 
@@ -155,8 +162,8 @@ export interface GearLookup {
 }
 
 /**
- * Карточка игрока → юнит боя. id юнита = id героя. Вид — класс формы (visual профессии), лист — visual.sprite
- * шаблона, если задан. Экипировка — явный gear, иначе ctx.heroGear[hero.id]. skillPower — «сила навыков» редкости.
+ * Карточка игрока → юнит боя. id юнита = id героя. Вид — класс формы (visual профессии); свой лист карточки и лист
+ * по полу подставляет UI (flow.ts heroSprite — он знает реестр листов). Экипировка — явный gear, иначе ctx.heroGear[hero.id]. skillPower — «сила навыков» редкости.
  */
 export function buildUnit(hero: HeroState, ctx: GameContext & GearLookup, gear?: StatBonus): UnitDef {
   const t = tmpl(hero, ctx);
@@ -174,7 +181,7 @@ export function buildUnit(hero: HeroState, ctx: GameContext & GearLookup, gear?:
     role: form.role,
     stats,
     skills: { basic: skills.basic, actives: skills.actives, passives: skills.passives },
-    visual: t.visual.sprite ? { ...job.visual, sprite: t.visual.sprite } : job.visual,
+    visual: job.visual,
     ...(power !== 1 ? { skillPower: power } : {}),
   };
 }

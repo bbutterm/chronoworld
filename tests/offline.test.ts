@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addJobExp, claimOffline, idleIncome, newGame, offlineRewards, type SaveState } from '../src/core';
+import { claimOffline, idleIncome, newGame, offlineRewards, type SaveState } from '../src/core';
 import { loadGameContext } from '../scripts/lib/content-node';
 
 const ctx = loadGameContext();
@@ -45,7 +45,7 @@ describe('офлайн-награды', () => {
     expect(out.save).toEqual({ ...save, offline: { lastClaimAt: now, debtMs: 5 * 60 * MIN } });
   });
 
-  it('claimOffline: золото в ресурсы, опыт всем героям, повторный сбор сразу — ноль', () => {
+  it('claimOffline: золото в ресурсы, опыт в общий пул героев, повторный сбор сразу — ноль', () => {
     const save = saveWith([stages[0].id]);
     const copy = structuredClone(save);
     const now = T0 + 90 * MIN;
@@ -54,8 +54,9 @@ describe('офлайн-награды', () => {
     expect(rewards.minutes).toBe(90);
     expect(next.resources.gold).toBe(save.resources.gold + rewards.gold);
     expect(next.offline.lastClaimAt).toBe(now);
-    for (const h of save.heroes) expect(next.heroes.find((x) => x.id === h.id)).toEqual(addJobExp(h, rewards.jobExp, ctx).hero);
-    expect(events[0]).toEqual({ type: 'rewards', gold: rewards.gold, jobExp: rewards.jobExp, heroIds: save.heroes.map((h) => h.id) });
+    expect(next.resources.heroExp).toBe(save.resources.heroExp + rewards.jobExp);
+    expect(next.heroes).toEqual(save.heroes);
+    expect(events[0]).toEqual({ type: 'rewards', gold: rewards.gold, heroExp: rewards.jobExp });
 
     const again = claimOffline(next, now, ctx);
     expect(again.rewards).toEqual({ minutes: 0, gold: 0, jobExp: 0 });

@@ -55,7 +55,10 @@
           "level": 50,
           "skill": "job_priest_sanctuary"
         }
-      ]
+      ],
+      "visual": {
+        "sprite": "priest_f"
+      }
     }
   ],
   "bio": "Аколит из церкви Пронтеры. «Бинты со мной».",

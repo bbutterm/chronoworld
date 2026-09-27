@@ -187,32 +187,47 @@ describe('T4-03: переполненный localStorage при запуске',
   });
 });
 
-describe('T4-04: неизвестная профессия героя', () => {
-  it('на загрузке заменяется допустимой, экраны (heroPower) не падают', () => {
+describe('T4-04: неизвестная карточка героя (v4)', () => {
+  it('на загрузке экземпляр убирается вместе со ссылками, экраны (heroPower) не падают', () => {
     const s = newGame(ctx, T0, D0);
-    const broken = { ...s, heroes: s.heroes.map((h, i) => (i === 0 ? { ...h, job: 'nonexistent_job', jobLevel: 7 } : h)) };
+    const broken: SaveState = {
+      ...s,
+      heroes: [...s.heroes, { id: 'h9', templateId: 'removed_card', rarity: 'green', level: 7 }],
+      squad: ['h1', 'h9', null, 'h2', 'h3'],
+      presets: [{ id: 'p1', name: 'x', squad: ['h9', null, null, null, 'h1'] }],
+      inventory: { items: [{ id: 'it1', itemId: 'knife', equippedBy: 'h9' }] },
+    };
     const r = loadOrNew({ load: () => serialize(broken), save() {}, clear() {} }, ctx, T0, D0);
     expect(r.source).toBe('loaded');
-    expect(r.save.heroes[0].job).toBe(ctx.progression.heroes.startJob);
-    expect(r.warnings?.join(' ')).toMatch(/nonexistent_job/);
-    expect(() => heroPower(r.save.heroes[0], ctx)).not.toThrow();
+    expect(r.save.heroes.map((h) => h.id)).toEqual(['h1', 'h2', 'h3']);
+    expect(r.save.squad).toEqual(['h1', null, null, 'h2', 'h3']);
+    expect(r.save.presets[0].squad).toEqual([null, null, null, null, 'h1']);
+    expect(r.save.inventory.items[0].equippedBy).toBeNull();
+    expect(r.warnings?.join(' ')).toMatch(/removed_card/);
+    for (const h of r.save.heroes) expect(() => heroPower(h, ctx)).not.toThrow();
   });
 
-  it('герой второго ранга → базовая профессия того же ранга из его прошлой профессии', () => {
+  it('редкость и уровень вне правил карточки приводятся к ним; вторая копия карточки уходит из отряда', () => {
     const s = newGame(ctx, T0, D0);
-    const novice = ctx.progression.heroes.startJob;
-    const tier1 = Object.values(ctx.content.jobs).find((j) => j.tier === 1 && j.from.includes(novice))!;
-    const hero = { ...s.heroes[0], job: 'renamed_job', jobHistory: [{ job: novice, jobLevel: 10 }] };
-    const fixed = sanitizeSave({ ...s, heroes: [hero, ...s.heroes.slice(1)] }, ctx);
-    expect(ctx.content.jobs[fixed.save.heroes[0].job].tier).toBe(1);
-    expect(ctx.content.jobs[fixed.save.heroes[0].job].from).toContain(novice);
-    expect(tier1).toBeDefined();
-    expect(fixed.warnings).toHaveLength(1);
+    const odd: SaveState = {
+      ...s,
+      heroes: [...s.heroes.map((h, i) => (i === 0 ? { ...h, level: 99 } : h)), { id: 'h4', templateId: 'iris', rarity: 'red', level: 5 }, { id: 'h5', templateId: 'bran', rarity: 'green', level: 1 }],
+      squad: ['h1', 'h4', 'h5', 'h2', 'h3'],
+    };
+    const fixed = sanitizeSave(odd, ctx);
+    expect(fixed.save.heroes[0].level).toBe(20);
+    expect(fixed.save.heroes.find((h) => h.id === 'h4')!.rarity).toBe('gold');
+    // Вторая по слотам копия Брана (h2 в слоте 3) уходит из отряда.
+    expect(fixed.save.squad).toEqual(['h1', 'h4', 'h5', null, 'h3']);
+    expect(fixed.warnings).toHaveLength(3);
   });
 
-  it('целое сохранение — тот же объект, без предупреждений', () => {
+  it('целое сохранение — тот же объект, без предупреждений; сообщения миграции — в предупреждения и убираются', () => {
     const s = newGame(ctx, T0, D0);
     expect(sanitizeSave(s, ctx)).toEqual({ save: s, warnings: [] });
+    const withNotice = sanitizeSave({ ...s, notices: ['Привет'] }, ctx);
+    expect(withNotice.warnings).toEqual(['Привет']);
+    expect(withNotice.save).toEqual(s);
   });
 });
 
@@ -279,7 +294,7 @@ describe('T4-06: часы были впереди — сундук не заст
 
 describe('T4-07/T4-08: ежедневные механики после перевода часов', () => {
   it('часы +30 дней и обратно: сброс в ближайшую реальную полночь, а не через 30 дней', () => {
-    let s: SaveState = { ...withCleared(2), currency: { gems: 1000 } };
+    let s: SaveState = { ...withCleared(2), currency: { gems: 1000, scrolls: 0 } };
     const future = '2026-10-27';
     s = useFastRewards(s, future, ctx).save;
     // Вернули дату: сегодня новых попыток нет (день уже «выдан» наперёд)…
@@ -290,7 +305,7 @@ describe('T4-07/T4-08: ежедневные механики после пере
   });
 
   it('туда-обратно по одному дню второй набор того же дня не даёт', () => {
-    let s: SaveState = { ...withCleared(2), currency: { gems: 0 } };
+    let s: SaveState = { ...withCleared(2), currency: { gems: 0, scrolls: 0 } };
     s = useFastRewards(s, D0, ctx).save; // бесплатная сегодня
     s = useFastRewards(s, '2026-09-28', ctx).save; // «завтра» (часы вперёд)
     s = rollDay(s, D0); // назад

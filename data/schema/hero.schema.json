@@ -184,6 +184,15 @@
                 "skill"
               ]
             }
+          },
+          "visual": {
+            "default": {},
+            "type": "object",
+            "properties": {
+              "sprite": {
+                "type": "string"
+              }
+            }
           }
         },
         "required": [

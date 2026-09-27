@@ -33,7 +33,7 @@ function levelUps(events: readonly { type: string }[]): number {
 function recordBattle<O extends StageOutcome>(out: O, day: string): O {
   let s = recordActivity(out.save, day, 'stage_attempt');
   if (out.result.winner === 'A') s = recordActivity(s, day, 'stage_win');
-  s = syncAchievementCounters(trackAchievement(recordActivity(out.save, day, 'tower_attempt'), 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
+  s = syncAchievementCounters(trackAchievement(s, 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
   return { ...out, save: s };
 }
 
@@ -129,9 +129,9 @@ export function actClimbTower(save: SaveState, day: string, seed: number, ctx: T
 }
 
 /*
- * Награды с опытом (задания, пороги активности, поручения, достижения): функции ядра сами обновляют
- * счётчики-«максимумы» достижений, но дня не знают — hero_level_up засчитывают обёртки ниже.
- * Рекурсии нет: засчитанный level-up только двигает счётчик daily.quests, ничего не забирает автоматически.
+ * Награды с опытом (задания, пороги активности, поручения, достижения): опыт уходит в общий пул (v4), уровни
+ * поднимает игрок (actLevelUp) — level-up в наградах не бывает. Обёртки переключают день (rollDay) и засчитали бы
+ * hero_level_up, если бы награда когда-нибудь давала уровни напрямую.
  */
 function recordLevelUps<O extends { save: SaveState; events: readonly { type: string }[] }>(out: O, day: string): O {
   return { ...out, save: recordActivity(out.save, day, 'hero_level_up', levelUps(out.events)) };
@@ -142,7 +142,7 @@ export function actClaimQuest(save: SaveState, day: string, questId: string, ctx
   return recordLevelUps(claimQuest(save, day, questId, ctx), day);
 }
 
-/** claimActivity + hero_level_up (jobExp порога активности). */
+/** claimActivity (jobExp порога — в пул). */
 export function actClaimActivity(
   save: SaveState,
   day: string,
@@ -152,7 +152,7 @@ export function actClaimActivity(
   return recordLevelUps(claimActivity(save, day, milestone, ctx), day);
 }
 
-/** K9. claimBounty + hero_level_up (jobExp поручения). */
+/** K9. claimBounty (jobExp — в пул, осколки — «отстающему» сюжетному герою). */
 export function actClaimBounty(
   save: SaveState,
   day: string,
@@ -163,7 +163,7 @@ export function actClaimBounty(
   return recordLevelUps(claimBounty(save, bountyId, now, ctx), day);
 }
 
-/** K10. claimAchievement + hero_level_up (jobExp достижения). */
+/** K10. claimAchievement (jobExp — в пул, осколки — «отстающему» сюжетному герою). */
 export function actClaimAchievement(save: SaveState, day: string, id: string, ctx: MetaContext): { save: SaveState; rewards: MetaRewards; events: MetaEvent[] } {
   return recordLevelUps(claimAchievement(save, id, ctx), day);
 }

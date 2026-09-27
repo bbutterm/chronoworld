@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { CONTENT, GAME } from '../content';
+import { GAME } from '../content';
 import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';

@@ -1,17 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { changeJob, newGame, playStage, type ProgressEvent } from '../src/core';
-import {
-  assignSlot,
-  currentStage,
-  describeEvents,
-  dropStaleJobReady,
-  jobChangeSkills,
-  localDay,
-  lockedJobSkills,
-  nextOpenStage,
-  otherJobChangeReady,
-  stageSeed,
-} from '../src/game/flow';
+import { newGame, playStage, type ProgressEvent } from '../src/core';
+import { ascendReady, assignSlot, currentStage, describeEvents, keyEventsFirst, levelText, levelUpReady, localDay, nextOpenStage, stageSeed } from '../src/game/flow';
 import { loadGameContext } from '../scripts/lib/content-node';
 
 const ctx = loadGameContext();
@@ -47,22 +36,32 @@ describe('помощники экранов', () => {
     expect(currentStage(cleared, ctx)?.id).toBe(ctx.content.stages[1].id);
   });
 
-  it('describeEvents склеивает level-up и сообщает о смене профессии', () => {
+  it('describeEvents: level-up одной строкой, вознесение (со второй профессией), осколки, новый герой, Таверна', () => {
     const save = newGame(ctx, 0);
     const events: ProgressEvent[] = [
-      { type: 'levelUp', heroId: 'h1', jobLevel: 2 },
-      { type: 'levelUp', heroId: 'h1', jobLevel: 3 },
-      { type: 'jobChangeAvailable', heroId: 'h1', jobs: ['swordman'] },
+      { type: 'levelUp', heroId: 'h1', level: 2 },
+      { type: 'levelUp', heroId: 'h1', level: 3 },
+      { type: 'ascended', heroId: 'h2', from: 'blue', to: 'purple', job: 'hunter', jobChanged: true },
+      { type: 'shards', templateId: 'vika', count: 3 },
+      { type: 'heroJoined', heroId: 'h4', templateId: 'greta', name: 'Грета' },
+      { type: 'tavernUnlocked', gems: 150, scrolls: 1 },
     ];
     const lines = describeEvents(events, save, ctx);
-    expect(lines.filter((l) => l.includes('ур. профессии'))).toEqual([`${save.heroes[0].name}: ур. профессии 1 → 3`]);
-    expect(lines.some((l) => l.startsWith('Смена профессии доступна!'))).toBe(true);
+    expect(lines).toContain('Алан: ур. 1 → 3');
+    expect(lines).toContain('Бран: Синий → Фиолетовый — теперь Охотник!');
+    expect(lines).toContain('Осколки героя Вика +3');
+    expect(keyEventsFirst(lines).slice(0, 2)).toEqual(['Новый герой в отряде: Грета!', 'Открыта Таверна! Подарок: гемы +150, свитки призыва +1']);
+    expect(levelText(4, 20)).toBe('Ур. 4 / 20');
   });
 
-  it('lockedJobSkills — навыки выше текущего уровня по порядку', () => {
-    const locked = lockedJobSkills('novice', 1, ctx);
-    expect(locked.every((s) => s.jobLevel > 1)).toBe(true);
-    expect(lockedJobSkills('novice', 10, ctx)).toEqual([]);
+  it('levelUpReady / ascendReady: кого можно «Улучшить» и вознести', () => {
+    const save = newGame(ctx, 0);
+    expect(levelUpReady(save, ctx)).toEqual([]);
+    const rich = { ...save, resources: { gold: 10_000, heroExp: 10_000 } };
+    expect(levelUpReady(rich, ctx).map((h) => h.id)).toEqual(['h1', 'h2', 'h3']);
+    expect(ascendReady(rich, ctx)).toEqual([]);
+    const shards = { ...rich, shards: { bran: 20 } };
+    expect(ascendReady(shards, ctx).map((h) => h.id)).toEqual(['h2']);
   });
 
   it('бой этапа из сохранения воспроизводим: тот же save → тот же исход', () => {
@@ -72,25 +71,5 @@ describe('помощники экранов', () => {
     const b = playStage(save, stage, stageSeed(save), ctx);
     expect(a.result.winner).toBe(b.result.winner);
     expect(a.result.duration).toBe(b.result.duration);
-  });
-
-  it('смена профессии: следующий готовый герой, открытые навыки, устаревшая строка «доступна»', () => {
-    const base = newGame(ctx, 0);
-    const save = { ...base, heroes: base.heroes.map((h) => ({ ...h, jobLevel: 10, jobExp: 0 })) };
-    const [a, b] = save.heroes;
-    expect(otherJobChangeReady(save, ctx)?.id).toBe(a.id);
-    expect(otherJobChangeReady(save, ctx, a.id)?.id).toBe(b.id);
-    const c = changeJob(a, 'swordman', ctx);
-    const r = { events: c.events, save: { ...save, heroes: save.heroes.map((h) => (h.id === a.id ? c.hero : h)) } };
-    const hero = c.hero;
-    const skills = jobChangeSkills(r.events, hero, ctx);
-    expect(skills.length).toBeGreaterThan(0);
-    expect(skills).toContain(ctx.content.skills[ctx.content.jobs.swordman.skills.find((s) => s.jobLevel <= hero.jobLevel)!.skill].name);
-    expect(otherJobChangeReady(r.save, ctx, a.id)?.id).toBe(b.id);
-    const lines = ['Алан: ур. профессии 9 → 10', 'Смена профессии доступна! (Алан)'];
-    expect(dropStaleJobReady(lines, r.save, ctx)).toEqual(lines);
-    const allDone = { ...r.save, heroes: r.save.heroes.map((h) => ({ ...h, job: 'swordman', jobLevel: 1 })) };
-    expect(otherJobChangeReady(allDone, ctx)).toBeUndefined();
-    expect(dropStaleJobReady(lines, allDone, ctx)).toEqual(['Алан: ур. профессии 9 → 10']);
   });
 });

@@ -5,18 +5,23 @@ import {
   applyPreset,
   autoFormation,
   deletePreset,
+  duplicateCardsInSquad,
   formationRank,
+  GameRuleError,
   heroPower,
   MetaError,
   newGame,
   parseMetaConfig,
+  playStage,
   savePreset,
+  setSquad,
   withFeatures,
   withMeta,
   type HeroState,
   type SaveState,
 } from '../src/core';
 import { loadGameContext } from '../scripts/lib/content-node';
+import { cardHero, JOB_CARD } from './helpers';
 
 const root = join(import.meta.dirname, '..');
 const read = (f: string) => JSON.parse(readFileSync(join(root, f), 'utf8'));
@@ -32,8 +37,9 @@ function codeOf(fn: () => unknown): string | undefined {
   return undefined;
 }
 
-function hero(id: string, job: string, jobLevel = 10): HeroState {
-  return { id, name: id, job, jobLevel, jobExp: 0, jobHistory: [] };
+/** Карточка: класс (JOB_CARD: swordman → Алан…) или id шаблона. */
+function hero(id: string, card: string, level = 10): HeroState {
+  return cardHero(ctx, JOB_CARD[card] ?? card, level, { id });
 }
 
 function withHeroes(heroes: HeroState[]): SaveState {
@@ -86,6 +92,24 @@ describe('K8 пресеты отряда', () => {
     expect(codeOf(() => deletePreset(s, 'p2'))).toBe('unknown_preset');
     expect(deletePreset(s, 'p1').presets).toEqual([]);
   });
+
+  it('одна копия карточки в отряде: setSquad / savePreset — duplicate_card; applyPreset пропускает вторую копию; бой — GameRuleError', () => {
+    const base = newGame(ctx, 0);
+    const s: SaveState = { ...base, heroes: [...base.heroes, { id: 'h9', templateId: 'alan', rarity: 'green', level: 1 }] };
+    expect(setSquad(s, ['h1', null, 'h2', null, null]).squad).toEqual(['h1', null, 'h2', null, null]);
+    expect(codeOf(() => setSquad(s, ['h1', 'h9', null, null, null]))).toBe('duplicate_card');
+    expect(codeOf(() => savePreset(s, 'a', ctx, { squad: ['h9', null, null, 'h1', null] }))).toBe('duplicate_card');
+    const withBad: SaveState = { ...s, presets: [{ id: 'p1', name: 'x', squad: ['h9', 'h1', null, null, 'h3'] }] };
+    expect(applyPreset(withBad, 'p1').squad).toEqual(['h9', null, null, null, 'h3']);
+    expect(duplicateCardsInSquad(s, ['h1', 'h9', null, null, null])).toEqual(['h9']);
+    try {
+      playStage({ ...s, squad: ['h1', 'h9', null, null, null] }, ctx.content.stages[0].id, 1, ctx);
+      throw new Error('ожидалась ошибка');
+    } catch (e) {
+      expect(e).toBeInstanceOf(GameRuleError);
+      expect((e as GameRuleError).code).toBe('duplicate_card');
+    }
+  });
 });
 
 describe('K8 авто-расстановка', () => {
@@ -97,7 +121,7 @@ describe('K8 авто-расстановка', () => {
   });
 
   it('берёт 5 сильнейших по heroPower', () => {
-    const heroes = [hero('h1', 'novice', 1), hero('h2', 'swordman', 20), hero('h3', 'archer', 20), hero('h4', 'acolyte', 20), hero('h5', 'thief', 20), hero('h6', 'novice', 2), hero('h7', 'mage', 20)];
+    const heroes = [hero('h1', 'iris', 1), hero('h2', 'swordman', 20), hero('h3', 'archer', 20), hero('h4', 'acolyte', 20), hero('h5', 'thief', 20), hero('h6', 'meilin', 2), hero('h7', 'mage', 20)];
     const s = withHeroes(heroes);
     const squad = autoFormation(s, ctx);
     const expected = [...heroes]
@@ -109,7 +133,7 @@ describe('K8 авто-расстановка', () => {
   });
 
   it('танки спереди (0–1), лекари и дальний бой сзади (2–4)', () => {
-    const s = withHeroes([hero('h1', 'acolyte'), hero('h2', 'archer'), hero('h3', 'swordman'), hero('h4', 'mage'), hero('h5', 'knight', 1)]);
+    const s = withHeroes([hero('h1', 'acolyte'), hero('h2', 'archer'), hero('h3', 'swordman'), hero('h4', 'mage'), hero('h5', 'crusader', 1)]);
     const squad = autoFormation(s, ctx);
     const role = (id: string | null) => formationRank(s.heroes.find((h) => h.id === id)!, ctx);
     expect(squad.slice(0, 2).map(role)).toEqual([0, 0]);
@@ -119,15 +143,15 @@ describe('K8 авто-расстановка', () => {
   });
 
   it('при нехватке танков спереди встаёт ближний бой, при нехватке задних — остальные', () => {
-    const s = withHeroes([hero('h1', 'thief'), hero('h2', 'thief'), hero('h3', 'thief'), hero('h4', 'thief'), hero('h5', 'acolyte')]);
+    const s = withHeroes([hero('h1', 'dorn'), hero('h2', 'zara'), hero('h3', 'eremes'), hero('h4', 'gertie'), hero('h5', 'acolyte')]);
     const squad = autoFormation(s, ctx);
     expect(squad[4]).toBe('h5');
     expect(squad.slice(0, 4).sort()).toEqual(['h1', 'h2', 'h3', 'h4']);
   });
 
-  it('равная мощь → по id; меньше 5 героев → пустые слоты; детерминизм', () => {
-    const six = withHeroes(['h6', 'h3', 'h1', 'h5', 'h2', 'h4'].map((id) => hero(id, 'novice', 5)));
-    expect(autoFormation(six, ctx)).toEqual(['h1', 'h2', 'h3', 'h4', 'h5']);
+  it('одна копия карточки: из равных копий — меньший id; меньше 5 героев → пустые слоты; детерминизм', () => {
+    const six = withHeroes(['h6', 'h3', 'h1', 'h5', 'h2', 'h4'].map((id) => hero(id, 'iris', 5)));
+    expect(autoFormation(six, ctx)).toEqual(['h1', null, null, null, null]);
     const two = withHeroes([hero('h2', 'acolyte'), hero('h1', 'swordman')]);
     expect(autoFormation(two, ctx)).toEqual(['h1', null, null, null, 'h2']);
     expect(autoFormation(six, ctx)).toEqual(autoFormation(six, ctx));

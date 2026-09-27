@@ -85,11 +85,11 @@ describe('кампания', () => {
     expectRuleError(() => playStage({ ...fresh(), squad: ['ghost', null, null, null, null] }, s1, 1, ctx), 'unknown_hero');
   });
 
-  it('5 новичков из newGame проходят этап 1 хотя бы с одним seed 1..20', () => {
+  it('сюжетная тройка из newGame проходит этап 1 хотя бы с одним seed 1..20', () => {
     expect(winningSeed(fresh(), s1)).toBeGreaterThan(0);
   });
 
-  it('playStage: победа — золото, опыт каждому герою отряда, stageCleared, stageUnlocked следующего', () => {
+  it('playStage: победа — золото, опыт в общий пул, осколки героя этапа, stageCleared, stageUnlocked следующего', () => {
     const save: SaveState = { ...fresh(), squad: ['h1', 'h2', null, null, null] };
     const seed = winningSeed(save, s1);
     const { save: next, events, result } = playStage(save, s1, seed, ctx);
@@ -99,17 +99,17 @@ describe('кампания', () => {
     expect(next.resources.gold).toBe(save.resources.gold + r.gold);
     expect(next.campaign.cleared).toEqual([s1]);
     expect(stageStatus(next, s2, ctx)).toBe('open');
-    expect(events.slice(0, 3)).toEqual([
-      { type: 'rewards', gold: r.gold, jobExp: r.jobExp, heroIds: ['h1', 'h2'] },
+    // Осколки этапа 1 (globalIndex 0) — первому сюжетному герою по кругу (Алан).
+    expect(events.slice(0, 4)).toEqual([
+      { type: 'rewards', gold: r.gold, heroExp: r.jobExp },
+      { type: 'shards', templateId: 'alan', count: ctx.cards.shards.firstClear },
       { type: 'stageCleared', stageId: s1, firstTime: true },
       { type: 'stageUnlocked', stageId: s2 },
     ]);
-    const total = (h: SaveState['heroes'][number]) => h.jobLevel * 1e6 + h.jobExp;
-    for (const id of ['h1', 'h2']) {
-      expect(total(next.heroes.find((h) => h.id === id)!)).toBeGreaterThan(total(save.heroes.find((h) => h.id === id)!));
-    }
-    // h3 не в отряде — опыт не получил.
-    expect(next.heroes.find((h) => h.id === 'h3')).toEqual(save.heroes.find((h) => h.id === 'h3'));
+    expect(next.resources.heroExp).toBe(save.resources.heroExp + r.jobExp);
+    expect(next.shards).toEqual({ alan: ctx.cards.shards.firstClear });
+    // Уровни героев сами не растут — опыт тратит игрок («Улучшить»).
+    expect(next.heroes).toEqual(save.heroes);
   });
 
   it('playStage: повтор пройденного — награда × replayRewardMultiplier, без stageUnlocked', () => {
@@ -120,13 +120,14 @@ describe('кампания', () => {
     const r = stages[0].rewards;
     expect(next.resources.gold).toBe(Math.floor(r.gold * m));
     expect(next.campaign.cleared).toEqual([s1]);
-    expect(events).toContainEqual({ type: 'rewards', gold: Math.floor(r.gold * m), jobExp: Math.floor(r.jobExp * m), heroIds: ['h1', 'h2', 'h3'] });
+    expect(events).toContainEqual({ type: 'rewards', gold: Math.floor(r.gold * m), heroExp: Math.floor(r.jobExp * m) });
+    expect(next.resources.heroExp).toBe(Math.floor(r.jobExp * m));
     expect(events).toContainEqual({ type: 'stageCleared', stageId: s1, firstTime: false });
     expect(events.some((e) => e.type === 'stageUnlocked')).toBe(false);
   });
 
   it('playStage: поражение — только battleSeq + 1', () => {
-    // Босс главы против одного новичка 1-го уровня — проигрыш.
+    // Босс главы против одного Алана 1-го уровня — проигрыш.
     const save: SaveState = { ...clearedUpTo(9), squad: ['h1', null, null, null, null], battleSeq: 7 };
     const boss = stages[9].id;
     const out = playStage(save, boss, 1, ctx);

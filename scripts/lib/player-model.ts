@@ -4,14 +4,17 @@
  */
 import {
   achievementStatus,
-  actChangeJob,
+  actAscend,
   actClaimOffline,
   actClimbTower,
   actEquip,
+  actLevelUp,
   actPlayStage,
+  actSummon,
+  ascendRequirement,
+  autoFodder,
   actUseFastRewards,
   autoFormation,
-  availableJobChanges,
   busyHeroes,
   canEquip,
   claimAchievement,
@@ -22,9 +25,11 @@ import {
   equip,
   fastRewardsPreview,
   fastRewardsStatus,
-  getJob,
   getStage,
   heroPower,
+  heroRole,
+  levelUpInfo,
+  summonStatus,
   newGame,
   questStatus,
   squadPower,
@@ -62,11 +67,8 @@ export interface PlayerModel {
   fastRewardsPerDay: number;
   /** Отправлять героев на поручения. */
   bounties: boolean;
-  /**
-   * Желаемая роль героя h1…h5 при смене профессии. Берётся первая по алфавиту профессия нужной роли,
-   * если её нет — первая по алфавиту из доступных. (Привязка к герою, а не к слоту: слоты меняет autoFormation.)
-   */
-  roleByHero: string[];
+  /** Призыв за гемы (×10, когда гемов хватает); false — только бесплатный призыв и свитки. */
+  summonWithGems: boolean;
   /** Сдвиг seed: seed боя = seedBase + save.battleSeq; seed доски поручений = seedBase. */
   seedBase: number;
   /** Календарный день первого дня симуляции, 'YYYY-MM-DD'. */
@@ -82,7 +84,7 @@ export const PLAYER_MODEL: PlayerModel = {
   towerMaxLossesPerSession: 2,
   fastRewardsPerDay: 1,
   bounties: true,
-  roleByHero: ['tank', 'tank', 'damage', 'damage', 'healer'],
+  summonWithGems: false,
   seedBase: 1,
   startDate: '2026-01-01',
 };
@@ -105,8 +107,8 @@ export const CSV_COLUMNS = [
   'items',
   'squad_power',
   'next_stage_power',
-  'avg_job_level',
-  'jobs',
+  'avg_level',
+  'heroes',
   'quests_claimed',
   'bounties_done',
 ] as const;
@@ -138,8 +140,10 @@ export interface SessionRow {
   squad_power: number;
   /** Мощь врагов stage_reached (core stagePower); 0, если всё пройдено. */
   next_stage_power: number;
-  avg_job_level: number;
-  jobs: string;
+  /** Средний уровень карточек отряда. */
+  avg_level: number;
+  /** Отряд: шаблон:редкость:уровень через «|». */
+  heroes: string;
   /** Всего получено наград заданий (накопительно). */
   quests_claimed: number;
   /** Всего выполнено поручений (накопительно). */
@@ -156,7 +160,7 @@ export interface FirstClear {
 }
 
 /** Источники доходов/расходов золота и гемов. */
-export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'bounties', 'quests', 'achievements'] as const;
+export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'bounties', 'quests', 'achievements', 'heroes', 'summon'] as const;
 export type Source = (typeof SOURCES)[number];
 export type Ledger = Record<Source, { gold: number; gems: number }>;
 
@@ -179,8 +183,10 @@ export interface BalanceResult {
   towerAttempts: Record<number, number>;
   /** Сколько раз надевались предметы. */
   equips: number;
-  /** Смены профессий: [день, герой, профессия]. */
-  jobChanges: { day: number; heroId: string; job: string }[];
+  /** Вознесения: [день, герой, новая редкость]. */
+  ascensions: { day: number; heroId: string; rarity: string }[];
+  /** Призвано карточек. */
+  summons: number;
 }
 
 const HOUR = 3_600_000;
@@ -209,7 +215,8 @@ class Sim {
   questClaims: Record<string, number> = {};
   milestoneClaims: Record<string, number> = {};
   equips = 0;
-  jobChanges: BalanceResult['jobChanges'] = [];
+  ascensions: BalanceResult['ascensions'] = [];
+  summons = 0;
   dayNo = 1;
   day: string;
 
@@ -232,19 +239,44 @@ class Sim {
     this.save = next;
   }
 
-  /** Смена профессий по roleByHero (через actChangeJob — засчитывается заданию и достижениям). */
-  changeJobs(): void {
-    this.save.heroes.forEach((_, i) => {
-      for (let guard = 0; guard < 5; guard++) {
-        const hero = this.save.heroes[i];
-        const options = availableJobChanges(hero, this.ctx);
-        if (options.length === 0) break;
-        const want = this.model.roleByHero[i];
-        const pick = options.find((j) => getJob(this.ctx, j).role === want) ?? options[0];
-        this.save = actChangeJob(this.save, this.day, hero.id, pick, this.ctx).save;
-        this.jobChanges.push({ day: this.dayNo, heroId: hero.id, job: pick });
-      }
-    });
+  /**
+   * Карточки (через act* — засчитываются заданиям и достижениям): Таверна (бесплатный призыв, свитки, при
+   * summonWithGems — ×10 за гемы), вознесение (сюжетные — осколками, призывные — самым слабым кормом),
+   * «Улучшить» — по уровню самому низкому герою отряда, пока хватает опыта пула и золота.
+   */
+  develop(): void {
+    const st = summonStatus(this.save, this.day, this.ctx);
+    if (st.unlocked) {
+      const pull = (count: number, pay: 'gems' | 'scroll' | 'free') => {
+        const r = actSummon(this.save, this.day, count, pay, this.ctx);
+        this.step('summon', r.save);
+        this.summons += r.results.length;
+      };
+      if (st.can.free) pull(1, 'free');
+      while (this.save.currency.scrolls >= 10) pull(10, 'scroll');
+      while (this.save.currency.scrolls > 0) pull(1, 'scroll');
+      if (this.model.summonWithGems) while (this.save.currency.gems >= this.ctx.summon.costs.ten) pull(10, 'gems');
+    }
+    for (let guard = 0; guard < 50; guard++) {
+      const hero = this.save.heroes.find((h) => {
+        const req = ascendRequirement(this.save, h.id, this.ctx);
+        return req && req.blockers.length === 0 && req.fodder.every((f) => f.candidates.length >= f.count);
+      });
+      if (!hero) break;
+      const r = actAscend(this.save, this.day, hero.id, autoFodder(this.save, hero.id, this.ctx) ?? [], this.ctx);
+      this.step('heroes', r.save);
+      const e = r.events.find((x) => x.type === 'ascended');
+      if (e && e.type === 'ascended') this.ascensions.push({ day: this.dayNo, heroId: hero.id, rarity: e.to });
+    }
+    const squad = () => this.save.squad.filter((id): id is string => id !== null);
+    for (let guard = 0; guard < 2000; guard++) {
+      const ready = squad()
+        .map((id) => this.save.heroes.find((h) => h.id === id)!)
+        .filter((h) => levelUpInfo(this.save, h.id, this.ctx).canLevel)
+        .sort((a, b) => a.level - b.level);
+      if (!ready.length) break;
+      this.step('heroes', actLevelUp(this.save, this.day, ready[0].id, this.ctx).save);
+    }
   }
 
   /** Каждому герою (в порядке отряда) надевать свободный предмет с наибольшим приростом heroPower, пока прирост > 0. */
@@ -271,9 +303,10 @@ class Sim {
     }
   }
 
-  /** Профессии → экипировка → авто-расстановка. */
+  /** Авто-расстановка → карточки (призыв, вознесение, «Улучшить» отряда) → экипировка → авто-расстановка. */
   prepare(): void {
-    this.changeJobs();
+    this.save = { ...this.save, squad: autoFormation(this.save, this.ctx) };
+    this.develop();
     this.autoEquip();
     this.save = { ...this.save, squad: autoFormation(this.save, this.ctx) };
   }
@@ -309,7 +342,7 @@ class Sim {
       if (idle.length < b.heroCount) continue;
       const group: string[] = [];
       if (b.role) {
-        const r = idle.find((h) => getJob(this.ctx, h.job).role === b.role);
+        const r = idle.find((h) => heroRole(h, this.ctx) === b.role);
         if (!r) continue;
         group.push(r.id);
       }
@@ -432,8 +465,8 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
         items: s.inventory.items.length,
         squad_power: squadPower(s, ctx),
         next_stage_power: next ? stagePower(next, ctx) : 0,
-        avg_job_level: Math.round((heroes.reduce((a, h) => a + h.jobLevel, 0) / Math.max(1, heroes.length)) * 10) / 10,
-        jobs: heroes.map((h) => h.job).join('|'),
+        avg_level: Math.round((heroes.reduce((a, h) => a + h.level, 0) / Math.max(1, heroes.length)) * 10) / 10,
+        heroes: heroes.map((h) => `${h.templateId}:${h.rarity}:${h.level}`).join('|'),
         quests_claimed: Object.values(sim.questClaims).reduce((a, n) => a + n, 0),
         bounties_done: s.achievements.counters.bounties_done ?? 0,
       });
@@ -451,7 +484,8 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     questClaims: sim.questClaims,
     milestoneClaims: sim.milestoneClaims,
     equips: sim.equips,
-    jobChanges: sim.jobChanges,
+    ascensions: sim.ascensions,
+    summons: sim.summons,
   };
 }
 
@@ -560,13 +594,8 @@ export function signals(res: BalanceResult, ctx: FullContext): string[] {
     out.push(`Золото на ${Math.round((incGold.g / inc.gold) * 100)}% из одного источника: ${incGold.s}.`);
   }
 
-  const maxTier = Math.max(...res.save.heroes.map((h) => getJob(ctx, h.job).tier));
-  const maxLevel = Math.max(...res.save.heroes.map((h) => h.jobLevel));
-  const tierLevel: Record<string, number> = ctx.progression.jobChange.tierLevel;
-  const need = tierLevel[String(maxTier + 1)];
-  if (need !== undefined) {
-    out.push(`Профессии тира ${maxTier + 1} не открыты за ${days.length} дн.: джоб-уровень героев дошёл до ${maxLevel}, нужно ${need}.`);
-  }
+  const maxLevel = Math.max(...res.save.heroes.map((h) => h.level));
+  out.push(`Карточки: наибольший уровень ${maxLevel}, призвано ${res.summons}, вознесений ${res.ascensions.length}, опыт в запасе ${res.save.resources.heroExp}.`);
 
   const achDone = res.save.achievements.claimed.length;
   out.push(`Достижений получено: ${achDone} из ${ctx.meta.achievements.achievements.length}.`);

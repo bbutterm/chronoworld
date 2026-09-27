@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { actEquip, actUnequip, heroSlots, SLOTS, type HeroState, type Slot } from '../../core';
+import { actEquip, actUnequip, heroName, heroSlots, SLOTS, type HeroState, type Slot } from '../../core';
 import { GAME } from '../content';
 import { diffText, equipBlocker, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, statDiff, type InventoryRow } from '../flow';
 import { GAME_W } from '../layout';
@@ -78,7 +78,7 @@ export class InventoryScene extends Phaser.Scene {
   // ---------- выбор предмета для слота героя ----------
 
   private picker(hero: HeroState, slot: Slot): void {
-    screen(this, `${SLOT_NAMES[slot]}: ${hero.name}`, 'Heroes', { to: 'Hero', data: { heroId: hero.id } });
+    screen(this, `${SLOT_NAMES[slot]}: ${heroName(hero, GAME)}`, 'Heroes', { to: 'Hero', data: { heroId: hero.id } });
     const save = session.save;
     const cur = heroSlots(save, hero.id, GAME)[slot];
     const top = CONTENT_TOP;
@@ -91,7 +91,7 @@ export class InventoryScene extends Phaser.Scene {
       ellipsize(text(this, TEXT_X, top + 155, `${RARITY_NAMES[cur.def.rarity]} · ${itemStatsText(cur.def.stats)}`, FS.small, C.ink).setOrigin(0, 0.5), TEXT_W);
       button(this, 880, top + 100, 250, 110, 'k:buttonLong_beige', 'Снять', () => {
         commit(actUnequip(session.save, cur.instance.id));
-        this.backToHero(hero.id, `${hero.name}: снят предмет «${cur.def.name}»`);
+        this.backToHero(hero.id, `${heroName(hero, GAME)}: снят предмет «${cur.def.name}»`);
       }, FS.h3);
     } else {
       for (const o of itemCell(this, CELL_X, top + 110, CELL, slot, TINT.frame)) (o as Phaser.GameObjects.Image).setAlpha(0.35);
@@ -134,7 +134,7 @@ export class InventoryScene extends Phaser.Scene {
       if (row.instance.equippedBy !== null && row.instance.equippedBy !== hero.id) save = actUnequip(save, row.instance.id);
       commit(actEquip(save, hero.id, row.instance.id, GAME));
       markHint('equip_gear');
-      this.backToHero(hero.id, `${hero.name}: надет «${row.def?.name ?? row.instance.itemId}»${row.wornBy ? ` (снят с ${row.wornBy})` : ''}`);
+      this.backToHero(hero.id, `${heroName(hero, GAME)}: надет «${row.def?.name ?? row.instance.itemId}»${row.wornBy ? ` (снят с ${row.wornBy})` : ''}`);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }

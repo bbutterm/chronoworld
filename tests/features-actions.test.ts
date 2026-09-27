@@ -2,14 +2,16 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
-  actChangeJob,
+  actAscend,
   actClaimAchievement,
   actClaimActivity,
   actClaimBounty,
   actClaimOffline,
   actClaimQuest,
+  actLevelUp,
   actPlayStage,
   actSkipStage,
+  actSummon,
   actUseFastRewards,
   claimAchievement,
   claimActivity,
@@ -18,6 +20,7 @@ import {
   FeatureError,
   MetaError,
   GameRuleError,
+  HeroError,
   newGame,
   playStage,
   repeatStage,
@@ -77,21 +80,21 @@ describe('K7 пропуск и повтор', () => {
 });
 
 describe('обёртки действий засчитывают задания', () => {
-  it('actPlayStage: попытка, победа, level-up', () => {
+  it('actPlayStage: попытка и победа (уровни в бою не растут — опыт уходит в пул)', () => {
     const s = newGame(ctx, 0, D1);
     const seed = winningSeed(s, s1);
     const out = actPlayStage(s, D1, s1, seed, ctx);
     const base = playStage(s, s1, seed, ctx);
-    const ups = base.events.filter((e) => e.type === 'levelUp').length;
+    expect(base.events.some((e) => e.type === 'levelUp')).toBe(false);
     expect(out.result).toEqual(base.result);
-    expect(out.save.daily.quests).toEqual({ stage_attempt: 1, stage_win: 1, ...(ups ? { hero_level_up: ups } : {}) });
+    expect(out.save.daily.quests).toEqual({ stage_attempt: 1, stage_win: 1 });
     // K10: обёртка ещё засчитывает достижения (battles_won, stages_cleared…).
     expect({ ...out.save, daily: undefined, achievements: undefined }).toEqual({ ...base.save, daily: undefined, achievements: undefined });
   });
 
   it('actPlayStage: поражение — только попытка', () => {
-    // Один новичок против этапа 2: ищем проигрышный seed.
-    const s = { ...cleared(), squad: ['h1', null, null, null, null] };
+    // Одна Вика ур. 1 (лекарь) против этапа 2: ищем проигрышный seed.
+    const s = { ...cleared(), squad: ['h3', null, null, null, null] };
     let seed = 1;
     while (seed < 50 && playStage(s, s2, seed, ctx).result.winner === 'A') seed++;
     const out = actPlayStage(s, D1, s2, seed, ctx);
@@ -114,15 +117,30 @@ describe('обёртки действий засчитывают задания'
     expect(full.save.daily.quests.offline_claim).toBe(1);
   });
 
-  it('actChangeJob: смена профессии + job_change; ошибки пробрасываются', () => {
-    const s = newGame(ctx, 0, D1);
-    const tier1 = ctx.progression.jobChange.tierLevel['1'];
-    const ready: SaveState = { ...s, heroes: s.heroes.map((h, i) => (i === 0 ? { ...h, jobLevel: tier1 } : h)) };
-    const out = actChangeJob(ready, D1, 'h1', 'swordman', ctx);
-    expect(out.save.heroes[0].job).toBe('swordman');
-    expect(out.save.daily.quests).toEqual({ job_change: 1 });
-    expect(() => actChangeJob(s, D1, 'h1', 'swordman', ctx)).toThrow(GameRuleError);
-    expect(() => actChangeJob(s, D1, 'ghost', 'swordman', ctx)).toThrow(GameRuleError);
+  it('actLevelUp: уровни за опыт пула + hero_level_up по числу уровней и hero_max_level; ошибки пробрасываются', () => {
+    const s0 = newGame(ctx, 0, D1);
+    const s: SaveState = { ...s0, resources: { ...s0.resources, heroExp: 100_000, gold: 100_000 } };
+    const out = actLevelUp(s, D1, 'h1', ctx, 3);
+    expect(out.levels).toBe(3);
+    expect(out.save.heroes[0].level).toBe(4);
+    expect(out.save.daily.quests).toEqual({ hero_level_up: 3 });
+    expect(out.save.achievements.counters.hero_max_level).toBe(4);
+    expect(() => actLevelUp(s0, D1, 'h1', ctx)).toThrow(HeroError);
+    expect(() => actLevelUp(s, D1, 'ghost', ctx)).toThrow(HeroError);
+  });
+
+  it('actSummon / actAscend: задания summon / hero_ascend и достижения summons / ascensions', () => {
+    const s0 = { ...newGame(ctx, 0, D1), campaign: { cleared: ctx.content.stages.slice(0, 5).map((x) => x.id) } };
+    const s: SaveState = { ...s0, currency: { gems: 1000, scrolls: 0 }, resources: { ...s0.resources, gold: 10_000 }, shards: { alan: 20 } };
+    const pulled = actSummon(s, D1, 10, 'gems', ctx);
+    expect(pulled.results).toHaveLength(10);
+    expect(pulled.save.daily.quests).toEqual({ summon: 10 });
+    expect(pulled.save.achievements.counters.summons).toBe(10);
+    const up = actAscend(pulled.save, D1, 'h1', [], ctx);
+    expect(up.save.heroes[0].rarity).toBe('blue');
+    expect(up.save.daily.quests).toEqual({ summon: 10, hero_ascend: 1 });
+    expect(up.save.achievements.counters.ascensions).toBe(1);
+    expect(() => actSummon(newGame(ctx, 0, D1), D1, 1, 'free', ctx)).toThrow(HeroError);
   });
 
   it('actUseFastRewards: fast_rewards', () => {
@@ -139,9 +157,8 @@ describe('обёртки действий засчитывают задания'
   });
 });
 
-describe('обёртки наград с опытом засчитывают hero_level_up', () => {
+describe('обёртки наград с опытом: опыт — в общий пул, уровни поднимает игрок', () => {
   const mctx = withMeta(ctx, read('data/bounties.json'), read('data/achievements.json'));
-  const ups = (events: readonly { type: string }[]) => events.filter((e) => e.type === 'levelUp').length;
   const base = () => newGame(mctx, 0, D1);
 
   it('actClaimQuest: очки как у claimQuest; level-up задания только двигают счётчик, ничего не забирая', () => {
@@ -154,26 +171,24 @@ describe('обёртки наград с опытом засчитывают her
     expect(() => actClaimQuest(out.save, D1, 'level_ups', mctx)).toThrow(FeatureError);
   });
 
-  it('actClaimActivity: jobExp порога → hero_level_up, без автозабора задания level_ups', () => {
+  it('actClaimActivity: jobExp порога — в пул; уровни и счётчик level-up не меняются', () => {
     const s0 = base();
     // 60 очков активности: три задания по 20.
     const s: SaveState = { ...s0, daily: { ...s0.daily, claimedQuests: ['win_stages', 'offline_chest', 'fast_rewards'] } };
     const plain = claimActivity(s, D1, 60, mctx);
-    const n = ups(plain.events);
-    expect(n).toBeGreaterThan(0);
+    const exp = mctx.features.quests.milestones.find((m) => m.points === 60)!.rewards.jobExp;
+    expect(exp).toBeGreaterThan(0);
+    expect(plain.save.resources.heroExp).toBe(s.resources.heroExp + exp);
+    expect(plain.save.heroes).toEqual(s.heroes);
     const out = actClaimActivity(s, D1, 60, mctx);
     expect(out.events).toEqual(plain.events);
-    expect(out.save.heroes).toEqual(plain.save.heroes);
-    expect(out.save.daily.quests).toEqual({ hero_level_up: n });
-    expect(out.save.daily.claimedQuests).toEqual(s.daily.claimedQuests);
+    expect(out.save.daily.quests).toEqual({});
     expect(out.save.daily.activityClaimed).toEqual([60]);
     expect({ ...out.save, daily: undefined }).toEqual({ ...plain.save, daily: undefined });
-    // Порог без опыта — счётчик не трогается.
-    expect(actClaimActivity(s, D1, 20, mctx).save.daily.quests).toEqual({});
     expect(() => actClaimActivity(s0, D1, 60, mctx)).toThrow(FeatureError);
   });
 
-  it('actClaimBounty: jobExp поручения → hero_level_up на день day', () => {
+  it('actClaimBounty: jobExp поручения — в пул, осколки — «отстающему» сюжетному герою', () => {
     const s0 = base();
     const hero = s0.heroes[0].id;
     const s: SaveState = {
@@ -181,30 +196,30 @@ describe('обёртки наград с опытом засчитывают her
       bounties: {
         ...s0.bounties,
         active: [
-          { id: 'b1', templateId: 'patrol', rarity: 'common', durationMinutes: 30, heroCount: 1, role: null, rewards: { gold: 10, jobExp: 500, gems: 0 }, heroIds: [hero], startedAt: 0, endsAt: 1000 },
+          { id: 'b1', templateId: 'patrol', rarity: 'common', durationMinutes: 30, heroCount: 1, role: null, rewards: { gold: 10, jobExp: 500, gems: 0, shards: 2 }, heroIds: [hero], startedAt: 0, endsAt: 1000 },
         ],
       },
     };
     const plain = claimBounty(s, 'b1', 1000, mctx);
-    const n = ups(plain.events);
-    expect(n).toBeGreaterThan(0);
+    expect(plain.save.resources.heroExp).toBe(500);
+    expect(plain.save.shards).toEqual({ alan: 2 });
+    expect(plain.events).toContainEqual({ type: 'shards', templateId: 'alan', count: 2 });
     const out = actClaimBounty(s, D1, 'b1', 1000, mctx);
     expect(out.events).toEqual(plain.events);
-    expect(out.save.daily.quests).toEqual({ hero_level_up: n });
+    expect(out.save.daily.quests).toEqual({});
     expect(out.save.achievements).toEqual(plain.save.achievements);
     expect(() => actClaimBounty(s, D1, 'b1', 999, mctx)).toThrow(MetaError);
   });
 
-  it('actClaimAchievement: jobExp достижения → hero_level_up', () => {
+  it('actClaimAchievement: опыт и осколки достижения', () => {
     const s0 = base();
-    const s: SaveState = { ...s0, achievements: { ...s0.achievements, counters: { ...s0.achievements.counters, jobs_changed: 1 } } };
-    const plain = claimAchievement(s, 'first_job', mctx);
-    const n = ups(plain.events);
-    expect(n).toBeGreaterThan(0);
-    const out = actClaimAchievement(s, D1, 'first_job', mctx);
+    const s: SaveState = { ...s0, achievements: { ...s0.achievements, counters: { ...s0.achievements.counters, stages_cleared: 10 } } };
+    const plain = claimAchievement(s, 'stages_10', mctx);
+    expect(plain.save.shards).toEqual({ alan: 5 });
+    const out = actClaimAchievement(s, D1, 'stages_10', mctx);
     expect(out.events).toEqual(plain.events);
-    expect(out.save.daily.quests).toEqual({ hero_level_up: n });
+    expect(out.save.daily.quests).toEqual({});
     expect(out.save.achievements).toEqual(plain.save.achievements);
-    expect(() => actClaimAchievement(out.save, D1, 'first_job', mctx)).toThrow(MetaError);
+    expect(() => actClaimAchievement(out.save, D1, 'stages_10', mctx)).toThrow(MetaError);
   });
 });

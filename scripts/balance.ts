@@ -84,7 +84,7 @@ console.log(
 );
 console.log(
   `  предметов: ${res.save.inventory.items.length} (надето ${res.save.inventory.items.filter((i) => i.equippedBy).length}), надеваний ${res.equips}, ` +
-    `смен профессий ${res.jobChanges.length}, заданий ${Object.values(res.questClaims).reduce((a, n) => a + n, 0)}, ` +
+    `призывов ${res.summons}, вознесений ${res.ascensions.length}, заданий ${Object.values(res.questClaims).reduce((a, n) => a + n, 0)}, ` +
     `поручений ${res.save.achievements.counters.bounties_done ?? 0}`,
 );
 

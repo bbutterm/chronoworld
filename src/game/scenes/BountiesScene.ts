@@ -9,8 +9,9 @@ import {
   startBounty,
   type ActiveBountyView,
   type Bounty,
+  heroCard,
 } from '../../core';
-import { CONTENT, GAME } from '../content';
+import { GAME } from '../content';
 import {
   BOUNTY_RARITY_COLORS,
   BOUNTY_RARITY_NAMES,
@@ -233,15 +234,15 @@ export class BountiesScene extends Phaser.Scene {
         const y = cy - 60;
         const isBusy = busy.has(h.id);
         const sel = chosen.includes(h.id);
-        const job = CONTENT.jobs[h.job];
+        const c = heroCard(h, GAME);
         const bg = panel(this, x, y, step - 12, 330, sel ? 'ui_slot_selected' : 'ui_slot_filled');
         tiles.add(bg);
         const face = portrait(this, x, y - 60, portraitKey(heroSprite(h, GAME)), 140);
         tiles.add(face);
-        tiles.add(ellipsize(text(this, x, y + 45, h.name, FS.body, sel ? C.ink : C.text, { fontStyle: 'bold', stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 5 }), step - 24));
-        const roleOk = b.role && job?.role === b.role;
-        tiles.add(text(this, x, y + 85, ROLE_NAMES[job?.role ?? ''] ?? '', FS.caption, roleOk ? C.inkSuccess : sel ? C.inkMuted : C.title, { fontStyle: roleOk ? 'bold' : 'normal', stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 3 }));
-        tiles.add(ellipsize(text(this, x, y + 120, job?.name ?? h.job, FS.caption, sel ? C.inkMuted : C.muted, { stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 3 }), step - 24));
+        tiles.add(ellipsize(text(this, x, y + 45, c.name, FS.body, sel ? C.ink : C.text, { fontStyle: 'bold', stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 5 }), step - 24));
+        const roleOk = b.role && c.role === b.role;
+        tiles.add(text(this, x, y + 85, ROLE_NAMES[c.role] ?? '', FS.caption, roleOk ? C.inkSuccess : sel ? C.inkMuted : C.title, { fontStyle: roleOk ? 'bold' : 'normal', stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 3 }));
+        tiles.add(ellipsize(text(this, x, y + 120, c.jobName, FS.caption, sel ? C.inkMuted : C.muted, { stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 3 }), step - 24));
         if (isBusy) {
           bg.setAlpha(0.4);
           face.setAlpha(0.35);

@@ -33,6 +33,8 @@ export const HeroFormSchema = z.object({
   role: UnitSchema.shape.role.optional(),
   statMods: CardStatModsSchema,
   skills: z.array(CardSkillSchema).min(1),
+  /** Лист спрайта формы (id из assets/sprites/sprites.json, например knight_m); нет — лист класса по полу. */
+  visual: z.object({ sprite: z.string().optional() }).default({}),
 });
 
 export const HeroTemplateSchema = z.object({
@@ -54,7 +56,10 @@ export const HeroTemplateSchema = z.object({
   skills: z.array(CardSkillSchema).min(1),
   /** Только у сюжетных: вторая профессия на фиолетовой редкости и выше. */
   forms: z.array(HeroFormSchema).default([]),
-  /** Переопределения вида: свой лист спрайта (иначе лист класса по полу). */
+  /**
+   * Вид базовой формы: sprite — свой лист (id из assets/sprites/sprites.json, например swordman_m); нет листа в реестре
+   * или поля — лист класса по полу (`<лист класса>_<m|f>`, иначе базовый). Портрет — по листу.
+   */
   visual: z.object({ sprite: z.string().optional(), portrait: z.string().optional() }).default({}),
   bio: z.string().max(160),
   hook: z.string().max(200),

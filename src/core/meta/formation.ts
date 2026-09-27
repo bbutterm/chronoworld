@@ -30,6 +30,14 @@ function checkSquad(save: SaveState, squad: readonly (string | null)[]): (string
   return [...squad];
 }
 
+/**
+ * Поставить отряд squad (5 слотов) с проверкой: герои существуют, не повторяются, одна копия каждой карточки.
+ * MetaError('invalid_squad' | 'unknown_hero' | 'duplicate_card'). Экраны отряда — через эту функцию.
+ */
+export function setSquad(save: SaveState, squad: readonly (string | null)[]): SaveState {
+  return { ...save, squad: checkSquad(save, squad) };
+}
+
 function nextPresetId(save: SaveState): string {
   let max = 0;
   for (const p of save.presets) {

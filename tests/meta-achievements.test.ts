@@ -3,11 +3,11 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   achievementStatus,
-  actChangeJob,
+  actLevelUp,
   actClimbTower,
   actPlayStage,
   claimAchievement,
-  maxHeroJobLevel,
+  maxHeroLevel,
   MetaError,
   newGame,
   playStage,
@@ -57,16 +57,16 @@ describe('K10 счётчики', () => {
     expect(codeOf(() => trackAchievement(s, 'battles_won', NaN))).toBe('invalid_counter');
   });
 
-  it('syncAchievementCounters: этапы, этаж, лучший джоб-уровень (с историей профессий)', () => {
+  it('syncAchievementCounters: этапы, этаж, наибольший уровень карточки', () => {
     const s = newGame(ctx, 0);
     const p: SaveState = {
       ...s,
       campaign: { cleared: ['a', 'b', 'b'] },
       tower: { floor: 3 },
-      heroes: s.heroes.map((h, i) => (i === 1 ? { ...h, jobLevel: 4, jobHistory: [{ job: 'novice', jobLevel: 12 }] } : h)),
+      heroes: s.heroes.map((h, i) => (i === 1 ? { ...h, level: 12 } : h)),
     };
-    expect(maxHeroJobLevel(p)).toBe(12);
-    expect(syncAchievementCounters(p).achievements.counters).toEqual({ stages_cleared: 2, tower_floor: 3, hero_max_job_level: 12 });
+    expect(maxHeroLevel(p)).toBe(12);
+    expect(syncAchievementCounters(p).achievements.counters).toEqual({ stages_cleared: 2, tower_floor: 3, hero_max_level: 12 });
   });
 });
 
@@ -81,17 +81,20 @@ describe('K10 статус и награды', () => {
 
   it('claimAchievement: награда один раз; не выполнено / неизвестно → ошибки', () => {
     const s = newGame(ctx, 0);
-    expect(codeOf(() => claimAchievement(s, 'first_job', ctx))).toBe('achievement_not_done');
+    expect(codeOf(() => claimAchievement(s, 'first_ascend', ctx))).toBe('achievement_not_done');
     expect(codeOf(() => claimAchievement(s, 'nope', ctx))).toBe('unknown_achievement');
-    const done = trackAchievement(trackAchievement(s, 'jobs_changed', 1), 'battles_won', 10);
-    const r = claimAchievement(done, 'first_job', ctx);
-    const def = ctx.meta.achievements.achievements.find((a) => a.id === 'first_job')!;
-    expect(r.rewards).toEqual({ gold: def.rewards.gold, gems: def.rewards.gems, jobExp: def.rewards.jobExp });
-    expect(r.save.achievements.claimed).toEqual(['first_job']);
-    expect(r.events[0]).toEqual({ type: 'achievementClaimed', achievementId: 'first_job' });
-    if (def.rewards.jobExp > 0) expect(r.save.heroes.some((h, i) => h.jobExp !== done.heroes[i].jobExp || h.jobLevel !== done.heroes[i].jobLevel)).toBe(true);
-    expect(achievementStatus(r.save, ctx).find((a) => a.id === 'first_job')!.claimed).toBe(true);
-    expect(codeOf(() => claimAchievement(r.save, 'first_job', ctx))).toBe('achievement_already_claimed');
+    const done = trackAchievement(trackAchievement(s, 'ascensions', 1), 'battles_won', 10);
+    const r = claimAchievement(done, 'first_ascend', ctx);
+    const def = ctx.meta.achievements.achievements.find((a) => a.id === 'first_ascend')!;
+    expect(r.rewards).toEqual(def.rewards);
+    expect(r.save.achievements.claimed).toEqual(['first_ascend']);
+    expect(r.events[0]).toEqual({ type: 'achievementClaimed', achievementId: 'first_ascend' });
+    // Осколки награды — «отстающему» сюжетному герою (все зелёные, осколков нет — первый по сюжету, Алан).
+    expect(def.rewards.shards).toBeGreaterThan(0);
+    expect(r.save.shards).toEqual({ alan: def.rewards.shards });
+    expect(r.events).toContainEqual({ type: 'shards', templateId: 'alan', count: def.rewards.shards });
+    expect(achievementStatus(r.save, ctx).find((a) => a.id === 'first_ascend')!.claimed).toBe(true);
+    expect(codeOf(() => claimAchievement(r.save, 'first_ascend', ctx))).toBe('achievement_already_claimed');
 
     const g = claimAchievement(done, 'battles_10', ctx);
     expect(g.save.resources.gold).toBe(done.resources.gold + ctx.meta.achievements.achievements.find((a) => a.id === 'battles_10')!.rewards.gold);
@@ -109,11 +112,11 @@ describe('K10 учёт через обёртки act*', () => {
     expect(achievementStatus(out.save, ctx).find((a) => a.id === 'first_stage')!.done).toBe(true);
   });
 
-  it('actChangeJob → jobs_changed, hero_max_job_level', () => {
+  it('actLevelUp → hero_max_level', () => {
     const s = newGame(ctx, 0, D1);
-    const ready = { ...s, heroes: s.heroes.map((h, i) => (i === 0 ? { ...h, jobLevel: 10 } : h)) };
-    const out = actChangeJob(ready, D1, 'h1', 'swordman', ctx);
-    expect(out.save.achievements.counters).toMatchObject({ jobs_changed: 1, hero_max_job_level: 10 });
+    const rich = { ...s, resources: { gold: 1e6, heroExp: 1e6 } };
+    const out = actLevelUp(rich, D1, 'h1', ctx, 9);
+    expect(out.save.achievements.counters).toMatchObject({ hero_max_level: 10 });
   });
 
   it('actClimbTower: победа → tower_floor и battles_won, поражение — только попытка', () => {

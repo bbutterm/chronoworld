@@ -33,11 +33,12 @@ describe('K2 мощь', () => {
     expect(unitPower(unit({ stats: { hp: 2000, atk: 100, def: 20, spd: 100 } }), ctx)).toBeGreaterThan(unitPower(unit(), ctx));
   });
 
-  it('heroPower = unitPower(buildUnit); растёт с джоб-уровнем', () => {
+  it('heroPower = unitPower(buildUnit); растёт с уровнем и редкостью', () => {
     const s = newGame(ctx, 0);
     const h = s.heroes[0];
     expect(heroPower(h, ctx)).toBe(unitPower(buildUnit(h, ctx), ctx));
-    expect(heroPower({ ...h, jobLevel: 10 }, ctx)).toBeGreaterThan(heroPower(h, ctx));
+    expect(heroPower({ ...h, level: 10 }, ctx)).toBeGreaterThan(heroPower(h, ctx));
+    expect(heroPower({ ...h, rarity: 'blue' }, ctx)).toBeGreaterThan(heroPower(h, ctx));
   });
 
   it('squadPower — сумма героев в слотах, пустые слоты не считаются', () => {
