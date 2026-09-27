@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { syncAchievementCounters } from '../meta/achievements';
 import { addJobExp } from '../progression/exp';
 import type { HeroState, SaveState } from '../save/schema';
 import type { FeatureContext, FeatureEvent } from './config';
@@ -138,6 +139,7 @@ export function claimQuest(save: SaveState, day: string, questId: string, ctx: F
 /**
  * Забрать награду порога активности milestone (значение points из data/quests.json).
  * Золото и гемы — в ресурсы, jobExp — каждому герою через addJobExp. rollDay первым делом.
+ * K10: как и другие награды с опытом (claimBounty, claimAchievement), обновляет счётчики-«максимумы» достижений.
  * FeatureError: unknown_milestone, not_enough_activity, milestone_already_claimed.
  */
 export function claimActivity(
@@ -169,5 +171,5 @@ export function claimActivity(
       return r.hero;
     });
   }
-  return { save: next, rewards: { gold, gems, jobExp }, events };
+  return { save: syncAchievementCounters(next), rewards: { gold, gems, jobExp }, events };
 }

@@ -4,7 +4,7 @@ import { GAME } from '../content';
 import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, jobChangeReadyCount } from '../flow';
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
 import { GAME_H, GAME_W } from '../layout';
-import { badge, card, confirm, gemIcon, NAV_H, screen } from '../screen';
+import { badge, card, confirm, confirmOpen, gemIcon, NAV_H, screen } from '../screen';
 import { commit, now, resetProgress, session, today } from '../session';
 import { button, dangerButton, hintPointer, icon, panel, pressable, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT, TITLE_STYLE, TOUCH } from '../theme';
@@ -101,7 +101,9 @@ export class HomeScene extends Phaser.Scene {
     this.claimBtn.container.setAlpha(r.gold > 0 || r.jobExp > 0 ? 1 : 0.45);
     this.updateHint(r.gold > 0 || r.jobExp > 0);
     // Поручение завершилось, пока игрок на главной, — обновить плитку и значок.
-    if (finishedBounties(session.save, now()) !== this.bountiesDone) this.scene.restart();
+    // Не при открытом окне (настройки, подтверждение): перезапуск молча закрыл бы его — обновим, когда закроют.
+    const modal = !!this.children.getByName('settingsModal') || confirmOpen(this);
+    if (!modal && finishedBounties(session.save, now()) !== this.bountiesDone) this.scene.restart();
   }
 
   private claim(): void {

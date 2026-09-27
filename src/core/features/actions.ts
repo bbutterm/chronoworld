@@ -81,7 +81,9 @@ export function actUseFastRewards(save: SaveState, day: string, ctx: FeatureCont
 
 /** K6. equip (надеть, предмет из того же слота — в инвентарь). Заданий не засчитывает. K10: items_equipped + 1. */
 export function actEquip(save: SaveState, heroId: string, itemInstanceId: string, ctx: EquipmentContext): SaveState {
-  return trackAchievement(equip(save, heroId, itemInstanceId, ctx), 'items_equipped', 1, 'add');
+  const next = equip(save, heroId, itemInstanceId, ctx);
+  // Предмет уже был на этом герое (equip вернул тот же save) — надевания не было, счётчик не растёт.
+  return next === save ? save : trackAchievement(next, 'items_equipped', 1, 'add');
 }
 
 /** K6. unequip (снять в инвентарь). */

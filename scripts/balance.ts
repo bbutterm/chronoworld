@@ -7,6 +7,7 @@
  */
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { newGame } from '../src/core';
 import { ROOT } from './lib/content-node';
 import { findWalls, loadFullContext, perDay, PLAYER_MODEL, runBalance, signals, SOURCES, toCsv, total } from './lib/player-model';
 
@@ -74,7 +75,13 @@ for (const s of SOURCES) {
     console.log(`  ${s.padEnd(13)} золото +${i.gold}${x.gold ? ` −${x.gold}` : ''}, гемы +${i.gems}${x.gems ? ` −${x.gems}` : ''}`);
   }
 }
-console.log(`  ${'итого'.padEnd(13)} золото +${inc.gold} −${sp.gold} = ${res.save.resources.gold}, гемы +${inc.gems} −${sp.gems} = ${res.save.currency.gems}`);
+// Стартовые золото/гемы новой игры — не доход, но входят в итог на руках.
+const start = newGame(ctx, 0);
+const startText = (n: number) => (n ? `${n} ` : '');
+console.log(
+  `  ${'итого'.padEnd(13)} золото ${startText(start.resources.gold)}+${inc.gold} −${sp.gold} = ${res.save.resources.gold}, ` +
+    `гемы ${startText(start.currency.gems)}+${inc.gems} −${sp.gems} = ${res.save.currency.gems}`,
+);
 console.log(
   `  предметов: ${res.save.inventory.items.length} (надето ${res.save.inventory.items.filter((i) => i.equippedBy).length}), надеваний ${res.equips}, ` +
     `смен профессий ${res.jobChanges.length}, заданий ${Object.values(res.questClaims).reduce((a, n) => a + n, 0)}, ` +
