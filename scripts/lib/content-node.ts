@@ -14,8 +14,9 @@ import {
 
 export const ROOT = resolve(import.meta.dirname, '../..');
 
-export function readJsonDir(dir: string): RawFile[] {
-  const abs = join(ROOT, dir);
+/** JSON-файлы папки dir (относительно root; по умолчанию — корень репозитория), по имени. */
+export function readJsonDir(dir: string, root: string = ROOT): RawFile[] {
+  const abs = join(root, dir);
   if (!existsSync(abs)) return [];
   return readdirSync(abs)
     .filter((f) => f.endsWith('.json'))
@@ -23,9 +24,9 @@ export function readJsonDir(dir: string): RawFile[] {
     .map((f) => {
       const path = join(abs, f);
       try {
-        return { file: relative(ROOT, path), data: JSON.parse(readFileSync(path, 'utf8')) };
+        return { file: relative(root, path), data: JSON.parse(readFileSync(path, 'utf8')) };
       } catch (e) {
-        return { file: relative(ROOT, path), data: { __parseError: String(e) } };
+        return { file: relative(root, path), data: { __parseError: String(e) } };
       }
     });
 }
@@ -41,26 +42,26 @@ export function loadContent(): Content {
 }
 
 /** JSON-файл из корня репозитория (undefined, если файла нет — схема сообщит об ошибке). */
-const readJsonFile = (rel: string): unknown => {
-  const path = join(ROOT, rel);
+const readJsonFile = (rel: string, root: string = ROOT): unknown => {
+  const path = join(root, rel);
   return existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : undefined;
 };
 
-/** Сырые данные data/ для buildGameContext (в браузере то же собирает src/game/content.ts). */
-export function readRawGameData(): RawGameData {
+/** Сырые данные data/ для buildGameContext (в браузере то же собирает src/game/content.ts). root — другой корень (тесты генераторов). */
+export function readRawGameData(root: string = ROOT): RawGameData {
   return {
-    units: readJsonDir('data/units'),
-    skills: readJsonDir('data/skills'),
-    jobs: readJsonDir('data/jobs'),
-    chapters: readJsonDir('data/campaign'),
-    items: readJsonDir('data/items'),
-    progression: readJsonFile('data/progression.json'),
-    quests: readJsonFile('data/quests.json'),
-    drops: readJsonFile('data/drops.json'),
-    tower: readJsonFile('data/tower.json'),
-    bounties: readJsonFile('data/bounties.json'),
-    achievements: readJsonFile('data/achievements.json'),
-    stories: readJsonDir('data/story'),
+    units: readJsonDir('data/units', root),
+    skills: readJsonDir('data/skills', root),
+    jobs: readJsonDir('data/jobs', root),
+    chapters: readJsonDir('data/campaign', root),
+    items: readJsonDir('data/items', root),
+    progression: readJsonFile('data/progression.json', root),
+    quests: readJsonFile('data/quests.json', root),
+    drops: readJsonFile('data/drops.json', root),
+    tower: readJsonFile('data/tower.json', root),
+    bounties: readJsonFile('data/bounties.json', root),
+    achievements: readJsonFile('data/achievements.json', root),
+    stories: readJsonDir('data/story', root),
   };
 }
 
