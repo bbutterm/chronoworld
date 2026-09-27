@@ -20,6 +20,12 @@ describe('O: used assets (что попадает в dist)', () => {
     }
   });
 
+  it('включает все шесть анимированных FX в сборку, даже пока статические fallback остаются в манифесте', () => {
+    const catalog = json('assets/effects/effects.json') as { effects: { id: string; file: string }[] };
+    expect(catalog.effects.map((effect) => effect.id).sort()).toEqual(['fx_arrow', 'fx_death', 'fx_heal', 'fx_hit', 'fx_magic', 'fx_shield']);
+    for (const effect of catalog.effects) expect(files).toContain(effect.file);
+  });
+
   it('включает лист и портрет каждого спрайта, на который ссылается контент', () => {
     const ctx = loadFullContext();
     const registry = buildRegistry(json('assets/sprites.legacy.json'), json('assets/sprites/sprites.json'));

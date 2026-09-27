@@ -23,8 +23,8 @@ const log = (...a) => console.log('[e2e]', ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function loadPlaywright() {
-  const root = execSync('npm root -g', { encoding: 'utf8' }).trim();
-  const entry = join(root, 'playwright', 'index.mjs');
+  const root = process.env.PLAYWRIGHT_MODULE ? '' : execSync('npm root -g', { encoding: 'utf8' }).trim();
+  const entry = process.env.PLAYWRIGHT_MODULE ? resolve(process.env.PLAYWRIGHT_MODULE) : join(root, 'playwright', 'index.mjs');
   try {
     return await import(pathToFileURL(entry).href);
   } catch (e) {

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import manifestJson from '../../assets/manifest.json';
+import { queueAnimatedFx } from './animatedFx';
 import { SKIN_FOR, SKIN_FORCE, SKIN_SLICE } from './skin';
 
 interface AssetEntry {
@@ -34,6 +35,7 @@ export function queueAssets(scene: Phaser.Scene): void {
     if (a.atlasXml) scene.load.atlasXML(id, a.file, a.atlasXml);
     else scene.load.image(id, a.file);
   }
+  queueAnimatedFx((key, file, width, height) => scene.load.spritesheet(key, file, { frameWidth: width, frameHeight: height }));
 }
 
 /** После загрузки: фильтр для пиксель-арта. */
@@ -41,6 +43,9 @@ export function setupLoadedAssets(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
     if (a.file && a.pixelArt && scene.textures.exists(id)) scene.textures.get(id).setFilter(Phaser.Textures.FilterMode.NEAREST);
   }
+  queueAnimatedFx((key) => {
+    if (scene.textures.exists(key)) scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+  });
 }
 
 /** Есть ли id в манифесте ассетов (для проверки ссылок из контента). */

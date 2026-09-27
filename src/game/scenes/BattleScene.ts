@@ -629,7 +629,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private fx(v: UnitView, texId: string, scale: number, duration = 250, alpha = 0.8): void {
-    this.floats.flash(v.node.x, bodyY(v), texId, 140 * scale, alpha, duration, DEPTH.fx);
+    this.floats.flash(v.node.x, bodyY(v), texId, 140 * scale, alpha, duration, DEPTH.fx, v.node.y);
   }
 
   /**

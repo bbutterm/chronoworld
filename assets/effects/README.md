@@ -1,0 +1,18 @@
+# RO effects — captured frame sequences
+
+Six RO-derived PNG atlases and [`effects.json`](effects.json) are an **animated alternative** to the original static decals under `assets/fx/`. The game loads these as `anim_fx_*` spritesheets; the original `fx_*` images stay in `assets/manifest.json` as fallbacks if an atlas fails to load. `src/game/battleFx.ts` samples authored frames using the pooled effect loop. No separate per-frame timers are created.
+
+| ID | Source in roBrowserLegacy EffectViewer | Frames | Usage |
+| --- | --- | ---: | --- |
+| `fx_hit` | `EF_HIT2` / 1 | 3 | Hit on target |
+| `fx_arrow` | `ef_arrow_projectile` | **1** | Arrow image; tween from caster to target in game |
+| `fx_magic` | `EF_MAGICALATTHIT` / 182 | 8 | Magic hit on target |
+| `fx_heal` | `EF_HEAL` / 312 | 17 | Heal on target |
+| `fx_shield` | `EF_ENERGYCOAT` / 169 | 3 | Brief blue protective burst; **not** a sustained dome |
+| `fx_death` | `EF_DEVIL` / 372 | 22 | Rising death spirit **on top of**, not instead of, the unit death animation |
+
+**Provenance:** Real frames were captured with roBrowserLegacy's `api-effectviewer-frame.html` and its configured public Remote Client `https://grf.robrowser.com/`. The repository owner's rights statement for RO art is in [`assets/ro/README.md`](../ro/README.md); the renderer's code license does not grant rights to the underlying game art. No GRF, SPR, ACT, original client packages, raw capture frames, or credentials are committed here.
+
+**Format:** Each sheet is RGBA, grid-ordered row-major; `cell`, `columns`, `frames`, `ms`, `delayMs`, and `anchor` are specified per effect in `effects.json`. `anchor` is the pixel point in a *cell* corresponding to the character's feet and may lie outside the cell. Position the effect by aligning this point with the unit's feet. `blend: normal` refers to an alpha approximation derived from an additive effect rendered against black; preview against both dark and light gameplay backgrounds. For `fx_magic`, alpha values below 24 were cleared to reduce a faint rectangular source-quad artifact. The earlier `EF_KYRIE` capture was rejected because it baked a character into the effect; the shipped `EF_ENERGYCOAT` does not. `fx_arrow` is deliberately a one-frame projectile, **not** a claim of frame animation; its travel is gameplay-side. `fx_magic` is a hit animation, so the existing still image remains in use for a flying magic projectile.
+
+Implementation: `src/game/assets.ts` loads all six sheets with Phaser under `anim_fx_*`; `src/game/animatedFx.ts` selects a usable atlas and computes frames from the catalog. `FloatLayer.flash()` aligns an animated hit to the unit's feet, and `FloatLayer.projectile()` moves the single arrow frame. Loaded still-image keys and their existing static fallback behavior remain unchanged. The bundled browser smoke test is the runtime verification path; mobile/WebView appearance and performance still require device testing.

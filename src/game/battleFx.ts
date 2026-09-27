@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { animatedFrameAt, animatedFxDuration, animatedFxKey, selectedAnimatedEffect, type AnimatedEffect } from './animatedFx';
 import { FONT, GAME_H, GAME_W } from './layout';
 import { clamp01, ease, Pool, TextStyleCache } from './perf';
 import { text } from './ui';
@@ -158,6 +159,8 @@ interface Transient {
   a: number;
   /** Вспышка: начальный масштаб. Цифра: 1 — удар ульты (с «хлопком»). */
   s: number;
+  /** Captured RO sequence, if the atlas was available at load time. */
+  effect?: AnimatedEffect;
 }
 
 /** Кривые твинов, которые раньше делали то же самое (время — мс на 1x). */
@@ -221,16 +224,24 @@ export class FloatLayer {
   }
 
   /** Вспышка: картинка size×size гаснет от alpha до 0 и растёт в 1.2 раза за duration. */
-  flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number): void {
-    const img = this.image(x, y, texId, size, depth).setAlpha(alpha);
-    const r = this.start(Kind.Fx, img, duration);
+  flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y): void {
+    const effect = selectedAnimatedEffect(texId, 'flash', this.scene.textures.exists(animatedFxKey(texId)));
+    const img = this.image(x, effect ? feetY : y, effect ? animatedFxKey(texId) : texId, size, depth).setAlpha(alpha);
+    if (effect) {
+      img.setFrame(0).setOrigin(effect.anchor[0] / effect.cell[0], effect.anchor[1] / effect.cell[1]);
+      img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]).setVisible(effect.delayMs === 0);
+    }
+    const r = this.start(Kind.Fx, img, effect ? animatedFxDuration(effect) : duration);
+    r.effect = effect;
     r.a = alpha;
     r.s = img.scale;
   }
 
   /** Снаряд size×size летит по прямой за duration. */
   projectile(x0: number, y0: number, x1: number, y1: number, texId: string, size: number, duration: number, depth: number): void {
-    const img = this.image(x0, y0, texId, size, depth);
+    const effect = selectedAnimatedEffect(texId, 'projectile', this.scene.textures.exists(animatedFxKey(texId)));
+    const img = this.image(x0, y0, effect ? animatedFxKey(texId) : texId, size, depth);
+    if (effect) img.setFrame(0).setDisplaySize(size, size * effect.cell[1] / effect.cell[0]).setFlipX(x1 < x0);
     const r = this.start(Kind.Projectile, img, duration);
     r.x0 = x0;
     r.y0 = y0;
@@ -258,9 +269,15 @@ export class FloatLayer {
           break;
         }
         case Kind.Fx: {
-          const p = clamp01(r.t / r.dur);
-          o.alpha = r.a * (1 - p);
-          o.setScale(r.s * (1 + 0.2 * p));
+          if (r.effect) {
+            const frame = animatedFrameAt(r.effect, r.t);
+            o.setVisible(frame >= 0);
+            if (frame >= 0) (o as Phaser.GameObjects.Image).setFrame(frame);
+          } else {
+            const p = clamp01(r.t / r.dur);
+            o.alpha = r.a * (1 - p);
+            o.setScale(r.s * (1 + 0.2 * p));
+          }
           break;
         }
         case Kind.Projectile: {
@@ -297,7 +314,7 @@ export class FloatLayer {
 
   private image(x: number, y: number, texId: string, size: number, depth: number): Phaser.GameObjects.Image {
     const img = this.images.acquire();
-    img.setTexture(texId).setPosition(x, y).setScale(1).setDisplaySize(size, size).setAlpha(1).setDepth(depth);
+    img.setTexture(texId).setPosition(x, y).setOrigin(0.5).setFlipX(false).setScale(1).setDisplaySize(size, size).setAlpha(1).setDepth(depth);
     this.scene.children.bringToTop(img);
     return img;
   }
@@ -310,6 +327,7 @@ export class FloatLayer {
     r.dur = dur;
     r.a = 0;
     r.s = 0;
+    r.effect = undefined;
     this.live.push(r);
     return r;
   }

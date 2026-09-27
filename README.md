@@ -38,7 +38,7 @@ npm run build        # статическая сборка в dist/ (под Verc
 | `src/pipeline/` | Реестр спрайтов — общий для игры и скриптов |
 | `src/game/` | Phaser: экраны (Главная, Кампания, Этап, Бой, Итоги, Герои, Инвентарь, Башня, Задания, Отряд, Поручения, Достижения), `theme.ts` — токены интерфейса |
 | `data/` | Весь контент и числа: `units/`, `skills/`, `jobs/`, `campaign/`, `items/`, `combat.json`, `progression.json`, `quests.json`, `tower.json`, `drops.json`, `bounties.json`, `achievements.json`; `schema/` — JSON-схемы для редактора |
-| `assets/` | `sprites/` (спрайты v2), `ui/` (Kenney CC0), `ro/` (старые листы), `manifest.json` (UI, эффекты, иконки по id) |
+| `assets/` | `sprites/` (спрайты v2), `ui/` (Kenney CC0), `ro/` (старые листы), `effects/` ([анимированные RO FX](assets/effects/README.md)), `manifest.json` (UI, статичные запасные эффекты, иконки по id) |
 | `scripts/` | CLI: симулятор, проверка и заготовки контента, баланс, e2e, отчёт по ассетам |
 | `tests/` | Vitest: механика, контент, прогрессия, фазз-тесты (docs/content/testing.md) |
 | `docs/` | GDD, как добавлять контент (`CONTENT.md`, `content/*.md`), спецификация спрайтов, задачи, отчёты |
