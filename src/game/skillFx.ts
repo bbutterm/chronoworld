@@ -260,6 +260,17 @@ export class SkillFx {
     this.images.clear();
   }
 
+  /**
+   * «Пропустить» (T2-12): оборвать всё, что ещё летит или ждёт своей задержки — снаряды, вспышки, отложенные
+   * удары и тряску, частицы, вспышку экрана. Отложенные done не вызываются: они только рисуют.
+   */
+  cancel(): void {
+    for (const r of this.live) if (r.obj) this.images.release(r.obj);
+    this.live.length = 0;
+    for (const e of [this.sparks, this.motes, this.trail]) e.killAll();
+    this.flashRect.setAlpha(0);
+  }
+
   step(dt: number): void {
     for (let i = this.live.length - 1; i >= 0; i--) {
       const r = this.live[i];

@@ -106,6 +106,22 @@ export class UltPresenter {
     return { node, icon, who, what };
   }
 
+  /** «Пропустить» (T2-12): сразу убрать затемнение, плашки и свечения — поверх итога боя ничего не доигрывается. */
+  cancel(): void {
+    this.scene.tweens.killTweensOf(this.dim);
+    this.dim.setAlpha(0);
+    for (const side of ['A', 'B'] as const) {
+      this.chains[side]?.stop();
+      this.chains[side] = null;
+      this.banners[side]?.setVisible(false);
+      this.banners[side] = null;
+    }
+    for (const g of [...this.glows.active]) {
+      this.scene.tweens.killTweensOf(g);
+      this.glows.release(g);
+    }
+  }
+
   /** Сцена выключается: плашки и свечения уничтожит она сама, забываем ссылки. */
   clear(): void {
     this.banners.A = null;
@@ -161,6 +177,8 @@ interface Transient {
   s: number;
   /** Captured RO sequence, if the atlas was available at load time. */
   effect?: AnimatedEffect;
+  /** Чья надпись (uid юнита): у одного юнита на экране не больше нескольких надписей своего вида. */
+  key?: string;
 }
 
 /** Кривые твинов, которые раньше делали то же самое (время — мс на 1x). */
@@ -169,6 +187,16 @@ const NUM_FADE_MS = 350;
 const NUM_POP_MS = 220;
 const HEADLINE_MS = 1000;
 const HEADLINE_RISE = 50;
+/** Подпись держится непрозрачной до этой доли жизни, дальше гаснет. */
+const HEADLINE_HOLD = 0.45;
+/** Подписей над одним юнитом одновременно (T3-02): новая сдвигает прежнюю вверх, прежняя сразу гаснет. */
+export const HEADLINES_PER_UNIT = 2;
+/** На сколько сдвигается вверх прежняя подпись юнита, когда приходит новая. */
+const HEADLINE_STACK = 32;
+/** Цифр над одним юнитом одновременно: лишняя самая старая уходит. */
+export const NUMBERS_PER_UNIT = 4;
+/** Отступ надписи от края экрана. */
+const EDGE = 8;
 
 /**
  * Короткоживущие объекты боя — цифры урона, подписи статусов, вспышки попаданий и снаряды — из пулов,
@@ -204,9 +232,11 @@ export class FloatLayer {
    * Всплывающая цифра: поднимается на rise за 800 мс, гаснет с fadeDelay за 350 мс;
    * big — «хлопок» масштабом 1.6 → 1. Возвращает объект (x уже можно поправить).
    */
-  number(x: number, y: number, value: string, size: number, color: string, stroke: string, thick: number, depth: number, rise: number, fadeDelay: number, big: boolean): Phaser.GameObjects.Text {
+  number(x: number, y: number, value: string, size: number, color: string, stroke: string, thick: number, depth: number, rise: number, fadeDelay: number, big: boolean, key?: string): Phaser.GameObjects.Text {
+    if (key) this.limit(Kind.Number, key, NUMBERS_PER_UNIT - 1);
     const t = this.text(x, y, value, size, color, stroke, thick, depth);
     const r = this.start(Kind.Number, t, Math.max(NUM_RISE_MS, fadeDelay + NUM_FADE_MS));
+    r.key = key;
     r.x0 = x;
     r.y0 = y;
     r.y1 = y - rise;
@@ -216,11 +246,40 @@ export class FloatLayer {
     return t;
   }
 
-  /** Подпись над именем (пассивка, статус): уходит вверх на 50 и гаснет за 1 с (Quad.easeOut). */
-  headline(x: number, y: number, value: string, size: number, color: string, depth: number): void {
+  /**
+   * Подпись над именем (пассивка, статус, навык): уходит вверх на 50 за 1 с, гаснет со второй половины.
+   * key — чья подпись: прежние подписи того же юнита сдвигаются вверх и сразу гаснут, лишние снимаются (T3-02).
+   * Подпись не выходит за края экрана.
+   */
+  headline(x: number, y: number, value: string, size: number, color: string, depth: number, key?: string): Phaser.GameObjects.Text {
+    if (key) {
+      // Та же надпись у того же юнита только что была (пассивка «Уклонение» и её статус «Уклонение») — не дублируем.
+      const same = this.live.find((r) => r.kind === Kind.Headline && r.key === key && (r.obj as Phaser.GameObjects.Text).text === value && r.t < r.dur * HEADLINE_HOLD);
+      if (same) return same.obj as Phaser.GameObjects.Text;
+      this.limit(Kind.Headline, key, HEADLINES_PER_UNIT - 1);
+      for (const r of this.live) {
+        if (r.kind !== Kind.Headline || r.key !== key) continue;
+        r.y0 -= HEADLINE_STACK;
+        r.t = Math.max(r.t, r.dur * HEADLINE_HOLD);
+      }
+    }
     const t = this.text(x, y, value, size, color, '#000000', 5, depth);
+    t.x = clampX(x, t.width);
     const r = this.start(Kind.Headline, t, HEADLINE_MS);
     r.y0 = y;
+    r.key = key;
+    return t;
+  }
+
+  /** Оставить у юнита key не больше keep надписей вида kind (самые старые снимаются). */
+  private limit(kind: Kind, key: string, keep: number): void {
+    const mine = this.live.filter((r) => r.kind === kind && r.key === key).sort((a, b) => b.t - a.t);
+    for (let n = mine.length; n > keep; n--) this.finish(this.live.indexOf(mine[mine.length - n]));
+  }
+
+  /** «Пропустить» (T2-12): убрать все цифры, подписи, вспышки и снаряды сразу. */
+  cancel(): void {
+    while (this.live.length) this.finish(this.live.length - 1);
   }
 
   /** Вспышка: картинка size×size гаснет от alpha до 0 и растёт в 1.2 раза за duration. */
@@ -263,9 +322,9 @@ export class FloatLayer {
           break;
         }
         case Kind.Headline: {
-          const p = ease.quadOut(clamp01(r.t / r.dur));
-          o.y = r.y0 - HEADLINE_RISE * p;
-          o.alpha = 1 - p;
+          const q = clamp01(r.t / r.dur);
+          o.y = r.y0 - HEADLINE_RISE * ease.quadOut(q);
+          o.alpha = q <= HEADLINE_HOLD ? 1 : 1 - (q - HEADLINE_HOLD) / (1 - HEADLINE_HOLD);
           break;
         }
         case Kind.Fx: {
@@ -328,6 +387,7 @@ export class FloatLayer {
     r.a = 0;
     r.s = 0;
     r.effect = undefined;
+    r.key = undefined;
     this.live.push(r);
     return r;
   }
@@ -351,3 +411,6 @@ export class FloatLayer {
     this.spare.push(r);
   }
 }
+
+/** x центра надписи шириной w — целиком в пределах экрана. */
+export const clampX = (x: number, w: number): number => Math.min(Math.max(x, w / 2 + EDGE), GAME_W - w / 2 - EDGE);
