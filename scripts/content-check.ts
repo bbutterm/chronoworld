@@ -9,10 +9,10 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { collectGameContext, simulateBattle } from '../src/core';
+import { buildUnit, collectGameContext, simulateBattle } from '../src/core';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
-import { readRawGameData, ROOT } from './lib/content-node';
+import { loadGameContext, readRawGameData, ROOT } from './lib/content-node';
 import { pngSize } from './lib/png';
 import { generateSchemas } from './lib/schemas';
 
@@ -94,6 +94,17 @@ if (content) {
       simulateBattle(content, phase0.defaultSquadA, [null, null, u.id, u.id, u.id], 2, { log: false });
     } catch (e) {
       errors.push(`юнит ${u.id}: бой упал — ${String(e)}`);
+    }
+  }
+  // Герои из профессий на максимальном уровне (с навыками всех уровней).
+  const gctx = loadGameContext();
+  for (const j of Object.values(content.jobs)) {
+    try {
+      const hero = { id: 'smoke', name: j.name, job: j.id, jobLevel: j.maxJobLevel, jobExp: 0, jobHistory: [] };
+      const unit = buildUnit(hero, gctx);
+      simulateBattle(content, [unit, null, unit, null, unit], phase0.defaultSquadB, 3, { log: false });
+    } catch (e) {
+      errors.push(`профессия ${j.id}: бой упал — ${String(e)}`);
     }
   }
 }
