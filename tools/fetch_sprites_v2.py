@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor,as_completed
 from pathlib import Path
 import requests
 from PIL import Image
-from build_sprites_v2 import HEROES,MONSTERS,CACHE_ALIASES,HERO_ACTION,MON_ACTION
+from build_sprites_v2 import HEROES,HERO_APPEARANCE,MONSTERS,CACHE_ALIASES,HERO_ACTION,MON_ACTION
 DEFAULT=Path.home()/'.cache/chronoworld/v2'
 URL='https://assets.latam-tools.com.br/image'
 
@@ -24,9 +24,11 @@ def sources(only=None):
     # Equipped attack variant 2 was fetched as cast_94 in original audit.
     label,action='cast',94
    else:label=anim
-   dest=f'{name}_{label}_{action}_w{w}_s{s}.png'
-   tasks[dest]={'job':job,'gender':gender,'head':1,'weapon':w,'shield':s,'action':action,
+   head,palette=HERO_APPEARANCE.get(name,(1,-1))
+   dest=f'{name}_{label}_{action}_w{w}_s{s}_h{head}_p{palette}.png' if name in HERO_APPEARANCE else f'{name}_{label}_{action}_w{w}_s{s}.png'
+   tasks[dest]={'job':job,'gender':gender,'head':head,'weapon':w,'shield':s,'action':action,
                 'enableShadow':'false','canvas':'512x640+256+480'}
+   if name in HERO_APPEARANCE:tasks[dest]['headPalette']=palette
  for name,(_,job) in MONSTERS.items():
   if only and name!=only:continue
   for anim,action in MON_ACTION.items():
