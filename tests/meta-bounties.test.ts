@@ -176,3 +176,42 @@ describe('K9 доска поручений', () => {
     expect(codeOf(() => claimBounty(r.save, 'b1', end, ctx))).toBe('unknown_bounty');
   });
 });
+
+describe('K9: награды шаблонов data/bounties.json (после карточек героев)', () => {
+  const templates = ctx.meta.bounties.templates;
+  const rank: Record<string, number> = { common: 0, rare: 1, epic: 2 };
+  const perMin = (t: (typeof templates)[number]) => t.rewards.jobExp / t.durationMinutes;
+
+  it('каждый шаблон платит золото и опыт в общий пул (не меньше 1 опыта в минуту)', () => {
+    for (const t of templates) {
+      expect(t.rewards.gold, t.id).toBeGreaterThan(0);
+      expect(t.rewards.jobExp, t.id).toBeGreaterThan(0);
+      expect(perMin(t), t.id).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('редкие и эпические щедрее обычных: гемы и осколки только у них, опыт в минуту и гемы не ниже', () => {
+    for (const t of templates) {
+      if (t.rarity === 'common') expect(t.rewards.gems + t.rewards.shards, t.id).toBe(0);
+      else {
+        expect(t.rewards.gems, t.id).toBeGreaterThan(0);
+        expect(t.rewards.shards, t.id).toBeGreaterThan(0);
+      }
+    }
+    for (const a of templates) {
+      for (const b of templates) {
+        if (rank[a.rarity] >= rank[b.rarity]) continue;
+        expect(perMin(b), `${b.id} vs ${a.id}`).toBeGreaterThanOrEqual(perMin(a));
+        expect(b.rewards.gems, `${b.id} vs ${a.id}`).toBeGreaterThanOrEqual(a.rewards.gems);
+      }
+    }
+  });
+
+  it('опыт группы в пул — за всех героев: чем больше героев при той же редкости, тем больше опыта в минуту', () => {
+    for (const a of templates) {
+      for (const b of templates) {
+        if (a.rarity === b.rarity && b.heroCount > a.heroCount) expect(perMin(b), `${b.id} vs ${a.id}`).toBeGreaterThan(perMin(a));
+      }
+    }
+  });
+});

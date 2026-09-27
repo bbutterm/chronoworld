@@ -207,9 +207,13 @@ export function dangerButton(
   return b;
 }
 
+/** Проверки попадания, уже обёрнутые ScrollArea (полоса списка). */
+const CLIPPED_HITS = new WeakSet<Phaser.Types.Input.HitAreaCallback>();
+
 /**
  * Вертикальная прокрутка списка: контейнер с маской в полосе [top, bottom], тянется пальцем и колёсиком.
- * Кнопки внутри оборачивают обработчик в `tap(fn)` — он не сработает после протяжки и вне видимой полосы
+ * Кнопки внутри оборачивают обработчик в `tap(fn)` — он не сработает после протяжки и вне видимой полосы; вне полосы
+ * объекты списка и не ловят нажатия (guardInput), так что скрытая маской карточка не закрывает навигацию под списком
  * (маска Phaser не отсекает ввод). Карточки — через `pressable(..., area.tap(fn))`.
  * Когда содержимое выше полосы, справа видна полоса прокрутки.
  */
@@ -254,6 +258,28 @@ export class ScrollArea {
     scene.input.on('wheel', (p: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
       if (!this.locked && this.inside(p)) this.scrollTo(this.content.y - dy);
     });
+    // Маска Phaser не отсекает ввод: карточка под нижним краем полосы (скрыта маской) ловила нажатия поверх
+    // нижней навигации, и «КАМПАНИЯ»/«ГЛАВНАЯ» не срабатывали. Каждый кадр новые интерактивные объекты
+    // списка получают проверку попадания «указатель внутри полосы» — вне полосы их для ввода как будто нет.
+    const guard = () => this.guardInput(this.content);
+    scene.events.on(Phaser.Scenes.Events.PRE_UPDATE, guard);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard));
+  }
+
+  /** Обернуть проверку попадания у интерактивных потомков контейнера (один раз на объект). */
+  private guardInput(c: Phaser.GameObjects.Container): void {
+    for (const o of c.list) {
+      const input = o.input;
+      if (input && !CLIPPED_HITS.has(input.hitAreaCallback)) {
+        const hit = input.hitAreaCallback;
+        // Указатель, по которому идёт проверка, — активный (InputManager ставит его перед hitTest).
+        const clipped = ((area: unknown, x: number, y: number, go: Phaser.GameObjects.GameObject): boolean =>
+          this.inside(this.scene.input.activePointer) && hit(area, x, y, go)) as Phaser.Types.Input.HitAreaCallback;
+        CLIPPED_HITS.add(clipped);
+        input.hitAreaCallback = clipped;
+      }
+      if (o instanceof Phaser.GameObjects.Container) this.guardInput(o);
+    }
   }
 
   /** Содержимое выше видимой полосы — есть что прокручивать. */

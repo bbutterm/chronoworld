@@ -1,5 +1,5 @@
 {
-  "$comment": "Доска поручений (K9) и лимиты пресетов отряда (K8). Числа — заглушки до баланса. Формат — docs/content/meta.md. Опыт — в общий пул героев, shards — осколки «отстающего» сюжетного героя (docs/design/heroes.md).",
+  "$comment": "Доска поручений (K9) и лимиты пресетов отряда (K8). Числа — заглушки до баланса. Формат — docs/content/meta.md. Опыт — в общий пул героев (jobExp = прежний опыт каждому герою × heroCount: группа получает столько же, сколько до карточек), shards — осколки «отстающего» сюжетного героя (docs/design/heroes.md).",
   "boardSize": 5,
   "dailyRefreshes": 1,
   "rarities": {
@@ -42,7 +42,7 @@
       "role": "tank",
       "rewards": {
         "gold": 300,
-        "jobExp": 150,
+        "jobExp": 300,
         "gems": 0
       }
     },
@@ -55,7 +55,7 @@
       "role": "healer",
       "rewards": {
         "gold": 400,
-        "jobExp": 240,
+        "jobExp": 480,
         "gems": 5,
         "shards": 2
       }
@@ -69,7 +69,7 @@
       "role": "damage",
       "rewards": {
         "gold": 600,
-        "jobExp": 360,
+        "jobExp": 1080,
         "gems": 10,
         "shards": 2
       }
@@ -83,7 +83,7 @@
       "role": "tank",
       "rewards": {
         "gold": 1500,
-        "jobExp": 900,
+        "jobExp": 2700,
         "gems": 30,
         "shards": 5
       }

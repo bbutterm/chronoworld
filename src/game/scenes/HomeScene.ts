@@ -37,7 +37,13 @@ const L = {
   /** Сундук слева в карточке, текст и «Собрать» — справа от него (как панель наград AFK Arena). */
   chestX: 200,
   chestIconY: 380,
-  claimX: 640,
+  claimX: 600,
+  claimW: 420,
+  /** Строки «Накоплено…» — во всю ширину над медальоном Таверны; подпись и «Собрать» — левее медальона. */
+  chestTextX: 640,
+  /** Медальон Таверны — справа внизу карточки сундука, под строками накопленного (не перекрывает текст). */
+  tavernX: 925,
+  tavernY: 470,
   fastY: 825,
   fastH: 230,
   /** Кнопка быстрых наград чуть выше центра карточки: над плиткой «Башня» остаётся место для подсказки. */
@@ -99,8 +105,8 @@ export class HomeScene extends Phaser.Scene {
     restartOnNewDay(this);
     screen(this, 'Лагерь героев', 'Home', undefined, { settings: () => this.openSettings(), player: true });
     this.blocks.push(collect(this.children, () => this.chest()));
-    // H5: вход в Таверну — медальон в правом верхнем углу карточки сундука (tavernEntry.ts).
-    tavernTile(this, 925, L.chestY - 90);
+    // H5: вход в Таверну — медальон в правом нижнем углу карточки сундука (tavernEntry.ts), под строками накопленного.
+    tavernTile(this, L.tavernX, L.tavernY);
     this.blocks.push(collect(this.children, () => this.fastRewards()));
     this.tiles();
 
@@ -154,9 +160,9 @@ export class HomeScene extends Phaser.Scene {
     }
     // Лента-заголовок у верхней кромки карточки (поверх лучей).
     ribbon(this, GAME_W / 2, y - L.chestH / 2 + 46, 'Сундук офлайн-наград', { minW: 600, size: FS.h3 });
-    this.chestText = text(this, L.claimX, y - 50, '', FS.body, C.text, { lineSpacing: 8, ...OUTLINE });
-    text(this, L.claimX, y + 50, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, FS.small, C.muted, { wordWrap: { width: 600 }, lineSpacing: 4 });
-    this.claimBtn = button(this, L.claimX, L.claimY, 460, TOUCH + 10, 'ui_btn_primary', 'Собрать', () => this.claim(), FS.h2);
+    this.chestText = text(this, L.chestTextX, y - 90, '', FS.body, C.text, { lineSpacing: 8, ...OUTLINE });
+    text(this, L.claimX, y + 10, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, FS.small, C.muted, { wordWrap: { width: 470 }, lineSpacing: 4, align: 'center' });
+    this.claimBtn = button(this, L.claimX, L.claimY, L.claimW, TOUCH + 10, 'ui_btn_primary', 'Собрать', () => this.claim(), FS.h2);
   }
 
   private refresh(): void {
@@ -227,7 +233,7 @@ export class HomeScene extends Phaser.Scene {
     const msg = HINT_TEXT[id];
     // Сторону плашки выбирает hintPointer (S): так, чтобы не закрыть другие кнопки и плитки.
     if (id === 'home_campaign') this.hintView = hintPointer(this, GAME_W / 2, L.campaignY, msg, 'below', { w: 780, h: L.campaignH });
-    if (id === 'chest_claim') this.hintView = hintPointer(this, L.claimX, L.claimY, msg, 'below', { w: 460, h: TOUCH + 10 });
+    if (id === 'chest_claim') this.hintView = hintPointer(this, L.claimX, L.claimY, msg, 'below', { w: L.claimW, h: TOUCH + 10 });
     if (id === 'tower_open') this.hintView = hintPointer(this, L.tileXR, L.tileY1, msg, 'above', { w: L.tileW, h: L.tileH });
     // Вкладка «Герои» — средняя в нижней навигации.
     if (id === 'level_up' || id === 'equip_gear') this.hintView = hintPointer(this, GAME_W / 2, GAME_H - NAV_H / 2 + 4, msg, 'above', { w: GAME_W / 3 - 30, h: NAV_H - 40 });
