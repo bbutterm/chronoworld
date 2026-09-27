@@ -180,6 +180,12 @@ export class Scheduler {
     return this.items.length + this.pending.length;
   }
 
+  /** Выполнить всё отложенное сразу (и то, что отложат сами вызовы), по порядку. Для «Пропустить». */
+  flush(maxRounds = 64): void {
+    for (let i = 0; i < maxRounds && this.size > 0; i++) this.step(Number.POSITIVE_INFINITY);
+    this.clear();
+  }
+
   clear(): void {
     this.items.length = 0;
     this.pending.length = 0;

@@ -26,7 +26,7 @@ import { SKIN, SKIN_TINT } from '../skin';
 import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../sprites';
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
-import { DEPTH, FloatLayer, UltPresenter } from '../battleFx';
+import { clampX, DEPTH, FloatLayer, UltPresenter } from '../battleFx';
 import { button, panel, text } from '../ui';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
@@ -49,8 +49,8 @@ const FLOAT_SLOT_MS = 420;
 /** Белый «след» полоски HP: пауза и время догоняющего сжатия. */
 const TRAIL_DELAY = 250;
 const TRAIL_MS = 450;
-/** Полёт снаряда, мс на 1x. */
-const PROJECTILE_MS = 220;
+/** Полёт снаряда, мс на 1x: столько же, сколько снаряд летит в ядре (combat.json projectileSeconds). */
+const PROJECTILE_MS = Math.round((COMBAT.projectileSeconds ?? 0.3) * 1000);
 /** «Получил урон» не чаще, чем раз в столько мс, и не перебивает атаку. */
 const HURT_COOLDOWN = 500;
 /** Красная вспышка при попадании, мс на 1x (перед ней HIT_FLASH_MS — белая заливка). */
@@ -62,8 +62,16 @@ const SKILL_VOLLEY_STEP = 120;
 /** Значки перезарядки активных навыков под полоской HP героя. */
 const CD_ICON = 36;
 const CD_GAP = 5;
-/** Значки статусов над полоской HP. */
+/** Значки статусов над полоской HP: размер и сколько помещается в ряд над полоской (остальные ждут своей очереди). */
 const STATUS_ICON = 28;
+const STATUS_MAX = 4;
+/** Имена над юнитами (T2-15, T3-02): мелко, видны первые секунды боя, потом гаснут; касание юнита — показать снова. */
+const NAME_SIZE = 20;
+const NAME_SHOW_S = 3;
+const NAME_FADE_MS = 500;
+const NAME_TAP_MS = 1800;
+/** Строка seed под таймером — только в отладке (?debug в адресе). */
+const DEBUG = typeof location !== 'undefined' && new URLSearchParams(location.search).has('debug');
 
 /** Все статусы из навыков (id → описание) — для значка над HP по событию status. */
 let statusDefs: Map<string, StatusDef> | null = null;
@@ -149,6 +157,17 @@ interface UnitView {
   shield: number;
   energy: number;
   alive: boolean;
+  /** Смерть уже показана (die). */
+  shownDead: boolean;
+  /** Сколько отложенных попаданий по юниту ещё не показано; смерть ждёт их (цифры не всплывают над трупом). */
+  pending: number;
+  deathQueued?: () => void;
+  /** Кто последним наложил статус (оглушение сбивает каст — показываем в момент его удара). */
+  lastStatusSrc?: string;
+  /** Куда идёт текущий шаг (для «Пропустить»: встать в конечную точку). */
+  moveDest: [number, number] | null;
+  /** Сдвиг подписей к своему тылу (x относительно ног). */
+  labelX: number;
   /** Время сцены (мс), когда удар текущего действия юнита достигнет цели. */
   impactAt: number;
   /** Идёт разовая анимация (атака, каст, смерть) — стойка/ходьба её не перебивают. */
@@ -203,6 +222,10 @@ export class BattleScene extends Phaser.Scene {
   private bossBar: { uid: string; fill: Phaser.GameObjects.Image } | null = null;
   /** Отложенные действия боя (момент удара, вылет снаряда) — своя очередь вместо таймера Phaser на каждый удар. */
   private readonly later = new Scheduler();
+  /** Идёт «Пропустить»: отложенное выполняется без анимации. */
+  private skipping = false;
+  /** Имена уже погашены после начала боя. */
+  private namesHidden = false;
   /**
    * U: листы юнитов загружены и сцена построена. До этого бой не идёт (часы стоят), кнопок ещё нет.
    * Публичное — e2e/perf ждут готовности.
@@ -227,6 +250,8 @@ export class BattleScene extends Phaser.Scene {
     this.ready = false;
     this.introLeft = 0;
     this.bossBar = null;
+    this.skipping = false;
+    this.namesHidden = false;
     let title = 'Тестовый бой';
     this.stage = undefined;
     this.tower = undefined;
@@ -282,7 +307,9 @@ export class BattleScene extends Phaser.Scene {
     panel(this, GAME_W / 2, 130, 760, 200, 'ui_panel');
     text(this, GAME_W / 2, 85, title, title.length > 20 ? 42 : 52, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
     this.timeText = text(this, GAME_W / 2, 150, '', 40, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
-    text(this, GAME_W / 2, 195, `seed ${this.result.seed}`, 22, '#e0cfb0');
+    // Таймер виден сразу, и во время баннера босса (T2-13).
+    this.showTime(0);
+    if (DEBUG) text(this, GAME_W / 2, 195, `seed ${this.result.seed}`, 22, '#e0cfb0');
 
     const speedBtn = button(this, 180, 360, 280, 110, 'ui_btn_speed', `${playback.speed}x`, () => {
       // Выбор скорости запоминается (localStorage) и действует в следующих боях.
@@ -384,12 +411,13 @@ export class BattleScene extends Phaser.Scene {
     energyBar.setVisible(hasUlt);
     // Подпись — сразу над макушкой (высота фигуры в стойке из bbox листа), со сдвигом к своему тылу.
     const nameY = -look.height - 22;
-    // Полоса каста — на месте имени (имя на время каста прячется), над ней — название навыка цветом стихии.
+    // Полоса каста — на месте имени (имя на время каста прячется).
     const castW = BAR_W + 20;
     const castBack = this.add.image(ox, nameY + 4, 'ui_bar_back').setDisplaySize(castW + 6, 18).setVisible(false);
     const castBar = this.add.image(ox - castW / 2, nameY + 4, 'ui_bar_energy').setOrigin(0, 0.5).setDisplaySize(castW, 12).setVisible(false);
-    const castLabel = text(this, ox, nameY - 20, '', 27, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setVisible(false);
-    const name = text(this, ox, nameY, def.name, 23, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
+    // Название навыка — на груди кастера, не над головой: в заднем ряду над головой уже полоски соседа сверху (T2-15).
+    const castLabel = text(this, ox, -look.height * 0.58, '', 25, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setVisible(false);
+    const name = text(this, ox, nameY, def.name, NAME_SIZE, '#ffffff', { stroke: '#000000', strokeThickness: 4 });
     const bars: Phaser.GameObjects.Components.Visible[] = [barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
     const parts: Phaser.GameObjects.GameObject[] = [sprite, barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
     // Перезарядка активных навыков героев (как в AFK Arena): значки с круговой «шторкой» под полоской HP.
@@ -444,6 +472,10 @@ export class BattleScene extends Phaser.Scene {
       shield: 0,
       energy: 0,
       alive: true,
+      shownDead: false,
+      pending: 0,
+      moveDest: null,
+      labelX: ox,
       impactAt: 0,
       busyUntil: 0,
       lastHurt: -Infinity,
@@ -456,6 +488,35 @@ export class BattleScene extends Phaser.Scene {
     });
     this.loop(v, 'idle');
     this.redraw(v);
+    this.clampLabel(v, name);
+    // Касание юнита — ненадолго показать имя (после начала боя имена гаснут).
+    // Зона касания — только тело (кадр листа намного больше фигуры и заходил бы на кнопки и соседей).
+    const fw = sprite.frame.width;
+    const fh = sprite.frame.height;
+    const bodyW = Math.min(fw, (look.size * 0.45) / sprite.scaleX);
+    const bodyH = Math.min(fh, look.height / sprite.scaleY);
+    const hit = new Phaser.Geom.Rectangle(sprite.originX * fw - bodyW / 2, sprite.originY * fh - bodyH, bodyW, bodyH);
+    sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains).on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, () => this.flashName(v));
+  }
+
+  /** Подпись (имя, название каста) — целиком внутри экрана, даже у юнита у самого края (T3-02). */
+  private clampLabel(v: UnitView, t: Phaser.GameObjects.Text): void {
+    t.x = clampX(v.node.x + v.labelX, t.width) - v.node.x;
+  }
+
+  private flashName(v: UnitView): void {
+    if (!v.alive || !this.namesHidden) return;
+    this.tweens.killTweensOf(v.nameText);
+    this.clampLabel(v, v.nameText);
+    v.nameText.setAlpha(1);
+    this.tweens.add({ targets: v.nameText, alpha: 0, delay: NAME_TAP_MS, duration: NAME_FADE_MS });
+  }
+
+  /** Первые секунды боя имена видны, затем гаснут — поле не засоряется подписями. */
+  private hideNames(): void {
+    this.namesHidden = true;
+    const names = [...this.views.values()].map((v) => v.nameText);
+    this.tweens.add({ targets: names, alpha: 0, duration: NAME_FADE_MS });
   }
 
   update(_time: number, rawDelta: number): void {
@@ -475,6 +536,7 @@ export class BattleScene extends Phaser.Scene {
       return;
     }
     this.clock += (delta / 1000) * playback.speed;
+    if (!this.namesHidden && this.clock >= NAME_SHOW_S) this.hideNames();
     const log = this.result.log;
     while (this.cursor < log.length && log[this.cursor].t <= this.clock) {
       this.play(log[this.cursor], true);
@@ -493,6 +555,7 @@ export class BattleScene extends Phaser.Scene {
   /** След HP и красный оттенок попадания (раньше — твин и таймер на каждый удар). */
   private animateUnit(v: UnitView, dt: number): void {
     if (v.cast) {
+      this.clampLabel(v, v.castLabel);
       const p = Phaser.Math.Clamp((this.clock - v.cast.start) / v.cast.dur, 0, 1);
       cropBar(v.castBar, p);
       v.castRig?.step(dt, p);
@@ -526,22 +589,64 @@ export class BattleScene extends Phaser.Scene {
     this.ult?.clear();
   }
 
+  /**
+   * «Пропустить» (T2-12): сначала без анимации выполнить всё отложенное (удары, смерти), оборвать эффекты, твины,
+   * баннеры и тряску, поставить юнитов в конечные точки шагов — и доиграть остаток лога без анимации.
+   * Поверх итогового положения ничего не доигрывается.
+   */
   private skip(): void {
     if (this.finished || !this.ready) return;
+    this.skipping = true;
+    this.introLeft = 0;
+    this.later.flush();
+    this.sfx.cancel();
+    this.floats.cancel();
+    this.ult.cancel();
+    this.tweens.killAll();
+    this.cameras.main.resetFX();
+    this.children.getByName('bossBanner')?.destroy();
+    for (const v of this.views.values()) {
+      if (v.moveDest) v.node.setPosition(v.moveDest[0], v.moveDest[1]);
+      v.moveTween = null;
+      v.moveDest = null;
+      v.node.setScale(1);
+      v.sprite.setY(0);
+      v.nameText.setAlpha(0);
+      if (v.alive) v.node.setDepth(v.node.y);
+      else if (v.shownDead) v.sprite.setAlpha(0.3);
+    }
+    this.namesHidden = true;
     const log = this.result.log;
     while (this.cursor < log.length) this.play(log[this.cursor++], false);
+    for (const v of this.views.values()) this.endCast(v);
   }
 
   /**
    * Отложить до момента удара источника (кадр удара анимации, полёт снаряда, рывок). target — если у навыка
    * свой план попаданий (залп снарядов), удар по этой цели ждёт свой снаряд.
    */
-  private atImpact(sourceUid: string | null, animate: boolean, fn: () => void, target?: string): void {
+  private atImpact(sourceUid: string | null, animate: boolean, fn: (animate: boolean) => void, opts: { plan?: string; on?: UnitView } = {}): void {
     const src = sourceUid ? this.views.get(sourceUid) : undefined;
-    const planned = target ? src?.hitPlan.get(target)?.shift() : undefined;
-    const wait = animate && src ? (planned ?? src.impactAt) - this.time.now : 0;
-    if (wait > 0) this.later.after(wait, fn);
-    else fn();
+    const planned = opts.plan ? src?.hitPlan.get(opts.plan)?.shift() : undefined;
+    const live = animate && !this.skipping;
+    const wait = live && src ? (planned ?? src.impactAt) - this.time.now : 0;
+    if (wait <= 0) {
+      fn(live);
+      return;
+    }
+    // Попадание по юниту ещё впереди — его смерть подождёт (P1: цифры не всплывают над трупом).
+    const on = opts.on;
+    if (on) on.pending++;
+    this.later.after(wait, () => {
+      fn(!this.skipping);
+      if (!on) return;
+      on.pending--;
+      if (on.pending <= 0 && on.deathQueued) {
+        const die = on.deathQueued;
+        on.deathQueued = undefined;
+        die();
+      }
+    });
   }
 
   private play(e: BattleEvent, animate: boolean): void {
@@ -550,8 +655,13 @@ export class BattleScene extends Phaser.Scene {
         return;
       case 'move': {
         const v = this.views.get(e.unit)!;
-        if (!animate) {
+        if (!animate || e.duration <= 0) {
+          // duration 0 — остановка на месте (оглушение, P1): оборвать шаг, встать в стойку.
+          v.moveTween?.stop();
+          v.moveTween = null;
+          v.moveDest = null;
           v.node.setPosition(e.to[0], e.to[1]).setDepth(e.to[1]);
+          if (animate && v.alive && this.time.now >= v.busyUntil) this.loop(v, v.cast ? 'cast' : 'idle');
           return;
         }
         this.moveTo(v, e.to[0], e.to[1], e.duration * 1000, e.kind);
@@ -606,8 +716,17 @@ export class BattleScene extends Phaser.Scene {
       case 'cast': {
         const v = this.views.get(e.unit)!;
         if (e.action === 'interrupt') {
-          this.endCast(v);
-          if (animate) this.headline(v, `${e.name} сбит`, '#ff9a8a');
+          // T2-08/T2-09: нейтральная подпись без рода. Оглушение — в момент удара оглушившего; пропавший без цели
+          // каст — серым «нет цели».
+          if (e.reason === 'noTarget') {
+            this.endCast(v);
+            if (animate) this.headline(v, 'нет цели', '#c8c0b0');
+            return;
+          }
+          this.atImpact(v.lastStatusSrc ?? null, animate, (animate) => {
+            this.endCast(v);
+            if (animate && v.alive) this.headline(v, 'Каст сорван', '#ff9a8a');
+          }, { on: v });
           return;
         }
         v.cast = { start: e.t, dur: e.duration };
@@ -635,14 +754,16 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'skip': {
         const v = this.views.get(e.unit)!;
-        if (animate) this.headline(v, 'оглушён', '#ffcf6b');
+        // Оглушение уже видно значком над HP — подпись только если значка нет.
+        if (animate && v.statusIcons.size === 0) this.headline(v, 'оглушён', '#ffcf6b');
         return;
       }
       case 'damage': {
         const v = this.views.get(e.target)!;
         // Удар ульты — крупная золотая цифра (как крит); флаг читаем сейчас, до задержки удара.
         const big = !e.dot && !!this.views.get(e.source)?.inUlt;
-        this.atImpact(e.dot ? null : e.source, animate, () => {
+        this.atImpact(e.dot ? null : e.source, animate, (animate) => {
+          if (v.shownDead) return;
           v.hp = e.hp;
           v.shield = e.shield;
           v.energy = e.energy;
@@ -659,12 +780,13 @@ export class BattleScene extends Phaser.Scene {
           const hit = hitFxOf(src);
           if (hit === 'fx_magic') this.fx(v, hit, 1.7, 450, 0.95);
           else this.fx(v, hit, 0.45, 200, 0.5);
-        }, e.dot ? undefined : e.target);
+        }, { plan: e.dot ? undefined : e.target, on: v });
         return;
       }
       case 'heal': {
         const v = this.views.get(e.target)!;
-        this.atImpact(e.source, animate, () => {
+        this.atImpact(e.source, animate, (animate) => {
+          if (v.shownDead) return;
           v.hp = e.hp;
           this.redraw(v, animate);
           if (animate && e.amount > 0) {
@@ -672,12 +794,13 @@ export class BattleScene extends Phaser.Scene {
             this.fx(v, 'fx_heal', 0.8);
             this.sfx.heal(this.point(v), e.amount >= v.snap.maxHp * 0.15);
           }
-        });
+        }, { on: v });
         return;
       }
       case 'buff': {
         const v = this.views.get(e.target)!;
-        this.atImpact(e.source, animate, () => {
+        this.atImpact(e.source, animate, (animate) => {
+          if (v.shownDead) return;
           v.shield = e.shield;
           this.redraw(v);
           if (animate) {
@@ -685,7 +808,7 @@ export class BattleScene extends Phaser.Scene {
             this.fx(v, 'fx_shield', 1.4, 400);
             this.sfx.buff(this.point(v), 0x9cc8ff);
           }
-        });
+        }, { on: v });
         return;
       }
       case 'status': {
@@ -698,8 +821,9 @@ export class BattleScene extends Phaser.Scene {
         const src = this.views.get(e.source);
         // Бафф союзнику (не свой яд/оглушение по врагу) — вспышка защиты из эффектов RO и столб искр.
         const ally = !!src && src.snap.side === v.snap.side;
-        this.atImpact(e.source, animate, () => {
-          if (v.alive) this.setStatusIcon(v, e.status, def);
+        v.lastStatusSrc = e.source;
+        this.atImpact(e.source, animate, (animate) => {
+          if (v.alive && !v.shownDead) this.setStatusIcon(v, e.status, def);
           if (!animate) return;
           // Бафф на весь отряд (Ускорение, Благословение): подпись не пишем над каждым — хватает искр и значка у HP.
           const srcSkill = src?.lastSkill ? CONTENT.skills[src.lastSkill] : undefined;
@@ -708,7 +832,7 @@ export class BattleScene extends Phaser.Scene {
             this.fx(v, skillFx(src?.lastSkill)?.buff ?? 'fx_shield', 1.2, 400);
             this.sfx.buff(this.point(v), buffColor(def));
           }
-        });
+        }, { on: v });
         return;
       }
       case 'energy': {
@@ -720,7 +844,12 @@ export class BattleScene extends Phaser.Scene {
       case 'death': {
         const v = this.views.get(e.unit)!;
         v.alive = false;
-        this.atImpact(e.killer, animate, () => this.die(v, animate));
+        // Смерть — после удара убийцы и после всех ещё не показанных попаданий по юниту.
+        this.atImpact(e.killer, animate, (animate) => {
+          const die = () => this.die(v, animate && !this.skipping);
+          if (v.pending > 0) v.deathQueued = die;
+          else die();
+        });
         return;
       }
       case 'end':
@@ -783,6 +912,7 @@ export class BattleScene extends Phaser.Scene {
 
   private moveTo(v: UnitView, x: number, y: number, ms: number, kind: 'walk' | 'dash'): void {
     v.moveTween?.stop();
+    v.moveDest = [x, y];
     if (kind === 'walk') this.loop(v, 'walk');
     // Удары, которые юнит нанесёт в конце рывка, покажем, когда он долетит.
     if (kind === 'dash') v.impactAt = Math.max(v.impactAt, this.time.now + ms);
@@ -795,6 +925,7 @@ export class BattleScene extends Phaser.Scene {
       onUpdate: () => v.node.setDepth(v.node.y),
       onComplete: () => {
         v.moveTween = null;
+        v.moveDest = null;
         if (v.alive && this.time.now >= v.busyUntil) this.loop(v, 'idle');
       },
     });
@@ -806,10 +937,14 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private die(v: UnitView, animate: boolean): void {
+    if (v.shownDead) return;
+    v.shownDead = true;
     v.hp = 0;
     v.shield = 0;
     this.redraw(v);
     v.moveTween?.stop();
+    v.moveTween = null;
+    v.moveDest = null;
     this.endCast(v);
     for (const b of v.bars) b.setVisible(false);
     // Павший — без вспышки попадания.
@@ -887,16 +1022,21 @@ export class BattleScene extends Phaser.Scene {
     const x = cx + (v.snap.side === 'A' ? -34 : 34) + rnd(14);
     const y = top + slot * FLOAT_STEP;
     // Пул надписей: не больше MAX_FLOATS на экране, стиль и замер шрифта кэшируются.
-    const t = this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : '#000000', big ? 8 : 6, DEPTH.numbers + slot, FLOAT_RISE, big ? 650 : 450, big);
+    const t = this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : '#000000', big ? 8 : 6, DEPTH.numbers + slot, FLOAT_RISE, big ? 650 : 450, big, v.snap.uid);
     // У края экрана цифру не обрезаем.
-    t.x = Phaser.Math.Clamp(t.x, t.width / 2 + 8, GAME_W - t.width / 2 - 8);
+    t.x = clampX(t.x, t.width);
   }
 
-  /** Короткая подпись над именем (пассивка, статус, «оглушён») — уходит вверх, прочь от имени. */
+  /**
+   * Короткая подпись на юните (пассивка, статус, «оглушён») — уходит вверх к макушке. Над одним юнитом
+   * не больше двух: новая сдвигает прежнюю вверх и та гаснет; у края экрана подпись не обрезается (T3-02).
+   */
   private headline(v: UnitView, value: string, color: string): void {
-    const x = v.node.x + (v.snap.side === 'A' ? -UI_SHIFT : UI_SHIFT);
-    const y = v.node.y + v.nameY - 34;
-    this.floats.headline(x, y, value, 26, color, DEPTH.numbers);
+    if (this.skipping) return;
+    const x = v.node.x + v.labelX;
+    // По фигуре юнита (от лица вверх к макушке), не над головой: в заднем ряду над головой сразу полоски соседа сверху (T2-15).
+    const y = v.node.y - v.look.height * 0.72;
+    this.floats.headline(x, y, value, 24, color, DEPTH.numbers, v.snap.uid);
   }
 
   /** Ульта: экран темнеет, кастер подсвечен поверх затемнения, сверху — баннер с названием. */
@@ -906,7 +1046,7 @@ export class BattleScene extends Phaser.Scene {
     this.ult.glow(v.node.x, v.node.y);
     v.node.setDepth(DEPTH.spotlight + v.node.y / 10);
     this.tweens.add({ targets: v.node, scale: 1.12, duration: 160, yoyo: true, hold: 300, ease: 'Quad.easeOut' });
-    this.later.after(1000, () => v.node.setDepth(v.alive ? v.node.y : v.node.y - 1000));
+    this.later.after(1000, () => v.node.setDepth(v.shownDead ? v.node.y - 1000 : v.node.y));
   }
 
   // ---------- навыки: снаряды, площадь, статусы, перезарядка ----------
@@ -1005,8 +1145,12 @@ export class BattleScene extends Phaser.Scene {
       v.node.add(img);
       v.statusIcons.set(id, img);
     } else return;
+    // В ряд над полоской помещается STATUS_MAX значков — остальные (самые новые) ждут, пока освободится место.
     let i = 0;
-    for (const img of v.statusIcons.values()) img.setX(v.statusX0 + i++ * (STATUS_ICON + 2));
+    for (const img of v.statusIcons.values()) {
+      img.setX(v.statusX0 + i * (STATUS_ICON + 2)).setVisible(i < STATUS_MAX);
+      i++;
+    }
   }
 
   /** Круговая «шторка» перезарядки: тёмный сектор по часовой стрелке от 12 часов, у готового — золотая рамка. */
