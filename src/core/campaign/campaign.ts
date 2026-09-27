@@ -114,5 +114,23 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
     return r.hero;
   });
   events.push(...expEvents);
+  if (firstTime) {
+    for (const rc of ctx.progression.heroes.recruits) {
+      if (rc.afterStage !== stage.id || next.heroes.some((h) => h.name === rc.name)) continue;
+      const hero = recruit(next.heroes, rc.name, ctx);
+      next.heroes = [...next.heroes, hero];
+      // В отряд — на первое свободное место (если есть).
+      const free = next.squad.indexOf(null);
+      if (free >= 0) next.squad = next.squad.map((id, i) => (i === free ? hero.id : id));
+      events.push({ type: 'heroJoined', heroId: hero.id, name: hero.name });
+    }
+  }
   return { save: next, result, events };
+}
+
+/** Новый герой-Новичок джоба 1 со свободным id h<N>. */
+function recruit(heroes: HeroState[], name: string, ctx: GameContext): HeroState {
+  let n = heroes.length + 1;
+  while (heroes.some((h) => h.id === `h${n}`)) n++;
+  return { id: `h${n}`, name, job: ctx.progression.heroes.startJob, jobLevel: 1, jobExp: 0, jobHistory: [] };
 }

@@ -133,6 +133,8 @@ export class ScrollArea {
     const g = scene.make.graphics({}, false);
     g.fillStyle(0xffffff).fillRect(0, top, w, bottom - top);
     this.content.setMask(g.createGeometryMask());
+    // Видимая полоса списка (для e2e-проверки «кнопку ничто не перекрывает»: вне полосы содержимое скрыто маской).
+    this.content.setData('clip', [top, bottom]);
     this.thumb = scene.add.rectangle(w - 6, top, 8, 40, TINT.frame, 0.8).setOrigin(0.5, 0).setDepth(20).setVisible(false);
     scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       this.dragged = false;
@@ -338,7 +340,7 @@ export function hintPointer(
   const b = plan.box;
   const bg = scene.add.rectangle(b.x + b.w / 2, b.y + b.h / 2, b.w, b.h, 0x000000, 0.85).setStrokeStyle(4, TINT.gold);
   t.setPosition(b.x + b.w / 2, b.y + b.h / 2);
-  const c = scene.add.container(0, 0, [ring, arrow, bg, t]).setDepth(8000);
+  const c = scene.add.container(0, 0, [ring, arrow, bg, t]).setDepth(8000).setName('hint');
   // Для e2e и отладки: где оказалась плашка и что она закрыла.
   c.setData('hintBox', b).setData('hintOverlap', plan.overlap).setData('hintSide', plan.side);
   return c;

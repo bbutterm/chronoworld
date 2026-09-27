@@ -90,7 +90,7 @@ describe('кампания', () => {
   });
 
   it('playStage: победа — золото, опыт каждому герою отряда, stageCleared, stageUnlocked следующего', () => {
-    const save: SaveState = { ...fresh(), squad: ['h1', 'h2', 'h3', 'h4', null] };
+    const save: SaveState = { ...fresh(), squad: ['h1', 'h2', null, null, null] };
     const seed = winningSeed(save, s1);
     const { save: next, events, result } = playStage(save, s1, seed, ctx);
     const r = stages[0].rewards;
@@ -100,16 +100,16 @@ describe('кампания', () => {
     expect(next.campaign.cleared).toEqual([s1]);
     expect(stageStatus(next, s2, ctx)).toBe('open');
     expect(events.slice(0, 3)).toEqual([
-      { type: 'rewards', gold: r.gold, jobExp: r.jobExp, heroIds: ['h1', 'h2', 'h3', 'h4'] },
+      { type: 'rewards', gold: r.gold, jobExp: r.jobExp, heroIds: ['h1', 'h2'] },
       { type: 'stageCleared', stageId: s1, firstTime: true },
       { type: 'stageUnlocked', stageId: s2 },
     ]);
     const total = (h: SaveState['heroes'][number]) => h.jobLevel * 1e6 + h.jobExp;
-    for (const id of ['h1', 'h2', 'h3', 'h4']) {
+    for (const id of ['h1', 'h2']) {
       expect(total(next.heroes.find((h) => h.id === id)!)).toBeGreaterThan(total(save.heroes.find((h) => h.id === id)!));
     }
-    // h5 не в отряде — опыт не получил.
-    expect(next.heroes.find((h) => h.id === 'h5')).toEqual(save.heroes.find((h) => h.id === 'h5'));
+    // h3 не в отряде — опыт не получил.
+    expect(next.heroes.find((h) => h.id === 'h3')).toEqual(save.heroes.find((h) => h.id === 'h3'));
   });
 
   it('playStage: повтор пройденного — награда × replayRewardMultiplier, без stageUnlocked', () => {
@@ -120,7 +120,7 @@ describe('кампания', () => {
     const r = stages[0].rewards;
     expect(next.resources.gold).toBe(Math.floor(r.gold * m));
     expect(next.campaign.cleared).toEqual([s1]);
-    expect(events).toContainEqual({ type: 'rewards', gold: Math.floor(r.gold * m), jobExp: Math.floor(r.jobExp * m), heroIds: ['h1', 'h2', 'h3', 'h4', 'h5'] });
+    expect(events).toContainEqual({ type: 'rewards', gold: Math.floor(r.gold * m), jobExp: Math.floor(r.jobExp * m), heroIds: ['h1', 'h2', 'h3'] });
     expect(events).toContainEqual({ type: 'stageCleared', stageId: s1, firstTime: false });
     expect(events.some((e) => e.type === 'stageUnlocked')).toBe(false);
   });

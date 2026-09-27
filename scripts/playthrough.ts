@@ -1,6 +1,6 @@
 /**
  * Прохождение главы как новый игрок: новая игра (5 Новичков) → этапы по порядку, поражение — повтор с другим seed,
- * на джобе 10 каждый герой берёт первую профессию (Мечник, Вор, Лучник, Маг, Аколит по порядку).
+ * на джобе 10 каждый герой берёт первую профессию (Мечник, Лучник, Аколит, Маг, Вор по порядку).
  *   npx tsx scripts/playthrough.ts [chapterIndex=0] [maxTries=5]
  * Печатает по этапам: попытки, длительность победного боя, уровни героев. Код выхода 1 — глава не пройдена.
  */
@@ -10,7 +10,7 @@ import { loadFullContext } from './lib/content-node';
 const ctx = loadFullContext();
 const chapterIdx = Number(process.argv[2] ?? 0);
 const maxTries = Number(process.argv[3] ?? 5);
-const FIRST_JOBS = ['swordman', 'thief', 'archer', 'mage', 'acolyte'];
+const FIRST_JOBS = ['swordman', 'archer', 'acolyte', 'mage', 'thief'];
 
 let save: SaveState = newGame(ctx, 0);
 const chapter = ctx.content.chapters[chapterIdx];

@@ -19,14 +19,22 @@
     }
   },
   "heroes": {
-    "count": 5,
+    "count": 3,
     "startJob": "novice",
     "names": [
       "Алан",
       "Бэлла",
-      "Вик",
-      "Грета",
-      "Дорн"
+      "Вик"
+    ],
+    "recruits": [
+      {
+        "afterStage": "ch1_s10",
+        "name": "Грета"
+      },
+      {
+        "afterStage": "ch2_s10",
+        "name": "Дорн"
+      }
     ]
   },
   "campaign": {

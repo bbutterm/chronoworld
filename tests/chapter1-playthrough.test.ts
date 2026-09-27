@@ -3,7 +3,7 @@ import { availableJobChanges, changeJob, newGame, playStage, type SaveState } fr
 import { loadGameContext } from '../scripts/lib/content-node';
 
 const ctx = loadGameContext();
-const FIRST_JOBS = ['swordman', 'thief', 'archer', 'mage', 'acolyte'];
+const FIRST_JOBS = ['swordman', 'archer', 'acolyte', 'mage', 'thief'];
 
 describe('глава 1 играбельна с нуля', () => {
   it('Новички проходят главу, к середине все берут первую профессию (≤ 3 попытки на этап, босс — ≤ 6: ~⅔ побед)', () => {
@@ -32,6 +32,11 @@ describe('глава 1 играбельна с нуля', () => {
     // Первая профессия — после нескольких боёв, но не с первого.
     expect(jobChangeAt).toBeGreaterThanOrEqual(2);
     expect(jobChangeAt).toBeLessThanOrEqual(5);
-    expect(save.heroes.every((h) => ctx.content.jobs[h.job].tier === 1)).toBe(true);
+    const start = ctx.progression.heroes.count;
+    expect(save.heroes.slice(0, start).every((h) => ctx.content.jobs[h.job].tier === 1)).toBe(true);
+    // После босса главы приходит новый герой (Новичок) и встаёт в отряд.
+    const joined = save.heroes.slice(start);
+    expect(joined.map((h) => h.name)).toEqual(ctx.progression.heroes.recruits.filter((r) => stages.some((s) => s.id === r.afterStage)).map((r) => r.name));
+    for (const h of joined) expect(save.squad).toContain(h.id);
   });
 });

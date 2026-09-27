@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { markHint } from '../hints';
 import { actChangeJob, availableJobChanges } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { describeEvents, ROLE_NAMES, statsLine } from '../flow';
+import { describeEvents, firstJobChangeReady, ROLE_NAMES, statsLine } from '../flow';
 import { GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
 import { commit, session, today } from '../session';
@@ -63,6 +63,8 @@ export class JobChangeScene extends Phaser.Scene {
     // Подробности — карточка с прокруткой (описание и навыки могут не влезть), «Выбрать» закреплена внизу.
     card(this, GAME_W / 2, (this.detailTop + CONTENT_BOTTOM) / 2, 1040, CONTENT_BOTTOM - this.detailTop, true);
     this.area = new ScrollArea(this, this.detailTop + 12, CONTENT_BOTTOM - 180);
+    // Кнопка «Выбрать» живёт в detail — он создан раньше карточки и без глубины оказывался под ней (кнопку не было видно).
+    this.detail.setDepth(10);
     this.select(hero.id, options[0]);
   }
 
@@ -121,8 +123,11 @@ export class JobChangeScene extends Phaser.Scene {
     const next = r.save;
     commit(next);
     const lines = describeEvents(r.events, next, GAME);
-    this.scene.start('Hero', { heroId });
-    const heroScene = this.scene.get('Hero');
-    heroScene.events.once(Phaser.Scenes.Events.CREATE, () => toast(heroScene, lines.join('\n'), C.success, 5000));
+    // Следующий готовый герой — сразу его выбор (как цепочка наград в AFK); иначе — карточка героя.
+    const more = firstJobChangeReady(next, GAME);
+    const target = more ? 'JobChange' : 'Hero';
+    this.scene.start(target, { heroId: more?.id ?? heroId });
+    const sc = this.scene.get(target);
+    sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, lines.join('\n'), C.success, 5000));
   }
 }
