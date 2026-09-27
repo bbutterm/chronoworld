@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { buildRegistry, resolveAnim, type AnimName, type LegacySprites, type SpriteDef, type SpriteFixes, type SpritesV2 } from '../pipeline/sprites';
+import { assetUrl } from './assetUrl';
 import { FONT, GAME_H, GAME_W } from './layout';
 import { SheetLru, textureBytes } from './spriteCache';
 import { setSpriteLookup } from './spriteRegistry';
@@ -67,7 +68,7 @@ function loadImage(url: string): Promise<HTMLImageElement | null> {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
-    img.src = url;
+    img.src = assetUrl(url);
   });
 }
 
