@@ -24,6 +24,11 @@
     "ui_nav_home": {"file": "ui/ui_nav_home.png", "width": 128, "height": 128, "kind": "ui"},
     "ui_nav_home_active": {"file": "ui/ui_nav_home_active.png", "width": 128, "height": 128, "kind": "ui"},
     "ui_icon_gold": {"file": "ui/ui_icon_gold.png", "width": 96, "height": 96, "kind": "ui"},
-    "ui_icon_gem": {"file": "ui/ui_icon_gem.png", "width": 96, "height": 96, "kind": "ui"}
+    "ui_icon_gem": {"file": "ui/ui_icon_gem.png", "width": 96, "height": 96, "kind": "ui"},
+    "tile_grass_01": {"file": "tiles/tile_grass_01.png", "width": 128, "height": 128, "kind": "tile"},
+    "tile_grass_02": {"file": "tiles/tile_grass_02.png", "width": 128, "height": 128, "kind": "tile"},
+    "tile_grass_dry": {"file": "tiles/tile_grass_dry.png", "width": 128, "height": 128, "kind": "tile"},
+    "tile_dirt": {"file": "tiles/tile_dirt.png", "width": 128, "height": 128, "kind": "tile"},
+    "tile_stone": {"file": "tiles/tile_stone.png", "width": 128, "height": 128, "kind": "tile"}
   }
 }
