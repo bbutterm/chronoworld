@@ -288,8 +288,21 @@ describe('QA T2 (бой) — регрессии пакета P1', () => {
         all.push(e);
       }
     }
-    expect(all.some((e) => e.reason === 'noTarget' && e.skill === 'job_acolyte_sanctuary')).toBe(true);
-    expect(all.some((e) => e.reason === 'stun')).toBe(true);
+    // Состав этапов меняется с контентом — наличие обоих видов проверяем на синтетике ниже.
+    // Синтетика: долгий каст сбивает оглушение — reason stun.
+    const cs = content(
+      [
+        unitDef('caster', { skills: { basic: 'shot', actives: ['bolt'], passives: [] } }, { hp: 1_000_000, atk: 1, spd: 100 }),
+        unitDef('stunner', { skills: { basic: 'daze', passives: [] } }, { hp: 1_000_000, atk: 1, spd: 60 }),
+      ],
+      [
+        skill('bolt', { castTime: 3, cooldown: 0 }),
+        skill('daze', { effects: [{ type: 'status', status: { id: 'stun', name: 'Оглушение', turns: 1, stun: true } }] }),
+      ],
+    );
+    const stunned = of(simulateBattle(cs, ['caster'], ['stunner'], 1).log, 'cast').filter((e) => e.action === 'interrupt');
+    expect(stunned.length).toBeGreaterThan(0);
+    for (const e of stunned) expect(e.reason).toBe('stun');
     // Синтетика: каст лечения, а к концу каста лечить некого (раненый союзник погиб) — noTarget, а не «сбит».
     const c = content(
       [
@@ -321,7 +334,9 @@ describe('QA T2 (бой) — регрессии пакета P1', () => {
         const land = Math.round((s.t + flight) * 100) / 100;
         const hits = of(r.log, 'damage').filter((e) => e.source === s.unit && e.target === s.targets[0] && !e.dot && e.t >= s.t - 1e-9 && e.t <= land + 1e-9);
         const died = dead.get(s.targets[0]);
+        // Цель умерла раньше или в тот же тик (от другого снаряда, приземлившегося первым) — стрела пропала.
         if (died !== undefined && died < land) expect(hits, `${stage} t=${s.t} ${s.unit}`).toEqual([]);
+        else if (died === land) expect(hits.every((h) => h.t === land), `${stage} t=${s.t} ${s.unit}`).toBe(true);
         else if (r.duration >= land) {
           expect(hits.map((h) => h.t), `${stage} t=${s.t} ${s.unit}`).toEqual([land]);
           landed++;
@@ -342,28 +357,54 @@ describe('QA T2 (бой) — регрессии пакета P1', () => {
     expect(of(s.log, 'damage').filter((e) => e.source === 'A0')).toEqual([]);
   });
 
-  it('T2-11: бафф «на N ходов» длится одинаково у кастера и у всех (N × statusTurnSeconds, этап 20, seed 2)', () => {
-    const { r } = fight('tier1', 30, 'ch2_s10', 2);
-    const open = new Map<string, Ev<'status'>>();
-    let checked = 0;
-    for (const e of of(r.log, 'status')) {
-      const k = `${e.target}:${e.status}`;
-      if (e.action === 'apply') {
-        expect(e.seconds).toBeCloseTo(e.turns * (COMBAT.statusTurnSeconds ?? 1), 5);
-        open.set(k, e);
-      } else {
-        const a = open.get(k)!;
-        expect(e.t - a.t, k).toBeCloseTo(a.seconds!, 5);
-        open.delete(k);
-        checked++;
+  it('T2-11: бафф «на N ходов» длится одинаково у кастера и у всех (N × statusTurnSeconds)', () => {
+    const turn = COMBAT.statusTurnSeconds ?? 1;
+    /** Каждый статус спадает ровно через seconds после наложения (если носитель дожил и статус не обновили). */
+    const durations = (r: BattleResult, tag: string) => {
+      const open = new Map<string, Ev<'status'>>();
+      let checked = 0;
+      for (const e of of(r.log, 'status')) {
+        const k = `${e.target}:${e.status}`;
+        if (e.action === 'apply') {
+          expect(e.seconds, `${tag} ${k}`).toBeCloseTo(e.turns * turn, 5);
+          open.set(k, e);
+        } else {
+          const a = open.get(k)!;
+          expect(e.t - a.t, `${tag} ${k}`).toBeCloseTo(a.seconds!, 5);
+          open.delete(k);
+          checked++;
+        }
       }
-    }
+      return checked;
+    };
+    // Сид из отчёта (этап 20, seed 2) и ещё несколько боёв на текущем контенте.
+    let checked = 0;
+    for (const [name, lvl, stage, seed] of [
+      ['tier1', 30, 'ch2_s10', 2],
+      ['tier1', 10, 'ch1_s10', 1],
+      ['tier2', 30, 'ch3_s5', 1],
+    ] as const)
+      checked += durations(fight(name, lvl, stage, seed).r, `${stage}/${seed}`);
     expect(checked).toBeGreaterThan(0);
-    // «Ускорение» Аколита: у самого кастера столько же, сколько у союзников.
-    const agi = of(r.log, 'status').filter((e) => e.action === 'apply' && e.source === 'A4' && e.name === 'Ускорение');
-    expect(agi.length).toBeGreaterThan(0);
-    const self = agi.find((e) => e.target === 'A4');
-    if (self) expect(self.seconds).toBe(agi[0].seconds);
+    // Синтетика: кастер (быстрый) накладывает на себя и медленного союзника «Ускорение» на 4 хода — у обоих 4 × statusTurnSeconds.
+    const c = content(
+      [
+        unitDef('buffer', { skills: { basic: 'shot', actives: ['agi'], passives: [] } }, { hp: 1_000_000, atk: 1, spd: 150 }),
+        unitDef('slow', {}, { hp: 1_000_000, atk: 1, spd: 40 }),
+        unitDef('d', {}, { hp: 1_000_000, atk: 1, spd: 100 }),
+      ],
+      [skill('agi', { cooldown: 20, target: { side: 'ally', pick: 'all', includeSelf: true }, effects: [{ type: 'status', status: { id: 'agi', name: 'Ускорение', turns: 4, stats: { spd: 0.2 } } }] })],
+    );
+    const r = simulateBattle(c, ['buffer', 'slow'], ['d'], 1);
+    const all = of(r.log, 'status').filter((e) => e.status === 'agi' && e.action === 'apply');
+    const applies = all.filter((e) => e.t === all[0].t);
+    const expires = of(r.log, 'status').filter((e) => e.status === 'agi' && e.action === 'expire');
+    expect(applies.map((e) => e.target).sort()).toEqual(['A0', 'A1']);
+    for (const a of applies) {
+      const x = expires.find((e) => e.target === a.target && e.t > a.t)!;
+      expect(x.t - a.t, a.target).toBeCloseTo(4 * turn, 5);
+    }
+    durations(r, 'synthetic');
   });
 
   it('T2-16: ближний бой бьёт только из досягаемости, стоят вплотную (meleeRange ≤ 140)', () => {
