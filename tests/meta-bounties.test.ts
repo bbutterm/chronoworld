@@ -120,7 +120,8 @@ describe('K9 доска поручений', () => {
     expect(a.squad).toEqual(s.squad);
     const two = { ...a, bounties: { ...a.bounties, board: [{ ...s.bounties.board[0], id: 'b2' }] } };
     expect(codeOf(() => startBounty(two, 'b2', ['h1', 'h3'], 0, ctx))).toBe('hero_busy');
-    expect(startBounty(two, 'b2', ['h3', 'h4'], 0, ctx).bounties.active).toHaveLength(2);
+    const solo = { ...a, bounties: { ...a.bounties, board: [{ ...s.bounties.board[0], id: 'b2', heroCount: 1 }] } };
+    expect(startBounty(solo, 'b2', ['h3'], 0, ctx).bounties.active).toHaveLength(2);
   });
 
   it('startBounty: ошибки', () => {

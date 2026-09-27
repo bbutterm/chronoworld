@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { buildPlaceholders, queueAssets, setupLoadedAssets } from '../assets';
+import { buildSkin } from '../skin';
 import { CONTENT, GAME } from '../content';
 import { heroSprite } from '../flow';
 import { session } from '../session';
@@ -80,6 +81,7 @@ export class BootScene extends Phaser.Scene {
 
   create(): void {
     setupLoadedAssets(this);
+    buildSkin(this);
     buildPlaceholders(this);
     setupSprites(this, spriteRoles());
     // Небольшой набор портретов сразу: герои игрока (список героев, отряд). Листы для них грузятся по одному

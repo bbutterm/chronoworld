@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import manifestJson from '../../assets/manifest.json';
+import { SKIN_FOR, SKIN_FORCE, SKIN_SLICE } from './skin';
 
 interface AssetEntry {
   /** Путь внутри assets/ или null — тогда рисуется плейсхолдер. */
@@ -47,6 +48,8 @@ export const hasAsset = (id: string) => id in MANIFEST;
 
 /** Текстура и кадр для id из манифеста (кадр атласа или отдельная картинка/плейсхолдер). */
 export function tex(scene: Phaser.Scene, id: string, pressed = false): { key: string; frame?: string } {
+  const skin = skinKey(scene, id);
+  if (skin) return { key: pressed && scene.textures.exists(`${skin}_pressed`) ? `${skin}_pressed` : skin };
   if (id.startsWith(KENNEY_PREFIX)) return kenney(scene, id.slice(KENNEY_PREFIX.length), pressed);
   const a = MANIFEST[id];
   if (a?.atlas && a.frame && scene.textures.exists(a.atlas)) {
@@ -55,7 +58,15 @@ export function tex(scene: Phaser.Scene, id: string, pressed = false): { key: st
   return { key: id };
 }
 
+/** Текстура скина для id (панели и кнопки без своего файла рисуются скином, см. skin.ts). */
+export function skinKey(scene: Phaser.Scene, id: string): string | null {
+  const k = SKIN_FOR[id] ?? (id.startsWith('skin_') ? id : undefined);
+  if (!k || (MANIFEST[id]?.file && !SKIN_FORCE.has(id)) || !scene.textures.exists(k)) return null;
+  return k;
+}
+
 export function sliceOf(id: string): [number, number, number, number] {
+  if (SKIN_FOR[id] || id.startsWith('skin_')) return [SKIN_SLICE, SKIN_SLICE, SKIN_SLICE, SKIN_SLICE];
   if (id.startsWith(KENNEY_PREFIX)) return id.includes('panel_') ? [16, 16, 16, 16] : [12, 12, 12, 12];
   return MANIFEST[id]?.slice ?? [16, 16, 16, 16];
 }

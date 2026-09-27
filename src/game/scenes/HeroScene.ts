@@ -133,7 +133,7 @@ export class HeroScene extends Phaser.Scene {
     if (sk?.icon && this.textures.exists(sk.icon)) {
       a.add(this.add.image(90, y, sk.icon).setDisplaySize(iconSize, iconSize).setAlpha(locked ? 0.35 : 1));
     } else {
-      a.add(this.add.rectangle(90, y, iconSize, iconSize, locked ? 0x444444 : 0x6b4a2a).setStrokeStyle(3, TINT.frame));
+      a.add(this.add.rectangle(90, y, iconSize, iconSize, locked ? 0x1a1916 : 0x2b2620).setStrokeStyle(3, locked ? 0x35302a : 0x5c4b31));
     }
     const kind = locked ? `откроется на джобе ${r.locked}` : r.kind;
     const kindText = a.add(text(this, 1010, y - h * 0.24, kind, FS.caption, locked ? C.dim : r.kind.startsWith('КД') ? C.gold : C.success).setOrigin(1, 0.5));

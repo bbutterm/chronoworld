@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GAME } from '../content';
-import { autoNextStage, describeEvents, formatNumber, itemStatsText, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
+import { autoNextStage, describeEvents, firstJobChangeReady, formatNumber, itemStatsText, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
 import type { BattleResult, Side } from '../../core';
 import { GAME_W } from '../layout';
 import { session } from '../session';
@@ -144,10 +144,16 @@ export class ResultScene extends Phaser.Scene {
       const bw = 330;
       button(this, 190, 1830, bw, 130, 'k:buttonLong_beige', 'К кампании', () => this.scene.start('Campaign'), FS.h3);
       button(this, 540, 1830, bw, 130, 'ui_btn_secondary', 'Повторить', () => this.scene.start('Battle', { mode: 'stage', stageId: stage.stageId }), FS.h3);
-      const nextBtn = button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Дальше', () => {
-        if (next) this.scene.start('Stage', { stageId: next.id });
-      }, FS.h2);
-      if (!next) nextBtn.container.setAlpha(0.4).disableInteractive();
+      // Кто-то дорос до смены профессии — главная кнопка ведёт туда (по всем готовым героям подряд), а не дальше.
+      const ready = win ? firstJobChangeReady(session.save, GAME) : undefined;
+      if (ready) {
+        button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Профессия ›', () => this.scene.start('JobChange', { heroId: ready.id }), FS.h3).container.setName('jobChangeBtn');
+      } else {
+        const nextBtn = button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Дальше', () => {
+          if (next) this.scene.start('Stage', { stageId: next.id });
+        }, FS.h2);
+        if (!next) nextBtn.container.setAlpha(0.4).disableInteractive();
+      }
       this.autoRow(stage.stageId, win);
       return;
     }
@@ -234,6 +240,7 @@ const AUTO_STOP_TEXT: Record<AutoStop, string> = {
   chapter_end: 'Глава пройдена — авто остановлено',
   no_next: 'Дальше этапов нет',
   replay: 'Это повтор — авто идёт только по новым этапам',
+  job_change: 'Смена профессии доступна — нажмите «Профессия»',
 };
 
 /** MVP стороны — больше всех урона (при равенстве — лечение + щит). Никто ничего не сделал — нет MVP. */

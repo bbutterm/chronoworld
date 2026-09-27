@@ -7,6 +7,7 @@ import { formatNumber, jobChangeReadyCount } from './flow';
 import { button, ellipsize, icon, panel, text, toast } from './ui';
 import { hasArt } from './assets';
 import { C, FS, SP, TINT } from './theme';
+import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 
 export type NavTab = 'Campaign' | 'Heroes' | 'Home';
 
@@ -17,7 +18,7 @@ const TABS: { scene: NavTab; label: string }[] = [
 ];
 
 /** Имена иконок вкладок: ui_nav_<имя> и ui_nav_<имя>_active в assets/manifest.json. */
-const NAV_ICON: Record<NavTab, string> = { Campaign: 'campaign', Heroes: 'heroes', Home: 'home' };
+const NAV_ICON: Record<NavTab, SkinIcon> = { Campaign: 'map', Heroes: 'helmet', Home: 'home' };
 
 /** Высота нижней навигации; контент экрана — между шапкой и ней. */
 export const NAV_H = 170;
@@ -39,44 +40,35 @@ export function screen(
   back?: { label?: string; to: string; data?: object },
   opts: { settings?: () => void } = {},
 ): void {
-  scene.add.image(GAME_W / 2, GAME_H / 2, 'bg_arena').setDisplaySize(GAME_W, GAME_H).setAlpha(0.45);
-  scene.add.rectangle(GAME_W / 2, HEADER_H / 2, GAME_W, HEADER_H, 0x1d140c, 0.92);
-  scene.add.rectangle(GAME_W / 2, HEADER_H, GAME_W, 6, 0xc8a060);
-  const t = text(scene, back ? GAME_W / 2 + 40 : 60, HEADER_H / 2, title, FS.h1, C.title, {
-    fontStyle: 'bold',
-    stroke: C.titleStroke,
-    strokeThickness: 8,
-  }).setOrigin(back ? 0.5 : 0, 0.5);
+  scene.add.image(GAME_W / 2, GAME_H / 2, 'skin_bg_forest').setDisplaySize(GAME_W, GAME_H);
+  scene.add.rectangle(GAME_W / 2, HEADER_H / 2, GAME_W, HEADER_H, SKIN.bg, 0.96);
+  scene.add.rectangle(GAME_W / 2, HEADER_H, GAME_W, 2, SKIN_TINT.bronze);
+  const t = text(scene, back ? GAME_W / 2 + 40 : 50, HEADER_H / 2, title, FS.h1, SKIN.cream, { fontStyle: 'bold' }).setOrigin(back ? 0.5 : 0, 0.5);
   if (back) button(scene, 110, HEADER_H / 2, 180, 100, 'k:buttonLong_beige', back.label ?? '‹ Назад', () => scene.scene.start(back.to, back.data), FS.h3);
   const currencyLeft = currencyLabels(scene);
   let titleRight = currencyLeft - SP.m;
   if (opts.settings) {
     const gx = currencyLeft - SP.m - GEAR_SIZE / 2;
     const gear = button(scene, gx, HEADER_H / 2, GEAR_SIZE, GEAR_SIZE, 'k:buttonSquare_beige', '', opts.settings);
-    gear.container.add(gearIcon(scene, 0, -3, 56)).setName('settings');
+    gear.container.add(scene.add.image(0, 0, skinIcon('gear')).setDisplaySize(56, 56).setTint(SKIN_TINT.gold)).setName('settings');
     titleRight = gx - GEAR_SIZE / 2 - SP.m;
   }
   // Длинное название не должно наезжать на «Назад», шестерёнку и валюту справа.
   ellipsize(t, back ? Math.min(520, 2 * (titleRight - t.x)) : Math.min(680, titleRight - t.x));
 
   if (active) {
-    scene.add.rectangle(GAME_W / 2, GAME_H - NAV_H / 2, GAME_W, NAV_H, 0x1d140c, 0.95);
-    scene.add.rectangle(GAME_W / 2, GAME_H - NAV_H, GAME_W, 6, 0xc8a060);
+    scene.add.rectangle(GAME_W / 2, GAME_H - NAV_H / 2, GAME_W, NAV_H, SKIN.bg, 0.9);
     const w = GAME_W / TABS.length;
     TABS.forEach((t, i) => {
       const on = t.scene === active;
       const bx = w * (i + 0.5);
-      const by = GAME_H - NAV_H / 2 + 4;
-      const btn = button(scene, bx, by, w - 30, NAV_H - 40, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label, () => {
+      const by = GAME_H - NAV_H / 2;
+      // Плитка вкладки как в референсе: контурная иконка и подпись капсом под ней; активная — золотая рамка.
+      const btn = button(scene, bx, by, w - 36, NAV_H - 30, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label.toUpperCase(), () => {
         if (!on) scene.scene.start(t.scene);
-      }, FS.h2);
-      // Иконка вкладки (арт ui_nav_*; нет файла — только подпись).
-      const iconId = `ui_nav_${NAV_ICON[t.scene]}${on ? '_active' : ''}`;
-      if (hasArt(iconId)) {
-        const size = NAV_H - 60;
-        btn.container.add(scene.add.image(-(w - 30) / 2 + size / 2 + 12, 0, iconId).setDisplaySize(size, size));
-        btn.label.setX(size / 2 + 4);
-      }
+      }, FS.caption);
+      btn.label.setY(34).setColor(on ? SKIN.goldLight : SKIN.creamDim);
+      btn.container.add(scene.add.image(0, -18, skinIcon(NAV_ICON[t.scene])).setDisplaySize(60, 60).setTint(on ? SKIN_TINT.gold : SKIN_TINT.creamDim));
       // R: значок «Герои», когда кто-то может сменить профессию.
       if (t.scene === 'Heroes') badge(scene, w * (i + 1) - 50, GAME_H - NAV_H + 30, jobChangeReadyCount(session.save, GAME));
     });
@@ -90,14 +82,18 @@ const GEAR_SIZE = 100;
 /** Золото и гемы в правом углу шапки — друг под другом, чтобы не наезжать на заголовок. Возвращает левый край. */
 function currencyLabels(scene: Phaser.Scene): number {
   const x = GAME_W - 50;
+  // Валюта — «таблетка» из скина: иконка и число, как монеты в референсе.
   const row = (y: number, value: number, color: string, tint: number, gem: boolean) => {
-    const t = text(scene, x, y, formatNumber(value), FS.h2, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(1, 0.5);
-    const ix = x - t.width - 30;
+    const t = text(scene, x - 18, y, formatNumber(value), FS.h3, color, { fontStyle: 'bold' }).setOrigin(1, 0.5);
+    const ix = x - 18 - t.width - 34;
+    const pillW = x - ix + 34 + 6;
+    panel(scene, x - pillW / 2 + 6, y, pillW, 64, 'k:buttonLong_beige');
+    scene.children.bringToTop(t);
     const art = gem ? 'ui_icon_gem' : 'ui_icon_gold';
-    if (hasArt(art)) scene.add.image(ix, y, art).setDisplaySize(52, 52);
-    else if (gem) gemIcon(scene, ix, y, 38);
-    else icon(scene, ix, y, 'iconCircle_beige', 40).setTint(tint);
-    return ix - 20;
+    if (hasArt(art)) scene.add.image(ix, y, art).setDisplaySize(46, 46);
+    else if (gem) gemIcon(scene, ix, y, 34);
+    else icon(scene, ix, y, 'iconCircle_beige', 36).setTint(tint);
+    return x - pillW + 6 - 10;
   };
   return Math.min(
     row(HEADER_H / 2 - 30, session.save.resources.gold, C.gold, 0xffc83a, false),

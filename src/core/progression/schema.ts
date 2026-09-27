@@ -54,6 +54,8 @@ export const ProgressionConfigSchema = z.object({
     count: z.number().int().positive(),
     startJob: id,
     names: z.array(z.string()).min(1),
+    /** Новые герои по ходу кампании: после первой победы на afterStage в отряд приходит Новичок с этим именем. */
+    recruits: z.array(z.object({ afterStage: id, name: z.string() })).default([]),
   }),
   campaign: z.object({
     /** Рост статов врагов за каждый этап по порядку (0.08 = +8%). */

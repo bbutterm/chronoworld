@@ -69,7 +69,7 @@ export function nextOpenStage(save: SaveState, stageId: string, ctx: GameContext
 }
 
 /** R. Почему авто-прохождение остановилось (null — идёт дальше). */
-export type AutoStop = 'defeat' | 'chapter_end' | 'no_next' | 'replay';
+export type AutoStop = 'defeat' | 'chapter_end' | 'no_next' | 'replay' | 'job_change';
 
 /**
  * R. Авто-прохождение кампании: какой этап запустить после боя на stageId, или почему остановиться.
@@ -78,12 +78,19 @@ export type AutoStop = 'defeat' | 'chapter_end' | 'no_next' | 'replay';
  */
 export function autoNextStage(save: SaveState, stageId: string, win: boolean, ctx: GameContext): { next: StageInfo | null; stop: AutoStop | null } {
   if (!win) return { next: null, stop: 'defeat' };
+  // Кто-то готов сменить профессию — сначала это (иначе авто уведёт игрока дальше мимо важного выбора).
+  if (jobChangeReadyCount(save, ctx) > 0) return { next: null, stop: 'job_change' };
   const cur = ctx.content.stages.find((s) => s.id === stageId);
   const next = nextOpenStage(save, stageId, ctx);
   if (!next) return { next: null, stop: 'no_next' };
   if (cur && next.chapter !== cur.chapter) return { next: null, stop: 'chapter_end' };
   if (stageStatus(save, next.id, ctx) === 'cleared') return { next: null, stop: 'replay' };
   return { next, stop: null };
+}
+
+/** Первый герой, который может сменить профессию прямо сейчас (или undefined). */
+export function firstJobChangeReady(save: SaveState, ctx: GameContext): HeroState | undefined {
+  return save.heroes.find((h) => ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0);
 }
 
 /** R. Сколько героев могут сменить профессию прямо сейчас (значок вкладки «Герои»). */
@@ -109,6 +116,7 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save
   for (const [heroId, level] of levels) lines.push(`${heroName(heroId)}: джоб ${level}`);
   for (const e of events) {
     if (e.type === 'skillUnlocked') lines.push(`${heroName(e.heroId)}: новый навык «${skillName(e.skill)}»`);
+    if (e.type === 'heroJoined') lines.unshift(`Новый герой в отряде: ${e.name}!`);
     if (e.type === 'jobChanged') lines.push(`${heroName(e.heroId)}: ${jobName(e.from)} → ${jobName(e.to)}`);
     if (e.type === 'stageUnlocked') {
       const s = ctx.content.stages.find((x) => x.id === e.stageId);

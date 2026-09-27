@@ -127,15 +127,15 @@
       "enemies": [
         {
           "unit": "mob_tank",
-          "mult": 0.9
+          "mult": 0.7
         },
         {
           "unit": "mob_fast",
-          "mult": 1
+          "mult": 0.9
         },
         {
           "unit": "mob_drops",
-          "mult": 1
+          "mult": 0.9
         },
         null,
         null
@@ -156,20 +156,17 @@
       "enemies": [
         {
           "unit": "mob_tank",
-          "mult": 1
-        },
-        {
-          "unit": "mob_tank",
-          "mult": 1
+          "mult": 0.75
         },
         {
           "unit": "mob_poporing",
-          "mult": 1
+          "mult": 0.9
         },
         {
           "unit": "mob_fast",
-          "mult": 1
+          "mult": 0.9
         },
+        null,
         null
       ],
       "rewards": {
@@ -188,23 +185,20 @@
       "enemies": [
         {
           "unit": "mob_drops",
-          "mult": 1
+          "mult": 0.85
         },
         {
           "unit": "mob_poporing",
-          "mult": 1
+          "mult": 0.85
         },
         {
           "unit": "mob_tank",
-          "mult": 1
+          "mult": 0.7
         },
+        null,
         {
           "unit": "mob_fast",
-          "mult": 1
-        },
-        {
-          "unit": "mob_drops",
-          "mult": 1
+          "mult": 0.85
         }
       ],
       "rewards": {
@@ -223,21 +217,18 @@
       "enemies": [
         {
           "unit": "mob_elite",
-          "mult": 1
+          "mult": 0.7
         },
         {
           "unit": "mob_fast",
-          "mult": 1
+          "mult": 0.85
         },
         {
           "unit": "mob_drops",
-          "mult": 1
+          "mult": 0.85
         },
         null,
-        {
-          "unit": "mob_poporing",
-          "mult": 1
-        }
+        null
       ],
       "rewards": {
         "jobExp": 240,
@@ -255,24 +246,21 @@
       "enemies": [
         {
           "unit": "mob_elite",
-          "mult": 1
+          "mult": 0.7
         },
         {
           "unit": "mob_tank",
-          "mult": 1
+          "mult": 0.7
         },
         {
           "unit": "mob_poporing",
-          "mult": 1
+          "mult": 0.85
         },
         {
           "unit": "mob_drops",
-          "mult": 1
+          "mult": 0.85
         },
-        {
-          "unit": "mob_poporing",
-          "mult": 1
-        }
+        null
       ],
       "rewards": {
         "jobExp": 270,
@@ -290,21 +278,18 @@
       "enemies": [
         {
           "unit": "mob_tank",
-          "mult": 1
+          "mult": 0.7
         },
         {
           "unit": "mob_boss1",
-          "mult": 0.78
+          "mult": 0.96
         },
         {
           "unit": "mob_poporing",
-          "mult": 1
+          "mult": 0.85
         },
         null,
-        {
-          "unit": "mob_drops",
-          "mult": 1
-        }
+        null
       ],
       "rewards": {
         "jobExp": 350,

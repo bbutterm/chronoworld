@@ -9,7 +9,7 @@
     { "id": "escort", "name": "Сопровождение каравана", "rarity": "common", "durationMinutes": 120, "heroCount": 2, "role": "tank", "rewards": { "gold": 300, "jobExp": 50, "gems": 0 } },
     { "id": "wounded", "name": "Помощь раненым", "rarity": "rare", "durationMinutes": 180, "heroCount": 2, "role": "healer", "rewards": { "gold": 400, "jobExp": 80, "gems": 5 } },
     { "id": "hunt", "name": "Охота на зверя", "rarity": "rare", "durationMinutes": 240, "heroCount": 3, "role": "damage", "rewards": { "gold": 600, "jobExp": 120, "gems": 10 } },
-    { "id": "dungeon", "name": "Разведка подземелья", "rarity": "epic", "durationMinutes": 480, "heroCount": 4, "role": "tank", "rewards": { "gold": 1500, "jobExp": 300, "gems": 30 } }
+    { "id": "dungeon", "name": "Разведка подземелья", "rarity": "epic", "durationMinutes": 480, "heroCount": 3, "role": "tank", "rewards": { "gold": 1500, "jobExp": 300, "gems": 30 } }
   ],
   "presets": { "max": 5, "nameMaxLength": 20 }
 }

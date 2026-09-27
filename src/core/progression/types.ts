@@ -16,7 +16,8 @@ export type ProgressEvent =
   | { type: 'jobChanged'; heroId: string; from: string; to: string }
   | { type: 'stageCleared'; stageId: string; firstTime: boolean }
   | { type: 'stageUnlocked'; stageId: string }
-  | { type: 'rewards'; gold: number; jobExp: number; heroIds: string[] };
+  | { type: 'rewards'; gold: number; jobExp: number; heroIds: string[] }
+  | { type: 'heroJoined'; heroId: string; name: string };
 
 /** Нарушение правил игры (нельзя сменить профессию, этап закрыт и т. п.). */
 export class GameRuleError extends Error {

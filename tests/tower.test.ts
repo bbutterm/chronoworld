@@ -161,7 +161,7 @@ describe('K4 башня: штурм', () => {
     expect(out.save.resources.gold).toBe(s.resources.gold + r.gold);
     expect(out.save.currency.gems).toBe(0);
     expect(out.events).toContainEqual({ type: 'towerFloorCleared', floor: 1, boss: false });
-    expect(out.events).toContainEqual({ type: 'rewards', gold: r.gold, jobExp: r.jobExp, heroIds: ['h1', 'h2', 'h3', 'h4', 'h5'] });
+    expect(out.events).toContainEqual({ type: 'rewards', gold: r.gold, jobExp: r.jobExp, heroIds: ['h1', 'h2', 'h3'] });
     for (const h of out.save.heroes) {
       const old = s.heroes.find((x) => x.id === h.id)!;
       expect(h.jobLevel > old.jobLevel || h.jobExp > old.jobExp).toBe(true);

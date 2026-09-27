@@ -180,7 +180,7 @@ async function main() {
     await checkHint('Home', 'главная');
 
     // 2. Главная → Кампания → этап 1 → В бой.
-    await clickText('Home', 'Кампания');
+    await clickText('Home', 'КАМПАНИЯ');
     await waitScene('Campaign');
     await clickText('Campaign', '1');
     await waitScene('Stage');
@@ -235,9 +235,9 @@ async function main() {
     // 4. Итог → К кампании → Главная → Герои → герой → назад.
     await clickText('Result', 'К кампании');
     await waitScene('Campaign');
-    await clickText('Campaign', 'Главная');
+    await clickText('Campaign', 'ГЛАВНАЯ');
     await waitScene('Home');
-    await clickText('Home', 'Герои');
+    await clickText('Home', 'ГЕРОИ');
     await waitScene('Heroes');
     await clickGame(540, 430); // карточка первого героя
     await waitScene('Hero');
@@ -246,7 +246,7 @@ async function main() {
     await waitScene('Heroes');
 
     // 5. Настройки (S): шестерёнка в шапке главной → окно → «Тестовый бой» → экран отряда.
-    await clickText('Heroes', 'Главная');
+    await clickText('Heroes', 'ГЛАВНАЯ');
     await waitScene('Home');
     await clickNamed('Home', 'settings');
     await sleep(200);
