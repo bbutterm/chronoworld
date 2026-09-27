@@ -65,7 +65,7 @@ const mctx = withMeta(featureCtx, bountiesJson, achievementsJson); // битый
   "rarities": { "common": 70, "rare": 25, "epic": 5 },
   "templates": [
     { "id": "escort", "name": "Сопровождение каравана", "rarity": "common", "durationMinutes": 120,
-      "heroCount": 2, "role": "tank", "rewards": { "gold": 300, "jobExp": 50, "gems": 0 } }
+      "heroCount": 2, "role": "tank", "rewards": { "gold": 300, "jobExp": 300, "gems": 0 } }
   ]
 }
 ```
@@ -76,7 +76,7 @@ const mctx = withMeta(featureCtx, bountiesJson, achievementsJson); // битый
 | `durationMinutes` | длительность |
 | `heroCount` | сколько героев отправить (ровно), 1–5 |
 | `role` | `tank`/`damage`/`healer`/`support` — нужен хотя бы один герой с профессией этой роли; `null` или нет поля — любые |
-| `rewards` | `gold`, `gems` — в ресурсы, `jobExp` — каждому герою группы |
+| `rewards` | `gold`, `gems` — в ресурсы, `jobExp` — в общий пул опыта героев (`resources.heroExp`) один раз за всю группу, `shards` — осколки «отстающему» сюжетному герою. Поэтому `jobExp` шаблона на 2–3 героя — сумма за группу (до карточек опыт давался каждому герою, числа умножены на `heroCount`) |
 
 - `ensureBoard(save, day, seed, mctx)` — новый день → новая доска бесплатно (UI вызывает при открытии экрана).
   Тот же день или день раньше — тот же объект.

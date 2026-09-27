@@ -471,7 +471,7 @@ export class TavernScene extends Phaser.Scene {
     });
   }
 
-  /** Лицо вместо рубашки и метка под картой («Новый!» / «дубль → на слияние»). */
+  /** Лицо вместо рубашки и метка под картой («Новый!» / «дубль → на слияние», в сетке ×10 — «на слияние»). */
   private showFace(state: RevealState, cv: CardView, animated: boolean): void {
     const r = state.results[cv.i];
     cv.back.setVisible(false);
@@ -485,8 +485,10 @@ export class TavernScene extends Phaser.Scene {
     if (rare && !motion.reduced) this.tweens.add({ targets: cv.glow, alpha: epic ? { from: 1, to: 0.6 } : { from: 0.55, to: 0.3 }, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     const tag = resultTag(r);
     const big = state.count === 1;
-    const label = big || tag.kind === 'new' ? tag.text : 'дубль →\nна слияние';
-    const t = text(this, cv.slot.x, cv.slot.y + cv.slot.h / 2 + (big ? 36 : label.includes('\n') ? 38 : 24), label, FS.caption, tag.kind === 'new' ? C.gold : C.dim, {
+    // В сетке ×10 — одна строка: две («дубль →\nна слияние») упирались в карту ряда ниже (зазор 70). Что это дубль — видно
+    // по серому цвету и строке «Дубли — корм для вознесения» под сеткой.
+    const label = big || tag.kind === 'new' ? tag.text : 'на слияние';
+    const t = text(this, cv.slot.x, cv.slot.y + cv.slot.h / 2 + (big ? 36 : 24), label, FS.caption, tag.kind === 'new' ? C.gold : C.dim, {
       fontStyle: 'bold',
       ...OUTLINE,
       lineSpacing: -6,

@@ -246,7 +246,8 @@ export class HeroScene extends Phaser.Scene {
     const canAscend = ascendReady(session.save, GAME).some((h) => h.id === hero.id);
     if (info.cost) {
       const glow = this.add.image(UP_X, ACT_Y, glowTexture(this)).setDisplaySize(520, 240).setTint(0xffe08a).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0);
-      const up = button(this, UP_X, ACT_Y, 360, 130, 'ui_btn_primary', 'Улучшить', () => {
+      // Ширина 330 и «Вознести» 220 — между кнопками зазор (раньше края заходили друг на друга).
+      const up = button(this, UP_X, ACT_Y, 330, 130, 'ui_btn_primary', 'Улучшить', () => {
         if (this.holdFired) {
           this.holdFired = false;
           return;
@@ -264,10 +265,10 @@ export class HeroScene extends Phaser.Scene {
       this.ui.up = up;
       this.ui.upGlow = glow;
       if (juiceOn()) this.tweens.add({ targets: glow, scale: glow.scale * 1.08, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-      if (info.canLevel && !hintDone('level_up')) hintPointer(this, UP_X, ACT_Y, 'Опыт из запаса — в уровень героя', 'below', { w: 360, h: 130 });
+      if (info.canLevel && !hintDone('level_up')) hintPointer(this, UP_X, ACT_Y, 'Опыт из запаса — в уровень героя', 'below', { w: 330, h: 130 });
       // Вознесение до предела (призывные — кормом в любой момент; сюжетные — осколками).
       if (req) {
-        const asc = button(this, 560, ACT_Y - 18, 230, 96, canAscend ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести', () => this.openAscend(), FS.h3);
+        const asc = button(this, 560, ACT_Y - 18, 220, 96, canAscend ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести', () => this.openAscend(), FS.h3);
         asc.container.setName('ascendBtn');
         if (canAscend) pulse(this, asc.container, 1.05);
         else asc.setEnabled(false);
