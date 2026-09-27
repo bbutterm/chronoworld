@@ -23,7 +23,7 @@ import {
   ROLE_NAMES,
 } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
-import { confirm, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
+import { confirm, confirmOpen, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
 import { commit, now, session, today } from '../session';
 import { portraitKey } from '../sprites';
 import { button, ellipsize, emptyState, panel, pressable, progressBar, ScrollArea, text, toast } from '../ui';
@@ -151,7 +151,9 @@ export class BountiesScene extends Phaser.Scene {
 
   private tick(): void {
     const at = now();
-    if (this.timers.some((t) => at >= t.bounty.endsAt)) {
+    // Окно выбора героев или подтверждение открыто — не перезапускать экран (выбор пропал бы); перерисуем после.
+    const modal = this.area.locked || confirmOpen(this);
+    if (!modal && this.timers.some((t) => at >= t.bounty.endsAt)) {
       this.scene.restart({ scroll: this.area.offset });
       return;
     }

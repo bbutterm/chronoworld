@@ -53,6 +53,15 @@ export function buildContent(raw: RawContent): Content {
 
   for (const s of Object.values(skills)) {
     if (s.fallback && !skills[s.fallback]) problems.push(`навык ${s.id}: fallback ${s.fallback} не найден`);
+    // Цепочка fallback должна заканчиваться: цикл в бою — бесконечная рекурсия (нет целей ни у одного навыка цепочки).
+    const chain = new Set<string>([s.id]);
+    for (let f = s.fallback; f && skills[f]; f = skills[f].fallback) {
+      if (chain.has(f)) {
+        problems.push(`навык ${s.id}: цепочка fallback зациклена (${[...chain, f].join(' → ')})`);
+        break;
+      }
+      chain.add(f);
+    }
     if (s.effects.some((e) => e.type === 'dash') && s.target.side !== 'enemy') {
       problems.push(`навык ${s.id}: dash возможен только к врагу`);
     }

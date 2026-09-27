@@ -132,9 +132,16 @@ export function card(scene: Phaser.Scene, x: number, y: number, w: number, h: nu
   return panel(scene, x, y, w, h, light ? 'ui_panel_light' : 'ui_panel');
 }
 
+const CONFIRM_NAME = 'confirmModal';
+
+/** Открыто ли на сцене подтверждение confirm() — экран не должен перезапускаться у игрока «из-под пальца». */
+export function confirmOpen(scene: Phaser.Scene): boolean {
+  return !!scene.children.getByName(CONFIRM_NAME);
+}
+
 /** Модальное подтверждение: затемнение, вопрос, «Да» / «Отмена». */
 export function confirm(scene: Phaser.Scene, question: string, yes: string, onYes: () => void): void {
-  const layer = scene.add.container(0, 0).setDepth(9000);
+  const layer = scene.add.container(0, 0).setDepth(9000).setName(CONFIRM_NAME);
   const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
   const box = panel(scene, GAME_W / 2, GAME_H / 2, 900, 520, 'ui_panel');
   const q = text(scene, GAME_W / 2, GAME_H / 2 - 90, question, FS.h2, C.text, { wordWrap: { width: 780 }, lineSpacing: 8 });
