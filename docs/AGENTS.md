@@ -68,9 +68,10 @@
 | `BattleScene` (`Battle`) | проигрывание лога боя: спрайты, эффекты, баннеры ульт и босса, скорость 1x/2x, пауза, «Пропустить» |
 | `ResultScene` (`Result`) | итоги: награды (опыт — в запас), трофеи, MVP, подсказка «Улучшить», авто-следующий этап; сюжет `afterStage` |
 | `ChapterDoneScene` (`ChapterDone`) | «Глава пройдена» (переживает перезагрузку через `save.pendingChapterDone`) |
-| `HeroesScene` / `HeroScene` | список карточек (имя, класс, редкость цветом, уровень, «Можно вознести!», осколки) / карточка героя: класс, редкость, «Улучшить» (опыт пула + золото), «Вознести» (осколки / самый слабый корм), статы, навыки, экипировка. Минимум до пакета H4 (коллекция с фильтрами, экран вознесения) |
+| `HeroesScene` / `HeroScene` / `AscendScene` (`Ascend`) | H4. Коллекция: сетка карточек 3 в ряд (`heroCard.ts`), фильтры линии/роли/редкости, сортировка «Сила/Уровень/Редкость», «Коллекция N/M» (серые неполученные), метки «в отряде», «Новый!», замок, «можно улучшить / вознести». Карточка: витрина цвета редкости с героем в стойке, мощь, статы с прибавкой за уровень, «Улучшить» (удержание — повтор, обновление на месте, «до апа не хватает N»), «Вознести», вкладки «Навыки / Снаряжение / История», замок, листание ‹ ›. Вознесение: было → стало, слоты корма (выбор, «Авто»), осколки и откуда они, подтверждение, показ (вспышка, лучи, мощь «+N», новые навыки, вторая профессия и `forms[].promotion`) |
 | `SquadScene` (`Squad`) | то же поле и список героев без противника, «Авто», пресеты |
 | `InventoryScene`, `TowerScene`, `QuestsScene`, `BountiesScene`, `AchievementsScene` | инвентарь, башня, ежедневные задания, поручения, достижения |
+| `TavernScene` | Таверна (H5): призыв карточек, показ «рубашкой вверх» с переворотом, итог; вход — `tavernTile` на главной |
 | `PrepScene` (`Prep`) | тестовый бой (только dev или `?dev=1`), отряды из `data/phase0.json` |
 
 ### Помощники `src/game`
@@ -90,6 +91,7 @@
 | `audio.ts`, `audioCatalog.ts`, `audioCore.ts`, `audioSynth.ts`, `sceneAudio.ts`, `battleAudio.ts` | звук (issue #26, `docs/design/audio.md`): `sfx(id)`, музыка по экрану, заглушки синтезом, файлы `assets/audio/<id>.ogg` побеждают; настройки «Музыка»/«Звуки»/«Без звука» |
 | `viewport.ts`, `viewLayout.ts` | вывод на экран телефона: безопасная зона, поля за краями, DPR |
 | `backdrops.ts` | фоны боя и карты по теме главы (луг/топь/склеп), рисуются кодом; файлы `assets/backgrounds/bg_{battle,map}_ch<N>.*` побеждают |
+| `tavern.ts`, `tavernArt.ts`, `tavernCard.ts`, `tavernEntry.ts` | Таверна: чистые помощники (порядок и ритм показа, раскладка карт, кнопки, гарант — тесты `tests/game-tavern.test.ts`), нарисованный зал и эффекты (файл `assets/backgrounds/bg_tavern.*` побеждает), карточка героя (временная, до общего `heroCard.ts`), плитка на главной со значком |
 | `ambient.ts` | тени под юнитами и частицы по теме |
 | `battleFx.ts` | слои глубины боя, затемнение и баннер ульты, цифры, пулы |
 | `skillFx.ts` | эффекты навыков кодом: круг каста, снаряды, площадь, искры |
@@ -102,6 +104,8 @@
 | `hints.ts`, `hintLayout.ts` | подсказки первой сессии и их размещение |
 | `perf.ts`, `lifecycle.ts` | пулы объектов; пауза при сворачивании, ограничение FPS |
 | `itemIcons.ts`, `describe.ts`, `assets.ts` | иконки предметов кодом; описание юнита; загрузка манифеста и плейсхолдеры |
+| `heroCard.ts` | плитка карточки героя (общая для «Героев» и «Таверны»): `drawHeroCard(scene, x, y, hero \| template \| templateId, opts)` — рамка редкости с орнаментом, фон-сияние, лицо или фигура, значки линии и роли, имя, уровень, ромбы редкостей, метки; `rarityBackdrop`, `rarityPips`, `iconBadge`, `glowTexture`, `raysTexture` |
+| `heroesView.ts` | чистые помощники H4 (тесты `tests/game-heroes.test.ts`): фильтры и сортировка коллекции, листание, прибавка за уровень, `levelShortage`, `ascendPreview`, слоты корма, `shardSources` |
 | `squadEditor.ts`, `prepLayout.ts` | `FormationEditor` — подготовка к бою в духе AFK Arena: поле 2 фронт + 3 тыл по `combat.json field.slotsA` (герой в стойке, роль, уровень, мощь), список героев с прокруткой; нажатие — в лучший слот / убрать, перетаскивание из списка в слот и между слотами (касанием; цель — под «призраком» героя), «Переставить» при стрелках во фронте. `prepLayout.ts` — чистые правила (лучший слот, обмен, геометрия, жест), тесты `tests/game-prep.test.ts` |
 
 `src/pipeline/sprites.ts` — реестр спрайтов (v2 + legacy) без Phaser, общий для игры и скриптов; `V2_SCALE`.
@@ -284,6 +288,8 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
   guaranteed, shard?}], events }`. Результат уже в сохранении (детерминирован от `createdAt` и `summon.seq`) — анимацию показа строить по
   `results`. Подарок открытия выдаёт `playStage` (событие `tavernUnlocked`); `grantTavernWelcome` — идемпотентно.
 - Пулы редкостей — `summonPool(ctx, rarity)`.
+- Экран — `TavernScene` (`src/game/scenes/TavernScene.ts`): `actSummon` → `scene.restart({ reveal })` → показ по `results`
+  (для e2e `scene.reveal.phase`: deal → pick → flipping/showcase → done). Звук — `summonSound(rarity)`, его задержка = нарастание.
 
 **Отряд**: одна копия карточки — `duplicateCardsInSquad`, `templateInSquad` (серые дубли в ростере), `setSquad(save, squad)`
 (MetaError `duplicate_card`), `placeInSquad`; бой с дублем — `GameRuleError('duplicate_card')`. Ростер: `addHeroCard`, `newHeroId`,

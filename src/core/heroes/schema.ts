@@ -33,6 +33,8 @@ export const HeroFormSchema = z.object({
   role: UnitSchema.shape.role.optional(),
   statMods: CardStatModsSchema,
   skills: z.array(CardSkillSchema).min(1),
+  /** Строка истории на экране вознесения, когда герой получает эту профессию (H4, ≤ 200 символов). */
+  promotion: z.string().max(200).optional(),
   /** Лист спрайта формы (id из assets/sprites/sprites.json, например knight_m); нет — лист класса по полу. */
   visual: z.object({ sprite: z.string().optional() }).default({}),
 });

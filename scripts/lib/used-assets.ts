@@ -118,12 +118,12 @@ export function bustFiles(root: string): string[] {
     .map((n) => `ro/portraits/${n}`);
 }
 
-/** Фоны глав от художника (src/game/backdrops.ts): assets/backgrounds/bg_battle_ch<N>.* и bg_map_ch<N>.*. */
+/** Фоны от художника: главы (src/game/backdrops.ts) — bg_battle_ch<N>.*, bg_map_ch<N>.*; Таверна (src/game/tavernArt.ts) — bg_tavern.*. */
 export function themeBackgroundFiles(root: string): string[] {
   const dir = join(root, ASSETS_DIR, 'backgrounds');
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
-    .filter((n) => /^bg_(battle|map)_ch\d+\.(jpg|png|webp)$/.test(n))
+    .filter((n) => /^(bg_(battle|map)_ch\d+|bg_tavern)\.(jpg|png|webp)$/.test(n))
     .sort()
     .map((n) => `backgrounds/${n}`);
 }
