@@ -1,0 +1,66 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "vika",
+  "name": "Вика",
+  "gender": "f",
+  "job": "acolyte",
+  "line": "acolyte",
+  "role": "healer",
+  "source": "story",
+  "baseRarity": "green",
+  "maxRarity": "red",
+  "statMods": {},
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_acolyte_heal"
+    },
+    {
+      "level": 5,
+      "skill": "job_acolyte_divine_protection"
+    },
+    {
+      "level": 10,
+      "skill": "job_acolyte_blessing"
+    },
+    {
+      "level": 50,
+      "skill": "job_acolyte_angelus"
+    }
+  ],
+  "forms": [
+    {
+      "rarity": "purple",
+      "job": "priest",
+      "role": "healer",
+      "statMods": {
+        "hp": 1.2,
+        "atk": 1.25,
+        "def": 1.2
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_acolyte_heal"
+        },
+        {
+          "level": 10,
+          "skill": "job_priest_impositio_manus"
+        },
+        {
+          "level": 30,
+          "skill": "job_priest_magnus_exorcismus"
+        },
+        {
+          "level": 50,
+          "skill": "job_priest_sanctuary"
+        }
+      ],
+      "visual": {
+        "sprite": "priest_f"
+      }
+    }
+  ],
+  "bio": "Аколит из церкви Пронтеры. «Бинты со мной».",
+  "hook": "Сирота, боится крови, но не бросает раненых."
+}

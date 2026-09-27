@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_mage_safety_wall",
+  "name": "Стена безопасности",
+  "description": "Щит 20% ОЗ самому раненому союзнику фронта.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "row": "front",
+    "includeSelf": true
+  },
+  "cooldown": 14,
+  "priority": 6,
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.2
+    }
+  ]
+}

@@ -10,7 +10,7 @@ import {
   claimActivity,
   claimQuest,
   ContentError,
-  maxHeroJobLevel,
+  maxHeroLevel,
   newGame,
   recordActivity,
   withEquipment,
@@ -30,7 +30,7 @@ describe('V: actEquip и счётчик items_equipped', () => {
 
   it('повторное надевание уже надетого предмета (двойное нажатие) не засчитывается как новое надевание', () => {
     const s0 = newGame(ctx, 0, D1);
-    const heroes = s0.heroes.map((h, i) => (i === 0 ? { ...h, job: 'swordman' } : h));
+    const heroes = s0.heroes; // h1 — Алан, Мечник
     const s = addItems({ ...s0, heroes }, ['knife']).save;
     const id = s.inventory.items[0].id;
     const once = actEquip(s, 'h1', id, ctx);
@@ -48,13 +48,14 @@ describe('V: claimActivity обновляет счётчики-«максиму�
     milestones: [{ points: 10, rewards: { jobExp: 100000 } }],
   });
 
-  it('опыт порога активности поднял джоб-уровень — hero_max_job_level сразу учитывает его', () => {
+  it('награда порога активности синхронизирует hero_max_level (наибольший уровень карточки)', () => {
     let s: SaveState = newGame(ctx, 0, D1);
+    s = { ...s, heroes: s.heroes.map((h, i) => (i === 1 ? { ...h, level: 7 } : h)) };
     s = recordActivity(s, D1, 'stage_win');
     s = claimQuest(s, D1, 'win', ctx).save;
     const r = claimActivity(s, D1, 10, ctx);
-    expect(maxHeroJobLevel(r.save)).toBeGreaterThan(1);
-    expect(r.save.achievements.counters.hero_max_job_level).toBe(maxHeroJobLevel(r.save));
+    expect(maxHeroLevel(r.save)).toBe(7);
+    expect(r.save.achievements.counters.hero_max_level).toBe(7);
   });
 });
 

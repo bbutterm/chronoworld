@@ -3,10 +3,10 @@ import { withGear } from '../equipment/equipment';
 import { simulateBattle } from '../battle';
 import type { UnitDef } from '../content/schema';
 import type { FeatureEvent } from '../features/config';
-import { addJobExp } from '../progression/exp';
-import { buildUnit } from '../progression/stats';
-import { GameRuleError, type GameContext } from '../progression/types';
-import type { HeroState, SaveState } from '../save/schema';
+import { squadUnits } from '../campaign/campaign';
+import { addHeroExp } from '../heroes/level';
+import type { GameContext } from '../progression/types';
+import type { SaveState } from '../save/schema';
 import type { BattleResult, Content } from '../types';
 import { TowerConfigSchema, type TowerBand, type TowerConfig } from './schema';
 
@@ -32,7 +32,7 @@ export interface TowerContext extends GameContext {
 export interface TowerRewards {
   gold: number;
   gems: number;
-  /** Каждому герою отряда. */
+  /** Опыт в общий пул героев. */
   jobExp: number;
 }
 
@@ -190,10 +190,10 @@ export function towerStatus(save: SaveState, ctx: TowerContext): TowerStatus {
 /**
  * K4. Штурм следующего этажа (save.tower.floor + 1) отрядом save.squad. Чистая функция.
  * - TowerError('tower_locked') — не пройден unlockAfterStage; ('tower_completed') — пройден maxFloor;
- * - GameRuleError('unknown_hero') / ('empty_squad') — как у playStage;
+ * - GameRuleError('unknown_hero') / ('empty_squad') / ('duplicate_card') — как у playStage;
  * - battleSeq + 1 всегда;
- * - победа: tower.floor + 1, золото и гемы в ресурсы, jobExp каждому герою отряда (addJobExp);
- *   события rewards, gems (если > 0), towerFloorCleared, события addJobExp;
+ * - победа: tower.floor + 1, золото и гемы в ресурсы, jobExp — в общий пул опыта героев;
+ *   события rewards, gems (если > 0), towerFloorCleared;
  * - поражение: только battleSeq. Повторов этажей нет — награда за этаж даётся один раз.
  */
 export function climbTower(save: SaveState, seed: number, ctx: TowerContext): TowerOutcome {
@@ -207,18 +207,10 @@ export function climbTower(save: SaveState, seed: number, ctx: TowerContext): To
   if (n > ctx.tower.maxFloor) throw new TowerError('tower_completed', 'Башня пройдена до вершины');
   const floor = towerFloor(n, ctx);
 
-  const heroIds: string[] = [];
-  const squad = save.squad.map((heroId) => {
-    if (heroId === null) return null;
-    const hero = save.heroes.find((h) => h.id === heroId);
-    if (!hero) throw new GameRuleError('unknown_hero', `Герой ${heroId} не найден`);
-    if (!heroIds.includes(hero.id)) heroIds.push(hero.id);
-    return buildUnit(hero, ctx);
-  });
-  if (heroIds.length === 0) throw new GameRuleError('empty_squad', 'В отряде нет героев');
+  const { squad } = squadUnits(save, ctx);
 
   const result = simulateBattle(ctx.content, squad, floor.enemies, seed, { combat: ctx.combat });
-  const next: SaveState = { ...save, battleSeq: save.battleSeq + 1 };
+  let next: SaveState = { ...save, battleSeq: save.battleSeq + 1 };
   const events: TowerEvent[] = [];
   if (result.winner !== 'A') return { save: next, floor: n, result, events };
 
@@ -226,14 +218,9 @@ export function climbTower(save: SaveState, seed: number, ctx: TowerContext): To
   next.tower = { ...save.tower, floor: n };
   next.resources = { ...save.resources, gold: save.resources.gold + gold };
   next.currency = { ...save.currency, gems: save.currency.gems + gems };
-  events.push({ type: 'rewards', gold, jobExp, heroIds });
+  next = addHeroExp(next, jobExp);
+  events.push({ type: 'rewards', gold, heroExp: jobExp });
   if (gems > 0) events.push({ type: 'gems', amount: gems });
   events.push({ type: 'towerFloorCleared', floor: n, boss: floor.boss });
-  next.heroes = save.heroes.map((h): HeroState => {
-    if (!heroIds.includes(h.id)) return h;
-    const r = addJobExp(h, jobExp, ctx);
-    events.push(...r.events);
-    return r.hero;
-  });
   return { save: next, floor: n, result, events };
 }

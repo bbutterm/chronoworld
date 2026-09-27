@@ -12,8 +12,8 @@
       "perFloor": 15
     },
     "jobExp": {
-      "base": 60,
-      "perFloor": 8
+      "base": 180,
+      "perFloor": 24
     },
     "bossMultiplier": 2,
     "bossGems": 20

@@ -1,0 +1,171 @@
+{
+  "title": "Таверна (призыв карточек)",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$comment": {
+      "type": "string"
+    },
+    "unlockAfterStage": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "costs": {
+      "type": "object",
+      "properties": {
+        "single": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "ten": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "single",
+        "ten"
+      ]
+    },
+    "rates": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rarity": {
+            "type": "string",
+            "enum": [
+              "green",
+              "blue",
+              "purple",
+              "gold",
+              "red"
+            ]
+          },
+          "chance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "baseRarities": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "green",
+                "blue",
+                "purple",
+                "gold",
+                "red"
+              ]
+            }
+          }
+        },
+        "required": [
+          "rarity",
+          "chance",
+          "baseRarities"
+        ]
+      }
+    },
+    "pity": {
+      "type": "object",
+      "properties": {
+        "rarity": {
+          "type": "string",
+          "enum": [
+            "green",
+            "blue",
+            "purple",
+            "gold",
+            "red"
+          ]
+        },
+        "every": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "rarity",
+        "every"
+      ]
+    },
+    "firstTen": {
+      "type": "object",
+      "properties": {
+        "rarity": {
+          "type": "string",
+          "enum": [
+            "green",
+            "blue",
+            "purple",
+            "gold",
+            "red"
+          ]
+        }
+      },
+      "required": [
+        "rarity"
+      ]
+    },
+    "freePerDay": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "welcome": {
+      "type": "object",
+      "properties": {
+        "gems": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "scrolls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "gems",
+        "scrolls"
+      ]
+    },
+    "storyShard": {
+      "type": "object",
+      "properties": {
+        "chance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "chance",
+        "count"
+      ]
+    }
+  },
+  "required": [
+    "unlockAfterStage",
+    "costs",
+    "rates",
+    "pity",
+    "firstTen",
+    "freePerDay",
+    "welcome",
+    "storyShard"
+  ]
+}

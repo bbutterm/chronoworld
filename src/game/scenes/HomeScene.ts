@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { hasArt } from '../assets';
 import { achievementStatus, heroesWithGearUpgrades, actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
 import { GAME } from '../content';
-import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, jobChangeReadyCount } from '../flow';
+import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, levelUpReady } from '../flow';
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, confirmOpen, cornerBadge, gemIcon, NAV_H, popIn, screen } from '../screen';
@@ -134,7 +134,7 @@ export class HomeScene extends Phaser.Scene {
         ? 'Пройдите первый этап кампании,\nчтобы сундук начал наполняться'
         : r.gold === 0 && r.jobExp === 0
           ? 'Сундук пуст — награды\nкопятся каждую минуту'
-          : `Накоплено за ${h} ч ${m} мин\nЗолото +${formatNumber(r.gold)}   Опыт +${formatNumber(r.jobExp)} каждому`,
+          : `Накоплено за ${h} ч ${m} мин\nЗолото +${formatNumber(r.gold)}   Опыт +${formatNumber(r.jobExp)} в запас`,
     );
     const full = r.gold > 0 || r.jobExp > 0;
     this.claimBtn.container.setAlpha(full ? 1 : 0.45);
@@ -179,7 +179,7 @@ export class HomeScene extends Phaser.Scene {
     const id = pickHomeHint({
       cleared: save.campaign.cleared.length,
       chestHasIncome,
-      jobChangeReady: jobChangeReadyCount(save, GAME) > 0,
+      levelUpReady: levelUpReady(save, GAME).length > 0,
       towerUnlocked: towerStatus(save, GAME).unlocked,
       gearUpgrade: heroesWithGearUpgrades(save, GAME).length > 0,
     });
@@ -194,7 +194,7 @@ export class HomeScene extends Phaser.Scene {
     if (id === 'chest_claim') this.hintView = hintPointer(this, GAME_W / 2, L.claimY, msg, 'below', { w: 460, h: TOUCH });
     if (id === 'tower_open') this.hintView = hintPointer(this, L.tileXR, L.tileY1, msg, 'above', { w: L.tileW, h: L.tileH });
     // Вкладка «Герои» — средняя в нижней навигации.
-    if (id === 'job_change' || id === 'equip_gear') this.hintView = hintPointer(this, GAME_W / 2, GAME_H - NAV_H / 2 + 4, msg, 'above', { w: GAME_W / 3 - 30, h: NAV_H - 40 });
+    if (id === 'level_up' || id === 'equip_gear') this.hintView = hintPointer(this, GAME_W / 2, GAME_H - NAV_H / 2 + 4, msg, 'above', { w: GAME_W / 3 - 30, h: NAV_H - 40 });
   }
 
   // ---------- S. Настройки (шестерёнка в шапке) ----------
@@ -320,7 +320,7 @@ export class HomeScene extends Phaser.Scene {
       this,
       80,
       y - 6,
-      noIncome ? 'Откроются после первого этапа кампании' : `+${formatNumber(preview.gold)} золота, +${formatNumber(preview.jobExp)} опыта каждому`,
+      noIncome ? 'Откроются после первого этапа кампании' : `+${formatNumber(preview.gold)} золота, +${formatNumber(preview.jobExp)} опыта в запас`,
       FS.body,
       C.text,
       { align: 'left', wordWrap: { width: 600 }, stroke: C.stroke, strokeThickness: 4 },
@@ -355,7 +355,7 @@ export class HomeScene extends Phaser.Scene {
       return;
     }
     const price = st.nextCost === 0 ? 'Бесплатно.' : `Цена: ${formatNumber(st.nextCost)} гемов (у вас ${formatNumber(save.currency.gems)}).`;
-    const q = `Забрать ${GAME.features.fastRewards.hours} ч дохода сразу?\nЗолото +${formatNumber(preview.gold)}, опыт +${formatNumber(preview.jobExp)} каждому.\n${price}`;
+    const q = `Забрать ${GAME.features.fastRewards.hours} ч дохода сразу?\nЗолото +${formatNumber(preview.gold)}, опыт +${formatNumber(preview.jobExp)} в запас.\n${price}`;
     confirm(this, q, 'Забрать', () => {
       try {
         const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };

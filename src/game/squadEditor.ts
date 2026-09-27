@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import { arrangeSquad, COMBAT, formationRank, heroPower, misplacedInFront, squadPower, withGear, type HeroState, type UnitDef } from '../core';
-import { CONTENT, GAME } from './content';
+import { arrangeSquad, COMBAT, duplicateCardsInSquad, formationRank, heroCard, heroName, heroPower, misplacedInFront, squadPower, withGear, type HeroState, type UnitDef } from '../core';
+import { GAME } from './content';
 import { formatNumber, heroSprite, POWER_COLORS, powerTone } from './flow';
 import { bump, countUp, juiceOn } from './juice';
 import { GAME_W } from './layout';
@@ -252,9 +252,9 @@ export class FormationEditor {
           if (o instanceof Phaser.GameObjects.Sprite && !juiceOn()) o.anims.pause();
         },
       });
-      c.add(text(scene, -w / 2 + 12, -h / 2 + 8, `ур. ${hero.jobLevel}`, FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0));
+      c.add(text(scene, -w / 2 + 12, -h / 2 + 8, `ур. ${hero.level}`, FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0));
       c.add(scene.add.image(w / 2 - 30, -h / 2 + 30, roleIconKey(rank)).setDisplaySize(46, 46));
-      c.add(ellipsize(text(scene, 0, 46, hero.name, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), w - 20));
+      c.add(ellipsize(text(scene, 0, 46, heroName(hero, GAME), FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), w - 20));
       c.add(text(scene, 0, 78, formatNumber(heroPower(hero, gctx)), FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }));
       if (this.pop === i && juiceOn()) {
         c.setScale(0.86);
@@ -286,10 +286,11 @@ export class FormationEditor {
       const rank = formationRank(hero, GAME);
       const face = portrait(scene, 0, -44, portraitKey(heroSprite(hero, GAME)), 118);
       c.add(face);
-      c.add(text(scene, -CARD_W / 2 + 12, -CARD_H / 2 + 8, `ур. ${hero.jobLevel}`, FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0));
+      const card0 = heroCard(hero, GAME);
+      c.add(text(scene, -CARD_W / 2 + 12, -CARD_H / 2 + 8, `ур. ${hero.level}`, FS.caption, card0.rarity.color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0));
       c.add(scene.add.image(CARD_W / 2 - 30, -CARD_H / 2 + 30, roleIconKey(rank)).setDisplaySize(46, 46));
-      c.add(ellipsize(text(scene, 0, 34, hero.name, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), CARD_W - 20));
-      c.add(ellipsize(text(scene, 0, 66, CONTENT.jobs[hero.job]?.name ?? hero.job, FS.caption, C.title, { stroke: C.stroke, strokeThickness: 4 }), CARD_W - 24));
+      c.add(ellipsize(text(scene, 0, 34, card0.name, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), CARD_W - 20));
+      c.add(ellipsize(text(scene, 0, 66, card0.jobName, FS.caption, C.title, { stroke: C.stroke, strokeThickness: 4 }), CARD_W - 24));
       c.add(text(scene, 0, 100, formatNumber(power(hero)), FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }));
       if (inSquad) {
         // «В отряде»: портрет приглушён, поверх — зелёная плашка с галочкой.
@@ -319,7 +320,10 @@ export class FormationEditor {
     const misplaced = misplacedInFront(save, GAME);
     this.fixBtn.container.setVisible(misplaced.length > 0);
     if (misplaced.length) {
-      const names = misplaced.map((id) => save.heroes.find((h) => h.id === id)?.name ?? id);
+      const names = misplaced.map((id) => {
+        const h = save.heroes.find((x) => x.id === id);
+        return h ? heroName(h, GAME) : id;
+      });
       this.tip.setText(`${names.join(', ')} во фронте — дальнему бою место в тылу`).setColor(C.warning).setX(40).setOrigin(0, 0.5);
       ellipsize(this.tip, GAME_W - 400);
     } else {
@@ -461,7 +465,7 @@ export class FormationEditor {
     g.press?.setAlpha(0.4);
     const ring = scene.add.circle(0, 0, GHOST_SIZE / 2 + 6, 0x14110c, 0.92).setStrokeStyle(6, TINT.gold);
     const face = portrait(scene, 0, 0, portraitKey(heroSprite(hero, GAME)), GHOST_SIZE);
-    const name = text(scene, 0, GHOST_SIZE / 2 + 26, hero.name, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
+    const name = text(scene, 0, GHOST_SIZE / 2 + 26, heroName(hero, GAME), FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
     this.ghost = scene.add.container(0, 0, [ring, face, name]);
     this.dragLayer.add(this.ghost);
     const w = worldPoint(scene, p);
@@ -547,6 +551,12 @@ export class FormationEditor {
     if (!r.squad) {
       if (r.reason === 'last') toast(this.scene, 'В отряде должен остаться хотя бы один герой');
       else if (r.reason === 'full') toast(this.scene, 'Отряд полон: перетащите героя на занятое место или уберите кого-нибудь');
+      this.draw();
+      return;
+    }
+    // Одна копия каждой карточки в отряде (ядро: duplicate_card).
+    if (duplicateCardsInSquad(session.save, r.squad).length) {
+      toast(this.scene, 'Эта карточка уже в отряде — можно взять только одну копию');
       this.draw();
       return;
     }

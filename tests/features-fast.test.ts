@@ -37,7 +37,7 @@ function expectFeatureError(fn: () => unknown, code: FeatureErrorCode) {
 
 function withStage(gems = 0): SaveState {
   const s = newGame(ctx, 0, D1);
-  return { ...s, campaign: { cleared: [ctx.content.stages[0].id, ctx.content.stages[1].id] }, currency: { gems } };
+  return { ...s, campaign: { cleared: [ctx.content.stages[0].id, ctx.content.stages[1].id] }, currency: { gems, scrolls: 0 } };
 }
 
 describe('конфиг K-функций', () => {
@@ -107,11 +107,13 @@ describe('K1 быстрые награды', () => {
     expectFeatureError(() => useFastRewards(s, D1, ctx), 'fast_rewards_limit');
   });
 
-  it('опыт получает каждый герой', () => {
+  it('опыт — в общий пул героев (уровни не меняются)', () => {
     const s = withStage();
     const r = useFastRewards(s, D1, ctx);
-    expect(r.save.heroes.some((h, i) => h.jobLevel !== s.heroes[i].jobLevel || h.jobExp !== s.heroes[i].jobExp)).toBe(true);
-    expect(r.events.find((e) => e.type === 'rewards')).toMatchObject({ heroIds: s.heroes.map((h) => h.id) });
+    expect(r.rewards.jobExp).toBeGreaterThan(0);
+    expect(r.save.resources.heroExp).toBe(s.resources.heroExp + r.rewards.jobExp);
+    expect(r.save.heroes).toEqual(s.heroes);
+    expect(r.events.find((e) => e.type === 'rewards')).toEqual({ type: 'rewards', gold: r.rewards.gold, heroExp: r.rewards.jobExp });
   });
 
   it('не хватает гемов → not_enough_gems, save не меняется', () => {

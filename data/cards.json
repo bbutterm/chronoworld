@@ -1,0 +1,32 @@
+{
+  "$schema": "schema/cards.schema.json",
+  "$comment": "Карточки героев: редкости, стоимость уровня (общий пул опыта + золото), вознесение (корм для призывных, осколки для сюжетных), источники осколков. Числа — заглушки до баланса. Дизайн — docs/design/heroes.md, разделы 2 и 3.",
+  "rarities": [
+    { "id": "green", "name": "Зелёный", "color": "#4CAF50", "maxLevel": 20, "statMult": 1, "skillPower": 1 },
+    { "id": "blue", "name": "Синий", "color": "#3F8CFF", "maxLevel": 40, "statMult": 1.1, "skillPower": 1 },
+    { "id": "purple", "name": "Фиолетовый", "color": "#A05CFF", "maxLevel": 60, "statMult": 1.25, "skillPower": 1 },
+    { "id": "gold", "name": "Золотой", "color": "#F5B82E", "maxLevel": 80, "statMult": 1.45, "skillPower": 1.15 },
+    { "id": "red", "name": "Красный", "color": "#E0443A", "maxLevel": 100, "statMult": 1.7, "skillPower": 1.3 }
+  ],
+  "level": {
+    "exp": { "base": 100, "power": 1.5 },
+    "gold": { "base": 20, "power": 1.4 }
+  },
+  "merge": [
+    { "track": "first", "from": "green", "to": "blue", "gold": 1000, "fodder": [{ "kind": "same", "rarity": "green", "count": 2 }] },
+    { "track": "first", "from": "blue", "to": "purple", "gold": 5000, "fodder": [{ "kind": "same", "rarity": "blue", "count": 1 }, { "kind": "line", "rarity": "blue", "count": 2 }] },
+    { "track": "first", "from": "purple", "to": "gold", "gold": 20000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 1 }, { "kind": "line", "rarity": "purple", "count": 2 }] },
+    { "track": "second", "from": "purple", "to": "gold", "gold": 20000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 2 }] },
+    { "track": "second", "from": "gold", "to": "red", "gold": 60000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 1 }, { "kind": "line", "rarity": "purple", "count": 2 }] },
+    { "track": "story", "from": "green", "to": "blue", "gold": 1000, "shards": 20 },
+    { "track": "story", "from": "blue", "to": "purple", "gold": 5000, "shards": 40, "minLevel": 40 },
+    { "track": "story", "from": "purple", "to": "gold", "gold": 20000, "shards": 60 },
+    { "track": "story", "from": "gold", "to": "red", "gold": 60000, "shards": 80 }
+  ],
+  "shards": {
+    "firstClear": 4,
+    "bossFirstClear": 8,
+    "replayChance": 0.1,
+    "replayCount": 1
+  }
+}

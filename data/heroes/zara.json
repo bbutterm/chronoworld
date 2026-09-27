@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "zara",
+  "name": "Зара",
+  "gender": "f",
+  "job": "thief",
+  "line": "thief",
+  "role": "damage",
+  "source": "summon",
+  "baseRarity": "green",
+  "maxRarity": "gold",
+  "statMods": {
+    "hp": 0.9,
+    "atk": 1.1,
+    "spd": 1.1
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_thief_envenom"
+    },
+    {
+      "level": 10,
+      "skill": "job_thief_double_attack"
+    },
+    {
+      "level": 30,
+      "skill": "job_thief_venom_knife"
+    },
+    {
+      "level": 50,
+      "skill": "job_thief_improve_dodge"
+    }
+  ],
+  "bio": "Воровка с ядовитыми ножами из пустыни Сограт.",
+  "hook": "Ищет того, кто подставил её в Мороке."
+}

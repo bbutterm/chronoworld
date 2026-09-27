@@ -1,0 +1,35 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "teo",
+  "name": "Тео",
+  "gender": "m",
+  "job": "acolyte",
+  "line": "acolyte",
+  "role": "support",
+  "source": "summon",
+  "baseRarity": "green",
+  "maxRarity": "gold",
+  "statMods": {
+    "atk": 1.15
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_acolyte_holy_light"
+    },
+    {
+      "level": 10,
+      "skill": "job_acolyte_increase_agi"
+    },
+    {
+      "level": 30,
+      "skill": "job_acolyte_signum_crucis"
+    },
+    {
+      "level": 50,
+      "skill": "job_acolyte_divine_protection"
+    }
+  ],
+  "bio": "Боевой послушник: свет и благословения, лечит мало.",
+  "hook": "Выгнали из хора за громкость — теперь его голос слышат враги."
+}

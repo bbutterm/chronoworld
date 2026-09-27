@@ -1,0 +1,40 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "alphoccio",
+  "name": "Альфоччо Базиль",
+  "gender": "m",
+  "job": "bard",
+  "line": "archer",
+  "role": "support",
+  "source": "summon",
+  "baseRarity": "purple",
+  "maxRarity": "red",
+  "statMods": {
+    "hp": 1.2,
+    "atk": 1.15,
+    "def": 1.15
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_bard_musical_strike"
+    },
+    {
+      "level": 10,
+      "skill": "job_bard_poem_of_bragi"
+    },
+    {
+      "level": 30,
+      "skill": "job_bard_apple_of_idun"
+    },
+    {
+      "level": 50,
+      "skill": "job_bard_whistle"
+    }
+  ],
+  "visual": {
+    "sprite": "bard_m"
+  },
+  "bio": "Бард: песни ускоряют отряд и лечат раны.",
+  "hook": "Пишет балладу о каждом бое — и пока ни одной не закончил."
+}

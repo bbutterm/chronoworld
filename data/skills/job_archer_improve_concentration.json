@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_archer_improve_concentration",
+  "name": "Концентрация",
+  "description": "+20% атаки и +15% скорости себе на 4 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 16,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "improve_concentration",
+        "name": "Концентрация",
+        "turns": 4,
+        "stats": {
+          "atk": 0.2,
+          "spd": 0.15
+        }
+      }
+    }
+  ]
+}

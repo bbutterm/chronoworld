@@ -4,19 +4,22 @@
  *   2. ссылки на ассеты: спрайты (реестр), снаряды, эффекты, иконки (assets/manifest.json);
  *   3. спрайтшиты: файл есть, размер сходится с сеткой, лист не больше 2048 px;
  *   4. JSON-схемы для редактора не устарели;
- *   5. дымовой прогон: каждый юнит проводит бой без исключений;
+ *   5. дымовой прогон: каждый юнит проводит бой без исключений; каждая карточка героя — на пределе каждой своей редкости;
  *   6. сюжет (data/story): схема и ссылки — в сборке (п. 1), здесь — портреты спикеров (нет картинки — предупреждение, будет иконка);
- *   7. строки «TODO» в data/ (заготовки npm run content:new) — предупреждения: их надо дописать до релиза.
+ *   7. строки «TODO» в data/ (заготовки npm run content:new) — предупреждения: их надо дописать до релиза;
+ *   8. карточки героев (data/heroes): правила различия карточек одного класса и навыки своей линии — предупреждения
+ *      (ошибки — в сборке, п. 1); листы: свой лист карточки есть в реестре, лист нужного пола (иначе откат — ⚠).
  * Код выхода 1, если есть ошибки. Предупреждения (например, нет арта — будет плейсхолдер) не мешают.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildUnit, collectGameContext, simulateBattle } from '../src/core';
+import { buildUnit, CARD_RARITIES, collectGameContext, maxLevelOf, rarityIndex, simulateBattle, validateHeroes, type HeroState } from '../src/core';
+import { heroSprite } from '../src/game/flow';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
 import { findTodos } from './lib/content-gen';
-import { loadGameContext, readJsonDir, readRawGameData, ROOT } from './lib/content-node';
+import { readJsonDir, readRawGameData, ROOT } from './lib/content-node';
 import { pngSize } from './lib/png';
 import { generateSchemas } from './lib/schemas';
 
@@ -64,7 +67,34 @@ if (content) {
   const referenced = new Set([
     ...Object.values(content.units).flatMap((u) => [u.skills.basic, u.skills.ult, ...u.skills.actives, ...u.skills.passives]),
     ...Object.values(content.jobs).flatMap((j) => [j.basic, ...j.skills.map((s) => s.skill)]),
+    ...Object.values(content.heroes).flatMap((t) => [...t.skills, ...t.forms.flatMap((f) => f.skills)].map((s) => s.skill)),
   ]);
+
+  // 8. Карточки героев: предупреждения правил и листы (свой лист, пол листа).
+  validateHeroes(content, [], warnings);
+  const sheetGender: Record<string, string | undefined> = {};
+  for (const s of readJson<{ sprites: { id: string; source?: { gender?: string } }[] }>('assets/sprites/sprites.json')?.sprites ?? []) {
+    sheetGender[s.id] = s.source?.gender === 'female' ? 'f' : s.source?.gender === 'male' ? 'm' : undefined;
+  }
+  if (built.ctx) {
+    const hctx = built.ctx;
+    const fallbacks: string[] = [];
+    for (const t of Object.values(content.heroes)) {
+      const own = [t.visual.sprite, ...t.forms.map((f) => f.visual.sprite)].filter((x): x is string => !!x);
+      for (const id of own) {
+        usedSprites.add(id);
+        if (!registry[id]) warnings.push(`карточка ${t.id}: листа "${id}" нет в реестре — будет лист класса`);
+      }
+      for (const r of [t.baseRarity, ...t.forms.map((f) => f.rarity)]) {
+        const hero: HeroState = { id: 'check', templateId: t.id, rarity: r, level: 1 };
+        const sprite = heroSprite(hero, hctx, (id) => id in registry);
+        usedSprites.add(sprite);
+        const g = sheetGender[sprite];
+        if (g && g !== t.gender) fallbacks.push(`${t.id}${r === t.baseRarity ? '' : ` (${r})`} → ${sprite}`);
+      }
+    }
+    if (fallbacks.length) warnings.push(`карточки без листа своего пола (откат на лист класса, арт — docs/ART_REQUEST_HEROES.md): ${fallbacks.join(', ')}`);
+  }
   for (const s of Object.values(content.skills)) {
     const isFallback = Object.values(content.skills).some((o) => o.fallback === s.id);
     if (!referenced.has(s.id) && !isFallback) warnings.push(`навык ${s.id} ни у кого не используется`);
@@ -112,15 +142,18 @@ if (content) {
       errors.push(`юнит ${u.id}: бой упал — ${String(e)}`);
     }
   }
-  // Герои из профессий на максимальном уровне (с навыками всех уровней).
-  const gctx = loadGameContext();
-  for (const j of Object.values(content.jobs)) {
-    try {
-      const hero = { id: 'smoke', name: j.name, job: j.id, jobLevel: j.maxJobLevel, jobExp: 0, jobHistory: [] };
-      const unit = buildUnit(hero, gctx);
-      simulateBattle(content, [unit, null, unit, null, unit], phase0.defaultSquadB, 3, { log: false });
-    } catch (e) {
-      errors.push(`профессия ${j.id}: бой упал — ${String(e)}`);
+  // Карточки героев на пределе уровня каждой своей редкости (с навыками всех открытых уровней).
+  if (built.ctx) {
+    const gctx = built.ctx;
+    for (const t of Object.values(content.heroes)) {
+      for (const r of CARD_RARITIES.slice(rarityIndex(t.baseRarity), rarityIndex(t.maxRarity) + 1)) {
+        try {
+          const unit = buildUnit({ id: 'smoke', templateId: t.id, rarity: r, level: maxLevelOf(gctx, r) }, gctx);
+          simulateBattle(content, [unit, null, unit, null, unit], phase0.defaultSquadB, 3, { log: false });
+        } catch (e) {
+          errors.push(`карточка ${t.id} (${r}): бой упал — ${String(e)}`);
+        }
+      }
     }
   }
 }
@@ -132,7 +165,7 @@ for (const [file, body] of Object.entries(generateSchemas())) {
 }
 
 // 7. Незаполненные заготовки content:new
-for (const dir of ['data/campaign', 'data/story', 'data/units', 'data/skills', 'data/jobs']) {
+for (const dir of ['data/campaign', 'data/story', 'data/units', 'data/skills', 'data/jobs', 'data/heroes']) {
   for (const f of readJsonDir(dir)) warnings.push(...findTodos(f.file, f.data));
 }
 
@@ -142,7 +175,7 @@ if (content) {
   const count = (k: string) => Object.values(content!.units).filter((u) => u.kind === k).length;
   console.log(
     `\nЮнитов: ${Object.keys(content.units).length} (героев ${count('hero')}, монстров ${count('monster')}, боссов ${count('boss')}), ` +
-      `навыков: ${Object.keys(content.skills).length}, профессий: ${Object.keys(content.jobs).length}, этапов: ${content.stages.length}, ` +
+      `навыков: ${Object.keys(content.skills).length}, профессий: ${Object.keys(content.jobs).length}, карточек героев: ${Object.keys(content.heroes).length}, этапов: ${content.stages.length}, ` +
       `сюжетных сцен: ${built.ctx?.story.scenes.length ?? 0}`,
   );
 }

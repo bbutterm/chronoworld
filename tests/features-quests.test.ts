@@ -114,7 +114,9 @@ describe('K5 ежедневные задания', () => {
     expect(r2.events).toContainEqual({ type: 'gems', amount: 25 });
 
     const r3 = claimActivity(r2.save, D1, 100, tctx);
-    expect(r3.save.heroes.every((h, i) => h.jobExp !== s.heroes[i].jobExp || h.jobLevel > s.heroes[i].jobLevel)).toBe(true);
+    // Опыт порога — в общий пул героев.
+    expect(r3.save.resources.heroExp).toBe(s.resources.heroExp + 50);
+    expect(r3.save.heroes).toEqual(s.heroes);
     expect(questStatus(r3.save, tctx).milestones.every((m) => m.reached && m.claimed)).toBe(true);
   });
 

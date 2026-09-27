@@ -9,8 +9,9 @@ import {
   startBounty,
   type ActiveBountyView,
   type Bounty,
+  heroCard,
 } from '../../core';
-import { CONTENT, GAME } from '../content';
+import { GAME } from '../content';
 import {
   BOUNTY_RARITY_COLORS,
   BOUNTY_RARITY_NAMES,
@@ -175,7 +176,7 @@ export class BountiesScene extends Phaser.Scene {
     a.add(text(this, 70, y - 8, BOUNTY_RARITY_NAMES[b.rarity] ?? b.rarity, FS.caption, color, { stroke: C.stroke, strokeThickness: 3 }).setOrigin(0, 0.5));
     const need = `${durationText(b.durationMinutes)} · героев: ${b.heroCount}${b.role ? ` · нужен ${(ROLE_NAMES[b.role] ?? b.role).toLowerCase()}` : ''}`;
     a.add(ellipsize(text(this, 260, y - 8, need, FS.small, C.text, { stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), 1000 - 260));
-    a.add(ellipsize(text(this, 70, y + 45, `Награда: ${metaRewardsText(b.rewards, ' каждому')}`, FS.small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), 940));
+    a.add(ellipsize(text(this, 70, y + 45, `Награда: ${metaRewardsText(b.rewards, ' в запас')}`, FS.small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), 940));
     // Золотая кнопка на экране — только «Забрать» (готово к получению); «Выбрать» — вторичная, карточка нажимается целиком.
     a.add(button(this, 895, y - 40, 200, TOUCH, 'ui_btn_secondary', 'Выбрать', a.tap(() => this.pick(b, busy)), FS.body).container);
   }
@@ -198,7 +199,7 @@ export class BountiesScene extends Phaser.Scene {
     layer.add(text(this, GAME_W / 2, cy - 420, bountyName(b, GAME), FS.h2, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }));
     const role = b.role ? `, среди них ${(ROLE_NAMES[b.role] ?? b.role).toLowerCase()}` : '';
     layer.add(text(this, GAME_W / 2, cy - 360, `${durationText(b.durationMinutes)} · нужно героев: ${b.heroCount}${role}`, FS.body, C.text));
-    layer.add(text(this, GAME_W / 2, cy - 315, `Награда: ${metaRewardsText(b.rewards, ' каждому')}`, FS.body, C.gold, { fontStyle: 'bold' }));
+    layer.add(text(this, GAME_W / 2, cy - 315, `Награда: ${metaRewardsText(b.rewards, ' в запас')}`, FS.body, C.gold, { fontStyle: 'bold' }));
 
     const tiles = this.add.container(0, 0);
     layer.add(tiles);
@@ -233,15 +234,15 @@ export class BountiesScene extends Phaser.Scene {
         const y = cy - 60;
         const isBusy = busy.has(h.id);
         const sel = chosen.includes(h.id);
-        const job = CONTENT.jobs[h.job];
+        const c = heroCard(h, GAME);
         const bg = panel(this, x, y, step - 12, 330, sel ? 'ui_slot_selected' : 'ui_slot_filled');
         tiles.add(bg);
         const face = portrait(this, x, y - 60, portraitKey(heroSprite(h, GAME)), 140);
         tiles.add(face);
-        tiles.add(ellipsize(text(this, x, y + 45, h.name, FS.body, sel ? C.ink : C.text, { fontStyle: 'bold', stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 5 }), step - 24));
-        const roleOk = b.role && job?.role === b.role;
-        tiles.add(text(this, x, y + 85, ROLE_NAMES[job?.role ?? ''] ?? '', FS.caption, roleOk ? C.inkSuccess : sel ? C.inkMuted : C.title, { fontStyle: roleOk ? 'bold' : 'normal', stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 3 }));
-        tiles.add(ellipsize(text(this, x, y + 120, job?.name ?? h.job, FS.caption, sel ? C.inkMuted : C.muted, { stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 3 }), step - 24));
+        tiles.add(ellipsize(text(this, x, y + 45, c.name, FS.body, sel ? C.ink : C.text, { fontStyle: 'bold', stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 5 }), step - 24));
+        const roleOk = b.role && c.role === b.role;
+        tiles.add(text(this, x, y + 85, ROLE_NAMES[c.role] ?? '', FS.caption, roleOk ? C.inkSuccess : sel ? C.inkMuted : C.title, { fontStyle: roleOk ? 'bold' : 'normal', stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 3 }));
+        tiles.add(ellipsize(text(this, x, y + 120, c.jobName, FS.caption, sel ? C.inkMuted : C.muted, { stroke: sel ? C.none : C.stroke, strokeThickness: sel ? 0 : 3 }), step - 24));
         if (isBusy) {
           bg.setAlpha(0.4);
           face.setAlpha(0.35);
@@ -276,7 +277,7 @@ export class BountiesScene extends Phaser.Scene {
       const r = actClaimBounty(session.save, today(), b.id, now(), GAME);
       commit(r.save);
       queueRewardFly('Bounties', at, before);
-      const lines = [`«${bountyName(b, GAME)}»: ${metaRewardsText(r.rewards, ' каждому')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
+      const lines = [`«${bountyName(b, GAME)}»: ${metaRewardsText(r.rewards, ' в запас')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       this.scene.restart({ scroll: this.area.offset });
       this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4500)));
     } catch (e) {

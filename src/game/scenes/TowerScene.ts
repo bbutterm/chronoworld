@@ -93,7 +93,7 @@ export class TowerScene extends Phaser.Scene {
     // Награда
     const ry = cy + 410;
     const r = f.rewards;
-    const parts = [`золото +${formatNumber(r.gold)}`, `опыт +${formatNumber(r.jobExp)} каждому`];
+    const parts = [`золото +${formatNumber(r.gold)}`, `опыт +${formatNumber(r.jobExp)} в запас`];
     const rt = text(this, GAME_W / 2, ry, `Награда: ${parts.join(' · ')}${r.gems ? ` · +${formatNumber(r.gems)}` : ''}`, FS.body, C.gold, {
       fontStyle: 'bold',
       stroke: C.stroke,

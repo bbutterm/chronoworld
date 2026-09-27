@@ -4,10 +4,12 @@
  */
 import {
   deserialize,
+  CARD_RARITIES,
+  duplicateCardsInSquad,
   EquipmentError,
-  expToNext,
   FeatureError,
   GameRuleError,
+  HeroError,
   MetaError,
   SaveStateSchema,
   serialize,
@@ -143,7 +145,7 @@ export function battleProblems(r: BattleResult, cfg: CombatConfig): string[] {
 }
 
 /** Классы ошибок, которые действия игрока бросают по правилам игры. Любое другое исключение — баг. */
-export const RULE_ERRORS = [GameRuleError, FeatureError, EquipmentError, TowerError, MetaError] as const;
+export const RULE_ERRORS = [GameRuleError, FeatureError, EquipmentError, TowerError, MetaError, HeroError] as const;
 
 export function isRuleError(e: unknown): boolean {
   return RULE_ERRORS.some((C) => e instanceof C);
@@ -153,7 +155,8 @@ export function isRuleError(e: unknown): boolean {
  * Инварианты сохранения:
  * - SaveStateSchema.parse проходит; serialize → deserialize даёт то же самое;
  * - ресурсы — неотрицательные целые; отряд — 5 слотов, существующие и неповторяющиеся герои;
- * - id героев уникальны, профессии существуют, jobLevel ≤ maxJobLevel, jobExp < опыта до следующего уровня;
+ * - id героев уникальны, шаблоны карточек существуют, редкость в [baseRarity; maxRarity], уровень ≤ предела редкости;
+ *   одна копия карточки в отряде; осколки, пул опыта и свитки — неотрицательные целые;
  * - предметы: id экземпляров уникальны, описания существуют, equippedBy — существующий герой,
  *   на герое не больше одного предмета в слоте;
  * - кампания: пройденные этапы существуют и не повторяются; башня не выше maxFloor;
@@ -176,6 +179,9 @@ export function saveProblems(save: SaveState, ctx: FullContext): string[] {
   };
   nonNegInt(save.resources.gold, 'gold');
   nonNegInt(save.currency.gems, 'gems');
+  nonNegInt(save.currency.scrolls, 'scrolls');
+  nonNegInt(save.resources.heroExp, 'heroExp');
+  for (const [t, n] of Object.entries(save.shards)) nonNegInt(n, `shards.${t}`);
   nonNegInt(save.battleSeq, 'battleSeq');
   nonNegInt(save.tower.floor, 'tower.floor');
   if (save.tower.floor > ctx.tower.maxFloor) p.push(`tower.floor ${save.tower.floor} > maxFloor`);
@@ -190,17 +196,20 @@ export function saveProblems(save: SaveState, ctx: FullContext): string[] {
 
   const heroIds = new Set(save.heroes.map((h) => h.id));
   dup(save.heroes.map((h) => h.id), 'heroes');
+  const ri = (r: string) => CARD_RARITIES.indexOf(r as (typeof CARD_RARITIES)[number]);
   for (const h of save.heroes) {
-    const job = ctx.content.jobs[h.job];
-    if (!job) {
-      p.push(`герой ${h.id}: неизвестная профессия ${h.job}`);
+    const t = ctx.content.heroes[h.templateId];
+    if (!t) {
+      p.push(`герой ${h.id}: неизвестная карточка ${h.templateId}`);
       continue;
     }
-    if (h.jobLevel > job.maxJobLevel) p.push(`герой ${h.id}: jobLevel ${h.jobLevel} > max ${job.maxJobLevel}`);
-    if (h.jobLevel < job.maxJobLevel && h.jobExp >= expToNext(h.jobLevel, ctx.progression, job.tier)) p.push(`герой ${h.id}: jobExp ${h.jobExp} не превратился в уровень`);
-    if (h.jobLevel >= job.maxJobLevel && h.jobExp !== 0) p.push(`герой ${h.id}: опыт ${h.jobExp} на максимальном уровне`);
-    for (const j of h.jobHistory) if (!ctx.content.jobs[j.job]) p.push(`герой ${h.id}: в истории неизвестная профессия ${j.job}`);
+    if (ri(h.rarity) < ri(t.baseRarity) || ri(h.rarity) > ri(t.maxRarity)) p.push(`герой ${h.id}: редкость ${h.rarity} вне ${t.baseRarity}…${t.maxRarity}`);
+    const cap = ctx.cards.rarities[ri(h.rarity)]?.maxLevel ?? 0;
+    if (h.level > cap) p.push(`герой ${h.id}: уровень ${h.level} > предела ${cap}`);
   }
+  const story = [...ctx.progression.heroes.start, ...ctx.progression.heroes.recruits.map((r) => r.template)];
+  for (const t of story) if (save.heroes.filter((h) => h.templateId === t).length > 1) p.push(`сюжетная карточка ${t} дважды`);
+  if (duplicateCardsInSquad(save, save.squad).length) p.push('в отряде две копии одной карточки');
 
   if (save.squad.length !== 5) p.push(`в отряде ${save.squad.length} слотов`);
   for (const id of save.squad) if (id !== null && !heroIds.has(id)) p.push(`в отряде неизвестный герой ${id}`);

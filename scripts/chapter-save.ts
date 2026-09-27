@@ -1,43 +1,24 @@
 /**
- * Сохранение для визуального прогона главы: отряд из профессий с готовыми спрайтами v2
- * (Крестоносец→guard, Рыцарь→warrior, Охотник→archer, Волшебник→mage, Жрец→priest).
- *   npx tsx scripts/chapter-save.ts [jobLevel] [tier2|tier1] > save.json
- * tier1 — первые профессии (Мечник→warrior, Вор→assassin, Лучник→archer, Маг→mage, Аколит→priest): бои дольше.
+ * Сохранение для визуального прогона главы: отряд из карточек героев с готовыми листами.
+ *   npx tsx scripts/chapter-save.ts [level] [tier2|tier1] > save.json
+ * tier2 (по умолчанию) — фиолетовые карточки вторых профессий (Рандел, Сейрен, Сесиль, Кэтрин, Маргарета);
+ * tier1 — карточки первых профессий (Алан, Дорн, Бран, Кай, Вика): бои дольше. Уровень — не выше предела редкости.
  * Печатает JSON сохранения и в stderr — сколько этапов главы 1 этот отряд проходит (seed = номер попытки).
  */
-import { enemySquad, newGame, playStage, serialize, type SaveState } from '../src/core';
+import { addHeroCard, enemySquad, maxLevelOf, newGame, placeInSquad, playStage, rarityForLevel, serialize, type SaveState } from '../src/core';
 import { loadFullContext } from './lib/content-node';
 
 const level = Number(process.argv[2] ?? 10);
 const ctx = loadFullContext();
 const tier = process.argv[3] ?? 'tier2';
-const JOBS: [string, string | null][] =
-  tier === 'tier1'
-    ? [
-        ['swordman', null],
-        ['thief', null],
-        ['archer', null],
-        ['mage', null],
-        ['acolyte', null],
-      ]
-    : [
-        ['crusader', 'swordman'],
-        ['knight', 'swordman'],
-        ['hunter', 'archer'],
-        ['wizard', 'mage'],
-        ['priest', 'acolyte'],
-      ];
+const CARDS = tier === 'tier1' ? ['alan', 'dorn', 'bran', 'kai', 'vika'] : ['randel', 'seyren', 'cecil', 'kathryne', 'margaretha'];
 const base = newGame(ctx, Date.now());
-let save: SaveState = {
-  ...base,
-  heroes: base.heroes.map((h, i) => ({
-    ...h,
-    job: JOBS[i][0],
-    jobLevel: level,
-    jobExp: 0,
-    jobHistory: [{ job: 'novice', jobLevel: 10 }, ...(JOBS[i][1] ? [{ job: JOBS[i][1] as string, jobLevel: 50 }] : [])],
-  })),
-};
+let save: SaveState = { ...base, heroes: [], squad: [null, null, null, null, null] };
+for (const t of CARDS) {
+  const rarity = rarityForLevel(ctx, level, ctx.content.heroes[t].baseRarity);
+  const r = addHeroCard(save, t, rarity, { level: Math.min(level, maxLevelOf(ctx, rarity)) });
+  save = { ...r.save, squad: placeInSquad(r.save.squad, r.hero, r.save, ctx) };
+}
 const initial = save;
 const chapter = ctx.content.stages.filter((s) => s.chapter === ctx.content.chapters[0].id);
 for (const s of chapter) {

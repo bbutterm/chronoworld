@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_mage_fire_ball",
+  "name": "Огненный шар",
+  "description": "Огненный шар (×1,2) по трём ближайшим врагам фронта.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front",
+    "count": 3
+  },
+  "cooldown": 10,
+  "castTime": 1.5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.2
+    }
+  ]
+}

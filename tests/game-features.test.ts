@@ -79,7 +79,7 @@ describe('помощники экранов K1–K7', () => {
     ]);
     const all = inventoryRows(save, ctx);
     expect(all.map((r) => r.instance.id)).toEqual(['it2', 'it4', 'it1', 'it3']);
-    expect(all[0].wornBy).toBe(save.heroes[0].name);
+    expect(all[0].wornBy).toBe('Алан');
     expect(all[3].def).toBeUndefined();
     expect(inventoryRows(save, ctx, 'weapon').map((r) => r.instance.id)).toEqual(['it4', 'it1']);
   });
@@ -91,13 +91,14 @@ describe('помощники экранов K1–K7', () => {
       { id: 'it3', itemId: 'gone_item', equippedBy: null },
     ]);
     const rows = inventoryRows(save, ctx);
-    const novice = save.heroes[0];
-    const archer = { ...novice, job: 'hunter' };
+    // Алан (Мечник) лук не носит; Сесиль (Охотница, ветка лучника) — носит.
+    const alan = save.heroes[0];
+    const hunter = { ...alan, templateId: 'cecil', rarity: 'purple' as const };
     const bow = rows.find((r) => r.instance.id === 'it1')!;
-    expect(equipBlocker(bow, novice, ctx)).toMatch(/^только для: /);
-    expect(equipBlocker(bow, archer, ctx)).toBeNull();
-    expect(equipBlocker(rows.find((r) => r.instance.id === 'it2')!, novice, ctx)).toBeNull();
-    expect(equipBlocker(rows.find((r) => r.instance.id === 'it3')!, novice, ctx)).not.toBeNull();
+    expect(equipBlocker(bow, alan, ctx)).toMatch(/^только для: /);
+    expect(equipBlocker(bow, hunter, ctx)).toBeNull();
+    expect(equipBlocker(rows.find((r) => r.instance.id === 'it2')!, alan, ctx)).toBeNull();
+    expect(equipBlocker(rows.find((r) => r.instance.id === 'it3')!, alan, ctx)).not.toBeNull();
   });
 
   it('claimableCount: выполненные задания + достигнутые пороги', () => {
@@ -119,7 +120,9 @@ describe('помощники экранов K1–K7', () => {
   it('questDestination ведёт на экран, где задание выполняется', () => {
     expect(questDestination('stage_win')).toBe('Campaign');
     expect(questDestination('fast_rewards')).toBe('Home');
-    expect(questDestination('job_change')).toBe('Heroes');
+    expect(questDestination('hero_level_up')).toBe('Heroes');
+    expect(questDestination('hero_ascend')).toBe('Heroes');
+    expect(questDestination('summon')).toBe('Home');
     expect(questDestination('tower_attempt')).toBe('Tower');
   });
 

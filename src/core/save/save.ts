@@ -1,42 +1,42 @@
 import { z } from 'zod';
-import { generatedHero, normalizeHeroIdentity } from '../progression/heroes';
+import { heroName, heroRole } from '../heroes/card';
+import { migrateV3toV4 } from '../heroes/migrate';
+import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/roster';
 import type { GameContext } from '../progression/types';
-import { DEFAULT_DAY, emptyBounties, emptyDaily, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
+import { DEFAULT_DAY, emptyBounties, emptyDaily, emptySummon, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
 
 /**
- * Новая игра: progression.heroes.count героев стартовой профессии, джоб 1,
- * отряд — первые 5 героев по слотам, кампания не начата. Время — параметром (ядро не читает часы).
+ * Новая игра: сюжетные карточки progression.heroes.start — зелёные, ур. 1; отряд — передние с первого слота,
+ * задние (стрелки, лекари) с последнего; кампания не начата. Время — параметром (ядро не читает часы).
  * day — текущий день игрока 'YYYY-MM-DD' для суточных счётчиков (по умолчанию DEFAULT_DAY;
  * при первом действии с новым днём счётчики всё равно сбросятся через rollDay).
  */
 export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY): SaveState {
-  const h = ctx.progression.heroes;
-  const taken: string[] = [];
-  const heroes = Array.from({ length: h.count }, (_, i) => {
-    // Сюжетные — по порядку names с фиксированным полом; сверх них — случайный пол и имя от seed сохранения (now).
-    const who = h.names[i] ?? generatedHero(now, i, taken, h);
-    taken.push(who.name);
-    return { id: `h${i + 1}`, name: who.name, gender: who.gender, job: h.startJob, jobLevel: 1, jobExp: 0, jobHistory: [] };
-  });
-  const squad = Array.from({ length: 5 }, (_, i) => heroes[i]?.id ?? null);
-  return {
+  let save: SaveState = {
     version: SAVE_VERSION,
     createdAt: now,
-    heroes,
-    squad,
+    heroes: [],
+    squad: [null, null, null, null, null],
     campaign: { cleared: [] },
-    resources: { gold: ctx.progression.newGame.gold },
+    resources: { gold: ctx.progression.newGame.gold, heroExp: 0 },
     offline: { lastClaimAt: now },
     battleSeq: 0,
     daily: emptyDaily(day),
-    currency: { gems: 0 },
+    currency: { gems: 0, scrolls: 0 },
     tower: { floor: 0 },
     inventory: { items: [] },
     presets: [],
     bounties: emptyBounties(),
     achievements: { counters: {}, claimed: [] },
+    shards: {},
+    summon: emptySummon(),
     seenScenes: [],
   };
+  for (const templateId of ctx.progression.heroes.start) save = addHeroCard(save, templateId, ctx.content.heroes[templateId]?.baseRarity ?? 'green').save;
+  // В отряд: передние — с первого слота, задние — с последнего, лекари — в самый тыл (как авто-расстановка).
+  const healersFirst = [...save.heroes].sort((a, b) => Number(heroRole(b, ctx) === 'healer') - Number(heroRole(a, ctx) === 'healer'));
+  for (const hero of healersFirst) save = { ...save, squad: placeInSquad(save.squad, hero, save, ctx) };
+  return save;
 }
 
 /** В строку JSON (стабильный порядок ключей не обязателен). */
@@ -92,6 +92,11 @@ export const MIGRATIONS: Record<number, (old: any) => any> = {
     bounties: old.bounties ?? emptyBounties(),
     achievements: old.achievements ?? { counters: derivedCounters(old), claimed: [] },
   }),
+  /**
+   * Версия 3 → 4 (карточки героев, docs/design/heroes.md): герой-профессия → сюжетная карточка того же уровня,
+   * опыт → общий пул, свиток призыва в компенсацию и сообщение игроку (notices). Подробно — heroes/migrate.ts.
+   */
+  3: (old) => migrateV3toV4(old),
 };
 
 /** Счётчики достижений, которые можно восстановить из старого сохранения (структура не гарантирована). */
@@ -141,53 +146,48 @@ export function saveRevision(text: string | null | undefined): number {
 
 /**
  * P11 (T4-04). Привести загруженное сохранение в соответствие с текущим контентом, чтобы экраны не падали:
- * - профессия героя, которой больше нет в data/jobs → базовая профессия того же ранга (tier = число
- *   записей в jobHistory; из последней известной профессии истории), иначе последняя известная профессия
- *   из истории, иначе стартовая; уровень — не выше maxJobLevel новой профессии;
- * - записи jobHistory с неизвестными профессиями убираются;
+ * - v4: экземпляр неизвестной карточки (шаблона больше нет в data/heroes) убирается вместе со ссылками на него
+ *   (отряд, пресеты, поручения, надетые предметы); редкость выше maxRarity шаблона — maxRarity; уровень выше предела
+ *   редкости — предел;
+ * - второй экземпляр одной карточки в отряде убирается из отряда (правило «одна копия карточки в отряде»);
  * - предметы, которых нет в ctx.equipment.items (если контекст с экипировкой), убираются;
- * - прежнее имя сюжетного рекрута (heroes.recruits[].formerNames, Грег → Грета) — текущее; нет пола — по имени
- *   (progression/heroes.ts normalizeHeroIdentity; неизвестное имя → 'm', без предупреждения).
+ * - save.notices (сообщения миграции) → warnings, поле убирается.
  * Каждая правка — строка в warnings (понятный русский текст). Ничего не правили — тот же объект save.
  */
 export function sanitizeSave(
   save: SaveState,
   ctx: GameContext & { equipment?: { items: Record<string, unknown> } },
 ): { save: SaveState; warnings: string[] } {
-  const jobs = ctx.content.jobs;
-  const warnings: string[] = [];
-  let changed = false;
-  const heroes = save.heroes.map((orig) => {
-    const h = normalizeHeroIdentity(orig, ctx.progression.heroes);
-    if (h !== orig) {
+  const warnings: string[] = [...(save.notices ?? [])];
+  let changed = save.notices !== undefined;
+  const templates = ctx.content.heroes;
+  const rarities = ctx.cards.rarities.map((r) => r.id);
+  const gone = new Set<string>();
+  const heroes = save.heroes.flatMap((h) => {
+    const t = templates[h.templateId];
+    if (!t) {
       changed = true;
-      if (h.name !== orig.name) warnings.push(`Герой ${orig.name} теперь зовётся ${h.name}.`);
+      gone.add(h.id);
+      warnings.push(`Карточки «${h.templateId}» больше нет в игре — она убрана.`);
+      return [];
     }
-    const history = h.jobHistory.filter((e) => jobs[e.job]);
-    if (jobs[h.job] && history.length === h.jobHistory.length) return h;
+    let { rarity, level } = h;
+    if (rarities.indexOf(rarity) > rarities.indexOf(t.maxRarity)) rarity = t.maxRarity;
+    const cap = ctx.cards.rarities[rarities.indexOf(rarity)].maxLevel;
+    if (level > cap) level = cap;
+    if (rarity === h.rarity && level === h.level) return [h];
     changed = true;
-    if (jobs[h.job]) {
-      warnings.push(`Герой ${h.name}: из истории профессий убраны неизвестные профессии.`);
-      return { ...h, jobHistory: history };
-    }
-    const prev = history[history.length - 1];
-    const tier = h.jobHistory.length;
-    const sameTier = prev
-      ? Object.keys(jobs)
-          .sort()
-          .find((id) => jobs[id].tier === tier && jobs[id].from.includes(prev.job))
-      : undefined;
-    let job: string;
-    let rest = history;
-    if (sameTier) job = sameTier;
-    else if (prev) {
-      job = prev.job;
-      rest = history.slice(0, -1);
-    } else job = ctx.progression.heroes.startJob;
-    const jobLevel = Math.min(h.jobLevel, jobs[job].maxJobLevel);
-    warnings.push(`Герой ${h.name}: профессии «${h.job}» больше нет в игре — герой переведён в «${jobs[job].name}».`);
-    return { ...h, job, jobLevel, jobExp: jobLevel < h.jobLevel ? 0 : h.jobExp, jobHistory: rest };
+    warnings.push(`${t.name}: редкость и уровень приведены к правилам карточки.`);
+    return [{ ...h, rarity, level }];
   });
+  const drop = (id: string | null) => (id !== null && gone.has(id) ? null : id);
+  let squad = save.squad.map(drop);
+  const dups = duplicateCardsInSquad({ heroes }, squad);
+  if (dups.length) {
+    changed = true;
+    squad = squad.map((id) => (id !== null && dups.includes(id) ? null : id));
+    warnings.push(`Из отряда убраны повторные копии карточек: ${dups.map((id) => heroName(heroes.find((h) => h.id === id)!, ctx)).join(', ')}.`);
+  }
   const known = ctx.equipment?.items;
   let items = save.inventory.items;
   if (known) {
@@ -198,8 +198,22 @@ export function sanitizeSave(
       items = kept;
     }
   }
+  if (gone.size) items = items.map((it) => (it.equippedBy && gone.has(it.equippedBy) ? { ...it, equippedBy: null } : it));
   if (!changed) return { save, warnings };
-  return { save: { ...save, heroes, inventory: { ...save.inventory, items } }, warnings };
+  const { notices: _n, ...rest } = save;
+  return {
+    save: {
+      ...rest,
+      heroes,
+      squad,
+      presets: gone.size ? save.presets.map((p) => ({ ...p, squad: p.squad.map(drop) })) : save.presets,
+      bounties: gone.size
+        ? { ...save.bounties, active: save.bounties.active.map((b) => ({ ...b, heroIds: b.heroIds.filter((id) => !gone.has(id)) })).filter((b) => b.heroIds.length > 0) }
+        : save.bounties,
+      inventory: { ...save.inventory, items },
+    },
+    warnings,
+  };
 }
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -296,7 +310,7 @@ export interface LoadResult {
 /**
  * Загрузить игру из хранилища или начать новую. Никогда не бросает: битое сохранение → новая игра + ошибка
  * (source = reset). В хранилище ничего не пишет — битые данные остаются, пока вызывающий не сделает persist().
- * Прочитанное сохранение проходит sanitizeSave (T4-04): неизвестные профессии/предметы заменяются, warnings.
+ * Прочитанное сохранение проходит sanitizeSave (T4-04): неизвестные карточки/предметы убираются, сообщения миграции — в warnings.
  */
 export function loadOrNew(storage: SaveStorage, ctx: GameContext, now: number, day: string = DEFAULT_DAY): LoadResult {
   let text: string | null;

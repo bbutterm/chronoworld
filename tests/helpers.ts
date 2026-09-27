@@ -1,5 +1,38 @@
-import { buildContent, COMBAT, type CombatConfig, type Content } from '../src/core';
+import { buildContent, COMBAT, rarityForLevel, type CardRarity, type CombatConfig, type Content, type GameContext, type HeroState } from '../src/core';
 import type { Unit } from '../src/core';
+
+// ---------- Карточки героев (docs/design/heroes.md) ----------
+
+/** Карточка по классу — для тестов, где раньше герой задавался профессией (первые — сюжетные/призывные, вторые — фиолетовые). */
+export const JOB_CARD: Record<string, string> = {
+  swordman: 'alan',
+  archer: 'bran',
+  acolyte: 'vika',
+  merchant: 'greta',
+  thief: 'dorn',
+  mage: 'kai',
+  knight: 'seyren',
+  crusader: 'randel',
+  hunter: 'cecil',
+  bard: 'alphoccio',
+  wizard: 'kathryne',
+  sage: 'celia',
+  assassin: 'eremes',
+  rogue: 'gertie',
+  priest: 'margaretha',
+  monk: 'chen',
+  blacksmith: 'howard',
+  alchemist: 'flamel',
+};
+
+/**
+ * Экземпляр карточки templateId на уровне level: редкость — самая низкая, чей предел вмещает уровень (не ниже baseRarity
+ * шаблона), если не задана явно. id по умолчанию — h_<шаблон>.
+ */
+export function cardHero(ctx: GameContext, templateId: string, level = 1, opts: { id?: string; rarity?: CardRarity } = {}): HeroState {
+  const base = ctx.content.heroes[templateId]?.baseRarity ?? 'green';
+  return { id: opts.id ?? `h_${templateId}`, templateId, rarity: opts.rarity ?? rarityForLevel(ctx, level, base), level };
+}
 
 export const cfg: CombatConfig = COMBAT;
 

@@ -1,0 +1,230 @@
+{
+  "title": "Редкости, уровень и вознесение карточек",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$comment": {
+      "type": "string"
+    },
+    "rarities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "green",
+              "blue",
+              "purple",
+              "gold",
+              "red"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "maxLevel": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "statMult": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "skillPower": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "color",
+          "maxLevel",
+          "statMult",
+          "skillPower"
+        ]
+      }
+    },
+    "level": {
+      "type": "object",
+      "properties": {
+        "exp": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "power": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "base",
+            "power"
+          ]
+        },
+        "gold": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "number",
+              "minimum": 0
+            },
+            "power": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "base",
+            "power"
+          ]
+        }
+      },
+      "required": [
+        "exp",
+        "gold"
+      ]
+    },
+    "merge": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "track": {
+            "type": "string",
+            "enum": [
+              "first",
+              "second",
+              "story"
+            ]
+          },
+          "from": {
+            "type": "string",
+            "enum": [
+              "green",
+              "blue",
+              "purple",
+              "gold",
+              "red"
+            ]
+          },
+          "to": {
+            "type": "string",
+            "enum": [
+              "green",
+              "blue",
+              "purple",
+              "gold",
+              "red"
+            ]
+          },
+          "gold": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "fodder": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "same",
+                    "line"
+                  ]
+                },
+                "rarity": {
+                  "type": "string",
+                  "enum": [
+                    "green",
+                    "blue",
+                    "purple",
+                    "gold",
+                    "red"
+                  ]
+                },
+                "count": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "kind",
+                "rarity",
+                "count"
+              ]
+            }
+          },
+          "shards": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "minLevel": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "track",
+          "from",
+          "to",
+          "gold"
+        ]
+      }
+    },
+    "shards": {
+      "type": "object",
+      "properties": {
+        "firstClear": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "bossFirstClear": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "replayChance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "replayCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "firstClear",
+        "bossFirstClear",
+        "replayChance",
+        "replayCount"
+      ]
+    }
+  },
+  "required": [
+    "rarities",
+    "level",
+    "merge",
+    "shards"
+  ]
+}

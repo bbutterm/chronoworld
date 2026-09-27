@@ -1,0 +1,36 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "id": "meilin",
+  "name": "Мэйлин",
+  "gender": "f",
+  "job": "archer",
+  "line": "archer",
+  "role": "damage",
+  "source": "summon",
+  "baseRarity": "green",
+  "maxRarity": "gold",
+  "statMods": {
+    "atk": 0.95,
+    "spd": 1.1
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_archer_arrow_shower"
+    },
+    {
+      "level": 10,
+      "skill": "job_archer_improve_concentration"
+    },
+    {
+      "level": 30,
+      "skill": "job_archer_charge_arrow"
+    },
+    {
+      "level": 50,
+      "skill": "job_archer_vultures_eye"
+    }
+  ],
+  "bio": "Лучница из Пайона: дождь стрел по всему строю врага.",
+  "hook": "Дочь пайонского лесничего; ищет белого волка, унёсшего отцовский лук."
+}

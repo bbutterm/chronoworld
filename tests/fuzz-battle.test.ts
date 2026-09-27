@@ -1,5 +1,5 @@
 /**
- * Q: фазз боёв. Случайные отряды из всех профессий на случайных уровнях со случайной экипировкой,
+ * Q: фазз боёв. Случайные отряды из всех карточек героев на случайных редкостях и уровнях со случайной экипировкой,
  * монстры, этапы кампании, этажи башни, пустые слоты и укороченный лимит времени.
  * Вся случайность — из Rng проекта: один seed задаёт бой полностью.
  * Воспроизведение: FUZZ_SEED=<seed> npx vitest run tests/fuzz-battle.test.ts (см. docs/content/testing.md).
@@ -7,8 +7,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildUnit,
+  CARD_RARITIES,
   enemySquad,
   equipmentStats,
+  heroJobId,
+  maxLevelOf,
+  rarityIndex,
   Rng,
   simulateBattle,
   towerFloor,
@@ -23,7 +27,7 @@ import { content, skill, unitDef } from './helpers';
 import { battleProblems, fuzzSeeds } from './invariants';
 
 const ctx = loadFullContext();
-const JOBS = Object.values(ctx.content.jobs).sort((a, b) => a.id.localeCompare(b.id));
+const CARDS = Object.values(ctx.content.heroes).sort((a, b) => a.id.localeCompare(b.id));
 const MONSTERS = Object.values(ctx.content.units)
   .filter((u) => u.kind !== 'hero')
   .sort((a, b) => a.id.localeCompare(b.id));
@@ -33,19 +37,12 @@ const SLOTS = ['weapon', 'armor', 'helmet', 'boots'] as const;
 
 const pick = <T>(rng: Rng, arr: readonly T[]): T => arr[rng.int(arr.length)];
 
-/** Случайный герой профессии job: уровень 1…max, история профессий по цепочке from. */
+/** Случайная карточка героя: шаблон, редкость от baseRarity до maxRarity, уровень 1…предел редкости. */
 function randomHero(rng: Rng, id: string): HeroState {
-  const job = pick(rng, JOBS);
-  const history: HeroState['jobHistory'] = [];
-  let cur = job;
-  while (cur.from.length) {
-    const parent = ctx.content.jobs[pick(rng, cur.from)];
-    if (!parent) break;
-    const need = ctx.progression.jobChange.tierLevel[String(cur.tier) as '1' | '2'] ?? 1;
-    history.unshift({ job: parent.id, jobLevel: need + rng.int(Math.max(1, parent.maxJobLevel - need + 1)) });
-    cur = parent;
-  }
-  return { id, name: id, job: job.id, jobLevel: 1 + rng.int(job.maxJobLevel), jobExp: 0, jobHistory: history };
+  const t = pick(rng, CARDS);
+  const rarities = CARD_RARITIES.slice(rarityIndex(t.baseRarity), rarityIndex(t.maxRarity) + 1);
+  const rarity = pick(rng, rarities);
+  return { id, templateId: t.id, rarity, level: 1 + rng.int(maxLevelOf(ctx, rarity)) };
 }
 
 /** Случайная экипировка: в каждом слоте с шансом 1/2 случайный предмет этого слота (ограничения профессий не важны бою). */
@@ -164,11 +161,18 @@ describe('Q: фазз боёв', () => {
     expect(battleProblems(r, { ...ctx.combat, timeLimitSeconds: 1 })).toEqual([]);
   });
 
-  it('генератор использует все профессии', () => {
+  it('генератор использует все карточки и все классы карточек (с формами сюжетных)', () => {
     const seen = new Set<string>();
-    for (let s = 0; s < 400 && seen.size < JOBS.length; s++) seen.add(randomHero(new Rng(s), 'x').job);
-    expect(seen.size).toBe(JOBS.length);
-    expect(JOBS.length).toBeGreaterThanOrEqual(19);
+    const jobs = new Set<string>();
+    for (let s = 0; s < 2000 && seen.size < CARDS.length; s++) {
+      const h = randomHero(new Rng(s), 'x');
+      seen.add(h.templateId);
+      jobs.add(heroJobId(h, ctx));
+    }
+    expect(seen.size).toBe(CARDS.length);
+    expect(CARDS.length).toBeGreaterThanOrEqual(25);
+    // Все профессии, кроме Новичка, — чей-то класс.
+    expect(jobs.size).toBe(Object.values(ctx.content.jobs).filter((j) => j.tier > 0).length);
   });
 
   it('300+ случайных боёв: инварианты лога, детерминизм', () => {

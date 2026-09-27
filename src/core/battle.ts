@@ -177,19 +177,21 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const applyEffect = (u: Unit, e: Effect, target: Unit, skill?: SkillDef) => {
     // Q: исполнитель мог погибнуть посреди навыка (контратака цели) — остаток навыка не срабатывает.
     if (!target.alive || !u.alive) return;
+    // «Сила навыков» редкости карточки (золотой/красный) — множитель урона/лечения/щита навыков, кроме обычной атаки.
+    const sp = skill && skill.id !== u.def.skills.basic ? (u.def.skillPower ?? 1) : 1;
     switch (e.type) {
       case 'damage':
-        applyDamage(u, u.uid, target, calcDamage(stat(u, 'atk'), e.k, stat(target, 'def'), rng, cfg));
+        applyDamage(u, u.uid, target, calcDamage(stat(u, 'atk'), e.k * sp, stat(target, 'def'), rng, cfg));
         return;
       case 'heal': {
-        const amount = Math.min(calcHeal(stat(u, 'atk'), e.k), target.maxHp - target.hp);
+        const amount = Math.min(calcHeal(stat(u, 'atk'), e.k * sp), target.maxHp - target.hp);
         target.hp += amount;
         report[u.uid].healingDone += amount;
         emit({ t, type: 'heal', source: u.uid, target: target.uid, amount, hp: target.hp });
         return;
       }
       case 'shield': {
-        const amount = Math.floor(target.maxHp * e.pctMaxHp);
+        const amount = Math.floor(target.maxHp * e.pctMaxHp * sp);
         target.shield += amount;
         report[u.uid].shieldGiven += amount;
         emit({ t, type: 'buff', source: u.uid, target: target.uid, kind: 'shield', amount, shield: target.shield });

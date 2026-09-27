@@ -1,0 +1,41 @@
+{
+  "$schema": "../schema/hero.schema.json",
+  "$comment": "Танцовщица — класс bard (отдельной профессии нет); женский лист bard_f / dancer — в ART_REQUEST_HEROES.",
+  "id": "trentini",
+  "name": "Трентини",
+  "gender": "f",
+  "job": "bard",
+  "line": "archer",
+  "role": "support",
+  "source": "summon",
+  "baseRarity": "purple",
+  "maxRarity": "red",
+  "statMods": {
+    "hp": 1.15,
+    "atk": 1.15,
+    "spd": 1.1
+  },
+  "skills": [
+    {
+      "level": 1,
+      "skill": "job_bard_frost_joker"
+    },
+    {
+      "level": 10,
+      "skill": "job_bard_whistle"
+    },
+    {
+      "level": 30,
+      "skill": "job_bard_scream"
+    },
+    {
+      "level": 50,
+      "skill": "job_bard_apple_of_idun"
+    }
+  ],
+  "visual": {
+    "sprite": "dancer_f"
+  },
+  "bio": "Танцовщица: морозная шутка, крик и танец, от которого враг теряет шаг.",
+  "hook": "Танцевала в Комодо, пока сцену не разнесли, — теперь танцует на полях сражений."
+}

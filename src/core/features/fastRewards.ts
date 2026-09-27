@@ -1,6 +1,6 @@
 import { idleIncome, lastClearedStage } from '../campaign/offline';
-import { addJobExp } from '../progression/exp';
-import type { HeroState, SaveState } from '../save/schema';
+import { addHeroExp } from '../heroes/level';
+import type { SaveState } from '../save/schema';
 import type { FeatureContext, FeatureEvent } from './config';
 import { rollDay } from './daily';
 import { FeatureError } from './errors';
@@ -9,6 +9,7 @@ export interface FastRewards {
   /** Засчитанные минуты дохода (hours × 60). */
   minutes: number;
   gold: number;
+  /** Опыт в общий пул героев. */
   jobExp: number;
 }
 
@@ -47,7 +48,7 @@ export function fastRewardsStatus(save: SaveState, day: string, ctx: FeatureCont
 /**
  * K1. Взять быстрые награды. Чистая функция.
  * rollDay → сначала бесплатные (fastRewards.freePerDay), потом за гемы по gemCosts по порядку.
- * Золото в resources, jobExp каждому герою из save.heroes (как у сундука), fastRewardsUsed + 1,
+ * Золото в resources, jobExp — в общий пул опыта героев (как у сундука), fastRewardsUsed + 1,
  * offline.lastClaimAt не меняется (сундук копится дальше).
  * FeatureError: fast_rewards_limit — попытки на сегодня кончились; not_enough_gems; no_income — нет
  * пройденных этапов (попытка не тратится).
@@ -61,22 +62,15 @@ export function useFastRewards(save: SaveState, day: string, ctx: FeatureContext
   const cost = status.nextCost;
   if (s.currency.gems < cost) throw new FeatureError('not_enough_gems', `Нужно ${cost} гемов, есть ${s.currency.gems}`);
 
-  const next: SaveState = {
+  const next: SaveState = addHeroExp({
     ...s,
     resources: { ...s.resources, gold: s.resources.gold + rewards.gold },
     currency: { ...s.currency, gems: s.currency.gems - cost },
     daily: { ...s.daily, fastRewardsUsed: s.daily.fastRewardsUsed + 1 },
-  };
+  }, rewards.jobExp);
   const events: FeatureEvent[] = [
     { type: 'fastRewardsUsed', gemCost: cost, hours: ctx.features.fastRewards.hours },
-    { type: 'rewards', gold: rewards.gold, jobExp: rewards.jobExp, heroIds: s.heroes.map((h) => h.id) },
+    { type: 'rewards', gold: rewards.gold, heroExp: rewards.jobExp },
   ];
-  if (rewards.jobExp > 0) {
-    next.heroes = s.heroes.map((h): HeroState => {
-      const r = addJobExp(h, rewards.jobExp, ctx);
-      events.push(...r.events);
-      return r.hero;
-    });
-  }
   return { save: next, rewards, events };
 }

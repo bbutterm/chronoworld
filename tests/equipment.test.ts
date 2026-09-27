@@ -20,7 +20,7 @@ import {
   playStage,
   rollDrops,
   squadPower,
-  statsAt,
+  heroStats,
   unequip,
   validateEquipment,
   withEquipment,
@@ -54,11 +54,9 @@ function codeOf(fn: () => unknown): string | undefined {
   return undefined;
 }
 
-/** Новая игра с героями h1 (swordman) и h2 (archer) и предметами в инвентаре. */
+/** Новая игра (h1 — Алан, Мечник; h2 — Бран, Лучник) и предметы в инвентаре. */
 function game(itemIds: string[]): SaveState {
-  const s = newGame(ctx, 0, D1);
-  const heroes = s.heroes.map((h, i) => (i === 0 ? { ...h, job: 'swordman' } : i === 1 ? { ...h, job: 'archer' } : h));
-  return addItems({ ...s, heroes }, itemIds).save;
+  return addItems(newGame(ctx, 0, D1), itemIds).save;
 }
 
 describe('K6 данные', () => {
@@ -119,8 +117,8 @@ describe('K6 надеть / снять', () => {
     expect(codeOf(() => equip(s, 'h1', bow, ctx))).toBe('job_restricted');
     expect(codeOf(() => equip(s, 'h2', claymore, ctx))).toBe('job_restricted');
     s = equip(s, 'h2', bow, ctx);
-    // охотник — потомок лучника: лук подходит
-    const hunter = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, job: 'hunter' } : h)) };
+    // охотник — потомок лучника: лук подходит (h1 — карточка Сесиль, Охотница)
+    const hunter: SaveState = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, templateId: 'cecil', rarity: 'purple' } : h)) };
     expect(heroEquipment(equip(unequip(hunter, bow), 'h1', bow, ctx), 'h1')).toHaveLength(1);
   });
 
@@ -167,7 +165,7 @@ describe('K6 статы и мощь', () => {
     for (const it of s.inventory.items) s = equip(s, 'h1', it.id, ctx);
     const hero = s.heroes[0];
     const plain = buildUnit(hero, ctx);
-    expect(plain.stats).toEqual(statsAt(ctx.content.jobs.swordman, 1));
+    expect(plain.stats).toEqual(heroStats(hero, ctx));
     const bonus = equipmentStats([ctx.equipment.items.sword, ctx.equipment.items.chain_mail]);
     const geared = buildUnit(hero, withGear(ctx, s));
     expect(geared.stats.atk).toBe(plain.stats.atk + bonus.atk);
@@ -183,7 +181,7 @@ describe('K6 статы и мощь', () => {
     const plate = ctx.equipment.items.full_plate.stats.hp ?? 0;
     const u = out.result.units.find((x) => x.side === 'A' && x.unitId === 'h1');
     expect(u).toBeDefined();
-    expect(u!.maxHp).toBe(statsAt(ctx.content.jobs.swordman, 1).hp + plate);
+    expect(u!.maxHp).toBe(heroStats(s.heroes[0], ctx).hp + plate);
   });
 
   it('мощь героя и отряда растёт от экипировки', () => {
