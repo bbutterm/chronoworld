@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { animatedFrameAt, animatedFxDuration, animatedFxKey, selectedAnimatedEffect, type AnimatedEffect } from './animatedFx';
 import { FONT, GAME_H, GAME_W } from './layout';
+import { coversNumber, numberFont, numberFrameWidth, numberOrigin } from './numberFont';
 import { clamp01, ease, Pool, TextStyleCache } from './perf';
 import { text } from './ui';
 
@@ -67,10 +68,14 @@ export class UltPresenter {
       tx = 45;
     } else b.icon.setVisible(false);
     const maxW = w - (tx ? 150 : 50);
-    b.who.setText(caster);
-    b.what.setText(skillName);
+    // Надписи кэшируются по имени героя и названию навыка (в бою их ≤ 10 на сторону): повторная ульта
+    // только показывает готовый Text, без перерисовки canvas и загрузки текстуры.
+    b.who?.setVisible(false);
+    b.what?.setVisible(false);
+    b.who = this.label(b, b.whos, caster, false);
+    b.what = this.label(b, b.whats, skillName, true);
     for (const t of [b.who, b.what]) {
-      t.setX(tx).setScale(1);
+      t.setX(tx).setScale(1).setVisible(true);
       if (t.width > maxW) t.setScale(maxW / t.width);
     }
     const x = ally ? BANNER_W / 2 + 20 : GAME_W - BANNER_W / 2 - 20;
@@ -100,10 +105,24 @@ export class UltPresenter {
     const bg = this.scene.add.rectangle(0, 0, w, h, 0x120c06, 0.9).setStrokeStyle(5, edge);
     const stripe = this.scene.add.rectangle(ally ? -w / 2 + 8 : w / 2 - 8, 0, 10, h - 10, edge);
     const icon = this.scene.add.image(-w / 2 + 62, 0, '__DEFAULT').setVisible(false);
-    const who = text(this.scene, 0, -26, '', 26, ally ? '#e0cfb0' : '#f0b0a8');
-    const what = text(this.scene, 0, 14, '', 42, ally ? '#ffd84a' : '#ff9a8a', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
-    const node = this.scene.add.container(0, BANNER_Y, [bg, stripe, icon, who, what]).setDepth(DEPTH.banner).setAlpha(0).setVisible(false);
-    return { node, icon, who, what };
+    const node = this.scene.add.container(0, BANNER_Y, [bg, stripe, icon]).setDepth(DEPTH.banner).setAlpha(0).setVisible(false);
+    return { node, icon, ally, who: null, what: null, whos: new Map(), whats: new Map() };
+  }
+
+  /** Надпись плашки из кэша стороны (строится при первой ульте с этим именем/навыком). */
+  private label(b: BannerParts, cache: Map<string, Phaser.GameObjects.Text>, value: string, skill: boolean): Phaser.GameObjects.Text {
+    let t = cache.get(value);
+    if (t) return t;
+    if (skill) {
+      t = text(this.scene, 0, 14, value, 42, b.ally ? '#ffd84a' : '#ff9a8a', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
+      b.node.add(t);
+    } else {
+      t = text(this.scene, 0, -26, value, 26, b.ally ? '#e0cfb0' : '#f0b0a8');
+      // Имена — под названиями навыков (как раньше: имя, затем навык поверх).
+      b.node.addAt(t, 3);
+    }
+    cache.set(value, t);
+    return t;
   }
 
   /** «Пропустить» (T2-12): сразу убрать затемнение, плашки и свечения — поверх итога боя ничего не доигрывается. */
@@ -150,8 +169,13 @@ export class UltPresenter {
 interface BannerParts {
   node: Phaser.GameObjects.Container;
   icon: Phaser.GameObjects.Image;
-  who: Phaser.GameObjects.Text;
-  what: Phaser.GameObjects.Text;
+  ally: boolean;
+  /** Надписи, показанные сейчас. */
+  who: Phaser.GameObjects.Text | null;
+  what: Phaser.GameObjects.Text | null;
+  /** Готовые надписи по имени героя / названию навыка. */
+  whos: Map<string, Phaser.GameObjects.Text>;
+  whats: Map<string, Phaser.GameObjects.Text>;
 }
 
 /** Сколько всплывающих надписей (цифры, подписи статусов) может быть на экране одновременно — старые уходят первыми. */
@@ -163,7 +187,9 @@ type Kind = (typeof Kind)[keyof typeof Kind];
 /** Одна живая анимация слоя. Записи тоже переиспользуются — в бою ничего не создаётся заново. */
 interface Transient {
   kind: Kind;
-  obj: Phaser.GameObjects.Text | Phaser.GameObjects.Image;
+  obj: Phaser.GameObjects.Text | Phaser.GameObjects.BitmapText | Phaser.GameObjects.Image;
+  /** Порядок появления (при переполнении MAX_FLOATS уходит самая старая надпись). */
+  seq: number;
   /** Прошло времени, мс боя (с учётом скорости). */
   t: number;
   dur: number;
@@ -207,43 +233,71 @@ export class FloatLayer {
   private readonly styles = new TextStyleCache(FONT);
   private readonly live: Transient[] = [];
   private readonly spare: Transient[] = [];
+  /** Подписи (и цифры с символами вне растрового шрифта) — Text. */
   private readonly texts: Pool<Phaser.GameObjects.Text>;
+  /** Цифры урона/лечения/щита — BitmapText на растровых шрифтах (numberFont.ts): setText без перерисовки canvas. */
+  private readonly digits: Pool<Phaser.GameObjects.BitmapText>;
   private readonly images: Pool<Phaser.GameObjects.Image>;
+  /** Служебный Text, которым рисуются глифы растровых шрифтов (невидимый, один на сцену). */
+  private probe: Phaser.GameObjects.Text | null = null;
+  private seq = 0;
 
   constructor(private readonly scene: Phaser.Scene) {
-    this.texts = new Pool(
-      () => scene.add.text(0, 0, '', { fontFamily: FONT, align: 'center' }).setOrigin(0.5),
-      MAX_FLOATS,
-      (obj) => this.drop(obj),
-    );
+    this.texts = new Pool(() => scene.add.text(0, 0, '', { fontFamily: FONT, align: 'center' }).setOrigin(0.5));
+    this.digits = new Pool(() => scene.add.bitmapText(0, 0, this.fontFor(this.styles.get(40, '#ffffff', '#000000', 6, true)).key));
     this.images = new Pool(() => scene.add.image(0, 0, '__DEFAULT'));
   }
 
   /** Сколько объектов создали пулы (для замеров): после разогрева не растёт. */
   get created(): number {
-    return this.texts.created + this.images.created;
+    return this.texts.created + this.digits.created + this.images.created;
   }
 
+  /** Сколько надписей (цифр и подписей) сейчас на экране. */
   get activeTexts(): number {
-    return this.texts.active.length;
+    return this.texts.active.length + this.digits.active.length;
   }
 
   /**
    * Всплывающая цифра: поднимается на rise за 800 мс, гаснет с fadeDelay за 350 мс;
-   * big — «хлопок» масштабом 1.6 → 1. Возвращает объект (x уже можно поправить).
+   * big — «хлопок» масштабом 1.6 → 1. Центр по x удерживается в пределах экрана (по ширине рамки, как у Text).
    */
-  number(x: number, y: number, value: string, size: number, color: string, stroke: string, thick: number, depth: number, rise: number, fadeDelay: number, big: boolean, key?: string): Phaser.GameObjects.Text {
+  number(x: number, y: number, value: string, size: number, color: string, stroke: string, thick: number, depth: number, rise: number, fadeDelay: number, big: boolean, key?: string): Phaser.GameObjects.Text | Phaser.GameObjects.BitmapText {
     if (key) this.limit(Kind.Number, key, NUMBERS_PER_UNIT - 1);
-    const t = this.text(x, y, value, size, color, stroke, thick, depth);
+    let t: Phaser.GameObjects.Text | Phaser.GameObjects.BitmapText;
+    if (coversNumber(value)) t = this.digit(x, y, value, size, color, stroke, thick, depth);
+    else {
+      t = this.text(x, y, value, size, color, stroke, thick, depth);
+      t.x = clampX(x, t.width);
+    }
     const r = this.start(Kind.Number, t, Math.max(NUM_RISE_MS, fadeDelay + NUM_FADE_MS));
     r.key = key;
-    r.x0 = x;
+    r.x0 = t.x;
     r.y0 = y;
     r.y1 = y - rise;
     r.a = fadeDelay;
     r.s = big ? 1 : 0;
     if (big) t.setScale(1.6);
     return t;
+  }
+
+  /** Цифра растровым шрифтом стиля: рамка, центр и шаг символов — как у Text той же строки. */
+  private digit(x: number, y: number, value: string, size: number, color: string, stroke: string, thick: number, depth: number): Phaser.GameObjects.BitmapText {
+    const font = this.fontFor(this.styles.get(size, color, stroke, thick, true));
+    this.room();
+    const t = this.digits.acquire();
+    if (t.font !== font.key) t.setFont(font.key, font.size);
+    t.setScale(1).setText(value);
+    const w = t.getTextBounds(false).local.width;
+    t.setOrigin(numberOrigin(font, w), 0.5);
+    t.setPosition(clampX(x, numberFrameWidth(font, w)), y).setAlpha(1).setDepth(depth);
+    this.scene.children.bringToTop(t);
+    return t;
+  }
+
+  private fontFor(style: ReturnType<TextStyleCache['get']>) {
+    this.probe ??= this.scene.add.text(0, 0, '', { fontFamily: FONT, align: 'center' }).setOrigin(0.5).setVisible(false).setActive(false);
+    return numberFont(this.scene, style, this.probe);
   }
 
   /**
@@ -275,6 +329,17 @@ export class FloatLayer {
   private limit(kind: Kind, key: string, keep: number): void {
     const mine = this.live.filter((r) => r.kind === kind && r.key === key).sort((a, b) => b.t - a.t);
     for (let n = mine.length; n > keep; n--) this.finish(this.live.indexOf(mine[mine.length - n]));
+  }
+
+  /** Не больше MAX_FLOATS надписей на экране: при переполнении уходит самая старая (цифра или подпись). */
+  private room(): void {
+    if (this.texts.active.length + this.digits.active.length < MAX_FLOATS) return;
+    let oldest = -1;
+    for (let i = 0; i < this.live.length; i++) {
+      const r = this.live[i];
+      if ((r.kind === Kind.Number || r.kind === Kind.Headline) && (oldest < 0 || r.seq < this.live[oldest].seq)) oldest = i;
+    }
+    if (oldest >= 0) this.finish(oldest);
   }
 
   /** «Пропустить» (T2-12): убрать все цифры, подписи, вспышки и снаряды сразу. */
@@ -355,17 +420,25 @@ export class FloatLayer {
     this.live.length = 0;
     this.spare.length = 0;
     this.texts.clear();
+    this.digits.clear();
     this.images.clear();
+    this.probe = null;
   }
 
   private text(x: number, y: number, value: string, size: number, color: string, stroke: string, thick: number, depth: number): Phaser.GameObjects.Text {
     const style = this.styles.get(size, color, stroke, thick, true);
+    this.room();
     const t = this.texts.acquire();
     // Стиль без перерисовки (и без замера шрифта, если он уже в кэше), затем один updateText.
     t.style.setStyle(style, false);
+    if (!style.metrics) {
+      // Первый текст этого размера: setStyle без метрик оставил бы метрики прошлого стиля (цифры обрезались
+      // сверху и снизу) — замерить шрифт один раз и запомнить.
+      t.style.update(true);
+      this.styles.remember(style, t.style.getTextMetrics());
+    }
     if (t.text !== value) t.setText(value);
     else t.updateText();
-    if (!style.metrics) this.styles.remember(style, t.style.getTextMetrics());
     t.setPosition(x, y).setScale(1).setAlpha(1).setDepth(depth);
     this.scene.children.bringToTop(t);
     return t;
@@ -379,8 +452,9 @@ export class FloatLayer {
   }
 
   private start(kind: Kind, obj: Transient['obj'], dur: number): Transient {
-    const r = this.spare.pop() ?? { kind, obj, t: 0, dur, x0: 0, y0: 0, x1: 0, y1: 0, a: 0, s: 0 };
+    const r = this.spare.pop() ?? { kind, obj, seq: 0, t: 0, dur, x0: 0, y0: 0, x1: 0, y1: 0, a: 0, s: 0 };
     r.kind = kind;
+    r.seq = this.seq++;
     r.obj = obj;
     r.t = 0;
     r.dur = dur;
@@ -397,18 +471,10 @@ export class FloatLayer {
     const last = this.live.pop()!;
     if (last !== r) this.live[i] = last;
     this.spare.push(r);
-    if (r.kind === Kind.Number || r.kind === Kind.Headline) this.texts.release(r.obj as Phaser.GameObjects.Text);
-    else this.images.release(r.obj as Phaser.GameObjects.Image);
-  }
-
-  /** Пул вытесняет старую надпись — снять её с анимации (объект вернёт сам пул). */
-  private drop(obj: Phaser.GameObjects.Text): void {
-    const i = this.live.findIndex((r) => r.obj === obj);
-    if (i < 0) return;
-    const r = this.live[i];
-    const last = this.live.pop()!;
-    if (last !== r) this.live[i] = last;
-    this.spare.push(r);
+    const o = r.obj;
+    if (o instanceof Phaser.GameObjects.BitmapText) this.digits.release(o);
+    else if (o instanceof Phaser.GameObjects.Text) this.texts.release(o);
+    else this.images.release(o);
   }
 }
 

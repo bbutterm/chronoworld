@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ease, Pool, Scheduler, TextStyleCache } from '../src/game/perf';
+import { coversNumber, numberFrameWidth, numberOrigin } from '../src/game/numberFont';
 
 class Obj {
   active = false;
@@ -116,5 +117,22 @@ describe('TextStyleCache', () => {
     // Другой размер — нужен свой замер.
     expect(c.get(52, '#fff', '#000', 6, true).metrics).toBeUndefined();
     expect(c.size).toBe(3);
+  });
+});
+
+describe('растровые цифры боя (numberFont)', () => {
+  it('покрывают все виды цифр popNumber, остальное — обычным Text', () => {
+    for (const v of ['-123', '-45!', '(30)', '+119', 'щит +20']) expect(coversNumber(v)).toBe(true);
+    expect(coversNumber('Каст сорван')).toBe(false);
+    expect(coversNumber('')).toBe(false);
+  });
+
+  it('рамка и центр — как у Text той же строки (перо в round(s/2) от края рамки ceil(w + s))', () => {
+    const font = { key: 'k', size: 40, stroke: 6 };
+    const w = 61.4;
+    expect(numberFrameWidth(font, w)).toBe(68);
+    // Центр рамки Text (68 / 2 = 34) от пера (3) — 31 единица: для BitmapText (рамка = шаг строки w) это origin 31 / w.
+    expect(numberOrigin(font, w) * w).toBeCloseTo(31, 6);
+    expect(numberOrigin(font, 0)).toBe(0.5);
   });
 });
