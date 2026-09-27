@@ -16,8 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "fast",
-    "hitFx": "fx_hit",
-    "tint": "#ffa24a"
+    "sprite": "drops",
+    "hitFx": "fx_hit"
   }
 }
