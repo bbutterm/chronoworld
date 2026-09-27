@@ -78,7 +78,7 @@ function isFullScreen(o: { x: number; y: number; displayWidth: number; displayHe
  * Полосы по краям полноэкранной картинки: крайняя строка/столбец текстуры, растянутые на поле.
  * Кладутся сразу над картинкой в списке отображения — всё, что нарисовано позже, остаётся сверху.
  */
-function bleedImage(scene: Phaser.Scene, img: Phaser.GameObjects.Image): void {
+export function bleedImage(scene: Phaser.Scene, img: Phaser.GameObjects.Image): void {
   const f = img.frame;
   const tex = f.texture;
   const edge = 2;

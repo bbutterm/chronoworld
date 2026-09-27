@@ -7,6 +7,7 @@ import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
+import { framedPortrait } from '../portraitFrame';
 import { button, ellipsize, pressable, ScrollArea, text, toast } from '../ui';
 import { C, FS, TINT } from '../theme';
 import { SKIN } from '../skin';
@@ -61,8 +62,7 @@ export class JobChangeScene extends Phaser.Scene {
     const reset = GAME.progression.jobChange.resetJobLevel;
     // T1-10: для кого выбор — портрет и имя героя крупно (в цепочке смены профессий видно, что герой сменился).
     const hy = CONTENT_TOP + 60;
-    card(this, 110, hy, 130, 130, true);
-    portrait(this, 110, hy, portraitKey(heroSprite(hero, GAME)), 110);
+    framedPortrait(this, 110, hy, heroSprite(hero, GAME), 140);
     ellipsize(text(this, 200, hy - 26, `Профессия для: ${hero.name}`, FS.h2, SKIN.goldLight, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5), 840).setName('jobChangeHero');
     // Пояснение — до двух строк (перенос вместо многоточия).
     text(
@@ -187,13 +187,26 @@ export class JobChangeScene extends Phaser.Scene {
     const layer = this.add.container(0, 0).setDepth(9500).setName('jobReveal');
     const shade = this.add.rectangle(cx, GAME_H / 2, GAME_W, GAME_H, 0x07060a, 0.95).setInteractive();
     const rays = this.add.image(cx, cy - 120, 'skin_rays').setDisplaySize(1100, 1100).setAlpha(0);
-    layer.add([shade, rays]);
+    // Второй веер лучей — меньше, светом (ADD), крутится навстречу: лучи «переливаются».
+    const rays2 = this.add.image(cx, cy - 120, 'skin_rays').setDisplaySize(760, 760).setAlpha(0).setBlendMode(Phaser.BlendModes.ADD);
+    layer.add([shade, rays, rays2]);
     this.tweens.add({ targets: rays, alpha: 0.9, duration: 350 });
     this.tweens.add({ targets: rays, angle: 360, duration: 24000, repeat: -1 });
+    this.tweens.add({ targets: rays2, alpha: 0.45, duration: 500, delay: 150 });
+    this.tweens.add({ targets: rays2, angle: -360, duration: 17000, repeat: -1 });
 
     const head = text(this, cx, 330, 'Новая профессия!', FS.h2, SKIN.cream, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
     const pedestal = this.add.ellipse(cx, cy + 10, 300, 60, 0x000000, 0.45);
-    layer.add([head, pedestal]);
+    // Золотой отсвет под ногами — мягко дышит.
+    const halo = this.add.ellipse(cx, cy + 6, 380, 84, 0xffd27a, 0.0).setBlendMode(Phaser.BlendModes.ADD);
+    this.tweens.add({ targets: halo, fillAlpha: { from: 0.12, to: 0.3 }, yoyo: true, repeat: -1, duration: 900, ease: 'Sine.easeInOut' });
+    // Ударная волна от героя: два золотых кольца расходятся и гаснут.
+    for (const d of [0, 160]) {
+      const ring = this.add.circle(cx, cy - 130, 120).setStrokeStyle(10, 0xffe2a0, 1).setScale(0.2).setAlpha(0);
+      layer.add(ring);
+      this.tweens.add({ targets: ring, scale: 2.6, alpha: { from: 0.9, to: 0 }, delay: 60 + d, duration: 750, ease: 'Cubic.easeOut', onComplete: () => ring.destroy() });
+    }
+    layer.add([head, halo, pedestal]);
     unitFigure(this, heroSprite(hero, GAME), cx, cy, 380, {
       maxScale: 2,
       onReady: (fig) => {
@@ -249,6 +262,22 @@ export class JobChangeScene extends Phaser.Scene {
         duration: 900 + Math.random() * 500,
         delay: 80 + Math.random() * 200,
         ease: 'Cubic.easeOut',
+      });
+    }
+    // Угольки медленно поднимаются от пьедестала (по кругу, пока открыт показ).
+    for (let i = 0; i < 10; i++) {
+      const x0 = cx + Phaser.Math.Between(-170, 170);
+      const s = this.add.image(x0, cy + 10, 'skin_spark').setTint(0xffc860).setScale(0.18 + Math.random() * 0.2).setAlpha(0).setBlendMode(Phaser.BlendModes.ADD);
+      layer.add(s);
+      this.tweens.add({
+        targets: s,
+        y: cy - 360 - Math.random() * 160,
+        x: x0 + Phaser.Math.Between(-50, 50),
+        alpha: { from: 0.9, to: 0 },
+        duration: 1800 + Math.random() * 1200,
+        delay: 300 + Math.random() * 1500,
+        repeat: -1,
+        ease: 'Sine.easeOut',
       });
     }
     // Золотая вспышка поверх всего.

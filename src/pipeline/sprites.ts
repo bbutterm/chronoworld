@@ -47,6 +47,8 @@ export interface SpriteDef {
   portrait?: string;
   /** Высота фигуры в стойке над точкой ног, px листа (из bbox idle). Нужна для подписи и центра тела. */
   top?: number;
+  /** Ширина фигуры в стойке, px листа (из bbox idle). Нужна для тени под ногами. */
+  width?: number;
   source: 'v2' | 'legacy';
 }
 
@@ -115,6 +117,7 @@ export function normalizeV2(json: SpritesV2, fixes: SpriteFixes = {}): SpriteDef
       anims,
       portrait: s.portrait,
       top: s.bbox?.idle ? Math.max(0, cls.anchor[1] - s.bbox.idle[1]) : undefined,
+      width: s.bbox?.idle ? Math.max(0, s.bbox.idle[2] - s.bbox.idle[0]) : undefined,
       source: 'v2' as const,
     };
   });

@@ -33,6 +33,8 @@ import { unitTint } from '../screen';
 import { skillFx } from '../animatedFx';
 import { SkillFx, type CastRig, type FxPoint } from '../skillFx';
 import { buffColor, ELEMENT_COLORS, lookOf } from '../skillLook';
+import { addThemeBackground, themeOfBattle, type Theme } from '../backdrops';
+import { Ambient, SHADOW_TEX } from '../ambient';
 import { skillIcon, statusIcon } from '../skillIcons';
 import type { SkillDef, StatusDef } from '../../core';
 
@@ -112,6 +114,8 @@ interface UnitView {
   look: SpriteView;
   node: Phaser.GameObjects.Container;
   sprite: Phaser.GameObjects.Sprite;
+  /** Тень под ногами (гаснет вместе с павшим). */
+  shadow: Phaser.GameObjects.Image;
   hpBar: Phaser.GameObjects.Image;
   /** Белый след под HP: показывает только что снятое здоровье и плавно догоняет. */
   trailBar: Phaser.GameObjects.Image;
@@ -220,6 +224,9 @@ export class BattleScene extends Phaser.Scene {
   private introLeft = 0;
   /** Полоска HP босса наверху (только на босс-этапе). */
   private bossBar: { uid: string; fill: Phaser.GameObjects.Image } | null = null;
+  /** Тема поля (глава этапа / ярус башни) и лёгкие частицы по ней. */
+  private theme: Theme = 'meadow';
+  private ambient: Ambient | null = null;
   /** Отложенные действия боя (момент удара, вылет снаряда) — своя очередь вместо таймера Phaser на каждый удар. */
   private readonly later = new Scheduler();
   /** Идёт «Пропустить»: отложенное выполняется без анимации. */
@@ -252,6 +259,8 @@ export class BattleScene extends Phaser.Scene {
     this.bossBar = null;
     this.skipping = false;
     this.namesHidden = false;
+    this.ambient = null;
+    this.theme = 'meadow';
     let title = 'Тестовый бой';
     this.stage = undefined;
     this.tower = undefined;
@@ -274,6 +283,7 @@ export class BattleScene extends Phaser.Scene {
       for (const u of enemySquad(data.stageId, GAME)) if (u) this.defs[u.id] = u;
       const st = getStage(GAME, data.stageId);
       title = `Этап ${st.globalIndex + 1}. ${st.name}`;
+      this.theme = themeOfBattle({ stageId: data.stageId });
     } else if (data.mode === 'tower') {
       const save = session.save;
       let outcome: TowerOutcome;
@@ -290,6 +300,7 @@ export class BattleScene extends Phaser.Scene {
       this.defs = squadDefs(save);
       for (const u of towerFloor(outcome.floor, GAME).enemies) if (u) this.defs[u.id] = u;
       title = `Башня · этаж ${outcome.floor}`;
+      this.theme = themeOfBattle({ towerFloor: outcome.floor });
     } else {
       this.result = simulateBattle(CONTENT, squads.A, squads.B, data.seed);
       this.stage = undefined;
@@ -303,7 +314,9 @@ export class BattleScene extends Phaser.Scene {
 
   private build(title: string): void {
     this.ready = true;
-    this.add.image(GAME_W / 2, 960, this.textures.exists('skin_bg_battle') ? 'skin_bg_battle' : 'bg_arena').setDisplaySize(GAME_W, 1920);
+    // Фон по главе/ярусу (луг, топь, склеп) и частицы под юнитами (светлячки, туман, пыль).
+    addThemeBackground(this, 'battle', this.theme);
+    this.ambient = new Ambient(this, this.theme);
     panel(this, GAME_W / 2, 130, 760, 200, 'ui_panel');
     text(this, GAME_W / 2, 85, title, title.length > 20 ? 42 : 52, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
     this.timeText = text(this, GAME_W / 2, 150, '', 40, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
@@ -387,7 +400,7 @@ export class BattleScene extends Phaser.Scene {
     const spriteId = def.visual.sprite;
     // visual.scale — крупнее фигура (и выше подпись/полоски): босс на листе обычного монстра.
     const base = spriteView(this, spriteId);
-    const k = def.visual.scale ?? 1;
+    const k = crispScale(base, def.visual.scale ?? 1);
     const look = k === 1 ? base : { ...base, size: base.size * k, height: base.height * k };
     // Отражение идёт от середины клетки, а якорь ног не в середине: у отражённого — зеркальный origin, иначе фигура
     // уезжает от своих полосок (у поринга ×2 — заметно).
@@ -395,6 +408,11 @@ export class BattleScene extends Phaser.Scene {
     const sprite = this.add.sprite(0, 0, look.key, 0).setOrigin(flip ? 1 - look.originX : look.originX, look.originY);
     sprite.setScale(look.size / sprite.frame.height).setFlipX(flip).setTint(unitTint(def.visual));
     sprite.anims.timeScale = playback.speed;
+    // Мягкая тень под ногами: у листов RO своей тени нет, без неё фигуры «висят» над полем.
+    const footW = look.def?.width ? look.def.width * look.def.scale * k : look.height * 0.7;
+    // Центр чуть выше точки ног: полоска HP (y +4…+24) закрывает низ эллипса, вокруг ступней тень видна.
+    const shW = Phaser.Math.Clamp(footW * 1.1, 120, 360);
+    const shadow = this.add.image(0, -6, SHADOW_TEX).setDisplaySize(shW, Math.min(56, shW * 0.3));
 
     const ox = snap.side === 'A' ? -UI_SHIFT : UI_SHIFT;
     const bar = (y: number, texId: string, h: number) => this.add.image(ox - BAR_W / 2, y, texId).setOrigin(0, 0.5).setDisplaySize(BAR_W, h);
@@ -419,7 +437,7 @@ export class BattleScene extends Phaser.Scene {
     const castLabel = text(this, ox, -look.height * 0.58, '', 25, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setVisible(false);
     const name = text(this, ox, nameY, def.name, NAME_SIZE, '#ffffff', { stroke: '#000000', strokeThickness: 4 });
     const bars: Phaser.GameObjects.Components.Visible[] = [barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
-    const parts: Phaser.GameObjects.GameObject[] = [sprite, barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
+    const parts: Phaser.GameObjects.GameObject[] = [shadow, sprite, barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
     // Перезарядка активных навыков героев (как в AFK Arena): значки с круговой «шторкой» под полоской HP.
     const cdIcons: CdIcon[] = [];
     if (snap.side === 'A') {
@@ -444,6 +462,7 @@ export class BattleScene extends Phaser.Scene {
       look,
       node,
       sprite,
+      shadow,
       hpBar,
       trailBar,
       trail: 1,
@@ -523,6 +542,7 @@ export class BattleScene extends Phaser.Scene {
     if (!this.ready) return;
     // U: после паузы/подвисания бой не «прыгает» вперёд — шаг не больше MAX_FRAME_MS.
     const delta = clampDelta(rawDelta);
+    this.ambient?.step(delta);
     // Лёгкие анимации (цифры, вспышки, снаряды, след HP, оттенок попадания) идут и после конца боя — до смены сцены.
     const dt = delta * this.tweens.timeScale;
     this.later.step(dt);
@@ -583,6 +603,7 @@ export class BattleScene extends Phaser.Scene {
 
   private shutdown(): void {
     this.views.clear();
+    this.ambient = null;
     this.later.clear();
     this.floats?.clear();
     this.sfx?.clear();
@@ -613,7 +634,10 @@ export class BattleScene extends Phaser.Scene {
       v.sprite.setY(0);
       v.nameText.setAlpha(0);
       if (v.alive) v.node.setDepth(v.node.y);
-      else if (v.shownDead) v.sprite.setAlpha(0.3);
+      else if (v.shownDead) {
+        v.sprite.setAlpha(0.3);
+        v.shadow.setAlpha(0);
+      }
     }
     this.namesHidden = true;
     const log = this.result.log;
@@ -965,6 +989,8 @@ export class BattleScene extends Phaser.Scene {
       if (animate) this.tweens.chain({ targets: v.sprite, tweens: [{ alpha: 0.2, angle: v.snap.side === 'A' ? -90 : 90, duration: 400 }, { alpha: 0, delay: 700, duration: 500 }] });
       else v.sprite.setAlpha(0.2).setAngle(v.snap.side === 'A' ? -90 : 90);
     }
+    if (animate) this.tweens.add({ targets: v.shadow, alpha: 0, delay: 500, duration: 900 });
+    else v.shadow.setAlpha(0);
     if (animate) this.fx(v, 'fx_death', 1.6, 600);
   }
 
@@ -1225,3 +1251,14 @@ const fmt = (s: number) => {
 /** Центр тела над точкой ног (y) — туда летят снаряды и всплывают цифры; x — это node.x. */
 const bodyY = (v: UnitView) => v.node.y - v.look.height * 0.5;
 const rnd = (spread: number) => (Math.random() - 0.5) * spread;
+
+/**
+ * Чёткий пиксель-арт у юнитов с visual.scale (боссы ×1.3 и т. п.): итоговый масштаб листа округляется до шага 0.5
+ * (3.2 × 1.3 = 4.16 → 4.0), чтобы пиксели листа ложились на экран ровной сеткой, а не «плыли» через один.
+ * Размер меняется не больше чем на ~6%. Обычные юниты (×1) не трогаем — раскладка поля рассчитана на них.
+ */
+export function crispScale(view: { art: boolean; def?: { scale: number } }, k: number): number {
+  if (k === 1 || !view.art || !view.def) return k;
+  const src = view.def.scale * k;
+  return Math.max(0.5, Math.round(src * 2) / 2) / view.def.scale;
+}

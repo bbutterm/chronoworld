@@ -10,6 +10,7 @@ import { button, ellipsize, hintPointer, panel, pressable, progressBar, ScrollAr
 import { C, FS, TINT } from '../theme';
 import type { JobChangeData } from './JobChangeScene';
 import { skillIcon } from '../skillIcons';
+import { figureFrame } from '../portraitFrame';
 
 const SKILL_ROW_H = 124;
 
@@ -35,6 +36,8 @@ export class HeroScene extends Phaser.Scene {
     const top = CONTENT_TOP;
     card(this, GAME_W / 2, top + 175, 1040, 350);
     card(this, 200, top + 175, 300, 300, true);
+    // Фигура — на тёплой подложке в золотой рамке, с тенью под ногами.
+    figureFrame(this, 200, top + 175, 300, top + 300);
     this.heroSprite(hero, 200, top + 300);
     const x = 380;
     text(this, x, top + 115, `${ROLE_NAMES[job?.role ?? ''] ?? ''} · ${CONTENT.skills[job?.basic ?? '']?.range === 'melee' ? 'ближний бой' : 'дальний бой'}`, FS.body, C.muted).setOrigin(0, 0.5);
