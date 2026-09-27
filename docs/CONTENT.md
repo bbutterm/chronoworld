@@ -22,6 +22,7 @@ assets/sprites.legacy.json  старые листы assets/ro в формате 
 | `npm run content:new -- unit <id> --from <id>` | копия юнита с новым id |
 | `npm run content:new -- unit <id> --kind monster` | пустой шаблон монстра |
 | `npm run content:new -- skill <id> --from <id>` | копия навыка |
+| `npm run content:new -- chapter/stage/story/boss …` | заготовки главы (10 этапов + сюжет), этапа, сюжета, босса — [CONTENT_RECIPES.md](CONTENT_RECIPES.md) |
 | `npm run content:check` | проверка всего: схемы, ссылки, ассеты, спрайтшиты, дымовой бой каждого юнита |
 | `npm run content:schema` | перегенерировать JSON-схемы после правки `src/core/content/schema.ts` |
 | `npm run sim -- --a <отряд> --b <отряд> --n 1000` | серия боёв: винрейт, длительность, урон по юнитам |

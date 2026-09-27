@@ -5,7 +5,8 @@
  *   3. спрайтшиты: файл есть, размер сходится с сеткой, лист не больше 2048 px;
  *   4. JSON-схемы для редактора не устарели;
  *   5. дымовой прогон: каждый юнит проводит бой без исключений;
- *   6. сюжет (data/story): схема и ссылки — в сборке (п. 1), здесь — портреты спикеров (нет картинки — предупреждение, будет иконка).
+ *   6. сюжет (data/story): схема и ссылки — в сборке (п. 1), здесь — портреты спикеров (нет картинки — предупреждение, будет иконка);
+ *   7. строки «TODO» в data/ (заготовки npm run content:new) — предупреждения: их надо дописать до релиза.
  * Код выхода 1, если есть ошибки. Предупреждения (например, нет арта — будет плейсхолдер) не мешают.
  */
 import { existsSync, readFileSync } from 'node:fs';
@@ -14,7 +15,8 @@ import { buildUnit, collectGameContext, simulateBattle } from '../src/core';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
-import { loadGameContext, readRawGameData, ROOT } from './lib/content-node';
+import { findTodos } from './lib/content-gen';
+import { loadGameContext, readJsonDir, readRawGameData, ROOT } from './lib/content-node';
 import { pngSize } from './lib/png';
 import { generateSchemas } from './lib/schemas';
 
@@ -127,6 +129,11 @@ if (content) {
 for (const [file, body] of Object.entries(generateSchemas())) {
   const cur = existsSync(join(ROOT, file)) ? readFileSync(join(ROOT, file), 'utf8') : '';
   if (cur !== body) errors.push(`${file} устарел — запустите npm run content:schema`);
+}
+
+// 7. Незаполненные заготовки content:new
+for (const dir of ['data/campaign', 'data/story', 'data/units', 'data/skills', 'data/jobs']) {
+  for (const f of readJsonDir(dir)) warnings.push(...findTodos(f.file, f.data));
 }
 
 for (const w of warnings) console.log(`⚠ ${w}`);
