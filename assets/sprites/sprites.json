@@ -4351,6 +4351,339 @@
         "cast": "RO action 102 is visually identical to ready/idle",
         "death": "RO action 70 has one source frame; held to fill the v2 death row"
       }
+    },
+    {
+      "id": "merchant",
+      "class": "hero",
+      "file": "sprites/heroes/merchant.png",
+      "source": {
+        "job": "Merchant",
+        "jobId": 5,
+        "gender": "male",
+        "head": 1,
+        "weaponView": 6,
+        "shieldView": 0,
+        "itemId": 0,
+        "shieldItemId": 0,
+        "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1"
+      },
+      "hitFrames": {
+        "attack": 3,
+        "cast": 4
+      },
+      "bbox": {
+        "idle": [
+          66,
+          63,
+          121,
+          152
+        ],
+        "walk": [
+          85,
+          60,
+          130,
+          150
+        ],
+        "attack": [
+          67,
+          64,
+          176,
+          158
+        ],
+        "cast": [
+          87,
+          65,
+          125,
+          153
+        ],
+        "hurt": [
+          88,
+          75,
+          123,
+          152
+        ],
+        "death": [
+          64,
+          105,
+          133,
+          157
+        ]
+      },
+      "sourceFrameBboxes": {
+        "idle": [
+          [
+            -38,
+            -77,
+            17,
+            8
+          ],
+          [
+            -38,
+            -80,
+            17,
+            8
+          ],
+          [
+            -38,
+            -81,
+            17,
+            8
+          ],
+          [
+            -38,
+            -79,
+            17,
+            8
+          ]
+        ],
+        "walk": [
+          [
+            -19,
+            -81,
+            26,
+            2
+          ],
+          [
+            -18,
+            -82,
+            22,
+            5
+          ],
+          [
+            -18,
+            -84,
+            14,
+            5
+          ],
+          [
+            -19,
+            -83,
+            18,
+            5
+          ],
+          [
+            -19,
+            -81,
+            26,
+            6
+          ],
+          [
+            -19,
+            -82,
+            22,
+            4
+          ],
+          [
+            -18,
+            -84,
+            14,
+            2
+          ],
+          [
+            -18,
+            -83,
+            14,
+            1
+          ]
+        ],
+        "attack": [
+          [
+            -37,
+            -78,
+            18,
+            8
+          ],
+          [
+            -31,
+            -80,
+            14,
+            8
+          ],
+          [
+            -28,
+            -76,
+            35,
+            8
+          ],
+          [
+            -4,
+            -56,
+            71,
+            14
+          ],
+          [
+            -4,
+            -54,
+            72,
+            14
+          ],
+          [
+            -4,
+            -54,
+            72,
+            14
+          ]
+        ],
+        "cast": [
+          [
+            -16,
+            -79,
+            18,
+            9
+          ],
+          [
+            -17,
+            -76,
+            17,
+            9
+          ],
+          [
+            -17,
+            -70,
+            19,
+            9
+          ],
+          [
+            -17,
+            -67,
+            21,
+            9
+          ],
+          [
+            -17,
+            -69,
+            20,
+            9
+          ],
+          [
+            -17,
+            -69,
+            20,
+            9
+          ]
+        ],
+        "hurt": [
+          [
+            -12,
+            -68,
+            19,
+            8
+          ],
+          [
+            -16,
+            -69,
+            15,
+            6
+          ],
+          [
+            -12,
+            -68,
+            19,
+            8
+          ]
+        ],
+        "death": [
+          [
+            -40,
+            -39,
+            29,
+            13
+          ],
+          [
+            -40,
+            -39,
+            29,
+            13
+          ],
+          [
+            -40,
+            -39,
+            29,
+            13
+          ],
+          [
+            -40,
+            -39,
+            29,
+            13
+          ]
+        ]
+      },
+      "sourceFrameIndices": {
+        "idle": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "walk": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "attack": [
+          0,
+          2,
+          3,
+          5,
+          6,
+          8
+        ],
+        "cast": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "hurt": [
+          0,
+          1,
+          2
+        ],
+        "death": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "sourceFrameCounts": {
+        "idle": 6,
+        "walk": 8,
+        "attack": 9,
+        "cast": 6,
+        "hurt": 3,
+        "death": 1
+      },
+      "sourceCacheFiles": {
+        "idle": "merchant_idle_38_w6_s0.png",
+        "walk": "merchant_walk_14_w6_s0.png",
+        "attack": "merchant_attack_86_w6_s0.png",
+        "cast": "merchant_cast_102_w6_s0.png",
+        "hurt": "merchant_hurt_54_w6_s0.png",
+        "death": "merchant_death_70_w6_s0.png"
+      },
+      "sourceActions": {
+        "idle": 38,
+        "walk": 14,
+        "attack": 86,
+        "cast": 102,
+        "hurt": 54,
+        "death": 70
+      },
+      "sourceAlphaValues": [],
+      "portrait": "sprites/portraits/merchant.png",
+      "sourceLimitations": {
+        "walk": "RO renderer omits the axe during walking action 14 despite weaponView 6",
+        "death": "RO action 70 has one source frame; held to fill the v2 death row"
+      }
     }
   ],
   "notes": [
