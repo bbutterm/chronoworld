@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob_elite",
-  "name": "Орк-вожак",
+  "name": "Золотой жук-вор",
   "kind": "monster",
   "role": "damage",
   "stats": {

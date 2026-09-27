@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob_boss1",
-  "name": "Король гоблинов",
+  "name": "Герой орков",
   "kind": "boss",
   "role": "damage",
   "stats": {

@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob_ranged",
-  "name": "Гоблин-лучник",
+  "name": "Скелет-лучник",
   "kind": "monster",
   "role": "damage",
   "stats": {

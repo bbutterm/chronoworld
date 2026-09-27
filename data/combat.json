@@ -17,16 +17,55 @@
     "meleeRange": 210,
     "moveSpeed": 320,
     "dashSeconds": 0.25,
-    "stackAngles": [0, 35, -35, 70, -70],
-    "retargetSeconds": 3
+    "stackAngles": [
+      0,
+      40,
+      -40,
+      80,
+      -80
+    ],
+    "retargetSeconds": 3,
+    "bodyRadius": {
+      "hero": 0,
+      "monster": 0,
+      "boss": 90
+    }
   },
   "slots": {
     "count": 5,
-    "front": [0, 1],
-    "back": [2, 3, 4]
+    "front": [
+      0,
+      1
+    ],
+    "back": [
+      2,
+      3,
+      4
+    ]
   },
   "field": {
     "width": 1080,
-    "slotsA": [[390, 1125], [390, 1535], [150, 920], [150, 1330], [150, 1740]]
+    "slotsA": [
+      [
+        390,
+        1125
+      ],
+      [
+        390,
+        1535
+      ],
+      [
+        150,
+        920
+      ],
+      [
+        150,
+        1330
+      ],
+      [
+        150,
+        1740
+      ]
+    ]
   }
 }

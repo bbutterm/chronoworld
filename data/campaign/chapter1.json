@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/chapter.schema.json",
   "id": "chapter1",
-  "name": "Глава 1. Гоблинский лес",
+  "name": "Глава 1. Проклятый лес",
   "order": 1,
   "stages": [
     {
@@ -32,7 +32,7 @@
     },
     {
       "id": "ch1_s2",
-      "name": "Тропа гоблинов",
+      "name": "Тропа мертвецов",
       "boss": false,
       "enemies": [
         {
@@ -61,7 +61,7 @@
     },
     {
       "id": "ch1_s3",
-      "name": "Волчье логово",
+      "name": "Поляна порингов",
       "boss": false,
       "enemies": [
         {
@@ -122,7 +122,7 @@
     },
     {
       "id": "ch1_s5",
-      "name": "Застава орков",
+      "name": "Ожившие ивы",
       "boss": false,
       "enemies": [
         {
@@ -154,7 +154,7 @@
     },
     {
       "id": "ch1_s6",
-      "name": "Стая",
+      "name": "Стая порингов",
       "boss": false,
       "enemies": [
         {
@@ -221,7 +221,7 @@
     },
     {
       "id": "ch1_s8",
-      "name": "Вожак",
+      "name": "Золотой жук",
       "boss": false,
       "enemies": [
         {
@@ -288,7 +288,7 @@
     },
     {
       "id": "ch1_s10",
-      "name": "Трон гоблинов",
+      "name": "Лагерь героя орков",
       "boss": true,
       "enemies": [
         {

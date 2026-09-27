@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob_fast",
-  "name": "Волк",
+  "name": "Поринг",
   "kind": "monster",
   "role": "damage",
   "stats": {

@@ -118,6 +118,8 @@ export class BattleScene extends Phaser.Scene {
   private views = new Map<string, UnitView>();
   private cursor = 0;
   private clock = 0;
+  /** Какие пассивки уже подписывали в этом бою (unit:skill). */
+  private shownPassives = new Set<string>();
   private finished = false;
   private timeText!: Phaser.GameObjects.Text;
   /** Последняя показанная секунда таймера — текст перерисовываем раз в секунду, а не каждый кадр. */
@@ -144,6 +146,7 @@ export class BattleScene extends Phaser.Scene {
     this.shownSec = -1;
     this.cursor = 0;
     this.clock = 0;
+    this.shownPassives.clear();
     this.finished = false;
     this.committed = false;
     this.ready = false;
@@ -389,7 +392,11 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'passive': {
         const v = this.views.get(e.unit)!;
-        if (animate) this.headline(v, e.name, '#c9a0ff');
+        // Название пассивки — только при первом срабатывании у юнита за бой, иначе экран засоряется
+        // (пассивки на начало хода срабатывают каждый ход).
+        const key = `${e.unit}:${e.skill}`;
+        if (animate && !this.shownPassives.has(key)) this.headline(v, e.name, '#c9a0ff');
+        this.shownPassives.add(key);
         return;
       }
       case 'skip': {

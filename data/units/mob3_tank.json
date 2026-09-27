@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob3_tank",
-  "name": "Костяной страж",
+  "name": "Мёртвая ива",
   "kind": "monster",
   "role": "tank",
   "stats": {

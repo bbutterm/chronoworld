@@ -37,6 +37,8 @@ export interface CombatConfig {
     stackAngles: number[];
     /** Ближний боец не может дойти до цели дольше стольких секунд — берёт ближайшего врага. */
     retargetSeconds: number;
+    /** «Радиус тела» по виду юнита: ближний боец встаёт дальше от крупной цели (босса). */
+    bodyRadius?: Partial<Record<'hero' | 'monster' | 'boss', number>>;
   };
   slots: { count: number; front: number[]; back: number[] };
   field: { width: number; slotsA: [number, number][] };
@@ -72,6 +74,8 @@ export interface Unit {
   x: number;
   y: number;
   moveSpeed: number;
+  /** «Радиус тела» (единицы поля): к крупной цели ближний бой встаёт дальше. */
+  body: number;
   /** Дальность обычной атаки: meleeRange для ближнего боя, Infinity для остальных. */
   range: number;
   /** Цель сражения ближнего бойца: к ней он идёт и её бьёт. */

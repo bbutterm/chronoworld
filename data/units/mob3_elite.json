@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob3_elite",
-  "name": "Рыцарь смерти",
+  "name": "Проклятый жук-вор",
   "kind": "monster",
   "role": "damage",
   "stats": {

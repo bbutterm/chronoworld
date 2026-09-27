@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob3_ranged",
-  "name": "Скелет-лучник",
+  "name": "Скелет-стрелок",
   "kind": "monster",
   "role": "damage",
   "stats": {

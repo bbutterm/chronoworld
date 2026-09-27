@@ -65,6 +65,7 @@ export function createUnits(squad: Squad, side: Side, content: Content, cfg: Com
       y,
       moveSpeed: def.stats.moveSpeed ?? cfg.movement.moveSpeed,
       range: basic.range === 'melee' ? cfg.movement.meleeRange : Infinity,
+      body: def.bodyRadius ?? cfg.movement.bodyRadius?.[def.kind] ?? 0,
       engage: null,
       moving: null,
     });
@@ -79,6 +80,9 @@ export function stat(u: Unit, key: StatMod): number {
 }
 
 const round2 = (v: number) => Math.round(v * 100) / 100;
+
+/** Дистанция удара ближнего бойца по цели: его дальность + «радиус тела» цели (боссы крупнее). */
+export const reach = (u: Unit, target: Unit): number => u.range + target.body;
 
 /**
  * Детерминированный авто-бой. A — атакующая сторона (игрок), B — защищающаяся.
@@ -185,7 +189,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       case 'dash': {
         // Встать вплотную к цели со стороны, откуда пришёл, и сражаться с ней.
         const d = dist(u, target) || 1;
-        const r = cfg.movement.meleeRange * 0.8;
+        const r = cfg.movement.meleeRange * 0.8 + target.body;
         const to: [number, number] = [round2(target.x + ((u.x - target.x) / d) * r), round2(target.y + ((u.y - target.y) / d) * r)];
         emit({ t, type: 'move', unit: u.uid, from: [round2(u.x), round2(u.y)], to, duration: cfg.movement.dashSeconds, kind: 'dash' });
         u.x = to[0];
@@ -256,7 +260,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     const target = u.engage;
     if (!target?.alive) return;
     const d = dist(u, target);
-    if (d <= u.range + 0.5) {
+    if (d <= reach(u, target) + 0.5) {
       stuck.delete(u);
       return;
     }
@@ -277,14 +281,14 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
 
   const planMove = (u: Unit) => {
     const target = u.engage;
-    if (!target || u.moving || dist(u, target) <= u.range) return;
+    if (!target || u.moving || dist(u, target) <= reach(u, target)) return;
     // Цель уже бежит ко мне — жду на месте, иначе бойцы разминутся.
     if (target.moving && target.engage === u) return;
     // Два ближних бойца нацелены друг на друга — оба идут навстречу и встречаются посередине
     // (с учётом скорости), чтобы ни одна сторона не получала преимущества от порядка обработки.
     if (target.engage === u && target.range !== Infinity) {
       const d = dist(u, target);
-      const travel = d - Math.min(u.range, target.range) * 0.9;
+      const travel = d - Math.min(reach(u, target), reach(target, u)) * 0.9;
       const share = u.moveSpeed / (u.moveSpeed + target.moveSpeed);
       const dx = (target.x - u.x) / d;
       const dy = (target.y - u.y) / d;
@@ -301,7 +305,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     const ang = ((angles[crowd % angles.length] ?? 0) * Math.PI) / 180;
     const dx = (u.x - ax) / d;
     const dy = (u.y - ay) / d;
-    const r = u.range * 0.9;
+    const r = reach(u, target) * 0.9;
     const toX = round2(ax + (dx * Math.cos(ang) - dy * Math.sin(ang)) * r);
     const toY = round2(ay + (dx * Math.sin(ang) + dy * Math.cos(ang)) * r);
     startMove(u, toX, toY);
@@ -335,7 +339,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   // ---------- ход ----------
 
   const skillReady = (u: Unit, skill: SkillDef) =>
-    !u.moving && (skill.range === 'ranged' || (!!u.engage?.alive && dist(u, u.engage) <= u.range + 0.5));
+    !u.moving && (skill.range === 'ranged' || (!!u.engage?.alive && dist(u, u.engage) <= reach(u, u.engage) + 0.5));
 
   /** true — юнит походил; false — не может сейчас (бежит или не дошёл), ждёт с полной шкалой. */
   const act = (u: Unit): boolean => {

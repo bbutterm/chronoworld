@@ -61,6 +61,7 @@ export function unit(side: 'A' | 'B', slot: number, x: number, y: number, patch:
     x,
     y,
     moveSpeed: 300,
+    body: 0,
     range: Infinity,
     engage: null,
     moving: null,

@@ -104,6 +104,8 @@ export const UnitSchema = z.object({
     passives: z.array(id).default([]),
   }),
   visual: VisualSchema,
+  /** «Радиус тела» в единицах поля. Если не задан — из combat.json (movement.bodyRadius по kind). */
+  bodyRadius: z.number().nonnegative().optional(),
 });
 
 export type Stats = z.infer<typeof StatsSchema>;

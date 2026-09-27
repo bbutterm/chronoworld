@@ -15,7 +15,7 @@ data/progression.json        campaign.enemyStatGrowthPerStage, campaign.replayRe
 {
   "$schema": "../schema/chapter.schema.json",
   "id": "chapter1",
-  "name": "Глава 1. Гоблинский лес",
+  "name": "Глава 1. Проклятый лес",
   "order": 1,                                  // порядок глав в кампании
   "stages": [
     {

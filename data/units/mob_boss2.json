@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob_boss2",
-  "name": "Тёмный шаман",
+  "name": "Бафомет",
   "kind": "boss",
   "role": "damage",
   "stats": {

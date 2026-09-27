@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob_tank",
-  "name": "Орк-щитоносец",
+  "name": "Ожившая ива",
   "kind": "monster",
   "role": "tank",
   "stats": {

@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/unit.schema.json",
   "id": "mob3_fast",
-  "name": "Призрачный волк",
+  "name": "Призрачный поринг",
   "kind": "monster",
   "role": "damage",
   "stats": {

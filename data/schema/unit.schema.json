@@ -101,6 +101,10 @@
       "required": [
         "sprite"
       ]
+    },
+    "bodyRadius": {
+      "type": "number",
+      "minimum": 0
     }
   },
   "required": [
