@@ -4,6 +4,10 @@
 import {
   availableJobChanges,
   canEquip,
+  expBankStatus,
+  heroesWithGearUpgrades,
+  misplacedInFront,
+  type GearContext,
   getJob,
   RARITIES,
   SLOTS,
@@ -120,6 +124,16 @@ export function jobChangeReadyCount(save: SaveState, ctx: GameContext): number {
   return save.heroes.filter((h) => ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0).length;
 }
 
+/**
+ * P10 (T1-08). Значок вкладки «Герои»: сколько героев ждут внимания — готовы сменить профессию или
+ * могут надеть вещь получше из инвентаря (каждый герой считается один раз).
+ */
+export function heroesBadgeCount(save: SaveState, ctx: GearContext & GameContext): number {
+  const ids = new Set(heroesWithGearUpgrades(save, ctx));
+  for (const h of save.heroes) if (ctx.content.jobs[h.job] && availableJobChanges(h, ctx).length > 0) ids.add(h.id);
+  return ids.size;
+}
+
 /** Этап, на который стоит вести игрока: первый не пройденный открытый, иначе последний. */
 export function currentStage(save: SaveState, ctx: GameContext): StageInfo | undefined {
   const stages = ctx.content.stages;
@@ -133,9 +147,14 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save
   const jobName = (id: string) => ctx.content.jobs[id]?.name ?? id;
   const lines: string[] = [];
   // Несколько level-up подряд у одного героя — одна строка с итоговым уровнем.
-  const levels = new Map<string, number>();
-  for (const e of events) if (e.type === 'levelUp') levels.set(e.heroId, Math.max(levels.get(e.heroId) ?? 0, e.jobLevel));
-  for (const [heroId, level] of levels) lines.push(`${heroName(heroId)}: джоб ${level}`);
+  const levels = new Map<string, { from: number; to: number }>();
+  for (const e of events) {
+    if (e.type !== 'levelUp') continue;
+    const l = levels.get(e.heroId);
+    levels.set(e.heroId, { from: Math.min(l?.from ?? Infinity, e.jobLevel - 1), to: Math.max(l?.to ?? 0, e.jobLevel) });
+  }
+  // T1-23: «уровень профессии было → стало» — новичку видно, что это повышение.
+  for (const [heroId, l] of levels) lines.push(`${heroName(heroId)}: ур. профессии ${l.from} → ${l.to}`);
   for (const e of events) {
     if (e.type === 'skillUnlocked') lines.push(`${heroName(e.heroId)}: новый навык «${skillName(e.skill)}»`);
     if (e.type === 'heroJoined') lines.unshift(`Новый герой в отряде: ${e.name}!`);
@@ -150,6 +169,59 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save
   const jobReady = events.filter((e) => e.type === 'jobChangeAvailable');
   if (jobReady.length) lines.push(`Смена профессии доступна! (${jobReady.map((e) => heroName(e.heroId)).join(', ')})`);
   return lines;
+}
+
+/**
+ * P10 (T1-09). Порядок строк итогов: сначала ключевые события — новый герой, смена профессии, новые навыки,
+ * рост уровня, — затем остальное (открытые этапы, гемы…). Внутри группы порядок сохраняется.
+ */
+export function keyEventsFirst(lines: readonly string[]): string[] {
+  const rank = (l: string) =>
+    l.startsWith('Новый герой') ? 0 : l.startsWith('Смена профессии') ? 1 : l.includes('новый навык') ? 2 : l.includes('ур. профессии') ? 3 : l.includes(' → ') ? 1 : 4;
+  return lines.map((l, i) => ({ l, i })).sort((a, b) => rank(a.l) - rank(b.l) || a.i - b.i).map((x) => x.l);
+}
+
+/** Десятичная дробь по-русски: 1.5 → «1,5» (digits — знаков после запятой; без него — как есть). */
+export function decimal(n: number, digits?: number): string {
+  return (digits === undefined ? String(n) : n.toFixed(digits)).replace('.', ',');
+}
+
+/** T1-23: «Ур. профессии 4 / 10» (без max — «Ур. профессии 4»). */
+export function jobLevelText(level: number, max?: number): string {
+  return `Ур. профессии ${level}${max === undefined ? '' : ` / ${max}`}`;
+}
+
+/**
+ * P10 (T1-02). Подсказка «опыт копится» по героям save: кто стоит на максимуме профессии и копит опыт в запас.
+ * full — у кого-то запас полон (дальнейший опыт пропадает): текст-предупреждение. null — никто не копит.
+ */
+export function expBankNote(save: SaveState, ctx: GameContext): { text: string; full: boolean } | null {
+  const banking = save.heroes.filter((h) => ctx.content.jobs[h.job] && expBankStatus(h, ctx).banking);
+  if (!banking.length) return null;
+  const full = banking.filter((h) => expBankStatus(h, ctx).full);
+  if (full.length) return { text: `Запас опыта полон (${full.map((h) => h.name).join(', ')}) — смените профессию, иначе опыт сгорает`, full: true };
+  return { text: `Опыт копится — смените профессию (${banking.map((h) => h.name).join(', ')})`, full: false };
+}
+
+/** P10 (T1-02). Подпись к полосе опыта героя на максимуме: запас опыта или «макс.». */
+export function expBankLabel(hero: HeroState, ctx: GameContext): { text: string; full: boolean } | null {
+  const st = expBankStatus(hero, ctx);
+  if (!st.banking) return null;
+  return st.full ? { text: 'запас полон!', full: true } : { text: `в запасе ${st.banked} / ${st.cap}`, full: false };
+}
+
+/**
+ * P10 (T1-07). Совет после поражения на этапе — по делу, по порядку пользы:
+ * вещи получше в инвентаре → смена профессии (только если доступна) → стрелки во фронте → свободные слоты
+ * при запасных героях → прокачка. action — куда ведёт кнопка совета.
+ */
+export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): { text: string; action: 'Heroes' | 'Squad' | 'Campaign' | 'Home' } {
+  if (heroesWithGearUpgrades(save, ctx).length) return { text: 'В инвентаре есть вещи получше — «Герои» → «Надеть лучшее».', action: 'Heroes' };
+  if (jobChangeReadyCount(save, ctx) > 0) return { text: 'Смена профессии доступна — она сильно усилит героя («Герои»).', action: 'Heroes' };
+  if (misplacedInFront(save, ctx).length) return { text: 'Стрелки и лекари стоят во фронте — «Отряд» → «Переставить».', action: 'Squad' };
+  const free = save.heroes.filter((h) => !save.squad.includes(h.id)).length;
+  if (free > 0 && save.squad.includes(null)) return { text: 'В отряде есть пустые места — возьмите всех героев («Отряд»).', action: 'Squad' };
+  return { text: 'Прокачайте героев: повторите пройденные этапы и заберите сундук на главной.', action: 'Home' };
 }
 
 /** Навык профессии, ещё не открытый у героя: имя и уровень открытия. */

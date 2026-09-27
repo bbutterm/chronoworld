@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
-import { achievementStatus, availableJobChanges, expToNext, heroEquipment, heroPower, squadPower, withGear, type HeroState } from '../../core';
+import { achievementStatus, availableJobChanges, expToNext, gearUpgrades, heroEquipment, heroesWithGearUpgrades, heroPower, squadPower, withGear, type HeroState } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { claimableAchievements, firstJobChangeReady, formatNumber, heroSprite, jobChangeReadyCount, ROLE_NAMES } from '../flow';
+import { claimableAchievements, expBankLabel, firstJobChangeReady, formatNumber, heroSprite, jobChangeReadyCount, jobLevelText, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
 import { badge, card, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen } from '../screen';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
-import { button, ellipsize, emptyState, pressable, progressBar, ScrollArea, text } from '../ui';
+import { button, ellipsize, emptyState, hintPointer, pressable, progressBar, ScrollArea, text } from '../ui';
+import { hintDone } from '../hints';
 import { C, FS, TINT } from '../theme';
 import type { JobChangeData } from './JobChangeScene';
 
@@ -54,6 +55,13 @@ export class HeroesScene extends Phaser.Scene {
     const gctx = withGear(GAME, save);
     heroes.forEach((hero, i) => this.heroCard(hero, h / 2 + i * (h + gap), h, heroPower(hero, gctx)));
     this.area.setContentHeight(heroes.length * (h + gap));
+    // T1-08: один раз — подсказка «Наденьте трофеи» на первом герое, которому есть что надеть (смена профессии важнее).
+    const gearHero = heroesWithGearUpgrades(save, GAME)[0];
+    const gi = heroes.findIndex((x) => x.id === gearHero);
+    if (!ready && gi >= 0 && !hintDone('equip_gear')) {
+      const cy = listTop + h / 2 + gi * (h + gap);
+      if (cy + h / 2 <= CONTENT_BOTTOM) hintPointer(this, GAME_W / 2, cy, 'Наденьте трофеи — откройте героя', 'auto', { w: 1020, h });
+    }
   }
 
   private area!: ScrollArea;
@@ -74,18 +82,25 @@ export class HeroesScene extends Phaser.Scene {
     // «в отряде» — слева от мощи, как бы длинно она ни была записана.
     if (squadSlot >= 0) a.add(text(this, 990 - pw.width - 20, y - h / 2 + 55, 'в отряде', FS.small, C.success).setOrigin(1, 0.5));
     const gear = heroEquipment(session.save, hero.id).length;
-    a.add(text(this, 990, y - 10, `снаряжение ${gear}/4`, FS.small, gear ? C.info : C.disabled).setOrigin(1, 0.5));
+    // T1-08: есть вещи получше надетых — зелёная отметка вместо счётчика.
+    const better = gearUpgrades(session.save, hero.id, GAME).length;
+    a.add(text(this, 990, y - 10, better ? `▲ есть вещи получше` : `снаряжение ${gear}/4`, FS.small, better ? C.success : gear ? C.info : C.disabled, better ? { fontStyle: 'bold' } : {}).setOrigin(1, 0.5));
     a.add(ellipsize(text(this, x, y - 10, `${job?.name ?? hero.job} · ${ROLE_NAMES[job?.role ?? ''] ?? ''}`, FS.body, C.title).setOrigin(0, 0.5), 440));
 
     const max = job?.maxJobLevel ?? hero.jobLevel;
     const atMax = hero.jobLevel >= max;
     const need = expToNext(hero.jobLevel, GAME.progression, CONTENT.jobs[hero.job]?.tier);
-    a.add(text(this, x, y + 45, `Джоб ${hero.jobLevel} / ${max}`, FS.body, C.text).setOrigin(0, 0.5));
+    a.add(text(this, x, y + 45, jobLevelText(hero.jobLevel, max), FS.body, C.text).setOrigin(0, 0.5));
     const canChange = availableJobChanges(hero, GAME).length > 0;
-    // Есть плашка «Профессия!» — полоса короче, чтобы плашка встала справа от неё.
-    const barW = canChange ? 250 : 400;
-    a.add(progressBar(this, x + 230, y + 45, barW, 32, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success));
-    a.add(text(this, x + 230 + barW / 2, y + 45, atMax ? 'макс.' : `${hero.jobExp} / ${need}`, FS.caption, atMax ? '#2a1c08' : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 }));
+    // Полоса опыта — отдельной строкой под «Ур. профессии N / M» (подпись уровня длинная, T1-23).
+    const bx = x;
+    const barW = 990 - x;
+    const by = y + 92;
+    a.add(progressBar(this, bx, by, barW, 28, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success));
+    // T1-02: на максимуме — «опыт копится» (запас), полон — предупреждение.
+    const bank = expBankLabel(hero, GAME);
+    const barLabel = atMax ? (bank ? (bank.full ? 'запас опыта полон — смените профессию!' : `максимум · опыт копится (${bank.text})`) : 'максимальный уровень') : `опыт ${hero.jobExp} / ${need}`;
+    a.add(text(this, bx + barW / 2, by, barLabel, FS.caption, atMax ? (bank?.full ? '#8a1a0a' : '#2a1c08') : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 }));
 
     if (canChange) {
       // Золотая плашка «Профессия!» справа от полосы: видно, у кого смена профессии (нажатие — карточка героя).

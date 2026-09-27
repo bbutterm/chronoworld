@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_sage_earth_spike",
   "name": "Земляной шип",
-  "description": "Три шипа (×0.7) под ближайшим врагом фронта. Без перезарядки, но каст.",
+  "description": "Три шипа (×0,7) под ближайшим врагом фронта. Без перезарядки, но каст.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

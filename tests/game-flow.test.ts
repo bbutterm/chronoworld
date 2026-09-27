@@ -55,7 +55,7 @@ describe('помощники экранов', () => {
       { type: 'jobChangeAvailable', heroId: 'h1', jobs: ['swordman'] },
     ];
     const lines = describeEvents(events, save, ctx);
-    expect(lines.filter((l) => l.includes('джоб'))).toEqual([`${save.heroes[0].name}: джоб 3`]);
+    expect(lines.filter((l) => l.includes('ур. профессии'))).toEqual([`${save.heroes[0].name}: ур. профессии 1 → 3`]);
     expect(lines.some((l) => l.startsWith('Смена профессии доступна!'))).toBe(true);
   });
 
@@ -87,10 +87,10 @@ describe('помощники экранов', () => {
     expect(skills.length).toBeGreaterThan(0);
     expect(skills).toContain(ctx.content.skills[ctx.content.jobs.swordman.skills.find((s) => s.jobLevel <= hero.jobLevel)!.skill].name);
     expect(otherJobChangeReady(r.save, ctx, a.id)?.id).toBe(b.id);
-    const lines = ['Алан: джоб 10', 'Смена профессии доступна! (Алан)'];
+    const lines = ['Алан: ур. профессии 9 → 10', 'Смена профессии доступна! (Алан)'];
     expect(dropStaleJobReady(lines, r.save, ctx)).toEqual(lines);
     const allDone = { ...r.save, heroes: r.save.heroes.map((h) => ({ ...h, job: 'swordman', jobLevel: 1 })) };
     expect(otherJobChangeReady(allDone, ctx)).toBeUndefined();
-    expect(dropStaleJobReady(lines, allDone, ctx)).toEqual(['Алан: джоб 10']);
+    expect(dropStaleJobReady(lines, allDone, ctx)).toEqual(['Алан: ур. профессии 9 → 10']);
   });
 });

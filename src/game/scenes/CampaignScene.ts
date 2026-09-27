@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import { markHint } from '../hints';
-import { stageStatus } from '../../core';
+import { pendingScenes, stageStatus } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { playStory } from '../dialogue';
+import { playScenes } from '../dialogue';
+import { isChapterFinale, seenChapterScenes } from '../storyView';
+import { openStoryHistory, startChapterDone } from './ChapterDoneScene';
 import { currentStage } from '../flow';
 import { GAME_W } from '../layout';
 import { CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
@@ -108,7 +110,17 @@ export class CampaignScene extends Phaser.Scene {
       }).setOrigin(right ? 0 : 1, 0.5);
     });
 
-    // Сюжет: вступление главы — при первом входе на её карту (пока первый этап не пройден).
-    playStory(this, { type: 'chapterStart', chapter: chapter.id }, () => {});
+    // «История» (P3): пересмотр увиденных сцен главы. Справа внизу — там нет узлов и подписей этапов.
+    if (seenChapterScenes(session.save, chapter.id, GAME).length) {
+      button(this, GAME_W - 150, CONTENT_BOTTOM - 20, 240, 90, 'k:buttonLong_beige', 'История', () => openStoryHistory(this, chapter.id), FS.body).container.setName('historyBtn');
+    }
+
+    // Сюжет: вступление главы — при первом входе на её карту (пока первый этап не пройден). P11: сначала — сцены
+    // из очереди (финал, прерванный перезагрузкой); если среди них финал главы — после него «Глава пройдена» (T1-03).
+    const scenes = pendingScenes(session.save, { type: 'chapterStart', chapter: chapter.id }, GAME);
+    const finale = scenes.find((s) => isChapterFinale(s, GAME));
+    playScenes(this, scenes, () => {
+      if (finale) startChapterDone(this, { chapterId: finale.chapter });
+    });
   }
 }

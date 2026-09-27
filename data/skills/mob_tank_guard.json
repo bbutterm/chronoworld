@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob_tank_guard",
   "name": "Корневая броня",
-  "description": "Кора твердеет: щит 25% HP себе.",
+  "description": "Кора твердеет: щит 25% ОЗ себе.",
   "range": "ranged",
   "target": {
     "side": "ally",

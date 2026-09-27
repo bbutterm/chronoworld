@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_crusader_faith",
   "name": "Вера",
-  "description": "В начале боя: щит 15% HP себе (крепость веры).",
+  "description": "В начале боя: щит 15% ОЗ себе (крепость веры).",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {

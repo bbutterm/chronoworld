@@ -6,3 +6,4 @@ export * from './power';
 export * from './quests';
 export * from './skip';
 export * from './actions';
+export * from './gear';

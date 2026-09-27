@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_mage_fire_bolt",
   "name": "Огненная стрела",
-  "description": "Три огненные стрелы (×0.8) в ближайшего врага фронта. Без перезарядки, но долгий каст.",
+  "description": "Три огненные стрелы (×0,8) в ближайшего врага фронта. Без перезарядки, но долгий каст.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

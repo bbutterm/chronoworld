@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import { hintDone } from '../hints';
-import { availableJobChanges, COMBAT, expToNext, heroGearStats, heroPower, heroSkills, heroSlots, SLOTS, statsAt, type HeroState, type Slot } from '../../core';
+import { hintDone, markHint } from '../hints';
+import { actEquipBest, availableJobChanges, COMBAT, gearUpgrades, expToNext, heroGearStats, heroPower, heroSkills, heroSlots, SLOTS, statsAt, type HeroState, type Slot } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { formatNumber, heroSprite, otherJobChangeReady, itemStatsText, lockedJobSkills, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
+import { decimal, expBankLabel, formatNumber, heroSprite, jobLevelText, otherJobChangeReady, itemStatsText, lockedJobSkills, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
 import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
-import { session } from '../session';
-import { button, ellipsize, hintPointer, panel, pressable, progressBar, ScrollArea, text } from '../ui';
+import { commit, session } from '../session';
+import { button, ellipsize, hintPointer, panel, pressable, progressBar, ScrollArea, text, toast } from '../ui';
 import { C, FS, TINT } from '../theme';
 import type { JobChangeData } from './JobChangeScene';
 import { skillIcon } from '../skillIcons';
@@ -41,10 +41,12 @@ export class HeroScene extends Phaser.Scene {
     const max = job?.maxJobLevel ?? hero.jobLevel;
     const atMax = hero.jobLevel >= max;
     const need = expToNext(hero.jobLevel, GAME.progression, CONTENT.jobs[hero.job]?.tier);
-    text(this, x, top + 180, `Джоб ${hero.jobLevel} / ${max}`, FS.h3, C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+    text(this, x, top + 180, jobLevelText(hero.jobLevel, max), FS.h3, C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5);
     progressBar(this, x, top + 235, 600, 34, atMax ? 1 : hero.jobExp / need, atMax ? TINT.gold : TINT.success);
     // На золотой (полной) полосе — тёмная подпись: светлая с обводкой там не читалась.
-    text(this, x + 300, top + 235, atMax ? 'максимальный уровень' : `опыт ${hero.jobExp} / ${need}`, FS.caption, atMax ? '#2a1c08' : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 });
+    // T1-02: на максимуме профессии опыт копится в запас — показываем, сколько накоплено.
+    const bank = expBankLabel(hero, GAME);
+    text(this, x + 300, top + 235, atMax ? (bank ? `максимум · ${bank.text}` : 'максимальный уровень') : `опыт ${hero.jobExp} / ${need}`, FS.caption, atMax ? '#2a1c08' : C.text, atMax ? { fontStyle: 'bold' } : { stroke: C.stroke, strokeThickness: 4 });
     const power = text(this, 1010, top + 60, `Мощь ${formatNumber(heroPower(hero, GAME, session.save))}`, FS.h3, C.gold, {
       fontStyle: 'bold',
       stroke: C.stroke,
@@ -52,7 +54,10 @@ export class HeroScene extends Phaser.Scene {
     }).setOrigin(1, 0.5);
     ellipsize(text(this, x, top + 60, job?.name ?? hero.job, FS.h1, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), 1010 - x - power.width - 20);
     const history = hero.jobHistory.map((h) => `${CONTENT.jobs[h.job]?.name ?? h.job} ${h.jobLevel}`);
-    if (history.length) ellipsize(text(this, x, top + 295, `Путь: ${history.join(' → ')} → ${job?.name ?? hero.job}`, FS.caption, C.dim).setOrigin(0, 0.5), 1010 - x);
+    if (bank) {
+      // T1-02: опыт не сгорает молча — подсказка сменить профессию (запас полон — предупреждение).
+      ellipsize(text(this, x, top + 295, bank.full ? 'Запас опыта полон — смените профессию!' : 'Опыт копится — смените профессию', FS.small, bank.full ? C.warning : C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), 1010 - x);
+    } else if (history.length) ellipsize(text(this, x, top + 295, `Путь: ${history.join(' → ')} → ${job?.name ?? hero.job}`, FS.caption, C.dim).setOrigin(0, 0.5), 1010 - x);
 
     // --- Статы ---
     const sy = top + 430;
@@ -66,7 +71,7 @@ export class HeroScene extends Phaser.Scene {
         const cx = 150 + i * 260;
         const plus = gear[k];
         text(this, cx, sy - 36, `${STAT_LABELS[k]} ${s[k] + plus}`, FS.h3, plus ? C.inkInfo : C.ink, { fontStyle: 'bold' });
-        text(this, cx, sy + 8, g[k] ? `+${g[k]}/ур.` : '—', FS.caption, C.inkMuted);
+        text(this, cx, sy + 8, g[k] ? `+${decimal(g[k])}/ур.` : '—', FS.caption, C.inkMuted);
         if (plus) text(this, cx, sy + 42, `+${plus} экип.`, FS.caption, C.inkInfo);
       });
     }
@@ -74,7 +79,9 @@ export class HeroScene extends Phaser.Scene {
     // --- Экипировка: 4 слота ---
     const gy = sy + 185;
     const slots = heroSlots(session.save, hero.id, GAME);
-    SLOTS.forEach((slot, i) => this.gearSlot(hero, slot, slots[slot], 150 + i * 260, gy));
+    // T1-08: в инвентаре есть вещи лучше надетых — отметка на слоте и «Надеть лучшее».
+    const ups = gearUpgrades(session.save, hero.id, GAME);
+    SLOTS.forEach((slot, i) => this.gearSlot(hero, slot, slots[slot], 150 + i * 260, gy, ups.some((u) => u.slot === slot)));
 
     // --- Навыки ---
     const skills = heroSkills(hero, GAME);
@@ -87,7 +94,13 @@ export class HeroScene extends Phaser.Scene {
     // Этот герой уже сменил профессию, а другой готов — кнопка к нему (сами его экран выбора не открываем).
     const other = changes.length ? undefined : otherJobChangeReady(session.save, GAME, hero.id);
     const nextTier = (job?.tier ?? 2) + 1;
-    const listTop = gy + 120;
+    let listTop = gy + 120;
+    if (ups.length) {
+      const best = button(this, GAME_W / 2, listTop + 55, 700, 110, 'ui_btn_primary', `Надеть лучшее (${ups.length})`, () => this.equipBest(hero), FS.h3);
+      best.container.setName('equipBestBtn');
+      if (!hintDone('equip_gear')) hintPointer(this, GAME_W / 2, listTop + 55, 'Наденьте трофеи', 'below', { w: 700, h: 110 });
+      listTop += 125;
+    }
     // Внизу — кнопка смены профессии (своей или другого героя) или подсказка, когда она откроется.
     const listBottom = CONTENT_BOTTOM - (changes.length || other ? 150 : nextTier <= 2 ? 70 : 0);
     // Навыков может быть больше, чем влезает: список прокручивается пальцем внутри карточки.
@@ -105,7 +118,7 @@ export class HeroScene extends Phaser.Scene {
       ellipsize(more.label, 820);
     } else if (!changes.length && nextTier <= 2) {
       const need = GAME.progression.jobChange.tierLevel[String(nextTier) as '1' | '2'];
-      text(this, GAME_W / 2, listTop + listH + 40, `Смена профессии откроется на джобе ${need}`, FS.body, C.title, {
+      text(this, GAME_W / 2, listTop + listH + 40, `Смена профессии откроется на ур. профессии ${need}`, FS.body, C.title, {
         stroke: C.stroke,
         strokeThickness: 5,
       });
@@ -121,10 +134,30 @@ export class HeroScene extends Phaser.Scene {
 
   private skills!: ScrollArea;
 
-  private gearSlot(hero: HeroState, slot: Slot, item: ReturnType<typeof heroSlots>[Slot], x: number, y: number): void {
+  /** T1-08: надеть все улучшения из инвентаря (свободные вещи получше надетых). */
+  private equipBest(hero: HeroState): void {
+    try {
+      const r = actEquipBest(session.save, hero.id, GAME);
+      commit(r.save);
+      markHint('equip_gear');
+      const names = r.equipped.map((u) => GAME.equipment.items[u.itemId]?.name ?? u.itemId);
+      this.scene.restart({ heroId: hero.id });
+      const sc = this.scene.get('Hero');
+      sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `${hero.name}: надето — ${names.join(', ')}`, C.success, 3000));
+    } catch (e) {
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
+    }
+  }
+
+  private gearSlot(hero: HeroState, slot: Slot, item: ReturnType<typeof heroSlots>[Slot], x: number, y: number, better = false): void {
     const bg = panel(this, x, y, 244, 200, item ? 'ui_slot_filled' : 'ui_slot_empty');
     pressable(this, bg, 244, 200, () => this.scene.start('Inventory', { heroId: hero.id, slot }));
     text(this, x, y - 70, SLOT_NAMES[slot], FS.small, C.dim);
+    // Есть вещь получше — зелёная стрелка «▲» в углу слота.
+    if (better) {
+      this.add.circle(x + 98, y - 76, 22, TINT.success).setStrokeStyle(3, 0xffffff).setDepth(5);
+      text(this, x + 98, y - 78, '▲', FS.caption, C.text, { fontStyle: 'bold' }).setDepth(6);
+    }
     if (!item) {
       text(this, x, y + 10, '+', 72, C.placeholder, { fontStyle: 'bold' });
       return;
@@ -144,7 +177,7 @@ export class HeroScene extends Phaser.Scene {
     const icon = this.add.image(90, y, skillIcon(this, sk)).setDisplaySize(iconSize, iconSize);
     if (locked) icon.setAlpha(0.4).setTint(0x8a8a8a);
     a.add(icon);
-    const kind = locked ? `откроется на джобе ${r.locked}` : r.kind;
+    const kind = locked ? `откроется на ур. ${r.locked}` : r.kind;
     const kindText = a.add(text(this, 1010, y - h * 0.24, kind, FS.caption, locked ? C.dim : r.kind.startsWith('КД') ? C.gold : C.success).setOrigin(1, 0.5));
     a.add(ellipsize(text(this, 150, y - h * 0.24, `${sk?.name ?? r.id}`, FS.body, locked ? C.disabled : C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), 1010 - 150 - kindText.width - 20));
     if (sk?.description) {

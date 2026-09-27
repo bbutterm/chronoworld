@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_alchemist_chemical_protection",
   "name": "Химическая защита",
-  "description": "В начале боя: щит 10% HP союзникам фронта.",
+  "description": "В начале боя: щит 10% ОЗ союзникам фронта.",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {

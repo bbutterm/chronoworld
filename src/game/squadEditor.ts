@@ -100,3 +100,21 @@ export class SquadEditor {
     this.draw();
   }
 }
+
+/**
+ * T1-22. Имя юнита целиком в ширину maxW: не влезает в строку — перенос по пробелу или дефису ближе к середине
+ * (не больше двух строк); строка всё ещё шире — текст чуть уменьшается. Без многоточия.
+ */
+export function fitName(t: Phaser.GameObjects.Text, maxW: number): Phaser.GameObjects.Text {
+  const name = t.text;
+  if (t.width > maxW) {
+    const breaks = [...name.matchAll(/[ -]/g)].map((m) => m.index!);
+    if (breaks.length) {
+      const mid = name.length / 2;
+      const i = breaks.reduce((a, b) => (Math.abs(b - mid) < Math.abs(a - mid) ? b : a));
+      t.setText(name[i] === '-' ? `${name.slice(0, i + 1)}\n${name.slice(i + 1)}` : `${name.slice(0, i)}\n${name.slice(i + 1)}`);
+    }
+  }
+  if (t.width > maxW) t.setScale(maxW / t.width);
+  return t;
+}

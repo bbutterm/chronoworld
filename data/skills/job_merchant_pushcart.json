@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_merchant_pushcart",
   "name": "Тележка",
-  "description": "В начале боя: щит 15% HP себе.",
+  "description": "В начале боя: щит 15% ОЗ себе.",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {
