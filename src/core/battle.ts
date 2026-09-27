@@ -300,6 +300,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     const ay = target.moving ? target.moving.toY : target.y;
     // Несколько бойцов у одной цели встают веером со своей стороны (A — слева, B — справа),
     // место в веере закреплено за бойцом по слоту — не пересекаются и не перебегают.
+    // Веер сжат по вертикали (crowdSquash): толпа у цели плотная, все точки остаются в досягаемости.
     const crowd = allies(u)
       .filter((o) => o.alive && o.engage === target && o.range !== Infinity)
       .sort((x, y) => x.slot - y.slot)
@@ -310,7 +311,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     const dy = 0;
     const r = reach(u, target) * 0.9;
     const toX = round2(ax + (dx * Math.cos(ang) - dy * Math.sin(ang)) * r);
-    const toY = round2(ay + (dx * Math.sin(ang) + dy * Math.cos(ang)) * r);
+    const toY = round2(ay + (dx * Math.sin(ang) + dy * Math.cos(ang)) * r * (cfg.movement.crowdSquash ?? 1));
     startMove(u, toX, toY);
   };
 

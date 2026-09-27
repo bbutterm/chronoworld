@@ -14,22 +14,23 @@
     "perHitTaken": 10
   },
   "movement": {
-    "meleeRange": 210,
+    "meleeRange": 170,
     "moveSpeed": 320,
     "dashSeconds": 0.25,
     "stackAngles": [
       0,
-      40,
-      -40,
-      80,
-      -80
+      35,
+      -35,
+      65,
+      -65
     ],
     "retargetSeconds": 3,
     "bodyRadius": {
       "hero": 0,
       "monster": 0,
       "boss": 90
-    }
+    },
+    "crowdSquash": 0.55
   },
   "slots": {
     "count": 5,
@@ -47,24 +48,24 @@
     "width": 1080,
     "slotsA": [
       [
-        390,
-        1125
+        400,
+        1250
       ],
       [
-        390,
-        1535
+        400,
+        1570
       ],
       [
-        150,
-        920
+        170,
+        1090
       ],
       [
-        150,
-        1330
+        170,
+        1410
       ],
       [
-        150,
-        1740
+        170,
+        1730
       ]
     ]
   }

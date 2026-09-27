@@ -27,7 +27,12 @@ export interface AnimDef {
   loop?: boolean;
   /** Кадр, на котором удар касается цели (счёт с 0). */
   hitFrame?: number;
+  /** Колонки листа по порядку проигрывания, если часть кадров пропущена (fixes.json). Нет — 0..frames-1. */
+  cols?: number[];
 }
+
+/** Наши правки к листам v2 (assets/sprites/fixes.json): skip — кадры анимации, которые не проигрывать. */
+export type SpriteFixes = Record<string, { skip?: Partial<Record<AnimName, number[]>> }>;
 
 export interface SpriteDef {
   id: string;
@@ -49,7 +54,7 @@ export interface SpriteDef {
  * Масштаб на экране для спрайтов v2 (родной размер RO ×1 → ×2.5):
  * герой в стойке ~90 px листа → ~230 px на поле 1080×1920.
  */
-export const V2_SCALE = 2.5;
+export const V2_SCALE = 3.2;
 
 interface V2Class {
   cell: [number, number];
@@ -79,7 +84,7 @@ export interface SpritesV2 {
   }[];
 }
 
-export function normalizeV2(json: SpritesV2): SpriteDef[] {
+export function normalizeV2(json: SpritesV2, fixes: SpriteFixes = {}): SpriteDef[] {
   return json.sprites.map((s) => {
     const cls = json.classes[s.class];
     if (!cls) throw new Error(`sprites.json: у спрайта ${s.id} неизвестный класс ${s.class}`);
@@ -87,12 +92,17 @@ export function normalizeV2(json: SpritesV2): SpriteDef[] {
     cls.anims.forEach((name, row) => {
       const a = { ...json.anims[name], ...json.animOverrides?.[s.class]?.[name] };
       if (!a || !a.frames) return;
+      const skip = fixes[s.id]?.skip?.[name as AnimName] ?? [];
+      const cols = Array.from({ length: a.frames }, (_, i) => i).filter((i) => !skip.includes(i));
+      if (cols.length === 0) return;
+      const hit = s.hitFrames?.[name] ?? a.hitFrame;
       anims[name as AnimName] = {
         row,
-        frames: a.frames,
-        ms: Array(a.frames).fill(a.ms),
+        frames: cols.length,
+        ms: Array(cols.length).fill(a.ms),
         loop: a.loop,
-        hitFrame: s.hitFrames?.[name] ?? a.hitFrame,
+        hitFrame: hit === undefined ? undefined : Math.max(0, cols.findIndex((c) => c >= hit)),
+        ...(skip.length ? { cols } : {}),
       };
     });
     return {
@@ -114,10 +124,10 @@ export interface LegacySprites {
   sprites: Omit<SpriteDef, 'source'>[];
 }
 
-export function buildRegistry(legacy: LegacySprites | undefined, v2: SpritesV2 | undefined): Record<string, SpriteDef> {
+export function buildRegistry(legacy: LegacySprites | undefined, v2: SpritesV2 | undefined, fixes?: SpriteFixes): Record<string, SpriteDef> {
   const out: Record<string, SpriteDef> = {};
   for (const s of legacy?.sprites ?? []) out[s.id] = { ...s, source: 'legacy' };
-  for (const s of v2 ? normalizeV2(v2) : []) out[s.id] = s;
+  for (const s of v2 ? normalizeV2(v2, fixes) : []) out[s.id] = s;
   return out;
 }
 

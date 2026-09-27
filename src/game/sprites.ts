@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { buildRegistry, resolveAnim, type AnimName, type LegacySprites, type SpriteDef, type SpritesV2 } from '../pipeline/sprites';
+import { buildRegistry, resolveAnim, type AnimName, type LegacySprites, type SpriteDef, type SpriteFixes, type SpritesV2 } from '../pipeline/sprites';
 import { FONT } from './layout';
 import { SheetLru, textureBytes } from './spriteCache';
 
@@ -9,6 +9,7 @@ const first = <T>(mods: Record<string, unknown>): T | undefined => Object.values
 export const SPRITES = buildRegistry(
   first<LegacySprites>(import.meta.glob('../../assets/sprites.legacy.json', { eager: true, import: 'default' })),
   first<SpritesV2>(import.meta.glob('../../assets/sprites/sprites.json', { eager: true, import: 'default' })),
+  first<SpriteFixes>(import.meta.glob('../../assets/sprites/fixes.json', { eager: true, import: 'default' })),
 );
 
 export const spriteKey = (id: string) => `spr_${id}`;
@@ -95,7 +96,7 @@ function loadSheet(game: Phaser.Game, id: string): Promise<void> {
       if (game.anims.exists(k) || !a) continue;
       game.anims.create({
         key: k,
-        frames: Array.from({ length: a.frames }, (_, i) => ({ key, frame: a.row * s.columns + i, duration: a.ms[i] ?? a.ms[0] })),
+        frames: Array.from({ length: a.frames }, (_, i) => ({ key, frame: a.row * s.columns + (a.cols?.[i] ?? i), duration: a.ms[i] ?? a.ms[0] })),
       });
     }
     const pk = portraitKey(id);

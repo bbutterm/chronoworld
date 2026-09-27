@@ -35,6 +35,8 @@ export interface CombatConfig {
     moveSpeed: number;
     dashSeconds: number;
     stackAngles: number[];
+    /** Сжатие веера по вертикали (псевдоперспектива: бойцы толпятся плотнее, как в AFK). 1 — круг. */
+    crowdSquash?: number;
     /** Ближний боец не может дойти до цели дольше стольких секунд — берёт ближайшего врага. */
     retargetSeconds: number;
     /** «Радиус тела» по виду юнита: ближний боец встаёт дальше от крупной цели (босса). */
