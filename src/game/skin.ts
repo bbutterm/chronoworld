@@ -268,45 +268,165 @@ export function buildSkin(scene: Phaser.Scene): void {
   disc('skin_node_boss', ['#5a1a4a', '#220a1c'], '#7a2a44');
 
   // Лесной фон (как в референсе): градиент, силуэты крон двумя планами, лучи и светлячки.
-  canvas(scene, 'skin_bg_forest', 540, 960, (c) => {
-    const g = c.createLinearGradient(0, 0, 0, 960);
-    g.addColorStop(0, SKIN.forestTop); g.addColorStop(0.55, '#173222'); g.addColorStop(1, SKIN.forestBottom);
-    c.fillStyle = g; c.fillRect(0, 0, 540, 960);
-    let seed = 7;
-    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    const crowns = (color: string, n: number, yMin: number, yMax: number, rMin: number, rMax: number) => {
-      c.fillStyle = color;
-      for (let i = 0; i < n; i++) {
-        const x = rnd() * 600 - 30;
-        const y = yMin + rnd() * (yMax - yMin);
-        const r = rMin + rnd() * (rMax - rMin);
-        c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
-        c.beginPath(); c.arc(x + r * 0.7, y + r * 0.2, r * 0.8, 0, Math.PI * 2); c.fill();
-        c.beginPath(); c.arc(x - r * 0.6, y + r * 0.3, r * 0.7, 0, Math.PI * 2); c.fill();
-      }
-    };
-    crowns('rgba(40,78,48,0.45)', 10, 80, 700, 50, 110);
-    // Лучи света.
-    c.fillStyle = 'rgba(160,220,150,0.05)';
-    for (const x of [120, 300, 430]) {
-      c.beginPath(); c.moveTo(x, 0); c.lineTo(x + 40, 0); c.lineTo(x + 140, 960); c.lineTo(x + 60, 960); c.closePath(); c.fill();
+  canvas(scene, 'skin_bg_forest', BG_W, BG_H, (c) => drawForest(c, BG_W, BG_H));
+}
+
+const BG_W = 720;
+const BG_H = 1280;
+
+/**
+ * Ночной лес в несколько планов (как фон в референсе): небо с лунным светом, дальние ели в дымке, полоса тумана,
+ * средний план лиственных крон, лучи света, крупные стволы с листвой по краям, кусты внизу, светлячки, виньетка.
+ * Всё детерминированно (свой seed) — фон одинаков при каждом запуске.
+ */
+function drawForest(c: Ctx, W: number, H: number): void {
+  let seed = 11;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const between = (a: number, b: number) => a + rnd() * (b - a);
+
+  // Небо.
+  const sky = c.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#0d1f1a');
+  sky.addColorStop(0.38, '#2a5445');
+  sky.addColorStop(0.55, '#1b3a2c');
+  sky.addColorStop(1, '#0a160f');
+  c.fillStyle = sky;
+  c.fillRect(0, 0, W, H);
+  // Лунное свечение сверху справа.
+  const moon = c.createRadialGradient(W * 0.72, H * 0.1, 0, W * 0.72, H * 0.1, W * 0.75);
+  moon.addColorStop(0, 'rgba(190,230,200,0.22)');
+  moon.addColorStop(1, 'rgba(190,230,200,0)');
+  c.fillStyle = moon;
+  c.fillRect(0, 0, W, H);
+
+  // Ель: ярусы треугольников на тонком стволе.
+  const pine = (x: number, base: number, h: number, color: string) => {
+    c.fillStyle = color;
+    c.fillRect(x - h * 0.02, base - h * 0.2, h * 0.04, h * 0.2);
+    const tiers = 5;
+    for (let i = 0; i < tiers; i++) {
+      const t = i / tiers;
+      const w = h * (0.34 - t * 0.22);
+      const y = base - h * 0.12 - t * h * 0.78;
+      c.beginPath();
+      c.moveTo(x - w, y);
+      c.lineTo(x + w, y);
+      c.lineTo(x, y - h * 0.3);
+      c.closePath();
+      c.fill();
     }
-    crowns('rgba(12,28,16,0.75)', 9, 250, 960, 60, 130);
-    // Стволы по краям.
-    c.fillStyle = 'rgba(8,18,10,0.85)';
-    c.fillRect(0, 0, 38, 960);
-    c.fillRect(505, 0, 35, 960);
-    // Светлячки.
-    for (let i = 0; i < 14; i++) {
-      const x = rnd() * 540;
-      const y = rnd() * 960;
-      const rg = c.createRadialGradient(x, y, 0, x, y, 7);
-      rg.addColorStop(0, 'rgba(200,255,160,0.9)'); rg.addColorStop(1, 'rgba(200,255,160,0)');
-      c.fillStyle = rg; c.beginPath(); c.arc(x, y, 7, 0, Math.PI * 2); c.fill();
+  };
+  // Лиственное дерево: ствол и крона из пересекающихся кругов.
+  const tree = (x: number, base: number, h: number, color: string) => {
+    c.fillStyle = color;
+    c.fillRect(x - h * 0.035, base - h * 0.45, h * 0.07, h * 0.45);
+    const cy = base - h * 0.62;
+    const r = h * 0.26;
+    for (let i = 0; i < 7; i++) {
+      c.beginPath();
+      c.arc(x + between(-r, r) * 0.9, cy + between(-r, r) * 0.6, r * between(0.55, 0.85), 0, Math.PI * 2);
+      c.fill();
     }
-    // Виньетка.
-    const v = c.createRadialGradient(270, 480, 250, 270, 480, 620);
-    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.55)');
-    c.fillStyle = v; c.fillRect(0, 0, 540, 960);
-  });
+  };
+
+  // Самый дальний ряд — светлые ели в дымке, за ним ближний дальний ряд.
+  for (let x = -20; x < W + 40; x += between(22, 36)) pine(x, H * 0.44 + between(-15, 15), between(110, 170), 'rgba(58,104,84,0.75)');
+  for (let x = -20; x < W + 40; x += between(28, 48)) pine(x, H * 0.52 + between(-20, 20), between(160, 240), 'rgba(34,72,54,0.95)');
+  // Туман.
+  const mist = c.createLinearGradient(0, H * 0.4, 0, H * 0.6);
+  mist.addColorStop(0, 'rgba(120,170,140,0)');
+  mist.addColorStop(0.5, 'rgba(120,170,140,0.16)');
+  mist.addColorStop(1, 'rgba(120,170,140,0)');
+  c.fillStyle = mist;
+  c.fillRect(0, H * 0.4, W, H * 0.2);
+  // Средний план — кроны темнее и крупнее, с просветами и подсветкой по верхнему краю.
+  for (let x = -40; x < W + 60; x += between(110, 170)) {
+    const base = H * 0.74 + between(-30, 30);
+    const h = between(260, 360);
+    tree(x, base, h, 'rgba(22,50,36,1)');
+    // Лунная кромка: светлые пятна по верху кроны.
+    c.fillStyle = 'rgba(120,180,140,0.12)';
+    c.beginPath();
+    c.arc(x + h * 0.05, base - h * 0.78, h * 0.16, Math.PI, Math.PI * 2);
+    c.fill();
+  }
+  for (let x = 40; x < W; x += between(130, 200)) pine(x, H * 0.8 + between(-20, 20), between(240, 320), 'rgba(15,34,24,1)');
+  // Земля среднего плана.
+  const ground = c.createLinearGradient(0, H * 0.72, 0, H);
+  ground.addColorStop(0, 'rgba(10,22,15,0)');
+  ground.addColorStop(0.3, 'rgba(10,22,15,0.85)');
+  ground.addColorStop(1, 'rgba(6,13,9,1)');
+  c.fillStyle = ground;
+  c.fillRect(0, H * 0.72, W, H * 0.28);
+
+  // Лучи света сквозь кроны.
+  c.save();
+  c.globalCompositeOperation = 'lighter';
+  for (const x of [W * 0.2, W * 0.46, W * 0.7]) {
+    const g = c.createLinearGradient(x, 0, x + W * 0.25, H);
+    g.addColorStop(0, 'rgba(170,230,170,0.08)');
+    g.addColorStop(1, 'rgba(170,230,170,0)');
+    c.fillStyle = g;
+    c.beginPath();
+    c.moveTo(x, 0);
+    c.lineTo(x + W * 0.06, 0);
+    c.lineTo(x + W * 0.32, H);
+    c.lineTo(x + W * 0.16, H);
+    c.closePath();
+    c.fill();
+  }
+  c.restore();
+
+  // Ближний план — толстые стволы по краям, ветки и листва.
+  const trunk = (x: number, w: number, lean: number) => {
+    c.fillStyle = '#060d09';
+    c.beginPath();
+    c.moveTo(x - w / 2, H);
+    c.lineTo(x + w / 2, H);
+    c.lineTo(x + w * 0.35 + lean, 0);
+    c.lineTo(x - w * 0.35 + lean, 0);
+    c.closePath();
+    c.fill();
+  };
+  trunk(-10, 90, 20);
+  trunk(W + 12, 96, -24);
+  const leaves = (cx: number, cy: number, n: number, r: number) => {
+    c.fillStyle = '#081510';
+    for (let i = 0; i < n; i++) {
+      c.beginPath();
+      c.ellipse(cx + between(-r, r), cy + between(-r * 0.5, r * 0.5), between(r * 0.25, r * 0.5), between(r * 0.15, r * 0.3), between(0, Math.PI), 0, Math.PI * 2);
+      c.fill();
+    }
+  };
+  leaves(40, 60, 26, 150);
+  leaves(W - 40, 110, 26, 160);
+  leaves(W * 0.5, -20, 18, 220);
+  // Кусты и трава внизу.
+  c.fillStyle = '#07110b';
+  for (let x = -20; x < W + 20; x += between(40, 70)) {
+    c.beginPath();
+    c.arc(x, H - between(10, 50), between(40, 80), 0, Math.PI * 2);
+    c.fill();
+  }
+
+  // Светлячки.
+  for (let i = 0; i < 22; i++) {
+    const x = between(20, W - 20);
+    const y = between(H * 0.25, H * 0.95);
+    const r = between(4, 9);
+    const g = c.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(210,255,170,0.95)');
+    g.addColorStop(1, 'rgba(210,255,170,0)');
+    c.fillStyle = g;
+    c.beginPath();
+    c.arc(x, y, r, 0, Math.PI * 2);
+    c.fill();
+  }
+
+  // Виньетка — чтобы интерфейс читался, края темнее.
+  const v = c.createRadialGradient(W / 2, H * 0.5, W * 0.35, W / 2, H * 0.5, H * 0.72);
+  v.addColorStop(0, 'rgba(0,0,0,0)');
+  v.addColorStop(1, 'rgba(0,0,0,0.5)');
+  c.fillStyle = v;
+  c.fillRect(0, 0, W, H);
 }
