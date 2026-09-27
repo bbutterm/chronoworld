@@ -28,6 +28,8 @@ export interface AssetInputs {
   spriteIds: Iterable<string>;
   /** Значки навыков от художника: пути внутри assets/ (ui/icons/skill_<id>.png) — грузятся все, что есть. */
   skillIcons?: string[];
+  /** Прочие файлы, которые игра находит по имени (бюсты RO, фоны глав): пути внутри assets/. */
+  extra?: string[];
 }
 
 export interface UsedAssets {
@@ -55,6 +57,7 @@ export function usedAssets(input: AssetInputs): UsedAssets {
   }
   for (const effect of input.effects?.effects ?? []) add(effect.file, `effect:${effect.id}`);
   for (const file of input.skillIcons ?? []) add(file, `skillIcon:${file.replace(/^.*\/|\.png$/g, '')}`);
+  for (const file of input.extra ?? []) add(file, `file:${file}`);
   const registry = buildRegistry(input.legacy, input.v2);
   const missingSprites: string[] = [];
   for (const id of [...new Set(input.spriteIds)].sort()) {
@@ -96,7 +99,28 @@ export function collectUsedAssets(root: string): UsedAssets {
     v2: readJson(join(assets, 'sprites/sprites.json')),
     spriteIds: contentSpriteIds(root),
     skillIcons: skillIconFiles(root),
+    extra: [...bustFiles(root), ...themeBackgroundFiles(root)],
   });
+}
+
+/** Бюсты RO для портретов в рамке (src/game/portraitFrame.ts): assets/ro/portraits/hero_*_portrait.png. */
+export function bustFiles(root: string): string[] {
+  const dir = join(root, ASSETS_DIR, 'ro/portraits');
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((n) => /^hero_[a-z0-9_]+_portrait\.png$/.test(n))
+    .sort()
+    .map((n) => `ro/portraits/${n}`);
+}
+
+/** Фоны глав от художника (src/game/backdrops.ts): assets/backgrounds/bg_battle_ch<N>.* и bg_map_ch<N>.*. */
+export function themeBackgroundFiles(root: string): string[] {
+  const dir = join(root, ASSETS_DIR, 'backgrounds');
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((n) => /^bg_(battle|map)_ch\d+\.(jpg|png|webp)$/.test(n))
+    .sort()
+    .map((n) => `backgrounds/${n}`);
 }
 
 /** assets/ui/icons/skill_*.png (src/game/skillIcons.ts грузит все такие файлы). */

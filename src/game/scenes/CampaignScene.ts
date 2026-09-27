@@ -12,6 +12,7 @@ import { session } from '../session';
 import { button, ellipsize, pressable, text, toast } from '../ui';
 import { C, FS, TINT, TOUCH } from '../theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
+import { screenBackground, setThemeBackground, themeOfChapter } from '../backdrops';
 
 const NODE = 150;
 
@@ -32,6 +33,9 @@ export class CampaignScene extends Phaser.Scene {
       text(this, GAME_W / 2, 600, 'В data/campaign нет глав', FS.h2);
       return;
     }
+    // Фон карты — по теме главы (луг, топь, склеп).
+    const bg = screenBackground(this);
+    if (bg) setThemeBackground(bg, 'map', themeOfChapter(chapter.id));
 
     text(this, GAME_W / 2, CONTENT_TOP + 40, chapter.name, FS.h2, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
     if (ci > 0) button(this, 70, CONTENT_TOP + 40, TOUCH, TOUCH, 'k:buttonSquare_beige', '‹', () => this.scene.restart({ chapter: ci - 1 }), FS.hero);

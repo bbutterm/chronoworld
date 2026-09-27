@@ -15,6 +15,7 @@ import { skillIcon } from '../skillIcons';
 import { playStory, startStageBattle } from '../dialogue';
 import { chapterLastStage } from '../storyView';
 import { startChapterDone } from './ChapterDoneScene';
+import { addThemeBackground, themeOfBattle } from '../backdrops';
 
 /** Метка в данных итогов (ResultData.stage): «Глава пройдена» уже показан из этих итогов. */
 type ShownMark = { chapterDoneShown?: boolean };
@@ -55,7 +56,8 @@ export class ResultScene extends Phaser.Scene {
     const win = r.winner === 'A';
     const compact = !!stage || !!tower;
     this.autoTimer = null;
-    this.add.image(GAME_W / 2, 960, this.textures.exists('skin_bg_battle') ? 'skin_bg_battle' : 'bg_arena').setDisplaySize(GAME_W, 1920).setAlpha(0.5);
+    // Фон — поле только что сыгранного боя (глава этапа / ярус башни), приглушённый.
+    addThemeBackground(this, 'battle', themeOfBattle({ stageId: stage?.stageId, towerFloor: tower?.floor }), 0.5);
     // Плашка итога — в стиле скина (своя текстура), с коротким «ударом» появления.
     const bannerKey = this.textures.exists('skin_banner_victory') ? (win ? 'skin_banner_victory' : 'skin_banner_defeat') : win ? 'ui_victory' : 'ui_defeat';
     const bannerW = compact ? 820 : 900;
