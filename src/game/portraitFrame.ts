@@ -23,13 +23,31 @@ const BUSTS: Record<string, string> = {};
 for (const path of Object.keys(import.meta.glob('../../assets/ro/portraits/hero_*_portrait.png', { query: '?url', import: 'default' }))) {
   const name = path.split('/').pop()!;
   const cls = name.replace(/^hero_|_portrait\.png$/g, '');
-  BUSTS[BUST_ALIAS[cls] ?? cls] = `ro/portraits/${name}`;
+  // Вариант по полу — суффикс _m/_f после имени класса (hero_priestess_m_portrait.png → priest_m).
+  const [, base, g = ''] = /^(.+?)(_[mf])?$/.exec(cls)!;
+  BUSTS[(BUST_ALIAS[base] ?? base) + g] = `ro/portraits/${name}`;
 }
 const bustKey = (id: string) => `bust_${id}`;
 const pending = new Map<string, Promise<boolean>>();
 
 /** Есть ли у спрайта бюст RO. */
 export const hasBust = (id: string) => !!BUSTS[id] && !!SPRITES[id];
+
+/** Базовый лист варианта по полу (`acolyte_m` → `acolyte`), если базовый зарегистрирован; иначе сам id. */
+const baseSprite = (id: string) => {
+  const m = /^(.+)_[mf]$/.exec(id);
+  return m && SPRITES[m[1]] ? m[1] : id;
+};
+
+/**
+ * Бюст героя с учётом пола: бюст варианта `hero_<база>_<m|f>_portrait.png` (если есть) → бюст самого листа → нет.
+ * Лист-вариант без своего бюста получает портрет листа (правильного пола), а не бюст базы.
+ */
+export function bustFor(sprite: string, gender?: 'm' | 'f'): string | undefined {
+  const base = baseSprite(sprite);
+  if (gender && BUSTS[`${base}_${gender}`] && SPRITES[base]) return `${base}_${gender}`;
+  return hasBust(sprite) ? sprite : undefined;
+}
 
 /** Загрузить бюст (один раз); true — текстура готова. */
 function loadBust(game: Phaser.Game, id: string): Promise<boolean> {
@@ -153,13 +171,21 @@ export function ensurePortraitTextures(scene: Phaser.Scene): void {
 /** Спрайт — профессия героя (а не монстр/босс): у врагов подложка холоднее и краснее. */
 const heroSprites = () => new Set(Object.values(CONTENT.jobs).map((j) => j.visual.sprite));
 let heroSet: Set<string> | null = null;
-const isHeroSprite = (id: string) => (heroSet ??= heroSprites()).has(id);
+const isHeroSprite = (id: string) => (heroSet ??= heroSprites()).has(baseSprite(id));
 
 /**
- * Портрет в рамке: size — внешний размер рамки. sprite — id спрайта (null — значок скина).
- * Возвращает контейнер (подложка, лицо, рамка); лицо само подменится бюстом, когда тот загрузится.
+ * Портрет в рамке: size — внешний размер рамки. sprite — id спрайта (null — значок скина); gender — пол героя
+ * (бюст `<база>_<m|f>`, если есть, см. bustFor). Возвращает контейнер (подложка, лицо, рамка); лицо само подменится
+ * бюстом, когда тот загрузится.
  */
-export function framedPortrait(scene: Phaser.Scene, x: number, y: number, sprite: string | null, size: number): Phaser.GameObjects.Container {
+export function framedPortrait(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  sprite: string | null,
+  size: number,
+  gender?: 'm' | 'f',
+): Phaser.GameObjects.Container {
   ensurePortraitTextures(scene);
   const inner = size * 0.86;
   const box = scene.add.container(x, y);
@@ -177,14 +203,16 @@ export function framedPortrait(scene: Phaser.Scene, x: number, y: number, sprite
   };
   if (!sprite || (!SPRITES[sprite] && !scene.textures.exists(portraitKey(sprite)))) {
     face.add(scene.add.image(0, 0, skinIcon('swords')).setDisplaySize(inner * 0.6, inner * 0.6).setTint(SKIN_TINT.gold));
-  } else if (hasBust(sprite) && scene.textures.exists(bustKey(sprite))) {
-    putBust(sprite);
   } else {
-    face.add(SPRITES[sprite]?.portrait && scene.textures.exists(portraitKey(sprite)) ? headCrop(scene, portraitKey(sprite), inner) : portrait(scene, 0, 0, portraitKey(sprite), inner * 0.94));
-    if (hasBust(sprite)) {
-      void loadBust(scene.game, sprite).then((ok) => {
-        if (ok && box.scene) putBust(sprite);
-      });
+    const bust = bustFor(sprite, gender);
+    if (bust && scene.textures.exists(bustKey(bust))) putBust(bust);
+    else {
+      face.add(SPRITES[sprite]?.portrait && scene.textures.exists(portraitKey(sprite)) ? headCrop(scene, portraitKey(sprite), inner) : portrait(scene, 0, 0, portraitKey(sprite), inner * 0.94));
+      if (bust) {
+        void loadBust(scene.game, bust).then((ok) => {
+          if (ok && box.scene) putBust(bust);
+        });
+      }
     }
   }
   return box;

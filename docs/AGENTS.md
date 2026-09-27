@@ -191,6 +191,8 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
   `afterStage` (после первой победы, поверх итогов). Одна сцена на пару (trigger, stageId); id сцен уникальны по всем главам.
 - `bossIntro` — только у `beforeStage` босс-этапа: баннер после диалога.
 - Спикеры `hero1…heroN` — герои сохранения по порядку (имя из сохранения). `portrait`: `hero` | id профессии | id спрайта | `unit:<id>`.
+  Пол спикера — у героя из сохранения, иначе по имени (`progression.heroes`, например рекрут `greta` с `portrait: novice` → лист `novice_f`, если есть).
+  Пол сюжетных героев фиксирован — в их репликах род можно ставить; профессию героя не называть.
 - Увиденные — `save.seenScenes`; сцены «после этапа» ставятся в `save.storyQueue` вместе с победой (`queueAfterStage`) и
   показываются даже после перезагрузки (`queuedScenes`, идут первыми в `pendingScenes`).
 
@@ -198,7 +200,9 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 
 - `jobChange.tierLevel` {1: 10, 2: 50}, `resetJobLevel`, `bankLevels` (запас опыта на максимуме), `keepSkillsOnJobChange`.
 - `exp`: `floor(base × level^power)` (100, 1.5); `exp.byTier["0"]` (4, 1.2) — быстрая кривая Новичка.
-- `heroes`: `count` 3, `startJob` novice, `names` (Алан, Бран, Вика), `recruits` [{afterStage, name}] — Грег после `ch1_s10`, Дорн после `ch2_s10`.
+- `heroes`: `count` 3, `startJob` novice, `names` [{name, gender}] (Алан м, Бран м, Вика ж), `recruits` [{afterStage, name, gender, formerNames?}] —
+  Грета ж после `ch1_s10` (прежнее имя «Грег» → переименование в `sanitizeSave`), Дорн м после `ch2_s10`; `namePools` {m, f} — имена
+  несюжетных героев (сверх `names`, пол случайный от seed сохранения — `progression/heroes.ts generatedHero`); `legacyNames` — пол имён старых сохранений.
 - `campaign`: `enemyStatGrowthPerStage` 0.08, `replayRewardMultiplier` 0.5. `offline`: `capHours` 12, `earlyExp`. `newGame.gold`.
 - `fastRewards` (K1) и `power` (K2) — читает `features/config.ts`.
 
@@ -227,7 +231,7 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
   не стёрла поля новой) → проверки целостности (дубли героев, неизвестные герои в отряде/предметах/поручениях). Версия новее сборки —
   `SaveError('newer_version')`, сохранение не затирается (только чтение).
 - Новое поле: если оно необязательное (`.optional()`/`.default()`) — версия не меняется (так добавлены `seenScenes`, `storyQueue`,
-  `pendingChapterDone`, `revision`, `bankedExp`). Обязательное — `SAVE_VERSION + 1` и миграция в `MIGRATIONS`, тест в `tests/save.test.ts`.
+  `pendingChapterDone`, `revision`, `bankedExp`, `hero.gender` — его `sanitizeSave` выводит по имени, неизвестное → м). Обязательное — `SAVE_VERSION + 1` и миграция в `MIGRATIONS`, тест в `tests/save.test.ts`.
 - `sanitizeSave(save, ctx)` — подгоняет сохранение к текущему контенту: неизвестная профессия → профессия того же тира, неизвестные
   предметы убираются; предупреждения показываются игроку тостом.
 - `src/game/storage.ts` (`SaveSlot`): ревизии против двух вкладок, резервные копии нечитаемых сохранений, работа при полном хранилище.
@@ -266,6 +270,13 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - **Спрайты v2** — `docs/SPRITE_SPEC.md`: родной масштаб RO ×1, лицом вправо, точка ног — anchor клетки. Сетки: герой 224×192
   (anchor 104,144; 6 рядов idle/walk/attack/cast/hurt/death), монстр 240×224 (100,120; 5 рядов без cast), босс 256×256 (112,216).
   8 колонок, лист ≤ 2048 px. Реестр — `assets/sprites/sprites.json` (schema 2); `assets/sprites/fixes.json` — пропуск битых кадров (`skip`).
+- **Пол героя → лист:** везде, где выбирается спрайт героя (`flow.ts heroSprite` / `heroJobSprite`, их зовут Герои, Герой,
+  Смена профессии, Отряд, Поручения, Башня, «Глава пройдена», диалоги; бой — `BattleScene squadDefs`), берётся
+  `<visual.sprite профессии>_f` / `_m` по `hero.gender`, если такой лист есть в `sprites.json`, иначе базовый лист
+  (`pipeline/sprites.ts genderedSpriteId`). Базовые листы одного пола (`source.gender`): `acolyte`, `priest` — женские, остальные
+  героические — мужские; так что женщина без `_f` выглядит мужским листом, мужчина-Аколит без `_m` — женским (терпимо до арта).
+  Бюст в рамке (`portraitFrame.ts bustFor`): `hero_<база>_<m|f>_portrait.png` → бюст листа → портрет листа. Реестр для чистых
+  помощников — `src/game/spriteRegistry.ts` (`hasSprite`; в Node/тестах пустой — варианты не находятся).
 - **Масштаб:** все листы v2 на экране × `V2_SCALE` = 3.2 (`src/pipeline/sprites.ts`), дальше × `visual.scale` юнита. Legacy-листы
   (`assets/sprites.legacy.json`) — свой `scale`. Враги отражаются по горизонтали. Нет листа — плейсхолдер-силуэт по роли.
 - **Тени** — `ambient.ts` (`SHADOW_TEX`), ширина по `bbox.idle` листа; в листах тени нет.
@@ -388,4 +399,4 @@ Vercel собирает `main` (`vercel.json`: `npm ci`, `npm run build`, `dist`
 | пресеты отряда, авторасстановка | presets / formation (K8) |
 | фронт / тыл | слоты 0–1 / 2–4 |
 | K1…K10, P1…P12, T1-xx…T5-xx, BUG-xxx | функции из GDD, пакеты FIXLIST, номера багов тестировщиков, сводный баг-лог |
-| Герои: Алан, Бран, Вика (старт), Грег, Дорн (рекруты) | `progression.json → heroes.names / recruits` |
+| Герои: Алан м, Бран м, Вика ж (старт), Грета ж, Дорн м (рекруты) | `progression.json → heroes.names / recruits` (`gender`) |

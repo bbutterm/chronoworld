@@ -79,6 +79,9 @@ id вида `chapterN` выводится сам (`ch<N>`).
 3. `skills`: 5 навыков на уровнях 1/10/20/30/40 (на уровне — не больше одного), навыки — рецепт 3.
 4. Вид: `visual.sprite` (лист героя 224×192 с `cast`), `visual.projectile` для дальних, `hitFx`.
    Бюст для рамки портрета — `assets/ro/portraits/hero_<id спрайта>_portrait.png` (256×256), необязателен.
+   **Варианты по полу:** лист `<id спрайта>_f` / `<id спрайта>_m` в `sprites.json` (и бюст `hero_<id спрайта>_<f|m>_portrait.png`)
+   подхватываются сами для героинь / героев — в `data/jobs` ничего не менять. Нет варианта — базовый лист (его пол — `source.gender`;
+   `acolyte`, `priest` — женские, остальные — мужские). Список недостающих — `docs/ART_EXTRACT_RO.md`, раздел 7.
 5. Предметы только для ветки — `data/items/*.json → jobs: ["<корень ветки>"]`.
 6. Экраны (Герои, Смена профессии, дерево) строятся из `data/jobs` сами. Для прогона главы ядром первые профессии заданы
    в `scripts/playthrough.ts` (`FIRST_JOBS`).
@@ -101,7 +104,7 @@ id вида `chapterN` выводится сам (`ch<N>`).
 4. **Сюжет** — рецепт 7 (вступление, сцена перед боссом с `bossIntro`, финал с крючком к следующей главе).
 5. **Фоны:** тема главы — по порядку (луг, топь, склеп, дальше по кругу, `backdrops.ts`). Файлы владельца — `assets/backgrounds/bg_battle_ch<N>.jpg`,
    `bg_map_ch<N>.jpg`; для N ≥ 4 сейчас нужна правка `backdrops.ts` (новая тема в `THEMES` и её рисование/файл) — иначе повторится тема 1–3.
-6. **Рекрут:** `data/progression.json → heroes.recruits` `{"afterStage": "ch4_s10", "name": "…"}` (сейчас максимум отряда 5 — рекрут
+6. **Рекрут:** `data/progression.json → heroes.recruits` `{"afterStage": "ch4_s10", "name": "…", "gender": "m|f"}` (пол — часть образа героя) (сейчас максимум отряда 5 — рекрут
    после главы 3 даст 6-го героя вне отряда; решить с владельцем).
 7. **Башня:** новая полоса `data/tower.json → bands` `{"fromFloor": 60, "name": "…ярус", "layouts": [...], "bossLayouts": [...]}` из монстров главы.
 8. **Выпадение:** при желании своё правило `data/drops.json → rules` с `chapter: "chapter4"`.
@@ -111,7 +114,8 @@ id вида `chapterN` выводится сам (`ch<N>`).
 
 1. Файл главы `data/story/<глава>.json` (нет — `npm run content:new -- story <глава>`).
 2. Спикеры: `speakers.<ключ> = {name, portrait}`; `hero1…heroN` — герои игрока (имя из сохранения, `portrait: "hero"`);
-   `portrait` — id профессии (`swordman`), id спрайта или `unit:<id юнита>`.
+   `portrait` — id профессии (`swordman`), id спрайта или `unit:<id юнита>`. Пол сюжетных героев фиксирован (`progression.heroes`) —
+   род в их репликах ставить можно; рекрут до вступления — спикер со своим ключом и именем (`greta`), лист по его полу.
 3. Сцена: `{id (уникален по всем главам, например ch4_s5_after), trigger: chapterStart|beforeStage|afterStage, stageId (кроме chapterStart), lines}`;
    1–6 реплик, `text` ≤ 120 символов; `bossIntro` — только у beforeStage босс-этапа. Одна сцена на пару (trigger, этап).
 4. Показ один раз на сохранение; уже вышедшую сцену не переименовывать (id в `save.seenScenes`). Дизайн глав — `docs/design/chapter1.md`.
@@ -154,7 +158,8 @@ id вида `chapterN` выводится сам (`ch<N>`).
 | --- | --- | --- |
 | Лист юнита/героя | `assets/sprites/{heroes,monsters,bosses}/<id>.png` по `docs/SPRITE_SPEC.md` | запись в `assets/sprites/sprites.json` (id, class, file, portrait, hitFrames, bbox) — обычно `tools/build_sprites_v2.py --only <id>`; старый лист v1 из `assets/ro` — `--from-v1`; затем `visual.sprite` у юнита/профессии |
 | Портрет 64×64 | `assets/sprites/portraits/<id>.png` | поле `portrait` в `sprites.json` |
-| Бюст героя | `assets/ro/portraits/hero_<id спрайта>_portrait.png` | сам (glob в `portraitFrame.ts`) |
+| Бюст героя | `assets/ro/portraits/hero_<id спрайта>_portrait.png` (вариант по полу — `hero_<id спрайта>_<f\|m>_portrait.png`) | сам (glob в `portraitFrame.ts`) |
+| Лист героя по полу | `<id спрайта>_f` / `_m` в `assets/sprites/sprites.json` | сам (`flow.ts heroSprite`, откат на базовый лист) |
 | Битые кадры | — | `assets/sprites/fixes.json` → `{"<id>": {"skip": {"death": [2, 3]}}}` |
 | Иконка навыка | `assets/ui/icons/skill_<id навыка>.png` (квадрат, рисуется в 96×96) | сама; RO-иконка — `RO_SKILL_ICONS` |
 | Эффект | `assets/effects/<id>.png` (атлас) | `assets/effects/effects.json → effects` (cell, columns, frames, ms, anchor) и `→ skills` |

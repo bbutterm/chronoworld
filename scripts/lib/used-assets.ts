@@ -68,6 +68,11 @@ export function usedAssets(input: AssetInputs): UsedAssets {
     }
     add(s.file, `sprite:${id}`);
     add(s.portrait, `sprite:${id}`);
+    // Листы героя по полу (<id>_f / <id>_m) игра выбирает сама (flow.ts heroSprite) — в данных на них ссылок нет.
+    for (const variant of [`${id}_f`, `${id}_m`]) {
+      add(registry[variant]?.file, `sprite:${variant}`);
+      add(registry[variant]?.portrait, `sprite:${variant}`);
+    }
   }
   return { files: Object.keys(refs).sort(), refs, missingSprites };
 }

@@ -134,6 +134,17 @@ export function buildRegistry(legacy: LegacySprites | undefined, v2: SpritesV2 |
   return out;
 }
 
+/**
+ * Лист героя с учётом пола: `<base>_f` / `<base>_m`, если такой лист есть в реестре, иначе базовый `<base>`.
+ * Базовые листы героев — одного пола (source.gender в sprites.json): Аколит и Жрец (acolyte, priest) — женские,
+ * остальные — мужские; так что без варианта женщина-Мечник выглядит мужским листом, а мужчина-Аколит — женским.
+ */
+export function genderedSpriteId(base: string, gender: 'm' | 'f' | undefined, has: (id: string) => boolean): string {
+  if (!gender) return base;
+  const variant = `${base}_${gender}`;
+  return has(variant) ? variant : base;
+}
+
 /** Имя анимации с учётом замен (например, нет walk — играем idle). */
 export function resolveAnim(def: SpriteDef | undefined, name: AnimName): AnimName | null {
   let n: AnimName | null = name;

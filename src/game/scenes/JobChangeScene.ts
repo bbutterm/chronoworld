@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { markHint } from '../hints';
-import { actChangeJob, arrangeSquad, availableJobChanges, misplacedInFront, type HeroState } from '../../core';
+import { actChangeJob, arrangeSquad, availableJobChanges, heroGender, misplacedInFront, type HeroState } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { heroSprite, jobChangeSkills, jobLevelText, otherJobChangeReady, ROLE_NAMES, statsLine } from '../flow';
+import { heroJobSprite, heroSprite, jobChangeSkills, jobLevelText, otherJobChangeReady, ROLE_NAMES, statsLine } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
@@ -62,7 +62,7 @@ export class JobChangeScene extends Phaser.Scene {
     const reset = GAME.progression.jobChange.resetJobLevel;
     // T1-10: для кого выбор — портрет и имя героя крупно (в цепочке смены профессий видно, что герой сменился).
     const hy = CONTENT_TOP + 60;
-    framedPortrait(this, 110, hy, heroSprite(hero, GAME), 140);
+    framedPortrait(this, 110, hy, heroSprite(hero, GAME), 140, heroGender(hero, GAME.progression.heroes));
     ellipsize(text(this, 200, hy - 26, `Профессия для: ${hero.name}`, FS.h2, SKIN.goldLight, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5), 840).setName('jobChangeHero');
     // Пояснение — до двух строк (перенос вместо многоточия).
     text(
@@ -93,7 +93,7 @@ export class JobChangeScene extends Phaser.Scene {
       const x = GAME_W / 2 + (col - (cols - 1) / 2) * (tileW + 20);
       const y = top + tileH / 2 + row * (tileH + 20);
       const bg = pressable(this, card(this, x, y, tileW, tileH, false), tileW, tileH, () => this.select(hero.id, jobId));
-      portrait(this, x, y - 25, portraitKey(job.visual.sprite), 160);
+      portrait(this, x, y - 25, portraitKey(heroJobSprite(hero, jobId, GAME)), 160);
       const name = ellipsize(text(this, x, y + 90, job.name, FS.h3, SKIN.cream, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), tileW - 24);
       this.tiles.push({ jobId, bg, name });
     });
