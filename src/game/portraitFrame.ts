@@ -191,31 +191,46 @@ export function framedPortrait(
   const box = scene.add.container(x, y);
   const back = scene.add.image(0, 0, BACK).setDisplaySize(inner + 6, inner + 6);
   if (sprite && !isHeroSprite(sprite)) back.setTint(0xe0a0a0);
-  const face = scene.add.container(0, 0);
+  const face = heroFace(scene, sprite, inner, gender);
   const frame = scene.add.image(0, 0, FRAME).setDisplaySize(size, size);
   box.add([back, face, frame]);
+  return box;
+}
 
+/**
+ * Лицо героя без рамки и подложки (для рамки портрета и плиток карточек героев, heroCard.ts): бюст RO → портрет
+ * листа (голова и плечи) → значок скина. inner — сторона квадрата; tint — перекраска (серые «неполученные» карточки),
+ * применяется и к бюсту, который подгрузится позже. Контейнер с центром в центре квадрата.
+ */
+export function heroFace(scene: Phaser.Scene, sprite: string | null, inner: number, gender?: 'm' | 'f', tint?: number): Phaser.GameObjects.Container {
+  const face = scene.add.container(0, 0);
+  const paint = () => {
+    if (tint === undefined) return;
+    for (const o of face.list) (o as Phaser.GameObjects.Image).setTint?.(tint);
+  };
   const putBust = (id: string) => {
     face.removeAll(true);
     // Бюст 256×256: фигура до среза на y≈236, голова с y≈20. Срез — по низу рамки, голова — чуть ниже верха.
     const k = (inner * 1.12) / 256;
     face.add(scene.add.image(0, inner / 2, bustKey(id)).setOrigin(0.5, 236 / 256).setScale(k));
+    paint();
   };
   if (!sprite || (!SPRITES[sprite] && !scene.textures.exists(portraitKey(sprite)))) {
-    face.add(scene.add.image(0, 0, skinIcon('swords')).setDisplaySize(inner * 0.6, inner * 0.6).setTint(SKIN_TINT.gold));
-  } else {
-    const bust = bustFor(sprite, gender);
-    if (bust && scene.textures.exists(bustKey(bust))) putBust(bust);
-    else {
-      face.add(SPRITES[sprite]?.portrait && scene.textures.exists(portraitKey(sprite)) ? headCrop(scene, portraitKey(sprite), inner) : portrait(scene, 0, 0, portraitKey(sprite), inner * 0.94));
-      if (bust) {
-        void loadBust(scene.game, bust).then((ok) => {
-          if (ok && box.scene) putBust(bust);
-        });
-      }
+    face.add(scene.add.image(0, 0, skinIcon('swords')).setDisplaySize(inner * 0.6, inner * 0.6).setTint(tint ?? SKIN_TINT.gold));
+    return face;
+  }
+  const bust = bustFor(sprite, gender);
+  if (bust && scene.textures.exists(bustKey(bust))) putBust(bust);
+  else {
+    face.add(SPRITES[sprite]?.portrait && scene.textures.exists(portraitKey(sprite)) ? headCrop(scene, portraitKey(sprite), inner) : portrait(scene, 0, 0, portraitKey(sprite), inner * 0.94));
+    paint();
+    if (bust) {
+      void loadBust(scene.game, bust).then((ok) => {
+        if (ok && face.scene) putBust(bust);
+      });
     }
   }
-  return box;
+  return face;
 }
 
 /**

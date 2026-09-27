@@ -287,21 +287,39 @@ async function main() {
     await waitScene('Home');
     await clickText('Home', 'ГЕРОИ');
     await waitScene('Heroes');
-    await clickGame(540, 430); // карточка первого героя
+    // H4: коллекция — сетка карточек, фильтры, сортировка, «Коллекция N/M».
+    await shot('heroes');
+    for (const t of ['Коллекция ', 'Сила ▼', 'Алан', 'Опыт в запасе']) if (!(await hasText('Heroes', t))) problems.push(`коллекция героев: нет «${t}»`);
+    await clickText('Heroes', 'Алан'); // плитка Алана
     await waitScene('Hero');
     await shot('hero');
-    // Карточка героя (минимум H1–H3): класс, редкость, «Улучшить» за опыт из общего запаса.
-    for (const t of ['Мечник', 'Зелёный', 'Улучшить']) if (!(await hasText('Hero', t))) problems.push(`карточка героя: нет «${t}»`);
+    // Карточка героя (H4): класс, редкость, мощь, «Улучшить» за опыт из общего запаса, вкладки.
+    for (const t of ['Мечник', 'Зелёный', 'Улучшить', 'Мощь', 'Навыки', 'Снаряжение', 'История']) if (!(await hasText('Hero', t))) problems.push(`карточка героя: нет «${t}»`);
     const before = await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')));
     const h1 = before.heroes.find((h) => h.templateId === 'alan');
     await clickText('Hero', 'Улучшить');
-    await sleep(500);
+    await sleep(700);
     await waitScene('Hero');
     const after = await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')));
     const h1after = after.heroes.find((h) => h.id === h1.id);
     if (before.resources.heroExp >= 100 && h1after.level !== h1.level + 1) problems.push(`«Улучшить» не подняло уровень (${h1.level} → ${h1after.level}, запас ${before.resources.heroExp})`);
+    // Уровень на карточке обновился на месте (без перезапуска экрана).
+    if (h1after.level > h1.level && !(await hasText('Hero', `Ур. ${h1after.level}`))) problems.push(`карточка героя: не видно «Ур. ${h1after.level}» после «Улучшить»`);
     log(`«Улучшить»: ${h1.level} → ${h1after.level}, запас ${before.resources.heroExp} → ${after.resources.heroExp}`);
     await shot('hero-levelup');
+    // Вкладка «История»: био и откуда брать осколки сюжетного героя.
+    await clickText('Hero', 'История');
+    await waitScene('Hero');
+    if (!(await hasText('Hero', 'Где добыть осколки'))) problems.push('карточка героя: во вкладке «История» нет осколков');
+    await clickText('Hero', 'Навыки');
+    await waitScene('Hero');
+    // Экран вознесения: осколки сюжетного героя и кнопка «Вознести».
+    await clickText('Hero', 'Вознести');
+    await waitScene('Ascend');
+    for (const t of ['Осколки героя', 'Предел уровня', 'Вознести']) if (!(await hasText('Ascend', t))) problems.push(`вознесение: нет «${t}»`);
+    await shot('ascend');
+    await clickText('Ascend', '‹ Назад');
+    await waitScene('Hero');
     await clickText('Hero', '‹ Назад');
     await waitScene('Heroes');
 
