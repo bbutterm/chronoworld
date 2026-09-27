@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_sage_magic_rod",
   "name": "Магический жезл",
-  "description": "Когда по мудрецу попали: шанс 30% поглотить удар — щит 10% HP.",
+  "description": "Когда по мудрецу попали: шанс 30% поглотить удар — щит 10% ОЗ.",
   "range": "ranged",
   "trigger": "hit",
   "chance": 0.3,

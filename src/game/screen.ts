@@ -3,7 +3,7 @@ import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { session, takeWarnings } from './session';
 import { GAME } from './content';
 import { anim, lazyPortrait, portraitKey, spriteView, whenSprites } from './sprites';
-import { formatNumber, jobChangeReadyCount } from './flow';
+import { formatNumber, heroesBadgeCount } from './flow';
 import { button, ellipsize, emptyState, icon, panel, text, toast } from './ui';
 import { hasArt } from './assets';
 import { C, FS, SP, TINT } from './theme';
@@ -65,12 +65,13 @@ export function screen(
       const by = GAME_H - NAV_H / 2;
       // Плитка вкладки как в референсе: контурная иконка и подпись капсом под ней; активная — золотая рамка.
       const btn = button(scene, bx, by, w - 36, NAV_H - 30, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label.toUpperCase(), () => {
-        if (!on) scene.scene.start(t.scene);
+        // T1-04: на подэкранах вкладки (карточка героя, инвентарь) вкладка ведёт к её корневому экрану.
+        if (!on || scene.scene.key !== t.scene) scene.scene.start(t.scene);
       }, FS.caption);
       btn.label.setY(34).setColor(on ? SKIN.goldLight : SKIN.creamDim);
       btn.container.add(scene.add.image(0, -18, skinIcon(NAV_ICON[t.scene])).setDisplaySize(60, 60).setTint(on ? SKIN_TINT.gold : SKIN_TINT.creamDim));
-      // R: значок «Герои», когда кто-то может сменить профессию.
-      if (t.scene === 'Heroes') badge(scene, w * (i + 1) - 50, GAME_H - NAV_H + 30, jobChangeReadyCount(session.save, GAME));
+      // R: значок «Герои», когда кто-то может сменить профессию; P10 (T1-08) — или надеть вещь получше.
+      if (t.scene === 'Heroes') badge(scene, w * (i + 1) - 50, GAME_H - NAV_H + 30, heroesBadgeCount(session.save, GAME));
     });
   }
   for (const w of takeWarnings()) toast(scene, w, C.error, 6000);

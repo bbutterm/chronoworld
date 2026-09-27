@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob_fast_lunge",
   "name": "Бросок",
-  "description": "Рывок к врагу тыла с наименьшим HP и укус.",
+  "description": "Рывок к врагу тыла с наименьшим ОЗ и укус.",
   "range": "ranged",
   "target": {
     "side": "enemy",

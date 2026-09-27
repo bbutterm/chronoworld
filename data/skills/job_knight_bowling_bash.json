@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_knight_bowling_bash",
   "name": "Боулинг Баш",
-  "description": "Размах двуручником по всем врагам фронта (×1.8), шанс 30% оглушить.",
+  "description": "Размах двуручником по всем врагам фронта (×1,8), шанс 30% оглушить.",
   "icon": "icon_ult_warrior",
   "range": "melee",
   "target": {

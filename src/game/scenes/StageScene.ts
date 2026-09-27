@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { actSkipStage, autoFormation, enemySquad, getStage, squadPower, stagePower, stageStatus } from '../../core';
+import { actSkipStage, arrangeSquad, autoFormation, enemySquad, misplacedInFront, getStage, squadPower, stagePower, stageStatus } from '../../core';
 import { CONTENT, GAME } from '../content';
 import { formatNumber, POWER_COLORS, powerTone, stageSeed, statsLine } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
@@ -10,7 +10,7 @@ import { button, ellipsize, hintPointer, panel, text, toast } from '../ui';
 import { HINT_TEXT, hintDone, markHint } from '../hints';
 import { startStageBattle } from '../dialogue';
 import { squadDefs, type ResultData } from './BattleScene';
-import { SLOT_W, slotX, SquadEditor } from '../squadEditor';
+import { fitName, SLOT_W, slotX, SquadEditor } from '../squadEditor';
 import { C, FS, TOUCH } from '../theme';
 
 /**
@@ -26,6 +26,8 @@ export class StageScene extends Phaser.Scene {
   private fightBtns: ReturnType<typeof button>[] = [];
   private powerText!: Phaser.GameObjects.Text;
   private enemyPower = 0;
+  private tip!: Phaser.GameObjects.Text;
+  private rearrangeBtn!: ReturnType<typeof button>;
 
   constructor() {
     super('Stage');
@@ -47,10 +49,10 @@ export class StageScene extends Phaser.Scene {
       panel(this, x, 480, SLOT_W, 290, u ? 'ui_slot_filled' : 'ui_slot_empty');
       text(this, x, 322, i < 2 ? 'фронт' : 'тыл', FS.caption, C.dim);
       if (!u) return;
-      portrait(this, x, 420, portraitKey(u.visual.sprite), 140).setTint(unitTint(u.visual));
-      // Имя — в одну строку с многоточием: перенос налезал на статы.
-      ellipsize(text(this, x, 525, u.name, FS.caption, u.kind === 'boss' ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }), SLOT_W - 16);
-      text(this, x, 585, statsLine(u.stats, '\n', ['hp', 'atk']), FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3, lineSpacing: 2 });
+      portrait(this, x, 405, portraitKey(u.visual.sprite), 130).setTint(unitTint(u.visual));
+      // T1-22: имя целиком — в две строки (перенос по пробелу или дефису), не влезает — чуть мельче; без многоточия.
+      fitName(text(this, x, 515, u.name, FS.caption, u.kind === 'boss' ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, lineSpacing: -4 }), SLOT_W - 14);
+      text(this, x, 588, statsLine(u.stats, '\n', ['hp', 'atk']), FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3, lineSpacing: 2 });
     });
 
     // --- Награда ---
@@ -73,9 +75,10 @@ export class StageScene extends Phaser.Scene {
     // --- Ваш отряд и выбор героев (K8: общий редактор, авто-расстановка, пресеты) ---
     card(this, GAME_W / 2, 1220, 1050, 780);
     text(this, GAME_W / 2, 868, 'Ваш отряд', FS.h3, C.success, { fontStyle: 'bold' });
-    text(this, GAME_W / 2, 910, 'Выберите слот, затем героя. Повторное нажатие на слот — убрать.', FS.caption, C.muted, {
-      wordWrap: { width: 980 },
-    });
+    this.tip = text(this, GAME_W / 2, 910, '', FS.caption, C.muted, { wordWrap: { width: 980 } });
+    // T1-20: стрелок или лекарь во фронте — предупреждение и «Переставить» (тот же состав, по ролям).
+    this.rearrangeBtn = button(this, GAME_W - 175, 910, 290, 84, 'ui_btn_primary', 'Переставить', () => this.rearrange(), FS.small);
+    this.rearrangeBtn.container.setName('rearrangeBtn');
     this.editor = new SquadEditor(this, 1100, 1365, () => this.onSquadChange());
     button(this, GAME_W / 2 - 250, SQUAD_BTN_Y, 440, TOUCH, 'ui_btn_secondary', 'Авто', () => this.auto(), FS.h3);
     button(this, GAME_W / 2 + 250, SQUAD_BTN_Y, 440, TOUCH, 'k:buttonLong_beige', 'Пресеты отряда', () =>
@@ -101,10 +104,23 @@ export class StageScene extends Phaser.Scene {
     const save = session.save;
     const ready = save.squad.some(Boolean);
     for (const b of this.fightBtns) b.container.setAlpha(ready ? 1 : 0.45);
+    const misplaced = misplacedInFront(save, GAME);
+    const names = misplaced.map((id) => save.heroes.find((h) => h.id === id)?.name ?? id);
+    this.rearrangeBtn.container.setVisible(misplaced.length > 0);
+    if (misplaced.length) this.tip.setText(`${names.join(', ')} во фронте — дальнему бою место в тылу`).setColor(C.warning).setX(40).setOrigin(0, 0.5);
+    else this.tip.setText('Выберите слот, затем героя. Повторное нажатие на слот — убрать.').setColor(C.muted).setX(GAME_W / 2).setOrigin(0.5);
+    ellipsize(this.tip, misplaced.length ? GAME_W - 380 : 1000);
     const mine = squadPower(save, GAME);
     this.powerText
       .setText(`Мощь: ваш отряд ${formatNumber(mine)}  ·  противник ${formatNumber(this.enemyPower)}`)
       .setColor(POWER_COLORS[powerTone(mine, this.enemyPower)]);
+  }
+
+  /** T1-20: тот же состав по ролям — танки и ближний бой вперёд, стрелки и лекари в тыл. */
+  private rearrange(): void {
+    commit({ ...session.save, squad: arrangeSquad(session.save, GAME) });
+    this.editor.draw();
+    toast(this, 'Отряд переставлен: дальний бой и лекари — в тылу');
   }
 
   /** K8: авто-расстановка сильнейших героев. */
@@ -144,3 +160,4 @@ export class StageScene extends Phaser.Scene {
     }
   }
 }
+

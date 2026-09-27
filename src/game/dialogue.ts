@@ -6,7 +6,7 @@ import { portrait } from './screen';
 import { commit, session } from './session';
 import { skinIcon, SKIN, SKIN_TINT } from './skin';
 import { portraitKey, SPRITES } from './sprites';
-import { speakerView } from './storyView';
+import { isChapterFinale, speakerView } from './storyView';
 import { button, panel, text } from './ui';
 import { FS, OUTLINE, TOUCH } from './theme';
 
@@ -15,11 +15,18 @@ export const DIALOGUE_NAME = 'dialogue';
 const DEPTH = 9500;
 /** Печать по буквам: мс на символ. */
 const TYPE_MS = 22;
-/** Авто-режим (авто-прохождение): пауза после дописанной строки. */
-const AUTO_LINE_MS = 1800;
-const AUTO_CHAR_MS = 30;
-/** Касание сразу после открытия — то же нажатие, что открыло диалог: не считаем. */
-const OPEN_GUARD_MS = 200;
+/**
+ * Авто-режим (авто-прохождение, T1-05): строка висит не меньше AUTO_LINE_MS после того, как дописана, плюс время
+ * на чтение по длине — сюжет успевают прочитать. Финал главы и сцена босса в авто не листаются (только касанием).
+ */
+export const AUTO_LINE_MS = 4000;
+const AUTO_CHAR_MS = 45;
+/**
+ * T1-06. Касание, начатое раньше, чем строка появилась, или в первые LINE_GUARD_MS после этого, строку не листает:
+ * это «хвост» прошлого нажатия (двойной тап по «В бой», «Пропустить» в бою) или случайный тап. Время — по часам
+ * браузера (время DOM-события), а не по кадрам: на медленном кадре касание «из прошлого» иначе проскакивает.
+ */
+export const LINE_GUARD_MS = 250;
 
 const PANEL_W = 1040;
 const PANEL_H = 370;
@@ -72,7 +79,8 @@ export function startStageBattle(scene: Phaser.Scene, stageId: string, opts: Dia
 
 function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts: DialogueOptions): void {
   const story = GAME.story.chapters[s.chapter];
-  const openedAt = scene.time.now;
+  // Финал главы и сцена босса — кульминация: в авто-режиме их не листаем сами.
+  const auto = !!opts.auto && !s.bossIntro && !isChapterFinale(s, GAME);
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName(DIALOGUE_NAME);
   // Затемнение ловит все касания: экран под диалогом недоступен (бой не стартует, кнопки не жмутся).
   const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.45).setInteractive();
@@ -101,6 +109,9 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   let typer: Phaser.Time.TimerEvent | null = null;
   let autoNext: Phaser.Time.TimerEvent | null = null;
   let closed = false;
+  /** Когда появилась текущая строка (performance.now) и засчитано ли касание, начатое на затемнении. */
+  let lineAt = performance.now();
+  let armed = false;
 
   const stopTimers = () => {
     typer?.remove();
@@ -120,7 +131,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     shown = full.length;
     body.setText(full);
     more.setText(line < s.lines.length - 1 ? `${line + 1}/${s.lines.length}  · коснитесь ›` : `${line + 1}/${s.lines.length}  · коснитесь — закрыть`);
-    if (opts.auto) autoNext = scene.time.delayedCall(AUTO_LINE_MS + full.length * AUTO_CHAR_MS, advance);
+    if (auto) autoNext = scene.time.delayedCall(AUTO_LINE_MS + full.length * AUTO_CHAR_MS, advance);
   };
   const setFace = (sprite: string | null) => {
     face.removeAll(true);
@@ -134,6 +145,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   };
   const showLine = (i: number) => {
     line = i;
+    lineAt = performance.now();
     const l = s.lines[i];
     const who = speakerView(story, l.speaker, session.save, GAME);
     nameText.setText(who.name);
@@ -164,8 +176,18 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     if (line + 1 < s.lines.length) showLine(line + 1);
     else close();
   };
+  // Листает только касание, которое и началось на затемнении после появления строки (+ LINE_GUARD_MS).
+  const eventTime = (p: Phaser.Input.Pointer) => {
+    const t = (p.event as Event | undefined)?.timeStamp;
+    return typeof t === 'number' && t > 0 ? t : performance.now();
+  };
+  shade.on('pointerdown', (p: Phaser.Input.Pointer) => {
+    armed = eventTime(p) - lineAt >= LINE_GUARD_MS;
+  });
   shade.on('pointerup', () => {
-    if (scene.time.now - openedAt >= OPEN_GUARD_MS) advance();
+    if (!armed) return;
+    armed = false;
+    advance();
   });
   // Сцена выключилась (переход) — таймеры Phaser уберёт сам, диалог просто исчезает, не увиденным.
   showLine(0);

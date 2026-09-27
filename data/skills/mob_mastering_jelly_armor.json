@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob_mastering_jelly_armor",
   "name": "Желейная броня",
-  "description": "Долгий каст: щит на 15% макс. HP. Оглушение сбивает каст.",
+  "description": "Долгий каст: щит на 15% макс. ОЗ. Оглушение сбивает каст.",
   "range": "ranged",
   "target": {
     "side": "ally",

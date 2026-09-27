@@ -54,6 +54,9 @@ export function panel(scene: Phaser.Scene, x: number, y: number, w: number, h: n
   return scene.add.nineslice(x, y, t.key, t.frame, w / scale, h / scale, l, r, tp, b).setScale(scale);
 }
 
+/** На сколько опускается подпись нажатой кнопки. */
+const PRESS_DY = 6;
+
 const DARK_TEXT = new Set(['ui_btn_speed', 'ui_btn_skip', 'k:buttonLong_beige', 'k:buttonLong_grey', 'k:buttonSquare_beige', 'k:buttonSquare_grey']);
 
 /** Кнопка из 9-slice текстуры (или плейсхолдера) с подписью. */
@@ -90,13 +93,19 @@ export function button(
   });
   // armed: палец опустился именно на эту кнопку; отпускание без него (или после протяжки списка) — не клик.
   let armed = false;
+  // Подпись «проседает» на PRESS_DY относительно своего места, а не ставится в абсолютный y: вызывающий
+  // мог сдвинуть её (подпись вкладки навигации под иконкой, T1-04) — после нажатия она должна вернуться туда же.
+  let sunk = false;
   const ready = debounce();
   const setPressed = (p: boolean) => {
     armed = p;
     if (!bg.scene) return;
     const f = tex(scene, textureId, p);
     bg.setTexture(f.key, f.frame);
-    t.setY(p ? 2 : -4);
+    if (p !== sunk) {
+      t.y += p ? PRESS_DY : -PRESS_DY;
+      sunk = p;
+    }
     // Нажатая кнопка чуть «проседает» — видно, что касание принято.
     container.setScale(p ? 0.97 : 1);
   };

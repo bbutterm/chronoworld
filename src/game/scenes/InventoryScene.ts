@@ -7,6 +7,7 @@ import { card, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, screen } from '../screen'
 import { commit, session } from '../session';
 import { button, ellipsize, ScrollArea, text, toast } from '../ui';
 import { C, FS, TOUCH } from '../theme';
+import { markHint } from '../hints';
 
 /**
  * K6. Инвентарь.
@@ -91,6 +92,7 @@ export class InventoryScene extends Phaser.Scene {
       let save = session.save;
       if (row.instance.equippedBy !== null && row.instance.equippedBy !== hero.id) save = actUnequip(save, row.instance.id);
       commit(actEquip(save, hero.id, row.instance.id, GAME));
+      markHint('equip_gear');
       this.backToHero(hero.id, `${hero.name}: надет «${row.def?.name ?? row.instance.itemId}»${row.wornBy ? ` (снят с ${row.wornBy})` : ''}`);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);

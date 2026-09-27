@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_archer_charge_arrow",
   "name": "Заряженная стрела",
-  "description": "Мощный выстрел (×2.5) отбрасывает цель: −30 энергии.",
+  "description": "Мощный выстрел (×2,5) отбрасывает цель: −30 энергии.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

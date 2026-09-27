@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_wizard_soul_drain",
   "name": "Поглощение души",
-  "description": "После убийства врага: восстанавливает себе HP (сила лечения ×0.8).",
+  "description": "После убийства врага: восстанавливает себе ОЗ (сила лечения ×0,8).",
   "range": "ranged",
   "trigger": "kill",
   "target": {

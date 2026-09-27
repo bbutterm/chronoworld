@@ -248,8 +248,8 @@ async function main() {
       if (!(await page.evaluate(() => window.__game.scene.isActive('Result')))) problems.push('касание не отменило авто-прохождение');
       else if (!(await hasText('Result', 'Авто отменено'))) problems.push('нет подписи «Авто отменено»');
     } else log('этап 2 не выигран — отсчёта авто нет');
-    // 4. Итог → К кампании → Главная → Герои → герой → назад.
-    await clickText('Result', 'К кампании');
+    // 4. Итог → К кампании (после поражения кнопка — «Кампания», T1-07) → Главная → Герои → герой → назад.
+    await clickText('Result', (await hasText('Result', 'К кампании')) ? 'К кампании' : 'Кампания');
     await waitScene('Campaign');
     await clickText('Campaign', 'ГЛАВНАЯ');
     await waitScene('Home');

@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 import { GAME } from '../content';
-import { autoNextStage, describeEvents, dropStaleJobReady, firstJobChangeReady, jobChangeReadyCount, formatNumber, itemStatsText, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
+import { autoNextStage, decimal, defeatAdvice, describeEvents, dropStaleJobReady, expBankNote, firstJobChangeReady, jobChangeReadyCount, formatNumber, itemStatsText, keyEventsFirst, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
 import type { BattleResult, Side } from '../../core';
 import { GAME_W } from '../layout';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
-import { button, panel, progressBar, text } from '../ui';
+import { button, panel, progressBar, ScrollArea, text } from '../ui';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
@@ -13,8 +13,12 @@ import { badge, portrait, unitTint } from '../screen';
 import type { JobChangeData } from './JobChangeScene';
 import { skillIcon } from '../skillIcons';
 import { playStory, startStageBattle } from '../dialogue';
+import { chapterLastStage } from '../storyView';
+import { startChapterDone } from './ChapterDoneScene';
 
-const MAX_EVENT_LINES = 5;
+/** Метка в данных итогов (ResultData.stage): «Глава пройдена» уже показан из этих итогов. */
+type ShownMark = { chapterDoneShown?: boolean };
+
 /** Шаг строки события, минимальная высота строки таблицы, центр строки «Авто: следующий этап». */
 const EVENT_LINE = 42;
 const ROW_MIN = 56;
@@ -24,8 +28,12 @@ const BOLD_OUTLINE = { fontStyle: 'bold', ...OUTLINE } as const;
 
 /** Высота таблицы итогов (две стороны: заголовок, шапка, строки) при минимальной высоте строки. */
 function tableMinHeight(units: number, compact: boolean): number {
-  return (compact ? 2 * (40 + 38 + 10) : 2 * (55 + 50 + 30)) + units * ROW_MIN;
+  return 2 * (TITLE_GAP(compact) + HEAD_GAP(compact) + SIDE_GAP(compact)) + units * ROW_MIN;
 }
+/** Отступы таблицы: заголовок стороны → шапка колонок → верх первой строки; после строк стороны. */
+const TITLE_GAP = (compact: boolean) => (compact ? 40 : 55);
+const HEAD_GAP = (compact: boolean) => (compact ? 24 : 34);
+const SIDE_GAP = (compact: boolean) => (compact ? 34 : 50);
 
 export class ResultScene extends Phaser.Scene {
   /** R: идущий обратный отсчёт авто-прохождения (null — нет). */
@@ -33,6 +41,8 @@ export class ResultScene extends Phaser.Scene {
   /** Низ таблицы итогов и верх строки «Авто» (для e2e-проверки раскладки). */
   tableEnd = 0;
   autoTop = Infinity;
+  /** Сколько строк событий на экране (e2e: ничего не спрятано). */
+  eventLines = 0;
 
   constructor() {
     super('Result');
@@ -60,7 +70,7 @@ export class ResultScene extends Phaser.Scene {
     // Под этапом кампании — строка «Авто: следующий этап» (R), таблица заканчивается выше.
     const tableBottom = stage ? AUTO_Y - TOUCH / 2 - SP.s : 1700;
     const where = tower ? `Башня, этаж ${tower.floor} · ` : stage?.skipped ? 'Бой пропущен · ' : '';
-    text(this, GAME_W / 2, y, `${where}${reason} · ${r.duration.toFixed(1)} с`, FS.small, C.muted, OUTLINE);
+    text(this, GAME_W / 2, y, `${where}${reason} · ${decimal(r.duration, 1)} с`, FS.small, C.muted, OUTLINE);
     y += 60;
 
     const outcome = stage?.outcome ?? tower?.outcome;
@@ -70,7 +80,10 @@ export class ResultScene extends Phaser.Scene {
       if (rewards && rewards.type === 'rewards') {
         text(this, GAME_W / 2, y, `Награда: золото +${rewards.gold} · опыт +${rewards.jobExp} каждому`, FS.body, C.gold, BOLD_OUTLINE);
       } else {
-        text(this, GAME_W / 2, y, tower ? 'Этаж не взят. Усильте отряд и попробуйте снова.' : 'Награды нет. Прокачайте героев или смените профессию.', FS.small, C.enemy, OUTLINE);
+        // T1-07: совет по делу (вещи, профессия — только если доступна, расстановка, прокачка).
+        const advice = tower ? 'Этаж не взят. Усильте отряд и попробуйте снова.' : `Награды нет. ${defeatAdvice(session.save, GAME).text}`;
+        text(this, GAME_W / 2, y, advice, FS.small, C.enemy, { ...OUTLINE, wordWrap: { width: 980 } });
+        if (!tower) y += 20;
       }
       y += 55;
       // K6: выпавшие предметы — цветом редкости.
@@ -80,18 +93,31 @@ export class ResultScene extends Phaser.Scene {
         this.tweens.add({ targets: t, scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
         y += 50;
       }
-      // S: строк событий столько, чтобы таблица при минимальной высоте строки влезла до низа (не наезжала на «Авто»).
+      // T1-09: все события, ключевые (новый герой, смена профессии, навыки, уровни) — первыми. Не влезают до таблицы —
+      // список событий прокручивается пальцем, ничего не прячется под «…и ещё N».
+      const lines = keyEventsFirst(dropStaleJobReady(describeEvents(events, outcome.save, GAME), session.save, GAME));
+      // T1-02: опыт на максимуме профессии копится в запас — подсказать сменить профессию (полон — предупредить).
+      const bank = expBankNote(session.save, GAME);
+      const rows: { line: string; hot: boolean; warn?: boolean }[] = lines.map((line) => ({ line, hot: line.startsWith('Смена профессии') || line.startsWith('Новый герой') }));
+      if (bank) rows.splice(rows.findIndex((x) => !x.hot) < 0 ? rows.length : rows.findIndex((x) => !x.hot), 0, { line: bank.text, hot: bank.full, warn: bank.full });
       const room = tableBottom - y - tableMinHeight(r.units.length, compact) - 15;
-      const maxLines = Phaser.Math.Clamp(Math.floor(room / EVENT_LINE), 1, MAX_EVENT_LINES);
-      // После смены профессии экран итогов открывается снова: «доступна смена профессии» уже неактуальна.
-      const lines = dropStaleJobReady(describeEvents(events, outcome.save, GAME), session.save, GAME);
-      const shown = lines.slice(0, maxLines);
-      if (lines.length > shown.length) shown[shown.length - 1] = `…и ещё ${lines.length - shown.length + 1}`;
-      for (const line of shown) {
-        const hot = line.startsWith('Смена профессии');
-        text(this, GAME_W / 2, y, line, hot ? FS.body : FS.small, hot ? C.gold : C.success, hot ? BOLD_OUTLINE : OUTLINE);
-        y += EVENT_LINE;
+      const fitLines = Math.max(2, Math.floor(room / EVENT_LINE));
+      const drawRow = (x: { line: string; hot: boolean; warn?: boolean }, ly: number) =>
+        text(this, GAME_W / 2, ly, x.line, x.hot ? FS.body : FS.small, x.warn ? C.warning : x.hot ? C.gold : C.success, x.hot ? BOLD_OUTLINE : OUTLINE);
+      if (rows.length <= fitLines) {
+        for (const x of rows) {
+          drawRow(x, y);
+          y += EVENT_LINE;
+        }
+      } else {
+        const areaTop = y - EVENT_LINE / 2;
+        const area = new ScrollArea(this, areaTop, areaTop + fitLines * EVENT_LINE);
+        rows.forEach((x, i) => area.add(drawRow(x, EVENT_LINE * (i + 0.5))));
+        area.setContentHeight(rows.length * EVENT_LINE);
+        text(this, GAME_W - 70, y + (fitLines - 0.5) * EVENT_LINE, '⇅', FS.small, C.muted, OUTLINE);
+        y += fitLines * EVENT_LINE;
       }
+      this.eventLines = rows.length;
       y += 15;
     }
 
@@ -106,9 +132,10 @@ export class ResultScene extends Phaser.Scene {
     const fs = compact ? FS.caption : FS.small;
     for (const side of ['A', 'B'] as const) {
       text(this, GAME_W / 2, y, side === 'A' ? 'Ваш отряд' : 'Противник', compact ? FS.body : FS.h3, side === 'A' ? C.success : C.enemy, BOLD_OUTLINE);
-      y += compact ? 40 : 55;
+      y += TITLE_GAP(compact);
       heads.forEach((h, i) => text(this, cols[i], y, h, FS.caption, C.muted));
-      y += compact ? 38 : 50;
+      // T3-03: строки начинаются ниже шапки на HEAD_GAP — рамка MVP (строка любой высоты) не наезжает на подписи колонок.
+      y += HEAD_GAP(compact) + row / 2;
       r.units
         .filter((x) => x.side === side)
         .forEach((u, i) => {
@@ -141,7 +168,7 @@ export class ResultScene extends Phaser.Scene {
           text(this, cols[5], y, rep.alive ? '✓' : '✗', fs, rep.alive ? C.success : C.enemy, { fontStyle: 'bold' });
           y += row;
         });
-      y += compact ? 10 : 30;
+      y += SIDE_GAP(compact) - row / 2;
     }
     /** Низ таблицы — для e2e (таблица не должна наезжать на строку «Авто»). */
     this.tableEnd = y;
@@ -156,10 +183,22 @@ export class ResultScene extends Phaser.Scene {
     if (stage) {
       const next = win ? nextOpenStage(session.save, stage.stageId, GAME) : null;
       const bw = 330;
+      const retry = () => this.scene.start('Battle', { mode: 'stage', stageId: stage.stageId });
+      if (!win) {
+        // T1-07: после поражения — путь к отряду и героям, а не только «Повторить» тем же составом.
+        const w4 = 250;
+        const xs = [0, 1, 2, 3].map((i) => GAME_W / 2 + (i - 1.5) * (w4 + 12));
+        button(this, xs[0], 1830, w4, 130, 'k:buttonLong_beige', 'Кампания', () => this.scene.start('Campaign'), FS.h3);
+        button(this, xs[1], 1830, w4, 130, 'ui_btn_secondary', 'Отряд', () => this.scene.start('Stage', { stageId: stage.stageId }), FS.h3);
+        button(this, xs[2], 1830, w4, 130, 'ui_btn_secondary', 'Герои', () => this.scene.start('Heroes'), FS.h3);
+        button(this, xs[3], 1830, w4, 130, 'ui_btn_primary', 'Повторить', retry, FS.h3);
+        this.autoRow(stage.stageId, win)();
+        return;
+      }
       button(this, 190, 1830, bw, 130, 'k:buttonLong_beige', 'К кампании', () => this.scene.start('Campaign'), FS.h3);
-      button(this, 540, 1830, bw, 130, 'ui_btn_secondary', 'Повторить', () => this.scene.start('Battle', { mode: 'stage', stageId: stage.stageId }), FS.h3);
+      button(this, 540, 1830, bw, 130, 'ui_btn_secondary', 'Повторить', retry, FS.h3);
       // Кто-то дорос до смены профессии — главная кнопка ведёт туда (по всем готовым героям подряд), а не дальше.
-      const ready = win ? firstJobChangeReady(session.save, GAME) : undefined;
+      const ready = firstJobChangeReady(session.save, GAME);
       if (ready) {
         // После смены профессии игрок возвращается сюда же; если готов ещё кто-то — снова эта кнопка (со счётчиком).
         const from = { to: 'Result', data: this.sys.settings.data };
@@ -172,9 +211,19 @@ export class ResultScene extends Phaser.Scene {
         if (!next) nextBtn.container.setAlpha(0.4).disableInteractive();
       }
       const beginAuto = this.autoRow(stage.stageId, win);
-      // Сюжет после первой победы на этапе — поверх итогов; авто-отсчёт — после него (в авто-режиме строки листаются сами).
-      const firstClear = win && stage.outcome.events.some((e) => e.type === 'stageCleared' && e.firstTime);
-      playStory(this, { type: 'afterStage', stageId: stage.stageId, firstClear }, beginAuto, { auto: autoAdvance.on });
+      // Сюжет после первой победы на этапе — поверх итогов; авто-отсчёт — после него (в авто-режиме строки листаются
+      // сами, медленно; финал главы — только касанием).
+      const firstClear = stage.outcome.events.some((e) => e.type === 'stageCleared' && e.firstTime);
+      const stageInfo = GAME.content.stages.find((x) => x.id === stage.stageId);
+      // T1-03: первая победа над боссом главы — после финальной сцены экран «Глава пройдена» (ровно один раз:
+      // метка в данных сцены — при возврате на итоги, например после смены профессии, он не повторяется).
+      const chapterDone = firstClear && !!stageInfo && chapterLastStage(stageInfo.chapter, GAME)?.id === stage.stageId && !(stage as ShownMark).chapterDoneShown;
+      playStory(this, { type: 'afterStage', stageId: stage.stageId, firstClear }, () => {
+        if (chapterDone && stageInfo) {
+          (stage as ShownMark).chapterDoneShown = true;
+          startChapterDone(this, { chapterId: stageInfo.chapter });
+        } else beginAuto();
+      }, { auto: autoAdvance.on });
       return;
     }
 
@@ -239,7 +288,7 @@ export class ResultScene extends Phaser.Scene {
       const tick = () => {
         elapsed += STEP;
         const left = Math.max(0, AUTO_DELAY_MS - elapsed);
-        status.setText(`Этап ${next.globalIndex + 1} через ${(left / 1000).toFixed(1)} с\nкоснитесь экрана — отмена`).setColor(C.gold);
+        status.setText(`Этап ${next.globalIndex + 1} через ${decimal(left / 1000, 1)} с\nкоснитесь экрана — отмена`).setColor(C.gold);
         fill.width = fullW * (1 - left / AUTO_DELAY_MS);
         if (left > 0) return;
         cancel('');

@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { markHint } from '../hints';
-import { actChangeJob, availableJobChanges, type HeroState } from '../../core';
+import { actChangeJob, arrangeSquad, availableJobChanges, misplacedInFront, type HeroState } from '../../core';
 import { CONTENT, GAME } from '../content';
-import { heroSprite, jobChangeSkills, otherJobChangeReady, ROLE_NAMES, statsLine } from '../flow';
+import { heroSprite, jobChangeSkills, jobLevelText, otherJobChangeReady, ROLE_NAMES, statsLine } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
@@ -38,6 +38,8 @@ export class JobChangeScene extends Phaser.Scene {
   private from!: JobChangeFrom;
   /** Показ новой профессии открыт (для e2e и защиты от повторного выбора). */
   revealing = false;
+  /** T1-20: отряд переставлен кнопкой «Переставить» на показе. */
+  private rearranged = false;
 
   constructor() {
     super('JobChange');
@@ -46,6 +48,7 @@ export class JobChangeScene extends Phaser.Scene {
   create(data: JobChangeData): void {
     this.from = data.from ?? { to: 'Hero', data: { heroId: data.heroId } };
     this.revealing = false;
+    this.rearranged = false;
     const hero = session.save.heroes.find((h) => h.id === data.heroId);
     const options = hero ? availableJobChanges(hero, GAME) : [];
     // Профессию уже сменили (или герой не дорос) — этот экран ему не нужен: сразу назад.
@@ -56,23 +59,31 @@ export class JobChangeScene extends Phaser.Scene {
     markHint('job_change');
     screen(this, 'Смена профессии', null, { to: this.from.to, data: this.from.data });
     const reset = GAME.progression.jobChange.resetJobLevel;
+    // T1-10: для кого выбор — портрет и имя героя крупно (в цепочке смены профессий видно, что герой сменился).
+    const hy = CONTENT_TOP + 60;
+    card(this, 110, hy, 130, 130, true);
+    portrait(this, 110, hy, portraitKey(heroSprite(hero, GAME)), 110);
+    ellipsize(text(this, 200, hy - 26, `Профессия для: ${hero.name}`, FS.h2, SKIN.goldLight, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5), 840).setName('jobChangeHero');
+    // Пояснение — до двух строк (перенос вместо многоточия).
     text(
       this,
-      GAME_W / 2,
-      CONTENT_TOP + 50,
-      `${hero.name}: ${CONTENT.jobs[hero.job]?.name ?? hero.job}, джоб ${hero.jobLevel}.` +
+      200,
+      hy + 4,
+      `${CONTENT.jobs[hero.job]?.name ?? hero.job}, ${jobLevelText(hero.jobLevel).toLowerCase()}.` +
         (reset ? ' Уровень начнётся с 1.' : '') +
         (GAME.progression.keepSkillsOnJobChange ? ' Навыки остаются.' : ''),
-      FS.body,
+      FS.caption,
       C.muted,
-      { wordWrap: { width: 1000 }, stroke: C.stroke, strokeThickness: 3 },
-    );
+      { stroke: C.stroke, strokeThickness: 3, align: 'left', wordWrap: { width: 840 } },
+    )
+      .setOrigin(0, 0)
+      .setMaxLines(2);
 
     // Сетка вариантов (до 3 в ряд) и подробности выбранного ниже — как выбор героя в AFK Arena.
     const cols = Math.min(3, options.length);
     const tileW = 320;
     const tileH = 250;
-    const top = CONTENT_TOP + 120;
+    const top = CONTENT_TOP + 145;
     this.detail = this.add.container(0, 0);
     this.tiles = [];
     options.forEach((jobId, i) => {
@@ -139,7 +150,7 @@ export class JobChangeScene extends Phaser.Scene {
       const ic = add(this.add.image(106, y + 18, skillIcon(this, CONTENT.skills[sk.skill])).setDisplaySize(40, 40));
       if (!now) ic.setAlpha(0.6);
       add(text(this, 140, y, CONTENT.skills[sk.skill]?.name ?? sk.skill, FS.small, now ? C.ink : C.inkMuted, { fontStyle: now ? 'bold' : 'normal' }).setOrigin(0, 0));
-      add(text(this, 990, y, now ? 'сразу' : `джоб ${sk.jobLevel}`, FS.caption, now ? C.inkSuccess : C.inkMuted).setOrigin(1, 0));
+      add(text(this, 990, y, now ? 'сразу' : `ур. ${sk.jobLevel}`, FS.caption, now ? C.inkSuccess : C.inkMuted).setOrigin(1, 0));
       y += 48;
     }
     this.area.setContentHeight(y + 10);
@@ -194,10 +205,27 @@ export class JobChangeScene extends Phaser.Scene {
     });
     const title = text(this, cx, cy + 110, job?.name ?? hero.job, FS.hero + 16, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 });
     const sub = text(this, cx, cy + 190, `${hero.name} · ${ROLE_NAMES[job?.role ?? ''] ?? ''}`, FS.h3, SKIN.cream, { stroke: C.stroke, strokeThickness: 5 });
-    const skillLine = skills.length ? `Новые навыки: ${skills.join(', ')}` : 'Навыки откроются с ростом джоба';
+    const skillLine = skills.length ? `Новые навыки: ${skills.join(', ')}` : 'Навыки откроются с ростом уровня профессии';
     const sk = text(this, cx, cy + 270, skillLine, FS.body, C.success, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5, wordWrap: { width: 900 }, lineSpacing: 6 });
     const hint = text(this, cx, GAME_H - 170, 'Коснитесь, чтобы продолжить', FS.small, SKIN.creamDim, { stroke: C.stroke, strokeThickness: 4 });
     layer.add([title, sub, sk, hint]);
+    // T1-20: стрелок/лекарь остался во фронте — предложить переставить отряд по ролям (танки и ближний бой вперёд).
+    const misplaced = misplacedInFront(session.save, GAME).includes(hero.id);
+    if (misplaced) {
+      const warn = text(this, cx, GAME_H - 420, `${hero.name} стоит во фронте — дальнему бою и лекарю место в тылу`, FS.small, C.warning, {
+        fontStyle: 'bold',
+        stroke: C.stroke,
+        strokeThickness: 5,
+        wordWrap: { width: 940 },
+      });
+      const move = button(this, cx, GAME_H - 300, 520, 120, 'ui_btn_primary', 'Переставить', () => {
+        commit({ ...session.save, squad: arrangeSquad(session.save, GAME) });
+        this.rearranged = true;
+        leave();
+      }, FS.h2);
+      move.container.setName('rearrangeBtn');
+      layer.add([warn, move.container]);
+    }
     title.setScale(0.4).setAlpha(0);
     this.tweens.add({ targets: title, scale: 1, alpha: 1, duration: 450, delay: 150, ease: 'Back.easeOut' });
     for (const [i, o] of [sub, sk].entries()) {
@@ -239,7 +267,8 @@ export class JobChangeScene extends Phaser.Scene {
     shade.on('pointerup', () => {
       if (performance.now() - opened >= REVEAL_TAP_LOCK_MS) leave();
     });
-    const timer = window.setTimeout(leave, REVEAL_MS);
+    // С предложением переставить отряд показ сам не закрывается — игрок успеет выбрать.
+    const timer = misplaced ? 0 : window.setTimeout(leave, REVEAL_MS);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => window.clearTimeout(timer));
   }
 
@@ -247,7 +276,10 @@ export class JobChangeScene extends Phaser.Scene {
   private finish(hero: HeroState): void {
     // Короткий тост посреди экрана: навыки уже показаны, а кнопку «Ещё герой готов…» (сверху или снизу) он не закрывает.
     const more = otherJobChangeReady(session.save, GAME, hero.id);
-    const msg = `${hero.name} — теперь ${CONTENT.jobs[hero.job]?.name ?? hero.job}` + (more ? `\nЕщё готов к профессии: ${more.name}` : '');
+    const msg =
+      `${hero.name} — теперь ${CONTENT.jobs[hero.job]?.name ?? hero.job}` +
+      (this.rearranged ? '\nОтряд переставлен: ближний бой впереди, дальний и лекари в тылу' : '') +
+      (more ? `\nЕщё готов к профессии: ${more.name}` : '');
     const target = this.from.to;
     this.scene.start(target, this.from.data);
     const sc = this.scene.get(target);

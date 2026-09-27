@@ -123,3 +123,39 @@ export function autoFormation(save: SaveState, ctx: FeatureContext & { equipment
   for (const h of back) place(h.id, [4, 3, 2, 1, 0]);
   return squad;
 }
+
+/**
+ * P10 (T1-20). Переставить тех же героев отряда по ролям (состав не меняется): «передние» (танки, ближний бой)
+ * с первого слота, «задние» (лекари, затем дальний бой) — с последнего, как в autoFormation. Внутри группы —
+ * прежний порядок в отряде. Возвращает новый squad.
+ */
+export function arrangeSquad(save: SaveState, ctx: GameContext): (string | null)[] {
+  const members = save.squad.flatMap((id) => {
+    const hero = id === null ? undefined : save.heroes.find((h) => h.id === id);
+    return hero ? [{ id: hero.id, rank: formationRank(hero, ctx) }] : [];
+  });
+  const squad: (string | null)[] = Array(SQUAD_SIZE).fill(null);
+  const place = (id: string, order: readonly number[]) => {
+    squad[order.find((i) => squad[i] === null)!] = id;
+  };
+  // Array.prototype.sort стабильна: при равном ранге остаётся порядок отряда.
+  for (const h of members.filter((m) => m.rank <= 1).sort((a, b) => a.rank - b.rank)) place(h.id, [0, 1, 2, 3, 4]);
+  for (const h of members.filter((m) => m.rank >= 2).sort((a, b) => b.rank - a.rank)) place(h.id, [4, 3, 2, 1, 0]);
+  return squad;
+}
+
+/**
+ * P10 (T1-20). Стрелки и лекари, стоящие в передней линии, хотя в отряде есть кому стоять впереди
+ * (танк или боец ближнего боя) и arrangeSquad уводит их в тыл. [] — расстановка в порядке.
+ */
+export function misplacedInFront(save: SaveState, ctx: GameContext): string[] {
+  const rank = (id: string | null) => {
+    const hero = id === null ? undefined : save.heroes.find((h) => h.id === id);
+    return hero ? formationRank(hero, ctx) : -1;
+  };
+  if (!save.squad.some((id) => rank(id) >= 0 && rank(id) <= 1)) return [];
+  const arranged = arrangeSquad(save, ctx);
+  return FRONT_SLOTS.map((i) => save.squad[i]).filter(
+    (id): id is string => id !== null && rank(id) >= 2 && !FRONT_SLOTS.some((i) => arranged[i] === id),
+  );
+}
