@@ -17,8 +17,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "lunatic",
-    "tint": "#9c8468",
+    "sprite": "smokie",
     "hitFx": "fx_hit"
   }
 }
