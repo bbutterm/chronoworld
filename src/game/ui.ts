@@ -646,7 +646,9 @@ export function toast(scene: Phaser.Scene, message: string, color: string = C.ti
   const w = GAME_W;
   const t = text(scene, 0, 0, message, FS.h3, color, { wordWrap: { width: w - 160 }, lineSpacing: 6 });
   const bgH = t.height + 50;
-  const bg = scene.add.rectangle(0, 0, w - 100, bgH, 0x000000, 0.88).setStrokeStyle(3, 0xc8a060);
+  // MT-17: плашка по ширине текста, а не во весь экран — меньше закрывает кнопки шапки и строку под ней
+  // (касания она не ловит: кнопка под тостом нажимается).
+  const bg = scene.add.rectangle(0, 0, Math.min(w - 100, Math.max(420, t.width + 80)), bgH, 0x000000, 0.88).setStrokeStyle(3, 0xc8a060);
   const prevBottom = stack.reduce((n, e) => n + e.h + TOAST_GAP, 0);
   const c = scene.add.container(w / 2, (at === 'middle' ? top : top + prevBottom) + bgH / 2, [bg, t]).setDepth(10000).setAlpha(0);
   scene.tweens.add({ targets: c, alpha: 1, duration: 200 });
