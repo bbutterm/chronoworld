@@ -19,6 +19,7 @@ import { addThemeBackground, themeOfBattle } from '../backdrops';
 import { sfx } from '../audio';
 import { glow, slowRays, sparkBurst } from '../decor';
 import { showUnlockBanners } from '../unlockBanner';
+import { heroCardIcon, rarityColor, rarityName } from '../heroCard';
 
 /** Метка в данных итогов (ResultData.stage): «Глава пройдена» уже показан из этих итогов. */
 type ShownMark = { chapterDoneShown?: boolean };
@@ -113,7 +114,16 @@ export class ResultScene extends Phaser.Scene {
       }
       // T1-09: все события, ключевые (новый герой, Таверна, вознесение, навыки, уровни) — первыми. Не влезают до таблицы —
       // список событий прокручивается пальцем, ничего не прячется под «…и ещё N».
-      const lines = keyEventsFirst(describeEvents(events, outcome.save, GAME));
+      // Карты героя (копии для вознесения): мини-карта с лицом героя в рамке редкости и подпись цветом редкости.
+      for (const e of events) {
+        if (e.type !== 'heroCard') continue;
+        const label = text(this, GAME_W / 2 + 30, y, `Карта героя: ${e.name} (${rarityName(e.rarity).toLowerCase()}) — копия для вознесения`, FS.body, rarityColor(e.rarity), BOLD_OUTLINE);
+        ellipsize(label, 900);
+        const ic = heroCardIcon(this, label.x - label.width / 2 - 40, y, 64, e.rarity, e.templateId).setName('resultHeroCard');
+        this.tweens.add({ targets: [label, ic], scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
+        y += 70;
+      }
+      const lines = keyEventsFirst(describeEvents(events, outcome.save, GAME).filter((l) => !l.startsWith('Карта героя:')));
       const rows: { line: string; hot: boolean; warn?: boolean }[] = lines.map((line) => ({ line, hot: line.startsWith('Новый герой') || line.startsWith('Открыта Таверна') }));
       // Опыт копится в общем запасе — подсказать «Улучшить», если хватает на уровень.
       if (levelUpReady(session.save, GAME).length) rows.push({ line: `Опыт в запасе: ${formatNumber(session.save.resources.heroExp)} — «Герои» → «Улучшить»`, hot: false });

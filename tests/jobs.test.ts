@@ -8,7 +8,7 @@ const jobs = ctx.content.jobs;
 const DEFAULT_SQUAD = ['guard', 'warrior', 'archer', 'mage', 'priest'];
 
 const TIER1 = ['swordman', 'acolyte', 'mage', 'archer', 'thief', 'merchant'];
-const TIER2 = ['knight', 'crusader', 'priest', 'monk', 'wizard', 'sage', 'hunter', 'bard', 'assassin', 'rogue', 'blacksmith', 'alchemist'];
+const TIER2 = ['knight', 'crusader', 'priest', 'monk', 'wizard', 'sage', 'hunter', 'bard', 'dancer', 'assassin', 'rogue', 'blacksmith', 'alchemist'];
 
 /** Цепочка профессий от Новичка до jobId (по первому from). */
 function path(jobId: string): JobDef[] {
@@ -18,7 +18,7 @@ function path(jobId: string): JobDef[] {
 }
 
 describe('профессии', () => {
-  it('загружаются все 19 профессий с нужными tier', () => {
+  it('загружаются все 20 профессий с нужными tier (герои v2: + Танцовщица)', () => {
     expect(Object.keys(jobs).sort()).toEqual(['novice', ...TIER1, ...TIER2].sort());
     expect(jobs.novice.tier).toBe(0);
     for (const id of TIER1) expect(jobs[id]).toMatchObject({ tier: 1, from: ['novice'] });

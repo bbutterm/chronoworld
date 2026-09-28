@@ -31,24 +31,55 @@
       "skill": "job_thief_sand_attack"
     }
   ],
-  "forms": [
+  "branches": [
     {
-      "rarity": "purple",
-      "job": "rogue",
+      "job": "assassin",
       "role": "damage",
       "statMods": {
-        "hp": 1.25,
-        "atk": 1.25,
-        "def": 1.2
+        "hp": 1.1,
+        "atk": 1.35,
+        "def": 1,
+        "spd": 1.1
       },
       "skills": [
         {
           "level": 1,
-          "skill": "job_thief_steal"
+          "skill": "job_assassin_sonic_blow"
         },
         {
           "level": 10,
+          "skill": "job_assassin_katar_mastery"
+        },
+        {
+          "level": 30,
+          "skill": "job_thief_double_attack"
+        },
+        {
+          "level": 50,
+          "skill": "job_assassin_meteor_assault"
+        }
+      ],
+      "promotion": "Гильдия Морока предлагает Дорну катары вместо долга. Он соглашается — на своих условиях.",
+      "visual": {
+        "sprite": "assassin_m"
+      }
+    },
+    {
+      "job": "rogue",
+      "role": "tank",
+      "statMods": {
+        "hp": 1.35,
+        "atk": 1.1,
+        "def": 1.35
+      },
+      "skills": [
+        {
+          "level": 1,
           "skill": "job_rogue_raid"
+        },
+        {
+          "level": 10,
+          "skill": "job_rogue_plagiarism"
         },
         {
           "level": 30,

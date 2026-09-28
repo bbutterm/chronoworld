@@ -1,6 +1,6 @@
 import type { FeatureEvent } from '../features/config';
 import { addHeroExp } from '../heroes/level';
-import { addShards, shardTarget } from '../heroes/shards';
+import { cardRng, cardSeed, grantHeroCards, rollHeroCards } from '../heroes/cardDrops';
 import type { GameContext } from '../progression/types';
 import type { SaveState } from '../save/schema';
 import { ACHIEVEMENT_COUNTERS, type AchievementCounter, type AchievementDef, type MetaContext, type MetaRewards } from './config';
@@ -38,10 +38,10 @@ export function syncAchievementCounters(save: SaveState): SaveState {
 }
 
 /**
- * Выдать награду K9/K10 (золото, гемы, опыт в пул, осколки «отстающему» сюжетному герою) — общая часть
- * claimAchievement и claimExpedition. События rewards / gems / shards.
+ * Выдать награду K9/K10 (золото, гемы, опыт в пул, карты случайных героев — бросок от seed) — общая часть
+ * claimAchievement и claimExpedition. События rewards / gems / heroCard. rewards — что реально выдано (карты — целые).
  */
-export function grantMetaRewards(save: SaveState, r: MetaRewards, ctx: GameContext, events: MetaEvent[]): SaveState {
+export function grantMetaRewards(save: SaveState, r: MetaRewards, ctx: GameContext, events: MetaEvent[], seed: number): { save: SaveState; rewards: MetaRewards } {
   let next: SaveState = addHeroExp(
     {
       ...save,
@@ -52,12 +52,15 @@ export function grantMetaRewards(save: SaveState, r: MetaRewards, ctx: GameConte
   );
   if (r.gold > 0 || r.jobExp > 0) events.push({ type: 'rewards', gold: r.gold, heroExp: r.jobExp });
   if (r.gems > 0) events.push({ type: 'gems', amount: r.gems });
-  const target = r.shards > 0 ? shardTarget(next, ctx) : null;
-  if (target) {
-    next = addShards(next, target, r.shards);
-    events.push({ type: 'shards', templateId: target, count: r.shards });
-  }
-  return next;
+  const { heroCards: _c, ...base } = r;
+  const cards = rollHeroCards(r.heroCards, cardRng(seed), ctx);
+  if (!cards.length) return { save: next, rewards: base };
+  const g = grantHeroCards(next, cards, ctx);
+  next = g.save;
+  events.push(...g.events);
+  const blue = cards.filter((c) => c.rarity === 'blue').length;
+  const purple = cards.filter((c) => c.rarity === 'purple').length;
+  return { save: next, rewards: { ...base, heroCards: { ...(blue ? { blue } : {}), ...(purple ? { purple } : {}) } } };
 }
 
 export interface AchievementView extends AchievementDef {
@@ -80,7 +83,7 @@ export type MetaEvent = FeatureEvent | { type: 'achievementClaimed'; achievement
 
 /**
  * K10. Получить награду достижения (одноразово). Золото и гемы — в ресурсы, jobExp — в общий пул опыта,
- * shards — осколки «отстающему» сюжетному герою.
+ * heroCards — карты случайных героев (бросок от seed сохранения и id достижения).
  * MetaError: unknown_achievement, achievement_not_done, achievement_already_claimed.
  */
 export function claimAchievement(save: SaveState, id: string, ctx: MetaContext): { save: SaveState; rewards: MetaRewards; events: MetaEvent[] } {
@@ -90,8 +93,8 @@ export function claimAchievement(save: SaveState, id: string, ctx: MetaContext):
   const value = save.achievements.counters[a.counter] ?? 0;
   if (value < a.target) throw new MetaError('achievement_not_done', `Достижение «${a.name}» ещё не выполнено (${value}/${a.target})`);
   const events: MetaEvent[] = [{ type: 'achievementClaimed', achievementId: a.id }];
-  const next = grantMetaRewards({ ...save, achievements: { ...save.achievements, claimed: [...save.achievements.claimed, a.id] } }, a.rewards, ctx, events);
-  return { save: syncAchievementCounters(next), rewards: { ...a.rewards }, events };
+  const g = grantMetaRewards({ ...save, achievements: { ...save.achievements, claimed: [...save.achievements.claimed, a.id] } }, a.rewards, ctx, events, cardSeed('achievement', save.createdAt, a.id));
+  return { save: syncAchievementCounters(g.save), rewards: g.rewards, events };
 }
 
 /**
@@ -101,7 +104,7 @@ export function claimAchievement(save: SaveState, id: string, ctx: MetaContext):
  */
 export function claimAllAchievements(save: SaveState, ctx: MetaContext): { save: SaveState; rewards: MetaRewards; events: MetaEvent[]; claimed: string[] } {
   let next = save;
-  const rewards: MetaRewards = { gold: 0, gems: 0, jobExp: 0, shards: 0 };
+  const all: MetaRewards[] = [];
   const events: MetaEvent[] = [];
   const claimed: string[] = [];
   for (;;) {
@@ -110,13 +113,25 @@ export function claimAllAchievements(save: SaveState, ctx: MetaContext): { save:
     for (const a of ready) {
       const r = claimAchievement(next, a.id, ctx);
       next = r.save;
-      rewards.gold += r.rewards.gold;
-      rewards.gems += r.rewards.gems;
-      rewards.jobExp += r.rewards.jobExp;
-      rewards.shards += r.rewards.shards;
+      all.push(r.rewards);
       events.push(...r.events);
       claimed.push(a.id);
     }
   }
-  return { save: next, rewards, events, claimed };
+  return { save: next, rewards: sumMetaRewards(all), events, claimed };
+}
+
+/** Сложить награды K9/K10 (карты героя — сумма выпавших по редкостям). */
+export function sumMetaRewards(list: readonly MetaRewards[]): MetaRewards {
+  const out: MetaRewards = { gold: 0, gems: 0, jobExp: 0 };
+  let blue = 0;
+  let purple = 0;
+  for (const r of list) {
+    out.gold += r.gold;
+    out.gems += r.gems;
+    out.jobExp += r.jobExp;
+    blue += r.heroCards?.blue ?? 0;
+    purple += r.heroCards?.purple ?? 0;
+  }
+  return blue || purple ? { ...out, heroCards: { ...(blue ? { blue } : {}), ...(purple ? { purple } : {}) } } : out;
 }

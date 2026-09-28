@@ -21,7 +21,7 @@
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["sandals", "shoes", "cotton_shirt", "adventurers_suit", "bandana", "cap"] },
         { "kind": "gems", "chance": 0.12, "count": 3 },
-        { "kind": "shards", "chance": 0.06, "count": 1 }
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.002, "count": 1 }
       ]
     },
     {
@@ -37,7 +37,7 @@
         { "kind": "item", "chance": 0.01, "items": ["knife", "dagger", "bow", "sword"] },
         { "kind": "item", "chance": 0.003, "items": ["composite_bow", "gladius"] },
         { "kind": "gems", "chance": 0.12, "count": 3 },
-        { "kind": "shards", "chance": 0.08, "count": 1 }
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.003, "count": 1 }
       ]
     },
     {
@@ -53,7 +53,8 @@
         { "kind": "item", "chance": 0.01, "items": ["rod", "staff", "silk_robe", "biretta"] },
         { "kind": "item", "chance": 0.002, "items": ["wizardry_staff", "saint_robe"] },
         { "kind": "gems", "chance": 0.12, "count": 3 },
-        { "kind": "shards", "chance": 0.12, "count": 1 }
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.004, "count": 1 },
+        { "kind": "heroCard", "rarity": "purple", "chance": 0.0004, "count": 1 }
       ]
     },
     {
@@ -69,7 +70,8 @@
         { "kind": "item", "chance": 0.011, "items": ["helm", "chain_mail", "boots", "greaves"] },
         { "kind": "item", "chance": 0.003, "items": ["full_plate", "crown", "sleipnir"] },
         { "kind": "gems", "chance": 0.13, "count": 3 },
-        { "kind": "shards", "chance": 0.15, "count": 1 },
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.005, "count": 1 },
+        { "kind": "heroCard", "rarity": "purple", "chance": 0.0006, "count": 1 },
         { "kind": "scrolls", "chance": 0.006, "count": 1 }
       ]
     }

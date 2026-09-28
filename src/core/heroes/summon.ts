@@ -5,11 +5,10 @@ import { heroName } from './card';
 import { summonPool } from './config';
 import { HeroError } from './errors';
 import { addHeroCard } from './roster';
-import { addShards, shardTarget } from './shards';
 import { rarityIndex, type CardRarity } from './schema';
 
 /**
- * Таверна (призыв карточек, docs/design/heroes.md, раздел 4; числа — data/summon.json). Детерминирована:
+ * Таверна (призыв героев, docs/design/heroes-v2.md, раздел 4; числа — data/summon.json). Детерминирована:
  * seed = hash(save.createdAt, save.summon.seq), seq + 1 за вызов — одно сохранение даёт одну выдачу, повторное
  * открытие экрана результат не перебрасывает (он уже в сохранении).
  */
@@ -26,8 +25,6 @@ export interface SummonResult {
   isNew: boolean;
   /** Выдана гарантом (pity) или первым ×10. */
   guaranteed: boolean;
-  /** Бонус: осколки сюжетного героя. */
-  shard?: { templateId: string; count: number };
 }
 
 /** Таверна открыта: пройден summon.unlockAfterStage. */
@@ -51,12 +48,17 @@ export interface SummonStatus {
   scrolls: number;
   costs: { single: number; ten: number };
   freeLeft: number;
-  /** Сколько призывов до гарантированной редкости (1 — следующий гарантирован). */
+  /** Сколько призывов до первого (младшего) гаранта — синей (1 — следующий гарантирован). */
   untilPity: number;
   pityRarity: CardRarity;
-  /** Первый ×10 ещё впереди — в нём будет гарантированная редкость. */
+  /** Все гаранты: редкость и сколько призывов до неё («до синей: 3», «до фиолетовой: 41»). */
+  pities: { rarity: CardRarity; until: number }[];
+  /** Шансы редкостей (для подписи «зелёный 73%, синий 25%, фиолетовый 2%»). */
+  rates: { rarity: CardRarity; chance: number }[];
+  /** Первый ×10 ещё впереди — в нём будет не меньше firstTenCount карт редкости firstTenRarity. */
   firstTenBonus: boolean;
   firstTenRarity: CardRarity;
+  firstTenCount: number;
   total: number;
   /** Можно ли сейчас: ×1 за гемы, ×10 за гемы, ×1 свитком, ×10 свитками, бесплатно. */
   can: { gems1: boolean; gems10: boolean; scroll1: boolean; scroll10: boolean; free: boolean };
@@ -67,6 +69,7 @@ export function summonStatus(save: SaveState, day: string, ctx: GameContext): Su
   const cfg = ctx.summon;
   const unlocked = summonUnlocked(save, ctx);
   const freeLeft = freeSummonsLeft(save, day, ctx);
+  const pities = cfg.pity.map((p) => ({ rarity: p.rarity as CardRarity, until: Math.max(1, p.every - pityCounter(save.summon, p.rarity)) }));
   return {
     unlocked,
     unlockAfterStage: cfg.unlockAfterStage,
@@ -74,10 +77,13 @@ export function summonStatus(save: SaveState, day: string, ctx: GameContext): Su
     scrolls: save.currency.scrolls,
     costs: { ...cfg.costs },
     freeLeft,
-    untilPity: Math.max(1, cfg.pity.every - save.summon.sincePurple),
-    pityRarity: cfg.pity.rarity,
+    untilPity: pities[0].until,
+    pityRarity: pities[0].rarity,
+    pities,
+    rates: cfg.rates.map((r) => ({ rarity: r.rarity, chance: r.chance })),
     firstTenBonus: !save.summon.firstTenDone,
     firstTenRarity: cfg.firstTen.rarity,
+    firstTenCount: cfg.firstTen.count,
     total: save.summon.total,
     can: {
       gems1: unlocked && save.currency.gems >= cfg.costs.single,
@@ -87,6 +93,11 @@ export function summonStatus(save: SaveState, day: string, ctx: GameContext): Su
       free: unlocked && freeLeft > 0,
     },
   };
+}
+
+/** Счётчик гаранта: призывов подряд без редкости rarity или выше. */
+function pityCounter(s: SaveState['summon'], rarity: 'blue' | 'purple'): number {
+  return rarity === 'purple' ? s.sincePurple : (s.sinceBlue ?? 0);
 }
 
 /** seed призыва: FNV-1a от createdAt и номера вызова. */
@@ -126,10 +137,10 @@ function rollRarity(rng: Rng, ctx: GameContext): CardRarity {
 }
 
 /**
- * Призыв count карточек (1 или 10). pay: gems — 30/270 гемов; scroll — count свитков; free — бесплатный (только ×1,
- * summon.freePerDay в день по day от UI). Каждая карточка: редкость по шансам, гарант (pity.every-я подряд без
- * pity.rarity — она), первый ×10 (последняя карта — firstTen.rarity, если её не было); шаблон — равновероятно из пула
- * редкости; с шансом storyShard.chance — ещё осколки «отстающего» сюжетного героя. Новые экземпляры — в save.heroes
+ * Призыв count героев (1 или 10). pay: gems — 30/270 гемов; scroll — count свитков; free — бесплатный (только ×1,
+ * summon.freePerDay в день по day от UI). Каждая карта: редкость по шансам, гаранты (pity: every-я подряд без
+ * этой редкости или выше — она; фиолетовый гарант старше синего), первый ×10 (последние карты добирают firstTen.count
+ * карт редкости firstTen.rarity или выше); герой — равновероятно из пула редкости. Фиолетовый из Таверны приходит без ветки («Выберите ветку!»). Новые экземпляры — в save.heroes
  * с «Новый!». HeroError: tavern_locked, bad_count, not_enough_gems, not_enough_scrolls, free_used. Чистая функция.
  */
 export function summon(
@@ -166,37 +177,43 @@ export function summon(
   const firstTen = count === 10 && !save.summon.firstTenDone;
   const results: SummonResult[] = [];
   const events: ProgressEvent[] = [];
+  const pities = [...cfg.pity].sort((x, y) => rarityIndex(y.rarity) - rarityIndex(x.rarity));
   for (let i = 0; i < count; i++) {
     let rarity = rollRarity(rng, ctx);
     let guaranteed = false;
-    if (next.summon.sincePurple + 1 >= cfg.pity.every && rarityIndex(rarity) < rarityIndex(cfg.pity.rarity)) {
-      rarity = cfg.pity.rarity;
-      guaranteed = true;
+    // Гаранты: старший (фиолетовый) первым.
+    for (const p of pities) {
+      if (pityCounter(next.summon, p.rarity) + 1 >= p.every && rarityIndex(rarity) < rarityIndex(p.rarity)) {
+        rarity = p.rarity;
+        guaranteed = true;
+        break;
+      }
     }
-    if (firstTen && i === count - 1 && !results.some((r) => rarityIndex(r.rarity) >= rarityIndex(cfg.firstTen.rarity)) && rarityIndex(rarity) < rarityIndex(cfg.firstTen.rarity)) {
-      rarity = cfg.firstTen.rarity;
-      guaranteed = true;
+    if (firstTen) {
+      const have = results.filter((r) => rarityIndex(r.rarity) >= rarityIndex(cfg.firstTen.rarity)).length;
+      if (cfg.firstTen.count - have >= count - i && rarityIndex(rarity) < rarityIndex(cfg.firstTen.rarity)) {
+        rarity = cfg.firstTen.rarity;
+        guaranteed = true;
+      }
     }
     const pool = summonPool(ctx, rarity);
     const templateId = pool[rng.int(pool.length)];
     const isNew = !next.summon.discovered.includes(templateId);
     const added = addHeroCard(next, templateId, rarity, { isNew: true });
     next = added.save;
-    next.summon = { ...next.summon, total: next.summon.total + 1, sincePurple: rarityIndex(rarity) >= rarityIndex(cfg.pity.rarity) ? 0 : next.summon.sincePurple + 1 };
+    const ri = rarityIndex(rarity);
+    next.summon = {
+      ...next.summon,
+      total: next.summon.total + 1,
+      sincePurple: ri >= rarityIndex('purple') ? 0 : next.summon.sincePurple + 1,
+      sinceBlue: ri >= rarityIndex('blue') ? 0 : (next.summon.sinceBlue ?? 0) + 1,
+    };
     const result: SummonResult = { heroId: added.hero.id, templateId, name: heroName(added.hero, ctx), rarity, isNew, guaranteed };
-    if (cfg.storyShard.count > 0 && rng.next() < cfg.storyShard.chance) {
-      const target = shardTarget(next, ctx);
-      if (target) {
-        next = addShards(next, target, cfg.storyShard.count);
-        result.shard = { templateId: target, count: cfg.storyShard.count };
-        events.push({ type: 'shards', templateId: target, count: cfg.storyShard.count });
-      }
-    }
     results.push(result);
   }
   if (count === 10) next.summon = { ...next.summon, firstTenDone: true };
   // Порядок ключей как в схеме — serialize(deserialize(x)) === x.
-  const { seq, total, sincePurple, firstTenDone, freeDay, freeUsed, welcomeGiven, discovered, ...rest } = next.summon;
-  next.summon = { seq, total, sincePurple, firstTenDone, ...(freeDay !== undefined ? { freeDay } : {}), ...(freeUsed !== undefined ? { freeUsed } : {}), welcomeGiven, discovered, ...rest };
+  const { seq, total, sincePurple, sinceBlue, firstTenDone, freeDay, freeUsed, welcomeGiven, discovered, ...rest } = next.summon;
+  next.summon = { seq, total, sincePurple, sinceBlue: sinceBlue ?? 0, firstTenDone, ...(freeDay !== undefined ? { freeDay } : {}), ...(freeUsed !== undefined ? { freeUsed } : {}), welcomeGiven, discovered, ...rest };
   return { save: next, results, events };
 }

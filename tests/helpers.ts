@@ -3,7 +3,11 @@ import type { Unit } from '../src/core';
 
 // ---------- Карточки героев (docs/design/heroes.md) ----------
 
-/** Карточка по классу — для тестов, где раньше герой задавался профессией (первые — сюжетные/призывные, вторые — фиолетовые). */
+/**
+ * Карточка по классу — для тестов, где раньше герой задавался профессией (первые — сюжетные/призывные; вторые —
+ * «герой/ветка» героев v2: фиолетовый экземпляр с этой веткой, cardHero понимает запись через «/»).
+ * Вторые профессии — те же пол и роль, что у прежних фиолетовых шаблонов (таблица миграции v7).
+ */
 export const JOB_CARD: Record<string, string> = {
   swordman: 'alan',
   archer: 'bran',
@@ -11,27 +15,30 @@ export const JOB_CARD: Record<string, string> = {
   merchant: 'greta',
   thief: 'dorn',
   mage: 'kai',
-  knight: 'seyren',
-  crusader: 'randel',
-  hunter: 'cecil',
-  bard: 'alphoccio',
-  wizard: 'kathryne',
-  sage: 'celia',
-  assassin: 'eremes',
-  rogue: 'gertie',
-  priest: 'margaretha',
-  monk: 'chen',
-  blacksmith: 'howard',
-  alchemist: 'flamel',
+  knight: 'alan/knight',
+  crusader: 'alan/crusader',
+  hunter: 'meilin/hunter',
+  bard: 'bran/bard',
+  dancer: 'meilin/dancer',
+  wizard: 'lira/wizard',
+  sage: 'lira/sage',
+  assassin: 'dorn/assassin',
+  rogue: 'zara/rogue',
+  priest: 'vika/priest',
+  monk: 'teo/monk',
+  blacksmith: 'otto/blacksmith',
+  alchemist: 'otto/alchemist',
 };
 
 /**
  * Экземпляр карточки templateId на уровне level: редкость — самая низкая, чей предел вмещает уровень (не ниже baseRarity
- * шаблона), если не задана явно. id по умолчанию — h_<шаблон>.
+ * шаблона), если не задана явно. id по умолчанию — h_<шаблон>. «герой/ветка» (alan/knight) — экземпляр с веткой второй
+ * профессии, редкость не ниже фиолетовой.
  */
 export function cardHero(ctx: GameContext, templateId: string, level = 1, opts: { id?: string; rarity?: CardRarity } = {}): HeroState {
-  const base = ctx.content.heroes[templateId]?.baseRarity ?? 'green';
-  return { id: opts.id ?? `h_${templateId}`, templateId, rarity: opts.rarity ?? rarityForLevel(ctx, level, base), level };
+  const [tid, branch] = templateId.split('/');
+  const base = branch ? 'purple' : (ctx.content.heroes[tid]?.baseRarity ?? 'green');
+  return { id: opts.id ?? `h_${tid}${branch ? `_${branch}` : ''}`, templateId: tid, rarity: opts.rarity ?? rarityForLevel(ctx, level, base), level, ...(branch ? { branch } : {}) };
 }
 
 export const cfg: CombatConfig = COMBAT;

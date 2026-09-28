@@ -8,7 +8,7 @@
   "role": "support",
   "source": "summon",
   "baseRarity": "green",
-  "maxRarity": "gold",
+  "maxRarity": "red",
   "statMods": {
     "atk": 1.15
   },
@@ -28,6 +28,70 @@
     {
       "level": 50,
       "skill": "job_acolyte_divine_protection"
+    }
+  ],
+  "branches": [
+    {
+      "job": "priest",
+      "role": "support",
+      "statMods": {
+        "hp": 1.2,
+        "atk": 1.25,
+        "def": 1.15
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_priest_impositio_manus"
+        },
+        {
+          "level": 10,
+          "skill": "job_priest_magnificat"
+        },
+        {
+          "level": 30,
+          "skill": "job_priest_magnus_exorcismus"
+        },
+        {
+          "level": 50,
+          "skill": "job_priest_lex_aeterna"
+        }
+      ],
+      "promotion": "Хор, выгнавший Тео, слушает его проповедь. Громкость пригодилась.",
+      "visual": {
+        "sprite": "priest_m"
+      }
+    },
+    {
+      "job": "monk",
+      "role": "damage",
+      "statMods": {
+        "hp": 1.2,
+        "atk": 1.3,
+        "def": 1.1
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_monk_triple_attack"
+        },
+        {
+          "level": 10,
+          "skill": "job_monk_call_spirits"
+        },
+        {
+          "level": 30,
+          "skill": "job_monk_investigate"
+        },
+        {
+          "level": 50,
+          "skill": "job_monk_asura_strike"
+        }
+      ],
+      "promotion": "Тео даёт обет молчания и сразу его нарушает — боевым кличем.",
+      "visual": {
+        "sprite": "monk_m"
+      }
     }
   ],
   "bio": "Боевой послушник: свет и благословения, лечит мало.",

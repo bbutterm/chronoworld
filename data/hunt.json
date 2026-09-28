@@ -15,9 +15,9 @@
     { "damage": 15000, "rewards": { "gold": 750, "jobExp": 150, "gems": 2 } },
     { "damage": 30000, "rewards": { "gold": 1050, "jobExp": 200, "gems": 3 } },
     { "damage": 50000, "rewards": { "gold": 1350, "jobExp": 250, "gems": 4 } },
-    { "damage": 80000, "rewards": { "gold": 1800, "jobExp": 350, "gems": 5, "shards": 1 } },
-    { "damage": 120000, "rewards": { "gold": 2250, "jobExp": 450, "gems": 6, "shards": 1, "item": "common" } },
-    { "damage": 180000, "rewards": { "gold": 3000, "jobExp": 600, "gems": 8, "shards": 2, "item": "rare" } },
-    { "damage": 260000, "rewards": { "gold": 3750, "jobExp": 750, "gems": 10, "shards": 2, "item": "epic" } }
+    { "damage": 80000, "rewards": { "gold": 1800, "jobExp": 350, "gems": 5, "heroCards": { "blue": 0.03 } } },
+    { "damage": 120000, "rewards": { "gold": 2250, "jobExp": 450, "gems": 6, "heroCards": { "blue": 0.03 }, "item": "common" } },
+    { "damage": 180000, "rewards": { "gold": 3000, "jobExp": 600, "gems": 8, "heroCards": { "blue": 0.07 }, "item": "rare" } },
+    { "damage": 260000, "rewards": { "gold": 3750, "jobExp": 750, "gems": 10, "heroCards": { "blue": 0.07, "purple": 0.01 }, "item": "epic" } }
   ]
 }

@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_sage_heavens_drive",
+  "name": "Небесный удар",
+  "description": "Земля вздымается под врагами фронта: урон (×1,6) и шанс 25% оглушить.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "cooldown": 14,
+  "castTime": 1,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.6
+    },
+    {
+      "type": "status",
+      "chance": 0.25,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import {
   actAscend,
+  activeForm,
   ascendRequirement,
+  autoChain,
   autoFodder,
   heroCard,
   heroPower,
@@ -14,20 +16,24 @@ import { formatNumber, STAT_KEYS, STAT_LABELS } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, popIn, screen } from '../screen';
 import { commit, session, today } from '../session';
-import { button, emptyState, pressable, progressBar, ScrollArea, text, toast } from '../ui';
-import { C, FS, TINT } from '../theme';
+import { button, emptyState, pressable, ScrollArea, text, toast } from '../ui';
+import { C, FS } from '../theme';
 import { sfx } from '../audio';
 import { burst, countUp, juiceOn, pulse } from '../juice';
 import { drawHeroCard, glowTexture, heroCardSize, raysTexture, rarityColor, rarityName, rarityPalette } from '../heroCard';
-import { ascendPreview, ascendReadyWith, fodderSlotLabel, fodderSlots, placeFodder, shardSources, valuableFodder } from '../heroesView';
+import { ascendPreview, ascendReadyWith, fodderSlotLabel, fodderSlots, placeFodder, copySources, valuableFodder } from '../heroesView';
+import { openBranchPicker } from '../branchPicker';
 
 const TOP = CONTENT_TOP;
+const heroReq = (hero: HeroState) => ascendRequirement(session.save, hero.id, GAME);
 const CARD_W = 290;
 const SLOT_W = 210;
 const REVEAL_DEPTH = 8500;
 
 /** Выбранный корм переживает перезапуск сцены (выбор в окне, «Авто»). */
 let chosenFor: { heroId: string; ids: string[] } | null = null;
+/** Ветка, выбранная на шаге выбора ветки (переход синий → фиолетовый), — для превью после перезапуска. */
+let branchFor: { heroId: string; job: string } | null = null;
 
 /**
  * H4 «Вознесение»: цель → результат (новая редкость, предел уровня, статы «было → стало», новые навыки, вторая
@@ -43,6 +49,8 @@ export class AscendScene extends Phaser.Scene {
 
   private heroId = '';
   private chosen: string[] = [];
+  /** Выбранная ветка (переход с выбором ветки, у героя ветки ещё нет). */
+  private branch: string | undefined;
   private slotPos: { x: number; y: number }[] = [];
 
   create(data: { heroId: string }): void {
@@ -52,7 +60,8 @@ export class AscendScene extends Phaser.Scene {
     screen(this, 'Вознесение', 'Heroes', { to: 'Hero', data: { heroId: data.heroId } });
     if (!hero || !GAME.content.heroes[hero.templateId]) return;
     const req = ascendRequirement(session.save, hero.id, GAME);
-    const prev = ascendPreview(hero, GAME);
+    this.branch = req?.branch && !hero.branch && branchFor?.heroId === hero.id && req.branches?.some((b) => b.job === branchFor!.job) ? branchFor.job : undefined;
+    const prev = ascendPreview(hero, GAME, this.branch);
     if (!req || !prev) {
       emptyState(this, GAME_W / 2, GAME_H / 2, 'Карточка на максимальной редкости — возносить некуда.');
       return;
@@ -64,8 +73,8 @@ export class AscendScene extends Phaser.Scene {
 
     this.header(hero, req, prev);
     this.changes(hero, prev);
-    if (req.fodder.length) this.fodderBlock(hero, req);
-    else this.shardBlock(hero, req);
+    this.fodderBlock(hero, req);
+    if (!ascendReadyWith(session.save, hero.id, this.chosen, GAME)) this.sourcesBlock(hero);
     this.footer(hero, req);
   }
 
@@ -78,7 +87,7 @@ export class AscendScene extends Phaser.Scene {
     const glow = this.add.image(810, y, glowTexture(this)).setDisplaySize(CARD_W * 1.7, h * 1.5).setTint(toColor.glow).setAlpha(0.5).setBlendMode(Phaser.BlendModes.ADD);
     if (juiceOn()) this.tweens.add({ targets: glow, alpha: 0.2, duration: 900, yoyo: true, repeat: -1 });
     drawHeroCard(this, 250, y, hero, { w: CARD_W });
-    drawHeroCard(this, 810, y, hero, { w: CARD_W, rarity: req.to, level: hero.level });
+    drawHeroCard(this, 810, y, hero, { w: CARD_W, rarity: req.to, level: hero.level, ...(this.branch ? { branch: this.branch } : {}) });
     // Стрелка «→» между карточками — бежит вправо.
     const arrow = text(this, 530, y - 30, '➜', 110, rarityColor(req.to), { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 8 });
     if (juiceOn()) this.tweens.add({ targets: arrow, x: 560, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
@@ -91,7 +100,12 @@ export class AscendScene extends Phaser.Scene {
     const top = TOP + 40 + h;
     const lines: { s: string; color: string }[] = [];
     lines.push({ s: `Предел уровня ${prev.maxLevel.from} → ${prev.maxLevel.to}`, color: C.gold });
-    if (prev.newJob) lines.push({ s: `Новая профессия: ${CONTENT.jobs[prev.newJob]?.name ?? prev.newJob}`, color: rarityColor(prev.to) });
+    const req = heroReq(hero);
+    const choose = !!req?.branch && !hero.branch;
+    if (choose && !this.branch) {
+      const names = (req?.branches ?? []).map((b) => b.jobName).join(' или ');
+      lines.push({ s: `Вторая профессия на выбор: ${names} (следующий шаг)`, color: rarityColor(prev.to) });
+    } else if (prev.newJob) lines.push({ s: `${choose ? 'Ветка' : 'Новая профессия'}: ${CONTENT.jobs[prev.newJob]?.name ?? prev.newJob}`, color: rarityColor(prev.to) });
     if (prev.skillPower.to !== prev.skillPower.from) lines.push({ s: `Сила навыков ×${prev.skillPower.from} → ×${prev.skillPower.to}`, color: C.positive });
     const skills = prev.newSkills.slice(0, 3).map((s) => `${CONTENT.skills[s.skill]?.name ?? s.skill}${s.now ? '' : ` (ур. ${s.level})`}`);
     if (skills.length) lines.push({ s: `Навыки: ${skills.join(', ')}`, color: C.info });
@@ -118,7 +132,8 @@ export class AscendScene extends Phaser.Scene {
     const placed = placeFodder(req, this.chosen);
     const { h: sh } = heroCardSize(SLOT_W);
     const top = this.blockTop;
-    const hh = sh + 170;
+    const missingAny = req.fodder.some((f) => f.candidates.length < f.count);
+    const hh = sh + (missingAny ? 205 : 170);
     card(this, GAME_W / 2, top + hh / 2, 1040, hh);
     text(this, 50, top + 42, 'Корм', FS.h3, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
     const auto = button(this, 880, top + 46, 260, 90, 'ui_btn_secondary', 'Авто', () => this.autoFill(hero), FS.h3);
@@ -146,7 +161,10 @@ export class AscendScene extends Phaser.Scene {
     });
     const missing = req.fodder.find((f) => f.candidates.length < f.count);
     if (missing) {
-      text(this, GAME_W / 2, top + hh - 22, 'Не хватает карточек — призовите героев в Таверне', FS.caption, C.warning, { stroke: C.stroke, strokeThickness: 4 });
+      const chain = autoChain(session.save, hero.id, GAME).length > 0;
+      const msg = chain ? '«Авто»: сначала сольёт младшие копии этого героя' : missing.kind === 'same' ? 'Не хватает копий этого героя — Таверна и карты героя из наград' : 'Не хватает карточек — призовите героев в Таверне';
+      text(this, GAME_W / 2, top + hh - 22, msg, FS.caption, chain ? C.positive : C.warning, { stroke: C.stroke, strokeThickness: 4 });
+      if (chain && juiceOn()) pulse(this, auto.container, 1.05);
     }
     this.blockTop = top + hh + 20;
   }
@@ -154,12 +172,45 @@ export class AscendScene extends Phaser.Scene {
   private autoFill(hero: HeroState): void {
     const ids = autoFodder(session.save, hero.id, GAME);
     if (!ids) {
-      toast(this, 'Подходящих карточек не хватает', C.error, 2500);
+      // Цепочка: копий нужной редкости не хватает, но есть младшие — «сначала слить 3 зелёные в синюю».
+      const steps = autoChain(session.save, hero.id, GAME);
+      if (steps.length) {
+        const name = heroCard(hero, GAME).name;
+        const lines = steps.map((st) => {
+          const t = session.save.heroes.find((h) => h.id === st.targetId)!;
+          const to = rarityName(ascendRequirement(session.save, t.id, GAME)?.to ?? t.rarity).toLowerCase();
+          return `• ${st.fodderIds.length + 1} × ${rarityName(t.rarity).toLowerCase()} → ${to}`;
+        });
+        confirm(this, `Сначала слить копии ${name}:\n${lines.join('\n')}\nЗатем «Авто» заполнит корм.`, 'Слить', () => this.runChain(hero, steps));
+        return;
+      }
+      toast(this, 'Копий этого героя не хватает — призовите героев в Таверне', C.error, 2500);
       return;
     }
     chosenFor = { heroId: hero.id, ids };
     sfx('equip');
     this.scene.restart({ heroId: hero.id });
+  }
+
+  /** Выполнить цепочку слияний (autoChain) по шагам, затем заполнить корм «Авто». */
+  private runChain(hero: HeroState, steps: { targetId: string; fodderIds: string[] }[]): void {
+    let done = 0;
+    for (const st of steps) {
+      try {
+        const r = actAscend(session.save, today(), st.targetId, st.fodderIds, GAME);
+        commit(r.save);
+        done++;
+      } catch (e) {
+        toast(this, e instanceof Error ? e.message : String(e), C.error);
+        break;
+      }
+    }
+    if (done) sfx('rarity_up');
+    const ids = autoFodder(session.save, hero.id, GAME);
+    chosenFor = { heroId: hero.id, ids: ids ?? [] };
+    this.scene.restart({ heroId: hero.id });
+    const sc = this.scene.get('Ascend');
+    sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `Слито копий: ${done} шаг(а)${ids ? ' — корм готов' : ''}`, C.success, 2500));
   }
 
   private unchoose(id: string): void {
@@ -209,27 +260,29 @@ export class AscendScene extends Phaser.Scene {
     popIn(this, layer, shade);
   }
 
-  // ---------- осколки (сюжетные) ----------
+  // ---------- откуда копии ----------
 
-  private shardBlock(hero: HeroState, req: AscendRequirement): void {
+  private sourcesBlock(hero: HeroState): void {
     const top = this.blockTop;
-    const src = shardSources(session.save, hero.templateId, GAME);
-    const hh = 190 + src.length * 44 + (req.minLevel ? 50 : 0);
-    card(this, GAME_W / 2, top + hh / 2, 1040, hh);
-    const sh = req.shards!;
-    const done = sh.have >= sh.need;
-    text(this, 50, top + 45, 'Осколки героя', FS.h3, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
-    text(this, 1000, top + 45, `${sh.have}/${sh.need}`, FS.h2, done ? C.positive : C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(1, 0.5).setName('shardCount');
-    progressBar(this, 50, top + 105, 950, 34, sh.have / sh.need, done ? TINT.success : 0xd6ae63, { key: `shards_${hero.id}` });
-    let y = top + 160;
-    if (req.minLevel) {
-      text(this, 50, y, `Нужен уровень ${req.minLevel} (сейчас ${hero.level})`, FS.caption, hero.level >= req.minLevel ? C.positive : C.warning, { fontStyle: 'bold' }).setOrigin(0, 0.5);
-      y += 50;
-    }
+    // Место до подписей над «Вознести» (золото, блокер): не влезающие строки не рисуем.
+    const limit = CONTENT_BOTTOM - 80 - 190;
+    if (limit - top < 140) return;
+    const src = copySources(session.save, hero.templateId, GAME);
+    const lines: Phaser.GameObjects.Text[] = [];
+    let y = top + 80;
     for (const s of src) {
-      text(this, 50, y, `• ${s}`, FS.caption, C.muted).setOrigin(0, 0.5);
-      y += 44;
+      const t = text(this, 50, y, `• ${s}`, FS.caption, C.muted, { wordWrap: { width: 960 }, align: 'left' }).setOrigin(0, 0);
+      if (y + t.height > limit - 16) {
+        t.destroy();
+        break;
+      }
+      lines.push(t);
+      y += t.height + 8;
     }
+    const hh = y - top + 12;
+    const bg = card(this, GAME_W / 2, top + hh / 2, 1040, hh);
+    this.children.moveBelow(bg as unknown as Phaser.GameObjects.GameObject, (lines[0] ?? bg) as unknown as Phaser.GameObjects.GameObject);
+    text(this, 50, top + 42, 'Где взять копии', FS.h3, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
     this.blockTop = top + hh + 20;
   }
 
@@ -240,14 +293,16 @@ export class AscendScene extends Phaser.Scene {
     const by = CONTENT_BOTTOM - 80;
     const goldOk = session.save.resources.gold >= req.gold;
     text(this, GAME_W / 2, by - 110, `Золото: ${formatNumber(req.gold)} (есть ${formatNumber(session.save.resources.gold)})`, FS.body, goldOk ? C.gold : C.warning, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
-    const blocker = req.blockers[0] ?? (req.fodder.length && !ready ? 'Заполните все слоты корма («Авто» — самые слабые)' : '');
-    if (blocker) text(this, GAME_W / 2, by - 160, blocker, FS.caption, C.warning, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 980 } });
+    const branchNote = req.branch && !hero.branch ? (this.branch ? `Ветка: ${GAME.content.jobs[this.branch]?.name ?? this.branch} — можно сменить на следующем шаге` : 'Дальше — выбор ветки второй профессии') : '';
+    const blocker = req.blockers[0] ?? (req.fodder.length && !ready ? 'Заполните все слоты корма («Авто» — самые слабые)' : branchNote);
+    if (blocker) text(this, GAME_W / 2, by - 160, blocker, FS.caption, blocker === branchNote ? C.info : C.warning, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 980 } }).setName('ascendNote');
     if (ready) {
       const g = this.add.image(GAME_W / 2, by, glowTexture(this)).setDisplaySize(900, 300).setTint(rarityPalette(req.to).glow).setAlpha(0.6).setBlendMode(Phaser.BlendModes.ADD);
       if (juiceOn()) this.tweens.add({ targets: g, alpha: 0.25, duration: 800, yoyo: true, repeat: -1 });
     }
     const b = button(this, GAME_W / 2, by, 620, 140, ready ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести', () => this.confirmAscend(hero, req), FS.hero);
     b.container.setName('ascendConfirm');
+
     if (ready) pulse(this, b.container, 1.04);
     else b.setEnabled(false);
   }
@@ -259,23 +314,41 @@ export class AscendScene extends Phaser.Scene {
     }
     const name = heroCard(hero, GAME).name;
     const fodder = this.chosen.map((id) => session.save.heroes.find((h) => h.id === id)).filter((h): h is HeroState => !!h);
-    const lines = [`${name}: ${rarityName(req.from)} → ${rarityName(req.to)}`];
-    if (req.shards) lines.push(`Потратится осколков: ${req.shards.need}, золота: ${formatNumber(req.gold)}`);
-    else {
-      lines.push(`В корм: ${fodder.map((h) => `${heroCard(h, GAME).name} (ур. ${h.level})`).join(', ')}`);
-      lines.push(`Золото: ${formatNumber(req.gold)}. Опыт корма вернётся в запас.`);
-      if (valuableFodder(session.save, this.chosen).length) lines.push('Внимание: в корме синие карточки и выше!');
+    const feed = `В корм: ${fodder.map((h) => `${heroCard(h, GAME).name} (ур. ${h.level})`).join(', ')}`;
+    const valuable = valuableFodder(session.save, this.chosen).length ? ' Внимание: в корме синие карточки и выше!' : '';
+    // Переход синий → фиолетовый: шаг выбора ветки (две панели) — он же подтверждение.
+    if (req.branch && !hero.branch) {
+      openBranchPicker(this, {
+        templateId: hero.templateId,
+        title: 'Выберите ветку',
+        subtitle: `${name} станет фиолетовым и сменит профессию. ${feed}. Золото: ${formatNumber(req.gold)}.${valuable}`,
+        ...(this.branch ? { selected: this.branch } : {}),
+        heroId: hero.id,
+        save: session.save,
+        confirmLabel: (job) => (job ? `Вознести: ${GAME.content.jobs[job]?.name ?? job}` : 'Выберите ветку'),
+        onConfirm: (job) => {
+          branchFor = { heroId: hero.id, job };
+          this.branch = job;
+          this.doAscend(hero, job);
+        },
+      });
+      return;
     }
+    const lines = [`${name}: ${rarityName(req.from)} → ${rarityName(req.to)}`];
+    lines.push(feed);
+    lines.push(`Золото: ${formatNumber(req.gold)}. Опыт корма вернётся в запас.`);
+    if (valuable) lines.push(valuable.trim());
     confirm(this, lines.join('\n'), 'Вознести', () => this.doAscend(hero));
   }
 
-  private doAscend(hero: HeroState): void {
+  private doAscend(hero: HeroState, branch?: string): void {
     const before = { power: heroPower(hero, GAME, session.save), rarity: hero.rarity, card: heroCard(hero, GAME) };
     const fodder = req0Positions(this.slotPos, this.chosen.length);
     try {
-      const r = actAscend(session.save, today(), hero.id, this.chosen, GAME);
+      const r = actAscend(session.save, today(), hero.id, this.chosen, GAME, branch ? { branch } : {});
       commit(r.save);
       chosenFor = null;
+      branchFor = null;
       this.reveal(hero.id, before, r.events, fodder, r.refund);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
@@ -326,12 +399,14 @@ export class AscendScene extends Phaser.Scene {
     if (skills.length) extra.push(`Новый навык: ${skills.join(', ')}`);
     if (refund.exp || refund.gold) extra.push(`Вернулось: опыт ${formatNumber(refund.exp)}, золото ${formatNumber(refund.gold)}`);
     for (const s of extra) {
-      info.add(text(this, GAME_W / 2, y, s, FS.h3, s.startsWith('Новый') ? C.info : jobChanged && s === extra[0] ? rarityColor(hero.rarity) : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5, wordWrap: { width: 980 } }));
-      y += 58;
+      const t = text(this, GAME_W / 2, y, s, FS.h3, s.startsWith('Новый') ? C.info : jobChanged && s === extra[0] ? rarityColor(hero.rarity) : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5, wordWrap: { width: 980 } }).setOrigin(0.5, 0);
+      t.setY(y - 22);
+      info.add(t);
+      y += Math.max(58, t.height + 16);
     }
     if (jobChanged) {
-      const form = heroTemplate(GAME, hero.templateId).forms.find((f) => f.rarity === hero.rarity);
-      if (form?.promotion) {
+      const form = activeForm(heroTemplate(GAME, hero.templateId), hero);
+      if (form.promotion) {
         info.add(text(this, GAME_W / 2, y + 20, `«${form.promotion}»`, FS.body, C.title, { fontStyle: 'italic', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 940 }, lineSpacing: 6 }));
         y += 100;
       }

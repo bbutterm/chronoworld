@@ -7,8 +7,8 @@
     ["item_common", "item_rare"],
     ["item_common", "item_rare"],
     ["item_rare", "item_common", "item_epic"],
-    ["shards_small", "exp_small"],
-    ["item_rare", "shards_large", "item_common"],
+    ["card_blue", "exp_small"],
+    ["item_rare", "card_blue_gems", "item_common"],
     ["scroll", "exp_large", "item_epic"]
   ],
   "refresh": {
@@ -23,8 +23,8 @@
     { "id": "item_common", "kind": "item", "rarity": "common", "price": { "currency": "gold", "amount": 1500 }, "stock": 1, "weight": 5 },
     { "id": "item_rare", "kind": "item", "rarity": "rare", "price": { "currency": "gold", "amount": 6000 }, "stock": 1, "weight": 3 },
     { "id": "item_epic", "kind": "item", "rarity": "epic", "price": { "currency": "gems", "amount": 150 }, "stock": 1, "weight": 1, "fromStage": "ch2_s1" },
-    { "id": "shards_small", "kind": "shards", "count": 5, "price": { "currency": "gold", "amount": 8000 }, "stock": 1, "weight": 3 },
-    { "id": "shards_large", "kind": "shards", "count": 10, "price": { "currency": "gems", "amount": 100 }, "stock": 1, "weight": 1, "fromStage": "ch2_s1" },
+    { "id": "card_blue", "kind": "heroCard", "cardRarity": "blue", "price": { "currency": "gold", "amount": 24000 }, "stock": 1, "weight": 3 },
+    { "id": "card_blue_gems", "kind": "heroCard", "cardRarity": "blue", "price": { "currency": "gems", "amount": 120 }, "stock": 1, "weight": 1, "fromStage": "ch2_s1" },
     { "id": "scroll", "kind": "scrolls", "count": 1, "price": { "currency": "gems", "amount": 27 }, "stock": 1, "weight": 1, "perDay": 1 }
   ]
 }

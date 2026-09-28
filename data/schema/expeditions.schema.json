@@ -107,8 +107,15 @@
                   "enum": [
                     "item",
                     "gems",
-                    "shards",
+                    "heroCard",
                     "scrolls"
+                  ]
+                },
+                "rarity": {
+                  "type": "string",
+                  "enum": [
+                    "blue",
+                    "purple"
                   ]
                 },
                 "chance": {

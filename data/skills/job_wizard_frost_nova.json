@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_wizard_frost_nova",
+  "name": "Кольцо мороза",
+  "description": "Урон (×0,8) всем врагам фронта и шанс 40% заморозить каждого на 1 ход. Короткая перезарядка, но каст.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "cooldown": 6,
+  "castTime": 1.5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "chance": 0.4,
+      "status": {
+        "id": "stun",
+        "name": "Заморозка",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

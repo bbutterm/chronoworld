@@ -1,16 +1,17 @@
 import Phaser from 'phaser';
-import { achievementStatus, heroesWithGearUpgrades, heroPower, levelUpInfo, squadPower, withGear, type CardRarity, type HeroState } from '../../core';
+import { achievementStatus, heroesWithGearUpgrades, heroPower, levelUpInfo, needsBranch, pendingPicks, squadPower, withGear, type CardRarity, type HeroState } from '../../core';
 import { GAME } from '../content';
 import { ascendReady, claimableAchievements, formatNumber, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
 import { CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
 import { countUp, staggerIn } from '../juice';
 import { session } from '../session';
-import { button, emptyState, hintPointer, ScrollArea, text, toast } from '../ui';
+import { button, emptyState, hintPointer, pressable, ScrollArea, text, toast } from '../ui';
 import { hintDone } from '../hints';
 import { C, FS } from '../theme';
-import { cardIcon, drawHeroCard, GUILD_NAMES, heroCardSize, LINES, rarityColor, ROLES } from '../heroCard';
-import { collectionCount, collectionHeroes, heroesUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
+import { cardIcon, drawHeroCard, GUILD_NAMES, heroCardIcon, heroCardSize, LINES, rarityColor, ROLES } from '../heroCard';
+import { collectionCount, collectionHeroes, groupCopies, heroesUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
+import { pulse } from '../juice';
 
 const COLS = 3;
 const TILE_W = 300;
@@ -96,14 +97,17 @@ export class HeroesScene extends Phaser.Scene {
     // Сетка карточек.
     const listTop = r2 + CHIP / 2 + 20;
     this.area = new ScrollArea(this, listTop, CONTENT_BOTTOM + 10);
-    const heroes = collectionHeroes(save, f, heroesUi.sort, GAME, (h) => heroPower(h, gctx));
+    // Копии одного героя — одной плиткой (лучший экземпляр) с «×N»; все экземпляры — на карточке и в корме вознесения.
+    const groups = groupCopies(collectionHeroes(save, f, heroesUi.sort, GAME, (h) => heroPower(h, gctx)));
+    const heroes = groups.map((g) => g.hero);
     heroesUi.order = heroes.map((h) => h.id);
+    const picks = pendingPicks(save);
     const missing = heroesUi.showMissing ? missingTemplates(save, f, GAME) : [];
     if (!save.heroes.length) {
       this.area.add(emptyState(this, GAME_W / 2, 300, 'Героев пока нет.\nНачните новую игру на главной — отряд выдаётся сразу.'));
       return;
     }
-    if (!heroes.length && !missing.length) {
+    if (!heroes.length && !missing.length && !picks.length) {
       this.area.add(emptyState(this, GAME_W / 2, 200, 'Под фильтр никто не подходит.\nНажмите выбранный значок ещё раз, чтобы снять фильтр.'));
       return;
     }
@@ -112,29 +116,35 @@ export class HeroesScene extends Phaser.Scene {
     const at = (i: number) => ({ x: x0 + (i % COLS) * (TILE_W + GAP_X), y: GAP_Y / 2 + tileH / 2 + Math.floor(i / COLS) * (tileH + GAP_Y) });
     const ready = new Set(ascendReady(save, GAME).map((h) => h.id));
     const tiles: Phaser.GameObjects.GameObject[][] = [];
-    heroes.forEach((hero, i) => {
-      const p = at(i);
-      tiles.push([this.tile(hero, p.x, p.y, ready.has(hero.id))]);
+    // «Контракт героя» — первой плиткой: герой на выбор (и ветка).
+    const lead = picks.length ? 1 : 0;
+    if (lead) {
+      const p = at(0);
+      tiles.push([this.contractTile(p.x, p.y, picks.length, picks[0].rarity)]);
+    }
+    groups.forEach((g, i) => {
+      const p = at(lead + i);
+      tiles.push([this.tile(g.hero, p.x, p.y, ready.has(g.hero.id), g.copies)]);
     });
     missing.forEach((tid, k) => {
-      const p = at(heroes.length + k);
+      const p = at(lead + heroes.length + k);
       const t = GAME.content.heroes[tid];
       tiles.push([
         drawHeroCard(this, p.x, p.y, tid, {
           w: TILE_W,
           greyed: true,
           parent: this.area.content,
-          onTap: this.area.tap(() => toast(this, `${t.name}: ${t.source === 'story' ? 'присоединится по сюжету' : 'призыв в Таверне'}. ${t.bio}`, C.title, 4000)),
+          onTap: this.area.tap(() => toast(this, `${t.name}: ${t.source === 'story' ? 'присоединится по сюжету (и приходит из Таверны)' : 'призыв в Таверне'}. ${t.bio}`, C.title, 4000)),
         }),
       ]);
     });
-    const n = heroes.length + missing.length;
+    const n = lead + heroes.length + missing.length;
     this.area.setContentHeight(Math.ceil(n / COLS) * (tileH + GAP_Y) + GAP_Y);
     // T1-08: один раз — подсказка «Наденьте трофеи» на первом герое, которому есть что надеть.
     const gearHero = heroesWithGearUpgrades(save, GAME)[0];
     const gi = heroes.findIndex((x) => x.id === gearHero);
     if (gi >= 0 && !hintDone('equip_gear')) {
-      const p = at(gi);
+      const p = at(lead + gi);
       const cy = listTop + p.y;
       if (cy + tileH / 2 <= CONTENT_BOTTOM) hintPointer(this, p.x, cy, 'Наденьте трофеи — откройте героя', 'auto', { w: TILE_W, h: tileH });
     }
@@ -145,11 +155,28 @@ export class HeroesScene extends Phaser.Scene {
     return GAME.content;
   }
 
-  /** Плитка героя игрока: метки отряда, «Новый!», замок, «можно улучшить / вознести». */
-  private tile(hero: HeroState, x: number, y: number, canAscend: boolean): Phaser.GameObjects.Container {
+  /** Плитка «Контракт героя»: рубашка цвета редкости, «?», число контрактов; нажатие — выбор героя. */
+  private contractTile(x: number, y: number, count: number, rarity: CardRarity): Phaser.GameObjects.Container {
+    const { h } = heroCardSize(TILE_W);
+    const box = this.add.container(x, y).setName('contractTile');
+    this.area.content.add(box);
+    box.add(heroCardIcon(this, 0, -30, h - 90, rarity, undefined, { pick: true }));
+    box.add(text(this, 0, h / 2 - 50, 'Контракт героя', FS.small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }));
+    box.add(text(this, 0, h / 2 - 14, `герой на выбор${count > 1 ? ` ×${count}` : ''}`, FS.caption, rarityColor(rarity), { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }));
+    const hit = this.add.rectangle(0, 0, TILE_W, h, 0x000000, 0.001);
+    box.add(hit);
+    pressable(this, hit, TILE_W, h, this.area.tap(() => this.scene.start('HeroPick', {})));
+    pulse(this, box, 1.03, 800);
+    return box;
+  }
+
+  /** Плитка героя игрока: метки отряда, «Новый!», замок, «можно улучшить / вознести», копии «×N», «Выберите ветку!». */
+  private tile(hero: HeroState, x: number, y: number, canAscend: boolean, copies = 1): Phaser.GameObjects.Container {
     const save = session.save;
     return drawHeroCard(this, x, y, hero, {
       w: TILE_W,
+      copies,
+      needsBranch: needsBranch(hero, GAME),
       inSquad: save.squad.includes(hero.id),
       isNew: !!hero.isNew,
       locked: !!hero.locked,

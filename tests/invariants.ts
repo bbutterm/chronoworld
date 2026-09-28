@@ -181,7 +181,6 @@ export function saveProblems(save: SaveState, ctx: FullContext): string[] {
   nonNegInt(save.currency.gems, 'gems');
   nonNegInt(save.currency.scrolls, 'scrolls');
   nonNegInt(save.resources.heroExp, 'heroExp');
-  for (const [t, n] of Object.entries(save.shards)) nonNegInt(n, `shards.${t}`);
   nonNegInt(save.battleSeq, 'battleSeq');
   nonNegInt(save.tower.floor, 'tower.floor');
   if (save.tower.floor > ctx.tower.maxFloor) p.push(`tower.floor ${save.tower.floor} > maxFloor`);
@@ -206,9 +205,10 @@ export function saveProblems(save: SaveState, ctx: FullContext): string[] {
     if (ri(h.rarity) < ri(t.baseRarity) || ri(h.rarity) > ri(t.maxRarity)) p.push(`герой ${h.id}: редкость ${h.rarity} вне ${t.baseRarity}…${t.maxRarity}`);
     const cap = ctx.cards.rarities[ri(h.rarity)]?.maxLevel ?? 0;
     if (h.level > cap) p.push(`герой ${h.id}: уровень ${h.level} > предела ${cap}`);
+    // Герои v2: ветка — только на фиолетовом и выше и только своя.
+    if (h.branch !== undefined && (ri(h.rarity) < ri('purple') || !t.branches.some((b) => b.job === h.branch))) p.push(`герой ${h.id}: ветка ${h.branch} при ${h.rarity}`);
+    if (h.branchChanges !== undefined) nonNegInt(h.branchChanges, `heroes.${h.id}.branchChanges`);
   }
-  const story = [...ctx.progression.heroes.start, ...ctx.progression.heroes.recruits.map((r) => r.template)];
-  for (const t of story) if (save.heroes.filter((h) => h.templateId === t).length > 1) p.push(`сюжетная карточка ${t} дважды`);
   if (duplicateCardsInSquad(save, save.squad).length) p.push('в отряде две копии одной карточки');
 
   if (save.squad.length !== 5) p.push(`в отряде ${save.squad.length} слотов`);

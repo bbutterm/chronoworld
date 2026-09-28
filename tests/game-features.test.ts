@@ -93,7 +93,7 @@ describe('помощники экранов K1–K7', () => {
     const rows = inventoryRows(save, ctx);
     // Алан (Мечник) лук не носит; Сесиль (Охотница, ветка лучника) — носит.
     const alan = save.heroes[0];
-    const hunter = { ...alan, templateId: 'cecil', rarity: 'purple' as const };
+    const hunter = { ...alan, templateId: 'meilin', rarity: 'purple' as const, branch: 'hunter' };
     const bow = rows.find((r) => r.instance.id === 'it1')!;
     expect(equipBlocker(bow, alan, ctx)).toMatch(/^только для: /);
     expect(equipBlocker(bow, hunter, ctx)).toBeNull();

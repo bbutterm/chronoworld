@@ -67,7 +67,7 @@ export function fastRewardsStatus(save: SaveState, day: string, ctx: FeatureCont
  * K1. Взять быстрые награды. Чистая функция.
  * rollDay → сначала бесплатные (fastRewards.freePerDay), потом за гемы по gemCosts по порядку.
  * Золото в resources, jobExp — в общий пул опыта героев (как у сундука), fastRewardsUsed + 1,
- * трофеи — fastRewardsLoot (предметы, осколки, гемы, свитки, как у сундука за те же часы),
+ * трофеи — fastRewardsLoot (предметы, карты героя, гемы, свитки, как у сундука за те же часы),
  * offline.lastClaimAt не меняется (сундук копится дальше).
  * FeatureError: fast_rewards_limit — попытки на сегодня кончились; not_enough_gems; no_income — нет
  * пройденных этапов (попытка не тратится).
@@ -97,6 +97,6 @@ export function useFastRewards(
     { type: 'fastRewardsUsed', gemCost: cost, hours: ctx.features.fastRewards.hours },
     { type: 'rewards', gold: rewards.gold, heroExp: rewards.jobExp },
   ];
-  if (loot.shardHero) events.push({ type: 'shards', templateId: loot.shardHero, count: loot.shards });
+  events.push(...loot.heroEvents);
   return { save: next, rewards, loot, events };
 }

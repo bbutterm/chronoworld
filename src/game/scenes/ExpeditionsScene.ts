@@ -195,12 +195,13 @@ export class ExpeditionsScene extends Phaser.Scene {
     if (exp.finds) this.area.add(ellipsize(text(this, COL_X, r.d2, exp.finds, FS.small, dim ? C.disabled : C.info, { stroke: C.stroke, strokeThickness: dim ? 0 : 4 }).setOrigin(0, 0.5), COL_W));
   }
 
-  /** Находки вернувшейся экспедиции: «гемы +3 · осколки +1 · Нож». */
+  /** Находки вернувшейся экспедиции: «гемы +3 · синие карты героя +1 · Нож». */
   private findsText(e: ActiveExpeditionView): string {
     const r = e.rewards;
     const parts: string[] = [];
     if (r.gems) parts.push(`гемы +${r.gems}`);
-    if (r.shards) parts.push(`осколки +${r.shards}`);
+    if (r.heroCards.blue) parts.push(`синие карты героя +${r.heroCards.blue}`);
+    if (r.heroCards.purple) parts.push(`фиолетовые карты героя +${r.heroCards.purple}`);
     if (r.scrolls) parts.push(`свитки +${r.scrolls}`);
     for (const id of r.items) parts.push(GAME.equipment.items[id]?.name ?? id);
     return parts.length ? `Находки: ${parts.join(' · ')}` : 'Находок в этот раз нет';

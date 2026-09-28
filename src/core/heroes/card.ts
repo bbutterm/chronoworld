@@ -2,7 +2,7 @@ import type { Stats, UnitDef } from '../content/schema';
 import type { Gender, JobDef } from '../progression/schema';
 import { GameRuleError, type GameContext } from '../progression/types';
 import type { HeroState } from '../save/schema';
-import { rarityIndex, CARD_RARITIES, type CardRarity, type CardSkill, type CardStatMods, type CardTrack, type HeroTemplate, type RarityDef } from './schema';
+import { BRANCH_RARITY, rarityIndex, CARD_RARITIES, type CardRarity, type CardSkill, type CardStatMods, type HeroBranch, type HeroTemplate, type RarityDef } from './schema';
 
 /**
  * Карточка героя: шаблон + экземпляр → имя, класс, роль, статы, навыки, юнит боя.
@@ -51,45 +51,66 @@ export function lineOf(ctx: Pick<GameContext, 'content'>, jobId: string): string
   return cur?.id ?? jobId;
 }
 
-/** Дорожка роста: сюжетные — story; призывные — first (первая профессия) или second (вторая). */
-export function cardTrack(t: HeroTemplate, ctx: Pick<GameContext, 'content'>): CardTrack {
-  if (t.source === 'story') return 'story';
-  return (ctx.content.jobs[t.job]?.tier ?? 1) >= 2 ? 'second' : 'first';
-}
-
-/** Активная форма карточки на редкости rarity: у сюжетных с формой — вторая профессия, иначе — сам шаблон. */
+/** Форма героя сейчас: первая профессия (шаблон) или ветка второй профессии (фиолетовый и выше с выбранной веткой). */
 export interface ActiveForm {
   job: string;
   role: HeroTemplate['role'];
   statMods: CardStatMods;
   skills: CardSkill[];
-  /** Свой лист спрайта формы (или базовой формы шаблона). */
+  /** Свой лист спрайта формы (или первой профессии шаблона). */
   sprite?: string;
-  /** Редкость, с которой действует форма (undefined — базовая форма шаблона). */
-  fromRarity?: CardRarity;
+  /** Ветка второй профессии (id профессии), если форма — ветка. */
+  branch?: string;
+  /** Строка возвышения ветки. */
+  promotion?: string;
 }
 
-export function activeForm(t: HeroTemplate, rarity: CardRarity): ActiveForm {
-  let form: ActiveForm = { job: t.job, role: t.role, statMods: t.statMods, skills: t.skills, ...(t.visual.sprite ? { sprite: t.visual.sprite } : {}) };
-  for (const f of t.forms) {
-    if (rarityIndex(f.rarity) <= rarityIndex(rarity)) {
-      form = { job: f.job, role: f.role ?? t.role, statMods: f.statMods, skills: f.skills, fromRarity: f.rarity, ...(f.visual.sprite ? { sprite: f.visual.sprite } : {}) };
-    }
-  }
-  return form;
+/** Что нужно знать об экземпляре для формы: редкость и выбранная ветка. */
+export type FormKey = Pick<HeroState, 'rarity'> & { branch?: string };
+
+/** Ветка шаблона по id профессии (нет такой — undefined). */
+export function branchOf(t: HeroTemplate, job: string | undefined): HeroBranch | undefined {
+  return job ? t.branches.find((b) => b.job === job) : undefined;
 }
 
+/** Действующая ветка: редкость ≥ BRANCH_RARITY и ветка есть у шаблона; иначе undefined. */
+export function activeBranch(t: HeroTemplate, hero: FormKey): HeroBranch | undefined {
+  if (rarityIndex(hero.rarity) < rarityIndex(BRANCH_RARITY)) return undefined;
+  return branchOf(t, hero.branch);
+}
+
+export function baseForm(t: HeroTemplate): ActiveForm {
+  return { job: t.job, role: t.role, statMods: t.statMods, skills: t.skills, ...(t.visual.sprite ? { sprite: t.visual.sprite } : {}) };
+}
+
+export function branchForm(b: HeroBranch): ActiveForm {
+  return { job: b.job, role: b.role, statMods: b.statMods, skills: b.skills, branch: b.job, promotion: b.promotion, ...(b.visual.sprite ? { sprite: b.visual.sprite } : {}) };
+}
+
+/** Форма экземпляра: ветка (фиолетовый и выше с выбранной веткой) или первая профессия. */
+export function activeForm(t: HeroTemplate, hero: FormKey): ActiveForm {
+  const b = activeBranch(t, hero);
+  return b ? branchForm(b) : baseForm(t);
+}
+
+/** Фиолетовый и выше без выбранной ветки — «Выберите ветку!» (выбор бесплатный, branch.ts chooseBranch). */
+export function needsBranch(hero: Pick<HeroState, 'templateId' | 'rarity' | 'branch'>, ctx: GameContext): boolean {
+  const t = ctx.content.heroes[hero.templateId];
+  return !!t && rarityIndex(hero.rarity) >= rarityIndex(BRANCH_RARITY) && !activeBranch(t, hero);
+}
+
+type HeroKey = Pick<HeroState, 'templateId' | 'rarity'> & { branch?: string };
 const tmpl = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext) => heroTemplate(ctx, hero.templateId);
 
 export const heroName = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext): string => ctx.content.heroes[hero.templateId]?.name ?? hero.templateId;
 export const heroGender = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext): Gender => ctx.content.heroes[hero.templateId]?.gender ?? 'm';
-/** Класс (id профессии) карточки сейчас — с учётом формы. */
-export const heroJobId = (hero: Pick<HeroState, 'templateId' | 'rarity'>, ctx: GameContext): string => activeForm(tmpl(hero, ctx), hero.rarity).job;
-export const heroRole = (hero: Pick<HeroState, 'templateId' | 'rarity'>, ctx: GameContext): HeroTemplate['role'] => activeForm(tmpl(hero, ctx), hero.rarity).role;
-/** Свой лист спрайта карточки сейчас (форма или шаблон); undefined — лист класса по полу (решает UI по реестру листов). */
-export const heroSpriteOverride = (hero: Pick<HeroState, 'templateId' | 'rarity'>, ctx: GameContext): string | undefined =>
-  ctx.content.heroes[hero.templateId] ? activeForm(tmpl(hero, ctx), hero.rarity).sprite : undefined;
-/** Линия карточки (первая профессия ветки). */
+/** Класс (id профессии) героя сейчас — с учётом ветки. */
+export const heroJobId = (hero: HeroKey, ctx: GameContext): string => activeForm(tmpl(hero, ctx), hero).job;
+export const heroRole = (hero: HeroKey, ctx: GameContext): HeroTemplate['role'] => activeForm(tmpl(hero, ctx), hero).role;
+/** Свой лист спрайта героя сейчас (ветка или первая профессия); undefined — лист класса по полу (решает UI по реестру листов). */
+export const heroSpriteOverride = (hero: HeroKey, ctx: GameContext): string | undefined =>
+  ctx.content.heroes[hero.templateId] ? activeForm(tmpl(hero, ctx), hero).sprite : undefined;
+/** Линия героя (первая профессия ветки). */
 export const heroLine = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext): string => tmpl(hero, ctx).line;
 
 function jobOf(ctx: GameContext, jobId: string): JobDef {
@@ -98,10 +119,10 @@ function jobOf(ctx: GameContext, jobId: string): JobDef {
   return job;
 }
 
-/** Статы карточки шаблона t на уровне level и редкости rarity (без экипировки), округление до целых. */
-export function cardStats(t: HeroTemplate, level: number, rarity: CardRarity, ctx: GameContext): Stats {
+/** Статы героя шаблона t на уровне level, редкости rarity и ветке branch (без экипировки), округление до целых. */
+export function cardStats(t: HeroTemplate, level: number, rarity: CardRarity, ctx: GameContext, branch?: string): Stats {
   const line = jobOf(ctx, t.line);
-  const mods = activeForm(t, rarity).statMods;
+  const mods = activeForm(t, { rarity, branch }).statMods;
   const mult = rarityDef(ctx, rarity).statMult;
   const k = Math.max(0, level - 1);
   const b = line.baseStats;
@@ -111,7 +132,7 @@ export function cardStats(t: HeroTemplate, level: number, rarity: CardRarity, ct
 
 /** Статы экземпляра (без экипировки). */
 export function heroStats(hero: HeroState, ctx: GameContext): Stats {
-  return cardStats(tmpl(hero, ctx), hero.level, hero.rarity, ctx);
+  return cardStats(tmpl(hero, ctx), hero.level, hero.rarity, ctx, hero.branch);
 }
 
 export interface CardSkillView {
@@ -125,7 +146,7 @@ export interface CardSkillView {
 
 /** Все навыки текущей формы по порядку открытия (открытые и закрытые). */
 export function heroSkillList(hero: HeroState, ctx: GameContext): CardSkillView[] {
-  const form = activeForm(tmpl(hero, ctx), hero.rarity);
+  const form = activeForm(tmpl(hero, ctx), hero);
   return [...form.skills]
     .sort((a, b) => a.level - b.level)
     .map((s) => ({ skill: s.skill, level: s.level, unlocked: s.level <= hero.level, passive: !!ctx.content.skills[s.skill]?.trigger }));
@@ -167,7 +188,7 @@ export interface GearLookup {
  */
 export function buildUnit(hero: HeroState, ctx: GameContext & GearLookup, gear?: StatBonus): UnitDef {
   const t = tmpl(hero, ctx);
-  const form = activeForm(t, hero.rarity);
+  const form = activeForm(t, hero);
   const job = jobOf(ctx, form.job);
   const skills = heroSkills(hero, ctx);
   const base = heroStats(hero, ctx);
@@ -186,15 +207,33 @@ export function buildUnit(hero: HeroState, ctx: GameContext & GearLookup, gear?:
   };
 }
 
-/** Всё о карточке для экранов «Герои» / «Герой» (H4) одним объектом. */
+/** Ветка для экранов: класс, название, роль, навыки, строка возвышения, лист. */
+export interface BranchView {
+  job: string;
+  jobName: string;
+  role: HeroTemplate['role'];
+  skills: CardSkill[];
+  promotion: string;
+  sprite?: string;
+}
+
+export function branchView(b: HeroBranch, ctx: GameContext): BranchView {
+  return { job: b.job, jobName: ctx.content.jobs[b.job]?.name ?? b.job, role: b.role, skills: b.skills, promotion: b.promotion, ...(b.visual.sprite ? { sprite: b.visual.sprite } : {}) };
+}
+
+/** Обе ветки героя (для превью на синем, выбора на вознесении и «Сменить ветку»). */
+export function branchOptions(templateId: string, ctx: GameContext): BranchView[] {
+  return heroTemplate(ctx, templateId).branches.map((b) => branchView(b, ctx));
+}
+
+/** Всё о герое для экранов «Герои» / «Герой» одним объектом. */
 export interface HeroCard {
   heroId: string;
   templateId: string;
   name: string;
   gender: Gender;
   source: HeroTemplate['source'];
-  track: CardTrack;
-  /** Класс сейчас (с учётом формы) и его название. */
+  /** Класс сейчас (с учётом ветки) и его название. */
   job: string;
   jobName: string;
   line: string;
@@ -205,8 +244,14 @@ export interface HeroCard {
   maxLevel: number;
   stats: Stats;
   skills: CardSkillView[];
-  /** Класс второй формы (сюжетные), если ещё не открыт: { rarity, job, jobName }. */
-  nextForm?: { rarity: CardRarity; job: string; jobName: string };
+  /** Выбранная ветка (действует с фиолетового): id профессии. */
+  branch?: string;
+  /** Фиолетовый и выше без ветки — «Выберите ветку!». */
+  needsBranch: boolean;
+  /** Обе ветки героя (превью «на фиолетовом: Рыцарь или Крестоносец», выбор, смена). */
+  branches: BranchView[];
+  /** Редкость, на которой выбирается ветка (если герой ещё ниже неё) — для подписи «с фиолетового». */
+  branchAt?: CardRarity;
   bio: string;
   hook: string;
   locked: boolean;
@@ -215,15 +260,14 @@ export interface HeroCard {
 
 export function heroCard(hero: HeroState, ctx: GameContext): HeroCard {
   const t = tmpl(hero, ctx);
-  const form = activeForm(t, hero.rarity);
-  const next = t.forms.find((f) => rarityIndex(f.rarity) > rarityIndex(hero.rarity));
+  const form = activeForm(t, hero);
+  const below = rarityIndex(hero.rarity) < rarityIndex(BRANCH_RARITY);
   return {
     heroId: hero.id,
     templateId: t.id,
     name: t.name,
     gender: t.gender,
     source: t.source,
-    track: cardTrack(t, ctx),
     job: form.job,
     jobName: ctx.content.jobs[form.job]?.name ?? form.job,
     line: t.line,
@@ -234,7 +278,10 @@ export function heroCard(hero: HeroState, ctx: GameContext): HeroCard {
     maxLevel: maxLevelOf(ctx, hero.rarity),
     stats: heroStats(hero, ctx),
     skills: heroSkillList(hero, ctx),
-    ...(next ? { nextForm: { rarity: next.rarity, job: next.job, jobName: ctx.content.jobs[next.job]?.name ?? next.job } } : {}),
+    ...(form.branch ? { branch: form.branch } : {}),
+    needsBranch: needsBranch(hero, ctx),
+    branches: t.branches.map((b) => branchView(b, ctx)),
+    ...(below ? { branchAt: BRANCH_RARITY } : {}),
     bio: t.bio,
     hook: t.hook,
     locked: !!hero.locked,

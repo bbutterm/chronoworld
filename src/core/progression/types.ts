@@ -8,7 +8,7 @@ export interface GameContext {
   content: Content;
   progression: ProgressionConfig;
   combat: CombatConfig;
-  /** data/cards.json — редкости, стоимость уровня, вознесение, осколки. */
+  /** data/cards.json — редкости, стоимость уровня, вознесение, смена ветки, общие карты за этапы. */
   cards: CardsConfig;
   /** data/summon.json — Таверна. */
   summon: SummonConfig;
@@ -25,12 +25,16 @@ export type ProgressEvent =
   | { type: 'skillUnlocked'; heroId: string; skill: string; level: number }
   /** Карточка вознесена: новая редкость; job — класс после вознесения (у сюжетных на фиолетовом — вторая профессия). */
   | { type: 'ascended'; heroId: string; from: CardRarity; to: CardRarity; job: string; jobChanged: boolean }
+  /** v6. Выбрана (changed: false) или сменена ветка второй профессии; gems — сколько заплачено. */
+  | { type: 'branchChosen'; heroId: string; branch: string; changed: boolean; gems: number }
   | { type: 'stageCleared'; stageId: string; firstTime: boolean }
   | { type: 'stageUnlocked'; stageId: string }
   /** Награда: золото и опыт в общий пул героев (heroExp). */
   | { type: 'rewards'; gold: number; heroExp: number }
-  | { type: 'shards'; templateId: string; count: number }
-  | { type: 'heroJoined'; heroId: string; templateId: string; name: string }
+  /** v6. Карта героя (новый экземпляр) из награды: этап, сундук, охота, поручение, событие… */
+  | { type: 'heroCard'; heroId: string; templateId: string; rarity: CardRarity; name: string }
+  /** Герой присоединился по сюжету; copy — он уже был у игрока (пришла его зелёная копия). */
+  | { type: 'heroJoined'; heroId: string; templateId: string; name: string; copy?: boolean }
   /** Открылась Таверна: подарок гемов и свитков. */
   | { type: 'tavernUnlocked'; gems: number; scrolls: number };
 

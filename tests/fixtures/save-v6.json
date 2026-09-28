@@ -1,0 +1,92 @@
+{
+  "version": 6,
+  "createdAt": 1758900000000,
+  "heroes": [
+    { "id": "h1", "templateId": "alan", "rarity": "purple", "level": 45 },
+    { "id": "h2", "templateId": "bran", "rarity": "blue", "level": 33 },
+    { "id": "h3", "templateId": "vika", "rarity": "blue", "level": 30 },
+    { "id": "h4", "templateId": "greta", "rarity": "green", "level": 20 },
+    { "id": "h5", "templateId": "seyren", "rarity": "purple", "level": 45, "locked": true },
+    { "id": "h6", "templateId": "margaretha", "rarity": "purple", "level": 38 },
+    { "id": "h7", "templateId": "eremes", "rarity": "purple", "level": 12, "isNew": true },
+    { "id": "h8", "templateId": "kai", "rarity": "purple", "level": 41 },
+    { "id": "h9", "templateId": "howard", "rarity": "gold", "level": 61 },
+    { "id": "h10", "templateId": "flamel", "rarity": "purple", "level": 1 },
+    { "id": "h11", "templateId": "iris", "rarity": "green", "level": 3 },
+    { "id": "h13", "templateId": "trentini", "rarity": "purple", "level": 5 }
+  ],
+  "squad": ["h1", "h5", "h9", "h2", "h3"],
+  "campaign": {
+    "cleared": ["ch1_s1", "ch1_s2", "ch1_s3", "ch1_s4", "ch1_s5", "ch1_s6", "ch1_s7", "ch1_s8", "ch1_s9", "ch1_s10", "ch2_s1", "ch2_s2", "ch2_s3"]
+  },
+  "resources": { "gold": 45210, "heroExp": 12040 },
+  "offline": { "lastClaimAt": 1759000000000 },
+  "battleSeq": 88,
+  "daily": { "day": "2026-09-28", "fastRewardsUsed": 1, "quests": { "stage_win": 4 }, "claimedQuests": [], "activityClaimed": [] },
+  "currency": { "gems": 340, "scrolls": 2 },
+  "tower": { "floor": 7 },
+  "inventory": {
+    "items": [
+      { "id": "i1", "itemId": "knife", "equippedBy": "h5" },
+      { "id": "i2", "itemId": "cap", "equippedBy": "h7" },
+      { "id": "i3", "itemId": "sandals", "equippedBy": null }
+    ]
+  },
+  "presets": [
+    { "id": "p1", "name": "Лекари", "squad": ["h3", "h6", "h1", "h5", null] },
+    { "id": "p2", "name": "Кузнецы", "squad": ["h9", "h10", null, null, null] }
+  ],
+  "bounties": {
+    "active": [
+      {
+        "location": "ant_hell",
+        "hours": 4,
+        "heroIds": ["h9", "h10"],
+        "power": 1200,
+        "startedAt": 1759000000000,
+        "endsAt": 1759014400000,
+        "rewards": { "gold": 180, "jobExp": 240, "gems": 3, "shards": 2, "scrolls": 0, "items": [] }
+      }
+    ]
+  },
+  "achievements": { "counters": { "stages_cleared": 13, "summons": 40, "ascensions": 3 }, "claimed": ["first_ascend"] },
+  "shards": { "alan": 12, "bran": 25, "vika": 0, "greta": 41 },
+  "summon": {
+    "seq": 5,
+    "total": 42,
+    "sincePurple": 11,
+    "firstTenDone": true,
+    "freeDay": "2026-09-28",
+    "welcomeGiven": true,
+    "discovered": ["alan", "bran", "vika", "seyren", "margaretha", "kai", "eremes", "greta", "howard", "flamel", "iris", "randel", "trentini"]
+  },
+  "seenScenes": ["ch1_intro"],
+  "seenUnlocks": ["tavern", "tower"],
+  "mail": {
+    "seq": 3,
+    "letters": [
+      { "id": "m3", "from": "Гаррет", "title": "Подарок", "body": "Держи.", "day": "2026-09-28", "rewards": { "heroes": ["seyren", "iris"], "gems": 10 }, "read": false, "claimed": false },
+      { "id": "m2", "from": "Гаррет", "title": "Старый подарок", "body": "Уже забран.", "day": "2026-09-27", "rewards": { "heroes": ["margaretha"] }, "read": true, "claimed": true },
+      { "id": "m1", "source": "welcome", "from": "Гаррет", "title": "Добро пожаловать в лагерь!", "body": "…", "day": "2026-09-27", "rewards": { "gold": 500, "jobExp": 500 }, "read": true, "claimed": true }
+    ],
+    "delivered": ["welcome"]
+  },
+  "events": {
+    "startDay": "2026-09-27",
+    "lastDay": "2026-09-28",
+    "loginDays": 2,
+    "loginClaimed": [1, 2],
+    "newbieTasks": [],
+    "newbieMilestones": []
+  },
+  "shop": {
+    "day": "2026-09-28",
+    "refreshes": 0,
+    "slots": [
+      { "good": "shards_small", "kind": "shards", "hero": "greta", "count": 5, "currency": "gold", "price": 8000, "stock": 1, "bought": 0 },
+      { "good": "exp_small", "kind": "heroExp", "count": 3000, "currency": "gold", "price": 3000, "stock": 2, "bought": 1 }
+    ],
+    "boughtToday": { "exp_small": 1 }
+  },
+  "revision": 41
+}

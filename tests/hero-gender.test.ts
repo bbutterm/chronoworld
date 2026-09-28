@@ -51,10 +51,14 @@ describe('пол героев (карточки)', () => {
     expect(heroSprite(cardHero(ctx, 'iris'), ctx, () => false)).toBe(ctx.content.jobs.swordman.visual.sprite);
     // Тео — аколит-мужчина.
     expect(heroSprite(cardHero(ctx, 'teo'), ctx, has)).toBe('acolyte_m');
-    // Алан: свой лист swordman_m, после вознесения на фиолетовый — knight_m (вторая форма); нет листа — откат.
+    // Алан: свой лист swordman_m; на фиолетовом с веткой Рыцарь — knight_m (лист ветки); нет листа — откат.
+    // Фиолетовый без ветки — лист первой профессии.
     expect(heroSprite(cardHero(ctx, 'alan'), ctx, has)).toBe('swordman_m');
-    expect(heroSprite(cardHero(ctx, 'alan', 40, { rarity: 'purple' }), ctx, has)).toBe('knight_m');
-    expect(heroSprite(cardHero(ctx, 'alan', 40, { rarity: 'purple' }), ctx, () => false)).toBe(ctx.content.jobs.knight.visual.sprite);
+    expect(heroSprite(cardHero(ctx, 'alan/knight', 40), ctx, has)).toBe('knight_m');
+    expect(heroSprite(cardHero(ctx, 'alan/knight', 40), ctx, () => false)).toBe(ctx.content.jobs.knight.visual.sprite);
+    expect(heroSprite(cardHero(ctx, 'alan', 40, { rarity: 'purple' }), ctx, has)).toBe('swordman_m');
+    // Ирис-Рыцарь: листа knight_f нет — лист класса Рыцаря (откат, ⚠ в content:check).
+    expect(heroSprite(cardHero(ctx, 'iris/knight', 40), ctx, has)).toBe(ctx.content.jobs.knight.visual.sprite);
   });
 
   it('спикер-рекрут: имя Грета, пол ж по сюжетной карточке', () => {

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { CardRaritySchema } from '../heroes/schema';
 
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 
 /**
  * v4. Экземпляр карточки героя (docs/design/heroes.md): шаблон data/heroes/<templateId>.json, редкость и уровень.
@@ -17,6 +17,13 @@ export const HeroStateSchema = z.object({
   locked: z.boolean().optional(),
   /** «Новый!» — карточка из Таверны, которую игрок ещё не открывал (UI снимает markHeroSeen). */
   isNew: z.boolean().optional(),
+  /**
+   * v6. Ветка второй профессии (id профессии из branches шаблона), выбранная на фиолетовом. Нет поля — не выбрана:
+   * герой воюет формой первой профессии (у фиолетового и выше — «Выберите ветку!»).
+   */
+  branch: z.string().optional(),
+  /** v6. Сколько раз ветку меняли (первая смена бесплатно — data/cards.json → branchChange). Нет поля — 0. */
+  branchChanges: z.number().int().nonnegative().optional(),
 });
 
 /** v4. Состояние Таверны. */
@@ -25,9 +32,11 @@ export const SummonStateSchema = z.object({
   seq: z.number().int().nonnegative(),
   /** Всего призвано карточек. */
   total: z.number().int().nonnegative(),
-  /** Призывов подряд без редкости гаранта (summon.json → pity). */
+  /** Призывов подряд без фиолетовой (гарант фиолетовой, summon.json → pity). */
   sincePurple: z.number().int().nonnegative(),
-  /** Первый призыв ×10 уже был (гарантированный фиолетовый выдан). */
+  /** v6. Призывов подряд без синей или выше (гарант синей). Нет поля — 0. */
+  sinceBlue: z.number().int().nonnegative().optional(),
+  /** Первый призыв ×10 уже был (гарант первого ×10 выдан). */
   firstTenDone: z.boolean(),
   /** День последнего бесплатного призыва 'YYYY-MM-DD' (бесплатный доступен, только если день новее). */
   freeDay: z.string().optional(),
@@ -84,8 +93,8 @@ export const ExpeditionRewardsSchema = z.object({
   /** Опыт в общий пул героев. */
   jobExp: z.number().int().nonnegative(),
   gems: z.number().int().nonnegative(),
-  /** Осколки «отстающего» сюжетного героя (кому — при получении). */
-  shards: z.number().int().nonnegative(),
+  /** v7. Карты случайных героев: сколько синих и фиолетовых (герои — при получении, heroes/cardDrops.ts). */
+  heroCards: z.object({ blue: z.number().int().nonnegative(), purple: z.number().int().nonnegative() }),
   scrolls: z.number().int().nonnegative(),
   /** id предметов из data/items. */
   items: z.array(z.string()),
@@ -130,6 +139,16 @@ export const RewardBundleSchema = z.object({
   scrolls: z.number().int().nonnegative().optional(),
   /** Карточки героев: id шаблона из data/heroes (редкость — baseRarity шаблона). */
   heroes: z.array(z.string()).optional(),
+  /** v6. Карты случайных героев: сколько синих и фиолетовых (целые; герой каждой — случайный при получении). */
+  heroCards: z.object({ blue: z.number().int().nonnegative().optional(), purple: z.number().int().nonnegative().optional() }).optional(),
+  /** v6. «Контракт героя»: герой на выбор игрока этой редкости (ветку — тоже на выбор). Попадает в save.pendingPicks. */
+  heroPicks: z.array(z.object({ rarity: CardRaritySchema })).optional(),
+});
+
+/** v6. Невыбранный «Контракт героя»: редкость и откуда (id события/письма — для подписи). */
+export const HeroPickSchema = z.object({
+  rarity: CardRaritySchema,
+  source: z.string(),
 });
 
 /** v5. Письмо в почте. */
@@ -178,16 +197,17 @@ export const EventsStateSchema = z.object({
 
 /**
  * Слот Лавки — снимок товара из data/shop.json на момент обновления (правка конфига не меняет уже выставленное):
- * конкретный предмет / герой осколков, количество, цена, запас и сколько уже куплено.
+ * конкретный предмет / герой карты, количество, цена, запас и сколько уже куплено.
  */
 export const ShopSlotSchema = z.object({
   /** id товара из data/shop.json → goods. */
   good: z.string(),
-  kind: z.enum(['item', 'shards', 'heroExp', 'scrolls', 'gold']),
+  kind: z.enum(['item', 'heroCard', 'heroExp', 'scrolls', 'gold']),
   /** kind item: id предмета (data/items). */
   itemId: z.string().optional(),
-  /** kind shards: шаблон сюжетного героя. */
+  /** v6. kind heroCard: герой (шаблон, выбран при обновлении ассортимента) и редкость карты. */
   hero: z.string().optional(),
+  rarity: CardRaritySchema.optional(),
   count: z.number().int().positive(),
   currency: z.enum(['gold', 'gems']),
   price: z.number().int().positive(),
@@ -261,8 +281,6 @@ export const SaveStateSchema = z.object({
   bounties: ExpeditionsStateSchema,
   /** v3 (K10). Достижения. */
   achievements: AchievementsStateSchema,
-  /** v4. Осколки сюжетных героев: id шаблона → сколько. */
-  shards: z.record(z.string(), z.number().int().nonnegative()),
   /** v4. Таверна. */
   summon: SummonStateSchema,
   /**
@@ -310,6 +328,8 @@ export const SaveStateSchema = z.object({
   shop: ShopStateSchema.optional(),
   /** Охота на босса. Нет поля — ещё не охотились (без смены версии). */
   hunt: HuntStateSchema.optional(),
+  /** v6. Невыбранные «Контракты героя» (награды событий): экран выбора героя и ветки. Нет поля — нет. */
+  pendingPicks: z.array(HeroPickSchema).optional(),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;
@@ -329,6 +349,7 @@ export type EventsState = z.infer<typeof EventsStateSchema>;
 export type ShopSlot = z.infer<typeof ShopSlotSchema>;
 export type ShopState = z.infer<typeof ShopStateSchema>;
 export type HuntState = z.infer<typeof HuntStateSchema>;
+export type HeroPick = z.infer<typeof HeroPickSchema>;
 
 /** День по умолчанию для newGame/миграций, пока UI не передал настоящий. */
 export const DEFAULT_DAY = '1970-01-01';
@@ -343,7 +364,7 @@ export function emptyDaily(day: string): DailyState {
 
 /** v4. Таверна новой игры. */
 export function emptySummon(): SummonState {
-  return { seq: 0, total: 0, sincePurple: 0, firstTenDone: false, welcomeGiven: false, discovered: [] };
+  return { seq: 0, total: 0, sincePurple: 0, sinceBlue: 0, firstTenDone: false, welcomeGiven: false, discovered: [] };
 }
 
 /** v6. Нет экспедиций в пути. */

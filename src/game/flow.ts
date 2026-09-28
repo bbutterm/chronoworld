@@ -5,6 +5,8 @@ import {
   ascendRequirement,
   canEquip,
   heroesWithGearUpgrades,
+  needsBranch,
+  pendingPicks,
   heroGender,
   heroJobId,
   heroName,
@@ -34,6 +36,7 @@ import {
   type ItemDef,
   type ItemInstance,
   type ItemStats,
+  type EventRewardEvent,
   type MetaEvent,
   type MetaRewards,
   type Preset,
@@ -124,7 +127,9 @@ export function ascendReady(save: SaveState, ctx: GameContext): HeroState[] {
 export function heroesBadgeCount(save: SaveState, ctx: GearContext & GameContext): number {
   const ids = new Set(heroesWithGearUpgrades(save, ctx));
   for (const h of ascendReady(save, ctx)) ids.add(h.id);
-  return ids.size;
+  // Фиолетовые без ветки («Выберите ветку!») и невыбранные «Контракты героя».
+  for (const h of save.heroes) if (ctx.content.heroes[h.templateId] && needsBranch(h, ctx)) ids.add(h.id);
+  return ids.size + pendingPicks(save).length;
 }
 
 /**
@@ -146,7 +151,7 @@ export function currentStage(save: SaveState, ctx: GameContext): StageInfo | und
 }
 
 /** Строки для экрана итогов/тоста по событиям прогрессии. */
-export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save: SaveState, ctx: GameContext): string[] {
+export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventRewardEvent)[], save: SaveState, ctx: GameContext): string[] {
   const nameOf = (id: string) => {
     const h = save.heroes.find((x) => x.id === id);
     return h ? heroName(h, ctx) : id;
@@ -165,9 +170,11 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save
   for (const [heroId, l] of levels) lines.push(`${nameOf(heroId)}: ур. ${l.from} → ${l.to}`);
   for (const e of events) {
     if (e.type === 'skillUnlocked') lines.push(`${nameOf(e.heroId)}: новый навык «${skillName(e.skill)}»`);
-    if (e.type === 'heroJoined') lines.unshift(`Новый герой в отряде: ${e.name}!`);
+    if (e.type === 'heroJoined') lines.unshift(e.copy ? `${e.name}: пришла копия героя (для вознесения)` : `Новый герой в отряде: ${e.name}!`);
     if (e.type === 'ascended') lines.push(`${nameOf(e.heroId)}: ${rarityName(e.from)} → ${rarityName(e.to)}${e.jobChanged ? ` — теперь ${jobName(e.job)}!` : ''}`);
-    if (e.type === 'shards') lines.push(`Осколки героя ${ctx.content.heroes[e.templateId]?.name ?? e.templateId} +${e.count}`);
+    if (e.type === 'heroCard') lines.push(`Карта героя: ${e.name} (${rarityName(e.rarity)})`);
+    if (e.type === 'heroPick') lines.push(`Контракт героя: ${rarityName(e.rarity).toLowerCase()} герой на выбор — «Герои»`);
+    if (e.type === 'branchChosen') lines.push(`${nameOf(e.heroId)}: ветка — ${jobName(e.branch)}${e.gems ? ` (−${formatNumber(e.gems)} гемов)` : ''}`);
     if (e.type === 'tavernUnlocked') lines.unshift(`Открыта Таверна! Подарок: гемы +${formatNumber(e.gems)}, свитки призыва +${e.scrolls}`);
     if (e.type === 'stageUnlocked') {
       const s = ctx.content.stages.find((x) => x.id === e.stageId);
@@ -460,20 +467,21 @@ export function countdownText(ms: number): string {
 }
 
 /** Награда K10 одной строкой: «300 зол. · 50 опыта · 5 гем.» (нулевые не пишем). */
-export function metaRewardsText(r: Omit<MetaRewards, 'shards'> & { shards?: number }, jobExpSuffix = ''): string {
+export function metaRewardsText(r: Omit<MetaRewards, 'heroCards'> & { heroCards?: MetaRewards['heroCards'] }, jobExpSuffix = ''): string {
   const parts: string[] = [];
   if (r.gold) parts.push(`${formatNumber(r.gold)} зол.`);
   if (r.jobExp) parts.push(`${formatNumber(r.jobExp)} опыта${jobExpSuffix}`);
   if (r.gems) parts.push(`${formatNumber(r.gems)} гем.`);
-  if (r.shards) parts.push(`${formatNumber(r.shards)} оск.`);
+  const cards = (r.heroCards?.blue ?? 0) + (r.heroCards?.purple ?? 0);
+  if (cards > 0) parts.push(cards >= 1 && Number.isInteger(cards) ? `${cards} карт. героя` : `карта героя ${Math.round(cards * 100)}%`);
   return parts.join(' · ') || '—';
 }
 
-/** Что даст экспедиция (до отправки): «≈ 660 зол. · 880 опыта» и находки «гемы, осколки, предметы» — по средним. */
+/** Что даст экспедиция (до отправки): «≈ 660 зол. · 880 опыта» и находки «гемы, карты героя, предметы» — по средним. */
 export function expectedLootText(e: ExpectedLoot): { base: string; finds: string } {
   const finds: string[] = [];
   if (e.gems > 0) finds.push(`гемы ≈${Math.max(1, Math.round(e.gems))}`);
-  if (e.shards > 0) finds.push('осколки');
+  if (e.heroCards > 0) finds.push('карты героя');
   if (e.items > 0) finds.push('снаряжение');
   if (e.scrolls > 0) finds.push('свитки');
   return { base: `${formatNumber(e.gold)} зол. · ${formatNumber(e.jobExp)} опыта`, finds: finds.length ? `Находки: ${finds.join(', ')}` : '' };

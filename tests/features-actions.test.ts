@@ -131,12 +131,14 @@ describe('обёртки действий засчитывают задания'
 
   it('actSummon / actAscend: задания summon / hero_ascend и достижения summons / ascensions', () => {
     const s0 = { ...newGame(ctx, 0, D1), campaign: { cleared: ctx.content.stages.slice(0, 5).map((x) => x.id) } };
-    const s: SaveState = { ...s0, currency: { gems: 1000, scrolls: 0 }, resources: { ...s0.resources, gold: 10_000 }, shards: { alan: 20 } };
+    // Две зелёные копии Алана (h90, h91) — корм для вознесения зелёный → синий.
+    const copies = [{ id: 'h90', templateId: 'alan', rarity: 'green' as const, level: 1 }, { id: 'h91', templateId: 'alan', rarity: 'green' as const, level: 1 }];
+    const s: SaveState = { ...s0, heroes: [...s0.heroes, ...copies], currency: { gems: 1000, scrolls: 0 }, resources: { ...s0.resources, gold: 10_000 } };
     const pulled = actSummon(s, D1, 10, 'gems', ctx);
     expect(pulled.results).toHaveLength(10);
     expect(pulled.save.daily.quests).toEqual({ summon: 10 });
     expect(pulled.save.achievements.counters.summons).toBe(10);
-    const up = actAscend(pulled.save, D1, 'h1', [], ctx);
+    const up = actAscend(pulled.save, D1, 'h1', ['h90', 'h91'], ctx);
     expect(up.save.heroes[0].rarity).toBe('blue');
     expect(up.save.daily.quests).toEqual({ summon: 10, hero_ascend: 1 });
     expect(up.save.achievements.counters.ascensions).toBe(1);
@@ -188,7 +190,7 @@ describe('обёртки наград с опытом: опыт — в общи�
     expect(() => actClaimActivity(s0, D1, 60, mctx)).toThrow(FeatureError);
   });
 
-  it('actClaimExpedition: опыт экспедиции — в пул, осколки — «отстающему» сюжетному герою', () => {
+  it('actClaimExpedition: опыт экспедиции — в пул, карты героя — новыми экземплярами', () => {
     const s0 = base();
     const hero = s0.heroes[0].id;
     const s: SaveState = {
@@ -202,15 +204,16 @@ describe('обёртки наград с опытом: опыт — в общи�
             power: 1000,
             startedAt: 0,
             endsAt: 1000,
-            rewards: { gold: 10, jobExp: 500, gems: 0, shards: 2, scrolls: 0, items: [] },
+            rewards: { gold: 10, jobExp: 500, gems: 0, heroCards: { blue: 2, purple: 0 }, scrolls: 0, items: [] },
           },
         ],
       },
     };
     const plain = claimExpedition(s, 'ant_hell', 1000, mctx);
     expect(plain.save.resources.heroExp).toBe(500);
-    expect(plain.save.shards).toEqual({ alan: 2 });
-    expect(plain.events).toContainEqual({ type: 'shards', templateId: 'alan', count: 2 });
+    const added = plain.save.heroes.slice(s.heroes.length);
+    expect(added.map((h) => h.rarity)).toEqual(['blue', 'blue']);
+    expect(plain.events.filter((e) => e.type === 'heroCard')).toHaveLength(2);
     const out = actClaimExpedition(s, D1, 'ant_hell', 1000, mctx);
     expect(out.events).toEqual(plain.events);
     expect(out.save.daily.quests).toEqual({});
@@ -218,15 +221,16 @@ describe('обёртки наград с опытом: опыт — в общи�
     expect(() => actClaimExpedition(s, D1, 'ant_hell', 999, mctx)).toThrow(MetaError);
   });
 
-  it('actClaimAchievement: опыт и осколки достижения', () => {
+  it('actClaimAchievement: гемы и карта героя достижения', () => {
     const s0 = base();
-    const s: SaveState = { ...s0, achievements: { ...s0.achievements, counters: { ...s0.achievements.counters, stages_cleared: 10 } } };
-    const plain = claimAchievement(s, 'stages_10', mctx);
-    expect(plain.save.shards).toEqual({ alan: 5 });
-    const out = actClaimAchievement(s, D1, 'stages_10', mctx);
+    const s: SaveState = { ...s0, achievements: { ...s0.achievements, counters: { ...s0.achievements.counters, battles_won: 100 } } };
+    const plain = claimAchievement(s, 'battles_100', mctx);
+    expect(plain.rewards.heroCards).toEqual({ blue: 1 });
+    expect(plain.save.heroes.slice(s.heroes.length).map((h) => h.rarity)).toEqual(['blue']);
+    const out = actClaimAchievement(s, D1, 'battles_100', mctx);
     expect(out.events).toEqual(plain.events);
     expect(out.save.daily.quests).toEqual({});
     expect(out.save.achievements).toEqual(plain.save.achievements);
-    expect(() => actClaimAchievement(out.save, D1, 'stages_10', mctx)).toThrow(MetaError);
+    expect(() => actClaimAchievement(out.save, D1, 'battles_100', mctx)).toThrow(MetaError);
   });
 });
