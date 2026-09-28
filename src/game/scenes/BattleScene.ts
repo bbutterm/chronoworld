@@ -7,8 +7,13 @@ import {
   enemySquad,
   fightHunt,
   getStage,
+  levelBand,
   orderActives,
+  progressLevelBand,
+  recommendedFactor,
   simulateBattle,
+  unitLevel,
+  type CardRarity,
   towerFloor,
   withGear,
   type BattleEvent,
@@ -22,7 +27,7 @@ import {
 } from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
-import { heroSprite, stageSeed } from '../flow';
+import { enemyLevelColor, heroSprite, levelLabel, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { SKIN, SKIN_TINT } from '../skin';
@@ -96,6 +101,8 @@ const STATUS_MAX = 2;
 const STATUS_GAP = 3;
 /** Имена над юнитами (T2-15, T3-02): мелко, видны первые секунды боя, потом гаснут; касание юнита — показать снова. */
 const NAME_SIZE = 20;
+/** Подпись уровня врага слева от полоски HP. */
+const LEVEL_SIZE = 20;
 const NAME_SHOW_S = 3;
 const NAME_FADE_MS = 500;
 const NAME_TAP_MS = 1800;
@@ -297,6 +304,8 @@ export class BattleScene extends Phaser.Scene {
   private sfx!: SkillFx;
   /** Сколько мс (с учётом скорости) бой ещё стоит ради баннера босса. */
   private introLeft = 0;
+  /** Уровни врагов (core/features/levels.ts): редкость полосы и поправка босс-этапа; null — тестовый бой (без уровней). */
+  private levels: { rarity: CardRarity; bossFactor: number } | null = null;
   /** Полоска HP босса наверху (только на босс-этапе). */
   private bossBar: { uid: string; fill: Phaser.GameObjects.Image } | null = null;
   /** Тема поля (глава этапа / ярус башни) и лёгкие частицы по ней. */
@@ -343,6 +352,7 @@ export class BattleScene extends Phaser.Scene {
     this.stage = undefined;
     this.tower = undefined;
     this.hunt = undefined;
+    this.levels = null;
     if (data.mode === 'stage') {
       // Бой считает ядро (actPlayStage: экипировка, выпадение, задания); сцена только проигрывает лог.
       // Сохраняем, когда бой закончится.
@@ -361,6 +371,7 @@ export class BattleScene extends Phaser.Scene {
       this.defs = squadDefs(save);
       for (const u of enemySquad(data.stageId, GAME)) if (u) this.defs[u.id] = u;
       const st = getStage(GAME, data.stageId);
+      this.levels = { rarity: levelBand(data.stageId, GAME).rarity, bossFactor: recommendedFactor(data.stageId, GAME) };
       title = `Этап ${st.globalIndex + 1}. ${st.name}`;
       this.theme = themeOfBattle({ stageId: data.stageId });
     } else if (data.mode === 'tower') {
@@ -378,6 +389,7 @@ export class BattleScene extends Phaser.Scene {
       this.tower = { floor: outcome.floor, outcome };
       this.defs = squadDefs(save);
       for (const u of towerFloor(outcome.floor, GAME).enemies) if (u) this.defs[u.id] = u;
+      this.levels = { rarity: progressLevelBand(save, GAME).rarity, bossFactor: 1 };
       title = `Башня · этаж ${outcome.floor}`;
       this.theme = themeOfBattle({ towerFloor: outcome.floor });
     } else if (data.mode === 'hunt') {
@@ -395,6 +407,7 @@ export class BattleScene extends Phaser.Scene {
       this.hunt = { outcome };
       this.defs = squadDefs(save);
       this.defs[outcome.boss.def.id] = outcome.boss.def;
+      this.levels = { rarity: progressLevelBand(save, GAME).rarity, bossFactor: 1 };
       title = 'Охота на босса';
       this.theme = 'swamp';
     } else {
@@ -465,11 +478,12 @@ export class BattleScene extends Phaser.Scene {
     const boss = this.result.units.find((u) => u.side === 'B' && this.defs[u.unitId]?.kind === 'boss');
     if (!boss) return;
     const name = this.defs[boss.unitId].name;
+    const level = this.enemyLevel(this.defs[boss.unitId]);
 
     const barX = GAME_W / 2 - BOSS_BAR_W / 2;
     this.add.image(GAME_W / 2, BOSS_BAR_Y, 'ui_bar_back').setDisplaySize(BOSS_BAR_W + 12, 46);
     const fill = this.add.image(barX, BOSS_BAR_Y, 'ui_bar_hp_enemy').setOrigin(0, 0.5).setDisplaySize(BOSS_BAR_W, 34);
-    text(this, GAME_W / 2, BOSS_BAR_Y, name, 28, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
+    text(this, GAME_W / 2, BOSS_BAR_Y, level !== null ? `${name} · ${levelLabel(level)}` : name, 28, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
     this.bossBar = { uid: boss.uid, fill };
     const v = this.views.get(boss.uid);
     if (v) this.redraw(v);
@@ -483,7 +497,9 @@ export class BattleScene extends Phaser.Scene {
     const inner = this.add.rectangle(0, 0, w - 36, h - 36).setStrokeStyle(2, SKIN_TINT.gold, 0.5);
     const title = text(this, 0, -34, name.toUpperCase(), 104, SKIN.goldLight, { fontStyle: 'bold', stroke: '#2a1a08', strokeThickness: 12 });
     if (title.width > w - 80) title.setScale((w - 80) / title.width);
-    const sub = text(this, 0, 82, subtitle, 44, SKIN.cream, { stroke: '#000000', strokeThickness: 6 });
+    const sub = text(this, 0, 82, level !== null ? `${subtitle} · ${levelLabel(level)}` : subtitle, 44, SKIN.cream, { stroke: '#000000', strokeThickness: 6 });
+    // Уровень босса — цветом против среднего уровня отряда (красный — выше больше чем на 5).
+    if (level !== null) sub.setColor(enemyLevelColor(level, session.save));
     const lineW = 150;
     const gap = sub.width / 2 + 30;
     const lines = [-1, 1].map((d) => this.add.rectangle(d * (gap + lineW / 2), 82, lineW, 4, SKIN_TINT.gold));
@@ -549,6 +565,15 @@ export class BattleScene extends Phaser.Scene {
     const name = text(this, ox, nameY, def.name, NAME_SIZE, '#ffffff', { stroke: '#000000', strokeThickness: 4 });
     const bars: Phaser.GameObjects.Components.Visible[] = [barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
     const parts: Phaser.GameObjects.GameObject[] = [shadow, sprite, barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
+    // Уровень врага (как в AFK) — слева от полоски HP, цветом против среднего уровня отряда; виден весь бой.
+    const level = snap.side === 'B' ? this.enemyLevel(def) : null;
+    if (level !== null) {
+      const lv = text(this, ox - BAR_W / 2 - 6, 14, levelLabel(level), LEVEL_SIZE, enemyLevelColor(level, session.save), { fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 })
+        .setOrigin(1, 0.5)
+        .setName('enemyLevel');
+      bars.push(lv);
+      parts.push(lv);
+    }
     // Перезарядка активных навыков героев (как в AFK Arena): значки с круговой «шторкой» под полоской HP.
     const cdIcons: CdIcon[] = [];
     const cdSkills: CdSkill[] = [];
@@ -650,6 +675,11 @@ export class BattleScene extends Phaser.Scene {
     const bodyH = Math.min(fh, look.height / sprite.scaleY);
     const hit = new Phaser.Geom.Rectangle(sprite.originX * fw - bodyW / 2, sprite.originY * fh - bodyH, bodyW, bodyH);
     sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains).on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, () => this.flashName(v));
+  }
+
+  /** Уровень врага в этом бою (null — тестовый бой). */
+  private enemyLevel(def: UnitDef): number | null {
+    return this.levels ? unitLevel(def, this.levels.rarity, GAME, this.levels.bossFactor) : null;
   }
 
   /** Подпись (имя, название каста) — целиком внутри экрана, даже у юнита у самого края (T3-02). */

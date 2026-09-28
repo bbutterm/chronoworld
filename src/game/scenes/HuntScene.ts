@@ -69,6 +69,7 @@ export class HuntScene extends Phaser.Scene {
     });
     const tx = 540;
     text(this, tx, top + 70, 'Босс дня', FS.small, C.muted).setOrigin(0, 0.5);
+    // Уровня у босса охоты нет: его здоровье — запас на урон (×180–200), «ур. 140» только пугал бы. Цель — порог урона.
     text(this, tx, top + 130, def.name, FS.h1, C.title, TITLE_STYLE).setOrigin(0, 0.5);
     if (st.boss.title) text(this, tx, top + 190, st.boss.title, FS.small, SKIN.cream, { ...OUTLINE, wordWrap: { width: 470 }, align: 'left' }).setOrigin(0, 0.5);
     text(this, tx, top + 250, `Здоровье ${formatNumber(def.stats.hp)}`, FS.body, C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
