@@ -12,6 +12,9 @@ import {
   actAscend,
   actClaimOffline,
   actClimbTower,
+  fightHunt,
+  huntStatus,
+  sweepHunt,
   actEquip,
   actLevelUp,
   actPlayStage,
@@ -103,6 +106,11 @@ export interface PlayerModel {
   bounties: boolean;
   /** Призыв за гемы (×10, когда гемов хватает на ×10); false — только бесплатный призыв и свитки. */
   summonWithGems: boolean;
+  /**
+   * «Охота на босса» (data/hunt.json): в первой сессии дня с попытками — бой, дальше «Зачистка» лучшего результата
+   * (если доступна), иначе бой. false — не охотиться.
+   */
+  hunt: boolean;
   /** «Вход 7 дней», «7 дней новичка» и почта (data/events.json): забирать всё, что можно, в каждой сессии. */
   events: boolean;
   /** Сдвиг seed: seed боя = seedBase + save.battleSeq; seed доски поручений = seedBase. */
@@ -130,6 +138,7 @@ export const PLAYER_MODEL: PlayerModel = {
   midSessionClaimMinutes: 10,
   bounties: true,
   summonWithGems: true,
+  hunt: true,
   events: true,
   seedBase: 1,
   startDate: '2026-01-01',
@@ -260,7 +269,7 @@ export interface LevelLog {
 }
 
 /** Источники доходов/расходов золота, гемов и опыта. */
-export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'bounties', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon'] as const;
+export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'hunt', 'bounties', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon'] as const;
 export type Source = (typeof SOURCES)[number];
 export type Ledger = Record<Source, { gold: number; gems: number; exp: number }>;
 
@@ -303,6 +312,8 @@ export interface BalanceResult {
   eventClaims: { kind: 'login' | 'newbie_task' | 'newbie_chest' | 'mail'; id: string; day: number; t: number }[];
   /** Активных минут всего. */
   activeMinutes: number;
+  /** Охота на босса: каждая попытка (день модели, урон, порог — индекс, −1 нет; зачистка). */
+  huntLog: { day: number; damage: number; tier: number; sweep: boolean }[];
 }
 
 const HOUR = 3_600_000;
@@ -639,6 +650,7 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
   const battles: BattleLog[] = [];
   const stageAttempts = new Map<string, number>();
   const towerByFloor = new Map<number, number>();
+  const huntLog: BalanceResult['huntLog'] = [];
   const lastChapter = ctx.content.stages[ctx.content.stages.length - 1]?.chapter ?? '';
   // Скорость ×2 открывается этапом (data/unlocks.json → speed_x2): до него бои смотрят на ×1.
   const battleMs = (duration: number) =>
@@ -718,6 +730,18 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
         else towerLosses++;
       }
 
+      // Охота на босса: сначала бой (рекорд), потом «Зачистка»; каждая попытка — одна за сессию.
+      if (model.hunt && sim.now < end) {
+        const hs = huntStatus(sim.save, sim.day, ctx);
+        if (hs.unlocked && hs.attemptsLeft > 0) {
+          const out = hs.canSweep && hs.used > 0 ? sweepHunt(sim.save, sim.day, ctx) : fightHunt(sim.save, sim.day, ctx);
+          sim.spendTime(out.result ? battleMs(out.result.duration) : model.battleOverheadSec * 1000);
+          sim.step('hunt', out.save);
+          huntLog.push({ day, damage: out.damage, tier: out.tier, sweep: out.sweep });
+          sim.prepare();
+        }
+      }
+
       if (model.bounties) {
         sim.claimBounties();
         sim.startBounties();
@@ -774,6 +798,7 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     income: sim.income,
     spend: sim.spend,
     towerAttempts: Object.fromEntries(towerByFloor),
+    huntLog,
     questClaims: sim.questClaims,
     milestoneClaims: sim.milestoneClaims,
     equips: sim.equips,

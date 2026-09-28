@@ -15,11 +15,13 @@ import { ProgressionConfigSchema } from './progression/schema';
 import type { GameContext } from './progression/types';
 import { buildStory, type StoryContext } from './story/story';
 import { parseTowerConfig, withTower, type TowerContext } from './tower';
+import { parseHuntConfig, validateHunt } from './hunt/hunt';
+import type { HuntConfig } from './hunt/schema';
 import type { CombatConfig, Content } from './types';
 import { parseUnlocks, validateUnlocks } from './unlocks/unlocks';
 
 /** Полный контекст игры: прогрессия и кампания + K-функции, экипировка, башня, пресеты / поручения / достижения. */
-export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext & EventsContext;
+export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext & EventsContext & { hunt: HuntConfig };
 
 /** Сырые данные data/ — содержимое JSON без разбора. */
 export interface RawGameData {
@@ -42,6 +44,8 @@ export interface RawGameData {
   achievements: unknown;
   /** data/events.json — «Вход 7 дней», «7 дней новичка», системные письма. */
   events: unknown;
+  /** data/hunt.json — «Охота на босса». */
+  hunt: unknown;
   /** data/unlocks.json — этапы открытия функций. Нет — всё открыто сразу (Таверна и Башня — по своим файлам). */
   unlocks?: unknown;
   /** data/story/*.json — сюжет глав (нет — без сюжета). */
@@ -106,6 +110,7 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     stage('data/tower.json', () => parseTowerConfig(raw.tower));
     stage('data/bounties.json / data/achievements.json', () => parseMetaConfig(raw.bounties, raw.achievements));
     stage('data/events.json', () => parseEventsConfig(raw.events));
+    stage('data/hunt.json', () => parseHuntConfig(raw.hunt));
     return { content, problems };
   }
 
@@ -126,10 +131,12 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
   const story = stage('data/story', () => buildStory(normalize(raw.stories ?? []), content, problems));
   const events = stage('data/events.json', () => parseEventsConfig(raw.events));
   if (events) validateEventsConfig(events, base, problems);
+  const hunt = stage('data/hunt.json', () => parseHuntConfig(raw.hunt));
+  if (hunt) validateHunt(hunt, content, problems);
 
-  if (problems.length || !features || !equipment || !tower || !meta || !story || !events) return { content, problems };
+  if (problems.length || !features || !equipment || !tower || !meta || !story || !events || !hunt) return { content, problems };
   return {
-    ctx: { ...base, features, equipment, tower, meta, story, events },
+    ctx: { ...base, features, equipment, tower, meta, story, events, hunt },
     content,
     problems,
   };

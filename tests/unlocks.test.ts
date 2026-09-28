@@ -145,7 +145,9 @@ describe('старые сохранения без seenUnlocks', () => {
     const storage = new MemoryStorage();
     storage.save(serialize(old('ch1_s10')));
     const r = loadOrNew(storage, ctx, 0);
-    expect(r.save.seenUnlocks).toEqual(ctx.unlocks!.features.map((f) => f.id));
+    // Показанными отмечаются функции, открытые к ch1_s10 (охота — позже, на ch2_s1: её баннер ещё впереди).
+    const opened = old('ch1_s10');
+    expect(r.save.seenUnlocks).toEqual(ctx.unlocks!.features.filter((f) => opened.campaign.cleared.includes(f.stage)).map((f) => f.id));
     const fresh = newGame(ctx, 0);
     expect(fresh.seenUnlocks).toEqual([]);
     expect(sanitizeSave(fresh, ctx).save).toBe(fresh);
