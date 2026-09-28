@@ -5,7 +5,7 @@ import { claimableCount, describeEvents, formatNumber, questDestination, untilRe
 import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
 import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
-import { commit, restartOnNewDay, session, today } from '../session';
+import { commit, now, restartOnNewDay, session, today } from '../session';
 import { button, emptyState, progressBar, ScrollArea, text, toast } from '../ui';
 import { SKIN, SKIN_TINT, skinIcon } from '../skin';
 import { C, FS, TINT } from '../theme';
@@ -41,7 +41,7 @@ export class QuestsScene extends Phaser.Scene {
       strokeThickness: 6,
     });
     const reset = text(this, GAME_W / 2, top + 105, '', FS.small, C.muted);
-    const tick = () => reset.setText(`Задания обновятся через ${untilReset(new Date())}`);
+    const tick = () => reset.setText(`Задания обновятся через ${untilReset(new Date(now()))}`);
     tick();
     this.time.addEvent({ delay: 30_000, loop: true, callback: tick });
 

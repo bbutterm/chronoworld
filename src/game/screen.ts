@@ -14,6 +14,7 @@ import { C, FS, SP, TINT } from './theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { animateCurrency, heartbeat, type CurrencyPill } from './juice';
 import { sfx } from './audio';
+import { testerButtons } from './tester';
 
 /**
  * Вкладки нижней навигации (как в AFK Arena): «Кампания» — карта, сундук офлайн-наград и быстрые награды;
@@ -131,6 +132,7 @@ export function screen(
       }
     });
   }
+  testerButtons(scene, band, BAND_MIN);
   const warnings = takeWarnings();
   for (const w of warnings.filter((x) => !isHeroesNotice(x))) toast(scene, w, C.error, 6000);
   const notices = warnings.filter(isHeroesNotice);
