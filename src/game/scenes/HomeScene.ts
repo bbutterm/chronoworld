@@ -1,255 +1,73 @@
 import Phaser from 'phaser';
-import { hasArt } from '../assets';
-import { achievementStatus, heroesWithGearUpgrades, stageStatus, actClaimOffline, actUseFastRewards, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, finishedExpeditions, offlineRewards, questStatus, towerStatus } from '../../core';
-import { GAME } from '../content';
-import { claimableAchievements, claimableCount, currentStage, describeEvents, expeditionsBadgeCount, formatNumber, levelUpReady, powerCheck, towerBadgeCount } from '../flow';
-import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
+import { resetHints } from '../hints';
 import { GAME_H, GAME_W, HEADER_H } from '../layout';
-import { card, confirm, confirmOpen, cornerBadge, gemIcon, NAV_H, popIn, powerChip, screen } from '../screen';
-import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn } from '../juice';
-import { commit, now, resetProgress, restartOnNewDay, session, today } from '../session';
-import { button, dangerButton, hintPointer, icon, panel, pressable, text, toast } from '../ui';
-import { C, FS, OUTLINE, TINT, TITLE_STYLE, TOUCH } from '../theme';
-import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
-import { ctaShine, glow, medallion, motes, ribbon, slowRays } from '../decor';
+import { confirm, popIn, screen } from '../screen';
+import { collect, staggerIn } from '../juice';
+import { resetProgress, restartOnNewDay } from '../session';
+import { button, dangerButton, panel, text, toast } from '../ui';
+import { C, FS, OUTLINE, TOUCH } from '../theme';
+import { motes, ribbon } from '../decor';
 import { fps, motion, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed, setReducedMotion } from '../state';
 import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
 import { audioSettings, setAudioSettings, sfx } from '../audio';
 import { nextVolume, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
-import { huntTile } from '../huntEntry';
 import { shopTile } from '../shopEntry';
-import { isUnlocked, lockCover, lockedToast, lockLabel, showUnlockBanners, UNLOCK_BANNER_NAME } from '../unlockBanner';
-import { homeEventIcons } from '../homeEvents';
-import { ChestCardView, chestHeadline, lootLines, lootSummary } from '../chestView';
-
-/** Размер сундука офлайн-наград. */
-const CHEST = 180;
-
-/** Кнопка быстрых наград (центр по x). */
-const FAST_BTN_X = 840;
+import { achievementsTile, questsTile } from '../featureTiles';
+import { showUnlockBanners } from '../unlockBanner';
+import { homeEventIcons, touchToday } from '../homeEvents';
 
 /**
- * Раскладка главной (S), сверху вниз: сундук, быстрые награды, плитки 2×2, ряд «зданий» Таверна / Лавка / Охота
- * (три одинаковые плитки, buildingTile в tavernEntry.ts), «В кампанию» над навигацией. Колонка — 1000 ед. по центру
- * (x 40…1040). Между блоками оставлено место под плашку подсказки (≈126 ед. от края цели до дальнего края плашки),
- * чтобы она не закрывала кнопки: под «Собрать» — до карточки быстрых наград, над плиткой «Башня» — до кнопки быстрых
- * наград (плашка ложится на текст карточки), под «В кампанию» — до навигации (там же плашка над вкладкой «Герои»).
+ * Страница «Город» (вкладка нижней навигации, сцена Home): четыре крупных «здания» 2×2 — Таверна, Лавка, Задания,
+ * Достижения (buildingTile в tavernEntry.ts: медальон, название, состояние, пояснение, значок или зелёная точка, замок
+ * «Откроется на этапе …»). В шапке — плашка игрока, иконки событий, почты и контракта (homeEvents.ts) и шестерёнка
+ * настроек. Сундук, быстрые награды и «В бой» — на странице «Кампания», Башня, экспедиции и охота — «Приключения».
  */
 const L = {
-  chestY: 380,
-  chestH: 430,
-  /** Сундук слева в карточке, текст и «Собрать» — справа от него (как панель наград AFK Arena). */
-  chestX: 200,
-  chestIconY: 370,
-  claimX: 600,
-  claimY: 500,
-  claimW: 420,
-  chestTextX: 640,
-  fastY: 790,
-  fastH: 200,
-  /** Кнопка быстрых наград в верхней части карточки: над плиткой «Башня» остаётся место для подсказки. */
-  fastBtnY: 758,
-  fastBtnH: 100,
-  tileW: 492,
-  tileH: 150,
+  ribbonY: 238,
+  tileW: 490,
+  tileH: 640,
   tileXL: 286,
   tileXR: 794,
-  tileY1: 1013,
-  tileY2: 1177,
-  /** Ряд «зданий»: три плитки по 316 с зазором 26 (x 40…1040). */
-  bldY: 1362,
-  bldW: 316,
-  bldH: 190,
-  bldGap: 26,
-  campaignY: 1536,
-  campaignH: 130,
+  tileY1: 628,
+  tileY2: 1298,
 } as const;
 
-/**
- * Главная: сундук офлайн-наград, быстрые награды (K1), плитки задания (K5) / башня (K4) / экспедиции (K9) / достижения (K10), кампания.
- * Тестовый бой, сброс подсказок и прогресса — в настройках (шестерёнка в шапке, S).
- */
 /** Инструменты разработчика (тестовый бой): dev-сборка или ?dev=1 в адресе. */
 function devTools(): boolean {
   return import.meta.env.DEV || new URLSearchParams(location.search).has('dev');
 }
 
 export class HomeScene extends Phaser.Scene {
-  private chestText!: Phaser.GameObjects.Text;
-  /** Иконки накопленного и таймер «Полон через» (chestView.ts). */
-  private chestView?: ChestCardView;
-  private chestImg?: Phaser.GameObjects.Image;
-  private chestRays?: Phaser.GameObjects.Image;
-  private chestGlow?: Phaser.GameObjects.Image;
-  private claimBtn!: ReturnType<typeof button>;
-  /** Сколько экспедиций вернулось при отрисовке плитки (раз в секунду сверяем — значок не отстаёт). */
-  private expeditionsDone = 0;
-  /** R: показанная подсказка (одна за раз) и её указатель. */
-  private hintId: HintId | null = null;
-  private hintView: Phaser.GameObjects.Container | null = null;
-  /** Объекты блоков главной (сундук, быстрые награды, ряды плиток) — для «выезда» при первом открытии. */
-  private blocks: Phaser.GameObjects.GameObject[][] = [];
-  /** «Собрать» уже пульсирует (сундук не пуст). */
-  private claimPulsing = false;
-
   constructor() {
     super('Home');
   }
 
   create(): void {
-    this.hintId = null;
-    this.hintView = null;
-    this.blocks = [];
-    // Сцена-синглтон живёт всю игру: после выхода с главной не держать её уничтоженные объекты (npm run perf — «dead»).
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.blocks = [];
-      this.hintView = null;
-      this.chestImg = undefined;
-      this.chestView = undefined;
-      this.chestRays = undefined;
-      this.chestGlow = undefined;
-      this.chestText = undefined as unknown as Phaser.GameObjects.Text;
-      this.claimBtn = undefined as unknown as ReturnType<typeof button>;
-    });
-    this.claimPulsing = false;
     restartOnNewDay(this);
+    // Сегодняшний вход и системные письма — до шапки и навигации (их значки это учитывают).
+    touchToday();
     screen(this, 'Лагерь героев', 'Home', undefined, { settings: () => this.openSettings(), player: true });
-    this.blocks.push(collect(this.children, () => this.chest()));
-    // События новичка и почта — иконки в шапке слева от шестерёнки (homeEvents.ts).
+    // События новичка, почта и контракт героя — иконки в шапке слева от шестерёнки (homeEvents.ts).
     homeEventIcons(this);
-    this.blocks.push(collect(this.children, () => this.fastRewards()));
-    this.tiles();
-    // Ряд «зданий» под плитками (как постройки лагеря в AFK Arena): Таверна (H5), Лавка, Охота на босса — одинаковые плитки.
-    const bx = (i: number) => GAME_W / 2 + (i - 1) * (L.bldW + L.bldGap);
-    tavernTile(this, bx(0), L.bldY, L.bldW, L.bldH);
-    shopTile(this, bx(1), L.bldY, L.bldW, L.bldH);
-    huntTile(this, bx(2), L.bldY, L.bldW, L.bldH);
-
-    const cur = currentStage(session.save, GAME);
-    const campaign = collect(this.children, () => {
-      // Главная кнопка экрана: тёплый ореол, скрещённые мечи у подписи и пробегающий блик (как CTA в AFK Arena).
-      glow(this, GAME_W / 2, L.campaignY, 980, 0xffc860, 0.22, true).setScale(980 / 128, 260 / 128);
-      const cta = button(this, GAME_W / 2, L.campaignY, 780, L.campaignH, 'ui_btn_primary', cur ? `В кампанию · этап ${cur.globalIndex + 1}` : 'В кампанию', () => {
-        markHint('home_campaign');
-        this.scene.start('Campaign');
-      }, FS.h1);
-      // «Почти готово»: мощь отряда против рекомендуемой для следующего этапа — плашкой внизу кнопки.
-      const open = cur && stageStatus(session.save, cur.id, GAME) === 'open';
-      const labelY = open ? -24 : -4;
-      cta.label.setPosition(32, labelY);
-      cta.container.add(this.add.image(32 - cta.label.width / 2 - 44, labelY, skinIcon('swords')).setDisplaySize(58, 58).setTint(0x3a2408));
-      ctaShine(this, cta.container, 780, L.campaignH);
-      if (open) cta.container.add(powerChip(this, 0, 30, powerCheck(session.save, cur.id, GAME), { minW: 420 }));
-    });
+    ribbon(this, GAME_W / 2, L.ribbonY, 'Город', { size: FS.h2, minW: 420 });
+    const { tileW: w, tileH: h, tileXL: xl, tileXR: xr, tileY1: y1, tileY2: y2 } = L;
+    const rows = [
+      collect(this.children, () => {
+        tavernTile(this, xl, y1, w, h);
+        shopTile(this, xr, y1, w, h);
+      }),
+      collect(this.children, () => {
+        questsTile(this, xl, y2, w, h);
+        achievementsTile(this, xr, y2, w, h);
+      }),
+    ];
     // Живой фон: несколько светлячков медленно поднимаются (без «Уменьшить анимацию»).
-    motes(this, { x: 40, y: HEADER_H + 40, w: GAME_W - 80, h: L.campaignY - HEADER_H }, 7);
-
-    // Подсказка строится по настоящим местам кнопок — до «выезда» блоков.
-    this.refresh();
-    staggerIn(this, 'Home', [...this.blocks, campaign]);
-    // Сундук считаем раз в секунду, а не каждый кадр.
-    this.time.addEvent({ delay: 1000, loop: true, callback: () => this.refresh() });
-    // Открылась новая функция (data/unlocks.json) — баннер «Новая функция!» поверх главной, один раз.
+    motes(this, { x: 40, y: HEADER_H + 40, w: GAME_W - 80, h: y2 + h / 2 - HEADER_H }, 6);
+    staggerIn(this, 'Home', rows);
+    // Открылась новая функция (data/unlocks.json) — баннер «Новая функция!», один раз.
     showUnlockBanners(this);
-  }
-
-  // ---------- сундук ----------
-
-  private chest(): void {
-    const y = L.chestY;
-    card(this, GAME_W / 2, y, 1000, L.chestH);
-    const cx = L.chestX;
-    const cy = L.chestIconY;
-    // Подложка под сундуком — тёмная ниша, чтобы лучи и сундук читались «в рамке».
-    this.add.image(cx, cy, 'skin_glow').setDisplaySize(330, 330).setTint(0x000000).setAlpha(0.5);
-    if (hasArt('ui_chest_empty')) {
-      // За сундуком — медленные лучи и ореол, пока в нём что-то есть (refresh включает).
-      this.chestRays = slowRays(this, cx, cy, 300, 0.55).setVisible(false);
-      this.chestGlow = glow(this, cx, cy + 10, 240, 0xffd27a, 0.5, true).setVisible(false);
-      // Сундук: пустой / наполняется / полный (текстура меняется в refresh).
-      this.chestImg = this.add.image(cx, cy, 'ui_chest_empty').setDisplaySize(CHEST, CHEST);
-    } else {
-      // Нет арта — рамка из атласа, «крышка» и замок.
-      card(this, cx, cy + 10, 220, 110, true);
-      this.add.rectangle(cx, cy - 28, 220, 34, 0x8a5a2b).setStrokeStyle(6, 0x3a2412);
-      icon(this, cx, cy + 18, 'iconCircle_brown', 56).setTint(TINT.gold);
-    }
-    // Лента-заголовок у верхней кромки карточки (поверх лучей).
-    ribbon(this, GAME_W / 2, y - L.chestH / 2 + 46, 'Сундук офлайн-наград', { minW: 600, size: FS.h3 });
-    this.chestText = text(this, L.chestTextX, y - 108, '', FS.body, C.text, { lineSpacing: 8, ...OUTLINE });
-    // Золото и опыт, трофеи (предметы, осколки, гемы, свитки) иконками и «Полон через Ч:ММ» (лимит — capHours).
-    this.chestView = new ChestCardView(this, { incomeX: L.chestTextX, incomeY: y - 58, lootX: L.claimX, lootY: y - 12, timerX: L.claimX, timerY: y + 30 });
-    this.chestView.update(session.save, now());
-    this.claimBtn = button(this, L.claimX, L.claimY, L.claimW, TOUCH + 10, 'ui_btn_primary', 'Собрать', () => this.claim(), FS.h2);
-  }
-
-  private refresh(): void {
-    const r = this.chestView?.update(session.save, now()) ?? offlineRewards(session.save, now(), GAME);
-    const full = r.gold > 0 || r.jobExp > 0;
-    // Есть накопленное — заголовок в одну строку над иконками; иначе две строки пояснения чуть ниже ленты.
-    this.chestText.setText(chestHeadline(r, session.save.campaign.cleared.length)).setY(L.chestY + (full ? -108 : -76));
-    this.claimBtn.setEnabled(full);
-    // Есть что собрать — кнопка мягко пульсирует (один раз запускаем; пустой сундук бывает только после сбора — это перезапуск).
-    if (full && !this.claimPulsing) {
-      this.claimPulsing = true;
-      pulse(this, this.claimBtn.container);
-    }
-    if (this.chestImg) {
-      const capMin = GAME.progression.offline.capHours * 60;
-      const state = r.gold === 0 && r.jobExp === 0 ? 'empty' : r.minutes >= capMin * 0.9 ? 'full' : 'filling';
-      this.chestImg.setTexture(`ui_chest_${state}`).setDisplaySize(CHEST, CHEST);
-      this.chestRays?.setVisible(state !== 'empty');
-      this.chestGlow?.setVisible(state !== 'empty');
-    }
-    this.updateHint(r.gold > 0 || r.jobExp > 0);
-    // Экспедиция вернулась, пока игрок на главной, — обновить плитку и значок.
-    // Не при открытом окне (настройки, подтверждение): перезапуск молча закрыл бы его — обновим, когда закроют.
-    const modal = !!this.children.getByName('settingsModal') || !!this.children.getByName(UNLOCK_BANNER_NAME) || confirmOpen(this);
-    if (!modal && finishedExpeditions(session.save, now()) !== this.expeditionsDone) this.scene.restart();
-  }
-
-  private claim(): void {
-    const r = actClaimOffline(session.save, now(), today(), GAME);
-    if (r.rewards.gold === 0 && r.rewards.jobExp === 0) {
-      // T4-06: пустой сбор всё равно записывается — ядро сдвигает якорь сундука (часы переводили).
-      commit(r.save);
-      toast(this, 'Сундук пока пуст');
-      return;
-    }
-    const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
-    commit(r.save);
-    markHint('chest_claim');
-    // Монеты вылетают из сундука и летят в золото в шапке (juice.ts).
-    queueRewardFly('Home', { x: L.chestX, y: L.chestIconY }, before, { burst: true });
-    this.restartWithToast([`Собрано: золото +${formatNumber(r.rewards.gold)}, опыт +${formatNumber(r.rewards.jobExp)}`, ...lootLines(r.loot), ...describeEvents(r.events, r.save, GAME)]);
-  }
-
-  // ---------- R. Подсказки первой сессии ----------
-
-  /** Одна подсказка на следующем полезном действии; пересчитывается раз в секунду (сундук наполняется). */
-  private updateHint(chestHasIncome: boolean): void {
-    const save = session.save;
-    const id = pickHomeHint({
-      cleared: save.campaign.cleared.length,
-      chestHasIncome,
-      levelUpReady: levelUpReady(save, GAME).length > 0,
-      towerUnlocked: towerStatus(save, GAME).unlocked,
-      gearUpgrade: heroesWithGearUpgrades(save, GAME).length > 0,
-    });
-    if (id === this.hintId) return;
-    this.hintView?.destroy();
-    this.hintView = null;
-    this.hintId = id;
-    if (!id) return;
-    const msg = HINT_TEXT[id];
-    // Сторону плашки выбирает hintPointer (S): так, чтобы не закрыть другие кнопки и плитки.
-    if (id === 'home_campaign') this.hintView = hintPointer(this, GAME_W / 2, L.campaignY, msg, 'below', { w: 780, h: L.campaignH });
-    if (id === 'chest_claim') this.hintView = hintPointer(this, L.claimX, L.claimY, msg, 'below', { w: L.claimW, h: TOUCH + 10 });
-    if (id === 'tower_open') this.hintView = hintPointer(this, L.tileXR, L.tileY1, msg, 'above', { w: L.tileW, h: L.tileH });
-    // Вкладка «Герои» — средняя в нижней навигации.
-    if (id === 'level_up' || id === 'equip_gear') this.hintView = hintPointer(this, GAME_W / 2, GAME_H - NAV_H / 2 + 4, msg, 'above', { w: GAME_W / 3 - 30, h: NAV_H - 40 });
   }
 
   // ---------- S. Настройки (шестерёнка в шапке) ----------
@@ -358,147 +176,5 @@ export class HomeScene extends Phaser.Scene {
     for (const o of layer.list) if (o !== shade && o !== box) (o as unknown as Phaser.GameObjects.Components.Transform).y += shift;
     box.setY(cy);
     popIn(this, layer, shade);
-  }
-
-  // ---------- K1. Быстрые награды ----------
-
-  private fastRewards(): void {
-    const save = session.save;
-    const hours = GAME.features.fastRewards.hours;
-    const preview = fastRewardsPreview(save, GAME);
-    const st = fastRewardsStatus(save, today(), GAME);
-    const y = L.fastY;
-    card(this, GAME_W / 2, y, 1000, L.fastH);
-    // Медальон с песочными часами слева, тексты — правее него.
-    medallion(this, 120, y, 116, 'hourglass');
-    const tx = 200;
-    text(this, tx, y - 62, `Быстрые награды · ${hours} ч`, FS.h2, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
-    const noIncome = preview.gold <= 0 && preview.jobExp <= 0;
-    text(
-      this,
-      tx,
-      y + 2,
-      noIncome ? 'Откроются после этапа 1' : `+${formatNumber(preview.gold)} золота, +${formatNumber(preview.jobExp)} опыта в запас`,
-      FS.body,
-      C.text,
-      { align: 'left', wordWrap: { width: 490 }, stroke: C.stroke, strokeThickness: 4 },
-    ).setOrigin(0, 0.5);
-    const left = st.nextCost === null ? 'На сегодня всё — приходите завтра' : `Осталось сегодня: ${st.usesLeft} · бесплатно ${st.freeLeft}`;
-    text(this, tx, y + 64, left, FS.small, C.muted, { wordWrap: { width: 490 }, align: 'left' }).setOrigin(0, 0.5);
-
-    const bx = FAST_BTN_X;
-    const label = st.nextCost === null ? 'Лимит' : st.nextCost === 0 ? 'Бесплатно' : formatNumber(st.nextCost);
-    const btn = button(this, bx, L.fastBtnY, 280, L.fastBtnH, st.nextCost === 0 ? 'ui_btn_primary' : 'ui_btn_secondary', label, () => this.useFast(), FS.h3);
-    if (st.nextCost !== null && st.nextCost > 0) {
-      // Цена: ромб гема + число.
-      btn.label.setX(22);
-      btn.container.add(gemIcon(this, 22 - btn.label.width / 2 - 30, -4, 36));
-    }
-    // Закрыто до своего этапа (data/unlocks.json) — затемнение с замком «Откроется на этапе 1-2».
-    if (!isUnlocked('fast_rewards')) lockCover(this, GAME_W / 2, y, 1000, L.fastH, 'fast_rewards');
-    else if (st.nextCost === null || noIncome) btn.setEnabled(false);
-    // Бесплатные быстрые награды — готовы к получению: пульс, как у «Собрать».
-    else if (st.nextCost === 0) pulse(this, btn.container);
-  }
-
-  private useFast(): void {
-    const save = session.save;
-    const day = today();
-    const st = fastRewardsStatus(save, day, GAME);
-    const preview = fastRewardsPreview(save, GAME);
-    if (st.nextCost === null) {
-      toast(this, 'Быстрые награды на сегодня закончились');
-      return;
-    }
-    if (preview.gold <= 0 && preview.jobExp <= 0) {
-      toast(this, 'Пройдите хотя бы один этап кампании, чтобы получать быстрые награды');
-      return;
-    }
-    const price = st.nextCost === 0 ? 'Бесплатно.' : `Цена: ${formatNumber(st.nextCost)} гемов (у вас ${formatNumber(save.currency.gems)}).`;
-    const loot = lootSummary(fastRewardsLoot(save, day, GAME));
-    const q = `Забрать ${GAME.features.fastRewards.hours} ч дохода сразу?\nЗолото +${formatNumber(preview.gold)}, опыт +${formatNumber(preview.jobExp)} в запас.${loot ? `\n${loot}` : ''}\n${price}`;
-    confirm(this, q, 'Забрать', () => {
-      try {
-        const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
-        const r = actUseFastRewards(session.save, day, GAME);
-        commit(r.save);
-        queueRewardFly('Home', { x: FAST_BTN_X, y: L.fastBtnY }, before);
-        this.restartWithToast([`Быстрые награды: золото +${formatNumber(r.rewards.gold)}, опыт +${formatNumber(r.rewards.jobExp)}`, ...lootLines(r.loot), ...describeEvents(r.events, r.save, GAME)]);
-      } catch (e) {
-        toast(this, e instanceof Error ? e.message : String(e), C.error);
-      }
-    });
-  }
-
-  // ---------- Плитки 2×2: задания, башня, экспедиции, достижения ----------
-
-  private tiles(): void {
-    const save = session.save;
-    const [y1, y2] = [L.tileY1, L.tileY2];
-    const [xl, xr] = [L.tileXL, L.tileXR];
-    const qs = questStatus(save, GAME, today());
-    const row1 = collect(this.children, () => {
-      if (isUnlocked('quests')) this.tile(xl, y1, 'Задания', `Активность ${qs.activity} / ${qs.maxActivity}`, C.success, () => this.scene.start('Quests'), 'scroll');
-      else this.lockedTile(xl, y1, 'Задания', 'scroll', 'quests');
-      this.towerTile(xr, y1);
-    });
-    const row2 = collect(this.children, () => {
-      const done = finishedExpeditions(save, now());
-      const active = save.bounties.active.length;
-      const bsub = done ? `Вернулись: ${done}` : active ? `В пути: ${active}` : 'Отправьте отряд';
-      if (isUnlocked('bounties')) this.tile(xl, y2, 'Экспедиции', bsub, done ? C.success : C.muted, () => this.scene.start('Expeditions'), 'flag');
-      else this.lockedTile(xl, y2, 'Экспедиции', 'flag', 'bounties');
-      this.expeditionsDone = done;
-
-      const views = achievementStatus(save, GAME);
-      const got = views.filter((a) => a.claimed).length;
-      if (isUnlocked('achievements')) this.tile(xr, y2, 'Достижения', `Получено ${got} / ${views.length}`, C.info, () => this.scene.start('Achievements', { from: 'Home' }), 'trophy');
-      else this.lockedTile(xr, y2, 'Достижения', 'trophy', 'achievements');
-    });
-    this.blocks.push(row1, row2);
-    // Значки — после «выезда» плиток на своих местах (не в группах): в правом верхнем углу, как у вкладки «Герои».
-    if (isUnlocked('quests')) cornerBadge(this, xl, y1, L.tileW, L.tileH, claimableCount(qs));
-    // Башня: «этаж по силам» (мощь отряда ≥ мощи этажа); экспедиции: вернувшиеся + свободные локации, куда хватает мощи.
-    if (isUnlocked('tower')) cornerBadge(this, xr, y1, L.tileW, L.tileH, towerBadgeCount(save, GAME));
-    if (isUnlocked('bounties')) cornerBadge(this, xl, y2, L.tileW, L.tileH, expeditionsBadgeCount(save, now(), GAME));
-    if (isUnlocked('achievements')) cornerBadge(this, xr, y2, L.tileW, L.tileH, claimableAchievements(achievementStatus(save, GAME)));
-  }
-
-  /** Закрытая функция (data/unlocks.json): тусклая плитка с замком, «Откроется на этапе 1-8», касание — тост. */
-  private lockedTile(x: number, y: number, title: string, iconName: SkinIcon, id: Parameters<typeof lockedToast>[1]): void {
-    this.tile(x, y, title, lockLabel(id), C.dim, () => lockedToast(this, id), iconName, true).setAlpha(0.75);
-    // Замок из скина в углу плитки (T1-11/T3-20: не «✖», который читается как «закрыть»).
-    this.add.image(x + L.tileW / 2 - 40, y - L.tileH / 2 + 34, skinIcon('lock')).setDisplaySize(44, 44).setTint(SKIN_TINT.creamDim);
-  }
-
-  private towerTile(xr: number, y1: number): void {
-    const save = session.save;
-
-    const ts = towerStatus(save, GAME);
-    if (ts.unlocked) {
-      const sub = ts.next === null ? 'Вершина взята!' : `Этаж ${ts.floor} · дальше ${ts.next}`;
-      this.tile(xr, y1, 'Башня', sub, C.gold, () => {
-        markHint('tower_open');
-        this.scene.start('Tower');
-      }, 'tower');
-    } else this.lockedTile(xr, y1, 'Башня', 'tower', 'tower');
-  }
-
-  /** Плитка функции: медальон с иконкой слева, название и состояние справа от него. locked — иконка приглушена. */
-  private tile(x: number, y: number, title: string, sub: string, subColor: string, onClick: () => void, iconName: SkinIcon, locked = false): Phaser.GameObjects.NineSlice {
-    const bg = pressable(this, card(this, x, y, L.tileW, L.tileH), L.tileW, L.tileH, onClick);
-    const left = x - L.tileW / 2;
-    medallion(this, left + 72, y, 108, iconName, locked ? SKIN_TINT.creamDim : SKIN_TINT.gold);
-    const tx = left + 138;
-    const tw = L.tileW - 138 - 12;
-    text(this, tx, y - 32, title, FS.h2, locked ? SKIN.creamDim : C.title, TITLE_STYLE).setOrigin(0, 0.5);
-    text(this, tx, y + 4, sub, FS.small, subColor, { ...OUTLINE, wordWrap: { width: tw }, align: 'left', lineSpacing: -2 }).setOrigin(0, 0);
-    return bg;
-  }
-
-  /** Перезапустить экран и показать тост уже на новом экземпляре сцены. */
-  private restartWithToast(lines: string[]): void {
-    this.scene.restart();
-    this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 5000)));
   }
 }

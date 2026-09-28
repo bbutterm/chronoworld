@@ -119,10 +119,12 @@ describe('помощники экранов K1–K7', () => {
 
   it('questDestination ведёт на экран, где задание выполняется', () => {
     expect(questDestination('stage_win')).toBe('Campaign');
-    expect(questDestination('fast_rewards')).toBe('Home');
+    // Навигация AFK: сундук и быстрые награды — на странице «Кампания», призыв — Таверна.
+    expect(questDestination('fast_rewards')).toBe('Campaign');
+    expect(questDestination('offline_claim')).toBe('Campaign');
     expect(questDestination('hero_level_up')).toBe('Heroes');
     expect(questDestination('hero_ascend')).toBe('Heroes');
-    expect(questDestination('summon')).toBe('Home');
+    expect(questDestination('summon')).toBe('Tavern');
     expect(questDestination('tower_attempt')).toBe('Tower');
   });
 

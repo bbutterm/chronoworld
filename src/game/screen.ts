@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W, HEADER_H } from './layout';
-import { session, takeWarnings } from './session';
+import { now, session, takeWarnings, today } from './session';
+import { adventureBadge, campaignBadge, cityBadge } from './navBadges';
 import { GAME } from './content';
 import { anim, lazyPortrait, portraitKey, spriteView, whenSprites } from './sprites';
 import { campLevel, formatNumber, heroesNavBadge, heroSprite, leadHero, POWER_COLORS, POWER_TINTS, type PowerCheck, type PowerTone } from './flow';
@@ -14,16 +15,31 @@ import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { animateCurrency, heartbeat, type CurrencyPill } from './juice';
 import { sfx } from './audio';
 
-export type NavTab = 'Campaign' | 'Heroes' | 'Home';
+/**
+ * Вкладки нижней навигации (как в AFK Arena): «Кампания» — карта, сундук офлайн-наград и быстрые награды;
+ * «Герои»; «Город» (сцена Home) — Таверна, Лавка, задания, достижения, события и почта в шапке;
+ * «Приключения» (сцена Adventure, «Тёмный лес» AFK) — Башня, экспедиции, охота на босса.
+ */
+export type NavTab = 'Campaign' | 'Heroes' | 'Home' | 'Adventure';
 
-const TABS: { scene: NavTab; label: string }[] = [
+export const TABS: readonly { scene: NavTab; label: string }[] = [
   { scene: 'Campaign', label: 'Кампания' },
   { scene: 'Heroes', label: 'Герои' },
-  { scene: 'Home', label: 'Главная' },
+  { scene: 'Home', label: 'Город' },
+  { scene: 'Adventure', label: 'Приключения' },
 ];
 
-/** Имена иконок вкладок: ui_nav_<имя> и ui_nav_<имя>_active в assets/manifest.json. */
-const NAV_ICON: Record<NavTab, SkinIcon> = { Campaign: 'map', Heroes: 'helmet', Home: 'home' };
+/** Контурные иконки вкладок (skin.ts). */
+const NAV_ICON: Record<NavTab, SkinIcon> = { Campaign: 'map', Heroes: 'helmet', Home: 'castle', Adventure: 'compass' };
+
+/** Центр вкладки по x (подсказки новичку указывают на вкладку). */
+export function navTabX(tab: NavTab): number {
+  const i = Math.max(0, TABS.findIndex((t) => t.scene === tab));
+  return (GAME_W / TABS.length) * (i + 0.5);
+}
+
+/** Ширина плитки вкладки (цель подсказки). */
+export const NAV_TAB_W = GAME_W / TABS.length - 14;
 
 /** Высота нижней навигации; контент экрана — между шапкой и ней. */
 export const NAV_H = 170;
@@ -93,7 +109,7 @@ export function screen(
       const bx = w * (i + 0.5);
       const by = GAME_H - NAV_H / 2;
       // Плитка вкладки как в референсе: контурная иконка и подпись капсом под ней; активная — золотая рамка.
-      const btn = button(scene, bx, by, w - 36, NAV_H - 30, on ? 'skin_tab_active' : 'skin_tab', t.label.toUpperCase(), () => {
+      const btn = button(scene, bx, by, NAV_TAB_W, NAV_H - 30, on ? 'skin_tab_active' : 'skin_tab', t.label.toUpperCase(), () => {
         // T1-04: на подэкранах вкладки (карточка героя, инвентарь) вкладка ведёт к её корневому экрану.
         if (!on || scene.scene.key !== t.scene) scene.scene.start(t.scene);
       }, FS.caption, { sound: 'ui_tab' });
@@ -106,8 +122,12 @@ export function screen(
       // кто-то из отряда может «Улучшить» за опыт из запаса.
       if (t.scene === 'Heroes') {
         const b = heroesNavBadge(session.save, GAME);
-        if (b?.kind === 'count') cornerBadge(scene, bx, by, w - 36, NAV_H - 30, b.count);
-        else if (b?.kind === 'levelUp') levelUpBadge(scene, bx + (w - 36) / 2 - 22, by - (NAV_H - 30) / 2 + 16);
+        if (b?.kind === 'count') cornerBadge(scene, bx, by, NAV_TAB_W, NAV_H - 30, b.count);
+        else if (b?.kind === 'levelUp') levelUpBadge(scene, bx + NAV_TAB_W / 2 - 22, by - (NAV_H - 30) / 2 + 16);
+      } else {
+        // Остальные вкладки — сумма значков своей страницы (navBadges.ts).
+        const n = t.scene === 'Campaign' ? campaignBadge(session.save, now(), today()) : t.scene === 'Home' ? cityBadge(session.save, today()) : adventureBadge(session.save, now(), today());
+        cornerBadge(scene, bx, by, NAV_TAB_W, NAV_H - 30, n)?.setName(`navBadge_${t.scene}`);
       }
     });
   }

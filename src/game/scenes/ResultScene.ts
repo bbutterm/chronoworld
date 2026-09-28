@@ -221,7 +221,7 @@ export class ResultScene extends Phaser.Scene {
     this.tableEnd = y;
 
     if (tower) {
-      button(this, 190, 1830, 330, 130, 'k:buttonLong_beige', 'Главная', () => this.scene.start('Home'), FS.h3);
+      button(this, 190, 1830, 330, 130, 'k:buttonLong_beige', 'Приключения', () => this.scene.start('Adventure'), FS.h3);
       button(this, 540, 1830, 330, 130, 'ui_btn_secondary', 'К башне', () => this.scene.start('Tower'), FS.h3);
       button(this, 890, 1830, 330, 130, 'ui_btn_primary', win ? 'Выше' : 'Ещё раз', () => this.scene.start('Battle', { mode: 'tower' }), FS.h2);
       return;
@@ -267,7 +267,7 @@ export class ResultScene extends Phaser.Scene {
       return;
     }
 
-    button(this, 190, 1830, 330, 130, 'k:buttonLong_beige', 'Главная', () => this.scene.start('Home'), FS.h3);
+    button(this, 190, 1830, 330, 130, 'k:buttonLong_beige', 'Город', () => this.scene.start('Home'), FS.h3);
     button(this, 540, 1830, 330, 130, 'ui_btn_secondary', 'Отряд', () => this.scene.start('Prep'), FS.h3);
     button(this, 890, 1830, 330, 130, 'ui_btn_primary', 'Ещё раз', () =>
       this.scene.start('Battle', { mode: 'test', seed: (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0 }),

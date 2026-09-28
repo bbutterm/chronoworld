@@ -9,9 +9,9 @@ import { C, FS, OUTLINE } from './theme';
 import { text } from './ui';
 
 /**
- * Карточка сундука на главной: что накопилось (золото, опыт, трофеи — предметы, карты героя, гемы, свитки) иконками
- * и таймер «Полон через Ч:ММ» / «Сундук полон»; строки итогов сбора и быстрых наград. HomeScene только создаёт
- * ChestCardView и зовёт update раз в секунду — раскладка сундука, «Собрать» и медальон Таверны не трогаются.
+ * Карточка сундука на странице «Кампания»: что накопилось (золото, опыт, трофеи — предметы, карты героя, гемы, свитки) иконками
+ * и таймер «Полон через Ч:ММ» / «Сундук полон»; строки итогов сбора и быстрых наград. CampaignScene только создаёт
+ * ChestCardView и зовёт update раз в секунду — раскладка сундука и «Собрать» живут в сцене.
  */
 
 type Obj = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Visible;
@@ -105,7 +105,7 @@ export interface ChestCardLayout {
   timerY: number;
 }
 
-/** Содержимое карточки сундука: строки иконок и таймер. update — раз в секунду из HomeScene.refresh. */
+/** Содержимое карточки сундука: строки иконок и таймер. update — раз в секунду из CampaignScene.refresh. */
 export class ChestCardView {
   private rows: Obj[] = [];
   private key = '';
@@ -141,7 +141,7 @@ export class ChestCardView {
       }
     }
     const full = offlineFullInMs(save, now, GAME);
-    this.timer.setText(full === null ? '' : full <= 0 ? 'Сундук полон — заберите!' : `Полон через ${fullInText(full)}`);
+    this.timer.setText(full === null ? '' : full <= 0 ? 'Полон — заберите!' : `Полон через ${fullInText(full)}`);
     this.timer.setColor(full !== null && full <= 0 ? C.warning : C.muted);
     return r;
   }

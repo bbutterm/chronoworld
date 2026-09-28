@@ -215,6 +215,22 @@ const ICONS: Record<string, (ctx: Ctx) => void> = {
     c.moveTo(27, 54); c.lineTo(27, 40); c.lineTo(37, 40); c.lineTo(37, 54);
     c.stroke();
   },
+  // Вкладка «Город»: крепостная стена с двумя башнями и воротами.
+  castle: (c) => {
+    c.beginPath();
+    c.moveTo(8, 56); c.lineTo(8, 14); c.lineTo(14, 14); c.lineTo(14, 20); c.lineTo(20, 20); c.lineTo(20, 14); c.lineTo(26, 14); c.lineTo(26, 30);
+    c.lineTo(38, 30); c.lineTo(38, 14); c.lineTo(44, 14); c.lineTo(44, 20); c.lineTo(50, 20); c.lineTo(50, 14); c.lineTo(56, 14); c.lineTo(56, 56); c.closePath();
+    c.moveTo(26, 56); c.lineTo(26, 44); c.bezierCurveTo(26, 36, 38, 36, 38, 44); c.lineTo(38, 56);
+    c.stroke();
+  },
+  // Вкладка «Приключения»: компас (кольцо и стрелка).
+  compass: (c) => {
+    c.beginPath();
+    c.arc(32, 32, 22, 0, Math.PI * 2);
+    c.moveTo(32, 14); c.lineTo(39, 32); c.lineTo(32, 50); c.lineTo(25, 32); c.closePath();
+    c.moveTo(25, 32); c.lineTo(39, 32);
+    c.stroke();
+  },
   gear: (c) => {
     c.beginPath();
     for (let i = 0; i < 8; i++) {

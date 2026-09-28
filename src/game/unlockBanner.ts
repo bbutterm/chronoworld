@@ -14,16 +14,17 @@ import { button, pressable, text, toast } from './ui';
 /**
  * Открытие функций по этапам (data/unlocks.json, ядро — src/core/unlocks): замки на закрытом («Откроется на этапе 1-8»,
  * касание — тост) и полноэкранный баннер «Новая функция!» один раз на функцию (save.seenUnlocks).
- * Экраны зовут одной строкой: showUnlockBanners — главная, карта кампании, итоги боя; lockCover / lockedToast — замки.
+ * Экраны зовут одной строкой: showUnlockBanners — страницы «Кампания», «Город», «Приключения» и итоги боя;
+ * lockCover / lockedToast — замки. «Перейти» ведёт прямо на экран функции, его «Назад» — на её страницу навигации.
  */
 
 /** Имя слоя баннера (e2e закрывает его «Позже»). */
 export const UNLOCK_BANNER_NAME = 'unlockBanner';
 const DEPTH = 9000;
 
-/** Куда ведёт «Перейти». */
+/** Куда ведёт «Перейти» (быстрые награды — на странице «Кампания»). */
 const GOTO: Record<FeatureId, { scene: string; data?: object }> = {
-  fast_rewards: { scene: 'Home' },
+  fast_rewards: { scene: 'Campaign' },
   quests: { scene: 'Quests' },
   speed_x2: { scene: 'Campaign' },
   achievements: { scene: 'Achievements', data: { from: 'Home' } },

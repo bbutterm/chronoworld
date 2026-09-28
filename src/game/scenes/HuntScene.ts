@@ -41,7 +41,7 @@ export class HuntScene extends Phaser.Scene {
   }
 
   create(data: HuntSceneData = {}): void {
-    screen(this, 'Охота на босса', 'Home', { to: 'Home' });
+    screen(this, 'Охота на босса', 'Adventure', { to: 'Adventure' });
     const st = huntStatus(session.save, today(), GAME);
     if (!st.unlocked) {
       lockedScreen(this, 'hunt');
