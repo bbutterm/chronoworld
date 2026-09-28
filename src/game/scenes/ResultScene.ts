@@ -6,7 +6,8 @@ import type { BattleResult, Side } from '../../core';
 import { GAME_W } from '../layout';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
-import { button, ellipsize, panel, progressBar, ScrollArea, text } from '../ui';
+import { button, ellipsize, panel, progressBar, ScrollArea, text, tutorialHint } from '../ui';
+import { markHint, pickResultHint } from '../hints';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
@@ -252,9 +253,13 @@ export class ResultScene extends Phaser.Scene {
         this.autoRow(stage.stageId, win)();
         return;
       }
-      button(this, 190, 1830, bw, 130, 'k:buttonLong_beige', 'К кампании', () => this.scene.start('Campaign'), FS.h3);
+      button(this, 190, 1830, bw, 130, 'k:buttonLong_beige', 'К кампании', () => {
+        markHint('result_home');
+        this.scene.start('Campaign');
+      }, FS.h3);
       button(this, 540, 1830, bw, 130, 'ui_btn_secondary', 'Повторить', retry, FS.h3);
       const nextBtn = button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Дальше', () => {
+        markHint('result_next');
         if (next) this.scene.start('Stage', { stageId: next.id });
       }, FS.h2);
       if (!next) nextBtn.setEnabled(false).container.disableInteractive();
@@ -272,7 +277,14 @@ export class ResultScene extends Phaser.Scene {
           startChapterDone(this, { chapterId: stageInfo.chapter });
           // Этап открыл функцию — баннер «Новая функция!» (в авто-режиме не мешаем: покажется на карте или главной).
         } else if (autoAdvance.on) beginAuto();
-        else showUnlockBanners(this, beginAuto);
+        else
+          showUnlockBanners(this, () => {
+            // Обучение (hints.ts): первая победа — «Дальше»; потом, когда копится сундук или хватает на уровень, — «К кампании».
+            const hint = firstClear ? pickResultHint({ hasNext: !!next, chestOrLevel: levelUpReady(session.save, GAME).length > 0 || session.save.campaign.cleared.length >= 2 }) : null;
+            if (hint === 'result_next') tutorialHint(this, hint, 890, 1830, 'above', { w: bw, h: 130 });
+            if (hint === 'result_home') tutorialHint(this, hint, 190, 1830, 'above', { w: bw, h: 130 });
+            beginAuto();
+          });
       }, { auto: autoAdvance.on });
       return;
     }

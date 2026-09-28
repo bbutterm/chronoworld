@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_pupa",
+  "name": "Пупа",
+  "kind": "monster",
+  "role": "tank",
+  "stats": {
+    "hp": 620,
+    "atk": 16,
+    "def": 12,
+    "spd": 70,
+    "moveSpeed": 160
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_pupa_harden",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "fabre",
+    "tint": "#c9b98a",
+    "scale": 1.15,
+    "hitFx": "fx_hit"
+  }
+}

@@ -1,16 +1,17 @@
 import Phaser from 'phaser';
 import { hasArt } from '../assets';
-import { HINT_TEXT, markHint, pickHomeHint, type HintId } from '../hints';
-import { actClaimOffline, actUseFastRewards, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, heroesWithGearUpgrades, offlineRewards, pendingScenes, stageStatus, towerStatus } from '../../core';
+import { HINT_TEXT, hintDone, markHint, pickHomeHint, type HintId } from '../hints';
+import { homeHintInput } from '../tutorial';
+import { actClaimOffline, actUseFastRewards, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, offlineRewards, pendingScenes, stageStatus } from '../../core';
 import { CONTENT, GAME } from '../content';
 import { playScenes } from '../dialogue';
 import { isChapterFinale, seenChapterScenes } from '../storyView';
 import { openStoryHistory, startChapterDone } from './ChapterDoneScene';
-import { currentStage, describeEvents, formatNumber, levelUpReady, POWER_COLORS, powerCheck } from '../flow';
+import { currentStage, describeEvents, formatNumber, POWER_COLORS, powerCheck } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, confirmOpen, CONTENT_TOP, cornerBadge, gemIcon, NAV_H, NAV_TAB_W, navTabX, powerChip, screen } from '../screen';
 import { commit, now, restartOnNewDay, session, today } from '../session';
-import { button, ellipsize, hintPointer, pressable, text, toast } from '../ui';
+import { button, ellipsize, hintPointer, pressable, text, toast, tutorialHint } from '../ui';
 import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 import { screenBackground, setThemeBackground, themeOfChapter } from '../backdrops';
@@ -55,6 +56,16 @@ const L = {
   lootY: 1594,
 } as const;
 
+/** Узлов на одном участке карты не больше: 10 — как у глав из 10 этапов (плотнее — узлы налезают друг на друга). */
+const MAP_PAGE_MAX = 10;
+
+/** Участки карты главы из n этапов: поровну, по ≤ MAP_PAGE_MAX (18 → 9 + 9). [from, to) — индексы этапов главы. */
+function mapPages(n: number): { from: number; to: number }[] {
+  const count = Math.max(1, Math.ceil(n / MAP_PAGE_MAX));
+  const size = Math.ceil(n / count);
+  return Array.from({ length: count }, (_, i) => ({ from: i * size, to: Math.min(n, (i + 1) * size) })).filter((p) => p.to > p.from);
+}
+
 /** Кампания: этапы главы снизу вверх, как тропа (закрыт / открыт / пройден / босс), сундук и «В бой». */
 export class CampaignScene extends Phaser.Scene {
   private chapterIndex = 0;
@@ -73,7 +84,7 @@ export class CampaignScene extends Phaser.Scene {
     super('Campaign');
   }
 
-  create(data: { chapter?: number }): void {
+  create(data: { chapter?: number; page?: number }): void {
     this.hintId = null;
     this.hintView = null;
     this.claimPulsing = false;
@@ -102,7 +113,7 @@ export class CampaignScene extends Phaser.Scene {
     const bg = screenBackground(this);
     if (bg) setThemeBackground(bg, 'map', themeOfChapter(chapter.id));
 
-    this.map(chapter.id, ci, chapters.length);
+    this.map(chapter.id, ci, chapters.length, data?.page);
     this.fastRewards();
     this.cta();
     this.chest();
@@ -126,15 +137,31 @@ export class CampaignScene extends Phaser.Scene {
 
   // ---------- карта главы ----------
 
-  private map(chapterId: string, ci: number, count: number): void {
+  private map(chapterId: string, ci: number, count: number, pageArg?: number): void {
     const chapter = CONTENT.chapters[ci];
     // Название главы — на ленте (между стрелками глав).
     ribbon(this, GAME_W / 2, CONTENT_TOP + 40, chapter.name, { size: FS.h2, minW: 520, maxW: 780 }).setDepth(5);
     if (ci > 0) button(this, 70, CONTENT_TOP + 40, TOUCH, TOUCH, 'k:buttonSquare_beige', '‹', () => this.scene.restart({ chapter: ci - 1 }), FS.hero);
     if (ci < count - 1) button(this, GAME_W - 70, CONTENT_TOP + 40, TOUCH, TOUCH, 'k:buttonSquare_beige', '›', () => this.scene.restart({ chapter: ci + 1 }), FS.hero);
 
-    const stages = CONTENT.stages.filter((s) => s.chapter === chapterId);
-    const top = L.mapTop;
+    // Длинная глава (глава 1 — 18 этапов) — участками по ≤ 10 узлов: иначе узлы тропы налезают друг на друга.
+    // Участок по умолчанию — с текущим этапом (пройдена вся глава — последний); «▲ Этапы 10–18» / «▼ Этапы 1–9» — соседний.
+    const all = CONTENT.stages.filter((s) => s.chapter === chapterId);
+    const pages = mapPages(all.length);
+    const cur = all.findIndex((s) => stageStatus(session.save, s.id, GAME) === 'open');
+    const pageOf = (i: number) => pages.findIndex((p) => i >= p.from && i < p.to);
+    const auto = cur >= 0 ? pageOf(cur) : all.every((s) => stageStatus(session.save, s.id, GAME) === 'cleared') ? pages.length - 1 : 0;
+    const page = Phaser.Math.Clamp(pageArg ?? auto, 0, pages.length - 1);
+    const stages = all.slice(pages[page].from, pages[page].to);
+    const paged = pages.length > 1;
+    const toPage = (p: number, label: string, y: number, name: string) => {
+      const pg = pages[p];
+      button(this, GAME_W - 150, y, 250, 84, 'k:buttonLong_beige', `${label} ${all[pg.from].globalIndex + 1}–${all[pg.to - 1].globalIndex + 1}`, () => this.scene.restart({ chapter: ci, page: p }), FS.body).container.setName(name);
+    };
+    if (page < pages.length - 1) toPage(page + 1, '▲', CONTENT_TOP + 140, 'mapPageUp');
+    if (page > 0) toPage(page - 1, '▼', CONTENT_TOP + (page < pages.length - 1 ? 236 : 140), 'mapPageDown');
+    // Участком — ниже кнопок участков и «Истории» (верхний узел не под ними).
+    const top = paged ? L.mapTop + 80 : L.mapTop;
     const bottom = L.mapBottom;
     const step = stages.length > 1 ? (bottom - top) / (stages.length - 1) : 0;
     // Тропа змейкой снизу вверх (как в референсе владельца), подпись — с той стороны, где больше места.
@@ -282,6 +309,7 @@ export class CampaignScene extends Phaser.Scene {
   }
 
   private useFast(): void {
+    markHint('fast_rewards');
     const save = session.save;
     const day = today();
     const st = fastRewardsStatus(save, day, GAME);
@@ -388,13 +416,7 @@ export class CampaignScene extends Phaser.Scene {
     const save = session.save;
     // Модальное окно или баннер открыты — подсказку не перестраиваем (она под ними всё равно не видна).
     if (confirmOpen(this) || this.children.getByName(UNLOCK_BANNER_NAME)) return;
-    const id = pickHomeHint({
-      cleared: save.campaign.cleared.length,
-      chestHasIncome,
-      levelUpReady: levelUpReady(save, GAME).length > 0,
-      towerUnlocked: towerStatus(save, GAME).unlocked,
-      gearUpgrade: heroesWithGearUpgrades(save, GAME).length > 0,
-    });
+    const id = pickHomeHint(homeHintInput(save, chestHasIncome));
     if (id === this.hintId) return;
     this.hintView?.destroy();
     this.hintView = null;
@@ -409,6 +431,15 @@ export class CampaignScene extends Phaser.Scene {
     if (id === 'level_up' || id === 'equip_gear') this.hintView = hintPointer(this, navTabX('Heroes'), tabY, msg, 'above', tab);
     // Башня — на странице «Приключения»: здесь указываем на вкладку, на самой странице — на плитку.
     if (id === 'tower_open') this.hintView = hintPointer(this, navTabX('Adventure'), tabY, `${msg} Загляните в «Приключения»`, 'above', tab);
+    // Ведущее обучение (hints.ts, TUTORIAL_CHAIN): Таверна и задания — вкладка «Город», вознесение — «Герои»,
+    // быстрые награды — кнопка слева от «В бой». Касание плашки — пропустить шаг.
+    if (id === 'tavern_summon' || id === 'quests_open') this.hintView = tutorialHint(this, id, navTabX('Home'), tabY, 'above', tab);
+    if (id === 'ascend') this.hintView = tutorialHint(this, id, navTabX('Heroes'), tabY, 'above', tab);
+    if (id === 'fast_rewards') this.hintView = tutorialHint(this, id, L.fastX, L.rowY, 'above', { w: L.fastW, h: L.fastH });
+    this.hintView?.once(Phaser.GameObjects.Events.DESTROY, () => {
+      // Плашку пропустили касанием — на следующем тике покажется следующий шаг цепочки.
+      if (this.hintId === id && hintDone(id)) this.hintId = null;
+    });
   }
 
   /** Перезапустить экран (та же глава) и показать тост уже на новом экземпляре сцены. */

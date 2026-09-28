@@ -7,6 +7,7 @@ import { card, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../scree
 import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 import { commit, now, restartOnNewDay, session, today } from '../session';
 import { button, emptyState, progressBar, ScrollArea, text, toast } from '../ui';
+import { markHint } from '../hints';
 import { SKIN, SKIN_TINT, skinIcon } from '../skin';
 import { C, FS, TINT } from '../theme';
 
@@ -29,6 +30,8 @@ export class QuestsScene extends Phaser.Scene {
 
   create(): void {
     screen(this, 'Задания дня', 'Home', { to: 'Home' });
+    // Обучение (hints.ts): последний шаг цепочки главы 1 — задания открыты и найдены.
+    markHint('quests_open');
     restartOnNewDay(this);
     const st = questStatus(session.save, GAME, today());
 

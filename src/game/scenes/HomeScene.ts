@@ -3,8 +3,9 @@ import { resetHints } from '../hints';
 import { GAME_H, GAME_W, HEADER_H } from '../layout';
 import { confirm, popIn, screen } from '../screen';
 import { collect, staggerIn } from '../juice';
-import { resetProgress, restartOnNewDay } from '../session';
-import { button, dangerButton, panel, text, toast } from '../ui';
+import { resetProgress, restartOnNewDay, session } from '../session';
+import { button, dangerButton, panel, text, toast, tutorialHint } from '../ui';
+import { cityHint } from '../tutorial';
 import { C, FS, OUTLINE, TOUCH } from '../theme';
 import { motes, ribbon } from '../decor';
 import { fps, motion, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed, setReducedMotion } from '../state';
@@ -67,7 +68,12 @@ export class HomeScene extends Phaser.Scene {
     motes(this, { x: 40, y: HEADER_H + 40, w: GAME_W - 80, h: y2 + h / 2 - HEADER_H }, 6);
     staggerIn(this, 'Home', rows);
     // Открылась новая функция (data/unlocks.json) — баннер «Новая функция!», один раз.
-    showUnlockBanners(this);
+    // Ведущее обучение (tutorial.ts): Таверна ×10, затем задания — указатель на плитку (после баннера).
+    showUnlockBanners(this, () => {
+      const id = cityHint(session.save);
+      if (id === 'tavern_summon') tutorialHint(this, id, xl, y1, 'below', { w, h });
+      if (id === 'quests_open') tutorialHint(this, id, xl, y2, 'above', { w, h });
+    });
   }
 
   // ---------- S. Настройки (шестерёнка в шапке) ----------

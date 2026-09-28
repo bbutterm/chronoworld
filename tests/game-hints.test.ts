@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { newGame, type SaveState } from '../src/core';
 import { autoNextStage, heroesBadgeCount } from '../src/game/flow';
-import { HINT_KEY, hintDone, markHint, pickHomeHint, reloadHints, resetHints, type HintId } from '../src/game/hints';
+import { HINT_KEY, HINT_TEXT, hintDone, markHint, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
 import { loadFullContext, loadGameContext } from '../scripts/lib/content-node';
 import { placeCallout } from '../src/game/hintLayout';
 
@@ -20,6 +20,37 @@ describe('R: подсказки первой сессии', () => {
     expect(pickHomeHint({ ...base, cleared: 1, chestHasIncome: true }, none)).toBe('chest_claim');
     expect(pickHomeHint({ ...base, cleared: 3, levelUpReady: true }, none)).toBe('level_up');
     expect(pickHomeHint({ ...base, cleared: 9, towerUnlocked: true }, none)).toBe('tower_open');
+  });
+
+  it('ведущее обучение главы 1: цепочка по порядку, у каждого шага — русский текст, шаги не повторяются', () => {
+    expect(new Set(TUTORIAL_CHAIN).size).toBe(TUTORIAL_CHAIN.length);
+    for (const id of TUTORIAL_CHAIN) expect(HINT_TEXT[id]).toMatch(/[а-яё]/i);
+    // Страница «Кампания»: всё готово сразу — шаги идут по одному в порядке цепочки, выполненный уходит.
+    const all = { cleared: 5, chestHasIncome: true, levelUpReady: true, towerUnlocked: false, tavernReady: true, ascendReady: true, fastRewardsFree: true, questsUnlocked: true };
+    const done = new Set<HintId>();
+    const seen: HintId[] = [];
+    for (let id = pickHomeHint(all, (x) => done.has(x)); id; id = pickHomeHint(all, (x) => done.has(x))) {
+      seen.push(id);
+      done.add(id);
+    }
+    expect(seen).toEqual(['chest_claim', 'level_up', 'tavern_summon', 'ascend', 'fast_rewards', 'quests_open']);
+    expect(seen).toEqual(TUTORIAL_CHAIN.filter((id) => seen.includes(id)));
+  });
+
+  it('итоги боя: сначала «Дальше», потом «К кампании»; расстановка: «Авто» при новых героях, иначе «В бой»', () => {
+    const done = new Set<HintId>();
+    const isDone = (x: HintId) => done.has(x);
+    expect(pickResultHint({ hasNext: true, chestOrLevel: true }, isDone)).toBe('result_next');
+    done.add('result_next');
+    expect(pickResultHint({ hasNext: true, chestOrLevel: false }, isDone)).toBeNull();
+    expect(pickResultHint({ hasNext: true, chestOrLevel: true }, isDone)).toBe('result_home');
+    done.add('chest_claim');
+    expect(pickResultHint({ hasNext: true, chestOrLevel: true }, isDone)).toBeNull();
+    expect(pickPrepHint({ first: true, benchStronger: false }, isDone)).toBe('stage_fight');
+    expect(pickPrepHint({ first: true, benchStronger: true }, isDone)).toBe('prep_auto');
+    done.add('prep_auto');
+    done.add('stage_fight');
+    expect(pickPrepHint({ first: true, benchStronger: true }, isDone)).toBeNull();
   });
 
   it('выполненная подсказка больше не показывается', () => {

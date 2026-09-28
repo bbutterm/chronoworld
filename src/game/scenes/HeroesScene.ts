@@ -8,7 +8,7 @@ import { countUp, staggerIn } from '../juice';
 import { commit, session } from '../session';
 import { sfx } from '../audio';
 import { RARITY_CARD } from '../tavern';
-import { button, ellipsize, emptyState, hintPointer, pressable, ScrollArea, text, toast } from '../ui';
+import { button, ellipsize, emptyState, hintPointer, pressable, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { hintDone } from '../hints';
 import { C, FS } from '../theme';
 import { cardIcon, drawHeroCard, GUILD_NAMES, heroCardIcon, heroCardSize, LINES, rarityColor, ROLES } from '../heroCard';
@@ -158,6 +158,13 @@ export class HeroesScene extends Phaser.Scene {
       const p = at(lead + gi);
       const cy = listTop + p.y;
       if (cy + tileH / 2 <= CONTENT_BOTTOM) hintPointer(this, p.x, cy, 'Наденьте трофеи — откройте героя', 'auto', { w: TILE_W, h: tileH });
+    }
+    // Обучение (hints.ts, шаг ascend): три копии героя — указатель на его плитку (если «Трофеи» уже не показаны).
+    const ai = heroes.findIndex((x) => ready.has(x.id));
+    if (ai >= 0 && !hintDone('ascend') && !(gi >= 0 && !hintDone('equip_gear'))) {
+      const p = at(lead + ai);
+      const cy = listTop + p.y;
+      if (cy + tileH / 2 <= CONTENT_BOTTOM) tutorialHint(this, 'ascend', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Копий хватает — откройте героя и вознесите' });
     }
     staggerIn(this, 'Heroes', tiles);
   }

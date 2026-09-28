@@ -35,7 +35,8 @@ import { BEAM, CARD_BACK, CIRCLE, GLOW, SPARK, setTavernBackground, TAVERN_BG, T
 import { drawHeroCard, heroCardSize } from '../heroCard';
 import { markTavernSeen } from '../tavernEntry';
 import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
-import { button, ellipsize, panel, progressBar, text, toast } from '../ui';
+import { button, ellipsize, panel, progressBar, text, toast, tutorialHint } from '../ui';
+import { hintDone, markHint } from '../hints';
 
 /** Цвет редкости (#rrggbb) → число для tint и заливок. */
 const colorOf = (hex: string): number => Phaser.Display.Color.HexStringToColor(hex).color;
@@ -122,6 +123,7 @@ export class TavernScene extends Phaser.Scene {
     this.showcase();
     this.pity(st);
     this.buttons(st);
+    if (!data.reveal?.results.length) this.tutorial(st);
     if (data.toast?.length) afterRewardFly(this, () => toast(this, data.toast!.join('\n'), C.success, 5000));
     if (data.reveal?.results.length) this.startReveal(data.reveal.results, data.reveal.count);
   }
@@ -267,6 +269,24 @@ export class TavernScene extends Phaser.Scene {
     text(this, GAME_W / 2, 1815, `Гарант: ${GAME.summon.pity.map((p) => `${RARITY_CARD[p.rarity]} — на ${p.every}-м призыве`).join(', ')}`, FS.small, C.dim, { ...OUTLINE, wordWrap: { width: 1000 } });
   }
 
+  /**
+   * Ведущее обучение (hints.ts, шаг tavern_summon): до первого ×10 — указатель на «Забрать подарок», затем на ×10
+   * (свитки или гемы — что доступно). Шаг выполнен первым ×10 (pull) или касанием плашки.
+   */
+  private tutorial(st: SummonStatus): void {
+    if (session.save.summon.firstTenDone || hintDone('tavern_summon')) return;
+    if (!session.save.summon.welcomeGiven) {
+      tutorialHint(this, 'tavern_summon', 820, CONTENT_TOP + 200, 'below', { w: 330, h: 120 }, { text: 'Заберите подарок Гаррета — свитки и гемы на призыв' });
+      return;
+    }
+    const opts = pullOptions(st);
+    const scroll = opts.find((o) => o.id === 'scroll10' && o.enabled);
+    const gems = opts.find((o) => o.id === 'gems10' && o.enabled);
+    const msg = `Призыв ×10 — ${firstTenText(st.firstTenCount, st.firstTenRarity)}!`;
+    if (scroll) tutorialHint(this, 'tavern_summon', 880, 1455, 'above', { w: 316, h: 116 }, { text: msg });
+    else if (gems) tutorialHint(this, 'tavern_summon', 800, 1620, 'above', { w: 490, h: 150 }, { text: msg });
+  }
+
   // ---------- действия ----------
 
   private claimWelcome(at: { x: number; y: number }): void {
@@ -283,6 +303,7 @@ export class TavernScene extends Phaser.Scene {
     try {
       const r = actSummon(session.save, today(), o.count, o.pay, GAME);
       commit(r.save);
+      if (o.count === 10) markHint('tavern_summon');
       this.scene.restart({ reveal: { results: r.results, count: o.count } } satisfies TavernData);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
