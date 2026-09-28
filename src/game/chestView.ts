@@ -58,10 +58,11 @@ function itemsIcon(scene: Phaser.Scene, x: number, y: number, size: number, rari
 type Cell = { kind: 'gold' | 'exp' | 'gems' | 'scrolls' | 'items' | 'shards'; value: string };
 
 /** Трофеи одной строкой ячеек (только ненулевые). */
-function lootCells(loot: Pick<ChestLoot, 'items' | 'shards' | 'gems' | 'scrolls'>): Cell[] {
+function lootCells(loot: Pick<ChestLoot, 'items' | 'cards' | 'gems' | 'scrolls'>): Cell[] {
   const cells: Cell[] = [];
   if (loot.items.length) cells.push({ kind: 'items', value: `×${loot.items.length}` });
-  if (loot.shards) cells.push({ kind: 'shards', value: `×${loot.shards}` });
+  // Карты героя (V1: значок прежних осколков; экран — пакет V2).
+  if (loot.cards.length) cells.push({ kind: 'shards', value: `×${loot.cards.length}` });
   if (loot.gems) cells.push({ kind: 'gems', value: formatNumber(loot.gems) });
   if (loot.scrolls) cells.push({ kind: 'scrolls', value: `×${loot.scrolls}` });
   return cells;
@@ -120,7 +121,7 @@ export class ChestCardView {
     const loot = offlineLoot(save, now, GAME);
     const income = r.gold > 0 || r.jobExp > 0;
     // Иконки перестраиваются только когда что-то изменилось (раз в минуту / тик), таймер — каждую секунду.
-    const key = income ? JSON.stringify([r.gold, r.jobExp, loot.items, loot.shards, loot.gems, loot.scrolls]) : '';
+    const key = income ? JSON.stringify([r.gold, r.jobExp, loot.items, loot.cards, loot.gems, loot.scrolls]) : '';
     if (key !== this.key) {
       this.key = key;
       for (const o of this.rows) o.destroy();
@@ -143,7 +144,7 @@ export class ChestCardView {
   }
 }
 
-/** Трофеи текстом для тоста: «Предметы: Кожаная шапка, Короткий меч ×2 · гемы +5 · свиток +1» (осколки — в событиях). */
+/** Трофеи текстом для тоста: «Предметы: Кожаная шапка, Короткий меч ×2 · гемы +5 · свиток +1» (карты героя — в событиях). */
 export function lootLines(loot: Pick<ChestLoot, 'items' | 'gems' | 'scrolls'>): string[] {
   const lines: string[] = [];
   if (loot.items.length) {
@@ -160,11 +161,11 @@ export function lootLines(loot: Pick<ChestLoot, 'items' | 'gems' | 'scrolls'>): 
 }
 
 /** Коротко о трофеях для окна подтверждения быстрых наград: «Трофеи: 1 предмет, 5 гемов». Пусто — ''. */
-export function lootSummary(loot: Pick<ChestLoot, 'items' | 'shards' | 'gems' | 'scrolls'>): string {
+export function lootSummary(loot: Pick<ChestLoot, 'items' | 'cards' | 'gems' | 'scrolls'>): string {
   const parts: string[] = [];
   const n = loot.items.length;
   if (n) parts.push(`${n} ${plural(n, 'предмет', 'предмета', 'предметов')}`);
-  if (loot.shards) parts.push(`${loot.shards} ${plural(loot.shards, 'осколок', 'осколка', 'осколков')}`);
+  if (loot.cards.length) parts.push(`${loot.cards.length} ${plural(loot.cards.length, 'карта героя', 'карты героя', 'карт героя')}`);
   if (loot.gems) parts.push(`${loot.gems} ${plural(loot.gems, 'гем', 'гема', 'гемов')}`);
   if (loot.scrolls) parts.push(`${loot.scrolls} ${plural(loot.scrolls, 'свиток', 'свитка', 'свитков')}`);
   return parts.length ? `Трофеи: ${parts.join(', ')}.` : '';

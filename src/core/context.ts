@@ -38,7 +38,7 @@ export interface RawGameData {
   heroes: RawFile[];
   items: RawFile[];
   progression: unknown;
-  /** data/cards.json — редкости, уровень, вознесение, осколки. */
+  /** data/cards.json — редкости, уровень, вознесение, смена ветки, карты героя за этапы. */
   cards: unknown;
   /** data/summon.json — Таверна. */
   summon: unknown;

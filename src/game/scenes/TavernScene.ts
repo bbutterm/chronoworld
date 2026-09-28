@@ -215,7 +215,7 @@ export class TavernScene extends Phaser.Scene {
   /** Полоса гаранта и заметка про первый ×10. */
   private pity(st: SummonStatus): void {
     const y = 1270;
-    const info = pityInfo(st, GAME.summon.pity.every);
+    const info = pityInfo(st, GAME.summon.pity[0].every);
     card(this, GAME_W / 2, y, 1000, st.firstTenBonus ? 200 : 150);
     const top = st.firstTenBonus ? y - 50 : y - 25;
     text(this, 80, top - 12, info.label, FS.h3, '#d8b8ff', { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5).setName('pityLabel');
@@ -296,10 +296,10 @@ export class TavernScene extends Phaser.Scene {
     }
     const s = GAME.summon;
     const rules = [
-      `Гарант: ${s.pity.every - 1} призывов подряд без ${RARITY_FEM[s.pity.rarity]} — следующая карта ${RARITY_CARD[s.pity.rarity]}.`,
-      `Первый призыв ×10 (один раз) — с ${RARITY_FEM[s.firstTen.rarity]} картой.`,
+      ...s.pity.map((p) => `Гарант: ${p.every - 1} призывов подряд без ${RARITY_FEM[p.rarity]} — следующая карта ${RARITY_CARD[p.rarity]}.`),
+      `Первый призыв ×10 (один раз) — не меньше ${s.firstTen.count} ${RARITY_FEM[s.firstTen.rarity]} карт.`,
       `Бесплатно: ${s.freePerDay} призыв в день. Свиток — 1 призыв.`,
-      `Каждая карта — с шансом ${Math.round(s.storyShard.chance * 100)}% ещё и осколок сюжетного героя.`,
+      'Фиолетовая карта приходит без ветки — выберите её на карточке героя.',
       'Повторные карты — корм для вознесения в «Героях».',
     ];
     y += 20;
@@ -636,11 +636,6 @@ export class TavernScene extends Phaser.Scene {
     const L = state.layer;
     state.title.setText('Итог призыва');
     L.add(ellipsize(text(this, GAME_W / 2, 310, summaryLine(state.results), FS.body, C.text, { fontStyle: 'bold', ...OUTLINE }), 1000).setName('summaryLine'));
-    // Осколки одного героя за серию — одной записью («Вика +2»).
-    const shards = new Map<string, number>();
-    for (const r of state.results) if (r.shard) shards.set(r.shard.templateId, (shards.get(r.shard.templateId) ?? 0) + r.shard.count);
-    const shardLines = [...shards].map(([t, n]) => `${GAME.content.heroes[t]?.name ?? t} +${n}`);
-    if (shardLines.length) L.add(text(this, GAME_W / 2, 370, `Бонус — осколки: ${shardLines.join(', ')}`, FS.small, C.gold, OUTLINE));
     const hasDup = state.results.some((r) => !r.isNew);
     L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Дубли — корм для вознесения. Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
 

@@ -86,13 +86,14 @@ describe('K10 статус и награды', () => {
     const done = trackAchievement(trackAchievement(s, 'ascensions', 1), 'battles_won', 10);
     const r = claimAchievement(done, 'first_ascend', ctx);
     const def = ctx.meta.achievements.achievements.find((a) => a.id === 'first_ascend')!;
-    expect(r.rewards).toEqual(def.rewards);
+    expect(r.rewards).toEqual(def.rewards); // heroCards { blue: 1 } — целое: выпадает всегда
     expect(r.save.achievements.claimed).toEqual(['first_ascend']);
     expect(r.events[0]).toEqual({ type: 'achievementClaimed', achievementId: 'first_ascend' });
-    // Осколки награды — «отстающему» сюжетному герою (все зелёные, осколков нет — первый по сюжету, Алан).
-    expect(def.rewards.shards).toBeGreaterThan(0);
-    expect(r.save.shards).toEqual({ alan: def.rewards.shards });
-    expect(r.events).toContainEqual({ type: 'shards', templateId: 'alan', count: def.rewards.shards });
+    // Карта героя награды — новый синий экземпляр случайного героя.
+    expect(def.rewards.heroCards?.blue).toBe(1);
+    const added = r.save.heroes.slice(done.heroes.length);
+    expect(added.map((h) => h.rarity)).toEqual(['blue']);
+    expect(r.events).toContainEqual({ type: 'heroCard', heroId: added[0].id, templateId: added[0].templateId, rarity: 'blue', name: ctx.content.heroes[added[0].templateId].name });
     expect(achievementStatus(r.save, ctx).find((a) => a.id === 'first_ascend')!.claimed).toBe(true);
     expect(codeOf(() => claimAchievement(r.save, 'first_ascend', ctx))).toBe('achievement_already_claimed');
 

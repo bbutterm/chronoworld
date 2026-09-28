@@ -7,7 +7,7 @@
  * экспедиция; герой — в одной экспедиции. Герои в экспедиции продолжают сражаться (кампания, башня, охота).
  *
  * Добыча бросается при отправке и хранится снимком (rollExpeditionLoot): золото и опыт — perHour × часы добычи,
- * находки (предметы темы, гемы, осколки, свитки) — броски за каждый час добычи; часы добычи = часы × (1 + bonus),
+ * находки (предметы темы, гемы, карты героя, свитки) — броски за каждый час добычи; часы добычи = часы × (1 + bonus),
  * поэтому длинные экспедиции чуть выгоднее в час. Всё детерминировано: seed — сохранение (createdAt), локация и время
  * отправки. Время (now, мс) передаёт UI; ни Date, ни Math.random здесь нет.
  */
@@ -17,6 +17,7 @@ import type { EquipmentConfig } from '../equipment/load';
 import type { FeatureContext } from '../features/config';
 import { heroPower } from '../features/power';
 import { heroName } from '../heroes/card';
+import { cardRng, grantHeroCards, pickHeroCards } from '../heroes/cardDrops';
 import { Rng } from '../rng';
 import type { ActiveExpedition, ExpeditionRewards, HeroState, ItemInstance, SaveState } from '../save/schema';
 import { stageLabel } from '../unlocks/unlocks';
@@ -31,7 +32,7 @@ export type ExpeditionContext = MetaContext & FeatureContext & { equipment?: Equ
 
 /** Пустая добыча. */
 export function emptyExpeditionRewards(): ExpeditionRewards {
-  return { gold: 0, jobExp: 0, gems: 0, shards: 0, scrolls: 0, items: [] };
+  return { gold: 0, jobExp: 0, gems: 0, heroCards: { blue: 0, purple: 0 }, scrolls: 0, items: [] };
 }
 
 /** Локация по id. MetaError('unknown_location'). */
@@ -186,6 +187,7 @@ export function rollExpeditionLoot(loc: ExpeditionLocation, hours: number, seed:
       const pick = rng.next();
       if (x >= chance) continue;
       if (l.kind === 'item') r.items.push(l.items![Math.floor(pick * l.items!.length)]);
+      else if (l.kind === 'heroCard') r.heroCards[l.rarity ?? 'blue'] += l.count;
       else r[l.kind] += l.count;
     }
   }
@@ -202,25 +204,27 @@ export interface ExpectedLoot {
   gold: number;
   jobExp: number;
   gems: number;
-  shards: number;
+  /** Карты случайных героев (синие + фиолетовые). */
+  heroCards: number;
   scrolls: number;
   items: number;
 }
 
 export function expectedExpeditionLoot(loc: ExpeditionLocation, hours: number, ctx: MetaContext): ExpectedLoot {
   const units = lootHours(hours, ctx);
-  const e: ExpectedLoot = { gold: Math.round(loc.perHour.gold * units), jobExp: Math.round(loc.perHour.jobExp * units), gems: 0, shards: 0, scrolls: 0, items: 0 };
+  const e: ExpectedLoot = { gold: Math.round(loc.perHour.gold * units), jobExp: Math.round(loc.perHour.jobExp * units), gems: 0, heroCards: 0, scrolls: 0, items: 0 };
   for (const l of loc.loot) {
     const n = rollsOf(units, l.chance).reduce((s, c) => s + c, 0);
     if (l.kind === 'item') e.items += n;
+    else if (l.kind === 'heroCard') e.heroCards += n * l.count;
     else e[l.kind] += n * l.count;
   }
   return e;
 }
 
-/** Какие находки бывают в локации (порядок: предметы, гемы, осколки, свитки). */
+/** Какие находки бывают в локации (порядок: предметы, гемы, карты героя, свитки). */
 export function lootKinds(loc: ExpeditionLocation): ExpeditionLoot['kind'][] {
-  return (['item', 'gems', 'shards', 'scrolls'] as const).filter((k) => loc.loot.some((l) => l.kind === k && l.chance > 0));
+  return (['item', 'gems', 'heroCard', 'scrolls'] as const).filter((k) => loc.loot.some((l) => l.kind === k && l.chance > 0));
 }
 
 /**
@@ -316,7 +320,7 @@ export function idleExpeditions(save: SaveState, ctx: ExpeditionContext): number
   ).length;
 }
 
-/** Результат получения добычи. rewards — что реально выдано (осколков 0, если нет сюжетных героев). */
+/** Результат получения добычи. rewards — что реально выдано (карты героя — число; кто — в событиях heroCard). */
 export interface ExpeditionClaim {
   save: SaveState;
   rewards: ExpeditionRewards;
@@ -326,8 +330,8 @@ export interface ExpeditionClaim {
 }
 
 /**
- * Забрать добычу вернувшейся экспедиции (now ≥ endsAt): золото и гемы — в ресурсы, опыт — в общий пул, осколки —
- * «отстающему» сюжетному герою, свитки — в валюту, предметы — в инвентарь (предмет, которого больше нет в игре, пропадает).
+ * Забрать добычу вернувшейся экспедиции (now ≥ endsAt): золото и гемы — в ресурсы, опыт — в общий пул, карты героя —
+ * случайным героям (новые экземпляры), свитки — в валюту, предметы — в инвентарь (предмет, которого больше нет в игре, пропадает).
  * Герои свободны. Достижения: bounties_done + 1 и счётчики-«максимумы».
  * MetaError: unknown_location (нет в конфиге и нет в пути), expedition_not_running, expedition_not_finished.
  */
@@ -347,14 +351,17 @@ export function claimExpedition(save: SaveState, locationId: string, now: number
   const events: MetaEvent[] = [{ type: 'expeditionDone', location: e.location, heroIds }];
   const r = e.rewards;
   let next: SaveState = { ...save, bounties: { ...save.bounties, active: save.bounties.active.filter((x) => x !== e) } };
-  next = grantMetaRewards(next, { gold: r.gold, gems: r.gems, jobExp: r.jobExp, shards: r.shards }, ctx, events);
-  const shards = events.some((ev) => ev.type === 'shards') ? r.shards : 0;
+  next = grantMetaRewards(next, { gold: r.gold, gems: r.gems, jobExp: r.jobExp }, ctx, events, 0).save;
+  // Карты героя: сколько — в снимке, какие герои — при получении (seed экспедиции).
+  const cards = grantHeroCards(next, pickHeroCards(r.heroCards, cardRng(expeditionSeed(save, e.location, e.startedAt)), ctx), ctx);
+  next = cards.save;
+  events.push(...cards.events);
   if (r.scrolls > 0) next = { ...next, currency: { ...next.currency, scrolls: next.currency.scrolls + r.scrolls } };
   const known = ctx.equipment?.items;
   const items = known ? r.items.filter((id) => known[id]) : [];
   const got = addItems(next, items);
   next = syncAchievementCounters(trackAchievement(got.save, 'bounties_done', 1, 'add'));
-  return { save: next, rewards: { ...r, shards, items }, added: got.added, events };
+  return { save: next, rewards: { ...r, items }, added: got.added, events };
 }
 
 /** Сложить добычу нескольких экспедиций. */
@@ -364,7 +371,7 @@ export function sumExpeditionRewards(list: readonly ExpeditionRewards[]): Expedi
       gold: s.gold + r.gold,
       jobExp: s.jobExp + r.jobExp,
       gems: s.gems + r.gems,
-      shards: s.shards + r.shards,
+      heroCards: { blue: s.heroCards.blue + r.heroCards.blue, purple: s.heroCards.purple + r.heroCards.purple },
       scrolls: s.scrolls + r.scrolls,
       items: [...s.items, ...r.items],
     }),

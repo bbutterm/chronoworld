@@ -4,7 +4,7 @@
  *   2. ссылки на ассеты: спрайты (реестр), снаряды, эффекты, иконки (assets/manifest.json);
  *   3. спрайтшиты: файл есть, размер сходится с сеткой, лист не больше 2048 px;
  *   4. JSON-схемы для редактора не устарели;
- *   5. дымовой прогон: каждый юнит проводит бой без исключений; каждая карточка героя — на пределе каждой своей редкости;
+ *   5. дымовой прогон: каждый юнит проводит бой без исключений; каждый герой — на пределе каждой своей редкости (с фиолетового — каждая ветка);
  *   6. сюжет (data/story): схема и ссылки — в сборке (п. 1), здесь — портреты спикеров (нет картинки — предупреждение, будет иконка);
  *   7. строки «TODO» в data/ (заготовки npm run content:new) — предупреждения: их надо дописать до релиза;
  *   8. карточки героев (data/heroes) и Таверна — scripts/lib/content-check-heroes.ts: правила различия карточек одного
@@ -18,7 +18,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, maxLevelOf, rarityIndex, recommendedPower, simulateBattle, validateHeroes } from '../src/core';
+import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, maxLevelOf, rarityIndex, recommendedPower, simulateBattle, validateHeroes } from '../src/core';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
@@ -80,7 +80,7 @@ if (content) {
   const referenced = new Set([
     ...Object.values(content.units).flatMap((u) => [u.skills.basic, u.skills.ult, ...u.skills.actives, ...u.skills.passives]),
     ...Object.values(content.jobs).flatMap((j) => [j.basic, ...j.skills.map((s) => s.skill)]),
-    ...Object.values(content.heroes).flatMap((t) => [...t.skills, ...t.forms.flatMap((f) => f.skills)].map((s) => s.skill)),
+    ...Object.values(content.heroes).flatMap((t) => [...t.skills, ...t.branches.flatMap((b) => b.skills)].map((s) => s.skill)),
   ]);
 
   // 8. Карточки героев и Таверна: правила карточек, листы (свой / класса / пол), портреты, выдача Таверны.
@@ -146,11 +146,15 @@ if (content) {
     const gctx = built.ctx;
     for (const t of Object.values(content.heroes)) {
       for (const r of CARD_RARITIES.slice(rarityIndex(t.baseRarity), rarityIndex(t.maxRarity) + 1)) {
-        try {
-          const unit = buildUnit({ id: 'smoke', templateId: t.id, rarity: r, level: maxLevelOf(gctx, r) }, gctx);
-          simulateBattle(content, [unit, null, unit, null, unit], phase0.defaultSquadB, 3, { log: false });
-        } catch (e) {
-          errors.push(`карточка ${t.id} (${r}): бой упал — ${String(e)}`);
+        // С фиолетового — каждая ветка (и форма без ветки: «Выберите ветку!»).
+        const branches = rarityIndex(r) >= rarityIndex(BRANCH_RARITY) ? [undefined, ...t.branches.map((b) => b.job)] : [undefined];
+        for (const branch of branches) {
+          try {
+            const unit = buildUnit({ id: 'smoke', templateId: t.id, rarity: r, level: maxLevelOf(gctx, r), ...(branch ? { branch } : {}) }, gctx);
+            simulateBattle(content, [unit, null, unit, null, unit], phase0.defaultSquadB, 3, { log: false });
+          } catch (e) {
+            errors.push(`карточка ${t.id} (${r}${branch ? `, ${branch}` : ''}): бой упал — ${String(e)}`);
+          }
         }
       }
     }

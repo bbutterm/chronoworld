@@ -1,6 +1,6 @@
 {
   "$schema": "schema/cards.schema.json",
-  "$comment": "Карточки героев: редкости, стоимость уровня (общий пул опыта + золото), вознесение (корм для призывных, осколки для сюжетных), источники осколков. Числа — заглушки до баланса. Дизайн — docs/design/heroes.md, разделы 2 и 3.",
+  "$comment": "Герои v2 (docs/design/heroes-v2.md): редкости, стоимость уровня (общий пул опыта + золото), вознесение — одна дорожка для всех 12 героев: копии того же героя (same) и любых (any) нужной редкости + золото; на переходе в фиолетовый (branch: true) выбирается ветка второй профессии. branchChange — смена ветки (первая бесплатно, дальше за гемы). heroCards — карты случайных героев за этапы кампании (ожидаемое число: целая часть — точно, дробная — шанс). Числа — стартовые до баланса (пакет V3).",
   "rarities": [
     { "id": "green", "name": "Зелёный", "color": "#4CAF50", "maxLevel": 20, "statMult": 1, "skillPower": 1 },
     { "id": "blue", "name": "Синий", "color": "#3F8CFF", "maxLevel": 40, "statMult": 1.1, "skillPower": 1 },
@@ -13,20 +13,15 @@
     "gold": { "base": 15, "power": 2 }
   },
   "merge": [
-    { "track": "first", "from": "green", "to": "blue", "gold": 500, "fodder": [{ "kind": "same", "rarity": "green", "count": 2 }] },
-    { "track": "first", "from": "blue", "to": "purple", "gold": 5000, "fodder": [{ "kind": "same", "rarity": "blue", "count": 1 }, { "kind": "line", "rarity": "blue", "count": 2 }] },
-    { "track": "first", "from": "purple", "to": "gold", "gold": 20000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 1 }, { "kind": "line", "rarity": "purple", "count": 2 }] },
-    { "track": "second", "from": "purple", "to": "gold", "gold": 20000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 2 }] },
-    { "track": "second", "from": "gold", "to": "red", "gold": 60000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 1 }, { "kind": "line", "rarity": "purple", "count": 2 }] },
-    { "track": "story", "from": "green", "to": "blue", "gold": 500, "shards": 20 },
-    { "track": "story", "from": "blue", "to": "purple", "gold": 5000, "shards": 40, "minLevel": 40 },
-    { "track": "story", "from": "purple", "to": "gold", "gold": 20000, "shards": 60 },
-    { "track": "story", "from": "gold", "to": "red", "gold": 60000, "shards": 80 }
+    { "from": "green", "to": "blue", "gold": 500, "fodder": [{ "kind": "same", "rarity": "green", "count": 2 }] },
+    { "from": "blue", "to": "purple", "gold": 5000, "fodder": [{ "kind": "same", "rarity": "blue", "count": 2 }], "branch": true },
+    { "from": "purple", "to": "gold", "gold": 20000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 1 }] },
+    { "from": "gold", "to": "red", "gold": 60000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 1 }, { "kind": "any", "rarity": "purple", "count": 2 }] }
   ],
-  "shards": {
-    "firstClear": 4,
-    "bossFirstClear": 8,
-    "replayChance": 0.1,
-    "replayCount": 1
+  "branchChange": { "gems": 300, "firstFree": true },
+  "heroCards": {
+    "firstClear": { "blue": 0.12 },
+    "bossFirstClear": { "blue": 0.5 },
+    "replay": { "blue": 0.004 }
   }
 }

@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   claimAllMail,
+  claimHeroPick,
   claimLogin,
   claimMail,
   claimNewbieMilestone,
@@ -107,18 +108,18 @@ describe('«Вход 7 дней»', () => {
     expect(saveProblems(r2.save, ctx)).toEqual([]);
   });
 
-  it('день 7 — фиолетовая карточка (значок «Новый!»); после всех дней календарь закончен', () => {
+  it('день 7 — «Контракт героя» (фиолетовый на выбор, pendingPicks); после всех дней календарь закончен', () => {
     let s = fresh();
     for (let i = 1; i < 7; i++) s = touchEvents(s, day(i * 2), ctx); // заходит через день — всё равно 7 дней входа
     expect(loginStatus(s, day(12), ctx).claimable).toBe(7);
     const before = s.heroes.length;
     for (let n = 1; n <= 7; n++) s = claimLogin(s, day(12), n, ctx).save;
-    const heroId = ctx.events.login.days[6].rewards.heroes![0];
-    expect(s.heroes).toHaveLength(before + 1);
-    const card = s.heroes[s.heroes.length - 1];
-    expect(card).toMatchObject({ templateId: heroId, rarity: ctx.content.heroes[heroId].baseRarity, level: 1, isNew: true });
-    expect(card.rarity).toBe('purple');
-    expect(s.summon.discovered).toContain(heroId);
+    expect(ctx.events.login.days[6].rewards.heroPicks).toEqual([{ rarity: 'purple' }]);
+    expect(s.heroes).toHaveLength(before);
+    expect(s.pendingPicks).toEqual([{ rarity: 'purple', source: 'login_7' }]);
+    const picked = claimHeroPick(s, 0, 'meilin', 'hunter', ctx);
+    expect(picked.save.heroes.at(-1)).toMatchObject({ templateId: 'meilin', rarity: 'purple', branch: 'hunter', level: 1, isNew: true });
+    expect(picked.save.summon.discovered).toContain('meilin');
     const st = loginStatus(s, day(12), ctx);
     expect(st.done).toBe(true);
     expect(eventsBadges(s, day(12), ctx).loginVisible).toBe(false);
@@ -165,10 +166,9 @@ describe('«7 дней новичка»', () => {
     const st = newbieStatus(s, last, ctx);
     expect(st.points).toBe(st.maxPoints);
     expect(st.milestones.every((m) => m.ready)).toBe(true);
-    const before = s.heroes.length;
     for (const m of ctx.events.newbie.milestones) s = claimNewbieMilestone(s, last, m.points, ctx).save;
-    expect(s.heroes).toHaveLength(before + 1);
-    expect(s.heroes[s.heroes.length - 1].rarity).toBe('purple');
+    // Последний сундук — «Контракт героя» (фиолетовый на выбор).
+    expect(s.pendingPicks).toEqual([{ rarity: 'purple', source: `newbie_${ctx.events.newbie.milestones.at(-1)!.points}` }]);
     expectCode(() => claimNewbieMilestone(s, last, firstMilestone.points, ctx), 'milestone_claimed');
     expectCode(() => claimNewbieMilestone(s, last, 7, ctx), 'unknown_milestone');
     expect(newbieStatus(s, last, ctx).done).toBe(true);
@@ -213,17 +213,19 @@ describe('почта', () => {
     expect(deleteReadMail(read)).toMatchObject({ removed: 2 });
   });
 
-  it('«Забрать всё» суммирует вложения, включая карточки героев', () => {
+  it('«Забрать всё» суммирует вложения, включая карточки героев, карты и контракты', () => {
     let s = fresh();
-    s = sendMail(s, D1, { from: 'Разработчики', title: 'Компенсация', body: 'Извините за сбой.', rewards: { gems: 100, scrolls: 2, heroes: ['seyren'] } });
+    s = sendMail(s, D1, { from: 'Разработчики', title: 'Компенсация', body: 'Извините за сбой.', rewards: { gems: 100, scrolls: 2, heroes: ['iris'], heroCards: { blue: 1 }, heroPicks: [{ rarity: 'purple' }] } });
     s = sendMail(s, D1, { from: 'Разработчики', title: 'Пусто', body: '' });
     expect(mailStatus(s).claimable).toBe(2);
     const r = claimAllMail(s, ctx);
     expect(r.count).toBe(2);
     expect(r.save.currency.gems).toBe(s.currency.gems + 100);
     expect(r.save.currency.scrolls).toBe(s.currency.scrolls + 2);
-    expect(r.save.heroes.length).toBe(s.heroes.length + 1);
-    expect(r.events.some((e) => e.type === 'heroCard')).toBe(true);
+    expect(r.save.heroes.length).toBe(s.heroes.length + 2);
+    expect(r.save.heroes.at(-1)!.rarity).toBe('blue');
+    expect(r.save.pendingPicks).toEqual([{ rarity: 'purple', source: 'mail' }]);
+    expect(r.events.filter((e) => e.type === 'heroCard')).toHaveLength(2);
     expect(mailStatus(r.save).claimable).toBe(0);
     expect(claimAllMail(r.save, ctx).save).toBe(r.save);
     expect(saveProblems(r.save, ctx)).toEqual([]);
@@ -292,13 +294,13 @@ describe('data/events.json', () => {
     expect(r.problems.some((p) => p.includes('data/events.json') && p.includes('no_such_hero'))).toBe(true);
   });
 
-  it('бюджет недели: свитки + гемы обоих событий — не больше ~2 призывов ×10; две фиолетовые карточки', () => {
+  it('бюджет недели: свитки + гемы обоих событий — не больше ~2 призывов ×10; два фиолетовых «Контракта героя»', () => {
     const all = [...ctx.events.login.days.map((d) => d.rewards), ...ctx.events.newbie.milestones.map((m) => m.rewards)];
     const scrolls = all.reduce((a, r) => a + (r.scrolls ?? 0), 0);
     const gems = all.reduce((a, r) => a + (r.gems ?? 0), 0);
     const pulls = scrolls + gems / ctx.summon.costs.single;
     expect(pulls).toBeLessThanOrEqual(20);
-    const heroes = all.flatMap((r) => r.heroes ?? []);
-    expect(heroes.map((h) => ctx.content.heroes[h].baseRarity)).toEqual(['purple', 'purple']);
+    expect(all.flatMap((r) => r.heroes ?? [])).toEqual([]);
+    expect(all.flatMap((r) => r.heroPicks ?? []).map((p) => p.rarity)).toEqual(['purple', 'purple']);
   });
 });

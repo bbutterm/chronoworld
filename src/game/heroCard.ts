@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { CARD_RARITIES, rarityIndex, type CardRarity, type HeroState, type HeroTemplate } from '../core';
+import { activeForm, CARD_RARITIES, rarityIndex, type CardRarity, type HeroState, type HeroTemplate } from '../core';
 import { GAME } from './content';
 import { heroSprite, levelText } from './flow';
 import { juiceOn } from './juice';
@@ -558,9 +558,9 @@ function resolve(subject: HeroCardSubject, opts: HeroCardOptions): Resolved | nu
   const hero = typeof subject !== 'string' && 'templateId' in subject ? subject : undefined;
   const rarity = opts.rarity ?? hero?.rarity ?? template.baseRarity;
   const shown: HeroState = { ...(hero ?? { id: `tpl_${tid}`, templateId: tid, level: 1 }), rarity } as HeroState;
-  const form = [...template.forms].reverse().find((f) => rarityIndex(f.rarity) <= rarityIndex(rarity));
+  const form = activeForm(template, { rarity, branch: hero?.branch });
   const level = opts.level !== undefined ? opts.level : hero ? hero.level : null;
-  return { template, hero, rarity, level, line: template.line, role: form?.role ?? template.role, sprite: heroSprite(shown, GAME) };
+  return { template, hero, rarity, level, line: template.line, role: form.role, sprite: heroSprite(shown, GAME) };
 }
 
 /** Размер плитки ширины w. */

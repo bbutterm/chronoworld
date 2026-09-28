@@ -75,7 +75,8 @@ describe('Значок вкладки «Герои»', () => {
     expect(heroesNavBadge(poor, ctx)).toBeNull();
     const rich: SaveState = { ...save, resources: { ...save.resources, heroExp: 100000, gold: 100000 } };
     expect(heroesNavBadge(rich, ctx)).toEqual({ kind: 'levelUp' });
-    const ascend: SaveState = { ...rich, shards: { alan: 20, vika: 5 } };
+    // Две зелёные копии Алана — можно вознести (герои v2: копиями, осколков больше нет).
+    const ascend: SaveState = { ...rich, heroes: [...rich.heroes, { id: 'h90', templateId: 'alan', rarity: 'green', level: 1 }, { id: 'h91', templateId: 'alan', rarity: 'green', level: 1 }] };
     expect(heroesNavBadge(ascend, ctx)?.kind).toBe('count');
   });
 });

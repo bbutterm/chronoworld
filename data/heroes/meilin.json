@@ -8,7 +8,7 @@
   "role": "damage",
   "source": "summon",
   "baseRarity": "green",
-  "maxRarity": "gold",
+  "maxRarity": "red",
   "statMods": {
     "atk": 0.95,
     "spd": 1.1
@@ -29,6 +29,72 @@
     {
       "level": 50,
       "skill": "job_archer_vultures_eye"
+    }
+  ],
+  "branches": [
+    {
+      "job": "hunter",
+      "role": "damage",
+      "statMods": {
+        "hp": 1.1,
+        "atk": 1.3,
+        "def": 1.05,
+        "spd": 1.05
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_hunter_ankle_snare"
+        },
+        {
+          "level": 10,
+          "skill": "job_archer_improve_concentration"
+        },
+        {
+          "level": 30,
+          "skill": "job_hunter_claymore_trap"
+        },
+        {
+          "level": 50,
+          "skill": "job_hunter_sandman"
+        }
+      ],
+      "promotion": "Лесники Пайона учат Мэйлин ставить капканы. Белый волк где-то рядом.",
+      "visual": {
+        "sprite": "hunter_f"
+      }
+    },
+    {
+      "job": "dancer",
+      "role": "support",
+      "statMods": {
+        "hp": 1.15,
+        "atk": 1.15,
+        "def": 1,
+        "spd": 1.1
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_dancer_slinging_arrow"
+        },
+        {
+          "level": 10,
+          "skill": "job_bard_scream"
+        },
+        {
+          "level": 30,
+          "skill": "job_dancer_dont_forget_me"
+        },
+        {
+          "level": 50,
+          "skill": "job_dancer_fortune_kiss"
+        }
+      ],
+      "promotion": "Мэйлин танцует со стрелами в Комодо — и враг теряет шаг.",
+      "visual": {
+        "sprite": "dancer_f"
+      }
     }
   ],
   "bio": "Лучница из Пайона: дождь стрел по всему строю врага.",

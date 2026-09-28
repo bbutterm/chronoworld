@@ -32,24 +32,23 @@
       "skill": "job_swordman_provoke"
     }
   ],
-  "forms": [
+  "branches": [
     {
-      "rarity": "purple",
       "job": "knight",
       "role": "tank",
       "statMods": {
         "hp": 1.4,
-        "atk": 1.15,
+        "atk": 1.1,
         "def": 1.45
       },
       "skills": [
         {
           "level": 1,
-          "skill": "job_swordman_provoke"
+          "skill": "job_knight_bowling_bash"
         },
         {
           "level": 10,
-          "skill": "swordman_endure"
+          "skill": "job_swordman_provoke"
         },
         {
           "level": 30,
@@ -57,12 +56,43 @@
         },
         {
           "level": 50,
-          "skill": "job_knight_bowling_bash"
+          "skill": "job_knight_parrying"
         }
       ],
       "promotion": "Капитан Гаррет молча протягивает Алану рыцарский щит Пронтеры: «Отступать научился. Теперь — вперёд».",
       "visual": {
         "sprite": "knight_m"
+      }
+    },
+    {
+      "job": "crusader",
+      "role": "tank",
+      "statMods": {
+        "hp": 1.45,
+        "atk": 1,
+        "def": 1.4
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_crusader_devotion"
+        },
+        {
+          "level": 10,
+          "skill": "job_crusader_faith"
+        },
+        {
+          "level": 30,
+          "skill": "job_crusader_auto_guard"
+        },
+        {
+          "level": 50,
+          "skill": "job_crusader_defender"
+        }
+      ],
+      "promotion": "Орден Креста принимает Алана: щит теперь закрывает не только его самого.",
+      "visual": {
+        "sprite": "crusader_m"
       }
     }
   ],

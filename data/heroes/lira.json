@@ -8,7 +8,7 @@
   "role": "support",
   "source": "summon",
   "baseRarity": "green",
-  "maxRarity": "gold",
+  "maxRarity": "red",
   "statMods": {
     "hp": 1.1,
     "atk": 0.9
@@ -29,6 +29,70 @@
     {
       "level": 50,
       "skill": "job_mage_safety_wall"
+    }
+  ],
+  "branches": [
+    {
+      "job": "wizard",
+      "role": "damage",
+      "statMods": {
+        "hp": 1.1,
+        "atk": 1.35,
+        "def": 1.05
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_wizard_frost_nova"
+        },
+        {
+          "level": 10,
+          "skill": "job_wizard_quagmire"
+        },
+        {
+          "level": 30,
+          "skill": "job_mage_frost_diver"
+        },
+        {
+          "level": 50,
+          "skill": "job_wizard_storm_gust"
+        }
+      ],
+      "promotion": "Лира заканчивает башню Гефена: её лёд теперь держит целый отряд.",
+      "visual": {
+        "sprite": "wizard_f"
+      }
+    },
+    {
+      "job": "sage",
+      "role": "support",
+      "statMods": {
+        "hp": 1.25,
+        "atk": 1.15,
+        "def": 1.15
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_sage_dispell"
+        },
+        {
+          "level": 10,
+          "skill": "job_sage_magic_rod"
+        },
+        {
+          "level": 30,
+          "skill": "job_mage_safety_wall"
+        },
+        {
+          "level": 50,
+          "skill": "job_sage_volcano"
+        }
+      ],
+      "promotion": "Юно учит Лиру снимать чужие чары. Чинить стало проще.",
+      "visual": {
+        "sprite": "sage_f"
+      }
     }
   ],
   "bio": "Маг льда и защиты: замедляет врагов и прикрывает своих.",

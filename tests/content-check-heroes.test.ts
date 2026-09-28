@@ -46,10 +46,14 @@ describe('content:check — карточки героев и Таверна', ()
     expect(r.warnings.some((w) => w.startsWith('карточки без листа своего пола') && w.includes(sheet))).toBe(true);
   });
 
-  it('призывная карточка, которую Таверна не выдаёт, — ✗; visual.portrait — ⚠ (игра его не читает)', () => {
+  it('листы веток: своего листа нет — ⚠ и откат на лист класса; visual.portrait — ⚠ (игра его не читает)', () => {
     const kai = ctx.content.heroes.kai;
-    const r = lintHeroes(withHeroes({ gen_gold: { ...kai, id: 'gen_gold', name: 'Золотой', baseRarity: 'gold', maxRarity: 'gold', visual: { portrait: 'x.png' } } }), registry, {});
-    expect(r.errors.some((e) => e.startsWith('карточка gen_gold: призывная'))).toBe(true);
-    expect(r.warnings.some((w) => w.startsWith('карточка gen_gold: visual.portrait'))).toBe(true);
+    const gen = { ...kai, id: 'gen', name: 'Генерал', visual: { portrait: 'x.png' }, branches: kai.branches.map((b) => ({ ...b, visual: { sprite: 'no_such_sheet' } })) };
+    const r = lintHeroes(withHeroes({ gen }), registry, {});
+    expect(r.errors).toEqual([]);
+    expect(r.warnings.some((w) => w.startsWith('карточка gen: листа "no_such_sheet" нет в реестре'))).toBe(true);
+    expect(r.warnings.some((w) => w.startsWith('карточка gen: visual.portrait'))).toBe(true);
+    // Лист формы ветки (Кай-Волшебник) — откат на лист класса Волшебника.
+    expect(r.sprites.has(ctx.content.jobs.wizard.visual.sprite)).toBe(true);
   });
 });

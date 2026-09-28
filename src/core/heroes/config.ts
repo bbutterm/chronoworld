@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import type { GameContext } from '../progression/types';
-import { cardTrack } from './card';
 import type { UnlocksConfig } from '../unlocks/schema';
 import { CardsConfigSchema, rarityIndex, CARD_RARITIES, SummonConfigSchema, type CardsConfig, type CardRarity, type SummonConfig } from './schema';
 
@@ -25,21 +24,23 @@ export function parseHeroesConfig(cardsJson: unknown, summonJson: unknown, unloc
   return { cards: c.data, summon: { ...s.data, unlockAfterStage: stage } };
 }
 
-/** Призывные шаблоны, которые выпадают редкостью rarity (summon.json → rates[].baseRarities), по id. */
+/**
+ * Пул Таверны для редкости rarity: все герои (и сюжетные — копии им в рост; решение владельца 28.09: Грета и Дорн в
+ * пуле с открытия Таверны), у которых maxRarity не ниже rarity. Отсортирован по id.
+ */
 export function summonPool(ctx: GameContext, rarity: CardRarity): string[] {
-  const rate = ctx.summon.rates.find((r) => r.rarity === rarity);
-  if (!rate) return [];
+  if (!ctx.summon.rates.some((r) => r.rarity === rarity)) return [];
   return Object.values(ctx.content.heroes)
-    .filter((t) => t.source === 'summon' && rate.baseRarities.includes(t.baseRarity) && rarityIndex(t.maxRarity) >= rarityIndex(rarity))
+    .filter((t) => rarityIndex(t.maxRarity) >= rarityIndex(rarity) && rarityIndex(t.baseRarity) <= rarityIndex(rarity))
     .map((t) => t.id)
     .sort();
 }
 
 /**
- * Перекрёстные проверки карточек с прогрессией, кампанией и Таверной (content:check ✗):
+ * Перекрёстные проверки героев с прогрессией, кампанией и Таверной (content:check ✗):
  * - progression.heroes.start / recruits — сюжетные шаблоны, без повторов; afterStage — существующий этап;
  * - у каждой выпадающей редкости Таверны пул не пуст; unlockAfterStage существует;
- * - для каждого шаблона есть правила вознесения на всём пути baseRarity → maxRarity своей дорожки.
+ * - для каждого шаблона есть правила вознесения на всём пути baseRarity → maxRarity.
  */
 export function validateHeroesConfig(ctx: GameContext, problems: string[]): void {
   const { heroes } = ctx.content;
@@ -58,14 +59,13 @@ export function validateHeroesConfig(ctx: GameContext, problems: string[]): void
   }
   for (const t of Object.values(heroes)) {
     if (t.source === 'story' && !seen.has(t.id)) problems.push(`карточка ${t.id}: сюжетная, но её нет в progression.heroes (start/recruits) — игрок её не получит`);
-    const track = cardTrack(t, ctx);
     for (let i = rarityIndex(t.baseRarity); i < rarityIndex(t.maxRarity); i++) {
       const from = CARD_RARITIES[i];
-      if (!ctx.cards.merge.some((m) => m.track === track && m.from === from)) problems.push(`карточка ${t.id}: нет правила вознесения ${track} ${from} → ${CARD_RARITIES[i + 1]} (data/cards.json → merge)`);
+      if (!ctx.cards.merge.some((m) => m.from === from)) problems.push(`карточка ${t.id}: нет правила вознесения ${from} → ${CARD_RARITIES[i + 1]} (data/cards.json → merge)`);
     }
   }
   if (stageIds.size && !stageIds.has(ctx.summon.unlockAfterStage)) problems.push(`data/unlocks.json: tavern — этап ${ctx.summon.unlockAfterStage} не найден`);
   for (const r of ctx.summon.rates) {
-    if (r.chance > 0 && summonPool(ctx, r.rarity).length === 0) problems.push(`data/summon.json: редкость ${r.rarity} выпадает (шанс ${r.chance}), но нет призывных карточек с baseRarity ${r.baseRarities.join('/')}`);
+    if (r.chance > 0 && summonPool(ctx, r.rarity).length === 0) problems.push(`data/summon.json: редкость ${r.rarity} выпадает (шанс ${r.chance}), но нет героев, которые бывают этой редкости`);
   }
 }

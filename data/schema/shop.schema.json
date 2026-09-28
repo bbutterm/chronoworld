@@ -63,7 +63,7 @@
             "type": "string",
             "enum": [
               "item",
-              "shards",
+              "heroCard",
               "heroExp",
               "scrolls",
               "gold"
@@ -75,6 +75,16 @@
               "common",
               "rare",
               "epic"
+            ]
+          },
+          "cardRarity": {
+            "type": "string",
+            "enum": [
+              "green",
+              "blue",
+              "purple",
+              "gold",
+              "red"
             ]
           },
           "count": {

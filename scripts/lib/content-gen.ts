@@ -9,8 +9,9 @@
  *   stage <chapterId> [--from <stageId>] [--append]      этап: копия соседнего, перед босс-этапом (или в конец с --append)
  *   story <chapterId>                                    сюжет главы: вступление, сцена перед боссом (bossIntro), финал
  *   boss <id> [--from <unitId>] [--sprite <spriteId>] [--name "…"]   босс + своя ульта <id>_ult
- *   hero <id> --class <jobId> --gender m|f [--rarity green|blue|purple] [--story] [--form <jobId>] [--after <stageId>]
- *        [--name "…"] [--sprite <spriteId>]            карточка героя data/heroes/<id>.json (docs/design/heroes.md)
+ *   hero <id> --class <jobId> --gender m|f [--story] [--after <stageId>] [--name "…"] [--sprite <spriteId>]
+ *                                                        герой data/heroes/<id>.json: первая профессия + две ветки
+ *                                                        второй профессии (docs/design/heroes-v2.md)
  *
  * Все заготовки сразу проходят `npm run content:check`: ссылки только на существующие юниты, навыки и спрайты.
  * Места, которые надо дописать руками (названия, реплики, баланс), помечены строкой «TODO» — content:check
@@ -92,7 +93,7 @@ export const USAGE = [
   '  stage <chapterId> [--from <stageId>] [--append]',
   '  story <chapterId>',
   '  boss <id> [--from <unitId>] [--sprite <spriteId>] [--name "…"]',
-  '  hero <id> --class <jobId> --gender m|f [--rarity green|blue|purple] [--story] [--form <jobId>] [--after <stageId>] [--name "…"] [--sprite <spriteId>]',
+  '  hero <id> --class <jobId> --gender m|f [--story] [--after <stageId>] [--name "…"] [--sprite <spriteId>]',
 ].join('\n');
 
 // ---------- файлы ----------
@@ -412,9 +413,9 @@ interface HeroJson {
   job: string;
   source: string;
   skills: { level: number; skill: string }[];
+  branches?: { job: string; skills: { level: number; skill: string }[] }[];
 }
 
-const RARITIES = ['green', 'blue', 'purple', 'gold', 'red'] as const;
 /** Уровни открытия навыков карточки (как у шаблонов data/heroes): 1, 10, 30, 50. */
 export const CARD_SKILL_LEVELS = [1, 10, 30, 50];
 
@@ -442,11 +443,12 @@ function lineOfJob(all: Record<string, JobJson>, jobId: string): string {
 }
 
 /**
- * Навыки новой карточки класса job: кандидаты — навыки профессии (data/jobs) и файлы data/skills/job_<job>_*.json;
- * из них 4 (или сколько есть, минимум 2) так, чтобы с каждой карточкой того же класса было ≤ 2 общих навыков и другой
- * «фирменный» (последний) навык — правила validateHeroes. Первый (ур. 1) — активный, не пассивка (trigger).
+ * Навыки новой формы класса job: кандидаты — навыки профессии (data/jobs) и файлы data/skills/job_<job>_*.json;
+ * из них 4 (или сколько есть, минимум 2) так, чтобы с каждой формой того же класса было ≤ 2 общих навыков и другой
+ * «фирменный» (последний) навык — правила validateHeroes. Первый (ур. 1) — активный, не пассивка (trigger), и не занятый
+ * навыком 1-го уровня другой формы (usedFirst: у героев v2 навыки 1-го уровня различны — ✗ content:check).
  */
-export function pickCardSkills(root: string, job: JobJson, sameClass: HeroJson[]): { level: number; skill: string }[] {
+export function pickCardSkills(root: string, job: JobJson, sameClass: { skills: { level: number; skill: string }[] }[], usedFirst: ReadonlySet<string> = new Set()): { level: number; skill: string }[] {
   const order = new Map<string, number>(job.skills.map((s) => [s.skill, s.jobLevel]));
   for (const f of readJsonDirNames(join(root, 'data/skills'))) {
     const sid = f.replace(/\.json$/, '');
@@ -460,12 +462,13 @@ export function pickCardSkills(root: string, job: JobJson, sameClass: HeroJson[]
     throw new ContentNewError(`у класса ${job.id} меньше двух навыков (data/jobs/${job.id}.json → skills, data/skills/job_${job.id}_*) — сначала добавьте навыки`);
   }
   const passive = new Set(cands.filter((sid) => !!readJson<Json>(root, `data/skills/${sid}.json`).trigger));
-  const sig = (t: HeroJson) => [...t.skills].sort((a, b) => a.level - b.level).at(-1)?.skill;
+  const sig = (t: { skills: { level: number; skill: string }[] }) => [...t.skills].sort((a, b) => a.level - b.level).at(-1)?.skill;
   const sigs = new Set(sameClass.map(sig));
   // Штраф: > 2 общих навыков с карточкой класса и тот же фирменный навык — нарушения (⚠ validateHeroes), пассивка первой — хуже;
   // общие навыки сверх этого — лёгкий штраф (разнообразие).
   const score = (pick: string[]) => {
     let hard = pick.every((s) => passive.has(s)) ? 1 : 0;
+    if (usedFirst.has(pick[0])) hard += 1;
     let soft = 0;
     for (const t of sameClass) {
       const shared = t.skills.filter((s) => pick.includes(s.skill)).length;
@@ -477,7 +480,9 @@ export function pickCardSkills(root: string, job: JobJson, sameClass: HeroJson[]
   };
   const arrange = (acc: string[]) => {
     const pick = [...acc];
-    const firstActive = pick.findIndex((s) => !passive.has(s));
+    // Первым — активный навык, не занятый у других форм (иначе — любой активный).
+    const free = pick.findIndex((s) => !passive.has(s) && !usedFirst.has(s));
+    const firstActive = free >= 0 ? free : pick.findIndex((s) => !passive.has(s));
     if (firstActive > 0) pick.unshift(...pick.splice(firstActive, 1));
     return pick;
   };
@@ -504,6 +509,9 @@ export function pickCardSkills(root: string, job: JobJson, sameClass: HeroJson[]
   return best!.pick.map((skill, i) => ({ level: CARD_SKILL_LEVELS[i], skill }));
 }
 
+/** Ветки второй профессии, которые бывают только у одного пола (Лучник: парень — Бард, девушка — Танцовщица). */
+const GENDER_ONLY: Record<string, string> = { bard: 'm', dancer: 'f' };
+
 export function genHero(root: string, id: string, opts: Record<string, string>): GenResult {
   const out: GenResult = { written: [], notes: [] };
   checkId(id, 'hero');
@@ -512,34 +520,41 @@ export function genHero(root: string, id: string, opts: Record<string, string>):
   const allJobs = jobs(root);
   const job = opts.class ? allJobs[opts.class] : undefined;
   const classes = Object.values(allJobs)
-    .filter((j) => j.tier > 0)
+    .filter((j) => j.tier === 1)
     .map((j) => j.id)
     .sort()
     .join(', ');
-  if (!job) throw new ContentNewError(`--class: нужен id профессии из data/jobs (${classes}); получено: ${opts.class ?? 'ничего'}`);
-  if (job.tier < 1) throw new ContentNewError(`--class: ${job.id} — Новичок, карточка не может быть Новичком`);
+  if (!job) throw new ContentNewError(`--class: нужна первая профессия из data/jobs (${classes}); получено: ${opts.class ?? 'ничего'}`);
+  if (job.tier < 1) throw new ContentNewError(`--class: ${job.id} — Новичок, герой не может быть Новичком`);
+  if (job.tier !== 1) throw new ContentNewError(`--class: герой — первая профессия (${classes}); ${job.id} — вторая, она бывает веткой героя`);
   const gender = opts.gender;
   if (gender !== 'm' && gender !== 'f') throw new ContentNewError(`--gender: m или f (получено: ${gender ?? 'ничего'})`);
   const story = opts.story === 'true';
   const line = lineOfJob(allJobs, job.id);
-  // Редкости — правила validateHeroes (src/core/heroes/validate.ts).
-  const baseRarity = opts.rarity ?? (story || job.tier === 1 ? 'green' : 'purple');
-  if (!(RARITIES as readonly string[]).includes(baseRarity)) throw new ContentNewError(`--rarity: одна из ${RARITIES.join(', ')} (получено ${baseRarity})`);
-  if (story) {
-    if (job.tier !== 1) throw new ContentNewError(`--story: сюжетная карточка — первая профессия (tier 1), а ${job.id} — tier ${job.tier}; вторая профессия — форма (--form)`);
-    if (baseRarity !== 'green') throw new ContentNewError('--story: сюжетная карточка начинается с green');
-  } else if (job.tier === 1 && !['green', 'blue'].includes(baseRarity)) {
-    throw new ContentNewError(`--rarity: первая профессия из призыва — green или blue (получено ${baseRarity})`);
-  } else if (job.tier >= 2 && baseRarity !== 'purple') {
-    throw new ContentNewError(`--rarity: вторая профессия из призыва — purple (получено ${baseRarity})`);
-  }
-  const maxRarity = !story && job.tier === 1 ? 'gold' : 'red';
   const templates = heroTemplates(root);
-  const sameClass = (j: string) => templates.filter((t) => t.job === j);
-  const others = sameClass(job.id).map((t) => t.id);
+  const usedFirst = new Set(templates.map((t) => t.skills.find((x) => x.level === 1)?.skill).filter((x): x is string => !!x));
+  const usedFirstBranch = new Set(templates.flatMap((t) => (t.branches ?? []).map((b) => b.skills.find((x) => x.level === 1)?.skill)).filter((x): x is string => !!x));
+  const sameClass = templates.filter((t) => t.job === job.id);
+  const branchJobs = Object.values(allJobs)
+    .filter((j) => j.tier === 2 && lineOfJob(allJobs, j.id) === line && (!GENDER_ONLY[j.id] || GENDER_ONLY[j.id] === gender))
+    .sort((a, b) => a.id.localeCompare(b.id));
+  if (branchJobs.length !== 2) throw new ContentNewError(`у линии ${line} для пола ${gender} вторых профессий ${branchJobs.length}, а нужно 2 (data/jobs)`);
+  const branches = branchJobs.map((bj) => {
+    const same = templates.flatMap((t) => (t.branches ?? []).filter((b) => b.job === bj.id));
+    const skills = pickCardSkills(root, bj, same, usedFirstBranch);
+    usedFirstBranch.add(skills[0].skill);
+    return {
+      job: bj.id,
+      role: bj.role,
+      statMods: { hp: 1.2, atk: 1.2, def: 1.2 },
+      skills,
+      promotion: `${TODO}: строка возвышения при выборе ветки ${bj.id} (≤ 160 символов)`,
+      visual: {},
+    };
+  });
   const hero: Json = {
     $schema: '../schema/hero.schema.json',
-    $comment: `${TODO}: заготовка content:new — имя, bio, hook, statMods (отличие от карточек класса ${job.id}: ${others.join(', ') || 'нет'}), навыки; потом удалить $comment`,
+    $comment: `${TODO}: заготовка content:new — имя, bio, hook, statMods (отличие от героев класса ${job.id}: ${sameClass.map((t) => t.id).join(', ') || 'нет'}), навыки, ветки; потом удалить $comment`,
     id,
     name: opts.name ?? `${TODO}: имя ${id}`,
     gender,
@@ -547,37 +562,16 @@ export function genHero(root: string, id: string, opts: Record<string, string>):
     line,
     role: job.role,
     source: story ? 'story' : 'summon',
-    baseRarity,
-    maxRarity,
+    baseRarity: 'green',
+    maxRarity: 'red',
     statMods: {},
-    skills: pickCardSkills(root, job, sameClass(job.id)),
+    skills: pickCardSkills(root, job, sameClass, usedFirst),
+    branches,
   };
-  if (story) {
-    const second = Object.values(allJobs)
-      .filter((j) => j.tier === 2 && lineOfJob(allJobs, j.id) === line)
-      .sort((a, b) => a.id.localeCompare(b.id));
-    const formJob = opts.form ? allJobs[opts.form] : second[0];
-    if (opts.form && (!formJob || !second.includes(formJob))) {
-      throw new ContentNewError(`--form: вторая профессия линии ${line} (${second.map((j) => j.id).join(', ') || 'нет'}); получено ${opts.form}`);
-    }
-    if (formJob) {
-      hero.forms = [
-        {
-          rarity: 'purple',
-          job: formJob.id,
-          role: formJob.role,
-          statMods: { hp: 1.2, atk: 1.2, def: 1.2 },
-          skills: pickCardSkills(root, formJob, sameClass(formJob.id)),
-          promotion: `${TODO}: строка истории при вознесении в ${formJob.id} (≤ 200 символов)`,
-          visual: {},
-        },
-      ];
-    }
-  }
   hero.visual = opts.sprite ? { sprite: opts.sprite } : {};
   hero.bio = `${TODO}: кто это (≤ 160 символов)`;
   hero.hook = `${TODO}: крючок истории (≤ 200 символов)`;
-  // Сюжетную карточку игрок получает только через progression.heroes (иначе content:check — ошибка).
+  // Сюжетного героя игрок получает через progression.heroes (иначе content:check — ошибка).
   const progRel = 'data/progression.json';
   const all = chapters(root).sort((a, b) => a.order - b.order);
   const after = opts.after ?? all.at(-1)?.stages.at(-1)?.id;
@@ -589,15 +583,14 @@ export function genHero(root: string, id: string, opts: Record<string, string>):
     prog.heroes.recruits.push({ afterStage: after!, template: id });
     writeNew(root, progRel, prog, out, true);
     out.notes.push(
-      `Сюжетная карточка: добавлена в ${progRel} → heroes.recruits (после ${after}; другой этап — --after или правкой файла).`,
+      `Сюжетный герой: добавлен в ${progRel} → heroes.recruits (после ${after}; другой этап — --after или правкой файла).`,
       'Представьте рекрута в сюжете главы (сцена afterStage того же этапа) — docs/CONTENT_RECIPES.md, «Карточка героя».',
     );
-  } else {
-    out.notes.push(`Таверна: регистрировать не нужно — пул собирается сам (source summon, baseRarity ${baseRarity} есть в data/summon.json → rates[].baseRarities).`);
   }
   out.notes.push(
-    `Лист: ${opts.sprite ? `visual.sprite = ${opts.sprite}` : `своего нет — лист класса ${job.id} по полу (_${gender}), иначе базовый`}; content:check покажет, какой лист и портрет получатся.`,
-    'id карточки после релиза не переименовывать — он в сохранениях игроков.',
+    `Таверна: регистрировать не нужно — в пуле все герои (data/summon.json). Ветки: ${branches.map((b) => b.job).join(' и ')} — статы, навыки и строки возвышения доработать.`,
+    `Лист: ${opts.sprite ? `visual.sprite = ${opts.sprite}` : `своего нет — лист класса ${job.id} по полу (_${gender}), иначе базовый`}; листы веток — branches[].visual.sprite (<ветка>_${gender}); content:check покажет, какие листы получатся.`,
+    'id героя после релиза не переименовывать — он в сохранениях игроков.',
   );
   return out;
 }

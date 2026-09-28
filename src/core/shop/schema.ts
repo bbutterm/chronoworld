@@ -1,14 +1,15 @@
 import { z } from 'zod';
 import { RaritySchema } from '../equipment/schema';
+import { CardRaritySchema } from '../heroes/schema';
 
 const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в нижнем регистре, цифры и _');
 
 /**
  * Лавка (как магазин AFK Arena): 8 слотов, раз в день новый ассортимент, ручное обновление за гемы.
- * Виды товаров: предмет экипировки заданной редкости (конкретный предмет выбирается при обновлении), осколки
- * «отстающего» сюжетного героя, опыт в общий пул, свитки призыва, золото (за гемы).
+ * Виды товаров: предмет экипировки заданной редкости (конкретный предмет выбирается при обновлении), карта героя
+ * (случайный герой редкости cardRarity, выбирается при обновлении), опыт в общий пул, свитки призыва, золото (за гемы).
  */
-export const SHOP_GOOD_KINDS = ['item', 'shards', 'heroExp', 'scrolls', 'gold'] as const;
+export const SHOP_GOOD_KINDS = ['item', 'heroCard', 'heroExp', 'scrolls', 'gold'] as const;
 export type ShopGoodKind = (typeof SHOP_GOOD_KINDS)[number];
 
 export const SHOP_CURRENCIES = ['gold', 'gems'] as const;
@@ -20,7 +21,9 @@ export const ShopGoodSchema = z
     kind: z.enum(SHOP_GOOD_KINDS),
     /** Редкость предмета (только kind item): предмет — равновероятно среди предметов этой редкости с drop ≠ false. */
     rarity: RaritySchema.optional(),
-    /** Сколько штук за покупку (осколки, свитки, опыт, золото); у предмета — 1. */
+    /** Редкость карты героя (только kind heroCard). */
+    cardRarity: CardRaritySchema.optional(),
+    /** Сколько штук за покупку (свитки, опыт, золото); у предмета и карты героя — 1. */
     count: z.number().int().positive().default(1),
     /** Цена одной покупки. */
     price: z.object({ currency: z.enum(SHOP_CURRENCIES), amount: z.number().int().positive() }),
@@ -37,6 +40,9 @@ export const ShopGoodSchema = z
     if (g.kind === 'item' && !g.rarity) c.addIssue({ code: 'custom', path: ['rarity'], message: 'у товара-предмета нужна редкость (rarity)' });
     if (g.kind !== 'item' && g.rarity) c.addIssue({ code: 'custom', path: ['rarity'], message: 'rarity — только у товара-предмета (kind item)' });
     if (g.kind === 'item' && g.count !== 1) c.addIssue({ code: 'custom', path: ['count'], message: 'предмет продаётся по одному (count 1)' });
+    if (g.kind === 'heroCard' && !g.cardRarity) c.addIssue({ code: 'custom', path: ['cardRarity'], message: 'у карты героя нужна редкость (cardRarity)' });
+    if (g.kind !== 'heroCard' && g.cardRarity) c.addIssue({ code: 'custom', path: ['cardRarity'], message: 'cardRarity — только у карты героя (kind heroCard)' });
+    if (g.kind === 'heroCard' && g.count !== 1) c.addIssue({ code: 'custom', path: ['count'], message: 'карта героя продаётся по одной (count 1)' });
     if (g.kind === 'gold' && g.price.currency === 'gold') c.addIssue({ code: 'custom', path: ['price', 'currency'], message: 'золото за золото не продаётся' });
   });
 

@@ -40,7 +40,6 @@ const V4_FROM_FIXTURE = {
     { id: 'h4', templateId: 'greta', rarity: 'green', level: 1 },
     { id: 'h5', templateId: 'dorn', rarity: 'green', level: 1 },
   ],
-  shards: {},
 };
 const V3_DEFAULTS = {
   presets: [],
@@ -55,9 +54,10 @@ function played() {
   s.heroes[0] = { ...s.heroes[0], rarity: 'blue', level: 24, locked: true };
   s.heroes.push({ id: 'h4', templateId: 'iris', rarity: 'green', level: 3, isNew: true });
   s.resources.heroExp = 1234;
-  s.shards = { alan: 7, bran: 2 };
+  s.heroes.push({ id: 'h5', templateId: 'alan', rarity: 'purple', level: 41, branch: 'crusader', branchChanges: 1 });
+  s.pendingPicks = [{ rarity: 'purple', source: 'login_7' }];
   s.currency.scrolls = 3;
-  s.summon = { seq: 2, total: 11, sincePurple: 5, firstTenDone: true, freeDay: '2026-09-26', freeUsed: 1, welcomeGiven: true, discovered: ['alan', 'bran', 'vika', 'iris'] };
+  s.summon = { seq: 2, total: 11, sincePurple: 5, sinceBlue: 3, firstTenDone: true, freeDay: '2026-09-26', freeUsed: 1, welcomeGiven: true, discovered: ['alan', 'bran', 'vika', 'iris'] };
   s.squad = [s.heroes[0].id, null, s.heroes[2].id, null, null];
   s.campaign.cleared = ['1-1', '1-2'];
   s.resources.gold = 321;
@@ -70,7 +70,7 @@ function played() {
   s.presets = [{ id: 'p1', name: 'Штурм', squad: ['h1', null, null, null, null] }];
   s.bounties = {
     active: [
-      { location: 'ant_hell', hours: 1, heroIds: ['h1'], power: 900, startedAt: 10, endsAt: 3_600_010, rewards: { gold: 5, jobExp: 0, gems: 1, shards: 0, scrolls: 0, items: ['knife'] } },
+      { location: 'ant_hell', hours: 1, heroIds: ['h1'], power: 900, startedAt: 10, endsAt: 3_600_010, rewards: { gold: 5, jobExp: 0, gems: 1, heroCards: { blue: 1, purple: 0 }, scrolls: 0, items: ['knife'] } },
     ],
   };
   s.achievements = { counters: { battles_won: 3, stages_cleared: 2 }, claimed: ['first_stage'] };
@@ -95,8 +95,9 @@ describe('сохранение', () => {
     expect(newGame(ctx, 123)).toEqual(s);
     expect(s.heroes.map((h) => h.templateId)).toEqual(ctx.progression.heroes.start);
     expect(s.heroes.every((h) => h.rarity === 'green' && h.level === 1)).toBe(true);
-    expect(s).toMatchObject({ ...V2_DEFAULTS, currency: { gems: 0, scrolls: 0 }, resources: { gold: 0, heroExp: 0 }, shards: {} });
-    expect(s.summon).toMatchObject({ seq: 0, total: 0, sincePurple: 0, firstTenDone: false, welcomeGiven: false, discovered: ctx.progression.heroes.start });
+    expect(s).toMatchObject({ ...V2_DEFAULTS, currency: { gems: 0, scrolls: 0 }, resources: { gold: 0, heroExp: 0 } });
+    expect(s).not.toHaveProperty('shards');
+    expect(s.summon).toMatchObject({ seq: 0, total: 0, sincePurple: 0, sinceBlue: 0, firstTenDone: false, welcomeGiven: false, discovered: ctx.progression.heroes.start });
     expect(s).toMatchObject({ ...V3_DEFAULTS, achievements: { counters: {}, claimed: [] } });
     expect(s.bounties).toEqual(emptyExpeditions());
   });
@@ -181,6 +182,8 @@ describe('сохранение', () => {
     expect(s.squad).toEqual(raw.squad);
     expect(s.campaign.cleared).toEqual(['1-1', '1-2']);
     expect(s).toMatchObject(V4_FROM_FIXTURE);
+    // v7 (герои v2): осколков в сохранении больше нет.
+    expect(s).not.toHaveProperty('shards');
     expect(s).not.toHaveProperty('gold');
     expect(s).not.toHaveProperty('lastOfflineAt');
     expect(s).toMatchObject(V2_DEFAULTS);
