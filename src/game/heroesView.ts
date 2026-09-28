@@ -1,11 +1,12 @@
 /**
  * H4 «Герои»: чистые помощники экранов коллекции, карточки и вознесения (без Phaser — их проверяет
  * tests/game-heroes.test.ts). Фильтры и сортировка коллекции, порядок листания карточек, прибавка статов за уровень,
- * превью вознесения, откуда берутся осколки, подписи слотов корма.
+ * превью вознесения, откуда берутся копии, подписи слотов корма.
  */
 import {
   ascendRequirement,
   activeForm,
+  BRANCH_RARITY,
   CARD_RARITIES,
   cardStats,
   heroLine,
@@ -17,7 +18,6 @@ import {
   rarityDef,
   rarityForLevel,
   rarityIndex,
-  shardTarget,
   type CardRarity,
   type FodderSlotView,
   type GameContext,
@@ -124,8 +124,8 @@ type StatKey = 'hp' | 'atk' | 'def' | 'spd';
 const KEYS: StatKey[] = ['hp', 'atk', 'def', 'spd'];
 
 /** Статы карточки на уровне level и редкости rarity (без экипировки). */
-export function statsAt(hero: HeroState, level: number, rarity: CardRarity, ctx: GameContext): Stats {
-  return cardStats(heroTemplate(ctx, hero.templateId), level, rarity, ctx);
+export function statsAt(hero: HeroState, level: number, rarity: CardRarity, ctx: GameContext, branch: string | undefined = hero.branch): Stats {
+  return cardStats(heroTemplate(ctx, hero.templateId), level, rarity, ctx, branch);
 }
 
 /** Разница статов b − a по четырём ключам. */
@@ -176,8 +176,10 @@ export function ascendPreview(hero: HeroState, ctx: GameContext): AscendPreview 
   const t = heroTemplate(ctx, hero.templateId);
   const to = nextRarity(hero.rarity);
   if (!to || rarityIndex(hero.rarity) >= rarityIndex(t.maxRarity)) return null;
-  const f0 = activeForm(t, hero.rarity);
-  const f1 = activeForm(t, to);
+  // V1: на переходе с выбором ветки превью — по первой ветке (экран выбора ветки — пакет V2).
+  const branch = hero.branch ?? (rarityIndex(to) >= rarityIndex(BRANCH_RARITY) ? t.branches[0]?.job : undefined);
+  const f0 = activeForm(t, hero);
+  const f1 = activeForm(t, { rarity: to, branch });
   const cap0 = maxLevelOf(ctx, hero.rarity);
   const cap1 = maxLevelOf(ctx, to);
   // Новая профессия — все её навыки до нового предела (открытые уровнем — сразу); иначе — навыки, которые станут
@@ -193,7 +195,7 @@ export function ascendPreview(hero: HeroState, ctx: GameContext): AscendPreview 
     from: hero.rarity,
     to,
     maxLevel: { from: cap0, to: cap1 },
-    stats: { from: statsAt(hero, hero.level, hero.rarity, ctx), to: statsAt(hero, hero.level, to, ctx) },
+    stats: { from: statsAt(hero, hero.level, hero.rarity, ctx), to: statsAt(hero, hero.level, to, ctx, branch) },
     statMult: { from: r0.statMult, to: r1.statMult },
     skillPower: { from: r0.skillPower, to: r1.skillPower },
     ...(jobChanged ? { newJob: f1.job } : {}),
@@ -202,33 +204,30 @@ export function ascendPreview(hero: HeroState, ctx: GameContext): AscendPreview 
 }
 
 /**
- * Откуда осколки сюжетного героя (строки для карточки и экрана вознесения): этапы кампании («отстающему»), экспедиции,
- * достижения, Таверна; первая строка — идут ли осколки этапов этому герою прямо сейчас.
+ * Откуда копии героя (строки для карточки и экрана вознесения): Таверна, сюжет, карты героя из наград
+ * (этапы, сундук, охота, экспедиции, события — случайный герой), Лавка.
  */
-export function shardSources(save: SaveState, templateId: string, ctx: GameContext): string[] {
-  const sh = ctx.cards.shards;
-  const target = shardTarget(save, ctx);
+export function copySources(_save: SaveState, templateId: string, ctx: GameContext): string[] {
+  const hc = ctx.cards.heroCards;
   const name = ctx.content.heroes[templateId]?.name ?? templateId;
-  const lines: string[] = [];
-  if (target === templateId) lines.push(`Сейчас осколки идут ${name} — он отстаёт от отряда`);
-  else if (target) lines.push(`Сейчас осколки идут ${ctx.content.heroes[target]?.name ?? target} (отстающему); потом — ${name}`);
-  lines.push(`Первое прохождение этапа: ${sh.firstClear} (босс главы — ${sh.bossFirstClear})`);
-  if (sh.replayChance > 0) lines.push(`Повтор этапа: шанс ${Math.round(sh.replayChance * 100)}% — ${sh.replayCount}`);
-  lines.push('Экспедиции (Пещера Пайона и дальше), достижения');
-  if (ctx.summon.storyShard.chance > 0) lines.push(`Таверна: шанс ${Math.round(ctx.summon.storyShard.chance * 100)}% за призыв — ${ctx.summon.storyShard.count}`);
-  return lines;
+  const pct = (x: number | undefined) => `${Math.round((x ?? 0) * 1000) / 10}%`;
+  return [
+    `Копии ${name}: Таверна (любой герой — ${ctx.summon.rates.map((r) => `${rarityDef(ctx, r.rarity).name.toLowerCase()} ${Math.round(r.chance * 100)}%`).join(', ')})`,
+    `Карты героя (случайный герой): первое прохождение этапа — ${pct(hc.firstClear.blue)} синяя, босс главы — ${pct(hc.bossFirstClear.blue)}`,
+    'Сундук, охота, экспедиции, достижения, Лавка, события',
+  ];
 }
 
-/** Подпись слота корма: «Ирис · Зелёный» (та же) / «Мечник · Синий» (линия). */
+/** Подпись слота корма: «Ирис · Зелёный» (та же) / «Любой герой · Фиолетовый» (любая). */
 export function fodderSlotLabel(slot: Pick<FodderSlotView, 'kind' | 'rarity'>, target: HeroState, ctx: GameContext): string {
   const t = heroTemplate(ctx, target.templateId);
-  const who = slot.kind === 'same' ? t.name : `${ctx.content.jobs[t.line]?.name ?? t.line} (любой)`;
+  const who = slot.kind === 'same' ? t.name : 'Любой герой';
   return `${who} · ${rarityDef(ctx, slot.rarity).name}`;
 }
 
 /** Слоты корма развёрнуто (по одному на карточку): [{kind, rarity, index}] — «та же» первыми, как раскладывает ядро. */
-export function fodderSlots(req: { fodder: readonly FodderSlotView[] }): { kind: 'same' | 'line'; rarity: CardRarity; group: number }[] {
-  const out: { kind: 'same' | 'line'; rarity: CardRarity; group: number }[] = [];
+export function fodderSlots(req: { fodder: readonly FodderSlotView[] }): { kind: 'same' | 'any'; rarity: CardRarity; group: number }[] {
+  const out: { kind: 'same' | 'any'; rarity: CardRarity; group: number }[] = [];
   req.fodder.forEach((f, g) => {
     for (let i = 0; i < f.count; i++) out.push({ kind: f.kind, rarity: f.rarity, group: g });
   });

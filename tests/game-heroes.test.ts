@@ -13,7 +13,7 @@ import {
   missingTemplates,
   nextLevelDelta,
   placeFodder,
-  shardSources,
+  copySources,
   skillRarityGate,
   sortHeroes,
   valuableFodder,
@@ -31,8 +31,8 @@ function rich(): SaveState {
   add('iris', 'green', 1);
   add('iris', 'green', 3);
   add('kai', 'blue', 25);
-  add('seyren', 'purple', 44);
-  add('cecil', 'red', 90);
+  add('meilin', 'purple', 44);
+  add('lira', 'red', 90);
   return { ...s, resources: { ...s.resources, gold: 1_000_000 } };
 }
 
@@ -40,9 +40,9 @@ describe('H4 «Герои»: коллекция', () => {
   it('фильтр по линии, роли и редкости', () => {
     const s = rich();
     const by = (f: Parameters<typeof matchesFilter>[1]) => s.heroes.filter((h) => matchesFilter(h, f, ctx)).map((h) => h.templateId);
-    expect(by({ line: 'swordman', role: null, rarity: null }).sort()).toEqual(['alan', 'iris', 'iris', 'iris', 'seyren']);
+    expect(by({ line: 'swordman', role: null, rarity: null }).sort()).toEqual(['alan', 'iris', 'iris', 'iris']);
     expect(by({ line: null, role: 'tank', rarity: null })).toEqual(['alan']);
-    expect(by({ line: null, role: null, rarity: 'red' })).toEqual(['cecil']);
+    expect(by({ line: null, role: null, rarity: 'red' })).toEqual(['lira']);
     expect(by({ line: 'archer', role: 'damage', rarity: 'green' })).toEqual(['bran']);
   });
 
@@ -51,8 +51,8 @@ describe('H4 «Герои»: коллекция', () => {
     const lvl = sortHeroes(s.heroes, 'level', ctx, () => 0).map((h) => h.level);
     expect(lvl).toEqual([...lvl].sort((a, b) => b - a));
     const rar = sortHeroes(s.heroes, 'rarity', ctx, () => 0).map((h) => h.templateId);
-    expect(rar[0]).toBe('cecil');
-    expect(rar[1]).toBe('seyren');
+    expect(rar[0]).toBe('lira');
+    expect(rar[1]).toBe('meilin');
     const pow = sortHeroes(s.heroes, 'power', ctx, (h) => (h.templateId === 'kai' ? 1e9 : h.level));
     expect(pow[0].templateId).toBe('kai');
     // Детерминированно: одинаковые ключи — стабильный порядок по имени и id.
@@ -112,7 +112,7 @@ describe('H4 «Герой»: уровень и навыки', () => {
 });
 
 describe('H4 «Вознесение»', () => {
-  it('превью: предел, статы, вторая профессия сюжетного', () => {
+  it('превью: предел, статы, ветка второй профессии (V1 — первая ветка героя)', () => {
     const s = newGame(ctx, 0);
     const alan = { ...s.heroes.find((h) => h.templateId === 'alan')!, rarity: 'blue' as const, level: 40 };
     const p = ascendPreview(alan, ctx)!;
@@ -125,7 +125,7 @@ describe('H4 «Вознесение»', () => {
     const q = ascendPreview(iris, ctx)!;
     expect(q.newJob).toBeUndefined();
     expect(q.newSkills.every((x) => !x.now && x.level > 20 && x.level <= 40)).toBe(true);
-    expect(ascendPreview({ ...iris, rarity: 'gold' }, ctx)).toBeNull();
+    expect(ascendPreview({ ...iris, rarity: 'red' }, ctx)).toBeNull();
   });
 
   it('слоты корма: раскладка выбора и готовность', () => {
@@ -142,16 +142,16 @@ describe('H4 «Вознесение»', () => {
     expect(valuableFodder(s, auto)).toEqual([]);
   });
 
-  it('откуда осколки: «отстающий» и источники', () => {
+  it('откуда копии: Таверна, карты героя из наград', () => {
     const s = newGame(ctx, 0);
-    const lines = shardSources(s, 'alan', ctx);
-    expect(lines.some((l) => l.startsWith('Первое прохождение этапа'))).toBe(true);
+    const lines = copySources(s, 'alan', ctx);
     expect(lines.some((l) => l.includes('Таверна'))).toBe(true);
+    expect(lines.some((l) => l.includes('Карты героя'))).toBe(true);
   });
 
-  it('у сюжетных форм есть строка истории для показа вознесения', () => {
-    for (const id of [...ctx.progression.heroes.start, ...ctx.progression.heroes.recruits.map((r) => r.template)]) {
-      for (const f of ctx.content.heroes[id].forms) expect(f.promotion, `${id} → ${f.job}`).toBeTruthy();
+  it('у каждой ветки есть строка возвышения для показа выбора и вознесения', () => {
+    for (const t of Object.values(ctx.content.heroes)) {
+      for (const b of t.branches) expect(b.promotion, `${t.id} → ${b.job}`).toBeTruthy();
     }
   });
 });

@@ -114,39 +114,42 @@ describe('content:new — генераторы заготовок', () => {
     expect(build().problems).toEqual([]);
   });
 
-  it('hero: призывные карточки первой и второй профессии — валидны, без предупреждений правил, TODO находятся', () => {
+  it('hero: герой первой профессии с двумя ветками (Лучница — Охотница и Танцовщица) — валиден, без предупреждений правил, TODO находятся', () => {
     const r = run('hero', 'gen_thief', '--class', 'thief', '--gender', 'f');
     expect(r.written).toEqual(['data/heroes/gen_thief.json']);
-    expect(json('data/heroes/gen_thief.json')).toMatchObject({ job: 'thief', line: 'thief', source: 'summon', baseRarity: 'green', maxRarity: 'gold', gender: 'f' });
-    run('hero', 'gen_blue', '--class', 'mage', '--gender', 'm', '--rarity', 'blue');
-    expect(json('data/heroes/gen_blue.json')).toMatchObject({ baseRarity: 'blue', maxRarity: 'gold' });
-    run('hero', 'gen_knight_f', '--class', 'knight', '--gender', 'f', '--sprite', 'knight_m');
-    const k = json('data/heroes/gen_knight_f.json');
-    expect(k).toMatchObject({ line: 'swordman', role: 'tank', baseRarity: 'purple', maxRarity: 'red', visual: { sprite: 'knight_m' } });
-    // У рыцаря 5 навыков, Сейрен занял 4 — генератор берёт меньше, но без > 2 общих и с другим фирменным.
-    expect(k.skills.length).toBeGreaterThanOrEqual(2);
-    expect(k.skills[0].level).toBe(1);
+    const t = json('data/heroes/gen_thief.json');
+    expect(t).toMatchObject({ job: 'thief', line: 'thief', source: 'summon', baseRarity: 'green', maxRarity: 'red', gender: 'f' });
+    expect(t.branches.map((b: { job: string }) => b.job)).toEqual(['assassin', 'rogue']);
+    run('hero', 'gen_archer_f', '--class', 'archer', '--gender', 'f', '--sprite', 'hunter_f');
+    expect(json('data/heroes/gen_archer_f.json').branches.map((b: { job: string }) => b.job)).toEqual(['dancer', 'hunter']);
+    run('hero', 'gen_archer_m', '--class', 'archer', '--gender', 'm');
+    expect(json('data/heroes/gen_archer_m.json').branches.map((b: { job: string }) => b.job)).toEqual(['bard', 'hunter']);
 
     const b = build();
     expect(b.problems).toEqual([]);
     const warnings: string[] = [];
     validateHeroes(b.ctx!.content, [], warnings);
-    expect(warnings.filter((w) => /gen_(thief|blue|knight_f)/.test(w))).toEqual([]);
-    // Каждая новая карточка выходит в бой.
-    for (const id of ['gen_thief', 'gen_blue', 'gen_knight_f']) {
-      const t = b.ctx!.content.heroes[id];
-      const unit = buildUnit({ id: 'x', templateId: id, rarity: t.maxRarity, level: 100 }, b.ctx!);
-      expect(simulateBattle(b.ctx!.content, [unit, null, null, null, null], [unit, null, null, null, null], 1, { log: false }).winner).toMatch(/^[AB]$|^draw$/);
+    expect(warnings.filter((w) => /gen_(thief|archer)/.test(w))).toEqual([]);
+    // Каждая форма (первая профессия и обе ветки) выходит в бой.
+    for (const id of ['gen_thief', 'gen_archer_f', 'gen_archer_m']) {
+      const tpl = b.ctx!.content.heroes[id];
+      for (const branch of [undefined, ...tpl.branches.map((x) => x.job)]) {
+        const unit = buildUnit({ id: 'x', templateId: id, rarity: 'red', level: 100, ...(branch ? { branch } : {}) }, b.ctx!);
+        expect(simulateBattle(b.ctx!.content, [unit, null, null, null, null], [unit, null, null, null, null], 1, { log: false }).winner).toMatch(/^[AB]$|^draw$/);
+      }
     }
     const todos = findTodos('data/heroes/gen_thief.json', json('data/heroes/gen_thief.json'));
-    expect(todos.map((t) => t.split(' — ')[0])).toEqual(expect.arrayContaining(['data/heroes/gen_thief.json: name', 'data/heroes/gen_thief.json: bio', 'data/heroes/gen_thief.json: hook']));
+    expect(todos.map((x) => x.split(' — ')[0])).toEqual(
+      expect.arrayContaining(['data/heroes/gen_thief.json: name', 'data/heroes/gen_thief.json: bio', 'data/heroes/gen_thief.json: hook', 'data/heroes/gen_thief.json: branches[0].promotion']),
+    );
   });
 
-  it('hero --story: форма второй профессии и рекрут в progression.heroes.recruits', () => {
-    const r = run('hero', 'gen_story', '--class', 'archer', '--gender', 'f', '--story', '--form', 'bard', '--after', 'ch2_s5');
+  it('hero --story: рекрут в progression.heroes.recruits', () => {
+    const r = run('hero', 'gen_story', '--class', 'mage', '--gender', 'f', '--story', '--after', 'ch2_s5');
     expect(r.written).toEqual(['data/heroes/gen_story.json', 'data/progression.json']);
     const h = json('data/heroes/gen_story.json');
-    expect(h).toMatchObject({ source: 'story', baseRarity: 'green', maxRarity: 'red', forms: [{ rarity: 'purple', job: 'bard' }] });
+    expect(h).toMatchObject({ source: 'story', baseRarity: 'green', maxRarity: 'red' });
+    expect(h.branches).toHaveLength(2);
     expect(json('data/progression.json').heroes.recruits.at(-1)).toEqual({ afterStage: 'ch2_s5', template: 'gen_story' });
     expect(build().problems).toEqual([]);
   });
@@ -156,10 +159,7 @@ describe('content:new — генераторы заготовок', () => {
     expect(() => run('hero', 'gen_x', '--class', 'nope', '--gender', 'm')).toThrow(/--class/);
     expect(() => run('hero', 'gen_x', '--class', 'novice', '--gender', 'm')).toThrow(/Новичок/);
     expect(() => run('hero', 'gen_x', '--class', 'mage')).toThrow(/--gender/);
-    expect(() => run('hero', 'gen_x', '--class', 'mage', '--gender', 'm', '--rarity', 'purple')).toThrow(/green или blue/);
-    expect(() => run('hero', 'gen_x', '--class', 'wizard', '--gender', 'm', '--rarity', 'green')).toThrow(/purple/);
-    expect(() => run('hero', 'gen_x', '--class', 'wizard', '--gender', 'm', '--story')).toThrow(/первая профессия/);
-    expect(() => run('hero', 'gen_x', '--class', 'mage', '--gender', 'm', '--story', '--form', 'knight')).toThrow(/--form/);
+    expect(() => run('hero', 'gen_x', '--class', 'wizard', '--gender', 'm')).toThrow(/первая профессия/);
     expect(() => run('hero', 'gen_x', '--class', 'mage', '--gender', 'm', '--story', '--after', 'ch9_s99')).toThrow(/--after/);
     expect(() => run('hero', 'gen_thief', '--class', 'thief', '--gender', 'm')).toThrow(/уже есть/);
     expect(existsSync(join(root, 'data/heroes/gen_x.json'))).toBe(false);

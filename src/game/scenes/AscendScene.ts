@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import {
   actAscend,
+  activeForm,
   ascendRequirement,
   autoFodder,
   heroCard,
@@ -14,14 +15,15 @@ import { formatNumber, STAT_KEYS, STAT_LABELS } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, popIn, screen } from '../screen';
 import { commit, session, today } from '../session';
-import { button, emptyState, pressable, progressBar, ScrollArea, text, toast } from '../ui';
-import { C, FS, TINT } from '../theme';
+import { button, emptyState, pressable, ScrollArea, text, toast } from '../ui';
+import { C, FS } from '../theme';
 import { sfx } from '../audio';
 import { burst, countUp, juiceOn, pulse } from '../juice';
 import { drawHeroCard, glowTexture, heroCardSize, raysTexture, rarityColor, rarityName, rarityPalette } from '../heroCard';
-import { ascendPreview, ascendReadyWith, fodderSlotLabel, fodderSlots, placeFodder, shardSources, valuableFodder } from '../heroesView';
+import { ascendPreview, ascendReadyWith, fodderSlotLabel, fodderSlots, placeFodder, copySources, valuableFodder } from '../heroesView';
 
 const TOP = CONTENT_TOP;
+const heroReq = (hero: HeroState) => ascendRequirement(session.save, hero.id, GAME);
 const CARD_W = 290;
 const SLOT_W = 210;
 const REVEAL_DEPTH = 8500;
@@ -64,8 +66,8 @@ export class AscendScene extends Phaser.Scene {
 
     this.header(hero, req, prev);
     this.changes(hero, prev);
-    if (req.fodder.length) this.fodderBlock(hero, req);
-    else this.shardBlock(hero, req);
+    this.fodderBlock(hero, req);
+    if (!ascendReadyWith(session.save, hero.id, this.chosen, GAME)) this.sourcesBlock(hero);
     this.footer(hero, req);
   }
 
@@ -209,25 +211,17 @@ export class AscendScene extends Phaser.Scene {
     popIn(this, layer, shade);
   }
 
-  // ---------- осколки (сюжетные) ----------
+  // ---------- откуда копии ----------
 
-  private shardBlock(hero: HeroState, req: AscendRequirement): void {
+  private sourcesBlock(hero: HeroState): void {
     const top = this.blockTop;
-    const src = shardSources(session.save, hero.templateId, GAME);
-    const hh = 190 + src.length * 44 + (req.minLevel ? 50 : 0);
+    const src = copySources(session.save, hero.templateId, GAME);
+    const hh = 90 + src.length * 44;
     card(this, GAME_W / 2, top + hh / 2, 1040, hh);
-    const sh = req.shards!;
-    const done = sh.have >= sh.need;
-    text(this, 50, top + 45, 'Осколки героя', FS.h3, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
-    text(this, 1000, top + 45, `${sh.have}/${sh.need}`, FS.h2, done ? C.positive : C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(1, 0.5).setName('shardCount');
-    progressBar(this, 50, top + 105, 950, 34, sh.have / sh.need, done ? TINT.success : 0xd6ae63, { key: `shards_${hero.id}` });
-    let y = top + 160;
-    if (req.minLevel) {
-      text(this, 50, y, `Нужен уровень ${req.minLevel} (сейчас ${hero.level})`, FS.caption, hero.level >= req.minLevel ? C.positive : C.warning, { fontStyle: 'bold' }).setOrigin(0, 0.5);
-      y += 50;
-    }
+    text(this, 50, top + 45, 'Где взять копии', FS.h3, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
+    let y = top + 100;
     for (const s of src) {
-      text(this, 50, y, `• ${s}`, FS.caption, C.muted).setOrigin(0, 0.5);
+      text(this, 50, y, `• ${s}`, FS.caption, C.muted, { wordWrap: { width: 960 } }).setOrigin(0, 0.5);
       y += 44;
     }
     this.blockTop = top + hh + 20;
@@ -260,20 +254,27 @@ export class AscendScene extends Phaser.Scene {
     const name = heroCard(hero, GAME).name;
     const fodder = this.chosen.map((id) => session.save.heroes.find((h) => h.id === id)).filter((h): h is HeroState => !!h);
     const lines = [`${name}: ${rarityName(req.from)} → ${rarityName(req.to)}`];
-    if (req.shards) lines.push(`Потратится осколков: ${req.shards.need}, золота: ${formatNumber(req.gold)}`);
-    else {
-      lines.push(`В корм: ${fodder.map((h) => `${heroCard(h, GAME).name} (ур. ${h.level})`).join(', ')}`);
-      lines.push(`Золото: ${formatNumber(req.gold)}. Опыт корма вернётся в запас.`);
-      if (valuableFodder(session.save, this.chosen).length) lines.push('Внимание: в корме синие карточки и выше!');
-    }
+    lines.push(`В корм: ${fodder.map((h) => `${heroCard(h, GAME).name} (ур. ${h.level})`).join(', ')}`);
+    lines.push(`Золото: ${formatNumber(req.gold)}. Опыт корма вернётся в запас.`);
+    // V1: экрана выбора ветки ещё нет (пакет V2) — берётся первая ветка героя, её можно бесплатно сменить один раз.
+    const branch = this.branchFor(hero, req);
+    if (branch) lines.push(`Ветка: ${GAME.content.jobs[branch]?.name ?? branch} (первую смену ветки можно сделать бесплатно)`);
+    if (valuableFodder(session.save, this.chosen).length) lines.push('Внимание: в корме синие карточки и выше!');
     confirm(this, lines.join('\n'), 'Вознести', () => this.doAscend(hero));
+  }
+
+  /** V1: ветка для перехода с выбором ветки — первая ветка героя (экран выбора — пакет V2). */
+  private branchFor(hero: HeroState, req: AscendRequirement | null): string | undefined {
+    if (!req?.branch || hero.branch) return undefined;
+    return req.branches?.[0]?.job;
   }
 
   private doAscend(hero: HeroState): void {
     const before = { power: heroPower(hero, GAME, session.save), rarity: hero.rarity, card: heroCard(hero, GAME) };
     const fodder = req0Positions(this.slotPos, this.chosen.length);
     try {
-      const r = actAscend(session.save, today(), hero.id, this.chosen, GAME);
+      const branch = this.branchFor(hero, heroReq(hero));
+      const r = actAscend(session.save, today(), hero.id, this.chosen, GAME, branch ? { branch } : {});
       commit(r.save);
       chosenFor = null;
       this.reveal(hero.id, before, r.events, fodder, r.refund);
@@ -330,8 +331,8 @@ export class AscendScene extends Phaser.Scene {
       y += 58;
     }
     if (jobChanged) {
-      const form = heroTemplate(GAME, hero.templateId).forms.find((f) => f.rarity === hero.rarity);
-      if (form?.promotion) {
+      const form = activeForm(heroTemplate(GAME, hero.templateId), hero);
+      if (form.promotion) {
         info.add(text(this, GAME_W / 2, y + 20, `«${form.promotion}»`, FS.body, C.title, { fontStyle: 'italic', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 940 }, lineSpacing: 6 }));
         y += 100;
       }

@@ -118,7 +118,7 @@ describe('K6 надеть / снять', () => {
     expect(codeOf(() => equip(s, 'h2', claymore, ctx))).toBe('job_restricted');
     s = equip(s, 'h2', bow, ctx);
     // охотник — потомок лучника: лук подходит (h1 — карточка Сесиль, Охотница)
-    const hunter: SaveState = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, templateId: 'cecil', rarity: 'purple' } : h)) };
+    const hunter: SaveState = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, templateId: 'meilin', rarity: 'purple', branch: 'hunter' } : h)) };
     expect(heroEquipment(equip(unequip(hunter, bow), 'h1', bow, ctx), 'h1')).toHaveLength(1);
   });
 

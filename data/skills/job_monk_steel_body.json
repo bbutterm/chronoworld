@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_monk_steel_body",
+  "name": "Стальное тело",
+  "description": "+60% защиты себе и −20% скорости на 4 хода.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 20,
+  "priority": 7,
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "steel_body",
+        "name": "Стальное тело",
+        "turns": 4,
+        "stats": {
+          "def": 0.6,
+          "spd": -0.2
+        }
+      }
+    }
+  ]
+}

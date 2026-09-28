@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_monk_blade_stop",
+  "name": "Хватка клинка",
+  "description": "Удар кулаком (×1,2) ближайшему врагу фронта, шанс 50% оглушить на 1 ход.",
+  "icon": "icon_ult_priest",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "cooldown": 10,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.2
+    },
+    {
+      "type": "status",
+      "chance": 0.5,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

@@ -99,17 +99,17 @@ describe('кампания', () => {
     expect(next.resources.gold).toBe(save.resources.gold + r.gold);
     expect(next.campaign.cleared).toEqual([s1]);
     expect(stageStatus(next, s2, ctx)).toBe('open');
-    // Осколки этапа 1 (globalIndex 0) — первому сюжетному герою по кругу (Алан).
-    expect(events.slice(0, 4)).toEqual([
+    // Карты случайных героев (герои v2): с шансом cards.heroCards.firstClear — события heroCard и новые экземпляры.
+    expect(events.filter((e) => e.type !== 'heroCard').slice(0, 3)).toEqual([
       { type: 'rewards', gold: r.gold, heroExp: r.jobExp },
-      { type: 'shards', templateId: 'alan', count: ctx.cards.shards.firstClear },
       { type: 'stageCleared', stageId: s1, firstTime: true },
       { type: 'stageUnlocked', stageId: s2 },
     ]);
+    const cards = events.filter((e) => e.type === 'heroCard');
+    expect(next.heroes).toHaveLength(save.heroes.length + cards.length);
     expect(next.resources.heroExp).toBe(save.resources.heroExp + r.jobExp);
-    expect(next.shards).toEqual({ alan: ctx.cards.shards.firstClear });
     // Уровни героев сами не растут — опыт тратит игрок («Улучшить»).
-    expect(next.heroes).toEqual(save.heroes);
+    expect(next.heroes.slice(0, save.heroes.length)).toEqual(save.heroes);
   });
 
   it('playStage: повтор пройденного — награда × replayRewardMultiplier, без stageUnlocked', () => {

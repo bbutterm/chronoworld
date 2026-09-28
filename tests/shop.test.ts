@@ -101,13 +101,16 @@ describe('Лавка: ассортимент дня', () => {
     expect(shopMultiplier(later, ctx)).toBeGreaterThan(shopMultiplier(s, ctx));
   });
 
-  it('товары fromStage и осколки — только когда доступны', () => {
+  it('товары fromStage и карты героя — только когда доступны', () => {
     const fresh = newGame(ctx, 1, D1);
     for (let i = 0; i < 30; i++) {
       for (const slot of rollShop(fresh, D1, i, ctx)) {
         const g = ctx.shop.goods.find((x) => x.id === slot.good)!;
         expect(g.fromStage === undefined || fresh.campaign.cleared.includes(g.fromStage)).toBe(true);
-        if (slot.kind === 'shards') expect(slot.hero).toBeTruthy();
+        if (slot.kind === 'heroCard') {
+          expect(ctx.content.heroes[slot.hero!]).toBeTruthy();
+          expect(slot.rarity).toBe(g.cardRarity);
+        }
         if (slot.kind === 'item') expect(ctx.equipment.items[slot.itemId!]).toBeTruthy();
       }
     }
@@ -176,7 +179,7 @@ describe('Лавка: покупки', () => {
         if (slot.kind === 'item') expect(s.inventory.items.length).toBe(before.inventory.items.length + 1);
         if (slot.kind === 'heroExp') expect(s.resources.heroExp - before.resources.heroExp).toBe(slot.count);
         if (slot.kind === 'scrolls') expect(s.currency.scrolls - before.currency.scrolls).toBe(slot.count);
-        if (slot.kind === 'shards') expect((s.shards[slot.hero!] ?? 0) - (before.shards[slot.hero!] ?? 0)).toBe(slot.count);
+        if (slot.kind === 'heroCard') expect(s.heroes.slice(before.heroes.length).map((h) => [h.templateId, h.rarity])).toEqual([[slot.hero, slot.rarity]]);
       }
       if (s.shop!.slots[i].bought === slot.stock) expect(codeOf(() => buyShopSlot(s, D1, i, ctx))).toBe('sold_out');
     }

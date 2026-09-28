@@ -11,7 +11,6 @@ import {
   offlineLoot,
   offlineRewards,
   rollChestLoot,
-  shardTarget,
   useFastRewards,
   validateEquipment,
   type SaveState,
@@ -63,7 +62,7 @@ describe('трофеи сундука простоя', () => {
       const cur = offlineLoot(save, T0 + t * H, ctx);
       expect(cur.items.slice(0, prev.items.length)).toEqual(prev.items);
       expect(cur.gems).toBeGreaterThanOrEqual(prev.gems);
-      expect(cur.shards).toBeGreaterThanOrEqual(prev.shards);
+      expect(cur.cards.slice(0, prev.cards.length)).toEqual(prev.cards);
       expect(cur.scrolls).toBeGreaterThanOrEqual(prev.scrolls);
       prev = cur;
     }
@@ -86,29 +85,49 @@ describe('трофеи сундука простоя', () => {
     expect(offlineFullInMs({ ...newGame(ctx, T0), campaign: { cleared: [] } }, T0 + H, ctx)).toBeNull();
   });
 
-  it('сбор: предметы в инвентарь, гемы и свитки в валюту, осколки — отстающему герою; повторный сбор — пусто', () => {
+  it('сбор: предметы в инвентарь, гемы и свитки в валюту, карты героя — новыми экземплярами; повторный сбор — пусто', () => {
     // Ищем seed, где выпало всё, кроме, может быть, свитков (редкие).
     let found = false;
     for (let k = 0; k < 200 && !found; k++) {
       const save = saveAt(ch2, T0 - k * 1013);
       const loot = offlineLoot(save, T0 + cap * H, ctx);
-      if (!loot.items.length || !loot.gems || !loot.shards) continue;
+      if (!loot.items.length || !loot.gems) continue;
       found = true;
-      const target = shardTarget(save, ctx)!;
       const out = claimOffline(save, T0 + cap * H, ctx);
       expect(out.loot.added.map((i) => i.itemId)).toEqual(loot.items);
       expect(out.save.inventory.items.length).toBe(save.inventory.items.length + loot.items.length);
       expect(out.save.currency.gems).toBe(save.currency.gems + loot.gems);
       expect(out.save.currency.scrolls).toBe(save.currency.scrolls + loot.scrolls);
-      expect(out.loot.shardHero).toBe(target);
-      expect(out.save.shards[target] ?? 0).toBe((save.shards[target] ?? 0) + loot.shards);
-      expect(out.events).toContainEqual({ type: 'shards', templateId: target, count: loot.shards });
+      expect(out.save.heroes.length).toBe(save.heroes.length + loot.cards.length);
+      expect(out.events.filter((e) => e.type === 'heroCard')).toHaveLength(loot.cards.length);
       for (const id of loot.items) expect(ctx.equipment.items[id]?.drop).toBe(true);
       const again = claimOffline(out.save, T0 + cap * H, ctx);
       expect(again.loot.ticks).toBe(0);
       expect(again.save.inventory.items.length).toBe(out.save.inventory.items.length);
     }
     expect(found).toBe(true);
+  });
+
+  it('карты героя из сундука: случайный герой нужной редкости, новый экземпляр с «Новый!», событие heroCard', () => {
+    const rich = {
+      ...ctx,
+      equipment: { ...ctx.equipment, drops: { ...ctx.equipment.drops, chest: { ...chest, rules: chest.rules.map((r) => ({ ...r, heroCards: { blue: 0.3, purple: 0.1 } })) } } },
+    };
+    const save = saveAt(ch2);
+    const loot = offlineLoot(save, T0 + cap * H, rich);
+    expect(loot.cards.length).toBeGreaterThan(0);
+    expect(loot.cards.some((c) => c.rarity === 'purple')).toBe(true);
+    for (const c of loot.cards) expect(rich.content.heroes[c.templateId]).toBeDefined();
+    // Герои — не один и тот же (случайные среди 12).
+    expect(new Set(loot.cards.map((c) => c.templateId)).size).toBeGreaterThan(1);
+    const out = claimOffline(save, T0 + cap * H, rich);
+    const added = out.save.heroes.slice(save.heroes.length);
+    expect(added.map((h) => ({ templateId: h.templateId, rarity: h.rarity }))).toEqual(loot.cards);
+    for (const h of added) {
+      expect(h.isNew).toBe(true);
+      expect(h.branch).toBeUndefined();
+    }
+    expect(out.events.filter((e) => e.type === 'heroCard').map((e) => (e.type === 'heroCard' ? e.heroId : ''))).toEqual(added.map((h) => h.id));
   });
 
   it('без пройденных этапов и без экипировки в контексте — трофеев нет (золото и опыт как раньше)', () => {
@@ -132,14 +151,14 @@ describe('трофеи сундука простоя', () => {
     // Эмпирически: 400 полных сундуков главы 2 — средние близки к ожиданию.
     const rule = chestRule('chapter2', ctx)!;
     const ticks = Math.floor((cap * 60) / chest.tickMinutes);
-    const sum = { items: 0, gems: 0, scrolls: 0, shards: 0 };
+    const sum = { items: 0, gems: 0, scrolls: 0, cards: 0 };
     const N = 400;
     for (let k = 0; k < N; k++) {
       const l = rollChestLoot('chapter2', ticks, k * 2654435761, ctx);
       sum.items += l.items.length;
       sum.gems += l.gems;
       sum.scrolls += l.scrolls;
-      sum.shards += l.shards;
+      sum.cards += l.cards.length;
     }
     const exp = chestDailyExpectation(rule, chest.tickMinutes);
     const k = cap / 24;

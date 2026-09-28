@@ -1,12 +1,14 @@
-/** Коды ошибок карточек героев (уровень, вознесение, осколки, Таверна). message — русский текст для игрока. */
+/** Коды ошибок карточек героев (уровень, вознесение, ветки, общие карты, Таверна, контракты). message — русский текст для игрока. */
 export type HeroErrorCode =
   | 'unknown_hero'
   | 'max_level'
   | 'not_enough_exp'
   | 'not_enough_gold'
   | 'max_rarity'
-  | 'level_required'
-  | 'not_enough_shards'
+  | 'branch_required'
+  | 'bad_branch'
+  | 'branch_locked'
+  | 'unknown_pick'
   | 'bad_fodder'
   | 'fodder_busy'
   | 'tavern_locked'

@@ -1,5 +1,5 @@
 /**
- * Модель игрока для инструмента баланса (T7, v3 — карточки героев). Только вызовы ядра (обёртки act* и функции K1–K10) —
+ * Модель игрока для инструмента баланса (T7, v3 — карточки героев; герои v2 — копии, ветки, контракты). Только вызовы ядра (обёртки act* и функции K1–K10) —
  * правила здесь не повторяются. Меняйте PLAYER_MODEL (или передавайте свой конфиг в runBalance) — игровые данные не трогаем.
  *
  * v3: у сессии есть часы. Каждый бой занимает реальное время (длительность боя / скорость + «накладные» на экран
@@ -21,6 +21,14 @@ import {
   actSummon,
   ascendRequirement,
   autoFodder,
+  autoChain,
+  chooseBranch,
+  claimHeroPick,
+  heroCopies,
+  needsBranch,
+  pickOptions,
+  rarityIndex,
+  BRANCH_RARITY,
   actUseFastRewards,
   autoFormation,
   canEquip,
@@ -122,9 +130,14 @@ export interface PlayerModel {
   events: boolean;
   /**
    * Лавка (data/shop.json): покупать разумное на золото сверх запаса на уровни (опыт — когда упёрлись в опыт, предмет —
-   * если он усиливает отряд, осколки — с большим запасом), свиток — за гемы (не больше 1 в день), бесплатное обновление.
+   * если он усиливает отряд, карта героя — с большим запасом), свиток — за гемы (не больше 1 в день), бесплатное обновление.
    */
   shop: boolean;
+  /**
+   * Ветка второй профессии на фиолетовом (docs/design/heroes-v2.md, раздел 7): keep — сохранить роль первой профессии
+   * (танк → ветка-танк, лекарь → Жрица; нет такой — первая ветка), alt — другая ветка, random — по id экземпляра.
+   */
+  branch: 'keep' | 'alt' | 'random';
   /** Сдвиг seed: seed боя = seedBase + save.battleSeq. */
   seedBase: number;
   /** Календарный день первого дня симуляции, 'YYYY-MM-DD'. */
@@ -153,6 +166,7 @@ export const PLAYER_MODEL: PlayerModel = {
   hunt: true,
   events: true,
   shop: true,
+  branch: 'keep',
   seedBase: 1,
   startDate: '2026-01-01',
 };
@@ -319,8 +333,14 @@ export interface BalanceResult {
   scrollsIn: Partial<Record<Source, number>>;
   /** Предметы по источникам (выпадение за победу — campaign, трофеи сундука — offline и fast_rewards). */
   itemsIn: Partial<Record<Source, number>>;
-  /** Осколки сюжетных героев по источникам. */
-  shardsIn: Partial<Record<Source, number>>;
+  /** Копии героев (новые экземпляры) по источникам: Таверна, сюжет, карты героя из наград, контракты. */
+  cardsIn: Partial<Record<Source, number>>;
+  /** Выбор веток: день, час, герой, ветка. */
+  branches: { day: number; t: number; templateId: string; branch: string }[];
+  /** Фиолетовых (и выше) в отряде на конец каждого дня (индекс 0 — день 1). */
+  purplesByDay: number[];
+  /** Запас копий (экземпляров не в отряде) на конец каждого дня. */
+  spareByDay: number[];
   /** События новичка: когда получена каждая награда (день модели, час от начала). */
   eventClaims: { kind: 'login' | 'newbie_task' | 'newbie_chest' | 'mail'; id: string; day: number; t: number }[];
   /** Активных минут всего. */
@@ -367,7 +387,8 @@ class Sim {
   gemsByDay: BalanceResult['gemsByDay'] = [];
   scrollsIn: BalanceResult['scrollsIn'] = {};
   itemsIn: BalanceResult['itemsIn'] = {};
-  shardsIn: BalanceResult['shardsIn'] = {};
+  cardsIn: BalanceResult['cardsIn'] = {};
+  branches: BalanceResult['branches'] = [];
   eventClaims: BalanceResult['eventClaims'] = [];
   shopBuys: Record<string, number> = {};
   dayNo = 1;
@@ -384,7 +405,8 @@ class Sim {
     public model: PlayerModel,
   ) {
     this.day = model.startDate;
-    this.save = newGame(ctx, 0, model.startDate);
+    // createdAt — часть seed Таверны, сундука, Лавки и карт героя: разные seedBase — разные выдачи (seed 1 — как раньше, 0).
+    this.save = { ...newGame(ctx, 0, model.startDate), createdAt: (model.seedBase - 1) * 1_000_003 };
   }
 
   get t(): number {
@@ -409,9 +431,8 @@ class Sim {
     if (scrolls > 0) this.scrollsIn[source] = (this.scrollsIn[source] ?? 0) + scrolls;
     const items = next.inventory.items.length - this.save.inventory.items.length;
     if (items > 0) this.itemsIn[source] = (this.itemsIn[source] ?? 0) + items;
-    const shards = (x: SaveState) => Object.values(x.shards).reduce((a, n) => a + n, 0);
-    const dShards = shards(next) - shards(this.save);
-    if (dShards > 0) this.shardsIn[source] = (this.shardsIn[source] ?? 0) + dShards;
+    const dCards = next.heroes.length - this.save.heroes.length;
+    if (dCards > 0) this.cardsIn[source] = (this.cardsIn[source] ?? 0) + dCards;
     const g = (this.gemsByDay[this.dayNo - 1] ??= { income: 0, spend: 0 });
     if (d.gems > 0) g.income += d.gems;
     else g.spend -= d.gems;
@@ -433,9 +454,10 @@ class Sim {
   }
 
   /**
-   * Карточки (через act* — засчитываются заданиям и достижениям): Таверна (бесплатный призыв, свитки, при
-   * summonWithGems — ×10 за гемы), вознесение (сначала отряд; сюжетные — осколками, призывные — самым слабым кормом),
-   * «Улучшить» — по уровню самому низкому герою отряда, пока хватает опыта пула и золота.
+   * Герои (через act* — засчитываются заданиям и достижениям): Таверна (бесплатный призыв, свитки, при
+   * summonWithGems — ×10 за гемы), контракты героя, ветки фиолетовых без ветки, вознесение (цель — сильнейший
+   * экземпляр героя; сначала отряд, ближе всех к следующей редкости; копии — самые слабые; не хватает синих копий —
+   * цепочка «3 зелёные → синяя»), «Улучшить» — по уровню самому низкому герою отряда, пока хватает опыта и золота.
    */
   develop(): void {
     const st = summonStatus(this.save, this.day, this.ctx);
@@ -445,25 +467,92 @@ class Sim {
       if (this.model.summonWithGems) while (this.save.currency.gems >= this.ctx.summon.costs.ten) this.pull(10, 'gems');
       while (this.save.currency.scrolls > 0) this.pull(1, 'scroll');
     }
-    // Вознесение: сначала герои отряда (лучшее применение золота), остальные — только если золота с запасом ×3.
+    this.claimPicks();
+    this.pickBranches();
+    // Вознесение: цель — сильнейший экземпляр героя; сначала отряд, остальные — только если золота с запасом ×3.
     for (let guard = 0; guard < 50; guard++) {
       const squad = new Set(this.save.squad.filter((id): id is string => id !== null));
-      const ready = (h: SaveState['heroes'][number]) => {
+      // Цель — прокачанный экземпляр героя: из отряда, иначе самый сильный (heroPower); копии — корм.
+      const tops = [...new Set(this.save.heroes.map((h) => h.templateId))].map((t) => {
+        const copies = heroCopies(this.save, t);
+        return copies.find((h) => squad.has(h.id)) ?? [...copies].sort((a, b) => heroPower(b, this.ctx, this.save) - heroPower(a, this.ctx, this.save))[0];
+      });
+      const ok = (h: SaveState['heroes'][number]) => {
         const req = ascendRequirement(this.save, h.id, this.ctx);
         if (!req || req.blockers.length > 0) return false;
-        if (req.fodder.length > 0 && !autoFodder(this.save, h.id, this.ctx)) return false;
         return squad.has(h.id) || this.save.resources.gold >= 3 * req.gold;
       };
-      const hero = [...this.save.heroes].sort((a, b) => Number(squad.has(b.id)) - Number(squad.has(a.id))).find(ready);
+      const order = tops.filter(ok).sort((a, b) => Number(squad.has(b.id)) - Number(squad.has(a.id)) || rarityIndex(b.rarity) - rarityIndex(a.rarity));
+      let hero = order.find((h) => autoFodder(this.save, h.id, this.ctx));
+      if (!hero) {
+        // Цепочка «Авто»: слить свободные копии вверх (3 зелёные → синяя), если это закрывает слоты.
+        for (const h of order) {
+          const steps = autoChain(this.save, h.id, this.ctx);
+          if (!steps.length) continue;
+          for (const st of steps) this.ascend(st.targetId, st.fodderIds);
+          if (autoFodder(this.save, h.id, this.ctx) && ok(this.save.heroes.find((x) => x.id === h.id)!)) {
+            hero = this.save.heroes.find((x) => x.id === h.id);
+            break;
+          }
+        }
+      }
       if (!hero) break;
-      const r = actAscend(this.save, this.day, hero.id, autoFodder(this.save, hero.id, this.ctx) ?? [], this.ctx);
-      this.step('heroes', r.save);
-      const e = r.events.find((x) => x.type === 'ascended');
-      this.spendTime(this.model.ascendSec * 1000);
-      if (e && e.type === 'ascended') this.ascensions.push({ day: this.dayNo, t: this.t, active_min: this.activeMin, heroId: hero.id, templateId: hero.templateId, rarity: e.to });
+      this.ascend(hero.id, autoFodder(this.save, hero.id, this.ctx) ?? []);
       this.save = { ...this.save, squad: autoFormation(this.save, this.ctx) };
     }
     this.levelSquad();
+  }
+
+  /** Вознесение с политикой ветки (если переход с выбором ветки). */
+  ascend(heroId: string, fodder: string[]): void {
+    const hero = this.save.heroes.find((h) => h.id === heroId)!;
+    const req = ascendRequirement(this.save, heroId, this.ctx)!;
+    const branch = req.branch && !hero.branch ? this.branchFor(hero.templateId, hero.id) : undefined;
+    const r = actAscend(this.save, this.day, heroId, fodder, this.ctx, branch ? { branch } : {});
+    this.step('heroes', r.save);
+    if (branch) this.branches.push({ day: this.dayNo, t: this.t, templateId: hero.templateId, branch });
+    const e = r.events.find((x) => x.type === 'ascended');
+    this.spendTime(this.model.ascendSec * 1000);
+    if (e && e.type === 'ascended') this.ascensions.push({ day: this.dayNo, t: this.t, active_min: this.activeMin, heroId, templateId: hero.templateId, rarity: e.to });
+  }
+
+  /** Ветка по политике модели. */
+  branchFor(templateId: string, heroId: string): string {
+    const t = heroTemplate(this.ctx, templateId);
+    const keep = t.branches.find((b) => b.role === t.role) ?? t.branches[0];
+    const alt = t.branches.find((b) => b !== keep) ?? keep;
+    if (this.model.branch === 'alt') return alt.job;
+    if (this.model.branch === 'random') return t.branches[[...heroId].reduce((a, c) => a + c.charCodeAt(0), 0) % t.branches.length].job;
+    return keep.job;
+  }
+
+  /** Фиолетовые без ветки (Таверна, миграция) — выбрать ветку по политике (бесплатно). */
+  pickBranches(): void {
+    for (const h of this.save.heroes) {
+      if (!needsBranch(h, this.ctx)) continue;
+      const branch = this.branchFor(h.templateId, h.id);
+      this.step('heroes', chooseBranch(this.save, h.id, branch, this.ctx).save);
+      this.branches.push({ day: this.dayNo, t: this.t, templateId: h.templateId, branch });
+    }
+  }
+
+  /**
+   * «Контракт героя»: в отряде нет лекаря — Вика (ветка по политике); иначе — герой отряда, которому дальше всех до
+   * фиолетового (самая низкая редкость, затем уровень).
+   */
+  claimPicks(): void {
+    for (let guard = 0; guard < 10 && (this.save.pendingPicks?.length ?? 0) > 0; guard++) {
+      const pick = this.save.pendingPicks![0];
+      const opts = pickOptions(pick, this.ctx);
+      const squad = this.save.squad.map((id) => this.save.heroes.find((h) => h.id === id)).filter((h): h is SaveState['heroes'][number] => !!h);
+      const healer = squad.some((h) => heroTemplate(this.ctx, h.templateId).role === 'healer' || (h.branch && heroTemplate(this.ctx, h.templateId).branches.find((b) => b.job === h.branch)?.role === 'healer'));
+      const farthest = [...squad].sort((a, b) => rarityIndex(a.rarity) - rarityIndex(b.rarity) || a.level - b.level)[0]?.templateId;
+      const templateId = !healer && opts.includes('vika') ? 'vika' : farthest && opts.includes(farthest) ? farthest : opts[0];
+      const withBranch = rarityIndex(pick.rarity) >= rarityIndex(BRANCH_RARITY);
+      const branch = withBranch ? (templateId === 'vika' && !healer ? 'priest' : this.branchFor(templateId, `pick${guard}`)) : undefined;
+      this.step('events', claimHeroPick(this.save, 0, templateId, branch, this.ctx).save);
+      if (branch) this.branches.push({ day: this.dayNo, t: this.t, templateId, branch });
+    }
   }
 
   /** «Улучшить» отряд по одному уровню самому низкому, пока хватает. Новичок из Таверны сильнее — он встанет в отряд. */
@@ -583,9 +672,9 @@ class Sim {
 
   /**
    * Лавка: покупки, затем бесплатное обновление и снова покупки. Золото тратится только сверх запаса на уровни
-   * (goldReserve): предмет — если усиливает отряд; осколки — при двойном запасе; опыт — если хватит золота и на уровни,
+   * (goldReserve): предмет — если усиливает отряд; карта героя — при двойном запасе; опыт — если хватит золота и на уровни,
    * которые он откроет (goldForExp), и на 2 уровня сверху. Свиток — за гемы (не больше одного в день — лимит товара).
-   * Золото за гемы, эпики и осколки за гемы не покупаются: гемы модели идут на ×10.
+   * Золото за гемы, эпики и карты героя за гемы не покупаются: гемы модели идут на ×10.
    */
   shop(): void {
     if (!this.model.shop || !this.ctx.shop || !featureUnlocked(this.save, 'shop', this.ctx)) return;
@@ -603,7 +692,7 @@ class Sim {
           // без запаса (проверено) опыт мид-гейма съедает золото, которого потом не хватает в главе 3.
           if (x.kind === 'heroExp') return spare >= this.goldForExp(x.count) + this.goldReserve(2);
           if (x.kind === 'item') return spare >= reserve && this.itemGain(x.itemId!) > 0;
-          if (x.kind === 'shards') return spare >= 2 * reserve;
+          if (x.kind === 'heroCard') return spare >= 2 * reserve;
           return false;
         });
         if (!pick) break;
@@ -753,6 +842,8 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
   const stageAttempts = new Map<string, number>();
   const towerByFloor = new Map<number, number>();
   const huntLog: BalanceResult['huntLog'] = [];
+  const purplesByDay: number[] = [];
+  const spareByDay: number[] = [];
   const lastChapter = ctx.content.stages[ctx.content.stages.length - 1]?.chapter ?? '';
   // Скорость ×2 открывается этапом (data/unlocks.json → speed_x2): до него бои смотрят на ×1.
   const battleMs = (duration: number) =>
@@ -896,6 +987,9 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
         active_min: Math.round((sim.activeMs - activeStart) / MINUTE),
       });
     }
+    const sq = new Set(sim.save.squad.filter((id): id is string => id !== null));
+    purplesByDay.push(sim.save.heroes.filter((h) => sq.has(h.id) && rarityIndex(h.rarity) >= rarityIndex('purple')).length);
+    spareByDay.push(sim.save.heroes.filter((h) => !sq.has(h.id)).length);
   }
   return {
     model,
@@ -918,7 +1012,10 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     gemsByDay: sim.gemsByDay,
     scrollsIn: sim.scrollsIn,
     itemsIn: sim.itemsIn,
-    shardsIn: sim.shardsIn,
+    cardsIn: sim.cardsIn,
+    branches: sim.branches,
+    purplesByDay,
+    spareByDay,
     eventClaims: sim.eventClaims,
     shopBuys: sim.shopBuys,
     activeMinutes: sim.activeMin,
@@ -993,6 +1090,12 @@ export interface HookMetrics {
   levelUpsPerActiveHour: number[];
   /** Первое вознесение: активные минуты / часы от начала, шаблон и новая редкость. */
   firstAscend: { active_min: number; hours: number; templateId: string; rarity: string } | null;
+  /** Первый фиолетовый в отряде (вознесение или контракт): день, часы от начала. Ц11. */
+  firstPurple: { day: number; hours: number; templateId: string; via: 'ascend' | 'branch' } | null;
+  /** Второй фиолетовый (другой герой). */
+  secondPurple: { day: number; hours: number; templateId: string } | null;
+  /** Фиолетовых в отряде на конец дня (Ц11: к 7-му дню 2–3). */
+  purplesByDay: number[];
   /** Первый ×10 призыв: активные минуты / часы, способ. */
   firstTen: { active_min: number; hours: number; pay: string } | null;
   /** ×10 призывов за гемы по дням. */
@@ -1048,6 +1151,15 @@ export function hookMetrics(res: BalanceResult, ctx: GameContext, wallHours = 4)
   });
   const a = res.ascensions[0];
   const firstAscend = a ? { active_min: a.active_min, hours: Math.round((a.t - t0) * 10) / 10, templateId: a.templateId, rarity: a.rarity } : null;
+  // Первые фиолетовые: вознесение в фиолетовый или выбор ветки (контракт / Таверна) — по разным героям.
+  const purpleEvents = [
+    ...res.ascensions.filter((x) => x.rarity === 'purple').map((x) => ({ day: x.day, t: x.t, templateId: x.templateId, via: 'ascend' as const })),
+    ...res.branches.map((x) => ({ day: x.day, t: x.t, templateId: x.templateId, via: 'branch' as const })),
+  ].sort((x, y) => x.t - y.t);
+  const firstP = purpleEvents[0];
+  const secondP = purpleEvents.find((x) => firstP && x.templateId !== firstP.templateId);
+  const firstPurple = firstP ? { day: firstP.day, hours: Math.round((firstP.t - t0) * 10) / 10, templateId: firstP.templateId, via: firstP.via } : null;
+  const secondPurple = secondP ? { day: secondP.day, hours: Math.round((secondP.t - t0) * 10) / 10, templateId: secondP.templateId } : null;
   const ten = res.summonLog.find((s) => s.count === 10);
   const firstTen = ten ? { active_min: ten.active_min, hours: Math.round((ten.t - t0) * 10) / 10, pay: ten.pay } : null;
   const days = Math.max(1, ...res.rows.map((r) => r.day));
@@ -1063,6 +1175,9 @@ export function hookMetrics(res: BalanceResult, ctx: GameContext, wallHours = 4)
     first30BurstPct,
     levelUpsPerActiveHour,
     firstAscend,
+    firstPurple,
+    secondPurple,
+    purplesByDay: res.purplesByDay,
     firstTen,
     tenPullsByDay,
     walls,

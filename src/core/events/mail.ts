@@ -98,7 +98,7 @@ export function claimMail(save: SaveState, id: string, ctx: GameContext): { save
   const l = findLetter(save, id);
   if (l.claimed) throw new EventError('letter_claimed', 'Вложение уже получено');
   if (isEmptyRewards(l.rewards)) throw new EventError('letter_empty', 'В письме нет вложения');
-  const out = grantRewards(patchLetters(save, (x) => (x.id === id ? { ...x, read: true, claimed: true } : x)), l.rewards, ctx);
+  const out = grantRewards(patchLetters(save, (x) => (x.id === id ? { ...x, read: true, claimed: true } : x)), l.rewards, ctx, `mail_${l.source ?? l.id}`);
   return { save: syncAchievementCounters(out.save), rewards: l.rewards, events: out.events };
 }
 
@@ -108,7 +108,7 @@ export function claimAllMail(save: SaveState, ctx: GameContext): { save: SaveSta
   if (!ready.length) return { save, rewards: {}, events: [], count: 0 };
   const ids = new Set(ready.map((l) => l.id));
   const rewards = sumRewards(ready.map((l) => l.rewards));
-  const out = grantRewards(patchLetters(save, (x) => (ids.has(x.id) ? { ...x, read: true, claimed: true } : x)), rewards, ctx);
+  const out = grantRewards(patchLetters(save, (x) => (ids.has(x.id) ? { ...x, read: true, claimed: true } : x)), rewards, ctx, 'mail');
   return { save: syncAchievementCounters(out.save), rewards, events: out.events, count: ready.length };
 }
 

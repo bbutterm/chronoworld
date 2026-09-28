@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_knight_parrying",
+  "name": "Парирование",
+  "description": "Когда по рыцарю попали: шанс 35% получить +40% защиты на 2 хода.",
+  "range": "ranged",
+  "trigger": "hit",
+  "chance": 0.35,
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "parrying",
+        "name": "Парирование",
+        "turns": 2,
+        "stats": {
+          "def": 0.4
+        }
+      }
+    }
+  ]
+}

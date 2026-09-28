@@ -10,7 +10,8 @@ import { itemPools, lootSeed } from '../equipment/chest';
 import { progressChapter } from '../equipment/gates';
 import type { EquipmentConfig } from '../equipment/load';
 import { addHeroExp } from '../heroes/level';
-import { addShards, shardTarget } from '../heroes/shards';
+import { addHeroCard } from '../heroes/roster';
+import { summonPool } from '../heroes/config';
 import type { GameContext } from '../progression/types';
 import { Rng } from '../rng';
 import { DayStringSchema, type SaveState, type ShopSlot, type ShopState } from '../save/schema';
@@ -67,12 +68,12 @@ export function validateShop(cfg: ShopConfig, content: Content, equipment: Equip
     if (g.kind === 'item' && pools && g.rarity && pools[g.rarity].length === 0) problems.push(`data/shop.json: товар ${g.id} — нет предметов редкости ${g.rarity} (drop ≠ false)`);
   }
   cfg.slots.forEach((s, i) => {
-    // Слот должен быть заполнен у любого игрока: хотя бы один товар без условий (не осколки и без fromStage).
+    // Слот должен быть заполнен у любого игрока: хотя бы один товар без условий (не карта героя и без fromStage).
     const always = s.some((id) => {
       const g = cfg.goods.find((x) => x.id === id);
-      return g && !g.fromStage && g.kind !== 'shards';
+      return g && !g.fromStage && g.kind !== 'heroCard';
     });
-    if (!always) problems.push(`data/shop.json: слот ${i + 1} — нужен хотя бы один товар без fromStage и не осколки (иначе слот бывает пустым)`);
+    if (!always) problems.push(`data/shop.json: слот ${i + 1} — нужен хотя бы один товар без fromStage и не карта героя (иначе слот бывает пустым)`);
   });
 }
 
@@ -111,11 +112,11 @@ export function shopSeed(save: Pick<SaveState, 'createdAt'>, day: string, refres
   return lootSeed('shop', save.createdAt, day, refresh);
 }
 
-/** Товар доступен игроку сейчас: fromStage пройден, есть предметы редкости / сюжетный герой для осколков. */
+/** Товар доступен игроку сейчас: fromStage пройден, есть предметы редкости / герои для карты. */
 function available(g: ShopGood, save: SaveState, ctx: ShopContext, pools: ReturnType<typeof itemPools>): boolean {
   if (g.fromStage && !save.campaign.cleared.includes(g.fromStage)) return false;
   if (g.kind === 'item') return !!g.rarity && pools[g.rarity].length > 0;
-  if (g.kind === 'shards') return shardTarget(save, ctx) !== null;
+  if (g.kind === 'heroCard') return summonPool(ctx, g.cardRarity!).length > 0;
   return true;
 }
 
@@ -130,7 +131,6 @@ export function rollShop(save: SaveState, day: string, refresh: number, ctx: Sho
   // Предметы — только открытые в главе игрока (minChapter): эпик в Лавке главы 1 не появится, слот возьмёт другой товар.
   const pools = itemPools(ctx.equipment.items, progressChapter(save, ctx));
   const mult = shopMultiplier(save, ctx);
-  const hero = shardTarget(save, ctx);
   const out: ShopSlot[] = [];
   for (const slot of ctx.shop.slots) {
     const x = rng.next();
@@ -161,7 +161,11 @@ export function rollShop(save: SaveState, day: string, refresh: number, ctx: Sho
       const pool = pools[good.rarity!];
       s.itemId = pool[Math.floor(y * pool.length)];
     }
-    if (good.kind === 'shards') s.hero = hero!;
+    if (good.kind === 'heroCard') {
+      const pool = summonPool(ctx, good.cardRarity!);
+      s.hero = pool[Math.floor(y * pool.length)];
+      s.rarity = good.cardRarity!;
+    }
     out.push(s);
   }
   return out;
@@ -266,11 +270,13 @@ export interface ShopGrant {
   slot: ShopSlot;
   /** id экземпляра предмета (kind item). */
   itemInstanceId?: string;
+  /** kind heroCard: id нового экземпляра героя. */
+  heroInstanceId?: string;
 }
 
 /**
  * Купить товар слота index (одна покупка — count штук). Списывается цена, запас слота −1, счётчик perDay +1.
- * Предмет — в инвентарь, осколки — герою слота, опыт — в общий пул, свитки и золото — в валюту.
+ * Предмет — в инвентарь, карта героя — новым экземпляром, опыт — в общий пул, свитки и золото — в валюту.
  * ShopError: shop_locked, unknown_slot, sold_out, day_limit, not_enough_gold, not_enough_gems, unavailable (предмета
  * или героя больше нет в игре).
  */
@@ -291,7 +297,7 @@ export function buyShopSlot(save: SaveState, day: string, index: number, ctx: Sh
     throw new ShopError('not_enough_gems', `Не хватает гемов: нужно ${slot.price}, у вас ${save.currency.gems}`);
   }
   if (slot.kind === 'item' && (!slot.itemId || !ctx.equipment.items[slot.itemId])) throw new ShopError('unavailable', 'Этого предмета больше нет в игре');
-  if (slot.kind === 'shards' && (!slot.hero || !ctx.content.heroes[slot.hero])) throw new ShopError('unavailable', 'Этого героя больше нет в игре');
+  if (slot.kind === 'heroCard' && (!slot.hero || !ctx.content.heroes[slot.hero])) throw new ShopError('unavailable', 'Этого героя больше нет в игре');
 
   let next: SaveState = {
     ...save,
@@ -299,6 +305,7 @@ export function buyShopSlot(save: SaveState, day: string, index: number, ctx: Sh
     currency: slot.currency === 'gems' ? { ...save.currency, gems: save.currency.gems - slot.price } : save.currency,
   };
   let itemInstanceId: string | undefined;
+  let heroInstanceId: string | undefined;
   switch (slot.kind) {
     case 'item': {
       const r = addItems(next, [slot.itemId!]);
@@ -306,9 +313,12 @@ export function buyShopSlot(save: SaveState, day: string, index: number, ctx: Sh
       itemInstanceId = r.added[0]?.id;
       break;
     }
-    case 'shards':
-      next = addShards(next, slot.hero!, slot.count);
+    case 'heroCard': {
+      const r = addHeroCard(next, slot.hero!, slot.rarity ?? 'blue', { isNew: true });
+      next = r.save;
+      heroInstanceId = r.hero.id;
       break;
+    }
     case 'heroExp':
       next = addHeroExp(next, slot.count);
       break;
@@ -321,5 +331,5 @@ export function buyShopSlot(save: SaveState, day: string, index: number, ctx: Sh
   }
   const slots = s.slots.map((x, i) => (i === index ? { ...x, bought: x.bought + 1 } : x));
   next = { ...next, shop: { ...s, slots, boughtToday: { ...s.boughtToday, [slot.good]: today + 1 } } };
-  return { save: next, grant: { slot, ...(itemInstanceId ? { itemInstanceId } : {}) } };
+  return { save: next, grant: { slot, ...(itemInstanceId ? { itemInstanceId } : {}), ...(heroInstanceId ? { heroInstanceId } : {}) } };
 }

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { buyShopSlot, heroGender, refreshShop, shopStatus, storyHero, type ShopSlotView, type ShopStatus } from '../../core';
+import { buyShopSlot, heroGender, refreshShop, shopStatus, type ShopSlotView, type ShopStatus } from '../../core';
 import { GAME } from '../content';
 import { glow, medallion } from '../decor';
 import { formatNumber, heroSprite, itemStatsText, RARITY_COLORS, RARITY_NAMES } from '../flow';
@@ -39,8 +39,8 @@ export function slotTitle(s: ShopSlotView): string {
   switch (s.kind) {
     case 'item':
       return GAME.equipment.items[s.itemId ?? '']?.name ?? 'Предмет';
-    case 'shards':
-      return `Осколки: ${GAME.content.heroes[s.hero ?? '']?.name.split(' ')[0] ?? 'герой'}`;
+    case 'heroCard':
+      return `Карта: ${GAME.content.heroes[s.hero ?? '']?.name.split(' ')[0] ?? 'герой'}`;
     case 'heroExp':
       return 'Опыт героев';
     case 'scrolls':
@@ -57,8 +57,8 @@ function slotDetail(s: ShopSlotView): string {
       const def = GAME.equipment.items[s.itemId ?? ''];
       return def ? `${RARITY_NAMES[def.rarity]}\n${itemStatsText(def.stats)}` : '';
     }
-    case 'shards':
-      return `×${s.count}\nдля вознесения`;
+    case 'heroCard':
+      return `${GAME.cards.rarities.find((r) => r.id === s.rarity)?.name ?? ''}\nкопия для вознесения`;
     case 'heroExp':
       return `+${formatNumber(s.count)}\nв запас опыта`;
     case 'scrolls':
@@ -148,7 +148,7 @@ export class ShopScene extends Phaser.Scene {
     const bg = card(this, x, y, CARD_W, CARD_H);
     bg.setName(`shopSlot${s.index}`);
     const def = s.kind === 'item' ? GAME.equipment.items[s.itemId ?? ''] : undefined;
-    const color = def ? RARITY_COLORS[def.rarity] : s.kind === 'shards' ? '#d890ff' : s.kind === 'scrolls' ? '#f0d9a0' : C.title;
+    const color = def ? RARITY_COLORS[def.rarity] : s.kind === 'heroCard' ? '#d890ff' : s.kind === 'scrolls' ? '#f0d9a0' : C.title;
     ellipsize(text(this, x, y - CARD_H / 2 + 40, slotTitle(s), FS.body, color, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }), CARD_W - 40);
 
     const ix = x - CARD_W / 2 + 100;
@@ -158,8 +158,8 @@ export class ShopScene extends Phaser.Scene {
     if (s.kind === 'item') itemCell(this, ix, iy, size, def?.slot ?? null, ic, s.itemId);
     else {
       this.add.rectangle(ix, iy, size, size, 0x1a120a, 0.95).setStrokeStyle(4, ic, 1);
-      if (s.kind === 'shards') {
-        const hero = storyHero(session.save, s.hero ?? '');
+      if (s.kind === 'heroCard') {
+        const hero = s.hero && GAME.content.heroes[s.hero] ? { id: 'shop', templateId: s.hero, rarity: s.rarity ?? 'blue', level: 1 } : undefined;
         if (hero) framedPortrait(this, ix, iy, heroSprite(hero, GAME), size - 16, heroGender(hero, GAME));
         else rewardIcon(this, ix, iy, 'hero', size * 0.6);
       } else rewardIcon(this, ix, iy, s.kind === 'heroExp' ? 'exp' : s.kind, size * 0.62);

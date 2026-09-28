@@ -1,0 +1,56 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "dancer",
+  "name": "Танцовщица",
+  "description": "Вторая профессия Лучницы: танцы со стрелами, ослабляющие врагов и воодушевляющие отряд. Песни — общие с Бардом.",
+  "tier": 2,
+  "from": [
+    "archer"
+  ],
+  "maxJobLevel": 50,
+  "role": "support",
+  "baseStats": {
+    "hp": 2150,
+    "atk": 220,
+    "def": 45,
+    "spd": 105
+  },
+  "growth": {
+    "hp": 50,
+    "atk": 6,
+    "def": 1.2,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 1,
+      "skill": "job_dancer_slinging_arrow"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_bard_scream"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_bard_whistle"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_dancer_dont_forget_me"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_bard_apple_of_idun"
+    },
+    {
+      "jobLevel": 50,
+      "skill": "job_dancer_fortune_kiss"
+    }
+  ],
+  "visual": {
+    "sprite": "bard",
+    "hitFx": "fx_hit",
+    "projectile": "fx_arrow"
+  }
+}

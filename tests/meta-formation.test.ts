@@ -133,7 +133,7 @@ describe('K8 авто-расстановка', () => {
   });
 
   it('танки спереди (0–1), лекари и дальний бой сзади (2–4)', () => {
-    const s = withHeroes([hero('h1', 'acolyte'), hero('h2', 'archer'), hero('h3', 'swordman'), hero('h4', 'mage'), hero('h5', 'crusader', 1)]);
+    const s = withHeroes([hero('h1', 'acolyte'), hero('h2', 'archer'), hero('h3', 'swordman'), hero('h4', 'mage'), hero('h5', 'iris/crusader', 1)]);
     const squad = autoFormation(s, ctx);
     const role = (id: string | null) => formationRank(s.heroes.find((h) => h.id === id)!, ctx);
     expect(squad.slice(0, 2).map(role)).toEqual([0, 0]);
@@ -143,7 +143,8 @@ describe('K8 авто-расстановка', () => {
   });
 
   it('при нехватке танков спереди встаёт ближний бой, при нехватке задних — остальные', () => {
-    const s = withHeroes([hero('h1', 'dorn'), hero('h2', 'zara'), hero('h3', 'eremes'), hero('h4', 'gertie'), hero('h5', 'acolyte')]);
+    // Герои v2: по одному экземпляру героя; ближний бой без танков — Дорн, Зара, Ирис, Тео-Монах.
+    const s = withHeroes([hero('h1', 'dorn'), hero('h2', 'zara'), hero('h3', 'iris'), hero('h4', 'teo/monk'), hero('h5', 'acolyte')]);
     const squad = autoFormation(s, ctx);
     expect(squad[4]).toBe('h5');
     expect(squad.slice(0, 4).sort()).toEqual(['h1', 'h2', 'h3', 'h4']);

@@ -27,14 +27,14 @@ import { ascendReady, formatNumber, heroSprite, itemStatsText, levelText, RARITY
 import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
-import { button, ellipsize, hintPointer, panel, pressable, progressBar, ScrollArea, text, toast } from '../ui';
+import { button, ellipsize, hintPointer, panel, pressable, ScrollArea, text, toast } from '../ui';
 import { C, FS, TINT } from '../theme';
 import { skillIcon } from '../skillIcons';
 import { sfx } from '../audio';
 import { bump, countUp, juiceOn, pulse } from '../juice';
 import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, iconBadge, raysTexture, rarityBackdrop, rarityPalette, rarityPips } from '../heroCard';
-import { browseNeighbours, heroesUi, levelShortage, nextLevelDelta, shardSources, skillRarityGate } from '../heroesView';
+import { browseNeighbours, heroesUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
 
 const SKILL_ROW_H = 118;
 type Tab = 'skills' | 'gear' | 'story';
@@ -196,14 +196,6 @@ export class HeroScene extends Phaser.Scene {
     const levelBar = this.add.rectangle(COL_X + 3, TOP + 478, 0, 16, pal.tint).setOrigin(0, 0.5);
     this.ui = { level, levelBar, levelBarW: barW - 6, power, stats: [], deltas: [], info: this.add.container(0, 0) };
 
-    // Сюжетные: осколки героя — в левом верхнем углу витрины (у призывных там замок).
-    const req = ascendRequirement(session.save, hero.id, GAME);
-    if (c.source === 'story' && req?.shards) {
-      const sh = req.shards;
-      const done = sh.have >= sh.need;
-      text(this, 60, TOP + 50, `Осколки ${sh.have}/${sh.need}`, FS.caption, done ? C.positive : C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('heroShards');
-      progressBar(this, 60, TOP + 84, 250, 18, sh.have / sh.need, done ? TINT.success : 0xd6ae63, { key: `shards_${hero.id}` });
-    }
     // Замок (призывные: не уйдёт в корм) — левый верхний угол витрины.
     if (c.source === 'summon') {
       const lock = button(this, 88, TOP + 70, 96, 96, c.locked ? 'k:buttonSquare_brown' : 'k:buttonSquare_beige', '', () => this.toggleLock(), FS.body, { sound: 'ui_toggle' });
@@ -272,7 +264,7 @@ export class HeroScene extends Phaser.Scene {
         asc.container.setName('ascendBtn');
         if (canAscend) pulse(this, asc.container, 1.05);
         else asc.setEnabled(false);
-        const sub = req.shards ? `осколки ${req.shards.have}/${req.shards.need}` : canAscend ? 'корм готов!' : 'нужен корм';
+        const sub = canAscend ? 'копии готовы!' : 'нужны копии';
         text(this, 560, ACT_Y + 55, sub, FS.caption, canAscend ? C.positive : C.muted, { stroke: C.stroke, strokeThickness: 4 });
       }
     } else if (req) {
@@ -311,7 +303,7 @@ export class HeroScene extends Phaser.Scene {
       const toCap = info.maxLevel - info.level;
       line(ACT_Y + 68, `до предела: ${toCap} ур.`, C.dim);
     } else if (req) {
-      const note = req.blockers[0] ?? (req.shards ? `Осколки ${req.shards.have}/${req.shards.need} — можно вознести!` : 'Предел редкости — вознесите героя');
+      const note = req.blockers[0] ?? 'Предел редкости — вознесите героя';
       line(ACT_Y - 50, 'Предел уровня редкости', C.title, FS.body, true);
       box.add(text(this, x, ACT_Y + 20, note, FS.caption, req.blockers.length ? C.warning : C.positive, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 560 } }).setOrigin(0, 0.5));
     }
@@ -495,16 +487,16 @@ export class HeroScene extends Phaser.Scene {
       this.skillRow(sk.unlocked ? { id: sk.skill, kind: sk.passive ? 'Пассивный' : activeKind(sk.skill) } : { id: sk.skill, kind: '', locked: sk.level, gate: gate?.name }, y + SKILL_ROW_H / 2);
       y += SKILL_ROW_H;
     }
-    // Сюжетные: вторая профессия — навыки новой формы (серые, «после вознесения»).
-    if (c.nextForm) {
-      const t = heroTemplate(GAME, hero.templateId);
-      const form = t.forms.find((f) => f.rarity === c.nextForm!.rarity);
-      const rn = GAME.cards.rarities.find((r) => r.id === c.nextForm!.rarity)?.name ?? c.nextForm.rarity;
-      a.add(text(this, 60, y + 40, `С редкости «${rn}» — ${c.nextForm.jobName}`, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5));
-      y += 80;
-      for (const s of [...(form?.skills ?? [])].sort((p, q) => p.level - q.level)) {
-        this.skillRow({ id: s.skill, kind: '', locked: s.level, gate: rn, form: true }, y + SKILL_ROW_H / 2);
-        y += SKILL_ROW_H;
+    // До фиолетового: превью обеих веток второй профессии (V1 — списком; карточки веток — пакет V2).
+    if (c.branchAt) {
+      const rn = GAME.cards.rarities.find((r) => r.id === c.branchAt)?.name ?? c.branchAt;
+      for (const b of c.branches) {
+        a.add(text(this, 60, y + 40, `С редкости «${rn}» — ветка ${b.jobName}`, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5));
+        y += 80;
+        for (const s of [...b.skills].sort((p, q) => p.level - q.level)) {
+          this.skillRow({ id: s.skill, kind: '', locked: s.level, gate: rn, form: true }, y + SKILL_ROW_H / 2);
+          y += SKILL_ROW_H;
+        }
       }
     }
     a.setContentHeight(y + 10);
@@ -593,14 +585,8 @@ export class HeroScene extends Phaser.Scene {
     para(c.bio, C.text);
     if (c.hook) para(`«${c.hook}»`, C.title, FS.body, { fontStyle: 'italic' });
     para(`${c.gender === 'f' ? 'Героиня' : 'Герой'} гильдии ${GUILD_NAMES[c.line] ?? '—'} · ${c.source === 'story' ? 'сюжет' : 'Таверна'} · до «${rarityDef(GAME, c.maxRarity).name}»`, C.dim, FS.caption);
-    if (c.source === 'story') {
-      const req = ascendRequirement(session.save, hero.id, GAME);
-      if (req?.shards) para(`Осколки героя: ${req.shards.have} / ${req.shards.need}`, C.gold, FS.h3, { fontStyle: 'bold' });
-      para('Где добыть осколки:', C.title, FS.body, { fontStyle: 'bold' });
-      for (const s of shardSources(session.save, hero.templateId, GAME)) para(`• ${s}`, C.muted, FS.caption);
-    } else {
-      para('Растёт копиями: одинаковые карточки и карточки той же линии уходят в корм при вознесении (Таверна).', C.muted, FS.caption);
-    }
+    para('Растёт копиями: копии этого героя (и любых — на красный) уходят в корм при вознесении.', C.muted, FS.caption);
+    for (const s of copySources(session.save, hero.templateId, GAME)) para(`• ${s}`, C.muted, FS.caption);
     a.setContentHeight(y + 10);
   }
 }

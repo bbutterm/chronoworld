@@ -28,9 +28,8 @@
       "skill": "job_acolyte_angelus"
     }
   ],
-  "forms": [
+  "branches": [
     {
-      "rarity": "purple",
       "job": "priest",
       "role": "healer",
       "statMods": {
@@ -45,20 +44,51 @@
         },
         {
           "level": 10,
-          "skill": "job_priest_impositio_manus"
+          "skill": "job_priest_kyrie_eleison"
         },
         {
           "level": 30,
-          "skill": "job_priest_magnus_exorcismus"
+          "skill": "job_priest_sanctuary"
         },
         {
           "level": 50,
-          "skill": "job_priest_sanctuary"
+          "skill": "job_priest_assumptio"
         }
       ],
       "promotion": "Собор Пронтеры посвящает Вику в жрицы. Руки больше не дрожат, когда рядом раненый.",
       "visual": {
         "sprite": "priest_f"
+      }
+    },
+    {
+      "job": "monk",
+      "role": "tank",
+      "statMods": {
+        "hp": 1.4,
+        "atk": 1.05,
+        "def": 1.4
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_monk_blade_stop"
+        },
+        {
+          "level": 10,
+          "skill": "job_monk_iron_hand"
+        },
+        {
+          "level": 30,
+          "skill": "job_acolyte_divine_protection"
+        },
+        {
+          "level": 50,
+          "skill": "job_monk_steel_body"
+        }
+      ],
+      "promotion": "Вика уходит в монастырь святой Капитолины: теперь раненых закрывает она сама.",
+      "visual": {
+        "sprite": "monk_f"
       }
     }
   ],

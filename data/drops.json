@@ -38,12 +38,12 @@
       {
         "chapter": "chapter1",
         "item": 0.06,
-        "shards": { "chance": 0.05, "count": 1 },
+        "heroCards": { "blue": 0.0015, "purple": 0.0001 },
         "gems": { "chance": 0.03, "count": 5 }
       },
       {
         "item": 0.08,
-        "shards": { "chance": 0.06, "count": 1 },
+        "heroCards": { "blue": 0.0018, "purple": 0.00012 },
         "gems": { "chance": 0.03, "count": 5 },
         "scrolls": { "chance": 0.005, "count": 1 }
       }

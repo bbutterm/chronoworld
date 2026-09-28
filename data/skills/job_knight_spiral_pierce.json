@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_knight_spiral_pierce",
+  "name": "Спиральный пронзатель",
+  "description": "Рывок к врагу с наименьшим ОЗ и пронзающий удар (×3,2).",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp"
+  },
+  "cooldown": 14,
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 3.2
+    }
+  ]
+}

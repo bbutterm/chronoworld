@@ -7,6 +7,8 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  changeBranch,
+  chooseBranch,
   actAscend,
   actClaimOffline,
   actClimbTower,
@@ -76,7 +78,6 @@ function start(rng: Rng): World {
       campaign: { cleared },
       currency: { gems: rng.int(500), scrolls: rng.int(15) },
       resources: { gold: rng.int(100_000), heroExp: rng.int(200_000) },
-      shards: Object.fromEntries(ctx.progression.heroes.start.map((t) => [t, rng.int(60)])),
     };
     save = addItems(save, Array.from({ length: rng.int(12) }, () => pick(rng, ITEM_IDS))).save;
     save = syncAchievementCounters(save);
@@ -136,7 +137,12 @@ const OPS: [string, number, Op][] = [
       const id = heroId(rng, w.save);
       // Обычно — подобранный корм, иногда — случайные карточки (проверка отказов).
       const fodder = rng.next() < 0.8 ? (autoFodder(w.save, id, ctx) ?? []) : heroGroup(rng, w.save, rng.int(4));
-      return actAscend(w.save, day, id, fodder, ctx).save;
+      // Ветка: обычно своя (случайная из двух), иногда чужая или без ветки (отказы branch_required / bad_branch).
+      const h = w.save.heroes.find((x) => x.id === id);
+      const own = h ? (ctx.content.heroes[h.templateId]?.branches.map((b) => b.job) ?? []) : [];
+      const r = rng.next();
+      const branch = r < 0.8 && own.length ? pick(rng, own) : r < 0.9 ? 'knight' : undefined;
+      return actAscend(w.save, day, id, fodder, ctx, branch ? { branch } : {}).save;
     },
   ],
   [
@@ -165,6 +171,18 @@ const OPS: [string, number, Op][] = [
     },
   ],
   ['tower', 6, (w, rng, day) => actClimbTower(w.save, day, seed32(rng), ctx).save],
+  [
+    'branch',
+    2,
+    (w, rng) => {
+      // Выбор / смена ветки (герои v2): свои ветки, иногда чужая (отказы).
+      const id = heroId(rng, w.save);
+      const h = w.save.heroes.find((x) => x.id === id);
+      const own = h ? (ctx.content.heroes[h.templateId]?.branches.map((b) => b.job) ?? []) : [];
+      const job = own.length && rng.next() < 0.9 ? pick(rng, own) : 'wizard';
+      return rng.next() < 0.5 ? chooseBranch(w.save, id, job, ctx).save : changeBranch(w.save, id, job, ctx).save;
+    },
+  ],
   [
     'startExpedition',
     5,
