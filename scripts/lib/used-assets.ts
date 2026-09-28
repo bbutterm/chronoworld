@@ -69,7 +69,9 @@ export function usedAssets(input: AssetInputs): UsedAssets {
     add(s.file, `sprite:${id}`);
     add(s.portrait, `sprite:${id}`);
     // Листы героя по полу (<id>_f / <id>_m) игра выбирает сама (flow.ts heroSprite) — в данных на них ссылок нет.
-    for (const variant of [`${id}_f`, `${id}_m`]) {
+    // Лист первой профессии без пола (`archer_first`) — варианты по полу называются по классу (`archer_f`).
+    const byClass = id.replace(/_first$/, '');
+    for (const variant of new Set([`${id}_f`, `${id}_m`, `${byClass}_f`, `${byClass}_m`])) {
       add(registry[variant]?.file, `sprite:${variant}`);
       add(registry[variant]?.portrait, `sprite:${variant}`);
     }
@@ -82,13 +84,19 @@ const readJson = <T>(path: string): T | undefined => (existsSync(path) ? (JSON.p
 /** id спрайтов из data/units и data/jobs (visual.sprite) — без полной сборки контента, чтобы не зависеть от её ошибок. */
 export function contentSpriteIds(root: string): string[] {
   const ids = new Set<string>();
-  for (const dir of ['data/units', 'data/jobs']) {
+  type Visual = { visual?: { sprite?: unknown } };
+  const addVisual = (v: Visual | undefined) => {
+    const sprite = v?.visual?.sprite;
+    if (typeof sprite === 'string' && sprite) ids.add(sprite);
+  };
+  // data/heroes: свой лист карточки (сюжетные hero_<имя>_<класс>) и листы веток, если заданы.
+  for (const dir of ['data/units', 'data/jobs', 'data/heroes']) {
     const abs = join(root, dir);
     if (!existsSync(abs)) continue;
     for (const f of readdirSync(abs).filter((n) => n.endsWith('.json'))) {
-      const data = readJson<{ visual?: { sprite?: unknown } }>(join(abs, f));
-      const sprite = data?.visual?.sprite;
-      if (typeof sprite === 'string' && sprite) ids.add(sprite);
+      const data = readJson<Visual & { branches?: Visual[]; forms?: Visual[] }>(join(abs, f));
+      addVisual(data);
+      for (const form of [...(data?.branches ?? []), ...(data?.forms ?? [])]) addVisual(form);
     }
   }
   return [...ids].sort();
