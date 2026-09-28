@@ -1,7 +1,7 @@
 /**
  * N1: единая сборка полного контекста игры из сырых данных.
  * Ядро файлы не читает: Node — scripts/lib/content-node.ts (readRawGameData), браузер — src/game/content.ts (import.meta.glob).
- * Все этапы (контент, прогрессия, K-функции, экипировка, башня, поручения/достижения) проверяются независимо,
+ * Все этапы (контент, прогрессия, K-функции, экипировка, башня, экспедиции/достижения) проверяются независимо,
  * ошибки собираются в один список — content:check показывает всё сразу.
  */
 import { COMBAT } from './config';
@@ -10,7 +10,7 @@ import { buildItems, parseDrops, withEquipment, type EquipmentContext } from './
 import { parseEventsConfig, validateEventsConfig, type EventsContext } from './events';
 import { parseFeaturesConfig, withFeatures, type FeatureContext } from './features';
 import { parseHeroesConfig, validateHeroesConfig } from './heroes/config';
-import { parseMetaConfig, withMeta, type MetaContext } from './meta';
+import { parseMetaConfig, validateExpeditions, withMeta, type MetaContext } from './meta';
 import { ProgressionConfigSchema } from './progression/schema';
 import type { GameContext } from './progression/types';
 import { buildStory, type StoryContext } from './story/story';
@@ -21,7 +21,7 @@ import type { CombatConfig, Content } from './types';
 import { parseUnlocks, validateUnlocks } from './unlocks/unlocks';
 import { parseShopConfig, withShop, type ShopConfig } from './shop';
 
-/** Полный контекст игры: прогрессия и кампания + K-функции, экипировка, башня, пресеты / поручения / достижения. */
+/** Полный контекст игры: прогрессия и кампания + K-функции, экипировка, башня, пресеты / экспедиции / достижения. */
 export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext & EventsContext & {
   hunt: HuntConfig;
   /** Лавка (data/shop.json); нет файла — Лавки нет. */
@@ -45,7 +45,8 @@ export interface RawGameData {
   quests: unknown;
   drops: unknown;
   tower: unknown;
-  bounties: unknown;
+  /** data/expeditions.json — экспедиции (K9) и лимиты пресетов (K8). */
+  expeditions: unknown;
   achievements: unknown;
   /** data/events.json — «Вход 7 дней», «7 дней новичка», системные письма. */
   events: unknown;
@@ -115,7 +116,7 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     stage('data/items', () => buildItems(items));
     stage('data/drops.json', () => parseDrops(raw.drops));
     stage('data/tower.json', () => parseTowerConfig(raw.tower));
-    stage('data/bounties.json / data/achievements.json', () => parseMetaConfig(raw.bounties, raw.achievements));
+    stage('data/expeditions.json / data/achievements.json', () => parseMetaConfig(raw.expeditions, raw.achievements));
     stage('data/events.json', () => parseEventsConfig(raw.events));
     stage('data/hunt.json', () => parseHuntConfig(raw.hunt));
     if (raw.shop !== undefined) stage('data/shop.json', () => parseShopConfig(raw.shop));
@@ -135,7 +136,8 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
   const features = stage('data/progression.json / data/quests.json', () => withFeatures(base, raw.progression, raw.quests).features);
   const equipment = stage('data/items / data/drops.json', () => withEquipment(base, items, raw.drops).equipment);
   const tower = stage('data/tower.json', () => withTower(base, raw.tower).tower);
-  const meta = stage('data/bounties.json / data/achievements.json', () => withMeta(base, raw.bounties, raw.achievements).meta);
+  const meta = stage('data/expeditions.json / data/achievements.json', () => withMeta(base, raw.expeditions, raw.achievements).meta);
+  if (meta) validateExpeditions(meta.expeditions, content, equipment?.items, problems);
   const story = stage('data/story', () => buildStory(normalize(raw.stories ?? []), content, problems));
   const events = stage('data/events.json', () => parseEventsConfig(raw.events));
   if (events) validateEventsConfig(events, base, problems);

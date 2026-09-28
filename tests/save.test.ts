@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_DAY,
   deserialize,
-  emptyBounties,
+  emptyExpeditions,
   loadOrNew,
   MemoryStorage,
   MIGRATIONS,
@@ -44,7 +44,8 @@ const V4_FROM_FIXTURE = {
 };
 const V3_DEFAULTS = {
   presets: [],
-  bounties: { board: [], lastRefreshDay: DEFAULT_DAY, refreshesUsed: 0, active: [] },
+  // v6: доска поручений (v3) по цепочке миграций становится пустыми экспедициями.
+  bounties: { active: [] },
   // Поле без смены версии: в старых сохранениях его нет — пусто.
   seenScenes: [],
 };
@@ -68,11 +69,8 @@ function played() {
   s.inventory.items = [{ id: 'i1', itemId: 'sword_common', equippedBy: 'h1' }];
   s.presets = [{ id: 'p1', name: 'Штурм', squad: ['h1', null, null, null, null] }];
   s.bounties = {
-    board: [{ id: 'b_2026-09-26_0_1', templateId: 'patrol', rarity: 'common', durationMinutes: 30, heroCount: 1, role: null, rewards: { gold: 1, jobExp: 2, gems: 0 } }],
-    lastRefreshDay: '2026-09-26',
-    refreshesUsed: 1,
     active: [
-      { id: 'b_2026-09-26_0_2', templateId: 'escort', rarity: 'common', durationMinutes: 60, heroCount: 1, role: 'tank', rewards: { gold: 5, jobExp: 0, gems: 1 }, heroIds: ['h1'], startedAt: 10, endsAt: 3_600_010 },
+      { location: 'ant_hell', hours: 1, heroIds: ['h1'], power: 900, startedAt: 10, endsAt: 3_600_010, rewards: { gold: 5, jobExp: 0, gems: 1, shards: 0, scrolls: 0, items: ['knife'] } },
     ],
   };
   s.achievements = { counters: { battles_won: 3, stages_cleared: 2 }, claimed: ['first_stage'] };
@@ -100,7 +98,7 @@ describe('сохранение', () => {
     expect(s).toMatchObject({ ...V2_DEFAULTS, currency: { gems: 0, scrolls: 0 }, resources: { gold: 0, heroExp: 0 }, shards: {} });
     expect(s.summon).toMatchObject({ seq: 0, total: 0, sincePurple: 0, firstTenDone: false, welcomeGiven: false, discovered: ctx.progression.heroes.start });
     expect(s).toMatchObject({ ...V3_DEFAULTS, achievements: { counters: {}, claimed: [] } });
-    expect(s.bounties).toEqual(emptyBounties());
+    expect(s.bounties).toEqual(emptyExpeditions());
   });
 
   it('newGame с днём: суточные счётчики на этот день', () => {
@@ -240,12 +238,13 @@ describe('сохранение', () => {
     const out = MIGRATIONS[2]({ ...raw, presets });
     expect(raw).toEqual(copy);
     expect(out.presets).toBe(presets);
-    expect(out.bounties).toEqual(emptyBounties());
+    // Формат v3–v5 (доска поручений); v6 превращает её в экспедиции.
+    expect(out.bounties).toEqual({ board: [], lastRefreshDay: DEFAULT_DAY, refreshesUsed: 0, active: [] });
     // Битые поля старого сохранения не роняют миграцию — счётчики просто не выводятся.
     expect(MIGRATIONS[2]({ version: 2, heroes: 'x', tower: null }).achievements).toEqual({ counters: {}, claimed: [] });
   });
 
-  it('v3: битая доска поручений → SaveError с путём', () => {
+  it('v6: битая экспедиция → SaveError с путём', () => {
     const bad = JSON.parse(serialize(played()));
     bad.bounties.active[0].heroIds = [];
     expectSaveError(JSON.stringify(bad), /bounties\.active\.0\.heroIds/);

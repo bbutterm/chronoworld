@@ -62,7 +62,7 @@ export function savePreset(
   ctx: MetaContext,
   opts: { id?: string; squad?: readonly (string | null)[] } = {},
 ): { save: SaveState; preset: Preset } {
-  const cfg = ctx.meta.bounties.presets;
+  const cfg = ctx.meta.expeditions.presets;
   const trimmed = name.trim();
   if (!trimmed || trimmed.length > cfg.nameMaxLength) throw new MetaError('invalid_preset_name', `Название пресета: от 1 до ${cfg.nameMaxLength} символов`);
   const squad = checkSquad(save, opts.squad ?? save.squad);
@@ -78,7 +78,7 @@ export function savePreset(
 
 /**
  * K8. Поставить отряд из пресета. Герои, которых больше нет в сохранении, становятся пустыми слотами.
- * Герои на поручении (K9) ставятся как обычно — поручение не мешает сражаться.
+ * Герои в экспедиции (K9) ставятся как обычно — экспедиция не мешает сражаться.
  * MetaError('unknown_preset').
  */
 export function applyPreset(save: SaveState, presetId: string): SaveState {
@@ -122,7 +122,7 @@ export function formationRank(hero: HeroState, ctx: GameContext): number {
  * 2. «Передние» (танки, затем ближний бой; внутри — мощь ↓, id ↑) занимают слоты 0, 1, 2, 3, 4 по порядку
  *    первого свободного; «задние» (лекари, затем дальний бой; внутри — мощь ↓, id ↑) — с конца: 4, 3, 2, 1, 0.
  *    Так танки всегда в 0–1, лекари — в самом тылу, а при нехватке одной из групп другая занимает её слоты.
- * Героев меньше 5 — лишние слоты null. Герои на поручении участвуют (поручение не мешает сражаться).
+ * Героев меньше 5 — лишние слоты null. Герои в экспедиции участвуют (экспедиция не мешает сражаться).
  */
 export function autoFormation(save: SaveState, ctx: FeatureContext & { equipment?: EquipmentConfig }): (string | null)[] {
   const rated = save.heroes.map((h) => ({ id: h.id, power: heroPower(h, ctx, save), rank: formationRank(h, ctx) }));

@@ -29,7 +29,7 @@ describe('buildGameContext (N1)', () => {
     expect(ctx.features.quests).toBeDefined();
     expect(Object.keys(ctx.equipment.items).length).toBeGreaterThan(0);
     expect(ctx.tower.maxFloor).toBeGreaterThan(0);
-    expect(ctx.meta.bounties.templates.length).toBeGreaterThan(0);
+    expect(ctx.meta.expeditions.locations.length).toBeGreaterThan(0);
   });
 
   it('совпадает со старой сборкой loadGameContext (контент и прогрессия)', () => {

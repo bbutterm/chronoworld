@@ -65,7 +65,7 @@ export class SquadScene extends Phaser.Scene {
     const offset = this.presetList.offset;
     this.presetList.clear();
     const save = session.save;
-    const max = GAME.meta.bounties.presets.max;
+    const max = GAME.meta.expeditions.presets.max;
     this.presetHead.add(text(this, 50, L.presetsHeadY, `Пресеты · ${save.presets.length} / ${max}`, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5));
     const full = save.presets.length >= max;
     const saveBtn = button(this, 810, L.presetsHeadY, 400, 90, full ? 'k:buttonLong_grey' : 'ui_btn_secondary', 'Сохранить текущий', () => this.savePreset(), FS.body);

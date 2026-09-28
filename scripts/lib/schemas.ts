@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CardsConfigSchema, DropsConfigSchema, EventsConfigSchema, ChapterSchema, HuntConfigSchema, HeroTemplateSchema, JobSchema, SkillSchema, StorySchema, SummonConfigSchema, ShopConfigSchema, TowerConfigSchema, UnitSchema, UnlocksConfigSchema } from '../../src/core';
+import { CardsConfigSchema, DropsConfigSchema, EventsConfigSchema, ExpeditionsConfigSchema, ChapterSchema, HuntConfigSchema, HeroTemplateSchema, JobSchema, SkillSchema, StorySchema, SummonConfigSchema, ShopConfigSchema, TowerConfigSchema, UnitSchema, UnlocksConfigSchema } from '../../src/core';
 
 /** JSON Schema для подсказок и проверки в редакторе (VS Code подхватывает по полю $schema). */
 export function generateSchemas(): Record<string, string> {
@@ -20,5 +20,6 @@ export function generateSchemas(): Record<string, string> {
     'data/schema/hunt.schema.json': gen(HuntConfigSchema, 'Охота на босса'),
     'data/schema/shop.schema.json': gen(ShopConfigSchema, 'Лавка (товары и обновление)'),
     'data/schema/drops.schema.json': gen(DropsConfigSchema, 'Выпадение предметов и трофеи сундука'),
+    'data/schema/expeditions.schema.json': gen(ExpeditionsConfigSchema, 'Экспедиции по локациям и лимиты пресетов'),
   };
 }

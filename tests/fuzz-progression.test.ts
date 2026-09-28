@@ -24,21 +24,19 @@ import {
   maxLevelOf,
   claimAchievement,
   claimActivity,
-  claimBounty,
+  claimExpedition,
   claimQuest,
   deletePreset,
   deserialize,
   loadOrNew,
   MemoryStorage,
   SaveError,
-  ensureBoard,
   newGame,
-  refreshBoard,
   Rng,
   savePreset,
   serialize,
   setSquad,
-  startBounty,
+  startExpedition,
   stageStatus,
   syncAchievementCounters,
   type SaveState,
@@ -167,25 +165,25 @@ const OPS: [string, number, Op][] = [
     },
   ],
   ['tower', 6, (w, rng, day) => actClimbTower(w.save, day, seed32(rng), ctx).save],
-  ['ensureBoard', 3, (w, rng, day) => ensureBoard(w.save, day, seed32(rng), ctx)],
-  ['refreshBoard', 2, (w, rng, day) => refreshBoard(w.save, day, seed32(rng), ctx)],
   [
-    'startBounty',
+    'startExpedition',
     5,
     (w, rng) => {
-      const board = w.save.bounties.board;
-      const b = board.length && rng.next() > 0.05 ? pick(rng, board) : undefined;
-      const n = b ? (rng.next() < 0.9 ? b.heroCount : 1 + rng.int(5)) : 1;
-      return startBounty(w.save, b?.id ?? 'b_missing', heroGroup(rng, w.save, n), w.now, ctx);
+      const locs = ctx.meta.expeditions.locations;
+      const loc = rng.next() > 0.05 ? pick(rng, locs).id : 'no_location';
+      const hours = rng.next() > 0.05 ? pick(rng, ctx.meta.expeditions.durations).hours : 3;
+      // Чаще — автоподбор (одно нажатие), иногда — случайная группа (проверки ядра).
+      const heroes = rng.next() < 0.7 ? undefined : heroGroup(rng, w.save, rng.int(7));
+      return startExpedition(w.save, loc, hours, w.now, ctx, heroes);
     },
   ],
   [
-    'claimBounty',
+    'claimExpedition',
     4,
     (w, rng) => {
       const active = w.save.bounties.active;
       if (active.length && rng.next() < 0.5) w.now = Math.max(w.now, pick(rng, active).endsAt);
-      return claimBounty(w.save, active.length ? pick(rng, active).id : 'b_missing', w.now, ctx).save;
+      return claimExpedition(w.save, active.length ? pick(rng, active).location : 'no_location', w.now, ctx).save;
     },
   ],
   ['claimQuest', 4, (w, rng, day) => claimQuest(w.save, day, rng.next() < 0.05 ? 'no_quest' : pick(rng, ctx.features.quests.quests).id, ctx).save],
@@ -295,7 +293,7 @@ describe('Q: фазз прогрессии и сохранения', () => {
     expect(failures, failures.join('\n')).toEqual([]);
     if (process.env.FUZZ_SEED === undefined) {
       // Фазз действительно доходит до ключевых действий, а не упирается в ошибки правил.
-      for (const name of ['playStage', 'skipStage', 'claimOffline', 'levelUp', 'ascend', 'summon', 'equip', 'tower', 'startBounty', 'claimBounty', 'claimQuest', 'savePreset']) {
+      for (const name of ['playStage', 'skipStage', 'claimOffline', 'levelUp', 'ascend', 'summon', 'equip', 'tower', 'startExpedition', 'claimExpedition', 'claimQuest', 'savePreset']) {
         expect(stats.ok[name] ?? 0, `успешных ${name}`).toBeGreaterThan(0);
       }
     }

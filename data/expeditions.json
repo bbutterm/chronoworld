@@ -1,0 +1,78 @@
+{
+  "$schema": "schema/expeditions.schema.json",
+  "$comment": "Экспедиции по локациям (K9, заменили доску поручений). Локация открывается после первой победы на stage; игрок выбирает срок (durations) и жмёт «Отправить» — отряд до maxHeroes свободных героев собирается сам (сначала те, кого нельзя отдать в корм вознесения: основной отряд, сюжетные, закреплённые; затем запас), нужна только сумма мощи ≥ power; ролей и редкостей нет. Добыча за «час добычи» = часы × (1 + bonus): perHour золота и опыта (в общий пул) и броски loot (шанс за час добычи). id локаций лежат в сохранениях — не переименовывать. Числа и расчёт — docs/content/meta.md (раздел K9), баланс — docs/content/balance.md. presets — лимиты пресетов отряда (K8, временно здесь).",
+  "maxHeroes": 5,
+  "durations": [
+    { "hours": 1, "bonus": 0 },
+    { "hours": 4, "bonus": 0.1 },
+    { "hours": 8, "bonus": 0.2 }
+  ],
+  "locations": [
+    {
+      "id": "ant_hell",
+      "name": "Муравейник",
+      "description": "Ходы под пустыней Сограт. Муравьи тащат в норы всё, что обронили караваны.",
+      "stage": "ch1_s8",
+      "power": 800,
+      "tint": "#9a6a32",
+      "monster": "mob_elite",
+      "monsterScale": 0.6,
+      "perHour": { "gold": 45, "jobExp": 60 },
+      "loot": [
+        { "kind": "item", "chance": 0.012, "items": ["sandals", "shoes", "cotton_shirt", "adventurers_suit", "bandana", "cap"] },
+        { "kind": "gems", "chance": 0.12, "count": 3 },
+        { "kind": "shards", "chance": 0.06, "count": 1 }
+      ]
+    },
+    {
+      "id": "payon_cave",
+      "name": "Пещера Пайона",
+      "description": "Под деревней лучников не спят мертвецы. Скелеты стерегут оружие павших охотников.",
+      "stage": "ch2_s1",
+      "power": 1800,
+      "tint": "#4f6b3a",
+      "monster": "mob_ranged",
+      "perHour": { "gold": 55, "jobExp": 75 },
+      "loot": [
+        { "kind": "item", "chance": 0.01, "items": ["knife", "dagger", "bow", "sword"] },
+        { "kind": "item", "chance": 0.003, "items": ["composite_bow", "gladius"] },
+        { "kind": "gems", "chance": 0.12, "count": 3 },
+        { "kind": "shards", "chance": 0.08, "count": 1 }
+      ]
+    },
+    {
+      "id": "morroc_pyramid",
+      "name": "Пирамиды Моррока",
+      "description": "Гробницы древних царей в песках. Мумии хранят мантии и посохи жрецов Осириса.",
+      "stage": "ch2_s6",
+      "power": 2800,
+      "tint": "#b8913c",
+      "monster": "mob_osiris",
+      "perHour": { "gold": 60, "jobExp": 80 },
+      "loot": [
+        { "kind": "item", "chance": 0.01, "items": ["rod", "staff", "silk_robe", "biretta"] },
+        { "kind": "item", "chance": 0.002, "items": ["wizardry_staff", "saint_robe"] },
+        { "kind": "gems", "chance": 0.12, "count": 3 },
+        { "kind": "shards", "chance": 0.12, "count": 1 }
+      ]
+    },
+    {
+      "id": "clock_tower",
+      "name": "Часовая башня Альдебарана",
+      "description": "Шестерни всё ещё крутятся, а в подвалах прячутся мимики с добычей искателей.",
+      "stage": "ch3_s1",
+      "power": 3800,
+      "tint": "#566a8c",
+      "monster": "mob3_elite",
+      "perHour": { "gold": 65, "jobExp": 85 },
+      "loot": [
+        { "kind": "item", "chance": 0.011, "items": ["helm", "chain_mail", "boots", "greaves"] },
+        { "kind": "item", "chance": 0.003, "items": ["full_plate", "crown", "sleipnir"] },
+        { "kind": "gems", "chance": 0.13, "count": 3 },
+        { "kind": "shards", "chance": 0.15, "count": 1 },
+        { "kind": "scrolls", "chance": 0.006, "count": 1 }
+      ]
+    }
+  ],
+  "presets": { "max": 5, "nameMaxLength": 20 }
+}

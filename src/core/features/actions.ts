@@ -5,7 +5,7 @@ import { playWithEquipment, type StageOutcomeWithDrops } from '../equipment/drop
 import type { ChestLootGrant } from '../equipment/chest';
 import type { EquipmentConfig, EquipmentContext } from '../equipment/load';
 import { claimAchievement, claimAllAchievements, syncAchievementCounters, trackAchievement, type MetaEvent } from '../meta/achievements';
-import { claimAllBounties, claimBounty } from '../meta/bounties';
+import { claimAllExpeditions, claimExpedition, type ExpeditionContext } from '../meta/expeditions';
 import type { MetaContext, MetaRewards } from '../meta/config';
 import { ascendHero } from '../heroes/merge';
 import { levelUpHero, type LevelCost } from '../heroes/level';
@@ -134,7 +134,7 @@ export function actClimbTower(save: SaveState, day: string, seed: number, ctx: T
 }
 
 /*
- * Награды с опытом (задания, пороги активности, поручения, достижения): опыт уходит в общий пул (v4), уровни
+ * Награды с опытом (задания, пороги активности, экспедиции, достижения): опыт уходит в общий пул (v4), уровни
  * поднимает игрок (actLevelUp) — level-up в наградах не бывает. Обёртки переключают день (rollDay) и засчитали бы
  * hero_level_up, если бы награда когда-нибудь давала уровни напрямую.
  */
@@ -157,15 +157,9 @@ export function actClaimActivity(
   return recordLevelUps(claimActivity(save, day, milestone, ctx), day);
 }
 
-/** K9. claimBounty (jobExp — в пул, осколки — «отстающему» сюжетному герою). */
-export function actClaimBounty(
-  save: SaveState,
-  day: string,
-  bountyId: string,
-  now: number,
-  ctx: MetaContext,
-): { save: SaveState; rewards: MetaRewards; events: MetaEvent[] } {
-  return recordLevelUps(claimBounty(save, bountyId, now, ctx), day);
+/** K9. claimExpedition (опыт — в пул, осколки — «отстающему» сюжетному герою, предметы — в инвентарь). */
+export function actClaimExpedition(save: SaveState, day: string, locationId: string, now: number, ctx: ExpeditionContext): ReturnType<typeof claimExpedition> {
+  return recordLevelUps(claimExpedition(save, locationId, now, ctx), day);
 }
 
 /** K10. claimAchievement (jobExp — в пул, осколки — «отстающему» сюжетному герою). */
@@ -178,9 +172,9 @@ export function actClaimAllQuests(save: SaveState, day: string, ctx: FeatureCont
   return recordLevelUps(claimAllQuests(save, day, ctx), day);
 }
 
-/** «Забрать всё» поручений: claimAllBounties (все завершённые к now). */
-export function actClaimAllBounties(save: SaveState, day: string, now: number, ctx: MetaContext): ReturnType<typeof claimAllBounties> {
-  return recordLevelUps(claimAllBounties(save, now, ctx), day);
+/** «Забрать всё» экспедиций: claimAllExpeditions (все вернувшиеся к now). */
+export function actClaimAllExpeditions(save: SaveState, day: string, now: number, ctx: ExpeditionContext): ReturnType<typeof claimAllExpeditions> {
+  return recordLevelUps(claimAllExpeditions(save, now, ctx), day);
 }
 
 /** «Забрать всё» достижений: claimAllAchievements. */
