@@ -184,10 +184,13 @@
           "minimum": 1,
           "maximum": 20
         },
-        "bonusPerLevel": {
-          "type": "number",
-          "exclusiveMinimum": 0,
-          "maximum": 1
+        "bonusByLevel": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20
+          }
         },
         "cost": {
           "type": "object",
@@ -235,11 +238,40 @@
             "minimum": 0,
             "maximum": 0.99
           }
+        },
+        "safeGoldMult": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "safeBreakDiv": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "blessedOre": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "max": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            }
+          },
+          "required": [
+            "min",
+            "max"
+          ]
         }
       },
       "required": [
         "maxLevel",
-        "bonusPerLevel",
+        "bonusByLevel",
         "cost"
       ]
     }

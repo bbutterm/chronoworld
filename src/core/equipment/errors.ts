@@ -12,7 +12,9 @@ export type EquipmentErrorCode =
   | 'refine_locked'
   /** Предмет уже заточен до максимума. */
   | 'refine_max'
-  | 'not_enough_gold';
+  | 'not_enough_gold'
+  /** Заточка рудой: руды нет. */
+  | 'not_enough_ore';
 
 /** Нарушение правил экипировки. message — русский текст для игрока. */
 export class EquipmentError extends Error {

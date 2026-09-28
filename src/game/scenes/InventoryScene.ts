@@ -7,8 +7,12 @@ import {
   lockedText,
   needsBranch,
   refineConfig,
+  blessedOre,
+  refineBonus,
   refineBreakChance,
-  refineCost,
+  refineModeCost,
+  refineSafeAvailable,
+  type RefineMode,
   refinedName,
   refinedStats,
   refineItem,
@@ -28,7 +32,7 @@ import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, screen } from '.
 import { commit, session } from '../session';
 import { button, ellipsize, ScrollArea, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
-import { itemCell } from '../itemIcons';
+import { itemCell, oreIcon } from '../itemIcons';
 import { burst, staggerIn } from '../juice';
 import { markHint } from '../hints';
 import { sfx } from '../audio';
@@ -60,8 +64,10 @@ const TEXT_W_FULL = 1020 - TEXT_X;
 /** Сколько строк сверх видимых держать построенными выше и ниже окна прокрутки. */
 const ROW_BUFFER = 3;
 
-/** Высота карточки «Надето сейчас» (с рядом заточки). */
-const CUR_H = 380;
+/** Высота карточки «Надето сейчас» (с блоком заточки: заголовок, прирост, три кнопки). */
+const CUR_H = 560;
+/** Высота карточки, когда заточка закрыта или на максимуме (одна строка). */
+const CUR_H_SHORT = 290;
 
 /** «30%» — шанс поломки. */
 const pct = (p: number) => `${Math.round(p * 100)}%`;
@@ -149,7 +155,8 @@ export class InventoryScene extends Phaser.Scene {
     const top = CONTENT_TOP;
 
     const hasRefine = !!refineConfig(GAME);
-    const curH = hasRefine && cur ? CUR_H : 200;
+    const refineOpen = hasRefine && !!cur && refineUnlocked(save, GAME) && !!refineModeCost(cur.instance, cur.def, GAME);
+    const curH = !hasRefine || !cur ? 200 : refineOpen ? CUR_H : CUR_H_SHORT;
     card(this, GAME_W / 2, top + curH / 2, 1040, curH, true);
     text(this, TEXT_X, top + 45, 'Надето сейчас', FS.small, C.inkMuted).setOrigin(0, 0.5);
     if (cur) {
@@ -157,7 +164,7 @@ export class InventoryScene extends Phaser.Scene {
       itemCell(this, CELL_X, top + 110, CELL, slot, Phaser.Display.Color.HexStringToColor(RARITY_COLORS[cur.def.rarity]).color, cur.instance.itemId, lvl);
       ellipsize(text(this, TEXT_X, top + 100, refinedName(cur.def, lvl), FS.h2, RARITY_COLORS[cur.def.rarity], { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5).setName('curItemName'), TEXT_W);
       ellipsize(text(this, TEXT_X, top + 155, `${RARITY_NAMES[cur.def.rarity]} · ${itemStatsText(statsOf(cur.def, cur.instance))}`, FS.small, C.ink).setOrigin(0, 0.5), TEXT_W);
-      if (hasRefine) this.refineRow(hero, slot, cur.instance, cur.def, top + 280);
+      if (hasRefine) this.refineRow(hero, slot, cur.instance, cur.def, top);
       button(this, 880, top + 100, 250, 110, 'k:buttonLong_beige', 'Снять', () => {
         commit(actUnequip(session.save, cur.instance.id));
         this.backToHero(hero.id, `${heroName(hero, GAME)}: снят предмет «${cur.def.name}»`);
@@ -193,50 +200,74 @@ export class InventoryScene extends Phaser.Scene {
   }
 
   /**
-   * Ряд заточки в карточке «Надето сейчас»: «Заточка +N → +N+1», прирост статов, шанс поломки (цвет по риску),
-   * кнопка «Заточить» с ценой (риск > 0 — сначала подтверждение). Закрыто — «Откроется на этапе …», максимум — «+10 — максимум».
+   * Блок заточки в карточке «Надето сейчас» (top — верх карточки): «Заточка +N → +N+1», руда «×N», прирост статов шага
+   * и бонус заточки, три кнопки — «Заточить» (обычный шаг), «Надёжно» (цена × safeGoldMult, шанс ÷ safeBreakDiv),
+   * «Рудой» (100%, тратит руду; нет руды — неактивна); под каждой — шанс поломки цветом риска. Безопасный шаг (0%) —
+   * одна кнопка. Риск > 0 — подтверждение. Закрыто — «Откроется на этапе …», максимум — «+10 — максимум».
    */
-  private refineRow(hero: HeroState, slot: Slot, instance: ItemInstance, def: ItemDef, y: number): void {
-    this.add.rectangle(GAME_W / 2, y - 75, 980, 3, TINT.frame, 0.5);
+  private refineRow(hero: HeroState, slot: Slot, instance: ItemInstance, def: ItemDef, top: number): void {
+    this.add.rectangle(GAME_W / 2, top + 205, 980, 3, TINT.frame, 0.5);
     const lvl = refineLevel(instance);
+    const y0 = top + 250;
     if (!refineUnlocked(session.save, GAME)) {
-      text(this, TEXT_X, y, `Заточка · ${lockedText(session.save, 'refine', GAME)}`, FS.small, C.inkMuted).setOrigin(0, 0.5).setName('refineLocked');
+      text(this, TEXT_X, y0, `Заточка · ${lockedText(session.save, 'refine', GAME)}`, FS.small, C.inkMuted).setOrigin(0, 0.5).setName('refineLocked');
       return;
     }
-    const cost = refineCost(instance, def, GAME);
-    if (!cost) {
-      text(this, TEXT_X, y, `Заточка +${lvl} — максимум`, FS.body, C.gold, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('refineMax');
+    const ore = blessedOre(session.save);
+    const oreText = text(this, 1000, y0, `Руда: ${ore}`, FS.body, C.ink, { fontStyle: 'bold' }).setOrigin(1, 0.5).setName('refineOre');
+    oreIcon(this, oreText.x - oreText.width - 30, y0, 56);
+    if (!refineModeCost(instance, def, GAME)) {
+      text(this, TEXT_X, y0, `Заточка +${lvl} — максимум`, FS.body, C.gold, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('refineMax');
       return;
     }
+    ellipsize(text(this, 50, y0, `Заточка +${lvl} → +${lvl + 1}`, FS.h3, C.gold, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('refineTitle'), 620);
+    ellipsize(text(this, 50, y0 + 50, refineGainText(def, lvl), FS.small, C.ink).setOrigin(0, 0.5).setName('refineGain'), 960);
+    const pctB = (b: number) => `+${Math.round(b * 100)}%`;
+    text(this, 50, y0 + 92, `Бонус заточки: ${pctB(refineBonus(lvl, GAME))} → ${pctB(refineBonus(lvl + 1, GAME))} к статам вещи`, FS.caption, C.inkMuted).setOrigin(0, 0.5).setName('refineBonus');
+
+    const risky = refineBreakChance(lvl, GAME) > 0;
+    const modes: RefineMode[] = !risky ? ['normal'] : refineSafeAvailable(GAME) ? ['normal', 'safe', 'ore'] : ['normal', 'ore'];
+    const W = modes.length === 1 ? 420 : 318;
+    const xs = modes.length === 1 ? [GAME_W / 2] : modes.length === 2 ? [290, 790] : [197, 540, 883];
+    const by = y0 + 180;
+    modes.forEach((mode, i) => this.refineButton(hero, slot, instance, def, mode, xs[i], by, W));
+  }
+
+  /** Кнопка режима заточки с ценой и подписью шанса поломки под ней. */
+  private refineButton(hero: HeroState, slot: Slot, instance: ItemInstance, def: ItemDef, mode: RefineMode, x: number, y: number, w: number): void {
+    const lvl = refineLevel(instance);
+    const cost = refineModeCost(instance, def, GAME, mode)!;
+    const chance = refineBreakChance(lvl, GAME, mode);
     const gold = session.save.resources.gold;
+    const ore = blessedOre(session.save);
+    const noOre = mode === 'ore' && ore < 1;
     const enough = gold >= cost.gold;
-    const chance = refineBreakChance(lvl, GAME);
-    ellipsize(text(this, TEXT_X, y - 42, `Заточка +${lvl} → +${lvl + 1}`, FS.body, C.gold, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('refineTitle'), TEXT_W);
-    ellipsize(text(this, TEXT_X, y + 2, refineGainText(def, lvl), FS.small, C.ink).setOrigin(0, 0.5).setName('refineGain'), TEXT_W);
-    ellipsize(
-      text(this, TEXT_X, y + 44, chance > 0 ? `Шанс поломки: ${pct(chance)}` : 'Без риска поломки', FS.small, riskColor(chance), { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 })
-        .setOrigin(0, 0.5)
-        .setName('refineChance'),
-      TEXT_W,
-    );
-    const go = () => this.refine(hero, slot, instance.id);
-    const onTap = () =>
-      chance > 0
-        ? confirm(this, `Вещь может сломаться (${pct(chance)}).\nСломанная вещь исчезнет, золото (${formatNumber(cost.gold)}) не вернётся.\n\nТочить «${refinedName(def, lvl)}» до +${lvl + 1}?`, 'Точить', go, { danger: chance > 0.3 })
-        : go();
-    const b = button(this, 880, y, 250, 110, enough ? (chance > 0.3 ? 'k:buttonLong_brown' : 'ui_btn_primary') : 'k:buttonLong_grey', `Заточить\n${formatNumber(cost.gold)}`, onTap, FS.body);
-    b.container.setName('refineBtn');
-    if (!enough) {
-      // Нажатие по серой кнопке — подсказка, сколько не хватает.
+    const title = mode === 'normal' ? 'Заточить' : mode === 'safe' ? 'Надёжно' : 'Рудой';
+    const skin = noOre || !enough ? 'k:buttonLong_grey' : mode === 'ore' ? 'ui_btn_secondary' : mode === 'safe' ? 'ui_btn_primary' : chance > 0.3 ? 'k:buttonLong_brown' : 'ui_btn_primary';
+    const go = () => this.refine(hero, slot, instance.id, mode);
+    const what = `«${refinedName(def, lvl)}» до +${lvl + 1}`;
+    const onTap = () => {
+      if (chance <= 0) return go();
+      const head = mode === 'safe' ? `Надёжная заточка: шанс поломки ${pct(chance)} (вместо ${pct(refineBreakChance(lvl, GAME))}).` : `Вещь может сломаться (${pct(chance)}).`;
+      confirm(this, `${head}\nСломанная вещь исчезнет, золото (${formatNumber(cost.gold)}) не вернётся.\n\nТочить ${what}?`, 'Точить', go, { danger: chance > 0.3 });
+    };
+    const b = button(this, x, y, w, 120, skin, `${title}\n${formatNumber(cost.gold)}`, onTap, FS.body);
+    b.container.setName(`refineBtn_${mode}`);
+    const note = mode === 'ore' ? (noOre ? 'нет руды · с боссов' : 'без поломки · 1 руда') : chance > 0 ? `поломка ${pct(chance)}` : 'без риска поломки';
+    text(this, x, y + 88, note, FS.caption, mode === 'ore' && noOre ? C.inkMuted : riskColor(chance), { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName(`refineNote_${mode}`);
+    if (noOre || !enough) {
+      // Нажатие по серой кнопке — подсказка, чего не хватает.
       b.setEnabled(false);
-      const hit = this.add.rectangle(880, y, 250, 110, 0x000000, 0.001).setInteractive();
-      hit.on('pointerup', () => toast(this, `Не хватает золота: ${formatNumber(cost.gold - gold)}`, C.error));
+      const hit = this.add.rectangle(x, y, w, 120, 0x000000, 0.001).setInteractive();
+      hit.on('pointerup', () =>
+        toast(this, noOre ? 'Нет Благословенной руды: она падает с боссов глав, Башни и Охоты' : `Не хватает золота: ${formatNumber(cost.gold - gold)}`, C.error),
+      );
     }
   }
 
-  private refine(hero: HeroState, slot: Slot, instanceId: string): void {
+  private refine(hero: HeroState, slot: Slot, instanceId: string, mode: RefineMode): void {
     try {
-      const r = refineItem(session.save, instanceId, GAME);
+      const r = refineItem(session.save, instanceId, GAME, { mode });
       commit(r.save);
       const e = r.events[0];
       const def = GAME.equipment.items[e.itemId];
@@ -258,7 +289,8 @@ export class InventoryScene extends Phaser.Scene {
       this.scene.restart({ heroId: hero.id, slot });
       this.events.once(Phaser.Scenes.Events.CREATE, () => {
         burst(this, at);
-        toast(this, `${def ? refinedName(def, e.to) : e.itemId}: заточка удалась!`, C.success, 2500);
+        const how = mode === 'ore' ? ' (Благословенная руда)' : mode === 'safe' ? ' (надёжная заточка)' : '';
+        toast(this, `${def ? refinedName(def, e.to) : e.itemId}: заточка удалась!${how}`, C.success, 2500);
       });
     } catch (e) {
       sfx('ui_error');

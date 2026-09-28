@@ -14,7 +14,16 @@ import {
   Rng,
   refineAllPlan,
   refineBreakChance,
+  refineBonus,
   refineCost,
+  refineModeCost,
+  rollBlessedOre,
+  blessedOre,
+  actPlayStage,
+  climbTower,
+  fightHunt,
+  sweepHunt,
+  huntSeed,
   refineSeed,
   refinedName,
   refinedStats,
@@ -61,7 +70,7 @@ describe('Заточка: конфиг', () => {
   it('data/drops.json → refine: +10, прирост и цены из данных', () => {
     // Было +15 без поломки; владелец: «шанс сломать вещь, максимум +10».
     expect(cfg.maxLevel).toBe(10);
-    expect(cfg.bonusPerLevel).toBeGreaterThan(0);
+    expect(cfg.bonusByLevel).toHaveLength(cfg.maxLevel + 1);
     // Открывается по таблице открытий, не с самого начала.
     expect(ctx.unlocks!.features.some((f) => f.id === 'refine')).toBe(true);
   });
@@ -87,16 +96,23 @@ describe('Заточка: конфиг', () => {
   });
 
   it('схема: шансов ровно maxLevel и не убывают', () => {
-    const base = { maxLevel: 3, bonusPerLevel: 0.2, cost: { base: { common: 1, rare: 2, epic: 3 }, growth: 1.5 } };
+    const base = { maxLevel: 3, bonusByLevel: [0, 0.1, 0.3, 0.8], cost: { base: { common: 1, rare: 2, epic: 3 }, growth: 1.5 } };
     expect(RefineConfigSchema.safeParse({ ...base, breakChance: [0, 0.1, 0.2] }).success).toBe(true);
     expect(RefineConfigSchema.safeParse({ ...base, breakChance: [0, 0.1] }).success).toBe(false);
     expect(RefineConfigSchema.safeParse({ ...base, breakChance: [0, 0.3, 0.2] }).success).toBe(false);
+    // Прибавка: ровно maxLevel+1 значений, с нуля, не убывает; надёжная заточка — оба поля вместе.
+    expect(RefineConfigSchema.safeParse({ ...base, bonusByLevel: [0, 0.1, 0.3] }).success).toBe(false);
+    expect(RefineConfigSchema.safeParse({ ...base, bonusByLevel: [0.1, 0.1, 0.3, 0.8] }).success).toBe(false);
+    expect(RefineConfigSchema.safeParse({ ...base, bonusByLevel: [0, 0.3, 0.1, 0.8] }).success).toBe(false);
+    expect(RefineConfigSchema.safeParse({ ...base, safeGoldMult: 5 }).success).toBe(false);
+    expect(RefineConfigSchema.safeParse({ ...base, safeGoldMult: 5, safeBreakDiv: 5, blessedOre: { min: 1, max: 3 } }).success).toBe(true);
+    expect(RefineConfigSchema.safeParse({ ...base, blessedOre: { min: 3, max: 1 } }).success).toBe(false);
   });
 
   it('статы и имя с заточкой', () => {
     const def = ctx.equipment.items.claymore;
     expect(refinedStats(def, 0, ctx)).toEqual(def.stats);
-    expect(refinedStats(def, 5, ctx).atk).toBe(Math.round(def.stats.atk! * (1 + cfg.bonusPerLevel * 5)));
+    expect(refinedStats(def, 5, ctx).atk).toBe(Math.round(def.stats.atk! * (1 + cfg.bonusByLevel[5])));
     expect(refinedName(def, 7)).toBe(`+7 ${def.name}`);
     expect(refinedName(def, 0)).toBe(def.name);
   });
@@ -109,7 +125,7 @@ describe('Заточка: refineItem', () => {
     const r = refineItem(save, weapon, ctx);
     expect(refineLevel(inst(r.save, weapon))).toBe(1);
     expect(r.save.resources.gold).toBe(save.resources.gold - cost.gold);
-    expect(r.events).toEqual([{ type: 'refined', ok: true, instanceId: weapon, itemId: 'claymore', from: 0, to: 1, gold: cost.gold, chance: 0 }]);
+    expect(r.events).toEqual([{ type: 'refined', ok: true, instanceId: weapon, itemId: 'claymore', from: 0, to: 1, gold: cost.gold, chance: 0, mode: 'normal' }]);
     // Счётчик попыток растёт и у безопасного шага.
     expect(r.save.inventory.refineSeq).toBe(1);
     // Исходное сохранение не тронуто (чистая функция).
@@ -154,11 +170,11 @@ describe('Заточка: поломка', () => {
     const cost = refineCost({ refine: 3 }, ctx.equipment.items.claymore, ctx)!.gold;
     const bad = seedWhere((x) => new Rng(x).next() < 0.3);
     const good = seedWhere((x) => new Rng(x).next() >= 0.3);
-    const broken = refineItem(s, weapon, ctx, bad);
-    expect(broken.events).toEqual([{ type: 'refineBroken', instanceId: weapon, itemId: 'claymore', level: 3, heroId: save.heroes[0].id, gold: cost, chance: 0.3 }]);
+    const broken = refineItem(s, weapon, ctx, { seed: bad });
+    expect(broken.events).toEqual([{ type: 'refineBroken', instanceId: weapon, itemId: 'claymore', level: 3, heroId: save.heroes[0].id, gold: cost, chance: 0.3, mode: 'normal' }]);
     expect(broken.save.inventory.items.some((i) => i.id === weapon)).toBe(false);
     expect(broken.save.resources.gold).toBe(s.resources.gold - cost);
-    const ok = refineItem(s, weapon, ctx, good);
+    const ok = refineItem(s, weapon, ctx, { seed: good });
     expect(ok.events[0]).toMatchObject({ type: 'refined', ok: true, from: 3, to: 4, chance: 0.3 });
     expect(refineLevel(inst(ok.save, weapon))).toBe(4);
   });
@@ -166,7 +182,7 @@ describe('Заточка: поломка', () => {
   it('сломанная надетая вещь снимается: слот пуст, статы героя без неё', () => {
     const { save, heroId, weapon } = setup();
     const s = withRefine(save, weapon, 9); // 90%
-    const r = refineItem(s, weapon, ctx, seedWhere((x) => new Rng(x).next() < 0.9));
+    const r = refineItem(s, weapon, ctx, { seed: seedWhere((x) => new Rng(x).next() < 0.9) });
     expect(r.events[0].type).toBe('refineBroken');
     expect(heroSlots(r.save, heroId, ctx).weapon).toBeUndefined();
     expect(heroGearStats(r.save, heroId, ctx).atk).toBe(0);
@@ -194,7 +210,7 @@ describe('Заточка: бой и мощь', () => {
     const s = withRefine(withRefine(save, weapon, 5), armor, 5);
     const g0 = heroGearStats(save, heroId, ctx);
     const g5 = heroGearStats(s, heroId, ctx);
-    expect(g5.atk).toBe(Math.round(34 * (1 + cfg.bonusPerLevel * 5)));
+    expect(g5.atk).toBe(Math.round(34 * (1 + cfg.bonusByLevel[5])));
     expect(g5.hp).toBeGreaterThan(g0.hp);
     // Бой: buildUnit с withGear (так собирают отряд playStage / башня / охота).
     expect(buildUnit(hero, withGear(ctx, s)).stats.atk).toBe(buildUnit(hero, withGear(ctx, save)).stats.atk + (g5.atk - g0.atk));
@@ -261,5 +277,140 @@ describe('Заточка: сохранение', () => {
     // Статы и так не выше +10, дальше точить нельзя.
     expect(refinedStats(ctx.equipment.items.claymore, 15, ctx)).toEqual(refinedStats(ctx.equipment.items.claymore, 10, ctx));
     expect(() => refineItem(old, weapon, ctx)).toThrow(expect.objectContaining({ code: 'refine_max' }));
+  });
+});
+
+describe('Заточка: прирост по ступеням', () => {
+  it('+1…+4 — скромные шаги, +8…+10 — огромные; +10 — +250% статов вещи', () => {
+    const b = cfg.bonusByLevel;
+    const step = (n: number) => b[n] - b[n - 1];
+    for (let n = 2; n <= cfg.maxLevel; n++) expect(step(n)).toBeGreaterThanOrEqual(step(n - 1));
+    expect(step(10)).toBeGreaterThan(5 * step(1));
+    expect(b[cfg.maxLevel]).toBe(2.5);
+    const def = ctx.equipment.items.claymore;
+    expect(refinedStats(def, 10, ctx).atk).toBe(Math.round(34 * 3.5));
+    expect(refineBonus(10, ctx)).toBe(2.5);
+  });
+});
+
+describe('Заточка: надёжная', () => {
+  it('цена × safeGoldMult, шанс ÷ safeBreakDiv (30% → 6%)', () => {
+    expect(cfg.safeGoldMult).toBe(5);
+    expect(cfg.safeBreakDiv).toBe(5);
+    const epic = ctx.equipment.items.claymore;
+    expect(refineModeCost({ refine: 3 }, epic, ctx, 'safe')!.gold).toBe(5 * refineCost({ refine: 3 }, epic, ctx)!.gold);
+    expect(refineBreakChance(3, ctx, 'safe')).toBe(0.06);
+    expect(refineBreakChance(9, ctx, 'safe')).toBe(0.18);
+    expect(refineBreakChance(0, ctx, 'safe')).toBe(0);
+  });
+
+  it('шаг: списано ×5 золота, бросок против уменьшенного шанса', () => {
+    const { save, weapon } = setup();
+    const s = withRefine(save, weapon, 3);
+    const cost = refineModeCost({ refine: 3 }, ctx.equipment.items.claymore, ctx, 'safe')!.gold;
+    // Бросок 0.1: обычный шаг (30%) сломал бы вещь, надёжный (6%) — нет.
+    const seed = seedWhere((x) => {
+      const v = new Rng(x).next();
+      return v >= 0.06 && v < 0.3;
+    });
+    expect(refineItem(s, weapon, ctx, { seed }).events[0].type).toBe('refineBroken');
+    const r = refineItem(s, weapon, ctx, { seed, mode: 'safe' });
+    expect(r.events[0]).toMatchObject({ type: 'refined', mode: 'safe', from: 3, to: 4, gold: cost, chance: 0.06 });
+    expect(r.save.resources.gold).toBe(s.resources.gold - cost);
+    const bad = seedWhere((x) => new Rng(x).next() < 0.06);
+    expect(refineItem(s, weapon, ctx, { seed: bad, mode: 'safe' }).events[0].type).toBe('refineBroken');
+  });
+});
+
+describe('Заточка: Благословенная руда', () => {
+  const withOre = (save: SaveState, n: number): SaveState => ({ ...save, currency: { ...save.currency, blessedOre: n } });
+
+  it('100% успех даже на +9 → +10, тратит 1 руду и золото обычного шага', () => {
+    const { save, weapon } = setup();
+    const s = withOre(withRefine(save, weapon, 9), 2);
+    const cost = refineCost({ refine: 9 }, ctx.equipment.items.claymore, ctx)!.gold;
+    for (let seed = 1; seed < 50; seed++) {
+      const r = refineItem(s, weapon, ctx, { seed, mode: 'ore' });
+      expect(r.events[0]).toMatchObject({ type: 'refined', mode: 'ore', to: 10, chance: 0, gold: cost });
+      expect(blessedOre(r.save)).toBe(1);
+      expect(r.save.resources.gold).toBe(s.resources.gold - cost);
+    }
+  });
+
+  it('нет руды — not_enough_ore (старое сохранение без поля = 0)', () => {
+    const { save, weapon } = setup();
+    expect(blessedOre(save)).toBe(0);
+    expect(() => refineItem(withRefine(save, weapon, 5), weapon, ctx, { mode: 'ore' })).toThrow(expect.objectContaining({ code: 'not_enough_ore' }));
+    const raw = JSON.parse(serialize(withOre(save, 3)));
+    delete raw.currency.blessedOre;
+    expect(blessedOre(deserialize(JSON.stringify(raw)))).toBe(0);
+    expect(blessedOre(deserialize(serialize(withOre(save, 3))))).toBe(3);
+  });
+
+  it('выпадение: 1–3 по seed, детерминированно, встречаются все три', () => {
+    const seen = new Set<number>();
+    for (let seed = 0; seed < 200; seed++) {
+      const n = rollBlessedOre(seed, ctx);
+      expect(n).toBeGreaterThanOrEqual(1);
+      expect(n).toBeLessThanOrEqual(3);
+      expect(rollBlessedOre(seed, ctx)).toBe(n);
+      seen.add(n);
+    }
+    expect(seen).toEqual(new Set([1, 2, 3]));
+    expect(rollBlessedOre(5, { equipment: undefined })).toBe(0);
+  });
+
+  it('босс главы при первой победе — руда (событие blessedOre), обычный этап и повтор — нет', () => {
+    let save = newGame(ctx, 0, '2026-01-01');
+    const strong = save.heroes.map((h) => ({ ...h, rarity: 'purple' as const, level: 60 }));
+    save = { ...save, heroes: strong };
+    const ch1 = ctx.content.stages.filter((st) => st.chapter === ctx.content.stages[0].chapter);
+    const boss = ch1.find((st) => st.boss)!;
+    save = { ...save, campaign: { cleared: ch1.filter((st) => st.id !== boss.id).map((st) => st.id) } };
+    let first: ReturnType<typeof actPlayStage> | null = null;
+    for (let seed = 1; seed < 30 && !first; seed++) {
+      const r = actPlayStage(save, '2026-01-01', boss.id, seed, ctx);
+      if (r.result.winner === 'A') first = r;
+    }
+    expect(first).not.toBeNull();
+    const ev = first!.events.find((e) => e.type === 'blessedOre');
+    expect(ev).toBeDefined();
+    const n = ev!.type === 'blessedOre' ? ev!.count : 0;
+    expect(n).toBeGreaterThanOrEqual(1);
+    expect(blessedOre(first!.save)).toBe(n);
+    // Повтор босса — без руды.
+    const again = actPlayStage(first!.save, '2026-01-01', boss.id, 1, ctx);
+    expect(again.events.some((e) => e.type === 'blessedOre')).toBe(false);
+    expect(blessedOre(again.save)).toBe(n);
+  });
+
+  it('этаж-босс Башни — руда, обычный этаж — нет', () => {
+    let save = newGame(ctx, 0, '2026-01-01');
+    save = { ...save, heroes: save.heroes.map((h) => ({ ...h, rarity: 'purple' as const, level: 60 })), campaign: { cleared: ctx.content.stages.map((st) => st.id) } };
+    const bossFloor = ctx.tower.bossEvery;
+    const before = { ...save, tower: { floor: bossFloor - 2 } };
+    const plain = climbTower(before, 1, ctx);
+    expect(plain.result.winner).toBe('A');
+    expect(plain.events.some((e) => e.type === 'blessedOre')).toBe(false);
+    const boss = climbTower(plain.save, 1, ctx);
+    expect(boss.result.winner).toBe('A');
+    const ev = boss.events.find((e) => e.type === 'blessedOre');
+    expect(ev && ev.type === 'blessedOre' ? ev.count : 0).toBe(rollBlessedOre(1, ctx));
+    expect(blessedOre(boss.save)).toBe(rollBlessedOre(1, ctx));
+  });
+
+  it('Охота: руда только за первую попытку дня со взятым порогом', () => {
+    let save = newGame(ctx, 0, '2026-01-01');
+    save = { ...save, heroes: save.heroes.map((h) => ({ ...h, rarity: 'purple' as const, level: 60 })), campaign: { cleared: ctx.content.stages.map((st) => st.id) } };
+    const day = '2026-01-05';
+    const a = fightHunt(save, day, ctx);
+    expect(a.tier).toBeGreaterThanOrEqual(0);
+    expect(a.grant.ore).toBe(rollBlessedOre(huntSeed(save, day, 'loot'), ctx));
+    expect(blessedOre(a.save)).toBe(a.grant.ore);
+    const b = sweepHunt(a.save, day, ctx);
+    expect(b.grant.ore).toBe(0);
+    // Следующий день — снова руда.
+    const c = fightHunt(b.save, '2026-01-06', ctx);
+    expect(c.grant.ore).toBeGreaterThanOrEqual(1);
   });
 });

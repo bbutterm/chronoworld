@@ -80,8 +80,11 @@ import {
   featureUnlocked,
   heroSlots,
   refineBreakChance,
-  refineCost,
+  refineModeCost,
+  refineSafeAvailable,
   refineItem,
+  blessedOre,
+  type RefineMode,
   refineLevel,
   refineUnlocked,
   buyShopSlot,
@@ -169,6 +172,11 @@ export interface PlayerModel {
    */
   refineMaxRisk: number;
   /**
+   * С какого шанса поломки обычного шага модель тратит «Благословенную руду» (0.5 — шаги +6…+10, самые дорогие и
+   * рискованные); рискованные шаги ниже — «Надёжной заточкой» (цена × safeGoldMult), если её шанс ≤ refineMaxRisk.
+   */
+  refineOreFromRisk: number;
+  /**
    * Ветка второй профессии на фиолетовом (docs/design/heroes-v2.md, раздел 7): keep — сохранить роль первой профессии
    * (танк → ветка-танк, лекарь → Жрица; нет такой — первая ветка), alt — другая ветка, random — по id экземпляра.
    */
@@ -205,6 +213,7 @@ export const PLAYER_MODEL: PlayerModel = {
   refineReserveLevels: 5,
   refineSec: 1,
   refineMaxRisk: 0.3,
+  refineOreFromRisk: 0.5,
   branch: 'keep',
   seedBase: 1,
   startDate: '2026-01-01',
@@ -395,6 +404,11 @@ export interface BalanceResult {
   refines: number;
   /** Сломано вещей при заточке. */
   refineBreaks: number;
+  /** Шаги заточки по режимам: обычный, надёжный, рудой. */
+  refineModes: Record<RefineMode, number>;
+  /** «Благословенная руда»: добыто по источникам, потрачено, осталось. */
+  oreIn: Partial<Record<Source, number>>;
+  oreSpent: number;
   refineByDay: { avg: number; max: number }[];
 }
 
@@ -440,6 +454,9 @@ class Sim {
   shopBuys: Record<string, number> = {};
   refines = 0;
   refineBreaks = 0;
+  refineModes: Record<RefineMode, number> = { normal: 0, safe: 0, ore: 0 };
+  oreIn: BalanceResult['oreIn'] = {};
+  oreSpent = 0;
   dayNo = 1;
   day: string;
   /** Текущее время, мс от полуночи дня 1. */
@@ -476,6 +493,9 @@ class Sim {
       if (d[k] > 0) this.income[source][k] += d[k];
       else this.spend[source][k] -= d[k];
     }
+    const ore = blessedOre(next) - blessedOre(this.save);
+    if (ore > 0) this.oreIn[source] = (this.oreIn[source] ?? 0) + ore;
+    else this.oreSpent -= ore;
     const scrolls = next.currency.scrolls - this.save.currency.scrolls;
     if (scrolls > 0) this.scrollsIn[source] = (this.scrollsIn[source] ?? 0) + scrolls;
     const items = next.inventory.items.length - this.save.inventory.items.length;
@@ -732,19 +752,25 @@ class Sim {
     if (!this.model.refine || !refineUnlocked(this.save, this.ctx)) return;
     const reserve = this.refineReserve();
     for (let guard = 0; guard < 500; guard++) {
-      let best: { id: string; gold: number } | null = null;
+      let best: { id: string; gold: number; mode: RefineMode } | null = null;
+      const ore = blessedOre(this.save);
       for (const id of this.save.squad) {
         if (!id) continue;
         for (const s of Object.values(heroSlots(this.save, id, this.ctx))) {
-          const c = refineCost(s.instance, s.def, this.ctx);
-          if (refineBreakChance(refineLevel(s.instance), this.ctx) > this.model.refineMaxRisk) continue;
-          if (c && (!best || c.gold < best.gold)) best = { id: s.instance.id, gold: c.gold };
+          const lvl = refineLevel(s.instance);
+          const c = refineBreakChance(lvl, this.ctx);
+          // Безопасный шаг — обычный; дорогой рискованный — рудой (если есть); остальной рискованный — надёжно.
+          const mode: RefineMode = c <= 0 ? 'normal' : ore > 0 && c >= this.model.refineOreFromRisk ? 'ore' : refineSafeAvailable(this.ctx) ? 'safe' : 'normal';
+          if (refineBreakChance(lvl, this.ctx, mode) > this.model.refineMaxRisk) continue;
+          const cost = refineModeCost(s.instance, s.def, this.ctx, mode);
+          if (cost && (!best || cost.gold < best.gold)) best = { id: s.instance.id, gold: cost.gold, mode };
         }
       }
       if (!best || this.save.resources.gold - best.gold < reserve) break;
-      const r = refineItem(this.save, best.id, this.ctx);
+      const r = refineItem(this.save, best.id, this.ctx, { mode: best.mode });
       this.step('refine', r.save);
       this.refines++;
+      this.refineModes[best.mode]++;
       if (r.events.some((e) => e.type === 'refineBroken')) {
         this.refineBreaks++;
         this.autoEquip();
@@ -752,6 +778,7 @@ class Sim {
       this.spendTime(this.model.refineSec * 1000);
     }
   }
+
 
   /**
    * Золото, которое игрок держит на уровни: стоимость следующих reserveLevels уровней каждого героя отряда.
@@ -1171,6 +1198,9 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     shopBuys: sim.shopBuys,
     refines: sim.refines,
     refineBreaks: sim.refineBreaks,
+    refineModes: sim.refineModes,
+    oreIn: sim.oreIn,
+    oreSpent: sim.oreSpent,
     refineByDay,
     activeMinutes: sim.activeMin,
   };
