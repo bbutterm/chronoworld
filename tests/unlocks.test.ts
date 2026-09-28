@@ -145,7 +145,8 @@ describe('старые сохранения без seenUnlocks', () => {
     const storage = new MemoryStorage();
     storage.save(serialize(old('ch1_s10')));
     const r = loadOrNew(storage, ctx, 0);
-    expect(r.save.seenUnlocks).toEqual(ctx.unlocks!.features.map((f) => f.id));
+    // Отмечено всё, что открывается в главе 1 (Лавка — на ch2_s1, её баннер ещё впереди).
+    expect(r.save.seenUnlocks).toEqual(ctx.unlocks!.features.filter((f) => f.stage.startsWith('ch1_')).map((f) => f.id));
     const fresh = newGame(ctx, 0);
     expect(fresh.seenUnlocks).toEqual([]);
     expect(sanitizeSave(fresh, ctx).save).toBe(fresh);

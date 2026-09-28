@@ -23,7 +23,8 @@
               "achievements",
               "tavern",
               "bounties",
-              "tower"
+              "tower",
+              "shop"
             ]
           },
           "stage": {

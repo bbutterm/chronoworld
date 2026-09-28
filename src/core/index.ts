@@ -24,3 +24,4 @@ export * from './events';
 export * from './context';
 export * from './story';
 export * from './unlocks';
+export * from './shop';

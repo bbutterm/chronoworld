@@ -17,9 +17,13 @@ import { buildStory, type StoryContext } from './story/story';
 import { parseTowerConfig, withTower, type TowerContext } from './tower';
 import type { CombatConfig, Content } from './types';
 import { parseUnlocks, validateUnlocks } from './unlocks/unlocks';
+import { parseShopConfig, withShop, type ShopConfig } from './shop';
 
 /** Полный контекст игры: прогрессия и кампания + K-функции, экипировка, башня, пресеты / поручения / достижения. */
-export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext & EventsContext;
+export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext & EventsContext & {
+  /** Лавка (data/shop.json); нет файла — Лавки нет. */
+  shop?: ShopConfig;
+};
 
 /** Сырые данные data/ — содержимое JSON без разбора. */
 export interface RawGameData {
@@ -44,6 +48,8 @@ export interface RawGameData {
   events: unknown;
   /** data/unlocks.json — этапы открытия функций. Нет — всё открыто сразу (Таверна и Башня — по своим файлам). */
   unlocks?: unknown;
+  /** data/shop.json — Лавка (нет — Лавки нет). */
+  shop?: unknown;
   /** data/story/*.json — сюжет глав (нет — без сюжета). */
   stories?: RawFile[];
   /** По умолчанию — data/combat.json (COMBAT). */
@@ -106,6 +112,7 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     stage('data/tower.json', () => parseTowerConfig(raw.tower));
     stage('data/bounties.json / data/achievements.json', () => parseMetaConfig(raw.bounties, raw.achievements));
     stage('data/events.json', () => parseEventsConfig(raw.events));
+    if (raw.shop !== undefined) stage('data/shop.json', () => parseShopConfig(raw.shop));
     return { content, problems };
   }
 
@@ -126,10 +133,11 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
   const story = stage('data/story', () => buildStory(normalize(raw.stories ?? []), content, problems));
   const events = stage('data/events.json', () => parseEventsConfig(raw.events));
   if (events) validateEventsConfig(events, base, problems);
+  const shop = raw.shop === undefined || !equipment ? undefined : stage('data/shop.json', () => withShop({ ...base, equipment }, raw.shop).shop);
 
   if (problems.length || !features || !equipment || !tower || !meta || !story || !events) return { content, problems };
   return {
-    ctx: { ...base, features, equipment, tower, meta, story, events },
+    ctx: { ...base, features, equipment, tower, meta, story, events, ...(shop ? { shop } : {}) },
     content,
     problems,
   };
