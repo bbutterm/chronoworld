@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob5_tank",
+  "name": "Мунэ",
+  "kind": "monster",
+  "role": "tank",
+  "stats": {
+    "hp": 980,
+    "atk": 33,
+    "def": 19,
+    "spd": 80
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob5_munak_talisman",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "raydric",
+    "tint": "#8a6fd6",
+    "hitFx": "fx_hit"
+  }
+}

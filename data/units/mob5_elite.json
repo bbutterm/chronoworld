@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob5_elite",
+  "name": "Девятихвостая",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 1180,
+    "atk": 61,
+    "def": 14,
+    "spd": 105
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob5_ninetail_charm",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "lunatic",
+    "tint": "#ff9f45",
+    "scale": 1.35,
+    "hitFx": "fx_hit"
+  }
+}

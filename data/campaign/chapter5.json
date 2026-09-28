@@ -1,25 +1,24 @@
 {
   "$schema": "../schema/chapter.schema.json",
-  "$comment": "TODO: заготовка content:new — mult всех этапов = 1 (босс 0.5), подобрать по docs/CONTENT_RECIPES.md «Новая глава: чеклист» (playthrough, balance-fit, --fit-recommended); сундук и награды уже по формуле баланса",
   "id": "chapter5",
   "name": "Глава 5. Лес Пайона",
   "order": 5,
   "stages": [
     {
       "id": "ch5_s1",
-      "name": "TODO: этап 1",
+      "name": "Опушка при луне",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob5_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob5_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob5_ranged",
           "mult": 1
         },
         null,
@@ -36,23 +35,26 @@
     },
     {
       "id": "ch5_s2",
-      "name": "TODO: этап 2",
+      "name": "Тропа енотов",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_ranged",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_fast",
+          "unit": "mob5_tank",
           "mult": 1
         },
         null,
-        null
+        {
+          "unit": "mob5_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob5_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 1
+        }
       ],
       "rewards": {
         "jobExp": 15600,
@@ -65,23 +67,26 @@
     },
     {
       "id": "ch5_s3",
-      "name": "TODO: этап 3",
+      "name": "Блуждающие огни",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_ranged",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_fast",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_elite",
+          "unit": "mob5_tank",
           "mult": 1
         },
         null,
-        null
+        {
+          "unit": "mob5_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 1
+        }
       ],
       "rewards": {
         "jobExp": 17010,
@@ -94,26 +99,26 @@
     },
     {
       "id": "ch5_s4",
-      "name": "TODO: этап 4",
+      "name": "Покинутый погост",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_fast",
+          "unit": "mob5_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob5_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob5_fast",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_tank",
+          "unit": "mob5_ranged",
           "mult": 1
-        }
+        },
+        null
       ],
       "rewards": {
         "jobExp": 18540,
@@ -126,26 +131,26 @@
     },
     {
       "id": "ch5_s5",
-      "name": "TODO: этап 5",
+      "name": "Лисья поляна",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_elite",
+          "unit": "mob5_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob5_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob5_ranged",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_ranged",
+          "unit": "mob5_support",
           "mult": 1
-        }
+        },
+        null
       ],
       "rewards": {
         "jobExp": 20220,
@@ -158,24 +163,27 @@
     },
     {
       "id": "ch5_s6",
-      "name": "TODO: этап 6",
+      "name": "Деревня без огней",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob5_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob5_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob5_melee",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_fast",
+          "unit": "mob5_support",
+          "mult": 1
+        },
+        {
+          "unit": "mob5_ranged",
           "mult": 1
         }
       ],
@@ -190,27 +198,27 @@
     },
     {
       "id": "ch5_s7",
-      "name": "TODO: этап 7",
+      "name": "Бамбуковая чаща",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "mob5_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob5_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob5_support",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob5_ranged",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob5_fast",
           "mult": 1
         }
       ],
@@ -225,27 +233,27 @@
     },
     {
       "id": "ch5_s8",
-      "name": "TODO: этап 8",
+      "name": "Пещера Пайона",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_ranged",
+          "unit": "mob5_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob5_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob5_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob5_support",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob5_ranged",
           "mult": 1
         }
       ],
@@ -260,27 +268,27 @@
     },
     {
       "id": "ch5_s9",
-      "name": "TODO: этап 9",
+      "name": "Лисья свадьба",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_fast",
+          "unit": "mob5_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob5_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob5_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob5_support",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob5_ranged",
           "mult": 1
         }
       ],
@@ -295,26 +303,29 @@
     },
     {
       "id": "ch5_s10",
-      "name": "TODO: логово босса",
+      "name": "Святилище Лунного цветка",
       "boss": true,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob5_elite",
           "mult": 1
         },
         {
-          "unit": "mob_boss1",
+          "unit": "mob5_boss",
           "mult": 0.5
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob5_support",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob5_elite",
           "mult": 1
         },
-        null
+        {
+          "unit": "mob5_ranged",
+          "mult": 1
+        }
       ],
       "rewards": {
         "jobExp": 46665,

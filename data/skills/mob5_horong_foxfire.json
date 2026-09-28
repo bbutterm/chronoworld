@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob5_horong_foxfire",
+  "name": "Лисий огонь",
+  "description": "Три блуждающих огонька по случайным врагам: урон и ожог на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random"
+  },
+  "hits": 3,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.6
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "burn",
+        "name": "Ожог",
+        "turns": 2,
+        "dot": {
+          "k": 0.1
+        }
+      }
+    }
+  ]
+}

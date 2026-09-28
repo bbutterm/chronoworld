@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob5_bongun_hop",
+  "name": "Прыжок цзянши",
+  "description": "Бонгун прыжком обрушивается на случайного врага: урон и шанс 30% оглушить на ход.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.4
+    },
+    {
+      "type": "status",
+      "chance": 0.3,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}
