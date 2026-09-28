@@ -130,7 +130,7 @@ describe('обёртки действий засчитывают задания'
   });
 
   it('actSummon / actAscend: задания summon / hero_ascend и достижения summons / ascensions', () => {
-    const s0 = { ...newGame(ctx, 0, D1), campaign: { cleared: ctx.content.stages.slice(0, 5).map((x) => x.id) } };
+    const s0 = { ...newGame(ctx, 0, D1), campaign: { cleared: ctx.content.stages.slice(0, ctx.content.stages.findIndex((x) => x.id === 'ch1_s5') + 1).map((x) => x.id) } };
     // Две зелёные копии Алана (h90, h91) — корм для вознесения зелёный → синий.
     const copies = [{ id: 'h90', templateId: 'alan', rarity: 'green' as const, level: 1 }, { id: 'h91', templateId: 'alan', rarity: 'green' as const, level: 1 }];
     const s: SaveState = { ...s0, heroes: [...s0.heroes, ...copies], currency: { gems: 1000, scrolls: 0 }, resources: { ...s0.resources, gold: 10_000 } };

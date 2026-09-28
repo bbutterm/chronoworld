@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildContent, enemySquad, GameRuleError, getStage, newGame, playStage, stageStatus, type SaveState } from '../src/core';
+import { buildContent, enemySquad, GameRuleError, getStage, growthStep, newGame, playStage, stageStatus, type SaveState } from '../src/core';
 import { loadGameContext } from '../scripts/lib/content-node';
 
 const ctx = loadGameContext();
@@ -27,11 +27,12 @@ function expectRuleError(fn: () => unknown, code: GameRuleError['code']) {
 }
 
 describe('кампания', () => {
-  it('глава 1: 10 этапов, 10-й — босс', () => {
+  it('глава 1: 18 этапов (ch1_s11…s18 вставлены между выпущенными), последний — босс ch1_s10', () => {
     const ch1 = stages.filter((s) => s.chapter === 'chapter1');
-    expect(ch1).toHaveLength(10);
-    expect(ch1[9].boss).toBe(true);
-    expect(ch1[9].enemies.some((e) => e && ctx.content.units[e.unit].kind === 'boss')).toBe(true);
+    expect(ch1).toHaveLength(18);
+    expect(ch1[17].id).toBe('ch1_s10');
+    expect(ch1[17].boss).toBe(true);
+    expect(ch1[17].enemies.some((e) => e && ctx.content.units[e.unit].kind === 'boss')).toBe(true);
     expect(getStage(ctx, s2).globalIndex).toBe(1);
     expectRuleError(() => getStage(ctx, 'nope'), 'unknown_stage');
   });
@@ -49,7 +50,10 @@ describe('кампания', () => {
   it('enemySquad: статы растут на enemyStatGrowthPerStage за этап, spd не растёт, id слотов разные', () => {
     const stage = stages[4];
     const squad = enemySquad(stage.id, ctx);
-    const k = Math.pow(1 + ctx.progression.campaign.enemyStatGrowthPerStage, stage.globalIndex);
+    // Ступень роста — сквозной номер без вставных этапов (ch1_s11 стоит третьим): у ch1_s4 (5-й по порядку) — 3, как до вставки.
+    expect(stage.id).toBe('ch1_s4');
+    expect(growthStep(stage, ctx)).toBe(3);
+    const k = Math.pow(1 + ctx.progression.campaign.enemyStatGrowthPerStage, 3);
     expect(squad).toHaveLength(5);
     stage.enemies.forEach((e, slot) => {
       const u = squad[slot];

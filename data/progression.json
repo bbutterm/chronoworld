@@ -87,7 +87,7 @@
       "bossScale": 4.5,
       "bands": [
         { "fromStage": "ch1_s1", "rarity": "green", "squad": 3 },
-        { "fromStage": "ch1_s6", "rarity": "green", "squad": 5 },
+        { "fromStage": "ch1_s12", "rarity": "green", "squad": 5 },
         { "fromStage": "ch1_s7", "rarity": "blue", "squad": 5 },
         { "fromStage": "ch3_s4", "rarity": "purple", "squad": 5 }
       ]

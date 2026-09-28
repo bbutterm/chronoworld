@@ -7,6 +7,7 @@ import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/rost
 import type { GameContext } from '../progression/types';
 import { initSeenUnlocks } from '../unlocks/unlocks';
 import type { UnlocksConfig } from '../unlocks/schema';
+import { fillClearedGaps } from './campaign-gaps';
 import { migrateBountiesToExpeditions } from './migrate-expeditions';
 import { DEFAULT_DAY, emptyDaily, emptyExpeditions, emptyMail, emptySummon, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
 
@@ -184,6 +185,8 @@ export function saveRevision(text: string | null | undefined): number {
  * - второй экземпляр одной карточки в отряде убирается из отряда (правило «одна копия карточки в отряде»);
  * - предметы, которых нет в ctx.equipment.items (если контекст с экипировкой), убираются;
  * - save.notices (сообщения миграции) → warnings, поле убирается;
+ * - этапы, вставленные в выпущенную главу перед самым дальним пройденным (глава 1: ch1_s11…s18), засчитываются пройденными
+ *   (fillClearedGaps, campaign-gaps.ts);
  * - нет seenUnlocks (сохранение старше data/unlocks.json) — уже открытые функции отмечаются показанными (без баннеров).
  * Каждая правка — строка в warnings (понятный русский текст). Ничего не правили — тот же объект save.
  */
@@ -193,6 +196,15 @@ export function sanitizeSave(
 ): { save: SaveState; warnings: string[] } {
   const warnings: string[] = [...(save.notices ?? [])];
   let changed = save.notices !== undefined;
+  // Вставленные в выпущенную главу этапы (глава 1: ch1_s11…s18) перед самым дальним пройденным — пройдены (campaign-gaps.ts).
+  // До initSeenUnlocks: функции этих этапов у старого игрока уже открыты.
+  const gaps = fillClearedGaps(save, ctx);
+  if (gaps.filled.length) {
+    save = gaps.save;
+    changed = true;
+    const num = (id: string) => ctx.content.stages.find((s) => s.id === id)!.globalIndex + 1;
+    warnings.push(`В кампании появились новые этапы перед уже пройденными — они засчитаны пройденными (этапы ${gaps.filled.map(num).join(', ')}).`);
+  }
   if (ctx.unlocks && !save.seenUnlocks) {
     save = initSeenUnlocks(save, ctx);
     changed = true;

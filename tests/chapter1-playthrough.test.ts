@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ascendHero, ascendRequirement, autoFodder, autoFormation, autoLevel, heroCard, heroCopies, heroTemplate, newGame, playStage, rarityIndex, summon, summonStatus, type SaveState } from '../src/core';
+import { ascendHero, claimOffline, ascendRequirement, autoFodder, autoFormation, autoLevel, heroCard, heroCopies, heroTemplate, newGame, playStage, rarityIndex, summon, summonStatus, type SaveState } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
 
 const ctx = loadFullContext();
@@ -35,8 +35,20 @@ function develop(s: SaveState): SaveState {
   return autoLevel(s, ctx).save;
 }
 
-/** Пройти этапы главы до stopBefore (не включая), ≤ tries попыток на этап. */
-function playUntil(save: SaveState, stopBefore: string | null, tries: (boss: boolean) => number, seed = { n: 1 }): { save: SaveState; stuck: string | null } {
+/**
+ * Пройти этапы главы до stopBefore (не включая), ≤ tries попыток на этап. Не прошёл — как игрок у мягкой стены
+ * (глава 1 — 18 этапов, стены ch1_s15 и ch1_s17): забрать сундук за 10 минут, «Улучшить» и ещё 2 попытки, до wallMinutes
+ * минут сундука. chestMinutes — сколько минут сундука понадобилось всего; firstTry — этапы, пройденные с первой попытки.
+ */
+function playUntil(
+  save: SaveState,
+  stopBefore: string | null,
+  tries: (boss: boolean) => number,
+  seed = { n: 1 },
+  wallMinutes = 0,
+): { save: SaveState; stuck: string | null; chestMinutes: number; firstTry: Set<string> } {
+  let chestMinutes = 0;
+  const firstTry = new Set<string>();
   for (const s of stages) {
     if (s.id === stopBefore) break;
     let won = false;
@@ -44,10 +56,20 @@ function playUntil(save: SaveState, stopBefore: string | null, tries: (boss: boo
       const out = playStage(save, s.id, seed.n++, ctx);
       save = develop(out.save);
       won = out.result.winner === 'A';
+      if (won && t === 0) firstTry.add(s.id);
     }
-    if (!won) return { save, stuck: s.id };
+    for (let m = 10; !won && m <= wallMinutes; m += 10) {
+      chestMinutes += 10;
+      save = develop(claimOffline(save, save.offline.lastClaimAt + 10 * 60_000, ctx).save);
+      for (let t = 0; t < 2 && !won; t++) {
+        const out = playStage(save, s.id, seed.n++, ctx);
+        save = develop(out.save);
+        won = out.result.winner === 'A';
+      }
+    }
+    if (!won) return { save, stuck: s.id, chestMinutes, firstTry };
   }
-  return { save, stuck: null };
+  return { save, stuck: null, chestMinutes, firstTry };
 }
 
 describe('глава 1 играбельна с нуля', () => {
@@ -88,12 +110,19 @@ describe('глава 1 играбельна с нуля', () => {
   // (≈81% на 40). Решение владельца 28.09: к подарку Таверны счётчик гаранта фиолетовой уже 40/50 — первый ×10 свитками
   // всегда даёт фиолетовую; с ней босс ≈90% с первой попытки. Цель — 60–95%: босс — проверка, а не стена. Усилить босса
   // точечно нельзя без поломки QA-сидов tests/formation.test.ts (строй на боссе 1-10) — оставлено как есть.
+  // Глава 1 — 18 этапов (28.09, docs/design/chapter1.md, раздел 3а): перед боссом отряд на 1–2 уровня выше, mult этапов
+  // подобраны заново (ch1_s6…s10 и вставные ch1_s12…s18), босс ≈82% на этих 16 выдачах (≈87% на 40). Мягкие стены
+  // ch1_s15 и ch1_s17 (≈90–95% в среднем) слабые выдачи (отряд без лекаря) проходят, забрав сундук, — это их модель.
   it('босс главы: 60–95% побед с первой попытки в среднем по выдачам Таверны (16 сохранений × 16 seed)', () => {
     let wins = 0;
     let fights = 0;
+    const chest: number[] = [];
     for (let k = 0; k < 16; k++) {
-      const { save, stuck } = playUntil(newGame(ctx, k * 3_600_000 + 1), 'ch1_s10', () => 3);
+      const { save, stuck, chestMinutes, firstTry } = playUntil(newGame(ctx, k * 3_600_000 + 1), 'ch1_s10', () => 3, { n: 1 }, 240);
       expect(stuck, `сохранение ${k}`).toBeNull();
+      chest.push(chestMinutes);
+      // Этапы до Таверны включительно (ch1_s1…ch1_s5, 6 этапов) — обучение: у всех выдач с первой попытки.
+      for (const s of stages.slice(0, 6)) expect(firstTry.has(s.id), `сохранение ${k}: ${s.id} не с первой попытки`).toBe(true);
       for (let j = 0; j < 16; j++) {
         fights++;
         if (playStage(save, 'ch1_s10', 100_000 + j, ctx).result.winner === 'A') wins++;
@@ -102,5 +131,9 @@ describe('глава 1 играбельна с нуля', () => {
     const rate = wins / fights;
     expect(rate).toBeGreaterThanOrEqual(0.6);
     expect(rate).toBeLessThanOrEqual(0.95);
+    // Стены — мягкие: большинство выдач не ждёт сундук вовсе, самая слабая — не больше 3 ч сундука за главу.
+    chest.sort((a, b) => a - b);
+    expect(chest[Math.floor(chest.length / 2)], `минуты сундука по выдачам: ${chest.join(', ')}`).toBe(0);
+    expect(Math.max(...chest), `минуты сундука по выдачам: ${chest.join(', ')}`).toBeLessThanOrEqual(180);
   });
 });

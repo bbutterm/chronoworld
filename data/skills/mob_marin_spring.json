@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_marin_spring",
+  "name": "Живая вода",
+  "description": "Водяной поринг брызжет родниковой водой: лечит самого раненого союзника. Сбейте Марина первым — иначе стая не кончится.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true,
+    "onlyWounded": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.6
+    }
+  ]
+}
