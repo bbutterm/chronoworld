@@ -192,7 +192,12 @@ export const SummonConfigSchema = z
     /** Первый призыв ×10 содержит не меньше count карт этой редкости или выше (один раз). */
     firstTen: z.object({ rarity: CardRaritySchema, count: z.number().int().positive().max(10) }),
     freePerDay: z.number().int().nonnegative(),
-    welcome: z.object({ gems: z.number().int().nonnegative(), scrolls: z.number().int().nonnegative() }),
+    welcome: z.object({
+      gems: z.number().int().nonnegative(),
+      scrolls: z.number().int().nonnegative(),
+      /** Счётчик гаранта фиолетовой при подарке (решение владельца 28.09: 40 из 50 — первый ×10 даёт фиолетовую). */
+      purplePity: z.number().int().nonnegative().optional(),
+    }),
   })
   .superRefine((cfg, c) => {
     const sum = cfg.rates.reduce((s, r) => s + r.chance, 0);
