@@ -1079,10 +1079,14 @@ export class BattleScene extends Phaser.Scene {
           const srcSkill = srcSkillId ? CONTENT.skills[srcSkillId] : undefined;
           if (!(ally && srcSkill?.target.pick === 'all')) this.headline(v, e.name, '#ffcf6b');
           if (ally) {
-            this.fx(v, skillFx(srcSkillId)?.buff ?? 'fx_shield', 1.2, 400);
-            // Своя аура баффа (ноты песни, сердечки, нимб, меч света…), иначе общий столб искр цвета статуса.
+            const sheet = skillFx(srcSkillId)?.buff;
+            this.fx(v, sheet ?? 'fx_shield', 1.2, 400);
+            // Нарисованный художником лист баффа (effects.json → skills) заменяет процедурную ауру; иначе своя аура баффа
+            // (ноты песни, сердечки, нимб, меч света…), иначе общий столб искр цвета статуса.
             const look = visualOf(srcSkillId);
-            if (look?.aura) playAura(this.sfx, look.aura, this.point(v), look.tint ?? buffColor(def));
+            if (sheet) {
+              // только лист
+            } else if (look?.aura) playAura(this.sfx, look.aura, this.point(v), look.tint ?? buffColor(def));
             else this.sfx.buff(this.point(v), buffColor(def));
           }
         }, { on: v });
