@@ -89,7 +89,9 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
   };
   const t = GAME.content.heroes[opts.templateId];
   layer.add(text(scene, GAME_W / 2, 200, opts.title, FS.h1, C.title, TITLE_STYLE).setName('branchTitle'));
-  if (opts.subtitle) layer.add(text(scene, GAME_W / 2, 280, opts.subtitle, FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 1000 } }).setMaxLines(2));
+  if (opts.subtitle) layer.add(text(scene, GAME_W / 2, 272, opts.subtitle, FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 1000 } }).setMaxLines(2));
+  // MT-09: описания в панелях короткие — полное по касанию навыка.
+  layer.add(text(scene, GAME_W / 2, 346, 'Коснитесь навыка — полное описание', FS.caption, C.info, OUTLINE));
 
   let selected: string | null = opts.selected && opts.selected !== opts.current ? opts.selected : null;
   const highlights: { job: string; frame: Phaser.GameObjects.Rectangle; glow: Phaser.GameObjects.Image; mark: Phaser.GameObjects.Container }[] = [];
@@ -221,7 +223,7 @@ function branchPanel(
     layer.add(ellipsize(text(scene, left + 80, iy - 18, sk?.name ?? s.skill, FS.small, C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), PANEL_W - 110));
     if (sk?.description) {
       const lines = Math.max(1, Math.floor((rowH - 46) / 37));
-      layer.add(text(scene, left + 80, iy + 4, fitLines(scene, sk.description, FS.caption, PANEL_W - 120, lines, 'normal', ' подробнее ›'), FS.caption, C.muted, { align: 'left', lineSpacing: 0 }).setOrigin(0, 0));
+      layer.add(text(scene, left + 80, iy + 4, fitLines(scene, sk.description, FS.caption, PANEL_W - 120, lines, 'normal', ' ›'), FS.caption, C.muted, { align: 'left', lineSpacing: 0 }).setOrigin(0, 0));
     }
     y += rowH;
   }
@@ -266,13 +268,13 @@ function fitLines(scene: Phaser.Scene, value: string, size: number, width: numbe
   const keep = lines.slice(0, maxLines);
   const words = keep[maxLines - 1].trim().split(/\s+/);
   const probe = text(scene, -9999, -9999, '', size, C.text, { fontStyle });
-  let last = `${words.join(' ')}…${more}`;
-  while (words.length > 1) {
-    last = `${words.join(' ').replace(/[,.:;—-]+$/, '')}…${more}`;
-    probe.setText(last);
-    if (probe.width <= width) break;
+  const line = () => `${words.join(' ').replace(/[,.:;—-]+$/, '')}…${more}`;
+  probe.setText(line());
+  while (words.length > 1 && probe.width > width) {
     words.pop();
+    probe.setText(line());
   }
+  const last = line();
   probe.destroy();
   keep[maxLines - 1] = last;
   return keep.join('\n');

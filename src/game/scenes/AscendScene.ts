@@ -277,7 +277,7 @@ export class AscendScene extends Phaser.Scene {
     openBranchPicker(this, {
       templateId: hero.templateId,
       title: 'Ветка второй профессии',
-      subtitle: `${heroTemplate(GAME, hero.templateId).name} получит её при вознесении. Касание навыка — полное описание.`,
+      subtitle: `${heroTemplate(GAME, hero.templateId).name} получит её при вознесении.`,
       selected,
       heroId: hero.id,
       save: session.save,

@@ -416,9 +416,11 @@ export class HeroScene extends Phaser.Scene {
       const toCap = info.maxLevel - info.level;
       line(ACT_Y + 68, `до предела: ${toCap} ур.`, C.dim);
     } else if (req) {
-      const note = req.blockers[0] ?? 'Предел редкости — вознесите героя';
+      // LT-07: точная причина — копии или золото (с разделителями разрядов).
+      const hint = ascendHint(session.save, hero.id, GAME);
+      const note = !hint || hint.ready ? 'Предел редкости — вознесите героя' : hint.text === 'нужны копии' ? 'Нужны копии героя — «Вознести» покажет, где взять' : `Для вознесения ${hint.text}`;
       line(ACT_Y - 50, 'Предел уровня редкости', C.title, FS.body, true);
-      box.add(text(this, x, ACT_Y + 20, note, FS.caption, req.blockers.length ? C.warning : C.positive, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 560 } }).setOrigin(0, 0.5));
+      box.add(text(this, x, ACT_Y + 20, note, FS.caption, hint && !hint.ready ? C.warning : C.positive, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 560 } }).setOrigin(0, 0.5));
     }
   }
 
