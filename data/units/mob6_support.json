@@ -16,7 +16,8 @@
     "passives": []
   },
   "visual": {
-    "sprite": "obeaune",
+    "sprite": "dark_priest",
+    "tint": "#6ad1c4",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

@@ -16,7 +16,9 @@
     "passives": []
   },
   "visual": {
-    "sprite": "gibbet",
+    "sprite": "tank",
+    "tint": "#6e6672",
+    "scale": 1.15,
     "hitFx": "fx_hit"
   }
 }

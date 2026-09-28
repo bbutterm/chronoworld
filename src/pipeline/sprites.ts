@@ -61,8 +61,6 @@ export const V2_SCALE = 3.2;
 interface V2Class {
   cell: [number, number];
   anchor: [number, number];
-  /** Grid columns can be class-specific when a native-size atlas uses a custom cell. */
-  columns?: number;
   anims: string[];
 }
 interface V2Anim {
@@ -114,7 +112,7 @@ export function normalizeV2(json: SpritesV2, fixes: SpriteFixes = {}): SpriteDef
       file: s.file,
       cell: cls.cell,
       anchor: cls.anchor,
-      columns: cls.columns ?? json.columns,
+      columns: json.columns,
       scale: V2_SCALE,
       anims,
       portrait: s.portrait,

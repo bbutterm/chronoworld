@@ -16,7 +16,8 @@
     "passives": []
   },
   "visual": {
-    "sprite": "munak",
+    "sprite": "raydric",
+    "tint": "#8a6fd6",
     "hitFx": "fx_hit"
   }
 }

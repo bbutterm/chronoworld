@@ -16,7 +16,8 @@
     "passives": []
   },
   "visual": {
-    "sprite": "dullahan",
+    "sprite": "raydric",
+    "tint": "#8fa6bf",
     "hitFx": "fx_hit"
   }
 }

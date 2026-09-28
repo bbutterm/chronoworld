@@ -159,11 +159,6 @@
   "png": 3077,
   "webp": 1052
  },
- "sprites/bosses/banshee.png": {
-  "sha1": "e7f244b3d306550a2151f2bf03cafc8cee0c59ea",
-  "png": 78596,
-  "webp": 36522
- },
  "sprites/bosses/boss1.png": {
   "sha1": "f3c1faea0d82e8ec4871f1ee2025fe6e0237d9f6",
   "png": 76447,
@@ -183,21 +178,6 @@
   "sha1": "3c86a1d82ff6df4efe8e3cbb31c941a8c60e6bac",
   "png": 105162,
   "webp": 24620
- },
- "sprites/bosses/dullahan.png": {
-  "sha1": "cecac0bf23e23771274fcefb4a76ffde58182cca",
-  "png": 153722,
-  "webp": 77364
- },
- "sprites/bosses/horong.png": {
-  "sha1": "1b724a49ca655becb15c611e8a72de2c86dab551",
-  "png": 10123,
-  "webp": 6610
- },
- "sprites/bosses/isis.png": {
-  "sha1": "0c4189e7cf3efd7e2163dba2445c744cf3774c49",
-  "png": 35500,
-  "webp": 25450
  },
  "sprites/bosses/mastering.png": {
   "sha1": "a0a7dd3ed2e1ef65e01a9e51bd8c10d0e869d5d8",
@@ -223,21 +203,6 @@
   "sha1": "26f4129f0c0ea3faf897fba40f5707618d2394c3",
   "png": 30061,
   "webp": 20532
- },
- "sprites/bosses/smokie.png": {
-  "sha1": "ae0a13fac4773a24fdabe0f469f457391f321cd3",
-  "png": 13300,
-  "webp": 9478
- },
- "sprites/bosses/sohee.png": {
-  "sha1": "87f1d27fc27bfad7da97163200a153ac30dec6b2",
-  "png": 54430,
-  "webp": 24870
- },
- "sprites/bosses/swordfish.png": {
-  "sha1": "58d5e86d5784a13c829dc9fe9672e819daf6d5b4",
-  "png": 27709,
-  "webp": 18164
  },
  "sprites/heroes/acolyte.png": {
   "sha1": "f1a58ecf7a0090c59f3a279099d39347e9235152",
@@ -539,16 +504,6 @@
   "png": 21930,
   "webp": 18074
  },
- "sprites/monsters/bloody_murderer.png": {
-  "sha1": "cf9b44404a29f1471c876969f9d6ec7630a2dcc0",
-  "png": 124990,
-  "webp": 68160
- },
- "sprites/monsters/bongun.png": {
-  "sha1": "6a8549914e3011de02175a682d2b62fee52fee02",
-  "png": 48739,
-  "webp": 21874
- },
  "sprites/monsters/dark_priest.png": {
   "sha1": "ada533b3196805a6f9d43c99727d63dc5ea6f512",
   "png": 28997,
@@ -579,26 +534,6 @@
   "png": 82402,
   "webp": 20646
  },
- "sprites/monsters/gibbet.png": {
-  "sha1": "27d643c36d2d49ccae0ee0944cd47fdc00148b62",
-  "png": 127142,
-  "webp": 63632
- },
- "sprites/monsters/hydra.png": {
-  "sha1": "26ab1de7f2bdbbef925eb4112665aabd62c442a9",
-  "png": 18271,
-  "webp": 12066
- },
- "sprites/monsters/kukre.png": {
-  "sha1": "bec78deb505edd903f3ac0680d00cb2c9b83b092",
-  "png": 5832,
-  "webp": 3760
- },
- "sprites/monsters/loli_ruri.png": {
-  "sha1": "dfdfc95a87dfdc0942250b7293842e6a59a7ddc2",
-  "png": 87106,
-  "webp": 35334
- },
  "sprites/monsters/lunatic.png": {
   "sha1": "be351e6e2a0441633260b6497017cb80a75b5a5f",
   "png": 6643,
@@ -608,16 +543,6 @@
   "sha1": "8f77ec68e93418c99b18b0d06333611c65208185",
   "png": 30138,
   "webp": 17292
- },
- "sprites/monsters/marduk.png": {
-  "sha1": "0bc1f95583b1290bd4706cd149f4a4168ced24ba",
-  "png": 54265,
-  "webp": 25710
- },
- "sprites/monsters/marse.png": {
-  "sha1": "54fdfa97e440ba4b9b98463517c1b25c6e0977d5",
-  "png": 11100,
-  "webp": 6596
  },
  "sprites/monsters/melee.png": {
   "sha1": "41663fbc6ccf6d1a92f52be0cd28074abcf6e10d",
@@ -629,40 +554,10 @@
   "png": 21086,
   "webp": 13556
  },
- "sprites/monsters/mummy.png": {
-  "sha1": "a13a7df3685f19b8c806f3f32fe17bb29dfa19e3",
-  "png": 19439,
-  "webp": 16100
- },
- "sprites/monsters/munak.png": {
-  "sha1": "4d4b50d2866ff06352611fb3878ec1990abc8d94",
-  "png": 20932,
-  "webp": 12188
- },
- "sprites/monsters/nine_tail.png": {
-  "sha1": "9fd4bc45e8ebee98bafee3eba8d3f9d64908bb79",
-  "png": 17187,
-  "webp": 12386
- },
- "sprites/monsters/obeaune.png": {
-  "sha1": "e16119631a3373bcce252e47540a3c2a3fe7f26d",
-  "png": 20983,
-  "webp": 14008
- },
- "sprites/monsters/pirate_skel.png": {
-  "sha1": "db8b016602a19ff0aa64af4047a1a1032b98d6ad",
-  "png": 17690,
-  "webp": 13050
- },
  "sprites/monsters/poporing.png": {
   "sha1": "6808b812460c446e4a8a3c57049c233296f07d62",
   "png": 11849,
   "webp": 7848
- },
- "sprites/monsters/quve.png": {
-  "sha1": "5a4022369656ae531bf143aa7528ccfd1a11c2e9",
-  "png": 7236,
-  "webp": 4932
  },
  "sprites/monsters/ranged.png": {
   "sha1": "a5fba430cffa4e810e04fe535324f8bd589af2c1",
@@ -674,25 +569,10 @@
   "png": 19905,
   "webp": 12824
  },
- "sprites/monsters/sandman.png": {
-  "sha1": "4fa0606b4e22c8ce73347af52fbb1306268756a7",
-  "png": 17452,
-  "webp": 14044
- },
- "sprites/monsters/scorpion.png": {
-  "sha1": "70786299c841b59a5a626807ee6ec81c8e8f7f65",
-  "png": 33740,
-  "webp": 14486
- },
  "sprites/monsters/tank.png": {
   "sha1": "704cb163b78f5db665c004df95ef427c0c26ca22",
   "png": 46191,
   "webp": 24734
- },
- "sprites/monsters/verit.png": {
-  "sha1": "5efff27b2d74bb1a753d4b046b4dcbb9122ef234",
-  "png": 19379,
-  "webp": 13006
  },
  "sprites/portraits/acolyte.png": {
   "sha1": "a63a2f729bdb6f84f4fa5b6670c7a268e66ceac4",

@@ -17,7 +17,8 @@
     "passives": []
   },
   "visual": {
-    "sprite": "swordfish",
+    "sprite": "fast",
+    "tint": "#8cc8e6",
     "hitFx": "fx_hit"
   }
 }

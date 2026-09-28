@@ -16,7 +16,8 @@
     "passives": []
   },
   "visual": {
-    "sprite": "banshee",
+    "sprite": "dark_priest",
+    "tint": "#9fd4ff",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

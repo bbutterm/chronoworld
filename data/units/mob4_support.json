@@ -16,7 +16,8 @@
     "passives": []
   },
   "visual": {
-    "sprite": "isis",
+    "sprite": "mandragora",
+    "tint": "#d9b84a",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }
