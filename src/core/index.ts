@@ -20,5 +20,6 @@ export * from './features';
 export * from './equipment';
 export * from './tower';
 export * from './meta';
+export * from './events';
 export * from './context';
 export * from './story';

@@ -24,7 +24,11 @@ import {
   canEquip,
   claimAchievement,
   claimActivity,
+  claimAllMail,
   claimBounty,
+  claimLogin,
+  claimNewbieMilestone,
+  claimNewbieTask,
   claimQuest,
   ensureBoard,
   equip,
@@ -36,6 +40,8 @@ import {
   heroStats,
   heroTemplate,
   levelUpInfo,
+  loginStatus,
+  newbieStatus,
   offlineRewards,
   recommendedPower,
   summonStatus,
@@ -45,6 +51,7 @@ import {
   stagePower,
   stageStatus,
   startBounty,
+  touchEvents,
   towerUnlocked,
   type CardRarity,
   type FullContext,
@@ -95,6 +102,8 @@ export interface PlayerModel {
   bounties: boolean;
   /** Призыв за гемы (×10, когда гемов хватает на ×10); false — только бесплатный призыв и свитки. */
   summonWithGems: boolean;
+  /** «Вход 7 дней», «7 дней новичка» и почта (data/events.json): забирать всё, что можно, в каждой сессии. */
+  events: boolean;
   /** Сдвиг seed: seed боя = seedBase + save.battleSeq; seed доски поручений = seedBase. */
   seedBase: number;
   /** Календарный день первого дня симуляции, 'YYYY-MM-DD'. */
@@ -120,6 +129,7 @@ export const PLAYER_MODEL: PlayerModel = {
   midSessionClaimMinutes: 10,
   bounties: true,
   summonWithGems: true,
+  events: true,
   seedBase: 1,
   startDate: '2026-01-01',
 };
@@ -249,7 +259,7 @@ export interface LevelLog {
 }
 
 /** Источники доходов/расходов золота, гемов и опыта. */
-export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'bounties', 'quests', 'achievements', 'heroes', 'summon'] as const;
+export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'bounties', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon'] as const;
 export type Source = (typeof SOURCES)[number];
 export type Ledger = Record<Source, { gold: number; gems: number; exp: number }>;
 
@@ -282,6 +292,10 @@ export interface BalanceResult {
   levels: LevelLog[];
   /** Гемы по дням: доход и расход (индекс 0 — день 1). */
   gemsByDay: { income: number; spend: number }[];
+  /** Свитки призыва по источникам (доход; тратятся в Таверне). */
+  scrollsIn: Partial<Record<Source, number>>;
+  /** События новичка: когда получена каждая награда (день модели, час от начала). */
+  eventClaims: { kind: 'login' | 'newbie_task' | 'newbie_chest' | 'mail'; id: string; day: number; t: number }[];
   /** Активных минут всего. */
   activeMinutes: number;
 }
@@ -320,6 +334,8 @@ class Sim {
   summonLog: BalanceResult['summonLog'] = [];
   levels: LevelLog[] = [];
   gemsByDay: BalanceResult['gemsByDay'] = [];
+  scrollsIn: BalanceResult['scrollsIn'] = {};
+  eventClaims: BalanceResult['eventClaims'] = [];
   dayNo = 1;
   day: string;
   /** Текущее время, мс от полуночи дня 1. */
@@ -355,6 +371,8 @@ class Sim {
       if (d[k] > 0) this.income[source][k] += d[k];
       else this.spend[source][k] -= d[k];
     }
+    const scrolls = next.currency.scrolls - this.save.currency.scrolls;
+    if (scrolls > 0) this.scrollsIn[source] = (this.scrollsIn[source] ?? 0) + scrolls;
     const g = (this.gemsByDay[this.dayNo - 1] ??= { income: 0, spend: 0 });
     if (d.gems > 0) g.income += d.gems;
     else g.spend -= d.gems;
@@ -521,10 +539,45 @@ class Sim {
     }
   }
 
-  /** Задания, пороги активности и достижения — всё, что можно забрать. */
+  /**
+   * События новичка и почта: засчитать вход (touchEvents), забрать дни входа, письма, задания и сундуки новичка.
+   * true — что-то получено.
+   */
+  claimEvents(): boolean {
+    if (!this.model.events) return false;
+    this.save = touchEvents(this.save, this.day, this.ctx);
+    let changed = false;
+    const log = (kind: BalanceResult['eventClaims'][number]['kind'], id: string) => {
+      this.eventClaims.push({ kind, id, day: this.dayNo, t: this.t });
+      changed = true;
+    };
+    for (const d of loginStatus(this.save, this.day, this.ctx).days) {
+      if (!d.ready) continue;
+      this.step('events', claimLogin(this.save, this.day, d.day, this.ctx).save);
+      log('login', String(d.day));
+    }
+    const mail = claimAllMail(this.save, this.ctx);
+    if (mail.count) {
+      this.step('mail', mail.save);
+      log('mail', String(mail.count));
+    }
+    for (const t of newbieStatus(this.save, this.day, this.ctx).days.flatMap((d) => d.tasks)) {
+      if (!t.ready) continue;
+      this.step('events', claimNewbieTask(this.save, this.day, t.id, this.ctx).save);
+      log('newbie_task', t.id);
+    }
+    for (const m of newbieStatus(this.save, this.day, this.ctx).milestones) {
+      if (!m.ready) continue;
+      this.step('events', claimNewbieMilestone(this.save, this.day, m.points, this.ctx).save);
+      log('newbie_chest', String(m.points));
+    }
+    return changed;
+  }
+
+  /** Задания, пороги активности, достижения, события новичка и почта — всё, что можно забрать. */
   claimRewards(): void {
     for (let guard = 0; guard < 10; guard++) {
-      let changed = false;
+      let changed = this.claimEvents();
       const qs = questStatus(this.save, this.ctx, this.day);
       for (const q of qs.quests) {
         if (q.done && !q.claimed) {
@@ -711,6 +764,8 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     battles,
     levels: sim.levels,
     gemsByDay: sim.gemsByDay,
+    scrollsIn: sim.scrollsIn,
+    eventClaims: sim.eventClaims,
     activeMinutes: sim.activeMin,
   };
 }

@@ -207,6 +207,23 @@ id вида `chapterN` выводится сам (`ch<N>`).
   `ACHIEVEMENT_COUNTERS` (`src/core/meta/config.ts`); новый счётчик — правка ядра + тест `tests/meta-achievements.test.ts`.
 - Подробно — `docs/content/features.md`, `docs/content/meta.md`.
 
+## 9а. Награды событий («Вход 7 дней», «7 дней новичка», письма)
+
+Всё в `data/events.json` (схема `data/schema/events.schema.json`, ядро `src/core/events`). Награда — `{gold?, gems?, jobExp?, scrolls?,
+heroes?: [id шаблона]}`; `jobExp` — в общий пул, карточка — на базовой редкости шаблона (неизвестный id — ошибка content:check).
+- **День входа** — `login.days[i] = {rewards, label?}`; `label` — подпись крупной награды (день 7). Число дней — длина массива.
+- **Задание новичка** — `newbie.days[d].tasks[] = {id, name, counter, target, points}`: `counter` — ключ `ACHIEVEMENT_COUNTERS`
+  (stages_cleared, tower_floor, hero_max_level, summons, ascensions, bounties_done, battles_won, items_equipped; копятся с начала игры).
+  Задания дня d открываются на d-й день от первого открытия игры; `durationDays` — сколько дней событие идёт, `graceDays` — дни,
+  когда ещё можно забрать выполненное. id заданий не переименовывать (лежат в сохранениях).
+- **Сундук новичка** — `newbie.milestones[] = {points, rewards}`, пороги строго растут и не больше суммы очков заданий (схема проверит);
+  оставляйте запас в 2–3 задания до последнего порога — не все успевают всё.
+- **Письмо всем (подарок, компенсация)** — `mail.letters[] += {id, from, title, body, rewards, untilDay?}`: доставится каждому игроку
+  один раз при следующем открытии игры (и новым игрокам, пока не прошёл `untilDay`). id письма не менять и не переиспользовать.
+- **Бюджет**: свитки + гемы обоих событий вместе — не больше ~2 призывов ×10 (сейчас 10 свитков + 270 гемов и 2 фиолетовые карточки;
+  тест `tests/events.test.ts`). После правки — `npm run check` и `npm run balance -- --days 7` (сравнить с `--no-events`;
+  `docs/content/balance.md`, раздел «События новичка»).
+
 ## 10. Сохранение: новое поле
 
 Необязательное поле (`.optional()` / `.default()`) в `SaveStateSchema` — без смены версии. Обязательное — `SAVE_VERSION + 1`, миграция

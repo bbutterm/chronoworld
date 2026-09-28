@@ -192,6 +192,26 @@ async function main() {
     if (!(await hasText('Home', 'Начните с кампании'))) problems.push('нет подсказки новичку на главной');
     await checkHint('Home', 'главная');
 
+    // События новичка: иконка «События» в шапке главной → «Вход 7 дней» → забрать день 1 нажатием.
+    {
+      const saveNow = () => page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')));
+      const s0 = await saveNow();
+      if (!s0.mail?.letters?.some((l) => l.source === 'welcome')) problems.push('новая игра: нет письма «Добро пожаловать»');
+      await clickNamed('Home', 'eventsIcon');
+      await waitScene('Events');
+      await shot('events-login');
+      await clickNamed('Events', 'loginClaim_1');
+      await sleep(700);
+      await waitScene('Events');
+      const s1 = await saveNow();
+      if (!s1.events?.loginClaimed?.includes(1)) problems.push(`вход 7 дней: день 1 не получен (${JSON.stringify(s1.events)})`);
+      else if (s1.currency.scrolls <= s0.currency.scrolls) problems.push('вход 7 дней: награда дня 1 не пришла');
+      else log('вход 7 дней: день 1 получен');
+      await shot('events-login-claimed');
+      await clickText('Events', 'ГЛАВНАЯ');
+      await waitScene('Home');
+    }
+
     // 2. Главная → Кампания → этап 1 → В бой.
     await clickText('Home', 'КАМПАНИЯ');
     await waitScene('Campaign');
