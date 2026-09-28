@@ -75,6 +75,75 @@
         { "kind": "scrolls", "chance": 0.006, "count": 1 }
       ]
     }
+,
+    {
+      "id": "sphinx_dungeon",
+      "name": "Подземелье Сфинкса",
+      "description": "Под лапами Сфинкса — лабиринт с ловушками. Песчаники стерегут сокровища фараонов.",
+      "stage": "ch4_s1",
+      "power": 4500,
+      "tint": "#c9a24a",
+      "monster": "mob4_elite",
+      "perHour": { "gold": 150, "jobExp": 210 },
+      "loot": [
+        { "kind": "item", "chance": 0.012, "items": ["desert_sandals", "pharaoh_headdress"] },
+        { "kind": "item", "chance": 0.004, "items": ["sograt_scimitar", "isis_mantle"] },
+        { "kind": "gems", "chance": 0.05, "count": 2 },
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.005, "count": 1 },
+        { "kind": "heroCard", "rarity": "purple", "chance": 0.0008, "count": 1 }
+      ]
+    },
+    {
+      "id": "kitsune_shrine",
+      "name": "Святилище кицунэ",
+      "description": "Лисьи огни водят путников по бамбуковой чаще. Кто дойдёт до алтаря — уйдёт с дарами.",
+      "stage": "ch5_s1",
+      "power": 6000,
+      "tint": "#7d5aa8",
+      "monster": "mob5_elite",
+      "perHour": { "gold": 250, "jobExp": 350 },
+      "loot": [
+        { "kind": "item", "chance": 0.012, "items": ["geta"] },
+        { "kind": "item", "chance": 0.004, "items": ["moonlight_dagger", "ninja_suit", "kitsune_mask"] },
+        { "kind": "gems", "chance": 0.05, "count": 2 },
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.005, "count": 1 },
+        { "kind": "heroCard", "rarity": "purple", "chance": 0.0008, "count": 1 }
+      ]
+    },
+    {
+      "id": "ghost_ship",
+      "name": "Корабль-призрак",
+      "description": "Полузатопленный фрегат у Излуда. В трюмах — сундуки, которые мертвецы не отдают даром.",
+      "stage": "ch6_s1",
+      "power": 7500,
+      "tint": "#3f7f8f",
+      "monster": "mob6_elite",
+      "perHour": { "gold": 400, "jobExp": 560 },
+      "loot": [
+        { "kind": "item", "chance": 0.012, "items": ["sea_boots", "pirate_bandana"] },
+        { "kind": "item", "chance": 0.004, "items": ["pirate_saber", "captain_coat"] },
+        { "kind": "gems", "chance": 0.05, "count": 2 },
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.005, "count": 1 },
+        { "kind": "heroCard", "rarity": "purple", "chance": 0.0008, "count": 1 }
+      ]
+    },
+    {
+      "id": "gyoll_valley",
+      "name": "Долина Гьёлль",
+      "description": "Туманная река на краю Нифльхейма. Души забытых воинов бродят с оружием, которое им уже не нужно.",
+      "stage": "ch7_s1",
+      "power": 9000,
+      "tint": "#5a4f7a",
+      "monster": "mob7_elite",
+      "perHour": { "gold": 650, "jobExp": 910 },
+      "loot": [
+        { "kind": "item", "chance": 0.012, "items": ["sea_boots", "pirate_bandana"] },
+        { "kind": "item", "chance": 0.004, "items": ["bloody_axe", "dark_lord_robe", "helm_of_darkness", "valkyrie_boots"] },
+        { "kind": "gems", "chance": 0.05, "count": 2 },
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.005, "count": 1 },
+        { "kind": "heroCard", "rarity": "purple", "chance": 0.0008, "count": 1 }
+      ]
+    }
   ],
   "presets": { "max": 5, "nameMaxLength": 20 }
 }

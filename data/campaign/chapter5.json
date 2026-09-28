@@ -25,12 +25,12 @@
         null
       ],
       "rewards": {
-        "jobExp": 14310,
-        "gold": 10020
+        "jobExp": 9480,
+        "gold": 6660
       },
       "offlinePerMinute": {
-        "jobExp": 477,
-        "gold": 334
+        "jobExp": 316,
+        "gold": 222
       }
     },
     {
@@ -57,12 +57,12 @@
         }
       ],
       "rewards": {
-        "jobExp": 15600,
-        "gold": 10920
+        "jobExp": 9960,
+        "gold": 6990
       },
       "offlinePerMinute": {
-        "jobExp": 520,
-        "gold": 364
+        "jobExp": 332,
+        "gold": 233
       }
     },
     {
@@ -89,12 +89,12 @@
         }
       ],
       "rewards": {
-        "jobExp": 17010,
-        "gold": 11910
+        "jobExp": 10470,
+        "gold": 7350
       },
       "offlinePerMinute": {
-        "jobExp": 567,
-        "gold": 397
+        "jobExp": 349,
+        "gold": 245
       }
     },
     {
@@ -121,12 +121,12 @@
         null
       ],
       "rewards": {
-        "jobExp": 18540,
-        "gold": 12990
+        "jobExp": 10980,
+        "gold": 7710
       },
       "offlinePerMinute": {
-        "jobExp": 618,
-        "gold": 433
+        "jobExp": 366,
+        "gold": 257
       }
     },
     {
@@ -153,12 +153,12 @@
         null
       ],
       "rewards": {
-        "jobExp": 20220,
-        "gold": 14160
+        "jobExp": 11550,
+        "gold": 8100
       },
       "offlinePerMinute": {
-        "jobExp": 674,
-        "gold": 472
+        "jobExp": 385,
+        "gold": 270
       }
     },
     {
@@ -188,12 +188,12 @@
         }
       ],
       "rewards": {
-        "jobExp": 22050,
-        "gold": 15450
+        "jobExp": 12120,
+        "gold": 8520
       },
       "offlinePerMinute": {
-        "jobExp": 735,
-        "gold": 515
+        "jobExp": 404,
+        "gold": 284
       }
     },
     {
@@ -223,12 +223,12 @@
         }
       ],
       "rewards": {
-        "jobExp": 24030,
-        "gold": 16830
+        "jobExp": 12720,
+        "gold": 8940
       },
       "offlinePerMinute": {
-        "jobExp": 801,
-        "gold": 561
+        "jobExp": 424,
+        "gold": 298
       }
     },
     {
@@ -258,12 +258,12 @@
         }
       ],
       "rewards": {
-        "jobExp": 26190,
-        "gold": 18330
+        "jobExp": 13350,
+        "gold": 9390
       },
       "offlinePerMinute": {
-        "jobExp": 873,
-        "gold": 611
+        "jobExp": 445,
+        "gold": 313
       }
     },
     {
@@ -293,12 +293,12 @@
         }
       ],
       "rewards": {
-        "jobExp": 28530,
-        "gold": 19980
+        "jobExp": 14010,
+        "gold": 9870
       },
       "offlinePerMinute": {
-        "jobExp": 951,
-        "gold": 666
+        "jobExp": 467,
+        "gold": 329
       }
     },
     {
@@ -328,12 +328,12 @@
         }
       ],
       "rewards": {
-        "jobExp": 46665,
-        "gold": 32670
+        "jobExp": 22095,
+        "gold": 15525
       },
       "offlinePerMinute": {
-        "jobExp": 1037,
-        "gold": 726
+        "jobExp": 491,
+        "gold": 345
       }
     }
   ]

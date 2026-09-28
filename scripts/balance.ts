@@ -40,6 +40,8 @@ const model = {
   expeditions: !process.argv.includes('--no-expeditions'),
   branch: (arg('branch') ?? PLAYER_MODEL.branch) as typeof PLAYER_MODEL.branch,
   refine: !process.argv.includes('--no-refine'),
+  ascendAll: !process.argv.includes('--no-ascend-all'),
+  healer: !process.argv.includes('--no-healer'),
   // --refine-risk 0.5 — предел шанса поломки для шагов заточки модели (по умолчанию PLAYER_MODEL.refineMaxRisk).
   refineMaxRisk: arg('refine-risk') !== undefined ? Number(arg('refine-risk')) : PLAYER_MODEL.refineMaxRisk,
 };

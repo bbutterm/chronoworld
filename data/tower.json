@@ -8,11 +8,11 @@
   "rewards": {
     "gold": {
       "base": 100,
-      "perFloor": 15
+      "perFloor": 40
     },
     "jobExp": {
       "base": 90,
-      "perFloor": 12
+      "perFloor": 55
     },
     "bossMultiplier": 2,
     "bossGems": 10

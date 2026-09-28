@@ -20,6 +20,8 @@ import {
   actPlayStage,
   actSummon,
   ascendRequirement,
+  ascendAll,
+  heroRole,
   autoFodder,
   autoChain,
   chooseBranch,
@@ -125,6 +127,10 @@ export interface PlayerModel {
   levelUpSec: number;
   summonSec: number;
   ascendSec: number;
+  /** «Вознести всех» после вознесений отряда (как игрок по красной точке; `--no-ascend-all` — выключить). */
+  ascendAll: boolean;
+  /** Отряд с лекарем, если лекарь есть (как «Авто»; `--no-healer` — выключить). */
+  healer: boolean;
   /** Сколько поражений на одном этапе за сессию игрок терпит (после каждой — сундук, быстрые награды, уровни). */
   maxLossesPerSession: number;
   /** Башня: не больше стольких штурмов за сессию… */
@@ -199,6 +205,8 @@ export const PLAYER_MODEL: PlayerModel = {
   levelUpSec: 2,
   summonSec: 20,
   ascendSec: 20,
+  ascendAll: true,
+  healer: true,
   maxLossesPerSession: 3,
   towerMaxAttemptsPerSession: 10,
   towerMaxLossesPerSession: 2,
@@ -569,7 +577,31 @@ class Sim {
       this.ascend(hero.id, autoFodder(this.save, hero.id, this.ctx) ?? []);
       this.save = { ...this.save, squad: this.formation() };
     }
+    if (this.model.ascendAll) this.ascendEveryone();
     this.levelSquad();
+  }
+
+  /**
+   * «Вознести всех» (ascendAll, кнопка на экране «Герои») — как живой игрок: после вознесений отряда нажать, если есть
+   * кого (копии одного героя вверх по цепочке, в том числе фиолетовые копии → золотой). Ветки новых фиолетовых — по
+   * политике модели, отряд пересобирается. Вознесение для игрока важнее уровней (редкость поднимает предел уровня и
+   * статы), поэтому золото на план тратится первым.
+   */
+  ascendEveryone(): void {
+    const plan = ascendAll(this.save, this.ctx);
+    if (!plan.done.length) return;
+    this.step('heroes', plan.save);
+    for (const d of plan.done) {
+      this.spendTime(this.model.ascendSec * 1000);
+      this.ascensions.push({ day: this.dayNo, t: this.t, active_min: this.activeMin, heroId: d.heroId, templateId: d.templateId, rarity: d.to });
+    }
+    for (const h of this.save.heroes) {
+      if (!needsBranch(h, this.ctx)) continue;
+      const branch = this.branchFor(h.templateId, h.id);
+      this.step('heroes', chooseBranch(this.save, h.id, branch, this.ctx).save);
+      this.branches.push({ day: this.dayNo, t: this.t, templateId: h.templateId, branch, via: 'ascend' });
+    }
+    this.save = { ...this.save, squad: this.formation() };
   }
 
   /** Вознесение с политикой ветки (если переход с выбором ветки). */
@@ -656,6 +688,24 @@ class Sim {
       if (c.pot < weakest.pot * 1.1) break;
       squad[squad.indexOf(weakest)] = c;
       changed = true;
+    }
+    // Лекарь (как «Авто» и живой игрок): нет в отряде — лучший лекарь вместо самого слабого не-танка, если он не
+    // намного слабее (потенциал ≥ 0.85 заменяемого: зелёный ур. 1 не ставим вместо фиолетового).
+    const healer = (h: SaveState['heroes'][number]) => heroRole(h, this.ctx) === 'healer';
+    if (this.model.healer && squad.length >= 3 && !squad.some((x) => healer(x.hero))) {
+      const used = new Set(squad.map((x) => x.hero.templateId));
+      const best = this.save.heroes
+        .filter((h) => healer(h) && !used.has(h.templateId))
+        .map((h) => ({ hero: h, pot: pot(h) }))
+        .sort((a, b) => b.pot - a.pot || (a.hero.id < b.hero.id ? -1 : 1))[0];
+      const tanks = squad.filter((x) => heroRole(x.hero, this.ctx) === 'tank').length;
+      const out = squad
+        .filter((x) => heroRole(x.hero, this.ctx) !== 'tank' || tanks > 1)
+        .reduce<(typeof squad)[number] | null>((w, x) => (!w || x.pot < w.pot ? x : w), null);
+      if (best && out && best.pot >= out.pot * 0.85) {
+        squad[squad.indexOf(out)] = best;
+        changed = true;
+      }
     }
     if (!changed) return base;
     const ids: (string | null)[] = squad.map((x) => x.hero.id);

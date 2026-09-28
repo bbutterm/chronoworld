@@ -15,7 +15,7 @@
     "gemCosts": [0, 20, 40, 80, 100],
     "maxPerDay": 5
   },
-  "chapterGrowth": 0.5,
+  "chapterGrowth": 1.0,
   "goods": [
     { "id": "exp_small", "kind": "heroExp", "count": 3000, "price": { "currency": "gold", "amount": 3000 }, "stock": 2, "weight": 6 },
     { "id": "exp_large", "kind": "heroExp", "count": 8000, "price": { "currency": "gold", "amount": 8000 }, "stock": 1, "weight": 4 },
