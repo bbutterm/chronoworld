@@ -33,7 +33,8 @@ export type Glyph =
   | 'coin'
   | 'note'
   | 'trap'
-  | 'bird';
+  | 'bird'
+  | 'pan';
 
 /** Снаряд навыка от кастера к цели. */
 export type Projectile = 'fireball' | 'ice' | 'lightning' | 'beam' | 'poison' | 'dark' | 'arcane' | 'arrow' | 'meteor' | 'rock';
@@ -77,6 +78,7 @@ const ELEMENT_KEYS: [Element, RegExp][] = [
 /** Явные значки по id (там, где правила по эффектам не угадают смысл). */
 const GLYPH_KEYS: [Glyph, RegExp][] = [
   ['bang', /provoke|crazy_uproar/],
+  ['pan', /frying_pan/],
   ['coin', /steal|mammonite|gank|snatcher|overcharge/],
   ['note', /musical|whistle|bragi|apple_of_idun|frost_joker/],
   ['trap', /snare|claymore|trap/],
@@ -233,7 +235,7 @@ export function buffColor(st: StatusDef | undefined): number {
 }
 
 /**
- * Настоящие иконки Ragnarok Online (assets/ui/icons/skill_<roId>.png, см. ro-skills.json и docs/ART_EXTRACT_RO.md §2):
+ * Настоящие иконки Ragnarok Online (assets/ui/icons/skill_<roId>.png, родные 24×24, см. ro-skills.json и docs/ART_EXTRACT_RO.md §2):
  * наш id навыка → id иконки RO. Пиксель-арт кладётся в нашу рамку (стихия, активный/пассивный) без сглаживания.
  */
 export const RO_SKILL_ICONS: Record<string, string> = {
@@ -269,4 +271,93 @@ export const RO_SKILL_ICONS: Record<string, string> = {
   job_merchant_cart_revolution: 'mc_cartrevolution',
   job_merchant_crazy_uproar: 'mc_loud',
   job_merchant_overcharge: 'mc_overcharge',
+  job_knight_two_hand_mastery: 'sm_twohand',
+  job_swordman_auto_berserk: 'sm_autoberserk',
+  job_archer_improve_concentration: 'ac_concentration',
+  job_mage_cold_bolt: 'mg_coldbolt',
+  job_mage_fire_ball: 'mg_fireball',
+  job_mage_safety_wall: 'mg_safetywall',
+  job_acolyte_angelus: 'al_angelus',
+  job_acolyte_signum_crucis: 'al_crucis',
+  job_knight_bowling_bash: 'kn_bowlingbash',
+  job_knight_auto_counter: 'kn_autocounter',
+  job_knight_parrying: 'lk_parrying',
+  job_knight_charge_attack: 'kn_chargeatk',
+  job_knight_two_hand_quicken: 'kn_twohandquicken',
+  job_knight_spiral_pierce: 'lk_spiralpierce',
+  job_crusader_devotion: 'cr_devotion',
+  job_crusader_faith: 'cr_trust',
+  job_crusader_auto_guard: 'cr_autoguard',
+  job_crusader_defender: 'cr_defender',
+  job_crusader_holy_cross: 'cr_holycross',
+  job_crusader_shield_charge: 'cr_shieldcharge',
+  job_crusader_grand_cross: 'cr_grandcross',
+  job_hunter_blitz_beat: 'ht_blitzbeat',
+  job_hunter_beast_bane: 'ht_beastbane',
+  job_hunter_steel_crow: 'ht_steelcrow',
+  job_hunter_falcon_assault: 'sn_falconassault',
+  job_hunter_ankle_snare: 'ht_anklesnare',
+  job_hunter_claymore_trap: 'ht_claymoretrap',
+  job_hunter_sandman: 'ht_sandman',
+  job_bard_musical_strike: 'ba_musicalstrike',
+  job_bard_poem_of_bragi: 'ba_poembragi',
+  job_bard_apple_of_idun: 'ba_appleidun',
+  job_bard_assassin_cross: 'ba_assassincross',
+  job_bard_whistle: 'ba_whistle',
+  job_bard_frost_joker: 'ba_frostjoke',
+  job_bard_scream: 'dc_scream',
+  job_dancer_slinging_arrow: 'dc_throwarrow',
+  job_dancer_dont_forget_me: 'dc_dontforgetme',
+  job_dancer_fortune_kiss: 'dc_fortunekiss',
+  job_assassin_sonic_blow: 'as_sonicblow',
+  job_assassin_katar_mastery: 'as_katar',
+  job_assassin_meteor_assault: 'asc_meteorassault',
+  job_assassin_grimtooth: 'as_grimtooth',
+  job_assassin_enchant_poison: 'as_enchantpoison',
+  job_assassin_venom_splasher: 'as_splasher',
+  job_thief_venom_knife: 'as_venomknife',
+  job_rogue_raid: 'rg_raid',
+  job_rogue_plagiarism: 'rg_plagiarism',
+  job_rogue_strip_weapon: 'rg_stripweapon',
+  job_rogue_strip_armor: 'rg_striparmor',
+  job_rogue_back_stab: 'rg_backstap',
+  job_rogue_gank: 'rg_snatcher',
+  job_blacksmith_power_thrust: 'bs_overthrust',
+  job_blacksmith_hammer_fall: 'bs_hammerfall',
+  job_blacksmith_cart_termination: 'ws_carttermination',
+  job_blacksmith_tempering: 'bs_iron',
+  job_blacksmith_adrenaline_rush: 'bs_adrenaline',
+  job_blacksmith_weapon_perfection: 'bs_weaponperfect',
+  job_alchemist_potion_pitcher: 'am_potionpitcher',
+  job_alchemist_chemical_protection: 'am_cp_armor',
+  job_alchemist_slim_potion: 'cr_slimpitcher',
+  job_alchemist_acid_terror: 'am_acidterror',
+  job_alchemist_demonstration: 'am_demonstration',
+  job_alchemist_acid_bomb: 'cr_aciddemonstration',
+  job_wizard_jupitel_thunder: 'wz_jupitel',
+  job_wizard_mystical_amplification: 'hw_magicpower',
+  job_wizard_soul_drain: 'hw_souldrain',
+  job_wizard_meteor_storm: 'wz_meteor',
+  job_wizard_frost_nova: 'wz_frostnova',
+  job_wizard_quagmire: 'wz_quagmire',
+  job_wizard_storm_gust: 'wz_stormgust',
+  job_sage_earth_spike: 'wz_earthspike',
+  job_sage_free_cast: 'sa_freecast',
+  job_sage_heavens_drive: 'wz_heavendrive',
+  job_sage_dispell: 'sa_dispell',
+  job_sage_magic_rod: 'sa_magicrod',
+  job_sage_volcano: 'sa_volcano',
+  job_priest_impositio_manus: 'pr_impositio',
+  job_priest_magnificat: 'pr_magnificat',
+  job_priest_magnus_exorcismus: 'pr_magnus',
+  job_priest_lex_aeterna: 'pr_lexaeterna',
+  job_priest_kyrie_eleison: 'pr_kyrie',
+  job_priest_assumptio: 'hp_assumptio',
+  job_monk_triple_attack: 'mo_tripleattack',
+  job_monk_call_spirits: 'mo_callspirits',
+  job_monk_investigate: 'mo_investigate',
+  job_monk_asura_strike: 'mo_extremityfist',
+  job_monk_blade_stop: 'mo_bladestop',
+  job_monk_iron_hand: 'mo_ironhand',
+  job_monk_steel_body: 'mo_steelbody',
 };
