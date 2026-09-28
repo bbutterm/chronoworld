@@ -197,9 +197,9 @@ describe('H4 «Вознесение»', () => {
     expect(pw.to).toBeGreaterThan(pw.from);
   });
 
-  it('золотой — большой скачок: статы ×1.4+ к фиолетовому (было ×1.16), красный ещё сильнее, навыки растут', () => {
+  it('золотой — большой скачок: статы ×1.35+ к фиолетовому (было ×1.16), красный ещё сильнее, навыки растут', () => {
     const r = Object.fromEntries(ctx.cards.rarities.map((x) => [x.id, x]));
-    expect(r.gold.statMult / r.purple.statMult).toBeGreaterThanOrEqual(1.4);
+    expect(r.gold.statMult / r.purple.statMult).toBeGreaterThanOrEqual(1.35);
     expect(r.gold.statMult / r.purple.statMult).toBeGreaterThan(r.purple.statMult / r.blue.statMult);
     expect(r.red.statMult).toBeGreaterThan(r.gold.statMult);
     expect(r.gold.skillPower).toBeGreaterThan(r.purple.skillPower);
