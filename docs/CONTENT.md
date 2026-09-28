@@ -33,7 +33,7 @@ assets/sprites.legacy.json  старые листы assets/ro в формате 
 
 Все данные из `data/` собираются в один полный контекст (`FullContext`) одной функцией ядра — `buildGameContext(raw)` из `src/core/context.ts`:
 контент (юниты, навыки, профессии, кампания) → `progression.json` → быстрые награды/мощь/задания (`quests.json`) → экипировка (`items/`, `drops.json`) →
-башня (`tower.json`) → поручения и достижения (`bounties.json`, `achievements.json`).
+башня (`tower.json`) → экспедиции и достижения (`expeditions.json`, `achievements.json`).
 
 - Игра: `src/game/content.ts` читает файлы через `import.meta.glob` и вызывает `buildGameContext` (`GAME`, `CONTENT`).
 - Node (баланс, тесты, `content:check`): `readRawGameData()` / `loadFullContext()` из `scripts/lib/content-node.ts`.

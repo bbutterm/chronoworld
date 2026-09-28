@@ -9,14 +9,17 @@ export type MetaErrorCode =
   | 'invalid_squad'
   | 'duplicate_card'
   | 'unknown_hero'
-  // K9 поручения
-  | 'unknown_bounty'
-  | 'refresh_limit'
-  | 'wrong_hero_count'
+  // K9 экспедиции
+  | 'unknown_location'
+  | 'location_locked'
+  | 'location_busy'
+  | 'invalid_duration'
+  | 'not_enough_power'
+  | 'too_many_heroes'
   | 'duplicate_hero'
   | 'hero_busy'
-  | 'role_required'
-  | 'bounty_not_finished'
+  | 'expedition_not_running'
+  | 'expedition_not_finished'
   // K10 достижения
   | 'unknown_achievement'
   | 'invalid_counter'

@@ -202,7 +202,7 @@ export function ascendPreview(hero: HeroState, ctx: GameContext): AscendPreview 
 }
 
 /**
- * Откуда осколки сюжетного героя (строки для карточки и экрана вознесения): этапы кампании («отстающему»), поручения,
+ * Откуда осколки сюжетного героя (строки для карточки и экрана вознесения): этапы кампании («отстающему»), экспедиции,
  * достижения, Таверна; первая строка — идут ли осколки этапов этому герою прямо сейчас.
  */
 export function shardSources(save: SaveState, templateId: string, ctx: GameContext): string[] {
@@ -214,7 +214,7 @@ export function shardSources(save: SaveState, templateId: string, ctx: GameConte
   else if (target) lines.push(`Сейчас осколки идут ${ctx.content.heroes[target]?.name ?? target} (отстающему); потом — ${name}`);
   lines.push(`Первое прохождение этапа: ${sh.firstClear} (босс главы — ${sh.bossFirstClear})`);
   if (sh.replayChance > 0) lines.push(`Повтор этапа: шанс ${Math.round(sh.replayChance * 100)}% — ${sh.replayCount}`);
-  lines.push('Поручения (редкие и эпические), достижения');
+  lines.push('Экспедиции (Пещера Пайона и дальше), достижения');
   if (ctx.summon.storyShard.chance > 0) lines.push(`Таверна: шанс ${Math.round(ctx.summon.storyShard.chance * 100)}% за призыв — ${ctx.summon.storyShard.count}`);
   return lines;
 }

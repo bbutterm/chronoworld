@@ -113,7 +113,7 @@ describe('вознесение призывных карточек (корм)', 
     expect(codeOf(() => ascendHero(locked, 'h4', ['h5', 'h6'], ctx))).toBe('fodder_busy');
     const busy: SaveState = {
       ...s,
-      bounties: { ...s.bounties, active: [{ id: 'b1', templateId: 'patrol', rarity: 'common', durationMinutes: 30, heroCount: 1, role: null, rewards: { gold: 1, jobExp: 0, gems: 0 }, heroIds: ['h6'], startedAt: 0, endsAt: 1 }] },
+      bounties: { active: [{ location: 'ant_hell', hours: 1, heroIds: ['h6'], power: 1, startedAt: 0, endsAt: 1, rewards: { gold: 1, jobExp: 0, gems: 0, shards: 0, scrolls: 0, items: [] } }] },
     };
     expect(codeOf(() => ascendHero(busy, 'h4', ['h5', 'h6'], ctx))).toBe('fodder_busy');
     expect(fodderBlocker(s, 'h1', ctx)).toMatch(/сюжетный/);

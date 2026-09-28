@@ -5,7 +5,7 @@ import {
   actAscend,
   actClaimAchievement,
   actClaimActivity,
-  actClaimBounty,
+  actClaimExpedition,
   actClaimOffline,
   actClaimQuest,
   actLevelUp,
@@ -15,7 +15,7 @@ import {
   actUseFastRewards,
   claimAchievement,
   claimActivity,
-  claimBounty,
+  claimExpedition,
   claimQuest,
   FeatureError,
   MetaError,
@@ -158,7 +158,7 @@ describe('обёртки действий засчитывают задания'
 });
 
 describe('обёртки наград с опытом: опыт — в общий пул, уровни поднимает игрок', () => {
-  const mctx = withMeta(ctx, read('data/bounties.json'), read('data/achievements.json'));
+  const mctx = withMeta(ctx, read('data/expeditions.json'), read('data/achievements.json'));
   const base = () => newGame(mctx, 0, D1);
 
   it('actClaimQuest: очки как у claimQuest; level-up задания только двигают счётчик, ничего не забирая', () => {
@@ -188,27 +188,34 @@ describe('обёртки наград с опытом: опыт — в общи�
     expect(() => actClaimActivity(s0, D1, 60, mctx)).toThrow(FeatureError);
   });
 
-  it('actClaimBounty: jobExp поручения — в пул, осколки — «отстающему» сюжетному герою', () => {
+  it('actClaimExpedition: опыт экспедиции — в пул, осколки — «отстающему» сюжетному герою', () => {
     const s0 = base();
     const hero = s0.heroes[0].id;
     const s: SaveState = {
       ...s0,
       bounties: {
-        ...s0.bounties,
         active: [
-          { id: 'b1', templateId: 'patrol', rarity: 'common', durationMinutes: 30, heroCount: 1, role: null, rewards: { gold: 10, jobExp: 500, gems: 0, shards: 2 }, heroIds: [hero], startedAt: 0, endsAt: 1000 },
+          {
+            location: 'ant_hell',
+            hours: 1,
+            heroIds: [hero],
+            power: 1000,
+            startedAt: 0,
+            endsAt: 1000,
+            rewards: { gold: 10, jobExp: 500, gems: 0, shards: 2, scrolls: 0, items: [] },
+          },
         ],
       },
     };
-    const plain = claimBounty(s, 'b1', 1000, mctx);
+    const plain = claimExpedition(s, 'ant_hell', 1000, mctx);
     expect(plain.save.resources.heroExp).toBe(500);
     expect(plain.save.shards).toEqual({ alan: 2 });
     expect(plain.events).toContainEqual({ type: 'shards', templateId: 'alan', count: 2 });
-    const out = actClaimBounty(s, D1, 'b1', 1000, mctx);
+    const out = actClaimExpedition(s, D1, 'ant_hell', 1000, mctx);
     expect(out.events).toEqual(plain.events);
     expect(out.save.daily.quests).toEqual({});
     expect(out.save.achievements).toEqual(plain.save.achievements);
-    expect(() => actClaimBounty(s, D1, 'b1', 999, mctx)).toThrow(MetaError);
+    expect(() => actClaimExpedition(s, D1, 'ant_hell', 999, mctx)).toThrow(MetaError);
   });
 
   it('actClaimAchievement: опыт и осколки достижения', () => {

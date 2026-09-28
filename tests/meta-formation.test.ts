@@ -25,7 +25,7 @@ import { cardHero, JOB_CARD } from './helpers';
 
 const root = join(import.meta.dirname, '..');
 const read = (f: string) => JSON.parse(readFileSync(join(root, f), 'utf8'));
-const ctx = withMeta(withFeatures(loadGameContext(), read('data/progression.json'), read('data/quests.json')), read('data/bounties.json'), read('data/achievements.json'));
+const ctx = withMeta(withFeatures(loadGameContext(), read('data/progression.json'), read('data/quests.json')), read('data/expeditions.json'), read('data/achievements.json'));
 
 function codeOf(fn: () => unknown): string | undefined {
   try {
@@ -70,14 +70,14 @@ describe('K8 пресеты отряда', () => {
 
   it('лимит пресетов и проверки имени/отряда', () => {
     let s = newGame(ctx, 0);
-    const max = ctx.meta.bounties.presets.max;
+    const max = ctx.meta.expeditions.presets.max;
     for (let i = 0; i < max; i++) s = savePreset(s, `P${i}`, ctx).save;
     expect(codeOf(() => savePreset(s, 'лишний', ctx))).toBe('preset_limit');
     // Перезапись при полном списке разрешена.
     expect(savePreset(s, 'ok', ctx, { id: 'p1' }).save.presets).toHaveLength(max);
     const g = newGame(ctx, 0);
     expect(codeOf(() => savePreset(g, '   ', ctx))).toBe('invalid_preset_name');
-    expect(codeOf(() => savePreset(g, 'x'.repeat(ctx.meta.bounties.presets.nameMaxLength + 1), ctx))).toBe('invalid_preset_name');
+    expect(codeOf(() => savePreset(g, 'x'.repeat(ctx.meta.expeditions.presets.nameMaxLength + 1), ctx))).toBe('invalid_preset_name');
     expect(codeOf(() => savePreset(g, 'a', ctx, { squad: ['h1'] }))).toBe('invalid_squad');
     expect(codeOf(() => savePreset(g, 'a', ctx, { squad: ['h1', 'h1', null, null, null] }))).toBe('invalid_squad');
     expect(codeOf(() => savePreset(g, 'a', ctx, { squad: ['h99', null, null, null, null] }))).toBe('unknown_hero');
@@ -160,18 +160,18 @@ describe('K8 авто-расстановка', () => {
 
 describe('конфиг meta', () => {
   it('data/*.json разбираются; битый конфиг → MetaError invalid_config с путём', () => {
-    const b = read('data/bounties.json');
+    const b = read('data/expeditions.json');
     const a = read('data/achievements.json');
     expect(() => parseMetaConfig(b, a)).not.toThrow();
     const dupT = structuredClone(b);
-    dupT.templates.push(dupT.templates[0]);
+    dupT.locations.push(dupT.locations[0]);
     expect(() => parseMetaConfig(dupT, a)).toThrow(/встречается дважды/);
-    const badRarity = structuredClone(b);
-    badRarity.templates[0].rarity = 'mythic';
-    expect(codeOf(() => parseMetaConfig(badRarity, a))).toBe('invalid_config');
-    const emptyRarity = structuredClone(b);
-    emptyRarity.rarities.legendary = 1;
-    expect(() => parseMetaConfig(emptyRarity, a)).toThrow(/legendary/);
+    const badDur = structuredClone(b);
+    badDur.durations.push(badDur.durations[0]);
+    expect(codeOf(() => parseMetaConfig(badDur, a))).toBe('invalid_config');
+    const noItems = structuredClone(b);
+    noItems.locations[0].loot = [{ kind: 'item', chance: 0.1 }];
+    expect(() => parseMetaConfig(noItems, a)).toThrow(/expeditions\.json: locations\.0\.loot\.0\.items/);
     const badCounter = structuredClone(a);
     badCounter.achievements[0].counter = 'nope';
     expect(() => parseMetaConfig(b, badCounter)).toThrow(/achievements\.json: achievements\.0\.counter/);

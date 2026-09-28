@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { CardRaritySchema } from '../heroes/schema';
 
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 /**
  * v4. Экземпляр карточки героя (docs/design/heroes.md): шаблон data/heroes/<templateId>.json, редкость и уровень.
  * Имя, пол, класс, роль и навыки — из шаблона (heroes/card.ts heroCard). id экземпляра (h1, h2…) не меняется —
- * на него ссылаются отряд, пресеты, поручения и надетые предметы.
+ * на него ссылаются отряд, пресеты, экспедиции и надетые предметы.
  */
 export const HeroStateSchema = z.object({
   id: z.string(),
@@ -75,45 +75,40 @@ export const PresetSchema = z.object({
   squad: z.array(z.string().nullable()).length(5),
 });
 
-export const BountyRewardsSchema = z.object({
+/**
+ * v6. Добыча экспедиции — бросается при отправке (детерминированно, meta/expeditions.ts rollExpeditionLoot) и хранится
+ * снимком, чтобы правка data/expeditions.json не меняла уже начатые экспедиции.
+ */
+export const ExpeditionRewardsSchema = z.object({
   gold: z.number().int().nonnegative(),
-  /** Опыт в общий пул героев (v4; раньше — каждому герою группы). */
+  /** Опыт в общий пул героев. */
   jobExp: z.number().int().nonnegative(),
   gems: z.number().int().nonnegative(),
-  /** v4. Осколки «отстающего» сюжетного героя (heroes/shards.ts shardTarget). Нет поля — 0. */
-  shards: z.number().int().nonnegative().optional(),
+  /** Осколки «отстающего» сюжетного героя (кому — при получении). */
+  shards: z.number().int().nonnegative(),
+  scrolls: z.number().int().nonnegative(),
+  /** id предметов из data/items. */
+  items: z.array(z.string()),
+});
+
+/** v6. Экспедиция в пути: локация, длительность, отряд (id героев), мощь отряда при отправке, время (мс) и добыча. */
+export const ActiveExpeditionSchema = z.object({
+  /** id локации из data/expeditions.json (на локации — одна экспедиция). */
+  location: z.string().min(1),
+  hours: z.number().positive(),
+  heroIds: z.array(z.string()).min(1),
+  power: z.number().int().nonnegative(),
+  startedAt: z.number(),
+  endsAt: z.number(),
+  rewards: ExpeditionRewardsSchema,
 });
 
 /**
- * v3 (K9). Поручение на доске — снимок шаблона из data/bounties.json на момент обновления доски,
- * чтобы правка конфига не ломала уже выданные поручения.
+ * v6. Экспедиции (K9, заменили доску поручений). Ключ сохранения `bounties` оставлен историческим — как id функции
+ * в data/unlocks.json и счётчик bounties_done (миграция v5 → v6 — save/migrate-expeditions.ts migrateBountiesToExpeditions).
  */
-export const BountySchema = z.object({
-  /** Уникальный id поручения (не шаблона). */
-  id: z.string().min(1),
-  templateId: z.string(),
-  rarity: z.string(),
-  durationMinutes: z.number().positive(),
-  heroCount: z.number().int().positive(),
-  /** Нужна ли в группе хотя бы одна профессия этой роли. */
-  role: z.enum(['tank', 'damage', 'healer', 'support']).nullable(),
-  rewards: BountyRewardsSchema,
-});
-
-/** v3 (K9). Поручение в работе: герои и время (мс, как offline.lastClaimAt). */
-export const ActiveBountySchema = BountySchema.extend({
-  heroIds: z.array(z.string()).min(1),
-  startedAt: z.number(),
-  endsAt: z.number(),
-});
-
-export const BountiesStateSchema = z.object({
-  board: z.array(BountySchema),
-  /** День последнего обновления доски ('1970-01-01' — ещё не обновлялась). */
-  lastRefreshDay: DayStringSchema,
-  /** Ручных обновлений доски за lastRefreshDay. */
-  refreshesUsed: z.number().int().nonnegative(),
-  active: z.array(ActiveBountySchema),
+export const ExpeditionsStateSchema = z.object({
+  active: z.array(ActiveExpeditionSchema),
 });
 
 /** v3 (K10). Счётчики достижений (ключ → значение) и id полученных достижений. */
@@ -262,8 +257,8 @@ export const SaveStateSchema = z.object({
   inventory: z.object({ items: z.array(ItemInstanceSchema) }),
   /** v3 (K8). Пресеты отряда. */
   presets: z.array(PresetSchema),
-  /** v3 (K9). Доска поручений. */
-  bounties: BountiesStateSchema,
+  /** v6 (K9). Экспедиции в пути (ключ исторический: до v6 здесь была доска поручений). */
+  bounties: ExpeditionsStateSchema,
   /** v3 (K10). Достижения. */
   achievements: AchievementsStateSchema,
   /** v4. Осколки сюжетных героев: id шаблона → сколько. */
@@ -323,9 +318,9 @@ export type SummonState = z.infer<typeof SummonStateSchema>;
 export type DailyState = z.infer<typeof DailyStateSchema>;
 export type ItemInstance = z.infer<typeof ItemInstanceSchema>;
 export type Preset = z.infer<typeof PresetSchema>;
-export type Bounty = z.infer<typeof BountySchema>;
-export type ActiveBounty = z.infer<typeof ActiveBountySchema>;
-export type BountiesState = z.infer<typeof BountiesStateSchema>;
+export type ExpeditionRewards = z.infer<typeof ExpeditionRewardsSchema>;
+export type ActiveExpedition = z.infer<typeof ActiveExpeditionSchema>;
+export type ExpeditionsState = z.infer<typeof ExpeditionsStateSchema>;
 export type AchievementsState = z.infer<typeof AchievementsStateSchema>;
 export type RewardBundle = z.infer<typeof RewardBundleSchema>;
 export type Letter = z.infer<typeof LetterSchema>;
@@ -351,9 +346,9 @@ export function emptySummon(): SummonState {
   return { seq: 0, total: 0, sincePurple: 0, firstTenDone: false, welcomeGiven: false, discovered: [] };
 }
 
-/** v3. Пустая доска поручений (обновится при первом ensureBoard с настоящим днём). */
-export function emptyBounties(): BountiesState {
-  return { board: [], lastRefreshDay: DEFAULT_DAY, refreshesUsed: 0, active: [] };
+/** v6. Нет экспедиций в пути. */
+export function emptyExpeditions(): ExpeditionsState {
+  return { active: [] };
 }
 
 /** v5. Пустая почта. */

@@ -28,7 +28,7 @@ const GOTO: Record<FeatureId, { scene: string; data?: object }> = {
   speed_x2: { scene: 'Campaign' },
   achievements: { scene: 'Achievements', data: { from: 'Home' } },
   tavern: { scene: 'Tavern' },
-  bounties: { scene: 'Bounties' },
+  bounties: { scene: 'Expeditions' },
   tower: { scene: 'Tower' },
   hunt: { scene: 'Hunt' },
   shop: { scene: 'Shop' },
@@ -40,7 +40,7 @@ export const isUnlocked = (id: FeatureId): boolean => featureUnlocked(session.sa
 /** «Откроется на этапе 1-8» или '' (открыта). */
 export const lockLabel = (id: FeatureId): string => lockedText(session.save, id, GAME);
 
-/** Тост на касание закрытого: «Поручения откроются на этапе 1-8». */
+/** Тост на касание закрытого: «Экспедиции откроются на этапе 1-8». */
 export function lockedToast(scene: Phaser.Scene, id: FeatureId): void {
   const title = unlockDef(id, GAME)?.title;
   const label = lockLabel(id);
@@ -119,7 +119,7 @@ function garretName(): string {
 /**
  * Иконка функции на баннере: медальон скина и свой знак у каждой функции (не общая «стрелка»):
  * быстрые награды — сундук, задания — свиток, скорость — надпись «2x», достижения — кубок, Таверна — кружка,
- * поручения — карта, Башня — башня. Неизвестная функция — иконка из data/unlocks.json (icon).
+ * экспедиции — карта, Башня — башня. Неизвестная функция — иконка из data/unlocks.json (icon).
  */
 export function featureIcon(scene: Phaser.Scene, f: Pick<FeatureView, 'id' | 'icon'>, x: number, y: number, size: number): Phaser.GameObjects.Container {
   const disc = scene.add.image(0, 0, 'skin_medallion').setDisplaySize(size, size);

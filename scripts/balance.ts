@@ -36,6 +36,7 @@ const model = {
   hunt: !process.argv.includes('--no-hunt'),
   seedBase: intArg('seed', PLAYER_MODEL.seedBase),
   shop: !process.argv.includes('--no-shop'),
+  expeditions: !process.argv.includes('--no-expeditions'),
 };
 const out = resolve(ROOT, arg('out') ?? 'balance.csv');
 
@@ -146,7 +147,7 @@ console.log(
 console.log(
   `  предметов: ${res.save.inventory.items.length} (надето ${res.save.inventory.items.filter((i) => i.equippedBy).length}), надеваний ${res.equips}, ` +
     `призывов ${res.summons}, вознесений ${res.ascensions.length}, заданий ${Object.values(res.questClaims).reduce((a, n) => a + n, 0)}, ` +
-    `поручений ${res.save.achievements.counters.bounties_done ?? 0}`,
+    `экспедиций ${res.save.achievements.counters.bounties_done ?? 0}`,
 );
 const shopBuys = Object.entries(res.shopBuys).map(([k, n]) => `${k} ${n}`).join(', ');
 if (shopBuys) console.log(`  лавка, покупки: ${shopBuys}`);
