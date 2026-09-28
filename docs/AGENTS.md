@@ -267,8 +267,9 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 
 ### Предметы, задания, поручения, достижения
 
-- `data/items/*.json` — `{items: [{id, name, slot (weapon|armor|helmet|boots), rarity (common|rare|epic), stats, jobs?, drop}]}`;
-  `jobs` — корни веток (["archer"] → лучник, охотник, бард). `data/drops.json` — правила выпадения по главам (`rules`) и трофеи сундука
+- `data/items/*.json` — `{items: [{id, name, slot (weapon|armor|helmet|boots), rarity (common|rare|epic), stats, jobs?, drop, minChapter}]}`;
+  `jobs` — корни веток (["archer"] → лучник, охотник, бард); `minChapter` — ворота по главе для всех источников предметов (этапы,
+  сундук, быстрые награды, Лавка, охота): эпики — с главы 2, Слейпнир — с 3 (`src/core/equipment/gates.ts`, проверки — `lint.ts`). `data/drops.json` — правила выпадения по главам (`rules`) и трофеи сундука
   (`chest`, раздел 2в). См. `docs/content/equipment.md`.
 - `data/quests.json` — ежедневные задания: `event` из `ACTIVITY_KINDS` (`src/core/features/quests.ts`), `target`, `points`; `milestones` активности.
 - `data/bounties.json` — доска поручений: `boardSize`, `dailyRefreshes`, веса `rarities`, `templates` (`durationMinutes`, `heroCount`, `role`, `rewards`), `presets`.

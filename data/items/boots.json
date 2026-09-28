@@ -51,7 +51,8 @@
       "stats": {
         "hp": 120,
         "spd": 8
-      }
+      },
+      "minChapter": 3
     }
   ]
 }
