@@ -222,6 +222,50 @@
         "blacksmith"
       ],
       "minChapter": 2
+    },
+    {
+      "id": "sograt_scimitar",
+      "name": "Ятаган Сограта",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 55,
+        "spd": 3
+      },
+      "minChapter": 4
+    },
+    {
+      "id": "moonlight_dagger",
+      "name": "Кинжал лунного света",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 75,
+        "spd": 5
+      },
+      "minChapter": 5
+    },
+    {
+      "id": "pirate_saber",
+      "name": "Сабля пирата",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 100,
+        "spd": 4
+      },
+      "minChapter": 6
+    },
+    {
+      "id": "bloody_axe",
+      "name": "Кровавый топор",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 135,
+        "def": 6
+      },
+      "minChapter": 7
     }
   ]
 }

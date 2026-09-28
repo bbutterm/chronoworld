@@ -53,6 +53,50 @@
         "def": 10
       },
       "minChapter": 2
+    },
+    {
+      "id": "pharaoh_headdress",
+      "name": "Убор фараона",
+      "slot": "helmet",
+      "rarity": "rare",
+      "stats": {
+        "hp": 220,
+        "def": 11
+      },
+      "minChapter": 4
+    },
+    {
+      "id": "kitsune_mask",
+      "name": "Маска кицунэ",
+      "slot": "helmet",
+      "rarity": "epic",
+      "stats": {
+        "hp": 370,
+        "def": 18
+      },
+      "minChapter": 5
+    },
+    {
+      "id": "pirate_bandana",
+      "name": "Пиратская бандана",
+      "slot": "helmet",
+      "rarity": "rare",
+      "stats": {
+        "hp": 400,
+        "def": 19
+      },
+      "minChapter": 6
+    },
+    {
+      "id": "helm_of_darkness",
+      "name": "Шлем Тьмы",
+      "slot": "helmet",
+      "rarity": "epic",
+      "stats": {
+        "hp": 650,
+        "def": 30
+      },
+      "minChapter": 7
     }
   ]
 }

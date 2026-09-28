@@ -18,6 +18,90 @@
       }
     },
     {
+      "chapter": "chapter4",
+      "chance": 0.3,
+      "rarityWeights": {
+        "common": 0,
+        "rare": 65,
+        "epic": 35
+      },
+      "firstClearGuaranteed": true,
+      "firstClearRarityWeights": {
+        "common": 0,
+        "rare": 55,
+        "epic": 45
+      },
+      "bossFirstClearRarityWeights": {
+        "common": 0,
+        "rare": 0,
+        "epic": 100
+      },
+      "itemsFromChapter": 4
+    },
+    {
+      "chapter": "chapter5",
+      "chance": 0.3,
+      "rarityWeights": {
+        "common": 0,
+        "rare": 65,
+        "epic": 35
+      },
+      "firstClearGuaranteed": true,
+      "firstClearRarityWeights": {
+        "common": 0,
+        "rare": 55,
+        "epic": 45
+      },
+      "bossFirstClearRarityWeights": {
+        "common": 0,
+        "rare": 0,
+        "epic": 100
+      },
+      "itemsFromChapter": 5
+    },
+    {
+      "chapter": "chapter6",
+      "chance": 0.3,
+      "rarityWeights": {
+        "common": 0,
+        "rare": 65,
+        "epic": 35
+      },
+      "firstClearGuaranteed": true,
+      "firstClearRarityWeights": {
+        "common": 0,
+        "rare": 55,
+        "epic": 45
+      },
+      "bossFirstClearRarityWeights": {
+        "common": 0,
+        "rare": 0,
+        "epic": 100
+      },
+      "itemsFromChapter": 6
+    },
+    {
+      "chapter": "chapter7",
+      "chance": 0.3,
+      "rarityWeights": {
+        "common": 0,
+        "rare": 65,
+        "epic": 35
+      },
+      "firstClearGuaranteed": true,
+      "firstClearRarityWeights": {
+        "common": 0,
+        "rare": 55,
+        "epic": 45
+      },
+      "bossFirstClearRarityWeights": {
+        "common": 0,
+        "rare": 0,
+        "epic": 100
+      },
+      "itemsFromChapter": 6
+    },
+    {
       "chance": 0.35,
       "rarityWeights": {
         "common": 70,
@@ -45,6 +129,94 @@
         "gems": {
           "chance": 0.03,
           "count": 5
+        }
+      },
+      {
+        "chapter": "chapter4",
+        "item": 0.08,
+        "rarityWeights": {
+          "common": 0,
+          "rare": 75,
+          "epic": 25
+        },
+        "itemsFromChapter": 4,
+        "heroCards": {
+          "blue": 0.0018,
+          "purple": 0.00012
+        },
+        "gems": {
+          "chance": 0.03,
+          "count": 5
+        },
+        "scrolls": {
+          "chance": 0.005,
+          "count": 1
+        }
+      },
+      {
+        "chapter": "chapter5",
+        "item": 0.08,
+        "rarityWeights": {
+          "common": 0,
+          "rare": 75,
+          "epic": 25
+        },
+        "itemsFromChapter": 5,
+        "heroCards": {
+          "blue": 0.0018,
+          "purple": 0.00012
+        },
+        "gems": {
+          "chance": 0.03,
+          "count": 5
+        },
+        "scrolls": {
+          "chance": 0.005,
+          "count": 1
+        }
+      },
+      {
+        "chapter": "chapter6",
+        "item": 0.08,
+        "rarityWeights": {
+          "common": 0,
+          "rare": 75,
+          "epic": 25
+        },
+        "itemsFromChapter": 6,
+        "heroCards": {
+          "blue": 0.0018,
+          "purple": 0.00012
+        },
+        "gems": {
+          "chance": 0.03,
+          "count": 5
+        },
+        "scrolls": {
+          "chance": 0.005,
+          "count": 1
+        }
+      },
+      {
+        "chapter": "chapter7",
+        "item": 0.08,
+        "rarityWeights": {
+          "common": 0,
+          "rare": 75,
+          "epic": 25
+        },
+        "itemsFromChapter": 6,
+        "heroCards": {
+          "blue": 0.0018,
+          "purple": 0.00012
+        },
+        "gems": {
+          "chance": 0.03,
+          "count": 5
+        },
+        "scrolls": {
+          "chance": 0.005,
+          "count": 1
         }
       },
       {
