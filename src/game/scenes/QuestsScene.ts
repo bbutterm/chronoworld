@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import { actClaimActivity, actClaimQuest, questStatus, type MilestoneRewards, type MilestoneView, type QuestView } from '../../core';
+import { actClaimActivity, actClaimAllQuests, actClaimQuest, questStatus, type MilestoneRewards, type MilestoneView, type QuestView } from '../../core';
 import { GAME } from '../content';
-import { describeEvents, formatNumber, questDestination, untilReset } from '../flow';
+import { claimableCount, describeEvents, formatNumber, questDestination, untilReset } from '../flow';
 import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
 import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
@@ -51,7 +51,14 @@ export class QuestsScene extends Phaser.Scene {
 
     // --- Задания ---
     // R: строки не сжимаются — список тянется пальцем (ScrollArea).
-    const listTop = top + 420;
+    // «Забрать всё» — когда готовы две награды и больше (задания и пороги активности, до которых они доберут).
+    const ready = claimableCount(st);
+    let listTop = top + 420;
+    if (ready > 1) {
+      const all = button(this, GAME_W / 2, top + 470, 520, 100, 'ui_btn_primary', `Забрать всё (${ready})`, () => this.claimAll({ x: GAME_W / 2, y: top + 470 }), FS.h3);
+      pulse(this, all.container, 1.04, 700);
+      listTop = top + 540;
+    }
     this.area = new ScrollArea(this, listTop, CONTENT_BOTTOM + 10);
     if (!st.quests.length) this.area.add(emptyState(this, GAME_W / 2, 200, 'На сегодня заданий нет.\nНовые появятся после полуночи.'));
     const rows = st.quests.map((q, i) => collect(this.area.content, () => this.questRow(q, ROW_H * (i + 0.5), ROW_H - ROW_GAP)));
@@ -140,6 +147,25 @@ export class QuestsScene extends Phaser.Scene {
       commit(r.save);
       queueRewardFly('Quests', at, before);
       this.restartWithToast([`Награда за ${m.points} очков: ${rewardText(r.rewards).replace(/\n/g, ', ')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))].join('\n'), true);
+    } catch (e) {
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
+    }
+  }
+
+  /** «Забрать всё»: все выполненные задания, затем все достигнутые пороги (ядро — claimAllQuests). */
+  private claimAll(at: Point): void {
+    try {
+      const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
+      const r = actClaimAllQuests(session.save, today(), GAME);
+      commit(r.save);
+      const lines: string[] = [];
+      if (r.quests.length) lines.push(`Заданий: ${r.quests.length} · +${r.points} очков активности`);
+      if (r.milestones.length) {
+        queueRewardFly('Quests', at, before);
+        lines.push(`Наград активности: ${r.milestones.length} · ${rewardText(r.rewards).replace(/\n/g, ', ')}`);
+      }
+      lines.push(...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы')));
+      this.restartWithToast(lines.join('\n') || 'Забирать пока нечего', r.milestones.length > 0);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
