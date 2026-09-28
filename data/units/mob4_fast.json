@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob4_fast",
+  "name": "Скорпион",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 440,
+    "atk": 45,
+    "def": 6,
+    "spd": 140,
+    "moveSpeed": 300
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob4_scorpion_sting",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "fabre",
+    "tint": "#c8742c",
+    "scale": 1.15,
+    "hitFx": "fx_hit"
+  }
+}

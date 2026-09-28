@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob4_scorpion_sting",
+  "name": "Жало скорпиона",
+  "description": "Рывок к врагу тыла с наименьшим ОЗ: удар жалом и яд на 3 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.1
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "poison",
+        "name": "Яд",
+        "turns": 3,
+        "dot": {
+          "k": 0.25
+        }
+      }
+    }
+  ]
+}

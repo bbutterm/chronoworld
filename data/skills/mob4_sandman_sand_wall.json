@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob4_sandman_sand_wall",
+  "name": "Песчаная стена",
+  "description": "Песчаник поднимает стену песка перед фронтом: щит 15% макс. ОЗ себе и союзникам фронта.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "row": "front",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.15
+    }
+  ]
+}
