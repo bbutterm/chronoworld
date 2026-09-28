@@ -161,9 +161,13 @@ export function pickResultHint(s: { chestOrLevel: boolean; hasNext: boolean }, i
   return null;
 }
 
-/** Экран расстановки: новые герои вне отряда (после Таверны) — «Авто», иначе на первом бою — «В бой». */
-export function pickPrepHint(s: { first: boolean; benchStronger: boolean }, isDone: (id: HintId) => boolean = hintDone): HintId | null {
-  if (s.benchStronger && !isDone('prep_auto')) return 'prep_auto';
+/**
+ * Экран расстановки: новые герои вне отряда после первого ×10 в Таверне (summoned) — «Авто», иначе на первом бою — «В бой».
+ * До Таверны сильнее бывает только случайная карта героя из боя: одноразовый шаг «Авто» на неё не тратим — его место в
+ * цепочке сразу после призыва (TUTORIAL_CHAIN).
+ */
+export function pickPrepHint(s: { first: boolean; benchStronger: boolean; summoned: boolean }, isDone: (id: HintId) => boolean = hintDone): HintId | null {
+  if (s.benchStronger && s.summoned && !isDone('prep_auto')) return 'prep_auto';
   if (s.first && !isDone('stage_fight')) return 'stage_fight';
   return null;
 }

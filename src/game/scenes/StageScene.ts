@@ -108,7 +108,7 @@ export class StageScene extends Phaser.Scene {
     // Обучение: после Таверны сильнейшие герои вне отряда — сначала «Авто» (prep_auto), иначе «В бой».
     const ids = (sq: readonly (string | null)[]) => JSON.stringify(sq.filter(Boolean).sort());
     const benchStronger = ids(autoFormation(session.save, GAME)) !== ids(session.save.squad);
-    const hint = pickPrepHint({ first, benchStronger });
+    const hint = pickPrepHint({ first, benchStronger, summoned: session.save.summon.firstTenDone });
     if (hint === 'prep_auto') this.autoHint = tutorialHint(this, hint, 610, L.rosterHeadY, 'above', { w: 220, h: 90 });
     else if (hint === 'stage_fight') tutorialHint(this, hint, GAME_W / 2, L.fightY, 'above', { w: 640, h: 150 });
   }

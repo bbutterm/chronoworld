@@ -481,9 +481,10 @@ try {
         }
         await clickText('Campaign', String(stage));
         await waitScene('Stage');
-        await recordHint('Stage');
+        const prepHint = await recordHint('Stage');
+        if (prepHint === 'prep_auto' && stage <= TAVERN) problems.push(`этап ${stage}: подсказка «Авто» до первого призыва в Таверне`);
         // Как игрок с новыми героями из Таверны: перед боем — «Авто» (сильнейшие по ролям).
-        if (stage > TAVERN) {
+        if (stage > TAVERN || prepHint === 'prep_auto') {
           await clickText('Stage', 'Авто');
           await sleep(400);
         }

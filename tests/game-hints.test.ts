@@ -46,11 +46,14 @@ describe('R: подсказки первой сессии', () => {
     expect(pickResultHint({ hasNext: true, chestOrLevel: true }, isDone)).toBe('result_home');
     done.add('chest_claim');
     expect(pickResultHint({ hasNext: true, chestOrLevel: true }, isDone)).toBeNull();
-    expect(pickPrepHint({ first: true, benchStronger: false }, isDone)).toBe('stage_fight');
-    expect(pickPrepHint({ first: true, benchStronger: true }, isDone)).toBe('prep_auto');
+    expect(pickPrepHint({ first: true, benchStronger: false, summoned: true }, isDone)).toBe('stage_fight');
+    expect(pickPrepHint({ first: true, benchStronger: true, summoned: true }, isDone)).toBe('prep_auto');
+    // До первого ×10 в Таверне (сильнее — только случайная карта из боя) шаг «Авто» не тратится.
+    expect(pickPrepHint({ first: true, benchStronger: true, summoned: false }, isDone)).toBe('stage_fight');
+    expect(pickPrepHint({ first: false, benchStronger: true, summoned: false }, isDone)).toBeNull();
     done.add('prep_auto');
     done.add('stage_fight');
-    expect(pickPrepHint({ first: true, benchStronger: true }, isDone)).toBeNull();
+    expect(pickPrepHint({ first: true, benchStronger: true, summoned: true }, isDone)).toBeNull();
   });
 
   it('выполненная подсказка больше не показывается', () => {
