@@ -10,6 +10,7 @@ import { medallion } from '../decor';
 import { skinIcon } from '../skin';
 import { C, FS, TINT } from '../theme';
 import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
+import { isUnlocked, lockedScreen } from '../unlockBanner';
 
 const ROW_H = 190;
 
@@ -31,6 +32,11 @@ export class AchievementsScene extends Phaser.Scene {
   create(data: AchievementsData = {}): void {
     this.from = data.from ?? 'Home';
     screen(this, 'Достижения', this.from, { to: this.from });
+    // Зашли в обход главной (кнопка на экране «Герои») до этапа открытия — замок вместо списка.
+    if (!isUnlocked('achievements')) {
+      lockedScreen(this, 'achievements');
+      return;
+    }
     const views = achievementStatus(session.save, GAME);
     const got = views.filter((a) => a.claimed).length;
     const ready = claimableAchievements(views);

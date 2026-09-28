@@ -7,6 +7,7 @@ import progressionJson from '../../data/progression.json';
 import questsJson from '../../data/quests.json';
 import summonJson from '../../data/summon.json';
 import towerJson from '../../data/tower.json';
+import unlocksJson from '../../data/unlocks.json';
 import { buildGameContext, type FullContext, type RawFile } from '../core';
 
 export type { FullContext };
@@ -36,6 +37,7 @@ export const GAME: FullContext = buildGameContext({
   tower: towerJson,
   bounties: bountiesJson,
   achievements: achievementsJson,
+  unlocks: unlocksJson,
   events: eventsJson,
   stories: toFiles(import.meta.glob('../../data/story/*.json', { eager: true, import: 'default' })),
 });

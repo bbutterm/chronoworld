@@ -15,6 +15,7 @@ import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 import { screenBackground, setThemeBackground, themeOfChapter } from '../backdrops';
 import { glow, motes, ribbon } from '../decor';
 import { juiceOn } from '../juice';
+import { showUnlockBanners } from '../unlockBanner';
 
 const NODE = 150;
 
@@ -142,6 +143,8 @@ export class CampaignScene extends Phaser.Scene {
       // Экран «Глава пройдена» ждёт показа (перезагрузка на нём или на финале) — показать сейчас.
       const done = finale?.chapter ?? session.save.pendingChapterDone;
       if (done && GAME.content.chapters.some((c) => c.id === done)) startChapterDone(this, { chapterId: done });
+      // Открылась функция (в том числе за этапы, пройденные в авто-режиме) — баннер «Новая функция!».
+      else showUnlockBanners(this);
     });
   }
 }

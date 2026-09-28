@@ -109,8 +109,14 @@ export function parseTowerConfig(json: unknown): TowerConfig {
 
 /** GameContext → TowerContext: схема + перекрёстные проверки (TowerError('invalid_config') со списком проблем). */
 export function withTower<C extends GameContext>(ctx: C, towerJson: unknown): C & { tower: TowerConfig } {
-  const tower = parseTowerConfig(towerJson);
+  let tower = parseTowerConfig(towerJson);
   const problems: string[] = [];
+  // Этап открытия — из единой таблицы data/unlocks.json (строка tower); без таблицы — из tower.json.
+  const fromTable = ctx.unlocks?.features.find((f) => f.id === 'tower')?.stage;
+  if (fromTable) {
+    if (tower.unlockAfterStage) problems.push('unlockAfterStage — этап открытия башни задаётся в data/unlocks.json (tower), уберите поле');
+    tower = { ...tower, unlockAfterStage: fromTable };
+  }
   validateTower(tower, ctx.content, problems);
   if (problems.length) throw new TowerError('invalid_config', `data/tower.json: ${problems.join('; ')}`);
   return { ...ctx, tower };

@@ -3,6 +3,8 @@ import { heroName, heroRole } from '../heroes/card';
 import { migrateV3toV4 } from '../heroes/migrate';
 import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/roster';
 import type { GameContext } from '../progression/types';
+import { initSeenUnlocks } from '../unlocks/unlocks';
+import type { UnlocksConfig } from '../unlocks/schema';
 import { DEFAULT_DAY, emptyBounties, emptyDaily, emptyMail, emptySummon, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
 
 /**
@@ -31,6 +33,7 @@ export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY
     shards: {},
     summon: emptySummon(),
     seenScenes: [],
+    seenUnlocks: [],
     mail: emptyMail(),
   };
   for (const templateId of ctx.progression.heroes.start) save = addHeroCard(save, templateId, ctx.content.heroes[templateId]?.baseRarity ?? 'green').save;
@@ -162,15 +165,20 @@ export function saveRevision(text: string | null | undefined): number {
  *   редкости — предел;
  * - второй экземпляр одной карточки в отряде убирается из отряда (правило «одна копия карточки в отряде»);
  * - предметы, которых нет в ctx.equipment.items (если контекст с экипировкой), убираются;
- * - save.notices (сообщения миграции) → warnings, поле убирается.
+ * - save.notices (сообщения миграции) → warnings, поле убирается;
+ * - нет seenUnlocks (сохранение старше data/unlocks.json) — уже открытые функции отмечаются показанными (без баннеров).
  * Каждая правка — строка в warnings (понятный русский текст). Ничего не правили — тот же объект save.
  */
 export function sanitizeSave(
   save: SaveState,
-  ctx: GameContext & { equipment?: { items: Record<string, unknown> } },
+  ctx: GameContext & { equipment?: { items: Record<string, unknown> }; unlocks?: UnlocksConfig },
 ): { save: SaveState; warnings: string[] } {
   const warnings: string[] = [...(save.notices ?? [])];
   let changed = save.notices !== undefined;
+  if (ctx.unlocks && !save.seenUnlocks) {
+    save = initSeenUnlocks(save, ctx);
+    changed = true;
+  }
   const templates = ctx.content.heroes;
   const rarities = ctx.cards.rarities.map((r) => r.id);
   const gone = new Set<string>();

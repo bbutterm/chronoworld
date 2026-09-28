@@ -25,7 +25,10 @@ export const TowerConfigSchema = z
   .object({
     $schema: z.string().optional(),
     $comment: z.string().optional(),
-    /** id этапа кампании, после прохождения которого башня открыта; null — открыта сразу. */
+    /**
+     * id этапа кампании, после прохождения которого башня открыта; null — открыта сразу. В игре этап берётся из
+     * data/unlocks.json (строка tower) — здесь поле только для контекстов без таблицы открытий (задано и там — ошибка).
+     */
     unlockAfterStage: id.nullable().default(null),
     /** Последний этаж башни. */
     maxFloor: z.number().int().positive(),

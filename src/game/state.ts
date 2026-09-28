@@ -22,11 +22,23 @@ function loadSpeed(): number {
   return playbackSpeeds[0];
 }
 
-export const playback = { speed: loadSpeed() };
+/**
+ * Скорость выше 1x открывается этапом кампании (data/unlocks.json → speed_x2). Проверку и тост ставит unlockBanner.ts
+ * (installUnlockGates) — здесь нет сохранения. По умолчанию открыто (тесты, экраны без сохранения).
+ */
+export const speedGate: { open: () => boolean; onLocked: () => void } = { open: () => true, onLocked: () => {} };
+
+/** Выбранная скорость (raw) и действующая (speed): пока ×2 закрыта — 1x, выбор при этом помнится. */
+export const playback = {
+  raw: loadSpeed(),
+  get speed(): number {
+    return speedGate.open() ? this.raw : playbackSpeeds[0];
+  },
+};
 
 /** Сменить скорость боя и запомнить выбор (ошибки хранилища не мешают игре). */
 export function setPlaybackSpeed(speed: number): void {
-  playback.speed = speed;
+  playback.raw = speed;
   try {
     globalThis.localStorage?.setItem(SPEED_KEY, String(speed));
   } catch {
@@ -62,6 +74,11 @@ export function setAutoAdvance(on: boolean): void {
 
 /** Следующая скорость по кругу (1x → 2x → … → 1x). */
 export function nextPlaybackSpeed(): number {
+  // Закрыто: остаёмся на 1x, игрок видит тост «Откроется на этапе 1-3».
+  if (!speedGate.open()) {
+    speedGate.onLocked();
+    return playbackSpeeds[0];
+  }
   const i = playbackSpeeds.indexOf(playback.speed);
   return playbackSpeeds[(i + 1) % playbackSpeeds.length];
 }

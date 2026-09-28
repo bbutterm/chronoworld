@@ -1,0 +1,86 @@
+{
+  "title": "Открытие функций по этапам кампании",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "fast_rewards",
+              "quests",
+              "speed_x2",
+              "achievements",
+              "tavern",
+              "bounties",
+              "tower"
+            ]
+          },
+          "stage": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 140
+          },
+          "icon": {
+            "type": "string",
+            "enum": [
+              "map",
+              "helmet",
+              "home",
+              "gear",
+              "gift",
+              "bag",
+              "lock",
+              "chest",
+              "scroll",
+              "tower",
+              "trophy",
+              "swords",
+              "check",
+              "back",
+              "next",
+              "hourglass",
+              "flag",
+              "star",
+              "mug"
+            ]
+          },
+          "line": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "id",
+          "stage",
+          "title",
+          "description",
+          "icon"
+        ]
+      }
+    }
+  },
+  "required": [
+    "features"
+  ]
+}

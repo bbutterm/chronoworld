@@ -53,6 +53,7 @@ import {
   startBounty,
   touchEvents,
   towerUnlocked,
+  featureUnlocked,
   type CardRarity,
   type FullContext,
   type GameContext,
@@ -501,6 +502,8 @@ class Sim {
   /** Быстрые награды, если сегодня использовано меньше fastRewardsPerDay. true — взяты. */
   fastRewards(): boolean {
     let used = false;
+    // Открытия функций (data/unlocks.json): до своего этапа кнопки на главной закрыты — модель тоже ждёт.
+    if (!featureUnlocked(this.save, 'fast_rewards', this.ctx)) return false;
     for (let guard = 0; guard < 100; guard++) {
       const st = fastRewardsStatus(this.save, this.day, this.ctx);
       if (st.used >= this.model.fastRewardsPerDay || st.nextCost === null || st.nextCost > this.save.currency.gems) break;
@@ -514,6 +517,7 @@ class Sim {
   }
 
   claimBounties(): void {
+    if (!featureUnlocked(this.save, 'bounties', this.ctx)) return;
     for (const b of this.save.bounties.active) {
       if (this.now >= b.endsAt) this.step('bounties', claimBounty(this.save, b.id, this.now, this.ctx).save);
     }
@@ -521,6 +525,7 @@ class Sim {
 
   /** Доска на сегодня; поручения по убыванию ценности (гем = 10 золота), группа — из свободных героев вне отряда первыми. */
   startBounties(): void {
+    if (!featureUnlocked(this.save, 'bounties', this.ctx)) return;
     this.save = ensureBoard(this.save, this.day, this.model.seedBase, this.ctx);
     const value = (b: { rewards: { gold: number; gems: number } }) => b.rewards.gold + 10 * b.rewards.gems;
     const board = [...this.save.bounties.board].sort((a, b) => value(b) - value(a) || (a.id < b.id ? -1 : 1));
@@ -578,22 +583,23 @@ class Sim {
   claimRewards(): void {
     for (let guard = 0; guard < 10; guard++) {
       let changed = this.claimEvents();
+      const quests = featureUnlocked(this.save, 'quests', this.ctx);
       const qs = questStatus(this.save, this.ctx, this.day);
-      for (const q of qs.quests) {
+      for (const q of quests ? qs.quests : []) {
         if (q.done && !q.claimed) {
           this.step('quests', claimQuest(this.save, this.day, q.id, this.ctx).save);
           this.questClaims[q.id] = (this.questClaims[q.id] ?? 0) + 1;
           changed = true;
         }
       }
-      for (const m of questStatus(this.save, this.ctx, this.day).milestones) {
+      for (const m of quests ? questStatus(this.save, this.ctx, this.day).milestones : []) {
         if (m.reached && !m.claimed) {
           this.step('quests', claimActivity(this.save, this.day, m.points, this.ctx).save);
           this.milestoneClaims[m.points] = (this.milestoneClaims[m.points] ?? 0) + 1;
           changed = true;
         }
       }
-      for (const a of achievementStatus(this.save, this.ctx)) {
+      for (const a of featureUnlocked(this.save, 'achievements', this.ctx) ? achievementStatus(this.save, this.ctx) : []) {
         if (a.done && !a.claimed) {
           this.step('achievements', claimAchievement(this.save, a.id, this.ctx).save);
           changed = true;
@@ -623,7 +629,9 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
   const stageAttempts = new Map<string, number>();
   const towerByFloor = new Map<number, number>();
   const lastChapter = ctx.content.stages[ctx.content.stages.length - 1]?.chapter ?? '';
-  const battleMs = (duration: number) => Math.round((duration / model.battleSpeed + model.battleOverheadSec) * 1000);
+  // Скорость ×2 открывается этапом (data/unlocks.json → speed_x2): до него бои смотрят на ×1.
+  const battleMs = (duration: number) =>
+    Math.round((duration / (featureUnlocked(sim.save, 'speed_x2', ctx) ? model.battleSpeed : 1) + model.battleOverheadSec) * 1000);
   // Строк сюжета на этапе: сцены до/после этапа и начало главы (для первого этапа главы).
   const storyLines = new Map<string, number>();
   for (const st of ctx.content.stages) {
