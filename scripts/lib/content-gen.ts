@@ -549,6 +549,7 @@ export function genHero(root: string, id: string, opts: Record<string, string>):
       statMods: { hp: 1.2, atk: 1.2, def: 1.2 },
       skills,
       promotion: `${TODO}: строка возвышения при выборе ветки ${bj.id} (≤ 160 символов)`,
+      bio: `${TODO}: история формы ${bj.id} — кем герой стал после возвышения, 2–3 предложения (≤ 300 символов)`,
       visual: {},
     };
   });

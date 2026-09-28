@@ -25,6 +25,15 @@ describe('content:check — карточки героев и Таверна', ()
     for (const s of r.sprites) expect(registry[s]).toBeDefined();
   });
 
+  it('у ветки нет bio — ⚠ (история формы), у всех веток в data — без предупреждения', () => {
+    expect(lintHeroes(ctx, registry, {}).warnings.filter((w) => w.includes('нет bio ветки'))).toEqual([]);
+    const kai = ctx.content.heroes.kai;
+    const bare = { ...kai, branches: kai.branches.map((b, i) => (i === 0 ? { ...b, bio: undefined } : b)) };
+    const r = lintHeroes(withHeroes({ kai: bare }), registry, {});
+    expect(r.errors).toEqual([]);
+    expect(r.warnings.some((w) => w.startsWith(`карточка kai/${kai.branches[0].job}: нет bio ветки`))).toBe(true);
+  });
+
   it('нет своего листа — ⚠ (откат на лист класса); лист класса не находится вовсе — ✗', () => {
     const kai = ctx.content.heroes.kai;
     const r = lintHeroes(withHeroes({ kai: { ...kai, visual: { sprite: 'no_such_sheet' } } }), registry, {});

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, levelUpInfo, newGame, type SaveState } from '../src/core';
+import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, levelUpInfo, newGame, type SaveState } from '../src/core';
 import {
   ascendPreview,
   ascendReadyWith,
@@ -154,6 +154,18 @@ describe('H4 «Вознесение»', () => {
   it('у каждой ветки есть строка возвышения для показа выбора и вознесения', () => {
     for (const t of Object.values(ctx.content.heroes)) {
       for (const b of t.branches) expect(b.promotion, `${t.id} → ${b.job}`).toBeTruthy();
+    }
+  });
+
+  it('у каждой ветки своя история (bio) — вкладка «История» после возвышения не остаётся с историей первой профессии', () => {
+    for (const t of Object.values(ctx.content.heroes)) {
+      for (const b of t.branches) {
+        expect(b.bio, `${t.id} → ${b.job}`).toBeTruthy();
+        expect(b.bio!.length, `${t.id} → ${b.job}`).toBeGreaterThan(60);
+        expect(b.bio).not.toMatch(/TODO/);
+      }
+      // В карточке ветка отдаёт bio экранам.
+      expect(branchOptions(t.id, ctx).every((v) => !!v.bio)).toBe(true);
     }
   });
 });

@@ -54,6 +54,11 @@ export const HeroBranchSchema = z.object({
   skills: z.array(CardSkillSchema).min(1),
   /** Строка возвышения: экран выбора ветки и вознесения (≤ 160 символов). */
   promotion: z.string().max(160),
+  /**
+   * История формы (2–3 предложения, ≤ 300 символов): кем герой стал после возвышения — вкладка «История» карточки.
+   * Нет — content:check предупреждает (во вкладке останется только строка возвышения).
+   */
+  bio: z.string().max(300).optional(),
   /** Лист спрайта формы (id из assets/sprites/sprites.json, например knight_m); нет листа — лист класса по полу. */
   visual: z.object({ sprite: z.string().optional() }).default({}),
 });

@@ -6,6 +6,7 @@ import { glowTexture, iconBadge, rarityPalette } from './heroCard';
 import { juiceOn, pulse } from './juice';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
 import { card, popIn, unitFigure } from './screen';
+import { openSkillDetail } from './skillDetail';
 import { skillIcon } from './skillIcons';
 import { C, FS, OUTLINE, TITLE_STYLE } from './theme';
 import { button, ellipsize, pressable, text } from './ui';
@@ -111,11 +112,22 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
   branches.forEach((b, i) => {
     const x = GAME_W / 2 + (i === 0 ? -1 : 1) * (PANEL_W / 2 + PANEL_GAP / 2);
     const h = branchPanel(scene, layer, x, b, t?.gender ?? 'm', opts.templateId, b.job === opts.current);
-    highlights.push({ job: b.job, ...h });
-    if (!opts.viewOnly && b.job !== opts.current) {
+    highlights.push({ job: b.job, frame: h.frame, glow: h.glow, mark: h.mark });
+    const pick = !opts.viewOnly && b.job !== opts.current;
+    if (pick) {
       pressable(scene, h.frame, PANEL_W, PANEL_H, () => {
         selected = b.job;
         refresh();
+      });
+    }
+    // Навык ветки: подробности поверх окна (и выбор этой ветки, как касание панели).
+    for (const s of h.skillHits) {
+      pressable(scene, s.hit, PANEL_W - 20, s.hit.height, () => {
+        if (pick) {
+          selected = b.job;
+          refresh();
+        }
+        openSkillDetail(scene, s.skill, { note: `Ветка ${b.jobName} · ур. ${s.level}`, depth: DEPTH + 100 });
       });
     }
   });
@@ -148,7 +160,7 @@ function branchPanel(
   gender: 'm' | 'f',
   templateId: string,
   isCurrent: boolean,
-): { frame: Phaser.GameObjects.Rectangle; glow: Phaser.GameObjects.Image; mark: Phaser.GameObjects.Container } {
+): { frame: Phaser.GameObjects.Rectangle; glow: Phaser.GameObjects.Image; mark: Phaser.GameObjects.Container; skillHits: { skill: string; hit: Phaser.GameObjects.Rectangle; level: number }[] } {
   const rarity: CardRarity = BRANCH_RARITY;
   const pal = rarityPalette(rarity);
   const cy = TOP + PANEL_H / 2;
@@ -195,7 +207,9 @@ function branchPanel(
   const skills = [...b.skills].sort((p, q) => p.level - q.level);
   const room = TOP + PANEL_H - 20 - y;
   const rowH = Math.min(170, Math.floor(room / Math.max(1, skills.length)));
+  const rows: { skill: string; y: number; level: number }[] = [];
   for (const s of skills) {
+    rows.push({ skill: s.skill, y: y + rowH / 2, level: s.level });
     const sk = CONTENT.skills[s.skill];
     const iy = y + 38;
     layer.add(scene.add.image(left + 34, iy, skillIcon(scene, sk)).setDisplaySize(68, 68));
@@ -211,6 +225,12 @@ function branchPanel(
   // Рамка поверх (для нажатия и подсветки) и отметки.
   const frame = scene.add.rectangle(x, cy, PANEL_W, PANEL_H).setStrokeStyle(3, 0x5a4a30, 0.8).setName(`branchPanel_${b.job}`);
   layer.add(frame);
+  // Строки навыков — поверх рамки: касание открывает полное описание (в панели оно обрезано).
+  const skillHits = rows.map((r) => {
+    const hit = scene.add.rectangle(x, r.y, PANEL_W - 20, rowH - 4, 0x000000, 0.001).setName(`branchSkill_${r.skill}`);
+    layer.add(hit);
+    return { skill: r.skill, hit, level: r.level };
+  });
   const mark = scene.add.container(x, TOP + 30, [
     scene.add.rectangle(0, 0, 220, 52, 0xb8860b, 0.95).setStrokeStyle(3, 0xfff0b0),
     text(scene, 0, -2, '✓ Выбрано', FS.small, '#2a1c08', { fontStyle: 'bold' }),
@@ -222,5 +242,5 @@ function branchPanel(
       text(scene, 0, -2, 'Сейчас', FS.small, C.text, { fontStyle: 'bold' }),
     ]));
   }
-  return { frame, glow, mark };
+  return { frame, glow, mark, skillHits };
 }
