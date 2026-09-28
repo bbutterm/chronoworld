@@ -20,9 +20,12 @@ describe('O: used assets (что попадает в dist)', () => {
     }
   });
 
-  it('включает все шесть анимированных FX в сборку, даже пока статические fallback остаются в манифесте', () => {
+  it('включает все восемь анимированных FX в сборку при наличии статических fallback в манифесте', () => {
     const catalog = json('assets/effects/effects.json') as { effects: { id: string; file: string }[] };
-    expect(catalog.effects.map((effect) => effect.id).sort()).toEqual(['fx_arrow', 'fx_death', 'fx_heal', 'fx_hit', 'fx_magic', 'fx_shield']);
+    expect(catalog.effects.map((effect) => effect.id).sort()).toEqual([
+      'fx_arrow', 'fx_death', 'fx_heal', 'fx_hit', 'fx_job_acolyte_blessing',
+      'fx_job_mage_thunderstorm', 'fx_magic', 'fx_shield',
+    ]);
     for (const effect of catalog.effects) expect(files).toContain(effect.file);
   });
 

@@ -267,6 +267,7 @@ export const RO_SKILL_ICONS: Record<string, string> = {
   job_acolyte_increase_agi: 'al_incagi',
   job_priest_sanctuary: 'pr_sanctuary',
   job_merchant_mammonite: 'mc_mammonite',
+  job_merchant_frying_pan: 'mc_fryingpan',
   job_merchant_pushcart: 'mc_pushcart',
   job_merchant_cart_revolution: 'mc_cartrevolution',
   job_merchant_crazy_uproar: 'mc_loud',
