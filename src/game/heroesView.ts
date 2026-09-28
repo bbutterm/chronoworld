@@ -105,6 +105,40 @@ export function missingTemplates(save: SaveState, filter: HeroFilter, ctx: GameC
     .map((t) => t.id);
 }
 
+/**
+ * Коллекция с копиями одним местом (как в AFK): по одной плитке на героя — лучший экземпляр в порядке списка
+ * (первый встреченный) и сколько экземпляров героя в списке. Порядок — как у heroes.
+ */
+export function groupCopies(heroes: readonly HeroState[]): { hero: HeroState; copies: number; ids: string[] }[] {
+  const out = new Map<string, { hero: HeroState; copies: number; ids: string[] }>();
+  for (const h of heroes) {
+    const g = out.get(h.templateId);
+    if (g) {
+      g.copies++;
+      g.ids.push(h.id);
+    } else out.set(h.templateId, { hero: h, copies: 1, ids: [h.id] });
+  }
+  return [...out.values()];
+}
+
+/**
+ * Счётчик копий на карточке героя: всего экземпляров героя (кроме этого) и, если следующее вознесение берёт копии
+ * этого же героя, — сколько подходящих свободных есть из нужного числа: «Копий: 3 · в корм син. 1/2».
+ */
+export function copyCounter(save: SaveState, heroId: string, ctx: GameContext): { others: number; have?: number; need?: number; rarity?: CardRarity; text: string } {
+  const hero = save.heroes.find((h) => h.id === heroId);
+  if (!hero) return { others: 0, text: '' };
+  const others = save.heroes.filter((h) => h.templateId === hero.templateId && h.id !== hero.id).length;
+  const req = ascendRequirement(save, heroId, ctx);
+  const same = req?.fodder.find((f) => f.kind === 'same');
+  if (!same) return { others, text: `Копий: ${others}` };
+  const have = Math.min(same.count, same.candidates.length);
+  const rn = RARITY_PLURAL_GEN[same.rarity];
+  return { others, have, need: same.count, rarity: same.rarity, text: `Копий: ${others} · в корм ${rn} ${have}/${same.count}` };
+}
+
+const RARITY_PLURAL_GEN: Record<CardRarity, string> = { green: 'зел.', blue: 'син.', purple: 'фиол.', gold: 'зол.', red: 'кр.' };
+
 /** Сколько разных шаблонов собрано и всего: «12/25». */
 export function collectionCount(save: SaveState, ctx: GameContext): { owned: number; total: number } {
   const ids = Object.keys(ctx.content.heroes);
@@ -171,13 +205,16 @@ export interface AscendPreview {
   newSkills: { skill: string; level: number; now: boolean }[];
 }
 
-/** Превью вознесения: что станет с карточкой на следующей редкости (null — максимум). */
-export function ascendPreview(hero: HeroState, ctx: GameContext): AscendPreview | null {
+/**
+ * Превью вознесения: что станет с карточкой на следующей редкости (null — максимум). choice — ветка, выбранная на
+ * экране вознесения (переход с выбором ветки); не выбрана — превью по первой ветке героя.
+ */
+export function ascendPreview(hero: HeroState, ctx: GameContext, choice?: string): AscendPreview | null {
   const t = heroTemplate(ctx, hero.templateId);
   const to = nextRarity(hero.rarity);
   if (!to || rarityIndex(hero.rarity) >= rarityIndex(t.maxRarity)) return null;
-  // V1: на переходе с выбором ветки превью — по первой ветке (экран выбора ветки — пакет V2).
-  const branch = hero.branch ?? (rarityIndex(to) >= rarityIndex(BRANCH_RARITY) ? t.branches[0]?.job : undefined);
+  const pick = choice && t.branches.some((b) => b.job === choice) ? choice : t.branches[0]?.job;
+  const branch = hero.branch ?? (rarityIndex(to) >= rarityIndex(BRANCH_RARITY) ? pick : undefined);
   const f0 = activeForm(t, hero);
   const f1 = activeForm(t, { rarity: to, branch });
   const cap0 = maxLevelOf(ctx, hero.rarity);

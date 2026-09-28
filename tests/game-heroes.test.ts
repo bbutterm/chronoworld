@@ -14,6 +14,8 @@ import {
   nextLevelDelta,
   placeFodder,
   copySources,
+  copyCounter,
+  groupCopies,
   skillRarityGate,
   sortHeroes,
   valuableFodder,
@@ -155,3 +157,39 @@ describe('H4 «Вознесение»', () => {
     }
   });
 });
+
+describe('Герои v2 (V2): копии одной плиткой, счётчик копий, превью ветки', () => {
+  it('groupCopies: одна плитка на героя — лучший экземпляр по порядку списка и число экземпляров', () => {
+    const s = rich();
+    const list = collectionHeroes(s, { line: null, role: null, rarity: null }, 'level', ctx, () => 0);
+    const groups = groupCopies(list);
+    const iris = groups.find((g) => g.hero.templateId === 'iris')!;
+    expect(iris.copies).toBe(3);
+    expect(iris.hero.level).toBe(12);
+    expect(new Set(groups.map((g) => g.hero.templateId)).size).toBe(groups.length);
+    expect(groups.reduce((n, g) => n + g.copies, 0)).toBe(list.length);
+  });
+
+  it('copyCounter: сколько копий героя и сколько подходящих в корм следующего вознесения', () => {
+    const s = rich();
+    const best = s.heroes.find((h) => h.templateId === 'iris' && h.level === 12)!;
+    const c = copyCounter(s, best.id, ctx);
+    expect(c.others).toBe(2);
+    expect(c.need).toBe(2);
+    expect(c.have).toBe(2);
+    expect(c.text).toBe('Копий: 2 · в корм зел. 2/2');
+    const lira = s.heroes.find((h) => h.templateId === 'lira')!;
+    expect(copyCounter(s, lira.id, ctx).text).toBe('Копий: 0');
+  });
+
+  it('ascendPreview: выбранная ветка на переходе синий → фиолетовый', () => {
+    let s = rich();
+    s = addHeroCard(s, 'alan', 'blue', { level: 40 }).save;
+    const alan = s.heroes[s.heroes.length - 1];
+    const t = ctx.content.heroes.alan;
+    expect(ascendPreview(alan, ctx)!.newJob).toBe(t.branches[0].job);
+    expect(ascendPreview(alan, ctx, t.branches[1].job)!.newJob).toBe(t.branches[1].job);
+    expect(ascendPreview(alan, ctx, 'no_such_job')!.newJob).toBe(t.branches[0].job);
+  });
+});
+

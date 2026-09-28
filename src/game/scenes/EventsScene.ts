@@ -13,7 +13,7 @@ import {
 import { GAME } from '../content';
 import { ribbon, slowRays, glow } from '../decor';
 import { formatNumber } from '../flow';
-import { drawHeroCard, heroCardSize } from '../heroCard';
+import { drawHeroCard, heroCardIcon, heroCardSize } from '../heroCard';
 import { touchToday } from '../homeEvents';
 import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 import { GAME_W } from '../layout';
@@ -164,16 +164,21 @@ export class EventsScene extends Phaser.Scene {
     const x = GAME_W / 2;
     this.tileFrame(d, x, y, w, h);
     const hero = d.rewards.heroes?.[0];
+    const pick = d.rewards.heroPicks?.[0];
     const cx = x - w / 2 + 190;
     if (hero) {
       if (!d.claimed) slowRays(this, cx, y + 20, 360, 0.35, 0xd890ff);
       drawHeroCard(this, cx, y + 26, hero, { w: 210, glow: !d.claimed, level: null }).setAlpha(d.claimed ? 0.6 : 1);
+    } else if (pick) {
+      // «Контракт героя»: рубашка цвета редкости с пером-звездой — герой и ветка на выбор.
+      if (!d.claimed) slowRays(this, cx, y + 20, 360, 0.35, 0xd890ff);
+      heroCardIcon(this, cx, y + 26, 290, pick.rarity, undefined, { pick: true, dim: d.claimed });
     }
     const tx = x - w / 2 + 360;
-    const name = hero ? (GAME.content.heroes[hero]?.name ?? hero) : '';
+    const name = hero ? (GAME.content.heroes[hero]?.name ?? hero) : pick ? 'Герой и ветка — на выбор' : '';
     text(this, tx, y - 90, d.label ?? 'Главная награда', FS.h2, d.ready ? C.ink : d.claimed ? C.disabled : C.title, d.ready ? { fontStyle: 'bold' } : TITLE_STYLE).setOrigin(0, 0.5);
     if (name) text(this, tx, y - 30, name, FS.h3, d.ready ? C.inkMuted : C.text, d.ready ? {} : OUTLINE).setOrigin(0, 0.5);
-    const rest = { ...d.rewards, heroes: [] };
+    const rest = { ...d.rewards, heroes: [], heroPicks: [] };
     rewardRow(this, tx, y + 30, rest, { dim: d.claimed });
     this.dayState(d, x + 150, y + h / 2 - 50);
     if (d.ready) {
@@ -197,6 +202,7 @@ export class EventsScene extends Phaser.Scene {
       const r = claimLogin(session.save, today(), d.day, GAME);
       commit(r.save);
       queueRewardFly('Events', at, before, { burst: true });
+      if (this.toContract(rewardToast(`День ${d.day}`, r.rewards, r.events), r.events, { tab: 'login' })) return;
       this.restartWithToast(rewardToast(`День ${d.day}`, r.rewards, r.events), { tab: 'login' });
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
@@ -219,6 +225,15 @@ export class EventsScene extends Phaser.Scene {
     // Главная награда — последний сундук: карточка героя справа.
     const final = st.milestones[st.milestones.length - 1];
     const hero = final?.rewards.heroes?.[0];
+    const finalPick = final?.rewards.heroPicks?.[0];
+    if (!hero && finalPick) {
+      const ch = 204;
+      const cx = GAME_W - 60 - 75;
+      const cy = top + 105 + ch / 2;
+      if (!final.claimed) slowRays(this, cx, cy, 260, 0.3, 0xd890ff);
+      heroCardIcon(this, cx, cy, ch, finalPick.rarity, undefined, { pick: true, dim: final.claimed });
+      text(this, cx, cy + ch / 2 + 22, `за ${final.points} очк.`, FS.caption, C.gold, OUTLINE);
+    }
     if (hero) {
       const cw = 150;
       const { h } = heroCardSize(cw);
@@ -270,7 +285,7 @@ export class EventsScene extends Phaser.Scene {
     const frame = m.claimed ? 'k:buttonSquare_grey' : m.ready ? 'k:buttonSquare_beige' : 'k:buttonSquare_brown';
     const b = button(this, x0, y, 96, 96, frame, String(m.points), () => this.claimChest(m, { x: x0, y }), FS.caption);
     b.label.setY(28).setColor(m.claimed ? C.disabled : m.ready ? SKIN.goldLight : SKIN.cream).setStroke('#000000', 5);
-    const hero = !!m.rewards.heroes?.length;
+    const hero = !!m.rewards.heroes?.length || !!m.rewards.heroPicks?.length;
     b.container.addAt(this.add.image(0, -12, skinIcon(hero ? 'star' : 'chest')).setDisplaySize(52, 52).setTint(m.claimed ? 0x6a6a70 : hero ? 0xd890ff : m.ready ? SKIN_TINT.gold : SKIN_TINT.creamDim), 1);
     b.container.setName(`nbChest_${m.points}`);
     if (m.claimed) this.add.image(x0 + 34, y - 34, skinIcon('check')).setDisplaySize(40, 40).setTint(CHECK_TINT);
@@ -328,10 +343,20 @@ export class EventsScene extends Phaser.Scene {
       const r = claimNewbieMilestone(session.save, today(), m.points, GAME);
       commit(r.save);
       queueRewardFly('Events', at, before);
+      if (this.toContract(rewardToast(`Сундук за ${m.points} очков`, r.rewards, r.events), r.events, { tab: 'newbie', day: this.day })) return;
       this.restartWithToast(rewardToast(`Сундук за ${m.points} очков`, r.rewards, r.events), { tab: 'newbie', day: this.day });
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
+  }
+
+  /** В награде «Контракт героя» — сразу экран выбора героя (назад — сюда же). true — ушли. */
+  private toContract(message: string, events: readonly { type: string }[], data: EventsData): boolean {
+    if (!events.some((e) => e.type === 'heroPick')) return false;
+    this.scene.start('HeroPick', { back: { to: 'Events', data } });
+    const sc = this.scene.get('HeroPick');
+    sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, message, C.success, 4000));
+    return true;
   }
 
   private restartWithToast(message: string, data: EventsData, fly = true): void {

@@ -4,6 +4,9 @@ import {
   actEquipBest,
   actLevelUp,
   ascendRequirement,
+  branchStatus,
+  changeBranch,
+  chooseBranch,
   COMBAT,
   gearUpgrades,
   heroCard,
@@ -34,7 +37,9 @@ import { sfx } from '../audio';
 import { bump, countUp, juiceOn, pulse } from '../juice';
 import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, iconBadge, raysTexture, rarityBackdrop, rarityPalette, rarityPips } from '../heroCard';
-import { browseNeighbours, heroesUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
+import { browseNeighbours, copyCounter, heroesUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
+import { openBranchPicker } from '../branchPicker';
+import { gemIcon } from '../screen';
 
 const SKILL_ROW_H = 118;
 type Tab = 'skills' | 'gear' | 'story';
@@ -107,7 +112,7 @@ export class HeroScene extends Phaser.Scene {
       hero = this.hero();
     }
     const c = hero && GAME.content.heroes[hero.templateId] ? heroCard(hero, GAME) : undefined;
-    screen(this, c?.name ?? 'Герой', 'Heroes', { to: 'Heroes' });
+    screen(this, c ? (c.branch ? `${c.name} · ${c.jobName}` : c.name) : 'Герой', 'Heroes', { to: 'Heroes' });
     if (!hero || !c) return;
     const ups = gearUpgrades(session.save, hero.id, GAME);
     this.tab = data.tab ?? heroesUi.tab ?? (ups.length && !hintDone('equip_gear') ? 'gear' : 'skills');
@@ -187,7 +192,7 @@ export class HeroScene extends Phaser.Scene {
     iconBadge(this, COL_X + 30, TOP + 256, c.role, 30, pal.tint);
     const range = CONTENT.skills[job?.basic ?? '']?.range === 'melee' ? 'ближний бой' : 'дальний бой';
     ellipsize(text(this, COL_X + 76, TOP + 256, `${ROLE_NAMES[c.role] ?? ''} · ${range}`, FS.body, C.muted).setOrigin(0, 0.5), COL_R - COL_X - 76);
-    text(this, COL_X, TOP + 314, `${c.source === 'story' ? 'Сюжетный герой' : 'Из Таверны'} · ${GUILD_NAMES[c.line] ?? ''}`, FS.caption, C.dim).setOrigin(0, 0.5);
+    this.branchRow(hero, c, TOP + 314);
     text(this, COL_X, TOP + 368, 'Мощь', FS.small, C.muted).setOrigin(0, 0.5);
     const power = text(this, COL_X + 90, TOP + 368, '', FS.h1, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 7 }).setOrigin(0, 0.5).setName('heroPower');
     const level = text(this, COL_X, TOP + 432, '', FS.h3, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('heroLevel');
@@ -196,8 +201,17 @@ export class HeroScene extends Phaser.Scene {
     const levelBar = this.add.rectangle(COL_X + 3, TOP + 478, 0, 16, pal.tint).setOrigin(0, 0.5);
     this.ui = { level, levelBar, levelBarW: barW - 6, power, stats: [], deltas: [], info: this.add.container(0, 0) };
 
-    // Замок (призывные: не уйдёт в корм) — левый верхний угол витрины.
-    if (c.source === 'summon') {
+    // Копии героя (корм для вознесения) — под фигурой.
+    const cc = copyCounter(session.save, hero.id, GAME);
+    if (cc.text) {
+      const ready = cc.need !== undefined && (cc.have ?? 0) >= cc.need;
+      const t = text(this, FIG_X, TOP + 488, cc.text, FS.caption, ready ? C.positive : C.muted, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('copyCounter');
+      ellipsize(t, 470);
+      this.add.rectangle(FIG_X, TOP + 488, Math.min(490, t.width + 30), 40, 0x0b0805, 0.72).setStrokeStyle(2, pal.tint, 0.8);
+      this.children.bringToTop(t);
+    }
+    // Замок (не уйдёт в корм) — левый верхний угол витрины. Копией бывает любой герой, сюжетный тоже.
+    {
       const lock = button(this, 88, TOP + 70, 96, 96, c.locked ? 'k:buttonSquare_brown' : 'k:buttonSquare_beige', '', () => this.toggleLock(), FS.body, { sound: 'ui_toggle' });
       lock.container.add(this.add.image(0, -4, skinIcon('lock')).setDisplaySize(56, 56).setTint(c.locked ? 0xffd84a : 0x8a8070));
       lock.container.setName('lockBtn');
@@ -207,6 +221,76 @@ export class HeroScene extends Phaser.Scene {
     const nb = browseNeighbours(order, hero.id, (id) => session.save.heroes.some((h) => h.id === id));
     if (nb.prev) button(this, 60, TOP + 300, 84, 130, 'k:buttonSquare_beige', '‹', () => this.scene.restart({ heroId: nb.prev, tab: this.tab }), FS.hero, { sound: 'ui_tab' }).container.setName('prevHero');
     if (nb.next) button(this, 1020, TOP + 300, 84, 130, 'k:buttonSquare_beige', '›', () => this.scene.restart({ heroId: nb.next, tab: this.tab }), FS.hero, { sound: 'ui_tab' }).container.setName('nextHero');
+  }
+
+  /** Ветка второй профессии: «Выбрать ветку» (фиолетовый без ветки), «Сменить ветку» (цена), превью веток ниже. */
+  private branchRow(hero: HeroState, c: HeroCard, y: number): void {
+    const st = branchStatus(session.save, hero.id, GAME);
+    if (st.canChoose) {
+      const b = button(this, COL_X + 195, y, 390, 76, 'ui_btn_primary', 'Выбрать ветку!', () => this.pickBranch(hero, c), FS.h3);
+      b.container.setName('chooseBranchBtn');
+      pulse(this, b.container, 1.05);
+      return;
+    }
+    if (st.canChange) {
+      const b = button(this, COL_X + 124, y, 248, 72, 'ui_btn_secondary', 'Сменить ветку', () => this.pickBranch(hero, c), FS.small);
+      b.container.setName('changeBranchBtn');
+      if (st.changeFree) text(this, COL_X + 258, y, 'бесплатно', FS.caption, C.positive, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5).setName('branchCost');
+      else {
+        gemIcon(this, COL_X + 276, y, 30);
+        text(this, COL_X + 298, y, formatNumber(st.changeCost), FS.caption, C.gem, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5).setName('branchCost');
+      }
+      return;
+    }
+    if (c.branches.length) {
+      const b = button(this, COL_X + 195, y, 390, 72, 'k:buttonLong_beige', 'Ветки на фиолетовом', () => this.previewBranches(hero, c), FS.small, { sound: null });
+      b.container.setName('branchPreviewBtn');
+    }
+  }
+
+  /** Превью обеих веток (до фиолетового). */
+  private previewBranches(hero: HeroState, c: HeroCard): void {
+    const rn = GAME.cards.rarities.find((r) => r.id === (c.branchAt ?? 'purple'))?.name ?? 'Фиолетовый';
+    openBranchPicker(this, {
+      templateId: hero.templateId,
+      title: `${c.name}: ветки второй профессии`,
+      subtitle: `Выбор — при вознесении в «${rn}» (синий → фиолетовый). Первую смену ветки можно сделать бесплатно.`,
+      viewOnly: true,
+    });
+  }
+
+  /** «Выбрать ветку» (бесплатно) или «Сменить ветку» (первая смена бесплатно, дальше гемы). */
+  private pickBranch(hero: HeroState, c: HeroCard): void {
+    const st = branchStatus(session.save, hero.id, GAME);
+    const jobName = (job: string) => GAME.content.jobs[job]?.name ?? job;
+    const change = st.canChange;
+    const other = change ? c.branches.find((b) => b.job !== st.branch)?.job : undefined;
+    const gems = session.save.currency.gems;
+    openBranchPicker(this, {
+      templateId: hero.templateId,
+      title: change ? 'Сменить ветку' : 'Выберите ветку',
+      subtitle: change
+        ? `Уровень, редкость и экипировка сохранятся. ${st.changeFree ? 'Первая смена — бесплатно.' : `Цена: ${formatNumber(st.changeCost)} гемов (есть ${formatNumber(gems)}).`}`
+        : `${c.name} — фиолетовый без ветки. Выбор бесплатный, первую смену потом тоже можно сделать бесплатно.`,
+      ...(st.branch ? { current: st.branch } : {}),
+      ...(other ? { selected: other } : {}),
+      heroId: hero.id,
+      save: session.save,
+      confirmLabel: (job) => (!job ? 'Выберите ветку' : change ? (st.changeFree ? `Сменить: ${jobName(job)}` : `Сменить за ${formatNumber(st.changeCost)} гемов`) : `Выбрать: ${jobName(job)}`),
+      onConfirm: (job) => {
+        try {
+          const r = change ? changeBranch(session.save, hero.id, job, GAME) : chooseBranch(session.save, hero.id, job, GAME);
+          const spent = 'gems' in r ? (r.gems as number) : 0;
+          commit(r.save);
+          sfx('job_change');
+          this.scene.restart({ heroId: hero.id, tab: this.tab });
+          const sc = this.scene.get('Hero');
+          sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `${c.name} — теперь ${jobName(job)}!${spent ? ` (−${formatNumber(spent)} гемов)` : ''}`, C.success, 3000));
+        } catch (e) {
+          toast(this, e instanceof Error ? e.message : String(e), C.error, 3000);
+        }
+      },
+    });
   }
 
   private toggleLock(): void {
@@ -487,16 +571,17 @@ export class HeroScene extends Phaser.Scene {
       this.skillRow(sk.unlocked ? { id: sk.skill, kind: sk.passive ? 'Пассивный' : activeKind(sk.skill) } : { id: sk.skill, kind: '', locked: sk.level, gate: gate?.name }, y + SKILL_ROW_H / 2);
       y += SKILL_ROW_H;
     }
-    // До фиолетового: превью обеих веток второй профессии (V1 — списком; карточки веток — пакет V2).
-    if (c.branchAt) {
-      const rn = GAME.cards.rarities.find((r) => r.id === c.branchAt)?.name ?? c.branchAt;
-      for (const b of c.branches) {
-        a.add(text(this, 60, y + 40, `С редкости «${rn}» — ветка ${b.jobName}`, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5));
-        y += 80;
-        for (const s of [...b.skills].sort((p, q) => p.level - q.level)) {
-          this.skillRow({ id: s.skill, kind: '', locked: s.level, gate: rn, form: true }, y + SKILL_ROW_H / 2);
-          y += SKILL_ROW_H;
-        }
+    // Другие формы серым: до фиолетового — обе ветки («после вознесения»), без ветки — обе («выберите ветку»),
+    // с веткой — другая ветка («Сменить ветку»).
+    const rn = GAME.cards.rarities.find((r) => r.id === (c.branchAt ?? 'purple'))?.name ?? 'Фиолетовый';
+    const others = c.branch ? c.branches.filter((b) => b.job !== c.branch) : c.branches;
+    for (const b of others) {
+      const head = c.branchAt ? `С редкости «${rn}» — ветка ${b.jobName}` : c.branch ? `Другая ветка: ${b.jobName} («Сменить ветку»)` : `Ветка ${b.jobName} — выберите на карточке`;
+      a.add(text(this, 60, y + 40, head, FS.body, c.branchAt ? C.title : C.dim, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName(`otherBranch_${b.job}`));
+      y += 80;
+      for (const s of [...b.skills].sort((p, q) => p.level - q.level)) {
+        this.skillRow({ id: s.skill, kind: '', locked: s.level, gate: rn, form: true, note: c.branchAt ? undefined : `ур. ${s.level} · ${c.branch ? 'другая ветка' : 'после выбора'}` }, y + SKILL_ROW_H / 2);
+        y += SKILL_ROW_H;
       }
     }
     a.setContentHeight(y + 10);
@@ -511,7 +596,7 @@ export class HeroScene extends Phaser.Scene {
     if (locked) icon.setAlpha(0.45).setTint(0x8a8a8a);
     a.add(icon);
     if (locked) a.add(this.add.image(116, y + 26, skinIcon('lock')).setDisplaySize(34, 34).setTint(0xf0cf8a));
-    const kind = locked ? (r.form ? `ур. ${r.locked} · после вознесения` : `откроется на ур. ${r.locked}${r.gate ? ` · нужен ${r.gate}` : ''}`) : r.kind;
+    const kind = r.note ?? (locked ? (r.form ? `ур. ${r.locked} · после вознесения` : `откроется на ур. ${r.locked}${r.gate ? ` · нужен ${r.gate}` : ''}`) : r.kind);
     const kindColor = locked ? (r.gate && !r.form ? C.warning : C.dim) : r.kind.startsWith('КД') ? C.gold : C.success;
     const kindText = a.add(text(this, 1010, y - h * 0.24, kind, FS.caption, kindColor).setOrigin(1, 0.5));
     a.add(ellipsize(text(this, 150, y - h * 0.24, `${sk?.name ?? r.id}`, FS.body, locked ? C.disabled : C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), Math.max(200, 1010 - 150 - kindText.width - 20)));
@@ -600,6 +685,8 @@ interface SkillRow {
   gate?: string;
   /** Навык второй профессии (после вознесения). */
   form?: boolean;
+  /** Своя подпись справа вместо «откроется на ур. N». */
+  note?: string;
 }
 
 /** Подпись активного навыка: перезарядка и каст (например «КД 5 с · каст 2 с»). */

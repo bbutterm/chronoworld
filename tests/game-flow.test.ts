@@ -52,6 +52,7 @@ describe('помощники экранов', () => {
     expect(lines).toContain('Бран: Синий → Фиолетовый — теперь Охотник!');
     expect(lines).toContain('Карта героя: Вика (Синий)');
     expect(lines).toContain('Бран: ветка — Охотник');
+    expect(describeEvents([{ type: 'heroPick', rarity: 'purple', source: 'login' }], save, ctx)).toEqual(['Контракт героя: фиолетовый герой на выбор — «Герои»']);
     expect(keyEventsFirst(lines).slice(0, 2)).toEqual(['Новый герой в отряде: Грета!', 'Открыта Таверна! Подарок: гемы +150, свитки призыва +1']);
     expect(levelText(4, 20)).toBe('Ур. 4 / 20');
   });

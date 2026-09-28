@@ -460,7 +460,7 @@ async function main() {
     await waitScene('Tavern');
     await sleep(400);
     await shot('tavern');
-    for (const t of ['До гарантированной синей: 10', 'Первый призыв ×10', 'Бесплатно']) if (!(await hasText('Tavern', t))) problems.push(`Таверна: нет «${t}»`);
+    for (const t of ['До синей: 10', 'До фиолетовой: 50', 'Первый призыв ×10', 'Бесплатно']) if (!(await hasText('Tavern', t))) problems.push(`Таверна: нет «${t}»`);
     await clickText('Tavern', 'Забрать подарок');
     await waitScene('Tavern');
     await sleep(300);

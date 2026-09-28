@@ -145,7 +145,7 @@ export class MailScene extends Phaser.Scene {
       const r = claimMail(session.save, l.id, GAME);
       commit(r.save);
       queueRewardFly('Mail', at, before);
-      this.restartWithToast(rewardToast('Получено', r.rewards, r.events));
+      this.restartWithToast(rewardToast('Получено', r.rewards, r.events), r.events);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
@@ -157,7 +157,7 @@ export class MailScene extends Phaser.Scene {
     if (!r.count) return toast(this, 'Забирать нечего');
     commit(r.save);
     queueRewardFly('Mail', { x: GAME_W / 2 + 250, y: BOTTOM_Y }, before, { burst: true });
-    this.restartWithToast(rewardToast(`Писем: ${r.count}`, r.rewards, r.events));
+    this.restartWithToast(rewardToast(`Писем: ${r.count}`, r.rewards, r.events), r.events);
   }
 
   private deleteRead(): void {
@@ -171,7 +171,14 @@ export class MailScene extends Phaser.Scene {
     }, { danger: true });
   }
 
-  private restartWithToast(message: string): void {
+  /** Вложение с «Контрактом героя» — сразу экран выбора героя (назад — в почту). */
+  private restartWithToast(message: string, events: readonly { type: string }[] = []): void {
+    if (events.some((e) => e.type === 'heroPick')) {
+      this.scene.start('HeroPick', { back: { to: 'Mail' } });
+      const sc = this.scene.get('HeroPick');
+      sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, message, C.success, 4000));
+      return;
+    }
     this.scene.restart();
     this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, message, C.success, 4500)));
   }

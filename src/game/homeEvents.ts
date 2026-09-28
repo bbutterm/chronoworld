@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
-import { eventsBadges, letterClaimable, mailStatus, touchEvents } from '../core';
+import { eventsBadges, letterClaimable, mailStatus, pendingPicks, touchEvents } from '../core';
 import { GAME } from './content';
 import { pulse } from './juice';
 import { badge, HEADER_H } from './screen';
 import { commit, session, today } from './session';
 import { SKIN_TINT, skinIcon } from './skin';
 import { button } from './ui';
+import { heroCardIcon } from './heroCard';
 
 /**
  * Вход в события новичка и почту с главной: две иконки в шапке слева от шестерёнки (как значки событий AFK Arena).
@@ -61,6 +62,17 @@ export function homeEventIcons(scene: Phaser.Scene): void {
   if (m > 0) badge(scene, x + SIZE / 2 - 12, y - SIZE / 2 + 12, m);
 
   const b = eventsBadges(session.save, day, GAME);
+  // «Контракт героя» ждёт выбора — иконка карты с красным кружком (слева от почты).
+  const picks = pendingPicks(session.save);
+  if (picks.length) {
+    x -= SIZE + GAP;
+    const px = x;
+    const pk = button(scene, px, y, SIZE, SIZE, 'k:buttonSquare_beige', '', () => scene.scene.start('HeroPick', { back: { to: 'Home' } }), 30);
+    pk.container.add(heroCardIcon(scene, 0, 0, 70, picks[0].rarity, undefined, { pick: true }));
+    pk.container.setName('contractIcon');
+    badge(scene, px + SIZE / 2 - 12, y - SIZE / 2 + 12, picks.length);
+    pulse(scene, pk.container, 1.06, 700);
+  }
   if (!b.loginVisible && !b.newbieVisible) return;
   x -= SIZE + GAP;
   const ev = button(scene, x, y, SIZE, SIZE, 'k:buttonSquare_beige', '', () => scene.scene.start('Events', { tab: b.login > 0 || !b.newbieVisible ? 'login' : 'newbie' }), 30);

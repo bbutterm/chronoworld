@@ -528,6 +528,12 @@ export interface HeroCardOptions {
   /** Можно «Улучшить» (зелёная стрелка) / вознести (золотая двойная стрелка, приоритетнее). */
   canLevel?: boolean;
   canAscend?: boolean;
+  /** Ветка второй профессии для показа (шаблон на фиолетовом — форма ветки; превью «после вознесения»). */
+  branch?: string;
+  /** Сколько экземпляров героя у игрока (коллекция группирует копии) — плашка «×N» в правом верхнем углу (≥ 2). */
+  copies?: number;
+  /** Фиолетовый без ветки — плашка «Выберите ветку!». */
+  needsBranch?: boolean;
   /** Неполученная карточка коллекции: серая, подпись сверху — «Сюжет» / «Таверна» (или своя). */
   greyed?: boolean | string;
   /** Пульсирующее сияние цвета редкости за карточкой (по умолчанию — у «Новый!» и «можно вознести»). */
@@ -557,8 +563,9 @@ function resolve(subject: HeroCardSubject, opts: HeroCardOptions): Resolved | nu
   if (!template) return null;
   const hero = typeof subject !== 'string' && 'templateId' in subject ? subject : undefined;
   const rarity = opts.rarity ?? hero?.rarity ?? template.baseRarity;
-  const shown: HeroState = { ...(hero ?? { id: `tpl_${tid}`, templateId: tid, level: 1 }), rarity } as HeroState;
-  const form = activeForm(template, { rarity, branch: hero?.branch });
+  const branch = opts.branch ?? hero?.branch;
+  const shown: HeroState = { ...(hero ?? { id: `tpl_${tid}`, templateId: tid, level: 1 }), rarity, ...(branch ? { branch } : {}) } as HeroState;
+  const form = activeForm(template, { rarity, branch });
   const level = opts.level !== undefined ? opts.level : hero ? hero.level : null;
   return { template, hero, rarity, level, line: template.line, role: form.role, sprite: heroSprite(shown, GAME) };
 }
@@ -678,6 +685,20 @@ export function drawHeroCard(scene: Phaser.Scene, x: number, y: number, subject:
     box.add(nt);
     if (juiceOn()) scene.tweens.add({ targets: nt, scale: 1.08, duration: 520, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   }
+  if (!greyed && (opts.copies ?? 0) >= 2) {
+    const ct = text(scene, 0, 0, `×${opts.copies}`, small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
+    const cw = ct.width + 20 * s;
+    const cx = w / 2 - 36 * s;
+    const cy = -h / 2 + 88 * s;
+    const bg = scene.add.rectangle(0, 0, Math.max(cw, 56 * s), 40 * s, 0x1a120a, 0.92).setStrokeStyle(3 * s, pal.tint);
+    box.add(scene.add.container(cx - Math.max(0, cw - 56 * s) / 2, cy, [bg, ct]).setName('copies'));
+  }
+  if (!greyed && opts.needsBranch) {
+    const nb = tag(scene, 0, -h / 2 + (opts.inSquad || opts.isNew ? (opts.inSquad && opts.isNew ? 136 : 86) : 36) * s, 'Выберите ветку!', 0x6a2fb0, Math.max(FS.caption - 4, Math.round(26 * s)), s);
+    nb.setName('needsBranch');
+    box.add(nb);
+    if (juiceOn()) scene.tweens.add({ targets: nb, scale: 1.06, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+  }
   const markY = h / 2 - inset - bandH - 30 * s;
   if (opts.locked && !greyed) {
     box.add(scene.add.circle(-w / 2 + 38 * s, markY, 24 * s, 0x120d08, 0.9).setStrokeStyle(3 * s, 0xd6ae63));
@@ -719,4 +740,30 @@ export function rarityPips(scene: Phaser.Scene, x: number, y: number, template: 
     g.fillStyle(filled ? hex(rarityColor(pr)) : 0x3a3530, 1).fillPoints(diamondPts(x0 + i * step, y, r - 1), true);
   });
   return g;
+}
+
+/**
+ * Мини-иконка карты героя для наград (сундук, итоги, почта, события): рамка цвета редкости, внутри — лицо героя
+ * (templateId известен) или «?» (карта случайного героя). size — высота; ширина = size / CARD_ASPECT.
+ * pick — «Контракт героя» (герой на выбор): вместо «?» — перо-звезда.
+ */
+export function heroCardIcon(scene: Phaser.Scene, x: number, y: number, size: number, rarity: CardRarity, templateId?: string, opts: { dim?: boolean; pick?: boolean } = {}): Phaser.GameObjects.Container {
+  const h = Math.round(size);
+  const w = Math.round(size / CARD_ASPECT);
+  const box = scene.add.container(x, y).setName('heroCardIcon');
+  const inset = Math.max(2, Math.round(w * 0.05));
+  box.add(scene.add.image(0, 0, backTexture(scene, rarity)).setDisplaySize(w - inset * 2, h - inset * 2));
+  const t = templateId ? GAME.content.heroes[templateId] : undefined;
+  if (t) {
+    const hero = { id: `icon_${templateId}`, templateId: t.id, rarity, level: 1 } as HeroState;
+    const face = heroFace(scene, heroSprite(hero, GAME), w * 0.86, t.gender);
+    face.setY(-h * 0.02);
+    box.add(face);
+  } else {
+    const q = text(scene, 0, 0, opts.pick ? '✦' : '?', Math.round(h * 0.5), rarityPalette(rarity).light, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: Math.max(3, Math.round(h / 16)) });
+    box.add(q);
+  }
+  box.add(scene.add.image(0, 0, frameTexture(scene, rarity, w, h, Math.max(0.2, w / 300 * 1.6))));
+  if (opts.dim) box.setAlpha(0.55);
+  return box;
 }

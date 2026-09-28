@@ -5,6 +5,8 @@ import {
   ascendRequirement,
   canEquip,
   heroesWithGearUpgrades,
+  needsBranch,
+  pendingPicks,
   heroGender,
   heroJobId,
   heroName,
@@ -34,6 +36,7 @@ import {
   type ItemDef,
   type ItemInstance,
   type ItemStats,
+  type EventRewardEvent,
   type MetaEvent,
   type MetaRewards,
   type Preset,
@@ -124,7 +127,9 @@ export function ascendReady(save: SaveState, ctx: GameContext): HeroState[] {
 export function heroesBadgeCount(save: SaveState, ctx: GearContext & GameContext): number {
   const ids = new Set(heroesWithGearUpgrades(save, ctx));
   for (const h of ascendReady(save, ctx)) ids.add(h.id);
-  return ids.size;
+  // Фиолетовые без ветки («Выберите ветку!») и невыбранные «Контракты героя».
+  for (const h of save.heroes) if (ctx.content.heroes[h.templateId] && needsBranch(h, ctx)) ids.add(h.id);
+  return ids.size + pendingPicks(save).length;
 }
 
 /**
@@ -146,7 +151,7 @@ export function currentStage(save: SaveState, ctx: GameContext): StageInfo | und
 }
 
 /** Строки для экрана итогов/тоста по событиям прогрессии. */
-export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save: SaveState, ctx: GameContext): string[] {
+export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventRewardEvent)[], save: SaveState, ctx: GameContext): string[] {
   const nameOf = (id: string) => {
     const h = save.heroes.find((x) => x.id === id);
     return h ? heroName(h, ctx) : id;
@@ -168,6 +173,7 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent)[], save
     if (e.type === 'heroJoined') lines.unshift(e.copy ? `${e.name}: пришла копия героя (для вознесения)` : `Новый герой в отряде: ${e.name}!`);
     if (e.type === 'ascended') lines.push(`${nameOf(e.heroId)}: ${rarityName(e.from)} → ${rarityName(e.to)}${e.jobChanged ? ` — теперь ${jobName(e.job)}!` : ''}`);
     if (e.type === 'heroCard') lines.push(`Карта героя: ${e.name} (${rarityName(e.rarity)})`);
+    if (e.type === 'heroPick') lines.push(`Контракт героя: ${rarityName(e.rarity).toLowerCase()} герой на выбор — «Герои»`);
     if (e.type === 'branchChosen') lines.push(`${nameOf(e.heroId)}: ветка — ${jobName(e.branch)}${e.gems ? ` (−${formatNumber(e.gems)} гемов)` : ''}`);
     if (e.type === 'tavernUnlocked') lines.unshift(`Открыта Таверна! Подарок: гемы +${formatNumber(e.gems)}, свитки призыва +${e.scrolls}`);
     if (e.type === 'stageUnlocked') {
