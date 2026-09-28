@@ -4,6 +4,7 @@
  *   npm run balance                           14 дней, CSV в balance.csv
  *   npm run balance -- --days 10 --sessions 6 --out /tmp/b.csv
  *   npm run balance -- --days 7 --no-events   без «Входа 7 дней», «7 дней новичка» и почты (сравнить «до/после»)
+ *   npm run balance -- --days 7 --no-shop     без покупок в Лавке (сравнить «до/после»)
  * Модель игрока — scripts/lib/player-model.ts (PLAYER_MODEL). Описание — docs/content/balance.md.
  */
 import { writeFileSync } from 'node:fs';
@@ -31,6 +32,7 @@ const model = {
   sessionMinutes: intArg('minutes', PLAYER_MODEL.sessionMinutes),
   fastRewardsPerDay: arg('fast') !== undefined ? Number(arg('fast')) : PLAYER_MODEL.fastRewardsPerDay,
   events: !process.argv.includes('--no-events'),
+  shop: !process.argv.includes('--no-shop'),
 };
 const out = resolve(ROOT, arg('out') ?? 'balance.csv');
 
@@ -143,6 +145,8 @@ console.log(
     `призывов ${res.summons}, вознесений ${res.ascensions.length}, заданий ${Object.values(res.questClaims).reduce((a, n) => a + n, 0)}, ` +
     `поручений ${res.save.achievements.counters.bounties_done ?? 0}`,
 );
+const shopBuys = Object.entries(res.shopBuys).map(([k, n]) => `${k} ${n}`).join(', ');
+if (shopBuys) console.log(`  лавка, покупки: ${shopBuys}`);
 const scrolls = Object.entries(res.scrollsIn).map(([k, n]) => `${k} ${n}`).join(', ');
 if (scrolls) console.log(`  свитки призыва: ${scrolls}`);
 const perSource = (m: Partial<Record<string, number>>) => Object.entries(m).map(([k, n]) => `${k} ${n}`).join(', ');

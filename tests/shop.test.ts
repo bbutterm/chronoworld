@@ -16,6 +16,7 @@ import {
   type ShopContext,
 } from '../src/core';
 import { loadFullContext, readRawGameData } from '../scripts/lib/content-node';
+import { PLAYER_MODEL, runBalance } from '../scripts/lib/player-model';
 
 const full = loadFullContext();
 if (!full.shop) throw new Error('нет data/shop.json');
@@ -201,13 +202,11 @@ describe('Лавка: покупки', () => {
     expect(scroll.perDay).toBe(1);
     let s = ensureShop(openSave(), D1, ctx);
     let bought = 0;
-    let limited = false;
     for (let r = 0; r <= ctx.shop.refresh.maxPerDay; r++) {
       s.shop!.slots.forEach((slot, i) => {
         if (slot.kind !== 'scrolls') return;
         if (bought >= 1) {
           expect(codeOf(() => buyShopSlot(s, D1, i, ctx))).toBe('day_limit');
-          limited = true;
           return;
         }
         s = buyShopSlot(s, D1, i, ctx).save;
@@ -220,6 +219,18 @@ describe('Лавка: покупки', () => {
     const all = { ...s, shop: { ...s.shop!, boughtToday: {}, slots: s.shop!.slots.map((x) => ({ ...x, good: scroll.id, kind: 'scrolls' as const, bought: 0, currency: 'gems' as const, price: 27, count: 1 })) } };
     const one = buyShopSlot(all, D1, 0, ctx).save;
     expect(codeOf(() => buyShopSlot(one, D1, 1, ctx))).toBe('day_limit');
-    void limited;
+  });
+});
+
+describe('Лавка в модели игрока (npm run balance)', () => {
+  it('за 4 дня: тратит золото в Лавке, свитков из Лавки не больше одного в день', () => {
+    const days = 4;
+    const res = runBalance(full, days, PLAYER_MODEL);
+    expect(res.spend.shop.gold).toBeGreaterThan(0);
+    expect(res.shopBuys.scroll ?? 0).toBeLessThanOrEqual(days);
+    expect(res.scrollsIn.shop ?? 0).toBe(res.shopBuys.scroll ?? 0);
+    const off = runBalance(full, days, { ...PLAYER_MODEL, shop: false });
+    expect(off.spend.shop.gold).toBe(0);
+    expect(off.save.shop).toBeUndefined();
   });
 });
