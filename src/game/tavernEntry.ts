@@ -7,7 +7,8 @@ import { session, today } from './session';
 import { SKIN_TINT, skinIcon } from './skin';
 import { tavernBadge } from './tavern';
 import { C, FS, TITLE_STYLE } from './theme';
-import { pressable, text, toast } from './ui';
+import { pressable, text } from './ui';
+import { lockedToast } from './unlockBanner';
 
 /**
  * Вход в Таверну с главной (H5): одна плитка-медальон, её ставит HomeScene одной строкой (tavernTile).
@@ -76,12 +77,11 @@ export function tavernTile(scene: Phaser.Scene, x: number, y: number, w = 170, h
   const icon = mugIcon(scene, x, y - (small ? 22 : 30), small ? 64 : 80, st.unlocked ? SKIN_TINT.gold : SKIN_TINT.creamDim);
   const label = text(scene, x, y + (small ? 48 : 50), 'Таверна', small ? FS.caption : FS.h2, st.unlocked ? C.title : C.dim, TITLE_STYLE);
   if (!st.unlocked) {
-    const stage = GAME.content.stages.find((s) => s.id === st.unlockAfterStage);
-    const when = stage ? `после этапа ${stage.globalIndex + 1}` : 'позже';
     bg.setAlpha(0.75);
     icon.setAlpha(0.7);
     scene.add.image(x + w / 2 - 30, y - h / 2 + 30, skinIcon('lock')).setDisplaySize(38, 38).setTint(SKIN_TINT.creamDim);
-    pressable(scene, bg, w, h, () => toast(scene, `Таверна откроется ${when} кампании`));
+    // «Таверна: откроется на этапе 1-5» (этап — data/unlocks.json).
+    pressable(scene, bg, w, h, () => lockedToast(scene, 'tavern'));
     return;
   }
   pressable(scene, bg, w, h, () => scene.scene.start('Tavern'));
@@ -97,9 +97,5 @@ export function tavernTile(scene: Phaser.Scene, x: number, y: number, w = 170, h
     tag.setDepth(40);
   }
   cornerBadge(scene, x, y, w, h, tavernBadge(st, save.summon.welcomeGiven));
-  // Один раз: тост об открытии (после ch1_s5 игрок возвращается на главную).
-  if (!flag(NOTICE_KEY)) {
-    setFlag(NOTICE_KEY);
-    scene.time.delayedCall(600, () => toast(scene, 'Открыта Таверна! Наёмники ждут — первый призыв ×10 с фиолетовой картой.', C.success, 5000));
-  }
+  // Об открытии Таверны теперь говорит баннер «Новая функция!» (unlockBanner.ts), отдельный тост не нужен.
 }

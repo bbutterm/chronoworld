@@ -1,5 +1,6 @@
 import type { CardsConfig, CardRarity, SummonConfig } from '../heroes/schema';
 import type { CombatConfig, Content } from '../types';
+import type { UnlocksConfig } from '../unlocks/schema';
 import type { ProgressionConfig } from './schema';
 
 /** Всё, что нужно функциям прогрессии и кампании. */
@@ -11,6 +12,11 @@ export interface GameContext {
   cards: CardsConfig;
   /** data/summon.json — Таверна. */
   summon: SummonConfig;
+  /**
+   * data/unlocks.json — этапы открытия функций (Таверна, Башня, поручения…). Нет — всё открыто сразу, а Таверна и
+   * Башня берут этап из своих файлов (старый формат; так собирают контекст некоторые тесты).
+   */
+  unlocks?: UnlocksConfig;
 }
 
 /** События прогрессии — для UI (всплывашки, итоги) и тестов. */

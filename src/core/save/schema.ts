@@ -241,6 +241,13 @@ export const SaveStateSchema = z.object({
    */
   seenScenes: z.array(z.string()).default([]),
   /**
+   * Показанные баннеры «Новая функция!» (id из data/unlocks.json) — каждый один раз. Поле добавлено без смены версии и
+   * намеренно без default: нет поля — сохранение старше таблицы открытий, sanitizeSave (initSeenUnlocks) отмечает
+   * показанным всё, что игрок уже открыл. Стоит сразу после seenScenes и до mail (newGame и initSeenUnlocks кладут его
+   * туда же): serialize(deserialize(x)) === serialize(x).
+   */
+  seenUnlocks: z.array(z.string()).optional(),
+  /**
    * v5. Почта (подарки, компенсации, письмо «Добро пожаловать»). Порядок ключей важен для
    * serialize(deserialize(x)) === serialize(x): newGame кладёт mail сразу после seenScenes, events появляется позже
    * (touchEvents) — раньше необязательных полей ниже.

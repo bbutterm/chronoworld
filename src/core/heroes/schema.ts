@@ -154,8 +154,11 @@ export type CardsConfig = z.infer<typeof CardsConfigSchema>;
 export const SummonConfigSchema = z
   .object({
     $comment: z.string().optional(),
-    /** Этап кампании, после первой победы на котором открывается Таверна (и выдаётся welcome). */
-    unlockAfterStage: id,
+    /**
+     * Этап открытия Таверны (и подарка welcome) — теперь в data/unlocks.json (строка tavern). Здесь — только для
+     * контекстов без таблицы открытий; задан и там, и тут — ошибка.
+     */
+    unlockAfterStage: id.optional(),
     costs: z.object({ single: z.number().int().nonnegative(), ten: z.number().int().nonnegative() }),
     /**
      * Шансы редкостей (сумма 1). baseRarities — какие шаблоны выпадают этой редкостью: призывные с baseRarity из списка
@@ -179,7 +182,8 @@ export const SummonConfigSchema = z
     if (!cfg.rates.some((r) => r.rarity === cfg.firstTen.rarity)) c.addIssue({ code: 'custom', path: ['firstTen', 'rarity'], message: 'редкости первого ×10 нет среди rates' });
   });
 
-export type SummonConfig = z.infer<typeof SummonConfigSchema>;
+/** Таверна после сборки: этап открытия известен всегда (из data/unlocks.json или из summon.json). */
+export type SummonConfig = Omit<z.infer<typeof SummonConfigSchema>, 'unlockAfterStage'> & { unlockAfterStage: string };
 
 /** Конфиги карточек в контексте игры. */
 export interface HeroesConfig {

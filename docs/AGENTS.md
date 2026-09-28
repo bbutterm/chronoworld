@@ -54,6 +54,7 @@
 | `equipment/*` | K6 предметы, выпадение (`drops.ts`), надеть/снять, `withGear` |
 | `tower/*` | K4 башня: этажи по правилу из полос, `climbTower` |
 | `meta/*` | K8 пресеты, `setSquad`, авторасстановка (`formation.ts`), K9 поручения (`bounties.ts`), K10 достижения |
+| `unlocks/*` | открытие функций по этапам (`data/unlocks.json`): `featureUnlocked`, `lockedText` («Откроется на этапе 1-8»), `stageLabel`, `pendingUnlocks` / `markUnlocksSeen` (баннер один раз, `save.seenUnlocks`), `initSeenUnlocks` (старые сохранения), `unlocksOfStage` |
 
 ### Экраны `src/game/scenes` (Phaser)
 
@@ -102,6 +103,7 @@
 | `sprites.ts`, `spriteCache.ts` | реестр спрайтов для Phaser, ленивые листы, LRU по памяти, плейсхолдеры по роли |
 | `dialogue.ts`, `storyView.ts` | окно диалога; кто говорит и чей портрет (без Phaser) |
 | `hints.ts`, `hintLayout.ts` | подсказки первой сессии и их размещение |
+| `unlockBanner.ts` | открытия функций: `showUnlockBanners(scene, onDone?)` — полноэкранный «Новая функция!» (иконка, название, описание, реплика Гаррета, «Перейти» / «Позже»), зовут главная, карта кампании (после сюжета) и итоги (после сюжета, не в авто); `lockCover` / `lockedTile` (HomeScene) / `lockedScreen` — замок «Откроется на этапе 1-8», касание — `lockedToast`; `installUnlockGates(game)` (main.ts) — скорость ×2 закрыта до своего этапа (`state.ts speedGate`, `playback.raw` — выбор, `playback.speed` — действующая) |
 | `perf.ts`, `lifecycle.ts` | пулы объектов; пауза при сворачивании, ограничение FPS |
 | `itemIcons.ts`, `describe.ts`, `assets.ts` | иконки предметов кодом; описание юнита; загрузка манифеста и плейсхолдеры |
 | `bootLook.ts` | вид экрана загрузки (BootScene) маленькими canvas-текстурами до загрузки скина; `BOOT`/`BOOT_COLORS` — раскладка и цвета, повторены в CSS `#splash` index.html |
@@ -190,9 +192,20 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 
 ### Башня `data/tower.json` (`TowerConfigSchema`)
 
-`unlockAfterStage` (`ch1_s5`), `maxFloor` 100, `bossEvery` 5, `baseMult`, `statGrowthPerFloor`, `bands[]` (полосы с `fromFloor`,
+`maxFloor` 100, `bossEvery` 5, `baseMult`, `statGrowthPerFloor`, `bands[]` (полосы с `fromFloor`,
 `name`, `layouts[]`, `bossLayouts[]` — составы по 5 слотов), `rewards`. Полосы: 1 «Лесной ярус», 20 «Болотный», 40 «Костяной».
-Тема фона этажа — по номеру полосы. См. `docs/content/tower.md`.
+Тема фона этажа — по номеру полосы. См. `docs/content/tower.md`. Этап открытия — `data/unlocks.json` (`tower`, сейчас `ch1_s10`);
+`ctx.tower.unlockAfterStage` заполняет сборка контекста (поле в tower.json — только для контекстов без таблицы, вместе с ней — ошибка).
+
+### Открытие функций `data/unlocks.json` (`UnlocksConfigSchema`, `src/core/unlocks/schema.ts`)
+
+`features [{id, stage, title (≤40), description (≤140), icon, line? (≤120)}]` — одна таблица «функция → этап» (как в AFK: функции
+открываются по ходу главы 1). `id` — из `FEATURE_IDS` (`fast_rewards` 1-2, `quests` 1-2, `speed_x2` 1-3, `achievements` 1-3, `tavern` 1-5,
+`bounties` 1-8, `tower` 1-10); нет строки — функция открыта сразу. `icon` — иконка скина или `mug` (кружка Таверны). `line` — реплика
+капитана Гаррета на баннере (контент-хук). Открыта = этап в `campaign.cleared`. Таверна и Башня берут этап отсюда (ядро:
+`summonUnlocked`, `towerUnlocked`); быстрые награды, задания, достижения, поручения, скорость ×2 — закрывают экраны
+(`src/game/unlockBanner.ts`) и модель игрока (`scripts/lib/player-model.ts`), действия ядра их не проверяют. **Таверна — на `ch1_s5`**:
+на это опираются Ц4 баланса и `e2e:chapter1`. Рецепт — `docs/CONTENT_RECIPES.md`, «Открыть функцию на этапе».
 
 ### Сюжет `data/story/<chapter>.json` (`StorySchema`, `src/core/story/schema.ts`)
 
@@ -228,8 +241,9 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
   опыт `floor(100 × L^1.5)`, золото `floor(20 × L^1.4)`), `merge` (правила вознесения по дорожкам `first`/`second` — корм, `story` —
   осколки + `minLevel`), `shards` (осколки этапов «отстающему» сюжетному герою: `firstClear` 4, `bossFirstClear` 8, повтор — шанс
   `replayChance` 0.1).
-- `data/summon.json`: `unlockAfterStage` (ch1_s5), `costs` (30 / 270), `rates` (64/32/4% и какие `baseRarities` выпадают), `pity`
-  (30-й — фиолетовый), `firstTen`, `freePerDay`, `welcome` (150 гемов + 1 свиток), `storyShard` (шанс осколка за призыв).
+- `data/summon.json`: `costs` (30 / 270), `rates` (64/32/4% и какие `baseRarities` выпадают), `pity`
+  (30-й — фиолетовый), `firstTen`, `freePerDay`, `welcome` (150 гемов + 1 свиток), `storyShard` (шанс осколка за призыв). Этап
+  открытия — `data/unlocks.json` (`tavern`, ch1_s5), в `ctx.summon.unlockAfterStage` его кладёт `parseHeroesConfig`.
 - Рецепт — `docs/CONTENT_RECIPES.md`, «Новая карточка героя».
 
 ### Правила боя `data/combat.json`
@@ -352,6 +366,9 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - `deserialize`: JSON → `MIGRATIONS[v]` по цепочке v → v+1 → zod → возврат неизвестных полей (`keepUnknownFields`, чтобы старая сборка
   не стёрла поля новой) → проверки целостности (дубли героев, неизвестные герои в отряде/предметах/поручениях). Версия новее сборки —
   `SaveError('newer_version')`, сохранение не затирается (только чтение).
+- `seenUnlocks?` — показанные баннеры «Новая функция!» (без смены версии, **без default**: нет поля — сохранение старше
+  `data/unlocks.json`, `sanitizeSave` → `initSeenUnlocks` отмечает показанным всё уже открытое, чтобы не вывалить пачку баннеров;
+  тест `tests/unlocks.test.ts`). `newGame` ставит `[]`.
 - Новое поле: если оно необязательное (`.optional()`/`.default()`) — версия не меняется (так добавлены `seenScenes`, `storyQueue`,
   `pendingChapterDone`, `revision`, `bankedExp`, `hero.gender` — его `sanitizeSave` выводит по имени, неизвестное → м). Обязательное — `SAVE_VERSION + 1` и миграция в `MIGRATIONS`, тест в `tests/save.test.ts`.
 - `sanitizeSave(save, ctx)` — подгоняет сохранение к текущему контенту: неизвестная карточка — экземпляр убирается вместе со ссылками,

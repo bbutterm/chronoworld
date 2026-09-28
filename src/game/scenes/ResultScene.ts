@@ -18,6 +18,7 @@ import { startChapterDone } from './ChapterDoneScene';
 import { addThemeBackground, themeOfBattle } from '../backdrops';
 import { sfx } from '../audio';
 import { glow, slowRays, sparkBurst } from '../decor';
+import { showUnlockBanners } from '../unlockBanner';
 
 /** Метка в данных итогов (ResultData.stage): «Глава пройдена» уже показан из этих итогов. */
 type ShownMark = { chapterDoneShown?: boolean };
@@ -249,7 +250,9 @@ export class ResultScene extends Phaser.Scene {
         if (chapterDone && stageInfo) {
           (stage as ShownMark).chapterDoneShown = true;
           startChapterDone(this, { chapterId: stageInfo.chapter });
-        } else beginAuto();
+          // Этап открыл функцию — баннер «Новая функция!» (в авто-режиме не мешаем: покажется на карте или главной).
+        } else if (autoAdvance.on) beginAuto();
+        else showUnlockBanners(this, beginAuto);
       }, { auto: autoAdvance.on });
       return;
     }

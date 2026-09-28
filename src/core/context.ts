@@ -16,6 +16,7 @@ import type { GameContext } from './progression/types';
 import { buildStory, type StoryContext } from './story/story';
 import { parseTowerConfig, withTower, type TowerContext } from './tower';
 import type { CombatConfig, Content } from './types';
+import { parseUnlocks, validateUnlocks } from './unlocks/unlocks';
 
 /** Полный контекст игры: прогрессия и кампания + K-функции, экипировка, башня, пресеты / поручения / достижения. */
 export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext & EventsContext;
@@ -41,6 +42,8 @@ export interface RawGameData {
   achievements: unknown;
   /** data/events.json — «Вход 7 дней», «7 дней новичка», системные письма. */
   events: unknown;
+  /** data/unlocks.json — этапы открытия функций. Нет — всё открыто сразу (Таверна и Башня — по своим файлам). */
+  unlocks?: unknown;
   /** data/story/*.json — сюжет глав (нет — без сюжета). */
   stories?: RawFile[];
   /** По умолчанию — data/combat.json (COMBAT). */
@@ -92,7 +95,8 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     return r.data;
   });
   const items = normalize(raw.items);
-  const heroesCfg = stage('data/cards.json / data/summon.json', () => parseHeroesConfig(raw.cards, raw.summon));
+  const unlocks = raw.unlocks === undefined ? undefined : stage('data/unlocks.json', () => parseUnlocks(raw.unlocks));
+  const heroesCfg = stage('data/cards.json / data/summon.json', () => parseHeroesConfig(raw.cards, raw.summon, unlocks));
 
   if (!content || !progression || !heroesCfg) {
     // Без контента перекрёстные проверки невозможны — проверяем хотя бы схемы остальных файлов.
@@ -111,7 +115,9 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     combat: raw.combat ?? COMBAT,
     cards: heroesCfg.cards,
     summon: heroesCfg.summon,
+    ...(unlocks ? { unlocks } : {}),
   };
+  if (unlocks) validateUnlocks(unlocks, content, problems);
   validateHeroesConfig(base, problems);
   const features = stage('data/progression.json / data/quests.json', () => withFeatures(base, raw.progression, raw.quests).features);
   const equipment = stage('data/items / data/drops.json', () => withEquipment(base, items, raw.drops).equipment);

@@ -23,3 +23,4 @@ export * from './meta';
 export * from './events';
 export * from './context';
 export * from './story';
+export * from './unlocks';

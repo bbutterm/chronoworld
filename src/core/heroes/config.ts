@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { GameContext } from '../progression/types';
 import { cardTrack } from './card';
+import type { UnlocksConfig } from '../unlocks/schema';
 import { CardsConfigSchema, rarityIndex, CARD_RARITIES, SummonConfigSchema, type CardsConfig, type CardRarity, type SummonConfig } from './schema';
 
 function describe(error: z.ZodError): string {
@@ -11,12 +12,17 @@ function describe(error: z.ZodError): string {
 }
 
 /** Разобрать data/cards.json и data/summon.json (ядро файлы не читает). Ошибка — Error с именем файла. */
-export function parseHeroesConfig(cardsJson: unknown, summonJson: unknown): { cards: CardsConfig; summon: SummonConfig } {
+export function parseHeroesConfig(cardsJson: unknown, summonJson: unknown, unlocks?: UnlocksConfig): { cards: CardsConfig; summon: SummonConfig } {
   const c = CardsConfigSchema.safeParse(cardsJson);
   if (!c.success) throw new Error(`data/cards.json: ${describe(c.error)}`);
   const s = SummonConfigSchema.safeParse(summonJson);
   if (!s.success) throw new Error(`data/summon.json: ${describe(s.error)}`);
-  return { cards: c.data, summon: s.data };
+  // Этап открытия Таверны — из единой таблицы data/unlocks.json (строка tavern); без таблицы — из summon.json.
+  const fromTable = unlocks?.features.find((f) => f.id === 'tavern')?.stage;
+  if (fromTable && s.data.unlockAfterStage) throw new Error('data/summon.json: unlockAfterStage — этап открытия Таверны задаётся в data/unlocks.json (tavern), уберите поле');
+  const stage = fromTable ?? s.data.unlockAfterStage;
+  if (!stage) throw new Error('data/unlocks.json: нет строки tavern — этап открытия Таверны не задан');
+  return { cards: c.data, summon: { ...s.data, unlockAfterStage: stage } };
 }
 
 /** Призывные шаблоны, которые выпадают редкостью rarity (summon.json → rates[].baseRarities), по id. */
@@ -58,7 +64,7 @@ export function validateHeroesConfig(ctx: GameContext, problems: string[]): void
       if (!ctx.cards.merge.some((m) => m.track === track && m.from === from)) problems.push(`карточка ${t.id}: нет правила вознесения ${track} ${from} → ${CARD_RARITIES[i + 1]} (data/cards.json → merge)`);
     }
   }
-  if (stageIds.size && !stageIds.has(ctx.summon.unlockAfterStage)) problems.push(`data/summon.json: unlockAfterStage — этап ${ctx.summon.unlockAfterStage} не найден`);
+  if (stageIds.size && !stageIds.has(ctx.summon.unlockAfterStage)) problems.push(`data/unlocks.json: tavern — этап ${ctx.summon.unlockAfterStage} не найден`);
   for (const r of ctx.summon.rates) {
     if (r.chance > 0 && summonPool(ctx, r.rarity).length === 0) problems.push(`data/summon.json: редкость ${r.rarity} выпадает (шанс ${r.chance}), но нет призывных карточек с baseRarity ${r.baseRarities.join('/')}`);
   }
