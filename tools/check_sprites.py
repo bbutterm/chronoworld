@@ -5,6 +5,7 @@ import argparse,json,sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
+from build_sprites_v2 import FIRST_HEROES,STORY_HEROES,CARD_HEROES
 
 ROOT=Path(__file__).resolve().parents[1]
 DEFAULT=ROOT/'assets/sprites/sprites.json'
@@ -22,6 +23,7 @@ REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first',
           # converted from legacy assets/ro v1 sheets (tools/ro_v1_to_v2.py)
           'blacksmith','monk','sage','rogue','alchemist','bard',
           'raydric','mimic','gargoyle','dark_priest','mistress','osiris','moonlight_flower','drake','dark_lord'}
+REQUIRED.update(FIRST_HEROES+STORY_HEROES+CARD_HEROES)
 GRID={'hero':([224,192],[104,144]),'monster':([240,224],[100,120]),'boss':([256,256],[112,216])}
 EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
             'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}
@@ -113,7 +115,8 @@ def check(path=DEFAULT,source_cache=None,only=None):
    if not p.is_file():fail(f'{sid} missing portrait')
    else:
     with Image.open(p) as portrait_im:
-     if portrait_im.size!=(64,64) or portrait_im.mode not in ('RGBA','P'):fail(f'{sid} invalid portrait')
+     expected_portrait=(256,256) if sid in FIRST_HEROES+STORY_HEROES+CARD_HEROES else (64,64)
+     if portrait_im.size!=expected_portrait or portrait_im.mode not in ('RGBA','P'):fail(f'{sid} invalid portrait')
  size=sum(p.stat().st_size for p in (ROOT/'assets/sprites').rglob('*') if p.is_file())
  if size>3_000_000:fail(f'assets/sprites size {size} exceeds 3 MB')
  print(f'v2 sprites: {len(sprites)} entries; {size} bytes; source pixel check: {bool(source_cache)}')
