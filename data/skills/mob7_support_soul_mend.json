@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob7_support_soul_mend",
+  "name": "Штопка души",
+  "description": "Блуждающий огонёк латает самого раненого союзника (1.8 × атака); если все целы — атакует.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true,
+    "onlyWounded": true
+  },
+  "cooldown": 6,
+  "priority": 10,
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.8
+    }
+  ],
+  "fallback": "basic_ranged"
+}

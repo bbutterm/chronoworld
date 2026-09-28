@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob7_boss",
+  "name": "Тёмный лорд",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 4200,
+    "atk": 110,
+    "def": 20,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob7_boss_meteor_storm",
+    "actives": [
+      "mob7_boss_bell_ward",
+      "mob7_boss_dark_chains"
+    ],
+    "passives": [
+      "mob7_boss_black_toll"
+    ]
+  },
+  "visual": {
+    "sprite": "dark_lord",
+    "scale": 1,
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

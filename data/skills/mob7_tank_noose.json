@@ -1,0 +1,39 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob7_tank_noose",
+  "name": "Петля висельника",
+  "description": "Петля с ветвей захлёстывает врага в тылу: урон, 60% оглушить на ход и удушье на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    },
+    {
+      "type": "status",
+      "chance": 0.6,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "strangle",
+        "name": "Удушье",
+        "turns": 2,
+        "dot": {
+          "k": 0.12
+        }
+      }
+    }
+  ]
+}

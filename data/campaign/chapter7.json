@@ -1,25 +1,24 @@
 {
   "$schema": "../schema/chapter.schema.json",
-  "$comment": "TODO: заготовка content:new — mult всех этапов = 1 (босс 0.5), подобрать по docs/CONTENT_RECIPES.md «Новая глава: чеклист» (playthrough, balance-fit, --fit-recommended); сундук и награды уже по формуле баланса",
   "id": "chapter7",
   "name": "Глава 7. Нифльхейм",
   "order": 7,
   "stages": [
     {
       "id": "ch7_s1",
-      "name": "TODO: этап 1",
+      "name": "Врата мёртвых",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob7_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob7_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob7_ranged",
           "mult": 1
         },
         null,
@@ -36,22 +35,25 @@
     },
     {
       "id": "ch7_s2",
-      "name": "TODO: этап 2",
+      "name": "Река забвения",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "mob7_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob7_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob7_ranged",
           "mult": 1
         },
-        null,
+        {
+          "unit": "mob7_support",
+          "mult": 1
+        },
         null
       ],
       "rewards": {
@@ -65,22 +67,25 @@
     },
     {
       "id": "ch7_s3",
-      "name": "TODO: этап 3",
+      "name": "Деревня призраков",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_ranged",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob7_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob7_fast",
           "mult": 1
         },
-        null,
+        {
+          "unit": "mob7_ranged",
+          "mult": 1
+        },
         null
       ],
       "rewards": {
@@ -94,24 +99,27 @@
     },
     {
       "id": "ch7_s4",
-      "name": "TODO: этап 4",
+      "name": "Туманная переправа",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_fast",
+          "unit": "mob7_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob7_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob7_fast",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_tank",
+          "unit": "mob7_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob7_support",
           "mult": 1
         }
       ],
@@ -126,24 +134,27 @@
     },
     {
       "id": "ch7_s5",
-      "name": "TODO: этап 5",
+      "name": "Роща висельников",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_elite",
+          "unit": "mob7_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob7_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob7_ranged",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_ranged",
+          "unit": "mob7_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob7_fast",
           "mult": 1
         }
       ],
@@ -158,24 +169,27 @@
     },
     {
       "id": "ch7_s6",
-      "name": "TODO: этап 6",
+      "name": "Долина стенаний",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob7_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob7_ranged",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_fast",
+          "unit": "mob7_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob7_ranged",
           "mult": 1
         }
       ],
@@ -190,27 +204,27 @@
     },
     {
       "id": "ch7_s7",
-      "name": "TODO: этап 7",
+      "name": "Кровавый балаган",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob7_fast",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob7_fast",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob7_support",
           "mult": 1
         }
       ],
@@ -225,27 +239,27 @@
     },
     {
       "id": "ch7_s8",
-      "name": "TODO: этап 8",
+      "name": "Стены Чёрной цитадели",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_ranged",
+          "unit": "mob7_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob7_ranged",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob7_ranged",
           "mult": 1
         }
       ],
@@ -260,27 +274,27 @@
     },
     {
       "id": "ch7_s9",
-      "name": "TODO: этап 9",
+      "name": "Зал Чёрного колокола",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_fast",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob7_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob7_ranged",
           "mult": 1
         }
       ],
@@ -295,26 +309,29 @@
     },
     {
       "id": "ch7_s10",
-      "name": "TODO: логово босса",
+      "name": "Трон Тёмного лорда",
       "boss": true,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob_boss1",
+          "unit": "mob7_boss",
           "mult": 0.5
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob7_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob7_ranged",
           "mult": 1
         },
-        null
+        {
+          "unit": "mob7_ranged",
+          "mult": 1
+        }
       ],
       "rewards": {
         "jobExp": 261540,
