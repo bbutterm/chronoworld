@@ -985,6 +985,7 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'attack': {
         const v = this.views.get(e.unit)!;
+        const hadCast = !!v.cast;
         v.inUlt = false;
         v.lastSkill = e.skill;
         v.proc = undefined;
@@ -1000,6 +1001,8 @@ export class BattleScene extends Phaser.Scene {
         }
         if (!animate) return;
         const skill = CONTENT.skills[e.skill];
+        // Bash has no castTime in this game: its RO beginCast cue belongs to the attack start.
+        if (!hadCast) this.castCue(v, e.skill);
         // Активный навык — его название над головой (обычная атака без подписи). У навыка с кастом название
         // уже висело над полосой каста — второй раз не пишем.
         if (e.name && !skill?.castTime) this.headline(v, e.name, v.snap.side === 'A' ? '#ffe28a' : '#ffb0a0');
@@ -1023,6 +1026,7 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'ult': {
         const v = this.views.get(e.unit)!;
+        if (animate && !v.cast) this.castCue(v, e.skill);
         v.lastSkill = e.skill;
         v.proc = undefined;
         v.energy = 0;
@@ -1066,6 +1070,7 @@ export class BattleScene extends Phaser.Scene {
         if (!animate) return;
         // Круг под ногами, аура и анимация каста — пока идёт каст.
         (v.castRig ??= this.sfx.castRig(v.node, v.look.height)).show(col.main);
+        this.castCue(v, e.skill);
         this.loop(v, 'cast');
         return;
       }
@@ -1177,7 +1182,9 @@ export class BattleScene extends Phaser.Scene {
             if (def?.stun) this.setStun(v, true, /замороз/i.test(e.name) || /frost|storm_gust/.test(srcSkillId ?? ''));
           }
           if (!animate) return;
-          if (!ally && v.alive) this.statusVisual(v, e.status, def);
+          if (!ally && v.alive && !this.floats.catalogFlash(v.node.x, v.node.y, skillFx(srcSkillId)?.debuff, 220)) {
+            this.statusVisual(v, e.status, def);
+          }
           // Бафф на весь отряд (Ускорение, Благословение): подпись не пишем над каждым — хватает искр и значка у HP.
           const srcSkill = srcSkillId ? CONTENT.skills[srcSkillId] : undefined;
           if (!(ally && srcSkill?.target.pick === 'all')) this.headline(v, e.name, '#ffcf6b');
@@ -1239,6 +1246,7 @@ export class BattleScene extends Phaser.Scene {
   /** Каст закончился или сбит: спрятать полосу, вернуть стойку. */
   private endCast(v: UnitView): void {
     if (!v.cast) return;
+    this.floats.cancelFx(`cast:${v.snap.uid}`);
     v.cast = null;
     v.castBack.setVisible(false);
     v.castBar.setVisible(false);
@@ -1469,6 +1477,23 @@ export class BattleScene extends Phaser.Scene {
     return { x: v.node.x, y: bodyY(v), feet: v.node.y };
   }
 
+  /** Authored caster cue, keyed so an interrupted timed cast cannot leave its old atlas on screen. */
+  private castCue(v: UnitView, skillId: string): void {
+    const id = skillFx(skillId)?.cast;
+    if (id) this.floats.catalogFlash(v.node.x, v.node.y, id, 190, `cast:${v.snap.uid}`);
+  }
+
+  /** One ground atlas per resolved area, never one column per target. Timing follows the skill impact. */
+  private groundCue(v: UnitView, skill: SkillDef, targets: UnitView[], delay: number): void {
+    const id = skillFx(skill.id)?.ground;
+    if (!id || !targets.length) return;
+    const pts = targets.map((u) => this.point(u));
+    // Grand Cross originates under the crusader even though the game skill is ranged.
+    const center = skill.id === 'job_crusader_grand_cross' || skill.range === 'melee'
+      ? this.point(v) : { x: avg(pts.map((p) => p.x)), feet: avg(pts.map((p) => p.feet)) };
+    this.sfx.later(delay, () => this.floats.catalogFlash(center.x, center.feet, id, 320));
+  }
+
   /**
    * Эффект навыка по стихии (skillLook): снаряды по каждому удару (огненная стрела — три огненных шара, у каждого своя
    * цифра урона), площадь (гроза — молнии по всем целям), иначе — вспышка стихии на цели. Цели ударов берём из
@@ -1512,6 +1537,7 @@ export class BattleScene extends Phaser.Scene {
       for (const u of targets) if (!pts.has(u)) pts.set(u, this.point(u));
       const k: SigCtx = { c: this.point(v), hits: targets.map((u) => pts.get(u)!), uniq: [...pts.values()], dir: v.snap.side === 'A' ? 1 : -1, tint };
       const times = playSignature(this.sfx, vis.sig, k, impact);
+      this.groundCue(v, skill, targets, impact);
       targets.forEach((tv, i) => {
         const at = now + times[i];
         const q = v.hitPlan.get(tv.snap.uid);
@@ -1573,6 +1599,7 @@ export class BattleScene extends Phaser.Scene {
       const pts = uniq.map((u) => this.point(u));
       const melee = skill.range === 'melee';
       const center = melee ? this.point(v) : { x: avg(pts.map((p) => p.x)), y: avg(pts.map((p) => p.y)), feet: avg(pts.map((p) => p.feet)) };
+      this.groundCue(v, skill, uniq, impact);
       const hitAt = this.sfx.areaAt(impact, look.area, pts, center, tint);
       v.impactAt = now + hitAt;
       if (uniq.length >= 3 && look.area !== 'sanctuary') this.sfx.later(hitAt, () => this.sfx.shake(0.005, 180));

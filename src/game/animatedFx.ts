@@ -27,13 +27,30 @@ export const animatedFxKey = (id: string): string => `anim_${id}`;
 /** Все анимированные эффекты каталога (бой ждёт их загрузки перед первым кадром). */
 export const animatedFxIds = (): string[] => [...effects.keys()];
 
-/** Эффекты навыка из effects.json → skills: hit — на цели урона, buff — на союзнике при наложении статуса. */
+/** Roles are event semantics, not interchangeable atlas labels. Projectile capture is not flight. */
 export interface SkillFx {
   hit?: string;
   buff?: string;
+  cast?: string;
+  ground?: string;
+  debuff?: string;
 }
 const skillMap = (catalog as unknown as { skills?: Record<string, SkillFx> }).skills ?? {};
-export const skillFx = (skillId: string | undefined): SkillFx | undefined => (skillId ? skillMap[skillId] : undefined);
+// Captures already present in the catalog but deliberately not wired as hit/buff.
+// Do not infer roles from filenames: these cues belong to specific log events.
+const eventRoles: Record<string, SkillFx> = {
+  swordman_bash: { cast: 'fx_swordman_bash' },
+  job_crusader_grand_cross: { ground: 'fx_job_crusader_grand_cross' },
+  job_wizard_storm_gust: { ground: 'fx_job_wizard_storm_gust' },
+  job_acolyte_signum_crucis: { debuff: 'fx_job_acolyte_signum_crucis' },
+  job_hunter_sandman: { debuff: 'fx_job_hunter_sandman' },
+};
+export const skillFx = (skillId: string | undefined): SkillFx | undefined => {
+  if (!skillId) return undefined;
+  const mapped = skillMap[skillId];
+  const roles = eventRoles[skillId];
+  return roles ? { ...mapped, ...roles } : mapped;
+};
 export const animatedEffect = (id: string): AnimatedEffect | undefined => effects.get(id);
 export function selectedAnimatedEffect(id: string, kind: 'flash' | 'projectile', loaded: boolean): AnimatedEffect | undefined {
   if (!loaded || (kind === 'projectile' && id !== 'fx_arrow')) return undefined;
