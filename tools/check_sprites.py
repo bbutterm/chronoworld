@@ -12,7 +12,8 @@ DEFAULT=ROOT/'assets/sprites/sprites.json'
 EXPECTED={
  'hero':('idle','walk','attack','cast','hurt','death'),
  'monster':('idle','walk','attack','hurt','death'),
- 'boss':('idle','walk','attack','hurt','death'),
+  'boss':('idle','walk','attack','hurt','death'),
+ 'monster_xl':('idle','walk','attack','hurt','death'),
 }
 REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first','acolyte','thief',
           'knight_m','crusader_m','hunter_m','hunter_f','bard_m','dancer_f',
@@ -22,9 +23,14 @@ REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first',
           'drops','poporing','fabre','lunatic','mandragora','rocker','mastering',
           # converted from legacy assets/ro v1 sheets (tools/ro_v1_to_v2.py)
           'blacksmith','monk','sage','rogue','alchemist','bard',
-          'raydric','mimic','gargoyle','dark_priest','mistress','osiris','moonlight_flower','drake','dark_lord'}
+          'raydric','mimic','gargoyle','dark_priest','mistress','osiris','moonlight_flower','drake','dark_lord',
+          'mummy','sandman','marduk','scorpion','verit','isis',
+          'bongun','munak','horong','smokie','nine_tail','sohee',
+          'pirate_skel','kukre','marse','swordfish','hydra','obeaune',
+          'dullahan','gibbet','banshee','bloody_murderer','loli_ruri','quve'}
 REQUIRED.update(FIRST_HEROES+STORY_HEROES+CARD_HEROES)
-GRID={'hero':([224,192],[104,144]),'monster':([240,224],[100,120]),'boss':([256,256],[112,216])}
+GRID={'hero':([224,192],[104,144],8),'monster':([240,224],[100,120],8),
+      'boss':([256,256],[112,216],8),'monster_xl':([272,330],[167,280],6)}
 EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
             'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}
 
@@ -48,19 +54,20 @@ def check(path=DEFAULT,source_cache=None,only=None):
  for kind,anims in EXPECTED.items():
   cls=data['classes'].get(kind,{})
   if tuple(cls.get('anims',[]))!=anims:fail(f'{kind} animation order mismatch')
-  if (cls.get('cell'),cls.get('anchor'))!=GRID[kind]:fail(f'{kind} cell/anchor mismatch against approved native x1 grid')
-  cell=cls.get('cell',[]);anchor=cls.get('anchor',[])
+  expected_cell,expected_anchor,expected_columns=GRID[kind]
+  if (cls.get('cell'),cls.get('anchor'),cls.get('columns',8))!=(expected_cell,expected_anchor,expected_columns):fail(f'{kind} cell/anchor/columns mismatch against native x1 grid')
+  cell=cls.get('cell',[]);anchor=cls.get('anchor',[]);columns=cls.get('columns',8)
   if len(cell)!=2 or len(anchor)!=2 or not all(isinstance(n,int) for n in cell+anchor):fail(f'{kind} bad cell/anchor');continue
-  if cell[0]*8>2048 or cell[1]*len(anims)>2048:fail(f'{kind} sheet >2048')
+  if cell[0]*columns>2048 or cell[1]*len(anims)>2048:fail(f'{kind} sheet >2048')
   if not (0<anchor[0]<cell[0] and 0<anchor[1]<cell[1]):fail(f'{kind} origin outside cell')
  for s in sprites:
-  sid=s['id'];kind=s['class'];cfg=data['classes'][kind];cw,ch=cfg['cell'];ax,ay=cfg['anchor'];anims=cfg['anims']
+  sid=s['id'];kind=s['class'];cfg=data['classes'][kind];cw,ch=cfg['cell'];ax,ay=cfg['anchor'];anims=cfg['anims'];columns=cfg.get('columns',8)
   if only and sid!=only:continue
   png=ROOT/'assets'/s['file'];portrait=s.get('portrait')
   if not png.is_file():fail(f'{sid} missing {png}');continue
   with Image.open(png) as raw:
    if raw.mode not in ('RGBA','P'):fail(f'{sid} not RGBA/indexed PNG')
-   if raw.size!=(cw*8,ch*len(anims)):fail(f'{sid} wrong sheet size {raw.size} expected {(cw*8,ch*len(anims))}');continue
+   if raw.size!=(cw*columns,ch*len(anims)):fail(f'{sid} wrong sheet size {raw.size} expected {(cw*columns,ch*len(anims))}');continue
    if max(raw.size)>2048:fail(f'{sid} exceeds 2048')
    img=raw.convert('RGBA')
   used_alpha=set()
@@ -80,7 +87,7 @@ def check(path=DEFAULT,source_cache=None,only=None):
     else:
      expected=EXCEPTIONS[sid] if anim=='death' and sid in EXCEPTIONS else expected_indices(total,n,anim=='death')
      if chosen!=expected:fail(f'{sid}:{anim} source sampling indices differ: {chosen} vs {expected}')
-   for c in range(8):
+   for c in range(columns):
     frame=img.crop((c*cw,row*ch,(c+1)*cw,(row+1)*ch));b=count_and_bbox(frame)
     if c<n:
      if b is None:fail(f'{sid}:{anim} frame {c} is empty');continue
@@ -117,9 +124,17 @@ def check(path=DEFAULT,source_cache=None,only=None):
     with Image.open(p) as portrait_im:
      expected_portrait=(256,256) if sid in FIRST_HEROES+STORY_HEROES+CARD_HEROES else (64,64)
      if portrait_im.size!=expected_portrait or portrait_im.mode not in ('RGBA','P'):fail(f'{sid} invalid portrait')
- size=sum(p.stat().st_size for p in (ROOT/'assets/sprites').rglob('*') if p.is_file())
- if size>3_000_000:fail(f'assets/sprites size {size} exceeds 3 MB')
- print(f'v2 sprites: {len(sprites)} entries; {size} bytes; source pixel check: {bool(source_cache)}')
+ runtime_index=ROOT/'assets-webp/index.json'
+ webp_index=json.loads(runtime_index.read_text()) if runtime_index.is_file() else {}
+ def delivered_bytes(p):
+  rel=p.relative_to(ROOT/'assets').as_posix();record=webp_index.get(rel)
+  webp=ROOT/'assets-webp'/(rel[:-4]+'.webp') if rel.endswith('.png') else None
+  if record and record.get('webp') and webp is not None and webp.is_file():return record['webp']
+  return p.stat().st_size
+ asset_files=[p for p in (ROOT/'assets/sprites').rglob('*.png') if p.is_file()]
+ size=sum(delivered_bytes(p) for p in asset_files)+(ROOT/'assets/sprites/sprites.json').stat().st_size
+ if size>3_000_000:fail(f'assets/sprites delivered payload {size} bytes exceeds 3 MB (PNG fallback/WebP output + manifest)')
+ print(f'v2 sprites: {len(sprites)} entries; {size} delivered bytes (lossless PNG/WebP); source pixel check: {bool(source_cache)}')
  for e in errors:print('FAIL',e)
  if errors:raise SystemExit(1)
  print('PASS all sprite dimensions, frames, edges, ACT origin/native pixels, alpha and size')
