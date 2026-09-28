@@ -26,6 +26,7 @@ import {
   validateExpeditions,
   type CardRarity,
   type SaveState,
+  groupDigits,
 } from '../src/core';
 import { expeditionsBadgeCount } from '../src/game/flow';
 import { loadFullContext } from '../scripts/lib/content-node';
@@ -156,7 +157,7 @@ describe('K9 экспедиции: отправка', () => {
     expect(pick.power).toBe(top5);
     expect(pick.need).toBe(loc('clock_tower').power);
     expect(codeOf(() => startExpedition(s, 'clock_tower', 8, T0, ctx))).toBe('not_enough_power');
-    expect(() => startExpedition(s, 'clock_tower', 8, T0, ctx)).toThrow(`${pick.power} / нужно ${pick.need}`);
+    expect(() => startExpedition(s, 'clock_tower', 8, T0, ctx)).toThrow(`${groupDigits(pick.power)} / нужно ${groupDigits(pick.need)}`); // числа — с разрядами (LT-07)
   });
 
   it('автоподбор: сначала те, кого нельзя отдать в корм (отряд, сюжетные), копии — последними; лишних нет', () => {

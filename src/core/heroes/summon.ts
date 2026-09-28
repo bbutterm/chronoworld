@@ -6,6 +6,7 @@ import { summonPool } from './config';
 import { HeroError } from './errors';
 import { addHeroCard } from './roster';
 import { rarityIndex, type CardRarity } from './schema';
+import { groupDigits } from '../format';
 
 /**
  * Таверна (призыв героев, docs/design/heroes-v2.md, раздел 4; числа — data/summon.json). Детерминирована:
@@ -158,7 +159,7 @@ export function summon(
   let next: SaveState = { ...save, currency: { ...save.currency }, summon: { ...save.summon } };
   if (pay === 'gems') {
     const cost = count === 10 ? cfg.costs.ten : cfg.costs.single;
-    if (save.currency.gems < cost) throw new HeroError('not_enough_gems', `Нужно ${cost} гемов, есть ${save.currency.gems}`);
+    if (save.currency.gems < cost) throw new HeroError('not_enough_gems', `Нужно ${groupDigits(cost)} гемов, есть ${groupDigits(save.currency.gems)}`);
     next.currency.gems -= cost;
   } else if (pay === 'scroll') {
     if (save.currency.scrolls < count) throw new HeroError('not_enough_scrolls', `Нужно свитков: ${count}, есть ${save.currency.scrolls}`);

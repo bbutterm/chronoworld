@@ -42,14 +42,14 @@ describe('помощники экранов K8–K10', () => {
   });
 
   it('metaRewardsText пропускает нули', () => {
-    expect(metaRewardsText({ gold: 1500, jobExp: 0, gems: 5 })).toBe('1 500 зол. · 5 гем.');
+    expect(metaRewardsText({ gold: 1500, jobExp: 0, gems: 5 })).toBe('1\u00a0500 золота · 5 гемов'); // MT-19: полные слова; LT-13: неразрывный пробел
     expect(metaRewardsText({ gold: 0, jobExp: 50, gems: 0 }, ' каждому')).toBe('50 опыта каждому');
     expect(metaRewardsText({ gold: 0, jobExp: 0, gems: 0 })).toBe('—');
   });
 
   it('expectedLootText: золото и опыт точно, находки — списком', () => {
     expect(expectedLootText({ gold: 1000, jobExp: 50, gems: 0.4, heroCards: 0.2, scrolls: 0, items: 0.1 })).toEqual({
-      base: '1 000 зол. · 50 опыта',
+      base: '1\u00a0000 золота · 50 опыта',
       finds: 'Находки: гемы ≈1, карты героя, снаряжение',
     });
     expect(expectedLootText({ gold: 1, jobExp: 1, gems: 0, heroCards: 0, scrolls: 0, items: 0 }).finds).toBe('');

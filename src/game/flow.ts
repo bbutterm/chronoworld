@@ -5,6 +5,7 @@ import {
   ascendRequirement,
   canEquip,
   heroesWithGearUpgrades,
+  groupDigits,
   heroPower,
   needsBranch,
   pendingPicks,
@@ -55,6 +56,7 @@ import {
 } from '../core';
 import { genderedSpriteId } from '../pipeline/sprites';
 import { hasSprite } from './spriteRegistry';
+import { plural } from './skillFacts';
 import { C } from './theme';
 
 export const ROLE_NAMES: Record<string, string> = { tank: 'Танк', damage: 'Урон', healer: 'Лекарь', support: 'Поддержка' };
@@ -367,7 +369,8 @@ export function leadHero(save: SaveState): HeroState | undefined {
 
 /** Число с разбивкой по разрядам: 12345 → «12 345». */
 export function formatNumber(n: number): string {
-  return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  // LT-13: разряды — неразрывным пробелом (core groupDigits): перенос строки внутри числа невозможен.
+  return groupDigits(n);
 }
 
 /**
@@ -519,25 +522,40 @@ export function countdownText(ms: number): string {
   return h > 0 ? `${h}:${p(m)}:${p(sec)}` : `${m}:${p(sec)}`;
 }
 
-/** Награда K10 одной строкой: «300 зол. · 50 опыта · 5 гем.» (нулевые не пишем). */
+/** «5 гемов», «1 гем», «22 гема». */
+export function gemsText(n: number): string {
+  return `${formatNumber(n)} ${plural(n, 'гем', 'гема', 'гемов')}`;
+}
+
+/** «10 очков», «1 очко», «3 очка» (задания, события). */
+export function pointsText(n: number): string {
+  return `${formatNumber(n)} ${plural(n, 'очко', 'очка', 'очков')}`;
+}
+
+/** «3 дня», «1 день», «5 дней». */
+export function daysText(n: number): string {
+  return `${n} ${plural(n, 'день', 'дня', 'дней')}`;
+}
+
+/** Награда K10 одной строкой: «300 золота · 50 опыта · 5 гемов» (нулевые не пишем; MT-19 — без «зол./гем.»). */
 export function metaRewardsText(r: Omit<MetaRewards, 'heroCards'> & { heroCards?: MetaRewards['heroCards'] }, jobExpSuffix = ''): string {
   const parts: string[] = [];
-  if (r.gold) parts.push(`${formatNumber(r.gold)} зол.`);
+  if (r.gold) parts.push(`${formatNumber(r.gold)} золота`);
   if (r.jobExp) parts.push(`${formatNumber(r.jobExp)} опыта${jobExpSuffix}`);
-  if (r.gems) parts.push(`${formatNumber(r.gems)} гем.`);
+  if (r.gems) parts.push(gemsText(r.gems));
   const cards = (r.heroCards?.blue ?? 0) + (r.heroCards?.purple ?? 0);
-  if (cards > 0) parts.push(cards >= 1 && Number.isInteger(cards) ? `${cards} карт. героя` : `карта героя ${Math.round(cards * 100)}%`);
+  if (cards > 0) parts.push(cards >= 1 && Number.isInteger(cards) ? `${cards} ${plural(cards, 'карта', 'карты', 'карт')} героя` : `карта героя ${Math.round(cards * 100)}%`);
   return parts.join(' · ') || '—';
 }
 
-/** Что даст экспедиция (до отправки): «≈ 660 зол. · 880 опыта» и находки «гемы, карты героя, предметы» — по средним. */
+/** Что даст экспедиция (до отправки): «≈ 660 золота · 880 опыта» и находки «гемы, карты героя, предметы» — по средним. */
 export function expectedLootText(e: ExpectedLoot): { base: string; finds: string } {
   const finds: string[] = [];
   if (e.gems > 0) finds.push(`гемы ≈${Math.max(1, Math.round(e.gems))}`);
   if (e.heroCards > 0) finds.push('карты героя');
   if (e.items > 0) finds.push('снаряжение');
   if (e.scrolls > 0) finds.push('свитки');
-  return { base: `${formatNumber(e.gold)} зол. · ${formatNumber(e.jobExp)} опыта`, finds: finds.length ? `Находки: ${finds.join(', ')}` : '' };
+  return { base: `${formatNumber(e.gold)} золота · ${formatNumber(e.jobExp)} опыта`, finds: finds.length ? `Находки: ${finds.join(', ')}` : '' };
 }
 
 /**

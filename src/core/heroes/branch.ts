@@ -6,6 +6,7 @@ import { activeBranch, branchOf, heroTemplate } from './card';
 import { HeroError } from './errors';
 import { findHero } from './level';
 import { BRANCH_RARITY, rarityIndex } from './schema';
+import { groupDigits } from '../format';
 
 /**
  * Ветка второй профессии (docs/design/heroes-v2.md, раздел 3). Выбирается на фиолетовом: при вознесении синий →
@@ -106,7 +107,7 @@ export function changeBranch(save: SaveState, heroId: string, job: string, ctx: 
   assertBranch(hero, job, ctx);
   if (current.job === job) throw new HeroError('bad_branch', `${t.name}: эта ветка уже выбрана`);
   const gems = branchChangeCost(hero, ctx);
-  if (save.currency.gems < gems) throw new HeroError('not_enough_gems', `Смена ветки: нужно ${gems} гемов, есть ${save.currency.gems}`);
+  if (save.currency.gems < gems) throw new HeroError('not_enough_gems', `Смена ветки: нужно ${groupDigits(gems)} гемов, есть ${groupDigits(save.currency.gems)}`);
   let next = setBranch(save, heroId, job, (hero.branchChanges ?? 0) + 1);
   if (gems > 0) next = { ...next, currency: { ...next.currency, gems: next.currency.gems - gems } };
   next = dropUnwearable(next, heroId, ctx);

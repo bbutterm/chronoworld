@@ -429,11 +429,19 @@ export class HeroScene extends Phaser.Scene {
     const line = (y: number, s: string, color: string, size: number = FS.caption, bold = false) =>
       box.add(ellipsize(text(this, x, y, s, size, color, { stroke: C.stroke, strokeThickness: 4, ...(bold ? { fontStyle: 'bold' } : {}) }).setOrigin(0, 0.5), maxW));
     if (info.cost) {
-      line(ACT_Y - 62, `Опыт ${formatNumber(info.cost.exp)} / ${formatNumber(info.pool)}`, info.blocker === 'not_enough_exp' ? C.warning : C.text, FS.body, true);
-      line(ACT_Y - 18, `Золото ${formatNumber(info.cost.gold)} / ${formatNumber(info.gold)}`, info.blocker === 'not_enough_gold' ? C.warning : C.text, FS.body, true);
+      // NB-17: цена уровня и запас — не «100 / 210» (читалось как прогресс), а «−100 (есть 210)».
+      // Не влезает (миллионы в запасе) — шрифт мельче, затем без «есть».
+      const price = (y: number, label: string, cost: number, have: number, color: string) => {
+        const t = text(this, x, y, `${label} −${formatNumber(cost)} (есть ${formatNumber(have)})`, FS.body, color, { stroke: C.stroke, strokeThickness: 4, fontStyle: 'bold' }).setOrigin(0, 0.5);
+        if (t.width > maxW) t.setFontSize(FS.caption - 4);
+        if (t.width > maxW) t.setFontSize(FS.body).setText(`${label} −${formatNumber(cost)}`);
+        box.add(ellipsize(t, maxW));
+      };
+      price(ACT_Y - 62, 'Опыт', info.cost.exp, info.pool, info.blocker === 'not_enough_exp' ? C.warning : C.text);
+      price(ACT_Y - 18, 'Золото', info.cost.gold, info.gold, info.blocker === 'not_enough_gold' ? C.warning : C.text);
       const short = levelShortage(info);
       if (short) line(ACT_Y + 28, short, C.danger, FS.caption, true);
-      else line(ACT_Y + 28, info.affordable > 1 ? `хватит на ${info.affordable} ур. (держите)` : 'хватит на 1 уровень', C.positive);
+      else line(ACT_Y + 28, info.affordable > 1 ? `хватит на ${info.affordable} ур.` : 'хватит на 1 уровень', C.positive);
       const toCap = info.maxLevel - info.level;
       line(ACT_Y + 68, `до предела: ${toCap} ур.`, C.dim);
     } else if (req) {

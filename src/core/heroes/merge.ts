@@ -5,6 +5,7 @@ import { activeForm, branchOf, branchOptions, heroName, heroTemplate, nextRarity
 import { HeroError } from './errors';
 import { findHero, levelRangeCost, type LevelCost } from './level';
 import { BRANCH_RARITY, rarityIndex, type CardRarity, type FodderSlot, type MergeRule } from './schema';
+import { groupDigits } from '../format';
 
 /**
  * Вознесение героя на следующую редкость (docs/design/heroes-v2.md, раздел 2.2; правила — data/cards.json → merge):
@@ -93,7 +94,7 @@ export function ascendRequirement(save: SaveState, heroId: string, ctx: GameCont
   const to = nextRarity(hero.rarity);
   if (!rule || !to) return null;
   const blockers: string[] = [];
-  if (save.resources.gold < rule.gold) blockers.push(`Не хватает золота: нужно ${rule.gold}, есть ${save.resources.gold}`);
+  if (save.resources.gold < rule.gold) blockers.push(`Не хватает золота: нужно ${groupDigits(rule.gold)}, есть ${groupDigits(save.resources.gold)}`);
   const free = freeHeroes(save, heroId, ctx);
   const fodder = rule.fodder.map((f) => ({ kind: f.kind, rarity: f.rarity, count: f.count, candidates: free.filter((h) => fits(hero, h, f)).map((h) => h.id) }));
   const branch = !!rule.branch;
@@ -221,7 +222,7 @@ export function ascendHero(
   const rule = mergeRule(hero, ctx);
   const to = nextRarity(hero.rarity);
   if (!rule || !to) throw new HeroError('max_rarity', `${name}: максимальная редкость`);
-  if (save.resources.gold < rule.gold) throw new HeroError('not_enough_gold', `Не хватает золота: нужно ${rule.gold}, есть ${save.resources.gold}`);
+  if (save.resources.gold < rule.gold) throw new HeroError('not_enough_gold', `Не хватает золота: нужно ${groupDigits(rule.gold)}, есть ${groupDigits(save.resources.gold)}`);
   if (opts.branch !== undefined) assertBranch(hero, opts.branch, ctx);
   // Выбранная ветка не меняется вознесением (смена — branch.ts changeBranch); opts.branch действует, только если ветки
   // ещё нет и новая редкость — фиолетовая или выше.

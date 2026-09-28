@@ -254,7 +254,7 @@ export class ExpeditionsScene extends Phaser.Scene {
     this.faces(e.heroIds, r.b);
     if (e.done) {
       a.add(text(this, COL_X, r.a, 'Отряд вернулся!', FS.h3, C.inkSuccess, { fontStyle: 'bold' }).setOrigin(0, 0.5));
-      a.add(ellipsize(text(this, COL_X, r.d1, `Добыча: ${formatNumber(e.rewards.gold)} зол. · ${formatNumber(e.rewards.jobExp)} опыта`, FS.small, C.inkGold, { fontStyle: 'bold' }).setOrigin(0, 0.5), COL_W));
+      a.add(ellipsize(text(this, COL_X, r.d1, `Добыча: ${formatNumber(e.rewards.gold)} золота · ${formatNumber(e.rewards.jobExp)} опыта`, FS.small, C.inkGold, { fontStyle: 'bold' }).setOrigin(0, 0.5), COL_W));
       a.add(ellipsize(text(this, COL_X, r.d2, this.findsText(e), FS.small, C.inkInfo).setOrigin(0, 0.5), COL_W));
       const bx = LEFT + CARD_W - 24 - 130;
       const btn = button(this, bx, r.c, 260, 112, 'ui_btn_primary', 'Забрать', a.tap(() => this.claim(e, { x: bx, y: this.area.content.y + r.c })), FS.h3);
@@ -268,7 +268,7 @@ export class ExpeditionsScene extends Phaser.Scene {
     const barW = COL_W;
     const bar = a.add(progressBar(this, COL_X, r.c, barW, 26, 0, TINT.info));
     const fill = bar.list[1] as Phaser.GameObjects.Rectangle;
-    a.add(ellipsize(text(this, COL_X, r.d1, `${formatNumber(e.rewards.gold)} зол. · ${formatNumber(e.rewards.jobExp)} опыта`, FS.small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), COL_W));
+    a.add(ellipsize(text(this, COL_X, r.d1, `${formatNumber(e.rewards.gold)} золота · ${formatNumber(e.rewards.jobExp)} опыта`, FS.small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), COL_W));
     a.add(text(this, COL_X, r.d2, 'Находки — по возвращении', FS.small, C.muted).setOrigin(0, 0.5));
     const t: Timer = { e, label, fill, barW };
     this.updateTimer(t, now());
@@ -322,7 +322,7 @@ export class ExpeditionsScene extends Phaser.Scene {
       commit(r.save);
       queueRewardFly('Expeditions', at, before);
       const name = GAME.meta.expeditions.locations.find((l) => l.id === e.location)?.name ?? e.location;
-      const lines = [`«${name}»: ${formatNumber(r.rewards.gold)} зол. · ${formatNumber(r.rewards.jobExp)} опыта в запас`, ...lootLines(r.rewards), ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
+      const lines = [`«${name}»: ${formatNumber(r.rewards.gold)} золота · ${formatNumber(r.rewards.jobExp)} опыта в запас`, ...lootLines(r.rewards), ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       this.scene.restart({ scroll: this.area.offset });
       this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4500)));
     } catch (err) {
@@ -342,7 +342,7 @@ export class ExpeditionsScene extends Phaser.Scene {
       commit(r.save);
       queueRewardFly('Expeditions', { x: GAME_W / 2, y: CONTENT_TOP + 52 }, before);
       const lines = [
-        `Экспедиций: ${r.claimed.length} · ${formatNumber(r.rewards.gold)} зол. · ${formatNumber(r.rewards.jobExp)} опыта в запас`,
+        `Экспедиций: ${r.claimed.length} · ${formatNumber(r.rewards.gold)} золота · ${formatNumber(r.rewards.jobExp)} опыта в запас`,
         ...lootLines(r.rewards),
         ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы')),
       ];

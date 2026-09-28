@@ -24,6 +24,7 @@ import { stageLabel } from '../unlocks/unlocks';
 import { grantMetaRewards, syncAchievementCounters, trackAchievement, type MetaEvent } from './achievements';
 import type { ExpeditionDuration, ExpeditionLocation, ExpeditionLoot, MetaContext } from './config';
 import { MetaError } from './errors';
+import { groupDigits } from '../format';
 
 const HOUR_MS = 3_600_000;
 
@@ -248,7 +249,7 @@ export function startExpedition(
   let power: number;
   if (heroIds === undefined) {
     const pick = autoParty(save, loc.id, ctx);
-    if (!pick.ok) throw new MetaError('not_enough_power', `${loc.name}: мало мощи — ${pick.power} / нужно ${pick.need}`);
+    if (!pick.ok) throw new MetaError('not_enough_power', `${loc.name}: мало мощи — ${groupDigits(pick.power)} / нужно ${groupDigits(pick.need)}`);
     ids = pick.heroIds;
     power = pick.power;
   } else {
@@ -265,7 +266,7 @@ export function startExpedition(
     });
     const p = powers(save, heroes, ctx);
     power = heroes.reduce((s, h) => s + p.get(h.id)!, 0);
-    if (power < loc.power) throw new MetaError('not_enough_power', `${loc.name}: мало мощи — ${power} / нужно ${loc.power}`);
+    if (power < loc.power) throw new MetaError('not_enough_power', `${loc.name}: мало мощи — ${groupDigits(power)} / нужно ${groupDigits(loc.power)}`);
     ids = [...heroIds];
   }
   const entry: ActiveExpedition = {
