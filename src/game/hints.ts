@@ -11,7 +11,7 @@ export const HINT_KEY = 'chronoworld.hints';
 
 /** Тексты подсказок — одна строка. */
 export const HINT_TEXT: Record<HintId, string> = {
-  home_campaign: 'Начните с кампании: первый этап ждёт',
+  home_campaign: 'Первый этап ждёт — жмите «В бой»',
   stage_fight: 'Отряд готов — жмите «В бой»',
   chest_claim: 'Заберите награду из сундука',
   level_up: 'Опыта хватает на новый уровень — «Герои» → «Улучшить»',
@@ -83,8 +83,9 @@ export interface HomeHintInput {
 }
 
 /**
- * Какую подсказку показать на главной (одну, самую нужную) или null.
- * Порядок: новичок → кампания; затем сундук, «Улучшить», трофеи, башня.
+ * Какую подсказку показать на странице «Кампания» (одну, самую нужную) или null (имя — историческое: раньше это была
+ * главная). Порядок: новичок → «В бой»; затем сундук, «Улучшить», трофеи (вкладка «Герои»), башня (вкладка
+ * «Приключения»; на самой странице — плитка Башни, AdventureScene).
  */
 export function pickHomeHint(s: HomeHintInput, isDone: (id: HintId) => boolean = hintDone): HintId | null {
   if (s.cleared === 0 && !isDone('home_campaign')) return 'home_campaign';

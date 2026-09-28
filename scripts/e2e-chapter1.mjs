@@ -242,11 +242,11 @@ const powerLine = (stageId) =>
   }, stageId);
 
 /**
- * Таверна после этапа 5 (подарок открытия уже выдан кампанией): Кампания → Главная → плитка «Таверна» →
- * «Бесплатно» (если есть) и «Свитки ×10» → «Открыть все» → итог (скриншот) → «Готово» → «‹ Назад» на главную.
+ * Таверна после этапа 5 (подарок открытия уже выдан кампанией): Кампания → вкладка «Город» → плитка «Таверна» →
+ * «Бесплатно» (если есть) и «Свитки ×10» → «Открыть все» → итог (скриншот) → «Готово» → «‹ Назад» в «Город».
  */
 const visitTavern = async () => {
-  await clickText('Campaign', 'ГЛАВНАЯ');
+  await clickText('Campaign', 'ГОРОД');
   await waitScene('Home');
   await skipDialogues('Home');
   await clickText('Home', 'Таверна');
@@ -325,26 +325,20 @@ const chapterDone = async () => {
 };
 
 
-/** После поражения: «Кампания» → главная (бесплатные быстрые награды, если есть) → «Улучшить» отряд. */
+/** После поражения: «Кампания» (бесплатные быстрые награды и сундук — на ней же) → «Улучшить» отряд. */
 const afterLoss = async () => {
   await clickText('Result', 'Кампания');
   await waitScene('Campaign');
   await skipDialogues('Campaign');
-  await clickText('Campaign', 'ГЛАВНАЯ');
-  await waitScene('Home');
-  await skipDialogues('Home');
-  if (await findText('Home', 'Бесплатно')) {
-    await clickText('Home', 'Бесплатно');
+  if (await findText('Campaign', 'Бесплатно')) {
+    await clickText('Campaign', 'Бесплатно');
     await sleep(500);
-    await clickText('Home', 'Забрать', true);
+    await clickText('Campaign', 'Забрать', true);
     await sleep(800);
-    await waitScene('Home');
-    await skipDialogues('Home');
+    await waitScene('Campaign');
+    await skipDialogues('Campaign');
     log('после поражения: бесплатные быстрые награды');
   }
-  await clickText('Home', 'КАМПАНИЯ');
-  await waitScene('Campaign');
-  await skipDialogues('Campaign');
   const levels = await levelUpSquad();
   log(`после поражения: «Улучшить» +${levels} ур.`);
 };
@@ -354,15 +348,17 @@ try {
   await page.goto(URL);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await waitScene('Home', 60000);
-  await shot('home-new');
+  // Игра открывается на странице «Кампания» (вступление главы — там же).
+  await waitScene('Campaign', 60000);
+  await shot('campaign-new');
   for (let stage = 1; stage <= 10; stage++) {
     let won = false;
     for (let t = 1; t <= MAX_TRIES && !won; t++) {
       // После поражения — как игрок: бесплатные быстрые награды на главной, «Улучшить» и снова в бой.
       if (t > 1) await afterLoss();
       {
-        await clickText(await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key), 'КАМПАНИЯ');
+        const active = await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key);
+        if (active !== 'Campaign') await clickText(active, 'КАМПАНИЯ');
         await waitScene('Campaign');
         // Вступление главы — при первом входе на карту.
         if (stage === 1) {

@@ -24,7 +24,7 @@ export class TowerScene extends Phaser.Scene {
   }
 
   create(): void {
-    screen(this, 'Башня испытаний', 'Home', { to: 'Home' });
+    screen(this, 'Башня испытаний', 'Adventure', { to: 'Adventure' });
     markHint('tower_open');
     const save = session.save;
     const st = towerStatus(save, GAME);

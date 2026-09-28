@@ -189,6 +189,7 @@ export function sceneSound(key: string, o: { theme?: Theme; boss?: boolean } = {
   const theme = o.theme ?? 'meadow';
   switch (key) {
     case 'Home':
+    case 'Adventure':
       return { music: 'home', ambience: null };
     case 'Tavern':
       return { music: 'tavern', ambience: null };

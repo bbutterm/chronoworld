@@ -85,7 +85,7 @@ export class ExpeditionsScene extends Phaser.Scene {
   }
 
   create(data: { scroll?: number } = {}): void {
-    screen(this, 'Экспедиции', 'Home', { to: 'Home' });
+    screen(this, 'Экспедиции', 'Adventure', { to: 'Adventure' });
     this.hours = loadHours();
     const save = session.save;
     const views = expeditionStatus(save, now(), GAME);

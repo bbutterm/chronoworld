@@ -221,14 +221,14 @@ export function poolText(save: SaveState): string {
  * вещи получше в инвентаре → «Улучшить» (хватает опыта) → вознесение → стрелки во фронте → свободные слоты при
  * запасных героях → прокачка. action — куда ведёт кнопка совета.
  */
-export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): { text: string; action: 'Heroes' | 'Squad' | 'Campaign' | 'Home' } {
+export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): { text: string; action: 'Heroes' | 'Squad' | 'Campaign' } {
   if (heroesWithGearUpgrades(save, ctx).length) return { text: 'В инвентаре есть вещи получше — «Герои» → «Надеть лучшее».', action: 'Heroes' };
   if (levelUpReady(save, ctx).length) return { text: 'Опыта хватает на новый уровень — «Герои» → герой → «Улучшить».', action: 'Heroes' };
   if (ascendReady(save, ctx).length) return { text: 'Герой готов к вознесению — оно сильно его усилит («Герои»).', action: 'Heroes' };
   if (misplacedInFront(save, ctx).length) return { text: 'Стрелки и лекари стоят во фронте — «Отряд» → «Переставить».', action: 'Squad' };
   const free = save.heroes.filter((h) => !save.squad.includes(h.id)).length;
   if (free > 0 && save.squad.includes(null)) return { text: 'В отряде есть пустые места — возьмите всех героев («Отряд»).', action: 'Squad' };
-  return { text: 'Прокачайте героев: повторите пройденные этапы и заберите сундук на главной, затем «Улучшить».', action: 'Home' };
+  return { text: 'Прокачайте героев: повторите пройденные этапы и заберите сундук в кампании, затем «Улучшить».', action: 'Campaign' };
 }
 
 /**
@@ -441,15 +441,16 @@ export function untilReset(now: Date): string {
 }
 
 /** Куда вести игрока, чтобы выполнить задание. */
-export function questDestination(event: ActivityKind): 'Campaign' | 'Home' | 'Heroes' | 'Tower' {
+export function questDestination(event: ActivityKind): 'Campaign' | 'Tavern' | 'Heroes' | 'Tower' {
   switch (event) {
     case 'stage_win':
     case 'stage_attempt':
-      return 'Campaign';
+    // Сундук и быстрые награды — на странице «Кампания».
     case 'offline_claim':
     case 'fast_rewards':
+      return 'Campaign';
     case 'summon':
-      return 'Home';
+      return 'Tavern';
     case 'hero_level_up':
     case 'hero_ascend':
       return 'Heroes';

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { eventsBadges, letterClaimable, mailStatus, pendingPicks, touchEvents } from '../core';
+import { eventsBadges, pendingPicks, touchEvents } from '../core';
+import { mailCount } from './navBadges';
 import { GAME } from './content';
 import { pulse } from './juice';
 import { badge, HEADER_H } from './screen';
@@ -22,7 +23,7 @@ export function touchToday(): void {
 
 /** Сколько писем ждут внимания: непрочитанные или с незабранным вложением. */
 export function mailBadge(): number {
-  return mailStatus(session.save).letters.filter((l) => !l.read || letterClaimable(l)).length;
+  return mailCount(session.save);
 }
 
 /** Конверт (своей иконки в скине нет). size — ширина. */

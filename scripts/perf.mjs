@@ -244,7 +244,7 @@ async function main() {
       localStorage.setItem('chronoworld.battleSpeed', '2');
     });
     await page.reload();
-    await page.waitForFunction(() => window.__game?.scene?.isActive('Home'), null, { timeout: 60000 });
+    await page.waitForFunction(() => window.__game?.scene?.isActive('Campaign'), null, { timeout: 60000 });
     await sleep(500);
     await page.evaluate(installProbe);
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU });
@@ -270,7 +270,7 @@ async function main() {
       screens.push({ name, ...t });
       log(`текстуры, ${name}: ${f1(t.all)} МБ (листы юнитов ${f1(t.sheets)}), текстур ${t.count}`);
     };
-    await texOn('главная (после загрузки)');
+    await texOn('кампания (после загрузки)');
     await texOn('список героев', 'Heroes');
     const heroId = await page.evaluate(() => {
       try {
@@ -281,7 +281,7 @@ async function main() {
       }
     });
     if (heroId) await texOn('карточка героя', 'Hero', { heroId });
-    await texOn('главная (после карточки)', 'Home');
+    await texOn('город (после карточки)', 'Home');
     /**
      * Сколько живых (после сборки мусора) экземпляров Text/Image/Sprite/Container во всей игре
      * и сколько из них уже уничтожены, но удерживаются чьими-то ссылками (dead).
@@ -365,7 +365,7 @@ async function main() {
       await sleep(300);
     }
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
-    await texOn(`главная (после ${RUNS} боёв)`, 'Home');
+    await texOn(`город (после ${RUNS} боёв)`, 'Home');
     if (process.env.PERF_SNAPSHOT) {
       const chunks = [];
       cdp.on('HeapProfiler.addHeapSnapshotChunk', (e) => chunks.push(e.chunk));

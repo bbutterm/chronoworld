@@ -132,9 +132,9 @@ export class BootScene extends Phaser.Scene {
     const go = () => {
       if (started) return;
       started = true;
-      // Перезагрузка на «Глава пройдена» (или на финале главы перед ним) — сразу в кампанию: она доиграет
-      // финал из очереди и откроет экран снова.
-      this.scene.start(session.save.pendingChapterDone ? 'Campaign' : 'Home');
+      // Игра открывается на странице «Кампания» (как в AFK Arena): карта, сундук и «В бой». Новичку там же — вступление
+      // главы; перезагрузка на «Глава пройдена» (или на финале перед ним) — кампания доиграет финал из очереди.
+      this.scene.start('Campaign');
     };
     void Promise.all(own.map((id) => requestPortrait(this.game, id))).then(go);
     // Сеть подвисла — не держим игрока на экране загрузки: портреты догрузятся на экранах.

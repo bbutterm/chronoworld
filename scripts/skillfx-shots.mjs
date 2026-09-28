@@ -67,7 +67,7 @@ try {
       }
     }, [sq.save, REDUCED]);
     await page.goto(URL);
-    await page.waitForFunction(() => window.__game?.scene?.isActive('Home'), null, { timeout: 60000, polling: 100 });
+    await page.waitForFunction(() => window.__game?.scene?.isActive('Campaign'), null, { timeout: 60000, polling: 100 });
     await page.evaluate((stageId) => {
       const g = window.__game;
       for (const s of g.scene.getScenes(true)) if (s.scene.key !== 'Battle') g.scene.stop(s.scene.key);
