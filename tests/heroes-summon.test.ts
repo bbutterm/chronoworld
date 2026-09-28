@@ -38,15 +38,15 @@ function codeOf(fn: () => unknown): string | undefined {
 }
 
 describe('Таверна: правила', () => {
-  it('пул — все 12 героев (сюжетные тоже, Грета и Дорн — с открытия); шансы 73 / 25 / 2; гаранты синей (10) и фиолетовой (50)', () => {
+  it('пул — все 12 героев (сюжетные тоже, Грета и Дорн — с открытия); шансы 78 / 20 / 2; гаранты синей (10) и фиолетовой (50)', () => {
     const all = Object.keys(ctx.content.heroes).sort();
     expect(all).toHaveLength(12);
     for (const r of ['green', 'blue', 'purple'] as CardRarity[]) expect(summonPool(ctx, r)).toEqual(all);
     expect(summonPool(ctx, 'purple')).toContain('greta');
     expect(summonPool(ctx, 'purple')).toContain('dorn');
     expect(cfg.rates.map((r) => [r.rarity, r.chance])).toEqual([
-      ['green', 0.73],
-      ['blue', 0.25],
+      ['green', 0.78],
+      ['blue', 0.2],
       ['purple', 0.02],
     ]);
     expect(cfg.costs).toEqual({ single: 30, ten: 270 });
@@ -79,7 +79,7 @@ describe('Таверна: правила', () => {
     expect(new Set(a.save.summon.discovered)).toEqual(seen);
   });
 
-  it('шансы на 100 000 призывов — 73 / 25 / 2% ± 0,5 п. п. (первые 9 карт каждого ×10 — гарант их не трогает)', () => {
+  it('шансы на 100 000 призывов — 78 / 20 / 2% ± 0,5 п. п. (первые 9 карт каждого ×10 — гарант их не трогает)', () => {
     const counts: Record<string, number> = {};
     let n = 0;
     for (let seed = 0; n < 100_000; seed++) {

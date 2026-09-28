@@ -98,7 +98,7 @@ describe('Таверна: раскладка и итог', () => {
   });
 
   it('ratesLines: проценты по-русски', () => {
-    expect(ratesLines(ctx.summon.rates, (r) => r)).toEqual(['green — 73%', 'blue — 25%', 'purple — 2%']);
+    expect(ratesLines(ctx.summon.rates, (r) => r)).toEqual(['green — 78%', 'blue — 20%', 'purple — 2%']);
   });
 });
 

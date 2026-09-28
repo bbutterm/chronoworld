@@ -31,6 +31,8 @@ import {
   BRANCH_RARITY,
   actUseFastRewards,
   autoFormation,
+  arrangeSquad,
+  maxLevelOf,
   canEquip,
   claimAchievement,
   claimActivity,
@@ -498,7 +500,7 @@ class Sim {
       }
       if (!hero) break;
       this.ascend(hero.id, autoFodder(this.save, hero.id, this.ctx) ?? []);
-      this.save = { ...this.save, squad: autoFormation(this.save, this.ctx) };
+      this.save = { ...this.save, squad: this.formation() };
     }
     this.levelSquad();
   }
@@ -555,6 +557,45 @@ class Sim {
     }
   }
 
+  /**
+   * Отряд модели (герои v2): autoFormation (5 сильнейших разных героев), затем — как живой игрок — герой вне отряда
+   * с высокой редкостью встаёт в отряд, даже если у него пока низкий уровень: фиолетовый из Таверны, контракта или
+   * вознесения ур. 1 слабее синего ур. 20, но «Улучшить» идёт самому низкому, и он быстро догонит. Сравнение — по
+   * «потенциалу»: мощь при уровне не ниже самого низкого в отряде (не выше предела редкости). Замена — только если
+   * потенциал ≥ ×1.1 заменяемого: вложенный в героя опыт не возвращается, мелкие перестановки игроку невыгодны.
+   * Без этого модель годами держала фиолетовых на скамейке (autoFormation смотрит только на нынешнюю мощь).
+   */
+  formation(): (string | null)[] {
+    const base = autoFormation(this.save, this.ctx);
+    const members = base.flatMap((id) => this.save.heroes.filter((h) => h.id === id));
+    if (members.length === 0) return base;
+    const floor = Math.min(...members.map((h) => h.level));
+    const pot = (h: SaveState['heroes'][number]) =>
+      heroPower({ ...h, level: Math.max(h.level, Math.min(floor, maxLevelOf(this.ctx, h.rarity))) }, this.ctx, this.save);
+    const squad = members.map((h) => ({ hero: h, pot: pot(h) }));
+    const inSquad = new Set(members.map((h) => h.templateId));
+    const bench = [...new Set(this.save.heroes.map((h) => h.templateId))]
+      .filter((t) => !inSquad.has(t))
+      .map((t) => heroCopies(this.save, t).map((h) => ({ hero: h, pot: pot(h) })).sort((a, b) => b.pot - a.pot)[0])
+      .sort((a, b) => b.pot - a.pot);
+    let changed = false;
+    for (const c of bench) {
+      if (squad.length < base.length) {
+        squad.push(c);
+        changed = true;
+        continue;
+      }
+      const weakest = squad.reduce((w, x) => (x.pot < w.pot ? x : w));
+      if (c.pot < weakest.pot * 1.1) break;
+      squad[squad.indexOf(weakest)] = c;
+      changed = true;
+    }
+    if (!changed) return base;
+    const ids: (string | null)[] = squad.map((x) => x.hero.id);
+    while (ids.length < base.length) ids.push(null);
+    return arrangeSquad({ ...this.save, squad: ids }, this.ctx);
+  }
+
   /** «Улучшить» отряд по одному уровню самому низкому, пока хватает. Новичок из Таверны сильнее — он встанет в отряд. */
   levelSquad(): void {
     for (let round = 0; round < 3; round++) {
@@ -578,7 +619,7 @@ class Sim {
         this.spendTime(this.model.levelUpSec * 1000);
         any = true;
       }
-      const f = autoFormation(this.save, this.ctx);
+      const f = this.formation();
       const same = f.every((id, i) => id === this.save.squad[i]);
       this.save = { ...this.save, squad: f };
       if (!any || same) break;
@@ -611,11 +652,11 @@ class Sim {
 
   /** Авто-расстановка → карточки (призыв, вознесение, «Улучшить» отряда) → экипировка → авто-расстановка. */
   prepare(): void {
-    this.save = { ...this.save, squad: autoFormation(this.save, this.ctx) };
+    this.save = { ...this.save, squad: this.formation() };
     this.develop();
     this.shop();
     this.autoEquip();
-    this.save = { ...this.save, squad: autoFormation(this.save, this.ctx) };
+    this.save = { ...this.save, squad: this.formation() };
   }
 
   /**
@@ -1290,28 +1331,36 @@ export function signals(res: BalanceResult, ctx: FullContext): string[] {
 
 /**
  * Подбор коэффициентов «рекомендуемой мощи» (data/progression.json → power.recommendedStages): несколько моделей игрока
- * (2–6 сессий в день, разные seed) → по каждому этапу мощь отряда при последнем поражении и первой победе (доля от
+ * (2–6 сессий в день × seed 1–6: выдачи Таверны разные) → по каждому этапу мощь отряда при последнем поражении и первой победе (доля от
  * stagePower). Порог — середина между ними; предложение = порог × margin (с мощью ≥ рекомендуемой почти всегда победа).
- * Этапы без поражений не подбираются (порог неизвестен — только верхняя оценка).
+ * Герои v2: отряды разных выдач Таверны при той же мощи то выигрывают, то проигрывают (фиолетовый ур. 1 в отряде,
+ * ветки), поэтому предложение ещё ограничено «полом» Ц8: самое слабое поражение и самая слабая победа всех моделей —
+ * не ниже floor (0.86) рекомендуемой (tests/balance.test.ts проверяет 0.85). Этап без поражений подбирается только по
+ * полу побед (если какая-то победа ниже floor), иначе не подбирается (порог неизвестен — только верхняя оценка).
  */
 export function fitRecommended(
   ctx: FullContext,
   days = 8,
   margin = 1.03,
+  floor = 0.86,
 ): { stageId: string; loss: number; win: number; threshold: number; suggested: number; current: number; n: number }[] {
-  const per = new Map<string, { lo: number[]; hi: number[] }>();
+  const per = new Map<string, { lo: number[]; hi: number[]; minLoss: number; minWin: number }>();
   for (const sessionsPerDay of [2, 3, 4, 6]) {
-    for (const seedBase of [1, 1000, 2000]) {
+    for (const seedBase of [1, 2, 3, 4, 5, 6]) {
       const res = runBalance(ctx, days, { ...PLAYER_MODEL, sessionsPerDay, hoursBetweenSessions: sessionsPerDay >= 6 ? 2.5 : 4, seedBase });
       for (const s of ctx.content.stages) {
         const bs = res.battles.filter((b) => b.kind === 'stage' && b.target === s.id);
         const win = bs.find((b) => b.win);
+        if (!win) continue;
         const losses = bs.filter((b) => !b.win);
-        if (!win || !losses.length) continue;
         const sp = stagePower(s.id, ctx);
-        const r = per.get(s.id) ?? { lo: [], hi: [] };
-        r.lo.push(Math.max(...losses.map((b) => b.squadPower)) / sp);
-        r.hi.push(win.squadPower / sp);
+        const r = per.get(s.id) ?? { lo: [], hi: [], minLoss: Infinity, minWin: Infinity };
+        r.minWin = Math.min(r.minWin, win.squadPower / sp);
+        if (losses.length) {
+          r.lo.push(Math.max(...losses.map((b) => b.squadPower)) / sp);
+          r.hi.push(win.squadPower / sp);
+          r.minLoss = Math.min(r.minLoss, ...losses.map((b) => b.squadPower / sp));
+        }
         per.set(s.id, r);
       }
     }
@@ -1321,11 +1370,18 @@ export function fitRecommended(
   for (const s of ctx.content.stages) {
     const r = per.get(s.id);
     if (!r) continue;
+    const current = recommendedPower(s.id, ctx) / stagePower(s.id, ctx);
+    const cap = Math.min(r.minLoss, r.minWin) / floor;
+    if (!r.lo.length) {
+      if (r.minWin / current >= floor) continue;
+      out.push({ stageId: s.id, loss: NaN, win: r.minWin, threshold: NaN, suggested: Math.round(cap * 100) / 100, current: Math.round(current * 100) / 100, n: 0 });
+      continue;
+    }
     const loss = med(r.lo);
     const win = med(r.hi);
     const threshold = (loss + Math.min(win, loss * 1.3)) / 2;
-    const current = recommendedPower(s.id, ctx) / stagePower(s.id, ctx);
-    out.push({ stageId: s.id, loss, win, threshold, suggested: Math.round(threshold * margin * 100) / 100, current: Math.round(current * 100) / 100, n: r.lo.length });
+    const suggested = Math.min(threshold * margin, cap);
+    out.push({ stageId: s.id, loss, win, threshold, suggested: Math.round(suggested * 100) / 100, current: Math.round(current * 100) / 100, n: r.lo.length });
   }
   return out;
 }

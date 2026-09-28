@@ -113,7 +113,7 @@ describe('рекомендуемая мощь этапа (recommendedPower, stag
     const stage = res.battles.filter((b) => b.kind === 'stage' && b.recommended > 0);
     const losses = stage.filter((b) => !b.win);
     expect(losses.length).toBeGreaterThan(0);
-    for (const b of losses) expect(b.squadPower / b.recommended, `${b.target} t=${b.t.toFixed(1)}`).toBeGreaterThanOrEqual(0.8);
+    for (const b of losses) expect(b.squadPower / b.recommended, `${b.target} t=${b.t.toFixed(1)}`).toBeGreaterThanOrEqual(0.85);
     for (const b of stage.filter((x) => x.win)) expect(b.squadPower / b.recommended, b.target).toBeGreaterThanOrEqual(0.85);
   });
 });
