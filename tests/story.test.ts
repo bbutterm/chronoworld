@@ -41,7 +41,21 @@ describe('сюжет: данные', () => {
   it('data/story/chapter1.json загружается в контекст', () => {
     expect(ctx.story.chapters.chapter1).toBeDefined();
     const ch1 = ctx.story.scenes.filter((s) => s.chapter === 'chapter1');
-    expect(ids(ch1)).toEqual(['ch1_intro', 'ch1_s1_before', 'ch1_s4_before', 'ch1_s4_after', 'ch1_s7_before', 'ch1_s10_before', 'ch1_outro']);
+    expect(ids(ch1)).toEqual([
+      'ch1_intro',
+      'ch1_s1_before',
+      'ch1_s11_after',
+      'ch1_s4_before',
+      'ch1_s4_after',
+      'ch1_s5_after',
+      'ch1_s6_after',
+      'ch1_s7_before',
+      'ch1_s15_after',
+      'ch1_s16_after',
+      'ch1_s18_before',
+      'ch1_s10_before',
+      'ch1_outro',
+    ]);
   });
 
   it('data/story/chapter2.json: вступление, сцена босса и знакомство с Дорном (QA T5-27)', () => {
@@ -65,7 +79,7 @@ describe('сюжет: данные', () => {
     expect(problemsWith((s) => (s.scenes[0].lines[0].speaker = 'nobody')).join('\n')).toMatch(/спикер nobody не объявлен/);
     expect(problemsWith((s) => (s.scenes[0].lines[0].text = 'а'.repeat(121))).join('\n')).toMatch(/длиннее 120/);
     expect(problemsWith((s) => (s.scenes[2].id = 'ch1_intro')).join('\n')).toMatch(/id уже занят/);
-    expect(problemsWith((s) => (s.scenes[2].stageId = 'ch1_s1')).join('\n')).toMatch(/вторая сцена beforeStage/);
+    expect(problemsWith((s) => (s.scenes.find((x: { id: string }) => x.id === 'ch1_s4_before').stageId = 'ch1_s1')).join('\n')).toMatch(/вторая сцена beforeStage/);
   });
 
   it('stageId обязателен для before/afterStage, bossIntro — только у босс-этапа', () => {
