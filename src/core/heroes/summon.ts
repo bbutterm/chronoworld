@@ -121,7 +121,7 @@ export function grantTavernWelcome(save: SaveState, ctx: GameContext): { save: S
     save: {
       ...save,
       currency: { ...save.currency, gems: save.currency.gems + w.gems, scrolls: save.currency.scrolls + w.scrolls },
-      summon: { ...save.summon, welcomeGiven: true },
+      summon: { ...save.summon, welcomeGiven: true, sincePurple: Math.max(save.summon.sincePurple, w.purplePity ?? 0) },
     },
     events: [{ type: 'tavernUnlocked', gems: w.gems, scrolls: w.scrolls }],
   };

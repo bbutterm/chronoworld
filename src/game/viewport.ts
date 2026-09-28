@@ -22,13 +22,27 @@ export { computeView, MAX_DPR, type View };
 /** Телефон в альбомной ориентации — показываем «Поверните телефон» (то же условие, что в CSS index.html). */
 export const LANDSCAPE_PHONE = '(orientation: landscape) and (max-height: 540px)';
 
-/** Безопасные отступы экрана (env(safe-area-inset-*)) в CSS px. */
+type TgInsets = { top?: number; bottom?: number; left?: number; right?: number };
+interface TgWebApp {
+  safeAreaInset?: TgInsets;
+  contentSafeAreaInset?: TgInsets;
+  onEvent?: (event: string, cb: () => void) => void;
+}
+const telegram = (): TgWebApp | undefined => (window as unknown as { Telegram?: { WebApp?: TgWebApp } }).Telegram?.WebApp;
+
+/**
+ * Безопасные отступы экрана в CSS px: env(safe-area-inset-*) и, в Telegram Mini App на весь экран, поверх них —
+ * отступы Telegram (safeAreaInset + contentSafeAreaInset: строка кнопок «Закрыть» / «⌄ …» сверху закрывала валюту).
+ */
 function readInsets(): Insets {
   const probe = document.getElementById('safe-probe');
-  if (!probe) return { top: 0, right: 0, bottom: 0, left: 0 };
-  const st = getComputedStyle(probe);
-  const px = (v: string) => parseFloat(v) || 0;
-  return { top: px(st.paddingTop), right: px(st.paddingRight), bottom: px(st.paddingBottom), left: px(st.paddingLeft) };
+  const st = probe ? getComputedStyle(probe) : undefined;
+  const px = (v: string | undefined) => parseFloat(v ?? '') || 0;
+  const css = { top: px(st?.paddingTop), right: px(st?.paddingRight), bottom: px(st?.paddingBottom), left: px(st?.paddingLeft) };
+  const tg = telegram();
+  if (!tg) return css;
+  const sum = (k: keyof TgInsets) => (tg.safeAreaInset?.[k] ?? 0) + (tg.contentSafeAreaInset?.[k] ?? 0);
+  return { top: Math.max(css.top, sum('top')), right: Math.max(css.right, sum('right')), bottom: Math.max(css.bottom, sum('bottom')), left: Math.max(css.left, sum('left')) };
 }
 
 /** Предел плотности: ?dpr=N в адресе (для замеров), иначе MAX_DPR. */
@@ -220,6 +234,8 @@ export function installViewport(game: Phaser.Game): void {
   window.addEventListener('resize', schedule);
   window.addEventListener('orientationchange', schedule);
   window.visualViewport?.addEventListener('resize', schedule);
+  // Telegram сообщает отступы асинхронно и меняет их при переходе в полноэкранный режим.
+  for (const ev of ['safeAreaChanged', 'contentSafeAreaChanged', 'fullscreenChanged', 'viewportChanged']) telegram()?.onEvent?.(ev, schedule);
 
   apply();
 }

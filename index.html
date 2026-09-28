@@ -96,6 +96,11 @@
     <div id="splash" aria-busy="true"><div class="rib"></div><h1>Chronoworld</h1><div class="orn"></div><div class="bar"><b><i></i></b></div><p>Загрузка…</p></div>
     <div id="safe-probe"></div>
     <div id="rotate" role="alert"><div class="phone"></div>Поверните телефон<small>Chronoworld играется в вертикальной ориентации</small></div>
+    <script>
+      // Telegram Mini App: SDK нужен только внутри Telegram (параметры запуска в hash) — отступы под кнопки Telegram,
+      // события свернуть/развернуть. В обычном браузере не грузится.
+      if (/tgWebApp/.test(location.hash + location.search)) document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>');
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
