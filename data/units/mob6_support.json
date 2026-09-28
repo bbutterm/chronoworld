@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob6_support",
+  "name": "Обеон",
+  "kind": "monster",
+  "role": "healer",
+  "stats": {
+    "hp": 450,
+    "atk": 38,
+    "def": 6,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_heal",
+    "ult": "mob6_support_siren_song",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "dark_priest",
+    "tint": "#6ad1c4",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

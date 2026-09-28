@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob6_boss_dead_crew",
+  "name": "Мёртвая команда",
+  "description": "Когда гибнет член команды, капитан получает 30 энергии.",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "trigger": "allyDeath",
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 30
+    }
+  ]
+}

@@ -1,28 +1,27 @@
 {
   "$schema": "../schema/chapter.schema.json",
-  "$comment": "TODO: заготовка content:new — mult всех этапов = 1 (босс 0.5), подобрать по docs/CONTENT_RECIPES.md «Новая глава: чеклист» (playthrough, balance-fit, --fit-recommended); сундук и награды уже по формуле баланса",
   "id": "chapter6",
   "name": "Глава 6. Затонувший корабль",
   "order": 6,
   "stages": [
     {
       "id": "ch6_s1",
-      "name": "TODO: этап 1",
+      "name": "Отмель у Излуда",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_melee",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_tank",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_ranged",
+          "unit": "mob6_melee",
           "mult": 1
         },
         null,
+        {
+          "unit": "mob6_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob6_fast",
+          "mult": 1
+        },
         null
       ],
       "rewards": {
@@ -36,19 +35,19 @@
     },
     {
       "id": "ch6_s2",
-      "name": "TODO: этап 2",
+      "name": "Водолазный колокол",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "mob6_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob6_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob6_ranged",
           "mult": 1
         },
         null,
@@ -65,23 +64,26 @@
     },
     {
       "id": "ch6_s3",
-      "name": "TODO: этап 3",
+      "name": "Коралловый риф",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_ranged",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_fast",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_elite",
+          "unit": "mob6_tank",
           "mult": 1
         },
         null,
-        null
+        {
+          "unit": "mob6_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 1
+        },
+        {
+          "unit": "mob6_fast",
+          "mult": 1
+        }
       ],
       "rewards": {
         "jobExp": 40290,
@@ -94,24 +96,24 @@
     },
     {
       "id": "ch6_s4",
-      "name": "TODO: этап 4",
+      "name": "Сломанная мачта",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_fast",
+          "unit": "mob6_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob6_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob6_ranged",
           "mult": 1
         },
         null,
         {
-          "unit": "mob3_tank",
+          "unit": "mob6_fast",
           "mult": 1
         }
       ],
@@ -126,26 +128,26 @@
     },
     {
       "id": "ch6_s5",
-      "name": "TODO: этап 5",
+      "name": "Логово гидры",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_elite",
+          "unit": "mob6_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob6_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob6_ranged",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_ranged",
+          "unit": "mob6_support",
           "mult": 1
-        }
+        },
+        null
       ],
       "rewards": {
         "jobExp": 47880,
@@ -158,24 +160,27 @@
     },
     {
       "id": "ch6_s6",
-      "name": "TODO: этап 6",
+      "name": "Верхняя палуба",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob6_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob6_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob6_fast",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_fast",
+          "unit": "mob6_support",
+          "mult": 1
+        },
+        {
+          "unit": "mob6_ranged",
           "mult": 1
         }
       ],
@@ -190,27 +195,27 @@
     },
     {
       "id": "ch6_s7",
-      "name": "TODO: этап 7",
+      "name": "Пушечная палуба",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "mob6_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob6_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob6_ranged",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob6_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob6_ranged",
           "mult": 1
         }
       ],
@@ -225,27 +230,27 @@
     },
     {
       "id": "ch6_s8",
-      "name": "TODO: этап 8",
+      "name": "Затопленный трюм",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_ranged",
+          "unit": "mob6_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob6_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob6_fast",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob6_support",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob6_ranged",
           "mult": 1
         }
       ],
@@ -260,27 +265,27 @@
     },
     {
       "id": "ch6_s9",
-      "name": "TODO: этап 9",
+      "name": "Кают-компания мертвецов",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_fast",
+          "unit": "mob6_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob6_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob6_ranged",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob6_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob6_ranged",
           "mult": 1
         }
       ],
@@ -295,26 +300,29 @@
     },
     {
       "id": "ch6_s10",
-      "name": "TODO: логово босса",
+      "name": "Каюта капитана",
       "boss": true,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob6_elite",
           "mult": 1
         },
         {
-          "unit": "mob_boss1",
+          "unit": "mob6_boss",
           "mult": 0.5
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob6_ranged",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob6_support",
           "mult": 1
         },
-        null
+        {
+          "unit": "mob6_ranged",
+          "mult": 1
+        }
       ],
       "rewards": {
         "jobExp": 110475,

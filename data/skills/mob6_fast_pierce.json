@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob6_fast_pierce",
+  "name": "Таран меч-рыбы",
+  "description": "Рывок к врагу тыла с наименьшим ОЗ: удар носом-мечом и «Пробитая броня» (−25% защиты) на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.4
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "armor_break",
+        "name": "Пробитая броня",
+        "turns": 2,
+        "stats": {
+          "def": -0.25
+        }
+      }
+    }
+  ]
+}
