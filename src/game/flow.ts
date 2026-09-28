@@ -26,6 +26,11 @@ import {
   unitPower,
   type TowerContext,
   recommendedPower as coreRecommendedPower,
+  levelTone,
+  squadAverageLevel,
+  type CardRarity,
+  type LevelTone,
+  type RecommendedLevel,
   stageStatus,
   type AchievementView,
   type ActivityKind,
@@ -261,6 +266,29 @@ export const POWER_VERDICT: Record<PowerTone, string> = { ahead: 'Сил хва�
  */
 export function recommendedPower(stageId: string, ctx: FeatureContext): number {
   return coreRecommendedPower(stageId, ctx);
+}
+
+// ---------- Уровни врагов (core/features/levels.ts) ----------
+
+/** Цвет уровня врага против среднего уровня отряда: выше больше чем на 5 — красный, выше — жёлтый, иначе белый. */
+export const LEVEL_COLORS: Record<LevelTone, string> = { red: C.dangerStrong, yellow: C.gold, white: C.text };
+
+/** Редкость во множественном числе — для «герои ур. 18 (синие)». */
+export const RARITY_PLURAL: Record<CardRarity, string> = { green: 'зелёные', blue: 'синие', purple: 'фиолетовые', gold: 'золотые', red: 'красные' };
+
+/** Цвет уровня врага для отряда из сохранения (средний уровень героев в save.squad). */
+export function enemyLevelColor(level: number, save: Pick<SaveState, 'squad' | 'heroes'>): string {
+  return LEVEL_COLORS[levelTone(level, squadAverageLevel(save))];
+}
+
+/** «ур. 18» — подпись уровня врага. */
+export function levelLabel(level: number): string {
+  return `ур. ${level}`;
+}
+
+/** «герои ур. 18 (синие)» — рекомендуемый уровень этапа (под «Нужно N» на экране этапа). */
+export function recommendText(rec: Pick<RecommendedLevel, 'level' | 'rarity'>): string {
+  return `герои ур. ${rec.level} (${RARITY_PLURAL[rec.rarity]})`;
 }
 
 /** Мощь текущего отряда против рекомендуемой мощи этапа: числа, тон (цвет) и подпись для плашек. */

@@ -6,13 +6,14 @@
  *   npm run balance -- --days 7 --no-events   без «Входа 7 дней», «7 дней новичка» и почты (сравнить «до/после»)
  *   npm run balance -- --days 7 --no-hunt     без «Охоты на босса»; --seed N — другой сдвиг seed боёв
  *   npm run balance -- --days 7 --no-shop     без покупок в Лавке (сравнить «до/после»)
+ *   npm run balance -- --levels               калибровка уровней врагов (power.levels, balance.md 4а)
  * Модель игрока — scripts/lib/player-model.ts (PLAYER_MODEL). Описание — docs/content/balance.md.
  */
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { newGame, recommendedPower } from '../src/core';
 import { ROOT } from './lib/content-node';
-import { findWalls, fitRecommended, hookMetrics, loadFullContext, perDay, PLAYER_MODEL, runBalance, signals, SOURCES, timeline, toCsv, total } from './lib/player-model';
+import { findWalls, fitLevels, fitRecommended, hookMetrics, loadFullContext, perDay, PLAYER_MODEL, runBalance, signals, SOURCES, timeline, toCsv, total } from './lib/player-model';
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
@@ -62,6 +63,29 @@ if (process.argv.includes('--fit-recommended')) {
     );
   }
   console.log(`\npower.recommendedStages (отличие от общего коэффициента > 5% или ниже него; неподобранные — как были):\n${JSON.stringify(overrides, null, 2)}`);
+  process.exit(0);
+}
+if (process.argv.includes('--levels')) {
+  // Калибровка power.levels (docs/content/balance.md, 4а): модель игрока и эталонные отряды против уровней, которые показывает ядро.
+  const { rows, suggestedScale, suggestedBossScale } = fitLevels(ctx, arg('days') ? days : 8);
+  const lv = ctx.features.power.levels;
+  console.log('этап      модель (ср. ур. редкость ×героев)  по бою  рекомендуем       враги  босс   scale  bossScale');
+  for (const r of rows) {
+    console.log(
+      [
+        r.stageId.padEnd(8),
+        `${r.modelLevel.toFixed(1).padStart(6)} ${r.modelRarity.padEnd(6)} ×${r.modelSquad}`.padEnd(33),
+        String(r.battleLevel).padStart(6),
+        `  ур. ${String(r.recommended).padStart(2)} ${r.recommendedRarity.padEnd(6)}`,
+        String(r.typical).padStart(7),
+        String(r.boss ?? '').padStart(5),
+        (Number.isFinite(r.scale) ? r.scale.toFixed(2) : '—').padStart(7),
+        r.bossScale !== undefined ? r.bossScale.toFixed(2).padStart(10) : '',
+      ].join('  '),
+    );
+  }
+  console.log(`\npower.levels.enemyScale: сейчас ${lv?.enemyScale ?? 1}, предложение ${suggestedScale.toFixed(2)} (медиана scale этапов с уровнем по бою ≥ 3)`);
+  console.log(`power.levels.bossScale: сейчас ${lv?.bossScale ?? 1}, предложение ${suggestedBossScale.toFixed(2)} (медиана по босс-этапам)`);
   process.exit(0);
 }
 const res = runBalance(ctx, days, model);

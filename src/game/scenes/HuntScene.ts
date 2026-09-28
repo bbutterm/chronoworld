@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import { huntStatus, sweepHunt, type HuntOutcome, type HuntReward, type HuntStatus } from '../../core';
+import { huntStatus, progressLevelBand, sweepHunt, unitLevel, type HuntOutcome, type HuntReward, type HuntStatus } from '../../core';
 import { GAME } from '../content';
-import { formatNumber, RARITY_NAMES } from '../flow';
+import { enemyLevelColor, formatNumber, levelLabel, RARITY_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, CONTENT_TOP, gemIcon, popIn, screen, unitFigure, unitTint } from '../screen';
 import { commit, session, today } from '../session';
@@ -68,7 +68,12 @@ export class HuntScene extends Phaser.Scene {
       onReady: (o) => o.setTint(unitTint(def.visual)),
     });
     const tx = 540;
-    text(this, tx, top + 70, 'Босс дня', FS.small, C.muted).setOrigin(0, 0.5);
+    const head = text(this, tx, top + 70, 'Босс дня', FS.small, C.muted).setOrigin(0, 0.5);
+    // Уровень босса (core/features/levels.ts, считается целиком — с запасом здоровья на урон): обычно много выше отряда.
+    const level = unitLevel(def, progressLevelBand(session.save, GAME).rarity, GAME);
+    text(this, tx + head.width + 16, top + 70, levelLabel(level), FS.small, enemyLevelColor(level, session.save), { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 })
+      .setOrigin(0, 0.5)
+      .setName('huntLevel');
     text(this, tx, top + 130, def.name, FS.h1, C.title, TITLE_STYLE).setOrigin(0, 0.5);
     if (st.boss.title) text(this, tx, top + 190, st.boss.title, FS.small, SKIN.cream, { ...OUTLINE, wordWrap: { width: 470 }, align: 'left' }).setOrigin(0, 0.5);
     text(this, tx, top + 250, `Здоровье ${formatNumber(def.stats.hp)}`, FS.body, C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);

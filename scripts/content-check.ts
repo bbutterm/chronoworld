@@ -18,7 +18,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, maxLevelOf, rarityIndex, recommendedPower, simulateBattle, validateHeroes } from '../src/core';
+import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, lintLevelBands, maxLevelOf, rarityIndex, recommendedPower, simulateBattle, validateHeroes } from '../src/core';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
@@ -41,6 +41,8 @@ if (built.ctx) {
   const gates = lintItemGates(built.ctx);
   errors.push(...gates.errors);
   warnings.push(...gates.warnings);
+  // Уровни врагов (power.levels): полосы этапов.
+  errors.push(...lintLevelBands(built.ctx));
   // Экспедиции: порог мощи локации выше рекомендуемой мощи самых трудных этапов до её открытия — игрок увидит
   // локацию, но отправить отряд, скорее всего, не сможет.
   const stages = built.ctx.content.stages;

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import { arrangeSquad, COMBAT, duplicateCardsInSquad, formationRank, heroCard, heroName, heroPower, misplacedInFront, squadPower, withGear, type HeroState, type UnitDef } from '../core';
+import { arrangeSquad, COMBAT, duplicateCardsInSquad, formationRank, heroCard, heroName, heroPower, misplacedInFront, squadPower, withGear, type HeroState, type RecommendedLevel, type UnitDef } from '../core';
 import { GAME } from './content';
-import { formatNumber, heroSprite, POWER_COLORS, POWER_VERDICT, powerTone, type PowerTone } from './flow';
+import { enemyLevelColor, formatNumber, heroSprite, levelLabel, POWER_COLORS, POWER_VERDICT, powerTone, recommendText, type PowerTone } from './flow';
 import { bump, countUp, juiceOn } from './juice';
 import { GAME_W } from './layout';
 import { classifyGesture, dropHero, fieldSlots, hitSlot, removeAt, rosterOrder, swapSlots, tapHero, type Point, type SquadMove } from './prepLayout';
@@ -32,6 +32,10 @@ export interface FormationOpts {
   enemies?: (UnitDef | null)[];
   /** Рекомендуемая мощь этапа (flow.ts recommendedPower): «Нужно N», цвет мощи отряда и вердикт (ahead/close/behind). */
   enemyPower?: number;
+  /** Уровни врагов по слотам enemies (core stageLevels): «ур. N» у каждого, цвет — против среднего уровня отряда. */
+  enemyLevels?: (number | null)[];
+  /** Рекомендуемый уровень этапа (core recommendedHeroLevel): «герои ур. N (синие)» под «Нужно N». */
+  recommend?: RecommendedLevel;
   /** Полоса прокрутки списка героев. */
   roster: { top: number; bottom: number };
   /** После каждой перерисовки (кнопки сцены, доступность «В бой»). */
@@ -77,6 +81,8 @@ export class FormationEditor {
   private readonly thumb: Phaser.GameObjects.Rectangle;
   private readonly dragLayer: Phaser.GameObjects.Container;
   private readonly powerText: Phaser.GameObjects.Text;
+  /** Подписи «ур. N» врагов и строка «герои ур. N (…)» — перекрашиваются при смене отряда (refreshInfo). */
+  private readonly levelTexts: { t: Phaser.GameObjects.Text; level: number }[] = [];
   /** Вердикт «сил хватает / чуть не хватает / слабее» (только у этапа). */
   private verdict: Phaser.GameObjects.Container | null = null;
   private readonly tip: Phaser.GameObjects.Text;
@@ -126,8 +132,15 @@ export class FormationEditor {
     if (vs) {
       g.lineStyle(3, SKIN_TINT.bronze, 0.9).lineBetween(540, field.top + 20, 540, field.bottom - 20);
       scene.add.image(540, midY, skinIcon('swords')).setDisplaySize(64, 64).setTint(SKIN_TINT.gold);
-      colLabel(694, 'фронт');
-      colLabel(930, 'тыл');
+      if (opts.recommend) {
+        // Под «Нужно N» — какие герои нужны (вместо подписей колонок противника: его расстановку игрок не меняет).
+        const t = text(scene, 796, labelY, recommendText(opts.recommend), FS.caption, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('stageRecommend');
+        if (t.width > 500) t.setScale(500 / t.width);
+        this.levelTexts.push({ t, level: opts.recommend.level });
+      } else {
+        colLabel(694, 'фронт');
+        colLabel(930, 'тыл');
+      }
     } else {
       text(scene, 900, midY, 'к противнику\n→', FS.caption, C.dim, { stroke: C.stroke, strokeThickness: 3, lineSpacing: 4 });
     }
@@ -220,6 +233,20 @@ export class FormationEditor {
       });
       // Имя целиком (T1-22): перенос по пробелу/дефису, не влезает — мельче.
       fitName(text(scene, p.x, p.y + 74, u.name, FS.caption, boss ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5, lineSpacing: -6 }), ENEMY_W);
+      // Уровень — плашкой справа от фигуры, на уровне груди, поверх фигуры (над ним — имя соседа сверху, под ним — своё).
+      const level = this.opts.enemyLevels?.[i];
+      if (level != null) {
+        const t = text(scene, p.x + (boss ? 66 : 58), p.y - 8, levelLabel(level), FS.caption, C.text, {
+          fontStyle: 'bold',
+          stroke: C.stroke,
+          strokeThickness: 4,
+          backgroundColor: 'rgba(20,12,8,0.72)',
+          padding: { x: 8, y: 1 },
+        })
+          .setName(`enemyLevel${i}`)
+          .setDepth(3);
+        this.levelTexts.push({ t, level });
+      }
     });
   }
 
@@ -318,6 +345,7 @@ export class FormationEditor {
     const mine = squadPower(save, GAME);
     const prev = this.shownPower;
     this.shownPower = mine;
+    for (const { t, level } of this.levelTexts) t.setColor(enemyLevelColor(level, save));
     const enemy = this.opts.enemyPower;
     if (enemy !== undefined) {
       const tone = powerTone(mine, enemy);
