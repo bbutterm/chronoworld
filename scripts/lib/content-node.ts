@@ -5,6 +5,7 @@ import {
   buildGameContext,
   COMBAT,
   parseHeroesConfig,
+  parseUnlocks,
   ProgressionConfigSchema,
   type Content,
   type FullContext,
@@ -66,6 +67,7 @@ export function readRawGameData(root: string = ROOT): RawGameData {
     tower: readJsonFile('data/tower.json', root),
     bounties: readJsonFile('data/bounties.json', root),
     achievements: readJsonFile('data/achievements.json', root),
+    unlocks: readJsonFile('data/unlocks.json', root),
     stories: readJsonDir('data/story', root),
   };
 }
@@ -77,11 +79,13 @@ export function loadFullContext(): FullContext {
 
 /** Контекст для функций прогрессии и кампании (только кампания + прогрессия; полный — loadFullContext). */
 export function loadGameContext(): GameContext {
+  const unlocks = parseUnlocks(readJsonFile('data/unlocks.json'));
   return {
     content: loadContent(),
     progression: ProgressionConfigSchema.parse(JSON.parse(readFileSync(join(ROOT, 'data/progression.json'), 'utf8'))),
     combat: COMBAT,
-    ...parseHeroesConfig(readJsonFile('data/cards.json'), readJsonFile('data/summon.json')),
+    ...parseHeroesConfig(readJsonFile('data/cards.json'), readJsonFile('data/summon.json'), unlocks),
+    unlocks,
   };
 }
 

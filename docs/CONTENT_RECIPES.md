@@ -207,6 +207,26 @@ id вида `chapterN` выводится сам (`ch<N>`).
   `ACHIEVEMENT_COUNTERS` (`src/core/meta/config.ts`); новый счётчик — правка ядра + тест `tests/meta-achievements.test.ts`.
 - Подробно — `docs/content/features.md`, `docs/content/meta.md`.
 
+## 9а. Открыть функцию на этапе
+
+Все этапы открытия — одна таблица `data/unlocks.json → features[]`: `{id, stage, title, description, icon, line?}`
+(схема `src/core/unlocks/schema.ts`, подсказки в редакторе — `data/schema/unlocks.schema.json`).
+
+1. Перенести существующую функцию — поменять `stage` (id этапа из `data/campaign`). Порядок строк — порядок баннеров, держите его
+   по возрастанию этапов (тест `tests/unlocks.test.ts`). Таверну с `ch1_s5` не двигать без перебаланса: на неё опираются
+   цель Ц4 (`docs/content/balance.md`) и `npm run e2e:chapter1`.
+2. Текст баннера: `title` (≤ 40, он же в тосте замка «Поручения: откроется на этапе 1-8»), `description` (≤ 140, 1–2 фразы),
+   `icon` — иконка скина (`map, helmet, home, gear, gift, bag, lock, chest, scroll, tower, trophy, swords, check, back, next,
+   hourglass, flag, star`) или `mug` (кружка Таверны). `line` — необязательная реплика капитана Гаррета (≤ 120, как строка сюжета);
+   длинная сцена с несколькими репликами — обычная сцена `afterStage` того же этапа в `data/story` (она идёт перед баннером).
+3. Новая функция (нового id ещё нет) — это правка кода: id в `FEATURE_IDS` (`src/core/unlocks/schema.ts`), замок на её входе
+   (`isUnlocked` / `lockedTile` / `lockCover` / `lockedScreen` из `src/game/unlockBanner.ts`), куда ведёт «Перейти» (`GOTO` там же),
+   модель игрока (`featureUnlocked` в `scripts/lib/player-model.ts`), затем `npm run content:schema`. id лежат в сохранениях
+   (`seenUnlocks`) — после выпуска не переименовывать.
+4. Проверка: `npm run content:check` (этап существует), `npm run check`, `npm run balance -- --days 7` (крючки не хуже),
+   `npm run e2e` и `npm run e2e:chapter1` (оба закрывают баннеры «Позже»; e2e:chapter1 проверяет, что каждый баннер главы 1
+   показан ровно один раз — функции на этапах глав 2+ не проверяет).
+
 ## 10. Сохранение: новое поле
 
 Необязательное поле (`.optional()` / `.default()`) в `SaveStateSchema` — без смены версии. Обязательное — `SAVE_VERSION + 1`, миграция

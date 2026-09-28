@@ -8,7 +8,7 @@
 // В журнале у каждой попытки — мощь отряда против рекомендуемой (stagePowerCheck). Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
 //   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке)
 import { execSync, spawn } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -153,6 +153,27 @@ const skipDialogues = async (sceneKey, shotName) => {
     await clickText(sceneKey, 'Пропустить');
     await sleep(400);
     if (!(await dialogueOpen(sceneKey))) seenDialogues++;
+  }
+  // После сюжета — баннеры «Новая функция!» (открытия этапов, data/unlocks.json): закрываем «Позже», как игрок.
+  await dismissUnlocks(sceneKey);
+};
+/** Заголовок открытого баннера «Новая функция!» (src/game/unlockBanner.ts) или null. */
+const unlockTitle = (sceneKey) =>
+  page.evaluate(
+    (k) => (window.__game.scene.isActive(k) && window.__game.scene.getScene(k).children.getByName('unlockBanner')?.getData('title')) || null,
+    sceneKey,
+  );
+/** Все показанные баннеры (заголовки) — для итоговой проверки: каждый ровно один раз. */
+const unlockTitles = [];
+const dismissUnlocks = async (sceneKey) => {
+  for (let n = 0; n < 10; n++) {
+    await sleep(400);
+    const title = await unlockTitle(sceneKey);
+    if (!title) return;
+    if (!unlockTitles.length || title === 'Таверна') await shot(`unlock-${unlockTitles.length + 1}`);
+    unlockTitles.push(title);
+    log(`баннер «Новая функция!»: ${title}`);
+    await clickText(sceneKey, 'Позже', true);
   }
 };
 /** Пролистать диалог касаниями по экрану: первое дописывает строку, второе — следующая. */
@@ -378,6 +399,14 @@ try {
   if (!s.summon?.welcomeGiven) throw new Error('после этапа 5 не выдан подарок Таверны');
   log(`сюжетных сцен закрыто: ${seenDialogues}, в сохранении увидено: ${(s.seenScenes ?? []).join(', ')}`);
   if (!(s.seenScenes ?? []).includes('ch1_outro')) throw new Error('финальная сцена главы не показана');
+  // Открытия главы 1 (data/unlocks.json): каждый баннер показан ровно один раз и отмечен в сохранении.
+  log(`баннеры «Новая функция!»: ${unlockTitles.join(', ')}; в сохранении: ${(s.seenUnlocks ?? []).join(', ')}`);
+  if (new Set(unlockTitles).size !== unlockTitles.length) throw new Error(`баннер показан дважды: ${unlockTitles.join(', ')}`);
+  const ch1Unlocks = JSON.parse(readFileSync('data/unlocks.json', 'utf8')).features.filter((f) => f.stage.startsWith('ch1_'));
+  for (const f of ch1Unlocks) {
+    if (!(s.seenUnlocks ?? []).includes(f.id)) throw new Error(`после главы 1 баннер ${f.id} не показан`);
+    if (!unlockTitles.includes(f.title)) throw new Error(`баннер «${f.title}» не показывался`);
+  }
   await shot('final');
   ok = problems.length === 0;
 } catch (e) {

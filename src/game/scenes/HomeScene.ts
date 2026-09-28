@@ -18,6 +18,7 @@ import { version } from '../../../package.json';
 import { audioSettings, setAudioSettings, sfx } from '../audio';
 import { nextVolume, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
+import { isUnlocked, lockCover, lockedToast, lockLabel, showUnlockBanners, UNLOCK_BANNER_NAME } from '../unlockBanner';
 
 /** Размер сундука офлайн-наград. */
 const CHEST = 180;
@@ -134,6 +135,8 @@ export class HomeScene extends Phaser.Scene {
     staggerIn(this, 'Home', [...this.blocks, campaign]);
     // Сундук считаем раз в секунду, а не каждый кадр.
     this.time.addEvent({ delay: 1000, loop: true, callback: () => this.refresh() });
+    // Открылась новая функция (data/unlocks.json) — баннер «Новая функция!» поверх главной, один раз.
+    showUnlockBanners(this);
   }
 
   // ---------- сундук ----------
@@ -193,7 +196,7 @@ export class HomeScene extends Phaser.Scene {
     this.updateHint(r.gold > 0 || r.jobExp > 0);
     // Поручение завершилось, пока игрок на главной, — обновить плитку и значок.
     // Не при открытом окне (настройки, подтверждение): перезапуск молча закрыл бы его — обновим, когда закроют.
-    const modal = !!this.children.getByName('settingsModal') || confirmOpen(this);
+    const modal = !!this.children.getByName('settingsModal') || !!this.children.getByName(UNLOCK_BANNER_NAME) || confirmOpen(this);
     if (!modal && finishedBounties(session.save, now()) !== this.bountiesDone) this.scene.restart();
   }
 
@@ -381,7 +384,9 @@ export class HomeScene extends Phaser.Scene {
       btn.label.setX(22);
       btn.container.add(gemIcon(this, 22 - btn.label.width / 2 - 30, -4, 36));
     }
-    if (st.nextCost === null || noIncome) btn.setEnabled(false);
+    // Закрыто до своего этапа (data/unlocks.json) — затемнение с замком «Откроется на этапе 1-2».
+    if (!isUnlocked('fast_rewards')) lockCover(this, GAME_W / 2, y, 1000, L.fastH, 'fast_rewards');
+    else if (st.nextCost === null || noIncome) btn.setEnabled(false);
     // Бесплатные быстрые награды — готовы к получению: пульс, как у «Собрать».
     else if (st.nextCost === 0) pulse(this, btn.container);
   }
@@ -422,25 +427,35 @@ export class HomeScene extends Phaser.Scene {
     const [xl, xr] = [L.tileXL, L.tileXR];
     const qs = questStatus(save, GAME, today());
     const row1 = collect(this.children, () => {
-      this.tile(xl, y1, 'Задания', `Активность ${qs.activity} / ${qs.maxActivity}`, C.success, () => this.scene.start('Quests'), 'scroll');
+      if (isUnlocked('quests')) this.tile(xl, y1, 'Задания', `Активность ${qs.activity} / ${qs.maxActivity}`, C.success, () => this.scene.start('Quests'), 'scroll');
+      else this.lockedTile(xl, y1, 'Задания', 'scroll', 'quests');
       this.towerTile(xr, y1);
     });
     const row2 = collect(this.children, () => {
       const done = finishedBounties(save, now());
       const active = save.bounties.active.length;
       const bsub = done ? `Готово: ${done} — заберите` : active ? `В работе: ${active}` : 'Отправьте героев';
-      this.tile(xl, y2, 'Поручения', bsub, done ? C.success : C.muted, () => this.scene.start('Bounties'), 'flag');
+      if (isUnlocked('bounties')) this.tile(xl, y2, 'Поручения', bsub, done ? C.success : C.muted, () => this.scene.start('Bounties'), 'flag');
+      else this.lockedTile(xl, y2, 'Поручения', 'flag', 'bounties');
       this.bountiesDone = done;
 
       const views = achievementStatus(save, GAME);
       const got = views.filter((a) => a.claimed).length;
-      this.tile(xr, y2, 'Достижения', `Получено ${got} / ${views.length}`, C.info, () => this.scene.start('Achievements', { from: 'Home' }), 'trophy');
+      if (isUnlocked('achievements')) this.tile(xr, y2, 'Достижения', `Получено ${got} / ${views.length}`, C.info, () => this.scene.start('Achievements', { from: 'Home' }), 'trophy');
+      else this.lockedTile(xr, y2, 'Достижения', 'trophy', 'achievements');
     });
     this.blocks.push(row1, row2);
     // Значки — после «выезда» плиток на своих местах (не в группах): в правом верхнем углу, как у вкладки «Герои».
-    cornerBadge(this, xl, y1, L.tileW, L.tileH, claimableCount(qs));
-    cornerBadge(this, xl, y2, L.tileW, L.tileH, this.bountiesDone);
-    cornerBadge(this, xr, y2, L.tileW, L.tileH, claimableAchievements(achievementStatus(save, GAME)));
+    if (isUnlocked('quests')) cornerBadge(this, xl, y1, L.tileW, L.tileH, claimableCount(qs));
+    if (isUnlocked('bounties')) cornerBadge(this, xl, y2, L.tileW, L.tileH, this.bountiesDone);
+    if (isUnlocked('achievements')) cornerBadge(this, xr, y2, L.tileW, L.tileH, claimableAchievements(achievementStatus(save, GAME)));
+  }
+
+  /** Закрытая функция (data/unlocks.json): тусклая плитка с замком, «Откроется на этапе 1-8», касание — тост. */
+  private lockedTile(x: number, y: number, title: string, iconName: SkinIcon, id: Parameters<typeof lockedToast>[1]): void {
+    this.tile(x, y, title, lockLabel(id), C.dim, () => lockedToast(this, id), iconName, true).setAlpha(0.75);
+    // Замок из скина в углу плитки (T1-11/T3-20: не «✖», который читается как «закрыть»).
+    this.add.image(x + L.tileW / 2 - 40, y - L.tileH / 2 + 34, skinIcon('lock')).setDisplaySize(44, 44).setTint(SKIN_TINT.creamDim);
   }
 
   private towerTile(xr: number, y1: number): void {
@@ -453,14 +468,7 @@ export class HomeScene extends Phaser.Scene {
         markHint('tower_open');
         this.scene.start('Tower');
       }, 'tower');
-    } else {
-      const stage = GAME.content.stages.find((s) => s.id === ts.unlockAfterStage);
-      const hint = stage ? `Откроется после этапа ${stage.globalIndex + 1}` : 'Пока закрыта';
-      const t = this.tile(xr, y1, 'Башня', hint, C.dim, () => toast(this, `Башня испытаний: ${hint.toLowerCase()} кампании`), 'tower', true);
-      t.setAlpha(0.75);
-      // Закрыта — замок из скина в углу плитки (T1-11/T3-20: не «✖», который читается как «закрыть»).
-      this.add.image(xr + L.tileW / 2 - 40, y1 - L.tileH / 2 + 34, skinIcon('lock')).setDisplaySize(44, 44).setTint(SKIN_TINT.creamDim);
-    }
+    } else this.lockedTile(xr, y1, 'Башня', 'tower', 'tower');
   }
 
   /** Плитка функции: медальон с иконкой слева, название и состояние справа от него. locked — иконка приглушена. */

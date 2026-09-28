@@ -1,7 +1,6 @@
 {
   "$schema": "schema/tower.schema.json",
-  "$comment": "Башня испытаний (K4). Этажи строятся по правилу, см. docs/content/tower.md. Все числа — заглушки до баланса.",
-  "unlockAfterStage": "ch1_s5",
+  "$comment": "Башня испытаний (K4). Этап открытия — data/unlocks.json (tower). Этажи строятся по правилу, см. docs/content/tower.md. Все числа — заглушки до баланса.",
   "maxFloor": 100,
   "bossEvery": 5,
   "baseMult": 1,

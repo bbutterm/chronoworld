@@ -22,6 +22,7 @@ import { installLifecycle, type LoopLike } from './game/lifecycle';
 import { spritesBusy, spriteStats } from './game/sprites';
 import { fps } from './game/state';
 import { installTransitions } from './game/transitions';
+import { installUnlockGates } from './game/unlockBanner';
 import { initialView, installViewport, LANDSCAPE_PHONE, view } from './game/viewport';
 
 performance.mark('cw:script');
@@ -52,6 +53,8 @@ const game = new Phaser.Game({
 });
 
 installViewport(game);
+// Скорость боя ×2 закрыта до своего этапа (data/unlocks.json) — проверка и тост «Откроется на этапе…».
+installUnlockGates(game);
 
 // Метки для замера холодного старта (scripts/perf-load.mjs, docs/content/performance.md):
 // первый кадр экрана загрузки и первый кадр главной после её create() — с этого момента она принимает нажатия.

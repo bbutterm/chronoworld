@@ -159,7 +159,6 @@
     }
   },
   "required": [
-    "unlockAfterStage",
     "costs",
     "rates",
     "pity",

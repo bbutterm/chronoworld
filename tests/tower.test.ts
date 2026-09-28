@@ -31,7 +31,9 @@ const hard = withMult(1000);
 
 function unlocked(floor = 0): SaveState {
   const s = newGame(ctx, 0, D1);
-  return { ...s, campaign: { cleared: ctx.content.stages.slice(0, 5).map((x) => x.id) }, tower: { floor } };
+  // Башня открывается этапом из data/unlocks.json (tower) — пройдена вся кампания до него включительно.
+  const upTo = ctx.content.stages.findIndex((x) => x.id === ctx.tower.unlockAfterStage);
+  return { ...s, campaign: { cleared: ctx.content.stages.slice(0, upTo + 1).map((x) => x.id) }, tower: { floor } };
 }
 
 function expectTowerError(fn: () => unknown, code: TowerError['code']) {
@@ -50,7 +52,8 @@ describe('K4 башня: конфиг', () => {
     const problems: string[] = [];
     validateTower(ctx.tower, ctx.content, problems);
     expect(problems).toEqual([]);
-    expect(ctx.tower.unlockAfterStage).toBe('ch1_s5');
+    // Этап открытия — из единой таблицы data/unlocks.json (перенесён с ch1_s5 на босса главы 1, как в AFK).
+    expect(ctx.tower.unlockAfterStage).toBe('ch1_s10');
   });
 
   it('ошибки схемы и ссылок → invalid_config', () => {
@@ -171,7 +174,7 @@ describe('K4 башня: этажи', () => {
 describe('K4 башня: штурм', () => {
   it('закрыта до unlockAfterStage; null — открыта сразу', () => {
     const s = newGame(ctx, 0, D1);
-    expect(towerStatus(s, ctx)).toMatchObject({ unlocked: false, floor: 0, next: 1, unlockAfterStage: 'ch1_s5' });
+    expect(towerStatus(s, ctx)).toMatchObject({ unlocked: false, floor: 0, next: 1, unlockAfterStage: 'ch1_s10' });
     expectTowerError(() => climbTower(s, 1, ctx), 'tower_locked');
     expect(towerStatus(unlocked(), ctx).unlocked).toBe(true);
     const open = withMult(0.01, { unlockAfterStage: null });

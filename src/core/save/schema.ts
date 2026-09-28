@@ -182,6 +182,12 @@ export const SaveStateSchema = z.object({
    */
   seenScenes: z.array(z.string()).default([]),
   /**
+   * Показанные баннеры «Новая функция!» (id из data/unlocks.json) — каждый один раз. Поле добавлено без смены версии и
+   * намеренно без default: нет поля — сохранение старше таблицы открытий, sanitizeSave (initSeenUnlocks) отмечает
+   * показанным всё, что игрок уже открыл.
+   */
+  seenUnlocks: z.array(z.string()).optional(),
+  /**
    * P11 (T4-05). Сцены «после этапа», которые пора показать, но ещё не показаны (очередь). Попадают сюда
    * вместе с победой (actPlayStage), уходят — когда показаны (markScenesSeen). Нет поля — пусто.
    */

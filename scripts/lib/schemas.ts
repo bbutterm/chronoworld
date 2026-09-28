@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CardsConfigSchema, ChapterSchema, HeroTemplateSchema, JobSchema, SkillSchema, StorySchema, SummonConfigSchema, TowerConfigSchema, UnitSchema } from '../../src/core';
+import { CardsConfigSchema, ChapterSchema, HeroTemplateSchema, JobSchema, SkillSchema, StorySchema, SummonConfigSchema, TowerConfigSchema, UnitSchema, UnlocksConfigSchema } from '../../src/core';
 
 /** JSON Schema для подсказок и проверки в редакторе (VS Code подхватывает по полю $schema). */
 export function generateSchemas(): Record<string, string> {
@@ -15,5 +15,6 @@ export function generateSchemas(): Record<string, string> {
     'data/schema/hero.schema.json': gen(HeroTemplateSchema, 'Карточка героя (шаблон)'),
     'data/schema/cards.schema.json': gen(CardsConfigSchema, 'Редкости, уровень и вознесение карточек'),
     'data/schema/summon.schema.json': gen(SummonConfigSchema, 'Таверна (призыв карточек)'),
+    'data/schema/unlocks.schema.json': gen(UnlocksConfigSchema, 'Открытие функций по этапам кампании'),
   };
 }

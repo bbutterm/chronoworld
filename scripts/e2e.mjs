@@ -160,6 +160,26 @@ async function main() {
         [sceneKey, prefix],
       );
     /**
+     * Баннеры «Новая функция!» (src/game/unlockBanner.ts, слой 'unlockBanner') — закрыть «Позже» все подряд.
+     * Первый — со скриншотом shotName. Возвращает заголовки показанных баннеров.
+     */
+    const dismissUnlocks = async (sceneKey, shotName) => {
+      const titles = [];
+      for (let n = 0; n < 10; n++) {
+        await sleep(400);
+        const title = await page.evaluate(
+          (k) => window.__game.scene.isActive(k) && (window.__game.scene.getScene(k).children.getByName('unlockBanner')?.getData('title') ?? null),
+          sceneKey,
+        );
+        if (!title) break;
+        if (shotName && n === 0) await shot(shotName);
+        titles.push(title);
+        await clickText(sceneKey, 'Позже');
+      }
+      if (titles.length) log(`баннеры «Новая функция!»: ${titles.join(', ')}`);
+      return titles;
+    };
+    /**
      * S: плашка подсказки не закрывает другие элементы управления. hintPointer кладёт в контейнер
      * hintOverlap (площадь перекрытия; 0 — чисто).
      */
@@ -237,11 +257,13 @@ async function main() {
     if (!(await skipDialogues('Stage'))) problems.push('нет сюжета перед этапом 1');
     await waitScene('Battle');
 
-    // 3. Бой: скорость 2x запоминается; ждём баннер ульты (если случится), затем «Пропустить».
+    // 3. Бой: скорость ×2 закрыта до этапа 1-3 (data/unlocks.json) — касание «1x» оставляет 1x и показывает тост;
+    // что 2x запоминается, проверяем в настройках после этапа 5 (раздел 6). Ждём баннер ульты, затем «Пропустить».
     await clickText('Battle', '1x');
-    await sleep(100);
+    await sleep(150);
     const speed = await page.evaluate(() => localStorage.getItem('chronoworld.battleSpeed'));
-    if (speed !== '2') problems.push(`кнопка скорости не запомнила 2x: ${speed}`);
+    if (speed === '2') problems.push('скорость ×2 включилась на этапе 1 — должна быть закрыта до этапа 1-3');
+    if (!(await hasText('Battle', 'Скорость боя ×2: откроется на этапе 1-3'))) problems.push('нет тоста «Скорость боя ×2: откроется на этапе 1-3»');
     await sleep(1500);
     await shot('battle');
     if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
@@ -283,6 +305,12 @@ async function main() {
     // 4. Итог → К кампании (после поражения кнопка — «Кампания», T1-07) → Главная → Герои → герой → назад.
     await clickText('Result', (await hasText('Result', 'К кампании')) ? 'К кампании' : 'Кампания');
     await waitScene('Campaign');
+    // Этап 2 (пройден в авто-режиме) открыл быстрые награды и задания — баннеры на карте, один раз.
+    if ((await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')))).campaign.cleared.includes('ch1_s2')) {
+      const got = await dismissUnlocks('Campaign', 'unlock-banner');
+      if (got.join('|') !== 'Быстрые награды|Задания дня') problems.push(`после этапа 2: баннеры ${JSON.stringify(got)}, ждали быстрые награды и задания`);
+      if ((await dismissUnlocks('Campaign')).length) problems.push('баннер показан второй раз');
+    }
     await clickText('Campaign', 'ГЛАВНАЯ');
     await waitScene('Home');
     await clickText('Home', 'ГЕРОИ');
@@ -396,6 +424,18 @@ async function main() {
     });
     await page.reload();
     await waitScene('Home', 30000);
+    // Открытия этапов 3–5 (скорость ×2, достижения, Таверна) — баннеры на главной; закрываем «Позже».
+    const opened = await dismissUnlocks('Home', 'unlock-banner-home');
+    for (const t of ['Скорость боя ×2', 'Достижения', 'Таверна']) if (!opened.includes(t)) problems.push(`главная после этапа 5: нет баннера «${t}» (${JSON.stringify(opened)})`);
+    // Скорость ×2 открыта: в настройках 1x → 2x, выбор запоминается.
+    await clickNamed('Home', 'settings');
+    await sleep(200);
+    await clickText('Home', '1x');
+    await sleep(150);
+    const speed2 = await page.evaluate(() => localStorage.getItem('chronoworld.battleSpeed'));
+    if (speed2 !== '2') problems.push(`скорость ×2 не запомнилась после открытия: ${speed2}`);
+    await clickText('Home', 'Закрыть');
+    await sleep(300);
     await clickNamed('Home', 'tavernTile');
     await waitScene('Tavern');
     await sleep(400);

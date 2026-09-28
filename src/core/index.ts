@@ -22,3 +22,4 @@ export * from './tower';
 export * from './meta';
 export * from './context';
 export * from './story';
+export * from './unlocks';
