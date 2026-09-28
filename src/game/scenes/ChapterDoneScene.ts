@@ -108,14 +108,16 @@ export class ChapterDoneScene extends Phaser.Scene {
     if (sum.recruit) {
       const hero = sum.recruit;
       const c = heroCard(hero, GAME);
+      // Герой мог прийти из Таверны раньше своей сцены (пул — все 12): тогда рекрут принёс копию, и «новый» — неправда.
+      const had = save.heroes.filter((h) => h.templateId === hero.templateId).length > 1;
       card(this, cx, ry, 1000, 620, true);
-      text(this, cx, ry - 260, 'Новый герой в отряде!', FS.h2, C.inkGold, { fontStyle: 'bold' });
+      text(this, cx, ry - 260, had ? 'Герой истории с вами' : 'Новый герой в отряде!', FS.h2, C.inkGold, { fontStyle: 'bold' });
       // Тёплый отсвет за новым героем и тень под ногами.
       const halo = this.add.ellipse(cx, ry + 40, 420, 300, 0xffd27a, 0.1).setBlendMode(Phaser.BlendModes.ADD);
       this.tweens.add({ targets: halo, fillAlpha: { from: 0.06, to: 0.16 }, yoyo: true, repeat: -1, duration: 1400, ease: 'Sine.easeInOut' });
       this.add.ellipse(cx, ry + 110, 300, 60, 0x000000, 0.3);
       unitFigure(this, heroSprite(hero, GAME), cx, ry + 110, 300, { maxScale: 2 });
-      text(this, cx, ry + 180, `${c.name} присоединяется к отряду`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
+      text(this, cx, ry + 180, had ? `${c.name} присоединяется по сюжету` : `${c.name} присоединяется к отряду`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
       text(this, cx, ry + 240, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
     } else {
       card(this, cx, ry, 1000, 300, true);

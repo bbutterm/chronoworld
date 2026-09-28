@@ -177,7 +177,7 @@ export class TavernScene extends Phaser.Scene {
       const b = button(this, 820, gy, 330, 120, 'ui_btn_primary', 'Забрать подарок', () => this.claimWelcome({ x: 820, y: gy }), FS.h3);
       pulse(this, b.container);
     } else {
-      text(this, GAME_W / 2, gy - 20, 'Таверна Пронтеры', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 });
+      text(this, GAME_W / 2, gy - 20, 'Таверна «Два колокола»', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 });
       text(this, GAME_W / 2, gy + 45, 'Наёмники ищут работу — кто сядет за ваш стол?', FS.small, C.muted, OUTLINE);
     }
   }
