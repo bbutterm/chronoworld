@@ -44,7 +44,7 @@ describe('сюжет: данные', () => {
 
   it('data/story/chapter2.json: вступление, сцена босса и знакомство с Дорном (QA T5-27)', () => {
     const ch2 = ctx.story.scenes.filter((s) => s.chapter === 'chapter2');
-    expect(ids(ch2)).toEqual(['ch2_intro', 'ch2_s10_before', 'ch2_outro']);
+    expect(ids(ch2)).toEqual(['ch2_intro', 'ch2_s2_after', 'ch2_s5_before', 'ch2_s7_after', 'ch2_s9_before', 'ch2_s10_before', 'ch2_outro']);
     expect(ch2.find((s) => s.id === 'ch2_s10_before')!.bossIntro?.title).toBe(ctx.content.units.mob2_boss.name);
     const dorn = ctx.progression.heroes.recruits.find((r) => r.template === 'dorn')!;
     const outro = ch2.find((s) => s.id === 'ch2_outro')!;

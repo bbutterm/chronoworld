@@ -347,8 +347,22 @@ export class FloatLayer {
     while (this.live.length) this.finish(this.live.length - 1);
   }
 
+  /** Stop a caster cue on cast completion/interrupt, without removing other combat FX. */
+  cancelFx(key: string): void {
+    for (let i = this.live.length - 1; i >= 0; i--) {
+      if (this.live[i].kind === Kind.Fx && this.live[i].key === key) this.finish(i);
+    }
+  }
+
+  /** Atlas-only role: absent atlas leaves the procedural fallback in charge (never a missing static texture). */
+  catalogFlash(x: number, feetY: number, id: string | undefined, size: number, key?: string): boolean {
+    if (!id || !selectedAnimatedEffect(id, 'flash', this.scene.textures.exists(animatedFxKey(id)))) return false;
+    this.flash(x, feetY, id, size, 1, 250, DEPTH.fx, feetY, key);
+    return true;
+  }
+
   /** Вспышка: картинка size×size гаснет от alpha до 0 и растёт в 1.2 раза за duration. */
-  flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y): void {
+  flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y, key?: string): void {
     const effect = selectedAnimatedEffect(texId, 'flash', this.scene.textures.exists(animatedFxKey(texId)));
     const img = this.image(x, effect ? feetY : y, effect ? animatedFxKey(texId) : texId, size, depth).setAlpha(alpha);
     if (effect) {
@@ -357,6 +371,7 @@ export class FloatLayer {
     }
     const r = this.start(Kind.Fx, img, effect ? animatedFxDuration(effect) : duration);
     r.effect = effect;
+    r.key = key;
     r.a = alpha;
     r.s = img.scale;
   }

@@ -27,10 +27,13 @@ export const animatedFxKey = (id: string): string => `anim_${id}`;
 /** Все анимированные эффекты каталога (бой ждёт их загрузки перед первым кадром). */
 export const animatedFxIds = (): string[] => [...effects.keys()];
 
-/** Эффекты навыка из effects.json → skills: hit — на цели урона, buff — на союзнике при наложении статуса. */
+/** Roles are event semantics, not interchangeable atlas labels. Projectile capture is not flight. */
 export interface SkillFx {
   hit?: string;
   buff?: string;
+  cast?: string;
+  ground?: string;
+  debuff?: string;
 }
 const skillMap = (catalog as unknown as { skills?: Record<string, SkillFx> }).skills ?? {};
 export const skillFx = (skillId: string | undefined): SkillFx | undefined => (skillId ? skillMap[skillId] : undefined);

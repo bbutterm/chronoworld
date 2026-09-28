@@ -24,10 +24,135 @@
   "png": 84028,
   "webp": 48394
  },
+ "effects/fx_job_acolyte_holy_light.png": {
+  "sha1": "1a250a844b834a3a2bfcb85729fd485456728c5e",
+  "png": 173629,
+  "webp": 144308
+ },
+ "effects/fx_job_acolyte_increase_agi.png": {
+  "sha1": "9fa53e9b5d9c4851bbcfd2df0a1d0feb1ce66659",
+  "png": 57727,
+  "webp": 41174
+ },
+ "effects/fx_job_acolyte_signum_crucis.png": {
+  "sha1": "e0b4306f5dace9f0795f86cbce4c4f7111d98340",
+  "png": 214437,
+  "webp": 175136
+ },
+ "effects/fx_job_assassin_sonic_blow.png": {
+  "sha1": "cb5bf0e754e5cbff415f4ccd3b7783981d818552",
+  "png": 182268,
+  "webp": 123700
+ },
+ "effects/fx_job_blacksmith_weapon_perfection.png": {
+  "sha1": "e08adaff9cd55c6269826b0e3a62cd10ede15f3c",
+  "png": 309794,
+  "webp": 193286
+ },
+ "effects/fx_job_crusader_defender.png": {
+  "sha1": "6f098c99048f5ff3d523d0376286a0f3a8397360",
+  "png": 157321,
+  "webp": 90376
+ },
+ "effects/fx_job_crusader_grand_cross.png": {
+  "sha1": "219ae9a8ddeeb80b4ad4d7dc709b7481582954df",
+  "png": 816982,
+  "webp": 613770
+ },
+ "effects/fx_job_crusader_holy_cross.png": {
+  "sha1": "bfaa7252ae8780b8ce1c9bc82ea6932a7fb14176",
+  "png": 208726,
+  "webp": 158966
+ },
+ "effects/fx_job_crusader_shield_charge.png": {
+  "sha1": "afa32a23caed381eb9d73918e462b2cd2fcddc3f",
+  "png": 81403,
+  "webp": 62946
+ },
+ "effects/fx_job_hunter_claymore_trap.png": {
+  "sha1": "8d41355537231de15a085edb700fc2633dc66a8b",
+  "png": 334036,
+  "webp": 248556
+ },
+ "effects/fx_job_hunter_sandman.png": {
+  "sha1": "bb77068916658730b4eae3a28282c406ae69debb",
+  "png": 553642,
+  "webp": 383054
+ },
+ "effects/fx_job_knight_bowling_bash.png": {
+  "sha1": "f04c76c264695ebfcdcb6543e33a7a4d6e754b5e",
+  "png": 103830,
+  "webp": 73638
+ },
+ "effects/fx_job_knight_two_hand_quicken.png": {
+  "sha1": "74dd73169c5a03920c3f26ee092f285d32268c42",
+  "png": 197877,
+  "webp": 151752
+ },
+ "effects/fx_job_mage_fire_ball_projectile.png": {
+  "sha1": "1bfbaa3f97debff667d2c69811159762985735c1",
+  "png": 19578,
+  "webp": 15958
+ },
+ "effects/fx_job_mage_fire_bolt.png": {
+  "sha1": "b5ff06382d9a11113db2232fa1cf49234d4948e5",
+  "png": 156885,
+  "webp": 121752
+ },
+ "effects/fx_job_mage_frost_diver.png": {
+  "sha1": "387925013b2415fb79d854755310d33aa4c3ed7b",
+  "png": 641276,
+  "webp": 480040
+ },
  "effects/fx_job_mage_thunderstorm.png": {
   "sha1": "fcb36cf7f7d9cf3605e5d98c0cd4ab2b878463ef",
   "png": 804665,
   "webp": 657464
+ },
+ "effects/fx_job_merchant_cart_revolution.png": {
+  "sha1": "e5aeac40f3393927c0ae23d386fbb7a40071d42a",
+  "png": 188472,
+  "webp": 147562
+ },
+ "effects/fx_job_sage_dispell.png": {
+  "sha1": "b99d19e059335dcacff665217c26b9c120ef9fa1",
+  "png": 235565,
+  "webp": 165288
+ },
+ "effects/fx_job_sage_earth_spike.png": {
+  "sha1": "b8d642a3883e8cd90aaf6f14dc0dea753a2f1829",
+  "png": 74770,
+  "webp": 45972
+ },
+ "effects/fx_job_sage_heavens_drive.png": {
+  "sha1": "e0c41b9a848dcb3cff2bc60c17f0142e2ea40852",
+  "png": 635854,
+  "webp": 482848
+ },
+ "effects/fx_job_swordman_magnum_break.png": {
+  "sha1": "f4581f4e4b1c199a03fd9d8262b4dd158996bd1a",
+  "png": 123386,
+  "webp": 88470
+ },
+ "effects/fx_job_thief_envenom.png": {
+  "sha1": "82ee3988db8f474140488140896a86637d741017",
+  "png": 292824,
+  "webp": 155776
+ },
+ "effects/fx_job_thief_steal.png": {
+  "sha1": "12c96f6fd1a8588222d167aaf3290c9d60d11284",
+  "png": 108623,
+  "webp": 66648
+ },
+ "effects/fx_job_wizard_meteor_storm.png": {
+  "sha1": "ec0bcc0e350f686b4cc61b524d5d23bf6c701221",
+  "png": 742878,
+  "webp": 547318
+ },
+ "effects/fx_job_wizard_storm_gust.png": {
+  "sha1": "ff853b04162b2365e83881f0bd960716758c0d88",
+  "png": 2076575,
+  "webp": 1676642
  },
  "effects/fx_magic.png": {
   "sha1": "47203f031fa5917623d1e5f1996e162b2326fbe3",
@@ -38,6 +163,16 @@
   "sha1": "cbb57fccf7661c5fd897c466ce5aedcd29624e57",
   "png": 189346,
   "webp": 121296
+ },
+ "effects/fx_swordman_bash.png": {
+  "sha1": "7f960018b03e8b58b877664ebe9ef58221461b14",
+  "png": 78446,
+  "webp": 37028
+ },
+ "effects/fx_swordman_endure.png": {
+  "sha1": "6b578a292bcde6a13e112c4eafb38925a5db3783",
+  "png": 230957,
+  "webp": 197114
  },
  "fx/fx_arrow.png": {
   "sha1": "b244762cf2e5833cb527a7f674f53433fa6eb6a3",
