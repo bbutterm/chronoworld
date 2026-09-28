@@ -266,7 +266,7 @@ export class AscendScene extends Phaser.Scene {
     const top = this.blockTop;
     // Место до подписей над «Вознести» (золото, блокер): не влезающие строки не рисуем.
     const limit = CONTENT_BOTTOM - 80 - 190;
-    if (limit - top < 140) return;
+    if (limit - top < 84) return;
     const src = copySources(session.save, hero.templateId, GAME);
     const lines: Phaser.GameObjects.Text[] = [];
     let y = top + 80;
@@ -279,7 +279,7 @@ export class AscendScene extends Phaser.Scene {
       lines.push(t);
       y += t.height + 8;
     }
-    const hh = y - top + 12;
+    const hh = Math.max(84, y - top + 12);
     const bg = card(this, GAME_W / 2, top + hh / 2, 1040, hh);
     this.children.moveBelow(bg as unknown as Phaser.GameObjects.GameObject, (lines[0] ?? bg) as unknown as Phaser.GameObjects.GameObject);
     text(this, 50, top + 42, 'Где взять копии', FS.h3, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
