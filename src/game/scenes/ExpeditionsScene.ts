@@ -22,7 +22,8 @@ import { C, FS, TINT } from '../theme';
 import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 
 const LIST_TOP = CONTENT_TOP + 170;
-const CARD_H = 480;
+/** MT-15: +20 — нижняя строка «Находки: …» уходила под рамку карточки. */
+const CARD_H = 500;
 const CARD_W = 1020;
 /** Левый край карточки и колонка текста (правее «картины» локации). */
 const LEFT = (GAME_W - CARD_W) / 2;
@@ -131,7 +132,7 @@ export class ExpeditionsScene extends Phaser.Scene {
     a.add(ellipsize(text(this, COL_X, top + 44, loc.name, FS.h2, v.unlocked ? C.title : C.disabled, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5), COL_W));
     a.add(text(this, COL_X, top + 80, loc.description, FS.small, v.unlocked ? C.muted : C.disabled, { align: 'left', wordWrap: { width: COL_W } }).setOrigin(0, 0));
 
-    const r: Rows = { a: top + 196, b: top + 256, c: top + 334, d1: top + 398, d2: top + 434 };
+    const r: Rows = { a: top + 196, b: top + 256, c: top + 334, d1: top + 402, d2: top + 440 };
     if (!v.unlocked) {
       a.add(this.add.image(COL_X + 24, r.a, skinIcon('lock')).setDisplaySize(46, 46).setTint(SKIN_TINT.creamDim));
       a.add(text(this, COL_X + 60, r.a, v.lockedText, FS.h3, C.dim, { fontStyle: 'bold' }).setOrigin(0, 0.5));
