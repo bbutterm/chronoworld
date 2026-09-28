@@ -251,7 +251,7 @@ describe('Герои v2 (V2): копии одной плиткой, счётчи
     expect(c.others).toBe(2);
     expect(c.need).toBe(2);
     expect(c.have).toBe(2);
-    expect(c.text).toBe('Копий: 2 · в корм зел. 2/2');
+    expect(c.text).toBe('Копий: 2 · к вознесению 2/2');
     const lira = s.heroes.find((h) => h.templateId === 'lira')!;
     expect(copyCounter(s, lira.id, ctx).text).toBe('Копий: 0');
   });

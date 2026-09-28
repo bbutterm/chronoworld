@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { stageLabel } from '../src/core';
-import { stageNo } from '../src/game/flow';
+import { addItems, newGame, stageLabel, type SaveState } from '../src/core';
+import { heroesBadgeCount, stageNo } from '../src/game/flow';
+import { copyCounter } from '../src/game/heroesView';
 import { sceneLabel } from '../src/game/storyView';
 import { loadFullContext } from '../scripts/lib/content-node';
 
@@ -24,5 +25,21 @@ describe('ночной QA: интерфейс', () => {
     const sc = ctx.story.scenes.find((s) => s.trigger === 'beforeStage' && s.stageId && stage(s.stageId).chapter !== ctx.content.chapters[0].id);
     expect(sc).toBeDefined();
     expect(sceneLabel(sc!, ctx)).toContain(stageNo(stage(sc!.stageId!), ctx));
+  });
+
+  it('MT-06: значок «Герои» считает героев, а не карты-копии', () => {
+    let save: SaveState = newGame(ctx, 1_700_000_000_000);
+    const weapons = Object.values(ctx.equipment.items).filter((d) => d.slot === 'weapon').map((d) => d.id);
+    save = addItems(save, weapons).save;
+    save = { ...save, resources: { ...save.resources, gold: 0 } };
+    const base = heroesBadgeCount(save, ctx);
+    expect(base).toBeGreaterThan(0);
+    const lead = save.heroes.find((h) => save.squad.includes(h.id))!;
+    const copies = Array.from({ length: 6 }, (_, i) => ({ ...lead, id: `h${900 + i}`, rarity: 'blue' as const, level: 1, isNew: false, locked: false }));
+    const more = { ...save, heroes: [...save.heroes, ...copies] };
+    // Шесть копий героя из отряда — тот же один герой в счёте (раньше каждая копия с «вещью получше» давала +1).
+    expect(heroesBadgeCount(more, ctx)).toBe(base);
+    // На карточке — «копии» одним словом: запасные карты героя.
+    expect(copyCounter(more, lead.id, ctx).text).toMatch(/^Копий: 6/);
   });
 });

@@ -5,6 +5,7 @@ import {
   ascendRequirement,
   canEquip,
   heroesWithGearUpgrades,
+  heroPower,
   needsBranch,
   pendingPicks,
   heroGender,
@@ -130,11 +131,24 @@ export function ascendReady(save: SaveState, ctx: GameContext): HeroState[] {
  * из инвентаря (каждый герой считается один раз). «Улучшить» не считается — оно доступно почти всегда.
  */
 export function heroesBadgeCount(save: SaveState, ctx: GearContext & GameContext): number {
-  const ids = new Set(heroesWithGearUpgrades(save, ctx));
-  for (const h of ascendReady(save, ctx)) ids.add(h.id);
-  // Фиолетовые без ветки («Выберите ветку!») и невыбранные «Контракты героя».
-  for (const h of save.heroes) if (ctx.content.heroes[h.templateId] && needsBranch(h, ctx)) ids.add(h.id);
-  return ids.size + pendingPicks(save).length;
+  // MT-06 / NB-11: считаем героев (как плитки в «Героях» — копии одной плиткой), а не карты: копия-корм с «вещью
+  // получше» не повод для значка. Герой в счёте, если его можно вознести или ему нужна ветка (любая его карта), или
+  // его основной карте (в отряде, иначе самой сильной) есть что надеть получше.
+  const gear = new Set(heroesWithGearUpgrades(save, ctx));
+  const ready = new Set(ascendReady(save, ctx).map((h) => h.id));
+  const byTemplate = new Map<string, HeroState[]>();
+  for (const h of save.heroes) {
+    if (!ctx.content.heroes[h.templateId]) continue;
+    const list = byTemplate.get(h.templateId);
+    if (list) list.push(h);
+    else byTemplate.set(h.templateId, [h]);
+  }
+  let n = 0;
+  for (const list of byTemplate.values()) {
+    const main = list.find((h) => save.squad.includes(h.id)) ?? [...list].sort((a, b) => heroPower(b, ctx, save) - heroPower(a, ctx, save))[0];
+    if (gear.has(main.id) || list.some((h) => ready.has(h.id) || needsBranch(h, ctx))) n++;
+  }
+  return n + pendingPicks(save).length;
 }
 
 /**

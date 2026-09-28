@@ -134,11 +134,9 @@ export function copyCounter(save: SaveState, heroId: string, ctx: GameContext): 
   const same = req?.fodder.find((f) => f.kind === 'same');
   if (!same) return { others, text: `Копий: ${others}` };
   const have = Math.min(same.count, same.candidates.length);
-  const rn = RARITY_PLURAL_GEN[same.rarity];
-  return { others, have, need: same.count, rarity: same.rarity, text: `Копий: ${others} · в корм ${rn} ${have}/${same.count}` };
+  // NB-11: одно слово и один счёт — «копии» (запасные карты этого героя), сколько подходит к вознесению из нужных.
+  return { others, have, need: same.count, rarity: same.rarity, text: `Копий: ${others} · к вознесению ${have}/${same.count}` };
 }
-
-const RARITY_PLURAL_GEN: Record<CardRarity, string> = { green: 'зел.', blue: 'син.', purple: 'фиол.', gold: 'зол.', red: 'кр.' };
 
 /** Сколько разных шаблонов собрано и всего: «12/25». */
 export function collectionCount(save: SaveState, ctx: GameContext): { owned: number; total: number } {
