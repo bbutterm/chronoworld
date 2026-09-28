@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { hasArt } from '../assets';
 import { achievementStatus, heroesWithGearUpgrades, stageStatus, actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
 import { GAME } from '../content';
-import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, levelUpReady, powerCheck } from '../flow';
+import { bountiesBadgeCount, claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, levelUpReady, powerCheck, towerBadgeCount } from '../flow';
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
 import { GAME_H, GAME_W, HEADER_H } from '../layout';
 import { card, confirm, confirmOpen, cornerBadge, gemIcon, NAV_H, popIn, powerChip, screen } from '../screen';
@@ -450,7 +450,9 @@ export class HomeScene extends Phaser.Scene {
     this.blocks.push(row1, row2);
     // Значки — после «выезда» плиток на своих местах (не в группах): в правом верхнем углу, как у вкладки «Герои».
     if (isUnlocked('quests')) cornerBadge(this, xl, y1, L.tileW, L.tileH, claimableCount(qs));
-    if (isUnlocked('bounties')) cornerBadge(this, xl, y2, L.tileW, L.tileH, this.bountiesDone);
+    // Башня: «этаж по силам» (мощь отряда ≥ мощи этажа); поручения: готовые + те, на которые есть кого отправить.
+    if (isUnlocked('tower')) cornerBadge(this, xr, y1, L.tileW, L.tileH, towerBadgeCount(save, GAME));
+    if (isUnlocked('bounties')) cornerBadge(this, xl, y2, L.tileW, L.tileH, bountiesBadgeCount(save, now(), GAME));
     if (isUnlocked('achievements')) cornerBadge(this, xr, y2, L.tileW, L.tileH, claimableAchievements(achievementStatus(save, GAME)));
   }
 

@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import {
+  actClaimAllBounties,
   actClaimBounty,
   bountyName,
+  dispatchAllBounties,
   bountyStatus,
   ensureBoard,
   refreshBoard,
@@ -18,7 +20,9 @@ import {
   bountyPickBlocker,
   countdownText,
   describeEvents,
+  dispatchableBounties,
   durationText,
+  finishedBounties,
   heroSprite,
   metaRewardsText,
   ROLE_NAMES,
@@ -31,7 +35,7 @@ import { button, ellipsize, emptyState, panel, pressable, progressBar, ScrollAre
 import { C, FS, TINT, TOUCH } from '../theme';
 import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 
-const LIST_TOP = CONTENT_TOP + 120;
+const LIST_TOP = CONTENT_TOP + 170;
 const ACTIVE_H = 170;
 const BOARD_H = 210;
 
@@ -63,9 +67,19 @@ export class BountiesScene extends Phaser.Scene {
     const save = session.save;
     const st = bountyStatus(save, now());
     const left = refreshesLeft(save, today(), GAME);
-    text(this, 40, CONTENT_TOP + 50, 'Герои на поручении\nпродолжают сражаться', FS.small, C.muted, { align: 'left', lineSpacing: 4 }).setOrigin(0, 0.5);
-    const rb = button(this, 790, CONTENT_TOP + 50, 520, 100, left > 0 ? 'ui_btn_secondary' : 'k:buttonLong_grey', `Обновить доску (${left})`, () => this.refresh(), FS.h3);
+    // Верхняя полоса (как в AFK): «Забрать всё» — золотая, пока есть готовые; «Отправить всё» — свободные герои
+    // сами расходятся по поручениям доски; «Обновить» — ручное обновление доски.
+    const ready = finishedBounties(save, now());
+    const canSend = dispatchableBounties(save, GAME);
+    const by = CONTENT_TOP + 52;
+    const claimAll = button(this, 190, by, 340, 100, ready ? 'ui_btn_primary' : 'k:buttonLong_grey', ready > 1 ? `Забрать всё (${ready})` : 'Забрать всё', () => this.claimAll(), FS.body);
+    if (!ready) claimAll.setEnabled(false);
+    else pulse(this, claimAll.container);
+    const sendAll = button(this, 540, by, 340, 100, canSend ? 'ui_btn_secondary' : 'k:buttonLong_grey', 'Отправить всё', () => this.dispatchAll(), FS.body);
+    if (!canSend) sendAll.setEnabled(false);
+    const rb = button(this, 890, by, 340, 100, left > 0 ? 'ui_btn_secondary' : 'k:buttonLong_grey', `Обновить (${left})`, () => this.refresh(), FS.body);
     if (left <= 0) rb.setEnabled(false);
+    text(this, GAME_W / 2, CONTENT_TOP + 128, 'Герои на поручении продолжают сражаться', FS.small, C.muted);
 
     this.area = new ScrollArea(this, LIST_TOP, CONTENT_BOTTOM + 10);
     this.timers = [];
@@ -286,6 +300,43 @@ export class BountiesScene extends Phaser.Scene {
       const lines = [`«${bountyName(b, GAME)}»: ${metaRewardsText(r.rewards, ' в запас')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       this.scene.restart({ scroll: this.area.offset });
       this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4500)));
+    } catch (e) {
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
+    }
+  }
+
+  /** «Забрать всё»: все завершённые поручения одним нажатием, награда — одной суммой. */
+  private claimAll(): void {
+    try {
+      const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
+      const r = actClaimAllBounties(session.save, today(), now(), GAME);
+      if (!r.claimed.length) {
+        toast(this, 'Готовых поручений пока нет');
+        return;
+      }
+      commit(r.save);
+      queueRewardFly('Bounties', { x: 190, y: CONTENT_TOP + 52 }, before);
+      const lines = [`Поручений: ${r.claimed.length} · ${metaRewardsText(r.rewards, ' в запас')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
+      this.scene.restart({ scroll: this.area.offset });
+      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4500)));
+    } catch (e) {
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
+    }
+  }
+
+  /** «Отправить всё»: свободные герои по поручениям доски (подбор — ядро, planDispatchAll). */
+  private dispatchAll(): void {
+    try {
+      const r = dispatchAllBounties(session.save, now(), GAME);
+      if (!r.started.length) {
+        toast(this, 'Отправлять некого: все герои заняты или не подходят по роли');
+        return;
+      }
+      commit(r.save);
+      const left = r.save.bounties.board.length;
+      const msg = `Отправлено поручений: ${r.started.length}${left ? ` · не хватило героев: ${left}` : ''}`;
+      this.scene.restart();
+      this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, msg, C.success));
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }

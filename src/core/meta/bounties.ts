@@ -1,4 +1,5 @@
 import { heroName, heroRole } from '../heroes/card';
+import { CARD_RARITIES, rarityIndex } from '../heroes/schema';
 import { Rng } from '../rng';
 import { DayStringSchema, type ActiveBounty, type Bounty, type HeroState, type SaveState } from '../save/schema';
 import { grantMetaRewards, syncAchievementCounters, trackAchievement, type MetaEvent } from './achievements';
@@ -189,4 +190,110 @@ export function claimBounty(save: SaveState, bountyId: string, now: number, ctx:
 /** Название поручения по шаблону (шаблон удалён из конфига — id шаблона). */
 export function bountyName(b: Pick<Bounty, 'templateId'>, ctx: MetaContext): string {
   return ctx.meta.bounties.templates.find((t) => t.id === b.templateId)?.name ?? b.templateId;
+}
+
+// ---------- «Отправить всё» / «Забрать всё» (как Dispatch All в AFK Arena) ----------
+
+/** Одна отправка из плана «Отправить всё». */
+export interface DispatchPlanItem {
+  bountyId: string;
+  heroIds: string[];
+}
+
+/** Ранг редкости поручения 0…1 (порядок редкостей — как в data/bounties.json: common → epic). */
+function bountyTier(b: Bounty, ctx: MetaContext): number {
+  const order = Object.keys(ctx.meta.bounties.rarities);
+  const i = order.indexOf(b.rarity);
+  return order.length > 1 && i >= 0 ? i / (order.length - 1) : 0;
+}
+
+/** Ранг редкости карточки 0…1 (зелёная → красная). */
+function heroTier(h: HeroState): number {
+  return rarityIndex(h.rarity) / (CARD_RARITIES.length - 1);
+}
+
+/**
+ * План «Отправить всё»: свободные герои распределяются по поручениям доски — детерминированно, без случайности.
+ * - Порядок поручений: редкость (эпическое → обычное), затем с требованием роли, затем больше героев, затем порядок доски.
+ * - Герой — только на одном поручении (занятые — busyHeroes — и уже распределённые в плане не берутся).
+ * - Роль: в группу обязательно входит герой нужной роли; для остальных мест сначала берутся герои, чья роль
+ *   не понадобится ещё не обслуженным поручениям с требованием роли (танка не «тратят» на патруль, если ждёт караван).
+ * - Редкость: карточка подбирается ближе к редкости поручения (эпическое — старшие карточки, обычное — младшие);
+ *   при равенстве — порядок героев в сохранении.
+ * - Поручение, на которое не хватает героев (или нет нужной роли), пропускается целиком — частичных групп нет.
+ */
+export function planDispatchAll(save: SaveState, ctx: MetaContext): DispatchPlanItem[] {
+  const busy = new Set(busyHeroes(save));
+  const free = save.heroes.filter((h) => !busy.has(h.id) && ctx.content.heroes[h.templateId]);
+  const order = new Map(save.heroes.map((h, i) => [h.id, i]));
+  const role = (h: HeroState) => heroRole(h, ctx);
+  const bounties = save.bounties.board
+    .map((b, i) => ({ b, i }))
+    .sort((x, y) => bountyTier(y.b, ctx) - bountyTier(x.b, ctx) || Number(!!y.b.role) - Number(!!x.b.role) || y.b.heroCount - x.b.heroCount || x.i - y.i)
+    .map((x) => x.b);
+  const used = new Set<string>();
+  const plan: DispatchPlanItem[] = [];
+  bounties.forEach((b, bi) => {
+    const tier = bountyTier(b, ctx);
+    const fit = (h: HeroState) => Math.abs(heroTier(h) - tier);
+    const byFit = (a: HeroState, c: HeroState) => fit(a) - fit(c) || order.get(a.id)! - order.get(c.id)!;
+    const avail = free.filter((h) => !used.has(h.id));
+    if (avail.length < b.heroCount) return;
+    // Сколько ещё героев каждой роли нужно поручениям после этого (только обязательные роли).
+    const demand = new Map<string, number>();
+    for (const later of bounties.slice(bi + 1)) if (later.role) demand.set(later.role, (demand.get(later.role) ?? 0) + 1);
+    const group: HeroState[] = [];
+    if (b.role) {
+      const lead = avail.filter((h) => role(h) === b.role).sort(byFit)[0];
+      if (!lead) return;
+      group.push(lead);
+    }
+    const rest = avail
+      .filter((h) => !group.includes(h))
+      .sort((a, c) => Number((demand.get(role(a)) ?? 0) > 0) - Number((demand.get(role(c)) ?? 0) > 0) || byFit(a, c));
+    group.push(...rest.slice(0, b.heroCount - group.length));
+    for (const h of group) used.add(h.id);
+    plan.push({ bountyId: b.id, heroIds: group.map((h) => h.id) });
+  });
+  return plan;
+}
+
+/**
+ * «Отправить всё»: planDispatchAll + startBounty для каждой группы (те же проверки). started — отправленные поручения
+ * в порядке плана; пусто — отправлять некого или нечего (save тот же объект).
+ */
+export function dispatchAllBounties(save: SaveState, now: number, ctx: MetaContext): { save: SaveState; started: Bounty[] } {
+  const started: Bounty[] = [];
+  let next = save;
+  for (const p of planDispatchAll(save, ctx)) {
+    const b = next.bounties.board.find((x) => x.id === p.bountyId)!;
+    next = startBounty(next, p.bountyId, p.heroIds, now, ctx);
+    started.push(b);
+  }
+  return { save: next, started };
+}
+
+/** Сложить награды K9/K10 (осколки — сумма; кому достались — в событиях shards). */
+export function sumMetaRewards(list: readonly MetaRewards[]): MetaRewards {
+  return list.reduce((s, r) => ({ gold: s.gold + r.gold, gems: s.gems + r.gems, jobExp: s.jobExp + r.jobExp, shards: s.shards + r.shards }), { gold: 0, gems: 0, jobExp: 0, shards: 0 });
+}
+
+/**
+ * «Забрать всё»: claimBounty для каждого завершённого (now ≥ endsAt) поручения в порядке active.
+ * rewards — сумма, events — события всех наград подряд, claimed — id забранных. Нечего забрать — тот же save.
+ */
+export function claimAllBounties(save: SaveState, now: number, ctx: MetaContext): { save: SaveState; rewards: MetaRewards; events: MetaEvent[]; claimed: string[] } {
+  let next = save;
+  const all: MetaRewards[] = [];
+  const events: MetaEvent[] = [];
+  const claimed: string[] = [];
+  for (const b of save.bounties.active) {
+    if (now < b.endsAt) continue;
+    const r = claimBounty(next, b.id, now, ctx);
+    next = r.save;
+    all.push(r.rewards);
+    events.push(...r.events);
+    claimed.push(b.id);
+  }
+  return { save: next, rewards: sumMetaRewards(all), events, claimed };
 }
