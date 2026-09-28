@@ -30,6 +30,25 @@ function debounce(): () => boolean {
   };
 }
 
+/** Сколько после закрытия окна не принимать касания (MT-02: второй быстрый тап «проваливался» в кнопку под окном). */
+export const SHIELD_MS = 400;
+let shieldTimer = 0;
+
+/**
+ * «Щит» от проваливающегося тапа: на ms весь ввод игры (все сцены) выключен. Зовётся, когда закрывается модальное
+ * окно (popIn) — касание, закрывшее окно, уже обработано, а следующее быстрое не попадёт ни в элемент под окном,
+ * ни в новый экран, если окно запустило переход.
+ */
+export function shieldTaps(game: Phaser.Game | undefined, ms = SHIELD_MS): void {
+  const mgr = game?.input;
+  if (!mgr) return;
+  mgr.enabled = false;
+  window.clearTimeout(shieldTimer);
+  shieldTimer = window.setTimeout(() => {
+    mgr.enabled = true;
+  }, ms);
+}
+
 /** Kenney UI нарисован мелко: 9-slice строим в меньшем размере и увеличиваем, чтобы рамки были заметны. */
 const UI_SCALE = 2.5;
 

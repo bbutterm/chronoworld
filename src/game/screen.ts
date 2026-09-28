@@ -8,7 +8,7 @@ import { campLevel, formatNumber, heroesNavBadge, heroSprite, leadHero, POWER_CO
 import { framedPortrait } from './portraitFrame';
 import { view } from './viewport';
 import { heroGender } from '../core';
-import { button, ellipsize, emptyState, icon, panel, text, toast } from './ui';
+import { button, ellipsize, emptyState, icon, panel, shieldTaps, text, toast } from './ui';
 import { hasArt } from './assets';
 import { C, FS, SP, TINT } from './theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
@@ -419,6 +419,9 @@ export const DANGER_BTN = 'skin_btn_danger';
 /** Появление модального окна: затемнение проявляется, окно чуть «вырастает» из центра экрана. */
 export function popIn(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, shade?: Phaser.GameObjects.GameObject): void {
   sfx('ui_open');
+  // MT-02: окно закрылось (или его экран ушёл) — короткий щит от второго быстрого тапа.
+  const game = scene.sys.game;
+  layer.once(Phaser.GameObjects.Events.DESTROY, () => shieldTaps(game));
   const rest = layer.list.filter((o) => o !== shade) as unknown as (Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Alpha)[];
   if (shade) scene.tweens.add({ targets: shade, alpha: { from: 0, to: 1 }, duration: 140 });
   // Масштаб контейнера — от центра экрана: сдвигаем начало координат в центр.
