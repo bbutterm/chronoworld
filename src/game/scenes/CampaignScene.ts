@@ -149,8 +149,12 @@ export class CampaignScene extends Phaser.Scene {
 
     // Сюжет: вступление главы — при первом входе на её карту (пока первый этап не пройден). P11: сначала — сцены
     // из очереди (финал, прерванный перезагрузкой); если среди них финал главы — после него «Глава пройдена» (T1-03).
-    const scenes = pendingScenes(session.save, { type: 'chapterStart', chapter: chapter.id }, GAME);
-    const finale = scenes.find((s) => isChapterFinale(s, GAME));
+    // NB-02: «Глава пройдена» — раньше вступления следующей главы: сцены после финала (вступление главы 2) ждут,
+    // пока игрок не уйдёт с экрана итогов, — тогда карта откроется снова и покажет их.
+    const all = pendingScenes(session.save, { type: 'chapterStart', chapter: chapter.id }, GAME);
+    const fi = all.findIndex((s) => isChapterFinale(s, GAME));
+    const finale = fi >= 0 ? all[fi] : undefined;
+    const scenes = finale ? all.slice(0, fi + 1) : session.save.pendingChapterDone ? [] : all;
     playScenes(this, scenes, () => {
       // Экран «Глава пройдена» ждёт показа (перезагрузка на нём или на финале) — показать сейчас.
       const done = finale?.chapter ?? session.save.pendingChapterDone;

@@ -9,7 +9,7 @@ import { commit, now, session } from '../session';
 import { SKIN } from '../skin';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
 import { chapterSummary, playTimeText, sceneLabel, seenChapterScenes } from '../storyView';
-import { button, ellipsize, panel, text } from '../ui';
+import { button, ellipsize, panel, ScrollArea, text } from '../ui';
 import { C, FS, OUTLINE, TINT } from '../theme';
 
 export interface ChapterDoneData {
@@ -143,7 +143,9 @@ export function openStoryHistory(sc: Phaser.Scene, chapterId: string): void {
   const layer = sc.add.container(0, 0).setDepth(9000).setName(HISTORY);
   const shade = sc.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
   const rowH = 118;
-  const h = Math.min(1500, 370 + Math.max(1, scenes.length) * rowH);
+  // NB-01: все увиденные сцены (в главе 1 их 13) — не влезают в окно, список прокручивается.
+  const visibleRows = Math.min(Math.max(1, scenes.length), 9);
+  const h = 370 + visibleRows * rowH;
   const top = GAME_H / 2 - h / 2;
   const box = panel(sc, GAME_W / 2, GAME_H / 2, 940, h, 'ui_panel').setInteractive();
   const head = text(sc, GAME_W / 2, top + 80, 'История главы', FS.h1, C.title, { fontStyle: 'bold', ...OUTLINE });
@@ -153,16 +155,21 @@ export function openStoryHistory(sc: Phaser.Scene, chapterId: string): void {
   const close = () => layer.destroy();
   shade.on('pointerup', close);
   if (!scenes.length) layer.add(text(sc, GAME_W / 2, top + 200, 'Сцен этой главы вы ещё не видели', FS.body, C.muted));
-  // Не влезают все — последние (свежие) сцены.
-  const fit = Math.max(1, Math.floor((h - 370) / rowH));
-  scenes.slice(-fit).forEach((s, i) => {
-    const b = button(sc, GAME_W / 2, top + 200 + i * rowH, 800, 100, 'k:buttonLong_beige', `▶  ${sceneLabel(s, GAME)}`, () => {
-      close();
-      playScenes(sc, [s], () => {});
-    }, FS.h3);
-    layer.add(b.container);
-  });
   const done = button(sc, GAME_W / 2, top + h - 90, 400, 110, 'ui_btn_primary', 'Закрыть', close, FS.h3);
   layer.add(done.container);
   popIn(sc, layer, shade);
+  // Список — после popIn: прокрутка живёт в координатах экрана, окно «вырастает» без неё (160 мс).
+  const listTop = top + 150;
+  const area = new ScrollArea(sc, listTop, listTop + visibleRows * rowH);
+  layer.add(area.parts);
+  // Полоса прокрутки — у правой кромки окна, а не экрана.
+  (area.parts[1] as Phaser.GameObjects.Rectangle).setX(GAME_W / 2 + 448);
+  scenes.forEach((s, i) => {
+    const b = button(sc, GAME_W / 2, rowH / 2 + i * rowH, 800, 100, 'k:buttonLong_beige', `▶  ${sceneLabel(s, GAME)}`, area.tap(() => {
+      close();
+      playScenes(sc, [s], () => {});
+    }), FS.h3);
+    area.add(b.container);
+  });
+  area.setContentHeight(scenes.length * rowH);
 }

@@ -259,11 +259,11 @@ export class ScrollArea {
     // Видимая полоса списка (для e2e-проверки «кнопку ничто не перекрывает»: вне полосы содержимое скрыто маской).
     this.content.setData('clip', [top, bottom]);
     this.thumb = scene.add.rectangle(w - 6, top, 8, 40, TINT.frame, 0.8).setOrigin(0.5, 0).setDepth(20).setVisible(false);
-    scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
+    const down = (p: Phaser.Input.Pointer) => {
       this.dragged = false;
       this.dragFrom = this.inside(p) && !this.locked ? { y: this.wy(p), scroll: this.content.y } : null;
-    });
-    scene.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+    };
+    const move = (p: Phaser.Input.Pointer) => {
       if (!this.dragFrom || !p.isDown) return;
       if (!this.dragged && Math.abs(this.wy(p) - this.dragFrom.y) > 14 && this.scrollable) {
         this.dragged = true;
@@ -271,19 +271,37 @@ export class ScrollArea {
         scene.input.emit(CANCEL_PRESS);
       }
       if (this.dragged) this.scrollTo(this.dragFrom.scroll + (this.wy(p) - this.dragFrom.y));
-    });
-    scene.input.on('pointerup', () => {
+    };
+    const up = () => {
       this.dragFrom = null;
-    });
-    scene.input.on('wheel', (p: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
+    };
+    const wheel = (p: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
       if (!this.locked && this.inside(p)) this.scrollTo(this.content.y - dy);
-    });
+    };
+    scene.input.on('pointerdown', down);
+    scene.input.on('pointermove', move);
+    scene.input.on('pointerup', up);
+    scene.input.on('wheel', wheel);
     // Маска Phaser не отсекает ввод: карточка под нижним краем полосы (скрыта маской) ловила нажатия поверх
     // нижней навигации, и «КАМПАНИЯ»/«ГЛАВНАЯ» не срабатывали. Каждый кадр новые интерактивные объекты
     // списка получают проверку попадания «указатель внутри полосы» — вне полосы их для ввода как будто нет.
     const guard = () => this.guardInput(this.content);
     scene.events.on(Phaser.Scenes.Events.PRE_UPDATE, guard);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard));
+    // Список в модальном окне закрывается раньше сцены — снять обработчики вместе с содержимым.
+    this.content.once(Phaser.GameObjects.Events.DESTROY, () => {
+      scene.input.off('pointerdown', down);
+      scene.input.off('pointermove', move);
+      scene.input.off('pointerup', up);
+      scene.input.off('wheel', wheel);
+      scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard);
+      if (this.thumb.scene) this.thumb.destroy();
+    });
+  }
+
+  /** Содержимое и полоса прокрутки — положить в слой модального окна (над его фоном). */
+  get parts(): Phaser.GameObjects.GameObject[] {
+    return [this.content, this.thumb];
   }
 
   /** Обернуть проверку попадания у интерактивных потомков контейнера (один раз на объект). */
