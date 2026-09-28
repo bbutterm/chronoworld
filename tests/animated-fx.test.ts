@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, queueAnimatedFx, selectedAnimatedEffect } from '../src/game/animatedFx';
 
 describe('RO animated effects', () => {
-  it('queues exactly the six atlases with catalog cell sizes', () => {
+  it('queues all eight atlases with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(6);
+    expect(queued).toHaveLength(8);
     expect(queued).toContainEqual(['anim_fx_hit', 'effects/fx_hit.png', 580, 440]);
     expect(queued).toContainEqual(['anim_fx_arrow', 'effects/fx_arrow.png', 66, 12]);
+    expect(queued).toContainEqual(['anim_fx_job_mage_thunderstorm', 'effects/fx_job_mage_thunderstorm.png', 278, 318]);
+    expect(queued).toContainEqual(['anim_fx_job_acolyte_blessing', 'effects/fx_job_acolyte_blessing.png', 98, 206]);
   });
 
   it('plays authored frames without entering blank trailing cells', () => {
@@ -42,6 +44,11 @@ describe('RO animated effects', () => {
 });
 
 describe('эффекты навыков (effects.json → skills)', () => {
+  it('maps the two new animated skill effects', async () => {
+    const { skillFx } = await import('../src/game/animatedFx');
+    expect(skillFx('job_mage_thunderstorm')?.hit).toBe('fx_job_mage_thunderstorm');
+    expect(skillFx('job_acolyte_blessing')?.buff).toBe('fx_job_acolyte_blessing');
+  });
   it('skillFx: нет привязки — undefined, без id — undefined', async () => {
     const { skillFx } = await import('../src/game/animatedFx');
     expect(skillFx(undefined)).toBeUndefined();
