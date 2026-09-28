@@ -103,7 +103,8 @@ const STATUS_ICON = 24;
 const STATUS_MAX = 2;
 const STATUS_GAP = 3;
 /** Имена над юнитами (T2-15, T3-02): мелко, видны первые секунды боя, потом гаснут; касание юнита — показать снова. */
-const NAME_SIZE = 20;
+/** NB-19: 20 → 26 (≈ 9 css px на 360×640 — не читалось). */
+const NAME_SIZE = 26;
 /** Подпись уровня врага слева от полоски HP. */
 const LEVEL_SIZE = 20;
 const NAME_SHOW_S = 3;
@@ -593,7 +594,12 @@ export class BattleScene extends Phaser.Scene {
     const castBar = this.add.image(ox - castW / 2, nameY + 4, 'ui_bar_energy').setOrigin(0, 0.5).setDisplaySize(castW, 12).setVisible(false);
     // Название навыка — на груди кастера, не над головой: в заднем ряду над головой уже полоски соседа сверху (T2-15).
     const castLabel = text(this, ox, -look.height * 0.58, '', 25, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setVisible(false);
-    const name = text(this, ox, nameY, def.name, NAME_SIZE, '#ffffff', { stroke: '#000000', strokeThickness: 4 });
+    // NB-19: имя — под своими полосками (у ног), а не над макушкой: над головой заднего ряда висят полоски соседа
+    // сверху, и подпись читалась как чужая.
+    // У героев под полоской — значки перезарядки навыков: имя ниже них.
+    const cdRow = snap.side === 'A' && def.skills.actives.length > 0 ? CD_ICON + 2 : 0;
+    const nameUnder = (hasUlt ? 38 : 24) + 4 + cdRow + NAME_SIZE / 2;
+    const name = text(this, ox, nameUnder, def.name, NAME_SIZE, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 });
     const bars: Phaser.GameObjects.Components.Visible[] = [barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
     const parts: Phaser.GameObjects.GameObject[] = [shadow, sprite, barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
     // Уровень врага (как в AFK) — слева от полоски HP, цветом против среднего уровня отряда; виден весь бой.
