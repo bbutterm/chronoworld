@@ -6,10 +6,10 @@ import { formatNumber, recommendedPower, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { screen } from '../screen';
 import { commit, session, today } from '../session';
-import { button, hintPointer, text, toast, tutorialHint } from '../ui';
+import { button, text, toast, tutorialHint } from '../ui';
 import { ctaShine, glow } from '../decor';
 import { skinIcon } from '../skin';
-import { HINT_TEXT, markHint, pickPrepHint } from '../hints';
+import { markHint, pickPrepHint } from '../hints';
 import { startStageBattle } from '../dialogue';
 import { squadDefs, type ResultData } from './BattleScene';
 import { FormationEditor } from '../squadEditor';
@@ -110,7 +110,7 @@ export class StageScene extends Phaser.Scene {
     const benchStronger = ids(autoFormation(session.save, GAME)) !== ids(session.save.squad);
     const hint = pickPrepHint({ first, benchStronger });
     if (hint === 'prep_auto') this.autoHint = tutorialHint(this, hint, 610, L.rosterHeadY, 'above', { w: 220, h: 90 });
-    else if (hint === 'stage_fight') hintPointer(this, GAME_W / 2, L.fightY, HINT_TEXT.stage_fight, 'above', { w: 640, h: 150 });
+    else if (hint === 'stage_fight') tutorialHint(this, hint, GAME_W / 2, L.fightY, 'above', { w: 640, h: 150 });
   }
 
   /** Доступность «В бой» — после каждого изменения отряда (мощь и предупреждение рисует редактор). */

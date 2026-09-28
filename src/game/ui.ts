@@ -4,7 +4,7 @@ import { SKIN, SKIN_DARK_LABEL } from './skin';
 import { FONT, GAME_H, GAME_W, HEADER_H } from './layout';
 import { worldPoint } from './viewport';
 import { C, FS, TINT, TOUCH } from './theme';
-import { HINT_GEOM, placeCallout, type HintSide, type Rect } from './hintLayout';
+import { HINT_GEOM, placeCallout, type CalloutPlan, type HintSide, type Rect } from './hintLayout';
 import { HINT_TEXT, markHint, type HintId } from './hints';
 import { barFrom, juiceOn } from './juice';
 import { sfx } from './audio';
@@ -472,14 +472,28 @@ export function hintPointer(
   if (juiceOn()) scene.tweens.add({ targets: ring, scaleX: 1 + grow / (target.w + pad), scaleY: 1 + grow / (target.h + pad), alpha: grow > 0 ? 0.15 : 0.35, yoyo: grow <= 0, duration: 800, repeat: -1 });
   const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
   const closeW = opts.skip ? 44 : 0;
-  const box = { w: Math.min(w - 60, t.width + 60 + closeW), h: t.height + 22 };
-  const plan = placeCallout({ x, y, ...target }, box, {
-    prefer: side === 'auto' ? undefined : side,
-    avoid: [...controlRects(scene, x, y), ...(opts.avoid ?? [])],
-    top: HEADER_H + 8,
-    bottom: h,
-    width: w,
-  });
+  const avoid = [...controlRects(scene, x, y), ...(opts.avoid ?? [])];
+  // Плашка в одну строку не везде помещается между кнопками (итоги: «Дальше» у правого края, слева — «Авто»):
+  // тогда та же строка переносится уже — узкая плашка встаёт рядом с целью, ничего не закрывая.
+  let best: CalloutPlan | null = null;
+  let wrap = w - 200;
+  for (const ww of [w - 200, 640, 520, 420, 340]) {
+    t.setWordWrapWidth(ww);
+    const p = placeCallout({ x, y, ...target }, { w: Math.min(w - 60, t.width + 60 + closeW), h: t.height + 22 }, {
+      prefer: side === 'auto' ? undefined : side,
+      avoid,
+      top: HEADER_H + 8,
+      bottom: h,
+      width: w,
+    });
+    if (!best || p.overlap < best.overlap) {
+      best = p;
+      wrap = ww;
+    }
+    if (p.overlap === 0) break;
+  }
+  t.setWordWrapWidth(wrap);
+  const plan = best!;
   const dir = plan.side === 'above' ? -1 : 1;
   const ay = plan.arrowY;
   // Стрелка остриём к цели: над целью — вниз, под целью — вверх.
