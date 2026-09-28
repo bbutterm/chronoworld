@@ -223,7 +223,8 @@ export default defineConfig(({ command }) => ({
     },
   },
   // Worktree агентов (.claude/worktrees) лежат внутри проекта: их правки (index.html и т. п.) перезагружали страницу e2e.
-  server: { host: true, watch: { ignored: ['**/.claude/**'] } },
+  // Игнорируем только `.claude` под корнем этого checkout — сервер, запущенный в самом worktree, свои файлы видит.
+  server: { host: true, watch: { ignored: (path: string) => path.startsWith(join(import.meta.dirname, '.claude')) } },
   test: {
     include: ['tests/**/*.test.ts'],
   },

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { achievementStatus, actClaimAchievement, type AchievementView } from '../../core';
+import { achievementStatus, actClaimAchievement, actClaimAllAchievements, type AchievementView } from '../../core';
 import { GAME } from '../content';
 import { claimableAchievements, describeEvents, formatNumber, metaRewardsText, sortAchievements } from '../flow';
 import { GAME_W } from '../layout';
@@ -41,7 +41,11 @@ export class AchievementsScene extends Phaser.Scene {
     const got = views.filter((a) => a.claimed).length;
     const ready = claimableAchievements(views);
     text(this, 50, CONTENT_TOP + 40, `Получено ${got} / ${views.length}`, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
-    if (ready) text(this, GAME_W - 50, CONTENT_TOP + 40, `Можно забрать: ${ready}`, FS.body, C.success, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(1, 0.5);
+    if (ready > 1) {
+      // «Забрать всё» (как в AFK): все выполненные достижения одним нажатием.
+      const all = button(this, GAME_W - 240, CONTENT_TOP + 42, 400, 80, 'ui_btn_primary', `Забрать всё (${ready})`, () => this.claimAll({ x: GAME_W - 240, y: CONTENT_TOP + 42 }), FS.body);
+      pulse(this, all.container, 1.04, 700);
+    } else if (ready) text(this, GAME_W - 50, CONTENT_TOP + 40, `Можно забрать: ${ready}`, FS.body, C.success, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(1, 0.5);
     // Пустое состояние «забрать нечего» — подсказка, что делать дальше.
     else if (views.length && got < views.length) text(this, GAME_W - 50, CONTENT_TOP + 40, 'Забрать пока нечего — играйте дальше', FS.small, C.muted).setOrigin(1, 0.5);
 
@@ -81,6 +85,20 @@ export class AchievementsScene extends Phaser.Scene {
       const b = button(this, bx, y - 30, 230, 100, 'ui_btn_primary', 'Забрать', s.tap(() => this.claim(a, { x: bx, y: this.area.content.y + y - 30 })), FS.h3);
       s.add(b.container);
       pulse(this, b.container);
+    }
+  }
+
+  private claimAll(at: Point): void {
+    try {
+      const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
+      const r = actClaimAllAchievements(session.save, today(), GAME);
+      commit(r.save);
+      queueRewardFly('Achievements', at, before);
+      const lines = [`Достижений: ${r.claimed.length} · ${metaRewardsText(r.rewards, ' в запас')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
+      this.scene.restart({ from: this.from } satisfies AchievementsData);
+      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4000)));
+    } catch (e) {
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
   }
 

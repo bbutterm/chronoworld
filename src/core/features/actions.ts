@@ -4,8 +4,8 @@ import { equip, unequip } from '../equipment/equipment';
 import { playWithEquipment, type StageOutcomeWithDrops } from '../equipment/drops';
 import type { ChestLootGrant } from '../equipment/chest';
 import type { EquipmentConfig, EquipmentContext } from '../equipment/load';
-import { claimAchievement, syncAchievementCounters, trackAchievement, type MetaEvent } from '../meta/achievements';
-import { claimBounty } from '../meta/bounties';
+import { claimAchievement, claimAllAchievements, syncAchievementCounters, trackAchievement, type MetaEvent } from '../meta/achievements';
+import { claimAllBounties, claimBounty } from '../meta/bounties';
 import type { MetaContext, MetaRewards } from '../meta/config';
 import { ascendHero } from '../heroes/merge';
 import { levelUpHero, type LevelCost } from '../heroes/level';
@@ -15,7 +15,7 @@ import type { SaveState } from '../save/schema';
 import { climbTower, type TowerContext, type TowerOutcome } from '../tower/tower';
 import type { FeatureContext, FeatureEvent } from './config';
 import { useFastRewards, type FastRewards } from './fastRewards';
-import { claimActivity, claimQuest, recordActivity, type MilestoneRewards } from './quests';
+import { claimActivity, claimAllQuests, claimQuest, recordActivity, type MilestoneRewards } from './quests';
 import { skipStage } from './skip';
 import { queueAfterStage, queueChapterDone, type StoryContext } from '../story/story';
 
@@ -171,4 +171,19 @@ export function actClaimBounty(
 /** K10. claimAchievement (jobExp — в пул, осколки — «отстающему» сюжетному герою). */
 export function actClaimAchievement(save: SaveState, day: string, id: string, ctx: MetaContext): { save: SaveState; rewards: MetaRewards; events: MetaEvent[] } {
   return recordLevelUps(claimAchievement(save, id, ctx), day);
+}
+
+/** «Забрать всё» заданий дня: claimAllQuests (задания, затем пороги активности; опыт порогов — в пул). */
+export function actClaimAllQuests(save: SaveState, day: string, ctx: FeatureContext): ReturnType<typeof claimAllQuests> {
+  return recordLevelUps(claimAllQuests(save, day, ctx), day);
+}
+
+/** «Забрать всё» поручений: claimAllBounties (все завершённые к now). */
+export function actClaimAllBounties(save: SaveState, day: string, now: number, ctx: MetaContext): ReturnType<typeof claimAllBounties> {
+  return recordLevelUps(claimAllBounties(save, now, ctx), day);
+}
+
+/** «Забрать всё» достижений: claimAllAchievements. */
+export function actClaimAllAchievements(save: SaveState, day: string, ctx: MetaContext): ReturnType<typeof claimAllAchievements> {
+  return recordLevelUps(claimAllAchievements(save, ctx), day);
 }

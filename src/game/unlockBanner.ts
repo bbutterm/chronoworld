@@ -5,7 +5,7 @@ import { glow, medallion, ribbon, slowRays } from './decor';
 import { GAME_H, GAME_W } from './layout';
 import { card, CONTENT_TOP, popIn } from './screen';
 import { commit, session } from './session';
-import { SKIN_TINT, skinIcon, type SkinIcon } from './skin';
+import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { speedGate } from './state';
 import { mugIcon } from './tavernEntry';
 import { C, FS, OUTLINE, TITLE_STYLE } from './theme';
@@ -114,47 +114,104 @@ function garretName(): string {
   return 'Капитан Гаррет';
 }
 
+/**
+ * Иконка функции на баннере: медальон скина и свой знак у каждой функции (не общая «стрелка»):
+ * быстрые награды — сундук, задания — свиток, скорость — надпись «2x», достижения — кубок, Таверна — кружка,
+ * поручения — карта, Башня — башня. Неизвестная функция — иконка из data/unlocks.json (icon).
+ */
+export function featureIcon(scene: Phaser.Scene, f: Pick<FeatureView, 'id' | 'icon'>, x: number, y: number, size: number): Phaser.GameObjects.Container {
+  const disc = scene.add.image(0, 0, 'skin_medallion').setDisplaySize(size, size);
+  const c = scene.add.container(x, y, [disc]);
+  const glyph = (icon: SkinIcon) => c.add(scene.add.image(0, 0, skinIcon(icon)).setDisplaySize(size * 0.5, size * 0.5).setTint(SKIN_TINT.gold));
+  switch (f.id) {
+    case 'fast_rewards':
+      // Сундук из арта главной (полный), без него — сундук скина.
+      if (scene.textures.exists('ui_chest_full')) c.add(scene.add.image(0, size * 0.02, 'ui_chest_full').setDisplaySize(size * 0.62, size * 0.62));
+      else glyph('chest');
+      break;
+    case 'speed_x2': {
+      const t = text(scene, 0, -2, '2x', Math.round(size * 0.36), SKIN.goldLight, { fontStyle: 'bold', stroke: '#1a0806', strokeThickness: 8 });
+      t.setShadow(0, 4, 'rgba(0,0,0,0.6)', 3, true, false);
+      c.add(t);
+      break;
+    }
+    case 'tavern':
+      c.add(mugIcon(scene, 0, -size * 0.02, size * 0.5));
+      break;
+    case 'quests':
+      glyph('scroll');
+      break;
+    case 'achievements':
+      glyph('trophy');
+      break;
+    case 'bounties':
+      glyph('map');
+      break;
+    case 'tower':
+      glyph('tower');
+      break;
+    default:
+      if (f.icon === 'mug') c.add(mugIcon(scene, 0, -size * 0.02, size * 0.5));
+      else glyph(f.icon as SkinIcon);
+  }
+  return c;
+}
+
+const BOX_W = 940;
+const ICON = 240;
+
 function banner(scene: Phaser.Scene, f: FeatureView, more: number, close: (go: boolean) => void): void {
   const cx = GAME_W / 2;
-  const cy = GAME_H / 2 - 40;
   // data: id и заголовок функции — для e2e (popIn переносит содержимое во вложенный контейнер).
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName(UNLOCK_BANNER_NAME).setData({ id: f.id, title: f.title });
   // Шторка ловит все касания: под баннером ничего не нажимается.
   const shade = scene.add.rectangle(cx, GAME_H / 2, GAME_W * 2, GAME_H * 2, 0x000000, 0.82).setInteractive();
   layer.add(shade);
-  const iconY = cy - 330;
+
+  // Тексты создаются сразу (нужна их высота), окно — по содержимому: без пустого провала над кнопками.
+  const title = text(scene, cx, 0, f.title, FS.hero, C.title, TITLE_STYLE);
+  const stage = text(scene, cx, 0, `Открыто за этап ${f.stageLabel}`, FS.small, C.gold, OUTLINE);
+  const desc = text(scene, cx, 0, f.description, FS.body, C.text, { ...OUTLINE, wordWrap: { width: 820 }, align: 'center', lineSpacing: 6 }).setOrigin(0.5, 0);
+  const who = f.line ? text(scene, cx, 0, garretName(), FS.small, C.gold, { ...OUTLINE, fontStyle: 'bold' }) : null;
+  const line = f.line
+    ? text(scene, cx, 0, `«${f.line}»`, FS.small, C.muted, { ...OUTLINE, fontStyle: 'italic', wordWrap: { width: 800 }, align: 'center' }).setOrigin(0.5, 0)
+    : null;
+  // Медальон наполовину заходит на верх окна (как в AFK): текст начинается под ним.
+  const PAD_TOP = ICON / 2 + 50;
+  const BTN_H = 120;
+  const lineH = who && line ? 36 + 26 + line.height : 0;
+  const boxH = PAD_TOP + 128 + desc.height + lineH + 48 + BTN_H + 50;
+  // Всё вместе (лента над медальоном, окно, «Ещё новых функций») — по центру экрана.
+  const above = ICON / 2 + 150;
+  const below = more > 0 ? 70 : 0;
+  const boxTop = Math.round((GAME_H - (above + boxH + below)) / 2 + above - 20);
+  const iconY = boxTop;
+
   layer.add(slowRays(scene, cx, iconY, 900, 0.5));
   layer.add(glow(scene, cx, iconY, 520, 0xffd27a, 0.55, true));
-  const boxTop = cy - 170;
-  const boxH = 700;
-  layer.add(card(scene, cx, boxTop + boxH / 2, 940, boxH));
-  layer.add(ribbon(scene, cx, iconY - 230, 'Новая функция!', { size: FS.h1, minW: 560 }));
-  // Иконка: медальон скина, у Таверны — кружка поверх пустого медальона.
-  if (f.icon === 'mug') {
-    layer.add(scene.add.image(cx, iconY, 'skin_medallion').setDisplaySize(260, 260));
-    layer.add(mugIcon(scene, cx, iconY - 6, 130));
-  } else layer.add(medallion(scene, cx, iconY, 260, f.icon as SkinIcon));
+  layer.add(card(scene, cx, boxTop + boxH / 2, BOX_W, boxH));
+  layer.add(ribbon(scene, cx, iconY - ICON / 2 - 60, 'Новая функция!', { size: FS.h1, minW: 560 }));
+  layer.add(featureIcon(scene, f, cx, iconY, ICON));
 
-  let y = boxTop + 80;
-  layer.add(text(scene, cx, y, f.title, FS.hero, C.title, TITLE_STYLE));
-  y += 70;
-  layer.add(text(scene, cx, y, `Открыто за этап ${f.stageLabel}`, FS.small, C.gold, OUTLINE));
-  y += 50;
-  const desc = text(scene, cx, y, f.description, FS.body, C.text, { ...OUTLINE, wordWrap: { width: 820 }, align: 'center', lineSpacing: 6 }).setOrigin(0.5, 0);
-  layer.add(desc);
-  y += desc.height + 36;
-  if (f.line) {
-    const who = text(scene, cx, y, garretName(), FS.small, C.gold, { ...OUTLINE, fontStyle: 'bold' });
-    const line = text(scene, cx, y + 26, `«${f.line}»`, FS.small, C.muted, { ...OUTLINE, fontStyle: 'italic', wordWrap: { width: 800 }, align: 'center' }).setOrigin(0.5, 0);
-    layer.add([who, line]);
+  let y = boxTop + PAD_TOP + 30;
+  layer.add(title.setY(y));
+  y += 64;
+  layer.add(stage.setY(y));
+  y += 34;
+  layer.add(desc.setY(y));
+  y += desc.height;
+  if (who && line) {
+    y += 36;
+    layer.add([who.setY(y), line.setY(y + 26)]);
+    y += 26 + line.height;
   }
-  const by = boxTop + boxH - 90;
+  const by = boxTop + boxH - 50 - BTN_H / 2;
   const done = (go: boolean) => {
     layer.destroy();
     close(go);
   };
-  layer.add(button(scene, cx - 215, by, 380, 120, 'k:buttonLong_beige', 'Позже', () => done(false), FS.h2).container);
-  layer.add(button(scene, cx + 215, by, 380, 120, 'ui_btn_primary', 'Перейти', () => done(true), FS.h2).container);
-  if (more > 0) layer.add(text(scene, cx, boxTop + boxH + 40, `Ещё новых функций: ${more}`, FS.small, C.muted, OUTLINE));
+  layer.add(button(scene, cx - 215, by, 380, BTN_H, 'k:buttonLong_beige', 'Позже', () => done(false), FS.h2).container);
+  layer.add(button(scene, cx + 215, by, 380, BTN_H, 'ui_btn_primary', 'Перейти', () => done(true), FS.h2).container);
+  if (more > 0) layer.add(text(scene, cx, boxTop + boxH + 44, `Ещё новых функций: ${more}`, FS.small, C.muted, OUTLINE));
   popIn(scene, layer, shade);
 }

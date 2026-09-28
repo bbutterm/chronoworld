@@ -93,3 +93,30 @@ export function claimAchievement(save: SaveState, id: string, ctx: MetaContext):
   const next = grantMetaRewards({ ...save, achievements: { ...save.achievements, claimed: [...save.achievements.claimed, a.id] } }, a.rewards, ctx, events);
   return { save: syncAchievementCounters(next), rewards: { ...a.rewards }, events };
 }
+
+/**
+ * «Забрать всё»: claimAchievement для каждого выполненного и не полученного достижения (порядок data/achievements.json).
+ * Награда может поднять счётчик-максимум и выполнить следующее достижение — такие тоже забираются (повторный проход).
+ * rewards — сумма, claimed — id. Нечего забрать — тот же save.
+ */
+export function claimAllAchievements(save: SaveState, ctx: MetaContext): { save: SaveState; rewards: MetaRewards; events: MetaEvent[]; claimed: string[] } {
+  let next = save;
+  const rewards: MetaRewards = { gold: 0, gems: 0, jobExp: 0, shards: 0 };
+  const events: MetaEvent[] = [];
+  const claimed: string[] = [];
+  for (;;) {
+    const ready = achievementStatus(next, ctx).filter((a) => a.done && !a.claimed);
+    if (!ready.length) break;
+    for (const a of ready) {
+      const r = claimAchievement(next, a.id, ctx);
+      next = r.save;
+      rewards.gold += r.rewards.gold;
+      rewards.gems += r.rewards.gems;
+      rewards.jobExp += r.rewards.jobExp;
+      rewards.shards += r.rewards.shards;
+      events.push(...r.events);
+      claimed.push(a.id);
+    }
+  }
+  return { save: next, rewards, events, claimed };
+}

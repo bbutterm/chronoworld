@@ -16,6 +16,11 @@ import {
   RARITIES,
   SLOTS,
   squadPower,
+  planDispatchAll,
+  towerFloor,
+  towerStatus,
+  unitPower,
+  type TowerContext,
   recommendedPower as coreRecommendedPower,
   stageStatus,
   type AchievementView,
@@ -472,6 +477,19 @@ export function finishedBounties(save: SaveState, now: number): number {
   return save.bounties.active.filter((b) => now >= b.endsAt).length;
 }
 
+/** Сколько поручений доски можно отправить прямо сейчас («Отправить всё»: хватает свободных героев и ролей). */
+export function dispatchableBounties(save: SaveState, ctx: MetaContext): number {
+  return planDispatchAll(save, ctx).length;
+}
+
+/**
+ * Красный кружок плитки «Поручения» (главная): завершённые к now (забрать) + поручения, на которые есть кого отправить
+ * (свободные герои простаивают). Как в AFK: кружок, пока доска не «работает» целиком.
+ */
+export function bountiesBadgeCount(save: SaveState, now: number, ctx: MetaContext): number {
+  return finishedBounties(save, now) + dispatchableBounties(save, ctx);
+}
+
 /**
  * Можно ли отправить выбранных героев на поручение: причина отказа или null.
  * Проверки те же, что в startBounty (число героев, роль), — чтобы кнопка «Отправить» была неактивной заранее.
@@ -502,4 +520,18 @@ export function sortAchievements(views: readonly AchievementView[]): Achievement
     .map((a, i) => ({ a, i }))
     .sort((x, y) => group(x.a) - group(y.a) || (group(x.a) === 1 ? y.a.progress / y.a.target - x.a.progress / x.a.target : 0) || x.i - y.i)
     .map((x) => x.a);
+}
+
+// ---------- K4. Башня ----------
+
+/**
+ * Красный кружок плитки «Башня»: башня открыта, следующий этаж есть и мощь отряда не ниже мощи этажа
+ * (тот же расчёт, что на экране башни: squadPower против суммы unitPower врагов) — «можно брать этаж».
+ * Отряд вырос (уровни, вещи, новые герои) — кружок появляется снова. 1 или 0.
+ */
+export function towerBadgeCount(save: SaveState, ctx: TowerContext & FeatureContext & Partial<Pick<EquipmentContext, 'equipment'>>): number {
+  const ts = towerStatus(save, ctx);
+  if (!ts.unlocked || ts.next === null) return 0;
+  const enemy = towerFloor(ts.next, ctx).enemies.reduce((s, u) => s + (u ? unitPower(u, ctx) : 0), 0);
+  return squadPower(save, ctx) >= enemy ? 1 : 0;
 }

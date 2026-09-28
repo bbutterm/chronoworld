@@ -166,3 +166,41 @@ export function claimActivity(
   if (gems > 0) events.push({ type: 'gems', amount: gems });
   return { save: syncAchievementCounters(next), rewards: { gold, gems, jobExp }, events };
 }
+
+/**
+ * «Забрать всё» на экране заданий: сначала все выполненные задания (очки активности), затем все достигнутые пороги
+ * активности — в том числе те, до которых только что добрали очки. rollDay первым делом.
+ * points — сумма очков, rewards — сумма наград порогов, quests / milestones — что забрано. Нечего забрать — те же
+ * данные после rollDay и пустые списки.
+ */
+export function claimAllQuests(
+  save: SaveState,
+  day: string,
+  ctx: FeatureContext,
+): { save: SaveState; points: number; rewards: MilestoneRewards; events: FeatureEvent[]; quests: string[]; milestones: number[] } {
+  let next = rollDay(save, day);
+  let points = 0;
+  const rewards: MilestoneRewards = { gold: 0, gems: 0, jobExp: 0 };
+  const events: FeatureEvent[] = [];
+  const quests: string[] = [];
+  const milestones: number[] = [];
+  for (const q of questStatus(next, ctx).quests) {
+    if (!q.done || q.claimed) continue;
+    const r = claimQuest(next, day, q.id, ctx);
+    next = r.save;
+    points += r.points;
+    events.push(...r.events);
+    quests.push(q.id);
+  }
+  for (const m of questStatus(next, ctx).milestones) {
+    if (!m.reached || m.claimed) continue;
+    const r = claimActivity(next, day, m.points, ctx);
+    next = r.save;
+    rewards.gold += r.rewards.gold;
+    rewards.gems += r.rewards.gems;
+    rewards.jobExp += r.rewards.jobExp;
+    events.push(...r.events);
+    milestones.push(m.points);
+  }
+  return { save: next, points, rewards, events, quests, milestones };
+}
