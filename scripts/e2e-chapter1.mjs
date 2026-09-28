@@ -506,7 +506,8 @@ try {
       }
       // Затемнение ульты накрывает экран на ~1 с — дождаться, пока оно сойдёт, и только тогда жать «Пропустить».
       for (let i = 0; i < 20 && (await coveredBy('Battle', 'Пропустить')); i++) await sleep(200);
-      if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
+      // Короткий бой (этап 1 — ~2 с) может закончиться сам, пока ждали скриншот: «Пропустить» уже убрана — ждём итоги.
+      if ((await page.evaluate(() => window.__game.scene.isActive('Battle'))) && (await findText('Battle', 'Пропустить'))) await clickText('Battle', 'Пропустить');
       await waitScene('Result');
       await sleep(500);
       // Сюжет после первой победы — поверх итогов.
@@ -548,7 +549,8 @@ try {
   const minutes = (Date.now() - t0) / 60000;
   log(`время главы 1 через интерфейс (бои — «Пропустить»): ${minutes.toFixed(1)} мин; по этапам ${splits.join(' ')}`);
   log(`подсказки обучения: ${[...hintsSeen].map(([id, n]) => `${id}×${n}`).join(', ')}`);
-  for (const id of ['home_campaign', 'stage_fight', 'battle_speed', 'result_next', 'chest_claim', 'level_up', 'tavern_summon', 'prep_auto', 'ascend', 'fast_rewards', 'quests_open']) {
+  // Вознесение (ascend) — не обязательный шаг: три копии одного героя зависят от удачи в Таверне; показан — выполняем.
+  for (const id of ['home_campaign', 'stage_fight', 'battle_speed', 'result_next', 'chest_claim', 'level_up', 'tavern_summon', 'prep_auto', 'fast_rewards', 'quests_open']) {
     if (!hintsSeen.has(id)) problems.push(`подсказка обучения ${id} не показалась`);
   }
   const s = await save();
