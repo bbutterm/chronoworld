@@ -308,23 +308,23 @@
       "enemies": [
         {
           "unit": "mob5_elite",
-          "mult": 0.187
+          "mult": 0.1421
         },
         {
           "unit": "mob5_boss",
-          "mult": 0.106
+          "mult": 0.151
         },
         {
           "unit": "mob5_support",
-          "mult": 0.187
+          "mult": 0.1421
         },
         {
           "unit": "mob5_elite",
-          "mult": 0.187
+          "mult": 0.1421
         },
         {
           "unit": "mob5_ranged",
-          "mult": 0.187
+          "mult": 0.1421
         }
       ],
       "rewards": {
