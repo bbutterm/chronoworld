@@ -3,6 +3,7 @@ import { addItems, newGame, stageLabel, type SaveState } from '../src/core';
 import { heroesBadgeCount, stageNo } from '../src/game/flow';
 import { copyCounter } from '../src/game/heroesView';
 import { sceneLabel } from '../src/game/storyView';
+import { computeView } from '../src/game/viewLayout';
 import { loadFullContext } from '../scripts/lib/content-node';
 
 const ctx = loadFullContext();
@@ -41,5 +42,15 @@ describe('ночной QA: интерфейс', () => {
     expect(heroesBadgeCount(more, ctx)).toBe(base);
     // На карточке — «копии» одним словом: запасные карты героя.
     expect(copyCounter(more, lead.id, ctx).text).toMatch(/^Копий: 6/);
+  });
+
+  it('NB-21: низ безопасной области — на 9:16 это край поля, на вытянутом экране ниже (туда опускается навигация)', () => {
+    expect(computeView(540, 960, 1).safeBottom).toBe(1920);
+    const tall = computeView(390, 844, 3);
+    expect(tall.safeBottom).toBeGreaterThan(2000);
+    expect(tall.safeBottom).toBeLessThanOrEqual(tall.worldY + tall.worldH);
+    // «Домашняя полоска» iPhone (34 css px снизу) — навигация над ней.
+    const home = computeView(390, 844, 3, { top: 47, right: 0, bottom: 34, left: 0 });
+    expect(home.safeBottom).toBeLessThan(home.worldY + home.worldH);
   });
 });

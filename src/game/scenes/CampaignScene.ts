@@ -8,8 +8,8 @@ import { playScenes } from '../dialogue';
 import { isChapterFinale, seenChapterScenes } from '../storyView';
 import { openStoryHistory, startChapterDone } from './ChapterDoneScene';
 import { currentStage, describeEvents, formatNumber, POWER_COLORS, powerCheck, stageNo } from '../flow';
-import { GAME_H, GAME_W } from '../layout';
-import { card, confirm, confirmOpen, CONTENT_TOP, cornerBadge, gemIcon, NAV_H, NAV_TAB_W, navTabX, powerChip, screen } from '../screen';
+import { GAME_W } from '../layout';
+import { card, confirm, confirmOpen, CONTENT_TOP, cornerBadge, gemIcon, NAV_H, NAV_TAB_W, navTabX, navY, powerChip, screen } from '../screen';
 import { commit, now, restartOnNewDay, session, today } from '../session';
 import { button, ellipsize, hintPointer, pressable, text, toast, tutorialHint } from '../ui';
 import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
@@ -462,7 +462,7 @@ export class CampaignScene extends Phaser.Scene {
     this.hintId = id;
     if (!id) return;
     const msg = HINT_TEXT[id];
-    const tabY = GAME_H - NAV_H / 2 + 4;
+    const tabY = navY() + 4;
     const tab = { w: NAV_TAB_W - 6, h: NAV_H - 40 };
     // Сторону плашки выбирает hintPointer (S): так, чтобы не закрыть другие кнопки и плитки.
     if (id === 'home_campaign') this.hintView = hintPointer(this, L.ctaX, L.rowY, msg, 'below', { w: L.ctaW, h: L.ctaH });
