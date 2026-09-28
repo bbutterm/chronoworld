@@ -1,4 +1,6 @@
 {
+  "$schema": "schema/drops.schema.json",
+  "$comment": "rules — выпадение предмета за победу на этапе; chest — трофеи сундука простоя и быстрых наград: бросок за каждые tickMinutes минут накопленного времени по правилу главы последнего пройденного этапа (шанс предмета, осколки «отстающего» сюжетного героя, гемы, свитки). Как подбирать — docs/CONTENT_RECIPES.md, docs/content/balance.md.",
   "rules": [
     {
       "chapter": "chapter1",
@@ -29,5 +31,22 @@
         "epic": 8
       }
     }
-  ]
+  ],
+  "chest": {
+    "tickMinutes": 30,
+    "rules": [
+      {
+        "chapter": "chapter1",
+        "item": 0.06,
+        "shards": { "chance": 0.05, "count": 1 },
+        "gems": { "chance": 0.03, "count": 5 }
+      },
+      {
+        "item": 0.08,
+        "shards": { "chance": 0.06, "count": 1 },
+        "gems": { "chance": 0.03, "count": 5 },
+        "scrolls": { "chance": 0.005, "count": 1 }
+      }
+    ]
+  }
 }

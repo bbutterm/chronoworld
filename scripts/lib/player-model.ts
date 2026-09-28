@@ -295,6 +295,10 @@ export interface BalanceResult {
   gemsByDay: { income: number; spend: number }[];
   /** Свитки призыва по источникам (доход; тратятся в Таверне). */
   scrollsIn: Partial<Record<Source, number>>;
+  /** Предметы по источникам (выпадение за победу — campaign, трофеи сундука — offline и fast_rewards). */
+  itemsIn: Partial<Record<Source, number>>;
+  /** Осколки сюжетных героев по источникам. */
+  shardsIn: Partial<Record<Source, number>>;
   /** События новичка: когда получена каждая награда (день модели, час от начала). */
   eventClaims: { kind: 'login' | 'newbie_task' | 'newbie_chest' | 'mail'; id: string; day: number; t: number }[];
   /** Активных минут всего. */
@@ -336,6 +340,8 @@ class Sim {
   levels: LevelLog[] = [];
   gemsByDay: BalanceResult['gemsByDay'] = [];
   scrollsIn: BalanceResult['scrollsIn'] = {};
+  itemsIn: BalanceResult['itemsIn'] = {};
+  shardsIn: BalanceResult['shardsIn'] = {};
   eventClaims: BalanceResult['eventClaims'] = [];
   dayNo = 1;
   day: string;
@@ -374,6 +380,11 @@ class Sim {
     }
     const scrolls = next.currency.scrolls - this.save.currency.scrolls;
     if (scrolls > 0) this.scrollsIn[source] = (this.scrollsIn[source] ?? 0) + scrolls;
+    const items = next.inventory.items.length - this.save.inventory.items.length;
+    if (items > 0) this.itemsIn[source] = (this.itemsIn[source] ?? 0) + items;
+    const shards = (x: SaveState) => Object.values(x.shards).reduce((a, n) => a + n, 0);
+    const dShards = shards(next) - shards(this.save);
+    if (dShards > 0) this.shardsIn[source] = (this.shardsIn[source] ?? 0) + dShards;
     const g = (this.gemsByDay[this.dayNo - 1] ??= { income: 0, spend: 0 });
     if (d.gems > 0) g.income += d.gems;
     else g.spend -= d.gems;
@@ -773,6 +784,8 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     levels: sim.levels,
     gemsByDay: sim.gemsByDay,
     scrollsIn: sim.scrollsIn,
+    itemsIn: sim.itemsIn,
+    shardsIn: sim.shardsIn,
     eventClaims: sim.eventClaims,
     activeMinutes: sim.activeMin,
   };

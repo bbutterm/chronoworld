@@ -145,6 +145,9 @@ console.log(
 );
 const scrolls = Object.entries(res.scrollsIn).map(([k, n]) => `${k} ${n}`).join(', ');
 if (scrolls) console.log(`  свитки призыва: ${scrolls}`);
+const perSource = (m: Partial<Record<string, number>>) => Object.entries(m).map(([k, n]) => `${k} ${n}`).join(', ');
+if (Object.keys(res.itemsIn).length) console.log(`  предметы по источникам: ${perSource(res.itemsIn)}`);
+if (Object.keys(res.shardsIn).length) console.log(`  осколки по источникам: ${perSource(res.shardsIn)}`);
 if (model.events) {
   // События новичка (data/events.json): когда получены награды входа и сундуки новичка.
   const when = (kind: string) => res.eventClaims.filter((e) => e.kind === kind).map((e) => `${e.id}@д${e.day}`).join(' ');
