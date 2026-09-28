@@ -104,6 +104,26 @@ export const ChestDropsSchema = z.object({
   rules: z.array(ChestRuleSchema).min(1),
 });
 
+/** Жёсткий предел заточки (схема сохранения): maxLevel в конфиге — не больше. */
+export const REFINE_HARD_MAX = 20;
+
+/**
+ * «Заточка» снаряжения (кузнец RO, +1…+maxLevel) — главный сток золота. Всегда успешна (детерминированно).
+ * Статы предмета: база × (1 + bonusPerLevel · N). Цена шага +N → +N+1: cost.base[редкость] × cost.growth^N
+ * (округление до 2 значащих цифр).
+ */
+export const RefineConfigSchema = z.object({
+  maxLevel: z.number().int().min(1).max(REFINE_HARD_MAX),
+  /** Прибавка к статам предмета за уровень заточки (0.1 = +10% базы). */
+  bonusPerLevel: z.number().positive().max(1),
+  cost: z.object({
+    /** Цена первого шага (+0 → +1) по редкости, золото. */
+    base: z.object({ common: z.number().int().positive(), rare: z.number().int().positive(), epic: z.number().int().positive() }),
+    /** Во сколько раз дорожает каждый следующий шаг. */
+    growth: z.number().min(1).max(4),
+  }),
+});
+
 /** data/drops.json. Правило этапа — первое с chapter = глава этапа, иначе первое без chapter. */
 export const DropsConfigSchema = z.object({
   $schema: z.string().optional(),
@@ -111,6 +131,8 @@ export const DropsConfigSchema = z.object({
   rules: z.array(DropRuleSchema).min(1),
   /** Трофеи сундука простоя и быстрых наград; нет поля — в сундуке только золото и опыт. */
   chest: ChestDropsSchema.optional(),
+  /** Заточка снаряжения; нет поля — заточки нет. */
+  refine: RefineConfigSchema.optional(),
 });
 
 export type Slot = z.infer<typeof SlotSchema>;
@@ -123,3 +145,4 @@ export type DropsConfig = z.infer<typeof DropsConfigSchema>;
 export type ChestRoll = z.infer<typeof ChestRollSchema>;
 export type ChestRule = z.infer<typeof ChestRuleSchema>;
 export type ChestDrops = z.infer<typeof ChestDropsSchema>;
+export type RefineConfig = z.infer<typeof RefineConfigSchema>;

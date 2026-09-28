@@ -3,6 +3,7 @@ import type { GameContext } from '../progression/types';
 import type { GearLookup, StatBonus } from '../progression/stats';
 import type { HeroState, ItemInstance, SaveState } from '../save/schema';
 import { EquipmentError } from './errors';
+import { refinedStats, refineLevel } from './refine';
 import type { EquipmentContext } from './load';
 import type { ItemDef, Slot } from './schema';
 
@@ -40,9 +41,9 @@ export function equipmentStats(items: readonly ItemDef[]): StatBonus {
   return sum;
 }
 
-/** Прибавка экипировки героя (неизвестные контенту предметы в сохранении не считаются). */
+/** Прибавка экипировки героя с заточкой (неизвестные контенту предметы в сохранении не считаются). */
 export function heroGearStats(save: SaveState, heroId: string, ctx: EquipmentContext): StatBonus {
-  return equipmentStats(Object.values(heroSlots(save, heroId, ctx)).map((s) => s.def));
+  return equipmentStats(Object.values(heroSlots(save, heroId, ctx)).map((s) => ({ ...s.def, stats: refinedStats(s.def, refineLevel(s.instance), ctx) })));
 }
 
 /**

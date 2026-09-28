@@ -75,6 +75,11 @@ export const ItemInstanceSchema = z.object({
   id: z.string(),
   itemId: z.string(),
   equippedBy: z.string().nullable(),
+  /**
+   * Заточка +N (как у кузнеца в RO): статы предмета × (1 + bonusPerLevel·N), data/drops.json → refine.
+   * Без смены версии: нет поля — +0 (старые сохранения читаются как есть). Верхняя граница — REFINE_HARD_MAX.
+   */
+  refine: z.number().int().min(0).max(20).optional(),
 });
 
 /** v3 (K8). Сохранённая расстановка отряда: 5 слотов, id героя или null. */

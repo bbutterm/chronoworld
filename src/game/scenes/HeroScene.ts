@@ -3,6 +3,14 @@ import { hintDone, markHint } from '../hints';
 import {
   actEquipBest,
   actLevelUp,
+  actRefineAll,
+  lockedText,
+  refineAllPlan,
+  refineConfig,
+  refinedName,
+  refinedStats,
+  refineLevel,
+  refineUnlocked,
   ascendRequirement,
   branchStatus,
   changeBranch,
@@ -28,13 +36,13 @@ import {
 import { CONTENT, GAME } from '../content';
 import { ascendReady, formatNumber, heroSprite, itemStatsText, levelText, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
 import { GAME_W } from '../layout';
-import { card, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
+import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
 import { button, ellipsize, hintPointer, panel, pressable, ScrollArea, text, toast } from '../ui';
 import { C, FS, TINT } from '../theme';
 import { skillIcon } from '../skillIcons';
 import { sfx } from '../audio';
-import { bump, countUp, juiceOn, pulse } from '../juice';
+import { bump, burst, countUp, juiceOn, pulse } from '../juice';
 import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, iconBadge, raysTexture, rarityBackdrop, rarityPalette, rarityPips } from '../heroCard';
 import { browseNeighbours, copyCounter, heroesUi, inventoryUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
@@ -649,7 +657,59 @@ export class HeroScene extends Phaser.Scene {
       a.add(text(this, GAME_W / 2, y + 50, 'Нажмите на слот, чтобы выбрать предмет', FS.caption, C.dim));
       y += 100;
     }
+    y = this.refineAllRow(hero, y);
     a.setContentHeight(y + 20);
+  }
+
+  /**
+   * «Заточить всё надетое»: по одному шагу заточки каждому надетому предмету, пока хватает золота (с подтверждением
+   * и суммой). Закрыто — подпись «Откроется на этапе …»; нечего точить / не хватает — серая подпись.
+   */
+  private refineAllRow(hero: HeroState, y: number): number {
+    const a = this.tabArea;
+    const worn = Object.values(heroSlots(session.save, hero.id, GAME));
+    if (!refineConfig(GAME) || !worn.length) return y;
+    if (!refineUnlocked(session.save, GAME)) {
+      a.add(text(this, GAME_W / 2, y + 30, `Заточка снаряжения · ${lockedText(session.save, 'refine', GAME)}`, FS.caption, C.dim).setName('refineAllLocked'));
+      return y + 70;
+    }
+    const plan = refineAllPlan(session.save, hero.id, GAME);
+    if (!plan.steps.length) {
+      const maxed = worn.every((s) => refineLevel(s.instance) >= (refineConfig(GAME)?.maxLevel ?? 0));
+      a.add(text(this, GAME_W / 2, y + 30, maxed ? 'Всё надетое заточено до максимума' : 'Заточка: не хватает золота на следующий шаг', FS.caption, maxed ? C.gold : C.dim).setName('refineAllNone'));
+      return y + 70;
+    }
+    const n = plan.steps.length;
+    const b = button(this, GAME_W / 2, y + 60, 760, 110, 'k:buttonLong_brown', `Заточить всё надетое · ${formatNumber(plan.gold)}`, () => {
+      const list = plan.steps
+        .map((st) => {
+          const def = GAME.equipment.items[st.itemId];
+          return def ? `${refinedName(def, st.from)} → +${st.from + 1}` : st.itemId;
+        })
+        .join('\n');
+      confirm(this, `Заточить ${n} ${n === 1 ? 'предмет' : n < 5 ? 'предмета' : 'предметов'} на +1 за ${formatNumber(plan.gold)} золота?\n\n${list}`, 'Заточить', () => this.refineAll(hero));
+    }, FS.h3);
+    b.container.setName('refineAllBtn');
+    a.add(b.container);
+    return y + 130;
+  }
+
+  private refineAll(hero: HeroState): void {
+    try {
+      const r = actRefineAll(session.save, hero.id, GAME);
+      commit(r.save);
+      sfx('equip', { rate: 1.3 });
+      sfx('coin', { delay: 60 });
+      this.scene.restart({ heroId: hero.id, tab: 'gear' });
+      const sc = this.scene.get('Hero');
+      sc.events.once(Phaser.Scenes.Events.CREATE, () => {
+        burst(sc, { x: GAME_W / 2, y: TAB_TOP + 120 });
+        toast(sc, `Заточено: ${r.events.length} · −${formatNumber(r.events.reduce((s, e) => s + e.gold, 0))} золота`, C.success, 3000);
+      });
+    } catch (e) {
+      sfx('ui_error');
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
+    }
   }
 
   private gearSlot(hero: HeroState, slot: Slot, item: ReturnType<typeof heroSlots>[Slot], x: number, y: number, better = false): void {
@@ -667,8 +727,9 @@ export class HeroScene extends Phaser.Scene {
     }
     const color = RARITY_COLORS[item.def.rarity];
     a.add(this.add.rectangle(x, y - 46, 200, 5, Phaser.Display.Color.HexStringToColor(color).color));
-    a.add(ellipsize(text(this, x, y + 5, item.def.name, FS.body, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), 226));
-    a.add(text(this, x, y + 62, itemStatsText(item.def.stats), FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 230 } }).setMaxLines(2));
+    const lvl = refineLevel(item.instance);
+    a.add(ellipsize(text(this, x, y + 5, refinedName(item.def, lvl), FS.body, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), 226));
+    a.add(text(this, x, y + 62, itemStatsText(refinedStats(item.def, lvl, GAME)), FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 230 } }).setMaxLines(2));
   }
 
   /** T1-08: надеть все улучшения из инвентаря (свободные вещи получше надетых). */
