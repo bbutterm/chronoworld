@@ -112,6 +112,12 @@ export class SquadScene extends Phaser.Scene {
   }
 
   private savePreset(): void {
+    // MT-03: тот же отряд уже сохранён (в т. ч. быстрый повторный тап — кнопка пересоздаётся) — второй пресет не нужен.
+    const same = session.save.presets.find((p) => presetMatches(p, session.save.squad));
+    if (same) {
+      toast(this, `Такой пресет уже есть: «${same.name}»`);
+      return;
+    }
     try {
       const name = nextPresetName(session.save.presets);
       const r = savePreset(session.save, name, GAME);
