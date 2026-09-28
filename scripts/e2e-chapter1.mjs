@@ -9,7 +9,7 @@
 // Ведущее обучение (src/game/hints.ts): каждая показанная подсказка записывается (id) и проверяется — плашка не закрывает
 // кнопки (hintOverlap 0); шаги выполняются, как их показывает указатель. В конце — реальное время главы (бои на «Пропустить»).
 // В журнале у каждой попытки — мощь отряда против рекомендуемой (stagePowerCheck). Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
-//   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке)
+//   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке; экран — E2E_VIEWPORT, например 360x640)
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -36,7 +36,9 @@ for (let i = 0; i < 150; i++) {
   await sleep(200);
 }
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 540, height: 960 } });
+// E2E_VIEWPORT=390x844 — прогон на другом экране телефона (раскладка подсказок и кнопок); по умолчанию 540×960.
+const [VW, VH] = (process.env.E2E_VIEWPORT ?? '540x960').split('x').map(Number);
+const page = await browser.newPage({ viewport: { width: VW, height: VH } });
 const problems = [];
 page.on('console', (m) => m.type() === 'error' && !/favicon/.test(m.location()?.url ?? '') && problems.push(`console.error: ${m.text()}`));
 page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`));
@@ -251,6 +253,48 @@ const levelUpSquad = async (shotName) => {
   return levels;
 };
 
+/**
+ * Шаг обучения «вознесение» (указатель на вкладку «Герои»): как игрок — карточка героя, которого можно вознести копиями
+ * (flow.ts ascendReady) → «Вознести» → «Авто» (корм) → «Вознести» → подтверждение → «Отлично!» → «Кампания».
+ */
+const ascendStep = async () => {
+  const heroId = await page.evaluate(async () => {
+    const [{ ascendReady }, { GAME }, { session }] = await Promise.all([
+      import('/src/game/flow.ts'),
+      import('/src/game/content.ts'),
+      import('/src/game/session.ts'),
+    ]);
+    return ascendReady(session.save, GAME)[0]?.id ?? null;
+  });
+  if (!heroId) throw new Error('указатель «вознести», но вознести некого');
+  const before = (await save()).heroes.find((h) => h.id === heroId);
+  await clickText('Campaign', 'ГЕРОИ');
+  await waitScene('Heroes');
+  await page.evaluate((id) => window.__game.scene.getScenes(true)[0].scene.start('Hero', { heroId: id }), heroId);
+  await waitScene('Hero');
+  await clickText('Hero', 'Вознести');
+  await waitScene('Ascend');
+  await clickText('Ascend', 'Авто');
+  await sleep(500);
+  await shot('ascend');
+  await clickText('Ascend', 'Вознести');
+  await sleep(500);
+  // Подтверждение (confirm): кнопка «Вознести» модального окна — самая верхняя.
+  await clickText('Ascend', 'Вознести', true);
+  await sleep(1500);
+  const after = (await save()).heroes.find((h) => h.id === heroId);
+  if (!after || after.rarity === before.rarity) throw new Error(`вознесение ${before.templateId} ${before.rarity} не прошло`);
+  log(`обучение: вознесение ${before.templateId} ${before.rarity} → ${after.rarity}`);
+  if (await findText('Ascend', 'Отлично!', true)) {
+    await clickText('Ascend', 'Отлично!', true);
+    await waitScene('Hero');
+  }
+  const active = await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key);
+  await clickText(active, 'КАМПАНИЯ');
+  await waitScene('Campaign');
+  await skipDialogues('Campaign');
+};
+
 /** Мощь отряда против рекомендуемой мощи этапа (для отчёта при поражении; считает ядро в браузере). */
 const powerLine = (stageId) =>
   page.evaluate(async (id) => {
@@ -415,6 +459,8 @@ try {
           await skipDialogues('Campaign');
           log('обучение: быстрые награды забраны');
         }
+        // Вознесение копиями — шаг после Таверны: указатель на «Герои», игрок возносит героя.
+        if ((await recordHint('Campaign')) === 'ascend') await ascendStep();
         // Задания дня — последний шаг: Город → плитка «Задания» → назад.
         if ((await recordHint('Campaign')) === 'quests_open') {
           await clickText('Campaign', 'ГОРОД');
@@ -499,7 +545,7 @@ try {
   const minutes = (Date.now() - t0) / 60000;
   log(`время главы 1 через интерфейс (бои — «Пропустить»): ${minutes.toFixed(1)} мин; по этапам ${splits.join(' ')}`);
   log(`подсказки обучения: ${[...hintsSeen].map(([id, n]) => `${id}×${n}`).join(', ')}`);
-  for (const id of ['home_campaign', 'stage_fight', 'battle_speed', 'result_next', 'chest_claim', 'tavern_summon', 'prep_auto']) {
+  for (const id of ['home_campaign', 'stage_fight', 'battle_speed', 'result_next', 'chest_claim', 'level_up', 'tavern_summon', 'prep_auto', 'ascend', 'fast_rewards', 'quests_open']) {
     if (!hintsSeen.has(id)) problems.push(`подсказка обучения ${id} не показалась`);
   }
   const s = await save();

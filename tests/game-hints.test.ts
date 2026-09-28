@@ -174,6 +174,17 @@ describe('S: плашка подсказки не закрывает други�
     expect(p.box.x + p.box.w).toBeGreaterThanOrEqual(540 + 32);
   });
 
+  it('итоги: «Дальше» у правого края, слева «Авто: следующий этап» — строка не влезает, узкая плашка в две строки влезает', () => {
+    // ResultScene: «Дальше» (890, 1830, 330×130), переключатель «Авто» (280, 1680, 520×96), снизу — край экрана.
+    const next = { x: 890, y: 1830, w: 330, h: 130 };
+    const avoid = [{ x: 20, y: 1632, w: 520, h: 96 }, { x: 25, y: 1765, w: 330, h: 130 }, { x: 375, y: 1765, w: 330, h: 130 }];
+    const wide = placeCallout(next, { w: 700, h: 60 }, { ...screen, prefer: 'above', avoid });
+    expect(wide.overlap).toBeGreaterThan(0);
+    // hintPointer (ui.ts) переносит строку уже, пока плашка не перестанет закрывать кнопки.
+    const narrow = placeCallout(next, { w: 460, h: 100 }, { ...screen, prefer: 'above', avoid });
+    expect(narrow).toMatchObject({ side: 'above', overlap: 0 });
+  });
+
   it('предпочтительная сторона занята — выбирается другая', () => {
     const above = { x: 0, y: 820, w: 1080, h: 100 };
     const p = placeCallout({ x: 540, y: 1000, w: 400, h: 100 }, box, { ...screen, prefer: 'above', avoid: [above] });
