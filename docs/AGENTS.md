@@ -53,6 +53,7 @@
 | `features/*` | K1 быстрые награды, K2 мощь, K5 ежедневные задания, K7 пропуск боя; `actions.ts` — обёртки `act*` для UI (засчитывают задания и достижения, в т. ч. `actLevelUp`, `actAscend`, `actSummon`) |
 | `equipment/*` | K6 предметы, выпадение (`drops.ts`), надеть/снять, `withGear`; трофеи сундука и быстрых наград (`chest.ts`) |
 | `tower/*` | K4 башня: этажи по правилу из полос, `climbTower` |
+| `hunt/*` | «Охота на босса» (раздел 2г): босс дня, пороги урона, `fightHunt` (бой с лимитом времени), `sweepHunt` («Зачистка»), `huntStatus` |
 | `meta/*` | K8 пресеты, `setSquad`, авторасстановка (`formation.ts`), K9 поручения (`bounties.ts`), K10 достижения |
 | `unlocks/*` | открытие функций по этапам (`data/unlocks.json`): `featureUnlocked`, `lockedText` («Откроется на этапе 1-8»), `stageLabel`, `pendingUnlocks` / `markUnlocksSeen` (баннер один раз, `save.seenUnlocks`), `initSeenUnlocks` (старые сохранения), `unlocksOfStage` |
 
@@ -72,6 +73,7 @@
 | `HeroesScene` / `HeroScene` / `AscendScene` (`Ascend`) | H4. Коллекция: сетка карточек 3 в ряд (`heroCard.ts`), фильтры линии/роли/редкости, сортировка «Сила/Уровень/Редкость», «Коллекция N/M» (серые неполученные), метки «в отряде», «Новый!», замок, «можно улучшить / вознести». Карточка: витрина цвета редкости с героем в стойке, мощь, статы с прибавкой за уровень, «Улучшить» (удержание — повтор, обновление на месте, «до апа не хватает N»), «Вознести», вкладки «Навыки / Снаряжение / История», замок, листание ‹ ›. Вознесение: было → стало, слоты корма (выбор, «Авто»), осколки и откуда они, подтверждение, показ (вспышка, лучи, мощь «+N», новые навыки, вторая профессия и `forms[].promotion`) |
 | `SquadScene` (`Squad`) | то же поле и список героев без противника, «Авто», пресеты |
 | `InventoryScene`, `TowerScene`, `QuestsScene`, `BountiesScene`, `AchievementsScene` | инвентарь, башня, ежедневные задания, поручения, достижения |
+| `HuntScene` (`Hunt`) | «Охота на босса»: босс дня, пороги урона с отметкой лучшего результата, попытки, «Зачистка», «В бой» (`Battle` с `{mode: 'hunt'}`), итог попытки поверх экрана; вход — `huntTile` (`huntEntry.ts`) на главной; счётчик урона в бою — `huntBattle.ts` |
 | `TavernScene` | Таверна (H5): призыв карточек, показ «рубашкой вверх» с переворотом, итог; вход — `tavernTile` на главной |
 | `PrepScene` (`Prep`) | тестовый бой (только dev или `?dev=1`), отряды из `data/phase0.json` |
 
@@ -198,11 +200,18 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 Тема фона этажа — по номеру полосы. См. `docs/content/tower.md`. Этап открытия — `data/unlocks.json` (`tower`, сейчас `ch1_s10`);
 `ctx.tower.unlockAfterStage` заполняет сборка контекста (поле в tower.json — только для контекстов без таблицы, вместе с ней — ошибка).
 
+### Охота на босса `data/hunt.json` (`HuntConfigSchema`, `src/core/hunt/schema.ts`)
+
+`attemptsPerDay` (2), `timeLimitSeconds` (45 — бой короче обычного `combat.timeLimitSeconds`), `sweep` («Зачистка»), `slot` (слот
+босса), `bosses[] {unit, hpMult, atkMult, defMult, scale?, title?}` (ротация по дням), `tiers[] {damage, rewards {gold?, jobExp?,
+gems?, shards?, item? (редкость)}}` — пороги строго растут, награды не убывают. Этап открытия — `data/unlocks.json` (`hunt`, `ch2_s1`).
+Подробно — раздел 2г, рецепт — `docs/CONTENT_RECIPES.md`, «Босс охоты».
+
 ### Открытие функций `data/unlocks.json` (`UnlocksConfigSchema`, `src/core/unlocks/schema.ts`)
 
 `features [{id, stage, title (≤40), description (≤140), icon, line? (≤120)}]` — одна таблица «функция → этап» (как в AFK: функции
 открываются по ходу главы 1). `id` — из `FEATURE_IDS` (`fast_rewards` 1-2, `quests` 1-2, `speed_x2` 1-3, `achievements` 1-3, `tavern` 1-5,
-`bounties` 1-8, `tower` 1-10); нет строки — функция открыта сразу. `icon` — иконка скина или `mug` (кружка Таверны). `line` — реплика
+`bounties` 1-8, `tower` 1-10, `hunt` 2-1); нет строки — функция открыта сразу. `icon` — иконка скина или `mug` (кружка Таверны). `line` — реплика
 капитана Гаррета на баннере (контент-хук). Открыта = этап в `campaign.cleared`. Таверна и Башня берут этап отсюда (ядро:
 `summonUnlocked`, `towerUnlocked`); быстрые награды, задания, достижения, поручения, скорость ×2 — закрывают экраны
 (`src/game/unlockBanner.ts`) и модель игрока (`scripts/lib/player-model.ts`), действия ядра их не проверяют. **Таверна — на `ch1_s5`**:
@@ -368,6 +377,28 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - Проверка ставок: `validateEquipment` — ожидание за сутки простоя не больше `CHEST_LIMITS` (60 гемов, 1 свиток); тест `tests/chest-loot.test.ts`.
 - Сохранение не менялось: трофеи считаются при сборе из времени, новых полей нет.
 - Экран: `src/game/chestView.ts` (`ChestCardView` на карточке сундука главной, `lootLines`/`lootSummary` для тостов и подтверждения).
+
+## 2г. Охота на босса — API ядра (`src/core/hunt`)
+
+Аналог гильдейской охоты AFK Arena, одиночный: `attemptsPerDay` раз в день отряд бьёт огромного босса `timeLimitSeconds` секунд,
+награда — высший порог `tiers`, которого достиг урон. Босс падать не должен (hp × `hpMult`); если всё же упал — урон = его hp.
+- Контекст: `FullContext.hunt` (сборка `buildGameContext`, сырые данные `RawGameData.hunt`); функции принимают `HuntContext`.
+- `huntBoss(day, ctx)` — босс дня: `bosses[dayNumber(day) mod длина]` (одна ротация у всех), `def` — юнит с id `hunt_boss` и статами × множители.
+- `huntStatus(save, day, ctx)` → `{unlocked, lockedText, boss, attemptsPerDay, used, attemptsLeft, best (лучший урон по этому боссу),
+  bestTier, canSweep, tiers}`.
+- `fightHunt(save, day, ctx)` → `HuntOutcome {save, result, boss, damage, tier, grant, record, sweep: false}`. Бой — обычный
+  `simulateBattle` с `combat.timeLimitSeconds = hunt.timeLimitSeconds` (лимит времени в симуляторе уже был, отдельного флага не нужно),
+  отряд `save.squad` с экипировкой. Урон — `huntDamage(result)` (урон по боссу, щит тоже считается). seed — `huntSeed(save, day)`
+  (createdAt, день, номер попытки), `battleSeq` не меняется. Попытка тратится при любом исходе.
+- `sweepHunt(save, day, ctx)` — «Зачистка»: награда за лучший урон по боссу дня без боя, тратит попытку (`HuntError('no_sweep')` —
+  с этим боссом ещё не бились).
+- Награда (`grant`): золото, гемы, опыт — в общий пул, осколки — «отстающему» сюжетному герою (`shardTarget`), предмет — случайный
+  указанной редкости (seed `huntSeed(save, day, 'loot')`).
+- Ошибки: `HuntError` `hunt_locked` / `no_attempts` / `no_sweep` / `invalid_config`; пустой отряд — `GameRuleError`, как у этапа.
+- Сохранение: необязательное `save.hunt = {day, used, best: {unit → урон}}` без смены версии. Попытки сбрасываются днём новее
+  `hunt.day`; день назад (часы переведены) новых попыток не даёт.
+- Экран: `HuntScene`; бой — `BattleScene` с `{mode: 'hunt'}` (счётчик урона `huntBattle.ts`, таймер «/ 00:45», баннер «Босс охоты»),
+  после боя — снова `Hunt` с итогом (`{outcome}`), а не `Result`. Модель игрока: бой в первой сессии дня, дальше «Зачистка».
 
 ---
 

@@ -181,6 +181,16 @@ export const EventsStateSchema = z.object({
   newbieMilestones: z.array(z.number().int().positive()),
 });
 
+/**
+ * «Охота на босса» (hunt/hunt.ts): день последней попытки, попыток в этот день и лучший урон по каждому боссу
+ * (id юнита из data/hunt.json → bosses) — для «Зачистки». Поле добавлено без смены версии: нет поля — ещё не охотились.
+ */
+export const HuntStateSchema = z.object({
+  day: DayStringSchema,
+  used: z.number().int().nonnegative(),
+  best: z.record(z.string(), z.number().int().nonnegative()),
+});
+
 export const SaveStateSchema = z.object({
   version: z.literal(SAVE_VERSION),
   createdAt: z.number(),
@@ -271,6 +281,8 @@ export const SaveStateSchema = z.object({
    * меньше записанной, устарела и писать не должна. Нет поля — 0.
    */
   revision: z.number().int().nonnegative().optional(),
+  /** Охота на босса. Нет поля — ещё не охотились (без смены версии). */
+  hunt: HuntStateSchema.optional(),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;
@@ -287,6 +299,7 @@ export type RewardBundle = z.infer<typeof RewardBundleSchema>;
 export type Letter = z.infer<typeof LetterSchema>;
 export type MailState = z.infer<typeof MailStateSchema>;
 export type EventsState = z.infer<typeof EventsStateSchema>;
+export type HuntState = z.infer<typeof HuntStateSchema>;
 
 /** День по умолчанию для newGame/миграций, пока UI не передал настоящий. */
 export const DEFAULT_DAY = '1970-01-01';
