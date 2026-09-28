@@ -85,6 +85,9 @@
       "$comment": "Уровни врагов и «Рекомендуем: герои ур. N (синие)» — только отображение (src/core/features/levels.ts, docs/content/balance.md, раздел 4а). enemyScale: враг ур. L — hp·atk = enemyScale × hp·atk медианного героя ур. L. bands: типичный отряд модели игрока при первой победе (редкость и число героев) с этапа fromStage. Перемерять: npm run balance -- --levels.",
       "enemyScale": 1.6,
       "bossScale": 4.5,
+      "roleScale": { "healer": 3 },
+      "supportScale": 2,
+      "stageFloor": 0.75,
       "bands": [
         { "fromStage": "ch1_s1", "rarity": "green", "squad": 3 },
         { "fromStage": "ch1_s12", "rarity": "green", "squad": 5 },

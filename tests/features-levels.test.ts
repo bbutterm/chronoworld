@@ -12,9 +12,11 @@ import {
   progressLevelBand,
   rarityIndex,
   recommendedHeroLevel,
+  recommendedFactor,
   recommendedPower,
   squadAverageLevel,
   stageLevels,
+  supportFactor,
   towerFloor,
   unitLevel,
   type FeatureContext,
@@ -106,6 +108,31 @@ describe('уровни врагов и рекомендуемый уровень
       expect(l.typical).toBeGreaterThanOrEqual(1);
       expect(l.rarity).toBe(levelBand(s.id, CTX).rarity);
     }
+  });
+
+  it('LT-03: враги этапа не ниже ¾ рекомендуемого уровня, босс не ниже свиты, поддержка (лекарь, щиты союзникам) — выше своих hp·atk', () => {
+    const share = CTX.features.power.levels!.stageFloor!;
+    expect(share).toBeGreaterThan(0);
+    for (const s of STAGES) {
+      const l = stageLevels(s.id, CTX);
+      const units = enemySquad(s.id, CTX);
+      const rec = l.recommended.rarity === l.rarity ? l.recommended.level : null;
+      units.forEach((u, i) => {
+        if (!u) return;
+        if (rec !== null) expect(l.enemies[i]!, `${s.id}: ${u.name}`).toBeGreaterThanOrEqual(Math.round(rec * share));
+        // Экран боя считает уровень по одному юниту — число то же, что на подготовке.
+        expect(unitLevel(u, l.rarity, CTX, recommendedFactor(s.id, CTX)), `${s.id}: ${u.name}`).toBe(l.enemies[i]);
+      });
+      if (l.boss !== undefined) for (const x of l.enemies) if (x !== null) expect(l.boss, s.id).toBeGreaterThanOrEqual(x);
+    }
+    // Изида (лекарь) и Песчаник (щит фронту) — поддержка; Мардук (маг) — нет; босс — всегда 1.
+    expect(supportFactor(CTX.content.units.mob4_support, CTX)).toBeGreaterThan(1);
+    expect(supportFactor(CTX.content.units.mob4_tank, CTX)).toBeGreaterThan(1);
+    expect(supportFactor(CTX.content.units.mob4_ranged, CTX)).toBe(1);
+    expect(supportFactor(CTX.content.units.mob4_boss, CTX)).toBe(1);
+    // Вне кампании (башня, тестовый юнит) границы этапа нет.
+    const lone: UnitDef = { ...CTX.content.units.mob4_support, id: 'lone' };
+    expect(unitLevel(lone, 'purple', CTX)).toBe(unitLevel({ ...lone, id: 'lone_x' }, 'purple', CTX));
   });
 
   it('башня: уровни этажей растут с этажом; босс-этажи — с уровнем босса', () => {
