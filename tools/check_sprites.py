@@ -23,7 +23,7 @@ REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first',
           # converted from legacy assets/ro v1 sheets (tools/ro_v1_to_v2.py)
           'blacksmith','monk','sage','rogue','alchemist','bard',
           'raydric','mimic','gargoyle','dark_priest','mistress','osiris','moonlight_flower','drake','dark_lord'}
-REQUIRED.update(FIRST_HEROES+STORY_HEROES)
+REQUIRED.update(FIRST_HEROES+STORY_HEROES+CARD_HEROES)
 GRID={'hero':([224,192],[104,144]),'monster':([240,224],[100,120]),'boss':([256,256],[112,216])}
 EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
             'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}

@@ -214,6 +214,11 @@
   "png": 26607,
   "webp": 12698
  },
+ "sprites/heroes/alchemist_f.png": {
+  "sha1": "0e21986276ca64f0f53f237ee9a84d6d8f73bf50",
+  "png": 23078,
+  "webp": 19708
+ },
  "sprites/heroes/alchemist_m.png": {
   "sha1": "89fad208344c6fdd06f38eb3c123000fbda0c78f",
   "png": 26974,
@@ -243,6 +248,11 @@
   "sha1": "172fb2a24b8b46e054f4a996e0e7b7e6a049ca6f",
   "png": 24960,
   "webp": 20662
+ },
+ "sprites/heroes/assassin_f.png": {
+  "sha1": "aec667dad056d21b74a0f645a58f16c6f1a69f1c",
+  "png": 23672,
+  "webp": 18382
  },
  "sprites/heroes/assassin_m.png": {
   "sha1": "98e45498c255a77b43f7eb2eea28b8c7b00f5472",
@@ -319,6 +329,11 @@
   "png": 25184,
   "webp": 12920
  },
+ "sprites/heroes/monk_f.png": {
+  "sha1": "e99d8f176cbe41e47d4b89abe966de6923cd7ac1",
+  "png": 25685,
+  "webp": 20918
+ },
  "sprites/heroes/monk_m.png": {
   "sha1": "9a102138c86be6d1e4b7547be19726692ae9e827",
   "png": 29925,
@@ -344,6 +359,11 @@
   "png": 24937,
   "webp": 17896
  },
+ "sprites/heroes/priest_m.png": {
+  "sha1": "603396706ad77e6a091ad0dc36498992697f4e1b",
+  "png": 23143,
+  "webp": 19288
+ },
  "sprites/heroes/rogue.png": {
   "sha1": "70667e1ff210ff6a91aacefa5487d37893273ad3",
   "png": 25403,
@@ -368,6 +388,11 @@
   "sha1": "3d4037b7b49ba13a3094e7a979307ebabbd44a04",
   "png": 28256,
   "webp": 19632
+ },
+ "sprites/heroes/sage_m.png": {
+  "sha1": "0191757715ec33515e300b81888a58c000c53509",
+  "png": 25531,
+  "webp": 20878
  },
  "sprites/heroes/swordman.png": {
   "sha1": "824f274ae1ffe72cd79a3ed935f7596ac76c69d9",
@@ -494,6 +519,11 @@
   "png": 1734,
   "webp": 946
  },
+ "sprites/portraits/alchemist_f.png": {
+  "sha1": "535731fb762eb9297823868ebf95cf04a5b27e8c",
+  "png": 2225,
+  "webp": 1666
+ },
  "sprites/portraits/alchemist_m.png": {
   "sha1": "1c2c4a243e3ab089d1b8cd593172f29abd39c3b7",
   "png": 1788,
@@ -523,6 +553,11 @@
   "sha1": "84b4f9c670061d5cd0615797f176b82d2c09078b",
   "png": 1175,
   "webp": 1070
+ },
+ "sprites/portraits/assassin_f.png": {
+  "sha1": "0a2ccbafb8400f72124134bc4e2770154db3d9f4",
+  "png": 1856,
+  "webp": 1576
  },
  "sprites/portraits/assassin_m.png": {
   "sha1": "df4ab189fe90acee8a27c3967444174020c16842",
@@ -599,6 +634,11 @@
   "png": 1703,
   "webp": 892
  },
+ "sprites/portraits/monk_f.png": {
+  "sha1": "14edf50f654f744f78bf3e8928e661f2e0e5d776",
+  "png": 2057,
+  "webp": 1502
+ },
  "sprites/portraits/monk_m.png": {
   "sha1": "fbce131db04bd292a76fe217e632676d86b43090",
   "png": 1806,
@@ -624,6 +664,11 @@
   "png": 1787,
   "webp": 1318
  },
+ "sprites/portraits/priest_m.png": {
+  "sha1": "03ce760dff682c7cc029cf04181c8c83cfb85d59",
+  "png": 1743,
+  "webp": 1442
+ },
  "sprites/portraits/rogue.png": {
   "sha1": "69cdf9b8fb7150cd4bf734377032d23e953dbce6",
   "png": 1632,
@@ -648,6 +693,11 @@
   "sha1": "97e3faa153fc93cdff09720e28ace4cca505204e",
   "png": 2088,
   "webp": 1546
+ },
+ "sprites/portraits/sage_m.png": {
+  "sha1": "8e1c933c44a98612ae3fff4e7bd586173c9bfd64",
+  "png": 2090,
+  "webp": 1536
  },
  "sprites/portraits/swordman.png": {
   "sha1": "a9a977606842c9d6a83e33726f22f45b2935c0db",

@@ -70,10 +70,19 @@ HEROES={
  'hero_dorn_novice':(0,'Novice','male',1,0,1201,0),
  'hero_dorn_thief':(6,'Thief','male',1,0,1207,0),
  'npc_garret':(7,'Knight','male',3,0,1116,0),
+ 'priest_m':(8,'Priest','male',8,0,1519,0),
+ 'monk_f':(15,'Monk','female',8,0,1501,0),
+ 'knight_f':(7,'Knight','female',3,0,1163,0),
+ 'crusader_f':(14,'Crusader','female',2,1,1101,2101),
+ 'assassin_f':(12,'Assassin','female',1,0,1219,0),
+ 'alchemist_f':(18,'Alchemist','female',8,2,1501,2103),
+ 'wizard_m':(9,'Wizard','male',10,0,1601,0),
+ 'sage_m':(16,'Sage','male',10,0,1601,0),
 }
+SECOND_NEW=('priest_m','monk_f','knight_f','crusader_f','assassin_f','alchemist_f','wizard_m','sage_m')
 CARD_HEROES=('knight_m','crusader_m','hunter_m','hunter_f','bard_m','dancer_f',
  'wizard_f','sage_f','assassin_m','rogue_m','rogue_f','priest_f','monk_m',
- 'blacksmith_m','blacksmith_f','alchemist_m')
+ 'blacksmith_m','blacksmith_f','alchemist_m')+SECOND_NEW
 HERO_APPEARANCE: dict[str,tuple[int,int]]={'swordman_m':(2,7),
  'knight_m':(1,3),'crusader_m':(8,0),'hunter_m':(5,3),'hunter_f':(12,1),
  'bard_m':(9,4),'dancer_f':(19,7),'wizard_f':(16,8),'sage_f':(13,5),
@@ -81,14 +90,17 @@ HERO_APPEARANCE: dict[str,tuple[int,int]]={'swordman_m':(2,7),
  'monk_m':(6,4),'blacksmith_m':(3,1),'blacksmith_f':(19,1),'alchemist_m':(7,5)}
 CARD_WEAPON_NAMES: dict[str,str]=dict(zip(CARD_HEROES,(
  'Katana','Sword','Hunter Bow','Arbalest','Violin','Rope','Arc Wand','Book',
- 'Jur','Haedonggum','Composite Bow','Club','Waghnakh','Battle Axe','Axe','Axe')))
+ 'Jur','Haedonggum','Composite Bow','Club','Waghnakh','Battle Axe','Axe','Axe',
+ 'Chain','Mace','Claymore','Sword','Gladius','Mace','Rod','Rod')))
 FIRST_HEROES=('swordman_m','swordman_f','archer_m','archer_f','magician_m','magician_f',
  'thief_m','thief_f','acolyte_f','acolyte_m','merchant_m','merchant_f','novice_f')
 STORY_HEROES=('hero_alan_novice','hero_alan_swordman','hero_bran_novice','hero_bran_archer',
  'hero_vika_novice','hero_vika_acolyte','hero_greta_novice','hero_greta_magician',
  'hero_dorn_novice','hero_dorn_thief','npc_garret')
-NEW_HEROES=FIRST_HEROES[1:]+STORY_HEROES
+NEW_HEROES=FIRST_HEROES[1:]+STORY_HEROES+SECOND_NEW
 HERO_APPEARANCE.update({
+ 'priest_m':(6,4),'monk_f':(11,0),'knight_f':(7,1),'crusader_f':(7,1),
+ 'assassin_f':(20,2),'alchemist_f':(13,5),'wizard_m':(9,5),'sage_m':(9,5),
  'swordman_f':(7,1),'archer_m':(5,1),'archer_f':(12,3),
  'magician_m':(9,5),'magician_f':(16,2),'thief_m':(4,7),'thief_f':(20,2),
  'acolyte_f':(11,0),'acolyte_m':(6,4),'merchant_m':(3,1),
@@ -190,7 +202,7 @@ def upsert_v1(oxipng:Path,ids=None):
   entry=convert_v1(sid,CLASSES,ANIMS,OVERRIDES,save_lossless,oxipng,OUT)
   data['sprites']=[s for s in data['sprites'] if s['id']!=sid]+[entry]
   print(sid,entry['class'],(ROOT/'assets'/entry['file']).stat().st_size,'bytes (from v1)',flush=True)
- manifest.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+ manifest.write_text(json.dumps(data,indent=1,ensure_ascii=False)+'\n')
 
 def build(cache:Path,oxipng:Path,only=None):
  # oxipng is optional; Pillow's lossless indexed PNG remains under budget.
@@ -295,23 +307,24 @@ def build(cache:Path,oxipng:Path,only=None):
   if name in OPAQUE_BODY:sheet=opaque_body(sheet,OPAQUE_BODY[name])
   png=ROOT/'assets'/entry['file'];save_lossless(sheet,png,oxipng);data['sprites'].append(entry)
   print(name,kind,png.stat().st_size,'bytes',flush=True)
- (OUT/'sprites.json').write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+ (OUT/'sprites.json').write_text(json.dumps(data,indent=1,ensure_ascii=False)+'\n')
  if not only:upsert_v1(oxipng)
  print('OUTPUT',OUT,'bytes',sum(p.stat().st_size for p in OUT.rglob('*') if p.is_file()))
 
 def upgrade_card_portraits(oxipng:Path):
- """Promote already-delivered 64px card portraits to 256px without re-fetching APNGs."""
- manifest=OUT/'sprites.json';data=json.loads(manifest.read_text())
+ """Promote existing 64px card portraits to 256px without re-fetching APNGs."""
+ manifest=OUT/'sprites.json';data=json.loads(manifest.read_text());upgraded=0
  for entry in data['sprites']:
   if entry['id'] not in CARD_HEROES+('swordman_m',):continue
   path=ROOT/'assets'/entry['portrait']
   with Image.open(path) as original:
    if original.size==(64,64):
     save_lossless(original.convert('RGBA').resize((256,256),Image.Resampling.NEAREST),path,oxipng)
+    upgraded+=1
    elif original.size!=(256,256):raise ValueError(f'unexpected portrait size: {path}')
   entry['portraitSource']='Nearest-neighbor 4x enlargement of a native 64x64 ready-pose head-and-shoulders crop.'
- manifest.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
- print('upgraded',len(CARD_HEROES)+1,'card portraits to 256x256',flush=True)
+ manifest.write_text(json.dumps(data,indent=1,ensure_ascii=False)+'\n')
+ print('upgraded',upgraded,'card portraits to 256x256',flush=True)
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--cache',type=Path,default=DEFAULT_CACHE)
@@ -319,7 +332,7 @@ if __name__=='__main__':
  p.add_argument('--only',help='Build/upsert a single ID without replacing the other manifest entries')
  p.add_argument('--from-v1',action='store_true',help='Only convert/upsert the legacy assets/ro v1 sheets (no renderer cache needed)')
  p.add_argument('--alpha-fixes',action='store_true',help='Only re-apply OPAQUE_BODY to existing sheets (no renderer cache needed)')
- p.add_argument('--upgrade-card-portraits',action='store_true',help='Upscale existing 17 card portraits from 64 to 256 without re-fetching')
+ p.add_argument('--upgrade-card-portraits',action='store_true',help='Upscale existing 64px card portraits to 256px without re-fetching')
  a=p.parse_args()
  if a.upgrade_card_portraits:upgrade_card_portraits(a.oxipng)
  elif a.alpha_fixes:apply_alpha_fixes(a.oxipng,[a.only] if a.only else None)
