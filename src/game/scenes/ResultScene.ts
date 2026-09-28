@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { oreIcon } from '../itemIcons';
 import { GAME } from '../content';
-import { autoNextStage, decimal, defeatAdvice, describeEvents, formatNumber, itemStatsText, keyEventsFirst, levelUpReady, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
+import { autoNextStage, decimal, defeatAdvice, describeEvents, formatNumber, itemStatsText, keyEventsFirst, levelUpReady, nextOpenStage, stageNo, RARITY_COLORS, type AutoStop } from '../flow';
 import type { BattleResult, Side } from '../../core';
 import { GAME_W } from '../layout';
 import { session } from '../session';
@@ -350,7 +350,7 @@ export class ResultScene extends Phaser.Scene {
       const tick = () => {
         elapsed += STEP;
         const left = Math.max(0, AUTO_DELAY_MS - elapsed);
-        status.setText(`Этап ${next.globalIndex + 1} через ${decimal(left / 1000, 1)} с\nкоснитесь экрана — отмена`).setColor(C.gold);
+        status.setText(`Этап ${stageNo(next, GAME)} через ${decimal(left / 1000, 1)} с\nкоснитесь экрана — отмена`).setColor(C.gold);
         fill.width = fullW * (1 - left / AUTO_DELAY_MS);
         if (left > 0) return;
         cancel('');

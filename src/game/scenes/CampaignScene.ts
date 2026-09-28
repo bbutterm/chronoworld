@@ -7,7 +7,7 @@ import { CONTENT, GAME } from '../content';
 import { playScenes } from '../dialogue';
 import { isChapterFinale, seenChapterScenes } from '../storyView';
 import { openStoryHistory, startChapterDone } from './ChapterDoneScene';
-import { currentStage, describeEvents, formatNumber, POWER_COLORS, powerCheck } from '../flow';
+import { currentStage, describeEvents, formatNumber, POWER_COLORS, powerCheck, stageNo } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, confirmOpen, CONTENT_TOP, cornerBadge, gemIcon, NAV_H, NAV_TAB_W, navTabX, powerChip, screen } from '../screen';
 import { commit, now, restartOnNewDay, session, today } from '../session';
@@ -64,6 +64,31 @@ function mapPages(n: number): { from: number; to: number }[] {
   const count = Math.max(1, Math.ceil(n / MAP_PAGE_MAX));
   const size = Math.ceil(n / count);
   return Array.from({ length: count }, (_, i) => ({ from: i * size, to: Math.min(n, (i + 1) * size) })).filter((p) => p.to > p.from);
+}
+
+/**
+ * Половина высоты подписи этапа (название + строка состояния) вокруг y узла. Чуть меньше настоящей (≈ 40):
+ * касание краем кружка обычного соседа (шаг тропы ≈ 94) допустимо, заход под крупный кружок босса — нет.
+ */
+const LABEL_HALF_H = 30;
+
+/**
+ * Сколько места у подписи узла i по горизонтали: от lx в сторону подписи до ближайшего соседнего узла тропы,
+ * который по высоте попадает в полосу подписи (LT-09: «Кают-компания мертвецов» уходила под соседний кружок).
+ */
+export function labelRoom(pos: readonly { x: number; y: number }[], stages: readonly { boss?: boolean }[], i: number, lx: number, right: boolean, max: number): number {
+  let room = max;
+  for (const j of [i - 1, i + 1]) {
+    const p = pos[j];
+    if (!p) continue;
+    const r = (stages[j]?.boss ? NODE * 1.25 : NODE) / 2;
+    if (Math.abs(p.y - pos[i].y) >= r + LABEL_HALF_H) continue;
+    const d = (right ? p.x - r - lx : lx - (p.x + r)) - 10;
+    // Узел позади начала подписи — не мешает; впереди — подпись кончается перед ним.
+    if ((right ? p.x + r : p.x - r) * (right ? 1 : -1) <= lx * (right ? 1 : -1)) continue;
+    room = Math.min(room, Math.max(60, d));
+  }
+  return room;
 }
 
 /** Кампания: этапы главы снизу вверх, как тропа (закрыт / открыт / пройден / босс), сундук и «В бой». */
@@ -156,7 +181,7 @@ export class CampaignScene extends Phaser.Scene {
     const paged = pages.length > 1;
     const toPage = (p: number, label: string, y: number, name: string) => {
       const pg = pages[p];
-      button(this, GAME_W - 150, y, 250, 84, 'k:buttonLong_beige', `${label} ${all[pg.from].globalIndex + 1}–${all[pg.to - 1].globalIndex + 1}`, () => this.scene.restart({ chapter: ci, page: p }), FS.body).container.setName(name);
+      button(this, GAME_W - 150, y, 250, 84, 'k:buttonLong_beige', `${label} ${pg.from + 1}–${pg.to}`, () => this.scene.restart({ chapter: ci, page: p }), FS.body).container.setName(name);
     };
     if (page < pages.length - 1) toPage(page + 1, '▲', CONTENT_TOP + 140, 'mapPageUp');
     if (page > 0) toPage(page - 1, '▼', CONTENT_TOP + (page < pages.length - 1 ? 236 : 140), 'mapPageDown');
@@ -192,7 +217,8 @@ export class CampaignScene extends Phaser.Scene {
       if (st === 'open') glow(this, x, y, size * 2.1, 0xffc860, 0.55, true);
       else if (s.boss) glow(this, x, y, size * 1.9, 0xc04070, 0.35);
       pressable(this, this.add.image(x, y, key).setDisplaySize(size, size), size, size, open);
-      text(this, x, y - 2, String(s.globalIndex + 1), size * 0.34, st === 'locked' ? SKIN.creamDim : SKIN.cream, {
+      const no = stageNo(s, GAME);
+      text(this, x, y - 2, no, size * (no.length > 3 ? 0.27 : 0.31), st === 'locked' ? SKIN.creamDim : SKIN.cream, {
         fontStyle: 'bold',
         stroke: '#000000',
         strokeThickness: 6,
@@ -213,18 +239,27 @@ export class CampaignScene extends Phaser.Scene {
         g.lineStyle(6, TINT.gold, 0.9).strokeCircle(0, 0, r);
         if (juiceOn()) this.tweens.add({ targets: g, scale: 1.1, alpha: 0.35, yoyo: true, repeat: -1, duration: 700, ease: 'Sine.easeInOut' });
       }
-      // Подпись — сбоку от узла, в сторону центра экрана: название и строка состояния (у текущего — мощь).
-      const right = x < GAME_W / 2;
-      const lx = right ? x + size * 0.6 : x - size * 0.6;
-      const zh = Math.max(80, Math.min(step, 120));
-      const zx = right ? (lx + GAME_W - 20) / 2 : (20 + lx) / 2;
-      const zw = right ? GAME_W - 20 - lx : lx - 20;
-      pressable(this, this.add.zone(zx, y, zw, zh), zw, zh, open);
+      // Подпись — сбоку от узла, обычно в сторону центра экрана: название и строка состояния (у текущего — мощь).
+      // LT-09 / MT-16: длинное название не заходит на соседний узел тропы — если в сторону центра ему мешает узел,
+      // подпись встаёт с внешней стороны (там свободно до края экрана); не влезает нигде — шрифт мельче и «…».
       const color = st === 'locked' ? SKIN.creamDim : s.boss ? C.danger : SKIN.cream;
-      ellipsize(
-        text(this, lx, y - 17, s.name, FS.h3, color, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 }).setOrigin(right ? 0 : 1, 0.5),
-        zw - 10,
-      );
+      const name = text(this, 0, y - 17, s.name, FS.h3, color, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 });
+      const lxOf = (r: boolean) => (r ? x + size * 0.6 : x - size * 0.6);
+      const maxOf = (r: boolean) => (r ? GAME_W - 20 - lxOf(r) : lxOf(r) - 20);
+      const roomOf = (r: boolean) => labelRoom(pos, stages, i, lxOf(r), r, maxOf(r) - 10);
+      const inner = x < GAME_W / 2;
+      const fits = (r: boolean) => roomOf(r) >= (name.width * FS.body) / FS.h3;
+      const right = fits(inner) ? inner : fits(!inner) ? !inner : roomOf(inner) >= roomOf(!inner) ? inner : !inner;
+      const lx = lxOf(right);
+      const room = roomOf(right);
+      const zh = Math.max(80, Math.min(step, 120));
+      const zw = maxOf(right);
+      const zx = right ? lx + zw / 2 : lx - zw / 2;
+      pressable(this, this.add.zone(zx, y, zw, zh), zw, zh, open);
+      this.children.bringToTop(name);
+      name.setX(lx).setOrigin(right ? 0 : 1, 0.5);
+      if (name.width > room) name.setFontSize(FS.body);
+      ellipsize(name, room);
       if (st === 'open') {
         // «Почти готово»: у текущего этапа — мощь отряда против рекомендуемой, цветом тона (зелёный / жёлтый / красный).
         const pc = powerCheck(session.save, s.id, GAME);
@@ -233,7 +268,7 @@ export class CampaignScene extends Phaser.Scene {
           stroke: '#000000',
           strokeThickness: 5,
         }).setOrigin(right ? 0 : 1, 0.5).setName('stagePower');
-        ellipsize(pw, zw - 10);
+        ellipsize(pw, room);
       } else {
         const status = st === 'cleared' ? 'пройден' : s.boss ? 'босс' : 'закрыт';
         text(this, lx, y + 21, status, FS.caption, st === 'cleared' ? C.success : SKIN.creamDim, { stroke: '#000000', strokeThickness: 4 }).setOrigin(right ? 0 : 1, 0.5);
@@ -262,7 +297,7 @@ export class CampaignScene extends Phaser.Scene {
     const open = !!cur && stageStatus(session.save, cur.id, GAME) === 'open';
     const y = L.rowY;
     glow(this, L.ctaX, y, 900, 0xffc860, 0.22, true).setScale(900 / 128, 250 / 128);
-    const label = open ? `В бой · этап ${cur.globalIndex + 1}` : 'Все этапы пройдены';
+    const label = open ? `В бой · этап ${stageNo(cur, GAME)}` : 'Все этапы пройдены';
     const cta = button(this, L.ctaX, y, L.ctaW, L.ctaH, 'ui_btn_primary', label, () => {
       if (open) this.toStage(cur.id);
       else toast(this, 'Новые главы — скоро');

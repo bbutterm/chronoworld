@@ -184,7 +184,7 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventR
     if (e.type === 'tavernUnlocked') lines.unshift(`Открыта Таверна! Подарок: гемы +${formatNumber(e.gems)}, свитки призыва +${e.scrolls}`);
     if (e.type === 'stageUnlocked') {
       const s = ctx.content.stages.find((x) => x.id === e.stageId);
-      if (s) lines.push(`Открыт этап ${s.globalIndex + 1}: ${s.name}`);
+      if (s) lines.push(`Открыт этап ${stageNo(s, ctx)}: ${s.name}`);
     }
   }
   const gems = events.reduce((sum, e) => sum + (e.type === 'gems' ? e.amount : 0), 0);
@@ -354,6 +354,15 @@ export function leadHero(save: SaveState): HeroState | undefined {
 /** Число с разбивкой по разрядам: 12345 → «12 345». */
 export function formatNumber(n: number): string {
   return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
+/**
+ * MT-05 / NB-10: номер этапа «глава-этап», как в AFK Arena («2-5») — один формат на карте, в «В бой», в баннерах и
+ * замках. Номер в главе — по месту в списке главы (index), а не по id: этапы вставляют в середину главы.
+ */
+export function stageNo(stage: { chapter: string; index: number }, ctx: { content: { chapters: readonly { id: string }[] } }): string {
+  const ch = ctx.content.chapters.findIndex((c) => c.id === stage.chapter);
+  return `${ch + 1}-${stage.index + 1}`;
 }
 
 // ---------- K6. Экипировка ----------

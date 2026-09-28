@@ -4,7 +4,7 @@ import { SUMMON_REVEAL } from '../audioCatalog';
 import { sfx, summonSound } from '../audio';
 import { screenBackground } from '../backdrops';
 import { GAME } from '../content';
-import { describeEvents, formatNumber, heroSprite } from '../flow';
+import { describeEvents, formatNumber, heroSprite, stageNo } from '../flow';
 import { afterRewardFly, pulse, queueRewardFly } from '../juice';
 import { GAME_H, GAME_W, BLEED_X, BLEED_Y } from '../layout';
 import { card, CONTENT_TOP, gemIcon, popIn, screen, unitFigure } from '../screen';
@@ -154,7 +154,7 @@ export class TavernScene extends Phaser.Scene {
     const stage = GAME.content.stages.find((s) => s.id === st.unlockAfterStage);
     card(this, GAME_W / 2, 800, 960, 360);
     text(this, GAME_W / 2, 700, 'Таверна пока закрыта', FS.h1, C.title, TITLE_STYLE);
-    text(this, GAME_W / 2, 820, `Откроется после этапа ${stage ? `${stage.globalIndex + 1} «${stage.name}»` : st.unlockAfterStage}`, FS.body, C.text, { ...OUTLINE, wordWrap: { width: 860 } });
+    text(this, GAME_W / 2, 820, `Откроется после этапа ${stage ? `${stageNo(stage, GAME)} «${stage.name}»` : st.unlockAfterStage}`, FS.body, C.text, { ...OUTLINE, wordWrap: { width: 860 } });
     button(this, GAME_W / 2, 1100, 520, 120, 'ui_btn_primary', 'В кампанию', () => this.scene.start('Campaign'), FS.h2);
   }
 

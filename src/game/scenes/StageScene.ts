@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { actSkipStage, autoFormation, dropText, enemySquad, getStage, stageCardDrop, stageLevels, stageStatus } from '../../core';
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
-import { formatNumber, recommendedPower, stageSeed } from '../flow';
+import { formatNumber, recommendedPower, stageNo, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { screen } from '../screen';
 import { commit, session, today } from '../session';
@@ -47,7 +47,7 @@ export class StageScene extends Phaser.Scene {
     const stage = getStage(GAME, this.stageId);
     // «Назад» — в главу этого этапа, а не в текущую главу игрока.
     const chapter = Math.max(0, CONTENT.chapters.findIndex((c) => c.id === stage.chapter));
-    screen(this, `Этап ${stage.globalIndex + 1}${stage.boss ? ' · БОСС' : ''}`, null, { to: 'Campaign', data: { chapter } });
+    screen(this, `Этап ${stageNo(stage, GAME)}${stage.boss ? ' · БОСС' : ''}`, null, { to: 'Campaign', data: { chapter } });
 
     // --- Этап и награда ---
     const first = stageStatus(session.save, this.stageId, GAME) !== 'cleared';

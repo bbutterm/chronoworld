@@ -27,7 +27,7 @@ import {
 } from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
-import { enemyLevelColor, heroSprite, levelLabel, stageSeed } from '../flow';
+import { enemyLevelColor, heroSprite, levelLabel, stageNo, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { SKIN, SKIN_TINT } from '../skin';
@@ -393,7 +393,7 @@ export class BattleScene extends Phaser.Scene {
       for (const u of enemySquad(data.stageId, GAME)) if (u) this.defs[u.id] = u;
       const st = getStage(GAME, data.stageId);
       this.levels = { rarity: levelBand(data.stageId, GAME).rarity, bossFactor: recommendedFactor(data.stageId, GAME) };
-      title = `Этап ${st.globalIndex + 1}. ${st.name}`;
+      title = `Этап ${stageNo(st, GAME)}. ${st.name}`;
       this.theme = themeOfBattle({ stageId: data.stageId });
     } else if (data.mode === 'tower') {
       const save = session.save;

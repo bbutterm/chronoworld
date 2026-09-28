@@ -22,7 +22,7 @@ describe('вставные этапы главы 1 и старые сохран�
     expect(r.save.campaign.cleared.slice(0, 10)).toEqual(ch1Old);
     expect(r.save.campaign.cleared.slice(10)).toEqual(ch1.filter((id) => !ch1Old.includes(id)));
     expect(stageStatus(r.save, 'ch2_s1', ctx)).toBe('open');
-    expect(r.warnings).toEqual([expect.stringMatching(/новые этапы перед уже пройденными — они засчитаны пройденными \(этапы 3, 7, 9, 11, 13, 15, 16, 17\)/)]);
+    expect(r.warnings).toEqual([expect.stringMatching(/новые этапы перед уже пройденными — они засчитаны пройденными \(этапы 1-3, 1-7, 1-9, 1-11, 1-13, 1-15, 1-16, 1-17\)/)]);
     // Сундук считает по самому дальнему этапу — он не изменился.
     expect(lastClearedStage(r.save, ctx)?.id).toBe('ch1_s10');
   });

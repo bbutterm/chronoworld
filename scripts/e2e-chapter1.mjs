@@ -315,7 +315,7 @@ const visitTavern = async () => {
 
 /** Экран этапа → «Авто» (сильнейшие герои по ролям) → «‹ Назад» на карту. */
 const autoSquad = async (stage, shotName) => {
-  await clickText('Campaign', String(stage));
+  await clickText('Campaign', `1-${stage}`);
   await waitScene('Stage');
   if ((await recordHint('Stage')) !== 'prep_auto') problems.push('после Таверны на расстановке нет подсказки «Авто»');
   await clickText('Stage', 'Авто');
@@ -430,7 +430,7 @@ try {
           await skipDialogues('Campaign');
           log('обучение: задания открыты');
         }
-        await clickText('Campaign', String(stage));
+        await clickText('Campaign', `1-${stage}`);
         await waitScene('Stage');
         await recordHint('Stage');
         // Как игрок с новыми героями из Таверны: перед боем — «Авто» (сильнейшие по ролям).

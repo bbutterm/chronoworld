@@ -213,7 +213,7 @@ async function main() {
     if (!(await skipDialogues('Campaign'))) problems.push('нет вступления главы на карте кампании');
     await shot('campaign');
     // Навигация — 4 вкладки; на «Кампании» — «В бой · этап 1», сундук офлайн-наград и быстрые награды (закрыты до 1-2).
-    for (const t of ['КАМПАНИЯ', 'ГЕРОИ', 'ГОРОД', 'ПРИКЛЮЧЕНИЯ', 'В бой · этап 1', 'Сундук офлайн-наград', 'Быстрые', 'Закрыто']) {
+    for (const t of ['КАМПАНИЯ', 'ГЕРОИ', 'ГОРОД', 'ПРИКЛЮЧЕНИЯ', 'В бой · этап 1-1', 'Сундук офлайн-наград', 'Быстрые', 'Закрыто']) {
       if (!(await hasText('Campaign', t))) problems.push(`кампания новичка: нет «${t}»`);
     }
     // Письмо «Добро пожаловать» и вход дня — красный кружок на вкладке «Город».
@@ -256,7 +256,7 @@ async function main() {
     await clickText('Adventure', 'КАМПАНИЯ');
     await waitScene('Campaign');
     if (await skipDialogues('Campaign')) problems.push('вступление главы показано второй раз');
-    await clickText('Campaign', '1');
+    await clickText('Campaign', '1-1');
     await waitScene('Stage');
     await shot('stage');
     await checkHint('Stage', 'этап');
@@ -326,7 +326,7 @@ async function main() {
     // Отсчёт идёт 2 с: придерживаем его таймер, снимаем экран, отпускаем и отменяем касанием.
     const counting = await page.evaluate(() => {
       const sc = window.__game.scene.getScene('Result');
-      const on = sc.children.list.some((o) => o.type === 'Text' && o.visible && o.text.startsWith('Этап 3 через'));
+      const on = sc.children.list.some((o) => o.type === 'Text' && o.visible && o.text.startsWith('Этап 1-3 через'));
       if (on && sc.autoTimer) sc.autoTimer.paused = true;
       return on;
     });
