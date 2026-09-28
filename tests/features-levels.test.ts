@@ -1,0 +1,159 @@
+import { describe, expect, it } from 'vitest';
+import {
+  baselineHero,
+  enemyLevels,
+  enemySquad,
+  levelBand,
+  levelForHpAtk,
+  levelTone,
+  lintLevelBands,
+  MAX_ENEMY_LEVEL,
+  newGame,
+  progressLevelBand,
+  rarityIndex,
+  recommendedHeroLevel,
+  recommendedPower,
+  squadAverageLevel,
+  stageLevels,
+  towerFloor,
+  unitLevel,
+  type FeatureContext,
+  type UnitDef,
+} from '../src/core';
+import { loadFullContext, referenceLevel } from '../scripts/lib/player-model';
+import { enemyLevelColor, LEVEL_COLORS, levelLabel, recommendText } from '../src/game/flow';
+
+const CTX = loadFullContext();
+const STAGES = CTX.content.stages;
+const withLevels = (levels: FeatureContext['features']['power']['levels']): FeatureContext => ({
+  ...CTX,
+  features: { ...CTX.features, power: { ...CTX.features.power, levels } },
+});
+
+describe('уровни врагов и рекомендуемый уровень героев (features/levels.ts)', () => {
+  it('медианный герой растёт с уровнем и редкостью', () => {
+    for (const r of ['green', 'blue', 'purple', 'gold', 'red'] as const) {
+      for (let L = 1; L < 60; L += 7) {
+        expect(baselineHero(L + 1, r, CTX).hpAtk).toBeGreaterThan(baselineHero(L, r, CTX).hpAtk);
+        expect(baselineHero(L + 1, r, CTX).power).toBeGreaterThanOrEqual(baselineHero(L, r, CTX).power);
+      }
+    }
+    expect(baselineHero(20, 'blue', CTX).hpAtk).toBeGreaterThan(baselineHero(20, 'green', CTX).hpAtk);
+    expect(baselineHero(20, 'purple', CTX).power).toBeGreaterThan(baselineHero(20, 'blue', CTX).power);
+  });
+
+  it('levelForHpAtk обращает медианного героя; слабее ур. 1 — 1, сильнее потолка — MAX_ENEMY_LEVEL', () => {
+    for (const L of [1, 2, 5, 13, 27, 40, 77]) expect(levelForHpAtk(baselineHero(L, 'blue', CTX).hpAtk, 'blue', CTX)).toBe(L);
+    expect(levelForHpAtk(1, 'green', CTX)).toBe(1);
+    expect(levelForHpAtk(0, 'green', CTX)).toBe(1);
+    expect(levelForHpAtk(1e15, 'green', CTX)).toBe(MAX_ENEMY_LEVEL);
+  });
+
+  it('уровень врага: hp·atk / enemyScale, босс — ещё / bossScale и × поправка²', () => {
+    const lv = CTX.features.power.levels!;
+    const hero = baselineHero(20, 'blue', CTX).hpAtk;
+    const mob: UnitDef = { ...CTX.content.units[Object.keys(CTX.content.units)[0]], kind: 'monster', stats: { hp: Math.round(hero * lv.enemyScale / 100), atk: 100, def: 10, spd: 100 } };
+    expect(unitLevel(mob, 'blue', CTX)).toBe(20);
+    const boss: UnitDef = { ...mob, kind: 'boss', stats: { ...mob.stats, hp: mob.stats.hp * (lv.bossScale ?? 1) } };
+    expect(unitLevel(boss, 'blue', CTX)).toBe(20);
+    expect(unitLevel(boss, 'blue', CTX, 1.3)).toBeGreaterThan(20);
+    // Поправка этапа рядовых врагов не касается.
+    expect(unitLevel(mob, 'blue', CTX, 1.3)).toBe(20);
+    // Та же сила — у более редких героев уровень ниже.
+    expect(unitLevel(mob, 'purple', CTX)).toBeLessThan(20);
+  });
+
+  it('полосы data/progression.json корректны; levelBand и progressLevelBand', () => {
+    expect(lintLevelBands(CTX)).toEqual([]);
+    const bands = CTX.features.power.levels!.bands;
+    expect(levelBand(STAGES[0].id, CTX)).toEqual(bands[0]);
+    expect(levelBand(STAGES[STAGES.length - 1].id, CTX)).toEqual(bands[bands.length - 1]);
+    for (let i = 1; i < STAGES.length; i++) expect(rarityIndex(levelBand(STAGES[i].id, CTX).rarity)).toBeGreaterThanOrEqual(rarityIndex(levelBand(STAGES[i - 1].id, CTX).rarity));
+    const save = newGame(CTX, 0);
+    expect(progressLevelBand(save, CTX)).toEqual(bands[0]);
+    expect(progressLevelBand({ campaign: { ...save.campaign, cleared: STAGES.map((s) => s.id) } }, CTX)).toEqual(bands[bands.length - 1]);
+    expect(lintLevelBands(withLevels({ enemyScale: 1, bands: [{ fromStage: 'nope', rarity: 'green', squad: 5 }] }))).toHaveLength(1);
+    expect(lintLevelBands(withLevels({ enemyScale: 1, bands: [{ fromStage: STAGES[3].id, rarity: 'green', squad: 5 }] }))[0]).toMatch(/первого этапа/);
+  });
+
+  it('рекомендуемый уровень согласован с рекомендуемой мощью: squad героев ур. L набирают её, ур. L − 1 — нет', () => {
+    for (const s of STAGES) {
+      const rec = recommendedHeroLevel(s.id, CTX);
+      const band = levelBand(s.id, CTX);
+      const power = recommendedPower(s.id, CTX);
+      expect(rarityIndex(rec.rarity)).toBeGreaterThanOrEqual(rarityIndex(band.rarity));
+      expect(rec.squad).toBe(band.squad);
+      expect(rec.level).toBeLessThanOrEqual(CTX.cards.rarities[rarityIndex(rec.rarity)].maxLevel);
+      expect(rec.squad * baselineHero(rec.level, rec.rarity, CTX).power).toBeGreaterThanOrEqual(power);
+      if (rec.level > 1) expect(rec.squad * baselineHero(rec.level - 1, rec.rarity, CTX).power).toBeLessThan(power);
+    }
+  });
+
+  it('уровень выше предела редкости полосы — рекомендуется следующая редкость', () => {
+    const ctx = withLevels({ enemyScale: 1, bands: [{ fromStage: STAGES[0].id, rarity: 'green', squad: 1 }] });
+    const last = STAGES[STAGES.length - 1].id;
+    const rec = recommendedHeroLevel(last, ctx);
+    expect(rarityIndex(rec.rarity)).toBeGreaterThan(rarityIndex('green'));
+  });
+
+  it('stageLevels: уровни по слотам enemySquad, босс — на босс-этапах, типичный — медиана без босса', () => {
+    for (const s of STAGES) {
+      const l = stageLevels(s.id, CTX);
+      const units = enemySquad(s.id, CTX);
+      expect(l.enemies).toHaveLength(units.length);
+      units.forEach((u, i) => (u ? expect(l.enemies[i]).toBeGreaterThanOrEqual(1) : expect(l.enemies[i]).toBeNull()));
+      expect(l.boss !== undefined).toBe(units.some((u) => u?.kind === 'boss'));
+      expect(l.typical).toBeGreaterThanOrEqual(1);
+      expect(l.rarity).toBe(levelBand(s.id, CTX).rarity);
+    }
+  });
+
+  it('башня: уровни этажей растут с этажом; босс-этажи — с уровнем босса', () => {
+    const lv = (n: number) => enemyLevels(towerFloor(n, CTX).enemies, 'blue', CTX);
+    expect(lv(40).typical).toBeGreaterThanOrEqual(lv(10).typical);
+    expect(lv(60).typical).toBeGreaterThan(lv(30).typical);
+  });
+
+  it('калибровка: босс-этапы глав — рекомендуемый уровень и уровень босса в пределах ±5 от «уровня по бою» эталонных отрядов', () => {
+    // docs/content/balance.md, 4а. Перемерять: npm run balance -- --levels.
+    for (const s of STAGES.filter((x) => x.boss && x.globalIndex > 10)) {
+      const battle = referenceLevel(s.id, CTX, 8);
+      const l = stageLevels(s.id, CTX);
+      expect(Math.abs(l.recommended.level - battle), `${s.id}: рекомендуем ${l.recommended.level}, по бою ${battle}`).toBeLessThanOrEqual(5);
+      expect(Math.abs(l.boss! - battle), `${s.id}: босс ${l.boss}, по бою ${battle}`).toBeLessThanOrEqual(5);
+    }
+  });
+
+  it('средний уровень отряда и цвет уровня врага', () => {
+    const save = newGame(CTX, 0);
+    const inSquad = save.squad.flatMap((id) => save.heroes.filter((h) => h.id === id));
+    expect(squadAverageLevel(save)).toBe(Math.round(inSquad.reduce((a, h) => a + h.level, 0) / inSquad.length));
+    expect(squadAverageLevel({ squad: [null, null], heroes: [] })).toBe(0);
+    expect(levelTone(26, 20)).toBe('red');
+    expect(levelTone(25, 20)).toBe('yellow');
+    expect(levelTone(21, 20)).toBe('yellow');
+    expect(levelTone(20, 20)).toBe('white');
+    expect(levelTone(3, 20)).toBe('white');
+  });
+
+  it('без power.levels — зелёные, отряд 5, масштаб 1 (уровни всё равно считаются)', () => {
+    const ctx = withLevels(undefined);
+    expect(levelBand(STAGES[5].id, ctx)).toMatchObject({ rarity: 'green', squad: 5 });
+    expect(stageLevels(STAGES[5].id, ctx).recommended.level).toBeGreaterThanOrEqual(1);
+    expect(lintLevelBands(ctx)).toEqual([]);
+  });
+});
+
+describe('уровни врагов на экранах (flow.ts)', () => {
+  it('подписи и цвет: «ур. N», «герои ур. N (синие)», цвет против среднего уровня отряда', () => {
+    expect(levelLabel(18)).toBe('ур. 18');
+    expect(recommendText({ level: 18, rarity: 'blue' })).toBe('герои ур. 18 (синие)');
+    expect(recommendText({ level: 22, rarity: 'purple' })).toBe('герои ур. 22 (фиолетовые)');
+    const save = newGame(CTX, 0);
+    const avg = squadAverageLevel(save);
+    expect(enemyLevelColor(avg, save)).toBe(LEVEL_COLORS.white);
+    expect(enemyLevelColor(avg + 1, save)).toBe(LEVEL_COLORS.yellow);
+    expect(enemyLevelColor(avg + 6, save)).toBe(LEVEL_COLORS.red);
+    expect(new Set(Object.values(LEVEL_COLORS)).size).toBe(3);
+  });
+});

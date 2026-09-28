@@ -53,6 +53,18 @@ import {
   newbieStatus,
   offlineRewards,
   recommendedPower,
+  simulateBattle,
+  buildUnit,
+  MAX_ENEMY_LEVEL,
+  bossScale,
+  recommendedFactor,
+  type UnitDef,
+  baselineHero,
+  enemyScale,
+  levelBand,
+  stageLevels,
+  enemySquad,
+  CARD_RARITIES,
   summonStatus,
   newGame,
   questStatus,
@@ -71,6 +83,7 @@ import {
   refreshShop,
   shopStatus,
   type ShopContext,
+  type HeroState,
   type CardRarity,
   type FullContext,
   type GameContext,
@@ -266,6 +279,9 @@ export interface FirstClear {
   attempts: number;
   /** Активных минут с начала игры. */
   active_min: number;
+  /** Отряд в момент победы: уровни и редкости героев в слотах (для калибровки уровней врагов, balance -- --levels). */
+  squadLevels: number[];
+  squadRarities: CardRarity[];
 }
 
 /** Бой в журнале: кампания или башня. */
@@ -939,7 +955,17 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
         if (win) {
           wins++;
           stageLosses = 0;
-          firstClears.push({ stageId, day, session, time_h: Math.round(sim.t * 100) / 100, attempts: stageAttempts.get(stageId)!, active_min: sim.activeMin });
+          const squadHeroes = sim.save.squad.map((id) => sim.save.heroes.find((h) => h.id === id)).filter((h): h is HeroState => !!h);
+          firstClears.push({
+            stageId,
+            day,
+            session,
+            time_h: Math.round(sim.t * 100) / 100,
+            attempts: stageAttempts.get(stageId)!,
+            active_min: sim.activeMin,
+            squadLevels: squadHeroes.map((h) => h.level),
+            squadRarities: squadHeroes.map((h) => h.rarity),
+          });
           sim.claimRewards();
           sim.prepare();
         } else {
@@ -1387,6 +1413,128 @@ export function fitRecommended(
     out.push({ stageId: s.id, loss, win, threshold, suggested: Math.round(suggested * 100) / 100, current: Math.round(current * 100) / 100, n: r.lo.length });
   }
   return out;
+}
+
+/** Замер для power.levels (npm run balance -- --levels): по каждому этапу — модель игрока, эталонные отряды и что показывает ядро. */
+export interface LevelFitRow {
+  stageId: string;
+  /** Моделей, прошедших этап. */
+  n: number;
+  /** Медиана по моделям среднего уровня отряда при первой победе (с экипировкой и лучшими героями — верхняя оценка). */
+  modelLevel: number;
+  /** Медиана по моделям медианной редкости отряда и числа героев. */
+  modelRarity: CardRarity;
+  modelSquad: number;
+  /** «Уровень по бою» (referenceLevel): эталонный отряд полосы без экипировки выигрывает ≥ половины боёв. */
+  battleLevel: number;
+  /** Что показывает ядро: рекомендуемый уровень и редкость, медиана уровней врагов (без босса), уровень босса. */
+  recommended: number;
+  recommendedRarity: CardRarity;
+  typical: number;
+  boss?: number;
+  /** enemyScale, при котором медианный враг (без босса) — ровно battleLevel. */
+  scale: number;
+  /** bossScale, при котором босс — ровно battleLevel (при текущем enemyScale). */
+  bossScale?: number;
+}
+
+const medianOf = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
+
+/** Эталонные отряды для «уровня по бою»: танк, лекарь/поддержка и трое бойцов (первые трое — стартовый отряд главы 1). */
+export const REFERENCE_SQUADS = [
+  ['alan', 'vika', 'bran', 'kai', 'zara'],
+  ['otto', 'teo', 'meilin', 'iris', 'lira'],
+  ['alan', 'vika', 'bran', 'dorn', 'greta'],
+];
+
+/**
+ * «Уровень по бою»: наименьший уровень, при котором эталонный отряд (squad героев редкости полосы этапа, с фиолетового —
+ * первая ветка, без экипировки) выигрывает ≥ половины из `seeds` боёв этапа. Медиана по REFERENCE_SQUADS; двоичный поиск.
+ */
+export function referenceLevel(stageId: string, ctx: FullContext, seeds = 16): number {
+  const band = levelBand(stageId, ctx);
+  const enemies = enemySquad(stageId, ctx);
+  const found = REFERENCE_SQUADS.map((ids) => {
+    const wins = (level: number) => {
+      const squad = ids.slice(0, band.squad).map((templateId, i) => {
+        const t = ctx.content.heroes[templateId];
+        const branch = rarityIndex(band.rarity) >= rarityIndex('purple') ? t?.branches[0]?.job : undefined;
+        return buildUnit({ id: `ref${i}`, templateId, rarity: band.rarity, level, ...(branch ? { branch } : {}) }, ctx);
+      });
+      let n = 0;
+      for (let seed = 1; seed <= seeds; seed++) if (simulateBattle(ctx.content, squad, enemies, seed, { combat: ctx.combat, log: false }).winner === 'A') n++;
+      return n * 2 >= seeds;
+    };
+    if (wins(1)) return 1;
+    let lo = 1;
+    let hi = 128;
+    if (!wins(hi)) return MAX_ENEMY_LEVEL;
+    while (hi - lo > 1) {
+      const mid = (lo + hi) >> 1;
+      if (wins(mid)) hi = mid;
+      else lo = mid;
+    }
+    return hi;
+  });
+  return medianOf(found);
+}
+
+/**
+ * Калибровка power.levels (docs/content/balance.md, 4а): 9 моделей игрока (2/4/6 сессий × seed 1–3) — отряд при первой
+ * победе; эталонные отряды — «уровень по бою». Предложения: enemyScale — медиана scale этапов с уровнем по бою ≥ 3 (раньше
+ * уровни упираются в 1), bossScale — медиана по босс-этапам.
+ */
+export function fitLevels(ctx: FullContext, days = 8): { rows: LevelFitRow[]; suggestedScale: number; suggestedBossScale: number } {
+  const per = new Map<string, { lv: number[]; rar: CardRarity[]; sq: number[] }>();
+  for (const sessionsPerDay of [2, 4, 6]) {
+    for (const seedBase of [1, 2, 3]) {
+      const res = runBalance(ctx, days, { ...PLAYER_MODEL, sessionsPerDay, hoursBetweenSessions: sessionsPerDay >= 6 ? 2.5 : 4, seedBase });
+      for (const fc of res.firstClears) {
+        const r = per.get(fc.stageId) ?? { lv: [], rar: [], sq: [] };
+        r.lv.push(fc.squadLevels.reduce((a, b) => a + b, 0) / Math.max(1, fc.squadLevels.length));
+        const rr = [...fc.squadRarities].sort((a, b) => rarityIndex(a) - rarityIndex(b));
+        r.rar.push(rr[Math.floor(rr.length / 2)] ?? 'green');
+        r.sq.push(fc.squadLevels.length);
+        per.set(fc.stageId, r);
+      }
+    }
+  }
+  const rows: LevelFitRow[] = [];
+  const scale = enemyScale(ctx);
+  for (const s of ctx.content.stages) {
+    const r = per.get(s.id);
+    if (!r) continue;
+    const info = stageLevels(s.id, ctx);
+    const band = levelBand(s.id, ctx);
+    const battleLevel = referenceLevel(s.id, ctx);
+    const units = enemySquad(s.id, ctx).filter((u): u is UnitDef => !!u);
+    const mobs = units.filter((u) => u.kind !== 'boss');
+    const boss = units.find((u) => u.kind === 'boss');
+    const hero = baselineHero(battleLevel, band.rarity, ctx).hpAtk;
+    const f2 = recommendedFactor(s.id, ctx) ** 2;
+    const round2 = (x: number) => Math.round(x * 100) / 100;
+    rows.push({
+      stageId: s.id,
+      n: r.lv.length,
+      modelLevel: Math.round(medianOf(r.lv) * 10) / 10,
+      modelRarity: CARD_RARITIES[medianOf(r.rar.map(rarityIndex))],
+      modelSquad: medianOf(r.sq),
+      battleLevel,
+      recommended: info.recommended.level,
+      recommendedRarity: info.recommended.rarity,
+      typical: info.typical,
+      ...(info.boss !== undefined ? { boss: info.boss } : {}),
+      scale: mobs.length ? round2(medianOf(mobs.map((u) => u.stats.hp * u.stats.atk)) / hero) : NaN,
+      ...(boss ? { bossScale: round2((boss.stats.hp * boss.stats.atk * f2) / (scale * hero)) } : {}),
+    });
+  }
+  const fit = rows.filter((r) => r.battleLevel >= 3 && Number.isFinite(r.scale));
+  const bosses = rows.filter((r) => r.bossScale !== undefined && r.battleLevel >= 2);
+  return {
+    rows,
+    suggestedScale: fit.length ? medianOf(fit.map((r) => r.scale)) : scale,
+    suggestedBossScale: bosses.length ? medianOf(bosses.map((r) => r.bossScale!)) : bossScale(ctx),
+  };
 }
 
 /** Цели регулятора сложности (scripts/balance-fit.ts) для глав из data/campaign. */

@@ -315,6 +315,14 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
   stageId, ctx)` → `{ squad, recommended, ratio, verdict 'easy'|'ok'|'hard'|'very_hard' }` (≥1.1 / ≥0.95 / ≥0.85 / ниже) — цвет и
   подсказка «чуть-чуть не хватает — поднимите уровни». Коэффициенты — `data/progression.json → power.recommended*`, подбор —
   `npm run balance -- --fit-recommended` (`docs/content/balance.md`, раздел 4).
+- **Уровни врагов и «герои ур. N (синие)»** (`src/core/features/levels.ts`, только отображение): `stageLevels(stageId, ctx)` →
+  `{ recommended {level, rarity, squad}, rarity, enemies (по слотам enemySquad), typical, boss? }`; `recommendedHeroLevel` — наименьший
+  уровень, при котором `squad` медианных героев полосы набирают `recommendedPower`; `unitLevel(unit, rarity, ctx, bossFactor?)` —
+  hp·atk врага / `enemyScale` (босс — ещё / `bossScale` × поправка этапа²) против медианного героя; `enemyLevels(units, rarity, ctx)`
+  (башня); `levelBand(stageId)` / `progressLevelBand(save)` — полоса (редкость и число героев) этапа / текущего этапа игрока
+  (башня, охота); `squadAverageLevel(save)`, `levelTone(enemy, squad)` → red (> +5) / yellow (выше) / white. Экраны: `flow.ts`
+  `enemyLevelColor`, `levelLabel`, `recommendText`. Конфиг — `data/progression.json → power.levels`, калибровка —
+  `npm run balance -- --levels` (`docs/content/balance.md`, раздел 4а).
 
 **«Улучшить» (уровень из общего пула опыта `save.resources.heroExp` + золото)**
 - `levelUpInfo(save, heroId, ctx)` → `{ level, maxLevel, cost {exp, gold} | null, canLevel, blocker ('max_level'|'not_enough_exp'|

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { GameContext, ProgressEvent } from '../progression/types';
 import { FeatureError } from './errors';
 import { QuestsConfigSchema, type QuestsConfig } from './quests';
+import { CardRaritySchema } from '../heroes/schema';
 
 /** data/progression.json → fastRewards (K1). */
 export const FastRewardsConfigSchema = z.object({
@@ -33,6 +34,39 @@ export const PowerConfigSchema = z.object({
   recommended: z.number().positive().optional(),
   recommendedBoss: z.number().positive().optional(),
   recommendedStages: z.record(z.string(), z.number().positive()).optional(),
+  /**
+   * Уровни врагов и «Рекомендуем: герои ур. N (синие)» (features/levels.ts, docs/content/balance.md, раздел 4а). Только
+   * отображение — на бой не влияет. Нет — уровни не показываются (функции считают по зелёным героям, отряд 5, масштаб 1).
+   */
+  levels: z
+    .object({
+      /**
+       * Враг уровня L — юнит, у которого hp·atk = enemyScale × hp·atk медианного героя уровня L (той же редкости, что в полосе
+       * этапа). > 1: враги в среднем крепче одного героя (у героев — навыки, лечение, синергия отряда). Подбор — модель игрока
+       * (npm run balance -- --levels): средний уровень врагов этапа ≈ средний уровень отряда модели при первой победе.
+       */
+      enemyScale: z.number().positive(),
+      /**
+       * Босс (kind boss) рассчитан на весь отряд: его hp·atk делится ещё на bossScale. Нет — 1. Подбор — тот же замер
+       * (уровень босса ≈ уровню, с которым эталонный отряд проходит его этап).
+       */
+      bossScale: z.number().positive().optional(),
+      /**
+       * Типичный отряд с этапа fromStage (до следующей полосы): редкость героев и их число — медиана модели игрока при первой
+       * победе. По ним считается рекомендуемый уровень (squad героев редкости rarity с мощью ≥ рекомендуемой) и уровни врагов.
+       * Порядок — по этапам кампании; первая полоса — с первого этапа.
+       */
+      bands: z
+        .array(
+          z.object({
+            fromStage: z.string(),
+            rarity: CardRaritySchema,
+            squad: z.number().int().min(1).max(5),
+          }),
+        )
+        .min(1),
+    })
+    .optional(),
 });
 
 /**
