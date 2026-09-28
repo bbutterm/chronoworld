@@ -17,13 +17,14 @@ export interface HuntSceneData {
   outcome?: HuntOutcome;
 }
 
-/** Награда порога одной строкой: «золото 450 · опыт 100 · гемы 2 · осколки 1 · предмет (редкий)». */
+/** Награда порога одной строкой: «золото 450 · опыт 100 · гемы 2 · карта героя 3% · предмет (редкий)». */
 export function huntRewardText(r: HuntReward): string {
   const parts: string[] = [];
   if (r.gold) parts.push(`золото ${formatNumber(r.gold)}`);
   if (r.jobExp) parts.push(`опыт ${formatNumber(r.jobExp)}`);
   if (r.gems) parts.push(`гемы ${r.gems}`);
-  if (r.shards) parts.push(`осколки ${r.shards}`);
+  const cards = (r.heroCards?.blue ?? 0) + (r.heroCards?.purple ?? 0);
+  if (cards > 0) parts.push(`карта героя ${Math.round(cards * 100)}%`);
   if (r.item) parts.push(`предмет (${RARITY_NAMES[r.item].toLowerCase()})`);
   return parts.join(' · ') || '—';
 }
@@ -164,7 +165,7 @@ export class HuntScene extends Phaser.Scene {
     const g = out.grant;
     const lines: string[] = [];
     if (g.gold || g.jobExp) lines.push(`Золото +${formatNumber(g.gold)} · опыт +${formatNumber(g.jobExp)} в запас`);
-    if (g.shards && g.shardHero) lines.push(`Осколки героя «${GAME.content.heroes[g.shardHero]?.name ?? g.shardHero}» +${g.shards}`);
+    for (const e of g.heroCards) if (e.type === 'heroCard') lines.push(`Карта героя: ${e.name}`);
     for (const it of g.items) lines.push(`Предмет: ${GAME.equipment.items[it.itemId]?.name ?? it.itemId}`);
     let y = cy + 30;
     for (const l of lines) {

@@ -11,7 +11,7 @@
  *          печатается, сколько часов сундука понадобилось (модель «игрок ждёт сундук», без Башни и экипировки).
  * Печатает по этапам: попытки, длительность победного боя, уровни героев. Код выхода 1 — глава не пройдена.
  */
-import { ascendHero, ascendRequirement, autoFormation, autoLevel, claimOffline, enemySquad, heroCard, newGame, playStage, summon, summonStatus, type SaveState } from '../src/core';
+import { ascendHero, ascendRequirement, autoFodder, autoFormation, heroCopies, heroTemplate, autoLevel, claimOffline, enemySquad, heroCard, newGame, playStage, summon, summonStatus, type SaveState } from '../src/core';
 import { loadFullContext } from './lib/content-node';
 
 const ctx = loadFullContext();
@@ -34,10 +34,16 @@ function develop(s: SaveState): SaveState {
     while (s.currency.gems >= ctx.summon.costs.ten) s = summon(s, ctx, { count: 10, pay: 'gems', day: DAY }).save;
     s = { ...s, squad: autoFormation(s, ctx) };
   }
+  // Герои v2: вознесение копиями — цель сильнейший экземпляр героя, корм самые слабые копии, ветка своей роли.
   for (let guard = 0; guard < 10; guard++) {
-    const ready = s.heroes.find((h) => ctx.content.heroes[h.templateId]?.source === 'story' && ascendRequirement(s, h.id, ctx)?.blockers.length === 0);
+    const tops = [...new Set(s.heroes.map((h) => h.templateId))].map((t) => heroCopies(s, t)[0]);
+    const ready = tops.find((h) => ascendRequirement(s, h.id, ctx)?.blockers.length === 0 && autoFodder(s, h.id, ctx));
     if (!ready) break;
-    s = ascendHero(s, ready.id, [], ctx).save;
+    const req = ascendRequirement(s, ready.id, ctx)!;
+    const t = heroTemplate(ctx, ready.templateId);
+    const branch = req.branch && !ready.branch ? (t.branches.find((b) => b.role === t.role) ?? t.branches[0]).job : undefined;
+    s = ascendHero(s, ready.id, autoFodder(s, ready.id, ctx)!, ctx, branch ? { branch } : {}).save;
+    s = { ...s, squad: autoFormation(s, ctx) };
   }
   s = autoLevel(s, ctx).save;
   // Новичок из Таверны после «Улучшить» может стать сильнее героя отряда — переставить и добрать уровни.
@@ -86,9 +92,8 @@ for (const s of ctx.content.stages) {
     const foes = enemySquad(s.id, ctx).filter(Boolean);
     const sum = (k: 'hp' | 'atk') => foes.reduce((a, u) => a + u!.stats[k], 0);
     const wait = idle ? ` сундук ${hours} ч (всего ${idleTotal} ч)` : '';
-    const shards = Object.entries(save.shards).map(([t, n]) => `${ctx.content.heroes[t]?.name ?? t} ${n}`).join(', ');
     console.log(
-      `${s.id} ${s.name.padEnd(22)} ${won ? 'победа' : 'ПОРАЖЕНИЕ'}${winrate} попыток ${tries}${wait} бой ${duration.toFixed(1)} с | ${levels} | пул ${save.resources.heroExp} зол. ${save.resources.gold}${shards ? ` | осколки: ${shards}` : ''}\n   враги Σhp ${sum('hp')} / Σatk ${sum('atk')}: ${foes.map((u) => u!.name).join(', ')}`,
+      `${s.id} ${s.name.padEnd(22)} ${won ? 'победа' : 'ПОРАЖЕНИЕ'}${winrate} попыток ${tries}${wait} бой ${duration.toFixed(1)} с | ${levels} | пул ${save.resources.heroExp} зол. ${save.resources.gold} | экземпляров ${save.heroes.length}\n   враги Σhp ${sum('hp')} / Σatk ${sum('atk')}: ${foes.map((u) => u!.name).join(', ')}`,
     );
   }
   if (!won) {

@@ -98,14 +98,15 @@ describe('P10 T1-20: расстановка по ролям', () => {
 });
 
 describe('P10 T1-07: совет после поражения', () => {
-  it('«Улучшить» советуется, только когда опыта хватает; вознесение — когда хватает осколков', () => {
+  it('«Улучшить» советуется, только когда опыта хватает; вознесение — когда хватает копий', () => {
     const save = fresh();
     expect(defeatAdvice(save, ctx).text).not.toMatch(/Опыта хватает/);
     const rich = { ...save, resources: { gold: 1000, heroExp: 1000 } };
     expect(defeatAdvice(rich, ctx)).toMatchObject({ action: 'Heroes' });
     expect(defeatAdvice(rich, ctx).text).toMatch(/Опыта хватает на новый уровень/);
-    const shards = { ...save, resources: { gold: 5000, heroExp: 0 }, shards: { alan: 20 } };
-    expect(defeatAdvice(shards, ctx).text).toMatch(/вознесению/);
+    // Две зелёные копии Алана (герои v2: вознесение копиями).
+    const copies = { ...save, resources: { gold: 5000, heroExp: 0 }, heroes: [...save.heroes, { id: 'h90', templateId: 'alan', rarity: 'green' as const, level: 1 }, { id: 'h91', templateId: 'alan', rarity: 'green' as const, level: 1 }] };
+    expect(defeatAdvice(copies, ctx).text).toMatch(/вознесению/);
   });
 
   it('вещи получше — первым делом; стрелок во фронте — «Отряд»', () => {

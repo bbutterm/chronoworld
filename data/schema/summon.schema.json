@@ -3,6 +3,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
+    "$schema": {
+      "type": "string"
+    },
     "$comment": {
       "type": "string"
     },
@@ -49,52 +52,38 @@
             "type": "number",
             "minimum": 0,
             "maximum": 1
-          },
-          "baseRarities": {
-            "minItems": 1,
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "green",
-                "blue",
-                "purple",
-                "gold",
-                "red"
-              ]
-            }
           }
         },
         "required": [
           "rarity",
-          "chance",
-          "baseRarities"
+          "chance"
         ]
       }
     },
     "pity": {
-      "type": "object",
-      "properties": {
-        "rarity": {
-          "type": "string",
-          "enum": [
-            "green",
-            "blue",
-            "purple",
-            "gold",
-            "red"
-          ]
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rarity": {
+            "type": "string",
+            "enum": [
+              "blue",
+              "purple"
+            ]
+          },
+          "every": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          }
         },
-        "every": {
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "maximum": 9007199254740991
-        }
-      },
-      "required": [
-        "rarity",
-        "every"
-      ]
+        "required": [
+          "rarity",
+          "every"
+        ]
+      }
     },
     "firstTen": {
       "type": "object",
@@ -108,10 +97,16 @@
             "gold",
             "red"
           ]
+        },
+        "count": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 10
         }
       },
       "required": [
-        "rarity"
+        "rarity",
+        "count"
       ]
     },
     "freePerDay": {
@@ -137,25 +132,6 @@
         "gems",
         "scrolls"
       ]
-    },
-    "storyShard": {
-      "type": "object",
-      "properties": {
-        "chance": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1
-        },
-        "count": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
-        }
-      },
-      "required": [
-        "chance",
-        "count"
-      ]
     }
   },
   "required": [
@@ -164,7 +140,6 @@
     "pity",
     "firstTen",
     "freePerDay",
-    "welcome",
-    "storyShard"
+    "welcome"
   ]
 }

@@ -8,7 +8,7 @@
   "role": "damage",
   "source": "summon",
   "baseRarity": "green",
-  "maxRarity": "gold",
+  "maxRarity": "red",
   "statMods": {
     "atk": 1.1,
     "def": 0.9
@@ -29,6 +29,70 @@
     {
       "level": 50,
       "skill": "job_mage_thunderstorm"
+    }
+  ],
+  "branches": [
+    {
+      "job": "wizard",
+      "role": "damage",
+      "statMods": {
+        "hp": 1.05,
+        "atk": 1.4,
+        "def": 1
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_wizard_jupitel_thunder"
+        },
+        {
+          "level": 10,
+          "skill": "job_wizard_mystical_amplification"
+        },
+        {
+          "level": 30,
+          "skill": "job_wizard_soul_drain"
+        },
+        {
+          "level": 50,
+          "skill": "job_wizard_meteor_storm"
+        }
+      ],
+      "promotion": "Гефенская башня прощает Каю библиотеку: гроза ей нужнее книг.",
+      "visual": {
+        "sprite": "wizard_m"
+      }
+    },
+    {
+      "job": "sage",
+      "role": "damage",
+      "statMods": {
+        "hp": 1.15,
+        "atk": 1.3,
+        "def": 1.1
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_sage_earth_spike"
+        },
+        {
+          "level": 10,
+          "skill": "job_sage_free_cast"
+        },
+        {
+          "level": 30,
+          "skill": "job_mage_fire_ball"
+        },
+        {
+          "level": 50,
+          "skill": "job_sage_heavens_drive"
+        }
+      ],
+      "promotion": "Академия Юно берёт Кая с условием: жечь только врагов.",
+      "visual": {
+        "sprite": "sage_m"
+      }
     }
   ],
   "bio": "Маг огня и молний. Сначала жжёт, потом думает.",

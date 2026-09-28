@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { RaritySchema } from '../equipment/schema';
+import { HeroCardDropSchema } from '../heroes/schema';
 
 const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в нижнем регистре, цифры и _');
 
@@ -25,8 +26,8 @@ export const HuntRewardSchema = z.object({
   /** Опыт в общий пул героев. */
   jobExp: z.number().int().nonnegative().optional(),
   gems: z.number().int().nonnegative().optional(),
-  /** Осколки «отстающего» сюжетного героя (heroes/shards.ts shardTarget). */
-  shards: z.number().int().nonnegative().optional(),
+  /** Карты случайных героев (ожидаемое число: целая часть — точно, дробная — шанс; heroes/cardDrops.ts). */
+  heroCards: HeroCardDropSchema.optional(),
   item: RaritySchema.optional(),
 });
 
@@ -59,8 +60,11 @@ export const HuntConfigSchema = z
         c.addIssue({ code: 'custom', path: ['tiers', i, 'damage'], message: 'пороги урона должны строго возрастать' });
       }
       const prev = cfg.tiers[i - 1].rewards;
-      for (const k of ['gold', 'jobExp', 'gems', 'shards'] as const) {
+      for (const k of ['gold', 'jobExp', 'gems'] as const) {
         if ((t.rewards[k] ?? 0) < (prev[k] ?? 0)) c.addIssue({ code: 'custom', path: ['tiers', i, 'rewards', k], message: `награда ${k} меньше, чем у предыдущего порога` });
+      }
+      for (const k of ['blue', 'purple'] as const) {
+        if ((t.rewards.heroCards?.[k] ?? 0) < (prev.heroCards?.[k] ?? 0)) c.addIssue({ code: 'custom', path: ['tiers', i, 'rewards', 'heroCards', k], message: `карт героя (${k}) меньше, чем у предыдущего порога` });
       }
     });
   });

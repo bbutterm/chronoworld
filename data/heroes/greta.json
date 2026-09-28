@@ -30,9 +30,8 @@
       "skill": "job_merchant_overcharge"
     }
   ],
-  "forms": [
+  "branches": [
     {
-      "rarity": "purple",
       "job": "blacksmith",
       "role": "damage",
       "statMods": {
@@ -47,7 +46,7 @@
         },
         {
           "level": 10,
-          "skill": "job_blacksmith_tempering"
+          "skill": "job_blacksmith_power_thrust"
         },
         {
           "level": 30,
@@ -55,12 +54,43 @@
         },
         {
           "level": 50,
-          "skill": "job_blacksmith_power_thrust"
+          "skill": "job_blacksmith_cart_termination"
         }
       ],
       "promotion": "Гильдия кузнецов Эйнброха вручает Грете молот мастера. Колокольчик она повесила на рукоять.",
       "visual": {
         "sprite": "blacksmith_f"
+      }
+    },
+    {
+      "job": "alchemist",
+      "role": "healer",
+      "statMods": {
+        "hp": 1.2,
+        "atk": 1.2,
+        "def": 1.15
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_alchemist_potion_pitcher"
+        },
+        {
+          "level": 10,
+          "skill": "job_alchemist_chemical_protection"
+        },
+        {
+          "level": 30,
+          "skill": "job_merchant_frying_pan"
+        },
+        {
+          "level": 50,
+          "skill": "job_alchemist_slim_potion"
+        }
+      ],
+      "promotion": "Алхимики Альдебарана берут Грету за умение считать. Сковородку она оставила.",
+      "visual": {
+        "sprite": "alchemist_f"
       }
     }
   ],

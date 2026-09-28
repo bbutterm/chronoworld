@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { heroName, heroRole } from '../heroes/card';
+import { BRANCH_RARITY } from '../heroes/schema';
 import { migrateV3toV4 } from '../heroes/migrate';
+import { migrateHeroesV2 } from '../heroes/migrate-v7';
 import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/roster';
 import type { GameContext } from '../progression/types';
 import { initSeenUnlocks } from '../unlocks/unlocks';
@@ -34,7 +36,6 @@ export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY
     presets: [],
     bounties: emptyExpeditions(),
     achievements: { counters: {}, claimed: [] },
-    shards: {},
     summon: emptySummon(),
     seenScenes: [],
     seenUnlocks: [],
@@ -120,6 +121,12 @@ export const MIGRATIONS: Record<number, (old: any) => any> = {
    * в почте. Отдельная функция — save/migrate-expeditions.ts (там же — как добавлять следующие шаги).
    */
   5: (old) => migrateBountiesToExpeditions(old),
+  /**
+   * Версия 6 → 7 (герои v2, docs/design/heroes-v2.md, раздел 8.1): 12 героев с ветками второй профессии, 13 старых
+   * фиолетовых шаблонов → герой + ветка, осколки → копии героев, «Контракт героя» в почте, 10 свитков и сообщение.
+   * Замороженный шаг — heroes/migrate-v7.ts. Следующий шаг (v7 → v8) добавлять отдельной функцией после этого.
+   */
+  6: (old) => migrateHeroesV2(old),
 };
 
 /** Счётчики достижений, которые можно восстановить из старого сохранения (структура не гарантирована). */
@@ -172,6 +179,8 @@ export function saveRevision(text: string | null | undefined): number {
  * - v4: экземпляр неизвестной карточки (шаблона больше нет в data/heroes) убирается вместе со ссылками на него
  *   (отряд, пресеты, экспедиции, надетые предметы); редкость выше maxRarity шаблона — maxRarity; уровень выше предела
  *   редкости — предел;
+ * - v6: ветка (branch), которой нет у героя, или у героя ниже фиолетового — снимается (фиолетовый без ветки —
+ *   «Выберите ветку!»);
  * - второй экземпляр одной карточки в отряде убирается из отряда (правило «одна копия карточки в отряде»);
  * - предметы, которых нет в ctx.equipment.items (если контекст с экипировкой), убираются;
  * - save.notices (сообщения миграции) → warnings, поле убирается;
@@ -203,10 +212,13 @@ export function sanitizeSave(
     if (rarities.indexOf(rarity) > rarities.indexOf(t.maxRarity)) rarity = t.maxRarity;
     const cap = ctx.cards.rarities[rarities.indexOf(rarity)].maxLevel;
     if (level > cap) level = cap;
-    if (rarity === h.rarity && level === h.level) return [h];
+    const badBranch = h.branch !== undefined && (rarities.indexOf(rarity) < rarities.indexOf(BRANCH_RARITY) || !t.branches.some((b) => b.job === h.branch));
+    if (rarity === h.rarity && level === h.level && !badBranch) return [h];
     changed = true;
-    warnings.push(`${t.name}: редкость и уровень приведены к правилам карточки.`);
-    return [{ ...h, rarity, level }];
+    if (rarity !== h.rarity || level !== h.level) warnings.push(`${t.name}: редкость и уровень приведены к правилам карточки.`);
+    if (badBranch) warnings.push(`${t.name}: ветка второй профессии сброшена — выберите её заново.`);
+    const { branch: _b, ...rest } = h;
+    return [{ ...(badBranch ? rest : h), rarity, level }];
   });
   const drop = (id: string | null) => (id !== null && gone.has(id) ? null : id);
   let squad = save.squad.map(drop);

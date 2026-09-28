@@ -355,16 +355,16 @@ async function main() {
     if (h1after.level > h1.level && !(await hasText('Hero', `Ур. ${h1after.level}`))) problems.push(`карточка героя: не видно «Ур. ${h1after.level}» после «Улучшить»`);
     log(`«Улучшить»: ${h1.level} → ${h1after.level}, запас ${before.resources.heroExp} → ${after.resources.heroExp}`);
     await shot('hero-levelup');
-    // Вкладка «История»: био и откуда брать осколки сюжетного героя.
+    // Вкладка «История»: био и откуда брать копии героя (герои v2).
     await clickText('Hero', 'История');
     await waitScene('Hero');
-    if (!(await hasText('Hero', 'Где добыть осколки'))) problems.push('карточка героя: во вкладке «История» нет осколков');
+    if (!(await hasText('Hero', 'Растёт копиями'))) problems.push('карточка героя: во вкладке «История» нет «Растёт копиями»');
     await clickText('Hero', 'Навыки');
     await waitScene('Hero');
-    // Экран вознесения: осколки сюжетного героя и кнопка «Вознести».
+    // Экран вознесения: слоты копий, откуда брать копии и кнопка «Вознести».
     await clickText('Hero', 'Вознести');
     await waitScene('Ascend');
-    for (const t of ['Осколки героя', 'Предел уровня', 'Вознести']) if (!(await hasText('Ascend', t))) problems.push(`вознесение: нет «${t}»`);
+    for (const t of ['Где взять копии', 'Предел уровня', 'Вознести']) if (!(await hasText('Ascend', t))) problems.push(`вознесение: нет «${t}»`);
     await shot('ascend');
     await clickText('Ascend', '‹ Назад');
     await waitScene('Hero');
@@ -432,8 +432,8 @@ async function main() {
     await shot('result-test');
 
     // 6. H5 Таверна: после ch1_s5 (сохранение с пройденными этапами 1–5, подарок не забран) — плитка на главной →
-    // Таверна → «Забрать подарок» → «Призыв ×10» → карта, «Открыть все» → крупный показ фиолетовой → итог.
-    // Первый ×10 гарантирует фиолетовую.
+    // Таверна → «Забрать подарок» → «Призыв ×10» → карта, «Открыть все» → (фиолетовая — крупный показ) → итог.
+    // Герои v2: первый ×10 гарантирует две синие (фиолетовая — 2%, не гарантирована).
     await page.evaluate(() => {
       const s = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
       s.campaign.cleared = [...new Set([...s.campaign.cleared, 'ch1_s1', 'ch1_s2', 'ch1_s3', 'ch1_s4', 'ch1_s5'])];
@@ -460,7 +460,7 @@ async function main() {
     await waitScene('Tavern');
     await sleep(400);
     await shot('tavern');
-    for (const t of ['До гарантированной фиолетовой: 30', 'Первый призыв ×10', 'Бесплатно']) if (!(await hasText('Tavern', t))) problems.push(`Таверна: нет «${t}»`);
+    for (const t of ['До гарантированной синей: 10', 'Первый призыв ×10', 'Бесплатно']) if (!(await hasText('Tavern', t))) problems.push(`Таверна: нет «${t}»`);
     await clickText('Tavern', 'Забрать подарок');
     await waitScene('Tavern');
     await sleep(300);
@@ -474,7 +474,8 @@ async function main() {
     });
     log(`Таверна: ×10 → ${reveal.rarities.join(', ')}`);
     if (reveal.rarities.length !== 10) problems.push(`Таверна: карт ${reveal.rarities.length}, ждали 10`);
-    if (!reveal.rarities.includes('purple')) problems.push('Таверна: в первом ×10 нет фиолетовой');
+    if (reveal.rarities.filter((r) => r !== 'green').length < 2) problems.push('Таверна: в первом ×10 меньше двух синих');
+    const hasPurple = reveal.rarities.includes('purple');
     await clickGame(reveal.first.x, reveal.first.y);
     // В headless-браузере (программная отрисовка) кадров мало, а время игры идёт по кадрам — ждём по состоянию, не по часам.
     const flipped = await page
@@ -485,11 +486,14 @@ async function main() {
     await shot('tavern-reveal-mid');
     if (!flipped) problems.push('Таверна: нажатие не перевернуло карту');
     await clickText('Tavern', 'Открыть все');
-    const showcase = await page
-      .waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'showcase', null, { timeout: 60000, polling: 50 })
-      .then(() => true)
-      .catch(() => false);
-    if (showcase) {
+    const showcase = hasPurple
+      ? await page
+          .waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'showcase', null, { timeout: 60000, polling: 50 })
+          .then(() => true)
+          .catch(() => false)
+      : false;
+    if (!hasPurple) log('Таверна: фиолетовой в ×10 нет — крупного показа не ждём');
+    else if (showcase) {
       await sleep(2500);
       await shot('tavern-purple');
       // Касание по затемнению показа (мимо будущих кнопок итога — показ мог уже закрыться сам).
@@ -501,10 +505,10 @@ async function main() {
     for (const t of ['Итог призыва', 'К героям', 'Ещё ×10']) if (!(await hasText('Tavern', t))) problems.push(`Таверна, итог: нет «${t}»`);
     const saved = await page.evaluate(() => {
       const s = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
-      return { purple: s.heroes.filter((h) => h.rarity === 'purple').length, firstTenDone: s.summon.firstTenDone, gems: s.currency.gems };
+      return { rare: s.heroes.filter((h) => h.rarity !== 'green').length, firstTenDone: s.summon.firstTenDone, gems: s.currency.gems };
     });
-    if (!saved.purple || !saved.firstTenDone || saved.gems !== 0) problems.push(`Таверна: сохранение после ×10 ${JSON.stringify(saved)}`);
-    else log('Таверна: подарок, ×10 с фиолетовой, итог — ок');
+    if (saved.rare < 2 || !saved.firstTenDone || saved.gems !== 0) problems.push(`Таверна: сохранение после ×10 ${JSON.stringify(saved)}`);
+    else log('Таверна: подарок, ×10 с двумя синими, итог — ок');
   } catch (e) {
     problems.push(`сценарий: ${e.message}`);
     // Для разбора: какие сцены активны и как выглядел экран в момент падения.

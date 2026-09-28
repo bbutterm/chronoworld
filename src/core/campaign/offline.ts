@@ -96,7 +96,7 @@ export function offlineRewards(save: SaveState, now: number, ctx: GameContext): 
 }
 
 /**
- * Трофеи сундука к моменту now (предметы, осколки, гемы, свитки — equipment/chest.ts): по тику на каждые
+ * Трофеи сундука к моменту now (предметы, карты героя, гемы, свитки — equipment/chest.ts): по тику на каждые
  * chest.tickMinutes засчитанных минут (включая banked, в пределах лимита), по правилу главы последнего пройденного
  * этапа; seed — от сохранения и якоря lastClaimAt (chestSeed). Растёт монотонно: уже накопленные тики не меняются.
  * Без ctx.equipment или chest в data/drops.json — пусто. Совпадает с тем, что даст claimOffline в тот же now.
@@ -134,7 +134,7 @@ export function bankOffline(save: SaveState, now: number, ctx: GameContext): Sav
 
 /**
  * T-B. Забрать сундук: золото в ресурсы, jobExp — в общий пул опыта героев (resources.heroExp),
- * трофеи (offlineLoot на тот же now: предметы в инвентарь, гемы и свитки, осколки «отстающему» сюжетному герою),
+ * трофеи (offlineLoot на тот же now: предметы в инвентарь, гемы и свитки, карты случайных героев),
  * lastClaimAt = now и banked очищается — всегда, даже при нулевой награде (UI обязан записать результат,
  * иначе якорь не сдвинется, T4-06). При часах назад — долг (см. syncOfflineClock). Чистая функция.
  */
@@ -143,7 +143,7 @@ export function claimOffline(
   now: number,
   ctx: ChestContext,
 ): { save: SaveState; rewards: OfflineRewards; loot: ChestLootGrant; events: ProgressEvent[] } {
-  const noLoot: ChestLootGrant = { ...EMPTY_LOOT, items: [], added: [], shardHero: null };
+  const noLoot: ChestLootGrant = { ...EMPTY_LOOT, items: [], cards: [], added: [], heroEvents: [] };
   // Время не число (сбой часов) — ничего не начисляем и якорь не портим.
   if (!Number.isFinite(now)) return { save, rewards: { minutes: 0, gold: 0, jobExp: 0 }, loot: noLoot, events: [] };
   const s = syncOfflineClock(save, now, ctx);
@@ -165,7 +165,7 @@ export function claimOffline(
     const g = grantChestLoot(next, rolled, ctx);
     next = g.save;
     loot = g.grant;
-    if (loot.shardHero) events.push({ type: 'shards', templateId: loot.shardHero, count: loot.shards });
+    events.push(...loot.heroEvents);
   }
   return { save: next, rewards, loot, events };
 }

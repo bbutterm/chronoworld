@@ -109,24 +109,22 @@
                   }
                 }
               },
-              "shards": {
+              "heroCards": {
                 "type": "object",
                 "properties": {
-                  "chance": {
+                  "blue": {
+                    "default": 0,
                     "type": "number",
                     "minimum": 0,
                     "maximum": 1
                   },
-                  "count": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 9007199254740991
+                  "purple": {
+                    "default": 0,
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
                   }
-                },
-                "required": [
-                  "chance",
-                  "count"
-                ]
+                }
               },
               "gems": {
                 "type": "object",

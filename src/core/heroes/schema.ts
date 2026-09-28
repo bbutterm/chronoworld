@@ -3,8 +3,9 @@ import { UnitSchema } from '../content/schema';
 import { GenderSchema } from '../progression/schema';
 
 /**
- * Карточки героев (docs/design/heroes.md): шаблон карточки `data/heroes/<id>.json`, редкости и правила вознесения
- * `data/cards.json`, призыв `data/summon.json`. Экземпляр карточки игрока — save.heroes[] (save/schema.ts).
+ * Герои v2 (docs/design/heroes-v2.md): шаблон героя `data/heroes/<id>.json` — первая профессия и две ветки второй
+ * профессии (выбор на фиолетовом), редкости и правила вознесения `data/cards.json`, призыв `data/summon.json`.
+ * Экземпляр героя игрока — save.heroes[] (save/schema.ts).
  */
 
 const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в нижнем регистре, цифры и _');
@@ -17,25 +18,43 @@ export type CardRarity = z.infer<typeof CardRaritySchema>;
 /** Номер редкости (0 — зелёный … 4 — красный). */
 export const rarityIndex = (r: CardRarity): number => CARD_RARITIES.indexOf(r);
 
+/** Редкость, с которой герой выбирает ветку второй профессии (форма ветки действует с неё и выше). */
+export const BRANCH_RARITY: CardRarity = 'purple';
+
+/**
+ * Выпадение карт героя из источников (этапы, сундук, охота, поручения, достижения, награды событий;
+ * docs/design/heroes-v2.md, раздел 2.3): ожидаемое число карт каждой редкости. Каждая карта — экземпляр СЛУЧАЙНОГО
+ * героя этой редкости (копия ему в рост). Целая часть — выдаётся всегда, дробная — шанс ещё одной
+ * (0.05 — 5%; 1.5 — одна точно и 50% второй). Нет поля — 0.
+ */
+export const HeroCardDropSchema = z.object({
+  blue: z.number().nonnegative().optional(),
+  purple: z.number().nonnegative().optional(),
+});
+export type HeroCardDrop = z.infer<typeof HeroCardDropSchema>;
+
 /** Множители к статам линии {hp, atk, def, spd}; не указанный — 1. */
 export const CardStatModsSchema = z
   .object({ hp: z.number().positive(), atk: z.number().positive(), def: z.number().positive(), spd: z.number().positive() })
   .partial()
   .default({});
 
-/** Навык карточки: открывается на уровне level (уровни возрастают, не больше одного навыка на уровень). */
+/** Навык героя: открывается на уровне level (уровни возрастают, не больше одного навыка на уровень). */
 export const CardSkillSchema = z.object({ level: z.number().int().positive(), skill: id });
 
-/** Форма сюжетной карточки: с редкости rarity (включительно) у героя другой класс — вторая профессия. */
-export const HeroFormSchema = z.object({
-  rarity: CardRaritySchema,
+/**
+ * Ветка второй профессии (форма на фиолетовом и выше, выбирает игрок): класс, роль, статы, 4 навыка, лист спрайта,
+ * строка возвышения. Пол героя сохраняется (Лучник-парень → Бард, девушка → Танцовщица).
+ */
+export const HeroBranchSchema = z.object({
+  /** Вторая профессия (id из data/jobs, tier 2 линии героя). Это же значение хранится в save.heroes[].branch. */
   job: id,
-  role: UnitSchema.shape.role.optional(),
+  role: UnitSchema.shape.role,
   statMods: CardStatModsSchema,
   skills: z.array(CardSkillSchema).min(1),
-  /** Строка истории на экране вознесения, когда герой получает эту профессию (H4, ≤ 200 символов). */
-  promotion: z.string().max(200).optional(),
-  /** Лист спрайта формы (id из assets/sprites/sprites.json, например knight_m); нет — лист класса по полу. */
+  /** Строка возвышения: экран выбора ветки и вознесения (≤ 160 символов). */
+  promotion: z.string().max(160),
+  /** Лист спрайта формы (id из assets/sprites/sprites.json, например knight_m); нет листа — лист класса по полу. */
   visual: z.object({ sprite: z.string().optional() }).default({}),
 });
 
@@ -45,21 +64,24 @@ export const HeroTemplateSchema = z.object({
   id,
   name: z.string().min(1),
   gender: GenderSchema,
-  /** Класс — id из data/jobs: обычная атака, спрайт по умолчанию. */
+  /** Первая профессия — id из data/jobs (tier 1): обычная атака, спрайт до выбора ветки. */
   job: id,
   /** Линия — первая профессия ветки (swordman, archer, mage, thief, acolyte, merchant); статы растут по ней. */
   line: id,
   role: UnitSchema.shape.role,
-  /** story — выдаёт сюжет (в призыве нет, растёт осколками); summon — из Таверны (растёт копиями). */
+  /**
+   * story — приходит по сюжету (progression.heroes); summon — только из Таверны. На правила роста не влияет:
+   * все герои растут копиями одной дорожкой (раздел 2.2).
+   */
   source: z.enum(['story', 'summon']),
   baseRarity: CardRaritySchema,
   maxRarity: CardRaritySchema,
   statMods: CardStatModsSchema,
   skills: z.array(CardSkillSchema).min(1),
-  /** Только у сюжетных: вторая профессия на фиолетовой редкости и выше. */
-  forms: z.array(HeroFormSchema).default([]),
+  /** Две ветки второй профессии: выбор на фиолетовом (hero.branch = job ветки). */
+  branches: z.array(HeroBranchSchema).length(2),
   /**
-   * Вид базовой формы: sprite — свой лист (id из assets/sprites/sprites.json, например swordman_m); нет листа в реестре
+   * Вид первой профессии: sprite — свой лист (id из assets/sprites/sprites.json, например swordman_m); нет листа в реестре
    * или поля — лист класса по полу (`<лист класса>_<m|f>`, иначе базовый). Портрет — по листу.
    */
   visual: z.object({ sprite: z.string().optional(), portrait: z.string().optional() }).default({}),
@@ -68,32 +90,26 @@ export const HeroTemplateSchema = z.object({
 });
 
 export type HeroTemplate = z.infer<typeof HeroTemplateSchema>;
-export type HeroForm = z.infer<typeof HeroFormSchema>;
+export type HeroBranch = z.infer<typeof HeroBranchSchema>;
 export type CardStatMods = z.infer<typeof CardStatModsSchema>;
 export type CardSkill = z.infer<typeof CardSkillSchema>;
 
-/** Дорожка роста: first — первые профессии призыва, second — вторые (призыв), story — сюжетные (осколки). */
-export const TRACKS = ['first', 'second', 'story'] as const;
-export type CardTrack = (typeof TRACKS)[number];
-
 const FodderSlotSchema = z.object({
-  /** same — тот же шаблон; line — любой призывной шаблон той же линии. */
-  kind: z.enum(['same', 'line']),
+  /** same — копия того же героя; any — копия любого героя. */
+  kind: z.enum(['same', 'any']),
+  /** Редкость корма (ровно такая). */
   rarity: CardRaritySchema,
   count: z.number().int().positive(),
 });
 
+/** Переход на следующую редкость — одна дорожка для всех героев. */
 export const MergeRuleSchema = z.object({
-  track: z.enum(TRACKS),
   from: CardRaritySchema,
   to: CardRaritySchema,
   gold: z.number().int().nonnegative(),
-  /** Корм (призывные карточки). */
-  fodder: z.array(FodderSlotSchema).default([]),
-  /** Осколки героя (сюжетные карточки). */
-  shards: z.number().int().nonnegative().default(0),
-  /** Нужный уровень цели (например, ур. 40 для второй профессии сюжетного героя). */
-  minLevel: z.number().int().positive().optional(),
+  fodder: z.array(FodderSlotSchema).min(1),
+  /** На этом переходе игрок выбирает ветку второй профессии. */
+  branch: z.boolean().optional(),
 });
 
 export const RarityDefSchema = z.object({
@@ -111,6 +127,7 @@ export const RarityDefSchema = z.object({
 /** data/cards.json */
 export const CardsConfigSchema = z
   .object({
+    $schema: z.string().optional(),
     $comment: z.string().optional(),
     rarities: z.array(RarityDefSchema),
     /** Стоимость уровня L → L+1: опыт floor(exp.base × L^exp.power), золото floor(gold.base × L^gold.power). */
@@ -119,13 +136,16 @@ export const CardsConfigSchema = z
       gold: z.object({ base: z.number().nonnegative(), power: z.number().positive() }),
     }),
     merge: z.array(MergeRuleSchema),
-    shards: z.object({
-      /** Осколки за первое прохождение этапа кампании (обычного и босса главы). */
-      firstClear: z.number().int().nonnegative(),
-      bossFirstClear: z.number().int().nonnegative(),
-      /** Победа на пройденном этапе: с шансом replayChance — replayCount осколков. */
-      replayChance: z.number().min(0).max(1),
-      replayCount: z.number().int().nonnegative(),
+    /** Смена ветки второй профессии: цена в гемах; firstFree — первая смена у экземпляра бесплатно. */
+    branchChange: z.object({ gems: z.number().int().nonnegative(), firstFree: z.boolean() }),
+    /** Карты случайных героев за этапы кампании (ожидаемое число, см. HeroCardDropSchema). */
+    heroCards: z.object({
+      /** Первое прохождение обычного этапа. */
+      firstClear: HeroCardDropSchema,
+      /** Первое прохождение этапа-босса главы. */
+      bossFirstClear: HeroCardDropSchema,
+      /** Победа на уже пройденном этапе. */
+      replay: HeroCardDropSchema,
     }),
   })
   .superRefine((cfg, c) => {
@@ -137,22 +157,24 @@ export const CardsConfigSchema = z
     });
     const seen = new Set<string>();
     cfg.merge.forEach((m, i) => {
-      const key = `${m.track}:${m.from}`;
-      if (seen.has(key)) c.addIssue({ code: 'custom', path: ['merge', i], message: `правило ${m.track} ${m.from} → … встречается дважды` });
-      seen.add(key);
+      if (seen.has(m.from)) c.addIssue({ code: 'custom', path: ['merge', i], message: `правило ${m.from} → … встречается дважды` });
+      seen.add(m.from);
       if (rarityIndex(m.to) !== rarityIndex(m.from) + 1) c.addIssue({ code: 'custom', path: ['merge', i, 'to'], message: `${m.from} → ${m.to}: переход только на следующую редкость` });
-      if (m.track === 'story' && (m.fodder.length > 0 || m.shards <= 0)) c.addIssue({ code: 'custom', path: ['merge', i], message: 'сюжетные карточки растут только осколками (shards > 0, без fodder)' });
-      if (m.track !== 'story' && (m.fodder.length === 0 || m.shards > 0)) c.addIssue({ code: 'custom', path: ['merge', i], message: 'призывные карточки растут кормом (fodder, без shards)' });
+      if (m.branch && m.to !== BRANCH_RARITY) c.addIssue({ code: 'custom', path: ['merge', i, 'branch'], message: `ветка выбирается при переходе на ${BRANCH_RARITY}` });
+      if (m.fodder.some((f) => rarityIndex(f.rarity) > rarityIndex(m.from))) c.addIssue({ code: 'custom', path: ['merge', i, 'fodder'], message: 'корм не может быть выше редкости цели' });
     });
+    if (!cfg.merge.some((m) => m.branch)) c.addIssue({ code: 'custom', path: ['merge'], message: 'нет перехода с выбором ветки (branch: true)' });
   });
 
 export type RarityDef = z.infer<typeof RarityDefSchema>;
 export type MergeRule = z.infer<typeof MergeRuleSchema>;
+export type FodderSlot = z.infer<typeof FodderSlotSchema>;
 export type CardsConfig = z.infer<typeof CardsConfigSchema>;
 
 /** data/summon.json — Таверна. */
 export const SummonConfigSchema = z
   .object({
+    $schema: z.string().optional(),
     $comment: z.string().optional(),
     /**
      * Этап открытия Таверны (и подарка welcome) — теперь в data/unlocks.json (строка tavern). Здесь — только для
@@ -160,25 +182,26 @@ export const SummonConfigSchema = z
      */
     unlockAfterStage: id.optional(),
     costs: z.object({ single: z.number().int().nonnegative(), ten: z.number().int().nonnegative() }),
+    /** Шансы редкостей (сумма 1). Внутри редкости — равновероятно среди героев пула (все шаблоны, сюжетные — после присоединения). */
+    rates: z.array(z.object({ rarity: CardRaritySchema, chance: z.number().min(0).max(1) })).min(1),
     /**
-     * Шансы редкостей (сумма 1). baseRarities — какие шаблоны выпадают этой редкостью: призывные с baseRarity из списка
-     * (синие — и зелёные шаблоны первых профессий, выпавшие сразу синими).
+     * Гаранты по возрастанию редкости: призыв номер every подряд без этой редкости или выше — эта редкость
+     * (счётчики save.summon.sinceBlue / sincePurple).
      */
-    rates: z.array(z.object({ rarity: CardRaritySchema, chance: z.number().min(0).max(1), baseRarities: z.array(CardRaritySchema).min(1) })).min(1),
-    /** Гарант: призыв номер every без этой редкости подряд — эта редкость. */
-    pity: z.object({ rarity: CardRaritySchema, every: z.number().int().positive() }),
-    /** Первый призыв ×10 обязательно содержит эту редкость (один раз). */
-    firstTen: z.object({ rarity: CardRaritySchema }),
+    pity: z.array(z.object({ rarity: z.enum(['blue', 'purple']), every: z.number().int().positive() })).min(1),
+    /** Первый призыв ×10 содержит не меньше count карт этой редкости или выше (один раз). */
+    firstTen: z.object({ rarity: CardRaritySchema, count: z.number().int().positive().max(10) }),
     freePerDay: z.number().int().nonnegative(),
     welcome: z.object({ gems: z.number().int().nonnegative(), scrolls: z.number().int().nonnegative() }),
-    /** Каждый призыв с шансом chance приносит ещё count осколков «отстающего» сюжетного героя (shardTarget). */
-    storyShard: z.object({ chance: z.number().min(0).max(1), count: z.number().int().nonnegative() }),
   })
   .superRefine((cfg, c) => {
     const sum = cfg.rates.reduce((s, r) => s + r.chance, 0);
     if (Math.abs(sum - 1) > 1e-9) c.addIssue({ code: 'custom', path: ['rates'], message: `сумма шансов ${sum}, а должна быть 1` });
-    if (cfg.pity.every < 10) c.addIssue({ code: 'custom', path: ['pity', 'every'], message: 'гарант не меньше 10 призывов' });
-    if (!cfg.rates.some((r) => r.rarity === cfg.pity.rarity)) c.addIssue({ code: 'custom', path: ['pity', 'rarity'], message: 'редкости гаранта нет среди rates' });
+    cfg.pity.forEach((p, i) => {
+      if (p.every < 10) c.addIssue({ code: 'custom', path: ['pity', i, 'every'], message: 'гарант не меньше 10 призывов' });
+      if (!cfg.rates.some((r) => r.rarity === p.rarity)) c.addIssue({ code: 'custom', path: ['pity', i, 'rarity'], message: 'редкости гаранта нет среди rates' });
+      if (cfg.pity.findIndex((x) => x.rarity === p.rarity) !== i) c.addIssue({ code: 'custom', path: ['pity', i, 'rarity'], message: 'гарант этой редкости указан дважды' });
+    });
     if (!cfg.rates.some((r) => r.rarity === cfg.firstTen.rarity)) c.addIssue({ code: 'custom', path: ['firstTen', 'rarity'], message: 'редкости первого ×10 нет среди rates' });
   });
 

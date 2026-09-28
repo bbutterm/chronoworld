@@ -16,7 +16,8 @@ import { dayNumber } from '../events/events';
 import { addItems, withGear } from '../equipment/equipment';
 import type { EquipmentConfig } from '../equipment/load';
 import { addHeroExp } from '../heroes/level';
-import { addShards, shardTarget } from '../heroes/shards';
+import { cardRng, grantHeroCards, rollHeroCards } from '../heroes/cardDrops';
+import type { ProgressEvent } from '../progression/types';
 import type { GameContext } from '../progression/types';
 import { Rng } from '../rng';
 import type { HuntState, ItemInstance, SaveState } from '../save/schema';
@@ -61,9 +62,8 @@ export interface HuntGrant {
   gold: number;
   jobExp: number;
   gems: number;
-  /** Осколков выдано (0 — нет сюжетных героев или порог без осколков). */
-  shards: number;
-  shardHero: string | null;
+  /** Карты случайных героев (бросок по rewards.heroCards порога): события heroCard с id новых экземпляров. */
+  heroCards: ProgressEvent[];
   /** Предметы (0 или 1). */
   items: ItemInstance[];
 }
@@ -214,7 +214,7 @@ function check(save: SaveState, day: string, ctx: HuntContext): void {
   if (used >= ctx.hunt.attemptsPerDay) throw new HuntError('no_attempts', 'Попытки охоты на сегодня закончились — босс вернётся завтра');
 }
 
-/** Выдать награду порога: золото, гемы, опыт в пул, осколки «отстающему», предмет (случайный этой редкости среди открытых в главе игрока). */
+/** Выдать награду порога: золото, гемы, опыт в пул, карты случайных героев (бросок от seed добычи), предмет (случайный этой редкости среди открытых в главе игрока). */
 function grant(save: SaveState, reward: HuntReward, lootSeedValue: number, ctx: HuntContext): { save: SaveState; grant: HuntGrant } {
   const gold = reward.gold ?? 0;
   const gems = reward.gems ?? 0;
@@ -225,8 +225,8 @@ function grant(save: SaveState, reward: HuntReward, lootSeedValue: number, ctx: 
     currency: { ...save.currency, gems: save.currency.gems + gems },
   };
   next = addHeroExp(next, jobExp);
-  const shardHero = (reward.shards ?? 0) > 0 ? shardTarget(next, ctx) : null;
-  if (shardHero) next = addShards(next, shardHero, reward.shards ?? 0);
+  const cards = grantHeroCards(next, rollHeroCards(reward.heroCards, cardRng(lootSeedValue), ctx), ctx);
+  next = cards.save;
   let items: ItemInstance[] = [];
   if (reward.item && ctx.equipment) {
     // Только предметы, открытые в главе игрока (minChapter); нет таких этой редкости — редкостью ниже.
@@ -240,7 +240,7 @@ function grant(save: SaveState, reward: HuntReward, lootSeedValue: number, ctx: 
       items = r.added;
     }
   }
-  return { save: next, grant: { gold, gems, jobExp, shards: shardHero ? (reward.shards ?? 0) : 0, shardHero, items } };
+  return { save: next, grant: { gold, gems, jobExp, heroCards: cards.events, items } };
 }
 
 /** Записать попытку и лучший урон по боссу. */

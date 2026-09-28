@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_dancer_dont_forget_me",
+  "name": "Не забывай меня",
+  "description": "−25% скорости всем врагам на 3 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "cooldown": 16,
+  "priority": 3,
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "dont_forget_me",
+        "name": "Не забывай меня",
+        "turns": 3,
+        "stats": {
+          "spd": -0.25
+        }
+      }
+    }
+  ]
+}
