@@ -30,6 +30,7 @@ import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../spr
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
 import { clampX, DEPTH, FloatLayer, UltPresenter } from '../battleFx';
+import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { button, panel, text } from '../ui';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
@@ -145,8 +146,14 @@ const BOSS_BANNER_Y = 780;
 /** Полоска HP босса под верхней панелью (над кнопками). */
 const BOSS_BAR_Y = 282;
 const BOSS_BAR_W = 700;
+/** Куда можно сдвинуть фигуру при расталкивании (поле 1080×1920; как bounds в combat.json). */
+const SPREAD_BOUNDS = COMBAT.field.bounds ?? { minX: 70, maxX: COMBAT.field.width - 70, minY: 900, maxY: 1840 };
 
-interface UnitView {
+/**
+ * Вид юнита. pos (SpreadUnit) — позиция из лога ядра (её двигают шаги), node — показанная: pos + смещение
+ * расталкивания (battleSpread.ts), его считает update() каждый кадр.
+ */
+interface UnitView extends SpreadUnit {
   snap: UnitSnapshot;
   def: UnitDef;
   spriteId: string;
@@ -231,6 +238,8 @@ interface UnitView {
   starT: number;
   /** Когда последний раз сыпали след рывка (время сцены). */
   lastTrail: number;
+  /** Подсвечен ультой — глубину держит spotlight, а не сортировка по y. */
+  spot: boolean;
 }
 
 /** Тестовый бой (отряды экрана подготовки), этап кампании или этаж башни (отряд из сохранения). */
@@ -609,6 +618,15 @@ export class BattleScene extends Phaser.Scene {
       frozen: false,
       starT: 0,
       lastTrail: 0,
+      spot: false,
+      pos: { x: snap.x, y: snap.y },
+      offX: 0,
+      offY: 0,
+      sx: snap.x,
+      sy: snap.y,
+      side: snap.side,
+      extra: def.kind === 'boss' ? 60 : 0,
+      active: true,
     };
     this.views.set(snap.uid, v);
     this.viewList.push(v);
@@ -662,6 +680,7 @@ export class BattleScene extends Phaser.Scene {
     this.sfx.step(dt);
     const views = this.viewList;
     for (let i = 0; i < views.length; i++) this.animateUnit(views[i], dt);
+    this.layoutUnits(dt);
     if (this.finished) return;
     // Баннер босса: часы боя стоят, пока он на экране («Пропустить» работает — skip не ждёт часов).
     if (this.introLeft > 0) {
@@ -683,6 +702,21 @@ export class BattleScene extends Phaser.Scene {
     if (sec === this.shownSec) return;
     this.shownSec = sec;
     this.timeText.setText(`${fmt(sec)} / ${fmt(this.hunt ? GAME.hunt.timeLimitSeconds : COMBAT.timeLimitSeconds)}`);
+  }
+
+  /**
+   * Показанные позиции: позиция ядра + сглаженное смещение, чтобы близкие бойцы не сливались в кучу;
+   * глубина — по y (нижний рисуется поверх). Подписи, полоски и статусы — в node и едут вместе с ним.
+   */
+  private layoutUnits(dt: number): void {
+    const views = this.viewList;
+    spreadUnits(views, dt, SPREAD_BOUNDS);
+    for (let i = 0; i < views.length; i++) this.placeUnit(views[i]);
+  }
+
+  private placeUnit(v: UnitView): void {
+    v.node.setPosition(v.pos.x + v.offX, v.pos.y + v.offY);
+    if (!v.shownDead && !v.spot) v.node.setDepth(v.node.y);
   }
 
   /** След HP и красный оттенок попадания (раньше — твин и таймер на каждый удар). */
@@ -746,14 +780,17 @@ export class BattleScene extends Phaser.Scene {
     this.cameras.main.resetFX();
     this.children.getByName('bossBanner')?.destroy();
     for (const v of this.views.values()) {
-      if (v.moveDest) v.node.setPosition(v.moveDest[0], v.moveDest[1]);
+      if (v.moveDest) {
+        v.pos.x = v.moveDest[0];
+        v.pos.y = v.moveDest[1];
+      }
+      v.spot = false;
       v.moveTween = null;
       v.moveDest = null;
       v.node.setScale(1);
       v.sprite.setY(0);
       v.nameText.setAlpha(0);
-      if (v.alive) v.node.setDepth(v.node.y);
-      else if (v.shownDead) {
+      if (v.shownDead) {
         v.sprite.setAlpha(0.3);
         v.shadow.setAlpha(0);
       }
@@ -762,6 +799,8 @@ export class BattleScene extends Phaser.Scene {
     const log = this.result.log;
     while (this.cursor < log.length) this.play(log[this.cursor++], false);
     for (const v of this.views.values()) this.endCast(v);
+    settleSpread(this.viewList, SPREAD_BOUNDS);
+    for (const v of this.viewList) this.placeUnit(v);
   }
 
   /**
@@ -804,7 +843,8 @@ export class BattleScene extends Phaser.Scene {
           v.moveTween?.stop();
           v.moveTween = null;
           v.moveDest = null;
-          v.node.setPosition(e.to[0], e.to[1]).setDepth(e.to[1]);
+          v.pos.x = e.to[0];
+          v.pos.y = e.to[1];
           if (animate && v.alive && this.time.now >= v.busyUntil) this.loop(v, v.cast ? 'cast' : 'idle');
           return;
         }
@@ -1083,7 +1123,7 @@ export class BattleScene extends Phaser.Scene {
     if (kind === 'walk') this.loop(v, 'walk');
     // Удары, которые юнит нанесёт в конце рывка, покажем, когда он долетит.
     const dash = kind === 'dash';
-    const dir = x >= v.node.x ? 1 : -1;
+    const dir = x >= v.pos.x ? 1 : -1;
     if (dash) {
       v.impactAt = Math.max(v.impactAt, this.time.now + ms);
       // Рывок: пыль из-под ног на старте и при приземлении, светящийся след по пути тела.
@@ -1091,13 +1131,12 @@ export class BattleScene extends Phaser.Scene {
     }
     const trailTint = v.snap.side === 'A' ? 0xfff0c0 : 0xffd0e8;
     v.moveTween = this.tweens.add({
-      targets: v.node,
+      targets: v.pos,
       x,
       y,
       duration: ms,
       ease: dash ? 'Quad.easeOut' : 'Linear',
       onUpdate: () => {
-        v.node.setDepth(v.node.y);
         if (!dash || this.time.now - v.lastTrail < 28) return;
         v.lastTrail = this.time.now;
         this.sfx.dashTrail(v.node.x - dir * 20, v.node.y + v.sprite.y - v.look.height * 0.45, trailTint);
@@ -1133,6 +1172,7 @@ export class BattleScene extends Phaser.Scene {
     this.setStun(v, false, false);
     v.sprite.setTint(unitTint(v.def.visual));
     for (const id of [...v.statusIcons.keys()]) this.setStatusIcon(v, id, undefined);
+    v.active = false;
     v.node.setDepth(v.node.y - 1000);
     const key = anim(v.look, v.spriteId, 'death');
     if (key) {
@@ -1229,9 +1269,13 @@ export class BattleScene extends Phaser.Scene {
     this.ult.flashDim();
     this.ult.showBanner(v.def.name, skillName, v.snap.side === 'A', skillIcon(this, CONTENT.skills[skillId]));
     this.ult.glow(v.node.x, v.node.y);
+    v.spot = true;
     v.node.setDepth(DEPTH.spotlight + v.node.y / 10);
     this.tweens.add({ targets: v.node, scale: 1.12, duration: 160, yoyo: true, hold: 300, ease: 'Quad.easeOut' });
-    this.later.after(1000, () => v.node.setDepth(v.shownDead ? v.node.y - 1000 : v.node.y));
+    this.later.after(1000, () => {
+      v.spot = false;
+      v.node.setDepth(v.shownDead ? v.node.y - 1000 : v.node.y);
+    });
   }
 
   // ---------- навыки: снаряды, площадь, статусы, перезарядка ----------
