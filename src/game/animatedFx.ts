@@ -36,21 +36,7 @@ export interface SkillFx {
   debuff?: string;
 }
 const skillMap = (catalog as unknown as { skills?: Record<string, SkillFx> }).skills ?? {};
-// Captures already present in the catalog but deliberately not wired as hit/buff.
-// Do not infer roles from filenames: these cues belong to specific log events.
-const eventRoles: Record<string, SkillFx> = {
-  swordman_bash: { cast: 'fx_swordman_bash' },
-  job_crusader_grand_cross: { ground: 'fx_job_crusader_grand_cross' },
-  job_wizard_storm_gust: { ground: 'fx_job_wizard_storm_gust' },
-  job_acolyte_signum_crucis: { debuff: 'fx_job_acolyte_signum_crucis' },
-  job_hunter_sandman: { debuff: 'fx_job_hunter_sandman' },
-};
-export const skillFx = (skillId: string | undefined): SkillFx | undefined => {
-  if (!skillId) return undefined;
-  const mapped = skillMap[skillId];
-  const roles = eventRoles[skillId];
-  return roles ? { ...mapped, ...roles } : mapped;
-};
+export const skillFx = (skillId: string | undefined): SkillFx | undefined => (skillId ? skillMap[skillId] : undefined);
 export const animatedEffect = (id: string): AnimatedEffect | undefined => effects.get(id);
 export function selectedAnimatedEffect(id: string, kind: 'flash' | 'projectile', loaded: boolean): AnimatedEffect | undefined {
   if (!loaded || (kind === 'projectile' && id !== 'fx_arrow')) return undefined;

@@ -156,12 +156,15 @@ def inventory(brief: Path, manifest: Path, rb: Path) -> dict:
         row['atlases'] = sorted(id for id in sheet_ids if id in effects and
                                 (ROOT / 'assets' / effects[id]['file']).is_file())
         row['runtime_mapping'] = mapped
+        row['shared_effects'] = {event: fx_id for event, fx_id in mapped.items()
+                                 if fx_id in row['atlases'] and fx_id != 'fx_' + skill
+                                 and not fx_id.startswith('fx_' + skill + '_')}
         row['components'] = {}
         for role in row['required']:
-            # Only hit and buff events are supported by the current effects.json
-            # contract; a manifest hit mapping cannot stand in for area/projectile.
-            event = role if role in ('hit', 'buff') else None
-            fx_id = mapped.get(event) if event else None
+            # The manifest uses `ground` for the brief's requested area role.
+            # No projectile travel or success-only hook is claimed by a hit mapping.
+            event = 'ground' if role == 'area' else role
+            fx_id = mapped.get(event) if event in ('hit', 'buff', 'cast', 'ground', 'debuff') else None
             present = fx_id in row['atlases'] if fx_id else False
             possible = [c for c in row['source_candidates'] if c['role'] in (role, 'contextual')]
             # An unrelated sheet under the same skill prefix cannot close a gap.
@@ -175,6 +178,7 @@ def inventory(brief: Path, manifest: Path, rb: Path) -> dict:
                           'atlas_only' if atlas_for_role else
                           'candidate_only' if possible else 'missing',
                 'runtime_effect': fx_id if present else None,
+                'runtime_source': ('shared_ro_capture' if event in row['shared_effects'] else 'direct_ro_capture') if present else None,
                 'atlas_effects': atlas_for_role,
                 'candidate_ro_ids': sorted({c['id'] for c in possible}),
             }
@@ -186,6 +190,7 @@ def inventory(brief: Path, manifest: Path, rb: Path) -> dict:
     return {'inputs': {'brief': str(brief), 'manifest': str(manifest), 'ro_source': str(rb / 'src/DB/Skills/SkillEffect.js')},
             'summary': {'rows': len(rows), 'priorities': dict(Counter(r['priority'] for r in rows)),
                         'statuses': dict(Counter(r['status'] for r in rows)),
+                        'shared_mapping_skills': sum(bool(r['shared_effects']) for r in rows),
                         'missing_components': dict(Counter(c for r in rows for c in r['gaps']))},
             'rows': rows}
 
@@ -195,7 +200,7 @@ def write_ledger(ledger: dict, json_path: Path, csv_path: Path) -> None:
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(json.dumps(ledger, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     columns = ['priority', 'skill_id', 'name', 'ro_hint', 'kind', 'required', 'status',
-               'gaps', 'atlases', 'runtime_mapping', 'source_candidates', 'components']
+               'gaps', 'atlases', 'runtime_mapping', 'shared_effects', 'source_candidates', 'components']
     with csv_path.open('w', encoding='utf-8', newline='') as stream:
         writer = csv.DictWriter(stream, fieldnames=columns)
         writer.writeheader()

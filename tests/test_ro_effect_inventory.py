@@ -49,7 +49,15 @@ class InventoryTests(unittest.TestCase):
         self.assertIn('projectile', fireball['gaps'])
         self.assertEqual(fireball['components']['projectile']['atlas_effects'],
                          ['fx_job_mage_fire_ball_projectile'])
-        self.assertEqual(rows['job_crusader_grand_cross']['components']['area']['status'], 'candidate_only')
+        self.assertEqual(rows['job_crusader_grand_cross']['components']['area']['status'], 'runtime_mapped')
+        self.assertEqual(rows['job_wizard_meteor_storm']['status'], 'atlas_only')
+        self.assertEqual(rows['job_wizard_meteor_storm']['required'], ['projectile', 'hit'])
+        self.assertEqual(rows['job_knight_bowling_bash']['status'], 'atlas_only')
+        self.assertEqual(rows['job_knight_bowling_bash']['required'], ['hit', 'area'])
+        self.assertEqual(rows['job_swordman_magnum_break']['components']['cast']['status'], 'runtime_mapped')
+        self.assertEqual(rows['job_thief_steal']['status'], 'atlas_only')
+        self.assertEqual(rows['mob3_melee_rend']['shared_effects'], {'hit': 'fx_job_assassin_sonic_blow'})
+        self.assertEqual(rows['mob3_melee_rend']['components']['hit']['runtime_source'], 'shared_ro_capture')
         self.assertEqual(rows['job_merchant_frying_pan']['source_candidates'], [])
         self.assertEqual(rows['mob_boss1_quake']['source_candidates'], [])
         with tempfile.TemporaryDirectory() as temp:
