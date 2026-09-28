@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob6_ranged",
+  "name": "Марс",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 380,
+    "atk": 48,
+    "def": 5,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob6_ranged_water_shot",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "drops",
+    "tint": "#4f9fd0",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

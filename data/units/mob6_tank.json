@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob6_tank",
+  "name": "Кукре",
+  "kind": "monster",
+  "role": "tank",
+  "stats": {
+    "hp": 1000,
+    "atk": 32,
+    "def": 19,
+    "spd": 80
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob6_tank_shell",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "tank",
+    "tint": "#d9a88c",
+    "scale": 1.1,
+    "hitFx": "fx_hit"
+  }
+}

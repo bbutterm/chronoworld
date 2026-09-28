@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob6_fast",
+  "name": "Сворд-фиш",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 420,
+    "atk": 42,
+    "def": 5,
+    "spd": 140,
+    "moveSpeed": 300
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob6_fast_pierce",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "fast",
+    "tint": "#8cc8e6",
+    "hitFx": "fx_hit"
+  }
+}
