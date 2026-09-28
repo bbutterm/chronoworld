@@ -1,5 +1,5 @@
 import achievementsJson from '../../data/achievements.json';
-import bountiesJson from '../../data/bounties.json';
+import expeditionsJson from '../../data/expeditions.json';
 import cardsJson from '../../data/cards.json';
 import dropsJson from '../../data/drops.json';
 import eventsJson from '../../data/events.json';
@@ -37,7 +37,7 @@ export const GAME: FullContext = buildGameContext({
   quests: questsJson,
   drops: dropsJson,
   tower: towerJson,
-  bounties: bountiesJson,
+  expeditions: expeditionsJson,
   achievements: achievementsJson,
   unlocks: unlocksJson,
   events: eventsJson,

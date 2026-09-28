@@ -9,14 +9,16 @@ import {
   heroJobId,
   heroName,
   heroSpriteOverride,
-  heroRole,
   levelUpInfo,
   misplacedInFront,
   type GearContext,
   RARITIES,
   SLOTS,
   squadPower,
-  planDispatchAll,
+  finishedExpeditions,
+  idleExpeditions,
+  type ExpeditionContext,
+  type ExpectedLoot,
   towerFloor,
   towerStatus,
   unitPower,
@@ -25,7 +27,6 @@ import {
   stageStatus,
   type AchievementView,
   type ActivityKind,
-  type Bounty,
   type EquipmentContext,
   type FeatureContext,
   type GameContext,
@@ -33,7 +34,6 @@ import {
   type ItemDef,
   type ItemInstance,
   type ItemStats,
-  type MetaContext,
   type MetaEvent,
   type MetaRewards,
   type Preset,
@@ -438,12 +438,9 @@ export function presetMatches(preset: Pick<Preset, 'squad'>, squad: readonly (st
   return preset.squad.length === squad.length && preset.squad.every((id, i) => id === squad[i]);
 }
 
-// ---------- K9. Поручения ----------
+// ---------- K9. Экспедиции ----------
 
-export const BOUNTY_RARITY_NAMES: Record<string, string> = { common: 'Обычное', rare: 'Редкое', epic: 'Эпическое' };
-export const BOUNTY_RARITY_COLORS: Record<string, string> = { common: '#e6e2d6', rare: '#6fb8ff', epic: '#d890ff' };
-
-/** Длительность поручения: «30 мин», «2 ч», «1 ч 30 мин». */
+/** Длительность: «30 мин», «2 ч», «1 ч 30 мин». */
 export function durationText(minutes: number): string {
   const m = Math.max(0, Math.round(minutes));
   const h = Math.floor(m / 60);
@@ -462,7 +459,7 @@ export function countdownText(ms: number): string {
   return h > 0 ? `${h}:${p(m)}:${p(sec)}` : `${m}:${p(sec)}`;
 }
 
-/** Награда K9/K10 одной строкой: «300 зол. · 50 опыта · 5 гем.» (нулевые не пишем). */
+/** Награда K10 одной строкой: «300 зол. · 50 опыта · 5 гем.» (нулевые не пишем). */
 export function metaRewardsText(r: Omit<MetaRewards, 'shards'> & { shards?: number }, jobExpSuffix = ''): string {
   const parts: string[] = [];
   if (r.gold) parts.push(`${formatNumber(r.gold)} зол.`);
@@ -472,38 +469,22 @@ export function metaRewardsText(r: Omit<MetaRewards, 'shards'> & { shards?: numb
   return parts.join(' · ') || '—';
 }
 
-/** Сколько поручений завершено и ждут «Забрать» (для значка на главной). */
-export function finishedBounties(save: SaveState, now: number): number {
-  return save.bounties.active.filter((b) => now >= b.endsAt).length;
-}
-
-/** Сколько поручений доски можно отправить прямо сейчас («Отправить всё»: хватает свободных героев и ролей). */
-export function dispatchableBounties(save: SaveState, ctx: MetaContext): number {
-  return planDispatchAll(save, ctx).length;
-}
-
-/**
- * Красный кружок плитки «Поручения» (главная): завершённые к now (забрать) + поручения, на которые есть кого отправить
- * (свободные герои простаивают). Как в AFK: кружок, пока доска не «работает» целиком.
- */
-export function bountiesBadgeCount(save: SaveState, now: number, ctx: MetaContext): number {
-  return finishedBounties(save, now) + dispatchableBounties(save, ctx);
+/** Что даст экспедиция (до отправки): «≈ 660 зол. · 880 опыта» и находки «гемы, осколки, предметы» — по средним. */
+export function expectedLootText(e: ExpectedLoot): { base: string; finds: string } {
+  const finds: string[] = [];
+  if (e.gems > 0) finds.push(`гемы ≈${Math.max(1, Math.round(e.gems))}`);
+  if (e.shards > 0) finds.push('осколки');
+  if (e.items > 0) finds.push('снаряжение');
+  if (e.scrolls > 0) finds.push('свитки');
+  return { base: `${formatNumber(e.gold)} зол. · ${formatNumber(e.jobExp)} опыта`, finds: finds.length ? `Находки: ${finds.join(', ')}` : '' };
 }
 
 /**
- * Можно ли отправить выбранных героев на поручение: причина отказа или null.
- * Проверки те же, что в startBounty (число героев, роль), — чтобы кнопка «Отправить» была неактивной заранее.
+ * Красный кружок плитки «Экспедиции» (главная): вернувшиеся (забрать) + открытые свободные локации, куда хватает мощи
+ * отправить отряд (простаивают). Как в AFK: кружок, пока экспедиции не «работают» целиком.
  */
-export function bountyPickBlocker(bounty: Bounty, heroIds: readonly string[], save: SaveState, ctx: MetaContext): string | null {
-  if (heroIds.length !== bounty.heroCount) return `Выберите героев: ${heroIds.length} / ${bounty.heroCount}`;
-  if (bounty.role) {
-    const ok = heroIds.some((id) => {
-      const h = save.heroes.find((x) => x.id === id);
-      return h && ctx.content.heroes[h.templateId] ? heroRole(h, ctx) === bounty.role : false;
-    });
-    if (!ok) return `Нужен герой с ролью «${ROLE_NAMES[bounty.role] ?? bounty.role}»`;
-  }
-  return null;
+export function expeditionsBadgeCount(save: SaveState, now: number, ctx: ExpeditionContext): number {
+  return finishedExpeditions(save, now) + idleExpeditions(save, ctx);
 }
 
 // ---------- K10. Достижения ----------

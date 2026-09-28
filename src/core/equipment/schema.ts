@@ -86,7 +86,7 @@ export const ChestRuleSchema = z.object({
   item: z.number().min(0).max(1),
   /** Веса редкостей предмета; без поля — rarityWeights правила выпадения этой главы (rules). */
   rarityWeights: RarityWeightsSchema.optional(),
-  /** Осколки «отстающего» сюжетного героя (как у поручений). */
+  /** Осколки «отстающего» сюжетного героя (как у экспедиций). */
   shards: ChestRollSchema.optional(),
   /** Гемы (редко). */
   gems: ChestRollSchema.optional(),

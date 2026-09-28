@@ -139,7 +139,7 @@ export function claimQuest(save: SaveState, day: string, questId: string, ctx: F
 /**
  * Забрать награду порога активности milestone (значение points из data/quests.json).
  * Золото и гемы — в ресурсы, jobExp — в общий пул опыта героев. rollDay первым делом.
- * K10: как и другие награды с опытом (claimBounty, claimAchievement), обновляет счётчики-«максимумы» достижений.
+ * K10: как и другие награды с опытом (claimExpedition, claimAchievement), обновляет счётчики-«максимумы» достижений.
  * FeatureError: unknown_milestone, not_enough_activity, milestone_already_claimed.
  */
 export function claimActivity(

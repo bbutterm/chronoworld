@@ -18,7 +18,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, maxLevelOf, rarityIndex, simulateBattle, validateHeroes } from '../src/core';
+import { buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, maxLevelOf, rarityIndex, recommendedPower, simulateBattle, validateHeroes } from '../src/core';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
@@ -41,9 +41,13 @@ if (built.ctx) {
   const gates = lintItemGates(built.ctx);
   errors.push(...gates.errors);
   warnings.push(...gates.warnings);
-  const roles = new Set(Object.values(built.ctx.content.jobs).map((j) => j.role));
-  for (const b of built.ctx.meta.bounties.templates) {
-    if (b.role && !roles.has(b.role)) errors.push(`data/bounties.json: поручение ${b.id} требует роль ${b.role}, которой нет ни у одной профессии`);
+  // Экспедиции: порог мощи локации выше рекомендуемой мощи самых трудных этапов до её открытия — игрок увидит
+  // локацию, но отправить отряд, скорее всего, не сможет.
+  const stages = built.ctx.content.stages;
+  for (const loc of built.ctx.meta.expeditions.locations) {
+    const upto = stages.slice(0, stages.findIndex((s) => s.id === loc.stage) + 1);
+    const rec = Math.max(0, ...upto.map((s) => recommendedPower(s.id, built.ctx!)));
+    if (loc.power > rec) warnings.push(`data/expeditions.json: локация ${loc.id} — порог мощи ${loc.power} выше рекомендуемой мощи этапов до ${loc.stage} (${rec})`);
   }
 }
 

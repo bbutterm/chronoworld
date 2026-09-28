@@ -260,12 +260,14 @@ describe('сохранение v5', () => {
     expect(deserialize(JSON.stringify(withMail)).mail).toEqual(fresh().mail);
   });
 
-  it('старые сохранения (v0, v3) доходят до v5 и получают письмо при открытии', () => {
+  it('старые сохранения (v0, v3) доходят до текущей версии и получают письмо при открытии', () => {
     for (const f of ['save-v0.json', 'save-v3.json']) {
       const s = deserialize(readFileSync(join(import.meta.dirname, 'fixtures', f), 'utf8'));
       expect(s.version).toBe(SAVE_VERSION);
       const t = touchEvents(s, D1, ctx);
-      expect(t.mail.letters.map((l) => l.source)).toEqual(['welcome']);
+      // Системное письмо — одно; у v3 с поручением в работе есть ещё письмо миграции v6 (без source, tests/meta-expeditions.test.ts).
+      expect(t.mail.letters.filter((l) => l.source).map((l) => l.source)).toEqual(['welcome']);
+      expect(t.mail.letters.filter((l) => !l.source)).toHaveLength(f === 'save-v3.json' ? 1 : 0);
       expect(t.events!.loginDays).toBe(1);
     }
   });
