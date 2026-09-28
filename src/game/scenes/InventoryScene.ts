@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { actEquip, actUnequip, heroName, heroSlots, SLOTS, type HeroState, type Slot } from '../../core';
+import { actEquip, actUnequip, heroName, heroSlots, needsBranch, SLOTS, type CardRarity, type HeroState, type Slot } from '../../core';
 import { GAME } from '../content';
 import { diffText, equipBlocker, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, statDiff, type InventoryRow } from '../flow';
 import { GAME_W } from '../layout';
@@ -11,10 +11,13 @@ import { itemCell } from '../itemIcons';
 import { staggerIn } from '../juice';
 import { markHint } from '../hints';
 import { sfx } from '../audio';
+import { drawHeroCard, heroCardSize, rarityColor } from '../heroCard';
+import { heroCardsList, heroCardsSummary, inventoryUi, RARITY_ORDER } from '../heroesView';
 
 /**
  * K6. Инвентарь.
- * - Без героя: все предметы (фильтр по слоту), кто что носит.
+ * - Без героя: вкладки «Снаряжение» (все предметы, фильтр по слоту, кто что носит) и «Карты героев» (каждый экземпляр
+ *   героя — своя карта: копии по отдельности, фильтр редкости; нажатие — карточка этого экземпляра).
  * - С героем и слотом (из карточки героя): выбор предмета для слота — разница статов с надетым,
  *   ограничение по профессии, «Надеть» / «Снять».
  */
@@ -153,6 +156,27 @@ export class InventoryScene extends Phaser.Scene {
   private all(filter: Slot | null): void {
     screen(this, 'Инвентарь', 'Heroes', { to: 'Heroes' });
     const top = CONTENT_TOP;
+    // Вкладки экрана: снаряжение и карты героев (запоминается на сессию).
+    const main: { id: 'gear' | 'cards'; label: string }[] = [
+      { id: 'gear', label: 'Снаряжение' },
+      { id: 'cards', label: `Карты героев (${heroCardsList(session.save, GAME).length})` },
+    ];
+    main.forEach((t, i) => {
+      const on = inventoryUi.tab === t.id;
+      button(this, 20 + 520 * (i + 0.5), top + 50, 508, TOUCH, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label, () => {
+        if (on) return;
+        inventoryUi.tab = t.id;
+        this.scene.restart({});
+      }, FS.h3, { sound: 'ui_toggle' }).container.setName(`invTab_${t.id}`);
+    });
+    if (inventoryUi.tab === 'cards') {
+      this.cards(top + 110);
+      return;
+    }
+    this.gear(filter, top + 105);
+  }
+
+  private gear(filter: Slot | null, top: number): void {
     const tabs: (Slot | null)[] = [null, ...SLOTS];
     const w = 1040 / tabs.length;
     tabs.forEach((t, i) => {
@@ -187,6 +211,96 @@ export class InventoryScene extends Phaser.Scene {
         a.add(button(this, 880, y, 250, 100, 'k:buttonLong_beige', 'К герою', a.tap(() => this.scene.start('Hero', { heroId })), FS.body).container);
       }
     });
+  }
+
+  // ---------- карты героев ----------
+
+  /**
+   * Все экземпляры героев по отдельности (копии — каждая своей картой): сводка по редкостям, фильтр редкости (ромбы),
+   * сетка 3 в ряд с прокруткой; строятся только видимые ряды (сотни копий открываются быстро).
+   */
+  private cards(top: number): void {
+    const save = session.save;
+    const rarity = inventoryUi.rarity;
+    const only = inventoryUi.template && GAME.content.heroes[inventoryUi.template] ? inventoryUi.template : null;
+    const list = heroCardsList(save, GAME, rarity, only);
+    if (only) {
+      // С карточки героя («Копий: N ›») — только его копии; кнопка снимает фильтр.
+      const n = heroCardsList(save, GAME, null, only).length;
+      button(this, GAME_W / 2, top + 40, 760, 76, 'k:buttonLong_beige', `${GAME.content.heroes[only].name}: карт ${n} · показать всех ✕`, () => {
+        inventoryUi.template = null;
+        this.scene.restart({});
+      }, FS.body, { sound: 'ui_toggle' }).container.setName('cardsTemplateOff');
+    } else ellipsize(text(this, GAME_W / 2, top + 40, heroCardsSummary(save, GAME), FS.body, C.text, { stroke: C.stroke, strokeThickness: 5 }), 1040).setName('cardsSummary');
+    // Фильтр редкости: ромбы, повторное нажатие снимает.
+    const chipY = top + 130;
+    const CH = 96;
+    const x0 = GAME_W / 2 - (RARITY_ORDER.length - 1) * (CH + 16) / 2;
+    RARITY_ORDER.forEach((r, i) => {
+      const on = rarity === r;
+      const b = button(this, x0 + i * (CH + 16), chipY, CH, CH, on ? 'k:buttonSquare_brown' : 'k:buttonSquare_beige', '', () => {
+        inventoryUi.rarity = on ? null : (r as CardRarity);
+        this.scene.restart({});
+      }, FS.body, { sound: 'ui_toggle' });
+      b.container.setName(`cardsRarity_${r}`);
+      const d = 22;
+      b.container.add(this.add.polygon(0, -4, [d, 0, 2 * d, d, d, 2 * d, 0, d], Phaser.Display.Color.HexStringToColor(rarityColor(r)).color).setStrokeStyle(4, 0x000000));
+    });
+    const listTop = chipY + CH / 2 + 16;
+    if (!list.length) {
+      emptyCard(this, listTop + 300, rarity ? 'Карт этой редкости нет.\nНажмите ромб ещё раз, чтобы снять фильтр.' : 'Карт героев пока нет.', 'bag');
+      return;
+    }
+    const COLS = 3;
+    const TILE_W = 300;
+    const GAP_X = 36;
+    const GAP_Y = 30;
+    const { h: tileH } = heroCardSize(TILE_W);
+    const rowH = tileH + GAP_Y;
+    const rows = Math.ceil(list.length / COLS);
+    const bottom = CONTENT_BOTTOM + 10;
+    const area = (this.area = new ScrollArea(this, listTop, bottom));
+    area.setContentHeight(rows * rowH + GAP_Y);
+    const cx0 = GAME_W / 2 - (COLS - 1) * (TILE_W + GAP_X) / 2;
+    const draw = (row: number): Phaser.GameObjects.GameObject[] => {
+      const out: Phaser.GameObjects.GameObject[] = [];
+      for (let c = 0; c < COLS; c++) {
+        const hero = list[row * COLS + c];
+        if (!hero) break;
+        out.push(
+          drawHeroCard(this, cx0 + c * (TILE_W + GAP_X), GAP_Y / 2 + tileH / 2 + row * rowH, hero, {
+            w: TILE_W,
+            needsBranch: needsBranch(hero, GAME),
+            inSquad: save.squad.includes(hero.id),
+            isNew: !!hero.isNew,
+            locked: !!hero.locked,
+            glow: false,
+            parent: area.content,
+            onTap: area.tap(() => this.scene.start('Hero', { heroId: hero.id })),
+          }),
+        );
+      }
+      return out;
+    };
+    const built = new Map<number, Phaser.GameObjects.GameObject[]>();
+    let lastOffset = NaN;
+    const sync = () => {
+      const off = area.offset;
+      if (off === lastOffset) return;
+      lastOffset = off;
+      const from = Math.max(0, Math.floor(off / rowH) - 1);
+      const to = Math.min(rows - 1, Math.ceil((off + bottom - listTop) / rowH) + 1);
+      for (const [i, objs] of built) {
+        if (i >= from && i <= to) continue;
+        for (const o of objs) o.destroy();
+        built.delete(i);
+      }
+      for (let i = from; i <= to; i++) if (!built.has(i)) built.set(i, draw(i));
+    };
+    sync();
+    staggerIn(this, 'InventoryCards', [...built.values()]);
+    this.events.on(Phaser.Scenes.Events.UPDATE, sync);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off(Phaser.Scenes.Events.UPDATE, sync));
   }
 
   // ---------- общее ----------
