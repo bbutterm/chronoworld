@@ -108,15 +108,18 @@ export const ChestDropsSchema = z.object({
 export const REFINE_HARD_MAX = 20;
 
 /**
- * «Заточка» снаряжения (кузнец RO, +1…+maxLevel) — главный сток золота. Статы предмета: база × (1 + bonusPerLevel · N).
+ * «Заточка» снаряжения (кузнец RO, +1…+maxLevel) — главный сток золота. Статы предмета: база × (1 + bonusByLevel[N]).
  * Цена шага +N → +N+1: cost.base[редкость] × cost.growth^N (округление до 2 значащих цифр). Шаг на +N ломает вещь
  * с шансом breakChance[N−1] (бросок Rng по seed из сохранения); золото списывается в любом случае.
  */
 export const RefineConfigSchema = z
   .object({
   maxLevel: z.number().int().min(1).max(REFINE_HARD_MAX),
-  /** Прибавка к статам предмета за уровень заточки (0.1 = +10% базы). */
-  bonusPerLevel: z.number().positive().max(1),
+  /**
+   * Накопленная прибавка к статам предмета на +N (доля базы): bonusByLevel[N], N = 0…maxLevel. Длина maxLevel+1,
+   * [0] = 0, не убывает. Шаги растут по ступеням: +1…+4 скромные, +8…+10 — огромные (+10 = +250%).
+   */
+  bonusByLevel: z.array(z.number().min(0).max(20)),
   cost: z.object({
     /** Цена первого шага (+0 → +1) по редкости, золото. */
     base: z.object({ common: z.number().int().positive(), rare: z.number().int().positive(), epic: z.number().int().positive() }),
@@ -128,8 +131,24 @@ export const RefineConfigSchema = z
    * Длина — ровно maxLevel, шансы не убывают. Нет поля — заточка всегда успешна.
    */
   breakChance: z.array(z.number().min(0).max(0.99)).optional(),
+  /** «Надёжная заточка»: цена шага × safeGoldMult, шанс поломки ÷ safeBreakDiv. Нет полей — только обычная. */
+  safeGoldMult: z.number().min(1).max(100).optional(),
+  safeBreakDiv: z.number().min(1).max(100).optional(),
+  /**
+   * «Благословенная руда» (RO Blessed Ore): один шаг заточки без риска поломки (золото — как за обычный шаг).
+   * Падает с боссов: первая победа над боссом главы, этаж-босс Башни, первая атака дня в Охоте (если взят порог);
+   * min…max штук (равновероятно, Rng от seed награды). Нет поля — руды нет.
+   */
+  blessedOre: z.object({ min: z.number().int().min(1), max: z.number().int().min(1).max(20) }).refine((o) => o.max >= o.min, 'max ≥ min').optional(),
 })
   .superRefine((cfg, c) => {
+    const k = cfg.bonusByLevel;
+    if (k.length !== cfg.maxLevel + 1) c.addIssue({ code: 'custom', path: ['bonusByLevel'], message: `нужно ровно ${cfg.maxLevel + 1} значений (+0…+${cfg.maxLevel})` });
+    if (k[0] !== 0) c.addIssue({ code: 'custom', path: ['bonusByLevel', 0], message: 'на +0 прибавка 0' });
+    k.forEach((v, i) => {
+      if (i > 0 && v < k[i - 1]) c.addIssue({ code: 'custom', path: ['bonusByLevel', i], message: 'прибавка не должна убывать с уровнем' });
+    });
+    if ((cfg.safeGoldMult === undefined) !== (cfg.safeBreakDiv === undefined)) c.addIssue({ code: 'custom', path: ['safeGoldMult'], message: 'safeGoldMult и safeBreakDiv задаются вместе' });
     const b = cfg.breakChance;
     if (!b) return;
     if (b.length !== cfg.maxLevel) c.addIssue({ code: 'custom', path: ['breakChance'], message: `нужно ровно ${cfg.maxLevel} шансов (по одному на шаг +1…+${cfg.maxLevel})` });

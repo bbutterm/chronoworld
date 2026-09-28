@@ -180,6 +180,7 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventR
     if (e.type === 'heroCard') lines.push(`Карта героя: ${e.name} (${rarityName(e.rarity)})`);
     if (e.type === 'heroPick') lines.push(`Контракт героя: ${rarityName(e.rarity).toLowerCase()} герой на выбор — «Герои»`);
     if (e.type === 'branchChosen') lines.push(`${nameOf(e.heroId)}: ветка — ${jobName(e.branch)}${e.gems ? ` (−${formatNumber(e.gems)} гемов)` : ''}`);
+    if (e.type === 'blessedOre') lines.push(`Благословенная руда ×${e.count}`);
     if (e.type === 'tavernUnlocked') lines.unshift(`Открыта Таверна! Подарок: гемы +${formatNumber(e.gems)}, свитки призыва +${e.scrolls}`);
     if (e.type === 'stageUnlocked') {
       const s = ctx.content.stages.find((x) => x.id === e.stageId);

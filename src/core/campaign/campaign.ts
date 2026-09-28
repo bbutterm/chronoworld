@@ -10,6 +10,8 @@ import { grantTavernWelcome } from '../heroes/summon';
 import { GameRuleError, type GameContext, type ProgressEvent } from '../progression/types';
 import type { StageInfo } from './schema';
 import { withGear } from '../equipment/equipment';
+import type { EquipmentConfig } from '../equipment/load';
+import { grantBlessedOre } from '../equipment/refine';
 import { bankOffline, lastClearedStage } from './offline';
 
 export type StageStatus = 'locked' | 'open' | 'cleared';
@@ -93,6 +95,7 @@ export function squadUnits(save: SaveState, ctx: GameContext): { squad: (UnitDef
  *   опыт (rewards.jobExp) — в общий пул героев resources.heroExp (уровни поднимает игрок: heroes/level.ts);
  *   карты случайных героев (heroes/cardDrops.ts: первое прохождение — cards.heroCards.firstClear/bossFirstClear, повтор — replay; бросок от seed);
  *   рекрут (progression.heroes.recruits) и подарок Таверны (summon.unlockAfterStage) при первом прохождении;
+ *   босс главы при первой победе — «Благословенная руда» (refine.blessedOre, бросок от seed боя, событие blessedOre);
  *   события rewards, heroCard, stageCleared, stageUnlocked, heroJoined (copy — пришла копия уже имеющегося), tavernUnlocked;
  * - поражение: только battleSeq;
  * - P9 (T1-15): первая победа в кампании (cleared был пуст) при переданном now ставит offline.lastClaimAt = now —
@@ -131,6 +134,11 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   const cards = grantHeroCards(next, stageHeroCards(stage, firstTime, seed, ctx), ctx);
   next = cards.save;
   events.push(...cards.events);
+  if (firstTime && stage.boss) {
+    const ore = grantBlessedOre(next, seed, ctx as { equipment?: EquipmentConfig });
+    next = ore.save;
+    if (ore.count) events.push({ type: 'blessedOre', count: ore.count });
+  }
   events.push({ type: 'stageCleared', stageId: stage.id, firstTime });
   const following = ctx.content.stages[stage.globalIndex + 1];
   if (firstTime && following) events.push({ type: 'stageUnlocked', stageId: following.id });

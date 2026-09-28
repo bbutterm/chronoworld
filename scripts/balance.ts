@@ -189,6 +189,12 @@ console.log(
 const shopBuys = Object.entries(res.shopBuys).map(([k, n]) => `${k} ${n}`).join(', ');
 if (shopBuys) console.log(`  лавка, покупки: ${shopBuys}`);
 if (res.refines) console.log(`  заточка: шагов ${res.refines}, сломано вещей ${res.refineBreaks}, золота ${res.spend.refine.gold} (${Math.round((res.spend.refine.gold / Math.max(1, sp.gold)) * 100)}% расхода)`);
+{
+  const oreIn = Object.entries(res.oreIn).map(([k, n]) => `${k} ${n}`).join(', ');
+  const got = Object.values(res.oreIn).reduce((a, n) => a + (n ?? 0), 0);
+  if (res.refines) console.log(`  заточка по режимам: обычных ${res.refineModes.normal}, надёжных ${res.refineModes.safe}, рудой ${res.refineModes.ore}`);
+  if (got) console.log(`  Благословенная руда: добыто ${got} (${oreIn}), потрачено ${res.oreSpent}, осталось ${res.save.currency.blessedOre ?? 0}`);
+}
 const scrolls = Object.entries(res.scrollsIn).map(([k, n]) => `${k} ${n}`).join(', ');
 if (scrolls) console.log(`  свитки призыва: ${scrolls}`);
 const perSource = (m: Partial<Record<string, number>>) => Object.entries(m).map(([k, n]) => `${k} ${n}`).join(', ');

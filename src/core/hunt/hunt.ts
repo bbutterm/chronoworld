@@ -14,6 +14,7 @@ import { progressChapter } from '../equipment/gates';
 import { RARITIES } from '../equipment/schema';
 import { dayNumber } from '../events/events';
 import { addItems, withGear } from '../equipment/equipment';
+import { grantBlessedOre } from '../equipment/refine';
 import type { EquipmentConfig } from '../equipment/load';
 import { addHeroExp } from '../heroes/level';
 import { cardRng, grantHeroCards, rollHeroCards } from '../heroes/cardDrops';
@@ -66,6 +67,8 @@ export interface HuntGrant {
   heroCards: ProgressEvent[];
   /** Предметы (0 или 1). */
   items: ItemInstance[];
+  /** «Благословенная руда»: только первая попытка дня (бой или зачистка) со взятым порогом, 1–3 штуки. */
+  ore: number;
 }
 
 export interface HuntStatus {
@@ -240,7 +243,17 @@ function grant(save: SaveState, reward: HuntReward, lootSeedValue: number, ctx: 
       items = r.added;
     }
   }
-  return { save: next, grant: { gold, gems, jobExp, heroCards: cards.events, items } };
+  return { save: next, grant: { gold, gems, jobExp, heroCards: cards.events, items, ore: 0 } };
+}
+
+/**
+ * «Благословенная руда» с босса охоты: раз в день — первая попытка дня (бой или зачистка), если взят хотя бы первый
+ * порог. Бросок от seed добычи этой попытки. Так в день выходит 1–3 руды.
+ */
+function grantOre(save: SaveState, g: { save: SaveState; grant: HuntGrant }, day: string, tier: number, lootSeedValue: number, ctx: HuntContext): { save: SaveState; grant: HuntGrant } {
+  if (tier < 0 || stateOf(save, day).used > 0) return g;
+  const ore = grantBlessedOre(g.save, lootSeedValue, ctx);
+  return { save: ore.save, grant: { ...g.grant, ore: ore.count } };
 }
 
 /** Записать попытку и лучший урон по боссу. */
@@ -273,7 +286,7 @@ export function fightHunt(save: SaveState, day: string, ctx: HuntContext): HuntO
   const record = damage > (save.hunt?.best[boss.unit] ?? 0);
   const tier = huntTier(damage, ctx.hunt);
   const loot = huntSeed(save, day, 'loot');
-  const g = grant(save, huntTierReward(tier, ctx.hunt), loot, ctx);
+  const g = grantOre(save, grant(save, huntTierReward(tier, ctx.hunt), loot, ctx), day, tier, loot, ctx);
   const next = spend(g.save, day, boss.unit, damage);
   return { save: next, result, boss, damage, tier, grant: g.grant, record, sweep: false };
 }
@@ -288,7 +301,8 @@ export function sweepHunt(save: SaveState, day: string, ctx: HuntContext): HuntO
   const best = save.hunt?.best[boss.unit] ?? 0;
   if (!ctx.hunt.sweep || best <= 0) throw new HuntError('no_sweep', 'Зачистка откроется после первого боя с этим боссом');
   const tier = huntTier(best, ctx.hunt);
-  const g = grant(save, huntTierReward(tier, ctx.hunt), huntSeed(save, day, 'loot'), ctx);
+  const loot = huntSeed(save, day, 'loot');
+  const g = grantOre(save, grant(save, huntTierReward(tier, ctx.hunt), loot, ctx), day, tier, loot, ctx);
   const next = spend(g.save, day, boss.unit, best);
   return { save: next, result: null, boss, damage: best, tier, grant: g.grant, record: false, sweep: true };
 }

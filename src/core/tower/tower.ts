@@ -1,5 +1,7 @@
 import type { z } from 'zod';
 import { withGear } from '../equipment/equipment';
+import type { EquipmentConfig } from '../equipment/load';
+import { grantBlessedOre } from '../equipment/refine';
 import { simulateBattle } from '../battle';
 import type { UnitDef } from '../content/schema';
 import type { FeatureEvent } from '../features/config';
@@ -199,7 +201,7 @@ export function towerStatus(save: SaveState, ctx: TowerContext): TowerStatus {
  * - GameRuleError('unknown_hero') / ('empty_squad') / ('duplicate_card') — как у playStage;
  * - battleSeq + 1 всегда;
  * - победа: tower.floor + 1, золото и гемы в ресурсы, jobExp — в общий пул опыта героев;
- *   события rewards, gems (если > 0), towerFloorCleared;
+ *   события rewards, gems (если > 0), towerFloorCleared; этаж-босс — «Благословенная руда» (бросок от seed боя, событие blessedOre);
  * - поражение: только battleSeq. Повторов этажей нет — награда за этаж даётся один раз.
  */
 export function climbTower(save: SaveState, seed: number, ctx: TowerContext): TowerOutcome {
@@ -227,6 +229,11 @@ export function climbTower(save: SaveState, seed: number, ctx: TowerContext): To
   next = addHeroExp(next, jobExp);
   events.push({ type: 'rewards', gold, heroExp: jobExp });
   if (gems > 0) events.push({ type: 'gems', amount: gems });
+  if (floor.boss) {
+    const ore = grantBlessedOre(next, seed, ctx as { equipment?: EquipmentConfig });
+    next = ore.save;
+    if (ore.count) events.push({ type: 'blessedOre', count: ore.count });
+  }
   events.push({ type: 'towerFloorCleared', floor: n, boss: floor.boss });
   return { save: next, floor: n, result, events };
 }

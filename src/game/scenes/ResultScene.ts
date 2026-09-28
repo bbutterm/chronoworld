@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { oreIcon } from '../itemIcons';
 import { GAME } from '../content';
 import { autoNextStage, decimal, defeatAdvice, describeEvents, formatNumber, itemStatsText, keyEventsFirst, levelUpReady, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
 import type { BattleResult, Side } from '../../core';
@@ -123,7 +124,16 @@ export class ResultScene extends Phaser.Scene {
         this.tweens.add({ targets: [label, ic], scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
         y += 70;
       }
-      const lines = keyEventsFirst(describeEvents(events, outcome.save, GAME).filter((l) => !l.startsWith('Карта героя:')));
+      // «Благословенная руда» с босса — строка с иконкой самородка (голубым, как руда).
+      for (const e of events) {
+        if (e.type !== 'blessedOre') continue;
+        const label = text(this, GAME_W / 2 + 30, y, `Благословенная руда ×${e.count} — заточка без поломки`, FS.body, '#bfe9ff', BOLD_OUTLINE).setName('resultOre');
+        ellipsize(label, 900);
+        const ic = oreIcon(this, label.x - label.width / 2 - 40, y, 64);
+        this.tweens.add({ targets: [label, ic], scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
+        y += 70;
+      }
+      const lines = keyEventsFirst(describeEvents(events, outcome.save, GAME).filter((l) => !l.startsWith('Карта героя:') && !l.startsWith('Благословенная руда')));
       const rows: { line: string; hot: boolean; warn?: boolean }[] = lines.map((line) => ({ line, hot: line.startsWith('Новый герой') || line.startsWith('Открыта Таверна') }));
       // Опыт копится в общем запасе — подсказать «Улучшить», если хватает на уровень.
       if (levelUpReady(session.save, GAME).length) rows.push({ line: `Опыт в запасе: ${formatNumber(session.save.resources.heroExp)} — «Герои» → «Улучшить»`, hot: false });

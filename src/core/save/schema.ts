@@ -76,7 +76,7 @@ export const ItemInstanceSchema = z.object({
   itemId: z.string(),
   equippedBy: z.string().nullable(),
   /**
-   * Заточка +N (как у кузнеца в RO): статы предмета × (1 + bonusPerLevel·N), data/drops.json → refine.
+   * Заточка +N (как у кузнеца в RO): статы предмета × (1 + bonusByLevel[N]), data/drops.json → refine.
    * Без смены версии: нет поля — +0 (старые сохранения читаются как есть). Выше maxLevel конфига (было +15 до
    * введения поломки, сейчас +10) — sanitizeSave ограничивает до maxLevel.
    */
@@ -276,6 +276,8 @@ export const SaveStateSchema = z.object({
     gems: z.number().int().nonnegative(),
     /** v4. Свитки призыва (1 свиток = 1 призыв в Таверне). */
     scrolls: z.number().int().nonnegative(),
+    /** «Благословенная руда» (заточка без риска поломки, падает с боссов). Без смены версии: нет поля — 0. */
+    blessedOre: z.number().int().nonnegative().optional(),
   }),
   /** v2. Резерв под башню испытаний (K4): последний пройденный этаж, 0 — не начата. */
   tower: z.object({ floor: z.number().int().nonnegative() }),

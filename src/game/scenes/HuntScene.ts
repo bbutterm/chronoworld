@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { oreIcon } from '../itemIcons';
 import { huntStatus, sweepHunt, type HuntOutcome, type HuntReward, type HuntStatus } from '../../core';
 import { GAME } from '../content';
 import { formatNumber, RARITY_NAMES } from '../flow';
@@ -171,6 +172,12 @@ export class HuntScene extends Phaser.Scene {
     let y = cy + 30;
     for (const l of lines) {
       layer.add(text(this, cx, y, l, FS.body, SKIN.cream, { ...OUTLINE, wordWrap: { width: 820 } }));
+      y += 60;
+    }
+    if (g.ore) {
+      // Первая атака дня со взятым порогом — «Благословенная руда» (1–3).
+      const t = text(this, cx + 20, y, `Благословенная руда ×${g.ore}`, FS.body, '#bfe9ff', { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('huntOre');
+      layer.add([t, oreIcon(this, t.x - t.width / 2 - 34, y, 52)]);
       y += 60;
     }
     if (g.gems) {

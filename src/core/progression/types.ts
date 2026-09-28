@@ -36,7 +36,9 @@ export type ProgressEvent =
   /** Герой присоединился по сюжету; copy — он уже был у игрока (пришла его зелёная копия). */
   | { type: 'heroJoined'; heroId: string; templateId: string; name: string; copy?: boolean }
   /** Открылась Таверна: подарок гемов и свитков. */
-  | { type: 'tavernUnlocked'; gems: number; scrolls: number };
+  | { type: 'tavernUnlocked'; gems: number; scrolls: number }
+  /** «Благословенная руда» с босса (заточка без риска поломки): первая победа над боссом главы, этаж-босс Башни. */
+  | { type: 'blessedOre'; count: number };
 
 /** Нарушение правил игры (этап закрыт, нет героя и т. п.). */
 export class GameRuleError extends Error {

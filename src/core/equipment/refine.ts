@@ -1,9 +1,11 @@
 /**
  * «Заточка» снаряжения (как у кузнеца в Ragnarok Online, +1…+maxLevel) — главный сток золота после потолка уровней.
  * Числа — data/drops.json → refine (RefineConfigSchema):
- *   статы предмета:  база × (1 + bonusPerLevel · N), округление до целого;
+ *   статы предмета:  база × (1 + bonusByLevel[N]), округление до целого (ступени: +1…+4 скромно, +8…+10 огромно);
  *   цена шага +N → +N+1:  cost.base[редкость] × cost.growth^N (2 значащие цифры);
- *   шаг на +N ломает (уничтожает) вещь с шансом breakChance[N−1], золото списывается в любом случае.
+ *   шаг на +N ломает (уничтожает) вещь с шансом breakChance[N−1], золото списывается в любом случае;
+ *   режимы шага: обычный, «надёжный» (цена × safeGoldMult, шанс ÷ safeBreakDiv), «рудой» (1 Благословенная руда,
+ *   золото как за обычный, поломки нет). Руда падает с боссов — grantBlessedOre.
  * Бросок — Rng с seed refineSeed(createdAt, inventory.refineSeq); счётчик растёт с каждой попыткой, поэтому
  * перезагрузка страницы исход не меняет (детерминированно). Статы с заточкой идут в бой и мощь через heroGearStats / withGear.
  */
@@ -34,11 +36,18 @@ export function refineMax(ctx: RefineCtx): number {
   return refineConfig(ctx)?.maxLevel ?? 0;
 }
 
-/** Статы предмета с заточкой refine: база × (1 + bonusPerLevel · refine), округлено. refine 0 / нет конфига — база. */
+/** Накопленная прибавка к статам на +refine (доля базы: 2.5 = +250%). Нет конфига — 0. */
+export function refineBonus(refine: number, ctx: RefineCtx): number {
+  const cfg = refineConfig(ctx);
+  if (!cfg || refine <= 0) return 0;
+  return cfg.bonusByLevel[Math.min(refine, cfg.maxLevel)] ?? 0;
+}
+
+/** Статы предмета с заточкой refine: база × (1 + bonusByLevel[refine]), округлено. refine 0 / нет конфига — база. */
 export function refinedStats(def: Pick<ItemDef, 'stats'>, refine: number, ctx: RefineCtx): ItemStats {
   const cfg = refineConfig(ctx);
   if (!cfg || refine <= 0) return def.stats;
-  const m = 1 + cfg.bonusPerLevel * Math.min(refine, cfg.maxLevel);
+  const m = 1 + refineBonus(refine, ctx);
   const out: ItemStats = {};
   for (const k of ['hp', 'atk', 'def', 'spd'] as const) {
     const v = def.stats[k];
@@ -76,16 +85,61 @@ export function refineUnlocked(save: Pick<SaveState, 'campaign'>, ctx: GameConte
   return !!refineConfig(ctx) && featureUnlocked(save, 'refine', ctx);
 }
 
-export type RefineEvent =
-  | { type: 'refined'; ok: true; instanceId: string; itemId: string; from: number; to: number; gold: number; chance: number }
-  /** Вещь сломалась при шаге с level на level+1 и удалена из инвентаря (надетая — снята с героя). */
-  | { type: 'refineBroken'; instanceId: string; itemId: string; level: number; heroId: string | null; gold: number; chance: number };
+/** Режим шага: обычный, «надёжная заточка» (дороже, риск меньше), «рудой» (без риска, тратит 1 руду). */
+export type RefineMode = 'normal' | 'safe' | 'ore';
 
-/** Шанс сломать вещь при шаге с уровня from на from+1 (0 — безопасно; максимум / нет конфига — 0). */
-export function refineBreakChance(from: number, ctx: RefineCtx): number {
+export type RefineEvent =
+  | { type: 'refined'; ok: true; instanceId: string; itemId: string; from: number; to: number; gold: number; chance: number; mode: RefineMode }
+  /** Вещь сломалась при шаге с level на level+1 и удалена из инвентаря (надетая — снята с героя). */
+  | { type: 'refineBroken'; instanceId: string; itemId: string; level: number; heroId: string | null; gold: number; chance: number; mode: RefineMode };
+
+/**
+ * Шанс сломать вещь при шаге с уровня from на from+1 в режиме mode (0 — безопасно; максимум / нет конфига — 0).
+ * «Надёжная» — breakChance ÷ safeBreakDiv (30% → 6%), «рудой» — 0.
+ */
+export function refineBreakChance(from: number, ctx: RefineCtx, mode: RefineMode = 'normal'): number {
   const cfg = refineConfig(ctx);
-  if (!cfg || from >= cfg.maxLevel) return 0;
-  return cfg.breakChance?.[from] ?? 0;
+  if (!cfg || from >= cfg.maxLevel || mode === 'ore') return 0;
+  const base = cfg.breakChance?.[from] ?? 0;
+  return mode === 'safe' && cfg.safeBreakDiv ? Math.round((base / cfg.safeBreakDiv) * 10000) / 10000 : base;
+}
+
+/** Есть ли «надёжная заточка» в конфиге. */
+export function refineSafeAvailable(ctx: RefineCtx): boolean {
+  return refineConfig(ctx)?.safeGoldMult !== undefined;
+}
+
+/** Цена шага с уровня refine в режиме mode: «надёжная» — × safeGoldMult, остальные — как обычный. null — максимум. */
+export function refineModeCost(instance: Pick<ItemInstance, 'refine'>, def: Pick<ItemDef, 'rarity'>, ctx: RefineCtx, mode: RefineMode = 'normal'): { gold: number } | null {
+  const c = refineCost(instance, def, ctx);
+  if (!c) return null;
+  const mult = mode === 'safe' ? (refineConfig(ctx)?.safeGoldMult ?? 1) : 1;
+  return { gold: Math.round(c.gold * mult) };
+}
+
+/** Сколько Благословенной руды у игрока. */
+export function blessedOre(save: Pick<SaveState, 'currency'>): number {
+  return save.currency.blessedOre ?? 0;
+}
+
+/** Сколько руды выпадает с босса при данном seed: min…max равновероятно; нет конфига — 0. */
+export function rollBlessedOre(seed: number, ctx: { equipment?: EquipmentConfig }): number {
+  const o = ctx.equipment?.drops.refine?.blessedOre;
+  if (!o) return 0;
+  // Свой поток случайности (не совпадает с броском боя / добычи от того же seed).
+  let h = 0x811c9dc5;
+  for (const ch of `ore#${seed >>> 0}`) {
+    h ^= ch.charCodeAt(0);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return o.min + Math.floor(new Rng(h).next() * (o.max - o.min + 1));
+}
+
+/** Выдать руду с босса (seed — seed награды: бой этапа / этажа, добыча охоты). Нет конфига — без изменений, 0. */
+export function grantBlessedOre(save: SaveState, seed: number, ctx: { equipment?: EquipmentConfig }): { save: SaveState; count: number } {
+  const count = rollBlessedOre(seed, ctx);
+  if (count <= 0) return { save, count: 0 };
+  return { save: { ...save, currency: { ...save.currency, blessedOre: blessedOre(save) + count } }, count };
 }
 
 /** seed броска поломки: FNV-1a от createdAt и номера попытки (как summonSeed у Таверны). */
@@ -98,14 +152,23 @@ export function refineSeed(createdAt: number, seq: number): number {
   return h;
 }
 
+export interface RefineOptions {
+  /** seed броска поломки; по умолчанию — refineSeed(createdAt, inventory.refineSeq). */
+  seed?: number;
+  /** Режим шага (по умолчанию обычный). */
+  mode?: RefineMode;
+}
+
 /**
  * Заточить предмет на +1 (надетый или лежащий). Чистая функция.
  * Шаг с шансом поломки бросает Rng(seed); seed по умолчанию — refineSeed(createdAt, inventory.refineSeq), счётчик
  * растёт на 1 с каждой попыткой (и безопасной тоже). Поломка — вещь удаляется из инвентаря, золото списано.
- * Ошибки EquipmentError: unknown_item, unknown_item_def, refine_unavailable (нет конфига), refine_locked (не открыта),
- * refine_max (уже максимум), not_enough_gold.
+ * mode 'safe' — цена × safeGoldMult, шанс ÷ safeBreakDiv; 'ore' — тратит 1 руду, золото как за обычный, поломки нет.
+ * Ошибки EquipmentError: unknown_item, unknown_item_def, refine_unavailable (нет конфига / режима), refine_locked (не открыта),
+ * refine_max (уже максимум), not_enough_gold, not_enough_ore.
  */
-export function refineItem(save: SaveState, instanceId: string, ctx: EquipmentContext, seed?: number): { save: SaveState; events: RefineEvent[] } {
+export function refineItem(save: SaveState, instanceId: string, ctx: EquipmentContext, opts: RefineOptions = {}): { save: SaveState; events: RefineEvent[] } {
+  const mode = opts.mode ?? 'normal';
   const item = save.inventory.items.find((i) => i.id === instanceId);
   if (!item) throw new EquipmentError('unknown_item', `Предмет ${instanceId} не найден в инвентаре`);
   const def = ctx.equipment.items[item.itemId];
@@ -113,21 +176,24 @@ export function refineItem(save: SaveState, instanceId: string, ctx: EquipmentCo
   if (!refineConfig(ctx)) throw new EquipmentError('refine_unavailable', 'Заточка недоступна');
   if (!featureUnlocked(save, 'refine', ctx)) throw new EquipmentError('refine_locked', 'Заточка ещё не открыта');
   const from = refineLevel(item);
-  const cost = refineCost(item, def, ctx);
+  if (mode === 'safe' && !refineSafeAvailable(ctx)) throw new EquipmentError('refine_unavailable', 'Надёжная заточка недоступна');
+  const cost = refineModeCost(item, def, ctx, mode);
   if (!cost) throw new EquipmentError('refine_max', `${refinedName(def, from)}: заточка на максимуме`);
+  if (mode === 'ore' && blessedOre(save) < 1) throw new EquipmentError('not_enough_ore', 'Нет Благословенной руды — она падает с боссов');
   if (save.resources.gold < cost.gold) throw new EquipmentError('not_enough_gold', `Не хватает золота: нужно ${cost.gold}, есть ${save.resources.gold}`);
   const seq = save.inventory.refineSeq ?? 0;
-  const chance = refineBreakChance(from, ctx);
-  const broken = chance > 0 && new Rng(seed ?? refineSeed(save.createdAt, seq)).next() < chance;
+  const chance = refineBreakChance(from, ctx, mode);
+  const broken = chance > 0 && new Rng(opts.seed ?? refineSeed(save.createdAt, seq)).next() < chance;
   const items = broken ? save.inventory.items.filter((i) => i.id !== item.id) : save.inventory.items.map((i): ItemInstance => (i.id === item.id ? { ...i, refine: from + 1 } : i));
   const next: SaveState = {
     ...save,
     resources: { ...save.resources, gold: save.resources.gold - cost.gold },
     inventory: { ...save.inventory, items, refineSeq: seq + 1 },
+    ...(mode === 'ore' ? { currency: { ...save.currency, blessedOre: blessedOre(save) - 1 } } : {}),
   };
   const event: RefineEvent = broken
-    ? { type: 'refineBroken', instanceId: item.id, itemId: item.itemId, level: from, heroId: item.equippedBy, gold: cost.gold, chance }
-    : { type: 'refined', ok: true, instanceId: item.id, itemId: item.itemId, from, to: from + 1, gold: cost.gold, chance };
+    ? { type: 'refineBroken', instanceId: item.id, itemId: item.itemId, level: from, heroId: item.equippedBy, gold: cost.gold, chance, mode }
+    : { type: 'refined', ok: true, instanceId: item.id, itemId: item.itemId, from, to: from + 1, gold: cost.gold, chance, mode };
   return { save: next, events: [event] };
 }
 

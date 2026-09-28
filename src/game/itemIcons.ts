@@ -206,3 +206,63 @@ export function itemCell(scene: Phaser.Scene, x: number, y: number, size: number
 export function refineBadge(scene: Phaser.Scene, x: number, y: number, refine: number, size: number = FS.caption): Phaser.GameObjects.Text {
   return text(scene, x, y, `+${refine}`, size, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0).setName('refineBadge');
 }
+
+/**
+ * «Благословенная руда» (RO Blessed Ore): голубовато-белый самородок с гранями и искрой, рисуется кодом один раз
+ * (цвет свой, без tint). Ключ текстуры — ore_blessed.
+ */
+export function oreIconKey(scene: Phaser.Scene): string {
+  const key = 'ore_blessed';
+  if (scene.textures.exists(key)) return key;
+  const t = scene.textures.createCanvas(key, S, S);
+  if (!t) return key;
+  const c = t.getContext();
+  c.lineJoin = 'round';
+  // Свечение.
+  const glow = c.createRadialGradient(48, 52, 6, 48, 52, 46);
+  glow.addColorStop(0, 'rgba(190,235,255,0.55)');
+  glow.addColorStop(1, 'rgba(190,235,255,0)');
+  c.fillStyle = glow;
+  c.fillRect(0, 0, S, S);
+  // Самородок: неровный многоугольник.
+  const body: [number, number][] = [[22, 58], [30, 34], [50, 24], [70, 32], [78, 54], [66, 74], [40, 78]];
+  c.beginPath();
+  body.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y)));
+  c.closePath();
+  const g = c.createLinearGradient(24, 26, 76, 78);
+  g.addColorStop(0, '#f4fbff');
+  g.addColorStop(0.5, '#a9dcf5');
+  g.addColorStop(1, '#5d9fc8');
+  c.fillStyle = g;
+  c.fill();
+  c.lineWidth = 4;
+  c.strokeStyle = '#1d3b52';
+  c.stroke();
+  // Грани.
+  c.lineWidth = 2;
+  c.strokeStyle = 'rgba(255,255,255,0.85)';
+  c.beginPath();
+  c.moveTo(30, 34);
+  c.lineTo(46, 50);
+  c.lineTo(50, 24);
+  c.moveTo(46, 50);
+  c.lineTo(78, 54);
+  c.moveTo(46, 50);
+  c.lineTo(40, 78);
+  c.stroke();
+  // Искра.
+  c.fillStyle = '#ffffff';
+  c.beginPath();
+  const [sx, sy] = [66, 20];
+  const star: [number, number][] = [[0, -12], [3, -3], [12, 0], [3, 3], [0, 12], [-3, 3], [-12, 0], [-3, -3]];
+  star.forEach(([dx, dy], i) => (i ? c.lineTo(sx + dx, sy + dy) : c.moveTo(sx + dx, sy + dy)));
+  c.closePath();
+  c.fill();
+  t.refresh();
+  return key;
+}
+
+/** Иконка «Благословенной руды» размером size. */
+export function oreIcon(scene: Phaser.Scene, x: number, y: number, size: number): Phaser.GameObjects.Image {
+  return scene.add.image(x, y, oreIconKey(scene)).setDisplaySize(size, size);
+}
