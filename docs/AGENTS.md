@@ -54,6 +54,7 @@
 | `equipment/*` | K6 предметы, выпадение (`drops.ts`), надеть/снять, `withGear`; трофеи сундука и быстрых наград (`chest.ts`) |
 | `tower/*` | K4 башня: этажи по правилу из полос, `climbTower` |
 | `meta/*` | K8 пресеты, `setSquad`, авторасстановка (`formation.ts`), K9 поручения (`bounties.ts`), K10 достижения. «Отправить всё» — `planDispatchAll` / `dispatchAllBounties` (детерминированно: редкие поручения первыми, обязательная роль, карточка ближе к редкости поручения, героя не бронируют дважды, частичных групп нет); «Забрать всё» — `claimAllBounties`, `claimAllAchievements`, заданий дня — `features/quests.ts claimAllQuests` (задания, затем пороги); обёртки `actClaimAll*`; тесты `tests/claim-all.test.ts` |
+| `shop/*` | Лавка (магазин AFK): `data/shop.json` (`ShopConfigSchema`), ассортимент дня `rollShop`/`ensureShop`, `shopStatus`, `refreshShop` (за гемы), `buyShopSlot`; раздел 2г |
 | `unlocks/*` | открытие функций по этапам (`data/unlocks.json`): `featureUnlocked`, `lockedText` («Откроется на этапе 1-8»), `stageLabel`, `pendingUnlocks` / `markUnlocksSeen` (баннер один раз, `save.seenUnlocks`), `initSeenUnlocks` (старые сохранения), `unlocksOfStage` |
 
 ### Экраны `src/game/scenes` (Phaser)
@@ -72,6 +73,7 @@
 | `HeroesScene` / `HeroScene` / `AscendScene` (`Ascend`) | H4. Коллекция: сетка карточек 3 в ряд (`heroCard.ts`), фильтры линии/роли/редкости, сортировка «Сила/Уровень/Редкость», «Коллекция N/M» (серые неполученные), метки «в отряде», «Новый!», замок, «можно улучшить / вознести». Карточка: витрина цвета редкости с героем в стойке, мощь, статы с прибавкой за уровень, «Улучшить» (удержание — повтор, обновление на месте, «до апа не хватает N»), «Вознести», вкладки «Навыки / Снаряжение / История», замок, листание ‹ ›. Вознесение: было → стало, слоты корма (выбор, «Авто»), осколки и откуда они, подтверждение, показ (вспышка, лучи, мощь «+N», новые навыки, вторая профессия и `forms[].promotion`) |
 | `SquadScene` (`Squad`) | то же поле и список героев без противника, «Авто», пресеты |
 | `InventoryScene`, `TowerScene`, `QuestsScene`, `BountiesScene`, `AchievementsScene` | инвентарь, башня, ежедневные задания, поручения, достижения |
+| `ShopScene` (`Shop`) | Лавка: 8 карточек товаров дня (2 × 4), «Купить», «Продано», «Обновить» (первое за день бесплатно), таймер до полуночи; вход — `shopTile` (`src/game/shopEntry.ts`) в полосе под «В кампанию» |
 | `TavernScene` | Таверна (H5): призыв карточек, показ «рубашкой вверх» с переворотом, итог; вход — `tavernTile` на главной |
 | `PrepScene` (`Prep`) | тестовый бой (только dev или `?dev=1`), отряды из `data/phase0.json` |
 
@@ -202,7 +204,7 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 
 `features [{id, stage, title (≤40), description (≤140), icon, line? (≤120)}]` — одна таблица «функция → этап» (как в AFK: функции
 открываются по ходу главы 1). `id` — из `FEATURE_IDS` (`fast_rewards` 1-2, `quests` 1-2, `speed_x2` 1-3, `achievements` 1-3, `tavern` 1-5,
-`bounties` 1-8, `tower` 1-10); нет строки — функция открыта сразу. `icon` — иконка скина или `mug` (кружка Таверны). `line` — реплика
+`bounties` 1-8, `tower` 1-10, `shop` 2-1); нет строки — функция открыта сразу. `icon` — иконка скина или `mug` (кружка Таверны). `line` — реплика
 капитана Гаррета на баннере (контент-хук). Открыта = этап в `campaign.cleared`. Таверна и Башня берут этап отсюда (ядро:
 `summonUnlocked`, `towerUnlocked`); быстрые награды, задания, достижения, поручения, скорость ×2 — закрывают экраны
 (`src/game/unlockBanner.ts`) и модель игрока (`scripts/lib/player-model.ts`), действия ядра их не проверяют. **Таверна — на `ch1_s5`**:
@@ -262,6 +264,9 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - `data/quests.json` — ежедневные задания: `event` из `ACTIVITY_KINDS` (`src/core/features/quests.ts`), `target`, `points`; `milestones` активности.
 - `data/bounties.json` — доска поручений: `boardSize`, `dailyRefreshes`, веса `rarities`, `templates` (`durationMinutes`, `heroCount`, `role`, `rewards`), `presets`.
 - `data/achievements.json` — `counter` из `ACHIEVEMENT_COUNTERS` (`src/core/meta/config.ts`), `target`, `rewards`. См. `docs/content/meta.md`, `features.md`.
+- `data/shop.json` (`ShopConfigSchema`, `src/core/shop/schema.ts`) — Лавка: `slots` (8 списков id товаров), `refresh {gemCosts, maxPerDay}`,
+  `chapterGrowth`, `goods [{id, kind (item|shards|heroExp|scrolls|gold), rarity?, count, price {currency gold|gems, amount}, stock, weight,
+  fromStage?, perDay?}]`. Раздел 2г, рецепт — `CONTENT_RECIPES.md` «Товары лавки».
 - `data/phase0.json` — отряды тестового боя и скорости воспроизведения.
 - `data/events.json` (`EventsConfigSchema`, `src/core/events/schema.ts`) — «Вход 7 дней» (`login.days[].rewards`), «7 дней новичка»
   (`newbie`: `durationDays`, `graceDays`, `days[].tasks` со счётчиками достижений, `milestones`), системные письма (`mail.letters`).
@@ -369,6 +374,28 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - Сохранение не менялось: трофеи считаются при сборе из времени, новых полей нет.
 - Экран: `src/game/chestView.ts` (`ChestCardView` на карточке сундука главной, `lootLines`/`lootSummary` для тостов и подтверждения).
 
+## 2г. Лавка — API ядра (`src/core/shop`)
+
+Магазин за золото (docs/design/afk-gap.md, п. 9): 8 слотов, раз в день новый ассортимент, ручное обновление за гемы, запас в слоте.
+Главная роль — сток золота; гемы — только за редкое (эпик, осколки ×10, свиток, мешок золота). Контекст — `GAME.shop` (необязательное
+поле `FullContext`: нет `data/shop.json` — Лавки нет); функции берут `ShopContext` (экран — `shopCtx()` из `src/game/shopEntry.ts`).
+- Ассортимент: `rollShop(save, day, refresh, ctx)` — по слоту товар по весам среди доступных (`fromStage` пройден, есть предметы
+  редкости, есть сюжетный герой для осколков), затем конкретный предмет. seed — `shopSeed` = createdAt + день + номер обновления
+  (`lootSeed('shop', …)`), на слот ровно 2 случайных числа. Слот — снимок (`ShopSlot`: good, kind, itemId?, hero?, count, currency,
+  price, stock, bought): правка `data/shop.json` не меняет выставленное. Цена в золоте и наборы опыта/золота ×(1 + chapterGrowth × глава)
+  (`shopMultiplier`, глава последнего пройденного этапа), округление до 2 значащих цифр (`niceNumber`).
+- `ensureShop(save, day, ctx)` — новый день → новый ассортимент, `refreshes` и `boughtToday` обнуляются; тот же день — тот же объект;
+  день раньше сохранённого (часы назад) — без изменений (Лавка ждёт своего дня; переводом часов лишний ассортимент не получить).
+- `shopStatus(save, day, ctx)` → `{unlocked, day, slots [ShopSlot + index, left, soldOut, dayLimited, affordable], refreshes,
+  nextRefreshCost (null — лимит), refreshesLeft}` — не меняет save.
+- `refreshShop(save, day, ctx)` — цена `refresh.gemCosts[n]` (0, 20, 40, 80, 100; последняя повторяется), не больше `maxPerDay` (5);
+  `buyShopSlot(save, day, index, ctx)` → `{save, grant}`: предмет в инвентарь, осколки герою слота, опыт в пул, свитки/золото в валюту;
+  лимит товара в день `perDay` (свиток — 1) считается по `boughtToday` через обновления. Ошибки — `ShopError` (`shop_locked`,
+  `refresh_limit`, `not_enough_gold`, `not_enough_gems`, `sold_out`, `day_limit`, `unknown_slot`, `unavailable`), тексты — по-русски.
+- Открытие — `data/unlocks.json → shop` (`ch2_s1`), `shopUnlocked`. Сохранение: `save.shop?` (`ShopStateSchema`, без смены версии).
+- Экран — `ShopScene`; плитка на главной — `shopTile` (одна строка в HomeScene), зелёная точка — бесплатное обновление ещё не взято.
+  Модель игрока — `Sim.shop()` в `scripts/lib/player-model.ts` (`--no-shop` — без неё). Тесты — `tests/shop.test.ts`.
+
 ---
 
 ## 3. Сохранение
@@ -392,7 +419,7 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
   `data/unlocks.json`, `sanitizeSave` → `initSeenUnlocks` отмечает показанным всё уже открытое, чтобы не вывалить пачку баннеров;
   тест `tests/unlocks.test.ts`). `newGame` ставит `[]`.
 - Новое поле: если оно необязательное (`.optional()`/`.default()`) — версия не меняется (так добавлены `seenScenes`, `storyQueue`,
-  `pendingChapterDone`, `revision`, `bankedExp`, `hero.gender` — его `sanitizeSave` выводит по имени, неизвестное → м). Обязательное — `SAVE_VERSION + 1` и миграция в `MIGRATIONS`, тест в `tests/save.test.ts`.
+  `pendingChapterDone`, `revision`, `shop`, `bankedExp`, `hero.gender` — его `sanitizeSave` выводит по имени, неизвестное → м). Обязательное — `SAVE_VERSION + 1` и миграция в `MIGRATIONS`, тест в `tests/save.test.ts`.
 - `sanitizeSave(save, ctx)` — подгоняет сохранение к текущему контенту: неизвестная карточка — экземпляр убирается вместе со ссылками,
   редкость/уровень вне правил шаблона — к правилам, вторая копия карточки уходит из отряда, неизвестные предметы убираются; сообщения
   миграции (`notices`) и правки показываются игроку тостом.

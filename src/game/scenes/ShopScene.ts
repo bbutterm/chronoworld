@@ -112,13 +112,13 @@ export class ShopScene extends Phaser.Scene {
     const cost = st.nextRefreshCost;
     const bx = GAME_W - 220;
     const label = cost === null ? 'На сегодня всё' : 'Обновить';
-    const b = button(this, bx, y - 8, 330, 100, cost === null ? 'ui_btn_secondary' : 'ui_btn_primary', label, () => this.refresh(st), FS.h3);
+    const b = button(this, bx, y - 16, 330, 96, cost === null ? 'ui_btn_secondary' : 'ui_btn_primary', label, () => this.refresh(st), FS.h3);
     b.container.setName('shopRefresh');
     if (cost === null) b.container.setAlpha(0.6);
     const sub = cost === null ? '' : cost === 0 ? 'бесплатно' : `${formatNumber(cost)}`;
     if (sub) {
-      const t = text(this, bx + (cost ? -14 : 0), y + 58, sub, FS.caption, cost === 0 ? C.success : C.text, OUTLINE);
-      if (cost) gemIcon(this, t.x + t.width / 2 + 22, y + 58, 26);
+      const t = text(this, bx + (cost ? -14 : 0), y + 48, sub, FS.caption, cost === 0 ? C.success : C.text, OUTLINE);
+      if (cost) gemIcon(this, t.x + t.width / 2 + 22, y + 48, 26);
     }
   }
 
