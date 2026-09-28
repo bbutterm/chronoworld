@@ -222,7 +222,8 @@ export default defineConfig(({ command }) => ({
       output: { codeSplitting: { groups: [{ name: 'phaser', test: /[\\/]node_modules[\\/]phaser[\\/]|[\\/]src[\\/]vendor[\\/]phaser-lite/ }] } },
     },
   },
-  server: { host: true },
+  // Worktree агентов (.claude/worktrees) лежат внутри проекта: их правки (index.html и т. п.) перезагружали страницу e2e.
+  server: { host: true, watch: { ignored: ['**/.claude/**'] } },
   test: {
     include: ['tests/**/*.test.ts'],
   },
