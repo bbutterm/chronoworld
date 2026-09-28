@@ -103,6 +103,6 @@
       "ch3_s9": [84, 100.5],
       "ch3_s10": [96, 108.5]
     },
-    "default": { "gapHours": 12, "spanHours": 42, "wallEvery": 3, "windowHours": 16.5 }
+    "default": { "gapHours": 6, "spanHours": 27, "wallEvery": 3, "windowHours": 16.5 }
   }
 }
