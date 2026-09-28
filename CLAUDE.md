@@ -80,10 +80,15 @@ checkout (`ln -s /home/user/chronoworld/node_modules node_modules`). Не мен
 
 - `src/core/battle.ts` — симулятор боя; `src/core/context.ts` — сборка всего контекста из `data/` (`buildGameContext`).
 - `src/core/{campaign,progression,story,save,features,meta,equipment,tower}` — правила; `src/core/index.ts` — публичный вход.
-- **Герои — карточки (как в AFK)**, `src/core/heroes/*` + `data/heroes/*.json` (25 шаблонов), `data/cards.json` (редкости зелёный →
-  красный, уровень из общего пула опыта `resources.heroExp` + золото, вознесение: призывные — копиями, сюжетные — осколками героя),
-  `data/summon.json` (Таверна). Новичков и смены профессии нет; профессия = класс карточки. Дизайн — `docs/design/heroes.md`,
-  API для экранов — `docs/AGENTS.md`, раздел 2а. Опыт наград (`rewards.jobExp`) идёт в пул, не героям.
+- **Герои v2 (как в AFK)** — `docs/design/heroes-v2.md`: 12 героев (6 классов × парень/девушка), `data/heroes/*.json` (у каждого
+  `branches` — две ветки второй профессии на фиолетовом, 24 формы), `src/core/heroes/*` (card, merge, branch, summon, contract,
+  cardDrops), `data/cards.json` (редкости зелёный → красный, «3 одинаковые = следующая редкость», уровень из общего пула опыта
+  `resources.heroExp` + золото), `data/summon.json` (Таверна). Осколков нет — копии того же героя и карты случайных героев.
+  Сохранение v7; замороженные миграции `src/core/heroes/migrate.ts` (v3→v4) и `migrate-v7.ts` — не менять. API экранов —
+  `docs/AGENTS.md`, раздел 2а. Опыт наград (`rewards.jobExp`) идёт в пул.
+- Мета: экспедиции (`src/core/meta/expeditions.ts`), события/почта (`src/core/events`), открытия по этапам (`data/unlocks.json`),
+  охота (`src/core/hunt`), лавка (`src/core/shop`), сундук с трофеями (`src/core/equipment/chest.ts`), предметы по главам (`minChapter`).
+- Вид навыков в бою — `src/game/skillVisuals.ts` (таблица) + `skillSigs.ts` (эффекты); аудит — `docs/content/skills-vfx.md`.
 - `src/game/scenes/*Scene.ts` — экраны Phaser; `src/game/*.ts` — помощники (скин, UI, эффекты, фоны, вьюпорт).
 - `src/pipeline/sprites.ts` — реестр спрайтов (игра и скрипты); `assets/sprites/sprites.json` — листы v2, `assets/effects/effects.json` — эффекты.
 - `scripts/` — CLI (проверка, генераторы, баланс, e2e); `tools/*.py` — сборка арта; `tests/` — vitest + python.
