@@ -22,7 +22,7 @@ import {
   firstTenText,
   RARITY_FEM,
   ratesLines,
-  resultTag,
+  copyTags,
   revealOrder,
   revealSchedule,
   SOUND_RARITY,
@@ -85,6 +85,10 @@ interface RevealState {
   layer: Phaser.GameObjects.Container;
   title: Phaser.GameObjects.Text;
   ui: Phaser.GameObjects.GameObject[];
+  /** Подписи «Новый герой!» / «копия · теперь ×N» по картам (тот же templateId уже был у игрока до призыва). */
+  tags: ReturnType<typeof copyTags>;
+  /** То же для крупного показа (×1 и витрина редкой карты). */
+  bigTags: ReturnType<typeof copyTags>;
 }
 
 /**
@@ -337,7 +341,8 @@ export class TavernScene extends Phaser.Scene {
     layer.add(this.add.image(GAME_W / 2, TABLE_Y, GLOW).setTint(0xffa050).setAlpha(0.25).setDisplaySize(1300, 1100).setBlendMode(Phaser.BlendModes.ADD));
     const title = text(this, GAME_W / 2, 230, count > 1 ? `Призыв ×${count}` : 'Призыв', FS.h1, C.title, TITLE_STYLE);
     layer.add(title);
-    const state: RevealState = { results, count, phase: 'deal', cards: [], layer, title, ui: [] };
+    const heroesNow = session.save.heroes;
+    const state: RevealState = { results, count, phase: 'deal', cards: [], layer, title, ui: [], tags: copyTags(results, heroesNow, count === 1), bigTags: copyTags(results, heroesNow, true) };
     this.reveal = state;
 
     const heroes = results.map((r) => session.save.heroes.find((h) => h.id === r.heroId)).filter((h): h is HeroState => !!h);
@@ -492,16 +497,14 @@ export class TavernScene extends Phaser.Scene {
     const epic = tensionMs(r.rarity) >= tensionMs('purple');
     cv.glow.setAlpha(epic ? 0.9 : rare ? 0.5 : 0.2);
     if (rare && !motion.reduced) this.tweens.add({ targets: cv.glow, alpha: epic ? { from: 1, to: 0.6 } : { from: 0.55, to: 0.3 }, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    const tag = resultTag(r);
+    const tag = state.tags[cv.i];
     const big = state.count === 1;
-    // В сетке ×10 — одна строка: две («дубль →\nна слияние») упирались в карту ряда ниже (зазор 70). Что это дубль — видно
-    // по серому цвету и строке «Дубли — корм для вознесения» под сеткой.
-    const label = big || tag.kind === 'new' ? tag.text : 'на слияние';
-    const t = text(this, cv.slot.x, cv.slot.y + cv.slot.h / 2 + (big ? 36 : 24), label, FS.caption, tag.kind === 'new' ? C.gold : C.dim, {
+    // В сетке ×10 — одна короткая строка («Новый!» / «копия ×N»): длинные упирались в соседние карты (зазор 18 по
+    // ширине, 70 по высоте). Копия — корм для вознесения (строка под сеткой).
+    const t = text(this, cv.slot.x, cv.slot.y + cv.slot.h / 2 + (big ? 36 : 24), tag.text, FS.caption, tag.kind === 'new' ? C.gold : C.dim, {
       fontStyle: 'bold',
       ...OUTLINE,
-      lineSpacing: -6,
-    });
+    }).setName(`summonTag_${cv.i}`);
     if (r.guaranteed) {
       // «Гарант» — лентой у верхнего края карты, между значками класса и роли (выше — подписи ряда над ней).
       const gy = cv.slot.y - (cv.face.getData('h') as number) / 2 + 30;
@@ -565,7 +568,9 @@ export class TavernScene extends Phaser.Scene {
     const kind = RARITY_CARD[r.rarity];
     const head = text(this, GAME_W / 2, 440, `${kind.charAt(0).toUpperCase()}${kind.slice(1)} карта!`, FS.hero, def.color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 10 });
     const branchNote = needsBranch(hero, GAME) ? ' · ветку выберете на карточке' : '';
-    const sub = text(this, GAME_W / 2, 1300, `${r.isNew ? 'Новый герой!' : 'дубль → на слияние'}${branchNote}`, r.isNew && !branchNote ? FS.h2 : FS.h3, r.isNew ? C.gold : C.dim, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: 1000 } });
+    const tag = state.bigTags[cv.i];
+    const fresh = tag.kind === 'new';
+    const sub = text(this, GAME_W / 2, 1300, `${tag.text}${branchNote}`, fresh && !branchNote ? FS.h2 : FS.h3, fresh ? C.gold : C.dim, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: 1000 } });
     const hint = text(this, GAME_W / 2, 1420, 'Нажмите, чтобы продолжить', FS.small, C.muted, OUTLINE);
     box.add([shade, beam, halo, ring, face, jobLine, head, sub, hint]);
     this.tweens.add({ targets: circle, angle: 360, duration: 9000, repeat: -1 });
@@ -646,8 +651,8 @@ export class TavernScene extends Phaser.Scene {
     const L = state.layer;
     state.title.setText('Итог призыва');
     L.add(ellipsize(text(this, GAME_W / 2, 310, summaryLine(state.results), FS.body, C.text, { fontStyle: 'bold', ...OUTLINE }), 1000).setName('summaryLine'));
-    const hasDup = state.results.some((r) => !r.isNew);
-    L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Дубли — корм для вознесения. Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
+    const hasDup = state.tags.some((t) => t.kind === 'copy');
+    L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Копии — корм для вознесения (все карты — в Инвентаре). Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
 
     const best = bestResult(state.results);
     const st = summonStatus(session.save, today(), GAME);

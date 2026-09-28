@@ -301,6 +301,31 @@ export function valuableFodder(save: SaveState, chosen: readonly string[]): Hero
 /** Все редкости по порядку (для фильтра). */
 export const RARITY_ORDER: readonly CardRarity[] = CARD_RARITIES;
 
+/** Инвентарь → «Карты героев»: вкладка и фильтр редкости на сессию. */
+export const inventoryUi: { tab: 'gear' | 'cards'; rarity: CardRarity | null; template: string | null } = { tab: 'gear', rarity: null, template: null };
+
+/**
+ * Все экземпляры героев по отдельности (каждая копия — своя карта): редкость по убыванию, затем имя героя, затем
+ * уровень по убыванию, затем id. rarity и templateId — фильтры (null — все).
+ */
+export function heroCardsList(save: Pick<SaveState, 'heroes'>, ctx: GameContext, rarity: CardRarity | null = null, templateId: string | null = null): HeroState[] {
+  const name = (h: HeroState) => ctx.content.heroes[h.templateId]?.name ?? h.templateId;
+  return save.heroes
+    .filter((h) => ctx.content.heroes[h.templateId] && (!rarity || h.rarity === rarity) && (!templateId || h.templateId === templateId))
+    .sort((a, b) => rarityIndex(b.rarity) - rarityIndex(a.rarity) || name(a).localeCompare(name(b), 'ru') || b.level - a.level || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+const RARITY_PLURAL_LOWER: Record<CardRarity, string> = { green: 'зелёных', blue: 'синих', purple: 'фиолетовых', gold: 'золотых', red: 'красных' };
+
+/** Сводка карт: «Всего карт: 14 · зелёных 8 · синих 4 · фиолетовых 2» (редкости без карт не пишутся). */
+export function heroCardsSummary(save: Pick<SaveState, 'heroes'>, ctx: GameContext): string {
+  const list = heroCardsList(save, ctx);
+  const parts = CARD_RARITIES.map((r) => [r, list.filter((h) => h.rarity === r).length] as const)
+    .filter(([, n]) => n > 0)
+    .map(([r, n]) => `${RARITY_PLURAL_LOWER[r]} ${n}`);
+  return [`Всего карт: ${list.length}`, ...parts].join(' · ');
+}
+
 /** Сколько уровней можно поднять подряд — подпись «×N» (0 — нельзя). */
 export function affordableLevels(save: SaveState, heroId: string, ctx: GameContext): number {
   return levelUpInfo(save, heroId, ctx).affordable;

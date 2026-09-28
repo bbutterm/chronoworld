@@ -38,6 +38,11 @@ export interface AscendRequirement {
 export interface AscendOptions {
   /** Ветка второй профессии (обязательна на переходе с branch: true, если у героя её ещё нет). */
   branch?: string;
+  /**
+   * Не требовать ветку на переходе с branch: true — герой станет фиолетовым без ветки («Выберите ветку!», выбор
+   * бесплатный, branch.ts chooseBranch). Так возносит «Вознести всех» (ascendAll).
+   */
+  deferBranch?: boolean;
 }
 
 /** Правило перехода для героя на его редкости; null — максимум. */
@@ -222,7 +227,7 @@ export function ascendHero(
   // ещё нет и новая редкость — фиолетовая или выше.
   const keepBranch = branchOf(t, hero.branch)?.job;
   const branch = keepBranch ?? (rarityIndex(to) >= rarityIndex(BRANCH_RARITY) ? opts.branch : undefined);
-  if (rule.branch && !branch) throw new HeroError('branch_required', `${name}: выберите ветку — ${t.branches.map((b) => ctx.content.jobs[b.job]?.name ?? b.job).join(' или ')}`);
+  if (rule.branch && !branch && !opts.deferBranch) throw new HeroError('branch_required', `${name}: выберите ветку — ${t.branches.map((b) => ctx.content.jobs[b.job]?.name ?? b.job).join(' или ')}`);
   for (const id of fodderIds) {
     if (id === heroId) throw new HeroError('bad_fodder', `${name}: герой не может быть кормом сам себе`);
     const why = fodderBlocker(save, id, ctx);
@@ -255,4 +260,94 @@ export function ascendHero(
     for (const s of after.skills) if (s.level <= hero.level) events.push({ type: 'skillUnlocked', heroId, skill: s.skill, level: s.level });
   }
   return { save: next, events, refund, consumed: [...gone] };
+}
+
+/** Одно вознесение «Вознести всех». */
+export interface AscendAllStep {
+  heroId: string;
+  templateId: string;
+  name: string;
+  from: CardRarity;
+  to: CardRarity;
+  /** Стал фиолетовым без ветки — игрок выберет её на карточке («Выберите ветку!»). */
+  branchPending: boolean;
+  /** Съеденные копии (id экземпляров). */
+  consumed: string[];
+}
+
+/**
+ * «Вознести всех» (экран «Герои»): по кругу возносит всех, кому хватает свободных копий того же героя и золота, —
+ * сначала дешёвые переходы (зелёные → синие), чтобы их итог шёл в корм следующих. Цель — сильнейший экземпляр своей
+ * редкости (в отряде — первым, затем выше уровень), корм — самые слабые свободные копии того же героя (fodderBlocker:
+ * не отряд, не пресет, не экспедиция, не замок); чужие герои в корм не идут (слоты «любой» закрываются тоже копиями).
+ * Переход с выбором ветки — без ветки (deferBranch; уже выбранная сохраняется). Чистая функция; пусто — нечего.
+ */
+export function ascendAll(save: SaveState, ctx: GameContext): { save: SaveState; events: ProgressEvent[]; done: AscendAllStep[] } {
+  let cur = save;
+  const events: ProgressEvent[] = [];
+  const done: AscendAllStep[] = [];
+  const order = (s: SaveState) => (a: HeroState, b: HeroState) =>
+    rarityIndex(a.rarity) - rarityIndex(b.rarity) ||
+    Number(s.squad.includes(b.id)) - Number(s.squad.includes(a.id)) ||
+    b.level - a.level ||
+    (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  // Каждое вознесение убирает хотя бы одну карточку — цикл конечен; guard — на всякий случай.
+  for (let guard = 0; guard < 1000; guard++) {
+    const s = cur;
+    let step: { hero: HeroState; fodder: string[]; to: CardRarity } | null = null;
+    for (const hero of [...s.heroes].filter((h) => ctx.content.heroes[h.templateId]).sort(order(s))) {
+      const rule = mergeRule(hero, ctx);
+      const to = nextRarity(hero.rarity);
+      if (!rule || !to || s.resources.gold < rule.gold) continue;
+      const free = freeHeroes(s, hero.id, ctx).filter((h) => h.templateId === hero.templateId);
+      const chosen: string[] = [];
+      let ok = true;
+      for (const slot of slotList(rule)) {
+        const pick = free.find((h) => !chosen.includes(h.id) && fits(hero, h, slot));
+        if (!pick) {
+          ok = false;
+          break;
+        }
+        chosen.push(pick.id);
+      }
+      if (ok) {
+        step = { hero, fodder: chosen, to };
+        break;
+      }
+    }
+    if (!step) break;
+    const r = ascendHero(s, step.hero.id, step.fodder, ctx, { deferBranch: true });
+    cur = r.save;
+    events.push(...r.events);
+    const after = findHero(cur, step.hero.id);
+    const t = heroTemplate(ctx, after.templateId);
+    done.push({
+      heroId: after.id,
+      templateId: after.templateId,
+      name: t.name,
+      from: step.hero.rarity,
+      to: step.to,
+      branchPending: rarityIndex(after.rarity) >= rarityIndex(BRANCH_RARITY) && !branchOf(t, after.branch),
+      consumed: r.consumed,
+    });
+  }
+  return { save: cur, events, done };
+}
+
+/**
+ * Итог «Вознести всех» по героям (для окна подтверждения и тоста): у каждого экземпляра — первая и последняя
+ * редкость цепочки («Вика: зелёная → фиолетовая»), порядок — первого вознесения.
+ */
+export function ascendAllSummary(done: readonly AscendAllStep[]): { heroId: string; name: string; from: CardRarity; to: CardRarity; branchPending: boolean }[] {
+  const out = new Map<string, { heroId: string; name: string; from: CardRarity; to: CardRarity; branchPending: boolean }>();
+  const eaten = new Set(done.flatMap((d) => d.consumed));
+  for (const d of done) {
+    const g = out.get(d.heroId);
+    if (g) {
+      g.to = d.to;
+      g.branchPending = d.branchPending;
+    } else out.set(d.heroId, { heroId: d.heroId, name: d.name, from: d.from, to: d.to, branchPending: d.branchPending });
+  }
+  // Промежуточные ступени (синяя из зелёных, съеденная потом в фиолетовую) — не отдельной строкой.
+  return [...out.values()].filter((x) => !eaten.has(x.heroId));
 }
