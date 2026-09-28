@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob7_ranged",
+  "name": "Банши",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 400,
+    "atk": 50,
+    "def": 5,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob7_ranged_soul_wail",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "dark_priest",
+    "tint": "#9fd4ff",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}
