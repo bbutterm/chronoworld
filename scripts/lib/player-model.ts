@@ -337,8 +337,8 @@ export interface BalanceResult {
   itemsIn: Partial<Record<Source, number>>;
   /** Копии героев (новые экземпляры) по источникам: Таверна, сюжет, карты героя из наград, контракты. */
   cardsIn: Partial<Record<Source, number>>;
-  /** Выбор веток: день, час, герой, ветка. */
-  branches: { day: number; t: number; templateId: string; branch: string }[];
+  /** Выбор веток: день, час, герой, ветка; via — вознесение, карта (Таверна, трофеи — фиолетовый без ветки) или «Контракт героя». */
+  branches: { day: number; t: number; templateId: string; branch: string; via: 'ascend' | 'card' | 'contract' }[];
   /** Фиолетовых (и выше) в отряде на конец каждого дня (индекс 0 — день 1). */
   purplesByDay: number[];
   /** Запас копий (экземпляров не в отряде) на конец каждого дня. */
@@ -512,7 +512,7 @@ class Sim {
     const branch = req.branch && !hero.branch ? this.branchFor(hero.templateId, hero.id) : undefined;
     const r = actAscend(this.save, this.day, heroId, fodder, this.ctx, branch ? { branch } : {});
     this.step('heroes', r.save);
-    if (branch) this.branches.push({ day: this.dayNo, t: this.t, templateId: hero.templateId, branch });
+    if (branch) this.branches.push({ day: this.dayNo, t: this.t, templateId: hero.templateId, branch, via: 'ascend' });
     const e = r.events.find((x) => x.type === 'ascended');
     this.spendTime(this.model.ascendSec * 1000);
     if (e && e.type === 'ascended') this.ascensions.push({ day: this.dayNo, t: this.t, active_min: this.activeMin, heroId, templateId: hero.templateId, rarity: e.to });
@@ -534,7 +534,7 @@ class Sim {
       if (!needsBranch(h, this.ctx)) continue;
       const branch = this.branchFor(h.templateId, h.id);
       this.step('heroes', chooseBranch(this.save, h.id, branch, this.ctx).save);
-      this.branches.push({ day: this.dayNo, t: this.t, templateId: h.templateId, branch });
+      this.branches.push({ day: this.dayNo, t: this.t, templateId: h.templateId, branch, via: 'card' });
     }
   }
 
@@ -553,7 +553,7 @@ class Sim {
       const withBranch = rarityIndex(pick.rarity) >= rarityIndex(BRANCH_RARITY);
       const branch = withBranch ? (templateId === 'vika' && !healer ? 'priest' : this.branchFor(templateId, `pick${guard}`)) : undefined;
       this.step('events', claimHeroPick(this.save, 0, templateId, branch, this.ctx).save);
-      if (branch) this.branches.push({ day: this.dayNo, t: this.t, templateId, branch });
+      if (branch) this.branches.push({ day: this.dayNo, t: this.t, templateId, branch, via: 'contract' });
     }
   }
 
@@ -1137,6 +1137,8 @@ export interface HookMetrics {
   secondPurple: { day: number; hours: number; templateId: string } | null;
   /** Фиолетовых в отряде на конец дня (Ц11: к 7-му дню 2–3). */
   purplesByDay: number[];
+  /** Новые фиолетовые за первые 7 дней по источникам: вознесение, карта (Таверна, трофеи), «Контракт героя». */
+  purples7: { ascend: number; card: number; contract: number };
   /** Первый ×10 призыв: активные минуты / часы, способ. */
   firstTen: { active_min: number; hours: number; pay: string } | null;
   /** ×10 призывов за гемы по дням. */
@@ -1219,6 +1221,7 @@ export function hookMetrics(res: BalanceResult, ctx: GameContext, wallHours = 4)
     firstPurple,
     secondPurple,
     purplesByDay: res.purplesByDay,
+    purples7: { ascend: res.branches.filter((b) => b.day <= 7 && b.via === 'ascend').length, card: res.branches.filter((b) => b.day <= 7 && b.via === 'card').length, contract: res.branches.filter((b) => b.day <= 7 && b.via === 'contract').length },
     firstTen,
     tenPullsByDay,
     walls,

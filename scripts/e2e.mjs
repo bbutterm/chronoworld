@@ -433,7 +433,7 @@ async function main() {
 
     // 6. H5 Таверна: после ch1_s5 (сохранение с пройденными этапами 1–5, подарок не забран) — плитка на главной →
     // Таверна → «Забрать подарок» → «Призыв ×10» → карта, «Открыть все» → (фиолетовая — крупный показ) → итог.
-    // Герои v2: первый ×10 гарантирует две синие (фиолетовая — 2%, не гарантирована).
+    // Герои v2: первый ×10 гарантирует синюю (пакет V3 — одну; фиолетовая — 2%, не гарантирована).
     await page.evaluate(() => {
       const s = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
       s.campaign.cleared = [...new Set([...s.campaign.cleared, 'ch1_s1', 'ch1_s2', 'ch1_s3', 'ch1_s4', 'ch1_s5'])];
@@ -474,7 +474,7 @@ async function main() {
     });
     log(`Таверна: ×10 → ${reveal.rarities.join(', ')}`);
     if (reveal.rarities.length !== 10) problems.push(`Таверна: карт ${reveal.rarities.length}, ждали 10`);
-    if (reveal.rarities.filter((r) => r !== 'green').length < 2) problems.push('Таверна: в первом ×10 меньше двух синих');
+    if (reveal.rarities.filter((r) => r !== 'green').length < 1) problems.push('Таверна: в первом ×10 нет синей');
     const hasPurple = reveal.rarities.includes('purple');
     await clickGame(reveal.first.x, reveal.first.y);
     // В headless-браузере (программная отрисовка) кадров мало, а время игры идёт по кадрам — ждём по состоянию, не по часам.
@@ -507,8 +507,8 @@ async function main() {
       const s = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
       return { rare: s.heroes.filter((h) => h.rarity !== 'green').length, firstTenDone: s.summon.firstTenDone, gems: s.currency.gems };
     });
-    if (saved.rare < 2 || !saved.firstTenDone || saved.gems !== 0) problems.push(`Таверна: сохранение после ×10 ${JSON.stringify(saved)}`);
-    else log('Таверна: подарок, ×10 с двумя синими, итог — ок');
+    if (saved.rare < 1 || !saved.firstTenDone || saved.gems !== 0) problems.push(`Таверна: сохранение после ×10 ${JSON.stringify(saved)}`);
+    else log('Таверна: подарок, ×10 с гарантированной синей, итог — ок');
   } catch (e) {
     problems.push(`сценарий: ${e.message}`);
     // Для разбора: какие сцены активны и как выглядел экран в момент падения.

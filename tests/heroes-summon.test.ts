@@ -1,6 +1,6 @@
 /**
  * Таверна (docs/design/heroes-v2.md, раздел 4; data/summon.json): пул 12 героев, детерминизм, шансы на 100 000
- * призывов (±0,5 п. п.), гаранты синей и фиолетовой, первый ×10 (2 синие), бесплатный раз в день, цены, подарок открытия.
+ * призывов (±0,5 п. п.), гаранты синей и фиолетовой, первый ×10 (1 синяя), бесплатный раз в день, цены, подарок открытия.
  */
 import { describe, expect, it } from 'vitest';
 import {
@@ -38,15 +38,15 @@ function codeOf(fn: () => unknown): string | undefined {
 }
 
 describe('Таверна: правила', () => {
-  it('пул — все 12 героев (сюжетные тоже, Грета и Дорн — с открытия); шансы 78 / 20 / 2; гаранты синей (10) и фиолетовой (50)', () => {
+  it('пул — все 12 героев (сюжетные тоже, Грета и Дорн — с открытия); шансы 83 / 15 / 2; гаранты синей (10) и фиолетовой (50)', () => {
     const all = Object.keys(ctx.content.heroes).sort();
     expect(all).toHaveLength(12);
     for (const r of ['green', 'blue', 'purple'] as CardRarity[]) expect(summonPool(ctx, r)).toEqual(all);
     expect(summonPool(ctx, 'purple')).toContain('greta');
     expect(summonPool(ctx, 'purple')).toContain('dorn');
     expect(cfg.rates.map((r) => [r.rarity, r.chance])).toEqual([
-      ['green', 0.78],
-      ['blue', 0.2],
+      ['green', 0.83],
+      ['blue', 0.15],
       ['purple', 0.02],
     ]);
     expect(cfg.costs).toEqual({ single: 30, ten: 270 });
@@ -54,7 +54,7 @@ describe('Таверна: правила', () => {
       { rarity: 'blue', every: 10 },
       { rarity: 'purple', every: 50 },
     ]);
-    expect(cfg.firstTen).toEqual({ rarity: 'blue', count: 2 });
+    expect(cfg.firstTen).toEqual({ rarity: 'blue', count: 1 });
   });
 
   it('один seed — одна выдача; повтор того же save даёт то же самое; seq растёт', () => {
@@ -79,7 +79,7 @@ describe('Таверна: правила', () => {
     expect(new Set(a.save.summon.discovered)).toEqual(seen);
   });
 
-  it('шансы на 100 000 призывов — 78 / 20 / 2% ± 0,5 п. п. (первые 9 карт каждого ×10 — гарант их не трогает)', () => {
+  it('шансы на 100 000 призывов — 83 / 15 / 2% ± 0,5 п. п. (первые 9 карт каждого ×10 — гарант их не трогает)', () => {
     const counts: Record<string, number> = {};
     let n = 0;
     for (let seed = 0; n < 100_000; seed++) {
@@ -161,14 +161,15 @@ describe('Таверна: правила', () => {
     }
   });
 
-  it('первый ×10 — не меньше двух синих (или выше), один раз; ×1 его не тратит', () => {
+  // Пакет V3 (решение владельца): первый ×10 гарантирует одну синюю (было две) — меньше синих копий в первой сессии.
+  it('первый ×10 — не меньше одной синей (или выше), один раз; ×1 его не тратит', () => {
     for (let seed = 1; seed <= 200; seed++) {
       const first = summon(tavern(seed * 31337), ctx, { count: 10, pay: 'gems', day: D1 });
-      expect(first.results.filter((r) => r.rarity !== 'green').length, `seed ${seed}`).toBeGreaterThanOrEqual(2);
+      expect(first.results.filter((r) => r.rarity !== 'green').length, `seed ${seed}`).toBeGreaterThanOrEqual(1);
       expect(first.save.summon.firstTenDone).toBe(true);
     }
     expect(summon(tavern(), ctx, { count: 1, pay: 'gems', day: D1 }).save.summon.firstTenDone).toBe(false);
-    expect(summonStatus(tavern(), D1, ctx)).toMatchObject({ firstTenBonus: true, firstTenRarity: 'blue', firstTenCount: 2 });
+    expect(summonStatus(tavern(), D1, ctx)).toMatchObject({ firstTenBonus: true, firstTenRarity: 'blue', firstTenCount: 1 });
   });
 
   it('бесплатный — раз в день; переводом часов назад второй не получить; на следующий день снова', () => {

@@ -122,6 +122,7 @@ console.log(`  первые 30 мин: мощь отряда между боям
 console.log(`  первое вознесение: ${hm.firstAscend ? `${hm.firstAscend.templateId} → ${hm.firstAscend.rarity}, актив ${hm.firstAscend.active_min} мин (${hm.firstAscend.hours} ч)` : '—'}`);
 console.log(`  первый фиолетовый (Ц11): ${hm.firstPurple ? `${hm.firstPurple.templateId}, день ${hm.firstPurple.day} (${hm.firstPurple.hours} ч, ${hm.firstPurple.via === 'ascend' ? 'вознесение' : 'контракт/Таверна'})` : '—'}; второй: ${hm.secondPurple ? `${hm.secondPurple.templateId}, день ${hm.secondPurple.day} (${hm.secondPurple.hours} ч)` : '—'}`);
 console.log(`  фиолетовых в отряде по дням: ${hm.purplesByDay.join(' ')}; запас экземпляров вне отряда: ${res.spareByDay.join(' ')}`);
+console.log(`  новых фиолетовых за 7 дней: вознесением ${hm.purples7.ascend}, картой (Таверна, трофеи) ${hm.purples7.card}, контрактом ${hm.purples7.contract}`);
 console.log(`  ветки: ${res.branches.map((b) => `д${b.day} ${b.templateId}/${b.branch}`).join(', ') || '—'}`);
 console.log(`  первый ×10: ${hm.firstTen ? `${hm.firstTen.pay}, актив ${hm.firstTen.active_min} мин (${hm.firstTen.hours} ч)` : '—'}; ×10 за гемы по дням: ${hm.tenPullsByDay.join(' ')}`);
 console.log(`  стены ≥ 4 ч: ${hm.walls.map((w) => `${w.stageId} ${w.hours} ч`).join(', ') || 'нет'}`);

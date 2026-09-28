@@ -8,6 +8,7 @@ import {
   pityInfo,
   pullOptions,
   ratesLines,
+  firstTenText,
   resultTag,
   revealOrder,
   revealSchedule,
@@ -51,9 +52,9 @@ describe('Таверна: порядок и ритм показа', () => {
     expect(s.map((x) => x.tension)).toEqual([false, false, true]);
   });
 
-  it('первый ×10 из ядра: две синие (или выше) есть, самая редкая открывается последней с нарастанием', () => {
+  it('первый ×10 из ядра: синяя (или выше) есть, самая редкая открывается последней с нарастанием', () => {
     const r = actSummon(opened(), DAY, 10, 'gems', ctx);
-    expect(r.results.filter((x) => x.rarity !== 'green').length).toBeGreaterThanOrEqual(2);
+    expect(r.results.filter((x) => x.rarity !== 'green').length).toBeGreaterThanOrEqual(ctx.summon.firstTen.count);
     const best = r.results.some((x) => x.rarity === 'purple') ? 'purple' : 'blue';
     const order = revealOrder(r.results);
     expect(r.results[order[order.length - 1]].rarity).toBe(best);
@@ -97,8 +98,15 @@ describe('Таверна: раскладка и итог', () => {
     expect(summaryLine(cards('green', 'purple', 'green', 'blue'))).toBe('Фиолетовых 1 · синих 1 · зелёных 2 · новых 2 · дублей 2');
   });
 
+  it('firstTenText: гарант первого ×10 по-русски — одна карта и несколько', () => {
+    expect(firstTenText(1, 'blue')).toBe('синяя карта гарантирована');
+    expect(firstTenText(1, 'blue', true)).toBe('хотя бы одна синяя карта');
+    expect(firstTenText(2, 'blue')).toBe('не меньше 2 синих гарантированно');
+    expect(firstTenText(2, 'purple', true)).toBe('не меньше 2 фиолетовых карт');
+  });
+
   it('ratesLines: проценты по-русски', () => {
-    expect(ratesLines(ctx.summon.rates, (r) => r)).toEqual(['green — 78%', 'blue — 20%', 'purple — 2%']);
+    expect(ratesLines(ctx.summon.rates, (r) => r)).toEqual(['green — 83%', 'blue — 15%', 'purple — 2%']);
   });
 });
 

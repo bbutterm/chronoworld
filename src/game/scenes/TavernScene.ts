@@ -19,6 +19,7 @@ import {
   pityInfo,
   pullOptions,
   RARITY_CARD,
+  firstTenText,
   RARITY_FEM,
   ratesLines,
   resultTag,
@@ -35,9 +36,6 @@ import { drawHeroCard, heroCardSize } from '../heroCard';
 import { markTavernSeen } from '../tavernEntry';
 import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
 import { button, ellipsize, panel, progressBar, text, toast } from '../ui';
-
-/** «2 синих» — родительный множественного (гарант первого ×10). */
-const RARITY_GEN_PL = { green: 'зелёных', blue: 'синих', purple: 'фиолетовых', gold: 'золотых', red: 'красных' } as const;
 
 /** Цвет редкости (#rrggbb) → число для tint и заливок. */
 const colorOf = (hex: string): number => Phaser.Display.Color.HexStringToColor(hex).color;
@@ -232,7 +230,7 @@ export class TavernScene extends Phaser.Scene {
       ry += rowH;
     });
     if (st.firstTenBonus) {
-      text(this, GAME_W / 2, ry - 6, `Первый призыв ×10 — не меньше ${st.firstTenCount} ${RARITY_GEN_PL[st.firstTenRarity]} гарантированно!`, FS.small, C.gold, { fontStyle: 'bold', ...OUTLINE }).setName('firstTenNote');
+      text(this, GAME_W / 2, ry - 6, `Первый призыв ×10 — ${firstTenText(st.firstTenCount, st.firstTenRarity)}!`, FS.small, C.gold, { fontStyle: 'bold', ...OUTLINE }).setName('firstTenNote');
     }
   }
 
@@ -308,7 +306,7 @@ export class TavernScene extends Phaser.Scene {
     const s = GAME.summon;
     const rules = [
       ...s.pity.map((p) => `Гарант: ${p.every - 1} призывов подряд без ${RARITY_FEM[p.rarity]} — следующая карта ${RARITY_CARD[p.rarity]}.`),
-      `Первый призыв ×10 (один раз) — не меньше ${s.firstTen.count} ${RARITY_GEN_PL[s.firstTen.rarity]} карт.`,
+      `Первый призыв ×10 (один раз) — ${firstTenText(s.firstTen.count, s.firstTen.rarity, true)}.`,
       `Бесплатно: ${s.freePerDay} призыв в день. Свиток — 1 призыв.`,
       'Фиолетовая карта приходит без ветки — выберите её на карточке героя.',
       'Повторные карты — корм для вознесения в «Героях».',
