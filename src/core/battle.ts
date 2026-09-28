@@ -168,7 +168,9 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     target.hp -= hpLoss;
     if (report[srcUid]) report[srcUid].damageDealt += absorbed + hpLoss;
     report[target.uid].damageTaken += absorbed + hpLoss;
-    if (target.hp > 0 && !dot) addEnergy(target, cfg.energy.perHitTaken);
+    // Энергия за полученный удар — только за урон по ОЗ (как в AFK: энергия от потерянного здоровья). Удар, целиком
+    // принятый щитом, ульту не заряжает — иначе щит-ульта («Песчаная стена») перезаряжала сама себя (LT-01).
+    if (target.hp > 0 && !dot && hpLoss > 0) addEnergy(target, cfg.energy.perHitTaken);
     emit({ t, type: 'damage', source: srcUid, target: target.uid, amount: dmg, absorbed, hp: target.hp, shield: target.shield, energy: target.energy, ...(dot ? { dot } : {}) });
     if (target.hp <= 0) kill(target, src);
     else if (!dot) trigger(target, 'hit');
