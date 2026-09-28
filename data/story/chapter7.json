@@ -1,0 +1,64 @@
+{
+  "$schema": "../schema/story.schema.json",
+  "chapter": "chapter7",
+  "speakers": {
+    "narrator": {
+      "name": "TODO: рассказчик",
+      "portrait": "novice"
+    },
+    "hero1": {
+      "name": "Герой",
+      "portrait": "hero"
+    },
+    "boss": {
+      "name": "Герой орков",
+      "portrait": "unit:mob_boss1"
+    }
+  },
+  "scenes": [
+    {
+      "id": "ch7_intro",
+      "trigger": "chapterStart",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "TODO: вступление главы"
+        },
+        {
+          "speaker": "hero1",
+          "text": "TODO: ответ героя"
+        }
+      ]
+    },
+    {
+      "id": "ch7_s10_before",
+      "trigger": "beforeStage",
+      "stageId": "ch7_s10",
+      "bossIntro": {
+        "title": "Герой орков",
+        "subtitle": "TODO: титул босса"
+      },
+      "lines": [
+        {
+          "speaker": "boss",
+          "text": "TODO: угроза босса"
+        },
+        {
+          "speaker": "hero1",
+          "text": "TODO: ответ героя"
+        }
+      ]
+    },
+    {
+      "id": "ch7_outro",
+      "trigger": "afterStage",
+      "stageId": "ch7_s10",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "TODO: финал главы, крючок к следующей"
+        }
+      ]
+    }
+  ]
+}

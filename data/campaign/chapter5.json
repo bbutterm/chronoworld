@@ -1,0 +1,329 @@
+{
+  "$schema": "../schema/chapter.schema.json",
+  "$comment": "TODO: заготовка content:new — mult всех этапов = 1 (босс 0.5), подобрать по docs/CONTENT_RECIPES.md «Новая глава: чеклист» (playthrough, balance-fit, --fit-recommended); сундук и награды уже по формуле баланса",
+  "id": "chapter5",
+  "name": "Глава 5. Лес Пайона",
+  "order": 5,
+  "stages": [
+    {
+      "id": "ch5_s1",
+      "name": "TODO: этап 1",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 14310,
+        "gold": 10020
+      },
+      "offlinePerMinute": {
+        "jobExp": 477,
+        "gold": 334
+      }
+    },
+    {
+      "id": "ch5_s2",
+      "name": "TODO: этап 2",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 15600,
+        "gold": 10920
+      },
+      "offlinePerMinute": {
+        "jobExp": 520,
+        "gold": 364
+      }
+    },
+    {
+      "id": "ch5_s3",
+      "name": "TODO: этап 3",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 17010,
+        "gold": 11910
+      },
+      "offlinePerMinute": {
+        "jobExp": 567,
+        "gold": 397
+      }
+    },
+    {
+      "id": "ch5_s4",
+      "name": "TODO: этап 4",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 18540,
+        "gold": 12990
+      },
+      "offlinePerMinute": {
+        "jobExp": 618,
+        "gold": 433
+      }
+    },
+    {
+      "id": "ch5_s5",
+      "name": "TODO: этап 5",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 20220,
+        "gold": 14160
+      },
+      "offlinePerMinute": {
+        "jobExp": 674,
+        "gold": 472
+      }
+    },
+    {
+      "id": "ch5_s6",
+      "name": "TODO: этап 6",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        null,
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 22050,
+        "gold": 15450
+      },
+      "offlinePerMinute": {
+        "jobExp": 735,
+        "gold": 515
+      }
+    },
+    {
+      "id": "ch5_s7",
+      "name": "TODO: этап 7",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 24030,
+        "gold": 16830
+      },
+      "offlinePerMinute": {
+        "jobExp": 801,
+        "gold": 561
+      }
+    },
+    {
+      "id": "ch5_s8",
+      "name": "TODO: этап 8",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 26190,
+        "gold": 18330
+      },
+      "offlinePerMinute": {
+        "jobExp": 873,
+        "gold": 611
+      }
+    },
+    {
+      "id": "ch5_s9",
+      "name": "TODO: этап 9",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_elite",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 28530,
+        "gold": 19980
+      },
+      "offlinePerMinute": {
+        "jobExp": 951,
+        "gold": 666
+      }
+    },
+    {
+      "id": "ch5_s10",
+      "name": "TODO: логово босса",
+      "boss": true,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob_boss1",
+          "mult": 0.5
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 46665,
+        "gold": 32670
+      },
+      "offlinePerMinute": {
+        "jobExp": 1037,
+        "gold": 726
+      }
+    }
+  ]
+}
