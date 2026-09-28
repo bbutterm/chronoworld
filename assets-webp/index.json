@@ -199,35 +199,80 @@
   "png": 20474,
   "webp": 17544
  },
+ "sprites/heroes/acolyte_f.png": {
+  "sha1": "647d986ba16970ff42f13391b0d4501eccb3f965",
+  "png": 23565,
+  "webp": 17246
+ },
+ "sprites/heroes/acolyte_m.png": {
+  "sha1": "bddefb520420abda561e80c48c8fb5180728549f",
+  "png": 25581,
+  "webp": 18112
+ },
  "sprites/heroes/alchemist.png": {
   "sha1": "849617e01ecf668b5d5c6df39a565a1dd14eb3e5",
   "png": 26607,
   "webp": 12698
+ },
+ "sprites/heroes/alchemist_m.png": {
+  "sha1": "89fad208344c6fdd06f38eb3c123000fbda0c78f",
+  "png": 26974,
+  "webp": 18410
  },
  "sprites/heroes/archer.png": {
   "sha1": "024a3203fd153f87dde702859d86a2701f2303c4",
   "png": 22245,
   "webp": 18760
  },
+ "sprites/heroes/archer_f.png": {
+  "sha1": "c314b2384d06e4b54aeeae283643ad984b013d99",
+  "png": 24942,
+  "webp": 18014
+ },
  "sprites/heroes/archer_first.png": {
   "sha1": "7698b577760c82d56335360493047fe8d2549036",
   "png": 21661,
   "webp": 18172
+ },
+ "sprites/heroes/archer_m.png": {
+  "sha1": "b29f384685a4b6da0724c1f95e1393cb3ed3e123",
+  "png": 25275,
+  "webp": 17976
  },
  "sprites/heroes/assassin.png": {
   "sha1": "172fb2a24b8b46e054f4a996e0e7b7e6a049ca6f",
   "png": 24960,
   "webp": 20662
  },
+ "sprites/heroes/assassin_m.png": {
+  "sha1": "98e45498c255a77b43f7eb2eea28b8c7b00f5472",
+  "png": 26801,
+  "webp": 19122
+ },
  "sprites/heroes/bard.png": {
   "sha1": "50787b4134a2a660c8ffaa25e99993f58fa2cdc4",
   "png": 27096,
   "webp": 13000
  },
+ "sprites/heroes/bard_m.png": {
+  "sha1": "2629ea6ce15605c4be434f42a604e4b2af37cfdc",
+  "png": 29757,
+  "webp": 20188
+ },
  "sprites/heroes/blacksmith.png": {
   "sha1": "0aeceded8bd1dc5a70e517970fa7567e33916bdb",
   "png": 22007,
   "webp": 10890
+ },
+ "sprites/heroes/blacksmith_f.png": {
+  "sha1": "57a4e2192fac4c0f3430df0d8a9b2a7d148d4066",
+  "png": 26452,
+  "webp": 17942
+ },
+ "sprites/heroes/blacksmith_m.png": {
+  "sha1": "bcd459cc814c6f4647c9caae8264b3eded6f8f89",
+  "png": 26373,
+  "webp": 17596
  },
  "sprites/heroes/guard.png": {
   "sha1": "ca9baf44587a397b277a0c1d1cb538fe23e68934",
@@ -244,45 +289,115 @@
   "png": 22277,
   "webp": 18922
  },
+ "sprites/heroes/magician_f.png": {
+  "sha1": "fc9173caa3c5422ef3ce2321658e6ed14f7dfbff",
+  "png": 25154,
+  "webp": 16926
+ },
+ "sprites/heroes/magician_m.png": {
+  "sha1": "f9cd9e9326b4b5dfab225689ff242c2b3e23fc8e",
+  "png": 26269,
+  "webp": 19040
+ },
  "sprites/heroes/merchant.png": {
   "sha1": "41e8a66caccd4531545dc65eb94c513558fd16ce",
   "png": 22540,
   "webp": 18936
+ },
+ "sprites/heroes/merchant_f.png": {
+  "sha1": "fa17d9e8d87ab41e6ce47c0f996f9708ca6a6616",
+  "png": 26563,
+  "webp": 19516
+ },
+ "sprites/heroes/merchant_m.png": {
+  "sha1": "ff466293af354ec20f72333408e2aa8b4dbc9919",
+  "png": 26737,
+  "webp": 19038
  },
  "sprites/heroes/monk.png": {
   "sha1": "29ba88877e6338ae2d0d40d30f3a317b80a57119",
   "png": 25184,
   "webp": 12920
  },
+ "sprites/heroes/monk_m.png": {
+  "sha1": "9a102138c86be6d1e4b7547be19726692ae9e827",
+  "png": 29925,
+  "webp": 21142
+ },
  "sprites/heroes/novice.png": {
   "sha1": "5596545be46b2c3408797105f35520c3971eeac5",
   "png": 20503,
   "webp": 16080
+ },
+ "sprites/heroes/novice_f.png": {
+  "sha1": "68952b79d95403193566b8057380b8af03d78bc0",
+  "png": 23920,
+  "webp": 16348
  },
  "sprites/heroes/priest.png": {
   "sha1": "c26d7b7b4917a332ab5f780fae3a20b515614cfd",
   "png": 21666,
   "webp": 18170
  },
+ "sprites/heroes/priest_f.png": {
+  "sha1": "6ea60df5d43631d0d403f39f51f7c88dbb22721f",
+  "png": 24937,
+  "webp": 17896
+ },
  "sprites/heroes/rogue.png": {
   "sha1": "70667e1ff210ff6a91aacefa5487d37893273ad3",
   "png": 25403,
   "webp": 12382
+ },
+ "sprites/heroes/rogue_f.png": {
+  "sha1": "3627bb7293bbe793c1d39fd21514b000aa4927a9",
+  "png": 26876,
+  "webp": 19272
+ },
+ "sprites/heroes/rogue_m.png": {
+  "sha1": "511a2558c511290ed4720b33977749b0516cf848",
+  "png": 28385,
+  "webp": 19674
  },
  "sprites/heroes/sage.png": {
   "sha1": "32c42ecfd0883a97fed8dc610d01d9e14ea38fde",
   "png": 26637,
   "webp": 13726
  },
+ "sprites/heroes/sage_f.png": {
+  "sha1": "3d4037b7b49ba13a3094e7a979307ebabbd44a04",
+  "png": 28256,
+  "webp": 19632
+ },
  "sprites/heroes/swordman.png": {
   "sha1": "824f274ae1ffe72cd79a3ed935f7596ac76c69d9",
   "png": 23322,
   "webp": 19058
  },
+ "sprites/heroes/swordman_f.png": {
+  "sha1": "86f28ce8795cfb92163f5eeac063b2c773743164",
+  "png": 24319,
+  "webp": 17122
+ },
+ "sprites/heroes/swordman_m.png": {
+  "sha1": "834415144ac87f3499e37558ce31e2dd966a871a",
+  "png": 23932,
+  "webp": 19586
+ },
  "sprites/heroes/thief.png": {
   "sha1": "f2f35d99098d9c66fb7fab61a269fa9a6881c69e",
   "png": 20488,
   "webp": 17020
+ },
+ "sprites/heroes/thief_f.png": {
+  "sha1": "42343725ba201e03074c9d095ade8ee1f63692cd",
+  "png": 24632,
+  "webp": 17330
+ },
+ "sprites/heroes/thief_m.png": {
+  "sha1": "cddbdc57cbcbe52f9f0111308ebe55f4cf1c9024",
+  "png": 24133,
+  "webp": 16828
  },
  "sprites/heroes/warrior.png": {
   "sha1": "21df216154df0dfcef717c37f4b971825b341324",
@@ -364,35 +479,80 @@
   "png": 1033,
   "webp": 952
  },
+ "sprites/portraits/acolyte_f.png": {
+  "sha1": "7d1fdba6c58a7d942c513576055fb27467b60211",
+  "png": 2359,
+  "webp": 1288
+ },
+ "sprites/portraits/acolyte_m.png": {
+  "sha1": "0f6d0aa0a7df68a553c07ca20988b0d7c5716911",
+  "png": 2566,
+  "webp": 1516
+ },
  "sprites/portraits/alchemist.png": {
   "sha1": "7acefa104f0f57f171789d064b04c1eccc74fdbb",
   "png": 1734,
   "webp": 946
+ },
+ "sprites/portraits/alchemist_m.png": {
+  "sha1": "1c2c4a243e3ab089d1b8cd593172f29abd39c3b7",
+  "png": 1788,
+  "webp": 1312
  },
  "sprites/portraits/archer.png": {
   "sha1": "915da19835bbffe05065dae789a40e28735d3dd1",
   "png": 1163,
   "webp": 1060
  },
+ "sprites/portraits/archer_f.png": {
+  "sha1": "8dec2276a722cfa23579088427e8c34a0ba928ac",
+  "png": 2459,
+  "webp": 1426
+ },
  "sprites/portraits/archer_first.png": {
   "sha1": "2d32a797db1c972b5c446d9ed4b576acd2f68c32",
   "png": 1126,
   "webp": 1038
+ },
+ "sprites/portraits/archer_m.png": {
+  "sha1": "d0d3a7bb0a6810d2b818434515fbe40b91c10c4c",
+  "png": 2437,
+  "webp": 1400
  },
  "sprites/portraits/assassin.png": {
   "sha1": "84b4f9c670061d5cd0615797f176b82d2c09078b",
   "png": 1175,
   "webp": 1070
  },
+ "sprites/portraits/assassin_m.png": {
+  "sha1": "df4ab189fe90acee8a27c3967444174020c16842",
+  "png": 1677,
+  "webp": 1376
+ },
  "sprites/portraits/bard.png": {
   "sha1": "a3465d903b476edef40d2da934f7288dc1d41098",
   "png": 1853,
   "webp": 1044
  },
+ "sprites/portraits/bard_m.png": {
+  "sha1": "2cdcbea7dd24743ff776bd57456308d639b7cc4f",
+  "png": 1977,
+  "webp": 1690
+ },
  "sprites/portraits/blacksmith.png": {
   "sha1": "1a15ec2e48693e473f7adfc24a7ed645998c4132",
   "png": 1879,
   "webp": 1106
+ },
+ "sprites/portraits/blacksmith_f.png": {
+  "sha1": "f1e4078d0617b4749b82b9a1b5eb53322590bd16",
+  "png": 2278,
+  "webp": 1688
+ },
+ "sprites/portraits/blacksmith_m.png": {
+  "sha1": "aa8d26caa247e19097dca514f9634676e22eb903",
+  "png": 1798,
+  "webp": 1514
  },
  "sprites/portraits/guard.png": {
   "sha1": "d9dc6dad0dc26eed6ddbbef4e010fb7100cbff52",
@@ -409,45 +569,115 @@
   "png": 1052,
   "webp": 938
  },
+ "sprites/portraits/magician_f.png": {
+  "sha1": "64e325d10bdc58da333eeff040716c344131de87",
+  "png": 2531,
+  "webp": 1466
+ },
+ "sprites/portraits/magician_m.png": {
+  "sha1": "2c2b7e1fdf69831eaf0499d845bfeb955e102be6",
+  "png": 2374,
+  "webp": 1306
+ },
  "sprites/portraits/merchant.png": {
   "sha1": "e9f544f6dcb7658cc560ebf0e823ef6af2384b43",
   "png": 1157,
   "webp": 1018
+ },
+ "sprites/portraits/merchant_f.png": {
+  "sha1": "bd73d0c0972a0cc4a141b08697e8a96432d4b990",
+  "png": 2610,
+  "webp": 1534
+ },
+ "sprites/portraits/merchant_m.png": {
+  "sha1": "35c023931767a594c1c3dcf7b53aa88ce73d24ad",
+  "png": 2514,
+  "webp": 1454
  },
  "sprites/portraits/monk.png": {
   "sha1": "40932ac9cc239e88222fa7b02a1d523caafc2909",
   "png": 1703,
   "webp": 892
  },
+ "sprites/portraits/monk_m.png": {
+  "sha1": "fbce131db04bd292a76fe217e632676d86b43090",
+  "png": 1806,
+  "webp": 1300
+ },
  "sprites/portraits/novice.png": {
   "sha1": "8dca54a3a455ce54b2749e022c0adf5ac25d5baa",
   "png": 976,
   "webp": 890
+ },
+ "sprites/portraits/novice_f.png": {
+  "sha1": "0adcfe961f463916e2f394592c4f36174de7ec77",
+  "png": 2413,
+  "webp": 1388
  },
  "sprites/portraits/priest.png": {
   "sha1": "f2bfcd3653705ef2a095b8efc0cc6f004842ddf8",
   "png": 1072,
   "webp": 978
  },
+ "sprites/portraits/priest_f.png": {
+  "sha1": "ff9481f8d22ca118ab524f1da49436551047818d",
+  "png": 1787,
+  "webp": 1318
+ },
  "sprites/portraits/rogue.png": {
   "sha1": "69cdf9b8fb7150cd4bf734377032d23e953dbce6",
   "png": 1632,
   "webp": 828
+ },
+ "sprites/portraits/rogue_f.png": {
+  "sha1": "80a9d397a15b7accd3a2935af3e447555842c23f",
+  "png": 1876,
+  "webp": 1400
+ },
+ "sprites/portraits/rogue_m.png": {
+  "sha1": "75eebc415d4b3549736cf83717f907bd7b7272cc",
+  "png": 1784,
+  "webp": 1312
  },
  "sprites/portraits/sage.png": {
   "sha1": "7177892762dfd85fa5816f4cf6b0fdfbcbcb282b",
   "png": 1877,
   "webp": 1068
  },
+ "sprites/portraits/sage_f.png": {
+  "sha1": "97e3faa153fc93cdff09720e28ace4cca505204e",
+  "png": 2088,
+  "webp": 1546
+ },
  "sprites/portraits/swordman.png": {
   "sha1": "a9a977606842c9d6a83e33726f22f45b2935c0db",
   "png": 1227,
   "webp": 1084
  },
+ "sprites/portraits/swordman_f.png": {
+  "sha1": "fb9afbd1b3dad338c09776bb230a6dc03bef51d8",
+  "png": 2421,
+  "webp": 1368
+ },
+ "sprites/portraits/swordman_m.png": {
+  "sha1": "cbf207222b789ccc3baeffe573beba6e97392ae2",
+  "png": 2368,
+  "webp": 1762
+ },
  "sprites/portraits/thief.png": {
   "sha1": "5bdc8d94f45f2eeeb2635a262ce1fbef7a2a14ce",
   "png": 1038,
   "webp": 960
+ },
+ "sprites/portraits/thief_f.png": {
+  "sha1": "dbaf9dfe68ff17e1334765b9e1b351b1f65eb3b2",
+  "png": 2723,
+  "webp": 1664
+ },
+ "sprites/portraits/thief_m.png": {
+  "sha1": "a1d18ed26996ce29f0bce3259b90405697184f23",
+  "png": 2320,
+  "webp": 1292
  },
  "sprites/portraits/warrior.png": {
   "sha1": "a6ed4834725561079bac48c2428aaa54f2bad0e6",

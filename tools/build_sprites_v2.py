@@ -46,18 +46,62 @@ HEROES={
  'blacksmith_m':(10,'Blacksmith','male',7,0,1351,0),
  'blacksmith_f':(10,'Blacksmith','female',6,0,1301,0),
  'alchemist_m':(18,'Alchemist','male',6,0,1301,0),
+ # First-job card variants and story identities (all keep their own hairstyle).
+ 'swordman_f':(1,'Swordman','female',3,0,1163,0),
+ 'archer_m':(3,'Archer','male',11,0,1701,0),
+ 'archer_f':(3,'Archer','female',11,0,1704,0),
+ 'magician_m':(2,'Magician','male',10,0,1601,0),
+ 'magician_f':(2,'Magician','female',10,0,1604,0),
+ 'thief_m':(6,'Thief','male',1,0,1207,0),
+ 'thief_f':(6,'Thief','female',1,0,1219,0),
+ 'acolyte_f':(4,'Acolyte','female',8,0,1501,0),
+ 'acolyte_m':(4,'Acolyte','male',8,0,1519,0),
+ 'merchant_m':(5,'Merchant','male',6,0,1301,0),
+ 'merchant_f':(5,'Merchant','female',8,2,1501,2103),
+ 'novice_f':(0,'Novice','female',1,0,1201,0),
+ 'hero_alan_novice':(0,'Novice','male',1,0,1201,0),
+ 'hero_alan_swordman':(1,'Swordman','male',2,2,1101,2103),
+ 'hero_bran_novice':(0,'Novice','male',1,0,1201,0),
+ 'hero_bran_archer':(3,'Archer','male',11,0,1701,0),
+ 'hero_vika_novice':(0,'Novice','female',1,0,1201,0),
+ 'hero_vika_acolyte':(4,'Acolyte','female',8,0,1501,0),
+ 'hero_greta_novice':(0,'Novice','female',1,0,1201,0),
+ 'hero_greta_magician':(2,'Magician','female',10,0,1601,0),
+ 'hero_dorn_novice':(0,'Novice','male',1,0,1201,0),
+ 'hero_dorn_thief':(6,'Thief','male',1,0,1207,0),
+ 'npc_garret':(7,'Knight','male',3,0,1116,0),
 }
 CARD_HEROES=('knight_m','crusader_m','hunter_m','hunter_f','bard_m','dancer_f',
  'wizard_f','sage_f','assassin_m','rogue_m','rogue_f','priest_f','monk_m',
  'blacksmith_m','blacksmith_f','alchemist_m')
-HERO_APPEARANCE={'swordman_m':(2,7),
+HERO_APPEARANCE: dict[str,tuple[int,int]]={'swordman_m':(2,7),
  'knight_m':(1,3),'crusader_m':(8,0),'hunter_m':(5,3),'hunter_f':(12,1),
  'bard_m':(9,4),'dancer_f':(19,7),'wizard_f':(16,8),'sage_f':(13,5),
  'assassin_m':(4,0),'rogue_m':(10,2),'rogue_f':(20,2),'priest_f':(11,7),
  'monk_m':(6,4),'blacksmith_m':(3,1),'blacksmith_f':(19,1),'alchemist_m':(7,5)}
-CARD_WEAPON_NAMES=dict(zip(CARD_HEROES,(
+CARD_WEAPON_NAMES: dict[str,str]=dict(zip(CARD_HEROES,(
  'Katana','Sword','Hunter Bow','Arbalest','Violin','Rope','Arc Wand','Book',
  'Jur','Haedonggum','Composite Bow','Club','Waghnakh','Battle Axe','Axe','Axe')))
+FIRST_HEROES=('swordman_m','swordman_f','archer_m','archer_f','magician_m','magician_f',
+ 'thief_m','thief_f','acolyte_f','acolyte_m','merchant_m','merchant_f','novice_f')
+STORY_HEROES=('hero_alan_novice','hero_alan_swordman','hero_bran_novice','hero_bran_archer',
+ 'hero_vika_novice','hero_vika_acolyte','hero_greta_novice','hero_greta_magician',
+ 'hero_dorn_novice','hero_dorn_thief','npc_garret')
+NEW_HEROES=FIRST_HEROES[1:]+STORY_HEROES
+HERO_APPEARANCE.update({
+ 'swordman_f':(7,1),'archer_m':(5,1),'archer_f':(12,3),
+ 'magician_m':(9,5),'magician_f':(16,2),'thief_m':(4,7),'thief_f':(20,2),
+ 'acolyte_f':(11,0),'acolyte_m':(6,4),'merchant_m':(3,1),
+ 'merchant_f':(13,5),'novice_f':(17,3),
+ 'hero_alan_novice':(1,1),'hero_alan_swordman':(1,1),
+ 'hero_bran_novice':(8,7),'hero_bran_archer':(8,7),
+ 'hero_vika_novice':(11,0),'hero_vika_acolyte':(11,0),
+ 'hero_greta_novice':(19,3),'hero_greta_magician':(19,3),
+ 'hero_dorn_novice':(10,2),'hero_dorn_thief':(10,2),'npc_garret':(14,6)})
+CARD_WEAPON_NAMES.update(dict(zip(NEW_HEROES,(
+ 'Claymore','Bow','Composite Bow','Rod','Staff','Main Gauche','Gladius',
+ 'Mace','Chain','Axe','Mace','Knife',
+ 'Knife','Sword','Knife','Bow','Knife','Mace','Knife','Rod','Knife','Main Gauche','Katana'))))
 MONSTERS={'melee':('Zombie',1015),'ranged':('Archer Skeleton',1016),'tank':('Willow',1010),'fast':('Poring',1002),
           'elite':('Golden Thief Bug',1086),'boss1':('Orc Hero',1087),'boss2':('Baphomet',1039),
           'drops':('Drops',1113),'poporing':('Poporing',1031),'fabre':('Fabre',1007),
@@ -217,17 +261,19 @@ def build(cache:Path,oxipng:Path,only=None):
    if anim=='death' and name in DEATH_EXCEPTIONS:
     exception_rows[anim]='Oversized ACT death FX frames skipped without scaling; native first/last retained, source indices recorded.'
    if anim=='idle' and kind=='hero':
-    # Native 64x64 head and shoulders of first ready pose; no resize.
     src.seek(indices[0]);raw=src.convert('RGBA')
-    portrait=raw.crop((256-32,480-88,256+32,480-24))
+    # Card art: source head/shoulders crop at native x1, enlarged with nearest-neighbor pixels.
+    portrait=raw.crop((256-32,480-88,256+32,480-24)).resize((256,256),Image.Resampling.NEAREST)
     out=OUT/'portraits'/f'{name}.png';save_lossless(portrait,out,oxipng)
     entry['portrait']=f'sprites/portraits/{name}.png'
   if exception_rows:entry['samplingExceptions']=exception_rows
-  if name in CARD_HEROES:
+  if name in CARD_HEROES or name in NEW_HEROES:
    entry['sourceLimitations']={
     'equipment':'Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.',
     'itemView':'The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.',
     'death':'RO action 70 may have fewer distinct poses than four; repeated last pose is retained.'}
+  if name in FIRST_HEROES or name in STORY_HEROES or name in CARD_HEROES:
+   entry['portraitSource']='Nearest-neighbor 4x enlargement of a native 64x64 ready-pose head-and-shoulders crop.'
   if name=='swordman_m':
    entry['sourceLimitations']={
     'appearance':'Requested hair color 0 rendered red; palette 7 yields dark brown in this renderer.',
@@ -253,13 +299,29 @@ def build(cache:Path,oxipng:Path,only=None):
  if not only:upsert_v1(oxipng)
  print('OUTPUT',OUT,'bytes',sum(p.stat().st_size for p in OUT.rglob('*') if p.is_file()))
 
+def upgrade_card_portraits(oxipng:Path):
+ """Promote already-delivered 64px card portraits to 256px without re-fetching APNGs."""
+ manifest=OUT/'sprites.json';data=json.loads(manifest.read_text())
+ for entry in data['sprites']:
+  if entry['id'] not in CARD_HEROES+('swordman_m',):continue
+  path=ROOT/'assets'/entry['portrait']
+  with Image.open(path) as original:
+   if original.size==(64,64):
+    save_lossless(original.convert('RGBA').resize((256,256),Image.Resampling.NEAREST),path,oxipng)
+   elif original.size!=(256,256):raise ValueError(f'unexpected portrait size: {path}')
+  entry['portraitSource']='Nearest-neighbor 4x enlargement of a native 64x64 ready-pose head-and-shoulders crop.'
+ manifest.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+ print('upgraded',len(CARD_HEROES)+1,'card portraits to 256x256',flush=True)
+
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--cache',type=Path,default=DEFAULT_CACHE)
  p.add_argument('--oxipng',type=Path,default=Path(os.environ.get('OXIPNG',shutil.which('oxipng') or '/root/artifacts/chronoworld-art/bin/oxipng')))
  p.add_argument('--only',help='Build/upsert a single ID without replacing the other manifest entries')
  p.add_argument('--from-v1',action='store_true',help='Only convert/upsert the legacy assets/ro v1 sheets (no renderer cache needed)')
  p.add_argument('--alpha-fixes',action='store_true',help='Only re-apply OPAQUE_BODY to existing sheets (no renderer cache needed)')
+ p.add_argument('--upgrade-card-portraits',action='store_true',help='Upscale existing 17 card portraits from 64 to 256 without re-fetching')
  a=p.parse_args()
- if a.alpha_fixes:apply_alpha_fixes(a.oxipng,[a.only] if a.only else None)
+ if a.upgrade_card_portraits:upgrade_card_portraits(a.oxipng)
+ elif a.alpha_fixes:apply_alpha_fixes(a.oxipng,[a.only] if a.only else None)
  elif a.from_v1:upsert_v1(a.oxipng)
  else:build(a.cache,a.oxipng,a.only)
