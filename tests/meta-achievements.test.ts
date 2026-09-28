@@ -25,7 +25,7 @@ const root = join(import.meta.dirname, '..');
 const read = (f: string) => JSON.parse(readFileSync(join(root, f), 'utf8'));
 const ctx = withMeta(
   withTower(withFeatures(loadGameContext(), read('data/progression.json'), read('data/quests.json')), read('data/tower.json')),
-  read('data/bounties.json'),
+  read('data/expeditions.json'),
   read('data/achievements.json'),
 );
 const D1 = '2026-09-26';

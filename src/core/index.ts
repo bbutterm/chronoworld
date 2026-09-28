@@ -16,6 +16,7 @@ export * from './campaign/campaign';
 export * from './campaign/offline';
 export * from './save/schema';
 export * from './save/save';
+export * from './save/migrate-expeditions';
 export * from './features';
 export * from './equipment';
 export * from './tower';

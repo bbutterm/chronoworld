@@ -5,7 +5,11 @@ import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/rost
 import type { GameContext } from '../progression/types';
 import { initSeenUnlocks } from '../unlocks/unlocks';
 import type { UnlocksConfig } from '../unlocks/schema';
-import { DEFAULT_DAY, emptyBounties, emptyDaily, emptyMail, emptySummon, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
+import { migrateBountiesToExpeditions } from './migrate-expeditions';
+import { DEFAULT_DAY, emptyDaily, emptyExpeditions, emptyMail, emptySummon, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
+
+/** Пустая доска поручений формата v3–v5 (для старых шагов миграции; v6 превращает её в экспедиции). */
+const legacyEmptyBounties = () => ({ board: [], lastRefreshDay: DEFAULT_DAY, refreshesUsed: 0, active: [] });
 
 /**
  * Новая игра: сюжетные карточки progression.heroes.start — зелёные, ур. 1; отряд — передние с первого слота,
@@ -28,7 +32,7 @@ export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY
     tower: { floor: 0 },
     inventory: { items: [] },
     presets: [],
-    bounties: emptyBounties(),
+    bounties: emptyExpeditions(),
     achievements: { counters: {}, claimed: [] },
     shards: {},
     summon: emptySummon(),
@@ -93,7 +97,7 @@ export const MIGRATIONS: Record<number, (old: any) => any> = {
     ...old,
     version: 3,
     presets: old.presets ?? [],
-    bounties: old.bounties ?? emptyBounties(),
+    bounties: old.bounties ?? legacyEmptyBounties(),
     achievements: old.achievements ?? { counters: derivedCounters(old), claimed: [] },
   }),
   /**
@@ -111,6 +115,11 @@ export const MIGRATIONS: Record<number, (old: any) => any> = {
     version: 5,
     mail: isRecord(old?.mail) ? old.mail : emptyMail(),
   }),
+  /**
+   * Версия 5 → 6 (экспедиции вместо доски поручений): герои с поручений свободны, награда начатых поручений — письмом
+   * в почте. Отдельная функция — save/migrate-expeditions.ts (там же — как добавлять следующие шаги).
+   */
+  5: (old) => migrateBountiesToExpeditions(old),
 };
 
 /** Счётчики достижений, которые можно восстановить из старого сохранения (структура не гарантирована). */
@@ -161,7 +170,7 @@ export function saveRevision(text: string | null | undefined): number {
 /**
  * P11 (T4-04). Привести загруженное сохранение в соответствие с текущим контентом, чтобы экраны не падали:
  * - v4: экземпляр неизвестной карточки (шаблона больше нет в data/heroes) убирается вместе со ссылками на него
- *   (отряд, пресеты, поручения, надетые предметы); редкость выше maxRarity шаблона — maxRarity; уровень выше предела
+ *   (отряд, пресеты, экспедиции, надетые предметы); редкость выше maxRarity шаблона — maxRarity; уровень выше предела
  *   редкости — предел;
  * - второй экземпляр одной карточки в отряде убирается из отряда (правило «одна копия карточки в отряде»);
  * - предметы, которых нет в ctx.equipment.items (если контекст с экипировкой), убираются;
@@ -250,7 +259,7 @@ function describeIssues(error: z.ZodError): string {
 
 /**
  * Из строки: JSON.parse → миграции по полю version (MIGRATIONS[v] переводит v → v+1)
- * → SaveStateSchema.parse → проверка ссылок (id героев и предметов уникальны; отряд, надетые предметы и поручения ссылаются на существующих героев; герой в отряде один раз).
+ * → SaveStateSchema.parse → проверка ссылок (id героев и предметов уникальны; отряд, надетые предметы и экспедиции ссылаются на существующих героев; герой в отряде один раз).
  * Любая проблема → SaveError с понятным русским текстом.
  */
 export function deserialize(text: string): SaveState {
@@ -308,7 +317,7 @@ export function deserialize(text: string): SaveState {
   }
   for (const b of save.bounties.active) {
     for (const h of b.heroIds) {
-      if (!ids.has(h)) throw new SaveError(`Сохранение повреждено: на поручении неизвестный герой ${h}.`);
+      if (!ids.has(h)) throw new SaveError(`Сохранение повреждено: в экспедиции неизвестный герой ${h}.`);
     }
   }
   return save;

@@ -54,7 +54,7 @@
 | `equipment/*` | K6 предметы, выпадение (`drops.ts`), надеть/снять, `withGear`; трофеи сундука и быстрых наград (`chest.ts`) |
 | `tower/*` | K4 башня: этажи по правилу из полос, `climbTower` |
 | `hunt/*` | «Охота на босса» (раздел 2г): босс дня, пороги урона, `fightHunt` (бой с лимитом времени), `sweepHunt` («Зачистка»), `huntStatus` |
-| `meta/*` | K8 пресеты, `setSquad`, авторасстановка (`formation.ts`), K9 поручения (`bounties.ts`), K10 достижения. «Отправить всё» — `planDispatchAll` / `dispatchAllBounties` (детерминированно: редкие поручения первыми, обязательная роль, карточка ближе к редкости поручения, героя не бронируют дважды, частичных групп нет); «Забрать всё» — `claimAllBounties`, `claimAllAchievements`, заданий дня — `features/quests.ts claimAllQuests` (задания, затем пороги); обёртки `actClaimAll*`; тесты `tests/claim-all.test.ts` |
+| `meta/*` | K8 пресеты, `setSquad`, авторасстановка (`formation.ts`), K9 экспедиции по локациям (`expeditions.ts`: `autoParty` — отряд одним нажатием по порогу мощи, `startExpedition`, `claimExpedition`, `expeditionStatus`; docs/content/meta.md, K9), K10 достижения. «Забрать всё» — `claimAllExpeditions`, `claimAllAchievements`, заданий дня — `features/quests.ts claimAllQuests` (задания, затем пороги); обёртки `actClaimAll*`; тесты `tests/claim-all.test.ts` |
 | `shop/*` | Лавка (магазин AFK): `data/shop.json` (`ShopConfigSchema`), ассортимент дня `rollShop`/`ensureShop`, `shopStatus`, `refreshShop` (за гемы), `buyShopSlot`; раздел 2д |
 | `unlocks/*` | открытие функций по этапам (`data/unlocks.json`): `featureUnlocked`, `lockedText` («Откроется на этапе 1-8»), `stageLabel`, `pendingUnlocks` / `markUnlocksSeen` (баннер один раз, `save.seenUnlocks`), `initSeenUnlocks` (старые сохранения), `unlocksOfStage` |
 
@@ -65,7 +65,7 @@
 | Сцена (ключ) | Назначение |
 | --- | --- |
 | `BootScene` (`Boot`) | экран загрузки (вид — `bootLook.ts`: тёплый полумрак, лента «Chronoworld», полоса с фаской; совпадает с `#splash` в index.html): манифест, портреты, иконки навыков, скин; листы юнитов — лениво |
-| `HomeScene` (`Home`) | главная сверху вниз: офлайн-сундук, быстрые награды, плитки 2×2 (задания, башня, поручения, достижения), ряд из трёх одинаковых «зданий» Таверна / Лавка / Охота (`buildingTile` в `tavernEntry.ts`: медальон, название, состояние, значок или зелёная точка, замок «Откроется на этапе …»), «В кампанию» над навигацией; раскладка — константа `L` в сцене (зазоры под плашки подсказок описаны там же), настройки за шестерёнкой |
+| `HomeScene` (`Home`) | главная сверху вниз: офлайн-сундук, быстрые награды, плитки 2×2 (задания, башня, экспедиции, достижения), ряд из трёх одинаковых «зданий» Таверна / Лавка / Охота (`buildingTile` в `tavernEntry.ts`: медальон, название, состояние, значок или зелёная точка, замок «Откроется на этапе …»), «В кампанию» над навигацией; раскладка — константа `L` в сцене (зазоры под плашки подсказок описаны там же), настройки за шестерёнкой |
 | `CampaignScene` (`Campaign`) | карта главы — тропа этапов снизу вверх; сюжет `chapterStart` |
 | `StageScene` (`Stage`) | подготовка к этапу: поле «отряд против противника» как в бою, список героев, «Авто», «Пресеты», «В бой»; сюжет `beforeStage` |
 | `BattleScene` (`Battle`) | проигрывание лога боя: спрайты, эффекты, баннеры ульт и босса, скорость 1x/2x, пауза, «Пропустить» |
@@ -73,7 +73,7 @@
 | `ChapterDoneScene` (`ChapterDone`) | «Глава пройдена» (переживает перезагрузку через `save.pendingChapterDone`) |
 | `HeroesScene` / `HeroScene` / `AscendScene` (`Ascend`) | H4. Коллекция: сетка карточек 3 в ряд (`heroCard.ts`), фильтры линии/роли/редкости, сортировка «Сила/Уровень/Редкость», «Коллекция N/M» (серые неполученные), метки «в отряде», «Новый!», замок, «можно улучшить / вознести». Карточка: витрина цвета редкости с героем в стойке, мощь, статы с прибавкой за уровень, «Улучшить» (удержание — повтор, обновление на месте, «до апа не хватает N»), «Вознести», вкладки «Навыки / Снаряжение / История», замок, листание ‹ ›. Вознесение: было → стало, слоты корма (выбор, «Авто»), осколки и откуда они, подтверждение, показ (вспышка, лучи, мощь «+N», новые навыки, вторая профессия и `forms[].promotion`) |
 | `SquadScene` (`Squad`) | то же поле и список героев без противника, «Авто», пресеты |
-| `InventoryScene`, `TowerScene`, `QuestsScene`, `BountiesScene`, `AchievementsScene` | инвентарь, башня, ежедневные задания, поручения, достижения |
+| `InventoryScene`, `TowerScene`, `QuestsScene`, `ExpeditionsScene` (`Expeditions`), `AchievementsScene` | инвентарь, башня, ежедневные задания, экспедиции (карточки локаций, сроки, «Отправить», «Забрать всё»), достижения |
 | `HuntScene` (`Hunt`) | «Охота на босса»: босс дня, пороги урона с отметкой лучшего результата, попытки, «Зачистка», «В бой» (`Battle` с `{mode: 'hunt'}`), итог попытки поверх экрана; вход — `huntTile` (`huntEntry.ts`) в ряду «зданий» главной; счётчик урона в бою — `huntBattle.ts` |
 | `ShopScene` (`Shop`) | Лавка: 8 карточек товаров дня (2 × 4), «Купить», «Продано», «Обновить» (первое за день бесплатно), таймер до полуночи; вход — `shopTile` (`src/game/shopEntry.ts`) в ряду «зданий» главной |
 | `TavernScene` | Таверна (H5): призыв карточек, показ «рубашкой вверх» с переворотом, итог; вход — `tavernTile` на главной |
@@ -90,7 +90,7 @@
 | `theme.ts`, `layout.ts` | токены (шрифты `FS`, цвета `C`, `TOUCH`), размеры поля 1080×1920 |
 | `ui.ts` | кнопки, тексты, прокрутка, защита от двойного тапа, указатель подсказки. Недоступная кнопка — `button(...).setEnabled(false)` (серый «камень», приглушённые подпись и иконки, без свечения/блика), а не `setAlpha`: нажатие по-прежнему приходит в onClick (экран объясняет тостом), кому не нужно — `.container.disableInteractive()` |
 | `screen.ts` | каркас экрана: шапка, «Назад», валюта, нижняя навигация, портреты. `screen(..., { player: true })` — плашка игрока на главной (лидер отряда в рамке, «уровень лагеря» `flow.ts campLevel`, полоска опыта). Вытянутый телефон (`topBand()` ≥ 84 ед. над полем, `view().safeTop`) — валюта уезжает в полосу над шапкой одной строкой. `powerChip`/`setPowerChip` — плашка «мощь отряда / рекомендуемая · вердикт» (главная, этап); значок «Герои»: число (вознести/вещь) или зелёная стрелка «можно Улучшить» (`flow.ts heroesNavBadge`) |
-| `flow.ts` | чистые помощники экранов без Phaser (тестируются). Красные кружки плиток главной: задания — `claimableCount`, достижения — `claimableAchievements`, поручения — `bountiesBadgeCount` (готовые + доступные к отправке), Башня — `towerBadgeCount` (мощь отряда ≥ мощи следующего этажа). «Крючок»: `recommendedPower(stageId)` (пока = мощь врагов `stagePower`; появится рекомендация баланса в ядре — заменить здесь), `powerCheck` (мощь отряда, рекомендуемая, тон ahead/close/behind, вердикт «Сил хватает / Чуть не хватает / Слабее») — главная «В кампанию», узел текущего этапа в кампании, этап; `campLevel` — «уровень лагеря» из прогресса (этапы, этажи, уровни героев; `CAMP_EXP`, `campLevelCost`), `leadHero` — аватар; тесты `tests/game-polish.test.ts` |
+| `flow.ts` | чистые помощники экранов без Phaser (тестируются). Красные кружки плиток главной: задания — `claimableCount`, достижения — `claimableAchievements`, экспедиции — `expeditionsBadgeCount` (вернувшиеся + свободные локации, куда хватает мощи), Башня — `towerBadgeCount` (мощь отряда ≥ мощи следующего этажа). «Крючок»: `recommendedPower(stageId)` (пока = мощь врагов `stagePower`; появится рекомендация баланса в ядре — заменить здесь), `powerCheck` (мощь отряда, рекомендуемая, тон ahead/close/behind, вердикт «Сил хватает / Чуть не хватает / Слабее») — главная «В кампанию», узел текущего этапа в кампании, этап; `campLevel` — «уровень лагеря» из прогресса (этапы, этажи, уровни героев; `CAMP_EXP`, `campLevelCost`), `leadHero` — аватар; тесты `tests/game-polish.test.ts` |
 | `transitions.ts` | затемнение между экранами, блок ввода во время перехода |
 | `juice.ts` | «сочность» меню: летящие награды, отсчёт чисел, выезд списков; выключается «Уменьшить анимацию» |
 | `audio.ts`, `audioCatalog.ts`, `audioCore.ts`, `audioSynth.ts`, `sceneAudio.ts`, `battleAudio.ts` | звук (issue #26, `docs/design/audio.md`): `sfx(id)`, музыка по экрану, заглушки синтезом, файлы `assets/audio/<id>.ogg` побеждают; настройки «Музыка»/«Звуки»/«Без звука» |
@@ -265,13 +265,13 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 `stackAngles`, `retargetSeconds`, `bodyRadius`, `minSeparation`, `meleeAoeRadius`, `maxMeleePerTarget` 2, `diveStay`, `diveReturnSeconds`),
 `slots`, `field` (ширина 1080, `bounds`, координаты слотов стороны A; B — зеркало).
 
-### Предметы, задания, поручения, достижения
+### Предметы, задания, экспедиции, достижения
 
 - `data/items/*.json` — `{items: [{id, name, slot (weapon|armor|helmet|boots), rarity (common|rare|epic), stats, jobs?, drop}]}`;
   `jobs` — корни веток (["archer"] → лучник, охотник, бард). `data/drops.json` — правила выпадения по главам (`rules`) и трофеи сундука
   (`chest`, раздел 2в). См. `docs/content/equipment.md`.
 - `data/quests.json` — ежедневные задания: `event` из `ACTIVITY_KINDS` (`src/core/features/quests.ts`), `target`, `points`; `milestones` активности.
-- `data/bounties.json` — доска поручений: `boardSize`, `dailyRefreshes`, веса `rarities`, `templates` (`durationMinutes`, `heroCount`, `role`, `rewards`), `presets`.
+- `data/expeditions.json` — экспедиции: `maxHeroes`, `durations` (`hours`, `bonus`), `locations` (`stage`, `power`, `tint`, `monster`, `perHour`, `loot`), `presets` (K8). См. `docs/content/meta.md`, K9.
 - `data/achievements.json` — `counter` из `ACHIEVEMENT_COUNTERS` (`src/core/meta/config.ts`), `target`, `rewards`. См. `docs/content/meta.md`, `features.md`.
 - `data/shop.json` (`ShopConfigSchema`, `src/core/shop/schema.ts`) — Лавка: `slots` (8 списков id товаров), `refresh {gemCosts, maxPerDay}`,
   `chapterGrowth`, `goods [{id, kind (item|shards|heroExp|scrolls|gold), rarity?, count, price {currency gold|gems, amount}, stock, weight,
@@ -626,7 +626,7 @@ Vercel собирает `main` (`vercel.json`: `npm ci`, `npm run build`, `dist`
 | мощь | power (K2) |
 | Башня испытаний | tower (K4) |
 | ежедневные задания, активность | daily quests (K5) |
-| поручения, доска | bounties (K9) |
+| экспедиции (раньше доска поручений) | expeditions (K9; id функции, счётчика и ключ сохранения — `bounties`) |
 | пресеты отряда, авторасстановка | presets / formation (K8) |
 | фронт / тыл | слоты 0–1 / 2–4 |
 | K1…K10, P1…P12, T1-xx…T5-xx, BUG-xxx | функции из GDD, пакеты FIXLIST, номера багов тестировщиков, сводный баг-лог |

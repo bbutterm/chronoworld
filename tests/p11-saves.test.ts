@@ -4,7 +4,9 @@ import {
   actPlayStage,
   claimOffline,
   deserialize,
-  ensureBoard,
+  startExpedition,
+  claimExpedition,
+  expeditionStatus,
   fastRewardsStatus,
   heroPower,
   idleIncome,
@@ -313,13 +315,15 @@ describe('T4-07/T4-08: ежедневные механики после пере
     expect(fastRewardsStatus(s, '2026-09-28', ctx).freeLeft).toBe(0);
   });
 
-  it('доска поручений после возврата часов обновляется со следующей реальной полуночи', () => {
-    const s = ensureBoard(newGame(ctx, T0, D0), '2026-10-27', 1, ctx);
-    const back = ensureBoard(s, D0, 1, ctx);
-    expect(back.bounties.board).toEqual(s.bounties.board);
-    const next = ensureBoard(back, '2026-09-28', 1, ctx);
-    expect(next.bounties.lastRefreshDay).toBe('2026-09-28');
-    expect(next.bounties.board).not.toEqual(s.bounties.board);
+  it('экспедиция: часы назад — «ещё в пути», забрать можно только с настоящего endsAt', () => {
+    const s = startExpedition(withCleared(8), 'ant_hell', 4, T0, ctx);
+    const e = s.bounties.active[0];
+    expect(e.endsAt).toBe(T0 + 4 * H);
+    // Перевели часы назад: не готово, отсчёт не больше длительности, ошибки нет.
+    const back = expeditionStatus(s, T0 - 5 * H, ctx).find((v) => v.location.id === 'ant_hell')!.active!;
+    expect(back.done).toBe(false);
+    expect(() => claimExpedition(s, 'ant_hell', T0 + 4 * H - 1, ctx)).toThrow(/в пути/);
+    expect(claimExpedition(s, 'ant_hell', T0 + 4 * H, ctx).save.bounties.active).toEqual([]);
   });
 });
 

@@ -39,7 +39,7 @@ export function syncAchievementCounters(save: SaveState): SaveState {
 
 /**
  * Выдать награду K9/K10 (золото, гемы, опыт в пул, осколки «отстающему» сюжетному герою) — общая часть
- * claimAchievement и claimBounty. События rewards / gems / shards.
+ * claimAchievement и claimExpedition. События rewards / gems / shards.
  */
 export function grantMetaRewards(save: SaveState, r: MetaRewards, ctx: GameContext, events: MetaEvent[]): SaveState {
   let next: SaveState = addHeroExp(
@@ -76,7 +76,7 @@ export function achievementStatus(save: SaveState, ctx: MetaContext): Achievemen
   });
 }
 
-export type MetaEvent = FeatureEvent | { type: 'achievementClaimed'; achievementId: string } | { type: 'bountyDone'; bountyId: string; heroIds: string[] };
+export type MetaEvent = FeatureEvent | { type: 'achievementClaimed'; achievementId: string } | { type: 'expeditionDone'; location: string; heroIds: string[] };
 
 /**
  * K10. Получить награду достижения (одноразово). Золото и гемы — в ресурсы, jobExp — в общий пул опыта,

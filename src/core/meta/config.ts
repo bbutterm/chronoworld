@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { UnitSchema } from '../content/schema';
 import type { GameContext } from '../progression/types';
 import { MetaError } from './errors';
 
@@ -10,6 +9,7 @@ export const ACHIEVEMENT_COUNTERS = {
   stages_cleared: 'max',
   tower_floor: 'max',
   items_equipped: 'add',
+  /** Завершённых экспедиций (id исторический — раньше «поручения»; лежит в сохранениях). */
   bounties_done: 'add',
   battles_won: 'add',
   /** Наибольший уровень карточки героя (v4; раньше — hero_max_job_level). */
@@ -31,46 +31,76 @@ export const MetaRewardsSchema = z.object({
   shards: z.number().int().nonnegative().default(0),
 });
 
-export const BountyTemplateSchema = z.object({
-  id,
-  name: z.string(),
-  /** Ключ из rarities. */
-  rarity: id,
-  durationMinutes: z.number().positive(),
-  /** Сколько героев нужно отправить (ровно). */
-  heroCount: z.number().int().min(1).max(5),
-  /** Хотя бы один герой этой роли (по карточке); null или нет поля — любая группа. */
-  role: UnitSchema.shape.role.nullable().default(null),
-  rewards: MetaRewardsSchema,
+/** Длительность экспедиции: часы и надбавка к добыче (longer = выгоднее в час). */
+export const ExpeditionDurationSchema = z.object({
+  hours: z.number().int().positive(),
+  /** Надбавка к добыче за час: 0.1 — +10% (добыча = почасовая × hours × (1 + bonus)). */
+  bonus: z.number().min(0).max(2).default(0),
 });
 
-/** data/bounties.json */
-export const BountiesConfigSchema = z
+/** Строка таблицы добычи локации: бросок за каждый «час добычи» (hours × (1 + bonus)). */
+export const ExpeditionLootSchema = z
   .object({
+    /** item — предмет из items (равновероятно), gems / shards / scrolls — count штук. */
+    kind: z.enum(['item', 'gems', 'shards', 'scrolls']),
+    /** Шанс за час добычи (0…1). */
+    chance: z.number().min(0).max(1),
+    /** Сколько за удачный бросок (для item — всегда 1 предмет). */
+    count: z.number().int().positive().default(1),
+    /** kind item: id предметов из data/items (тема локации). */
+    items: z.array(id).optional(),
+  })
+  .superRefine((l, c) => {
+    if (l.kind === 'item' && !l.items?.length) c.addIssue({ code: 'custom', path: ['items'], message: 'для kind item нужен непустой список items' });
+    if (l.kind !== 'item' && l.items) c.addIssue({ code: 'custom', path: ['items'], message: 'items — только для kind item' });
+  });
+
+/** Локация экспедиций. */
+export const ExpeditionLocationSchema = z.object({
+  id,
+  name: z.string().min(1),
+  /** Короткий текст о месте (карточка локации). */
+  description: z.string().min(1),
+  /** Этап кампании, после первой победы на котором локация открыта. */
+  stage: id,
+  /** Порог мощи отряда экспедиции (сумма мощи героев). */
+  power: z.number().int().positive(),
+  /** Цвет карточки (заглушка арта): '#rrggbb'. */
+  tint: z.string().regex(/^#[0-9a-fA-F]{6}$/, "цвет '#rrggbb'"),
+  /** Монстр места (id из data/units) — портрет на карточке, пока нет арта локации. */
+  monster: id.optional(),
+  /** Размер монстра на карточке (1 — обычный; широким, как жук, — меньше). */
+  monsterScale: z.number().min(0.3).max(2).optional(),
+  /** Золото и опыт (в общий пул) за час добычи. */
+  perHour: z.object({ gold: z.number().int().nonnegative(), jobExp: z.number().int().nonnegative() }),
+  /** Находки: предметы темы, гемы, осколки «отстающего» сюжетного героя, свитки. */
+  loot: z.array(ExpeditionLootSchema).default([]),
+});
+
+/** data/expeditions.json */
+export const ExpeditionsConfigSchema = z
+  .object({
+    $schema: z.string().optional(),
     $comment: z.string().optional(),
-    /** Поручений на доске после обновления. */
-    boardSize: z.number().int().positive(),
-    /** Ручных обновлений доски в день (обновление при смене дня — бесплатно и сверх этого). */
-    dailyRefreshes: z.number().int().nonnegative(),
-    /** Редкость → вес выпадения на доске. */
-    rarities: z.record(id, z.number().nonnegative()),
-    templates: z.array(BountyTemplateSchema).min(1),
-    /** K8: лимиты пресетов отряда (временно здесь — см. docs/content/meta.md). */
+    /** Героев в отряде экспедиции — не больше. */
+    maxHeroes: z.number().int().min(1).max(10),
+    /** Варианты длительности (в порядке кнопок). */
+    durations: z.array(ExpeditionDurationSchema).min(1),
+    locations: z.array(ExpeditionLocationSchema).min(1),
+    /** K8: лимиты пресетов отряда (временно здесь, как раньше в data/bounties.json — см. docs/content/meta.md). */
     presets: z.object({ max: z.number().int().positive(), nameMaxLength: z.number().int().positive() }),
   })
   .superRefine((cfg, c) => {
     const seen = new Set<string>();
-    cfg.templates.forEach((t, i) => {
-      if (seen.has(t.id)) c.addIssue({ code: 'custom', path: ['templates', i, 'id'], message: `шаблон ${t.id} встречается дважды` });
-      seen.add(t.id);
-      if (!(t.rarity in cfg.rarities)) c.addIssue({ code: 'custom', path: ['templates', i, 'rarity'], message: `редкости ${t.rarity} нет в rarities` });
+    cfg.locations.forEach((l, i) => {
+      if (seen.has(l.id)) c.addIssue({ code: 'custom', path: ['locations', i, 'id'], message: `локация ${l.id} встречается дважды` });
+      seen.add(l.id);
     });
-    let total = 0;
-    for (const [r, w] of Object.entries(cfg.rarities)) {
-      total += w;
-      if (w > 0 && !cfg.templates.some((t) => t.rarity === r)) c.addIssue({ code: 'custom', path: ['rarities', r], message: `у редкости ${r} вес > 0, но нет шаблонов` });
-    }
-    if (!(total > 0)) c.addIssue({ code: 'custom', path: ['rarities'], message: 'сумма весов редкостей должна быть > 0' });
+    const hours = new Set<number>();
+    cfg.durations.forEach((d, i) => {
+      if (hours.has(d.hours)) c.addIssue({ code: 'custom', path: ['durations', i, 'hours'], message: `длительность ${d.hours} ч встречается дважды` });
+      hours.add(d.hours);
+    });
   });
 
 export const AchievementDefSchema = z.object({
@@ -97,13 +127,15 @@ export const AchievementsConfigSchema = z
   });
 
 export type MetaRewards = z.infer<typeof MetaRewardsSchema>;
-export type BountyTemplate = z.infer<typeof BountyTemplateSchema>;
-export type BountiesConfig = z.infer<typeof BountiesConfigSchema>;
+export type ExpeditionDuration = z.infer<typeof ExpeditionDurationSchema>;
+export type ExpeditionLoot = z.infer<typeof ExpeditionLootSchema>;
+export type ExpeditionLocation = z.infer<typeof ExpeditionLocationSchema>;
+export type ExpeditionsConfig = z.infer<typeof ExpeditionsConfigSchema>;
 export type AchievementDef = z.infer<typeof AchievementDefSchema>;
 export type AchievementsConfig = z.infer<typeof AchievementsConfigSchema>;
 
 export interface MetaConfig {
-  bounties: BountiesConfig;
+  expeditions: ExpeditionsConfig;
   achievements: AchievementsConfig;
 }
 
@@ -119,16 +151,16 @@ function describe(error: z.ZodError): string {
     .join('; ');
 }
 
-/** Разобрать data/bounties.json и data/achievements.json (ядро файлы не читает). Ошибка → MetaError('invalid_config'). */
-export function parseMetaConfig(bountiesJson: unknown, achievementsJson: unknown): MetaConfig {
-  const b = BountiesConfigSchema.safeParse(bountiesJson);
-  if (!b.success) throw new MetaError('invalid_config', `data/bounties.json: ${describe(b.error)}`);
+/** Разобрать data/expeditions.json и data/achievements.json (ядро файлы не читает). Ошибка → MetaError('invalid_config'). */
+export function parseMetaConfig(expeditionsJson: unknown, achievementsJson: unknown): MetaConfig {
+  const b = ExpeditionsConfigSchema.safeParse(expeditionsJson);
+  if (!b.success) throw new MetaError('invalid_config', `data/expeditions.json: ${describe(b.error)}`);
   const a = AchievementsConfigSchema.safeParse(achievementsJson);
   if (!a.success) throw new MetaError('invalid_config', `data/achievements.json: ${describe(a.error)}`);
-  return { bounties: b.data, achievements: a.data };
+  return { expeditions: b.data, achievements: a.data };
 }
 
-/** ctx → ctx + meta (UI: `withMeta(featureCtx, bountiesJson, achievementsJson)`). Тип исходного контекста сохраняется. */
-export function withMeta<C extends GameContext>(ctx: C, bountiesJson: unknown, achievementsJson: unknown): C & MetaContext {
-  return { ...ctx, meta: parseMetaConfig(bountiesJson, achievementsJson) };
+/** ctx → ctx + meta (UI: `withMeta(featureCtx, expeditionsJson, achievementsJson)`). Тип исходного контекста сохраняется. */
+export function withMeta<C extends GameContext>(ctx: C, expeditionsJson: unknown, achievementsJson: unknown): C & MetaContext {
+  return { ...ctx, meta: parseMetaConfig(expeditionsJson, achievementsJson) };
 }

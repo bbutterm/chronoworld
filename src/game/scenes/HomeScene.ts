@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { hasArt } from '../assets';
-import { achievementStatus, heroesWithGearUpgrades, stageStatus, actClaimOffline, actUseFastRewards, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
+import { achievementStatus, heroesWithGearUpgrades, stageStatus, actClaimOffline, actUseFastRewards, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, finishedExpeditions, offlineRewards, questStatus, towerStatus } from '../../core';
 import { GAME } from '../content';
-import { bountiesBadgeCount, claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, levelUpReady, powerCheck, towerBadgeCount } from '../flow';
+import { claimableAchievements, claimableCount, currentStage, describeEvents, expeditionsBadgeCount, formatNumber, levelUpReady, powerCheck, towerBadgeCount } from '../flow';
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
 import { GAME_H, GAME_W, HEADER_H } from '../layout';
 import { card, confirm, confirmOpen, cornerBadge, gemIcon, NAV_H, popIn, powerChip, screen } from '../screen';
@@ -68,7 +68,7 @@ const L = {
 } as const;
 
 /**
- * Главная: сундук офлайн-наград, быстрые награды (K1), плитки задания (K5) / башня (K4) / поручения (K9) / достижения (K10), кампания.
+ * Главная: сундук офлайн-наград, быстрые награды (K1), плитки задания (K5) / башня (K4) / экспедиции (K9) / достижения (K10), кампания.
  * Тестовый бой, сброс подсказок и прогресса — в настройках (шестерёнка в шапке, S).
  */
 /** Инструменты разработчика (тестовый бой): dev-сборка или ?dev=1 в адресе. */
@@ -84,8 +84,8 @@ export class HomeScene extends Phaser.Scene {
   private chestRays?: Phaser.GameObjects.Image;
   private chestGlow?: Phaser.GameObjects.Image;
   private claimBtn!: ReturnType<typeof button>;
-  /** Сколько поручений было завершено при отрисовке плитки (раз в секунду сверяем — значок не отстаёт). */
-  private bountiesDone = 0;
+  /** Сколько экспедиций вернулось при отрисовке плитки (раз в секунду сверяем — значок не отстаёт). */
+  private expeditionsDone = 0;
   /** R: показанная подсказка (одна за раз) и её указатель. */
   private hintId: HintId | null = null;
   private hintView: Phaser.GameObjects.Container | null = null;
@@ -204,10 +204,10 @@ export class HomeScene extends Phaser.Scene {
       this.chestGlow?.setVisible(state !== 'empty');
     }
     this.updateHint(r.gold > 0 || r.jobExp > 0);
-    // Поручение завершилось, пока игрок на главной, — обновить плитку и значок.
+    // Экспедиция вернулась, пока игрок на главной, — обновить плитку и значок.
     // Не при открытом окне (настройки, подтверждение): перезапуск молча закрыл бы его — обновим, когда закроют.
     const modal = !!this.children.getByName('settingsModal') || !!this.children.getByName(UNLOCK_BANNER_NAME) || confirmOpen(this);
-    if (!modal && finishedBounties(session.save, now()) !== this.bountiesDone) this.scene.restart();
+    if (!modal && finishedExpeditions(session.save, now()) !== this.expeditionsDone) this.scene.restart();
   }
 
   private claim(): void {
@@ -430,7 +430,7 @@ export class HomeScene extends Phaser.Scene {
     });
   }
 
-  // ---------- Плитки 2×2: задания, башня, поручения, достижения ----------
+  // ---------- Плитки 2×2: задания, башня, экспедиции, достижения ----------
 
   private tiles(): void {
     const save = session.save;
@@ -443,12 +443,12 @@ export class HomeScene extends Phaser.Scene {
       this.towerTile(xr, y1);
     });
     const row2 = collect(this.children, () => {
-      const done = finishedBounties(save, now());
+      const done = finishedExpeditions(save, now());
       const active = save.bounties.active.length;
-      const bsub = done ? `Готово: ${done} — заберите` : active ? `В работе: ${active}` : 'Отправьте героев';
-      if (isUnlocked('bounties')) this.tile(xl, y2, 'Поручения', bsub, done ? C.success : C.muted, () => this.scene.start('Bounties'), 'flag');
-      else this.lockedTile(xl, y2, 'Поручения', 'flag', 'bounties');
-      this.bountiesDone = done;
+      const bsub = done ? `Вернулись: ${done}` : active ? `В пути: ${active}` : 'Отправьте отряд';
+      if (isUnlocked('bounties')) this.tile(xl, y2, 'Экспедиции', bsub, done ? C.success : C.muted, () => this.scene.start('Expeditions'), 'flag');
+      else this.lockedTile(xl, y2, 'Экспедиции', 'flag', 'bounties');
+      this.expeditionsDone = done;
 
       const views = achievementStatus(save, GAME);
       const got = views.filter((a) => a.claimed).length;
@@ -458,9 +458,9 @@ export class HomeScene extends Phaser.Scene {
     this.blocks.push(row1, row2);
     // Значки — после «выезда» плиток на своих местах (не в группах): в правом верхнем углу, как у вкладки «Герои».
     if (isUnlocked('quests')) cornerBadge(this, xl, y1, L.tileW, L.tileH, claimableCount(qs));
-    // Башня: «этаж по силам» (мощь отряда ≥ мощи этажа); поручения: готовые + те, на которые есть кого отправить.
+    // Башня: «этаж по силам» (мощь отряда ≥ мощи этажа); экспедиции: вернувшиеся + свободные локации, куда хватает мощи.
     if (isUnlocked('tower')) cornerBadge(this, xr, y1, L.tileW, L.tileH, towerBadgeCount(save, GAME));
-    if (isUnlocked('bounties')) cornerBadge(this, xl, y2, L.tileW, L.tileH, bountiesBadgeCount(save, now(), GAME));
+    if (isUnlocked('bounties')) cornerBadge(this, xl, y2, L.tileW, L.tileH, expeditionsBadgeCount(save, now(), GAME));
     if (isUnlocked('achievements')) cornerBadge(this, xr, y2, L.tileW, L.tileH, claimableAchievements(achievementStatus(save, GAME)));
   }
 

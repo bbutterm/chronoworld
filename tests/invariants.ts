@@ -233,16 +233,17 @@ export function saveProblems(save: SaveState, ctx: FullContext): string[] {
   dup(save.campaign.cleared, 'campaign.cleared');
   for (const s of save.campaign.cleared) if (!stageIds.has(s)) p.push(`пройден неизвестный этап ${s}`);
 
-  dup(save.bounties.board.map((b) => b.id), 'bounties.board');
-  dup(save.bounties.active.map((b) => b.id), 'bounties.active');
-  dup(save.bounties.active.flatMap((b) => b.heroIds), 'герои на поручениях');
-  for (const b of save.bounties.active) {
-    for (const id of b.heroIds) if (!heroIds.has(id)) p.push(`поручение ${b.id}: неизвестный герой ${id}`);
-    if (b.heroIds.length !== b.heroCount) p.push(`поручение ${b.id}: героев ${b.heroIds.length}, нужно ${b.heroCount}`);
+  dup(save.bounties.active.map((e) => e.location), 'экспедиции: локации');
+  dup(save.bounties.active.flatMap((e) => e.heroIds), 'герои в экспедициях');
+  for (const e of save.bounties.active) {
+    for (const id of e.heroIds) if (!heroIds.has(id)) p.push(`экспедиция ${e.location}: неизвестный герой ${id}`);
+    if (e.heroIds.length > ctx.meta.expeditions.maxHeroes) p.push(`экспедиция ${e.location}: героев ${e.heroIds.length} > ${ctx.meta.expeditions.maxHeroes}`);
+    const loc = ctx.meta.expeditions.locations.find((l) => l.id === e.location);
+    if (loc && e.power < loc.power) p.push(`экспедиция ${e.location}: мощь ${e.power} ниже порога ${loc.power}`);
+    if (e.endsAt !== e.startedAt + e.hours * 3_600_000) p.push(`экспедиция ${e.location}: endsAt не равен startedAt + ${e.hours} ч`);
   }
-  if (save.bounties.refreshesUsed > ctx.meta.bounties.dailyRefreshes) p.push(`refreshesUsed ${save.bounties.refreshesUsed} > лимита`);
 
-  if (save.presets.length > ctx.meta.bounties.presets.max) p.push(`пресетов ${save.presets.length} > лимита`);
+  if (save.presets.length > ctx.meta.expeditions.presets.max) p.push(`пресетов ${save.presets.length} > лимита`);
   dup(save.presets.map((x) => x.id), 'presets');
   dup(save.daily.claimedQuests, 'daily.claimedQuests');
   dup(save.daily.activityClaimed, 'daily.activityClaimed');
