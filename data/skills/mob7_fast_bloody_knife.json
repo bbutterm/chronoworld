@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob7_fast_bloody_knife",
+  "name": "Кровавый нож",
+  "description": "Рывок к самому слабому врагу тыла: удар ножом и кровотечение на 3 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.4
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "bleed",
+        "name": "Кровотечение",
+        "turns": 3,
+        "dot": {
+          "k": 0.15
+        }
+      }
+    }
+  ]
+}

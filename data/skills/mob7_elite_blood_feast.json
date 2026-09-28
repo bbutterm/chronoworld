@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob7_elite_blood_feast",
+  "name": "Кровавый пир",
+  "description": "Раненая Лоли Рури пьёт украденную кровь: лечит себя (2 × атака).",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self",
+    "onlyWounded": true
+  },
+  "cooldown": 10,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "heal",
+      "k": 2
+    }
+  ],
+  "fallback": "basic_melee"
+}

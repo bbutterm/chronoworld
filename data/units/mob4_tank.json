@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob4_tank",
+  "name": "Песчаник",
+  "kind": "monster",
+  "role": "tank",
+  "stats": {
+    "hp": 1000,
+    "atk": 34,
+    "def": 19,
+    "spd": 80
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob4_sandman_sand_wall",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "tank",
+    "tint": "#d6a85a",
+    "scale": 1.15,
+    "hitFx": "fx_hit"
+  }
+}

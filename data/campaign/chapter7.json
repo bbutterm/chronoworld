@@ -1,0 +1,346 @@
+{
+  "$schema": "../schema/chapter.schema.json",
+  "id": "chapter7",
+  "name": "Глава 7. Нифльхейм",
+  "order": 7,
+  "stages": [
+    {
+      "id": "ch7_s1",
+      "name": "Врата мёртвых",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_melee",
+          "mult": 0.1279
+        },
+        {
+          "unit": "mob7_tank",
+          "mult": 0.1279
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.1279
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 80280,
+        "gold": 56190
+      },
+      "offlinePerMinute": {
+        "jobExp": 2676,
+        "gold": 1873
+      }
+    },
+    {
+      "id": "ch7_s2",
+      "name": "Река забвения",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0972
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.0972
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0972
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0972
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 87510,
+        "gold": 61260
+      },
+      "offlinePerMinute": {
+        "jobExp": 2917,
+        "gold": 2042
+      }
+    },
+    {
+      "id": "ch7_s3",
+      "name": "Деревня призраков",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0884
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.0884
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0884
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0884
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 95370,
+        "gold": 66750
+      },
+      "offlinePerMinute": {
+        "jobExp": 3179,
+        "gold": 2225
+      }
+    },
+    {
+      "id": "ch7_s4",
+      "name": "Туманная переправа",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0826
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.0826
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0826
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0826
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0826
+        }
+      ],
+      "rewards": {
+        "jobExp": 103950,
+        "gold": 72780
+      },
+      "offlinePerMinute": {
+        "jobExp": 3465,
+        "gold": 2426
+      }
+    },
+    {
+      "id": "ch7_s5",
+      "name": "Роща висельников",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0752
+        },
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0752
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0752
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0752
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0752
+        }
+      ],
+      "rewards": {
+        "jobExp": 113310,
+        "gold": 79320
+      },
+      "offlinePerMinute": {
+        "jobExp": 3777,
+        "gold": 2644
+      }
+    },
+    {
+      "id": "ch7_s6",
+      "name": "Долина стенаний",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0678
+        },
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0678
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0678
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0678
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0678
+        }
+      ],
+      "rewards": {
+        "jobExp": 123510,
+        "gold": 86460
+      },
+      "offlinePerMinute": {
+        "jobExp": 4117,
+        "gold": 2882
+      }
+    },
+    {
+      "id": "ch7_s7",
+      "name": "Кровавый балаган",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0627
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0627
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0627
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0627
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0627
+        }
+      ],
+      "rewards": {
+        "jobExp": 134640,
+        "gold": 94260
+      },
+      "offlinePerMinute": {
+        "jobExp": 4488,
+        "gold": 3142
+      }
+    },
+    {
+      "id": "ch7_s8",
+      "name": "Стены Чёрной цитадели",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0558
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0558
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0558
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0558
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0558
+        }
+      ],
+      "rewards": {
+        "jobExp": 146760,
+        "gold": 102720
+      },
+      "offlinePerMinute": {
+        "jobExp": 4892,
+        "gold": 3424
+      }
+    },
+    {
+      "id": "ch7_s9",
+      "name": "Зал Чёрного колокола",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0494
+        },
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0494
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0494
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0494
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0494
+        }
+      ],
+      "rewards": {
+        "jobExp": 159960,
+        "gold": 111960
+      },
+      "offlinePerMinute": {
+        "jobExp": 5332,
+        "gold": 3732
+      }
+    },
+    {
+      "id": "ch7_s10",
+      "name": "Трон Тёмного лорда",
+      "boss": true,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0405
+        },
+        {
+          "unit": "mob7_boss",
+          "mult": 0.0309
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0405
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0405
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0405
+        }
+      ],
+      "rewards": {
+        "jobExp": 261540,
+        "gold": 183060
+      },
+      "offlinePerMinute": {
+        "jobExp": 5812,
+        "gold": 4068
+      }
+    }
+  ]
+}

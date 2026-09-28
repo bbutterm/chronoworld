@@ -132,6 +132,26 @@ export function resultTag(r: Pick<SummonResult, 'isNew'>): { text: string; kind:
   return r.isNew ? { text: 'Новый!', kind: 'new' } : { text: 'дубль → на слияние', kind: 'dup' };
 }
 
+/**
+ * Была ли карта копией героя, который уже был у игрока (тот же templateId), и сколько экземпляров героя стало.
+ * heroesNow — save.heroes после призыва. Первая карта нового героя в серии — «Новый герой!», следующие такие же — копии.
+ * big — крупный показ (×1): «копия · теперь ×N»; в сетке ×10 — короче («копия ×N»), чтобы не наезжать на соседей.
+ */
+export function copyTags(results: readonly Pick<SummonResult, 'templateId'>[], heroesNow: readonly { templateId: string }[], big: boolean): { text: string; kind: 'new' | 'copy'; total: number }[] {
+  const total = new Map<string, number>();
+  for (const h of heroesNow) total.set(h.templateId, (total.get(h.templateId) ?? 0) + 1);
+  const inBatch = new Map<string, number>();
+  for (const r of results) inBatch.set(r.templateId, (inBatch.get(r.templateId) ?? 0) + 1);
+  const seen = new Map<string, number>();
+  return results.map((r) => {
+    const n = total.get(r.templateId) ?? 0;
+    const before = n - (inBatch.get(r.templateId) ?? 0) + (seen.get(r.templateId) ?? 0);
+    seen.set(r.templateId, (seen.get(r.templateId) ?? 0) + 1);
+    if (before <= 0) return { text: big ? 'Новый герой!' : 'Новый!', kind: 'new' as const, total: n };
+    return { text: big ? `копия · теперь ×${n}` : `копия ×${n}`, kind: 'copy' as const, total: n };
+  });
+}
+
 /** Лучшая карта серии (для «К героям»): самая редкая, при равенстве — новая, затем первая. */
 export function bestResult<T extends Pick<SummonResult, 'rarity' | 'isNew'>>(results: readonly T[]): T | undefined {
   let best: T | undefined;

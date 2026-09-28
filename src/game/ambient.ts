@@ -3,7 +3,8 @@ import type { Theme } from './backdrops';
 
 /**
  * Живое поле боя (визуальная полировка): мягкие тени под юнитами и лёгкие частицы по теме —
- * светлячки на лугу, клочья тумана и болотные огоньки в топи, пыль и дрожь факелов в склепе.
+ * светлячки на лугу, клочья тумана и болотные огоньки в топи, пыль и дрожь факелов в склепе, песчинки по ветру
+ * в пустыне, светлячки в ночном лесу Пайона, пузырьки на затонувшем корабле, низкий туман и голубые огоньки в Нифльхейме.
  *
  * Дёшево: фиксированный набор картинок с общими маленькими текстурами (один батч), двигаются в step() сцены
  * без твинов и без создания объектов во время боя. Всё — под юнитами (глубина чуть выше фона).
@@ -12,6 +13,7 @@ import type { Theme } from './backdrops';
 export const SHADOW_TEX = 'skin_shadow';
 const MOTE = 'skin_mote';
 const FOG = 'skin_fog';
+const BUBBLE = 'skin_bubble';
 
 /** Маленькие текстуры частиц и тени (один раз). */
 export function ensureAmbientTextures(scene: Phaser.Scene): void {
@@ -44,6 +46,22 @@ export function ensureAmbientTextures(scene: Phaser.Scene): void {
     g.addColorStop(1, 'rgba(255,255,255,0)');
     c.fillStyle = g;
     c.fillRect(0, 0, 32, 32);
+  });
+  // Пузырёк: светлое кольцо с бликом (красится tint).
+  canvas(BUBBLE, 32, 32, (c) => {
+    const g = c.createRadialGradient(16, 16, 8, 16, 16, 14);
+    g.addColorStop(0, 'rgba(255,255,255,0.08)');
+    g.addColorStop(0.75, 'rgba(255,255,255,0.35)');
+    g.addColorStop(0.9, 'rgba(255,255,255,0.9)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = g;
+    c.beginPath();
+    c.arc(16, 16, 14, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.95)';
+    c.beginPath();
+    c.arc(11, 11, 3, 0, Math.PI * 2);
+    c.fill();
   });
   // Клочок тумана: мягкий эллипс (растягивается setDisplaySize).
   canvas(FOG, 128, 64, (c) => {
@@ -111,6 +129,25 @@ export class Ambient {
         add('fog', FOG, { y: rnd(900, Y1), vx: rnd(6, 14) * (i % 2 ? 1 : -1), amp: 6, a0: 0.08, a1: 0.16, f: rnd(0.15, 0.3) }, 0xd2dccb, NORMAL, rnd(520, 760), rnd(150, 220));
       }
       for (let i = 0; i < 7; i++) add('firefly', MOTE, { vx: rnd(-6, 6), vy: rnd(-6, 2), amp: rnd(8, 18), a0: 0, a1: rnd(0.45, 0.75), f: rnd(0.3, 0.7) }, 0xb6f07a, ADD, rnd(16, 26));
+    } else if (theme === 'desert') {
+      // Песчинки и пыль, которые ветер несёт вдоль поля (слева направо), плюс редкие пылевые клубы.
+      for (let i = 0; i < 16; i++) add('dust', MOTE, { vx: rnd(40, 90), vy: rnd(-4, 4), amp: rnd(3, 8), a0: 0.1, a1: rnd(0.35, 0.6), f: rnd(0.6, 1.4) }, 0xffe2a8, ADD, rnd(6, 11));
+      for (let i = 0; i < 3; i++) {
+        add('fog', FOG, { y: rnd(1000, Y1), vx: rnd(20, 35), amp: 4, a0: 0.05, a1: 0.11, f: rnd(0.2, 0.35) }, 0xe8c890, NORMAL, rnd(460, 640), rnd(110, 160));
+      }
+    } else if (theme === 'grove') {
+      // Светлячки ночного леса: холоднее и спокойнее луговых.
+      for (let i = 0; i < 14; i++) add('firefly', MOTE, { vx: rnd(-8, 8), vy: rnd(-6, 3), amp: rnd(10, 24), a0: 0, a1: rnd(0.55, 0.9), f: rnd(0.4, 0.9) }, 0xd8ff8a, ADD, rnd(16, 28));
+    } else if (theme === 'shipwreck') {
+      // Пузырьки поднимаются к поверхности, покачиваясь; мелкая взвесь медленно дрейфует.
+      for (let i = 0; i < 12; i++) add('dust', BUBBLE, { vx: rnd(-3, 3), vy: rnd(-70, -35), amp: rnd(6, 14), a0: 0.35, a1: rnd(0.6, 0.85), f: rnd(1.2, 2.2) }, 0xd8f8ff, NORMAL, rnd(10, 22));
+      for (let i = 0; i < 8; i++) add('dust', MOTE, { vx: rnd(-6, 6), vy: rnd(-4, 4), amp: rnd(4, 10), a0: 0.05, a1: rnd(0.2, 0.35), f: rnd(0.3, 0.6) }, 0x9fe8e0, ADD, rnd(6, 10));
+    } else if (theme === 'niflheim') {
+      // Низкий стелющийся туман и холодные призрачные огоньки.
+      for (let i = 0; i < 5; i++) {
+        add('fog', FOG, { y: rnd(950, Y1), vx: rnd(5, 12) * (i % 2 ? 1 : -1), amp: 6, a0: 0.08, a1: 0.17, f: rnd(0.15, 0.3) }, 0xc8d2ea, NORMAL, rnd(540, 780), rnd(150, 220));
+      }
+      for (let i = 0; i < 8; i++) add('firefly', MOTE, { vx: rnd(-5, 5), vy: rnd(-8, 1), amp: rnd(10, 22), a0: 0.05, a1: rnd(0.5, 0.8), f: rnd(0.25, 0.55) }, 0x9ad8ff, ADD, rnd(18, 30));
     } else {
       // Пыль в тёплом свете и дрожь пламени факелов.
       for (let i = 0; i < 18; i++) add('dust', MOTE, { vx: rnd(-5, 5), vy: rnd(-7, 3), amp: rnd(4, 12), a0: 0.1, a1: rnd(0.3, 0.55), f: rnd(0.3, 0.8) }, 0xffe0b0, ADD, rnd(8, 14));

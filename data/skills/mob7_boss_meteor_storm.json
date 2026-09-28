@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob7_boss_meteor_storm",
+  "name": "Метеоритный дождь",
+  "description": "С чёрного неба Нифльхейма падают метеоры: урон по всем врагам и ожог на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "burn",
+        "name": "Ожог",
+        "turns": 2,
+        "dot": {
+          "k": 0.12
+        }
+      }
+    }
+  ]
+}

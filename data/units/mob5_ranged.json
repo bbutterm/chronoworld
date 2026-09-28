@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob5_ranged",
+  "name": "Хоронг",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 360,
+    "atk": 48,
+    "def": 5,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob5_horong_foxfire",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "dark_priest",
+    "tint": "#ff8a3d",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

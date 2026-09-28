@@ -1,16 +1,18 @@
 import Phaser from 'phaser';
-import { achievementStatus, heroesWithGearUpgrades, heroPower, levelUpInfo, needsBranch, pendingPicks, squadPower, withGear, type CardRarity, type HeroState } from '../../core';
+import { achievementStatus, ascendAll, ascendAllSummary, heroesWithGearUpgrades, heroPower, levelUpInfo, needsBranch, pendingPicks, squadPower, withGear, type CardRarity, type HeroState } from '../../core';
 import { GAME } from '../content';
 import { ascendReady, claimableAchievements, formatNumber, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
-import { CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
+import { confirm, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
 import { countUp, staggerIn } from '../juice';
-import { session } from '../session';
-import { button, emptyState, hintPointer, pressable, ScrollArea, text, toast } from '../ui';
+import { commit, session } from '../session';
+import { sfx } from '../audio';
+import { RARITY_CARD } from '../tavern';
+import { button, ellipsize, emptyState, hintPointer, pressable, ScrollArea, text, toast } from '../ui';
 import { hintDone } from '../hints';
 import { C, FS } from '../theme';
 import { cardIcon, drawHeroCard, GUILD_NAMES, heroCardIcon, heroCardSize, LINES, rarityColor, ROLES } from '../heroCard';
-import { collectionCount, collectionHeroes, groupCopies, heroesUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
+import { collectionCount, collectionHeroes, groupCopies, heroesUi, inventoryUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
 import { pulse } from '../juice';
 
 const COLS = 3;
@@ -51,16 +53,25 @@ export class HeroesScene extends Phaser.Scene {
     }
     lastSquadPower = sp;
     const free = save.inventory.items.filter((i) => i.equippedBy === null).length;
-    button(this, 500, barY, 280, 100, 'ui_btn_secondary', `Инвентарь${free ? ` (${free})` : ''}`, () => this.scene.start('Inventory', {}), FS.h3);
+    button(this, 500, barY, 280, 100, 'ui_btn_secondary', `Инвентарь${free ? ` (${free})` : ''}`, () => {
+      inventoryUi.template = null;
+      this.scene.start('Inventory', {});
+    }, FS.h3);
     // K10: достижения — отсюда и с главной.
     button(this, 835, barY, 330, 100, 'ui_btn_secondary', 'Достижения', () => this.scene.start('Achievements', { from: 'Heroes' }), FS.h3);
     cornerBadge(this, 835, barY, 330, 100, claimableAchievements(achievementStatus(save, GAME)));
 
     // Запас опыта (тратится «Улучшить» на карточке) и «Коллекция» — серые неполученные карточки.
     const rowY = CONTENT_TOP + 165;
-    text(this, 30, rowY, `Опыт в запасе: ${formatNumber(save.resources.heroExp)}`, FS.body, C.gold, { stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('heroExpPool');
+    ellipsize(text(this, 30, rowY, `Опыт в запасе: ${formatNumber(save.resources.heroExp)}`, FS.body, C.gold, { stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('heroExpPool'), 420);
+    // «Вознести всех»: всех, кому хватает свободных копий того же героя и золота (ascendAll), с подтверждением.
+    const plan = ascendAll(save, GAME);
+    const all = button(this, 590, rowY, 250, 96, plan.done.length ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести всех', () => this.ascendAllConfirm(), FS.small, { sound: 'ui_toggle' });
+    all.container.setName('ascendAllBtn');
+    if (!plan.done.length) all.setEnabled(false);
+    else pulse(this, all.container, 1.04);
     const cc = collectionCount(save, GAME);
-    const coll = button(this, 870, rowY, 340, 96, heroesUi.showMissing ? 'k:buttonLong_brown' : 'ui_btn_secondary', `Коллекция ${cc.owned}/${cc.total}`, () => {
+    const coll = button(this, 885, rowY, 310, 96, heroesUi.showMissing ? 'k:buttonLong_brown' : 'ui_btn_secondary', `Коллекция ${cc.owned}/${cc.total}`, () => {
       heroesUi.showMissing = !heroesUi.showMissing;
       this.scene.restart();
     }, FS.body, { sound: 'ui_toggle' });
@@ -149,6 +160,35 @@ export class HeroesScene extends Phaser.Scene {
       if (cy + tileH / 2 <= CONTENT_BOTTOM) hintPointer(this, p.x, cy, 'Наденьте трофеи — откройте героя', 'auto', { w: TILE_W, h: tileH });
     }
     staggerIn(this, 'Heroes', tiles);
+  }
+
+  /** Подтверждение «Вознести всех»: список «Вика: синяя → фиолетовая», затем вознесение и итог тостом. */
+  private ascendAllConfirm(): void {
+    const plan = ascendAll(session.save, GAME);
+    const rows = ascendAllSummary(plan.done);
+    if (!rows.length) {
+      toast(this, 'Вознести некого: нужны свободные копии того же героя и золото.', C.muted);
+      return;
+    }
+    const line = (r: (typeof rows)[number]) => `${r.name}: ${RARITY_CARD[r.from]} → ${RARITY_CARD[r.to]}${r.branchPending ? ' (ветка — потом)' : ''}`;
+    const MAX = 7;
+    const list = rows.slice(0, MAX).map(line);
+    if (rows.length > MAX) list.push(`…и ещё ${rows.length - MAX}`);
+    const gold = session.save.resources.gold - plan.save.resources.gold;
+    const eaten = plan.done.reduce((n, d) => n + d.consumed.length, 0);
+    const cost = `${gold > 0 ? `Золото: −${formatNumber(gold)} · ` : ''}копий в корм: ${eaten}`;
+    confirm(this, `Вознести всех?\n\n${list.join('\n')}\n\n${cost}\nОтряд и закреплённые (замок) в корм не идут.`, 'Вознести', () => {
+      // Сохранение могло измениться — считаем заново от текущего.
+      const r = ascendAll(session.save, GAME);
+      if (!r.done.length) return;
+      commit(r.save);
+      sfx('rarity_up');
+      const res = ascendAllSummary(r.done);
+      const branch = res.filter((x) => x.branchPending).map((x) => x.name);
+      const msg = `Вознесено: ${res.map((x) => `${x.name} (${RARITY_CARD[x.to]})`).join(', ')}${branch.length ? `. Выберите ветку: ${branch.join(', ')}` : ''}`;
+      this.scene.restart();
+      this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, msg, C.success, 5000));
+    });
   }
 
   private get content() {

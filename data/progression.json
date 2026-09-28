@@ -63,7 +63,23 @@
       "ch3_s7": 0.97,
       "ch3_s8": 0.98,
       "ch3_s9": 0.96,
-      "ch3_s10": 0.76
+      "ch3_s10": 0.76,
+      "ch4_s3": 1.44,
+      "ch4_s4": 1.58,
+      "ch4_s10": 0.83,
+      "ch5_s1": 1.64,
+      "ch5_s2": 1.56,
+      "ch5_s3": 1.52,
+      "ch5_s7": 1.26,
+      "ch5_s10": 0.92,
+      "ch6_s3": 1.64,
+      "ch6_s4": 1.4,
+      "ch6_s5": 1.5,
+      "ch6_s6": 1.41,
+      "ch6_s10": 0.87,
+      "ch7_s7": 1.05,
+      "ch7_s9": 0.99,
+      "ch7_s10": 0.98
     },
     "levels": {
       "$comment": "Уровни врагов и «Рекомендуем: герои ур. N (синие)» — только отображение (src/core/features/levels.ts, docs/content/balance.md, раздел 4а). enemyScale: враг ур. L — hp·atk = enemyScale × hp·atk медианного героя ур. L. bands: типичный отряд модели игрока при первой победе (редкость и число героев) с этапа fromStage. Перемерять: npm run balance -- --levels.",
@@ -103,6 +119,6 @@
       "ch3_s9": [84, 100.5],
       "ch3_s10": [96, 108.5]
     },
-    "default": { "gapHours": 12, "spanHours": 42, "wallEvery": 3, "windowHours": 16.5 }
+    "default": { "gapHours": 6, "spanHours": 27, "wallEvery": 3, "windowHours": 16.5 }
   }
 }

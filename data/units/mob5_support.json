@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob5_support",
+  "name": "Сохи",
+  "kind": "monster",
+  "role": "healer",
+  "stats": {
+    "hp": 480,
+    "atk": 40,
+    "def": 7,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_heal",
+    "ult": "mob5_sohee_lament",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "dark_priest",
+    "tint": "#b8dcff",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

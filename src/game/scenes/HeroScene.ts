@@ -37,7 +37,7 @@ import { sfx } from '../audio';
 import { bump, countUp, juiceOn, pulse } from '../juice';
 import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, iconBadge, raysTexture, rarityBackdrop, rarityPalette, rarityPips } from '../heroCard';
-import { browseNeighbours, copyCounter, heroesUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
+import { browseNeighbours, copyCounter, heroesUi, inventoryUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
 import { openBranchPicker } from '../branchPicker';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
@@ -208,10 +208,20 @@ export class HeroScene extends Phaser.Scene {
     const cc = copyCounter(session.save, hero.id, GAME);
     if (cc.text) {
       const ready = cc.need !== undefined && (cc.have ?? 0) >= cc.need;
-      const t = text(this, FIG_X, TOP + 488, cc.text, FS.caption, ready ? C.positive : C.muted, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('copyCounter');
+      // Есть копии — нажатие открывает их все картами (Инвентарь → «Карты героев», только этот герой).
+      const more = cc.others > 0;
+      const t = text(this, FIG_X, TOP + 488, `${cc.text}${more ? ' ›' : ''}`, FS.caption, ready ? C.positive : C.muted, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('copyCounter');
       ellipsize(t, 470);
-      this.add.rectangle(FIG_X, TOP + 488, Math.min(490, t.width + 30), 40, 0x0b0805, 0.72).setStrokeStyle(2, pal.tint, 0.8);
+      const bg = this.add.rectangle(FIG_X, TOP + 488, Math.min(490, t.width + 30), 40, 0x0b0805, 0.72).setStrokeStyle(2, pal.tint, 0.8);
       this.children.bringToTop(t);
+      if (more) {
+        pressable(this, bg, bg.width, 56, () => {
+          inventoryUi.tab = 'cards';
+          inventoryUi.rarity = null;
+          inventoryUi.template = hero.templateId;
+          this.scene.start('Inventory', {});
+        });
+      }
     }
     // Замок (не уйдёт в корм) — левый верхний угол витрины. Копией бывает любой герой, сюжетный тоже.
     {

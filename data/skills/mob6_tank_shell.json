@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob6_tank_shell",
+  "name": "Панцирь",
+  "description": "Кукре прячется в раковину: щит 25% ОЗ себе и +30% защиты на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.25
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "shell",
+        "name": "Панцирь",
+        "turns": 2,
+        "stats": {
+          "def": 0.3
+        }
+      }
+    }
+  ]
+}

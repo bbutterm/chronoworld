@@ -1,0 +1,340 @@
+{
+  "$schema": "../schema/chapter.schema.json",
+  "id": "chapter5",
+  "name": "Глава 5. Лес Пайона",
+  "order": 5,
+  "stages": [
+    {
+      "id": "ch5_s1",
+      "name": "Опушка при луне",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob5_tank",
+          "mult": 0.447
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.447
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.447
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 14310,
+        "gold": 10020
+      },
+      "offlinePerMinute": {
+        "jobExp": 477,
+        "gold": 334
+      }
+    },
+    {
+      "id": "ch5_s2",
+      "name": "Тропа енотов",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob5_tank",
+          "mult": 0.358
+        },
+        null,
+        {
+          "unit": "mob5_fast",
+          "mult": 0.358
+        },
+        {
+          "unit": "mob5_fast",
+          "mult": 0.358
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.358
+        }
+      ],
+      "rewards": {
+        "jobExp": 15600,
+        "gold": 10920
+      },
+      "offlinePerMinute": {
+        "jobExp": 520,
+        "gold": 364
+      }
+    },
+    {
+      "id": "ch5_s3",
+      "name": "Блуждающие огни",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob5_tank",
+          "mult": 0.337
+        },
+        null,
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.337
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.337
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.337
+        }
+      ],
+      "rewards": {
+        "jobExp": 17010,
+        "gold": 11910
+      },
+      "offlinePerMinute": {
+        "jobExp": 567,
+        "gold": 397
+      }
+    },
+    {
+      "id": "ch5_s4",
+      "name": "Покинутый погост",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob5_tank",
+          "mult": 0.316
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.316
+        },
+        {
+          "unit": "mob5_fast",
+          "mult": 0.316
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.316
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 18540,
+        "gold": 12990
+      },
+      "offlinePerMinute": {
+        "jobExp": 618,
+        "gold": 433
+      }
+    },
+    {
+      "id": "ch5_s5",
+      "name": "Лисья поляна",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob5_elite",
+          "mult": 0.269
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.269
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.269
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.269
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 20220,
+        "gold": 14160
+      },
+      "offlinePerMinute": {
+        "jobExp": 674,
+        "gold": 472
+      }
+    },
+    {
+      "id": "ch5_s6",
+      "name": "Деревня без огней",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob5_tank",
+          "mult": 0.232
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.232
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.232
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.232
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.232
+        }
+      ],
+      "rewards": {
+        "jobExp": 22050,
+        "gold": 15450
+      },
+      "offlinePerMinute": {
+        "jobExp": 735,
+        "gold": 515
+      }
+    },
+    {
+      "id": "ch5_s7",
+      "name": "Бамбуковая чаща",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob5_elite",
+          "mult": 0.218
+        },
+        {
+          "unit": "mob5_tank",
+          "mult": 0.218
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.218
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.218
+        },
+        {
+          "unit": "mob5_fast",
+          "mult": 0.218
+        }
+      ],
+      "rewards": {
+        "jobExp": 24030,
+        "gold": 16830
+      },
+      "offlinePerMinute": {
+        "jobExp": 801,
+        "gold": 561
+      }
+    },
+    {
+      "id": "ch5_s8",
+      "name": "Пещера Пайона",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob5_elite",
+          "mult": 0.2
+        },
+        {
+          "unit": "mob5_tank",
+          "mult": 0.2
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.2
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.2
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.2
+        }
+      ],
+      "rewards": {
+        "jobExp": 26190,
+        "gold": 18330
+      },
+      "offlinePerMinute": {
+        "jobExp": 873,
+        "gold": 611
+      }
+    },
+    {
+      "id": "ch5_s9",
+      "name": "Лисья свадьба",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob5_elite",
+          "mult": 0.178
+        },
+        {
+          "unit": "mob5_elite",
+          "mult": 0.178
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.178
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.178
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.178
+        }
+      ],
+      "rewards": {
+        "jobExp": 28530,
+        "gold": 19980
+      },
+      "offlinePerMinute": {
+        "jobExp": 951,
+        "gold": 666
+      }
+    },
+    {
+      "id": "ch5_s10",
+      "name": "Святилище Лунного цветка",
+      "boss": true,
+      "enemies": [
+        {
+          "unit": "mob5_elite",
+          "mult": 0.1421
+        },
+        {
+          "unit": "mob5_boss",
+          "mult": 0.151
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.1421
+        },
+        {
+          "unit": "mob5_elite",
+          "mult": 0.1421
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.1421
+        }
+      ],
+      "rewards": {
+        "jobExp": 46665,
+        "gold": 32670
+      },
+      "offlinePerMinute": {
+        "jobExp": 1037,
+        "gold": 726
+      }
+    }
+  ]
+}

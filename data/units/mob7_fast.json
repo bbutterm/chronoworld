@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob7_fast",
+  "name": "Кровавый убийца",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 430,
+    "atk": 46,
+    "def": 5,
+    "spd": 145,
+    "moveSpeed": 320
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob7_fast_bloody_knife",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "gargoyle",
+    "tint": "#b3262e",
+    "hitFx": "fx_hit"
+  }
+}

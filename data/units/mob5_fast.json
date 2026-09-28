@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob5_fast",
+  "name": "Смоки",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 410,
+    "atk": 42,
+    "def": 5,
+    "spd": 140,
+    "moveSpeed": 380
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob5_smokie_smoke",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "lunatic",
+    "tint": "#9c8468",
+    "hitFx": "fx_hit"
+  }
+}

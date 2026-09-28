@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob5_sohee_lament",
+  "name": "Призрачный плач",
+  "description": "Сохи плачет над лесом: лечит всех союзников и даёт им +15% атаки на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 0.9
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "lament",
+        "name": "Скорбная песнь",
+        "turns": 2,
+        "stats": {
+          "atk": 0.15
+        }
+      }
+    }
+  ]
+}
