@@ -13,8 +13,8 @@
     { "id": "first_ascend", "name": "Вознесение", "description": "Вознесите карточку героя на следующую редкость", "counter": "ascensions", "target": 1, "rewards": { "gems": 30, "shards": 5 } },
     { "id": "first_equip", "name": "При оружии", "description": "Наденьте предмет на героя", "counter": "items_equipped", "target": 1, "rewards": { "gold": 100 } },
     { "id": "equip_10", "name": "Снаряжённый отряд", "description": "Наденьте предметы 10 раз", "counter": "items_equipped", "target": 10, "rewards": { "gold": 500 } },
-    { "id": "first_bounty", "name": "Исполнитель", "description": "Выполните поручение с доски", "counter": "bounties_done", "target": 1, "rewards": { "gold": 200 } },
-    { "id": "bounties_20", "name": "Надёжный наёмник", "description": "Выполните 20 поручений", "counter": "bounties_done", "target": 20, "rewards": { "gems": 40 } },
+    { "id": "first_bounty", "name": "Первопроходец", "description": "Вернитесь из экспедиции", "counter": "bounties_done", "target": 1, "rewards": { "gold": 200 } },
+    { "id": "bounties_20", "name": "Бывалый искатель", "description": "Завершите 20 экспедиций", "counter": "bounties_done", "target": 20, "rewards": { "gems": 40 } },
     { "id": "job_level_10", "name": "Опытный боец", "description": "Поднимите героя до 10-го уровня", "counter": "hero_max_level", "target": 10, "rewards": { "gold": 300 } },
     { "id": "job_level_40", "name": "Мастер своего дела", "description": "Поднимите героя до 40-го уровня", "counter": "hero_max_level", "target": 40, "rewards": { "gems": 50 } }
   ]

@@ -130,7 +130,7 @@ const fctx = withFeatures(gameCtx, progressionJson, questsJson); // битый �
 | `actUseFastRewards(save, day, fctx)` | `useFastRewards` | `fast_rewards` |
 | `actClaimQuest(save, day, questId, fctx)` | `claimQuest` | — (только очки) |
 | `actClaimActivity(save, day, milestone, fctx)` | `claimActivity` | — (`jobExp` порога — в общий пул) |
-| `actClaimBounty(save, day, bountyId, now, mctx)` | `claimBounty` (K9) | — (`jobExp` — в пул, осколки — «отстающему») |
+| `actClaimExpedition(save, day, locationId, now, ctx)`, `actClaimAllExpeditions(save, day, now, ctx)` | `claimExpedition`, `claimAllExpeditions` (K9) | — (`jobExp` — в пул, осколки — «отстающему», предметы — в инвентарь) |
 
 С v4 (карточки героев) опыт всех наград идёт в общий пул `resources.heroExp`, уровни поднимает только «Улучшить».
 | `actClaimAchievement(save, day, id, mctx)` | `claimAchievement` (K10) | `hero_level_up` (`jobExp` достижения) |

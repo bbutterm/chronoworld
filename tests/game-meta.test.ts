@@ -1,13 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { achievementStatus, newGame, trackAchievement, withFeatures, withMeta, type ActiveBounty, type Bounty } from '../src/core';
+import { achievementStatus, newGame, trackAchievement, withFeatures, withMeta } from '../src/core';
 import {
-  bountyPickBlocker,
   claimableAchievements,
   countdownText,
   durationText,
-  finishedBounties,
+  expectedLootText,
   metaRewardsText,
   nextPresetName,
   presetMatches,
@@ -16,10 +15,9 @@ import {
 import { loadGameContext, ROOT } from '../scripts/lib/content-node';
 
 const json = (f: string) => JSON.parse(readFileSync(join(ROOT, f), 'utf8'));
-const ctx = withMeta(withFeatures(loadGameContext(), json('data/progression.json'), json('data/quests.json')), json('data/bounties.json'), json('data/achievements.json'));
+const ctx = withMeta(withFeatures(loadGameContext(), json('data/progression.json'), json('data/quests.json')), json('data/expeditions.json'), json('data/achievements.json'));
 const DAY = '2026-09-26';
 
-const bounty: Bounty = { id: 'b1', templateId: 'escort', rarity: 'common', durationMinutes: 60, heroCount: 2, role: 'tank', rewards: { gold: 1, jobExp: 0, gems: 0 } };
 
 describe('помощники экранов K8–K10', () => {
   it('nextPresetName: наименьший свободный номер', () => {
@@ -49,23 +47,12 @@ describe('помощники экранов K8–K10', () => {
     expect(metaRewardsText({ gold: 0, jobExp: 0, gems: 0 })).toBe('—');
   });
 
-  it('bountyPickBlocker: число героев и роль — как в startBounty', () => {
-    const save = newGame(ctx, 0, DAY);
-    // h1 — Алан (танк), h2 — Бран, h3 — Вика.
-    const [h1, h2, h3] = save.heroes.map((h) => h.id);
-    expect(bountyPickBlocker(bounty, [h2], save, ctx)).toMatch('1 / 2');
-    expect(bountyPickBlocker(bounty, [h2, h3], save, ctx)).toMatch('Танк');
-    expect(bountyPickBlocker(bounty, [h1, h2], save, ctx)).toBeNull();
-    expect(bountyPickBlocker({ ...bounty, role: null }, [h2, h3], save, ctx)).toBeNull();
-  });
-
-  it('finishedBounties считает завершённые, но не забранные', () => {
-    const save = newGame(ctx, 0, DAY);
-    const active: ActiveBounty = { ...bounty, heroIds: [save.heroes[0].id], startedAt: 0, endsAt: 1000 };
-    const s = { ...save, bounties: { ...save.bounties, active: [active, { ...active, id: 'b2', endsAt: 5000 }] } };
-    expect(finishedBounties(s, 999)).toBe(0);
-    expect(finishedBounties(s, 1000)).toBe(1);
-    expect(finishedBounties(s, 5000)).toBe(2);
+  it('expectedLootText: золото и опыт точно, находки — списком', () => {
+    expect(expectedLootText({ gold: 1000, jobExp: 50, gems: 0.4, shards: 0.2, scrolls: 0, items: 0.1 })).toEqual({
+      base: '1 000 зол. · 50 опыта',
+      finds: 'Находки: гемы ≈1, осколки, снаряжение',
+    });
+    expect(expectedLootText({ gold: 1, jobExp: 1, gems: 0, shards: 0, scrolls: 0, items: 0 }).finds).toBe('');
   });
 
   it('sortAchievements: готовые сверху, полученные внизу; claimableAchievements', () => {

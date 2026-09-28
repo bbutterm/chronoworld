@@ -20,16 +20,20 @@ describe('миграция v3 → v4: герои становятся карто
   const s = deserialize(fixtureV3);
 
   it('версия, ссылки и неизменные поля', () => {
-    // v5 (события и почта) идёт следом: v3 → v4 (эта миграция) → v5 (пустая почта), см. tests/events.test.ts.
-    expect(SAVE_VERSION).toBe(5);
+    // Следом идут v5 (события и почта, tests/events.test.ts) и v6 (экспедиции вместо поручений, tests/meta-expeditions.test.ts).
+    expect(SAVE_VERSION).toBe(6);
     expect(MIGRATIONS[3](raw).version).toBe(4);
     expect(s.version).toBe(SAVE_VERSION);
-    expect(s.mail).toEqual({ seq: 0, letters: [], delivered: [] });
-    // id героев не меняются — отряд, пресеты, поручения и надетые предметы остаются.
+    // v6: поручение в работе (Отто на патруле) — герой свободен, награда поручения — письмом в почте.
+    expect(s.mail.seq).toBe(1);
+    expect(s.mail.letters).toHaveLength(1);
+    expect(s.mail.letters[0]).toMatchObject({ id: 'm1', title: 'Поручения стали экспедициями', rewards: { gold: 100, jobExp: 20 }, claimed: false, day: '2026-09-27' });
+    // id героев не меняются — отряд, пресеты и надетые предметы остаются.
     expect(s.heroes.map((h) => h.id)).toEqual(raw.heroes.map((h: { id: string }) => h.id));
     expect(s.squad).toEqual(raw.squad);
     expect(s.presets).toEqual(raw.presets);
-    expect(s.bounties).toEqual(raw.bounties);
+    expect(raw.bounties.active).toHaveLength(1);
+    expect(s.bounties).toEqual({ active: [] });
     expect(s.inventory).toEqual(raw.inventory);
     expect(s.campaign).toEqual(raw.campaign);
     expect(s.tower).toEqual(raw.tower);
@@ -62,11 +66,13 @@ describe('миграция v3 → v4: герои становятся карто
     expect(s.achievements.claimed).toEqual(['first_stage', 'first_job']);
   });
 
-  it('сообщение игроку: карточки + «чужой» класс (Вика была Магом); после загрузки — предупреждения, поле убрано', () => {
-    expect(s.notices).toHaveLength(2);
+  it('сообщение игроку: карточки + «чужой» класс (Вика была Магом) + экспедиции (v6); после загрузки — предупреждения, поле убрано', () => {
+    expect(s.notices).toHaveLength(3);
     expect(s.notices![0]).toMatch(/герои стали карточками/);
     expect(s.notices![0]).toMatch(/свиток призыва/);
     expect(s.notices![1]).toBe('Классы сюжетных героев теперь постоянные: Вика теперь Аколит.');
+    // v6: поручения → экспедиции (tests/meta-expeditions.test.ts).
+    expect(s.notices![2]).toMatch(/экспедициями/);
     const storage = new MemoryStorage();
     storage.save(fixtureV3);
     const r = loadOrNew(storage, ctx, 1_758_970_000_000);

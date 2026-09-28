@@ -351,7 +351,7 @@ export function taskDestination(counter: string): string {
     case 'summons':
       return 'Tavern';
     case 'bounties_done':
-      return 'Bounties';
+      return 'Expeditions';
     case 'hero_max_level':
     case 'ascensions':
     case 'items_equipped':

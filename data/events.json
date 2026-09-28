@@ -29,7 +29,7 @@
         "tasks": [
           { "id": "nb2_stages", "name": "Пройдите 12 этапов кампании", "counter": "stages_cleared", "target": 12, "points": 10 },
           { "id": "nb2_tower", "name": "Поднимитесь на 5-й этаж башни", "counter": "tower_floor", "target": 5, "points": 10 },
-          { "id": "nb2_bounties", "name": "Выполните 2 поручения", "counter": "bounties_done", "target": 2, "points": 10 }
+          { "id": "nb2_bounties", "name": "Завершите 2 экспедиции", "counter": "bounties_done", "target": 2, "points": 10 }
         ]
       },
       {
@@ -50,7 +50,7 @@
         "tasks": [
           { "id": "nb5_stages", "name": "Пройдите 23 этапа кампании", "counter": "stages_cleared", "target": 23, "points": 10 },
           { "id": "nb5_level", "name": "Поднимите героя до 20-го уровня", "counter": "hero_max_level", "target": 20, "points": 10 },
-          { "id": "nb5_bounties", "name": "Выполните 10 поручений", "counter": "bounties_done", "target": 10, "points": 10 }
+          { "id": "nb5_bounties", "name": "Завершите 10 экспедиций", "counter": "bounties_done", "target": 10, "points": 10 }
         ]
       },
       {

@@ -23,23 +23,19 @@ import {
   autoFodder,
   actUseFastRewards,
   autoFormation,
-  busyHeroes,
   canEquip,
   claimAchievement,
   claimActivity,
   claimAllMail,
-  claimBounty,
   claimLogin,
   claimNewbieMilestone,
   claimNewbieTask,
   claimQuest,
-  ensureBoard,
   equip,
   fastRewardsPreview,
   fastRewardsStatus,
   getStage,
   heroPower,
-  heroRole,
   heroStats,
   heroTemplate,
   levelUpInfo,
@@ -53,7 +49,10 @@ import {
   squadPower,
   stagePower,
   stageStatus,
-  startBounty,
+  startExpedition,
+  claimExpedition,
+  autoParty,
+  locationUnlocked,
   touchEvents,
   towerUnlocked,
   featureUnlocked,
@@ -107,8 +106,11 @@ export interface PlayerModel {
   fastRewardsPerDay: number;
   /** Застряв посреди сессии, забрать сундук, если в нём накопилось хотя бы столько минут. */
   midSessionClaimMinutes: number;
-  /** Отправлять героев на поручения. */
-  bounties: boolean;
+  /**
+   * Экспедиции (data/expeditions.json): в каждой сессии забрать вернувшиеся и отправить отряд (autoParty) во все открытые
+   * свободные локации — на самый долгий срок, который вернётся к следующей сессии (последняя сессия дня — самый долгий).
+   */
+  expeditions: boolean;
   /** Призыв за гемы (×10, когда гемов хватает на ×10); false — только бесплатный призыв и свитки. */
   summonWithGems: boolean;
   /**
@@ -123,7 +125,7 @@ export interface PlayerModel {
    * если он усиливает отряд, осколки — с большим запасом), свиток — за гемы (не больше 1 в день), бесплатное обновление.
    */
   shop: boolean;
-  /** Сдвиг seed: seed боя = seedBase + save.battleSeq; seed доски поручений = seedBase. */
+  /** Сдвиг seed: seed боя = seedBase + save.battleSeq. */
   seedBase: number;
   /** Календарный день первого дня симуляции, 'YYYY-MM-DD'. */
   startDate: string;
@@ -146,7 +148,7 @@ export const PLAYER_MODEL: PlayerModel = {
   towerMaxLossesPerSession: 2,
   fastRewardsPerDay: 1,
   midSessionClaimMinutes: 10,
-  bounties: true,
+  expeditions: true,
   summonWithGems: true,
   hunt: true,
   events: true,
@@ -280,7 +282,7 @@ export interface LevelLog {
 }
 
 /** Источники доходов/расходов золота, гемов и опыта. */
-export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'hunt', 'bounties', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon', 'shop'] as const;
+export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'hunt', 'expeditions', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon', 'shop'] as const;
 export type Source = (typeof SOURCES)[number];
 export type Ledger = Record<Source, { gold: number; gems: number; exp: number }>;
 
@@ -643,31 +645,26 @@ class Sim {
     return used;
   }
 
-  claimBounties(): void {
+  claimExpeditions(): void {
     if (!featureUnlocked(this.save, 'bounties', this.ctx)) return;
-    for (const b of this.save.bounties.active) {
-      if (this.now >= b.endsAt) this.step('bounties', claimBounty(this.save, b.id, this.now, this.ctx).save);
+    for (const e of this.save.bounties.active) {
+      if (this.now >= e.endsAt) this.step('expeditions', claimExpedition(this.save, e.location, this.now, this.ctx).save);
     }
   }
 
-  /** Доска на сегодня; поручения по убыванию ценности (гем = 10 золота), группа — из свободных героев вне отряда первыми. */
-  startBounties(): void {
+  /**
+   * Отправить отряд во все открытые свободные локации (как игрок: одно нажатие «Отправить», отряд — autoParty).
+   * Срок — самый долгий, что вернётся к следующей сессии (nextSessionAt, мс); не успевает ни один — самый короткий.
+   */
+  startExpeditions(nextSessionAt: number): void {
     if (!featureUnlocked(this.save, 'bounties', this.ctx)) return;
-    this.save = ensureBoard(this.save, this.day, this.model.seedBase, this.ctx);
-    const value = (b: { rewards: { gold: number; gems: number } }) => b.rewards.gold + 10 * b.rewards.gems;
-    const board = [...this.save.bounties.board].sort((a, b) => value(b) - value(a) || (a.id < b.id ? -1 : 1));
-    for (const b of board) {
-      const busy = new Set(busyHeroes(this.save));
-      const idle = this.save.heroes.filter((h) => !busy.has(h.id));
-      if (idle.length < b.heroCount) continue;
-      const group: string[] = [];
-      if (b.role) {
-        const r = idle.find((h) => heroRole(h, this.ctx) === b.role);
-        if (!r) continue;
-        group.push(r.id);
-      }
-      for (const h of idle) if (group.length < b.heroCount && !group.includes(h.id)) group.push(h.id);
-      this.save = startBounty(this.save, b.id, group, this.now, this.ctx);
+    const durations = this.ctx.meta.expeditions.durations.map((d) => d.hours).sort((a, b) => a - b);
+    const fit = durations.filter((h) => this.now + h * HOUR <= nextSessionAt);
+    const hours = fit.length ? fit[fit.length - 1] : durations[0];
+    for (const loc of this.ctx.meta.expeditions.locations) {
+      if (!locationUnlocked(this.save, loc) || this.save.bounties.active.some((e) => e.location === loc.id)) continue;
+      if (!autoParty(this.save, loc.id, this.ctx).ok) continue;
+      this.save = startExpedition(this.save, loc.id, hours, this.now, this.ctx);
     }
   }
 
@@ -780,9 +777,15 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
       const activeStart = sim.activeMs;
       const end = start + (day === 1 && session === 1 ? model.firstSessionMinutes : model.sessionMinutes) * MINUTE;
       const lastSession = session === model.sessionsPerDay;
+      // Начало следующей сессии (последняя сессия дня — первая сессия завтра): до него должна вернуться экспедиция.
+      const nextSessionAt = (lastSession ? day * 24 + model.firstSessionHour : time_h + model.hoursBetweenSessions) * HOUR;
       sim.sessionLevelUps = 0;
       sim.claimOffline();
-      if (model.bounties) sim.claimBounties();
+      // Экспедиции — сразу при входе: забрать вернувшиеся и отправить заново (4-часовая вернётся к следующей сессии).
+      if (model.expeditions) {
+        sim.claimExpeditions();
+        sim.startExpeditions(nextSessionAt);
+      }
       sim.claimRewards();
       sim.prepare();
 
@@ -847,9 +850,9 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
         }
       }
 
-      if (model.bounties) {
-        sim.claimBounties();
-        sim.startBounties();
+      if (model.expeditions) {
+        sim.claimExpeditions();
+        sim.startExpeditions(nextSessionAt);
       }
       if (lastSession) sim.fastRewards();
       sim.claimRewards();

@@ -235,15 +235,17 @@ id вида `chapterN` выводится сам (`ch<N>`).
    `npm run balance -- --days 7` против `--no-shop` (Лавка не должна отнимать золото у «Улучшить»: главы не позже, стены не длиннее) —
    итог в `docs/content/balance.md`, «Лавка».
 
-## 9. Ежедневное задание, поручение, достижение
+## 9. Ежедневное задание, локация экспедиций, достижение
 
 - **Задание** — `data/quests.json → quests[]`: `{id, name, event, target, points}`; `event` — одно из `ACTIVITY_KINDS`
   (`src/core/features/quests.ts`: stage_win, stage_attempt, offline_claim, fast_rewards, summon, hero_level_up, hero_ascend, tower_attempt).
   Новый вид события — правка ядра (`ACTIVITY_KINDS` + запись в обёртке `act*` в `src/core/features/actions.ts`) и тест.
   Пороги активности — `milestones`.
-- **Поручение** — `data/bounties.json → templates[]`: `{id, name, rarity, durationMinutes, heroCount, role|null, rewards {gold, jobExp,
-  gems, shards?}}`; `jobExp` — в общий пул, `shards` — осколки «отстающего» сюжетного героя; `role` должна быть у какой-то профессии
-  (content:check). Баланс шаблонов — открытый вопрос владельцу (см. PROGRESS).
+- **Локация экспедиций** — `data/expeditions.json → locations[]`: `{id, name, description, stage, power, tint, monster?,
+  monsterScale?, perHour {gold, jobExp}, loot [{kind: item|gems|shards|scrolls, chance, count?, items?}]}`; `stage` и `monster` должны
+  существовать, `items` — id из `data/items` (content:check). `id` лежит в сохранениях — не переименовывать. Числа — от бюджета
+  в docs/content/meta.md (K9): порог мощи не выше рекомендуемой мощи этапов до открытия (content:check предупредит), доход за
+  сутки — тест `tests/meta-expeditions.test.ts`; после правки — `npm run balance -- --days 7`.
 - **Достижение** — `data/achievements.json → achievements[]`: `{id, name, description, counter, target, rewards}`; `counter` — из
   `ACHIEVEMENT_COUNTERS` (`src/core/meta/config.ts`); новый счётчик — правка ядра + тест `tests/meta-achievements.test.ts`.
 - Подробно — `docs/content/features.md`, `docs/content/meta.md`.
