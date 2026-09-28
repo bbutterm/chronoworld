@@ -1,25 +1,24 @@
 {
   "$schema": "../schema/chapter.schema.json",
-  "$comment": "TODO: заготовка content:new — mult всех этапов = 1 (босс 0.5), подобрать по docs/CONTENT_RECIPES.md «Новая глава: чеклист» (playthrough, balance-fit, --fit-recommended); сундук и награды уже по формуле баланса",
   "id": "chapter4",
   "name": "Глава 4. Пески Сограта",
   "order": 4,
   "stages": [
     {
       "id": "ch4_s1",
-      "name": "TODO: этап 1",
+      "name": "Караван у оазиса",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob4_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob4_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob4_ranged",
           "mult": 1
         },
         null,
@@ -36,23 +35,26 @@
     },
     {
       "id": "ch4_s2",
-      "name": "TODO: этап 2",
+      "name": "Скорпионья тропа",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_ranged",
-          "mult": 1
-        },
-        {
-          "unit": "mob3_fast",
+          "unit": "mob4_tank",
           "mult": 1
         },
         null,
-        null
+        {
+          "unit": "mob4_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob4_fast",
+          "mult": 1
+        },
+        {
+          "unit": "mob4_ranged",
+          "mult": 1
+        }
       ],
       "rewards": {
         "jobExp": 6600,
@@ -65,22 +67,25 @@
     },
     {
       "id": "ch4_s3",
-      "name": "TODO: этап 3",
+      "name": "Храм под барханом",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_ranged",
+          "unit": "mob4_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob4_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob4_ranged",
           "mult": 1
         },
-        null,
+        {
+          "unit": "mob4_support",
+          "mult": 1
+        },
         null
       ],
       "rewards": {
@@ -94,24 +99,27 @@
     },
     {
       "id": "ch4_s4",
-      "name": "TODO: этап 4",
+      "name": "Стена песчаников",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_fast",
+          "unit": "mob4_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob4_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob4_ranged",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_tank",
+          "unit": "mob4_support",
+          "mult": 1
+        },
+        {
+          "unit": "mob4_ranged",
           "mult": 1
         }
       ],
@@ -126,24 +134,27 @@
     },
     {
       "id": "ch4_s5",
-      "name": "TODO: этап 5",
+      "name": "Врата пирамиды",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_elite",
+          "unit": "mob4_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob4_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob4_ranged",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_ranged",
+          "unit": "mob4_support",
+          "mult": 1
+        },
+        {
+          "unit": "mob4_ranged",
           "mult": 1
         }
       ],
@@ -158,24 +169,27 @@
     },
     {
       "id": "ch4_s6",
-      "name": "TODO: этап 6",
+      "name": "Коридоры мумий",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob4_tank",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob4_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob4_elite",
           "mult": 1
         },
-        null,
         {
-          "unit": "mob3_fast",
+          "unit": "mob4_melee",
+          "mult": 1
+        },
+        {
+          "unit": "mob4_ranged",
           "mult": 1
         }
       ],
@@ -190,27 +204,27 @@
     },
     {
       "id": "ch4_s7",
-      "name": "TODO: этап 7",
+      "name": "Святилище Изиды",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "mob4_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob4_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob4_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob4_ranged",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob4_support",
           "mult": 1
         }
       ],
@@ -225,27 +239,27 @@
     },
     {
       "id": "ch4_s8",
-      "name": "TODO: этап 8",
+      "name": "Погребальная стража",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_ranged",
+          "unit": "mob4_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "mob4_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob4_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob4_melee",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob4_ranged",
           "mult": 1
         }
       ],
@@ -260,27 +274,27 @@
     },
     {
       "id": "ch4_s9",
-      "name": "TODO: этап 9",
+      "name": "Преддверие гробницы",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_fast",
+          "unit": "mob4_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_elite",
+          "unit": "mob4_elite",
           "mult": 1
         },
         {
-          "unit": "mob3_melee",
+          "unit": "mob4_fast",
           "mult": 1
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob4_fast",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob4_elite",
           "mult": 1
         }
       ],
@@ -295,26 +309,29 @@
     },
     {
       "id": "ch4_s10",
-      "name": "TODO: логово босса",
+      "name": "Гробница Осириса",
       "boss": true,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "mob4_elite",
           "mult": 1
         },
         {
-          "unit": "mob_boss1",
+          "unit": "mob4_boss",
           "mult": 0.5
         },
         {
-          "unit": "mob3_tank",
+          "unit": "mob4_ranged",
           "mult": 1
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "mob4_elite",
           "mult": 1
         },
-        null
+        {
+          "unit": "mob4_ranged",
+          "mult": 1
+        }
       ],
       "rewards": {
         "jobExp": 19710,

@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob4_isis_blessing",
+  "name": "Благословение Изиды",
+  "description": "Изида поёт гимн пирамиды: всем союзникам щит 12% макс. ОЗ и +20% атаки на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.12
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "isis_blessing",
+        "name": "Благословение Изиды",
+        "turns": 2,
+        "stats": {
+          "atk": 0.2
+        }
+      }
+    }
+  ]
+}

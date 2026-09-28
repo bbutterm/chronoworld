@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob4_boss_ult",
+  "name": "Суд фараона",
+  "description": "Осирис поднимает посох: урон по всем врагам и печать фараона (−20% защиты на 2 хода).",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "pharaoh_seal",
+        "name": "Печать фараона",
+        "turns": 2,
+        "stats": {
+          "def": -0.2
+        }
+      }
+    }
+  ]
+}

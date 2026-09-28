@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob4_melee",
+  "name": "Мумия",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 560,
+    "atk": 48,
+    "def": 9,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob4_mummy_curse",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "melee",
+    "tint": "#e6d3a3",
+    "hitFx": "fx_hit"
+  }
+}
