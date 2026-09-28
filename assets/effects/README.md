@@ -1,6 +1,6 @@
 # RO effects — captured frame sequences
 
-Twenty-six RO-derived PNG atlases and [`effects.json`](effects.json) are an **animated alternative** to the original static decals under `assets/fx/`. The game loads these as `anim_fx_*` spritesheets; the original `fx_*` images stay in `assets/manifest.json` as fallbacks if an atlas fails to load. `src/game/battleFx.ts` samples authored frames using the pooled effect loop. No separate per-frame timers are created.
+Thirty-three RO-derived PNG atlases and [`effects.json`](effects.json) are an **animated alternative** to the original static decals under `assets/fx/`. The game loads these as `anim_fx_*` spritesheets; the original `fx_*` images stay in `assets/manifest.json` as fallbacks if an atlas fails to load. `src/game/battleFx.ts` samples authored frames using the pooled effect loop. No separate per-frame timers are created.
 
 | ID | Source in roBrowserLegacy EffectViewer | Frames | Usage |
 | --- | --- | ---: | --- |
@@ -30,8 +30,15 @@ Twenty-six RO-derived PNG atlases and [`effects.json`](effects.json) are an **an
 | `fx_job_hunter_claymore_trap` | `EF_CLAYMORE` / 107 | 9 | P2 orange trap explosion on hit, not visible placed trap |
 | `fx_job_hunter_sandman` | `EF_SANDMAN` / 139 | 17 | P2 green sleep cloud **art only**: enemy status event hook missing |
 | `fx_job_blacksmith_weapon_perfection` | `EF_PERFECTION` / 103 | 20 | P2 ally buff: original RO sword and green arcs |
+| `fx_swordman_endure` | `EF_ENDURE` / 11 | 11 | P3 original runic buff on caster, not a persistent shield |
+| `fx_job_knight_bowling_bash` | `EF_BOWLINGBASH` / 149 | 3 | P2 blue caster slash; **not a target impact**; runtime cast hook required |
+| `fx_job_wizard_meteor_storm` | `EF_METEOR` / 92 | 18 | P2 falling meteor, source recaptured at camera zoom 350 to avoid significant clipping; fire hit and multi-target sequencing separate |
+| `fx_job_sage_earth_spike` | `EF_EARTHSPIKE` / 79 | 28 | P2 individual earth spike on target |
+| `fx_job_sage_heavens_drive` | `EF_HEAVENDRIVE` / 142 | 15 | P2 row of earthen spikes on ground; ground hook required |
+| `fx_job_sage_dispell` | `EF_DISPELL` / 235 | 7 | P2 source rune/circle on target; enemy status-removal hook required; faint edge noise under visible threshold |
+| `fx_job_knight_two_hand_quicken` | `EF_TWOHANDQUICKEN` / 130 | 4 | P3 original buff orb on caster |
 
-This is a **partial P1/P2 delivery**, not completion of `docs/ART_REQUEST_SKILLS.md`: other skills or individual skill components still use procedural recipes. `skill_mc_fryingpan.png` is an earlier original 24×24 icon (not part of these extraction-only batches). The raw EffectViewer frame sequences are intentionally kept out of Git. New skill sheets have shared frame bounds and 83.33 ms/frame, fit under 2048px/side and were previewed over dark and light backgrounds. Source event names were checked against `SkillEffect.js`, then rendered; effect ID lookup alone is not evidence of usable art.
+This is a **partial P1/P2/P3 delivery**, not completion of `docs/ART_REQUEST_SKILLS.md`: other skills or individual skill components still use procedural recipes. Shared P3 mappings deliberately reuse compatible *captured* RO effects, not new bespoke sources: `mob2_ranged_poison_arrow` and `mob_poporing_goo` use the Envenom target hit; `mob3_melee_rend`, `mob3_elite_cleave`, `warrior_cleave`, and `assassin_leap` use the Sonic Blow slash hit. These do **not** imply complete projectile travel, enemy status animation, or unique monster skill art. Captures rejected from this batch: Magnificat/76 (baked character), Acid Demonstration/537 (empty), Cart Termination/518 (not available in this viewer), Quagmire/95 (too faint), and Acid Terror/298 (tiny projectile only). `skill_mc_fryingpan.png` is an earlier original 24×24 icon (not part of these extraction-only batches). The raw EffectViewer frame sequences are intentionally kept out of Git. New skill sheets have shared frame bounds and 83.33 ms/frame, fit under 2048px/side and were previewed over dark and light backgrounds. Source event names were checked against `SkillEffect.js`, then rendered; effect ID lookup alone is not evidence of usable art.
 
 **Provenance:** Real frames were captured with roBrowserLegacy's `api-effectviewer-frame.html` and its configured public Remote Client `https://grf.robrowser.com/`. The repository owner's rights statement for RO art is in [`assets/ro/README.md`](../ro/README.md); the renderer's code license does not grant rights to the underlying game art. No GRF, SPR, ACT, original client packages, raw capture frames, or credentials are committed here.
 

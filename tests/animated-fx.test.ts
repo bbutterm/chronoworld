@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, queueAnimatedFx, selectedAnimatedEffect } from '../src/game/animatedFx';
 
 describe('RO animated effects', () => {
-  it('queues all 26 captured atlases with catalog cell sizes', () => {
+  it('queues all 33 captured atlases with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(26);
+    expect(queued).toHaveLength(33);
+    expect(queued).toContainEqual(['anim_fx_swordman_endure', 'effects/fx_swordman_endure.png', 156, 156]);
+    expect(queued).toContainEqual(['anim_fx_job_wizard_meteor_storm', 'effects/fx_job_wizard_meteor_storm.png', 250, 458]);
     expect(queued).toContainEqual(['anim_fx_hit', 'effects/fx_hit.png', 580, 440]);
     expect(queued).toContainEqual(['anim_fx_arrow', 'effects/fx_arrow.png', 66, 12]);
     expect(queued).toContainEqual(['anim_fx_job_mage_thunderstorm', 'effects/fx_job_mage_thunderstorm.png', 278, 318]);
@@ -48,8 +50,13 @@ describe('RO animated effects', () => {
 });
 
 describe('эффекты навыков (effects.json → skills)', () => {
-  it('maps only verified hit and buff RO skill effects', async () => {
+  it('maps verified hits, buffs, and semantically compatible shared RO effects', async () => {
     const { skillFx } = await import('../src/game/animatedFx');
+    expect(skillFx('swordman_endure')?.buff).toBe('fx_swordman_endure');
+    expect(skillFx('job_knight_two_hand_quicken')?.buff).toBe('fx_job_knight_two_hand_quicken');
+    expect(skillFx('job_sage_earth_spike')?.hit).toBe('fx_job_sage_earth_spike');
+    expect(skillFx('mob2_ranged_poison_arrow')?.hit).toBe('fx_job_thief_envenom');
+    expect(skillFx('mob3_melee_rend')?.hit).toBe('fx_job_assassin_sonic_blow');
     expect(skillFx('job_mage_thunderstorm')?.hit).toBe('fx_job_mage_thunderstorm');
     expect(skillFx('job_acolyte_blessing')?.buff).toBe('fx_job_acolyte_blessing');
     expect(skillFx('job_mage_fire_bolt')?.hit).toBe('fx_job_mage_fire_bolt');
