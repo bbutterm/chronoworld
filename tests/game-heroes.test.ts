@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, levelUpInfo, newGame, type SaveState } from '../src/core';
+import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, heroCard, jobTitle, levelUpInfo, newGame, type SaveState } from '../src/core';
 import {
   ascendPreview,
   ascendReadyWith,
@@ -202,6 +202,20 @@ describe('Герои v2 (V2): копии одной плиткой, счётчи
     expect(ascendPreview(alan, ctx)!.newJob).toBe(t.branches[0].job);
     expect(ascendPreview(alan, ctx, t.branches[1].job)!.newJob).toBe(t.branches[1].job);
     expect(ascendPreview(alan, ctx, 'no_such_job')!.newJob).toBe(t.branches[0].job);
+  });
+});
+
+describe('названия профессий по полу героя (MT-10)', () => {
+  it('героини — женская форма (nameF), герои и профессии без nameF — обычное название', () => {
+    expect(jobTitle(ctx, 'priest', 'f')).toBe('Жрица');
+    expect(jobTitle(ctx, 'priest', 'm')).toBe('Жрец');
+    expect(jobTitle(ctx, 'wizard', 'f')).toBe('Волшебница');
+    expect(jobTitle(ctx, 'knight', 'f')).toBe(ctx.content.jobs.knight.name);
+    expect(jobTitle(ctx, 'no_such_job', 'f')).toBe('no_such_job');
+    const r = addHeroCard(newGame(ctx, 1_700_000_000_000), 'lira', 'purple', { level: 40 });
+    expect(heroCard({ ...r.hero, branch: 'wizard' }, ctx).jobName).toBe('Волшебница');
+    expect(branchOptions('meilin', ctx).map((b) => b.jobName)).toContain('Охотница');
+    expect(branchOptions('bran', ctx).map((b) => b.jobName)).toContain('Охотник');
   });
 });
 

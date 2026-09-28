@@ -2,6 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "monk",
   "name": "Монах",
+  "nameF": "Монахиня",
   "description": "Вторая профессия Аколита: боевые искусства и Удар Асуры.",
   "tier": 2,
   "from": [

@@ -2,6 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "hunter",
   "name": "Охотник",
+  "nameF": "Охотница",
   "description": "Вторая профессия Лучника: сокол и ловушки.",
   "tier": 2,
   "from": [

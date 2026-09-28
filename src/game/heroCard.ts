@@ -71,7 +71,7 @@ export const GUILD_NAMES: Record<string, string> = {
   acolyte: 'Пронтера',
   mage: 'Гефен',
   archer: 'Пайон',
-  thief: 'Морок',
+  thief: 'Моррок',
   merchant: 'Альберта',
 };
 

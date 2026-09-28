@@ -23,6 +23,7 @@ import {
   heroSkillList,
   heroSlots,
   heroTemplate,
+  jobTitle,
   levelUpInfo,
   markHeroSeen,
   rarityDef,
@@ -51,6 +52,8 @@ import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
 
 const SKILL_ROW_H = 118;
+/** Редкость в родительном падеже: «растёт до красного». */
+const RARITY_GEN: Record<string, string> = { green: 'зелёного', blue: 'синего', purple: 'фиолетового', gold: 'золотого', red: 'красного' };
 type Tab = 'skills' | 'gear' | 'story';
 const TABS: { id: Tab; label: string }[] = [
   { id: 'skills', label: 'Навыки' },
@@ -283,7 +286,7 @@ export class HeroScene extends Phaser.Scene {
   /** «Выбрать ветку» (бесплатно) или «Сменить ветку» (первая смена бесплатно, дальше гемы). */
   private pickBranch(hero: HeroState, c: HeroCard): void {
     const st = branchStatus(session.save, hero.id, GAME);
-    const jobName = (job: string) => GAME.content.jobs[job]?.name ?? job;
+    const jobName = (job: string) => jobTitle(GAME, job, c.gender);
     const change = st.canChange;
     const other = change ? c.branches.find((b) => b.job !== st.branch)?.job : undefined;
     const gems = session.save.currency.gems;
@@ -778,7 +781,7 @@ export class HeroScene extends Phaser.Scene {
       y += t.height + 14;
     };
     // Начало пути (первая профессия), затем — форма после возвышения: выбранная ветка целиком, другая — превью серым.
-    const firstJob = CONTENT.jobs[heroTemplate(GAME, hero.templateId).job]?.name;
+    const firstJob = jobTitle(GAME, heroTemplate(GAME, hero.templateId).job, c.gender);
     if (c.branch && firstJob) head(`Начало пути: ${firstJob}`);
     para(c.bio, C.text);
     if (c.hook) para(`«${c.hook}»`, C.title, FS.body, { fontStyle: 'italic' });
@@ -804,7 +807,7 @@ export class HeroScene extends Phaser.Scene {
       }
     }
     y += 10;
-    para(`${c.gender === 'f' ? 'Героиня' : 'Герой'} гильдии ${GUILD_NAMES[c.line] ?? '—'} · ${c.source === 'story' ? 'сюжет' : 'Таверна'} · до «${rarityDef(GAME, c.maxRarity).name}»`, C.dim, FS.caption);
+    para(`${c.gender === 'f' ? 'Героиня' : 'Герой'} гильдии ${GUILD_NAMES[c.line] ?? '—'} · ${c.source === 'story' ? 'сюжет' : 'Таверна'} · растёт до ${RARITY_GEN[c.maxRarity] ?? rarityDef(GAME, c.maxRarity).name.toLowerCase()}`, C.dim, FS.caption);
     para('Растёт копиями: копии этого героя (и любых — на красный) уходят в корм при вознесении.', C.muted, FS.caption);
     for (const s of copySources(session.save, hero.templateId, GAME)) para(`• ${s}`, C.muted, FS.caption);
     a.setContentHeight(y + 10);
