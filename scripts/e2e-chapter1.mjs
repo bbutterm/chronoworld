@@ -270,7 +270,10 @@ const ascendStep = async () => {
   const before = (await save()).heroes.find((h) => h.id === heroId);
   await clickText('Campaign', 'ГЕРОИ');
   await waitScene('Heroes');
-  await page.evaluate((id) => window.__game.scene.getScenes(true)[0].scene.start('Hero', { heroId: id }), heroId);
+  // Тело в фигурных скобках: scene.start возвращает ScenePlugin (циклический граф) — его сериализация вешает evaluate.
+  await page.evaluate((id) => {
+    window.__game.scene.getScenes(true)[0].scene.start('Hero', { heroId: id });
+  }, heroId);
   await waitScene('Hero');
   await clickText('Hero', 'Вознести');
   await waitScene('Ascend');
