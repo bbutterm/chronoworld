@@ -6,14 +6,14 @@ import { card, cornerBadge } from './screen';
 import { session, today } from './session';
 import { SKIN_TINT, skinIcon } from './skin';
 import { tavernBadge } from './tavern';
-import { C, FS, TITLE_STYLE } from './theme';
+import { C, FS, OUTLINE, TITLE_STYLE } from './theme';
 import { pressable, text } from './ui';
-import { lockedToast } from './unlockBanner';
+import { lockedToast, lockLabel } from './unlockBanner';
 
 /**
- * Вход в Таверну с главной (H5): одна плитка-медальон, её ставит HomeScene одной строкой (tavernTile).
- * Значок — бесплатный призыв и незабранный подарок; только что открылась и ещё не заходили — пульс, «Новое!»
- * и один раз тост «Открыта Таверна».
+ * Вход в Таверну с главной (H5): плитка-«здание» в ряду Таверна / Лавка / Охота (buildingTile — общий вид этих трёх
+ * плиток), её ставит HomeScene одной строкой (tavernTile). Значок — бесплатный призыв и незабранный подарок; только что
+ * открылась и ещё не заходили — пульс и «Новое!».
  */
 
 const SEEN_KEY = 'chronoworld.tavernSeen';
@@ -66,36 +66,93 @@ export function mugIcon(scene: Phaser.Scene, x: number, y: number, size: number,
 }
 
 /**
- * Плитка Таверны (центр x, y; размер w×h). Закрыта — тусклая с замком, нажатие — когда откроется;
- * открыта — переход в Таверну.
+ * «Здание» на главной — общий вид плиток Таверна / Лавка / Охота (одинаковый размер, ряд под плитками 2×2):
+ * медальон с иконкой, название, строка состояния; в правом верхнем углу — красный значок-число или зелёная точка.
+ * Закрыто (data/unlocks.json) — тусклая плитка, замок в углу, вместо состояния «Откроется на этапе …» в две строки,
+ * касание — тост. Возвращает фон (имя — для e2e), медальон и подпись (для пульса «Новое!»).
  */
-export function tavernTile(scene: Phaser.Scene, x: number, y: number, w = 170, h = 170): void {
+export interface BuildingTile {
+  bg: Phaser.GameObjects.NineSlice;
+  art: Phaser.GameObjects.Container;
+  label: Phaser.GameObjects.Text;
+  /** Центр строки состояния. */
+  statusY: number;
+}
+
+export function buildingTile(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  o: {
+    name: string;
+    title: string;
+    /** Иконка поверх диска медальона (центр 0, 0), size — диаметр диска. */
+    art: (size: number, tint: number) => Phaser.GameObjects.GameObject;
+    open: boolean;
+    /** Строка состояния открытой плитки. */
+    status?: { text: string; color: string };
+    lockId: Parameters<typeof lockedToast>[1];
+    onOpen: () => void;
+    /** Красный значок-число (0 — нет). */
+    badge?: number;
+    /** Зелёная точка «можно что-то сделать» (когда нет числа). */
+    dot?: boolean;
+  },
+): BuildingTile {
+  const bg = card(scene, x, y, w, h);
+  bg.setName(o.name);
+  const tint = o.open ? SKIN_TINT.gold : SKIN_TINT.creamDim;
+  // Открыта — медальон, название и строка состояния; закрыта — медальон меньше, под названием «Откроется на этапе …» в две строки.
+  const size = o.open ? 84 : 56;
+  const top = y - h / 2;
+  const artY = top + (o.open ? 12 : 10) + size / 2;
+  const art = scene.add.container(x, artY, [scene.add.image(0, 0, 'skin_medallion').setDisplaySize(size, size), o.art(size, tint)]);
+  const labelY = artY + size / 2 + (o.open ? 26 : 22);
+  const label = text(scene, x, labelY, o.title, FS.body, o.open ? C.title : C.dim, TITLE_STYLE);
+  const statusY = labelY + 38;
+  if (!o.open) {
+    bg.setAlpha(0.75);
+    art.setAlpha(0.7);
+    text(scene, x, labelY + 20, lockLabel(o.lockId), FS.caption, C.dim, { ...OUTLINE, wordWrap: { width: w - 40 }, lineSpacing: -4 }).setOrigin(0.5, 0);
+    scene.add.image(x + w / 2 - 30, top + 30, skinIcon('lock')).setDisplaySize(36, 36).setTint(SKIN_TINT.creamDim);
+    pressable(scene, bg, w, h, () => lockedToast(scene, o.lockId));
+    return { bg, art, label, statusY };
+  }
+  if (o.status) text(scene, x, statusY, o.status.text, FS.caption, o.status.color, OUTLINE);
+  pressable(scene, bg, w, h, o.onOpen);
+  if (o.badge) cornerBadge(scene, x, y, w, h, o.badge);
+  else if (o.dot) scene.add.circle(x + w / 2 - 22, top + 18, 13, 0x3fbf5a).setStrokeStyle(3, 0x0f2a12);
+  return { bg, art, label, statusY };
+}
+
+/**
+ * Плитка Таверны (центр x, y; размер w×h) — «здание» главной (buildingTile). Закрыта — тусклая с замком, нажатие — когда
+ * откроется; открыта — переход в Таверну. Значок — бесплатный призыв и незабранный подарок; только что открылась и ещё
+ * не заходили — пульс и лента «Новое!».
+ */
+export function tavernTile(scene: Phaser.Scene, x: number, y: number, w: number, h: number): void {
   const save = session.save;
   const st = summonStatus(save, today(), GAME);
-  const bg = card(scene, x, y, w, h);
-  const small = h < 200;
-  const icon = mugIcon(scene, x, y - (small ? 22 : 30), small ? 64 : 80, st.unlocked ? SKIN_TINT.gold : SKIN_TINT.creamDim);
-  const label = text(scene, x, y + (small ? 48 : 50), 'Таверна', small ? FS.caption : FS.h2, st.unlocked ? C.title : C.dim, TITLE_STYLE);
-  if (!st.unlocked) {
-    bg.setAlpha(0.75);
-    icon.setAlpha(0.7);
-    scene.add.image(x + w / 2 - 30, y - h / 2 + 30, skinIcon('lock')).setDisplaySize(38, 38).setTint(SKIN_TINT.creamDim);
-    // «Таверна: откроется на этапе 1-5» (этап — data/unlocks.json).
-    pressable(scene, bg, w, h, () => lockedToast(scene, 'tavern'));
-    return;
-  }
-  pressable(scene, bg, w, h, () => scene.scene.start('Tavern'));
-  bg.setName('tavernTile');
-  const fresh = !flag(SEEN_KEY);
-  if (fresh) {
-    pulse(scene, bg, 1.04);
-    pulse(scene, icon, 1.08);
-    pulse(scene, label, 1.04);
-    // Лента «Новое!» — по нижнему краю плитки (в правом верхнем углу — значок).
-    const t = text(scene, 0, -1, 'Новое!', FS.caption, C.text, { fontStyle: 'bold' });
-    const tag = scene.add.container(x, y + h / 2 + 4, [scene.add.rectangle(0, 0, t.width + 28, 40, 0xb83a2a).setStrokeStyle(3, 0xffd84a), t]);
-    tag.setDepth(40);
-  }
-  cornerBadge(scene, x, y, w, h, tavernBadge(st, save.summon.welcomeGiven));
-  // Об открытии Таверны теперь говорит баннер «Новая функция!» (unlockBanner.ts), отдельный тост не нужен.
+  const n = st.unlocked ? tavernBadge(st, save.summon.welcomeGiven) : 0;
+  const fresh = st.unlocked && !flag(SEEN_KEY);
+  const t = buildingTile(scene, x, y, w, h, {
+    name: 'tavernTile',
+    title: 'Таверна',
+    art: (size, tint) => mugIcon(scene, 2, 4, size * 0.62, tint),
+    open: st.unlocked,
+    // Только что открылась и ещё не заходили — вместо состояния лента «Новое!».
+    status: fresh ? undefined : { text: 'Призыв героев', color: n > 0 ? C.success : C.muted },
+    lockId: 'tavern',
+    onOpen: () => scene.scene.start('Tavern'),
+    badge: n,
+  });
+  if (!fresh) return;
+  pulse(scene, t.bg, 1.04);
+  pulse(scene, t.art, 1.08);
+  pulse(scene, t.label, 1.04);
+  const label = text(scene, 0, -1, 'Новое!', FS.caption, C.text, { fontStyle: 'bold' });
+  scene.add.container(x, t.statusY, [scene.add.rectangle(0, 0, label.width + 24, 40, 0xb83a2a).setStrokeStyle(3, 0xffd84a), label]).setDepth(40);
+  // Об открытии Таверны говорит баннер «Новая функция!» (unlockBanner.ts), отдельный тост не нужен.
 }

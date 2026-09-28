@@ -31,35 +31,39 @@ const CHEST = 180;
 const FAST_BTN_X = 840;
 
 /**
- * Раскладка главной (S): сундук, быстрые награды, плитки 2×2, «В кампанию». Между блоками оставлено место,
- * чтобы плашка подсказки (≈125 ед. от края цели) вставала, не закрывая другие кнопки:
- * над плиткой «Башня» — до кнопки быстрых наград, под «В кампанию» и над навигацией — свободная полоса.
+ * Раскладка главной (S), сверху вниз: сундук, быстрые награды, плитки 2×2, ряд «зданий» Таверна / Лавка / Охота
+ * (три одинаковые плитки, buildingTile в tavernEntry.ts), «В кампанию» над навигацией. Колонка — 1000 ед. по центру
+ * (x 40…1040). Между блоками оставлено место под плашку подсказки (≈126 ед. от края цели до дальнего края плашки),
+ * чтобы она не закрывала кнопки: под «Собрать» — до карточки быстрых наград, над плиткой «Башня» — до кнопки быстрых
+ * наград (плашка ложится на текст карточки), под «В кампанию» — до навигации (там же плашка над вкладкой «Герои»).
  */
 const L = {
-  chestY: 390,
-  chestH: 440,
-  claimY: 530,
+  chestY: 380,
+  chestH: 430,
   /** Сундук слева в карточке, текст и «Собрать» — справа от него (как панель наград AFK Arena). */
   chestX: 200,
-  chestIconY: 380,
+  chestIconY: 370,
   claimX: 600,
+  claimY: 500,
   claimW: 420,
-  /** Строки «Накоплено…» — во всю ширину над медальоном Таверны; подпись и «Собрать» — левее медальона. */
   chestTextX: 640,
-  /** Медальон Таверны — справа внизу карточки сундука, под строками накопленного (не перекрывает текст). */
-  tavernX: 925,
-  tavernY: 470,
-  fastY: 825,
-  fastH: 230,
-  /** Кнопка быстрых наград чуть выше центра карточки: над плиткой «Башня» остаётся место для подсказки. */
-  fastBtnY: 814,
-  tileW: 500,
-  tileH: 170,
-  tileXL: 280,
-  tileXR: 800,
-  tileY1: 1085,
-  tileY2: 1271,
-  campaignY: 1444,
+  fastY: 790,
+  fastH: 200,
+  /** Кнопка быстрых наград в верхней части карточки: над плиткой «Башня» остаётся место для подсказки. */
+  fastBtnY: 758,
+  fastBtnH: 100,
+  tileW: 492,
+  tileH: 150,
+  tileXL: 286,
+  tileXR: 794,
+  tileY1: 1013,
+  tileY2: 1177,
+  /** Ряд «зданий»: три плитки по 316 с зазором 26 (x 40…1040). */
+  bldY: 1362,
+  bldW: 316,
+  bldH: 190,
+  bldGap: 26,
+  campaignY: 1536,
   campaignH: 130,
 } as const;
 
@@ -113,15 +117,15 @@ export class HomeScene extends Phaser.Scene {
     restartOnNewDay(this);
     screen(this, 'Лагерь героев', 'Home', undefined, { settings: () => this.openSettings(), player: true });
     this.blocks.push(collect(this.children, () => this.chest()));
-    // H5: вход в Таверну — медальон в правом нижнем углу карточки сундука (tavernEntry.ts), под строками накопленного.
-    tavernTile(this, L.tavernX, L.tavernY);
     // События новичка и почта — иконки в шапке слева от шестерёнки (homeEvents.ts).
     homeEventIcons(this);
     this.blocks.push(collect(this.children, () => this.fastRewards()));
     this.tiles();
-    huntTile(this);
-    // Лавка — узкая плитка справа от охоты под «В кампанию» (shopEntry.ts).
-    shopTile(this);
+    // Ряд «зданий» под плитками (как постройки лагеря в AFK Arena): Таверна (H5), Лавка, Охота на босса — одинаковые плитки.
+    const bx = (i: number) => GAME_W / 2 + (i - 1) * (L.bldW + L.bldGap);
+    tavernTile(this, bx(0), L.bldY, L.bldW, L.bldH);
+    shopTile(this, bx(1), L.bldY, L.bldW, L.bldH);
+    huntTile(this, bx(2), L.bldY, L.bldW, L.bldH);
 
     const cur = currentStage(session.save, GAME);
     const campaign = collect(this.children, () => {
@@ -366,25 +370,25 @@ export class HomeScene extends Phaser.Scene {
     const y = L.fastY;
     card(this, GAME_W / 2, y, 1000, L.fastH);
     // Медальон с песочными часами слева, тексты — правее него.
-    medallion(this, 120, y - 10, 120, 'hourglass');
+    medallion(this, 120, y, 116, 'hourglass');
     const tx = 200;
-    text(this, tx, y - 72, `Быстрые награды · ${hours} ч`, FS.h2, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
+    text(this, tx, y - 62, `Быстрые награды · ${hours} ч`, FS.h2, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
     const noIncome = preview.gold <= 0 && preview.jobExp <= 0;
     text(
       this,
       tx,
-      y - 6,
+      y + 2,
       noIncome ? 'Откроются после этапа 1' : `+${formatNumber(preview.gold)} золота, +${formatNumber(preview.jobExp)} опыта в запас`,
       FS.body,
       C.text,
       { align: 'left', wordWrap: { width: 490 }, stroke: C.stroke, strokeThickness: 4 },
     ).setOrigin(0, 0.5);
     const left = st.nextCost === null ? 'На сегодня всё — приходите завтра' : `Осталось сегодня: ${st.usesLeft} · бесплатно ${st.freeLeft}`;
-    text(this, tx, y + 72, left, FS.small, C.muted, { wordWrap: { width: 490 }, align: 'left' }).setOrigin(0, 0.5);
+    text(this, tx, y + 64, left, FS.small, C.muted, { wordWrap: { width: 490 }, align: 'left' }).setOrigin(0, 0.5);
 
     const bx = FAST_BTN_X;
     const label = st.nextCost === null ? 'Лимит' : st.nextCost === 0 ? 'Бесплатно' : formatNumber(st.nextCost);
-    const btn = button(this, bx, L.fastBtnY, 280, 110, st.nextCost === 0 ? 'ui_btn_primary' : 'ui_btn_secondary', label, () => this.useFast(), FS.h3);
+    const btn = button(this, bx, L.fastBtnY, 280, L.fastBtnH, st.nextCost === 0 ? 'ui_btn_primary' : 'ui_btn_secondary', label, () => this.useFast(), FS.h3);
     if (st.nextCost !== null && st.nextCost > 0) {
       // Цена: ромб гема + число.
       btn.label.setX(22);
@@ -484,11 +488,11 @@ export class HomeScene extends Phaser.Scene {
   private tile(x: number, y: number, title: string, sub: string, subColor: string, onClick: () => void, iconName: SkinIcon, locked = false): Phaser.GameObjects.NineSlice {
     const bg = pressable(this, card(this, x, y, L.tileW, L.tileH), L.tileW, L.tileH, onClick);
     const left = x - L.tileW / 2;
-    medallion(this, left + 78, y, 116, iconName, locked ? SKIN_TINT.creamDim : SKIN_TINT.gold);
-    const tx = left + 150;
-    const tw = L.tileW - 150 - 24;
-    text(this, tx, y - 30, title, FS.h2, locked ? SKIN.creamDim : C.title, TITLE_STYLE).setOrigin(0, 0.5);
-    text(this, tx, y + 10, sub, FS.small, subColor, { ...OUTLINE, wordWrap: { width: tw }, align: 'left' }).setOrigin(0, 0);
+    medallion(this, left + 72, y, 108, iconName, locked ? SKIN_TINT.creamDim : SKIN_TINT.gold);
+    const tx = left + 138;
+    const tw = L.tileW - 138 - 12;
+    text(this, tx, y - 32, title, FS.h2, locked ? SKIN.creamDim : C.title, TITLE_STYLE).setOrigin(0, 0.5);
+    text(this, tx, y + 4, sub, FS.small, subColor, { ...OUTLINE, wordWrap: { width: tw }, align: 'left', lineSpacing: -2 }).setOrigin(0, 0);
     return bg;
   }
 
