@@ -224,6 +224,13 @@ export function dangerButton(
 ): ReturnType<typeof button> {
   const b = button(scene, x, y, w, h, 'k:buttonLong_beige', label, onClick, fontSize);
   b.label.setColor('#ff8a7a').setStroke('#2a0804', 6);
+  // MT-19: выключенная — серая, без красной подписи («Удалить прочитанные» при пустой почте выглядела активной).
+  const setEnabled = b.setEnabled;
+  b.setEnabled = (on) => {
+    setEnabled(on);
+    if (b.label.scene) b.label.setColor(on ? '#ff8a7a' : C.disabled).setStroke(on ? '#2a0804' : '#000000', on ? 6 : 0);
+    return b;
+  };
   return b;
 }
 
