@@ -65,6 +65,7 @@ import {
   enemyScale,
   levelBand,
   stageLevels,
+  supportFactor,
   enemySquad,
   CARD_RARITIES,
   summonStatus,
@@ -588,6 +589,10 @@ class Sim {
    * статы), поэтому золото на план тратится первым.
    */
   ascendEveryone(): void {
+    // Быстрая проверка (модель зовёт это каждую сессию): вознесению нужны хотя бы 3 экземпляра одного героя.
+    const copies = new Map<string, number>();
+    for (const h of this.save.heroes) copies.set(h.templateId, (copies.get(h.templateId) ?? 0) + 1);
+    if (![...copies.values()].some((n) => n >= 3)) return;
     const plan = ascendAll(this.save, this.ctx);
     if (!plan.done.length) return;
     this.step('heroes', plan.save);
@@ -693,7 +698,7 @@ class Sim {
     // слабее по редкости и почти не слабее по потенциалу (≥ 0.9 заменяемого): зелёного лекаря вместо фиолетового
     // бойца игрок не ставит — такой отряд проигрывает (замер: стена ch3_s10 12 → 40 ч).
     const healer = (h: SaveState['heroes'][number]) => heroRole(h, this.ctx) === 'healer';
-    if (this.model.healer && squad.length >= 3 && !squad.some((x) => healer(x.hero))) {
+    if (this.model.healer && squad.length >= 3 && !squad.some((x) => healer(x.hero)) && this.save.heroes.some(healer)) {
       const used = new Set(squad.map((x) => x.hero.templateId));
       const best = this.save.heroes
         .filter((h) => healer(h) && !used.has(h.templateId))
@@ -1736,7 +1741,8 @@ export function fitLevels(ctx: FullContext, days = 8): { rows: LevelFitRow[]; su
       recommendedRarity: info.recommended.rarity,
       typical: info.typical,
       ...(info.boss !== undefined ? { boss: info.boss } : {}),
-      scale: mobs.length ? round2(medianOf(mobs.map((u) => u.stats.hp * u.stats.atk)) / hero) : NaN,
+      // Как unitLevel: × поддержка (supportFactor) и × (врагов / отряд полосы)² (этап из 3 врагов против 5 героев).
+      scale: mobs.length ? round2(medianOf(mobs.map((u) => u.stats.hp * u.stats.atk * supportFactor(u, ctx) * (units.length / band.squad) ** 2)) / hero) : NaN,
       ...(boss ? { bossScale: round2((boss.stats.hp * boss.stats.atk * f2) / (scale * hero)) } : {}),
     });
   }

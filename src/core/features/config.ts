@@ -58,8 +58,8 @@ export const PowerConfigSchema = z.object({
       roleScale: z.record(z.string(), z.number().positive()).optional(),
       supportScale: z.number().positive().optional(),
       /**
-       * Нижняя граница уровня врага этапа кампании: доля рекомендуемого уровня героев этапа (0.75 — не ниже ¾). Босс этапа —
-       * не ниже своей свиты. Нет — без границы.
+       * Нижняя граница уровня врага этапа кампании: доля рекомендуемого уровня героев этапа (0.75 — не ниже ¾). Босс — не ниже
+       * рекомендуемого уровня (без поправки на экипировку), свита — не выше босса. Нет — без границы.
        */
       stageFloor: z.number().min(0).max(1).optional(),
       /**
@@ -73,6 +73,13 @@ export const PowerConfigSchema = z.object({
             fromStage: z.string(),
             rarity: CardRaritySchema,
             squad: z.number().int().min(1).max(5),
+            /**
+             * Доля мощи отряда от экипировки (модель игрока при первой победе: 5–15%). Рекомендуемый уровень считается по
+             * мощи × (1 − gear): «герои ур. N» — без вещей, как у медианного героя. Нет — 0.
+             */
+            gear: z.number().min(0).max(0.9).optional(),
+            /** enemyScale для врагов этапов этой полосы (поздние главы: враги крепче героев той же hp·atk). Нет — общий. */
+            enemyScale: z.number().positive().optional(),
           }),
         )
         .min(1),

@@ -117,8 +117,9 @@ function targetsFor(ctx: FullContext, a3: number, anchors: number[]): Map<string
 
 /**
  * power.recommendedStages глав 4–7 ∝ D: модели игрока (2/4/6 сессий × --seeds-model) — мощь при последнем поражении и первой
- * победе на каждом этапе; порог этапа — середина (как fitRecommended), K_i = порог × 1.03 / D_i. K — медиана K_i, но не выше
- * «пола» (все поражения и победы моделей — не ниже 0.86 рекомендуемой, тест balance.test.ts). Коэффициент этапа — K × D / stagePower.
+ * победе на каждом этапе; порог этапа — середина (как fitRecommended), K_i = порог × 1.03 / D_i. K — геометрический тренд K_i по
+ * этапам, опущенный до «пола» (все поражения и победы моделей — не ниже 0.86 рекомендуемой, тест balance.test.ts).
+ * Коэффициент этапа — K × D / stagePower.
  */
 function recommendFactors(ctx: FullContext, D: Map<string, number>): void {
   const per = new Map<string, { lo: number[]; hi: number[]; min: number }>();
@@ -140,20 +141,31 @@ function recommendFactors(ctx: FullContext, D: Map<string, number>): void {
       }
     }
   }
-  const ks: number[] = [];
-  let cap = Infinity;
-  for (const [id, r] of per) {
+  // K по этапу: мощь модели на пороге / D. Отношение мощи к силе боя меняется с прогрессом (редкость, уровень, вещи),
+  // поэтому K — не константа, а геометрический тренд по номеру этапа (регрессия log K_i), опущенный целиком так, чтобы
+  // «пол» выполнялся на каждом этапе.
+  const ids = [...D.keys()];
+  const pts: { i: number; k: number }[] = [];
+  const caps: { i: number; cap: number }[] = [];
+  ids.forEach((id, i) => {
+    const r = per.get(id);
+    if (!r) return;
     const d = D.get(id)!;
-    cap = Math.min(cap, r.min / (0.86 * d));
-    if (!r.lo.length) continue;
+    caps.push({ i, cap: r.min / (0.86 * d) });
+    if (!r.lo.length) return;
     const lo = median(r.lo);
     const hi = median(r.hi);
-    ks.push((((lo + Math.min(hi, lo * 1.3)) / 2) * 1.03) / d);
-  }
-  const K = Math.min(median(ks), cap);
-  console.log(`K: медиана ${median(ks).toFixed(0)} по ${ks.length} этапам, пол ${cap.toFixed(0)} → ${K.toFixed(0)} (рекомендуемая мощь = K × D)`);
+    pts.push({ i, k: (((lo + Math.min(hi, lo * 1.3)) / 2) * 1.03) / d });
+  });
+  const xm = pts.reduce((a, p) => a + p.i, 0) / pts.length;
+  const ym = pts.reduce((a, p) => a + Math.log(p.k), 0) / pts.length;
+  const slope = pts.reduce((a, p) => a + (p.i - xm) * (Math.log(p.k) - ym), 0) / pts.reduce((a, p) => a + (p.i - xm) ** 2, 0);
+  const line = (i: number) => ym + slope * (i - xm);
+  const shift = Math.min(0, ...caps.map((c) => Math.log(c.cap) - line(c.i)));
+  const K = (i: number) => Math.exp(line(i) + shift);
+  console.log(`K: тренд ${Math.exp(line(0)).toFixed(0)} → ${Math.exp(line(ids.length - 1)).toFixed(0)} (${pts.length} этапов с поражениями), пол опускает на ×${Math.exp(shift).toFixed(3)}`);
   const out: Record<string, number> = {};
-  for (const [id, d] of D) out[id] = Math.round(((K * d) / stagePower(id, ctx)) * 100) / 100;
+  ids.forEach((id, i) => (out[id] = Math.round(((K(i) * D.get(id)!) / stagePower(id, ctx)) * 100) / 100));
   console.log(JSON.stringify(out));
 }
 

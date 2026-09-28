@@ -40,20 +40,20 @@
       "enemies": [
         {
           "unit": "mob5_tank",
-          "mult": 0.543
+          "mult": 0.521
         },
         null,
         {
           "unit": "mob5_fast",
-          "mult": 0.543
+          "mult": 0.521
         },
         {
           "unit": "mob5_fast",
-          "mult": 0.543
+          "mult": 0.521
         },
         {
           "unit": "mob5_ranged",
-          "mult": 0.543
+          "mult": 0.521
         }
       ],
       "rewards": {

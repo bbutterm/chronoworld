@@ -78,11 +78,11 @@ describe('уровни врагов и рекомендуемый уровень
     expect(lintLevelBands(withLevels({ enemyScale: 1, bands: [{ fromStage: STAGES[3].id, rarity: 'green', squad: 5 }] }))[0]).toMatch(/первого этапа/);
   });
 
-  it('рекомендуемый уровень согласован с рекомендуемой мощью: squad героев ур. L набирают её, ур. L − 1 — нет', () => {
+  it('рекомендуемый уровень согласован с рекомендуемой мощью без доли экипировки: squad героев ур. L набирают её, ур. L − 1 — нет', () => {
     for (const s of STAGES) {
       const rec = recommendedHeroLevel(s.id, CTX);
       const band = levelBand(s.id, CTX);
-      const power = recommendedPower(s.id, CTX);
+      const power = recommendedPower(s.id, CTX) * (1 - (band.gear ?? 0));
       expect(rarityIndex(rec.rarity)).toBeGreaterThanOrEqual(rarityIndex(band.rarity));
       expect(rec.squad).toBe(band.squad);
       expect(rec.level).toBeLessThanOrEqual(CTX.cards.rarities[rarityIndex(rec.rarity)].maxLevel);
@@ -142,11 +142,15 @@ describe('уровни врагов и рекомендуемый уровень
   });
 
   it('калибровка: босс-этапы глав — рекомендуемый уровень и уровень босса в пределах ±5 от «уровня по бою» эталонных отрядов', () => {
-    // docs/content/balance.md, 4а. Перемерять: npm run balance -- --levels.
+    // docs/content/balance.md, 4а. Перемерять: npm run balance -- --levels. Эталонные отряды «по бою» — без экипировки, поэтому
+    // рекомендация сравнивается без поправки полосы на экипировку (band.gear: на экране уровень ниже на её долю мощи).
+    const lv = CTX.features.power.levels!;
+    const noGear = withLevels({ ...lv, bands: lv.bands.map((b) => ({ ...b, gear: 0 })) });
     for (const s of STAGES.filter((x) => x.boss && x.globalIndex > 10)) {
       const battle = referenceLevel(s.id, CTX, 8);
       const l = stageLevels(s.id, CTX);
-      expect(Math.abs(l.recommended.level - battle), `${s.id}: рекомендуем ${l.recommended.level}, по бою ${battle}`).toBeLessThanOrEqual(5);
+      const rec = recommendedHeroLevel(s.id, noGear);
+      expect(Math.abs(rec.level - battle), `${s.id}: рекомендуем без вещей ${rec.level}, по бою ${battle}`).toBeLessThanOrEqual(5);
       expect(Math.abs(l.boss! - battle), `${s.id}: босс ${l.boss}, по бою ${battle}`).toBeLessThanOrEqual(5);
     }
   });
