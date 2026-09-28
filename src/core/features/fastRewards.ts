@@ -1,4 +1,6 @@
 import { idleIncome, lastClearedStage } from '../campaign/offline';
+import { chestTicks, EMPTY_LOOT, fastLootSeed, grantChestLoot, rollChestLoot, type ChestLoot, type ChestLootGrant } from '../equipment/chest';
+import type { EquipmentConfig } from '../equipment/load';
 import { addHeroExp } from '../heroes/level';
 import type { SaveState } from '../save/schema';
 import type { FeatureContext, FeatureEvent } from './config';
@@ -25,6 +27,22 @@ export function fastRewardsPreview(save: SaveState, ctx: FeatureContext): FastRe
   return { minutes, ...idleIncome(last, minutes, ctx) };
 }
 
+/** FeatureContext + (необязательно) экипировка: с ней быстрые награды дают и трофеи сундука. */
+type FastContext = FeatureContext & { equipment?: EquipmentConfig };
+
+/**
+ * Трофеи следующих быстрых наград на день day — те же, что у сундука (equipment/chest.ts), за fastRewards.hours
+ * часов (тиков = минуты / chest.tickMinutes), по главе последнего пройденного этапа. seed — от сохранения, дня и
+ * номера использования за день (fastLootSeed): превью совпадает с тем, что даст useFastRewards в тот же день.
+ */
+export function fastRewardsLoot(save: SaveState, day: string, ctx: FastContext): ChestLoot {
+  const s = rollDay(save, day);
+  const last = lastClearedStage(s, ctx);
+  if (!last) return { ...EMPTY_LOOT, items: [] };
+  const minutes = Math.floor(ctx.features.fastRewards.hours * 60);
+  return rollChestLoot(last.chapter, chestTicks(minutes, ctx), fastLootSeed(s, day), ctx);
+}
+
 export interface FastRewardsStatus {
   /** Использовано сегодня (всего). */
   used: number;
@@ -49,11 +67,16 @@ export function fastRewardsStatus(save: SaveState, day: string, ctx: FeatureCont
  * K1. Взять быстрые награды. Чистая функция.
  * rollDay → сначала бесплатные (fastRewards.freePerDay), потом за гемы по gemCosts по порядку.
  * Золото в resources, jobExp — в общий пул опыта героев (как у сундука), fastRewardsUsed + 1,
+ * трофеи — fastRewardsLoot (предметы, осколки, гемы, свитки, как у сундука за те же часы),
  * offline.lastClaimAt не меняется (сундук копится дальше).
  * FeatureError: fast_rewards_limit — попытки на сегодня кончились; not_enough_gems; no_income — нет
  * пройденных этапов (попытка не тратится).
  */
-export function useFastRewards(save: SaveState, day: string, ctx: FeatureContext): { save: SaveState; rewards: FastRewards; events: FeatureEvent[] } {
+export function useFastRewards(
+  save: SaveState,
+  day: string,
+  ctx: FastContext,
+): { save: SaveState; rewards: FastRewards; loot: ChestLootGrant; events: FeatureEvent[] } {
   const s = rollDay(save, day);
   const status = fastRewardsStatus(s, day, ctx);
   if (status.nextCost === null) throw new FeatureError('fast_rewards_limit', 'Быстрые награды на сегодня закончились');
@@ -62,15 +85,18 @@ export function useFastRewards(save: SaveState, day: string, ctx: FeatureContext
   const cost = status.nextCost;
   if (s.currency.gems < cost) throw new FeatureError('not_enough_gems', `Нужно ${cost} гемов, есть ${s.currency.gems}`);
 
-  const next: SaveState = addHeroExp({
+  const rolled = fastRewardsLoot(s, day, ctx);
+  const withIncome: SaveState = addHeroExp({
     ...s,
     resources: { ...s.resources, gold: s.resources.gold + rewards.gold },
     currency: { ...s.currency, gems: s.currency.gems - cost },
     daily: { ...s.daily, fastRewardsUsed: s.daily.fastRewardsUsed + 1 },
   }, rewards.jobExp);
+  const { save: next, grant: loot } = grantChestLoot(withIncome, rolled, ctx);
   const events: FeatureEvent[] = [
     { type: 'fastRewardsUsed', gemCost: cost, hours: ctx.features.fastRewards.hours },
     { type: 'rewards', gold: rewards.gold, heroExp: rewards.jobExp },
   ];
-  return { save: next, rewards, events };
+  if (loot.shardHero) events.push({ type: 'shards', templateId: loot.shardHero, count: loot.shards });
+  return { save: next, rewards, loot, events };
 }

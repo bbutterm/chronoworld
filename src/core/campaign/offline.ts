@@ -2,6 +2,8 @@ import type { SaveState } from '../save/schema';
 import type { StageInfo } from './schema';
 import { addHeroExp } from '../heroes/level';
 import type { GameContext, ProgressEvent } from '../progression/types';
+import { chestSeed, chestTicks, EMPTY_LOOT, grantChestLoot, lootEmpty, rollChestLoot, type ChestLoot, type ChestLootGrant } from '../equipment/chest';
+import type { EquipmentConfig } from '../equipment/load';
 
 export interface OfflineRewards {
   /** Засчитанные минуты (с учётом лимита). */
@@ -12,6 +14,9 @@ export interface OfflineRewards {
 }
 
 const MINUTE = 60_000;
+
+/** GameContext + (необязательно) экипировка: с ней в сундуке ещё и трофеи (data/drops.json → chest). */
+type ChestContext = GameContext & { equipment?: EquipmentConfig };
 
 /** Последний пройденный этап (max globalIndex среди cleared); нет пройденных — undefined. */
 export function lastClearedStage(save: SaveState, ctx: GameContext): StageInfo | undefined {
@@ -91,6 +96,32 @@ export function offlineRewards(save: SaveState, now: number, ctx: GameContext): 
 }
 
 /**
+ * Трофеи сундука к моменту now (предметы, осколки, гемы, свитки — equipment/chest.ts): по тику на каждые
+ * chest.tickMinutes засчитанных минут (включая banked, в пределах лимита), по правилу главы последнего пройденного
+ * этапа; seed — от сохранения и якоря lastClaimAt (chestSeed). Растёт монотонно: уже накопленные тики не меняются.
+ * Без ctx.equipment или chest в data/drops.json — пусто. Совпадает с тем, что даст claimOffline в тот же now.
+ */
+export function offlineLoot(save: SaveState, now: number, ctx: ChestContext): ChestLoot {
+  if (!Number.isFinite(now)) return { ...EMPTY_LOOT, items: [] };
+  const s = syncOfflineClock(save, now, ctx);
+  const last = lastClearedStage(s, ctx);
+  if (!last) return { ...EMPTY_LOOT, items: [] };
+  const { rewards } = accrue(s.offline, now, last, ctx);
+  return rollChestLoot(last.chapter, chestTicks(rewards.minutes, ctx), chestSeed(s), ctx);
+}
+
+/** Через сколько мс сундук заполнится (0 — уже полон; нет пройденных этапов — null: сундук не копится). */
+export function offlineFullInMs(save: SaveState, now: number, ctx: GameContext): number | null {
+  if (!Number.isFinite(now)) return null;
+  const s = syncOfflineClock(save, now, ctx);
+  if (!lastClearedStage(s, ctx)) return null;
+  const o = s.offline;
+  // Полон, когда время после погашения долга покроет свободное место (лимит минус banked).
+  const roomMs = Math.max(0, ctx.progression.offline.capHours * 60 - (o.banked?.minutes ?? 0)) * MINUTE;
+  return Math.max(0, (o.debtMs ?? 0) + roomMs - Math.max(0, now - o.lastClaimAt));
+}
+
+/**
  * P11 (T4-10). Зафиксировать накопленное по текущей ставке в offline.banked и начать отсчёт заново с now.
  * playStage зовёт перед тем, как новый пройденный этап поменяет ставку. Чистая функция.
  */
@@ -103,16 +134,24 @@ export function bankOffline(save: SaveState, now: number, ctx: GameContext): Sav
 
 /**
  * T-B. Забрать сундук: золото в ресурсы, jobExp — в общий пул опыта героев (resources.heroExp),
+ * трофеи (offlineLoot на тот же now: предметы в инвентарь, гемы и свитки, осколки «отстающему» сюжетному герою),
  * lastClaimAt = now и banked очищается — всегда, даже при нулевой награде (UI обязан записать результат,
  * иначе якорь не сдвинется, T4-06). При часах назад — долг (см. syncOfflineClock). Чистая функция.
  */
-export function claimOffline(save: SaveState, now: number, ctx: GameContext): { save: SaveState; rewards: OfflineRewards; events: ProgressEvent[] } {
+export function claimOffline(
+  save: SaveState,
+  now: number,
+  ctx: ChestContext,
+): { save: SaveState; rewards: OfflineRewards; loot: ChestLootGrant; events: ProgressEvent[] } {
+  const noLoot: ChestLootGrant = { ...EMPTY_LOOT, items: [], added: [], shardHero: null };
   // Время не число (сбой часов) — ничего не начисляем и якорь не портим.
-  if (!Number.isFinite(now)) return { save, rewards: { minutes: 0, gold: 0, jobExp: 0 }, events: [] };
+  if (!Number.isFinite(now)) return { save, rewards: { minutes: 0, gold: 0, jobExp: 0 }, loot: noLoot, events: [] };
   const s = syncOfflineClock(save, now, ctx);
-  const { rewards, debtLeft } = accrue(s.offline, now, lastClearedStage(s, ctx), ctx);
+  const last = lastClearedStage(s, ctx);
+  const { rewards, debtLeft } = accrue(s.offline, now, last, ctx);
+  const rolled = last ? rollChestLoot(last.chapter, chestTicks(rewards.minutes, ctx), chestSeed(s), ctx) : null;
   const events: ProgressEvent[] = [];
-  const next: SaveState = addHeroExp(
+  let next: SaveState = addHeroExp(
     {
       ...s,
       resources: { ...s.resources, gold: s.resources.gold + rewards.gold },
@@ -121,5 +160,12 @@ export function claimOffline(save: SaveState, now: number, ctx: GameContext): { 
     rewards.jobExp,
   );
   if (rewards.gold > 0 || rewards.jobExp > 0) events.push({ type: 'rewards', gold: rewards.gold, heroExp: rewards.jobExp });
-  return { save: next, rewards, events };
+  let loot = noLoot;
+  if (rolled && !lootEmpty(rolled)) {
+    const g = grantChestLoot(next, rolled, ctx);
+    next = g.save;
+    loot = g.grant;
+    if (loot.shardHero) events.push({ type: 'shards', templateId: loot.shardHero, count: loot.shards });
+  }
+  return { save: next, rewards, loot, events };
 }

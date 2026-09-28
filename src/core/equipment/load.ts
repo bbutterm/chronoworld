@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 import type { RawFile } from '../content/build';
 import type { GameContext } from '../progression/types';
+import { CHEST_LIMITS, chestDailyExpectation } from './chest';
 import { EquipmentError } from './errors';
 import { DropsConfigSchema, ItemsFileSchema, type DropsConfig, type ItemDef } from './schema';
 
@@ -62,6 +63,19 @@ export function validateEquipment(config: EquipmentConfig, ctx: GameContext): st
   config.drops.rules.forEach((rule, i) => {
     if (rule.chapter && !chapters.has(rule.chapter)) errors.push(`drops.rules.${i}: неизвестная глава ${rule.chapter}`);
   });
+  const chest = config.drops.chest;
+  chest?.rules.forEach((rule, i) => {
+    if (rule.chapter && !chapters.has(rule.chapter)) errors.push(`drops.chest.rules.${i}: неизвестная глава ${rule.chapter}`);
+  });
+  chest?.rules.forEach((rule, i) => {
+    // Сундук — побочный источник валюты: ожидаемый доход за сутки простоя не больше CHEST_LIMITS.
+    const e = chestDailyExpectation(rule, chest.tickMinutes);
+    if (e.gems > CHEST_LIMITS.gemsPerDay) errors.push(`drops.chest.rules.${i}: гемов ≈ ${e.gems.toFixed(1)} в сутки (не больше ${CHEST_LIMITS.gemsPerDay})`);
+    if (e.scrolls > CHEST_LIMITS.scrollsPerDay) errors.push(`drops.chest.rules.${i}: свитков ≈ ${e.scrolls.toFixed(2)} в сутки (не больше ${CHEST_LIMITS.scrollsPerDay})`);
+  });
+  if (chest && !chest.rules.some((r) => !r.chapter) && ctx.content.stages.some((s) => !chest.rules.some((r) => r.chapter === s.chapter))) {
+    errors.push('drops.chest.rules: нет правила по умолчанию (без chapter), а у части глав нет своего');
+  }
   if (!config.drops.rules.some((r) => !r.chapter) && ctx.content.stages.some((s) => !config.drops.rules.some((r) => r.chapter === s.chapter))) {
     errors.push('drops.rules: нет правила по умолчанию (без chapter), а у части глав нет своего');
   }

@@ -5,7 +5,8 @@ import { Rng } from '../rng';
 import type { ItemInstance, SaveState } from '../save/schema';
 import { addItems, withGear } from './equipment';
 import type { EquipmentConfig, EquipmentContext } from './load';
-import { RARITIES, type DropRule, type Rarity, type RarityWeights } from './schema';
+import { itemPools, pickRarity } from './chest';
+import type { DropRule, RarityWeights } from './schema';
 
 /** Правило выпадения для этапа: своё правило главы, иначе первое без chapter, иначе нет. */
 export function dropRule(stageId: string, ctx: EquipmentContext): DropRule | undefined {
@@ -19,18 +20,6 @@ function dropRng(seed: number): Rng {
   return new Rng(Math.imul((seed ^ 0x9e3779b9) >>> 0, 0x85ebca6b) >>> 0);
 }
 
-function pickRarity(rng: Rng, weights: RarityWeights, pools: Record<Rarity, string[]>): Rarity | null {
-  const options = RARITIES.filter((r) => (weights[r] ?? 0) > 0 && pools[r].length > 0);
-  const total = options.reduce((s, r) => s + (weights[r] ?? 0), 0);
-  if (total <= 0) return null;
-  let x = rng.next() * total;
-  for (const r of options) {
-    x -= weights[r] ?? 0;
-    if (x < 0) return r;
-  }
-  return options[options.length - 1];
-}
-
 /**
  * K6. Предметы за победу на этапе (id описаний, 0 или 1 шт.). Детерминированно по seed боя.
  * - firstClear и rule.firstClearGuaranteed → ровно 1 предмет (веса firstClearRarityWeights ?? rarityWeights);
@@ -42,9 +31,7 @@ export function rollDrops(stageId: string, seed: number, firstClear: boolean, ct
   const rule = dropRule(stageId, ctx);
   if (!rule) return [];
   const rng = dropRng(seed);
-  const pools: Record<Rarity, string[]> = { common: [], rare: [], epic: [] };
-  for (const def of Object.values(ctx.equipment.items)) if (def.drop) pools[def.rarity].push(def.id);
-  for (const r of RARITIES) pools[r].sort();
+  const pools = itemPools(ctx.equipment.items);
 
   let weights: RarityWeights;
   if (firstClear && rule.firstClearGuaranteed) weights = rule.firstClearRarityWeights ?? rule.rarityWeights;

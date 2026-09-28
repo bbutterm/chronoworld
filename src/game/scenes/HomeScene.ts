@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { hasArt } from '../assets';
-import { achievementStatus, heroesWithGearUpgrades, stageStatus, actClaimOffline, actUseFastRewards, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
+import { achievementStatus, heroesWithGearUpgrades, stageStatus, actClaimOffline, actUseFastRewards, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, offlineRewards, questStatus, towerStatus } from '../../core';
 import { GAME } from '../content';
 import { claimableAchievements, claimableCount, currentStage, describeEvents, finishedBounties, formatNumber, levelUpReady, powerCheck } from '../flow';
 import { HINT_TEXT, markHint, pickHomeHint, resetHints, type HintId } from '../hints';
@@ -20,6 +20,7 @@ import { nextVolume, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
 import { isUnlocked, lockCover, lockedToast, lockLabel, showUnlockBanners, UNLOCK_BANNER_NAME } from '../unlockBanner';
 import { homeEventIcons } from '../homeEvents';
+import { ChestCardView, chestHeadline, lootLines, lootSummary } from '../chestView';
 
 /** Размер сундука офлайн-наград. */
 const CHEST = 180;
@@ -71,6 +72,8 @@ function devTools(): boolean {
 
 export class HomeScene extends Phaser.Scene {
   private chestText!: Phaser.GameObjects.Text;
+  /** Иконки накопленного и таймер «Полон через» (chestView.ts). */
+  private chestView?: ChestCardView;
   private chestImg?: Phaser.GameObjects.Image;
   private chestRays?: Phaser.GameObjects.Image;
   private chestGlow?: Phaser.GameObjects.Image;
@@ -98,6 +101,7 @@ export class HomeScene extends Phaser.Scene {
       this.blocks = [];
       this.hintView = null;
       this.chestImg = undefined;
+      this.chestView = undefined;
       this.chestRays = undefined;
       this.chestGlow = undefined;
       this.chestText = undefined as unknown as Phaser.GameObjects.Text;
@@ -145,7 +149,6 @@ export class HomeScene extends Phaser.Scene {
   // ---------- сундук ----------
 
   private chest(): void {
-    const cap = GAME.progression.offline.capHours;
     const y = L.chestY;
     card(this, GAME_W / 2, y, 1000, L.chestH);
     const cx = L.chestX;
@@ -166,23 +169,18 @@ export class HomeScene extends Phaser.Scene {
     }
     // Лента-заголовок у верхней кромки карточки (поверх лучей).
     ribbon(this, GAME_W / 2, y - L.chestH / 2 + 46, 'Сундук офлайн-наград', { minW: 600, size: FS.h3 });
-    this.chestText = text(this, L.chestTextX, y - 90, '', FS.body, C.text, { lineSpacing: 8, ...OUTLINE });
-    text(this, L.claimX, y + 10, `Копится до ${cap} ч. Доход — от последнего пройденного этапа.`, FS.small, C.muted, { wordWrap: { width: 470 }, lineSpacing: 4, align: 'center' });
+    this.chestText = text(this, L.chestTextX, y - 108, '', FS.body, C.text, { lineSpacing: 8, ...OUTLINE });
+    // Золото и опыт, трофеи (предметы, осколки, гемы, свитки) иконками и «Полон через Ч:ММ» (лимит — capHours).
+    this.chestView = new ChestCardView(this, { incomeX: L.chestTextX, incomeY: y - 58, lootX: L.claimX, lootY: y - 12, timerX: L.claimX, timerY: y + 30 });
+    this.chestView.update(session.save, now());
     this.claimBtn = button(this, L.claimX, L.claimY, L.claimW, TOUCH + 10, 'ui_btn_primary', 'Собрать', () => this.claim(), FS.h2);
   }
 
   private refresh(): void {
-    const r = offlineRewards(session.save, now(), GAME);
-    const h = Math.floor(r.minutes / 60);
-    const m = r.minutes % 60;
-    this.chestText.setText(
-      session.save.campaign.cleared.length === 0
-        ? 'Пройдите первый этап кампании,\nчтобы сундук начал наполняться'
-        : r.gold === 0 && r.jobExp === 0
-          ? 'Сундук пуст — награды\nкопятся каждую минуту'
-          : `Накоплено за ${h} ч ${m} мин\nЗолото +${formatNumber(r.gold)}   Опыт +${formatNumber(r.jobExp)} в запас`,
-    );
+    const r = this.chestView?.update(session.save, now()) ?? offlineRewards(session.save, now(), GAME);
     const full = r.gold > 0 || r.jobExp > 0;
+    // Есть накопленное — заголовок в одну строку над иконками; иначе две строки пояснения чуть ниже ленты.
+    this.chestText.setText(chestHeadline(r, session.save.campaign.cleared.length)).setY(L.chestY + (full ? -108 : -76));
     this.claimBtn.setEnabled(full);
     // Есть что собрать — кнопка мягко пульсирует (один раз запускаем; пустой сундук бывает только после сбора — это перезапуск).
     if (full && !this.claimPulsing) {
@@ -216,7 +214,7 @@ export class HomeScene extends Phaser.Scene {
     markHint('chest_claim');
     // Монеты вылетают из сундука и летят в золото в шапке (juice.ts).
     queueRewardFly('Home', { x: L.chestX, y: L.chestIconY }, before, { burst: true });
-    this.restartWithToast([`Собрано: золото +${formatNumber(r.rewards.gold)}, опыт +${formatNumber(r.rewards.jobExp)}`, ...describeEvents(r.events, r.save, GAME)]);
+    this.restartWithToast([`Собрано: золото +${formatNumber(r.rewards.gold)}, опыт +${formatNumber(r.rewards.jobExp)}`, ...lootLines(r.loot), ...describeEvents(r.events, r.save, GAME)]);
   }
 
   // ---------- R. Подсказки первой сессии ----------
@@ -408,14 +406,15 @@ export class HomeScene extends Phaser.Scene {
       return;
     }
     const price = st.nextCost === 0 ? 'Бесплатно.' : `Цена: ${formatNumber(st.nextCost)} гемов (у вас ${formatNumber(save.currency.gems)}).`;
-    const q = `Забрать ${GAME.features.fastRewards.hours} ч дохода сразу?\nЗолото +${formatNumber(preview.gold)}, опыт +${formatNumber(preview.jobExp)} в запас.\n${price}`;
+    const loot = lootSummary(fastRewardsLoot(save, day, GAME));
+    const q = `Забрать ${GAME.features.fastRewards.hours} ч дохода сразу?\nЗолото +${formatNumber(preview.gold)}, опыт +${formatNumber(preview.jobExp)} в запас.${loot ? `\n${loot}` : ''}\n${price}`;
     confirm(this, q, 'Забрать', () => {
       try {
         const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
         const r = actUseFastRewards(session.save, day, GAME);
         commit(r.save);
         queueRewardFly('Home', { x: FAST_BTN_X, y: L.fastBtnY }, before);
-        this.restartWithToast([`Быстрые награды: золото +${formatNumber(r.rewards.gold)}, опыт +${formatNumber(r.rewards.jobExp)}`, ...describeEvents(r.events, r.save, GAME)]);
+        this.restartWithToast([`Быстрые награды: золото +${formatNumber(r.rewards.gold)}, опыт +${formatNumber(r.rewards.jobExp)}`, ...lootLines(r.loot), ...describeEvents(r.events, r.save, GAME)]);
       } catch (e) {
         toast(this, e instanceof Error ? e.message : String(e), C.error);
       }
