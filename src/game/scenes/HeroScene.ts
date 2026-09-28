@@ -38,7 +38,7 @@ import { ascendReady, formatNumber, heroSprite, itemStatsText, levelText, RARITY
 import { GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
-import { button, ellipsize, hintPointer, panel, pressable, ScrollArea, text, toast } from '../ui';
+import { button, ellipsize, hintPointer, panel, pressable, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { C, FS, TINT } from '../theme';
 import { skillIcon } from '../skillIcons';
 import { sfx } from '../audio';
@@ -369,6 +369,8 @@ export class HeroScene extends Phaser.Scene {
         asc.container.setName('ascendBtn');
         if (canAscend) pulse(this, asc.container, 1.05);
         else asc.setEnabled(false);
+        // Обучение (шаг ascend): «Улучшить» уже показано — теперь «Вознести».
+        if (canAscend && !hintDone('ascend') && hintDone('level_up')) tutorialHint(this, 'ascend', 560, ACT_Y - 18, 'above', { w: 220, h: 96 }, { text: 'Три копии — «Вознести»: редкость выше, герой сильнее' });
         const sub = canAscend ? 'копии готовы!' : 'нужны копии';
         text(this, 560, ACT_Y + 55, sub, FS.caption, canAscend ? C.positive : C.muted, { stroke: C.stroke, strokeThickness: 4 });
       }

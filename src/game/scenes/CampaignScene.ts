@@ -1,16 +1,17 @@
 import Phaser from 'phaser';
 import { hasArt } from '../assets';
-import { HINT_TEXT, markHint, pickHomeHint, type HintId } from '../hints';
-import { actClaimOffline, actUseFastRewards, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, heroesWithGearUpgrades, offlineRewards, pendingScenes, stageStatus, towerStatus } from '../../core';
+import { HINT_TEXT, hintDone, markHint, pickHomeHint, type HintId } from '../hints';
+import { homeHintInput } from '../tutorial';
+import { actClaimOffline, actUseFastRewards, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, offlineRewards, pendingScenes, stageStatus } from '../../core';
 import { CONTENT, GAME } from '../content';
 import { playScenes } from '../dialogue';
 import { isChapterFinale, seenChapterScenes } from '../storyView';
 import { openStoryHistory, startChapterDone } from './ChapterDoneScene';
-import { currentStage, describeEvents, formatNumber, levelUpReady, POWER_COLORS, powerCheck } from '../flow';
+import { currentStage, describeEvents, formatNumber, POWER_COLORS, powerCheck } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, confirmOpen, CONTENT_TOP, cornerBadge, gemIcon, NAV_H, NAV_TAB_W, navTabX, powerChip, screen } from '../screen';
 import { commit, now, restartOnNewDay, session, today } from '../session';
-import { button, ellipsize, hintPointer, pressable, text, toast } from '../ui';
+import { button, ellipsize, hintPointer, pressable, text, toast, tutorialHint } from '../ui';
 import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 import { screenBackground, setThemeBackground, themeOfChapter } from '../backdrops';
@@ -308,6 +309,7 @@ export class CampaignScene extends Phaser.Scene {
   }
 
   private useFast(): void {
+    markHint('fast_rewards');
     const save = session.save;
     const day = today();
     const st = fastRewardsStatus(save, day, GAME);
@@ -414,13 +416,7 @@ export class CampaignScene extends Phaser.Scene {
     const save = session.save;
     // Модальное окно или баннер открыты — подсказку не перестраиваем (она под ними всё равно не видна).
     if (confirmOpen(this) || this.children.getByName(UNLOCK_BANNER_NAME)) return;
-    const id = pickHomeHint({
-      cleared: save.campaign.cleared.length,
-      chestHasIncome,
-      levelUpReady: levelUpReady(save, GAME).length > 0,
-      towerUnlocked: towerStatus(save, GAME).unlocked,
-      gearUpgrade: heroesWithGearUpgrades(save, GAME).length > 0,
-    });
+    const id = pickHomeHint(homeHintInput(save, chestHasIncome));
     if (id === this.hintId) return;
     this.hintView?.destroy();
     this.hintView = null;
@@ -435,6 +431,15 @@ export class CampaignScene extends Phaser.Scene {
     if (id === 'level_up' || id === 'equip_gear') this.hintView = hintPointer(this, navTabX('Heroes'), tabY, msg, 'above', tab);
     // Башня — на странице «Приключения»: здесь указываем на вкладку, на самой странице — на плитку.
     if (id === 'tower_open') this.hintView = hintPointer(this, navTabX('Adventure'), tabY, `${msg} Загляните в «Приключения»`, 'above', tab);
+    // Ведущее обучение (hints.ts, TUTORIAL_CHAIN): Таверна и задания — вкладка «Город», вознесение — «Герои»,
+    // быстрые награды — кнопка слева от «В бой». Касание плашки — пропустить шаг.
+    if (id === 'tavern_summon' || id === 'quests_open') this.hintView = tutorialHint(this, id, navTabX('Home'), tabY, 'above', tab);
+    if (id === 'ascend') this.hintView = tutorialHint(this, id, navTabX('Heroes'), tabY, 'above', tab);
+    if (id === 'fast_rewards') this.hintView = tutorialHint(this, id, L.fastX, L.rowY, 'above', { w: L.fastW, h: L.fastH });
+    this.hintView?.once(Phaser.GameObjects.Events.DESTROY, () => {
+      // Плашку пропустили касанием — на следующем тике покажется следующий шаг цепочки.
+      if (this.hintId === id && hintDone(id)) this.hintId = null;
+    });
   }
 
   /** Перезапустить экран (та же глава) и показать тост уже на новом экземпляре сцены. */

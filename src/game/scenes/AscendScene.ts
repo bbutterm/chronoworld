@@ -17,6 +17,7 @@ import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, popIn, screen } from '../screen';
 import { commit, session, today } from '../session';
 import { button, emptyState, pressable, ScrollArea, text, toast } from '../ui';
+import { markHint } from '../hints';
 import { C, FS } from '../theme';
 import { sfx } from '../audio';
 import { burst, countUp, juiceOn, pulse } from '../juice';
@@ -199,6 +200,7 @@ export class AscendScene extends Phaser.Scene {
       try {
         const r = actAscend(session.save, today(), st.targetId, st.fodderIds, GAME);
         commit(r.save);
+        markHint('ascend');
         done++;
       } catch (e) {
         toast(this, e instanceof Error ? e.message : String(e), C.error);
@@ -347,6 +349,7 @@ export class AscendScene extends Phaser.Scene {
     try {
       const r = actAscend(session.save, today(), hero.id, this.chosen, GAME, branch ? { branch } : {});
       commit(r.save);
+      markHint('ascend');
       chosenFor = null;
       branchFor = null;
       this.reveal(hero.id, before, r.events, fodder, r.refund);
