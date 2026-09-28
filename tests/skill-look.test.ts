@@ -57,8 +57,7 @@ describe('вид навыка (значок и эффекты боя)', () => {
     // Все навыки первых профессий и новичка — с настоящей иконкой.
     const ctx = loadFullContext();
     for (const job of ['novice', 'swordman', 'thief', 'archer', 'mage', 'acolyte', 'merchant']) {
-      // Ангелус (новый навык) — иконки RO пока нет, рисуется кодом.
-      for (const s of ctx.content.jobs[job].skills.filter((x) => x.skill !== 'job_acolyte_angelus')) expect(RO_SKILL_ICONS[s.skill], `${job}: ${s.skill}`).toBeTruthy();
+      for (const s of ctx.content.jobs[job].skills) expect(RO_SKILL_ICONS[s.skill], `${job}: ${s.skill}`).toBeTruthy();
     }
   });
 

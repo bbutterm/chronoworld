@@ -36,7 +36,9 @@ import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
 import { animatedFxIds, animatedFxKey, skillFx } from '../animatedFx';
 import { ensureAnimatedFx } from '../assets';
-import { FIRE_BOLT_MS, FIRE_BOLT_STEP, SkillFx, STAR_TEX, type CastRig, type FxPoint, type HitStyle, type SkillHit } from '../skillFx';
+import { FIRE_BOLT_MS, FIRE_BOLT_STEP, SkillFx, STAR_TEX, type CastRig, type FxPoint, type HitStyle } from '../skillFx';
+import { playAura, playProc, playSignature, type SigCtx } from '../skillSigs';
+import { visualOf } from '../skillVisuals';
 import { motion } from '../state';
 import { buffColor, ELEMENT_COLORS, lookOf } from '../skillLook';
 import { addThemeBackground, themeOfBattle, type Theme } from '../backdrops';
@@ -205,6 +207,8 @@ interface UnitView extends SpreadUnit {
   flashFill: boolean;
   /** Навык текущего действия (для эффекта попадания). */
   lastSkill?: string;
+  /** Сработавшая пассивка (событие passive): её удары/статусы в тот же момент рисуются по ней, а не по lastSkill. */
+  proc?: { skill: string; t: number };
   bars: Phaser.GameObjects.Components.Visible[];
   hp: number;
   shield: number;
@@ -855,6 +859,7 @@ export class BattleScene extends Phaser.Scene {
         const v = this.views.get(e.unit)!;
         v.inUlt = false;
         v.lastSkill = e.skill;
+        v.proc = undefined;
         v.energy = e.energy;
         this.endCast(v);
         this.redraw(v);
@@ -886,6 +891,7 @@ export class BattleScene extends Phaser.Scene {
       case 'ult': {
         const v = this.views.get(e.unit)!;
         v.lastSkill = e.skill;
+        v.proc = undefined;
         v.energy = 0;
         v.inUlt = true;
         this.redraw(v);
@@ -937,6 +943,10 @@ export class BattleScene extends Phaser.Scene {
         const key = `${e.unit}:${e.skill}`;
         if (animate && !this.shownPassives.has(key)) this.headline(v, e.name, '#c9a0ff');
         this.shownPassives.add(key);
+        v.proc = { skill: e.skill, t: e.t };
+        // Своя вспышка пассивки на кастере (сокол к цели, колба к союзнику, сферы…) — в момент срабатывания.
+        const pv = visualOf(e.skill);
+        if (animate && pv?.proc && v.alive && !this.skipping) playProc(this.sfx, pv.proc, this.point(v), this.eventTargets(v, e.t).map((u) => this.point(u)), pv.tint ?? 0xffffff);
         return;
       }
       case 'skip': {
@@ -950,6 +960,7 @@ export class BattleScene extends Phaser.Scene {
         const v = this.views.get(e.target)!;
         // Удар ульты — крупная золотая цифра (как крит); флаг читаем сейчас, до задержки удара.
         const big = !e.dot && !!this.views.get(e.source)?.inUlt;
+        const dmgSkill = e.dot ? undefined : this.skillOf(this.views.get(e.source), e.t);
         this.atImpact(e.dot ? null : e.source, animate, (animate) => {
           if (v.shownDead) return;
           v.hp = e.hp;
@@ -959,13 +970,13 @@ export class BattleScene extends Phaser.Scene {
           if (!animate) return;
           const hpPart = e.amount - e.absorbed;
           const src = this.views.get(e.source);
-          const sk = !e.dot && src?.lastSkill ? CONTENT.skills[src.lastSkill] : undefined;
+          const sk = dmgSkill ? CONTENT.skills[dmgSkill] : undefined;
           const style = numberStyle(sk, src);
           const color = e.dot ? '#9be36b' : big && hpPart > 0 ? '#ffd84a' : hpPart > 0 ? style.color : '#bcd6ff';
           this.popNumber(v, hpPart > 0 ? `-${hpPart}${big ? '!' : ''}` : `(${e.absorbed})`, color, big && hpPart > 0, style.size);
           this.hurt(v);
           if (e.dot) return;
-          const hit = hitFxOf(src);
+          const hit = hitFxOf(src, dmgSkill);
           if (hit === 'fx_magic') this.fx(v, hit, 1.7, 450, 0.95);
           else this.fx(v, hit, 0.45, 200, 0.5);
           if (src) this.hitVisual(src, v, sk, hpPart, big);
@@ -974,6 +985,7 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'heal': {
         const v = this.views.get(e.target)!;
+        const healAura = visualOf(this.skillOf(this.views.get(e.source), e.t));
         this.atImpact(e.source, animate, (animate) => {
           if (v.shownDead) return;
           v.hp = e.hp;
@@ -986,17 +998,19 @@ export class BattleScene extends Phaser.Scene {
             // Первая помощь и мелкое восстановление (пассивки) — маленький столб с крестиком.
             const small = this.views.get(e.source)?.lastSkill === 'novice_first_aid' || e.amount < v.snap.maxHp * 0.08;
             this.sfx.heal(this.point(v), e.amount >= v.snap.maxHp * 0.15, small);
+            if (healAura?.aura) playAura(this.sfx, healAura.aura, this.point(v), healAura.tint ?? 0x8dff9a);
             if (v.tintLeft <= 0) {
               v.sprite.setTint(0xc8ffcc);
               v.flashFill = false;
               v.tintLeft = HEAL_TINT_MS;
             }
           }
-        }, { on: v });
+        }, { on: v, plan: e.target });
         return;
       }
       case 'buff': {
         const v = this.views.get(e.target)!;
+        const shieldLook = visualOf(this.skillOf(this.views.get(e.source), e.t));
         this.atImpact(e.source, animate, (animate) => {
           if (v.shownDead) return;
           v.shield = e.shield;
@@ -1004,7 +1018,9 @@ export class BattleScene extends Phaser.Scene {
           if (animate) {
             this.popNumber(v, `щит +${e.amount}`, '#bcd6ff', false, 30);
             this.fx(v, 'fx_shield', 1.4, 400);
-            this.sfx.buff(this.point(v), 0x9cc8ff);
+            // Свой щит навыка (Кирие — двойной пузырь, Стена безопасности — розовые столбы…), иначе общий столб искр.
+            if (shieldLook?.aura) playAura(this.sfx, shieldLook.aura, this.point(v), shieldLook.tint ?? 0x9cc8ff);
+            else this.sfx.buff(this.point(v), 0x9cc8ff);
           }
         }, { on: v });
         return;
@@ -1021,7 +1037,7 @@ export class BattleScene extends Phaser.Scene {
         // Бафф союзнику (не свой яд/оглушение по врагу) — вспышка защиты из эффектов RO и столб искр.
         const ally = !!src && src.snap.side === v.snap.side;
         v.lastStatusSrc = e.source;
-        const srcSkillId = src?.lastSkill;
+        const srcSkillId = this.skillOf(src, e.t);
         this.atImpact(e.source, animate, (animate) => {
           if (v.alive && !v.shownDead) {
             this.setStatusIcon(v, e.status, def);
@@ -1030,11 +1046,14 @@ export class BattleScene extends Phaser.Scene {
           if (!animate) return;
           if (!ally && v.alive) this.statusVisual(v, e.status, def);
           // Бафф на весь отряд (Ускорение, Благословение): подпись не пишем над каждым — хватает искр и значка у HP.
-          const srcSkill = src?.lastSkill ? CONTENT.skills[src.lastSkill] : undefined;
+          const srcSkill = srcSkillId ? CONTENT.skills[srcSkillId] : undefined;
           if (!(ally && srcSkill?.target.pick === 'all')) this.headline(v, e.name, '#ffcf6b');
           if (ally) {
-            this.fx(v, skillFx(src?.lastSkill)?.buff ?? 'fx_shield', 1.2, 400);
-            this.sfx.buff(this.point(v), buffColor(def));
+            this.fx(v, skillFx(srcSkillId)?.buff ?? 'fx_shield', 1.2, 400);
+            // Своя аура баффа (ноты песни, сердечки, нимб, меч света…), иначе общий столб искр цвета статуса.
+            const look = visualOf(srcSkillId);
+            if (look?.aura) playAura(this.sfx, look.aura, this.point(v), look.tint ?? buffColor(def));
+            else this.sfx.buff(this.point(v), buffColor(def));
           }
         }, { on: v });
         return;
@@ -1280,6 +1299,31 @@ export class BattleScene extends Phaser.Scene {
 
   // ---------- навыки: снаряды, площадь, статусы, перезарядка ----------
 
+  /** Навык, которым юнит действует в момент t: сработавшая в этот момент пассивка, иначе последняя атака/ульта. */
+  private skillOf(v: UnitView | undefined, t: number): string | undefined {
+    if (!v) return undefined;
+    return v.proc && Math.abs(v.proc.t - t) < 1e-9 ? v.proc.skill : v.lastSkill;
+  }
+
+  /** Цели действия юнита в момент t (следующие события лога того же момента): урон, лечение, щит, статус. */
+  private eventTargets(v: UnitView, t: number, later = false): UnitView[] {
+    const log = this.result.log;
+    const out: UnitView[] = [];
+    for (let i = this.cursor + 1; i < log.length && log[i].t <= t + 1e-9; i++) {
+      const ev = log[i];
+      // later — удары снаряда, долетающие к t: между ними ходят другие юниты, берём только события в момент t.
+      if (later && Math.abs(ev.t - t) >= 1e-9) continue;
+      if (!later && (ev.type === 'attack' || ev.type === 'ult' || ev.type === 'passive' || ev.type === 'turn')) break;
+      const target =
+        (ev.type === 'damage' && !ev.dot) || ev.type === 'heal' || ev.type === 'buff' || (ev.type === 'status' && ev.action === 'apply')
+          ? ev.source === v.snap.uid ? ev.target : undefined
+          : undefined;
+      const tv = target ? this.views.get(target) : undefined;
+      if (tv && !out.includes(tv)) out.push(tv);
+    }
+    return out;
+  }
+
   /** Точка эффекта на юните: x, центр тела, ноги. */
   private point(v: UnitView): FxPoint {
     return { x: v.node.x, y: bodyY(v), feet: v.node.y };
@@ -1293,7 +1337,8 @@ export class BattleScene extends Phaser.Scene {
    */
   private skillVisual(v: UnitView, skill: SkillDef, impact: number): boolean {
     const look = lookOf(skill);
-    const tint = SKILL_TINT[skill.id] ?? (look.element === 'physical' ? 0xffe0a0 : ELEMENT_COLORS[look.element].main);
+    const vis = visualOf(skill.id);
+    const tint = vis?.tint ?? (look.element === 'physical' ? 0xffe0a0 : ELEMENT_COLORS[look.element].main);
     const log = this.result.log;
     const t = log[this.cursor]?.t;
     const hits: UnitView[] = [];
@@ -1318,22 +1363,22 @@ export class BattleScene extends Phaser.Scene {
       }
     }
     const now = this.time.now;
-    // Навыки со своим видом целиком (кольцо Магнум брейка, размах тележкой, ударная волна Мастеринга, крик провокации, корни).
-    const sig = SIGNATURE[skill.id];
-    if (sig) {
-      const uniq = [...new Set(hits)];
-      const pts = uniq.map((u) => this.point(u));
-      const c = this.point(v);
-      const dir = v.snap.side === 'A' ? 1 : -1;
-      const at: Record<Signature, number> = { magnum: 110, cart: 90, bounce: 140, provoke: 120, roots: 150 };
-      this.sfx.later(impact, () => {
-        if (sig === 'magnum') this.sfx.magnumBreak(c, pts);
-        else if (sig === 'cart') this.sfx.cartSwing(c, pts, dir);
-        else if (sig === 'bounce') this.sfx.royalBounce(c, pts);
-        else if (sig === 'provoke') this.sfx.shout(c);
-        else pts.forEach((p) => this.sfx.roots(p));
+    // Навыки со своим видом целиком (skillVisuals.ts → рецепты skillSigs.ts): Магнум брейк, Боулинг Баш, сокол, ловушки,
+    // колбы алхимика, Великий крест… Навык без ударов (бафф, лечение, дебафф) — цели из событий heal/buff/status.
+    if (vis?.sig) {
+      let targets = hits.length ? hits : this.eventTargets(v, t ?? 0);
+      if (!targets.length && flies && t !== undefined && COMBAT.projectileSeconds) targets = this.eventTargets(v, Math.round((t + COMBAT.projectileSeconds) * 100) / 100, true);
+      const pts = new Map<UnitView, FxPoint>();
+      for (const u of targets) if (!pts.has(u)) pts.set(u, this.point(u));
+      const k: SigCtx = { c: this.point(v), hits: targets.map((u) => pts.get(u)!), uniq: [...pts.values()], dir: v.snap.side === 'A' ? 1 : -1, tint };
+      const times = playSignature(this.sfx, vis.sig, k, impact);
+      targets.forEach((tv, i) => {
+        const at = now + times[i];
+        const q = v.hitPlan.get(tv.snap.uid);
+        if (q) q.push(at);
+        else v.hitPlan.set(tv.snap.uid, [at]);
       });
-      v.impactAt = now + impact + at[sig];
+      v.impactAt = now + Math.max(impact, ...times);
       return true;
     }
     // Огненная стрела (RO Fire Bolt): по стреле на удар, падают сверху одна за другой, каждая — взрыв огня.
@@ -1421,10 +1466,10 @@ export class BattleScene extends Phaser.Scene {
   private hitVisual(src: UnitView, v: UnitView, sk: SkillDef | undefined, hpPart: number, ult: boolean): void {
     const p = this.point(v);
     const dir = v.node.x >= src.node.x ? 1 : -1;
-    const special = sk ? SKILL_HIT[sk.id] : undefined;
+    const special = visualOf(sk?.id)?.hit;
     const active = !!sk && (src.def.skills.actives.includes(sk.id) || src.def.skills.ult === sk.id);
     // Снаряд/площадь активного навыка уже нарисованы skillVisual (у обычной атаки lookOf тоже даёт «стрелу» — её не считаем).
-    const drawn = !!sk && active && !!(SIGNATURE[sk.id] || lookOf(sk).projectile || lookOf(sk).area || /fire_bolt/.test(sk.id));
+    const drawn = !!sk && active && !!(visualOf(sk.id)?.sig || lookOf(sk).projectile || lookOf(sk).area || /fire_bolt/.test(sk.id));
     if (special) this.sfx.skillHit(special, p, dir, this.point(src));
     else if (!drawn) {
       const heavy = ult || active || hpPart >= v.snap.maxHp * 0.2;
@@ -1582,47 +1627,6 @@ function cooldownSheet(scene: Phaser.Scene): string {
 
 const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length);
 
-/** Навыки со своим видом целиком (skillVisual): эффект рисуется один раз на весь навык. */
-type Signature = 'magnum' | 'cart' | 'bounce' | 'provoke' | 'roots';
-const SIGNATURE: Record<string, Signature> = {
-  job_swordman_magnum_break: 'magnum',
-  job_merchant_cart_revolution: 'cart',
-  mob_mastering_royal_bounce: 'bounce',
-  job_swordman_provoke: 'provoke',
-  mob_mandragora_roots: 'roots',
-};
-
-/** Особое попадание навыка — на каждую цель в момент удара (вместо искры обычного удара). */
-const SKILL_HIT: Record<string, SkillHit> = {
-  swordman_bash: 'bash',
-  job_thief_envenom: 'envenom',
-  job_thief_steal: 'steal',
-  job_thief_sand_attack: 'sand',
-  job_merchant_mammonite: 'coins',
-  job_archer_charge_arrow: 'knock',
-  job_mage_frost_diver: 'ice',
-  mob_rocker_kick: 'kick',
-  mob_elite_smash: 'smash',
-  mob3_elite_cleave: 'smash',
-  job_blacksmith_hammer_fall: 'smash',
-  mob_poporing_goo: 'goo',
-  mob2_fast_mud_splash: 'mud',
-  mob_mastering_sticky_slam: 'bounce',
-  mob2_melee_bite: 'bite',
-  mob_lunatic_leap: 'leap',
-  mob_eclipse_moon_leap: 'leap',
-  mob_fast_lunge: 'leap',
-  mob3_fast_haunt: 'leap',
-  assassin_leap: 'leap',
-};
-
-/** Цвет навыка, где стихия не подходит: стрелы — золотые/голубые, а не «физически» коричневые. */
-const SKILL_TINT: Record<string, number> = {
-  job_archer_double_strafe: 0xffd860,
-  job_archer_charge_arrow: 0x8fe6ff,
-  job_archer_arrow_shower: 0xffe7a0,
-};
-
 /** Слизни (шлепок вместо укуса): поринг, дропс, попоринг, Мастеринг — и их цвет. */
 const SLIMES: [RegExp, number][] = [
   [/poporing/, 0x9be36b],
@@ -1680,10 +1684,10 @@ function numberStyle(sk: SkillDef | undefined, src: UnitView | undefined): { col
  * Эффект попадания по навыку атакующего: явная привязка из effects.json (skills.<id>.hit), иначе магия
  * (навык с кастом или дальний навык мага) — fx_magic, иначе эффект удара юнита (visual.hitFx).
  */
-function hitFxOf(src: UnitView | undefined): string {
-  const mapped = skillFx(src?.lastSkill)?.hit;
+function hitFxOf(src: UnitView | undefined, skillId = src?.lastSkill): string {
+  const mapped = skillFx(skillId)?.hit;
   if (mapped) return mapped;
-  const sk = src?.lastSkill ? CONTENT.skills[src.lastSkill] : undefined;
+  const sk = skillId ? CONTENT.skills[skillId] : undefined;
   const magic = !!sk && (sk.castTime > 0 || (sk.range === 'ranged' && src?.def.visual.projectile === 'fx_magic'));
   return magic ? 'fx_magic' : (src?.def.visual.hitFx ?? 'fx_hit');
 }

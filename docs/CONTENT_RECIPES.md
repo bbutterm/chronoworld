@@ -68,7 +68,9 @@ id вида `chapterN` выводится сам (`ch<N>`).
 6. **Эффект в бою:** по умолчанию выводится из id и эффектов (`src/game/skillLook.ts`: стихия по словам fire/frost/thunder/holy…,
    снаряд/площадь по `pick`, `range`). Нужен конкретный — строка в `FX_OVERRIDE` (`projectile`: fireball/ice/lightning/beam/arrow/meteor/rock…,
    `area`: lightning/ring/arrows/blizzard/holy/quake/cloud/sanctuary). Кадры RO на попадание/бафф — `assets/effects/effects.json → skills`:
-   `"job_knight_brandish": {"hit": "fx_hit"}`.
+   `"job_knight_brandish": {"hit": "fx_hit"}`. **Навык героя обязан иметь свой вид** (тест `tests/skill-visuals.test.ts`): строка в
+   `SKILL_VISUALS` (`src/game/skillVisuals.ts`) — `sig` (рецепт целиком из `skillSigs.ts`), `hit`, `aura` (бафф/щит/лечение на цели),
+   `proc` (вспышка пассивки), `tint`; новый рецепт — в `skillSigs.ts`. Посмотреть в бою — `scripts/skillfx-save.ts` + `scripts/skillfx-shots.mjs`.
 7. **Иконка:** своя — `assets/ui/icons/skill_<id навыка>.png` (подхватится сама); иконка RO — извлечь (`tools/extract_ro_skill_icons.py`,
    добавить имя в `SKILLS`) и прописать `RO_SKILL_ICONS['<id навыка>'] = '<ro_имя>'` в `skillLook.ts`; ничего — символ кодом.
 8. Бой рывком в тыл, после которого боец остаётся там, — id навыка в `combat.json → movement.diveStay`.
