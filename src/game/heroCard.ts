@@ -40,12 +40,12 @@ const PALETTE_EXTRA: Record<CardRarity | 'none', { light: string; dark: string }
   green: { light: '#b6f0a0', dark: '#1f5a24' },
   blue: { light: '#a8d4ff', dark: '#173e86' },
   purple: { light: '#e2c2ff', dark: '#4a1f8a' },
-  gold: { light: '#fff0b0', dark: '#8a5a10' },
+  gold: { light: '#ffc65a', dark: '#7a3a00' },
   red: { light: '#ffb8a0', dark: '#7a140e' },
   none: { light: '#9a9a9a', dark: '#2a2a2a' },
 };
 
-const FALLBACK_COLOR: Record<CardRarity, string> = { green: '#4CAF50', blue: '#3F8CFF', purple: '#A05CFF', gold: '#F5B82E', red: '#E0443A' };
+const FALLBACK_COLOR: Record<CardRarity, string> = { green: '#4CAF50', blue: '#3F8CFF', purple: '#A05CFF', gold: '#FF9A1A', red: '#E0443A' };
 
 const hex = (s: string) => Phaser.Display.Color.HexStringToColor(s).color;
 

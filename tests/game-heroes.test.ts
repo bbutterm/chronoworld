@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, heroCard, jobTitle, levelUpInfo, newGame, type SaveState } from '../src/core';
+import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, cardStats, heroCard, heroTemplate, jobTitle, levelUpInfo, newGame, type SaveState } from '../src/core';
 import {
+  ascendButtonState,
+  ascendPower,
   ascendPreview,
+  fodderOptions,
+  fodderSlotCaption,
   ascendReadyWith,
   browseNeighbours,
   collectionCount,
@@ -142,6 +146,57 @@ describe('H4 «Вознесение»', () => {
     expect(ascendReadyWith(s, target.id, auto.slice(0, 1), ctx)).toBe(false);
     expect(fodderSlotLabel(req.fodder[0], target, ctx)).toBe('Ирис · Зелёный');
     expect(valuableFodder(s, auto)).toEqual([]);
+  });
+
+  it('экран вознесения: подписи слотов, выбор корма с метками занятых, причина неактивной кнопки', () => {
+    let s = rich();
+    const target = s.heroes.find((h) => h.templateId === 'iris' && h.level === 12)!;
+    const weak = s.heroes.find((h) => h.templateId === 'iris' && h.level === 1)!;
+    const mid = s.heroes.find((h) => h.templateId === 'iris' && h.level === 3)!;
+    let req = ascendRequirement(s, target.id, ctx)!;
+    expect(fodderSlotCaption(req.fodder[0], target, ctx)).toEqual({ who: 'Ирис', rarity: 'зелёный' });
+    expect(fodderSlotCaption({ kind: 'any', rarity: 'purple' }, target, ctx)).toEqual({ who: 'Любой', rarity: 'фиолетовый' });
+    // Пусто — «положите ещё 2»; одна выбрана — «ещё 1»; обе — готово.
+    expect(ascendButtonState(s, target.id, [], ctx).reason).toMatch(/ещё 2 карты/);
+    expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toMatch(/ещё 1 карту/);
+    expect(ascendButtonState(s, target.id, [weak.id, mid.id], ctx)).toEqual({ ready: true, reason: null });
+    // Копия в отряде: в выборе — последней, с меткой, и её не хватает на слот.
+    s = { ...s, squad: [mid.id, null, null, null, null] };
+    req = ascendRequirement(s, target.id, ctx)!;
+    const opts = fodderOptions(s, req, 0, [weak.id]);
+    expect(opts.map((o) => [o.id, o.tag, o.chosen])).toEqual([
+      [weak.id, null, true],
+      [mid.id, 'в отряде', false],
+    ]);
+    expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toBe('Не хватает 1 карты: Ирис, зелёный');
+    // Золото — после корма.
+    const poor = { ...s, squad: [null, null, null, null, null], resources: { ...s.resources, gold: 100 } };
+    expect(ascendButtonState(poor, target.id, [weak.id, mid.id], ctx).reason).toBe('Не хватает золота: 400');
+  });
+
+  it('вознесение на фиолетовый: без выбранной ветки кнопка ждёт ветку; мощь «было → станет» растёт', () => {
+    let s = newGame(ctx, 0);
+    const add = (lv: number) => {
+      const r = addHeroCard(s, 'alan', 'blue', { level: lv });
+      s = r.save;
+      return r.hero;
+    };
+    const t = add(40);
+    const f = [add(1).id, add(2).id];
+    s = { ...s, resources: { ...s.resources, gold: 1_000_000 } };
+    expect(ascendButtonState(s, t.id, f, ctx).reason).toBe('Выберите ветку второй профессии');
+    expect(ascendButtonState(s, t.id, f, ctx, { branchChosen: true }).ready).toBe(true);
+    const pw = ascendPower(t, ctx, (h) => cardStats(heroTemplate(ctx, h.templateId), h.level, h.rarity, ctx, h.branch).hp)!;
+    expect(pw.to).toBeGreaterThan(pw.from);
+  });
+
+  it('золотой — большой скачок: статы ×1.4+ к фиолетовому (было ×1.16), красный ещё сильнее, навыки растут', () => {
+    const r = Object.fromEntries(ctx.cards.rarities.map((x) => [x.id, x]));
+    expect(r.gold.statMult / r.purple.statMult).toBeGreaterThanOrEqual(1.4);
+    expect(r.gold.statMult / r.purple.statMult).toBeGreaterThan(r.purple.statMult / r.blue.statMult);
+    expect(r.red.statMult).toBeGreaterThan(r.gold.statMult);
+    expect(r.gold.skillPower).toBeGreaterThan(r.purple.skillPower);
+    expect(r.red.skillPower).toBeGreaterThan(r.gold.skillPower);
   });
 
   it('откуда копии: Таверна, карты героя из наград', () => {
