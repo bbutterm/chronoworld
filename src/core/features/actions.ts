@@ -2,6 +2,7 @@ import { playStage, type StageOutcome } from '../campaign/campaign';
 import { claimOffline, type OfflineRewards } from '../campaign/offline';
 import { equip, unequip } from '../equipment/equipment';
 import { playWithEquipment, type StageOutcomeWithDrops } from '../equipment/drops';
+import type { ChestLootGrant } from '../equipment/chest';
 import type { EquipmentConfig, EquipmentContext } from '../equipment/load';
 import { claimAchievement, syncAchievementCounters, trackAchievement, type MetaEvent } from '../meta/achievements';
 import { claimBounty } from '../meta/bounties';
@@ -70,13 +71,13 @@ export function actSkipStage(save: SaveState, day: string, stageId: string, seed
   return queueStory(recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => skipStage(save, stageId, seed, c)), day), ctx);
 }
 
-/** claimOffline + offline_claim (только если что-то получено). */
+/** claimOffline (с трофеями при ctx.equipment) + offline_claim (только если получены золото или опыт). */
 export function actClaimOffline(
   save: SaveState,
   now: number,
   day: string,
-  ctx: GameContext,
-): { save: SaveState; rewards: OfflineRewards; events: ProgressEvent[] } {
+  ctx: GameContext & { equipment?: EquipmentConfig },
+): { save: SaveState; rewards: OfflineRewards; loot: ChestLootGrant; events: ProgressEvent[] } {
   const out = claimOffline(save, now, ctx);
   const s = syncAchievementCounters(recordActivity(out.save, day, 'offline_claim', out.rewards.gold > 0 || out.rewards.jobExp > 0 ? 1 : 0));
   return { ...out, save: s };
@@ -104,7 +105,11 @@ export function actSummon(save: SaveState, day: string, count: number, pay: Summ
 }
 
 /** useFastRewards (K1) + fast_rewards. */
-export function actUseFastRewards(save: SaveState, day: string, ctx: FeatureContext): { save: SaveState; rewards: FastRewards; events: FeatureEvent[] } {
+export function actUseFastRewards(
+  save: SaveState,
+  day: string,
+  ctx: FeatureContext & { equipment?: EquipmentConfig },
+): { save: SaveState; rewards: FastRewards; loot: ChestLootGrant; events: FeatureEvent[] } {
   const out = useFastRewards(save, day, ctx);
   return { ...out, save: syncAchievementCounters(recordActivity(out.save, day, 'fast_rewards')) };
 }

@@ -43,7 +43,7 @@
 | `content/build.ts` | `buildContent` — разбор файлов + перекрёстные ссылки навыков/юнитов, затем `validateJobs`, `validateCampaign`; `ContentError` |
 | `campaign/schema.ts`, `validate.ts` | глава и этап; проверки (id уникальны, враги monster/boss, boss-этап с боссом) |
 | `campaign/campaign.ts` | `stageStatus`, `enemySquad` (рост силы), `squadUnits` (отряд → юниты, одна копия карточки), `playStage` (награды, опыт в пул, осколки, рекруты, подарок Таверны) |
-| `campaign/offline.ts` | офлайн-сундук: накопление, лимит, «долг» при переводе часов, `bankOffline` |
+| `campaign/offline.ts` | офлайн-сундук: накопление, лимит, «долг» при переводе часов, `bankOffline`; трофеи `offlineLoot`, таймер `offlineFullInMs` |
 | `progression/schema.ts` | профессия (`JobSchema`), `data/progression.json` (`ProgressionConfigSchema`: сюжетные карточки `heroes.start/recruits`) |
 | `progression/stats.ts` | `getJob`, `statsAt` (статы профессии на уровне); реэкспорт `buildUnit`/`heroSkills` из `heroes/card.ts` |
 | `progression/validate.ts` | проверки дерева профессий |
@@ -51,7 +51,7 @@
 | `story/schema.ts`, `story.ts` | сюжет: схема, `buildStory` (проверки), `pendingScenes`, `markScenesSeen`, очередь `storyQueue`, `queueChapterDone` |
 | `save/schema.ts`, `save.ts` | формат сохранения (v4), `newGame`, `serialize`/`deserialize`, `MIGRATIONS`, `sanitizeSave`, `loadOrNew` |
 | `features/*` | K1 быстрые награды, K2 мощь, K5 ежедневные задания, K7 пропуск боя; `actions.ts` — обёртки `act*` для UI (засчитывают задания и достижения, в т. ч. `actLevelUp`, `actAscend`, `actSummon`) |
-| `equipment/*` | K6 предметы, выпадение (`drops.ts`), надеть/снять, `withGear` |
+| `equipment/*` | K6 предметы, выпадение (`drops.ts`), надеть/снять, `withGear`; трофеи сундука и быстрых наград (`chest.ts`) |
 | `tower/*` | K4 башня: этажи по правилу из полос, `climbTower` |
 | `meta/*` | K8 пресеты, `setSquad`, авторасстановка (`formation.ts`), K9 поручения (`bounties.ts`), K10 достижения |
 
@@ -92,6 +92,7 @@
 | `viewport.ts`, `viewLayout.ts` | вывод на экран телефона: безопасная зона, поля за краями, DPR |
 | `backdrops.ts` | фоны боя и карты по теме главы (луг/топь/склеп), рисуются кодом; файлы `assets/backgrounds/bg_{battle,map}_ch<N>.*` побеждают |
 | `tavern.ts`, `tavernArt.ts`, `tavernEntry.ts` | Таверна: чистые помощники (порядок и ритм показа, раскладка карт, кнопки, гарант — тесты `tests/game-tavern.test.ts`), нарисованный зал, рубашка карты и эффекты (файл `assets/backgrounds/bg_tavern.*` побеждает), плитка на главной со значком. Лицо карты призыва — общий `heroCard.ts drawHeroCard` (бюст на столе, фигура на крупной) |
+| `chestView.ts` | карточка сундука на главной: иконки накопленного (золото, опыт, предметы, осколки, гемы, свитки), таймер «Полон через Ч:ММ», строки трофеев для тостов сундука и быстрых наград |
 | `ambient.ts` | тени под юнитами и частицы по теме |
 | `battleFx.ts` | слои глубины боя, затемнение и баннер ульты, цифры, пулы |
 | `skillFx.ts` | эффекты навыков кодом: круг каста, снаряды, площадь, искры |
@@ -242,7 +243,8 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 ### Предметы, задания, поручения, достижения
 
 - `data/items/*.json` — `{items: [{id, name, slot (weapon|armor|helmet|boots), rarity (common|rare|epic), stats, jobs?, drop}]}`;
-  `jobs` — корни веток (["archer"] → лучник, охотник, бард). `data/drops.json` — правила выпадения по главам. См. `docs/content/equipment.md`.
+  `jobs` — корни веток (["archer"] → лучник, охотник, бард). `data/drops.json` — правила выпадения по главам (`rules`) и трофеи сундука
+  (`chest`, раздел 2в). См. `docs/content/equipment.md`.
 - `data/quests.json` — ежедневные задания: `event` из `ACTIVITY_KINDS` (`src/core/features/quests.ts`), `target`, `points`; `milestones` активности.
 - `data/bounties.json` — доска поручений: `boardSize`, `dailyRefreshes`, веса `rarities`, `templates` (`durationMinutes`, `heroCount`, `role`, `rewards`), `presets`.
 - `data/achievements.json` — `counter` из `ACHIEVEMENT_COUNTERS` (`src/core/meta/config.ts`), `target`, `rewards`. См. `docs/content/meta.md`, `features.md`.
@@ -332,6 +334,26 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - Экраны: `EventsScene` (вкладки «Вход»/«Новичок», данные `{tab, day}`), `MailScene` (`{open?}`), иконки в шапке главной —
   `homeEventIcons` (`src/game/homeEvents.ts`, объекты `eventsIcon`, `mailIcon`), тексты наград — `src/game/rewardsView.ts`.
 - Модель баланса забирает всё это каждую сессию (`PLAYER_MODEL.events`, `npm run balance -- --no-events` — без событий).
+
+## 2в. Сундук с трофеями (AFK Chest) — API ядра
+
+Кроме золота и опыта сундук простоя копит трофеи: предметы, осколки «отстающего» сюжетного героя (`shardTarget`, как у поручений),
+изредка гемы и свитки. Данные — `data/drops.json → chest` (`ChestDropsSchema`, `src/core/equipment/schema.ts`, JSON Schema
+`data/schema/drops.schema.json`): `tickMinutes` (30) и `rules` по главам `{chapter?, item (шанс предмета за тик), rarityWeights?
+(нет — веса `rules` этой главы), shards|gems|scrolls {chance, count}}`. Глава — глава последнего пройденного этапа.
+- Бросок за каждый **полный** тик засчитанных минут (с `banked`, в пределах `capHours`); неполный тик при сборе сгорает (как в AFK).
+  У тика свой поток `Rng` от seed и номера тика — превью растёт монотонно, уже показанное не меняется.
+- seed: сундук — `chestSeed(save)` (createdAt + `offline.lastClaimAt`: сбор сдвигает якорь → новый seed); быстрые награды —
+  `fastLootSeed(save, day)` (createdAt, день, номер использования за день). Время передаёт UI; в ядре нет Date/Math.random.
+- `offlineLoot(save, now, ctx)` → `ChestLoot {ticks, items (id описаний), shards, gems, scrolls}` — превью, совпадает со сбором в тот же now.
+  `offlineFullInMs(save, now, ctx)` → мс до заполнения (0 — полон, null — нет пройденных этапов).
+- `claimOffline` / `actClaimOffline` → ещё и `loot: ChestLootGrant` (`added` — экземпляры в инвентаре, `shardHero`), событие `shards`.
+- Быстрые награды: `fastRewardsLoot(save, day, ctx)` — превью; `useFastRewards` / `actUseFastRewards` → `loot` (те же правила за
+  `fastRewards.hours`, сундук не трогается).
+- Без `ctx.equipment` (например, `loadGameContext()` в тестах) или без `chest` в `drops.json` трофеев нет — только золото и опыт.
+- Проверка ставок: `validateEquipment` — ожидание за сутки простоя не больше `CHEST_LIMITS` (60 гемов, 1 свиток); тест `tests/chest-loot.test.ts`.
+- Сохранение не менялось: трофеи считаются при сборе из времени, новых полей нет.
+- Экран: `src/game/chestView.ts` (`ChestCardView` на карточке сундука главной, `lootLines`/`lootSummary` для тостов и подтверждения).
 
 ---
 
@@ -446,6 +468,7 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - **Главы 2–3:** `npm run playthrough -- <1|2> 3 --idle --winrate 200` — при 3 поражениях подряд забирает офлайн-сундук за 1 час и
   печатает, сколько часов сундука понадобилось; `mult` подобраны так, чтобы Σhp/Σatk этапов не падали (тест) и ожидание росло плавно.
 - **Вся экономика:** `npm run balance` (14 дней модели игрока с башней, экипировкой, заданиями) → `balance.csv`, `docs/content/balance.md`.
+  Трофеи сундука модель получает сама (через `actClaimOffline`/`actUseFastRewards`); сводка печатает предметы и осколки по источникам.
 - Таблицы и цифры — `docs/content/campaign.md`. Рецепт — `docs/CONTENT_RECIPES.md` «Баланс главы».
 
 ---

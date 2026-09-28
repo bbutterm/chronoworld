@@ -63,10 +63,45 @@ export const DropRuleSchema = z.object({
   firstClearRarityWeights: RarityWeightsSchema.optional(),
 });
 
+/** Бросок сундука за тик: с шансом chance — count штук. */
+export const ChestRollSchema = z.object({
+  chance: z.number().min(0).max(1),
+  count: z.number().int().min(1),
+});
+
+/**
+ * Трофеи сундука простоя (и быстрых наград) для главы: бросаются за каждый полный тик накопленного времени.
+ * Глава — глава последнего пройденного этапа.
+ */
+export const ChestRuleSchema = z.object({
+  /** Для какой главы правило; без поля — правило по умолчанию для остальных глав. */
+  chapter: id.optional(),
+  /** Шанс одного предмета за тик (0..1). */
+  item: z.number().min(0).max(1),
+  /** Веса редкостей предмета; без поля — rarityWeights правила выпадения этой главы (rules). */
+  rarityWeights: RarityWeightsSchema.optional(),
+  /** Осколки «отстающего» сюжетного героя (как у поручений). */
+  shards: ChestRollSchema.optional(),
+  /** Гемы (редко). */
+  gems: ChestRollSchema.optional(),
+  /** Свитки призыва (очень редко). */
+  scrolls: ChestRollSchema.optional(),
+});
+
+/** Трофеи сундука: длина тика и правила по главам. */
+export const ChestDropsSchema = z.object({
+  /** Минут простоя на один бросок (тик). Неполный тик не бросается. */
+  tickMinutes: z.number().int().min(5).max(720),
+  rules: z.array(ChestRuleSchema).min(1),
+});
+
 /** data/drops.json. Правило этапа — первое с chapter = глава этапа, иначе первое без chapter. */
 export const DropsConfigSchema = z.object({
   $schema: z.string().optional(),
+  $comment: z.string().optional(),
   rules: z.array(DropRuleSchema).min(1),
+  /** Трофеи сундука простоя и быстрых наград; нет поля — в сундуке только золото и опыт. */
+  chest: ChestDropsSchema.optional(),
 });
 
 export type Slot = z.infer<typeof SlotSchema>;
@@ -76,3 +111,6 @@ export type ItemDef = z.infer<typeof ItemDefSchema>;
 export type RarityWeights = z.infer<typeof RarityWeightsSchema>;
 export type DropRule = z.infer<typeof DropRuleSchema>;
 export type DropsConfig = z.infer<typeof DropsConfigSchema>;
+export type ChestRoll = z.infer<typeof ChestRollSchema>;
+export type ChestRule = z.infer<typeof ChestRuleSchema>;
+export type ChestDrops = z.infer<typeof ChestDropsSchema>;

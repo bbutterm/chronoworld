@@ -1,0 +1,185 @@
+{
+  "title": "Выпадение предметов и трофеи сундука",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "rules": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "chapter": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "chance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "rarityWeights": {
+            "type": "object",
+            "properties": {
+              "common": {
+                "type": "number",
+                "minimum": 0
+              },
+              "rare": {
+                "type": "number",
+                "minimum": 0
+              },
+              "epic": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "firstClearGuaranteed": {
+            "default": true,
+            "type": "boolean"
+          },
+          "firstClearRarityWeights": {
+            "type": "object",
+            "properties": {
+              "common": {
+                "type": "number",
+                "minimum": 0
+              },
+              "rare": {
+                "type": "number",
+                "minimum": 0
+              },
+              "epic": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "required": [
+          "chance",
+          "rarityWeights"
+        ]
+      }
+    },
+    "chest": {
+      "type": "object",
+      "properties": {
+        "tickMinutes": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 720
+        },
+        "rules": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "chapter": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "item": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "rarityWeights": {
+                "type": "object",
+                "properties": {
+                  "common": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "rare": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "epic": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              },
+              "shards": {
+                "type": "object",
+                "properties": {
+                  "chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "chance",
+                  "count"
+                ]
+              },
+              "gems": {
+                "type": "object",
+                "properties": {
+                  "chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "chance",
+                  "count"
+                ]
+              },
+              "scrolls": {
+                "type": "object",
+                "properties": {
+                  "chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "chance",
+                  "count"
+                ]
+              }
+            },
+            "required": [
+              "item"
+            ]
+          }
+        }
+      },
+      "required": [
+        "tickMinutes",
+        "rules"
+      ]
+    }
+  },
+  "required": [
+    "rules"
+  ]
+}
