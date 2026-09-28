@@ -5,7 +5,7 @@ import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/rost
 import type { GameContext } from '../progression/types';
 import { initSeenUnlocks } from '../unlocks/unlocks';
 import type { UnlocksConfig } from '../unlocks/schema';
-import { DEFAULT_DAY, emptyBounties, emptyDaily, emptySummon, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
+import { DEFAULT_DAY, emptyBounties, emptyDaily, emptyMail, emptySummon, SAVE_VERSION, SaveStateSchema, type SaveState } from './schema';
 
 /**
  * Новая игра: сюжетные карточки progression.heroes.start — зелёные, ур. 1; отряд — передние с первого слота,
@@ -34,6 +34,7 @@ export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY
     summon: emptySummon(),
     seenScenes: [],
     seenUnlocks: [],
+    mail: emptyMail(),
   };
   for (const templateId of ctx.progression.heroes.start) save = addHeroCard(save, templateId, ctx.content.heroes[templateId]?.baseRarity ?? 'green').save;
   // В отряд: передние — с первого слота, задние — с последнего, лекари — в самый тыл (как авто-расстановка).
@@ -100,6 +101,16 @@ export const MIGRATIONS: Record<number, (old: any) => any> = {
    * опыт → общий пул, свиток призыва в компенсацию и сообщение игроку (notices). Подробно — heroes/migrate.ts.
    */
   3: (old) => migrateV3toV4(old),
+  /**
+   * Версия 4 → 5 (события новичка и почта, events/): пустая почта. События «Вход 7 дней» и «7 дней новичка»
+   * начнутся при первом открытии игры (touchEvents), тогда же придёт письмо «Добро пожаловать».
+   * Уже существующие поля не перезаписываются.
+   */
+  4: (old) => ({
+    ...old,
+    version: 5,
+    mail: isRecord(old?.mail) ? old.mail : emptyMail(),
+  }),
 };
 
 /** Счётчики достижений, которые можно восстановить из старого сохранения (структура не гарантирована). */

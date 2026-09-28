@@ -19,6 +19,7 @@ import { audioSettings, setAudioSettings, sfx } from '../audio';
 import { nextVolume, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
 import { isUnlocked, lockCover, lockedToast, lockLabel, showUnlockBanners, UNLOCK_BANNER_NAME } from '../unlockBanner';
+import { homeEventIcons } from '../homeEvents';
 
 /** Размер сундука офлайн-наград. */
 const CHEST = 180;
@@ -108,6 +109,8 @@ export class HomeScene extends Phaser.Scene {
     this.blocks.push(collect(this.children, () => this.chest()));
     // H5: вход в Таверну — медальон в правом нижнем углу карточки сундука (tavernEntry.ts), под строками накопленного.
     tavernTile(this, L.tavernX, L.tavernY);
+    // События новичка и почта — иконки в шапке слева от шестерёнки (homeEvents.ts).
+    homeEventIcons(this);
     this.blocks.push(collect(this.children, () => this.fastRewards()));
     this.tiles();
 

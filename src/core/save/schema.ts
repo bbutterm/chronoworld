@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { CardRaritySchema } from '../heroes/schema';
 
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 /**
  * v4. Экземпляр карточки героя (docs/design/heroes.md): шаблон data/heroes/<templateId>.json, редкость и уровень.
@@ -122,6 +122,65 @@ export const AchievementsStateSchema = z.object({
   claimed: z.array(z.string()),
 });
 
+/**
+ * v5. Набор наград (события, почта): золото, гемы, опыт в общий пул, свитки призыва, карточки героев (id шаблона,
+ * выдаются на базовой редкости шаблона). Нет поля — 0 / нет. Та же форма — в data/events.json.
+ */
+export const RewardBundleSchema = z.object({
+  gold: z.number().int().nonnegative().optional(),
+  gems: z.number().int().nonnegative().optional(),
+  /** Опыт в общий пул героев. */
+  jobExp: z.number().int().nonnegative().optional(),
+  /** Свитки призыва Таверны. */
+  scrolls: z.number().int().nonnegative().optional(),
+  /** Карточки героев: id шаблона из data/heroes (редкость — baseRarity шаблона). */
+  heroes: z.array(z.string()).optional(),
+});
+
+/** v5. Письмо в почте. */
+export const LetterSchema = z.object({
+  /** m1, m2… — номер письма в этом сохранении. */
+  id: z.string().min(1),
+  /** id письма из data/events.json → mail.letters (системные письма; каждое доставляется один раз). */
+  source: z.string().optional(),
+  from: z.string(),
+  title: z.string(),
+  body: z.string(),
+  /** День доставки 'YYYY-MM-DD'. */
+  day: DayStringSchema,
+  rewards: RewardBundleSchema,
+  read: z.boolean(),
+  /** Вложение забрано (письмо без вложения — всегда false). */
+  claimed: z.boolean(),
+});
+
+/** v5. Почта: письма (новые — первыми) и id уже доставленных системных писем. */
+export const MailStateSchema = z.object({
+  /** Номер последнего выданного id письма. */
+  seq: z.number().int().nonnegative(),
+  letters: z.array(LetterSchema),
+  delivered: z.array(z.string()),
+});
+
+/**
+ * v5. События новичка (data/events.json): «Вход 7 дней» и «7 дней новичка». Появляется при первом открытии игры
+ * с настоящим днём (events/events.ts touchEvents). Нет поля — события ещё не начинались.
+ */
+export const EventsStateSchema = z.object({
+  /** День старта (первое открытие) — от него считаются дни «7 дней новичка». */
+  startDay: DayStringSchema,
+  /** Последний день, засчитанный во вход. */
+  lastDay: DayStringSchema,
+  /** Сколько разных дней игрок открывал игру (пропуски не сбрасывают, как в AFK). */
+  loginDays: z.number().int().positive(),
+  /** Номера дней входа (1…7), награда за которые получена. */
+  loginClaimed: z.array(z.number().int().positive()),
+  /** id заданий «7 дней новичка», очки за которые получены. */
+  newbieTasks: z.array(z.string()),
+  /** Пороги очков новичка, сундук за которые получен. */
+  newbieMilestones: z.array(z.number().int().positive()),
+});
+
 export const SaveStateSchema = z.object({
   version: z.literal(SAVE_VERSION),
   createdAt: z.number(),
@@ -184,9 +243,18 @@ export const SaveStateSchema = z.object({
   /**
    * Показанные баннеры «Новая функция!» (id из data/unlocks.json) — каждый один раз. Поле добавлено без смены версии и
    * намеренно без default: нет поля — сохранение старше таблицы открытий, sanitizeSave (initSeenUnlocks) отмечает
-   * показанным всё, что игрок уже открыл.
+   * показанным всё, что игрок уже открыл. Стоит сразу после seenScenes и до mail (newGame и initSeenUnlocks кладут его
+   * туда же): serialize(deserialize(x)) === serialize(x).
    */
   seenUnlocks: z.array(z.string()).optional(),
+  /**
+   * v5. Почта (подарки, компенсации, письмо «Добро пожаловать»). Порядок ключей важен для
+   * serialize(deserialize(x)) === serialize(x): newGame кладёт mail сразу после seenScenes, events появляется позже
+   * (touchEvents) — раньше необязательных полей ниже.
+   */
+  mail: MailStateSchema,
+  /** v5. «Вход 7 дней» и «7 дней новичка». Нет поля — ещё не начинались (начнутся при открытии игры). */
+  events: EventsStateSchema.optional(),
   /**
    * P11 (T4-05). Сцены «после этапа», которые пора показать, но ещё не показаны (очередь). Попадают сюда
    * вместе с победой (actPlayStage), уходят — когда показаны (markScenesSeen). Нет поля — пусто.
@@ -215,6 +283,10 @@ export type Bounty = z.infer<typeof BountySchema>;
 export type ActiveBounty = z.infer<typeof ActiveBountySchema>;
 export type BountiesState = z.infer<typeof BountiesStateSchema>;
 export type AchievementsState = z.infer<typeof AchievementsStateSchema>;
+export type RewardBundle = z.infer<typeof RewardBundleSchema>;
+export type Letter = z.infer<typeof LetterSchema>;
+export type MailState = z.infer<typeof MailStateSchema>;
+export type EventsState = z.infer<typeof EventsStateSchema>;
 
 /** День по умолчанию для newGame/миграций, пока UI не передал настоящий. */
 export const DEFAULT_DAY = '1970-01-01';
@@ -235,4 +307,9 @@ export function emptySummon(): SummonState {
 /** v3. Пустая доска поручений (обновится при первом ensureBoard с настоящим днём). */
 export function emptyBounties(): BountiesState {
   return { board: [], lastRefreshDay: DEFAULT_DAY, refreshesUsed: 0, active: [] };
+}
+
+/** v5. Пустая почта. */
+export function emptyMail(): MailState {
+  return { seq: 0, letters: [], delivered: [] };
 }

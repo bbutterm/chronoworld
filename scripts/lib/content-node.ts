@@ -68,6 +68,7 @@ export function readRawGameData(root: string = ROOT): RawGameData {
     bounties: readJsonFile('data/bounties.json', root),
     achievements: readJsonFile('data/achievements.json', root),
     unlocks: readJsonFile('data/unlocks.json', root),
+    events: readJsonFile('data/events.json', root),
     stories: readJsonDir('data/story', root),
   };
 }

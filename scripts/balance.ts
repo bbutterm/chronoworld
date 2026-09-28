@@ -3,6 +3,7 @@
  * быстрые награды, задания, поручения, достижения. Только функции ядра (обёртки act*).
  *   npm run balance                           14 дней, CSV в balance.csv
  *   npm run balance -- --days 10 --sessions 6 --out /tmp/b.csv
+ *   npm run balance -- --days 7 --no-events   без «Входа 7 дней», «7 дней новичка» и почты (сравнить «до/после»)
  * Модель игрока — scripts/lib/player-model.ts (PLAYER_MODEL). Описание — docs/content/balance.md.
  */
 import { writeFileSync } from 'node:fs';
@@ -29,6 +30,7 @@ const model = {
   sessionsPerDay: intArg('sessions', PLAYER_MODEL.sessionsPerDay),
   sessionMinutes: intArg('minutes', PLAYER_MODEL.sessionMinutes),
   fastRewardsPerDay: arg('fast') !== undefined ? Number(arg('fast')) : PLAYER_MODEL.fastRewardsPerDay,
+  events: !process.argv.includes('--no-events'),
 };
 const out = resolve(ROOT, arg('out') ?? 'balance.csv');
 
@@ -141,6 +143,16 @@ console.log(
     `призывов ${res.summons}, вознесений ${res.ascensions.length}, заданий ${Object.values(res.questClaims).reduce((a, n) => a + n, 0)}, ` +
     `поручений ${res.save.achievements.counters.bounties_done ?? 0}`,
 );
+const scrolls = Object.entries(res.scrollsIn).map(([k, n]) => `${k} ${n}`).join(', ');
+if (scrolls) console.log(`  свитки призыва: ${scrolls}`);
+if (model.events) {
+  // События новичка (data/events.json): когда получены награды входа и сундуки новичка.
+  const when = (kind: string) => res.eventClaims.filter((e) => e.kind === kind).map((e) => `${e.id}@д${e.day}`).join(' ');
+  console.log('\nСобытия новичка:');
+  console.log(`  вход 7 дней (день входа @ день модели): ${when('login') || '—'}`);
+  console.log(`  новичок: заданий ${res.eventClaims.filter((e) => e.kind === 'newbie_task').length} из ${ctx.events.newbie.days.reduce((a, d) => a + d.tasks.length, 0)}, сундуки (очки @ день): ${when('newbie_chest') || '—'}`);
+  console.log(`  письма (забрано @ день): ${when('mail') || '—'}`);
+}
 
 console.log('\nСигналы:');
 for (const s of signals(res, ctx)) console.log(`  • ${s}`);
