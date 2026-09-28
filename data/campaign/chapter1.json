@@ -563,19 +563,19 @@
       "enemies": [
         {
           "unit": "mob_fast",
-          "mult": 1.13
+          "mult": 1.11
         },
         {
           "unit": "mob_mastering",
-          "mult": 1.12
+          "mult": 1.1
         },
         {
           "unit": "mob_drops",
-          "mult": 1.13
+          "mult": 1.11
         },
         {
           "unit": "mob_poporing",
-          "mult": 1.13
+          "mult": 1.11
         },
         null
       ],
