@@ -142,7 +142,10 @@ export function buildRegistry(legacy: LegacySprites | undefined, v2: SpritesV2 |
 export function genderedSpriteId(base: string, gender: 'm' | 'f' | undefined, has: (id: string) => boolean): string {
   if (!gender) return base;
   const variant = `${base}_${gender}`;
-  return has(variant) ? variant : base;
+  if (has(variant)) return variant;
+  // Лист первой профессии без пола (`archer_first`) — вариант по полу называется по классу (`archer_f`).
+  const byClass = `${base.replace(/_first$/, '')}_${gender}`;
+  return has(byClass) ? byClass : base;
 }
 
 /** Имя анимации с учётом замен (например, нет walk — играем idle). */
