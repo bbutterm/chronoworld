@@ -79,8 +79,10 @@ import {
   towerUnlocked,
   featureUnlocked,
   heroSlots,
+  refineBreakChance,
   refineCost,
   refineItem,
+  refineLevel,
   refineUnlocked,
   buyShopSlot,
   levelUpCost,
@@ -162,6 +164,11 @@ export interface PlayerModel {
   /** Секунд интерфейса на один шаг заточки. */
   refineSec: number;
   /**
+   * Предел риска: шаг заточки с шансом поломки выше него модель не делает (0.3 — до +4 включительно при шансах
+   * (N−1)·10%). Бросок — по seed из сохранения (как у игрока); сломанная вещь пропадает, autoEquip надевает замену.
+   */
+  refineMaxRisk: number;
+  /**
    * Ветка второй профессии на фиолетовом (docs/design/heroes-v2.md, раздел 7): keep — сохранить роль первой профессии
    * (танк → ветка-танк, лекарь → Жрица; нет такой — первая ветка), alt — другая ветка, random — по id экземпляра.
    */
@@ -197,6 +204,7 @@ export const PLAYER_MODEL: PlayerModel = {
   refine: true,
   refineReserveLevels: 5,
   refineSec: 1,
+  refineMaxRisk: 0.3,
   branch: 'keep',
   seedBase: 1,
   startDate: '2026-01-01',
@@ -385,6 +393,8 @@ export interface BalanceResult {
   shopBuys: Record<string, number>;
   /** Шагов заточки (всего) и уровни заточки надетого на отряд на конец каждого дня (средний, максимум). */
   refines: number;
+  /** Сломано вещей при заточке. */
+  refineBreaks: number;
   refineByDay: { avg: number; max: number }[];
 }
 
@@ -429,6 +439,7 @@ class Sim {
   eventClaims: BalanceResult['eventClaims'] = [];
   shopBuys: Record<string, number> = {};
   refines = 0;
+  refineBreaks = 0;
   dayNo = 1;
   day: string;
   /** Текущее время, мс от полуночи дня 1. */
@@ -713,7 +724,10 @@ class Sim {
     return Math.max(sum, this.goldForExp(0));
   }
 
-  /** Заточка надетого на отряд: сначала самый дешёвый шаг, только золото сверх refineReserve. */
+  /**
+   * Заточка надетого на отряд: сначала самый дешёвый шаг с риском не выше refineMaxRisk, только золото сверх
+   * refineReserve. Поломка — вещь пропала, autoEquip надевает лучшую замену из инвентаря.
+   */
   refine(): void {
     if (!this.model.refine || !refineUnlocked(this.save, this.ctx)) return;
     const reserve = this.refineReserve();
@@ -723,12 +737,18 @@ class Sim {
         if (!id) continue;
         for (const s of Object.values(heroSlots(this.save, id, this.ctx))) {
           const c = refineCost(s.instance, s.def, this.ctx);
+          if (refineBreakChance(refineLevel(s.instance), this.ctx) > this.model.refineMaxRisk) continue;
           if (c && (!best || c.gold < best.gold)) best = { id: s.instance.id, gold: c.gold };
         }
       }
       if (!best || this.save.resources.gold - best.gold < reserve) break;
-      this.step('refine', refineItem(this.save, best.id, this.ctx).save);
+      const r = refineItem(this.save, best.id, this.ctx);
+      this.step('refine', r.save);
       this.refines++;
+      if (r.events.some((e) => e.type === 'refineBroken')) {
+        this.refineBreaks++;
+        this.autoEquip();
+      }
       this.spendTime(this.model.refineSec * 1000);
     }
   }
@@ -1150,6 +1170,7 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     eventClaims: sim.eventClaims,
     shopBuys: sim.shopBuys,
     refines: sim.refines,
+    refineBreaks: sim.refineBreaks,
     refineByDay,
     activeMinutes: sim.activeMin,
   };

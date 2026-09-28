@@ -227,6 +227,14 @@
             "base",
             "growth"
           ]
+        },
+        "breakChance": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 0.99
+          }
         }
       },
       "required": [
