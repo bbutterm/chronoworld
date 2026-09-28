@@ -2,12 +2,32 @@ import Phaser from 'phaser';
 import { towerFloor } from '../core';
 import { CONTENT, GAME } from './content';
 import { GAME_H, GAME_W } from './layout';
+import {
+  deadTree,
+  drawDesertField,
+  drawDesertMap,
+  drawGroveField,
+  drawGroveMap,
+  drawNiflheimField,
+  drawNiflheimMap,
+  drawShipwreckField,
+  drawShipwreckMap,
+  fogBlob,
+  glow,
+  rng,
+  tileFill,
+  vignette,
+  type Ctx,
+  type Rng,
+} from './backdropsExtra';
 import { bleedImage } from './viewport';
 
 /**
  * Фоны по главам (визуальная полировка): поле боя и карта кампании для каждой темы —
  * глава 1 / лесной ярус башни — «луг» (skin_bg_battle, skin_bg_forest из skin.ts),
- * глава 2 / болотный ярус — «топь», глава 3 / костяной ярус — «склеп».
+ * глава 2 / болотный ярус — «топь», глава 3 / костяной ярус — «склеп», глава 4 — «пустыня» (Пески Сограта),
+ * глава 5 — «ночной лес» (Лес Пайона), глава 6 — «затонувший корабль», глава 7 / «Ярус владык» — «Нифльхейм».
+ * Рисование глав 4–7 и общие кисти — backdropsExtra.ts.
  *
  * Всё рисуется кодом в canvas 720×1280 (как фоны скина), лениво — при первом показе темы. Чтобы не копить
  * видеопамять (≈ 3.7 МБ на фон), держим не больше одного ленивого фона каждого вида (бой / карта): новый вытесняет
@@ -15,8 +35,11 @@ import { bleedImage } from './viewport';
  * побеждает: грузится по требованию и подменяет нарисованный, как только загрузится.
  */
 
-export type Theme = 'meadow' | 'swamp' | 'crypt';
-export const THEMES: readonly Theme[] = ['meadow', 'swamp', 'crypt'];
+export type Theme = 'meadow' | 'swamp' | 'crypt' | 'desert' | 'grove' | 'shipwreck' | 'niflheim';
+/** Темы по порядку глав: индекс + 1 — номер главы (и файлов bg_battle_ch<N> / bg_map_ch<N>). */
+export const THEMES: readonly Theme[] = ['meadow', 'swamp', 'crypt', 'desert', 'grove', 'shipwreck', 'niflheim'];
+/** Темы полос башни по порядку (лесной, болотный, костяной ярус, «Ярус владык»); дальше — последняя. */
+const TOWER_THEMES: readonly Theme[] = ['meadow', 'swamp', 'crypt', 'niflheim'];
 type Kind = 'battle' | 'map';
 
 const FIELD_W = GAME_W;
@@ -31,16 +54,17 @@ for (const path of Object.keys(import.meta.glob('../../assets/backgrounds/bg_{ba
   FILES[name.replace(/\.(jpg|png|webp)$/, '')] = `backgrounds/${name}`;
 }
 
-/** Тема главы по её месту в кампании (1 — луг, 2 — топь, 3 — склеп; дальше по кругу). */
+/** Тема главы по её месту в кампании (1 — луг, 2 — топь, 3 — склеп, 4 — пустыня, 5 — ночной лес, 6 — затонувший
+ * корабль, 7 — Нифльхейм; дальше по кругу). */
 export function themeOfChapter(chapterId: string | undefined): Theme {
   const i = CONTENT.chapters.findIndex((c) => c.id === chapterId);
   return THEMES[Math.max(0, i) % THEMES.length];
 }
 
-/** Тема этажа башни — по его полосе (лесной, болотный, костяной ярус). */
+/** Тема этажа башни — по его полосе (лесной, болотный, костяной ярус, «Ярус владык» — Нифльхейм). */
 export function themeOfTowerFloor(floor: number): Theme {
   try {
-    return THEMES[towerFloor(floor, GAME).band % THEMES.length];
+    return TOWER_THEMES[Math.min(towerFloor(floor, GAME).band, TOWER_THEMES.length - 1)];
   } catch {
     return 'meadow';
   }
@@ -80,8 +104,16 @@ function drawn(scene: Phaser.Scene, kind: Kind, t: Theme): string {
   const img = (k: string) => (scene.textures.exists(k) ? (scene.textures.get(k).getSourceImage() as CanvasImageSource) : null);
   if (kind === 'battle') {
     if (t === 'swamp') drawSwampField(ctx, BG_W, BG_H, img('tile_grass_02'), img('tile_dirt'));
+    else if (t === 'desert') drawDesertField(ctx, BG_W, BG_H);
+    else if (t === 'grove') drawGroveField(ctx, BG_W, BG_H, img('tile_grass_02'));
+    else if (t === 'shipwreck') drawShipwreckField(ctx, BG_W, BG_H);
+    else if (t === 'niflheim') drawNiflheimField(ctx, BG_W, BG_H, img('tile_grass_dry'));
     else drawCryptField(ctx, BG_W, BG_H, img('tile_stone'));
   } else if (t === 'swamp') drawSwampMap(ctx, BG_W, BG_H);
+  else if (t === 'desert') drawDesertMap(ctx, BG_W, BG_H);
+  else if (t === 'grove') drawGroveMap(ctx, BG_W, BG_H);
+  else if (t === 'shipwreck') drawShipwreckMap(ctx, BG_W, BG_H);
+  else if (t === 'niflheim') drawNiflheimMap(ctx, BG_W, BG_H);
   else drawCryptMap(ctx, BG_W, BG_H);
   tex.refresh();
   return key;
@@ -142,102 +174,8 @@ export function screenBackground(scene: Phaser.Scene): Phaser.GameObjects.Image 
 // Рисование. Всё детерминированно (свой seed) — фон одинаков при каждом запуске.
 // ---------------------------------------------------------------------------------------------------------------
 
-type Ctx = CanvasRenderingContext2D;
-
-function rng(seed: number) {
-  let s = seed;
-  const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
-  return { rnd, between: (a: number, b: number) => a + rnd() * (b - a) };
-}
-
-/** Заливка тайлом (или цветом, если тайла нет) с масштабом. */
-function tileFill(c: Ctx, tile: CanvasImageSource | null, fallback: string, scale: number, x: number, y: number, w: number, h: number): void {
-  const pat = tile ? c.createPattern(tile, 'repeat') : null;
-  if (pat) {
-    pat.setTransform(new DOMMatrix().scale(scale));
-    c.fillStyle = pat;
-  } else c.fillStyle = fallback;
-  c.fillRect(x, y, w, h);
-}
-
-/** Радиальная виньетка: края темнее цветом color. */
-function vignette(c: Ctx, W: number, H: number, cy: number, inner: number, outer: number, color: string): void {
-  const v = c.createRadialGradient(W / 2, cy, inner, W / 2, cy, outer);
-  v.addColorStop(0, 'rgba(0,0,0,0)');
-  v.addColorStop(1, color);
-  c.fillStyle = v;
-  c.fillRect(0, 0, W, H);
-}
-
-/** Мягкое световое пятно (composite 'lighter'). */
-function glow(c: Ctx, x: number, y: number, r: number, color: string, a: number): void {
-  c.save();
-  c.globalCompositeOperation = 'lighter';
-  const g = c.createRadialGradient(x, y, 0, x, y, r);
-  g.addColorStop(0, color.replace('A', String(a)));
-  g.addColorStop(1, color.replace('A', '0'));
-  c.fillStyle = g;
-  c.fillRect(x - r, y - r, r * 2, r * 2);
-  c.restore();
-}
-
-/** Сухое дерево: ствол и ветвящиеся голые сучья. */
-function deadTree(c: Ctx, r: ReturnType<typeof rng>, x: number, base: number, h: number, color: string, moss?: string): void {
-  c.strokeStyle = color;
-  c.lineCap = 'round';
-  const branch = (x0: number, y0: number, len: number, ang: number, w: number, depth: number) => {
-    const x1 = x0 + Math.cos(ang) * len;
-    const y1 = y0 + Math.sin(ang) * len;
-    c.lineWidth = w;
-    c.beginPath();
-    c.moveTo(x0, y0);
-    c.quadraticCurveTo((x0 + x1) / 2 + r.between(-len, len) * 0.15, (y0 + y1) / 2, x1, y1);
-    c.stroke();
-    if (moss && depth <= 2 && r.rnd() < 0.6) {
-      // Свисающий мох.
-      c.save();
-      c.strokeStyle = moss;
-      c.lineWidth = Math.max(1, w * 0.4);
-      const ml = r.between(12, 40);
-      c.beginPath();
-      c.moveTo(x1, y1);
-      c.bezierCurveTo(x1 + 3, y1 + ml * 0.3, x1 - 3, y1 + ml * 0.6, x1 + 1, y1 + ml);
-      c.stroke();
-      c.restore();
-    }
-    if (depth <= 0 || w < 1) return;
-    const n = depth > 2 ? 2 : r.rnd() < 0.5 ? 2 : 3;
-    for (let i = 0; i < n; i++) branch(x1, y1, len * r.between(0.55, 0.8), ang + r.between(-0.75, 0.75), w * 0.62, depth - 1);
-  };
-  // Ствол — клин от корней.
-  c.fillStyle = color;
-  c.beginPath();
-  c.moveTo(x - h * 0.05, base);
-  c.lineTo(x + h * 0.05, base);
-  c.lineTo(x + h * 0.012, base - h * 0.55);
-  c.lineTo(x - h * 0.012, base - h * 0.55);
-  c.closePath();
-  c.fill();
-  branch(x, base - h * 0.5, h * 0.3, -Math.PI / 2 + r.between(-0.3, 0.3), h * 0.022, 4);
-  branch(x, base - h * 0.35, h * 0.22, -Math.PI / 2 - r.between(0.5, 1.1), h * 0.014, 3);
-  branch(x, base - h * 0.42, h * 0.22, -Math.PI / 2 + r.between(0.5, 1.1), h * 0.014, 3);
-}
-
-/** Мягкое пятно тумана (эллипс с градиентом). */
-function fogBlob(c: Ctx, x: number, y: number, rx: number, ry: number, color: string, a: number): void {
-  c.save();
-  c.translate(x, y);
-  c.scale(1, ry / rx);
-  const g = c.createRadialGradient(0, 0, 0, 0, 0, rx);
-  g.addColorStop(0, color.replace('A', String(a)));
-  g.addColorStop(1, color.replace('A', '0'));
-  c.fillStyle = g;
-  c.fillRect(-rx, -rx, rx * 2, rx * 2);
-  c.restore();
-}
-
 /** Лужа стоячей воды: тёмная гладь, светлая кромка, блики, кувшинки. */
-function pool(c: Ctx, r: ReturnType<typeof rng>, x: number, y: number, rx: number, ry: number): void {
+function pool(c: Ctx, r: Rng, x: number, y: number, rx: number, ry: number): void {
   c.save();
   c.fillStyle = 'rgba(30,38,22,0.55)';
   c.beginPath();
@@ -289,7 +227,7 @@ function pool(c: Ctx, r: ReturnType<typeof rng>, x: number, y: number, rx: numbe
 }
 
 /** Пучок камыша с рогозом. */
-function reeds(c: Ctx, r: ReturnType<typeof rng>, x: number, y: number, h: number): void {
+function reeds(c: Ctx, r: Rng, x: number, y: number, h: number): void {
   const n = Math.round(r.between(5, 9));
   c.lineCap = 'round';
   for (let i = 0; i < n; i++) {
@@ -489,7 +427,7 @@ function skull(c: Ctx, x: number, y: number, s: number, ang = 0): void {
 }
 
 /** Куча костей: несколько костей и череп. */
-function bonePile(c: Ctx, r: ReturnType<typeof rng>, x: number, y: number, s: number): void {
+function bonePile(c: Ctx, r: Rng, x: number, y: number, s: number): void {
   for (let i = 0; i < 5; i++) bone(c, x + r.between(-s, s), y + r.between(-s * 0.3, s * 0.3), r.between(s * 0.6, s * 1.1), r.between(0, Math.PI));
   skull(c, x + r.between(-s * 0.4, s * 0.4), y - s * 0.2, s * 0.42, r.between(-0.3, 0.3));
 }
@@ -515,7 +453,7 @@ function torch(c: Ctx, x: number, y: number, s: number): void {
 }
 
 /** Кладка: ряды камней со смещением, каждый камень чуть своего тона. */
-function masonry(c: Ctx, r: ReturnType<typeof rng>, x0: number, y0: number, w: number, h: number, bw: number, bh: number, tones: string[]): void {
+function masonry(c: Ctx, r: Rng, x0: number, y0: number, w: number, h: number, bw: number, bh: number, tones: string[]): void {
   c.save();
   c.beginPath();
   c.rect(x0, y0, w, h);
