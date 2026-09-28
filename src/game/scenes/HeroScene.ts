@@ -661,7 +661,9 @@ export class HeroScene extends Phaser.Scene {
       const best = button(this, GAME_W / 2, y + 60, 700, 110, 'ui_btn_primary', `Надеть лучшее (${ups.length})`, () => this.equipBest(hero), FS.h3);
       best.container.setName('equipBestBtn');
       a.add(best.container);
-      if (!hintDone('equip_gear')) tutorialHint(this, 'equip_gear', GAME_W / 2, TAB_TOP + 8 + y + 60, 'above', { w: 700, h: 110 }, { text: 'Наденьте трофеи' });
+      // Одна подсказка на карточке: шаг обучения «Улучшить» (level_up) важнее трофеев — они подождут.
+      const levelStep = !hintDone('level_up') && levelUpInfo(session.save, hero.id, GAME).canLevel;
+      if (!hintDone('equip_gear') && !levelStep) tutorialHint(this, 'equip_gear', GAME_W / 2, TAB_TOP + 8 + y + 60, 'above', { w: 700, h: 110 }, { text: 'Наденьте трофеи' });
       y += 130;
     } else {
       a.add(text(this, GAME_W / 2, y + 50, 'Нажмите на слот, чтобы выбрать предмет', FS.caption, C.dim));

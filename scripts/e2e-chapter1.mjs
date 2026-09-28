@@ -197,6 +197,8 @@ let seenDialogues = 0;
 
 /** Подсказки обучения, увиденные за прогон: id → сколько раз (шаг может указывать дважды: вкладка → цель). */
 const hintsSeen = new Map();
+/** Экран:подсказка, для которых уже снят скриншот (одна подсказка бывает на нескольких экранах: вкладка → цель). */
+const hintShots = new Set();
 /** Записать подсказку на экране (hints.ts): id и перекрытие кнопок плашкой. */
 const recordHint = async (sceneKey) => {
   // Плашку hintPointer раскладывает на следующем кадре (и после диалога/баннера) — подождать, пока она встанет.
@@ -219,7 +221,8 @@ const recordHint = async (sceneKey) => {
   if (!h) return null;
   // Одна подсказка за раз (MT-07): hintPointer убирает прежнюю.
   if (h.count > 1) problems.push(`[${sceneKey}] на экране ${h.count} подсказки сразу`);
-  if (!hintsSeen.has(h.id)) {
+  if (!hintsSeen.has(h.id) || !hintShots.has(`${sceneKey}:${h.id}`)) {
+    hintShots.add(`${sceneKey}:${h.id}`);
     log(`подсказка [${sceneKey}]: ${h.id}${h.mode === 'ring' ? ' (плашке нет места — рамка и сообщение)' : ''}`);
     await shot(`hint-${sceneKey}-${String(h.id).replace(/[^a-z0-9_]/gi, '').slice(0, 24) || 'text'}`);
   }
@@ -235,6 +238,7 @@ const recordHint = async (sceneKey) => {
 const levelUpSquad = async (shotName) => {
   await clickText('Campaign', 'ГЕРОИ');
   await waitScene('Heroes');
+  await recordHint('Heroes');
   let levels = 0;
   const stuck = new Set();
   for (let n = 0; n < 40; n++) {
@@ -247,6 +251,8 @@ const levelUpSquad = async (shotName) => {
       active.scene.start('Hero', { heroId: id });
     }, hero.id);
     await waitScene('Hero');
+    // Подсказки карточки героя («Улучшить», «Вознести», трофеи) — не закрывают вкладки и кнопки (LT-10).
+    await recordHint('Hero');
     if (!(await findText('Hero', 'Улучшить'))) {
       stuck.add(hero.id);
       continue;
@@ -293,7 +299,13 @@ const ascendStep = async () => {
   await clickText('Ascend', 'Авто');
   await sleep(500);
   await shot('ascend');
-  await clickText('Ascend', 'Вознести');
+  // Кнопка — «Вознести · N золота» (цена в подписи).
+  const ascLabel = await page.evaluate(() => {
+    const all = (list) => list.flatMap((o) => (o.list ? [o, ...all(o.list)] : [o]));
+    return all(window.__game.scene.getScene('Ascend').children.list).find((o) => o.type === 'Text' && o.visible && o.text.startsWith('Вознести'))?.text ?? null;
+  });
+  if (!ascLabel) throw new Error('на экране вознесения нет кнопки «Вознести…»');
+  await clickText('Ascend', ascLabel);
   await sleep(500);
   // Подтверждение (confirm): кнопка «Вознести» модального окна — самая верхняя.
   await clickText('Ascend', 'Вознести', true);
