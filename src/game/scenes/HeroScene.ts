@@ -39,7 +39,7 @@ import { ascendReady, formatNumber, heroSprite, itemStatsText, levelText, RARITY
 import { GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
-import { button, ellipsize, hintPointer, panel, pressable, ScrollArea, text, toast, tutorialHint } from '../ui';
+import { button, ellipsize, panel, pressable, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { C, FS, TINT } from '../theme';
 import { skillIcon } from '../skillIcons';
 import { sfx } from '../audio';
@@ -367,7 +367,7 @@ export class HeroScene extends Phaser.Scene {
       this.ui.up = up;
       this.ui.upGlow = glow;
       if (juiceOn()) this.tweens.add({ targets: glow, scale: glow.scale * 1.08, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-      if (info.canLevel && !hintDone('level_up')) hintPointer(this, UP_X, ACT_Y, 'Опыт из запаса — в уровень героя', 'below', { w: 330, h: 130 });
+      if (info.canLevel && !hintDone('level_up')) tutorialHint(this, 'level_up', UP_X, ACT_Y, 'below', { w: 330, h: 130 }, { text: 'Опыт из запаса — в уровень героя' });
       // Вознесение до предела (призывные — кормом в любой момент; сюжетные — осколками).
       if (req) {
         const asc = button(this, 560, ACT_Y - 18, 220, 96, canAscend ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести', () => this.openAscend(), FS.h3);
@@ -661,7 +661,7 @@ export class HeroScene extends Phaser.Scene {
       const best = button(this, GAME_W / 2, y + 60, 700, 110, 'ui_btn_primary', `Надеть лучшее (${ups.length})`, () => this.equipBest(hero), FS.h3);
       best.container.setName('equipBestBtn');
       a.add(best.container);
-      if (!hintDone('equip_gear')) hintPointer(this, GAME_W / 2, TAB_TOP + 8 + y + 60, 'Наденьте трофеи', 'above', { w: 700, h: 110 });
+      if (!hintDone('equip_gear')) tutorialHint(this, 'equip_gear', GAME_W / 2, TAB_TOP + 8 + y + 60, 'above', { w: 700, h: 110 }, { text: 'Наденьте трофеи' });
       y += 130;
     } else {
       a.add(text(this, GAME_W / 2, y + 50, 'Нажмите на слот, чтобы выбрать предмет', FS.caption, C.dim));

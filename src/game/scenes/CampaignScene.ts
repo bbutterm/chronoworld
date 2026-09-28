@@ -436,7 +436,7 @@ export class CampaignScene extends Phaser.Scene {
     // быстрые награды — кнопка слева от «В бой». Касание плашки — пропустить шаг.
     if (id === 'tavern_summon' || id === 'quests_open') this.hintView = tutorialHint(this, id, navTabX('Home'), tabY, 'above', tab);
     if (id === 'ascend') this.hintView = tutorialHint(this, id, navTabX('Heroes'), tabY, 'above', tab);
-    if (id === 'fast_rewards') this.hintView = tutorialHint(this, id, L.fastX, L.rowY, 'above', { w: L.fastW, h: L.fastH });
+    if (id === 'fast_rewards') this.hintView = tutorialHint(this, id, L.fastX, L.rowY, 'above', { w: L.fastW, h: L.fastH }, { avoidText: ['Сундук офлайн-наград'] });
     this.hintView?.once(Phaser.GameObjects.Events.DESTROY, () => {
       // Плашку пропустили касанием — на следующем тике покажется следующий шаг цепочки.
       if (this.hintId === id && hintDone(id)) this.hintId = null;

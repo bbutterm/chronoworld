@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { newGame, type SaveState } from '../src/core';
 import { autoNextStage, heroesBadgeCount } from '../src/game/flow';
-import { HINT_KEY, HINT_TEXT, hintDone, markHint, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
+import { HINT_KEY, HINT_TEXT, hintDone, markHint, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, setHintObsolete, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
 import { loadFullContext, loadGameContext } from '../scripts/lib/content-node';
 import { placeCallout } from '../src/game/hintLayout';
 
@@ -33,7 +33,7 @@ describe('R: подсказки первой сессии', () => {
       seen.push(id);
       done.add(id);
     }
-    expect(seen).toEqual(['chest_claim', 'level_up', 'tavern_summon', 'ascend', 'fast_rewards', 'quests_open']);
+    expect(seen).toEqual(['chest_claim', 'level_up', 'tavern_summon', 'fast_rewards', 'quests_open', 'ascend']);
     expect(seen).toEqual(TUTORIAL_CHAIN.filter((id) => seen.includes(id)));
   });
 
@@ -54,6 +54,22 @@ describe('R: подсказки первой сессии', () => {
     done.add('prep_auto');
     done.add('stage_fight');
     expect(pickPrepHint({ first: true, benchStronger: true, summoned: true }, isDone)).toBeNull();
+  });
+
+  it('шаг, ненужный по прогрессу сохранения (новое устройство), считается выполненным; сбой проверки — не выполнен', () => {
+    resetHints();
+    setHintObsolete((id) => id === 'level_up');
+    try {
+      expect(hintDone('level_up')).toBe(true);
+      expect(hintDone('chest_claim')).toBe(false);
+      expect(pickHomeHint({ ...base, cleared: 20, levelUpReady: true, chestHasIncome: true }, (id) => id === 'chest_claim' || hintDone(id))).toBeNull();
+      setHintObsolete(() => {
+        throw new Error('сохранение ещё не загружено');
+      });
+      expect(hintDone('level_up')).toBe(false);
+    } finally {
+      setHintObsolete(() => false);
+    }
   });
 
   it('выполненная подсказка больше не показывается', () => {

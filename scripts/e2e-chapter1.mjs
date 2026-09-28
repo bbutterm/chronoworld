@@ -199,15 +199,28 @@ let seenDialogues = 0;
 const hintsSeen = new Map();
 /** Записать подсказку на экране (hints.ts): id и перекрытие кнопок плашкой. */
 const recordHint = async (sceneKey) => {
+  // Плашку hintPointer раскладывает на следующем кадре (и после диалога/баннера) — подождать, пока она встанет.
+  for (let i = 0; i < 25; i++) {
+    const pending = await page.evaluate((k) => {
+      if (!window.__game.scene.isActive(k)) return false;
+      return window.__game.scene.getScene(k).children.list.some((o) => o.name === 'hint' && o.active && !o.getData?.('hintBox'));
+    }, sceneKey);
+    if (!pending) break;
+    await sleep(200);
+  }
   const h = await page.evaluate((k) => {
     if (!window.__game.scene.isActive(k)) return null;
-    const c = window.__game.scene.getScene(k).children.list.find((o) => o.getData?.('hintBox') && o.active);
+    const list = window.__game.scene.getScene(k).children.list;
+    const c = list.find((o) => o.getData?.('hintBox') && o.active);
     const txt = c?.list?.find((o) => o.type === 'Text' && o.name !== 'hintSkip')?.text;
-    return c ? { id: c.getData('hintId') ?? txt, overlap: c.getData('hintOverlap'), side: c.getData('hintSide') } : null;
+    const count = list.filter((o) => o.name === 'hint' && o.active).length;
+    return c ? { id: c.getData('hintId') ?? txt, overlap: c.getData('hintOverlap'), side: c.getData('hintSide'), mode: c.getData('hintMode'), count } : null;
   }, sceneKey);
   if (!h) return null;
+  // Одна подсказка за раз (MT-07): hintPointer убирает прежнюю.
+  if (h.count > 1) problems.push(`[${sceneKey}] на экране ${h.count} подсказки сразу`);
   if (!hintsSeen.has(h.id)) {
-    log(`подсказка [${sceneKey}]: ${h.id}`);
+    log(`подсказка [${sceneKey}]: ${h.id}${h.mode === 'ring' ? ' (плашке нет места — рамка и сообщение)' : ''}`);
     await shot(`hint-${sceneKey}-${String(h.id).replace(/[^a-z0-9_]/gi, '').slice(0, 24) || 'text'}`);
   }
   hintsSeen.set(h.id, (hintsSeen.get(h.id) ?? 0) + 1);

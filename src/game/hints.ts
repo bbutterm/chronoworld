@@ -6,8 +6,9 @@
  *
  * Ведущее обучение главы 1 (как в AFK, первые 10–15 минут; порядок — TUTORIAL_CHAIN):
  * «В бой» на карте → «В бой» на расстановке (с Таверны — «Авто») → бой (с этапа 3 — скорость ×2) → итоги «Дальше»
- * (потом «К кампании») → сундук «Собрать» → «Герои» → «Улучшить» → Таверна ×10 → вознесение копиями → быстрые награды →
- * задания дня. Башня и трофеи — позже, по событию.
+ * (потом «К кампании») → сундук «Собрать» → «Герои» → «Улучшить» → Таверна ×10 → «Авто» → быстрые награды → задания дня →
+ * вознесение копиями (когда три копии выпали). Башня и трофеи — позже, по событию. На экране — одна подсказка, плашка
+ * не закрывает кнопки (hintPointer в ui.ts); шаги, ненужные по прогрессу сохранения, не показываются (tutorial.ts).
  */
 
 export type HintId =
@@ -37,9 +38,10 @@ export const TUTORIAL_CHAIN: readonly HintId[] = [
   'level_up',
   'tavern_summon',
   'prep_auto',
-  'ascend',
   'fast_rewards',
   'quests_open',
+  // Вознесение — по удаче Таверны (три копии бывают не у всех): не держит шаги, которые открываются этапами.
+  'ascend',
 ];
 
 export const HINT_KEY = 'chronoworld.hints';
@@ -89,8 +91,24 @@ function store(done: Set<HintId>): void {
 let done: Set<HintId> | null = null;
 const doneSet = () => (done ??= load());
 
+/**
+ * Шаги, потерявшие смысл по прогрессу сохранения (LT-12, MT-07): список показанных подсказок живёт в localStorage
+ * устройства, и игрок середины игры на новом телефоне иначе прошёл бы обучение заново. Проверку по сохранению
+ * регистрирует tutorial.ts (setHintObsolete); без неё (тесты) — ничего не устарело.
+ */
+let obsolete: (id: HintId) => boolean = () => false;
+export function setHintObsolete(fn: (id: HintId) => boolean): void {
+  obsolete = fn;
+}
+
+/** Подсказка выполнена (или пропущена) на этом устройстве либо уже не нужна по прогрессу. */
 export function hintDone(id: HintId): boolean {
-  return doneSet().has(id);
+  if (doneSet().has(id)) return true;
+  try {
+    return obsolete(id);
+  } catch {
+    return false;
+  }
 }
 
 /** Игрок сделал действие — подсказка больше не показывается. */
@@ -139,16 +157,16 @@ export interface HomeHintInput {
 /**
  * Какую подсказку показать на странице «Кампания» (одну, самую нужную) или null (имя — историческое: раньше это была
  * главная). Порядок — цепочка обучения: новичок → «В бой»; сундук, «Улучшить» (вкладка «Герои»), Таверна (вкладка
- * «Город»), вознесение («Герои»), быстрые награды, задания («Город»); по событию — трофеи и Башня («Приключения»).
+ * «Город»), быстрые награды, задания («Город»), вознесение («Герои»); по событию — трофеи и Башня («Приключения»).
  */
 export function pickHomeHint(s: HomeHintInput, isDone: (id: HintId) => boolean = hintDone): HintId | null {
   if (s.cleared === 0 && !isDone('home_campaign')) return 'home_campaign';
   if (s.chestHasIncome && !isDone('chest_claim')) return 'chest_claim';
   if (s.levelUpReady && !isDone('level_up')) return 'level_up';
   if (s.tavernReady && !isDone('tavern_summon')) return 'tavern_summon';
-  if (s.ascendReady && !isDone('ascend')) return 'ascend';
   if (s.fastRewardsFree && !isDone('fast_rewards')) return 'fast_rewards';
   if (s.questsUnlocked && !isDone('quests_open')) return 'quests_open';
+  if (s.ascendReady && !isDone('ascend')) return 'ascend';
   if (s.gearUpgrade && !isDone('equip_gear')) return 'equip_gear';
   if (s.towerUnlocked && !isDone('tower_open')) return 'tower_open';
   return null;

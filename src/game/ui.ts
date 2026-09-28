@@ -4,7 +4,7 @@ import { SKIN, SKIN_DARK_LABEL } from './skin';
 import { FONT, GAME_H, GAME_W, HEADER_H } from './layout';
 import { worldPoint } from './viewport';
 import { C, FS, TINT, TOUCH } from './theme';
-import { HINT_GEOM, placeCallout, type CalloutPlan, type HintSide, type Rect } from './hintLayout';
+import { arrowRect, HINT_GEOM, overlapArea, placeCallout, type CalloutPlan, type HintSide, type Rect } from './hintLayout';
 import { HINT_TEXT, markHint, type HintId } from './hints';
 import { barFrom, juiceOn } from './juice';
 import { sfx } from './audio';
@@ -449,9 +449,16 @@ export function progressBar(
  * R/S. Указатель подсказки на цель (x, y): пульсирующее кольцо, прыгающая стрелка и плашка с одной строкой.
  * side — предпочтительная сторона плашки ('auto' — без предпочтения). Сторону и сдвиг вбок выбирает placeCallout
  * (hintLayout.ts), чтобы плашка не закрывала другие элементы управления сцены: все интерактивные объекты,
- * кроме самой цели, плюс opts.avoid. target — размер цели (рамка пульсирует вокруг неё).
+ * кроме самой цели, плюс opts.avoid и видимые подписи, начинающиеся с opts.avoidText. target — размер цели.
  * Рамка и стрелка ничего не перехватывают: нажатия проходят к кнопке под ними. opts.skip — плашку можно коснуться
  * (в углу «✕»): подсказка скрывается и больше не показывается (обучение пропускаемое).
+ *
+ * Правила (отчёты тестировщиков NB-03/04, MT-07, LT-10, NB-13):
+ * - одна подсказка на экране: новая убирает прежнюю;
+ * - раскладка считается на следующем кадре, когда сцена достроена (вкладки и кнопки, созданные после вызова, тоже
+ *   обходятся), и ждёт, пока закроются сюжетный диалог и баннер «Новая функция!» — под ними подсказку не видно;
+ * - плашка никогда не закрывает кнопки: не влезает в строку — переносится уже; нигде нет места — остаются рамка
+ *   (и стрелка, если она ничего не закрывает), а текст показывается всплывающим сообщением.
  */
 export function hintPointer(
   scene: Phaser.Scene,
@@ -460,8 +467,34 @@ export function hintPointer(
   message: string,
   side: HintSide | 'auto',
   target: { w: number; h: number },
-  opts: { avoid?: Rect[]; skip?: () => void } = {},
+  opts: { avoid?: Rect[]; avoidText?: string[]; skip?: () => void } = {},
 ): Phaser.GameObjects.Container {
+  // Одна подсказка за раз: прежняя (другой шаг или та же после перерисовки) уходит.
+  for (const o of [...scene.children.list]) if (o.name === 'hint') o.destroy();
+  const c = scene.add.container(0, 0).setDepth(8000).setName('hint');
+  const build = () => {
+    if (!c.scene || !c.active) return;
+    // Сюжетный диалог или баннер открытия поверх — подождать, пока их закроют (NB-13).
+    if (scene.children.getByName('dialogue') || scene.children.getByName('unlockBanner')) {
+      scene.events.once(Phaser.Scenes.Events.POST_UPDATE, build);
+      return;
+    }
+    drawHint(scene, c, x, y, message, side, target, opts);
+  };
+  scene.events.once(Phaser.Scenes.Events.POST_UPDATE, build);
+  return c;
+}
+
+function drawHint(
+  scene: Phaser.Scene,
+  c: Phaser.GameObjects.Container,
+  x: number,
+  y: number,
+  message: string,
+  side: HintSide | 'auto',
+  target: { w: number; h: number },
+  opts: { avoid?: Rect[]; avoidText?: string[]; skip?: () => void },
+): void {
   const w = GAME_W;
   const h = GAME_H;
   // T3-13: рамка (и её пульс) не выходит за поле и не уходит под нижний край: у края цель обводится плотнее.
@@ -470,16 +503,18 @@ export function hintPointer(
   const grow = Math.max(0, Math.min(40, room * 2 - pad - 8));
   const ring = scene.add.rectangle(x, y, target.w + pad, target.h + pad).setStrokeStyle(8, TINT.gold, 1);
   if (juiceOn()) scene.tweens.add({ targets: ring, scaleX: 1 + grow / (target.w + pad), scaleY: 1 + grow / (target.h + pad), alpha: grow > 0 ? 0.15 : 0.35, yoyo: grow <= 0, duration: 800, repeat: -1 });
+  c.add(ring);
   const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
   const closeW = opts.skip ? 44 : 0;
-  const avoid = [...controlRects(scene, x, y), ...(opts.avoid ?? [])];
+  const avoid = [...controlRects(scene, x, y), ...textRects(scene, opts.avoidText ?? []), ...(opts.avoid ?? [])];
+  const tgt = { x, y, ...target };
   // Плашка в одну строку не везде помещается между кнопками (итоги: «Дальше» у правого края, слева — «Авто»):
   // тогда та же строка переносится уже — узкая плашка встаёт рядом с целью, ничего не закрывая.
   let best: CalloutPlan | null = null;
   let wrap = w - 200;
   for (const ww of [w - 200, 640, 520, 420, 340]) {
     t.setWordWrapWidth(ww);
-    const p = placeCallout({ x, y, ...target }, { w: Math.min(w - 60, t.width + 60 + closeW), h: t.height + 22 }, {
+    const p = placeCallout(tgt, { w: Math.min(w - 60, t.width + 60 + closeW), h: t.height + 22 }, {
       prefer: side === 'auto' ? undefined : side,
       avoid,
       top: HEADER_H + 8,
@@ -494,20 +529,36 @@ export function hintPointer(
   }
   t.setWordWrapWidth(wrap);
   const plan = best!;
-  const dir = plan.side === 'above' ? -1 : 1;
-  const ay = plan.arrowY;
-  // Стрелка остриём к цели: над целью — вниз, под целью — вверх.
   const g = HINT_GEOM;
-  const arrow =
-    plan.side === 'above'
-      ? scene.add.triangle(x, ay, 0, 0, g.arrowW, 0, g.arrowW / 2, g.arrowH, TINT.gold)
-      : scene.add.triangle(x, ay, 0, g.arrowH, g.arrowW, g.arrowH, g.arrowW / 2, 0, TINT.gold);
-  arrow.setStrokeStyle(4, TINT.header);
-  if (juiceOn()) scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, repeat: -1, duration: 450, ease: 'Sine.easeInOut' });
+  const arrowAt = (sd: HintSide) => {
+    const ay = arrowRect(tgt, sd).y + g.arrowH / 2;
+    const dir = sd === 'above' ? -1 : 1;
+    // Стрелка остриём к цели: над целью — вниз, под целью — вверх.
+    const arrow =
+      sd === 'above'
+        ? scene.add.triangle(x, ay, 0, 0, g.arrowW, 0, g.arrowW / 2, g.arrowH, TINT.gold)
+        : scene.add.triangle(x, ay, 0, g.arrowH, g.arrowW, g.arrowH, g.arrowW / 2, 0, TINT.gold);
+    arrow.setStrokeStyle(4, TINT.header);
+    if (juiceOn()) scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, repeat: -1, duration: 450, ease: 'Sine.easeInOut' });
+    c.add(arrow);
+  };
+  if (plan.overlap > 0) {
+    // Места для плашки нет — рамка, стрелка (где она ничего не закрывает) и текст всплывающим сообщением.
+    t.destroy();
+    const free = (['above', 'below'] as HintSide[]).find((sd) => {
+      const a = arrowRect(tgt, sd);
+      return a.y >= HEADER_H && a.y + a.h <= h && avoid.every((r) => overlapArea(a, r) === 0);
+    });
+    if (free) arrowAt(free);
+    toast(scene, message, C.title, 4500, 'middle');
+    c.setData('hintBox', { x, y, w: 0, h: 0 }).setData('hintOverlap', 0).setData('hintSide', free ?? 'none').setData('hintMode', 'ring');
+    return;
+  }
+  arrowAt(plan.side);
   const b = plan.box;
   const bg = scene.add.rectangle(b.x + b.w / 2, b.y + b.h / 2, b.w, b.h, 0x000000, 0.85).setStrokeStyle(4, TINT.gold);
   t.setPosition(b.x + b.w / 2 - closeW / 2, b.y + b.h / 2);
-  const c = scene.add.container(0, 0, [ring, arrow, bg, t]).setDepth(8000).setName('hint');
+  c.add([bg, t]);
   if (opts.skip) {
     const skip = opts.skip;
     c.add(text(scene, b.x + b.w - 30, b.y + b.h / 2, '✕', FS.body, C.muted, { fontStyle: 'bold' }).setName('hintSkip'));
@@ -517,8 +568,7 @@ export function hintPointer(
     });
   }
   // Для e2e и отладки: где оказалась плашка и что она закрыла.
-  c.setData('hintBox', b).setData('hintOverlap', plan.overlap).setData('hintSide', plan.side);
-  return c;
+  c.setData('hintBox', b).setData('hintOverlap', plan.overlap).setData('hintSide', plan.side).setData('hintMode', 'box');
 }
 
 /**
@@ -531,9 +581,27 @@ export function tutorialHint(
   y: number,
   side: HintSide | 'auto',
   target: { w: number; h: number },
-  opts: { avoid?: Rect[]; text?: string } = {},
+  opts: { avoid?: Rect[]; avoidText?: string[]; text?: string } = {},
 ): Phaser.GameObjects.Container {
-  return hintPointer(scene, x, y, opts.text ?? HINT_TEXT[id], side, target, { avoid: opts.avoid, skip: () => markHint(id) }).setData('hintId', id);
+  return hintPointer(scene, x, y, opts.text ?? HINT_TEXT[id], side, target, { avoid: opts.avoid, avoidText: opts.avoidText, skip: () => markHint(id) }).setData('hintId', id);
+}
+
+/** Прямоугольники видимых подписей сцены, текст которых начинается с одной из строк (что плашка не должна закрывать). */
+function textRects(scene: Phaser.Scene, prefixes: string[]): Rect[] {
+  if (!prefixes.length) return [];
+  const out: Rect[] = [];
+  const walk = (list: Phaser.GameObjects.GameObject[], visible: boolean) => {
+    for (const o of list) {
+      const vis = visible && (o as unknown as { visible?: boolean }).visible !== false;
+      if (o instanceof Phaser.GameObjects.Container) walk(o.list, vis);
+      else if (vis && o instanceof Phaser.GameObjects.Text && prefixes.some((p) => o.text.startsWith(p))) {
+        const r = o.getBounds();
+        out.push({ x: r.x, y: r.y, w: r.width, h: r.height });
+      }
+    }
+  };
+  walk(scene.children.list, true);
+  return out;
 }
 
 /**

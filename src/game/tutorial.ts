@@ -6,8 +6,8 @@ import type { SaveState } from '../core';
 import { fastRewardsPreview, fastRewardsStatus, heroesWithGearUpgrades, towerStatus } from '../core';
 import { GAME } from './content';
 import { ascendReady, levelUpReady } from './flow';
-import { hintDone, type HintId, type HomeHintInput } from './hints';
-import { today } from './session';
+import { hintDone, setHintObsolete, type HintId, type HomeHintInput } from './hints';
+import { session, today } from './session';
 import { isUnlocked } from './unlockBanner';
 
 export function homeHintInput(save: SaveState, chestHasIncome: boolean): HomeHintInput {
@@ -36,3 +36,19 @@ export function cityHint(save: SaveState, isDone: (id: HintId) => boolean = hint
   if (s.questsUnlocked && !isDone('quests_open')) return 'quests_open';
   return null;
 }
+
+/**
+ * Обучение по прогрессу сохранения (LT-12, MT-07): подсказки новичка не нужны тому, кто уже прошёл главу 1 (новое
+ * устройство, чистый браузер, Telegram на втором телефоне); «Башня открыта» — тому, кто в Башне уже был.
+ * Трофеи (equip_gear) — подсказка по событию, её оставляем: касание плашки её скрывает.
+ */
+export function hintObsoleteFor(save: SaveState, id: HintId): boolean {
+  if (id === 'equip_gear') return false;
+  if (id === 'tower_open') return save.tower.floor > 0;
+  if (id === 'tavern_summon' && save.summon.firstTenDone) return true;
+  const first = GAME.content.chapters[0]?.id;
+  const ch1 = GAME.content.stages.filter((st) => st.chapter === first);
+  return ch1.length > 0 && ch1.every((st) => save.campaign.cleared.includes(st.id));
+}
+
+setHintObsolete((id) => hintObsoleteFor(session.save, id));

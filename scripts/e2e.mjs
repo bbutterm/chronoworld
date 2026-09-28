@@ -193,6 +193,10 @@ async function main() {
      * hintOverlap (площадь перекрытия; 0 — чисто).
      */
     const checkHint = async (sceneKey, what) => {
+      // Плашку hintPointer раскладывает на следующем кадре — дождаться её (до 5 с).
+      await page
+        .waitForFunction((k) => window.__game.scene.getScene(k).children.list.some((o) => o.name === 'hint' && o.getData?.('hintBox')), sceneKey, { timeout: 5000 })
+        .catch(() => {});
       const h = await page.evaluate((k) => {
         const c = window.__game.scene.getScene(k).children.list.find((o) => o.getData?.('hintBox'));
         return c ? { overlap: c.getData('hintOverlap'), side: c.getData('hintSide') } : null;
@@ -228,8 +232,8 @@ async function main() {
     // Письмо «Добро пожаловать» и вход дня — красный кружок на вкладке «Город».
     if (!(await page.evaluate(() => !!window.__game.scene.getScene('Campaign').children.getByName('navBadge_Home')))) problems.push('нет значка на вкладке «Город» (письмо, вход дня)');
     // R: новичку показана подсказка на «В бой»; она не закрывает другие кнопки.
-    if (!(await hasText('Campaign', 'Первый этап ждёт'))) problems.push('нет подсказки новичку на кампании');
     await checkHint('Campaign', 'кампания');
+    if (!(await hasText('Campaign', 'Первый этап ждёт'))) problems.push('нет подсказки новичку на кампании');
 
     // События новичка: вкладка «Город» → иконка «События» в шапке → «Вход 7 дней» → забрать день 1 нажатием.
     await clickText('Campaign', 'ГОРОД');
