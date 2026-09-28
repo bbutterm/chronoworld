@@ -2,16 +2,18 @@ import { describe, expect, it } from 'vitest';
 import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, queueAnimatedFx, selectedAnimatedEffect } from '../src/game/animatedFx';
 
 describe('RO animated effects', () => {
-  it('queues all 15 captured atlases with catalog cell sizes', () => {
+  it('queues all 26 captured atlases with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(15);
+    expect(queued).toHaveLength(26);
     expect(queued).toContainEqual(['anim_fx_hit', 'effects/fx_hit.png', 580, 440]);
     expect(queued).toContainEqual(['anim_fx_arrow', 'effects/fx_arrow.png', 66, 12]);
     expect(queued).toContainEqual(['anim_fx_job_mage_thunderstorm', 'effects/fx_job_mage_thunderstorm.png', 278, 318]);
     expect(queued).toContainEqual(['anim_fx_job_acolyte_blessing', 'effects/fx_job_acolyte_blessing.png', 98, 206]);
     expect(queued).toContainEqual(['anim_fx_job_mage_fire_ball_projectile', 'effects/fx_job_mage_fire_ball_projectile.png', 104, 44]);
     expect(queued).toContainEqual(['anim_fx_job_acolyte_signum_crucis', 'effects/fx_job_acolyte_signum_crucis.png', 236, 260]);
+    expect(queued).toContainEqual(['anim_fx_job_crusader_holy_cross', 'effects/fx_job_crusader_holy_cross.png', 442, 442]);
+    expect(queued).toContainEqual(['anim_fx_job_wizard_storm_gust', 'effects/fx_job_wizard_storm_gust.png', 362, 308]);
   });
 
   it('plays authored frames without entering blank trailing cells', () => {
@@ -58,6 +60,17 @@ describe('эффекты навыков (effects.json → skills)', () => {
     expect(skillFx('job_acolyte_increase_agi')?.buff).toBe('fx_job_acolyte_increase_agi');
     expect(skillFx('job_acolyte_signum_crucis')).toBeUndefined();
     expect(skillFx('job_mage_fire_ball')?.hit).not.toBe('fx_job_mage_fire_ball_projectile');
+    expect(skillFx('job_thief_envenom')?.hit).toBe('fx_job_thief_envenom');
+    expect(skillFx('job_crusader_defender')?.buff).toBe('fx_job_crusader_defender');
+    expect(skillFx('job_blacksmith_weapon_perfection')?.buff).toBe('fx_job_blacksmith_weapon_perfection');
+    expect(skillFx('job_assassin_sonic_blow')?.hit).toBe('fx_job_assassin_sonic_blow');
+    expect(skillFx('job_crusader_holy_cross')?.hit).toBe('fx_job_crusader_holy_cross');
+    expect(skillFx('job_crusader_shield_charge')?.hit).toBe('fx_job_crusader_shield_charge');
+    expect(skillFx('job_hunter_claymore_trap')?.hit).toBe('fx_job_hunter_claymore_trap');
+    expect(skillFx('swordman_bash')).toBeUndefined(); // EF_BASH is a cast cue, not a hit
+    expect(skillFx('job_crusader_grand_cross')).toBeUndefined(); // ground area needs a hook
+    expect(skillFx('job_wizard_storm_gust')).toBeUndefined(); // ground area needs a hook
+    expect(skillFx('job_hunter_sandman')).toBeUndefined(); // enemy status needs a hook
   });
   it('skillFx: нет привязки — undefined, без id — undefined', async () => {
     const { skillFx } = await import('../src/game/animatedFx');
