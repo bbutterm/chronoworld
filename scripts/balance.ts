@@ -4,6 +4,7 @@
  *   npm run balance                           14 дней, CSV в balance.csv
  *   npm run balance -- --days 10 --sessions 6 --out /tmp/b.csv
  *   npm run balance -- --days 7 --no-events   без «Входа 7 дней», «7 дней новичка» и почты (сравнить «до/после»)
+ *   npm run balance -- --days 7 --no-hunt     без «Охоты на босса»; --seed N — другой сдвиг seed боёв
  *   npm run balance -- --days 7 --no-shop     без покупок в Лавке (сравнить «до/после»)
  * Модель игрока — scripts/lib/player-model.ts (PLAYER_MODEL). Описание — docs/content/balance.md.
  */
@@ -32,6 +33,8 @@ const model = {
   sessionMinutes: intArg('minutes', PLAYER_MODEL.sessionMinutes),
   fastRewardsPerDay: arg('fast') !== undefined ? Number(arg('fast')) : PLAYER_MODEL.fastRewardsPerDay,
   events: !process.argv.includes('--no-events'),
+  hunt: !process.argv.includes('--no-hunt'),
+  seedBase: intArg('seed', PLAYER_MODEL.seedBase),
   shop: !process.argv.includes('--no-shop'),
 };
 const out = resolve(ROOT, arg('out') ?? 'balance.csv');
@@ -159,6 +162,14 @@ if (model.events) {
   console.log(`  вход 7 дней (день входа @ день модели): ${when('login') || '—'}`);
   console.log(`  новичок: заданий ${res.eventClaims.filter((e) => e.kind === 'newbie_task').length} из ${ctx.events.newbie.days.reduce((a, d) => a + d.tasks.length, 0)}, сундуки (очки @ день): ${when('newbie_chest') || '—'}`);
   console.log(`  письма (забрано @ день): ${when('mail') || '—'}`);
+}
+
+if (model.hunt && res.huntLog.length) {
+  // Охота на босса (data/hunt.json): урон и порог каждой попытки по дням (з — «Зачистка»).
+  console.log('\nОхота на босса (урон / порог, з — зачистка):');
+  const byDay = new Map<number, string[]>();
+  for (const h of res.huntLog) byDay.set(h.day, [...(byDay.get(h.day) ?? []), `${h.damage} / ${h.tier + 1}${h.sweep ? 'з' : ''}`]);
+  for (const [d, xs] of byDay) console.log(`  день ${String(d).padStart(2)}: ${xs.join(', ')}`);
 }
 
 console.log('\nСигналы:');

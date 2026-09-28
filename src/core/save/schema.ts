@@ -211,6 +211,16 @@ export const ShopStateSchema = z.object({
   boughtToday: z.record(z.string(), z.number().int().nonnegative()),
 });
 
+/**
+ * «Охота на босса» (hunt/hunt.ts): день последней попытки, попыток в этот день и лучший урон по каждому боссу
+ * (id юнита из data/hunt.json → bosses) — для «Зачистки». Поле добавлено без смены версии: нет поля — ещё не охотились.
+ */
+export const HuntStateSchema = z.object({
+  day: DayStringSchema,
+  used: z.number().int().nonnegative(),
+  best: z.record(z.string(), z.number().int().nonnegative()),
+});
+
 export const SaveStateSchema = z.object({
   version: z.literal(SAVE_VERSION),
   createdAt: z.number(),
@@ -303,6 +313,8 @@ export const SaveStateSchema = z.object({
   revision: z.number().int().nonnegative().optional(),
   /** Лавка (src/core/shop). Поле добавлено без смены версии: нет поля — лавку ещё не открывали. */
   shop: ShopStateSchema.optional(),
+  /** Охота на босса. Нет поля — ещё не охотились (без смены версии). */
+  hunt: HuntStateSchema.optional(),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;
@@ -321,6 +333,7 @@ export type MailState = z.infer<typeof MailStateSchema>;
 export type EventsState = z.infer<typeof EventsStateSchema>;
 export type ShopSlot = z.infer<typeof ShopSlotSchema>;
 export type ShopState = z.infer<typeof ShopStateSchema>;
+export type HuntState = z.infer<typeof HuntStateSchema>;
 
 /** День по умолчанию для newGame/миграций, пока UI не передал настоящий. */
 export const DEFAULT_DAY = '1970-01-01';

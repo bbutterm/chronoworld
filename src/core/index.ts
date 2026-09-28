@@ -19,6 +19,7 @@ export * from './save/save';
 export * from './features';
 export * from './equipment';
 export * from './tower';
+export * from './hunt';
 export * from './meta';
 export * from './events';
 export * from './context';

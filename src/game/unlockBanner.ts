@@ -30,6 +30,7 @@ const GOTO: Record<FeatureId, { scene: string; data?: object }> = {
   tavern: { scene: 'Tavern' },
   bounties: { scene: 'Bounties' },
   tower: { scene: 'Tower' },
+  hunt: { scene: 'Hunt' },
   shop: { scene: 'Shop' },
 };
 

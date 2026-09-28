@@ -6,7 +6,7 @@ const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в ниж
  * Функции, которые открываются по ходу кампании (как в AFK Arena). Код экранов знает каждую по id, поэтому новый id —
  * это правка кода (UI) + строка в data/unlocks.json. id лежат в сохранениях (save.seenUnlocks) — не переименовывать.
  */
-export const FEATURE_IDS = ['fast_rewards', 'quests', 'speed_x2', 'achievements', 'tavern', 'bounties', 'tower', 'shop'] as const;
+export const FEATURE_IDS = ['fast_rewards', 'quests', 'speed_x2', 'achievements', 'tavern', 'bounties', 'tower', 'hunt', 'shop'] as const;
 export type FeatureId = (typeof FEATURE_IDS)[number];
 
 /** Иконки баннера: имена из src/game/skin.ts (ICONS) и mug — кружка Таверны (tavernEntry.ts). */

@@ -3,6 +3,7 @@ import bountiesJson from '../../data/bounties.json';
 import cardsJson from '../../data/cards.json';
 import dropsJson from '../../data/drops.json';
 import eventsJson from '../../data/events.json';
+import huntJson from '../../data/hunt.json';
 import progressionJson from '../../data/progression.json';
 import questsJson from '../../data/quests.json';
 import shopJson from '../../data/shop.json';
@@ -40,6 +41,7 @@ export const GAME: FullContext = buildGameContext({
   achievements: achievementsJson,
   unlocks: unlocksJson,
   events: eventsJson,
+  hunt: huntJson,
   shop: shopJson,
   stories: toFiles(import.meta.glob('../../data/story/*.json', { eager: true, import: 'default' })),
 });

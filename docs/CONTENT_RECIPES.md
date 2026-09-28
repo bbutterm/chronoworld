@@ -210,7 +210,7 @@ id вида `chapterN` выводится сам (`ch<N>`).
 
 ## 8б. Товары лавки
 
-Лавка — `data/shop.json` (схема `src/core/shop/schema.ts`, подсказки — `data/schema/shop.schema.json`, API — `docs/AGENTS.md` 2г).
+Лавка — `data/shop.json` (схема `src/core/shop/schema.ts`, подсказки — `data/schema/shop.schema.json`, API — `docs/AGENTS.md` 2д).
 
 1. Товар — строка `goods[]`: `{"id": "exp_small", "kind": "heroExp", "count": 3000, "price": {"currency": "gold", "amount": 3000},
    "stock": 2, "weight": 6}`. `kind`: `item` (нужна `rarity` common|rare|epic, предмет выбирается из `data/items` этой редкости с
@@ -286,6 +286,23 @@ heroes?: [id шаблона]}`; `jobExp` — в общий пул, карточ�
 
 `data/tower.json → bands[i].layouts` (обычные этажи по кругу) / `bossLayouts` (каждый `bossEvery`-й этаж). 5 слотов как у этапа.
 Проверка: content:check, `tests/tower.test.ts`; `docs/content/tower.md`.
+
+## 11а. Босс охоты
+
+«Охота на босса» — `data/hunt.json` (схема `data/schema/hunt.schema.json`, ядро `src/core/hunt`, API — `docs/AGENTS.md`, раздел 2г).
+
+1. Босс — любой юнит `kind: boss` (или `monster`) из `data/units`; нового юнита для охоты не нужно. Строка в `bosses[]`:
+   `{unit, hpMult, atkMult, defMult, scale?, title?}`. `hpMult` — огромный (сейчас 180–200 → 500 тыс. hp): босс не должен падать
+   даже у сильного отряда (упал — урон упрётся в его hp). `atkMult` — насколько больно он бьёт (лекари обычно вытягивают).
+   `scale` — только вид в бою (крупнее фигура). `title` — подпись на экране охоты.
+2. Ротация: день d берёт `bosses[d mod длина]` (d — номер дня с 1970-01-01), то есть босс меняется каждый день по кругу.
+   Добавили босса — сдвинулся весь круг; лучший урон («Зачистка») хранится по id юнита, поэтому новый босс начинается с нуля.
+3. Пороги `tiers[] {damage, rewards}`: `damage` строго растёт, награды (`gold`, `jobExp`, `gems`, `shards`) не убывают, `item` —
+   редкость предмета (`common`/`rare`/`epic`). Выдаётся только высший достигнутый порог. Подбирайте так, чтобы первые пороги брались
+   в день открытия, а верхние — через недели (урон по дням модели — `npm run balance -- --days 7`, блок «Охота на босса»).
+4. Бюджет: гемы высшего порога × `attemptsPerDay` ≤ 20 в день (тест `tests/hunt.test.ts`). Опыт и золото — малые: опыт охоты
+   заметно ускоряет главы (см. `docs/content/balance.md`, «Охота на босса»).
+5. Проверка: `npm run content:check`, `npm run check`, `npm run balance -- --days 7` и сравнить с `--no-hunt` (крючки не хуже).
 
 ## 12. Подключение арта владельца
 
