@@ -2,14 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, queueAnimatedFx, selectedAnimatedEffect } from '../src/game/animatedFx';
 
 describe('RO animated effects', () => {
-  it('queues all eight atlases with catalog cell sizes', () => {
+  it('queues all 15 captured atlases with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(8);
+    expect(queued).toHaveLength(15);
     expect(queued).toContainEqual(['anim_fx_hit', 'effects/fx_hit.png', 580, 440]);
     expect(queued).toContainEqual(['anim_fx_arrow', 'effects/fx_arrow.png', 66, 12]);
     expect(queued).toContainEqual(['anim_fx_job_mage_thunderstorm', 'effects/fx_job_mage_thunderstorm.png', 278, 318]);
     expect(queued).toContainEqual(['anim_fx_job_acolyte_blessing', 'effects/fx_job_acolyte_blessing.png', 98, 206]);
+    expect(queued).toContainEqual(['anim_fx_job_mage_fire_ball_projectile', 'effects/fx_job_mage_fire_ball_projectile.png', 104, 44]);
+    expect(queued).toContainEqual(['anim_fx_job_acolyte_signum_crucis', 'effects/fx_job_acolyte_signum_crucis.png', 236, 260]);
   });
 
   it('plays authored frames without entering blank trailing cells', () => {
@@ -44,10 +46,18 @@ describe('RO animated effects', () => {
 });
 
 describe('эффекты навыков (effects.json → skills)', () => {
-  it('maps the two new animated skill effects', async () => {
+  it('maps only verified hit and buff RO skill effects', async () => {
     const { skillFx } = await import('../src/game/animatedFx');
     expect(skillFx('job_mage_thunderstorm')?.hit).toBe('fx_job_mage_thunderstorm');
     expect(skillFx('job_acolyte_blessing')?.buff).toBe('fx_job_acolyte_blessing');
+    expect(skillFx('job_mage_fire_bolt')?.hit).toBe('fx_job_mage_fire_bolt');
+    expect(skillFx('job_mage_fire_ball')?.hit).toBe('fx_job_mage_fire_bolt');
+    expect(skillFx('job_mage_frost_diver')?.hit).toBe('fx_job_mage_frost_diver');
+    expect(skillFx('job_merchant_cart_revolution')?.hit).toBe('fx_job_merchant_cart_revolution');
+    expect(skillFx('job_acolyte_holy_light')?.hit).toBe('fx_job_acolyte_holy_light');
+    expect(skillFx('job_acolyte_increase_agi')?.buff).toBe('fx_job_acolyte_increase_agi');
+    expect(skillFx('job_acolyte_signum_crucis')).toBeUndefined();
+    expect(skillFx('job_mage_fire_ball')?.hit).not.toBe('fx_job_mage_fire_ball_projectile');
   });
   it('skillFx: нет привязки — undefined, без id — undefined', async () => {
     const { skillFx } = await import('../src/game/animatedFx');

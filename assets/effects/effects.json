@@ -212,10 +212,221 @@
         "seed": 1,
         "note": "EF_THUNDERSTORM 30, zoom 200; alpha noise below 25 removed; area lightning on target"
       }
+    },
+    {
+      "id": "fx_job_mage_fire_bolt",
+      "file": "effects/fx_job_mage_fire_bolt.png",
+      "cell": [
+        198,
+        218
+      ],
+      "columns": 5,
+      "frames": 5,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        105.2,
+        127.4
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "49",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.8,
+        "seed": 1,
+        "note": "EF_FIREHIT 49: MG_FIREBOLT/MG_FIREBALL hit"
+      }
+    },
+    {
+      "id": "fx_job_mage_fire_ball_projectile",
+      "file": "effects/fx_job_mage_fire_ball_projectile.png",
+      "cell": [
+        104,
+        44
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        52.6,
+        48.2
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "24",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.9,
+        "seed": 1,
+        "note": "EF_FIREBALL 24: MG_FIREBALL beforeHit; projectile flight remains game-side"
+      }
+    },
+    {
+      "id": "fx_job_mage_frost_diver",
+      "file": "effects/fx_job_mage_frost_diver.png",
+      "cell": [
+        226,
+        216
+      ],
+      "columns": 8,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        108.4,
+        114.8
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "28",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.85,
+        "seed": 1,
+        "note": "EF_FROSTDIVER2 28: MG_FROSTDIVER hit"
+      }
+    },
+    {
+      "id": "fx_job_merchant_cart_revolution",
+      "file": "effects/fx_job_merchant_cart_revolution.png",
+      "cell": [
+        258,
+        280
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        128.2,
+        168.4
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "170",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.8,
+        "seed": 1,
+        "note": "EF_CARTREVOLUTION 170: MC_CARTREVOLUTION hit"
+      }
+    },
+    {
+      "id": "fx_job_acolyte_holy_light",
+      "file": "effects/fx_job_acolyte_holy_light.png",
+      "cell": [
+        254,
+        254
+      ],
+      "columns": 4,
+      "frames": 4,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        127.6,
+        161.2
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "152",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.9,
+        "seed": 1,
+        "note": "EF_HOLYHIT 152: AL_HOLYLIGHT effect"
+      }
+    },
+    {
+      "id": "fx_job_acolyte_increase_agi",
+      "file": "effects/fx_job_acolyte_increase_agi.png",
+      "cell": [
+        94,
+        194
+      ],
+      "columns": 8,
+      "frames": 22,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        49.4,
+        153.8
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "37",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.85,
+        "seed": 1,
+        "note": "EF_INCAGILITY 37: AL_INCAGI ally buff"
+      }
+    },
+    {
+      "id": "fx_job_acolyte_signum_crucis",
+      "file": "effects/fx_job_acolyte_signum_crucis.png",
+      "cell": [
+        236,
+        260
+      ],
+      "columns": 8,
+      "frames": 22,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        119.0,
+        161.3
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "40",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 0.6511,
+        "outputScale": 0.35,
+        "seed": 1,
+        "note": "EF_SIGNUM 40: AL_CRUCIS debuff; zoom 200, full 12fps no significant canvas-edge pixels"
+      }
     }
   ],
   "skills": {
-    "job_acolyte_blessing": { "buff": "fx_job_acolyte_blessing" },
-    "job_mage_thunderstorm": { "hit": "fx_job_mage_thunderstorm" }
+    "job_acolyte_blessing": {
+      "buff": "fx_job_acolyte_blessing"
+    },
+    "job_acolyte_holy_light": {
+      "hit": "fx_job_acolyte_holy_light"
+    },
+    "job_acolyte_increase_agi": {
+      "buff": "fx_job_acolyte_increase_agi"
+    },
+    "job_mage_fire_bolt": {
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "job_mage_fire_ball": {
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "job_mage_frost_diver": {
+      "hit": "fx_job_mage_frost_diver"
+    },
+    "job_mage_thunderstorm": {
+      "hit": "fx_job_mage_thunderstorm"
+    },
+    "job_merchant_cart_revolution": {
+      "hit": "fx_job_merchant_cart_revolution"
+    }
   }
 }
