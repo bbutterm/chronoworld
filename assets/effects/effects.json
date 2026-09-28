@@ -887,6 +887,60 @@
         "seed": 1,
         "note": "WZ_METEOR effectId 92; falling meteor; zoom 350 to avoid top clipping; fire hit separate"
       }
+    },
+    {
+      "id": "fx_job_thief_steal",
+      "file": "effects/fx_job_thief_steal.png",
+      "cell": [
+        188,
+        176
+      ],
+      "columns": 5,
+      "frames": 5,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        85.4,
+        112.8
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "18",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.85,
+        "seed": 1,
+        "note": "TF_STEAL successEffectId 18; pale target glint, success hook required"
+      }
+    },
+    {
+      "id": "fx_job_swordman_magnum_break",
+      "file": "effects/fx_job_swordman_magnum_break.png",
+      "cell": [
+        276,
+        198
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        138.2,
+        105.4
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "17",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.8,
+        "seed": 1,
+        "note": "SM_MAGNUM effectIdOnCaster 17; warm caster ring, not area explosion"
+      }
     }
   ],
   "skills": {

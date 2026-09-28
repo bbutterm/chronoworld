@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, queueAnimatedFx, selectedAnimatedEffect } from '../src/game/animatedFx';
 
 describe('RO animated effects', () => {
-  it('queues all 33 captured atlases with catalog cell sizes', () => {
+  it('queues all 35 captured atlases with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(33);
+    expect(queued).toHaveLength(35);
+    expect(queued).toContainEqual(['anim_fx_job_thief_steal', 'effects/fx_job_thief_steal.png', 188, 176]);
+    expect(queued).toContainEqual(['anim_fx_job_swordman_magnum_break', 'effects/fx_job_swordman_magnum_break.png', 276, 198]);
     expect(queued).toContainEqual(['anim_fx_swordman_endure', 'effects/fx_swordman_endure.png', 156, 156]);
     expect(queued).toContainEqual(['anim_fx_job_wizard_meteor_storm', 'effects/fx_job_wizard_meteor_storm.png', 250, 458]);
     expect(queued).toContainEqual(['anim_fx_hit', 'effects/fx_hit.png', 580, 440]);
