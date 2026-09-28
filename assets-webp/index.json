@@ -284,10 +284,65 @@
   "png": 26373,
   "webp": 17596
  },
+ "sprites/heroes/crusader_f.png": {
+  "sha1": "bfd1eb762e67efb59263c254631c07dd7560b95e",
+  "png": 28392,
+  "webp": 21204
+ },
+ "sprites/heroes/crusader_m.png": {
+  "sha1": "e5704a0c7c24e7ff1935ad97dc91504057e78b1b",
+  "png": 31683,
+  "webp": 22478
+ },
+ "sprites/heroes/dancer_f.png": {
+  "sha1": "6120270030835dd943be9ae5eb48bd6ff5f03ee2",
+  "png": 30137,
+  "webp": 22046
+ },
  "sprites/heroes/guard.png": {
   "sha1": "ca9baf44587a397b277a0c1d1cb538fe23e68934",
   "png": 31511,
   "webp": 22356
+ },
+ "sprites/heroes/hero_alan_swordman.png": {
+  "sha1": "a07150cd5f28219dd8e7b807acd7eb0ec5241626",
+  "png": 27542,
+  "webp": 19300
+ },
+ "sprites/heroes/hero_bran_archer.png": {
+  "sha1": "365dbe1d25f0cb5037d2339305993c4f8f7ceffe",
+  "png": 25494,
+  "webp": 18142
+ },
+ "sprites/heroes/hero_dorn_thief.png": {
+  "sha1": "718342f1b180f085f12abed8c310a1de1f97d262",
+  "png": 24635,
+  "webp": 17190
+ },
+ "sprites/heroes/hero_vika_acolyte.png": {
+  "sha1": "647d986ba16970ff42f13391b0d4501eccb3f965",
+  "png": 23565,
+  "webp": 17246
+ },
+ "sprites/heroes/hunter_f.png": {
+  "sha1": "107f2d5a82d74b6e6b94b99900f01e7d8bc436e9",
+  "png": 23112,
+  "webp": 18614
+ },
+ "sprites/heroes/hunter_m.png": {
+  "sha1": "8efae77f60cb9843bf8805c8efcc7c3b8e928d28",
+  "png": 20866,
+  "webp": 16584
+ },
+ "sprites/heroes/knight_f.png": {
+  "sha1": "dd5587486ccdea932c386ba1acad04eeb8665427",
+  "png": 21173,
+  "webp": 16960
+ },
+ "sprites/heroes/knight_m.png": {
+  "sha1": "3bb7a4a3beedf31fb0c4ae85b2fde9dfee6213fb",
+  "png": 22581,
+  "webp": 18210
  },
  "sprites/heroes/mage.png": {
   "sha1": "1137257dbb4e66849106eef6d812a9bac15e007d",
@@ -428,6 +483,16 @@
   "sha1": "21df216154df0dfcef717c37f4b971825b341324",
   "png": 22622,
   "webp": 18272
+ },
+ "sprites/heroes/wizard_f.png": {
+  "sha1": "77daf9d48fd55e396255bc25d5f8a6c5b03e4298",
+  "png": 26321,
+  "webp": 18518
+ },
+ "sprites/heroes/wizard_m.png": {
+  "sha1": "9e25eed7236bb1ca9728739b776867322febc7d4",
+  "png": 21930,
+  "webp": 18074
  },
  "sprites/monsters/dark_priest.png": {
   "sha1": "ada533b3196805a6f9d43c99727d63dc5ea6f512",
@@ -589,10 +654,65 @@
   "png": 1798,
   "webp": 1514
  },
+ "sprites/portraits/crusader_f.png": {
+  "sha1": "f1a553f9573f5d63f769a070b174a4f052832821",
+  "png": 2317,
+  "webp": 1686
+ },
+ "sprites/portraits/crusader_m.png": {
+  "sha1": "6207abeb9e2c0e5e39056a041df7fa3ccc704e7c",
+  "png": 2357,
+  "webp": 1750
+ },
+ "sprites/portraits/dancer_f.png": {
+  "sha1": "e800d45f986afb5dd330c802c84daa5cd53828d9",
+  "png": 1558,
+  "webp": 1356
+ },
  "sprites/portraits/guard.png": {
   "sha1": "d9dc6dad0dc26eed6ddbbef4e010fb7100cbff52",
   "png": 1405,
   "webp": 1286
+ },
+ "sprites/portraits/hero_alan_swordman.png": {
+  "sha1": "684cde32f60e0c1706deec2c2d62f8a0b1e4fd5b",
+  "png": 2785,
+  "webp": 1708
+ },
+ "sprites/portraits/hero_bran_archer.png": {
+  "sha1": "20083d5edb70086d4503b2da809c22b7944f112f",
+  "png": 2457,
+  "webp": 1422
+ },
+ "sprites/portraits/hero_dorn_thief.png": {
+  "sha1": "cb75253c428d080ba12d546141e7b7b07caa2a2b",
+  "png": 2407,
+  "webp": 1378
+ },
+ "sprites/portraits/hero_vika_acolyte.png": {
+  "sha1": "7d1fdba6c58a7d942c513576055fb27467b60211",
+  "png": 2359,
+  "webp": 1288
+ },
+ "sprites/portraits/hunter_f.png": {
+  "sha1": "eb0e8fb6249edbef36095fbae3616da82e57b6e6",
+  "png": 2022,
+  "webp": 1372
+ },
+ "sprites/portraits/hunter_m.png": {
+  "sha1": "787a1b0015f0a879fbcd9b326a3f947d52411294",
+  "png": 1701,
+  "webp": 1402
+ },
+ "sprites/portraits/knight_f.png": {
+  "sha1": "b1bb20ae5e9d00241e71d48d9d5c4f85fe0da4ae",
+  "png": 2221,
+  "webp": 1676
+ },
+ "sprites/portraits/knight_m.png": {
+  "sha1": "2fbb0f54063119e06d975044403e365fd3267808",
+  "png": 2006,
+  "webp": 1450
  },
  "sprites/portraits/mage.png": {
   "sha1": "e33fba572498dd23477355d9d5d2d5f157b47b39",
@@ -733,6 +853,16 @@
   "sha1": "a6ed4834725561079bac48c2428aaa54f2bad0e6",
   "png": 1186,
   "webp": 1028
+ },
+ "sprites/portraits/wizard_f.png": {
+  "sha1": "e9ca9260167f858766f09b7cdcf709dc9c34150b",
+  "png": 2064,
+  "webp": 1528
+ },
+ "sprites/portraits/wizard_m.png": {
+  "sha1": "101dc1ee9e8e54901ccacc243eae1429f26f84f8",
+  "png": 1769,
+  "webp": 1280
  },
  "tiles/tile_dirt.png": {
   "sha1": "6c849d13af0b6e29f6da117ae8b26125cd6547ad",
