@@ -255,23 +255,23 @@
       "enemies": [
         {
           "unit": "mob_rocker",
-          "mult": 1.22
+          "mult": 1.15
         },
         {
           "unit": "mob_tank",
-          "mult": 1.19
+          "mult": 1.12
         },
         {
           "unit": "mob_poporing",
-          "mult": 1.22
+          "mult": 1.15
         },
         {
           "unit": "mob_mandragora",
-          "mult": 1.22
+          "mult": 1.15
         },
         {
           "unit": "mob_drops",
-          "mult": 1.22
+          "mult": 1.15
         }
       ],
       "rewards": {
@@ -290,19 +290,19 @@
       "enemies": [
         {
           "unit": "mob_fast",
-          "mult": 1.17
+          "mult": 1.06
         },
         {
           "unit": "mob_mastering",
-          "mult": 1.16
+          "mult": 1.05
         },
         {
           "unit": "mob_drops",
-          "mult": 1.17
+          "mult": 1.06
         },
         {
           "unit": "mob_poporing",
-          "mult": 1.17
+          "mult": 1.06
         },
         null
       ],

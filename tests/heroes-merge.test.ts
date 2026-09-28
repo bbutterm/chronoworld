@@ -57,10 +57,12 @@ function withCards(cards: [string, CardRarity, number?, string?][], goldAmount =
 }
 
 describe('вознесение: одна дорожка, копии того же героя', () => {
-  it('правила data/cards.json: 2 зелёные / 2 синие + ветка / 1 фиолетовая / 1 своя + 2 любые фиолетовые', () => {
+  // Баланс героев v2 (пакет V3, docs/content/balance.md «Герои v2»): синий → фиолетовый — 3 синие копии (4 в одну), иначе
+  // первый фиолетовый в первой же сессии, а к 7-му дню весь отряд фиолетовый.
+  it('правила data/cards.json: 2 зелёные / 3 синие + ветка / 1 фиолетовая / 1 своя + 2 любые фиолетовые', () => {
     expect(ctx.cards.merge.map((m) => [m.from, m.to, m.fodder.map((f) => `${f.count}×${f.kind}:${f.rarity}`).join('+'), !!m.branch])).toEqual([
       ['green', 'blue', '2×same:green', false],
-      ['blue', 'purple', '2×same:blue', true],
+      ['blue', 'purple', '3×same:blue', true],
       ['purple', 'gold', '1×same:purple', false],
       ['gold', 'red', '1×same:purple+2×any:purple', false],
     ]);
@@ -96,17 +98,17 @@ describe('вознесение: одна дорожка, копии того ж�
     expect(codeOf(() => ascendHero(s, 'h4', ['h4', 'h5'], ctx))).toBe('bad_fodder');
   });
 
-  it('синий → фиолетовый: 2 синие копии + выбор ветки (branch_required, чужая ветка — bad_branch); навыки ветки — сразу', () => {
-    const s = withCards([['kai', 'blue', 35], ['kai', 'blue'], ['kai', 'blue', 2], ['lira', 'blue']]);
+  it('синий → фиолетовый: 3 синие копии + выбор ветки (branch_required, чужая ветка — bad_branch); навыки ветки — сразу', () => {
+    const s = withCards([['kai', 'blue', 35], ['kai', 'blue'], ['kai', 'blue', 2], ['kai', 'blue'], ['lira', 'blue']]);
     const req = ascendRequirement(s, 'h4', ctx)!;
     expect(req.branch).toBe(true);
     expect(req.branches!.map((b) => b.job)).toEqual(['wizard', 'sage']);
     // Синяя копия другого героя не подходит («та же»).
-    expect(req.fodder[0].candidates.sort()).toEqual(['h5', 'h6']);
+    expect(req.fodder[0].candidates.sort()).toEqual(['h5', 'h6', 'h7']);
     const fodder = autoFodder(s, 'h4', ctx)!;
     expect(codeOf(() => ascendHero(s, 'h4', fodder, ctx))).toBe('branch_required');
     expect(codeOf(() => ascendHero(s, 'h4', fodder, ctx, { branch: 'knight' }))).toBe('bad_branch');
-    expect(codeOf(() => ascendHero(s, 'h4', ['h5', 'h7'], ctx, { branch: 'sage' }))).toBe('bad_fodder');
+    expect(codeOf(() => ascendHero(s, 'h4', ['h5', 'h6', 'h8'], ctx, { branch: 'sage' }))).toBe('bad_fodder');
     const r = ascendHero(s, 'h4', fodder, ctx, { branch: 'sage' });
     const kai = r.save.heroes.find((h) => h.id === 'h4')!;
     expect(kai).toMatchObject({ rarity: 'purple', level: 35, branch: 'sage' });
@@ -166,12 +168,12 @@ describe('вознесение: одна дорожка, копии того ж�
   });
 
   it('«Авто» с цепочкой: 3 зелёные копии сливаются в синюю, чтобы закрыть слот синей копии', () => {
-    // Мэйлин синяя (цель) + синяя копия + 3 зелёные копии: на второй синий слот — цепочка.
-    const s = withCards([['meilin', 'blue', 30], ['meilin', 'blue'], ['meilin', 'green'], ['meilin', 'green'], ['meilin', 'green', 4]]);
+    // Мэйлин синяя (цель) + 2 синие копии + 3 зелёные копии: на третий синий слот — цепочка.
+    const s = withCards([['meilin', 'blue', 30], ['meilin', 'blue'], ['meilin', 'blue'], ['meilin', 'green'], ['meilin', 'green'], ['meilin', 'green', 4]]);
     expect(ascendPlan(s, 'h4', ctx)).toMatchObject({ complete: false, missing: 1 });
     const steps = autoChain(s, 'h4', ctx);
     expect(steps).toHaveLength(1);
-    expect(steps[0].targetId).toBe('h8'); // сильнейшая зелёная копия — цель цепочки
+    expect(steps[0].targetId).toBe('h9'); // сильнейшая зелёная копия — цель цепочки
     let cur = s;
     for (const st of steps) cur = ascendHero(cur, st.targetId, st.fodderIds, ctx).save;
     expect(ascendPlan(cur, 'h4', ctx)).toMatchObject({ complete: true, missing: 0 });

@@ -48,17 +48,20 @@ if (process.argv.includes('--fit-recommended')) {
   // Подбор power.recommendedStages: пороги мощи по 12 моделям игрока (docs/content/balance.md, «Рекомендуемая мощь»).
   const fit = fitRecommended(ctx, days);
   const defaults = ctx.features.power;
-  const overrides: Record<string, number> = {};
+  // Этапы, которые подбор не трогал (нет поражений, победы выше пола), сохраняют свой коэффициент (например, ch1_s10).
+  const fitted = new Set(fit.map((f) => f.stageId));
+  const overrides: Record<string, number> = Object.fromEntries(Object.entries(defaults.recommendedStages ?? {}).filter(([id]) => !fitted.has(id)));
   console.log('этап      поражение  победа  порог  сейчас  предложение  (доля от мощи врагов; моделей с поражением)');
   for (const f of fit) {
     const stage = ctx.content.stages.find((s) => s.id === f.stageId)!;
     const def = (stage.boss ? (defaults.recommendedBoss ?? defaults.recommended) : defaults.recommended) ?? 1;
-    if (Math.abs(f.suggested / def - 1) > 0.05) overrides[f.stageId] = f.suggested;
+    // Отличие > 5% — или ниже общего (пол поражений/побед Ц8: иначе модель проигрывает ниже 85% рекомендуемой).
+    if (Math.abs(f.suggested / def - 1) > 0.05 || f.suggested < def - 0.005) overrides[f.stageId] = f.suggested;
     console.log(
       `${f.stageId.padEnd(8)}  ${f.loss.toFixed(2).padStart(9)}  ${f.win.toFixed(2).padStart(6)}  ${f.threshold.toFixed(2)}  ${f.current.toFixed(2).padStart(6)}  ${f.suggested.toFixed(2).padStart(11)}  (${f.n})`,
     );
   }
-  console.log(`\npower.recommendedStages (отличие от общего коэффициента > 5%):\n${JSON.stringify(overrides, null, 2)}`);
+  console.log(`\npower.recommendedStages (отличие от общего коэффициента > 5% или ниже него; неподобранные — как были):\n${JSON.stringify(overrides, null, 2)}`);
   process.exit(0);
 }
 const res = runBalance(ctx, days, model);
