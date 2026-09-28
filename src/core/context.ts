@@ -7,6 +7,7 @@
 import { COMBAT } from './config';
 import { buildContent, ContentError, type RawFile } from './content/build';
 import { buildItems, parseDrops, withEquipment, type EquipmentContext } from './equipment';
+import { parseEventsConfig, validateEventsConfig, type EventsContext } from './events';
 import { parseFeaturesConfig, withFeatures, type FeatureContext } from './features';
 import { parseHeroesConfig, validateHeroesConfig } from './heroes/config';
 import { parseMetaConfig, withMeta, type MetaContext } from './meta';
@@ -17,7 +18,7 @@ import { parseTowerConfig, withTower, type TowerContext } from './tower';
 import type { CombatConfig, Content } from './types';
 
 /** Полный контекст игры: прогрессия и кампания + K-функции, экипировка, башня, пресеты / поручения / достижения. */
-export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext;
+export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext & EventsContext;
 
 /** Сырые данные data/ — содержимое JSON без разбора. */
 export interface RawGameData {
@@ -38,6 +39,8 @@ export interface RawGameData {
   tower: unknown;
   bounties: unknown;
   achievements: unknown;
+  /** data/events.json — «Вход 7 дней», «7 дней новичка», системные письма. */
+  events: unknown;
   /** data/story/*.json — сюжет глав (нет — без сюжета). */
   stories?: RawFile[];
   /** По умолчанию — data/combat.json (COMBAT). */
@@ -98,6 +101,7 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     stage('data/drops.json', () => parseDrops(raw.drops));
     stage('data/tower.json', () => parseTowerConfig(raw.tower));
     stage('data/bounties.json / data/achievements.json', () => parseMetaConfig(raw.bounties, raw.achievements));
+    stage('data/events.json', () => parseEventsConfig(raw.events));
     return { content, problems };
   }
 
@@ -114,10 +118,12 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
   const tower = stage('data/tower.json', () => withTower(base, raw.tower).tower);
   const meta = stage('data/bounties.json / data/achievements.json', () => withMeta(base, raw.bounties, raw.achievements).meta);
   const story = stage('data/story', () => buildStory(normalize(raw.stories ?? []), content, problems));
+  const events = stage('data/events.json', () => parseEventsConfig(raw.events));
+  if (events) validateEventsConfig(events, base, problems);
 
-  if (problems.length || !features || !equipment || !tower || !meta || !story) return { content, problems };
+  if (problems.length || !features || !equipment || !tower || !meta || !story || !events) return { content, problems };
   return {
-    ctx: { ...base, features, equipment, tower, meta, story },
+    ctx: { ...base, features, equipment, tower, meta, story, events },
     content,
     problems,
   };
