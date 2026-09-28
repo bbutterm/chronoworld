@@ -1,11 +1,9 @@
 /**
- * content:check, раздел 8 — карточки героев (data/heroes) и Таверна (data/summon.json). Чистая функция: тест
+ * content:check, раздел 8 — герои (data/heroes): листы первой профессии и обеих веток. Пул Таверны — validateHeroesConfig. Чистая функция: тест
  * tests/content-check-heroes.test.ts подаёт ей контекст и реестр листов.
  *
  * Ошибки (✗, сломанные ссылки):
- *   - summon-карточка, которая никогда не выпадет: её baseRarity нет ни в одной редкости Таверны с шансом > 0
- *     (rates[].baseRarities) или maxRarity ниже всех таких редкостей;
- *   - visual.sprite карточки/формы задан, но итоговый лист не найден нигде (ни свой, ни лист класса) — в бою плейсхолдер;
+ *   - visual.sprite героя/ветки задан, но итоговый лист формы (первая профессия и обе ветки) не найден нигде (ни свой, ни лист класса) — в бою плейсхолдер;
  *   - у листа указан портрет, а файла нет (проверяется в разделе 3 content-check.ts вместе с листами).
  * Предупреждения (⚠, не хватает арта):
  *   - своего листа карточки (visual.sprite) нет в реестре — откат на лист класса;
@@ -15,7 +13,7 @@
  * Навыки карточек (существуют, своя линия, уровни, различие карточек класса) — validateHeroes ядра: ошибки в сборке (п. 1),
  * предупреждения — здесь же (validateHeroes(content, [], warnings)).
  */
-import { rarityIndex, validateHeroes, type GameContext, type HeroState } from '../../src/core';
+import { validateHeroes, type GameContext, type HeroState } from '../../src/core';
 import { heroSprite } from '../../src/game/flow';
 import type { SpriteDef } from '../../src/pipeline/sprites';
 
@@ -39,15 +37,18 @@ export function lintHeroes(ctx: GameContext, registry: Record<string, SpriteDef>
   const fallbacks: string[] = [];
   const noPortrait = new Map<string, string[]>();
   for (const t of Object.values(ctx.content.heroes)) {
-    const own = [t.visual.sprite, ...t.forms.map((f) => f.visual.sprite)].filter((x): x is string => !!x);
+    const own = [t.visual.sprite, ...t.branches.map((b) => b.visual.sprite)].filter((x): x is string => !!x);
     for (const id of own) {
       if (!has(id)) warnings.push(`карточка ${t.id}: листа "${id}" нет в реестре — будет лист класса`);
       else sprites.add(id);
     }
     if (t.visual.portrait) warnings.push(`карточка ${t.id}: visual.portrait игрой не используется — портрет берётся по листу (assets/sprites/sprites.json → portrait)`);
-    for (const r of [t.baseRarity, ...t.forms.map((f) => f.rarity)]) {
-      const hero: HeroState = { id: 'check', templateId: t.id, rarity: r, level: 1 };
-      const label = `${t.id}${r === t.baseRarity ? '' : ` (${r})`}`;
+    // Формы: первая профессия (базовая редкость) и каждая ветка на фиолетовом.
+    const forms: { hero: HeroState; label: string }[] = [
+      { hero: { id: 'check', templateId: t.id, rarity: t.baseRarity, level: 1 }, label: t.id },
+      ...t.branches.map((b) => ({ hero: { id: 'check', templateId: t.id, rarity: 'purple' as const, level: 1, branch: b.job }, label: `${t.id}/${b.job}` })),
+    ];
+    for (const { hero, label } of forms) {
       const sprite = heroSprite(hero, ctx, has);
       const def = registry[sprite];
       if (!def) {
@@ -66,15 +67,5 @@ export function lintHeroes(ctx: GameContext, registry: Record<string, SpriteDef>
     warnings.push(`листы карточек без портрета — в рамке будет кадр листа: ${list}`);
   }
 
-  // Таверна: пул собирается сам по source/baseRarity/maxRarity — ловим карточки, которые не выпадут никогда.
-  const live = ctx.summon.rates.filter((r) => r.chance > 0);
-  for (const t of Object.values(ctx.content.heroes)) {
-    if (t.source !== 'summon') continue;
-    const drops = live.some((r) => r.baseRarities.includes(t.baseRarity) && rarityIndex(t.maxRarity) >= rarityIndex(r.rarity));
-    if (!drops) {
-      const rates = live.map((r) => `${r.rarity}: ${r.baseRarities.join('/')}`).join(', ');
-      errors.push(`карточка ${t.id}: призывная (baseRarity ${t.baseRarity}, maxRarity ${t.maxRarity}), но Таверна её не выдаёт — data/summon.json → rates (${rates})`);
-    }
-  }
   return { errors, warnings, sprites };
 }

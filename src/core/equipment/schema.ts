@@ -86,8 +86,11 @@ export const ChestRuleSchema = z.object({
   item: z.number().min(0).max(1),
   /** Веса редкостей предмета; без поля — rarityWeights правила выпадения этой главы (rules). */
   rarityWeights: RarityWeightsSchema.optional(),
-  /** Осколки «отстающего» сюжетного героя (как у экспедиций). */
-  shards: ChestRollSchema.optional(),
+  /**
+   * Карта случайного героя за тик (шансы; не больше одной карты за тик): blue — синяя, purple — фиолетовая.
+   * Сумма шансов ≤ 1.
+   */
+  heroCards: z.object({ blue: z.number().min(0).max(1).default(0), purple: z.number().min(0).max(1).default(0) }).refine((c) => c.blue + c.purple <= 1, 'сумма шансов карт за тик ≤ 1').optional(),
   /** Гемы (редко). */
   gems: ChestRollSchema.optional(),
   /** Свитки призыва (очень редко). */

@@ -49,6 +49,42 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "heroCards": {
+                    "type": "object",
+                    "properties": {
+                      "blue": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "purple": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    }
+                  },
+                  "heroPicks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "rarity": {
+                          "type": "string",
+                          "enum": [
+                            "green",
+                            "blue",
+                            "purple",
+                            "gold",
+                            "red"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "rarity"
+                      ]
+                    }
                   }
                 }
               },
@@ -180,6 +216,42 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "heroCards": {
+                    "type": "object",
+                    "properties": {
+                      "blue": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "purple": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    }
+                  },
+                  "heroPicks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "rarity": {
+                          "type": "string",
+                          "enum": [
+                            "green",
+                            "blue",
+                            "purple",
+                            "gold",
+                            "red"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "rarity"
+                      ]
+                    }
                   }
                 }
               }
@@ -250,6 +322,42 @@
                     "type": "array",
                     "items": {
                       "type": "string"
+                    }
+                  },
+                  "heroCards": {
+                    "type": "object",
+                    "properties": {
+                      "blue": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "purple": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    }
+                  },
+                  "heroPicks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "rarity": {
+                          "type": "string",
+                          "enum": [
+                            "green",
+                            "blue",
+                            "purple",
+                            "gold",
+                            "red"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "rarity"
+                      ]
                     }
                   }
                 }

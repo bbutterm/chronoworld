@@ -111,7 +111,44 @@ export function screen(
       }
     });
   }
-  for (const w of takeWarnings()) toast(scene, w, C.error, 6000);
+  const warnings = takeWarnings();
+  for (const w of warnings.filter((x) => !isHeroesNotice(x))) toast(scene, w, C.error, 6000);
+  const notices = warnings.filter(isHeroesNotice);
+  if (notices.length) noticeModal(scene, 'Обновление героев', notices, { label: 'К героям', to: 'Heroes' });
+}
+
+/**
+ * Сообщения перевода старого сохранения на героев v2 (миграция v7: новые герои и ветки, осколки → копии, подарок
+ * 10 свитков) — показываются один раз окном «Обновление героев», а не красным тостом (это не ошибка).
+ */
+export function isHeroesNotice(w: string): boolean {
+  return w.startsWith('Герои обновлены') || w.startsWith('Осколки героев стали');
+}
+
+/** Окно-сообщение: заголовок, абзацы, «Понятно» (и кнопка перехода). Возвращает слой (name `noticeModal`). */
+export function noticeModal(scene: Phaser.Scene, title: string, paragraphs: readonly string[], go?: { label: string; to: string; data?: object }): Phaser.GameObjects.Container {
+  const layer = scene.add.container(0, 0).setDepth(9100).setName('noticeModal');
+  const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x000000, 0.75).setInteractive();
+  const w = 940;
+  const body = text(scene, 0, 0, paragraphs.join('\n\n'), FS.body, C.text, { align: 'left', wordWrap: { width: w - 120 }, lineSpacing: 8, stroke: C.stroke, strokeThickness: 4 }).setOrigin(0.5, 0);
+  const maxBody = GAME_H - 700;
+  if (body.height > maxBody) body.setFontSize(FS.small).setMaxLines(Math.floor(maxBody / 40));
+  const h = Math.min(GAME_H - 300, body.height + 360);
+  const top = GAME_H / 2 - h / 2;
+  const box = panel(scene, GAME_W / 2, GAME_H / 2, w, h, 'ui_panel').setInteractive();
+  const head = text(scene, GAME_W / 2, top + 80, title, FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 8 });
+  body.setPosition(GAME_W / 2, top + 150);
+  const close = () => layer.destroy();
+  const by = top + h - 100;
+  const ok = button(scene, GAME_W / 2 + (go ? 210 : 0), by, 380, 120, 'ui_btn_primary', 'Понятно', close, FS.h2);
+  ok.container.setName('noticeOk');
+  layer.add([shade, box, head, body, ok.container]);
+  if (go) layer.add(button(scene, GAME_W / 2 - 210, by, 380, 120, 'ui_btn_secondary', go.label, () => {
+    close();
+    scene.scene.start(go.to, go.data);
+  }, FS.h2).container);
+  popIn(scene, layer, shade);
+  return layer;
 }
 
 /** Полоса над шапкой не ниже этого (ед. мира) — туда переезжает валюта. */

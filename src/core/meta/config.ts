@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { HeroCardDropSchema } from '../heroes/schema';
 import type { GameContext } from '../progression/types';
 import { MetaError } from './errors';
 
@@ -16,7 +17,7 @@ export const ACHIEVEMENT_COUNTERS = {
   hero_max_level: 'max',
   /** Призвано карточек в Таверне. */
   summons: 'add',
-  /** Вознесений карточек (корм или осколки). */
+  /** Вознесений героев (копии и общие карты). */
   ascensions: 'add',
 } as const;
 export type AchievementCounter = keyof typeof ACHIEVEMENT_COUNTERS;
@@ -27,8 +28,11 @@ export const MetaRewardsSchema = z.object({
   gems: z.number().int().nonnegative().default(0),
   /** Опыт в общий пул героев. */
   jobExp: z.number().int().nonnegative().default(0),
-  /** Осколки «отстающего» сюжетного героя (heroes/shards.ts shardTarget). */
-  shards: z.number().int().nonnegative().default(0),
+  /**
+   * Карты случайных героев: ожидаемое число (целая часть — точно, дробная — шанс; heroes/cardDrops.ts). В награде,
+   * которую вернул claim*, — сколько реально выпало (целые); кто — в событиях heroCard.
+   */
+  heroCards: HeroCardDropSchema.optional(),
 });
 
 /** Длительность экспедиции: часы и надбавка к добыче (longer = выгоднее в час). */
@@ -41,8 +45,10 @@ export const ExpeditionDurationSchema = z.object({
 /** Строка таблицы добычи локации: бросок за каждый «час добычи» (hours × (1 + bonus)). */
 export const ExpeditionLootSchema = z
   .object({
-    /** item — предмет из items (равновероятно), gems / shards / scrolls — count штук. */
-    kind: z.enum(['item', 'gems', 'shards', 'scrolls']),
+    /** item — предмет из items (равновероятно), gems / scrolls — count штук, heroCard — count карт случайного героя редкости rarity. */
+    kind: z.enum(['item', 'gems', 'heroCard', 'scrolls']),
+    /** kind heroCard: редкость карты (blue / purple). */
+    rarity: z.enum(['blue', 'purple']).optional(),
     /** Шанс за час добычи (0…1). */
     chance: z.number().min(0).max(1),
     /** Сколько за удачный бросок (для item — всегда 1 предмет). */
@@ -53,6 +59,8 @@ export const ExpeditionLootSchema = z
   .superRefine((l, c) => {
     if (l.kind === 'item' && !l.items?.length) c.addIssue({ code: 'custom', path: ['items'], message: 'для kind item нужен непустой список items' });
     if (l.kind !== 'item' && l.items) c.addIssue({ code: 'custom', path: ['items'], message: 'items — только для kind item' });
+    if (l.kind === 'heroCard' && !l.rarity) c.addIssue({ code: 'custom', path: ['rarity'], message: 'для kind heroCard нужна редкость (blue / purple)' });
+    if (l.kind !== 'heroCard' && l.rarity) c.addIssue({ code: 'custom', path: ['rarity'], message: 'rarity — только для kind heroCard' });
   });
 
 /** Локация экспедиций. */
@@ -73,7 +81,7 @@ export const ExpeditionLocationSchema = z.object({
   monsterScale: z.number().min(0.3).max(2).optional(),
   /** Золото и опыт (в общий пул) за час добычи. */
   perHour: z.object({ gold: z.number().int().nonnegative(), jobExp: z.number().int().nonnegative() }),
-  /** Находки: предметы темы, гемы, осколки «отстающего» сюжетного героя, свитки. */
+  /** Находки: предметы темы, гемы, карты случайных героев, свитки. */
   loot: z.array(ExpeditionLootSchema).default([]),
 });
 

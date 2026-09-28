@@ -7,7 +7,7 @@ import type { EquipmentConfig, EquipmentContext } from '../equipment/load';
 import { claimAchievement, claimAllAchievements, syncAchievementCounters, trackAchievement, type MetaEvent } from '../meta/achievements';
 import { claimAllExpeditions, claimExpedition, type ExpeditionContext } from '../meta/expeditions';
 import type { MetaContext, MetaRewards } from '../meta/config';
-import { ascendHero } from '../heroes/merge';
+import { ascendHero, type AscendOptions } from '../heroes/merge';
 import { levelUpHero, type LevelCost } from '../heroes/level';
 import { summon, type SummonPay, type SummonResult } from '../heroes/summon';
 import type { GameContext, ProgressEvent } from '../progression/types';
@@ -92,9 +92,9 @@ export function actLevelUp(save: SaveState, day: string, heroId: string, ctx: Ga
   return { ...out, save: syncAchievementCounters(recordActivity(out.save, day, 'hero_level_up', out.levels)) };
 }
 
-/** Вознесение: ascendHero (корм или осколки) + hero_ascend и ascensions. Ошибки — HeroError как у ascendHero. */
-export function actAscend(save: SaveState, day: string, heroId: string, fodderIds: readonly string[], ctx: GameContext): ReturnType<typeof ascendHero> {
-  const out = ascendHero(save, heroId, fodderIds, ctx);
+/** Вознесение: ascendHero (копии, ветка) + hero_ascend и ascensions. Ошибки — HeroError как у ascendHero. */
+export function actAscend(save: SaveState, day: string, heroId: string, fodderIds: readonly string[], ctx: GameContext, opts: AscendOptions = {}): ReturnType<typeof ascendHero> {
+  const out = ascendHero(save, heroId, fodderIds, ctx, opts);
   return { ...out, save: syncAchievementCounters(trackAchievement(recordActivity(out.save, day, 'hero_ascend'), 'ascensions', 1, 'add')) };
 }
 
@@ -157,12 +157,12 @@ export function actClaimActivity(
   return recordLevelUps(claimActivity(save, day, milestone, ctx), day);
 }
 
-/** K9. claimExpedition (опыт — в пул, осколки — «отстающему» сюжетному герою, предметы — в инвентарь). */
+/** K9. claimExpedition (опыт — в пул, карты — случайным героям, предметы — в инвентарь). */
 export function actClaimExpedition(save: SaveState, day: string, locationId: string, now: number, ctx: ExpeditionContext): ReturnType<typeof claimExpedition> {
   return recordLevelUps(claimExpedition(save, locationId, now, ctx), day);
 }
 
-/** K10. claimAchievement (jobExp — в пул, осколки — «отстающему» сюжетному герою). */
+/** K10. claimAchievement (jobExp — в пул, карты героя — случайным героям). */
 export function actClaimAchievement(save: SaveState, day: string, id: string, ctx: MetaContext): { save: SaveState; rewards: MetaRewards; events: MetaEvent[] } {
   return recordLevelUps(claimAchievement(save, id, ctx), day);
 }

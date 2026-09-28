@@ -99,7 +99,7 @@ const mctx = withMeta(featureCtx, expeditionsJson, achievementsJson); // бит�
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["sandals", "shoes", "cotton_shirt", "adventurers_suit", "bandana", "cap"] },
         { "kind": "gems", "chance": 0.12, "count": 3 },
-        { "kind": "shards", "chance": 0.06, "count": 1 }
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.002, "count": 1 }
       ] }
   ]
 }
@@ -112,7 +112,7 @@ const mctx = withMeta(featureCtx, expeditionsJson, achievementsJson); // бит�
 | `power` | порог суммы мощи отряда (`heroPower` с экипировкой) |
 | `tint`, `monster`, `monsterScale` | «картина» карточки, пока нет арта локаций: цвет места и фигура монстра (id из `data/units`) |
 | `perHour` | золото и опыт (в общий пул) за час добычи, `round(perHour × часы добычи)` |
-| `loot[]` | находки: бросок за каждый целый час добычи с шансом `chance` (дробный остаток — бросок с шансом × остаток). `item` — предмет из `items` (тема места, равновероятно), `gems` / `shards` / `scrolls` — `count` штук. Осколки — «отстающему» сюжетному герою (`shardTarget`) при получении |
+| `loot[]` | находки: бросок за каждый целый час добычи с шансом `chance` (дробный остаток — бросок с шансом × остаток). `item` — предмет из `items` (тема места, равновероятно), `gems` / `scrolls` — `count` штук, `heroCard` — карта случайного героя редкости `rarity` (blue/purple; герой выбирается при получении). Герои v2: осколков нет — прежние «осколок N%» ниже заменены картами героя (≈ N/30 %), `docs/design/heroes-v2.md`, раздел 0 |
 
 Проверки: схема (`ExpeditionsConfigSchema`, `data/schema/expeditions.schema.json`), `validateExpeditions` (этап, монстр,
 предметы существуют), content:check предупреждает, если порог выше рекомендуемой мощи самых трудных этапов до открытия.
@@ -146,7 +146,7 @@ const mctx = withMeta(featureCtx, expeditionsJson, achievementsJson); // бит�
 - `rollExpeditionLoot(loc, hours, seed, ctx)`, `expeditionSeed(save, locationId, startedAt)` = `lootSeed('expedition',
   createdAt, локация, startedAt)`; `expectedExpeditionLoot(loc, hours, ctx)` — средние (подписи на карточке).
 - `claimExpedition(save, locationId, now, ctx)` — при `now ≥ endsAt` (`expedition_not_finished`, `expedition_not_running`):
-  золото, гемы, опыт в пул, осколки «отстающему», свитки, предметы в инвентарь (предмета больше нет в игре — пропадает).
+  золото, гемы, опыт в пул, карты случайных героев (новые экземпляры), свитки, предметы в инвентарь (предмета больше нет в игре — пропадает).
   Герои свободны, `bounties_done + 1`, событие `expeditionDone`. Локацию убрали из конфига — начатую всё равно можно забрать.
 - `claimAllExpeditions(save, now, ctx)` — все вернувшиеся (порядок конфига); обёртки `actClaimExpedition`,
   `actClaimAllExpeditions` (день — для счётчиков).

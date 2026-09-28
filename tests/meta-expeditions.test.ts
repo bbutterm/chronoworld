@@ -54,8 +54,13 @@ function clearedTo(stageId: string, s: SaveState = newGame(ctx, T0, D1)): SaveSt
 }
 
 /** Добавить запасные карточки (вне отряда). */
+/** Запас героев: [шаблон или «шаблон/ветка» (герои v2), редкость, уровень]. */
 function withBench(s: SaveState, cards: [string, CardRarity, number?][]): SaveState {
-  for (const [t, r, level] of cards) s = addHeroCard(s, t, r, { level: level ?? 1 }).save;
+  for (const [card, r, level] of cards) {
+    const [t, branch] = card.split('/');
+    const add = addHeroCard(s, t, r, { level: level ?? 1 });
+    s = branch ? { ...add.save, heroes: add.save.heroes.map((h) => (h.id === add.hero.id ? { ...h, branch } : h)) } : add.save;
+  }
   return s;
 }
 
@@ -92,19 +97,20 @@ describe('K9 экспедиции: конфиг', () => {
       expect(perHour(8)).toBeGreaterThan(perHour(4));
     }
     expect(lootHours(8, ctx)).toBeCloseTo(9.6);
-    const day = { gold: 0, jobExp: 0, gems: 0, shards: 0, items: 0, scrolls: 0 };
+    const day = { gold: 0, jobExp: 0, gems: 0, heroCards: 0, items: 0, scrolls: 0 };
     for (const l of LOCS) {
       for (const h of [4, 4, 4, 8]) {
         const e = expectedExpeditionLoot(l, h, ctx);
         for (const k of Object.keys(day) as (keyof typeof day)[]) day[k] += e[k];
       }
     }
-    // Числа — docs/content/meta.md (раздел K9) и docs/content/balance.md: гемы и осколки ≈ доске поручений,
+    // Числа — docs/content/meta.md (раздел K9) и docs/content/balance.md: гемы ≈ доске поручений; карты героя (герои v2)
+    // по ценности ≈ прежним осколкам (5–12 в день ≈ 0.2–0.4 синей карты: синяя = 3 зелёные копии ≈ 30 осколков);
     // золото и опыт — побочный доход (≈ 0.5% золота недели), пара предметов в день, свиток — раз в неделю-две.
     expect(day.gems).toBeGreaterThan(25);
     expect(day.gems).toBeLessThan(40);
-    expect(day.shards).toBeGreaterThan(5);
-    expect(day.shards).toBeLessThan(12);
+    expect(day.heroCards).toBeGreaterThan(0.15);
+    expect(day.heroCards).toBeLessThan(0.45);
     expect(day.gold).toBeGreaterThan(3500);
     expect(day.gold).toBeLessThan(5500);
     expect(day.items).toBeGreaterThan(0.5);
@@ -154,8 +160,8 @@ describe('K9 экспедиции: отправка', () => {
   });
 
   it('автоподбор: сначала те, кого нельзя отдать в корм (отряд, сюжетные), копии — последними; лишних нет', () => {
-    // Сильный запас: две копии Сейрен (корм друг для друга) и уникальная карточка.
-    let s = withBench(clearedTo('ch2_s1'), [['seyren', 'purple', 20], ['seyren', 'purple', 20], ['kai', 'purple', 20]]);
+    // Сильный запас: две копии Ирис-Рыцаря (корм друг для друга) и уникальная карточка.
+    let s = withBench(clearedTo('ch2_s1'), [['iris/knight', 'purple', 20], ['iris/knight', 'purple', 20], ['kai/wizard', 'purple', 20]]);
     const [s1, s2, kai] = s.heroes.slice(-3).map((h) => h.id);
     const pick = autoParty(s, 'ant_hell', ctx);
     expect(pick.ok).toBe(true);
@@ -174,7 +180,7 @@ describe('K9 экспедиции: отправка', () => {
   });
 
   it('сильные герои бережутся: хватает слабого — сильного не берут', () => {
-    const s = withBench(clearedTo('ch1_s8'), [['seyren', 'purple', 30]]);
+    const s = withBench(clearedTo('ch1_s8'), [['iris/knight', 'purple', 30]]);
     const strong = s.heroes[s.heroes.length - 1].id;
     const pick = autoParty(s, 'ant_hell', ctx);
     expect(pick.ok).toBe(true);
@@ -239,19 +245,19 @@ describe('K9 экспедиции: добыча и получение', () => {
       ...s0,
       bounties: {
         active: [
-          { location: 'old_place', hours: 1, heroIds: [hero], power: 1, startedAt: 0, endsAt: 10, rewards: { gold: 1, jobExp: 2, gems: 3, shards: 4, scrolls: 2, items: ['knife', 'gone_item'] } },
+          { location: 'old_place', hours: 1, heroIds: [hero], power: 1, startedAt: 0, endsAt: 10, rewards: { gold: 1, jobExp: 2, gems: 3, heroCards: { blue: 1, purple: 1 }, scrolls: 2, items: ['knife', 'gone_item'] } },
         ],
       },
     };
     const r = claimExpedition(s, 'old_place', 10, ctx);
     expect(r.save.currency.scrolls).toBe(s.currency.scrolls + 2);
-    expect(Object.values(r.save.shards).reduce((a, b) => a + b, 0)).toBe(4);
+    expect(r.save.heroes.slice(s.heroes.length).map((h) => h.rarity)).toEqual(['blue', 'purple']);
     expect(r.rewards.items).toEqual(['knife']);
     expect(r.added).toHaveLength(1);
   });
 
   it('«Забрать всё»: только вернувшиеся, сумма как по одной; нечего — тот же save; статус и значок главной', () => {
-    let s = clearedTo('ch2_s6', withBench(newGame(ctx, T0, D1), [['seyren', 'purple', 30], ['kai', 'purple', 30], ['chen', 'purple', 30]]));
+    let s = clearedTo('ch2_s6', withBench(newGame(ctx, T0, D1), [['iris/knight', 'purple', 30], ['kai/wizard', 'purple', 30], ['teo/monk', 'purple', 30]]));
     expect(idleExpeditions(s, ctx)).toBeGreaterThanOrEqual(2);
     expect(expeditionsBadgeCount(s, T0, ctx)).toBe(idleExpeditions(s, ctx));
     s = startExpedition(s, 'ant_hell', 1, T0, ctx);

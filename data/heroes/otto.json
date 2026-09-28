@@ -8,7 +8,7 @@
   "role": "tank",
   "source": "summon",
   "baseRarity": "green",
-  "maxRarity": "gold",
+  "maxRarity": "red",
   "statMods": {
     "hp": 1.15,
     "atk": 0.85,
@@ -17,7 +17,7 @@
   "skills": [
     {
       "level": 1,
-      "skill": "job_merchant_mammonite"
+      "skill": "job_merchant_cart_revolution"
     },
     {
       "level": 10,
@@ -25,11 +25,75 @@
     },
     {
       "level": 30,
-      "skill": "job_merchant_cart_revolution"
+      "skill": "job_merchant_mammonite"
     },
     {
       "level": 50,
       "skill": "job_merchant_crazy_uproar"
+    }
+  ],
+  "branches": [
+    {
+      "job": "blacksmith",
+      "role": "tank",
+      "statMods": {
+        "hp": 1.4,
+        "atk": 1.05,
+        "def": 1.4
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_blacksmith_hammer_fall"
+        },
+        {
+          "level": 10,
+          "skill": "job_blacksmith_tempering"
+        },
+        {
+          "level": 30,
+          "skill": "job_blacksmith_adrenaline_rush"
+        },
+        {
+          "level": 50,
+          "skill": "job_blacksmith_weapon_perfection"
+        }
+      ],
+      "promotion": "Отто выковал новую тележку сам. Эту топь уже не съест.",
+      "visual": {
+        "sprite": "blacksmith_m"
+      }
+    },
+    {
+      "job": "alchemist",
+      "role": "damage",
+      "statMods": {
+        "hp": 1.15,
+        "atk": 1.3,
+        "def": 1.05
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_alchemist_acid_terror"
+        },
+        {
+          "level": 10,
+          "skill": "job_alchemist_demonstration"
+        },
+        {
+          "level": 30,
+          "skill": "job_merchant_mammonite"
+        },
+        {
+          "level": 50,
+          "skill": "job_alchemist_acid_bomb"
+        }
+      ],
+      "promotion": "Отто грузит в тележку кислоту вместо товара. Покупателей стало меньше, врагов — тоже.",
+      "visual": {
+        "sprite": "alchemist_m"
+      }
     }
   ],
   "bio": "Альбертинский возчик с тележкой — таран и щит отряда.",

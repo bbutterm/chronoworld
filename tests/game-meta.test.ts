@@ -48,11 +48,11 @@ describe('помощники экранов K8–K10', () => {
   });
 
   it('expectedLootText: золото и опыт точно, находки — списком', () => {
-    expect(expectedLootText({ gold: 1000, jobExp: 50, gems: 0.4, shards: 0.2, scrolls: 0, items: 0.1 })).toEqual({
+    expect(expectedLootText({ gold: 1000, jobExp: 50, gems: 0.4, heroCards: 0.2, scrolls: 0, items: 0.1 })).toEqual({
       base: '1 000 зол. · 50 опыта',
-      finds: 'Находки: гемы ≈1, осколки, снаряжение',
+      finds: 'Находки: гемы ≈1, карты героя, снаряжение',
     });
-    expect(expectedLootText({ gold: 1, jobExp: 1, gems: 0, shards: 0, scrolls: 0, items: 0 }).finds).toBe('');
+    expect(expectedLootText({ gold: 1, jobExp: 1, gems: 0, heroCards: 0, scrolls: 0, items: 0 }).finds).toBe('');
   });
 
   it('sortAchievements: готовые сверху, полученные внизу; claimableAchievements', () => {

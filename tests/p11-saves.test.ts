@@ -209,19 +209,29 @@ describe('T4-04: неизвестная карточка героя (v4)', () =>
     for (const h of r.save.heroes) expect(() => heroPower(h, ctx)).not.toThrow();
   });
 
-  it('редкость и уровень вне правил карточки приводятся к ним; вторая копия карточки уходит из отряда', () => {
+  it('уровень и ветка вне правил приводятся к ним; вторая копия карточки уходит из отряда', () => {
     const s = newGame(ctx, T0, D0);
     const odd: SaveState = {
       ...s,
-      heroes: [...s.heroes.map((h, i) => (i === 0 ? { ...h, level: 99 } : h)), { id: 'h4', templateId: 'iris', rarity: 'red', level: 5 }, { id: 'h5', templateId: 'bran', rarity: 'green', level: 1 }],
+      heroes: [
+        ...s.heroes.map((h, i) => (i === 0 ? { ...h, level: 99 } : h)),
+        { id: 'h4', templateId: 'iris', rarity: 'red', level: 5, branch: 'crusader' },
+        { id: 'h5', templateId: 'bran', rarity: 'green', level: 1 },
+        // Герои v2: ветка ниже фиолетового и чужая ветка — снимаются (фиолетовый без ветки — «Выберите ветку!»).
+        { id: 'h6', templateId: 'kai', rarity: 'blue', level: 3, branch: 'wizard' },
+        { id: 'h7', templateId: 'lira', rarity: 'purple', level: 45, branch: 'knight', branchChanges: 1 },
+      ],
       squad: ['h1', 'h4', 'h5', 'h2', 'h3'],
     };
     const fixed = sanitizeSave(odd, ctx);
     expect(fixed.save.heroes[0].level).toBe(20);
-    expect(fixed.save.heroes.find((h) => h.id === 'h4')!.rarity).toBe('gold');
+    expect(fixed.save.heroes.find((h) => h.id === 'h4')).toMatchObject({ rarity: 'red', branch: 'crusader' });
+    expect(fixed.save.heroes.find((h) => h.id === 'h6')).toEqual({ id: 'h6', templateId: 'kai', rarity: 'blue', level: 3 });
+    expect(fixed.save.heroes.find((h) => h.id === 'h7')).toEqual({ id: 'h7', templateId: 'lira', rarity: 'purple', level: 45, branchChanges: 1 });
     // Вторая по слотам копия Брана (h2 в слоте 3) уходит из отряда.
     expect(fixed.save.squad).toEqual(['h1', 'h4', 'h5', null, 'h3']);
-    expect(fixed.warnings).toHaveLength(3);
+    expect(fixed.warnings).toHaveLength(4);
+    expect(fixed.warnings.filter((w) => /ветка второй профессии сброшена/.test(w))).toHaveLength(2);
   });
 
   it('целое сохранение — тот же объект, без предупреждений; сообщения миграции — в предупреждения и убираются', () => {

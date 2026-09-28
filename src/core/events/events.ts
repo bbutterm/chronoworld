@@ -136,7 +136,7 @@ export function claimLogin(save: SaveState, day: string, n: number, ctx: EventsC
   if (!def || !Number.isInteger(n)) throw new EventError('unknown_login_day', `Нет дня входа ${n}`);
   if (ev.loginClaimed.includes(n)) throw new EventError('login_claimed', `Награда дня ${n} уже получена`);
   if (n > ev.loginDays) throw new EventError('login_locked', `День ${n} ещё не наступил: заходите в игру каждый день (сейчас дней входа: ${ev.loginDays})`);
-  const out = grantRewards({ ...s, events: { ...ev, loginClaimed: [...ev.loginClaimed, n].sort((a, b) => a - b) } }, def.rewards, ctx);
+  const out = grantRewards({ ...s, events: { ...ev, loginClaimed: [...ev.loginClaimed, n].sort((a, b) => a - b) } }, def.rewards, ctx, `login_${n}`);
   return { save: syncAchievementCounters(out.save), rewards: def.rewards, events: out.events };
 }
 
@@ -267,7 +267,7 @@ export function claimNewbieMilestone(save: SaveState, day: string, points: numbe
   assertOpen(st);
   if (!m.reached) throw new EventError('milestone_not_reached', `Нужно ${points} очков, сейчас ${st.points}`);
   const ev = s.events!;
-  const out = grantRewards({ ...s, events: { ...ev, newbieMilestones: [...ev.newbieMilestones, points].sort((a, b) => a - b) } }, m.rewards, ctx);
+  const out = grantRewards({ ...s, events: { ...ev, newbieMilestones: [...ev.newbieMilestones, points].sort((a, b) => a - b) } }, m.rewards, ctx, `newbie_${points}`);
   return { save: syncAchievementCounters(out.save), rewards: m.rewards, events: out.events };
 }
 

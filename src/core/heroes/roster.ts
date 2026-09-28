@@ -1,7 +1,7 @@
 import type { GameContext } from '../progression/types';
 import type { HeroState, SaveState } from '../save/schema';
 import { heroJobId, heroRole, newHeroId } from './card';
-import type { CardRarity } from './schema';
+import { rarityIndex, type CardRarity } from './schema';
 
 /**
  * Ростер: новые экземпляры, правило «один шаблон — один слот отряда», место в строю.
@@ -70,9 +70,21 @@ export function ownedStoryTemplates(save: Pick<SaveState, 'heroes'>, ctx: GameCo
   return order.filter((t) => save.heroes.some((h) => h.templateId === t));
 }
 
-/** Экземпляр сюжетной карточки templateId (сюжетные не дублируются; если вдруг два — первый). */
+/** Сильнейший экземпляр героя templateId (выше редкость, затем уровень; при равенстве — первый). */
 export function storyHero(save: Pick<SaveState, 'heroes'>, templateId: string): HeroState | undefined {
-  return save.heroes.find((h) => h.templateId === templateId);
+  let best: HeroState | undefined;
+  for (const h of save.heroes) {
+    if (h.templateId !== templateId) continue;
+    if (!best || rarityIndex(h.rarity) > rarityIndex(best.rarity) || (h.rarity === best.rarity && h.level > best.level)) best = h;
+  }
+  return best;
+}
+
+/** Экземпляры героя templateId, сильнейший первым (копии для экрана «Герои» и вознесения). */
+export function heroCopies(save: Pick<SaveState, 'heroes'>, templateId: string): HeroState[] {
+  return save.heroes
+    .filter((h) => h.templateId === templateId)
+    .sort((a, b) => rarityIndex(b.rarity) - rarityIndex(a.rarity) || b.level - a.level);
 }
 
 /** Снять с героя «Новый!» (UI — при открытии карточки). */

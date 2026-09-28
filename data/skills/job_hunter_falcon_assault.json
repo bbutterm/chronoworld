@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_hunter_falcon_assault",
+  "name": "Атака сокола",
+  "description": "Сокол бьёт врага с наименьшим ОЗ в любом ряду (×3).",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp"
+  },
+  "cooldown": 14,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 3
+    }
+  ]
+}

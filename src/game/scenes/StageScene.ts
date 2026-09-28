@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { actSkipStage, autoFormation, enemySquad, getStage, stageStatus } from '../../core';
+import { actSkipStage, autoFormation, dropText, enemySquad, getStage, stageCardDrop, stageStatus } from '../../core';
+import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
 import { formatNumber, recommendedPower, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
@@ -16,9 +17,10 @@ import { C, FS } from '../theme';
 
 /** Геометрия экрана этапа (игровые единицы 1080×1920). */
 const L = {
-  titleY: 190,
-  rewardY: 240,
-  field: { top: 272, bottom: 1010 },
+  titleY: 184,
+  rewardY: 230,
+  cardY: 272,
+  field: { top: 298, bottom: 1010 },
   rosterHeadY: 1128,
   roster: { top: 1180, bottom: 1704 },
   fightY: GAME_H - 110,
@@ -58,6 +60,13 @@ export class StageScene extends Phaser.Scene {
       C.muted,
       { stroke: C.stroke, strokeThickness: 4 },
     );
+    // Шанс карты героя (копия случайного героя для вознесения): первое прохождение / босс главы / повтор.
+    const drop = stageCardDrop(stage, first, GAME);
+    const dt = dropText(drop);
+    if (dt) {
+      const line = text(this, GAME_W / 2 + 22, L.cardY, `Шанс: ${dt}`, FS.caption, C.info, { stroke: C.stroke, strokeThickness: 4 }).setName('stageCardDrop');
+      heroCardIcon(this, line.x - line.width / 2 - 26, L.cardY, 40, (drop.purple ?? 0) > (drop.blue ?? 0) ? 'purple' : 'blue');
+    }
 
     // --- Поле (отряд против противника) и список героев ---
     this.editor = new FormationEditor(this, {

@@ -8,7 +8,7 @@
   "role": "damage",
   "source": "summon",
   "baseRarity": "green",
-  "maxRarity": "gold",
+  "maxRarity": "red",
   "statMods": {
     "hp": 0.9,
     "atk": 1.1,
@@ -30,6 +30,71 @@
     {
       "level": 50,
       "skill": "job_thief_improve_dodge"
+    }
+  ],
+  "branches": [
+    {
+      "job": "assassin",
+      "role": "damage",
+      "statMods": {
+        "hp": 1.05,
+        "atk": 1.35,
+        "def": 1,
+        "spd": 1.15
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_assassin_grimtooth"
+        },
+        {
+          "level": 10,
+          "skill": "job_assassin_enchant_poison"
+        },
+        {
+          "level": 30,
+          "skill": "job_thief_venom_knife"
+        },
+        {
+          "level": 50,
+          "skill": "job_assassin_venom_splasher"
+        }
+      ],
+      "promotion": "Зара возвращается в Морок ассасином. Тот, кто её подставил, уже знает.",
+      "visual": {
+        "sprite": "assassin_f"
+      }
+    },
+    {
+      "job": "rogue",
+      "role": "support",
+      "statMods": {
+        "hp": 1.15,
+        "atk": 1.2,
+        "def": 1.1
+      },
+      "skills": [
+        {
+          "level": 1,
+          "skill": "job_rogue_back_stab"
+        },
+        {
+          "level": 10,
+          "skill": "job_rogue_gank"
+        },
+        {
+          "level": 30,
+          "skill": "job_thief_sand_attack"
+        },
+        {
+          "level": 50,
+          "skill": "job_rogue_strip_armor"
+        }
+      ],
+      "promotion": "Зара учится отнимать у врага оружие и доспех, а не только кошелёк.",
+      "visual": {
+        "sprite": "rogue_f"
+      }
     }
   ],
   "bio": "Воровка с ядовитыми ножами из пустыни Сограт.",

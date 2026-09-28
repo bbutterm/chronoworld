@@ -38,6 +38,15 @@ export const RARITY_CARD: Record<CardRarity, string> = {
   red: 'красная',
 };
 
+/**
+ * Гарант первого ×10 словами: одна карта — «синяя карта гарантирована» / «хотя бы одна синяя карта», несколько —
+ * «не меньше 2 синих гарантированно» / «не меньше 2 синих карт» (rule — строка правил).
+ */
+export function firstTenText(count: number, rarity: CardRarity, rule = false): string {
+  if (count === 1) return rule ? `хотя бы одна ${RARITY_CARD[rarity]} карта` : `${RARITY_CARD[rarity]} карта гарантирована`;
+  return rule ? `не меньше ${count} ${RARITY_PLURAL[rarity]} карт` : `не меньше ${count} ${RARITY_PLURAL[rarity]} гарантированно`;
+}
+
 /** Множественное число редкостей для итога: «фиолетовых 1». */
 const RARITY_PLURAL: Record<CardRarity, string> = {
   green: 'зелёных',

@@ -101,10 +101,12 @@ describe('R: авто-прохождение кампании', () => {
     expect(autoNextStage(clearedUpTo(save, stages.length), last.id, true, ctx).stop).toBe('no_next');
   });
 
-  it('значок «Герои»: сколько героев можно вознести (осколков, золота и уровня хватает)', () => {
+  it('значок «Герои»: сколько героев можно вознести (копий и золота хватает)', () => {
     const full = loadFullContext();
     expect(heroesBadgeCount(save, full)).toBe(0);
-    const ready = { ...save, resources: { ...save.resources, gold: 5000 }, shards: { alan: 20, vika: 5 } };
+    // Две зелёные копии Алана — Алан готов к вознесению (герои v2: копиями, осколков нет).
+    const copies = [{ id: 'h90', templateId: 'alan', rarity: 'green' as const, level: 1 }, { id: 'h91', templateId: 'alan', rarity: 'green' as const, level: 1 }];
+    const ready = { ...save, heroes: [...save.heroes, ...copies], resources: { ...save.resources, gold: 5000 } };
     expect(heroesBadgeCount(ready, full)).toBe(1);
   });
 });

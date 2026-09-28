@@ -37,6 +37,7 @@ const model = {
   seedBase: intArg('seed', PLAYER_MODEL.seedBase),
   shop: !process.argv.includes('--no-shop'),
   expeditions: !process.argv.includes('--no-expeditions'),
+  branch: (arg('branch') ?? PLAYER_MODEL.branch) as typeof PLAYER_MODEL.branch,
 };
 const out = resolve(ROOT, arg('out') ?? 'balance.csv');
 
@@ -47,17 +48,20 @@ if (process.argv.includes('--fit-recommended')) {
   // Подбор power.recommendedStages: пороги мощи по 12 моделям игрока (docs/content/balance.md, «Рекомендуемая мощь»).
   const fit = fitRecommended(ctx, days);
   const defaults = ctx.features.power;
-  const overrides: Record<string, number> = {};
+  // Этапы, которые подбор не трогал (нет поражений, победы выше пола), сохраняют свой коэффициент (например, ch1_s10).
+  const fitted = new Set(fit.map((f) => f.stageId));
+  const overrides: Record<string, number> = Object.fromEntries(Object.entries(defaults.recommendedStages ?? {}).filter(([id]) => !fitted.has(id)));
   console.log('этап      поражение  победа  порог  сейчас  предложение  (доля от мощи врагов; моделей с поражением)');
   for (const f of fit) {
     const stage = ctx.content.stages.find((s) => s.id === f.stageId)!;
     const def = (stage.boss ? (defaults.recommendedBoss ?? defaults.recommended) : defaults.recommended) ?? 1;
-    if (Math.abs(f.suggested / def - 1) > 0.05) overrides[f.stageId] = f.suggested;
+    // Отличие > 5% — или ниже общего (пол поражений/побед Ц8: иначе модель проигрывает ниже 85% рекомендуемой).
+    if (Math.abs(f.suggested / def - 1) > 0.05 || f.suggested < def - 0.005) overrides[f.stageId] = f.suggested;
     console.log(
       `${f.stageId.padEnd(8)}  ${f.loss.toFixed(2).padStart(9)}  ${f.win.toFixed(2).padStart(6)}  ${f.threshold.toFixed(2)}  ${f.current.toFixed(2).padStart(6)}  ${f.suggested.toFixed(2).padStart(11)}  (${f.n})`,
     );
   }
-  console.log(`\npower.recommendedStages (отличие от общего коэффициента > 5%):\n${JSON.stringify(overrides, null, 2)}`);
+  console.log(`\npower.recommendedStages (отличие от общего коэффициента > 5% или ниже него; неподобранные — как были):\n${JSON.stringify(overrides, null, 2)}`);
   process.exit(0);
 }
 const res = runBalance(ctx, days, model);
@@ -116,6 +120,10 @@ console.log(`  первые 30 мин: боёв ${hm.first30.battles}, повы�
 console.log(`  прирост за уровень (мощь / боевая сила hp×atk): ${hm.levelGainPct.map((b) => `ур. ${b.band}: +${b.pct}% / +${b.effPct}% (${b.n})`).join(', ')}`);
 console.log(`  первые 30 мин: мощь отряда между боями с «Улучшить» +${hm.first30BurstPct}%; повышений за активный час по дням: ${hm.levelUpsPerActiveHour.join(' ')}`);
 console.log(`  первое вознесение: ${hm.firstAscend ? `${hm.firstAscend.templateId} → ${hm.firstAscend.rarity}, актив ${hm.firstAscend.active_min} мин (${hm.firstAscend.hours} ч)` : '—'}`);
+console.log(`  первый фиолетовый (Ц11): ${hm.firstPurple ? `${hm.firstPurple.templateId}, день ${hm.firstPurple.day} (${hm.firstPurple.hours} ч, ${hm.firstPurple.via === 'ascend' ? 'вознесение' : 'контракт/Таверна'})` : '—'}; второй: ${hm.secondPurple ? `${hm.secondPurple.templateId}, день ${hm.secondPurple.day} (${hm.secondPurple.hours} ч)` : '—'}`);
+console.log(`  фиолетовых в отряде по дням: ${hm.purplesByDay.join(' ')}; запас экземпляров вне отряда: ${res.spareByDay.join(' ')}`);
+console.log(`  новых фиолетовых за 7 дней: вознесением ${hm.purples7.ascend}, картой (Таверна, трофеи) ${hm.purples7.card}, контрактом ${hm.purples7.contract}`);
+console.log(`  ветки: ${res.branches.map((b) => `д${b.day} ${b.templateId}/${b.branch}`).join(', ') || '—'}`);
 console.log(`  первый ×10: ${hm.firstTen ? `${hm.firstTen.pay}, актив ${hm.firstTen.active_min} мин (${hm.firstTen.hours} ч)` : '—'}; ×10 за гемы по дням: ${hm.tenPullsByDay.join(' ')}`);
 console.log(`  стены ≥ 4 ч: ${hm.walls.map((w) => `${w.stageId} ${w.hours} ч`).join(', ') || 'нет'}`);
 console.log(`  поражения по мощь/рек.: ${hm.lossRatio.map((b) => `${b.band}: ${b.n}`).join(', ')}`);
@@ -155,7 +163,7 @@ const scrolls = Object.entries(res.scrollsIn).map(([k, n]) => `${k} ${n}`).join(
 if (scrolls) console.log(`  свитки призыва: ${scrolls}`);
 const perSource = (m: Partial<Record<string, number>>) => Object.entries(m).map(([k, n]) => `${k} ${n}`).join(', ');
 if (Object.keys(res.itemsIn).length) console.log(`  предметы по источникам: ${perSource(res.itemsIn)}`);
-if (Object.keys(res.shardsIn).length) console.log(`  осколки по источникам: ${perSource(res.shardsIn)}`);
+if (Object.keys(res.cardsIn).length) console.log(`  копии героев по источникам: ${perSource(res.cardsIn)}`);
 if (model.events) {
   // События новичка (data/events.json): когда получены награды входа и сундуки новичка.
   const when = (kind: string) => res.eventClaims.filter((e) => e.kind === kind).map((e) => `${e.id}@д${e.day}`).join(' ');

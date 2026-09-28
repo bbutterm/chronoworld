@@ -20,8 +20,9 @@ describe('миграция v3 → v4: герои становятся карто
   const s = deserialize(fixtureV3);
 
   it('версия, ссылки и неизменные поля', () => {
-    // Следом идут v5 (события и почта, tests/events.test.ts) и v6 (экспедиции вместо поручений, tests/meta-expeditions.test.ts).
-    expect(SAVE_VERSION).toBe(6);
+    // Следом идут v5 (события и почта, tests/events.test.ts), v6 (экспедиции вместо поручений,
+    // tests/meta-expeditions.test.ts) и v7 (герои v2, tests/heroes-migrate-v7.test.ts).
+    expect(SAVE_VERSION).toBe(7);
     expect(MIGRATIONS[3](raw).version).toBe(4);
     expect(s.version).toBe(SAVE_VERSION);
     // v6: поручение в работе (Отто на патруле) — герой свободен, награда поручения — письмом в почте.
@@ -39,8 +40,8 @@ describe('миграция v3 → v4: герои становятся карто
     expect(s.tower).toEqual(raw.tower);
     expect(s.revision).toBe(17);
     expect(s.seenScenes).toEqual(['ch1_intro']);
-    // В формате v4 поля героев — только карточка.
-    for (const h of s.heroes) expect(Object.keys(h).sort()).toEqual(['id', 'level', 'rarity', 'templateId']);
+    // В формате v4 поля героев — только карточка; v7 добавляет ветку сюжетному фиолетовому (Дорн — Разбойник).
+    for (const h of s.heroes) expect(Object.keys(h).sort()).toEqual(h.id === 'h5' ? ['branch', 'id', 'level', 'rarity', 'templateId'] : ['id', 'level', 'rarity', 'templateId']);
   });
 
   it('по имени (в том числе старые Бэлла, Вик, Грег), тот же уровень, редкость по пределу', () => {
@@ -53,6 +54,8 @@ describe('миграция v3 → v4: герои становятся карто
       ['h6', 'kai', 'purple', 43], // шестой герой (Волшебник 3) → призывная карточка своей линии
     ]);
     expect(heroCard(s.heroes[4], ctx).job).toBe('rogue');
+    // Кай (первая призывная) на фиолетовом — без ветки: «Выберите ветку!» (герои v2).
+    expect(heroCard(s.heroes[5], ctx).needsBranch).toBe(true);
   });
 
   it('опыт героев и излишек уровней — в общий пул; компенсация — свиток; Таверна открыта — подарок', () => {
@@ -60,8 +63,9 @@ describe('миграция v3 → v4: герои становятся карто
     for (let l = 40; l < 50; l++) surplus += levelExp(l);
     expect(s.resources).toEqual({ gold: 1200, heroExp: 50 + surplus + 300 + 7 });
     expect(s.currency).toEqual({ gems: 80 + 150, scrolls: 1 + 1 });
-    expect(s.summon).toEqual({ seq: 0, total: 0, sincePurple: 0, firstTenDone: false, welcomeGiven: true, discovered: ['alan', 'bran', 'vika', 'greta', 'dorn', 'kai'] });
-    expect(s.shards).toEqual({});
+    expect(s.summon).toEqual({ seq: 0, total: 0, sincePurple: 0, sinceBlue: 0, firstTenDone: false, welcomeGiven: true, discovered: ['alan', 'bran', 'vika', 'greta', 'dorn', 'kai'] });
+    // v7: осколков больше нет (у фикстуры их и не было — ни копий, ни сообщения).
+    expect(s).not.toHaveProperty('shards');
     expect(s.achievements.counters).toEqual({ stages_cleared: 6, tower_floor: 6, jobs_changed: 6, hero_max_level: 50 });
     expect(s.achievements.claimed).toEqual(['first_stage', 'first_job']);
   });

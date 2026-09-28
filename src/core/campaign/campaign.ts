@@ -5,7 +5,7 @@ import type { SaveState } from '../save/schema';
 import { buildUnit } from '../heroes/card';
 import { addHeroExp } from '../heroes/level';
 import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/roster';
-import { addShards, replayShardCount, stageShardHero, stageShardReward } from '../heroes/shards';
+import { grantHeroCards, stageHeroCards } from '../heroes/cardDrops';
 import { grantTavernWelcome } from '../heroes/summon';
 import { GameRuleError, type GameContext, type ProgressEvent } from '../progression/types';
 import type { StageInfo } from './schema';
@@ -91,9 +91,9 @@ export function squadUnits(save: SaveState, ctx: GameContext): { squad: (UnitDef
  * - battleSeq + 1 всегда;
  * - победа: награда целиком при первом прохождении, × replayRewardMultiplier при повторе (floor); золото в resources,
  *   опыт (rewards.jobExp) — в общий пул героев resources.heroExp (уровни поднимает игрок: heroes/level.ts);
- *   осколки героя этапа (heroes/shards.ts: первое прохождение — firstClear/bossFirstClear, повтор — шанс от seed);
+ *   карты случайных героев (heroes/cardDrops.ts: первое прохождение — cards.heroCards.firstClear/bossFirstClear, повтор — replay; бросок от seed);
  *   рекрут (progression.heroes.recruits) и подарок Таверны (summon.unlockAfterStage) при первом прохождении;
- *   события rewards, shards, stageCleared, stageUnlocked, heroJoined, tavernUnlocked;
+ *   события rewards, heroCard, stageCleared, stageUnlocked, heroJoined (copy — пришла копия уже имеющегося), tavernUnlocked;
  * - поражение: только battleSeq;
  * - P9 (T1-15): первая победа в кампании (cleared был пуст) при переданном now ставит offline.lastClaimAt = now —
  *   сундук копит время с первого пройденного этапа, а не с создания сохранения. Без now lastClaimAt не меняется.
@@ -127,29 +127,25 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   if (firstTime && save.campaign.cleared.length === 0 && now !== undefined) next.offline = { ...save.offline, lastClaimAt: now };
 
   events.push({ type: 'rewards', gold, heroExp });
-  // Осколки героя этапа: первое прохождение — всегда, повтор — с шансом (от seed боя).
-  const shard = firstTime ? stageShardReward(save, stage, ctx) : (() => {
-    const t = stageShardHero(save, stage, ctx);
-    const n = t ? replayShardCount(seed, ctx) : 0;
-    return t && n > 0 ? { templateId: t, count: n } : null;
-  })();
-  if (shard) {
-    next = addShards(next, shard.templateId, shard.count);
-    events.push({ type: 'shards', templateId: shard.templateId, count: shard.count });
-  }
+  // Карты случайных героев: первое прохождение (босс главы — больше) и повтор — по шансам (от seed боя).
+  const cards = grantHeroCards(next, stageHeroCards(stage, firstTime, seed, ctx), ctx);
+  next = cards.save;
+  events.push(...cards.events);
   events.push({ type: 'stageCleared', stageId: stage.id, firstTime });
   const following = ctx.content.stages[stage.globalIndex + 1];
   if (firstTime && following) events.push({ type: 'stageUnlocked', stageId: following.id });
 
   if (firstTime) {
     for (const rc of ctx.progression.heroes.recruits) {
-      if (rc.afterStage !== stage.id || next.heroes.some((h) => h.templateId === rc.template)) continue;
+      if (rc.afterStage !== stage.id) continue;
       const t = ctx.content.heroes[rc.template];
       if (!t) continue;
+      // Герой уже есть (из Таверны или миграции) — приходит его зелёная копия (корм для вознесения), в отряд не ставится.
+      const copy = next.heroes.some((h) => h.templateId === rc.template);
       const r = addHeroCard(next, rc.template, t.baseRarity);
       // В отряд — на свободное место (передние — с первого слота, задние — с последнего), если есть.
-      next = { ...r.save, squad: placeInSquad(r.save.squad, r.hero, r.save, ctx) };
-      events.push({ type: 'heroJoined', heroId: r.hero.id, templateId: rc.template, name: t.name });
+      next = copy ? r.save : { ...r.save, squad: placeInSquad(r.save.squad, r.hero, r.save, ctx) };
+      events.push({ type: 'heroJoined', heroId: r.hero.id, templateId: rc.template, name: t.name, ...(copy ? { copy: true } : {}) });
     }
     const w = grantTavernWelcome(next, ctx);
     next = w.save;

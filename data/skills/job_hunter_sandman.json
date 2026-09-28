@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_hunter_sandman",
+  "name": "Сонная ловушка",
+  "description": "Урон (×0,6) всем врагам фронта и шанс 35% усыпить каждого на 1 ход.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "cooldown": 16,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.6
+    },
+    {
+      "type": "status",
+      "chance": 0.35,
+      "status": {
+        "id": "stun",
+        "name": "Сон",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

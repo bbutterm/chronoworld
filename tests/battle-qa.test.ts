@@ -23,7 +23,8 @@ const SQUADS: Record<string, string[]> = {
   tier1b: ['alan', 'greta', 'bran', 'kai', 'vika'],
   tier1i: ['iris', 'zara', 'meilin', 'lira', 'teo'],
   novice: ['novice', 'novice', 'novice', 'novice', 'novice'],
-  tier2: ['seyren', 'randel', 'cecil', 'kathryne', 'margaretha'],
+  // Герои v2: те же классы, пол и роли, что у прежних Сейрена, Рандела, Сесиль, Кэтрин, Маргареты (таблица миграции v7).
+  tier2: ['iris/knight', 'alan/crusader', 'meilin/hunter', 'lira/wizard', 'vika/priest'],
 };
 
 /** Новичок профессии novice (карточек-новичков нет): статы и навыки профессии на уровне lvl (≤ 10). */
@@ -236,9 +237,10 @@ describe('QA T2 (бой) — регрессии пакета P1', () => {
     check(r, 'synthetic');
   });
 
-  it('T2-07: ближний удар по площади задевает только врагов рядом с целью (этап 5, ур. 30, seed 1)', () => {
-    // «Магнум Брейк» — у Ирис с ур. 30.
-    const { r } = fight('tier1i', 30, 'ch1_s5', 1);
+  it('T2-07: ближний удар по площади задевает только врагов рядом с целью (этап 5, ур. 20, seed 1)', () => {
+    // «Магнум Брейк» — у Ирис с ур. 1 (герои v2; раньше — с ур. 30). На ур. 30 отряд выигрывает этап 5 раньше, чем
+    // Ирис успевает ударить им, — уровень 20 (бой дольше, удар есть).
+    const { r } = fight('tier1i', 20, 'ch1_s5', 1);
     const body = (uid: string) => {
       const u = r.units.find((x) => x.uid === uid)!;
       const def = u.side === 'B' ? enemySquad('ch1_s5', ctx)[u.slot] : null;

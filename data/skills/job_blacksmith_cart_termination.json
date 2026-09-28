@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_blacksmith_cart_termination",
+  "name": "Удар тележкой мастера",
+  "description": "Сокрушительный удар тележкой (×3) по цели, шанс 20% оглушить.",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "cooldown": 14,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 3
+    },
+    {
+      "type": "status",
+      "chance": 0.2,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

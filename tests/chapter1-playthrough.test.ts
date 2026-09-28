@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ascendHero, ascendRequirement, autoFormation, autoLevel, heroCard, newGame, playStage, summon, summonStatus, type SaveState } from '../src/core';
+import { ascendHero, ascendRequirement, autoFodder, autoFormation, autoLevel, heroCard, heroCopies, heroTemplate, newGame, playStage, rarityIndex, summon, summonStatus, type SaveState } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
 
 const ctx = loadFullContext();
@@ -8,9 +8,9 @@ const stages = ctx.content.stages.filter((s) => s.chapter === ctx.content.chapte
 
 /**
  * Как новый игрок после боя (то же, что scripts/playthrough.ts): Таверна (бесплатный призыв, свитки подарка открытия —
- * первый ×10 после ch1_s5, ×10 за гемы), отряд — 5 сильнейших (autoFormation), вознесение сюжетных по осколкам,
- * «Улучшить» отряда из общего пула. Баланс 27.09 (docs/content/balance.md): к Таверне на ch1_s5 глава рассчитана на
- * отряд из пяти с первым ×10 (гарант фиолетовой карточки), а не на сюжетную тройку.
+ * первый ×10 после ch1_s5, ×10 за гемы), отряд — 5 сильнейших (autoFormation), вознесение копиями (герои v2: цель —
+ * сильнейший экземпляр героя, корм — самые слабые копии; на фиолетовом — ветка своей роли), «Улучшить» отряда из общего
+ * пула. Баланс главы 1 под героев v2 — пакет V3 (docs/design/heroes-v2.md, раздел 7).
  */
 function develop(s: SaveState): SaveState {
   const st = summonStatus(s, DAY, ctx);
@@ -21,9 +21,14 @@ function develop(s: SaveState): SaveState {
     s = { ...s, squad: autoFormation(s, ctx) };
   }
   for (let guard = 0; guard < 10; guard++) {
-    const ready = s.heroes.find((h) => ctx.content.heroes[h.templateId]?.source === 'story' && ascendRequirement(s, h.id, ctx)?.blockers.length === 0);
+    const tops = [...new Set(s.heroes.map((h) => h.templateId))].map((t) => heroCopies(s, t)[0]);
+    const ready = tops.find((h) => ascendRequirement(s, h.id, ctx)?.blockers.length === 0 && autoFodder(s, h.id, ctx));
     if (!ready) break;
-    s = ascendHero(s, ready.id, [], ctx).save;
+    const req = ascendRequirement(s, ready.id, ctx)!;
+    const t = heroTemplate(ctx, ready.templateId);
+    const branch = req.branch && !ready.branch ? (t.branches.find((b) => b.role === t.role) ?? t.branches[0]).job : undefined;
+    s = ascendHero(s, ready.id, autoFodder(s, ready.id, ctx)!, ctx, branch ? { branch } : {}).save;
+    s = { ...s, squad: autoFormation(s, ctx) };
   }
   s = autoLevel(s, ctx).save;
   s = { ...s, squad: autoFormation(s, ctx) };
@@ -57,9 +62,11 @@ describe('глава 1 играбельна с нуля', () => {
     const out = playUntil(save, null, (boss) => (boss ? 6 : 3));
     expect(out.stuck).toBeNull();
     save = out.save;
-    // Первый ×10 в Таверне — в первой сессии (подарок открытия), с гарантированной фиолетовой карточкой.
+    // Первый ×10 в Таверне — в первой сессии (подарок открытия), в нём синяя карта (герои v2: фиолетовой гарантии нет —
+    // фиолетовый зарабатывается копиями; пакет V3 — гарант одна синяя, было две). К концу главы синих не меньше двух:
+    // гарант, синие вознесения из зелёных копий, карты этапов.
     expect(save.summon.firstTenDone).toBe(true);
-    expect(save.heroes.some((h) => h.rarity === 'purple')).toBe(true);
+    expect(save.heroes.filter((h) => rarityIndex(h.rarity) >= rarityIndex('blue')).length).toBeGreaterThanOrEqual(2);
     // Отряд к концу главы — ур. 4–8 (уровень каждые 1–2 боя; пул и золото тратятся почти до нуля).
     const squad = save.squad.flatMap((id) => save.heroes.filter((h) => h.id === id));
     expect(squad).toHaveLength(5);
@@ -67,16 +74,19 @@ describe('глава 1 играбельна с нуля', () => {
       expect(h.level).toBeGreaterThanOrEqual(4);
       expect(h.level).toBeLessThanOrEqual(8);
     }
-    // Осколки: каждый сюжетный герой получил их за первые прохождения; Алан к боссу главы вознесён в синий (20 осколков).
-    for (const t of ctx.progression.heroes.start) expect((save.shards[t] ?? 0) + (save.heroes.find((h) => h.templateId === t)!.rarity !== 'green' ? 1 : 0)).toBeGreaterThan(0);
-    expect(save.heroes.find((h) => h.templateId === 'alan')!.rarity).toBe('blue');
-    // После босса главы приходит новый герой (Грета — зелёная карточка).
-    const start = ctx.progression.heroes.start.length;
-    const joined = save.heroes.slice(start).filter((h) => ctx.content.heroes[h.templateId].source === 'story');
-    expect(joined.map((h) => h.templateId)).toEqual(ctx.progression.heroes.recruits.filter((r) => stages.some((s) => s.id === r.afterStage)).map((r) => r.template));
+    // Копии героев из Таверны и наград уходят в вознесения: к концу главы в отряде есть синий (или выше).
+    expect(squad.some((h) => rarityIndex(h.rarity) >= rarityIndex('blue'))).toBe(true);
+    // После босса главы приходит новый герой (Грета) — или её копия, если она уже пришла из Таверны.
+    for (const r of ctx.progression.heroes.recruits.filter((x) => stages.some((s) => s.id === x.afterStage))) {
+      expect(save.heroes.some((h) => h.templateId === r.template)).toBe(true);
+    }
   });
 
-  it('босс главы: 75–88% побед с первой попытки в среднем по выдачам Таверны (16 сохранений × 16 seed)', () => {
+  // Герои v2, пакет V3 (docs/content/balance.md, «Герои v2»): первый ×10 больше не гарантирует фиолетовую карточку
+  // (было +×1.5 силы отряда, под неё подобраны mult этапов с ch1_s6), в V1 босс с первой попытки брался в ≈27%.
+  // V3 ослабил ch1_s9 (×0.94) и босса ch1_s10 (×0.9) под отряд из зелёных и синих копий: ≈79% на этих 16 выдачах
+  // (≈81% на 40). Цель для обычного игрока — 60–85%: босс — проверка, а не стена, но и не формальность.
+  it('босс главы: 60–85% побед с первой попытки в среднем по выдачам Таверны (16 сохранений × 16 seed)', () => {
     let wins = 0;
     let fights = 0;
     for (let k = 0; k < 16; k++) {
@@ -88,7 +98,7 @@ describe('глава 1 играбельна с нуля', () => {
       }
     }
     const rate = wins / fights;
-    expect(rate).toBeGreaterThanOrEqual(0.75);
-    expect(rate).toBeLessThanOrEqual(0.88);
+    expect(rate).toBeGreaterThanOrEqual(0.6);
+    expect(rate).toBeLessThanOrEqual(0.85);
   });
 });

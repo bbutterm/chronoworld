@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { actSummon, addHeroCard, grantTavernWelcome, heroCard, rarityDef, summonPool, summonStatus, type HeroState, type SummonResult, type SummonStatus } from '../../core';
+import { actSummon, addHeroCard, grantTavernWelcome, heroCard, needsBranch, rarityDef, summonPool, summonStatus, type HeroState, type SummonResult, type SummonStatus } from '../../core';
 import { SUMMON_REVEAL } from '../audioCatalog';
 import { sfx, summonSound } from '../audio';
 import { screenBackground } from '../backdrops';
@@ -19,6 +19,7 @@ import {
   pityInfo,
   pullOptions,
   RARITY_CARD,
+  firstTenText,
   RARITY_FEM,
   ratesLines,
   resultTag,
@@ -87,8 +88,8 @@ interface RevealState {
 }
 
 /**
- * H5. Таверна: призыв карточек героев (docs/design/heroes.md, раздел 4). Тёплый зал, круг призыва с витриной
- * фиолетовых героев, полоса гаранта, кнопки «Бесплатно» / свитки / ×1 / ×10, окно шансов, подарок открытия.
+ * H5. Таверна: призыв карточек героев (docs/design/heroes-v2.md, раздел 4). Тёплый зал, круг призыва с «гостями дня»
+ * (три героя пула), полосы гарантов «до синей / до фиолетовой», кнопки «Бесплатно» / свитки / ×1 / ×10, окно шансов, подарок открытия.
  * Показ как в AFK: карты рубашкой вверх вылетают на стол, нажатие — переворот (или «Открыть все»); перед редкой —
  * нарастание (summonSound задаёт время), фиолетовая — луч, вспышка и крупный показ; итог — «К героям» / «Ещё ×10».
  * «Уменьшить анимацию» — сразу итог.
@@ -175,7 +176,7 @@ export class TavernScene extends Phaser.Scene {
     }
   }
 
-  /** Круг призыва на столе и три фиолетовых героя из пула (витрина дня). */
+  /** Круг призыва на столе и три героя из пула (гости дня: сменяются по дате игрока), подпись — сколько героев в пуле. */
   private showcase(): void {
     const cy = 1040;
     const ring = this.add.container(GAME_W / 2, cy).setScale(1.7, 0.62);
@@ -188,7 +189,8 @@ export class TavernScene extends Phaser.Scene {
       this.tweens.add({ targets: inner, angle: -360, duration: 26000, repeat: -1 });
       this.tweens.add({ targets: circle, alpha: { from: 0.45, to: 0.7 }, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
-    const pool = summonPool(GAME, 'purple');
+    // Пул Таверны — все герои (12); витрина — три «гостя дня» в форме первой профессии (ветку выбирают на фиолетовом).
+    const pool = summonPool(GAME, 'green');
     if (!pool.length) return;
     // Витрина меняется раз в день (по дате игрока).
     const day = today();
@@ -200,7 +202,7 @@ export class TavernScene extends Phaser.Scene {
       { x: 540, h: 310 },
       { x: 780, h: 250 },
     ];
-    const heroes = picks.map((t) => addHeroCard(session.save, t, 'purple').hero);
+    const heroes = picks.map((t) => addHeroCard(session.save, t, 'green').hero);
     heroes.forEach((hero, i) => {
       const s = spots[i];
       const feet = cy + (i === 1 ? 30 : 0);
@@ -208,20 +210,27 @@ export class TavernScene extends Phaser.Scene {
       unitFigure(this, heroSprite(hero, GAME), s.x, feet, s.h, { maxScale: 2.4 });
     });
     const names = heroes.map((x) => GAME.content.heroes[x.templateId]?.name ?? x.templateId);
-    const more = pool.length - names.length;
-    text(this, GAME_W / 2, cy + 110, `Может выпасть: ${names.join(', ')}${more > 0 ? ` и ещё ${more}` : ''}`, FS.small, '#d8b8ff', { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: 980 } });
+    text(this, GAME_W / 2, cy + 100, `За столом: ${names.join(', ')} · героев в Таверне: ${pool.length}`, FS.small, '#d8b8ff', { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: 980 } }).setName('tavernGuests');
   }
 
-  /** Полоса гаранта и заметка про первый ×10. */
+  /** Гаранты: «До гарантированной синей: N» и «… фиолетовой: N» с полосами; заметка про первый ×10. */
   private pity(st: SummonStatus): void {
-    const y = 1270;
-    const info = pityInfo(st, GAME.summon.pity.every);
-    card(this, GAME_W / 2, y, 1000, st.firstTenBonus ? 200 : 150);
-    const top = st.firstTenBonus ? y - 50 : y - 25;
-    text(this, 80, top - 12, info.label, FS.h3, '#d8b8ff', { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5).setName('pityLabel');
-    progressBar(this, 80, top + 38, 920, 28, info.fraction, colorOf(rarityDef(GAME, st.pityRarity).color), { key: 'tavern:pity' });
+    const rows = st.pities.length ? st.pities : [{ rarity: st.pityRarity, until: st.untilPity }];
+    const rowH = 58;
+    const h = 40 + rows.length * rowH + (st.firstTenBonus ? 52 : 0);
+    const y = 1275;
+    card(this, GAME_W / 2, y, 1000, h);
+    let ry = y - h / 2 + 20 + rowH / 2;
+    rows.forEach((p, i) => {
+      const every = GAME.summon.pity.find((x) => x.rarity === p.rarity)?.every ?? p.until;
+      const info = pityInfo({ untilPity: p.until, pityRarity: p.rarity }, every);
+      const color = rarityDef(GAME, p.rarity).color;
+      text(this, 76, ry, `До ${RARITY_FEM[p.rarity]}: ${p.until}`, FS.h3, color, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5).setName(i === 0 ? 'pityLabel' : `pityLabel_${p.rarity}`);
+      progressBar(this, 480, ry, 520, 26, info.fraction, colorOf(color), { key: `tavern:pity:${p.rarity}` });
+      ry += rowH;
+    });
     if (st.firstTenBonus) {
-      text(this, GAME_W / 2, y + 68, `Первый призыв ×10 — ${RARITY_CARD[st.firstTenRarity]} карта гарантирована!`, FS.small, C.gold, { fontStyle: 'bold', ...OUTLINE }).setName('firstTenNote');
+      text(this, GAME_W / 2, ry - 6, `Первый призыв ×10 — ${firstTenText(st.firstTenCount, st.firstTenRarity)}!`, FS.small, C.gold, { fontStyle: 'bold', ...OUTLINE }).setName('firstTenNote');
     }
   }
 
@@ -251,7 +260,7 @@ export class TavernScene extends Phaser.Scene {
     big(by('gems10'), 800, y2);
     const names = (r: Parameters<typeof rarityDef>[1]) => rarityDef(GAME, r).name.toLowerCase();
     text(this, GAME_W / 2, 1765, `Шансы: ${ratesLines(GAME.summon.rates, names).join(' · ')}`, FS.small, C.muted, OUTLINE);
-    text(this, GAME_W / 2, 1815, `Каждый ${GAME.summon.pity.every}-й призыв без фиолетовой — фиолетовая`, FS.small, C.dim, OUTLINE);
+    text(this, GAME_W / 2, 1815, `Гарант: ${GAME.summon.pity.map((p) => `${RARITY_CARD[p.rarity]} — на ${p.every}-м призыве`).join(', ')}`, FS.small, C.dim, { ...OUTLINE, wordWrap: { width: 1000 } });
   }
 
   // ---------- действия ----------
@@ -296,10 +305,10 @@ export class TavernScene extends Phaser.Scene {
     }
     const s = GAME.summon;
     const rules = [
-      `Гарант: ${s.pity.every - 1} призывов подряд без ${RARITY_FEM[s.pity.rarity]} — следующая карта ${RARITY_CARD[s.pity.rarity]}.`,
-      `Первый призыв ×10 (один раз) — с ${RARITY_FEM[s.firstTen.rarity]} картой.`,
+      ...s.pity.map((p) => `Гарант: ${p.every - 1} призывов подряд без ${RARITY_FEM[p.rarity]} — следующая карта ${RARITY_CARD[p.rarity]}.`),
+      `Первый призыв ×10 (один раз) — ${firstTenText(s.firstTen.count, s.firstTen.rarity, true)}.`,
       `Бесплатно: ${s.freePerDay} призыв в день. Свиток — 1 призыв.`,
-      `Каждая карта — с шансом ${Math.round(s.storyShard.chance * 100)}% ещё и осколок сюжетного героя.`,
+      'Фиолетовая карта приходит без ветки — выберите её на карточке героя.',
       'Повторные карты — корм для вознесения в «Героях».',
     ];
     y += 20;
@@ -555,7 +564,8 @@ export class TavernScene extends Phaser.Scene {
     const jobLine = text(this, GAME_W / 2, 530, `${heroCard(hero, GAME).jobName} · ${def.name}`, FS.h3, def.color, { fontStyle: 'bold', ...OUTLINE });
     const kind = RARITY_CARD[r.rarity];
     const head = text(this, GAME_W / 2, 440, `${kind.charAt(0).toUpperCase()}${kind.slice(1)} карта!`, FS.hero, def.color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 10 });
-    const sub = text(this, GAME_W / 2, 1300, r.isNew ? 'Новый герой!' : 'дубль → на слияние', FS.h2, r.isNew ? C.gold : C.dim, { fontStyle: 'bold', ...OUTLINE });
+    const branchNote = needsBranch(hero, GAME) ? ' · ветку выберете на карточке' : '';
+    const sub = text(this, GAME_W / 2, 1300, `${r.isNew ? 'Новый герой!' : 'дубль → на слияние'}${branchNote}`, r.isNew && !branchNote ? FS.h2 : FS.h3, r.isNew ? C.gold : C.dim, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: 1000 } });
     const hint = text(this, GAME_W / 2, 1420, 'Нажмите, чтобы продолжить', FS.small, C.muted, OUTLINE);
     box.add([shade, beam, halo, ring, face, jobLine, head, sub, hint]);
     this.tweens.add({ targets: circle, angle: 360, duration: 9000, repeat: -1 });
@@ -636,11 +646,6 @@ export class TavernScene extends Phaser.Scene {
     const L = state.layer;
     state.title.setText('Итог призыва');
     L.add(ellipsize(text(this, GAME_W / 2, 310, summaryLine(state.results), FS.body, C.text, { fontStyle: 'bold', ...OUTLINE }), 1000).setName('summaryLine'));
-    // Осколки одного героя за серию — одной записью («Вика +2»).
-    const shards = new Map<string, number>();
-    for (const r of state.results) if (r.shard) shards.set(r.shard.templateId, (shards.get(r.shard.templateId) ?? 0) + r.shard.count);
-    const shardLines = [...shards].map(([t, n]) => `${GAME.content.heroes[t]?.name ?? t} +${n}`);
-    if (shardLines.length) L.add(text(this, GAME_W / 2, 370, `Бонус — осколки: ${shardLines.join(', ')}`, FS.small, C.gold, OUTLINE));
     const hasDup = state.results.some((r) => !r.isNew);
     L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Дубли — корм для вознесения. Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
 

@@ -1,4 +1,5 @@
-import { addShards, shardTarget } from '../heroes/shards';
+import { cardRng, grantHeroCards, randomHero, type DroppedCard } from '../heroes/cardDrops';
+import type { ProgressEvent } from '../progression/types';
 import type { GameContext } from '../progression/types';
 import { Rng } from '../rng';
 import type { ItemInstance, SaveState } from '../save/schema';
@@ -9,7 +10,7 @@ import { RARITIES, type ChestRoll, type ChestRule, type Rarity, type RarityWeigh
 
 /**
  * Трофеи сундука простоя и быстрых наград (как в AFK): за каждый полный тик накопленного времени
- * (data/drops.json → chest.tickMinutes) бросаются предмет, осколки «отстающего» сюжетного героя, гемы и свитки
+ * (data/drops.json → chest.tickMinutes) бросаются предмет, карта случайного героя (синяя/фиолетовая), гемы и свитки
  * по правилу главы последнего пройденного этапа (chest.rules). Детерминированно: у каждого тика свой поток Rng
  * от seed и номера тика, поэтому первые N тиков не меняются, пока копятся следующие (превью на главной не «прыгает»).
  * Время и seed передаёт вызывающий (offline.ts, fastRewards.ts) — здесь нет ни Date, ни Math.random.
@@ -23,19 +24,18 @@ export interface ChestLoot {
   ticks: number;
   /** id описаний предметов (data/items), по порядку тиков. */
   items: string[];
-  /** Осколков (кому — shardTarget на момент сбора). */
-  shards: number;
+  /** Карты героя: случайный герой, синяя или фиолетовая (решено при броске, по порядку тиков). */
+  cards: DroppedCard[];
   gems: number;
   scrolls: number;
 }
 
-export const EMPTY_LOOT: ChestLoot = Object.freeze({ ticks: 0, items: [], shards: 0, gems: 0, scrolls: 0 }) as ChestLoot;
+export const EMPTY_LOOT: ChestLoot = Object.freeze({ ticks: 0, items: [], cards: [], gems: 0, scrolls: 0 }) as ChestLoot;
 
-/** Что реально получено при сборе: экземпляры предметов и чьи осколки (нет сюжетных героев — осколков 0). */
+/** Что реально получено при сборе: экземпляры предметов и события heroCard (новые экземпляры героев). */
 export interface ChestLootGrant extends ChestLoot {
   added: ItemInstance[];
-  /** Шаблон героя, которому ушли осколки; null — осколков нет. */
-  shardHero: string | null;
+  heroEvents: ProgressEvent[];
 }
 
 type ChestCtx = GameContext & { equipment?: EquipmentConfig };
@@ -113,48 +113,55 @@ function roll(rng: Rng, r: ChestRoll | undefined): number {
 /**
  * Трофеи за ticks тиков главы chapter. Тик i — свой Rng(mix(seed + i)): предмет (шанс item, редкость по весам —
  * rarityWeights правила сундука, иначе правила выпадения главы, предмет — равновероятно среди этой редкости),
- * затем осколки, гемы, свитки. Предметы — только открытые в главе chapter (minChapter). Нет правила или предметов — пусто.
+ * затем карта героя (один бросок: синяя или фиолетовая; герой — из своего потока тика), гемы, свитки. Предметы — только открытые в главе chapter (minChapter). Нет правила или предметов — пусто.
  */
 export function rollChestLoot(chapter: string, ticks: number, seed: number, ctx: ChestCtx): ChestLoot {
   const rule = chestRule(chapter, ctx);
-  if (!rule || !ctx.equipment || !(ticks > 0)) return { ...EMPTY_LOOT, items: [] };
+  if (!rule || !ctx.equipment || !(ticks > 0)) return { ...EMPTY_LOOT, items: [], cards: [] };
   const drops = ctx.equipment.drops.rules;
   const weights = rule.rarityWeights ?? (drops.find((r) => r.chapter === chapter) ?? drops.find((r) => !r.chapter))?.rarityWeights ?? { common: 1 };
   const pools = itemPools(ctx.equipment.items, chapterNumber(chapter, ctx));
-  const loot: ChestLoot = { ticks, items: [], shards: 0, gems: 0, scrolls: 0 };
+  const loot: ChestLoot = { ticks, items: [], cards: [], gems: 0, scrolls: 0 };
   for (let i = 0; i < ticks; i++) {
     const rng = new Rng(mix((seed + Math.imul(i + 1, 0x9e3779b9)) >>> 0));
     const hit = rng.next() < rule.item;
     const rarity = pickRarity(rng, weights, pools);
     const pick = rng.next();
     if (hit && rarity) loot.items.push(pools[rarity][Math.floor(pick * pools[rarity].length)]);
-    loot.shards += roll(rng, rule.shards);
+    // Одна карта за тик: бросок тратится всегда (число бросков за тик постоянно).
+    const c = rng.next();
+    const pb = rule.heroCards?.blue ?? 0;
+    const pp = rule.heroCards?.purple ?? 0;
+    const cardRarity = c < pb ? 'blue' : c < pb + pp ? 'purple' : null;
+    if (cardRarity) {
+      const templateId = randomHero(cardRarity, cardRng((seed + Math.imul(i + 1, 0x9e3779b9)) >>> 0), ctx);
+      if (templateId) loot.cards.push({ templateId, rarity: cardRarity });
+    }
     loot.gems += roll(rng, rule.gems);
     loot.scrolls += roll(rng, rule.scrolls);
   }
   return loot;
 }
 
-/** Выдать трофеи: предметы в инвентарь, гемы и свитки в валюту, осколки — «отстающему» сюжетному герою. */
+/** Выдать трофеи: предметы в инвентарь, гемы и свитки — в валюту, карты героя — новыми экземплярами. */
 export function grantChestLoot(save: SaveState, loot: ChestLoot, ctx: GameContext): { save: SaveState; grant: ChestLootGrant } {
   const r = addItems(save, loot.items);
   let next = r.save;
   if (loot.gems > 0 || loot.scrolls > 0) {
     next = { ...next, currency: { ...next.currency, gems: next.currency.gems + loot.gems, scrolls: next.currency.scrolls + loot.scrolls } };
   }
-  const shardHero = loot.shards > 0 ? shardTarget(next, ctx) : null;
-  if (shardHero) next = addShards(next, shardHero, loot.shards);
-  return { save: next, grant: { ...loot, shards: shardHero ? loot.shards : 0, added: r.added, shardHero } };
+  const cards = grantHeroCards(next, loot.cards, ctx);
+  return { save: cards.save, grant: { ...loot, added: r.added, heroEvents: cards.events } };
 }
 
 /** Ожидаемые трофеи правила за сутки непрерывного простоя (для проверок и баланса). */
-export function chestDailyExpectation(rule: ChestRule, tickMinutes: number): { items: number; shards: number; gems: number; scrolls: number } {
+export function chestDailyExpectation(rule: ChestRule, tickMinutes: number): { items: number; cardBlue: number; cardPurple: number; gems: number; scrolls: number } {
   const ticks = (24 * 60) / tickMinutes;
   const e = (r: ChestRoll | undefined) => (r ? r.chance * r.count * ticks : 0);
-  return { items: rule.item * ticks, shards: e(rule.shards), gems: e(rule.gems), scrolls: e(rule.scrolls) };
+  return { items: rule.item * ticks, cardBlue: (rule.heroCards?.blue ?? 0) * ticks, cardPurple: (rule.heroCards?.purple ?? 0) * ticks, gems: e(rule.gems), scrolls: e(rule.scrolls) };
 }
 
 /** Трофеи пусты? */
-export function lootEmpty(loot: Pick<ChestLoot, 'items' | 'shards' | 'gems' | 'scrolls'>): boolean {
-  return loot.items.length === 0 && loot.shards === 0 && loot.gems === 0 && loot.scrolls === 0;
+export function lootEmpty(loot: Pick<ChestLoot, 'items' | 'cards' | 'gems' | 'scrolls'>): boolean {
+  return loot.items.length === 0 && loot.cards.length === 0 && loot.gems === 0 && loot.scrolls === 0;
 }

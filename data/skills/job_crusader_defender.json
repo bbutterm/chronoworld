@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_crusader_defender",
+  "name": "Защита",
+  "description": "+30% защиты всем союзникам на 3 хода.",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "cooldown": 16,
+  "priority": 6,
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "defender",
+        "name": "Защита",
+        "turns": 3,
+        "stats": {
+          "def": 0.3
+        }
+      }
+    }
+  ]
+}

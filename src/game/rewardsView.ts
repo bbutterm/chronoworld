@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import type { EventRewardEvent, RewardBundle } from '../core';
+import type { CardRarity, EventRewardEvent, RewardBundle } from '../core';
 import { hasArt } from './assets';
 import { GAME } from './content';
 import { formatNumber } from './flow';
@@ -7,6 +7,7 @@ import { gemIcon } from './screen';
 import { SKIN_TINT, skinIcon } from './skin';
 import { C, FS, OUTLINE } from './theme';
 import { icon, text } from './ui';
+import { heroCardIcon, rarityName } from './heroCard';
 
 /**
  * Награды событий и писем (RewardBundle, src/core/events): строки «иконка + число» для плиток и текст для тостов.
@@ -14,8 +15,11 @@ import { icon, text } from './ui';
  */
 
 export interface RewardItem {
-  kind: 'gold' | 'gems' | 'scrolls' | 'exp' | 'hero';
+  kind: 'gold' | 'gems' | 'scrolls' | 'exp' | 'hero' | 'heroCard' | 'heroPick';
   amount: number;
+  /** Редкость карты героя / контракта; у 'hero' — герой (templateId) для мини-иконки. */
+  rarity?: CardRarity;
+  templateId?: string;
   /** Подпись для тоста: «1 000 золота», «Сейрен Виндзор». */
   label: string;
   /** Короткая подпись рядом с иконкой: «1 000», «Сейрен». */
@@ -30,13 +34,40 @@ function plural(n: number, one: string, few: string, many: string): string {
   return many;
 }
 
-/** Награда по строкам (порядок: герои, свитки, гемы, золото, опыт). */
+/** «Синяя карта героя» и т. п. — по редкости. */
+const CARD_ADJ: Record<CardRarity, [string, string, string]> = {
+  green: ['зелёная', 'зелёные', 'зелёных'],
+  blue: ['синяя', 'синие', 'синих'],
+  purple: ['фиолетовая', 'фиолетовые', 'фиолетовых'],
+  gold: ['золотая', 'золотые', 'золотых'],
+  red: ['красная', 'красные', 'красных'],
+};
+
+/** «2 синие карты героя». */
+export function heroCardsLabel(rarity: CardRarity, n: number): string {
+  const adj = CARD_ADJ[rarity];
+  return `${n} ${plural(n, adj[0], adj[1], adj[2])} ${plural(n, 'карта', 'карты', 'карт')} героя`;
+}
+
+/** Награда по строкам (порядок: контракты, герои, карты героя, свитки, гемы, золото, опыт). */
 export function rewardItems(r: RewardBundle): RewardItem[] {
   const out: RewardItem[] = [];
+  for (const p of r.heroPicks ?? []) {
+    out.push({ kind: 'heroPick', amount: 1, rarity: p.rarity, label: `«Контракт героя» — ${rarityName(p.rarity).toLowerCase()} герой на выбор`, short: 'Контракт' });
+  }
   for (const id of r.heroes ?? []) {
     const t = GAME.content.heroes[id];
     const name = t?.name ?? id;
-    out.push({ kind: 'hero', amount: 1, label: `карточка «${name}»`, short: name.split(' ')[0] });
+    out.push({ kind: 'hero', amount: 1, templateId: id, rarity: t?.baseRarity ?? 'green', label: `карточка «${name}»`, short: name.split(' ')[0] });
+  }
+  for (const rarity of ['purple', 'blue'] as const) {
+    const v = r.heroCards?.[rarity] ?? 0;
+    const n = Math.floor(v);
+    if (n > 0) out.push({ kind: 'heroCard', amount: n, rarity, label: heroCardsLabel(rarity, n), short: `×${n}` });
+    else if (v > 0) {
+      const pct = `${String(Math.round(v * 1000) / 10).replace('.', ',')}%`;
+      out.push({ kind: 'heroCard', amount: v, rarity, label: `${CARD_ADJ[rarity][0]} карта героя (шанс ${pct})`, short: pct });
+    }
   }
   if (r.scrolls) out.push({ kind: 'scrolls', amount: r.scrolls, label: `${r.scrolls} ${plural(r.scrolls, 'свиток', 'свитка', 'свитков')} призыва`, short: `×${r.scrolls}` });
   if (r.gems) out.push({ kind: 'gems', amount: r.gems, label: `${formatNumber(r.gems)} ${plural(r.gems, 'гем', 'гема', 'гемов')}`, short: formatNumber(r.gems) });
@@ -52,14 +83,21 @@ export function rewardText(r: RewardBundle): string {
 
 /** Итоги получения: награда одной строкой и новые карточки отдельными строками (крупные — первыми). */
 export function rewardToast(title: string, r: RewardBundle, events: readonly EventRewardEvent[]): string {
-  const heroes = events.filter((e) => e.type === 'heroCard').map((e) => (e.type === 'heroCard' ? `Новый герой: ${e.name}!` : ''));
-  const rest = rewardItems({ ...r, heroes: [] }).map((i) => i.label).join(', ');
-  return [...heroes, rest ? `${title}: ${rest}` : title].join('\n');
+  const lines: string[] = [];
+  for (const e of events) {
+    if (e.type === 'heroPick') lines.push(`«Контракт героя»: ${rarityName(e.rarity).toLowerCase()} герой на выбор — выберите в «Героях»!`);
+    if (e.type === 'heroCard') lines.push(`Карта героя: ${e.name} (${CARD_ADJ[e.rarity][0]}) — копия для вознесения`);
+  }
+  const rest = rewardItems({ ...r, heroes: [], heroPicks: [], heroCards: {} }).map((i) => i.label).join(', ');
+  return [...lines, rest ? `${title}: ${rest}` : title].join('\n');
 }
 
-/** Иконка вида награды (size — высота). */
-export function rewardIcon(scene: Phaser.Scene, x: number, y: number, kind: RewardItem['kind'], size: number, dim = false): Phaser.GameObjects.GameObject {
+/** Иконка вида награды (size — высота). Карты героя и контракт — мини-карта в рамке редкости (item — редкость, герой). */
+export function rewardIcon(scene: Phaser.Scene, x: number, y: number, kind: RewardItem['kind'], size: number, dim = false, item?: Pick<RewardItem, 'rarity' | 'templateId'>): Phaser.GameObjects.GameObject {
   const tint = dim ? SKIN_TINT.creamDim : undefined;
+  if (kind === 'heroCard' || kind === 'heroPick' || (kind === 'hero' && item?.templateId)) {
+    return heroCardIcon(scene, x, y, size * 1.2, item?.rarity ?? 'blue', kind === 'hero' ? item?.templateId : undefined, { dim, pick: kind === 'heroPick' });
+  }
   if (kind === 'gold') {
     if (hasArt('ui_icon_gold')) return scene.add.image(x, y, 'ui_icon_gold').setDisplaySize(size, size).setAlpha(dim ? 0.6 : 1);
     return icon(scene, x, y, 'iconCircle_beige', size * 0.8).setTint(0xffc83a);
@@ -96,7 +134,7 @@ export function rewardColumn(
     const total = size + 8 + t.width;
     const left = x - total / 2;
     t.setX(left + size + 8);
-    out.push(rewardIcon(scene, left + size / 2, y + i * step, it.kind, size, opts.dim), t);
+    out.push(rewardIcon(scene, left + size / 2, y + i * step, it.kind, size, opts.dim, it), t);
   });
   return out;
 }
@@ -114,7 +152,7 @@ export function rewardRow(
   const out: Phaser.GameObjects.GameObject[] = [];
   let cx = x;
   for (const it of rewardItems(r)) {
-    out.push(rewardIcon(scene, cx + size / 2, y, it.kind, size, opts.dim));
+    out.push(rewardIcon(scene, cx + size / 2, y, it.kind, size, opts.dim, it));
     const t = text(scene, cx + size + 6, y, it.short, opts.font ?? FS.small, opts.dim ? C.disabled : it.kind === 'gems' ? C.gem : it.kind === 'gold' ? C.gold : C.text, {
       fontStyle: 'bold',
       ...OUTLINE,

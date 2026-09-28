@@ -36,20 +36,23 @@ describe('помощники экранов', () => {
     expect(currentStage(cleared, ctx)?.id).toBe(ctx.content.stages[1].id);
   });
 
-  it('describeEvents: level-up одной строкой, вознесение (со второй профессией), осколки, новый герой, Таверна', () => {
+  it('describeEvents: level-up одной строкой, вознесение (со второй профессией), карта героя, ветка, новый герой, Таверна', () => {
     const save = newGame(ctx, 0);
     const events: ProgressEvent[] = [
       { type: 'levelUp', heroId: 'h1', level: 2 },
       { type: 'levelUp', heroId: 'h1', level: 3 },
       { type: 'ascended', heroId: 'h2', from: 'blue', to: 'purple', job: 'hunter', jobChanged: true },
-      { type: 'shards', templateId: 'vika', count: 3 },
+      { type: 'heroCard', heroId: 'h9', templateId: 'vika', rarity: 'blue', name: 'Вика' },
+      { type: 'branchChosen', heroId: 'h2', branch: 'hunter', changed: false, gems: 0 },
       { type: 'heroJoined', heroId: 'h4', templateId: 'greta', name: 'Грета' },
       { type: 'tavernUnlocked', gems: 150, scrolls: 1 },
     ];
     const lines = describeEvents(events, save, ctx);
     expect(lines).toContain('Алан: ур. 1 → 3');
     expect(lines).toContain('Бран: Синий → Фиолетовый — теперь Охотник!');
-    expect(lines).toContain('Осколки героя Вика +3');
+    expect(lines).toContain('Карта героя: Вика (Синий)');
+    expect(lines).toContain('Бран: ветка — Охотник');
+    expect(describeEvents([{ type: 'heroPick', rarity: 'purple', source: 'login' }], save, ctx)).toEqual(['Контракт героя: фиолетовый герой на выбор — «Герои»']);
     expect(keyEventsFirst(lines).slice(0, 2)).toEqual(['Новый герой в отряде: Грета!', 'Открыта Таверна! Подарок: гемы +150, свитки призыва +1']);
     expect(levelText(4, 20)).toBe('Ур. 4 / 20');
   });
@@ -60,8 +63,9 @@ describe('помощники экранов', () => {
     const rich = { ...save, resources: { gold: 10_000, heroExp: 10_000 } };
     expect(levelUpReady(rich, ctx).map((h) => h.id)).toEqual(['h1', 'h2', 'h3']);
     expect(ascendReady(rich, ctx)).toEqual([]);
-    const shards = { ...rich, shards: { bran: 20 } };
-    expect(ascendReady(shards, ctx).map((h) => h.id)).toEqual(['h2']);
+    // Две зелёные копии Брана (не в отряде) — Брана (h2) можно вознести; сами копии — нет (им не хватает корма).
+    const copies = { ...rich, heroes: [...rich.heroes, { id: 'h4', templateId: 'bran', rarity: 'green' as const, level: 1 }, { id: 'h5', templateId: 'bran', rarity: 'green' as const, level: 1 }] };
+    expect(ascendReady(copies, ctx).map((h) => h.id)).toEqual(['h2']);
   });
 
   it('бой этапа из сохранения воспроизводим: тот же save → тот же исход', () => {

@@ -1,7 +1,8 @@
 /**
  * Сохранение для визуального прогона главы: отряд из карточек героев с готовыми листами.
  *   npx tsx scripts/chapter-save.ts [level] [tier2|tier1] > save.json
- * tier2 (по умолчанию) — фиолетовые карточки вторых профессий (Рандел, Сейрен, Сесиль, Кэтрин, Маргарета);
+ * tier2 (по умолчанию) — фиолетовые герои с ветками вторых профессий (Алан-Крестоносец, Ирис-Рыцарь, Мэйлин-Охотница,
+ * Лира-Волшебница, Вика-Жрица);
  * tier1 — карточки первых профессий (Алан, Дорн, Бран, Кай, Вика): бои дольше. Уровень — не выше предела редкости.
  * Печатает JSON сохранения и в stderr — сколько этапов главы 1 этот отряд проходит (seed = номер попытки).
  */
@@ -11,13 +12,16 @@ import { loadFullContext } from './lib/content-node';
 const level = Number(process.argv[2] ?? 10);
 const ctx = loadFullContext();
 const tier = process.argv[3] ?? 'tier2';
-const CARDS = tier === 'tier1' ? ['alan', 'dorn', 'bran', 'kai', 'vika'] : ['randel', 'seyren', 'cecil', 'kathryne', 'margaretha'];
+const CARDS = tier === 'tier1' ? ['alan', 'dorn', 'bran', 'kai', 'vika'] : ['alan/crusader', 'iris/knight', 'meilin/hunter', 'lira/wizard', 'vika/priest'];
 const base = newGame(ctx, Date.now());
 let save: SaveState = { ...base, heroes: [], squad: [null, null, null, null, null] };
-for (const t of CARDS) {
-  const rarity = rarityForLevel(ctx, level, ctx.content.heroes[t].baseRarity);
+for (const card of CARDS) {
+  const [t, branch] = card.split('/');
+  const rarity = rarityForLevel(ctx, level, branch ? 'purple' : ctx.content.heroes[t].baseRarity);
   const r = addHeroCard(save, t, rarity, { level: Math.min(level, maxLevelOf(ctx, rarity)) });
-  save = { ...r.save, squad: placeInSquad(r.save.squad, r.hero, r.save, ctx) };
+  const hero = branch ? { ...r.hero, branch } : r.hero;
+  save = { ...r.save, heroes: r.save.heroes.map((h) => (h.id === hero.id ? hero : h)) };
+  save = { ...save, squad: placeInSquad(save.squad, hero, save, ctx) };
 }
 const initial = save;
 const chapter = ctx.content.stages.filter((s) => s.chapter === ctx.content.chapters[0].id);

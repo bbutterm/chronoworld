@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "job_assassin_meteor_assault",
+  "name": "Метеоритный удар",
+  "description": "Удар по всем врагам фронта (×1,4), шанс 25% оглушить.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "cooldown": 14,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.4
+    },
+    {
+      "type": "status",
+      "chance": 0.25,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

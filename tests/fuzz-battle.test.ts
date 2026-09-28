@@ -42,7 +42,9 @@ function randomHero(rng: Rng, id: string): HeroState {
   const t = pick(rng, CARDS);
   const rarities = CARD_RARITIES.slice(rarityIndex(t.baseRarity), rarityIndex(t.maxRarity) + 1);
   const rarity = pick(rng, rarities);
-  return { id, templateId: t.id, rarity, level: 1 + rng.int(maxLevelOf(ctx, rarity)) };
+  // Герои v2: с фиолетового — ветка (одна из двух) или без ветки («Выберите ветку!»).
+  const branch = rarityIndex(rarity) >= rarityIndex('purple') ? pick(rng, [undefined, ...t.branches.map((b) => b.job)]) : undefined;
+  return { id, templateId: t.id, rarity, level: 1 + rng.int(maxLevelOf(ctx, rarity)), ...(branch ? { branch } : {}) };
 }
 
 /** Случайная экипировка: в каждом слоте с шансом 1/2 случайный предмет этого слота (ограничения профессий не важны бою). */
@@ -161,18 +163,19 @@ describe('Q: фазз боёв', () => {
     expect(battleProblems(r, { ...ctx.combat, timeLimitSeconds: 1 })).toEqual([]);
   });
 
-  it('генератор использует все карточки и все классы карточек (с формами сюжетных)', () => {
+  it('генератор использует всех 12 героев и все классы (первые профессии и 24 ветки)', () => {
     const seen = new Set<string>();
     const jobs = new Set<string>();
-    for (let s = 0; s < 2000 && seen.size < CARDS.length; s++) {
+    const allJobs = Object.values(ctx.content.jobs).filter((j) => j.tier > 0).length;
+    for (let s = 0; s < 4000 && (seen.size < CARDS.length || jobs.size < allJobs); s++) {
       const h = randomHero(new Rng(s), 'x');
       seen.add(h.templateId);
       jobs.add(heroJobId(h, ctx));
     }
     expect(seen.size).toBe(CARDS.length);
-    expect(CARDS.length).toBeGreaterThanOrEqual(25);
-    // Все профессии, кроме Новичка, — чей-то класс.
-    expect(jobs.size).toBe(Object.values(ctx.content.jobs).filter((j) => j.tier > 0).length);
+    expect(CARDS.length).toBe(12);
+    // Все профессии, кроме Новичка, — чей-то класс (первая профессия или ветка).
+    expect(jobs.size).toBe(allJobs);
   });
 
   it('300+ случайных боёв: инварианты лога, детерминизм', () => {

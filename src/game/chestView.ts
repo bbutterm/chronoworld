@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { offlineFullInMs, offlineLoot, offlineRewards, RARITIES, type ChestLoot, type OfflineRewards, type Rarity, type SaveState } from '../core';
+import { offlineFullInMs, offlineLoot, offlineRewards, RARITIES, type CardRarity, type ChestLoot, type OfflineRewards, type Rarity, type SaveState } from '../core';
+import { heroCardIcon, rarityColor } from './heroCard';
 import { GAME } from './content';
 import { formatNumber, RARITY_COLORS } from './flow';
 import { rewardIcon } from './rewardsView';
@@ -8,7 +9,7 @@ import { C, FS, OUTLINE } from './theme';
 import { text } from './ui';
 
 /**
- * Карточка сундука на главной: что накопилось (золото, опыт, трофеи — предметы, осколки, гемы, свитки) иконками
+ * Карточка сундука на главной: что накопилось (золото, опыт, трофеи — предметы, карты героя, гемы, свитки) иконками
  * и таймер «Полон через Ч:ММ» / «Сундук полон»; строки итогов сбора и быстрых наград. HomeScene только создаёт
  * ChestCardView и зовёт update раз в секунду — раскладка сундука, «Собрать» и медальон Таверны не трогаются.
  */
@@ -43,11 +44,6 @@ function bestRarity(items: readonly string[]): Rarity | null {
   return best >= 0 ? RARITIES[best] : null;
 }
 
-/** Осколок героя: вытянутый фиолетовый кристалл. */
-function shardIcon(scene: Phaser.Scene, x: number, y: number, size: number): Obj {
-  const w = size * 0.5;
-  return scene.add.polygon(x, y, [w / 2, 0, w, size * 0.45, w / 2, size, 0, size * 0.45], 0xc58cff).setStrokeStyle(3, 0x3c1d5c);
-}
 
 /** Мешок трофеев, цвет — лучшая редкость. */
 function itemsIcon(scene: Phaser.Scene, x: number, y: number, size: number, rarity: Rarity | null): Obj {
@@ -55,13 +51,17 @@ function itemsIcon(scene: Phaser.Scene, x: number, y: number, size: number, rari
   return scene.add.image(x, y, skinIcon('bag')).setDisplaySize(size, size).setTint(color);
 }
 
-type Cell = { kind: 'gold' | 'exp' | 'gems' | 'scrolls' | 'items' | 'shards'; value: string };
+type Cell = { kind: 'gold' | 'exp' | 'gems' | 'scrolls' | 'items' | 'cards'; value: string; rarity?: CardRarity; templateId?: string };
 
 /** Трофеи одной строкой ячеек (только ненулевые). */
-function lootCells(loot: Pick<ChestLoot, 'items' | 'shards' | 'gems' | 'scrolls'>): Cell[] {
+function lootCells(loot: Pick<ChestLoot, 'items' | 'cards' | 'gems' | 'scrolls'>): Cell[] {
   const cells: Cell[] = [];
   if (loot.items.length) cells.push({ kind: 'items', value: `×${loot.items.length}` });
-  if (loot.shards) cells.push({ kind: 'shards', value: `×${loot.shards}` });
+  // Карты героя: по редкости (старшая первой) — мини-карта с лицом первого героя в рамке редкости.
+  for (const rarity of ['red', 'gold', 'purple', 'blue', 'green'] as const) {
+    const cards = loot.cards.filter((c) => c.rarity === rarity);
+    if (cards.length) cells.push({ kind: 'cards', value: `×${cards.length}`, rarity, templateId: cards[0].templateId });
+  }
   if (loot.gems) cells.push({ kind: 'gems', value: formatNumber(loot.gems) });
   if (loot.scrolls) cells.push({ kind: 'scrolls', value: `×${loot.scrolls}` });
   return cells;
@@ -74,8 +74,12 @@ function drawRow(scene: Phaser.Scene, x: number, y: number, cells: Cell[], items
   const parts: { icon: Obj; label: Phaser.GameObjects.Text; at: number }[] = [];
   for (const c of cells) {
     const icon =
-      c.kind === 'items' ? itemsIcon(scene, 0, y, size, bestRarity(items)) : c.kind === 'shards' ? shardIcon(scene, 0, y, size) : (rewardIcon(scene, 0, y, c.kind, size) as Obj);
-    const color = c.kind === 'gold' ? C.gold : c.kind === 'gems' ? C.gem : c.kind === 'shards' ? '#e0b8ff' : C.text;
+      c.kind === 'items'
+        ? itemsIcon(scene, 0, y, size, bestRarity(items))
+        : c.kind === 'cards'
+          ? (heroCardIcon(scene, 0, y, size * 1.25, c.rarity ?? 'blue', c.templateId) as unknown as Obj)
+          : (rewardIcon(scene, 0, y, c.kind, size) as Obj);
+    const color = c.kind === 'gold' ? C.gold : c.kind === 'gems' ? C.gem : c.kind === 'cards' ? rarityColor(c.rarity ?? 'blue') : C.text;
     const label = text(scene, 0, y, c.value, FS.small, color, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
     parts.push({ icon, label, at: cx });
     cx += size + 8 + label.width + gap;
@@ -120,7 +124,7 @@ export class ChestCardView {
     const loot = offlineLoot(save, now, GAME);
     const income = r.gold > 0 || r.jobExp > 0;
     // Иконки перестраиваются только когда что-то изменилось (раз в минуту / тик), таймер — каждую секунду.
-    const key = income ? JSON.stringify([r.gold, r.jobExp, loot.items, loot.shards, loot.gems, loot.scrolls]) : '';
+    const key = income ? JSON.stringify([r.gold, r.jobExp, loot.items, loot.cards, loot.gems, loot.scrolls]) : '';
     if (key !== this.key) {
       this.key = key;
       for (const o of this.rows) o.destroy();
@@ -143,7 +147,7 @@ export class ChestCardView {
   }
 }
 
-/** Трофеи текстом для тоста: «Предметы: Кожаная шапка, Короткий меч ×2 · гемы +5 · свиток +1» (осколки — в событиях). */
+/** Трофеи текстом для тоста: «Предметы: Кожаная шапка, Короткий меч ×2 · гемы +5 · свиток +1» (карты героя — в событиях). */
 export function lootLines(loot: Pick<ChestLoot, 'items' | 'gems' | 'scrolls'>): string[] {
   const lines: string[] = [];
   if (loot.items.length) {
@@ -160,11 +164,11 @@ export function lootLines(loot: Pick<ChestLoot, 'items' | 'gems' | 'scrolls'>): 
 }
 
 /** Коротко о трофеях для окна подтверждения быстрых наград: «Трофеи: 1 предмет, 5 гемов». Пусто — ''. */
-export function lootSummary(loot: Pick<ChestLoot, 'items' | 'shards' | 'gems' | 'scrolls'>): string {
+export function lootSummary(loot: Pick<ChestLoot, 'items' | 'cards' | 'gems' | 'scrolls'>): string {
   const parts: string[] = [];
   const n = loot.items.length;
   if (n) parts.push(`${n} ${plural(n, 'предмет', 'предмета', 'предметов')}`);
-  if (loot.shards) parts.push(`${loot.shards} ${plural(loot.shards, 'осколок', 'осколка', 'осколков')}`);
+  if (loot.cards.length) parts.push(`${loot.cards.length} ${plural(loot.cards.length, 'карта героя', 'карты героя', 'карт героя')}`);
   if (loot.gems) parts.push(`${loot.gems} ${plural(loot.gems, 'гем', 'гема', 'гемов')}`);
   if (loot.scrolls) parts.push(`${loot.scrolls} ${plural(loot.scrolls, 'свиток', 'свитка', 'свитков')}`);
   return parts.length ? `Трофеи: ${parts.join(', ')}.` : '';

@@ -1,10 +1,12 @@
 /**
  * Регулятор сложности этапов глав по графику (docs/content/balance.md, «Как подобраны mult глав 2–3»).
- *   npx tsx scripts/balance-fit.ts [итераций=1] [gamma=0.8] [--dry] [--chapter N|chapterN] [--days D]
+ *   npx tsx scripts/balance-fit.ts [итераций=1] [gamma=0.8] [--dry] [--chapter N|chapterN] [--days D] [--seeds 1,2,3]
  * Главы — все из data/campaign (по order), кроме data/progression.json → balance.exclude; окна первого прохождения —
  * balance.windows (глава без окон — правило balance.default, см. fitTargets в scripts/lib/player-model.ts).
  * --chapter — править только эту главу (order или id; можно несколько раз), остальные главы — только как фон.
  * --days — дней модели (по умолчанию balance.fitDays, поднимается сам, если окна дальше).
+ * --seeds — seed модели (seedBase: выдачи Таверны, трофеи, бои) через запятую; время прохождения этапа и мощь P(t) —
+ *   медиана по ним (по умолчанию один seed 1). Герои v2: выдачи копий сильно разбрасывают темп, один seed — случайность.
  * Цикл: модель игрока (runBalance, PLAYER_MODEL) → когда пройден каждый этап (часы от начала первой сессии) →
  * этап раньше окна W — умножить mult всех его врагов на (P(начало окна) / P(прохождение))^gamma (сложнее), позже окна —
  * на (P(конец окна) / P(прохождение))^gamma (легче; дальше первого опоздавшего этапа не понижаем — их время сдвинуто им).
@@ -20,7 +22,7 @@ import { fitTargets, loadFullContext, runBalance, PLAYER_MODEL } from './lib/pla
 
 const argv = process.argv.slice(2);
 const flagValues = (name: string) => argv.flatMap((a, i) => (a === `--${name}` && argv[i + 1] !== undefined ? [argv[i + 1]] : []));
-const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && ['--chapter', '--days'].includes(argv[i - 1])));
+const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && ['--chapter', '--days', '--seeds'].includes(argv[i - 1])));
 const iters = Number(positional[0] ?? 1);
 const gamma = Number(positional[1] ?? 0.8);
 const dry = argv.includes('--dry');
@@ -37,6 +39,12 @@ if (targets.problems.length) {
 const W = targets.windows;
 const DAYS = flagValues('days').length ? Number(flagValues('days').at(-1)) : targets.days;
 if (!Number.isInteger(DAYS) || DAYS < 1) throw new Error(`--days: нужно целое ≥ 1`);
+const SEEDS = (flagValues('seeds').at(-1) ?? String(PLAYER_MODEL.seedBase)).split(',').map(Number);
+if (SEEDS.some((x) => !Number.isInteger(x) || x < 1)) throw new Error(`--seeds: нужны целые ≥ 1 через запятую`);
+const median = (xs: number[]) => {
+  const a = [...xs].sort((x, y) => x - y);
+  return a.length % 2 ? a[(a.length - 1) / 2] : (a[a.length / 2 - 1] + a[a.length / 2]) / 2;
+};
 
 // Какие главы править: все с окнами или только --chapter.
 const wanted = flagValues('chapter');
@@ -65,16 +73,23 @@ let best = { score: Infinity, data: files.map((f) => readFileSync(f, 'utf8')) };
 for (let it = 0; it < iters; it++) {
   const ctx = loadFullContext();
   const growth = 1 + ctx.progression.campaign.enemyStatGrowthPerStage;
-  const res = runBalance(ctx, DAYS, PLAYER_MODEL);
-  const t0 = res.rows[0].time_h;
-  const end = res.rows[res.rows.length - 1].time_h - t0;
-  const clear = new Map(res.firstClears.map((f) => [f.stageId, f.time_h - t0]));
-  const battles = res.battles.map((b) => ({ t: b.t - t0, p: b.squadPower }));
-  const P = (t: number) => {
-    let best = 0;
-    for (const b of battles) if (b.t <= t + 0.2) best = Math.max(best, b.p);
-    return best || battles[0].p;
-  };
+  // Модель по каждому seed; время прохождения этапа (не прошёл — конец + 24 ч) и мощь P(t) — медиана по seed.
+  const runs = SEEDS.map((seedBase) => {
+    const res = runBalance(ctx, DAYS, { ...PLAYER_MODEL, seedBase });
+    const t0 = res.rows[0].time_h;
+    const end = res.rows[res.rows.length - 1].time_h - t0;
+    const clear = new Map(res.firstClears.map((f) => [f.stageId, f.time_h - t0]));
+    const battles = res.battles.map((b) => ({ t: b.t - t0, p: b.squadPower }));
+    const P = (t: number) => {
+      let best = 0;
+      for (const b of battles) if (b.t <= t + 0.2) best = Math.max(best, b.p);
+      return best || battles[0].p;
+    };
+    return { end, clear, P };
+  });
+  const end = median(runs.map((r) => r.end));
+  const clear = new Map(ctx.content.stages.map((s) => [s.id, median(runs.map((r) => r.clear.get(s.id) ?? r.end + 24))]));
+  const P = (t: number) => median(runs.map((r) => r.P(t)));
   const factors: Record<string, number> = {};
   const ids: string[] = []; // этапы с окнами по порядку кампании
   let log = '';

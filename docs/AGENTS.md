@@ -42,12 +42,12 @@
 | `content/schema.ts` | zod: юнит, навык, эффекты, статусы, цели, visual |
 | `content/build.ts` | `buildContent` — разбор файлов + перекрёстные ссылки навыков/юнитов, затем `validateJobs`, `validateCampaign`; `ContentError` |
 | `campaign/schema.ts`, `validate.ts` | глава и этап; проверки (id уникальны, враги monster/boss, boss-этап с боссом) |
-| `campaign/campaign.ts` | `stageStatus`, `enemySquad` (рост силы), `squadUnits` (отряд → юниты, одна копия карточки), `playStage` (награды, опыт в пул, осколки, рекруты, подарок Таверны) |
+| `campaign/campaign.ts` | `stageStatus`, `enemySquad` (рост силы), `squadUnits` (отряд → юниты, одна копия карточки), `playStage` (награды, опыт в пул, карты героя, рекруты, подарок Таверны) |
 | `campaign/offline.ts` | офлайн-сундук: накопление, лимит, «долг» при переводе часов, `bankOffline`; трофеи `offlineLoot`, таймер `offlineFullInMs` |
 | `progression/schema.ts` | профессия (`JobSchema`), `data/progression.json` (`ProgressionConfigSchema`: сюжетные карточки `heroes.start/recruits`) |
 | `progression/stats.ts` | `getJob`, `statsAt` (статы профессии на уровне); реэкспорт `buildUnit`/`heroSkills` из `heroes/card.ts` |
 | `progression/validate.ts` | проверки дерева профессий |
-| `heroes/*` | **карточки героев** (раздел 2а): `schema` (шаблон, `cards.json`, `summon.json`), `card` (статы, навыки, формы, `buildUnit`, `heroCard`), `level` («Улучшить», пул опыта), `merge` (вознесение), `shards` (осколки), `summon` (Таверна), `roster` (ростер, отряд), `migrate` (сохранение v3 → v4), `validate`/`config` (проверки) |
+| `heroes/*` | **герои v2** (раздел 2а): `schema` (шаблон с двумя ветками, `cards.json`, `summon.json`), `card` (форма по ветке, статы, навыки, `buildUnit`, `heroCard`), `level` («Улучшить», пул опыта), `merge` (вознесение копиями, «Авто»), `branch` (выбор и смена ветки), `cardDrops` (карты случайных героев из наград), `contract` («Контракт героя»), `summon` (Таверна), `roster` (ростер, копии, отряд), `migrate` (v3 → v4) и `migrate-v7` (v6 → v7, герои v2) — заморожены, `validate`/`config` (проверки) |
 | `story/schema.ts`, `story.ts` | сюжет: схема, `buildStory` (проверки), `pendingScenes`, `markScenesSeen`, очередь `storyQueue`, `queueChapterDone` |
 | `save/schema.ts`, `save.ts` | формат сохранения (v4), `newGame`, `serialize`/`deserialize`, `MIGRATIONS`, `sanitizeSave`, `loadOrNew` |
 | `features/*` | K1 быстрые награды, K2 мощь, K5 ежедневные задания, K7 пропуск боя; `actions.ts` — обёртки `act*` для UI (засчитывают задания и достижения, в т. ч. `actLevelUp`, `actAscend`, `actSummon`) |
@@ -71,7 +71,8 @@
 | `BattleScene` (`Battle`) | проигрывание лога боя: спрайты, эффекты, баннеры ульт и босса, скорость 1x/2x, пауза, «Пропустить» |
 | `ResultScene` (`Result`) | итоги: награды (опыт — в запас), трофеи, MVP, подсказка «Улучшить», авто-следующий этап; сюжет `afterStage` |
 | `ChapterDoneScene` (`ChapterDone`) | «Глава пройдена» (переживает перезагрузку через `save.pendingChapterDone`) |
-| `HeroesScene` / `HeroScene` / `AscendScene` (`Ascend`) | H4. Коллекция: сетка карточек 3 в ряд (`heroCard.ts`), фильтры линии/роли/редкости, сортировка «Сила/Уровень/Редкость», «Коллекция N/M» (серые неполученные), метки «в отряде», «Новый!», замок, «можно улучшить / вознести». Карточка: витрина цвета редкости с героем в стойке, мощь, статы с прибавкой за уровень, «Улучшить» (удержание — повтор, обновление на месте, «до апа не хватает N»), «Вознести», вкладки «Навыки / Снаряжение / История», замок, листание ‹ ›. Вознесение: было → стало, слоты корма (выбор, «Авто»), осколки и откуда они, подтверждение, показ (вспышка, лучи, мощь «+N», новые навыки, вторая профессия и `forms[].promotion`) |
+| `HeroesScene` / `HeroScene` / `AscendScene` (`Ascend`) | H4. Коллекция: сетка карточек 3 в ряд (`heroCard.ts`), фильтры линии/роли/редкости, сортировка «Сила/Уровень/Редкость», «Коллекция N/M» (серые неполученные), метки «в отряде», «Новый!», замок, «можно улучшить / вознести». Карточка: витрина цвета редкости с героем в стойке, мощь, статы с прибавкой за уровень, «Улучшить» (удержание — повтор, обновление на месте, «до апа не хватает N»), «Вознести», вкладки «Навыки / Снаряжение / История», замок, листание ‹ ›. Вознесение: было → стало, слоты корма (выбор, «Авто», цепочка `autoChain` «сначала слить 3 зелёные в синюю»), откуда копии, на синем → фиолетовом шаг «Выберите ветку» (две панели, `branchPicker.ts`), показ (вспышка, лучи, мощь «+N», новые навыки, ветка и `branches[].promotion`). Коллекция группирует копии одного героя (плитка «×N», `groupCopies`), значок «Выберите ветку!», первая плитка — «Контракт героя». Карточка: «Выбрать ветку» / «Сменить ветку» (цена), «Ветки на фиолетовом» (превью), «Копий: N» (`copyCounter`), в «Навыках» — другая ветка серым |
+| `HeroPickScene` (`HeroPick`) | «Контракт героя» (`save.pendingPicks`): сетка 12 героев → выбор ветки (`branchPicker.ts`) → `claimHeroPick` → показ. Вход: плитка в «Героях», иконка в шапке главной (`contractIcon`, красный кружок), сразу после награды с контрактом в «Событиях» и «Почте» (данные `{index?, back?}`) |
 | `SquadScene` (`Squad`) | то же поле и список героев без противника, «Авто», пресеты |
 | `InventoryScene`, `TowerScene`, `QuestsScene`, `ExpeditionsScene` (`Expeditions`), `AchievementsScene` | инвентарь, башня, ежедневные задания, экспедиции (карточки локаций, сроки, «Отправить», «Забрать всё»), достижения |
 | `HuntScene` (`Hunt`) | «Охота на босса»: босс дня, пороги урона с отметкой лучшего результата, попытки, «Зачистка», «В бой» (`Battle` с `{mode: 'hunt'}`), итог попытки поверх экрана; вход — `huntTile` (`huntEntry.ts`) в ряду «зданий» главной; счётчик урона в бою — `huntBattle.ts` |
@@ -97,7 +98,7 @@
 | `viewport.ts`, `viewLayout.ts` | вывод на экран телефона: безопасная зона, поля за краями, DPR |
 | `backdrops.ts` | фоны боя и карты по теме главы (луг/топь/склеп), рисуются кодом; файлы `assets/backgrounds/bg_{battle,map}_ch<N>.*` побеждают |
 | `tavern.ts`, `tavernArt.ts`, `tavernEntry.ts` | Таверна: чистые помощники (порядок и ритм показа, раскладка карт, кнопки, гарант — тесты `tests/game-tavern.test.ts`), нарисованный зал, рубашка карты и эффекты (файл `assets/backgrounds/bg_tavern.*` побеждает), плитка на главной со значком. Лицо карты призыва — общий `heroCard.ts drawHeroCard` (бюст на столе, фигура на крупной) |
-| `chestView.ts` | карточка сундука на главной: иконки накопленного (золото, опыт, предметы, осколки, гемы, свитки), таймер «Полон через Ч:ММ», строки трофеев для тостов сундука и быстрых наград |
+| `chestView.ts` | карточка сундука на главной: иконки накопленного (золото, опыт, предметы, карты героя, гемы, свитки), таймер «Полон через Ч:ММ», строки трофеев для тостов сундука и быстрых наград |
 | `ambient.ts` | тени под юнитами и частицы по теме |
 | `battleFx.ts` | слои глубины боя, затемнение и баннер ульты, цифры, пулы |
 | `skillFx.ts` | эффекты навыков кодом: круг каста, снаряды, площадь, искры |
@@ -113,7 +114,7 @@
 | `itemIcons.ts`, `describe.ts`, `assets.ts` | иконки предметов кодом; описание юнита; загрузка манифеста и плейсхолдеры |
 | `bootLook.ts` | вид экрана загрузки (BootScene) маленькими canvas-текстурами до загрузки скина; `BOOT`/`BOOT_COLORS` — раскладка и цвета, повторены в CSS `#splash` index.html |
 | `heroCard.ts` | плитка карточки героя (общая для «Героев» и «Таверны»): `drawHeroCard(scene, x, y, hero \| template \| templateId, opts)` — рамка редкости с орнаментом, фон-сияние, лицо или фигура, значки линии и роли, имя, уровень, ромбы редкостей, метки; `rarityBackdrop`, `rarityPips`, `iconBadge`, `glowTexture`, `raysTexture` |
-| `heroesView.ts` | чистые помощники H4 (тесты `tests/game-heroes.test.ts`): фильтры и сортировка коллекции, листание, прибавка за уровень, `levelShortage`, `ascendPreview`, слоты корма, `shardSources` |
+| `heroesView.ts` | чистые помощники H4 (тесты `tests/game-heroes.test.ts`): фильтры и сортировка коллекции, листание, прибавка за уровень, `levelShortage`, `ascendPreview`, слоты корма, `copySources` |
 | `squadEditor.ts`, `prepLayout.ts` | `FormationEditor` — подготовка к бою в духе AFK Arena: поле 2 фронт + 3 тыл по `combat.json field.slotsA` (герой в стойке, роль, уровень, мощь), список героев с прокруткой; нажатие — в лучший слот / убрать, перетаскивание из списка в слот и между слотами (касанием; цель — под «призраком» героя), «Переставить» при стрелках во фронте. `prepLayout.ts` — чистые правила (лучший слот, обмен, геометрия, жест), тесты `tests/game-prep.test.ts` |
 
 `src/pipeline/sprites.ts` — реестр спрайтов (v2 + legacy) без Phaser, общий для игры и скриптов; `V2_SCALE`.
@@ -206,7 +207,7 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 
 `attemptsPerDay` (2), `timeLimitSeconds` (45 — бой короче обычного `combat.timeLimitSeconds`), `sweep` («Зачистка»), `slot` (слот
 босса), `bosses[] {unit, hpMult, atkMult, defMult, scale?, title?}` (ротация по дням), `tiers[] {damage, rewards {gold?, jobExp?,
-gems?, shards?, item? (редкость)}}` — пороги строго растут, награды не убывают. Этап открытия — `data/unlocks.json` (`hunt`, `ch2_s1`).
+gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги строго растут, награды не убывают. Этап открытия — `data/unlocks.json` (`hunt`, `ch2_s1`).
 Подробно — раздел 2г, рецепт — `docs/CONTENT_RECIPES.md`, «Босс охоты».
 
 ### Открытие функций `data/unlocks.json` (`UnlocksConfigSchema`, `src/core/unlocks/schema.ts`)
@@ -243,20 +244,20 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 
 ### Карточки героев `data/heroes/<id>.json`, `data/cards.json`, `data/summon.json`
 
-- Шаблон (`HeroTemplateSchema`, `src/core/heroes/schema.ts`): `id, name, gender, job (класс), line (первая профессия ветки), role,
-  source (story|summon), baseRarity, maxRarity, statMods {hp,atk,def,spd}, skills [{level, skill}] (2–4), forms [{rarity, job, role?,
-  statMods, skills, visual?}] (только сюжетные — вторая профессия на фиолетовом), visual {sprite?}, bio (≤160), hook (≤200)`.
-- 25 карточек: сюжетные Алан, Бран, Вика, Грета, Дорн (зелёные → красный, форма Рыцарь/Охотник/Жрица/Кузнец/Разбойник); призывные
-  первые Ирис, Мэйлин, Тео, Кай, Лира, Отто, Зара (зелёные/синие → золотой); 13 фиолетовых вторых (герои Биолаборатории RO, → красный).
-  Таблицы — `docs/design/heroes.md`, раздел 1.
-- `data/cards.json`: `rarities` (5 по порядку: цвет, `maxLevel` 20/40/60/80/100, `statMult`, `skillPower`), `level` (цена уровня:
-  опыт `floor(100 × L^1.5)`, золото `floor(20 × L^1.4)`), `merge` (правила вознесения по дорожкам `first`/`second` — корм, `story` —
-  осколки + `minLevel`), `shards` (осколки этапов «отстающему» сюжетному герою: `firstClear` 4, `bossFirstClear` 8, повтор — шанс
-  `replayChance` 0.1).
-- `data/summon.json`: `costs` (30 / 270), `rates` (64/32/4% и какие `baseRarities` выпадают), `pity`
-  (30-й — фиолетовый), `firstTen`, `freePerDay`, `welcome` (150 гемов + 1 свиток), `storyShard` (шанс осколка за призыв). Этап
+- Шаблон (`HeroTemplateSchema`, `src/core/heroes/schema.ts`): `id, name, gender, job (первая профессия), line, role, source
+  (story|summon), baseRarity (green), maxRarity (red), statMods {hp,atk,def,spd}, skills [{level, skill}] (2–4), branches [{job (вторая
+  профессия), role, statMods, skills, promotion, visual {sprite?}}] (ровно 2), visual {sprite?}, bio (≤160), hook (≤200)`.
+- 12 героев (герои v2): 6 первых профессий × парень и девушка — сюжетные Алан, Бран, Вика, Грета, Дорн и из Таверны Ирис, Мэйлин,
+  Кай, Лира, Зара, Тео, Отто; у каждого 2 ветки (24 формы; Танцовщица — новая профессия `data/jobs/dancer.json`). Таблицы —
+  `docs/design/heroes-v2.md`, раздел 1.
+- `data/cards.json`: `rarities` (5 по порядку: цвет, `maxLevel` 20/40/60/80/100, `statMult`, `skillPower`), `level` (цена уровня),
+  `merge` (одна дорожка: `fodder [{kind same|any, rarity, count}]`, золото, `branch: true` — выбор ветки на переходе в фиолетовый),
+  `branchChange {gems 300, firstFree}`, `heroCards` (карты случайных героев за этапы: `firstClear`, `bossFirstClear`, `replay` —
+  ожидаемое число `{blue?, purple?}`).
+- `data/summon.json`: `costs` (30 / 270), `rates` (73/25/2%), `pity [{blue, 10}, {purple, 50}]`, `firstTen {blue, count 2}`,
+  `freePerDay`, `welcome` (150 гемов + 10 свитков). Этап
   открытия — `data/unlocks.json` (`tavern`, ch1_s5), в `ctx.summon.unlockAfterStage` его кладёт `parseHeroesConfig`.
-- Рецепт — `docs/CONTENT_RECIPES.md`, «Новая карточка героя».
+- Рецепт — `docs/CONTENT_RECIPES.md`, «Новый герой».
 
 ### Правила боя `data/combat.json`
 
@@ -275,7 +276,7 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 - `data/expeditions.json` — экспедиции: `maxHeroes`, `durations` (`hours`, `bonus`), `locations` (`stage`, `power`, `tint`, `monster`, `perHour`, `loot`), `presets` (K8). См. `docs/content/meta.md`, K9.
 - `data/achievements.json` — `counter` из `ACHIEVEMENT_COUNTERS` (`src/core/meta/config.ts`), `target`, `rewards`. См. `docs/content/meta.md`, `features.md`.
 - `data/shop.json` (`ShopConfigSchema`, `src/core/shop/schema.ts`) — Лавка: `slots` (8 списков id товаров), `refresh {gemCosts, maxPerDay}`,
-  `chapterGrowth`, `goods [{id, kind (item|shards|heroExp|scrolls|gold), rarity?, count, price {currency gold|gems, amount}, stock, weight,
+  `chapterGrowth`, `goods [{id, kind (item|heroCard|heroExp|scrolls|gold), rarity? (предмет), cardRarity? (карта героя), count, price {currency gold|gems, amount}, stock, weight,
   fromStage?, perDay?}]`. Раздел 2д, рецепт — `CONTENT_RECIPES.md` «Товары лавки».
 - `data/phase0.json` — отряды тестового боя и скорости воспроизведения.
 - `data/events.json` (`EventsConfigSchema`, `src/core/events/schema.ts`) — «Вход 7 дней» (`login.days[].rewards`), «7 дней новичка»
@@ -284,17 +285,28 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 
 ---
 
-## 2а. Карточки героев — API ядра для экранов (H4 «Герои», H5 «Таверна»)
+## 2а. Герои (v2: 12 героев × 2 ветки) — API ядра для экранов (H4 «Герои», H5 «Таверна»)
 
-Всё — из `src/core` (`import { … } from '../core'`), чистые функции, время/день передаёт UI. Для записи — обёртки `act*`
-(засчитывают задания и достижения), результат — `commit(r.save)`. Ошибки правил — `HeroError` (`code`, русский `message` — в тост).
+Дизайн — `docs/design/heroes-v2.md`. Всё — из `src/core` (`import { … } from '../core'`), чистые функции, время/день передаёт UI.
+Для записи — обёртки `act*` (засчитывают задания и достижения) или функции ядра, результат — `commit(r.save)`. Ошибки правил —
+`HeroError` (`code`, русский `message` — в тост).
 
-**Чтение карточки**
-- `heroCard(hero, ctx)` → `{ name, gender, source, track, job, jobName, line, role, rarity {id,name,color,maxLevel,…}, maxRarity,
-  level, maxLevel, stats, skills [{skill, level, unlocked, passive}], nextForm? {rarity, job, jobName}, bio, hook, locked, isNew }` —
-  всё для карточки и плитки коллекции одним объектом.
-- Мелкие: `heroName`, `heroGender`, `heroJobId` (класс с учётом формы), `heroRole`, `heroLine`, `heroStats`, `heroSkillList`,
-  `heroSkills`, `heroSpriteOverride` (свой лист формы); спрайт по реестру — `src/game/flow.ts heroSprite(hero, ctx)`.
+**Модель.** Герой — шаблон `data/heroes/<id>.json` (первая профессия `job`, две ветки `branches[]`); экземпляр — `save.heroes[]`
+`{id, templateId, rarity, level, locked?, isNew?, branch?, branchChanges?}`. Копий одного героя может быть много (корм для вознесения);
+в отряде — один экземпляр героя. **Форма** (класс, роль, статы, навыки, лист) — ветка `hero.branch`, если редкость ≥ фиолетовой и
+ветка своя; иначе — первая профессия (фиолетовый без ветки воюет первой профессией со статами фиолетового — «Выберите ветку!»).
+
+**Чтение героя**
+- `heroCard(hero, ctx)` → `{ name, gender, source, job, jobName, line, role, rarity {id,name,color,maxLevel,…}, maxRarity, level,
+  maxLevel, stats, skills [{skill, level, unlocked, passive}], branch?, needsBranch, branches [BranchView], branchAt? ('purple' — пока
+  герой ниже), bio, hook, locked, isNew }`. `BranchView` = `{ job, jobName, role, skills, promotion, sprite? }` — для превью веток на
+  синем, выбора ветки при вознесении и контракте, «Сменить ветку».
+- Форма: `activeForm(template, {rarity, branch?})` → `{ job, role, statMods, skills, sprite?, branch?, promotion? }`,
+  `activeBranch`, `branchOf(template, job)`, `needsBranch(hero, ctx)`, `branchOptions(templateId, ctx)`, `BRANCH_RARITY` ('purple').
+- Мелкие: `heroName`, `heroGender`, `heroJobId` (класс формы), `heroRole`, `heroLine`, `heroStats`, `heroSkillList`, `heroSkills`,
+  `heroSpriteOverride` (лист формы); спрайт по реестру — `src/game/flow.ts heroSprite(hero, ctx)`; статы — `cardStats(t, level,
+  rarity, ctx, branch?)`.
+- Копии: `heroCopies(save, templateId)` (сильнейший первым), `storyHero(save, templateId)` — сильнейший экземпляр.
 - Редкости: `CARD_RARITIES`, `rarityDef(ctx, r)` (цвет, предел, множители), `maxLevelOf`, `nextRarity`, `rarityIndex`.
 - Мощь: `heroPower(hero, ctx, save)` (K2, с экипировкой), `squadPower(save, ctx)`, `stagePower(stageId, ctx)` (враги этапа).
 - **Рекомендуемая мощь этапа** (как в AFK над «В бой»): `recommendedPower(stageId, ctx)` — красивое число; `stagePowerCheck(save,
@@ -308,35 +320,75 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 - `actLevelUp(save, day, heroId, ctx, times = 1)` → `{ save, levels, spent, events }` (события `levelUp`, `skillUnlocked`);
   `autoLevel(save, ctx, heroIds?)` — «Улучшить всех» (по уровню самому низкому). Цены — `levelUpCost`, `levelRangeCost`.
 
-**Вознесение**
-- `ascendRequirement(save, heroId, ctx)` → `null` (максимум) или `{ from, to, track, gold, minLevel?, shards? {templateId, have, need},
-  fodder [{kind 'same'|'line', rarity, count, candidates[]}], newJob? (вторая профессия сюжетного), blockers[] }`.
-- `autoFodder(save, heroId, ctx)` — самый слабый подходящий корм; `fodderBlocker(save, id, ctx)` — почему карточку нельзя в корм
-  (сюжетная, замок, отряд, пресет, поручение).
-- `actAscend(save, day, heroId, fodderIds, ctx)` → `{ save, events, refund {exp, gold}, consumed }` (событие `ascended {from, to, job,
-  jobChanged}`; сюжетным `fodderIds = []`, тратятся осколки).
+**Вознесение (одна дорожка для всех, `data/cards.json → merge`)**: зелёный → синий — 2 зелёные копии того же героя; синий →
+фиолетовый — 2 синие копии + **выбор ветки**; фиолетовый → золотой — 1 фиолетовая копия (любой ветки); золотой → красный — 1 своя
+фиолетовая + 2 фиолетовые любых героев. Корм — ровно нужной редкости; плюс золото. Уровень цели сохраняется, опыт/золото корма
+возвращаются, вещи корма — в инвентарь.
+- `ascendRequirement(save, heroId, ctx)` → `null` (максимум) или `{ from, to, gold, fodder [{kind 'same'|'any', rarity, count,
+  candidates[]}], branch (выбрать ветку на этом переходе), branches? [BranchView], blockers[] }`.
+- `ascendPlan(save, heroId, ctx)` → `{ fodder[], complete, missing }` («Авто» — самые слабые свободные копии); `autoFodder` — то же или
+  null; `canAscend(save, heroId, ctx)`; `autoChain(save, heroId, ctx)` → шаги `[{targetId, fodderIds}]` «сначала слить 3 зелёные в
+  синюю» (выполнять `ascendHero` по порядку); `fodderBlocker(save, id, ctx)` — почему нельзя в корм (замок, отряд, пресет, экспедиция).
+- `actAscend(save, day, heroId, fodderIds, ctx, { branch? })` / `ascendHero(…)` → `{ save, events, refund {exp, gold}, consumed }`;
+  события `ascended {from, to, job, jobChanged}`, `branchChosen`, `skillUnlocked` (навыки новой формы). Коды: `branch_required`,
+  `bad_branch`, `bad_fodder`, `fodder_busy`, `not_enough_gold`, `max_rarity`. Ветку вознесение не меняет (только ставит, если её нет).
 - Замок и «Новый!»: `setHeroLocked(save, heroId, bool)`, `markHeroSeen(save, heroId)`.
 
-**Осколки** — `save.shards[<шаблон>]`: `shardCount`, `stageShardHero(save, stage, ctx)` / `stageShardReward` (чьи и сколько осколков
-даст этап — для экрана подготовки), `shardTarget(save, ctx)` («отстающий»: ниже редкость → меньше осколков → по сюжету; ему идут
-осколки этапов, поручений, достижений, Таверны). Событие `shards`.
+**Ветка второй профессии** (`src/core/heroes/branch.ts`)
+- `branchStatus(save, heroId, ctx)` → `{ branch?, canChoose, canChange, changeCost, changeFree }`.
+- `chooseBranch(save, heroId, job, ctx)` — фиолетовый и выше без ветки, бесплатно (`branch_locked`, `bad_branch`).
+- `changeBranch(save, heroId, job, ctx)` → `{ save, events, gems }` — первая смена бесплатно, дальше `data/cards.json →
+  branchChange.gems` (300); `not_enough_gems`; вещи, которые новая форма носить не может, снимаются (ctx с `equipment`).
+- `branchChangeCost(hero, ctx)`. Событие `branchChosen {heroId, branch, changed, gems}`.
+
+**Карты героя из наград** (`src/core/heroes/cardDrops.ts`; решение владельца 28.09 — вместо осколков): синие и фиолетовые карты
+**случайного героя** — новый экземпляр с «Новый!» (копия ему в рост). Источники: этапы (`data/cards.json → heroCards`: первое
+прохождение / босс главы / повтор, бросок от seed боя), сундук и быстрые награды (`drops.json → chest.rules[].heroCards`), охота
+(`hunt.json → tiers[].rewards.heroCards`), экспедиции (`loot kind heroCard`), достижения (`rewards.heroCards`), Лавка (`kind heroCard`),
+награды событий/письма (`RewardBundle.heroCards`). Числа в данных — ожидаемое число (`HeroCardDropSchema {blue?, purple?}`: целая
+часть — точно, дробная — шанс). API: `stageCardDrop(stage, firstTime, ctx)` (превью на подготовке), `dropText(drop)`,
+`rollHeroCards(drop, rng, ctx)`, `grantHeroCards(save, cards, ctx)`. Событие `heroCard {heroId, templateId, rarity, name}`.
+
+**«Контракт героя»** (`src/core/heroes/contract.ts`): награда `heroPicks: [{rarity}]` (день 7 входа, 180 очков новичка) кладёт
+контракт в `save.pendingPicks [{rarity, source}]` (событие `heroPick`). `pendingPicks(save)`, `pickOptions(pick, ctx)` (все 12),
+`claimHeroPick(save, index, templateId, branch, ctx)` → `{ save, heroId, events }` (фиолетовый — ветка обязательна:
+`branch_required`, `bad_branch`, `unknown_pick`).
 
 **Таверна**
-- `summonStatus(save, day, ctx)` → `{ unlocked, unlockAfterStage, gems, scrolls, costs, freeLeft, untilPity, pityRarity, firstTenBonus,
-  firstTenRarity, total, can {gems1, gems10, scroll1, scroll10, free} }`.
+- Пул — все 12 героев (`summonPool(ctx, rarity)`), шансы 73 / 25 / 2% (`data/summon.json`), гаранты `pity [{blue, 10}, {purple,
+  50}]` (счётчики `save.summon.sinceBlue` / `sincePurple`), первый ×10 — не меньше двух синих. Фиолетовый приходит без ветки.
+- `summonStatus(save, day, ctx)` → `{ unlocked, unlockAfterStage, gems, scrolls, costs, freeLeft, untilPity, pityRarity (младший
+  гарант — синяя), pities [{rarity, until}], rates, firstTenBonus, firstTenRarity, firstTenCount, total, can {gems1, gems10, scroll1,
+  scroll10, free} }`.
 - `actSummon(save, day, count 1|10, pay 'gems'|'scroll'|'free', ctx)` → `{ save, results [{heroId, templateId, name, rarity, isNew,
-  guaranteed, shard?}], events }`. Результат уже в сохранении (детерминирован от `createdAt` и `summon.seq`) — анимацию показа строить по
+  guaranteed}], events }`. Результат уже в сохранении (детерминирован от `createdAt` и `summon.seq`) — анимацию показа строить по
   `results`. Подарок открытия выдаёт `playStage` (событие `tavernUnlocked`); `grantTavernWelcome` — идемпотентно.
-- Пулы редкостей — `summonPool(ctx, rarity)`.
 - Экран — `TavernScene` (`src/game/scenes/TavernScene.ts`): `actSummon` → `scene.restart({ reveal })` → показ по `results`
   (для e2e `scene.reveal.phase`: deal → pick → flipping/showcase → done). Звук — `summonSound(rarity)`, его задержка = нарастание.
 
-**Отряд**: одна копия карточки — `duplicateCardsInSquad`, `templateInSquad` (серые дубли в ростере), `setSquad(save, squad)`
+**Сюжет**: рекрут (`progression.heroes.recruits`) приходит зелёным; если герой уже есть (из Таверны) — приходит его зелёная копия
+(событие `heroJoined {copy: true}`, в отряд не ставится).
+
+**Отряд**: один экземпляр героя — `duplicateCardsInSquad`, `templateInSquad` (серые дубли в ростере), `setSquad(save, squad)`
 (MetaError `duplicate_card`), `placeInSquad`; бой с дублем — `GameRuleError('duplicate_card')`. Ростер: `addHeroCard`, `newHeroId`,
-`ownedStoryTemplates`, `storyHero`, `storyOrder` (hero1…heroN сюжета).
+`ownedStoryTemplates`, `storyHero`, `heroCopies`, `storyOrder` (hero1…heroN сюжета).
+
+**Сохранение v7** (`src/core/heroes/migrate-v7.ts`, заморожен; шаг `MIGRATIONS[6]` после экспедиций): 13 старых фиолетовых шаблонов →
+герой + ветка (таблица в файле), сюжетные фиолетовые → прежняя ветка, дубли в отряде/пресетах — сильнейший, осколки → копии героя
+(10 осколков вверх — зелёная, 3 зелёные — синяя), незабранные старые фиолетовые в почте → «Контракт героя», Лавка и экспедиции,
+10 свитков и сообщение. `sanitizeSave` снимает чужую ветку и ветку ниже фиолетового.
 
 **Экраны-помощники** (`src/game/flow.ts`): `levelUpReady`, `ascendReady` (значок «Герои»), `levelText`, `describeEvents` (строки
-`levelUp`, `ascended`, `shards`, `heroJoined`, `tavernUnlocked`), `defeatAdvice`. Подсказка главной `level_up` (`hints.ts`).
+`levelUp`, `ascended`, `heroCard`, `branchChosen`, `heroJoined`, `tavernUnlocked`), `defeatAdvice`; `src/game/heroesView.ts`:
+`ascendPreview(hero, ctx, branch?)` (превью по выбранной ветке), `groupCopies` (коллекция: одна плитка на героя), `copyCounter` («Копий: N ·
+в корм син. 1/2»), `copySources`, `fodderSlots`, `fodderSlotLabel`. Подсказка главной `level_up` (`hints.ts`). Значок вкладки «Герои»
+(`heroesBadgeCount`) считает ещё фиолетовых без ветки и невыбранные контракты; `describeEvents` пишет и `heroPick`.
+Пакет V2 (экраны): `src/game/branchPicker.ts` — окно выбора ветки (`openBranchPicker`: две панели — фигура формы, класс, роль,
+возвышение, 4 навыка; `current`, `selected`, `viewOnly`, предупреждение `branchRoleWarning` «в отряде не останется лекаря») — общее
+для вознесения, карточки и контракта; `heroCardIcon(scene, x, y, size, rarity, templateId?, {pick, dim})` (`heroCard.ts`) — мини-карта
+героя в рамке редкости для наград (сундук, итоги, почта, события: `rewardItems` виды `heroCard` / `heroPick`); у `drawHeroCard` опции
+`branch`, `copies` (×N), `needsBranch`. Сообщение перевода сохранения v7 показывает `screen.ts` окном «Обновление героев»
+(`isHeroesNotice`, `noticeModal`), остальные предупреждения сохранения — красным тостом, как раньше.
 
 ---
 
@@ -366,17 +418,17 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 
 ## 2в. Сундук с трофеями (AFK Chest) — API ядра
 
-Кроме золота и опыта сундук простоя копит трофеи: предметы, осколки «отстающего» сюжетного героя (`shardTarget`, как у поручений),
+Кроме золота и опыта сундук простоя копит трофеи: предметы, карты случайного героя (синие, изредка фиолетовые — новые экземпляры),
 изредка гемы и свитки. Данные — `data/drops.json → chest` (`ChestDropsSchema`, `src/core/equipment/schema.ts`, JSON Schema
 `data/schema/drops.schema.json`): `tickMinutes` (30) и `rules` по главам `{chapter?, item (шанс предмета за тик), rarityWeights?
-(нет — веса `rules` этой главы), shards|gems|scrolls {chance, count}}`. Глава — глава последнего пройденного этапа.
+(нет — веса `rules` этой главы), heroCards {blue, purple} (шансы за тик), gems|scrolls {chance, count}}`. Глава — глава последнего пройденного этапа.
 - Бросок за каждый **полный** тик засчитанных минут (с `banked`, в пределах `capHours`); неполный тик при сборе сгорает (как в AFK).
   У тика свой поток `Rng` от seed и номера тика — превью растёт монотонно, уже показанное не меняется.
 - seed: сундук — `chestSeed(save)` (createdAt + `offline.lastClaimAt`: сбор сдвигает якорь → новый seed); быстрые награды —
   `fastLootSeed(save, day)` (createdAt, день, номер использования за день). Время передаёт UI; в ядре нет Date/Math.random.
-- `offlineLoot(save, now, ctx)` → `ChestLoot {ticks, items (id описаний), shards, gems, scrolls}` — превью, совпадает со сбором в тот же now.
+- `offlineLoot(save, now, ctx)` → `ChestLoot {ticks, items (id описаний), cards [{templateId, rarity}], gems, scrolls}` — превью, совпадает со сбором в тот же now.
   `offlineFullInMs(save, now, ctx)` → мс до заполнения (0 — полон, null — нет пройденных этапов).
-- `claimOffline` / `actClaimOffline` → ещё и `loot: ChestLootGrant` (`added` — экземпляры в инвентаре, `shardHero`), событие `shards`.
+- `claimOffline` / `actClaimOffline` → ещё и `loot: ChestLootGrant` (`added` — экземпляры в инвентаре, `heroEvents` — новые герои), события `heroCard`.
 - Быстрые награды: `fastRewardsLoot(save, day, ctx)` — превью; `useFastRewards` / `actUseFastRewards` → `loot` (те же правила за
   `fastRewards.hours`, сундук не трогается).
 - Без `ctx.equipment` (например, `loadGameContext()` в тестах) или без `chest` в `drops.json` трофеев нет — только золото и опыт.
@@ -398,7 +450,7 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
   (createdAt, день, номер попытки), `battleSeq` не меняется. Попытка тратится при любом исходе.
 - `sweepHunt(save, day, ctx)` — «Зачистка»: награда за лучший урон по боссу дня без боя, тратит попытку (`HuntError('no_sweep')` —
   с этим боссом ещё не бились).
-- Награда (`grant`): золото, гемы, опыт — в общий пул, осколки — «отстающему» сюжетному герою (`shardTarget`), предмет — случайный
+- Награда (`grant`): золото, гемы, опыт — в общий пул, карты случайных героев (`heroCards` — события `heroCard`), предмет — случайный
   указанной редкости (seed `huntSeed(save, day, 'loot')`).
 - Ошибки: `HuntError` `hunt_locked` / `no_attempts` / `no_sweep` / `invalid_config`; пустой отряд — `GameRuleError`, как у этапа.
 - Сохранение: необязательное `save.hunt = {day, used, best: {unit → урон}}` без смены версии. Попытки сбрасываются днём новее
@@ -409,19 +461,19 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 ## 2д. Лавка — API ядра (`src/core/shop`)
 
 Магазин за золото (docs/design/afk-gap.md, п. 9): 8 слотов, раз в день новый ассортимент, ручное обновление за гемы, запас в слоте.
-Главная роль — сток золота; гемы — только за редкое (эпик, осколки ×10, свиток, мешок золота). Контекст — `GAME.shop` (необязательное
+Главная роль — сток золота; гемы — только за редкое (эпик, синяя карта героя, свиток, мешок золота). Контекст — `GAME.shop` (необязательное
 поле `FullContext`: нет `data/shop.json` — Лавки нет); функции берут `ShopContext` (экран — `shopCtx()` из `src/game/shopEntry.ts`).
 - Ассортимент: `rollShop(save, day, refresh, ctx)` — по слоту товар по весам среди доступных (`fromStage` пройден, есть предметы
-  редкости, есть сюжетный герой для осколков), затем конкретный предмет. seed — `shopSeed` = createdAt + день + номер обновления
+  редкости), затем конкретный предмет или герой карты (kind heroCard: случайный из пула Таверны). seed — `shopSeed` = createdAt + день + номер обновления
   (`lootSeed('shop', …)`), на слот ровно 2 случайных числа. Слот — снимок (`ShopSlot`: good, kind, itemId?, hero?, count, currency,
-  price, stock, bought): правка `data/shop.json` не меняет выставленное. Цена в золоте и наборы опыта/золота ×(1 + chapterGrowth × глава)
+  rarity? (карта героя), price, stock, bought): правка `data/shop.json` не меняет выставленное. Цена в золоте и наборы опыта/золота ×(1 + chapterGrowth × глава)
   (`shopMultiplier`, глава последнего пройденного этапа), округление до 2 значащих цифр (`niceNumber`).
 - `ensureShop(save, day, ctx)` — новый день → новый ассортимент, `refreshes` и `boughtToday` обнуляются; тот же день — тот же объект;
   день раньше сохранённого (часы назад) — без изменений (Лавка ждёт своего дня; переводом часов лишний ассортимент не получить).
 - `shopStatus(save, day, ctx)` → `{unlocked, day, slots [ShopSlot + index, left, soldOut, dayLimited, affordable], refreshes,
   nextRefreshCost (null — лимит), refreshesLeft}` — не меняет save.
 - `refreshShop(save, day, ctx)` — цена `refresh.gemCosts[n]` (0, 20, 40, 80, 100; последняя повторяется), не больше `maxPerDay` (5);
-  `buyShopSlot(save, day, index, ctx)` → `{save, grant}`: предмет в инвентарь, осколки герою слота, опыт в пул, свитки/золото в валюту;
+  `buyShopSlot(save, day, index, ctx)` → `{save, grant}`: предмет в инвентарь, карта героя — новым экземпляром (`grant.heroInstanceId`), опыт в пул, свитки/золото в валюту;
   лимит товара в день `perDay` (свиток — 1) считается по `boughtToday` через обновления. Ошибки — `ShopError` (`shop_locked`,
   `refresh_limit`, `not_enough_gold`, `not_enough_gems`, `sold_out`, `day_limit`, `unknown_slot`, `unavailable`), тексты — по-русски.
 - Открытие — `data/unlocks.json → shop` (`ch2_s1`), `shopUnlocked`. Сохранение: `save.shop?` (`ShopStateSchema`, без смены версии).
@@ -432,7 +484,7 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 
 ## 3. Сохранение
 
-- Формат — `SaveStateSchema` (`src/core/save/schema.ts`), `SAVE_VERSION = 5`; ключ localStorage `chronoworld.save.v1` (ключ не менялся).
+- Формат — `SaveStateSchema` (`src/core/save/schema.ts`), `SAVE_VERSION = 7`; ключ localStorage `chronoworld.save.v1` (ключ не менялся).
 - **v4 (карточки героев)**: `heroes[] = {id, templateId, rarity, level, locked?, isNew?}`, `resources.heroExp` (пул опыта),
   `currency.scrolls`, `shards {шаблон: n}`, `summon {seq, total, sincePurple, firstTenDone, freeDay?, freeUsed?, welcomeGiven,
   discovered[]}`, `notices?` (одноразовые сообщения — `sanitizeSave` отдаёт в `warnings` и убирает). Миграция v3 → v4 —
@@ -444,6 +496,11 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
   `events? {startDay, lastDay, loginDays, loginClaimed[], newbieTasks[], newbieMilestones[]}` (появляется при первом `touchEvents`).
   Миграция v4 → v5 (`MIGRATIONS[4]`) — пустая почта; письмо «Добро пожаловать» и старт событий — при первом открытии игры.
   Порядок ключей в схеме важен для `serialize(deserialize(x)) === serialize(x)` (инвариант фазз-теста): `mail` — сразу после `seenScenes`.
+- **v6 (экспедиции)**: `bounties {active [экспедиции]}` — `save/migrate-expeditions.ts` (`MIGRATIONS[5]`).
+- **v7 (герои v2)**: `heroes[].branch?` (id профессии ветки), `heroes[].branchChanges?`, `summon.sinceBlue?`, `pendingPicks?
+  [{rarity, source}]` («Контракты героя»), осколков (`shards`) больше нет; добыча экспедиции — `heroCards {blue, purple}`, слот Лавки —
+  `kind heroCard` + `hero`, `rarity`; награды писем — `heroCards?`, `heroPicks?`. Миграция — `src/core/heroes/migrate-v7.ts`
+  (`MIGRATIONS[6]`, заморожена; раздел 2а и `docs/design/heroes-v2.md`, раздел 8.1). Следующий шаг — `MIGRATIONS[7]` отдельной функцией.
 - `deserialize`: JSON → `MIGRATIONS[v]` по цепочке v → v+1 → zod → возврат неизвестных полей (`keepUnknownFields`, чтобы старая сборка
   не стёрла поля новой) → проверки целостности (дубли героев, неизвестные герои в отряде/предметах/поручениях). Версия новее сборки —
   `SaveError('newer_version')`, сохранение не затирается (только чтение).
@@ -453,7 +510,7 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 - Новое поле: если оно необязательное (`.optional()`/`.default()`) — версия не меняется (так добавлены `seenScenes`, `storyQueue`,
   `pendingChapterDone`, `revision`, `shop`, `bankedExp`, `hero.gender` — его `sanitizeSave` выводит по имени, неизвестное → м). Обязательное — `SAVE_VERSION + 1` и миграция в `MIGRATIONS`, тест в `tests/save.test.ts`.
 - `sanitizeSave(save, ctx)` — подгоняет сохранение к текущему контенту: неизвестная карточка — экземпляр убирается вместе со ссылками,
-  редкость/уровень вне правил шаблона — к правилам, вторая копия карточки уходит из отряда, неизвестные предметы убираются; сообщения
+  редкость/уровень вне правил шаблона — к правилам, чужая ветка или ветка ниже фиолетового — снимается, вторая копия карточки уходит из отряда, неизвестные предметы убираются; сообщения
   миграции (`notices`) и правки показываются игроку тостом.
 - `src/game/storage.ts` (`SaveSlot`): ревизии против двух вкладок, резервные копии нечитаемых сохранений, работа при полном хранилище.
 
@@ -544,7 +601,7 @@ gems?, shards?, item? (редкость)}}` — пороги строго рас
 - **Главы 2–3:** `npm run playthrough -- <1|2> 3 --idle --winrate 200` — при 3 поражениях подряд забирает офлайн-сундук за 1 час и
   печатает, сколько часов сундука понадобилось; `mult` подобраны так, чтобы Σhp/Σatk этапов не падали (тест) и ожидание росло плавно.
 - **Вся экономика:** `npm run balance` (14 дней модели игрока с башней, экипировкой, заданиями) → `balance.csv`, `docs/content/balance.md`.
-  Трофеи сундука модель получает сама (через `actClaimOffline`/`actUseFastRewards`); сводка печатает предметы и осколки по источникам.
+  Трофеи сундука модель получает сама (через `actClaimOffline`/`actUseFastRewards`); сводка печатает предметы и копии героев по источникам.
 - Таблицы и цифры — `docs/content/campaign.md`. Рецепт — `docs/CONTENT_RECIPES.md` «Баланс главы».
 
 ---
@@ -632,4 +689,4 @@ Vercel собирает `main` (`vercel.json`: `npm ci`, `npm run build`, `dist`
 | фронт / тыл | слоты 0–1 / 2–4 |
 | K1…K10, P1…P12, T1-xx…T5-xx, BUG-xxx | функции из GDD, пакеты FIXLIST, номера багов тестировщиков, сводный баг-лог |
 | Герои: Алан м, Бран м, Вика ж (старт), Грета ж, Дорн м (рекруты) | сюжетные карточки `data/heroes/{alan,bran,vika,greta,dorn}.json`, `progression.json → heroes.start / recruits` |
-| карточка, шаблон, экземпляр, редкость (зелёный…красный), вознесение, корм, осколки, Таверна, пул опыта, «Улучшить» | hero card, template, instance, rarity, ascend/merge, fodder, hero shards, summon (tavern), `resources.heroExp`, level up |
+| герой, шаблон, экземпляр, копия, ветка, редкость (зелёный…красный), вознесение, корм, карта героя, «Контракт героя», Таверна, пул опыта, «Улучшить» | hero, template, instance, copy, branch, rarity, ascend/merge, fodder, hero card drop, hero pick, summon (tavern), `resources.heroExp`, level up |

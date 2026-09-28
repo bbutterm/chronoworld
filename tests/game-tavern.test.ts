@@ -8,6 +8,7 @@ import {
   pityInfo,
   pullOptions,
   ratesLines,
+  firstTenText,
   resultTag,
   revealOrder,
   revealSchedule,
@@ -51,13 +52,14 @@ describe('Таверна: порядок и ритм показа', () => {
     expect(s.map((x) => x.tension)).toEqual([false, false, true]);
   });
 
-  it('первый ×10 из ядра: фиолетовая есть, и открывается последней с нарастанием', () => {
+  it('первый ×10 из ядра: синяя (или выше) есть, самая редкая открывается последней с нарастанием', () => {
     const r = actSummon(opened(), DAY, 10, 'gems', ctx);
-    const i = r.results.findIndex((x) => x.rarity === 'purple');
-    expect(i).toBeGreaterThanOrEqual(0);
+    expect(r.results.filter((x) => x.rarity !== 'green').length).toBeGreaterThanOrEqual(ctx.summon.firstTen.count);
+    const best = r.results.some((x) => x.rarity === 'purple') ? 'purple' : 'blue';
     const order = revealOrder(r.results);
-    expect(r.results[order[order.length - 1]].rarity).toBe('purple');
-    expect(r.results[tensionIndex(r.results)!].rarity).toBe('purple');
+    expect(r.results[order[order.length - 1]].rarity).toBe(best);
+    const t = tensionIndex(r.results);
+    if (best === 'purple') expect(r.results[t!].rarity).toBe('purple');
   });
 });
 
@@ -96,8 +98,15 @@ describe('Таверна: раскладка и итог', () => {
     expect(summaryLine(cards('green', 'purple', 'green', 'blue'))).toBe('Фиолетовых 1 · синих 1 · зелёных 2 · новых 2 · дублей 2');
   });
 
+  it('firstTenText: гарант первого ×10 по-русски — одна карта и несколько', () => {
+    expect(firstTenText(1, 'blue')).toBe('синяя карта гарантирована');
+    expect(firstTenText(1, 'blue', true)).toBe('хотя бы одна синяя карта');
+    expect(firstTenText(2, 'blue')).toBe('не меньше 2 синих гарантированно');
+    expect(firstTenText(2, 'purple', true)).toBe('не меньше 2 фиолетовых карт');
+  });
+
   it('ratesLines: проценты по-русски', () => {
-    expect(ratesLines(ctx.summon.rates, (r) => r)).toEqual(['green — 64%', 'blue — 32%', 'purple — 4%']);
+    expect(ratesLines(ctx.summon.rates, (r) => r)).toEqual(['green — 83%', 'blue — 15%', 'purple — 2%']);
   });
 });
 
@@ -134,7 +143,7 @@ describe('Таверна: кнопки, гарант, значок', () => {
 
   it('pityInfo: доля и подпись', () => {
     const st = summonStatus(opened(), DAY, ctx);
-    expect(pityInfo(st, ctx.summon.pity.every)).toEqual({ fraction: 0, label: 'До гарантированной фиолетовой: 30' });
+    expect(pityInfo(st, ctx.summon.pity[0].every)).toEqual({ fraction: 0, label: 'До гарантированной синей: 10' });
     expect(pityInfo({ untilPity: 10, pityRarity: 'purple' }, 30).fraction).toBeCloseTo(20 / 30);
   });
 });

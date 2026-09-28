@@ -112,22 +112,13 @@
         ]
       }
     },
-    "forms": {
-      "default": [],
+    "branches": {
+      "minItems": 2,
+      "maxItems": 2,
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "rarity": {
-            "type": "string",
-            "enum": [
-              "green",
-              "blue",
-              "purple",
-              "gold",
-              "red"
-            ]
-          },
           "job": {
             "type": "string",
             "pattern": "^[a-z][a-z0-9_]*$"
@@ -187,7 +178,7 @@
           },
           "promotion": {
             "type": "string",
-            "maxLength": 200
+            "maxLength": 160
           },
           "visual": {
             "default": {},
@@ -200,9 +191,10 @@
           }
         },
         "required": [
-          "rarity",
           "job",
-          "skills"
+          "role",
+          "skills",
+          "promotion"
         ]
       }
     },
@@ -238,6 +230,7 @@
     "baseRarity",
     "maxRarity",
     "skills",
+    "branches",
     "bio",
     "hook"
   ]

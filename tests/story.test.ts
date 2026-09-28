@@ -147,8 +147,8 @@ describe('сюжет: спикеры', () => {
     // Порядок в save.heroes не важен: hero1 — всегда Алан.
     const shuffled: SaveState = { ...save, heroes: [...save.heroes].reverse() };
     expect(speakerView(story, 'hero1', shuffled, ctx).name).toBe('Алан');
-    // Алан вознесён до фиолетового — портрет второй профессии (Рыцарь).
-    const knight: SaveState = { ...save, heroes: save.heroes.map((h, i) => (i === 0 ? { ...h, rarity: 'purple', level: 40 } : h)) };
+    // Алан вознесён до фиолетового с веткой Рыцарь — портрет второй профессии.
+    const knight: SaveState = { ...save, heroes: save.heroes.map((h, i) => (i === 0 ? { ...h, rarity: 'purple', level: 40, branch: 'knight' } : h)) };
     expect(speakerView(story, 'hero1', knight, ctx).sprite).toBe(ctx.content.jobs.knight.visual.sprite);
     // Грета (hero4) ещё не пришла — имя и пол из спикера главы 2.
     const v = speakerView(ctx.story.chapters.chapter2, 'hero4', save, ctx);
