@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { enemySquad, growthStep, newGame, playStage, stageStatus, type SaveState } from '../src/core';
 import { loadGameContext, ROOT } from '../scripts/lib/content-node';
-import { loadFullContext, REFERENCE_SQUADS, smoothSquads, stageThreshold } from '../scripts/lib/player-model';
+import { loadFullContext, SMOOTH_SQUADS, smoothSquads, stageThreshold } from '../scripts/lib/player-model';
 
 const ctx = loadGameContext();
 const stages = ctx.content.stages;
@@ -112,28 +112,37 @@ describe('K3 главы 2–3', () => {
     }
   });
 
-  it('главы 4+ (QA LT-02, T5-21): сила этапа по бою растёт плавно — у эталонных отрядов нет обрывов и провалов между соседями', () => {
+  it('главы 4+ (QA LT-02, T5-21): сила этапа по бою растёт плавно — ни стен, ни провалов относительно тренда главы', () => {
     // Сила этапа для отряда — 1 / k*, k* — множитель статов врагов, при котором отряд побеждает через раз (scripts/balance-smooth.ts,
-    // docs/content/balance.md, 6а). Три эталонных отряда (фиолетовые ур. 45); профиль каждого нормирован на его среднее, сила
-    // этапа — наибольшая из трёх. Соседние рядовые этапы: не больше ×1.2 (обрыв «0 из 10 после 10 из 10» — это ×1.1–1.15 силы)
-    // и не меньше ×0.85 (провал); босс — ступенька не больше ×1.5 над предпоследним этапом.
+    // docs/content/balance.md, 6а). Пять эталонных отрядов (фиолетовые ур. 45, SMOOTH_SQUADS); профиль каждого нормирован на
+    // его среднее, сила этапа — наибольшая из пяти. В главе — геометрический тренд по рядовым этапам (растёт); каждый рядовой
+    // этап — в пределах ±15% тренда (до правки LT-02: −35% и +91% между соседями: 42 → 43, 60 → 61); босс — ступенька ×1…1.35.
     const full = loadFullContext();
-    const squads = smoothSquads(full, 45, REFERENCE_SQUADS);
+    const squads = smoothSquads(full, 45, SMOOTH_SQUADS);
     const late = chapters.slice(3).map((c) => c.id);
     const ids = stages.filter((st) => late.includes(st.chapter)).map((st) => st.id);
-    const profiles = squads.map((sq) => ids.map((id) => 1 / stageThreshold(full, sq, enemySquad(id, full), 6, 8)));
-    const geo = profiles.map((p) => p.reduce((a, b) => a + Math.log(b), 0) / p.length);
-    const d = new Map(ids.map((id, i) => [id, Math.max(...profiles.map((p, j) => Math.log(p[i]) - geo[j]))]));
+    const profiles = squads.map((sq) => ids.map((id) => Math.log(1 / stageThreshold(full, sq, enemySquad(id, full), 6, 8))));
+    const geo = profiles.map((p) => p.reduce((a, b) => a + b, 0) / p.length);
+    const d = new Map(ids.map((id, i) => [id, Math.max(...profiles.map((p, j) => p[i] - geo[j]))]));
     for (const ch of late) {
       const list = chapterStages(ch);
-      for (let i = 1; i < list.length; i++) {
-        const r = Math.exp(d.get(list[i].id)! - d.get(list[i - 1].id)!);
-        if (list[i].boss) expect(r, `${list[i].id} / ${list[i - 1].id}`).toBeLessThanOrEqual(1.5);
-        else {
-          expect(r, `${list[i].id} / ${list[i - 1].id}`).toBeLessThanOrEqual(1.2);
-          expect(r, `${list[i].id} / ${list[i - 1].id}`).toBeGreaterThanOrEqual(0.85);
+      const reg = list.filter((x) => !x.boss).map((x) => d.get(x.id)!);
+      const n = reg.length;
+      const xm = (n - 1) / 2;
+      const ym = reg.reduce((a, b) => a + b, 0) / n;
+      const slope = reg.reduce((a, y, i) => a + (i - xm) * (y - ym), 0) / reg.reduce((a, _, i) => a + (i - xm) ** 2, 0);
+      const trend = (i: number) => ym + slope * (i - xm);
+      expect(Math.exp(slope), `${ch}: рост силы за этап`).toBeGreaterThan(1);
+      list.forEach((x, i) => {
+        const r = Math.exp(d.get(x.id)! - trend(Math.min(i, n - 1)));
+        if (x.boss) {
+          expect(r, `${x.id}: босс / тренд`).toBeGreaterThanOrEqual(1);
+          expect(r, `${x.id}: босс / тренд`).toBeLessThanOrEqual(1.35);
+        } else {
+          expect(r, `${x.id}: этап / тренд`).toBeLessThanOrEqual(1.15);
+          expect(r, `${x.id}: этап / тренд`).toBeGreaterThanOrEqual(0.85);
         }
-      }
+      });
     }
   }, 600_000);
 

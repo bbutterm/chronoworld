@@ -23,7 +23,10 @@
  *   npx tsx scripts/balance-smooth.ts --fit 8 --boss 1.1 --seeds-model 1,2,3        подобрать якоря по модели игрока:
  *       босс главы c пройден к часу --targets (по умолчанию 120,156,192,225 — дни 5, 7, 8, 10); якорь × (P(цель)/P(факт))^γ,
  *       P(t) — мощь отряда модели к моменту t (как balance-fit). Лучший вариант остаётся в data/campaign.
- * Опции: --level 45 (эталон), --seeds 12 (боёв на точку замера), --gamma 0.8, --days 11.
+ *   … --fit 6 --anchors <прошлые якоря> --a3 <конец главы 3>       без нового замера: данные уже выставлены по этим якорям
+ *   … --recommended --anchors <якоря> --a3 <конец главы 3>          power.recommendedStages глав 4–7 ∝ D (печатает JSON)
+ * Опции: --level 45 (эталон), --seeds 8 (боёв на точку замера), --steps 9, --boss 1.05, --gamma 0.8, --days 11,
+ * --model-squads 1,2,3,4 и --model-days 4,6,8 (отряды модели в замере), --seeds-model 1,2,3 (модели в подборе).
  * Затем: npm run balance -- --fit-recommended, --levels (docs/content/balance.md, разделы 4, 4а).
  */
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -38,7 +41,7 @@ const num = (name: string, def: number) => (flag(name).length ? Number(flag(name
 const list = (name: string, def: number[]) => (flag(name).length ? flag(name).at(-1)!.split(',').map(Number) : def);
 const LEVEL = num('level', 45);
 const SEEDS = num('seeds', 8);
-const BOSS = num('boss', 1.1);
+const BOSS = num('boss', 1.05);
 const GAMMA = num('gamma', 0.8);
 const DAYS = num('days', 11);
 const FIT = num('fit', 0);
@@ -200,11 +203,13 @@ if (argv.includes('--recommended')) {
   process.exit(0);
 }
 
-console.log(`Замер D (эталон — фиолетовые ур. ${LEVEL}, ${SEEDS} seed)…`);
-const d0 = measure(ctx0, new Set(['chapter3', ...FIT_CHAPTERS]));
-const ch3 = ctx0.content.stages.filter((s) => s.chapter === 'chapter3' && !s.boss).map((s) => d0.get(s.id)!);
+// --a3 с --anchors: данные уже выставлены по этим якорям (прошлый --fit) — D известна без замера (D линейна по mult).
+const a3Arg = num('a3', NaN);
+const known = anchorsArg && Number.isFinite(a3Arg);
+if (!known) console.log(`Замер D (эталон — фиолетовые ур. ${LEVEL}, ${SEEDS} seed)…`);
+const d0 = known ? targetsFor(ctx0, a3Arg, anchorsArg) : measure(ctx0, new Set(['chapter3', ...FIT_CHAPTERS]));
 // Конец главы 3 — по последним трём рядовым этапам (замер шумит на ±5%). Главы 1–3 не трогаем.
-const a3 = median(ch3.slice(-3));
+const a3 = known ? a3Arg : median(ctx0.content.stages.filter((s) => s.chapter === 'chapter3' && !s.boss).map((s) => d0.get(s.id)!).slice(-3));
 let anchors = anchorsArg ?? FIT_CHAPTERS.map((chapter) => {
   const regular = ctx0.content.stages.filter((s) => s.chapter === chapter && !s.boss).map((s) => d0.get(s.id)!);
   return median(regular.slice(-3));
