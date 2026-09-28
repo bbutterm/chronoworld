@@ -314,23 +314,23 @@
       "enemies": [
         {
           "unit": "mob4_elite",
-          "mult": 0.236
+          "mult": 0.412
         },
         {
           "unit": "mob4_boss",
-          "mult": 0.115
+          "mult": 0.201
         },
         {
           "unit": "mob4_ranged",
-          "mult": 0.236
+          "mult": 0.412
         },
         {
           "unit": "mob4_elite",
-          "mult": 0.236
+          "mult": 0.412
         },
         {
           "unit": "mob4_ranged",
-          "mult": 0.236
+          "mult": 0.412
         }
       ],
       "rewards": {
