@@ -13,9 +13,38 @@ const slot = new SaveSlot();
 /** Предупреждения для игрока, которые покажет ближайший экран (тостом). */
 const warnings: string[] = [];
 
-export const now = () => Date.now();
+/**
+ * Режим тестировщика (tester.ts): сдвиг игровых часов вперёд, мс. Хранится отдельно от сохранения, чтобы
+ * отметки времени в сохранении и «сейчас» оставались согласованными после перезагрузки.
+ */
+const SHIFT_KEY = 'chronoworld.timeShift';
+let timeShift = readShift();
+
+function readShift(): number {
+  try {
+    const v = Number(globalThis.localStorage?.getItem(SHIFT_KEY));
+    return Number.isFinite(v) && v > 0 ? v : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Сдвинуть игровые часы вперёд на ms (кнопка «+12 ч» тестировщика). */
+export function shiftTime(ms: number): void {
+  timeShift += ms;
+  try {
+    globalThis.localStorage?.setItem(SHIFT_KEY, String(timeShift));
+  } catch {
+    /* хранилище недоступно — сдвиг живёт до перезагрузки */
+  }
+}
+
+/** Насколько сдвинуты часы (мс). */
+export const timeShiftMs = () => timeShift;
+
+export const now = () => Date.now() + timeShift;
 /** День игрока по локальному времени — его получают все ежедневные механики (act*-обёртки, задания). */
-export const today = () => localDay(new Date());
+export const today = () => localDay(new Date(now()));
 
 function boot(): SaveState {
   const r = slot.boot(GAME, now(), today());

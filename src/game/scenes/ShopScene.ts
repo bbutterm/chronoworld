@@ -9,7 +9,7 @@ import { GAME_W } from '../layout';
 import { framedPortrait } from '../portraitFrame';
 import { rewardIcon } from '../rewardsView';
 import { card, confirm, CONTENT_TOP, gemIcon, screen } from '../screen';
-import { commit, restartOnNewDay, session, today } from '../session';
+import { commit, now, restartOnNewDay, session, today } from '../session';
 import { shopCtx } from '../shopEntry';
 import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
 import { button, ellipsize, text, toast } from '../ui';
@@ -24,7 +24,7 @@ const ROW_STEP = CARD_H + 15;
 
 /** Мс до следующей местной полуночи (новый ассортимент). */
 function msToMidnight(): number {
-  const d = new Date();
+  const d = new Date(now());
   return new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1).getTime() - d.getTime();
 }
 
