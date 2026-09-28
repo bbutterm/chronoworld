@@ -20,7 +20,7 @@ describe('O: used assets (что попадает в dist)', () => {
     }
   });
 
-  it('включает все 26 анимированных FX в сборку при наличии статических fallback в манифесте', () => {
+  it('включает все 35 анимированных FX в сборку при наличии статических fallback в манифесте', () => {
     const catalog = json('assets/effects/effects.json') as { effects: { id: string; file: string }[] };
     expect(catalog.effects.map((effect) => effect.id).sort()).toEqual([
       'fx_arrow', 'fx_death', 'fx_heal', 'fx_hit', 'fx_job_acolyte_blessing',
@@ -28,9 +28,14 @@ describe('O: used assets (что попадает в dist)', () => {
       'fx_job_assassin_sonic_blow', 'fx_job_blacksmith_weapon_perfection',
       'fx_job_crusader_defender', 'fx_job_crusader_grand_cross', 'fx_job_crusader_holy_cross',
       'fx_job_crusader_shield_charge', 'fx_job_hunter_claymore_trap', 'fx_job_hunter_sandman',
+      'fx_job_knight_bowling_bash', 'fx_job_knight_two_hand_quicken',
       'fx_job_mage_fire_ball_projectile', 'fx_job_mage_fire_bolt', 'fx_job_mage_frost_diver',
-      'fx_job_mage_thunderstorm', 'fx_job_merchant_cart_revolution', 'fx_job_thief_envenom',
+      'fx_job_mage_thunderstorm', 'fx_job_merchant_cart_revolution',
+      'fx_job_sage_dispell', 'fx_job_sage_earth_spike', 'fx_job_sage_heavens_drive',
+      'fx_job_swordman_magnum_break', 'fx_job_thief_envenom', 'fx_job_thief_steal',
+      'fx_job_wizard_meteor_storm',
       'fx_job_wizard_storm_gust', 'fx_magic', 'fx_shield', 'fx_swordman_bash',
+      'fx_swordman_endure',
     ]);
     for (const effect of catalog.effects) expect(files).toContain(effect.file);
   });

@@ -698,9 +698,255 @@
         "seed": 1,
         "note": "CR_HOLYCROSS EF_HOLYCROSS 245; recaptured at zoom 200 to keep edge flare within canvas"
       }
+    },
+    {
+      "id": "fx_swordman_endure",
+      "file": "effects/fx_swordman_endure.png",
+      "cell": [
+        156,
+        156
+      ],
+      "columns": 8,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        77.4,
+        116.8
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "11",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.85,
+        "seed": 1,
+        "note": "SM_ENDURE effectId 11; buff rune"
+      }
+    },
+    {
+      "id": "fx_job_knight_bowling_bash",
+      "file": "effects/fx_job_knight_bowling_bash.png",
+      "cell": [
+        362,
+        282
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        175.4,
+        145.8
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "149",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.85,
+        "seed": 1,
+        "note": "KN_BOWLINGBASH effectIdOnCaster 149; caster slash, not hit"
+      }
+    },
+    {
+      "id": "fx_job_sage_earth_spike",
+      "file": "effects/fx_job_sage_earth_spike.png",
+      "cell": [
+        60,
+        72
+      ],
+      "columns": 8,
+      "frames": 28,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        28.6,
+        43.2
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "79",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.9,
+        "seed": 1,
+        "note": "WZ_EARTHSPIKE effectId 79; single earth spike"
+      }
+    },
+    {
+      "id": "fx_job_sage_heavens_drive",
+      "file": "effects/fx_job_sage_heavens_drive.png",
+      "cell": [
+        160,
+        170
+      ],
+      "columns": 8,
+      "frames": 15,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        87.0,
+        81.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "142",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.75,
+        "seed": 1,
+        "note": "WZ_HEAVENDRIVE effectId 142; earth spike row"
+      }
+    },
+    {
+      "id": "fx_job_sage_dispell",
+      "file": "effects/fx_job_sage_dispell.png",
+      "cell": [
+        168,
+        284
+      ],
+      "columns": 7,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        82.4,
+        244.8
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "235",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.85,
+        "seed": 1,
+        "note": "SA_DISPELL successEffectId 235; dispell target ring"
+      }
+    },
+    {
+      "id": "fx_job_knight_two_hand_quicken",
+      "file": "effects/fx_job_knight_two_hand_quicken.png",
+      "cell": [
+        250,
+        262
+      ],
+      "columns": 4,
+      "frames": 4,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        122.2,
+        131.4
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "130",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.8,
+        "seed": 1,
+        "note": "KN_TWOHANDQUICKEN effectId 130; buff orb"
+      }
+    },
+    {
+      "id": "fx_job_wizard_meteor_storm",
+      "file": "effects/fx_job_wizard_meteor_storm.png",
+      "cell": [
+        250,
+        458
+      ],
+      "columns": 8,
+      "frames": 18,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        113.4,
+        403.2
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "92",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 0.372,
+        "outputScale": 0.5,
+        "seed": 1,
+        "note": "WZ_METEOR effectId 92; falling meteor; zoom 350 to avoid top clipping; fire hit separate"
+      }
+    },
+    {
+      "id": "fx_job_thief_steal",
+      "file": "effects/fx_job_thief_steal.png",
+      "cell": [
+        188,
+        176
+      ],
+      "columns": 5,
+      "frames": 5,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        85.4,
+        112.8
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "18",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.85,
+        "seed": 1,
+        "note": "TF_STEAL successEffectId 18; pale target glint, success hook required"
+      }
+    },
+    {
+      "id": "fx_job_swordman_magnum_break",
+      "file": "effects/fx_job_swordman_magnum_break.png",
+      "cell": [
+        276,
+        198
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        138.2,
+        105.4
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "17",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.8,
+        "seed": 1,
+        "note": "SM_MAGNUM effectIdOnCaster 17; warm caster ring, not area explosion"
+      }
     }
   ],
   "skills": {
+    "assassin_leap": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
     "job_acolyte_blessing": {
       "buff": "fx_job_acolyte_blessing"
     },
@@ -709,6 +955,9 @@
     },
     "job_acolyte_increase_agi": {
       "buff": "fx_job_acolyte_increase_agi"
+    },
+    "job_acolyte_signum_crucis": {
+      "debuff": "fx_job_acolyte_signum_crucis"
     },
     "job_assassin_sonic_blow": {
       "hit": "fx_job_assassin_sonic_blow"
@@ -719,6 +968,9 @@
     "job_crusader_defender": {
       "buff": "fx_job_crusader_defender"
     },
+    "job_crusader_grand_cross": {
+      "ground": "fx_job_crusader_grand_cross"
+    },
     "job_crusader_holy_cross": {
       "hit": "fx_job_crusader_holy_cross"
     },
@@ -728,10 +980,19 @@
     "job_hunter_claymore_trap": {
       "hit": "fx_job_hunter_claymore_trap"
     },
-    "job_mage_fire_bolt": {
-      "hit": "fx_job_mage_fire_bolt"
+    "job_hunter_sandman": {
+      "debuff": "fx_job_hunter_sandman"
+    },
+    "job_knight_bowling_bash": {
+      "cast": "fx_job_knight_bowling_bash"
+    },
+    "job_knight_two_hand_quicken": {
+      "buff": "fx_job_knight_two_hand_quicken"
     },
     "job_mage_fire_ball": {
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "job_mage_fire_bolt": {
       "hit": "fx_job_mage_fire_bolt"
     },
     "job_mage_frost_diver": {
@@ -743,8 +1004,47 @@
     "job_merchant_cart_revolution": {
       "hit": "fx_job_merchant_cart_revolution"
     },
+    "job_sage_dispell": {
+      "debuff": "fx_job_sage_dispell"
+    },
+    "job_sage_earth_spike": {
+      "hit": "fx_job_sage_earth_spike"
+    },
+    "job_sage_heavens_drive": {
+      "ground": "fx_job_sage_heavens_drive"
+    },
+    "job_swordman_magnum_break": {
+      "cast": "fx_job_swordman_magnum_break"
+    },
     "job_thief_envenom": {
       "hit": "fx_job_thief_envenom"
+    },
+    "job_wizard_meteor_storm": {
+      "ground": "fx_job_wizard_meteor_storm"
+    },
+    "job_wizard_storm_gust": {
+      "ground": "fx_job_wizard_storm_gust"
+    },
+    "mob2_ranged_poison_arrow": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "mob3_elite_cleave": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "mob3_melee_rend": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "mob_poporing_goo": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "swordman_bash": {
+      "cast": "fx_swordman_bash"
+    },
+    "swordman_endure": {
+      "buff": "fx_swordman_endure"
+    },
+    "warrior_cleave": {
+      "hit": "fx_job_assassin_sonic_blow"
     }
   }
 }
