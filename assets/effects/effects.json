@@ -158,7 +158,64 @@
         "seed": 1,
         "note": "EF_ENERGYCOAT protective burst; no baked character; brief flash, not persistent dome"
       }
+    },
+    {
+      "id": "fx_job_acolyte_blessing",
+      "file": "effects/fx_job_acolyte_blessing.png",
+      "cell": [
+        98,
+        206
+      ],
+      "columns": 8,
+      "frames": 20,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        48.2,
+        156.4
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "42",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.8,
+        "seed": 1,
+        "note": "EF_BLESSING 42; blue-white spark aura graded to Chronoworld gold via tools/tint_blessing_effect.py; no baked character"
+      }
+    },
+    {
+      "id": "fx_job_mage_thunderstorm",
+      "file": "effects/fx_job_mage_thunderstorm.png",
+      "cell": [
+        278,
+        318
+      ],
+      "columns": 7,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        138.6,
+        220.5
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "30",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 0.6511,
+        "outputScale": 0.6,
+        "seed": 1,
+        "note": "EF_THUNDERSTORM 30, zoom 200; alpha noise below 25 removed; area lightning on target"
+      }
     }
   ],
-  "skills": {}
+  "skills": {
+    "job_acolyte_blessing": { "buff": "fx_job_acolyte_blessing" },
+    "job_mage_thunderstorm": { "hit": "fx_job_mage_thunderstorm" }
+  }
 }

@@ -19,6 +19,16 @@
   "png": 141360,
   "webp": 106332
  },
+ "effects/fx_job_acolyte_blessing.png": {
+  "sha1": "9ee7c4ed85a73fd7c151f5746c118ad1d95ff590",
+  "png": 84028,
+  "webp": 48394
+ },
+ "effects/fx_job_mage_thunderstorm.png": {
+  "sha1": "fcb36cf7f7d9cf3605e5d98c0cd4ab2b878463ef",
+  "png": 804665,
+  "webp": 657464
+ },
  "effects/fx_magic.png": {
   "sha1": "47203f031fa5917623d1e5f1996e162b2326fbe3",
   "png": 50919,
@@ -1208,6 +1218,11 @@
   "sha1": "eeeabc041d9ceeda9c3225a8f8f1d6187c40ead7",
   "png": 573,
   "webp": 238
+ },
+ "ui/icons/skill_mc_fryingpan.png": {
+  "sha1": "613afd00076cbd819c9d96102e904d1a0db75020",
+  "png": 643,
+  "webp": 278
  },
  "ui/icons/skill_mc_loud.png": {
   "sha1": "489b0e47a5567ff050583a614f7c075d0250c4ef",
