@@ -402,7 +402,7 @@ export class TavernScene extends Phaser.Scene {
     const cv: CardView = { i, slot, root, glow, back, face, flipped: false, busy: false };
     root.on('pointerup', () => {
       if (state.phase === 'pick') void this.flip(state, cv, 'tap');
-      else if (state.phase === 'done') this.scene.start('Hero', { heroId: r.heroId });
+      else if (state.phase === 'done') this.scene.start('Hero', { heroId: r.heroId, back: { to: 'Tavern' } });
     });
     state.layer.add(root);
     return cv;

@@ -55,6 +55,18 @@ const SKILL_ROW_H = 118;
 /** Редкость в родительном падеже: «растёт до красного». */
 const RARITY_GEN: Record<string, string> = { green: 'зелёного', blue: 'синего', purple: 'фиолетового', gold: 'золотого', red: 'красного' };
 type Tab = 'skills' | 'gear' | 'story';
+
+/** Экран, куда возвращает «‹ Назад» карточки героя (Инвентарь → «Карты героев», итоги Таверны…). */
+export interface HeroBack {
+  to: string;
+  data?: object;
+}
+
+export interface HeroData {
+  heroId: string;
+  tab?: Tab;
+  back?: HeroBack;
+}
 const TABS: { id: Tab; label: string }[] = [
   { id: 'skills', label: 'Навыки' },
   { id: 'gear', label: 'Снаряжение' },
@@ -95,6 +107,8 @@ export class HeroScene extends Phaser.Scene {
 
   private heroId = '';
   private tab: Tab = 'skills';
+  /** Куда ведёт «‹ Назад» (по умолчанию — список «Герои»). */
+  private back?: HeroBack;
   /** Счётчик строк навыков (имена skillRow_N для e2e и скриншотов). */
   private skillRows = 0;
   private tabArea!: ScrollArea;
@@ -115,8 +129,9 @@ export class HeroScene extends Phaser.Scene {
   private holdFired = false;
   private holdCount = 0;
 
-  create(data: { heroId: string; tab?: Tab }): void {
+  create(data: HeroData): void {
     this.heroId = data.heroId;
+    this.back = data.back;
     this.figure = null;
     this.holdTimer = this.repeatTimer = undefined;
     this.holdFired = false;
@@ -126,7 +141,7 @@ export class HeroScene extends Phaser.Scene {
       hero = this.hero();
     }
     const c = hero && GAME.content.heroes[hero.templateId] ? heroCard(hero, GAME) : undefined;
-    screen(this, c ? (c.branch ? `${c.name} · ${c.jobName}` : c.name) : 'Герой', 'Heroes', { to: 'Heroes' });
+    screen(this, c ? (c.branch ? `${c.name} · ${c.jobName}` : c.name) : 'Герой', 'Heroes', this.back ?? { to: 'Heroes' });
     if (!hero || !c) return;
     const ups = gearUpgrades(session.save, hero.id, GAME);
     this.tab = data.tab ?? heroesUi.tab ?? (ups.length && !hintDone('equip_gear') ? 'gear' : 'skills');
@@ -144,6 +159,11 @@ export class HeroScene extends Phaser.Scene {
       this.input.off('pointerup', stop);
       this.stopHold();
     });
+  }
+
+  /** Перезапуск карточки (вкладка, соседний герой, после действия) — «Назад» ведёт туда же, откуда пришли (MT-04). */
+  private reopen(data: Omit<HeroData, 'back'>): void {
+    this.scene.restart({ ...data, back: this.back });
   }
 
   private hero(): HeroState | undefined {
@@ -243,8 +263,9 @@ export class HeroScene extends Phaser.Scene {
     // Листание ‹ › по списку «Героев».
     const order = heroesUi.order.length ? heroesUi.order : session.save.heroes.map((h) => h.id);
     const nb = browseNeighbours(order, hero.id, (id) => session.save.heroes.some((h) => h.id === id));
-    if (nb.prev) button(this, 60, TOP + 300, 84, 130, 'k:buttonSquare_beige', '‹', () => this.scene.restart({ heroId: nb.prev, tab: this.tab }), FS.hero, { sound: 'ui_tab' }).container.setName('prevHero');
-    if (nb.next) button(this, 1020, TOP + 300, 84, 130, 'k:buttonSquare_beige', '›', () => this.scene.restart({ heroId: nb.next, tab: this.tab }), FS.hero, { sound: 'ui_tab' }).container.setName('nextHero');
+    const { prev, next } = nb;
+    if (prev) button(this, 60, TOP + 300, 84, 130, 'k:buttonSquare_beige', '‹', () => this.reopen({ heroId: prev, tab: this.tab }), FS.hero, { sound: 'ui_tab' }).container.setName('prevHero');
+    if (next) button(this, 1020, TOP + 300, 84, 130, 'k:buttonSquare_beige', '›', () => this.reopen({ heroId: next, tab: this.tab }), FS.hero, { sound: 'ui_tab' }).container.setName('nextHero');
   }
 
   /** Ветка второй профессии: «Выбрать ветку» (фиолетовый без ветки), «Сменить ветку» (цена), превью веток ниже. */
@@ -309,7 +330,7 @@ export class HeroScene extends Phaser.Scene {
           const spent = 'gems' in r ? (r.gems as number) : 0;
           commit(r.save);
           sfx('job_change');
-          this.scene.restart({ heroId: hero.id, tab: this.tab });
+          this.reopen({ heroId: hero.id, tab: this.tab });
           const sc = this.scene.get('Hero');
           sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `${c.name} — теперь ${jobName(job)}!${spent ? ` (−${formatNumber(spent)} гемов)` : ''}`, C.success, 3000));
         } catch (e) {
@@ -324,7 +345,7 @@ export class HeroScene extends Phaser.Scene {
     if (!hero) return;
     commit(setHeroLocked(session.save, hero.id, !hero.locked));
     toast(this, hero.locked ? 'Замок снят — карточку можно отдать в корм' : 'Закреплено — карточка не уйдёт в корм', C.success, 2500);
-    this.scene.restart({ heroId: hero.id, tab: this.tab });
+    this.reopen({ heroId: hero.id, tab: this.tab });
   }
 
   // ---------- статы ----------
@@ -498,7 +519,7 @@ export class HeroScene extends Phaser.Scene {
       // Упёрлись в предел — на месте «Улучшить» встанет «Вознести».
       if (!levelUpInfo(session.save, hero.id, GAME).cost) {
         this.stopHold();
-        this.time.delayedCall(700, () => this.scene.restart({ heroId: hero.id, tab: this.tab }));
+        this.time.delayedCall(700, () => this.reopen({ heroId: hero.id, tab: this.tab }));
       }
       return true;
     } catch (e) {
@@ -559,7 +580,7 @@ export class HeroScene extends Phaser.Scene {
         if (this.tab === t.id) return;
         this.tab = t.id;
         heroesUi.tab = t.id;
-        this.scene.restart({ heroId: this.heroId, tab: t.id });
+        this.reopen({ heroId: this.heroId, tab: t.id });
       }, FS.h3, { sound: 'ui_tab' });
       b.container.setName(`tab_${t.id}`);
       if (on) b.label.setColor('#f0cf8a');
@@ -725,7 +746,7 @@ export class HeroScene extends Phaser.Scene {
       commit(r.save);
       sfx('equip', { rate: 1.3 });
       sfx('coin', { delay: 60 });
-      this.scene.restart({ heroId: hero.id, tab: 'gear' });
+      this.reopen({ heroId: hero.id, tab: 'gear' });
       const sc = this.scene.get('Hero');
       sc.events.once(Phaser.Scenes.Events.CREATE, () => {
         burst(sc, { x: GAME_W / 2, y: TAB_TOP + 120 });
@@ -740,7 +761,7 @@ export class HeroScene extends Phaser.Scene {
   private gearSlot(hero: HeroState, slot: Slot, item: ReturnType<typeof heroSlots>[Slot], x: number, y: number, better = false): void {
     const a = this.tabArea;
     const bg = a.add(panel(this, x, y, 244, 200, item ? 'ui_slot_filled' : 'ui_slot_empty'));
-    pressable(this, bg, 244, 200, a.tap(() => this.scene.start('Inventory', { heroId: hero.id, slot })));
+    pressable(this, bg, 244, 200, a.tap(() => this.scene.start('Inventory', { heroId: hero.id, slot, heroBack: this.back })));
     a.add(text(this, x, y - 70, SLOT_NAMES[slot], FS.small, C.dim));
     if (better) {
       a.add(this.add.circle(x + 98, y - 76, 22, TINT.success).setStrokeStyle(3, 0xffffff));
@@ -765,7 +786,7 @@ export class HeroScene extends Phaser.Scene {
       markHint('equip_gear');
       sfx('equip');
       const names = r.equipped.map((u) => GAME.equipment.items[u.itemId]?.name ?? u.itemId);
-      this.scene.restart({ heroId: hero.id, tab: 'gear' });
+      this.reopen({ heroId: hero.id, tab: 'gear' });
       const sc = this.scene.get('Hero');
       sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `${heroCard(hero, GAME).name}: надето — ${names.join(', ')}`, C.success, 3000));
     } catch (e) {

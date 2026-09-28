@@ -37,6 +37,7 @@ import { burst, staggerIn } from '../juice';
 import { markHint } from '../hints';
 import { sfx } from '../audio';
 import { drawHeroCard, heroCardSize, rarityColor } from '../heroCard';
+import type { HeroBack, HeroData } from './HeroScene';
 import { heroCardsList, heroCardsSummary, inventoryUi, RARITY_ORDER } from '../heroesView';
 
 /**
@@ -51,6 +52,8 @@ export interface InventoryData {
   slot?: Slot;
   /** Фильтр общего списка (без героя). */
   filter?: Slot | null;
+  /** Куда вела «‹ Назад» карточки героя, из которой открыт слот, — вернуть ей же (MT-04). */
+  heroBack?: HeroBack;
 }
 
 const ROW_H = 160;
@@ -135,11 +138,13 @@ export function stackRows(rows: InventoryRow[]): StackRow[] {
 }
 
 export class InventoryScene extends Phaser.Scene {
+  private heroBack?: HeroBack;
   constructor() {
     super('Inventory');
   }
 
   create(data: InventoryData = {}): void {
+    this.heroBack = data.heroBack;
     const save = session.save;
     const hero = data.heroId ? save.heroes.find((h) => h.id === data.heroId) : undefined;
     if (hero && data.slot) this.picker(hero, data.slot);
@@ -149,7 +154,7 @@ export class InventoryScene extends Phaser.Scene {
   // ---------- выбор предмета для слота героя ----------
 
   private picker(hero: HeroState, slot: Slot): void {
-    screen(this, `${SLOT_NAMES[slot]}: ${heroName(hero, GAME)}`, 'Heroes', { to: 'Hero', data: { heroId: hero.id } });
+    screen(this, `${SLOT_NAMES[slot]}: ${heroName(hero, GAME)}`, 'Heroes', { to: 'Hero', data: this.heroData(hero.id) });
     const save = session.save;
     const cur = heroSlots(save, hero.id, GAME)[slot];
     const top = CONTENT_TOP;
@@ -277,7 +282,7 @@ export class InventoryScene extends Phaser.Scene {
         const color = def ? Phaser.Display.Color.HexStringToColor(RARITY_COLORS[def.rarity]).color : TINT.frame;
         sfx('hit_blunt');
         sfx('ui_error', { delay: 120 });
-        this.scene.restart({ heroId: hero.id, slot });
+        this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
         this.events.once(Phaser.Scenes.Events.CREATE, () => {
           shatter(this, at, color);
           toast(this, `Вещь сломалась! «${def ? refinedName(def, e.level) : e.itemId}» потеряна`, C.error, 3500);
@@ -286,7 +291,7 @@ export class InventoryScene extends Phaser.Scene {
       }
       sfx('equip', { rate: 1.3 });
       sfx('coin', { delay: 60 });
-      this.scene.restart({ heroId: hero.id, slot });
+      this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
       this.events.once(Phaser.Scenes.Events.CREATE, () => {
         burst(this, at);
         const how = mode === 'ore' ? ' (Благословенная руда)' : mode === 'safe' ? ' (надёжная заточка)' : '';
@@ -315,9 +320,14 @@ export class InventoryScene extends Phaser.Scene {
     }
   }
 
+  /** Назад из слота — в карточку на вкладку «Снаряжение», с её прежним «Назад» (MT-04). */
+  private heroData(heroId: string): HeroData {
+    return { heroId, tab: 'gear', back: this.heroBack };
+  }
+
   private backToHero(heroId: string, message: string): void {
     sfx('equip');
-    this.scene.start('Hero', { heroId });
+    this.scene.start('Hero', this.heroData(heroId));
     const s = this.scene.get('Hero');
     s.events.once(Phaser.Scenes.Events.CREATE, () => toast(s, message, C.success, 3000));
   }
@@ -379,7 +389,7 @@ export class InventoryScene extends Phaser.Scene {
       this.itemRow(row, y, row.wornBy ? `надет: ${row.wornBy}` : 'свободен', row.wornBy ? C.success : C.dim, row.instance.equippedBy ? TEXT_W : TEXT_W_FULL);
       if (row.instance.equippedBy) {
         const heroId = row.instance.equippedBy;
-        a.add(button(this, 880, y, 250, 100, 'k:buttonLong_beige', 'К герою', a.tap(() => this.scene.start('Hero', { heroId })), FS.body).container);
+        a.add(button(this, 880, y, 250, 100, 'k:buttonLong_beige', 'К герою', a.tap(() => this.scene.start('Hero', { heroId, back: { to: 'Inventory' } })), FS.body).container);
       }
     });
   }
@@ -447,7 +457,7 @@ export class InventoryScene extends Phaser.Scene {
             locked: !!hero.locked,
             glow: false,
             parent: area.content,
-            onTap: area.tap(() => this.scene.start('Hero', { heroId: hero.id })),
+            onTap: area.tap(() => this.scene.start('Hero', { heroId: hero.id, back: { to: 'Inventory' } })),
           }),
         );
       }
