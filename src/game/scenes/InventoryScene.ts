@@ -27,10 +27,10 @@ import {
 } from '../../core';
 import { GAME } from '../content';
 import { diffText, equipBlocker, formatNumber, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS, statDiff, type InventoryRow } from '../flow';
-import { GAME_W } from '../layout';
-import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, screen } from '../screen';
+import { GAME_H, GAME_W } from '../layout';
+import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, popIn, screen } from '../screen';
 import { commit, session } from '../session';
-import { button, ellipsize, ScrollArea, text, toast } from '../ui';
+import { button, ellipsize, panel, ScrollArea, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
 import { itemCell, oreIcon } from '../itemIcons';
 import { burst, staggerIn } from '../juice';
@@ -386,12 +386,63 @@ export class InventoryScene extends Phaser.Scene {
       return;
     }
     this.list(rows, top + 175, (row, y, a) => {
-      this.itemRow(row, y, row.wornBy ? `надет: ${row.wornBy}` : 'свободен', row.wornBy ? C.success : C.dim, row.instance.equippedBy ? TEXT_W : TEXT_W_FULL);
+      this.itemRow(row, y, row.wornBy ? `надет: ${row.wornBy}` : 'свободен', row.wornBy ? C.success : C.dim, row.def ? TEXT_W : TEXT_W_FULL);
       if (row.instance.equippedBy) {
         const heroId = row.instance.equippedBy;
         a.add(button(this, 880, y, 250, 100, 'k:buttonLong_beige', 'К герою', a.tap(() => this.scene.start('Hero', { heroId, back: { to: 'Inventory' } })), FS.body).container);
+      } else if (row.def) {
+        // MT-12: свободный предмет — «Надеть…»: кому из героев (отряд первым), с приростом к надетому сейчас.
+        a.add(button(this, 880, y, 250, 100, 'ui_btn_secondary', 'Надеть…', a.tap(() => this.wearPicker(row)), FS.body).container);
       }
     });
+  }
+
+  /** MT-12: окно «Кому надеть?» для свободного предмета: до 6 героев (кому можно, отряд, старшие; копии — одной картой). */
+  private wearPicker(row: StackRow): void {
+    const def = row.def;
+    if (!def || this.children.getByName('wearPicker')) return;
+    const save = session.save;
+    const seen = new Set<string>();
+    const heroes = [...save.heroes]
+      .filter((h) => GAME.content.heroes[h.templateId])
+      // Кому можно надеть — первыми, затем отряд, затем по уровню.
+      .sort((x, y) => (equipBlocker(row, x, GAME) ? 1 : 0) - (equipBlocker(row, y, GAME) ? 1 : 0) || Number(save.squad.includes(y.id)) - Number(save.squad.includes(x.id)) || y.level - x.level)
+      .filter((h) => (seen.has(h.templateId) ? false : (seen.add(h.templateId), true)))
+      .slice(0, 6);
+    const layer = this.add.container(0, 0).setDepth(9000).setName('wearPicker');
+    const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
+    const rowH = 130;
+    const h = 330 + heroes.length * rowH;
+    const top = GAME_H / 2 - h / 2;
+    const box = panel(this, GAME_W / 2, GAME_H / 2, 940, h, 'ui_panel').setInteractive();
+    const head = ellipsize(text(this, GAME_W / 2, top + 80, `Кому надеть «${def.name}»?`, FS.h2, C.title, { fontStyle: 'bold', ...OUTLINE }), 860);
+    // Список под окном не прокручивается и не нажимается, пока окно открыто.
+    if (this.area) this.area.locked = true;
+    const close = () => {
+      if (this.area) this.area.locked = false;
+      layer.destroy();
+    };
+    shade.on('pointerup', close);
+    layer.add([shade, box, head]);
+    heroes.forEach((hero, i) => {
+      const y = top + 190 + i * rowH;
+      const blocker = equipBlocker(row, hero, GAME);
+      const cur = heroSlots(save, hero.id, GAME)[def.slot];
+      const diff = statDiff(cur ? statsOf(cur.def, cur.instance) : undefined, statsOf(def, row.instance));
+      const sum = diff.reduce((n, d) => n + d.delta, 0);
+      const note = blocker ?? (diff.length ? diffText(diff) : 'без изменений');
+      const b = button(this, GAME_W / 2, y, 840, 112, blocker ? 'k:buttonLong_grey' : 'k:buttonLong_beige', '', () => {
+        close();
+        this.heroBack = { to: 'Inventory' };
+        this.equip(hero, row, blocker);
+      }, FS.h3);
+      if (blocker) b.setEnabled(false);
+      b.container.add(ellipsize(text(this, -390, -20, `${heroName(hero, GAME)}${save.squad.includes(hero.id) ? ' · в отряде' : ''} · ур. ${hero.level}`, FS.h3, C.ink, { fontStyle: 'bold' }).setOrigin(0, 0.5), 780));
+      b.container.add(ellipsize(text(this, -390, 22, note, FS.caption, blocker ? C.danger : sum > 0 ? C.positive : sum < 0 ? C.danger : C.inkMuted, { fontStyle: 'bold' }).setOrigin(0, 0.5), 780));
+      layer.add(b.container);
+    });
+    layer.add(button(this, GAME_W / 2, top + h - 80, 400, 110, 'ui_btn_primary', 'Отмена', close, FS.h3).container);
+    popIn(this, layer, shade);
   }
 
   // ---------- карты героев ----------
