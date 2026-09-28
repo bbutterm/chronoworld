@@ -690,7 +690,8 @@ class Sim {
       changed = true;
     }
     // Лекарь (как «Авто» и живой игрок): нет в отряде — лучший лекарь вместо самого слабого не-танка, если он не
-    // намного слабее (потенциал ≥ 0.85 заменяемого: зелёный ур. 1 не ставим вместо фиолетового).
+    // слабее по редкости и почти не слабее по потенциалу (≥ 0.9 заменяемого): зелёного лекаря вместо фиолетового
+    // бойца игрок не ставит — такой отряд проигрывает (замер: стена ch3_s10 12 → 40 ч).
     const healer = (h: SaveState['heroes'][number]) => heroRole(h, this.ctx) === 'healer';
     if (this.model.healer && squad.length >= 3 && !squad.some((x) => healer(x.hero))) {
       const used = new Set(squad.map((x) => x.hero.templateId));
@@ -702,7 +703,7 @@ class Sim {
       const out = squad
         .filter((x) => heroRole(x.hero, this.ctx) !== 'tank' || tanks > 1)
         .reduce<(typeof squad)[number] | null>((w, x) => (!w || x.pot < w.pot ? x : w), null);
-      if (best && out && best.pot >= out.pot * 0.85) {
+      if (best && out && rarityIndex(best.hero.rarity) >= rarityIndex(out.hero.rarity) && best.pot >= out.pot * 0.9) {
         squad[squad.indexOf(out)] = best;
         changed = true;
       }
@@ -1614,6 +1615,49 @@ export const REFERENCE_SQUADS = [
   ['otto', 'teo', 'meilin', 'iris', 'lira'],
   ['alan', 'vika', 'bran', 'dorn', 'greta'],
 ];
+
+/**
+ * Эталонные отряды замера силы этапа (scripts/balance-smooth.ts, тест tests/chapters.test.ts): три REFERENCE_SQUADS (танк,
+ * лекарь, трое бойцов) и два «перекошенных», как у живого игрока и модели: весь ближний бой (два рыцаря, кузнец, ассасин,
+ * жрец) и весь дальний (охотник, волшебники, бард, монах). Фиолетовые уровня level, ветка своей роли (PLAYER_MODEL.branch
+ * = keep), без экипировки.
+ */
+export const SMOOTH_SQUADS = [...REFERENCE_SQUADS, ['alan', 'iris', 'otto', 'zara', 'vika'], ['bran', 'kai', 'lira', 'meilin', 'teo']];
+
+export function smoothSquads(ctx: FullContext, level: number, lists: readonly string[][] = SMOOTH_SQUADS): UnitDef[][] {
+  return lists.map((ids) =>
+    ids.map((templateId, i) => {
+      const t = ctx.content.heroes[templateId];
+      const branch = (t.branches.find((b) => b.role === t.role) ?? t.branches[0]).job;
+      return buildUnit({ id: `ref${i}`, templateId, rarity: 'purple', level, branch }, ctx);
+    }),
+  );
+}
+
+/** Враги этапа со статами × k (hp, atk, def — ровно как mult этапа). */
+export function scaledEnemies(enemies: readonly (UnitDef | null)[], k: number): (UnitDef | null)[] {
+  return enemies.map((u) =>
+    u ? { ...u, stats: { ...u.stats, hp: Math.max(1, Math.round(u.stats.hp * k)), atk: Math.round(u.stats.atk * k), def: Math.round(u.stats.def * k) } } : null,
+  );
+}
+
+/**
+ * k* отряда на этапе: множитель статов врагов, при котором отряд побеждает в половине из seeds боёв (двоичный поиск по
+ * log k в [lo, hi], steps шагов). Сила этапа для отряда — 1 / k*; линейна по mult этапа.
+ */
+export function stageThreshold(ctx: FullContext, squad: readonly (UnitDef | null)[], enemies: readonly (UnitDef | null)[], seeds = 8, steps = 9, lo = 0.03, hi = 30): number {
+  let a = Math.log(lo);
+  let b = Math.log(hi);
+  for (let it = 0; it < steps; it++) {
+    const mid = (a + b) / 2;
+    const e = scaledEnemies(enemies, Math.exp(mid));
+    let n = 0;
+    for (let seed = 1; seed <= seeds; seed++) if (simulateBattle(ctx.content, [...squad], e, seed, { combat: ctx.combat, log: false }).winner === 'A') n++;
+    if (n * 2 >= seeds) a = mid;
+    else b = mid;
+  }
+  return Math.exp((a + b) / 2);
+}
 
 /**
  * «Уровень по бою»: наименьший уровень, при котором эталонный отряд (squad героев редкости полосы этапа, с фиолетового —

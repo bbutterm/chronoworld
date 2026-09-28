@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { enemySquad, growthStep, newGame, playStage, stageStatus, type SaveState } from '../src/core';
 import { loadGameContext, ROOT } from '../scripts/lib/content-node';
+import { loadFullContext, REFERENCE_SQUADS, smoothSquads, stageThreshold } from '../scripts/lib/player-model';
 
 const ctx = loadGameContext();
 const stages = ctx.content.stages;
@@ -92,10 +93,11 @@ describe('K3 главы 2–3', () => {
     }
   });
 
-  it('сила врагов внутри глав 2+ растёт без провалов: Σhp и Σatk этапа не меньше предыдущего (QA T5-21)', () => {
-    // Глава 1 подобрана по доле побед: у босса (Мастеринг) Σatk ниже 9-го этапа — осознанно. Все следующие главы — по правилу.
-    const later = chapters.slice(1).map((c) => c.id);
-    expect(later.slice(0, 2)).toEqual(['chapter2', 'chapter3']);
+  it('сила врагов внутри глав 2–3 растёт без провалов: Σhp и Σatk этапа не меньше предыдущего (QA T5-21)', () => {
+    // Глава 1 подобрана по доле побед: у босса (Мастеринг) Σatk ниже 9-го этапа — осознанно. Главы 4+ — по силе в бою
+    // (следующий тест): Σ не видит лечения и щитов, и главы 4–7 с Σ по правилу давали обрывы «0 из 10 / 10 из 10» (QA LT-02).
+    const later = chapters.slice(1, 3).map((c) => c.id);
+    expect(later).toEqual(['chapter2', 'chapter3']);
     for (const ch of later) {
       const sums = stages
         .filter((s) => s.chapter === ch)
@@ -109,6 +111,31 @@ describe('K3 главы 2–3', () => {
       }
     }
   });
+
+  it('главы 4+ (QA LT-02, T5-21): сила этапа по бою растёт плавно — у эталонных отрядов нет обрывов и провалов между соседями', () => {
+    // Сила этапа для отряда — 1 / k*, k* — множитель статов врагов, при котором отряд побеждает через раз (scripts/balance-smooth.ts,
+    // docs/content/balance.md, 6а). Три эталонных отряда (фиолетовые ур. 45); профиль каждого нормирован на его среднее, сила
+    // этапа — наибольшая из трёх. Соседние рядовые этапы: не больше ×1.2 (обрыв «0 из 10 после 10 из 10» — это ×1.1–1.15 силы)
+    // и не меньше ×0.85 (провал); босс — ступенька не больше ×1.5 над предпоследним этапом.
+    const full = loadFullContext();
+    const squads = smoothSquads(full, 45, REFERENCE_SQUADS);
+    const late = chapters.slice(3).map((c) => c.id);
+    const ids = stages.filter((st) => late.includes(st.chapter)).map((st) => st.id);
+    const profiles = squads.map((sq) => ids.map((id) => 1 / stageThreshold(full, sq, enemySquad(id, full), 6, 8)));
+    const geo = profiles.map((p) => p.reduce((a, b) => a + Math.log(b), 0) / p.length);
+    const d = new Map(ids.map((id, i) => [id, Math.max(...profiles.map((p, j) => Math.log(p[i]) - geo[j]))]));
+    for (const ch of late) {
+      const list = chapterStages(ch);
+      for (let i = 1; i < list.length; i++) {
+        const r = Math.exp(d.get(list[i].id)! - d.get(list[i - 1].id)!);
+        if (list[i].boss) expect(r, `${list[i].id} / ${list[i - 1].id}`).toBeLessThanOrEqual(1.5);
+        else {
+          expect(r, `${list[i].id} / ${list[i - 1].id}`).toBeLessThanOrEqual(1.2);
+          expect(r, `${list[i].id} / ${list[i - 1].id}`).toBeGreaterThanOrEqual(0.85);
+        }
+      }
+    }
+  }, 600_000);
 
   it('монстры глав 2–3 на общих листах перекрашены: не совпадают с главой 1 и друг с другом (QA T5-04, частично)', () => {
     const look = (id: string) => `${ctx.content.units[id].visual.sprite}|${ctx.content.units[id].visual.tint ?? ''}`;
