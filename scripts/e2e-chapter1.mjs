@@ -324,6 +324,31 @@ const chapterDone = async () => {
   log('экран «Глава пройдена» показан, «Глава 2 ›» — карта главы 2');
 };
 
+
+/** После поражения: «Кампания» → главная (бесплатные быстрые награды, если есть) → «Улучшить» отряд. */
+const afterLoss = async () => {
+  await clickText('Result', 'Кампания');
+  await waitScene('Campaign');
+  await skipDialogues('Campaign');
+  await clickText('Campaign', 'ГЛАВНАЯ');
+  await waitScene('Home');
+  await skipDialogues('Home');
+  if (await findText('Home', 'Бесплатно')) {
+    await clickText('Home', 'Бесплатно');
+    await sleep(500);
+    await clickText('Home', 'Забрать', true);
+    await sleep(800);
+    await waitScene('Home');
+    await skipDialogues('Home');
+    log('после поражения: бесплатные быстрые награды');
+  }
+  await clickText('Home', 'КАМПАНИЯ');
+  await waitScene('Campaign');
+  await skipDialogues('Campaign');
+  const levels = await levelUpSquad();
+  log(`после поражения: «Улучшить» +${levels} ур.`);
+};
+
 let ok = false;
 try {
   await page.goto(URL);
@@ -334,7 +359,9 @@ try {
   for (let stage = 1; stage <= 10; stage++) {
     let won = false;
     for (let t = 1; t <= MAX_TRIES && !won; t++) {
-      if (t === 1) {
+      // После поражения — как игрок: бесплатные быстрые награды на главной, «Улучшить» и снова в бой.
+      if (t > 1) await afterLoss();
+      {
         await clickText(await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key), 'КАМПАНИЯ');
         await waitScene('Campaign');
         // Вступление главы — при первом входе на карту.
@@ -355,7 +382,7 @@ try {
         // Сюжет перед боем (этапы 1, 4, 7, 10): бой не начнётся, пока диалог открыт.
         await sleep(500);
         await skipDialogues('Stage', stage === 10 ? 'dialogue-boss' : undefined);
-      } else await clickText('Result', 'Повторить');
+      }
       await waitScene('Battle');
       // Бой: первый этап, середина главы (новые монстры — Рокер, Мандрагора) и босс.
       if (stage === 1 || stage === 5 || stage === 8 || stage === 10) {

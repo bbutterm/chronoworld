@@ -18,6 +18,8 @@ import { version } from '../../../package.json';
 import { audioSettings, setAudioSettings, sfx } from '../audio';
 import { nextVolume, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
+import { huntTile } from '../huntEntry';
+import { shopTile } from '../shopEntry';
 import { isUnlocked, lockCover, lockedToast, lockLabel, showUnlockBanners, UNLOCK_BANNER_NAME } from '../unlockBanner';
 import { homeEventIcons } from '../homeEvents';
 import { ChestCardView, chestHeadline, lootLines, lootSummary } from '../chestView';
@@ -117,6 +119,9 @@ export class HomeScene extends Phaser.Scene {
     homeEventIcons(this);
     this.blocks.push(collect(this.children, () => this.fastRewards()));
     this.tiles();
+    huntTile(this);
+    // Лавка — узкая плитка справа от охоты под «В кампанию» (shopEntry.ts).
+    shopTile(this);
 
     const cur = currentStage(session.save, GAME);
     const campaign = collect(this.children, () => {

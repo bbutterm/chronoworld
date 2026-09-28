@@ -1,0 +1,30 @@
+{
+  "$schema": "schema/shop.schema.json",
+  "$comment": "Лавка (как магазин AFK Arena): slots — 8 слотов, у каждого список товаров, из которых раз в день (и при ручном обновлении) выбирается один по весу weight среди доступных игроку. Цены в золоте и наборы опыта/золота растут с главой: ×(1 + chapterGrowth × номер главы с 0). Главная роль — сток золота, когда уровни дорожают; гемы — только за редкое (эпик, свиток, золото). Этап открытия — data/unlocks.json (shop). Баланс — docs/content/balance.md, «Лавка»; рецепт — docs/CONTENT_RECIPES.md, «Товары лавки». id товаров лежат в сохранениях (слоты дня) — не переименовывать.",
+  "slots": [
+    ["gold_pack", "exp_small"],
+    ["exp_small", "exp_large"],
+    ["item_common", "item_rare"],
+    ["item_common", "item_rare"],
+    ["item_rare", "item_common", "item_epic"],
+    ["shards_small", "exp_small"],
+    ["item_rare", "shards_large", "item_common"],
+    ["scroll", "exp_large", "item_epic"]
+  ],
+  "refresh": {
+    "gemCosts": [0, 20, 40, 80, 100],
+    "maxPerDay": 5
+  },
+  "chapterGrowth": 0.5,
+  "goods": [
+    { "id": "exp_small", "kind": "heroExp", "count": 3000, "price": { "currency": "gold", "amount": 3000 }, "stock": 2, "weight": 6 },
+    { "id": "exp_large", "kind": "heroExp", "count": 8000, "price": { "currency": "gold", "amount": 8000 }, "stock": 1, "weight": 4 },
+    { "id": "gold_pack", "kind": "gold", "count": 4000, "price": { "currency": "gems", "amount": 20 }, "stock": 1, "weight": 3 },
+    { "id": "item_common", "kind": "item", "rarity": "common", "price": { "currency": "gold", "amount": 1500 }, "stock": 1, "weight": 5 },
+    { "id": "item_rare", "kind": "item", "rarity": "rare", "price": { "currency": "gold", "amount": 6000 }, "stock": 1, "weight": 3 },
+    { "id": "item_epic", "kind": "item", "rarity": "epic", "price": { "currency": "gems", "amount": 150 }, "stock": 1, "weight": 1, "fromStage": "ch1_s10" },
+    { "id": "shards_small", "kind": "shards", "count": 5, "price": { "currency": "gold", "amount": 8000 }, "stock": 1, "weight": 3 },
+    { "id": "shards_large", "kind": "shards", "count": 10, "price": { "currency": "gems", "amount": 100 }, "stock": 1, "weight": 1, "fromStage": "ch2_s1" },
+    { "id": "scroll", "kind": "scrolls", "count": 1, "price": { "currency": "gems", "amount": 27 }, "stock": 1, "weight": 1, "perDay": 1 }
+  ]
+}

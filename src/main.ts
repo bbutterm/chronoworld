@@ -11,6 +11,7 @@ import { BattleScene } from './game/scenes/BattleScene';
 import { ResultScene } from './game/scenes/ResultScene';
 import { QuestsScene } from './game/scenes/QuestsScene';
 import { TowerScene } from './game/scenes/TowerScene';
+import { HuntScene } from './game/scenes/HuntScene';
 import { InventoryScene } from './game/scenes/InventoryScene';
 import { SquadScene } from './game/scenes/SquadScene';
 import { BountiesScene } from './game/scenes/BountiesScene';
@@ -18,6 +19,7 @@ import { AchievementsScene } from './game/scenes/AchievementsScene';
 import { TavernScene } from './game/scenes/TavernScene';
 import { EventsScene } from './game/scenes/EventsScene';
 import { MailScene } from './game/scenes/MailScene';
+import { ShopScene } from './game/scenes/ShopScene';
 import { ensureAnimatedFx } from './game/assets';
 import { webpReady } from './game/assetUrl';
 import { installLifecycle, type LoopLike } from './game/lifecycle';
@@ -51,7 +53,7 @@ const game = new Phaser.Game({
   },
   // U: 30 FPS по настройке — ограничитель ставит installLifecycle ниже (его можно менять на лету).
   fps: { target: 60 },
-  scene: [BootScene, HomeScene, CampaignScene, StageScene, HeroesScene, HeroScene, AscendScene, PrepScene, BattleScene, ResultScene, QuestsScene, TowerScene, InventoryScene, SquadScene, BountiesScene, AchievementsScene, TavernScene, EventsScene, MailScene],
+  scene: [BootScene, HomeScene, CampaignScene, StageScene, HeroesScene, HeroScene, AscendScene, PrepScene, BattleScene, ResultScene, QuestsScene, TowerScene, HuntScene, InventoryScene, SquadScene, BountiesScene, AchievementsScene, TavernScene, EventsScene, MailScene, ShopScene],
 });
 
 installViewport(game);
@@ -78,7 +80,7 @@ game.events.once(Phaser.Core.Events.READY, () => {
 
 // T4-12: анимированные эффекты боя — по дороге к бою, а не при старте (≈ 14 МБ видеопамяти на главной).
 game.events.once(Phaser.Core.Events.READY, () => {
-  for (const key of ['Stage', 'Tower', 'Battle', 'Prep']) game.scene.getScene(key)?.sys.events.on(Phaser.Scenes.Events.START, () => ensureAnimatedFx(game));
+  for (const key of ['Stage', 'Tower', 'Hunt', 'Battle', 'Prep']) game.scene.getScene(key)?.sys.events.on(Phaser.Scenes.Events.START, () => ensureAnimatedFx(game));
 });
 
 // U: пауза, когда игру не видно (вкладка скрыта, окно без фокуса, Mini App свёрнут), и ограничение FPS.

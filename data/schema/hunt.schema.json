@@ -1,0 +1,130 @@
+{
+  "title": "Охота на босса",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "attemptsPerDay": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "timeLimitSeconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "sweep": {
+      "default": true,
+      "type": "boolean"
+    },
+    "slot": {
+      "default": 0,
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4
+    },
+    "bosses": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "hpMult": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "atkMult": {
+            "default": 1,
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "defMult": {
+            "default": 1,
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "scale": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 4
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          }
+        },
+        "required": [
+          "unit",
+          "hpMult"
+        ]
+      }
+    },
+    "tiers": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "damage": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "rewards": {
+            "type": "object",
+            "properties": {
+              "gold": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "jobExp": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "gems": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "shards": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "item": {
+                "type": "string",
+                "enum": [
+                  "common",
+                  "rare",
+                  "epic"
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "damage",
+          "rewards"
+        ]
+      }
+    }
+  },
+  "required": [
+    "attemptsPerDay",
+    "timeLimitSeconds",
+    "bosses",
+    "tiers"
+  ]
+}

@@ -12,6 +12,9 @@ import {
   actAscend,
   actClaimOffline,
   actClimbTower,
+  fightHunt,
+  huntStatus,
+  sweepHunt,
   actEquip,
   actLevelUp,
   actPlayStage,
@@ -54,6 +57,11 @@ import {
   touchEvents,
   towerUnlocked,
   featureUnlocked,
+  buyShopSlot,
+  levelUpCost,
+  refreshShop,
+  shopStatus,
+  type ShopContext,
   type CardRarity,
   type FullContext,
   type GameContext,
@@ -103,8 +111,18 @@ export interface PlayerModel {
   bounties: boolean;
   /** Призыв за гемы (×10, когда гемов хватает на ×10); false — только бесплатный призыв и свитки. */
   summonWithGems: boolean;
+  /**
+   * «Охота на босса» (data/hunt.json): в первой сессии дня с попытками — бой, дальше «Зачистка» лучшего результата
+   * (если доступна), иначе бой. false — не охотиться.
+   */
+  hunt: boolean;
   /** «Вход 7 дней», «7 дней новичка» и почта (data/events.json): забирать всё, что можно, в каждой сессии. */
   events: boolean;
+  /**
+   * Лавка (data/shop.json): покупать разумное на золото сверх запаса на уровни (опыт — когда упёрлись в опыт, предмет —
+   * если он усиливает отряд, осколки — с большим запасом), свиток — за гемы (не больше 1 в день), бесплатное обновление.
+   */
+  shop: boolean;
   /** Сдвиг seed: seed боя = seedBase + save.battleSeq; seed доски поручений = seedBase. */
   seedBase: number;
   /** Календарный день первого дня симуляции, 'YYYY-MM-DD'. */
@@ -130,7 +148,9 @@ export const PLAYER_MODEL: PlayerModel = {
   midSessionClaimMinutes: 10,
   bounties: true,
   summonWithGems: true,
+  hunt: true,
   events: true,
+  shop: true,
   seedBase: 1,
   startDate: '2026-01-01',
 };
@@ -260,7 +280,7 @@ export interface LevelLog {
 }
 
 /** Источники доходов/расходов золота, гемов и опыта. */
-export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'bounties', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon'] as const;
+export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'hunt', 'bounties', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon', 'shop'] as const;
 export type Source = (typeof SOURCES)[number];
 export type Ledger = Record<Source, { gold: number; gems: number; exp: number }>;
 
@@ -303,6 +323,10 @@ export interface BalanceResult {
   eventClaims: { kind: 'login' | 'newbie_task' | 'newbie_chest' | 'mail'; id: string; day: number; t: number }[];
   /** Активных минут всего. */
   activeMinutes: number;
+  /** Охота на босса: каждая попытка (день модели, урон, порог — индекс, −1 нет; зачистка). */
+  huntLog: { day: number; damage: number; tier: number; sweep: boolean }[];
+  /** Покупки в Лавке: id товара → сколько раз. */
+  shopBuys: Record<string, number>;
 }
 
 const HOUR = 3_600_000;
@@ -343,6 +367,7 @@ class Sim {
   itemsIn: BalanceResult['itemsIn'] = {};
   shardsIn: BalanceResult['shardsIn'] = {};
   eventClaims: BalanceResult['eventClaims'] = [];
+  shopBuys: Record<string, number> = {};
   dayNo = 1;
   day: string;
   /** Текущее время, мс от полуночи дня 1. */
@@ -497,8 +522,99 @@ class Sim {
   prepare(): void {
     this.save = { ...this.save, squad: autoFormation(this.save, this.ctx) };
     this.develop();
+    this.shop();
     this.autoEquip();
     this.save = { ...this.save, squad: autoFormation(this.save, this.ctx) };
+  }
+
+  /**
+   * Золото, которое игрок держит на уровни: стоимость следующих reserveLevels уровней каждого героя отряда.
+   * Лавка тратит только золото сверх него — сток не должен отнимать золото у «Улучшить».
+   */
+  goldReserve(reserveLevels = 1): number {
+    let sum = 0;
+    for (const id of this.save.squad) {
+      const h = id ? this.save.heroes.find((x) => x.id === id) : undefined;
+      if (!h) continue;
+      for (let l = h.level; l < h.level + reserveLevels; l++) sum += levelUpCost(l, this.ctx).gold;
+    }
+    return sum;
+  }
+
+  /**
+   * Сколько золота съедят уровни, которые отряд купит на опыт пула + extraExp (как levelSquad: по одному уровню самому
+   * низкому). Опыт из Лавки покупается, только если после покупки этого золота хватит — иначе опыт лежит без дела.
+   */
+  goldForExp(extraExp: number): number {
+    const heroes = this.save.squad
+      .filter((id): id is string => id !== null)
+      .map((id) => ({ level: this.save.heroes.find((h) => h.id === id)!.level, max: levelUpInfo(this.save, id, this.ctx).maxLevel }));
+    let exp = this.save.resources.heroExp + extraExp;
+    let gold = 0;
+    for (let guard = 0; guard < 2000; guard++) {
+      const h = heroes.filter((x) => x.level < x.max).sort((a, b) => a.level - b.level)[0];
+      if (!h) break;
+      const c = levelUpCost(h.level, this.ctx);
+      if (c.exp > exp) break;
+      exp -= c.exp;
+      gold += c.gold;
+      h.level++;
+    }
+    return gold;
+  }
+
+  /** Лучший прирост мощи отряда от предмета itemId (0 — никому не нужен). */
+  itemGain(itemId: string): number {
+    const def = this.ctx.equipment.items[itemId];
+    if (!def) return 0;
+    let best = 0;
+    for (const id of this.save.squad) {
+      const hero = id ? this.save.heroes.find((h) => h.id === id) : undefined;
+      if (!hero || !canEquip(hero, def, this.ctx)) continue;
+      const cur = this.save.inventory.items.find((it) => it.equippedBy === hero.id && this.ctx.equipment.items[it.itemId]?.slot === def.slot);
+      const curDef = cur ? this.ctx.equipment.items[cur.itemId] : undefined;
+      const score = (d: typeof def | undefined) => (d ? (d.stats.hp ?? 0) / 10 + (d.stats.atk ?? 0) + (d.stats.def ?? 0) + (d.stats.spd ?? 0) : 0);
+      best = Math.max(best, score(def) - score(curDef));
+    }
+    return best;
+  }
+
+  /**
+   * Лавка: покупки, затем бесплатное обновление и снова покупки. Золото тратится только сверх запаса на уровни
+   * (goldReserve): предмет — если усиливает отряд; осколки — при двойном запасе; опыт — если хватит золота и на уровни,
+   * которые он откроет (goldForExp), и на 2 уровня сверху. Свиток — за гемы (не больше одного в день — лимит товара).
+   * Золото за гемы, эпики и осколки за гемы не покупаются: гемы модели идут на ×10.
+   */
+  shop(): void {
+    if (!this.model.shop || !this.ctx.shop || !featureUnlocked(this.save, 'shop', this.ctx)) return;
+    const ctx = this.ctx as FullContext & ShopContext;
+    for (let pass = 0; pass < 2; pass++) {
+      for (let guard = 0; guard < 20; guard++) {
+        const st = shopStatus(this.save, this.day, ctx);
+        const reserve = this.goldReserve();
+        const gold = this.save.resources.gold;
+        const pick = st.slots.find((x) => {
+          if (x.soldOut || x.dayLimited || !x.affordable) return false;
+          if (x.currency === 'gems') return x.kind === 'scrolls' && this.save.currency.gems - x.price >= 0;
+          const spare = gold - x.price;
+          // Опыт — только если золота хватит и на уровни, которые он откроет, и ещё на 2 уровня каждому сверху:
+          // без запаса (проверено) опыт мид-гейма съедает золото, которого потом не хватает в главе 3.
+          if (x.kind === 'heroExp') return spare >= this.goldForExp(x.count) + this.goldReserve(2);
+          if (x.kind === 'item') return spare >= reserve && this.itemGain(x.itemId!) > 0;
+          if (x.kind === 'shards') return spare >= 2 * reserve;
+          return false;
+        });
+        if (!pick) break;
+        this.step('shop', buyShopSlot(this.save, this.day, pick.index, ctx).save);
+        this.shopBuys[pick.good] = (this.shopBuys[pick.good] ?? 0) + 1;
+        if (pick.kind === 'heroExp') this.levelSquad();
+        if (pick.kind === 'item') this.autoEquip();
+      }
+      // Бесплатное обновление — один раз, после покупок (как игрок: сначала раскупить, потом обновить).
+      const st = shopStatus(this.save, this.day, ctx);
+      if (pass > 0 || st.nextRefreshCost !== 0) break;
+      this.step('shop', refreshShop(this.save, this.day, ctx));
+    }
   }
 
   claimOffline(): void {
@@ -639,6 +755,7 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
   const battles: BattleLog[] = [];
   const stageAttempts = new Map<string, number>();
   const towerByFloor = new Map<number, number>();
+  const huntLog: BalanceResult['huntLog'] = [];
   const lastChapter = ctx.content.stages[ctx.content.stages.length - 1]?.chapter ?? '';
   // Скорость ×2 открывается этапом (data/unlocks.json → speed_x2): до него бои смотрят на ×1.
   const battleMs = (duration: number) =>
@@ -718,6 +835,18 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
         else towerLosses++;
       }
 
+      // Охота на босса: сначала бой (рекорд), потом «Зачистка»; каждая попытка — одна за сессию.
+      if (model.hunt && sim.now < end) {
+        const hs = huntStatus(sim.save, sim.day, ctx);
+        if (hs.unlocked && hs.attemptsLeft > 0) {
+          const out = hs.canSweep && hs.used > 0 ? sweepHunt(sim.save, sim.day, ctx) : fightHunt(sim.save, sim.day, ctx);
+          sim.spendTime(out.result ? battleMs(out.result.duration) : model.battleOverheadSec * 1000);
+          sim.step('hunt', out.save);
+          huntLog.push({ day, damage: out.damage, tier: out.tier, sweep: out.sweep });
+          sim.prepare();
+        }
+      }
+
       if (model.bounties) {
         sim.claimBounties();
         sim.startBounties();
@@ -774,6 +903,7 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     income: sim.income,
     spend: sim.spend,
     towerAttempts: Object.fromEntries(towerByFloor),
+    huntLog,
     questClaims: sim.questClaims,
     milestoneClaims: sim.milestoneClaims,
     equips: sim.equips,
@@ -787,6 +917,7 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     itemsIn: sim.itemsIn,
     shardsIn: sim.shardsIn,
     eventClaims: sim.eventClaims,
+    shopBuys: sim.shopBuys,
     activeMinutes: sim.activeMin,
   };
 }

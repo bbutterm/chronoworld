@@ -5,6 +5,7 @@ import {
   buildUnit,
   COMBAT,
   enemySquad,
+  fightHunt,
   getStage,
   orderActives,
   simulateBattle,
@@ -12,6 +13,7 @@ import {
   withGear,
   type BattleEvent,
   type BattleResult,
+  type HuntOutcome,
   type SaveState,
   type StageOutcomeWithDrops,
   type TowerOutcome,
@@ -41,6 +43,7 @@ import { Ambient, SHADOW_TEX } from '../ambient';
 import { skillIcon, statusIcon } from '../skillIcons';
 import type { SkillDef, StatusDef } from '../../core';
 import { battleSound } from '../battleAudio';
+import { huntHud, type HuntHud } from '../huntBattle';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -231,7 +234,7 @@ interface UnitView {
 }
 
 /** Тестовый бой (отряды экрана подготовки), этап кампании или этаж башни (отряд из сохранения). */
-export type BattleData = { mode?: 'test'; seed: number } | { mode: 'stage'; stageId: string } | { mode: 'tower' };
+export type BattleData = { mode?: 'test'; seed: number } | { mode: 'stage'; stageId: string } | { mode: 'tower' } | { mode: 'hunt' };
 
 /** Что получает экран итогов. */
 export interface ResultData {
@@ -262,6 +265,8 @@ export class BattleScene extends Phaser.Scene {
   private defs: Record<string, UnitDef> = {};
   private stage?: ResultData['stage'];
   private tower?: ResultData['tower'];
+  /** Охота на босса: итог ядра и счётчик урона (huntBattle.ts); после боя — экран охоты, а не итоги. */
+  private hunt?: { outcome: HuntOutcome; hud?: HuntHud };
   private committed = false;
   private views = new Map<string, UnitView>();
   /** Те же юниты массивом — обход в update() каждый кадр без итератора Map. */
@@ -324,6 +329,7 @@ export class BattleScene extends Phaser.Scene {
     let title = 'Тестовый бой';
     this.stage = undefined;
     this.tower = undefined;
+    this.hunt = undefined;
     if (data.mode === 'stage') {
       // Бой считает ядро (actPlayStage: экипировка, выпадение, задания); сцена только проигрывает лог.
       // Сохраняем, когда бой закончится.
@@ -361,6 +367,23 @@ export class BattleScene extends Phaser.Scene {
       for (const u of towerFloor(outcome.floor, GAME).enemies) if (u) this.defs[u.id] = u;
       title = `Башня · этаж ${outcome.floor}`;
       this.theme = themeOfBattle({ towerFloor: outcome.floor });
+    } else if (data.mode === 'hunt') {
+      const save = session.save;
+      let outcome: HuntOutcome;
+      try {
+        outcome = fightHunt(save, today(), GAME);
+      } catch (e) {
+        console.warn(e);
+        this.finished = true;
+        this.scene.start('Hunt');
+        return;
+      }
+      this.result = outcome.result!;
+      this.hunt = { outcome };
+      this.defs = squadDefs(save);
+      this.defs[outcome.boss.def.id] = outcome.boss.def;
+      title = 'Охота на босса';
+      this.theme = 'swamp';
     } else {
       this.result = simulateBattle(CONTENT, squads.A, squads.B, data.seed);
       this.stage = undefined;
@@ -414,13 +437,18 @@ export class BattleScene extends Phaser.Scene {
     this.sfx.setSpeed(playback.speed);
     for (const u of this.result.units) this.buildUnit(u);
     if (this.stage && getStage(GAME, this.stage.stageId).boss) this.bossIntro();
+    if (this.hunt) {
+      const boss = this.result.units.find((u) => u.side === 'B')!;
+      this.hunt.hud = huntHud(this, this.hunt.outcome, boss.uid, boss.maxHp);
+      this.bossIntro('Босс охоты');
+    }
   }
 
   /**
    * Босс-этап: крупный баннер «имя босса · Босс главы» (скин «тёмная бронза», золото) на ~1.5 с, затем угасает;
    * наверху — полоска HP босса. Баннер без интерактива: кнопки («Пропустить», скорость) работают сквозь показ.
    */
-  private bossIntro(): void {
+  private bossIntro(subtitle = 'Босс главы'): void {
     const boss = this.result.units.find((u) => u.side === 'B' && this.defs[u.unitId]?.kind === 'boss');
     if (!boss) return;
     const name = this.defs[boss.unitId].name;
@@ -442,7 +470,7 @@ export class BattleScene extends Phaser.Scene {
     const inner = this.add.rectangle(0, 0, w - 36, h - 36).setStrokeStyle(2, SKIN_TINT.gold, 0.5);
     const title = text(this, 0, -34, name.toUpperCase(), 104, SKIN.goldLight, { fontStyle: 'bold', stroke: '#2a1a08', strokeThickness: 12 });
     if (title.width > w - 80) title.setScale((w - 80) / title.width);
-    const sub = text(this, 0, 82, 'Босс главы', 44, SKIN.cream, { stroke: '#000000', strokeThickness: 6 });
+    const sub = text(this, 0, 82, subtitle, 44, SKIN.cream, { stroke: '#000000', strokeThickness: 6 });
     const lineW = 150;
     const gap = sub.width / 2 + 30;
     const lines = [-1, 1].map((d) => this.add.rectangle(d * (gap + lineW / 2), 82, lineW, 4, SKIN_TINT.gold));
@@ -654,7 +682,7 @@ export class BattleScene extends Phaser.Scene {
     const sec = Math.floor(s);
     if (sec === this.shownSec) return;
     this.shownSec = sec;
-    this.timeText.setText(`${fmt(sec)} / ${fmt(COMBAT.timeLimitSeconds)}`);
+    this.timeText.setText(`${fmt(sec)} / ${fmt(this.hunt ? GAME.hunt.timeLimitSeconds : COMBAT.timeLimitSeconds)}`);
   }
 
   /** След HP и красный оттенок попадания (раньше — твин и таймер на каждый удар). */
@@ -878,6 +906,7 @@ export class BattleScene extends Phaser.Scene {
         return;
       }
       case 'damage': {
+        this.hunt?.hud?.hit(e);
         const v = this.views.get(e.target)!;
         // Удар ульты — крупная золотая цифра (как крит); флаг читаем сейчас, до задержки удара.
         const big = !e.dot && !!this.views.get(e.source)?.inUlt;
@@ -991,8 +1020,11 @@ export class BattleScene extends Phaser.Scene {
         this.finished = true;
         this.showTime(this.result.duration);
         this.commitStage();
+        this.hunt?.hud?.finish();
         this.time.delayedCall(animate ? 1200 : 150, () =>
-          this.scene.start('Result', { result: this.result, defs: this.defs, stage: this.stage, tower: this.tower } satisfies ResultData),
+          this.hunt
+            ? this.scene.start('Hunt', { outcome: this.hunt.outcome })
+            : this.scene.start('Result', { result: this.result, defs: this.defs, stage: this.stage, tower: this.tower } satisfies ResultData),
         );
         return;
     }
@@ -1000,7 +1032,7 @@ export class BattleScene extends Phaser.Scene {
 
   /** Итог этапа или этажа записывается один раз — в конце боя (и при «Пропустить»). */
   private commitStage(): void {
-    const out = this.stage?.outcome ?? this.tower?.outcome;
+    const out = this.stage?.outcome ?? this.tower?.outcome ?? this.hunt?.outcome;
     if (!out || this.committed) return;
     this.committed = true;
     commit(out.save);
