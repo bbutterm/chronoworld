@@ -11,11 +11,14 @@
  *      класса и навыки своей линии — ⚠ (ошибки навыков — в сборке, п. 1); итоговый лист карточки находится (свой или класса
  *      по полу; не находится — ✗), свой лист в реестре, лист нужного пола, портрет у листа (нет — ⚠); призывная карточка,
  *      которую Таверна не выдаёт (baseRarity/maxRarity мимо data/summon.json → rates) — ✗.
+ *   9. ворота предметов по главам (data/items → minChapter): источник, который в своей главе даёт только закрытые
+ *      предметы (правило выпадения/сундука, товар Лавки, порог охоты) — ✗; глава без открытых предметов слота — ⚠
+ *      (src/core/equipment/lint.ts).
  * Код выхода 1, если есть ошибки. Предупреждения (например, нет арта — будет плейсхолдер) не мешают.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildUnit, CARD_RARITIES, collectGameContext, maxLevelOf, rarityIndex, simulateBattle, validateHeroes } from '../src/core';
+import { buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, maxLevelOf, rarityIndex, simulateBattle, validateHeroes } from '../src/core';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
@@ -34,6 +37,10 @@ const built = collectGameContext(readRawGameData());
 errors.push(...built.problems);
 const content = built.content;
 if (built.ctx) {
+  // 9. Ворота предметов по главам
+  const gates = lintItemGates(built.ctx);
+  errors.push(...gates.errors);
+  warnings.push(...gates.warnings);
   const roles = new Set(Object.values(built.ctx.content.jobs).map((j) => j.role));
   for (const b of built.ctx.meta.bounties.templates) {
     if (b.role && !roles.has(b.role)) errors.push(`data/bounties.json: поручение ${b.id} требует роль ${b.role}, которой нет ни у одной профессии`);

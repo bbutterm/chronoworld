@@ -51,7 +51,8 @@
       "jobs": [
         "swordman",
         "merchant"
-      ]
+      ],
+      "minChapter": 2
     },
     {
       "id": "saint_robe",
@@ -64,7 +65,8 @@
       },
       "jobs": [
         "acolyte"
-      ]
+      ],
+      "minChapter": 2
     }
   ]
 }

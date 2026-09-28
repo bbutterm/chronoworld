@@ -51,7 +51,8 @@
       "stats": {
         "hp": 160,
         "def": 10
-      }
+      },
+      "minChapter": 2
     }
   ]
 }

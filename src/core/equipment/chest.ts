@@ -3,6 +3,7 @@ import type { GameContext } from '../progression/types';
 import { Rng } from '../rng';
 import type { ItemInstance, SaveState } from '../save/schema';
 import { addItems } from './equipment';
+import { chapterNumber } from './gates';
 import type { EquipmentConfig } from './load';
 import { RARITIES, type ChestRoll, type ChestRule, type Rarity, type RarityWeights } from './schema';
 
@@ -52,10 +53,13 @@ export function chestTicks(minutes: number, ctx: ChestCtx): number {
   return tick && minutes > 0 ? Math.floor(minutes / tick) : 0;
 }
 
-/** Предметы, которые могут выпасть (drop ≠ false), по редкостям; внутри — по id. */
-export function itemPools(items: EquipmentConfig['items']): Record<Rarity, string[]> {
+/**
+ * Предметы, которые могут выпасть (drop ≠ false) в главе chapter (номер с 1: minChapter ≤ chapter), по редкостям;
+ * внутри — по id. Без chapter — все главы (для проверок «есть ли вообще предметы редкости»).
+ */
+export function itemPools(items: EquipmentConfig['items'], chapter = Infinity): Record<Rarity, string[]> {
   const pools: Record<Rarity, string[]> = { common: [], rare: [], epic: [] };
-  for (const def of Object.values(items)) if (def.drop) pools[def.rarity].push(def.id);
+  for (const def of Object.values(items)) if (def.drop && (def.minChapter ?? 1) <= chapter) pools[def.rarity].push(def.id);
   for (const r of RARITIES) pools[r].sort();
   return pools;
 }
@@ -109,14 +113,14 @@ function roll(rng: Rng, r: ChestRoll | undefined): number {
 /**
  * Трофеи за ticks тиков главы chapter. Тик i — свой Rng(mix(seed + i)): предмет (шанс item, редкость по весам —
  * rarityWeights правила сундука, иначе правила выпадения главы, предмет — равновероятно среди этой редкости),
- * затем осколки, гемы, свитки. Нет правила или предметов — пусто.
+ * затем осколки, гемы, свитки. Предметы — только открытые в главе chapter (minChapter). Нет правила или предметов — пусто.
  */
 export function rollChestLoot(chapter: string, ticks: number, seed: number, ctx: ChestCtx): ChestLoot {
   const rule = chestRule(chapter, ctx);
   if (!rule || !ctx.equipment || !(ticks > 0)) return { ...EMPTY_LOOT, items: [] };
   const drops = ctx.equipment.drops.rules;
   const weights = rule.rarityWeights ?? (drops.find((r) => r.chapter === chapter) ?? drops.find((r) => !r.chapter))?.rarityWeights ?? { common: 1 };
-  const pools = itemPools(ctx.equipment.items);
+  const pools = itemPools(ctx.equipment.items, chapterNumber(chapter, ctx));
   const loot: ChestLoot = { ticks, items: [], shards: 0, gems: 0, scrolls: 0 };
   for (let i = 0; i < ticks; i++) {
     const rng = new Rng(mix((seed + Math.imul(i + 1, 0x9e3779b9)) >>> 0));

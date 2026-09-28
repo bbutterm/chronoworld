@@ -6,6 +6,7 @@ import type { ItemInstance, SaveState } from '../save/schema';
 import { addItems, withGear } from './equipment';
 import type { EquipmentConfig, EquipmentContext } from './load';
 import { itemPools, pickRarity } from './chest';
+import { chapterNumber } from './gates';
 import type { DropRule, RarityWeights } from './schema';
 
 /** Правило выпадения для этапа: своё правило главы, иначе первое без chapter, иначе нет. */
@@ -24,14 +25,14 @@ function dropRng(seed: number): Rng {
  * K6. Предметы за победу на этапе (id описаний, 0 или 1 шт.). Детерминированно по seed боя.
  * - firstClear и rule.firstClearGuaranteed → ровно 1 предмет (веса firstClearRarityWeights ?? rarityWeights);
  * - иначе с шансом rule.chance — 1 предмет по rarityWeights;
- * - предмет — равновероятно среди предметов выбранной редкости с drop ≠ false (по порядку id);
- *   редкости без таких предметов не выпадают.
+ * - предмет — равновероятно среди предметов выбранной редкости с drop ≠ false и minChapter ≤ глава этапа
+ *   (по порядку id); редкости без таких предметов не выпадают (их вес уходит остальным).
  */
 export function rollDrops(stageId: string, seed: number, firstClear: boolean, ctx: EquipmentContext): string[] {
   const rule = dropRule(stageId, ctx);
   if (!rule) return [];
   const rng = dropRng(seed);
-  const pools = itemPools(ctx.equipment.items);
+  const pools = itemPools(ctx.equipment.items, chapterNumber(getStage(ctx, stageId).chapter, ctx));
 
   let weights: RarityWeights;
   if (firstClear && rule.firstClearGuaranteed) weights = rule.firstClearRarityWeights ?? rule.rarityWeights;

@@ -10,6 +10,8 @@ import { simulateBattle } from '../battle';
 import { squadUnits } from '../campaign/campaign';
 import type { UnitDef } from '../content/schema';
 import { itemPools, lootSeed } from '../equipment/chest';
+import { progressChapter } from '../equipment/gates';
+import { RARITIES } from '../equipment/schema';
 import { dayNumber } from '../events/events';
 import { addItems, withGear } from '../equipment/equipment';
 import type { EquipmentConfig } from '../equipment/load';
@@ -212,7 +214,7 @@ function check(save: SaveState, day: string, ctx: HuntContext): void {
   if (used >= ctx.hunt.attemptsPerDay) throw new HuntError('no_attempts', 'Попытки охоты на сегодня закончились — босс вернётся завтра');
 }
 
-/** Выдать награду порога: золото, гемы, опыт в пул, осколки «отстающему», предмет (случайный этой редкости). */
+/** Выдать награду порога: золото, гемы, опыт в пул, осколки «отстающему», предмет (случайный этой редкости среди открытых в главе игрока). */
 function grant(save: SaveState, reward: HuntReward, lootSeedValue: number, ctx: HuntContext): { save: SaveState; grant: HuntGrant } {
   const gold = reward.gold ?? 0;
   const gems = reward.gems ?? 0;
@@ -227,7 +229,11 @@ function grant(save: SaveState, reward: HuntReward, lootSeedValue: number, ctx: 
   if (shardHero) next = addShards(next, shardHero, reward.shards ?? 0);
   let items: ItemInstance[] = [];
   if (reward.item && ctx.equipment) {
-    const pool = itemPools(ctx.equipment.items)[reward.item];
+    // Только предметы, открытые в главе игрока (minChapter); нет таких этой редкости — редкостью ниже.
+    const pools = itemPools(ctx.equipment.items, progressChapter(save, ctx));
+    let r = RARITIES.indexOf(reward.item);
+    while (r > 0 && !pools[RARITIES[r]].length) r--;
+    const pool = pools[RARITIES[r]];
     if (pool.length) {
       const r = addItems(next, [pool[Math.floor(new Rng(lootSeedValue).next() * pool.length)]]);
       next = r.save;

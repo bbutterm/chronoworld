@@ -1,20 +1,20 @@
 {
   "$schema": "schema/drops.schema.json",
-  "$comment": "rules — выпадение предмета за победу на этапе; chest — трофеи сундука простоя и быстрых наград: бросок за каждые tickMinutes минут накопленного времени по правилу главы последнего пройденного этапа (шанс предмета, осколки «отстающего» сюжетного героя, гемы, свитки). Как подбирать — docs/CONTENT_RECIPES.md, docs/content/balance.md.",
+  "$comment": "rules — выпадение предмета за победу на этапе; chest — трофеи сундука простоя и быстрых наград: бросок за каждые tickMinutes минут накопленного времени по правилу главы последнего пройденного этапа (шанс предмета, осколки «отстающего» сюжетного героя, гемы, свитки). Предмет берётся только из открытых в главе (data/items → minChapter: эпики — с главы 2, легендарные вроде Слейпнира — с главы 3), поэтому в главе 1 эпиков нет и в весах. Как подбирать — docs/CONTENT_RECIPES.md, docs/content/balance.md.",
   "rules": [
     {
       "chapter": "chapter1",
       "chance": 0.3,
       "rarityWeights": {
         "common": 85,
-        "rare": 14,
-        "epic": 1
+        "rare": 15,
+        "epic": 0
       },
       "firstClearGuaranteed": true,
       "firstClearRarityWeights": {
         "common": 70,
-        "rare": 28,
-        "epic": 2
+        "rare": 30,
+        "epic": 0
       }
     },
     {

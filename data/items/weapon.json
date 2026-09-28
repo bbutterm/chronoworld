@@ -164,7 +164,8 @@
       },
       "jobs": [
         "swordman"
-      ]
+      ],
+      "minChapter": 2
     },
     {
       "id": "arbalest",
@@ -177,7 +178,8 @@
       },
       "jobs": [
         "archer"
-      ]
+      ],
+      "minChapter": 2
     },
     {
       "id": "katar",
@@ -190,7 +192,8 @@
       },
       "jobs": [
         "assassin"
-      ]
+      ],
+      "minChapter": 2
     },
     {
       "id": "wizardry_staff",
@@ -203,7 +206,8 @@
       },
       "jobs": [
         "mage"
-      ]
+      ],
+      "minChapter": 2
     },
     {
       "id": "battle_axe",
@@ -216,7 +220,8 @@
       },
       "jobs": [
         "blacksmith"
-      ]
+      ],
+      "minChapter": 2
     }
   ]
 }
