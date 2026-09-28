@@ -66,6 +66,11 @@ export interface CombatConfig {
   projectileSeconds?: number;
   /** Длительность статусов: «ход» статуса = столько секунд боя (одинаково для всех, не зависит от SPD носителя). */
   statusTurnSeconds?: number;
+  /**
+   * Потолок щита (LT-01): суммарный щит юнита не больше этой доли его макс. ОЗ (по умолчанию 0.5).
+   * Новые щиты складываются до потолка — как в AFK «щит до X% макс. здоровья».
+   */
+  shieldCapPctMaxHp?: number;
   slots: { count: number; front: number[]; back: number[] };
   field: {
     width: number;

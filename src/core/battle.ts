@@ -191,7 +191,10 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         return;
       }
       case 'shield': {
-        const amount = Math.floor(target.maxHp * e.pctMaxHp * sp);
+        // LT-01: щиты складываются, но не выше потолка (доля макс. ОЗ носителя, combat.json shieldCapPctMaxHp) —
+        // иначе щит, заряжаемый от получаемого урона, растёт быстрее урона отряда и бой уходит в «время вышло».
+        const cap = Math.floor(target.maxHp * (cfg.shieldCapPctMaxHp ?? 0.5));
+        const amount = Math.max(0, Math.min(Math.floor(target.maxHp * e.pctMaxHp * sp), cap - target.shield));
         target.shield += amount;
         report[u.uid].shieldGiven += amount;
         emit({ t, type: 'buff', source: u.uid, target: target.uid, kind: 'shield', amount, shield: target.shield });
