@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob5_boss",
+  "name": "Лунный цветок",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 3600,
+    "atk": 92,
+    "def": 18,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob5_boss_moon_call",
+    "actives": [
+      "mob5_boss_moon_veil"
+    ],
+    "passives": [
+      "mob5_boss_forest_grief"
+    ]
+  },
+  "visual": {
+    "sprite": "moonlight_flower",
+    "scale": 1.4,
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

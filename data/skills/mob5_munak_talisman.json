@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob5_munak_talisman",
+  "name": "Печать Мунэ",
+  "description": "Мунэ поправляет талисман на лбу: щит 20% ОЗ себе и +25% защиты на 3 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "talisman",
+        "name": "Печать",
+        "turns": 3,
+        "stats": {
+          "def": 0.25
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob5_boss_moon_veil",
+  "name": "Лунная вуаль",
+  "description": "Долгий каст: щит на 15% макс. ОЗ. Оглушение сбивает каст.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 20,
+  "castTime": 1.5,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.15
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob5_melee",
+  "name": "Бонгун",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 520,
+    "atk": 46,
+    "def": 8,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob5_bongun_hop",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "melee",
+    "tint": "#8fb4e0",
+    "hitFx": "fx_hit"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob5_boss_forest_grief",
+  "name": "Скорбь леса",
+  "description": "Когда гибнет союзник, Лунный цветок получает 25 энергии.",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "trigger": "allyDeath",
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 25
+    }
+  ]
+}

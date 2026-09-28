@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob5_boss_moon_call",
+  "name": "Лунный зов",
+  "description": "Лунный цветок зовёт луну: урон по всем врагам и очарование (−20% атаки на 2 хода).",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "moon_charm",
+        "name": "Лунное очарование",
+        "turns": 2,
+        "stats": {
+          "atk": -0.2
+        }
+      }
+    }
+  ]
+}
