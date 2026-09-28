@@ -219,7 +219,10 @@ describe('K6 выпадение', () => {
     const none = { ...ctx, equipment: { ...ctx.equipment, drops: parseDrops({ rules: [{ chance: 0, rarityWeights: { common: 1 }, firstClearGuaranteed: false }] }) } };
     expect(rollDrops(s1, 7, true, none)).toEqual([]);
     const epic = { ...ctx, equipment: { ...ctx.equipment, drops: parseDrops({ rules: [{ chance: 1, rarityWeights: { epic: 1 } }] }) } };
-    for (let seed = 1; seed <= 20; seed++) expect(ctx.equipment.items[rollDrops(s1, seed, false, epic)[0]].rarity).toBe('epic');
+    // Эпики открыты с главы 2 (data/items → minChapter): в главе 1 только эпики в весах — ничего не выпадает.
+    expect(rollDrops(s1, 7, false, epic)).toEqual([]);
+    const s2 = ctx.content.stages.find((s) => s.chapter === 'chapter2')!.id;
+    for (let seed = 1; seed <= 20; seed++) expect(ctx.equipment.items[rollDrops(s2, seed, false, epic)[0]].rarity).toBe('epic');
   });
 
   it('actPlayStage: победа при первом прохождении добавляет предмет в инвентарь; поражение — нет', () => {

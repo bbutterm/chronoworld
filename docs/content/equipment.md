@@ -25,6 +25,7 @@ src/core/equipment/      schema, load, equipment, drops, errors
 | `stats` | **плоские** прибавки `hp`, `atk`, `def`, `spd` (целые ≥ 0, отсутствующий = 0) |
 | `jobs` | необязательно: ветки профессий, которым можно надеть предмет |
 | `drop` | необязательно, `false` — не выпадает с этапов (по умолчанию `true`) |
+| `minChapter` | необязательно, с какой главы (номер с 1) предмет попадает в выбор любого источника: этапы, сундук, быстрые награды, Лавка, охота (по умолчанию 1). Эпики — 2, Слейпнир — 3 |
 
 **Статы — только плоские прибавки** (решение K6): проще читать в интерфейсе («+18 АТК»), мощь считается той же
 формулой. Проценты можно добавить позже отдельным полем.
@@ -41,8 +42,8 @@ src/core/equipment/      schema, load, equipment, drops, errors
 
 ```json
 { "rules": [
-  { "chapter": "chapter1", "chance": 0.3, "rarityWeights": { "common": 85, "rare": 14, "epic": 1 },
-    "firstClearGuaranteed": true, "firstClearRarityWeights": { "common": 70, "rare": 28, "epic": 2 } },
+  { "chapter": "chapter1", "chance": 0.3, "rarityWeights": { "common": 85, "rare": 15, "epic": 0 },
+    "firstClearGuaranteed": true, "firstClearRarityWeights": { "common": 70, "rare": 30, "epic": 0 } },
   { "chance": 0.35, "rarityWeights": { "common": 70, "rare": 25, "epic": 5 } }
 ] }
 ```
@@ -51,7 +52,12 @@ src/core/equipment/      schema, load, equipment, drops, errors
 - **Первое прохождение** (`firstClearGuaranteed`, по умолчанию `true`) — ровно 1 предмет, веса
   `firstClearRarityWeights` (нет — `rarityWeights`).
 - **Повтор** (и пропуск боя K7) — 1 предмет с шансом `chance`, веса `rarityWeights`.
-- Предмет — равновероятно среди предметов выбранной редкости с `drop ≠ false`. Веса относительные.
+- Предмет — равновероятно среди предметов выбранной редкости с `drop ≠ false` и `minChapter` ≤ глава этапа. Веса
+  относительные; редкость без открытых в главе предметов не выпадает (её вес уходит остальным).
+- **Ворота по главам** (`minChapter`, «Слейпнир в самом начале — перебор»): в главе 1 — только обычные и редкие, эпики — с главы 2,
+  знаменитые предметы RO (сейчас Слейпнир) — с главы 3. Так же выбирают сундук и быстрые награды (глава последнего пройденного этапа),
+  Лавка и охота (глава игрока); код — `itemPools(items, глава)`, `chapterNumber`, `progressChapter` (`src/core/equipment/gates.ts`),
+  проверки content:check — `lintItemGates` (`src/core/equipment/lint.ts`).
 - Поражение — ничего.
 - Случайность — `Rng` из seed боя (отдельный поток), поэтому тот же seed → тот же предмет.
 

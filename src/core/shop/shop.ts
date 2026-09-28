@@ -7,6 +7,7 @@
 import type { z } from 'zod';
 import { addItems } from '../equipment/equipment';
 import { itemPools, lootSeed } from '../equipment/chest';
+import { progressChapter } from '../equipment/gates';
 import type { EquipmentConfig } from '../equipment/load';
 import { addHeroExp } from '../heroes/level';
 import { addShards, shardTarget } from '../heroes/shards';
@@ -90,14 +91,7 @@ function assertDay(day: string): void {
 
 /** Номер главы (с 0) последнего пройденного этапа; ничего не пройдено — 0. */
 export function shopChapter(save: Pick<SaveState, 'campaign'>, ctx: Pick<GameContext, 'content'>): number {
-  const cleared = new Set(save.campaign.cleared);
-  let chapter = 0;
-  for (const s of ctx.content.stages) {
-    if (!cleared.has(s.id)) continue;
-    const i = ctx.content.chapters.findIndex((c) => c.id === s.chapter);
-    if (i > chapter) chapter = i;
-  }
-  return chapter;
+  return progressChapter(save, ctx) - 1;
 }
 
 /** Множитель цен в золоте и наборов опыта/золота: 1 + chapterGrowth × глава. */
@@ -133,7 +127,8 @@ function available(g: ShopGood, save: SaveState, ctx: ShopContext, pools: Return
 export function rollShop(save: SaveState, day: string, refresh: number, ctx: ShopContext): ShopSlot[] {
   assertDay(day);
   const rng = new Rng(shopSeed(save, day, refresh));
-  const pools = itemPools(ctx.equipment.items);
+  // Предметы — только открытые в главе игрока (minChapter): эпик в Лавке главы 1 не появится, слот возьмёт другой товар.
+  const pools = itemPools(ctx.equipment.items, progressChapter(save, ctx));
   const mult = shopMultiplier(save, ctx);
   const hero = shardTarget(save, ctx);
   const out: ShopSlot[] = [];
