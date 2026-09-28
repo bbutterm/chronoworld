@@ -16,9 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "raydric",
-    "tint": "#b08850",
-    "scale": 1.2,
+    "sprite": "verit",
     "hitFx": "fx_hit"
   }
 }

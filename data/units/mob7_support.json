@@ -19,9 +19,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "poporing",
-    "tint": "#bfeee6",
-    "scale": 0.95,
+    "sprite": "quve",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }
