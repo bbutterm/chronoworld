@@ -401,6 +401,303 @@
         "seed": 1,
         "note": "EF_SIGNUM 40: AL_CRUCIS debuff; zoom 200, full 12fps no significant canvas-edge pixels"
       }
+    },
+    {
+      "id": "fx_swordman_bash",
+      "file": "effects/fx_swordman_bash.png",
+      "cell": [
+        194,
+        188
+      ],
+      "columns": 8,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        98.2,
+        105.4
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "16",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.8,
+        "seed": 1,
+        "note": "SM_BASH EF_BASH 16; beginCast, not hit"
+      }
+    },
+    {
+      "id": "fx_job_thief_envenom",
+      "file": "effects/fx_job_thief_envenom.png",
+      "cell": [
+        122,
+        158
+      ],
+      "columns": 8,
+      "frames": 23,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        60.2,
+        127.4
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "20",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.8,
+        "seed": 1,
+        "note": "TF_POISON EF_PATTACK 20; hit is purple in original RO, not green"
+      }
+    },
+    {
+      "id": "fx_job_crusader_defender",
+      "file": "effects/fx_job_crusader_defender.png",
+      "cell": [
+        90,
+        222
+      ],
+      "columns": 8,
+      "frames": 23,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        45.0,
+        189.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "222",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.75,
+        "seed": 1,
+        "note": "CR_DEFENDER EF_DEFENDER 222; ally buff, white descending column"
+      }
+    },
+    {
+      "id": "fx_job_assassin_sonic_blow",
+      "file": "effects/fx_job_assassin_sonic_blow.png",
+      "cell": [
+        198,
+        216
+      ],
+      "columns": 7,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        95.0,
+        125.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "143",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.75,
+        "seed": 1,
+        "note": "AS_SONICBLOW EF_SONICBLOW2 143; source slash plus red glyph"
+      }
+    },
+    {
+      "id": "fx_job_crusader_grand_cross",
+      "file": "effects/fx_job_crusader_grand_cross.png",
+      "cell": [
+        218,
+        200
+      ],
+      "columns": 8,
+      "frames": 23,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        108.6,
+        116.2
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "226",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.65,
+        "seed": 1,
+        "note": "CR_GRANDCROSS EF_GRANDCROSS 226; ground cross, not all target columns"
+      }
+    },
+    {
+      "id": "fx_job_wizard_storm_gust",
+      "file": "effects/fx_job_wizard_storm_gust.png",
+      "cell": [
+        362,
+        308
+      ],
+      "columns": 5,
+      "frames": 22,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 83,
+      "blend": "normal",
+      "anchor": [
+        166.4,
+        172.8
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "89",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.6,
+        "seed": 1,
+        "note": "WZ_STORMGUST EF_STORMGUST 89; blizzard area"
+      }
+    },
+    {
+      "id": "fx_job_crusader_shield_charge",
+      "file": "effects/fx_job_crusader_shield_charge.png",
+      "cell": [
+        184,
+        154
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        103.2,
+        155.4
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "246",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.8,
+        "seed": 1,
+        "note": "CR_SHIELDCHARGE EF_SHIELDCHARGE 246; shield on target, flight not tweened"
+      }
+    },
+    {
+      "id": "fx_job_hunter_claymore_trap",
+      "file": "effects/fx_job_hunter_claymore_trap.png",
+      "cell": [
+        338,
+        292
+      ],
+      "columns": 6,
+      "frames": 9,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        169.0,
+        187.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "107",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.75,
+        "seed": 1,
+        "note": "HT_CLAYMORETRAP EF_CLAYMORE 107; trap explosion on hit"
+      }
+    },
+    {
+      "id": "fx_job_hunter_sandman",
+      "file": "effects/fx_job_hunter_sandman.png",
+      "cell": [
+        298,
+        182
+      ],
+      "columns": 6,
+      "frames": 17,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        147.0,
+        115.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "139",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.75,
+        "seed": 1,
+        "note": "HT_SANDMAN EF_SANDMAN 139; green sleep cloud on hit"
+      }
+    },
+    {
+      "id": "fx_job_blacksmith_weapon_perfection",
+      "file": "effects/fx_job_blacksmith_weapon_perfection.png",
+      "cell": [
+        320,
+        308
+      ],
+      "columns": 6,
+      "frames": 20,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        159.0,
+        214.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "103",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.75,
+        "seed": 1,
+        "note": "BS_WEAPONPERFECT EF_PERFECTION 103; ally buff sword and green arcs"
+      }
+    },
+    {
+      "id": "fx_job_crusader_holy_cross",
+      "file": "effects/fx_job_crusader_holy_cross.png",
+      "cell": [
+        442,
+        442
+      ],
+      "columns": 4,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        220.2,
+        273.7
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "245",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 0.6511,
+        "outputScale": 0.85,
+        "seed": 1,
+        "note": "CR_HOLYCROSS EF_HOLYCROSS 245; recaptured at zoom 200 to keep edge flare within canvas"
+      }
     }
   ],
   "skills": {
@@ -412,6 +709,24 @@
     },
     "job_acolyte_increase_agi": {
       "buff": "fx_job_acolyte_increase_agi"
+    },
+    "job_assassin_sonic_blow": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "job_blacksmith_weapon_perfection": {
+      "buff": "fx_job_blacksmith_weapon_perfection"
+    },
+    "job_crusader_defender": {
+      "buff": "fx_job_crusader_defender"
+    },
+    "job_crusader_holy_cross": {
+      "hit": "fx_job_crusader_holy_cross"
+    },
+    "job_crusader_shield_charge": {
+      "hit": "fx_job_crusader_shield_charge"
+    },
+    "job_hunter_claymore_trap": {
+      "hit": "fx_job_hunter_claymore_trap"
     },
     "job_mage_fire_bolt": {
       "hit": "fx_job_mage_fire_bolt"
@@ -427,6 +742,9 @@
     },
     "job_merchant_cart_revolution": {
       "hit": "fx_job_merchant_cart_revolution"
+    },
+    "job_thief_envenom": {
+      "hit": "fx_job_thief_envenom"
     }
   }
 }
