@@ -108,11 +108,12 @@ export const ChestDropsSchema = z.object({
 export const REFINE_HARD_MAX = 20;
 
 /**
- * «Заточка» снаряжения (кузнец RO, +1…+maxLevel) — главный сток золота. Всегда успешна (детерминированно).
- * Статы предмета: база × (1 + bonusPerLevel · N). Цена шага +N → +N+1: cost.base[редкость] × cost.growth^N
- * (округление до 2 значащих цифр).
+ * «Заточка» снаряжения (кузнец RO, +1…+maxLevel) — главный сток золота. Статы предмета: база × (1 + bonusPerLevel · N).
+ * Цена шага +N → +N+1: cost.base[редкость] × cost.growth^N (округление до 2 значащих цифр). Шаг на +N ломает вещь
+ * с шансом breakChance[N−1] (бросок Rng по seed из сохранения); золото списывается в любом случае.
  */
-export const RefineConfigSchema = z.object({
+export const RefineConfigSchema = z
+  .object({
   maxLevel: z.number().int().min(1).max(REFINE_HARD_MAX),
   /** Прибавка к статам предмета за уровень заточки (0.1 = +10% базы). */
   bonusPerLevel: z.number().positive().max(1),
@@ -122,7 +123,20 @@ export const RefineConfigSchema = z.object({
     /** Во сколько раз дорожает каждый следующий шаг. */
     growth: z.number().min(1).max(4),
   }),
-});
+  /**
+   * Шанс сломать (уничтожить) вещь при шаге на +N: breakChance[N−1], N = 1…maxLevel (0 — безопасный шаг).
+   * Длина — ровно maxLevel, шансы не убывают. Нет поля — заточка всегда успешна.
+   */
+  breakChance: z.array(z.number().min(0).max(0.99)).optional(),
+})
+  .superRefine((cfg, c) => {
+    const b = cfg.breakChance;
+    if (!b) return;
+    if (b.length !== cfg.maxLevel) c.addIssue({ code: 'custom', path: ['breakChance'], message: `нужно ровно ${cfg.maxLevel} шансов (по одному на шаг +1…+${cfg.maxLevel})` });
+    b.forEach((v, i) => {
+      if (i > 0 && v < b[i - 1]) c.addIssue({ code: 'custom', path: ['breakChance', i], message: 'шанс поломки не должен убывать с уровнем' });
+    });
+  });
 
 /** data/drops.json. Правило этапа — первое с chapter = глава этапа, иначе первое без chapter. */
 export const DropsConfigSchema = z.object({

@@ -189,7 +189,7 @@ export function saveRevision(text: string | null | undefined): number {
  */
 export function sanitizeSave(
   save: SaveState,
-  ctx: GameContext & { equipment?: { items: Record<string, unknown> }; unlocks?: UnlocksConfig },
+  ctx: GameContext & { equipment?: { items: Record<string, unknown>; drops?: { refine?: { maxLevel: number } } }; unlocks?: UnlocksConfig },
 ): { save: SaveState; warnings: string[] } {
   const warnings: string[] = [...(save.notices ?? [])];
   let changed = save.notices !== undefined;
@@ -239,6 +239,15 @@ export function sanitizeSave(
     }
   }
   if (gone.size) items = items.map((it) => (it.equippedBy && gone.has(it.equippedBy) ? { ...it, equippedBy: null } : it));
+  // Заточка выше предела конфига (было +15, после введения поломки максимум +10) — до предела, статы не пропадают.
+  const refineMax = ctx.equipment?.drops?.refine?.maxLevel;
+  if (refineMax !== undefined) {
+    if (items.some((it) => (it.refine ?? 0) > refineMax)) {
+      changed = true;
+      warnings.push(`Заточка выше +${refineMax} больше невозможна — такие предметы теперь +${refineMax}.`);
+      items = items.map((it) => ((it.refine ?? 0) > refineMax ? { ...it, refine: refineMax } : it));
+    }
+  }
   if (!changed) return { save, warnings };
   const { notices: _n, ...rest } = save;
   return {

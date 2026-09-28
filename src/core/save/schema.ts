@@ -77,7 +77,8 @@ export const ItemInstanceSchema = z.object({
   equippedBy: z.string().nullable(),
   /**
    * Заточка +N (как у кузнеца в RO): статы предмета × (1 + bonusPerLevel·N), data/drops.json → refine.
-   * Без смены версии: нет поля — +0 (старые сохранения читаются как есть). Верхняя граница — REFINE_HARD_MAX.
+   * Без смены версии: нет поля — +0 (старые сохранения читаются как есть). Выше maxLevel конфига (было +15 до
+   * введения поломки, сейчас +10) — sanitizeSave ограничивает до maxLevel.
    */
   refine: z.number().int().min(0).max(20).optional(),
 });
@@ -279,7 +280,14 @@ export const SaveStateSchema = z.object({
   /** v2. Резерв под башню испытаний (K4): последний пройденный этаж, 0 — не начата. */
   tower: z.object({ floor: z.number().int().nonnegative() }),
   /** v2. Резерв под экипировку (K6): экземпляры предметов, equippedBy — id героя или null. */
-  inventory: z.object({ items: z.array(ItemInstanceSchema) }),
+  inventory: z.object({
+    items: z.array(ItemInstanceSchema),
+    /**
+     * Номер следующей попытки заточки — часть seed броска поломки (refineSeed(createdAt, refineSeq)). Растёт с каждой
+     * попыткой, поэтому перезагрузка страницы не даёт «перебросить» исход. Без смены версии: нет поля — 0.
+     */
+    refineSeq: z.number().int().nonnegative().optional(),
+  }),
   /** v3 (K8). Пресеты отряда. */
   presets: z.array(PresetSchema),
   /** v6 (K9). Экспедиции в пути (ключ исторический: до v6 здесь была доска поручений). */

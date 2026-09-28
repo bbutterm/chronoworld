@@ -662,8 +662,9 @@ export class HeroScene extends Phaser.Scene {
   }
 
   /**
-   * «Заточить всё надетое»: по одному шагу заточки каждому надетому предмету, пока хватает золота (с подтверждением
-   * и суммой). Закрыто — подпись «Откроется на этапе …»; нечего точить / не хватает — серая подпись.
+   * «Заточить всё надетое»: по одному безопасному шагу (шанс поломки 0) каждому надетому предмету, пока хватает золота
+   * (с подтверждением и суммой); рискованные шаги — только вручную в окне предмета. Закрыто — «Откроется на этапе …»;
+   * всё на максимуме — подпись; безопасных шагов нет или не хватает золота — неактивная кнопка с подписью почему.
    */
   private refineAllRow(hero: HeroState, y: number): number {
     const a = this.tabArea;
@@ -675,9 +676,17 @@ export class HeroScene extends Phaser.Scene {
     }
     const plan = refineAllPlan(session.save, hero.id, GAME);
     if (!plan.steps.length) {
-      const maxed = worn.every((s) => refineLevel(s.instance) >= (refineConfig(GAME)?.maxLevel ?? 0));
-      a.add(text(this, GAME_W / 2, y + 30, maxed ? 'Всё надетое заточено до максимума' : 'Заточка: не хватает золота на следующий шаг', FS.caption, maxed ? C.gold : C.dim).setName('refineAllNone'));
-      return y + 70;
+      if (!plan.safe && !plan.risky) {
+        a.add(text(this, GAME_W / 2, y + 30, 'Всё надетое заточено до максимума', FS.caption, C.gold).setName('refineAllNone'));
+        return y + 70;
+      }
+      const off = button(this, GAME_W / 2, y + 60, 760, 110, 'k:buttonLong_grey', 'Заточить всё надетое', () => {}, FS.h3);
+      off.setEnabled(false);
+      off.container.setName('refineAllBtn');
+      a.add(off.container);
+      const why = plan.safe ? 'Не хватает золота на безопасные шаги' : 'Безопасных шагов нет: дальше риск поломки —\nточите вручную, нажав на слот';
+      a.add(text(this, GAME_W / 2, y + 150, why, FS.caption, C.dim, { lineSpacing: 4 }).setOrigin(0.5, 0).setName('refineAllNone'));
+      return y + 160 + (plan.safe ? 40 : 80);
     }
     const n = plan.steps.length;
     const b = button(this, GAME_W / 2, y + 60, 760, 110, 'k:buttonLong_brown', `Заточить всё надетое · ${formatNumber(plan.gold)}`, () => {
@@ -687,11 +696,17 @@ export class HeroScene extends Phaser.Scene {
           return def ? `${refinedName(def, st.from)} → +${st.from + 1}` : st.itemId;
         })
         .join('\n');
-      confirm(this, `Заточить ${n} ${n === 1 ? 'предмет' : n < 5 ? 'предмета' : 'предметов'} на +1 за ${formatNumber(plan.gold)} золота?\n\n${list}`, 'Заточить', () => this.refineAll(hero));
+      confirm(
+        this,
+        `Заточить ${n} ${n === 1 ? 'предмет' : n < 5 ? 'предмета' : 'предметов'} на +1 за ${formatNumber(plan.gold)} золота?\n\n${list}\n\nТолько безопасные шаги (без риска поломки).\nРискованные шаги — вручную.`,
+        'Заточить',
+        () => this.refineAll(hero),
+      );
     }, FS.h3);
     b.container.setName('refineAllBtn');
     a.add(b.container);
-    return y + 130;
+    a.add(text(this, GAME_W / 2, y + 150, 'только безопасные шаги · рискованные — вручную', FS.caption, C.dim).setOrigin(0.5, 0).setName('refineAllNote'));
+    return y + 200;
   }
 
   private refineAll(hero: HeroState): void {

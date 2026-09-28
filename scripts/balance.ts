@@ -39,6 +39,9 @@ const model = {
   shop: !process.argv.includes('--no-shop'),
   expeditions: !process.argv.includes('--no-expeditions'),
   branch: (arg('branch') ?? PLAYER_MODEL.branch) as typeof PLAYER_MODEL.branch,
+  refine: !process.argv.includes('--no-refine'),
+  // --refine-risk 0.5 — предел шанса поломки для шагов заточки модели (по умолчанию PLAYER_MODEL.refineMaxRisk).
+  refineMaxRisk: arg('refine-risk') !== undefined ? Number(arg('refine-risk')) : PLAYER_MODEL.refineMaxRisk,
 };
 const out = resolve(ROOT, arg('out') ?? 'balance.csv');
 
@@ -185,7 +188,7 @@ console.log(
 );
 const shopBuys = Object.entries(res.shopBuys).map(([k, n]) => `${k} ${n}`).join(', ');
 if (shopBuys) console.log(`  лавка, покупки: ${shopBuys}`);
-if (res.refines) console.log(`  заточка: шагов ${res.refines}, золота ${res.spend.refine.gold} (${Math.round((res.spend.refine.gold / Math.max(1, sp.gold)) * 100)}% расхода)`);
+if (res.refines) console.log(`  заточка: шагов ${res.refines}, сломано вещей ${res.refineBreaks}, золота ${res.spend.refine.gold} (${Math.round((res.spend.refine.gold / Math.max(1, sp.gold)) * 100)}% расхода)`);
 const scrolls = Object.entries(res.scrollsIn).map(([k, n]) => `${k} ${n}`).join(', ');
 if (scrolls) console.log(`  свитки призыва: ${scrolls}`);
 const perSource = (m: Partial<Record<string, number>>) => Object.entries(m).map(([k, n]) => `${k} ${n}`).join(', ');
