@@ -32,6 +32,7 @@ import {
   fodderOptions,
   fodderSlotCaption,
   fodderSlots,
+  needsBranchPick,
   placeFodder,
   valuableFodder,
   type AscendPreview,
@@ -83,7 +84,7 @@ export class AscendScene extends Phaser.Scene {
     screen(this, 'Вознесение', 'Heroes', { to: 'Hero', data: { heroId: data.heroId } });
     if (!hero || !GAME.content.heroes[hero.templateId]) return;
     const req = ascendRequirement(session.save, hero.id, GAME);
-    this.branch = req?.branch && !hero.branch && branchFor?.heroId === hero.id && req.branches?.some((b) => b.job === branchFor!.job) ? branchFor.job : undefined;
+    this.branch = req && needsBranchPick(hero, req.to) && branchFor?.heroId === hero.id && req.branches?.some((b) => b.job === branchFor!.job) ? branchFor.job : undefined;
     const prev = ascendPreview(hero, GAME, this.branch);
     if (!req || !prev) {
       emptyState(this, GAME_W / 2, GAME_H / 2, 'Карточка на максимальной редкости — возносить некуда.');
@@ -94,7 +95,7 @@ export class AscendScene extends Phaser.Scene {
     this.chosen = chosenFor?.heroId === hero.id ? chosenFor.ids.filter((id) => valid.has(id)) : [];
     chosenFor = { heroId: hero.id, ids: this.chosen };
 
-    const choosing = req.branch && !hero.branch;
+    const choosing = needsBranchPick(hero, req.to);
     const lay = this.layout(prev, req, !!choosing);
     let y = this.compare(hero, req, lay.cardW);
     y = this.gains(hero, req, prev, y + 8, !!choosing);
@@ -276,7 +277,7 @@ export class AscendScene extends Phaser.Scene {
     openBranchPicker(this, {
       templateId: hero.templateId,
       title: 'Ветка второй профессии',
-      subtitle: `${heroTemplate(GAME, hero.templateId).name} выберет её при вознесении в фиолетовый. Касание навыка — полное описание.`,
+      subtitle: `${heroTemplate(GAME, hero.templateId).name} получит её при вознесении. Касание навыка — полное описание.`,
       selected,
       heroId: hero.id,
       save: session.save,
@@ -498,7 +499,7 @@ export class AscendScene extends Phaser.Scene {
     const name = heroCard(hero, GAME).name;
     const fodder = this.chosen.map((id) => session.save.heroes.find((h) => h.id === id)).filter((h): h is HeroState => !!h);
     const lines = [`${name}: ${rarityName(req.from)} → ${rarityName(req.to)}`];
-    const choose = req.branch && !hero.branch && this.branch;
+    const choose = needsBranchPick(hero, req.to) && this.branch;
     if (choose) lines.push(`Ветка: ${(req.branches ?? []).find((b) => b.job === this.branch)?.jobName ?? this.branch}`);
     if (fodder.length) lines.push(`В корм: ${fodder.map((h) => `${heroCard(h, GAME).name} (ур. ${h.level})`).join(', ')}`);
     lines.push(`Золото: ${formatNumber(req.gold)}. Опыт корма вернётся в запас.`);

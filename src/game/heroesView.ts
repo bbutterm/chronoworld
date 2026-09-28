@@ -6,6 +6,7 @@
 import {
   ascendRequirement,
   activeForm,
+  autoFodder,
   BRANCH_RARITY,
   CARD_RARITIES,
   cardStats,
@@ -207,13 +208,14 @@ export interface AscendPreview {
 
 /**
  * Превью вознесения: что станет с карточкой на следующей редкости (null — максимум). choice — ветка, выбранная на
- * экране вознесения (переход с выбором ветки); не выбрана — превью по первой ветке героя.
+ * экране вознесения (переход на фиолетовый и выше, если у героя ещё нет ветки); не выбрана — превью без ветки, как
+ * реально получится (LT-08: фиолетовый без ветки станет золотым без ветки, профессию не меняет).
  */
 export function ascendPreview(hero: HeroState, ctx: GameContext, choice?: string): AscendPreview | null {
   const t = heroTemplate(ctx, hero.templateId);
   const to = nextRarity(hero.rarity);
   if (!to || rarityIndex(hero.rarity) >= rarityIndex(t.maxRarity)) return null;
-  const pick = choice && t.branches.some((b) => b.job === choice) ? choice : t.branches[0]?.job;
+  const pick = choice && t.branches.some((b) => b.job === choice) ? choice : undefined;
   const branch = hero.branch ?? (rarityIndex(to) >= rarityIndex(BRANCH_RARITY) ? pick : undefined);
   const f0 = activeForm(t, hero);
   const f1 = activeForm(t, { rarity: to, branch });
@@ -338,12 +340,12 @@ export function fodderOptions(save: SaveState, req: { heroId: string; fodder: re
   ];
 }
 
-/** Мощь «было → станет» при вознесении (powerOf — heroPower с экипировкой; ветка — выбранная на экране или первая). */
+/** Мощь «было → станет» при вознесении (powerOf — heroPower с экипировкой; ветка — выбранная на экране, иначе без ветки). */
 export function ascendPower(hero: HeroState, ctx: GameContext, powerOf: (h: HeroState) => number, branch?: string): { from: number; to: number } | null {
   const prev = ascendPreview(hero, ctx, branch);
   if (!prev) return null;
   const t = heroTemplate(ctx, hero.templateId);
-  const pick = branch && t.branches.some((b) => b.job === branch) ? branch : t.branches[0]?.job;
+  const pick = branch && t.branches.some((b) => b.job === branch) ? branch : undefined;
   const nextBranch = hero.branch ?? (rarityIndex(prev.to) >= rarityIndex(BRANCH_RARITY) ? pick : undefined);
   const after: HeroState = { ...hero, rarity: prev.to, ...(nextBranch ? { branch: nextBranch } : {}) };
   return { from: powerOf(hero), to: powerOf(after) };
@@ -379,8 +381,28 @@ export function ascendButtonState(
   }
   if (empty.length) return { ready: false, reason: `Положите в корм ещё ${empty.length} ${empty.length === 1 ? 'карту' : 'карты'} — или «Авто»` };
   if (save.resources.gold < req.gold) return { ready: false, reason: `Не хватает золота: ${formatNumber(req.gold - save.resources.gold)}` };
-  if (req.branch && !hero.branch && !opts.branchChosen) return { ready: false, reason: 'Выберите ветку второй профессии' };
+  if (needsBranchPick(hero, req.to) && !opts.branchChosen) return { ready: false, reason: 'Выберите ветку второй профессии' };
   return { ready: true, reason: null };
+}
+
+/**
+ * Короткая подпись под «Вознести» на карточке героя (LT-07 — точная причина): «копии готовы!» / «нужны копии» /
+ * «нужно 20 000 золота»; null — вознести некуда. ready — копии и золото есть.
+ */
+export function ascendHint(save: SaveState, heroId: string, ctx: GameContext): { ready: boolean; text: string } | null {
+  const req = ascendRequirement(save, heroId, ctx);
+  if (!req) return null;
+  if (!req.fodder.every((f) => f.candidates.length >= f.count) || !autoFodder(save, heroId, ctx)) return { ready: false, text: 'нужны копии' };
+  if (save.resources.gold < req.gold) return { ready: false, text: `нужно ${formatNumber(req.gold)} золота` };
+  return { ready: true, text: 'копии готовы!' };
+}
+
+/**
+ * Выбирать ли ветку на экране вознесения: у героя ещё нет ветки, а новая редкость — фиолетовая или выше (синий →
+ * фиолетовый и фиолетовый без ветки после «Вознести всех» → золотой; ядро примет её в actAscend opts.branch).
+ */
+export function needsBranchPick(hero: Pick<HeroState, 'branch'>, to: CardRarity): boolean {
+  return !hero.branch && rarityIndex(to) >= rarityIndex(BRANCH_RARITY);
 }
 
 /** Есть ли в корме ценные карточки (синие и выше) — перед вознесением спросить подтверждение. */

@@ -46,7 +46,7 @@ import { sfx } from '../audio';
 import { bump, burst, countUp, juiceOn, pulse } from '../juice';
 import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, iconBadge, raysTexture, rarityBackdrop, rarityPalette, rarityPips } from '../heroCard';
-import { browseNeighbours, copyCounter, heroesUi, inventoryUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
+import { ascendHint, browseNeighbours, copyCounter, heroesUi, inventoryUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
 import { openBranchPicker } from '../branchPicker';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
@@ -300,6 +300,8 @@ export class HeroScene extends Phaser.Scene {
       ...(other ? { selected: other } : {}),
       heroId: hero.id,
       save: session.save,
+      // LT-16: гемов на смену не хватает — кнопка серая, причина над ней.
+      blocked: () => (change && !st.changeFree && gems < st.changeCost ? `Нужно ${formatNumber(st.changeCost)} гемов, есть ${formatNumber(gems)}` : null),
       confirmLabel: (job) => (!job ? 'Выберите ветку' : change ? (st.changeFree ? `Сменить: ${jobName(job)}` : `Сменить за ${formatNumber(st.changeCost)} гемов`) : `Выбрать: ${jobName(job)}`),
       onConfirm: (job) => {
         try {
@@ -374,8 +376,9 @@ export class HeroScene extends Phaser.Scene {
         else asc.setEnabled(false);
         // Обучение (шаг ascend): «Улучшить» уже показано — теперь «Вознести».
         if (canAscend && !hintDone('ascend') && hintDone('level_up')) tutorialHint(this, 'ascend', 560, ACT_Y - 18, 'above', { w: 220, h: 96 }, { text: 'Три копии — «Вознести»: редкость выше, герой сильнее' });
-        const sub = canAscend ? 'копии готовы!' : 'нужны копии';
-        text(this, 560, ACT_Y + 55, sub, FS.caption, canAscend ? C.positive : C.muted, { stroke: C.stroke, strokeThickness: 4 });
+        const hint = ascendHint(session.save, hero.id, GAME);
+        const sub = canAscend ? 'копии готовы!' : (hint?.text ?? 'нужны копии');
+        ellipsize(text(this, 560, ACT_Y + 55, sub, FS.caption, canAscend ? C.positive : C.muted, { stroke: C.stroke, strokeThickness: 4 }), 300);
       }
     } else if (req) {
       const glow = this.add.image(UP_X, ACT_Y, glowTexture(this)).setDisplaySize(520, 240).setTint(0xffe08a).setBlendMode(Phaser.BlendModes.ADD).setAlpha(canAscend ? 0.7 : 0);

@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, cardStats, heroCard, heroTemplate, jobTitle, levelUpInfo, newGame, type SaveState } from '../src/core';
 import {
   ascendButtonState,
+  ascendHint,
   ascendPower,
   ascendPreview,
   fodderOptions,
   fodderSlotCaption,
+  needsBranchPick,
   ascendReadyWith,
   browseNeighbours,
   collectionCount,
@@ -121,7 +123,7 @@ describe('H4 «Вознесение»', () => {
   it('превью: предел, статы, ветка второй профессии (V1 — первая ветка героя)', () => {
     const s = newGame(ctx, 0);
     const alan = { ...s.heroes.find((h) => h.templateId === 'alan')!, rarity: 'blue' as const, level: 40 };
-    const p = ascendPreview(alan, ctx)!;
+    const p = ascendPreview(alan, ctx, 'knight')!;
     expect(p.to).toBe('purple');
     expect(p.maxLevel).toEqual({ from: 40, to: 60 });
     expect(p.newJob).toBe('knight');
@@ -169,6 +171,11 @@ describe('H4 «Вознесение»', () => {
       [mid.id, 'в отряде', false],
     ]);
     expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toBe('Не хватает 1 карты: Ирис, зелёный');
+    // LT-07: подпись на карточке — точная причина (копии есть, не хватает золота).
+    const noGold = { ...s, squad: [null, null, null, null, null], resources: { ...s.resources, gold: 100 } };
+    expect(ascendHint(noGold, target.id, ctx)).toEqual({ ready: false, text: 'нужно 500 золота' });
+    expect(ascendHint(s, target.id, ctx)?.text).toBe('нужны копии');
+    expect(ascendHint({ ...noGold, resources: { ...s.resources } }, target.id, ctx)).toEqual({ ready: true, text: 'копии готовы!' });
     // Золото — после корма.
     const poor = { ...s, squad: [null, null, null, null, null], resources: { ...s.resources, gold: 100 } };
     expect(ascendButtonState(poor, target.id, [weak.id, mid.id], ctx).reason).toBe('Не хватает золота: 400');
@@ -254,9 +261,17 @@ describe('Герои v2 (V2): копии одной плиткой, счётчи
     s = addHeroCard(s, 'alan', 'blue', { level: 40 }).save;
     const alan = s.heroes[s.heroes.length - 1];
     const t = ctx.content.heroes.alan;
-    expect(ascendPreview(alan, ctx)!.newJob).toBe(t.branches[0].job);
+    // LT-08: ветка не выбрана — превью не обещает профессию (без ветки героя не вознести, выбор — на экране).
+    expect(ascendPreview(alan, ctx)!.newJob).toBeUndefined();
     expect(ascendPreview(alan, ctx, t.branches[1].job)!.newJob).toBe(t.branches[1].job);
-    expect(ascendPreview(alan, ctx, 'no_such_job')!.newJob).toBe(t.branches[0].job);
+    expect(ascendPreview(alan, ctx, 'no_such_job')!.newJob).toBeUndefined();
+    // Фиолетовый без ветки (после «Вознести всех») → золотой: без выбора — без новой профессии; с выбором — ветка.
+    const bare = { ...alan, rarity: 'purple' as const, level: 60 };
+    expect(ascendPreview(bare, ctx)!.newJob).toBeUndefined();
+    expect(ascendPreview(bare, ctx, t.branches[1].job)!.newJob).toBe(t.branches[1].job);
+    expect(needsBranchPick(bare, 'gold')).toBe(true);
+    expect(needsBranchPick({ branch: t.branches[0].job }, 'gold')).toBe(false);
+    expect(needsBranchPick({}, 'blue')).toBe(false);
   });
 });
 
