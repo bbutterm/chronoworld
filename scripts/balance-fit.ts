@@ -18,6 +18,7 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT } from './lib/content-node';
+import { growthStep } from '../src/core';
 import { fitTargets, loadFullContext, runBalance, PLAYER_MODEL } from './lib/player-model';
 
 const argv = process.argv.slice(2);
@@ -131,7 +132,8 @@ for (let it = 0; it < iters; it++) {
     const d = JSON.parse(readFileSync(file, 'utf8')) as { stages: Stage[] };
     let prev: { hp: number; atk: number } | null = null;
     d.stages.forEach((st) => {
-      const gi = stageById.get(st.id)!.globalIndex;
+      // Ступень роста (вставные этапы главы 1 её не двигают — src/core/campaign/campaign.ts, growthStep).
+      const gi = growthStep(stageById.get(st.id)!, ctx0);
       const k = factors[st.id] ?? 1;
       for (const e of st.enemies) if (e) e.mult = Math.round((e.mult ?? 1) * k * 100) / 100;
       const sum = () => {

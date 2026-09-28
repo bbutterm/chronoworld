@@ -128,7 +128,9 @@ describe('миграция v6 → v7: герои v2', () => {
     storage.save(fixtureV6);
     const r = loadOrNew(storage, ctx, 1_759_100_000_000);
     expect(r.source).toBe('loaded');
-    expect(r.warnings).toEqual(s.notices);
+    // Сообщения миграции — первыми; последним — sanitizeSave: в главе 1 вставлены этапы перед пройденными (28.09, 18 этапов).
+    expect(r.warnings!.slice(0, s.notices!.length)).toEqual(s.notices);
+    expect(r.warnings!.slice(s.notices!.length)).toEqual([expect.stringMatching(/новые этапы перед уже пройденными — они засчитаны пройденными/)]);
     expect(saveProblems(r.save, ctx)).toEqual([]);
     persist(storage, r.save);
     expect(loadOrNew(storage, ctx, 0).warnings).toBeUndefined();

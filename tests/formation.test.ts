@@ -1,6 +1,7 @@
 /**
  * Строй боя (QA T2-05 / T1-13, BUG-045): бой держится у центра поля двумя линиями, а не схлопывается в кучу
- * у заднего ряда героев. Метрики — tests/formation.ts; этапы ch1_s5…s10, отряды 3/4/5 героев, по 10 seed'ов.
+ * у заднего ряда героев. Метрики — tests/formation.ts; этапы главы 1 с Таверны (ch1_s5 … босс ch1_s10, 13 из 18),
+ * отряды 3/4/5 героев, по 10 seed'ов. Глава 1 из 18 этапов (28.09): ур. 1 — 131 / 12% / 45%, ур. 10 — 125 / 11% / 40%.
  *
  * Ядро до правки (a9931c4 + P2, K = 10):   джоб 1 — центроид 190, куча 33%, левая треть 54%;
  *                                          джоб 10 — центроид 178, куча 35%, левая треть 51%.
@@ -10,7 +11,7 @@
 import { describe, expect, it } from 'vitest';
 import { enemySquad, simulateBattle } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
-import { FORMATION_SQUADS, formationStats, heroSquad, sampleBattle } from './formation';
+import { FORMATION_SQUADS, FORMATION_STAGES, formationStats, heroSquad, sampleBattle } from './formation';
 
 const ctx = loadFullContext();
 
@@ -18,7 +19,7 @@ describe('строй боя (T2-05)', () => {
   for (const lvl of [1, 10]) {
     it(`ур. ${lvl}: центроид ближе к центру, кучи (> 3 фигур в радиусе 150) почти нет`, () => {
       const s = formationStats(ctx, 10, lvl);
-      expect(s.battles).toBe(180);
+      expect(s.battles).toBe(FORMATION_STAGES.length * 3 * 10);
       // Было ~180–190: бой уезжал в левую треть.
       expect(s.centroidDist).toBeLessThan(160);
       // Было 33–35% времени боя.

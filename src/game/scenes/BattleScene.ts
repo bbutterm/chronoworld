@@ -37,7 +37,9 @@ import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state'
 import { clampX, DEPTH, FloatLayer, UltPresenter } from '../battleFx';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
-import { button, panel, text } from '../ui';
+import { button, panel, text, tutorialHint } from '../ui';
+import { hintDone, markHint } from '../hints';
+import { isUnlocked } from '../unlockBanner';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
 import { animatedFxIds, animatedFxKey, skillFx } from '../animatedFx';
@@ -462,9 +464,15 @@ export class BattleScene extends Phaser.Scene {
     this.showTime(0);
     if (DEBUG) text(this, GAME_W / 2, 195, `seed ${this.result.seed}`, 22, '#e0cfb0');
 
+    let speedHint: Phaser.GameObjects.Container | null = null;
     const speedBtn = button(this, 180, 360, 280, 110, 'ui_btn_speed', `${playback.speed}x`, () => {
       // Выбор скорости запоминается (localStorage) и действует в следующих боях.
       setPlaybackSpeed(nextPlaybackSpeed());
+      if (playback.speed > 1) {
+        markHint('battle_speed');
+        speedHint?.destroy();
+        speedHint = null;
+      }
       speedBtn.setLabel(`${playback.speed}x`);
       for (const v of this.views.values()) v.sprite.anims.timeScale = playback.speed;
       this.sfx.setSpeed(playback.speed);
@@ -472,6 +480,10 @@ export class BattleScene extends Phaser.Scene {
       this.time.timeScale = playback.speed;
     });
     button(this, 900, 360, 280, 110, 'ui_btn_skip', 'Пропустить', () => this.skip());
+    // Обучение (hints.ts): скорость ×2 открылась (этап 1-2) — указатель на кнопку скорости в первом бою на 1x.
+    if (this.stage && playback.speed === 1 && isUnlocked('speed_x2') && !hintDone('battle_speed')) {
+      speedHint = tutorialHint(this, 'battle_speed', 180, 360, 'below', { w: 280, h: 110 });
+    }
     // Вся анимация (твины, задержки) идёт в темпе выбранной скорости.
     this.tweens.timeScale = playback.speed;
     this.time.timeScale = playback.speed;

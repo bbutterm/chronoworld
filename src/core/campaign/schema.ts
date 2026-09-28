@@ -8,6 +8,12 @@ export const StageSchema = z.object({
   id,
   name: z.string(),
   boss: z.boolean().default(false),
+  /**
+   * Вставной этап: добавлен в уже выпущенную главу (глава 1 — ch1_s11…s18 между ch1_s1…s10). Не двигает рост силы врагов
+   * (1 + enemyStatGrowthPerStage)^N: у вставного этапа N — как у предыдущего обычного, у следующих этапов (и глав) — прежний.
+   * Сила вставного этапа задаётся mult. Порядок в игре — порядок в массиве stages.
+   */
+  inserted: z.boolean().optional(),
   /** 5 слотов (0–1 фронт, 2–4 тыл): id юнита из data/units (kind monster/boss) или null. */
   enemies: z
     .array(z.object({ unit: id, mult: z.number().positive().default(1) }).nullable())

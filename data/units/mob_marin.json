@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_marin",
+  "name": "Марин",
+  "kind": "monster",
+  "role": "healer",
+  "stats": {
+    "hp": 360,
+    "atk": 30,
+    "def": 4,
+    "spd": 110
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob_marin_spring",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "fast",
+    "tint": "#7fa8ff",
+    "projectile": "fx_magic",
+    "hitFx": "fx_hit"
+  }
+}

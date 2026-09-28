@@ -5,6 +5,7 @@ import { FONT, GAME_H, GAME_W, HEADER_H } from './layout';
 import { worldPoint } from './viewport';
 import { C, FS, TINT, TOUCH } from './theme';
 import { HINT_GEOM, placeCallout, type HintSide, type Rect } from './hintLayout';
+import { HINT_TEXT, markHint, type HintId } from './hints';
 import { barFrom, juiceOn } from './juice';
 import { sfx } from './audio';
 import type { SfxId } from './audioCatalog';
@@ -449,7 +450,8 @@ export function progressBar(
  * side — предпочтительная сторона плашки ('auto' — без предпочтения). Сторону и сдвиг вбок выбирает placeCallout
  * (hintLayout.ts), чтобы плашка не закрывала другие элементы управления сцены: все интерактивные объекты,
  * кроме самой цели, плюс opts.avoid. target — размер цели (рамка пульсирует вокруг неё).
- * Ничего не перехватывает: нажатия проходят к кнопке под ним.
+ * Рамка и стрелка ничего не перехватывают: нажатия проходят к кнопке под ними. opts.skip — плашку можно коснуться
+ * (в углу «✕»): подсказка скрывается и больше не показывается (обучение пропускаемое).
  */
 export function hintPointer(
   scene: Phaser.Scene,
@@ -458,7 +460,7 @@ export function hintPointer(
   message: string,
   side: HintSide | 'auto',
   target: { w: number; h: number },
-  opts: { avoid?: Rect[] } = {},
+  opts: { avoid?: Rect[]; skip?: () => void } = {},
 ): Phaser.GameObjects.Container {
   const w = GAME_W;
   const h = GAME_H;
@@ -469,7 +471,8 @@ export function hintPointer(
   const ring = scene.add.rectangle(x, y, target.w + pad, target.h + pad).setStrokeStyle(8, TINT.gold, 1);
   if (juiceOn()) scene.tweens.add({ targets: ring, scaleX: 1 + grow / (target.w + pad), scaleY: 1 + grow / (target.h + pad), alpha: grow > 0 ? 0.15 : 0.35, yoyo: grow <= 0, duration: 800, repeat: -1 });
   const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
-  const box = { w: Math.min(w - 60, t.width + 60), h: t.height + 22 };
+  const closeW = opts.skip ? 44 : 0;
+  const box = { w: Math.min(w - 60, t.width + 60 + closeW), h: t.height + 22 };
   const plan = placeCallout({ x, y, ...target }, box, {
     prefer: side === 'auto' ? undefined : side,
     avoid: [...controlRects(scene, x, y), ...(opts.avoid ?? [])],
@@ -489,11 +492,34 @@ export function hintPointer(
   if (juiceOn()) scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, repeat: -1, duration: 450, ease: 'Sine.easeInOut' });
   const b = plan.box;
   const bg = scene.add.rectangle(b.x + b.w / 2, b.y + b.h / 2, b.w, b.h, 0x000000, 0.85).setStrokeStyle(4, TINT.gold);
-  t.setPosition(b.x + b.w / 2, b.y + b.h / 2);
+  t.setPosition(b.x + b.w / 2 - closeW / 2, b.y + b.h / 2);
   const c = scene.add.container(0, 0, [ring, arrow, bg, t]).setDepth(8000).setName('hint');
+  if (opts.skip) {
+    const skip = opts.skip;
+    c.add(text(scene, b.x + b.w - 30, b.y + b.h / 2, '✕', FS.body, C.muted, { fontStyle: 'bold' }).setName('hintSkip'));
+    bg.setInteractive({ useHandCursor: true }).on('pointerup', () => {
+      skip();
+      c.destroy();
+    });
+  }
   // Для e2e и отладки: где оказалась плашка и что она закрыла.
   c.setData('hintBox', b).setData('hintOverlap', plan.overlap).setData('hintSide', plan.side);
   return c;
+}
+
+/**
+ * Подсказка обучения id (hints.ts): текст HINT_TEXT[id] (или opts.text), касание плашки — пропустить (markHint).
+ */
+export function tutorialHint(
+  scene: Phaser.Scene,
+  id: HintId,
+  x: number,
+  y: number,
+  side: HintSide | 'auto',
+  target: { w: number; h: number },
+  opts: { avoid?: Rect[]; text?: string } = {},
+): Phaser.GameObjects.Container {
+  return hintPointer(scene, x, y, opts.text ?? HINT_TEXT[id], side, target, { avoid: opts.avoid, skip: () => markHint(id) }).setData('hintId', id);
 }
 
 /**

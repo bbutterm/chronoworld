@@ -81,7 +81,9 @@ describe('миграция v3 → v4: герои становятся карто
     storage.save(fixtureV3);
     const r = loadOrNew(storage, ctx, 1_758_970_000_000);
     expect(r.source).toBe('loaded');
-    expect(r.warnings).toEqual(s.notices);
+    // Сообщения миграции — первыми; последним — sanitizeSave: в главе 1 вставлены этапы перед пройденными (28.09, 18 этапов).
+    expect(r.warnings!.slice(0, s.notices!.length)).toEqual(s.notices);
+    expect(r.warnings!.slice(s.notices!.length)).toEqual([expect.stringMatching(/новые этапы перед уже пройденными — они засчитаны пройденными/)]);
     expect(r.save.notices).toBeUndefined();
     // Сохранение целое и работоспособное.
     expect(saveProblems(r.save, ctx)).toEqual([]);

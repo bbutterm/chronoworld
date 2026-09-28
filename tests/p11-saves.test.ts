@@ -326,7 +326,7 @@ describe('T4-07/T4-08: ежедневные механики после пере
   });
 
   it('экспедиция: часы назад — «ещё в пути», забрать можно только с настоящего endsAt', () => {
-    const s = startExpedition(withCleared(8), 'ant_hell', 4, T0, ctx);
+    const s = startExpedition(withCleared(stages.findIndex((x) => x.id === 'ch1_s8') + 1), 'ant_hell', 4, T0, ctx);
     const e = s.bounties.active[0];
     expect(e.endsAt).toBe(T0 + 4 * H);
     // Перевели часы назад: не готово, отсчёт не больше длительности, ошибки нет.

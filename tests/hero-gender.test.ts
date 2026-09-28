@@ -28,7 +28,7 @@ describe('пол героев (карточки)', () => {
     s = {
       ...s,
       heroes: s.heroes.map((h) => ({ ...h, rarity: 'blue', level: 40 })),
-      campaign: { cleared: ctx.content.stages.slice(0, 9).map((st) => st.id) },
+      campaign: { cleared: ctx.content.stages.slice(0, ctx.content.stages.findIndex((st) => st.id === 'ch1_s10')).map((st) => st.id) },
     } satisfies SaveState;
     // Рекрут приходит с первой победой на ch1_s10 — ищем seed с победой сильного отряда.
     const win = Array.from({ length: 50 }, (_, seed) => playStage(s, 'ch1_s10', seed + 1, ctx)).find((r) => r.result.winner === 'A');

@@ -36,13 +36,27 @@ export function stageStatus(save: SaveState, stageId: string, ctx: GameContext):
 }
 
 /**
- * T-B. Отряд врагов этапа: UnitDef монстров со статами hp/atk/def × mult × (1 + growth)^globalIndex
- * (growth = progression.campaign.enemyStatGrowthPerStage; spd не растёт), округление до целых.
- * id юнита — `${stage.id}_${slot}` (у разных слотов разные id), остальное — из data/units.
+ * Ступень роста силы врагов этапа: сколько обычных (не вставных, `inserted`) этапов стоит перед ним в кампании.
+ * У вставного этапа — ступень предыдущего обычного (не меньше 0). Без вставных этапов — globalIndex.
+ * Так вставка этапов в выпущенную главу 1 (ch1_s11…s18) не усилила враги глав 2–7.
+ */
+export function growthStep(stage: StageInfo, ctx: GameContext): number {
+  let n = 0;
+  for (const s of ctx.content.stages) {
+    if (s.globalIndex >= stage.globalIndex) break;
+    if (!s.inserted) n++;
+  }
+  return stage.inserted ? Math.max(0, n - 1) : n;
+}
+
+/**
+ * T-B. Отряд врагов этапа: UnitDef монстров со статами hp/atk/def × mult × (1 + growth)^N, N — ступень этапа
+ * (growthStep: сквозной номер без вставных этапов; growth = progression.campaign.enemyStatGrowthPerStage; spd не растёт),
+ * округление до целых. id юнита — `${stage.id}_${slot}` (у разных слотов разные id), остальное — из data/units.
  */
 export function enemySquad(stageId: string, ctx: GameContext): (UnitDef | null)[] {
   const stage = getStage(ctx, stageId);
-  const growth = Math.pow(1 + ctx.progression.campaign.enemyStatGrowthPerStage, stage.globalIndex);
+  const growth = Math.pow(1 + ctx.progression.campaign.enemyStatGrowthPerStage, growthStep(stage, ctx));
   return stage.enemies.map((e, slot) => {
     if (!e) return null;
     const base = ctx.content.units[e.unit];
