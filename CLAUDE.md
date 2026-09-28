@@ -89,7 +89,8 @@ checkout (`ln -s /home/user/chronoworld/node_modules node_modules`). Не мен
 - Кампания — 7 глав (70 этапов, `data/campaign`), главы 4–7 на листах-заплатках (арт — issue #69). Режим тестировщика
   (`src/game/tester.ts`: «+300 гемов», «+12 ч») пока включён для всех.
 - Мета: экспедиции (`src/core/meta/expeditions.ts`), события/почта (`src/core/events`), открытия по этапам (`data/unlocks.json`),
-  охота (`src/core/hunt`), лавка (`src/core/shop`), сундук с трофеями (`src/core/equipment/chest.ts`), предметы по главам (`minChapter`).
+  охота (`src/core/hunt`), лавка (`src/core/shop`), заточка снаряжения +1…+15 — сток золота (`src/core/equipment/refine.ts`,
+  `data/drops.json → refine`), сундук с трофеями (`src/core/equipment/chest.ts`), предметы по главам (`minChapter`).
 - Вид навыков в бою — `src/game/skillVisuals.ts` (таблица) + `skillSigs.ts` (эффекты); аудит — `docs/content/skills-vfx.md`.
 - `src/game/scenes/*Scene.ts` — экраны Phaser; `src/game/*.ts` — помощники (скин, UI, эффекты, фоны, вьюпорт).
 - `src/pipeline/sprites.ts` — реестр спрайтов (игра и скрипты); `assets/sprites/sprites.json` — листы v2, `assets/effects/effects.json` — эффекты.

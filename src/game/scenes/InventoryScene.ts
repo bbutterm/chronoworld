@@ -1,14 +1,34 @@
 import Phaser from 'phaser';
-import { actEquip, actUnequip, heroName, heroSlots, needsBranch, SLOTS, type CardRarity, type HeroState, type Slot } from '../../core';
+import {
+  actEquip,
+  actUnequip,
+  heroName,
+  heroSlots,
+  lockedText,
+  needsBranch,
+  refineConfig,
+  refineCost,
+  refinedName,
+  refinedStats,
+  refineItem,
+  refineLevel,
+  refineUnlocked,
+  SLOTS,
+  type CardRarity,
+  type HeroState,
+  type ItemDef,
+  type ItemInstance,
+  type Slot,
+} from '../../core';
 import { GAME } from '../content';
-import { diffText, equipBlocker, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, statDiff, type InventoryRow } from '../flow';
+import { diffText, equipBlocker, formatNumber, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS, statDiff, type InventoryRow } from '../flow';
 import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, screen } from '../screen';
 import { commit, session } from '../session';
 import { button, ellipsize, ScrollArea, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
 import { itemCell } from '../itemIcons';
-import { staggerIn } from '../juice';
+import { burst, staggerIn } from '../juice';
 import { markHint } from '../hints';
 import { sfx } from '../audio';
 import { drawHeroCard, heroCardSize, rarityColor } from '../heroCard';
@@ -39,6 +59,20 @@ const TEXT_W_FULL = 1020 - TEXT_X;
 /** Сколько строк сверх видимых держать построенными выше и ниже окна прокрутки. */
 const ROW_BUFFER = 3;
 
+/** Высота карточки «Надето сейчас» (с рядом заточки). */
+const CUR_H = 330;
+
+/** Статы предмета с заточкой экземпляра. */
+const statsOf = (def: ItemDef, instance: Pick<ItemInstance, 'refine'>) => refinedStats(def, refineLevel(instance), GAME);
+
+/** «АТК 41 → 48 · ОЗ 260 → 312» — что даст следующий шаг заточки (только растущие статы). */
+function refineGainText(def: ItemDef, from: number): string {
+  const a = refinedStats(def, from, GAME);
+  const b = refinedStats(def, from + 1, GAME);
+  const parts = STAT_KEYS.filter((k) => (b[k] ?? 0) !== (a[k] ?? 0)).map((k) => `${STAT_LABELS[k]} ${a[k] ?? 0} → ${b[k] ?? 0}`);
+  return parts.length ? parts.join(' · ') : 'статы почти не меняются';
+}
+
 /** Строка списка: предмет и сколько таких же свободных в стопке (T4-11). */
 interface StackRow extends InventoryRow {
   count: number;
@@ -46,7 +80,7 @@ interface StackRow extends InventoryRow {
 
 /**
  * T4-11: одинаковые свободные предметы — одной строкой «×N» (надетые — по одному: у каждого свой герой).
- * Порядок — как у inventoryRows (первое появление предмета).
+ * Заточенные по-разному (+0 и +3) — разные строки. Порядок — как у inventoryRows (первое появление предмета).
  */
 export function stackRows(rows: InventoryRow[]): StackRow[] {
   const out: StackRow[] = [];
@@ -56,11 +90,12 @@ export function stackRows(rows: InventoryRow[]): StackRow[] {
       out.push({ ...r, count: 1 });
       continue;
     }
-    const same = free.get(r.instance.itemId);
+    const key = `${r.instance.itemId}+${r.instance.refine ?? 0}`;
+    const same = free.get(key);
     if (same) same.count++;
     else {
       const row = { ...r, count: 1 };
-      free.set(r.instance.itemId, row);
+      free.set(key, row);
       out.push(row);
     }
   }
@@ -87,12 +122,16 @@ export class InventoryScene extends Phaser.Scene {
     const cur = heroSlots(save, hero.id, GAME)[slot];
     const top = CONTENT_TOP;
 
-    card(this, GAME_W / 2, top + 100, 1040, 200, true);
+    const hasRefine = !!refineConfig(GAME);
+    const curH = hasRefine && cur ? CUR_H : 200;
+    card(this, GAME_W / 2, top + curH / 2, 1040, curH, true);
     text(this, TEXT_X, top + 45, 'Надето сейчас', FS.small, C.inkMuted).setOrigin(0, 0.5);
     if (cur) {
-      itemCell(this, CELL_X, top + 110, CELL, slot, Phaser.Display.Color.HexStringToColor(RARITY_COLORS[cur.def.rarity]).color, cur.instance.itemId);
-      ellipsize(text(this, TEXT_X, top + 100, cur.def.name, FS.h2, RARITY_COLORS[cur.def.rarity], { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5), TEXT_W);
-      ellipsize(text(this, TEXT_X, top + 155, `${RARITY_NAMES[cur.def.rarity]} · ${itemStatsText(cur.def.stats)}`, FS.small, C.ink).setOrigin(0, 0.5), TEXT_W);
+      const lvl = refineLevel(cur.instance);
+      itemCell(this, CELL_X, top + 110, CELL, slot, Phaser.Display.Color.HexStringToColor(RARITY_COLORS[cur.def.rarity]).color, cur.instance.itemId, lvl);
+      ellipsize(text(this, TEXT_X, top + 100, refinedName(cur.def, lvl), FS.h2, RARITY_COLORS[cur.def.rarity], { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5).setName('curItemName'), TEXT_W);
+      ellipsize(text(this, TEXT_X, top + 155, `${RARITY_NAMES[cur.def.rarity]} · ${itemStatsText(statsOf(cur.def, cur.instance))}`, FS.small, C.ink).setOrigin(0, 0.5), TEXT_W);
+      if (hasRefine) this.refineRow(hero, slot, cur.instance, cur.def, top + 255);
       button(this, 880, top + 100, 250, 110, 'k:buttonLong_beige', 'Снять', () => {
         commit(actUnequip(session.save, cur.instance.id));
         this.backToHero(hero.id, `${heroName(hero, GAME)}: снят предмет «${cur.def.name}»`);
@@ -103,7 +142,7 @@ export class InventoryScene extends Phaser.Scene {
     }
 
     const rows = stackRows(inventoryRows(save, GAME, slot).filter((r) => r.instance.id !== cur?.instance.id));
-    const listTop = top + 230;
+    const listTop = top + curH + 30;
     text(this, GAME_W / 2, listTop, rows.length ? 'Выберите предмет' : '', FS.body, C.title);
     if (!rows.length) {
       emptyCard(this, listTop + 230, `Других предметов для слота «${SLOT_NAMES[slot]}» нет.\nОни выпадают за победы на этапах кампании.`, 'bag', {
@@ -114,7 +153,7 @@ export class InventoryScene extends Phaser.Scene {
     }
     this.list(rows, listTop + 40, (row, y, a) => {
       const blocker = equipBlocker(row, hero, GAME);
-      const diff = row.def ? statDiff(cur?.def.stats, row.def.stats) : [];
+      const diff = row.def ? statDiff(cur ? statsOf(cur.def, cur.instance) : undefined, statsOf(row.def, row.instance)) : [];
       const sum = diff.reduce((s, d) => s + d.delta, 0);
       const owner = row.wornBy ? `  · сейчас у: ${row.wornBy}` : '';
       this.itemRow(row, y, blocker ?? diffText(diff) + owner, blocker ? C.danger : sum > 0 ? C.positive : sum < 0 ? C.danger : C.muted);
@@ -125,6 +164,55 @@ export class InventoryScene extends Phaser.Scene {
       a.add(b.container);
       if (blocker) b.setEnabled(false);
     });
+  }
+
+  /**
+   * Ряд заточки в карточке «Надето сейчас»: «Заточка +N → +N+1», прирост статов и цена, кнопка «Заточить».
+   * Закрыто — «Откроется на этапе …», максимум — «+15 — максимум».
+   */
+  private refineRow(hero: HeroState, slot: Slot, instance: ItemInstance, def: ItemDef, y: number): void {
+    this.add.rectangle(GAME_W / 2, y - 55, 980, 3, TINT.frame, 0.5);
+    const lvl = refineLevel(instance);
+    if (!refineUnlocked(session.save, GAME)) {
+      text(this, TEXT_X, y, `Заточка · ${lockedText(session.save, 'refine', GAME)}`, FS.small, C.inkMuted).setOrigin(0, 0.5).setName('refineLocked');
+      return;
+    }
+    const cost = refineCost(instance, def, GAME);
+    if (!cost) {
+      text(this, TEXT_X, y, `Заточка +${lvl} — максимум`, FS.body, C.gold, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('refineMax');
+      return;
+    }
+    const gold = session.save.resources.gold;
+    const enough = gold >= cost.gold;
+    ellipsize(text(this, TEXT_X, y - 26, `Заточка +${lvl} → +${lvl + 1}`, FS.body, C.gold, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('refineTitle'), TEXT_W);
+    ellipsize(text(this, TEXT_X, y + 22, refineGainText(def, lvl), FS.small, C.ink).setOrigin(0, 0.5).setName('refineGain'), TEXT_W);
+    const b = button(this, 880, y, 250, 110, enough ? 'ui_btn_primary' : 'k:buttonLong_grey', `Заточить\n${formatNumber(cost.gold)}`, () => this.refine(hero, slot, instance.id), FS.body);
+    b.container.setName('refineBtn');
+    if (!enough) {
+      // Нажатие по серой кнопке — подсказка, сколько не хватает.
+      b.setEnabled(false);
+      const hit = this.add.rectangle(880, y, 250, 110, 0x000000, 0.001).setInteractive();
+      hit.on('pointerup', () => toast(this, `Не хватает золота: ${formatNumber(cost.gold - gold)}`, C.error));
+    }
+  }
+
+  private refine(hero: HeroState, slot: Slot, instanceId: string): void {
+    try {
+      const r = refineItem(session.save, instanceId, GAME);
+      commit(r.save);
+      const e = r.events[0];
+      const def = GAME.equipment.items[e.itemId];
+      sfx('equip', { rate: 1.3 });
+      sfx('coin', { delay: 60 });
+      this.scene.restart({ heroId: hero.id, slot });
+      this.events.once(Phaser.Scenes.Events.CREATE, () => {
+        burst(this, { x: CELL_X, y: CONTENT_TOP + 110 });
+        toast(this, `${def ? refinedName(def, e.to) : e.itemId}: заточка удалась!`, C.success, 2500);
+      });
+    } catch (e) {
+      sfx('ui_error');
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
+    }
   }
 
   private equip(hero: HeroState, row: InventoryRow, blocker: string | null): void {
@@ -349,13 +437,14 @@ export class InventoryScene extends Phaser.Scene {
     const def = row.def;
     const color = def ? RARITY_COLORS[def.rarity] : C.disabled;
     // T3-27: ячейка с иконкой слота цветом редкости вместо цветной полоски; стопка — «×N» в углу ячейки.
-    for (const o of itemCell(this, CELL_X, y, CELL, def?.slot ?? null, Phaser.Display.Color.HexStringToColor(color).color, row.instance.itemId)) a.add(o);
+    const lvl = refineLevel(row.instance);
+    for (const o of itemCell(this, CELL_X, y, CELL, def?.slot ?? null, Phaser.Display.Color.HexStringToColor(color).color, row.instance.itemId, lvl)) a.add(o);
     if (row.count > 1) a.add(text(this, CELL_X + CELL / 2 - 6, y + CELL / 2 - 4, `×${row.count}`, FS.caption, C.text, { fontStyle: 'bold', ...OUTLINE }).setOrigin(1, 1));
-    const name = def?.name ?? `${row.instance.itemId} (нет в игре)`;
+    const name = def ? refinedName(def, lvl) : `${row.instance.itemId} (нет в игре)`;
     a.add(ellipsize(text(this, TEXT_X, y - 44, name, FS.h3, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), textW));
     a.add(
       ellipsize(
-        text(this, TEXT_X, y, def ? `${RARITY_NAMES[def.rarity]} · ${SLOT_NAMES[def.slot]} · ${itemStatsText(def.stats)}` : 'статов не даёт', FS.small, C.text, {
+        text(this, TEXT_X, y, def ? `${RARITY_NAMES[def.rarity]} · ${SLOT_NAMES[def.slot]} · ${itemStatsText(statsOf(def, row.instance))}` : 'статов не даёт', FS.small, C.text, {
           stroke: C.stroke,
           strokeThickness: 4,
         }).setOrigin(0, 0.5),

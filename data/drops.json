@@ -1,6 +1,6 @@
 {
   "$schema": "schema/drops.schema.json",
-  "$comment": "rules — выпадение предмета за победу на этапе; chest — трофеи сундука простоя и быстрых наград: бросок за каждые tickMinutes минут накопленного времени по правилу главы последнего пройденного этапа (шанс предмета, осколки «отстающего» сюжетного героя, гемы, свитки). Предмет берётся только из открытых в главе (data/items → minChapter: эпики — с главы 2, легендарные вроде Слейпнира — с главы 3), поэтому в главе 1 эпиков нет и в весах. Как подбирать — docs/CONTENT_RECIPES.md, docs/content/balance.md.",
+  "$comment": "rules — выпадение предмета за победу на этапе; chest — трофеи сундука простоя и быстрых наград: бросок за каждые tickMinutes минут накопленного времени по правилу главы последнего пройденного этапа (шанс предмета, осколки «отстающего» сюжетного героя, гемы, свитки). Предмет берётся только из открытых в главе (data/items → minChapter: эпики — с главы 2, легендарные вроде Слейпнира — с главы 3), поэтому в главе 1 эпиков нет и в весах. Как подбирать — docs/CONTENT_RECIPES.md, docs/content/balance.md. refine — заточка снаряжения (+1…+maxLevel, всегда успешна): статы × (1 + bonusPerLevel·N), цена шага +N→+N+1 = cost.base[редкость] × cost.growth^N; главный сток золота (docs/content/equipment.md, «Заточка»).",
   "rules": [
     {
       "chapter": "chapter1",
@@ -38,15 +38,42 @@
       {
         "chapter": "chapter1",
         "item": 0.06,
-        "heroCards": { "blue": 0.0015, "purple": 0.0001 },
-        "gems": { "chance": 0.03, "count": 5 }
+        "heroCards": {
+          "blue": 0.0015,
+          "purple": 0.0001
+        },
+        "gems": {
+          "chance": 0.03,
+          "count": 5
+        }
       },
       {
         "item": 0.08,
-        "heroCards": { "blue": 0.0018, "purple": 0.00012 },
-        "gems": { "chance": 0.03, "count": 5 },
-        "scrolls": { "chance": 0.005, "count": 1 }
+        "heroCards": {
+          "blue": 0.0018,
+          "purple": 0.00012
+        },
+        "gems": {
+          "chance": 0.03,
+          "count": 5
+        },
+        "scrolls": {
+          "chance": 0.005,
+          "count": 1
+        }
       }
     ]
+  },
+  "refine": {
+    "maxLevel": 15,
+    "bonusPerLevel": 0.2,
+    "cost": {
+      "base": {
+        "common": 1000,
+        "rare": 2000,
+        "epic": 4000
+      },
+      "growth": 1.6
+    }
   }
 }

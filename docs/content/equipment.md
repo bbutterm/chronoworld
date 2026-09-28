@@ -1,12 +1,12 @@
 # Экипировка (K6)
 
 Упрощённая экипировка в духе AFK Arena (GDD фаза 2): 4 слота, 3 редкости, фиксированные статы, выпадение с этапов,
-надеть/снять. Без улучшений, сетов, звёзд и разбора. Все числа — заглушки до баланса.
+надеть/снять, заточка за золото (+1…+15, раздел «Заточка»). Без сетов, звёзд и разбора. Все числа — заглушки до баланса.
 
 ```
 data/items/*.json        предметы (файлы по слотам: weapon, armor, helmet, boots)
 data/drops.json          правила выпадения по главам
-src/core/equipment/      schema, load, equipment, drops, errors
+src/core/equipment/      schema, load, equipment, drops, refine, errors
 ```
 
 ## Предмет
@@ -63,7 +63,7 @@ src/core/equipment/      schema, load, equipment, drops, errors
 
 ## Сохранение
 
-`save.inventory.items`: `{ id, itemId, equippedBy }` (есть с v2, миграция не нужна). id экземпляра — `it<N>`,
+`save.inventory.items`: `{ id, itemId, equippedBy, refine? }` (есть с v2, миграция не нужна; `refine` — уровень заточки, нет поля — +0). id экземпляра — `it<N>`,
 следующий N = максимальный + 1. Предмет, которого больше нет в `data/items`, остаётся в инвентаре, но не даёт статов
 и не надевается (`unknown_item_def`).
 
@@ -90,3 +90,38 @@ addItems(save, itemIds)
 `withGear` экипировку не видит — UI должен вызывать `act*`-обёртки.
 
 Обёртки `actEquip` / `actUnequip` — то же, что `equip` / `unequip` (ежедневных заданий на экипировку пока нет).
+
+## Заточка (кузнец RO)
+
+Главный сток золота: после предела уровней редкости мощь растёт заточкой снаряжения. Всегда успешна (детерминированно, без
+случайности и поломок, в отличие от RO). Числа — `data/drops.json → refine` (`RefineConfigSchema`, `src/core/equipment/schema.ts`):
+
+```json
+"refine": { "maxLevel": 15, "bonusPerLevel": 0.2, "cost": { "base": { "common": 1000, "rare": 2000, "epic": 4000 }, "growth": 1.6 } }
+```
+
+- Статы предмета +N: `база × (1 + bonusPerLevel · N)`, каждый стат округляется (`refinedStats`). +15 — ×4 базы.
+- Цена шага +N → +N+1: `cost.base[редкость] × growth^N`, 2 значащие цифры (`refineStepCost`): эпик 4 000, 6 400, 10 000 … 700 тыс.
+  (+11→+12), 2.9 млн (+14→+15); обычный +4→+5 — 6 600. Всего до +15: обычный 1.9 млн, редкий 3.8 млн, эпик 7.7 млн.
+- Точится любой экземпляр (надетый или свободный); при снятии заточка остаётся на предмете. Нет `refine` в конфиге — заточки нет.
+- Открывается после этапа `ch2_s5` (`data/unlocks.json → refine`, баннер «Новая функция!» ведёт в «Герои»).
+- Статы с заточкой идут везде через `heroGearStats` → `withGear`: бой, мощь K2 (`heroPower`, `squadPower`), «Надеть лучшее»
+  (`gearUpgrades` сравнивает предметы с заточкой: +10 обычный может быть лучше голого эпика).
+
+API (`src/core/equipment/refine.ts`):
+
+```ts
+refineCost(instance, def, ctx)          // { gold } следующего шага или null (максимум / нет конфига)
+refineItem(save, instanceId, ctx)       // { save, events: [{ type: 'refined', instanceId, itemId, from, to, gold }] }
+refineAllPlan(save, heroId, ctx)        // «Заточить всё надетое»: по шагу каждому предмету, пока хватает золота → { steps, gold }
+actRefineAll(save, heroId, ctx)         // выполнить план
+refinedStats(def, refine, ctx), refinedName(def, refine) /* «+7 Меч» */, refineLevel(instance), refineUnlocked(save, ctx)
+```
+
+Ошибки `EquipmentError`: `unknown_item`, `unknown_item_def`, `refine_unavailable` (нет конфига), `refine_locked` (этап не пройден),
+`refine_max`, `not_enough_gold`.
+
+Экраны: окно предмета (Инвентарь → слот героя) — ряд «Заточка +N → +N+1», прирост статов и кнопка «Заточить» с ценой (нет золота —
+серая, касание — «не хватает N»); «+N» на иконке (`itemCell(…, refine)`, `refineBadge`) и в названии; вкладка «Снаряжение» карточки
+героя — «+N» в названиях слотов и «Заточить всё надетое · сумма» с подтверждением. Звук — `equip` (выше тоном) + `coin`, вспышка `burst`.
+Модель игрока и баланс — `docs/content/balance.md`, «Заточка снаряжения».

@@ -118,9 +118,11 @@ for (const s of ctx.content.stages) {
 console.log('\nНа конец дня:');
 for (const d of perDay(res)) {
   const g = res.gemsByDay[d.day - 1] ?? { income: 0, spend: 0 };
+  const rf = res.refineByDay[d.day - 1];
   console.log(
     `  день ${String(d.day).padStart(2)}: этап ${d.stage_reached.padEnd(8)} (${String(d.cleared_count).padStart(2)}), этаж ${String(d.tower_floor).padStart(3)}, ` +
-      `ур. ${d.avg_level}, отряд ${d.rarities}, призвано ${d.summons}, золото ${d.gold}, гемы ${d.gems} (+${g.income} −${g.spend})`,
+      `ур. ${d.avg_level}, мощь ${d.squad_power}, отряд ${d.rarities}, призвано ${d.summons}, золото ${d.gold}, гемы ${d.gems} (+${g.income} −${g.spend})` +
+      (rf && rf.max > 0 ? `, заточка +${rf.avg} (макс. +${rf.max})` : ''),
   );
 }
 
@@ -183,6 +185,7 @@ console.log(
 );
 const shopBuys = Object.entries(res.shopBuys).map(([k, n]) => `${k} ${n}`).join(', ');
 if (shopBuys) console.log(`  лавка, покупки: ${shopBuys}`);
+if (res.refines) console.log(`  заточка: шагов ${res.refines}, золота ${res.spend.refine.gold} (${Math.round((res.spend.refine.gold / Math.max(1, sp.gold)) * 100)}% расхода)`);
 const scrolls = Object.entries(res.scrollsIn).map(([k, n]) => `${k} ${n}`).join(', ');
 if (scrolls) console.log(`  свитки призыва: ${scrolls}`);
 const perSource = (m: Partial<Record<string, number>>) => Object.entries(m).map(([k, n]) => `${k} ${n}`).join(', ');

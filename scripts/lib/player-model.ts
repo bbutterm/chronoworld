@@ -78,6 +78,10 @@ import {
   touchEvents,
   towerUnlocked,
   featureUnlocked,
+  heroSlots,
+  refineCost,
+  refineItem,
+  refineUnlocked,
   buyShopSlot,
   levelUpCost,
   refreshShop,
@@ -149,6 +153,15 @@ export interface PlayerModel {
    */
   shop: boolean;
   /**
+   * Заточка снаряжения (data/drops.json → refine): после подготовки — самый дешёвый шаг среди надетого на отряд, пока
+   * золото сверх резерва (refineReserve: refineReserveLevels уровней на героя + золото на опыт пула). false — не точить.
+   */
+  refine: boolean;
+  /** Сколько уровней вперёд на героя отряда заточка оставляет золота (на потолке уровней — 0). */
+  refineReserveLevels: number;
+  /** Секунд интерфейса на один шаг заточки. */
+  refineSec: number;
+  /**
    * Ветка второй профессии на фиолетовом (docs/design/heroes-v2.md, раздел 7): keep — сохранить роль первой профессии
    * (танк → ветка-танк, лекарь → Жрица; нет такой — первая ветка), alt — другая ветка, random — по id экземпляра.
    */
@@ -181,6 +194,9 @@ export const PLAYER_MODEL: PlayerModel = {
   hunt: true,
   events: true,
   shop: true,
+  refine: true,
+  refineReserveLevels: 5,
+  refineSec: 1,
   branch: 'keep',
   seedBase: 1,
   startDate: '2026-01-01',
@@ -314,7 +330,7 @@ export interface LevelLog {
 }
 
 /** Источники доходов/расходов золота, гемов и опыта. */
-export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'hunt', 'expeditions', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon', 'shop'] as const;
+export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'hunt', 'expeditions', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon', 'shop', 'refine'] as const;
 export type Source = (typeof SOURCES)[number];
 export type Ledger = Record<Source, { gold: number; gems: number; exp: number }>;
 
@@ -367,6 +383,9 @@ export interface BalanceResult {
   huntLog: { day: number; damage: number; tier: number; sweep: boolean }[];
   /** Покупки в Лавке: id товара → сколько раз. */
   shopBuys: Record<string, number>;
+  /** Шагов заточки (всего) и уровни заточки надетого на отряд на конец каждого дня (средний, максимум). */
+  refines: number;
+  refineByDay: { avg: number; max: number }[];
 }
 
 const HOUR = 3_600_000;
@@ -409,6 +428,7 @@ class Sim {
   branches: BalanceResult['branches'] = [];
   eventClaims: BalanceResult['eventClaims'] = [];
   shopBuys: Record<string, number> = {};
+  refines = 0;
   dayNo = 1;
   day: string;
   /** Текущее время, мс от полуночи дня 1. */
@@ -652,8 +672,9 @@ class Sim {
         let best: { id: string; gain: number } | null = null;
         const tried = new Set<string>();
         for (const it of this.save.inventory.items) {
-          if (it.equippedBy !== null || tried.has(it.itemId)) continue;
-          tried.add(it.itemId);
+          const key = `${it.itemId}+${it.refine ?? 0}`;
+          if (it.equippedBy !== null || tried.has(key)) continue;
+          tried.add(key);
           const def = this.ctx.equipment.items[it.itemId];
           if (!def || !canEquip(hero, def, this.ctx)) continue;
           const gain = heroPower(hero, this.ctx, equip(this.save, heroId, it.id, this.ctx)) - base;
@@ -673,6 +694,43 @@ class Sim {
     this.shop();
     this.autoEquip();
     this.save = { ...this.save, squad: this.formation() };
+    this.refine();
+  }
+
+  /**
+   * Золото, которое заточка не трогает: уровни отряда вперёд (refineReserveLevels на героя, не выше предела редкости)
+   * и золото на уровни, которые откроет уже накопленный опыт пула. На потолке уровней резерв — ноль: всё золото сверх
+   * него уходит в заточку. Так главы 1–3 (золото там идёт на уровни) почти не меняются.
+   */
+  refineReserve(): number {
+    let sum = 0;
+    for (const id of this.save.squad) {
+      const h = id ? this.save.heroes.find((x) => x.id === id) : undefined;
+      if (!h) continue;
+      const max = levelUpInfo(this.save, h.id, this.ctx).maxLevel;
+      for (let l = h.level; l < Math.min(max, h.level + this.model.refineReserveLevels); l++) sum += levelUpCost(l, this.ctx).gold;
+    }
+    return Math.max(sum, this.goldForExp(0));
+  }
+
+  /** Заточка надетого на отряд: сначала самый дешёвый шаг, только золото сверх refineReserve. */
+  refine(): void {
+    if (!this.model.refine || !refineUnlocked(this.save, this.ctx)) return;
+    const reserve = this.refineReserve();
+    for (let guard = 0; guard < 500; guard++) {
+      let best: { id: string; gold: number } | null = null;
+      for (const id of this.save.squad) {
+        if (!id) continue;
+        for (const s of Object.values(heroSlots(this.save, id, this.ctx))) {
+          const c = refineCost(s.instance, s.def, this.ctx);
+          if (c && (!best || c.gold < best.gold)) best = { id: s.instance.id, gold: c.gold };
+        }
+      }
+      if (!best || this.save.resources.gold - best.gold < reserve) break;
+      this.step('refine', refineItem(this.save, best.id, this.ctx).save);
+      this.refines++;
+      this.spendTime(this.model.refineSec * 1000);
+    }
   }
 
   /**
@@ -900,6 +958,7 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
   const towerByFloor = new Map<number, number>();
   const huntLog: BalanceResult['huntLog'] = [];
   const purplesByDay: number[] = [];
+  const refineByDay: BalanceResult['refineByDay'] = [];
   const spareByDay: number[] = [];
   const lastChapter = ctx.content.stages[ctx.content.stages.length - 1]?.chapter ?? '';
   // Скорость ×2 открывается этапом (data/unlocks.json → speed_x2): до него бои смотрят на ×1.
@@ -1057,6 +1116,11 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     const sq = new Set(sim.save.squad.filter((id): id is string => id !== null));
     purplesByDay.push(sim.save.heroes.filter((h) => sq.has(h.id) && rarityIndex(h.rarity) >= rarityIndex('purple')).length);
     spareByDay.push(sim.save.heroes.filter((h) => !sq.has(h.id)).length);
+    const worn = sim.save.inventory.items.filter((i) => i.equippedBy !== null && sq.has(i.equippedBy));
+    refineByDay.push({
+      avg: Math.round((worn.reduce((a, i) => a + (i.refine ?? 0), 0) / Math.max(1, worn.length)) * 10) / 10,
+      max: worn.reduce((a, i) => Math.max(a, i.refine ?? 0), 0),
+    });
   }
   return {
     model,
@@ -1085,6 +1149,8 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     spareByDay,
     eventClaims: sim.eventClaims,
     shopBuys: sim.shopBuys,
+    refines: sim.refines,
+    refineByDay,
     activeMinutes: sim.activeMin,
   };
 }
@@ -1120,7 +1186,7 @@ export function findWalls(res: BalanceResult, ctx: GameContext): Wall[] {
 }
 
 /** Этаж башни и число пройденных этапов на конец каждого дня. */
-export function perDay(res: BalanceResult): { day: number; date: string; tower_floor: number; cleared_count: number; gold: number; gems: number; stage_reached: string; rarities: string; avg_level: number; summons: number }[] {
+export function perDay(res: BalanceResult): { day: number; date: string; tower_floor: number; cleared_count: number; gold: number; gems: number; stage_reached: string; rarities: string; avg_level: number; summons: number; squad_power: number }[] {
   const out = new Map<number, SessionRow>();
   for (const r of res.rows) out.set(r.day, r);
   return [...out.values()].map((r) => ({
@@ -1134,6 +1200,7 @@ export function perDay(res: BalanceResult): { day: number; date: string; tower_f
     rarities: r.rarities,
     avg_level: r.avg_level,
     summons: r.summons,
+    squad_power: r.squad_power,
   }));
 }
 

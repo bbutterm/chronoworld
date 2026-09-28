@@ -175,6 +175,65 @@
         "tickMinutes",
         "rules"
       ]
+    },
+    "refine": {
+      "type": "object",
+      "properties": {
+        "maxLevel": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "bonusPerLevel": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "cost": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "object",
+              "properties": {
+                "common": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "rare": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "epic": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "common",
+                "rare",
+                "epic"
+              ]
+            },
+            "growth": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 4
+            }
+          },
+          "required": [
+            "base",
+            "growth"
+          ]
+        }
+      },
+      "required": [
+        "maxLevel",
+        "bonusPerLevel",
+        "cost"
+      ]
     }
   },
   "required": [

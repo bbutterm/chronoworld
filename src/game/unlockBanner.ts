@@ -33,6 +33,7 @@ const GOTO: Record<FeatureId, { scene: string; data?: object }> = {
   tower: { scene: 'Tower' },
   hunt: { scene: 'Hunt' },
   shop: { scene: 'Shop' },
+  refine: { scene: 'Heroes' },
 };
 
 /** Функция открыта у текущего игрока. */

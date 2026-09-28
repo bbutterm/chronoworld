@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { Slot } from '../core';
-import { TINT } from './theme';
+import { C, FS, TINT } from './theme';
+import { text } from './ui';
 
 /**
  * T3-27. Иконки предметов без нового арта: силуэт по слоту (оружие — клинок, лук, посох или топор; доспех, шлем, сапоги), нарисованный на холсте
@@ -191,11 +192,17 @@ export function itemIconKey(scene: Phaser.Scene, slot: Slot, itemId?: string): s
 
 /**
  * Квадрат-ячейка с иконкой предмета: тёмная подложка, рамка и иконка цветом редкости (как ячейки в AFK Arena).
- * Возвращает объекты (подложка, иконка) — вызывающий кладёт их в свой контейнер/список.
+ * Возвращает объекты (подложка, иконка, значок заточки «+N» в левом верхнем углу) — вызывающий кладёт их в свой контейнер/список.
  */
-export function itemCell(scene: Phaser.Scene, x: number, y: number, size: number, slot: Slot | null, color: number, itemId?: string): Phaser.GameObjects.GameObject[] {
+export function itemCell(scene: Phaser.Scene, x: number, y: number, size: number, slot: Slot | null, color: number, itemId?: string, refine = 0): Phaser.GameObjects.GameObject[] {
   const bg = scene.add.rectangle(x, y, size, size, TINT.checkOff, 0.95).setStrokeStyle(4, color, 1);
   if (!slot) return [bg];
   const ico = scene.add.image(x, y, itemIconKey(scene, slot, itemId)).setDisplaySize(size * 0.78, size * 0.78).setTint(color);
-  return [bg, ico];
+  if (refine <= 0) return [bg, ico];
+  return [bg, ico, refineBadge(scene, x - size / 2 + 6, y - size / 2 + 2, refine, size >= 100 ? FS.small : FS.caption)];
+}
+
+/** Значок заточки «+N» (золотой, с обводкой); x, y — левый верхний угол. */
+export function refineBadge(scene: Phaser.Scene, x: number, y: number, refine: number, size: number = FS.caption): Phaser.GameObjects.Text {
+  return text(scene, x, y, `+${refine}`, size, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0).setName('refineBadge');
 }

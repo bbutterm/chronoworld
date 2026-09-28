@@ -1,5 +1,6 @@
 import { canEquip } from '../equipment/equipment';
 import type { EquipmentContext } from '../equipment/load';
+import { refinedStats, refineLevel } from '../equipment/refine';
 import { RARITIES, SLOTS, type ItemDef, type Slot } from '../equipment/schema';
 import type { SaveState } from '../save/schema';
 import { actEquip } from './actions';
@@ -12,7 +13,7 @@ import type { FeatureContext, PowerConfig } from './config';
  */
 
 /** Вклад предмета в мощь героя (hp·k.hp + atk·k.atk + def·k.def + spd·k.spd). */
-export function itemScore(def: ItemDef, k: PowerConfig): number {
+export function itemScore(def: Pick<ItemDef, 'stats'>, k: PowerConfig): number {
   const s = def.stats;
   return (s.hp ?? 0) * k.hp + (s.atk ?? 0) * k.atk + (s.def ?? 0) * k.def + (s.spd ?? 0) * k.spd;
 }
@@ -42,13 +43,15 @@ export function gearUpgrades(save: SaveState, heroId: string, ctx: GearContext):
   for (const slot of SLOTS) {
     const worn = save.inventory.items.find((i) => i.equippedBy === heroId && ctx.equipment.items[i.itemId]?.slot === slot);
     const wornDef = worn ? ctx.equipment.items[worn.itemId] : undefined;
-    const base = wornDef ? itemScore(wornDef, k) : 0;
+    // Заточка считается: +10 обычный меч может быть лучше голого эпика.
+    const score = (def: ItemDef, i: { refine?: number }) => itemScore({ stats: refinedStats(def, refineLevel(i), ctx) }, k);
+    const base = wornDef && worn ? score(wornDef, worn) : 0;
     let best: { id: string; itemId: string; score: number; rarity: number } | null = null;
     for (const i of save.inventory.items) {
       if (i.equippedBy !== null) continue;
       const def = ctx.equipment.items[i.itemId];
       if (!def || def.slot !== slot || !canEquip(hero, def, ctx)) continue;
-      const cand = { id: i.id, itemId: i.itemId, score: itemScore(def, k), rarity: RARITIES.indexOf(def.rarity) };
+      const cand = { id: i.id, itemId: i.itemId, score: score(def, i), rarity: RARITIES.indexOf(def.rarity) };
       if (!best || cand.score > best.score || (cand.score === best.score && (cand.rarity > best.rarity || (cand.rarity === best.rarity && cand.id < best.id)))) best = cand;
     }
     if (best && best.score > base) out.push({ slot, instanceId: best.id, itemId: best.itemId, replaces: worn?.id ?? null, gain: best.score - base });
