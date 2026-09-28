@@ -23,6 +23,7 @@ import {
   heroSkillList,
   heroSlots,
   heroTemplate,
+  jobTitle,
   levelUpInfo,
   markHeroSeen,
   rarityDef,
@@ -45,12 +46,14 @@ import { sfx } from '../audio';
 import { bump, burst, countUp, juiceOn, pulse } from '../juice';
 import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, iconBadge, raysTexture, rarityBackdrop, rarityPalette, rarityPips } from '../heroCard';
-import { browseNeighbours, copyCounter, heroesUi, inventoryUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
+import { ascendHint, browseNeighbours, copyCounter, heroesUi, inventoryUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
 import { openBranchPicker } from '../branchPicker';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
 
 const SKILL_ROW_H = 118;
+/** Редкость в родительном падеже: «растёт до красного». */
+const RARITY_GEN: Record<string, string> = { green: 'зелёного', blue: 'синего', purple: 'фиолетового', gold: 'золотого', red: 'красного' };
 type Tab = 'skills' | 'gear' | 'story';
 const TABS: { id: Tab; label: string }[] = [
   { id: 'skills', label: 'Навыки' },
@@ -283,7 +286,7 @@ export class HeroScene extends Phaser.Scene {
   /** «Выбрать ветку» (бесплатно) или «Сменить ветку» (первая смена бесплатно, дальше гемы). */
   private pickBranch(hero: HeroState, c: HeroCard): void {
     const st = branchStatus(session.save, hero.id, GAME);
-    const jobName = (job: string) => GAME.content.jobs[job]?.name ?? job;
+    const jobName = (job: string) => jobTitle(GAME, job, c.gender);
     const change = st.canChange;
     const other = change ? c.branches.find((b) => b.job !== st.branch)?.job : undefined;
     const gems = session.save.currency.gems;
@@ -297,6 +300,8 @@ export class HeroScene extends Phaser.Scene {
       ...(other ? { selected: other } : {}),
       heroId: hero.id,
       save: session.save,
+      // LT-16: гемов на смену не хватает — кнопка серая, причина над ней.
+      blocked: () => (change && !st.changeFree && gems < st.changeCost ? `Нужно ${formatNumber(st.changeCost)} гемов, есть ${formatNumber(gems)}` : null),
       confirmLabel: (job) => (!job ? 'Выберите ветку' : change ? (st.changeFree ? `Сменить: ${jobName(job)}` : `Сменить за ${formatNumber(st.changeCost)} гемов`) : `Выбрать: ${jobName(job)}`),
       onConfirm: (job) => {
         try {
@@ -371,8 +376,9 @@ export class HeroScene extends Phaser.Scene {
         else asc.setEnabled(false);
         // Обучение (шаг ascend): «Улучшить» уже показано — теперь «Вознести».
         if (canAscend && !hintDone('ascend') && hintDone('level_up')) tutorialHint(this, 'ascend', 560, ACT_Y - 18, 'above', { w: 220, h: 96 }, { text: 'Три копии — «Вознести»: редкость выше, герой сильнее' });
-        const sub = canAscend ? 'копии готовы!' : 'нужны копии';
-        text(this, 560, ACT_Y + 55, sub, FS.caption, canAscend ? C.positive : C.muted, { stroke: C.stroke, strokeThickness: 4 });
+        const hint = ascendHint(session.save, hero.id, GAME);
+        const sub = canAscend ? 'копии готовы!' : (hint?.text ?? 'нужны копии');
+        ellipsize(text(this, 560, ACT_Y + 55, sub, FS.caption, canAscend ? C.positive : C.muted, { stroke: C.stroke, strokeThickness: 4 }), 300);
       }
     } else if (req) {
       const glow = this.add.image(UP_X, ACT_Y, glowTexture(this)).setDisplaySize(520, 240).setTint(0xffe08a).setBlendMode(Phaser.BlendModes.ADD).setAlpha(canAscend ? 0.7 : 0);
@@ -410,9 +416,11 @@ export class HeroScene extends Phaser.Scene {
       const toCap = info.maxLevel - info.level;
       line(ACT_Y + 68, `до предела: ${toCap} ур.`, C.dim);
     } else if (req) {
-      const note = req.blockers[0] ?? 'Предел редкости — вознесите героя';
+      // LT-07: точная причина — копии или золото (с разделителями разрядов).
+      const hint = ascendHint(session.save, hero.id, GAME);
+      const note = !hint || hint.ready ? 'Предел редкости — вознесите героя' : hint.text === 'нужны копии' ? 'Нужны копии героя — «Вознести» покажет, где взять' : `Для вознесения ${hint.text}`;
       line(ACT_Y - 50, 'Предел уровня редкости', C.title, FS.body, true);
-      box.add(text(this, x, ACT_Y + 20, note, FS.caption, req.blockers.length ? C.warning : C.positive, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 560 } }).setOrigin(0, 0.5));
+      box.add(text(this, x, ACT_Y + 20, note, FS.caption, hint && !hint.ready ? C.warning : C.positive, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 560 } }).setOrigin(0, 0.5));
     }
   }
 
@@ -778,7 +786,7 @@ export class HeroScene extends Phaser.Scene {
       y += t.height + 14;
     };
     // Начало пути (первая профессия), затем — форма после возвышения: выбранная ветка целиком, другая — превью серым.
-    const firstJob = CONTENT.jobs[heroTemplate(GAME, hero.templateId).job]?.name;
+    const firstJob = jobTitle(GAME, heroTemplate(GAME, hero.templateId).job, c.gender);
     if (c.branch && firstJob) head(`Начало пути: ${firstJob}`);
     para(c.bio, C.text);
     if (c.hook) para(`«${c.hook}»`, C.title, FS.body, { fontStyle: 'italic' });
@@ -804,7 +812,7 @@ export class HeroScene extends Phaser.Scene {
       }
     }
     y += 10;
-    para(`${c.gender === 'f' ? 'Героиня' : 'Герой'} гильдии ${GUILD_NAMES[c.line] ?? '—'} · ${c.source === 'story' ? 'сюжет' : 'Таверна'} · до «${rarityDef(GAME, c.maxRarity).name}»`, C.dim, FS.caption);
+    para(`${c.gender === 'f' ? 'Героиня' : 'Герой'} гильдии ${GUILD_NAMES[c.line] ?? '—'} · ${c.source === 'story' ? 'сюжет' : 'Таверна'} · растёт до ${RARITY_GEN[c.maxRarity] ?? rarityDef(GAME, c.maxRarity).name.toLowerCase()}`, C.dim, FS.caption);
     para('Растёт копиями: копии этого героя (и любых — на красный) уходят в корм при вознесении.', C.muted, FS.caption);
     for (const s of copySources(session.save, hero.templateId, GAME)) para(`• ${s}`, C.muted, FS.caption);
     a.setContentHeight(y + 10);

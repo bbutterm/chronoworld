@@ -16,6 +16,8 @@ export const JobSchema = z.object({
   $schema: z.string().optional(),
   id,
   name: z.string(),
+  /** Название для героини («Жрица», «Волшебница»); нет — то же, что name. Показ — jobTitle (src/core/heroes/card.ts). */
+  nameF: z.string().optional(),
   description: z.string().optional(),
   /** 0 — Новичок, 1 — первая профессия, 2 — вторая. */
   tier: z.number().int().min(0).max(2),

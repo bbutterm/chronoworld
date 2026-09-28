@@ -2,6 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "swordman",
   "name": "Мечник",
+  "nameF": "Мечница",
   "description": "Первая профессия ветки ближнего боя. Дальше — Рыцарь или Крестоносец.",
   "tier": 1,
   "from": [

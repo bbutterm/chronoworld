@@ -31,6 +31,8 @@ export interface BranchPickerOptions {
   selected?: string;
   /** Подпись кнопки подтверждения по выбранной ветке (null — не выбрана). */
   confirmLabel?: (job: string | null) => string;
+  /** Почему подтвердить нельзя (не хватает гемов на смену) — кнопка серая, причина над ней; null — можно. */
+  blocked?: (job: string | null) => string | null;
   /** Подтверждение (выбрана ветка job). */
   onConfirm?: (job: string) => void;
   /** Закрыть без выбора (по умолчанию — просто убрать окно). */
@@ -87,7 +89,9 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
   };
   const t = GAME.content.heroes[opts.templateId];
   layer.add(text(scene, GAME_W / 2, 200, opts.title, FS.h1, C.title, TITLE_STYLE).setName('branchTitle'));
-  if (opts.subtitle) layer.add(text(scene, GAME_W / 2, 280, opts.subtitle, FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 1000 } }).setMaxLines(2));
+  if (opts.subtitle) layer.add(text(scene, GAME_W / 2, 272, opts.subtitle, FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 1000 } }).setMaxLines(2));
+  // MT-09: описания в панелях короткие — полное по касанию навыка.
+  layer.add(text(scene, GAME_W / 2, 346, 'Коснитесь навыка — полное описание', FS.caption, C.info, OUTLINE));
 
   let selected: string | null = opts.selected && opts.selected !== opts.current ? opts.selected : null;
   const highlights: { job: string; frame: Phaser.GameObjects.Rectangle; glow: Phaser.GameObjects.Image; mark: Phaser.GameObjects.Container }[] = [];
@@ -101,11 +105,12 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
       h.glow.setAlpha(on ? 0.5 : 0);
       h.mark.setVisible(on);
     }
-    const w = selected && opts.heroId && opts.save ? branchRoleWarning(opts.save, opts.heroId, selected) : null;
+    const why = selected ? (opts.blocked?.(selected) ?? null) : null;
+    const w = why ?? (selected && opts.heroId && opts.save ? branchRoleWarning(opts.save, opts.heroId, selected) : null);
     warn.setText(w ?? '');
     if (confirmBtn) {
       confirmBtn.setLabel(opts.confirmLabel?.(selected) ?? 'Выбрать');
-      confirmBtn.setEnabled(!!selected);
+      confirmBtn.setEnabled(!!selected && !why);
     }
   };
 
@@ -137,14 +142,14 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
   } else {
     layer.add(button(scene, 230, BTN_Y, 380, 130, 'k:buttonLong_beige', 'Отмена', close, FS.h2, { sound: 'ui_back' }).container.setName('branchCancel'));
     confirmBtn = button(scene, 720, BTN_Y, 560, 130, 'ui_btn_primary', 'Выбрать', () => {
-      if (!selected) return;
+      if (!selected || opts.blocked?.(selected)) return;
       const job = selected;
       layer.destroy();
       opts.onConfirm?.(job);
     }, FS.h2);
     confirmBtn.container.setName('branchConfirm');
     layer.add(confirmBtn.container);
-    pulse(scene, confirmBtn.container, 1.03);
+    if (!selected || !opts.blocked?.(selected)) pulse(scene, confirmBtn.container, 1.03);
   }
   refresh();
   popIn(scene, layer, shade);
@@ -168,8 +173,9 @@ function branchPanel(
   layer.add(glow);
   if (juiceOn()) scene.tweens.add({ targets: glow, scale: glow.scale * 1.04, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   layer.add(card(scene, x, cy, PANEL_W, PANEL_H));
-  // Витрина цвета редкости под фигурой.
-  const showH = 380;
+  // Витрина цвета редкости под фигурой: длинная строка возвышения — витрина ниже, чтобы цитата влезла целиком.
+  const quoteLines = b.promotion ? wrappedLines(scene, `«${b.promotion}»`, FS.caption, PANEL_W - 50, 'italic').length : 0;
+  const showH = 380 - Math.max(0, Math.min(3, quoteLines - 2)) * 40;
   const showY = TOP + 20 + showH / 2;
   layer.add(scene.add.rectangle(x, showY, PANEL_W - 40, showH, pal.tint, 0.18));
   layer.add(scene.add.image(x, showY + 40, glowTexture(scene)).setDisplaySize(420, 360).setTint(pal.glow).setAlpha(0.35).setBlendMode(Phaser.BlendModes.ADD));
@@ -198,7 +204,7 @@ function branchPanel(
   layer.add(roleText);
   y += 50;
   if (b.promotion) {
-    const p = text(scene, x, y, `«${b.promotion}»`, FS.caption, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: PANEL_W - 50 }, lineSpacing: 2 }).setOrigin(0.5, 0).setMaxLines(3);
+    const p = text(scene, x, y, fitLines(scene, `«${b.promotion}»`, FS.caption, PANEL_W - 50, 5, 'italic'), FS.caption, C.title, { fontStyle: 'italic', ...OUTLINE, lineSpacing: 2 }).setOrigin(0.5, 0);
     layer.add(p);
     y += p.height + 18;
   }
@@ -213,12 +219,11 @@ function branchPanel(
     const sk = CONTENT.skills[s.skill];
     const iy = y + 38;
     layer.add(scene.add.image(left + 34, iy, skillIcon(scene, sk)).setDisplaySize(68, 68));
-    const lv = text(scene, x + PANEL_W / 2 - 22, iy - 18, `ур. ${s.level}`, FS.caption, C.dim).setOrigin(1, 0.5);
-    layer.add(lv);
-    layer.add(ellipsize(text(scene, left + 80, iy - 18, sk?.name ?? s.skill, FS.small, C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), PANEL_W - 130 - lv.width));
+    layer.add(text(scene, left + 34, iy + 54, `ур. ${s.level}`, FS.caption, C.dim));
+    layer.add(ellipsize(text(scene, left + 80, iy - 18, sk?.name ?? s.skill, FS.small, C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), PANEL_W - 110));
     if (sk?.description) {
       const lines = Math.max(1, Math.floor((rowH - 46) / 37));
-      layer.add(text(scene, left + 80, iy + 4, sk.description, FS.caption, C.muted, { align: 'left', wordWrap: { width: PANEL_W - 120 }, lineSpacing: 0 }).setOrigin(0, 0).setMaxLines(lines));
+      layer.add(text(scene, left + 80, iy + 4, fitLines(scene, sk.description, FS.caption, PANEL_W - 120, lines, 'normal', ' ›'), FS.caption, C.muted, { align: 'left', lineSpacing: 0 }).setOrigin(0, 0));
     }
     y += rowH;
   }
@@ -243,4 +248,34 @@ function branchPanel(
     ]));
   }
   return { frame, glow, mark, skillHits };
+}
+
+/** Строки текста после переноса по ширине width (шрифт FS, стиль fontStyle). */
+function wrappedLines(scene: Phaser.Scene, value: string, size: number, width: number, fontStyle = 'normal'): string[] {
+  const probe = text(scene, -9999, -9999, value, size, C.text, { fontStyle, wordWrap: { width } });
+  const lines = probe.getWrappedText(value);
+  probe.destroy();
+  return lines;
+}
+
+/**
+ * MT-09: текст в maxLines строк без обрыва на полуслове — если не влезает, последняя строка укорачивается по словам и
+ * заканчивается «…» (и more — «подробнее ›», когда полный текст открывается касанием).
+ */
+function fitLines(scene: Phaser.Scene, value: string, size: number, width: number, maxLines: number, fontStyle = 'normal', more = ''): string {
+  const lines = wrappedLines(scene, value, size, width, fontStyle);
+  if (lines.length <= maxLines) return lines.join('\n');
+  const keep = lines.slice(0, maxLines);
+  const words = keep[maxLines - 1].trim().split(/\s+/);
+  const probe = text(scene, -9999, -9999, '', size, C.text, { fontStyle });
+  const line = () => `${words.join(' ').replace(/[,.:;—-]+$/, '')}…${more}`;
+  probe.setText(line());
+  while (words.length > 1 && probe.width > width) {
+    words.pop();
+    probe.setText(line());
+  }
+  const last = line();
+  probe.destroy();
+  keep[maxLines - 1] = last;
+  return keep.join('\n');
 }

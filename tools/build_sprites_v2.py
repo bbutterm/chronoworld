@@ -118,7 +118,19 @@ MONSTERS={'melee':('Zombie',1015),'ranged':('Archer Skeleton',1016),'tank':('Wil
           'elite':('Golden Thief Bug',1086),'boss1':('Orc Hero',1087),'boss2':('Baphomet',1039),
           'drops':('Drops',1113),'poporing':('Poporing',1031),'fabre':('Fabre',1007),
           'lunatic':('Lunatic',1063),'mandragora':('Mandragora',1020),'rocker':('Rocker',1052),
-          'mastering':('Mastering',1090)}
+          'mastering':('Mastering',1090),
+          # Chapter 4: Sograt desert; RO mob ids from the art brief.
+           'mummy':('Mummy',1041),'sandman':('Sandman',1165),'marduk':('Marduk',1140),
+ 'scorpion':('Scorpion',1001),'verit':('Verit',1032),'isis':('Isis',1029),
+ # Chapter 5: Payon Forest.
+ 'bongun':('Bongun',1188),'munak':('Munak',1026),'horong':('Horong',1129),
+ 'smokie':('Smokie',1056),'nine_tail':('Nine Tail',1180),'sohee':('Sohee',1170),
+ # Chapter 6: Sunken Ship.
+ 'pirate_skel':('Pirate Skeleton',1071),'kukre':('Kukre',1070),'marse':('Marse',1144),
+ 'swordfish':('Swordfish',1069),'hydra':('Hydra',1068),'obeaune':('Obeaune',1044),
+ # Chapter 7: Niflheim.
+ 'dullahan':('Dullahan',1504),'gibbet':('Gibbet',1503),'banshee':('Banshee',1867),
+ 'bloody_murderer':('Bloody Murderer',1507),'loli_ruri':('Loli Ruri',1505),'quve':('Quve',1508)}
 CACHE_ALIASES={'elite':'boss_ch1','boss1':'boss_ch2','boss2':'boss_ch3'}
 CLASSES={
  'hero':{'cell':[224,192],'anchor':[104,144],'anims':['idle','walk','attack','cast','hurt','death']},
@@ -129,14 +141,25 @@ ANIMS={'idle':{'frames':4,'ms':150,'loop':True},'walk':{'frames':8,'ms':90,'loop
        'attack':{'frames':6,'ms':80,'hitFrame':3},'cast':{'frames':6,'ms':100,'hitFrame':4},
        'hurt':{'frames':3,'ms':100},'death':{'frames':4,'ms':150}}
 OVERRIDES={'monster':{'walk':{'frames':6,'ms':100},'death':{'frames':5,'ms':120}},
-           'boss':{'walk':{'frames':6,'ms':100},'death':{'frames':5,'ms':120}}}
+           'boss':{'walk':{'frames':6,'ms':100},'death':{'frames':5,'ms':120}},
+           'monster_xl':{'walk':{'frames':6,'ms':100},'death':{'frames':5,'ms':120}}}
 MON_ACTION={'idle':6,'walk':14,'attack':22,'hurt':30,'death':38}
 HERO_ACTION={'idle':38,'walk':14,'attack':86,'cast':102,'hurt':54,'death':70}
 # Omit oversized ACT death FX intermediates while retaining original first/last;
 # Willow/Poring have owner approval; new slime exceptions are documented in metadata.
 DEATH_EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
                   'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}
-OVERSIZED_MONSTERS={'rocker'}  # ACT jumping walk/final death exceed the 240x224 cell at x1.
+OVERSIZED_MONSTERS={'rocker','isis'}
+XL_MONSTERS={'sandman','marduk','scorpion','gibbet','bloody_murderer','loli_ruri'}
+EXTRA_BOSSES={'horong','smokie','sohee','swordfish','dullahan','banshee'}
+# Some ACTs have a transparent trailing cel; sample visible death poses instead.
+TRANSPARENT_DEATH={'banshee','quve'}
+CLASSES={
+ 'hero':{'cell':[224,192],'anchor':[104,144],'anims':['idle','walk','attack','cast','hurt','death']},
+ 'monster':{'cell':[240,224],'anchor':[100,120],'anims':['idle','walk','attack','hurt','death']},
+ 'boss':{'cell':[256,256],'anchor':[112,216],'anims':['idle','walk','attack','hurt','death']},
+ 'monster_xl':{'cell':[272,330],'anchor':[167,280],'columns':6,'anims':['idle','walk','attack','hurt','death']},
+}
 # Independently downloaded original RO client SPR/ACT and compared the rendered
 # silhouettes/ACT frame counts with the ragassets APNG source. The independent
 # renderer differs by 1px rounding on some frames, so this is identity/provenance
@@ -210,24 +233,27 @@ def build(cache:Path,oxipng:Path,only=None):
  if only in V1_SPRITES:return upsert_v1(oxipng,[only])
  data={'schema':2,'columns':8,'classes':CLASSES,'anims':ANIMS,'animOverrides':OVERRIDES,'sprites':[],
        'notes':['All frames rendered at native x1 with enableShadow=false and ACT (0,0) at the per-class anchor.',
-                'Class cells and anchors expanded with user approval to avoid ACT-origin clipping.',
+                'Six monster ACTs exceed monster and boss grids; monster_xl is a native-x1 272x330 cell with six columns.',
+                'Transparent terminal death cels on Banshee and Quve are excluded; final visible pose is preserved.',
                 'Willow/Poring/Drops/Poporing death indices skip oversized ACT explosion effects (exception to uniform sampling).',
-                'Ordinary weapon items omit item_db View; weaponView here is renderer weapon-type ID. Guard shield item View 1.']}
+                'Ordinary weapon items omit item_db View; weaponView here is renderer weapon-type ID.']}
  specs=[]
  for name,(job,jobname,gender,weapon,shield,item,shielditem) in HEROES.items():
   specs.append((name,'hero',job,jobname,gender,weapon,shield,item,shielditem))
  for name,(mobname,mobid) in MONSTERS.items():
-  specs.append((name,'boss' if name.startswith('boss') or name=='mastering' or name in OVERSIZED_MONSTERS else 'monster',mobid,mobname,None,0,0,0,0))
+  kind='monster_xl' if name in XL_MONSTERS else 'boss' if name.startswith('boss') or name=='mastering' or name in OVERSIZED_MONSTERS or name in EXTRA_BOSSES else 'monster'
+  specs.append((name,kind,mobid,mobname,None,0,0,0,0))
  if only:
   specs=[spec for spec in specs if spec[0]==only]
   if not specs:raise ValueError(f'unknown sprite id: {only}')
   manifest=OUT/'sprites.json'
   if not manifest.is_file():raise FileNotFoundError(f'--only requires existing {manifest}')
   data=json.loads(manifest.read_text())
+  data['classes']=CLASSES;data['anims']=ANIMS;data['animOverrides']=OVERRIDES
   data['sprites']=[s for s in data['sprites'] if s['id']!=only]
  for name,kind,job,jobname,gender,weapon,shield,item,shielditem in specs:
-  cfg=CLASSES[kind];cw,ch=cfg['cell'];ax,ay=cfg['anchor'];rows=cfg['anims']
-  sheet=Image.new('RGBA',(cw*8,ch*len(rows)))
+  cfg=CLASSES[kind];cw,ch=cfg['cell'];ax,ay=cfg['anchor'];rows=cfg['anims'];columns=cfg.get('columns',8)
+  sheet=Image.new('RGBA',(cw*columns,ch*len(rows)))
   entry={'id':name,'class':kind,'file':f'sprites/{"heroes" if kind=="hero" else "bosses" if kind=="boss" else "monsters"}/{name}.png',
          'source':{'job':jobname,'jobId':job,'gender':gender or 'none',
                    'head':HERO_APPEARANCE.get(name,(1,0))[0] if gender else 0,
@@ -251,7 +277,16 @@ def build(cache:Path,oxipng:Path,only=None):
    if not cached.is_file():raise FileNotFoundError(cached)
    src=Image.open(cached)
    conf=dict(ANIMS[anim]);conf.update(OVERRIDES.get(kind,{}).get(anim,{}));n=conf['frames']
-   indices=DEATH_EXCEPTIONS[name] if anim=='death' and name in DEATH_EXCEPTIONS else sample(getattr(src,'n_frames',1),n,death=(anim=='death'))
+   if anim=='death' and name in TRANSPARENT_DEATH:
+    visible=[]
+    for source_i in range(getattr(src,'n_frames',1)):
+     src.seek(source_i)
+     if bbox(src.convert('RGBA')) is not None:visible.append(source_i)
+    if len(visible)<n:raise RuntimeError(f'{name}:death has only {len(visible)} visible source frames')
+    indices=[visible[i] for i in sample(len(visible),n,death=True)]
+    exception_rows[anim]='Transparent trailing ACT cels omitted; first and last visible poses retained and sampled uniformly.'
+   else:
+    indices=DEATH_EXCEPTIONS[name] if anim=='death' and name in DEATH_EXCEPTIONS else sample(getattr(src,'n_frames',1),n,death=(anim=='death'))
    assert len(indices)==n,(name,anim)
    bounds=[];source_bounds=[]
    for col,index in enumerate(indices):
@@ -298,7 +333,11 @@ def build(cache:Path,oxipng:Path,only=None):
    entry['sourceLimitations']={'walk':'RO renderer omits the equipped weapon during walking action 14',
                               'death':'RO action 70 has one source frame; held to fill the v2 death row'}
   if name in OVERSIZED_MONSTERS:
-   entry['sourceLimitations']={'grid':'Boss-sized cell is required for the native x1 jumping walk and final death frame; the unit is not a boss in gameplay.'}
+   entry['sourceLimitations']={'grid':('Boss-sized cell is required for the native x1 attack above the monster-grid top; the unit is not a boss in gameplay.' if name=='isis' else 'Boss-sized cell is required for the native x1 jumping walk and final death frame; the unit is not a boss in gameplay.')}
+  if name in XL_MONSTERS:
+   entry['sourceLimitations']={'grid':'Full native x1 ACT frames exceed both standard monster and boss cells; a 272x330 six-column native-resolution cell is used. No frames are scaled or cropped.'}
+  if name in TRANSPARENT_DEATH:
+   entry['sourceLimitations']={'death':'A trailing fully transparent ACT cel has no visible pose; the last visible pose is retained as the final animation frame.'}
   if name in ORIGINAL_RO_PROOF:
    entry['source']['independentRoClientProof']={
     'path':'data/sprite/몬스터/'+name+'.spr/.act',

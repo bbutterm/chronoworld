@@ -2,6 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "archer",
   "name": "Лучник",
+  "nameF": "Лучница",
   "description": "Стрелок дальнего боя. Дальше — Охотник или Бард.",
   "tier": 1,
   "from": [

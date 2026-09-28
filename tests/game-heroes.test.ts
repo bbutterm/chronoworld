@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, levelUpInfo, newGame, type SaveState } from '../src/core';
+import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, cardStats, heroCard, heroTemplate, jobTitle, levelUpInfo, newGame, type SaveState } from '../src/core';
 import {
+  ascendButtonState,
+  ascendHint,
+  ascendPower,
   ascendPreview,
+  fodderOptions,
+  fodderSlotCaption,
+  needsBranchPick,
   ascendReadyWith,
   browseNeighbours,
   collectionCount,
@@ -117,7 +123,7 @@ describe('H4 «Вознесение»', () => {
   it('превью: предел, статы, ветка второй профессии (V1 — первая ветка героя)', () => {
     const s = newGame(ctx, 0);
     const alan = { ...s.heroes.find((h) => h.templateId === 'alan')!, rarity: 'blue' as const, level: 40 };
-    const p = ascendPreview(alan, ctx)!;
+    const p = ascendPreview(alan, ctx, 'knight')!;
     expect(p.to).toBe('purple');
     expect(p.maxLevel).toEqual({ from: 40, to: 60 });
     expect(p.newJob).toBe('knight');
@@ -142,6 +148,62 @@ describe('H4 «Вознесение»', () => {
     expect(ascendReadyWith(s, target.id, auto.slice(0, 1), ctx)).toBe(false);
     expect(fodderSlotLabel(req.fodder[0], target, ctx)).toBe('Ирис · Зелёный');
     expect(valuableFodder(s, auto)).toEqual([]);
+  });
+
+  it('экран вознесения: подписи слотов, выбор корма с метками занятых, причина неактивной кнопки', () => {
+    let s = rich();
+    const target = s.heroes.find((h) => h.templateId === 'iris' && h.level === 12)!;
+    const weak = s.heroes.find((h) => h.templateId === 'iris' && h.level === 1)!;
+    const mid = s.heroes.find((h) => h.templateId === 'iris' && h.level === 3)!;
+    let req = ascendRequirement(s, target.id, ctx)!;
+    expect(fodderSlotCaption(req.fodder[0], target, ctx)).toEqual({ who: 'Ирис', rarity: 'зелёный' });
+    expect(fodderSlotCaption({ kind: 'any', rarity: 'purple' }, target, ctx)).toEqual({ who: 'Любой', rarity: 'фиолетовый' });
+    // Пусто — «положите ещё 2»; одна выбрана — «ещё 1»; обе — готово.
+    expect(ascendButtonState(s, target.id, [], ctx).reason).toMatch(/ещё 2 карты/);
+    expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toMatch(/ещё 1 карту/);
+    expect(ascendButtonState(s, target.id, [weak.id, mid.id], ctx)).toEqual({ ready: true, reason: null });
+    // Копия в отряде: в выборе — последней, с меткой, и её не хватает на слот.
+    s = { ...s, squad: [mid.id, null, null, null, null] };
+    req = ascendRequirement(s, target.id, ctx)!;
+    const opts = fodderOptions(s, req, 0, [weak.id]);
+    expect(opts.map((o) => [o.id, o.tag, o.chosen])).toEqual([
+      [weak.id, null, true],
+      [mid.id, 'в отряде', false],
+    ]);
+    expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toBe('Не хватает 1 карты: Ирис, зелёный');
+    // LT-07: подпись на карточке — точная причина (копии есть, не хватает золота).
+    const noGold = { ...s, squad: [null, null, null, null, null], resources: { ...s.resources, gold: 100 } };
+    expect(ascendHint(noGold, target.id, ctx)).toEqual({ ready: false, text: 'нужно 500 золота' });
+    expect(ascendHint(s, target.id, ctx)?.text).toBe('нужны копии');
+    expect(ascendHint({ ...noGold, resources: { ...s.resources } }, target.id, ctx)).toEqual({ ready: true, text: 'копии готовы!' });
+    // Золото — после корма.
+    const poor = { ...s, squad: [null, null, null, null, null], resources: { ...s.resources, gold: 100 } };
+    expect(ascendButtonState(poor, target.id, [weak.id, mid.id], ctx).reason).toBe('Не хватает золота: 400');
+  });
+
+  it('вознесение на фиолетовый: без выбранной ветки кнопка ждёт ветку; мощь «было → станет» растёт', () => {
+    let s = newGame(ctx, 0);
+    const add = (lv: number) => {
+      const r = addHeroCard(s, 'alan', 'blue', { level: lv });
+      s = r.save;
+      return r.hero;
+    };
+    const t = add(40);
+    const f = [add(1).id, add(2).id];
+    s = { ...s, resources: { ...s.resources, gold: 1_000_000 } };
+    expect(ascendButtonState(s, t.id, f, ctx).reason).toBe('Выберите ветку второй профессии');
+    expect(ascendButtonState(s, t.id, f, ctx, { branchChosen: true }).ready).toBe(true);
+    const pw = ascendPower(t, ctx, (h) => cardStats(heroTemplate(ctx, h.templateId), h.level, h.rarity, ctx, h.branch).hp)!;
+    expect(pw.to).toBeGreaterThan(pw.from);
+  });
+
+  it('золотой — большой скачок: статы ×1.35+ к фиолетовому (было ×1.16), красный ещё сильнее, навыки растут', () => {
+    const r = Object.fromEntries(ctx.cards.rarities.map((x) => [x.id, x]));
+    expect(r.gold.statMult / r.purple.statMult).toBeGreaterThanOrEqual(1.35);
+    expect(r.gold.statMult / r.purple.statMult).toBeGreaterThan(r.purple.statMult / r.blue.statMult);
+    expect(r.red.statMult).toBeGreaterThan(r.gold.statMult);
+    expect(r.gold.skillPower).toBeGreaterThan(r.purple.skillPower);
+    expect(r.red.skillPower).toBeGreaterThan(r.gold.skillPower);
   });
 
   it('откуда копии: Таверна, карты героя из наград', () => {
@@ -199,9 +261,31 @@ describe('Герои v2 (V2): копии одной плиткой, счётчи
     s = addHeroCard(s, 'alan', 'blue', { level: 40 }).save;
     const alan = s.heroes[s.heroes.length - 1];
     const t = ctx.content.heroes.alan;
-    expect(ascendPreview(alan, ctx)!.newJob).toBe(t.branches[0].job);
+    // LT-08: ветка не выбрана — превью не обещает профессию (без ветки героя не вознести, выбор — на экране).
+    expect(ascendPreview(alan, ctx)!.newJob).toBeUndefined();
     expect(ascendPreview(alan, ctx, t.branches[1].job)!.newJob).toBe(t.branches[1].job);
-    expect(ascendPreview(alan, ctx, 'no_such_job')!.newJob).toBe(t.branches[0].job);
+    expect(ascendPreview(alan, ctx, 'no_such_job')!.newJob).toBeUndefined();
+    // Фиолетовый без ветки (после «Вознести всех») → золотой: без выбора — без новой профессии; с выбором — ветка.
+    const bare = { ...alan, rarity: 'purple' as const, level: 60 };
+    expect(ascendPreview(bare, ctx)!.newJob).toBeUndefined();
+    expect(ascendPreview(bare, ctx, t.branches[1].job)!.newJob).toBe(t.branches[1].job);
+    expect(needsBranchPick(bare, 'gold')).toBe(true);
+    expect(needsBranchPick({ branch: t.branches[0].job }, 'gold')).toBe(false);
+    expect(needsBranchPick({}, 'blue')).toBe(false);
+  });
+});
+
+describe('названия профессий по полу героя (MT-10)', () => {
+  it('героини — женская форма (nameF), герои и профессии без nameF — обычное название', () => {
+    expect(jobTitle(ctx, 'priest', 'f')).toBe('Жрица');
+    expect(jobTitle(ctx, 'priest', 'm')).toBe('Жрец');
+    expect(jobTitle(ctx, 'wizard', 'f')).toBe('Волшебница');
+    expect(jobTitle(ctx, 'knight', 'f')).toBe(ctx.content.jobs.knight.name);
+    expect(jobTitle(ctx, 'no_such_job', 'f')).toBe('no_such_job');
+    const r = addHeroCard(newGame(ctx, 1_700_000_000_000), 'lira', 'purple', { level: 40 });
+    expect(heroCard({ ...r.hero, branch: 'wizard' }, ctx).jobName).toBe('Волшебница');
+    expect(branchOptions('meilin', ctx).map((b) => b.jobName)).toContain('Охотница');
+    expect(branchOptions('bran', ctx).map((b) => b.jobName)).toContain('Охотник');
   });
 });
 
