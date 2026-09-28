@@ -760,164 +760,609 @@
   "webp": 15268
  },
  "ui/icons/skill_ac_chargearrow.png": {
-  "sha1": "61285874fbae90c426ac6add4361c5c717722171",
-  "png": 1065,
-  "webp": 424
+  "sha1": "b9a4669822f4a7719268994220d06da6fea8a86c",
+  "png": 686,
+  "webp": 294
+ },
+ "ui/icons/skill_ac_concentration.png": {
+  "sha1": "ae0edaadead13650880a22130b50cd9800a73e6e",
+  "png": 511,
+  "webp": 206
  },
  "ui/icons/skill_ac_double.png": {
-  "sha1": "6a3cfb89cadb1df97e8e054cfc4584fc12144691",
-  "png": 1183,
-  "webp": 454
- },
- "ui/icons/skill_ac_owl.png": {
-  "sha1": "fcfc73ff434f1a638ed97effc86a6433ba216650",
-  "png": 944,
-  "webp": 356
- },
- "ui/icons/skill_ac_shower.png": {
-  "sha1": "e4e77a516176b8fa45a669cea93b9b1a338006c6",
-  "png": 1265,
-  "webp": 480
- },
- "ui/icons/skill_ac_vulture.png": {
-  "sha1": "b49ae168f7d2e1582c7d23fc54a9ee46a7e58ac0",
-  "png": 1093,
-  "webp": 412
- },
- "ui/icons/skill_al_blessing.png": {
-  "sha1": "f39af8f8cf703583c64de9aefc2dbb553df1cbf4",
-  "png": 1034,
-  "webp": 372
- },
- "ui/icons/skill_al_dp.png": {
-  "sha1": "79791d3b58592ecf574041aa4fc791207535fce7",
-  "png": 924,
-  "webp": 342
- },
- "ui/icons/skill_al_heal.png": {
-  "sha1": "9d5ad90de66b5883986871025edb3454062c4059",
-  "png": 960,
-  "webp": 346
- },
- "ui/icons/skill_al_holylight.png": {
-  "sha1": "81a60d28b0dfed798583bfecb981d688c496c8ce",
-  "png": 1001,
-  "webp": 380
- },
- "ui/icons/skill_al_incagi.png": {
-  "sha1": "aa777c119fa271c867ba2a6df2e8a3793beeda76",
-  "png": 966,
-  "webp": 350
- },
- "ui/icons/skill_mc_cartrevolution.png": {
-  "sha1": "1fb57402f2df19b4f153303329d72ebb4bdb97be",
-  "png": 915,
-  "webp": 336
- },
- "ui/icons/skill_mc_loud.png": {
-  "sha1": "f7a979415c6eab8769612d296638dcf74476ed3f",
-  "png": 818,
-  "webp": 304
- },
- "ui/icons/skill_mc_mammonite.png": {
-  "sha1": "0dd5638aca707d4fc347c89287c1fd47a2da06cd",
-  "png": 1084,
-  "webp": 432
- },
- "ui/icons/skill_mc_overcharge.png": {
-  "sha1": "b11b0dcca9b304d7a06bd3b5b1560f775701097d",
-  "png": 878,
-  "webp": 328
- },
- "ui/icons/skill_mc_pushcart.png": {
-  "sha1": "01c1891da317eb337d51ffc641591c81980a2503",
-  "png": 849,
-  "webp": 322
- },
- "ui/icons/skill_mg_energycoat.png": {
-  "sha1": "cf7ca10bd4a0c8ab5894e130b1092a3fa6f97010",
-  "png": 950,
-  "webp": 312
- },
- "ui/icons/skill_mg_firebolt.png": {
-  "sha1": "1d85914039d36b9e475eb8b841f2841092ecbf0a",
-  "png": 928,
-  "webp": 316
- },
- "ui/icons/skill_mg_frostdiver.png": {
-  "sha1": "2e71b1ada4c5d8a89fc91c40b21e47a9d5012687",
-  "png": 862,
+  "sha1": "1fcaa0f5b8ab0628ba488dfef23a8a5ef3a85293",
+  "png": 785,
   "webp": 302
  },
- "ui/icons/skill_mg_srecovery.png": {
-  "sha1": "de9230a74548b95773db3545ba707c391fcacb31",
-  "png": 855,
+ "ui/icons/skill_ac_owl.png": {
+  "sha1": "0b0622a63cd12bd7fc03e0a07351d69fcefa7787",
+  "png": 580,
+  "webp": 256
+ },
+ "ui/icons/skill_ac_shower.png": {
+  "sha1": "09048aec7255702c525eb2efb45be1f76f6de124",
+  "png": 809,
+  "webp": 310
+ },
+ "ui/icons/skill_ac_vulture.png": {
+  "sha1": "2fc30cfca84eec25761d23d7194bb7f97e616730",
+  "png": 771,
+  "webp": 288
+ },
+ "ui/icons/skill_al_angelus.png": {
+  "sha1": "b8fe453cd68862c35917fcb4e00733d85207f61f",
+  "png": 545,
+  "webp": 232
+ },
+ "ui/icons/skill_al_blessing.png": {
+  "sha1": "02a69e0436eba67c9316e8fab28d1f8517785883",
+  "png": 636,
+  "webp": 238
+ },
+ "ui/icons/skill_al_crucis.png": {
+  "sha1": "79583653c4a3fdf7651958924797680a100a54df",
+  "png": 617,
+  "webp": 258
+ },
+ "ui/icons/skill_al_dp.png": {
+  "sha1": "0049a80eebf2b11972ae4ca1c27d0a5135cca9d5",
+  "png": 537,
+  "webp": 226
+ },
+ "ui/icons/skill_al_heal.png": {
+  "sha1": "a1d84f5ced95ffc8a6576c7ccb5bc0c08bc45410",
+  "png": 602,
+  "webp": 242
+ },
+ "ui/icons/skill_al_holylight.png": {
+  "sha1": "374017927b37fd6495be995cad4473ec9c0f3c95",
+  "png": 666,
+  "webp": 246
+ },
+ "ui/icons/skill_al_incagi.png": {
+  "sha1": "e53937341671e968e5c9db3e632e3b0381b77307",
+  "png": 616,
+  "webp": 228
+ },
+ "ui/icons/skill_am_acidterror.png": {
+  "sha1": "61ae3e03d3cc1ee4141bd2136d6c721b08efa702",
+  "png": 755,
+  "webp": 294
+ },
+ "ui/icons/skill_am_cp_armor.png": {
+  "sha1": "ac1a20ef0c9715fa3008181b3ac1328a1fc43c2e",
+  "png": 601,
+  "webp": 240
+ },
+ "ui/icons/skill_am_demonstration.png": {
+  "sha1": "f1d4d234f7fac05a13f34c82f575329924b6fc5d",
+  "png": 729,
+  "webp": 298
+ },
+ "ui/icons/skill_am_potionpitcher.png": {
+  "sha1": "43f81552d35949a77546b462a684badb988e87df",
+  "png": 678,
+  "webp": 272
+ },
+ "ui/icons/skill_as_enchantpoison.png": {
+  "sha1": "d44165d3c9030094a0aa289655d54a183e1e76e5",
+  "png": 746,
+  "webp": 258
+ },
+ "ui/icons/skill_as_grimtooth.png": {
+  "sha1": "11027d5ec5e5bb2fc124d3a47ecb15e79749b324",
+  "png": 706,
+  "webp": 266
+ },
+ "ui/icons/skill_as_katar.png": {
+  "sha1": "5afd0a7a8876f2a954c705932a4232d00e7b47d3",
+  "png": 609,
+  "webp": 254
+ },
+ "ui/icons/skill_as_sonicblow.png": {
+  "sha1": "6944d5fb5543cdf2e7f76a608e287d0c37886050",
+  "png": 778,
+  "webp": 310
+ },
+ "ui/icons/skill_as_splasher.png": {
+  "sha1": "6aae612d61dfe8f269cb4a948cd288447f9a0a1d",
+  "png": 667,
+  "webp": 262
+ },
+ "ui/icons/skill_as_venomknife.png": {
+  "sha1": "07a4b68bf3cfe2ec7610cfb1b15874c7b615560f",
+  "png": 1056,
+  "webp": 430
+ },
+ "ui/icons/skill_asc_meteorassault.png": {
+  "sha1": "366069ac7c48df76c191d2abd31b23a39093eb29",
+  "png": 651,
+  "webp": 248
+ },
+ "ui/icons/skill_ba_appleidun.png": {
+  "sha1": "84aede68d4fa45011c460b154deebd9c4f370ce2",
+  "png": 586,
+  "webp": 242
+ },
+ "ui/icons/skill_ba_assassincross.png": {
+  "sha1": "ab2339e06cd2add0fd94272cd885a7d49bf5ca6e",
+  "png": 534,
+  "webp": 240
+ },
+ "ui/icons/skill_ba_frostjoke.png": {
+  "sha1": "246fc3dad9df468a31c1b366364d286fb73b8c7d",
+  "png": 611,
+  "webp": 232
+ },
+ "ui/icons/skill_ba_musicalstrike.png": {
+  "sha1": "f98f1d641125549a806160fe8bfdc5296432868b",
+  "png": 709,
+  "webp": 268
+ },
+ "ui/icons/skill_ba_poembragi.png": {
+  "sha1": "3b92f48fbd55cf5accbf1b74821840fb0a57c03d",
+  "png": 738,
+  "webp": 268
+ },
+ "ui/icons/skill_ba_whistle.png": {
+  "sha1": "943ab8ffc45d8a2a7fb8bb412bc83da5a56287b3",
+  "png": 522,
+  "webp": 226
+ },
+ "ui/icons/skill_bs_adrenaline.png": {
+  "sha1": "cfc5712b3618308dcbcab727cbddf4079545143f",
+  "png": 587,
+  "webp": 220
+ },
+ "ui/icons/skill_bs_hammerfall.png": {
+  "sha1": "3ef5f53e4403fb530d473ed5f169f2f7e5c54f59",
+  "png": 824,
+  "webp": 316
+ },
+ "ui/icons/skill_bs_iron.png": {
+  "sha1": "bb2580a4f8219d72c12222b3a34bcb79ea67cbf4",
+  "png": 638,
+  "webp": 280
+ },
+ "ui/icons/skill_bs_overthrust.png": {
+  "sha1": "e8e3f5ca940311cd652b060c810515141c33761a",
+  "png": 593,
+  "webp": 228
+ },
+ "ui/icons/skill_bs_weaponperfect.png": {
+  "sha1": "f754541c724dc7234ea140b2c9ebf52bb6875cbd",
+  "png": 564,
+  "webp": 224
+ },
+ "ui/icons/skill_cr_aciddemonstration.png": {
+  "sha1": "ee0133fd650a3c658b05b96fb55a7bd688ef188b",
+  "png": 902,
+  "webp": 378
+ },
+ "ui/icons/skill_cr_autoguard.png": {
+  "sha1": "1e3760409396898bf0454554180c177dc047df7d",
+  "png": 561,
+  "webp": 236
+ },
+ "ui/icons/skill_cr_defender.png": {
+  "sha1": "20cae95aff2cd66e5b4bb3198da3402683597412",
+  "png": 701,
+  "webp": 260
+ },
+ "ui/icons/skill_cr_devotion.png": {
+  "sha1": "f539932b02c390b300ddf5e9d798cd0b881af29b",
+  "png": 590,
+  "webp": 224
+ },
+ "ui/icons/skill_cr_grandcross.png": {
+  "sha1": "5e15ad549ab5dda45a8fbba0b93895d2207b8a37",
+  "png": 446,
+  "webp": 204
+ },
+ "ui/icons/skill_cr_holycross.png": {
+  "sha1": "a87c4f8c555e972be2d01637e8970329db2b9a8b",
+  "png": 637,
+  "webp": 260
+ },
+ "ui/icons/skill_cr_shieldcharge.png": {
+  "sha1": "4e7dc924f705c8804ad457109f3be6330f598e4d",
+  "png": 639,
+  "webp": 254
+ },
+ "ui/icons/skill_cr_slimpitcher.png": {
+  "sha1": "394a33a53432e37f1a78f2653ae2d6e5efac5628",
+  "png": 776,
   "webp": 328
  },
+ "ui/icons/skill_cr_trust.png": {
+  "sha1": "a40d1f9e6f2df372a32bf57bc998c30cd9343eac",
+  "png": 496,
+  "webp": 206
+ },
+ "ui/icons/skill_dc_dontforgetme.png": {
+  "sha1": "d0395ef2db1a687f9d504ddc8d6634f6676adf0d",
+  "png": 566,
+  "webp": 234
+ },
+ "ui/icons/skill_dc_fortunekiss.png": {
+  "sha1": "b7979083249f2343f7ae87a0dd814b3edf60caad",
+  "png": 559,
+  "webp": 240
+ },
+ "ui/icons/skill_dc_scream.png": {
+  "sha1": "5d0ca371283c7d4cc125704ce7582001f0167b0e",
+  "png": 539,
+  "webp": 228
+ },
+ "ui/icons/skill_dc_throwarrow.png": {
+  "sha1": "6e06dba1dec62e67f1ff046fe3709e791d0ea024",
+  "png": 596,
+  "webp": 234
+ },
+ "ui/icons/skill_hp_assumptio.png": {
+  "sha1": "c8812f0aa44879c4c8e0ccaff5cac9e2d727df81",
+  "png": 670,
+  "webp": 250
+ },
+ "ui/icons/skill_ht_anklesnare.png": {
+  "sha1": "e9844671f7e750067bc1daeee168ee8e0f7dabdd",
+  "png": 562,
+  "webp": 200
+ },
+ "ui/icons/skill_ht_beastbane.png": {
+  "sha1": "e327b6fb68f397b06bcd96b2f99270f3d380b678",
+  "png": 556,
+  "webp": 226
+ },
+ "ui/icons/skill_ht_blitzbeat.png": {
+  "sha1": "af22bbfded37451683827139f7d7936ef70a023f",
+  "png": 754,
+  "webp": 294
+ },
+ "ui/icons/skill_ht_claymoretrap.png": {
+  "sha1": "793fbae909ba0fd6fd53e99f7315acab1d3d7b6f",
+  "png": 563,
+  "webp": 222
+ },
+ "ui/icons/skill_ht_sandman.png": {
+  "sha1": "4b811517c38fdac7286fbaf3e58b018780b5b870",
+  "png": 541,
+  "webp": 212
+ },
+ "ui/icons/skill_ht_steelcrow.png": {
+  "sha1": "ac6dd62942118eba0a0ffa1708a9f14c31b97376",
+  "png": 572,
+  "webp": 268
+ },
+ "ui/icons/skill_hw_magicpower.png": {
+  "sha1": "acbe82e23dc2964f0a451a1f439d24f43b7b79a5",
+  "png": 633,
+  "webp": 246
+ },
+ "ui/icons/skill_hw_souldrain.png": {
+  "sha1": "07692b48673f8d1a50e8589436677e2aa81d5095",
+  "png": 744,
+  "webp": 266
+ },
+ "ui/icons/skill_kn_autocounter.png": {
+  "sha1": "9fd3290b23380ad364360c36d3c20fbf159496d9",
+  "png": 604,
+  "webp": 220
+ },
+ "ui/icons/skill_kn_bowlingbash.png": {
+  "sha1": "a3247d950945b9fb103e8516ad05065fd62657f3",
+  "png": 752,
+  "webp": 308
+ },
+ "ui/icons/skill_kn_chargeatk.png": {
+  "sha1": "c0855f6f70797744081ede1a2a1ba9864533680c",
+  "png": 651,
+  "webp": 286
+ },
+ "ui/icons/skill_kn_twohandquicken.png": {
+  "sha1": "3490e0deb215ef9381ae7c7a79fcbc005fc2f2ed",
+  "png": 587,
+  "webp": 220
+ },
+ "ui/icons/skill_lk_parrying.png": {
+  "sha1": "269c2864db05e7873fbecafdc6f5471fb5927908",
+  "png": 667,
+  "webp": 252
+ },
+ "ui/icons/skill_lk_spiralpierce.png": {
+  "sha1": "1eb0a24476057b1c1fdf21bb4c5be9d32a45fb0a",
+  "png": 677,
+  "webp": 254
+ },
+ "ui/icons/skill_mc_cartrevolution.png": {
+  "sha1": "eeeabc041d9ceeda9c3225a8f8f1d6187c40ead7",
+  "png": 573,
+  "webp": 238
+ },
+ "ui/icons/skill_mc_loud.png": {
+  "sha1": "489b0e47a5567ff050583a614f7c075d0250c4ef",
+  "png": 520,
+  "webp": 202
+ },
+ "ui/icons/skill_mc_mammonite.png": {
+  "sha1": "23a068fe246f096d3bb1c4f375fe319036fbeb16",
+  "png": 659,
+  "webp": 282
+ },
+ "ui/icons/skill_mc_overcharge.png": {
+  "sha1": "2930a5dbcd93e3d935a22fada58c012e5bd3694d",
+  "png": 519,
+  "webp": 224
+ },
+ "ui/icons/skill_mc_pushcart.png": {
+  "sha1": "dd3d14bcfc1b0c3131f1f1e9dc6277032507c42d",
+  "png": 496,
+  "webp": 240
+ },
+ "ui/icons/skill_mg_coldbolt.png": {
+  "sha1": "e48593ec29a8996926f0f0096a67274a487bf4af",
+  "png": 477,
+  "webp": 206
+ },
+ "ui/icons/skill_mg_energycoat.png": {
+  "sha1": "43825db9115f8f5d5862d8586e882a4245ff9f08",
+  "png": 601,
+  "webp": 216
+ },
+ "ui/icons/skill_mg_fireball.png": {
+  "sha1": "a701807b499abd1eecdcfd16a1a015338e6818bb",
+  "png": 582,
+  "webp": 220
+ },
+ "ui/icons/skill_mg_firebolt.png": {
+  "sha1": "100e1bb40247c897885b19a3c672fe6b123eba82",
+  "png": 549,
+  "webp": 208
+ },
+ "ui/icons/skill_mg_frostdiver.png": {
+  "sha1": "379e1cd1ac221e22aeb87a6cbcb16f66701ece64",
+  "png": 493,
+  "webp": 218
+ },
+ "ui/icons/skill_mg_safetywall.png": {
+  "sha1": "b54bb0dc8fd3d0e1b7bb4e6a732a929c452545fb",
+  "png": 349,
+  "webp": 168
+ },
+ "ui/icons/skill_mg_srecovery.png": {
+  "sha1": "cf5158ab6d2058b96ba968a36f6f9ce7b84baf1d",
+  "png": 500,
+  "webp": 226
+ },
  "ui/icons/skill_mg_thunderstorm.png": {
-  "sha1": "5d6de357d95531e7a3b6c1ee886ff2ba0336048d",
-  "png": 1045,
-  "webp": 354
+  "sha1": "8d1874beafdb172156de5a57be36a8fc49ea898c",
+  "png": 652,
+  "webp": 236
+ },
+ "ui/icons/skill_mo_bladestop.png": {
+  "sha1": "e0846373c45446f0864b951d2232ab8e40540203",
+  "png": 542,
+  "webp": 232
+ },
+ "ui/icons/skill_mo_callspirits.png": {
+  "sha1": "e0a94b5f6c6758504354edc55eb001d5baae6b74",
+  "png": 622,
+  "webp": 254
+ },
+ "ui/icons/skill_mo_extremityfist.png": {
+  "sha1": "6f0e37e80a3fb86ed21d0546418fc9706d1fc09d",
+  "png": 680,
+  "webp": 246
+ },
+ "ui/icons/skill_mo_investigate.png": {
+  "sha1": "b7121a1e64fc5e8eab67530efbe948259663dcd0",
+  "png": 481,
+  "webp": 222
+ },
+ "ui/icons/skill_mo_ironhand.png": {
+  "sha1": "77c6b473753167cd8a804516fcda9b2bb0b067a3",
+  "png": 495,
+  "webp": 232
+ },
+ "ui/icons/skill_mo_steelbody.png": {
+  "sha1": "29d7ae4ee27161175909e2fbe5c8f0238a36d8b0",
+  "png": 516,
+  "webp": 220
+ },
+ "ui/icons/skill_mo_tripleattack.png": {
+  "sha1": "ff84cbc4bae9dad2f20e93baddd62fb2d86c2e14",
+  "png": 570,
+  "webp": 254
  },
  "ui/icons/skill_nv_firstaid.png": {
-  "sha1": "2fb60494afeee27377d05cfd4dabc49b76d18565",
-  "png": 788,
-  "webp": 270
+  "sha1": "3663bdb30cbd1afc60a62f21a541f37af85ce514",
+  "png": 444,
+  "webp": 182
+ },
+ "ui/icons/skill_pr_impositio.png": {
+  "sha1": "544638b1b516bf829cc23398e21d351200e1d912",
+  "png": 632,
+  "webp": 254
+ },
+ "ui/icons/skill_pr_kyrie.png": {
+  "sha1": "c314315b311038a269ed998934b2e7fdfb80f868",
+  "png": 657,
+  "webp": 260
+ },
+ "ui/icons/skill_pr_lexaeterna.png": {
+  "sha1": "010f48457606c55b33023c4582b92e0ce636a178",
+  "png": 816,
+  "webp": 292
+ },
+ "ui/icons/skill_pr_magnificat.png": {
+  "sha1": "f48d210f0d91fa15589d06a570fe242f554a1a1e",
+  "png": 717,
+  "webp": 288
+ },
+ "ui/icons/skill_pr_magnus.png": {
+  "sha1": "737dfafbf643fa91c1169b1537b81cb184355299",
+  "png": 709,
+  "webp": 278
  },
  "ui/icons/skill_pr_sanctuary.png": {
   "sha1": "28cdab4714aee85fe41170922c07122ea87fa022",
   "png": 800,
   "webp": 276
  },
+ "ui/icons/skill_rg_backstap.png": {
+  "sha1": "0225f2aa07b9ca4638a7e55910698060f33bab0d",
+  "png": 586,
+  "webp": 236
+ },
+ "ui/icons/skill_rg_plagiarism.png": {
+  "sha1": "fd293b5283c76642ff978754b137bd51b5f2be0d",
+  "png": 663,
+  "webp": 262
+ },
+ "ui/icons/skill_rg_raid.png": {
+  "sha1": "dd8d1a6cfd89fb63d196c12a31823b5899f3e051",
+  "png": 639,
+  "webp": 258
+ },
+ "ui/icons/skill_rg_snatcher.png": {
+  "sha1": "26d96dafc45991f2cb45625174523bfadbbe8478",
+  "png": 644,
+  "webp": 270
+ },
+ "ui/icons/skill_rg_striparmor.png": {
+  "sha1": "a86aa42cc1f3ca7e88266d9a320e8ff6d8f9589a",
+  "png": 666,
+  "webp": 262
+ },
+ "ui/icons/skill_rg_stripweapon.png": {
+  "sha1": "046ce5177702b785c39d0f5f2fd5be958b098f95",
+  "png": 624,
+  "webp": 256
+ },
+ "ui/icons/skill_sa_dispell.png": {
+  "sha1": "e8277ee46377971d8b5386e1973f9f69ac46c3bb",
+  "png": 650,
+  "webp": 258
+ },
+ "ui/icons/skill_sa_freecast.png": {
+  "sha1": "0a83da99ea93a455e94e03529ca270db3392c877",
+  "png": 612,
+  "webp": 266
+ },
+ "ui/icons/skill_sa_magicrod.png": {
+  "sha1": "4269292f403ef897e5b70badcfb62ff135bad5b0",
+  "png": 587,
+  "webp": 234
+ },
+ "ui/icons/skill_sa_volcano.png": {
+  "sha1": "3e4144dfe495613e2fe0ef78f7f15965bac1e382",
+  "png": 580,
+  "webp": 220
+ },
+ "ui/icons/skill_sm_autoberserk.png": {
+  "sha1": "72691cc5f893dcfa92f3f9f4cb5c36adfda05319",
+  "png": 519,
+  "webp": 226
+ },
  "ui/icons/skill_sm_bash.png": {
-  "sha1": "1080d6aac3607f41b406c53440b541d8008e04d8",
-  "png": 1158,
-  "webp": 430
+  "sha1": "e12b83173433b923f213cadc360491f9c764daf2",
+  "png": 673,
+  "webp": 290
  },
  "ui/icons/skill_sm_endure.png": {
-  "sha1": "0bcbed7d26be266576c6a4429be558fdfd7fd4d8",
-  "png": 744,
-  "webp": 268
+  "sha1": "ee7b3610c28925b1b0c30549229e663be8198915",
+  "png": 435,
+  "webp": 178
  },
  "ui/icons/skill_sm_magnum.png": {
-  "sha1": "180262ac17037f6d97baa168a78754b40112081b",
-  "png": 1244,
-  "webp": 450
+  "sha1": "357b97b360ba214ba580ff994c258517bcc93367",
+  "png": 795,
+  "webp": 314
  },
  "ui/icons/skill_sm_provoke.png": {
-  "sha1": "12947c0ab5e6bf12c0599f731f15920831970256",
-  "png": 827,
-  "webp": 304
+  "sha1": "bdcd6810a7e8a5a1f5f70915690b87cadcabc391",
+  "png": 517,
+  "webp": 204
  },
  "ui/icons/skill_sm_recovery.png": {
-  "sha1": "fa024054da066490bbcb506bb0e8a4d9d41a7e56",
-  "png": 843,
-  "webp": 326
+  "sha1": "6b4f0e7c3d18c9feda46e19f2043329d3ffe865e",
+  "png": 513,
+  "webp": 236
+ },
+ "ui/icons/skill_sm_twohand.png": {
+  "sha1": "b6d35cfacf4cad3472f5b74228dddbd6bbf5302a",
+  "png": 597,
+  "webp": 274
+ },
+ "ui/icons/skill_sn_falconassault.png": {
+  "sha1": "90dc135c1564f291a7949bcb15b1b9c5a5470bbf",
+  "png": 633,
+  "webp": 224
  },
  "ui/icons/skill_tf_double.png": {
-  "sha1": "51ebff89498df4eef9a033e71a9fde173345d2b6",
-  "png": 923,
-  "webp": 334
+  "sha1": "9aa20dba8e25899b0348cb5ee44414801bd94b0c",
+  "png": 575,
+  "webp": 252
  },
  "ui/icons/skill_tf_miss.png": {
-  "sha1": "6bacd594ec7e5508120967c4903421b6dc9e0a44",
-  "png": 941,
-  "webp": 348
+  "sha1": "d517d5866b6844327bd6f1166dc760e211ca9980",
+  "png": 553,
+  "webp": 238
  },
  "ui/icons/skill_tf_poison.png": {
-  "sha1": "bbf0c686c9c30527cf03fc15a840debbd0f62c53",
-  "png": 823,
-  "webp": 302
+  "sha1": "b74acaeeb7a95bda521c4ca2da7205978916b0b9",
+  "png": 491,
+  "webp": 202
  },
  "ui/icons/skill_tf_sprinklesand.png": {
-  "sha1": "dc3775571ddec17afc889738fd4196cbdc00510a",
-  "png": 849,
-  "webp": 300
+  "sha1": "6b3ca6c4f843f0bcd20a77245856c7ce9e35ae80",
+  "png": 545,
+  "webp": 198
  },
  "ui/icons/skill_tf_steal.png": {
-  "sha1": "6ca7db68b62db4d85fea3a3f233955567538263f",
-  "png": 902,
-  "webp": 308
+  "sha1": "032f15b155bdcde1f985bd0f9b565f825e55d8d4",
+  "png": 567,
+  "webp": 222
+ },
+ "ui/icons/skill_ws_carttermination.png": {
+  "sha1": "f177e45ed7279d74298c40a9e9ab67d42edd612e",
+  "png": 791,
+  "webp": 348
+ },
+ "ui/icons/skill_wz_earthspike.png": {
+  "sha1": "f7df4e5bf1fd4e163d889d6bc541fa0bdcbe5bf1",
+  "png": 470,
+  "webp": 206
+ },
+ "ui/icons/skill_wz_frostnova.png": {
+  "sha1": "ad3839305bf536b301b7e9872ef81ae570e6217b",
+  "png": 563,
+  "webp": 232
+ },
+ "ui/icons/skill_wz_heavendrive.png": {
+  "sha1": "cf926c4af2e8a22682c3ab160be5f454fbfeb5b1",
+  "png": 672,
+  "webp": 254
+ },
+ "ui/icons/skill_wz_jupitel.png": {
+  "sha1": "55a9c619b629a2a35e3ab5b04be9fa088e13a90c",
+  "png": 588,
+  "webp": 238
+ },
+ "ui/icons/skill_wz_meteor.png": {
+  "sha1": "ea1cc11baf7fa94a26e19a0fd14cd1aa6d77d0a1",
+  "png": 655,
+  "webp": 226
+ },
+ "ui/icons/skill_wz_quagmire.png": {
+  "sha1": "d73d7a920364a807db802a86b5b72e5bb07b44ff",
+  "png": 485,
+  "webp": 218
+ },
+ "ui/icons/skill_wz_stormgust.png": {
+  "sha1": "f13f5b78bd04aedca005ea3b191b835f5853f0b3",
+  "png": 519,
+  "webp": 192
  },
  "ui/kenney_uipack_rpg_sheet.png": {
   "sha1": "1a841d57dc3317beeb22eade9b3fe4e89c641a20",

@@ -130,9 +130,9 @@ export function drawSkillIcon(c: Ctx, size: number, look: SkillLook, art?: Canva
     c.shadowColor = 'rgba(0,0,0,0.7)';
     c.shadowBlur = size * 0.04;
     c.shadowOffsetY = size * 0.015;
-    const a = size * 0.86;
+    const a = artSize(art, size);
     c.globalAlpha = passive ? 0.88 : 1;
-    c.drawImage(art, (size - a) / 2, (size - a) / 2, a, a);
+    c.drawImage(art, Math.round((size - a) / 2), Math.round((size - a) / 2), a, a);
     c.restore();
   } else {
     // Символ.
@@ -169,6 +169,16 @@ export function drawSkillIcon(c: Ctx, size: number, look: SkillLook, art?: Canva
     c.strokeStyle = 'rgba(255,240,200,0.35)';
     c.stroke();
   }
+}
+
+/**
+ * Размер иконки RO в значке: родные 24×24 (tools/extract_ro_skill_icons.py) — целым кратным (96 → ×3 = 72 px), чтобы
+ * пиксели ложились ровной сеткой; крупная картинка — 86% значка.
+ */
+export function artSize(art: CanvasImageSource, size: number): number {
+  const w = (art as { width?: number }).width ?? 0;
+  const k = w > 0 ? Math.floor((size * 0.82) / w) : 0;
+  return k >= 1 && w <= 48 ? w * k : size * 0.86;
 }
 
 function rays(c: Ctx, size: number, color: string): void {
@@ -484,6 +494,17 @@ const GLYPHS: Record<Glyph, (c: Ctx, f: [string, string], p: boolean) => void> =
     c.beginPath();
     c.moveTo(20, 8); c.lineTo(22, 13); c.moveTo(32, 5); c.lineTo(32, 11); c.moveTo(44, 8); c.lineTo(42, 13);
     strokeGlyph(c, f, 2.5, p);
+  },
+  pan: (c, f, p) => {
+    // Сковорода: круг и ручка по диагонали, три звезды удара.
+    c.beginPath();
+    c.arc(26, 38, 17, 0, Math.PI * 2);
+    c.moveTo(37, 26); c.lineTo(54, 9); c.lineTo(58, 13); c.lineTo(41, 30);
+    finish(c, f, p);
+    c.beginPath(); c.arc(26, 38, 11, 0, Math.PI * 2);
+    c.lineWidth = 2.5; c.strokeStyle = 'rgba(40,30,20,0.7)'; c.stroke();
+    c.beginPath(); star(c, 48, 44, 6); star(c, 14, 14, 5);
+    c.fillStyle = '#ffe060'; c.fill();
   },
   coin: (c, f, p) => {
     c.beginPath(); c.arc(32, 32, 22, 0, Math.PI * 2);

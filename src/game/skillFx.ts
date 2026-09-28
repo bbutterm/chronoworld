@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_H, GAME_W } from './layout';
 import { clamp01, ease, Pool } from './perf';
 import type { Area, Projectile } from './skillLook';
+import type { SkillHit } from './skillVisuals';
 import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey } from './animatedFx';
 import { motion } from './state';
 
@@ -36,7 +37,20 @@ const TEX = {
   puff: 'sfx_puff',
   streak: 'sfx_streak',
   vine: 'sfx_vine',
+  note: 'sfx_note',
+  bird: 'sfx_bird',
+  trap: 'sfx_trap',
+  flask: 'sfx_flask',
+  heart: 'sfx_heart',
+  blade: 'sfx_blade',
+  shield: 'sfx_shield',
+  hcross: 'sfx_hcross',
+  feather: 'sfx_feather',
+  pan: 'sfx_pan',
 } as const;
+
+/** Текстуры эффектов (для рецептов навыков skillSigs.ts). */
+export const FX_TEX = TEX;
 
 /** Звёздочка оглушения (белая, красится) — BattleScene крутит её над головой оглушённого. */
 export const STAR_TEX = TEX.star;
@@ -47,8 +61,7 @@ export const STAR_TEX = TEX.star;
  */
 export type HitStyle = 'slash' | 'stab' | 'blunt' | 'arrow' | 'magic' | 'holy' | 'bite' | 'slime';
 
-/** Особый вид попадания навыка (на каждую цель, в момент удара). */
-export type SkillHit = 'bash' | 'envenom' | 'steal' | 'sand' | 'coins' | 'knock' | 'ice' | 'kick' | 'smash' | 'roots' | 'goo' | 'mud' | 'bite' | 'leap' | 'cart' | 'fire' | 'bounce';
+export type { SkillHit } from './skillVisuals';
 
 /** Огненная стрела (RO Fire Bolt): стрелы падают сверху наискосок на цель одна за другой, каждая — взрыв огня. */
 export const FIRE_BOLT_MS = 300;
@@ -358,6 +371,193 @@ export function buildSkillFxTextures(scene: Phaser.Scene): void {
     c.lineWidth = 2;
     c.beginPath(); c.moveTo(24, 4); c.lineTo(28, 60); c.stroke();
   });
+  buildSkillSigTextures(scene);
+}
+
+/** Текстуры рецептов навыков вторых профессий (белые — красятся; с тёмной обводкой — читаются на траве). */
+function buildSkillSigTextures(scene: Phaser.Scene): void {
+  // Нота ♪ (белая с тёмной обводкой: красится в цвет песни).
+  canvasTex(scene, TEX.note, 40, 56, (c) => {
+    const path = () => {
+      c.beginPath();
+      c.ellipse(13, 44, 10, 7.5, -0.4, 0, Math.PI * 2);
+      c.moveTo(20, 42); c.lineTo(22, 6); c.lineTo(36, 14); c.lineTo(35, 21); c.lineTo(25, 16); c.lineTo(23, 43);
+      c.closePath();
+    };
+    c.lineJoin = 'round';
+    c.strokeStyle = 'rgba(20,10,30,0.85)';
+    c.lineWidth = 5;
+    path(); c.stroke();
+    c.fillStyle = '#ffffff';
+    path(); c.fill();
+  });
+  // Сокол (силуэт с раскрытыми крыльями, клюв вправо): тёмно-бурый с белой грудью — цветной, не красится.
+  canvasTex(scene, TEX.bird, 96, 64, (c) => {
+    c.lineJoin = 'round';
+    const body = () => {
+      c.beginPath();
+      c.moveTo(94, 30); c.lineTo(82, 26); c.quadraticCurveTo(72, 18, 60, 24);
+      c.quadraticCurveTo(40, 2, 12, 4); c.quadraticCurveTo(34, 16, 40, 28);
+      c.lineTo(8, 30); c.lineTo(22, 36); c.lineTo(4, 42); c.lineTo(38, 38);
+      c.quadraticCurveTo(34, 56, 18, 62); c.quadraticCurveTo(50, 58, 60, 38);
+      c.quadraticCurveTo(76, 40, 84, 33);
+      c.closePath();
+    };
+    c.strokeStyle = '#1a1006';
+    c.lineWidth = 4;
+    body(); c.stroke();
+    const g = c.createLinearGradient(0, 0, 0, 64);
+    g.addColorStop(0, '#8a5a2a');
+    g.addColorStop(1, '#4a2e12');
+    c.fillStyle = g;
+    body(); c.fill();
+    c.fillStyle = '#f4ead8';
+    c.beginPath(); c.ellipse(70, 31, 10, 5, 0, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#ffd040';
+    c.beginPath(); c.moveTo(94, 30); c.lineTo(84, 27); c.lineTo(85, 33); c.closePath(); c.fill();
+    c.fillStyle = '#000';
+    c.beginPath(); c.arc(80, 28, 1.8, 0, Math.PI * 2); c.fill();
+  });
+  // Капкан: железные челюсти с зубьями (серый металл, цветной).
+  canvasTex(scene, TEX.trap, 96, 48, (c) => {
+    c.lineJoin = 'round';
+    c.strokeStyle = '#1a1a20';
+    c.lineWidth = 4;
+    const g = c.createLinearGradient(0, 0, 0, 48);
+    g.addColorStop(0, '#e8ecf4');
+    g.addColorStop(1, '#6a7080');
+    for (const flip of [1, -1]) {
+      c.save();
+      c.translate(48, 26);
+      c.scale(1, flip);
+      c.beginPath();
+      c.moveTo(-44, 2); c.lineTo(44, 2);
+      for (let i = 0; i < 7; i++) {
+        const x = 44 - (i + 0.5) * (88 / 7);
+        c.lineTo(x + 6, -4); c.lineTo(x, -18); c.lineTo(x - 6, -4);
+      }
+      c.closePath();
+      c.fillStyle = g;
+      c.fill();
+      c.stroke();
+      c.restore();
+    }
+    c.fillStyle = '#4a4e5a';
+    c.beginPath(); c.arc(48, 28, 6, 0, Math.PI * 2); c.fill(); c.stroke();
+  });
+  // Колба зелья: белая (красится цветом зелья), тёмная обводка, пробка, блик.
+  canvasTex(scene, TEX.flask, 40, 56, (c) => {
+    c.lineJoin = 'round';
+    const path = () => {
+      c.beginPath();
+      c.moveTo(15, 8); c.lineTo(25, 8); c.lineTo(25, 20);
+      c.quadraticCurveTo(38, 28, 36, 40); c.quadraticCurveTo(34, 53, 20, 53);
+      c.quadraticCurveTo(6, 53, 4, 40); c.quadraticCurveTo(2, 28, 15, 20);
+      c.closePath();
+    };
+    c.strokeStyle = '#1a1010';
+    c.lineWidth = 4;
+    path(); c.stroke();
+    c.fillStyle = '#ffffff';
+    path(); c.fill();
+    c.fillStyle = '#8a5a2a';
+    c.fillRect(14, 2, 12, 8);
+    c.strokeRect(14, 2, 12, 8);
+    c.fillStyle = 'rgba(255,255,255,0.9)';
+    c.beginPath(); c.ellipse(13, 36, 3, 7, 0.3, 0, Math.PI * 2); c.fill();
+  });
+  // Сердечко (белое, красится).
+  canvasTex(scene, TEX.heart, 40, 36, (c) => {
+    const path = () => {
+      c.beginPath();
+      c.moveTo(20, 34);
+      c.bezierCurveTo(2, 22, 0, 8, 10, 4);
+      c.bezierCurveTo(16, 1, 20, 6, 20, 10);
+      c.bezierCurveTo(20, 6, 24, 1, 30, 4);
+      c.bezierCurveTo(40, 8, 38, 22, 20, 34);
+      c.closePath();
+    };
+    c.strokeStyle = 'rgba(60,0,20,0.8)';
+    c.lineWidth = 3;
+    path(); c.stroke();
+    c.fillStyle = '#ffffff';
+    path(); c.fill();
+  });
+  // Клинок (остриё вправо): светлая сталь с тёмной обводкой, золотая гарда — цветной.
+  canvasTex(scene, TEX.blade, 112, 28, (c) => {
+    c.lineJoin = 'round';
+    c.strokeStyle = '#141820';
+    c.lineWidth = 3;
+    c.beginPath(); c.moveTo(34, 9); c.lineTo(100, 11); c.lineTo(110, 14); c.lineTo(100, 17); c.lineTo(34, 19); c.closePath();
+    const g = c.createLinearGradient(0, 9, 0, 19);
+    g.addColorStop(0, '#ffffff');
+    g.addColorStop(1, '#9aa4b8');
+    c.fillStyle = g;
+    c.fill(); c.stroke();
+    c.fillStyle = '#e8b830';
+    c.fillRect(28, 3, 7, 22); c.strokeRect(28, 3, 7, 22);
+    c.fillStyle = '#6a3a18';
+    c.fillRect(6, 10, 22, 8); c.strokeRect(6, 10, 22, 8);
+  });
+  // Щит (белый с обводкой и крестом — красится цветом навыка).
+  canvasTex(scene, TEX.shield, 64, 76, (c) => {
+    c.lineJoin = 'round';
+    const path = () => {
+      c.beginPath();
+      c.moveTo(32, 4); c.quadraticCurveTo(46, 12, 60, 10); c.quadraticCurveTo(62, 52, 32, 72);
+      c.quadraticCurveTo(2, 52, 4, 10); c.quadraticCurveTo(18, 12, 32, 4);
+      c.closePath();
+    };
+    c.strokeStyle = '#141820';
+    c.lineWidth = 5;
+    path(); c.stroke();
+    const g = c.createLinearGradient(0, 4, 0, 72);
+    g.addColorStop(0, '#ffffff');
+    g.addColorStop(1, '#b8c0d0');
+    c.fillStyle = g;
+    path(); c.fill();
+    c.fillStyle = 'rgba(60,70,100,0.5)';
+    c.fillRect(28, 16, 8, 44);
+    c.fillRect(14, 28, 36, 8);
+  });
+  // Святой крест (белый, светится; длинная нижняя перекладина).
+  canvasTex(scene, TEX.hcross, 96, 128, (c) => {
+    c.shadowColor = '#ffffff';
+    c.shadowBlur = 14;
+    c.fillStyle = '#ffffff';
+    c.fillRect(40, 6, 16, 116);
+    c.fillRect(10, 34, 76, 16);
+    c.shadowBlur = 0;
+    c.fillStyle = 'rgba(255,255,255,0.6)';
+    c.beginPath(); c.arc(48, 42, 16, 0, Math.PI * 2); c.fill();
+  });
+  // Перо (белое, красится).
+  canvasTex(scene, TEX.feather, 24, 56, (c) => {
+    c.fillStyle = '#ffffff';
+    c.beginPath();
+    c.moveTo(12, 2); c.quadraticCurveTo(24, 20, 14, 50); c.lineTo(10, 50); c.quadraticCurveTo(0, 20, 12, 2);
+    c.fill();
+    c.strokeStyle = 'rgba(0,0,0,0.35)';
+    c.lineWidth = 1.5;
+    c.beginPath(); c.moveTo(12, 6); c.lineTo(12, 55); c.stroke();
+  });
+  // Сковорода (чугун, цветная): круг с бликом и ручкой вправо.
+  canvasTex(scene, TEX.pan, 96, 56, (c) => {
+    c.lineJoin = 'round';
+    c.strokeStyle = '#0c0c10';
+    c.lineWidth = 4;
+    c.fillStyle = '#6a3a18';
+    c.fillRect(50, 23, 42, 10); c.strokeRect(50, 23, 42, 10);
+    const g = c.createRadialGradient(22, 22, 2, 28, 28, 26);
+    g.addColorStop(0, '#9aa0ac');
+    g.addColorStop(0.6, '#3a3e48');
+    g.addColorStop(1, '#1a1c22');
+    c.fillStyle = g;
+    c.beginPath(); c.arc(28, 28, 25, 0, Math.PI * 2); c.fill(); c.stroke();
+    c.strokeStyle = 'rgba(255,255,255,0.6)';
+    c.lineWidth = 3;
+    c.beginPath(); c.arc(28, 28, 17, -2.6, -1.4); c.stroke();
+  });
 }
 
 /** Магический круг: два кольца, гексаграмма, руны по ободу — белый, вращается и красится в цвет стихии. */
@@ -542,13 +742,13 @@ export class SkillFx {
   // ---------- примитивы ----------
 
   /** Картинка из пула: всё, что эффекты меняют (текстура, кадр, якорь, масштаб, поворот, оттенок, смешивание), сбрасывается. */
-  private img(tex: string, x: number, y: number, tint: number, depth = SFX_DEPTH, blend: Phaser.BlendModes = ADD): Phaser.GameObjects.Image {
+  img(tex: string, x: number, y: number, tint: number, depth = SFX_DEPTH, blend: Phaser.BlendModes = ADD): Phaser.GameObjects.Image {
     const o = this.images.acquire();
     o.setTexture(tex).setPosition(x, y).setOrigin(0.5).setScale(1).setAngle(0).setAlpha(1).setTint(tint).setDepth(depth).setFlipX(false).setFlipY(false).setBlendMode(blend);
     return o;
   }
 
-  private run(obj: Phaser.GameObjects.Image | null, dur: number, fn: Live['fn'], delay = 0, done?: () => void): void {
+  run(obj: Phaser.GameObjects.Image | null, dur: number, fn: Live['fn'], delay = 0, done?: () => void): void {
     if (this.live.length >= MAX_LIVE) {
       // Перегруз (скорость x2, много эффектов): старейший эффект сразу заканчиваем.
       const r = this.live.shift()!;
@@ -575,7 +775,7 @@ export class SkillFx {
   }
 
   /** «Уменьшить анимацию»: частиц вдвое меньше (эффект остаётся виден). */
-  private n(count: number): number {
+  n(count: number): number {
     return motion.reduced ? Math.ceil(count / 2) : count;
   }
 
@@ -618,6 +818,21 @@ export class SkillFx {
   stars(x: number, y: number, tint: number, count: number): void {
     this.starFx.setParticleTint(tint);
     this.starFx.explode(this.n(count), x, y);
+  }
+
+  /** Перья: разлетаются из точки и, покачиваясь, опускаются (сокол, ангельские крылья). */
+  feathers(x: number, y: number, tint: number, count: number, spread = 60, dur = 900): void {
+    for (let i = 0, k = this.n(count); i < k; i++) {
+      const dx = (Math.random() - 0.5) * spread * 2;
+      const dy = (Math.random() - 0.5) * spread * 0.8;
+      const ph = Math.random() * Math.PI * 2;
+      const o = this.img(TEX.feather, x, y, tint, SFX_DEPTH + 2, NORMAL);
+      o.setScale(0.9).setRotation(ph);
+      this.run(o, dur, (q, im) => {
+        const e = ease.quadOut(clamp01(q * 3));
+        im!.setPosition(x + dx * e + Math.sin(ph + q * 9) * 14, y + dy * e + 70 * q).setRotation(ph + Math.sin(ph + q * 9) * 0.6).setAlpha(q < 0.6 ? 1 : 1 - (q - 0.6) / 0.4);
+      });
+    }
   }
 
   coins(x: number, y: number, count: number): void {
@@ -881,11 +1096,41 @@ export class SkillFx {
         this.stars(x, y - 30, 0xffe060, 4);
         break;
       }
+      case 'counter': {
+        // Контратака: встречный крест-разрез сталью, белая искра, короткое кольцо.
+        this.slash(x, y, -dir, 0xbfe0ff, 1.3, -0.8);
+        this.slash(x, y, -dir, 0xffffff, 1.2, 0.7, 40);
+        this.glow(x, y, 0xdff0ff, 0.4, 2, 200, 0, 1, TEX.spark);
+        this.glow(x, y, 0x9fd0ff, 0.3, 1.8, 300, 0, 0.9, TEX.ring);
+        break;
+      }
+      case 'double': {
+        // Двойная атака: два быстрых укола крест-накрест, белые полосы.
+        this.slash(x, y - 12, dir, 0xe8f0ff, 1.05, -0.35, 0, 0.45);
+        this.slash(x, y + 12, dir, 0xe8f0ff, 1.05, 0.35, 90, 0.45);
+        this.streakAt(x + dir * 30, y - 12, dir, 0xffffff, 1, 180);
+        this.streakAt(x + dir * 30, y + 12, dir, 0xffffff, 1, 180, 90);
+        break;
+      }
+      case 'peck': {
+        // Стальной сокол: когти и перья.
+        this.claw(x, y - 10, dir, 0xe8eef8, 1.2);
+        this.feathers(p.x, p.y - 20, 0xf0e4d0, 5);
+        this.burst(x, y, 0xffffff, 5);
+        break;
+      }
+      case 'gank': {
+        // Грабёж: удар и монетки к разбойнику.
+        this.slash(x, y, dir, 0xffe890, 0.9, -0.3, 0, 0.7);
+        this.coinFly(p, from ?? { x: p.x - dir * 200, y: p.y, feet: p.feet });
+        this.coins(x, y - 10, 4);
+        break;
+      }
     }
   }
 
   /** Монетка с блеском: подпрыгивает над целью и дугой летит к вору. */
-  private coinFly(from: FxPoint, to: FxPoint): void {
+  coinFly(from: FxPoint, to: FxPoint): void {
     const o = this.img(TEX.coin, from.x, from.y - 30, 0xffffff, SFX_DEPTH + 3, NORMAL);
     o.setScale(1.6);
     const x0 = from.x;
@@ -970,11 +1215,19 @@ export class SkillFx {
     for (const p of targets) this.later(90, () => this.skillHit('cart', p, dir));
   }
 
-  /** Крик провокации: красное кольцо и свечение вокруг мечника. */
-  shout(c: FxPoint): void {
-    this.glow(c.x, c.y, 0xff4030, 0.6, 3, 360, 0, 0.8);
-    this.glow(c.x, c.y, 0xff5040, 0.4, 3.6, 420, 0, 0.95, TEX.ring);
-    this.glow(c.x, c.y, 0xff8070, 0.3, 2.6, 420, 90, 0.8, TEX.ring);
+  /** Крик провокации: красное кольцо и свечение вокруг мечника (tint — у «Громкого голоса» оранжевый). */
+  shout(c: FxPoint, tint = 0xff4030): void {
+    this.glow(c.x, c.y, tint, 0.6, 3, 360, 0, 0.8);
+    const red = tint === 0xff4030;
+    this.glow(c.x, c.y, red ? 0xff5040 : tint, 0.4, 3.6, 420, 0, 0.95, TEX.ring);
+    this.glow(c.x, c.y, red ? 0xff8070 : 0xffffff, 0.3, 2.6, 420, 90, 0.8, TEX.ring);
+  }
+
+  /** След из светящихся частиц (снаряды рецептов); «Уменьшить анимацию» — без следа. */
+  trailAt(x: number, y: number, tint: number, count = 1): void {
+    if (motion.reduced) return;
+    this.trail.setParticleTint(tint);
+    this.trail.emitParticleAt(x, y, count);
   }
 
   /** Провокация на цели: красный «!» над головой, красная аура, кольцо под ногами. */
@@ -1064,7 +1317,7 @@ export class SkillFx {
   }
 
   /** Взрыв огня в точке попадания: белая вспышка, огненный шар ~240 px, кольцо по земле, искры, угли, лист fx_hit. */
-  private fireBurst(x: number, y: number, feet: number, last: boolean, reduced: boolean): void {
+  fireBurst(x: number, y: number, feet: number, last: boolean, reduced: boolean): void {
     this.glow(x, y, FIRE_MAIN, 1, 3.8, 380, 0, 1);
     this.glow(x, y, FIRE_CORE, 0.6, 2.2, 200, 0, 1);
     this.glow(x, y, 0xffffff, 0.4, 1.2, 120, 0, 0.9);
@@ -1157,7 +1410,7 @@ export class SkillFx {
   }
 
   /** Луч света от кастера к цели: вспыхивает, держится, гаснет; столб света на цели. */
-  private beam(from: FxPoint, to: FxPoint, tint: number, delay: number, onHit: () => void): void {
+  beam(from: FxPoint, to: FxPoint, tint: number, delay: number, onHit: () => void): void {
     const len = Math.hypot(to.x - from.x, to.y - from.y);
     const ang = Math.atan2(to.y - from.y, to.x - from.x);
     const b = this.img(TEX.beam, (from.x + to.x) / 2, (from.y + to.y) / 2, tint, SFX_DEPTH + 1);
@@ -1180,7 +1433,7 @@ export class SkillFx {
   }
 
   /** Каменные шипы из-под земли под целью. */
-  private spikes(p: FxPoint, tint: number, delay: number, onHit: () => void): void {
+  spikes(p: FxPoint, tint: number, delay: number, onHit: () => void): void {
     for (let i = 0; i < 3; i++) {
       const s = this.img(TEX.rock, p.x + (i - 1) * 34, p.feet + 4, tint, SFX_DEPTH);
       s.setOrigin(0.5, 1).setScale(1, 0);
@@ -1259,7 +1512,7 @@ export class SkillFx {
     }
   }
 
-  private lightning(p: FxPoint, tint: number, delay: number): void {
+  lightning(p: FxPoint, tint: number, delay: number): void {
     const b = this.img(TEX.bolt, p.x + (Math.random() - 0.5) * 20, p.feet, tint, SFX_DEPTH + 3);
     b.setOrigin(0.5, 1).setScale(1.3, 1.5).setFlipX(Math.random() < 0.5);
     this.run(b, 300, (q, im) => {
