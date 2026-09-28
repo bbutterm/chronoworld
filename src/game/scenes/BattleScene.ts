@@ -36,6 +36,7 @@ import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
 import { clampX, DEPTH, FloatLayer, UltPresenter } from '../battleFx';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
+import { gaitReset, gaitStep, type GaitState } from '../battleGait';
 import { button, panel, text } from '../ui';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
@@ -110,6 +111,8 @@ const NAME_TAP_MS = 1800;
 const DEBUG = typeof location !== 'undefined' && new URLSearchParams(location.search).has('debug');
 /** Сколько бой ждёт ленивой загрузки анимированных эффектов (fx_hit, fx_heal…), прежде чем начаться без них. */
 const FX_WAIT_MS = 2500;
+/** Враг ближе этого по x — не разворачиваться к нему (не вертеться, когда он прямо над/под). */
+const FACE_DEADZONE = 24;
 /** Звёзды оглушения над головой: сколько, радиус орбиты. */
 const STUN_STARS = 3;
 const STUN_R = 34;
@@ -162,7 +165,7 @@ const SPREAD_BOUNDS = COMBAT.field.bounds ?? { minX: 70, maxX: COMBAT.field.widt
  * Вид юнита. pos (SpreadUnit) — позиция из лога ядра (её двигают шаги), node — показанная: pos + смещение
  * расталкивания (battleSpread.ts), его считает update() каждый кадр.
  */
-interface UnitView extends SpreadUnit {
+interface UnitView extends SpreadUnit, GaitState {
   snap: UnitSnapshot;
   def: UnitDef;
   spriteId: string;
@@ -251,6 +254,22 @@ interface UnitView extends SpreadUnit {
   lastTrail: number;
   /** Подсвечен ультой — глубину держит spotlight, а не сортировка по y. */
   spot: boolean;
+  /** Вид текущего шага ядра (null — стоит). */
+  moveKind: 'walk' | 'dash' | null;
+  /**
+   * Походка по показанной позиции (позиция ядра + смещение разведения): прошлая точка node и сглаженная скорость,
+   * px на мс боя. Ходьба и разворот — по ней, а не по флагу твина: шаг, который разведение гасит, — не ходьба,
+   * а сдвиг разведением без своего шага — не шаг вперёд.
+   */
+  /** Куда смотрит фигура: 1 — вправо, -1 — влево. */
+  faceDir: 1 | -1;
+  /** Цель последней атаки — к ней юнит повёрнут, пока стоит. */
+  lookAt: UnitView | null;
+  /** Зона касания тела (при развороте едет вместе с origin). */
+  hitRect: Phaser.Geom.Rectangle;
+  bodyW: number;
+  /** Ключи зацикленных анимаций (считаются один раз — gait() зовёт loop() каждый кадр). */
+  loopKeys: Record<'idle' | 'walk' | 'cast', string | null>;
 }
 
 /** Тестовый бой (отряды экрана подготовки), этап кампании или этаж башни (отряд из сохранения). */
@@ -648,6 +667,17 @@ export class BattleScene extends Phaser.Scene {
       starT: 0,
       lastTrail: 0,
       spot: false,
+      moveKind: null,
+      lastX: snap.x,
+      lastY: snap.y,
+      vx: 0,
+      vy: 0,
+      walking: false,
+      faceDir: snap.side === 'A' ? 1 : -1,
+      lookAt: null,
+      hitRect: new Phaser.Geom.Rectangle(0, 0, 0, 0),
+      bodyW: 0,
+      loopKeys: { idle: anim(look, spriteId, 'idle'), walk: anim(look, spriteId, 'walk'), cast: anim(look, spriteId, 'cast') },
       pos: { x: snap.x, y: snap.y },
       offX: 0,
       offY: 0,
@@ -662,7 +692,7 @@ export class BattleScene extends Phaser.Scene {
     this.assignCooldowns(v);
     // Разовая анимация закончилась — вернуться к стойке/ходьбе. Один слушатель на юнита, а не на каждую атаку.
     sprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
-      if (v.alive) this.loop(v, v.moveTween ? 'walk' : v.cast ? 'cast' : 'idle');
+      if (v.alive) this.loop(v, this.stance(v));
     });
     this.loop(v, 'idle');
     this.redraw(v);
@@ -673,7 +703,8 @@ export class BattleScene extends Phaser.Scene {
     const fh = sprite.frame.height;
     const bodyW = Math.min(fw, (look.size * 0.45) / sprite.scaleX);
     const bodyH = Math.min(fh, look.height / sprite.scaleY);
-    const hit = new Phaser.Geom.Rectangle(sprite.originX * fw - bodyW / 2, sprite.originY * fh - bodyH, bodyW, bodyH);
+    const hit = v.hitRect.setTo(sprite.originX * fw - bodyW / 2, sprite.originY * fh - bodyH, bodyW, bodyH);
+    v.bodyW = bodyW;
     sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains).on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, () => this.flashName(v));
   }
 
@@ -746,6 +777,62 @@ export class BattleScene extends Phaser.Scene {
     const views = this.viewList;
     spreadUnits(views, dt, SPREAD_BOUNDS);
     for (let i = 0; i < views.length; i++) this.placeUnit(views[i]);
+    if (dt > 0) for (let i = 0; i < views.length; i++) this.gait(views[i], dt);
+  }
+
+  /**
+   * Походка («лунная походка», T3): по скорости показанной фигуры, а не по флагу шага.
+   * Ходьба — только пока юнит сам идёт (шаг ядра) и фигура правда движется; сдвиг разведением или шаг, который
+   * разведение гасит, — стойка. Пока движется своим шагом или рывком — смотрит, куда идёт (отход назад — лицом
+   * назад, а не спиной вперёд); стоит, бьёт или его сдвигают — лицом к цели/ближайшему врагу.
+   */
+  private gait(v: UnitView, dt: number): void {
+    const dir = gaitStep(v, v.node.x, v.node.y, dt, v.alive ? v.moveKind : null);
+    if (!v.alive || v.shownDead) return;
+    if (dir === null) this.faceFoe(v);
+    else if (dir !== 0) this.face(v, dir);
+    // Разовая анимация (удар, каст ульты, «получил урон») доигрывает; оглушённый/замороженный не шагает.
+    if (this.time.now < v.busyUntil) return;
+    this.loop(v, this.stance(v));
+  }
+
+  /** Стойка по состоянию: ходьба, каст или покой. */
+  private stance(v: UnitView): 'walk' | 'cast' | 'idle' {
+    return v.walking && !v.stunned ? 'walk' : v.cast ? 'cast' : 'idle';
+  }
+
+  /** Повернуться к цели последней атаки или к ближайшему живому врагу (по показанным позициям). */
+  private faceFoe(v: UnitView): void {
+    let foe = v.lookAt && v.lookAt.alive ? v.lookAt : null;
+    if (!foe) {
+      let best = Infinity;
+      const views = this.viewList;
+      for (let i = 0; i < views.length; i++) {
+        const o = views[i];
+        if (!o.alive || o.side === v.side) continue;
+        const dx = o.node.x - v.node.x;
+        const dy = o.node.y - v.node.y;
+        const d = dx * dx + dy * dy;
+        if (d < best) {
+          best = d;
+          foe = o;
+        }
+      }
+    }
+    const dx = foe ? foe.node.x - v.node.x : 0;
+    // Враг почти над/под юнитом — не вертеться туда-сюда; без врагов — к стороне противника.
+    if (Math.abs(dx) > FACE_DEADZONE) this.face(v, dx > 0 ? 1 : -1);
+    else if (!foe) this.face(v, v.side === 'A' ? 1 : -1);
+  }
+
+  /** Развернуть фигуру (лист нарисован лицом вправо). Отражается и origin — ноги остаются в точке юнита. */
+  private face(v: UnitView, dir: 1 | -1): void {
+    if (v.faceDir === dir) return;
+    v.faceDir = dir;
+    if (!v.look.art) return;
+    const flip = dir < 0;
+    v.sprite.setFlipX(flip).setOrigin(flip ? 1 - v.look.originX : v.look.originX, v.look.originY);
+    v.hitRect.x = v.sprite.originX * v.sprite.frame.width - v.bodyW / 2;
   }
 
   private placeUnit(v: UnitView): void {
@@ -820,6 +907,8 @@ export class BattleScene extends Phaser.Scene {
       }
       v.spot = false;
       v.moveTween = null;
+      v.moveKind = null;
+      v.walking = false;
       v.moveDest = null;
       v.node.setScale(1);
       v.sprite.setY(0);
@@ -834,7 +923,14 @@ export class BattleScene extends Phaser.Scene {
     while (this.cursor < log.length) this.play(log[this.cursor++], false);
     for (const v of this.views.values()) this.endCast(v);
     settleSpread(this.viewList, SPREAD_BOUNDS);
-    for (const v of this.viewList) this.placeUnit(v);
+    for (const v of this.viewList) {
+      this.placeUnit(v);
+      gaitReset(v, v.node.x, v.node.y);
+      if (v.alive) {
+        this.faceFoe(v);
+        this.loop(v, this.stance(v));
+      }
+    }
   }
 
   /**
@@ -876,10 +972,12 @@ export class BattleScene extends Phaser.Scene {
           // duration 0 — остановка на месте (оглушение, P1): оборвать шаг, встать в стойку.
           v.moveTween?.stop();
           v.moveTween = null;
+          v.moveKind = null;
           v.moveDest = null;
+          v.walking = false;
           v.pos.x = e.to[0];
           v.pos.y = e.to[1];
-          if (animate && v.alive && this.time.now >= v.busyUntil) this.loop(v, v.cast ? 'cast' : 'idle');
+          if (animate && v.alive && this.time.now >= v.busyUntil) this.loop(v, this.stance(v));
           return;
         }
         this.moveTo(v, e.to[0], e.to[1], e.duration * 1000, e.kind);
@@ -906,6 +1004,11 @@ export class BattleScene extends Phaser.Scene {
         // уже висело над полосой каста — второй раз не пишем.
         if (e.name && !skill?.castTime) this.headline(v, e.name, v.snap.side === 'A' ? '#ffe28a' : '#ffb0a0');
         const target = this.views.get(e.targets[0]);
+        // Бьёт — лицом к цели (свою цель — лечение, бафф — не разворачивает).
+        if (target && target.side !== v.side) {
+          v.lookAt = target;
+          if (!v.moveKind) this.faceFoe(v);
+        }
         let impact = this.once(v, 'attack');
         if (e.name && skill && this.skillVisual(v, skill, impact)) return;
         if (e.kind !== 'melee' && target) {
@@ -1142,11 +1245,11 @@ export class BattleScene extends Phaser.Scene {
     v.castLabel.setVisible(false);
     v.nameText.setVisible(v.alive);
     v.castRig?.hide();
-    if (v.alive && !v.moveTween) this.loop(v, 'idle');
+    if (v.alive && this.time.now >= v.busyUntil) this.loop(v, this.stance(v));
   }
 
   private loop(v: UnitView, name: 'idle' | 'walk' | 'cast'): void {
-    const key = anim(v.look, v.spriteId, name);
+    const key = v.loopKeys[name];
     if (key && v.sprite.anims.currentAnim?.key !== key) v.sprite.play({ key, repeat: -1 });
   }
 
@@ -1173,7 +1276,8 @@ export class BattleScene extends Phaser.Scene {
   private moveTo(v: UnitView, x: number, y: number, ms: number, kind: 'walk' | 'dash'): void {
     v.moveTween?.stop();
     v.moveDest = [x, y];
-    if (kind === 'walk') this.loop(v, 'walk');
+    v.moveKind = kind;
+    // Ходьбу и разворот включает gait() по показанной скорости фигуры.
     // Удары, которые юнит нанесёт в конце рывка, покажем, когда он долетит.
     const dash = kind === 'dash';
     const dir = x >= v.pos.x ? 1 : -1;
@@ -1196,9 +1300,9 @@ export class BattleScene extends Phaser.Scene {
       },
       onComplete: () => {
         v.moveTween = null;
+        v.moveKind = null;
         v.moveDest = null;
         if (dash && !this.skipping) this.sfx.dashDust(v.node.x, v.node.y, -dir);
-        if (v.alive && this.time.now >= v.busyUntil) this.loop(v, 'idle');
       },
     });
     if (kind === 'dash') this.tweens.add({ targets: v.sprite, y: -60, duration: ms / 2, yoyo: true, ease: 'Sine.easeOut' });
@@ -1216,7 +1320,9 @@ export class BattleScene extends Phaser.Scene {
     this.redraw(v);
     v.moveTween?.stop();
     v.moveTween = null;
+    v.moveKind = null;
     v.moveDest = null;
+    v.walking = false;
     this.endCast(v);
     for (const b of v.bars) b.setVisible(false);
     // Павший — без вспышки попадания.

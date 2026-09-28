@@ -39,6 +39,7 @@ import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, iconBadge, raysTexture, rarityBackdrop, rarityPalette, rarityPips } from '../heroCard';
 import { browseNeighbours, copyCounter, heroesUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
 import { openBranchPicker } from '../branchPicker';
+import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
 
 const SKILL_ROW_H = 118;
@@ -83,6 +84,8 @@ export class HeroScene extends Phaser.Scene {
 
   private heroId = '';
   private tab: Tab = 'skills';
+  /** Счётчик строк навыков (имена skillRow_N для e2e и скриншотов). */
+  private skillRows = 0;
   private tabArea!: ScrollArea;
   private figure: Phaser.GameObjects.Sprite | Phaser.GameObjects.Image | null = null;
   private ui!: {
@@ -553,6 +556,7 @@ export class HeroScene extends Phaser.Scene {
 
   private skillsTab(hero: HeroState): void {
     const a = this.tabArea;
+    this.skillRows = 0;
     const c = heroCard(hero, GAME);
     const job0 = CONTENT.jobs[c.job];
     let y = 0;
@@ -584,6 +588,8 @@ export class HeroScene extends Phaser.Scene {
         y += SKILL_ROW_H;
       }
     }
+    a.add(text(this, GAME_W / 2, y + 36, 'Нажмите на навык — полное описание и цифры', FS.caption, C.dim));
+    y += 72;
     a.setContentHeight(y + 10);
   }
 
@@ -592,6 +598,18 @@ export class HeroScene extends Phaser.Scene {
     const sk = CONTENT.skills[r.id];
     const locked = r.locked !== undefined;
     const h = SKILL_ROW_H;
+    // Касание строки — окно с полным описанием и цифрами (в строке описание обрезано до двух строк).
+    if (sk) {
+      const hit = a.add(this.add.rectangle(GAME_W / 2, y, 1000, h - 6, 0x000000, 0.001).setName(`skillRow_${this.skillRows++}`));
+      const hero = this.hero();
+      const power = hero ? rarityDef(GAME, hero.rarity).skillPower : 1;
+      const kind = r.kind === 'Обычная атака' ? r.kind : sk.trigger ? 'Пассивный' : 'Активный';
+      const lockNote = locked ? (r.note ?? (r.form ? `Откроется на ур. ${r.locked} после вознесения` : `Откроется на ур. ${r.locked}${r.gate ? ` · нужен ${r.gate}` : ''}`)) : undefined;
+      pressable(this, hit, 1000, h - 6, a.tap(() => {
+        a.locked = true;
+        openSkillDetail(this, r.id, { kind, lockNote, power, basic: r.kind === 'Обычная атака', onClose: () => (a.locked = false) });
+      }));
+    }
     const icon = this.add.image(90, y, skillIcon(this, sk)).setDisplaySize(84, 84);
     if (locked) icon.setAlpha(0.45).setTint(0x8a8a8a);
     a.add(icon);
@@ -667,8 +685,37 @@ export class HeroScene extends Phaser.Scene {
       const t = a.add(text(this, 60, y, s, size, color, { align: 'left', wordWrap: { width: 950 }, lineSpacing: 6, ...style }).setOrigin(0, 0));
       y += t.height + 22;
     };
+    const head = (s: string, color: string = C.title) => {
+      const t = a.add(text(this, 60, y, s, FS.h3, color, { align: 'left', fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5, wordWrap: { width: 950 } }).setOrigin(0, 0));
+      y += t.height + 14;
+    };
+    // Начало пути (первая профессия), затем — форма после возвышения: выбранная ветка целиком, другая — превью серым.
+    const firstJob = CONTENT.jobs[heroTemplate(GAME, hero.templateId).job]?.name;
+    if (c.branch && firstJob) head(`Начало пути: ${firstJob}`);
     para(c.bio, C.text);
     if (c.hook) para(`«${c.hook}»`, C.title, FS.body, { fontStyle: 'italic' });
+    const rn = GAME.cards.rarities.find((r) => r.id === (c.branchAt ?? 'purple'))?.name ?? 'Фиолетовый';
+    const chosen = c.branches.find((b) => b.job === c.branch);
+    const branchStory = (b: (typeof c.branches)[number], dim: boolean) => {
+      if (b.promotion) para(`«${b.promotion}»`, dim ? C.dim : C.title, FS.body, { fontStyle: 'italic' });
+      if (b.bio) para(b.bio, dim ? C.muted : C.text);
+    };
+    if (chosen) {
+      y += 10;
+      head(`После возвышения: ${chosen.jobName}`);
+      branchStory(chosen, false);
+    }
+    const others = c.branches.filter((b) => b !== chosen);
+    if (others.length) {
+      y += 10;
+      head(chosen ? 'Другая ветка (можно сменить)' : 'После возвышения — на выбор', C.dim);
+      if (!chosen) para(`Ветку второй профессии выбирают на редкости «${rn}».`, C.dim, FS.caption);
+      for (const b of others) {
+        head(b.jobName, C.muted);
+        branchStory(b, true);
+      }
+    }
+    y += 10;
     para(`${c.gender === 'f' ? 'Героиня' : 'Герой'} гильдии ${GUILD_NAMES[c.line] ?? '—'} · ${c.source === 'story' ? 'сюжет' : 'Таверна'} · до «${rarityDef(GAME, c.maxRarity).name}»`, C.dim, FS.caption);
     para('Растёт копиями: копии этого героя (и любых — на красный) уходят в корм при вознесении.', C.muted, FS.caption);
     for (const s of copySources(session.save, hero.templateId, GAME)) para(`• ${s}`, C.muted, FS.caption);

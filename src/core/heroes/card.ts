@@ -214,11 +214,21 @@ export interface BranchView {
   role: HeroTemplate['role'];
   skills: CardSkill[];
   promotion: string;
+  /** История формы после возвышения (может не быть). */
+  bio?: string;
   sprite?: string;
 }
 
 export function branchView(b: HeroBranch, ctx: GameContext): BranchView {
-  return { job: b.job, jobName: ctx.content.jobs[b.job]?.name ?? b.job, role: b.role, skills: b.skills, promotion: b.promotion, ...(b.visual.sprite ? { sprite: b.visual.sprite } : {}) };
+  return {
+    job: b.job,
+    jobName: ctx.content.jobs[b.job]?.name ?? b.job,
+    role: b.role,
+    skills: b.skills,
+    promotion: b.promotion,
+    ...(b.bio ? { bio: b.bio } : {}),
+    ...(b.visual.sprite ? { sprite: b.visual.sprite } : {}),
+  };
 }
 
 /** Обе ветки героя (для превью на синем, выбора на вознесении и «Сменить ветку»). */

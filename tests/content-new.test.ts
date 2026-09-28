@@ -140,7 +140,7 @@ describe('content:new — генераторы заготовок', () => {
     }
     const todos = findTodos('data/heroes/gen_thief.json', json('data/heroes/gen_thief.json'));
     expect(todos.map((x) => x.split(' — ')[0])).toEqual(
-      expect.arrayContaining(['data/heroes/gen_thief.json: name', 'data/heroes/gen_thief.json: bio', 'data/heroes/gen_thief.json: hook', 'data/heroes/gen_thief.json: branches[0].promotion']),
+      expect.arrayContaining(['data/heroes/gen_thief.json: name', 'data/heroes/gen_thief.json: bio', 'data/heroes/gen_thief.json: hook', 'data/heroes/gen_thief.json: branches[0].promotion', 'data/heroes/gen_thief.json: branches[0].bio', 'data/heroes/gen_thief.json: branches[1].bio']),
     );
   });
 

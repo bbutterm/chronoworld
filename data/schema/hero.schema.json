@@ -180,6 +180,10 @@
             "type": "string",
             "maxLength": 160
           },
+          "bio": {
+            "type": "string",
+            "maxLength": 300
+          },
           "visual": {
             "default": {},
             "type": "object",
