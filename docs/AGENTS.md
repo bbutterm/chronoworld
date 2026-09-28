@@ -247,6 +247,9 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 - `data/bounties.json` — доска поручений: `boardSize`, `dailyRefreshes`, веса `rarities`, `templates` (`durationMinutes`, `heroCount`, `role`, `rewards`), `presets`.
 - `data/achievements.json` — `counter` из `ACHIEVEMENT_COUNTERS` (`src/core/meta/config.ts`), `target`, `rewards`. См. `docs/content/meta.md`, `features.md`.
 - `data/phase0.json` — отряды тестового боя и скорости воспроизведения.
+- `data/events.json` (`EventsConfigSchema`, `src/core/events/schema.ts`) — «Вход 7 дней» (`login.days[].rewards`), «7 дней новичка»
+  (`newbie`: `durationDays`, `graceDays`, `days[].tasks` со счётчиками достижений, `milestones`), системные письма (`mail.letters`).
+  Награда (`RewardBundle`): `gold, gems, jobExp, scrolls, heroes[]`. См. раздел 2б и `CONTENT_RECIPES.md` «Награды событий».
 
 ---
 
@@ -306,9 +309,35 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
 
 ---
 
+## 2б. События новичка и почта — API ядра (`src/core/events`)
+
+Чистые функции, день ('YYYY-MM-DD') передаёт UI (`today()`); календарь считается арифметикой (`dayNumber`, `daysBetween`), без Date.
+Ошибки — `EventError` (`code`, русский `message`).
+- `touchEvents(save, day, ctx)` — «игрок открыл игру»: первый раз — старт событий (`save.events.startDay`) и доставка системных писем;
+  новый день (больше `lastDay`) — `loginDays + 1` (пропуски не сбрасывают, как в AFK); тот же день или часы назад — тот же объект.
+  Заодно доставляет новые письма из `data/events.json → mail.letters` (`deliverSystemMail`, каждое один раз, `untilDay`).
+  UI зовёт `touchToday()` (`src/game/homeEvents.ts`) на главной, в «Событиях» и «Почте».
+- «Вход 7 дней»: `loginStatus(save, day, ctx)` → `{ loginDays, days [{day, rewards, label?, reached, claimed, ready}], claimable, done }`;
+  `claimLogin(save, day, n, ctx)` → `{ save, rewards, events }` (любой наступивший незабранный день; `login_locked`, `login_claimed`).
+- «7 дней новичка»: `newbieStatus(save, day, ctx)` → `{ eventDay, active, open (идёт или льготный день), daysLeft, closesIn, days [{day,
+  locked, tasks [{…, progress, done, claimed, locked, ready}]}], points, maxPoints, milestones [{points, rewards, reached, claimed, ready}],
+  claimable, done }`. Прогресс заданий — счётчики достижений (`save.achievements.counters`, копятся с начала игры).
+  `claimNewbieTask(save, day, id, ctx)` → очки; `claimNewbieMilestone(save, day, points, ctx)` → награда сундука.
+- Значки главной — `eventsBadges(save, day, ctx)` → `{ login, newbie, loginVisible, newbieVisible }`.
+- Почта (`mail.ts`): `mailStatus(save)` → `{ letters (новые первыми), unread, claimable }`, `sendMail(save, day, {from, title, body,
+  rewards?, source?})` (компенсации из кода/тестов; лимит `MAIL_MAX` = 100, письма с вложением не теряются), `readMail`, `claimMail`,
+  `claimAllMail` (сумма вложений), `deleteReadMail`, `letterClaimable`.
+- Выдача наград — `grantRewards(save, bundle, ctx)`: золото, гемы, свитки, опыт в пул, карточки (`heroes` — на `baseRarity` шаблона,
+  значок «Новый!», в отряд не ставятся; события `heroCard`, `scrolls`, `gems`, `rewards`).
+- Экраны: `EventsScene` (вкладки «Вход»/«Новичок», данные `{tab, day}`), `MailScene` (`{open?}`), иконки в шапке главной —
+  `homeEventIcons` (`src/game/homeEvents.ts`, объекты `eventsIcon`, `mailIcon`), тексты наград — `src/game/rewardsView.ts`.
+- Модель баланса забирает всё это каждую сессию (`PLAYER_MODEL.events`, `npm run balance -- --no-events` — без событий).
+
+---
+
 ## 3. Сохранение
 
-- Формат — `SaveStateSchema` (`src/core/save/schema.ts`), `SAVE_VERSION = 4`; ключ localStorage `chronoworld.save.v1` (ключ не менялся).
+- Формат — `SaveStateSchema` (`src/core/save/schema.ts`), `SAVE_VERSION = 5`; ключ localStorage `chronoworld.save.v1` (ключ не менялся).
 - **v4 (карточки героев)**: `heroes[] = {id, templateId, rarity, level, locked?, isNew?}`, `resources.heroExp` (пул опыта),
   `currency.scrolls`, `shards {шаблон: n}`, `summon {seq, total, sincePurple, firstTenDone, freeDay?, freeUsed?, welcomeGiven,
   discovered[]}`, `notices?` (одноразовые сообщения — `sanitizeSave` отдаёт в `warnings` и убирает). Миграция v3 → v4 —
@@ -316,6 +345,10 @@ rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеи�
   Грета/Грег; Дорн), иначе — свободная по порядку, шестой и дальше — призывная карточка линии; уровень тот же (вторая профессия — 40 + ур.),
   редкость по пределу; `jobExp`, `bankedExp` и излишек уровней — в пул; +1 свиток и сообщение; `ch1_s5` пройден — подарок Таверны.
   Счётчик достижений `hero_max_job_level` → `hero_max_level`. id героев не меняются.
+- **v5 (события и почта)**: `mail {seq, letters [{id m<n>, source?, from, title, body, day, rewards, read, claimed}], delivered[]}`,
+  `events? {startDay, lastDay, loginDays, loginClaimed[], newbieTasks[], newbieMilestones[]}` (появляется при первом `touchEvents`).
+  Миграция v4 → v5 (`MIGRATIONS[4]`) — пустая почта; письмо «Добро пожаловать» и старт событий — при первом открытии игры.
+  Порядок ключей в схеме важен для `serialize(deserialize(x)) === serialize(x)` (инвариант фазз-теста): `mail` — сразу после `seenScenes`.
 - `deserialize`: JSON → `MIGRATIONS[v]` по цепочке v → v+1 → zod → возврат неизвестных полей (`keepUnknownFields`, чтобы старая сборка
   не стёрла поля новой) → проверки целостности (дубли героев, неизвестные герои в отряде/предметах/поручениях). Версия новее сборки —
   `SaveError('newer_version')`, сохранение не затирается (только чтение).

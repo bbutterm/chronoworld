@@ -20,8 +20,11 @@ describe('миграция v3 → v4: герои становятся карто
   const s = deserialize(fixtureV3);
 
   it('версия, ссылки и неизменные поля', () => {
-    expect(SAVE_VERSION).toBe(4);
-    expect(s.version).toBe(4);
+    // v5 (события и почта) идёт следом: v3 → v4 (эта миграция) → v5 (пустая почта), см. tests/events.test.ts.
+    expect(SAVE_VERSION).toBe(5);
+    expect(MIGRATIONS[3](raw).version).toBe(4);
+    expect(s.version).toBe(SAVE_VERSION);
+    expect(s.mail).toEqual({ seq: 0, letters: [], delivered: [] });
     // id героев не меняются — отряд, пресеты, поручения и надетые предметы остаются.
     expect(s.heroes.map((h) => h.id)).toEqual(raw.heroes.map((h: { id: string }) => h.id));
     expect(s.squad).toEqual(raw.squad);

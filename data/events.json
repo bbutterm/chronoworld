@@ -1,0 +1,90 @@
+{
+  "$schema": "schema/events.schema.json",
+  "$comment": "События новичка (docs/design/afk-gap.md, п. 2) и системные письма. Награды: gold, gems, jobExp (опыт в общий пул), scrolls (свитки призыва), heroes (id шаблонов data/heroes, на базовой редкости). Бюджет недели — docs/content/balance.md, раздел «События новичка»: свитки и гемы обоих событий вместе ≈ 2 призыва ×10 (10 свитков + 270 гемов) и 2 фиолетовые карточки. Рецепт — docs/CONTENT_RECIPES.md «Награды событий».",
+  "login": {
+    "name": "Вход 7 дней",
+    "days": [
+      { "rewards": { "scrolls": 1, "gold": 1000 } },
+      { "rewards": { "gems": 50, "jobExp": 1500 } },
+      { "rewards": { "scrolls": 2 } },
+      { "rewards": { "gold": 3000, "jobExp": 3000 } },
+      { "rewards": { "gems": 100 } },
+      { "rewards": { "scrolls": 2, "jobExp": 5000 } },
+      { "rewards": { "heroes": ["seyren"] }, "label": "Фиолетовый герой" }
+    ]
+  },
+  "newbie": {
+    "name": "7 дней новичка",
+    "durationDays": 7,
+    "graceDays": 1,
+    "days": [
+      {
+        "tasks": [
+          { "id": "nb1_stages", "name": "Пройдите 3 этапа кампании", "counter": "stages_cleared", "target": 3, "points": 10 },
+          { "id": "nb1_summons", "name": "Призовите 10 героев в Таверне", "counter": "summons", "target": 10, "points": 10 },
+          { "id": "nb1_level", "name": "Поднимите героя до 10-го уровня", "counter": "hero_max_level", "target": 10, "points": 10 }
+        ]
+      },
+      {
+        "tasks": [
+          { "id": "nb2_stages", "name": "Пройдите 12 этапов кампании", "counter": "stages_cleared", "target": 12, "points": 10 },
+          { "id": "nb2_tower", "name": "Поднимитесь на 5-й этаж башни", "counter": "tower_floor", "target": 5, "points": 10 },
+          { "id": "nb2_bounties", "name": "Выполните 2 поручения", "counter": "bounties_done", "target": 2, "points": 10 }
+        ]
+      },
+      {
+        "tasks": [
+          { "id": "nb3_stages", "name": "Пройдите 16 этапов кампании", "counter": "stages_cleared", "target": 16, "points": 10 },
+          { "id": "nb3_level", "name": "Поднимите героя до 15-го уровня", "counter": "hero_max_level", "target": 15, "points": 10 },
+          { "id": "nb3_ascend", "name": "Вознесите карточки 3 раза", "counter": "ascensions", "target": 3, "points": 10 }
+        ]
+      },
+      {
+        "tasks": [
+          { "id": "nb4_stages", "name": "Пройдите 20 этапов кампании", "counter": "stages_cleared", "target": 20, "points": 10 },
+          { "id": "nb4_tower", "name": "Поднимитесь на 20-й этаж башни", "counter": "tower_floor", "target": 20, "points": 10 },
+          { "id": "nb4_summons", "name": "Призовите 30 героев в Таверне", "counter": "summons", "target": 30, "points": 10 }
+        ]
+      },
+      {
+        "tasks": [
+          { "id": "nb5_stages", "name": "Пройдите 23 этапа кампании", "counter": "stages_cleared", "target": 23, "points": 10 },
+          { "id": "nb5_level", "name": "Поднимите героя до 20-го уровня", "counter": "hero_max_level", "target": 20, "points": 10 },
+          { "id": "nb5_bounties", "name": "Выполните 10 поручений", "counter": "bounties_done", "target": 10, "points": 10 }
+        ]
+      },
+      {
+        "tasks": [
+          { "id": "nb6_stages", "name": "Пройдите 26 этапов кампании", "counter": "stages_cleared", "target": 26, "points": 10 },
+          { "id": "nb6_tower", "name": "Поднимитесь на 30-й этаж башни", "counter": "tower_floor", "target": 30, "points": 10 },
+          { "id": "nb6_equip", "name": "Наденьте предметы 15 раз", "counter": "items_equipped", "target": 15, "points": 10 }
+        ]
+      },
+      {
+        "tasks": [
+          { "id": "nb7_stages", "name": "Пройдите 30 этапов кампании", "counter": "stages_cleared", "target": 30, "points": 10 },
+          { "id": "nb7_level", "name": "Поднимите героя до 30-го уровня", "counter": "hero_max_level", "target": 30, "points": 10 },
+          { "id": "nb7_battles", "name": "Победите в 150 боях", "counter": "battles_won", "target": 150, "points": 10 }
+        ]
+      }
+    ],
+    "milestones": [
+      { "points": 30, "rewards": { "gold": 1500, "gems": 20 } },
+      { "points": 60, "rewards": { "scrolls": 2 } },
+      { "points": 100, "rewards": { "jobExp": 4000, "gems": 40 } },
+      { "points": 140, "rewards": { "scrolls": 3, "gems": 60 } },
+      { "points": 180, "rewards": { "heroes": ["margaretha"] } }
+    ]
+  },
+  "mail": {
+    "letters": [
+      {
+        "id": "welcome",
+        "from": "Гаррет",
+        "title": "Добро пожаловать в лагерь!",
+        "body": "Рад, что ты с нами, командир. Время в этих землях сбилось с хода, и нам нужен каждый клинок.\n\nЗаходи в лагерь каждый день: за вход положены награды, а за первые семь дней — ещё и задания новичка. В конце обоих ждут фиолетовые герои.\n\nВо вложении — немного на первое время.",
+        "rewards": { "gold": 500, "jobExp": 500 }
+      }
+    ]
+  }
+}
