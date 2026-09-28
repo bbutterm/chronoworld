@@ -12,6 +12,7 @@ import {
   heroGender,
   heroJobId,
   heroName,
+  jobTitle,
   heroSpriteOverride,
   levelUpInfo,
   misplacedInFront,
@@ -178,7 +179,11 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventR
     return h ? heroName(h, ctx) : id;
   };
   const skillName = (id: string) => ctx.content.skills[id]?.name ?? id;
-  const jobName = (id: string) => ctx.content.jobs[id]?.name ?? id;
+  // Профессия по полу героя события («теперь Жрица!», не «Жрец»).
+  const jobName = (id: string, heroId?: string) => {
+    const h = heroId ? save.heroes.find((x) => x.id === heroId) : undefined;
+    return jobTitle(ctx, id, h ? heroGender(h, ctx) : 'm');
+  };
   const rarityName = (id: string) => ctx.cards.rarities.find((r) => r.id === id)?.name ?? id;
   const lines: string[] = [];
   // Несколько level-up подряд у одного героя — одна строка с итоговым уровнем.
@@ -192,10 +197,10 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventR
   for (const e of events) {
     if (e.type === 'skillUnlocked') lines.push(`${nameOf(e.heroId)}: новый навык «${skillName(e.skill)}»`);
     if (e.type === 'heroJoined') lines.unshift(e.copy ? `${e.name}: пришла копия героя (для вознесения)` : `Новый герой в отряде: ${e.name}!`);
-    if (e.type === 'ascended') lines.push(`${nameOf(e.heroId)}: ${rarityName(e.from)} → ${rarityName(e.to)}${e.jobChanged ? ` — теперь ${jobName(e.job)}!` : ''}`);
+    if (e.type === 'ascended') lines.push(`${nameOf(e.heroId)}: ${rarityName(e.from)} → ${rarityName(e.to)}${e.jobChanged ? ` — теперь ${jobName(e.job, e.heroId)}!` : ''}`);
     if (e.type === 'heroCard') lines.push(`Карта героя: ${e.name} (${rarityName(e.rarity)})`);
     if (e.type === 'heroPick') lines.push(`Контракт героя: ${rarityName(e.rarity).toLowerCase()} герой на выбор — «Герои»`);
-    if (e.type === 'branchChosen') lines.push(`${nameOf(e.heroId)}: ветка — ${jobName(e.branch)}${e.gems ? ` (−${formatNumber(e.gems)} гемов)` : ''}`);
+    if (e.type === 'branchChosen') lines.push(`${nameOf(e.heroId)}: ветка — ${jobName(e.branch, e.heroId)}${e.gems ? ` (−${formatNumber(e.gems)} гемов)` : ''}`);
     if (e.type === 'blessedOre') lines.push(`Благословенная руда ×${e.count}`);
     if (e.type === 'tavernUnlocked') lines.unshift(`Открыта Таверна! Подарок: гемы +${formatNumber(e.gems)}, свитки призыва +${e.scrolls}`);
     if (e.type === 'stageUnlocked') {

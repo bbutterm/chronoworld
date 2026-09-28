@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { BRANCH_RARITY, claimHeroPick, heroCard, pendingPicks, pickOptions, rarityIndex, type HeroPick } from '../../core';
+import { BRANCH_RARITY, claimHeroPick, heroCard, jobTitle, pendingPicks, pickOptions, rarityIndex, type HeroPick } from '../../core';
 import { sfx } from '../audio';
 import { openBranchPicker } from '../branchPicker';
 import { GAME } from '../content';
@@ -95,7 +95,7 @@ export class HeroPickScene extends Phaser.Scene {
       templateId,
       title: `${t.name}: выберите ветку`,
       subtitle: `${t.name} придёт ${rarityName(pick.rarity).toLowerCase().replace(/ый$/, 'ым').replace(/ий$/, 'им')} (ур. 1). Первую смену ветки потом можно сделать бесплатно.`,
-      confirmLabel: (job) => (job ? `Забрать: ${GAME.content.jobs[job]?.name ?? job}` : 'Выберите ветку'),
+      confirmLabel: (job) => (job ? `Забрать: ${jobTitle(GAME, job, t.gender)}` : 'Выберите ветку'),
       onConfirm: (job) => this.claim(index, templateId, job),
     });
   }

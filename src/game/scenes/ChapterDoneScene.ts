@@ -99,7 +99,8 @@ export class ChapterDoneScene extends Phaser.Scene {
       text(this, 970, y, value, FS.body, color, { fontStyle: 'bold' }).setOrigin(1, 0.5);
     };
     row(sy - 75, 'Этапы', `${sum.cleared} / ${sum.stages}`, C.success);
-    row(sy - 25, 'В пути', playTimeText(now() - save.createdAt));
+    // LT-11: время считается с начала игры (своего счёта у главы нет) — так и подписано.
+    row(sy - 25, 'С начала игры', playTimeText(now() - save.createdAt));
     row(sy + 25, 'Награды главы', `золото ${formatNumber(sum.gold)} · опыт ${formatNumber(sum.jobExp)}`, C.gold);
     row(sy + 75, 'Трофеев в сумке', String(sum.items), '#6fb8ff');
 
@@ -119,7 +120,9 @@ export class ChapterDoneScene extends Phaser.Scene {
       text(this, cx, ry + 240, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
     } else {
       card(this, cx, ry, 1000, 300, true);
-      text(this, cx, ry, 'Отряд готов к новым землям', FS.h2, C.ink, { fontStyle: 'bold' });
+      // LT-11: после последней главы новых земель пока нет — куда идти дальше.
+      text(this, cx, ry - (sum.next ? 0 : 30), sum.next ? 'Отряд готов к новым землям' : 'Новые главы — скоро', FS.h2, C.ink, { fontStyle: 'bold' });
+      if (!sum.next) text(this, cx, ry + 40, 'А пока — Башня испытаний и Охота в «Приключениях»', FS.body, C.inkMuted, { wordWrap: { width: 900 } });
     }
 
     // --- Кнопки ---

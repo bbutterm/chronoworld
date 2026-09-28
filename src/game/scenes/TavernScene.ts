@@ -673,7 +673,7 @@ export class TavernScene extends Phaser.Scene {
     state.title.setText('Итог призыва');
     L.add(ellipsize(text(this, GAME_W / 2, 310, summaryLine(state.results), FS.body, C.text, { fontStyle: 'bold', ...OUTLINE }), 1000).setName('summaryLine'));
     const hasDup = state.tags.some((t) => t.kind === 'copy');
-    L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Копии — корм для вознесения (все карты — в Инвентаре). Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
+    L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Копии нужны для вознесения героя (все карты — в Инвентаре). Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
 
     const best = bestResult(state.results);
     const st = summonStatus(session.save, today(), GAME);

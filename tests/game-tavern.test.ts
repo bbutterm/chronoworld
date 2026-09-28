@@ -95,7 +95,7 @@ describe('Таверна: раскладка и итог', () => {
   });
 
   it('summaryLine: редкие первыми, новые и дубли', () => {
-    expect(summaryLine(cards('green', 'purple', 'green', 'blue'))).toBe('Фиолетовых 1 · синих 1 · зелёных 2 · новых 2 · дублей 2');
+    expect(summaryLine(cards('green', 'purple', 'green', 'blue'))).toBe('Фиолетовых 1 · синих 1 · зелёных 2 · новых 2 · копий 2'); // NB-12: одно слово — «копии»
   });
 
   it('firstTenText: гарант первого ×10 по-русски — одна карта и несколько', () => {

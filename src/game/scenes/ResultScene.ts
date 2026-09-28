@@ -110,7 +110,7 @@ export class ResultScene extends Phaser.Scene {
       // K6: выпавшие предметы — цветом редкости.
       for (const d of stage?.outcome.drops ?? []) {
         const def = GAME.equipment.items[d.itemId];
-        const t = text(this, GAME_W / 2, y, `Трофей: ${def?.name ?? d.itemId}${def ? `  (${itemStatsText(def.stats)})` : ''}`, FS.body, def ? RARITY_COLORS[def.rarity] : C.text, BOLD_OUTLINE);
+        const t = text(this, GAME_W / 2, y, `Трофей: ${def?.name ?? d.itemId}${def ? ` (${itemStatsText(def.stats)})` : ''}`, FS.body, def ? RARITY_COLORS[def.rarity] : C.text, BOLD_OUTLINE);
         this.tweens.add({ targets: t, scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
         y += 50;
       }
