@@ -3,6 +3,7 @@ import { FINDING_KIND_NAMES, type ChapterChronicleDef, type EpisodeDef, type Fin
 import { sfx } from './audio';
 import { setThemeBackground, themeOfChapter } from './backdrops';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
+import { bleedImage } from './viewport';
 import { SKIN, SKIN_TINT } from './skin';
 import { button, panel, ScrollArea, text } from './ui';
 import { C, FS, OUTLINE, TINT, TOUCH } from './theme';
@@ -112,8 +113,14 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
         layer.addAt(bg, 1);
       }
       setThemeBackground(bg, 'map', themeOfChapter(p.chapterId));
+      // Вытянутый экран (390×844): фон продолжается на поля над и под полем 9:16 (без чёрных полос).
+      bleedImage(scene, bg);
       bg.setVisible(true);
-    } else bg?.setVisible(false);
+      for (const o of (bg.getData('bleed') as Phaser.GameObjects.Image[] | undefined) ?? []) o.setVisible(true);
+    } else {
+      bg?.setVisible(false);
+      for (const o of (bg?.getData('bleed') as Phaser.GameObjects.Image[] | undefined) ?? []) o.setVisible(false);
+    }
     page.destroy();
     area = null;
     page = scene.add.container(0, 0);
