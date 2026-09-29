@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
-import { heroPeakLevel, heroStoryPieces, heroStoryUnread, heroTemplate, markHeroStoryRead, newlyOpenedStories, type SaveState } from '../core';
+import { heroPeakLevel, heroStoryBranches, heroStoryPieces, heroStoryUnread, heroTemplate, jobTitle, markHeroStoryRead, newlyOpenedStories, type HeroStoryEntry, type SaveState } from '../core';
 import { sfx } from './audio';
 import { haptic } from './haptics';
 import { GAME, LORE } from './content';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
+import { view } from './viewport';
 import { commit, session } from './session';
 import { SKIN, SKIN_TINT } from './skin';
 import { divider } from './storyPage';
@@ -11,10 +12,14 @@ import { button, ScrollArea, text, toast } from './ui';
 import { C, FS, OUTLINE, TINT, TOUCH } from './theme';
 
 /**
- * История героя кусочками (data/lore/hero_stories.json, ядро — src/core/lore/heroStories.ts): страница во весь экран
- * со списком кусочков — открытые (уровень, заголовок, текст; только что открытые — «новое»), закрытые — «Откроется на
- * ур. N». Открытие страницы отмечает открытые кусочки прочитанными (save.heroStoryRead). Вход — кнопка во вкладке
- * «История» карточки героя и окно героя в Летописи (вкладка «Герои»).
+ * История героя кусочками (data/lore/hero_stories.json, ядро — src/core/lore/heroStories.ts): страница во весь экран.
+ * Сначала общие кусочки (ур. 10–50), затем разделы веток второй профессии (ур. 60–100):
+ * - своя ветка (на ней стоит копия героя) — все пять кусочков: открытые текстом, закрытые строкой «Ур. N · откроется…»;
+ * - другая ветка — прочитанные раньше кусочки видны («дневник всех путей»: ветку сменили — прочитанное не пропадает),
+ *   закрытые не показываются по одному, а одной строкой «ещё N частей — откроются на ветке X» (без спойлеров и без
+ *   пяти одинаковых замков); героя без ветки — такие строки для обеих веток.
+ * Только что открытые — «новое». Открытие страницы отмечает открытые кусочки прочитанными (save.heroStoryRead).
+ * Вход — кнопка во вкладке «История» карточки героя и окно героя в Летописи (вкладка «Герои»).
  */
 
 /** Имя слоя страницы (e2e ищет его). */
@@ -22,11 +27,13 @@ export const HERO_STORY_NAME = 'heroStory';
 const DEPTH = 9600;
 const TEXT_W = 940;
 const LEFT = (GAME_W - TEXT_W) / 2;
-const LIST_TOP = 510;
+/** Раскладка для поля 1080×1920; на вытянутых экранах (390×844) шапка поднимается, а список и кнопка опускаются в поля. */
 const LIST_BOTTOM = 1690;
 const BTN_Y = 1822;
 /** Шрифт текста кусочка: крупнее основного (на 390×844 ≈ 15 px). */
 const BODY_FS = 40;
+/** Фон страницы (и затухание краёв списка). */
+const BG = 0x07060a;
 
 /** Есть ли у героя история кусочками. */
 export const hasHeroStory = (templateId: string) => (LORE.heroStories[templateId]?.length ?? 0) > 0;
@@ -34,10 +41,16 @@ export const hasHeroStory = (templateId: string) => (LORE.heroStories[templateId
 /** Сколько кусочков истории героя открыто и не прочитано (для отметки «новое»). */
 export const heroStoryNew = (templateId: string, save: SaveState = session.save) => heroStoryUnread(save, templateId, LORE);
 
-/** «3 / 10» — открыто из всего. */
+/**
+ * «7 из 15» — открыто из пути героя: общие кусочки + кусочки его веток (героя без ветки — одной ветки) + прочитанные
+ * кусочки других веток.
+ */
 export function heroStoryProgress(templateId: string, save: SaveState = session.save): { open: number; total: number } {
   const list = heroStoryPieces(save, templateId, LORE);
-  return { open: list.filter((p) => p.open).length, total: list.length };
+  const mine = heroStoryBranches(save, templateId);
+  const firstBranch = list.find((p) => p.branch)?.branch;
+  const counted = list.filter((p) => p.path !== 'other' || p.open || (!mine.length && p.branch === firstBranch));
+  return { open: list.filter((p) => p.open).length, total: counted.length };
 }
 
 /**
@@ -78,7 +91,7 @@ export interface HeroStoryOptions {
 export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: HeroStoryOptions = {}): Phaser.GameObjects.Container {
   const t = heroTemplate(GAME, templateId);
   const pieces = heroStoryPieces(session.save, templateId, LORE);
-  const fresh = new Set(pieces.filter((p) => p.open && !p.read).map((p) => p.level));
+  const fresh = new Set(pieces.filter((p) => p.open && !p.read).map((p) => p.key));
   if (fresh.size) commit(markHeroStoryRead(session.save, templateId, LORE));
   const cx = GAME_W / 2;
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName(HERO_STORY_NAME);
@@ -92,12 +105,18 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
     opts.onClose?.();
   };
   // Фон ловит все касания: экран под страницей недоступен.
-  const back = scene.add.rectangle(cx, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x07060a, 1).setInteractive();
+  const back = scene.add.rectangle(cx, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, BG, 1).setInteractive();
   layer.add(back);
-  if (scene.textures.exists('skin_glow')) layer.add(scene.add.image(cx, 360, 'skin_glow').setDisplaySize(1300, 900).setTint(0xffc870).setAlpha(0.16).setBlendMode(Phaser.BlendModes.ADD));
+  // Безопасная область экрана в координатах мира: сверху до −BLEED_Y, снизу до GAME_H + BLEED_Y.
+  const v = view();
+  const dt = Math.max(-BLEED_Y, Math.min(0, v.safeTop));
+  const db = Math.min(BLEED_Y, Math.max(0, v.safeBottom - GAME_H));
+  const listBottom = LIST_BOTTOM + db;
+  const btnY = BTN_Y + db;
+  if (scene.textures.exists('skin_glow')) layer.add(scene.add.image(cx, 360 + dt, 'skin_glow').setDisplaySize(1300, 900).setTint(0xffc870).setAlpha(0.16).setBlendMode(Phaser.BlendModes.ADD));
 
-  const open = pieces.filter((p) => p.open).length;
-  let y = 160;
+  const progress = heroStoryProgress(templateId);
+  let y = 160 + dt;
   const kicker = text(scene, cx, y, 'ИСТОРИЯ ГЕРОЯ', FS.h3, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE });
   kicker.setLetterSpacing?.(6);
   layer.add(kicker);
@@ -105,7 +124,7 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
   const title = text(scene, cx, y, t.name, FS.hero + 12, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 }).setOrigin(0.5, 0).setName('heroStoryTitle');
   layer.add(title);
   y += title.height + 6;
-  const sub = text(scene, cx, y, pieces.length ? `Открыто ${open} из ${pieces.length} · новая часть — каждые 10 уровней` : 'Летописец ещё не записал эту историю', FS.body, SKIN.cream, {
+  const sub = text(scene, cx, y, pieces.length ? `Открыто ${progress.open} из ${progress.total} · новая часть — каждые 10 уровней` : 'Летописец ещё не записал эту историю', FS.body, SKIN.cream, {
     fontStyle: 'italic',
     ...OUTLINE,
     wordWrap: { width: TEXT_W },
@@ -115,54 +134,110 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
   y += sub.height + 30;
   layer.add(divider(scene, cx, y));
 
-  // Список кусочков: открытые — уровень, заголовок, текст; закрытые — одна строка «Откроется на ур. N».
-  const area = new ScrollArea(scene, LIST_TOP, LIST_BOTTOM);
+  // Список: общие кусочки, затем разделы веток (своя — первой). Открытые — уровень, заголовок, текст; закрытые своей
+  // ветки и общие — строка «Ур. N · откроется…»; закрытые другой ветки — одна строка на ветку.
+  // Список — сразу под разделителем шапки (подзаголовок может занять две строки).
+  const listTop = y + 56;
+  const area = new ScrollArea(scene, listTop, listBottom);
   let ly = 10;
-  const nextClosed = pieces.find((p) => !p.open);
-  for (const p of pieces) {
-    if (p.open) {
-      const head = text(scene, LEFT, ly, `Ур. ${p.level}`, FS.body, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0);
-      area.add(head);
-      if (fresh.has(p.level)) {
-        const tagText = text(scene, 0, 0, 'новое', FS.caption - 4, C.text, { fontStyle: 'bold' });
-        const tag = scene.add.container(LEFT + head.width + 24 + (tagText.width + 28) / 2, ly + head.height / 2, [
-          scene.add.rectangle(0, 0, tagText.width + 28, 40, TINT.badge).setStrokeStyle(3, 0xffffff),
-          tagText,
-        ]).setName(`heroStoryNew_${p.level}`);
-        area.add(tag);
-      }
-      ly += head.height + 4;
-      const tt = text(scene, LEFT, ly, p.title, FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 8, wordWrap: { width: TEXT_W } }).setOrigin(0, 0);
-      area.add(tt);
-      ly += tt.height + 14;
-      const body = text(scene, LEFT, ly, p.text, BODY_FS, SKIN.cream, { align: 'left', wordWrap: { width: TEXT_W, useAdvancedWrap: true }, lineSpacing: 14 })
-        .setOrigin(0, 0)
-        .setName(`heroStoryText_${p.level}`);
-      area.add(body);
-      ly += body.height + 36;
-      area.add(scene.add.rectangle(cx, ly, TEXT_W * 0.6, 3, SKIN_TINT.gold, 0.35));
-      ly += 40;
-    } else {
-      const left = p === nextClosed ? Math.max(0, p.level - heroPeakLevel(session.save, templateId)) : 0;
-      const lock = text(scene, LEFT, ly, `Ур. ${p.level} · Откроется на ур. ${p.level}${left ? ` (ещё ${left} ур.)` : ''}`, FS.h3, C.dim, { ...OUTLINE, wordWrap: { width: TEXT_W } })
-        .setOrigin(0, 0)
-        .setName(`heroStoryLocked_${p.level}`);
-      area.add(lock);
-      ly += lock.height + 34;
+  const branchName = (job: string) => jobTitle(GAME, job, t.gender);
+  const nextClosed = new Map<string, HeroStoryEntry>();
+  for (const p of pieces) if (!p.open && p.path !== 'other' && !nextClosed.has(p.branch ?? '')) nextClosed.set(p.branch ?? '', p);
+  const hasBranch = heroStoryBranches(session.save, templateId).length > 0;
+
+  const openPiece = (p: HeroStoryEntry) => {
+    const head = text(scene, LEFT, ly, `Ур. ${p.level}`, FS.body, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0);
+    area.add(head);
+    if (fresh.has(p.key)) {
+      const tagText = text(scene, 0, 0, 'новое', FS.caption - 4, C.text, { fontStyle: 'bold' });
+      const tag = scene.add.container(LEFT + head.width + 24 + (tagText.width + 28) / 2, ly + head.height / 2, [
+        scene.add.rectangle(0, 0, tagText.width + 28, 40, TINT.badge).setStrokeStyle(3, 0xffffff),
+        tagText,
+      ]).setName(`heroStoryNew_${p.key}`);
+      area.add(tag);
     }
+    ly += head.height + 4;
+    const tt = text(scene, LEFT, ly, p.title, FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 8, wordWrap: { width: TEXT_W } }).setOrigin(0, 0);
+    area.add(tt);
+    ly += tt.height + 14;
+    const body = text(scene, LEFT, ly, p.text, BODY_FS, SKIN.cream, { align: 'left', wordWrap: { width: TEXT_W, useAdvancedWrap: true }, lineSpacing: 14 })
+      .setOrigin(0, 0)
+      .setName(`heroStoryText_${p.key}`);
+    area.add(body);
+    ly += body.height + 36;
+    area.add(scene.add.rectangle(cx, ly, TEXT_W * 0.6, 3, SKIN_TINT.gold, 0.35));
+    ly += 40;
+  };
+  const lockedLine = (p: HeroStoryEntry) => {
+    const peak = heroPeakLevel(session.save, templateId, p.branch);
+    const left = nextClosed.get(p.branch ?? '') === p ? Math.max(0, p.level - peak) : 0;
+    const lock = text(scene, LEFT, ly, `Ур. ${p.level} · откроется на ур. ${p.level}${left ? ` (ещё ${left} ур.)` : ''}`, FS.h3, C.dim, { ...OUTLINE, wordWrap: { width: TEXT_W } })
+      .setOrigin(0, 0)
+      .setName(`heroStoryLocked_${p.key}`);
+    area.add(lock);
+    ly += lock.height + 34;
+  };
+  const section = (title: string, note: string, name: string) => {
+    ly += 16;
+    const head = text(scene, cx, ly, title, FS.h2, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE, align: 'center', wordWrap: { width: TEXT_W } })
+      .setOrigin(0.5, 0)
+      .setName(name);
+    area.add(head);
+    ly += head.height + 6;
+    if (note) {
+      const n = text(scene, cx, ly, note, FS.small, SKIN.creamDim, { fontStyle: 'italic', ...OUTLINE, align: 'center', wordWrap: { width: TEXT_W } }).setOrigin(0.5, 0);
+      area.add(n);
+      ly += n.height;
+    }
+    ly += 14;
+    area.add(divider(scene, cx, ly));
+    ly += 40;
+  };
+
+  for (const p of pieces.filter((q) => !q.branch)) (p.open ? openPiece(p) : lockedLine(p));
+  const branches = [...new Set(pieces.filter((p) => p.branch).map((p) => p.branch!))];
+  for (const b of branches) {
+    const list = pieces.filter((p) => p.branch === b);
+    const mine = list[0].path === 'mine';
+    const opened = list.filter((p) => p.open);
+    const closed = list.filter((p) => !p.open);
+    const levels = `ур. ${list[0].level}–${list[list.length - 1].level}`;
+    if (mine) section(`Путь: ${branchName(b)}`, `вторая профессия героя · ${levels}`, `heroStoryBranch_${b}`);
+    else if (opened.length) section(`Другой путь: ${branchName(b)}`, 'прочитано раньше, на этой ветке', `heroStoryBranch_${b}`);
+    if (mine) {
+      for (const p of list) (p.open ? openPiece(p) : lockedLine(p));
+      continue;
+    }
+    for (const p of opened) openPiece(p);
+    if (!closed.length) continue;
+    const what = opened.length ? `Ещё ${closed.length} ${closed.length === 1 ? 'часть' : closed.length < 5 ? 'части' : 'частей'}` : `${levels[0].toUpperCase()}${levels.slice(1)}`;
+    const how = hasBranch
+      ? `откроются на ветке «${branchName(b)}»`
+      : `путь «${branchName(b)}»: откроется, когда герой выберет эту ветку (фиолетовая редкость)`;
+    const line = text(scene, LEFT, ly, `${what} · ${how}`, FS.h3, C.dim, { ...OUTLINE, wordWrap: { width: TEXT_W } })
+      .setOrigin(0, 0)
+      .setName(`heroStoryOther_${b}`);
+    area.add(line);
+    ly += line.height + 34;
   }
   area.setContentHeight(ly + 10);
   layer.add(area.parts);
-  if (ly > LIST_BOTTOM - LIST_TOP) layer.add(text(scene, cx, LIST_BOTTOM + 22, '⇅ листайте', FS.caption, SKIN.creamDim, OUTLINE));
+  // Нижний край полосы списка — мягкое затухание в фон, а не строка, срезанная посередине (сверху — свечение шапки,
+  // сплошная полоса фона легла бы на него ступенькой).
+  const FADE = 56;
+  const fade = scene.add.graphics();
+  fade.fillGradientStyle(BG, BG, BG, BG, 0, 0, 1, 1).fillRect(-BLEED_X, listBottom - FADE, GAME_W + 2 * BLEED_X, FADE);
+  layer.add(fade);
+  if (ly > listBottom - listTop) layer.add(text(scene, cx, listBottom + 22, '⇅ листайте', FS.caption, SKIN.creamDim, OUTLINE));
   // Первый непрочитанный кусочек — сразу на экране.
   const firstFresh = [...fresh][0];
   if (firstFresh !== undefined) {
     const o = area.content.getByName(`heroStoryNew_${firstFresh}`) as Phaser.GameObjects.Container | null;
     if (o) area.offset = Math.max(0, o.y - 60);
   }
-  const closeBtn = button(scene, cx, BTN_Y, 520, 140, 'ui_btn_primary', 'Закрыть', close, FS.h2);
+  const closeBtn = button(scene, cx, btnY, 520, 140, 'ui_btn_primary', 'Закрыть', close, FS.h2);
   closeBtn.container.setName('heroStoryClose');
-  const backBtn = button(scene, 170, 70, 280, TOUCH, 'k:buttonLong_beige', '‹ Назад', close, FS.h3);
+  const backBtn = button(scene, 170, 70 + dt, 280, TOUCH, 'k:buttonLong_beige', '‹ Назад', close, FS.h3);
   backBtn.container.setName('heroStoryBack');
   layer.add([closeBtn.container, backBtn.container]);
   layer.setAlpha(0);

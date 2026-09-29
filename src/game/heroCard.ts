@@ -67,7 +67,7 @@ export function rarityPalette(rarity: CardRarity | 'none'): RarityPalette {
 
 /** Гильдия (город) по линии — подпись и фильтр, без бонусов (docs/design/heroes.md, раздел 1). */
 export const GUILD_NAMES: Record<string, string> = {
-  swordman: 'Пронтера',
+  swordman: 'Излуд',
   acolyte: 'Пронтера',
   mage: 'Гефен',
   archer: 'Пайон',
