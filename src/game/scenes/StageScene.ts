@@ -6,7 +6,8 @@ import { formatNumber, recommendedPower, stageNo, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { screen } from '../screen';
 import { commit, session, today } from '../session';
-import { button, text, toast, tutorialHint } from '../ui';
+import { button, pressable, text, toast, tutorialHint } from '../ui';
+import { monsterTeaser, roleName } from '../loreView';
 import { ctaShine, glow } from '../decor';
 import { skinIcon } from '../skin';
 import { markHint, pickPrepHint } from '../hints';
@@ -104,6 +105,7 @@ export class StageScene extends Phaser.Scene {
       ctaShine(this, this.fightBtns[1].container, 480, 150);
     }
     this.editor.draw();
+    this.enemyTaps(stage.enemies.map((e) => e?.unit ?? null));
     // R: подсказка новичку — первый бой. После отряда: hintPointer обходит все кнопки, слоты и карточки сцены.
     // Обучение: после Таверны сильнейшие герои вне отряда — сначала «Авто» (prep_auto), иначе «В бой».
     const ids = (sq: readonly (string | null)[]) => JSON.stringify(sq.filter(Boolean).sort());
@@ -111,6 +113,24 @@ export class StageScene extends Phaser.Scene {
     const hint = pickPrepHint({ first, benchStronger, summoned: session.save.summon.firstTenDone });
     if (hint === 'prep_auto') this.autoHint = tutorialHint(this, hint, 610, L.rosterHeadY, 'above', { w: 220, h: 90 }, { avoidText: ['Нажмите на героя'] });
     else if (hint === 'stage_fight') tutorialHint(this, hint, GAME_W / 2, L.fightY, 'above', { w: 640, h: 150 });
+  }
+
+  /**
+   * Нажатие на врага на поле — подсказка из Летописи: имя, прозвище и первая фраза (data/lore/monsters.json);
+   * записи нет — имя и роль. Места врагов — те же, что рисует FormationEditor (enemySlots).
+   */
+  private enemyTaps(unitIds: (string | null)[]): void {
+    const points = this.editor['enemySlots'] as readonly { x: number; y: number }[];
+    unitIds.forEach((id, i) => {
+      const p = points[i];
+      const unit = id ? CONTENT.units[id] : undefined;
+      if (!unit || !p) return;
+      const zone = this.add.zone(p.x, p.y + 10, 190, 170).setName(`enemyInfo${i}`);
+      pressable(this, zone, 190, 170, () => {
+        const teaser = monsterTeaser(unit.id);
+        toast(this, teaser ? `${unit.name} — ${teaser}` : `${unit.name} · ${roleName(unit)}`, C.title, 5000, 'middle');
+      });
+    });
   }
 
   /** Доступность «В бой» — после каждого изменения отряда (мощь и предупреждение рисует редактор). */
