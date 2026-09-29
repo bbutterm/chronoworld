@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 from ro_v1_to_v2 import V1_SPRITES,convert as convert_v1
+import sprites_manifest  # sprites.json (game) + sprites.provenance.json (proof); see tools/sprites_manifest.py
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'assets/sprites'
@@ -184,7 +185,7 @@ def opaque_body(im,threshold):
 
 def apply_alpha_fixes(oxipng:Path,ids=None):
  """Re-apply OPAQUE_BODY to existing sheets in place (idempotent; no renderer cache needed)."""
- data=json.loads((OUT/'sprites.json').read_text())
+ data=sprites_manifest.load(OUT/'sprites.json')
  for sid in ids or OPAQUE_BODY:
   entry=next(s for s in data['sprites'] if s['id']==sid)
   png=ROOT/'assets'/entry['file']
@@ -219,13 +220,13 @@ def save_lossless(im,path,oxipng):
 
 def upsert_v1(oxipng:Path,ids=None):
  """Convert legacy assets/ro v1 sheets (no renderer cache needed) and upsert them into sprites.json."""
- manifest=OUT/'sprites.json';data=json.loads(manifest.read_text())
+ manifest=OUT/'sprites.json';data=sprites_manifest.load(manifest)
  for sid in ids or V1_SPRITES:
   if sid not in V1_SPRITES:raise ValueError(f'not a v1-converted sprite id: {sid}')
   entry=convert_v1(sid,CLASSES,ANIMS,OVERRIDES,save_lossless,oxipng,OUT)
   data['sprites']=[s for s in data['sprites'] if s['id']!=sid]+[entry]
   print(sid,entry['class'],(ROOT/'assets'/entry['file']).stat().st_size,'bytes (from v1)',flush=True)
- manifest.write_text(json.dumps(data,indent=1,ensure_ascii=False)+'\n')
+ sprites_manifest.save(data,manifest)
 
 def build(cache:Path,oxipng:Path,only=None):
  # oxipng is optional; Pillow's lossless indexed PNG remains under budget.
@@ -248,7 +249,7 @@ def build(cache:Path,oxipng:Path,only=None):
   if not specs:raise ValueError(f'unknown sprite id: {only}')
   manifest=OUT/'sprites.json'
   if not manifest.is_file():raise FileNotFoundError(f'--only requires existing {manifest}')
-  data=json.loads(manifest.read_text())
+  data=sprites_manifest.load(manifest)
   data['classes']=CLASSES;data['anims']=ANIMS;data['animOverrides']=OVERRIDES
   data['sprites']=[s for s in data['sprites'] if s['id']!=only]
  for name,kind,job,jobname,gender,weapon,shield,item,shielditem in specs:
@@ -346,13 +347,13 @@ def build(cache:Path,oxipng:Path,only=None):
   if name in OPAQUE_BODY:sheet=opaque_body(sheet,OPAQUE_BODY[name])
   png=ROOT/'assets'/entry['file'];save_lossless(sheet,png,oxipng);data['sprites'].append(entry)
   print(name,kind,png.stat().st_size,'bytes',flush=True)
- (OUT/'sprites.json').write_text(json.dumps(data,indent=1,ensure_ascii=False)+'\n')
+ sprites_manifest.save(data,OUT/'sprites.json')
  if not only:upsert_v1(oxipng)
  print('OUTPUT',OUT,'bytes',sum(p.stat().st_size for p in OUT.rglob('*') if p.is_file()))
 
 def upgrade_card_portraits(oxipng:Path):
  """Promote existing 64px card portraits to 256px without re-fetching APNGs."""
- manifest=OUT/'sprites.json';data=json.loads(manifest.read_text());upgraded=0
+ manifest=OUT/'sprites.json';data=sprites_manifest.load(manifest);upgraded=0
  for entry in data['sprites']:
   if entry['id'] not in CARD_HEROES+('swordman_m',):continue
   path=ROOT/'assets'/entry['portrait']
@@ -362,7 +363,7 @@ def upgrade_card_portraits(oxipng:Path):
     upgraded+=1
    elif original.size!=(256,256):raise ValueError(f'unexpected portrait size: {path}')
   entry['portraitSource']='Nearest-neighbor 4x enlargement of a native 64x64 ready-pose head-and-shoulders crop.'
- manifest.write_text(json.dumps(data,indent=1,ensure_ascii=False)+'\n')
+ sprites_manifest.save(data,manifest)
  print('upgraded',upgraded,'card portraits to 256x256',flush=True)
 
 if __name__=='__main__':

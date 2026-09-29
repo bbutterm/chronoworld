@@ -114,12 +114,18 @@ assets/sprites/
   monsters/melee.png  ranged.png  tank.png  fast.png  drops.png  poporing.png  fabre.png  lunatic.png  mandragora.png
   bosses/boss1.png  boss2.png  mastering.png  rocker.png  # rocker uses boss grid only due to ACT frame size
   portraits/guard.png ...           # 64×64 при ×1: голова и плечи из кадра idle 0
-  sprites.json
+  sprites.json              # то, что читает игра (в JS-бандле)
+  sprites.provenance.json   # доказательства конвейера: source*, sourceFrameBboxes… (в бандл и dist не идёт)
 ```
 
-PNG: RGBA с прозрачным фоном, пиксели точно как в исходнике (никакого сглаживания и ресемплинга). Если в листе ≤ 256 цветов — сохраняй indexed PNG с альфой (без потерь), затем `oxipng -o 4`. Лимит до 3 МБ относится к фактической поставке спрайтов: lossless WebP из `assets-webp/index.json` (fallback на PNG) плюс манифест. Исходные PNG могут быть больше; `tools/check_sprites.py` измеряет именно эти загружаемые байты.
+PNG: RGBA с прозрачным фоном, пиксели точно как в исходнике (никакого сглаживания и ресемплинга). Если в листе ≤ 256 цветов — сохраняй indexed PNG с альфой (без потерь), затем `oxipng -o 4`. Лимит до 3 МБ относится к фактической поставке спрайтов: листы и портреты из `assets/sprites`, которые попадают в dist (`scripts/lib/used-assets.ts`: на них ссылается контент), в виде lossless WebP из `assets-webp/index.json` (fallback на PNG), плюс `sprites.json` в бандле. Исходные PNG и листы без юнитов (глава 9) могут быть больше; `tools/check_sprites.py` измеряет именно загружаемые байты и печатает заодно полный размер папки.
 
-`sprites.json` (все числа обязательны, игра читает только этот файл):
+`sprites.json` (все числа обязательны, игра читает только этот файл). В записи спрайта — только поля игры: `id`, `class`,
+`file`, `portrait`, `hitFrames`, `bbox` (по `bbox` лист ужимается в видеопамяти — `src/pipeline/sheetPack.ts`). Всё остальное,
+что пишут инструменты (`source`, `sourceFrameBboxes`, `sourceFrameIndices`, `sourceAlphaValues`, `samplingExceptions`,
+`originReconstruction`, `notes`…), лежит в `sprites.provenance.json` по id. Инструменты читают и пишут пару через
+`tools/sprites_manifest.py` (`load()` — объединённый вид, `save()` — раскладывает обратно); руками поле доказательства
+в `sprites.json` не добавлять — `tests/sprites-manifest.test.ts` упадёт.
 
 ```json
 {

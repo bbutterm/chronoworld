@@ -5,6 +5,7 @@ import { build, type Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { ASSETS_DIR, bootFiles, collectUsedAssets } from './scripts/lib/used-assets.ts';
 import { SKIN_REPLACED } from './src/pipeline/bootAssets.ts';
+import { SPRITE_RUNTIME_KEYS } from './src/pipeline/sprites.ts';
 
 /** WebP-копии PNG без потерь (tools/build_webp.py, `npm run assets:webp`). */
 const WEBP_DIR = 'assets-webp';
@@ -112,9 +113,10 @@ function assetPackPlugin(): Plugin {
 }
 
 /**
- * Из assets/sprites/sprites.json игре нужны классы, анимации и у спрайтов id/class/file/portrait/hitFrames/bbox;
- * остальное — заметки конвейера арта (source*, sourceFrameBboxes, originReconstruction…), ≈ 65 КБ бандла.
- * Их читают только Node-скрипты (content:check, tools) — с диска, не из бандла.
+ * Доказательства конвейера арта (source*, sourceFrameBboxes, originReconstruction…) лежат отдельно —
+ * assets/sprites/sprites.provenance.json (tools/sprites_manifest.py), его читают только Node/Python-скрипты с диска.
+ * Страховка: если в sprites.json всё же попадёт лишнее поле, в бандл оно не пойдёт (tests/sprites-manifest.test.ts
+ * заодно ловит его раньше).
  */
 function trimSpritesJson(): Plugin {
   return {
@@ -125,7 +127,7 @@ function trimSpritesJson(): Plugin {
       const json = JSON.parse(code) as { notes?: unknown; sprites?: Record<string, unknown>[] };
       delete json.notes;
       for (const s of json.sprites ?? []) {
-        for (const k of Object.keys(s)) if (/^source|^originReconstruction$|^samplingExceptions$/.test(k)) delete s[k];
+        for (const k of Object.keys(s)) if (!(SPRITE_RUNTIME_KEYS as readonly string[]).includes(k)) delete s[k];
       }
       return { code: JSON.stringify(json), map: null };
     },

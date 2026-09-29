@@ -112,8 +112,10 @@ if (content) {
 
   // 8. Карточки героев и Таверна: правила карточек, листы (свой / класса / пол), портреты, выдача Таверны.
   const sheetGender: Record<string, string | undefined> = {};
-  for (const s of readJson<{ sprites: { id: string; source?: { gender?: string } }[] }>('assets/sprites/sprites.json')?.sprites ?? []) {
-    sheetGender[s.id] = s.source?.gender === 'female' ? 'f' : s.source?.gender === 'male' ? 'm' : undefined;
+  // Пол листа — в доказательствах конвейера арта (sprites.provenance.json, tools/sprites_manifest.py), в бандл не идут.
+  const provenance = readJson<{ sprites: Record<string, { source?: { gender?: string } }> }>('assets/sprites/sprites.provenance.json')?.sprites ?? {};
+  for (const [id, p] of Object.entries(provenance)) {
+    sheetGender[id] = p.source?.gender === 'female' ? 'f' : p.source?.gender === 'male' ? 'm' : undefined;
   }
   if (built.ctx) {
     const lint = lintHeroes(built.ctx, registry, sheetGender);

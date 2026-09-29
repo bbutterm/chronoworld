@@ -5,10 +5,13 @@ from pathlib import Path
 from PIL import Image, ImageChops
 
 ROOT=Path(__file__).resolve().parents[1]
+import sys
+sys.path.insert(0,str(ROOT/'tools'))
+import sprites_manifest  # sprites.json + sprites.provenance.json (source*, sourceActions...)
 
 class TestFirstJobsV2(unittest.TestCase):
     def test_six_distinct_first_jobs(self):
-        entries={s['id']:s for s in json.loads((ROOT/'assets/sprites/sprites.json').read_text())['sprites']}
+        entries={s['id']:s for s in sprites_manifest.load()['sprites']}
         expected={'swordman':1,'magician':2,'archer_first':3,'acolyte':4,'merchant':5,'thief':6}
         for name,job in expected.items():
             with self.subTest(name=name):

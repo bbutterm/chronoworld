@@ -39,7 +39,8 @@ Work in the working branch (`claude/idle-hero-rpg-gdd-rolicg`) after `git merge 
 
 1. **Monsters.** For every `sprite_sheet` with status `ready` / `ready_with_skipped_frames`, whose `units` are in the game:
    copy `file` → `target`; append the entry from `sprites.fragment.json` to `assets/sprites/sprites.json` → `sprites`
-   (extra fields `units`, `sourceDelayMs`, `sourceSounds`, `hitFrameSource` can be dropped or kept — the loader `src/pipeline/sprites.ts` ignores them).
+   (extra fields `units`, `sourceDelayMs`, `sourceSounds`, `hitFrameSource` and other proof go to `assets/sprites/sprites.provenance.json` —
+   write through `tools/sprites_manifest.py` `load()`/`save()`, it splits them out; `sprites.json` keeps only the fields the game reads).
    In `data/units/*.json` point `visual.sprite` at the new id and remove the "patch" `tint`/`scale`. Unit → sheet table:
    field `units` in the manifest (for example `alde_keeper` → `clock_tower_manager`, `mob3_knight` → `abysmal_knight`,
    `sewer_bug_leader` shares a sheet with `thief_bug_male`). Add the new ids to `REQUIRED` in `tools/check_sprites.py`.
