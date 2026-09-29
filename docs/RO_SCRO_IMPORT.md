@@ -68,8 +68,9 @@ Work in the working branch (`claude/idle-hero-rpg-gdd-rolicg`) after `git merge 
    battle_orcs 48, map_aldebaran 39, battle_aldebaran 60, boss_aldebaran 61, map_maze/battle_maze 16, tower 21, hunt 02) — add them to
    `audioCatalog.ts` together with the chapters. `spare` — optional tracks (03, 18, 24, 36, 37, 38, 43, 44, 47, 52). map_swamp/battle_swamp
    have no RO track (that chapter is leaving the campaign) — they stay synthesized.
-   Memory: the engine decodes the whole track into an AudioBuffer (≈ 1.4 MB/s stereo 48 kHz float, Prontera 273 s ≈ 105 MB, doubled during a crossfade).
-   If Telegram on weak phones struggles, rebuild in mono (`build_music.py`, `-ac 1`) — memory and size halve.
+   Memory: the current engine decodes the whole track into an AudioBuffer (≈ 0.38 MB/s stereo 48 kHz float, Prontera 273 s ≈ 105 MB,
+   and it keeps two tracks). **Owner-approved task: switch file music to streaming — `docs/TASK_MUSIC_STREAMING.md`.**
+   Do it together with hooking up the music (or before merging it into main), otherwise real tracks will take up to ~200 MB on phones.
    Rebuild: `python3 raw/ro-build/tools/build_music.py <repo root>` (ffmpeg with libopus and aac).
 7. **Sounds.** `raw/ro/wav`, `raw/ro/wav/effect` are originals. Mapping to `SFX` ids in `src/game/audioCatalog.ts` is in section 7
    of RO_EXTRACT_LIST. Convert to `assets/audio/<id>.ogg` yourself; keep raw in `raw/`. Monster sounds
