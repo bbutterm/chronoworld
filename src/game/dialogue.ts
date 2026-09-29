@@ -108,8 +108,9 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   // Финал главы и сцена босса — кульминация: в авто-режиме их не листаем сами.
   const auto = !!opts.auto && !s.bossIntro && !isChapterFinale(s, GAME);
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName(DIALOGUE_NAME);
-  // Затемнение ловит все касания: экран под диалогом недоступен (бой не стартует, кнопки не жмутся).
-  const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.45).setInteractive();
+  // Затемнение ловит все касания: экран под диалогом недоступен (бой не стартует, кнопки не жмутся). BUG-064: фон заметно
+  // темнее (0.62) — карта и бойцы не отвлекают от реплики.
+  const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.62).setInteractive();
   const box = panel(scene, GAME_W / 2, PANEL_Y, PANEL_W, PANEL_H, 'ui_panel');
   const top = PANEL_Y - PANEL_H / 2;
   const left = GAME_W / 2 - PANEL_W / 2;

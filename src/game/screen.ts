@@ -186,6 +186,14 @@ export function navShift(): number {
   return Math.max(0, Math.min(BLEED_Y, view().safeBottom - GAME_H));
 }
 
+/**
+ * Низ области содержимого с учётом navShift: на вытянутых экранах (390×844) навигация опущена к низу безопасной
+ * области, и прокручиваемые списки тянутся до неё, а не обрываются на CONTENT_BOTTOM с пустой полосой. На 9:16 — CONTENT_BOTTOM.
+ */
+export function contentBottom(): number {
+  return CONTENT_BOTTOM + navShift();
+}
+
 /** Центр вкладок навигации по высоте (с учётом navShift) — для указателей подсказок на вкладки. */
 export function navY(): number {
   return GAME_H - NAV_H / 2 + navShift();

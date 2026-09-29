@@ -3,7 +3,7 @@ import { achievementStatus, ascendAll, ascendAllSummary, heroesWithGearUpgrades,
 import { GAME } from '../content';
 import { ascendReady, claimableAchievements, formatNumber, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
-import { confirm, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
+import { confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, cornerBadge, screen } from '../screen';
 import { countUp, staggerIn } from '../juice';
 import { commit, session } from '../session';
 import { sfx } from '../audio';
@@ -15,6 +15,7 @@ import { cardIcon, drawHeroCard, GUILD_NAMES, heroCardIcon, heroCardSize, LINES,
 import { collectionCount, collectionHeroes, groupCopies, heroesUi, inventoryUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
 import { pulse } from '../juice';
 import { heroStoryNew, storyDot } from '../heroStoryView';
+import { lockLabel } from '../unlockBanner';
 
 const COLS = 3;
 const TILE_W = 300;
@@ -108,7 +109,7 @@ export class HeroesScene extends Phaser.Scene {
 
     // Сетка карточек.
     const listTop = r2 + CHIP / 2 + 20;
-    this.area = new ScrollArea(this, listTop, CONTENT_BOTTOM + 10);
+    this.area = new ScrollArea(this, listTop, contentBottom() + 10);
     // Копии одного героя — одной плиткой (лучший экземпляр) с «×N»; все экземпляры — на карточке и в корме вознесения.
     const groups = groupCopies(collectionHeroes(save, f, heroesUi.sort, GAME, (h) => heroPower(h, gctx)));
     const heroes = groups.map((g) => g.hero);
@@ -151,7 +152,17 @@ export class HeroesScene extends Phaser.Scene {
       ]);
     });
     const n = lead + heroes.length + missing.length;
-    this.area.setContentHeight(Math.ceil(n / COLS) * (tileH + GAP_Y) + GAP_Y);
+    let contentH = Math.ceil(n / COLS) * (tileH + GAP_Y) + GAP_Y;
+    // Героев мало (начало игры) — под сеткой подсказка, откуда берутся новые, а не пустой лес.
+    if (n <= COLS * 2 && !f.line && !f.role && !f.rarity) {
+      const lock = lockLabel('tavern');
+      const tip = lock
+        ? `Новые герои присоединяются по сюжету и приходят из Таверны («Город»). Таверна: ${lock.charAt(0).toLowerCase()}${lock.slice(1)}.`
+        : 'Новых героев нанимают в Таверне («Город»). Три одинаковые карты — вознесение на следующую редкость.';
+      this.area.add(text(this, GAME_W / 2, contentH + 40, tip, FS.body, C.muted, { align: 'center', wordWrap: { width: 900, useAdvancedWrap: true }, lineSpacing: 6 }).setOrigin(0.5, 0).setName('heroesTip'));
+      contentH += 200;
+    }
+    this.area.setContentHeight(contentH);
     // T1-08: один раз — подсказка «Наденьте трофеи» на первом герое, которому есть что надеть.
     const gearHero = heroesWithGearUpgrades(save, GAME)[0];
     const gi = heroes.findIndex((x) => x.id === gearHero);

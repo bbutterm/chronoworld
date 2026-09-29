@@ -18,7 +18,7 @@ import { touchToday } from '../homeEvents';
 import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 import { GAME_W } from '../layout';
 import { rewardColumn, rewardRow, rewardText, rewardToast } from '../rewardsView';
-import { badge, card, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
+import { badge, card, CONTENT_TOP, contentBottom, cornerBadge, screen } from '../screen';
 import { commit, restartOnNewDay, session, today } from '../session';
 import { SKIN, SKIN_TINT, skinIcon } from '../skin';
 import { C, FS, OUTLINE, TINT, TITLE_STYLE } from '../theme';
@@ -266,7 +266,7 @@ export class EventsScene extends Phaser.Scene {
     });
 
     const day = st.days[this.day - 1];
-    this.area = new ScrollArea(this, NB.listTop, CONTENT_BOTTOM + 10);
+    this.area = new ScrollArea(this, NB.listTop, contentBottom() + 10);
     if (day.locked) {
       const left = this.day - st.eventDay;
       this.area.add(text(this, GAME_W / 2, 60, left === 1 ? `Задания дня ${this.day} откроются завтра` : `Задания дня ${this.day} откроются через ${daysText(left)}`, FS.body, C.muted, OUTLINE));

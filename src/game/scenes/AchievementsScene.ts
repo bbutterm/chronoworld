@@ -3,7 +3,7 @@ import { achievementStatus, actClaimAchievement, actClaimAllAchievements, type A
 import { GAME } from '../content';
 import { claimableAchievements, describeEvents, formatNumber, metaRewardsText, sortAchievements } from '../flow';
 import { GAME_W } from '../layout';
-import { CONTENT_BOTTOM, CONTENT_TOP, screen, type NavTab } from '../screen';
+import { CONTENT_TOP, contentBottom, screen, type NavTab } from '../screen';
 import { commit, session, today } from '../session';
 import { button, ellipsize, emptyState, panel, progressBar, ScrollArea, text, toast } from '../ui';
 import { medallion } from '../decor';
@@ -49,7 +49,7 @@ export class AchievementsScene extends Phaser.Scene {
     // Пустое состояние «забрать нечего» — подсказка, что делать дальше.
     else if (views.length && got < views.length) text(this, GAME_W - 50, CONTENT_TOP + 40, 'Забрать пока нечего — играйте дальше', FS.small, C.muted).setOrigin(1, 0.5);
 
-    this.area = new ScrollArea(this, CONTENT_TOP + 90, CONTENT_BOTTOM + 10);
+    this.area = new ScrollArea(this, CONTENT_TOP + 90, contentBottom() + 10);
     if (!views.length) emptyState(this, GAME_W / 2, CONTENT_TOP + 300, 'Достижений пока нет.');
     const list = sortAchievements(views);
     const rows = list.map((a, i) => collect(this.area.content, () => this.row(a, ROW_H * (i + 0.5))));

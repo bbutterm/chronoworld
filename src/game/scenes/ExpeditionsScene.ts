@@ -13,7 +13,7 @@ import { GAME } from '../content';
 import { lootLines } from '../chestView';
 import { countdownText, describeEvents, expectedLootText, formatNumber, heroSprite } from '../flow';
 import { GAME_W } from '../layout';
-import { confirmOpen, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen, unitFigure, unitTint } from '../screen';
+import { confirmOpen, CONTENT_TOP, contentBottom, portrait, screen, unitFigure, unitTint } from '../screen';
 import { commit, now, session, today } from '../session';
 import { SKIN_TINT, skinIcon } from '../skin';
 import { portraitKey } from '../sprites';
@@ -99,7 +99,7 @@ export class ExpeditionsScene extends Phaser.Scene {
     else pulse(this, claimAll.container);
     text(this, GAME_W / 2, CONTENT_TOP + 132, 'Отряд собирается сам · герои в экспедиции продолжают сражаться', FS.small, C.muted);
 
-    this.area = new ScrollArea(this, LIST_TOP, CONTENT_BOTTOM + 10);
+    this.area = new ScrollArea(this, LIST_TOP, contentBottom() + 10);
     this.timers = [];
     const rows: Phaser.GameObjects.GameObject[][] = [];
     let y = 0;

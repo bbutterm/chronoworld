@@ -67,7 +67,8 @@ export class BootScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.game.events.off(Phaser.Core.Events.PRE_RENDER, flush));
     const setProgress = (p: number) => (progress = p);
     this.load.on('filecomplete', (key: string) => {
-      if (!this.failed && key !== PACK_KEY) hintText = key;
+      // Имя файла (латиница: tile_grass_dry) — только в dev-сборке; игроку — строка летописи и процент.
+      if (import.meta.env.DEV && !this.failed && key !== PACK_KEY) hintText = key;
     });
     // Файл не найден — не страшно, будет плейсхолдер.
     this.load.on('loaderror', (file: Phaser.Loader.File) => {
