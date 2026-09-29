@@ -2,7 +2,8 @@ import Phaser from 'phaser';
 import { hasArt } from '../assets';
 import { HINT_TEXT, hintDone, markHint, pickHomeHint, type HintId } from '../hints';
 import { homeHintInput } from '../tutorial';
-import { actClaimOffline, actUseFastRewards, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, offlineRewards, pendingScenes, stageStatus } from '../../core';
+import { actClaimOffline, actUseFastRewards, episodePageId, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, markPageSeen, offlineRewards, pendingIntro, pendingScenes, stageStatus } from '../../core';
+import { introPages, showPages } from '../storyPage';
 import { CONTENT, GAME } from '../content';
 import { playScenes } from '../dialogue';
 import { isChapterFinale, seenChapterScenes } from '../storyView';
@@ -155,12 +156,24 @@ export class CampaignScene extends Phaser.Scene {
     const fi = all.findIndex((s) => isChapterFinale(s, GAME));
     const finale = fi >= 0 ? all[fi] : undefined;
     const scenes = finale ? all.slice(0, fi + 1) : session.save.pendingChapterDone ? [] : all;
-    playScenes(this, scenes, () => {
+    const afterScenes = () => {
       // Экран «Глава пройдена» ждёт показа (перезагрузка на нём или на финале) — показать сейчас.
       const done = finale?.chapter ?? session.save.pendingChapterDone;
       if (done && GAME.content.chapters.some((c) => c.id === done)) startChapterDone(this, { chapterId: done });
       // Открылась функция (в том числе за этапы, пройденные в авто-режиме) — баннер «Новая функция!».
       else showUnlockBanners(this);
+    };
+    // «Эпизод N» и легенда главы (lore-route §5.1–5.2) — один раз, при первом входе: после сцен из очереди и до
+    // вступления главы (chapterStart).
+    const intro = finale || session.save.pendingChapterDone ? undefined : pendingIntro(session.save, chapter.id, GAME);
+    const isStart = (sc: (typeof scenes)[number]) => sc.trigger === 'chapterStart' && sc.chapter === chapter.id;
+    playScenes(this, scenes.filter((sc) => !isStart(sc)), () => {
+      const rest = () => playScenes(this, scenes.filter(isStart), afterScenes);
+      if (!intro) return rest();
+      showPages(this, introPages(intro), () => {
+        commit(markPageSeen(session.save, episodePageId(chapter.id)));
+        rest();
+      }, { doneLabel: 'В путь' });
     });
   }
 

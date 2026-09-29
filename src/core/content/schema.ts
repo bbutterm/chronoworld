@@ -104,6 +104,21 @@ export const VisualSchema = z.object({
   scale: z.number().positive().max(4).optional(),
 });
 
+/** Предел длины боевой реплики босса (облачко над фигурой, 360×640 — две строки). */
+export const BARK_MAX = 100;
+const bark = z.string().min(1).max(BARK_MAX, `реплика босса: не длиннее ${BARK_MAX} символов`);
+
+/**
+ * Боевые реплики босса (docs/design/lore-route.md §5.5): облачко над фигурой — на старте боя, когда здоровье
+ * падает ниже половины, при гибели босса и при его победе. Только вид (UI по событиям боя), на бой не влияют.
+ */
+export const BarksSchema = z.object({
+  start: bark.optional(),
+  half: bark.optional(),
+  defeat: bark.optional(),
+  victory: bark.optional(),
+});
+
 export const UnitSchema = z.object({
   $schema: z.string().optional(),
   id,
@@ -123,6 +138,8 @@ export const UnitSchema = z.object({
   bodyRadius: z.number().nonnegative().optional(),
   /** «Сила навыков»: множитель урона, лечения и щита навыков (кроме обычной атаки). Карточки золотой/красной редкости. Нет — 1. */
   skillPower: z.number().positive().optional(),
+  /** Боевые реплики (только у боссов — kind boss; у остальных content:check предупредит, в бою не покажутся). */
+  barks: BarksSchema.optional(),
 });
 
 export type Stats = z.infer<typeof StatsSchema>;
@@ -132,3 +149,4 @@ export type StatusDef = z.infer<typeof StatusSchema>;
 export type Effect = z.infer<typeof EffectSchema>;
 export type SkillDef = z.infer<typeof SkillSchema>;
 export type UnitDef = z.infer<typeof UnitSchema>;
+export type BarksDef = z.infer<typeof BarksSchema>;

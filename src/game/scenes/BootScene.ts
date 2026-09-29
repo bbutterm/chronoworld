@@ -2,10 +2,11 @@ import Phaser from 'phaser';
 import { buildPlaceholders, queueAssets, setupLoadedAssets } from '../assets';
 import { assetUrl, bootPack, packPath, revokePack, unpack } from '../assetUrl';
 import { buildSkin } from '../skin';
-import { CONTENT, GAME } from '../content';
+import { CONTENT, GAME, LORE } from '../content';
 import { heroSprite } from '../flow';
 import { session } from '../session';
-import { drawBoot } from '../bootLook';
+import { BOOT, drawBoot } from '../bootLook';
+import { FONT, GAME_W } from '../layout';
 import { queuePortraitFiles, requestPortrait, setupSprites } from '../sprites';
 import { installAudio } from '../audio';
 import { sceneSoundOf } from '../sceneAudio';
@@ -42,6 +43,15 @@ export class BootScene extends Phaser.Scene {
     this.failed = 0;
     // Лента, орнамент и полоса с фаской — как HTML-заставка (index.html), она сменяется этим кадром без скачка.
     const { setProgress: drawProgress, label, hint } = drawBoot(this);
+    // Строка из летописи мира вместо совета (lore-route §5.8, data/lore/lines.json → loading): это только вид — Math.random.
+    const lines = LORE.lines.loading;
+    if (lines.length) {
+      const line = lines[Math.floor(Math.random() * lines.length)];
+      this.add
+        .text(GAME_W / 2, BOOT.hintY + 110, `«${line}»`, { fontFamily: FONT, fontSize: '32px', fontStyle: 'italic', color: '#e8d6ae', align: 'center', wordWrap: { width: 860 }, lineSpacing: 6 })
+        .setOrigin(0.5, 0)
+        .setName('loadingLine');
+    }
 
     // Надписи перерисовываются не чаще раза в кадр: файлы из пакета приходят пачкой, а каждый setText —
     // перерисовка canvas и загрузка текстуры (на слабом телефоне ~1 мс на надпись).

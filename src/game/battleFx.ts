@@ -495,3 +495,69 @@ export class FloatLayer {
 
 /** x центра надписи шириной w — целиком в пределах экрана. */
 export const clampX = (x: number, w: number): number => Math.min(Math.max(x, w / 2 + EDGE), GAME_W - w / 2 - EDGE);
+
+/** Сколько висит реплика босса (мс игрового времени сцены) и её ширина. */
+const BARK_MS = 2600;
+const BARK_W = 520;
+
+/** Кто говорит: точка ног фигуры и высота подписи над ней (UnitView боя). */
+export interface BarkTarget {
+  node: { x: number; y: number };
+  nameY: number;
+}
+
+/**
+ * Реплики босса (lore-route §5.5, поле юнита barks): облачко над фигурой — едет за ней, живёт BARK_MS и гаснет.
+ * Одно облачко на говорящего (новое заменяет старое). Только вид: без интерактива, бой и авто не ждут.
+ */
+export class BarkLayer {
+  private readonly items: { target: BarkTarget; box: Phaser.GameObjects.Container; left: number; w: number; h: number }[] = [];
+
+  constructor(private readonly scene: Phaser.Scene) {}
+
+  show(target: BarkTarget, line: string): void {
+    const old = this.items.findIndex((b) => b.target === target);
+    if (old >= 0) this.items.splice(old, 1)[0].box.destroy();
+    const s = this.scene;
+    const t = text(s, 0, 0, line, 28, '#2a1c08', { fontStyle: 'bold', wordWrap: { width: BARK_W - 40, useAdvancedWrap: true }, align: 'center', lineSpacing: 2 });
+    const w = Math.min(BARK_W, t.width + 44);
+    const h = t.height + 30;
+    const g = s.add.graphics();
+    g.fillStyle(0x000000, 0.35).fillRoundedRect(-w / 2 + 4, -h + 6, w, h, 18);
+    g.fillStyle(0xfff4dc, 0.97).fillRoundedRect(-w / 2, -h, w, h, 18);
+    g.lineStyle(4, 0x6b4a1a, 1).strokeRoundedRect(-w / 2, -h, w, h, 18);
+    // Хвостик облачка — вниз, к говорящему.
+    g.fillStyle(0xfff4dc, 0.97).fillTriangle(-16, -2, 16, -2, 0, 22);
+    g.lineStyle(4, 0x6b4a1a, 1).lineBetween(-16, 0, 0, 22).lineBetween(16, 0, 0, 22);
+    t.setPosition(0, -h / 2);
+    const box = s.add.container(0, 0, [g, t]).setDepth(DEPTH.numbers + 50).setName('bossBark').setData('text', line);
+    box.setScale(0.6).setAlpha(0);
+    s.tweens.add({ targets: box, scale: 1, alpha: 1, duration: 220, ease: 'Back.easeOut' });
+    const item = { target, box, left: BARK_MS, w, h };
+    this.items.push(item);
+    this.place(item);
+  }
+
+  private place(b: { target: BarkTarget; box: Phaser.GameObjects.Container; w: number; h: number }): void {
+    const x = Phaser.Math.Clamp(b.target.node.x, b.w / 2 + 10, GAME_W - b.w / 2 - 10);
+    const y = Math.max(b.h + 20, b.target.node.y + b.target.nameY - 40);
+    b.box.setPosition(x, Math.min(y, GAME_H - 40));
+  }
+
+  /** dt — мс игрового времени. */
+  step(dt: number): void {
+    for (let i = this.items.length - 1; i >= 0; i--) {
+      const b = this.items[i];
+      b.left -= dt;
+      this.place(b);
+      if (b.left > 0) continue;
+      this.items.splice(i, 1);
+      this.scene.tweens.add({ targets: b.box, alpha: 0, duration: 250, onComplete: () => b.box.destroy() });
+    }
+  }
+
+  clear(): void {
+    for (const b of this.items) b.box.destroy();
+    this.items.length = 0;
+  }
+}

@@ -2,11 +2,13 @@ import Phaser from 'phaser';
 import { oreIcon } from '../itemIcons';
 import { GAME } from '../content';
 import { autoNextStage, decimal, defeatAdvice, describeEvents, formatNumber, itemStatsText, keyEventsFirst, levelUpReady, nextOpenStage, stageNo, RARITY_COLORS, type AutoStop } from '../flow';
-import type { BattleResult, Side } from '../../core';
+import { collectFinding, pendingFinding, stageFinding, type BattleResult, type Side } from '../../core';
 import { GAME_W } from '../layout';
-import { session } from '../session';
+import { commit, session } from '../session';
+import { findingIcon, findingPage, showPages } from '../storyPage';
+import { randomLine } from '../loreView';
 import { portraitKey } from '../sprites';
-import { button, ellipsize, panel, progressBar, ScrollArea, text, tutorialHint } from '../ui';
+import { button, ellipsize, panel, pressable, progressBar, ScrollArea, text, tutorialHint } from '../ui';
 import { markHint, pickResultHint } from '../hints';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
@@ -107,6 +109,20 @@ export class ResultScene extends Phaser.Scene {
         const advice = tower ? 'Этаж не взят. Усильте отряд и попробуйте снова.' : `Награды нет. ${defeatAdvice(session.save, GAME).text}`;
         text(this, GAME_W / 2, y, advice, FS.small, C.enemy, { ...OUTLINE, wordWrap: { width: 980 } });
         if (!tower) y += 20;
+        // Строка Гаррета вместо сухого «Поражение» (lore-route §5.8, data/lore/lines.json → defeat).
+        const said = randomLine('defeat');
+        if (said) {
+          const t = text(this, GAME_W / 2, y + 40, said, FS.small, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 990 }, align: 'center' }).setOrigin(0.5, 0).setName('resultLine');
+          y += 40 + t.height - 20;
+        }
+      }
+      // Этаж-босс Башни взят — «надпись на стене этажа» (lines.json → towerFloor).
+      if (tower && win && tower.floor % GAME.tower.bossEvery === 0) {
+        const wall = randomLine('towerFloor');
+        if (wall) {
+          const t = text(this, GAME_W / 2, y + 35, wall, FS.small, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 990 }, align: 'center' }).setOrigin(0.5, 0).setName('resultLine');
+          y += 35 + t.height - 20;
+        }
       }
       y += 55;
       // K6: выпавшие предметы — цветом редкости.
@@ -124,6 +140,18 @@ export class ResultScene extends Phaser.Scene {
         const label = text(this, GAME_W / 2 + 30, y, `Карта героя: ${e.name} (${rarityName(e.rarity).toLowerCase()}) — копия для вознесения`, FS.body, rarityColor(e.rarity), BOLD_OUTLINE);
         ellipsize(label, 900);
         const ic = heroCardIcon(this, label.x - label.width / 2 - 40, y, 64, e.rarity, e.templateId).setName('resultHeroCard');
+        this.tweens.add({ targets: [label, ic], scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
+        y += 70;
+      }
+      // Находка этапа (lore-route §5.4) — после первой победы: строка со значком, касание — прочитать.
+      const firstWin = !!stage && stage.outcome.events.some((e) => e.type === 'stageCleared' && e.firstTime);
+      const found = stage && firstWin ? stageFinding(stage.stageId, GAME.content) : undefined;
+      if (stage && found) {
+        const label = text(this, GAME_W / 2 + 30, y, `Находка: ${found.title} · читать ›`, FS.body, C.title, BOLD_OUTLINE).setName('resultFinding');
+        ellipsize(label, 900);
+        const ic = findingIcon(this, label.x - label.width / 2 - 40, y, 60, found.kind);
+        const chapterId = GAME.content.stages.find((x) => x.id === stage.stageId)?.chapter;
+        pressable(this, label, label.width + 90, 70, () => showPages(this, [findingPage(found, chapterId)], () => {}));
         this.tweens.add({ targets: [label, ic], scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
         y += 70;
       }
@@ -273,7 +301,13 @@ export class ResultScene extends Phaser.Scene {
       // T1-03: первая победа над боссом главы — после финальной сцены экран «Глава пройдена» (ровно один раз:
       // метка в данных сцены — при возврате на итоги он не повторяется).
       const chapterDone = firstClear && !!stageInfo && chapterLastStage(stageInfo.chapter, GAME)?.id === stage.stageId && !(stage as ShownMark).chapterDoneShown;
-      playStory(this, { type: 'afterStage', stageId: stage.stageId, firstClear }, () => {
+      // Находка (первая победа, её ещё нет в сохранении): в сохранение сразу, страница — до сюжета «после этапа»;
+      // в авто-режиме страницу не показываем (строка «Находка» в итогах и «Летопись» остаются).
+      const finding = pendingFinding(session.save, stage.stageId, firstClear, GAME.content);
+      if (finding) commit(collectFinding(session.save, finding.id));
+      const afterFinding = (then: () => void) =>
+        finding && !autoAdvance.on ? showPages(this, [findingPage(finding, stageInfo?.chapter)], then) : then();
+      afterFinding(() => playStory(this, { type: 'afterStage', stageId: stage.stageId, firstClear }, () => {
         if (chapterDone && stageInfo) {
           (stage as ShownMark).chapterDoneShown = true;
           startChapterDone(this, { chapterId: stageInfo.chapter });
@@ -296,7 +330,7 @@ export class ResultScene extends Phaser.Scene {
             }
             beginAuto();
           });
-      }, { auto: autoAdvance.on });
+      }, { auto: autoAdvance.on }));
       return;
     }
 

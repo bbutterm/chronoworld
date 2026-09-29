@@ -126,6 +126,31 @@
     "skillPower": {
       "type": "number",
       "exclusiveMinimum": 0
+    },
+    "barks": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "half": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "defeat": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "victory": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
     }
   },
   "required": [

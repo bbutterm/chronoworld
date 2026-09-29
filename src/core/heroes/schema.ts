@@ -15,6 +15,10 @@ export const CARD_RARITIES = ['green', 'blue', 'purple', 'gold', 'red'] as const
 export const CardRaritySchema = z.enum(CARD_RARITIES);
 export type CardRarity = z.infer<typeof CardRaritySchema>;
 
+/** Предел строк-комментариев героя (Таверна, вознесение). */
+export const HERO_LINE_MAX = 120;
+const heroLine = (what: string) => z.string().min(1).max(HERO_LINE_MAX, `${what}: не длиннее ${HERO_LINE_MAX} символов`);
+
 /** Номер редкости (0 — зелёный … 4 — красный). */
 export const rarityIndex = (r: CardRarity): number => CARD_RARITIES.indexOf(r);
 
@@ -92,6 +96,19 @@ export const HeroTemplateSchema = z.object({
   visual: z.object({ sprite: z.string().optional(), portrait: z.string().optional() }).default({}),
   bio: z.string().max(160),
   hook: z.string().max(200),
+  /**
+   * Строка при выпадении героя в Таверне (docs/design/lore-route.md §5.8): кто-то что-то делает — одна фраза, без кавычек
+   * (UI ставит «»). Показ — крупная карта и итог призыва.
+   */
+  tavernLine: heroLine('строка Таверны').optional(),
+  /**
+   * Строки вознесения по редкости, на которую герой поднялся (blue, purple, gold, red): экран результата вознесения,
+   * как строка возвышения ветки. Нет строки редкости — ничего не показывается.
+   */
+  ascendLines: z
+    .object({ blue: heroLine('строка вознесения').optional(), purple: heroLine('строка вознесения').optional(), gold: heroLine('строка вознесения').optional(), red: heroLine('строка вознесения').optional() })
+    .strict()
+    .optional(),
 });
 
 export type HeroTemplate = z.infer<typeof HeroTemplateSchema>;

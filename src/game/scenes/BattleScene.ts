@@ -34,7 +34,7 @@ import { SKIN, SKIN_TINT } from '../skin';
 import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../sprites';
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
-import { clampX, DEPTH, FloatLayer, UltPresenter } from '../battleFx';
+import { BarkLayer, clampX, DEPTH, FloatLayer, UltPresenter } from '../battleFx';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
 import { button, panel, text, tutorialHint } from '../ui';
@@ -323,6 +323,9 @@ export class BattleScene extends Phaser.Scene {
   private shownSec = -1;
   private ult!: UltPresenter;
   private floats!: FloatLayer;
+  /** Реплики боссов (поле юнита barks) и какие уже сказаны: `<uid>:<вид>`. */
+  private barks!: BarkLayer;
+  private barked = new Set<string>();
   private sfx!: SkillFx;
   /** Сколько мс (с учётом скорости) бой ещё стоит ради баннера босса. */
   private introLeft = 0;
@@ -493,6 +496,8 @@ export class BattleScene extends Phaser.Scene {
     this.floats = new FloatLayer(this);
     this.sfx = new SkillFx(this);
     this.sfx.setSpeed(playback.speed);
+    this.barks = new BarkLayer(this);
+    this.barked.clear();
     for (const u of this.result.units) this.buildUnit(u);
     if (this.stage && getStage(GAME, this.stage.stageId).boss) this.bossIntro();
     if (this.hunt) {
@@ -500,6 +505,12 @@ export class BattleScene extends Phaser.Scene {
       this.hunt.hud = huntHud(this, this.hunt.outcome, boss.uid, boss.maxHp);
       this.bossIntro('Босс охоты');
     }
+    // Реплика босса на старте — когда ушёл баннер (или сразу, если баннера нет: этаж Башни).
+    const startBark = () => {
+      for (const v of this.viewList) this.bossBark(v, 'start');
+    };
+    if (this.introLeft > 0) this.later.after(this.introLeft + BOSS_OUT_MS, startBark);
+    else this.later.after(500, startBark);
   }
 
   /**
@@ -760,6 +771,7 @@ export class BattleScene extends Phaser.Scene {
     const dt = delta * this.tweens.timeScale;
     this.later.step(dt);
     this.floats.step(dt);
+    this.barks.step(dt);
     this.sfx.step(dt);
     const views = this.viewList;
     for (let i = 0; i < views.length; i++) this.animateUnit(views[i], dt);
@@ -898,6 +910,7 @@ export class BattleScene extends Phaser.Scene {
     this.timeText = undefined as unknown as Phaser.GameObjects.Text;
     this.later.clear();
     this.floats?.clear();
+    this.barks?.clear();
     this.sfx?.clear();
     this.ult?.clear();
   }
@@ -918,6 +931,7 @@ export class BattleScene extends Phaser.Scene {
     this.tweens.killAll();
     this.cameras.main.resetFX();
     this.children.getByName('bossBanner')?.destroy();
+    this.barks.clear();
     for (const v of this.views.values()) {
       if (v.moveDest) {
         v.pos.x = v.moveDest[0];
@@ -1239,6 +1253,7 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'end':
         this.finished = true;
+        if (animate && this.result.winner === 'B') for (const v of this.viewList) if (v.alive) this.bossBark(v, 'victory');
         this.showTime(this.result.duration);
         this.commitStage();
         this.hunt?.hud?.finish();
@@ -1249,6 +1264,20 @@ export class BattleScene extends Phaser.Scene {
         );
         return;
     }
+  }
+
+  /**
+   * Реплика босса (поле юнита barks, lore-route §5.5): старт, ниже половины здоровья, гибель, победа — каждая один раз
+   * за бой. Только вид: при «Пропустить» не показываются.
+   */
+  private bossBark(v: UnitView, kind: 'start' | 'half' | 'defeat' | 'victory'): void {
+    const line = v.def.kind === 'boss' ? v.def.barks?.[kind] : undefined;
+    if (!line || this.skipping || !this.barks) return;
+    const key = `${v.snap.uid}:${kind}`;
+    if (this.barked.has(key)) return;
+    this.barked.add(key);
+    // Гибель — облачко остаётся над местом, где босс пал.
+    this.barks.show(kind === 'defeat' ? { node: { x: v.node.x, y: v.node.y }, nameY: v.nameY } : v, line);
   }
 
   /** Итог этапа или этажа записывается один раз — в конце боя (и при «Пропустить»). */
@@ -1373,6 +1402,7 @@ export class BattleScene extends Phaser.Scene {
     }
     if (animate) this.tweens.add({ targets: v.shadow, alpha: 0, delay: 500, duration: 900 });
     else v.shadow.setAlpha(0);
+    if (animate) this.bossBark(v, 'defeat');
     if (animate) {
       this.fx(v, 'fx_death', 1.6, 600);
       // Облачко дыма у ног (как в AFK Arena), у босса — крупнее.
@@ -1388,6 +1418,7 @@ export class BattleScene extends Phaser.Scene {
     const pct = Phaser.Math.Clamp(v.hp / max, 0, 1);
     cropBar(v.hpBar, pct);
     if (this.bossBar?.uid === v.snap.uid) cropBar(this.bossBar.fill, pct);
+    if (pct > 0 && pct < 0.5 && v.alive) this.bossBark(v, 'half');
     if (pct >= v.trail || !animate) {
       v.trailT = -1;
       v.trail = pct;
