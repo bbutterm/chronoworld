@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "sewer_bug_male_rush",
+  "name": "Жвалы-кусачки",
+  "description": "Три укуса жвалами по ближайшему врагу переднего ряда.",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "hits": 3,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    }
+  ]
+}

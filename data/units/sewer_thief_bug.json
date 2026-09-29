@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "sewer_thief_bug",
+  "name": "Жук-вор",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 480,
+    "atk": 42,
+    "def": 6,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "sewer_thief_bug_snatch",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "elite",
+    "tint": "#6b4a2b",
+    "scale": 0.6,
+    "hitFx": "fx_hit"
+  }
+}

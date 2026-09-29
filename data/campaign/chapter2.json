@@ -1,26 +1,41 @@
 {
   "$schema": "../schema/chapter.schema.json",
   "id": "chapter2",
-  "name": "Глава 2. Проклятые топи",
+  "name": "Глава 2. Под мостовой",
   "order": 2,
+  "episode": {
+    "title": "Золото в сточной воде",
+    "subtitle": "Канализация Пронтеры",
+    "quote": "Что упало в канал Пронтеры, то принадлежит жуку.",
+    "text": "Король велел вычистить стоки, и стража набирает новичков — всех, кто держит оружие и не боится крыс. Каналы под Пронтерой старше самого города: шлюзы, кирпичные своды, вода по щиколотку и эхо, которое отвечает раньше, чем договоришь.\n\nВетераны уже спускались. Их шлемы до сих пор где-то внизу.\n\nСерый капюшон ушёл с Лунной поляны не в лес и не в поле — он ушёл под мостовую. Колокольчик Греты тянет туда, как пёс на поводке, и впервые звенит невесело."
+  },
+  "legend": {
+    "title": "Жучья казна",
+    "text": "Под Пронтерой каналы старше самого города. Горожане веками роняют в стоки монеты, ложки и кольца, а жуки-воры тащат всё это в одно гнездо. Говорят, в самой глубине живёт жук, который помнит каждую монету — и хозяина каждой. Поэтому в Пронтере, уронив медяк в решётку, не ругаются, а говорят: «Жуку на корону».",
+    "source": "из записок сержанта Бертольда"
+  },
+  "chronicle": {
+    "title": "Под мостовой столицы",
+    "text": "По королевскому указу отряд спустился в каналы Пронтеры — чистить стоки от жуков. Внизу нашлись ложка из «Двух колоколов», тележка Отто по частям и шесть шлемов стражи у открытого ящика с чёрным песком: ветераны ушли на голоса, которые шептал песок. Бран сверил накладную гильдии воров Моррока: ящиков в ней двенадцать, у шлюза — тринадцать. Золотой жук-вор, лишившись короны из медяков, пытался выторговать себе жизнь; Грета выторговала у него больше. Вернулся отряд на одного больше: Дорн из Моррока, найденный за решёткой у логова, клялся, что открыл свой ящик и отказался нести дальше. На пустом тринадцатом ящике стояло: «Гефен, на запад, к оркам»."
+  },
   "stages": [
     {
       "id": "ch2_s1",
-      "name": "Гнилая гать",
+      "name": "Люк у Южных ворот",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 1.22
         },
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 1.22
         },
         null,
         null,
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.22
         }
       ],
@@ -31,29 +46,39 @@
       "offlinePerMinute": {
         "jobExp": 36,
         "gold": 25
+      },
+      "finding": {
+        "id": "ch2_f_2c_royal_decree",
+        "title": "Указ на двери шлюза",
+        "kind": "inscription",
+        "text": "«Именем короля Пронтеры. Стоки кишат жуками, в подвалах пропадают ложки. Всякий, кто спустится в каналы с оружием и выйдет обратно, вправе зваться искателем приключений. Жалованье — по числу панцирей». Ниже углём: «Бертольд, мы вниз. Вернёмся к ужину». Шесть подписей.",
+        "comment": {
+          "speaker": "Вика",
+          "text": "Шесть подписей — «к ужину». Сержант, наверное, до сих пор держит им суп."
+        }
       }
     },
     {
       "id": "ch2_s11",
-      "name": "Затопленный погост",
+      "name": "Первый шлюз",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 0.97
         },
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 0.99
         },
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 0.97
         },
         null,
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 0.97
         }
       ],
@@ -68,24 +93,24 @@
     },
     {
       "id": "ch2_s2",
-      "name": "Туманная низина",
+      "name": "Крысиный желоб",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 0.95
         },
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 0.95
         },
         {
-          "unit": "mob_poporing",
+          "unit": "sewer_tarou",
           "mult": 0.95
         },
         null,
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 0.95
         }
       ],
@@ -100,25 +125,25 @@
     },
     {
       "id": "ch2_s12",
-      "name": "Гнилые мостки",
+      "name": "Сточная галерея",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 1.28
         },
         {
-          "unit": "mob_poporing",
+          "unit": "sewer_thief_bug",
           "mult": 1.28
         },
         null,
         {
-          "unit": "mob_marin",
+          "unit": "sewer_bug_female",
           "mult": 1.28
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.28
         }
       ],
@@ -133,27 +158,27 @@
     },
     {
       "id": "ch2_s3",
-      "name": "Скачущая трясина",
+      "name": "Затопленный коридор",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 0.99
         },
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 1.43
         },
         {
-          "unit": "mob_poporing",
+          "unit": "sewer_familiar",
           "mult": 1.43
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 0.99
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 0.99
         }
       ],
@@ -168,28 +193,28 @@
     },
     {
       "id": "ch2_s13",
-      "name": "Кузнечиковы кочки",
+      "name": "Гнёзда в кладке",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 1.65
         },
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 1.87
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 1.65
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_familiar",
           "mult": 1.65
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_familiar",
           "mult": 1.65
         }
       ],
@@ -204,24 +229,24 @@
     },
     {
       "id": "ch2_s4",
-      "name": "Кочки и засада",
+      "name": "Старый водосток",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 2.03
         },
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 2.03
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.66
         },
         null,
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.66
         }
       ],
@@ -236,28 +261,28 @@
     },
     {
       "id": "ch2_s14",
-      "name": "Страж омута",
+      "name": "Вожак жуков",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 1.05
         },
         {
-          "unit": "mob2_elite",
-          "mult": 2.3
+          "unit": "sewer_bug_leader",
+          "mult": 1.437
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 1.05
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.05
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.05
         }
       ],
@@ -272,23 +297,23 @@
     },
     {
       "id": "ch2_s5",
-      "name": "Омут утопленника",
+      "name": "Третий шлюз",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob2_elite",
+          "unit": "sewer_bug_male",
           "mult": 1.63
         },
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 1.63
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.63
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 1.63
         },
         null
@@ -300,6 +325,16 @@
       "offlinePerMinute": {
         "jobExp": 51,
         "gold": 36
+      },
+      "finding": {
+        "id": "ch2_f_2c_waybill",
+        "title": "Накладная гильдии воров",
+        "kind": "note",
+        "text": "«Груз: ящики чёрные, 12 шт. Не открывать, не трясти, не слушать. Получатель — серый, у третьего шлюза. Оплата — по доставке. Курьер: Дорн. Если курьер откроет ящик — курьера не искать». Печать — кинжал в кольце, знак гильдии воров Моррока.",
+        "comment": {
+          "speaker": "Бран",
+          "text": "Ящиков у шлюза тринадцать. Кто-то в гильдии не умеет считать. Или умеет слишком хорошо."
+        }
       }
     },
     {
@@ -309,23 +344,23 @@
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 1.51
         },
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 1.56
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 1.51
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.51
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.51
         }
       ],
@@ -336,31 +371,41 @@
       "offlinePerMinute": {
         "jobExp": 53,
         "gold": 37
+      },
+      "finding": {
+        "id": "ch2_f_2c_black_sand",
+        "title": "Горсть чёрного песка",
+        "kind": "item",
+        "text": "Просыпалась из разбитого ящика на тропе контрабандистов. Под землёй всё холодное и мокрое, а этот песок сухой и тёплый, как ладонь. Если поднести к уху, он шуршит, будто кто-то шепчет издалека — ласково и настойчиво. Слов не разобрать. Пока.",
+        "comment": {
+          "speaker": "Грета",
+          "text": "Колокольчик на него рычит, как пёс. Он не любит этот песок. Я тоже."
+        }
       }
     },
     {
       "id": "ch2_s6",
-      "name": "Живая трясина",
+      "name": "Кладка яиц",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 1.03
         },
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 1.03
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 2.1
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 2.1
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 2.1
         }
       ],
@@ -375,28 +420,28 @@
     },
     {
       "id": "ch2_s16",
-      "name": "Болотные огни",
+      "name": "Колодец летучих мышей",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 1.86
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_familiar",
           "mult": 1.69
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_familiar",
           "mult": 1.69
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.69
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.69
         }
       ],
@@ -411,27 +456,27 @@
     },
     {
       "id": "ch2_s7",
-      "name": "Шорох в тумане",
+      "name": "Решётка в тупике",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 1.59
         },
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 1.59
         },
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 1.59
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 1.59
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.59
         }
       ],
@@ -442,28 +487,38 @@
       "offlinePerMinute": {
         "jobExp": 60,
         "gold": 42
+      },
+      "finding": {
+        "id": "ch2_f_2c_dorn_brick",
+        "title": "Надпись на кирпиче",
+        "kind": "inscription",
+        "text": "Нацарапано ножом на кирпиче в тупике, аккуратно, как в конторской книге: «Здесь спал Дорн. Долг — 4000. Осталось — 4000». Ниже — ряд зарубок по дням, а рядом нарисован ящик, перечёркнутый крест-накрест.",
+        "comment": {
+          "speaker": "Грета",
+          "text": "Долги пишет на стенах, а не на людях. Отец таким наливает в долг."
+        }
       }
     },
     {
       "id": "ch2_s17",
-      "name": "Шлемы в трясине",
+      "name": "Шлемы в стоках",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 1.52
         },
         {
-          "unit": "mob2_elite",
+          "unit": "sewer_bug_male",
           "mult": 1.52
         },
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 1.52
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.52
         },
         {
@@ -482,27 +537,27 @@
     },
     {
       "id": "ch2_s8",
-      "name": "Ярость топей",
+      "name": "Нижний канал",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob2_elite",
+          "unit": "sewer_bug_male",
           "mult": 0.99
         },
         {
-          "unit": "mob2_elite",
+          "unit": "sewer_bug_male",
           "mult": 0.99
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.6
         },
         {
-          "unit": "mob2_fast",
+          "unit": "sewer_tarou",
           "mult": 1.6
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.6
         }
       ],
@@ -517,28 +572,28 @@
     },
     {
       "id": "ch2_s18",
-      "name": "Шепчущие ивы",
+      "name": "Монетная река",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 1.62
         },
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 1.35
         },
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 1.62
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.62
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.62
         }
       ],
@@ -553,27 +608,27 @@
     },
     {
       "id": "ch2_s9",
-      "name": "Корни-ворота",
+      "name": "Монетная решётка",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob2_elite",
+          "unit": "sewer_bug_male",
           "mult": 0.96
         },
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 0.96
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.96
         },
         {
-          "unit": "mob2_melee",
+          "unit": "sewer_thief_bug",
           "mult": 0.96
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.96
         }
       ],
@@ -588,27 +643,27 @@
     },
     {
       "id": "ch2_s10",
-      "name": "Сердце топей",
+      "name": "Логово Золотого жука",
       "boss": true,
       "enemies": [
         {
-          "unit": "mob2_tank",
+          "unit": "sewer_bug_egg",
           "mult": 0.43
         },
         {
-          "unit": "mob2_boss",
+          "unit": "sewer_golden_bug",
           "mult": 0.95
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.28
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.28
         },
         {
-          "unit": "mob2_ranged",
+          "unit": "sewer_plankton",
           "mult": 1.28
         }
       ],
