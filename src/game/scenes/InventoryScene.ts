@@ -36,14 +36,14 @@ import { itemCell, oreIcon } from '../itemIcons';
 import { burst, staggerIn } from '../juice';
 import { markHint } from '../hints';
 import { sfx } from '../audio';
-import { drawHeroCard, heroCardSize, rarityColor } from '../heroCard';
+import { cardIcon, drawHeroCard, heroCardIcon, heroCardSize, rarityColor } from '../heroCard';
 import type { HeroBack, HeroData } from './HeroScene';
-import { heroCardsList, heroCardsSummary, inventoryUi, RARITY_ORDER } from '../heroesView';
+import { heroCardsList, heroCardsTable, inventoryUi, RARITY_ORDER, type HeroCardsRow } from '../heroesView';
 
 /**
  * K6. Инвентарь.
  * - Без героя: вкладки «Снаряжение» (все предметы, фильтр по слоту, кто что носит) и «Карты героев» (каждый экземпляр
- *   героя — своя карта: копии по отдельности, фильтр редкости; нажатие — карточка этого экземпляра).
+ *   героя — своя карта; вид «Таблица» — строка на героя с числом карт каждой редкости, вид «Карты» — сетка копий).
  * - С героем и слотом (из карточки героя): выбор предмета для слота — разница статов с надетым,
  *   ограничение по профессии, «Надеть» / «Снять».
  */
@@ -64,6 +64,10 @@ const TEXT_X = CELL_X + CELL / 2 + 20;
 /** Ширина текста строки: до кнопки справа (её левый край ≈ 755) и во всю строку, если кнопки нет. */
 const TEXT_W = 740 - TEXT_X;
 const TEXT_W_FULL = 1020 - TEXT_X;
+/** «Карты героев», таблица: левый край столбцов редкостей, ширина столбца, центр столбца i (плашки сводки — над ними). */
+const TBL_X0 = 400;
+const TBL_CELL = (1060 - TBL_X0) / 5;
+const colX = (i: number) => TBL_X0 + TBL_CELL * (i + 0.5);
 /** Сколько строк сверх видимых держать построенными выше и ниже окна прокрутки. */
 const ROW_BUFFER = 3;
 
@@ -448,37 +452,68 @@ export class InventoryScene extends Phaser.Scene {
   // ---------- карты героев ----------
 
   /**
-   * Все экземпляры героев по отдельности (копии — каждая своей картой): сводка по редкостям, фильтр редкости (ромбы),
-   * сетка 3 в ряд с прокруткой; строятся только видимые ряды (сотни копий открываются быстро).
+   * «Карты героев»: переключатель вида («Таблица» — по умолчанию, «Карты»), крупная сводка по редкостям (ромб + число;
+   * она же фильтр и итоги столбцов таблицы) и сам вид. Фильтр по герою (с карточки героя «Копий: N ›» или нажатием
+   * строки таблицы) всегда показывает вид «Карты».
    */
   private cards(top: number): void {
     const save = session.save;
     const rarity = inventoryUi.rarity;
     const only = inventoryUi.template && GAME.content.heroes[inventoryUi.template] ? inventoryUi.template : null;
-    const list = heroCardsList(save, GAME, rarity, only);
+    const view = only ? 'grid' : inventoryUi.view;
+    const table = heroCardsTable(save, GAME, rarity);
+    const onlyRow = only ? heroCardsTable(save, GAME).rows.find((r) => r.templateId === only) : undefined;
+    const counts = onlyRow ? onlyRow.counts : table.totals;
+    const total = onlyRow ? onlyRow.total : table.total;
+
+    // Переключатель вида (сегменты) и справа — снять фильтр героя или подсказка.
+    const rowY = top + 45;
+    (['table', 'grid'] as const).forEach((v, i) => {
+      const on = view === v;
+      button(this, 20 + 125 + i * 262, rowY, 250, TOUCH, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', v === 'table' ? 'Таблица' : 'Карты', () => {
+        if (on) return;
+        inventoryUi.view = v;
+        inventoryUi.template = null;
+        this.scene.restart({});
+      }, FS.h3, { sound: 'ui_toggle' }).container.setName(`cardsView_${v}`);
+    });
     if (only) {
-      // С карточки героя («Копий: N ›») — только его копии; кнопка снимает фильтр.
-      const n = heroCardsList(save, GAME, null, only).length;
-      button(this, GAME_W / 2, top + 40, 760, 76, 'k:buttonLong_beige', `${GAME.content.heroes[only].name}: карт ${n} · показать всех ✕`, () => {
+      button(this, 800, rowY, 500, TOUCH, 'k:buttonLong_beige', `${GAME.content.heroes[only].name} · показать всех ✕`, () => {
         inventoryUi.template = null;
         this.scene.restart({});
       }, FS.body, { sound: 'ui_toggle' }).container.setName('cardsTemplateOff');
-    } else ellipsize(text(this, GAME_W / 2, top + 40, heroCardsSummary(save, GAME), FS.body, C.text, { stroke: C.stroke, strokeThickness: 5 }), 1040).setName('cardsSummary');
-    // Фильтр редкости: ромбы, повторное нажатие снимает.
-    const chipY = top + 130;
-    const CH = 96;
-    const x0 = GAME_W / 2 - (RARITY_ORDER.length - 1) * (CH + 16) / 2;
+    } else if (view === 'table') {
+      ellipsize(text(this, 1050, rowY, 'нажмите героя —\nего карты', FS.caption, C.muted, { align: 'right' }).setOrigin(1, 0.5), 400);
+    }
+
+    // Сводка по редкостям: слева «Всего карт» крупно, справа 5 плашек (ромб цвета редкости и число) — это и фильтр
+    // (повторное нажатие снимает), и итоги столбцов таблицы (плашки стоят ровно над столбцами).
+    const chipY = top + 170;
+    const CHIP_H = 124;
+    ellipsize(text(this, 40, chipY - 30, onlyRow ? `Карт: ${onlyRow.name}` : 'Всего карт', FS.body, C.muted).setOrigin(0, 0.5), TBL_X0 - 60);
+    text(this, 40, chipY + 26, String(total), FS.hero, C.gold, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 8 }).setOrigin(0, 0.5).setName('cardsTotal');
     RARITY_ORDER.forEach((r, i) => {
       const on = rarity === r;
-      const b = button(this, x0 + i * (CH + 16), chipY, CH, CH, on ? 'k:buttonSquare_brown' : 'k:buttonSquare_beige', '', () => {
+      const n = counts[r];
+      const b = button(this, colX(i), chipY, TBL_CELL - 8, CHIP_H, on ? 'k:buttonSquare_brown' : 'k:buttonSquare_beige', '', () => {
         inventoryUi.rarity = on ? null : (r as CardRarity);
         this.scene.restart({});
       }, FS.body, { sound: 'ui_toggle' });
       b.container.setName(`cardsRarity_${r}`);
-      const d = 22;
-      b.container.add(this.add.polygon(0, -4, [d, 0, 2 * d, d, d, 2 * d, 0, d], Phaser.Display.Color.HexStringToColor(rarityColor(r)).color).setStrokeStyle(4, 0x000000));
+      const d = 17;
+      b.container.add(this.add.polygon(0, -30, [d, 0, 2 * d, d, d, 2 * d, 0, d], Phaser.Display.Color.HexStringToColor(rarityColor(r)).color).setStrokeStyle(4, 0x000000));
+      b.container.add(
+        text(this, 0, 20, String(n), FS.h1, n ? C.text : C.inkMuted, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 7 }).setAlpha(n ? 1 : 0.6).setName(`cardsCount_${r}`),
+      );
+      if (!n && !on) b.container.setAlpha(0.6);
+      if (on) b.container.add(this.add.rectangle(0, 0, TBL_CELL - 4, CHIP_H + 4).setStrokeStyle(5, 0xffe08a));
     });
-    const listTop = chipY + CH / 2 + 16;
+    const listTop = chipY + CHIP_H / 2 + 14;
+    if (view === 'table') {
+      this.cardsTable(table.rows, rarity, listTop);
+      return;
+    }
+    const list = heroCardsList(save, GAME, rarity, only);
     if (!list.length) {
       emptyCard(this, listTop + 300, rarity ? 'Карт этой редкости нет.\nНажмите ромб ещё раз, чтобы снять фильтр.' : 'Карт героев пока нет.', 'bag');
       return;
@@ -533,6 +568,59 @@ export class InventoryScene extends Phaser.Scene {
     staggerIn(this, 'InventoryCards', [...built.values()]);
     this.events.on(Phaser.Scenes.Events.UPDATE, sync);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off(Phaser.Scenes.Events.UPDATE, sync));
+  }
+
+  /**
+   * Вид «Таблица»: по строке на героя — мини-карта в рамке лучшей редкости, имя с иконкой линии, под ним класс или
+   * «можно вознести», справа 5 ячеек цвета редкостей с числом карт (0 — пусто). Нажатие — его карты (вид «Карты»).
+   */
+  private cardsTable(rows: HeroCardsRow[], rarity: CardRarity | null, top: number): void {
+    if (!rows.length) {
+      emptyCard(this, top + 300, rarity ? 'Карт этой редкости нет.\nНажмите плашку ещё раз, чтобы снять фильтр.' : 'Карт героев пока нет.', 'bag');
+      return;
+    }
+    const RH = 150;
+    const area = (this.area = new ScrollArea(this, top, CONTENT_BOTTOM + 10));
+    area.setContentHeight(rows.length * RH + 10);
+    rows.forEach((row, i) => {
+      const y = RH * (i + 0.5);
+      const empty = row.total === 0;
+      const box = this.add.container(0, y).setName(`cardsRow_${row.templateId}`);
+      const bg = card(this, GAME_W / 2, 0, 1040, RH - 10);
+      bg.setInteractive();
+      bg.on('pointerup', area.tap(() => {
+        if (empty) {
+          toast(this, `Карт героя «${row.name}» пока нет — ищите в Таверне`, C.muted);
+          return;
+        }
+        sfx('ui_toggle');
+        inventoryUi.template = row.templateId;
+        this.scene.restart({});
+      }));
+      box.add(bg);
+      box.add(heroCardIcon(this, 80, 0, 116, row.best ?? 'green', row.templateId, { dim: empty }));
+      box.add(this.add.image(152, -30, cardIcon(this, row.line)).setDisplaySize(44, 44).setTint(0xeadfc6));
+      box.add(ellipsize(text(this, 182, -30, row.name, FS.h3, empty ? C.inkMuted : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), TBL_X0 - 192));
+      const job = GAME.content.jobs[row.line]?.name ?? row.line;
+      const sub = empty ? 'карт нет' : row.ascendable ? '▲ вознести!' : job;
+      const subColor = empty ? C.inkMuted : row.ascendable ? C.positive : C.muted;
+      box.add(ellipsize(text(this, 132, 32, sub, FS.caption, subColor, { fontStyle: row.ascendable ? 'bold' : 'normal', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5).setName('cardsRowSub'), TBL_X0 - 140));
+      RARITY_ORDER.forEach((r, c) => {
+        const n = row.counts[r];
+        const faded = !!rarity && rarity !== r;
+        const col = Phaser.Display.Color.HexStringToColor(rarityColor(r)).color;
+        const cell = this.add.rectangle(colX(c), 0, TBL_CELL - 10, RH - 34, n ? col : 0x000000, n ? 0.85 : 0.22).setStrokeStyle(3, n ? 0x000000 : col, n ? 0.7 : 0.45);
+        const num = text(this, colX(c), 0, n ? String(n) : '—', n ? FS.h1 : FS.body, n ? C.text : C.inkMuted, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: n ? 7 : 0 });
+        if (faded) {
+          cell.setAlpha(0.3);
+          num.setAlpha(0.35);
+        } else if (!n) num.setAlpha(0.5);
+        box.add([cell, num]);
+      });
+      if (empty) box.setAlpha(0.6);
+      area.add(box);
+    });
+    staggerIn(this, 'InventoryTable', area.content.list.slice(0, 8).map((o) => [o]));
   }
 
   // ---------- общее ----------

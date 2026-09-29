@@ -4,6 +4,7 @@
  * превью вознесения, откуда берутся копии, подписи слотов корма.
  */
 import {
+  ascendPlan,
   ascendRequirement,
   activeForm,
   autoFodder,
@@ -412,7 +413,12 @@ export function valuableFodder(save: SaveState, chosen: readonly string[]): Hero
 export const RARITY_ORDER: readonly CardRarity[] = CARD_RARITIES;
 
 /** Инвентарь → «Карты героев»: вкладка и фильтр редкости на сессию. */
-export const inventoryUi: { tab: 'gear' | 'cards'; rarity: CardRarity | null; template: string | null } = { tab: 'gear', rarity: null, template: null };
+export const inventoryUi: { tab: 'gear' | 'cards'; view: 'table' | 'grid'; rarity: CardRarity | null; template: string | null } = {
+  tab: 'gear',
+  view: 'table',
+  rarity: null,
+  template: null,
+};
 
 /**
  * Все экземпляры героев по отдельности (каждая копия — своя карта): редкость по убыванию, затем имя героя, затем
@@ -434,6 +440,60 @@ export function heroCardsSummary(save: Pick<SaveState, 'heroes'>, ctx: GameConte
     .filter(([, n]) => n > 0)
     .map(([r, n]) => `${RARITY_PLURAL_LOWER[r]} ${n}`);
   return [`Всего карт: ${list.length}`, ...parts].join(' · ');
+}
+
+/** Строка таблицы «Карты героев»: сколько карт каждой редкости у героя. */
+export interface HeroCardsRow {
+  templateId: string;
+  name: string;
+  /** Линия (первая профессия): иконка и название класса. */
+  line: string;
+  counts: Record<CardRarity, number>;
+  total: number;
+  /** Лучшая редкость среди карт героя (null — карт нет). */
+  best: CardRarity | null;
+  /** Хотя бы один экземпляр можно вознести прямо сейчас — хватает копий (золото не учитывается). */
+  ascendable: boolean;
+}
+
+export interface HeroCardsTable {
+  rows: HeroCardsRow[];
+  /** Суммы по столбцам (все герои, без фильтра). */
+  totals: Record<CardRarity, number>;
+  total: number;
+}
+
+const zeroCounts = (): Record<CardRarity, number> => Object.fromEntries(CARD_RARITIES.map((r) => [r, 0])) as Record<CardRarity, number>;
+
+/**
+ * Таблица «Карты героев»: по строке на каждого героя игры (все 12). Порядок — лучшая редкость ↓, число карт ↓, имя;
+ * герои без карт — внизу. rarity — фильтр: только герои, у кого есть карты этой редкости (итоги — всегда по всем).
+ */
+export function heroCardsTable(save: SaveState, ctx: GameContext, rarity: CardRarity | null = null): HeroCardsTable {
+  const totals = zeroCounts();
+  const byTemplate = new Map<string, HeroState[]>();
+  for (const h of save.heroes) {
+    if (!ctx.content.heroes[h.templateId]) continue;
+    totals[h.rarity]++;
+    const list = byTemplate.get(h.templateId) ?? [];
+    list.push(h);
+    byTemplate.set(h.templateId, list);
+  }
+  const rows: HeroCardsRow[] = Object.values(ctx.content.heroes).map((t) => {
+    const own = byTemplate.get(t.id) ?? [];
+    const counts = zeroCounts();
+    for (const h of own) counts[h.rarity]++;
+    const best = [...CARD_RARITIES].reverse().find((r) => counts[r] > 0) ?? null;
+    const ascendable = own.some((h) => !!ascendPlan(save, h.id, ctx)?.complete);
+    return { templateId: t.id, name: t.name, line: t.line, counts, total: own.length, best, ascendable };
+  });
+  const rank = (r: HeroCardsRow) => (r.best ? rarityIndex(r.best) : -1);
+  rows.sort((a, b) => rank(b) - rank(a) || b.total - a.total || a.name.localeCompare(b.name, 'ru'));
+  return {
+    rows: rarity ? rows.filter((r) => r.counts[rarity] > 0) : rows,
+    totals,
+    total: CARD_RARITIES.reduce((n, r) => n + totals[r], 0),
+  };
 }
 
 /** Сколько уровней можно поднять подряд — подпись «×N» (0 — нельзя). */
