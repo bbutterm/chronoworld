@@ -55,7 +55,7 @@ const TARGETS = list('targets', [136, 164, 192, 220]);
  * --chapters chapter8,chapter10 — какие главы подбирать (по умолчанию 4–7). База («--a3», конец прошлой главы) — глава
  * перед первой из них в порядке кампании (для 4–7 — глава 3, для 8 — глава 7); --base <id> — явно. Замер D — база и
  * подбираемые главы; прочие главы не трогаются. Маршрут из 10 глав (29.09): главы 8 и 10 подобраны отдельно от 4–7,
- * продолжают их кривую; глава 9 пока не написана, глава 10 идёт сразу за 8-й.
+ * продолжают их кривую; глава 9 (Лабиринтный лес) подобрана вместе с 10-й: --chapters chapter9,chapter10 --base chapter8.
  */
 const FIT_CHAPTERS = flag('chapters').length ? flag('chapters').at(-1)!.split(',') : ['chapter4', 'chapter5', 'chapter6', 'chapter7'];
 const STEPS = num('steps', 9);
@@ -126,6 +126,8 @@ const MINI_BOSS_UNITS = new Set([
   'orc_hero',
   'sewer_bug_leader',
   'alde_owl_baron',
+  // Глава 9 (Лабиринтный лес): Писарь Бафомета, ch9_s10.
+  'maze_scribe',
 ]);
 const MINI = num('mini', 1.1);
 

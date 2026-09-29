@@ -145,6 +145,23 @@
       ]
     },
     {
+      "id": "labyrinth_forest",
+      "name": "Лабиринтный лес",
+      "description": "Лес у самой Пронтеры, где тропы меняются, а дупла шепчут сделки. Держитесь края — и ничего не подписывайте.",
+      "stage": "ch9_s1",
+      "power": 10000,
+      "tint": "#4f6a3a",
+      "monster": "maze_baphomet_jr",
+      "perHour": { "gold": 975, "jobExp": 1365 },
+      "loot": [
+        { "kind": "item", "chance": 0.012, "items": ["abyss_blade", "sentry_greaves"] },
+        { "kind": "item", "chance": 0.004, "items": ["crescent_scythe", "pact_robe", "majestic_goat", "maze_boots"] },
+        { "kind": "gems", "chance": 0.05, "count": 2 },
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.005, "count": 1 },
+        { "kind": "heroCard", "rarity": "purple", "chance": 0.0008, "count": 1 }
+      ]
+    },
+    {
       "id": "gyoll_valley",
       "name": "Долина Гьёлль",
       "description": "Туманная река на краю Нифльхейма. Души забытых воинов бродят с оружием, которое им уже не нужно.",
@@ -152,7 +169,7 @@
       "power": 11000,
       "tint": "#5a4f7a",
       "monster": "mob7_elite",
-      "perHour": { "gold": 975, "jobExp": 1365 },
+      "perHour": { "gold": 1400, "jobExp": 1960 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["dark_lord_robe", "helm_of_darkness"] },
         { "kind": "item", "chance": 0.004, "items": ["bloody_axe", "valkyrie_armor", "gjoll_helm", "valkyrie_boots"] },

@@ -99,6 +99,17 @@
       "minChapter": 8
     },
     {
+      "id": "majestic_goat",
+      "name": "Величественный козёл",
+      "slot": "helmet",
+      "rarity": "epic",
+      "stats": {
+        "hp": 970,
+        "def": 45
+      },
+      "minChapter": 9
+    },
+    {
       "id": "alarm_mask",
       "name": "Маска Будильника",
       "slot": "helmet",

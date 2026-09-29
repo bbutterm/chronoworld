@@ -113,7 +113,7 @@ describe('сюжет: данные', () => {
   it('несуществующий этап и чужая глава — ошибки', () => {
     expect(problemsWith((s) => (s.scenes[1].stageId = 'ch1_s99')).join('\n')).toMatch(/этап ch1_s99 не найден/);
     expect(problemsWith((s) => (s.scenes[1].stageId = 'ch2_s1')).join('\n')).toMatch(/из главы chapter2/);
-    expect(problemsWith((s) => (s.chapter = 'chapter9')).join('\n')).toMatch(/глава chapter9 не найдена/);
+    expect(problemsWith((s) => (s.chapter = 'chapter11')).join('\n')).toMatch(/глава chapter11 не найдена/);
   });
 
   it('неизвестный спикер, длинная реплика, дубли — ошибки', () => {
@@ -130,7 +130,7 @@ describe('сюжет: данные', () => {
   });
 });
 
-describe('сюжет глав 8 и 10 (перенос старых глав 3 и 7, story.md §5.8, §5.10)', () => {
+describe('сюжет глав 8, 9 и 10 (перенос старых глав 3 и 7, новая глава 9; story.md §5.8–§5.10)', () => {
   it('сцены ch8_* и ch10_* по библии, в порядке прохождения; баннер — только у босса, мини-боссы без него', () => {
     expect(ids(ctx.story.scenes.filter((s) => s.chapter === 'chapter8'))).toEqual([
       'ch8_intro',
@@ -165,7 +165,22 @@ describe('сюжет глав 8 и 10 (перенос старых глав 3 и
       'ch10_s18_before',
       'ch10_outro',
     ]);
-    for (const ch of ['chapter8', 'chapter10']) {
+    // Глава 9 (Лабиринтный лес) — 12 новых сцен по библии §5.9; мини-босс (Писарь, ch9_s10) без баннера.
+    expect(ids(ctx.story.scenes.filter((s) => s.chapter === 'chapter9'))).toEqual([
+      'ch9_intro',
+      'ch9_s2_after',
+      'ch9_s4_after',
+      'ch9_s6_after',
+      'ch9_s8_after',
+      'ch9_s10_before',
+      'ch9_s11_after',
+      'ch9_s14_after',
+      'ch9_s15_after',
+      'ch9_s16_after',
+      'ch9_s18_before',
+      'ch9_outro',
+    ]);
+    for (const ch of ['chapter8', 'chapter9', 'chapter10']) {
       const scenes = ctx.story.scenes.filter((s) => s.chapter === ch);
       const at = scenes.filter((s) => s.stageId).map((s) => before(s.stageId!) + (s.trigger === 'afterStage' ? 0.5 : 0));
       expect(at, ch).toEqual([...at].sort((a, b) => a - b));
@@ -173,6 +188,7 @@ describe('сюжет глав 8 и 10 (перенос старых глав 3 и
       expect(scenes.filter((s) => s.bossIntro).map((s) => s.stageId), ch).toEqual([boss]);
     }
     expect(ctx.story.scenes.find((s) => s.id === 'ch8_s18_before')!.bossIntro?.title).toBe(ctx.content.units.mob7_boss.name);
+    expect(ctx.story.scenes.find((s) => s.id === 'ch9_s18_before')!.bossIntro?.title).toBe(ctx.content.units.maze_baphomet.name);
     expect(ctx.story.scenes.find((s) => s.id === 'ch10_s18_before')!.bossIntro?.title).toBe(ctx.content.units.mob_lord_of_death.name);
   });
 
@@ -180,6 +196,10 @@ describe('сюжет глав 8 и 10 (перенос старых глав 3 и
     const banned = /звонар|осколк|чёрн\w* колокол|проклят\w* топ|хельмут/i;
     for (const s of ctx.story.scenes.filter((x) => x.chapter === 'chapter8' || x.chapter === 'chapter10'))
       for (const l of s.lines) expect(banned.test(l.text), `${s.id}: ${l.text}`).toBe(false);
+    // Глава 9: Бафомет предлагает Грете «первую Грету, дочь Хельмута» (библия §5.9) — Хельмут здесь по делу, прочее — нет.
+    const banned9 = /звонар|осколк|чёрн\w* колокол|проклят\w* топ/i;
+    for (const s of ctx.story.scenes.filter((x) => x.chapter === 'chapter9'))
+      for (const l of s.lines) expect(banned9.test(l.text), `${s.id}: ${l.text}`).toBe(false);
   });
 });
 
