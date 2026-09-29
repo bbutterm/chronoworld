@@ -223,6 +223,8 @@ async function main() {
     await page.unroute(/\.(png|webp|jpg)$/);
     if (!(await page.locator('canvas').count())) throw new Error('canvas не найден');
     await shot('campaign-intro');
+    // Перед вступлением главы — страница «Эпизод 1» (lore-route §5.1; слой 'dialogue', «Пропустить» закрывает все страницы).
+    if (!(await hasText('Campaign', 'ЭПИЗОД 1'))) problems.push('нет страницы «Эпизод 1» при первом входе в главу');
     if (!(await skipDialogues('Campaign'))) problems.push('нет вступления главы на карте кампании');
     await shot('campaign');
     // Навигация — 4 вкладки; на «Кампании» — «В бой · этап 1», сундук офлайн-наград и быстрые награды (закрыты до своего этапа, data/unlocks.json).
@@ -322,6 +324,12 @@ async function main() {
     if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
     await waitScene('Result');
     await sleep(600);
+    // Находка этапа 1 (lore-route §5.4) — страница поверх итогов после первой победы; «Пропустить».
+    if (await page.evaluate(() => !!window.__game.scene.getScene('Result').children.getByName('dialogue'))) {
+      await shot('result-finding');
+      await skipDialogues('Result');
+      if (!(await hasText('Result', 'Находка: '))) problems.push('итоги: нет строки «Находка: …» после страницы находки');
+    } else if ((await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')))).campaign.cleared.includes('ch1_s1')) problems.push('нет страницы находки после первой победы на этапе 1');
     await shot('result');
     // S: таблица итогов не наезжает на строку «Авто: следующий этап».
     const lay = await page.evaluate(() => {

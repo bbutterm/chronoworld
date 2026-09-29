@@ -4,7 +4,8 @@ import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, popIn, unitFigure } from '../screen';
-import { clearChapterDone, heroCard } from '../../core';
+import { chapterChronicle, chroniclePageId, clearChapterDone, findingEntries, heroCard, markPageSeen, pendingChronicle } from '../../core';
+import { chroniclePage, showPages } from '../storyPage';
 import { commit, now, session } from '../session';
 import { SKIN } from '../skin';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
@@ -129,8 +130,21 @@ export class ChapterDoneScene extends Phaser.Scene {
 
     // --- Кнопки ---
     const history = seenChapterScenes(save, data.chapterId, GAME);
-    const hb = button(this, cx, 1480, 560, 120, 'ui_btn_secondary', 'История', () => openStoryHistory(this, data.chapterId), FS.h2);
+    const chronicle = chapterChronicle(data.chapterId, GAME.content);
+    // «Летопись отряда» главы (lore-route §5.3) — рядом с «Историей»; в первый раз открывается сама, когда улёгся заголовок.
+    const hx = chronicle ? cx - 270 : cx;
+    const hb = button(this, hx, 1480, chronicle ? 500 : 560, 120, 'ui_btn_secondary', 'История', () => openStoryHistory(this, data.chapterId), FS.h2);
     if (!history.length) hb.setEnabled(false).container.disableInteractive();
+    if (chronicle) {
+      const open = () => {
+        const found = findingEntries(session.save, GAME.content).filter((f) => f.chapterId === data.chapterId);
+        showPages(this, [chroniclePage(data.chapterId, sum.number, chronicle, { got: found.filter((f) => f.found).length, total: found.length })], () =>
+          commit(markPageSeen(session.save, chroniclePageId(data.chapterId))),
+        );
+      };
+      button(this, cx + 270, 1480, 500, 120, 'ui_btn_secondary', 'Летопись', open, FS.h2).container.setName('chronicleChapterBtn');
+      if (pendingChronicle(save, data.chapterId, GAME.content)) this.time.delayedCall(1400, () => this.scene.isActive() && open());
+    }
     const next = sum.next;
     button(this, cx, 1700, 760, 170, 'ui_btn_primary', next ? `Глава ${next.number} ›` : 'К кампании', () => {
       // Игрок ушёл с экрана — больше не показывать (метка в сохранении держала его на случай перезагрузки).

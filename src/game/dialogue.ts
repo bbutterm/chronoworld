@@ -1,13 +1,14 @@
 import Phaser from 'phaser';
 import { sfx } from './audio';
 import { lineChimes } from './audioCore';
-import { markScenesSeen, pendingScenes, type StoryScene, type StoryTrigger } from '../core';
+import { episodePageId, markPageSeen, markScenesSeen, pendingIntro, pendingScenes, type StoryScene, type StoryTrigger } from '../core';
 import { GAME } from './content';
 import { GAME_H, GAME_W } from './layout';
 import { framedPortrait } from './portraitFrame';
 import { commit, session } from './session';
 import { SKIN } from './skin';
 import { isChapterFinale, speakerView } from './storyView';
+import { introPages, showPages } from './storyPage';
 import { button, panel, text } from './ui';
 import { FS, OUTLINE, TOUCH } from './theme';
 
@@ -75,7 +76,18 @@ export function playStory(scene: Phaser.Scene, trigger: StoryTrigger, onDone: ()
 
 /** Начать бой на этапе: сначала сюжет «перед этапом» (и начала главы), потом бой. */
 export function startStageBattle(scene: Phaser.Scene, stageId: string, opts: DialogueOptions = {}): void {
-  playStory(scene, { type: 'beforeStage', stageId }, () => scene.scene.start('Battle', { mode: 'stage', stageId }), opts);
+  const go = () => {
+    playStory(scene, { type: 'beforeStage', stageId }, () => scene.scene.start('Battle', { mode: 'stage', stageId }), opts);
+  };
+  // Первый этап главы, а «Эпизод N» ещё не показан (в главу вошли не с карты) — сначала он. В авто-режиме не ждём
+  // игрока: страница останется в «Летописи».
+  const stage = GAME.content.stages.find((s) => s.id === stageId);
+  const intro = stage && stage.index === 0 && !opts.auto ? pendingIntro(session.save, stage.chapter, GAME) : undefined;
+  if (!intro || !stage) return go();
+  showPages(scene, introPages(intro), () => {
+    commit(markPageSeen(session.save, episodePageId(stage.chapter)));
+    go();
+  }, { doneLabel: 'В путь' });
 }
 
 function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts: DialogueOptions): void {

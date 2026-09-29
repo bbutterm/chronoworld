@@ -15,12 +15,14 @@
  *      предметы (правило выпадения/сундука, товар Лавки, порог охоты) — ✗; глава без открытых предметов слота — ⚠
  *      (src/core/equipment/lint.ts).
  *  10. Летопись (data/lore/*.json, файлы необязательны): схема и ссылки на юниты/предметы/героев/профессии/главы/этапы — ✗;
- *      длина текстов сверх LORE_LIMITS, монстр вне кампании — ⚠ (src/core/lore/lore.ts → validateLore).
+ *      длина текстов сверх LORE_LIMITS, монстр вне кампании, Башни и Охоты — ⚠ (src/core/lore/lore.ts → validateLore).
+ *  11. Тексты глав (episode, legend, chronicle, stages[].finding) и реплики боссов (barks): длины — схема (✗), id находок
+ *      уникальны по всем главам — ✗, больше 4 находок в главе и barks не у босса — ⚠ (src/core/lore/pages.ts).
  * Код выхода 1, если есть ошибки. Предупреждения (например, нет арта — будет плейсхолдер) не мешают.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, lintLevelBands, maxLevelOf, parseLore, rarityIndex, validateLore, recommendedPower, simulateBattle, validateHeroes } from '../src/core';
+import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, lintLevelBands, maxLevelOf, parseLore, rarityIndex, validateLore, recommendedPower, simulateBattle, validateHeroes, validatePageTexts } from '../src/core';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
@@ -66,9 +68,13 @@ const loreFiles = existsSync(loreDir)
 const loreParsed = parseLore(loreFiles);
 errors.push(...loreParsed.problems);
 if (built.ctx) {
-  const lint = validateLore(loreParsed.lore, { content: built.ctx.content, items: built.ctx.equipment.items });
+  const lint = validateLore(loreParsed.lore, { content: built.ctx.content, items: built.ctx.equipment.items, tower: built.ctx.tower, hunt: built.ctx.hunt });
   errors.push(...lint.errors);
   warnings.push(...lint.warnings);
+  // 11. Тексты «между этапами» (эпизод, легенда, летопись глав, находки этапов, реплики боссов): уникальность id находок — ✗.
+  const pages = validatePageTexts(built.ctx.content);
+  errors.push(...pages.errors);
+  warnings.push(...pages.warnings);
 }
 
 if (content) {
@@ -201,7 +207,11 @@ if (content) {
       `навыков: ${Object.keys(content.skills).length}, профессий: ${Object.keys(content.jobs).length}, карточек героев: ${Object.keys(content.heroes).length}, этапов: ${content.stages.length}, ` +
       `сюжетных сцен: ${built.ctx?.story.scenes.length ?? 0}, ` +
       `летопись: монстров ${Object.keys(loreParsed.lore.monsters).length}, предметов ${Object.keys(loreParsed.lore.items).length}, ` +
-      `героев ${Object.keys(loreParsed.lore.heroes).length}, профессий ${Object.keys(loreParsed.lore.jobs).length}, глав ${Object.keys(loreParsed.lore.chapters).length}, записей мира ${loreParsed.lore.world.length}`,
+      `героев ${Object.keys(loreParsed.lore.heroes).length}, профессий ${Object.keys(loreParsed.lore.jobs).length}, глав ${Object.keys(loreParsed.lore.chapters).length}, записей мира ${loreParsed.lore.world.length}, ` +
+      `строк-комментариев ${Object.values(loreParsed.lore.lines).flat().length}; ` +
+      `тексты глав: эпизодов ${content.chapters.filter((c) => c.episode).length}, легенд ${content.chapters.filter((c) => c.legend).length}, ` +
+      `летописей ${content.chapters.filter((c) => c.chronicle).length}, находок ${content.stages.filter((s) => s.finding).length}, ` +
+      `боссов с репликами ${Object.values(content.units).filter((u) => u.barks).length}`,
   );
 }
 console.log(errors.length ? `\nОшибок: ${errors.length}` : '\nКонтент в порядке ✓');

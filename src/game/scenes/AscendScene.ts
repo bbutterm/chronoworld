@@ -585,6 +585,13 @@ export class AscendScene extends Phaser.Scene {
         y += q.height + 20;
       }
     }
+    // Строка вознесения на новую редкость (lore-route §5.8, поле героя ascendLines).
+    const said = (heroTemplate(GAME, hero.templateId).ascendLines as Partial<Record<string, string>> | undefined)?.[hero.rarity];
+    if (said) {
+      const q = text(this, GAME_W / 2, y + 4, `«${said}»`, FS.caption, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 940 }, lineSpacing: 4 }).setOrigin(0.5, 0).setName('ascendLine');
+      info.add(q);
+      y += q.height + 20;
+    }
     const done = button(this, GAME_W / 2, Math.min(GAME_H - 130, Math.max(y + 90, CONTENT_BOTTOM - 70)), 520, 130, 'ui_btn_primary', 'Отлично!', () => this.scene.start('Hero', { heroId }), FS.h2);
     done.container.setName('revealDone').setAlpha(motion ? 0 : 1);
     layer.add([plus, done.container]);

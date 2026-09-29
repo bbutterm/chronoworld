@@ -18,6 +18,7 @@ import { commit, now, session, today } from '../session';
 import { SKIN_TINT, skinIcon } from '../skin';
 import { portraitKey } from '../sprites';
 import { button, ellipsize, panel, progressBar, ScrollArea, text, toast } from '../ui';
+import { randomLine } from '../loreView';
 import { C, FS, TINT } from '../theme';
 import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 
@@ -324,8 +325,11 @@ export class ExpeditionsScene extends Phaser.Scene {
       queueRewardFly('Expeditions', at, before);
       const name = GAME.meta.expeditions.locations.find((l) => l.id === e.location)?.name ?? e.location;
       const lines = [`«${name}»: ${formatNumber(r.rewards.gold)} золота · ${formatNumber(r.rewards.jobExp)} опыта в запас`, ...lootLines(r.rewards), ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
+      // Строка возвращения (lore-route §5.8, data/lore/lines.json → expeditionReturn) — первой.
+      const said = randomLine('expeditionReturn');
+      if (said) lines.unshift(said);
       this.scene.restart({ scroll: this.area.offset });
-      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4500)));
+      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 5500)));
     } catch (err) {
       toast(this, err instanceof Error ? err.message : String(err), C.error);
     }
@@ -347,8 +351,10 @@ export class ExpeditionsScene extends Phaser.Scene {
         ...lootLines(r.rewards),
         ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы')),
       ];
+      const said = randomLine('expeditionReturn');
+      if (said) lines.unshift(said);
       this.scene.restart({ scroll: this.area.offset });
-      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4500)));
+      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 5500)));
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }

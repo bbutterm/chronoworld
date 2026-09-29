@@ -345,6 +345,16 @@ export const SaveStateSchema = z.object({
   hunt: HuntStateSchema.optional(),
   /** v6. Невыбранные «Контракты героя» (награды событий): экран выбора героя и ветки. Нет поля — нет. */
   pendingPicks: z.array(HeroPickSchema).optional(),
+  /**
+   * Находки (id из data/campaign → stages[].finding), которые игрок уже получил — карточка показана в итогах боя.
+   * Без смены версии: нет поля — пусто (находки пройденных этапов «Летопись» всё равно покажет).
+   */
+  findings: z.array(z.string()).optional(),
+  /**
+   * Показанные страницы глав: `episode:<глава>` (эпизод и легенда — одним показом) и `chronicle:<глава>` (летопись
+   * после финала). Каждая показывается сама один раз, потом живёт в «Летописи». Без смены версии: нет поля — пусто.
+   */
+  seenPages: z.array(z.string()).optional(),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;

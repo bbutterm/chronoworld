@@ -71,6 +71,36 @@ export const WorldLoreSchema = z.object({
   world: z.array(WorldEntrySchema).default([]),
 });
 
+/** Предел строки-комментария из data/lore/lines.json. */
+export const LINE_MAX = 140;
+
+/** Виды строк-комментариев (§5.8) и где они показываются. */
+export const LINE_KINDS = {
+  refineSuccess: 'заточка удалась (окно-итог заточки)',
+  refineBreak: 'вещь сломалась при заточке',
+  defeat: 'итоги поражения (строка Гаррета)',
+  towerFloor: 'этаж Башни взят (надпись на стене)',
+  expeditionReturn: 'экспедиция вернулась',
+  loading: 'экран загрузки',
+} as const;
+export type LineKind = keyof typeof LINE_KINDS;
+
+const lineList = z.array(z.string().min(1).max(LINE_MAX, `строка: не длиннее ${LINE_MAX} символов`)).default([]);
+
+/** data/lore/lines.json — строки-комментарии по видам; UI берёт случайную строку вида. Пустой список — строки нет. */
+export const LinesLoreSchema = z
+  .object({
+    $schema: z.string().optional(),
+    $comment: z.string().optional(),
+    refineSuccess: lineList,
+    refineBreak: lineList,
+    defeat: lineList,
+    towerFloor: lineList,
+    expeditionReturn: lineList,
+    loading: lineList,
+  })
+  .strict();
+
 export type MonsterLore = z.infer<typeof MonsterLoreSchema>;
 export type HeroLore = z.infer<typeof HeroLoreSchema>;
 export type ChapterLore = z.infer<typeof ChapterLoreSchema>;
@@ -84,4 +114,6 @@ export interface Lore {
   jobs: Record<string, string>;
   chapters: Record<string, ChapterLore>;
   world: WorldEntry[];
+  /** Строки-комментарии (data/lore/lines.json). */
+  lines: Record<LineKind, string[]>;
 }

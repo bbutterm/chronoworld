@@ -78,7 +78,7 @@ describe('лор: схема и сборка', () => {
     if (offCampaign) {
       const w = check({ ...emptyLore(), monsters: { [offCampaign.id]: { title: 't', text: 'x' } } });
       expect(w.errors).toEqual([]);
-      expect(w.warnings[0]).toContain('не встречается на этапах');
+      expect(w.warnings[0]).toContain('не встречается ни на этапах кампании, ни в Башне, ни на Охоте');
     }
   });
 
@@ -156,13 +156,14 @@ describe('Летопись: открытие записей по прогрес�
     lore.heroes = { [fresh.heroes[0].templateId]: { story: 's', quirks: [] } };
     const k0 = chronicleKeys(fresh, ctx, lore);
     expect(k0.bestiary).toEqual([]);
-    expect(k0.world).toEqual(['world:w']);
+    // Глава 1 — в «Мире» и без записи world.json: у неё в data/campaign есть эпизод, легенда и летопись.
+    expect(k0.world).toEqual(['world:chapter1', 'world:w']);
     expect(k0.heroes).toEqual([`heroes:${fresh.heroes[0].templateId}`]);
     const k1 = chronicleKeys(cleared1, ctx, lore);
     expect(k1.bestiary).toEqual([`bestiary:${firstMonster}`]);
     const n = unseenCount(k1, new Set(['world:w']));
-    expect(n.world).toBe(0);
+    expect(n.world).toBe(1);
     expect(n.bestiary).toBe(1);
-    expect(n.total).toBe(n.bestiary + n.items + n.heroes);
+    expect(n.total).toBe(n.world + n.findings + n.bestiary + n.items + n.heroes);
   });
 });
