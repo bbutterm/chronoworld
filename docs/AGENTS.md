@@ -98,7 +98,7 @@
 | `juice.ts` | «сочность» меню: летящие награды, отсчёт чисел, выезд списков; выключается «Уменьшить анимацию» |
 | `audio.ts`, `audioCatalog.ts`, `audioCore.ts`, `audioSynth.ts`, `sceneAudio.ts`, `battleAudio.ts` | звук (issue #26, `docs/design/audio.md`): `sfx(id)`, музыка по экрану, заглушки синтезом, файлы `assets/audio/<id>.ogg` побеждают; настройки «Музыка»/«Звуки»/«Без звука» |
 | `viewport.ts`, `viewLayout.ts` | вывод на экран телефона: безопасная зона, поля за краями, DPR |
-| `backdrops.ts` | фоны боя и карты по теме главы (луг/топь/склеп), рисуются кодом; файлы `assets/backgrounds/bg_{battle,map}_ch<N>.*` побеждают |
+| `backdrops.ts`, `backdropsExtra.ts`, `backdropsRoute.ts` | фоны боя и карты по **теме** главы (`theme` в `data/campaign` или тема слота — `chapterTheme` в ядре; не по месту главы): луг, канализация, орки, пустыня, ночной лес, корабль, часовая башня, склеп (Гласт Хейм), лабиринт, Нифльхейм, топь (ярус Башни); рисуются кодом; файлы `assets/backgrounds/bg_{battle,map}_ch<N>.*` (N — номер главы маршрута темы, `THEME_FILE`) побеждают |
 | `tavern.ts`, `tavernArt.ts`, `tavernEntry.ts` | Таверна: чистые помощники (порядок и ритм показа, раскладка карт, кнопки, гарант — тесты `tests/game-tavern.test.ts`), нарисованный зал, рубашка карты и эффекты (файл `assets/backgrounds/bg_tavern.*` побеждает), плитка на главной со значком. Лицо карты призыва — общий `heroCard.ts drawHeroCard` (бюст на столе, фигура на крупной) |
 | `chestView.ts` | карточка сундука на странице «Кампания»: иконки накопленного (золото, опыт, предметы, карты героя, гемы, свитки), таймер «Полон через Ч:ММ», строки трофеев для тостов сундука и быстрых наград |
 | `ambient.ts` | тени под юнитами и частицы по теме |
@@ -194,10 +194,19 @@ skills [{jobLevel, skill}], visual`. **С v4 профессия — класс �
 
 ### Кампания `data/campaign/<chapter>.json` (`ChapterSchema`)
 
-`id, name, order, stages[]`; этап: `id, name, boss, enemies (ровно 5 слотов: 0–1 фронт, 2–4 тыл; {unit, mult} | null),
-rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}`. Главы склеиваются по `order`, у этапа `index` (в главе) и `globalIndex` (сквозной).
-Сила врага: `hp/atk/def × mult × (1 + progression.campaign.enemyStatGrowthPerStage)^globalIndex` (0.08; spd не растёт).
-Сейчас 3 главы × 10 этапов, босс — 10-й этап (`ch1_s10` Мастеринг, `ch2_s10` Бафомет, `ch3_s10` Тёмный лорд).
+`id, name, order, theme?, episode?, legend?, chronicle?, stages[]`; этап: `id, name, boss, inserted?, enemies (ровно 5 слотов: 0–1 фронт,
+2–4 тыл; {unit, mult} | null), rewards {jobExp, gold}, offlinePerMinute {jobExp, gold}, finding?`. Главы склеиваются по `order`, у этапа
+`index` (в главе) и `globalIndex` (сквозной). Сила врага: `hp/atk/def × mult × (1 + enemyStatGrowthPerStage)^growthStep` (0.08; spd не
+растёт; `growthStep` — сквозной номер без вставных этапов `inserted`, по 10 ступеней на главу).
+
+**Маршрут из 10 глав** (`docs/design/lore-route.md`, библия `docs/design/story.md`): слоты стабильны, содержимое переезжает.
+1 Поля Пронтеры (Мастеринг), 2 Канализация Пронтеры (Золотой жук-вор), 3 Орочья деревня (Орк-лорд), 4 Пески Сограта (Осирис),
+5 Пайон (Лунный цветок), 6 Затонувший корабль (Дрейк), 7 Альдебаран (Смотритель башни), 8 Гласт Хейм (Тёмный лорд `mob7_boss`,
+мини-босс Верховный жрец `mob3_boss` на ch8_s15), 9 Лабиринтный лес (пока нет), 10 Нифльхейм (Владыка мёртвых
+`mob_lord_of_death`, мини-босс Страж моста на ch10_s9). У глав 1–7 — 18 этапов (выпущенные s1…s10 + вставные s11…s18, босс — s10
+последним), у глав 8 и 10 — s1…s18 подряд, босс s18. **Номер главы — `order`** («Глава N», «Эпизод N», этап «N-K» — `stageLabel`,
+`flow.ts stageNo`; ворота предметов `minChapter` — `equipment/gates.ts chapterNumber`), а не место в списке: пока главы 9 нет,
+после 8 идёт 10 (в `playthrough` индекс 8). Глава 9 при появлении сдвинет рост силы главы 10 — рецепт 6 в `docs/CONTENT_RECIPES.md`.
 Последний этап главы = глава пройдена (`lastStageOfChapter`). Подробности и таблицы — `docs/content/campaign.md`.
 
 ### Башня `data/tower.json` (`TowerConfigSchema`)
@@ -274,7 +283,8 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 
 - `data/items/*.json` — `{items: [{id, name, slot (weapon|armor|helmet|boots), rarity (common|rare|epic), stats, jobs?, drop, minChapter}]}`;
   `jobs` — корни веток (["archer"] → лучник, охотник, бард); `minChapter` — ворота по главе для всех источников предметов (этапы,
-  сундук, быстрые награды, Лавка, охота): эпики — с главы 2, Слейпнир — с 3 (`src/core/equipment/gates.ts`, проверки — `lint.ts`). `data/drops.json` — правила выпадения по главам (`rules`) и трофеи сундука
+  сундук, быстрые награды, Лавка, охота; номер главы — `order`, т. е. номер на маршруте): эпики — с главы 2, Слейпнир — с 3, у глав 4–8 и
+  10 — по 4 свои вещи (`src/core/equipment/gates.ts`, проверки — `lint.ts`). `data/drops.json` — правила выпадения по главам (`rules`) и трофеи сундука
   (`chest`, раздел 2в). См. `docs/content/equipment.md`.
 - `data/quests.json` — ежедневные задания: `event` из `ACTIVITY_KINDS` (`src/core/features/quests.ts`), `target`, `points`; `milestones` активности.
 - `data/expeditions.json` — экспедиции: `maxHeroes`, `durations` (`hours`, `bonus`), `locations` (`stage`, `power`, `tint`, `monster`, `perHour`, `loot`), `presets` (K8). См. `docs/content/meta.md`, K9.
@@ -410,7 +420,8 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 Ошибки — `EventError` (`code`, русский `message`).
 - `touchEvents(save, day, ctx)` — «игрок открыл игру»: первый раз — старт событий (`save.events.startDay`) и доставка системных писем;
   новый день (больше `lastDay`) — `loginDays + 1` (пропуски не сбрасывают, как в AFK); тот же день или часы назад — тот же объект.
-  Заодно доставляет новые письма из `data/events.json → mail.letters` (`deliverSystemMail`, каждое один раз, `untilDay`).
+  Заодно доставляет новые письма из `data/events.json → mail.letters` (`deliverSystemMail`, каждое один раз, `untilDay`; `onlyIfCleared` —
+  только тем, у кого этап уже пройден, остальным письмо молча помечается доставленным: так `world_changed_1` о переезде глав 2, 3, 7).
   UI зовёт `touchToday()` (`src/game/homeEvents.ts`) на главной, в «Событиях» и «Почте».
 - «Вход 7 дней»: `loginStatus(save, day, ctx)` → `{ loginDays, days [{day, rewards, label?, reached, claimed, ready}], claimable, done }`;
   `claimLogin(save, day, n, ctx)` → `{ save, rewards, events }` (любой наступивший незабранный день; `login_locked`, `login_claimed`).
@@ -590,7 +601,8 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 ## 6. Тесты
 
 - `tests/*.test.ts` — vitest (`npm test`): ядро боя, контент, кампания, прогрессия, сохранения, K-функции, чистые помощники UI (`game-*.test.ts`),
-  фазз (`fuzz-*.test.ts`), главы (`chapters.test.ts` — жёстко 3 главы/30 этапов, Σhp/Σatk без провалов), прохождение главы 1
+  фазз (`fuzz-*.test.ts`), главы (`chapters.test.ts` — выпущенные главы 1–3 точно, маршрут из 10 глав: order/заголовки, главы 8 и 10,
+боссы, темы; Σhp/Σatk глав 2–3 без провалов, сила по бою глав 4+ по тренду), прохождение главы 1
   (`chapter1-playthrough.test.ts`), генераторы контента (`content-new.test.ts`). Общие помощники — `tests/helpers.ts`, `invariants.ts`, `formation.ts`, `fixtures/`.
 - `tests/test_*.py` — проверки арт-пайплайна: `python3 -m unittest discover -s tests -p 'test_*.py'`.
 - Производительность: `tests/sim.test.ts` («1000 боёв» по CPU-времени), `npm run perf` (браузер).
@@ -664,14 +676,17 @@ Vercel собирает `main` (`vercel.json`: `npm ci`, `npm run build`, `dist`
 - **Нет `node_modules` в worktree** — `ln -s /home/user/chronoworld/node_modules node_modules` (в `.gitignore`, не коммитится).
 - **vite перезагружает страницу при изменении файлов** — e2e/perf падают, если в тот же checkout кто-то пишет. Гонять в своём worktree.
 - **Порты e2e** 5173/5174/5185 заняты другим прогоном — `E2E_PORT`/`PERF_PORT`. `playwright install` не запускать.
-- **Жёсткие числа в тестах:** `tests/chapters.test.ts` (3 главы, 30 этапов, босс на 10-м), `chapter1-playthrough.test.ts`, `formation.test.ts`
+- **Жёсткие числа в тестах:** `tests/chapters.test.ts` (выпущенные главы 1–3, ступени роста 70/80 у глав 8/10), `chapter1-playthrough.test.ts`, `formation.test.ts`
   (этапы главы 1) — новая глава или переделка главы 1 требуют осознанно обновить ожидания и перемерить баланс.
 - **Поменяли zod-схему** — `npm run content:schema`, иначе content:check: «устарел».
 - **Лист больше 2048 px** — на части телефонов не загрузится; content:check — ошибка для v2.
 - **id листов ≠ id профессий** (исторически): Маг → `magician`, Волшебник → `mage`, Лучник → `archer_first`, Охотник → `archer`.
 - **Тест «1000 боёв»** меряет CPU-время и сравнивает с эталоном; при перегрузке контейнера возможен сбой — перезапустить, не ослаблять.
-- **Фон главы 4+** берётся по теме по кругу (`themeOfChapter` в `backdrops.ts`): файл `bg_battle_ch4.jpg` сейчас не будет показан
-  (ищется `bg_battle_ch<номер темы 1–3>`). Для новой главы со своим фоном — расширить `THEMES`/поиск файла.
+- **Фон и музыка — по теме главы, не по месту** (`theme` в `data/campaign`, иначе тема слота `chapterTheme`): Гласт Хейм (гл. 8) —
+  бывший фон/звук главы 3 («склеп»), Нифльхейм (гл. 10) — бывшей главы 7. Файл фона — `bg_battle_ch<N>.jpg`, N — номер главы маршрута
+  темы (`THEME_FILE` в `backdrops.ts`). Новая тема — `CHAPTER_THEMES` + рисунок + `THEME_FILE` + `SOUND_THEME` (рецепт 6, п. 10).
+- **Номер главы — `order`, не индекс:** `content.chapters[i]` — место в списке (навигация карты), «Глава N»/«N-K»/`minChapter` — `order`.
+  Пока главы 9 нет, это разные числа для главы 10.
 - **Сохранения живут дольше кода:** не переименовывать id этапов/профессий/предметов/сцен/карточек (`data/heroes`); `sanitizeSave`
   убирает неизвестные карточки и предметы. Старый формат (v3) читает замороженная миграция `heroes/migrate.ts` — её не трогать.
 - **Опыт наград — в пул, не героям:** `rewards.jobExp` в данных (этапы, башня, поручения, задания) — опыт в `resources.heroExp`,

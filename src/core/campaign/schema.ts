@@ -88,12 +88,26 @@ export const StageSchema = z.object({
   finding: FindingSchema.optional(),
 });
 
+/**
+ * Темы глав (фон боя и карты, музыка и эмбиент — src/game/backdrops.ts, sceneAudio.ts). Привязка — к теме, а не к месту
+ * главы в кампании: слоты переезжают (docs/design/lore-route.md §4.2), арт и звук едут вместе с содержимым.
+ * swamp — «Проклятые топи» (теперь только ярус Башни).
+ */
+export const CHAPTER_THEMES = ['meadow', 'sewer', 'orc', 'desert', 'grove', 'shipwreck', 'clocktower', 'crypt', 'labyrinth', 'niflheim', 'swamp'] as const;
+export type ChapterTheme = (typeof CHAPTER_THEMES)[number];
+
 /** data/campaign/<chapter>.json — глава; порядок глав — по полю order. */
 export const ChapterSchema = z.object({
   $schema: z.string().optional(),
   id,
   name: z.string(),
+  /**
+   * Номер главы на маршруте (docs/design/lore-route.md §0): «Глава N», «Эпизод N», номер этапа «N-K», ворота предметов
+   * minChapter. Главы идут по возрастанию order; пропуск допустим (глава 9 ещё не написана — после 8 идёт 10).
+   */
   order: z.number().int().positive(),
+  /** Тема фона и музыки (CHAPTER_THEMES). Нет — по id слота (chapterTheme), иначе луг. */
+  theme: z.enum(CHAPTER_THEMES).optional(),
   stages: z.array(StageSchema).min(1),
   episode: EpisodeSchema.optional(),
   legend: LegendSchema.optional(),
@@ -115,4 +129,27 @@ export interface StageInfo extends StageDef {
   index: number;
   /** Сквозной номер по всей кампании, с 0 — по нему растёт сила врагов. */
   globalIndex: number;
+}
+
+/**
+ * Тема слота, если в файле главы нет поля theme: маршрут из 10 глав (lore-route §0) — канализация, орки, Альдебаран,
+ * лабиринт. Слоты 2, 3, 7 переписываются отдельно, поле theme в их файлах может появиться позже.
+ */
+const SLOT_THEMES: Record<string, ChapterTheme> = {
+  chapter1: 'meadow',
+  chapter2: 'sewer',
+  chapter3: 'orc',
+  chapter4: 'desert',
+  chapter5: 'grove',
+  chapter6: 'shipwreck',
+  chapter7: 'clocktower',
+  chapter8: 'crypt',
+  chapter9: 'labyrinth',
+  chapter10: 'niflheim',
+};
+
+/** Тема главы: поле theme, иначе тема слота по id, иначе луг. */
+export function chapterTheme(chapter: Pick<ChapterDef, 'id' | 'theme'> | undefined): ChapterTheme {
+  if (!chapter) return 'meadow';
+  return chapter.theme ?? SLOT_THEMES[chapter.id] ?? 'meadow';
 }

@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_lord_of_death_steward",
+  "name": "Управитель Хель",
+  "description": "Когда гибнет союзник, Владыка принимает его в строй: +20 энергии.",
+  "trigger": "allyDeath",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 20
+    }
+  ]
+}

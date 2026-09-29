@@ -91,7 +91,7 @@ function assertDay(day: string): void {
   if (!DayStringSchema.safeParse(day).success) throw new ShopError('invalid_day', `Неверный день: ${JSON.stringify(day)} (нужно YYYY-MM-DD)`);
 }
 
-/** Номер главы (с 0) последнего пройденного этапа; ничего не пройдено — 0. */
+/** Номер главы на маршруте минус 1 (с 0) для самого дальнего пройденного этапа; ничего не пройдено — 0. */
 export function shopChapter(save: Pick<SaveState, 'campaign'>, ctx: Pick<GameContext, 'content'>): number {
   return progressChapter(save, ctx) - 1;
 }

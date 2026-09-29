@@ -3,6 +3,7 @@
   "id": "chapter6",
   "name": "Глава 6. Затонувший корабль",
   "order": 6,
+  "theme": "shipwreck",
   "episode": {
     "title": "Груз Дрейка",
     "subtitle": "Излуд, Бьялан и затонувший корабль",

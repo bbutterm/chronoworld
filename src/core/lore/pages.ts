@@ -25,9 +25,10 @@ export interface IntroPages {
   legend?: LegendDef;
 }
 
+/** Глава и её номер на маршруте (order: «Эпизод 10» у Нифльхейма, даже пока главы 9 нет). */
 const chapterOf = (chapterId: string, content: Pick<Content, 'chapters'>): { chapter: ChapterDef; number: number } | undefined => {
-  const i = content.chapters.findIndex((c) => c.id === chapterId);
-  return i < 0 ? undefined : { chapter: content.chapters[i], number: i + 1 };
+  const chapter = content.chapters.find((c) => c.id === chapterId);
+  return chapter ? { chapter, number: chapter.order } : undefined;
 };
 
 /** Эпизод и легенда главы (для «Летописи» — без условий показа); у главы их нет — undefined. */
@@ -100,7 +101,7 @@ export interface FindingEntry {
   finding: FindingDef;
   stageId: string;
   chapterId: string;
-  /** Номер главы с 1. */
+  /** Номер главы на маршруте (order). */
   chapterNumber: number;
   /** «1-4». */
   stageLabel: string;
@@ -122,7 +123,7 @@ export function findingEntries(save: Pick<SaveState, 'campaign' | 'findings'>, c
       finding: st.finding,
       stageId: st.id,
       chapterId: st.chapter,
-      chapterNumber: content.chapters.findIndex((c) => c.id === st.chapter) + 1,
+      chapterNumber: content.chapters.find((c) => c.id === st.chapter)?.order ?? 1,
       stageLabel: stageLabel(st.id, content as Content),
       found: got.has(st.finding.id) || cleared.has(st.id),
     });

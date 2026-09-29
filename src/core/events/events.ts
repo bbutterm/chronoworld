@@ -30,7 +30,11 @@ export function validateEventsConfig(cfg: EventsConfig, ctx: GameContext, proble
   };
   cfg.login.days.forEach((d, i) => check(`login.days[${i}]`, d.rewards));
   cfg.newbie.milestones.forEach((m, i) => check(`newbie.milestones[${i}]`, m.rewards));
-  cfg.mail.letters.forEach((l) => check(`mail.letters ${l.id}`, l.rewards));
+  cfg.mail.letters.forEach((l) => {
+    check(`mail.letters ${l.id}`, l.rewards);
+    if (l.onlyIfCleared && !ctx.content.stages.some((s) => s.id === l.onlyIfCleared))
+      problems.push(`data/events.json: mail.letters ${l.id}: onlyIfCleared — этапа ${l.onlyIfCleared} нет в data/campaign`);
+  });
 }
 
 /** ctx → ctx + events. */

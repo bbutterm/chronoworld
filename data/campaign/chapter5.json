@@ -3,6 +3,7 @@
   "id": "chapter5",
   "name": "Глава 5. Лес Пайона",
   "order": 5,
+  "theme": "grove",
   "episode": {
     "title": "Колыбельная",
     "subtitle": "Пайон и Пайонская пещера",

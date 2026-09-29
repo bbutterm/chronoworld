@@ -69,9 +69,10 @@ const power = (s: SaveState, id: string) => heroPower(s.heroes.find((h) => h.id 
 const sumPower = (s: SaveState, ids: readonly string[]) => ids.reduce((n, id) => n + power(s, id), 0);
 
 describe('K9 экспедиции: конфиг', () => {
-  it('8 локаций открываются по ходу кампании (4 — главы 1–3, по одной на главы 4–7), сроки 1 / 4 / 8 ч, пороги мощи растут', () => {
-    expect(LOCS.map((l) => l.id)).toEqual(['ant_hell', 'payon_cave', 'morroc_pyramid', 'clock_tower', 'sphinx_dungeon', 'kitsune_shrine', 'ghost_ship', 'gyoll_valley']);
-    expect(LOCS.slice(4).map((l) => l.stage)).toEqual(['ch4_s1', 'ch5_s1', 'ch6_s1', 'ch7_s1']);
+  it('9 локаций открываются по ходу кампании (4 — главы 1–3, по одной на главы 4–6, 8 и 10), сроки 1 / 4 / 8 ч, пороги мощи растут', () => {
+    // Маршрут из 10 глав: Гласт Хейм — глава 8 (новая локация), Долина Гьёлль переехала в Нифльхейм (глава 10).
+    expect(LOCS.map((l) => l.id)).toEqual(['ant_hell', 'payon_cave', 'morroc_pyramid', 'clock_tower', 'sphinx_dungeon', 'kitsune_shrine', 'ghost_ship', 'glast_heim', 'gyoll_valley']);
+    expect(LOCS.slice(4).map((l) => l.stage)).toEqual(['ch4_s1', 'ch5_s1', 'ch6_s1', 'ch8_s1', 'ch10_s1']);
     expect(ctx.meta.expeditions.durations.map((d) => d.hours)).toEqual([1, 4, 8]);
     const order = LOCS.map((l) => ctx.content.stages.findIndex((s) => s.id === l.stage));
     expect(order.every((x, i) => x >= 0 && (i === 0 || x > order[i - 1]))).toBe(true);

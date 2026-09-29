@@ -1,0 +1,678 @@
+{
+  "$schema": "../schema/chapter.schema.json",
+  "id": "chapter8",
+  "name": "Глава 8. Гласт Хейм",
+  "order": 8,
+  "theme": "crypt",
+  "episode": {
+    "title": "Ночной караул",
+    "subtitle": "Гласт Хейм, город-замок рыцарей",
+    "quote": "Пост у северных ворот не оставлять. Даже по приказу владыки.",
+    "text": "Гласт Хейм стоит на холме, как стоял всегда: башни, собор, герб на воротах. Только окна не горят уже много сотен лет, и по стенам в тишине ходят часовые без лиц.\n\nКапитан Гаррет довёл отряд до ворот и остановился. Двадцать лет назад он вошёл сюда с одиннадцатью своими людьми. Вышел с одним — на плечах. Теперь он знает его имя. И, кажется, знает, где тот сейчас."
+  },
+  "legend": {
+    "title": "Караул, которого не сменили",
+    "text": "Гласт Хейм пал за одну ночь: вечером в замке играла музыка, а утром из ворот не вышел никто. Но караул у северных ворот не ушёл. Мёртвые рыцари сменяли друг друга по уставу ещё много веков — пока однажды смена не пришла. Говорят, они до сих пор несут караул, только забыли, от кого стерегут.",
+    "source": "из летописи часовой башни Альдебарана"
+  },
+  "chronicle": {
+    "title": "Привратник смеялся",
+    "text": "В Гласт Хейме отряд прошёл склепы, оружейную и колокольню, где треснувший соборный колокол ответил колокольчику Греты, как родне. Лейтенант Гаррета двадцать лет держал мост и дождался жетона вместо приказа. У алтаря Вика узнала в Верховном жреце отца Бенедикта, своего воспитателя, и отпустила его — так, как он сам её учил. Тёмный лорд пал на церковном дворе, смеясь: он лишь привратник, ключ давно ушёл к рогатому в лесу, а держит его Ансгар — оруженосец, которого капитан когда-то вынес отсюда на плечах. Капитан Гаррет похоронил десять своих рыцарей и впервые за двадцать лет говорил о них вслух."
+  },
+  "stages": [
+    {
+      "id": "ch8_s1",
+      "name": "Склеп у входа",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 0.1163
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.1163
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1163
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 48929,
+        "gold": 34366
+      },
+      "offlinePerMinute": {
+        "jobExp": 1631,
+        "gold": 1146
+      }
+    },
+    {
+      "id": "ch8_s2",
+      "name": "Ржавые решётки",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 0.1055
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.1055
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.1055
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1055
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 50882,
+        "gold": 35742
+      },
+      "offlinePerMinute": {
+        "jobExp": 1696,
+        "gold": 1191
+      }
+    },
+    {
+      "id": "ch8_s3",
+      "name": "Зал стражей",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 0.1051
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.1051
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1051
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1051
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 51893,
+        "gold": 36467
+      },
+      "offlinePerMinute": {
+        "jobExp": 1730,
+        "gold": 1215
+      }
+    },
+    {
+      "id": "ch8_s4",
+      "name": "Оружейная рыцарей",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 0.098
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.098
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.098
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.098
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.098
+        }
+      ],
+      "rewards": {
+        "jobExp": 52925,
+        "gold": 37207
+      },
+      "offlinePerMinute": {
+        "jobExp": 1764,
+        "gold": 1240
+      },
+      "finding": {
+        "id": "ch8_squad_list",
+        "title": "Список отряда",
+        "kind": "inscription",
+        "text": "На стене оружейной углём выведены двенадцать имён — отряд стражи Пронтеры, вошедший в Гласт Хейм двадцать лет назад. Десять вычеркнуты ровно, по одному, будто кто-то приходил сюда годами. Целы двое: «кап. Гаррет» и «оруж. Ансгар».",
+        "comment": {
+          "speaker": "Бран",
+          "text": "Кто-то вёл этот счёт двадцать лет. Аккуратный почерк. Недобрый."
+        }
+      }
+    },
+    {
+      "id": "ch8_s5",
+      "name": "Призрачная охота",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_fast",
+          "mult": 0.1248
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.0455
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1248
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.1248
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.1248
+        }
+      ],
+      "rewards": {
+        "jobExp": 55056,
+        "gold": 38672
+      },
+      "offlinePerMinute": {
+        "jobExp": 1835,
+        "gold": 1289
+      }
+    },
+    {
+      "id": "ch8_s6",
+      "name": "Колокольня гаргулий",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_fast",
+          "mult": 0.1136
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.1136
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.1136
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.1136
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1136
+        }
+      ],
+      "rewards": {
+        "jobExp": 57232,
+        "gold": 40226
+      },
+      "offlinePerMinute": {
+        "jobExp": 1908,
+        "gold": 1341
+      },
+      "finding": {
+        "id": "ch8_cracked_bell",
+        "title": "Треснувший колокол",
+        "kind": "item",
+        "text": "На колокольне висит соборный колокол с рогатым знаком на боку. Колокольчик Греты отвечает ему тихим звоном, как родне. Край скола свежий по меркам камня: сто лет назад от колокола отбили кусок — как раз на один маленький колокольчик.",
+        "comment": {
+          "speaker": "Грета",
+          "text": "Бабушка говорила: колокольчик старше трактира. Выходит, он старше и бабушки."
+        }
+      }
+    },
+    {
+      "id": "ch8_s7",
+      "name": "Костяной строй",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 0.0736
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.0736
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1533
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1533
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1533
+        }
+      ],
+      "rewards": {
+        "jobExp": 58374,
+        "gold": 41018
+      },
+      "offlinePerMinute": {
+        "jobExp": 1946,
+        "gold": 1368
+      }
+    },
+    {
+      "id": "ch8_s8",
+      "name": "Темницы Гласт Хейма",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 0.1193
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.1193
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.1193
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1182
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.1182
+        }
+      ],
+      "rewards": {
+        "jobExp": 59540,
+        "gold": 41825
+      },
+      "offlinePerMinute": {
+        "jobExp": 1985,
+        "gold": 1394
+      }
+    },
+    {
+      "id": "ch8_s9",
+      "name": "Мимик у моста",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_elite",
+          "mult": 0.0957
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.0957
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0957
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.0957
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0957
+        }
+      ],
+      "rewards": {
+        "jobExp": 60705,
+        "gold": 42660
+      },
+      "offlinePerMinute": {
+        "jobExp": 2023,
+        "gold": 1422
+      }
+    },
+    {
+      "id": "ch8_s10",
+      "name": "Рыцарь на мосту",
+      "boss": false,
+      "enemies": [
+        null,
+        {
+          "unit": "mob3_knight",
+          "mult": 0.1089
+        },
+        null,
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0529
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0529
+        }
+      ],
+      "rewards": {
+        "jobExp": 61894,
+        "gold": 43512
+      },
+      "offlinePerMinute": {
+        "jobExp": 2063,
+        "gold": 1450
+      }
+    },
+    {
+      "id": "ch8_s11",
+      "name": "Катакомбы",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 0.0433
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.0433
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1291
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.1291
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.1291
+        }
+      ],
+      "rewards": {
+        "jobExp": 63125,
+        "gold": 44369
+      },
+      "offlinePerMinute": {
+        "jobExp": 2105,
+        "gold": 1479
+      }
+    },
+    {
+      "id": "ch8_s12",
+      "name": "Костница",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 0.0886
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.069
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.0886
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0886
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0886
+        }
+      ],
+      "rewards": {
+        "jobExp": 64380,
+        "gold": 45244
+      },
+      "offlinePerMinute": {
+        "jobExp": 2146,
+        "gold": 1508
+      }
+    },
+    {
+      "id": "ch8_s13",
+      "name": "Стая теней",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_elite",
+          "mult": 0.0791
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.0791
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.0791
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0791
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.0791
+        }
+      ],
+      "rewards": {
+        "jobExp": 65654,
+        "gold": 46145
+      },
+      "offlinePerMinute": {
+        "jobExp": 2189,
+        "gold": 1538
+      }
+    },
+    {
+      "id": "ch8_s14",
+      "name": "Хоры капеллы",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 0.0738
+        },
+        null,
+        null,
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0951
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0951
+        }
+      ],
+      "rewards": {
+        "jobExp": 66955,
+        "gold": 47064
+      },
+      "offlinePerMinute": {
+        "jobExp": 2232,
+        "gold": 1569
+      },
+      "finding": {
+        "id": "ch8_chapel_names",
+        "title": "Имена на скамьях",
+        "kind": "inscription",
+        "text": "На скамьях капеллы вырезаны сорок детских имён — так в приюте метили места, чтобы никто не потерялся. Среди них — «Вика». Одно имя вырезано другим ножом, глубже и неровно: «Тиль, сын Ансгара».",
+        "comment": {
+          "speaker": "Вика",
+          "text": "Это моя скамья. Третья слева. Я думала, её давно сожгли."
+        }
+      }
+    },
+    {
+      "id": "ch8_s15",
+      "name": "Алтарь Верховного жреца",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 0.0269
+        },
+        {
+          "unit": "mob3_elite",
+          "mult": 0.0269
+        },
+        {
+          "unit": "mob3_boss",
+          "mult": 0.0554
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0871
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.0871
+        }
+      ],
+      "rewards": {
+        "jobExp": 67615,
+        "gold": 47530
+      },
+      "offlinePerMinute": {
+        "jobExp": 2254,
+        "gold": 1584
+      }
+    },
+    {
+      "id": "ch8_s16",
+      "name": "Орден смерти",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_elite",
+          "mult": 0.0602
+        },
+        {
+          "unit": "mob3_elite",
+          "mult": 0.0602
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0928
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 0.0928
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0928
+        }
+      ],
+      "rewards": {
+        "jobExp": 68281,
+        "gold": 48001
+      },
+      "offlinePerMinute": {
+        "jobExp": 2276,
+        "gold": 1600
+      }
+    },
+    {
+      "id": "ch8_s17",
+      "name": "Ночной караул",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_elite",
+          "mult": 0.0866
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.0817
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.0817
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0817
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0817
+        }
+      ],
+      "rewards": {
+        "jobExp": 68955,
+        "gold": 48477
+      },
+      "offlinePerMinute": {
+        "jobExp": 2300,
+        "gold": 1615
+      },
+      "finding": {
+        "id": "ch8_watch_charter",
+        "title": "Устав караула",
+        "kind": "inscription",
+        "text": "На двери караульни прибит медный лист, позеленевший от времени: «Пост у северных ворот не оставлять. Даже по приказу владыки». Ниже — сотни зарубок сменившихся караулов. Последняя зарубка — двадцатилетней давности. Дальше пусто.",
+        "comment": {
+          "speaker": "Гаррет",
+          "text": "Мы дошли сюда в ту ночь. Смену так никто и не принял."
+        }
+      }
+    },
+    {
+      "id": "ch8_s18",
+      "name": "Церковный двор",
+      "boss": true,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 0.0267
+        },
+        {
+          "unit": "mob7_boss",
+          "mult": 0.04
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0734
+        },
+        {
+          "unit": "mob3_elite",
+          "mult": 0.0267
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.0734
+        }
+      ],
+      "rewards": {
+        "jobExp": 104495,
+        "gold": 73393
+      },
+      "offlinePerMinute": {
+        "jobExp": 2322,
+        "gold": 1631
+      }
+    }
+  ]
+}

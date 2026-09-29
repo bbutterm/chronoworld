@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_lord_of_death_review",
+  "name": "Смотр войска",
+  "description": "Долгий каст: Владыка выстраивает мёртвых — все союзники и он сам получают +20% ATK на 3 хода. Оглушение сбивает каст.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "cooldown": 16,
+  "castTime": 1.2,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "dead_march",
+        "name": "Смотр войска",
+        "turns": 3,
+        "stats": {
+          "atk": 0.2
+        }
+      }
+    }
+  ]
+}

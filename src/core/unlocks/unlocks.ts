@@ -54,12 +54,12 @@ export function featureStage(id: FeatureId, ctx: UnlocksContext): string | null 
   return unlockDef(id, ctx)?.stage ?? null;
 }
 
-/** «1-8» — номер главы и этапа внутри неё (как в AFK Arena). Неизвестный этап — его id. */
+/** «1-8» — номер главы на маршруте (order) и этапа внутри неё (как в AFK Arena). Неизвестный этап — его id. */
 export function stageLabel(stageId: string, content: Content): string {
   const st = content.stages.find((s) => s.id === stageId);
   if (!st) return stageId;
-  const ch = content.chapters.findIndex((c) => c.id === st.chapter);
-  return `${ch + 1}-${st.index + 1}`;
+  const ch = content.chapters.find((c) => c.id === st.chapter);
+  return `${ch?.order ?? 1}-${st.index + 1}`;
 }
 
 /** Открыта ли функция: нет в таблице или её этап пройден. */
