@@ -14,6 +14,7 @@ Rights: these are original RO resources from the owner's client. The repository 
 | `raw/ro/manifest.csv` | for every raw file: GRF path, archive (patch/data/rdata/loose), size, SHA-256, path in `raw/ro/` |
 | `raw/ro-build/IMPORT_MANIFEST.json` | **main manifest**: every ready file → `target` (path in `assets/`), SHA-256, sources, `status`, `note` |
 | `raw/ro-build/assets/` | ready files; the tree mirrors `assets/` (copy with the same relative path) |
+| `raw/ro-build/audio/` | 35 BGM tracks for the game: `bgm_NN.ogg` + `bgm_NN.m4a`, `music.json` (game ids, loudness, bitrates) |
 | `raw/ro-build/sprites.fragment.json` | 60 `sprites[]` entries in `sprites.json` schema 2 format + the proposed `boss_xl` class |
 | `raw/ro-build/ui_fx_npc.json` | details for icons, damage digits, NPCs |
 | `raw/ro-build/qa/` | `contact_sheet.png`, `ui_fx_npc_preview.png`, `gif/<id>.gif` (×2, anchor cross, HIT marker) |
@@ -22,7 +23,8 @@ Rights: these are original RO resources from the owner's client. The repository 
 | `raw/ro-build/SOURCE_PROVENANCE.md` | where the client came from (URL, SHA-256 of the archive, CRC check) |
 
 `status` in IMPORT_MANIFEST: `ready` — can be added as is; `ready_with_skipped_frames` — oversized FX frames skipped (see `samplingExceptions`);
-`needs_decision` — needs the owner's answer; `unusable` — do not use; `raw_needs_conversion` — audio in its original form.
+`needs_decision` — needs the owner's answer; `unusable` — do not use; `raw_needs_conversion` — sound in its original form; `raw_source` — original MP3 music (the ready version is in `raw/ro-build/audio`);
+`needs_music_id` — ready track without an id in `MUSIC`; `spare` — optional track.
 
 ## How the sheets were made (to trust them)
 
@@ -55,11 +57,27 @@ Work in the working branch (`claude/idle-hero-rpg-gdd-rolicg`) after `git merge 
 5. **NPCs and portraits.** `assets/sprites/npcs/<name>.png`: rows `idle_s`, `idle_e` (+ `walk_s`, `walk_e` if present), cell 240×224, anchor 100,120, 8 columns;
    portraits `assets/sprites/portraits/npc_<name>.png` are 64×64. `npc_4_orclady` is unusable (in scRO it is a chest) — Shaman Ugra takes the `orc_lady` sheet.
    Kafra illustration: `assets/ui/illust/kafra_01.png` (320×480).
-6. **Sound and music.** `raw/ro/wav`, `raw/ro/wav/effect`, `raw/ro/bgm` are originals. Mapping to `SFX`/`MUSIC` ids in `src/game/audioCatalog.ts` is in sections 6–7
-   of RO_EXTRACT_LIST. Convert to `assets/audio/<id>.ogg` and cut the music into loops (up to 1.5 MB) yourself; keep raw in `raw/`. Monster sounds
+6. **Music — ready.** `raw/ro-build/audio/bgm_NN.ogg` (Opus) + `bgm_NN.m4a` (AAC-LC) for all 35 tracks, details in `raw/ro-build/audio/music.json`.
+   Done: linear gain to -16 LUFS (no compression, true peak ≤ -1 dBTP before encoding), silence trimmed at start/end (< -60 dB),
+   3 ms fades at the ends — the loop seam does not click (checked: the jump at the seam is ≤ 0.015 against a typical sample step of ~0.1).
+   Bitrate: Opus 40 kbps (32 kbps for 22 kHz sources), AAC 56/40 kbps; long tracks are lowered so that each file is ≤ 1.45 MB.
+   Total 28.0 MB ogg + 35.5 MB m4a instead of 62.6 MB mp3; a player downloads only one format (audio.ts: OGG on Chrome/Android, M4A on iOS).
+   Hook-up: for tracks with status `ready` copy the pair to `assets/audio/music_<id>.ogg` and `.m4a` (targets in `target`):
+   home 08, tavern 26, map_meadow 12, battle_meadow 05, map_desert 11, battle_desert 22, map_grove 14, battle_grove 20,
+   map_shipwreck 15, battle_shipwreck 17, map_crypt 42, battle_crypt 40, map_niflheim 84, battle_niflheim 85, boss 06.
+   `needs_music_id` — for new chapters there are no ids in `MUSIC` yet (proposed: title 01, map_sewer/battle_sewer 19, map_orcs 35,
+   battle_orcs 48, map_aldebaran 39, battle_aldebaran 60, boss_aldebaran 61, map_maze/battle_maze 16, tower 21, hunt 02) — add them to
+   `audioCatalog.ts` together with the chapters. `spare` — optional tracks (03, 18, 24, 36, 37, 38, 43, 44, 47, 52). map_swamp/battle_swamp
+   have no RO track (that chapter is leaving the campaign) — they stay synthesized.
+   Memory: the current engine decodes the whole track into an AudioBuffer (≈ 0.38 MB/s stereo 48 kHz float, Prontera 273 s ≈ 105 MB,
+   and it keeps two tracks). **Owner-approved task: switch file music to streaming — `docs/TASK_MUSIC_STREAMING.md`.**
+   Do it together with hooking up the music (or before merging it into main), otherwise real tracks will take up to ~200 MB on phones.
+   Rebuild: `python3 raw/ro-build/tools/build_music.py <repo root>` (ffmpeg with libopus and aac).
+7. **Sounds.** `raw/ro/wav`, `raw/ro/wav/effect` are originals. Mapping to `SFX` ids in `src/game/audioCatalog.ts` is in section 7
+   of RO_EXTRACT_LIST. Convert to `assets/audio/<id>.ogg` yourself; keep raw in `raw/`. Monster sounds
    (`monster_sound`) are the ones their ACT refers to; the per-animation list is `sourceSounds` in `sprites.fragment.json`.
    `_hit_short_sword.wav` is not in the client — use `_hit_dagger.wav`.
-7. Before each commit: `npm run check`, `python3 tools/check_sprites.py`, `npm run assets:report`; for monster screens — e2e as per CLAUDE.md.
+8. Before each commit: `npm run check`, `python3 tools/check_sprites.py`, `npm run assets:report`; for monster screens — e2e as per CLAUDE.md.
 
 ## Needs a decision from the owner (do not do without an answer)
 
