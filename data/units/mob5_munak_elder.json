@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob5_munak_elder",
+  "name": "Настоятель Мунэ",
+  "kind": "monster",
+  "role": "support",
+  "stats": {
+    "hp": 1550,
+    "atk": 56,
+    "def": 17,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob5_munak_elder_seal",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "munak",
+    "tint": "#8a7fb8",
+    "scale": 1.45,
+    "hitFx": "fx_hit"
+  }
+}

@@ -66,6 +66,39 @@
       }
     },
     {
+      "id": "ch4_s11",
+      "name": "Гнёзда скорпионов",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob4_tank",
+          "mult": 0.648
+        },
+        {
+          "unit": "mob4_fast",
+          "mult": 0.648
+        },
+        null,
+        {
+          "unit": "mob4_fast",
+          "mult": 0.648
+        },
+        {
+          "unit": "mob4_fast",
+          "mult": 0.648
+        }
+      ],
+      "rewards": {
+        "jobExp": 6580,
+        "gold": 4620
+      },
+      "offlinePerMinute": {
+        "jobExp": 219,
+        "gold": 154
+      }
+    },
+    {
       "id": "ch4_s3",
       "name": "Храм под барханом",
       "boss": false,
@@ -168,6 +201,42 @@
       }
     },
     {
+      "id": "ch4_s12",
+      "name": "Зыбучие пески",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob4_tank",
+          "mult": 0.486
+        },
+        {
+          "unit": "mob4_tank",
+          "mult": 0.486
+        },
+        {
+          "unit": "mob4_ranged",
+          "mult": 0.486
+        },
+        {
+          "unit": "mob4_ranged",
+          "mult": 0.486
+        },
+        {
+          "unit": "mob4_ranged",
+          "mult": 0.486
+        }
+      ],
+      "rewards": {
+        "jobExp": 8050,
+        "gold": 5650
+      },
+      "offlinePerMinute": {
+        "jobExp": 268,
+        "gold": 188
+      }
+    },
+    {
       "id": "ch4_s6",
       "name": "Коридоры мумий",
       "boss": false,
@@ -200,6 +269,39 @@
       "offlinePerMinute": {
         "jobExp": 278,
         "gold": 195
+      }
+    },
+    {
+      "id": "ch4_s13",
+      "name": "Ложная гробница",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob4_melee",
+          "mult": 0.436
+        },
+        {
+          "unit": "mob4_ancient_mummy",
+          "mult": 0.545
+        },
+        {
+          "unit": "mob4_ranged",
+          "mult": 0.436
+        },
+        {
+          "unit": "mob4_support",
+          "mult": 0.436
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 8620,
+        "gold": 6060
+      },
+      "offlinePerMinute": {
+        "jobExp": 287,
+        "gold": 202
       }
     },
     {
@@ -238,6 +340,42 @@
       }
     },
     {
+      "id": "ch4_s14",
+      "name": "Двор жриц",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob4_tank",
+          "mult": 0.33
+        },
+        {
+          "unit": "mob4_melee",
+          "mult": 0.33
+        },
+        {
+          "unit": "mob4_support",
+          "mult": 0.33
+        },
+        {
+          "unit": "mob4_support",
+          "mult": 0.33
+        },
+        {
+          "unit": "mob4_ranged",
+          "mult": 0.33
+        }
+      ],
+      "rewards": {
+        "jobExp": 9220,
+        "gold": 6480
+      },
+      "offlinePerMinute": {
+        "jobExp": 307,
+        "gold": 216
+      }
+    },
+    {
       "id": "ch4_s8",
       "name": "Погребальная стража",
       "boss": false,
@@ -270,6 +408,42 @@
       "offlinePerMinute": {
         "jobExp": 318,
         "gold": 223
+      }
+    },
+    {
+      "id": "ch4_s15",
+      "name": "Шакалья псарня",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob4_elite",
+          "mult": 0.506
+        },
+        {
+          "unit": "mob4_fast",
+          "mult": 0.506
+        },
+        {
+          "unit": "mob4_elite",
+          "mult": 0.506
+        },
+        {
+          "unit": "mob4_fast",
+          "mult": 0.506
+        },
+        {
+          "unit": "mob4_support",
+          "mult": 0.506
+        }
+      ],
+      "rewards": {
+        "jobExp": 9860,
+        "gold": 6930
+      },
+      "offlinePerMinute": {
+        "jobExp": 329,
+        "gold": 231
       }
     },
     {
@@ -308,29 +482,137 @@
       }
     },
     {
+      "id": "ch4_s16",
+      "name": "Зал саркофагов",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob4_tank",
+          "mult": 0.477
+        },
+        {
+          "unit": "mob4_melee",
+          "mult": 0.477
+        },
+        {
+          "unit": "mob4_melee",
+          "mult": 0.477
+        },
+        {
+          "unit": "mob4_melee",
+          "mult": 0.477
+        },
+        {
+          "unit": "mob4_support",
+          "mult": 0.477
+        }
+      ],
+      "rewards": {
+        "jobExp": 10370,
+        "gold": 7290
+      },
+      "offlinePerMinute": {
+        "jobExp": 346,
+        "gold": 243
+      }
+    },
+    {
+      "id": "ch4_s17",
+      "name": "Ловушки фараона",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob4_fast",
+          "mult": 0.656
+        },
+        {
+          "unit": "mob4_elite",
+          "mult": 0.656
+        },
+        {
+          "unit": "mob4_ranged",
+          "mult": 0.656
+        },
+        {
+          "unit": "mob4_ranged",
+          "mult": 0.656
+        },
+        {
+          "unit": "mob4_fast",
+          "mult": 0.656
+        }
+      ],
+      "rewards": {
+        "jobExp": 10550,
+        "gold": 7420
+      },
+      "offlinePerMinute": {
+        "jobExp": 352,
+        "gold": 247
+      }
+    },
+    {
+      "id": "ch4_s18",
+      "name": "Печать у саркофага",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob4_elite",
+          "mult": 0.419
+        },
+        {
+          "unit": "mob4_ancient_mummy",
+          "mult": 0.419
+        },
+        {
+          "unit": "mob4_support",
+          "mult": 0.419
+        },
+        {
+          "unit": "mob4_ranged",
+          "mult": 0.419
+        },
+        {
+          "unit": "mob4_elite",
+          "mult": 0.419
+        }
+      ],
+      "rewards": {
+        "jobExp": 10730,
+        "gold": 7540
+      },
+      "offlinePerMinute": {
+        "jobExp": 358,
+        "gold": 252
+      }
+    },
+    {
       "id": "ch4_s10",
       "name": "Гробница Осириса",
       "boss": true,
       "enemies": [
         {
           "unit": "mob4_elite",
-          "mult": 0.313
+          "mult": 0.4
         },
         {
           "unit": "mob4_boss",
-          "mult": 0.391
+          "mult": 0.5
         },
         {
           "unit": "mob4_ranged",
-          "mult": 0.313
+          "mult": 0.4
         },
         {
           "unit": "mob4_elite",
-          "mult": 0.313
+          "mult": 0.4
         },
         {
           "unit": "mob4_ranged",
-          "mult": 0.313
+          "mult": 0.4
         }
       ],
       "rewards": {
