@@ -1,0 +1,260 @@
+import Phaser from 'phaser';
+import { bestiary, heroEntries, heroTemplate, itemEntries, jobTitle, worldEntries, type BestiaryEntry, type ChronicleTab, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
+import { CONTENT, GAME, LORE } from '../content';
+import { itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES } from '../flow';
+import { drawHeroCard, GUILD_NAMES } from '../heroCard';
+import { itemCell } from '../itemIcons';
+import { GAME_W } from '../layout';
+import { loreKeys, loreModal, loreUnseen, markLoreSeen, monsterModal, itemModal, roleName, seenLore, type LoreBlock } from '../loreView';
+import { card, cornerBadge, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen, unitTint } from '../screen';
+import { session } from '../session';
+import { portraitKey } from '../sprites';
+import { button, ellipsize, emptyState, pressable, ScrollArea, text, toast } from '../ui';
+import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
+
+const TABS: { id: ChronicleTab; label: string }[] = [
+  { id: 'world', label: 'Мир' },
+  { id: 'bestiary', label: 'Бестиарий' },
+  { id: 'items', label: 'Предметы' },
+  { id: 'heroes', label: 'Герои' },
+];
+
+/** Последняя открытая вкладка (в пределах сессии). */
+let lastTab: ChronicleTab = 'world';
+
+export interface ChronicleData {
+  tab?: ChronicleTab;
+}
+
+/** Сетка плиток: 3 колонки. */
+const COLS = 3;
+const TILE_W = 330;
+const colX = (i: number) => GAME_W / 2 + (i - (COLS - 1) / 2) * (TILE_W + 12);
+const TEXT_W = 940;
+const LEFT = 70;
+
+/**
+ * «Летопись» (лор Ragnarok Online, data/lore): вкладки «Мир» (главы и записи мира), «Бестиарий» (монстры кампании —
+ * открыты после победы на их этапе, закрытые — силуэт и «???»), «Предметы» (легенды; открыт — есть у игрока или его
+ * глава достигнута), «Герои» (история и черты полученных; остальные — только краткая био). Вход — кнопка на странице
+ * «Город»; красный кружок — новые записи (прочитанное помнится в localStorage, loreView.ts).
+ */
+export class ChronicleScene extends Phaser.Scene {
+  private area!: ScrollArea;
+  private tab: ChronicleTab = 'world';
+  private seen = new Set<string>();
+  /** Записи вкладки, которые считаются «новыми», пока не прочитаны (открытые, с текстом лора). */
+  private readable = new Set<string>();
+
+  constructor() {
+    super('Chronicle');
+  }
+
+  create(data: ChronicleData = {}): void {
+    this.tab = data.tab ?? lastTab;
+    lastTab = this.tab;
+    screen(this, 'Летопись', 'Home', { to: 'Home' });
+    // Что было прочитано до этого визита: «новое» отмечается точкой, затем вкладка считается прочитанной.
+    this.seen = new Set(seenLore());
+    const unseen = loreUnseen();
+    const w = 1040 / TABS.length;
+    const ty = CONTENT_TOP + 50;
+    TABS.forEach((t, i) => {
+      const on = t.id === this.tab;
+      const x = 20 + w * (i + 0.5);
+      const b = button(this, x, ty, w - 12, TOUCH, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label, () => {
+        if (!on) this.scene.restart({ tab: t.id } satisfies ChronicleData);
+      }, FS.body, { sound: 'ui_tab' });
+      b.container.setName(`chronicleTab_${t.id}`);
+      if (!on) cornerBadge(this, x, ty, w - 12, TOUCH, unseen[t.id]);
+    });
+    const keys = loreKeys()[this.tab];
+    this.readable = new Set(keys);
+    this.area = new ScrollArea(this, CONTENT_TOP + 170, CONTENT_BOTTOM + 10);
+    if (this.tab === 'world') this.world();
+    else if (this.tab === 'bestiary') this.bestiary();
+    else if (this.tab === 'items') this.items();
+    else this.heroes();
+    markLoreSeen(keys);
+  }
+
+  private summary(open: number, total: number, extra = '', label = 'Открыто'): void {
+    text(this, GAME_W / 2, CONTENT_TOP + 132, `${label} ${open} из ${total}${extra}`, FS.body, C.muted, OUTLINE).setName('chronicleSummary');
+  }
+
+  /** Красная точка «новое» у записи. */
+  private newDot(x: number, y: number, key: string): void {
+    if (this.seen.has(key) || !this.readable.has(key)) return;
+    this.area.add(this.add.circle(x, y, 16, TINT.badge).setStrokeStyle(4, 0xffffff));
+  }
+
+  // ---------- Мир ----------
+
+  private world(): void {
+    const list = worldEntries(session.save, CONTENT, LORE);
+    this.summary(list.filter((w) => w.open).length, list.length);
+    if (!list.length) {
+      emptyState(this, GAME_W / 2, CONTENT_TOP + 400, 'Летописец ещё не начал свои записи.');
+      return;
+    }
+    let y = 0;
+    for (const w of list) y = this.worldCard(w, y) + 20;
+    this.area.setContentHeight(y + 20);
+  }
+
+  private worldCard(w: WorldItem, top: number): number {
+    const a = this.area;
+    const objs: Phaser.GameObjects.Text[] = [];
+    let y = top + 36;
+    const line = (s: string, size: number, color: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}, gap = 12) => {
+      const t = text(this, LEFT, y, s, size, color, { align: 'left', wordWrap: { width: TEXT_W }, lineSpacing: 6, ...style }).setOrigin(0, 0);
+      objs.push(t);
+      y += t.height + gap;
+    };
+    const chNo = w.kind === 'chapter' ? CONTENT.chapters.findIndex((c) => c.id === w.id) + 1 : 0;
+    if (w.kind === 'chapter') line(`Глава ${chNo}${w.lore.episode ? ` · ${w.lore.episode}` : ''}`, FS.small, C.dim, {}, 6);
+    else line('Мир Мидгарда', FS.small, C.dim, {}, 6);
+    if (!w.open) {
+      line('???', FS.h3, C.disabled, { fontStyle: 'bold' });
+      line(
+        w.kind === 'chapter' ? `Запись откроется, когда вы дойдёте до главы ${chNo}.` : `Запись откроется после победы на этапе ${w.unlockLabel ?? '?'}.`,
+        FS.small,
+        C.muted,
+      );
+    } else {
+      const title = w.kind === 'chapter' ? w.lore.title : w.entry.title;
+      line(title, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }, w.kind === 'chapter' ? 4 : 12);
+      if (w.kind === 'chapter') line(w.lore.location, FS.small, C.info, { fontStyle: 'italic' });
+      line(w.kind === 'chapter' ? w.lore.text : w.entry.text, FS.body, C.text, {}, 0);
+    }
+    const h = y - top + 36;
+    const bg = a.add(card(this, GAME_W / 2, top + h / 2, 1040, h));
+    if (!w.open) bg.setAlpha(0.6);
+    for (const t of objs) a.add(t);
+    if (w.open) this.newDot(1030, top + 30, `world:${w.id}`);
+    return top + h;
+  }
+
+  // ---------- Бестиарий ----------
+
+  private bestiary(): void {
+    const list = bestiary(session.save, CONTENT);
+    this.summary(list.filter((m) => m.open).length, list.length);
+    const TILE_H = 390;
+    list.forEach((m, i) => this.monsterTile(m, colX(i % COLS), Math.floor(i / COLS) * (TILE_H + 12) + TILE_H / 2 + 6, TILE_H));
+    this.area.setContentHeight(Math.ceil(list.length / COLS) * (TILE_H + 12) + 20);
+  }
+
+  private monsterTile(m: BestiaryEntry, x: number, y: number, h: number): void {
+    const a = this.area;
+    const bg = a.add(card(this, x, y, TILE_W, h, m.open));
+    const pic = a.add(portrait(this, x, y - 60, portraitKey(m.unit.visual.sprite), 200));
+    const boss = m.unit.kind === 'boss';
+    if (m.open) pic.setTint(unitTint(m.unit.visual));
+    else pic.setTint(0x000000).setAlpha(0.75);
+    const lore = LORE.monsters[m.unitId];
+    const name = a.add(
+      text(this, x, y + 78, m.open ? m.unit.name : '???', FS.small, !m.open ? C.disabled : boss ? C.danger : C.text, {
+        fontStyle: 'bold',
+        ...OUTLINE,
+        wordWrap: { width: TILE_W - 30 },
+      }),
+    );
+    if (name.height > 80) ellipsize(name.setWordWrapWidth(null), TILE_W - 30);
+    const sub = !m.open ? `Этап ${m.stages[0]}` : lore ? lore.title : roleName(m.unit);
+    a.add(ellipsize(text(this, x, y + 140, sub, FS.caption, m.open ? C.muted : C.dim, { fontStyle: m.open && lore ? 'italic' : 'normal', ...OUTLINE }), TILE_W - 30));
+    if (m.open) this.newDot(x + TILE_W / 2 - 24, y - h / 2 + 24, `bestiary:${m.unitId}`);
+    pressable(this, bg, TILE_W, h, a.tap(() => {
+      if (m.open) monsterModal(this, m.unit, m.stages, { lock: a });
+      else toast(this, `Победите на этапе ${m.stages[0]}, чтобы открыть запись`);
+    }));
+  }
+
+  // ---------- Предметы ----------
+
+  private items(): void {
+    const list = itemEntries(session.save, GAME);
+    this.summary(list.filter((e) => e.open).length, list.length);
+    const ROW = 190;
+    list.forEach((e, i) => this.itemRow(e, ROW * i + ROW / 2, ROW));
+    this.area.setContentHeight(ROW * list.length + 20);
+  }
+
+  private itemRow(e: ItemEntry, y: number, rowH: number): void {
+    const a = this.area;
+    const def = e.item;
+    const bg = a.add(card(this, GAME_W / 2, y, 1040, rowH - 12));
+    const color = e.open ? RARITY_COLORS[def.rarity] : C.disabled;
+    const CELL = 120;
+    const cx = 40 + CELL / 2;
+    const tx = cx + CELL / 2 + 24;
+    const tw = 1040 - tx;
+    for (const o of itemCell(this, cx, y, CELL, def.slot, Phaser.Display.Color.HexStringToColor(color).color, def.id)) {
+      a.add(o);
+      if (!e.open) (o as Phaser.GameObjects.Image).setAlpha(0.35);
+    }
+    const legend = LORE.items[def.id];
+    if (!e.open) {
+      a.add(text(this, tx, y - 30, '???', FS.h3, C.disabled, { fontStyle: 'bold' }).setOrigin(0, 0.5));
+      a.add(text(this, tx, y + 26, `${SLOT_NAMES[def.slot]} · откроется в главе ${def.minChapter}`, FS.small, C.dim).setOrigin(0, 0.5));
+    } else {
+      a.add(ellipsize(text(this, tx, y - 52, def.name, FS.h3, color, { fontStyle: 'bold', ...OUTLINE, strokeThickness: 6 }).setOrigin(0, 0.5), tw));
+      a.add(ellipsize(text(this, tx, y - 6, `${RARITY_NAMES[def.rarity]} · ${SLOT_NAMES[def.slot]} · ${itemStatsText(def.stats)}`, FS.small, C.text, OUTLINE).setOrigin(0, 0.5), tw));
+      a.add(
+        ellipsize(
+          text(this, tx, y + 42, legend ?? (e.owned ? 'Есть у вас' : 'Легенда ещё не записана'), FS.small, legend ? C.title : C.dim, { fontStyle: legend ? 'italic' : 'normal', ...OUTLINE }).setOrigin(0, 0.5),
+          tw,
+        ),
+      );
+      this.newDot(1030, y - rowH / 2 + 30, `items:${def.id}`);
+    }
+    pressable(this, bg, 1040, rowH - 12, a.tap(() => {
+      if (e.open) itemModal(this, def, { lock: a });
+      else toast(this, `Такие вещи попадаются с главы ${def.minChapter}`);
+    }));
+  }
+
+  // ---------- Герои ----------
+
+  private heroes(): void {
+    const list = heroEntries(session.save, CONTENT);
+    this.summary(list.filter((h) => h.owned).length, list.length, ' · нажмите на героя', 'Получено');
+    const CW = 300;
+    const CH = Math.round(CW * 1.36);
+    list.forEach((h, i) => {
+      const x = colX(i % COLS);
+      const y = Math.floor(i / COLS) * (CH + 30) + CH / 2 + 16;
+      drawHeroCard(this, x, y, h.templateId, { w: CW, parent: this.area.content, greyed: h.owned ? false : 'Не получен', onTap: this.area.tap(() => this.heroModal(h)) });
+      if (h.owned && LORE.heroes[h.templateId]) this.newDot(x + CW / 2 - 10, y - CH / 2 + 10, `heroes:${h.templateId}`);
+    });
+    this.area.setContentHeight(Math.ceil(list.length / COLS) * (CH + 30) + 30);
+  }
+
+  private heroModal(h: HeroEntry): void {
+    const t = heroTemplate(GAME, h.templateId);
+    const l = LORE.heroes[h.templateId];
+    const blocks: LoreBlock[] = [{ text: t.bio, color: C.text }];
+    if (t.hook) blocks.push({ text: `«${t.hook}»`, italic: true, color: C.title });
+    if (h.owned && l) {
+      blocks.push({ text: 'История', bold: true, color: C.title, size: FS.h3, gap: 10 });
+      blocks.push({ text: l.story });
+      if (l.quirks.length) {
+        blocks.push({ text: 'Черты', bold: true, color: C.title, size: FS.h3, gap: 10 });
+        blocks.push({ text: l.quirks.map((q) => `• ${q}`).join('\n'), color: C.muted });
+      }
+    } else if (!h.owned) blocks.push({ text: 'Полная история откроется, когда герой присоединится к отряду (Таверна, сюжет, «Контракт героя»).', color: C.dim, size: FS.small, italic: true });
+    const job = LORE.jobs[t.job];
+    if (job) {
+      blocks.push({ text: `Гильдия: ${jobTitle(GAME, t.job, t.gender)}`, bold: true, color: C.title, size: FS.h3, gap: 10 });
+      blocks.push({ text: job, color: C.muted, size: FS.small });
+    }
+    loreModal(this, {
+      title: t.name,
+      subtitle: `${jobTitle(GAME, t.job, t.gender)} · гильдия ${GUILD_NAMES[t.line] ?? '—'}${h.owned ? '' : ' · не получен'}`,
+      art: (add, x, y) => add(drawHeroCard(this, x, y, h.templateId, { w: 180, showPips: false, greyed: h.owned ? false : 'Не получен' })),
+      blocks,
+      lock: this.area,
+    });
+  }
+}
+

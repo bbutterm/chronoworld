@@ -30,7 +30,8 @@ import { diffText, equipBlocker, formatNumber, inventoryRows, itemStatsText, RAR
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, popIn, screen } from '../screen';
 import { commit, session } from '../session';
-import { button, ellipsize, panel, ScrollArea, text, toast } from '../ui';
+import { button, ellipsize, panel, pressable, ScrollArea, text, toast } from '../ui';
+import { itemLegend, itemModal } from '../loreView';
 import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
 import { itemCell, oreIcon } from '../itemIcons';
 import { burst, staggerIn } from '../juice';
@@ -173,6 +174,7 @@ export class InventoryScene extends Phaser.Scene {
       itemCell(this, CELL_X, top + 110, CELL, slot, Phaser.Display.Color.HexStringToColor(RARITY_COLORS[cur.def.rarity]).color, cur.instance.itemId, lvl);
       ellipsize(text(this, TEXT_X, top + 100, refinedName(cur.def, lvl), FS.h2, RARITY_COLORS[cur.def.rarity], { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5).setName('curItemName'), TEXT_W);
       ellipsize(text(this, TEXT_X, top + 155, `${RARITY_NAMES[cur.def.rarity]} · ${itemStatsText(statsOf(cur.def, cur.instance))}`, FS.small, C.ink).setOrigin(0, 0.5), TEXT_W);
+      pressable(this, this.add.zone(CELL_X, top + 110, CELL + 20, CELL + 20), CELL + 20, CELL + 20, () => itemModal(this, cur.def, { refine: lvl }));
       if (hasRefine) this.refineRow(hero, slot, cur.instance, cur.def, top);
       button(this, 880, top + 100, 250, 110, 'k:buttonLong_beige', 'Снять', () => {
         commit(actUnequip(session.save, cur.instance.id));
@@ -416,10 +418,16 @@ export class InventoryScene extends Phaser.Scene {
     const layer = this.add.container(0, 0).setDepth(9000).setName('wearPicker');
     const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
     const rowH = 130;
-    const h = 330 + heroes.length * rowH;
+    // Легенда предмета (Летопись) — курсивом под заголовком.
+    const legendText = itemLegend(def.id);
+    const legend = legendText ? text(this, GAME_W / 2, 0, legendText, FS.small, C.muted, { fontStyle: 'italic', wordWrap: { width: 840 } }) : null;
+    if (legend && legend.height > 130) ellipsize(legend.setWordWrapWidth(null), 840);
+    const extra = legend ? legend.height + 24 : 0;
+    const h = 330 + extra + heroes.length * rowH;
     const top = GAME_H / 2 - h / 2;
     const box = panel(this, GAME_W / 2, GAME_H / 2, 940, h, 'ui_panel').setInteractive();
     const head = ellipsize(text(this, GAME_W / 2, top + 80, `Кому надеть «${def.name}»?`, FS.h2, C.title, { fontStyle: 'bold', ...OUTLINE }), 860);
+    legend?.setY(top + 120 + legend.height / 2);
     // Список под окном не прокручивается и не нажимается, пока окно открыто.
     if (this.area) this.area.locked = true;
     const close = () => {
@@ -428,8 +436,9 @@ export class InventoryScene extends Phaser.Scene {
     };
     shade.on('pointerup', close);
     layer.add([shade, box, head]);
+    if (legend) layer.add(legend);
     heroes.forEach((hero, i) => {
-      const y = top + 190 + i * rowH;
+      const y = top + 190 + extra + i * rowH;
       const blocker = equipBlocker(row, hero, GAME);
       const cur = heroSlots(save, hero.id, GAME)[def.slot];
       const diff = statDiff(cur ? statsOf(cur.def, cur.instance) : undefined, statsOf(def, row.instance));
@@ -684,5 +693,11 @@ export class InventoryScene extends Phaser.Scene {
       ),
     );
     a.add(ellipsize(text(this, TEXT_X, y + 44, note, FS.small, noteColor, { stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), textW));
+    // Нажатие на иконку и название — окно предмета: статы, кому подходит, легенда из Летописи (data/lore/items.json).
+    if (def) {
+      const zw = TEXT_X + textW - 30;
+      const zone = a.add(this.add.zone(30 + zw / 2, y, zw, ROW_H - 12));
+      pressable(this, zone, zw, ROW_H - 12, a.tap(() => itemModal(this, def, { refine: lvl, lock: a })));
+    }
   }
 }

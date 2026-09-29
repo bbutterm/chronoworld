@@ -1,0 +1,40 @@
+{
+  "title": "Летопись: истории героев (id карточки → история и черты)",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "entries": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "story": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quirks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "story",
+          "quirks"
+        ]
+      }
+    }
+  }
+}
