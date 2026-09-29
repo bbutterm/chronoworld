@@ -23,6 +23,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, lintLevelBands, maxLevelOf, parseLore, rarityIndex, validateLore, recommendedPower, simulateBattle, validateHeroes, validatePageTexts } from '../src/core';
+import { MonsterSoundsSchema, monsterSoundFiles } from '../src/game/monsterSounds';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
@@ -184,6 +185,24 @@ if (content) {
         }
       }
     }
+  }
+}
+
+// 12. Звуки монстров RO (data/monster_sounds.json → assets/audio/mon_<имя>.ogg|m4a, tools/ro_audio.py): схема и файлы — ✗,
+//     лист спрайта, которого нет ни в реестре, ни в сборке листов RO (raw/ro-build/sprites.fragment.json), — ⚠.
+{
+  const raw = readJson<unknown>('data/monster_sounds.json');
+  const parsed = raw === undefined ? null : MonsterSoundsSchema.safeParse(raw);
+  if (parsed && !parsed.success) errors.push(`data/monster_sounds.json: ${parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`);
+  else if (parsed?.success) {
+    for (const f of monsterSoundFiles(parsed.data))
+      for (const ext of ['ogg', 'm4a'])
+        if (!existsSync(join(ROOT, 'assets/audio', `${f}.${ext}`))) errors.push(`data/monster_sounds.json: нет assets/audio/${f}.${ext} — python3 tools/ro_audio.py`);
+    const known = new Set([
+      ...(readJson<{ sprites: { id: string }[] }>('assets/sprites/sprites.json')?.sprites ?? []).map((s) => s.id),
+      ...(readJson<{ sprites: { id: string }[] }>('raw/ro-build/sprites.fragment.json')?.sprites ?? []).map((s) => s.id),
+    ]);
+    for (const id of Object.keys(parsed.data.sprites)) if (!known.has(id)) warnings.push(`data/monster_sounds.json: листа «${id}» нет ни в assets/sprites/sprites.json, ни в raw/ro-build — звук не зазвучит`);
   }
 }
 
