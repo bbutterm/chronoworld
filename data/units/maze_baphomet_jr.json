@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "maze_baphomet_jr",
+  "name": "Бафомет-младший",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 1150,
+    "atk": 62,
+    "def": 14,
+    "spd": 110
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "maze_baphomet_jr_leap",
+    "actives": [],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "baphomet_jr",
+    "hitFx": "fx_hit"
+  }
+}

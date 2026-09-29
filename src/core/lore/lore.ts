@@ -9,17 +9,19 @@ import type { HuntConfig } from '../hunt/schema';
 import type { TowerConfig } from '../tower/schema';
 import { extraBestiaryUnits } from './chronicle';
 import type { Content } from '../types';
-import { HeroesLoreSchema, ItemsLoreSchema, JobsLoreSchema, LINE_KINDS, LinesLoreSchema, LORE_LIMITS, MonstersLoreSchema, WorldLoreSchema, type LineKind, type Lore } from './schema';
+import { heroStoryLevels } from './heroStories';
+import { HeroesLoreSchema, HeroStoriesLoreSchema, ItemsLoreSchema, JobsLoreSchema, LINE_KINDS, LinesLoreSchema, LORE_LIMITS, MonstersLoreSchema, WorldLoreSchema, type LineKind, type Lore } from './schema';
 
 export const emptyLines = (): Lore['lines'] => Object.fromEntries(Object.keys(LINE_KINDS).map((k) => [k, []])) as unknown as Record<LineKind, string[]>;
 
-export const emptyLore = (): Lore => ({ monsters: {}, items: {}, heroes: {}, jobs: {}, chapters: {}, world: [], lines: emptyLines() });
+export const emptyLore = (): Lore => ({ monsters: {}, items: {}, heroes: {}, heroStories: {}, jobs: {}, chapters: {}, world: [], lines: emptyLines() });
 
 /** Файлы data/lore и их схемы. */
 export const LORE_FILES = {
   'monsters.json': MonstersLoreSchema,
   'items.json': ItemsLoreSchema,
   'heroes.json': HeroesLoreSchema,
+  'hero_stories.json': HeroStoriesLoreSchema,
   'jobs.json': JobsLoreSchema,
   'world.json': WorldLoreSchema,
   'lines.json': LinesLoreSchema,
@@ -65,6 +67,8 @@ export function parseLore(files: readonly RawFile[]): { lore: Lore; problems: st
     if (name === 'monsters.json') lore.monsters = d.entries as Lore['monsters'];
     else if (name === 'items.json') lore.items = d.entries as Lore['items'];
     else if (name === 'heroes.json') lore.heroes = d.entries as Lore['heroes'];
+    else if (name === 'hero_stories.json')
+      lore.heroStories = Object.fromEntries(Object.entries(d.entries as Lore['heroStories']).map(([id, list]) => [id, [...list].sort((a, b) => a.level - b.level)]));
     else if (name === 'jobs.json') lore.jobs = d.entries as Lore['jobs'];
     else if (name === 'lines.json') {
       for (const k of Object.keys(LINE_KINDS) as LineKind[]) lore.lines[k] = (d[k] as string[] | undefined) ?? [];
@@ -83,6 +87,8 @@ export interface LoreCheckContext {
   /** Башня и Охота: их монстры тоже в бестиарии (без них такие записи — ⚠ «вне кампании»). */
   tower?: TowerConfig;
   hunt?: HuntConfig;
+  /** Редкости (предел уровня) — пороги кусочков истории героя; нет — предел 100. */
+  cards?: { rarities: readonly { id: string; maxLevel: number }[] };
 }
 
 /**
@@ -126,6 +132,28 @@ export function validateLore(lore: Lore, ctx: LoreCheckContext): { errors: strin
     long(`${at}.story`, h.story, LORE_LIMITS.text);
     if (h.quirks.length > LORE_LIMITS.quirks) warnings.push(`${at}.quirks: ${h.quirks.length} черт — больше ${LORE_LIMITS.quirks}`);
     h.quirks.forEach((q, i) => long(`${at}.quirks.${i}`, q, LORE_LIMITS.quirk));
+  }
+  // Истории героев кусочками: файл есть — у каждого героя все пороги (10, 20, … до предела его редкости, не выше 100).
+  if (Object.keys(lore.heroStories).length) {
+    for (const id of Object.keys(lore.heroStories)) {
+      if (!ctx.content.heroes[id]) errors.push(`data/lore/hero_stories.json: ${id} — нет карточки героя в data/heroes`);
+    }
+    for (const t of Object.values(ctx.content.heroes)) {
+      const at = `data/lore/hero_stories.json: ${t.id}`;
+      const cap = ctx.cards?.rarities.find((r) => r.id === t.maxRarity)?.maxLevel ?? 100;
+      const want = heroStoryLevels(cap);
+      const list = lore.heroStories[t.id] ?? [];
+      const have = list.map((p) => p.level);
+      const missing = want.filter((l) => !have.includes(l));
+      const extra = have.filter((l) => !want.includes(l));
+      const dup = have.filter((l, i) => have.indexOf(l) !== i);
+      if (missing.length) errors.push(`${at} — нет кусочков истории для уровней ${missing.join(', ')}`);
+      if (extra.length) errors.push(`${at} — лишние пороги ${extra.join(', ')} (ожидаются ${want.join(', ')})`);
+      if (dup.length) errors.push(`${at} — порог повторяется: ${dup.join(', ')}`);
+      const titles = list.map((p) => p.title);
+      const dt = titles.find((x, i) => titles.indexOf(x) !== i);
+      if (dt) warnings.push(`${at} — заголовок повторяется: «${dt}»`);
+    }
   }
   for (const [id, s] of Object.entries(lore.jobs)) {
     const at = `data/lore/jobs.json: ${id}`;

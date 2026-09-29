@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME } from '../content';
+import { haptic } from '../haptics';
 import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
@@ -42,6 +43,8 @@ export class ChapterDoneScene extends Phaser.Scene {
   create(data: ChapterDoneData): void {
     const save = session.save;
     const sum = chapterSummary(save, data.chapterId, GAME);
+    // Глава пройдена — открылась следующая.
+    haptic('unlock');
     const cx = GAME_W / 2;
     // Фон — карта пройденной главы (луг, топь, склеп), притемнённая.
     setThemeBackground(this.add.image(cx, GAME_H / 2, 'skin_bg_forest'), 'map', themeOfChapter(data.chapterId));

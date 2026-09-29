@@ -174,14 +174,14 @@ export function nextLevelDelta(hero: HeroState, ctx: GameContext): Record<StatKe
 }
 
 /**
- * Подпись «чего не хватает» под «Улучшить»: «до апа не хватает 1 234 опыта» / «… 56 золота»; можно — null.
+ * Подпись «чего не хватает» под «Улучшить»: «до уровня не хватает 1 234 опыта» / «… 56 золота»; можно — null.
  * На пределе — «Предел редкости — вознесите героя».
  */
 export function levelShortage(info: LevelUpInfo): string | null {
   if (info.blocker === 'max_level') return 'Предел редкости — вознесите героя';
   if (!info.cost || info.canLevel) return null;
-  if (info.blocker === 'not_enough_exp') return `до апа не хватает ${formatNumber(info.cost.exp - info.pool)} опыта`;
-  if (info.blocker === 'not_enough_gold') return `до апа не хватает ${formatNumber(info.cost.gold - info.gold)} золота`;
+  if (info.blocker === 'not_enough_exp') return `до уровня не хватает ${formatNumber(info.cost.exp - info.pool)} опыта`;
+  if (info.blocker === 'not_enough_gold') return `до уровня не хватает ${formatNumber(info.cost.gold - info.gold)} золота`;
   return null;
 }
 

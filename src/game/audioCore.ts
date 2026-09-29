@@ -173,9 +173,27 @@ export class MuteReasons {
 
 // ---------- музыка по экрану ----------
 
-/** Звуковая тема главы (у каждой темы фона — своя: музыка карты, музыка боя, фон). */
-export type Theme = 'meadow' | 'swamp' | 'crypt' | 'desert' | 'grove' | 'shipwreck' | 'niflheim';
-export const THEMES: readonly Theme[] = ['meadow', 'swamp', 'crypt', 'desert', 'grove', 'shipwreck', 'niflheim'];
+/**
+ * Звуковая тема главы (как тема фона, CHAPTER_THEMES): у каждой — своя музыка карты и боя (MUSIC map_<тема>, battle_<тема>).
+ * Фон (amb_*) — свой у семи старых тем; новые слоты берут подходящий: канализация — топь (вода, капли), орки — луг
+ * (ветер, птицы), часовая башня — склеп (гул), лабиринт — ночной лес. В RO своих фоновых звуков у карт нет.
+ */
+export type Theme = 'meadow' | 'sewer' | 'orc' | 'desert' | 'grove' | 'shipwreck' | 'clocktower' | 'crypt' | 'labyrinth' | 'niflheim' | 'swamp';
+export const THEMES: readonly Theme[] = ['meadow', 'sewer', 'orc', 'desert', 'grove', 'shipwreck', 'clocktower', 'crypt', 'labyrinth', 'niflheim', 'swamp'];
+
+export const THEME_AMBIENCE: Record<Theme, AmbienceId> = {
+  meadow: 'amb_meadow',
+  sewer: 'amb_swamp',
+  orc: 'amb_meadow',
+  desert: 'amb_desert',
+  grove: 'amb_grove',
+  shipwreck: 'amb_shipwreck',
+  clocktower: 'amb_crypt',
+  crypt: 'amb_crypt',
+  labyrinth: 'amb_grove',
+  niflheim: 'amb_niflheim',
+  swamp: 'amb_swamp',
+};
 
 /** Что играет на экране: музыка (null — оставить текущую) и фон (null — без фона, undefined — оставить). */
 export interface SceneSound {
@@ -187,7 +205,7 @@ export interface SceneSound {
  * Музыка экрана по ключу сцены. theme — тема главы/яруса (для кампании и боя), boss — бой с боссом.
  * Экраны меню (герои, задания, инвентарь…) не меняют музыку: играет то, что было (обычно тема лагеря).
  */
-export function sceneSound(key: string, o: { theme?: Theme; boss?: boolean } = {}): SceneSound {
+export function sceneSound(key: string, o: { theme?: Theme; boss?: boolean; tower?: boolean } = {}): SceneSound {
   const theme = o.theme ?? 'meadow';
   switch (key) {
     case 'Home':
@@ -199,9 +217,12 @@ export function sceneSound(key: string, o: { theme?: Theme; boss?: boolean } = {
     case 'Stage':
       return { music: `map_${theme}`, ambience: null };
     case 'Battle':
-      return { music: o.boss ? 'boss' : `battle_${theme}`, ambience: `amb_${theme}` };
+      // Башня: своя тема во всех боях (фон — по ярусу); босс главы — общая тема босса.
+      return { music: o.tower ? 'battle_tower' : o.boss ? 'boss' : `battle_${theme}`, ambience: THEME_AMBIENCE[theme] };
     case 'Tower':
-      return { music: 'map_crypt', ambience: null };
+      return { music: 'tower', ambience: null };
+    case 'Title':
+      return { music: 'title', ambience: null };
     case 'Result':
       // Итоги: боевая музыка стихает под джингл победы/поражения, фон боя уходит.
       return { music: null, ambience: null };

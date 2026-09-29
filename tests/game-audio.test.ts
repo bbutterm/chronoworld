@@ -18,12 +18,16 @@ import {
   lineChimes,
   sceneSound,
   SfxLimiter,
+  THEME_AMBIENCE,
   THEMES,
   volumeLabel,
 } from '../src/game/audioCore';
-import { hasRecipe, musicJob, synthAmbience, synthMusic, synthSfx } from '../src/game/audioSynth';
-import { battleSound, weaponOf } from '../src/game/battleAudio';
-import { simulateBattle, type UnitDef } from '../src/core';
+import { hasRecipe, musicJob, musicSpecOf, synthAmbience, synthMusic, synthSfx } from '../src/game/audioSynth';
+import { battleSound, monsterSoundsOf, swingOf, weaponOf } from '../src/game/battleAudio';
+import { MonsterSoundsSchema, monsterSoundFile, monsterSoundFiles } from '../src/game/monsterSounds';
+import monsterSoundsJson from '../data/monster_sounds.json';
+import { existsSync } from 'node:fs';
+import { CHAPTER_THEMES, simulateBattle, type UnitDef } from '../src/core';
 import { CONTENT, GAME } from '../src/game/content';
 
 function memStore() {
@@ -162,20 +166,38 @@ describe('звук: музыка по экранам', () => {
 });
 
 describe('звук: темы глав 4–7', () => {
-  it('у каждой темы свои музыка карты, боя и фон (главы 4–7 больше не звучат как 1–3)', () => {
+  it('у каждой темы своя музыка карты и боя; фон — свой у старых тем, у новых слотов — подходящий из имеющихся', () => {
     const seen = new Set<string>();
     for (const theme of THEMES) {
       const map = sceneSound('Campaign', { theme }).music!;
       const battle = sceneSound('Battle', { theme });
       expect(map).toBe(`map_${theme}`);
-      expect(battle).toEqual({ music: `battle_${theme}`, ambience: `amb_${theme}` });
-      for (const id of [map, battle.music, battle.ambience]) {
+      expect(battle).toEqual({ music: `battle_${theme}`, ambience: THEME_AMBIENCE[theme] });
+      for (const id of [map, battle.music]) {
         expect(seen.has(id!), id!).toBe(false);
         seen.add(id!);
       }
       // Босс — общая тема во всех главах, фон главы остаётся.
-      expect(sceneSound('Battle', { theme, boss: true })).toEqual({ music: 'boss', ambience: `amb_${theme}` });
+      expect(sceneSound('Battle', { theme, boss: true })).toEqual({ music: 'boss', ambience: THEME_AMBIENCE[theme] });
+      // Башня — своя тема во всех боях, фон — по ярусу.
+      expect(sceneSound('Battle', { theme, tower: true })).toEqual({ music: 'battle_tower', ambience: THEME_AMBIENCE[theme] });
     }
+    // Семь старых тем — у каждой свой фон.
+    const own = ['meadow', 'swamp', 'crypt', 'desert', 'grove', 'shipwreck', 'niflheim'] as const;
+    expect(new Set(own.map((t) => THEME_AMBIENCE[t])).size).toBe(own.length);
+    for (const t of own) expect(THEME_AMBIENCE[t]).toBe(`amb_${t}`);
+    // Темы звука — ровно темы глав (фон и звук едут вместе).
+    expect([...THEMES].sort()).toEqual([...CHAPTER_THEMES].sort());
+    expect(sceneSound('Tower').music).toBe('tower');
+  });
+
+  it('у каждой темы главы и экрана — трек RO в каталоге (заказ владельцу, docs/design/audio.md)', () => {
+    for (const theme of THEMES.filter((t) => t !== 'swamp'))
+      for (const kind of ['map', 'battle'] as const) expect((MUSIC[`${kind}_${theme}` as keyof typeof MUSIC] as { ro?: string }).ro, `${kind}_${theme}`).toMatch(/^\d\d\.mp3/);
+    for (const id of ['title', 'home', 'tavern', 'tower', 'battle_tower', 'boss'] as const) expect((MUSIC[id] as { ro?: string }).ro, id).toMatch(/^\d\d\.mp3/);
+    // Карта и бой канализации и лабиринта — один трек RO: бой без своего файла берёт файл карты.
+    expect(MUSIC.battle_sewer.files).toContain('music_map_sewer');
+    expect(MUSIC.battle_labyrinth.files).toContain('music_map_labyrinth');
   });
 
   it('у новых дорожек есть описание и ориентир из RO, файл владельца — своя дорожка, затем общая', () => {
@@ -255,7 +277,9 @@ describe('звук: заглушки (синтез)', () => {
   });
 
   it('вся музыка: петля 10–35 с, шов без щелчка, не тихая и без перегруза', () => {
-    for (const id of MUSIC_IDS) {
+    // Дорожки без своей заглушки звучат как прежняя тема слота (musicSpecOf) — рендерим каждую заглушку один раз.
+    for (const id of MUSIC_IDS) expect(MUSIC_IDS).toContain(musicSpecOf(id));
+    for (const id of new Set(MUSIC_IDS.map(musicSpecOf))) {
       const { data, rate } = synthMusic(id);
       const sec = data.length / rate;
       expect(sec, id).toBeGreaterThan(10);
@@ -271,7 +295,7 @@ describe('звук: заглушки (синтез)', () => {
       // Шов: скачок на стыке конец → начало не больше самого резкого перепада внутри петли.
       expect(Math.abs(data[0] - data[data.length - 1]), id).toBeLessThanOrEqual(jump + 1e-6);
     }
-  });
+  }, 30_000); // лимит времени вызова (синтез 17 дорожек под нагрузкой контейнера), не порог качества
 
   it('фоновые звуки глав — тихие петли', () => {
     for (const id of AMBIENCE_IDS) {
@@ -298,6 +322,23 @@ describe('звук: бой', () => {
     expect(weaponOf(def('job_priest', 'hero'))).toBe('hit_blunt');
     expect(weaponOf(def('poring', 'monster'))).toBe('hit_claw');
     expect(weaponOf(undefined)).toBe('hit_blunt');
+  });
+
+  it('взмах по оружию героя', () => {
+    expect(swingOf('hit_sword')).toBe('swing');
+    expect(swingOf('hit_dagger')).toBe('swing_dagger');
+    expect(swingOf('hit_blunt')).toBe('swing_blunt');
+    expect(SFX_IDS).toEqual(expect.arrayContaining(['swing_dagger', 'swing_blunt', 'refine_success', 'refine_fail']));
+  });
+
+  it('свои звуки монстров RO: таблица по листу спрайта, файлы собраны, у героев своих звуков нет', () => {
+    const table = MonsterSoundsSchema.parse(monsterSoundsJson);
+    for (const f of monsterSoundFiles(table)) for (const ext of ['ogg', 'm4a']) expect(existsSync(`assets/audio/${f}.${ext}`), `${f}.${ext}`).toBe(true);
+    const base = Object.values(CONTENT.units).find((u) => u.kind === 'monster')!;
+    const poring = { ...base, visual: { ...base.visual, sprite: 'fast' } };
+    expect(monsterSoundsOf(poring)?.death?.map(monsterSoundFile)).toEqual(['mon_poring_die']);
+    expect(monsterSoundsOf({ ...poring, kind: 'hero' })).toBeUndefined();
+    expect(monsterSoundsOf({ ...base, visual: { ...base.visual, sprite: 'no_such_sheet' } })).toBeUndefined();
   });
 
   it('весь лог боя проигрывается без звука (нет Web Audio) и без ошибок', () => {

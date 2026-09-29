@@ -16,8 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "banshee",
-    "tint": "#d9c79a",
+    "sprite": "rideword",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

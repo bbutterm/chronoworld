@@ -12,6 +12,8 @@ export interface SpeakerView {
   sprite: string | null;
   /** Пол говорящего героя (из карточки или по имени сюжетной карточки) — для бюста; не герой — нет. */
   gender?: Gender;
+  /** Крупная иллюстрация спикера (assets/ui/illust/<id>.png), если задана в data/story → speakers. */
+  illust?: string;
 }
 
 /** hero1..heroN → карточка сюжетного героя N-го по порядку сюжета (progression.heroes: start, затем recruits), если она у игрока есть. */
@@ -52,6 +54,7 @@ export function speakerView(story: StoryDef | undefined, key: string, save: Save
     name: hero ? heroName(hero, ctx) : (sp?.name ?? key),
     sprite: sp ? portraitSprite(sp.portrait, ctx, hero, gender) : hero ? heroSprite(hero, ctx) : null,
     ...(gender ? { gender } : {}),
+    ...(sp?.illust ? { illust: sp.illust } : {}),
   };
 }
 

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { actSummon, addHeroCard, grantTavernWelcome, heroCard, needsBranch, rarityDef, summonPool, summonStatus, type HeroState, type SummonResult, type SummonStatus } from '../../core';
 import { SUMMON_REVEAL } from '../audioCatalog';
 import { sfx, summonSound } from '../audio';
+import { haptic } from '../haptics';
 import { screenBackground } from '../backdrops';
 import { GAME } from '../content';
 import { describeEvents, formatNumber, heroSprite, stageNo } from '../flow';
@@ -37,6 +38,7 @@ import { markTavernSeen } from '../tavernEntry';
 import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
 import { button, ellipsize, panel, progressBar, text, toast, tutorialHint } from '../ui';
 import { hintDone, markHint } from '../hints';
+import { roIconImage } from '../itemIcons';
 
 /** Цвет редкости (#rrggbb) → число для tint и заливок. */
 const colorOf = (hex: string): number => Phaser.Display.Color.HexStringToColor(hex).color;
@@ -63,6 +65,9 @@ const TABLE_Y = 1000;
 /** Откуда вылетают карты (колода у края стола). */
 const DECK = { x: GAME_W / 2, y: 1720 };
 const DEPTH = 5000;
+
+/** Вибрация переворота карты: фиолетовая и выше — тяжёлый удар, остальные — лёгкий. */
+const flipHaptic = (r: Parameters<typeof tensionMs>[0]) => haptic(tensionMs(r) >= tensionMs('purple') ? 'cardRare' : 'cardFlip');
 /** Строки прогресса призыва (гарант, первый ×10) — плашка обучения их не закрывает (MT-07). */
 const TAVERN_INFO = ['До синей', 'До фиолетовой', 'Первый призыв', 'Шансы', 'Гарант'];
 
@@ -164,8 +169,9 @@ export class TavernScene extends Phaser.Scene {
   private topRow(st: SummonStatus): void {
     const y = CONTENT_TOP + 50;
     // Свитки призыва — «таблетка» как у валюты в шапке.
-    const pill = this.add.container(170, y, [panel(this, 0, 0, 260, 76, 'k:buttonLong_beige'), this.add.image(-88, 0, skinIcon('scroll')).setDisplaySize(52, 52).setTint(SKIN_TINT.gold)]);
-    pill.add(text(this, 12, -2, `Свитки: ${formatNumber(st.scrolls)}`, FS.body, C.title, { fontStyle: 'bold' }));
+    // Значок — слева, подпись — сразу правее него (раньше центрированная подпись заезжала на значок).
+    const pill = this.add.container(180, y, [panel(this, 0, 0, 290, 76, 'k:buttonLong_beige'), roIconImage(this, -104, 0, 'scrolls', 52) ?? this.add.image(-104, 0, skinIcon('scroll')).setDisplaySize(52, 52).setTint(SKIN_TINT.gold)]);
+    pill.add(ellipsize(text(this, -68, -2, `Свитки: ${formatNumber(st.scrolls)}`, FS.body, C.title, { fontStyle: 'bold' }).setOrigin(0, 0.5), 200));
     pill.setName('scrollsPill');
     text(this, 540, y, `Призывов: ${formatNumber(st.total)}`, FS.small, C.muted, OUTLINE);
     button(this, 910, y, 240, 90, 'ui_btn_secondary', 'Шансы', () => this.openRates(), FS.h3, { sound: null });
@@ -179,8 +185,11 @@ export class TavernScene extends Phaser.Scene {
       const b = button(this, 820, gy, 330, 120, 'ui_btn_primary', 'Забрать подарок', () => this.claimWelcome({ x: 820, y: gy }), FS.h3);
       pulse(this, b.container);
     } else {
-      text(this, GAME_W / 2, gy - 20, 'Таверна «Два колокола»', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 });
-      text(this, GAME_W / 2, gy + 45, 'Наёмники ищут работу — кто сядет за ваш стол?', FS.small, C.muted, OUTLINE);
+      // Тёмная подложка: вывеска читается поверх бутылок на полках фона.
+      // Полки с бутылками рисуются позже — подложка и вывеска поверх них (глубина).
+      this.add.graphics().fillStyle(0x120b06, 0.7).fillRoundedRect(GAME_W / 2 - 470, gy - 70, 940, 150, 28).setDepth(2);
+      text(this, GAME_W / 2, gy - 20, 'Таверна «Два колокола»', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 }).setDepth(3);
+      text(this, GAME_W / 2, gy + 45, 'Наёмники ищут работу — кто сядет за ваш стол?', FS.small, C.muted, OUTLINE).setDepth(3);
     }
   }
 
@@ -383,7 +392,10 @@ export class TavernScene extends Phaser.Scene {
         // Уменьшить анимацию: карты сразу лицом вверх, один звук лучшей карты, итог.
         for (const cv of state.cards) this.showFace(state, cv, false);
         const best = bestResult(results);
-        if (best) sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
+        if (best) {
+          sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
+          flipHaptic(best.rarity);
+        }
         this.finish(state);
         return;
       }
@@ -482,6 +494,7 @@ export class TavernScene extends Phaser.Scene {
       this.time.delayedCall(wait, () => {
         if (this.reveal !== state || !root.scene || cv.flipped) return resolve();
         if (!tense) sfx(SUMMON_REVEAL[SOUND_RARITY[rarity]]);
+        flipHaptic(rarity);
         this.tweens.add({
           targets: root,
           scaleX: 0,
@@ -659,7 +672,10 @@ export class TavernScene extends Phaser.Scene {
       if (!cv.flipped) this.showFace(state, cv, false);
     }
     const best = bestResult(state.results);
-    if (best) sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
+    if (best) {
+      sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
+      flipHaptic(best.rarity);
+    }
     this.finish(state);
   }
 

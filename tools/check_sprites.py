@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Validate native-resolution v2 RO sheets; --source-cache adds pixel-perfect source proof."""
 from __future__ import annotations
-import argparse,json,sys
+import argparse,json,subprocess,sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
 from build_sprites_v2 import FIRST_HEROES,STORY_HEROES,CARD_HEROES
+import sprites_manifest
 
 ROOT=Path(__file__).resolve().parents[1]
 DEFAULT=ROOT/'assets/sprites/sprites.json'
@@ -14,7 +15,12 @@ EXPECTED={
  'monster':('idle','walk','attack','hurt','death'),
   'boss':('idle','walk','attack','hurt','death'),
  'monster_xl':('idle','walk','attack','hurt','death'),
+ 'boss_xl':('idle','walk','attack','hurt','death'),
+ 'boss_xxl':('idle','walk','attack','hurt','death'),
+ # story NPCs (speaker portraits): rows idle south, idle east, walk south, walk east; no battle anims, no source proof
+ 'npc':('idle','idle_e','walk_s','walk'),
 }
+NO_PROOF={'npc'}
 REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first','acolyte','thief',
           'knight_m','crusader_m','hunter_m','hunter_f','bard_m','dancer_f',
           'wizard_f','sage_f','assassin_m','rogue_m','rogue_f','priest_f',
@@ -27,12 +33,47 @@ REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first',
           'mummy','sandman','marduk','scorpion','verit','isis',
           'bongun','munak','horong','smokie','nine_tail','sohee',
           'pirate_skel','kukre','marse','swordfish','hydra','obeaune',
-          'dullahan','gibbet','banshee','bloody_murderer','loli_ruri','quve'}
+          'dullahan','gibbet','banshee','bloody_murderer','loli_ruri','quve',
+          # scRO client extraction (raw/ro-build, docs/RO_SCRO_IMPORT.md): chapters 1-3, 7, 8, 10
+          'marin','pupa','thief_bug_male','thief_bug_female','thief_bug','thief_bug_egg','plankton','tarou','familiar',
+          'orc_lord','orc_warrior','high_orc','orc_archer','orc_lady','orc_skeleton','orc_zombie','steel_chonchon',
+          'ancient_mummy','owl_duke','clock','rideword','punk','elder','evil_druid','ghoul','eclipse','vocal','elder_willow',
+          'lord_of_death','bloody_knight','owl_baron','alarm','abysmal_knight','clock_tower_manager',
+          # chapter 9 (Labyrinth Forest): registered ahead of its units
+          'baphomet_jr','ghostring','vagabond_wolf','hunter_fly','side_winder','mantis','stem_worm','killer_mantis','deviruchi',
+          # story NPC speakers (data/story portrait "npc_<name>")
+          'npc_kafra'}
 REQUIRED.update(FIRST_HEROES+STORY_HEROES+CARD_HEROES)
 GRID={'hero':([224,192],[104,144],8),'monster':([240,224],[100,120],8),
-      'boss':([256,256],[112,216],8),'monster_xl':([272,330],[167,280],6)}
+      'boss':([256,256],[112,216],8),'monster_xl':([272,330],[167,280],6),
+      # boss_xl: Lord of Death, Bloody Knight, Owl Baron, Alarm; boss_xxl: Abysmal Knight, Clock Tower Manager
+      # (native x1 frames wider than monster_xl; 6 columns keep the sheet <= 2048)
+      'boss_xl':([296,296],[96,218],6),'boss_xxl':([340,376],[170,300],6),
+      'npc':([240,224],[100,120],8)}
 EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
             'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}
+
+BUDGET=3_000_000
+
+def used_files():
+ """Files the build copies to dist (scripts/lib/used-assets.ts); None when node/tsx is unavailable."""
+ tsx=ROOT/'node_modules/.bin/tsx'
+ if not tsx.is_file():return None
+ code="import {collectUsedAssets} from './scripts/lib/used-assets.ts';console.log(JSON.stringify(collectUsedAssets(process.cwd()).files))"
+ try:out=subprocess.run([str(tsx),'-e',code],cwd=ROOT,check=True,capture_output=True,text=True).stdout
+ except (OSError,subprocess.CalledProcessError):return None
+ return set(json.loads(out.strip().splitlines()[-1]))
+
+def delivered_payload(delivered_bytes):
+ """(budgeted bytes, bytes of everything on disk, scope): sheets/portraits under assets/sprites that reach dist
+ (WebP copy when fresh, else PNG) + sprites.json as bundled (compact JSON, provenance is not bundled)."""
+ pngs=[p for p in (ROOT/'assets/sprites').rglob('*.png') if p.is_file()]
+ manifest=len(json.dumps(json.loads(sprites_manifest.RUNTIME.read_text()),separators=(',',':'),ensure_ascii=False).encode())
+ total=sum(p.stat().st_size for p in pngs)+sprites_manifest.RUNTIME.stat().st_size+sprites_manifest.provenance_path().stat().st_size
+ used=used_files()
+ if used is None:return sum(delivered_bytes(p) for p in pngs)+manifest,total,'all sheets (used-assets unavailable)'
+ dist=[p for p in pngs if p.relative_to(ROOT/'assets').as_posix() in used]
+ return sum(delivered_bytes(p) for p in dist)+manifest,total,f'{len(dist)}/{len(pngs)} PNG in dist'
 
 def expected_indices(total,target,death):
  if total>=target:return [round(i*(total-1)/(target-1)) for i in range(target)]
@@ -45,7 +86,7 @@ def count_and_bbox(rgba):
  return (int(x.min()),int(y.min()),int(x.max())+1,int(y.max())+1) if len(x) else None
 
 def check(path=DEFAULT,source_cache=None,only=None):
- data=json.loads(Path(path).read_text());errors=[]
+ data=sprites_manifest.load(Path(path));errors=[]
  def fail(msg):errors.append(msg)
  if data.get('schema')!=2 or data.get('columns')!=8:fail('schema=2 and columns=8 required')
  sprites=data.get('sprites',[])
@@ -77,9 +118,12 @@ def check(path=DEFAULT,source_cache=None,only=None):
    bboxes=[]
    src_boxes=s.get('sourceFrameBboxes',{}).get(anim,[])
    chosen=s.get('sourceFrameIndices',{}).get(anim,[])
-   if len(src_boxes)!=n or len(chosen)!=n:fail(f'{sid}:{anim} source proof length != {n}')
-   total=s.get('sourceFrameCounts',{}).get(anim,0)
-   if not isinstance(total,int) or total<1:fail(f'{sid}:{anim} invalid source frame count')
+   if kind in NO_PROOF:total=None
+   else:
+    if len(src_boxes)!=n or len(chosen)!=n:fail(f'{sid}:{anim} source proof length != {n}')
+    total=s.get('sourceFrameCounts',{}).get(anim,0)
+   if total is None:pass
+   elif not isinstance(total,int) or total<1:fail(f'{sid}:{anim} invalid source frame count')
    else:
     if anim in s.get('samplingExceptions',{}) and sid not in EXCEPTIONS:
      # Documented skip of oversized FX frames: indices must stay in range and chronological.
@@ -116,7 +160,7 @@ def check(path=DEFAULT,source_cache=None,only=None):
     if s.get('bbox',{}).get(anim)!=union:fail(f'{sid}:{anim} bbox metadata mismatch')
    hit=s.get('hitFrames',{}).get(anim,conf.get('hitFrame'))
    if anim in ('attack','cast') and (not isinstance(hit,int) or hit<0 or hit>=n):fail(f'{sid}:{anim} invalid hitFrame')
-  if used_alpha-set(s.get('sourceAlphaValues',[])):fail(f'{sid} new semi-transparent alpha not present in source: {used_alpha-set(s.get("sourceAlphaValues",[]))}')
+  if kind not in NO_PROOF and used_alpha-set(s.get('sourceAlphaValues',[])):fail(f'{sid} new semi-transparent alpha not present in source: {used_alpha-set(s.get("sourceAlphaValues",[]))}')
   if portrait:
    p=ROOT/'assets'/portrait
    if not p.is_file():fail(f'{sid} missing portrait')
@@ -131,10 +175,9 @@ def check(path=DEFAULT,source_cache=None,only=None):
   webp=ROOT/'assets-webp'/(rel[:-4]+'.webp') if rel.endswith('.png') else None
   if record and record.get('webp') and webp is not None and webp.is_file():return record['webp']
   return p.stat().st_size
- asset_files=[p for p in (ROOT/'assets/sprites').rglob('*.png') if p.is_file()]
- size=sum(delivered_bytes(p) for p in asset_files)+(ROOT/'assets/sprites/sprites.json').stat().st_size
- if size>3_000_000:fail(f'assets/sprites delivered payload {size} bytes exceeds 3 MB (PNG fallback/WebP output + manifest)')
- print(f'v2 sprites: {len(sprites)} entries; {size} delivered bytes (lossless PNG/WebP); source pixel check: {bool(source_cache)}')
+ size,total,scope=delivered_payload(delivered_bytes)
+ if size>BUDGET:fail(f'assets/sprites delivered payload {size} bytes exceeds 3 MB (WebP/PNG of sheets in dist + bundled sprites.json)')
+ print(f'v2 sprites: {len(sprites)} entries; {size} delivered bytes ({scope}; all assets/sprites on disk: {total}); source pixel check: {bool(source_cache)}')
  for e in errors:print('FAIL',e)
  if errors:raise SystemExit(1)
  print('PASS all sprite dimensions, frames, edges, ACT origin/native pixels, alpha and size')

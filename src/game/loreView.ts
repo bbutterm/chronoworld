@@ -1,14 +1,14 @@
 import Phaser from 'phaser';
-import { chronicleKeys, firstSentence, jobTitle, refinedStats, unseenCount, type ChronicleTab, type ItemDef, type LineKind, type UnitDef } from '../core';
+import { chronicleKeys, firstSentence, heroStoryUnreadTotal, jobTitle, refinedStats, unseenCount, type ChronicleTab, type ItemDef, type LineKind, type UnitDef } from '../core';
 import { GAME, LORE } from './content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, ROLE_NAMES, SLOT_NAMES } from './flow';
-import { itemCell } from './itemIcons';
+import { hasCollectionArt, itemCell, itemIconKey, loadCollectionArt, refineBadge, roIconImage } from './itemIcons';
 import { GAME_H, GAME_W } from './layout';
 import { badge, popIn, unitFigure, unitTint } from './screen';
 import { session } from './session';
 import { SKIN_TINT } from './skin';
 import { button, panel, ScrollArea, text } from './ui';
-import { C, FS, OUTLINE } from './theme';
+import { C, FS, OUTLINE, TINT } from './theme';
 
 /**
  * Летопись (лор RO, data/lore): общие помощники экранов — прочитанные записи (localStorage), значок «новое»,
@@ -49,8 +49,15 @@ export function markLoreSeen(keys: readonly string[]): void {
 /** Открытые записи по вкладкам (для значков). */
 export const loreKeys = (): Record<ChronicleTab, string[]> => chronicleKeys(session.save, GAME, LORE);
 
-/** Новые (открытые и непрочитанные) записи — по вкладкам и всего. */
-export const loreUnseen = () => unseenCount(loreKeys(), seenLore());
+/**
+ * Новые (открытые и непрочитанные) записи — по вкладкам и всего. Во вкладку «Герои» входят и непрочитанные кусочки
+ * истории героев (save.heroStoryRead, heroStoryView.ts).
+ */
+export const loreUnseen = () => {
+  const r = unseenCount(loreKeys(), seenLore());
+  const stories = heroStoryUnreadTotal(session.save, LORE);
+  return { ...r, heroes: r.heroes + stories, total: r.total + stories };
+};
 
 // ---------- иконка и вход ----------
 
@@ -89,7 +96,8 @@ export function chronicleButton(scene: Phaser.Scene, x: number, y: number, w = 2
   b.container.add(bookIcon(scene, 28 - b.label.width / 2 - 34, -4, 50));
   b.container.setName('chronicleBtn');
   const n = loreUnseen().total;
-  if (n > 0) badge(scene, x + w / 2 - 14, y - h / 2 + 10, n)?.setName('chronicleBadge');
+  // Кружок — на верхней кромке кнопки, выше строки текста: широкий «99+» не закрывает «Летопись».
+  if (n > 0) badge(scene, x + w / 2 - 16, y - h / 2 - 6, n)?.setName('chronicleBadge');
   return b.container;
 }
 
@@ -114,12 +122,17 @@ export interface LoreModalOptions {
   blocks: LoreBlock[];
   /** Список под окном — не прокручивать и не нажимать, пока окно открыто. */
   lock?: ScrollArea;
+  /** Вторая кнопка слева от «Закрыть» (например, «История героя»): окно закрывается, затем onTap. */
+  extra?: { label: string; onTap: () => void; dot?: boolean };
 }
 
-const BOX_W = 960;
-const PAD = 60;
+/** Окно почти во весь экран 9:16: ширина 1040 из 1080, высота до 1840 из 1920 (длинный текст — прокрутка). */
+const BOX_W = 1040;
+const PAD = 56;
 const ART_H = 260;
-const MAX_H = 1640;
+const MAX_H = 1840;
+/** Основной шрифт окна: крупнее FS.body (на 390×844 ≈ 14 px). */
+const BODY_FS = 38;
 
 /** Модальное окно записи Летописи: заголовок, подзаголовок, картинка, абзацы (длинное — прокручивается). */
 export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.GameObjects.Container {
@@ -135,16 +148,16 @@ export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.Game
 
   const tw = BOX_W - 2 * PAD;
   const left = cx - BOX_W / 2 + PAD;
-  const title = text(scene, cx, 0, o.title, FS.h2, o.titleColor ?? C.title, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: tw } }).setOrigin(0.5, 0);
-  const sub = o.subtitle ? text(scene, cx, 0, o.subtitle, FS.small, C.muted, { wordWrap: { width: tw } }).setOrigin(0.5, 0) : null;
+  const title = text(scene, cx, 0, o.title, FS.h1, o.titleColor ?? C.title, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: tw } }).setOrigin(0.5, 0);
+  const sub = o.subtitle ? text(scene, cx, 0, o.subtitle, FS.body, C.muted, { wordWrap: { width: tw } }).setOrigin(0.5, 0) : null;
   const blocks = o.blocks
     .filter((b) => b.text)
     .map((b) => ({
       b,
-      t: text(scene, left, 0, b.text, b.size ?? FS.body, b.color ?? C.text, {
+      t: text(scene, left, 0, b.text, b.size ?? BODY_FS, b.color ?? C.text, {
         align: 'left',
-        wordWrap: { width: tw },
-        lineSpacing: 6,
+        wordWrap: { width: tw, useAdvancedWrap: true },
+        lineSpacing: 10,
         fontStyle: [b.bold ? 'bold' : '', b.italic ? 'italic' : ''].join(' ').trim() || 'normal',
       }).setOrigin(0, 0),
     }));
@@ -178,7 +191,17 @@ export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.Game
   }
   area.setContentHeight(bodyH);
   layer.add(area.parts);
-  layer.add(button(scene, cx, top + boxH - 100, 400, 110, 'ui_btn_primary', 'Закрыть', close, FS.h3).container);
+  if (o.extra) {
+    const ex = o.extra;
+    const eb = button(scene, cx - 230, top + boxH - 100, 460, 110, 'ui_btn_primary', ex.label, () => {
+      close();
+      ex.onTap();
+    }, FS.h3);
+    eb.container.setName('loreModalExtra');
+    if (ex.dot) eb.container.add(scene.add.circle(210, -44, 16, TINT.badge).setStrokeStyle(4, 0xffffff));
+    layer.add(eb.container);
+    layer.add(button(scene, cx + 250, top + boxH - 100, 380, 110, 'k:buttonLong_beige', 'Закрыть', close, FS.h3).container);
+  } else layer.add(button(scene, cx, top + boxH - 100, 400, 110, 'ui_btn_primary', 'Закрыть', close, FS.h3).container);
   popIn(scene, layer, shade);
   return layer;
 }
@@ -243,7 +266,27 @@ export function itemModal(scene: Phaser.Scene, def: ItemDef, opts: { refine?: nu
     titleColor: RARITY_COLORS[def.rarity],
     subtitle: `${RARITY_NAMES[def.rarity]} · ${SLOT_NAMES[def.slot]}${def.minChapter > 1 ? ` · с главы ${def.minChapter}` : ''}`,
     art: (add, x, y) => {
-      for (const obj of itemCell(scene, x, y, 180, def.slot, Phaser.Display.Color.HexStringToColor(RARITY_COLORS[def.rarity]).color, def.id, refine)) add(obj);
+      const color = Phaser.Display.Color.HexStringToColor(RARITY_COLORS[def.rarity]).color;
+      if (!hasCollectionArt(def.id)) {
+        for (const obj of itemCell(scene, x, y, 180, def.slot, color, def.id, refine)) add(obj);
+        return;
+      }
+      // Большая картинка RO (collection, 75×100 ×2) в рамке редкости; пока грузится — ячейка с иконкой на её месте.
+      const frame = scene.add.rectangle(x, y, 166, 216, TINT.checkOff, 0.95).setStrokeStyle(4, color, 1);
+      const back = scene.add.rectangle(x, y, 158, 208, color, 0.18);
+      add(frame);
+      add(back);
+      const ico = roIconImage(scene, x, y, def.id, 120) ?? scene.add.image(x, y, itemIconKey(scene, def.slot, def.id)).setDisplaySize(120, 120).setTint(color);
+      add(ico);
+      const badge = refine > 0 ? refineBadge(scene, x - 83 + 6, y - 108 + 2, refine, FS.small) : undefined;
+      if (badge) add(badge);
+      void loadCollectionArt(scene.game, def.id).then((key) => {
+        if (!key || !frame.scene || !frame.active) return;
+        ico.destroy();
+        const pic = scene.add.image(x, y, key).setScale(2);
+        add(pic);
+        if (badge) badge.parentContainer?.bringToTop(badge);
+      });
     },
     blocks,
     lock: opts.lock,

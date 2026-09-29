@@ -16,9 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "drops",
-    "tint": "#9fc26a",
-    "scale": 0.8,
+    "sprite": "plankton",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

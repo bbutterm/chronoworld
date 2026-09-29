@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "maze_side_winder",
+  "name": "Сайдвиндер",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 600,
+    "atk": 48,
+    "def": 9,
+    "spd": 105
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "maze_side_winder_venom",
+    "actives": [],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "side_winder",
+    "hitFx": "fx_hit"
+  }
+}

@@ -16,9 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "gargoyle",
-    "tint": "#4a3a5c",
-    "scale": 0.5,
+    "sprite": "familiar",
     "hitFx": "fx_hit"
   }
 }

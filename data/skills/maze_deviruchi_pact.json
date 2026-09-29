@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_deviruchi_pact",
+  "name": "Мелкий договор",
+  "description": "Бесёнок подписывает всех союзников на мелкую сделку: лечит 0.9 × атака и +15% атаки на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 0.9
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "small_pact",
+        "name": "Мелкий договор",
+        "turns": 2,
+        "stats": {
+          "atk": 0.15
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "maze_stem_worm",
+  "name": "Стеблевой червь",
+  "kind": "monster",
+  "role": "tank",
+  "stats": {
+    "hp": 1000,
+    "atk": 33,
+    "def": 19,
+    "spd": 80
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "maze_stem_worm_grip",
+    "actives": [],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "stem_worm",
+    "hitFx": "fx_hit"
+  }
+}

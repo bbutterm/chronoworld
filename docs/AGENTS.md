@@ -206,8 +206,8 @@ skills [{jobLevel, skill}], visual`. **С v4 профессия — класс �
 мини-босс Верховный жрец `mob3_boss` на ch8_s15), 9 Лабиринтный лес (пока нет), 10 Нифльхейм (Владыка мёртвых
 `mob_lord_of_death`, мини-босс Страж моста на ch10_s9). У глав 1–7 — 18 этапов (выпущенные s1…s10 + вставные s11…s18, босс — s10
 последним), у глав 8 и 10 — s1…s18 подряд, босс s18. **Номер главы — `order`** («Глава N», «Эпизод N», этап «N-K» — `stageLabel`,
-`flow.ts stageNo`; ворота предметов `minChapter` — `equipment/gates.ts chapterNumber`), а не место в списке: пока главы 9 нет,
-после 8 идёт 10 (в `playthrough` индекс 8). Глава 9 при появлении сдвинет рост силы главы 10 — рецепт 6 в `docs/CONTENT_RECIPES.md`.
+`flow.ts stageNo`; ворота предметов `minChapter` — `equipment/gates.ts chapterNumber`), а не место в списке. Вставка главы между готовыми сдвигает рост силы
+следующих глав — рецепт 6 в `docs/CONTENT_RECIPES.md`.
 Сюжет сезона — `docs/design/story.md`: Серый капюшон (спикер `herald`, портрет `unit:mob3_ranged`) — Ансгар, оруженосец Гаррета и
 старший брат Вики; узнавание — гл. 8 (`ch8_s15_after`, `ch8_s16_after`), развязка — гл. 10 (`ch10_outro`: закрывает врата изнутри).
 Последний этап главы = глава пройдена (`lastStageOfChapter`). Подробности и таблицы — `docs/content/campaign.md`.
@@ -573,12 +573,15 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 
 - **Спрайты v2** — `docs/SPRITE_SPEC.md`: родной масштаб RO ×1, лицом вправо, точка ног — anchor клетки. Сетки: герой 224×192
   (anchor 104,144; 6 рядов idle/walk/attack/cast/hurt/death), монстр 240×224 (100,120; 5 рядов без cast), босс 256×256 (112,216).
-  8 колонок, лист ≤ 2048 px. Реестр — `assets/sprites/sprites.json` (schema 2); `assets/sprites/fixes.json` — пропуск битых кадров (`skip`).
+  8 колонок, лист ≤ 2048 px. Реестр — `assets/sprites/sprites.json` (schema 2, только поля игры; доказательства конвейера —
+  `sprites.provenance.json`, `tools/sprites_manifest.py`); `assets/sprites/fixes.json` — пропуск битых кадров (`skip`).
+  В видеопамять лист идёт ужатым: только проигрываемые кадры по `bbox` анимации, плотно, с trim (`src/pipeline/sheetPack.ts`,
+  `sprites.ts addPackedSheet`) — 0.6–1.3 МБ вместо 8–15; у кадра `frame.realWidth/realHeight` = клетка, `frame.width/height` — вырезка.
 - **Лист карточки героя:** везде, где выбирается спрайт героя (`flow.ts heroSprite`, его зовут Герои, Герой, Отряд, Поручения, Башня,
   «Глава пройдена», диалоги; бой — `BattleScene squadDefs`): свой лист карточки (`visual.sprite` формы или шаблона — `knight_m`,
   `priest_f`…, листы по имени класса RO), если он есть в реестре; иначе `<visual.sprite класса>_f` / `_m` по полу карточки, если такой
   лист есть в `sprites.json`, иначе базовый лист
-  (`pipeline/sprites.ts genderedSpriteId`). Базовые листы одного пола (`source.gender`): `acolyte`, `priest` — женские, остальные
+  (`pipeline/sprites.ts genderedSpriteId`). Базовые листы одного пола (`source.gender` в `sprites.provenance.json`): `acolyte`, `priest` — женские, остальные
   героические — мужские; так что женщина без `_f` выглядит мужским листом, мужчина-Аколит без `_m` — женским (терпимо до арта).
   Бюст в рамке (`portraitFrame.ts bustFor`): `hero_<база>_<m|f>_portrait.png` → бюст листа → портрет листа. Реестр для чистых
   помощников — `src/game/spriteRegistry.ts` (`hasSprite`; в Node/тестах пустой — варианты не находятся).
@@ -646,9 +649,15 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 - **Как приходит арт:** владелец (или его агент-художник по промтам `docs/SPRITE_SPEC.md`, `docs/UI_ART_PROMPT.txt`, `docs/ART_EXTRACT_RO.md`,
   `docs/FX_NEEDED.md`) кладёт файлы в `main` коммитом/PR. Что нужно — issues #17–#26 и `docs/ART_NEEDED.md`. Оркестратор регулярно
   (плановая проверка) делает `git fetch && git merge origin/main` в рабочую ветку и подключает новое.
-- **Спрайты:** лист + запись в `assets/sprites/sprites.json` (обычно пишет `tools/build_sprites_v2.py`; старые листы `assets/ro` →
+- **Спрайты:** лист + запись в `assets/sprites/sprites.json` и `sprites.provenance.json` (обычно пишет `tools/build_sprites_v2.py`; старые листы `assets/ro` →
   `python3 tools/build_sprites_v2.py --from-v1`; правки прозрачности — `--alpha-fixes`); проверка `python3 tools/check_sprites.py`
   и python-тесты. Игра и сборка подхватывают реестр сами; юниту/профессии — `visual.sprite = <id>`.
+- **Клиент scRO (29.09):** `raw/ro/` — файлы клиента побайтно, `raw/ro-build/` — готовые листы, манифест и рендер SPR/ACT
+  (`raw/ro-build/tools/build_sheets.py`, пути `ROOT/RAW/OUT` в начале файла — поправить на свои). Подключено 43 листа монстров
+  (34 юнитам, 9 — глава 9 заранее) и NPC Кафры, см. `docs/RO_SCRO_IMPORT.md` и статус в `docs/ART_REQUEST_CHAPTERS.md`.
+  Крупные классы сетки: `boss_xl` 296×296 и `boss_xxl` 340×376 (по 6 колонок; колонки берутся из класса —
+  `normalizeV2`), `npc` — листы NPC для спикеров сюжета (`portrait: "npc_<имя>"` в `data/story`, лист попадает в dist через
+  `scripts/lib/used-assets.ts`). Бюджет `check_sprites.py` (3 МБ доставляемых спрайтов) после импорта превышен — 4.1 МБ.
 - **Иконки навыков RO:** `python3 tools/extract_ro_skill_icons.py` (список `SKILLS` в скрипте) → `assets/ui/icons/skill_<ro>.png`,
   затем строка в `RO_SKILL_ICONS` (`src/game/skillLook.ts`). Своя иконка навыка — просто `assets/ui/icons/skill_<id навыка>.png`.
 - **Эффекты:** атлас в `assets/effects/` + запись в `effects.json → effects`; привязка к навыку — `effects.json → skills`.

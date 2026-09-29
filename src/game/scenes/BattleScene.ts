@@ -34,7 +34,8 @@ import { SKIN, SKIN_TINT } from '../skin';
 import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../sprites';
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
-import { BarkLayer, clampX, DEPTH, FloatLayer, UltPresenter } from '../battleFx';
+import { BarkLayer, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, UltPresenter } from '../battleFx';
+import { RO_DIGIT_H } from '../numberFont';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
 import { button, panel, text, tutorialHint } from '../ui';
@@ -42,8 +43,8 @@ import { hintDone, markHint } from '../hints';
 import { isUnlocked } from '../unlockBanner';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
-import { animatedFxIds, animatedFxKey, skillFx } from '../animatedFx';
-import { ensureAnimatedFx } from '../assets';
+import { animatedFxKey, battleFxIds, skillFx } from '../animatedFx';
+import { holdAnimatedFx } from '../assets';
 import { FIRE_BOLT_MS, FIRE_BOLT_STEP, SkillFx, STAR_TEX, type CastRig, type FxPoint, type HitStyle } from '../skillFx';
 import { playAura, playProc, playSignature, type SigCtx } from '../skillSigs';
 import { visualOf } from '../skillVisuals';
@@ -55,6 +56,7 @@ import { skillIcon, statusIcon } from '../skillIcons';
 import type { SkillDef, StatusDef } from '../../core';
 import { battleSound } from '../battleAudio';
 import { huntHud, type HuntHud } from '../huntBattle';
+import { HeroPanel } from '../battlePanel';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -331,6 +333,8 @@ export class BattleScene extends Phaser.Scene {
   private introLeft = 0;
   /** Уровни врагов (core/features/levels.ts): редкость полосы и поправка босс-этапа; null — тестовый бой (без уровней). */
   private levels: { rarity: CardRarity; bossFactor: number } | null = null;
+  /** BUG-061: панель героев отряда над ареной (портрет, здоровье, энергия). */
+  private heroPanel: HeroPanel | null = null;
   /** Полоска HP босса наверху (только на босс-этапе). */
   private bossBar: { uid: string; fill: Phaser.GameObjects.Image } | null = null;
   /** Тема поля (глава этапа / ярус башни) и лёгкие частицы по ней. */
@@ -443,14 +447,19 @@ export class BattleScene extends Phaser.Scene {
 
     // U: листы только этого боя — грузятся по требованию (уже в кэше — строим сразу, в этом же кадре).
     const sprites = this.result.units.map((u) => this.defs[u.unitId].visual.sprite);
-    // Анимированные эффекты грузятся лениво (T4-12): первый бой ждёт их вместе с листами юнитов (не дольше FX_WAIT_MS),
-    // иначе первые удары первого боя шли статичными картинками.
-    ensureAnimatedFx(this.game);
+    // Анимированные эффекты грузятся лениво (T4-12) и только нужные этому бою (навыки его юнитов, battleFxIds): бой ждёт
+    // их вместе с листами юнитов (не дольше FX_WAIT_MS), иначе первые удары шли статичными картинками.
+    const unitDefs = this.result.units.map((u) => this.defs[u.unitId]);
+    const fxIds = battleFxIds(
+      unitDefs.flatMap((d) => [d.skills.basic, d.skills.ult, ...d.skills.actives, ...d.skills.passives]),
+      unitDefs.flatMap((d) => [d.visual.hitFx, d.visual.projectile]),
+    );
+    void holdAnimatedFx(this, fxIds);
     const since = Date.now();
     const seq = ++this.createSeq;
     const fxReady = (done: () => void) => {
       if (seq !== this.createSeq) return;
-      if (animatedFxIds().every((id) => this.textures.exists(animatedFxKey(id))) || Date.now() - since > FX_WAIT_MS) done();
+      if (fxIds.every((id) => this.textures.exists(animatedFxKey(id))) || Date.now() - since > FX_WAIT_MS) done();
       else setTimeout(() => fxReady(done), 50);
     };
     whenSprites(this, sprites, () => fxReady(() => this.build(title)));
@@ -499,6 +508,18 @@ export class BattleScene extends Phaser.Scene {
     this.barks = new BarkLayer(this);
     this.barked.clear();
     for (const u of this.result.units) this.buildUnit(u);
+    this.heroPanel = new HeroPanel(
+      this,
+      this.result.units
+        .filter((u) => u.side === 'A')
+        .sort((a, b) => a.slot - b.slot)
+        .map((u) => {
+          const def = this.defs[u.unitId];
+          return { uid: u.uid, name: def?.name ?? u.unitId, sprite: def?.visual.sprite ?? u.unitId, hasUlt: !!def?.skills.ult };
+        }),
+      20,
+    );
+    for (const v of this.viewList) this.redraw(v);
     if (this.stage && getStage(GAME, this.stage.stageId).boss) this.bossIntro();
     if (this.hunt) {
       const boss = this.result.units.find((u) => u.side === 'B')!;
@@ -576,7 +597,7 @@ export class BattleScene extends Phaser.Scene {
     // уезжает от своих полосок (у поринга ×2 — заметно).
     const flip = snap.side === 'B' && look.art;
     const sprite = this.add.sprite(0, 0, look.key, 0).setOrigin(flip ? 1 - look.originX : look.originX, look.originY);
-    sprite.setScale(look.size / sprite.frame.height).setFlipX(flip).setTint(unitTint(def.visual));
+    sprite.setScale(look.size / sprite.frame.realHeight).setFlipX(flip).setTint(unitTint(def.visual));
     sprite.anims.timeScale = playback.speed;
     // Мягкая тень под ногами: у листов RO своей тени нет, без неё фигуры «висят» над полем.
     const footW = look.def?.width ? look.def.width * look.def.scale * k : look.height * 0.7;
@@ -728,8 +749,8 @@ export class BattleScene extends Phaser.Scene {
     this.clampLabel(v, name);
     // Касание юнита — ненадолго показать имя (после начала боя имена гаснут).
     // Зона касания — только тело (кадр листа намного больше фигуры и заходил бы на кнопки и соседей).
-    const fw = sprite.frame.width;
-    const fh = sprite.frame.height;
+    const fw = sprite.frame.realWidth;
+    const fh = sprite.frame.realHeight;
     const bodyW = Math.min(fw, (look.size * 0.45) / sprite.scaleX);
     const bodyH = Math.min(fh, look.height / sprite.scaleY);
     const hit = v.hitRect.setTo(sprite.originX * fw - bodyW / 2, sprite.originY * fh - bodyH, bodyW, bodyH);
@@ -862,7 +883,7 @@ export class BattleScene extends Phaser.Scene {
     if (!v.look.art) return;
     const flip = dir < 0;
     v.sprite.setFlipX(flip).setOrigin(flip ? 1 - v.look.originX : v.look.originX, v.look.originY);
-    v.hitRect.x = v.sprite.originX * v.sprite.frame.width - v.bodyW / 2;
+    v.hitRect.x = v.sprite.originX * v.sprite.frame.realWidth - v.bodyW / 2;
   }
 
   private placeUnit(v: UnitView): void {
@@ -906,6 +927,7 @@ export class BattleScene extends Phaser.Scene {
     this.viewList.length = 0;
     this.ambient = null;
     this.bossBar = null;
+    this.heroPanel = null;
     // Сцена-синглтон живёт всю игру: ссылка на уничтоженный текст таймера держала бы его (и canvas) до следующего боя.
     this.timeText = undefined as unknown as Phaser.GameObjects.Text;
     this.later.clear();
@@ -1141,9 +1163,13 @@ export class BattleScene extends Phaser.Scene {
           const hpPart = e.amount - e.absorbed;
           const src = this.views.get(e.source);
           const sk = dmgSkill ? CONTENT.skills[dmgSkill] : undefined;
-          const style = numberStyle(sk, src);
-          const color = e.dot ? '#9be36b' : big && hpPart > 0 ? '#ffd84a' : hpPart > 0 ? style.color : '#bcd6ff';
-          this.popNumber(v, hpPart > 0 ? `-${hpPart}${big ? '!' : ''}` : `(${e.absorbed})`, color, big && hpPart > 0, style.size);
+          // Цифры RO: белые — по монстрам, красные — по героям, жёлтые крупные — удар ульты, голубые — ушло в щит.
+          const roTint = hpPart <= 0 ? RO_TINT.shield : big ? RO_TINT.ult : v.snap.side === 'A' ? RO_TINT.hero : RO_TINT.enemy;
+          if (!this.popRo(v, hpPart > 0 ? hpPart : e.absorbed, roTint, big && hpPart > 0 ? 1.6 : e.dot ? 0.9 : 1.15, RO_HIT)) {
+            const style = numberStyle(sk, src);
+            const color = e.dot ? '#9be36b' : big && hpPart > 0 ? '#ffd84a' : hpPart > 0 ? style.color : '#bcd6ff';
+            this.popNumber(v, hpPart > 0 ? `-${hpPart}${big ? '!' : ''}` : `(${e.absorbed})`, color, big && hpPart > 0, style.size);
+          }
           this.hurt(v);
           if (e.dot) return;
           const hit = hitFxOf(src, dmgSkill);
@@ -1163,7 +1189,8 @@ export class BattleScene extends Phaser.Scene {
           if (animate && e.amount > 0) {
             // RO Heal: крупное зелёное «+N» с тёмно-зелёной обводкой, столб света (skillFx.heal), лист fx_heal
             // в рост фигуры и короткий бело-зелёный отсвет на самом юните.
-            this.popNumber(v, `+${e.amount}`, '#8dff9a', false, 54, '#0b3d12');
+            // Лечение в RO — зелёные цифры без «+», прямо вверх.
+            if (!this.popRo(v, e.amount, RO_TINT.heal, 1.15, RO_RISE)) this.popNumber(v, `+${e.amount}`, '#8dff9a', false, 54, '#0b3d12');
             this.fx(v, 'fx_heal', 1.3);
             // Первая помощь и мелкое восстановление (пассивки) — маленький столб с крестиком.
             const small = this.views.get(e.source)?.lastSkill === 'novice_first_aid' || e.amount < v.snap.maxHp * 0.08;
@@ -1186,7 +1213,7 @@ export class BattleScene extends Phaser.Scene {
           v.shield = e.shield;
           this.redraw(v);
           if (animate) {
-            this.popNumber(v, `щит +${e.amount}`, '#bcd6ff', false, 30);
+            if (!this.popRo(v, e.amount, RO_TINT.shield, 0.9, RO_RISE)) this.popNumber(v, `щит +${e.amount}`, '#bcd6ff', false, 30);
             this.fx(v, 'fx_shield', 1.4, 400);
             // Свой щит навыка (Кирие — двойной пузырь, Стена безопасности — розовые столбы…), иначе общий столб искр.
             if (shieldLook?.aura) playAura(this.sfx, shieldLook.aura, this.point(v), shieldLook.tint ?? 0x9cc8ff);
@@ -1431,6 +1458,7 @@ export class BattleScene extends Phaser.Scene {
       v.trailT = 0;
     }
     cropBar(v.energyBar, v.energy / COMBAT.energy.max);
+    this.heroPanel?.set(v.snap.uid, pct, v.energy / COMBAT.energy.max, !v.shownDead && v.hp > 0);
     v.shieldBar.setVisible(v.alive && v.shield > 0);
     cropBar(v.shieldBar, Math.min(1, v.shield / max));
   }
@@ -1466,6 +1494,29 @@ export class BattleScene extends Phaser.Scene {
     const y = top + slot * FLOAT_STEP;
     // Пул надписей: не больше MAX_FLOATS на экране, цифры — растровым шрифтом стиля; у края экрана цифра не обрезается.
     this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : stroke, big ? 8 : 6, DEPTH.numbers + slot, FLOAT_RISE, big ? 650 : 450, big, v.snap.uid);
+  }
+
+  /**
+   * Цифра RO над юнитом (атлас numbers, только число): то же место в столбике, что у popNumber; урон (RO_HIT) летит
+   * дугой к тылу юнита, лечение и щит (RO_RISE) — вверх. false — атлас не загрузился (рисует popNumber).
+   */
+  private popRo(v: UnitView, amount: number, tint: number, scale: number, mode: number): boolean {
+    const now = this.time.now;
+    let slot = v.floatSlots.findIndex((t) => t <= now);
+    if (slot < 0) {
+      slot = 0;
+      for (let i = 1; i < v.floatSlots.length; i++) if (v.floatSlots[i] < v.floatSlots[slot]) slot = i;
+    }
+    const h = RO_DIGIT_H * scale;
+    const dir = v.snap.side === 'A' ? -1 : 1;
+    const nameBottom = v.node.y + v.nameY + 14;
+    const top = Math.max(bodyY(v) - 30, nameBottom + h / 2 + (mode === RO_HIT ? 40 : 60));
+    // Соседние места столбика — на высоту цифры ниже и чуть к тылу: одновременные удары не сливаются в одно число.
+    const x = v.node.x + dir * (30 + slot * 22) + rnd(10);
+    const y = top + slot * Math.max(FLOAT_STEP, h * 0.9);
+    if (!this.floats.roNumber(x, y, String(Math.round(amount)), tint, scale, DEPTH.numbers + slot, mode, dir, v.snap.uid)) return false;
+    v.floatSlots[slot] = now + FLOAT_SLOT_MS;
+    return true;
   }
 
   /**
@@ -1885,6 +1936,15 @@ const baseTint = (v: UnitView): number => (v.frozen ? FROZEN_TINT : unitTint(v.d
  * Цвет и размер цифры урона по навыку: обычная атака — белая, магия (стихийный навык, каст) — цветом стихии
  * (огонь оранжевый, лёд голубой, молния жёлтая, прочая магия — сиреневая), активный навык — крупнее.
  */
+/** Цвета цифр RO (tint белых цифр атласа, как в клиенте RO). */
+const RO_TINT = {
+  enemy: 0xffffff,
+  hero: 0xff4a3a,
+  ult: 0xffd23a,
+  heal: 0x5cff6a,
+  shield: 0x8cc8ff,
+} as const;
+
 function numberStyle(sk: SkillDef | undefined, src: UnitView | undefined): { color: string; size: number } {
   if (!sk) return { color: '#ffffff', size: 40 };
   const active = !!src && (src.def.skills.actives.includes(sk.id) || src.def.skills.ult === sk.id);

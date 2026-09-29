@@ -19,11 +19,14 @@
 - `src/game/audioCatalog.ts` — каталог: все звуки, музыка и фоны, их громкость и ограничения.
 - `src/game/audioCore.ts` — логика без Web Audio (тесты `tests/game-audio.test.ts`): настройки в localStorage
   (`chronoworld.audio`), ограничитель, серия монет, выбор музыки по экрану.
-- `src/game/audioSynth.ts` — заглушки: все звуки, 17 музыкальных петель и 7 фонов синтезируются кодом (в духе jsfxr),
-  ничего не весят в сборке. Звуки рендерятся в фоне после загрузки, музыка — по полтакта между кадрами.
+- `assets/audio/` — оригинальные звуки RO (`tools/ro_audio.py`, раздел «Звуки RO»); музыки RO пока нет — её готовит
+  владелец (раздел «Музыка: заказ владельцу»).
+- `src/game/audioSynth.ts` — заглушки для всего, у чего нет файла (в духе jsfxr), ничего не весят в сборке. Звуки
+  рендерятся в фоне после загрузки, музыка — по полтакта между кадрами.
 - `src/game/sceneAudio.ts` — музыка и фон каждого экрана при его старте, рог начала боя / барабаны босса.
-  Тема фона главы (`backdrops.ts`) → звуковая тема: у каждой из 7 тем свои музыка карты, музыка боя и фон.
-- `src/game/battleAudio.ts` — звуки боя по потоку событий лога (одна строка в `BattleScene.play`).
+  Тема фона главы (`backdrops.ts`) = звуковая тема: у каждой из 11 тем своя музыка карты и боя, фон — свой или общий.
+- `src/game/battleAudio.ts` — звуки боя по потоку событий лога (одна строка в `BattleScene.play`), свои звуки монстров
+  RO (`data/monster_sounds.json`, `src/game/monsterSounds.ts`).
 - Настройки (шестерёнка на главной): «Музыка» и «Звуки» — 0/25/50/75/100 % по кругу, «Без звука» — вкл/выкл.
 
 Вызов из любого места: `sfx('coin')`, `music('home')`, `ambience('amb_swamp')`, `summonSound('epic')`.
@@ -53,6 +56,8 @@ id события = имя файла владельца (`assets/audio/<id>.ogg
 | `coin` | каждая монета долетела до кошелька — серия поднимается по полутонам | `juice.ts` flyCoins |
 | `gem` | гем долетел | `juice.ts` flyCoins |
 | `equip` | надеть предмет | `InventoryScene` |
+| `refine_success` | заточка удалась | ждёт подключения: `InventoryScene.refine` и `HeroScene.refineAll` (сейчас там `equip` + `coin`) |
+| `refine_fail` | заточка: вещь сломалась | ждёт подключения: `InventoryScene.refine` (сейчас там `hit_blunt` + `ui_error`) |
 | `level_up` | повышение уровня героя (стингер) | `ResultScene` (если в итогах есть levelUp); карточка героя — см. «Точки подключения» |
 | `job_change` | смена профессии — фанфара (стингер) | `JobChangeScene.reveal` |
 | `rarity_up` | звёзды / редкость / слияние героев (стингер) | ждёт экран героя (карточки героев) |
@@ -102,37 +107,65 @@ id события = имя файла владельца (`assets/audio/<id>.ogg
 стук бамбуковых фонарей, далёкий храмовый колокольчик, `amb_shipwreck` — гул глубины, скрип дерева, капли,
 пузырьки, раз за петлю — глухой корабельный колокол, `amb_niflheim` — ледяной ветер с воем, низкий гул,
 далёкий погребальный звон (два удара). Играют в бою (тема главы, и в бою с боссом тоже); на экранах меню фона нет.
+Новые слоты берут подходящий из имеющихся (`THEME_AMBIENCE` в `audioCore.ts`): канализация — `amb_swamp`, орки —
+`amb_meadow`, часовая башня — `amb_crypt`, лабиринт — `amb_grove`. Бои в Башне — фон яруса. В RO своих фонов у карт нет.
 
 ## Музыка по экранам
 
-| экран | дорожка | файлы владельца (по порядку) |
-| --- | --- | --- |
-| Главная, меню | `home` | `music_home` |
-| Таверна | `tavern` | `music_tavern`, иначе `music_home` |
-| Кампания/этап, глава 1 | `map_meadow` | `music_map_meadow`, иначе `music_map` |
-| глава 2 | `map_swamp` | `music_map_swamp`, иначе `music_map` |
-| глава 3, башня | `map_crypt` | `music_map_crypt`, иначе `music_map` |
-| глава 4 (пустыня Сограт) | `map_desert` | `music_map_desert`, иначе `music_map` |
-| глава 5 (лес Пайона) | `map_grove` | `music_map_grove`, иначе `music_map` |
-| глава 6 (затонувший корабль) | `map_shipwreck` | `music_map_shipwreck`, иначе `music_map` |
-| глава 7 (Нифльхейм) | `map_niflheim` | `music_map_niflheim`, иначе `music_map` |
-| Бой, глава 1 | `battle_meadow` | `music_battle_meadow`, иначе `music_battle` |
-| глава 2 | `battle_swamp` | `music_battle_swamp`, иначе `music_battle` |
-| глава 3, башня | `battle_crypt` | `music_battle_crypt`, иначе `music_battle` |
-| глава 4 | `battle_desert` | `music_battle_desert`, иначе `music_battle` |
-| глава 5 | `battle_grove` | `music_battle_grove`, иначе `music_battle` |
-| глава 6 | `battle_shipwreck` | `music_battle_shipwreck`, иначе `music_battle` |
-| глава 7 | `battle_niflheim` | `music_battle_niflheim`, иначе `music_battle` |
-| Бой с боссом (все главы) | `boss` | `music_boss` |
-| Итоги | музыка боя продолжает играть, приглушённая под победу/поражение | — |
+Тема главы — поле `theme` главы (`data/campaign`, иначе тема слота, `chapterTheme` в ядре); звуковая тема = тема фона
+(`sceneAudio.ts`). У каждой темы — своя музыка карты (`map_<тема>`) и боя (`battle_<тема>`).
 
-Бой с боссом — одна общая тема `boss` во всех главах: это узнаваемый сигнал «сейчас MVP» (как общая тема MVP в RO),
-а вкус главы в нём держит фон главы (`amb_*` играет и в бою с боссом). Свои боссовые темы по главам — ещё 7 петель
-по ~1.5 МБ ради небольшой разницы; если владелец захочет — добавить `boss_<тема>` в каталог и в `sceneSound`.
+| экран | дорожка | трек RO (предназначен) | файл владельца (по порядку) |
+| --- | --- | --- | --- |
+| Экран входа (сцены пока нет, ключ `Title`) | `title` | `01.mp3` Title | `music_title` |
+| Главная, меню, Приключения | `home` | `08.mp3` Theme of Prontera | `music_home` |
+| Таверна | `tavern` | `26.mp3` Everlasting Wanderers (Излуд; название проверить) | `music_tavern`, иначе `music_home` |
+| Башня: экран | `tower` | `21.mp3` Through the Tower (башня Геффена) | `music_tower` |
+| Башня: бои (фон — по ярусу) | `battle_tower` | `21.mp3` — тот же, не перезапускается | `music_battle_tower`, иначе `music_tower` |
+| Глава 1 поля Пронтеры: карта / бой | `map_meadow` / `battle_meadow` | `12.mp3` Streamside / `05.mp3` Tread on the Ground | `music_map_meadow` / `music_battle_meadow` |
+| Глава 2 канализация | `map_sewer` / `battle_sewer` | `19.mp3` Under the Ground (карта и бой) | `music_map_sewer` (бой берёт его же, если нет `music_battle_sewer`) |
+| Глава 3 орки | `map_orc` / `battle_orc` | `35.mp3` TeMPoison / `48.mp3` Help Yourself | `music_map_orc` / `music_battle_orc` |
+| Глава 4 Моррок, пирамиды | `map_desert` / `battle_desert` | `11.mp3` Theme of Morroc / `22.mp3` Backattack!! | `music_map_desert` / `music_battle_desert` |
+| Глава 5 Пайон | `map_grove` / `battle_grove` | `14.mp3` Theme of Payon / `20.mp3` Ancient Groover | `music_map_grove` / `music_battle_grove` |
+| Глава 6 корабль, Альберта | `map_shipwreck` / `battle_shipwreck` | `15.mp3` Theme of Alberta / `17.mp3` Treasure Hunter | `music_map_shipwreck` / `music_battle_shipwreck` |
+| Глава 7 Альдебаран, часовая башня | `map_clocktower` / `battle_clocktower` | `39.mp3` Theme of Al de Baran / `60.mp3` Aeon | `music_map_clocktower` / `music_battle_clocktower` |
+| Глава 8 Гласт Хейм | `map_crypt` / `battle_crypt` | `42.mp3` (название проверить) / `40.mp3` Fear… | `music_map_crypt` / `music_battle_crypt` |
+| Глава 9 Лабиринтный лес (главы ещё нет) | `map_labyrinth` / `battle_labyrinth` | `16.mp3` Labyrinth (карта и бой) | `music_map_labyrinth` (бой берёт его же) |
+| Глава 10 Нифльхейм | `map_niflheim` / `battle_niflheim` | `84.mp3` / `85.mp3` (названия проверить) | `music_map_niflheim` / `music_battle_niflheim` |
+| Бой с боссом (все главы) | `boss` | `06.mp3` Risk Your Life | `music_boss` |
+| Топи (только ярус Башни; бои Башни играют `battle_tower`) | `map_swamp` / `battle_swamp` | — (запас) | `music_map_swamp` / `music_battle_swamp` |
+| Итоги | музыка боя продолжает играть, приглушённая под победу/поражение | — | — |
 
-Экраны меню (герои, инвентарь, задания…) музыку не меняют. Одна и та же дорожка при возврате на экран не
-перезапускается. Смена — перекрёстное затухание 0.8 с. Заглушки — тихие петли 15–30 с (пэд, бас, «шкатулка»
-или «лютня», в бою — мягкие барабаны); лучше тихая заглушка, чем назойливая.
+Кроме своего файла дорожка карты берёт общий `music_map`, боя — `music_battle` (если владелец положит одну общую).
+Треки по желанию (из `docs/RO_EXTRACT_LIST.md` §6): `61.mp3` Zingaro — бой босса главы 7, `02.mp3` Gambler of Highway —
+охота/экспедиции, запасные поля (`03`, `24`, `36`, `37`, `38`, `43`, `44`, `47`, `52`) — новых дорожек под них пока нет.
+
+Пока файлов нет, играют заглушки `audioSynth.ts`; новые темы слотов звучат как раньше (`MUSIC_ALIAS`): канализация —
+как топь, орки — как пустыня, часовая башня и Башня — как склеп, лабиринт — как ночной лес, вход — как главная.
+
+Бой с боссом — одна общая тема `boss` во всех главах: узнаваемый сигнал «сейчас MVP», вкус главы держит фон главы
+(`amb_*` играет и в бою с боссом). Экраны меню (герои, инвентарь, задания…) музыку не меняют. Одна и та же дорожка
+(и две дорожки с одним файлом — карта и бой канализации) при смене экрана не перезапускается. Смена — перекрёстное
+затухание 0.8 с. Музыка грузится только когда экран её просит (ленивая загрузка, старт игры не ждёт), в памяти —
+две последние дорожки.
+
+### Музыка: заказ владельцу
+
+Музыку владелец готовит сам (решение владельца; `tools/ro_audio.py` её не трогает). Что нужно:
+1. Имена — из колонки «файл владельца» выше: `assets/audio/music_<дорожка>.ogg` и `assets/audio/music_<дорожка>.m4a`
+   (пара: игра берёт то, что умеет браузер). Исходник — `raw/ro/bgm/NN.mp3` из таблицы.
+2. Формат. `.ogg` — Opus (или Vorbis), 64–96 кбит/с стерео: Chrome, Android, Firefox, Telegram на Android и десктопе.
+   `.m4a` — AAC-LC, 96–128 кбит/с: Safari, iPhone, Mac, Telegram на iOS/macOS (Ogg там не играет). Один MP3 вместо пары
+   тоже сработает везде, но задержка кодека MP3 даёт паузу на стыке (игра срезает цифровую тишину по краям, но не всегда
+   всю) — пара Opus + AAC надёжнее.
+3. Размер — до 1.5 МБ на файл (каждый формат). При 96 кбит/с это ~2 минуты; треки RO длиннее — нарезать петлю 60–120 с.
+4. Петля: конец плавно переходит в начало (перекрёстное затухание 1–2 с внутри файла), без тишины в начале и в конце.
+5. Громкость: −16 LUFS интегральная, true peak не выше −1 dBTP.
+6. Положить файлы — и всё: каталог (`MUSIC` в `audioCatalog.ts`) уже ждёт эти имена, код менять не нужно. Проверка —
+   `npm run assets:report` (файлы попадут в сборку), в игре — `window.__audio.stats()` в dev.
+Команда для одной дорожки (пример, ffmpeg из `pip install imageio-ffmpeg`), петля 90 с с 5-й секунды:
+`ffmpeg -ss 5 -t 92 -i raw/ro/bgm/12.mp3 -af "afade=in:d=0.05,afade=out:st=90:d=2,loudnorm=I=-16:TP=-1" -c:a libopus -b:a 80k assets/audio/music_map_meadow.ogg`
+(и то же с `-c:a aac -b:a 112k …m4a`); бесшовный стык лучше свести в редакторе (Audacity: crossfade конца с началом).
 
 ## Правила микса
 
@@ -161,67 +194,94 @@ id события = имя файла владельца (`assets/audio/<id>.ogg
 - Таверна (будущая `TavernScene`): музыка включится сама (ключ сцены `Tavern` уже в `sceneSound`); призыв —
   `const ms = summonSound(rarity)` и показ героя через `ms`.
 - Задания и достижения: «Выполнено» — `sfx('quest_done')`; открытие функции/главы — `sfx('unlock')`.
+- Заточка (владелец `InventoryScene`/`HeroScene`): успех — `sfx('refine_success')` вместо пары `sfx('equip', { rate: 1.3 })`
+  + `sfx('coin', { delay: 60 })` (`InventoryScene.refine`, `HeroScene.refineAll`); поломка — `sfx('refine_fail')` вместо
+  `sfx('hit_blunt')` + `sfx('ui_error', { delay: 120 })` (`InventoryScene.refine`).
+- Экран входа (если появится сцена `Title`): музыка `title` включится сама (`sceneSound`).
 - `BootScene.create` — одна строка `installAudio(this.game, sceneSoundOf)`. `scripts/lib/used-assets.ts` —
   `audioFiles()` (файлы `assets/audio/` попадают в сборку).
 
-## Что взять из клиента RO, а что сделать самим
+## Звуки RO: что где играет
 
-Из RO (у владельца есть клиент; права на звук RO — как и на арт — решение владельца):
-1. Удары: `data/wav/` — файлы вида `_hit_*.wav` (меч, кинжал, булава, топор, копьё, стрела, кулак).
-2. Навыки: `data/wav/effect/` и `data/wav/` — звуки эффектов (`ef_*.wav`): огненная стрела, ледяная, молния,
-   землетрясение, Heal (`_heal_effect.wav`), Blessing, Increase AGI, Angelus, щит.
-3. Монстры: `data/wav/` — `<монстр>_attack.wav`, `<монстр>_damage.wav`, `<монстр>_die.wav` (поринг, лунатик, фабр…).
-4. Повышение уровня и смена профессии — звуки эффектов уровня (поиск «level» в `data/wav/`).
-5. Музыка: папка `BGM/` клиента (`NN.mp3`); какая дорожка на какой карте — `data/mp3nametable.txt`
-   (строки вида `prt_fild08.rsw#bgm\\12.mp3#`). Предложения: главная — тема Пронтеры (карта `prontera`), карта
-   главы 1 — «Streamside» (поле Пронтеры, `prt_fild08`, `bgm/12.mp3`), глава 2 — поля/пещера Пайона
-   (`pay_fild*`, `pay_dun*`), глава 3 и башня — Глаз-Хейм (`glast_01`, `gl_*`), босс — тема подземелья Глаз-Хейма
-   или другая напряжённая, таверна — Альберта / Излуде (`alberta`, `izlude`). Номера — по `mp3nametable.txt`.
+Звуки — оригинальные файлы клиента RO (`raw/ro/wav`, `raw/ro/wav/effect`), собраны `python3 tools/ro_audio.py` в
+`assets/audio/<id>.ogg` + `.m4a` (таблица «id → файл клиента» — `SFX` в самом скрипте). Несколько файлов у одного id —
+варианты `<id>_v2`, `<id>_v3`…: игра чередует их (не тот же, что в прошлый раз). Ограничитель (`gap`, `voices`) — на id,
+общий для всех вариантов. Нет файла — синтез-заглушка (`audioSynth.ts`), как раньше.
 
-Сделать самим (генерация / стоки, в RO нет или не подходит): звуки интерфейса (тап, вкладка, окно), монеты и гемы,
-сундук, «Забрать», весь призыв таверны (вихрь, нарастание, открытия по редкости), стингеры победы/поражения
-(короткие, 1.5–2 с), рог начала боя и барабаны босса, фоны глав (ветер, болото, склеп). Пока их нет — играют
-заглушки из `audioSynth.ts`, этого достаточно для игры.
+| id | где играет | файл RO |
+| --- | --- | --- |
+| `ui_tap` | любая кнопка | `wav/버튼소리.wav` (звук кнопки клиента, укорочен до 0.45 с) |
+| `coin` | монета долетела до кошелька (серия вверх по тону) | `effect/ef_coin2.wav` (Mammonite) |
+| `chest_open` | сундук офлайн-наград | `effect/rog_steal coin.wav` (звон монет Steal Coin) |
+| `unlock` | открылась функция / глава | `effect/ef_portal.wav` |
+| `level_up`, `job_change` | повышение уровня; смена профессии, вознесение со сменой профессии | `wav/levelup.wav` (в RO у смены профессии свой звук не найден) |
+| `rarity_up` | вознесение, слияние, «3 одинаковые = следующая редкость» | `effect/drop_pink.wav` |
+| `refine_success`, `refine_fail` (новые) | заточка удалась / вещь сломалась | `effect/bs_refinesuccess.wav`, `effect/bs_refinefailed.wav` |
+| `summon_common` / `summon_rare` / `summon_epic` / `summon_legendary` | открытие карты в Таверне по редкости (зелёная / синяя / фиолетовая / золотая и красная) | `effect/drop_green` / `drop_blue` / `drop_purple` / `drop_yellow.wav` — звуки выпадения вещей по цвету |
+| `swing` | взмах мечом (мечник, рыцарь, крестоносец) | `wav/attack_sword.wav`, `attack_twohand_sword.wav` |
+| `swing_dagger` (новый) | взмах кинжалом / катаром (вор, ассасин) | `wav/attack_short_sword.wav`, `attack_katar.wav` |
+| `swing_blunt` (новый) | взмах булавой / топором (послушник, торговец) | `wav/attack_mace.wav`, `attack_axe.wav` |
+| `hit_sword`, `hit_dagger`, `hit_blunt`, `hit_arrow` | попадание по оружию героя | `wav/_hit_sword`, `_hit_dagger` (`_hit_short_sword` в клиенте нет), `_hit_mace` + `_hit_axe`, `_hit_arrow.wav` |
+| `hit_claw` | удар монстра | `wav/_hit_fist1…4.wav`, `_enemy_hit_normal1.wav` |
+| `hit_magic` | попадание магией | `effect/ef_hit2.wav` |
+| `crit` | удар ульты | `effect/ef_hit5.wav`, `ef_hit6.wav` |
+| `bow_shot` | выстрел | `wav/attack_bow1.wav`, `attack_bow2.wav` |
+| `cast_start` | начало каста | `effect/ef_beginspell.wav` |
+| `cast_fire` | огонь (Fire Bolt) | `effect/ef_firearrow1…3.wav` |
+| `cast_ice` | лёд (Cold Bolt, Frost Diver) | `effect/ef_icearrow1…3.wav`, `ef_frostdiver.wav` |
+| `cast_wind` | молния (Thunderstorm) | `effect/magician_thunderstorm.wav`, `ef_thunderstorm.wav` |
+| `cast_earth` | земля | `effect/wizard_earthspike.wav`, `earth_quake.wav` (укорочен до 1.6 с) |
+| `cast_holy` | святой | `effect/cru_holy cross.wav` |
+| `cast_dark` | тёмный (Dark Strike звучит как Soul Strike) | `effect/ef_soulstrike.wav` |
+| `cast_neutral` | Soul Strike, Napalm Beat | `effect/ef_napalmbeat.wav`, `ef_soulstrike.wav` |
+| `cast_poison` | яд | `effect/thief_invenom.wav`, `ef_poisonattack.wav` (укорочен) |
+| `ult` | всплеск перед ультой | `effect/ef_magnumbreak.wav` |
+| `heal` | лечение | `wav/_heal_effect.wav` |
+| `buff` | Blessing, Increase AGI, Angelus | `effect/ef_blessing.wav`, `ef_incagility.wav`, `ef_angelus.wav` (укорочен до 2 с) |
+| `debuff` | Decrease AGI, Lex Aeterna | `effect/ef_decagility.wav`, `priest_lexaeterna.wav` |
+| `shield` | щит, удар поглощён | `effect/kyrie_guard.wav`, `priest_kyrie_eleison_a.wav` |
+| `boss_death` | босс побеждён (стингер) | `effect/st_mvp.wav` — фанфара MVP |
 
-## Главы 4–7: что звучит сейчас и что прислать
+Синтез (в RO прямого аналога нет или он не найден): `ui_tab`, `ui_back`, `ui_open`, `ui_toggle`, `ui_error`, `ui_notify`,
+`claim`, `gem`, `quest_done`, `equip`, `summon_pull`, `summon_tension`, `stun`, `death_monster` (у монстров без своего
+звука), `death_hero`, `boss_intro`, `battle_start`, `victory`, `defeat` (в RO нет джинглов), `bell_chime`.
 
-Сейчас (синтез, `audioSynth.ts`, `MUSIC_SPECS` и `AMB_RECIPES`):
-1. Пустыня Сограт (глава 4). Карта `map_desert`: лад хиджаз (ре с увеличенной секундой), щипковая мелодия «уда» с
-   подъездом к ноте и двойными щипками, педаль тоники, ритм дарбуки «максум» (дум-тек). Бой `battle_desert`: тот же лад
-   быстрее (112), пульсирующий бас, дарбука с бубном на 2 и 4. Фон `amb_desert`: порывы ветра, шорох песка, свист.
-2. Лес Пайона ночью (глава 5). Карта `map_grove`: минорная пентатоника, медленная «бамбуковая флейта» с вибрато и
-   дыханием, тихие щипки «кото» по аккорду. Бой `battle_grove`: мелодия кото, большие барабаны тайко и деревянные
-   щелчки. Фон `amb_grove`: сверчки, стук бамбуковых фонарей, далёкий храмовый колокольчик.
-3. Затонувший корабль (глава 6). Карта `map_shipwreck`: медленно (60), глубокий пэд из пар расстроенных синусов
-   (биения, «вода»), редкие колокольные ноты. Бой `battle_shipwreck`: лютня и марш над тем же глубоким пэдом. Фон
-   `amb_shipwreck`: гул глубины, скрип дерева, капли, пузырьки, глухой корабельный колокол.
-4. Нифльхейм (глава 7). Карта `map_niflheim`: гармонический минор, органные аккорды, хорал половинными нотами,
-   педаль. Бой `battle_niflheim`: орган, колокол, марш. Фон `amb_niflheim`: вой ледяного ветра, низкий гул,
-   далёкий погребальный звон.
+Обработка в `tools/ro_audio.py`: моно, обрезка тишины по краям (−48 дБ), длинные — укоротить с затуханием, пик −1 dBFS,
+подъём 2 мс и спад 10 мс против щелчков. Кодеки: Opus 48 кбит/с в Ogg и AAC-LC 64 кбит/с в MP4 (`-movflags +faststart`).
+`python3 tools/ro_audio.py --check` — всё ли собрано и нет ли лишних файлов; `--force` — пересобрать всё.
 
-Заказ для владельца (положить в `assets/audio/`, формат — ниже; файл есть — синтез больше не играет):
-1. `music_map_desert` — карта главы 4. Ориентир RO: «Theme of Morroc» (карта `morocc`), или поля Морока `moc_fild*`.
-2. `music_battle_desert` — бой главы 4. Ориентир: пирамиды / сфинкс (`moc_pryd*`, `in_sphinx*`) или Морок быстрее.
-3. `music_map_grove` — карта главы 5. Ориентир: «Theme of Payon» (карта `payon`), поля `pay_fild*`.
-4. `music_battle_grove` — бой главы 5. Ориентир: пещера Пайона (`pay_dun*`).
-5. `music_map_shipwreck` — карта главы 6. Ориентир: затонувший корабль (`treasure01`) или Излуде (`izlude`).
-6. `music_battle_shipwreck` — бой главы 6. Ориентир: `treasure02` или подводный Бялан (`iz_dun*`).
-7. `music_map_niflheim` — карта главы 7. Ориентир: «Niflheim» (карта `niflheim`).
-8. `music_battle_niflheim` — бой главы 7. Ориентир: поля Нифльхейма / Гьёлль (`nif_fild*`).
-9. Фоны (в RO готовых нет — сток или генерация, петля 20–30 с): `amb_desert` (ветер с песком), `amb_grove`
-   (ночной лес: сверчки, фонари, далёкий колокольчик), `amb_shipwreck` (под водой: скрип, капли, пузырьки,
-   колокол), `amb_niflheim` (вой ветра, погребальный звон).
-10. `bell_chime` — колокольчик Греты: короткий светлый звон 0.8–1.5 с (ручной колокольчик, не церковный колокол).
-Номер дорожки RO для карты — по `data/mp3nametable.txt` клиента (строки вида `morocc.rsw#bgm\\NN.mp3#`). Если
-прислать одну общую `music_battle` — она заиграет во всех боях, где нет своей.
+### Звуки монстров
 
-Проверка синтеза без прослушивания: каждая тема рендерилась в WAV через OfflineAudioContext (Chromium, 30 с,
-шов петли внутри рендера): пики музыки −7.7…−8.7 dBFS, фонов около −13 dBFS (с громкостью каталога), клиппинга и
-тишины нет, перепад на шве меньше 99.9-го перцентиля перепадов внутри петли. Тест `tests/game-audio.test.ts`
-проверяет шов и уровни всех петель.
+`data/monster_sounds.json` (схема — `src/game/monsterSounds.ts`, `data/schema/monster-sounds.schema.json`): id листа
+спрайта (как `visual.sprite` юнита) → `attack` и `death` — имена звуков RO без `.wav` (так их называет ACT монстра:
+`raw/ro-build/sprites.fragment.json` → `sourceSounds`). Файл — `assets/audio/mon_<имя>.ogg|m4a`. Юниты не трогаем: звук
+едет вместе с листом. Сейчас 60 листов: poring (лист `fast`), lunatic, mummy, raydric, hydra, Baphomet (`boss2`) из
+текущих и все листы новой сборки RO (орки, часовая башня, Гласт Хейм, Нифльхейм…) — они зазвучат, как только юниты
+перейдут на эти листы.
 
-## Файлы от владельца: формат
+В бою (`battleAudio.ts`): обычная атака монстра — его звук атаки вместо общего взмаха; смерть — его звук смерти вместо
+общего «пуф»; босс — свой звук и фанфара MVP. Несколько файлов — по очереди. Ограничитель на файл: удар — не чаще 70 мс,
+не больше 2 одновременно; смерть — 60 мс, 3; плюс общий лимит 10 звуков. Звуки монстров боя начинают грузиться с
+первого события лога; ещё не загрузился — играет общий звук каталога. Звук «ранен» (`hurt`) не используем: попадание уже
+звучит ударом оружия.
 
-Подробно — `docs/ART_EXTRACT_RO.md`, раздел 6. Коротко: `assets/audio/<id>.ogg` (+ `<id>.m4a` для iPhone),
-имена — id из таблиц выше; музыка — `music_*.ogg`, фоны — `amb_*.ogg`. Файл есть — побеждает заглушку, нет —
-играет заглушка. Можно прислать сырые WAV/MP3 — агент сам нарежет, выровняет громкость и переведёт в OGG + M4A.
+Добавить монстру звук: строка в `data/monster_sounds.json`, затем `python3 tools/ro_audio.py` (нужен WAV в `raw/ro/wav`),
+`npm run content:check` (файлы есть — иначе ✗; лист неизвестен — ⚠).
+
+## Форматы файлов и загрузка
+
+1. Пара `.ogg` (Opus) + `.m4a` (AAC-LC). Ogg не играет в Safari на iOS (и в Telegram на iOS/macOS — там WKWebView), AAC
+   может не быть в сборках Chromium без проприетарных кодеков (Telegram Desktop на Linux и др.). Пара закрывает всё.
+2. Игра выбирает формат по `canPlayType`; если выбранный не раскодировался (`decodeAudioData` отказал), пробует
+   следующий, и только потом — заглушку (`audio.ts`, `fileUrls` и `load`).
+3. Звуки (~0.8 МБ ogg или ~1.1 МБ m4a на всё, 155 звуков) качаются в фоне через 1.5 с после старта, не больше 3
+   запросов сразу: экран загрузки и первый экран их не ждут. Звуки монстров — перед боем, музыка — только по просьбе экрана.
+4. В сборку (`dist/audio/`) попадают все `assets/audio/<имя>.(ogg|m4a|mp3)` (`scripts/lib/used-assets.ts`), браузер
+   качает только один формат.
+
+## Заглушки (синтез)
+
+Все звуки, 28 музыкальных дорожек (17 своих заглушек и 11 псевдонимов, `MUSIC_ALIAS`) и 7 фонов синтезируются кодом
+(`audioSynth.ts`) и ничего не весят. Играют, пока нет файла или если файл не загрузился. Темы глав 4–7 в заглушках:
+пустыня — лад хиджаз, уд и дарбука; лес Пайона — пентатоника, флейта, кото и тайко; корабль — глубокий пэд, колокол,
+лютня; Нифльхейм — орган, хорал, погребальный колокол. Фоны `amb_*` в RO отсутствуют — остаются синтезом.

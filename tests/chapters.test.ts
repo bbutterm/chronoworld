@@ -80,11 +80,13 @@ describe('K3 главы 2–3', () => {
     expect(boss('ch3_s10')).toEqual(['orc_lord']);
     expect(units('ch2_s14')).toContain('sewer_bug_leader');
     expect(units('ch3_s15')).toContain('orc_hero');
-    // Готовые листы MVP (lore-route §4.3): Золотой жук-вор — лист elite, Герой орков — boss1, Орк-лорд — перекраска boss1.
+    // Готовые листы MVP (lore-route §4.3): Золотой жук-вор — лист elite, Герой орков — boss1. Орк-лорд и Вожак жуков —
+    // свои листы из клиента scRO (docs/RO_SCRO_IMPORT.md); Вожак — лист самца жука-вора, крупнее и темнее.
     expect(ctx.content.units.sewer_golden_bug.visual.sprite).toBe('elite');
     expect(ctx.content.units.orc_hero.visual.sprite).toBe('boss1');
-    expect(ctx.content.units.orc_lord.visual.sprite).toBe('boss1');
-    expect(ctx.content.units.orc_lord.visual.tint).toBeTruthy();
+    expect(ctx.content.units.orc_lord.visual.sprite).toBe('orc_lord');
+    expect(ctx.content.units.sewer_bug_leader.visual.sprite).toBe(ctx.content.units.sewer_bug_male.visual.sprite);
+    expect(ctx.content.units.sewer_bug_leader.visual.tint).toBeTruthy();
     // Старые боссы слотов остались в игре: Верховный жрец — мини-босс главы 8 (ива — Башня, tests/tower.test.ts).
     expect([...new Set(stages.filter((s) => s.enemies.some((e) => e?.unit === 'mob3_boss')).map((s) => s.chapter))]).toEqual(['chapter8']);
   });
@@ -113,10 +115,10 @@ describe('K3 главы 2–3', () => {
         if (e) expect(['boss2', 'dark_lord', 'osiris', 'drake', 'moonlight_flower', 'mistress'], `${s.id}: ${e.unit}`).not.toContain(ctx.content.units[e.unit].visual.sprite);
   });
 
-  it('монстры глав 2, 3, 7, 8, 10 используют спрайты v2 и свои навыки', () => {
+  it('монстры глав 2, 3, 7–10 используют спрайты v2 и свои навыки', () => {
     // Любой лист реестра v2 (Гласт Хейм — листы RO Рейдрика, Мимика, Гаргульи, Тёмного жреца; новые слоты 2, 3, 7 — перекраски).
     const v2 = (JSON.parse(readFileSync(join(ROOT, 'assets/sprites/sprites.json'), 'utf8')) as { sprites: { id: string }[] }).sprites.map((s) => s.id);
-    for (const u of Object.values(ctx.content.units).filter((x) => /^(mob[237]|sewer|orc|alde)_/.test(x.id) && x.kind === 'monster')) {
+    for (const u of Object.values(ctx.content.units).filter((x) => /^(mob[237]|sewer|orc|alde|maze)_/.test(x.id) && x.kind === 'monster')) {
       expect(v2, u.id).toContain(u.visual.sprite);
       expect(ctx.content.skills[u.skills.basic]).toBeDefined();
       if (u.skills.ult) expect(ctx.content.skills[u.skills.ult]).toBeDefined();
@@ -209,9 +211,11 @@ describe('K3 главы 2–3', () => {
     const units = new Set(stages.filter((s) => s.chapter === 'chapter2').flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)));
     const ch1 = new Set(stages.filter((s) => s.chapter === 'chapter1').flatMap((s) => s.enemies.filter((e) => e).map((e) => ctx.content.units[e!.unit].visual.sprite)));
     expect(units.size).toBeGreaterThanOrEqual(8);
+    // Тот же монстр, что и в главе 1 (Марин), на своём листе — не перекраска чужого.
+    const ch1Units = new Set(stages.filter((s) => s.chapter === 'chapter1').flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)));
     for (const id of units) {
       const v = ctx.content.units[id].visual;
-      if (ch1.has(v.sprite)) expect(v.tint, `${id} на листе главы 1 ${v.sprite}`).toBeTruthy();
+      if (ch1.has(v.sprite) && !ch1Units.has(id)) expect(v.tint, `${id} на листе главы 1 ${v.sprite}`).toBeTruthy();
       for (const own of ['dark_priest', 'raydric', 'mimic', 'dark_lord']) expect(v.sprite, id).not.toBe(own);
     }
   });
@@ -262,23 +266,27 @@ describe('маршрут из 10 глав (docs/design/lore-route.md §0, §4.2)
       expect(c.id, 'id главы — chapter<order>').toBe(`chapter${c.order}`);
       expect(c.name.startsWith(`Глава ${c.order}. `), `${c.id}: ${c.name}`).toBe(true);
     }
-    // Глава 9 (Лабиринтный лес) ещё не написана: после главы 8 идёт 10-я, номера этапов — «10-K».
+    // Все 10 глав маршрута на месте: глава 9 (Лабиринтный лес) встала между 8 и 10.
+    expect(chapters.map((c) => c.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     expect(chapters.find((c) => c.id === 'chapter8')?.name).toBe('Глава 8. Гласт Хейм');
+    expect(chapters.find((c) => c.id === 'chapter9')?.name).toBe('Глава 9. Лабиринтный лес');
+    expect(stageLabel('ch9_s18', ctx.content)).toBe('9-18');
     expect(chapters.find((c) => c.id === 'chapter10')?.name).toBe('Глава 10. Нифльхейм');
     expect(stageLabel('ch10_s1', ctx.content)).toBe('10-1');
     expect(stageLabel('ch8_s18', ctx.content)).toBe('8-18');
   });
 
-  it('главы 8 и 10: 18 этапов ch<N>_s1…s18 подряд, босс — s18; по 10 ступеней роста на главу, как у глав 1–7', () => {
-    for (const [c, n] of [['chapter8', 8], ['chapter10', 10]] as const) {
+  it('главы 8–10: 18 этапов ch<N>_s1…s18 подряд, босс — s18; по 10 ступеней роста на главу, как у глав 1–7', () => {
+    for (const [c, n] of [['chapter8', 8], ['chapter9', 9], ['chapter10', 10]] as const) {
       const ids = chapterStages(c).map((s) => s.id);
       expect(ids, c).toEqual(Array.from({ length: 18 }, (_, i) => `ch${n}_s${i + 1}`));
       expect(chapterStages(c).filter((s) => !s.inserted), c).toHaveLength(10);
     }
-    // Ступень роста: главы 1–7 — по 10 обычных этапов, поэтому гл. 8 начинает с 70-й, гл. 10 (пока без гл. 9) — с 80-й.
-    // Когда появится глава 9 с 10 обычными этапами, гл. 10 сдвинется на 10 ступеней (×2.16) — mult гл. 10 пересчитать.
+    // Ступень роста: главы 1–7 — по 10 обычных этапов, поэтому гл. 8 начинает с 70-й, гл. 9 — с 80-й, гл. 10 — с 90-й
+    // (с главой 9 глава 10 сдвинулась на 10 ступеней, ×2.16 — mult гл. 10 подобраны заново, docs/content/balance.md).
     expect(growthStep(stages.find((s) => s.id === 'ch8_s1')!, ctx)).toBe(70);
-    expect(growthStep(stages.find((s) => s.id === 'ch10_s1')!, ctx)).toBe(80);
+    expect(growthStep(stages.find((s) => s.id === 'ch9_s1')!, ctx)).toBe(80);
+    expect(growthStep(stages.find((s) => s.id === 'ch10_s1')!, ctx)).toBe(90);
   });
 
   it('боссы: Гласт Хейм — Тёмный лорд (s18) и мини-босс Верховный жрец (s15); Нифльхейм — Владыка мёртвых (s18) и Страж моста (s9)', () => {
@@ -286,6 +294,11 @@ describe('маршрут из 10 глав (docs/design/lore-route.md §0, §4.2)
     expect(units('ch8_s18')).toContain('mob7_boss');
     expect(ctx.content.units.mob7_boss.visual.sprite).toBe('dark_lord');
     expect(units('ch8_s15')).toContain('mob3_boss');
+    // Лабиринтный лес: Бафомет (лист boss2, story.md §5.9) и мини-босс Писарь Бафомета в середине главы.
+    expect(units('ch9_s18')).toContain('maze_baphomet');
+    expect(ctx.content.units.maze_baphomet.kind).toBe('boss');
+    expect(ctx.content.units.maze_baphomet.visual.sprite).toBe('boss2');
+    expect(units('ch9_s10')).toContain('maze_scribe');
     expect(units('ch10_s18')).toContain('mob_lord_of_death');
     expect(ctx.content.units.mob_lord_of_death.kind).toBe('boss');
     expect(units('ch10_s9')).toContain('mob7_bridge_warden');
@@ -296,6 +309,7 @@ describe('маршрут из 10 глав (docs/design/lore-route.md §0, §4.2)
   it('тема главы (фон и музыка) — по содержимому, а не по месту: Гласт Хейм — склеп, Нифльхейм — Нифльхейм, слоты 2/3/7 — свои', () => {
     const theme = (id: string) => chapterTheme(chapters.find((c) => c.id === id));
     expect(theme('chapter8')).toBe('crypt');
+    expect(theme('chapter9')).toBe('labyrinth');
     expect(theme('chapter10')).toBe('niflheim');
     expect(theme('chapter2')).toBe('sewer');
     expect(theme('chapter3')).toBe('orc');

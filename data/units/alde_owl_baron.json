@@ -19,9 +19,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "gargoyle",
-    "tint": "#8a78b0",
-    "scale": 1.35,
+    "sprite": "owl_baron",
     "hitFx": "fx_hit"
   },
   "barks": {

@@ -23,6 +23,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, lintLevelBands, maxLevelOf, parseLore, rarityIndex, validateLore, recommendedPower, simulateBattle, validateHeroes, validatePageTexts } from '../src/core';
+import { MonsterSoundsSchema, monsterSoundFiles } from '../src/game/monsterSounds';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
@@ -68,7 +69,7 @@ const loreFiles = existsSync(loreDir)
 const loreParsed = parseLore(loreFiles);
 errors.push(...loreParsed.problems);
 if (built.ctx) {
-  const lint = validateLore(loreParsed.lore, { content: built.ctx.content, items: built.ctx.equipment.items, tower: built.ctx.tower, hunt: built.ctx.hunt });
+  const lint = validateLore(loreParsed.lore, { content: built.ctx.content, items: built.ctx.equipment.items, tower: built.ctx.tower, hunt: built.ctx.hunt, cards: built.ctx.cards });
   errors.push(...lint.errors);
   warnings.push(...lint.warnings);
   // 11. Тексты «между этапами» (эпизод, легенда, летопись глав, находки этапов, реплики боссов): уникальность id находок — ✗.
@@ -111,8 +112,10 @@ if (content) {
 
   // 8. Карточки героев и Таверна: правила карточек, листы (свой / класса / пол), портреты, выдача Таверны.
   const sheetGender: Record<string, string | undefined> = {};
-  for (const s of readJson<{ sprites: { id: string; source?: { gender?: string } }[] }>('assets/sprites/sprites.json')?.sprites ?? []) {
-    sheetGender[s.id] = s.source?.gender === 'female' ? 'f' : s.source?.gender === 'male' ? 'm' : undefined;
+  // Пол листа — в доказательствах конвейера арта (sprites.provenance.json, tools/sprites_manifest.py), в бандл не идут.
+  const provenance = readJson<{ sprites: Record<string, { source?: { gender?: string } }> }>('assets/sprites/sprites.provenance.json')?.sprites ?? {};
+  for (const [id, p] of Object.entries(provenance)) {
+    sheetGender[id] = p.source?.gender === 'female' ? 'f' : p.source?.gender === 'male' ? 'm' : undefined;
   }
   if (built.ctx) {
     const lint = lintHeroes(built.ctx, registry, sheetGender);
@@ -156,6 +159,12 @@ if (content) {
         warnings.push(`сюжет ${story.chapter}: портрет спикера ${key} (${sp.portrait}) не найден — в игре будет иконка`);
       }
     }
+    // Иллюстрация спикера (Кафра) — файл assets/ui/illust/<id>.png; нет файла — ошибка (диалог покажет портрет, но ссылка битая).
+    for (const [key, sp] of Object.entries(story.speakers)) {
+      if (sp.illust && !existsSync(join(ROOT, 'assets/ui/illust', `${sp.illust}.png`))) {
+        errors.push(`сюжет ${story.chapter}: иллюстрация спикера ${key} — нет файла assets/ui/illust/${sp.illust}.png`);
+      }
+    }
   }
 
   // 5. Дымовой прогон
@@ -187,6 +196,24 @@ if (content) {
   }
 }
 
+// 12. Звуки монстров RO (data/monster_sounds.json → assets/audio/mon_<имя>.ogg|m4a, tools/ro_audio.py): схема и файлы — ✗,
+//     лист спрайта, которого нет ни в реестре, ни в сборке листов RO (raw/ro-build/sprites.fragment.json), — ⚠.
+{
+  const raw = readJson<unknown>('data/monster_sounds.json');
+  const parsed = raw === undefined ? null : MonsterSoundsSchema.safeParse(raw);
+  if (parsed && !parsed.success) errors.push(`data/monster_sounds.json: ${parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`);
+  else if (parsed?.success) {
+    for (const f of monsterSoundFiles(parsed.data))
+      for (const ext of ['ogg', 'm4a'])
+        if (!existsSync(join(ROOT, 'assets/audio', `${f}.${ext}`))) errors.push(`data/monster_sounds.json: нет assets/audio/${f}.${ext} — python3 tools/ro_audio.py`);
+    const known = new Set([
+      ...(readJson<{ sprites: { id: string }[] }>('assets/sprites/sprites.json')?.sprites ?? []).map((s) => s.id),
+      ...(readJson<{ sprites: { id: string }[] }>('raw/ro-build/sprites.fragment.json')?.sprites ?? []).map((s) => s.id),
+    ]);
+    for (const id of Object.keys(parsed.data.sprites)) if (!known.has(id)) warnings.push(`data/monster_sounds.json: листа «${id}» нет ни в assets/sprites/sprites.json, ни в raw/ro-build — звук не зазвучит`);
+  }
+}
+
 // 4. JSON-схемы
 for (const [file, body] of Object.entries(generateSchemas())) {
   const cur = existsSync(join(ROOT, file)) ? readFileSync(join(ROOT, file), 'utf8') : '';
@@ -207,7 +234,7 @@ if (content) {
       `навыков: ${Object.keys(content.skills).length}, профессий: ${Object.keys(content.jobs).length}, карточек героев: ${Object.keys(content.heroes).length}, этапов: ${content.stages.length}, ` +
       `сюжетных сцен: ${built.ctx?.story.scenes.length ?? 0}, ` +
       `летопись: монстров ${Object.keys(loreParsed.lore.monsters).length}, предметов ${Object.keys(loreParsed.lore.items).length}, ` +
-      `героев ${Object.keys(loreParsed.lore.heroes).length}, профессий ${Object.keys(loreParsed.lore.jobs).length}, глав ${Object.keys(loreParsed.lore.chapters).length}, записей мира ${loreParsed.lore.world.length}, ` +
+      `героев ${Object.keys(loreParsed.lore.heroes).length}, кусочков истории героев ${Object.values(loreParsed.lore.heroStories).flat().length}, профессий ${Object.keys(loreParsed.lore.jobs).length}, глав ${Object.keys(loreParsed.lore.chapters).length}, записей мира ${loreParsed.lore.world.length}, ` +
       `строк-комментариев ${Object.values(loreParsed.lore.lines).flat().length}; ` +
       `тексты глав: эпизодов ${content.chapters.filter((c) => c.episode).length}, легенд ${content.chapters.filter((c) => c.legend).length}, ` +
       `летописей ${content.chapters.filter((c) => c.chronicle).length}, находок ${content.stages.filter((s) => s.finding).length}, ` +

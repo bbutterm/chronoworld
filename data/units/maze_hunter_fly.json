@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "maze_hunter_fly",
+  "name": "Муха-охотник",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 420,
+    "atk": 45,
+    "def": 5,
+    "spd": 145,
+    "moveSpeed": 320
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "maze_hunter_fly_sting",
+    "actives": [],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "hunter_fly",
+    "hitFx": "fx_hit"
+  }
+}

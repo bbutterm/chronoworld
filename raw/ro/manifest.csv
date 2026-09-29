@@ -1,0 +1,618 @@
+group,source,archive,size,sha256,output,note
+monster,data\sprite\몬스터\marin.spr,rdata.grf,42859,e1b2d5e3ba8cb46a6f6a4742217f37b13f7012b361388f36e0852189ca98b9ef,raw/ro/sprite/monster/marin.spr,
+monster,data\sprite\몬스터\marin.act,rdata.grf,146172,ed8c6c2fd100547e60dba40702fbed3224a15ec0d316dbefe9bf2f57ba2c72dc,raw/ro/sprite/monster/marin.act,
+monster,data\sprite\몬스터\pupa.spr,rdata.grf,12764,ad63d625e274a1a5867ee00a44bcb6349731ee8529b0f924a12dd4019000aea6,raw/ro/sprite/monster/pupa.spr,
+monster,data\sprite\몬스터\pupa.act,rdata.grf,39252,eeaa4a0815ab18f4e095a11f7f63c4fcc5fef2eaefc965f6d0fc84939ed384ea,raw/ro/sprite/monster/pupa.act,
+monster,data\sprite\몬스터\thief_bug_male.spr,rdata.grf,27239,e138e65c331e2f630349c04c6d99985d12821c3b39ddcd5bf5f6cf5e52387b39,raw/ro/sprite/monster/thief_bug_male.spr,
+monster,data\sprite\몬스터\thief_bug_male.act,rdata.grf,31220,ef7ca0db8e98910d912de43781b78d291a24d6027c5c1b382f14b133c5d2923a,raw/ro/sprite/monster/thief_bug_male.act,
+monster,data\sprite\몬스터\thief_bug_female.spr,rdata.grf,27239,e138e65c331e2f630349c04c6d99985d12821c3b39ddcd5bf5f6cf5e52387b39,raw/ro/sprite/monster/thief_bug_female.spr,
+monster,data\sprite\몬스터\thief_bug_female.act,rdata.grf,31220,d7511d30640a132e52145d72df036243b511a0092a4b8e4e057320d2993dc417,raw/ro/sprite/monster/thief_bug_female.act,
+monster,data\sprite\몬스터\thief_bug_larva.spr,rdata.grf,27239,e138e65c331e2f630349c04c6d99985d12821c3b39ddcd5bf5f6cf5e52387b39,raw/ro/sprite/monster/thief_bug_larva.spr,
+monster,data\sprite\몬스터\thief_bug_larva.act,rdata.grf,31220,7c55a67fe5490eac1fad7f642b245a1f2a7c34bde6ee7f0535fff66e37d6ae8a,raw/ro/sprite/monster/thief_bug_larva.act,
+monster,data\sprite\몬스터\thief_bug.spr,rdata.grf,27239,e138e65c331e2f630349c04c6d99985d12821c3b39ddcd5bf5f6cf5e52387b39,raw/ro/sprite/monster/thief_bug.spr,
+monster,data\sprite\몬스터\thief_bug.act,rdata.grf,31220,7c55a67fe5490eac1fad7f642b245a1f2a7c34bde6ee7f0535fff66e37d6ae8a,raw/ro/sprite/monster/thief_bug.act,
+monster,data\sprite\몬스터\thief_bug_egg.spr,rdata.grf,4194,3ac92496015cc475d1a61d2a5179728a9eadc00642d908ecee3d8926ff8c2124,raw/ro/sprite/monster/thief_bug_egg.spr,
+monster,data\sprite\몬스터\thief_bug_egg.act,rdata.grf,20324,b084c9feb1d42311775628e1aa15e506ebfa50ea3c9824683268526a475508c9,raw/ro/sprite/monster/thief_bug_egg.act,
+monster,data\sprite\몬스터\plankton.spr,rdata.grf,2742,e9d54d0a9bcfca138d55a39729abfba20e1ee3965b937d573217ba126e00ddd3,raw/ro/sprite/monster/plankton.spr,
+monster,data\sprite\몬스터\plankton.act,rdata.grf,68004,354652aafe693acec6e129eb682b3cda04277ce5e5ee461f2a2412ca04aff13e,raw/ro/sprite/monster/plankton.act,
+monster,data\sprite\몬스터\tarou.spr,rdata.grf,12256,a04a9f4d4e4a65d23df568405c956416991c9da7236aab9c28204d621e50ce01,raw/ro/sprite/monster/tarou.spr,
+monster,data\sprite\몬스터\tarou.act,rdata.grf,41500,de2d608f4307daaf6e5f75a5ab7a4c5214ada53677083630ea94c0d965470a16,raw/ro/sprite/monster/tarou.act,
+monster,data\sprite\몬스터\farmiliar.spr,rdata.grf,12362,25deca0ba0d0ec7a9ec089cbcc9a6d9f0c72c1acfbc4d1cc3104017a2463042f,raw/ro/sprite/monster/farmiliar.spr,
+monster,data\sprite\몬스터\farmiliar.act,rdata.grf,30028,85a2c49f4ec9d07102671fa138b0951d8feef94f45c51b2c9fe4f948c84c1ea5,raw/ro/sprite/monster/farmiliar.act,
+monster,data\sprite\몬스터\orc_lord.spr,rdata.grf,288887,8850510cb4dea075d8ea59406a670742ad909db4c7dc28f7897d693dc04b3e24,raw/ro/sprite/monster/orc_lord.spr,
+monster,data\sprite\몬스터\orc_lord.act,rdata.grf,59260,e4ebaf1d3f61d2f544794aa6b995af866537b02cb90d16b839706642bef50eaa,raw/ro/sprite/monster/orc_lord.act,
+monster,data\sprite\몬스터\ork_warrior.spr,rdata.grf,372373,46323f1943705995f4c9839609b5ed05a73543ba2a85f884c36a74a7e2944ca4,raw/ro/sprite/monster/ork_warrior.spr,
+monster,data\sprite\몬스터\ork_warrior.act,rdata.grf,112676,e016ec77a08e8ec590fad23234f109fc06cc3ae67526b78719746eef633b659a,raw/ro/sprite/monster/ork_warrior.act,
+monster,data\sprite\몬스터\high_orc.spr,rdata.grf,294625,a8dd10e3da183be1bdc87d9f56da10da277d7b119c236b34b395121c5f4770ab,raw/ro/sprite/monster/high_orc.spr,
+monster,data\sprite\몬스터\high_orc.act,rdata.grf,66668,56d49257299b1e2e56efb2131f04850ee95ebd258d7a965214168b908313c7f1,raw/ro/sprite/monster/high_orc.act,
+monster,data\sprite\몬스터\orc_archer.spr,rdata.grf,138462,ac591ce073f31f56600990f8096988b679b3b842f2427d80b4d67edfd43c4c06,raw/ro/sprite/monster/orc_archer.spr,
+monster,data\sprite\몬스터\orc_archer.act,rdata.grf,48532,c9c623ffe100e687ce6aa027a32fb3a3754897038f3057e63efded67b31fc1ac,raw/ro/sprite/monster/orc_archer.act,
+monster,data\sprite\몬스터\orc_lady.spr,rdata.grf,116854,dda0c0767795e91b58f9c51ab9e11d4bdf11485cf1111b059608db735d2ea6b8,raw/ro/sprite/monster/orc_lady.spr,
+monster,data\sprite\몬스터\orc_lady.act,rdata.grf,56236,71dbe7b3e1d25a92e5bf2cee10194f5bc8af23f937886d46eb1b763b0cd719a7,raw/ro/sprite/monster/orc_lady.act,
+monster,data\sprite\몬스터\orc_skeleton.spr,rdata.grf,119327,a39f864209d63ae75bd62438da61775c510d7c55a78344b3065fb5918a55ce8f,raw/ro/sprite/monster/orc_skeleton.spr,
+monster,data\sprite\몬스터\orc_skeleton.act,rdata.grf,87004,31e1e75241bc534422e468ae134892c7b234d66022456b87b0423df5858370e2,raw/ro/sprite/monster/orc_skeleton.act,
+monster,data\sprite\몬스터\orc_zombie.spr,rdata.grf,174331,13f5d0c2bc6c7d6a09e211566d902063a906de342b913933b96569fe3902970f,raw/ro/sprite/monster/orc_zombie.spr,
+monster,data\sprite\몬스터\orc_zombie.act,rdata.grf,52396,2de192c219accb205b363235a38c90e06933d3856379d8c915fba756edcbf89c,raw/ro/sprite/monster/orc_zombie.act,
+monster,data\sprite\몬스터\steel_chocho.spr,rdata.grf,20617,078e055ac691864470f362cebbc1e4abef44c8e8e9e32817c4651c2074f465a2,raw/ro/sprite/monster/steel_chocho.spr,
+monster,data\sprite\몬스터\steel_chocho.act,rdata.grf,362516,92289df1384b25d925a72cc5f592ab44f1b695fa4dc0442fd75db66548b86dda,raw/ro/sprite/monster/steel_chocho.act,
+monster,data\sprite\몬스터\ancient_mummy.spr,rdata.grf,112760,af5a423d4b55ad524d2a90d5bd88e57bfa080c4e015fd06cae8db7fe99192aa6,raw/ro/sprite/monster/ancient_mummy.spr,
+monster,data\sprite\몬스터\ancient_mummy.act,rdata.grf,23812,a4d46ca3613c2e94d64f43648af71fac81dc15531736bc12ffa041d326636f41,raw/ro/sprite/monster/ancient_mummy.act,
+monster,data\sprite\몬스터\c_tower_manager.spr,rdata.grf,412718,3a9f8c93523ab0e73f84fbbf90c836dac4d13b39692fc613f1341487c5808116,raw/ro/sprite/monster/c_tower_manager.spr,
+monster,data\sprite\몬스터\c_tower_manager.act,rdata.grf,104596,e3e3135b583ffe0d8a24dd7fbe9c1684cba4dbf9978613b98249d979de9c682b,raw/ro/sprite/monster/c_tower_manager.act,
+monster,data\sprite\몬스터\owl_baron.spr,rdata.grf,265586,52daf8152fa41cf68cd082580b6f1910b5a3bedac2223adecf85acb24e01f864,raw/ro/sprite/monster/owl_baron.spr,
+monster,data\sprite\몬스터\owl_baron.act,rdata.grf,122132,163706931b0bf0c4967a5ca4b9ed516a8b3d84cce9c05caa29154415d5a2bb8c,raw/ro/sprite/monster/owl_baron.act,
+monster,data\sprite\몬스터\owl_duke.spr,rdata.grf,250775,b14e5eef6a7154daacc17d0ca75000a8eab14acf58ce6240e4b8ede422942fff,raw/ro/sprite/monster/owl_duke.spr,
+monster,data\sprite\몬스터\owl_duke.act,rdata.grf,122332,cf5e6ff0c67a843f29429787cf8e0c09ebbadd90b90a7496a3cdb36733ca4cc6,raw/ro/sprite/monster/owl_duke.act,
+monster,data\sprite\몬스터\alarm.spr,rdata.grf,251722,e765292aad75a51faa6709c5f99d92c5bd046792f0a7f4e68c5974287d03bbb7,raw/ro/sprite/monster/alarm.spr,
+monster,data\sprite\몬스터\alarm.act,rdata.grf,116892,9af26dfe79776c8f6b02990ff6d4a03b7175eff00acd5565f5f9c1d30c5e7cc0,raw/ro/sprite/monster/alarm.act,
+monster,data\sprite\몬스터\clock.spr,rdata.grf,285011,f24f5623cac7592c48bbae5fd5f2f459ae9e3a7806eb95e9004e1f5364946599,raw/ro/sprite/monster/clock.spr,
+monster,data\sprite\몬스터\clock.act,rdata.grf,117500,dcf457f93256741c22bb65409aff38fb8df5a9b9645d72fce4c53522de0bad20,raw/ro/sprite/monster/clock.act,
+monster,data\sprite\몬스터\rideword.spr,rdata.grf,24308,da13a4f7bb37afe7b8c38f962f803b00e2c06f2dc109734fd1585063910fca60,raw/ro/sprite/monster/rideword.spr,
+monster,data\sprite\몬스터\rideword.act,rdata.grf,89692,016a108de51e1bb9484f524f3667b7da7edc214784cf0303067b534da680cde1,raw/ro/sprite/monster/rideword.act,
+monster,data\sprite\몬스터\punk.spr,rdata.grf,17310,27b462e5f9baf512223181bb46068b3717f806a0f5b761d134a10c5d81fe78b9,raw/ro/sprite/monster/punk.spr,
+monster,data\sprite\몬스터\punk.act,rdata.grf,78660,c3d470a7099681a7c1ae1a5f0b9abde45e70e0f5a36c959a2d774bd4440c88e6,raw/ro/sprite/monster/punk.act,
+monster,data\sprite\몬스터\elder.spr,rdata.grf,321419,27cc24c8c8db3d07b130e51abe2fc71cab677b5f27f7b224ea55183e5a453639,raw/ro/sprite/monster/elder.spr,
+monster,data\sprite\몬스터\elder.act,rdata.grf,96516,e44d651c86b4937bf6faca6ac3bcff661c702653a9fddaf92eb1ec445c372aaa,raw/ro/sprite/monster/elder.act,
+monster,data\sprite\몬스터\knight_of_abyss.spr,rdata.grf,1253856,563c4c2b20cd4a2e371422b41446560ee24619320235df5b5052630d452ffd13,raw/ro/sprite/monster/knight_of_abyss.spr,
+monster,data\sprite\몬스터\knight_of_abyss.act,rdata.grf,122348,035134cbe8f0fa06e208039879f6a85e6cc4aa9a77fd279068cb5e0eb46cfd5e,raw/ro/sprite/monster/knight_of_abyss.act,
+monster,data\sprite\몬스터\evil_druid.spr,rdata.grf,333754,06cbb25bef6ecfdd47c68cc5bfe55e9679eaf5b09d482dcea656786229c753e1,raw/ro/sprite/monster/evil_druid.spr,
+monster,data\sprite\몬스터\evil_druid.act,rdata.grf,46660,5724f9649761dec89dcf98794a326915a1c1a3568afa25453b9286cd8f5d4b68,raw/ro/sprite/monster/evil_druid.act,
+monster,data\sprite\몬스터\ghoul.spr,rdata.grf,84711,78d9d414f02524e6955c3dc789d6ce14c6a1028f3995b99a8a9b20d549e1633d,raw/ro/sprite/monster/ghoul.spr,
+monster,data\sprite\몬스터\ghoul.act,rdata.grf,116652,a69c593f7df77dd99818ef3c5080cd73d0d4904ae0098d09c8e03fc45bb77526,raw/ro/sprite/monster/ghoul.act,
+monster,data\sprite\몬스터\baphomet_.spr,rdata.grf,40603,bd4487118f3526107539a49de77b807e17e2346a9f7dc3b3495b3ee416487ee5,raw/ro/sprite/monster/baphomet_.spr,
+monster,data\sprite\몬스터\baphomet_.act,rdata.grf,120060,37d2b4a027b481ce6345c06316149b3f1d7c5368683bdd5d45e66dbf57e7a33e,raw/ro/sprite/monster/baphomet_.act,
+monster,data\sprite\몬스터\ghostring.spr,rdata.grf,24248,b1c3d784fef72d01e4b1a0f565373725df4e5d70be727f59da4735944fd65c1b,raw/ro/sprite/monster/ghostring.spr,
+monster,data\sprite\몬스터\ghostring.act,rdata.grf,57164,62200b45ef6822fa953e2d015f75f5c0594c318ae08c3d766858b1b6280dddbc,raw/ro/sprite/monster/ghostring.act,
+monster,data\sprite\몬스터\vagabond_wolf.spr,rdata.grf,104662,7f9a0f9ce8563cdead942f04ffe3904806376f9a1c917d3aa98c6737d8545399,raw/ro/sprite/monster/vagabond_wolf.spr,
+monster,data\sprite\몬스터\vagabond_wolf.act,rdata.grf,48660,d5e00edd3a9c383de0c918462f8f37b0b1236537770bb6ffd2ea6b1eae3098f5,raw/ro/sprite/monster/vagabond_wolf.act,
+monster,data\sprite\몬스터\eclipse.spr,rdata.grf,22674,61ea6117f90e181ee6a5f761e51411331fad85eaac4989ebffe241647d160042,raw/ro/sprite/monster/eclipse.spr,
+monster,data\sprite\몬스터\eclipse.act,rdata.grf,56340,48c0e73f7ee65f22953f3ab3cd9f2a48cc6d8869007fad220bcc626467622b45,raw/ro/sprite/monster/eclipse.act,
+monster,data\sprite\몬스터\vocal.spr,rdata.grf,105249,6e676c9a3d0f54aebd2d17590cc073188639f8e78bed634640da07837e5f4b3a,raw/ro/sprite/monster/vocal.spr,
+monster,data\sprite\몬스터\vocal.act,rdata.grf,78900,7949b13c4f4c3238ee52c0ec028ea3ec05b5b46b5d20c9ed039f0327b1d2218c,raw/ro/sprite/monster/vocal.act,
+monster,data\sprite\몬스터\hunter_fly.spr,rdata.grf,20617,4ee975ce92d962bd02077ce90438f267c9c6403e1e2320faf5801b7ab0745dc0,raw/ro/sprite/monster/hunter_fly.spr,
+monster,data\sprite\몬스터\hunter_fly.act,rdata.grf,362516,457674dd4a671c1c60b3411403eb902330f63966cdf402d6d634f1f2933d1c2e,raw/ro/sprite/monster/hunter_fly.act,
+monster,data\sprite\몬스터\side_winder.spr,rdata.grf,27865,090802322f52a2d1fa3ae9d9f2c9f114f47dee794eeb853ecfa693bdb7340d26,raw/ro/sprite/monster/side_winder.spr,
+monster,data\sprite\몬스터\side_winder.act,rdata.grf,18820,894631d3f8c40fad2b2b3995887bfb49e975182e064505226274e99919968a70,raw/ro/sprite/monster/side_winder.act,
+monster,data\sprite\몬스터\mantis.spr,rdata.grf,34724,ac53be0830e0b89d193fff54b28a0d6ac8f51bfe543d0101842eb1057f1266d3,raw/ro/sprite/monster/mantis.spr,
+monster,data\sprite\몬스터\mantis.act,rdata.grf,95972,747caaa863078b17aea2768625b0267aa4f34fe53d7d814ec95d2b34740c8f72,raw/ro/sprite/monster/mantis.act,
+monster,data\sprite\몬스터\stem_worm.spr,rdata.grf,43562,2182bf6804a0d5dad7c9056b9a738216b9f4b0d94fd5a1e9f60504c058f589fd,raw/ro/sprite/monster/stem_worm.spr,
+monster,data\sprite\몬스터\stem_worm.act,rdata.grf,12700,0b00e6af899202fcabe2301e803b758438e4d3409de4498dc7ece4fe26b271fb,raw/ro/sprite/monster/stem_worm.act,
+monster,data\sprite\몬스터\killer_mantis.spr,rdata.grf,46166,a32db4ae2327c009c2e9d92f023f4ffbd0e137b798bb2c367911fdc61741601f,raw/ro/sprite/monster/killer_mantis.spr,
+monster,data\sprite\몬스터\killer_mantis.act,rdata.grf,102540,1e0b2555d6f07e9510cc90550801658045631d2dff564c1f1923a4a905b41422,raw/ro/sprite/monster/killer_mantis.act,
+monster,data\sprite\몬스터\deviruchi.spr,rdata.grf,50696,772414a2b1cb0db680e3a3c77be3a936d5dea6b7bc9ff2aba5f2f6cc751a2c9d,raw/ro/sprite/monster/deviruchi.spr,
+monster,data\sprite\몬스터\deviruchi.act,rdata.grf,137972,d7288f78bf6bc0ffc00dd0831da3bacf6cd721b59597e9059ed9c8c64a1cfdd0,raw/ro/sprite/monster/deviruchi.act,
+monster,data\sprite\몬스터\lord_of_death.spr,rdata.grf,885494,25f51033114ee49419776ced9e5f8cf24751664a9e39b5ce4ea7e2b52b7b22a2,raw/ro/sprite/monster/lord_of_death.spr,
+monster,data\sprite\몬스터\lord_of_death.act,rdata.grf,318708,05a7c86d0cc6ee832ed109a103b2e19bd602667021b4324b57e1d90cbeefe0a2,raw/ro/sprite/monster/lord_of_death.act,
+monster,data\sprite\몬스터\bloody_knight.spr,rdata.grf,898417,2c4eb403dac6f84a30f1d356627e59dae19bd07cb7850c30b2a6f44297dfe98f,raw/ro/sprite/monster/bloody_knight.spr,
+monster,data\sprite\몬스터\bloody_knight.act,rdata.grf,80836,6b090d47f9668a1a5b9ee1d3b93985fed00d18dbc3c26eb31dcafb406c0d8bb3,raw/ro/sprite/monster/bloody_knight.act,
+monster,data\sprite\몬스터\elder_wilow.spr,rdata.grf,85736,e98e4e1b82e079f8504de945ea17a54a4593149243165938659717b87e3f0a29,raw/ro/sprite/monster/elder_wilow.spr,
+monster,data\sprite\몬스터\elder_wilow.act,rdata.grf,64356,2bc3d94b5d4d6410b17f21bcbdb17100412d8ddeba07190e0ee03f14c2db067b,raw/ro/sprite/monster/elder_wilow.act,
+monster_optional,data\sprite\몬스터\pharaoh.spr,rdata.grf,311694,3a509d5384fdd0a7a735b6dfc09bf10aa0a83972f5905b6bda13c6015aff4594,raw/ro/sprite/monster/pharaoh.spr,
+monster_optional,data\sprite\몬스터\pharaoh.act,rdata.grf,104300,43f0ef7cf7c6310f2157243d99ee09f6fb4a8bd779e46754234cebe573003401,raw/ro/sprite/monster/pharaoh.act,
+monster_optional,data\sprite\몬스터\penomena.spr,rdata.grf,30229,d39ba9065c2fd46abf21712beea1f0447de407617f8eb33c971c4530e55c6829,raw/ro/sprite/monster/penomena.spr,
+monster_optional,data\sprite\몬스터\penomena.act,rdata.grf,91540,8cdf77defc899d51ef03471f124720126871ef311f4db9bf9b1da220ebbf5205,raw/ro/sprite/monster/penomena.act,
+monster_optional,data\sprite\몬스터\khalitzburg.spr,rdata.grf,248180,86b0dc66b5960014ed8509c67878de10c33e60e9d1e1d4853cc8d82cc068d2ef,raw/ro/sprite/monster/khalitzburg.spr,
+monster_optional,data\sprite\몬스터\khalitzburg.act,rdata.grf,186276,feeea1a893f9a58631cb462dd97012e5e8c32e338771635b540506dff6ac5384,raw/ro/sprite/monster/khalitzburg.act,
+monster_optional,data\sprite\몬스터\raydric_archer.spr,rdata.grf,147115,5a6f32ded429ddbaedbe4ae95702c8807b0227f7dcdc2b236f23d34c3968e1b7,raw/ro/sprite/monster/raydric_archer.spr,
+monster_optional,data\sprite\몬스터\raydric_archer.act,rdata.grf,211212,840266ca89fc62993aacad3f13d6d17c4856ef150671742940d18a2dfeacb411,raw/ro/sprite/monster/raydric_archer.act,
+monster_optional,data\sprite\몬스터\wraith.spr,rdata.grf,199028,438a0a13809bb8a48b65eacad0392df56a9840ec8862309e37c0700ce054fa71,raw/ro/sprite/monster/wraith.spr,
+monster_optional,data\sprite\몬스터\wraith.act,rdata.grf,63164,76e51c72ff9a0ecdd346b01aff6cf800b66475f262866a673c4acf7015fd49ea,raw/ro/sprite/monster/wraith.act,
+monster_optional,data\sprite\몬스터\whisper.spr,rdata.grf,70712,e13d0d35de502335baaa66a5f438b7607c1220c1066578a9f278c0c010d9dd9b,raw/ro/sprite/monster/whisper.spr,
+monster_optional,data\sprite\몬스터\whisper.act,rdata.grf,85484,0819a16500b69c10b031ac3f9dcab34a9cb75e1b33af709bfd2c50e2a7ed68dc,raw/ro/sprite/monster/whisper.act,
+monster_optional,data\sprite\몬스터\skel_prisoner.spr,rdata.grf,162662,6bd9ca25a1892c983dc98814d599434b5b107c1f3aca18c673f21725503244fd,raw/ro/sprite/monster/skel_prisoner.spr,
+monster_optional,data\sprite\몬스터\skel_prisoner.act,rdata.grf,58180,10f63a74ee4f511f0af7247d7f84be18c88c585dddb358363ef5baf1a8ca287b,raw/ro/sprite/monster/skel_prisoner.act,
+monster_optional,data\sprite\몬스터\zombie_prisoner.spr,rdata.grf,107857,8301d4f241999d41318f9cea996070fe4378fdd52bd98608f02269df9ad96e46,raw/ro/sprite/monster/zombie_prisoner.spr,
+monster_optional,data\sprite\몬스터\zombie_prisoner.act,rdata.grf,23148,ce30a4b30bfda9f3f9510d6cda7c726031c139213587c1b1de24bc61962b4d8a,raw/ro/sprite/monster/zombie_prisoner.act,
+monster_optional,data\sprite\몬스터\sasquatch.spr,rdata.grf,335537,5e4826608425d6b15674c6ee44f48fd07af0a8f3a3f19e4e12aaabe097612af3,raw/ro/sprite/monster/sasquatch.spr,
+monster_optional,data\sprite\몬스터\sasquatch.act,rdata.grf,62548,cfd918dd641ae3f92e268df7b865062c90fd3549f0ea171c2b5fda59fc0cea65,raw/ro/sprite/monster/sasquatch.act,
+monster_optional,data\sprite\몬스터\leib_olmai.spr,rdata.grf,239179,3ba2a106a8cc420a4160554c1144be6dab03cd9ccfe5d9857163b1c2e0b1dd89,raw/ro/sprite/monster/leib_olmai.spr,
+monster_optional,data\sprite\몬스터\leib_olmai.act,rdata.grf,45404,9884cc0bdcecb0a4b6afabce24f31cf517743c23562d23c47e4e552a00adba7e,raw/ro/sprite/monster/leib_olmai.act,
+monster_optional,data\sprite\몬스터\disguise.spr,rdata.grf,39385,16ee00da5f675a15d00d0ad1122fc7820107022a3bb5264679d9c8b3ef7175f7,raw/ro/sprite/monster/disguise.spr,
+monster_optional,data\sprite\몬스터\disguise.act,rdata.grf,35212,6e5754f9c77ea790a56aa68e76973da782abbd35f0d9e3895c621e859247e497,raw/ro/sprite/monster/disguise.act,
+monster_optional,data\sprite\몬스터\lude.spr,rdata.grf,38871,17474afb2d3c5296fcf8082b33e14c75c53e09142c63edcae2a2ba6e8924d202,raw/ro/sprite/monster/lude.spr,
+monster_optional,data\sprite\몬스터\lude.act,rdata.grf,65972,1ba23005856c054c2db3bdb54c3306c0ba7b96843c39a6082ca65776e6960a1c,raw/ro/sprite/monster/lude.act,
+monster_optional,data\sprite\몬스터\hylozoist.spr,rdata.grf,75578,92eeaeb3740d24e4a63204bcea82ddcda959ddd3a9777e539436071b799e12c5,raw/ro/sprite/monster/hylozoist.spr,
+monster_optional,data\sprite\몬스터\hylozoist.act,rdata.grf,67028,0acabfa51e542198c4cd3201b15e8dce86c2a6da0aff0fa7947af29ce5971cad,raw/ro/sprite/monster/hylozoist.act,
+monster_optional,data\sprite\몬스터\toad.spr,rdata.grf,52420,284cf66bd3361ea14449e63b2ad75004d7b807938b510d394fa210a845783e25,raw/ro/sprite/monster/toad.spr,
+monster_optional,data\sprite\몬스터\toad.act,rdata.grf,43420,80a174387d6fec0b9cc15f33859850dcd336db3692586f9fb5b53f4262a7a2de,raw/ro/sprite/monster/toad.act,
+monster_optional,data\sprite\몬스터\thara_frog.spr,rdata.grf,53061,08fe9c28ecfad20c6ba18f0ff35cb55e9be6fba8f49e3221bc35c4cbf499f9de,raw/ro/sprite/monster/thara_frog.spr,
+monster_optional,data\sprite\몬스터\thara_frog.act,rdata.grf,31372,4469915052f30de320a66e8144f5cc300db8f65f180b20349ed7678b75fbb9b1,raw/ro/sprite/monster/thara_frog.act,
+monster_optional,data\sprite\몬스터\roda_frog.spr,rdata.grf,52420,284cf66bd3361ea14449e63b2ad75004d7b807938b510d394fa210a845783e25,raw/ro/sprite/monster/roda_frog.spr,
+monster_optional,data\sprite\몬스터\roda_frog.act,rdata.grf,31372,4469915052f30de320a66e8144f5cc300db8f65f180b20349ed7678b75fbb9b1,raw/ro/sprite/monster/roda_frog.act,
+npc,data\sprite\npc\4_f_kafra1.spr,rdata.grf,21167,127fc4fb72fbb2469d3be50c622dc738f415f5b674697440283e77016b587e92,raw/ro/sprite/npc/4_f_kafra1.spr,
+npc,data\sprite\npc\4_f_kafra1.act,rdata.grf,139540,9573db0bd71486f0e4db99742946ffa7629404c2dd3286f9e37458a93a7ab2da,raw/ro/sprite/npc/4_f_kafra1.act,
+npc,data\sprite\npc\1_m_librarymaster.spr,rdata.grf,3460,f2ebe012c8e52e705822c570bacde5faa09411232450804dd038dfab1ca36e59,raw/ro/sprite/npc/1_m_librarymaster.spr,
+npc,data\sprite\npc\1_m_librarymaster.act,rdata.grf,724,22629b765f03772f03ac52548c8b411fa7a8c7430c07b887465604f7850e1c5b,raw/ro/sprite/npc/1_m_librarymaster.act,
+npc,data\sprite\npc\2_m_sage_old.spr,rdata.grf,18509,70171f74ef09b03ba9b89624871c6045dc55af7f173bfd00b97ad69d641781b4,raw/ro/sprite/npc/2_m_sage_old.spr,
+npc,data\sprite\npc\2_m_sage_old.act,rdata.grf,26132,3c0e847571a9a968c96c302a8d82acc64c83b227f009278d6cba071888cfa24b,raw/ro/sprite/npc/2_m_sage_old.act,
+npc,data\sprite\npc\8w_soldier.spr,rdata.grf,79225,03f306a2d3b740369707e2eddddbdc13f569e9cb9c87d5a519e42b3b29827ad9,raw/ro/sprite/npc/8w_soldier.spr,
+npc,data\sprite\npc\8w_soldier.act,rdata.grf,9396,5c75a4c1d4b478bc0adcc34a2c7ed5f8b627232d2829bcaae0e85de6ba323564,raw/ro/sprite/npc/8w_soldier.act,
+npc,data\sprite\npc\4_m_cru_sold.spr,rdata.grf,8877,9abcde9f4aaa8532914902d79943895b3a33b321ca16a8c28fb356342aa33ca2,raw/ro/sprite/npc/4_m_cru_sold.spr,
+npc,data\sprite\npc\4_m_cru_sold.act,rdata.grf,788,0e1215748a4aa3c6adf88689dd3569735924e43714f24309817eaed65e69e297,raw/ro/sprite/npc/4_m_cru_sold.act,
+npc,data\sprite\npc\1_m_innkeeper.spr,rdata.grf,3402,057f30c300227ef7bd9dfacc0e936c26d8583bc824414bb3f1f25fe173c2dfaf,raw/ro/sprite/npc/1_m_innkeeper.spr,
+npc,data\sprite\npc\1_m_innkeeper.act,rdata.grf,692,a669d10b67693229519ac5c3e12d87390e0ec923d32576f76332853365f57288,raw/ro/sprite/npc/1_m_innkeeper.act,
+npc,data\sprite\npc\1_m_merchant.spr,rdata.grf,3648,7d8c971befdf78a1bc4a157101e902ddfda19dfc8b709b2e71a985f62867fe89,raw/ro/sprite/npc/1_m_merchant.spr,
+npc,data\sprite\npc\1_m_merchant.act,rdata.grf,692,bd46abaf2fd1e7afc5b1606af8809eaf3dd6e0a89b1e15e685d3201be2ecfcf3,raw/ro/sprite/npc/1_m_merchant.act,
+npc,data\sprite\npc\4_orclady.spr,rdata.grf,7744,1810195233a26157be92142987928b9d75426013384139a57e904edabdac545c,raw/ro/sprite/npc/4_orclady.spr,
+npc,data\sprite\npc\4_orclady.act,rdata.grf,788,ed7f8d7d021ce24c20f8dcb517bc04023c7b6d1d19d9e7876eb67aeed590a648,raw/ro/sprite/npc/4_orclady.act,
+npc,data\sprite\npc\4_m_darkpriest.spr,rdata.grf,139579,e90eb117b691a0074a60715de25f80565ee5ebf64d0b70a0c1976936a490cc32,raw/ro/sprite/npc/4_m_darkpriest.spr,
+npc,data\sprite\npc\4_m_darkpriest.act,rdata.grf,22364,509c975185a7b684712e402489d044e807e54231e3306bb4e0a6d89f183d4843,raw/ro/sprite/npc/4_m_darkpriest.act,
+npc,data\texture\유저인터페이스\illust\kafra_01.bmp,data.grf,460856,fe17a23ae4d00e08d527f25f0dd956597f5cd65ab58b104b09e74d24cce35b9e,raw/ro/texture/illust/kafra_01.bmp,
+damage,data\sprite\이팩트\숫자.spr,patch.grf,9831,3daa1e23c69dec5ce7df7d2c1188be9b8bb6d31348be0ddd08d8edea4b3eb020,raw/ro/sprite/effect/숫자.spr,
+damage,data\sprite\이팩트\숫자.act,patch.grf,908,cce74d38c7c453862603f6f80c4f2070a62a4b7f9889bf01b3b3194885f19347,raw/ro/sprite/effect/숫자.act,
+damage,data\sprite\이팩트\숫자_larger.act,patch.grf,908,cce74d38c7c453862603f6f80c4f2070a62a4b7f9889bf01b3b3194885f19347,raw/ro/sprite/effect/숫자_larger.act,
+damage,data\sprite\이팩트\msg.spr,rdata.grf,6856,e8188767efdff68aed4b5e527db5006135b31bee6f57e7537638b3c30832397b,raw/ro/sprite/effect/msg.spr,
+damage,data\sprite\이팩트\msg.act,rdata.grf,9388,e64f3cf58e38752dfc92fdfe2ca86846202e84a5f06a64e9f76aeda945331a55,raw/ro/sprite/effect/msg.act,
+damage,data\sprite\이팩트\bluemsg.spr,rdata.grf,6699,1b96e044216c25f9029be52e4dbd2f464b097b6a7c7287caa461049508381a40,raw/ro/sprite/effect/bluemsg.spr,
+item,data\texture\유저인터페이스\item\나이프.bmp,data.grf,1654,10bfb51706bf4cae41779a91489a588fbeb48b876825dcf12d0a907694a13779,raw/ro/texture/item/나이프.bmp,knife item_db 1201
+item,data\texture\유저인터페이스\collection\나이프.bmp,data.grf,22856,e56b54e0605c42a18e0b0e25d81a780734b6069df154f5f1fe840f1f6c97a90f,raw/ro/texture/collection/나이프.bmp,knife item_db 1201
+item,data\texture\유저인터페이스\item\대거.bmp,data.grf,1654,7fb7bf886e2be5f5d85e7be5cdee948c240fd8f38ea0b2d0ec20b108238bfb7e,raw/ro/texture/item/대거.bmp,dagger item_db 1213
+item,data\texture\유저인터페이스\collection\대거.bmp,data.grf,22856,a7970d4c6254ba9bf5a614f9740c27f1335b999af148f86bd002b17c1ec6e03c,raw/ro/texture/collection/대거.bmp,dagger item_db 1213
+item,data\texture\유저인터페이스\item\소드.bmp,data.grf,1654,48c1e48f1fee27353be58cba05c2106b663cfda6be076fea09631bcbb290d9c0,raw/ro/texture/item/소드.bmp,sword item_db 1101
+item,data\texture\유저인터페이스\collection\소드.bmp,data.grf,22856,80bc0ed09e6d66112276ff48491e7c65572fb1ae93820e528ef520fa7d4a8b43,raw/ro/texture/collection/소드.bmp,sword item_db 1101
+item,data\texture\유저인터페이스\item\보우.bmp,data.grf,1654,e031b36c54047759f1579212fe63824042bb09fe2b65d63a1c8d5a0258a614d6,raw/ro/texture/item/보우.bmp,bow item_db 1701
+item,data\texture\유저인터페이스\collection\보우.bmp,data.grf,22856,e2f1810e1a2a8c0b6e5b4d01eaad170ae3008ed4a0b723e6d1572d012ebc0c97,raw/ro/texture/collection/보우.bmp,bow item_db 1701
+item,data\texture\유저인터페이스\item\롯드.bmp,data.grf,1654,76bceb2a394b44e3a9465c266bf6a694bb389f4a8293e426aa709f4db851bb0f,raw/ro/texture/item/롯드.bmp,rod item_db 1601
+item,data\texture\유저인터페이스\collection\롯드.bmp,data.grf,22856,baf209e0314b05eb755b669467ee0a1ceeaa1c10e6d7c0fcb47bc48b1d4c3d59,raw/ro/texture/collection/롯드.bmp,rod item_db 1601
+item,data\texture\유저인터페이스\item\액스.bmp,data.grf,1654,cfd0b3b3a3096a6ac0c3b52cec0bc611ae07f7f78c377527e85e5a941578c66d,raw/ro/texture/item/액스.bmp,axe item_db 1301
+item,data\texture\유저인터페이스\collection\액스.bmp,data.grf,22856,52241e166d0fbcfdb58dfa29397f57467509cd32d2c732d85a0add87417599b4,raw/ro/texture/collection/액스.bmp,axe item_db 1301
+item,data\texture\유저인터페이스\item\그라디우스.bmp,data.grf,1654,71f7d8be36cd7ca1bf9fce9a5d55fa5041bfa8bf5b0b858d1a360f2bf25e29b5,raw/ro/texture/item/그라디우스.bmp,gladius item_db 1219
+item,data\texture\유저인터페이스\collection\그라디우스.bmp,data.grf,22856,a215a66269f0ad366a73a8c653f72b717abf0df00fb602169b002a667f38c0ed,raw/ro/texture/collection/그라디우스.bmp,gladius item_db 1219
+item,data\texture\유저인터페이스\item\컴포지트보우.bmp,data.grf,1654,a70e10b9d1406d7aa295cf96c4d5e177a6e4fc25090120a115fbf3904c740afb,raw/ro/texture/item/컴포지트보우.bmp,composite_bow item_db 1704
+item,data\texture\유저인터페이스\collection\컴포지트보우.bmp,data.grf,22856,3a829636d84db87cee8430e0b668d7ac54c46c0e3fef5ebbc3cbfdffec7529f8,raw/ro/texture/collection/컴포지트보우.bmp,composite_bow item_db 1704
+item,data\texture\유저인터페이스\item\스태프.bmp,data.grf,1654,5e5067e677925b999a7a6d2639df474f9515052e9508b9cb2fddef89a69cf88e,raw/ro/texture/item/스태프.bmp,staff item_db 1607
+item,data\texture\유저인터페이스\collection\스태프.bmp,data.grf,22856,a72fa9a2810e6cd646491dd99408f5d44e0b71df138594399f746b061780c325,raw/ro/texture/collection/스태프.bmp,staff item_db 1607
+item,data\texture\유저인터페이스\item\메이스.bmp,data.grf,1654,dd6d802ff370e0ad67f3b51f9714dca6b8af5a99100f239935a93338becaf664,raw/ro/texture/item/메이스.bmp,mace item_db 1504
+item,data\texture\유저인터페이스\collection\메이스.bmp,data.grf,22856,1783c11ba176ba32ff7c4e34c299c3a50c6c4f67ac1d48c3f1beff15f9799a19,raw/ro/texture/collection/메이스.bmp,mace item_db 1504
+item,data\texture\유저인터페이스\item\바그낙.bmp,data.grf,1654,ef49cf1a303bec12f38cfc9c8685e1384ccda708322937d0ebd047b09e481208,raw/ro/texture/item/바그낙.bmp,knuckle item_db 1801
+item,data\texture\유저인터페이스\collection\바그낙.bmp,data.grf,8678,c227d4557ef9c76946683f3c2cbcb18ce3baee187f783aac2de713567125cdb0,raw/ro/texture/collection/바그낙.bmp,knuckle item_db 1801
+item,data\texture\유저인터페이스\item\바이올린.bmp,data.grf,1654,e1497a98388ffcd3ab9189a01dd9ef90e2a44a5368c2e396a67380cf3fa9d316,raw/ro/texture/item/바이올린.bmp,violin item_db 1901
+item,data\texture\유저인터페이스\collection\바이올린.bmp,data.grf,8678,b1bdb26adc94eea9b323b823938846075e6192e7d7cb078c3e76616bb3eae943,raw/ro/texture/collection/바이올린.bmp,violin item_db 1901
+item,data\texture\유저인터페이스\item\크레이모어.bmp,data.grf,1654,0b08526c5c837ee9d3de547f433b17c1f4e963288d9b316b8aca09fae4eebbf6,raw/ro/texture/item/크레이모어.bmp,claymore item_db 1163
+item,data\texture\유저인터페이스\collection\크레이모어.bmp,data.grf,8678,acec881b08ba409142d9fe3f6a94f26433bfc739aff05a04842a16d561f983ee,raw/ro/texture/collection/크레이모어.bmp,claymore item_db 1163
+item,data\texture\유저인터페이스\item\알바레스트.bmp,data.grf,1654,bdba67acfc59f7cd55f657e86e474be7673b50aea2e7b72e29366f760b737bc4,raw/ro/texture/item/알바레스트.bmp,arbalest item_db 1713
+item,data\texture\유저인터페이스\collection\알바레스트.bmp,data.grf,22856,f8603568f5f83823cd2a53f2cbb2370d32b414cd25d27b08791de28c16552534,raw/ro/texture/collection/알바레스트.bmp,arbalest item_db 1713
+item,data\texture\유저인터페이스\item\카타르.bmp,data.grf,1654,0547e4626f6816591c5dfad616ff5a85d5c66442b43384925d98c8e8c27fdab9,raw/ro/texture/item/카타르.bmp,katar item_db 1252
+item,data\texture\유저인터페이스\collection\카타르.bmp,data.grf,8678,d0dab0b6ddf9ef5e5dfa5de97b923f1d01db9f11412f4ad04a9f28e78c176d11,raw/ro/texture/collection/카타르.bmp,katar item_db 1252
+item,data\texture\유저인터페이스\item\위자드리스태프.bmp,data.grf,1654,9d2a01607c9e4611eb9082678027fb4e9ce105d73eac0d45cc35736af5ef90ca,raw/ro/texture/item/위자드리스태프.bmp,wizardry_staff item_db 1473
+item,data\texture\유저인터페이스\collection\위자드리스태프.bmp,data.grf,22854,ea2ce5784e270d30721befea1c6e67464cb9cce57af8142c90fbd7bbfb480706,raw/ro/texture/collection/위자드리스태프.bmp,wizardry_staff item_db 1473
+item,data\texture\유저인터페이스\item\배틀액스.bmp,data.grf,1654,b53c74838d16cc924912b9fe4dc88f43d5ac94dceba530bd7497357fdc7ea026,raw/ro/texture/item/배틀액스.bmp,battle_axe item_db 1351
+item,data\texture\유저인터페이스\collection\배틀액스.bmp,data.grf,22856,9c2c4fdd499566601f29552d8fb9be3d1af6388f83d4b77aeac4dec0a8920029,raw/ro/texture/collection/배틀액스.bmp,battle_axe item_db 1351
+item,data\texture\유저인터페이스\item\시미터.bmp,data.grf,1654,41bfce4fe6393aaa2beb6db02b09ebf9403ab7fbce069351127f21f1f81e528d,raw/ro/texture/item/시미터.bmp,sograt_scimitar item_db 1113
+item,data\texture\유저인터페이스\collection\시미터.bmp,data.grf,22856,aa52f1dac3ed623b22cdf7eb9e43f0af5d26730fd9dfb7fb3000a9abed9c3330,raw/ro/texture/collection/시미터.bmp,sograt_scimitar item_db 1113
+item,data\texture\유저인터페이스\item\월광검.bmp,data.grf,1654,88c746fa519e664df0cac02326c5cdef9929400be12f55401d74ccf3ab7f841d,raw/ro/texture/item/월광검.bmp,moonlight_dagger item_db 1234
+item,data\texture\유저인터페이스\collection\월광검.bmp,data.grf,8678,233cba06dae3c5c06904223848142f9e418a06166089537847d4888e84da1546,raw/ro/texture/collection/월광검.bmp,moonlight_dagger item_db 1234
+item,data\texture\유저인터페이스\item\세이버.bmp,data.grf,1654,7bdbb40096540f151fea49529cc19fe373e61fff710d0e5adf8fb480d3697f8b,raw/ro/texture/item/세이버.bmp,pirate_saber item_db 1126
+item,data\texture\유저인터페이스\collection\세이버.bmp,data.grf,8678,8d91b3d417fa64f46b619ed0076e9778f3077c74f84f329c283382f5e7afb233,raw/ro/texture/collection/세이버.bmp,pirate_saber item_db 1126
+item,data\texture\유저인터페이스\item\블러드액스.bmp,data.grf,1654,601dbc0875c510eae2f299606dbc41fd1cf6b93722e89f0f8d608d3b5cddd2c2,raw/ro/texture/item/블러드액스.bmp,bloody_axe item_db 1363
+item,data\texture\유저인터페이스\collection\블러드액스.bmp,data.grf,8676,8057f5068cbe5a86c3964acd319bd5d2995628ef0b03d9359c0f42a5f64c4524,raw/ro/texture/collection/블러드액스.bmp,bloody_axe item_db 1363
+item,data\texture\유저인터페이스\item\워해머.bmp,data.grf,1654,314bdeec0964f424b856acd4995580385feaa9fba81aff0182b95cedf18533f7,raw/ro/texture/item/워해머.bmp,keeper_hammer item_db 1354
+item,data\texture\유저인터페이스\collection\워해머.bmp,data.grf,8676,a2add2287b5cc067e43e3367e086bd77f456d0deea582a5017db8ed09e091f93,raw/ro/texture/collection/워해머.bmp,keeper_hammer item_db 1354
+item,data\texture\유저인터페이스\item\무라마사.bmp,data.grf,1654,931a26ed9442273b5387bf5f50cecd780f9db953fa0b95409e5656162f9fbe96,raw/ro/texture/item/무라마사.bmp,abyss_blade item_db 1164
+item,data\texture\유저인터페이스\collection\무라마사.bmp,data.grf,8678,312d9618ea0406f7b7ac0f3c543cba61499c19204ff2335315bdc8dc38e03fd0,raw/ro/texture/collection/무라마사.bmp,abyss_blade item_db 1164
+item,data\texture\유저인터페이스\item\코튼셔츠.bmp,data.grf,1654,63728f3579fbc4029dfe8b416ad4dfbadf0194d4097be51c9e3c54b9c29f0310,raw/ro/texture/item/코튼셔츠.bmp,cotton_shirt item_db 2301
+item,data\texture\유저인터페이스\collection\코튼셔츠.bmp,data.grf,22856,89f7146208f2171199f06e2e9c0614fefe6b83431925af434e86f6190f7020ee,raw/ro/texture/collection/코튼셔츠.bmp,cotton_shirt item_db 2301
+item,data\texture\유저인터페이스\item\어드밴쳐슈츠.bmp,data.grf,1654,9e4bf20b3288f74e4c270a1444d536d5f6a124c29e480ab4fb6d43ac2d3952ae,raw/ro/texture/item/어드밴쳐슈츠.bmp,adventurers_suit item_db 2305
+item,data\texture\유저인터페이스\collection\어드밴쳐슈츠.bmp,data.grf,22856,03d45682f9374045e7f470e821a27af260eb0e48a70bf6d85978d7be95af5a1f,raw/ro/texture/collection/어드밴쳐슈츠.bmp,adventurers_suit item_db 2305
+item,data\texture\유저인터페이스\item\메일.bmp,data.grf,1654,9c9e9e37ba1a988e8954a08fe0cd9cc35d4434faeb15c52d6193658bae7d2e41,raw/ro/texture/item/메일.bmp,chain_mail item_db 2314
+item,data\texture\유저인터페이스\collection\메일.bmp,data.grf,22856,aad4041b9f0a3af35415123ea109c55e478cdb9b6084c0ce00e3d3544b1b72c7,raw/ro/texture/collection/메일.bmp,chain_mail item_db 2314
+item,data\texture\유저인터페이스\item\실크로브.bmp,data.grf,1654,d18a4651c219c99bf7d6a1bbc9918ba9af98e5fb50c64c9b7ef74621b2fb7758,raw/ro/texture/item/실크로브.bmp,silk_robe item_db 2321
+item,data\texture\유저인터페이스\collection\실크로브.bmp,data.grf,22856,fd1202d8d6e2757a162e0dd092bea87c08e7db8a826709f5b6328cce9a8b7c92,raw/ro/texture/collection/실크로브.bmp,silk_robe item_db 2321
+item,data\texture\유저인터페이스\item\플레이트.bmp,data.grf,1654,2113508db3c26114d2afab7bc1e8af1d7633db9b99edcf6839d8bf0b01f5bd61,raw/ro/texture/item/플레이트.bmp,full_plate item_db 2316
+item,data\texture\유저인터페이스\collection\플레이트.bmp,data.grf,22856,ddcd3591731793faf09e1aae5bf3d1d36dbacfae0328a62a0fd3723b22dce53a,raw/ro/texture/collection/플레이트.bmp,full_plate item_db 2316
+item,data\texture\유저인터페이스\item\세인트로브.bmp,data.grf,1654,e9e7e795edb8cef42fe3470e02acc1033f8ede7416acdfc6b65666dc1fc4d989,raw/ro/texture/item/세인트로브.bmp,saint_robe item_db 2325
+item,data\texture\유저인터페이스\collection\세인트로브.bmp,data.grf,22856,75e8fa0ce586baa15da5cce1e4a24885f25d358324686a30f73baf19d24b09d3,raw/ro/texture/collection/세인트로브.bmp,saint_robe item_db 2325
+item,data\texture\유저인터페이스\item\맨틀.bmp,data.grf,1654,5ec2605917d0c628f17877e80ed5d9f693b1c0b0aef9bcccb1079f163cfdab44,raw/ro/texture/item/맨틀.bmp,isis_mantle item_db 2307
+item,data\texture\유저인터페이스\collection\맨틀.bmp,data.grf,22856,3b1d6eb9e23574f4b5a91f1510cf574a38306cc474cd0ad5ab1d760a067e9815,raw/ro/texture/collection/맨틀.bmp,isis_mantle item_db 2307
+item,data\texture\유저인터페이스\item\닌자슈츠.bmp,data.grf,1654,befeff29dcdec81bf1651f25ef2d2620b0c841cb95d00adef1e8fa282f58d4a2,raw/ro/texture/item/닌자슈츠.bmp,ninja_suit item_db 2337
+item,data\texture\유저인터페이스\collection\닌자슈츠.bmp,data.grf,22856,b9ae2cce7a873d365e695a9139f1a37f4ef04cfff664eb2464b38e08959a8d43,raw/ro/texture/collection/닌자슈츠.bmp,ninja_suit item_db 2337
+item,data\texture\유저인터페이스\item\롱코트.bmp,data.grf,1654,261c613a738cf54f5d7a27216535851effcbf854d6debd068f6fae7758a7bc44,raw/ro/texture/item/롱코트.bmp,captain_coat item_db 2309
+item,data\texture\유저인터페이스\collection\롱코트.bmp,data.grf,22856,83cb9b25d9ff24d9c721ee629ba0bcdde97cbc97520c7c606231d5888a3f20ec,raw/ro/texture/collection/롱코트.bmp,captain_coat item_db 2309
+item,data\texture\유저인터페이스\item\캐스팅의로브.bmp,data.grf,1654,16e06336db582d8c18527f79b548a08cec5acae5d5d82afd1b9440bd96dd8e9d,raw/ro/texture/item/캐스팅의로브.bmp,dark_lord_robe item_db 2343
+item,data\texture\유저인터페이스\collection\캐스팅의로브.bmp,data.grf,22854,246a13646dea9f089f203ffe1e5801955efe3c01635a6deaf85d887a41764110,raw/ro/texture/collection/캐스팅의로브.bmp,dark_lord_robe item_db 2343
+item,data\texture\유저인터페이스\item\글리터링클로스.bmp,data.grf,1654,09085efc14d9eed616b5eb12ff8467f5701aec3b965ae5724d420af2c22e5c9a,raw/ro/texture/item/글리터링클로스.bmp,clockwork_mail item_db 2319
+item,data\texture\유저인터페이스\collection\글리터링클로스.bmp,data.grf,22856,a950263bb8fc1ed64c6795f344977e7f060ae37e4c8beefdb6944815749a29d8,raw/ro/texture/collection/글리터링클로스.bmp,clockwork_mail item_db 2319
+item,data\texture\유저인터페이스\item\발키리의갑옷.bmp,data.grf,1654,3acaaf282fd552df85c85098d44c4fc74f8cfb14727ff96b55fb6dfaf56a0a88,raw/ro/texture/item/발키리의갑옷.bmp,valkyrie_armor item_db 2357
+item,data\texture\유저인터페이스\collection\발키리의갑옷.bmp,data.grf,22856,3c45bb753bf8902fd5862c1a2a8d86062e7a26443d26af49fb434b4f0eb1879e,raw/ro/texture/collection/발키리의갑옷.bmp,valkyrie_armor item_db 2357
+item,data\texture\유저인터페이스\item\두건.bmp,data.grf,1654,9536eef31d9ab7d2ed7f9c6b2b6110cca4e6a2f90eb4ac6943982ac36746c842,raw/ro/texture/item/두건.bmp,bandana item_db 2211
+item,data\texture\유저인터페이스\collection\두건.bmp,data.grf,22856,ca3ca70cf945d80e59d3314701ac2f5ce21bde230bbedc0c929475b86fa6a0f5,raw/ro/texture/collection/두건.bmp,bandana item_db 2211
+item,data\texture\유저인터페이스\item\캡.bmp,data.grf,1654,1db0ce31667ea5672c0ff238f7868e2e295e3e19017cb21ae1a89b5fa2adb815,raw/ro/texture/item/캡.bmp,cap item_db 2226
+item,data\texture\유저인터페이스\collection\캡.bmp,data.grf,22856,e6cb216f7375204fd426458a19bcb80408eb37c4ade6e9c5719a7cad0c612fc3,raw/ro/texture/collection/캡.bmp,cap item_db 2226
+item,data\texture\유저인터페이스\item\헬름.bmp,data.grf,1654,dbce761b21bf2f3af21390dc9ed8b577d4e90d1cdf2ea2e23894ba50dd7db3c3,raw/ro/texture/item/헬름.bmp,helm item_db 2228
+item,data\texture\유저인터페이스\collection\헬름.bmp,data.grf,22856,b16bc4b92c5f8c816c8e8ec6a2f70a9169d710940c26f730fc0118312199637a,raw/ro/texture/collection/헬름.bmp,helm item_db 2228
+item,data\texture\유저인터페이스\item\비레타.bmp,data.grf,1654,9475b643b0fbd3d353d6b99d658f118f967b5200bbcd5da9ef0408c1e5e42bfc,raw/ro/texture/item/비레타.bmp,biretta item_db 2216
+item,data\texture\유저인터페이스\collection\비레타.bmp,data.grf,22856,847dfca43d92baa7777ff5b7b053561c38839e4132c48e3e9f7957f89989f19c,raw/ro/texture/collection/비레타.bmp,biretta item_db 2216
+item,data\texture\유저인터페이스\item\크라운.bmp,data.grf,1654,f4bad48ba9878063e3785c1de641f512a0886563fbb04600729d5186e8c8977f,raw/ro/texture/item/크라운.bmp,crown item_db 2235
+item,data\texture\유저인터페이스\collection\크라운.bmp,data.grf,22856,7cc8692cc08b1bb13ecff7e728bfdbcabc82087f7d7dd11015a488f17f307859,raw/ro/texture/collection/크라운.bmp,crown item_db 2235
+item,data\texture\유저인터페이스\item\스핑크스모자.bmp,data.grf,1654,e79462bc8645258a4fe05339770cdecfa2e121093146a34c931a114916f10ad2,raw/ro/texture/item/스핑크스모자.bmp,pharaoh_headdress item_db 5053
+item,data\texture\유저인터페이스\collection\스핑크스모자.bmp,data.grf,22854,3163b12bd2ab8c5a629bf0ff9dc937e71dbfc331226ee5c3fec60f1a07e17f95,raw/ro/texture/collection/스핑크스모자.bmp,pharaoh_headdress item_db 5053
+item,data\texture\유저인터페이스\item\여우가면.bmp,data.grf,1654,4c27bf67c937295bcc98a615397e1f39cacf971e82f668f04aeca4f8a254476f,raw/ro/texture/item/여우가면.bmp,kitsune_mask item_db 5069
+item,data\texture\유저인터페이스\collection\여우가면.bmp,data.grf,22854,94fa8ab359a2690d346b27040e0fc39b479645142af49ec2913dd6e4a9424ea8,raw/ro/texture/collection/여우가면.bmp,kitsune_mask item_db 5069
+item,data\texture\유저인터페이스\item\해적두건.bmp,data.grf,1654,51b4f408f594702d9ea35ba87d24145fc8570a458178c244a03b5571b7a27a23,raw/ro/texture/item/해적두건.bmp,pirate_bandana item_db 2287
+item,data\texture\유저인터페이스\collection\해적두건.bmp,data.grf,8676,78a73d90b41a71588e6c93628bd507fedfd277df91698ab2e198d1ef4d0522cd,raw/ro/texture/collection/해적두건.bmp,pirate_bandana item_db 2287
+item,data\texture\유저인터페이스\item\본헬름.bmp,data.grf,1654,12303947c77e12a6d0b3e578d75a04bc9a9be196b75695fad05e2e25a21f86ee,raw/ro/texture/item/본헬름.bmp,helm_of_darkness item_db 5017
+item,data\texture\유저인터페이스\collection\본헬름.bmp,data.grf,8676,d5d8e09afd4accceb7b6d863cb6c26e1dfb01da57d96afb3e0ff7f5dab9a8111,raw/ro/texture/collection/본헬름.bmp,helm_of_darkness item_db 5017
+item,data\texture\유저인터페이스\item\알람가면.bmp,data.grf,1654,2bd18c72c17ae89cd4a16a470449643f98896cbbe87b85b38f351fa962b3045c,raw/ro/texture/item/알람가면.bmp,alarm_mask item_db 5086
+item,data\texture\유저인터페이스\collection\알람가면.bmp,data.grf,22854,bb4752ebc9a3cff0574e94d9c0dbac9a87072a1d3455c7416e0c5f6d5096e69f,raw/ro/texture/collection/알람가면.bmp,alarm_mask item_db 5086
+item,data\texture\유저인터페이스\item\쥬얼헬름.bmp,data.grf,1654,bc3893e103614972a1cbf22d26a5fada9f2a92d662c9a8be69a65e335c793160,raw/ro/texture/item/쥬얼헬름.bmp,gjoll_helm item_db 2230
+item,data\texture\유저인터페이스\collection\쥬얼헬름.bmp,data.grf,22856,5e486271285a4226babeb59587ba4e5914dac95043a00e39b6d30317f7ff9a92,raw/ro/texture/collection/쥬얼헬름.bmp,gjoll_helm item_db 2230
+item,data\texture\유저인터페이스\item\샌들.bmp,data.grf,1654,48956f30a0aa00268d1d56ea843726a4189265e2af59f6d3e8750508f7ef60dc,raw/ro/texture/item/샌들.bmp,sandals item_db 2401
+item,data\texture\유저인터페이스\collection\샌들.bmp,data.grf,22856,f9c02f7e97633b63a022eafeb295f086523199a15fbf9cae14777caadd36de2a,raw/ro/texture/collection/샌들.bmp,sandals item_db 2401
+item,data\texture\유저인터페이스\item\슈즈.bmp,data.grf,1654,67df860626eccf61b527de95c5977074431c129b551ca28019e08deb08081097,raw/ro/texture/item/슈즈.bmp,shoes item_db 2403
+item,data\texture\유저인터페이스\collection\슈즈.bmp,data.grf,22856,69d30510470267f18ba5554dae982da6de0a4fc6b7e7bbb0d52cc6272f8b512f,raw/ro/texture/collection/슈즈.bmp,shoes item_db 2403
+item,data\texture\유저인터페이스\item\부츠.bmp,data.grf,1654,4531cf6302d19adedf278cc86544faf9a4c9fca9e502855354fed998dab75cb6,raw/ro/texture/item/부츠.bmp,boots item_db 2405
+item,data\texture\유저인터페이스\collection\부츠.bmp,data.grf,22856,5825622bc119d3cd39f491ade9ad2b61bd2881af26f0979f9879e8098e8e37a4,raw/ro/texture/collection/부츠.bmp,boots item_db 2405
+item,data\texture\유저인터페이스\item\그리브.bmp,data.grf,1654,ff2a7a2377c287faeb6a1535e737b48b7f92dec3a5c31876e45a206305a93c3b,raw/ro/texture/item/그리브.bmp,greaves item_db 2411
+item,data\texture\유저인터페이스\collection\그리브.bmp,data.grf,22854,da7f21f843d1f6d9788ccb0cee5699e864888ab70619cf49e4b0aec39bf76569,raw/ro/texture/collection/그리브.bmp,greaves item_db 2411
+item,data\texture\유저인터페이스\item\슬레이프니르.bmp,data.grf,1654,d9110d485098f97212bfa52c3e29ff0b2f64cc7ede393fafbc72be94fcac1a0f,raw/ro/texture/item/슬레이프니르.bmp,sleipnir item_db 2410
+item,data\texture\유저인터페이스\collection\슬레이프니르.bmp,data.grf,22854,db2d7bae8105c9042121384a2aabc63bd920566234045700aac1c785c462ca3c,raw/ro/texture/collection/슬레이프니르.bmp,sleipnir item_db 2410
+item,data\texture\유저인터페이스\item\고급샌들.bmp,data.grf,1654,686e006454e9a2b45e6941c836712d801fdaf9c11c49c4b8ebdf1501bf7b433a,raw/ro/texture/item/고급샌들.bmp,desert_sandals item_db 2422
+item,data\texture\유저인터페이스\collection\고급샌들.bmp,data.grf,22856,fa1c30ac2087ce421e03c98db8aab0c83f9c3901cea7a770ccbb13d5c801fa8a,raw/ro/texture/collection/고급샌들.bmp,desert_sandals item_db 2422
+item,data\texture\유저인터페이스\item\프리코슈즈.bmp,data.grf,1654,8444b6528a2809b7706e1d145dcecc8e6f8a3a85b6971db56a45f6f79d188b05,raw/ro/texture/item/프리코슈즈.bmp,geta item_db 2417
+item,data\texture\유저인터페이스\collection\프리코슈즈.bmp,data.grf,22856,6b66f6ea4dc8381768c54e4eb1e2df65682e31217fc5ad890a5284607c96d7fe,raw/ro/texture/collection/프리코슈즈.bmp,geta item_db 2417
+item,data\texture\유저인터페이스\item\타이달슈즈.bmp,data.grf,1654,71085e4ea444b52a2223e191561cc4bae29bb10aba5beaa8c66832a1394eb37d,raw/ro/texture/item/타이달슈즈.bmp,sea_boots item_db 2424
+item,data\texture\유저인터페이스\collection\타이달슈즈.bmp,data.grf,22856,58092bd3f9871d031c75b6d206f37996af30528b58e455e40b27587a035e06d5,raw/ro/texture/collection/타이달슈즈.bmp,sea_boots item_db 2424
+item,data\texture\유저인터페이스\item\발키리의슈즈.bmp,data.grf,1654,d4f0c4e7efd753c05b64a3663c1ab1afb860cf5d9a4791b2d40766d5647a5a12,raw/ro/texture/item/발키리의슈즈.bmp,valkyrie_boots item_db 2421
+item,data\texture\유저인터페이스\collection\발키리의슈즈.bmp,data.grf,22856,0fb0ac722d623d350648f6b8f48724a2bc834c261d4b55aa897c68f45db4ca51,raw/ro/texture/collection/발키리의슈즈.bmp,valkyrie_boots item_db 2421
+item,data\texture\유저인터페이스\item\흰날개의부츠.bmp,data.grf,1654,4c53c032925b2aaa0f9447fffa64c9dc312168e42fb41cb5c9b70cdae20d9691,raw/ro/texture/item/흰날개의부츠.bmp,owl_boots item_db 2479
+item,data\texture\유저인터페이스\collection\흰날개의부츠.bmp,data.grf,22856,e57b2e01e4c94d844fa967a449563caaab722c531a8dd7411331e4a19290c5c8,raw/ro/texture/collection/흰날개의부츠.bmp,owl_boots item_db 2479
+item,data\texture\유저인터페이스\item\검은가죽부츠.bmp,data.grf,1654,b7a48544593fa9e5c77353ad0f62911f3c797f3c54b2e4888516d7e5ff4f8e49,raw/ro/texture/item/검은가죽부츠.bmp,sentry_greaves item_db 2425
+item,data\texture\유저인터페이스\collection\검은가죽부츠.bmp,data.grf,22856,476495f1b5d464c1bd08c049401e71348e2ca209a56bbbd988e90db81d4b8e30,raw/ro/texture/collection/검은가죽부츠.bmp,sentry_greaves item_db 2425
+item,data\texture\유저인터페이스\item\금전주머니.bmp,data.grf,1654,2670a44603fc92503e557e2759560c0ed2c726dd49f7fcfc00dd077aaf28e2a4,raw/ro/texture/item/금전주머니.bmp,gold item_db 670
+item,data\texture\유저인터페이스\collection\금전주머니.bmp,data.grf,22854,ed21dfe6bf8565b9d9611029d5c7ed4798651258a033dc818efd53e5a3c097e8,raw/ro/texture/collection/금전주머니.bmp,gold item_db 670
+item,data\texture\유저인터페이스\item\투명한보석.bmp,data.grf,1654,35abd4f7f75aa2fe4c0caab37498237ad3764a41523dd83b2515279e5f56508c,raw/ro/texture/item/투명한보석.bmp,gems item_db 730
+item,data\texture\유저인터페이스\collection\투명한보석.bmp,data.grf,22856,4460b5d01c69789d600a74186e4e25a50b66108eaffd2d04b95baf2ffcfda13f,raw/ro/texture/collection/투명한보석.bmp,gems item_db 730
+item,data\texture\유저인터페이스\item\낡은두루마리.bmp,data.grf,1654,87f720c07f9f7a0a2e3383c2cf1b5f696c7397480a90a74d0b3881a53718c623,raw/ro/texture/item/낡은두루마리.bmp,scrolls item_db 618
+item,data\texture\유저인터페이스\collection\낡은두루마리.bmp,data.grf,8678,c211f70c5c30a1524307593ef76b2106cea84f22dc577e1155b5fb6a8f00e14a,raw/ro/texture/collection/낡은두루마리.bmp,scrolls item_db 618
+item,data\texture\유저인터페이스\item\전투교범.bmp,data.grf,1654,c7e09c018540a22cc1444432070764322163ff8784ab19060410434ec810e379,raw/ro/texture/item/전투교범.bmp,hero_exp item_db 12208
+item,data\texture\유저인터페이스\collection\전투교범.bmp,data.grf,22856,3db1a810fb7459c1782aba1856c0a43012afead94578592c2e2d9520c044a4ac,raw/ro/texture/collection/전투교범.bmp,hero_exp item_db 12208
+item,data\texture\유저인터페이스\item\축오리.bmp,data.grf,1654,71d926f7cfe0d18c65b2575f9e5ffc8ec349f594526d5f495fdbf8a9a16cf3fd,raw/ro/texture/item/축오리.bmp,blessed_ore item_db 7620
+item,data\texture\유저인터페이스\collection\축오리.bmp,data.grf,22856,cc6788dc68cd2025b8728e0a5a27440afa9f2f58ec4ae31ad0f15c4472cafd0c,raw/ro/texture/collection/축오리.bmp,blessed_ore item_db 7620
+item,data\texture\유저인터페이스\item\보물상자.bmp,data.grf,1654,a4172e84fdb233809191a506b581e79289c8e0fd54a5f301d95356361cfb945e,raw/ro/texture/item/보물상자.bmp,treasure_chest item_db 7444
+item,data\texture\유저인터페이스\collection\보물상자.bmp,data.grf,22856,6d75fd0a1329c724d224eb65a0b6f5d31412ca5fd41079b51facf18d951f2cf1,raw/ro/texture/collection/보물상자.bmp,treasure_chest item_db 7444
+item,data\texture\유저인터페이스\item\오래된파란상자.bmp,data.grf,1654,762171eef882cde6e19799458aa60d418f6ad547a37961999e4c262200db50c1,raw/ro/texture/item/오래된파란상자.bmp,old_blue_box item_db 603
+item,data\texture\유저인터페이스\collection\오래된파란상자.bmp,data.grf,8676,7364098e11724dcd615ea5bd49ee8f5fc67ca41da08f682c3ec7f57f3b3de0b7,raw/ro/texture/collection/오래된파란상자.bmp,old_blue_box item_db 603
+item,data\texture\유저인터페이스\item\낡은카드첩.bmp,data.grf,1654,0bcc83eadc0500eb0745ec77701b3264686b31c2df2885942350af71cb8a526b,raw/ro/texture/item/낡은카드첩.bmp,hero_card item_db 616
+item,data\texture\유저인터페이스\collection\낡은카드첩.bmp,data.grf,8678,5b10171d3ddea41a42875645f293214a7cd6046aef7ef49c1ab4d5d8a39f1e0d,raw/ro/texture/collection/낡은카드첩.bmp,hero_card item_db 616
+item,data\texture\유저인터페이스\item\젤로피.bmp,data.grf,1654,a589402fd3ceb87a4d561591dda843856b96e9418f891071e912a0da04220d87,raw/ro/texture/item/젤로피.bmp,jellopy item_db 909
+item,data\texture\유저인터페이스\collection\젤로피.bmp,data.grf,22856,5c2f4949417f861cf230f9845ba8c9262c982c9a784c5f396d373007b29b38f9,raw/ro/texture/collection/젤로피.bmp,jellopy item_db 909
+item,data\texture\유저인터페이스\item\빨간포션.bmp,data.grf,1654,59a7c7dca7bdd39ec1d68bf7c5ce3f362db52a2c626a515f0ca4d749ff652e4f,raw/ro/texture/item/빨간포션.bmp,red_potion item_db 501
+item,data\texture\유저인터페이스\collection\빨간포션.bmp,data.grf,8678,941652a8a3edb1f4862cfa42bdbe893eb0d7ffa8850b87214ddd08b2e396b3f7,raw/ro/texture/collection/빨간포션.bmp,red_potion item_db 501
+sound,data\wav\_hit_sword.wav,data.grf,24866,1dfbdbd2f441b4dfda85282cc84b49407ea138f834d8a182ba1b15c9bcd98caa,raw/ro/wav/_hit_sword.wav,
+sound,data\wav\_hit_dagger.wav,data.grf,13956,4aad76270e549dec2100d2601503d1b2de6dae01e22ccbce3dbf739d62d48a6f,raw/ro/wav/_hit_dagger.wav,
+sound,data\wav\_hit_mace.wav,data.grf,16114,54aef95af378a442c4b500f7b5535dfbe76c593ce6a614a48baa04637c47e72c,raw/ro/wav/_hit_mace.wav,
+sound,data\wav\_hit_axe.wav,data.grf,16114,0aa9becf023ffb18355314e071871d7bcf3fba479329f46868171791c83d1c1d,raw/ro/wav/_hit_axe.wav,
+sound,data\wav\_hit_arrow.wav,data.grf,13360,d3d1df59ef78251d4f4327a628c3f1a482ed1b70b072a4602fc8c2f3d5cacbe2,raw/ro/wav/_hit_arrow.wav,
+sound,data\wav\_hit_fist1.wav,data.grf,11216,9a188d3b22777d91b3e6e1460430fbe55e9f9bbe805d40944f18441e4bbff1a7,raw/ro/wav/_hit_fist1.wav,
+sound,data\wav\_hit_fist2.wav,data.grf,10608,81b20afd4ffd0c6437e703ace45eb66403fae5702494978159c813617900f5c5,raw/ro/wav/_hit_fist2.wav,
+sound,data\wav\_hit_fist3.wav,data.grf,10400,cd10e1fa4cb185280015c95db6d86df71fdb18104445693b758695302b0c3bbc,raw/ro/wav/_hit_fist3.wav,
+sound,data\wav\_hit_fist4.wav,data.grf,9200,4cbe3ac2a13fa9e11e1faa5192e269ac18518b52edce8f128935c132ab32acec,raw/ro/wav/_hit_fist4.wav,
+sound,data\wav\_enemy_hit_normal1.wav,data.grf,10668,0ce486a2059d284703f1980b6f8ebeee088f841c9322ed8f4fc2434cc8576004,raw/ro/wav/_enemy_hit_normal1.wav,
+sound,data\wav\_hit_rod.wav,data.grf,12576,eae40a60273ca176bf22e0bcd253108c9ba6a01bc34a047be9d3d3a7b73db45d,raw/ro/wav/_hit_rod.wav,
+sound,data\wav\_hit_spear.wav,data.grf,8816,51cf3557e5fe5ff700b8d884f9e44af4175f8b1ebc3a8185d8069f399ffd382a,raw/ro/wav/_hit_spear.wav,
+sound,data\wav\attack_sword.wav,data.grf,10768,ab012146c9af9e5727550a2a4521cad25fdc5e7759c6f074a01a36391adda654,raw/ro/wav/attack_sword.wav,
+sound,data\wav\attack_short_sword.wav,data.grf,10086,eb3291c5052114b5dd48695f40a1706f7c61bf1af087573387837e545ddff7a9,raw/ro/wav/attack_short_sword.wav,
+sound,data\wav\attack_twohand_sword.wav,data.grf,17072,d4c7893b8870027a94712c5b107a6a0e567f4722109f94adf2fc4cc5da04cf58,raw/ro/wav/attack_twohand_sword.wav,
+sound,data\wav\attack_axe.wav,data.grf,20990,f020aea8f64c632a1149c4f790301510b1b0d4e037684ac87f92d405d05d28f2,raw/ro/wav/attack_axe.wav,
+sound,data\wav\attack_mace.wav,data.grf,14274,e61712264b9bfeba3a804ceeedf40b124665093c570b5d0fe4a27b3454b5aa66,raw/ro/wav/attack_mace.wav,
+sound,data\wav\attack_rod.wav,data.grf,9556,b63b90e96c622fc10c5b2a341644afc5012ab0473eeb1c35679ab29882e24f80,raw/ro/wav/attack_rod.wav,
+sound,data\wav\attack_katar.wav,data.grf,10114,902bb03044a9af22c267321d1c6461022436884c70ac8926ecee3534f8a51f9b,raw/ro/wav/attack_katar.wav,
+sound,data\wav\attack_fist.wav,data.grf,14644,3838bbc07c3906489e0fbed3647e594c25799bf12556309bbda5a2a774e6c096,raw/ro/wav/attack_fist.wav,
+sound,data\wav\attack_bow1.wav,data.grf,14214,d06ce701dd7ee7af60ae638aa509985e7fdd24748939307a7fa114245a8fbb83,raw/ro/wav/attack_bow1.wav,
+sound,data\wav\attack_bow2.wav,data.grf,12354,1f0de320e5e6fd3eea94c1cb9083dfa905a24314eaa91791c21ee6365881424f,raw/ro/wav/attack_bow2.wav,
+sound,data\wav\_heal_effect.wav,data.grf,59636,93128560287b03075f90cc34d820510b355065409d4a7cfa07f8bb6bfb0527ef,raw/ro/wav/_heal_effect.wav,
+sound,data\wav\levelup.wav,data.grf,84650,9a6e4d634aa7a9c19bcf37a0331bdb80d88fac67b60c992a49c412688074369b,raw/ro/wav/levelup.wav,
+sound,data\wav\버튼소리.wav,data.grf,66950,9750cba0bccc3785731f721ffb05e86cc95f420758152c9caac0fd495b86ad38,raw/ro/wav/버튼소리.wav,
+sound,data\wav\_blind.wav,data.grf,26412,7b672e474e8d6d88398d3c485d71679d8a9cd463dc1fe0bcedce875055e84f7e,raw/ro/wav/_blind.wav,
+sound,data\wav\effect\ef_hit2.wav,data.grf,14570,7049b49b7a39fd612b5927259ea1e2a1f8443a84cc543a19e9c75e02aa00a688,raw/ro/wav/effect/ef_hit2.wav,
+sound,data\wav\effect\ef_hit3.wav,data.grf,9092,d43c42e41451b37d80acc605a2bbcee90e5a0fd387d00bba1e53320787caa89f,raw/ro/wav/effect/ef_hit3.wav,
+sound,data\wav\effect\ef_hit5.wav,data.grf,14384,cdd0b132dfc3ebb3740ed570c5740c8416357a0f9822215f642135d5fab2ee0d,raw/ro/wav/effect/ef_hit5.wav,
+sound,data\wav\effect\ef_hit6.wav,data.grf,16336,a20ac2317134292c7ee1c1f7db9084ad9763c6968905ac9a764ae5d8a2526403,raw/ro/wav/effect/ef_hit6.wav,
+sound,data\wav\effect\ef_beginspell.wav,data.grf,48436,1d0cffd85fb30fd8c3eed158136266fbd2bbd9162cd2bf869b317bcd6c00d970,raw/ro/wav/effect/ef_beginspell.wav,
+sound,data\wav\effect\ef_firehit.wav,data.grf,34796,84cdfe52859fb4db52a0caebde2863e8084a3c07d815487c3d27fcc3f2020947,raw/ro/wav/effect/ef_firehit.wav,
+sound,data\wav\effect\ef_fireball.wav,data.grf,60848,fd599999705c4615813a2a50e0a6d936b65943917c9a8f397cd4771e320be0a8,raw/ro/wav/effect/ef_fireball.wav,
+sound,data\wav\effect\ef_firewall.wav,data.grf,217264,5cd6ef4addec18ef904eb301e26065dcf689bda536c3b667867a4eb0337cac2e,raw/ro/wav/effect/ef_firewall.wav,
+sound,data\wav\effect\ef_frostdiver.wav,data.grf,28230,86889e7c997a3feef51bd1a35baf2821d280ab1a9a5ed4e1322cce49ea7ee2e4,raw/ro/wav/effect/ef_frostdiver.wav,
+sound,data\wav\effect\ef_frostdiver2.wav,data.grf,20624,7073baaa39ed0837cf622fee637914f4b70d960077256bf113ac39beba637455,raw/ro/wav/effect/ef_frostdiver2.wav,
+sound,data\wav\effect\wizard_stormgust.wav,data.grf,206030,efbb7dd6311e3e5834f097b0e57507519b93acca2bf1ea47b6b9b3595ceceaa5,raw/ro/wav/effect/wizard_stormgust.wav,
+sound,data\wav\effect\magician_thunderstorm.wav,data.grf,42116,3309551037a6956612664bd8c87b9827d9e4722c901b7d81b4f519de2b0d6182,raw/ro/wav/effect/magician_thunderstorm.wav,
+sound,data\wav\effect\ef_thunderstorm.wav,data.grf,67504,281b65ece55ba3f94ac5b4cfedd7e293e0d99e1735b5bf7b7af971530f4f6241,raw/ro/wav/effect/ef_thunderstorm.wav,
+sound,data\wav\effect\hunter_shockwavetrap.wav,data.grf,80848,ef60e63f99952a0a5a268b4bd547533a09ec172a6891d1d5f0652cd3c410627e,raw/ro/wav/effect/hunter_shockwavetrap.wav,
+sound,data\wav\effect\wizard_earthspike.wav,data.grf,37196,525ccb06537b8d897a80357c9500f1eaa8e6b83b7ee66ae3e116a3cacb37eaf6,raw/ro/wav/effect/wizard_earthspike.wav,
+sound,data\wav\effect\earth_quake.wav,data.grf,314750,a1a7e147f63e7ec027f60755af268fa62fd78c50c8f1439186691599452f1e65,raw/ro/wav/effect/earth_quake.wav,
+sound,data\wav\effect\black_hammerfall.wav,data.grf,71200,20e85bc7eb789b5475bea55826876b67620c10ace36a1b46458b23a654389291,raw/ro/wav/effect/black_hammerfall.wav,
+sound,data\wav\effect\priest_magnus.wav,data.grf,165094,27626b3ed094f8e83e8ecabe25b3a7877bfaeab0fd54ec7d01608f6e5777a5ab,raw/ro/wav/effect/priest_magnus.wav,
+sound,data\wav\effect\cru_holy cross.wav,data.grf,25238,eec65e9fceb3dd46b4c189add95cee6fd9110bc1dd5dc09069d3ca5b02b21d98,raw/ro/wav/effect/cru_holy cross.wav,
+sound,data\wav\effect\cru_grand cross.wav,data.grf,78466,410658128510664678396b561ee372ee4641e4ce5b3fdb801f7051ccfa3d128a,raw/ro/wav/effect/cru_grand cross.wav,
+sound,data\wav\effect\ef_soulstrike.wav,data.grf,22666,cede05d1d704a4a9f6c01179be6526e0e9006b5aba8025cc2b54854155e2da28,raw/ro/wav/effect/ef_soulstrike.wav,
+sound,data\wav\effect\ef_napalmbeat.wav,data.grf,33370,6f33659c768b1602b5ea66d3bb2d7894cd91ba6ccf26c5b2e32d72e56f350a06,raw/ro/wav/effect/ef_napalmbeat.wav,
+sound,data\wav\effect\ef_poisonattack.wav,data.grf,100272,831b71ee09b4507de4beec0d1321a6eff65183a95cb9887b082201c997207f76,raw/ro/wav/effect/ef_poisonattack.wav,
+sound,data\wav\effect\thief_invenom.wav,data.grf,21324,bc876e041ab7a5ed829fce8f90bef475605b725dc69055cc0a8b46014481d24b,raw/ro/wav/effect/thief_invenom.wav,
+sound,data\wav\effect\assasin_enchantpoison.wav,data.grf,66512,0bac65efe1f3ce74ee5c4a9f11f333764aa19199ade588d913b57980966fecb2,raw/ro/wav/effect/assasin_enchantpoison.wav,
+sound,data\wav\effect\assasin_poisonreact.wav,data.grf,52588,7c5e21c23430b70a1fe552ed66e9dab4ea5a3c2762fc8817cb279187a1c15b46,raw/ro/wav/effect/assasin_poisonreact.wav,
+sound,data\wav\effect\assasin_venomsplasher.wav,data.grf,30828,1749d177b75932cc00e613f3f95d1481e81f1fb5ba308e14befaa7837da2a450,raw/ro/wav/effect/assasin_venomsplasher.wav,
+sound,data\wav\effect\wizard_fire_ivy.wav,data.grf,48720,7a7048ff11ed99d1e48e3efc662c44dd9c8c0a938e2f7834ab3adff4acf5df16,raw/ro/wav/effect/wizard_fire_ivy.wav,
+sound,data\wav\effect\wizard_meteor.wav,data.grf,63982,4a065bd6ac742eab58d5af70eb09495d22a3c0246e95f25ba6a87da08ccad0ac,raw/ro/wav/effect/wizard_meteor.wav,
+sound,data\wav\effect\ef_magnumbreak.wav,data.grf,49132,b4c1cb62ed35e29cf0b411f61cca9044b61f7dfb78289fffa2c72a652bca459f,raw/ro/wav/effect/ef_magnumbreak.wav,
+sound,data\wav\effect\ef_bash.wav,data.grf,34294,dedbc300c04cf0d6eb6e7b9777f12efa42b50e11ad4b9cca2a45c9674adfd921,raw/ro/wav/effect/ef_bash.wav,
+sound,data\wav\effect\ef_blessing.wav,data.grf,66118,44c0acf877ebd7c24a73252d73987ed0d515d249f6a7ba4d3fc78e778471386a,raw/ro/wav/effect/ef_blessing.wav,
+sound,data\wav\effect\ef_incagility.wav,data.grf,24856,745e3cc0a6261cbdf37ce442ed1126558210d2b1c65f6df896b2a82bf10c5cdb,raw/ro/wav/effect/ef_incagility.wav,
+sound,data\wav\effect\ef_angelus.wav,data.grf,170870,5f4889e4c8fc31600115c7438abe9f83a47de0d5a9f62eb749c60c958fee5ff9,raw/ro/wav/effect/ef_angelus.wav,
+sound,data\wav\effect\ef_decagility.wav,data.grf,55642,11c110a159796fabac4a9bb4154e8c52fac3e2ffc5022c0fdc616e5409fa7423,raw/ro/wav/effect/ef_decagility.wav,
+sound,data\wav\effect\priest_lexaeterna.wav,data.grf,67360,4af5bce0794f972fb4c9ad56ad019cdb795f7f3fab97aafeb0f6262fa148b692,raw/ro/wav/effect/priest_lexaeterna.wav,
+sound,data\wav\effect\priest_kyrie_eleison_a.wav,data.grf,73388,8b231caa655e65716cd1ccd9368b83b61aca40cca818a7d071a5fe123d9593de,raw/ro/wav/effect/priest_kyrie_eleison_a.wav,
+sound,data\wav\effect\kyrie_guard.wav,data.grf,33632,7645b8b2b429adf3c85bae112603c4c3c34950b3412dc7ff0d17f2bab4d3e81f,raw/ro/wav/effect/kyrie_guard.wav,
+sound,data\wav\effect\swordman_provoke.wav,data.grf,10448,052885ee2f921541a66b30fac2c8935979497e9ace647ac74ccdb49fc93bf1ee,raw/ro/wav/effect/swordman_provoke.wav,
+sound,data\wav\effect\ef_endure.wav,data.grf,21100,ce03341137b3a203459acf805f25de2d3d48f9f2fcc4c2e4c40ac12b19688ba4,raw/ro/wav/effect/ef_endure.wav,
+sound,data\wav\effect\knight_twohandquicken.wav,data.grf,19820,6baedc5f7a47d7f6e3de04213ae185831735cdf57632c53242bf6ce6c5412120,raw/ro/wav/effect/knight_twohandquicken.wav,
+sound,data\wav\effect\knight_autocounter.wav,data.grf,32588,ac4b167871984bd9f19513da8c2c0626c1355fc07f2f5a59e4fe8c53c885628e,raw/ro/wav/effect/knight_autocounter.wav,
+sound,data\wav\effect\knight_brandish_spear.wav,data.grf,51436,8ce0a459fcbb58439be31360a31c47d2c24231220978c9186a6550903137e0ea,raw/ro/wav/effect/knight_brandish_spear.wav,
+sound,data\wav\effect\ef_steal.wav,data.grf,20094,32b836b1ad0ef137b6a629a1149b340facc7dbc09c4f71b53421bec1b03fc906,raw/ro/wav/effect/ef_steal.wav,
+sound,data\wav\effect\assasin_sonicblow.wav,data.grf,47180,1ba83fe98f7a3463780e4059d12b0207242b374ff04e31d1c1fd5bee439f75de,raw/ro/wav/effect/assasin_sonicblow.wav,
+sound,data\wav\effect\assasin_cloaking.wav,data.grf,69392,341df282c76afe63d7237ba136f01bc2dc4a2a9dc62815798523acd4affc497f,raw/ro/wav/effect/assasin_cloaking.wav,
+sound,data\wav\effect\rog_back stap.wav,data.grf,28932,d9b009e0583425b2630e11093becfbbce140afa462057c792d97549a36c4c0f2,raw/ro/wav/effect/rog_back stap.wav,
+sound,data\wav\effect\rog_steal coin.wav,data.grf,61446,6d68ae6c31372b079e610846ae867b69bc8f14a58991e7e4145be7e98c561c85,raw/ro/wav/effect/rog_steal coin.wav,
+sound,data\wav\effect\rog_intimidate.wav,data.grf,68740,1f8be3c79ca178cdf63ed642876adaed3e1276618ebaeaeb33b4b0d1eeb23059,raw/ro/wav/effect/rog_intimidate.wav,
+sound,data\wav\effect\ac_concentration.wav,data.grf,25388,1e7fb66fd1311df0ef7e34f5797e04530ae035e9a5b82cb3b77c318646d9c5ab,raw/ro/wav/effect/ac_concentration.wav,
+sound,data\wav\effect\hunter_blitzbeat.wav,data.grf,30380,942cd5635c8cadf407047694f610ce7b9311a358c064da430190178dc10469a8,raw/ro/wav/effect/hunter_blitzbeat.wav,
+sound,data\wav\effect\hun_anklesnare.wav,data.grf,25392,8320f68a8f2f29dfbe33558b385b5689ca82ecd79e8b7004463a1d05a2047167,raw/ro/wav/effect/hun_anklesnare.wav,
+sound,data\wav\effect\hunter_claymoretrap.wav,data.grf,47760,ae0dc685bd9fdba743ee88eaa6bce755062338c095e396277fe8b87fe759f679,raw/ro/wav/effect/hunter_claymoretrap.wav,
+sound,data\wav\effect\hunter_sandman.wav,data.grf,55610,6c0222b0b7a919528f82ca90bfb883b23cb3e7fd8c370293358c98e3293f036e,raw/ro/wav/effect/hunter_sandman.wav,
+sound,data\wav\effect\hunter_freezingtrap.wav,data.grf,41140,5b229abd6923ce064f1d1b48ae02df2c29e341ede073e300b0bbb273386e5bae,raw/ro/wav/effect/hunter_freezingtrap.wav,
+sound,data\wav\effect\acolyte_cure.wav,data.grf,17256,a415ee264b654ada380210c2955ffb3dd0448732f71e051a8f37f75b66e03e26,raw/ro/wav/effect/acolyte_cure.wav,
+sound,data\wav\effect\ef_signum.wav,data.grf,54292,a3ee8eb2552249795bf7e1425c81280c89c96ac5f5387b0035de294c12bab52f,raw/ro/wav/effect/ef_signum.wav,
+sound,data\wav\effect\priest_sanctuary.wav,data.grf,174636,3c14d491e0dfc688138a968008899bb838d4480be3bd7e6a0391850aef0cf90a,raw/ro/wav/effect/priest_sanctuary.wav,
+sound,data\wav\effect\priest_magnificat.wav,data.grf,103578,9385352fef54c9f5d892d707cc52384872df5de8a75c75ae55bcce6ab1e15b91,raw/ro/wav/effect/priest_magnificat.wav,
+sound,data\wav\effect\priest_gloria.wav,data.grf,91872,b21f4f235c922cd122be602a68c090e964a4cb569310b742713bd9e392c79546,raw/ro/wav/effect/priest_gloria.wav,
+sound,data\wav\effect\priest_impositio.wav,data.grf,90784,9f5bf042eedcfbd6f942eee0c57cdb2b5ca8f0034fbc6ffa258d3750b07b1162,raw/ro/wav/effect/priest_impositio.wav,
+sound,data\wav\effect\priest_resurrection.wav,data.grf,162604,e59cab8e5bb8203190d50ad268b41a0f5555836ce6cb60bb8fabbe4dea044ac8,raw/ro/wav/effect/priest_resurrection.wav,
+sound,data\wav\effect\priest_recovery.wav,data.grf,66912,8663b86785fa14ac5e7b5df54a270f8268bbaea560e5511fee54e34c276ce02e,raw/ro/wav/effect/priest_recovery.wav,
+sound,data\wav\effect\priest_suffragium.wav,data.grf,63054,329ce36a0bfa7c7a7c4ed5dee96e66971b44c66e042d8e66d6e72d361b4615b7,raw/ro/wav/effect/priest_suffragium.wav,
+sound,data\wav\effect\priest_aspersio.wav,data.grf,121804,6ce76191672a0a67771cd3def6a291c6a565eac782e69ba13ab73287dab997f2,raw/ro/wav/effect/priest_aspersio.wav,
+sound,data\wav\effect\ef_coin2.wav,data.grf,6018,fab302446446b5dae45c090a77bda871d1a80f5c10fab0e1407e5ff88608426a,raw/ro/wav/effect/ef_coin2.wav,
+sound,data\wav\effect\black_adrenalinerush_a.wav,data.grf,11952,de7fc4e189f7bec5adc39bf0b2c49ed1c67cf0349aee3256909f7513fb3473fc,raw/ro/wav/effect/black_adrenalinerush_a.wav,
+sound,data\wav\effect\black_overthrust.wav,data.grf,79782,e5c8c58b2579b6aba1bd90934d96b85277ec6b2e66e77a70375707653db6fa47,raw/ro/wav/effect/black_overthrust.wav,
+sound,data\wav\effect\black_weapon_perfection.wav,data.grf,73360,706a669ab61148a7e6eade6f1915a63b7032c5af03efcc11298de700c0d9cb5c,raw/ro/wav/effect/black_weapon_perfection.wav,
+sound,data\wav\effect\black_maximize_power_sword_bic.wav,data.grf,31264,fd178d34501243a2f92c4c2a49420802358730185de8aa0abbc57aafa7275c14,raw/ro/wav/effect/black_maximize_power_sword_bic.wav,
+sound,data\wav\effect\p_success.wav,data.grf,82884,9a549b56cd8da8c13ed985615c9013f067e45956bc64aaadbc4a0684eb9966f1,raw/ro/wav/effect/p_success.wav,
+sound,data\wav\effect\p_failed.wav,data.grf,78852,4f4e1798cdb09b5dd303e602acaa026ab725f7a41effe9370f88e6fe60fa0821,raw/ro/wav/effect/p_failed.wav,
+sound,data\wav\effect\sage_magic rod.wav,data.grf,60548,47e2619fc44d2a05b93c923326687bebf8c8dad546726c238bde2be2f35478e2,raw/ro/wav/effect/sage_magic rod.wav,
+sound,data\wav\effect\sage_spell breake.wav,data.grf,62196,4d96b93d46ac841a10fa34082f825e4e8a73380014bec7dd8b7758767b8fe26c,raw/ro/wav/effect/sage_spell breake.wav,
+sound,data\wav\effect\st_mvp.wav,data.grf,187644,0a2b2467dfb506c61c052f7e392fee8c6569db0d12131ec3e587860d7bea32c2,raw/ro/wav/effect/st_mvp.wav,
+sound,data\wav\effect\bs_refinesuccess.wav,data.grf,108980,86d37b152092f52a32bb0f2dd37811dedf004ddfe00e833e9825f21a98208990,raw/ro/wav/effect/bs_refinesuccess.wav,
+sound,data\wav\effect\bs_refinefailed.wav,data.grf,58348,a6708153569027185943e2be37c699243449c51087388a4ae11d964390847edb,raw/ro/wav/effect/bs_refinefailed.wav,
+sound,data\wav\effect\drop_blue.wav,data.grf,120880,da6795c12dd9e4060b305da152f77b8b3378580bd24fac8185f4467090188522,raw/ro/wav/effect/drop_blue.wav,
+sound,data\wav\effect\drop_purple.wav,data.grf,135650,045cc78225b1f99aa3c0a4b7f6f6e672e2977a36d02d6d69710e80d9fca7061f,raw/ro/wav/effect/drop_purple.wav,
+sound,data\wav\effect\drop_yellow.wav,data.grf,128050,8e361ad31581173a66adf6d7d6e203e2f3071e4b76a4ec5281784151c81d88fd,raw/ro/wav/effect/drop_yellow.wav,
+sound,data\wav\effect\drop_red.wav,data.grf,152228,ef62ab4ab5d25b241ffa53d0bee22e3d92038b163ea89c68fd51a6ce560619af,raw/ro/wav/effect/drop_red.wav,
+sound,data\wav\effect\drop_green.wav,data.grf,143700,80d753a9fdbc1264369402bbad8a782eafafbb587003805ee8124df592ba55b0,raw/ro/wav/effect/drop_green.wav,
+sound,data\wav\effect\drop_pink.wav,data.grf,161264,5bb849c76bad22638fb6dcbfc357ce95ca334edec94b1a417837a2ba5e384f94,raw/ro/wav/effect/drop_pink.wav,
+sound,data\wav\effect\ef_portal.wav,data.grf,338106,72d16166d66410badebf65fef2053656a9dbdc95e810402ffad4ba9475de2304,raw/ro/wav/effect/ef_portal.wav,
+sound,data\wav\effect\ef_teleportation.wav,data.grf,219198,40d869c944fed43dd3bd197527a2e87507f6a539315df55fe2b9ff571234f97f,raw/ro/wav/effect/ef_teleportation.wav,
+sound,data\wav\effect\ef_readyportal.wav,data.grf,18676,d011b5576002352515f68a0d1b4a138389cc90a68e9df8fee2363644fb63771a,raw/ro/wav/effect/ef_readyportal.wav,
+sound,data\wav\effect\ef_firearrow.wav,data.grf,28662,4ea6c333110b01a48101def905bc83b9ddd9bccbb1d0424dacc7f26617ae2dbd,raw/ro/wav/effect/ef_firearrow.wav,
+sound,data\wav\effect\ef_firearrow1.wav,data.grf,28662,4ea6c333110b01a48101def905bc83b9ddd9bccbb1d0424dacc7f26617ae2dbd,raw/ro/wav/effect/ef_firearrow1.wav,
+sound,data\wav\effect\ef_firearrow2.wav,data.grf,29686,c6b6004b437a8d487a0a79100a0cf50a2edf455733127f56fdc298ca099fa015,raw/ro/wav/effect/ef_firearrow2.wav,
+sound,data\wav\effect\ef_firearrow3.wav,data.grf,23440,6920a84a3f73b402ad29637e58c421d906acccd8f0e73032a1ca7200adb800c9,raw/ro/wav/effect/ef_firearrow3.wav,
+sound,data\wav\effect\ef_icearrow.wav,data.grf,13108,1b4351822341722610738c6c91407d3c73e941c624f103c8d2453bf7642b34e4,raw/ro/wav/effect/ef_icearrow.wav,
+sound,data\wav\effect\ef_icearrow1.wav,data.grf,13108,1b4351822341722610738c6c91407d3c73e941c624f103c8d2453bf7642b34e4,raw/ro/wav/effect/ef_icearrow1.wav,
+sound,data\wav\effect\ef_icearrow2.wav,data.grf,15990,614093c8a4d27f18930ae6bea24d3c596ffa8ee0821b31f31a857761158eb1e9,raw/ro/wav/effect/ef_icearrow2.wav,
+sound,data\wav\effect\ef_icearrow3.wav,data.grf,11256,b7d662cac53694ac7585ab388710236daeba2611864b4a8e4e4b22c09f07764d,raw/ro/wav/effect/ef_icearrow3.wav,
+monster_sound,data\wav\_attack_dagger.wav,data.grf,4582,9f75af63360c3e8a9724d7a4ef58aed89c9e6c86980efe0539a217f0b8e3301b,raw/ro/wav/_attack_dagger.wav,
+monster_sound,data\wav\_enemy_hit_fire2.wav,data.grf,34796,84cdfe52859fb4db52a0caebde2863e8084a3c07d815487c3d27fcc3f2020947,raw/ro/wav/_enemy_hit_fire2.wav,
+monster_sound,data\wav\alarm_die.wav,data.grf,43820,61b90403c6df9e49f4a4ec7ecd85291d9ab5ec55758aa17084ae908e480cfe3d,raw/ro/wav/alarm_die.wav,
+monster_sound,data\wav\alarm_move.wav,data.grf,38956,845906418661dae0da1ee71ca939a08c867a12c9cf4b1983d1519d7d081b2621,raw/ro/wav/alarm_move.wav,
+monster_sound,data\wav\anacondaq_attack.wav,data.grf,19216,8695628422dca05454a3227c63e7df164fafc97a78ebe81fcf2aea853bd464ee,raw/ro/wav/anacondaq_attack.wav,
+monster_sound,data\wav\anacondaq_damage.wav,data.grf,19862,e92b81f19c0aa0f41999cb9fc55e8b41ce35b4b55e540bc5fb36fa48ee4781e1,raw/ro/wav/anacondaq_damage.wav,
+monster_sound,data\wav\anacondaq_die.wav,data.grf,31280,6c4436bec65efd24628dc75419196e49630e9ca35fe65f122488164415075b09,raw/ro/wav/anacondaq_die.wav,
+monster_sound,data\wav\anacondaq_move.wav,data.grf,22602,62eacd6dd5eb4d737aee888f0791c30fbf0f1c7b6316dcc2a8444bb44f3d1628,raw/ro/wav/anacondaq_move.wav,
+monster_sound,data\wav\baphomet__attack.wav,data.grf,13724,52eb4218c085b854d4b1b9bb74a30681df0da584037bd4d2c443f393756afd5b,raw/ro/wav/baphomet__attack.wav,
+monster_sound,data\wav\baphomet__breath.wav,data.grf,56262,5957bf20af2f7767d7babb706f9f5cf2d04827be6cb78908ab1705b954b0d030,raw/ro/wav/baphomet__breath.wav,
+monster_sound,data\wav\baphomet__damage.wav,data.grf,15096,835d71630629007e01bc97556b06af9821c2d25d0e272ea69585897b41263cdd,raw/ro/wav/baphomet__damage.wav,
+monster_sound,data\wav\baphomet__die.wav,data.grf,79780,e2d41db7c57de4e864d40fca76acc194e99490ac5e17e7d70f2ef187767465e5,raw/ro/wav/baphomet__die.wav,
+monster_sound,data\wav\bigfoot_attack.wav,data.grf,24886,21e91b045d9604a8eecfd6fb4e0616f6e657c6e5fbe4a55cffcdfb5f228b3752,raw/ro/wav/bigfoot_attack.wav,
+monster_sound,data\wav\bigfoot_damage.wav,data.grf,22838,0fd7e89aebe721a255f8e3268ca79547db7dc9401899565fcc85714f606db9a7,raw/ro/wav/bigfoot_damage.wav,
+monster_sound,data\wav\bigfoot_die.wav,data.grf,93360,8dc04afce007f4b0fcd2d806f7d5a97dacfd999888167ef26fc3b61b21b52c90,raw/ro/wav/bigfoot_die.wav,
+monster_sound,data\wav\bigfoot_die2.wav,data.grf,42928,2c6b6a874d119026ccfe3559fd67d616af387f9d06930a48ad7ba15f851eae56,raw/ro/wav/bigfoot_die2.wav,
+monster_sound,data\wav\bigfoot_snore.wav,data.grf,17476,763535a25105b9c12309b77ddaa7c58e9e6f971fd3de5664ea9672ed6371e731,raw/ro/wav/bigfoot_snore.wav,
+monster_sound,data\wav\bigfoot_stand1.wav,data.grf,30680,0fc6f345db5a4ca99ee80c7ddea50052e4d999f4dd55592072ab4fbfb6cfc52a,raw/ro/wav/bigfoot_stand1.wav,
+monster_sound,data\wav\bigfoot_stand2.wav,data.grf,13390,e1d9bcddb0dcde4855f8dd79d8f606267f5a71caa21847a7afa660a458b5fe51,raw/ro/wav/bigfoot_stand2.wav,
+monster_sound,data\wav\bigfoot_step1.wav,data.grf,16694,c36fc28a498ff2f57aeee87b5fa7b25b5f0877fe6e59e481fb2ef03b8c8c85c8,raw/ro/wav/bigfoot_step1.wav,
+monster_sound,data\wav\bigfoot_step2.wav,data.grf,14992,187de70029221568d2cb60158d29a53bf4ef4b3ef7b90f244c103ebf9d1cd364,raw/ro/wav/bigfoot_step2.wav,
+monster_sound,data\wav\bloody_knight_die.wav,data.grf,40542,16faac9e0c685795a29ff14f3086774faa24f118b05efd2531b9be071ed160d1,raw/ro/wav/bloody_knight_die.wav,
+monster_sound,data\wav\bloody_knight_move1.wav,data.grf,34886,db23f4cce97d5f432a2f5c1d6ee57981b9ff1aac607129edd996e879ef8939fd,raw/ro/wav/bloody_knight_move1.wav,
+monster_sound,data\wav\bloody_knight_move2.wav,data.grf,37446,ccda4838ade2cbea759ed0d769bae9fe7d471e0f5c5fdf6e440327404e30f839,raw/ro/wav/bloody_knight_move2.wav,
+monster_sound,data\wav\bloody_knight_stand.wav,data.grf,29190,418e4acbc18e33ee76c99665d59cd3c94ed1569706568cf03cd844350b5ad1db,raw/ro/wav/bloody_knight_stand.wav,
+monster_sound,data\wav\c_tower_manager_attack.wav,data.grf,18854,53de76c15040cba166fad1f8ac4a7edd509590f3276b7d3e52de481095f20d07,raw/ro/wav/c_tower_manager_attack.wav,
+monster_sound,data\wav\c_tower_manager_die.wav,data.grf,52992,5d8f2e96f635a0f7c07defe335c878e039e131c37e1d3b08eef30c7ac7e960d7,raw/ro/wav/c_tower_manager_die.wav,
+monster_sound,data\wav\c_tower_manager_die2.wav,data.grf,46854,ea545fe1586530fa57838e16556db5a6948eed5f84b4d883f227200b66cd8cab,raw/ro/wav/c_tower_manager_die2.wav,
+monster_sound,data\wav\c_tower_manager_stand.wav,data.grf,19298,9f4d8e1caa2c71cca41f5a0672a12e30bc46873f4350ce3da415e64bee717d9e,raw/ro/wav/c_tower_manager_stand.wav,
+monster_sound,data\wav\chocho_attack.wav,data.grf,36886,5167b457da09e5ce739152bab3394baf2a5505676faf7500f417233a13c359d7,raw/ro/wav/chocho_attack.wav,
+monster_sound,data\wav\chocho_damage.wav,data.grf,12216,ff144210155a7fe041956a8e2a7360b356c8aeef4a427f9125b8bb237313b4c8,raw/ro/wav/chocho_damage.wav,
+monster_sound,data\wav\chocho_die.wav,data.grf,25886,8c13af120ccd01d54add94191ea28e8883faa3f5d1482de7745d018bdbc6397c,raw/ro/wav/chocho_die.wav,
+monster_sound,data\wav\chocho_stand.wav,data.grf,58516,11402d292beb23f59ecf1f9b675fa804e07367c5f41e7eca3ac6901f8317c732,raw/ro/wav/chocho_stand.wav,
+monster_sound,data\wav\clock_stand.wav,data.grf,35526,a5740deb8a56283b5c1d68953900609d1abc4ddd55b4d5d6ae56a1e53367a3a3,raw/ro/wav/clock_stand.wav,
+monster_sound,data\wav\deviruchi_attack.wav,data.grf,15404,e10212e008b95718fed28f3e327ebb91d500349b133eed57c00931fb4a1d7845,raw/ro/wav/deviruchi_attack.wav,
+monster_sound,data\wav\deviruchi_move.wav,data.grf,5652,398eb2a877705f16b865be201b9508081a6fa29f5f596e243b831195097f3006,raw/ro/wav/deviruchi_move.wav,
+monster_sound,data\wav\deviruchi_stand.wav,data.grf,22332,e40abb3952fee80fb815cb26a0fcf5f5eb971f5443352ab7603ee4ddb9766019,raw/ro/wav/deviruchi_stand.wav,
+monster_sound,data\wav\disguise_attack.wav,data.grf,46732,5aca1b9db1e20a6a08632bd649cc41e9236a85293a85792da913146e6241e4a5,raw/ro/wav/disguise_attack.wav,
+monster_sound,data\wav\disguise_die.wav,data.grf,58136,256091813f8b202226481552eea9e2197f7a6a5da2ee827f6e077161982f71c0,raw/ro/wav/disguise_die.wav,
+monster_sound,data\wav\disguise_die01.wav,data.grf,27396,16aa294114cc9da0f936ce6485fb2c7a3b95b2098f945e7551e5ecc5c5c7793f,raw/ro/wav/disguise_die01.wav,
+monster_sound,data\wav\disguise_stand.wav,data.grf,46982,7447d33f17edab54bf5e50e6eddf28b02744fd663e889ff2eca568d312b3a192,raw/ro/wav/disguise_stand.wav,
+monster_sound,data\wav\elder_attack.wav,data.grf,74628,a4a410f6b69a02a1680dffeb98371c7a445b5c38152f7542e7db21c10cc28213,raw/ro/wav/elder_attack.wav,
+monster_sound,data\wav\elder_wilow_attack.wav,data.grf,13322,6b42d0113c592e4769eafe50711b820b20bc5c39fdb011bfd020bcf4525b8dee,raw/ro/wav/elder_wilow_attack.wav,
+monster_sound,data\wav\elder_wilow_damage.wav,data.grf,22544,653f37ceb5716bb665465cc88adea9a00f0832a6d7bac3c51e33e8593eb204a9,raw/ro/wav/elder_wilow_damage.wav,
+monster_sound,data\wav\elder_wilow_die.wav,data.grf,31408,c1fc238f1ee6e1366d15da4f1ceb217749614e61731f8501129a2676f26c2f92,raw/ro/wav/elder_wilow_die.wav,
+monster_sound,data\wav\elder_wilow_die2.wav,data.grf,33484,51dd970566f1e5a0143c0e3d8bcddf3a73f58964c3a9e1e9cf0c7cf3d9b33d20,raw/ro/wav/elder_wilow_die2.wav,
+monster_sound,data\wav\evil_druid_attack.wav,data.grf,13270,6ad35d82cd439731941f5adc7ec061ac25b21a505696eb98a720a6ca19eed410,raw/ro/wav/evil_druid_attack.wav,
+monster_sound,data\wav\evil_druid_damage.wav,data.grf,14600,20fda739fd9aba7d09210818d6804c02470cd868c48c41ec97a95b20399dd74c,raw/ro/wav/evil_druid_damage.wav,
+monster_sound,data\wav\evil_druid_die.wav,data.grf,26800,78f0f45dd4870a292f4c4d11be7cbacc6ef499a6b9f3c836d9be6ee27be1eaf1,raw/ro/wav/evil_druid_die.wav,
+monster_sound,data\wav\evil_druid_die2.wav,data.grf,61830,094c74ef24f1a4d4eadaf80a3f396c37b126809e86196c1db648fcfdfb9ac562,raw/ro/wav/evil_druid_die2.wav,
+monster_sound,data\wav\farmiliar_attack.wav,data.grf,18822,6f60905a225cc19d6640a20df8671ca6d59c337745ce31bd6ff8455b05e97cc7,raw/ro/wav/farmiliar_attack.wav,
+monster_sound,data\wav\farmiliar_damage.wav,data.grf,13190,39f2fe5314208f80c009bd51266d2fadc303f7e7580fafa0377b0b0ebb82ff95,raw/ro/wav/farmiliar_damage.wav,
+monster_sound,data\wav\farmiliar_die.wav,data.grf,14342,b8e8ff4b8b480363979b38dd16d6b183404cf1d80b2fbb36ee27a069756223a4,raw/ro/wav/farmiliar_die.wav,
+monster_sound,data\wav\farmiliar_stand1.wav,data.grf,23216,bb2b2754d23967438f3c13e27693a4527cf5ab14af8043f1eb6344c5d08a376f,raw/ro/wav/farmiliar_stand1.wav,
+monster_sound,data\wav\farmiliar_stand2.wav,data.grf,16650,86f1b68effa95d14bf365c9dd05f3402ac91196389a485fc5a8e7930a8402877,raw/ro/wav/farmiliar_stand2.wav,
+monster_sound,data\wav\ghoul_attack1.wav,data.grf,25328,32a42d73520ec0e7a7dc120482770a86ac37637c0b892a5e0004efe52c878358,raw/ro/wav/ghoul_attack1.wav,
+monster_sound,data\wav\ghoul_attack2.wav,data.grf,11518,c666bed2beede15819bfa9fb70aa78ffc07d25f0349c29da437276e5d09d2e09,raw/ro/wav/ghoul_attack2.wav,
+monster_sound,data\wav\ghoul_attack3.wav,data.grf,27212,afdc5b325394b8ff8cbadf306404b1d7d3ef3d2f8961d2622ed280772bcd5d80,raw/ro/wav/ghoul_attack3.wav,
+monster_sound,data\wav\ghoul_attack4.wav,data.grf,15144,566226ca42fe585e1ba0bd3746537b83f31f90593b20b045739470822c10621f,raw/ro/wav/ghoul_attack4.wav,
+monster_sound,data\wav\ghoul_damage.wav,data.grf,24432,60efb4494a237e3772ea7e099187262be48c455a8e5de917e829f345de965f46,raw/ro/wav/ghoul_damage.wav,
+monster_sound,data\wav\ghoul_die1.wav,data.grf,40626,656f7b0dbb01f2d99a5873a807e334f26f96a71c6652a06ea55881e6ba0ee0d0,raw/ro/wav/ghoul_die1.wav,
+monster_sound,data\wav\ghoul_die2.wav,data.grf,11246,4b428ef9f5005f2b35eb78553851acd95d9bc72c28ee0df48c303b7d4e16fe58,raw/ro/wav/ghoul_die2.wav,
+monster_sound,data\wav\ghoul_step1.wav,data.grf,12118,66e3d32d7818350d20b5837597ace06b722eec886a0e8769b687ce9bd29584c3,raw/ro/wav/ghoul_step1.wav,
+monster_sound,data\wav\ghoul_step2.wav,data.grf,13904,4f86dc2eeb0017c922c2104c73fdffda8d7ce28f2b539f0abb04a8bddfca3664,raw/ro/wav/ghoul_step2.wav,
+monster_sound,data\wav\hornet_damage.wav,data.grf,23828,15248c59d1f39f3528f2f7a5d87492a4dff8bb2b5cfcb015fbb07bcb943bd3da,raw/ro/wav/hornet_damage.wav,
+monster_sound,data\wav\hydra_attack.wav,data.grf,17668,7fbb0e156af9cca6f1fe4e9a0308b22d3b4fb365eb3889047d7209e9d9318382,raw/ro/wav/hydra_attack.wav,
+monster_sound,data\wav\hydra_damage.wav,data.grf,14462,c442e9ef487ecce43978578d577e3fc17fc55293c65a57a20f49d8b5b633868d,raw/ro/wav/hydra_damage.wav,
+monster_sound,data\wav\hydra_die.wav,data.grf,10768,6ec73ff7383ad200ad3311369f003d47a422d998943a5631b060aef044a59b6c,raw/ro/wav/hydra_die.wav,
+monster_sound,data\wav\hydra_die2.wav,data.grf,11246,fb238ed5b61e027df68945309a1782f2fac6f373be181b5ba1bfea90f6477781,raw/ro/wav/hydra_die2.wav,
+monster_sound,data\wav\hydra_die3.wav,data.grf,13276,3e34527fc8d545b42a8a1f00ed996d5a4cf9822d8a788443ca5590c3dad9fca9,raw/ro/wav/hydra_die3.wav,
+monster_sound,data\wav\hydra_stand.wav,data.grf,22620,d9a133076630de80949ff227c9b482f0f3c46d9d70e9f5e36e44b3371878042b,raw/ro/wav/hydra_stand.wav,
+monster_sound,data\wav\hylozoist_attack.wav,data.grf,59386,2540fbe2fe5005875fbd33cf49a9b36faeae6bbe60c42751fd45d1955d55184f,raw/ro/wav/hylozoist_attack.wav,
+monster_sound,data\wav\hylozoist_die.wav,data.grf,91780,20ba2e4c0b2605cdcf369d73d196bb73ec662e6b296d6783358a0d50f30e15f8,raw/ro/wav/hylozoist_die.wav,
+monster_sound,data\wav\khalitzburg_attack.wav,data.grf,39854,d08a94e3be9cf7bc64eda88c77f5848b83eb9aaa520dc2da467f59f3199f2e30,raw/ro/wav/khalitzburg_attack.wav,
+monster_sound,data\wav\khalitzburg_die.wav,data.grf,64940,0a2f6c53af0907b8e3c0b8e6bf1f36cda14444ff240e1dcca2ea7b49291a2d2f,raw/ro/wav/khalitzburg_die.wav,
+monster_sound,data\wav\khalitzburg_move.wav,data.grf,46956,d9b2930ac18def8c06991614a74fad68cffc578dd7649e9c6b6face27a04c343,raw/ro/wav/khalitzburg_move.wav,
+monster_sound,data\wav\knight_of_abyss_attack1.wav,data.grf,62128,827e2945fadc6541c551eba631327824d4f4c24bbd3ad1d0cc1563f7caa80fdc,raw/ro/wav/knight_of_abyss_attack1.wav,
+monster_sound,data\wav\knight_of_abyss_attack2.wav,data.grf,25388,41535bef232ea192e46cf001e07b14879c328cbe0ccd41c5fc254b57118e7ceb,raw/ro/wav/knight_of_abyss_attack2.wav,
+monster_sound,data\wav\knight_of_abyss_die.wav,data.grf,84908,440515831fa801d2ec33547bade7ad64c332762acd7af8b42f7fb2869de515c0,raw/ro/wav/knight_of_abyss_die.wav,
+monster_sound,data\wav\knight_of_abyss_move.wav,data.grf,124338,4af9e147f88a9643e3eb32a419db3cdcbc707eaaa7203b77ac127eb307f8f842,raw/ro/wav/knight_of_abyss_move.wav,
+monster_sound,data\wav\knight_of_abyss_stand.wav,data.grf,49708,129d5b98a619f6f6b4adc8f54980ee445e21c572219bc47446ddb05c14e270cf,raw/ro/wav/knight_of_abyss_stand.wav,
+monster_sound,data\wav\kocot_foot1.wav,data.grf,4854,dadf839bd0bc1fbee36cf06664fa2771b632db183a364f340a8aa1fe5c32e9c7,raw/ro/wav/kocot_foot1.wav,
+monster_sound,data\wav\kocot_foot2.wav,data.grf,5072,8c9526aceb34b734caad0eeb1a16558304f98539e808b7036d366dbc55a61665,raw/ro/wav/kocot_foot2.wav,
+monster_sound,data\wav\lord_of_death_attack.wav,data.grf,20886,79f4354aa3e8b90ec6d31dd54c44dcc9ef44b6ef595de90c336222d925da34fc,raw/ro/wav/lord_of_death_attack.wav,
+monster_sound,data\wav\lord_of_death_die.wav,data.grf,143492,2fb13fe57da516fa7c5010db28710f1e62f4b0bbf7523ab93936121f5385300f,raw/ro/wav/lord_of_death_die.wav,
+monster_sound,data\wav\lude_attack.wav,data.grf,31852,18701901e267b43f6e6deaade8f6059a346b987d36a3242ea6ba4293ef23fb3c,raw/ro/wav/lude_attack.wav,
+monster_sound,data\wav\lude_die.wav,data.grf,27140,3b1bc91f7dc3a105decfc0cb5ef31ce0c9dce6fe0f63e60e05325dafc3447fc6,raw/ro/wav/lude_die.wav,
+monster_sound,data\wav\lunatic_attack.wav,data.grf,3790,1e055bce42266118dff5ff55f3d51643b02875a3cf7eac6c403bdc2c6afdc1c9,raw/ro/wav/lunatic_attack.wav,
+monster_sound,data\wav\lunatic_die.wav,data.grf,8120,f40381b96a61e07295100fda911d4ae712391013405b10f647b08540e2d29ab3,raw/ro/wav/lunatic_die.wav,
+monster_sound,data\wav\mantis_attack.wav,data.grf,11224,72df184e978153f2b8545cf9ece05b52ac9e096c6a4fb3072775daf562552fa0,raw/ro/wav/mantis_attack.wav,
+monster_sound,data\wav\mantis_die.wav,data.grf,13788,4ef017c0f24a3baa845852bc238b154f46292992d700c4e2cec1d545034b7b6f,raw/ro/wav/mantis_die.wav,
+monster_sound,data\wav\mantis_move.wav,data.grf,6784,df1bc9b11cad9f780c668a204cebab03fca31ea7b5239dc823d3662e1796bd00,raw/ro/wav/mantis_move.wav,
+monster_sound,data\wav\metaller_attack.wav,data.grf,11926,2aa4dab51eafeac96c6e8b2fbd09519d84d4179353f62a324654dae0874389cf,raw/ro/wav/metaller_attack.wav,
+monster_sound,data\wav\metaller_damage.wav,data.grf,11920,72dc5180bc3b9d5768bc6d36310af96b843b0ca0c9177e052bcb45fd3c4950a6,raw/ro/wav/metaller_damage.wav,
+monster_sound,data\wav\metaller_die1.wav,data.grf,21038,d5b5bbf803e2cdef96bee8a9c7956e7d3c58b97d02cff898ac118f7a530f11eb,raw/ro/wav/metaller_die1.wav,
+monster_sound,data\wav\metaller_die2.wav,data.grf,31854,c0ceeb9344c0a8e9a4340ad3a9d6efb09ee7bb8309814e2b14f33c0579485604,raw/ro/wav/metaller_die2.wav,
+monster_sound,data\wav\metaller_step1.wav,data.grf,15252,c5c5734560556992a1c28812377c6b508689451799523189cc17156c555dd957,raw/ro/wav/metaller_step1.wav,
+monster_sound,data\wav\metaller_step2.wav,data.grf,10362,6fb8b2b8031620c41f3b3605380d68cada8f34c2d5878a451ad3f42e73d6294f,raw/ro/wav/metaller_step2.wav,
+monster_sound,data\wav\metaller_step3.wav,data.grf,7922,597dc071b250b5fdad8c044cd629d19d412c6b0aa184e145045c176cf8c9e55d,raw/ro/wav/metaller_step3.wav,
+monster_sound,data\wav\monster_book.wav,data.grf,6962,395aede26bb4ca92233ca9cf72fd73c19e42ed5069f2b33ebc8c5fb4d48f0049,raw/ro/wav/monster_book.wav,
+monster_sound,data\wav\monster_clothes.wav,data.grf,15690,62756398fd42b8ddc5aa596815f4a7f10a1fcfd1579fc8a5ead802d899df6874,raw/ro/wav/monster_clothes.wav,
+monster_sound,data\wav\monster_feather.wav,data.grf,13786,c5a1f3833245dfa45ab9ec11feba5cce836d2fda4dcbc3cd1a0e26a5f1f16ae3,raw/ro/wav/monster_feather.wav,
+monster_sound,data\wav\monster_feather_s.wav,data.grf,9224,702d02ad7918b40733ed184e25676070f0126881ef3cd17be53cb03f334808e3,raw/ro/wav/monster_feather_s.wav,
+monster_sound,data\wav\monster_flesh.wav,data.grf,11532,9d4ed8ae2af590ca8c12c74b17c57f23883b1040d25bf60e4c18a1d129960e27,raw/ro/wav/monster_flesh.wav,
+monster_sound,data\wav\monster_insect.wav,data.grf,10988,930e7b8ff71c04e8df990b3495df0e43dda8298dd4269efbb53f12ac3bdbfadf,raw/ro/wav/monster_insect.wav,
+monster_sound,data\wav\monster_mechanic.wav,data.grf,13714,989d4179eb93265326e80f84deeb6aa4548e374b422650f739f5c2cb9dd0cde0,raw/ro/wav/monster_mechanic.wav,
+monster_sound,data\wav\monster_metal.wav,data.grf,16208,0290a64adcd5546fbd0baec0abbbc34dfe6c3223e2d8df9a8f1358939112b74f,raw/ro/wav/monster_metal.wav,
+monster_sound,data\wav\monster_poring.wav,data.grf,16336,bdc3e5bc1331ef233ccf8753bce0f5ac0120d6fd75ffea9e1d772ef4970a525f,raw/ro/wav/monster_poring.wav,
+monster_sound,data\wav\monster_reptiles.wav,data.grf,10016,a379a6ed889049e70d46ab0c652c90a015980693f7fd243955edef24c9c04621,raw/ro/wav/monster_reptiles.wav,
+monster_sound,data\wav\monster_shell.wav,data.grf,11846,0406a84fd0e39a5caf4a704e080895084249c8a2e527bcaf413629ff00e7317a,raw/ro/wav/monster_shell.wav,
+monster_sound,data\wav\monster_skelton.wav,data.grf,19222,031e6112de775d77f926a80d8149898dbda6930a070a5db3a9763806309f376f,raw/ro/wav/monster_skelton.wav,
+monster_sound,data\wav\monster_woodenmail.wav,data.grf,20714,60e5db8466f14fc4b0e6dc652296eb83704b5ada1c4e10e4dec002aae14dc951,raw/ro/wav/monster_woodenmail.wav,
+monster_sound,data\wav\monster_zombie.wav,data.grf,7630,f44c8772b467e0edbfe2be6366ec6ce9aba19e4cd6e99a6d73f1b6ae211108af,raw/ro/wav/monster_zombie.wav,
+monster_sound,data\wav\mummy_attack.wav,data.grf,25078,3ab892d8f6a4aed6e4626a1448a19673fb872468821a8b5e216da506abcd723a,raw/ro/wav/mummy_attack.wav,
+monster_sound,data\wav\mummy_damage.wav,data.grf,22792,43dd04ef1da99d8b8dd37a6fc3a0a7c7c7e3777ffc4fcb0bd862ce16683b89e9,raw/ro/wav/mummy_damage.wav,
+monster_sound,data\wav\mummy_die.wav,data.grf,48572,5f60105edc9d6d48b2e8cd480800ceda51e50530cf20553f7b9d5f189a806737,raw/ro/wav/mummy_die.wav,
+monster_sound,data\wav\mummy_move1.wav,data.grf,93802,482233d40019285c3e2edbb3d5229bbdbff9d683be63faa574bdb874361e0c64,raw/ro/wav/mummy_move1.wav,
+monster_sound,data\wav\mummy_move2.wav,data.grf,106460,a1facf40bd8b2311bd16e2d7a3f7d41f6cf819ebf6a0b91784ce592ab70bcedb,raw/ro/wav/mummy_move2.wav,
+monster_sound,data\wav\orc_archer_attack.wav,data.grf,27752,0ad8f06a4e6a4d27daacc085ea70fdc345f676ee5a9d424d72623f8c15f24ea1,raw/ro/wav/orc_archer_attack.wav,
+monster_sound,data\wav\orc_lord_attack.wav,data.grf,19790,ac7c0543740b40cdb01c9cd491eda227b29324044222b98ab1c5ca994146927f,raw/ro/wav/orc_lord_attack.wav,
+monster_sound,data\wav\orc_lord_die1.wav,data.grf,23148,952e5863015eb7178565a92e178a2cb5003159d5b6f6df699e817d9105212b3f,raw/ro/wav/orc_lord_die1.wav,
+monster_sound,data\wav\orc_lord_die2.wav,data.grf,27398,ae3b449f9f5f3edf8a1f06d939593af71e11f091b1600b3d909f98ab4fe8aae0,raw/ro/wav/orc_lord_die2.wav,
+monster_sound,data\wav\orc_lord_stand.wav,data.grf,26758,599d866c8e736ad2b1c3170209b18785ed6d69e3d6d6677684e78a7f69728ec8,raw/ro/wav/orc_lord_stand.wav,
+monster_sound,data\wav\orc_skeleton_die.wav,data.grf,48816,0dffa1c38a9edd4c4a20d4416b7e0d45eedc1a30a44adc39e798db23e6a4875b,raw/ro/wav/orc_skeleton_die.wav,
+monster_sound,data\wav\orc_skeleton_move.wav,data.grf,7328,86dd328839441b20752d2fe471e3da12c8a7ccc58ee91d8934f2f61a76bc34ec,raw/ro/wav/orc_skeleton_move.wav,
+monster_sound,data\wav\orc_skeleton_stand.wav,data.grf,16428,7e513b76bfa3715b952c6d570cd5b44446a90ddea1271c425ef6df96aa0f665f,raw/ro/wav/orc_skeleton_stand.wav,
+monster_sound,data\wav\ork_warrior_attack1.wav,data.grf,12056,3870dc43552cbf862c2e840713dac9129b395e0a7ba2e2a0f11ada54be87f20c,raw/ro/wav/ork_warrior_attack1.wav,
+monster_sound,data\wav\ork_warrior_attack2.wav,data.grf,21878,ab7b676b40e0ac88fa0589302fcfd0f52a41cb10437ed2314821d54feaade259,raw/ro/wav/ork_warrior_attack2.wav,
+monster_sound,data\wav\ork_warrior_breath.wav,data.grf,32240,c4bd352c8837876373def0782477889472eb6cd2f5b63c825a777acbb05e9814,raw/ro/wav/ork_warrior_breath.wav,
+monster_sound,data\wav\ork_warrior_damage.wav,data.grf,16054,b52048196f82f8c5e6662b4e9b7532e140563a02af6799c3ed9d31791b870265,raw/ro/wav/ork_warrior_damage.wav,
+monster_sound,data\wav\ork_warrior_die1.wav,data.grf,36848,5039bcb6b7a3bbb180f91a54f7a6ca091259ab980228c61dbb5179b2fe0650dd,raw/ro/wav/ork_warrior_die1.wav,
+monster_sound,data\wav\ork_warrior_die2.wav,data.grf,20544,746189b177402fe7b4bf7ddd21c62759399d9d098b054453ec56cbb92440a6a8,raw/ro/wav/ork_warrior_die2.wav,
+monster_sound,data\wav\ork_warrior_step1.wav,data.grf,14806,349a94fc4ba21840466792b5f17c883166f434b51056368c950a8af35050ca11,raw/ro/wav/ork_warrior_step1.wav,
+monster_sound,data\wav\ork_warrior_step2.wav,data.grf,13392,13dc2ef7f8c55f9d07476f9d0e9599649d0f36162e99374aaa6877951552735b,raw/ro/wav/ork_warrior_step2.wav,
+monster_sound,data\wav\owl_duke_die1.wav,data.grf,48648,3561483dc6ab821dfce326178c490f2290a71cc40f8ea7449f5e00ea16292490,raw/ro/wav/owl_duke_die1.wav,
+monster_sound,data\wav\owl_duke_die2.wav,data.grf,36996,7a28db97fb0a33c7e2e6497a5c0371b4dbede3d77d275023f68f7d68368aad3d,raw/ro/wav/owl_duke_die2.wav,
+monster_sound,data\wav\peco_egg_heartbeat.wav,data.grf,21044,9a802ed317e8ee8974f1b5300470cac3823de2fb4d48ab3f5f9a63e19a412db4,raw/ro/wav/peco_egg_heartbeat.wav,
+monster_sound,data\wav\pharaoh_attack.wav,data.grf,22020,a2b1c40130af9df71eea5ad47699d1f9c1f7fa5cea33e5a86f930a6c0a8738d8,raw/ro/wav/pharaoh_attack.wav,
+monster_sound,data\wav\pharaoh_die.wav,data.grf,23364,c7432d4083107daebc0b171472123f8655efecfdfb6dc11b448b14c572f127b5,raw/ro/wav/pharaoh_die.wav,
+monster_sound,data\wav\poring_attack.wav,data.grf,9438,8ce344cd0ca8f2cab2c3ff5b2275fb2e5e1ee8dd7a33b0f83e0b399897635907,raw/ro/wav/poring_attack.wav,
+monster_sound,data\wav\poring_damage.wav,data.grf,11708,0ef1ecc8602c650a7b0c9f185ecac7019c624ce046a7c11215d27f6c9e5451f8,raw/ro/wav/poring_damage.wav,
+monster_sound,data\wav\poring_die.wav,data.grf,31366,a6885bf27a9a34655587a496ebebc95404e48f2bb6101dc6bd65c267b1235d6d,raw/ro/wav/poring_die.wav,
+monster_sound,data\wav\poring_move.wav,data.grf,4734,946521ba8603516a9cb63051ff718d6d97a9b1a94bee4233c99852a44d57f749,raw/ro/wav/poring_move.wav,
+monster_sound,data\wav\punk_attack.wav,data.grf,30952,86be8f1f325027cab64d8333399bf93a7b410b620ee8f504dd5ecfd96adfea3d,raw/ro/wav/punk_attack.wav,
+monster_sound,data\wav\pupa_die.wav,data.grf,20708,ee4bb991d7cf75b53f5a01c234547d4a066b34be90d3f23b40d563babadb9927,raw/ro/wav/pupa_die.wav,
+monster_sound,data\wav\pupa_split.wav,data.grf,16144,5dfccaf2f49b4e81c55af369a71d6fff4ae57327c19e7c699e600e820c36f2e0,raw/ro/wav/pupa_split.wav,
+monster_sound,data\wav\raydric_damage.wav,data.grf,11952,687947a5245662f5daf9ea6817d222213a3fe4e6947b2e6d95968e7b5b003d6e,raw/ro/wav/raydric_damage.wav,
+monster_sound,data\wav\raydric_die.wav,data.grf,62256,f5855cafb57e574aec6f370d6b06e7ce13f3d84f699f3d0c3d89fa6667d25696,raw/ro/wav/raydric_die.wav,
+monster_sound,data\wav\rideword_stand.wav,data.grf,6438,ac05b5490b9b2614f1a405cb99e21a136b821c56dea6ced51efa08b878e33920,raw/ro/wav/rideword_stand.wav,
+monster_sound,data\wav\roda_frog_attack1.wav,data.grf,13608,515a109ab8b918f6eee3d058621d404e9dd4cdd8a34789b2530476cf584bd4aa,raw/ro/wav/roda_frog_attack1.wav,
+monster_sound,data\wav\roda_frog_attack2.wav,data.grf,21358,dfb66fdf1fff58f7eda2799fd55093cf09a9d8266341bab514844d654f2f8c95,raw/ro/wav/roda_frog_attack2.wav,
+monster_sound,data\wav\roda_frog_damage.wav,data.grf,22388,2c074869b2d6811c51c83435f50fd67bd316361474d08881acf64934f2e8b0ab,raw/ro/wav/roda_frog_damage.wav,
+monster_sound,data\wav\roda_frog_die.wav,data.grf,30510,9ec3e25f227a21260f50b761af998e1fbf0526a79cf52f6657d99f6d4c57ca15,raw/ro/wav/roda_frog_die.wav,
+monster_sound,data\wav\roda_frog_stand.wav,data.grf,15830,b4f8ff7ea297a458f9da120ee0c3ddf3c78a66a5c803d32ced75cd351e7dc747,raw/ro/wav/roda_frog_stand.wav,
+monster_sound,data\wav\skel_prisoner_die.wav,data.grf,21126,3fe969746b0f99e68ca91ef54a22902cf9811eaaedc7fe560ac5012486198e7d,raw/ro/wav/skel_prisoner_die.wav,
+monster_sound,data\wav\skel_prisoner_stand.wav,data.grf,53766,76671584e1698ddaae93b939c8098e589e4853aef93ddd90a75042c180f1b0f2,raw/ro/wav/skel_prisoner_stand.wav,
+monster_sound,data\wav\tarou_die.wav,data.grf,19372,b034ca0a73df2b5362a463b6b97d3a36631617b2b876384413bc7cc8f5df6c4c,raw/ro/wav/tarou_die.wav,
+monster_sound,data\wav\tarou_move.wav,data.grf,9670,55a4ddecfa06eab754383980e469fe2dc04db88ffe116669cd145709726d36c8,raw/ro/wav/tarou_move.wav,
+monster_sound,data\wav\tarou_stand.wav,data.grf,12972,85e9a6df9559f3dc167093f166dc4f9ebb547ebc58017cc158523c0c268a09cd,raw/ro/wav/tarou_stand.wav,
+monster_sound,data\wav\thief_bug_damage.wav,data.grf,7962,5f6a2c1f4dda905081e357a99cbf92a2710dc752db5500dfde77ac3290c366a9,raw/ro/wav/thief_bug_damage.wav,
+monster_sound,data\wav\were_wolf_attack.wav,data.grf,28480,b98b9cb6a5fcedf57874decffa290ed374d3daa186253a512980d52e61188643,raw/ro/wav/were_wolf_attack.wav,
+monster_sound,data\wav\were_wolf_foot1.wav,data.grf,8152,4cd3e11fc5d222fb8ed7264b16abc658dc154f8717746c4791ccb8c3b1cc2d51,raw/ro/wav/were_wolf_foot1.wav,
+monster_sound,data\wav\were_wolf_foot2.wav,data.grf,6336,9c7125736b353db41837f65f4492187b82db75872f9008786af836f96d2f339e,raw/ro/wav/were_wolf_foot2.wav,
+monster_sound,data\wav\whisper_die.wav,data.grf,21934,3862eb25b00f63dd7bb1ed060729e5586010d79af27ea1adf8033f6090b4ef93,raw/ro/wav/whisper_die.wav,
+monster_sound,data\wav\whisper_move.wav,data.grf,40926,d6fc25ac9db695f5b9b65c68543544653768076b0020b35543c4b1da5a8f1f7e,raw/ro/wav/whisper_move.wav,
+monster_sound,data\wav\wind_ghost_attack.wav,data.grf,17670,9657bac7243404b54c103d0266a0cf6b168eeca519e409e6eaf3f49857ce2610,raw/ro/wav/wind_ghost_attack.wav,
+monster_sound,data\wav\wind_ghost_move.wav,data.grf,46518,17e6a62bd9d5dab08ff834f69737abb86c2624d85cb5edfd213ea412afc1fef0,raw/ro/wav/wind_ghost_move.wav,
+monster_sound,data\wav\wolf_attack.wav,data.grf,34240,598f3a9fd7a6319e514384e7e49fd734f129280e6e4823ecbec5304d9c9bc0c8,raw/ro/wav/wolf_attack.wav,
+monster_sound,data\wav\wolf_damage.wav,data.grf,21234,b089072f372e5a26c56b84d0b63cecf170349c4f4c0d2e61a134590f059f60be,raw/ro/wav/wolf_damage.wav,
+monster_sound,data\wav\wolf_die.wav,data.grf,114982,29605aa363079454a625f6c99af4f53cfd5c257dcd17623d08ec4995f88b03a7,raw/ro/wav/wolf_die.wav,
+monster_sound,data\wav\wolf_stand.wav,data.grf,50070,079f081c3e78c8d5d7e96582fcefdbed969bdc0bf70f1a014bb727ffd4eb6183,raw/ro/wav/wolf_stand.wav,
+monster_sound,data\wav\worm_tail_attack.wav,data.grf,11746,302f5336c97c332b7a3fc801079693035a5948d897ba23f32319cc546ef2e481,raw/ro/wav/worm_tail_attack.wav,
+monster_sound,data\wav\worm_tail_damage.wav,data.grf,0,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,raw/ro/wav/worm_tail_damage.wav,
+monster_sound,data\wav\worm_tail_die.wav,data.grf,11898,ef65d2f8cc4b1fafb1fb155a2c133a1d227013a86fbba18addc0af7b67121977,raw/ro/wav/worm_tail_die.wav,
+monster_sound,data\wav\wraith_attack.wav,data.grf,48262,ae6105bacad2dc12433ffd2cbf6b130c8bfe22a0e41bb56153ff5bc07e590dcb,raw/ro/wav/wraith_attack.wav,
+monster_sound,data\wav\wraith_die.wav,data.grf,117168,a8bcea13d3e8427db00a919f10dc29d8af6068dc6e001729f16e1754f9331cf8,raw/ro/wav/wraith_die.wav,
+monster_sound,data\wav\yoyo_hop2.wav,data.grf,8992,26def2eb737e17843f4da54ef430edf0169beca1d6e68d577f5e22f0c8090e6f,raw/ro/wav/yoyo_hop2.wav,
+monster_sound,data\wav\zombie_prisoner_attack.wav,data.grf,32134,1b19992e26dd88d243ed7fd8d5fe2d9ae6ce8d04a70ec933f033fd85a24f6f15,raw/ro/wav/zombie_prisoner_attack.wav,
+monster_sound,data\wav\zombie_prisoner_die.wav,data.grf,22342,29eaf09d2f5de0a90e94687f48ca059c896ae3896bbb4739d1661cdd1a29f93b,raw/ro/wav/zombie_prisoner_die.wav,
+monster_sound,data\wav\zombie_prisoner_move1.wav,data.grf,8208,855d843303dc89cf052eac189e4648bf2b679288afe365e06be343d36bfefa11,raw/ro/wav/zombie_prisoner_move1.wav,
+monster_sound,data\wav\zombie_prisoner_move2.wav,data.grf,15486,5edaed9bb78bfbabda05de1c5deae8bbe45000aba2fb7a56d39c4901eb0ef917,raw/ro/wav/zombie_prisoner_move2.wav,
+monster_sound,data\wav\zombie_prisoner_stand.wav,data.grf,53766,76671584e1698ddaae93b939c8098e589e4853aef93ddd90a75042c180f1b0f2,raw/ro/wav/zombie_prisoner_stand.wav,
+bgm,data\mp3nametable.txt,patch.grf,41471,529039e33688df12074a59585072882a70297f91b67bcfede5dda7c0a8cbaddc,raw/ro/mp3nametable.txt,
+bgm,BGM/01.mp3,loose,1835904,03d6c7f34b255750de3ee5a5905c51d69e1acd91515611946642d68cdecbffcd,raw/ro/bgm/01.mp3,
+bgm,BGM/05.mp3,loose,1146880,38b70bc226f07ca2a5ff41548450fb835dc8be0d70975c252f4f0459e0d683d7,raw/ro/bgm/05.mp3,
+bgm,BGM/06.mp3,loose,1695744,d54629b6c6cb8508786a5101b78495768d5c3d5398cb92f52de54ccfe856dbd1,raw/ro/bgm/06.mp3,
+bgm,BGM/08.mp3,loose,2742272,93841c38b5fa8d6f6137198091368ed679c45205470c93a63ca1b352b086b118,raw/ro/bgm/08.mp3,
+bgm,BGM/11.mp3,loose,1282048,f1b4ed07892587d2056c344a06a016ffe9c457cd8134e11c228f5a39629ad1be,raw/ro/bgm/11.mp3,
+bgm,BGM/12.mp3,loose,1476608,814a8484603741406bdb5ad0f16f4b9d4bca6218f8c23d88cbf6983e6c6da58e,raw/ro/bgm/12.mp3,
+bgm,BGM/14.mp3,loose,1423360,dd21babc179bab9eafe9fb2e82ff1f6c02f02bc43c7ee76ae4d6582f0dab8130,raw/ro/bgm/14.mp3,
+bgm,BGM/15.mp3,loose,2002944,cdb3fc5af447730e5e40a2feb469341aae766e5bdb2257fc03084b919cda2ef7,raw/ro/bgm/15.mp3,
+bgm,BGM/16.mp3,loose,1386496,fc057c4b45596b2ae9df54d1928bb783b426e87ef55b05e7dc5054227164a882,raw/ro/bgm/16.mp3,
+bgm,BGM/17.mp3,loose,1880064,25111ce5628a283fddd97e28cf54a82056588364bf51241aea947d746a81587d,raw/ro/bgm/17.mp3,
+bgm,BGM/19.mp3,loose,2430976,8b06764baae3fd8eaa05e562215bd8d2933f28607bb83d4f7d4bac57ad375223,raw/ro/bgm/19.mp3,
+bgm,BGM/20.mp3,loose,1499136,2ccad463651282d4836e9e910b022c923884063b6ffdeb2284ef39e80af8cfbf,raw/ro/bgm/20.mp3,
+bgm,BGM/21.mp3,loose,1214464,18e3b8c4c688d5be1db9401922e511343343e80a081c2056b1a60dcd4853810e,raw/ro/bgm/21.mp3,
+bgm,BGM/22.mp3,loose,1521664,27aa738d7ccf89263f8f5d2287236b9bf787a90b5d17b5d478cb752a0c0b5788,raw/ro/bgm/22.mp3,
+bgm,BGM/26.mp3,loose,1556480,3b45fd8fe879fb613c736072d0701c19b5f7f57c9f9d86861e836d6a76441925,raw/ro/bgm/26.mp3,
+bgm,BGM/35.mp3,loose,2256896,9422d9e871cd8db29dd9eb5a34d39e8660d22e0491cfc8bf8a553668b9e3a10b,raw/ro/bgm/35.mp3,
+bgm,BGM/39.mp3,loose,2707456,20d2ebd35a46d33b798be2eff521b51e8b02956e9eba6bc3a7c3bdee0aa9f27b,raw/ro/bgm/39.mp3,
+bgm,BGM/40.mp3,loose,1808384,26d46bfdcb3e5af67bb72e9616acb71253b87c4c710c1f948344341758f978ce,raw/ro/bgm/40.mp3,
+bgm,BGM/42.mp3,loose,2203648,4a5747ec1b4f2dec43b2d8baf44916ae12a8c596700e73820fe34b8a9f0254b1,raw/ro/bgm/42.mp3,
+bgm,BGM/48.mp3,loose,1908736,069e02272aed8606cda8755dd518256080e761743607ac92f35a306bb3c9a688,raw/ro/bgm/48.mp3,
+bgm,BGM/60.mp3,loose,1413120,1ceb0ca24daab93c1e2bef2f99216a30efdf4440bd2e942b0b21b33e4019771a,raw/ro/bgm/60.mp3,
+bgm,BGM/84.mp3,loose,1636352,06fab3470782a9f38746c58bcf8407f47b153da400c169021443bb2702d88a93,raw/ro/bgm/84.mp3,
+bgm,BGM/85.mp3,loose,2220032,2c27814965c273b43e6dfee139217e1af36d79e60ac07f6d2a9628c11fb1d1e0,raw/ro/bgm/85.mp3,
+bgm_optional,BGM/02.mp3,loose,1830912,d2df506790bd26131a288c9bd6fa1cd3130d8a436e7a74932a3e269e8c6103fa,raw/ro/bgm/02.mp3,
+bgm_optional,BGM/03.mp3,loose,1505280,7a67f772062b6ca40ddcdd310f5b69189f55eb544f067798e9d0a4d09cb4eb30,raw/ro/bgm/03.mp3,
+bgm_optional,BGM/18.mp3,loose,2695168,42e99274271dd4609296dbf9742375c6b5315349e0039d454b3a360fc74da010,raw/ro/bgm/18.mp3,
+bgm_optional,BGM/24.mp3,loose,2650112,b41dfc0938fa642947e50788687f229aecf234aee1a64c7b4a5696eda405907d,raw/ro/bgm/24.mp3,
+bgm_optional,BGM/36.mp3,loose,1382400,e602413c136429e6be6091bc26037500a01ee8a0019c89215958cce26f8968cc,raw/ro/bgm/36.mp3,
+bgm_optional,BGM/37.mp3,loose,1726464,0499a0d9a6247d9196ed02e9b5105f1ba15f0e8f8578fff5844d35f41a78d19f,raw/ro/bgm/37.mp3,
+bgm_optional,BGM/38.mp3,loose,1748992,5af5ef1cf738b9687973da52a9a6c2cd6602761f1b33199c423830b04901a5cc,raw/ro/bgm/38.mp3,
+bgm_optional,BGM/43.mp3,loose,1685504,20ad3740614ebd391c08daca355c81fc60911cbab2273aa7ec5c0b4ac102d61d,raw/ro/bgm/43.mp3,
+bgm_optional,BGM/44.mp3,loose,1570816,76bd73a8ec20b19315411162105dc76fca6216187632ba77b518a9317a66ec5e,raw/ro/bgm/44.mp3,
+bgm_optional,BGM/47.mp3,loose,1689600,03c5813e4759eb5b0fab515477e092f64dd302f9b8247cced637644e50097448,raw/ro/bgm/47.mp3,
+bgm_optional,BGM/52.mp3,loose,1245184,a1e49515b8d0821b8f77218b16cda3414041490cedb9e6f40047cc4b906eeabc,raw/ro/bgm/52.mp3,
+bgm_optional,BGM/61.mp3,loose,1667072,89999d3e59e2bc7fd9e2510e4e49ee672dd6de2f7029fa71c2905f3d1c484a8b,raw/ro/bgm/61.mp3,

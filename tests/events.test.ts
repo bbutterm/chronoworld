@@ -71,8 +71,9 @@ describe('touchEvents: день входа', () => {
     expect(s.events).toEqual({ startDay: D1, lastDay: D1, loginDays: 1, loginClaimed: [], newbieTasks: [], newbieMilestones: [] });
     expect(s.mail.letters).toHaveLength(1);
     expect(s.mail.letters[0]).toMatchObject({ id: 'm1', source: 'welcome', title: 'Добро пожаловать в лагерь!', read: false, claimed: false, day: D1 });
-    // «Мир изменился» (world_changed_1, onlyIfCleared ch2_s1) новому игроку не приходит — молча помечено доставленным.
-    expect(s.mail.delivered).toEqual(['welcome', 'world_changed_1']);
+    // «Мир изменился» (world_changed_1, onlyIfCleared ch2_s1) и «Дорога через Лабиринтный лес» (world_changed_2, ch10_s1 —
+    // глава 9 вставлена между 8 и 10) новому игроку не приходят — молча помечены доставленными.
+    expect(s.mail.delivered).toEqual(['welcome', 'world_changed_1', 'world_changed_2']);
     expect(touchEvents(s, D1, ctx)).toBe(s);
     expect(saveProblems(s, ctx)).toEqual([]);
   });
@@ -90,6 +91,13 @@ describe('touchEvents: день входа', () => {
     const fresh0 = touchEvents(newGame(ctx, 0, D1), D1, ctx);
     const later = touchEvents({ ...fresh0, campaign: old.campaign }, day(3), ctx);
     expect(later.mail.letters.map((l) => l.source)).toEqual(['welcome']);
+  });
+
+  it('письмо world_changed_2: дошедшим до главы 10 до появления главы 9 — где её искать (fillClearedGaps засчитал её)', () => {
+    expect(ctx.events.mail.letters.find((l) => l.id === 'world_changed_2')!.onlyIfCleared).toBe('ch10_s1');
+    const upTo = ctx.content.stages.findIndex((st) => st.id === 'ch10_s1') + 1;
+    const old = { ...newGame(ctx, 0, D1), campaign: { cleared: ctx.content.stages.slice(0, upTo).map((st) => st.id) } };
+    expect(touchEvents(old, D1, ctx).mail.letters.map((l) => l.source)).toEqual(['world_changed_2', 'world_changed_1', 'welcome']);
   });
 
   it('новый день +1; пропуск дней не сбрасывает и не добавляет лишнего; часы назад — не засчитываются', () => {

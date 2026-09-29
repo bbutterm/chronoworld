@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "maze_whisper",
+  "name": "Шёпот",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 400,
+    "atk": 49,
+    "def": 5,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "maze_whisper_doubt",
+    "actives": [],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "banshee",
+    "tint": "#cfe6d2",
+    "scale": 0.8,
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

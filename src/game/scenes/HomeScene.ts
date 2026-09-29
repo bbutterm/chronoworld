@@ -3,7 +3,7 @@ import { resetHints } from '../hints';
 import { GAME_H, GAME_W, HEADER_H } from '../layout';
 import { confirm, popIn, screen } from '../screen';
 import { collect, staggerIn } from '../juice';
-import { resetProgress, restartOnNewDay, session } from '../session';
+import { restartOnNewDay, session, startOver } from '../session';
 import { button, dangerButton, panel, text, toast, tutorialHint } from '../ui';
 import { cityHint } from '../tutorial';
 import { C, FS, OUTLINE, TOUCH } from '../theme';
@@ -12,6 +12,7 @@ import { fps, motion, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPla
 import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
 import { audioSettings, setAudioSettings, sfx } from '../audio';
+import { hapticSettings, setHapticsOn } from '../haptics';
 import { nextVolume, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
 import { shopTile } from '../shopEntry';
@@ -146,6 +147,8 @@ export class HomeScene extends Phaser.Scene {
     volumeRow('Музыка', 'musicVolume', () => volumeLabel(audioSettings.music), () => setAudioSettings({ music: nextVolume(audioSettings.music) }));
     volumeRow('Звуки', 'sfxVolume', () => volumeLabel(audioSettings.sfx), () => setAudioSettings({ sfx: nextVolume(audioSettings.sfx) }));
     volumeRow('Без звука', 'muteAll', () => (audioSettings.muted ? 'Вкл' : 'Выкл'), () => setAudioSettings({ muted: !audioSettings.muted }));
+    // Вибрация (Telegram HapticFeedback, на Android вне Telegram — vibrate; haptics.ts).
+    volumeRow('Вибрация', 'haptics', () => (hapticSettings.on ? 'Вкл' : 'Выкл'), () => setHapticsOn(!hapticSettings.on));
 
     y += 110;
     // T3-24/T5-26: тестовый бой — инструмент разработчика (dev-сборка или ?dev=1 в адресе), игроку не показываем.
@@ -162,13 +165,11 @@ export class HomeScene extends Phaser.Scene {
     );
     y += 140;
     layer.add(
-      dangerButton(this, cx, y, bw, 110, 'Сбросить прогресс', () =>
-        confirm(this, 'Сбросить весь прогресс? Герои, этапы, золото и предметы пропадут.', 'Сбросить', () =>
-          confirm(this, 'Точно? Отменить будет нельзя.', 'Да, сбросить', () => {
-            resetProgress();
-            // Новая игра — новичок: подсказки первой сессии снова нужны.
-            resetHints();
-            this.scene.restart();
+      dangerButton(this, cx, y, bw, 110, 'Начать заново', () =>
+        confirm(this, 'Весь прогресс будет удалён: герои, этапы, золото и предметы. Начать игру с самого начала?', 'Удалить', () =>
+          confirm(this, 'Точно? Отменить будет нельзя.', 'Да, заново', () => {
+            // Чистое сохранение, сдвиг часов тестировщика и все ключи игры — в ноль; перезагрузка → вступление главы 1.
+            startOver();
           }, { danger: true }),
         { danger: true }),
       FS.h2).container,

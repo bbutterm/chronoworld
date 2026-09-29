@@ -16,9 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "dark_priest",
-    "tint": "#c9a0ff",
-    "scale": 1.5,
+    "sprite": "evil_druid",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   },

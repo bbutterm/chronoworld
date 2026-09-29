@@ -120,6 +120,17 @@
         "spd": 13
       },
       "minChapter": 8
+    },
+    {
+      "id": "maze_boots",
+      "name": "Сапоги лабиринта",
+      "slot": "boots",
+      "rarity": "epic",
+      "stats": {
+        "hp": 690,
+        "spd": 15
+      },
+      "minChapter": 9
     }
   ]
 }

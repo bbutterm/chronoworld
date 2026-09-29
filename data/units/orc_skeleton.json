@@ -16,9 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "pirate_skel",
-    "tint": "#d8cdb0",
-    "scale": 1.25,
+    "sprite": "orc_skeleton",
     "hitFx": "fx_hit"
   }
 }

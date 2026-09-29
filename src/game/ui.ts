@@ -8,6 +8,7 @@ import { arrowRect, HINT_GEOM, overlapArea, placeCallout, type CalloutPlan, type
 import { HINT_TEXT, markHint, type HintId } from './hints';
 import { barFrom, juiceOn } from './juice';
 import { sfx } from './audio';
+import { haptic } from './haptics';
 import type { SfxId } from './audioCatalog';
 
 /**
@@ -169,6 +170,7 @@ export function button(
     if (!opts.repeat && !ready()) return;
     const sound = opts.sound === undefined ? 'ui_tap' : opts.sound;
     if (sound) sfx(sound);
+    haptic(sound === 'ui_tab' ? 'tab' : 'tap');
     onClick();
   });
   // Отпустили вне кнопки или список начали тянуть — кнопка не должна остаться нажатой.
@@ -422,6 +424,7 @@ export function pressable<T extends Tappable>(scene: Phaser.Scene, target: T, w:
     set(false);
     if (!ready()) return;
     sfx('ui_tap');
+    haptic('tap');
     onTap();
   });
   scene.input.on('pointerup', release);
@@ -435,6 +438,24 @@ export function pressable<T extends Tappable>(scene: Phaser.Scene, target: T, w:
 }
 
 /** Обрезать однострочный текст многоточием, чтобы он влез в maxWidth. */
+/**
+ * Текст с переносом — не больше lines строк: лишние слова срезаются, в конце «…» (описания в карточках фиксированной
+ * высоты не наезжают на строки ниже).
+ */
+export function clampLines(t: Phaser.GameObjects.Text, lines: number): Phaser.GameObjects.Text {
+  const full = t.text;
+  const count = () => t.getWrappedText(t.text).length;
+  if (count() <= lines) return t;
+  const words = full.split(' ');
+  let n = words.length;
+  while (n > 1) {
+    n--;
+    t.setText(words.slice(0, n).join(' ').replace(/[,.;:—–-]+$/, '') + '…');
+    if (count() <= lines) break;
+  }
+  return t;
+}
+
 export function ellipsize(t: Phaser.GameObjects.Text, maxWidth: number): Phaser.GameObjects.Text {
   const full = t.text;
   if (t.width <= maxWidth) return t;
@@ -723,8 +744,10 @@ export function toast(scene: Phaser.Scene, message: string, color: string = C.ti
     }
   };
   // Ошибка — «нельзя», успех — мягкий колокольчик (награды звенят своими звуками, juice.ts).
-  if (color === C.error) sfx('ui_error');
-  else if (color === C.success) sfx('ui_notify');
+  if (color === C.error) {
+    sfx('ui_error');
+    haptic('error');
+  } else if (color === C.success) sfx('ui_notify');
   const same = stack.find((e) => e.message === message);
   if (same) {
     same.count++;

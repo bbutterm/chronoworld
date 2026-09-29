@@ -3,10 +3,11 @@ import { achievementStatus, ascendAll, ascendAllSummary, heroesWithGearUpgrades,
 import { GAME } from '../content';
 import { ascendReady, claimableAchievements, formatNumber, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
-import { confirm, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
+import { confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, cornerBadge, screen } from '../screen';
 import { countUp, staggerIn } from '../juice';
 import { commit, session } from '../session';
 import { sfx } from '../audio';
+import { haptic } from '../haptics';
 import { RARITY_CARD } from '../tavern';
 import { button, ellipsize, emptyState, pressable, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { hintDone } from '../hints';
@@ -14,6 +15,8 @@ import { C, FS } from '../theme';
 import { cardIcon, drawHeroCard, GUILD_NAMES, heroCardIcon, heroCardSize, LINES, rarityColor, ROLES } from '../heroCard';
 import { collectionCount, collectionHeroes, groupCopies, heroesUi, inventoryUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
 import { pulse } from '../juice';
+import { heroStoryNew, storyDot } from '../heroStoryView';
+import { lockLabel } from '../unlockBanner';
 
 const COLS = 3;
 const TILE_W = 300;
@@ -107,7 +110,7 @@ export class HeroesScene extends Phaser.Scene {
 
     // Сетка карточек.
     const listTop = r2 + CHIP / 2 + 20;
-    this.area = new ScrollArea(this, listTop, CONTENT_BOTTOM + 10);
+    this.area = new ScrollArea(this, listTop, contentBottom() + 10);
     // Копии одного героя — одной плиткой (лучший экземпляр) с «×N»; все экземпляры — на карточке и в корме вознесения.
     const groups = groupCopies(collectionHeroes(save, f, heroesUi.sort, GAME, (h) => heroPower(h, gctx)));
     const heroes = groups.map((g) => g.hero);
@@ -115,7 +118,7 @@ export class HeroesScene extends Phaser.Scene {
     const picks = pendingPicks(save);
     const missing = heroesUi.showMissing ? missingTemplates(save, f, GAME) : [];
     if (!save.heroes.length) {
-      this.area.add(emptyState(this, GAME_W / 2, 300, 'Героев пока нет.\nНачните новую игру: «Город» → настройки → «Сбросить прогресс».'));
+      this.area.add(emptyState(this, GAME_W / 2, 300, 'Героев пока нет.\nНачните новую игру: «Город» → настройки → «Начать заново».'));
       return;
     }
     if (!heroes.length && !missing.length && !picks.length) {
@@ -150,7 +153,17 @@ export class HeroesScene extends Phaser.Scene {
       ]);
     });
     const n = lead + heroes.length + missing.length;
-    this.area.setContentHeight(Math.ceil(n / COLS) * (tileH + GAP_Y) + GAP_Y);
+    let contentH = Math.ceil(n / COLS) * (tileH + GAP_Y) + GAP_Y;
+    // Героев мало (начало игры) — под сеткой подсказка, откуда берутся новые, а не пустой лес.
+    if (n <= COLS * 2 && !f.line && !f.role && !f.rarity) {
+      const lock = lockLabel('tavern');
+      const tip = lock
+        ? `Новые герои присоединяются по сюжету и приходят из Таверны («Город»). Таверна: ${lock.charAt(0).toLowerCase()}${lock.slice(1)}.`
+        : 'Новых героев нанимают в Таверне («Город»). Три одинаковые карты — вознесение на следующую редкость.';
+      this.area.add(text(this, GAME_W / 2, contentH + 40, tip, FS.body, C.muted, { align: 'center', wordWrap: { width: 900, useAdvancedWrap: true }, lineSpacing: 6 }).setOrigin(0.5, 0).setName('heroesTip'));
+      contentH += 200;
+    }
+    this.area.setContentHeight(contentH);
     // T1-08: один раз — подсказка «Наденьте трофеи» на первом герое, которому есть что надеть.
     const gearHero = heroesWithGearUpgrades(save, GAME)[0];
     const gi = heroes.findIndex((x) => x.id === gearHero);
@@ -190,6 +203,7 @@ export class HeroesScene extends Phaser.Scene {
       if (!r.done.length) return;
       commit(r.save);
       sfx('rarity_up');
+      haptic('levelUp');
       const res = ascendAllSummary(r.done);
       const branch = res.filter((x) => x.branchPending).map((x) => x.name);
       const msg = `Вознесено: ${res.map((x) => `${x.name} (${RARITY_CARD[x.to]})`).join(', ')}${branch.length ? `. Выберите ветку: ${branch.join(', ')}` : ''}`;
@@ -220,7 +234,7 @@ export class HeroesScene extends Phaser.Scene {
   /** Плитка героя игрока: метки отряда, «Новый!», замок, «можно улучшить / вознести», копии «×N», «Выберите ветку!». */
   private tile(hero: HeroState, x: number, y: number, canAscend: boolean, copies = 1): Phaser.GameObjects.Container {
     const save = session.save;
-    return drawHeroCard(this, x, y, hero, {
+    const card = drawHeroCard(this, x, y, hero, {
       w: TILE_W,
       copies,
       needsBranch: needsBranch(hero, GAME),
@@ -232,6 +246,9 @@ export class HeroesScene extends Phaser.Scene {
       parent: this.area.content,
       onTap: this.area.tap(() => this.scene.start('Hero', { heroId: hero.id })),
     });
+    // Открыт непрочитанный кусочек истории героя — отметка «новое» у левого края (ниже меток «в отряде», «Новый!», ветки).
+    if (heroStoryNew(hero.templateId, save)) card.add(storyDot(this, -TILE_W / 2 + 34, -heroCardSize(TILE_W).h / 2 + 190, 22));
+    return card;
   }
 
   /** Кнопка-фильтр со значком (выбранная — золотая рамка). */

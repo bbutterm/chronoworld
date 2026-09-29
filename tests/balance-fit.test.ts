@@ -69,10 +69,10 @@ describe('balance-fit: цели из data/progression.json → balance', () => {
 
   it('этап без окна в главе с окнами берёт окно предыдущего; ошибки — окно у неизвестного этапа и неизвестная глава в exclude', () => {
     const bal = ctx.progression.balance!;
-    const windows = { ...bal.windows, ch9_s1: [1, 2] as [number, number] };
+    const windows = { ...bal.windows, ch11_s1: [1, 2] as [number, number] };
     delete (windows as Record<string, unknown>).ch3_s5;
     const t = fitTargets({ ...ctx, progression: { ...ctx.progression, balance: { ...bal, windows, exclude: [...bal.exclude, 'chapter99'] } } });
-    expect(t.problems).toEqual(['balance.windows.ch9_s1: этапа нет в data/campaign', 'balance.exclude: главы chapter99 нет в data/campaign']);
+    expect(t.problems).toEqual(['balance.windows.ch11_s1: этапа нет в data/campaign', 'balance.exclude: главы chapter99 нет в data/campaign']);
     expect(t.windows.get('ch3_s5')).toEqual(bal.windows.ch3_s4);
     expect(t.chapters.find((c) => c.id === 'chapter3')?.source).toBe('partial');
   });

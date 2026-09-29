@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { bestiary, chapterChronicle, chapterCleared, findingEntries, FINDING_KIND_NAMES, firstSentence, heroEntries, heroTemplate, introPages, itemEntries, jobTitle, worldEntries, type BestiaryEntry, type ChronicleTab, type FindingEntry, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
+import { hasHeroStory, heroStoryNew, heroStoryProgress, openHeroStory, storyDot } from '../heroStoryView';
 import { chroniclePage, findingIcon, findingPage, introPages as introPageList, showPages, type StoryPage } from '../storyPage';
 import { seenChapterScenes } from '../storyView';
 import { openStoryHistory } from './ChapterDoneScene';
@@ -9,7 +10,7 @@ import { drawHeroCard, GUILD_NAMES } from '../heroCard';
 import { itemCell } from '../itemIcons';
 import { GAME_W } from '../layout';
 import { loreKeys, loreModal, loreUnseen, markLoreSeen, monsterModal, itemModal, roleName, seenLore, type LoreBlock } from '../loreView';
-import { card, cornerBadge, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen, unitTint } from '../screen';
+import { badge, card, CONTENT_TOP, contentBottom, portrait, screen, unitTint } from '../screen';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
 import { button, ellipsize, emptyState, pressable, ScrollArea, text, toast } from '../ui';
@@ -70,11 +71,12 @@ export class ChronicleScene extends Phaser.Scene {
         if (!on) this.scene.restart({ tab: t.id } satisfies ChronicleData);
       }, FS.small, { sound: 'ui_tab' });
       b.container.setName(`chronicleTab_${t.id}`);
-      if (!on) cornerBadge(this, x, ty, w - 12, TOUCH, unseen[t.id]);
+      // Кружок — на верхней кромке вкладки, над подписью (в углу он закрывал «Бестиарий», «Предметы»).
+      if (!on) badge(this, x + (w - 12) / 2 - 20, ty - TOUCH / 2 - 4, unseen[t.id]);
     });
     const keys = loreKeys()[this.tab];
     this.readable = new Set(keys);
-    this.area = new ScrollArea(this, CONTENT_TOP + 170, CONTENT_BOTTOM + 10);
+    this.area = new ScrollArea(this, CONTENT_TOP + 170, contentBottom() + 10);
     if (this.tab === 'world') this.world();
     else if (this.tab === 'findings') this.findings();
     else if (this.tab === 'bestiary') this.bestiary();
@@ -302,6 +304,8 @@ export class ChronicleScene extends Phaser.Scene {
     for (const o of itemCell(this, cx, y, CELL, def.slot, Phaser.Display.Color.HexStringToColor(color).color, def.id)) {
       a.add(o);
       if (!e.open) (o as Phaser.GameObjects.Image).setAlpha(0.35);
+      // Закрытый предмет: иконка RO — тёмный силуэт (вещь ещё не найдена).
+      if (!e.open && o.name === 'roItemIcon') (o as Phaser.GameObjects.Image).setTint(0x101010);
     }
     const legend = LORE.items[def.id];
     if (!e.open) {
@@ -335,7 +339,9 @@ export class ChronicleScene extends Phaser.Scene {
       const x = colX(i % COLS);
       const y = Math.floor(i / COLS) * (CH + 30) + CH / 2 + 16;
       drawHeroCard(this, x, y, h.templateId, { w: CW, parent: this.area.content, greyed: h.owned ? false : 'Не получен', onTap: this.area.tap(() => this.heroModal(h)) });
-      if (h.owned && LORE.heroes[h.templateId]) this.newDot(x + CW / 2 - 10, y - CH / 2 + 10, `heroes:${h.templateId}`);
+      // Новое: непрочитанный кусочек истории героя (книжка) или ещё не открытая запись героя (точка).
+      if (h.owned && heroStoryNew(h.templateId)) this.area.add(storyDot(this, x + CW / 2 - 10, y - CH / 2 + 10, 20));
+      else if (h.owned && LORE.heroes[h.templateId]) this.newDot(x + CW / 2 - 10, y - CH / 2 + 10, `heroes:${h.templateId}`);
     });
     this.area.setContentHeight(Math.ceil(list.length / COLS) * (CH + 30) + 30);
   }
@@ -364,6 +370,16 @@ export class ChronicleScene extends Phaser.Scene {
       art: (add, x, y) => add(drawHeroCard(this, x, y, h.templateId, { w: 180, showPips: false, greyed: h.owned ? false : 'Не получен' })),
       blocks,
       lock: this.area,
+      // История героя кусочками (каждые 10 уровней) — страница во весь экран; закрыли — список обновит отметки.
+      ...(h.owned && hasHeroStory(h.templateId)
+        ? {
+            extra: {
+              label: `История · ${heroStoryProgress(h.templateId).open} из ${heroStoryProgress(h.templateId).total}`,
+              dot: heroStoryNew(h.templateId) > 0,
+              onTap: () => openHeroStory(this, h.templateId, { lock: this.area, onClose: () => this.scene.restart({ tab: 'heroes' } satisfies ChronicleData) }),
+            },
+          }
+        : {}),
     });
   }
 }

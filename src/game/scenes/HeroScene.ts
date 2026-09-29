@@ -37,12 +37,13 @@ import {
 import { CONTENT, GAME, LORE } from '../content';
 import { ascendReady, formatNumber, heroSprite, itemStatsText, levelText, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
 import { GAME_W } from '../layout';
-import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
+import { card, confirm, CONTENT_TOP, contentBottom, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
 import { button, ellipsize, panel, pressable, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { C, FS, TINT } from '../theme';
 import { skillIcon } from '../skillIcons';
 import { sfx } from '../audio';
+import { haptic } from '../haptics';
 import { bump, burst, countUp, juiceOn, pulse } from '../juice';
 import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, iconBadge, raysTexture, rarityBackdrop, rarityPalette, rarityPips } from '../heroCard';
@@ -50,6 +51,8 @@ import { ascendHint, browseNeighbours, copyCounter, heroesUi, inventoryUi, level
 import { openBranchPicker } from '../branchPicker';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
+import { roIconImage } from '../itemIcons';
+import { hasHeroStory, heroStoryNew, heroStoryProgress, openHeroStory, storyDot, toastOpenedStories } from '../heroStoryView';
 
 const SKILL_ROW_H = 118;
 /** Редкость в родительном падеже: «растёт до красного». */
@@ -245,6 +248,9 @@ export class HeroScene extends Phaser.Scene {
       ellipsize(t, 470);
       const bg = this.add.rectangle(FIG_X, TOP + 488, Math.min(490, t.width + 30), 40, 0x0b0805, 0.72).setStrokeStyle(2, pal.tint, 0.8);
       this.children.bringToTop(t);
+      // Фигура героя догружается позже и вставала поверх плашки («Ко|пий») — плашка всегда над витриной.
+      bg.setDepth(5);
+      t.setDepth(6);
       if (more) {
         pressable(this, bg, bg.width, 56, () => {
           inventoryUi.tab = 'cards';
@@ -330,6 +336,7 @@ export class HeroScene extends Phaser.Scene {
           const spent = 'gems' in r ? (r.gems as number) : 0;
           commit(r.save);
           sfx('job_change');
+          haptic('levelUp');
           this.reopen({ heroId: hero.id, tab: this.tab });
           const sc = this.scene.get('Hero');
           sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `${c.name} — теперь ${jobName(job)}!${spent ? ` (−${formatNumber(spent)} гемов)` : ''}`, C.success, 3000));
@@ -433,7 +440,8 @@ export class HeroScene extends Phaser.Scene {
       // Не влезает (миллионы в запасе) — шрифт мельче, затем без «есть».
       const price = (y: number, label: string, cost: number, have: number, color: string) => {
         const t = text(this, x, y, `${label} −${formatNumber(cost)} (есть ${formatNumber(have)})`, FS.body, color, { stroke: C.stroke, strokeThickness: 4, fontStyle: 'bold' }).setOrigin(0, 0.5);
-        if (t.width > maxW) t.setFontSize(FS.caption - 4);
+        // Не мельче FS.small (26 px на 390×844 не читались): дальше — без «есть».
+        if (t.width > maxW) t.setFontSize(FS.small);
         if (t.width > maxW) t.setFontSize(FS.body).setText(`${label} −${formatNumber(cost)}`);
         box.add(ellipsize(t, maxW));
       };
@@ -513,9 +521,13 @@ export class HeroScene extends Phaser.Scene {
     }
     const prev = this.snapshot(hero);
     try {
+      const saveBefore = session.save;
       const r = actLevelUp(session.save, today(), hero.id, GAME, 1);
       commit(r.save);
+      // Уровень открыл кусочек истории героя — тост и отметка «новое» на вкладке «История».
+      if (toastOpenedStories(this, saveBefore, r.save, hero.templateId)) this.storyTabDot(true);
       markHint('level_up');
+      haptic('levelUp');
       sfx('level_up', hold ? { gain: 0.55, rate: 1 + Math.min(0.4, this.holdCount * 0.03) } : {});
       this.levelFx();
       this.renderDynamic(prev);
@@ -598,8 +610,20 @@ export class HeroScene extends Phaser.Scene {
         text(this, 195 + i * 345 + 140, TABS_Y - 36, '▲', FS.caption - 6, C.text, { fontStyle: 'bold' }).setDepth(6);
       }
     });
-    card(this, GAME_W / 2, (TAB_TOP + CONTENT_BOTTOM) / 2, 1040, CONTENT_BOTTOM - TAB_TOP);
-    this.tabArea = new ScrollArea(this, TAB_TOP + 8, CONTENT_BOTTOM - 8);
+    this.storyTabDot();
+    // Панель вкладок — до навигации (на вытянутых экранах ниже CONTENT_BOTTOM, без пустой полосы под ней).
+    const tabBottom = contentBottom();
+    card(this, GAME_W / 2, (TAB_TOP + tabBottom) / 2, 1040, tabBottom - TAB_TOP);
+    this.tabArea = new ScrollArea(this, TAB_TOP + 8, tabBottom - 8);
+  }
+
+  /** Отметка «новое» на вкладке «История»: открыт непрочитанный кусочек истории героя (heroStoryView). */
+  private storyTabDot(refresh = false): void {
+    const hero = this.hero();
+    if (!hero || !heroStoryNew(hero.templateId)) return;
+    const i = TABS.findIndex((t) => t.id === 'story');
+    if (!this.children.getByName('storyTabDot')) storyDot(this, 195 + i * 345 + 140, TABS_Y - 34).setDepth(6).setName('storyTabDot');
+    if (refresh && this.tab === 'story') this.renderTab();
   }
 
   private renderTab(): void {
@@ -754,8 +778,8 @@ export class HeroScene extends Phaser.Scene {
     try {
       const r = actRefineAll(session.save, hero.id, GAME);
       commit(r.save);
-      sfx('equip', { rate: 1.3 });
-      sfx('coin', { delay: 60 });
+      sfx('refine_success');
+      haptic('refineOk');
       this.reopen({ heroId: hero.id, tab: 'gear' });
       const sc = this.scene.get('Hero');
       sc.events.once(Phaser.Scenes.Events.CREATE, () => {
@@ -784,8 +808,18 @@ export class HeroScene extends Phaser.Scene {
     const color = RARITY_COLORS[item.def.rarity];
     a.add(this.add.rectangle(x, y - 46, 200, 5, Phaser.Display.Color.HexStringToColor(color).color));
     const lvl = refineLevel(item.instance);
-    a.add(ellipsize(text(this, x, y + 5, refinedName(item.def, lvl), FS.body, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), 226));
-    a.add(text(this, x, y + 62, itemStatsText(refinedStats(item.def, lvl, GAME)), FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 230 } }).setMaxLines(2));
+    // Иконка RO предмета (×3, без сглаживания) над названием, статы — одной строкой; нет иконки — как раньше.
+    const ico = roIconImage(this, x, y - 6, item.instance.itemId, 72);
+    const name = refinedName(item.def, lvl);
+    const stats = itemStatsText(refinedStats(item.def, lvl, GAME));
+    if (ico) {
+      a.add(ico.setName('gearIcon'));
+      a.add(ellipsize(text(this, x, y + 46, name, FS.body, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), 226));
+      a.add(ellipsize(text(this, x, y + 80, stats, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4 }), 232));
+      return;
+    }
+    a.add(ellipsize(text(this, x, y + 5, name, FS.body, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), 226));
+    a.add(text(this, x, y + 62, stats, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 230 } }).setMaxLines(2));
   }
 
   /** T1-08: надеть все улучшения из инвентаря (свободные вещи получше надетых). */
@@ -808,6 +842,17 @@ export class HeroScene extends Phaser.Scene {
     const a = this.tabArea;
     const c = heroCard(hero, GAME);
     let y = 20;
+    // История героя кусочками (каждые 10 уровней) — страница во весь экран (heroStoryView).
+    if (hasHeroStory(hero.templateId)) {
+      const pr = heroStoryProgress(hero.templateId);
+      const sb = button(this, GAME_W / 2, y + 55, 760, 110, 'ui_btn_primary', `История героя · ${pr.open} из ${pr.total}`, () => {
+        openHeroStory(this, hero.templateId, { lock: a, onClose: () => this.reopen({ heroId: hero.id, tab: 'story' }) });
+      }, FS.h3);
+      sb.container.setName('heroStoryBtn');
+      a.add(sb.container);
+      if (heroStoryNew(hero.templateId)) a.add(storyDot(this, GAME_W / 2 + 370, y + 8));
+      y += 140;
+    }
     const para = (s: string, color: string, size: number = FS.body, style: Phaser.Types.GameObjects.Text.TextStyle = {}) => {
       const t = a.add(text(this, 60, y, s, size, color, { align: 'left', wordWrap: { width: 950 }, lineSpacing: 6, ...style }).setOrigin(0, 0));
       y += t.height + 22;

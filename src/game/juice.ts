@@ -3,6 +3,7 @@ import { formatNumber } from './flow';
 import { motion } from './state';
 import { TINT } from './theme';
 import { sfx } from './audio';
+import { haptic } from './haptics';
 
 /**
  * «Сочность» меню в духе AFK Arena — дёшево и сдержанно: награды летят к валюте в шапке, числа отсчитываются,
@@ -170,6 +171,7 @@ export function queueRewardFly(sceneKey: string, from: Point, before: { gold: nu
   pending = { scene: sceneKey, from, gold: before.gold, gems: before.gems, burst: !!opts.burst };
   // Звук — в момент нажатия «Забрать» (монеты прилетят уже на новом экране и звякнут каждая своим звуком).
   sfx(opts.burst ? 'chest_open' : 'claim');
+  haptic('reward');
 }
 
 /**
@@ -236,7 +238,11 @@ function flyCoins(scene: Phaser.Scene, kind: 'gold' | 'gems', from: Point, to: P
   const art = kind === 'gold' ? 'ui_icon_gold' : 'ui_icon_gem';
   let first = true;
   for (let i = 0; i < n; i++) {
-    const coin: Phaser.GameObjects.Image | Phaser.GameObjects.Arc = scene.textures.exists(art)
+    // Иконки RO (мешочек золота, алмаз) — те же, что в шапке (screen.ts), целым масштабом.
+    const ro = kind === 'gold' ? 'item_gold' : 'item_gems';
+    const coin: Phaser.GameObjects.Image | Phaser.GameObjects.Arc = scene.textures.exists(ro)
+      ? scene.add.image(from.x, from.y, ro).setScale(kind === 'gold' ? 2 : 3).setTint(kind === 'gold' ? 0xffffff : 0x8fe6ff)
+      : scene.textures.exists(art)
       ? scene.add.image(from.x, from.y, art).setDisplaySize(52, 52)
       : scene.add.circle(from.x, from.y, 22, kind === 'gold' ? TINT.gold : 0x6fd8ff).setStrokeStyle(3, 0x3a2412);
     coin.setDepth(FLY_DEPTH).setAlpha(0);

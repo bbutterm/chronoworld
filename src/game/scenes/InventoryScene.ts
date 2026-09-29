@@ -28,7 +28,7 @@ import {
 import { GAME } from '../content';
 import { diffText, equipBlocker, formatNumber, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS, statDiff, type InventoryRow } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
-import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, popIn, screen } from '../screen';
+import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, emptyCard, popIn, screen } from '../screen';
 import { commit, session } from '../session';
 import { button, ellipsize, panel, pressable, ScrollArea, text, toast } from '../ui';
 import { randomLine } from '../loreView';
@@ -38,6 +38,7 @@ import { itemCell, oreIcon } from '../itemIcons';
 import { burst, staggerIn } from '../juice';
 import { markHint } from '../hints';
 import { sfx } from '../audio';
+import { haptic } from '../haptics';
 import { cardIcon, drawHeroCard, heroCardIcon, heroCardSize, rarityColor } from '../heroCard';
 import type { HeroBack, HeroData } from './HeroScene';
 import { heroCardsList, heroCardsTable, inventoryUi, RARITY_ORDER, type HeroCardsRow } from '../heroesView';
@@ -287,8 +288,8 @@ export class InventoryScene extends Phaser.Scene {
       if (e.type === 'refineBroken') {
         // Поломка: глухой удар, тряска экрана и осколки из ячейки предмета.
         const color = def ? Phaser.Display.Color.HexStringToColor(RARITY_COLORS[def.rarity]).color : TINT.frame;
-        sfx('hit_blunt');
-        sfx('ui_error', { delay: 120 });
+        sfx('refine_fail');
+        haptic('refineFail');
         this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
         this.events.once(Phaser.Scenes.Events.CREATE, () => {
           shatter(this, at, color);
@@ -298,8 +299,8 @@ export class InventoryScene extends Phaser.Scene {
         });
         return;
       }
-      sfx('equip', { rate: 1.3 });
-      sfx('coin', { delay: 60 });
+      sfx('refine_success');
+      haptic('refineOk');
       this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
       this.events.once(Phaser.Scenes.Events.CREATE, () => {
         burst(this, at);
@@ -593,7 +594,7 @@ export class InventoryScene extends Phaser.Scene {
       return;
     }
     const RH = 150;
-    const area = (this.area = new ScrollArea(this, top, CONTENT_BOTTOM + 10));
+    const area = (this.area = new ScrollArea(this, top, contentBottom() + 10));
     area.setContentHeight(rows.length * RH + 10);
     rows.forEach((row, i) => {
       const y = RH * (i + 0.5);

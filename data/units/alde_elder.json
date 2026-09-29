@@ -19,8 +19,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "wizard_m",
-    "tint": "#b8b0d0",
+    "sprite": "elder",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

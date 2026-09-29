@@ -1,8 +1,13 @@
 import Phaser from 'phaser';
 import manifestJson from '../../assets/manifest.json';
 import { SKIN_REPLACED } from '../pipeline/bootAssets';
-import { queueAnimatedFx } from './animatedFx';
+import { animatedEffect, animatedFxKey } from './animatedFx';
 import { assetUrl } from './assetUrl';
+import { addPackedTexture, imagePixels } from './packedTexture';
+import { packAlphaGrid } from '../pipeline/sheetPack';
+import { SheetLru, textureBytes } from './spriteCache';
+import { queueDamageDigits } from './numberFont';
+import { queueItemIconFiles, setupItemIconFilters } from './itemIcons';
 import { SKIN_FOR, SKIN_FORCE, SKIN_SLICE } from './skin';
 import { queueSkillIconFiles, skillIconFileKeys } from './skillIcons';
 
@@ -31,7 +36,7 @@ interface AssetEntry {
 
 const MANIFEST = (manifestJson as unknown as { assets: Record<string, AssetEntry> }).assets;
 
-/** Ставит в очередь загрузки все ассеты с файлом. Анимированные эффекты боя — не здесь (ensureAnimatedFx). */
+/** Ставит в очередь загрузки все ассеты с файлом. Анимированные эффекты боя — не здесь (holdAnimatedFx). */
 export function queueAssets(scene: Phaser.Scene): void {
   for (const [id, a] of Object.entries(MANIFEST)) {
     if (!a.file || SKIN_REPLACED.has(id)) continue;
@@ -40,6 +45,9 @@ export function queueAssets(scene: Phaser.Scene): void {
   }
   // Значки навыков от художника (assets/ui/icons/skill_<id>.png), если есть; остальные рисует skillIcons.
   queueSkillIconFiles(scene);
+  // Иконки предметов и ресурсов RO (assets/ui/icons/item_<id>.png) и цифры урона RO (assets/fx/damage/numbers.png).
+  queueItemIconFiles(scene);
+  queueDamageDigits(scene);
 }
 
 /** После загрузки: фильтр для пиксель-арта. */
@@ -49,29 +57,79 @@ export function setupLoadedAssets(scene: Phaser.Scene): void {
   }
   // Иконки навыков RO — пиксель-арт.
   for (const key of skillIconFileKeys()) if (scene.textures.exists(key)) scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+  setupItemIconFilters(scene);
 }
-
-let fxRequested = false;
 
 /**
- * T4-12. Анимированные эффекты боя (≈ 14 МБ видеопамяти) грузятся не при старте, а когда игрок впервые идёт к бою
- * (экран этапа, башня, бой — main.ts). Пока не загрузились, бой рисует статичные fx_* (battleFx сам проверяет текстуру).
- * Загружаются один раз и остаются: повторные бои их не перезагружают.
+ * Анимированные эффекты боя в памяти: LRU с бюджетом, как листы юнитов (spriteCache.ts). Бой держит эффекты своих
+ * навыков до выключения сцены, потом они остаются про запас, сверх бюджета — выгружаются самые давние.
+ * Общие эффекты (удар, смерть, лечение…) ужатые — ≈ 6 МБ; 16 МБ хватает на них и навыки последнего боя.
  */
-export function ensureAnimatedFx(game: Phaser.Game): void {
-  if (fxRequested) return;
-  fxRequested = true;
-  queueAnimatedFx((key, file, width, height) => {
-    if (game.textures.exists(key)) return;
+export const FX_BUDGET_BYTES = 16 * 1048576;
+const fxLru = new SheetLru(FX_BUDGET_BYTES);
+const fxInflight = new Map<string, Promise<void>>();
+
+function loadAnimatedFx(game: Phaser.Game, id: string): Promise<void> {
+  const effect = animatedEffect(id);
+  const key = animatedFxKey(id);
+  if (!effect || game.textures.exists(key)) return Promise.resolve();
+  const running = fxInflight.get(id);
+  if (running) return running;
+  const p = new Promise<void>((resolve) => {
     const img = new Image();
     img.onload = () => {
-      if (game.textures.exists(key)) return;
-      game.textures.addSpriteSheet(key, img, { frameWidth: width, frameHeight: height })?.setFilter(Phaser.Textures.FilterMode.NEAREST);
+      fxInflight.delete(id);
+      if (!game.textures.exists(key)) {
+        // Кадры эффекта — по габаритам своей альфы, плотно (sheetPack.ts): ≈ вдвое меньше видеопамяти, пиксели те же.
+        const pixels = imagePixels(img);
+        const pack = pixels && packAlphaGrid(pixels, img.width, effect.cell, effect.columns, effect.frames);
+        const tex =
+          (pack && addPackedTexture(game.textures, key, img, pack, effect.cell)) ||
+          game.textures.addSpriteSheet(key, img, { frameWidth: effect.cell[0], frameHeight: effect.cell[1] });
+        if (tex) {
+          tex.setFilter(Phaser.Textures.FilterMode.NEAREST);
+          fxLru.add(id, textureBytes(tex.source[0].width, tex.source[0].height));
+          trimAnimatedFx(game);
+        }
+      }
+      resolve();
     };
-    img.onerror = () => console.warn(`Эффект ${file} не загрузился — в бою будет статичный`);
-    img.src = assetUrl(file);
+    img.onerror = () => {
+      fxInflight.delete(id);
+      console.warn(`Эффект ${effect.file} не загрузился — в бою будет статичный`);
+      resolve();
+    };
+    img.src = assetUrl(effect.file);
   });
+  fxInflight.set(id, p);
+  return p;
 }
+
+function trimAnimatedFx(game: Phaser.Game): void {
+  for (const id of fxLru.trim()) if (game.textures.exists(animatedFxKey(id))) game.textures.remove(animatedFxKey(id));
+}
+
+/**
+ * T4-12 / память текстур. Анимированные эффекты грузятся не при старте, а боем — только нужные ему (battleFxIds),
+ * и держатся до выключения сцены. Пока не загрузились, бой рисует статичные fx_* (battleFx сам проверяет текстуру).
+ * Промис — когда все загрузились (или не загрузились).
+ */
+export function holdAnimatedFx(scene: Phaser.Scene, ids: string[]): Promise<void> {
+  const game = scene.game;
+  const want = [...new Set(ids)].filter((id) => animatedEffect(id));
+  for (const id of want) {
+    fxLru.hold(id);
+    fxLru.touch(id);
+  }
+  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    for (const id of want) fxLru.release(id);
+    trimAnimatedFx(game);
+  });
+  return Promise.all(want.map((id) => loadAnimatedFx(game, id))).then(() => undefined);
+}
+
+/** Сводка кэша эффектов (отладка, perf). */
+export const animatedFxStats = () => ({ effects: fxLru.ids(), bytes: fxLru.bytes, budget: fxLru.budget });
 
 /** Есть ли id в манифесте ассетов (для проверки ссылок из контента). */
 export const hasAsset = (id: string) => id in MANIFEST;

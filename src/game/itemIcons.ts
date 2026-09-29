@@ -1,10 +1,99 @@
 import Phaser from 'phaser';
 import type { Slot } from '../core';
+import { assetUrl } from './assetUrl';
 import { C, FS, TINT } from './theme';
 import { text } from './ui';
 
 /**
- * T3-27. Иконки предметов без нового арта: силуэт по слоту (оружие — клинок, лук, посох или топор; доспех, шлем, сапоги), нарисованный на холсте
+ * Иконки предметов Ragnarok Online (docs/RO_EXTRACT_LIST.md §4): `assets/ui/icons/item_<id>.png` — родные 24×24 из клиента
+ * (для снаряжения id предмета, для ресурсов — `gold`, `gems`, `scrolls`, `hero_exp`, `blessed_ore`, `treasure_chest`…),
+ * `assets/ui/collection/item_<id>.png` — большая картинка 75×100 для окна предмета (грузится по требованию).
+ * Иконки грузит экран загрузки (queueItemIconFiles), фильтр — NEAREST, масштаб — целый (roIconScale): пиксели не мылятся.
+ * Иконку RO не красим — цвет редкости уходит в рамку и подложку ячейки. Нет файла — силуэт ниже (T3-27).
+ */
+
+/** Готовые PNG иконок RO (известны при сборке). */
+const ICON_FILES = Object.keys(import.meta.glob('../../assets/ui/icons/item_*.png', { query: '?url', import: 'default' }));
+const COLLECTION_FILES = Object.keys(import.meta.glob('../../assets/ui/collection/item_*.png', { query: '?url', import: 'default' }));
+const fileId = (f: string) => f.split('/').pop()!.replace(/^item_|\.png$/g, '');
+const ICON_IDS = new Set(ICON_FILES.map(fileId));
+const COLLECTION_IDS = new Set(COLLECTION_FILES.map(fileId));
+
+/** Сторона иконки RO в пикселях. */
+export const RO_ICON_PX = 24;
+/** Ключ текстуры иконки RO предмета или ресурса. */
+export const roIconKey = (id: string) => `item_${id}`;
+const collectionKey = (id: string) => `item_col_${id}`;
+
+/** Экран загрузки: поставить в очередь все иконки RO (≈ 17 КБ в WebP). Путь — от корня assets, как в манифесте. */
+export function queueItemIconFiles(scene: Phaser.Scene): void {
+  for (const id of ICON_IDS) scene.load.image(roIconKey(id), `ui/icons/item_${id}.png`);
+}
+
+/** После загрузки: иконки RO — пиксель-арт (без сглаживания). */
+export function setupItemIconFilters(scene: Phaser.Scene): void {
+  for (const id of ICON_IDS) if (scene.textures.exists(roIconKey(id))) scene.textures.get(roIconKey(id)).setFilter(Phaser.Textures.FilterMode.NEAREST);
+}
+
+/** Ключ загруженной иконки RO для id (или undefined — рисуем запасной вариант). */
+export function roIcon(scene: Phaser.Scene, id: string | undefined): string | undefined {
+  if (!id || !ICON_IDS.has(id)) return undefined;
+  const key = roIconKey(id);
+  return scene.textures.exists(key) ? key : undefined;
+}
+
+/**
+ * Целый масштаб иконки 24×24 под желаемый размер (игровые единицы): ×1, ×2, ×3…; чуть вверх — у иконок RO
+ * прозрачные поля, сам предмет меньше 24 пикселей.
+ */
+export function roIconScale(size: number): number {
+  return Math.max(1, Math.round(size / RO_ICON_PX + 0.3));
+}
+
+/**
+ * Оттенок иконки ресурса: прозрачный «1carat Diamond» RO на тёмном фоне читается как лист бумаги — гемы подкрашены
+ * в цвет гемов интерфейса (умножение: блики и контур остаются). Предметы не красим никогда.
+ */
+export const RO_ICON_TINT: Readonly<Record<string, number>> = { gems: 0x8fe6ff };
+
+/** Иконка RO размером ≈ size (целый масштаб) или undefined, если иконки нет. */
+export function roIconImage(scene: Phaser.Scene, x: number, y: number, id: string, size: number): Phaser.GameObjects.Image | undefined {
+  const key = roIcon(scene, id);
+  if (!key) return undefined;
+  const img = scene.add.image(x, y, key).setScale(roIconScale(size));
+  return RO_ICON_TINT[id] ? img.setTint(RO_ICON_TINT[id]) : img;
+}
+
+/** Есть ли большая картинка RO для окна предмета. */
+export const hasCollectionArt = (id: string): boolean => COLLECTION_IDS.has(id);
+
+const pendingCollection = new Map<string, Promise<string | undefined>>();
+
+/** Загрузить большую картинку предмета (один раз на игру); ключ текстуры или undefined (нет файла, ошибка сети). */
+export function loadCollectionArt(game: Phaser.Game, id: string): Promise<string | undefined> {
+  const key = collectionKey(id);
+  if (!COLLECTION_IDS.has(id)) return Promise.resolve(undefined);
+  if (game.textures.exists(key)) return Promise.resolve(key);
+  const running = pendingCollection.get(id);
+  if (running) return running;
+  const p = new Promise<string | undefined>((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      if (!game.textures.exists(key)) game.textures.addImage(key, img)?.setFilter(Phaser.Textures.FilterMode.NEAREST);
+      resolve(key);
+    };
+    img.onerror = () => {
+      console.warn(`Картинка предмета ${id} не загрузилась — будет иконка`);
+      resolve(undefined);
+    };
+    img.src = assetUrl(`ui/collection/item_${id}.png`);
+  }).finally(() => pendingCollection.delete(id));
+  pendingCollection.set(id, p);
+  return p;
+}
+
+/**
+ * T3-27. Запасные иконки предметов без нового арта: силуэт по слоту (оружие — клинок, лук, посох или топор; доспех, шлем, сапоги), нарисованный на холсте
  * оттенками серого — setTint цветом редкости даёт цветную иконку с объёмом. Текстуры строятся лениво, один раз.
  */
 type Ctx = CanvasRenderingContext2D;
@@ -253,9 +342,15 @@ export function itemIconKey(scene: Phaser.Scene, slot: Slot, itemId?: string): s
 export function itemCell(scene: Phaser.Scene, x: number, y: number, size: number, slot: Slot | null, color: number, itemId?: string, refine = 0): Phaser.GameObjects.GameObject[] {
   const bg = scene.add.rectangle(x, y, size, size, TINT.checkOff, 0.95).setStrokeStyle(4, color, 1);
   if (!slot) return [bg];
-  const ico = scene.add.image(x, y, itemIconKey(scene, slot, itemId)).setDisplaySize(size * 0.78, size * 0.78).setTint(color);
-  if (refine <= 0) return [bg, ico];
-  return [bg, ico, refineBadge(scene, x - size / 2 + 6, y - size / 2 + 2, refine, size >= 100 ? FS.small : FS.caption)];
+  const ro = roIcon(scene, itemId);
+  const out: Phaser.GameObjects.GameObject[] = [bg];
+  if (ro) {
+    // Иконка RO как есть (целый масштаб, без tint), редкость — рамкой и подложкой её цвета.
+    out.push(scene.add.rectangle(x, y, size - 8, size - 8, color, 0.18));
+    out.push(scene.add.image(x, y, ro).setScale(Math.max(1, Math.floor((size * 0.86) / RO_ICON_PX))).setName('roItemIcon'));
+  } else out.push(scene.add.image(x, y, itemIconKey(scene, slot, itemId)).setDisplaySize(size * 0.78, size * 0.78).setTint(color));
+  if (refine > 0) out.push(refineBadge(scene, x - size / 2 + 6, y - size / 2 + 2, refine, size >= 100 ? FS.small : FS.caption));
+  return out;
 }
 
 /** Значок заточки «+N» (золотой, с обводкой); x, y — левый верхний угол. */
@@ -318,7 +413,7 @@ export function oreIconKey(scene: Phaser.Scene): string {
   return key;
 }
 
-/** Иконка «Благословенной руды» размером size. */
+/** Иконка «Благословенной руды» размером size: Enriched Oridecon из RO, иначе самородок, нарисованный кодом. */
 export function oreIcon(scene: Phaser.Scene, x: number, y: number, size: number): Phaser.GameObjects.Image {
-  return scene.add.image(x, y, oreIconKey(scene)).setDisplaySize(size, size);
+  return roIconImage(scene, x, y, 'blessed_ore', size) ?? scene.add.image(x, y, oreIconKey(scene)).setDisplaySize(size, size);
 }

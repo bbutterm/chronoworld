@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "maze_vagabond_wolf",
+  "name": "Бродячий волк",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 1250,
+    "atk": 60,
+    "def": 13,
+    "spd": 120,
+    "moveSpeed": 300
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "maze_vagabond_wolf_howl",
+    "actives": [
+      "maze_vagabond_wolf_bite"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "vagabond_wolf",
+    "hitFx": "fx_hit"
+  }
+}
