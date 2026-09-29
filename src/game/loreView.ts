@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { chronicleKeys, firstSentence, jobTitle, refinedStats, unseenCount, type ChronicleTab, type ItemDef, type UnitDef } from '../core';
+import { chronicleKeys, firstSentence, jobTitle, refinedStats, unseenCount, type ChronicleTab, type ItemDef, type LineKind, type UnitDef } from '../core';
 import { GAME, LORE } from './content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, ROLE_NAMES, SLOT_NAMES } from './flow';
 import { itemCell } from './itemIcons';
@@ -254,4 +254,20 @@ export function itemModal(scene: Phaser.Scene, def: ItemDef, opts: { refine?: nu
 export function monsterTeaser(unitId: string): string | undefined {
   const l = LORE.monsters[unitId];
   return l ? `${l.title}. ${firstSentence(l.text)}` : undefined;
+}
+
+// ---------- строки-комментарии ----------
+
+/**
+ * Случайная строка-комментарий вида kind (data/lore/lines.json, lore-route §5.8): заточка, поражение, этаж Башни,
+ * экспедиция, загрузка. Это только вид (UI), поэтому Math.random; строк нет — undefined. Подряд одна и та же не выпадает.
+ */
+const lastLine: Partial<Record<LineKind, string>> = {};
+export function randomLine(kind: LineKind): string | undefined {
+  const list = LORE.lines[kind];
+  if (!list.length) return undefined;
+  const pool = list.length > 1 ? list.filter((l) => l !== lastLine[kind]) : list;
+  const line = pool[Math.floor(Math.random() * pool.length)];
+  lastLine[kind] = line;
+  return line;
 }

@@ -594,8 +594,11 @@ export class TavernScene extends Phaser.Scene {
     const tag = state.bigTags[cv.i];
     const fresh = tag.kind === 'new';
     const sub = text(this, GAME_W / 2, 1300, `${tag.text}${branchNote}`, fresh && !branchNote ? FS.h2 : FS.h3, fresh ? C.gold : C.dim, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: 1000 } });
-    const hint = text(this, GAME_W / 2, 1420, 'Нажмите, чтобы продолжить', FS.small, C.muted, OUTLINE);
-    box.add([shade, beam, halo, ring, face, jobLine, head, sub, hint]);
+    // Строка героя (lore-route §5.8, поле героя tavernLine) — под подписью, курсивом.
+    const said = GAME.content.heroes[hero.templateId]?.tavernLine;
+    const line = said ? text(this, GAME_W / 2, sub.y + sub.height / 2 + 16, `«${said}»`, FS.small, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 960 }, align: 'center' }).setOrigin(0.5, 0).setName('tavernLine') : null;
+    const hint = text(this, GAME_W / 2, line ? Math.max(1420, line.y + line.height + 40) : 1420, 'Нажмите, чтобы продолжить', FS.small, C.muted, OUTLINE);
+    box.add([shade, beam, halo, ring, face, jobLine, head, sub, ...(line ? [line] : []), hint]);
     this.tweens.add({ targets: circle, angle: 360, duration: 9000, repeat: -1 });
     this.tweens.add({ targets: halo, alpha: { from: 0.8, to: 0.45 }, duration: 800, yoyo: true, repeat: -1 });
     face.setScale(0.6).setAlpha(0);
@@ -675,6 +678,14 @@ export class TavernScene extends Phaser.Scene {
     state.title.setText('Итог призыва');
     L.add(ellipsize(text(this, GAME_W / 2, 310, summaryLine(state.results), FS.body, C.text, { fontStyle: 'bold', ...OUTLINE }), 1000).setName('summaryLine'));
     const hasDup = state.tags.some((t) => t.kind === 'copy');
+    // Строка лучшего героя призыва (tavernLine) — над подсказкой.
+    const top = bestResult(state.results);
+    const topHero = top ? session.save.heroes.find((h) => h.id === top.heroId) : undefined;
+    const said = topHero ? GAME.content.heroes[topHero.templateId]?.tavernLine : undefined;
+    if (said && topHero) {
+      const who = GAME.content.heroes[topHero.templateId].name;
+      L.add(text(this, GAME_W / 2, 1395, `${who}: «${said}»`, FS.small, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 980 }, align: 'center' }).setName('tavernLine'));
+    }
     L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Копии нужны для вознесения героя (все карты — в Инвентаре). Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
 
     const best = bestResult(state.results);

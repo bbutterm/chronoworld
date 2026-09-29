@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
-import { bestiary, heroEntries, heroTemplate, itemEntries, jobTitle, worldEntries, type BestiaryEntry, type ChronicleTab, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
+import { bestiary, chapterChronicle, chapterCleared, findingEntries, FINDING_KIND_NAMES, firstSentence, heroEntries, heroTemplate, introPages, itemEntries, jobTitle, worldEntries, type BestiaryEntry, type ChronicleTab, type FindingEntry, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
+import { chroniclePage, findingIcon, findingPage, introPages as introPageList, showPages, type StoryPage } from '../storyPage';
+import { seenChapterScenes } from '../storyView';
+import { openStoryHistory } from './ChapterDoneScene';
 import { CONTENT, GAME, LORE } from '../content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES } from '../flow';
 import { drawHeroCard, GUILD_NAMES } from '../heroCard';
@@ -14,6 +17,7 @@ import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
 
 const TABS: { id: ChronicleTab; label: string }[] = [
   { id: 'world', label: 'Мир' },
+  { id: 'findings', label: 'Находки' },
   { id: 'bestiary', label: 'Бестиарий' },
   { id: 'items', label: 'Предметы' },
   { id: 'heroes', label: 'Герои' },
@@ -72,6 +76,7 @@ export class ChronicleScene extends Phaser.Scene {
     this.readable = new Set(keys);
     this.area = new ScrollArea(this, CONTENT_TOP + 170, CONTENT_BOTTOM + 10);
     if (this.tab === 'world') this.world();
+    else if (this.tab === 'findings') this.findings();
     else if (this.tab === 'bestiary') this.bestiary();
     else if (this.tab === 'items') this.items();
     else this.heroes();
@@ -112,8 +117,12 @@ export class ChronicleScene extends Phaser.Scene {
       y += t.height + gap;
     };
     const chNo = w.kind === 'chapter' ? CONTENT.chapters.findIndex((c) => c.id === w.id) + 1 : 0;
-    if (w.kind === 'chapter') line(`Глава ${chNo}${w.lore.episode ? ` · ${w.lore.episode}` : ''}`, FS.small, C.dim, {}, 6);
+    const chapter = w.kind === 'chapter' ? CONTENT.chapters[chNo - 1] : undefined;
+    if (w.kind === 'chapter') line(`Глава ${chNo}${w.lore?.episode ? ` · ${w.lore.episode}` : ''}`, FS.small, C.dim, {}, 6);
     else line('Мир Мидгарда', FS.small, C.dim, {}, 6);
+    // Страницы главы (эпизод и легенда, летопись, сцены) — кнопками под текстом.
+    type PageBtn = { label: string; name: string; on: () => void; enabled: boolean };
+    const btns: PageBtn[] = [];
     if (!w.open) {
       line('???', FS.h3, C.disabled, { fontStyle: 'bold' });
       line(
@@ -121,24 +130,124 @@ export class ChronicleScene extends Phaser.Scene {
         FS.small,
         C.muted,
       );
-    } else {
-      const title = w.kind === 'chapter' ? w.lore.title : w.entry.title;
-      line(title, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }, w.kind === 'chapter' ? 4 : 12);
-      if (w.kind === 'chapter') line(w.lore.location, FS.small, C.info, { fontStyle: 'italic' });
-      line(w.kind === 'chapter' ? w.lore.text : w.entry.text, FS.body, C.text, {}, 0);
+    } else if (w.kind === 'chapter' && chapter) {
+      const ep = chapter.episode;
+      line(w.lore?.title ?? ep?.title ?? w.chapterName.replace(/^Глава\s*\d+\.\s*/, ''), FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }, 4);
+      const where = w.lore?.location ?? ep?.subtitle;
+      if (where) line(where, FS.small, C.info, { fontStyle: 'italic' });
+      if (w.lore) line(w.lore.text, FS.body, C.text, {}, 0);
+      else if (ep?.quote) line(`«${ep.quote}»`, FS.body, C.title, { fontStyle: 'italic' }, 0);
+      const intro = introPages(chapter.id, CONTENT);
+      if (intro) btns.push({ label: intro.episode ? `Эпизод ${chNo}` : 'Легенда', name: `chronicleEpisode_${chapter.id}`, on: () => this.read(introPageList(intro)), enabled: true });
+      const chron = chapterChronicle(chapter.id, CONTENT);
+      if (chron) {
+        const done = chapterCleared(session.save, chapter.id, CONTENT);
+        btns.push({
+          label: 'Летопись',
+          name: `chronicleChapter_${chapter.id}`,
+          on: () => {
+            if (!done) return toast(this, `Летопись главы ${chNo} допишется, когда глава будет пройдена`);
+            const found = findingEntries(session.save, CONTENT).filter((f) => f.chapterId === chapter.id);
+            this.read([chroniclePage(chapter.id, chNo, chron, { got: found.filter((f) => f.found).length, total: found.length })]);
+          },
+          enabled: done,
+        });
+      }
+      const scenes = seenChapterScenes(session.save, chapter.id, GAME).length;
+      btns.push({
+        label: `Сцены (${scenes})`,
+        name: `chronicleScenes_${chapter.id}`,
+        on: () => {
+          if (!scenes) return toast(this, 'Сцен этой главы вы ещё не видели');
+          openStoryHistory(this, chapter.id);
+          // Список под окном «Истории» не листается и не нажимается.
+          a.locked = true;
+          this.children.getByName('history')?.once(Phaser.GameObjects.Events.DESTROY, () => (a.locked = false));
+        },
+        enabled: scenes > 0,
+      });
+    } else if (w.kind === 'world') {
+      line(w.entry.title, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }, 12);
+      line(w.entry.text, FS.body, C.text, {}, 0);
     }
+    const BTN_H = 96;
+    if (btns.length) y += 24 + BTN_H;
     const h = y - top + 36;
     const bg = a.add(card(this, GAME_W / 2, top + h / 2, 1040, h));
     if (!w.open) bg.setAlpha(0.6);
     for (const t of objs) a.add(t);
+    if (btns.length) {
+      const bw = Math.min(320, (TEXT_W + 40 - 16 * (btns.length - 1)) / btns.length);
+      btns.forEach((b, i) => {
+        const bx = LEFT + bw / 2 + i * (bw + 16);
+        const btn = button(this, bx, y - BTN_H / 2, bw, BTN_H - 8, b.enabled ? 'k:buttonLong_beige' : 'k:buttonLong_grey', b.label, a.tap(b.on), FS.body);
+        btn.container.setName(b.name);
+        a.add(btn.container);
+      });
+    }
     if (w.open) this.newDot(1030, top + 30, `world:${w.id}`);
     return top + h;
+  }
+
+  /** Страницы поверх Летописи: список под ними не листается. */
+  private read(pages: StoryPage[]): void {
+    this.area.locked = true;
+    showPages(this, pages, () => (this.area.locked = false));
+  }
+
+  // ---------- Находки ----------
+
+  private findings(): void {
+    const list = findingEntries(session.save, CONTENT);
+    this.summary(list.filter((f) => f.found).length, list.length, '', 'Найдено');
+    if (!list.length) {
+      emptyState(this, GAME_W / 2, CONTENT_TOP + 400, 'Находок пока нет: летописец ждёт новых глав.');
+      return;
+    }
+    const ROW = 200;
+    let y = 0;
+    let chapter = '';
+    for (const f of list) {
+      if (f.chapterId !== chapter) {
+        chapter = f.chapterId;
+        const name = CONTENT.chapters[f.chapterNumber - 1]?.name ?? chapter;
+        this.area.add(text(this, LEFT - 20, y + 34, name, FS.h3, C.title, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5));
+        y += 70;
+      }
+      this.findingRow(f, y + ROW / 2, ROW);
+      y += ROW;
+    }
+    this.area.setContentHeight(y + 20);
+  }
+
+  private findingRow(f: FindingEntry, y: number, rowH: number): void {
+    const a = this.area;
+    const bg = a.add(card(this, GAME_W / 2, y, 1040, rowH - 12));
+    const ix = 40 + 60;
+    const icon = a.add(findingIcon(this, ix, y, 110, f.finding.kind));
+    const tx = ix + 60 + 30;
+    const tw = 1040 - tx;
+    if (!f.found) {
+      icon.setAlpha(0.35);
+      bg.setAlpha(0.6);
+      a.add(text(this, tx, y - 30, '???', FS.h3, C.disabled, { fontStyle: 'bold' }).setOrigin(0, 0.5));
+      a.add(text(this, tx, y + 26, `Находка ждёт на этапе ${f.stageLabel}`, FS.small, C.dim).setOrigin(0, 0.5));
+    } else {
+      a.add(ellipsize(text(this, tx, y - 52, f.finding.title, FS.h3, C.title, { fontStyle: 'bold', ...OUTLINE, strokeThickness: 6 }).setOrigin(0, 0.5), tw));
+      a.add(ellipsize(text(this, tx, y - 6, `${FINDING_KIND_NAMES[f.finding.kind]} · этап ${f.stageLabel}`, FS.small, C.muted, OUTLINE).setOrigin(0, 0.5), tw));
+      a.add(ellipsize(text(this, tx, y + 42, firstSentence(f.finding.text), FS.small, C.text, { fontStyle: 'italic', ...OUTLINE }).setOrigin(0, 0.5), tw));
+      this.newDot(1030, y - rowH / 2 + 30, `findings:${f.finding.id}`);
+    }
+    pressable(this, bg, 1040, rowH - 12, a.tap(() => {
+      if (f.found) this.read([findingPage(f.finding, f.chapterId)]);
+      else toast(this, `Победите на этапе ${f.stageLabel}, чтобы найти`);
+    }));
   }
 
   // ---------- Бестиарий ----------
 
   private bestiary(): void {
-    const list = bestiary(session.save, CONTENT);
+    const list = bestiary(session.save, CONTENT, GAME);
     this.summary(list.filter((m) => m.open).length, list.length);
     const TILE_H = 390;
     list.forEach((m, i) => this.monsterTile(m, colX(i % COLS), Math.floor(i / COLS) * (TILE_H + 12) + TILE_H / 2 + 6, TILE_H));

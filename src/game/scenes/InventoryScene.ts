@@ -31,6 +31,7 @@ import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, popIn, screen } from '../screen';
 import { commit, session } from '../session';
 import { button, ellipsize, panel, pressable, ScrollArea, text, toast } from '../ui';
+import { randomLine } from '../loreView';
 import { itemLegend, itemModal } from '../loreView';
 import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
 import { itemCell, oreIcon } from '../itemIcons';
@@ -291,7 +292,9 @@ export class InventoryScene extends Phaser.Scene {
         this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
         this.events.once(Phaser.Scenes.Events.CREATE, () => {
           shatter(this, at, color);
-          toast(this, `Вещь сломалась! «${def ? refinedName(def, e.level) : e.itemId}» потеряна`, C.error, 3500);
+          // Строка кузнеца (lore-route §5.8, data/lore/lines.json → refineBreak).
+          const said = randomLine('refineBreak');
+          toast(this, `Вещь сломалась! «${def ? refinedName(def, e.level) : e.itemId}» потеряна${said ? `\n${said}` : ''}`, C.error, said ? 5000 : 3500);
         });
         return;
       }
@@ -301,7 +304,8 @@ export class InventoryScene extends Phaser.Scene {
       this.events.once(Phaser.Scenes.Events.CREATE, () => {
         burst(this, at);
         const how = mode === 'ore' ? ' (Благословенная руда)' : mode === 'safe' ? ' (надёжная заточка)' : '';
-        toast(this, `${def ? refinedName(def, e.to) : e.itemId}: заточка удалась!${how}`, C.success, 2500);
+        const said = randomLine('refineSuccess');
+        toast(this, `${def ? refinedName(def, e.to) : e.itemId}: заточка удалась!${how}${said ? `\n${said}` : ''}`, C.success, said ? 4000 : 2500);
       });
     } catch (e) {
       sfx('ui_error');
