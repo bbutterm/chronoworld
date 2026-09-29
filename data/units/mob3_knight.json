@@ -17,6 +17,7 @@
   },
   "visual": {
     "sprite": "abysmal_knight",
-    "hitFx": "fx_hit"
+    "hitFx": "fx_hit",
+    "scale": 0.75
   }
 }
