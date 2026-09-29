@@ -648,23 +648,23 @@
       "enemies": [
         {
           "unit": "sewer_bug_egg",
-          "mult": 0.43
+          "mult": 0.4
         },
         {
           "unit": "sewer_golden_bug",
-          "mult": 0.95
+          "mult": 0.8
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.28
+          "mult": 1.45
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.28
+          "mult": 1.45
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.28
+          "mult": 1.45
         }
       ],
       "rewards": {

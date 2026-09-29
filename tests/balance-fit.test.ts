@@ -23,10 +23,11 @@ describe('balance-fit: цели из data/progression.json → balance', () => {
     const regulated = ctx.content.chapters.filter((c) => !ctx.progression.balance!.exclude.includes(c.id)).map((c) => c.id);
     expect(t.chapters.map((c) => c.id)).toEqual(regulated);
     for (const c of t.chapters.filter((x) => x.id === 'chapter2' || x.id === 'chapter3')) expect(c.source, c.id).toBe('data');
-    // Окна глав 2–3 (перенесены из скрипта без изменений) и 7 дней модели.
+    // Окна глав 2–3 и 7 дней модели. Общий баланс 10 глав (29.09, ночь): главы 1–3 — первые 1–3 дня (цель владельца), босс
+    // главы 2 — к середине 2-го дня (было [32, 36.5]), главы 3 — к вечеру 3-го (было [96, 108.5], день 5).
     expect(t.windows.get('ch2_s1')).toEqual([0, 1]);
-    expect(t.windows.get('ch2_s10')).toEqual([32, 36.5]);
-    expect(t.windows.get('ch3_s10')).toEqual([96, 108.5]);
+    expect(t.windows.get('ch2_s10')).toEqual([28, 32.5]);
+    expect(t.windows.get('ch3_s10')).toEqual([60, 64.5]);
     expect(t.windows.has('ch1_s1')).toBe(false);
     expect(t.days).toBeGreaterThanOrEqual(7);
     // Окна не убывают по ходу кампании: «с» и «по» каждого этапа не раньше предыдущего.
