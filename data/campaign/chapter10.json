@@ -56,19 +56,19 @@
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.03525
+          "mult": 0.03708
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.03525
+          "mult": 0.03708
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.03525
+          "mult": 0.03708
         },
         {
           "unit": "mob7_support",
-          "mult": 0.03525
+          "mult": 0.03708
         },
         null
       ],
@@ -89,19 +89,19 @@
       "enemies": [
         {
           "unit": "mob7_melee",
-          "mult": 0.04832
+          "mult": 0.05213
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.04832
+          "mult": 0.05213
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.04832
+          "mult": 0.05213
         },
         {
           "unit": "mob7_support",
-          "mult": 0.04832
+          "mult": 0.05213
         },
         null
       ],
@@ -131,19 +131,19 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.03539
+          "mult": 0.03662
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.03539
+          "mult": 0.03662
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.03539
+          "mult": 0.03662
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.03539
+          "mult": 0.03662
         },
         null
       ],
@@ -163,23 +163,23 @@
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.03169
+          "mult": 0.03419
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.03169
+          "mult": 0.03419
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.03169
+          "mult": 0.03419
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.03169
+          "mult": 0.03419
         },
         {
           "unit": "mob7_support",
-          "mult": 0.03169
+          "mult": 0.03419
         }
       ],
       "rewards": {
@@ -198,23 +198,23 @@
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.03146
+          "mult": 0.03251
         },
         {
           "unit": "mob7_tank",
-          "mult": 0.03146
+          "mult": 0.03251
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.03146
+          "mult": 0.03251
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.03146
+          "mult": 0.03251
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.03146
+          "mult": 0.03251
         }
       ],
       "rewards": {
@@ -234,23 +234,23 @@
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.03186
+          "mult": 0.03045
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.03186
+          "mult": 0.03045
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.03186
+          "mult": 0.03045
         },
         {
           "unit": "mob7_support",
-          "mult": 0.03186
+          "mult": 0.03045
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.03186
+          "mult": 0.03045
         }
       ],
       "rewards": {
@@ -279,23 +279,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.02772
+          "mult": 0.02642
         },
         {
           "unit": "mob7_tank",
-          "mult": 0.02772
+          "mult": 0.02642
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02772
+          "mult": 0.02642
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02772
+          "mult": 0.02642
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02772
+          "mult": 0.02642
         }
       ],
       "rewards": {
@@ -315,19 +315,19 @@
       "enemies": [
         {
           "unit": "mob7_bridge_warden",
-          "mult": 0.02633
+          "mult": 0.02354
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.02633
+          "mult": 0.02354
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02633
+          "mult": 0.02354
         },
         {
           "unit": "mob7_support",
-          "mult": 0.02633
+          "mult": 0.02354
         },
         null
       ],
@@ -347,23 +347,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.02114
+          "mult": 0.01838
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.02114
+          "mult": 0.01838
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.02114
+          "mult": 0.01838
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.02114
+          "mult": 0.01838
         },
         {
           "unit": "mob7_support",
-          "mult": 0.02114
+          "mult": 0.01838
         }
       ],
       "rewards": {
@@ -383,23 +383,23 @@
       "enemies": [
         {
           "unit": "mob7_fast",
-          "mult": 0.03637
+          "mult": 0.03163
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.03637
+          "mult": 0.03163
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.03637
+          "mult": 0.03163
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.03637
+          "mult": 0.03163
         },
         {
           "unit": "mob7_support",
-          "mult": 0.03637
+          "mult": 0.03163
         }
       ],
       "rewards": {
@@ -418,23 +418,23 @@
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.02246
+          "mult": 0.01953
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.02246
+          "mult": 0.01953
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.02246
+          "mult": 0.01953
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02246
+          "mult": 0.01953
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02246
+          "mult": 0.01953
         }
       ],
       "rewards": {
@@ -454,23 +454,23 @@
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.02256
+          "mult": 0.01962
         },
         {
           "unit": "mob7_tank",
-          "mult": 0.02256
+          "mult": 0.01962
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.02256
+          "mult": 0.01962
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02256
+          "mult": 0.01962
         },
         {
           "unit": "mob7_support",
-          "mult": 0.02256
+          "mult": 0.01962
         }
       ],
       "rewards": {
@@ -499,23 +499,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.02012
+          "mult": 0.0175
         },
         {
           "unit": "mob7_tank",
-          "mult": 0.02012
+          "mult": 0.0175
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.02012
+          "mult": 0.0175
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.02012
+          "mult": 0.0175
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02012
+          "mult": 0.0175
         }
       ],
       "rewards": {
@@ -535,23 +535,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.02385
+          "mult": 0.02074
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.02385
+          "mult": 0.02074
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.02385
+          "mult": 0.02074
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02385
+          "mult": 0.02074
         },
         {
           "unit": "mob7_support",
-          "mult": 0.02385
+          "mult": 0.02074
         }
       ],
       "rewards": {
@@ -571,23 +571,23 @@
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.02158
+          "mult": 0.01877
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.02158
+          "mult": 0.01877
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.02158
+          "mult": 0.01877
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02158
+          "mult": 0.01877
         },
         {
           "unit": "mob7_support",
-          "mult": 0.02158
+          "mult": 0.01877
         }
       ],
       "rewards": {
@@ -617,23 +617,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.02629
+          "mult": 0.022
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.02629
+          "mult": 0.022
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.02629
+          "mult": 0.022
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02629
+          "mult": 0.022
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02629
+          "mult": 0.022
         }
       ],
       "rewards": {
@@ -652,23 +652,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.01918
+          "mult": 0.01668
         },
         {
           "unit": "mob_lord_of_death",
-          "mult": 0.01337
+          "mult": 0.01163
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.01918
+          "mult": 0.01668
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.01918
+          "mult": 0.01668
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.01918
+          "mult": 0.01668
         }
       ],
       "rewards": {
