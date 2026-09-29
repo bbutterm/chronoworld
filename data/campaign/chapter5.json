@@ -40,20 +40,20 @@
       "enemies": [
         {
           "unit": "mob5_tank",
-          "mult": 0.521
+          "mult": 0.484
         },
         null,
         {
           "unit": "mob5_fast",
-          "mult": 0.521
+          "mult": 0.484
         },
         {
           "unit": "mob5_fast",
-          "mult": 0.521
+          "mult": 0.484
         },
         {
           "unit": "mob5_ranged",
-          "mult": 0.521
+          "mult": 0.484
         }
       ],
       "rewards": {
@@ -63,6 +63,39 @@
       "offlinePerMinute": {
         "jobExp": 417,
         "gold": 293
+      }
+    },
+    {
+      "id": "ch5_s11",
+      "name": "Ручей светлячков",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob5_fast",
+          "mult": 0.714
+        },
+        {
+          "unit": "mob5_fast",
+          "mult": 0.714
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.714
+        },
+        {
+          "unit": "mob5_fast",
+          "mult": 0.714
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 12940,
+        "gold": 9090
+      },
+      "offlinePerMinute": {
+        "jobExp": 431,
+        "gold": 303
       }
     },
     {
@@ -136,19 +169,19 @@
       "enemies": [
         {
           "unit": "mob5_elite",
-          "mult": 0.473
+          "mult": 0.436
         },
         {
           "unit": "mob5_melee",
-          "mult": 0.473
+          "mult": 0.436
         },
         {
           "unit": "mob5_ranged",
-          "mult": 0.473
+          "mult": 0.436
         },
         {
           "unit": "mob5_support",
-          "mult": 0.473
+          "mult": 0.436
         },
         null
       ],
@@ -159,6 +192,42 @@
       "offlinePerMinute": {
         "jobExp": 510,
         "gold": 359
+      }
+    },
+    {
+      "id": "ch5_s12",
+      "name": "Тропа прыгунов",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob5_tank",
+          "mult": 0.426
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.426
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.426
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.426
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.426
+        }
+      ],
+      "rewards": {
+        "jobExp": 15830,
+        "gold": 11140
+      },
+      "offlinePerMinute": {
+        "jobExp": 528,
+        "gold": 371
       }
     },
     {
@@ -197,6 +266,39 @@
       }
     },
     {
+      "id": "ch5_s13",
+      "name": "Заброшенный храм",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob5_melee",
+          "mult": 0.398
+        },
+        {
+          "unit": "mob5_munak_elder",
+          "mult": 0.497
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.398
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.398
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 16940,
+        "gold": 11920
+      },
+      "offlinePerMinute": {
+        "jobExp": 565,
+        "gold": 397
+      }
+    },
+    {
       "id": "ch5_s7",
       "name": "Бамбуковая чаща",
       "boss": false,
@@ -229,6 +331,42 @@
       "offlinePerMinute": {
         "jobExp": 584,
         "gold": 411
+      }
+    },
+    {
+      "id": "ch5_s14",
+      "name": "Колодец плакальщиц",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob5_tank",
+          "mult": 0.258
+        },
+        {
+          "unit": "mob5_melee",
+          "mult": 0.258
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.258
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.258
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.258
+        }
+      ],
+      "rewards": {
+        "jobExp": 18120,
+        "gold": 12740
+      },
+      "offlinePerMinute": {
+        "jobExp": 604,
+        "gold": 425
       }
     },
     {
@@ -267,6 +405,42 @@
       }
     },
     {
+      "id": "ch5_s15",
+      "name": "Сгоревшие норы",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob5_fast",
+          "mult": 0.412
+        },
+        {
+          "unit": "mob5_elite",
+          "mult": 0.412
+        },
+        {
+          "unit": "mob5_fast",
+          "mult": 0.412
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.412
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.412
+        }
+      ],
+      "rewards": {
+        "jobExp": 19400,
+        "gold": 13630
+      },
+      "offlinePerMinute": {
+        "jobExp": 647,
+        "gold": 454
+      }
+    },
+    {
       "id": "ch5_s9",
       "name": "Лисья свадьба",
       "boss": false,
@@ -302,29 +476,137 @@
       }
     },
     {
+      "id": "ch5_s16",
+      "name": "Кладбище фонарей",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob5_tank",
+          "mult": 0.348
+        },
+        {
+          "unit": "mob5_tank",
+          "mult": 0.348
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.348
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.348
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.348
+        }
+      ],
+      "rewards": {
+        "jobExp": 20410,
+        "gold": 14340
+      },
+      "offlinePerMinute": {
+        "jobExp": 680,
+        "gold": 478
+      }
+    },
+    {
+      "id": "ch5_s17",
+      "name": "Туман колыбельной",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob5_melee",
+          "mult": 0.359
+        },
+        {
+          "unit": "mob5_elite",
+          "mult": 0.359
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.359
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.359
+        },
+        {
+          "unit": "mob5_fast",
+          "mult": 0.359
+        }
+      ],
+      "rewards": {
+        "jobExp": 20760,
+        "gold": 14590
+      },
+      "offlinePerMinute": {
+        "jobExp": 692,
+        "gold": 486
+      }
+    },
+    {
+      "id": "ch5_s18",
+      "name": "Лунный мост",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob5_elite",
+          "mult": 0.3
+        },
+        {
+          "unit": "mob5_munak_elder",
+          "mult": 0.3
+        },
+        {
+          "unit": "mob5_support",
+          "mult": 0.3
+        },
+        {
+          "unit": "mob5_ranged",
+          "mult": 0.3
+        },
+        {
+          "unit": "mob5_elite",
+          "mult": 0.3
+        }
+      ],
+      "rewards": {
+        "jobExp": 21110,
+        "gold": 14830
+      },
+      "offlinePerMinute": {
+        "jobExp": 704,
+        "gold": 495
+      }
+    },
+    {
       "id": "ch5_s10",
       "name": "Святилище Лунного цветка",
       "boss": true,
       "enemies": [
         {
           "unit": "mob5_elite",
-          "mult": 0.202
+          "mult": 0.234
         },
         {
           "unit": "mob5_boss",
-          "mult": 0.214
+          "mult": 0.247
         },
         {
           "unit": "mob5_support",
-          "mult": 0.202
+          "mult": 0.234
         },
         {
           "unit": "mob5_elite",
-          "mult": 0.202
+          "mult": 0.234
         },
         {
           "unit": "mob5_ranged",
-          "mult": 0.202
+          "mult": 0.234
         }
       ],
       "rewards": {
