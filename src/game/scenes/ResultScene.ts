@@ -48,6 +48,8 @@ export class ResultScene extends Phaser.Scene {
   /** Низ таблицы итогов и верх строки «Авто» (для e2e-проверки раскладки). */
   tableEnd = 0;
   autoTop = Infinity;
+  /** Подпись справа от «Авто: следующий этап» (пояснение или отсчёт). */
+  private autoStatus: Phaser.GameObjects.Text | null = null;
   /** Сколько строк событий на экране (e2e: ничего не спрятано). */
   eventLines = 0;
 
@@ -281,8 +283,17 @@ export class ResultScene extends Phaser.Scene {
           showUnlockBanners(this, () => {
             // Обучение (hints.ts): первая победа — «Дальше»; потом, когда копится сундук или хватает на уровень, — «К кампании».
             const hint = firstClear ? pickResultHint({ hasNext: !!next, chestOrLevel: levelUpReady(session.save, GAME).length > 0 || session.save.campaign.cleared.length >= 2 }) : null;
-            if (hint === 'result_next') tutorialHint(this, hint, 890, 1830, 'above', { w: bw, h: 130 });
-            if (hint === 'result_home') tutorialHint(this, hint, 190, 1830, 'above', { w: bw, h: 130 });
+            // Над «Дальше» — пояснение к «Авто» («Включите — бои пойдут сами…»): пока указатель на экране, оно
+            // скрыто, чтобы плашка встала над кнопкой, ничего не закрывая (MT-07); ушла плашка — пояснение вернулось.
+            const st = this.autoStatus;
+            const note = st?.text ?? '';
+            const view = hint ? tutorialHint(this, hint, hint === 'result_next' ? 890 : 190, 1830, 'above', { w: bw, h: 130 }) : null;
+            if (view && st && note && !autoAdvance.on) {
+              st.setText('');
+              view.once(Phaser.GameObjects.Events.DESTROY, () => {
+                if (st.scene && !st.text) st.setText(note);
+              });
+            }
             beginAuto();
           });
       }, { auto: autoAdvance.on });
@@ -325,6 +336,7 @@ export class ResultScene extends Phaser.Scene {
     drawMark();
 
     const status = text(this, 790, y - 16, '', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 480 } });
+    this.autoStatus = status;
     const bar = progressBar(this, 580, y + 32, 420, 16, 0, TINT.gold).setVisible(false);
     const fill = bar.list[1] as Phaser.GameObjects.Rectangle;
     const fullW = 420 - 4;

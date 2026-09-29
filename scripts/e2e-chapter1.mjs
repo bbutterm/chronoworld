@@ -9,7 +9,7 @@
 // Ведущее обучение (src/game/hints.ts): каждая показанная подсказка записывается (id) и проверяется — плашка не закрывает
 // кнопки (hintOverlap 0); шаги выполняются, как их показывает указатель. В конце — реальное время главы (бои на «Пропустить»).
 // В журнале у каждой попытки — мощь отряда против рекомендуемой (stagePowerCheck). Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
-//   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке)
+//   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке; экран — E2E_VIEWPORT, например 360x640)
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -36,7 +36,9 @@ for (let i = 0; i < 150; i++) {
   await sleep(200);
 }
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 540, height: 960 } });
+// E2E_VIEWPORT=390x844 — прогон на другом экране телефона (раскладка подсказок и кнопок); по умолчанию 540×960.
+const [VW, VH] = (process.env.E2E_VIEWPORT ?? '540x960').split('x').map(Number);
+const page = await browser.newPage({ viewport: { width: VW, height: VH } });
 const problems = [];
 page.on('console', (m) => m.type() === 'error' && !/favicon/.test(m.location()?.url ?? '') && problems.push(`console.error: ${m.text()}`));
 page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`));
@@ -195,17 +197,33 @@ let seenDialogues = 0;
 
 /** Подсказки обучения, увиденные за прогон: id → сколько раз (шаг может указывать дважды: вкладка → цель). */
 const hintsSeen = new Map();
+/** Экран:подсказка, для которых уже снят скриншот (одна подсказка бывает на нескольких экранах: вкладка → цель). */
+const hintShots = new Set();
 /** Записать подсказку на экране (hints.ts): id и перекрытие кнопок плашкой. */
 const recordHint = async (sceneKey) => {
+  // Плашку hintPointer раскладывает на следующем кадре (и после диалога/баннера) — подождать, пока она встанет.
+  for (let i = 0; i < 25; i++) {
+    const pending = await page.evaluate((k) => {
+      if (!window.__game.scene.isActive(k)) return false;
+      return window.__game.scene.getScene(k).children.list.some((o) => o.name === 'hint' && o.active && !o.getData?.('hintBox'));
+    }, sceneKey);
+    if (!pending) break;
+    await sleep(200);
+  }
   const h = await page.evaluate((k) => {
     if (!window.__game.scene.isActive(k)) return null;
-    const c = window.__game.scene.getScene(k).children.list.find((o) => o.getData?.('hintBox') && o.active);
+    const list = window.__game.scene.getScene(k).children.list;
+    const c = list.find((o) => o.getData?.('hintBox') && o.active);
     const txt = c?.list?.find((o) => o.type === 'Text' && o.name !== 'hintSkip')?.text;
-    return c ? { id: c.getData('hintId') ?? txt, overlap: c.getData('hintOverlap'), side: c.getData('hintSide') } : null;
+    const count = list.filter((o) => o.name === 'hint' && o.active).length;
+    return c ? { id: c.getData('hintId') ?? txt, overlap: c.getData('hintOverlap'), side: c.getData('hintSide'), mode: c.getData('hintMode'), count } : null;
   }, sceneKey);
   if (!h) return null;
-  if (!hintsSeen.has(h.id)) {
-    log(`подсказка [${sceneKey}]: ${h.id}`);
+  // Одна подсказка за раз (MT-07): hintPointer убирает прежнюю.
+  if (h.count > 1) problems.push(`[${sceneKey}] на экране ${h.count} подсказки сразу`);
+  if (!hintsSeen.has(h.id) || !hintShots.has(`${sceneKey}:${h.id}`)) {
+    hintShots.add(`${sceneKey}:${h.id}`);
+    log(`подсказка [${sceneKey}]: ${h.id}${h.mode === 'ring' ? ' (плашке нет места — рамка и сообщение)' : ''}`);
     await shot(`hint-${sceneKey}-${String(h.id).replace(/[^a-z0-9_]/gi, '').slice(0, 24) || 'text'}`);
   }
   hintsSeen.set(h.id, (hintsSeen.get(h.id) ?? 0) + 1);
@@ -220,6 +238,7 @@ const recordHint = async (sceneKey) => {
 const levelUpSquad = async (shotName) => {
   await clickText('Campaign', 'ГЕРОИ');
   await waitScene('Heroes');
+  await recordHint('Heroes');
   let levels = 0;
   const stuck = new Set();
   for (let n = 0; n < 40; n++) {
@@ -232,6 +251,8 @@ const levelUpSquad = async (shotName) => {
       active.scene.start('Hero', { heroId: id });
     }, hero.id);
     await waitScene('Hero');
+    // Подсказки карточки героя («Улучшить», «Вознести», трофеи) — не закрывают вкладки и кнопки (LT-10).
+    await recordHint('Hero');
     if (!(await findText('Hero', 'Улучшить'))) {
       stuck.add(hero.id);
       continue;
@@ -249,6 +270,57 @@ const levelUpSquad = async (shotName) => {
   await clickText('Hero', 'КАМПАНИЯ');
   await waitScene('Campaign');
   return levels;
+};
+
+/**
+ * Шаг обучения «вознесение» (указатель на вкладку «Герои»): как игрок — карточка героя, которого можно вознести копиями
+ * (flow.ts ascendReady) → «Вознести» → «Авто» (корм) → «Вознести» → подтверждение → «Отлично!» → «Кампания».
+ */
+const ascendStep = async () => {
+  const heroId = await page.evaluate(async () => {
+    const [{ ascendReady }, { GAME }, { session }] = await Promise.all([
+      import('/src/game/flow.ts'),
+      import('/src/game/content.ts'),
+      import('/src/game/session.ts'),
+    ]);
+    return ascendReady(session.save, GAME)[0]?.id ?? null;
+  });
+  if (!heroId) throw new Error('указатель «вознести», но вознести некого');
+  const before = (await save()).heroes.find((h) => h.id === heroId);
+  await clickText('Campaign', 'ГЕРОИ');
+  await waitScene('Heroes');
+  // Тело в фигурных скобках: scene.start возвращает ScenePlugin (циклический граф) — его сериализация вешает evaluate.
+  await page.evaluate((id) => {
+    window.__game.scene.getScenes(true)[0].scene.start('Hero', { heroId: id });
+  }, heroId);
+  await waitScene('Hero');
+  await clickText('Hero', 'Вознести');
+  await waitScene('Ascend');
+  await clickText('Ascend', 'Авто');
+  await sleep(500);
+  await shot('ascend');
+  // Кнопка — «Вознести · N золота» (цена в подписи).
+  const ascLabel = await page.evaluate(() => {
+    const all = (list) => list.flatMap((o) => (o.list ? [o, ...all(o.list)] : [o]));
+    return all(window.__game.scene.getScene('Ascend').children.list).find((o) => o.type === 'Text' && o.visible && o.text.startsWith('Вознести'))?.text ?? null;
+  });
+  if (!ascLabel) throw new Error('на экране вознесения нет кнопки «Вознести…»');
+  await clickText('Ascend', ascLabel);
+  await sleep(500);
+  // Подтверждение (confirm): кнопка «Вознести» модального окна — самая верхняя.
+  await clickText('Ascend', 'Вознести', true);
+  await sleep(1500);
+  const after = (await save()).heroes.find((h) => h.id === heroId);
+  if (!after || after.rarity === before.rarity) throw new Error(`вознесение ${before.templateId} ${before.rarity} не прошло`);
+  log(`обучение: вознесение ${before.templateId} ${before.rarity} → ${after.rarity}`);
+  if (await findText('Ascend', 'Отлично!', true)) {
+    await clickText('Ascend', 'Отлично!', true);
+    await waitScene('Hero');
+  }
+  const active = await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key);
+  await clickText(active, 'КАМПАНИЯ');
+  await waitScene('Campaign');
+  await skipDialogues('Campaign');
 };
 
 /** Мощь отряда против рекомендуемой мощи этапа (для отчёта при поражении; считает ядро в браузере). */
@@ -415,6 +487,8 @@ try {
           await skipDialogues('Campaign');
           log('обучение: быстрые награды забраны');
         }
+        // Вознесение копиями — шаг после Таверны: указатель на «Герои», игрок возносит героя.
+        if ((await recordHint('Campaign')) === 'ascend') await ascendStep();
         // Задания дня — последний шаг: Город → плитка «Задания» → назад.
         if ((await recordHint('Campaign')) === 'quests_open') {
           await clickText('Campaign', 'ГОРОД');
@@ -432,9 +506,10 @@ try {
         }
         await clickText('Campaign', String(stage));
         await waitScene('Stage');
-        await recordHint('Stage');
+        const prepHint = await recordHint('Stage');
+        if (prepHint === 'prep_auto' && stage <= TAVERN) problems.push(`этап ${stage}: подсказка «Авто» до первого призыва в Таверне`);
         // Как игрок с новыми героями из Таверны: перед боем — «Авто» (сильнейшие по ролям).
-        if (stage > TAVERN) {
+        if (stage > TAVERN || prepHint === 'prep_auto') {
           await clickText('Stage', 'Авто');
           await sleep(400);
         }
@@ -457,7 +532,8 @@ try {
       }
       // Затемнение ульты накрывает экран на ~1 с — дождаться, пока оно сойдёт, и только тогда жать «Пропустить».
       for (let i = 0; i < 20 && (await coveredBy('Battle', 'Пропустить')); i++) await sleep(200);
-      if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
+      // Короткий бой (этап 1 — ~2 с) может закончиться сам, пока ждали скриншот: «Пропустить» уже убрана — ждём итоги.
+      if ((await page.evaluate(() => window.__game.scene.isActive('Battle'))) && (await findText('Battle', 'Пропустить'))) await clickText('Battle', 'Пропустить');
       await waitScene('Result');
       await sleep(500);
       // Сюжет после первой победы — поверх итогов.
@@ -499,7 +575,8 @@ try {
   const minutes = (Date.now() - t0) / 60000;
   log(`время главы 1 через интерфейс (бои — «Пропустить»): ${minutes.toFixed(1)} мин; по этапам ${splits.join(' ')}`);
   log(`подсказки обучения: ${[...hintsSeen].map(([id, n]) => `${id}×${n}`).join(', ')}`);
-  for (const id of ['home_campaign', 'stage_fight', 'battle_speed', 'result_next', 'chest_claim', 'tavern_summon', 'prep_auto']) {
+  // Вознесение (ascend) — не обязательный шаг: три копии одного героя зависят от удачи в Таверне; показан — выполняем.
+  for (const id of ['home_campaign', 'stage_fight', 'battle_speed', 'result_next', 'chest_claim', 'level_up', 'tavern_summon', 'prep_auto', 'fast_rewards', 'quests_open']) {
     if (!hintsSeen.has(id)) problems.push(`подсказка обучения ${id} не показалась`);
   }
   const s = await save();

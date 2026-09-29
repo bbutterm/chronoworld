@@ -11,7 +11,7 @@ import { currentStage, describeEvents, formatNumber, POWER_COLORS, powerCheck } 
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, confirmOpen, CONTENT_TOP, cornerBadge, gemIcon, NAV_H, NAV_TAB_W, navTabX, powerChip, screen } from '../screen';
 import { commit, now, restartOnNewDay, session, today } from '../session';
-import { button, ellipsize, hintPointer, pressable, text, toast, tutorialHint } from '../ui';
+import { button, ellipsize, pressable, text, toast, tutorialHint } from '../ui';
 import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 import { screenBackground, setThemeBackground, themeOfChapter } from '../backdrops';
@@ -426,16 +426,17 @@ export class CampaignScene extends Phaser.Scene {
     const tabY = GAME_H - NAV_H / 2 + 4;
     const tab = { w: NAV_TAB_W - 6, h: NAV_H - 40 };
     // Сторону плашки выбирает hintPointer (S): так, чтобы не закрыть другие кнопки и плитки.
-    if (id === 'home_campaign') this.hintView = hintPointer(this, L.ctaX, L.rowY, msg, 'below', { w: L.ctaW, h: L.ctaH });
-    if (id === 'chest_claim') this.hintView = hintPointer(this, L.claimX, L.claimY, msg, 'below', { w: L.claimW, h: L.claimH });
-    if (id === 'level_up' || id === 'equip_gear') this.hintView = hintPointer(this, navTabX('Heroes'), tabY, msg, 'above', tab);
+    // Каждый шаг — tutorialHint с id (hints.ts): плашку можно пропустить касанием, e2e узнаёт шаг по id.
+    if (id === 'home_campaign') this.hintView = tutorialHint(this, id, L.ctaX, L.rowY, 'below', { w: L.ctaW, h: L.ctaH });
+    if (id === 'chest_claim') this.hintView = tutorialHint(this, id, L.claimX, L.claimY, 'below', { w: L.claimW, h: L.claimH });
+    if (id === 'level_up' || id === 'equip_gear') this.hintView = tutorialHint(this, id, navTabX('Heroes'), tabY, 'above', tab);
     // Башня — на странице «Приключения»: здесь указываем на вкладку, на самой странице — на плитку.
-    if (id === 'tower_open') this.hintView = hintPointer(this, navTabX('Adventure'), tabY, `${msg} Загляните в «Приключения»`, 'above', tab);
+    if (id === 'tower_open') this.hintView = tutorialHint(this, id, navTabX('Adventure'), tabY, 'above', tab, { text: `${msg} Загляните в «Приключения»` });
     // Ведущее обучение (hints.ts, TUTORIAL_CHAIN): Таверна и задания — вкладка «Город», вознесение — «Герои»,
     // быстрые награды — кнопка слева от «В бой». Касание плашки — пропустить шаг.
     if (id === 'tavern_summon' || id === 'quests_open') this.hintView = tutorialHint(this, id, navTabX('Home'), tabY, 'above', tab);
     if (id === 'ascend') this.hintView = tutorialHint(this, id, navTabX('Heroes'), tabY, 'above', tab);
-    if (id === 'fast_rewards') this.hintView = tutorialHint(this, id, L.fastX, L.rowY, 'above', { w: L.fastW, h: L.fastH });
+    if (id === 'fast_rewards') this.hintView = tutorialHint(this, id, L.fastX, L.rowY, 'above', { w: L.fastW, h: L.fastH }, { avoidText: ['Сундук офлайн-наград'] });
     this.hintView?.once(Phaser.GameObjects.Events.DESTROY, () => {
       // Плашку пропустили касанием — на следующем тике покажется следующий шаг цепочки.
       if (this.hintId === id && hintDone(id)) this.hintId = null;

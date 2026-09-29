@@ -71,8 +71,9 @@ export class HomeScene extends Phaser.Scene {
     // Ведущее обучение (tutorial.ts): Таверна ×10, затем задания — указатель на плитку (после баннера).
     showUnlockBanners(this, () => {
       const id = cityHint(session.save);
-      if (id === 'tavern_summon') tutorialHint(this, id, xl, y1, 'below', { w, h });
-      if (id === 'quests_open') tutorialHint(this, id, xl, y2, 'above', { w, h });
+      // Игрок уже в Городе — текст без «в «Городе»»; лента-заголовок «Город» не закрывается (MT-07, NB-13).
+      if (id === 'tavern_summon') tutorialHint(this, id, xl, y1, 'below', { w, h }, { text: 'Таверна открыта — наймите героев', avoidText: ['Город'] });
+      if (id === 'quests_open') tutorialHint(this, id, xl, y2, 'above', { w, h }, { avoidText: ['Город'] });
     });
   }
 

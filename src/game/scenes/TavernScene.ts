@@ -63,6 +63,8 @@ const TABLE_Y = 1000;
 /** Откуда вылетают карты (колода у края стола). */
 const DECK = { x: GAME_W / 2, y: 1720 };
 const DEPTH = 5000;
+/** Строки прогресса призыва (гарант, первый ×10) — плашка обучения их не закрывает (MT-07). */
+const TAVERN_INFO = ['До синей', 'До фиолетовой', 'Первый призыв', 'Шансы', 'Гарант'];
 
 type Phase = 'deal' | 'pick' | 'flipping' | 'showcase' | 'done';
 
@@ -276,15 +278,15 @@ export class TavernScene extends Phaser.Scene {
   private tutorial(st: SummonStatus): void {
     if (session.save.summon.firstTenDone || hintDone('tavern_summon')) return;
     if (!session.save.summon.welcomeGiven) {
-      tutorialHint(this, 'tavern_summon', 820, CONTENT_TOP + 200, 'below', { w: 330, h: 120 }, { text: 'Заберите подарок Гаррета — свитки и гемы на призыв' });
+      tutorialHint(this, 'tavern_summon', 820, CONTENT_TOP + 200, 'below', { w: 330, h: 120 }, { text: 'Заберите подарок Гаррета — свитки и гемы на призыв', avoidText: TAVERN_INFO });
       return;
     }
     const opts = pullOptions(st);
     const scroll = opts.find((o) => o.id === 'scroll10' && o.enabled);
     const gems = opts.find((o) => o.id === 'gems10' && o.enabled);
     const msg = `Призыв ×10 — ${firstTenText(st.firstTenCount, st.firstTenRarity)}!`;
-    if (scroll) tutorialHint(this, 'tavern_summon', 880, 1455, 'above', { w: 316, h: 116 }, { text: msg });
-    else if (gems) tutorialHint(this, 'tavern_summon', 800, 1620, 'above', { w: 490, h: 150 }, { text: msg });
+    if (scroll) tutorialHint(this, 'tavern_summon', 880, 1455, 'above', { w: 316, h: 116 }, { text: msg, avoidText: TAVERN_INFO });
+    else if (gems) tutorialHint(this, 'tavern_summon', 800, 1620, 'above', { w: 490, h: 150 }, { text: msg, avoidText: TAVERN_INFO });
   }
 
   // ---------- действия ----------

@@ -49,7 +49,14 @@ export interface PlaceOptions {
   width: number;
 }
 
-function overlapArea(a: Rect, b: Rect): number {
+/** Стрелка указателя на цель с этой стороны (прямоугольник). */
+export function arrowRect(target: { x: number; y: number; h: number }, side: HintSide): Rect {
+  const g = HINT_GEOM;
+  const arrowY = target.y + (side === 'above' ? -1 : 1) * (target.h / 2 + g.arrowGap);
+  return { x: target.x - g.arrowW / 2, y: arrowY - g.arrowH / 2, w: g.arrowW, h: g.arrowH };
+}
+
+export function overlapArea(a: Rect, b: Rect): number {
   const w = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
   const h = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
   return w > 0 && h > 0 ? w * h : 0;

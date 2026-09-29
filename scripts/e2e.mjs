@@ -4,7 +4,7 @@
 // и уже скачанный Chromium — скрипт ничего не устанавливает. В CI не запускается.
 // Подробности: docs/content/e2e.md.
 import { execSync, spawn } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -20,6 +20,15 @@ const ASSET_DELAY_MS = 700;
 const AUTO_WAIT_MS = 2300;
 
 const log = (...a) => console.log('[e2e]', ...a);
+
+// Номера этапов и открытия — из данных (глава 1 растянута до 18 этапов, вставные ch1_s11… стоят между выпущенными):
+// подпись «1-N» — позиция этапа в data/campaign/chapter1.json, как stageLabel() в ядре.
+const CH1_ORDER = JSON.parse(readFileSync('data/campaign/chapter1.json', 'utf8')).stages.map((x) => x.id);
+const UNLOCKS = JSON.parse(readFileSync('data/unlocks.json', 'utf8')).features;
+const unlockOf = (id) => UNLOCKS.find((f) => f.id === id);
+const ch1Label = (stageId) => `1-${CH1_ORDER.indexOf(stageId) + 1}`;
+/** Все этапы главы 1 до stageId включительно (в порядке прохождения). */
+const ch1Upto = (stageId) => CH1_ORDER.slice(0, CH1_ORDER.indexOf(stageId) + 1);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function loadPlaywright() {
@@ -184,6 +193,10 @@ async function main() {
      * hintOverlap (площадь перекрытия; 0 — чисто).
      */
     const checkHint = async (sceneKey, what) => {
+      // Плашку hintPointer раскладывает на следующем кадре — дождаться её (до 5 с).
+      await page
+        .waitForFunction((k) => window.__game.scene.getScene(k).children.list.some((o) => o.name === 'hint' && o.getData?.('hintBox')), sceneKey, { timeout: 5000 })
+        .catch(() => {});
       const h = await page.evaluate((k) => {
         const c = window.__game.scene.getScene(k).children.list.find((o) => o.getData?.('hintBox'));
         return c ? { overlap: c.getData('hintOverlap'), side: c.getData('hintSide') } : null;
@@ -212,21 +225,21 @@ async function main() {
     await shot('campaign-intro');
     if (!(await skipDialogues('Campaign'))) problems.push('нет вступления главы на карте кампании');
     await shot('campaign');
-    // Навигация — 4 вкладки; на «Кампании» — «В бой · этап 1», сундук офлайн-наград и быстрые награды (закрыты до 1-2).
+    // Навигация — 4 вкладки; на «Кампании» — «В бой · этап 1», сундук офлайн-наград и быстрые награды (закрыты до своего этапа, data/unlocks.json).
     for (const t of ['КАМПАНИЯ', 'ГЕРОИ', 'ГОРОД', 'ПРИКЛЮЧЕНИЯ', 'В бой · этап 1', 'Сундук офлайн-наград', 'Быстрые', 'Закрыто']) {
       if (!(await hasText('Campaign', t))) problems.push(`кампания новичка: нет «${t}»`);
     }
     // Письмо «Добро пожаловать» и вход дня — красный кружок на вкладке «Город».
     if (!(await page.evaluate(() => !!window.__game.scene.getScene('Campaign').children.getByName('navBadge_Home')))) problems.push('нет значка на вкладке «Город» (письмо, вход дня)');
     // R: новичку показана подсказка на «В бой»; она не закрывает другие кнопки.
-    if (!(await hasText('Campaign', 'Первый этап ждёт'))) problems.push('нет подсказки новичку на кампании');
     await checkHint('Campaign', 'кампания');
+    if (!(await hasText('Campaign', 'Первый этап ждёт'))) problems.push('нет подсказки новичку на кампании');
 
     // События новичка: вкладка «Город» → иконка «События» в шапке → «Вход 7 дней» → забрать день 1 нажатием.
     await clickText('Campaign', 'ГОРОД');
     await waitScene('Home');
     await shot('city');
-    for (const t of ['Таверна', 'Лавка', 'Задания', 'Достижения', 'Откроется на этапе 1-5']) if (!(await hasText('Home', t))) problems.push(`город новичка: нет «${t}»`);
+    for (const t of ['Таверна', 'Лавка', 'Задания', 'Достижения', `Откроется на этапе ${ch1Label(unlockOf('tavern').stage)}`]) if (!(await hasText('Home', t))) problems.push(`город новичка: нет «${t}»`);
     {
       const saveNow = () => page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')));
       const s0 = await saveNow();
@@ -250,7 +263,7 @@ async function main() {
     await clickText('Home', 'ПРИКЛЮЧЕНИЯ');
     await waitScene('Adventure');
     await shot('adventure');
-    for (const t of ['Башня испытаний', 'Экспедиции', 'Охота на босса', 'Откроется на этапе 1-10']) if (!(await hasText('Adventure', t))) problems.push(`приключения новичка: нет «${t}»`);
+    for (const t of ['Башня испытаний', 'Экспедиции', 'Охота на босса', `Откроется на этапе ${ch1Label(unlockOf('tower').stage)}`]) if (!(await hasText('Adventure', t))) problems.push(`приключения новичка: нет «${t}»`);
 
     // 2. Кампания → этап 1 → В бой.
     await clickText('Adventure', 'КАМПАНИЯ');
@@ -296,13 +309,14 @@ async function main() {
     if (!(await skipDialogues('Stage'))) problems.push('нет сюжета перед этапом 1');
     await waitScene('Battle');
 
-    // 3. Бой: скорость ×2 закрыта до этапа 1-3 (data/unlocks.json) — касание «1x» оставляет 1x и показывает тост;
+    // 3. Бой: скорость ×2 закрыта до своего этапа (data/unlocks.json, speed_x2) — касание «1x» оставляет 1x и показывает тост;
     // что 2x запоминается, проверяем в настройках после этапа 5 (раздел 6). Ждём баннер ульты, затем «Пропустить».
     await clickText('Battle', '1x');
     await sleep(150);
     const speed = await page.evaluate(() => localStorage.getItem('chronoworld.battleSpeed'));
-    if (speed === '2') problems.push('скорость ×2 включилась на этапе 1 — должна быть закрыта до этапа 1-3');
-    if (!(await hasText('Battle', 'Скорость боя ×2: откроется на этапе 1-3'))) problems.push('нет тоста «Скорость боя ×2: откроется на этапе 1-3»');
+    const speedLabel = ch1Label(unlockOf('speed_x2').stage);
+    if (speed === '2') problems.push(`скорость ×2 включилась на этапе 1 — должна быть закрыта до этапа ${speedLabel}`);
+    if (!(await hasText('Battle', `Скорость боя ×2: откроется на этапе ${speedLabel}`))) problems.push(`нет тоста «Скорость боя ×2: откроется на этапе ${speedLabel}»`);
     await sleep(1500);
     await shot('battle');
     if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
@@ -344,14 +358,17 @@ async function main() {
     // 4. Итог → К кампании (после поражения кнопка — «Кампания», T1-07) → Герои → герой → назад.
     await clickText('Result', (await hasText('Result', 'К кампании')) ? 'К кампании' : 'Кампания');
     await waitScene('Campaign');
-    // Этап 2 (пройден в авто-режиме) открыл быстрые награды и задания — баннеры на карте, один раз.
+    // Этап 2 (пройден в авто-режиме) открыл функции с stage = ch1_s2 (data/unlocks.json; сейчас — скорость ×2) —
+    // баннеры на карте, один раз.
     if ((await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')))).campaign.cleared.includes('ch1_s2')) {
+      const want = UNLOCKS.filter((f) => f.stage === 'ch1_s2').map((f) => f.title);
       const got = await dismissUnlocks('Campaign', 'unlock-banner');
-      if (got.join('|') !== 'Быстрые награды|Задания дня') problems.push(`после этапа 2: баннеры ${JSON.stringify(got)}, ждали быстрые награды и задания`);
+      if (got.join('|') !== want.join('|')) problems.push(`после этапа 2: баннеры ${JSON.stringify(got)}, ждали ${JSON.stringify(want)}`);
       if ((await dismissUnlocks('Campaign')).length) problems.push('баннер показан второй раз');
-      // Быстрые награды открылись — на «Кампании» кнопка «Бесплатно» (первое за день), сундук с «Собрать».
+      // На «Кампании» сундук с «Собрать»; быстрые награды — «Бесплатно», если уже открыты, иначе «Закрыто».
       await waitScene('Campaign');
-      if (!(await hasText('Campaign', 'Бесплатно'))) problems.push('кампания после этапа 2: быстрые награды не «Бесплатно»');
+      const fastOpen = CH1_ORDER.indexOf(unlockOf('fast_rewards').stage) <= CH1_ORDER.indexOf('ch1_s2');
+      if (!(await hasText('Campaign', fastOpen ? 'Бесплатно' : 'Закрыто'))) problems.push(`кампания после этапа 2: быстрые награды не «${fastOpen ? 'Бесплатно' : 'Закрыто'}»`);
       if (!(await hasText('Campaign', 'Собрать'))) problems.push('кампания после этапа 2: нет «Собрать» у сундука');
       await shot('campaign-chest');
     }
@@ -453,22 +470,27 @@ async function main() {
     await sleep(600);
     await shot('result-test');
 
-    // 6. H5 Таверна: после ch1_s5 (сохранение с пройденными этапами 1–5, подарок не забран) — баннер «Таверна» →
+    // 6. H5 Таверна: после ch1_s5 (сохранение с пройденными этапами главы до ch1_s5 по порядку data/campaign — s1, s2, s11,
+    // s3, s4, s5; подарок не забран) — баннер «Таверна» →
     // «Перейти» → Таверна → «‹ Назад» в «Город» → плитка Таверны → «Забрать подарок» → «Призыв ×10» → карта,
     // «Открыть все» → (фиолетовая — крупный показ) → итог.
     // Герои v2: первый ×10 гарантирует синюю (пакет V3 — одну; фиолетовая — 2%, не гарантирована).
-    await page.evaluate(() => {
+    const tavernStage = unlockOf('tavern').stage;
+    const seenBefore = await page.evaluate((ids) => {
       const s = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
-      s.campaign.cleared = [...new Set([...s.campaign.cleared, 'ch1_s1', 'ch1_s2', 'ch1_s3', 'ch1_s4', 'ch1_s5'])];
+      s.campaign.cleared = [...new Set([...s.campaign.cleared, ...ids])];
       s.summon.welcomeGiven = false;
       // Гемы первой сессии (достижения, башня, задания) — вместе с подарком хватает на ×10.
       s.currency.gems = 120;
       localStorage.setItem('chronoworld.save.v1', JSON.stringify(s));
-    });
+      return s.seenUnlocks ?? [];
+    }, ch1Upto(tavernStage));
     await page.reload();
     await waitScene('Campaign', 30000);
-    // Открытия этапов 3–5 (скорость ×2, достижения, Таверна) — баннеры на кампании после загрузки: первые два —
-    // «Позже», у Таверны — «Перейти»: он ведёт в Таверну, её «Назад» — на страницу «Город».
+    // Открытия пройденных этапов, чьи баннеры ещё не показаны (data/unlocks.json; сейчас — только Таверна: скорость ×2
+    // показана после этапа 2) — баннеры на кампании после загрузки: остальные — «Позже», у Таверны — «Перейти»: он ведёт
+    // в Таверну, её «Назад» — на страницу «Город».
+    const wantBanners = UNLOCKS.filter((f) => ch1Upto(tavernStage).includes(f.stage) && !seenBefore.includes(f.id)).map((f) => f.title);
     const opened = [];
     for (let n = 0; n < 6; n++) {
       await sleep(400);
@@ -479,7 +501,9 @@ async function main() {
       await clickText('Campaign', title === 'Таверна' ? 'Перейти' : 'Позже');
       if (title === 'Таверна') break;
     }
-    for (const t of ['Скорость боя ×2', 'Достижения', 'Таверна']) if (!opened.includes(t)) problems.push(`кампания после этапа 5: нет баннера «${t}» (${JSON.stringify(opened)})`);
+    if (!wantBanners.includes('Таверна')) problems.push(`баннер «Таверна» не ожидается после ${tavernStage} (${JSON.stringify(wantBanners)})`);
+    for (const t of wantBanners) if (!opened.includes(t)) problems.push(`кампания после ${tavernStage}: нет баннера «${t}» (${JSON.stringify(opened)})`);
+    for (const t of opened) if (!wantBanners.includes(t)) problems.push(`кампания после ${tavernStage}: лишний баннер «${t}» (ждали ${JSON.stringify(wantBanners)})`);
     if (opened.at(-1) === 'Таверна') {
       await waitScene('Tavern');
       await clickText('Tavern', '‹ Назад');
