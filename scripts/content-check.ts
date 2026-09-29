@@ -16,8 +16,8 @@
  *      (src/core/equipment/lint.ts).
  *  10. Летопись (data/lore/*.json, файлы необязательны): схема и ссылки на юниты/предметы/героев/профессии/главы/этапы — ✗;
  *      длина текстов сверх LORE_LIMITS, монстр вне кампании, Башни и Охоты — ⚠ (src/core/lore/lore.ts → validateLore).
- *  11. Тексты глав (episode, legend, chronicle, stages[].finding) и реплики боссов (barks): длины — схема (✗), id находок
- *      уникальны по всем главам — ✗, больше 4 находок в главе и barks не у босса — ⚠ (src/core/lore/pages.ts).
+ *  11. Тексты глав (episode, legend, chronicle, stages[].finding) и реплики боссов и мини-боссов (barks): длины — схема (✗), id находок
+ *      уникальны по всем главам — ✗, больше 4 находок в главе и юнит с репликами дважды в этапе — ⚠ (src/core/lore/pages.ts).
  * Код выхода 1, если есть ошибки. Предупреждения (например, нет арта — будет плейсхолдер) не мешают.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -211,7 +211,7 @@ if (content) {
       `строк-комментариев ${Object.values(loreParsed.lore.lines).flat().length}; ` +
       `тексты глав: эпизодов ${content.chapters.filter((c) => c.episode).length}, легенд ${content.chapters.filter((c) => c.legend).length}, ` +
       `летописей ${content.chapters.filter((c) => c.chronicle).length}, находок ${content.stages.filter((s) => s.finding).length}, ` +
-      `боссов с репликами ${Object.values(content.units).filter((u) => u.barks).length}`,
+      `говорящих боссов ${Object.values(content.units).filter((u) => u.barks).length}`,
   );
 }
 console.log(errors.length ? `\nОшибок: ${errors.length}` : '\nКонтент в порядке ✓');

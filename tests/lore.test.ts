@@ -142,7 +142,10 @@ describe('Летопись: открытие записей по прогрес�
       { id: 'later', title: 'y', text: 't', unlockAfterStage: stage1.id },
     ];
     const open = (save: typeof fresh) => Object.fromEntries(worldEntries(save, ctx.content, lore).map((w) => [w.id, w.open]));
-    expect(open(fresh)).toEqual({ chapter1: true, chapter2: false, always: true, later: false });
+    // Главы с эпизодом в данных (chapter4…) тоже дают запись мира — для нового игрока все, кроме первой, закрыты.
+    const first = open(fresh);
+    expect(first).toMatchObject({ chapter1: true, chapter2: false, always: true, later: false });
+    for (const [id, isOpen] of Object.entries(first)) if (id.startsWith('chapter') && id !== 'chapter1') expect(isOpen, id).toBe(false);
     expect(open(cleared1)).toMatchObject({ chapter2: false, later: true });
     const lastOf1 = ctx.content.chapters[0].stages.at(-1)!.id;
     expect(open({ ...fresh, campaign: { cleared: [lastOf1] } }).chapter2).toBe(true);

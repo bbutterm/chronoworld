@@ -1267,11 +1267,11 @@ export class BattleScene extends Phaser.Scene {
   }
 
   /**
-   * Реплика босса (поле юнита barks, lore-route §5.5): старт, ниже половины здоровья, гибель, победа — каждая один раз
-   * за бой. Только вид: при «Пропустить» не показываются.
+   * Реплика босса или мини-босса (поле юнита barks, lore-route §5.5): старт, ниже половины здоровья, гибель, победа —
+   * каждая один раз за бой. Только вид: при «Пропустить» не показываются. Реплики есть только у именных юнитов.
    */
   private bossBark(v: UnitView, kind: 'start' | 'half' | 'defeat' | 'victory'): void {
-    const line = v.def.kind === 'boss' ? v.def.barks?.[kind] : undefined;
+    const line = v.def.barks?.[kind];
     if (!line || this.skipping || !this.barks) return;
     const key = `${v.snap.uid}:${kind}`;
     if (this.barked.has(key)) return;

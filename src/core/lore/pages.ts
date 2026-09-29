@@ -145,7 +145,8 @@ export const FINDINGS_PER_CHAPTER_MAX = 4;
 
 /**
  * Проверка текстов глав и реплик: id находок уникальны по всей кампании (✗ — они в сохранениях), находок в главе
- * не больше FINDINGS_PER_CHAPTER_MAX, реплики barks — только у боссов (⚠). Длины проверяет схема.
+ * не больше FINDINGS_PER_CHAPTER_MAX; реплики barks — у боссов и мини-боссов: юнит с репликами не должен стоять
+ * в одном этапе дважды — заговорят оба (⚠). Длины проверяет схема.
  */
 export function validatePageTexts(content: Pick<Content, 'chapters' | 'units'>): { errors: string[]; warnings: string[] } {
   const errors: string[] = [];
@@ -155,6 +156,9 @@ export function validatePageTexts(content: Pick<Content, 'chapters' | 'units'>):
     const at = `data/campaign (${ch.id})`;
     let n = 0;
     for (const st of ch.stages) {
+      const talkers = st.enemies.filter((e) => e && content.units[e.unit]?.barks).map((e) => e!.unit);
+      const twice = talkers.find((id, i) => talkers.indexOf(id) !== i);
+      if (twice) warnings.push(`${at}: этап ${st.id} — ${twice} с репликами (barks) стоит дважды, заговорят оба`);
       if (!st.finding) continue;
       n++;
       const prev = ids.get(st.finding.id);
@@ -162,9 +166,6 @@ export function validatePageTexts(content: Pick<Content, 'chapters' | 'units'>):
       else ids.set(st.finding.id, st.id);
     }
     if (n > FINDINGS_PER_CHAPTER_MAX) warnings.push(`${at}: находок ${n} — больше ${FINDINGS_PER_CHAPTER_MAX}, находка перестаёт быть событием`);
-  }
-  for (const u of Object.values(content.units)) {
-    if (u.barks && u.kind !== 'boss') warnings.push(`data/units/${u.id}.json: barks — реплики показываются только у боссов (kind boss)`);
   }
   return { errors, warnings };
 }
