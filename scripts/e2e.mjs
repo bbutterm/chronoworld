@@ -574,7 +574,19 @@ async function main() {
       // Касание по затемнению показа (мимо будущих кнопок итога — показ мог уже закрыться сам).
       await clickGame(540, 1420);
     } else problems.push('Таверна: нет крупного показа фиолетовой');
-    await page.waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'done', null, { timeout: 60000 });
+    // Если фиолетовая была первой картой, её показ открылся от первого касания и «Открыть все» ушло в затемнение
+    // показа — тогда жмём «Открыть все» ещё раз (и закрываем повторный показ), пока не дойдём до итога.
+    for (let i = 0; i < 4; i++) {
+      const done = await page
+        .waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'done', null, { timeout: 20000 })
+        .then(() => true)
+        .catch(() => false);
+      if (done) break;
+      const phase = await page.evaluate(() => window.__game.scene.getScene('Tavern').reveal?.phase);
+      if (i === 3) throw new Error(`Таверна: итог не наступил, фаза ${phase}`);
+      if (phase === 'showcase') await clickGame(540, 1420);
+      else await clickText('Tavern', 'Открыть все');
+    }
     await sleep(500);
     await shot('tavern-results');
     for (const t of ['Итог призыва', 'К героям', 'Ещё ×10']) if (!(await hasText('Tavern', t))) problems.push(`Таверна, итог: нет «${t}»`);

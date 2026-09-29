@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "orc_lord",
+  "name": "Орк-лорд",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 3500,
+    "atk": 90,
+    "def": 18,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "orc_lord_ancestors_rise",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "boss1",
+    "tint": "#b0705c",
+    "scale": 1.4,
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  },
+  "barks": {
+    "start": "Я поклялся держать их внизу. Почему они наверху? Почему я наверху?",
+    "half": "Серый сказал: хватит держать. Руки так устали держать…",
+    "defeat": "Скажи вождю… я спустился. Как положено. Я снова держу.",
+    "victory": "Ложитесь. Здесь всем хватит места. Я держу."
+  }
+}

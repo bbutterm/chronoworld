@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { enemySquad, growthStep, newGame, playStage, stageStatus, type SaveState } from '../src/core';
+import { chapterTheme, enemySquad, growthStep, newGame, playStage, stageLabel, stageStatus, type SaveState } from '../src/core';
 import { loadGameContext, ROOT } from '../scripts/lib/content-node';
 import { loadFullContext, SMOOTH_SQUADS, smoothSquads, stageThreshold } from '../scripts/lib/player-model';
 
@@ -71,25 +71,53 @@ describe('K3 главы 2–3', () => {
     expect(growthStep(stages.find((s) => s.id === 'ch3_s18')!, ctx)).toBe(27);
   });
 
-  it('боссы глав 2–3 — мини-боссы: Древняя ива (mob2_boss, лист ивы) и Верховный жрец (mob3_boss, лист Тёмного жреца)', () => {
+  it('боссы и мини-боссы глав 2–3 по маршруту (lore-route §0): Золотой жук-вор и Вожак жуков, Орк-лорд и Герой орков', () => {
+    // Маршрут из 10 глав (29.09): слоты 2–3 получили новое содержимое — Канализация Пронтеры и Орочья деревня. Раньше здесь
+    // стояли Древняя ива (mob2_boss) и Верховный жрец (mob3_boss): ива ушла в Башню, жрец — мини-босс Гласт Хейма (глава 8).
     const boss = (id: string) => stages.find((s) => s.id === id)!.enemies.filter((e) => e && ctx.content.units[e.unit].kind === 'boss').map((e) => e!.unit);
-    expect(boss('ch2_s10')).toEqual(['mob2_boss']);
-    expect(boss('ch3_s10')).toEqual(['mob3_boss']);
-    expect(ctx.content.units.mob2_boss.visual.sprite).toBe('tank');
-    expect(ctx.content.units.mob3_boss.visual.sprite).toBe('dark_priest');
+    const units = (id: string) => stages.find((s) => s.id === id)!.enemies.filter((e) => e).map((e) => e!.unit);
+    expect(boss('ch2_s10')).toEqual(['sewer_golden_bug']);
+    expect(boss('ch3_s10')).toEqual(['orc_lord']);
+    expect(units('ch2_s14')).toContain('sewer_bug_leader');
+    expect(units('ch3_s15')).toContain('orc_hero');
+    // Готовые листы MVP (lore-route §4.3): Золотой жук-вор — лист elite, Герой орков — boss1, Орк-лорд — перекраска boss1.
+    expect(ctx.content.units.sewer_golden_bug.visual.sprite).toBe('elite');
+    expect(ctx.content.units.orc_hero.visual.sprite).toBe('boss1');
+    expect(ctx.content.units.orc_lord.visual.sprite).toBe('boss1');
+    expect(ctx.content.units.orc_lord.visual.tint).toBeTruthy();
+    // Старые боссы слотов остались в игре: Верховный жрец — мини-босс главы 8 (ива — Башня, tests/tower.test.ts).
+    expect([...new Set(stages.filter((s) => s.enemies.some((e) => e?.unit === 'mob3_boss')).map((s) => s.chapter))]).toEqual(['chapter8']);
   });
 
-  it('в главах 1–3 нет MVP RO: листов Золотого жука, Героя орков, Бафомета, Тёмного лорда и других MVP', () => {
-    const mvp = ['elite', 'boss1', 'boss2', 'dark_lord', 'osiris', 'drake', 'moonlight_flower', 'mistress'];
+  it('листы MVP RO — только в своих главах маршрута (в главах 1–3 нет Бафомета, Тёмного лорда, Осириса и других)', () => {
+    // Маршрут из 10 глав: лист Золотого жука-вора (elite) — глава 2 (жуки-воры — одна семья, рядовые на перекрасках), Героя
+    // орков (boss1) — глава 3; Осирис, Лунный цветок, Дрейк — главы 4–6, Тёмный лорд — 8, Бафомет (boss2) — 9. Мистресс — охота.
+    // Раньше тест запрещал в главах 1–3 и elite с boss1: тогда в слотах 2–3 стояли топи и Гласт Хейм.
+    const home: Record<string, string[]> = {
+      elite: ['chapter2'],
+      boss1: ['chapter3'],
+      osiris: ['chapter4'],
+      moonlight_flower: ['chapter5'],
+      drake: ['chapter6'],
+      dark_lord: ['chapter8'],
+      boss2: ['chapter9'],
+      mistress: [],
+    };
+    for (const s of stages)
+      for (const e of s.enemies) {
+        const sheet = e && ctx.content.units[e.unit].visual.sprite;
+        if (sheet && home[sheet]) expect(home[sheet], `${s.id}: ${e!.unit} (${sheet})`).toContain(s.chapter);
+      }
     for (const s of stages.filter((x) => RELEASED.includes(x.chapter)))
-      for (const e of s.enemies) if (e) expect(mvp, `${s.id}: ${e.unit}`).not.toContain(ctx.content.units[e.unit].visual.sprite);
+      for (const e of s.enemies)
+        if (e) expect(['boss2', 'dark_lord', 'osiris', 'drake', 'moonlight_flower', 'mistress'], `${s.id}: ${e.unit}`).not.toContain(ctx.content.units[e.unit].visual.sprite);
   });
 
-  it('новые монстры глав 2–3 используют спрайты v2 и свои навыки', () => {
-    // Любой лист реестра v2 (глава 3 — листы RO Рейдрика, Мимика, Гаргульи, Тёмного жреца).
+  it('монстры глав 2, 3, 7, 8, 10 используют спрайты v2 и свои навыки', () => {
+    // Любой лист реестра v2 (Гласт Хейм — листы RO Рейдрика, Мимика, Гаргульи, Тёмного жреца; новые слоты 2, 3, 7 — перекраски).
     const v2 = (JSON.parse(readFileSync(join(ROOT, 'assets/sprites/sprites.json'), 'utf8')) as { sprites: { id: string }[] }).sprites.map((s) => s.id);
-    for (const u of Object.values(ctx.content.units).filter((x) => /^mob[23]_/.test(x.id) && x.kind === 'monster')) {
-      expect(v2).toContain(u.visual.sprite);
+    for (const u of Object.values(ctx.content.units).filter((x) => /^(mob[237]|sewer|orc|alde)_/.test(x.id) && x.kind === 'monster')) {
+      expect(v2, u.id).toContain(u.visual.sprite);
       expect(ctx.content.skills[u.skills.basic]).toBeDefined();
       if (u.skills.ult) expect(ctx.content.skills[u.skills.ult]).toBeDefined();
     }
@@ -148,22 +176,44 @@ describe('K3 главы 2–3', () => {
     }
   }, 600_000);
 
-  it('монстры глав 2–3 на общих листах перекрашены: не совпадают с главой 1 и друг с другом (QA T5-04, частично)', () => {
+  it('монстры новых слотов 2, 3, 7 на общих листах перекрашены: не совпадают с главой 1 и друг с другом (QA T5-04, частично)', () => {
+    // Маршрут из 10 глав (29.09): Канализация (sewer_*), Орки (orc_*), Альдебаран (alde_*) — на чужих листах RO с tint.
+    // Раньше тест смотрел на mob2_*/mob3_* (топи и Гласт Хейм в слотах 2–3); Гласт Хейм переехал в главу 8, топи — в Башню.
     const look = (id: string) => `${ctx.content.units[id].visual.sprite}|${ctx.content.units[id].visual.tint ?? ''}`;
-    const ch1 = new Set(stages.filter((s) => s.chapter === 'chapter1').flatMap((s) => s.enemies.filter((e) => e).map((e) => look(e!.unit))));
-    const later = Object.values(ctx.content.units).filter((u) => /^mob[23]_/.test(u.id) && u.kind === 'monster');
+    const unitsOf = (ch: string) => new Set(stages.filter((s) => s.chapter === ch).flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)));
+    const ch1 = new Set([...unitsOf('chapter1')].map(look));
+    const slots = ['chapter2', 'chapter3', 'chapter7'];
+    // Монстры главы 1, зашедшие в слот (Марин в стоках), — не перекраска, а тот же монстр: их не считаем.
+    const own1 = unitsOf('chapter1');
+    const later = [...new Set(slots.flatMap((ch) => [...unitsOf(ch)]))].filter((id) => !own1.has(id)).map((id) => ctx.content.units[id]).filter((u) => u.kind === 'monster');
+    expect(later.length).toBeGreaterThanOrEqual(20);
     for (const u of later) expect(ch1.has(look(u.id)), u.id).toBe(false);
     expect(new Set(later.map((u) => look(u.id))).size).toBe(later.length);
+    // Монстр слота на листе, который стоит и в другой главе, перекрашен. Исключения — свои листы: Герой орков (boss1) и Мимик
+    // (mimic — тот же монстр RO, что в Гласт Хейме; в RO он живёт и в часовой башне Альдебарана).
+    const ownSheet = new Set(['orc_hero', 'alde_mimic']);
+    const sheetsOf = (ch: string) => new Set([...unitsOf(ch)].map((id) => ctx.content.units[id].visual.sprite));
+    for (const ch of slots) {
+      const others = new Set(chapters.filter((c) => c.id !== ch).flatMap((c) => [...sheetsOf(c.id)]));
+      for (const id of unitsOf(ch)) {
+        const u = ctx.content.units[id];
+        if (u.kind === 'monster' && !ownSheet.has(id) && !own1.has(id) && others.has(u.visual.sprite)) expect(u.visual.tint, `${ch}: ${id} на листе ${u.visual.sprite}`).toBeTruthy();
+      }
+    }
   });
 
-  it('монстры главы 2 не на листах монстров главы 1 (кроме ивы и кузнечика) и не на своих листах главы 3', () => {
-    // Ива и Рокер — перекрашены (tint, см. тест выше): Трясинная ива и Болотный кузнечик вместо жуков на листе Золотого жука.
-    const sheets = (ch: string) =>
-      new Set(stages.filter((s) => s.chapter === ch).flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)).filter((id) => /^mob2_/.test(id)).map((id) => ctx.content.units[id].visual.sprite));
-    const ch2 = sheets('chapter2');
+  it('монстры главы 2 (Канализация) не на собственных листах Гласт Хейма и не на листах главы 1 без перекраски', () => {
+    // Маршрут из 10 глав (29.09): в слоте 2 — жуки-воры на листе Золотого жука-вора (elite) и перекраски. Раньше тест проверял
+    // топи (mob2_*): ива и кузнечик на листах главы 1. Теперь лист главы 1 допустим только с tint, и ни один монстр главы 2 не
+    // стоит на собственных листах Гласт Хейма (глава 8): Тёмный жрец, Рейдрик, Мимик, Тёмный лорд.
+    const units = new Set(stages.filter((s) => s.chapter === 'chapter2').flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)));
     const ch1 = new Set(stages.filter((s) => s.chapter === 'chapter1').flatMap((s) => s.enemies.filter((e) => e).map((e) => ctx.content.units[e!.unit].visual.sprite)));
-    expect([...ch2].filter((sp) => ch1.has(sp)).sort()).toEqual(['rocker', 'tank']);
-    for (const own of ['dark_priest', 'gargoyle', 'raydric', 'mimic', 'dark_lord']) expect(ch2.has(own), own).toBe(false);
+    expect(units.size).toBeGreaterThanOrEqual(8);
+    for (const id of units) {
+      const v = ctx.content.units[id].visual;
+      if (ch1.has(v.sprite)) expect(v.tint, `${id} на листе главы 1 ${v.sprite}`).toBeTruthy();
+      for (const own of ['dark_priest', 'raydric', 'mimic', 'dark_lord']) expect(v.sprite, id).not.toBe(own);
+    }
   });
 
   it('переход через границу глав открывает следующий этап (на каждой границе)', () => {
@@ -201,5 +251,56 @@ describe('K3 главы 2–3', () => {
       expect(['A', 'B']).toContain(out.result.winner);
       expect(out.save.battleSeq).toBe(1);
     }
+  });
+});
+
+describe('маршрут из 10 глав (docs/design/lore-route.md §0, §4.2)', () => {
+  it('номер главы — order: по возрастанию, в пределах 1…10, заголовок «Глава N.» совпадает с маршрутом', () => {
+    for (const c of chapters) {
+      expect(c.order, c.id).toBeGreaterThanOrEqual(1);
+      expect(c.order, c.id).toBeLessThanOrEqual(10);
+      expect(c.id, 'id главы — chapter<order>').toBe(`chapter${c.order}`);
+      expect(c.name.startsWith(`Глава ${c.order}. `), `${c.id}: ${c.name}`).toBe(true);
+    }
+    // Глава 9 (Лабиринтный лес) ещё не написана: после главы 8 идёт 10-я, номера этапов — «10-K».
+    expect(chapters.find((c) => c.id === 'chapter8')?.name).toBe('Глава 8. Гласт Хейм');
+    expect(chapters.find((c) => c.id === 'chapter10')?.name).toBe('Глава 10. Нифльхейм');
+    expect(stageLabel('ch10_s1', ctx.content)).toBe('10-1');
+    expect(stageLabel('ch8_s18', ctx.content)).toBe('8-18');
+  });
+
+  it('главы 8 и 10: 18 этапов ch<N>_s1…s18 подряд, босс — s18; по 10 ступеней роста на главу, как у глав 1–7', () => {
+    for (const [c, n] of [['chapter8', 8], ['chapter10', 10]] as const) {
+      const ids = chapterStages(c).map((s) => s.id);
+      expect(ids, c).toEqual(Array.from({ length: 18 }, (_, i) => `ch${n}_s${i + 1}`));
+      expect(chapterStages(c).filter((s) => !s.inserted), c).toHaveLength(10);
+    }
+    // Ступень роста: главы 1–7 — по 10 обычных этапов, поэтому гл. 8 начинает с 70-й, гл. 10 (пока без гл. 9) — с 80-й.
+    // Когда появится глава 9 с 10 обычными этапами, гл. 10 сдвинется на 10 ступеней (×2.16) — mult гл. 10 пересчитать.
+    expect(growthStep(stages.find((s) => s.id === 'ch8_s1')!, ctx)).toBe(70);
+    expect(growthStep(stages.find((s) => s.id === 'ch10_s1')!, ctx)).toBe(80);
+  });
+
+  it('боссы: Гласт Хейм — Тёмный лорд (s18) и мини-босс Верховный жрец (s15); Нифльхейм — Владыка мёртвых (s18) и Страж моста (s9)', () => {
+    const units = (id: string) => stages.find((s) => s.id === id)!.enemies.flatMap((e) => (e ? [e.unit] : []));
+    expect(units('ch8_s18')).toContain('mob7_boss');
+    expect(ctx.content.units.mob7_boss.visual.sprite).toBe('dark_lord');
+    expect(units('ch8_s15')).toContain('mob3_boss');
+    expect(units('ch10_s18')).toContain('mob_lord_of_death');
+    expect(ctx.content.units.mob_lord_of_death.kind).toBe('boss');
+    expect(units('ch10_s9')).toContain('mob7_bridge_warden');
+    // Тёмный лорд больше не босс Нифльхейма.
+    for (const s of chapterStages('chapter10')) expect(units(s.id), s.id).not.toContain('mob7_boss');
+  });
+
+  it('тема главы (фон и музыка) — по содержимому, а не по месту: Гласт Хейм — склеп, Нифльхейм — Нифльхейм, слоты 2/3/7 — свои', () => {
+    const theme = (id: string) => chapterTheme(chapters.find((c) => c.id === id));
+    expect(theme('chapter8')).toBe('crypt');
+    expect(theme('chapter10')).toBe('niflheim');
+    expect(theme('chapter2')).toBe('sewer');
+    expect(theme('chapter3')).toBe('orc');
+    expect(theme('chapter7')).toBe('clocktower');
+    expect(theme('chapter1')).toBe('meadow');
+    expect(chapterTheme(undefined)).toBe('meadow');
   });
 });

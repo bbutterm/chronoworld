@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "alde_clock",
+  "name": "Часы",
+  "kind": "monster",
+  "role": "tank",
+  "stats": {
+    "hp": 1050,
+    "atk": 34,
+    "def": 20,
+    "spd": 80
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "alde_clock_pendulum",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "gibbet",
+    "tint": "#d0a867",
+    "hitFx": "fx_hit"
+  }
+}

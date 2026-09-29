@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { towerFloor } from '../core';
+import { chapterTheme, towerFloor, type ChapterTheme } from '../core';
 import { CONTENT, GAME } from './content';
 import { GAME_H, GAME_W } from './layout';
 import {
@@ -20,24 +20,41 @@ import {
   type Ctx,
   type Rng,
 } from './backdropsExtra';
+import { drawClockField, drawClockMap, drawOrcField, drawOrcMap, drawSewerField, drawSewerMap } from './backdropsRoute';
 import { bleedImage } from './viewport';
 
 /**
- * Фоны по главам (визуальная полировка): поле боя и карта кампании для каждой темы —
- * глава 1 / лесной ярус башни — «луг» (skin_bg_battle, skin_bg_forest из skin.ts),
- * глава 2 / болотный ярус — «топь», глава 3 / костяной ярус — «склеп», глава 4 — «пустыня» (Пески Сограта),
- * глава 5 — «ночной лес» (Лес Пайона), глава 6 — «затонувший корабль», глава 7 / «Ярус владык» — «Нифльхейм».
- * Рисование глав 4–7 и общие кисти — backdropsExtra.ts.
+ * Фоны по темам (визуальная полировка): поле боя и карта кампании для каждой темы. Тема главы — поле theme в
+ * data/campaign (иначе по id слота, chapterTheme в ядре), а не место главы в кампании: слоты маршрута из 10 глав
+ * переезжают (docs/design/lore-route.md §4.2), арт и музыка едут вместе с содержимым.
+ *   meadow — Поля Пронтеры (гл. 1) и лесной ярус башни (skin_bg_battle, skin_bg_forest из skin.ts);
+ *   sewer — канализация Пронтеры (гл. 2), orc — орочья деревня (гл. 3), clocktower — часовая башня Альдебарана (гл. 7):
+ *     временные нарисованные фоны (backdropsRoute.ts);
+ *   desert (гл. 4), grove (гл. 5), shipwreck (гл. 6), niflheim (гл. 10 и «Ярус владык») — backdropsExtra.ts;
+ *   crypt — Гласт Хейм (гл. 8) и костяной ярус; swamp — болотный ярус башни (бывшие «Проклятые топи»);
+ *   labyrinth — Лабиринтный лес (гл. 9, пока нет): до своего рисунка — мёртвый лес топей.
  *
  * Всё рисуется кодом в canvas 720×1280 (как фоны скина), лениво — при первом показе темы. Чтобы не копить
  * видеопамять (≈ 3.7 МБ на фон), держим не больше одного ленивого фона каждого вида (бой / карта): новый вытесняет
- * прежний. Если владелец положит файл assets/backgrounds/bg_battle_ch<N>.(jpg|png|webp) или bg_map_ch<N>.*, он
- * побеждает: грузится по требованию и подменяет нарисованный, как только загрузится.
+ * прежний. Если владелец положит файл assets/backgrounds/bg_battle_ch<N>.(jpg|png|webp) или bg_map_ch<N>.*
+ * (N — номер главы на маршруте, THEME_FILE_NO), он побеждает: грузится по требованию и подменяет нарисованный.
  */
 
-export type Theme = 'meadow' | 'swamp' | 'crypt' | 'desert' | 'grove' | 'shipwreck' | 'niflheim';
-/** Темы по порядку глав: индекс + 1 — номер главы (и файлов bg_battle_ch<N> / bg_map_ch<N>). */
-export const THEMES: readonly Theme[] = ['meadow', 'swamp', 'crypt', 'desert', 'grove', 'shipwreck', 'niflheim'];
+export type Theme = ChapterTheme;
+/** Номер главы маршрута для файлов фона темы (bg_battle_ch<N> / bg_map_ch<N>); swamp — бывшая глава 2 («swamp»). */
+const THEME_FILE: Record<Theme, string> = {
+  meadow: 'ch1',
+  sewer: 'ch2',
+  orc: 'ch3',
+  desert: 'ch4',
+  grove: 'ch5',
+  shipwreck: 'ch6',
+  clocktower: 'ch7',
+  crypt: 'ch8',
+  labyrinth: 'ch9',
+  niflheim: 'ch10',
+  swamp: 'swamp',
+};
 /** Темы полос башни по порядку (лесной, болотный, костяной ярус, «Ярус владык»); дальше — последняя. */
 const TOWER_THEMES: readonly Theme[] = ['meadow', 'swamp', 'crypt', 'niflheim'];
 type Kind = 'battle' | 'map';
@@ -49,16 +66,14 @@ const BG_H = 1280;
 
 /** Файлы фонов от художника (если есть): имя без расширения → URL от корня assets. */
 const FILES: Record<string, string> = {};
-for (const path of Object.keys(import.meta.glob('../../assets/backgrounds/bg_{battle,map}_ch*.{jpg,png,webp}', { query: '?url', import: 'default' }))) {
+for (const path of Object.keys(import.meta.glob('../../assets/backgrounds/bg_{battle,map}_{ch*,swamp}.{jpg,png,webp}', { query: '?url', import: 'default' }))) {
   const name = path.split('/').pop()!;
   FILES[name.replace(/\.(jpg|png|webp)$/, '')] = `backgrounds/${name}`;
 }
 
-/** Тема главы по её месту в кампании (1 — луг, 2 — топь, 3 — склеп, 4 — пустыня, 5 — ночной лес, 6 — затонувший
- * корабль, 7 — Нифльхейм; дальше по кругу). */
+/** Тема главы: поле theme главы (data/campaign), иначе тема слота по id (ядро, chapterTheme), неизвестная — луг. */
 export function themeOfChapter(chapterId: string | undefined): Theme {
-  const i = CONTENT.chapters.findIndex((c) => c.id === chapterId);
-  return THEMES[Math.max(0, i) % THEMES.length];
+  return chapterTheme(CONTENT.chapters.find((c) => c.id === chapterId));
 }
 
 /** Тема этажа башни — по его полосе (лесной, болотный, костяной ярус, «Ярус владык» — Нифльхейм). */
@@ -77,7 +92,6 @@ export function themeOfBattle(o: { stageId?: string; towerFloor?: number }): The
   return 'meadow';
 }
 
-const chapterNo = (t: Theme) => THEMES.indexOf(t) + 1;
 /** Ключ нарисованного фона темы. Луг — фоны скина, построенные при загрузке. */
 const drawnKey = (kind: Kind, t: Theme) => (t === 'meadow' ? (kind === 'battle' ? 'skin_bg_battle' : 'skin_bg_forest') : `skin_bg_${kind}_${t}`);
 
@@ -103,13 +117,19 @@ function drawn(scene: Phaser.Scene, kind: Kind, t: Theme): string {
   const ctx = tex.getContext();
   const img = (k: string) => (scene.textures.exists(k) ? (scene.textures.get(k).getSourceImage() as CanvasImageSource) : null);
   if (kind === 'battle') {
-    if (t === 'swamp') drawSwampField(ctx, BG_W, BG_H, img('tile_grass_02'), img('tile_dirt'));
+    if (t === 'swamp' || t === 'labyrinth') drawSwampField(ctx, BG_W, BG_H, img('tile_grass_02'), img('tile_dirt'));
+    else if (t === 'sewer') drawSewerField(ctx, BG_W, BG_H, img('tile_stone'));
+    else if (t === 'orc') drawOrcField(ctx, BG_W, BG_H, img('tile_grass_dry'));
+    else if (t === 'clocktower') drawClockField(ctx, BG_W, BG_H, null);
     else if (t === 'desert') drawDesertField(ctx, BG_W, BG_H);
     else if (t === 'grove') drawGroveField(ctx, BG_W, BG_H, img('tile_grass_02'));
     else if (t === 'shipwreck') drawShipwreckField(ctx, BG_W, BG_H);
     else if (t === 'niflheim') drawNiflheimField(ctx, BG_W, BG_H, img('tile_grass_dry'));
     else drawCryptField(ctx, BG_W, BG_H, img('tile_stone'));
-  } else if (t === 'swamp') drawSwampMap(ctx, BG_W, BG_H);
+  } else if (t === 'swamp' || t === 'labyrinth') drawSwampMap(ctx, BG_W, BG_H);
+  else if (t === 'sewer') drawSewerMap(ctx, BG_W, BG_H);
+  else if (t === 'orc') drawOrcMap(ctx, BG_W, BG_H);
+  else if (t === 'clocktower') drawClockMap(ctx, BG_W, BG_H);
   else if (t === 'desert') drawDesertMap(ctx, BG_W, BG_H);
   else if (t === 'grove') drawGroveMap(ctx, BG_W, BG_H);
   else if (t === 'shipwreck') drawShipwreckMap(ctx, BG_W, BG_H);
@@ -138,7 +158,7 @@ export function addThemeBackground(scene: Phaser.Scene, kind: Kind, t: Theme, al
  */
 export function setThemeBackground(bg: Phaser.GameObjects.Image, kind: Kind, t: Theme): Phaser.GameObjects.Image {
   const scene = bg.scene;
-  const fileId = `bg_${kind}_ch${chapterNo(t)}`;
+  const fileId = `bg_${kind}_${THEME_FILE[t]}`;
   const key = scene.textures.exists(fileId) ? fileId : drawn(scene, kind, t);
   hold(scene, kind, [key, ...(FILES[fileId] ? [fileId] : [])]);
   bg.setTexture(key).setDisplaySize(FIELD_W, FIELD_H);

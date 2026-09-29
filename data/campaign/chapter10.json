@@ -1,0 +1,684 @@
+{
+  "$schema": "../schema/chapter.schema.json",
+  "id": "chapter10",
+  "name": "Глава 10. Нифльхейм",
+  "order": 10,
+  "theme": "niflheim",
+  "episode": {
+    "title": "Врата закрываются изнутри",
+    "subtitle": "Нифльхейм, земля мёртвых",
+    "quote": "У мёртвых нет голода. Только память.",
+    "text": "За рекой забвения нет ни ночи, ни дня — только туман и тишина. Где-то в ней Владыка мёртвых строит войско, чтобы вывести подданных к солнцу, а врата, которые тысячу лет держали клятвы, открыты согласием одного живого.\n\nКапитан Гаррет впервые идёт с отрядом. Он ветеран, и мёртвые будут звать его первым. Он это знает. Отряд — тоже."
+  },
+  "legend": {
+    "title": "Земля, куда уходят все",
+    "text": "Нифльхейм — земля, куда уходят все. Там правит Хель, и там никто не голоден и никто не спешит. Врата в него закрываются изнутри — так было задумано после Великой войны, чтобы стеречь их мог только тот, кто решился остаться.",
+    "source": "из летописи часовой башни Альдебарана"
+  },
+  "chronicle": {
+    "title": "Смена караула",
+    "text": "В Нифльхейме Тео пел отряду в спину до самой реки, Бран вписал имена на кладбище без имён, а Вика не пошла на голос матери. Серый капюшон стоял на стене цитадели: Ансгар, брат Вики, сказал, что никого не оставит, и ушёл к сыну. Владыка мёртвых вёл войско к солнцу, но Грета отзвонила смену караула, и мёртвые легли спать — и маленький Тиль тоже. Знак на руке Ансгара треснул, и он сам закрыл врата изнутри, с мёртвыми рыцарями Гласт Хейма; капитан Гаррет встал на пост снаружи. Алана посвятили в рыцари у северных ворот, Бран восстановил его долги — с процентами. Через неделю в Морроке треснула мостовая, из трещины пошёл красный свет. Рядом видели гонцов гильдии воров с тяжёлым ящиком."
+  },
+  "stages": [
+    {
+      "id": "ch10_s1",
+      "name": "Врата мёртвых",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_melee",
+          "mult": 0.1368
+        },
+        {
+          "unit": "mob7_tank",
+          "mult": 0.1368
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.1368
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 72415,
+        "gold": 50861
+      },
+      "offlinePerMinute": {
+        "jobExp": 2414,
+        "gold": 1695
+      }
+    },
+    {
+      "id": "ch10_s2",
+      "name": "Река забвения",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0827
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.0827
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0827
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0827
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 75306,
+        "gold": 52898
+      },
+      "offlinePerMinute": {
+        "jobExp": 2510,
+        "gold": 1763
+      }
+    },
+    {
+      "id": "ch10_s3",
+      "name": "Лодка перевозчика",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_melee",
+          "mult": 0.1072
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.1072
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.1072
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.1072
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 76802,
+        "gold": 53971
+      },
+      "offlinePerMinute": {
+        "jobExp": 2561,
+        "gold": 1798
+      },
+      "finding": {
+        "id": "ch10_ferry_things",
+        "title": "Лодка перевозчика",
+        "kind": "item",
+        "text": "На дне лодки — живые вещи: обручальные кольца, гребни, деревянная лошадка, чей-то кисет с табаком. Перевозчик берёт их у всех, кто плывёт, и молчит. Говорят, мёртвые оставляют здесь последнее, что держало их на том берегу.",
+        "comment": {
+          "speaker": "Бран",
+          "text": "Тут на целую лавку. Не беру. Даже я не беру."
+        }
+      }
+    },
+    {
+      "id": "ch10_s4",
+      "name": "Деревня призраков",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0748
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.0748
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0748
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0748
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 78329,
+        "gold": 55067
+      },
+      "offlinePerMinute": {
+        "jobExp": 2611,
+        "gold": 1836
+      }
+    },
+    {
+      "id": "ch10_s5",
+      "name": "Туманная переправа",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0705
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.0705
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0705
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0705
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0705
+        }
+      ],
+      "rewards": {
+        "jobExp": 81483,
+        "gold": 57235
+      },
+      "offlinePerMinute": {
+        "jobExp": 2716,
+        "gold": 1908
+      }
+    },
+    {
+      "id": "ch10_s6",
+      "name": "Роща висельников",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0657
+        },
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0657
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0657
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0657
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0657
+        }
+      ],
+      "rewards": {
+        "jobExp": 84703,
+        "gold": 59535
+      },
+      "offlinePerMinute": {
+        "jobExp": 2823,
+        "gold": 1985
+      }
+    },
+    {
+      "id": "ch10_s7",
+      "name": "Кладбище без имён",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0685
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.0685
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0685
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0685
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0685
+        }
+      ],
+      "rewards": {
+        "jobExp": 86394,
+        "gold": 60707
+      },
+      "offlinePerMinute": {
+        "jobExp": 2880,
+        "gold": 2024
+      },
+      "finding": {
+        "id": "ch10_nameless_graves",
+        "title": "Кладбище без имён",
+        "kind": "inscription",
+        "text": "Сотни камней, и ни на одном нет имени: мёртвые Нифльхейма свои имена забывают. Бран обходит ряды с углём и вписывает тех, кого знает. Мать — первой. Потом соседа-сапожника, старого учителя счёта, двух стражников от южных ворот.",
+        "comment": {
+          "speaker": "Бран",
+          "text": "Кто-то же должен вести учёт. Раз уж я тут с тетрадью."
+        }
+      }
+    },
+    {
+      "id": "ch10_s8",
+      "name": "Долина стенаний",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0544
+        },
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0544
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0544
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0544
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0544
+        }
+      ],
+      "rewards": {
+        "jobExp": 88120,
+        "gold": 61901
+      },
+      "offlinePerMinute": {
+        "jobExp": 2937,
+        "gold": 2063
+      }
+    },
+    {
+      "id": "ch10_s9",
+      "name": "Мост Гьёлль",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_bridge_warden",
+          "mult": 0.0513
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.0513
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0513
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0513
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 89844,
+        "gold": 63136
+      },
+      "offlinePerMinute": {
+        "jobExp": 2994,
+        "gold": 2105
+      }
+    },
+    {
+      "id": "ch10_s10",
+      "name": "Кровавый балаган",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0436
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0436
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0436
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0436
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0436
+        }
+      ],
+      "rewards": {
+        "jobExp": 91603,
+        "gold": 64398
+      },
+      "offlinePerMinute": {
+        "jobExp": 3053,
+        "gold": 2147
+      }
+    },
+    {
+      "id": "ch10_s11",
+      "name": "Кукольный театр",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0711
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0711
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0711
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0711
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0711
+        }
+      ],
+      "rewards": {
+        "jobExp": 93425,
+        "gold": 65666
+      },
+      "offlinePerMinute": {
+        "jobExp": 3115,
+        "gold": 2188
+      }
+    },
+    {
+      "id": "ch10_s12",
+      "name": "Стены цитадели",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0474
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0474
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0474
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0474
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0474
+        }
+      ],
+      "rewards": {
+        "jobExp": 95282,
+        "gold": 66961
+      },
+      "offlinePerMinute": {
+        "jobExp": 3176,
+        "gold": 2232
+      }
+    },
+    {
+      "id": "ch10_s13",
+      "name": "Двор цитадели",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0476
+        },
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0476
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0476
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0476
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0476
+        }
+      ],
+      "rewards": {
+        "jobExp": 97168,
+        "gold": 68294
+      },
+      "offlinePerMinute": {
+        "jobExp": 3240,
+        "gold": 2276
+      },
+      "finding": {
+        "id": "ch10_grey_glove",
+        "title": "Серая перчатка",
+        "kind": "item",
+        "text": "На зубце стены цитадели лежит серая перчатка — тонкая, дорогая, в пыли. Внутри, свёрнутый трубкой, детский рисунок углём: четверо у дома, солнце в углу. У самого маленького — деревянный меч, у девочки — бинт на руке. Подписи: «Папе. Тиль» и «тётя Вика».",
+        "comment": {
+          "speaker": "Вика",
+          "text": "Тиль нарисовал меня с бинтом. Мне было одиннадцать. Брат носил это с собой десять лет."
+        }
+      }
+    },
+    {
+      "id": "ch10_s14",
+      "name": "Зал забытых имён",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0365
+        },
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0365
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0365
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0365
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0365
+        }
+      ],
+      "rewards": {
+        "jobExp": 99094,
+        "gold": 69655
+      },
+      "offlinePerMinute": {
+        "jobExp": 3303,
+        "gold": 2322
+      }
+    },
+    {
+      "id": "ch10_s15",
+      "name": "Лестница Хель",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0477
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.0477
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.0477
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0477
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0477
+        }
+      ],
+      "rewards": {
+        "jobExp": 100071,
+        "gold": 70345
+      },
+      "offlinePerMinute": {
+        "jobExp": 3336,
+        "gold": 2344
+      }
+    },
+    {
+      "id": "ch10_s16",
+      "name": "Караульня у врат",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.0435
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0435
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0435
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0435
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.0435
+        }
+      ],
+      "rewards": {
+        "jobExp": 101056,
+        "gold": 71041
+      },
+      "offlinePerMinute": {
+        "jobExp": 3369,
+        "gold": 2368
+      },
+      "finding": {
+        "id": "ch10_watch_book",
+        "title": "Караульная книга",
+        "kind": "note",
+        "text": "Книга смен рыцарей Гласт Хейма: сотни лет, имя за именем. Последняя смена не пришла двадцать лет назад — строка пуста. Под ней чужой рукой, неровно: «кап. Гаррет, Пронтера, принял бы, если б дошёл».",
+        "comment": {
+          "speaker": "Гаррет",
+          "text": "Это моя рука. Не помню, когда я это написал. Может, во сне."
+        }
+      }
+    },
+    {
+      "id": "ch10_s17",
+      "name": "Врата тронного зала",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0434
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.0434
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0434
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0434
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0434
+        }
+      ],
+      "rewards": {
+        "jobExp": 102053,
+        "gold": 71747
+      },
+      "offlinePerMinute": {
+        "jobExp": 3404,
+        "gold": 2390
+      }
+    },
+    {
+      "id": "ch10_s18",
+      "name": "Трон Владыки мёртвых",
+      "boss": true,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0316
+        },
+        {
+          "unit": "mob_lord_of_death",
+          "mult": 0.0221
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.0316
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0316
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.0316
+        }
+      ],
+      "rewards": {
+        "jobExp": 154653,
+        "gold": 108622
+      },
+      "offlinePerMinute": {
+        "jobExp": 3437,
+        "gold": 2414
+      }
+    }
+  ]
+}

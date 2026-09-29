@@ -71,9 +71,25 @@ describe('touchEvents: день входа', () => {
     expect(s.events).toEqual({ startDay: D1, lastDay: D1, loginDays: 1, loginClaimed: [], newbieTasks: [], newbieMilestones: [] });
     expect(s.mail.letters).toHaveLength(1);
     expect(s.mail.letters[0]).toMatchObject({ id: 'm1', source: 'welcome', title: 'Добро пожаловать в лагерь!', read: false, claimed: false, day: D1 });
-    expect(s.mail.delivered).toEqual(['welcome']);
+    // «Мир изменился» (world_changed_1, onlyIfCleared ch2_s1) новому игроку не приходит — молча помечено доставленным.
+    expect(s.mail.delivered).toEqual(['welcome', 'world_changed_1']);
     expect(touchEvents(s, D1, ctx)).toBe(s);
     expect(saveProblems(s, ctx)).toEqual([]);
+  });
+
+  it('письмо onlyIfCleared (world_changed_1): только тем, кто уже прошёл этап; новому — никогда, даже когда дойдёт', () => {
+    const def = ctx.events.mail.letters.find((l) => l.id === 'world_changed_1')!;
+    expect(def.onlyIfCleared).toBe('ch2_s1');
+    // Уже игравший (прошёл ch2_s1 до обновления): письмо приходит при первом открытии.
+    const upTo = ctx.content.stages.findIndex((st) => st.id === 'ch2_s1') + 1;
+    const old = { ...newGame(ctx, 0, D1), campaign: { cleared: ctx.content.stages.slice(0, upTo).map((st) => st.id) } };
+    const got = touchEvents(old, D1, ctx);
+    expect(got.mail.letters.map((l) => l.source)).toEqual(['world_changed_1', 'welcome']);
+    expect(got.mail.letters[0].title).toBe('Мир Рун-Мидгарда изменился');
+    // Новый игрок: письмо помечено доставленным без показа; позже, пройдя ch2_s1, его не получит.
+    const fresh0 = touchEvents(newGame(ctx, 0, D1), D1, ctx);
+    const later = touchEvents({ ...fresh0, campaign: old.campaign }, day(3), ctx);
+    expect(later.mail.letters.map((l) => l.source)).toEqual(['welcome']);
   });
 
   it('новый день +1; пропуск дней не сбрасывает и не добавляет лишнего; часы назад — не засчитываются', () => {

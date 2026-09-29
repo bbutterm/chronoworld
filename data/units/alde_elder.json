@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "alde_elder",
+  "name": "Старейшина",
+  "kind": "monster",
+  "role": "healer",
+  "stats": {
+    "hp": 520,
+    "atk": 30,
+    "def": 8,
+    "spd": 105
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "alde_elder_rewind",
+    "actives": [
+      "alde_elder_oil"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "wizard_m",
+    "tint": "#b8b0d0",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

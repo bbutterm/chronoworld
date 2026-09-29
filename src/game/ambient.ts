@@ -105,12 +105,22 @@ const CRYPT_TORCHES: [number, number][] = [
   [0.66 * 1080, (1280 * 0.36 - 110 - 16) * 1.5],
 ];
 
+/** Лампы на стене часовой башни (backdropsRoute.ts, drawClockField) — в координатах поля. */
+const CLOCK_LAMPS: [number, number][] = [
+  [0.24 * 1080, (1280 * 0.36 - 60) * 1.5],
+  [0.76 * 1080, (1280 * 0.36 - 60) * 1.5],
+];
+
+/** Частицы временных тем маршрута — как у похожей темы: сток — туман и огоньки топи, орки — пыль пустыни. */
+const AMBIENT_AS: Partial<Record<Theme, Theme>> = { sewer: 'swamp', labyrinth: 'swamp', orc: 'desert' };
+
 export class Ambient {
   private readonly items: Particle[] = [];
   private t = 0;
 
-  constructor(scene: Phaser.Scene, theme: Theme, depth = 1) {
+  constructor(scene: Phaser.Scene, themeArg: Theme, depth = 1) {
     ensureAmbientTextures(scene);
+    const theme = AMBIENT_AS[themeArg] ?? themeArg;
     const rnd = Phaser.Math.FloatBetween;
     const add = (kind: Particle['kind'], tex: string, p: Partial<Particle>, tint: number, blend: Phaser.BlendModes, w: number, h = w) => {
       const img = scene.add.image(0, 0, tex).setTint(tint).setBlendMode(blend).setDepth(depth).setDisplaySize(w, h);
@@ -148,6 +158,10 @@ export class Ambient {
         add('fog', FOG, { y: rnd(950, Y1), vx: rnd(5, 12) * (i % 2 ? 1 : -1), amp: 6, a0: 0.08, a1: 0.17, f: rnd(0.15, 0.3) }, 0xc8d2ea, NORMAL, rnd(540, 780), rnd(150, 220));
       }
       for (let i = 0; i < 8; i++) add('firefly', MOTE, { vx: rnd(-5, 5), vy: rnd(-8, 1), amp: rnd(10, 22), a0: 0.05, a1: rnd(0.5, 0.8), f: rnd(0.25, 0.55) }, 0x9ad8ff, ADD, rnd(18, 30));
+    } else if (theme === 'clocktower') {
+      // Пыль в луче света и дрожь ламп на стене башни.
+      for (let i = 0; i < 20; i++) add('dust', MOTE, { vx: rnd(-4, 4), vy: rnd(-6, 3), amp: rnd(4, 12), a0: 0.1, a1: rnd(0.3, 0.55), f: rnd(0.3, 0.8) }, 0xffe6b8, ADD, rnd(8, 14));
+      for (const [x, y] of CLOCK_LAMPS) add('flicker', MOTE, { x, y, a0: 0.25, a1: 0.45, f: rnd(4, 6) }, 0xffc070, ADD, 240);
     } else {
       // Пыль в тёплом свете и дрожь пламени факелов.
       for (let i = 0; i < 18; i++) add('dust', MOTE, { vx: rnd(-5, 5), vy: rnd(-7, 3), amp: rnd(4, 12), a0: 0.1, a1: rnd(0.3, 0.55), f: rnd(0.3, 0.8) }, 0xffe0b0, ADD, rnd(8, 14));

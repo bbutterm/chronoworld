@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "alde_alarm",
+  "name": "Будильник",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 560,
+    "atk": 50,
+    "def": 10,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "alde_alarm_ring",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "rocker",
+    "tint": "#e8c060",
+    "scale": 1.1,
+    "hitFx": "fx_hit"
+  }
+}

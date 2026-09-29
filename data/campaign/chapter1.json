@@ -3,6 +3,7 @@
   "id": "chapter1",
   "name": "Глава 1. Зелёные луга",
   "order": 1,
+  "theme": "meadow",
   "episode": {
     "title": "Король порингов",
     "subtitle": "Южные луга Пронтеры",

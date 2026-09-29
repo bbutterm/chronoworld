@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob7_boss_meteor_storm",
   "name": "Метеоритный дождь",
-  "description": "С чёрного неба Нифльхейма падают метеоры: урон по всем врагам и ожог на 2 хода.",
+  "description": "С чёрного неба над Гласт Хеймом падают метеоры: урон по всем врагам и ожог на 2 хода.",
   "range": "ranged",
   "target": {
     "side": "enemy",

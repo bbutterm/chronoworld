@@ -42,6 +42,11 @@ export const MailLetterDefSchema = z.object({
   rewards: EventRewardsSchema.default({}),
   /** Последний день доставки 'YYYY-MM-DD' (компенсация «до такого-то числа»); нет — всегда. */
   untilDay: DayStringSchema.optional(),
+  /**
+   * Только тем, у кого этот этап уже пройден при первой проверке письма (объявление для уже игравших: «мир изменился»).
+   * Остальным (новый игрок, не дошедший до этапа) письмо молча помечается доставленным и больше не приходит.
+   */
+  onlyIfCleared: z.string().optional(),
 });
 
 /** data/events.json — «Вход 7 дней», «7 дней новичка», системные письма. Формат — docs/CONTENT_RECIPES.md «Награды событий». */

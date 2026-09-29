@@ -104,12 +104,12 @@ describe('content:new — генераторы заготовок', () => {
   });
 
   it('story: отдельно для главы, созданной с --no-story; второй раз — отказ', () => {
-    run('chapter', 'chapter10', '--no-story', '--mobs', 'mob_melee,mob_ranged');
-    expect(existsSync(join(root, 'data/story/chapter10.json'))).toBe(false);
-    run('story', 'chapter10');
-    expect(json('data/story/chapter10.json').scenes.map((s: { id: string }) => s.id)).toEqual(['ch10_intro', 'ch10_s10_before', 'ch10_outro']);
-    expect(() => run('story', 'chapter10')).toThrow(ContentNewError);
-    expect(() => run('chapter', 'chapter10')).toThrow(ContentNewError);
+    run('chapter', 'chapter12', '--no-story', '--mobs', 'mob_melee,mob_ranged');
+    expect(existsSync(join(root, 'data/story/chapter12.json'))).toBe(false);
+    run('story', 'chapter12');
+    expect(json('data/story/chapter12.json').scenes.map((s: { id: string }) => s.id)).toEqual(['ch12_intro', 'ch12_s10_before', 'ch12_outro']);
+    expect(() => run('story', 'chapter12')).toThrow(ContentNewError);
+    expect(() => run('chapter', 'chapter12')).toThrow(ContentNewError);
     expect(() => run('chapter', 'chapter11', '--mobs', 'mob_boss1')).toThrow(/не монстр/);
     expect(build().problems).toEqual([]);
   });

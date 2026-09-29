@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   actClimbTower,
+  chapterTheme,
   climbTower,
   GameRuleError,
   newGame,
@@ -126,7 +127,7 @@ describe('K4 башня: этажи', () => {
     expect(towerFloor(55, ctx).enemies.filter((e) => e?.kind === 'boss')).toHaveLength(2);
   });
 
-  it('полосы по темам: лес — монстры главы 1, болото — главы 2, склепы — главы 3; MVP не раньше 20 этажа (QA T5-12)', () => {
+  it('полосы по темам: лес — монстры главы 1, болото — Проклятых топей (mob2_*), склепы — Гласт Хейма; MVP не раньше 20 этажа (QA T5-12)', () => {
     const kinds = (from: number, to: number, boss: boolean) => {
       const out = new Set<string>();
       const bands = ctx.tower.bands;
@@ -141,10 +142,13 @@ describe('K4 башня: этажи', () => {
     const chapterUnits = (ch: string) => new Set(ctx.content.stages.filter((s) => s.chapter === ch).flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)));
     const ch1 = chapterUnits('chapter1');
     expect(kinds(1, 19, false).every((u) => ch1.has(u))).toBe(true);
-    const ch2 = chapterUnits('chapter2');
-    expect(kinds(20, 39, false).every((u) => ch2.has(u))).toBe(true);
-    const ch3 = chapterUnits('chapter3');
-    expect(kinds(40, 59, false).every((u) => ch3.has(u))).toBe(true);
+    // Маршрут из 10 глав (29.09): топи ушли из кампании — болотный ярус держит их монстров (mob2_*, плюс поринги луга); склепы — монстры
+    // главы с темой «склеп» (Гласт Хейм, глава 8), а не слота 3. Тема главы — chapterTheme (поле theme или слот).
+    expect(kinds(20, 39, false).every((u) => u.startsWith('mob2_') || ch1.has(u))).toBe(true);
+    const crypt = ctx.content.chapters.find((c) => chapterTheme(c) === 'crypt')!;
+    expect(crypt.id).toBe('chapter8');
+    const glast = chapterUnits(crypt.id);
+    expect(kinds(40, 59, false).every((u) => glast.has(u))).toBe(true);
     // Боссы леса — мини-боссы луга (Эклипс, Мастеринг, Вокал), болота — мини-боссы топей; MVP RO — только с 40 этажа.
     expect(kinds(1, 19, true).sort()).toEqual(['mob_eclipse', 'mob_mastering', 'mob_vocal']);
     expect(kinds(20, 39, true).sort()).toEqual(['mob2_boss', 'mob2_giant']);

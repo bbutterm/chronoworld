@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "sewer_bug_male",
+  "name": "Жук-вор самец",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 1050,
+    "atk": 58,
+    "def": 11,
+    "spd": 105
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "sewer_bug_male_rush",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "elite",
+    "tint": "#3f5270",
+    "scale": 0.85,
+    "hitFx": "fx_hit"
+  }
+}

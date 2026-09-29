@@ -64,7 +64,7 @@
       "stage": "ch3_s1",
       "power": 3800,
       "tint": "#566a8c",
-      "monster": "mob3_elite",
+      "monster": "alde_mimic",
       "perHour": { "gold": 65, "jobExp": 85 },
       "loot": [
         { "kind": "item", "chance": 0.011, "items": ["helm", "chain_mail", "boots", "greaves"] },
@@ -128,17 +128,34 @@
       ]
     },
     {
-      "id": "gyoll_valley",
-      "name": "Долина Гьёлль",
-      "description": "Туманная река на краю Нифльхейма. Души забытых воинов бродят с оружием, которое им уже не нужно.",
-      "stage": "ch7_s1",
+      "id": "glast_heim",
+      "name": "Гласт Хейм",
+      "description": "Проклятый замок рыцарей на холме. Мёртвый караул всё ещё сменяется по уставу, а в оружейной ржавеют мечи, которые некому поднять.",
+      "stage": "ch8_s1",
       "power": 9000,
-      "tint": "#5a4f7a",
-      "monster": "mob7_elite",
+      "tint": "#4a4a6a",
+      "monster": "mob3_tank",
       "perHour": { "gold": 650, "jobExp": 910 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["sea_boots", "pirate_bandana"] },
-        { "kind": "item", "chance": 0.004, "items": ["bloody_axe", "dark_lord_robe", "helm_of_darkness", "valkyrie_boots"] },
+        { "kind": "item", "chance": 0.004, "items": ["abyss_blade", "dark_lord_robe", "helm_of_darkness", "sentry_greaves"] },
+        { "kind": "gems", "chance": 0.05, "count": 2 },
+        { "kind": "heroCard", "rarity": "blue", "chance": 0.005, "count": 1 },
+        { "kind": "heroCard", "rarity": "purple", "chance": 0.0008, "count": 1 }
+      ]
+    },
+    {
+      "id": "gyoll_valley",
+      "name": "Долина Гьёлль",
+      "description": "Туманная река на краю Нифльхейма. Души забытых воинов бродят с оружием, которое им уже не нужно.",
+      "stage": "ch10_s1",
+      "power": 11000,
+      "tint": "#5a4f7a",
+      "monster": "mob7_elite",
+      "perHour": { "gold": 975, "jobExp": 1365 },
+      "loot": [
+        { "kind": "item", "chance": 0.012, "items": ["dark_lord_robe", "helm_of_darkness"] },
+        { "kind": "item", "chance": 0.004, "items": ["bloody_axe", "valkyrie_armor", "gjoll_helm", "valkyrie_boots"] },
         { "kind": "gems", "chance": 0.05, "count": 2 },
         { "kind": "heroCard", "rarity": "blue", "chance": 0.005, "count": 1 },
         { "kind": "heroCard", "rarity": "purple", "chance": 0.0008, "count": 1 }

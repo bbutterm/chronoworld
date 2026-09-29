@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "sewer_familiar",
+  "name": "Фамилиар",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 390,
+    "atk": 39,
+    "def": 4,
+    "spd": 135
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "sewer_familiar_bite",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "gargoyle",
+    "tint": "#4a3a5c",
+    "scale": 0.5,
+    "hitFx": "fx_hit"
+  }
+}

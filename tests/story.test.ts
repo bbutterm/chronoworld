@@ -60,42 +60,51 @@ describe('сюжет: данные', () => {
 
   it('data/story/chapter2.json: вступление, сцена босса и знакомство с Дорном (QA T5-27)', () => {
     const ch2 = ctx.story.scenes.filter((s) => s.chapter === 'chapter2');
-    // Глава 2 растянута до 18 этапов (29.09): новые сцены на вставных ch2_s11, s13, s14, s17 — в порядке прохождения.
+    // Маршрут из 10 глав (29.09, lore-route §4.2): слот 2 — Канализация Пронтеры, сцены с новым префиксом ch2c_ (старые ch2_*
+    // Проклятых топей удалены из данных — в seenScenes остаются безвредным мусором). Слот 3 — Орочья деревня, сцены ch3o_*.
+    // Раньше тест перечислял сцены топей и Гласт Хейма; порядок прохождения и привязка Дорна проверяются как прежде.
     expect(ids(ch2)).toEqual([
-      'ch2_intro',
-      'ch2_s11_after',
-      'ch2_s2_after',
-      'ch2_s13_after',
-      'ch2_s14_before',
-      'ch2_s5_before',
-      'ch2_s7_after',
-      'ch2_s17_after',
-      'ch2_s9_before',
-      'ch2_s10_before',
-      'ch2_outro',
+      'ch2c_intro',
+      'ch2c_s1_before',
+      'ch2c_s11_after',
+      'ch2c_s2_after',
+      'ch2c_s13_after',
+      'ch2c_s14_before',
+      'ch2c_s5_after',
+      'ch2c_s15_after',
+      'ch2c_s7_after',
+      'ch2c_s17_after',
+      'ch2c_s9_before',
+      'ch2c_s10_before',
+      'ch2c_outro',
     ]);
-    // Глава 3 (29.09): новые сцены на вставных ch3_s12, s13, s15 (Рыцарь бездны), s17.
     expect(ids(ctx.story.scenes.filter((s) => s.chapter === 'chapter3'))).toEqual([
-      'ch3_intro',
-      'ch3_s2_after',
-      'ch3_s12_after',
-      'ch3_s13_after',
-      'ch3_s5_after',
-      'ch3_s15_before',
-      'ch3_s7_before',
-      'ch3_s17_after',
-      'ch3_s8_after',
-      'ch3_s10_before',
-      'ch3_outro',
+      'ch3o_intro',
+      'ch3o_s11_after',
+      'ch3o_s12_after',
+      'ch3o_s3_after',
+      'ch3o_s14_after',
+      'ch3o_s15_before',
+      'ch3o_s15_after',
+      'ch3o_s16_after',
+      'ch3o_s7_before',
+      'ch3o_s18_after',
+      'ch3o_s10_before',
+      'ch3o_outro',
     ]);
+    // Ни одной сцены со старыми id топей и Гласт Хейма в слотах 2–3 (они не должны «вернуться» под чужим содержимым).
+    expect(ctx.story.scenes.filter((s) => /^ch[23]_/.test(s.id)).map((s) => s.id)).toEqual([]);
     // Сцены глав 2–3 идут в порядке прохождения этапов.
     for (const ch of ['chapter2', 'chapter3']) {
       const at = ctx.story.scenes.filter((s) => s.chapter === ch && s.stageId).map((s) => before(s.stageId!) + (s.trigger === 'afterStage' ? 0.5 : 0));
       expect(at, ch).toEqual([...at].sort((a, b) => a - b));
     }
-    expect(ch2.find((s) => s.id === 'ch2_s10_before')!.bossIntro?.title).toBe(ctx.content.units.mob2_boss.name);
+    // Сцены перед боссом и мини-боссом представляют их (bossIntro — имя юнита).
+    expect(ch2.find((s) => s.id === 'ch2c_s10_before')!.bossIntro?.title).toBe(ctx.content.units.sewer_golden_bug.name);
+    const ch3 = ctx.story.scenes.filter((s) => s.chapter === 'chapter3');
+    expect(ch3.find((s) => s.id === 'ch3o_s10_before')!.bossIntro?.title).toBe(ctx.content.units.orc_lord.name);
     const dorn = ctx.progression.heroes.recruits.find((r) => r.template === 'dorn')!;
-    const outro = ch2.find((s) => s.id === 'ch2_outro')!;
+    const outro = ch2.find((s) => s.id === 'ch2c_outro')!;
     expect(outro).toMatchObject({ trigger: 'afterStage', stageId: dorn.afterStage });
     expect(outro.lines.some((l) => ctx.story.chapters.chapter2.speakers[l.speaker].name === 'Дорн')).toBe(true);
     expect(ctx.story.scenes.every((s) => s.lines.every((l) => l.text.length <= 120))).toBe(true);
@@ -118,6 +127,59 @@ describe('сюжет: данные', () => {
     expect(problemsWith((s) => delete s.scenes[1].stageId).join('\n')).toMatch(/нужен stageId/);
     expect(problemsWith((s) => (s.scenes[1].bossIntro = { title: 'X' })).join('\n')).toMatch(/bossIntro/);
     expect(problemsWith((s) => (s.scenes[0].trigger = 'jobChange')).length).toBeGreaterThan(0);
+  });
+});
+
+describe('сюжет глав 8 и 10 (перенос старых глав 3 и 7, story.md §5.8, §5.10)', () => {
+  it('сцены ch8_* и ch10_* по библии, в порядке прохождения; баннер — только у босса, мини-боссы без него', () => {
+    expect(ids(ctx.story.scenes.filter((s) => s.chapter === 'chapter8'))).toEqual([
+      'ch8_intro',
+      'ch8_s3_after',
+      'ch8_s4_after',
+      'ch8_s6_after',
+      'ch8_s9_after',
+      'ch8_s10_before',
+      'ch8_s13_before',
+      'ch8_s14_after',
+      'ch8_s15_before',
+      'ch8_s15_after',
+      'ch8_s16_after',
+      'ch8_s17_before',
+      'ch8_s18_before',
+      'ch8_outro',
+    ]);
+    expect(ids(ctx.story.scenes.filter((s) => s.chapter === 'chapter10'))).toEqual([
+      'ch10_intro',
+      'ch10_s1_after',
+      'ch10_s3_after',
+      'ch10_s4_before',
+      'ch10_s6_after',
+      'ch10_s7_after',
+      'ch10_s8_after',
+      'ch10_s9_before',
+      'ch10_s12_before',
+      'ch10_s13_after',
+      'ch10_s14_after',
+      'ch10_s16_after',
+      'ch10_s17_before',
+      'ch10_s18_before',
+      'ch10_outro',
+    ]);
+    for (const ch of ['chapter8', 'chapter10']) {
+      const scenes = ctx.story.scenes.filter((s) => s.chapter === ch);
+      const at = scenes.filter((s) => s.stageId).map((s) => before(s.stageId!) + (s.trigger === 'afterStage' ? 0.5 : 0));
+      expect(at, ch).toEqual([...at].sort((a, b) => a - b));
+      const boss = ctx.content.stages.filter((s) => s.chapter === ch).at(-1)!.id;
+      expect(scenes.filter((s) => s.bossIntro).map((s) => s.stageId), ch).toEqual([boss]);
+    }
+    expect(ctx.story.scenes.find((s) => s.id === 'ch8_s18_before')!.bossIntro?.title).toBe(ctx.content.units.mob7_boss.name);
+    expect(ctx.story.scenes.find((s) => s.id === 'ch10_s18_before')!.bossIntro?.title).toBe(ctx.content.units.mob_lord_of_death.name);
+  });
+
+  it('новая нить: в главах 8 и 10 нет Звонарей, осколков, Чёрного колокола и Проклятых топей (story.md §6.2 п. 5)', () => {
+    const banned = /звонар|осколк|чёрн\w* колокол|проклят\w* топ|хельмут/i;
+    for (const s of ctx.story.scenes.filter((x) => x.chapter === 'chapter8' || x.chapter === 'chapter10'))
+      for (const l of s.lines) expect(banned.test(l.text), `${s.id}: ${l.text}`).toBe(false);
   });
 });
 

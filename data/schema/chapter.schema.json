@@ -18,6 +18,22 @@
       "exclusiveMinimum": 0,
       "maximum": 9007199254740991
     },
+    "theme": {
+      "type": "string",
+      "enum": [
+        "meadow",
+        "sewer",
+        "orc",
+        "desert",
+        "grove",
+        "shipwreck",
+        "clocktower",
+        "crypt",
+        "labyrinth",
+        "niflheim",
+        "swamp"
+      ]
+    },
     "stages": {
       "minItems": 1,
       "type": "array",

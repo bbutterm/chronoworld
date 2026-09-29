@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "orc_chonchon_dive",
+  "name": "Стальное жало",
+  "description": "Рывок к врагу тыла с наименьшим ОЗ, удар жалом и звон в ушах (−20% атаки на 2 хода).",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.3
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "buzz",
+        "name": "Звон в ушах",
+        "turns": 2,
+        "stats": {
+          "atk": -0.2
+        }
+      }
+    }
+  ]
+}

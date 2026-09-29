@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "sewer_plankton",
+  "name": "Планктон",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 360,
+    "atk": 44,
+    "def": 4,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "sewer_plankton_spit",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "drops",
+    "tint": "#9fc26a",
+    "scale": 0.8,
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "orc_warrior",
+  "name": "Орк-воин",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 500,
+    "atk": 45,
+    "def": 8,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "orc_warrior_axe_rend",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "melee",
+    "tint": "#9dbb78",
+    "scale": 1.1,
+    "hitFx": "fx_hit"
+  }
+}

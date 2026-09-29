@@ -116,8 +116,9 @@ export class ChronicleScene extends Phaser.Scene {
       objs.push(t);
       y += t.height + gap;
     };
-    const chNo = w.kind === 'chapter' ? CONTENT.chapters.findIndex((c) => c.id === w.id) + 1 : 0;
-    const chapter = w.kind === 'chapter' ? CONTENT.chapters[chNo - 1] : undefined;
+    const chapter = w.kind === 'chapter' ? CONTENT.chapters.find((c) => c.id === w.id) : undefined;
+    // Номер главы на маршруте (order): у Нифльхейма «Глава 10», даже пока главы 9 нет.
+    const chNo = chapter?.order ?? 0;
     if (w.kind === 'chapter') line(`Глава ${chNo}${w.lore?.episode ? ` · ${w.lore.episode}` : ''}`, FS.small, C.dim, {}, 6);
     else line('Мир Мидгарда', FS.small, C.dim, {}, 6);
     // Страницы главы (эпизод и легенда, летопись, сцены) — кнопками под текстом.
@@ -210,7 +211,7 @@ export class ChronicleScene extends Phaser.Scene {
     for (const f of list) {
       if (f.chapterId !== chapter) {
         chapter = f.chapterId;
-        const name = CONTENT.chapters[f.chapterNumber - 1]?.name ?? chapter;
+        const name = CONTENT.chapters.find((c) => c.id === f.chapterId)?.name ?? chapter;
         this.area.add(text(this, LEFT - 20, y + 34, name, FS.h3, C.title, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5));
         y += 70;
       }

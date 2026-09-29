@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "sewer_golden_bug",
+  "name": "Золотой жук-вор",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 2800,
+    "atk": 100,
+    "def": 15,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "sewer_golden_bug_coin_rain",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "elite",
+    "scale": 1.35,
+    "hitFx": "fx_hit"
+  },
+  "barks": {
+    "start": "Каждая монета в этих стоках — моя. И ваши тоже. Особенно ваши.",
+    "half": "Не трогайте панцирь! Он из крон трёх королей!",
+    "defeat": "Забирайте… только корону оставьте… это не корона, это медяки…",
+    "victory": "Пересчитаю вас позже. Мелочь — она и есть мелочь."
+  }
+}

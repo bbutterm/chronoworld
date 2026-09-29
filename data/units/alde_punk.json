@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "alde_punk",
+  "name": "Панк",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 430,
+    "atk": 46,
+    "def": 5,
+    "spd": 145,
+    "moveSpeed": 320
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "alde_punk_gust",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "lunatic",
+    "tint": "#8fb8ff",
+    "scale": 1.1,
+    "hitFx": "fx_hit"
+  }
+}

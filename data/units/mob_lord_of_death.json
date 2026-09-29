@@ -1,0 +1,36 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_lord_of_death",
+  "name": "Владыка мёртвых",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 4600,
+    "atk": 112,
+    "def": 22,
+    "spd": 95
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_lord_of_death_march",
+    "actives": [
+      "mob_lord_of_death_scythe",
+      "mob_lord_of_death_review"
+    ],
+    "passives": [
+      "mob_lord_of_death_steward"
+    ]
+  },
+  "visual": {
+    "sprite": "dullahan",
+    "tint": "#7d86b8",
+    "scale": 1.6,
+    "hitFx": "fx_hit"
+  },
+  "barks": {
+    "start": "Мои подданные устали от тумана. Я веду их к солнцу.",
+    "half": "Хель молчит. Значит, решаю я. Шире шаг, мёртвые!",
+    "defeat": "Смена караула… Спите, мои. Я тоже… посплю.",
+    "victory": "Ещё одни живые в строю. Солнце будет всем."
+  }
+}
