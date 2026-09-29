@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "alde_elder_rewind",
+  "name": "Отмотать назад",
+  "description": "Старейшина отматывает раны на минуту назад: лечит всех союзников (1 × атака) и даёт «Второй завод» (+15% атаки) на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "second_winding",
+        "name": "Второй завод",
+        "turns": 2,
+        "stats": {
+          "atk": 0.15
+        }
+      }
+    }
+  ]
+}

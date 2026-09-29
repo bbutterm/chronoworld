@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "alde_owl_duke",
+  "name": "Совиный герцог",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 1200,
+    "atk": 64,
+    "def": 14,
+    "spd": 105
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "alde_owl_duke_dive",
+    "actives": [
+      "alde_owl_duke_preen"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "gargoyle",
+    "tint": "#d8c090",
+    "hitFx": "fx_hit"
+  }
+}

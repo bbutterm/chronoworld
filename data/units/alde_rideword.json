@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "alde_rideword",
+  "name": "Райдворд",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 400,
+    "atk": 50,
+    "def": 5,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "alde_rideword_pages",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "banshee",
+    "tint": "#d9c79a",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

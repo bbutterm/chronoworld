@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "alde_keeper_erase",
+  "name": "Стереть из журнала",
+  "description": "Когда гибнет союзник, Смотритель вычёркивает его из журнала: получает 25 энергии.",
+  "trigger": "allyDeath",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 25
+    }
+  ]
+}

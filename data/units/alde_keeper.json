@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "alde_keeper",
+  "name": "Смотритель часовой башни",
+  "kind": "boss",
+  "role": "damage",
+  "stats": {
+    "hp": 4200,
+    "atk": 110,
+    "def": 20,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "alde_keeper_rewind",
+    "actives": [
+      "alde_keeper_winding",
+      "alde_keeper_hands"
+    ],
+    "passives": [
+      "alde_keeper_erase"
+    ]
+  },
+  "visual": {
+    "sprite": "sandman",
+    "tint": "#c9a24e",
+    "scale": 1.3,
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  },
+  "barks": {
+    "start": "Три часа тринадцать минут. Снова. И снова. И снова.",
+    "half": "Не записывать! Стереть! Кто помнит — тот страдает!",
+    "defeat": "Тик… так… Запишите: часы пошли. Запишите всё.",
+    "victory": "Проверил журнал. Вас здесь не было. И не будет."
+  }
+}
