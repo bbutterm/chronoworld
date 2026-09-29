@@ -10,6 +10,7 @@ import { view } from './viewport';
 import { heroGender } from '../core';
 import { button, ellipsize, emptyState, icon, panel, shieldTaps, text, toast } from './ui';
 import { hasArt } from './assets';
+import { RO_ICON_TINT, roIcon } from './itemIcons';
 import { C, FS, SP, TINT } from './theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { animateCurrency, heartbeat, type CurrencyPill } from './juice';
@@ -312,7 +313,11 @@ function currencyLabels(scene: Phaser.Scene, rowY?: number): number {
     const pillW = x - ix + 34 + 6;
     const cx = x - pillW / 2 + 6;
     const art = gem ? 'ui_icon_gem' : 'ui_icon_gold';
-    const ico = hasArt(art) ? scene.add.image(ix - cx, 0, art).setDisplaySize(46, 46) : gem ? gemIcon(scene, ix - cx, 0, 34) : icon(scene, ix - cx, 0, 'iconCircle_beige', 36).setTint(tint);
+    // Иконки RO (мешочек золота, алмаз) — ×2, пиксели без сглаживания; нет — прежний арт.
+    const ro = roIcon(scene, gem ? 'gems' : 'gold');
+    const ico = ro
+      ? scene.add.image(ix - cx, 0, ro).setScale(gem ? 3 : 2).setTint(gem ? RO_ICON_TINT.gems : 0xffffff)
+      : hasArt(art) ? scene.add.image(ix - cx, 0, art).setDisplaySize(46, 46) : gem ? gemIcon(scene, ix - cx, 0, 34) : icon(scene, ix - cx, 0, 'iconCircle_beige', 36).setTint(tint);
     t.setPosition(x - 18 - cx, 0);
     // Утопленное поле с бронзовой кромкой; иконка — в тёплом ореоле у левого края.
     const halo = scene.add.image(ix - cx, 0, 'skin_glow').setDisplaySize(70, 70).setTint(gem ? 0x6fd8ff : 0xffc83a).setAlpha(0.3).setBlendMode(Phaser.BlendModes.ADD);
@@ -359,8 +364,13 @@ export function gearIcon(scene: Phaser.Scene, x: number, y: number, size: number
   return g;
 }
 
-/** Гем — ромб (своей иконки в атласе нет). */
-export function gemIcon(scene: Phaser.Scene, x: number, y: number, size: number): Phaser.GameObjects.Polygon {
+/**
+ * Гем: иконка RO «1carat Diamond» (камень ≈ 13 пикселей в поле 24×24 — масштаб целый, чтобы камень был ростом ≈ size),
+ * без неё — ромб.
+ */
+export function gemIcon(scene: Phaser.Scene, x: number, y: number, size: number): Phaser.GameObjects.Polygon | Phaser.GameObjects.Image {
+  const ro = roIcon(scene, 'gems');
+  if (ro) return scene.add.image(x, y, ro).setScale(Math.max(1, Math.round(size / 13))).setTint(RO_ICON_TINT.gems);
   const h = size / 2;
   return scene.add.polygon(x, y, [h * 0.8, 0, h * 1.6, h * 0.8, h * 0.8, h * 2, 0, h * 0.8], 0x6fd8ff).setStrokeStyle(3, 0x1d4a66);
 }

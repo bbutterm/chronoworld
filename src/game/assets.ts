@@ -3,6 +3,8 @@ import manifestJson from '../../assets/manifest.json';
 import { SKIN_REPLACED } from '../pipeline/bootAssets';
 import { queueAnimatedFx } from './animatedFx';
 import { assetUrl } from './assetUrl';
+import { queueDamageDigits } from './numberFont';
+import { queueItemIconFiles, setupItemIconFilters } from './itemIcons';
 import { SKIN_FOR, SKIN_FORCE, SKIN_SLICE } from './skin';
 import { queueSkillIconFiles, skillIconFileKeys } from './skillIcons';
 
@@ -40,6 +42,9 @@ export function queueAssets(scene: Phaser.Scene): void {
   }
   // Значки навыков от художника (assets/ui/icons/skill_<id>.png), если есть; остальные рисует skillIcons.
   queueSkillIconFiles(scene);
+  // Иконки предметов и ресурсов RO (assets/ui/icons/item_<id>.png) и цифры урона RO (assets/fx/damage/numbers.png).
+  queueItemIconFiles(scene);
+  queueDamageDigits(scene);
 }
 
 /** После загрузки: фильтр для пиксель-арта. */
@@ -49,6 +54,7 @@ export function setupLoadedAssets(scene: Phaser.Scene): void {
   }
   // Иконки навыков RO — пиксель-арт.
   for (const key of skillIconFileKeys()) if (scene.textures.exists(key)) scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+  setupItemIconFilters(scene);
 }
 
 let fxRequested = false;

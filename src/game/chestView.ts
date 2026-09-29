@@ -4,6 +4,7 @@ import { heroCardIcon, rarityColor } from './heroCard';
 import { GAME } from './content';
 import { formatNumber, RARITY_COLORS } from './flow';
 import { rewardIcon } from './rewardsView';
+import { RO_ICON_PX, roIcon } from './itemIcons';
 import { skinIcon } from './skin';
 import { C, FS, OUTLINE } from './theme';
 import { text } from './ui';
@@ -45,10 +46,17 @@ function bestRarity(items: readonly string[]): Rarity | null {
 }
 
 
-/** Мешок трофеев, цвет — лучшая редкость. */
-function itemsIcon(scene: Phaser.Scene, x: number, y: number, size: number, rarity: Rarity | null): Obj {
+/** Трофеи: иконка RO лучшего предмета (рамка цветом его редкости), без иконки — мешок цветом редкости. */
+function itemsIcon(scene: Phaser.Scene, x: number, y: number, size: number, items: readonly string[]): Obj {
+  const rarity = bestRarity(items);
   const color = Phaser.Display.Color.HexStringToColor(RARITY_COLORS[rarity ?? 'common']).color;
-  return scene.add.image(x, y, skinIcon('bag')).setDisplaySize(size, size).setTint(color);
+  const best = items.find((id) => (GAME.equipment.items[id]?.rarity ?? 'common') === (rarity ?? 'common'));
+  const key = roIcon(scene, best);
+  if (!key) return scene.add.image(x, y, skinIcon('bag')).setDisplaySize(size, size).setTint(color);
+  // Контейнер: строка ячеек двигает иконку по x (setX) — рамка и иконка едут вместе.
+  const cell = scene.add.rectangle(0, 0, size + 4, size + 4, color, 0.2).setStrokeStyle(3, color, 1);
+  const ico = scene.add.image(0, 0, key).setScale(Math.max(1, Math.floor(size / RO_ICON_PX)));
+  return scene.add.container(x, y, [cell, ico]);
 }
 
 type Cell = { kind: 'gold' | 'exp' | 'gems' | 'scrolls' | 'items' | 'cards'; value: string; rarity?: CardRarity; templateId?: string };
@@ -75,7 +83,7 @@ function drawRow(scene: Phaser.Scene, x: number, y: number, cells: Cell[], items
   for (const c of cells) {
     const icon =
       c.kind === 'items'
-        ? itemsIcon(scene, 0, y, size, bestRarity(items))
+        ? itemsIcon(scene, 0, y, size, items)
         : c.kind === 'cards'
           ? (heroCardIcon(scene, 0, y, size * 1.25, c.rarity ?? 'blue', c.templateId) as unknown as Obj)
           : (rewardIcon(scene, 0, y, c.kind, size) as Obj);

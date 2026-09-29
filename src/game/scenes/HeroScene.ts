@@ -50,6 +50,7 @@ import { ascendHint, browseNeighbours, copyCounter, heroesUi, inventoryUi, level
 import { openBranchPicker } from '../branchPicker';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
+import { roIconImage } from '../itemIcons';
 
 const SKILL_ROW_H = 118;
 /** Редкость в родительном падеже: «растёт до красного». */
@@ -784,8 +785,18 @@ export class HeroScene extends Phaser.Scene {
     const color = RARITY_COLORS[item.def.rarity];
     a.add(this.add.rectangle(x, y - 46, 200, 5, Phaser.Display.Color.HexStringToColor(color).color));
     const lvl = refineLevel(item.instance);
-    a.add(ellipsize(text(this, x, y + 5, refinedName(item.def, lvl), FS.body, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), 226));
-    a.add(text(this, x, y + 62, itemStatsText(refinedStats(item.def, lvl, GAME)), FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 230 } }).setMaxLines(2));
+    // Иконка RO предмета (×3, без сглаживания) над названием, статы — одной строкой; нет иконки — как раньше.
+    const ico = roIconImage(this, x, y - 6, item.instance.itemId, 72);
+    const name = refinedName(item.def, lvl);
+    const stats = itemStatsText(refinedStats(item.def, lvl, GAME));
+    if (ico) {
+      a.add(ico.setName('gearIcon'));
+      a.add(ellipsize(text(this, x, y + 46, name, FS.body, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), 226));
+      a.add(ellipsize(text(this, x, y + 80, stats, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4 }), 232));
+      return;
+    }
+    a.add(ellipsize(text(this, x, y + 5, name, FS.body, color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), 226));
+    a.add(text(this, x, y + 62, stats, FS.caption, C.text, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 230 } }).setMaxLines(2));
   }
 
   /** T1-08: надеть все улучшения из инвентаря (свободные вещи получше надетых). */

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { oreIcon } from '../itemIcons';
+import { itemCell, oreIcon, roIcon } from '../itemIcons';
 import { GAME } from '../content';
 import { autoNextStage, decimal, defeatAdvice, describeEvents, formatNumber, itemStatsText, keyEventsFirst, levelUpReady, nextOpenStage, stageNo, RARITY_COLORS, type AutoStop } from '../flow';
 import { collectFinding, pendingFinding, stageFinding, type BattleResult, type Side } from '../../core';
@@ -128,9 +128,18 @@ export class ResultScene extends Phaser.Scene {
       // K6: выпавшие предметы — цветом редкости.
       for (const d of stage?.outcome.drops ?? []) {
         const def = GAME.equipment.items[d.itemId];
-        const t = text(this, GAME_W / 2, y, `Трофей: ${def?.name ?? d.itemId}${def ? ` (${itemStatsText(def.stats)})` : ''}`, FS.body, def ? RARITY_COLORS[def.rarity] : C.text, BOLD_OUTLINE);
+        const ro = roIcon(this, d.itemId);
+        const t = text(this, GAME_W / 2 + (ro ? 34 : 0), y, `Трофей: ${def?.name ?? d.itemId}${def ? ` (${itemStatsText(def.stats)})` : ''}`, FS.body, def ? RARITY_COLORS[def.rarity] : C.text, BOLD_OUTLINE);
+        if (ro) {
+          // Иконка RO предмета в ячейке цвета редкости (itemCell), слева от строки; масштаб иконки целый — её не «хлопаем».
+          ellipsize(t, 880);
+          y += 16;
+          t.setY(y);
+          const cell = itemCell(this, t.x - t.width / 2 - 40, y, 60, def?.slot ?? 'weapon', Phaser.Display.Color.HexStringToColor(def ? RARITY_COLORS[def.rarity] : C.text).color, d.itemId);
+          this.tweens.add({ targets: cell, alpha: { from: 0, to: 1 }, duration: 300 });
+        }
         this.tweens.add({ targets: t, scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
-        y += 50;
+        y += ro ? 66 : 50;
       }
       // T1-09: все события, ключевые (новый герой, Таверна, вознесение, навыки, уровни) — первыми. Не влезают до таблицы —
       // список событий прокручивается пальцем, ничего не прячется под «…и ещё N».

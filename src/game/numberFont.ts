@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import digitsAtlas from '../../assets/fx/damage/numbers.json';
 import type { CachedTextStyle } from './perf';
 
 /**
@@ -152,4 +153,69 @@ function hash(s: string): string {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
   return (h >>> 0).toString(36);
+}
+
+// ---------- цифры урона Ragnarok Online ----------
+
+/**
+ * Цифры урона RO (docs/RO_EXTRACT_LIST.md §5): кадры 0–9 из клиентского `숫자.spr` — белые с серым градиентом и тёмной
+ * обводкой, цвет задаётся умножением (tint), как в клиенте: белые — урон по монстрам, красные — по героям,
+ * зелёные — лечение, жёлтые — удар ульты. Знаков (+, −, скобок, букв) в шрифте нет — пишем только число.
+ * Атлас `assets/fx/damage/numbers.png` грузит экран загрузки (queueDamageDigits); рамки кадров — из numbers.json в бандле.
+ */
+export const DAMAGE_DIGITS_KEY = 'fx_damage_numbers';
+const RO_FONT_KEY = 'ro_damage_digits';
+/** Цифры RO стоят с лёгким нахлёстом обводок (как в клиенте), шаг — ширина кадра минус это. */
+const RO_OVERLAP = 3;
+
+type AtlasFrame = { frame: { x: number; y: number; w: number; h: number } };
+const ATLAS = digitsAtlas as unknown as { frames: Record<string, AtlasFrame>; meta: { size: { w: number; h: number } } };
+
+/** Высота цифры RO в пикселях атласа. */
+export const RO_DIGIT_H = Math.max(...Object.values(ATLAS.frames).map((f) => f.frame.h));
+
+/** Экран загрузки: поставить в очередь атлас цифр урона RO (≈ 2 КБ). */
+export function queueDamageDigits(scene: Phaser.Scene): void {
+  scene.load.image(DAMAGE_DIGITS_KEY, 'fx/damage/numbers.png');
+}
+
+/** Можно ли нарисовать строку цифрами RO (только 0–9). */
+export function coversRoDigits(value: string): boolean {
+  if (!value.length) return false;
+  for (let i = 0; i < value.length; i++) {
+    const c = value.charCodeAt(i);
+    if (c < 48 || c > 57) return false;
+  }
+  return true;
+}
+
+/** Ключ растрового шрифта цифр RO (строится один раз из атласа) или null — атлас не загрузился (тогда старые цифры). */
+export function roDamageFont(scene: Phaser.Scene): string | null {
+  if (scene.cache.bitmapFont.exists(RO_FONT_KEY)) return RO_FONT_KEY;
+  if (!scene.textures.exists(DAMAGE_DIGITS_KEY)) return null;
+  const { w: texW, h: texH } = ATLAS.meta.size;
+  const chars: Record<number, unknown> = {};
+  for (let d = 0; d <= 9; d++) {
+    const f = ATLAS.frames[`numbers_${d}`]?.frame;
+    if (!f) return null;
+    chars[48 + d] = {
+      x: f.x,
+      y: f.y,
+      width: f.w,
+      height: f.h,
+      centerX: Math.floor(f.w / 2),
+      centerY: Math.floor(f.h / 2),
+      xOffset: 0,
+      yOffset: RO_DIGIT_H - f.h,
+      xAdvance: f.w - RO_OVERLAP,
+      data: {},
+      kerning: {},
+      u0: f.x / texW,
+      v0: f.y / texH,
+      u1: (f.x + f.w) / texW,
+      v1: (f.y + f.h) / texH,
+    };
+  }
+  scene.cache.bitmapFont.add(RO_FONT_KEY, { data: { font: RO_FONT_KEY, size: RO_DIGIT_H, lineHeight: RO_DIGIT_H, chars }, texture: DAMAGE_DIGITS_KEY, frame: null });
+  return RO_FONT_KEY;
 }

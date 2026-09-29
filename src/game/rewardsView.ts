@@ -8,6 +8,7 @@ import { SKIN_TINT, skinIcon } from './skin';
 import { C, FS, OUTLINE } from './theme';
 import { icon, text } from './ui';
 import { heroCardIcon, rarityName } from './heroCard';
+import { roIconImage } from './itemIcons';
 
 /**
  * Награды событий и писем (RewardBundle, src/core/events): строки «иконка + число» для плиток и текст для тостов.
@@ -92,12 +93,18 @@ export function rewardToast(title: string, r: RewardBundle, events: readonly Eve
   return [...lines, rest ? `${title}: ${rest}` : title].join('\n');
 }
 
+/** Иконка RO вида награды (src/game/itemIcons.ts, assets/ui/icons/item_<id>.png). */
+const RO_REWARD_ICON: Partial<Record<RewardItem['kind'], string>> = { gold: 'gold', gems: 'gems', scrolls: 'scrolls', exp: 'hero_exp' };
+
 /** Иконка вида награды (size — высота). Карты героя и контракт — мини-карта в рамке редкости (item — редкость, герой). */
 export function rewardIcon(scene: Phaser.Scene, x: number, y: number, kind: RewardItem['kind'], size: number, dim = false, item?: Pick<RewardItem, 'rarity' | 'templateId'>): Phaser.GameObjects.GameObject {
   const tint = dim ? SKIN_TINT.creamDim : undefined;
   if (kind === 'heroCard' || kind === 'heroPick' || (kind === 'hero' && item?.templateId)) {
     return heroCardIcon(scene, x, y, size * 1.2, item?.rarity ?? 'blue', kind === 'hero' ? item?.templateId : undefined, { dim, pick: kind === 'heroPick' });
   }
+  // Иконки RO (Bag of Gold Coins, 1carat Diamond, Worn Out Scroll, Battle Manual) — целым масштабом, без tint.
+  const ro = roIconImage(scene, x, y, RO_REWARD_ICON[kind] ?? '', size);
+  if (ro) return dim ? ro.setAlpha(0.55) : ro;
   if (kind === 'gold') {
     if (hasArt('ui_icon_gold')) return scene.add.image(x, y, 'ui_icon_gold').setDisplaySize(size, size).setAlpha(dim ? 0.6 : 1);
     return icon(scene, x, y, 'iconCircle_beige', size * 0.8).setTint(0xffc83a);

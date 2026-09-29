@@ -302,6 +302,8 @@ export class ChronicleScene extends Phaser.Scene {
     for (const o of itemCell(this, cx, y, CELL, def.slot, Phaser.Display.Color.HexStringToColor(color).color, def.id)) {
       a.add(o);
       if (!e.open) (o as Phaser.GameObjects.Image).setAlpha(0.35);
+      // Закрытый предмет: иконка RO — тёмный силуэт (вещь ещё не найдена).
+      if (!e.open && o.name === 'roItemIcon') (o as Phaser.GameObjects.Image).setTint(0x101010);
     }
     const legend = LORE.items[def.id];
     if (!e.open) {
