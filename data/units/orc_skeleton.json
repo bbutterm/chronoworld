@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "orc_skeleton",
+  "name": "Орк-скелет",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 1150,
+    "atk": 60,
+    "def": 14,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "orc_skeleton_ancestor_blow",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "pirate_skel",
+    "tint": "#d8cdb0",
+    "scale": 1.25,
+    "hitFx": "fx_hit"
+  }
+}

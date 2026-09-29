@@ -1,24 +1,39 @@
 {
   "$schema": "../schema/chapter.schema.json",
   "id": "chapter3",
-  "name": "Глава 3. Костяные чертоги",
+  "name": "Глава 3. Предки не спят",
   "order": 3,
+  "episode": {
+    "title": "Предки не спят",
+    "subtitle": "Орочья деревня и Орочье подземелье",
+    "quote": "Вождь спускается к мёртвым один раз — чтобы пообещать им покой. Второй раз он спускается, чтобы лечь рядом.",
+    "text": "К западу от Гефена бьют барабаны. Орки не выходили на дороги сорок лет — теперь их дозоры стоят у каждого брода, а из шахт под деревней тянет холодом, какого не бывает летом.\n\nПустой тринадцатый ящик из каналов указал сюда: «Гефен, на запад, к оркам». Кто-то уже прошёл этой дорогой с чёрным песком — и после него в орочьих землях перестали спать мёртвые.\n\nГаррет, провожая отряд, сказал только: «Двадцать лет назад мы шли этой же дорогой. Орки нас предупреждали. Мы не послушали»."
+  },
+  "legend": {
+    "title": "Клятва вождей",
+    "text": "В Великой войне вожди орков поклялись держать своих мёртвых под землёй, пока стоит мир. Каждый новый вождь спускается к предкам, трубит в рог и повторяет клятву, а потом поднимается и трубит снова. Если второго рога не слышно — значит, вождь остался внизу держать.",
+    "source": "со слов шамана Угры, записано Лирой"
+  },
+  "chronicle": {
+    "title": "Клятва шёпотом",
+    "text": "Отряд пришёл к оркам по следу тринадцатого ящика. У ворот деревни его встретили топорами: люди в железе уже приходили сюда двадцать лет назад. Шаман Угра рассказала о клятве вождей, а дозорный — о человеке в сером у спуска в шахту. Кай поджёг частокол, Лира его потушила. Герой орков испытал отряд в круге вождя, проиграл и повёл его вниз, выводя своих раненых первыми. В подземелье встали предки, а на древнем вожде, Орк-лорде, горел рогатый знак. Когда знак погас, вождь снова взялся держать своих мёртвых и перед сном сказал: «Первый узел — в песках». Орки проводили отряд барабанами. Кай записал, что барабаны теперь бьют тише — будто клятву поют шёпотом."
+  },
   "stages": [
     {
       "id": "ch3_s1",
-      "name": "Склеп у входа",
+      "name": "Брод у Гефена",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 1.01
         },
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 1.01
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.01
         },
         null,
@@ -35,24 +50,24 @@
     },
     {
       "id": "ch3_s11",
-      "name": "Ржавые решётки",
+      "name": "Дозор на холме",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 0.91
         },
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 0.91
         },
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 0.91
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.91
         },
         null
@@ -68,23 +83,23 @@
     },
     {
       "id": "ch3_s2",
-      "name": "Зал стражей",
+      "name": "Частокол",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 1.03
         },
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 1.03
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.03
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.03
         },
         null
@@ -100,28 +115,28 @@
     },
     {
       "id": "ch3_s12",
-      "name": "Оружейная рыцарей",
+      "name": "Тотемы у ворот",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 0.88
         },
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 0.88
         },
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 0.88
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.88
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.88
         }
       ],
@@ -132,31 +147,41 @@
       "offlinePerMinute": {
         "jobExp": 97,
         "gold": 68
+      },
+      "finding": {
+        "id": "ch3_f_3o_totem_sign",
+        "title": "Тотем у ворот",
+        "kind": "inscription",
+        "text": "Столб из морёного дуба, резные морды предков одна над другой. Самую нижнюю кто-то исцарапал когтями, будто лез наверх из-под земли. А поверх орочьих рун, прямо на лбу верхнего предка, свежим чёрным песком выведен знак с двумя рогами. Песок ещё тёплый.",
+        "comment": {
+          "speaker": "Грета",
+          "text": "Колокольчик злится. Раньше он так только на порингов с краденым злился."
+        }
       }
     },
     {
       "id": "ch3_s3",
-      "name": "Призрачная охота",
+      "name": "Орочья деревня",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1.15
         },
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 0.42
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_lady",
           "mult": 1.15
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1.15
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1.15
         }
       ],
@@ -171,28 +196,28 @@
     },
     {
       "id": "ch3_s13",
-      "name": "Колокольня гаргулий",
+      "name": "Стрельбище",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1.13
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1.13
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1.13
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1.13
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.13
         }
       ],
@@ -207,27 +232,27 @@
     },
     {
       "id": "ch3_s4",
-      "name": "Костяной строй",
+      "name": "Двор высших орков",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 0.6
         },
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 0.6
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.25
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.25
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.25
         }
       ],
@@ -242,28 +267,28 @@
     },
     {
       "id": "ch3_s14",
-      "name": "Темницы Гласт Хейма",
+      "name": "Костры шаманов",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 1.01
         },
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 1.01
         },
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 1.01
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_lady",
           "mult": 1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1
         }
       ],
@@ -274,31 +299,41 @@
       "offlinePerMinute": {
         "jobExp": 115,
         "gold": 80
+      },
+      "finding": {
+        "id": "ch3_f_3o_kai_tablet",
+        "title": "Табличка Кая",
+        "kind": "note",
+        "text": "Восковая табличка студента Гефенской башни, края оплавлены — видно, писали у самого костра. «Шаманы утверждают, что мёртвые \"поднялись снизу, а не проснулись\". Лира говорит, это не научно. Я говорю — это страшно». Ниже другим почерком: «Кай, не пиши у огня».",
+        "comment": {
+          "speaker": "Бран",
+          "text": "Снизу, а не проснулись. Значит, кто-то внизу их не удержал. Или перестал держать."
+        }
       }
     },
     {
       "id": "ch3_s5",
-      "name": "Мимик у моста",
+      "name": "Круг вождя",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_elite",
+          "unit": "orc_skeleton",
           "mult": 0.87
         },
         {
-          "unit": "mob3_melee",
+          "unit": "orc_warrior",
           "mult": 0.87
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.87
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 0.87
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.87
         }
       ],
@@ -313,22 +348,22 @@
     },
     {
       "id": "ch3_s15",
-      "name": "Рыцарь на мосту",
+      "name": "Испытание вождя",
       "boss": false,
       "inserted": true,
       "enemies": [
         null,
         {
-          "unit": "mob3_knight",
+          "unit": "orc_hero",
           "mult": 1.48
         },
         null,
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.72
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.72
         }
       ],
@@ -343,27 +378,27 @@
     },
     {
       "id": "ch3_s6",
-      "name": "Катакомбы",
+      "name": "Спуск в шахту",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 0.46
         },
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 0.46
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.37
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1.37
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.37
         }
       ],
@@ -378,28 +413,28 @@
     },
     {
       "id": "ch3_s16",
-      "name": "Костница",
+      "name": "Первый ярус",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob3_melee",
+          "unit": "orc_zombie",
           "mult": 1.04
         },
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 0.81
         },
         {
-          "unit": "mob3_melee",
+          "unit": "orc_zombie",
           "mult": 1.04
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.04
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.04
         }
       ],
@@ -410,31 +445,41 @@
       "offlinePerMinute": {
         "jobExp": 137,
         "gold": 96
+      },
+      "finding": {
+        "id": "ch3_f_3o_war_drawing",
+        "title": "Рисунок углём в шахте",
+        "kind": "inscription",
+        "text": "Орки, люди и крылатые воины стоят плечом к плечу против огромной рогатой тени. Под рисунком — ряд отпечатков ладоней, от большой к маленькой: каждый новый вождь оставлял свою. Последний отпечаток свежий и смазан, будто рука дрогнула.",
+        "comment": {
+          "speaker": "Вика",
+          "text": "Они дрались вместе. Когда-то все дрались вместе."
+        }
       }
     },
     {
       "id": "ch3_s7",
-      "name": "Стая теней",
+      "name": "Кости предков",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_elite",
+          "unit": "orc_skeleton",
           "mult": 0.89
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 0.89
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 0.89
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.89
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 0.89
         }
       ],
@@ -449,22 +494,22 @@
     },
     {
       "id": "ch3_s17",
-      "name": "Хоры капеллы",
+      "name": "Стальные чончоны",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 1.39
         },
         null,
         null,
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.79
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.79
         }
       ],
@@ -479,27 +524,27 @@
     },
     {
       "id": "ch3_s8",
-      "name": "Орден смерти",
+      "name": "Нижний ярус",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_elite",
+          "unit": "orc_skeleton",
           "mult": 0.61
         },
         {
-          "unit": "mob3_elite",
+          "unit": "orc_skeleton",
           "mult": 0.61
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.94
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 0.94
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.94
         }
       ],
@@ -514,28 +559,28 @@
     },
     {
       "id": "ch3_s18",
-      "name": "Ночной караул",
+      "name": "Рог вождя",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob3_elite",
+          "unit": "orc_skeleton",
           "mult": 0.89
         },
         {
-          "unit": "mob3_melee",
+          "unit": "orc_zombie",
           "mult": 0.84
         },
         {
-          "unit": "mob3_melee",
+          "unit": "orc_zombie",
           "mult": 0.84
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.84
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 0.84
         }
       ],
@@ -546,31 +591,41 @@
       "offlinePerMinute": {
         "jobExp": 163,
         "gold": 114
+      },
+      "finding": {
+        "id": "ch3_f_3o_broken_horn",
+        "title": "Разбитый рог вождя",
+        "kind": "item",
+        "text": "Турий рог в медной оправе, расколотый вдоль. Им вождь трубит, спускаясь к предкам: один раз вниз — и один раз, поднимаясь обратно. На оправе зарубки — по одной на каждое возвращение. Последней зарубки нет. Рог трубил один раз.",
+        "comment": {
+          "speaker": "Алан",
+          "text": "Он спустился держать их. Один. Никто не пошёл следом."
+        }
       }
     },
     {
       "id": "ch3_s9",
-      "name": "Преддверие алтаря",
+      "name": "Преддверие склепа",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob3_elite",
+          "unit": "orc_skeleton",
           "mult": 0.51
         },
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 0.51
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.09
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1.09
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.09
         }
       ],
@@ -585,27 +640,27 @@
     },
     {
       "id": "ch3_s10",
-      "name": "Алтарь Верховного жреца",
+      "name": "Трон Орк-лорда",
       "boss": true,
       "enemies": [
         {
-          "unit": "mob3_tank",
+          "unit": "orc_high",
           "mult": 0.34
         },
         {
-          "unit": "mob3_elite",
+          "unit": "orc_skeleton",
           "mult": 0.34
         },
         {
-          "unit": "mob3_boss",
+          "unit": "orc_lord",
           "mult": 0.7
         },
         {
-          "unit": "mob3_ranged",
+          "unit": "orc_archer",
           "mult": 1.1
         },
         {
-          "unit": "mob3_fast",
+          "unit": "orc_chonchon",
           "mult": 1.1
         }
       ],

@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "orc_warrior_axe_rend",
+  "name": "Рубящий топор",
+  "description": "Орк-воин с размаху рубит ближайшего врага: урон и пробитая броня (−30% защиты на 2 хода).",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.3
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "armor_break",
+        "name": "Пробитая броня",
+        "turns": 2,
+        "stats": {
+          "def": -0.3
+        }
+      }
+    }
+  ]
+}

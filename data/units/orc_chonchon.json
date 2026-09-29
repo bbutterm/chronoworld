@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "orc_chonchon",
+  "name": "Стальной чончон",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 400,
+    "atk": 41,
+    "def": 5,
+    "spd": 140
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "orc_chonchon_dive",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "kukre",
+    "tint": "#9aa8bc",
+    "hitFx": "fx_hit"
+  }
+}
