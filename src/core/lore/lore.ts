@@ -5,10 +5,15 @@
 import type { z } from 'zod';
 import type { RawFile } from '../content/build';
 import type { ItemDef } from '../equipment/schema';
+import type { HuntConfig } from '../hunt/schema';
+import type { TowerConfig } from '../tower/schema';
+import { extraBestiaryUnits } from './chronicle';
 import type { Content } from '../types';
-import { HeroesLoreSchema, ItemsLoreSchema, JobsLoreSchema, LORE_LIMITS, MonstersLoreSchema, WorldLoreSchema, type Lore } from './schema';
+import { HeroesLoreSchema, ItemsLoreSchema, JobsLoreSchema, LINE_KINDS, LinesLoreSchema, LORE_LIMITS, MonstersLoreSchema, WorldLoreSchema, type LineKind, type Lore } from './schema';
 
-export const emptyLore = (): Lore => ({ monsters: {}, items: {}, heroes: {}, jobs: {}, chapters: {}, world: [] });
+export const emptyLines = (): Lore['lines'] => Object.fromEntries(Object.keys(LINE_KINDS).map((k) => [k, []])) as unknown as Record<LineKind, string[]>;
+
+export const emptyLore = (): Lore => ({ monsters: {}, items: {}, heroes: {}, jobs: {}, chapters: {}, world: [], lines: emptyLines() });
 
 /** Файлы data/lore и их схемы. */
 export const LORE_FILES = {
@@ -17,6 +22,7 @@ export const LORE_FILES = {
   'heroes.json': HeroesLoreSchema,
   'jobs.json': JobsLoreSchema,
   'world.json': WorldLoreSchema,
+  'lines.json': LinesLoreSchema,
 } as const;
 
 const issues = (e: z.ZodError) =>
@@ -60,7 +66,9 @@ export function parseLore(files: readonly RawFile[]): { lore: Lore; problems: st
     else if (name === 'items.json') lore.items = d.entries as Lore['items'];
     else if (name === 'heroes.json') lore.heroes = d.entries as Lore['heroes'];
     else if (name === 'jobs.json') lore.jobs = d.entries as Lore['jobs'];
-    else {
+    else if (name === 'lines.json') {
+      for (const k of Object.keys(LINE_KINDS) as LineKind[]) lore.lines[k] = (d[k] as string[] | undefined) ?? [];
+    } else {
       lore.chapters = d.chapters as Lore['chapters'];
       lore.world = d.world as Lore['world'];
     }
@@ -72,6 +80,9 @@ export function parseLore(files: readonly RawFile[]): { lore: Lore; problems: st
 export interface LoreCheckContext {
   content: Pick<Content, 'units' | 'heroes' | 'jobs' | 'chapters' | 'stages'>;
   items: Record<string, ItemDef>;
+  /** Башня и Охота: их монстры тоже в бестиарии (без них такие записи — ⚠ «вне кампании»). */
+  tower?: TowerConfig;
+  hunt?: HuntConfig;
 }
 
 /**
@@ -86,6 +97,7 @@ export function validateLore(lore: Lore, ctx: LoreCheckContext): { errors: strin
     if (s && s.length > max) warnings.push(`${where}: ${s.length} симв. — больше ${max}, на телефоне будет длинно`);
   };
   const inStages = new Set(ctx.content.stages.flatMap((s) => s.enemies.filter((e) => !!e).map((e) => e!.unit)));
+  for (const u of extraBestiaryUnits(ctx)) inStages.add(u);
 
   for (const [id, m] of Object.entries(lore.monsters)) {
     const at = `data/lore/monsters.json: ${id}`;
@@ -95,7 +107,7 @@ export function validateLore(lore: Lore, ctx: LoreCheckContext): { errors: strin
       continue;
     }
     if (u.kind === 'hero') warnings.push(`${at} — это юнит-герой, в бестиарии не покажется`);
-    else if (!inStages.has(id)) warnings.push(`${at} — не встречается на этапах кампании, в бестиарии не покажется`);
+    else if (!inStages.has(id)) warnings.push(`${at} — не встречается ни на этапах кампании, ни в Башне, ни на Охоте — в бестиарии не покажется`);
     long(`${at}.title`, m.title, LORE_LIMITS.title);
     long(`${at}.text`, m.text, LORE_LIMITS.text);
     long(`${at}.quote`, m.quote, LORE_LIMITS.quote);
@@ -139,6 +151,10 @@ export function validateLore(lore: Lore, ctx: LoreCheckContext): { errors: strin
     if (w.unlockAfterStage && !stageIds.has(w.unlockAfterStage)) errors.push(`${at}.unlockAfterStage = "${w.unlockAfterStage}" — нет такого этапа`);
     long(`${at}.title`, w.title, LORE_LIMITS.title);
     long(`${at}.text`, w.text, LORE_LIMITS.text);
+  }
+  for (const [kind, list] of Object.entries(lore.lines)) {
+    const dup = list.filter((x, i) => list.indexOf(x) !== i);
+    if (dup.length) warnings.push(`data/lore/lines.json: ${kind} — строка повторяется: «${dup[0]}»`);
   }
   return { errors, warnings };
 }

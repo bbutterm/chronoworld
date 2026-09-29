@@ -104,6 +104,58 @@
               "jobExp",
               "gold"
             ]
+          },
+          "finding": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "kind": {
+                "default": "note",
+                "type": "string",
+                "enum": [
+                  "note",
+                  "inscription",
+                  "rumor",
+                  "item"
+                ]
+              },
+              "comment": {
+                "type": "object",
+                "properties": {
+                  "speaker": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  }
+                },
+                "required": [
+                  "speaker",
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "text"
+            ]
           }
         },
         "required": [
@@ -114,6 +166,78 @@
           "offlinePerMinute"
         ]
       }
+    },
+    "episode": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "subtitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 900
+        }
+      },
+      "required": [
+        "title",
+        "text"
+      ]
+    },
+    "legend": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "title",
+        "text"
+      ]
+    },
+    "chronicle": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 800
+        }
+      },
+      "required": [
+        "title",
+        "text"
+      ]
     }
   },
   "required": [
