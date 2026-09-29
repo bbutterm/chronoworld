@@ -50,6 +50,7 @@ import { ascendHint, browseNeighbours, copyCounter, heroesUi, inventoryUi, level
 import { openBranchPicker } from '../branchPicker';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
+import { hasHeroStory, heroStoryNew, heroStoryProgress, openHeroStory, storyDot, toastOpenedStories } from '../heroStoryView';
 
 const SKILL_ROW_H = 118;
 /** Редкость в родительном падеже: «растёт до красного». */
@@ -513,8 +514,11 @@ export class HeroScene extends Phaser.Scene {
     }
     const prev = this.snapshot(hero);
     try {
+      const saveBefore = session.save;
       const r = actLevelUp(session.save, today(), hero.id, GAME, 1);
       commit(r.save);
+      // Уровень открыл кусочек истории героя — тост и отметка «новое» на вкладке «История».
+      if (toastOpenedStories(this, saveBefore, r.save, hero.templateId)) this.storyTabDot(true);
       markHint('level_up');
       sfx('level_up', hold ? { gain: 0.55, rate: 1 + Math.min(0.4, this.holdCount * 0.03) } : {});
       this.levelFx();
@@ -598,8 +602,18 @@ export class HeroScene extends Phaser.Scene {
         text(this, 195 + i * 345 + 140, TABS_Y - 36, '▲', FS.caption - 6, C.text, { fontStyle: 'bold' }).setDepth(6);
       }
     });
+    this.storyTabDot();
     card(this, GAME_W / 2, (TAB_TOP + CONTENT_BOTTOM) / 2, 1040, CONTENT_BOTTOM - TAB_TOP);
     this.tabArea = new ScrollArea(this, TAB_TOP + 8, CONTENT_BOTTOM - 8);
+  }
+
+  /** Отметка «новое» на вкладке «История»: открыт непрочитанный кусочек истории героя (heroStoryView). */
+  private storyTabDot(refresh = false): void {
+    const hero = this.hero();
+    if (!hero || !heroStoryNew(hero.templateId)) return;
+    const i = TABS.findIndex((t) => t.id === 'story');
+    if (!this.children.getByName('storyTabDot')) storyDot(this, 195 + i * 345 + 140, TABS_Y - 34).setDepth(6).setName('storyTabDot');
+    if (refresh && this.tab === 'story') this.renderTab();
   }
 
   private renderTab(): void {
@@ -808,6 +822,17 @@ export class HeroScene extends Phaser.Scene {
     const a = this.tabArea;
     const c = heroCard(hero, GAME);
     let y = 20;
+    // История героя кусочками (каждые 10 уровней) — страница во весь экран (heroStoryView).
+    if (hasHeroStory(hero.templateId)) {
+      const pr = heroStoryProgress(hero.templateId);
+      const sb = button(this, GAME_W / 2, y + 55, 760, 110, 'ui_btn_primary', `История героя · ${pr.open} из ${pr.total}`, () => {
+        openHeroStory(this, hero.templateId, { lock: a, onClose: () => this.reopen({ heroId: hero.id, tab: 'story' }) });
+      }, FS.h3);
+      sb.container.setName('heroStoryBtn');
+      a.add(sb.container);
+      if (heroStoryNew(hero.templateId)) a.add(storyDot(this, GAME_W / 2 + 370, y + 8));
+      y += 140;
+    }
     const para = (s: string, color: string, size: number = FS.body, style: Phaser.Types.GameObjects.Text.TextStyle = {}) => {
       const t = a.add(text(this, 60, y, s, size, color, { align: 'left', wordWrap: { width: 950 }, lineSpacing: 6, ...style }).setOrigin(0, 0));
       y += t.height + 22;

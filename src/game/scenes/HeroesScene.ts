@@ -14,6 +14,7 @@ import { C, FS } from '../theme';
 import { cardIcon, drawHeroCard, GUILD_NAMES, heroCardIcon, heroCardSize, LINES, rarityColor, ROLES } from '../heroCard';
 import { collectionCount, collectionHeroes, groupCopies, heroesUi, inventoryUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
 import { pulse } from '../juice';
+import { heroStoryNew, storyDot } from '../heroStoryView';
 
 const COLS = 3;
 const TILE_W = 300;
@@ -220,7 +221,7 @@ export class HeroesScene extends Phaser.Scene {
   /** Плитка героя игрока: метки отряда, «Новый!», замок, «можно улучшить / вознести», копии «×N», «Выберите ветку!». */
   private tile(hero: HeroState, x: number, y: number, canAscend: boolean, copies = 1): Phaser.GameObjects.Container {
     const save = session.save;
-    return drawHeroCard(this, x, y, hero, {
+    const card = drawHeroCard(this, x, y, hero, {
       w: TILE_W,
       copies,
       needsBranch: needsBranch(hero, GAME),
@@ -232,6 +233,9 @@ export class HeroesScene extends Phaser.Scene {
       parent: this.area.content,
       onTap: this.area.tap(() => this.scene.start('Hero', { heroId: hero.id })),
     });
+    // Открыт непрочитанный кусочек истории героя — отметка «новое» у левого края (ниже меток «в отряде», «Новый!», ветки).
+    if (heroStoryNew(hero.templateId, save)) card.add(storyDot(this, -TILE_W / 2 + 34, -heroCardSize(TILE_W).h / 2 + 190, 22));
+    return card;
   }
 
   /** Кнопка-фильтр со значком (выбранная — золотая рамка). */
