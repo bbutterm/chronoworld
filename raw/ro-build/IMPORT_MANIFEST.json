@@ -11,6 +11,7 @@
   "item_collection": 67,
   "item_icons": 67,
   "monster_sound": 182,
+  "music": 70,
   "npc_portrait": 9,
   "npc_sheet": 9,
   "sound": 120,
@@ -18,9 +19,12 @@
  },
  "statuses": {
   "needs_decision": 3,
-  "raw_needs_conversion": 338,
-  "ready": 204,
+  "needs_music_id": 20,
+  "raw_needs_conversion": 303,
+  "raw_source": 35,
+  "ready": 234,
   "ready_with_skipped_frames": 10,
+  "spare": 20,
   "unusable": 2
  },
  "files": [
@@ -5746,8 +5750,8 @@
    "file": "raw/ro/bgm/01.mp3",
    "target": null,
    "sha256": "03d6c7f34b255750de3ee5a5905c51d69e1acd91515611946642d68cdecbffcd",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5755,8 +5759,8 @@
    "file": "raw/ro/bgm/05.mp3",
    "target": null,
    "sha256": "38b70bc226f07ca2a5ff41548450fb835dc8be0d70975c252f4f0459e0d683d7",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5764,8 +5768,8 @@
    "file": "raw/ro/bgm/06.mp3",
    "target": null,
    "sha256": "d54629b6c6cb8508786a5101b78495768d5c3d5398cb92f52de54ccfe856dbd1",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5773,8 +5777,8 @@
    "file": "raw/ro/bgm/08.mp3",
    "target": null,
    "sha256": "93841c38b5fa8d6f6137198091368ed679c45205470c93a63ca1b352b086b118",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5782,8 +5786,8 @@
    "file": "raw/ro/bgm/11.mp3",
    "target": null,
    "sha256": "f1b4ed07892587d2056c344a06a016ffe9c457cd8134e11c228f5a39629ad1be",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5791,8 +5795,8 @@
    "file": "raw/ro/bgm/12.mp3",
    "target": null,
    "sha256": "814a8484603741406bdb5ad0f16f4b9d4bca6218f8c23d88cbf6983e6c6da58e",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5800,8 +5804,8 @@
    "file": "raw/ro/bgm/14.mp3",
    "target": null,
    "sha256": "dd21babc179bab9eafe9fb2e82ff1f6c02f02bc43c7ee76ae4d6582f0dab8130",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5809,8 +5813,8 @@
    "file": "raw/ro/bgm/15.mp3",
    "target": null,
    "sha256": "cdb3fc5af447730e5e40a2feb469341aae766e5bdb2257fc03084b919cda2ef7",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5818,8 +5822,8 @@
    "file": "raw/ro/bgm/16.mp3",
    "target": null,
    "sha256": "fc057c4b45596b2ae9df54d1928bb783b426e87ef55b05e7dc5054227164a882",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5827,8 +5831,8 @@
    "file": "raw/ro/bgm/17.mp3",
    "target": null,
    "sha256": "25111ce5628a283fddd97e28cf54a82056588364bf51241aea947d746a81587d",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5836,8 +5840,8 @@
    "file": "raw/ro/bgm/19.mp3",
    "target": null,
    "sha256": "8b06764baae3fd8eaa05e562215bd8d2933f28607bb83d4f7d4bac57ad375223",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5845,8 +5849,8 @@
    "file": "raw/ro/bgm/20.mp3",
    "target": null,
    "sha256": "2ccad463651282d4836e9e910b022c923884063b6ffdeb2284ef39e80af8cfbf",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5854,8 +5858,8 @@
    "file": "raw/ro/bgm/21.mp3",
    "target": null,
    "sha256": "18e3b8c4c688d5be1db9401922e511343343e80a081c2056b1a60dcd4853810e",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5863,8 +5867,8 @@
    "file": "raw/ro/bgm/22.mp3",
    "target": null,
    "sha256": "27aa738d7ccf89263f8f5d2287236b9bf787a90b5d17b5d478cb752a0c0b5788",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5872,8 +5876,8 @@
    "file": "raw/ro/bgm/26.mp3",
    "target": null,
    "sha256": "3b45fd8fe879fb613c736072d0701c19b5f7f57c9f9d86861e836d6a76441925",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5881,8 +5885,8 @@
    "file": "raw/ro/bgm/35.mp3",
    "target": null,
    "sha256": "9422d9e871cd8db29dd9eb5a34d39e8660d22e0491cfc8bf8a553668b9e3a10b",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5890,8 +5894,8 @@
    "file": "raw/ro/bgm/39.mp3",
    "target": null,
    "sha256": "20d2ebd35a46d33b798be2eff521b51e8b02956e9eba6bc3a7c3bdee0aa9f27b",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5899,8 +5903,8 @@
    "file": "raw/ro/bgm/40.mp3",
    "target": null,
    "sha256": "26d46bfdcb3e5af67bb72e9616acb71253b87c4c710c1f948344341758f978ce",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5908,8 +5912,8 @@
    "file": "raw/ro/bgm/42.mp3",
    "target": null,
    "sha256": "4a5747ec1b4f2dec43b2d8baf44916ae12a8c596700e73820fe34b8a9f0254b1",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5917,8 +5921,8 @@
    "file": "raw/ro/bgm/48.mp3",
    "target": null,
    "sha256": "069e02272aed8606cda8755dd518256080e761743607ac92f35a306bb3c9a688",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5926,8 +5930,8 @@
    "file": "raw/ro/bgm/60.mp3",
    "target": null,
    "sha256": "1ceb0ca24daab93c1e2bef2f99216a30efdf4440bd2e942b0b21b33e4019771a",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5935,8 +5939,8 @@
    "file": "raw/ro/bgm/84.mp3",
    "target": null,
    "sha256": "06fab3470782a9f38746c58bcf8407f47b153da400c169021443bb2702d88a93",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm",
@@ -5944,8 +5948,8 @@
    "file": "raw/ro/bgm/85.mp3",
    "target": null,
    "sha256": "2c27814965c273b43e6dfee139217e1af36d79e60ac07f6d2a9628c11fb1d1e0",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -5953,8 +5957,8 @@
    "file": "raw/ro/bgm/02.mp3",
    "target": null,
    "sha256": "d2df506790bd26131a288c9bd6fa1cd3130d8a436e7a74932a3e269e8c6103fa",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -5962,8 +5966,8 @@
    "file": "raw/ro/bgm/03.mp3",
    "target": null,
    "sha256": "7a67f772062b6ca40ddcdd310f5b69189f55eb544f067798e9d0a4d09cb4eb30",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -5971,8 +5975,8 @@
    "file": "raw/ro/bgm/18.mp3",
    "target": null,
    "sha256": "42e99274271dd4609296dbf9742375c6b5315349e0039d454b3a360fc74da010",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -5980,8 +5984,8 @@
    "file": "raw/ro/bgm/24.mp3",
    "target": null,
    "sha256": "b41dfc0938fa642947e50788687f229aecf234aee1a64c7b4a5696eda405907d",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -5989,8 +5993,8 @@
    "file": "raw/ro/bgm/36.mp3",
    "target": null,
    "sha256": "e602413c136429e6be6091bc26037500a01ee8a0019c89215958cce26f8968cc",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -5998,8 +6002,8 @@
    "file": "raw/ro/bgm/37.mp3",
    "target": null,
    "sha256": "0499a0d9a6247d9196ed02e9b5105f1ba15f0e8f8578fff5844d35f41a78d19f",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -6007,8 +6011,8 @@
    "file": "raw/ro/bgm/38.mp3",
    "target": null,
    "sha256": "5af5ef1cf738b9687973da52a9a6c2cd6602761f1b33199c423830b04901a5cc",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -6016,8 +6020,8 @@
    "file": "raw/ro/bgm/43.mp3",
    "target": null,
    "sha256": "20ad3740614ebd391c08daca355c81fc60911cbab2273aa7ec5c0b4ac102d61d",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -6025,8 +6029,8 @@
    "file": "raw/ro/bgm/44.mp3",
    "target": null,
    "sha256": "76bd73a8ec20b19315411162105dc76fca6216187632ba77b518a9317a66ec5e",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -6034,8 +6038,8 @@
    "file": "raw/ro/bgm/47.mp3",
    "target": null,
    "sha256": "03c5813e4759eb5b0fab515477e092f64dd302f9b8247cced637644e50097448",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -6043,8 +6047,8 @@
    "file": "raw/ro/bgm/52.mp3",
    "target": null,
    "sha256": "a1e49515b8d0821b8f77218b16cda3414041490cedb9e6f40047cc4b906eeabc",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
   },
   {
    "kind": "bgm_optional",
@@ -6052,8 +6056,1092 @@
    "file": "raw/ro/bgm/61.mp3",
    "target": null,
    "sha256": "89999d3e59e2bc7fd9e2510e4e49ee672dd6de2f7029fa71c2905f3d1c484a8b",
-   "status": "raw_needs_conversion",
-   "note": "оригинал; ogg/петли делает агент"
+   "status": "raw_source",
+   "note": "оригинал; готовая версия — raw/ro-build/audio/bgm_NN.ogg/.m4a"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_01.ogg",
+   "bgm": "01",
+   "title": "Title",
+   "file": "raw/ro-build/audio/bgm_01.ogg",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_title.ogg"
+   ],
+   "sha256": "d113ad5154a1ff096509e53736b75494beb5971a1901dd9c6b908ee5ec217dd1",
+   "bytes": 535562,
+   "seconds": 109.44,
+   "status": "needs_music_id",
+   "note": "opus 40 kbps, -15.9 LUFS; из raw/ro/bgm/01.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_01.m4a",
+   "bgm": "01",
+   "title": "Title",
+   "file": "raw/ro-build/audio/bgm_01.m4a",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_title.m4a"
+   ],
+   "sha256": "bd8c7606e416da4c3f0d178b262eb22964e43d95e7ded4a5ca4bafc59518123c",
+   "bytes": 791772,
+   "seconds": 109.44,
+   "status": "needs_music_id",
+   "note": "aac-lc 56 kbps, -15.9 LUFS; из raw/ro/bgm/01.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_02.ogg",
+   "bgm": "02",
+   "title": "Gambler of Highway",
+   "file": "raw/ro-build/audio/bgm_02.ogg",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_hunt.ogg"
+   ],
+   "sha256": "1da5df437543d38e005d223b4ded513937f08efa170653b29e7d3d78ff25858a",
+   "bytes": 871363,
+   "seconds": 181.899,
+   "status": "needs_music_id",
+   "note": "opus 32 kbps, -16.0 LUFS; из raw/ro/bgm/02.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_02.m4a",
+   "bgm": "02",
+   "title": "Gambler of Highway",
+   "file": "raw/ro-build/audio/bgm_02.m4a",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_hunt.m4a"
+   ],
+   "sha256": "6280c6e6cdf1e44b5408eea94231b9fd760bab28875187fe3ebfe718299b27f4",
+   "bytes": 968680,
+   "seconds": 181.899,
+   "status": "needs_music_id",
+   "note": "aac-lc 40 kbps, -16.0 LUFS; из raw/ro/bgm/02.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_03.ogg",
+   "bgm": "03",
+   "title": "Peaceful Forest",
+   "file": "raw/ro-build/audio/bgm_03.ogg",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "a2c1ef245d927bb89cef68247c25db3a256566a599e8feb76de3714d57795b6f",
+   "bytes": 825480,
+   "seconds": 150.338,
+   "status": "spare",
+   "note": "opus 32 kbps, -16.0 LUFS; из raw/ro/bgm/03.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_03.m4a",
+   "bgm": "03",
+   "title": "Peaceful Forest",
+   "file": "raw/ro-build/audio/bgm_03.m4a",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "3235eecffc1e123058e738ab82e95a7c1b7604972b7c92d93f541ca549e94843",
+   "bytes": 773224,
+   "seconds": 150.338,
+   "status": "spare",
+   "note": "aac-lc 40 kbps, -16.0 LUFS; из raw/ro/bgm/03.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_05.ogg",
+   "bgm": "05",
+   "title": "Tread on the Ground",
+   "file": "raw/ro-build/audio/bgm_05.ogg",
+   "target": [
+    "assets/audio/music_battle_meadow.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "f3ff001d4d5992fa733634efc478a7be41f8066f3783f5aa00f233654bd0d34f",
+   "bytes": 535491,
+   "seconds": 114.38,
+   "status": "ready",
+   "note": "opus 32 kbps, -16.0 LUFS; из raw/ro/bgm/05.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_05.m4a",
+   "bgm": "05",
+   "title": "Tread on the Ground",
+   "file": "raw/ro-build/audio/bgm_05.m4a",
+   "target": [
+    "assets/audio/music_battle_meadow.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "4ea6852d8d36bdc8f8cdc6e5b1fdf84b61495a0713d74ac56237a75fbec396ee",
+   "bytes": 592469,
+   "seconds": 114.38,
+   "status": "ready",
+   "note": "aac-lc 40 kbps, -16.0 LUFS; из raw/ro/bgm/05.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_06.ogg",
+   "bgm": "06",
+   "title": "Risk Your Life",
+   "file": "raw/ro-build/audio/bgm_06.ogg",
+   "target": [
+    "assets/audio/music_boss.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "df81cbf6e6abbc5e422a3b8bb8c4ca72b1715e655f8cad705a6a085b7214be76",
+   "bytes": 750923,
+   "seconds": 168.359,
+   "status": "ready",
+   "note": "opus 32 kbps, -16.0 LUFS; из raw/ro/bgm/06.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_06.m4a",
+   "bgm": "06",
+   "title": "Risk Your Life",
+   "file": "raw/ro-build/audio/bgm_06.m4a",
+   "target": [
+    "assets/audio/music_boss.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "9a73927e8475622f680f53562c2afc84a2af24a0a15a662c4335a24ff74b2d2d",
+   "bytes": 863807,
+   "seconds": 168.359,
+   "status": "ready",
+   "note": "aac-lc 40 kbps, -16.0 LUFS; из raw/ro/bgm/06.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_08.ogg",
+   "bgm": "08",
+   "title": "Theme of Prontera",
+   "file": "raw/ro-build/audio/bgm_08.ogg",
+   "target": [
+    "assets/audio/music_home.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "d7c96c719edd20b0b1265a70ca0445c110fd0a726b472554dcf1fb317d23146f",
+   "bytes": 1439960,
+   "seconds": 272.861,
+   "status": "ready",
+   "note": "opus 32 kbps, -16.1 LUFS; из raw/ro/bgm/08.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_08.m4a",
+   "bgm": "08",
+   "title": "Theme of Prontera",
+   "file": "raw/ro-build/audio/bgm_08.m4a",
+   "target": [
+    "assets/audio/music_home.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "0fd235bd373c613383e335a12bcc720a44772648800c4a56114c6eb700c988d5",
+   "bytes": 1409538,
+   "seconds": 272.861,
+   "status": "ready",
+   "note": "aac-lc 40 kbps, -16.1 LUFS; из raw/ro/bgm/08.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_11.ogg",
+   "bgm": "11",
+   "title": "Theme of Morroc",
+   "file": "raw/ro-build/audio/bgm_11.ogg",
+   "target": [
+    "assets/audio/music_map_desert.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "732e6d54d41103307d2c421a70fd045f14af4aff372a71c89c6d88fff81710de",
+   "bytes": 596047,
+   "seconds": 127.617,
+   "status": "ready",
+   "note": "opus 32 kbps, -16.0 LUFS; из raw/ro/bgm/11.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_11.m4a",
+   "bgm": "11",
+   "title": "Theme of Morroc",
+   "file": "raw/ro-build/audio/bgm_11.m4a",
+   "target": [
+    "assets/audio/music_map_desert.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "1c1e45ae891c109c39e5dd96f64339300352205813ab467645a04ef7147fb69d",
+   "bytes": 667405,
+   "seconds": 127.617,
+   "status": "ready",
+   "note": "aac-lc 40 kbps, -16.0 LUFS; из raw/ro/bgm/11.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_12.ogg",
+   "bgm": "12",
+   "title": "Streamside",
+   "file": "raw/ro-build/audio/bgm_12.ogg",
+   "target": [
+    "assets/audio/music_map_meadow.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "81d82a79d8775c36dd0cfaa6a83e23d038615aa5a3e71e64319d6dcd951d2b4c",
+   "bytes": 680069,
+   "seconds": 145.064,
+   "status": "ready",
+   "note": "opus 32 kbps, -16.0 LUFS; из raw/ro/bgm/12.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_12.m4a",
+   "bgm": "12",
+   "title": "Streamside",
+   "file": "raw/ro-build/audio/bgm_12.m4a",
+   "target": [
+    "assets/audio/music_map_meadow.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "dcba04c6f9d57ca55092f2209f778aeb01171f00e542179ef2283f52e233df58",
+   "bytes": 743117,
+   "seconds": 145.064,
+   "status": "ready",
+   "note": "aac-lc 40 kbps, -16.0 LUFS; из raw/ro/bgm/12.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_14.ogg",
+   "bgm": "14",
+   "title": "Theme of Payon",
+   "file": "raw/ro-build/audio/bgm_14.ogg",
+   "target": [
+    "assets/audio/music_map_grove.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "5060f2d08079da1edba470de1ff3d864375194baefd0caf08d03588916f5e2bb",
+   "bytes": 673132,
+   "seconds": 141.188,
+   "status": "ready",
+   "note": "opus 32 kbps, -16.1 LUFS; из raw/ro/bgm/14.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_14.m4a",
+   "bgm": "14",
+   "title": "Theme of Payon",
+   "file": "raw/ro-build/audio/bgm_14.m4a",
+   "target": [
+    "assets/audio/music_map_grove.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "fcbf3c86bf87dd144386eb1182b42bcbca64eb29439c7aff8cb678b86657a195",
+   "bytes": 723833,
+   "seconds": 141.188,
+   "status": "ready",
+   "note": "aac-lc 40 kbps, -16.1 LUFS; из raw/ro/bgm/14.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_15.ogg",
+   "bgm": "15",
+   "title": "Theme of Alberta",
+   "file": "raw/ro-build/audio/bgm_15.ogg",
+   "target": [
+    "assets/audio/music_map_shipwreck.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "baea17e05220834ca58901209978d1bba9ff0ce5ab0d10b71956bf824800898c",
+   "bytes": 949482,
+   "seconds": 200.053,
+   "status": "ready",
+   "note": "opus 32 kbps, -16.0 LUFS; из raw/ro/bgm/15.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_15.m4a",
+   "bgm": "15",
+   "title": "Theme of Alberta",
+   "file": "raw/ro-build/audio/bgm_15.m4a",
+   "target": [
+    "assets/audio/music_map_shipwreck.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "adb7d146eed0d01a7d715afbaa39a2813976b51e67b062b198520896d975f07d",
+   "bytes": 1028973,
+   "seconds": 200.053,
+   "status": "ready",
+   "note": "aac-lc 40 kbps, -16.0 LUFS; из raw/ro/bgm/15.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_16.ogg",
+   "bgm": "16",
+   "title": "Labyrinth",
+   "file": "raw/ro-build/audio/bgm_16.ogg",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_map_maze.ogg",
+    "assets/audio/music_battle_maze.ogg"
+   ],
+   "sha256": "422120e95219af90c1a78d1045e8a030c25932cff44e0c95c193bdac703318f4",
+   "bytes": 686116,
+   "seconds": 137.897,
+   "status": "needs_music_id",
+   "note": "opus 32 kbps, -16.0 LUFS; из raw/ro/bgm/16.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_16.m4a",
+   "bgm": "16",
+   "title": "Labyrinth",
+   "file": "raw/ro-build/audio/bgm_16.m4a",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_map_maze.m4a",
+    "assets/audio/music_battle_maze.m4a"
+   ],
+   "sha256": "3ba3c8676c47c16f9309170324c4b6a60a3f0211d472ca9ec72362ae6136ae55",
+   "bytes": 705741,
+   "seconds": 137.897,
+   "status": "needs_music_id",
+   "note": "aac-lc 40 kbps, -16.0 LUFS; из raw/ro/bgm/16.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_17.ogg",
+   "bgm": "17",
+   "title": "Treasure Hunter",
+   "file": "raw/ro-build/audio/bgm_17.ogg",
+   "target": [
+    "assets/audio/music_battle_shipwreck.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "8533774bba2a96145237cf51944d7eb1afb36e2f485309fa44f929a1310e9868",
+   "bytes": 796183,
+   "seconds": 154.808,
+   "status": "ready",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/17.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_17.m4a",
+   "bgm": "17",
+   "title": "Treasure Hunter",
+   "file": "raw/ro-build/audio/bgm_17.m4a",
+   "target": [
+    "assets/audio/music_battle_shipwreck.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "945a42a47376884e323401e0a8e4c989bddba3b3feb08b56a10f012e8cd384e0",
+   "bytes": 1122741,
+   "seconds": 154.808,
+   "status": "ready",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/17.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_18.ogg",
+   "bgm": "18",
+   "title": "Time Up!!",
+   "file": "raw/ro-build/audio/bgm_18.ogg",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "22324cad494c25bd5d3a5718b258a97828a1427aff143c3fd5ff17475d93bd41",
+   "bytes": 1120985,
+   "seconds": 224.143,
+   "status": "spare",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/18.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_18.m4a",
+   "bgm": "18",
+   "title": "Time Up!!",
+   "file": "raw/ro-build/audio/bgm_18.m4a",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "921752432732ac15e4291b028eb3f2edf0fa14016c5a26c55430061fa85e6c4a",
+   "bytes": 1485665,
+   "seconds": 224.143,
+   "status": "spare",
+   "note": "aac-lc 51 kbps, -16.0 LUFS; из raw/ro/bgm/18.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_19.ogg",
+   "bgm": "19",
+   "title": "Under the Ground",
+   "file": "raw/ro-build/audio/bgm_19.ogg",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_map_sewer.ogg",
+    "assets/audio/music_battle_sewer.ogg"
+   ],
+   "sha256": "b0b697e626d097398de30a9ec3abf039d9a17de664ef1f423ff8ae43a0f5dfcc",
+   "bytes": 1034668,
+   "seconds": 201.346,
+   "status": "needs_music_id",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/19.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_19.m4a",
+   "bgm": "19",
+   "title": "Under the Ground",
+   "file": "raw/ro-build/audio/bgm_19.m4a",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_map_sewer.m4a",
+    "assets/audio/music_battle_sewer.m4a"
+   ],
+   "sha256": "0a1f483d9fb0c60d7203e189d3e6e6dad7f805ea54a22c3c2df75dbfa831f66a",
+   "bytes": 1464497,
+   "seconds": 201.346,
+   "status": "needs_music_id",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/19.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_20.ogg",
+   "bgm": "20",
+   "title": "Ancient Groover",
+   "file": "raw/ro-build/audio/bgm_20.ogg",
+   "target": [
+    "assets/audio/music_battle_grove.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "3c709136b49a6094a8661c3c0eff6df67d139ac4b122b5c6d19711bfbe17a90d",
+   "bytes": 708624,
+   "seconds": 123.545,
+   "status": "ready",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/20.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_20.m4a",
+   "bgm": "20",
+   "title": "Ancient Groover",
+   "file": "raw/ro-build/audio/bgm_20.m4a",
+   "target": [
+    "assets/audio/music_battle_grove.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "453569aff8d1387d907977753391472b0dd7956439655608cfc8497a1ee41b70",
+   "bytes": 897921,
+   "seconds": 123.545,
+   "status": "ready",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/20.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_21.ogg",
+   "bgm": "21",
+   "title": "Through the Tower",
+   "file": "raw/ro-build/audio/bgm_21.ogg",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_tower.ogg"
+   ],
+   "sha256": "8093188bd50665b3b892075fea502db5d0f761941a448dac44c536630aee0c9b",
+   "bytes": 493673,
+   "seconds": 97.98,
+   "status": "needs_music_id",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/21.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_21.m4a",
+   "bgm": "21",
+   "title": "Through the Tower",
+   "file": "raw/ro-build/audio/bgm_21.m4a",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_tower.m4a"
+   ],
+   "sha256": "5f3216d82909615855affd4c5292d7267715eba6783d858e533795383914baef",
+   "bytes": 708768,
+   "seconds": 97.98,
+   "status": "needs_music_id",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/21.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_22.ogg",
+   "bgm": "22",
+   "title": "Backattack!!",
+   "file": "raw/ro-build/audio/bgm_22.ogg",
+   "target": [
+    "assets/audio/music_battle_desert.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "1d868fbd6d839a6e193d8e6018667860cfbf6955e4bf91d4f022262048fed88e",
+   "bytes": 640499,
+   "seconds": 126.053,
+   "status": "ready",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/22.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_22.m4a",
+   "bgm": "22",
+   "title": "Backattack!!",
+   "file": "raw/ro-build/audio/bgm_22.m4a",
+   "target": [
+    "assets/audio/music_battle_desert.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "6ebd787f21920f5103495eee48766489fec28ae072043eb5ce23aab459810a69",
+   "bytes": 911979,
+   "seconds": 126.053,
+   "status": "ready",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/22.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_24.ogg",
+   "bgm": "24",
+   "title": "Desert",
+   "file": "raw/ro-build/audio/bgm_24.ogg",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "a806da57d32badd3ac9e68d3d8979ceb8d7abd6e4a4c6dadff4bbd83ba2a2b6a",
+   "bytes": 1150989,
+   "seconds": 218.708,
+   "status": "spare",
+   "note": "opus 40 kbps, -16.7 LUFS; из raw/ro/bgm/24.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_24.m4a",
+   "bgm": "24",
+   "title": "Desert",
+   "file": "raw/ro-build/audio/bgm_24.m4a",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "6bf2978582a41f5024c3367607f20f4162d619e73d5923fcc7bf63643e85ee2a",
+   "bytes": 1474051,
+   "seconds": 218.708,
+   "status": "spare",
+   "note": "aac-lc 52 kbps, -16.7 LUFS; из raw/ro/bgm/24.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_26.ogg",
+   "bgm": "26",
+   "title": "Everlasting Wanderers (check)",
+   "file": "raw/ro-build/audio/bgm_26.ogg",
+   "target": [
+    "assets/audio/music_tavern.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "04269452e0588d5b51cbf9185332fc99911c3369667c00dd9b531a9e616f11dd",
+   "bytes": 748897,
+   "seconds": 129.673,
+   "status": "ready",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/26.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_26.m4a",
+   "bgm": "26",
+   "title": "Everlasting Wanderers (check)",
+   "file": "raw/ro-build/audio/bgm_26.m4a",
+   "target": [
+    "assets/audio/music_tavern.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "858efd915f3fa066aa904359fffd70564963bdec4b50c702fbf93edd3efaa440",
+   "bytes": 940325,
+   "seconds": 129.673,
+   "status": "ready",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/26.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_35.ogg",
+   "bgm": "35",
+   "title": "TeMPoison",
+   "file": "raw/ro-build/audio/bgm_35.ogg",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_map_orcs.ogg"
+   ],
+   "sha256": "4aa58e2bba196289f9ff7861b0a3e99de6e7386a52921ca517a0f37cc32ae0fe",
+   "bytes": 973512,
+   "seconds": 188.284,
+   "status": "needs_music_id",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/35.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_35.m4a",
+   "bgm": "35",
+   "title": "TeMPoison",
+   "file": "raw/ro-build/audio/bgm_35.m4a",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_map_orcs.m4a"
+   ],
+   "sha256": "3314781236767e218dc53e3ce9c636779394ec21a88c892e7ad1778af2450f98",
+   "bytes": 1366341,
+   "seconds": 188.284,
+   "status": "needs_music_id",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/35.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_36.ogg",
+   "bgm": "36",
+   "title": "Nano East",
+   "file": "raw/ro-build/audio/bgm_36.ogg",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "0ace351d4499298fbe269d22c8d1a86243ecf790b66f937602c1d19fab00d003",
+   "bytes": 604958,
+   "seconds": 115.239,
+   "status": "spare",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/36.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_36.m4a",
+   "bgm": "36",
+   "title": "Nano East",
+   "file": "raw/ro-build/audio/bgm_36.m4a",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "dd7eb431bc3b7053822822aa646708d858b1c389ee80bf26b288f2f804b063f0",
+   "bytes": 839377,
+   "seconds": 115.239,
+   "status": "spare",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/36.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_37.ogg",
+   "bgm": "37",
+   "title": "TeMPorsche",
+   "file": "raw/ro-build/audio/bgm_37.ogg",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "e185b058275b0dc9298c80b8ee406a88494f55e556f0ae1112e8c413bb00ceb0",
+   "bytes": 717849,
+   "seconds": 144.033,
+   "status": "spare",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/37.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_37.m4a",
+   "bgm": "37",
+   "title": "TeMPorsche",
+   "file": "raw/ro-build/audio/bgm_37.m4a",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "39e78dc2c44b7dfd8e0c8d3df342bd1d8d05bd6faf6512333e0315ff1e1b5be3",
+   "bytes": 1048838,
+   "seconds": 144.033,
+   "status": "spare",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/37.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_38.ogg",
+   "bgm": "38",
+   "title": "Hamatan",
+   "file": "raw/ro-build/audio/bgm_38.ogg",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "c258b31e2baed986ef69c6dad3f6e5f0aaf6fc3d9f58e8e9b5ee9bd8e0797984",
+   "bytes": 745489,
+   "seconds": 145.865,
+   "status": "spare",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/38.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_38.m4a",
+   "bgm": "38",
+   "title": "Hamatan",
+   "file": "raw/ro-build/audio/bgm_38.m4a",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "25e01727664435931c52203c9ba9cc52645fbe3fa0d3ec2d40a21d7ee225de62",
+   "bytes": 1057663,
+   "seconds": 145.865,
+   "status": "spare",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/38.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_39.ogg",
+   "bgm": "39",
+   "title": "Theme of Al de Baran",
+   "file": "raw/ro-build/audio/bgm_39.ogg",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_map_aldebaran.ogg"
+   ],
+   "sha256": "48cb855a4d2c69e97993949a8f4d4a9e4f8539dff664dee1412f3d9d8918c609",
+   "bytes": 1380854,
+   "seconds": 225.229,
+   "status": "needs_music_id",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/39.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_39.m4a",
+   "bgm": "39",
+   "title": "Theme of Al de Baran",
+   "file": "raw/ro-build/audio/bgm_39.m4a",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_map_aldebaran.m4a"
+   ],
+   "sha256": "fc2e8101c4e88f3b3b49f1b5fa9372d5771bd321a0a357cd40ab1d81298a2bbf",
+   "bytes": 1484277,
+   "seconds": 225.229,
+   "status": "needs_music_id",
+   "note": "aac-lc 51 kbps, -16.0 LUFS; из raw/ro/bgm/39.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_40.ogg",
+   "bgm": "40",
+   "title": "Fear...",
+   "file": "raw/ro-build/audio/bgm_40.ogg",
+   "target": [
+    "assets/audio/music_battle_crypt.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "03d34cbd396a158589031a52660f97b57baae2ed953407735523845b2d5ac6c6",
+   "bytes": 752683,
+   "seconds": 150.214,
+   "status": "ready",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/40.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_40.m4a",
+   "bgm": "40",
+   "title": "Fear...",
+   "file": "raw/ro-build/audio/bgm_40.m4a",
+   "target": [
+    "assets/audio/music_battle_crypt.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "e05a37613a3cc82617d3dccf1a4cb4126d171b008f2adeed31b2531e2bfef619",
+   "bytes": 1085341,
+   "seconds": 150.214,
+   "status": "ready",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/40.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_42.ogg",
+   "bgm": "42",
+   "title": "Curse'n Pain / Morning Gloomy (check)",
+   "file": "raw/ro-build/audio/bgm_42.ogg",
+   "target": [
+    "assets/audio/music_map_crypt.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "a28a7d72e91e18622484eac2245170470ad60f5bc8f7f9b4ec59a58e92ee368c",
+   "bytes": 949354,
+   "seconds": 181.012,
+   "status": "ready",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/42.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_42.m4a",
+   "bgm": "42",
+   "title": "Curse'n Pain / Morning Gloomy (check)",
+   "file": "raw/ro-build/audio/bgm_42.m4a",
+   "target": [
+    "assets/audio/music_map_crypt.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "68aded0ff24c0198212cf0bb2bdf4141acf60118e6c0037e2a00cdb8cc6b6f2e",
+   "bytes": 1306110,
+   "seconds": 181.012,
+   "status": "ready",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/42.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_43.ogg",
+   "bgm": "43",
+   "title": "(check)",
+   "file": "raw/ro-build/audio/bgm_43.ogg",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "6c40039aea7c202a744a9c108f91fee14cfadea97c157afedc938b625b970668",
+   "bytes": 751081,
+   "seconds": 140.612,
+   "status": "spare",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/43.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_43.m4a",
+   "bgm": "43",
+   "title": "(check)",
+   "file": "raw/ro-build/audio/bgm_43.m4a",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "646bbd7d1356f08fae94588492383e90dd01f18a310e5ccefecb26a906763ad1",
+   "bytes": 1018132,
+   "seconds": 140.612,
+   "status": "spare",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/43.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_44.ogg",
+   "bgm": "44",
+   "title": "TeMP It Up",
+   "file": "raw/ro-build/audio/bgm_44.ogg",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "b89e84ace53f2c291db5e46005f4459279898b31eed85a8a022c312875bdca13",
+   "bytes": 615025,
+   "seconds": 130.949,
+   "status": "spare",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/44.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_44.m4a",
+   "bgm": "44",
+   "title": "TeMP It Up",
+   "file": "raw/ro-build/audio/bgm_44.m4a",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "0e9528f04668bd94e7b8eb43d0573ad422bbfc4c1e8544238c8bfb37ec79c5fb",
+   "bytes": 951107,
+   "seconds": 130.949,
+   "status": "spare",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/44.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_47.ogg",
+   "bgm": "47",
+   "title": "Welcome Mr. Hwang",
+   "file": "raw/ro-build/audio/bgm_47.ogg",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "60123a3716fc53dca87cc29b02a9c2820546e1897e734e4fbd4b56438f327226",
+   "bytes": 681814,
+   "seconds": 140.849,
+   "status": "spare",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/47.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_47.m4a",
+   "bgm": "47",
+   "title": "Welcome Mr. Hwang",
+   "file": "raw/ro-build/audio/bgm_47.m4a",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "585b82ba0f21ad19834ce15c3b91925dd0d63b58d5179bf109c202941a5a6642",
+   "bytes": 1023065,
+   "seconds": 140.849,
+   "status": "spare",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/47.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_48.ogg",
+   "bgm": "48",
+   "title": "Help Yourself",
+   "file": "raw/ro-build/audio/bgm_48.ogg",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_battle_orcs.ogg"
+   ],
+   "sha256": "e9327a87c31c9fb50f2f5e7ebbdc3477d638a9e79899aa3b541c1184aab1b91a",
+   "bytes": 810592,
+   "seconds": 159.0,
+   "status": "needs_music_id",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/48.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_48.m4a",
+   "bgm": "48",
+   "title": "Help Yourself",
+   "file": "raw/ro-build/audio/bgm_48.m4a",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_battle_orcs.m4a"
+   ],
+   "sha256": "dd42daa0165dfe556ae9490b65a0571d1072880abbb4ba2a6f650fa0a1965780",
+   "bytes": 1148594,
+   "seconds": 159.0,
+   "status": "needs_music_id",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/48.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_52.ogg",
+   "bgm": "52",
+   "title": "Ready (check)",
+   "file": "raw/ro-build/audio/bgm_52.ogg",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "0c9e534aefdb33e2fc5f3589144b1b7b7d5b4dee40cbc7fd936feb4f9eb6b17c",
+   "bytes": 511645,
+   "seconds": 103.834,
+   "status": "spare",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/52.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_52.m4a",
+   "bgm": "52",
+   "title": "Ready (check)",
+   "file": "raw/ro-build/audio/bgm_52.m4a",
+   "target": null,
+   "proposedTargets": null,
+   "sha256": "0888fee75f3c285bc88075f98c4b47a1d587b1ad15fd85326db4553f6a780a35",
+   "bytes": 755186,
+   "seconds": 103.834,
+   "status": "spare",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/52.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_60.ogg",
+   "bgm": "60",
+   "title": "Aeon",
+   "file": "raw/ro-build/audio/bgm_60.ogg",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_battle_aldebaran.ogg"
+   ],
+   "sha256": "89c7d538d272c9c89c10579dca6d4babc9ac47f676a92aaa8f6eb3f2d5570516",
+   "bytes": 650840,
+   "seconds": 117.729,
+   "status": "needs_music_id",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/60.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_60.m4a",
+   "bgm": "60",
+   "title": "Aeon",
+   "file": "raw/ro-build/audio/bgm_60.m4a",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_battle_aldebaran.m4a"
+   ],
+   "sha256": "beef6c0213efc48d7bedf1653f65aeb2070fb92f9095a1989c4b52e8cd2dde2e",
+   "bytes": 850247,
+   "seconds": 117.729,
+   "status": "needs_music_id",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/60.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_61.ogg",
+   "bgm": "61",
+   "title": "Zingaro",
+   "file": "raw/ro-build/audio/bgm_61.ogg",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_boss_aldebaran.ogg"
+   ],
+   "sha256": "b97db3e112d421d0f08c3f5ed842daa9c8412d12577f8e6b8cca33d174bc971a",
+   "bytes": 754823,
+   "seconds": 136.862,
+   "status": "needs_music_id",
+   "note": "opus 40 kbps, -15.9 LUFS; из raw/ro/bgm/61.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_61.m4a",
+   "bgm": "61",
+   "title": "Zingaro",
+   "file": "raw/ro-build/audio/bgm_61.m4a",
+   "target": null,
+   "proposedTargets": [
+    "assets/audio/music_boss_aldebaran.m4a"
+   ],
+   "sha256": "03dae54f59c6339780df9dcf1f474f7386d03bbfbc8eec9c2622a098d87ac444",
+   "bytes": 989484,
+   "seconds": 136.862,
+   "status": "needs_music_id",
+   "note": "aac-lc 56 kbps, -15.9 LUFS; из raw/ro/bgm/61.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_84.ogg",
+   "bgm": "84",
+   "title": "Christmas in the 13th Month (check)",
+   "file": "raw/ro-build/audio/bgm_84.ogg",
+   "target": [
+    "assets/audio/music_map_niflheim.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "b2b5d1014ee06b4b161f8b854a976eeaca1389e7b3e3479297cd6d98c93e5271",
+   "bytes": 859854,
+   "seconds": 133.767,
+   "status": "ready",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/84.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_84.m4a",
+   "bgm": "84",
+   "title": "Christmas in the 13th Month (check)",
+   "file": "raw/ro-build/audio/bgm_84.m4a",
+   "target": [
+    "assets/audio/music_map_niflheim.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "39610efe6936d763d732b60641d71106cf86cab50a174f97c7ee9de66ae7530e",
+   "bytes": 964991,
+   "seconds": 133.767,
+   "status": "ready",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/84.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_85.ogg",
+   "bgm": "85",
+   "title": "Dancing Christmas in the 13th Month (check)",
+   "file": "raw/ro-build/audio/bgm_85.ogg",
+   "target": [
+    "assets/audio/music_battle_niflheim.ogg"
+   ],
+   "proposedTargets": null,
+   "sha256": "072fc595b559fdbf9121a8f40ee45b2769c18d61a8789c5a398341000aedd789",
+   "bytes": 967305,
+   "seconds": 183.602,
+   "status": "ready",
+   "note": "opus 40 kbps, -16.0 LUFS; из raw/ro/bgm/85.mp3"
+  },
+  {
+   "kind": "music",
+   "id": "bgm_85.m4a",
+   "bgm": "85",
+   "title": "Dancing Christmas in the 13th Month (check)",
+   "file": "raw/ro-build/audio/bgm_85.m4a",
+   "target": [
+    "assets/audio/music_battle_niflheim.m4a"
+   ],
+   "proposedTargets": null,
+   "sha256": "ef584962e239b456666f5ab23d26ae517d2f8d6e7656a44c9abc5bb759c66ba8",
+   "bytes": 1328245,
+   "seconds": 183.602,
+   "status": "ready",
+   "note": "aac-lc 56 kbps, -16.0 LUFS; из raw/ro/bgm/85.mp3"
   }
  ]
 }
