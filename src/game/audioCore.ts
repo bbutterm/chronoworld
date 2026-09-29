@@ -173,7 +173,9 @@ export class MuteReasons {
 
 // ---------- музыка по экрану ----------
 
-export type Theme = 'meadow' | 'swamp' | 'crypt';
+/** Звуковая тема главы (у каждой темы фона — своя: музыка карты, музыка боя, фон). */
+export type Theme = 'meadow' | 'swamp' | 'crypt' | 'desert' | 'grove' | 'shipwreck' | 'niflheim';
+export const THEMES: readonly Theme[] = ['meadow', 'swamp', 'crypt', 'desert', 'grove', 'shipwreck', 'niflheim'];
 
 /** Что играет на экране: музыка (null — оставить текущую) и фон (null — без фона, undefined — оставить). */
 export interface SceneSound {
@@ -207,3 +209,13 @@ export function sceneSound(key: string, o: { theme?: Theme; boss?: boolean } = {
       return { music: null };
   }
 }
+
+// ---------- сюжет ----------
+
+/**
+ * Колокольчик Греты звенит в реплике: «Колокольчик звенит…», «колокольчик и тот, чёрный, звенят» (в пределах одного
+ * предложения), «Я позвоню», «Грета звонит», «Звени, малыш» (Вестник с украденным колокольчиком). «Колокольчик молчит…
+ * любой звон» — не звенит. Диалог играет bell_chime при показе такой строки.
+ */
+const CHIME_RE = /колокольчик[^.!?…]*звен|грета звонит|^я позвоню|^звени, малыш/i;
+export const lineChimes = (text: string): boolean => CHIME_RE.test(text);

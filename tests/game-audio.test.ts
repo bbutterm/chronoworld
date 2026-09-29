@@ -15,14 +15,16 @@ import {
   PitchStreak,
   ruleOf,
   saveAudioSettings,
+  lineChimes,
   sceneSound,
   SfxLimiter,
+  THEMES,
   volumeLabel,
 } from '../src/game/audioCore';
 import { hasRecipe, musicJob, synthAmbience, synthMusic, synthSfx } from '../src/game/audioSynth';
 import { battleSound, weaponOf } from '../src/game/battleAudio';
 import { simulateBattle, type UnitDef } from '../src/core';
-import { CONTENT } from '../src/game/content';
+import { CONTENT, GAME } from '../src/game/content';
 
 function memStore() {
   const m = new Map<string, string>();
@@ -150,12 +152,56 @@ describe('звук: музыка по экранам', () => {
 
   it('любая дорожка из sceneSound есть в каталоге', () => {
     for (const key of ['Home', 'Tavern', 'Campaign', 'Stage', 'Battle', 'Tower', 'Result'])
-      for (const theme of ['meadow', 'swamp', 'crypt'] as const)
+      for (const theme of THEMES)
         for (const boss of [false, true]) {
           const s = sceneSound(key, { theme, boss });
           if (s.music) expect(MUSIC_IDS).toContain(s.music);
           if (s.ambience) expect(AMBIENCE_IDS).toContain(s.ambience);
         }
+  });
+});
+
+describe('звук: темы глав 4–7', () => {
+  it('у каждой темы свои музыка карты, боя и фон (главы 4–7 больше не звучат как 1–3)', () => {
+    const seen = new Set<string>();
+    for (const theme of THEMES) {
+      const map = sceneSound('Campaign', { theme }).music!;
+      const battle = sceneSound('Battle', { theme });
+      expect(map).toBe(`map_${theme}`);
+      expect(battle).toEqual({ music: `battle_${theme}`, ambience: `amb_${theme}` });
+      for (const id of [map, battle.music, battle.ambience]) {
+        expect(seen.has(id!), id!).toBe(false);
+        seen.add(id!);
+      }
+      // Босс — общая тема во всех главах, фон главы остаётся.
+      expect(sceneSound('Battle', { theme, boss: true })).toEqual({ music: 'boss', ambience: `amb_${theme}` });
+    }
+  });
+
+  it('у новых дорожек есть описание и ориентир из RO, файл владельца — своя дорожка, затем общая', () => {
+    for (const t of ['desert', 'grove', 'shipwreck', 'niflheim']) {
+      for (const kind of ['map', 'battle'] as const) {
+        const def = MUSIC[`${kind}_${t}` as keyof typeof MUSIC] as { files: readonly string[]; desc: string; ro?: string };
+        expect(def.files).toEqual([`music_${kind}_${t}`, `music_${kind}`]);
+        expect(def.desc.length).toBeGreaterThan(5);
+        expect(def.ro, `${kind}_${t}`).toBeTruthy();
+      }
+      expect(AMBIENCE_IDS).toContain(`amb_${t}`);
+    }
+  });
+
+  it('колокольчик Греты: звон — по реплике, где он звенит (не где молчит)', () => {
+    expect(lineChimes('Колокольчик звенит в сторону моря. Глухо.')).toBe(true);
+    expect(lineChimes('Колокольчик сам звенит у меня в руке.')).toBe(true);
+    expect(lineChimes('Там, наверху, каюта капитана. Мой колокольчик и тот, чёрный, звенят в один голос.')).toBe(true);
+    expect(lineChimes('Я позвоню. Только не так, как ты хочешь.')).toBe(true);
+    expect(lineChimes('Колокольчик молчит. Совсем. Мне это не нравится больше, чем любой звон.')).toBe(false);
+    expect(lineChimes('За лесом — трактир «Два колокола».')).toBe(false);
+    // В сюжете такие реплики есть (иначе звон никогда не прозвучит).
+    const lines = GAME.story.scenes.flatMap((s) => s.lines.map((l) => l.text));
+    const chimes = lines.filter(lineChimes);
+    expect(chimes.length).toBeGreaterThanOrEqual(8);
+    expect(chimes.length).toBeLessThan(lines.length / 10);
   });
 });
 
@@ -208,10 +254,32 @@ describe('звук: заглушки (синтез)', () => {
     expect(Math.abs(whole.data[0] - whole.data[whole.data.length - 1])).toBeLessThan(0.2);
   });
 
+  it('вся музыка: петля 10–35 с, шов без щелчка, не тихая и без перегруза', () => {
+    for (const id of MUSIC_IDS) {
+      const { data, rate } = synthMusic(id);
+      const sec = data.length / rate;
+      expect(sec, id).toBeGreaterThan(10);
+      expect(sec, id).toBeLessThan(35);
+      let peak = 0;
+      let jump = 0;
+      for (let i = 0; i < data.length; i++) {
+        peak = Math.max(peak, Math.abs(data[i]));
+        if (i) jump = Math.max(jump, Math.abs(data[i] - data[i - 1]));
+      }
+      expect(peak, id).toBeGreaterThan(0.3);
+      expect(peak, id).toBeLessThanOrEqual(0.9);
+      // Шов: скачок на стыке конец → начало не больше самого резкого перепада внутри петли.
+      expect(Math.abs(data[0] - data[data.length - 1]), id).toBeLessThanOrEqual(jump + 1e-6);
+    }
+  });
+
   it('фоновые звуки глав — тихие петли', () => {
     for (const id of AMBIENCE_IDS) {
       const { data, loop } = synthAmbience(id);
       expect(loop).toBe(true);
+      let jump = 0;
+      for (let i = 1; i < data.length; i++) jump = Math.max(jump, Math.abs(data[i] - data[i - 1]));
+      expect(Math.abs(data[0] - data[data.length - 1]), id).toBeLessThanOrEqual(jump + 1e-6);
       let peak = 0;
       for (const v of data) peak = Math.max(peak, Math.abs(v));
       expect(peak, id).toBeLessThanOrEqual(0.7);
