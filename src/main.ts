@@ -23,7 +23,8 @@ import { EventsScene } from './game/scenes/EventsScene';
 import { MailScene } from './game/scenes/MailScene';
 import { ShopScene } from './game/scenes/ShopScene';
 import { ChronicleScene } from './game/scenes/ChronicleScene';
-import { ensureAnimatedFx } from './game/assets';
+import { holdAnimatedFx } from './game/assets';
+import { battleFxIds } from './game/animatedFx';
 import { webpReady } from './game/assetUrl';
 import { installLifecycle, type LoopLike } from './game/lifecycle';
 import { spritesBusy, spriteStats } from './game/sprites';
@@ -81,9 +82,12 @@ game.events.once(Phaser.Core.Events.READY, () => {
   }
 });
 
-// T4-12: анимированные эффекты боя — по дороге к бою, а не при старте (≈ 14 МБ видеопамяти на главной).
+// T4-12: общие анимированные эффекты боя (удар, магия, смерть…) — по дороге к бою, а не при старте. Эффекты навыков
+// грузит сам бой (только своих юнитов): все листы каталога вместе — ≈ 100 МБ видеопамяти.
 game.events.once(Phaser.Core.Events.READY, () => {
-  for (const key of ['Stage', 'Tower', 'Hunt', 'Battle', 'Prep']) game.scene.getScene(key)?.sys.events.on(Phaser.Scenes.Events.START, () => ensureAnimatedFx(game));
+  for (const key of ['Stage', 'Tower', 'Hunt', 'Prep']) {
+    game.scene.getScene(key)?.sys.events.on(Phaser.Scenes.Events.START, (sys: Phaser.Scenes.Systems) => void holdAnimatedFx(sys.scene, battleFxIds([])));
+  }
 });
 
 // U: пауза, когда игру не видно (вкладка скрыта, окно без фокуса, Mini App свёрнут), и ограничение FPS.

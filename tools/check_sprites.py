@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Validate native-resolution v2 RO sheets; --source-cache adds pixel-perfect source proof."""
 from __future__ import annotations
-import argparse,json,sys
+import argparse,json,subprocess,sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
 from build_sprites_v2 import FIRST_HEROES,STORY_HEROES,CARD_HEROES
+import sprites_manifest
 
 ROOT=Path(__file__).resolve().parents[1]
 DEFAULT=ROOT/'assets/sprites/sprites.json'
@@ -52,6 +53,28 @@ GRID={'hero':([224,192],[104,144],8),'monster':([240,224],[100,120],8),
 EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
             'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}
 
+BUDGET=3_000_000
+
+def used_files():
+ """Files the build copies to dist (scripts/lib/used-assets.ts); None when node/tsx is unavailable."""
+ tsx=ROOT/'node_modules/.bin/tsx'
+ if not tsx.is_file():return None
+ code="import {collectUsedAssets} from './scripts/lib/used-assets.ts';console.log(JSON.stringify(collectUsedAssets(process.cwd()).files))"
+ try:out=subprocess.run([str(tsx),'-e',code],cwd=ROOT,check=True,capture_output=True,text=True).stdout
+ except (OSError,subprocess.CalledProcessError):return None
+ return set(json.loads(out.strip().splitlines()[-1]))
+
+def delivered_payload(delivered_bytes):
+ """(budgeted bytes, bytes of everything on disk, scope): sheets/portraits under assets/sprites that reach dist
+ (WebP copy when fresh, else PNG) + sprites.json as bundled (compact JSON, provenance is not bundled)."""
+ pngs=[p for p in (ROOT/'assets/sprites').rglob('*.png') if p.is_file()]
+ manifest=len(json.dumps(json.loads(sprites_manifest.RUNTIME.read_text()),separators=(',',':'),ensure_ascii=False).encode())
+ total=sum(p.stat().st_size for p in pngs)+sprites_manifest.RUNTIME.stat().st_size+sprites_manifest.provenance_path().stat().st_size
+ used=used_files()
+ if used is None:return sum(delivered_bytes(p) for p in pngs)+manifest,total,'all sheets (used-assets unavailable)'
+ dist=[p for p in pngs if p.relative_to(ROOT/'assets').as_posix() in used]
+ return sum(delivered_bytes(p) for p in dist)+manifest,total,f'{len(dist)}/{len(pngs)} PNG in dist'
+
 def expected_indices(total,target,death):
  if total>=target:return [round(i*(total-1)/(target-1)) for i in range(target)]
  if death:return list(range(total))+[total-1]*(target-total)
@@ -63,7 +86,7 @@ def count_and_bbox(rgba):
  return (int(x.min()),int(y.min()),int(x.max())+1,int(y.max())+1) if len(x) else None
 
 def check(path=DEFAULT,source_cache=None,only=None):
- data=json.loads(Path(path).read_text());errors=[]
+ data=sprites_manifest.load(Path(path));errors=[]
  def fail(msg):errors.append(msg)
  if data.get('schema')!=2 or data.get('columns')!=8:fail('schema=2 and columns=8 required')
  sprites=data.get('sprites',[])
@@ -152,10 +175,9 @@ def check(path=DEFAULT,source_cache=None,only=None):
   webp=ROOT/'assets-webp'/(rel[:-4]+'.webp') if rel.endswith('.png') else None
   if record and record.get('webp') and webp is not None and webp.is_file():return record['webp']
   return p.stat().st_size
- asset_files=[p for p in (ROOT/'assets/sprites').rglob('*.png') if p.is_file()]
- size=sum(delivered_bytes(p) for p in asset_files)+(ROOT/'assets/sprites/sprites.json').stat().st_size
- if size>3_000_000:fail(f'assets/sprites delivered payload {size} bytes exceeds 3 MB (PNG fallback/WebP output + manifest)')
- print(f'v2 sprites: {len(sprites)} entries; {size} delivered bytes (lossless PNG/WebP); source pixel check: {bool(source_cache)}')
+ size,total,scope=delivered_payload(delivered_bytes)
+ if size>BUDGET:fail(f'assets/sprites delivered payload {size} bytes exceeds 3 MB (WebP/PNG of sheets in dist + bundled sprites.json)')
+ print(f'v2 sprites: {len(sprites)} entries; {size} delivered bytes ({scope}; all assets/sprites on disk: {total}); source pixel check: {bool(source_cache)}')
  for e in errors:print('FAIL',e)
  if errors:raise SystemExit(1)
  print('PASS all sprite dimensions, frames, edges, ACT origin/native pixels, alpha and size')

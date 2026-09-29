@@ -1,7 +1,8 @@
 /**
  * Реестр спрайтов — единый формат для игры и скриптов проверки (без Phaser).
  * Источники:
- *   assets/sprites/sprites.json   — формат v2 (docs/SPRITE_SPEC.md), главный;
+ *   assets/sprites/sprites.json   — формат v2 (docs/SPRITE_SPEC.md), главный; только то, что читает игра
+ *                                   (доказательства конвейера арта — sprites.provenance.json, в бандл не идут);
  *   assets/sprites.legacy.json    — старые листы assets/ro, сконвертированные `npm run assets:legacy`.
  * v2 перекрывает legacy по id.
  */
@@ -49,6 +50,8 @@ export interface SpriteDef {
   top?: number;
   /** Ширина фигуры в стойке, px листа (из bbox idle). Нужна для тени под ногами. */
   width?: number;
+  /** Габариты кадров анимации в клетке [x0, y0, x1, y1] (bbox из sprites.json) — по ним лист ужимается в памяти (sheetPack.ts). */
+  boxes?: Partial<Record<string, [number, number, number, number]>>;
   source: 'v2' | 'legacy';
 }
 
@@ -88,6 +91,12 @@ export interface SpritesV2 {
   }[];
 }
 
+/**
+ * Поля записи спрайта в sprites.json, которые читает игра. Остальное (source*, sourceFrameBboxes…) — в
+ * sprites.provenance.json; Python-сторона — RUNTIME_KEYS в tools/sprites_manifest.py (держать одинаковыми).
+ */
+export const SPRITE_RUNTIME_KEYS = ['id', 'class', 'file', 'portrait', 'hitFrames', 'bbox'] as const;
+
 export function normalizeV2(json: SpritesV2, fixes: SpriteFixes = {}): SpriteDef[] {
   return json.sprites.map((s) => {
     const cls = json.classes[s.class];
@@ -121,6 +130,7 @@ export function normalizeV2(json: SpritesV2, fixes: SpriteFixes = {}): SpriteDef
       portrait: s.portrait,
       top: s.bbox?.idle ? Math.max(0, cls.anchor[1] - s.bbox.idle[1]) : undefined,
       width: s.bbox?.idle ? Math.max(0, s.bbox.idle[2] - s.bbox.idle[0]) : undefined,
+      boxes: s.bbox,
       source: 'v2' as const,
     };
   });
@@ -139,7 +149,7 @@ export function buildRegistry(legacy: LegacySprites | undefined, v2: SpritesV2 |
 
 /**
  * Лист героя с учётом пола: `<base>_f` / `<base>_m`, если такой лист есть в реестре, иначе базовый `<base>`.
- * Базовые листы героев — одного пола (source.gender в sprites.json): Аколит и Жрец (acolyte, priest) — женские,
+ * Базовые листы героев — одного пола (source.gender в sprites.provenance.json): Аколит и Жрец (acolyte, priest) — женские,
  * остальные — мужские; так что без варианта женщина-Мечник выглядит мужским листом, а мужчина-Аколит — женским.
  */
 export function genderedSpriteId(base: string, gender: 'm' | 'f' | undefined, has: (id: string) => boolean): string {

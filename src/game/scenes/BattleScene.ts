@@ -43,8 +43,8 @@ import { hintDone, markHint } from '../hints';
 import { isUnlocked } from '../unlockBanner';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
-import { animatedFxIds, animatedFxKey, skillFx } from '../animatedFx';
-import { ensureAnimatedFx } from '../assets';
+import { animatedFxKey, battleFxIds, skillFx } from '../animatedFx';
+import { holdAnimatedFx } from '../assets';
 import { FIRE_BOLT_MS, FIRE_BOLT_STEP, SkillFx, STAR_TEX, type CastRig, type FxPoint, type HitStyle } from '../skillFx';
 import { playAura, playProc, playSignature, type SigCtx } from '../skillSigs';
 import { visualOf } from '../skillVisuals';
@@ -444,14 +444,19 @@ export class BattleScene extends Phaser.Scene {
 
     // U: листы только этого боя — грузятся по требованию (уже в кэше — строим сразу, в этом же кадре).
     const sprites = this.result.units.map((u) => this.defs[u.unitId].visual.sprite);
-    // Анимированные эффекты грузятся лениво (T4-12): первый бой ждёт их вместе с листами юнитов (не дольше FX_WAIT_MS),
-    // иначе первые удары первого боя шли статичными картинками.
-    ensureAnimatedFx(this.game);
+    // Анимированные эффекты грузятся лениво (T4-12) и только нужные этому бою (навыки его юнитов, battleFxIds): бой ждёт
+    // их вместе с листами юнитов (не дольше FX_WAIT_MS), иначе первые удары шли статичными картинками.
+    const unitDefs = this.result.units.map((u) => this.defs[u.unitId]);
+    const fxIds = battleFxIds(
+      unitDefs.flatMap((d) => [d.skills.basic, d.skills.ult, ...d.skills.actives, ...d.skills.passives]),
+      unitDefs.flatMap((d) => [d.visual.hitFx, d.visual.projectile]),
+    );
+    void holdAnimatedFx(this, fxIds);
     const since = Date.now();
     const seq = ++this.createSeq;
     const fxReady = (done: () => void) => {
       if (seq !== this.createSeq) return;
-      if (animatedFxIds().every((id) => this.textures.exists(animatedFxKey(id))) || Date.now() - since > FX_WAIT_MS) done();
+      if (fxIds.every((id) => this.textures.exists(animatedFxKey(id))) || Date.now() - since > FX_WAIT_MS) done();
       else setTimeout(() => fxReady(done), 50);
     };
     whenSprites(this, sprites, () => fxReady(() => this.build(title)));
@@ -577,7 +582,7 @@ export class BattleScene extends Phaser.Scene {
     // уезжает от своих полосок (у поринга ×2 — заметно).
     const flip = snap.side === 'B' && look.art;
     const sprite = this.add.sprite(0, 0, look.key, 0).setOrigin(flip ? 1 - look.originX : look.originX, look.originY);
-    sprite.setScale(look.size / sprite.frame.height).setFlipX(flip).setTint(unitTint(def.visual));
+    sprite.setScale(look.size / sprite.frame.realHeight).setFlipX(flip).setTint(unitTint(def.visual));
     sprite.anims.timeScale = playback.speed;
     // Мягкая тень под ногами: у листов RO своей тени нет, без неё фигуры «висят» над полем.
     const footW = look.def?.width ? look.def.width * look.def.scale * k : look.height * 0.7;
@@ -729,8 +734,8 @@ export class BattleScene extends Phaser.Scene {
     this.clampLabel(v, name);
     // Касание юнита — ненадолго показать имя (после начала боя имена гаснут).
     // Зона касания — только тело (кадр листа намного больше фигуры и заходил бы на кнопки и соседей).
-    const fw = sprite.frame.width;
-    const fh = sprite.frame.height;
+    const fw = sprite.frame.realWidth;
+    const fh = sprite.frame.realHeight;
     const bodyW = Math.min(fw, (look.size * 0.45) / sprite.scaleX);
     const bodyH = Math.min(fh, look.height / sprite.scaleY);
     const hit = v.hitRect.setTo(sprite.originX * fw - bodyW / 2, sprite.originY * fh - bodyH, bodyW, bodyH);
@@ -863,7 +868,7 @@ export class BattleScene extends Phaser.Scene {
     if (!v.look.art) return;
     const flip = dir < 0;
     v.sprite.setFlipX(flip).setOrigin(flip ? 1 - v.look.originX : v.look.originX, v.look.originY);
-    v.hitRect.x = v.sprite.originX * v.sprite.frame.width - v.bodyW / 2;
+    v.hitRect.x = v.sprite.originX * v.sprite.frame.realWidth - v.bodyW / 2;
   }
 
   private placeUnit(v: UnitView): void {

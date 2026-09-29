@@ -498,7 +498,7 @@ export function unitFigure(
     }
     const spr = scene.add.sprite(x, feetY, view.key, 0).setOrigin(view.originX, view.originY);
     // Пиксель-арт: по умолчанию не растягиваем (как в бою), крупный показ — до maxScale.
-    spr.setScale(Math.min(opts.maxScale ?? 1, height / Math.max(1, view.height)) * (view.size / spr.frame.height));
+    spr.setScale(Math.min(opts.maxScale ?? 1, height / Math.max(1, view.height)) * (view.size / spr.frame.realHeight));
     const idle = anim(view, id, 'idle');
     if (idle) spr.play({ key: idle, repeat: -1 });
     onReady?.(spr);

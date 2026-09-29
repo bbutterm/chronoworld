@@ -573,12 +573,15 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 
 - **Спрайты v2** — `docs/SPRITE_SPEC.md`: родной масштаб RO ×1, лицом вправо, точка ног — anchor клетки. Сетки: герой 224×192
   (anchor 104,144; 6 рядов idle/walk/attack/cast/hurt/death), монстр 240×224 (100,120; 5 рядов без cast), босс 256×256 (112,216).
-  8 колонок, лист ≤ 2048 px. Реестр — `assets/sprites/sprites.json` (schema 2); `assets/sprites/fixes.json` — пропуск битых кадров (`skip`).
+  8 колонок, лист ≤ 2048 px. Реестр — `assets/sprites/sprites.json` (schema 2, только поля игры; доказательства конвейера —
+  `sprites.provenance.json`, `tools/sprites_manifest.py`); `assets/sprites/fixes.json` — пропуск битых кадров (`skip`).
+  В видеопамять лист идёт ужатым: только проигрываемые кадры по `bbox` анимации, плотно, с trim (`src/pipeline/sheetPack.ts`,
+  `sprites.ts addPackedSheet`) — 0.6–1.3 МБ вместо 8–15; у кадра `frame.realWidth/realHeight` = клетка, `frame.width/height` — вырезка.
 - **Лист карточки героя:** везде, где выбирается спрайт героя (`flow.ts heroSprite`, его зовут Герои, Герой, Отряд, Поручения, Башня,
   «Глава пройдена», диалоги; бой — `BattleScene squadDefs`): свой лист карточки (`visual.sprite` формы или шаблона — `knight_m`,
   `priest_f`…, листы по имени класса RO), если он есть в реестре; иначе `<visual.sprite класса>_f` / `_m` по полу карточки, если такой
   лист есть в `sprites.json`, иначе базовый лист
-  (`pipeline/sprites.ts genderedSpriteId`). Базовые листы одного пола (`source.gender`): `acolyte`, `priest` — женские, остальные
+  (`pipeline/sprites.ts genderedSpriteId`). Базовые листы одного пола (`source.gender` в `sprites.provenance.json`): `acolyte`, `priest` — женские, остальные
   героические — мужские; так что женщина без `_f` выглядит мужским листом, мужчина-Аколит без `_m` — женским (терпимо до арта).
   Бюст в рамке (`portraitFrame.ts bustFor`): `hero_<база>_<m|f>_portrait.png` → бюст листа → портрет листа. Реестр для чистых
   помощников — `src/game/spriteRegistry.ts` (`hasSprite`; в Node/тестах пустой — варианты не находятся).
@@ -646,7 +649,7 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 - **Как приходит арт:** владелец (или его агент-художник по промтам `docs/SPRITE_SPEC.md`, `docs/UI_ART_PROMPT.txt`, `docs/ART_EXTRACT_RO.md`,
   `docs/FX_NEEDED.md`) кладёт файлы в `main` коммитом/PR. Что нужно — issues #17–#26 и `docs/ART_NEEDED.md`. Оркестратор регулярно
   (плановая проверка) делает `git fetch && git merge origin/main` в рабочую ветку и подключает новое.
-- **Спрайты:** лист + запись в `assets/sprites/sprites.json` (обычно пишет `tools/build_sprites_v2.py`; старые листы `assets/ro` →
+- **Спрайты:** лист + запись в `assets/sprites/sprites.json` и `sprites.provenance.json` (обычно пишет `tools/build_sprites_v2.py`; старые листы `assets/ro` →
   `python3 tools/build_sprites_v2.py --from-v1`; правки прозрачности — `--alpha-fixes`); проверка `python3 tools/check_sprites.py`
   и python-тесты. Игра и сборка подхватывают реестр сами; юниту/профессии — `visual.sprite = <id>`.
 - **Клиент scRO (29.09):** `raw/ro/` — файлы клиента побайтно, `raw/ro-build/` — готовые листы, манифест и рендер SPR/ACT
