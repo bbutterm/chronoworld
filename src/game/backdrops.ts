@@ -66,7 +66,7 @@ const BG_H = 1280;
 
 /** Файлы фонов от художника (если есть): имя без расширения → URL от корня assets. */
 const FILES: Record<string, string> = {};
-for (const path of Object.keys(import.meta.glob('../../assets/backgrounds/bg_{battle,map}_ch*.{jpg,png,webp}', { query: '?url', import: 'default' }))) {
+for (const path of Object.keys(import.meta.glob('../../assets/backgrounds/bg_{battle,map}_{ch*,swamp}.{jpg,png,webp}', { query: '?url', import: 'default' }))) {
   const name = path.split('/').pop()!;
   FILES[name.replace(/\.(jpg|png|webp)$/, '')] = `backgrounds/${name}`;
 }
