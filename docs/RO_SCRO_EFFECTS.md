@@ -58,6 +58,22 @@ Falcon Assault 387, Acid Demonstration 537, Adrenaline Rush 98, Mystical Amplifi
 Weight: 27 PNGs ≈ 9.7 MB (large RGBA cells). Before adding them, run `npm run assets:webp` and check the budget in `npm run assets:report`;
 add only what is actually wired to skills.
 
+## Part 2 — the 35 effects already in the game, re-captured from scRO (`raw/ro-build/effects/p2/`)
+
+The sheets in main were captured from the public roBrowser client (grf.robrowser.com). Here are the same 35 effects,
+**from the owner's client**, with the same `id` and `attach`, so they are drop-in replacements: overwrite
+`assets/effects/<id>.png` and replace the entry with the same id in `effects.json` → `effects` (the `skills` mapping does not change).
+Same post-processing as main: gold grade for Blessing (`tools/tint_blessing_effect.py` logic), faint-alpha cleanup for
+`fx_magic` and Thunderstorm; noise-crop thresholds for large effects.
+
+`effects.fragment.json` → `results[].recommendation`:
+- `replace` (30) — same or more frames, full extent (often larger and more complete than in main: Cart Revolution, Frost Diver,
+  Defender, Magnum Break), source is the owner's client.
+- `keep_main` (5) — the full-size effect does not fit into 2048 px with enough frames, keep the current sheet:
+  Signum Crucis (12 of 24: the cross starts huge), Storm Gust (9 of 48), Weapon Perfection (16 of 20), Holy Cross (9 of 11),
+  Meteor Storm (8 of 18: the meteor falls from high up, 476×988 cell).
+`qa/effects_*.png` — the first column is the current main sheet (middle frame), then scRO frames 0 / middle / last.
+
 ## Hook-up (agent)
 
 1. For each part: copy the PNGs to `assets/effects/`, merge `effects` and `skills` from `effects.fragment.json` into `assets/effects/effects.json`.

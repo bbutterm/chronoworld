@@ -22,6 +22,10 @@ REUSE = {'job_wizard_meteor_storm': {'hit': 'fx_job_mage_fire_bolt'},      # WZ_
          'job_mage_energy_coat': {'buff': 'fx_shield'},                     # MG_ENERGYCOAT effectId 169 = fx_shield
          'job_assassin_enchant_poison': {'hit': 'fx_job_thief_envenom'}}    # AS_ENCHANTPOISON effectId 20 = EF_PATTACK
 ALPHA_FLOOR = {'fx_magic': 24, 'fx_job_mage_thunderstorm': 25}             # as noted for the main sheets
+# crop/empty threshold per effect: faint source-quad noise far from the effect inflates the cell (main notes the same)
+THRESHOLD = {'fx_magic': 24, 'fx_job_mage_thunderstorm': 25, 'fx_job_acolyte_signum_crucis': 24, 'fx_job_wizard_storm_gust': 24,
+             'fx_job_wizard_meteor_storm': 24, 'fx_job_crusader_holy_cross': 24, 'fx_job_blacksmith_weapon_perfection': 24,
+             'fx_job_sage_dispell': 24}
 
 
 def edge_touch(raw, thr=6, band=3):
@@ -124,7 +128,11 @@ def main():
         if part == 2:
             note += '; re-capture of the main sheet from the owner client'
         cycle = loop_period(raw)
+        if cycle and part == 2:                       # replacement: keep the length of the sheet already in the game
+            cycle = main_by_id[fx_id]['frames'] if not main_by_id[fx_id].get('loop') else cycle
         extra = ['--keep', str(abs(cycle))] if cycle else []
+        if fx_id in THRESHOLD:
+            extra += ['--threshold', str(THRESHOLD[fx_id])]
         if cycle > 0:
             note += f'; looping in RO: one {cycle}-frame cycle kept'
         elif cycle < 0:
