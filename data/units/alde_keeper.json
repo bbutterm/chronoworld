@@ -22,9 +22,7 @@
     ]
   },
   "visual": {
-    "sprite": "sandman",
-    "tint": "#c9a24e",
-    "scale": 1.3,
+    "sprite": "clock_tower_manager",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   },

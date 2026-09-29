@@ -17,9 +17,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "fabre",
-    "tint": "#c9b98a",
-    "scale": 1.15,
+    "sprite": "pupa",
     "hitFx": "fx_hit"
   }
 }

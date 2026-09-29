@@ -16,9 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "elite",
-    "tint": "#8c4a5e",
-    "scale": 0.7,
+    "sprite": "thief_bug_female",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

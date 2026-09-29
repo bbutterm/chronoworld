@@ -16,9 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "boss1",
-    "tint": "#b0705c",
-    "scale": 1.4,
+    "sprite": "orc_lord",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   },

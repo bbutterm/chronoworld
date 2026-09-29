@@ -22,9 +22,7 @@
     ]
   },
   "visual": {
-    "sprite": "dullahan",
-    "tint": "#7d86b8",
-    "scale": 1.6,
+    "sprite": "lord_of_death",
     "hitFx": "fx_hit"
   },
   "barks": {

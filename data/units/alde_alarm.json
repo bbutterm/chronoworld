@@ -16,9 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "rocker",
-    "tint": "#e8c060",
-    "scale": 1.1,
+    "sprite": "alarm",
     "hitFx": "fx_hit"
   }
 }

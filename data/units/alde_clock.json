@@ -16,8 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "gibbet",
-    "tint": "#d0a867",
+    "sprite": "clock",
     "hitFx": "fx_hit"
   }
 }

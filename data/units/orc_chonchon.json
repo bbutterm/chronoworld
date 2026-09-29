@@ -16,8 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "kukre",
-    "tint": "#9aa8bc",
+    "sprite": "steel_chonchon",
     "hitFx": "fx_hit"
   }
 }

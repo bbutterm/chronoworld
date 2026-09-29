@@ -80,11 +80,13 @@ describe('K3 главы 2–3', () => {
     expect(boss('ch3_s10')).toEqual(['orc_lord']);
     expect(units('ch2_s14')).toContain('sewer_bug_leader');
     expect(units('ch3_s15')).toContain('orc_hero');
-    // Готовые листы MVP (lore-route §4.3): Золотой жук-вор — лист elite, Герой орков — boss1, Орк-лорд — перекраска boss1.
+    // Готовые листы MVP (lore-route §4.3): Золотой жук-вор — лист elite, Герой орков — boss1. Орк-лорд и Вожак жуков —
+    // свои листы из клиента scRO (docs/RO_SCRO_IMPORT.md); Вожак — лист самца жука-вора, крупнее и темнее.
     expect(ctx.content.units.sewer_golden_bug.visual.sprite).toBe('elite');
     expect(ctx.content.units.orc_hero.visual.sprite).toBe('boss1');
-    expect(ctx.content.units.orc_lord.visual.sprite).toBe('boss1');
-    expect(ctx.content.units.orc_lord.visual.tint).toBeTruthy();
+    expect(ctx.content.units.orc_lord.visual.sprite).toBe('orc_lord');
+    expect(ctx.content.units.sewer_bug_leader.visual.sprite).toBe(ctx.content.units.sewer_bug_male.visual.sprite);
+    expect(ctx.content.units.sewer_bug_leader.visual.tint).toBeTruthy();
     // Старые боссы слотов остались в игре: Верховный жрец — мини-босс главы 8 (ива — Башня, tests/tower.test.ts).
     expect([...new Set(stages.filter((s) => s.enemies.some((e) => e?.unit === 'mob3_boss')).map((s) => s.chapter))]).toEqual(['chapter8']);
   });
@@ -209,9 +211,11 @@ describe('K3 главы 2–3', () => {
     const units = new Set(stages.filter((s) => s.chapter === 'chapter2').flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)));
     const ch1 = new Set(stages.filter((s) => s.chapter === 'chapter1').flatMap((s) => s.enemies.filter((e) => e).map((e) => ctx.content.units[e!.unit].visual.sprite)));
     expect(units.size).toBeGreaterThanOrEqual(8);
+    // Тот же монстр, что и в главе 1 (Марин), на своём листе — не перекраска чужого.
+    const ch1Units = new Set(stages.filter((s) => s.chapter === 'chapter1').flatMap((s) => s.enemies.filter((e) => e).map((e) => e!.unit)));
     for (const id of units) {
       const v = ctx.content.units[id].visual;
-      if (ch1.has(v.sprite)) expect(v.tint, `${id} на листе главы 1 ${v.sprite}`).toBeTruthy();
+      if (ch1.has(v.sprite) && !ch1Units.has(id)) expect(v.tint, `${id} на листе главы 1 ${v.sprite}`).toBeTruthy();
       for (const own of ['dark_priest', 'raydric', 'mimic', 'dark_lord']) expect(v.sprite, id).not.toBe(own);
     }
   });

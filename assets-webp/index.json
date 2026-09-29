@@ -324,6 +324,16 @@
   "png": 153722,
   "webp": 77364
  },
+ "sprites/bosses/elder.png": {
+  "sha1": "f1923fa31ffcf4da9b59018f89f6ecacae234ed5",
+  "png": 71376,
+  "webp": 32474
+ },
+ "sprites/bosses/familiar.png": {
+  "sha1": "bac45e87a81c04e15ce79ff40a49b6860320ec6f",
+  "png": 15176,
+  "webp": 7944
+ },
  "sprites/bosses/horong.png": {
   "sha1": "1b724a49ca655becb15c611e8a72de2c86dab551",
   "png": 10123,
@@ -349,6 +359,26 @@
   "png": 27070,
   "webp": 16912
  },
+ "sprites/bosses/orc_lady.png": {
+  "sha1": "b5589acfc614ec1023867d9389583b9e8f973123",
+  "png": 92306,
+  "webp": 22908
+ },
+ "sprites/bosses/orc_lord.png": {
+  "sha1": "f55d87f83d7b9c3364bb3608de0684d8c5eb0fb1",
+  "png": 150887,
+  "webp": 36484
+ },
+ "sprites/bosses/orc_skeleton.png": {
+  "sha1": "af2b639ed95d8d79df92e981194fcc23c91dc214",
+  "png": 29886,
+  "webp": 16954
+ },
+ "sprites/bosses/orc_zombie.png": {
+  "sha1": "6a8629825d910ed6a820cdf640de4da018b53b73",
+  "png": 30850,
+  "webp": 18504
+ },
  "sprites/bosses/osiris.png": {
   "sha1": "685a24dd349cfe3079ec40a8ae299091c7adc662",
   "png": 23466,
@@ -373,6 +403,41 @@
   "sha1": "58d5e86d5784a13c829dc9fe9672e819daf6d5b4",
   "png": 27709,
   "webp": 18164
+ },
+ "sprites/bosses/vocal.png": {
+  "sha1": "e0c69a8ddb50abb4aaec67052b1b98fd6264cef1",
+  "png": 107043,
+  "webp": 23186
+ },
+ "sprites/bosses_xl/abysmal_knight.png": {
+  "sha1": "2dff418a5248ebbefa3bd18263c6b95228367521",
+  "png": 323035,
+  "webp": 106578
+ },
+ "sprites/bosses_xl/alarm.png": {
+  "sha1": "d5e003c2bb62294b4959664ffacab0797741ac6d",
+  "png": 169391,
+  "webp": 42424
+ },
+ "sprites/bosses_xl/bloody_knight.png": {
+  "sha1": "1b7a5c1e686fb01abe59d99b66d491c26d4b2d0e",
+  "png": 389031,
+  "webp": 161482
+ },
+ "sprites/bosses_xl/clock_tower_manager.png": {
+  "sha1": "15668e458d3d9c6d1cb7b6e0109803459a78fc86",
+  "png": 71039,
+  "webp": 44846
+ },
+ "sprites/bosses_xl/lord_of_death.png": {
+  "sha1": "431c98315535ce288c2c8060315970d21424db6f",
+  "png": 482147,
+  "webp": 152970
+ },
+ "sprites/bosses_xl/owl_baron.png": {
+  "sha1": "355e3fd0234d18b939e50c49b64a21326919e08e",
+  "png": 36224,
+  "webp": 21896
  },
  "sprites/heroes/acolyte.png": {
   "sha1": "f1a58ecf7a0090c59f3a279099d39347e9235152",
@@ -694,6 +759,11 @@
   "png": 11847,
   "webp": 7790
  },
+ "sprites/monsters/eclipse.png": {
+  "sha1": "8b86dba779f27782cde289de8fcf281a1089f090",
+  "png": 10932,
+  "webp": 5900
+ },
  "sprites/monsters/elite.png": {
   "sha1": "90898543984bebb4a44d71c4aa76521db6797e36",
   "png": 11205,
@@ -714,10 +784,20 @@
   "png": 82402,
   "webp": 20646
  },
+ "sprites/monsters/ghoul.png": {
+  "sha1": "285c7907b35babfd6f1750415e9cdfff4c5705ae",
+  "png": 23573,
+  "webp": 14138
+ },
  "sprites/monsters/gibbet.png": {
   "sha1": "27d643c36d2d49ccae0ee0944cd47fdc00148b62",
   "png": 127142,
   "webp": 63632
+ },
+ "sprites/monsters/high_orc.png": {
+  "sha1": "961eeb305738153fda4c465ccfee135df379bba8",
+  "png": 126406,
+  "webp": 43158
  },
  "sprites/monsters/hydra.png": {
   "sha1": "26ab1de7f2bdbbef925eb4112665aabd62c442a9",
@@ -748,6 +828,11 @@
   "sha1": "0bc1f95583b1290bd4706cd149f4a4168ced24ba",
   "png": 54265,
   "webp": 25710
+ },
+ "sprites/monsters/marin.png": {
+  "sha1": "ce48a61ec889b8be4d84044520c80e12db41c900",
+  "png": 13395,
+  "webp": 7712
  },
  "sprites/monsters/marse.png": {
   "sha1": "54fdfa97e440ba4b9b98463517c1b25c6e0977d5",
@@ -784,15 +869,40 @@
   "png": 20983,
   "webp": 14008
  },
+ "sprites/monsters/orc_archer.png": {
+  "sha1": "0cb6ba156efdf5ea8e0a9a0c4866853ea27689a6",
+  "png": 31172,
+  "webp": 21166
+ },
+ "sprites/monsters/orc_warrior.png": {
+  "sha1": "68eec18f450f886e1fd866eb3611ea17c5d4dfb1",
+  "png": 118065,
+  "webp": 39690
+ },
  "sprites/monsters/pirate_skel.png": {
   "sha1": "db8b016602a19ff0aa64af4047a1a1032b98d6ad",
   "png": 17690,
   "webp": 13050
  },
+ "sprites/monsters/plankton.png": {
+  "sha1": "d593b93b8c5aa852070f2e634e2fe4746e7fe6af",
+  "png": 7284,
+  "webp": 4008
+ },
  "sprites/monsters/poporing.png": {
   "sha1": "6808b812460c446e4a8a3c57049c233296f07d62",
   "png": 11849,
   "webp": 7848
+ },
+ "sprites/monsters/punk.png": {
+  "sha1": "c0ca57fe3436e7555261758121bbe9475c059827",
+  "png": 39683,
+  "webp": 11340
+ },
+ "sprites/monsters/pupa.png": {
+  "sha1": "8b6f0eae19f9d08e68d959ac9c34ce42cf846bac",
+  "png": 11512,
+  "webp": 7392
  },
  "sprites/monsters/quve.png": {
   "sha1": "5a4022369656ae531bf143aa7528ccfd1a11c2e9",
@@ -809,6 +919,11 @@
   "png": 19905,
   "webp": 12824
  },
+ "sprites/monsters/rideword.png": {
+  "sha1": "60819aea0a2663af6e7173c125bf0510f3354e99",
+  "png": 13831,
+  "webp": 7898
+ },
  "sprites/monsters/sandman.png": {
   "sha1": "4fa0606b4e22c8ce73347af52fbb1306268756a7",
   "png": 17452,
@@ -819,15 +934,70 @@
   "png": 33740,
   "webp": 14486
  },
+ "sprites/monsters/steel_chonchon.png": {
+  "sha1": "59291586fef037626abe035ef983cb75f534d1c1",
+  "png": 8356,
+  "webp": 4392
+ },
  "sprites/monsters/tank.png": {
   "sha1": "704cb163b78f5db665c004df95ef427c0c26ca22",
   "png": 46191,
   "webp": 24734
  },
+ "sprites/monsters/tarou.png": {
+  "sha1": "f1fe4243a97540556e0cfe2c392a370a9cf9d3d9",
+  "png": 6292,
+  "webp": 3108
+ },
+ "sprites/monsters/thief_bug.png": {
+  "sha1": "bf458f807c2885284464117af9cd8fac244b786b",
+  "png": 7678,
+  "webp": 3898
+ },
+ "sprites/monsters/thief_bug_egg.png": {
+  "sha1": "b5dad1707e16b4c8edde9b6ec17e3185858076f5",
+  "png": 4502,
+  "webp": 1610
+ },
+ "sprites/monsters/thief_bug_female.png": {
+  "sha1": "9f3b2bc038103fdae013c814f1b6d2287025bc04",
+  "png": 10110,
+  "webp": 5180
+ },
+ "sprites/monsters/thief_bug_male.png": {
+  "sha1": "0ff1e7b922bd848689b6e722c92c4ed473e74e0f",
+  "png": 10110,
+  "webp": 5194
+ },
  "sprites/monsters/verit.png": {
   "sha1": "5efff27b2d74bb1a753d4b046b4dcbb9122ef234",
   "png": 19379,
   "webp": 13006
+ },
+ "sprites/monsters_xl/ancient_mummy.png": {
+  "sha1": "b11861e536c78ea581023c94902aff90d07d303d",
+  "png": 28807,
+  "webp": 19484
+ },
+ "sprites/monsters_xl/clock.png": {
+  "sha1": "4c2a3988bbe50cce7262037b865ec1643437770d",
+  "png": 312825,
+  "webp": 144564
+ },
+ "sprites/monsters_xl/elder_willow.png": {
+  "sha1": "f9e63b5872de374692513ffdce4ff12750553b58",
+  "png": 25456,
+  "webp": 17784
+ },
+ "sprites/monsters_xl/evil_druid.png": {
+  "sha1": "010d1a678f07d13a134869579efae2e383a5d028",
+  "png": 208196,
+  "webp": 58366
+ },
+ "sprites/monsters_xl/owl_duke.png": {
+  "sha1": "c3738e523ffaa30c02c46ed0521c92a9b401832c",
+  "png": 34962,
+  "webp": 21292
  },
  "sprites/portraits/acolyte.png": {
   "sha1": "a63a2f729bdb6f84f4fa5b6670c7a268e66ceac4",

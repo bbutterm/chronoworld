@@ -19,9 +19,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "dullahan",
-    "tint": "#c8b8ff",
-    "scale": 1.3,
+    "sprite": "bloody_knight",
     "hitFx": "fx_hit"
   },
   "barks": {

@@ -16,8 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "munak",
-    "tint": "#a6c68e",
+    "sprite": "orc_lady",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

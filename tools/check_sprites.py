@@ -14,6 +14,8 @@ EXPECTED={
  'monster':('idle','walk','attack','hurt','death'),
   'boss':('idle','walk','attack','hurt','death'),
  'monster_xl':('idle','walk','attack','hurt','death'),
+ 'boss_xl':('idle','walk','attack','hurt','death'),
+ 'boss_xxl':('idle','walk','attack','hurt','death'),
 }
 REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first','acolyte','thief',
           'knight_m','crusader_m','hunter_m','hunter_f','bard_m','dancer_f',
@@ -27,10 +29,20 @@ REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first',
           'mummy','sandman','marduk','scorpion','verit','isis',
           'bongun','munak','horong','smokie','nine_tail','sohee',
           'pirate_skel','kukre','marse','swordfish','hydra','obeaune',
-          'dullahan','gibbet','banshee','bloody_murderer','loli_ruri','quve'}
+          'dullahan','gibbet','banshee','bloody_murderer','loli_ruri','quve',
+          # scRO client extraction (raw/ro-build, docs/RO_SCRO_IMPORT.md): chapters 1-3, 7, 8, 10
+          'marin','pupa','thief_bug_male','thief_bug_female','thief_bug','thief_bug_egg','plankton','tarou','familiar',
+          'orc_lord','orc_warrior','high_orc','orc_archer','orc_lady','orc_skeleton','orc_zombie','steel_chonchon',
+          'ancient_mummy','owl_duke','clock','rideword','punk','elder','evil_druid','ghoul','eclipse','vocal','elder_willow',
+          'lord_of_death','bloody_knight','owl_baron','alarm','abysmal_knight','clock_tower_manager',
+          # chapter 9 (Labyrinth Forest): registered ahead of its units
+          'baphomet_jr','ghostring','vagabond_wolf','hunter_fly','side_winder','mantis','stem_worm','killer_mantis','deviruchi'}
 REQUIRED.update(FIRST_HEROES+STORY_HEROES+CARD_HEROES)
 GRID={'hero':([224,192],[104,144],8),'monster':([240,224],[100,120],8),
-      'boss':([256,256],[112,216],8),'monster_xl':([272,330],[167,280],6)}
+      'boss':([256,256],[112,216],8),'monster_xl':([272,330],[167,280],6),
+      # boss_xl: Lord of Death, Bloody Knight, Owl Baron, Alarm; boss_xxl: Abysmal Knight, Clock Tower Manager
+      # (native x1 frames wider than monster_xl; 6 columns keep the sheet <= 2048)
+      'boss_xl':([296,296],[96,218],6),'boss_xxl':([340,376],[170,300],6)}
 EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
             'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}
 

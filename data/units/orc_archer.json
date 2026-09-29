@@ -16,8 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "ranged",
-    "tint": "#a9c486",
+    "sprite": "orc_archer",
     "hitFx": "fx_hit",
     "projectile": "fx_arrow"
   }
