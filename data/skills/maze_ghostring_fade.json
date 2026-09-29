@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_ghostring_fade",
+  "name": "Бестелесность",
+  "description": "Гострин становится почти прозрачным: щит 25% ОЗ себе.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 9,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.25
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_baphomet_jr_leap",
+  "name": "Кувырок с косой",
+  "description": "Младший кувырком прыгает к самому раненому врагу: удар косой 1.7 × атака, 30% оглушить на ход.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHpPct"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.7
+    },
+    {
+      "type": "status",
+      "chance": 0.3,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

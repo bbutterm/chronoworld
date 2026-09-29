@@ -114,6 +114,17 @@
       "minChapter": 8
     },
     {
+      "id": "pact_robe",
+      "name": "Мантия договора",
+      "slot": "armor",
+      "rarity": "epic",
+      "stats": {
+        "hp": 1560,
+        "def": 63
+      },
+      "minChapter": 9
+    },
+    {
       "id": "clockwork_mail",
       "name": "Кольчуга часовщика",
       "slot": "armor",

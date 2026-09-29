@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_baphomet_collector",
+  "name": "Взыскание",
+  "description": "Когда гибнет союзник, Бафомет взыскивает долг: +20 энергии.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "trigger": "allyDeath",
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 20
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "maze_deviruchi",
+  "name": "Девиручи",
+  "kind": "monster",
+  "role": "healer",
+  "stats": {
+    "hp": 500,
+    "atk": 30,
+    "def": 8,
+    "spd": 105
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "maze_deviruchi_pact",
+    "actives": [
+      "maze_deviruchi_advance"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "gargoyle",
+    "tint": "#9a58c8",
+    "scale": 0.85,
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

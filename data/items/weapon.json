@@ -288,6 +288,17 @@
         "def": 8
       },
       "minChapter": 8
+    },
+    {
+      "id": "crescent_scythe",
+      "name": "Серповидная коса",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 200,
+        "def": 9
+      },
+      "minChapter": 9
     }
   ]
 }

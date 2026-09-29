@@ -69,10 +69,10 @@ const power = (s: SaveState, id: string) => heroPower(s.heroes.find((h) => h.id 
 const sumPower = (s: SaveState, ids: readonly string[]) => ids.reduce((n, id) => n + power(s, id), 0);
 
 describe('K9 экспедиции: конфиг', () => {
-  it('9 локаций открываются по ходу кампании (4 — главы 1–3, по одной на главы 4–6, 8 и 10), сроки 1 / 4 / 8 ч, пороги мощи растут', () => {
-    // Маршрут из 10 глав: Гласт Хейм — глава 8 (новая локация), Долина Гьёлль переехала в Нифльхейм (глава 10).
-    expect(LOCS.map((l) => l.id)).toEqual(['ant_hell', 'payon_cave', 'morroc_pyramid', 'clock_tower', 'sphinx_dungeon', 'kitsune_shrine', 'ghost_ship', 'glast_heim', 'gyoll_valley']);
-    expect(LOCS.slice(4).map((l) => l.stage)).toEqual(['ch4_s1', 'ch5_s1', 'ch6_s1', 'ch8_s1', 'ch10_s1']);
+  it('10 локаций открываются по ходу кампании (4 — главы 1–3, по одной на главы 4–6 и 8–10), сроки 1 / 4 / 8 ч, пороги мощи растут', () => {
+    // Маршрут из 10 глав: Гласт Хейм — глава 8 (новая локация), Лабиринтный лес — глава 9, Долина Гьёлль переехала в Нифльхейм (глава 10).
+    expect(LOCS.map((l) => l.id)).toEqual(['ant_hell', 'payon_cave', 'morroc_pyramid', 'clock_tower', 'sphinx_dungeon', 'kitsune_shrine', 'ghost_ship', 'glast_heim', 'labyrinth_forest', 'gyoll_valley']);
+    expect(LOCS.slice(4).map((l) => l.stage)).toEqual(['ch4_s1', 'ch5_s1', 'ch6_s1', 'ch8_s1', 'ch9_s1', 'ch10_s1']);
     expect(ctx.meta.expeditions.durations.map((d) => d.hours)).toEqual([1, 4, 8]);
     const order = LOCS.map((l) => ctx.content.stages.findIndex((s) => s.id === l.stage));
     expect(order.every((x, i) => x >= 0 && (i === 0 || x > order[i - 1]))).toBe(true);
@@ -83,7 +83,7 @@ describe('K9 экспедиции: конфиг', () => {
 
   it('validateExpeditions: неизвестные этап, монстр и предмет — ошибки с именем файла', () => {
     const bad = structuredClone(ctx.meta.expeditions);
-    bad.locations[0] = { ...bad.locations[0], stage: 'ch9_s9', monster: 'mob_nope', loot: [{ kind: 'item', chance: 0.1, count: 1, items: ['no_item'] }] };
+    bad.locations[0] = { ...bad.locations[0], stage: 'ch9_s99', monster: 'mob_nope', loot: [{ kind: 'item', chance: 0.1, count: 1, items: ['no_item'] }] };
     const problems: string[] = [];
     validateExpeditions(bad, ctx.content, ctx.equipment.items, problems);
     expect(problems).toHaveLength(3);

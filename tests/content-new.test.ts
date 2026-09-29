@@ -54,11 +54,11 @@ describe('content:new — генераторы заготовок', () => {
       .map((f) => ({ file: `data/campaign/${f}`, order: json(`data/campaign/${f}`).order as number }))
       .sort((x, y) => x.order - y.order)
       .at(-1)!;
-    const r = run('chapter', 'chapter9', '--mobs', 'mob_fabre,mob_fast,mob_tank', '--boss', 'gen_boss');
-    expect(r.written).toEqual(['data/campaign/chapter9.json', 'data/story/chapter9.json']);
-    const ch = json('data/campaign/chapter9.json');
+    const r = run('chapter', 'chapter11', '--mobs', 'mob_fabre,mob_fast,mob_tank', '--boss', 'gen_boss');
+    expect(r.written).toEqual(['data/campaign/chapter11.json', 'data/story/chapter11.json']);
+    const ch = json('data/campaign/chapter11.json');
     expect(ch.order).toBe(before.order + 1);
-    expect(ch.stages.map((s: { id: string }) => s.id)).toEqual(Array.from({ length: 10 }, (_, i) => `ch9_s${i + 1}`));
+    expect(ch.stages.map((s: { id: string }) => s.id)).toEqual(Array.from({ length: 10 }, (_, i) => `ch11_s${i + 1}`));
     expect(ch.stages.map((s: { boss: boolean }) => s.boss)).toEqual([...Array(9).fill(false), true]);
     // Экономика — как у глав 2–3 (docs/content/balance.md): сундук +9%/этап от последнего этапа последней главы, золото 0.7,
     // награда — 30 минут сундука (босс — 45).
@@ -75,18 +75,18 @@ describe('content:new — генераторы заготовок', () => {
     const b = build();
     expect(b.problems).toEqual([]);
     const ctx = b.ctx!;
-    expect(ctx.story.scenes.filter((s) => s.chapter === 'chapter9').map((s) => s.id)).toEqual(['ch9_intro', 'ch9_s10_before', 'ch9_outro']);
+    expect(ctx.story.scenes.filter((s) => s.chapter === 'chapter11').map((s) => s.id)).toEqual(['ch11_intro', 'ch11_s10_before', 'ch11_outro']);
     // Каждый этап — настоящий бой ядра.
     const hero = buildUnit(newGame(ctx, 0).heroes[0], ctx);
-    for (const s of ctx.content.stages.filter((x) => x.chapter === 'chapter9')) {
+    for (const s of ctx.content.stages.filter((x) => x.chapter === 'chapter11')) {
       expect(simulateBattle(ctx.content, [hero, null, null, null, null], enemySquad(s.id, ctx), 1, { log: false }).winner).toMatch(/^[AB]$/);
     }
   });
 
   it('TODO в заготовках находятся (content:check покажет их предупреждениями)', () => {
     const todos = [...readJsonDir('data/campaign', root), ...readJsonDir('data/story', root)].flatMap((f) => findTodos(f.file, f.data));
-    expect(todos.some((t) => t.startsWith('data/campaign/chapter9.json: name'))).toBe(true);
-    expect(todos.some((t) => t.startsWith('data/story/chapter9.json: scenes[0].lines[0].text'))).toBe(true);
+    expect(todos.some((t) => t.startsWith('data/campaign/chapter11.json: name'))).toBe(true);
+    expect(todos.some((t) => t.startsWith('data/story/chapter11.json: scenes[0].lines[0].text'))).toBe(true);
     // В настоящих данных репозитория TODO нет.
     for (const dir of ['data/campaign', 'data/story', 'data/units', 'data/skills', 'data/jobs']) {
       expect(readJsonDir(dir).flatMap((f) => findTodos(f.file, f.data))).toEqual([]);
@@ -94,12 +94,12 @@ describe('content:new — генераторы заготовок', () => {
   });
 
   it('stage: новый этап встаёт перед босс-этапом (или в конец с --append), id уникален', () => {
-    run('stage', 'chapter9');
-    let ids = json('data/campaign/chapter9.json').stages.map((s: { id: string }) => s.id);
-    expect(ids.slice(-2)).toEqual(['ch9_s11', 'ch9_s10']);
-    run('stage', 'chapter9', '--from', 'ch9_s3', '--append');
-    ids = json('data/campaign/chapter9.json').stages.map((s: { id: string }) => s.id);
-    expect(ids[ids.length - 1]).toBe('ch9_s12');
+    run('stage', 'chapter11');
+    let ids = json('data/campaign/chapter11.json').stages.map((s: { id: string }) => s.id);
+    expect(ids.slice(-2)).toEqual(['ch11_s11', 'ch11_s10']);
+    run('stage', 'chapter11', '--from', 'ch11_s3', '--append');
+    ids = json('data/campaign/chapter11.json').stages.map((s: { id: string }) => s.id);
+    expect(ids[ids.length - 1]).toBe('ch11_s12');
     expect(build().problems).toEqual([]);
   });
 
@@ -110,7 +110,7 @@ describe('content:new — генераторы заготовок', () => {
     expect(json('data/story/chapter12.json').scenes.map((s: { id: string }) => s.id)).toEqual(['ch12_intro', 'ch12_s10_before', 'ch12_outro']);
     expect(() => run('story', 'chapter12')).toThrow(ContentNewError);
     expect(() => run('chapter', 'chapter12')).toThrow(ContentNewError);
-    expect(() => run('chapter', 'chapter11', '--mobs', 'mob_boss1')).toThrow(/не монстр/);
+    expect(() => run('chapter', 'chapter13', '--mobs', 'mob_boss1')).toThrow(/не монстр/);
     expect(build().problems).toEqual([]);
   });
 
@@ -160,7 +160,7 @@ describe('content:new — генераторы заготовок', () => {
     expect(() => run('hero', 'gen_x', '--class', 'novice', '--gender', 'm')).toThrow(/Новичок/);
     expect(() => run('hero', 'gen_x', '--class', 'mage')).toThrow(/--gender/);
     expect(() => run('hero', 'gen_x', '--class', 'wizard', '--gender', 'm')).toThrow(/первая профессия/);
-    expect(() => run('hero', 'gen_x', '--class', 'mage', '--gender', 'm', '--story', '--after', 'ch9_s99')).toThrow(/--after/);
+    expect(() => run('hero', 'gen_x', '--class', 'mage', '--gender', 'm', '--story', '--after', 'ch11_s99')).toThrow(/--after/);
     expect(() => run('hero', 'gen_thief', '--class', 'thief', '--gender', 'm')).toThrow(/уже есть/);
     expect(existsSync(join(root, 'data/heroes/gen_x.json'))).toBe(false);
   });

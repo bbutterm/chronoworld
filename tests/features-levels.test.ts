@@ -153,7 +153,8 @@ describe('уровни врагов и рекомендуемый уровень
       expect(Math.abs(rec.level - battle), `${s.id}: рекомендуем без вещей ${rec.level}, по бою ${battle}`).toBeLessThanOrEqual(5);
       expect(Math.abs(l.boss! - battle), `${s.id}: босс ${l.boss}, по бою ${battle}`).toBeLessThanOrEqual(5);
     }
-  });
+    // Время, а не порог: с главой 9 босс-этапов стало на один больше (бои эталонных отрядов) — 5 с по умолчанию впритык.
+  }, 20_000);
 
   it('средний уровень отряда и цвет уровня врага', () => {
     const save = newGame(CTX, 0);

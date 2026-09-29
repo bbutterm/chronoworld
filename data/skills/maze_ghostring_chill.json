@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_ghostring_chill",
+  "name": "Холод призрака",
+  "description": "Призрачный поринг проходит сквозь строй: урон всем врагам 0.6 × атака и «Озноб» (−20% скорости) на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.6
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "ghost_chill",
+        "name": "Озноб",
+        "turns": 2,
+        "stats": {
+          "spd": -0.2
+        }
+      }
+    }
+  ]
+}
