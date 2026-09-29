@@ -45,6 +45,8 @@ const OUT = flag('out').at(-1) ?? join(ROOT, '.balance-stagefit');
 const TREND_LO = Math.log(0.88);
 const TREND_HI = Math.log(1.12);
 const BOSS_LO = Math.log(1.03);
+const EMPIRICAL = argv.includes('--empirical');
+const GAMMA = num('gamma', 1.5);
 const BOSS_HI = Math.log(1.3);
 
 /** Мини-боссы середины глав — как в scripts/balance-smooth.ts. */
@@ -125,11 +127,24 @@ const refD = (id: string, mult: number) => M.ref[id] + shift(id, mult);
 const modelD = (id: string, mult: number) => M.model[id] + shift(id, mult);
 
 // --- график ---
+const runs = JSON.parse(readFileSync(flag('runs').at(-1)!, 'utf8')) as ModelRun[];
+/**
+ * --relative: график главы — от факта босса прошлой главы (медиана прогонов), длина главы — по целям. Опоздание прошлой
+ * главы не делает эту легче: каждая глава правит только свою длину и форму, ошибки не гуляют по цепочке глав.
+ */
+const RELATIVE = argv.includes('--relative');
+const allChapters = [...files.keys()].map(readChapter).sort((a, b) => ((a as { order?: number }).order ?? 0) - ((b as { order?: number }).order ?? 0));
+const actualBoss = (c: string) => {
+  const boss = allChapters.find((x) => x.id === c)!.stages.find((st) => st.boss)!.id;
+  return median(runs.map((r) => new Map(r.clears).get(boss) ?? r.end + 24));
+};
 const target = new Map<string, number>();
 CHAPTERS.forEach((c, ci) => {
   const stages = chapterStages.get(c)!;
-  const t0 = ci ? TARGETS[ci - 1] : START;
-  const L = TARGETS[ci] - t0;
+  const planned0 = ci ? TARGETS[ci - 1] : START;
+  const L = TARGETS[ci] - planned0;
+  const prev = allChapters[allChapters.findIndex((x) => x.id === c) - 1];
+  const t0 = RELATIVE && prev ? actualBoss(prev.id) : planned0;
   const n = stages.length;
   const m = stages.findIndex((s) => !s.boss && s.enemies.some((e) => e && MINI_BOSS_UNITS.has(e.unit)));
   stages.forEach((s, i) => {
@@ -144,7 +159,6 @@ CHAPTERS.forEach((c, ci) => {
 });
 
 // --- мощь модели и калибровка C по стенам текущих данных ---
-const runs = JSON.parse(readFileSync(flag('runs').at(-1)!, 'utf8')) as ModelRun[];
 const curves = runs.map((r) => {
   const pts: [number, number][] = [];
   let p = 0;
@@ -170,9 +184,17 @@ console.log(`калибровка: ${calib.length} этапов-стен, C = ${
 
 // --- новые mult ---
 const next = new Map<string, number>();
+const raw = new Map<string, number>();
 for (const id of allIds) {
   const want = lnP(target.get(id)!) + C;
-  const f = Math.min(MAX_STEP, Math.max(1 / MAX_STEP, Math.exp(want - modelD(id, cur.get(id)!))));
+  // --empirical: без профиля модели — по факту прогонов: этап пройден в час t, цель T → × (P(T) / P(t))^--gamma
+  // (P — медианная мощь отряда модели к часу). Профиль модели (замер) хорошо ставит форму главы, но его калибровка C одна на
+  // все главы и расходится с фактом на ×1.3–2; факт медленнее сходится (этап, пройденный «с запасом», двигается шагом), зато не врёт.
+  if (EMPIRICAL) {
+    const t = median(runs.map((r, k) => clears[k].get(id) ?? r.end + 24));
+    raw.set(id, Math.pow(Math.exp(lnP(target.get(id)!) - lnP(t)), GAMMA));
+  } else raw.set(id, Math.exp(want - modelD(id, cur.get(id)!)));
+  const f = Math.min(MAX_STEP, Math.max(1 / MAX_STEP, raw.get(id)!));
   next.set(id, cur.get(id)! * f);
 }
 for (const c of CHAPTERS) {
@@ -196,7 +218,7 @@ for (const c of CHAPTERS) {
   const row = chapterStages.get(c)!.map((s) => {
     const f = next.get(s.id)! / cur.get(s.id)!;
     const t = median(runs.map((r, k) => clears[k].get(s.id) ?? r.end + 24));
-    return `${s.id.split('_')[1]}${s.boss ? '*' : ''} ${t.toFixed(0)}→${target.get(s.id)!.toFixed(0)} ×${f.toFixed(2)}`;
+    return `${s.id.split('_')[1]}${s.boss ? '*' : ''} ${t.toFixed(0)}→${target.get(s.id)!.toFixed(0)} ×${f.toFixed(2)}${argv.includes('--raw') ? ` (${raw.get(s.id)!.toFixed(2)})` : ''}`;
   });
   console.log(`${c}: ${row.join(' | ')}`);
 }
