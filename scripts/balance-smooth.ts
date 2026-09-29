@@ -25,6 +25,10 @@
  *       P(t) — мощь отряда модели к моменту t (как balance-fit). Лучший вариант остаётся в data/campaign.
  *   … --fit 6 --anchors <прошлые якоря> --a3 <конец главы 3>       без нового замера: данные уже выставлены по этим якорям
  *   … --recommended --anchors <якоря> --a3 <конец главы 3>          power.recommendedStages глав 4–7 ∝ D (печатает JSON)
+ *   … --recommended --load-d <замер текущих данных>                   то же по замеру (после ручных правок отдельных этапов)
+ *   … --dry — только показать цели и проверку тренда (tests/chapters.test.ts), data/campaign не менять.
+ * Лестница (29.09, «ровный темп»): --start 1.0 (начало глав 5–7 = босс прошлой главы × S), --stairs 0.333,0.667 и
+ * --stair-share 0.6 (доля роста главы ступеньками — мягкие стены на трети и двух третях), --min-growth 1.2.
  * Опции: --level 45 (эталон), --seeds 8 (боёв на точку замера), --steps 9, --boss 1.12, --mini 1.1, --a3 (начало главы 4), --save-d/--load-d файл (замер D в JSON), --gamma 0.8, --days 11,
  * --model-squads 1,2,3,4 и --model-days 4,6,8 (отряды модели в замере), --seeds-model 1,2,3 (модели в подборе).
  * Затем: npm run balance -- --fit-recommended, --levels (docs/content/balance.md, разделы 4, 4а).
@@ -119,25 +123,69 @@ function miniBossStages(ctx: FullContext): Set<string> {
 }
 
 /**
- * Цели D по якорям: a3 — конец главы 3 (замер), anchors — концы глав 4–7. Рядовой этап j (1…n, n — рядовых в главе, с
- * вставными — 17) — from × (to/from)^(j/n); мини-босс — × --mini; босс — to × шаг × --boss.
+ * Лестница внутри главы (29.09, «ровный темп»): после растяжки глав до 18 этапов сила росла плавно на 2–4% за этап, а за стену
+ * босса модель игрока вырастала сильнее — и проходила следующую главу почти целиком за сессию. Теперь:
+ *  --start S — начало глав 5–7 (значение «этапа 0» тренда) = сила босса прошлой главы × S (было — конец прошлой главы, ниже
+ *    босса на ступеньку: первые 6–8 этапов после босса «пролетались»);
+ *  --stairs 0.33,0.67 и --stair-share f — доля f роста главы (ln A[c]/начало) не плавная, а ступеньками на этих долях главы
+ *    (этап round(доля × (n + 1)) и все после него выше на ступеньку): после ступеньки — мягкая стена «забери сундук», дальше
+ *    серия побед до следующей. Остальной рост (1 − f) — плавный наклон.
+ * Без флагов — прежняя кривая (--stair-share 0, начало = конец прошлой главы).
+ */
+const START = num('start', NaN);
+const STAIRS = list('stairs', [1 / 3, 2 / 3]);
+const STAIR_SHARE = num('stair-share', 0);
+/** --min-growth: рядовые этапы главы растут не меньше чем ×N от начала до конца (иначе подбор «сплющивает» главу 7 — стен нет). */
+const MIN_GROWTH = num('min-growth', 1.05);
+
+/**
+ * Цели D по якорям: a3 — начало главы 4 (конец главы 3 или явно), anchors — концы глав 4–7 (рядовой этап n). Рядовой этап j
+ * (1…n, n — рядовых в главе, с вставными — 17) — from × e^(наклон·j + ступенька·[ступенек до j]); мини-босс — × --mini;
+ * босс — to × e^наклон × --boss.
  */
 function targetsFor(ctx: FullContext, a3: number, anchors: number[]): Map<string, number> {
   const out = new Map<string, number>();
   const mini = miniBossStages(ctx);
+  let prevBoss = NaN;
   FIT_CHAPTERS.forEach((chapter, c) => {
-    const from = c === 0 ? a3 : anchors[c - 1];
-    const to = anchors[c];
+    const prevEnd = c === 0 ? a3 : anchors[c - 1];
+    const from = c > 0 && Number.isFinite(START) ? Math.max(prevEnd, prevBoss * START) : prevEnd;
+    const to = Math.max(anchors[c], from * MIN_GROWTH);
     const stages = ctx.content.stages.filter((s) => s.chapter === chapter);
     const n = stages.filter((s) => !s.boss).length;
-    const step = Math.pow(to / from, 1 / n);
+    const g = Math.log(to / from);
+    const at = STAIRS.map((f) => Math.round(f * (n + 1)));
+    const stair = (STAIR_SHARE * g) / at.length;
+    const slope = ((1 - STAIR_SHARE) * g) / n;
     let j = 0;
     for (const s of stages) {
-      if (s.boss) out.set(s.id, to * step * BOSS);
-      else out.set(s.id, from * Math.pow(step, ++j) * (mini.has(s.id) ? MINI : 1));
+      if (s.boss) {
+        prevBoss = to * Math.exp(slope) * BOSS;
+        out.set(s.id, prevBoss);
+      } else {
+        j++;
+        out.set(s.id, from * Math.exp(slope * j + stair * at.filter((p) => p <= j).length) * (mini.has(s.id) ? MINI : 1));
+      }
     }
   });
   return out;
+}
+
+/** Та же проверка, что tests/chapters.test.ts (главы 4+): рядовой этап / линейный тренд главы (±15%), босс / тренд (1…1.35). */
+function trendCheck(ctx: FullContext, d: Map<string, number>): void {
+  for (const chapter of FIT_CHAPTERS) {
+    const list = ctx.content.stages.filter((s) => s.chapter === chapter);
+    const reg = list.filter((s) => !s.boss).map((s) => Math.log(d.get(s.id)!));
+    const n = reg.length;
+    const xm = (n - 1) / 2;
+    const ym = reg.reduce((a, b) => a + b, 0) / n;
+    const slope = reg.reduce((a, y, i) => a + (i - xm) * (y - ym), 0) / reg.reduce((a, _, i) => a + (i - xm) ** 2, 0);
+    const r = list.map((s, i) => Math.exp(Math.log(d.get(s.id)!) - (ym + slope * (Math.min(i, n - 1) - xm))));
+    const regR = r.slice(0, -1);
+    console.log(
+      `${chapter}: рост ×${Math.exp(slope).toFixed(3)}/этап, этап/тренд ${Math.min(...regR).toFixed(2)}…${Math.max(...regR).toFixed(2)}, босс/тренд ${r.at(-1)!.toFixed(2)}`,
+    );
+  }
 }
 
 /**
@@ -237,8 +285,15 @@ if (!anchorsArg && !FIT) {
 
 if (argv.includes('--recommended')) {
   // Рекомендуемая мощь глав 4–7 ∝ D (плавно, как сила этапов): коэффициент этапа = K × D / мощь врагов (stagePower).
+  // D — замер текущих данных (--load-d, после ручных правок этапов) или цели по якорям (данные записаны по ним без правок).
   const a3r = num('a3', NaN);
-  if (!anchorsArg || !Number.isFinite(a3r)) throw new Error('--recommended: нужны --anchors (как у --fit) и --a3 (конец главы 3)');
+  if (flag('load-d').length) {
+    const all = new Map(Object.entries(JSON.parse(readFileSync(flag('load-d').at(-1)!, 'utf8')) as Record<string, number>));
+    const late = new Set(ctx0.content.stages.filter((s) => FIT_CHAPTERS.includes(s.chapter)).map((s) => s.id));
+    recommendFactors(ctx0, new Map([...all].filter(([id]) => late.has(id))));
+    process.exit(0);
+  }
+  if (!anchorsArg || !Number.isFinite(a3r)) throw new Error('--recommended: нужны --load-d (замер) или --anchors (как у --fit) и --a3 (конец главы 3)');
   recommendFactors(ctx0, targetsFor(ctx0, a3r, anchorsArg));
   process.exit(0);
 }
@@ -246,9 +301,10 @@ if (argv.includes('--recommended')) {
 // --a3 с --anchors: данные уже выставлены по этим якорям (прошлый --fit) — D известна без замера (D линейна по mult).
 const a3Arg = num('a3', NaN);
 const known = anchorsArg && Number.isFinite(a3Arg);
-if (!known && !flag('load-d').length) console.log(`Замер D (эталон — фиолетовые ур. ${LEVEL}, ${SEEDS} seed)…`);
 const loaded = flag('load-d').length ? new Map(Object.entries(JSON.parse(readFileSync(flag('load-d').at(-1)!, 'utf8')) as Record<string, number>)) : null;
-const d0 = known ? targetsFor(ctx0, a3Arg, anchorsArg) : (loaded ?? measure(ctx0, new Set(['chapter3', ...FIT_CHAPTERS])));
+if (!known && !loaded) console.log(`Замер D (эталон — фиолетовые ур. ${LEVEL}, ${SEEDS} seed)…`);
+// --load-d важнее: замер текущих данных, --anchors — тогда только стартовые якоря подбора.
+const d0 = loaded ?? (known ? targetsFor(ctx0, a3Arg, anchorsArg) : measure(ctx0, new Set(['chapter3', ...FIT_CHAPTERS])));
 // Конец главы 3 — по последним трём рядовым этапам (замер шумит на ±5%). Главы 1–3 не трогаем.
 // --a3 без --anchors — начало главы 4 задано явно (ближе к боссу главы 3, чтобы после него глава 4 не проходилась
 // целиком за одну сессию), иначе — замер конца главы 3.
@@ -263,6 +319,7 @@ if (!FIT) {
   const t = targetsFor(ctx0, a3, anchors);
   write(d0, t);
   print(ctx0, t);
+  trendCheck(ctx0, t);
   process.exit(0);
 }
 
@@ -303,3 +360,4 @@ for (let it = 0; it < FIT; it++) {
 write(d0, targetsFor(ctx0, a3, best.anchors));
 console.log(`лучшие якоря: ${best.anchors.map((a) => a.toFixed(3)).join(',')} (отклонение ${best.score.toFixed(3)}) — записаны в data/campaign`);
 print(ctx0, targetsFor(ctx0, a3, best.anchors));
+trendCheck(ctx0, targetsFor(ctx0, a3, best.anchors));
