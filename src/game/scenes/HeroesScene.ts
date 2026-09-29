@@ -116,7 +116,7 @@ export class HeroesScene extends Phaser.Scene {
     const picks = pendingPicks(save);
     const missing = heroesUi.showMissing ? missingTemplates(save, f, GAME) : [];
     if (!save.heroes.length) {
-      this.area.add(emptyState(this, GAME_W / 2, 300, 'Героев пока нет.\nНачните новую игру: «Город» → настройки → «Сбросить прогресс».'));
+      this.area.add(emptyState(this, GAME_W / 2, 300, 'Героев пока нет.\nНачните новую игру: «Город» → настройки → «Начать заново».'));
       return;
     }
     if (!heroes.length && !missing.length && !picks.length) {
