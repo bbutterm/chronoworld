@@ -649,6 +649,12 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 - **Спрайты:** лист + запись в `assets/sprites/sprites.json` (обычно пишет `tools/build_sprites_v2.py`; старые листы `assets/ro` →
   `python3 tools/build_sprites_v2.py --from-v1`; правки прозрачности — `--alpha-fixes`); проверка `python3 tools/check_sprites.py`
   и python-тесты. Игра и сборка подхватывают реестр сами; юниту/профессии — `visual.sprite = <id>`.
+- **Клиент scRO (29.09):** `raw/ro/` — файлы клиента побайтно, `raw/ro-build/` — готовые листы, манифест и рендер SPR/ACT
+  (`raw/ro-build/tools/build_sheets.py`, пути `ROOT/RAW/OUT` в начале файла — поправить на свои). Подключено 43 листа монстров
+  (34 юнитам, 9 — глава 9 заранее) и NPC Кафры, см. `docs/RO_SCRO_IMPORT.md` и статус в `docs/ART_REQUEST_CHAPTERS.md`.
+  Крупные классы сетки: `boss_xl` 296×296 и `boss_xxl` 340×376 (по 6 колонок; колонки берутся из класса —
+  `normalizeV2`), `npc` — листы NPC для спикеров сюжета (`portrait: "npc_<имя>"` в `data/story`, лист попадает в dist через
+  `scripts/lib/used-assets.ts`). Бюджет `check_sprites.py` (3 МБ доставляемых спрайтов) после импорта превышен — 4.1 МБ.
 - **Иконки навыков RO:** `python3 tools/extract_ro_skill_icons.py` (список `SKILLS` в скрипте) → `assets/ui/icons/skill_<ro>.png`,
   затем строка в `RO_SKILL_ICONS` (`src/game/skillLook.ts`). Своя иконка навыка — просто `assets/ui/icons/skill_<id навыка>.png`.
 - **Эффекты:** атлас в `assets/effects/` + запись в `effects.json → effects`; привязка к навыку — `effects.json → skills`.

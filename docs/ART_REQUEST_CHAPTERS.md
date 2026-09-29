@@ -5,11 +5,31 @@
 написана), 10 Нифльхейм. Главы 2, 3, 7 получили новое содержимое; Гласт Хейм (бывшая глава 3) и Нифльхейм (бывшая глава 7)
 переехали в главы 8 и 10 со своими листами.
 
-Все главы играются уже сейчас: у новых монстров стоят листы-заплатки (чужой лист RO, перекрашенный через `visual.tint`),
-фоны нарисованы кодом (`src/game/backdropsExtra.ts`, `src/game/backdropsRoute.ts`). Арт заменяет заплатки — игра не ждёт.
-Боссы со своими листами: Мастеринг, Золотой жук-вор (`elite`), Герой орков (`boss1`, мини-босс гл. 3), Осирис (`osiris`),
-Лунный цветок (`moonlight_flower`), Дрейк (`drake`), Тёмный лорд (`dark_lord`, гл. 8). Своих листов ждут Орк-лорд (гл. 3),
-Смотритель часовой башни и Совиный барон (гл. 7), Владыка мёртвых (гл. 10).
+## Статус (29.09): листы из клиента scRO подключены
+
+Извлечение из клиента владельца (docs/RO_SCRO_IMPORT.md, `raw/ro-build/`) закрыло почти весь заказ монстров ниже. Свои листы
+получили (юнит → лист):
+
+1. Глава 1: `mob_marin` → marin, `mob_pupa` → pupa, `mob_eclipse` → eclipse, `mob_vocal` → vocal.
+2. Глава 2: `sewer_bug_male` и мини-босс `sewer_bug_leader` → thief_bug_male (Вожак — тот же лист, темнее и ×1.3 — «старше и
+   крупнее»), `sewer_bug_female` → thief_bug_female, `sewer_thief_bug` → thief_bug (в scRO `thief_bug_larva` — тот же рисунок),
+   `sewer_bug_egg` → thief_bug_egg, `sewer_plankton` → plankton, `sewer_tarou` → tarou, `sewer_familiar` → familiar.
+3. Глава 3: `orc_lord` → orc_lord, `orc_warrior` → orc_warrior, `orc_high` → high_orc, `orc_archer` → orc_archer,
+   `orc_lady` → orc_lady (он же портрет Шамана Угры), `orc_skeleton` → orc_skeleton, `orc_zombie` → orc_zombie,
+   `orc_chonchon` → steel_chonchon.
+4. Глава 4: `mob4_ancient_mummy` → ancient_mummy.
+5. Глава 7: `alde_keeper` → clock_tower_manager, `alde_owl_baron` → owl_baron, `alde_owl_duke` → owl_duke, `alde_alarm` → alarm,
+   `alde_clock` → clock, `alde_rideword` → rideword, `alde_punk` → punk, `alde_elder` → elder. Спикер «Кафра» — лист NPC npc_kafra.
+6. Глава 8: `mob3_knight` → abysmal_knight, `mob3_boss` → evil_druid, `mob3_melee` → ghoul.
+7. Глава 10: `mob_lord_of_death` → lord_of_death, `mob7_bridge_warden` → bloody_knight.
+8. Башня/топи: `mob2_boss` → elder_willow, `mob2_elite` → ghoul.
+9. Глава 9 (юнитов ещё нет, листы зарегистрированы заранее): baphomet_jr, ghostring, vagabond_wolf, hunter_fly, side_winder,
+   mantis, stem_worm, killer_mantis, deviruchi (+ eclipse и vocal уже в игре).
+
+Остались на заплатках (чужой лист + `tint`): «Проклятые топи» `mob2_melee`, `mob2_ranged`, `mob2_tank`, `mob2_fast`,
+`mob2_giant` (Башня; выдуманные болотные версии — своего монстра RO нет) и осознанные перекраски боссов: `mob5_munak_elder`
+(Настоятель Мунэ), `mob6_boss` (призрачный Дрейк), `mob6_bosun` (Боцман-призрак). Фоны по-прежнему нарисованы кодом
+(`src/game/backdropsExtra.ts`, `src/game/backdropsRoute.ts`). Разделы ниже — исходный заказ; для монстров из списка выше он выполнен.
 
 ## Коротко для художника (скопировать в мессенджер)
 
