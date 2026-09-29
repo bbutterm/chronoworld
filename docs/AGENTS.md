@@ -134,6 +134,7 @@
 | `playthrough.ts` | прохождение главы ядром, `--winrate`, `--idle` |
 | `balance.ts` + `lib/player-model.ts` | модель игрока на D дней (часы сессии, «крючки», рекомендуемая мощь) → CSV |
 | `balance-fit.ts` | регулятор `mult` глав (кроме главы 1) по окнам из `data/progression.json` → balance, `--chapter N` (docs/content/balance.md) |
+| `balance-smooth.ts` | сила этапов по бою (D) и плавная кривая глав 4+: замер, подбор якорей по модели игрока (`--fit`), рекомендуемая мощь (`--recommended`); `--chapters chapter7,chapter8,chapter10 --base chapter6` — какие главы подбирать (docs/content/balance.md, 6а) |
 | `chapter-save.ts` | сохранение для визуального прогона главы (`npx tsx scripts/chapter-save.ts [jobLevel] [tier2|tier1] > save.json`) |
 | `e2e.mjs`, `e2e-chapter1.mjs`, `perf.mjs` | браузерные прогоны (Playwright глобальный) |
 | `assets-report.ts` + `lib/used-assets.ts` | какие ассеты нужны сборке |
@@ -207,6 +208,8 @@ skills [{jobLevel, skill}], visual`. **С v4 профессия — класс �
 последним), у глав 8 и 10 — s1…s18 подряд, босс s18. **Номер главы — `order`** («Глава N», «Эпизод N», этап «N-K» — `stageLabel`,
 `flow.ts stageNo`; ворота предметов `minChapter` — `equipment/gates.ts chapterNumber`), а не место в списке: пока главы 9 нет,
 после 8 идёт 10 (в `playthrough` индекс 8). Глава 9 при появлении сдвинет рост силы главы 10 — рецепт 6 в `docs/CONTENT_RECIPES.md`.
+Сюжет сезона — `docs/design/story.md`: Серый капюшон (спикер `herald`, портрет `unit:mob3_ranged`) — Ансгар, оруженосец Гаррета и
+старший брат Вики; узнавание — гл. 8 (`ch8_s15_after`, `ch8_s16_after`), развязка — гл. 10 (`ch10_outro`: закрывает врата изнутри).
 Последний этап главы = глава пройдена (`lastStageOfChapter`). Подробности и таблицы — `docs/content/campaign.md`.
 
 ### Башня `data/tower.json` (`TowerConfigSchema`)
@@ -629,6 +632,11 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
   печатает, сколько часов сундука понадобилось; `mult` подобраны так, чтобы Σhp/Σatk этапов не падали (тест) и ожидание росло плавно.
 - **Вся экономика:** `npm run balance` (14 дней модели игрока с башней, экипировкой, заданиями) → `balance.csv`, `docs/content/balance.md`.
   Трофеи сундука модель получает сама (через `actClaimOffline`/`actUseFastRewards`); сводка печатает предметы и копии героев по источникам.
+- **Главы 7, 8, 10 (29.09, маршрут из 10 глав):** `npx tsx scripts/balance-smooth.ts --chapters chapter7,chapter8,chapter10 --base chapter6`
+  (замер D → `--save-d`), затем `--load-d … --fit 7 --targets 280,332,404 --days 18` с лестницей глав 5–7 (`--start 1.0 --stairs 0.333,0.667
+  --stair-share 0.6 --min-growth 1.2 --boss 1.1`), затем `--recommended --anchors … --a3 …`; уровни — `npm run balance -- --levels --days 18`.
+  Итог (seed 1): босс гл. 7 — день 12, гл. 8 — день 15, гл. 10 — день 18. Полоса уровней с ch8_s1 — красные ×5; у босс-этапов 7/8/10
+  рекомендуемая мощь — по эталонным отрядам (модель берёт их с первой попытки). Подробно — `docs/content/balance.md`, раздел «Маршрут из 10 глав».
 - Таблицы и цифры — `docs/content/campaign.md`. Рецепт — `docs/CONTENT_RECIPES.md` «Баланс главы».
 
 ---

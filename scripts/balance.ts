@@ -144,7 +144,8 @@ for (const p of timeline(res, ctx, marks)) {
 }
 
 console.log('\nКрючки:');
-const ch = (xs: (number | null)[], unit: string) => xs.map((x, i) => `гл.${i + 1} ${x === null ? '—' : `${x} ${unit}`}`).join(', ');
+// Номер главы — order (маршрут из 10 глав: после 8-й идёт 10-я), а не место в списке.
+const ch = (xs: (number | null)[], unit: string) => xs.map((x, i) => `гл.${ctx.content.chapters[i]?.order ?? i + 1} ${x === null ? '—' : `${x} ${unit}`}`).join(', ');
 console.log(`  главы — активных минут: ${ch(hm.chapterActiveMin, 'мин')}`);
 console.log(`  главы — часов от начала: ${ch(hm.chapterHours, 'ч')}`);
 console.log(`  первые 30 мин: боёв ${hm.first30.battles}, повышений ${hm.first30.levelUps} (боёв на повышение ${hm.first30.battlesPerLevelUp})`);
