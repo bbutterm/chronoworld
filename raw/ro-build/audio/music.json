@@ -1,0 +1,1105 @@
+{
+ "schema": 1,
+ "targetLufs": -16.0,
+ "note": "Copy bgm_NN.ogg + bgm_NN.m4a to assets/audio/music_<gameId>.ogg/.m4a (see docs/RO_SCRO_IMPORT.md).",
+ "existing": {
+  "home": "08",
+  "tavern": "26",
+  "map_meadow": "12",
+  "battle_meadow": "05",
+  "map_desert": "11",
+  "battle_desert": "22",
+  "map_grove": "14",
+  "battle_grove": "20",
+  "map_shipwreck": "15",
+  "battle_shipwreck": "17",
+  "map_crypt": "42",
+  "battle_crypt": "40",
+  "map_niflheim": "84",
+  "battle_niflheim": "85",
+  "boss": "06"
+ },
+ "proposed": {
+  "title": "01",
+  "map_sewer": "19",
+  "battle_sewer": "19",
+  "map_orcs": "35",
+  "battle_orcs": "48",
+  "map_aldebaran": "39",
+  "battle_aldebaran": "60",
+  "boss_aldebaran": "61",
+  "map_maze": "16",
+  "battle_maze": "16",
+  "tower": "21",
+  "hunt": "02"
+ },
+ "tracks": [
+  {
+   "bgm": "01",
+   "title": "Title",
+   "source": "raw/ro/bgm/01.mp3",
+   "sourceBytes": 1835904,
+   "sourceRate": 48000,
+   "sourceSeconds": 114.744,
+   "sourceLufs": -15.9,
+   "sourceTruePeak": -0.9,
+   "gainDb": -0.1,
+   "seconds": 109.44,
+   "trimmedSeconds": 5.304,
+   "lufs": -15.9,
+   "truePeak": -1.4,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_01.ogg",
+    "bytes": 535562,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_01.m4a",
+    "bytes": 791772,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": [
+    "title"
+   ]
+  },
+  {
+   "bgm": "02",
+   "title": "Gambler of Highway",
+   "source": "raw/ro/bgm/02.mp3",
+   "sourceBytes": 1830912,
+   "sourceRate": 22050,
+   "sourceSeconds": 183.027,
+   "sourceLufs": -11.1,
+   "sourceTruePeak": 2.3,
+   "gainDb": -4.9,
+   "seconds": 181.899,
+   "trimmedSeconds": 1.128,
+   "lufs": -16.0,
+   "truePeak": -2.0,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_02.ogg",
+    "bytes": 871363,
+    "codec": "opus",
+    "kbps": 32
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_02.m4a",
+    "bytes": 968680,
+    "codec": "aac-lc",
+    "kbps": 40
+   },
+   "gameIds": [],
+   "proposedIds": [
+    "hunt"
+   ]
+  },
+  {
+   "bgm": "03",
+   "title": "Peaceful Forest",
+   "source": "raw/ro/bgm/03.mp3",
+   "sourceBytes": 1505280,
+   "sourceRate": 22050,
+   "sourceSeconds": 150.478,
+   "sourceLufs": -12.0,
+   "sourceTruePeak": 1.5,
+   "gainDb": -4.0,
+   "seconds": 150.338,
+   "trimmedSeconds": 0.14,
+   "lufs": -16.0,
+   "truePeak": -2.1,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_03.ogg",
+    "bytes": 825480,
+    "codec": "opus",
+    "kbps": 32
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_03.m4a",
+    "bytes": 773224,
+    "codec": "aac-lc",
+    "kbps": 40
+   },
+   "gameIds": [],
+   "proposedIds": []
+  },
+  {
+   "bgm": "05",
+   "title": "Tread on the Ground",
+   "source": "raw/ro/bgm/05.mp3",
+   "sourceBytes": 1146880,
+   "sourceRate": 22050,
+   "sourceSeconds": 114.638,
+   "sourceLufs": -11.7,
+   "sourceTruePeak": 0.8,
+   "gainDb": -4.3,
+   "seconds": 114.38,
+   "trimmedSeconds": 0.258,
+   "lufs": -16.0,
+   "truePeak": -2.5,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_05.ogg",
+    "bytes": 535491,
+    "codec": "opus",
+    "kbps": 32
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_05.m4a",
+    "bytes": 592469,
+    "codec": "aac-lc",
+    "kbps": 40
+   },
+   "gameIds": [
+    "battle_meadow"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "06",
+   "title": "Risk Your Life",
+   "source": "raw/ro/bgm/06.mp3",
+   "sourceBytes": 1695744,
+   "sourceRate": 22050,
+   "sourceSeconds": 169.443,
+   "sourceLufs": -12.9,
+   "sourceTruePeak": 0.2,
+   "gainDb": -3.1,
+   "seconds": 168.359,
+   "trimmedSeconds": 1.084,
+   "lufs": -16.0,
+   "truePeak": -1.9,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_06.ogg",
+    "bytes": 750923,
+    "codec": "opus",
+    "kbps": 32
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_06.m4a",
+    "bytes": 863807,
+    "codec": "aac-lc",
+    "kbps": 40
+   },
+   "gameIds": [
+    "boss"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "08",
+   "title": "Theme of Prontera",
+   "source": "raw/ro/bgm/08.mp3",
+   "sourceBytes": 2742272,
+   "sourceRate": 22050,
+   "sourceSeconds": 273.985,
+   "sourceLufs": -11.8,
+   "sourceTruePeak": 0.9,
+   "gainDb": -4.2,
+   "seconds": 272.861,
+   "trimmedSeconds": 1.124,
+   "lufs": -16.1,
+   "truePeak": -2.1,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_08.ogg",
+    "bytes": 1439960,
+    "codec": "opus",
+    "kbps": 32
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_08.m4a",
+    "bytes": 1409538,
+    "codec": "aac-lc",
+    "kbps": 40
+   },
+   "gameIds": [
+    "home"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "11",
+   "title": "Theme of Morroc",
+   "source": "raw/ro/bgm/11.mp3",
+   "sourceBytes": 1282048,
+   "sourceRate": 22050,
+   "sourceSeconds": 128.013,
+   "sourceLufs": -11.1,
+   "sourceTruePeak": 1.2,
+   "gainDb": -4.9,
+   "seconds": 127.617,
+   "trimmedSeconds": 0.396,
+   "lufs": -16.0,
+   "truePeak": -3.1,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_11.ogg",
+    "bytes": 596047,
+    "codec": "opus",
+    "kbps": 32
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_11.m4a",
+    "bytes": 667405,
+    "codec": "aac-lc",
+    "kbps": 40
+   },
+   "gameIds": [
+    "map_desert"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "12",
+   "title": "Streamside",
+   "source": "raw/ro/bgm/12.mp3",
+   "sourceBytes": 1476608,
+   "sourceRate": 22050,
+   "sourceSeconds": 147.605,
+   "sourceLufs": -13.6,
+   "sourceTruePeak": -0.6,
+   "gainDb": -2.4,
+   "seconds": 145.064,
+   "trimmedSeconds": 2.541,
+   "lufs": -16.0,
+   "truePeak": -2.5,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_12.ogg",
+    "bytes": 680069,
+    "codec": "opus",
+    "kbps": 32
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_12.m4a",
+    "bytes": 743117,
+    "codec": "aac-lc",
+    "kbps": 40
+   },
+   "gameIds": [
+    "map_meadow"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "14",
+   "title": "Theme of Payon",
+   "source": "raw/ro/bgm/14.mp3",
+   "sourceBytes": 1423360,
+   "sourceRate": 22050,
+   "sourceSeconds": 142.119,
+   "sourceLufs": -13.1,
+   "sourceTruePeak": 1.3,
+   "gainDb": -2.9,
+   "seconds": 141.188,
+   "trimmedSeconds": 0.931,
+   "lufs": -16.1,
+   "truePeak": -0.5,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_14.ogg",
+    "bytes": 673132,
+    "codec": "opus",
+    "kbps": 32
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_14.m4a",
+    "bytes": 723833,
+    "codec": "aac-lc",
+    "kbps": 40
+   },
+   "gameIds": [
+    "map_grove"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "15",
+   "title": "Theme of Alberta",
+   "source": "raw/ro/bgm/15.mp3",
+   "sourceBytes": 2002944,
+   "sourceRate": 22050,
+   "sourceSeconds": 200.215,
+   "sourceLufs": -12.4,
+   "sourceTruePeak": 1.1,
+   "gainDb": -3.6,
+   "seconds": 200.053,
+   "trimmedSeconds": 0.162,
+   "lufs": -16.0,
+   "truePeak": -2.1,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_15.ogg",
+    "bytes": 949482,
+    "codec": "opus",
+    "kbps": 32
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_15.m4a",
+    "bytes": 1028973,
+    "codec": "aac-lc",
+    "kbps": 40
+   },
+   "gameIds": [
+    "map_shipwreck"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "16",
+   "title": "Labyrinth",
+   "source": "raw/ro/bgm/16.mp3",
+   "sourceBytes": 1386496,
+   "sourceRate": 22050,
+   "sourceSeconds": 138.41,
+   "sourceLufs": -12.0,
+   "sourceTruePeak": 0.2,
+   "gainDb": -4.0,
+   "seconds": 137.897,
+   "trimmedSeconds": 0.513,
+   "lufs": -16.0,
+   "truePeak": -3.2,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_16.ogg",
+    "bytes": 686116,
+    "codec": "opus",
+    "kbps": 32
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_16.m4a",
+    "bytes": 705741,
+    "codec": "aac-lc",
+    "kbps": 40
+   },
+   "gameIds": [],
+   "proposedIds": [
+    "map_maze",
+    "battle_maze"
+   ]
+  },
+  {
+   "bgm": "17",
+   "title": "Treasure Hunter",
+   "source": "raw/ro/bgm/17.mp3",
+   "sourceBytes": 1880064,
+   "sourceRate": 44100,
+   "sourceSeconds": 156.537,
+   "sourceLufs": -12.1,
+   "sourceTruePeak": 1.4,
+   "gainDb": -3.9,
+   "seconds": 154.808,
+   "trimmedSeconds": 1.729,
+   "lufs": -16.0,
+   "truePeak": -1.1,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_17.ogg",
+    "bytes": 796183,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_17.m4a",
+    "bytes": 1122741,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [
+    "battle_shipwreck"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "18",
+   "title": "Time Up!!",
+   "source": "raw/ro/bgm/18.mp3",
+   "sourceBytes": 2695168,
+   "sourceRate": 44100,
+   "sourceSeconds": 224.432,
+   "sourceLufs": -12.0,
+   "sourceTruePeak": 0.5,
+   "gainDb": -4.0,
+   "seconds": 224.143,
+   "trimmedSeconds": 0.289,
+   "lufs": -16.0,
+   "truePeak": -3.2,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_18.ogg",
+    "bytes": 1120985,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_18.m4a",
+    "bytes": 1485665,
+    "codec": "aac-lc",
+    "kbps": 51
+   },
+   "gameIds": [],
+   "proposedIds": []
+  },
+  {
+   "bgm": "19",
+   "title": "Under the Ground",
+   "source": "raw/ro/bgm/19.mp3",
+   "sourceBytes": 2430976,
+   "sourceRate": 44100,
+   "sourceSeconds": 202.47,
+   "sourceLufs": -11.9,
+   "sourceTruePeak": 0.9,
+   "gainDb": -4.1,
+   "seconds": 201.346,
+   "trimmedSeconds": 1.124,
+   "lufs": -16.0,
+   "truePeak": -1.5,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_19.ogg",
+    "bytes": 1034668,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_19.m4a",
+    "bytes": 1464497,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": [
+    "map_sewer",
+    "battle_sewer"
+   ]
+  },
+  {
+   "bgm": "20",
+   "title": "Ancient Groover",
+   "source": "raw/ro/bgm/20.mp3",
+   "sourceBytes": 1499136,
+   "sourceRate": 44100,
+   "sourceSeconds": 124.793,
+   "sourceLufs": -13.5,
+   "sourceTruePeak": 0.7,
+   "gainDb": -2.5,
+   "seconds": 123.545,
+   "trimmedSeconds": 1.248,
+   "lufs": -16.0,
+   "truePeak": -1.2,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_20.ogg",
+    "bytes": 708624,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_20.m4a",
+    "bytes": 897921,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [
+    "battle_grove"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "21",
+   "title": "Through the Tower",
+   "source": "raw/ro/bgm/21.mp3",
+   "sourceBytes": 1214464,
+   "sourceRate": 44100,
+   "sourceSeconds": 101.058,
+   "sourceLufs": -12.2,
+   "sourceTruePeak": -1.7,
+   "gainDb": -3.8,
+   "seconds": 97.98,
+   "trimmedSeconds": 3.078,
+   "lufs": -16.0,
+   "truePeak": -4.7,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_21.ogg",
+    "bytes": 493673,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_21.m4a",
+    "bytes": 708768,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": [
+    "tower"
+   ]
+  },
+  {
+   "bgm": "22",
+   "title": "Backattack!!",
+   "source": "raw/ro/bgm/22.mp3",
+   "sourceBytes": 1521664,
+   "sourceRate": 44100,
+   "sourceSeconds": 126.75,
+   "sourceLufs": -13.6,
+   "sourceTruePeak": 0.6,
+   "gainDb": -2.4,
+   "seconds": 126.053,
+   "trimmedSeconds": 0.697,
+   "lufs": -16.0,
+   "truePeak": -1.0,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_22.ogg",
+    "bytes": 640499,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_22.m4a",
+    "bytes": 911979,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [
+    "battle_desert"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "24",
+   "title": "Desert",
+   "source": "raw/ro/bgm/24.mp3",
+   "sourceBytes": 2650112,
+   "sourceRate": 44100,
+   "sourceSeconds": 220.702,
+   "sourceLufs": -14.9,
+   "sourceTruePeak": 0.8,
+   "gainDb": -1.8,
+   "seconds": 218.708,
+   "trimmedSeconds": 1.994,
+   "lufs": -16.7,
+   "truePeak": -0.2,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_24.ogg",
+    "bytes": 1150989,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_24.m4a",
+    "bytes": 1474051,
+    "codec": "aac-lc",
+    "kbps": 52
+   },
+   "gameIds": [],
+   "proposedIds": []
+  },
+  {
+   "bgm": "26",
+   "title": "Everlasting Wanderers (check)",
+   "source": "raw/ro/bgm/26.mp3",
+   "sourceBytes": 1556480,
+   "sourceRate": 44100,
+   "sourceSeconds": 129.593,
+   "sourceLufs": -10.5,
+   "sourceTruePeak": 2.3,
+   "gainDb": -5.5,
+   "seconds": 129.673,
+   "trimmedSeconds": -0.081,
+   "lufs": -16.0,
+   "truePeak": -3.7,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_26.ogg",
+    "bytes": 748897,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_26.m4a",
+    "bytes": 940325,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [
+    "tavern"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "35",
+   "title": "TeMPoison",
+   "source": "raw/ro/bgm/35.mp3",
+   "sourceBytes": 2256896,
+   "sourceRate": 44100,
+   "sourceSeconds": 188.019,
+   "sourceLufs": -11.8,
+   "sourceTruePeak": 1.0,
+   "gainDb": -4.2,
+   "seconds": 188.284,
+   "trimmedSeconds": -0.265,
+   "lufs": -16.0,
+   "truePeak": -2.2,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_35.ogg",
+    "bytes": 973512,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_35.m4a",
+    "bytes": 1366341,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": [
+    "map_orcs"
+   ]
+  },
+  {
+   "bgm": "36",
+   "title": "Nano East",
+   "source": "raw/ro/bgm/36.mp3",
+   "sourceBytes": 1382400,
+   "sourceRate": 44100,
+   "sourceSeconds": 115.09,
+   "sourceLufs": -10.7,
+   "sourceTruePeak": 1.0,
+   "gainDb": -5.3,
+   "seconds": 115.239,
+   "trimmedSeconds": -0.149,
+   "lufs": -16.0,
+   "truePeak": -3.5,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_36.ogg",
+    "bytes": 604958,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_36.m4a",
+    "bytes": 839377,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": []
+  },
+  {
+   "bgm": "37",
+   "title": "TeMPorsche",
+   "source": "raw/ro/bgm/37.mp3",
+   "sourceBytes": 1726464,
+   "sourceRate": 44100,
+   "sourceSeconds": 143.834,
+   "sourceLufs": -8.9,
+   "sourceTruePeak": 1.7,
+   "gainDb": -7.1,
+   "seconds": 144.033,
+   "trimmedSeconds": -0.199,
+   "lufs": -16.0,
+   "truePeak": -4.0,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_37.ogg",
+    "bytes": 717849,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_37.m4a",
+    "bytes": 1048838,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": []
+  },
+  {
+   "bgm": "38",
+   "title": "Hamatan",
+   "source": "raw/ro/bgm/38.mp3",
+   "sourceBytes": 1748992,
+   "sourceRate": 44100,
+   "sourceSeconds": 145.686,
+   "sourceLufs": -9.3,
+   "sourceTruePeak": 2.3,
+   "gainDb": -6.7,
+   "seconds": 145.865,
+   "trimmedSeconds": -0.179,
+   "lufs": -16.0,
+   "truePeak": -3.0,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_38.ogg",
+    "bytes": 745489,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_38.m4a",
+    "bytes": 1057663,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": []
+  },
+  {
+   "bgm": "39",
+   "title": "Theme of Al de Baran",
+   "source": "raw/ro/bgm/39.mp3",
+   "sourceBytes": 2707456,
+   "sourceRate": 44100,
+   "sourceSeconds": 225.475,
+   "sourceLufs": -14.3,
+   "sourceTruePeak": 0.4,
+   "gainDb": -1.7,
+   "seconds": 225.229,
+   "trimmedSeconds": 0.246,
+   "lufs": -16.0,
+   "truePeak": -1.3,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_39.ogg",
+    "bytes": 1380854,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_39.m4a",
+    "bytes": 1484277,
+    "codec": "aac-lc",
+    "kbps": 51
+   },
+   "gameIds": [],
+   "proposedIds": [
+    "map_aldebaran"
+   ]
+  },
+  {
+   "bgm": "40",
+   "title": "Fear...",
+   "source": "raw/ro/bgm/40.mp3",
+   "sourceBytes": 1808384,
+   "sourceRate": 44100,
+   "sourceSeconds": 150.538,
+   "sourceLufs": -10.6,
+   "sourceTruePeak": 1.0,
+   "gainDb": -5.4,
+   "seconds": 150.214,
+   "trimmedSeconds": 0.324,
+   "lufs": -16.0,
+   "truePeak": -3.4,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_40.ogg",
+    "bytes": 752683,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_40.m4a",
+    "bytes": 1085341,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [
+    "battle_crypt"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "42",
+   "title": "Curse'n Pain / Morning Gloomy (check)",
+   "source": "raw/ro/bgm/42.mp3",
+   "sourceBytes": 2203648,
+   "sourceRate": 44100,
+   "sourceSeconds": 183.455,
+   "sourceLufs": -10.2,
+   "sourceTruePeak": 1.0,
+   "gainDb": -5.8,
+   "seconds": 181.012,
+   "trimmedSeconds": 2.442,
+   "lufs": -16.0,
+   "truePeak": -3.4,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_42.ogg",
+    "bytes": 949354,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_42.m4a",
+    "bytes": 1306110,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [
+    "map_crypt"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "43",
+   "title": "(check)",
+   "source": "raw/ro/bgm/43.mp3",
+   "sourceBytes": 1685504,
+   "sourceRate": 44100,
+   "sourceSeconds": 140.417,
+   "sourceLufs": -13.2,
+   "sourceTruePeak": 1.1,
+   "gainDb": -2.8,
+   "seconds": 140.612,
+   "trimmedSeconds": -0.195,
+   "lufs": -16.0,
+   "truePeak": -1.1,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_43.ogg",
+    "bytes": 751081,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_43.m4a",
+    "bytes": 1018132,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": []
+  },
+  {
+   "bgm": "44",
+   "title": "TeMP It Up",
+   "source": "raw/ro/bgm/44.mp3",
+   "sourceBytes": 1570816,
+   "sourceRate": 44100,
+   "sourceSeconds": 130.766,
+   "sourceLufs": -8.6,
+   "sourceTruePeak": 1.4,
+   "gainDb": -7.4,
+   "seconds": 130.949,
+   "trimmedSeconds": -0.183,
+   "lufs": -16.0,
+   "truePeak": -4.8,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_44.ogg",
+    "bytes": 615025,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_44.m4a",
+    "bytes": 951107,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": []
+  },
+  {
+   "bgm": "47",
+   "title": "Welcome Mr. Hwang",
+   "source": "raw/ro/bgm/47.mp3",
+   "sourceBytes": 1689600,
+   "sourceRate": 44100,
+   "sourceSeconds": 140.652,
+   "sourceLufs": -10.3,
+   "sourceTruePeak": 1.1,
+   "gainDb": -5.7,
+   "seconds": 140.849,
+   "trimmedSeconds": -0.197,
+   "lufs": -16.0,
+   "truePeak": -2.8,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_47.ogg",
+    "bytes": 681814,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_47.m4a",
+    "bytes": 1023065,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": []
+  },
+  {
+   "bgm": "48",
+   "title": "Help Yourself",
+   "source": "raw/ro/bgm/48.mp3",
+   "sourceBytes": 1908736,
+   "sourceRate": 44100,
+   "sourceSeconds": 158.91,
+   "sourceLufs": -12.6,
+   "sourceTruePeak": 1.0,
+   "gainDb": -3.4,
+   "seconds": 159.0,
+   "trimmedSeconds": -0.09,
+   "lufs": -16.0,
+   "truePeak": -1.6,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_48.ogg",
+    "bytes": 810592,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_48.m4a",
+    "bytes": 1148594,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": [
+    "battle_orcs"
+   ]
+  },
+  {
+   "bgm": "52",
+   "title": "Ready (check)",
+   "source": "raw/ro/bgm/52.mp3",
+   "sourceBytes": 1245184,
+   "sourceRate": 44100,
+   "sourceSeconds": 103.692,
+   "sourceLufs": -12.5,
+   "sourceTruePeak": 0.4,
+   "gainDb": -3.5,
+   "seconds": 103.834,
+   "trimmedSeconds": -0.142,
+   "lufs": -16.0,
+   "truePeak": -2.3,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_52.ogg",
+    "bytes": 511645,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_52.m4a",
+    "bytes": 755186,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": []
+  },
+  {
+   "bgm": "60",
+   "title": "Aeon",
+   "source": "raw/ro/bgm/60.mp3",
+   "sourceBytes": 1413120,
+   "sourceRate": 44100,
+   "sourceSeconds": 117.568,
+   "sourceLufs": -13.0,
+   "sourceTruePeak": 0.7,
+   "gainDb": -3.0,
+   "seconds": 117.729,
+   "trimmedSeconds": -0.16,
+   "lufs": -16.0,
+   "truePeak": -1.8,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_60.ogg",
+    "bytes": 650840,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_60.m4a",
+    "bytes": 850247,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": [
+    "battle_aldebaran"
+   ]
+  },
+  {
+   "bgm": "61",
+   "title": "Zingaro",
+   "source": "raw/ro/bgm/61.mp3",
+   "sourceBytes": 1667072,
+   "sourceRate": 44100,
+   "sourceSeconds": 138.773,
+   "sourceLufs": -10.4,
+   "sourceTruePeak": 0.7,
+   "gainDb": -5.6,
+   "seconds": 136.862,
+   "trimmedSeconds": 1.911,
+   "lufs": -15.9,
+   "truePeak": -3.3,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_61.ogg",
+    "bytes": 754823,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_61.m4a",
+    "bytes": 989484,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [],
+   "proposedIds": [
+    "boss_aldebaran"
+   ]
+  },
+  {
+   "bgm": "84",
+   "title": "Christmas in the 13th Month (check)",
+   "source": "raw/ro/bgm/84.mp3",
+   "sourceBytes": 1636352,
+   "sourceRate": 44100,
+   "sourceSeconds": 136.292,
+   "sourceLufs": -10.5,
+   "sourceTruePeak": 0.5,
+   "gainDb": -5.5,
+   "seconds": 133.767,
+   "trimmedSeconds": 2.524,
+   "lufs": -16.0,
+   "truePeak": -3.7,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_84.ogg",
+    "bytes": 859854,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_84.m4a",
+    "bytes": 964991,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [
+    "map_niflheim"
+   ],
+   "proposedIds": []
+  },
+  {
+   "bgm": "85",
+   "title": "Dancing Christmas in the 13th Month (check)",
+   "source": "raw/ro/bgm/85.mp3",
+   "sourceBytes": 2220032,
+   "sourceRate": 44100,
+   "sourceSeconds": 184.801,
+   "sourceLufs": -8.9,
+   "sourceTruePeak": 1.8,
+   "gainDb": -7.1,
+   "seconds": 183.602,
+   "trimmedSeconds": 1.199,
+   "lufs": -16.0,
+   "truePeak": -4.4,
+   "ogg": {
+    "file": "raw/ro-build/audio/bgm_85.ogg",
+    "bytes": 967305,
+    "codec": "opus",
+    "kbps": 40
+   },
+   "m4a": {
+    "file": "raw/ro-build/audio/bgm_85.m4a",
+    "bytes": 1328245,
+    "codec": "aac-lc",
+    "kbps": 56
+   },
+   "gameIds": [
+    "battle_niflheim"
+   ],
+   "proposedIds": []
+  }
+ ]
+}
