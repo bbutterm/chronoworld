@@ -30,10 +30,16 @@ const AUTO_CHAR_MS = 45;
  */
 export const LINE_GUARD_MS = 250;
 
+/**
+ * Плашка диалога: реплика до 120 символов крупным шрифтом (BODY_FS ≈ 15 px на 390×844) влезает в 3–4 строки без
+ * прокрутки; портрет — наполовину над плашкой. Выше плашки — бойцы и карта: не растить без нужды.
+ */
 const PANEL_W = 1040;
-const PANEL_H = 370;
+const PANEL_H = 460;
 const PANEL_Y = GAME_H - 30 - PANEL_H / 2;
-const PORTRAIT = 210;
+const PORTRAIT = 250;
+const BODY_FS = 42;
+const BODY_Y = 140;
 
 export interface DialogueOptions {
   /** Строки листаются сами (авто-прохождение не должно ждать игрока). Касание по-прежнему листает. */
@@ -105,16 +111,16 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   const px = left + 40 + PORTRAIT / 2;
   const py = top - 20;
   const face = scene.add.container(px, py);
-  const nameText = text(scene, px + PORTRAIT / 2 + 40, top + 44, '', FS.h2, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
-  const body = text(scene, left + 50, top + 130, '', FS.body, SKIN.cream, {
+  const nameText = text(scene, px + PORTRAIT / 2 + 40, top + 48, '', FS.h1, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
+  const body = text(scene, left + 50, top + BODY_Y, '', BODY_FS, SKIN.cream, {
     wordWrap: { width: PANEL_W - 100, useAdvancedWrap: true },
-    lineSpacing: 10,
+    lineSpacing: 12,
     align: 'left',
   }).setOrigin(0, 0);
-  const more = text(scene, GAME_W / 2 + PANEL_W / 2 - 40, PANEL_Y + PANEL_H / 2 - 40, '', FS.caption, SKIN.creamDim, OUTLINE).setOrigin(1, 0.5);
+  const more = text(scene, GAME_W / 2 + PANEL_W / 2 - 40, PANEL_Y + PANEL_H / 2 - 36, '', FS.caption, SKIN.creamDim, OUTLINE).setOrigin(1, 0.5);
   const skip = button(scene, GAME_W / 2 + PANEL_W / 2 - 150, top - 70, 280, TOUCH, 'k:buttonLong_beige', 'Пропустить', () => close(), FS.h3);
   // Имя говорящего — на золотой кромке (табличка), текст реплики ниже неё.
-  const nameTrim = scene.add.image(px + PORTRAIT / 2 + 40, top + 82, 'skin_trim').setOrigin(0, 0.5).setDisplaySize(PANEL_W - PORTRAIT - 150, 10);
+  const nameTrim = scene.add.image(px + PORTRAIT / 2 + 40, top + 92, 'skin_trim').setOrigin(0, 0.5).setDisplaySize(PANEL_W - PORTRAIT - 150, 10);
   // Вверху плашки — тёплый отсвет, как от портрета.
   const warm = scene.add.image(px + 60, top + 40, 'skin_glow').setDisplaySize(520, 260).setTint(0xffc870).setAlpha(0.14).setBlendMode(Phaser.BlendModes.ADD);
   layer.add([shade, box, warm, nameTrim, face, nameText, body, more, skip.container]);
