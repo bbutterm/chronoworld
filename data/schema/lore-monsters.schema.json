@@ -1,0 +1,41 @@
+{
+  "title": "Летопись: бестиарий (id юнита → запись)",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "entries": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quote": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "title",
+          "text"
+        ]
+      }
+    }
+  }
+}

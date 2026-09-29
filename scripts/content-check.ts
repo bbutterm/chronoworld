@@ -14,11 +14,13 @@
  *   9. ворота предметов по главам (data/items → minChapter): источник, который в своей главе даёт только закрытые
  *      предметы (правило выпадения/сундука, товар Лавки, порог охоты) — ✗; глава без открытых предметов слота — ⚠
  *      (src/core/equipment/lint.ts).
+ *  10. Летопись (data/lore/*.json, файлы необязательны): схема и ссылки на юниты/предметы/героев/профессии/главы/этапы — ✗;
+ *      длина текстов сверх LORE_LIMITS, монстр вне кампании — ⚠ (src/core/lore/lore.ts → validateLore).
  * Код выхода 1, если есть ошибки. Предупреждения (например, нет арта — будет плейсхолдер) не мешают.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, lintLevelBands, maxLevelOf, rarityIndex, recommendedPower, simulateBattle, validateHeroes } from '../src/core';
+import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, lintLevelBands, maxLevelOf, parseLore, rarityIndex, validateLore, recommendedPower, simulateBattle, validateHeroes } from '../src/core';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import phase0 from '../data/phase0.json';
@@ -51,6 +53,22 @@ if (built.ctx) {
     const rec = Math.max(0, ...upto.map((s) => recommendedPower(s.id, built.ctx!)));
     if (loc.power > rec) warnings.push(`data/expeditions.json: локация ${loc.id} — порог мощи ${loc.power} выше рекомендуемой мощи этапов до ${loc.stage} (${rec})`);
   }
+}
+
+// 10. Летопись: файлы читаются текстом (пустой файл — как будто его нет, как в игре).
+const loreDir = join(ROOT, 'data/lore');
+const loreFiles = existsSync(loreDir)
+  ? readdirSync(loreDir)
+      .filter((f) => f.endsWith('.json'))
+      .sort()
+      .map((f) => ({ file: `data/lore/${f}`, data: readFileSync(join(loreDir, f), 'utf8') }))
+  : [];
+const loreParsed = parseLore(loreFiles);
+errors.push(...loreParsed.problems);
+if (built.ctx) {
+  const lint = validateLore(loreParsed.lore, { content: built.ctx.content, items: built.ctx.equipment.items });
+  errors.push(...lint.errors);
+  warnings.push(...lint.warnings);
 }
 
 if (content) {
@@ -170,7 +188,7 @@ for (const [file, body] of Object.entries(generateSchemas())) {
 }
 
 // 7. Незаполненные заготовки content:new
-for (const dir of ['data/campaign', 'data/story', 'data/units', 'data/skills', 'data/jobs', 'data/heroes']) {
+for (const dir of ['data/campaign', 'data/story', 'data/units', 'data/skills', 'data/jobs', 'data/heroes', 'data/lore']) {
   for (const f of readJsonDir(dir)) warnings.push(...findTodos(f.file, f.data));
 }
 
@@ -181,7 +199,9 @@ if (content) {
   console.log(
     `\nЮнитов: ${Object.keys(content.units).length} (героев ${count('hero')}, монстров ${count('monster')}, боссов ${count('boss')}), ` +
       `навыков: ${Object.keys(content.skills).length}, профессий: ${Object.keys(content.jobs).length}, карточек героев: ${Object.keys(content.heroes).length}, этапов: ${content.stages.length}, ` +
-      `сюжетных сцен: ${built.ctx?.story.scenes.length ?? 0}`,
+      `сюжетных сцен: ${built.ctx?.story.scenes.length ?? 0}, ` +
+      `летопись: монстров ${Object.keys(loreParsed.lore.monsters).length}, предметов ${Object.keys(loreParsed.lore.items).length}, ` +
+      `героев ${Object.keys(loreParsed.lore.heroes).length}, профессий ${Object.keys(loreParsed.lore.jobs).length}, глав ${Object.keys(loreParsed.lore.chapters).length}, записей мира ${loreParsed.lore.world.length}`,
   );
 }
 console.log(errors.length ? `\nОшибок: ${errors.length}` : '\nКонтент в порядке ✓');

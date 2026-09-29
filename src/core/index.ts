@@ -29,3 +29,4 @@ export * from './context';
 export * from './story';
 export * from './unlocks';
 export * from './shop';
+export * from './lore';
