@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ease, Pool, Scheduler, TextStyleCache } from '../src/game/perf';
-import { coversNumber, numberFrameWidth, numberOrigin } from '../src/game/numberFont';
+import { coversNumber, coversRoDigits, numberFrameWidth, numberOrigin, RO_DIGIT_H } from '../src/game/numberFont';
 
 class Obj {
   active = false;
@@ -121,6 +121,12 @@ describe('TextStyleCache', () => {
 });
 
 describe('растровые цифры боя (numberFont)', () => {
+  it('цифры RO: только 0–9 (знаков в шрифте клиента нет), высота кадра из атласа', () => {
+    for (const v of ['0', '7', '123456']) expect(coversRoDigits(v)).toBe(true);
+    for (const v of ['', '-12', '+45', '(30)', '12!', 'щит 20']) expect(coversRoDigits(v)).toBe(false);
+    expect(RO_DIGIT_H).toBe(42);
+  });
+
   it('покрывают все виды цифр popNumber, остальное — обычным Text', () => {
     for (const v of ['-123', '-45!', '(30)', '+119', 'щит +20']) expect(coversNumber(v)).toBe(true);
     expect(coversNumber('Каст сорван')).toBe(false);

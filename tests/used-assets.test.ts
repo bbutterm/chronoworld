@@ -69,6 +69,12 @@ describe('O: used assets (что попадает в dist)', () => {
     expect(files).not.toContain('ro/stills/hero_warrior_battle.png');
   });
 
+  it('включает иконки и картинки предметов RO и атлас цифр урона', () => {
+    // У каждого предмета игры есть иконка RO (иначе в ячейке — запасной силуэт).
+    for (const id of Object.keys(loadFullContext().equipment.items)) expect(files).toContain(`ui/icons/item_${id}.png`);
+    for (const f of ['ui/icons/item_knife.png', 'ui/icons/item_gold.png', 'ui/collection/item_knife.png', 'fx/damage/numbers.png']) expect(files).toContain(f);
+  });
+
   it('все нужные файлы лежат на диске', () => {
     const present = new Set(listAssetFiles(ROOT));
     expect(used.files.filter((f) => !present.has(f))).toEqual([]);
