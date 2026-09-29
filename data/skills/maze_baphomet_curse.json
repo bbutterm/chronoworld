@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_baphomet_curse",
+  "name": "Проклятие договора",
+  "description": "Бафомет зачитывает мелкий шрифт: урон всем врагам 0.85 × атака и «Долг» (−20% защиты) на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.85
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "debt",
+        "name": "Долг",
+        "turns": 2,
+        "stats": {
+          "def": -0.2
+        }
+      }
+    }
+  ]
+}

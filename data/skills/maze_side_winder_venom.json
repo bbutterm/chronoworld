@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_side_winder_venom",
+  "name": "Бросок гремучей",
+  "description": "Змея бросается вбок на ближайшего врага: укус 1.3 × атака и яд на 3 хода.",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.3
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "poison",
+        "name": "Яд",
+        "turns": 3,
+        "dot": {
+          "k": 0.14
+        }
+      }
+    }
+  ]
+}

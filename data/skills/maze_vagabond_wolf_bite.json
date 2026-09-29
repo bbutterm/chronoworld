@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_vagabond_wolf_bite",
+  "name": "Волчья хватка",
+  "description": "Рывок к самому слабому врагу тыла: укус 1.5 × атака.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "cooldown": 8,
+  "priority": 3,
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.5
+    }
+  ]
+}

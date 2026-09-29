@@ -1,0 +1,687 @@
+{
+  "$schema": "../schema/chapter.schema.json",
+  "id": "chapter9",
+  "name": "Глава 9. Лабиринтный лес",
+  "order": 9,
+  "theme": "labyrinth",
+  "episode": {
+    "title": "Согласие живого",
+    "subtitle": "Лабиринтный лес, в двух часах от Пронтеры",
+    "quote": "Бафомет не дерётся с теми, кто пришёл торговаться. Он просто никогда их не отпускает.",
+    "text": "Лабиринтный лес лежит в двух часах пешком от Пронтеры. Горожане ходят туда за хворостом и возвращаются к обеду — если идут по краю. Тот, кто зайдёт глубже, будет выходить к одной и той же поляне, пока не согласится на сделку.\n\nТёмный лорд сказал: ключ — у рогатого в лесу. Отряд идёт за ключом, который, может быть, уже повернули."
+  },
+  "legend": {
+    "title": "Козлоголовый, который покупает",
+    "text": "Говорят, в сердце леса живёт козлоголовый с косой, и каждая тропа ведёт к нему. Он ничего не отнимает силой — только покупает. Цена всегда честная. Просто платить её приходится дольше, чем живёт покупатель.",
+    "source": "из путевых записей Янека (все тридцать лет)"
+  },
+  "chronicle": {
+    "title": "Никто не продался",
+    "text": "В Лабиринтном лесу каждый получил предложение, от которого нельзя отказаться. Алану предложили щит без урока, Брану — мать и ферму без долгов, Дорну — чистый счёт в гильдии, Вике — брата без знака, Грете — ту первую Грету, дочь Хельмута. Все отказались; Грета торговалась так, что демон потерял терпение. В Кольце камней Ансгар попросил у Греты колокольчик и не получил его. Бафомет пал, но ключа у него уже не было: живой, подписавший договор, отдал согласие мёртвым. Врата Нифльхейма открыты. Янек, тридцать лет искавший выход, вышел по прямой тропе. Капитан Гаррет впервые пошёл с отрядом."
+  },
+  "stages": [
+    {
+      "id": "ch9_s1",
+      "name": "Опушка у Пронтеры",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "maze_mantis",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_stem_worm",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        null,
+        null
+      ],
+      "rewards": {
+        "jobExp": 72415,
+        "gold": 50861
+      },
+      "offlinePerMinute": {
+        "jobExp": 2414,
+        "gold": 1695
+      }
+    },
+    {
+      "id": "ch9_s2",
+      "name": "Первая развилка",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "maze_mantis",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_stem_worm",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 75306,
+        "gold": 52898
+      },
+      "offlinePerMinute": {
+        "jobExp": 2510,
+        "gold": 1763
+      },
+      "finding": {
+        "id": "ch9_f_yanek_map",
+        "title": "Карта Янека",
+        "kind": "item",
+        "text": "Лист коры, исписанный углём: тридцать лет троп, нарисованных одна поверх другой. Тропы петляют, расходятся, ныряют в овраги — и все до одной сходятся на одной поляне. Под ней подпись: «Не ходить». И ещё двадцать раз, всё мельче: «Не ходить».",
+        "comment": {
+          "speaker": "Бран",
+          "text": "Двадцать раз «не ходить» — и все двадцать раз ходил. Узнаю почерк должника."
+        }
+      }
+    },
+    {
+      "id": "ch9_s3",
+      "name": "Тропа, что возвращается",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "maze_side_winder",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_mantis",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 76802,
+        "gold": 53971
+      },
+      "offlinePerMinute": {
+        "jobExp": 2561,
+        "gold": 1798
+      }
+    },
+    {
+      "id": "ch9_s4",
+      "name": "Поляна девиручи",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "maze_stem_worm",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_mantis",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 78329,
+        "gold": 55067
+      },
+      "offlinePerMinute": {
+        "jobExp": 2611,
+        "gold": 1836
+      }
+    },
+    {
+      "id": "ch9_s5",
+      "name": "Меняла у пня",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "maze_side_winder",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_side_winder",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 81483,
+        "gold": 57235
+      },
+      "offlinePerMinute": {
+        "jobExp": 2716,
+        "gold": 1908
+      }
+    },
+    {
+      "id": "ch9_s6",
+      "name": "Зарубки пленника",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "maze_stem_worm",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_mantis",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 84703,
+        "gold": 59535
+      },
+      "offlinePerMinute": {
+        "jobExp": 2823,
+        "gold": 1985
+      },
+      "finding": {
+        "id": "ch9_f_notches",
+        "title": "Зарубки пленника",
+        "kind": "inscription",
+        "text": "На стволе старого дуба — зарубки, по пять в ряд. Их тысячи: тридцать лет, день за днём. Внизу, где кора помягче, нацарапано: «Вышел?» И ниже, той же рукой, только постаревшей: «Нет».",
+        "comment": {
+          "speaker": "Вика",
+          "text": "Он спрашивал себя каждый день. И каждый день честно отвечал."
+        }
+      }
+    },
+    {
+      "id": "ch9_s7",
+      "name": "Гнездо мух",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_stem_worm",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 86394,
+        "gold": 60707
+      },
+      "offlinePerMinute": {
+        "jobExp": 2880,
+        "gold": 2024
+      }
+    },
+    {
+      "id": "ch9_s8",
+      "name": "Шёпот в дуплах",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "maze_ghostring",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_mantis",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 88120,
+        "gold": 61901
+      },
+      "offlinePerMinute": {
+        "jobExp": 2937,
+        "gold": 2063
+      }
+    },
+    {
+      "id": "ch9_s9",
+      "name": "Лес зеркал",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "maze_baphomet_jr",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_side_winder",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 89844,
+        "gold": 63136
+      },
+      "offlinePerMinute": {
+        "jobExp": 2994,
+        "gold": 2105
+      },
+      "finding": {
+        "id": "ch9_f_wooden_sword",
+        "title": "Деревянный меч",
+        "kind": "item",
+        "text": "На пне посреди Леса зеркал лежит деревянный меч с зарубкой на рукояти — «чтоб не перепутали». Такой меч Алан выстругал себе в семь лет, и он сгорел вместе с сараем. Рядом бирка с ценой, выведенной аккуратным почерком. Вслух её никто не прочёл.",
+        "comment": {
+          "speaker": "Алан",
+          "text": "Мой. Не трогайте. Это не подарок — это витрина. Он показывает товар."
+        }
+      }
+    },
+    {
+      "id": "ch9_s10",
+      "name": "Контора договоров",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "maze_stem_worm",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_mantis",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_scribe",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 91603,
+        "gold": 64398
+      },
+      "offlinePerMinute": {
+        "jobExp": 3053,
+        "gold": 2147
+      }
+    },
+    {
+      "id": "ch9_s11",
+      "name": "Козлиная тропа",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "maze_baphomet_jr",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_mantis",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 93425,
+        "gold": 65666
+      },
+      "offlinePerMinute": {
+        "jobExp": 3115,
+        "gold": 2188
+      }
+    },
+    {
+      "id": "ch9_s12",
+      "name": "Дорога без следов",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "maze_ghostring",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_side_winder",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 95282,
+        "gold": 66961
+      },
+      "offlinePerMinute": {
+        "jobExp": 3176,
+        "gold": 2232
+      }
+    },
+    {
+      "id": "ch9_s13",
+      "name": "Бафометы-младшие",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "maze_baphomet_jr",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_baphomet_jr",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 97168,
+        "gold": 68294
+      },
+      "offlinePerMinute": {
+        "jobExp": 3240,
+        "gold": 2276
+      }
+    },
+    {
+      "id": "ch9_s14",
+      "name": "Кольцо камней",
+      "boss": false,
+      "enemies": [
+        {
+          "unit": "maze_stem_worm",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_vagabond_wolf",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 99094,
+        "gold": 69655
+      },
+      "offlinePerMinute": {
+        "jobExp": 3303,
+        "gold": 2322
+      }
+    },
+    {
+      "id": "ch9_s15",
+      "name": "Круг сделок",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "maze_ghostring",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_baphomet_jr",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_hunter_fly",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 100071,
+        "gold": 70345
+      },
+      "offlinePerMinute": {
+        "jobExp": 3336,
+        "gold": 2344
+      },
+      "finding": {
+        "id": "ch9_f_contract",
+        "title": "Договор на коже",
+        "kind": "item",
+        "text": "Лист тонкой кожи, пахнет серой. «Я, Ан…, открою врата с этой стороны. Взамен — моя жена и сын». Подпись стёрта, будто её долго тёрли пальцем. К воску прилип серый волос. Под печатью Бафомета — вторая, погасшая: рогатый знак.",
+        "comment": {
+          "speaker": "Бран",
+          "text": "Ан… Ансгар. Жена и сын — Мира и Тиль. Сходится. Лучше бы не сходилось."
+        }
+      }
+    },
+    {
+      "id": "ch9_s16",
+      "name": "Кости торговавшихся",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "maze_vagabond_wolf",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_baphomet_jr",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 101056,
+        "gold": 71041
+      },
+      "offlinePerMinute": {
+        "jobExp": 3369,
+        "gold": 2368
+      }
+    },
+    {
+      "id": "ch9_s17",
+      "name": "Серп над поляной",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "maze_baphomet_jr",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_ghostring",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_vagabond_wolf",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 102053,
+        "gold": 71747
+      },
+      "offlinePerMinute": {
+        "jobExp": 3404,
+        "gold": 2390
+      }
+    },
+    {
+      "id": "ch9_s18",
+      "name": "Поляна Бафомета",
+      "boss": true,
+      "enemies": [
+        {
+          "unit": "maze_baphomet_jr",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_baphomet",
+          "mult": 0.05
+        },
+        {
+          "unit": "maze_whisper",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_deviruchi",
+          "mult": 0.1
+        },
+        {
+          "unit": "maze_baphomet_jr",
+          "mult": 0.1
+        }
+      ],
+      "rewards": {
+        "jobExp": 154653,
+        "gold": 108622
+      },
+      "offlinePerMinute": {
+        "jobExp": 3437,
+        "gold": 2414
+      }
+    }
+  ]
+}

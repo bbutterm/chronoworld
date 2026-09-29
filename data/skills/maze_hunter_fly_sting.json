@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_hunter_fly_sting",
+  "name": "Жало охотника",
+  "description": "Муха бросается на самого слабого врага в тылу: укол 1.4 × атака и «Зуд» (урон каждый ход) на 3 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.4
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "itch",
+        "name": "Зуд",
+        "turns": 3,
+        "dot": {
+          "k": 0.12
+        }
+      }
+    }
+  ]
+}

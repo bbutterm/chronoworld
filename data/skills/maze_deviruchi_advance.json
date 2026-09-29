@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_deviruchi_advance",
+  "name": "Задаток",
+  "description": "Девиручи выдаёт самому раненому союзнику «задаток» здоровьем (1.7 × атака); если все целы — атакует.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true,
+    "onlyWounded": true
+  },
+  "cooldown": 6,
+  "priority": 10,
+  "fallback": "basic_ranged",
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.7
+    }
+  ]
+}

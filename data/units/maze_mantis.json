@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "maze_mantis",
+  "name": "Богомол",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 540,
+    "atk": 50,
+    "def": 10,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "maze_mantis_scythes",
+    "actives": [],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "kukre",
+    "tint": "#7cc05a",
+    "hitFx": "fx_hit"
+  }
+}

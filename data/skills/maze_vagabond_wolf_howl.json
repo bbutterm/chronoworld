@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "maze_vagabond_wolf_howl",
+  "name": "Вой бродяги",
+  "description": "Волк воем собирает стаю: все союзники и он сам получают +20% атаки на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "pack_howl",
+        "name": "Вой стаи",
+        "turns": 2,
+        "stats": {
+          "atk": 0.2
+        }
+      }
+    }
+  ]
+}
