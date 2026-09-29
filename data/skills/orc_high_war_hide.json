@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "orc_high_war_hide",
+  "name": "Боевая шкура",
+  "description": "Высший орк запахивается в дублёную шкуру и рычит: щит 25% макс. ОЗ себе.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.25
+    }
+  ]
+}

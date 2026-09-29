@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "orc_archer",
+  "name": "Орк-лучник",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 370,
+    "atk": 47,
+    "def": 5,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "orc_archer_double_shot",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "ranged",
+    "tint": "#a9c486",
+    "hitFx": "fx_hit",
+    "projectile": "fx_arrow"
+  }
+}

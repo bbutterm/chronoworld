@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "orc_hero",
+  "name": "Герой орков",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 1300,
+    "atk": 100,
+    "def": 16,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "orc_hero_chief_roar",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "boss1",
+    "scale": 1.05,
+    "hitFx": "fx_hit"
+  },
+  "barks": {
+    "start": "Люди в железе! Опять к нашим могилам? Земля вас не примет!",
+    "half": "Стоят. Не бегут. Хорошо. Умрут с честью.",
+    "defeat": "Сильные. Идите вниз. Не будите. Уложите нашего вождя.",
+    "victory": "Бегите. Бежать не стыдно. Стыдно — грабить мёртвых."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "orc_archer_double_shot",
+  "name": "Двойной выстрел",
+  "description": "Орк-лучник пускает две стрелы с костяными наконечниками по случайным врагам.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random"
+  },
+  "hits": 2,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    }
+  ]
+}

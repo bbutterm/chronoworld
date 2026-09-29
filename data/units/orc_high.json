@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "orc_high",
+  "name": "Высший орк",
+  "kind": "monster",
+  "role": "tank",
+  "stats": {
+    "hp": 950,
+    "atk": 32,
+    "def": 18,
+    "spd": 80
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "orc_high_war_hide",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "raydric",
+    "tint": "#8f9a62",
+    "scale": 1.1,
+    "hitFx": "fx_hit"
+  }
+}
