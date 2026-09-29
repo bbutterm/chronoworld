@@ -16,7 +16,10 @@ EXPECTED={
  'monster_xl':('idle','walk','attack','hurt','death'),
  'boss_xl':('idle','walk','attack','hurt','death'),
  'boss_xxl':('idle','walk','attack','hurt','death'),
+ # story NPCs (speaker portraits): rows idle south, idle east, walk south, walk east; no battle anims, no source proof
+ 'npc':('idle','idle_e','walk_s','walk'),
 }
+NO_PROOF={'npc'}
 REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first','acolyte','thief',
           'knight_m','crusader_m','hunter_m','hunter_f','bard_m','dancer_f',
           'wizard_f','sage_f','assassin_m','rogue_m','rogue_f','priest_f',
@@ -36,13 +39,16 @@ REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first',
           'ancient_mummy','owl_duke','clock','rideword','punk','elder','evil_druid','ghoul','eclipse','vocal','elder_willow',
           'lord_of_death','bloody_knight','owl_baron','alarm','abysmal_knight','clock_tower_manager',
           # chapter 9 (Labyrinth Forest): registered ahead of its units
-          'baphomet_jr','ghostring','vagabond_wolf','hunter_fly','side_winder','mantis','stem_worm','killer_mantis','deviruchi'}
+          'baphomet_jr','ghostring','vagabond_wolf','hunter_fly','side_winder','mantis','stem_worm','killer_mantis','deviruchi',
+          # story NPC speakers (data/story portrait "npc_<name>")
+          'npc_kafra'}
 REQUIRED.update(FIRST_HEROES+STORY_HEROES+CARD_HEROES)
 GRID={'hero':([224,192],[104,144],8),'monster':([240,224],[100,120],8),
       'boss':([256,256],[112,216],8),'monster_xl':([272,330],[167,280],6),
       # boss_xl: Lord of Death, Bloody Knight, Owl Baron, Alarm; boss_xxl: Abysmal Knight, Clock Tower Manager
       # (native x1 frames wider than monster_xl; 6 columns keep the sheet <= 2048)
-      'boss_xl':([296,296],[96,218],6),'boss_xxl':([340,376],[170,300],6)}
+      'boss_xl':([296,296],[96,218],6),'boss_xxl':([340,376],[170,300],6),
+      'npc':([240,224],[100,120],8)}
 EXCEPTIONS={'tank':[0,1,2,3,21],'fast':[0,2,4,6,16],
             'drops':[0,2,4,6,16],'poporing':[0,2,4,6,16]}
 
@@ -89,9 +95,12 @@ def check(path=DEFAULT,source_cache=None,only=None):
    bboxes=[]
    src_boxes=s.get('sourceFrameBboxes',{}).get(anim,[])
    chosen=s.get('sourceFrameIndices',{}).get(anim,[])
-   if len(src_boxes)!=n or len(chosen)!=n:fail(f'{sid}:{anim} source proof length != {n}')
-   total=s.get('sourceFrameCounts',{}).get(anim,0)
-   if not isinstance(total,int) or total<1:fail(f'{sid}:{anim} invalid source frame count')
+   if kind in NO_PROOF:total=None
+   else:
+    if len(src_boxes)!=n or len(chosen)!=n:fail(f'{sid}:{anim} source proof length != {n}')
+    total=s.get('sourceFrameCounts',{}).get(anim,0)
+   if total is None:pass
+   elif not isinstance(total,int) or total<1:fail(f'{sid}:{anim} invalid source frame count')
    else:
     if anim in s.get('samplingExceptions',{}) and sid not in EXCEPTIONS:
      # Documented skip of oversized FX frames: indices must stay in range and chronological.
@@ -128,7 +137,7 @@ def check(path=DEFAULT,source_cache=None,only=None):
     if s.get('bbox',{}).get(anim)!=union:fail(f'{sid}:{anim} bbox metadata mismatch')
    hit=s.get('hitFrames',{}).get(anim,conf.get('hitFrame'))
    if anim in ('attack','cast') and (not isinstance(hit,int) or hit<0 or hit>=n):fail(f'{sid}:{anim} invalid hitFrame')
-  if used_alpha-set(s.get('sourceAlphaValues',[])):fail(f'{sid} new semi-transparent alpha not present in source: {used_alpha-set(s.get("sourceAlphaValues",[]))}')
+  if kind not in NO_PROOF and used_alpha-set(s.get('sourceAlphaValues',[])):fail(f'{sid} new semi-transparent alpha not present in source: {used_alpha-set(s.get("sourceAlphaValues",[]))}')
   if portrait:
    p=ROOT/'assets'/portrait
    if not p.is_file():fail(f'{sid} missing portrait')

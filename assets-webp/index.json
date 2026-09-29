@@ -999,6 +999,11 @@
   "png": 34962,
   "webp": 21292
  },
+ "sprites/npcs/4_f_kafra1.png": {
+  "sha1": "54e99e42177f0a2db24044d2efa5fba40914378d",
+  "png": 19530,
+  "webp": 7764
+ },
  "sprites/portraits/acolyte.png": {
   "sha1": "a63a2f729bdb6f84f4fa5b6670c7a268e66ceac4",
   "png": 1033,
@@ -1208,6 +1213,11 @@
   "sha1": "0adcfe961f463916e2f394592c4f36174de7ec77",
   "png": 2413,
   "webp": 1388
+ },
+ "sprites/portraits/npc_4_f_kafra1.png": {
+  "sha1": "47b373539766f046c72cb6a9579530d38d865a82",
+  "png": 1816,
+  "webp": 1050
  },
  "sprites/portraits/priest.png": {
   "sha1": "f2bfcd3653705ef2a095b8efc0cc6f004842ddf8",

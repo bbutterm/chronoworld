@@ -99,6 +99,14 @@ export function contentSpriteIds(root: string): string[] {
       for (const form of [...(data?.branches ?? []), ...(data?.forms ?? [])]) addVisual(form);
     }
   }
+  // data/story: спикеры-NPC (portrait: "npc_<имя>") — лист NPC из assets/sprites/npcs, портрет вырезается из стойки.
+  const story = join(root, 'data/story');
+  if (existsSync(story)) {
+    for (const f of readdirSync(story).filter((n) => n.endsWith('.json'))) {
+      const speakers = readJson<{ speakers?: Record<string, { portrait?: unknown }> }>(join(story, f))?.speakers ?? {};
+      for (const sp of Object.values(speakers)) if (typeof sp.portrait === 'string' && sp.portrait.startsWith('npc_')) ids.add(sp.portrait);
+    }
+  }
   return [...ids].sort();
 }
 

@@ -107,6 +107,22 @@
     "hurt",
     "death"
    ]
+  },
+  "npc": {
+   "cell": [
+    240,
+    224
+   ],
+   "anchor": [
+    100,
+    120
+   ],
+   "anims": [
+    "idle",
+    "idle_e",
+    "walk_s",
+    "walk"
+   ]
   }
  },
  "anims": {
@@ -137,6 +153,16 @@
   "death": {
    "frames": 4,
    "ms": 150
+  },
+  "idle_e": {
+   "frames": 8,
+   "ms": 100,
+   "loop": true
+  },
+  "walk_s": {
+   "frames": 8,
+   "ms": 100,
+   "loop": true
   }
  },
  "animOverrides": {
@@ -188,6 +214,16 @@
    "death": {
     "frames": 5,
     "ms": 120
+   }
+  },
+  "npc": {
+   "idle": {
+    "frames": 8,
+    "ms": 100
+   },
+   "walk": {
+    "frames": 8,
+    "ms": 100
    }
   }
  },
@@ -48513,6 +48549,42 @@
    "sourceAlphaValues": [
     50
    ]
+  },
+  {
+   "id": "npc_kafra",
+   "class": "npc",
+   "file": "sprites/npcs/4_f_kafra1.png",
+   "portrait": "sprites/portraits/npc_4_f_kafra1.png",
+   "source": {
+    "job": "4_f_kafra1",
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO npc/4_f_kafra1.spr/.act; rows idle south, idle east, walk south, walk east; 8 of 99 frames; shadow=false; native x1"
+   },
+   "bbox": {
+    "idle": [
+     77,
+     37,
+     119,
+     130
+    ],
+    "idle_e": [
+     81,
+     37,
+     123,
+     130
+    ],
+    "walk_s": [
+     77,
+     37,
+     119,
+     130
+    ],
+    "walk": [
+     81,
+     37,
+     123,
+     130
+    ]
+   }
   }
  ],
  "notes": [
