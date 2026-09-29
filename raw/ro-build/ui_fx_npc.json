@@ -1,0 +1,2624 @@
+{
+ "items": [
+  {
+   "id": "knife",
+   "itemDb": 1201,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\나이프.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_knife.png",
+   "transparentPixels": 491
+  },
+  {
+   "id": "knife",
+   "itemDb": 1201,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\나이프.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_knife.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "dagger",
+   "itemDb": 1213,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\대거.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_dagger.png",
+   "transparentPixels": 465
+  },
+  {
+   "id": "dagger",
+   "itemDb": 1213,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\대거.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_dagger.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "sword",
+   "itemDb": 1101,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\소드.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_sword.png",
+   "transparentPixels": 442
+  },
+  {
+   "id": "sword",
+   "itemDb": 1101,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\소드.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_sword.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "bow",
+   "itemDb": 1701,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\보우.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_bow.png",
+   "transparentPixels": 430
+  },
+  {
+   "id": "bow",
+   "itemDb": 1701,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\보우.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_bow.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "rod",
+   "itemDb": 1601,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\롯드.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_rod.png",
+   "transparentPixels": 436
+  },
+  {
+   "id": "rod",
+   "itemDb": 1601,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\롯드.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_rod.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "axe",
+   "itemDb": 1301,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\액스.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_axe.png",
+   "transparentPixels": 385
+  },
+  {
+   "id": "axe",
+   "itemDb": 1301,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\액스.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_axe.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "gladius",
+   "itemDb": 1219,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\그라디우스.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_gladius.png",
+   "transparentPixels": 458
+  },
+  {
+   "id": "gladius",
+   "itemDb": 1219,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\그라디우스.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_gladius.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "composite_bow",
+   "itemDb": 1704,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\컴포지트보우.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_composite_bow.png",
+   "transparentPixels": 411
+  },
+  {
+   "id": "composite_bow",
+   "itemDb": 1704,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\컴포지트보우.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_composite_bow.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "staff",
+   "itemDb": 1607,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\스태프.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_staff.png",
+   "transparentPixels": 434
+  },
+  {
+   "id": "staff",
+   "itemDb": 1607,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\스태프.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_staff.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "mace",
+   "itemDb": 1504,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\메이스.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_mace.png",
+   "transparentPixels": 441
+  },
+  {
+   "id": "mace",
+   "itemDb": 1504,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\메이스.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_mace.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "knuckle",
+   "itemDb": 1801,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\바그낙.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_knuckle.png",
+   "transparentPixels": 391
+  },
+  {
+   "id": "knuckle",
+   "itemDb": 1801,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\바그낙.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_knuckle.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "violin",
+   "itemDb": 1901,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\바이올린.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_violin.png",
+   "transparentPixels": 366
+  },
+  {
+   "id": "violin",
+   "itemDb": 1901,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\바이올린.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_violin.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "claymore",
+   "itemDb": 1163,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\크레이모어.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_claymore.png",
+   "transparentPixels": 497
+  },
+  {
+   "id": "claymore",
+   "itemDb": 1163,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\크레이모어.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_claymore.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "arbalest",
+   "itemDb": 1713,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\알바레스트.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_arbalest.png",
+   "transparentPixels": 280
+  },
+  {
+   "id": "arbalest",
+   "itemDb": 1713,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\알바레스트.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_arbalest.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "katar",
+   "itemDb": 1252,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\카타르.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_katar.png",
+   "transparentPixels": 461
+  },
+  {
+   "id": "katar",
+   "itemDb": 1252,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\카타르.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_katar.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "wizardry_staff",
+   "itemDb": 1473,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\위자드리스태프.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_wizardry_staff.png",
+   "transparentPixels": 437
+  },
+  {
+   "id": "wizardry_staff",
+   "itemDb": 1473,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\위자드리스태프.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_wizardry_staff.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "battle_axe",
+   "itemDb": 1351,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\배틀액스.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_battle_axe.png",
+   "transparentPixels": 380
+  },
+  {
+   "id": "battle_axe",
+   "itemDb": 1351,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\배틀액스.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_battle_axe.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "sograt_scimitar",
+   "itemDb": 1113,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\시미터.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_sograt_scimitar.png",
+   "transparentPixels": 423
+  },
+  {
+   "id": "sograt_scimitar",
+   "itemDb": 1113,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\시미터.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_sograt_scimitar.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "moonlight_dagger",
+   "itemDb": 1234,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\월광검.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_moonlight_dagger.png",
+   "transparentPixels": 438
+  },
+  {
+   "id": "moonlight_dagger",
+   "itemDb": 1234,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\월광검.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_moonlight_dagger.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "pirate_saber",
+   "itemDb": 1126,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\세이버.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_pirate_saber.png",
+   "transparentPixels": 447
+  },
+  {
+   "id": "pirate_saber",
+   "itemDb": 1126,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\세이버.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_pirate_saber.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "bloody_axe",
+   "itemDb": 1363,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\블러드액스.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_bloody_axe.png",
+   "transparentPixels": 327
+  },
+  {
+   "id": "bloody_axe",
+   "itemDb": 1363,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\블러드액스.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_bloody_axe.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "keeper_hammer",
+   "itemDb": 1354,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\워해머.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_keeper_hammer.png",
+   "transparentPixels": 367
+  },
+  {
+   "id": "keeper_hammer",
+   "itemDb": 1354,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\워해머.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_keeper_hammer.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "abyss_blade",
+   "itemDb": 1164,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\무라마사.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_abyss_blade.png",
+   "transparentPixels": 467
+  },
+  {
+   "id": "abyss_blade",
+   "itemDb": 1164,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\무라마사.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_abyss_blade.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "cotton_shirt",
+   "itemDb": 2301,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\코튼셔츠.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_cotton_shirt.png",
+   "transparentPixels": 269
+  },
+  {
+   "id": "cotton_shirt",
+   "itemDb": 2301,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\코튼셔츠.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_cotton_shirt.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "adventurers_suit",
+   "itemDb": 2305,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\어드밴쳐슈츠.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_adventurers_suit.png",
+   "transparentPixels": 214
+  },
+  {
+   "id": "adventurers_suit",
+   "itemDb": 2305,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\어드밴쳐슈츠.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_adventurers_suit.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "chain_mail",
+   "itemDb": 2314,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\메일.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_chain_mail.png",
+   "transparentPixels": 329
+  },
+  {
+   "id": "chain_mail",
+   "itemDb": 2314,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\메일.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_chain_mail.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "silk_robe",
+   "itemDb": 2321,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\실크로브.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_silk_robe.png",
+   "transparentPixels": 273
+  },
+  {
+   "id": "silk_robe",
+   "itemDb": 2321,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\실크로브.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_silk_robe.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "full_plate",
+   "itemDb": 2316,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\플레이트.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_full_plate.png",
+   "transparentPixels": 247
+  },
+  {
+   "id": "full_plate",
+   "itemDb": 2316,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\플레이트.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_full_plate.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "saint_robe",
+   "itemDb": 2325,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\세인트로브.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_saint_robe.png",
+   "transparentPixels": 234
+  },
+  {
+   "id": "saint_robe",
+   "itemDb": 2325,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\세인트로브.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_saint_robe.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "isis_mantle",
+   "itemDb": 2307,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\맨틀.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_isis_mantle.png",
+   "transparentPixels": 233
+  },
+  {
+   "id": "isis_mantle",
+   "itemDb": 2307,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\맨틀.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_isis_mantle.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "ninja_suit",
+   "itemDb": 2337,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\닌자슈츠.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_ninja_suit.png",
+   "transparentPixels": 308
+  },
+  {
+   "id": "ninja_suit",
+   "itemDb": 2337,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\닌자슈츠.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_ninja_suit.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "captain_coat",
+   "itemDb": 2309,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\롱코트.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_captain_coat.png",
+   "transparentPixels": 242
+  },
+  {
+   "id": "captain_coat",
+   "itemDb": 2309,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\롱코트.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_captain_coat.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "dark_lord_robe",
+   "itemDb": 2343,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\캐스팅의로브.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_dark_lord_robe.png",
+   "transparentPixels": 254
+  },
+  {
+   "id": "dark_lord_robe",
+   "itemDb": 2343,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\캐스팅의로브.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_dark_lord_robe.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "clockwork_mail",
+   "itemDb": 2319,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\글리터링클로스.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_clockwork_mail.png",
+   "transparentPixels": 227
+  },
+  {
+   "id": "clockwork_mail",
+   "itemDb": 2319,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\글리터링클로스.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_clockwork_mail.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "valkyrie_armor",
+   "itemDb": 2357,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\발키리의갑옷.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_valkyrie_armor.png",
+   "transparentPixels": 217
+  },
+  {
+   "id": "valkyrie_armor",
+   "itemDb": 2357,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\발키리의갑옷.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_valkyrie_armor.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "bandana",
+   "itemDb": 2211,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\두건.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_bandana.png",
+   "transparentPixels": 374
+  },
+  {
+   "id": "bandana",
+   "itemDb": 2211,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\두건.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_bandana.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "cap",
+   "itemDb": 2226,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\캡.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_cap.png",
+   "transparentPixels": 360
+  },
+  {
+   "id": "cap",
+   "itemDb": 2226,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\캡.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_cap.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "helm",
+   "itemDb": 2228,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\헬름.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_helm.png",
+   "transparentPixels": 411
+  },
+  {
+   "id": "helm",
+   "itemDb": 2228,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\헬름.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_helm.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "biretta",
+   "itemDb": 2216,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\비레타.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_biretta.png",
+   "transparentPixels": 424
+  },
+  {
+   "id": "biretta",
+   "itemDb": 2216,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\비레타.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_biretta.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "crown",
+   "itemDb": 2235,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\크라운.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_crown.png",
+   "transparentPixels": 340
+  },
+  {
+   "id": "crown",
+   "itemDb": 2235,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\크라운.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_crown.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "pharaoh_headdress",
+   "itemDb": 5053,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\스핑크스모자.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_pharaoh_headdress.png",
+   "transparentPixels": 327
+  },
+  {
+   "id": "pharaoh_headdress",
+   "itemDb": 5053,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\스핑크스모자.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_pharaoh_headdress.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "kitsune_mask",
+   "itemDb": 5069,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\여우가면.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_kitsune_mask.png",
+   "transparentPixels": 376
+  },
+  {
+   "id": "kitsune_mask",
+   "itemDb": 5069,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\여우가면.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_kitsune_mask.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "pirate_bandana",
+   "itemDb": 2287,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\해적두건.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_pirate_bandana.png",
+   "transparentPixels": 331
+  },
+  {
+   "id": "pirate_bandana",
+   "itemDb": 2287,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\해적두건.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_pirate_bandana.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "helm_of_darkness",
+   "itemDb": 5017,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\본헬름.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_helm_of_darkness.png",
+   "transparentPixels": 354
+  },
+  {
+   "id": "helm_of_darkness",
+   "itemDb": 5017,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\본헬름.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_helm_of_darkness.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "alarm_mask",
+   "itemDb": 5086,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\알람가면.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_alarm_mask.png",
+   "transparentPixels": 353
+  },
+  {
+   "id": "alarm_mask",
+   "itemDb": 5086,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\알람가면.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_alarm_mask.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "gjoll_helm",
+   "itemDb": 2230,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\쥬얼헬름.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_gjoll_helm.png",
+   "transparentPixels": 345
+  },
+  {
+   "id": "gjoll_helm",
+   "itemDb": 2230,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\쥬얼헬름.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_gjoll_helm.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "sandals",
+   "itemDb": 2401,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\샌들.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_sandals.png",
+   "transparentPixels": 394
+  },
+  {
+   "id": "sandals",
+   "itemDb": 2401,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\샌들.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_sandals.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "shoes",
+   "itemDb": 2403,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\슈즈.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_shoes.png",
+   "transparentPixels": 352
+  },
+  {
+   "id": "shoes",
+   "itemDb": 2403,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\슈즈.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_shoes.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "boots",
+   "itemDb": 2405,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\부츠.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_boots.png",
+   "transparentPixels": 324
+  },
+  {
+   "id": "boots",
+   "itemDb": 2405,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\부츠.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_boots.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "greaves",
+   "itemDb": 2411,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\그리브.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_greaves.png",
+   "transparentPixels": 233
+  },
+  {
+   "id": "greaves",
+   "itemDb": 2411,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\그리브.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_greaves.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "sleipnir",
+   "itemDb": 2410,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\슬레이프니르.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_sleipnir.png",
+   "transparentPixels": 306
+  },
+  {
+   "id": "sleipnir",
+   "itemDb": 2410,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\슬레이프니르.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_sleipnir.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "desert_sandals",
+   "itemDb": 2422,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\고급샌들.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_desert_sandals.png",
+   "transparentPixels": 308
+  },
+  {
+   "id": "desert_sandals",
+   "itemDb": 2422,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\고급샌들.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_desert_sandals.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "geta",
+   "itemDb": 2417,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\프리코슈즈.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_geta.png",
+   "transparentPixels": 145
+  },
+  {
+   "id": "geta",
+   "itemDb": 2417,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\프리코슈즈.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_geta.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "sea_boots",
+   "itemDb": 2424,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\타이달슈즈.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_sea_boots.png",
+   "transparentPixels": 336
+  },
+  {
+   "id": "sea_boots",
+   "itemDb": 2424,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\타이달슈즈.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_sea_boots.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "valkyrie_boots",
+   "itemDb": 2421,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\발키리의슈즈.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_valkyrie_boots.png",
+   "transparentPixels": 358
+  },
+  {
+   "id": "valkyrie_boots",
+   "itemDb": 2421,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\발키리의슈즈.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_valkyrie_boots.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "owl_boots",
+   "itemDb": 2479,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\흰날개의부츠.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_owl_boots.png",
+   "transparentPixels": 188
+  },
+  {
+   "id": "owl_boots",
+   "itemDb": 2479,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\흰날개의부츠.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_owl_boots.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "sentry_greaves",
+   "itemDb": 2425,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\검은가죽부츠.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_sentry_greaves.png",
+   "transparentPixels": 328
+  },
+  {
+   "id": "sentry_greaves",
+   "itemDb": 2425,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\검은가죽부츠.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_sentry_greaves.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "gold",
+   "itemDb": 670,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\금전주머니.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_gold.png",
+   "transparentPixels": 275
+  },
+  {
+   "id": "gold",
+   "itemDb": 670,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\금전주머니.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_gold.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "gems",
+   "itemDb": 730,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\투명한보석.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_gems.png",
+   "transparentPixels": 411
+  },
+  {
+   "id": "gems",
+   "itemDb": 730,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\투명한보석.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_gems.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "scrolls",
+   "itemDb": 618,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\낡은두루마리.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_scrolls.png",
+   "transparentPixels": 308
+  },
+  {
+   "id": "scrolls",
+   "itemDb": 618,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\낡은두루마리.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_scrolls.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "hero_exp",
+   "itemDb": 12208,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\전투교범.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_hero_exp.png",
+   "transparentPixels": 279
+  },
+  {
+   "id": "hero_exp",
+   "itemDb": 12208,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\전투교범.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_hero_exp.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "blessed_ore",
+   "itemDb": 7620,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\축오리.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_blessed_ore.png",
+   "transparentPixels": 416
+  },
+  {
+   "id": "blessed_ore",
+   "itemDb": 7620,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\축오리.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_blessed_ore.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "treasure_chest",
+   "itemDb": 7444,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\보물상자.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_treasure_chest.png",
+   "transparentPixels": 152
+  },
+  {
+   "id": "treasure_chest",
+   "itemDb": 7444,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\보물상자.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_treasure_chest.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "old_blue_box",
+   "itemDb": 603,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\오래된파란상자.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_old_blue_box.png",
+   "transparentPixels": 339
+  },
+  {
+   "id": "old_blue_box",
+   "itemDb": 603,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\오래된파란상자.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_old_blue_box.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "hero_card",
+   "itemDb": 616,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\낡은카드첩.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_hero_card.png",
+   "transparentPixels": 191
+  },
+  {
+   "id": "hero_card",
+   "itemDb": 616,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\낡은카드첩.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_hero_card.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "jellopy",
+   "itemDb": 909,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\젤로피.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_jellopy.png",
+   "transparentPixels": 467
+  },
+  {
+   "id": "jellopy",
+   "itemDb": 909,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\젤로피.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_jellopy.png",
+   "transparentPixels": 0
+  },
+  {
+   "id": "red_potion",
+   "itemDb": 501,
+   "kind": "icons",
+   "source": "data\\texture\\유저인터페이스\\item\\빨간포션.bmp",
+   "size": [
+    24,
+    24
+   ],
+   "file": "ui/icons/item_red_potion.png",
+   "transparentPixels": 346
+  },
+  {
+   "id": "red_potion",
+   "itemDb": 501,
+   "kind": "collection",
+   "source": "data\\texture\\유저인터페이스\\collection\\빨간포션.bmp",
+   "size": [
+    75,
+    100
+   ],
+   "file": "ui/collection/item_red_potion.png",
+   "transparentPixels": 0
+  }
+ ],
+ "damage": {
+  "numbers": 10,
+  "msg": 6,
+  "bluemsg": 6
+ },
+ "npcs": [
+  {
+   "id": "npc_1_m_innkeeper",
+   "file": "sprites/npcs/1_m_innkeeper.png",
+   "portrait": "sprites/portraits/npc_1_m_innkeeper.png",
+   "cell": [
+    240,
+    224
+   ],
+   "anchor": [
+    100,
+    120
+   ],
+   "columns": 8,
+   "rows": [
+    "idle_s",
+    "idle_e"
+   ],
+   "anims": {
+    "idle_s": {
+     "action": 0,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -16,
+       -79,
+       17,
+       11
+      ]
+     ]
+    },
+    "idle_e": {
+     "action": 6,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -16,
+       -79,
+       17,
+       11
+      ]
+     ]
+    }
+   },
+   "actions": 8,
+   "sounds": []
+  },
+  {
+   "id": "npc_1_m_librarymaster",
+   "file": "sprites/npcs/1_m_librarymaster.png",
+   "portrait": "sprites/portraits/npc_1_m_librarymaster.png",
+   "cell": [
+    240,
+    224
+   ],
+   "anchor": [
+    100,
+    120
+   ],
+   "columns": 8,
+   "rows": [
+    "idle_s",
+    "idle_e"
+   ],
+   "anims": {
+    "idle_s": {
+     "action": 0,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -19,
+       -80,
+       18,
+       14
+      ]
+     ]
+    },
+    "idle_e": {
+     "action": 6,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -19,
+       -80,
+       18,
+       14
+      ]
+     ]
+    }
+   },
+   "actions": 8,
+   "sounds": []
+  },
+  {
+   "id": "npc_1_m_merchant",
+   "file": "sprites/npcs/1_m_merchant.png",
+   "portrait": "sprites/portraits/npc_1_m_merchant.png",
+   "cell": [
+    240,
+    224
+   ],
+   "anchor": [
+    100,
+    120
+   ],
+   "columns": 8,
+   "rows": [
+    "idle_s",
+    "idle_e"
+   ],
+   "anims": {
+    "idle_s": {
+     "action": 0,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -20,
+       -82,
+       21,
+       13
+      ]
+     ]
+    },
+    "idle_e": {
+     "action": 6,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -20,
+       -82,
+       21,
+       13
+      ]
+     ]
+    }
+   },
+   "actions": 8,
+   "sounds": []
+  },
+  {
+   "id": "npc_2_m_sage_old",
+   "file": "sprites/npcs/2_m_sage_old.png",
+   "portrait": "sprites/portraits/npc_2_m_sage_old.png",
+   "cell": [
+    240,
+    224
+   ],
+   "anchor": [
+    100,
+    120
+   ],
+   "columns": 8,
+   "rows": [
+    "idle_s",
+    "idle_e"
+   ],
+   "anims": {
+    "idle_s": {
+     "action": 0,
+     "frames": 8,
+     "sourceFrameCount": 37,
+     "delayMs": 175,
+     "sourceFrameBboxes": [
+      [
+       -27,
+       -83,
+       22,
+       10
+      ],
+      [
+       -27,
+       -83,
+       22,
+       10
+      ],
+      [
+       -28,
+       -83,
+       22,
+       10
+      ],
+      [
+       -28,
+       -83,
+       22,
+       10
+      ],
+      [
+       -28,
+       -81,
+       22,
+       10
+      ],
+      [
+       -28,
+       -81,
+       22,
+       10
+      ],
+      [
+       -28,
+       -81,
+       22,
+       10
+      ],
+      [
+       -28,
+       -81,
+       22,
+       10
+      ]
+     ]
+    },
+    "idle_e": {
+     "action": 6,
+     "frames": 8,
+     "sourceFrameCount": 37,
+     "delayMs": 175,
+     "sourceFrameBboxes": [
+      [
+       -20,
+       -83,
+       29,
+       10
+      ],
+      [
+       -20,
+       -83,
+       29,
+       10
+      ],
+      [
+       -22,
+       -83,
+       28,
+       10
+      ],
+      [
+       -22,
+       -83,
+       28,
+       10
+      ],
+      [
+       -22,
+       -81,
+       28,
+       10
+      ],
+      [
+       -22,
+       -81,
+       28,
+       10
+      ],
+      [
+       -22,
+       -81,
+       28,
+       10
+      ],
+      [
+       -22,
+       -81,
+       28,
+       10
+      ]
+     ]
+    }
+   },
+   "actions": 8,
+   "sounds": []
+  },
+  {
+   "id": "npc_4_f_kafra1",
+   "file": "sprites/npcs/4_f_kafra1.png",
+   "portrait": "sprites/portraits/npc_4_f_kafra1.png",
+   "cell": [
+    240,
+    224
+   ],
+   "anchor": [
+    100,
+    120
+   ],
+   "columns": 8,
+   "rows": [
+    "idle_s",
+    "idle_e",
+    "walk_s",
+    "walk_e"
+   ],
+   "anims": {
+    "idle_s": {
+     "action": 0,
+     "frames": 8,
+     "sourceFrameCount": 99,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -16,
+       -83,
+       19,
+       10
+      ],
+      [
+       -16,
+       -83,
+       19,
+       10
+      ],
+      [
+       -16,
+       -83,
+       19,
+       10
+      ],
+      [
+       -16,
+       -83,
+       19,
+       10
+      ],
+      [
+       -16,
+       -83,
+       19,
+       10
+      ],
+      [
+       -19,
+       -81,
+       19,
+       10
+      ],
+      [
+       -19,
+       -81,
+       19,
+       10
+      ],
+      [
+       -23,
+       -73,
+       19,
+       10
+      ]
+     ]
+    },
+    "idle_e": {
+     "action": 6,
+     "frames": 8,
+     "sourceFrameCount": 99,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -17,
+       -83,
+       18,
+       10
+      ],
+      [
+       -17,
+       -83,
+       18,
+       10
+      ],
+      [
+       -17,
+       -83,
+       18,
+       10
+      ],
+      [
+       -17,
+       -83,
+       18,
+       10
+      ],
+      [
+       -17,
+       -83,
+       18,
+       10
+      ],
+      [
+       -19,
+       -81,
+       19,
+       10
+      ],
+      [
+       -19,
+       -81,
+       19,
+       10
+      ],
+      [
+       -19,
+       -73,
+       23,
+       10
+      ]
+     ]
+    },
+    "walk_s": {
+     "action": 8,
+     "frames": 8,
+     "sourceFrameCount": 99,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -16,
+       -83,
+       19,
+       10
+      ],
+      [
+       -16,
+       -83,
+       19,
+       10
+      ],
+      [
+       -16,
+       -83,
+       19,
+       10
+      ],
+      [
+       -16,
+       -83,
+       19,
+       10
+      ],
+      [
+       -16,
+       -83,
+       19,
+       10
+      ],
+      [
+       -19,
+       -81,
+       19,
+       10
+      ],
+      [
+       -19,
+       -81,
+       19,
+       10
+      ],
+      [
+       -23,
+       -73,
+       19,
+       10
+      ]
+     ]
+    },
+    "walk_e": {
+     "action": 14,
+     "frames": 8,
+     "sourceFrameCount": 99,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -17,
+       -83,
+       18,
+       10
+      ],
+      [
+       -17,
+       -83,
+       18,
+       10
+      ],
+      [
+       -17,
+       -83,
+       18,
+       10
+      ],
+      [
+       -17,
+       -83,
+       18,
+       10
+      ],
+      [
+       -17,
+       -83,
+       18,
+       10
+      ],
+      [
+       -19,
+       -81,
+       19,
+       10
+      ],
+      [
+       -19,
+       -81,
+       19,
+       10
+      ],
+      [
+       -19,
+       -73,
+       23,
+       10
+      ]
+     ]
+    }
+   },
+   "actions": 16,
+   "sounds": []
+  },
+  {
+   "id": "npc_4_m_cru_sold",
+   "file": "sprites/npcs/4_m_cru_sold.png",
+   "portrait": "sprites/portraits/npc_4_m_cru_sold.png",
+   "cell": [
+    240,
+    224
+   ],
+   "anchor": [
+    100,
+    120
+   ],
+   "columns": 8,
+   "rows": [
+    "idle_s",
+    "idle_e"
+   ],
+   "anims": {
+    "idle_s": {
+     "action": 0,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -45,
+       -104,
+       29,
+       5
+      ]
+     ]
+    },
+    "idle_e": {
+     "action": 6,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -29,
+       -104,
+       45,
+       5
+      ]
+     ]
+    }
+   },
+   "actions": 8,
+   "sounds": []
+  },
+  {
+   "id": "npc_4_m_darkpriest",
+   "file": "sprites/npcs/4_m_darkpriest.png",
+   "portrait": "sprites/portraits/npc_4_m_darkpriest.png",
+   "cell": [
+    240,
+    224
+   ],
+   "anchor": [
+    100,
+    120
+   ],
+   "columns": 8,
+   "rows": [
+    "idle_s",
+    "idle_e",
+    "walk_s",
+    "walk_e"
+   ],
+   "anims": {
+    "idle_s": {
+     "action": 0,
+     "frames": 6,
+     "sourceFrameCount": 6,
+     "delayMs": 75,
+     "sourceFrameBboxes": [
+      [
+       -21,
+       -86,
+       24,
+       13
+      ],
+      [
+       -22,
+       -85,
+       22,
+       13
+      ],
+      [
+       -21,
+       -86,
+       22,
+       13
+      ],
+      [
+       -21,
+       -87,
+       22,
+       13
+      ],
+      [
+       -21,
+       -88,
+       22,
+       13
+      ],
+      [
+       -22,
+       -87,
+       22,
+       13
+      ]
+     ]
+    },
+    "idle_e": {
+     "action": 6,
+     "frames": 6,
+     "sourceFrameCount": 6,
+     "delayMs": 75,
+     "sourceFrameBboxes": [
+      [
+       -22,
+       -86,
+       23,
+       13
+      ],
+      [
+       -22,
+       -85,
+       22,
+       13
+      ],
+      [
+       -20,
+       -86,
+       23,
+       13
+      ],
+      [
+       -20,
+       -87,
+       23,
+       13
+      ],
+      [
+       -20,
+       -88,
+       23,
+       13
+      ],
+      [
+       -22,
+       -87,
+       22,
+       13
+      ]
+     ]
+    },
+    "walk_s": {
+     "action": 8,
+     "frames": 8,
+     "sourceFrameCount": 8,
+     "delayMs": 50,
+     "sourceFrameBboxes": [
+      [
+       -18,
+       -84,
+       17,
+       13
+      ],
+      [
+       -17,
+       -85,
+       18,
+       13
+      ],
+      [
+       -15,
+       -85,
+       20,
+       14
+      ],
+      [
+       -18,
+       -85,
+       17,
+       13
+      ],
+      [
+       -18,
+       -87,
+       15,
+       11
+      ],
+      [
+       -16,
+       -88,
+       20,
+       14
+      ],
+      [
+       -20,
+       -81,
+       20,
+       14
+      ],
+      [
+       -20,
+       -86,
+       22,
+       12
+      ]
+     ]
+    },
+    "walk_e": {
+     "action": 14,
+     "frames": 8,
+     "sourceFrameCount": 8,
+     "delayMs": 50,
+     "sourceFrameBboxes": [
+      [
+       -15,
+       -84,
+       20,
+       13
+      ],
+      [
+       -16,
+       -85,
+       19,
+       13
+      ],
+      [
+       -18,
+       -85,
+       17,
+       14
+      ],
+      [
+       -15,
+       -85,
+       20,
+       13
+      ],
+      [
+       -13,
+       -87,
+       20,
+       11
+      ],
+      [
+       -20,
+       -88,
+       16,
+       14
+      ],
+      [
+       -20,
+       -81,
+       20,
+       14
+      ],
+      [
+       -22,
+       -86,
+       20,
+       12
+      ]
+     ]
+    }
+   },
+   "actions": 40,
+   "sounds": [
+    "monster_clothes.wav"
+   ]
+  },
+  {
+   "id": "npc_4_orclady",
+   "file": "sprites/npcs/4_orclady.png",
+   "portrait": "sprites/portraits/npc_4_orclady.png",
+   "cell": [
+    240,
+    224
+   ],
+   "anchor": [
+    100,
+    120
+   ],
+   "columns": 8,
+   "rows": [
+    "idle_s",
+    "idle_e"
+   ],
+   "anims": {
+    "idle_s": {
+     "action": 0,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -33,
+       -43,
+       34,
+       7
+      ]
+     ]
+    },
+    "idle_e": {
+     "action": 6,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -33,
+       -43,
+       34,
+       7
+      ]
+     ]
+    }
+   },
+   "actions": 8,
+   "sounds": []
+  },
+  {
+   "id": "npc_8w_soldier",
+   "file": "sprites/npcs/8w_soldier.png",
+   "portrait": "sprites/portraits/npc_8w_soldier.png",
+   "cell": [
+    240,
+    224
+   ],
+   "anchor": [
+    100,
+    120
+   ],
+   "columns": 8,
+   "rows": [
+    "idle_s",
+    "idle_e",
+    "walk_s",
+    "walk_e"
+   ],
+   "anims": {
+    "idle_s": {
+     "action": 0,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -27,
+       -93,
+       22,
+       12
+      ]
+     ]
+    },
+    "idle_e": {
+     "action": 6,
+     "frames": 1,
+     "sourceFrameCount": 1,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -11,
+       -97,
+       19,
+       12
+      ]
+     ]
+    },
+    "walk_s": {
+     "action": 8,
+     "frames": 6,
+     "sourceFrameCount": 6,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -28,
+       -82,
+       26,
+       11
+      ],
+      [
+       -27,
+       -81,
+       27,
+       9
+      ],
+      [
+       -26,
+       -79,
+       28,
+       12
+      ],
+      [
+       -27,
+       -82,
+       27,
+       7
+      ],
+      [
+       -29,
+       -81,
+       25,
+       10
+      ],
+      [
+       -30,
+       -79,
+       24,
+       15
+      ]
+     ]
+    },
+    "walk_e": {
+     "action": 14,
+     "frames": 6,
+     "sourceFrameCount": 6,
+     "delayMs": 100,
+     "sourceFrameBboxes": [
+      [
+       -26,
+       -82,
+       28,
+       11
+      ],
+      [
+       -27,
+       -81,
+       27,
+       9
+      ],
+      [
+       -28,
+       -79,
+       26,
+       12
+      ],
+      [
+       -27,
+       -82,
+       27,
+       7
+      ],
+      [
+       -25,
+       -81,
+       29,
+       10
+      ],
+      [
+       -24,
+       -79,
+       30,
+       15
+      ]
+     ]
+    }
+   },
+   "actions": 32,
+   "sounds": []
+  }
+ ],
+ "illust": {
+  "file": "ui/illust/kafra_01.png",
+  "size": [
+   320,
+   480
+  ]
+ }
+}

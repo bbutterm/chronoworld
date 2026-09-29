@@ -1,0 +1,6059 @@
+{
+ "schema": 1,
+ "branch": "art/ro-scro-extract",
+ "source": "scRO client, see raw/ro-build/SOURCE_PROVENANCE.md",
+ "spec": "docs/SPRITE_SPEC.md + tools/check_sprites.py (без изменений с 9e5589691)",
+ "counts": {
+  "bgm": 24,
+  "bgm_optional": 12,
+  "damage_font": 6,
+  "illust": 1,
+  "item_collection": 67,
+  "item_icons": 67,
+  "monster_sound": 182,
+  "npc_portrait": 9,
+  "npc_sheet": 9,
+  "sound": 120,
+  "sprite_sheet": 60
+ },
+ "statuses": {
+  "needs_decision": 3,
+  "raw_needs_conversion": 338,
+  "ready": 204,
+  "ready_with_skipped_frames": 10,
+  "unusable": 2
+ },
+ "files": [
+  {
+   "kind": "sprite_sheet",
+   "id": "marin",
+   "class": "monster",
+   "units": [
+    "mob_marin"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/marin.png",
+   "target": "assets/sprites/monsters/marin.png",
+   "sha256": "fa4b0467406e39c8fba86c148b68d52ea50bd7d0b813e519a848995c81c42468",
+   "sources": [
+    "raw/ro/sprite/monster/marin.spr",
+    "raw/ro/sprite/monster/marin.act"
+   ],
+   "status": "ready_with_skipped_frames",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "pupa",
+   "class": "monster",
+   "units": [
+    "mob_pupa"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/pupa.png",
+   "target": "assets/sprites/monsters/pupa.png",
+   "sha256": "a9e9cd1dc557aacdf4ee492338fdeb25714a37337bde236864b1c8132385c3cb",
+   "sources": [
+    "raw/ro/sprite/monster/pupa.spr",
+    "raw/ro/sprite/monster/pupa.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "thief_bug_male",
+   "class": "monster",
+   "units": [
+    "sewer_bug_male",
+    "sewer_bug_leader"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/thief_bug_male.png",
+   "target": "assets/sprites/monsters/thief_bug_male.png",
+   "sha256": "cead11984dbce3bc53addbbaafab77b5963d1e48b1ecdeeeff4e759f2601daa7",
+   "sources": [
+    "raw/ro/sprite/monster/thief_bug_male.spr",
+    "raw/ro/sprite/monster/thief_bug_male.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "thief_bug_female",
+   "class": "monster",
+   "units": [
+    "sewer_bug_female"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/thief_bug_female.png",
+   "target": "assets/sprites/monsters/thief_bug_female.png",
+   "sha256": "8b34643021e2267ffb235eb3b1d18d5904b29c92e3f0bb9f3118058c55c9ad72",
+   "sources": [
+    "raw/ro/sprite/monster/thief_bug_female.spr",
+    "raw/ro/sprite/monster/thief_bug_female.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "thief_bug_larva",
+   "class": "monster",
+   "units": [
+    "sewer_thief_bug"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/thief_bug_larva.png",
+   "target": "assets/sprites/monsters/thief_bug_larva.png",
+   "sha256": "eb573668e654635062f717005f2708a55d693ce8873b6075dd87dfe6ebbf81d6",
+   "sources": [
+    "raw/ro/sprite/monster/thief_bug_larva.spr",
+    "raw/ro/sprite/monster/thief_bug_larva.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "thief_bug",
+   "class": "monster",
+   "units": [
+    "sewer_thief_bug (alt)"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/thief_bug.png",
+   "target": "assets/sprites/monsters/thief_bug.png",
+   "sha256": "eb573668e654635062f717005f2708a55d693ce8873b6075dd87dfe6ebbf81d6",
+   "sources": [
+    "raw/ro/sprite/monster/thief_bug.spr",
+    "raw/ro/sprite/monster/thief_bug.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "thief_bug_egg",
+   "class": "monster",
+   "units": [
+    "sewer_bug_egg"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/thief_bug_egg.png",
+   "target": "assets/sprites/monsters/thief_bug_egg.png",
+   "sha256": "90a88840576be3f5a353f673d807337630bdcdf5aaa08c3e243591338176367c",
+   "sources": [
+    "raw/ro/sprite/monster/thief_bug_egg.spr",
+    "raw/ro/sprite/monster/thief_bug_egg.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "plankton",
+   "class": "monster",
+   "units": [
+    "sewer_plankton"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/plankton.png",
+   "target": "assets/sprites/monsters/plankton.png",
+   "sha256": "691e1f9781ccfad97f6ed8cda7c44f1d51161e9e41ce6832ef2d3634873c2a1a",
+   "sources": [
+    "raw/ro/sprite/monster/plankton.spr",
+    "raw/ro/sprite/monster/plankton.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "tarou",
+   "class": "monster",
+   "units": [
+    "sewer_tarou"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/tarou.png",
+   "target": "assets/sprites/monsters/tarou.png",
+   "sha256": "8a4c47fdbaba13c5e6987db3a39b1d9be1187256b43a7303a47f1ab953ee7acd",
+   "sources": [
+    "raw/ro/sprite/monster/tarou.spr",
+    "raw/ro/sprite/monster/tarou.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "familiar",
+   "class": "boss",
+   "units": [
+    "sewer_familiar"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/familiar.png",
+   "target": "assets/sprites/bosses/familiar.png",
+   "sha256": "f32072c7a60ef5c0854a43d79a0474d5beffd501ba96785c4017284a7d923586",
+   "sources": [
+    "raw/ro/sprite/monster/farmiliar.spr",
+    "raw/ro/sprite/monster/farmiliar.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "orc_lord",
+   "class": "boss",
+   "units": [
+    "orc_lord"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/orc_lord.png",
+   "target": "assets/sprites/bosses/orc_lord.png",
+   "sha256": "b3297ece6f4361d2e3312268e17ecbbe504af1cea679657b417c7d127d268334",
+   "sources": [
+    "raw/ro/sprite/monster/orc_lord.spr",
+    "raw/ro/sprite/monster/orc_lord.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "orc_warrior",
+   "class": "monster",
+   "units": [
+    "orc_warrior"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/orc_warrior.png",
+   "target": "assets/sprites/monsters/orc_warrior.png",
+   "sha256": "35af5bf90ff9b95df5b781d080ea9b1e0527071bd99fdf79f8684c8ad7d9d174",
+   "sources": [
+    "raw/ro/sprite/monster/ork_warrior.spr",
+    "raw/ro/sprite/monster/ork_warrior.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "high_orc",
+   "class": "monster",
+   "units": [
+    "orc_high"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/high_orc.png",
+   "target": "assets/sprites/monsters/high_orc.png",
+   "sha256": "d0a2a9752288d76e6cdbbf81bd8c575ceb833939b241a5fa033141ad1a11e035",
+   "sources": [
+    "raw/ro/sprite/monster/high_orc.spr",
+    "raw/ro/sprite/monster/high_orc.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "orc_archer",
+   "class": "monster",
+   "units": [
+    "orc_archer"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/orc_archer.png",
+   "target": "assets/sprites/monsters/orc_archer.png",
+   "sha256": "cc328e7897ea631014c02ffd5577bbb14299d2369a595e85b6f5036d38b0457e",
+   "sources": [
+    "raw/ro/sprite/monster/orc_archer.spr",
+    "raw/ro/sprite/monster/orc_archer.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "orc_lady",
+   "class": "boss",
+   "units": [
+    "orc_lady"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/orc_lady.png",
+   "target": "assets/sprites/bosses/orc_lady.png",
+   "sha256": "327dd0f024888607321fe262fe41343046635dbd80c02008a7b064dd9ae71ede",
+   "sources": [
+    "raw/ro/sprite/monster/orc_lady.spr",
+    "raw/ro/sprite/monster/orc_lady.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "orc_skeleton",
+   "class": "boss",
+   "units": [
+    "orc_skeleton"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/orc_skeleton.png",
+   "target": "assets/sprites/bosses/orc_skeleton.png",
+   "sha256": "fa77b1fb8955be216fddebe059f64734cc20ff0c88eb8f3290d0b20eb7c7ab8a",
+   "sources": [
+    "raw/ro/sprite/monster/orc_skeleton.spr",
+    "raw/ro/sprite/monster/orc_skeleton.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "orc_zombie",
+   "class": "boss",
+   "units": [
+    "orc_zombie"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/orc_zombie.png",
+   "target": "assets/sprites/bosses/orc_zombie.png",
+   "sha256": "46cd22abd939f8545b89fd74e9aef0ab709fa5c500ce56d68ebc607cc13ed95c",
+   "sources": [
+    "raw/ro/sprite/monster/orc_zombie.spr",
+    "raw/ro/sprite/monster/orc_zombie.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "steel_chonchon",
+   "class": "monster",
+   "units": [
+    "orc_chonchon"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/steel_chonchon.png",
+   "target": "assets/sprites/monsters/steel_chonchon.png",
+   "sha256": "6858bee66a7427974271d947e232d90e8ffaa9f3033eacd183691872aeb169f0",
+   "sources": [
+    "raw/ro/sprite/monster/steel_chocho.spr",
+    "raw/ro/sprite/monster/steel_chocho.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "ancient_mummy",
+   "class": "monster_xl",
+   "units": [
+    "mob4_ancient_mummy"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters_xl/ancient_mummy.png",
+   "target": "assets/sprites/monsters_xl/ancient_mummy.png",
+   "sha256": "afe4ec6fbe01330fbad61566bf68e74dd22fd9e9efe466c0f336f02e9d3a494f",
+   "sources": [
+    "raw/ro/sprite/monster/ancient_mummy.spr",
+    "raw/ro/sprite/monster/ancient_mummy.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "clock_tower_manager",
+   "class": "monster_xl",
+   "units": [
+    "alde_keeper"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters_xl/clock_tower_manager.png",
+   "target": "assets/sprites/monsters_xl/clock_tower_manager.png",
+   "sha256": "73e3e606741039e89025615b569cac5e6b43080f2ce8698c965af5e382d32ee2",
+   "sources": [
+    "raw/ro/sprite/monster/c_tower_manager.spr",
+    "raw/ro/sprite/monster/c_tower_manager.act"
+   ],
+   "status": "ready_with_skipped_frames",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "owl_baron",
+   "class": "monster_xl",
+   "units": [
+    "alde_owl_baron"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters_xl/owl_baron.png",
+   "target": "assets/sprites/monsters_xl/owl_baron.png",
+   "sha256": "981297c6b7d8d60740db47ccd1d68a60949820594876a95f75e199cc7bd94501",
+   "sources": [
+    "raw/ro/sprite/monster/owl_baron.spr",
+    "raw/ro/sprite/monster/owl_baron.act"
+   ],
+   "status": "ready_with_skipped_frames",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "owl_duke",
+   "class": "monster_xl",
+   "units": [
+    "alde_owl_duke"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters_xl/owl_duke.png",
+   "target": "assets/sprites/monsters_xl/owl_duke.png",
+   "sha256": "a4318f9f949a22579eb135dafd9444c84de8a087a26b69a7eb7f74fd5868a405",
+   "sources": [
+    "raw/ro/sprite/monster/owl_duke.spr",
+    "raw/ro/sprite/monster/owl_duke.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "alarm",
+   "class": "monster",
+   "units": [
+    "alde_alarm"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/alarm.png",
+   "target": "assets/sprites/monsters/alarm.png",
+   "sha256": "d5abdaebc4f3bb1b0e9d748bc7ba5610c42997ed1b81163732b4c037ad061b06",
+   "sources": [
+    "raw/ro/sprite/monster/alarm.spr",
+    "raw/ro/sprite/monster/alarm.act"
+   ],
+   "status": "ready_with_skipped_frames",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "clock",
+   "class": "monster_xl",
+   "units": [
+    "alde_clock"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters_xl/clock.png",
+   "target": "assets/sprites/monsters_xl/clock.png",
+   "sha256": "9afc5b3f9ad652e136d9bcf0a4810d096272dae221b4e54179dac2496b9daf0f",
+   "sources": [
+    "raw/ro/sprite/monster/clock.spr",
+    "raw/ro/sprite/monster/clock.act"
+   ],
+   "status": "ready_with_skipped_frames",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "rideword",
+   "class": "monster",
+   "units": [
+    "alde_rideword"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/rideword.png",
+   "target": "assets/sprites/monsters/rideword.png",
+   "sha256": "38ade8ae52ab5baaaf6d0410dcfff1c2b7a4d131c707af51492cd7e923edb183",
+   "sources": [
+    "raw/ro/sprite/monster/rideword.spr",
+    "raw/ro/sprite/monster/rideword.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "punk",
+   "class": "monster",
+   "units": [
+    "alde_punk"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/punk.png",
+   "target": "assets/sprites/monsters/punk.png",
+   "sha256": "ab8c64fe1fa80cd58347df8cb813ec61d5353e57cf8ae86c478f2f2252fec5d9",
+   "sources": [
+    "raw/ro/sprite/monster/punk.spr",
+    "raw/ro/sprite/monster/punk.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "elder",
+   "class": "boss",
+   "units": [
+    "alde_elder"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/elder.png",
+   "target": "assets/sprites/bosses/elder.png",
+   "sha256": "5967f183014bdb65affa98919be319e286d2488eb656c29638429956c3bc64a2",
+   "sources": [
+    "raw/ro/sprite/monster/elder.spr",
+    "raw/ro/sprite/monster/elder.act"
+   ],
+   "status": "ready_with_skipped_frames",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "abysmal_knight",
+   "class": "monster_xl",
+   "units": [
+    "mob3_knight"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters_xl/abysmal_knight.png",
+   "target": "assets/sprites/monsters_xl/abysmal_knight.png",
+   "sha256": "c103879cd5d7cedee358a5bb570c0ab8eaab14e97b94b08527375f6d5de1f135",
+   "sources": [
+    "raw/ro/sprite/monster/knight_of_abyss.spr",
+    "raw/ro/sprite/monster/knight_of_abyss.act"
+   ],
+   "status": "needs_decision",
+   "note": "пропущено 9/14 атаки и 10/20 смерти"
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "evil_druid",
+   "class": "monster_xl",
+   "units": [
+    "mob3_boss"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters_xl/evil_druid.png",
+   "target": "assets/sprites/monsters_xl/evil_druid.png",
+   "sha256": "2b4b2d450f5b9253aada0122c7126333d971ace984c9ea3861025dd439f4477e",
+   "sources": [
+    "raw/ro/sprite/monster/evil_druid.spr",
+    "raw/ro/sprite/monster/evil_druid.act"
+   ],
+   "status": "ready_with_skipped_frames",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "ghoul",
+   "class": "monster",
+   "units": [
+    "mob3_melee",
+    "mob2_elite"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/ghoul.png",
+   "target": "assets/sprites/monsters/ghoul.png",
+   "sha256": "1f4215c77c36e6637052b3fcf30eb37574430bff0259830cec8be2f6b088ea26",
+   "sources": [
+    "raw/ro/sprite/monster/ghoul.spr",
+    "raw/ro/sprite/monster/ghoul.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "baphomet_jr",
+   "class": "monster",
+   "units": [
+    "maze: Baphomet Jr."
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/baphomet_jr.png",
+   "target": "assets/sprites/monsters/baphomet_jr.png",
+   "sha256": "6d0ca271ff00e696ed486bfc4e698a52f9ed58b22d3527a70d7f6f11294cfa48",
+   "sources": [
+    "raw/ro/sprite/monster/baphomet_.spr",
+    "raw/ro/sprite/monster/baphomet_.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "ghostring",
+   "class": "boss",
+   "units": [
+    "maze mini-boss"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/ghostring.png",
+   "target": "assets/sprites/bosses/ghostring.png",
+   "sha256": "a216a36774a114316bc1c2c0aeb7d7b2b4a415cbe6dcc33e7471ded51a0dddf7",
+   "sources": [
+    "raw/ro/sprite/monster/ghostring.spr",
+    "raw/ro/sprite/monster/ghostring.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "vagabond_wolf",
+   "class": "boss",
+   "units": [
+    "maze mini-boss"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/vagabond_wolf.png",
+   "target": "assets/sprites/bosses/vagabond_wolf.png",
+   "sha256": "c6c9045acc2ece5fe8d779bef11d89dd504adcc09b325c922029c509d793f324",
+   "sources": [
+    "raw/ro/sprite/monster/vagabond_wolf.spr",
+    "raw/ro/sprite/monster/vagabond_wolf.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "eclipse",
+   "class": "monster",
+   "units": [
+    "mob_eclipse"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/eclipse.png",
+   "target": "assets/sprites/monsters/eclipse.png",
+   "sha256": "1a2fcf8a8e8d7757cf26ef6fe5e5a4a0de4453bf23dc93671da282707afddf91",
+   "sources": [
+    "raw/ro/sprite/monster/eclipse.spr",
+    "raw/ro/sprite/monster/eclipse.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "vocal",
+   "class": "boss",
+   "units": [
+    "mob_vocal"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/vocal.png",
+   "target": "assets/sprites/bosses/vocal.png",
+   "sha256": "d2dd4336a05004e05bd87372e226e42983a9d6052eda957a75eff6375d563a3d",
+   "sources": [
+    "raw/ro/sprite/monster/vocal.spr",
+    "raw/ro/sprite/monster/vocal.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "hunter_fly",
+   "class": "monster",
+   "units": [
+    "maze"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/hunter_fly.png",
+   "target": "assets/sprites/monsters/hunter_fly.png",
+   "sha256": "009e90761019b5d5d9abcfe1fb86a2e79ae348cd70997ebe1a7d56fdb95b55fd",
+   "sources": [
+    "raw/ro/sprite/monster/hunter_fly.spr",
+    "raw/ro/sprite/monster/hunter_fly.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "side_winder",
+   "class": "monster",
+   "units": [
+    "maze"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/side_winder.png",
+   "target": "assets/sprites/monsters/side_winder.png",
+   "sha256": "97c5225d8d6eff42fa20532d39405e569f29b6a0b610ef45fc04cc7b478a1f8d",
+   "sources": [
+    "raw/ro/sprite/monster/side_winder.spr",
+    "raw/ro/sprite/monster/side_winder.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "mantis",
+   "class": "monster",
+   "units": [
+    "maze"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/mantis.png",
+   "target": "assets/sprites/monsters/mantis.png",
+   "sha256": "b6f21669e7587c144fd62acb897c178c07efe43209eefedf8b9479b27b7b2758",
+   "sources": [
+    "raw/ro/sprite/monster/mantis.spr",
+    "raw/ro/sprite/monster/mantis.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "stem_worm",
+   "class": "monster",
+   "units": [
+    "maze"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/stem_worm.png",
+   "target": "assets/sprites/monsters/stem_worm.png",
+   "sha256": "ea45132d8fdc45c3e337d457d75a74e845116c6f8d29c280540a83bc7fcd328d",
+   "sources": [
+    "raw/ro/sprite/monster/stem_worm.spr",
+    "raw/ro/sprite/monster/stem_worm.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "killer_mantis",
+   "class": "monster",
+   "units": [
+    "maze elite"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/killer_mantis.png",
+   "target": "assets/sprites/monsters/killer_mantis.png",
+   "sha256": "9d90b42b86598ddf1612f8ce3ed44d229e471c5febd9b02a0aa7c038da161977",
+   "sources": [
+    "raw/ro/sprite/monster/killer_mantis.spr",
+    "raw/ro/sprite/monster/killer_mantis.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "deviruchi",
+   "class": "boss",
+   "units": [
+    "maze elite"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/deviruchi.png",
+   "target": "assets/sprites/bosses/deviruchi.png",
+   "sha256": "c8496614ac86aed7a02cb6401430c3863a6ee1c4893211227cf42efb79c6c72e",
+   "sources": [
+    "raw/ro/sprite/monster/deviruchi.spr",
+    "raw/ro/sprite/monster/deviruchi.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "lord_of_death",
+   "class": "boss_xl",
+   "units": [
+    "mob_lord_of_death"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses_xl/lord_of_death.png",
+   "target": "assets/sprites/bosses_xl/lord_of_death.png",
+   "sha256": "96dfd543c8057162cfe0f0f55b5b0679fb6db8b064e67460e4f04ed59b458d9d",
+   "sources": [
+    "raw/ro/sprite/monster/lord_of_death.spr",
+    "raw/ro/sprite/monster/lord_of_death.act"
+   ],
+   "status": "needs_decision",
+   "note": "новый класс boss_xl (нет в спецификации)"
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "bloody_knight",
+   "class": "boss",
+   "units": [
+    "mob7_bridge_warden"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/bloody_knight.png",
+   "target": "assets/sprites/bosses/bloody_knight.png",
+   "sha256": "6595034df190051d5fcfdeeb7b1e871a58a596e113f0289496b2f1d875e3c51b",
+   "sources": [
+    "raw/ro/sprite/monster/bloody_knight.spr",
+    "raw/ro/sprite/monster/bloody_knight.act"
+   ],
+   "status": "needs_decision",
+   "note": "пропущено 13/14 кадров смерти и 5/11 атаки"
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "elder_willow",
+   "class": "monster_xl",
+   "units": [
+    "mob2_boss"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters_xl/elder_willow.png",
+   "target": "assets/sprites/monsters_xl/elder_willow.png",
+   "sha256": "1727ab56ff83e3824b4222efe9426da8e70371b5bfb87d0eda2dab626260fa2e",
+   "sources": [
+    "raw/ro/sprite/monster/elder_wilow.spr",
+    "raw/ro/sprite/monster/elder_wilow.act"
+   ],
+   "status": "ready_with_skipped_frames",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "pharaoh",
+   "class": "monster_xl",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters_xl/pharaoh.png",
+   "target": "assets/sprites/monsters_xl/pharaoh.png",
+   "sha256": "a16fb5c41554d6ce180b40a3f1c71afa7fb7239cf46ff599a9f652f372231c67",
+   "sources": [
+    "raw/ro/sprite/monster/pharaoh.spr",
+    "raw/ro/sprite/monster/pharaoh.act"
+   ],
+   "status": "ready_with_skipped_frames",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "penomena",
+   "class": "monster",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/penomena.png",
+   "target": "assets/sprites/monsters/penomena.png",
+   "sha256": "bc54c5c8a5fa79bd2acdc2fe883b630b7907cd5b323d472be443e4d6960ccc3e",
+   "sources": [
+    "raw/ro/sprite/monster/penomena.spr",
+    "raw/ro/sprite/monster/penomena.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "khalitzburg",
+   "class": "boss",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/khalitzburg.png",
+   "target": "assets/sprites/bosses/khalitzburg.png",
+   "sha256": "f2e9f7d681a127b8447b43b6b2c1a4775ea4e5bf45d2ca3f495a4c443b21cf4d",
+   "sources": [
+    "raw/ro/sprite/monster/khalitzburg.spr",
+    "raw/ro/sprite/monster/khalitzburg.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "raydric_archer",
+   "class": "monster_xl",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters_xl/raydric_archer.png",
+   "target": "assets/sprites/monsters_xl/raydric_archer.png",
+   "sha256": "4de1681c8c827695742bb2b7da3db35036a939caf82c99cc4af91d47d8612e2c",
+   "sources": [
+    "raw/ro/sprite/monster/raydric_archer.spr",
+    "raw/ro/sprite/monster/raydric_archer.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "wraith",
+   "class": "boss",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/wraith.png",
+   "target": "assets/sprites/bosses/wraith.png",
+   "sha256": "01a1ceadf05d3e630c50a41586a63c0c57c7ea65f484b20b62201d84f27c58f7",
+   "sources": [
+    "raw/ro/sprite/monster/wraith.spr",
+    "raw/ro/sprite/monster/wraith.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "whisper",
+   "class": "monster",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/whisper.png",
+   "target": "assets/sprites/monsters/whisper.png",
+   "sha256": "734c0a7b6bb781f0404c7e8bca85eb17ff121e5573b23905e55fc813dcf09cca",
+   "sources": [
+    "raw/ro/sprite/monster/whisper.spr",
+    "raw/ro/sprite/monster/whisper.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "skel_prisoner",
+   "class": "monster",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/skel_prisoner.png",
+   "target": "assets/sprites/monsters/skel_prisoner.png",
+   "sha256": "a832166a7a3879ff7ff8efcd76d0dd4aa51dd4526d633de3ad77c3b4d2174b65",
+   "sources": [
+    "raw/ro/sprite/monster/skel_prisoner.spr",
+    "raw/ro/sprite/monster/skel_prisoner.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "zombie_prisoner",
+   "class": "monster",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/zombie_prisoner.png",
+   "target": "assets/sprites/monsters/zombie_prisoner.png",
+   "sha256": "cb4d97818aa5ce9f335aa9f4248da02dd88dcbd32db987bca82ca9d1b76e0500",
+   "sources": [
+    "raw/ro/sprite/monster/zombie_prisoner.spr",
+    "raw/ro/sprite/monster/zombie_prisoner.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "sasquatch",
+   "class": "boss",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/sasquatch.png",
+   "target": "assets/sprites/bosses/sasquatch.png",
+   "sha256": "e15b693da9bd11715c84db99c2fed8fdc6b9cee90ed802c16e2b755bf3524b51",
+   "sources": [
+    "raw/ro/sprite/monster/sasquatch.spr",
+    "raw/ro/sprite/monster/sasquatch.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "leib_olmai",
+   "class": "boss",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/leib_olmai.png",
+   "target": "assets/sprites/bosses/leib_olmai.png",
+   "sha256": "957a463e60c84132d574677a30ed116df596edd1561751629273eccf1fd54383",
+   "sources": [
+    "raw/ro/sprite/monster/leib_olmai.spr",
+    "raw/ro/sprite/monster/leib_olmai.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "disguise",
+   "class": "monster",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/disguise.png",
+   "target": "assets/sprites/monsters/disguise.png",
+   "sha256": "e687d006a83e01af319a5df47cc049ae7a3726b0efb6c5478ad356e33ab84caa",
+   "sources": [
+    "raw/ro/sprite/monster/disguise.spr",
+    "raw/ro/sprite/monster/disguise.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "lude",
+   "class": "monster",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/lude.png",
+   "target": "assets/sprites/monsters/lude.png",
+   "sha256": "b06508b06e5d7355fb3b6025052e4accaf7d680a3b831ca913938e07a4053429",
+   "sources": [
+    "raw/ro/sprite/monster/lude.spr",
+    "raw/ro/sprite/monster/lude.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "hylozoist",
+   "class": "boss",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/hylozoist.png",
+   "target": "assets/sprites/bosses/hylozoist.png",
+   "sha256": "a39258ed7f7da07bce3cbdc1f490ef7f381c2963a27de20f05ee67c72bd0661c",
+   "sources": [
+    "raw/ro/sprite/monster/hylozoist.spr",
+    "raw/ro/sprite/monster/hylozoist.act"
+   ],
+   "status": "ready_with_skipped_frames",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "toad",
+   "class": "boss",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/bosses/toad.png",
+   "target": "assets/sprites/bosses/toad.png",
+   "sha256": "f1abe778314f5db37c021815188a23a29ce804a03b65e901ec305fe6947325cd",
+   "sources": [
+    "raw/ro/sprite/monster/toad.spr",
+    "raw/ro/sprite/monster/toad.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "thara_frog",
+   "class": "monster",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/thara_frog.png",
+   "target": "assets/sprites/monsters/thara_frog.png",
+   "sha256": "98fcab3cfb7abeef5027aa5ea175fadbb139e7eb5b29f9a7778670d6ac9f3d6d",
+   "sources": [
+    "raw/ro/sprite/monster/thara_frog.spr",
+    "raw/ro/sprite/monster/thara_frog.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sprite_sheet",
+   "id": "roda_frog",
+   "class": "monster",
+   "units": [
+    "optional"
+   ],
+   "file": "raw/ro-build/assets/sprites/monsters/roda_frog.png",
+   "target": "assets/sprites/monsters/roda_frog.png",
+   "sha256": "2ecb203f763433752edddacd949ed2e486bd8d956099bea7d70f7890fe9b6805",
+   "sources": [
+    "raw/ro/sprite/monster/roda_frog.spr",
+    "raw/ro/sprite/monster/roda_frog.act"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "knife",
+   "itemDb": 1201,
+   "file": "raw/ro-build/assets/ui/icons/item_knife.png",
+   "target": "assets/ui/icons/item_knife.png",
+   "sha256": "576ccf237eae4d66e17a6b71e29e2ab324f09c15312aa769c4e9e5c7596f6f55",
+   "sources": [
+    "raw/ro/texture/collection/나이프.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "knife",
+   "itemDb": 1201,
+   "file": "raw/ro-build/assets/ui/collection/item_knife.png",
+   "target": "assets/ui/collection/item_knife.png",
+   "sha256": "377c641ad2a8fbe50ded20b0c91b32c25cf7b66e6b0007aa92510c2783caf480",
+   "sources": [
+    "raw/ro/texture/collection/나이프.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "dagger",
+   "itemDb": 1213,
+   "file": "raw/ro-build/assets/ui/icons/item_dagger.png",
+   "target": "assets/ui/icons/item_dagger.png",
+   "sha256": "e31702065eda131d8f1ee194eae4b6432f46e3e2138d1b9ff6ac7aa435370ee8",
+   "sources": [
+    "raw/ro/texture/collection/대거.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "dagger",
+   "itemDb": 1213,
+   "file": "raw/ro-build/assets/ui/collection/item_dagger.png",
+   "target": "assets/ui/collection/item_dagger.png",
+   "sha256": "00dc643148f60e8e8e208909880233e65c74a99975dea9ab9003cca326c49f67",
+   "sources": [
+    "raw/ro/texture/collection/대거.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "sword",
+   "itemDb": 1101,
+   "file": "raw/ro-build/assets/ui/icons/item_sword.png",
+   "target": "assets/ui/icons/item_sword.png",
+   "sha256": "91826228989e0ee5565705a64f38202e0e074244560850cda9c6829f6a310cfc",
+   "sources": [
+    "raw/ro/texture/collection/소드.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "sword",
+   "itemDb": 1101,
+   "file": "raw/ro-build/assets/ui/collection/item_sword.png",
+   "target": "assets/ui/collection/item_sword.png",
+   "sha256": "5bdc6051eb3e6e057a30c10d17d88302aa70351b8ea829c223925884a38caf50",
+   "sources": [
+    "raw/ro/texture/collection/소드.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "bow",
+   "itemDb": 1701,
+   "file": "raw/ro-build/assets/ui/icons/item_bow.png",
+   "target": "assets/ui/icons/item_bow.png",
+   "sha256": "126ea40ead42351ca0d850144cdbd402f78c4eaf0c5ec80970a5ddb8403ae840",
+   "sources": [
+    "raw/ro/texture/collection/보우.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "bow",
+   "itemDb": 1701,
+   "file": "raw/ro-build/assets/ui/collection/item_bow.png",
+   "target": "assets/ui/collection/item_bow.png",
+   "sha256": "ddaa1c7bcdb38ed18c71e5776e69157f64c3fa2ba6af26409418e1979d27935b",
+   "sources": [
+    "raw/ro/texture/collection/보우.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "rod",
+   "itemDb": 1601,
+   "file": "raw/ro-build/assets/ui/icons/item_rod.png",
+   "target": "assets/ui/icons/item_rod.png",
+   "sha256": "34af5c224e729171f2a5f54ca7d5ed8577e960e74889772e17c02103a35ff0e0",
+   "sources": [
+    "raw/ro/texture/collection/롯드.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "rod",
+   "itemDb": 1601,
+   "file": "raw/ro-build/assets/ui/collection/item_rod.png",
+   "target": "assets/ui/collection/item_rod.png",
+   "sha256": "01ed045c6bc5348a87c1b0454400a86bc268238340a66013a0f779dce712d936",
+   "sources": [
+    "raw/ro/texture/collection/롯드.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "axe",
+   "itemDb": 1301,
+   "file": "raw/ro-build/assets/ui/icons/item_axe.png",
+   "target": "assets/ui/icons/item_axe.png",
+   "sha256": "65998ad2d57f0e16716bd21e6fe66752dc9b896bf7d14bd41b50b85b59434665",
+   "sources": [
+    "raw/ro/texture/collection/액스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "axe",
+   "itemDb": 1301,
+   "file": "raw/ro-build/assets/ui/collection/item_axe.png",
+   "target": "assets/ui/collection/item_axe.png",
+   "sha256": "e085cf6847e21dd04be69f1a980fcc1deeb9f91069e6d8ca9632876ca5012af9",
+   "sources": [
+    "raw/ro/texture/collection/액스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "gladius",
+   "itemDb": 1219,
+   "file": "raw/ro-build/assets/ui/icons/item_gladius.png",
+   "target": "assets/ui/icons/item_gladius.png",
+   "sha256": "be335ff0d4b16e86b301f648a3e6224e9656a218f4697893bcc2c90c17be5052",
+   "sources": [
+    "raw/ro/texture/collection/그라디우스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "gladius",
+   "itemDb": 1219,
+   "file": "raw/ro-build/assets/ui/collection/item_gladius.png",
+   "target": "assets/ui/collection/item_gladius.png",
+   "sha256": "cb807a93ecb7a7ce95a513fae2ae389e4221258e84fd49e78deb47405bed1d44",
+   "sources": [
+    "raw/ro/texture/collection/그라디우스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "composite_bow",
+   "itemDb": 1704,
+   "file": "raw/ro-build/assets/ui/icons/item_composite_bow.png",
+   "target": "assets/ui/icons/item_composite_bow.png",
+   "sha256": "0fa58ff54d5a93ddabf0183911f6ee72900945aefeeeb618633f22ab50af3e2f",
+   "sources": [
+    "raw/ro/texture/collection/컴포지트보우.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "composite_bow",
+   "itemDb": 1704,
+   "file": "raw/ro-build/assets/ui/collection/item_composite_bow.png",
+   "target": "assets/ui/collection/item_composite_bow.png",
+   "sha256": "80cd0f0c4b8cf6927674c3adb1b9d3c2ece1804ef5161514860957e68535b2da",
+   "sources": [
+    "raw/ro/texture/collection/컴포지트보우.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "staff",
+   "itemDb": 1607,
+   "file": "raw/ro-build/assets/ui/icons/item_staff.png",
+   "target": "assets/ui/icons/item_staff.png",
+   "sha256": "6a0be4171daf4d127a77ace351bcd1bd5fb271080559e400d49b52dc6b4865d7",
+   "sources": [
+    "raw/ro/texture/collection/스태프.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "staff",
+   "itemDb": 1607,
+   "file": "raw/ro-build/assets/ui/collection/item_staff.png",
+   "target": "assets/ui/collection/item_staff.png",
+   "sha256": "390d317dac410fd499bc5a5b0b31eeb73bfb67d1468775595199c2fd9e68988f",
+   "sources": [
+    "raw/ro/texture/collection/스태프.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "mace",
+   "itemDb": 1504,
+   "file": "raw/ro-build/assets/ui/icons/item_mace.png",
+   "target": "assets/ui/icons/item_mace.png",
+   "sha256": "a28c905226614ff508e58556eb00a10085c41c2f81ad0d8c49891c94a7b95e56",
+   "sources": [
+    "raw/ro/texture/collection/메이스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "mace",
+   "itemDb": 1504,
+   "file": "raw/ro-build/assets/ui/collection/item_mace.png",
+   "target": "assets/ui/collection/item_mace.png",
+   "sha256": "8e9b0f4525507ac0110ccb306d5051ee20e0058068bcd91f837fabefcb2545cc",
+   "sources": [
+    "raw/ro/texture/collection/메이스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "knuckle",
+   "itemDb": 1801,
+   "file": "raw/ro-build/assets/ui/icons/item_knuckle.png",
+   "target": "assets/ui/icons/item_knuckle.png",
+   "sha256": "7569ad49cc02ac90c5df69e4b62fbd4e98ba59ce9900b5e0553bdd9d5f449b5c",
+   "sources": [
+    "raw/ro/texture/collection/바그낙.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "knuckle",
+   "itemDb": 1801,
+   "file": "raw/ro-build/assets/ui/collection/item_knuckle.png",
+   "target": "assets/ui/collection/item_knuckle.png",
+   "sha256": "5542d45a414da573c61f16bda00c964e0e7db86c85a7615d8d3244d39e34c8c5",
+   "sources": [
+    "raw/ro/texture/collection/바그낙.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "violin",
+   "itemDb": 1901,
+   "file": "raw/ro-build/assets/ui/icons/item_violin.png",
+   "target": "assets/ui/icons/item_violin.png",
+   "sha256": "41b7d913a791f2e9e75b8895ae27fa7cb29c11d6d47950159b2e552293af2094",
+   "sources": [
+    "raw/ro/texture/collection/바이올린.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "violin",
+   "itemDb": 1901,
+   "file": "raw/ro-build/assets/ui/collection/item_violin.png",
+   "target": "assets/ui/collection/item_violin.png",
+   "sha256": "d4443872f83bceb9d698e74d7920a2962f89e820b91172d4776dfd7035c49bcf",
+   "sources": [
+    "raw/ro/texture/collection/바이올린.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "claymore",
+   "itemDb": 1163,
+   "file": "raw/ro-build/assets/ui/icons/item_claymore.png",
+   "target": "assets/ui/icons/item_claymore.png",
+   "sha256": "8763caccdc49e3147bc4151a05f868b204a8b90bd2a90ca0a5660ba2a964ff61",
+   "sources": [
+    "raw/ro/texture/collection/크레이모어.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "claymore",
+   "itemDb": 1163,
+   "file": "raw/ro-build/assets/ui/collection/item_claymore.png",
+   "target": "assets/ui/collection/item_claymore.png",
+   "sha256": "88822cac13f26eb4da5a15e13c356ee0387ba94fe5e3a7f9c13091a06951bd59",
+   "sources": [
+    "raw/ro/texture/collection/크레이모어.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "arbalest",
+   "itemDb": 1713,
+   "file": "raw/ro-build/assets/ui/icons/item_arbalest.png",
+   "target": "assets/ui/icons/item_arbalest.png",
+   "sha256": "b7cd0dc0e3d81d3f7eb199913dd5c7f2c5df174df62aac857500b032ba18350b",
+   "sources": [
+    "raw/ro/texture/collection/알바레스트.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "arbalest",
+   "itemDb": 1713,
+   "file": "raw/ro-build/assets/ui/collection/item_arbalest.png",
+   "target": "assets/ui/collection/item_arbalest.png",
+   "sha256": "3d33abc0c703539a5692c294768a54407ac2a166cfa2e976c8c18ca82d1aa935",
+   "sources": [
+    "raw/ro/texture/collection/알바레스트.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "katar",
+   "itemDb": 1252,
+   "file": "raw/ro-build/assets/ui/icons/item_katar.png",
+   "target": "assets/ui/icons/item_katar.png",
+   "sha256": "2410eabdbb43e4954e012581008fc3d357d9c59afdcba28890398871d2f02d25",
+   "sources": [
+    "raw/ro/texture/collection/카타르.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "katar",
+   "itemDb": 1252,
+   "file": "raw/ro-build/assets/ui/collection/item_katar.png",
+   "target": "assets/ui/collection/item_katar.png",
+   "sha256": "d3aab8e29479ac84072c4e8869052a6aa41850e92d04f8f0758ff436163df9a1",
+   "sources": [
+    "raw/ro/texture/collection/카타르.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "wizardry_staff",
+   "itemDb": 1473,
+   "file": "raw/ro-build/assets/ui/icons/item_wizardry_staff.png",
+   "target": "assets/ui/icons/item_wizardry_staff.png",
+   "sha256": "90def016a4b8df27eff0ccefddf01eef5104295d36bc1756df3bb08ce8b420a3",
+   "sources": [
+    "raw/ro/texture/collection/위자드리스태프.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "wizardry_staff",
+   "itemDb": 1473,
+   "file": "raw/ro-build/assets/ui/collection/item_wizardry_staff.png",
+   "target": "assets/ui/collection/item_wizardry_staff.png",
+   "sha256": "24f4c421a841332cc1be8803bd90d1015e9ca94d25f6bf5fb9fe6cc84aa315d9",
+   "sources": [
+    "raw/ro/texture/collection/위자드리스태프.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "battle_axe",
+   "itemDb": 1351,
+   "file": "raw/ro-build/assets/ui/icons/item_battle_axe.png",
+   "target": "assets/ui/icons/item_battle_axe.png",
+   "sha256": "06d6a439acf9ccc058e869589c12f1adc65b8ed285aa7f4fbe43b872c0d3008d",
+   "sources": [
+    "raw/ro/texture/collection/배틀액스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "battle_axe",
+   "itemDb": 1351,
+   "file": "raw/ro-build/assets/ui/collection/item_battle_axe.png",
+   "target": "assets/ui/collection/item_battle_axe.png",
+   "sha256": "f62121c6d12f17331a0387b74fa5db74697b7df2c719e3bd2c02eb95218453ab",
+   "sources": [
+    "raw/ro/texture/collection/배틀액스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "sograt_scimitar",
+   "itemDb": 1113,
+   "file": "raw/ro-build/assets/ui/icons/item_sograt_scimitar.png",
+   "target": "assets/ui/icons/item_sograt_scimitar.png",
+   "sha256": "e9a58a5231860475f0a8a65d3ad8034b4ee33b703ceedc3bb39856eb59f35588",
+   "sources": [
+    "raw/ro/texture/collection/시미터.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "sograt_scimitar",
+   "itemDb": 1113,
+   "file": "raw/ro-build/assets/ui/collection/item_sograt_scimitar.png",
+   "target": "assets/ui/collection/item_sograt_scimitar.png",
+   "sha256": "f714395cd013300c5d23e13b5c384e5333e471ae456b56e345e4320289f0dcd7",
+   "sources": [
+    "raw/ro/texture/collection/시미터.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "moonlight_dagger",
+   "itemDb": 1234,
+   "file": "raw/ro-build/assets/ui/icons/item_moonlight_dagger.png",
+   "target": "assets/ui/icons/item_moonlight_dagger.png",
+   "sha256": "d1886f41343279574dd137f30bfd3fbfd54aafe828444ff480b8a2b295b62885",
+   "sources": [
+    "raw/ro/texture/collection/월광검.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "moonlight_dagger",
+   "itemDb": 1234,
+   "file": "raw/ro-build/assets/ui/collection/item_moonlight_dagger.png",
+   "target": "assets/ui/collection/item_moonlight_dagger.png",
+   "sha256": "26c6cf414dd610a079fdbbbd62aeba468a88ac3e4ee9c010c6c7d694b7d04e63",
+   "sources": [
+    "raw/ro/texture/collection/월광검.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "pirate_saber",
+   "itemDb": 1126,
+   "file": "raw/ro-build/assets/ui/icons/item_pirate_saber.png",
+   "target": "assets/ui/icons/item_pirate_saber.png",
+   "sha256": "dd07d4a76469b3509651538a988c939f5e7069a39cdbe251cff57eca25c14991",
+   "sources": [
+    "raw/ro/texture/collection/세이버.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "pirate_saber",
+   "itemDb": 1126,
+   "file": "raw/ro-build/assets/ui/collection/item_pirate_saber.png",
+   "target": "assets/ui/collection/item_pirate_saber.png",
+   "sha256": "61ccf3e2486872da71116bf25f8a3cae1d1bc4ced98474f6fd986b5a3b36d3b3",
+   "sources": [
+    "raw/ro/texture/collection/세이버.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "bloody_axe",
+   "itemDb": 1363,
+   "file": "raw/ro-build/assets/ui/icons/item_bloody_axe.png",
+   "target": "assets/ui/icons/item_bloody_axe.png",
+   "sha256": "56fb1dd05fa95a66d3b0a92e0636c0efdb2031acfc3e02d47a9ded835215fa96",
+   "sources": [
+    "raw/ro/texture/collection/블러드액스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "bloody_axe",
+   "itemDb": 1363,
+   "file": "raw/ro-build/assets/ui/collection/item_bloody_axe.png",
+   "target": "assets/ui/collection/item_bloody_axe.png",
+   "sha256": "22ca7c71860e910d633f99ed20a0fc5be883e62f3daea2f0c88b8138dcfa7048",
+   "sources": [
+    "raw/ro/texture/collection/블러드액스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "keeper_hammer",
+   "itemDb": 1354,
+   "file": "raw/ro-build/assets/ui/icons/item_keeper_hammer.png",
+   "target": "assets/ui/icons/item_keeper_hammer.png",
+   "sha256": "5e22b4834b65babc0ac793c3b51ddaa54ea96753c87439f183499815f207e0d8",
+   "sources": [
+    "raw/ro/texture/collection/워해머.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "keeper_hammer",
+   "itemDb": 1354,
+   "file": "raw/ro-build/assets/ui/collection/item_keeper_hammer.png",
+   "target": "assets/ui/collection/item_keeper_hammer.png",
+   "sha256": "005351bf53951ef7ab5bc5709ff4adb31338c4d104a88fe215340deff53bf4f7",
+   "sources": [
+    "raw/ro/texture/collection/워해머.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "abyss_blade",
+   "itemDb": 1164,
+   "file": "raw/ro-build/assets/ui/icons/item_abyss_blade.png",
+   "target": "assets/ui/icons/item_abyss_blade.png",
+   "sha256": "aa1dbb354884f623c31c6bf171ad09682a282f3a4df8740fb4051478fed723f8",
+   "sources": [
+    "raw/ro/texture/collection/무라마사.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "abyss_blade",
+   "itemDb": 1164,
+   "file": "raw/ro-build/assets/ui/collection/item_abyss_blade.png",
+   "target": "assets/ui/collection/item_abyss_blade.png",
+   "sha256": "6aa9700d5693d186200b2afcc2ffaa8af4825d4cdfdc009b8840700011e77820",
+   "sources": [
+    "raw/ro/texture/collection/무라마사.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "cotton_shirt",
+   "itemDb": 2301,
+   "file": "raw/ro-build/assets/ui/icons/item_cotton_shirt.png",
+   "target": "assets/ui/icons/item_cotton_shirt.png",
+   "sha256": "62334996fbdfa72933d6a1d544f6cf904ef54344ee6131e11e4288effc657941",
+   "sources": [
+    "raw/ro/texture/collection/코튼셔츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "cotton_shirt",
+   "itemDb": 2301,
+   "file": "raw/ro-build/assets/ui/collection/item_cotton_shirt.png",
+   "target": "assets/ui/collection/item_cotton_shirt.png",
+   "sha256": "67a20a02e9c6e57d33834e760949a1d61839486520b81940e60b0c3bd7005d47",
+   "sources": [
+    "raw/ro/texture/collection/코튼셔츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "adventurers_suit",
+   "itemDb": 2305,
+   "file": "raw/ro-build/assets/ui/icons/item_adventurers_suit.png",
+   "target": "assets/ui/icons/item_adventurers_suit.png",
+   "sha256": "eece94576c40f9badbe21c3016d16822ac80a5d0e256986f525a22a6a3d04388",
+   "sources": [
+    "raw/ro/texture/collection/어드밴쳐슈츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "adventurers_suit",
+   "itemDb": 2305,
+   "file": "raw/ro-build/assets/ui/collection/item_adventurers_suit.png",
+   "target": "assets/ui/collection/item_adventurers_suit.png",
+   "sha256": "0665d6b8f85a35945d8863406cba9d11f61e50e0ae6b86ba0b4a78e93cb67d59",
+   "sources": [
+    "raw/ro/texture/collection/어드밴쳐슈츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "chain_mail",
+   "itemDb": 2314,
+   "file": "raw/ro-build/assets/ui/icons/item_chain_mail.png",
+   "target": "assets/ui/icons/item_chain_mail.png",
+   "sha256": "106c19bdf56195934c275552813571c6bddf46b1aeb3276f1cac69350eb25976",
+   "sources": [
+    "raw/ro/texture/collection/메일.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "chain_mail",
+   "itemDb": 2314,
+   "file": "raw/ro-build/assets/ui/collection/item_chain_mail.png",
+   "target": "assets/ui/collection/item_chain_mail.png",
+   "sha256": "096e5a04ad4a92daeb8c73d5cdd8cb742ec153c4f5e427a0da137a601bd3ce66",
+   "sources": [
+    "raw/ro/texture/collection/메일.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "silk_robe",
+   "itemDb": 2321,
+   "file": "raw/ro-build/assets/ui/icons/item_silk_robe.png",
+   "target": "assets/ui/icons/item_silk_robe.png",
+   "sha256": "6f0b545dcecf1bbdc34c502d3ddf560759c641ce4ab5c3aa63a514710b6726ac",
+   "sources": [
+    "raw/ro/texture/collection/실크로브.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "silk_robe",
+   "itemDb": 2321,
+   "file": "raw/ro-build/assets/ui/collection/item_silk_robe.png",
+   "target": "assets/ui/collection/item_silk_robe.png",
+   "sha256": "b21b0db0395072072aa095f743cbbb90ab6d752705c2d09c241f63a856953539",
+   "sources": [
+    "raw/ro/texture/collection/실크로브.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "full_plate",
+   "itemDb": 2316,
+   "file": "raw/ro-build/assets/ui/icons/item_full_plate.png",
+   "target": "assets/ui/icons/item_full_plate.png",
+   "sha256": "4a2a169bb103abb979f3f052dad895be3ef707610a729816c5f5399f03211051",
+   "sources": [
+    "raw/ro/texture/collection/플레이트.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "full_plate",
+   "itemDb": 2316,
+   "file": "raw/ro-build/assets/ui/collection/item_full_plate.png",
+   "target": "assets/ui/collection/item_full_plate.png",
+   "sha256": "8fc35efe846c358df93e1453c29e33f6fe898a155774252dba2002cc8f6c9394",
+   "sources": [
+    "raw/ro/texture/collection/플레이트.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "saint_robe",
+   "itemDb": 2325,
+   "file": "raw/ro-build/assets/ui/icons/item_saint_robe.png",
+   "target": "assets/ui/icons/item_saint_robe.png",
+   "sha256": "af511c5b436bcfc18b3eca7fa445513914a014632ad31aaf47591be91e910936",
+   "sources": [
+    "raw/ro/texture/collection/세인트로브.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "saint_robe",
+   "itemDb": 2325,
+   "file": "raw/ro-build/assets/ui/collection/item_saint_robe.png",
+   "target": "assets/ui/collection/item_saint_robe.png",
+   "sha256": "65a0aabfa72e0f77b2584e5d02ede58f364ccca24b600cea257d54f1922d52d1",
+   "sources": [
+    "raw/ro/texture/collection/세인트로브.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "isis_mantle",
+   "itemDb": 2307,
+   "file": "raw/ro-build/assets/ui/icons/item_isis_mantle.png",
+   "target": "assets/ui/icons/item_isis_mantle.png",
+   "sha256": "0e33e2be9ce384dbfec7ca6ed66c426c3ca3315d45ff10cd4a74432b035c454d",
+   "sources": [
+    "raw/ro/texture/collection/맨틀.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "isis_mantle",
+   "itemDb": 2307,
+   "file": "raw/ro-build/assets/ui/collection/item_isis_mantle.png",
+   "target": "assets/ui/collection/item_isis_mantle.png",
+   "sha256": "60440b96af7965d8284c0b4cc72a694face68fe67c54dd7cd4f4a637d826838b",
+   "sources": [
+    "raw/ro/texture/collection/맨틀.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "ninja_suit",
+   "itemDb": 2337,
+   "file": "raw/ro-build/assets/ui/icons/item_ninja_suit.png",
+   "target": "assets/ui/icons/item_ninja_suit.png",
+   "sha256": "300d630014300d0419f710c871d1e89b1d9f43c48a9f232f784c2fbc6705e30d",
+   "sources": [
+    "raw/ro/texture/collection/닌자슈츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "ninja_suit",
+   "itemDb": 2337,
+   "file": "raw/ro-build/assets/ui/collection/item_ninja_suit.png",
+   "target": "assets/ui/collection/item_ninja_suit.png",
+   "sha256": "1a82805a802da985f8ee1f782204185dc98e914c4c6e69acb500f86bac277f86",
+   "sources": [
+    "raw/ro/texture/collection/닌자슈츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "captain_coat",
+   "itemDb": 2309,
+   "file": "raw/ro-build/assets/ui/icons/item_captain_coat.png",
+   "target": "assets/ui/icons/item_captain_coat.png",
+   "sha256": "a3ebcc1406cd040d4b35214895a49abd9fc11f828d5de5b01fd419b61a313460",
+   "sources": [
+    "raw/ro/texture/collection/롱코트.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "captain_coat",
+   "itemDb": 2309,
+   "file": "raw/ro-build/assets/ui/collection/item_captain_coat.png",
+   "target": "assets/ui/collection/item_captain_coat.png",
+   "sha256": "c9bcb446d9008e3adec1694b58144fd21bb885a40afbcb01e8153a3daf02f64e",
+   "sources": [
+    "raw/ro/texture/collection/롱코트.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "dark_lord_robe",
+   "itemDb": 2343,
+   "file": "raw/ro-build/assets/ui/icons/item_dark_lord_robe.png",
+   "target": "assets/ui/icons/item_dark_lord_robe.png",
+   "sha256": "78c2cfe90124f3e8fe6b10a364e381c8fb19e01c1338f0c4b9d8bc94df5ebcb4",
+   "sources": [
+    "raw/ro/texture/collection/캐스팅의로브.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "dark_lord_robe",
+   "itemDb": 2343,
+   "file": "raw/ro-build/assets/ui/collection/item_dark_lord_robe.png",
+   "target": "assets/ui/collection/item_dark_lord_robe.png",
+   "sha256": "3154579bef8ee2dcac8b62817215d8245901fe09b1422d235603fde9bb22f587",
+   "sources": [
+    "raw/ro/texture/collection/캐스팅의로브.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "clockwork_mail",
+   "itemDb": 2319,
+   "file": "raw/ro-build/assets/ui/icons/item_clockwork_mail.png",
+   "target": "assets/ui/icons/item_clockwork_mail.png",
+   "sha256": "3e48e86f3286b516516ade3ff9c6e24789e5e22514725b94e523dabfe4c57322",
+   "sources": [
+    "raw/ro/texture/collection/글리터링클로스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "clockwork_mail",
+   "itemDb": 2319,
+   "file": "raw/ro-build/assets/ui/collection/item_clockwork_mail.png",
+   "target": "assets/ui/collection/item_clockwork_mail.png",
+   "sha256": "6829f59bc584fccd0dfc529821b8fb733e6da998de71c80b6e8df7198293f177",
+   "sources": [
+    "raw/ro/texture/collection/글리터링클로스.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "valkyrie_armor",
+   "itemDb": 2357,
+   "file": "raw/ro-build/assets/ui/icons/item_valkyrie_armor.png",
+   "target": "assets/ui/icons/item_valkyrie_armor.png",
+   "sha256": "efe81e48993552dfe230949f29341e018c07c0d9feca685d2593e729cf9ce9b3",
+   "sources": [
+    "raw/ro/texture/collection/발키리의갑옷.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "valkyrie_armor",
+   "itemDb": 2357,
+   "file": "raw/ro-build/assets/ui/collection/item_valkyrie_armor.png",
+   "target": "assets/ui/collection/item_valkyrie_armor.png",
+   "sha256": "b7b8da3571cc5355ec1d12e09a30d3d406d283a80f1562944a43720ceb2a04c1",
+   "sources": [
+    "raw/ro/texture/collection/발키리의갑옷.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "bandana",
+   "itemDb": 2211,
+   "file": "raw/ro-build/assets/ui/icons/item_bandana.png",
+   "target": "assets/ui/icons/item_bandana.png",
+   "sha256": "3e021689ed5930ffbc9e12f67c0e724b98feeb18d314c9f7f56ae0eff9bde297",
+   "sources": [
+    "raw/ro/texture/collection/두건.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "bandana",
+   "itemDb": 2211,
+   "file": "raw/ro-build/assets/ui/collection/item_bandana.png",
+   "target": "assets/ui/collection/item_bandana.png",
+   "sha256": "b408128c0ad4bdcad7e60ee0e43c827c43e33876d1850fa54dbc398925b37bff",
+   "sources": [
+    "raw/ro/texture/collection/두건.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "cap",
+   "itemDb": 2226,
+   "file": "raw/ro-build/assets/ui/icons/item_cap.png",
+   "target": "assets/ui/icons/item_cap.png",
+   "sha256": "f53f178163d2a3adaa11c2bf516bc5a387b6a991300dfecede2188672568cc2b",
+   "sources": [
+    "raw/ro/texture/collection/캡.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "cap",
+   "itemDb": 2226,
+   "file": "raw/ro-build/assets/ui/collection/item_cap.png",
+   "target": "assets/ui/collection/item_cap.png",
+   "sha256": "4189650e8fb040fbedf97e3438a98da1c0259bbe837e8e5582f87de4dc8364d7",
+   "sources": [
+    "raw/ro/texture/collection/캡.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "helm",
+   "itemDb": 2228,
+   "file": "raw/ro-build/assets/ui/icons/item_helm.png",
+   "target": "assets/ui/icons/item_helm.png",
+   "sha256": "bbe42f445c94b93ee370c1015436296430a90e87444d34533b69bf944fff99a7",
+   "sources": [
+    "raw/ro/texture/collection/헬름.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "helm",
+   "itemDb": 2228,
+   "file": "raw/ro-build/assets/ui/collection/item_helm.png",
+   "target": "assets/ui/collection/item_helm.png",
+   "sha256": "d56d9156faa8031b183ba396062af062fd7297f5e6f1b3c6ce3cb94da676bc05",
+   "sources": [
+    "raw/ro/texture/collection/헬름.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "biretta",
+   "itemDb": 2216,
+   "file": "raw/ro-build/assets/ui/icons/item_biretta.png",
+   "target": "assets/ui/icons/item_biretta.png",
+   "sha256": "1c24998834e740f667f60e91dbebb943d6c2270beb7c9530a9bbf66365bc7472",
+   "sources": [
+    "raw/ro/texture/collection/비레타.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "biretta",
+   "itemDb": 2216,
+   "file": "raw/ro-build/assets/ui/collection/item_biretta.png",
+   "target": "assets/ui/collection/item_biretta.png",
+   "sha256": "f2ca9305dd3f0a844c1e39976f9578dd01d200d33dee0c83d497355d539c5552",
+   "sources": [
+    "raw/ro/texture/collection/비레타.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "crown",
+   "itemDb": 2235,
+   "file": "raw/ro-build/assets/ui/icons/item_crown.png",
+   "target": "assets/ui/icons/item_crown.png",
+   "sha256": "2cb2172b95acdead4df29f79c390edf7e1f7b95532df94780fe7c1ebb5b736b8",
+   "sources": [
+    "raw/ro/texture/collection/크라운.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "crown",
+   "itemDb": 2235,
+   "file": "raw/ro-build/assets/ui/collection/item_crown.png",
+   "target": "assets/ui/collection/item_crown.png",
+   "sha256": "1f0a18edaff1e66c0dc363f540a5c1c269f80567cafcd943b1caede93c61093a",
+   "sources": [
+    "raw/ro/texture/collection/크라운.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "pharaoh_headdress",
+   "itemDb": 5053,
+   "file": "raw/ro-build/assets/ui/icons/item_pharaoh_headdress.png",
+   "target": "assets/ui/icons/item_pharaoh_headdress.png",
+   "sha256": "8bf2847cb98b1e24fdb9e64f46ea44fcd763d10d87667c3b8e2ff534b9691616",
+   "sources": [
+    "raw/ro/texture/collection/스핑크스모자.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "pharaoh_headdress",
+   "itemDb": 5053,
+   "file": "raw/ro-build/assets/ui/collection/item_pharaoh_headdress.png",
+   "target": "assets/ui/collection/item_pharaoh_headdress.png",
+   "sha256": "e32a4c193ace367ad9c83a25b61d05224d646d56abc27e72e10ba8d5c5649a79",
+   "sources": [
+    "raw/ro/texture/collection/스핑크스모자.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "kitsune_mask",
+   "itemDb": 5069,
+   "file": "raw/ro-build/assets/ui/icons/item_kitsune_mask.png",
+   "target": "assets/ui/icons/item_kitsune_mask.png",
+   "sha256": "8b904d999e3265931cc8938e0f40b966a38a1b76ca0716e55d3c43e05e8d0a5d",
+   "sources": [
+    "raw/ro/texture/collection/여우가면.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "kitsune_mask",
+   "itemDb": 5069,
+   "file": "raw/ro-build/assets/ui/collection/item_kitsune_mask.png",
+   "target": "assets/ui/collection/item_kitsune_mask.png",
+   "sha256": "c04372eae5c279a1eb969dd1069aa5e708dbd04fdb9837582bd739a10aaf3a74",
+   "sources": [
+    "raw/ro/texture/collection/여우가면.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "pirate_bandana",
+   "itemDb": 2287,
+   "file": "raw/ro-build/assets/ui/icons/item_pirate_bandana.png",
+   "target": "assets/ui/icons/item_pirate_bandana.png",
+   "sha256": "005179d045287e3a8400303874e5aac5b60679579782876178e3a55908126914",
+   "sources": [
+    "raw/ro/texture/collection/해적두건.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "pirate_bandana",
+   "itemDb": 2287,
+   "file": "raw/ro-build/assets/ui/collection/item_pirate_bandana.png",
+   "target": "assets/ui/collection/item_pirate_bandana.png",
+   "sha256": "b4cfaca0e80d78a12832e024a615a7374b95c07675f074086870dc965a31b161",
+   "sources": [
+    "raw/ro/texture/collection/해적두건.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "helm_of_darkness",
+   "itemDb": 5017,
+   "file": "raw/ro-build/assets/ui/icons/item_helm_of_darkness.png",
+   "target": "assets/ui/icons/item_helm_of_darkness.png",
+   "sha256": "44dd5307298b8c9c7f41bff9d662f30dadb3b02551a1c3e334a9e86f07f741a7",
+   "sources": [
+    "raw/ro/texture/collection/본헬름.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "helm_of_darkness",
+   "itemDb": 5017,
+   "file": "raw/ro-build/assets/ui/collection/item_helm_of_darkness.png",
+   "target": "assets/ui/collection/item_helm_of_darkness.png",
+   "sha256": "d10fc870d8c5ce857ce5d6377bc3183835fb76d9ddb012582668ac97974a9743",
+   "sources": [
+    "raw/ro/texture/collection/본헬름.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "alarm_mask",
+   "itemDb": 5086,
+   "file": "raw/ro-build/assets/ui/icons/item_alarm_mask.png",
+   "target": "assets/ui/icons/item_alarm_mask.png",
+   "sha256": "17603891f6f81c4b2308eb1cea1d44d133a24370cd6ee85f755dbc5cfe6c544e",
+   "sources": [
+    "raw/ro/texture/collection/알람가면.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "alarm_mask",
+   "itemDb": 5086,
+   "file": "raw/ro-build/assets/ui/collection/item_alarm_mask.png",
+   "target": "assets/ui/collection/item_alarm_mask.png",
+   "sha256": "1b9f614cf9cd018caf489ba76b881a225bf261434864f643135589ec173fd183",
+   "sources": [
+    "raw/ro/texture/collection/알람가면.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "gjoll_helm",
+   "itemDb": 2230,
+   "file": "raw/ro-build/assets/ui/icons/item_gjoll_helm.png",
+   "target": "assets/ui/icons/item_gjoll_helm.png",
+   "sha256": "9ad743fec9caec918b1611958de752184ff6eee1a755a961fab8af4c06aad28f",
+   "sources": [
+    "raw/ro/texture/collection/쥬얼헬름.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "gjoll_helm",
+   "itemDb": 2230,
+   "file": "raw/ro-build/assets/ui/collection/item_gjoll_helm.png",
+   "target": "assets/ui/collection/item_gjoll_helm.png",
+   "sha256": "1a16499d08b16c501b881a9e58333736f4ab6050c2a84254770361229ce21a3a",
+   "sources": [
+    "raw/ro/texture/collection/쥬얼헬름.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "sandals",
+   "itemDb": 2401,
+   "file": "raw/ro-build/assets/ui/icons/item_sandals.png",
+   "target": "assets/ui/icons/item_sandals.png",
+   "sha256": "093dea24d0794ccc4d5667ee6b644e75b0bb3ec5d2033f3a211c328eb7220fdc",
+   "sources": [
+    "raw/ro/texture/collection/샌들.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "sandals",
+   "itemDb": 2401,
+   "file": "raw/ro-build/assets/ui/collection/item_sandals.png",
+   "target": "assets/ui/collection/item_sandals.png",
+   "sha256": "950aa2dbd8a0ab6cbe7219a8e877b933fafeeea6946d6fdc58020cc503830e5e",
+   "sources": [
+    "raw/ro/texture/collection/샌들.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "shoes",
+   "itemDb": 2403,
+   "file": "raw/ro-build/assets/ui/icons/item_shoes.png",
+   "target": "assets/ui/icons/item_shoes.png",
+   "sha256": "63e2fbc204e4af5959bbd4a6530b26cdaaf9dc9fe1f82d3ae68239602f5a32a0",
+   "sources": [
+    "raw/ro/texture/collection/슈즈.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "shoes",
+   "itemDb": 2403,
+   "file": "raw/ro-build/assets/ui/collection/item_shoes.png",
+   "target": "assets/ui/collection/item_shoes.png",
+   "sha256": "173e01ce5cd8418a39e78541fa5c83ad5e1fffa208882f54704496c70a85bada",
+   "sources": [
+    "raw/ro/texture/collection/슈즈.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "boots",
+   "itemDb": 2405,
+   "file": "raw/ro-build/assets/ui/icons/item_boots.png",
+   "target": "assets/ui/icons/item_boots.png",
+   "sha256": "fd5b01119476e1a5cfdd44e87ad8d939f440d13c5456d2fff9d5ad4ff6d1dad8",
+   "sources": [
+    "raw/ro/texture/collection/부츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "boots",
+   "itemDb": 2405,
+   "file": "raw/ro-build/assets/ui/collection/item_boots.png",
+   "target": "assets/ui/collection/item_boots.png",
+   "sha256": "9855d50ffb990a1d0d0369451d3fc1f2b3c6bd81b78a3782091c846333ecd79b",
+   "sources": [
+    "raw/ro/texture/collection/부츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "greaves",
+   "itemDb": 2411,
+   "file": "raw/ro-build/assets/ui/icons/item_greaves.png",
+   "target": "assets/ui/icons/item_greaves.png",
+   "sha256": "81534497b29daf3da45882ba7cb3a3e580dbcfc1e9fab3f94691481ddcea6597",
+   "sources": [
+    "raw/ro/texture/collection/그리브.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "greaves",
+   "itemDb": 2411,
+   "file": "raw/ro-build/assets/ui/collection/item_greaves.png",
+   "target": "assets/ui/collection/item_greaves.png",
+   "sha256": "76461934255b403f0da316ec239944c3bbb260e8478b79450c8d6a48bf98e7b0",
+   "sources": [
+    "raw/ro/texture/collection/그리브.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "sleipnir",
+   "itemDb": 2410,
+   "file": "raw/ro-build/assets/ui/icons/item_sleipnir.png",
+   "target": "assets/ui/icons/item_sleipnir.png",
+   "sha256": "8eae9d2cedfe2a8daf905a92d7bfab26898c7dfa6414cbe1fc92b9015649513d",
+   "sources": [
+    "raw/ro/texture/collection/슬레이프니르.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "sleipnir",
+   "itemDb": 2410,
+   "file": "raw/ro-build/assets/ui/collection/item_sleipnir.png",
+   "target": "assets/ui/collection/item_sleipnir.png",
+   "sha256": "d076c03e437459d80ddaf2f8c6b8e0b968d84ae342912d8a1ac54d02b64dda15",
+   "sources": [
+    "raw/ro/texture/collection/슬레이프니르.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "desert_sandals",
+   "itemDb": 2422,
+   "file": "raw/ro-build/assets/ui/icons/item_desert_sandals.png",
+   "target": "assets/ui/icons/item_desert_sandals.png",
+   "sha256": "100c50225194ab733ea291b6eb0e4f30c3b9db214ceed44f29bee29430001867",
+   "sources": [
+    "raw/ro/texture/collection/고급샌들.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "desert_sandals",
+   "itemDb": 2422,
+   "file": "raw/ro-build/assets/ui/collection/item_desert_sandals.png",
+   "target": "assets/ui/collection/item_desert_sandals.png",
+   "sha256": "33a4125a1476e0ddec81b73fd15a6764436b50dcf8942bcf6c0aa0c19e6b6652",
+   "sources": [
+    "raw/ro/texture/collection/고급샌들.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "geta",
+   "itemDb": 2417,
+   "file": "raw/ro-build/assets/ui/icons/item_geta.png",
+   "target": "assets/ui/icons/item_geta.png",
+   "sha256": "be41b72f4fae35495ecf898833396596ca66aeaf37c5aae9f5bea7e9ee3974cd",
+   "sources": [
+    "raw/ro/texture/collection/프리코슈즈.bmp"
+   ],
+   "status": "ready",
+   "note": "geta: Fricco's Shoes 2417 вместо Tengu's Geta"
+  },
+  {
+   "kind": "item_collection",
+   "id": "geta",
+   "itemDb": 2417,
+   "file": "raw/ro-build/assets/ui/collection/item_geta.png",
+   "target": "assets/ui/collection/item_geta.png",
+   "sha256": "efa643d62ef6dde6a809777238cec6b067b9f7835b63be14120dfd434a1828b1",
+   "sources": [
+    "raw/ro/texture/collection/프리코슈즈.bmp"
+   ],
+   "status": "ready",
+   "note": "geta: Fricco's Shoes 2417 вместо Tengu's Geta"
+  },
+  {
+   "kind": "item_icons",
+   "id": "sea_boots",
+   "itemDb": 2424,
+   "file": "raw/ro-build/assets/ui/icons/item_sea_boots.png",
+   "target": "assets/ui/icons/item_sea_boots.png",
+   "sha256": "f96e47208d1e8b6d10ac1dd454e8fcda575b394d909ab99522b52e2ba26c8609",
+   "sources": [
+    "raw/ro/texture/collection/타이달슈즈.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "sea_boots",
+   "itemDb": 2424,
+   "file": "raw/ro-build/assets/ui/collection/item_sea_boots.png",
+   "target": "assets/ui/collection/item_sea_boots.png",
+   "sha256": "95f12425cf83e4a34d129625dc3eaa02dfecaa4613d2f237efab6e5819354df6",
+   "sources": [
+    "raw/ro/texture/collection/타이달슈즈.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "valkyrie_boots",
+   "itemDb": 2421,
+   "file": "raw/ro-build/assets/ui/icons/item_valkyrie_boots.png",
+   "target": "assets/ui/icons/item_valkyrie_boots.png",
+   "sha256": "ebddb6cd101e93bba6602b06978aa9f2c68878b3aec197005596f501d1a4d8c3",
+   "sources": [
+    "raw/ro/texture/collection/발키리의슈즈.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "valkyrie_boots",
+   "itemDb": 2421,
+   "file": "raw/ro-build/assets/ui/collection/item_valkyrie_boots.png",
+   "target": "assets/ui/collection/item_valkyrie_boots.png",
+   "sha256": "77aa46ebf85aac6f3a293718fbe0b5b0512d94d3e541d1d778e44c0ac8bc0c12",
+   "sources": [
+    "raw/ro/texture/collection/발키리의슈즈.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "owl_boots",
+   "itemDb": 2479,
+   "file": "raw/ro-build/assets/ui/icons/item_owl_boots.png",
+   "target": "assets/ui/icons/item_owl_boots.png",
+   "sha256": "8ab231f6e9753172154779b33cb388e94c1a18618447b382a10d8d2a47350df5",
+   "sources": [
+    "raw/ro/texture/collection/흰날개의부츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "owl_boots",
+   "itemDb": 2479,
+   "file": "raw/ro-build/assets/ui/collection/item_owl_boots.png",
+   "target": "assets/ui/collection/item_owl_boots.png",
+   "sha256": "60afcf57c911eca552b7219f1b05d88f310ee9fcbd31223420ef5af9df321def",
+   "sources": [
+    "raw/ro/texture/collection/흰날개의부츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "sentry_greaves",
+   "itemDb": 2425,
+   "file": "raw/ro-build/assets/ui/icons/item_sentry_greaves.png",
+   "target": "assets/ui/icons/item_sentry_greaves.png",
+   "sha256": "4aa23402482513500d2c95e7b1b1fd00796d2a978f0a10a29d1060608e39ef4f",
+   "sources": [
+    "raw/ro/texture/collection/검은가죽부츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "sentry_greaves",
+   "itemDb": 2425,
+   "file": "raw/ro-build/assets/ui/collection/item_sentry_greaves.png",
+   "target": "assets/ui/collection/item_sentry_greaves.png",
+   "sha256": "35c3557f1d66bfcb2abe0d7c888d3f74ef8b4bf303ae32dff3878a10afdaa341",
+   "sources": [
+    "raw/ro/texture/collection/검은가죽부츠.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "gold",
+   "itemDb": 670,
+   "file": "raw/ro-build/assets/ui/icons/item_gold.png",
+   "target": "assets/ui/icons/item_gold.png",
+   "sha256": "35683b0259a81771da99f637fbff8cad5145a803cc41850f4e847f009f411bfc",
+   "sources": [
+    "raw/ro/texture/collection/금전주머니.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "gold",
+   "itemDb": 670,
+   "file": "raw/ro-build/assets/ui/collection/item_gold.png",
+   "target": "assets/ui/collection/item_gold.png",
+   "sha256": "eb34844ddac39df4de04130ebe56951b657a2b86f27fe38ec951e69a469a88d6",
+   "sources": [
+    "raw/ro/texture/collection/금전주머니.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "gems",
+   "itemDb": 730,
+   "file": "raw/ro-build/assets/ui/icons/item_gems.png",
+   "target": "assets/ui/icons/item_gems.png",
+   "sha256": "11912fa2564ee52974d9ba52ca1240204a0ed0d403d6b4a6fb72ebaa183aac3a",
+   "sources": [
+    "raw/ro/texture/collection/투명한보석.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "gems",
+   "itemDb": 730,
+   "file": "raw/ro-build/assets/ui/collection/item_gems.png",
+   "target": "assets/ui/collection/item_gems.png",
+   "sha256": "372c1d1b5cfa6207cada4697db6a692019085edc87d3a50dd97adb6b34225440",
+   "sources": [
+    "raw/ro/texture/collection/투명한보석.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "scrolls",
+   "itemDb": 618,
+   "file": "raw/ro-build/assets/ui/icons/item_scrolls.png",
+   "target": "assets/ui/icons/item_scrolls.png",
+   "sha256": "b05ed7a6b45a12f137598000e4f7fd857f8fb5fb2c722d63cd0d8a3f6ab0a820",
+   "sources": [
+    "raw/ro/texture/collection/낡은두루마리.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "scrolls",
+   "itemDb": 618,
+   "file": "raw/ro-build/assets/ui/collection/item_scrolls.png",
+   "target": "assets/ui/collection/item_scrolls.png",
+   "sha256": "abd51e8905f4b69381f755576f0af334d90f8a567717ca685be08aa6d86757eb",
+   "sources": [
+    "raw/ro/texture/collection/낡은두루마리.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "hero_exp",
+   "itemDb": 12208,
+   "file": "raw/ro-build/assets/ui/icons/item_hero_exp.png",
+   "target": "assets/ui/icons/item_hero_exp.png",
+   "sha256": "0c526d8b11272235901a473c45dd66e459b49ad0bc1a06c4a8601b8db9a1fa9f",
+   "sources": [
+    "raw/ro/texture/collection/전투교범.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "hero_exp",
+   "itemDb": 12208,
+   "file": "raw/ro-build/assets/ui/collection/item_hero_exp.png",
+   "target": "assets/ui/collection/item_hero_exp.png",
+   "sha256": "6b594fbf985dc8390bb45742def082156f3bf8b716a9ef7d59427b44079426e4",
+   "sources": [
+    "raw/ro/texture/collection/전투교범.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "blessed_ore",
+   "itemDb": 7620,
+   "file": "raw/ro-build/assets/ui/icons/item_blessed_ore.png",
+   "target": "assets/ui/icons/item_blessed_ore.png",
+   "sha256": "047faa9613ed0a3debfb3f73739ca1997178afd6957504232dff131e3e27de03",
+   "sources": [
+    "raw/ro/texture/collection/축오리.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "blessed_ore",
+   "itemDb": 7620,
+   "file": "raw/ro-build/assets/ui/collection/item_blessed_ore.png",
+   "target": "assets/ui/collection/item_blessed_ore.png",
+   "sha256": "43f9567bc4f473b93a1e37dfc6c092a4e73f334720303d683f9e48c2b1c12f19",
+   "sources": [
+    "raw/ro/texture/collection/축오리.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "treasure_chest",
+   "itemDb": 7444,
+   "file": "raw/ro-build/assets/ui/icons/item_treasure_chest.png",
+   "target": "assets/ui/icons/item_treasure_chest.png",
+   "sha256": "6afee27dcb55e6198c866f2766345cab1b6c7b6f53a7bd66045a393b77851a71",
+   "sources": [
+    "raw/ro/texture/collection/보물상자.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "treasure_chest",
+   "itemDb": 7444,
+   "file": "raw/ro-build/assets/ui/collection/item_treasure_chest.png",
+   "target": "assets/ui/collection/item_treasure_chest.png",
+   "sha256": "e3162964644b00bdfa4e69e25e9eb38205fa2a75b486eb44b2866d1e2345342f",
+   "sources": [
+    "raw/ro/texture/collection/보물상자.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "old_blue_box",
+   "itemDb": 603,
+   "file": "raw/ro-build/assets/ui/icons/item_old_blue_box.png",
+   "target": "assets/ui/icons/item_old_blue_box.png",
+   "sha256": "ad36e9e4c0ac6dae41b11ea0aa0ac256101708eca7b9f12c89683b9a21942ee9",
+   "sources": [
+    "raw/ro/texture/collection/오래된파란상자.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "old_blue_box",
+   "itemDb": 603,
+   "file": "raw/ro-build/assets/ui/collection/item_old_blue_box.png",
+   "target": "assets/ui/collection/item_old_blue_box.png",
+   "sha256": "66ba3154c25d419dbca24e9b418e1031287aca3d8336f5451c875606659f23f8",
+   "sources": [
+    "raw/ro/texture/collection/오래된파란상자.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "hero_card",
+   "itemDb": 616,
+   "file": "raw/ro-build/assets/ui/icons/item_hero_card.png",
+   "target": "assets/ui/icons/item_hero_card.png",
+   "sha256": "d02a6475b4f4746ed4e8399df34747f5e802f9dd741f5f581558fa42600f1178",
+   "sources": [
+    "raw/ro/texture/collection/낡은카드첩.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "hero_card",
+   "itemDb": 616,
+   "file": "raw/ro-build/assets/ui/collection/item_hero_card.png",
+   "target": "assets/ui/collection/item_hero_card.png",
+   "sha256": "e607f34d2bbc08e67de33d950b0306133c8418922eacce5da86e65b3e3556391",
+   "sources": [
+    "raw/ro/texture/collection/낡은카드첩.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "jellopy",
+   "itemDb": 909,
+   "file": "raw/ro-build/assets/ui/icons/item_jellopy.png",
+   "target": "assets/ui/icons/item_jellopy.png",
+   "sha256": "bc89462e4219160d084cb30f7559d7c14f75c1a62a2c3f581e2c923b4a9e0d90",
+   "sources": [
+    "raw/ro/texture/collection/젤로피.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "jellopy",
+   "itemDb": 909,
+   "file": "raw/ro-build/assets/ui/collection/item_jellopy.png",
+   "target": "assets/ui/collection/item_jellopy.png",
+   "sha256": "7c62248fa0c5ac4b94e48d55b2e3d812c12a06635a4971534b76f17e1275b1b3",
+   "sources": [
+    "raw/ro/texture/collection/젤로피.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_icons",
+   "id": "red_potion",
+   "itemDb": 501,
+   "file": "raw/ro-build/assets/ui/icons/item_red_potion.png",
+   "target": "assets/ui/icons/item_red_potion.png",
+   "sha256": "c7a8ba01a445ef6f9fc056d02fc4b888241b7095c6118e24cf886480f905494d",
+   "sources": [
+    "raw/ro/texture/collection/빨간포션.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "item_collection",
+   "id": "red_potion",
+   "itemDb": 501,
+   "file": "raw/ro-build/assets/ui/collection/item_red_potion.png",
+   "target": "assets/ui/collection/item_red_potion.png",
+   "sha256": "d443498591ecd2d824283e87c4066b74382c96eb19355ef2c9f969775d4b6964",
+   "sources": [
+    "raw/ro/texture/collection/빨간포션.bmp"
+   ],
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_sheet",
+   "id": "npc_1_m_innkeeper",
+   "file": "raw/ro-build/assets/sprites/npcs/1_m_innkeeper.png",
+   "target": "assets/sprites/npcs/1_m_innkeeper.png",
+   "sha256": "ae14cfbb5f8773f224ce7f37444efe6ba3f56a7733846c10bceaf8fd3c14f29b",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_portrait",
+   "id": "npc_1_m_innkeeper",
+   "file": "raw/ro-build/assets/sprites/portraits/npc_1_m_innkeeper.png",
+   "target": "assets/sprites/portraits/npc_1_m_innkeeper.png",
+   "sha256": "af0c9e2220238f0df5f5406be071f512c02fbc3b4038c94471cf432b68b0e644",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_sheet",
+   "id": "npc_1_m_librarymaster",
+   "file": "raw/ro-build/assets/sprites/npcs/1_m_librarymaster.png",
+   "target": "assets/sprites/npcs/1_m_librarymaster.png",
+   "sha256": "41209ffa7f3b562e4d6c684e228863a55c8b9cc26d8de65741b0c88c862fe1ce",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_portrait",
+   "id": "npc_1_m_librarymaster",
+   "file": "raw/ro-build/assets/sprites/portraits/npc_1_m_librarymaster.png",
+   "target": "assets/sprites/portraits/npc_1_m_librarymaster.png",
+   "sha256": "f11279c8fbb896027a3b4692e92838db65854fb429005f40f75efad8441d08c6",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_sheet",
+   "id": "npc_1_m_merchant",
+   "file": "raw/ro-build/assets/sprites/npcs/1_m_merchant.png",
+   "target": "assets/sprites/npcs/1_m_merchant.png",
+   "sha256": "ac428ca86d517b416954513eb5604e2782ba4bd7f2aa113aab95d2bff8d40f54",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_portrait",
+   "id": "npc_1_m_merchant",
+   "file": "raw/ro-build/assets/sprites/portraits/npc_1_m_merchant.png",
+   "target": "assets/sprites/portraits/npc_1_m_merchant.png",
+   "sha256": "9f122dfc7201a5ca8912bdb23d76a32535f2c17704039c796fa3e191b6add710",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_sheet",
+   "id": "npc_2_m_sage_old",
+   "file": "raw/ro-build/assets/sprites/npcs/2_m_sage_old.png",
+   "target": "assets/sprites/npcs/2_m_sage_old.png",
+   "sha256": "650332cbbba881bebe34279aca5a2e240d7efca9395c31dd6316fde4da29aefd",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_portrait",
+   "id": "npc_2_m_sage_old",
+   "file": "raw/ro-build/assets/sprites/portraits/npc_2_m_sage_old.png",
+   "target": "assets/sprites/portraits/npc_2_m_sage_old.png",
+   "sha256": "8354630a915f0b79686965cdf717f0b254621e2bd49b166244f16702688f4453",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_sheet",
+   "id": "npc_4_f_kafra1",
+   "file": "raw/ro-build/assets/sprites/npcs/4_f_kafra1.png",
+   "target": "assets/sprites/npcs/4_f_kafra1.png",
+   "sha256": "e5093f0bd1bd958a12fc972760ff22bf508cf4b3be726f7d614f26dd651ef696",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_portrait",
+   "id": "npc_4_f_kafra1",
+   "file": "raw/ro-build/assets/sprites/portraits/npc_4_f_kafra1.png",
+   "target": "assets/sprites/portraits/npc_4_f_kafra1.png",
+   "sha256": "6913cf8bc217012dce58dcb08780442094aba6cfc9daf19dfa5952be148ffb9d",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_sheet",
+   "id": "npc_4_m_cru_sold",
+   "file": "raw/ro-build/assets/sprites/npcs/4_m_cru_sold.png",
+   "target": "assets/sprites/npcs/4_m_cru_sold.png",
+   "sha256": "b9781c00aed7086f5106cf6cc9528d473a1f7720ff61502d91a6cdfb27baae0a",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_portrait",
+   "id": "npc_4_m_cru_sold",
+   "file": "raw/ro-build/assets/sprites/portraits/npc_4_m_cru_sold.png",
+   "target": "assets/sprites/portraits/npc_4_m_cru_sold.png",
+   "sha256": "3cea9c053a1ed973e8862a92b447eb8a507bc18d64987aad86ccdd759a44555e",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_sheet",
+   "id": "npc_4_m_darkpriest",
+   "file": "raw/ro-build/assets/sprites/npcs/4_m_darkpriest.png",
+   "target": "assets/sprites/npcs/4_m_darkpriest.png",
+   "sha256": "ce815ba11e9f67915e43c8b32e66761ddcc3f91f2418ac4d62156d7e9d1458d1",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_portrait",
+   "id": "npc_4_m_darkpriest",
+   "file": "raw/ro-build/assets/sprites/portraits/npc_4_m_darkpriest.png",
+   "target": "assets/sprites/portraits/npc_4_m_darkpriest.png",
+   "sha256": "36a6799b88cb71b1e80d517b729cd9d48185bc2ee837c74517b4a29b294ae5c7",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_sheet",
+   "id": "npc_4_orclady",
+   "file": "raw/ro-build/assets/sprites/npcs/4_orclady.png",
+   "target": "assets/sprites/npcs/4_orclady.png",
+   "sha256": "3486e2ee433e2a773d18e868029922c90f400b141536ee97c92ecea45ad2d99b",
+   "status": "unusable",
+   "note": "в scRO это сундук, не орчиха"
+  },
+  {
+   "kind": "npc_portrait",
+   "id": "npc_4_orclady",
+   "file": "raw/ro-build/assets/sprites/portraits/npc_4_orclady.png",
+   "target": "assets/sprites/portraits/npc_4_orclady.png",
+   "sha256": "467c83c38fdc9fd15de2a8ef23a5359ff6b6448ad6c2446ea4971aaac3095b3a",
+   "status": "unusable",
+   "note": "в scRO это сундук, не орчиха"
+  },
+  {
+   "kind": "npc_sheet",
+   "id": "npc_8w_soldier",
+   "file": "raw/ro-build/assets/sprites/npcs/8w_soldier.png",
+   "target": "assets/sprites/npcs/8w_soldier.png",
+   "sha256": "faffcbd04cc63936101fc25d2ce8a50387b09e64b73a005542f3661525384433",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "npc_portrait",
+   "id": "npc_8w_soldier",
+   "file": "raw/ro-build/assets/sprites/portraits/npc_8w_soldier.png",
+   "target": "assets/sprites/portraits/npc_8w_soldier.png",
+   "sha256": "3d11ff3ddc1ec0ea27c19066d579bcc8fd2a3ac85adbc7ec428e9bbf39f83739",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "damage_font",
+   "id": "bluemsg.json",
+   "file": "raw/ro-build/assets/fx/damage/bluemsg.json",
+   "target": "assets/fx/damage/bluemsg.json",
+   "sha256": "40bf70b7b621f9bbe348f44d2a4f02a9a271c2254654bf2e4ea732efe665f6a1",
+   "status": "ready",
+   "note": "bluemsg без .act: кадры как в msg.act"
+  },
+  {
+   "kind": "damage_font",
+   "id": "bluemsg.png",
+   "file": "raw/ro-build/assets/fx/damage/bluemsg.png",
+   "target": "assets/fx/damage/bluemsg.png",
+   "sha256": "27d01a79238402e943f492b41259e0f8fdb2662f9ad10eff6fb662814c5e1a65",
+   "status": "ready",
+   "note": "bluemsg без .act: кадры как в msg.act"
+  },
+  {
+   "kind": "damage_font",
+   "id": "msg.json",
+   "file": "raw/ro-build/assets/fx/damage/msg.json",
+   "target": "assets/fx/damage/msg.json",
+   "sha256": "3bbded638c1beb38e8583c6392b30f21affe1bf0889fa6987575c2e8541de02c",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "damage_font",
+   "id": "msg.png",
+   "file": "raw/ro-build/assets/fx/damage/msg.png",
+   "target": "assets/fx/damage/msg.png",
+   "sha256": "58ea5b4a53ce6c21f5a1aa55d611712a031ce0f53cb65dcffa4885042278fff5",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "damage_font",
+   "id": "numbers.json",
+   "file": "raw/ro-build/assets/fx/damage/numbers.json",
+   "target": "assets/fx/damage/numbers.json",
+   "sha256": "0781410511adc5ed278ef6b6055cb519effdd406222bc8784433d61832ee46dd",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "damage_font",
+   "id": "numbers.png",
+   "file": "raw/ro-build/assets/fx/damage/numbers.png",
+   "target": "assets/fx/damage/numbers.png",
+   "sha256": "25d4ec12ad2f823fa15857d86ae41556d9d2064a90405a792e433c3e431aa02a",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "illust",
+   "id": "kafra_01",
+   "file": "raw/ro-build/assets/ui/illust/kafra_01.png",
+   "target": "assets/ui/illust/kafra_01.png",
+   "sha256": "cc145811db8898915e397ef56264be6b8cd6dff5dca342fc8fe83c65f0dd58f3",
+   "status": "ready",
+   "note": ""
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_sword.wav",
+   "file": "raw/ro/wav/_hit_sword.wav",
+   "target": null,
+   "sha256": "1dfbdbd2f441b4dfda85282cc84b49407ea138f834d8a182ba1b15c9bcd98caa",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_dagger.wav",
+   "file": "raw/ro/wav/_hit_dagger.wav",
+   "target": null,
+   "sha256": "4aad76270e549dec2100d2601503d1b2de6dae01e22ccbce3dbf739d62d48a6f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_mace.wav",
+   "file": "raw/ro/wav/_hit_mace.wav",
+   "target": null,
+   "sha256": "54aef95af378a442c4b500f7b5535dfbe76c593ce6a614a48baa04637c47e72c",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_axe.wav",
+   "file": "raw/ro/wav/_hit_axe.wav",
+   "target": null,
+   "sha256": "0aa9becf023ffb18355314e071871d7bcf3fba479329f46868171791c83d1c1d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_arrow.wav",
+   "file": "raw/ro/wav/_hit_arrow.wav",
+   "target": null,
+   "sha256": "d3d1df59ef78251d4f4327a628c3f1a482ed1b70b072a4602fc8c2f3d5cacbe2",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_fist1.wav",
+   "file": "raw/ro/wav/_hit_fist1.wav",
+   "target": null,
+   "sha256": "9a188d3b22777d91b3e6e1460430fbe55e9f9bbe805d40944f18441e4bbff1a7",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_fist2.wav",
+   "file": "raw/ro/wav/_hit_fist2.wav",
+   "target": null,
+   "sha256": "81b20afd4ffd0c6437e703ace45eb66403fae5702494978159c813617900f5c5",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_fist3.wav",
+   "file": "raw/ro/wav/_hit_fist3.wav",
+   "target": null,
+   "sha256": "cd10e1fa4cb185280015c95db6d86df71fdb18104445693b758695302b0c3bbc",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_fist4.wav",
+   "file": "raw/ro/wav/_hit_fist4.wav",
+   "target": null,
+   "sha256": "4cbe3ac2a13fa9e11e1faa5192e269ac18518b52edce8f128935c132ab32acec",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_enemy_hit_normal1.wav",
+   "file": "raw/ro/wav/_enemy_hit_normal1.wav",
+   "target": null,
+   "sha256": "0ce486a2059d284703f1980b6f8ebeee088f841c9322ed8f4fc2434cc8576004",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_rod.wav",
+   "file": "raw/ro/wav/_hit_rod.wav",
+   "target": null,
+   "sha256": "eae40a60273ca176bf22e0bcd253108c9ba6a01bc34a047be9d3d3a7b73db45d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_hit_spear.wav",
+   "file": "raw/ro/wav/_hit_spear.wav",
+   "target": null,
+   "sha256": "51cf3557e5fe5ff700b8d884f9e44af4175f8b1ebc3a8185d8069f399ffd382a",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "attack_sword.wav",
+   "file": "raw/ro/wav/attack_sword.wav",
+   "target": null,
+   "sha256": "ab012146c9af9e5727550a2a4521cad25fdc5e7759c6f074a01a36391adda654",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "attack_short_sword.wav",
+   "file": "raw/ro/wav/attack_short_sword.wav",
+   "target": null,
+   "sha256": "eb3291c5052114b5dd48695f40a1706f7c61bf1af087573387837e545ddff7a9",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "attack_twohand_sword.wav",
+   "file": "raw/ro/wav/attack_twohand_sword.wav",
+   "target": null,
+   "sha256": "d4c7893b8870027a94712c5b107a6a0e567f4722109f94adf2fc4cc5da04cf58",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "attack_axe.wav",
+   "file": "raw/ro/wav/attack_axe.wav",
+   "target": null,
+   "sha256": "f020aea8f64c632a1149c4f790301510b1b0d4e037684ac87f92d405d05d28f2",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "attack_mace.wav",
+   "file": "raw/ro/wav/attack_mace.wav",
+   "target": null,
+   "sha256": "e61712264b9bfeba3a804ceeedf40b124665093c570b5d0fe4a27b3454b5aa66",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "attack_rod.wav",
+   "file": "raw/ro/wav/attack_rod.wav",
+   "target": null,
+   "sha256": "b63b90e96c622fc10c5b2a341644afc5012ab0473eeb1c35679ab29882e24f80",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "attack_katar.wav",
+   "file": "raw/ro/wav/attack_katar.wav",
+   "target": null,
+   "sha256": "902bb03044a9af22c267321d1c6461022436884c70ac8926ecee3534f8a51f9b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "attack_fist.wav",
+   "file": "raw/ro/wav/attack_fist.wav",
+   "target": null,
+   "sha256": "3838bbc07c3906489e0fbed3647e594c25799bf12556309bbda5a2a774e6c096",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "attack_bow1.wav",
+   "file": "raw/ro/wav/attack_bow1.wav",
+   "target": null,
+   "sha256": "d06ce701dd7ee7af60ae638aa509985e7fdd24748939307a7fa114245a8fbb83",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "attack_bow2.wav",
+   "file": "raw/ro/wav/attack_bow2.wav",
+   "target": null,
+   "sha256": "1f0de320e5e6fd3eea94c1cb9083dfa905a24314eaa91791c21ee6365881424f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_heal_effect.wav",
+   "file": "raw/ro/wav/_heal_effect.wav",
+   "target": null,
+   "sha256": "93128560287b03075f90cc34d820510b355065409d4a7cfa07f8bb6bfb0527ef",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "levelup.wav",
+   "file": "raw/ro/wav/levelup.wav",
+   "target": null,
+   "sha256": "9a6e4d634aa7a9c19bcf37a0331bdb80d88fac67b60c992a49c412688074369b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "버튼소리.wav",
+   "file": "raw/ro/wav/버튼소리.wav",
+   "target": null,
+   "sha256": "9750cba0bccc3785731f721ffb05e86cc95f420758152c9caac0fd495b86ad38",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "_blind.wav",
+   "file": "raw/ro/wav/_blind.wav",
+   "target": null,
+   "sha256": "7b672e474e8d6d88398d3c485d71679d8a9cd463dc1fe0bcedce875055e84f7e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_hit2.wav",
+   "file": "raw/ro/wav/effect/ef_hit2.wav",
+   "target": null,
+   "sha256": "7049b49b7a39fd612b5927259ea1e2a1f8443a84cc543a19e9c75e02aa00a688",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_hit3.wav",
+   "file": "raw/ro/wav/effect/ef_hit3.wav",
+   "target": null,
+   "sha256": "d43c42e41451b37d80acc605a2bbcee90e5a0fd387d00bba1e53320787caa89f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_hit5.wav",
+   "file": "raw/ro/wav/effect/ef_hit5.wav",
+   "target": null,
+   "sha256": "cdd0b132dfc3ebb3740ed570c5740c8416357a0f9822215f642135d5fab2ee0d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_hit6.wav",
+   "file": "raw/ro/wav/effect/ef_hit6.wav",
+   "target": null,
+   "sha256": "a20ac2317134292c7ee1c1f7db9084ad9763c6968905ac9a764ae5d8a2526403",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_beginspell.wav",
+   "file": "raw/ro/wav/effect/ef_beginspell.wav",
+   "target": null,
+   "sha256": "1d0cffd85fb30fd8c3eed158136266fbd2bbd9162cd2bf869b317bcd6c00d970",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_firehit.wav",
+   "file": "raw/ro/wav/effect/ef_firehit.wav",
+   "target": null,
+   "sha256": "84cdfe52859fb4db52a0caebde2863e8084a3c07d815487c3d27fcc3f2020947",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_fireball.wav",
+   "file": "raw/ro/wav/effect/ef_fireball.wav",
+   "target": null,
+   "sha256": "fd599999705c4615813a2a50e0a6d936b65943917c9a8f397cd4771e320be0a8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_firewall.wav",
+   "file": "raw/ro/wav/effect/ef_firewall.wav",
+   "target": null,
+   "sha256": "5cd6ef4addec18ef904eb301e26065dcf689bda536c3b667867a4eb0337cac2e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_frostdiver.wav",
+   "file": "raw/ro/wav/effect/ef_frostdiver.wav",
+   "target": null,
+   "sha256": "86889e7c997a3feef51bd1a35baf2821d280ab1a9a5ed4e1322cce49ea7ee2e4",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_frostdiver2.wav",
+   "file": "raw/ro/wav/effect/ef_frostdiver2.wav",
+   "target": null,
+   "sha256": "7073baaa39ed0837cf622fee637914f4b70d960077256bf113ac39beba637455",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "wizard_stormgust.wav",
+   "file": "raw/ro/wav/effect/wizard_stormgust.wav",
+   "target": null,
+   "sha256": "efbb7dd6311e3e5834f097b0e57507519b93acca2bf1ea47b6b9b3595ceceaa5",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "magician_thunderstorm.wav",
+   "file": "raw/ro/wav/effect/magician_thunderstorm.wav",
+   "target": null,
+   "sha256": "3309551037a6956612664bd8c87b9827d9e4722c901b7d81b4f519de2b0d6182",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_thunderstorm.wav",
+   "file": "raw/ro/wav/effect/ef_thunderstorm.wav",
+   "target": null,
+   "sha256": "281b65ece55ba3f94ac5b4cfedd7e293e0d99e1735b5bf7b7af971530f4f6241",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "hunter_shockwavetrap.wav",
+   "file": "raw/ro/wav/effect/hunter_shockwavetrap.wav",
+   "target": null,
+   "sha256": "ef60e63f99952a0a5a268b4bd547533a09ec172a6891d1d5f0652cd3c410627e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "wizard_earthspike.wav",
+   "file": "raw/ro/wav/effect/wizard_earthspike.wav",
+   "target": null,
+   "sha256": "525ccb06537b8d897a80357c9500f1eaa8e6b83b7ee66ae3e116a3cacb37eaf6",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "earth_quake.wav",
+   "file": "raw/ro/wav/effect/earth_quake.wav",
+   "target": null,
+   "sha256": "a1a7e147f63e7ec027f60755af268fa62fd78c50c8f1439186691599452f1e65",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "black_hammerfall.wav",
+   "file": "raw/ro/wav/effect/black_hammerfall.wav",
+   "target": null,
+   "sha256": "20e85bc7eb789b5475bea55826876b67620c10ace36a1b46458b23a654389291",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_magnus.wav",
+   "file": "raw/ro/wav/effect/priest_magnus.wav",
+   "target": null,
+   "sha256": "27626b3ed094f8e83e8ecabe25b3a7877bfaeab0fd54ec7d01608f6e5777a5ab",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "cru_holy cross.wav",
+   "file": "raw/ro/wav/effect/cru_holy cross.wav",
+   "target": null,
+   "sha256": "eec65e9fceb3dd46b4c189add95cee6fd9110bc1dd5dc09069d3ca5b02b21d98",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "cru_grand cross.wav",
+   "file": "raw/ro/wav/effect/cru_grand cross.wav",
+   "target": null,
+   "sha256": "410658128510664678396b561ee372ee4641e4ce5b3fdb801f7051ccfa3d128a",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_soulstrike.wav",
+   "file": "raw/ro/wav/effect/ef_soulstrike.wav",
+   "target": null,
+   "sha256": "cede05d1d704a4a9f6c01179be6526e0e9006b5aba8025cc2b54854155e2da28",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_napalmbeat.wav",
+   "file": "raw/ro/wav/effect/ef_napalmbeat.wav",
+   "target": null,
+   "sha256": "6f33659c768b1602b5ea66d3bb2d7894cd91ba6ccf26c5b2e32d72e56f350a06",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_poisonattack.wav",
+   "file": "raw/ro/wav/effect/ef_poisonattack.wav",
+   "target": null,
+   "sha256": "831b71ee09b4507de4beec0d1321a6eff65183a95cb9887b082201c997207f76",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "thief_invenom.wav",
+   "file": "raw/ro/wav/effect/thief_invenom.wav",
+   "target": null,
+   "sha256": "bc876e041ab7a5ed829fce8f90bef475605b725dc69055cc0a8b46014481d24b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "assasin_enchantpoison.wav",
+   "file": "raw/ro/wav/effect/assasin_enchantpoison.wav",
+   "target": null,
+   "sha256": "0bac65efe1f3ce74ee5c4a9f11f333764aa19199ade588d913b57980966fecb2",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "assasin_poisonreact.wav",
+   "file": "raw/ro/wav/effect/assasin_poisonreact.wav",
+   "target": null,
+   "sha256": "7c5e21c23430b70a1fe552ed66e9dab4ea5a3c2762fc8817cb279187a1c15b46",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "assasin_venomsplasher.wav",
+   "file": "raw/ro/wav/effect/assasin_venomsplasher.wav",
+   "target": null,
+   "sha256": "1749d177b75932cc00e613f3f95d1481e81f1fb5ba308e14befaa7837da2a450",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "wizard_fire_ivy.wav",
+   "file": "raw/ro/wav/effect/wizard_fire_ivy.wav",
+   "target": null,
+   "sha256": "7a7048ff11ed99d1e48e3efc662c44dd9c8c0a938e2f7834ab3adff4acf5df16",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "wizard_meteor.wav",
+   "file": "raw/ro/wav/effect/wizard_meteor.wav",
+   "target": null,
+   "sha256": "4a065bd6ac742eab58d5af70eb09495d22a3c0246e95f25ba6a87da08ccad0ac",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_magnumbreak.wav",
+   "file": "raw/ro/wav/effect/ef_magnumbreak.wav",
+   "target": null,
+   "sha256": "b4c1cb62ed35e29cf0b411f61cca9044b61f7dfb78289fffa2c72a652bca459f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_bash.wav",
+   "file": "raw/ro/wav/effect/ef_bash.wav",
+   "target": null,
+   "sha256": "dedbc300c04cf0d6eb6e7b9777f12efa42b50e11ad4b9cca2a45c9674adfd921",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_blessing.wav",
+   "file": "raw/ro/wav/effect/ef_blessing.wav",
+   "target": null,
+   "sha256": "44c0acf877ebd7c24a73252d73987ed0d515d249f6a7ba4d3fc78e778471386a",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_incagility.wav",
+   "file": "raw/ro/wav/effect/ef_incagility.wav",
+   "target": null,
+   "sha256": "745e3cc0a6261cbdf37ce442ed1126558210d2b1c65f6df896b2a82bf10c5cdb",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_angelus.wav",
+   "file": "raw/ro/wav/effect/ef_angelus.wav",
+   "target": null,
+   "sha256": "5f4889e4c8fc31600115c7438abe9f83a47de0d5a9f62eb749c60c958fee5ff9",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_decagility.wav",
+   "file": "raw/ro/wav/effect/ef_decagility.wav",
+   "target": null,
+   "sha256": "11c110a159796fabac4a9bb4154e8c52fac3e2ffc5022c0fdc616e5409fa7423",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_lexaeterna.wav",
+   "file": "raw/ro/wav/effect/priest_lexaeterna.wav",
+   "target": null,
+   "sha256": "4af5bce0794f972fb4c9ad56ad019cdb795f7f3fab97aafeb0f6262fa148b692",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_kyrie_eleison_a.wav",
+   "file": "raw/ro/wav/effect/priest_kyrie_eleison_a.wav",
+   "target": null,
+   "sha256": "8b231caa655e65716cd1ccd9368b83b61aca40cca818a7d071a5fe123d9593de",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "kyrie_guard.wav",
+   "file": "raw/ro/wav/effect/kyrie_guard.wav",
+   "target": null,
+   "sha256": "7645b8b2b429adf3c85bae112603c4c3c34950b3412dc7ff0d17f2bab4d3e81f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "swordman_provoke.wav",
+   "file": "raw/ro/wav/effect/swordman_provoke.wav",
+   "target": null,
+   "sha256": "052885ee2f921541a66b30fac2c8935979497e9ace647ac74ccdb49fc93bf1ee",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_endure.wav",
+   "file": "raw/ro/wav/effect/ef_endure.wav",
+   "target": null,
+   "sha256": "ce03341137b3a203459acf805f25de2d3d48f9f2fcc4c2e4c40ac12b19688ba4",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "knight_twohandquicken.wav",
+   "file": "raw/ro/wav/effect/knight_twohandquicken.wav",
+   "target": null,
+   "sha256": "6baedc5f7a47d7f6e3de04213ae185831735cdf57632c53242bf6ce6c5412120",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "knight_autocounter.wav",
+   "file": "raw/ro/wav/effect/knight_autocounter.wav",
+   "target": null,
+   "sha256": "ac4b167871984bd9f19513da8c2c0626c1355fc07f2f5a59e4fe8c53c885628e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "knight_brandish_spear.wav",
+   "file": "raw/ro/wav/effect/knight_brandish_spear.wav",
+   "target": null,
+   "sha256": "8ce0a459fcbb58439be31360a31c47d2c24231220978c9186a6550903137e0ea",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_steal.wav",
+   "file": "raw/ro/wav/effect/ef_steal.wav",
+   "target": null,
+   "sha256": "32b836b1ad0ef137b6a629a1149b340facc7dbc09c4f71b53421bec1b03fc906",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "assasin_sonicblow.wav",
+   "file": "raw/ro/wav/effect/assasin_sonicblow.wav",
+   "target": null,
+   "sha256": "1ba83fe98f7a3463780e4059d12b0207242b374ff04e31d1c1fd5bee439f75de",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "assasin_cloaking.wav",
+   "file": "raw/ro/wav/effect/assasin_cloaking.wav",
+   "target": null,
+   "sha256": "341df282c76afe63d7237ba136f01bc2dc4a2a9dc62815798523acd4affc497f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "rog_back stap.wav",
+   "file": "raw/ro/wav/effect/rog_back stap.wav",
+   "target": null,
+   "sha256": "d9b009e0583425b2630e11093becfbbce140afa462057c792d97549a36c4c0f2",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "rog_steal coin.wav",
+   "file": "raw/ro/wav/effect/rog_steal coin.wav",
+   "target": null,
+   "sha256": "6d68ae6c31372b079e610846ae867b69bc8f14a58991e7e4145be7e98c561c85",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "rog_intimidate.wav",
+   "file": "raw/ro/wav/effect/rog_intimidate.wav",
+   "target": null,
+   "sha256": "1f8be3c79ca178cdf63ed642876adaed3e1276618ebaeaeb33b4b0d1eeb23059",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ac_concentration.wav",
+   "file": "raw/ro/wav/effect/ac_concentration.wav",
+   "target": null,
+   "sha256": "1e7fb66fd1311df0ef7e34f5797e04530ae035e9a5b82cb3b77c318646d9c5ab",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "hunter_blitzbeat.wav",
+   "file": "raw/ro/wav/effect/hunter_blitzbeat.wav",
+   "target": null,
+   "sha256": "942cd5635c8cadf407047694f610ce7b9311a358c064da430190178dc10469a8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "hun_anklesnare.wav",
+   "file": "raw/ro/wav/effect/hun_anklesnare.wav",
+   "target": null,
+   "sha256": "8320f68a8f2f29dfbe33558b385b5689ca82ecd79e8b7004463a1d05a2047167",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "hunter_claymoretrap.wav",
+   "file": "raw/ro/wav/effect/hunter_claymoretrap.wav",
+   "target": null,
+   "sha256": "ae0dc685bd9fdba743ee88eaa6bce755062338c095e396277fe8b87fe759f679",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "hunter_sandman.wav",
+   "file": "raw/ro/wav/effect/hunter_sandman.wav",
+   "target": null,
+   "sha256": "6c0222b0b7a919528f82ca90bfb883b23cb3e7fd8c370293358c98e3293f036e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "hunter_freezingtrap.wav",
+   "file": "raw/ro/wav/effect/hunter_freezingtrap.wav",
+   "target": null,
+   "sha256": "5b229abd6923ce064f1d1b48ae02df2c29e341ede073e300b0bbb273386e5bae",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "acolyte_cure.wav",
+   "file": "raw/ro/wav/effect/acolyte_cure.wav",
+   "target": null,
+   "sha256": "a415ee264b654ada380210c2955ffb3dd0448732f71e051a8f37f75b66e03e26",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_signum.wav",
+   "file": "raw/ro/wav/effect/ef_signum.wav",
+   "target": null,
+   "sha256": "a3ee8eb2552249795bf7e1425c81280c89c96ac5f5387b0035de294c12bab52f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_sanctuary.wav",
+   "file": "raw/ro/wav/effect/priest_sanctuary.wav",
+   "target": null,
+   "sha256": "3c14d491e0dfc688138a968008899bb838d4480be3bd7e6a0391850aef0cf90a",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_magnificat.wav",
+   "file": "raw/ro/wav/effect/priest_magnificat.wav",
+   "target": null,
+   "sha256": "9385352fef54c9f5d892d707cc52384872df5de8a75c75ae55bcce6ab1e15b91",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_gloria.wav",
+   "file": "raw/ro/wav/effect/priest_gloria.wav",
+   "target": null,
+   "sha256": "b21f4f235c922cd122be602a68c090e964a4cb569310b742713bd9e392c79546",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_impositio.wav",
+   "file": "raw/ro/wav/effect/priest_impositio.wav",
+   "target": null,
+   "sha256": "9f5bf042eedcfbd6f942eee0c57cdb2b5ca8f0034fbc6ffa258d3750b07b1162",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_resurrection.wav",
+   "file": "raw/ro/wav/effect/priest_resurrection.wav",
+   "target": null,
+   "sha256": "e59cab8e5bb8203190d50ad268b41a0f5555836ce6cb60bb8fabbe4dea044ac8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_recovery.wav",
+   "file": "raw/ro/wav/effect/priest_recovery.wav",
+   "target": null,
+   "sha256": "8663b86785fa14ac5e7b5df54a270f8268bbaea560e5511fee54e34c276ce02e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_suffragium.wav",
+   "file": "raw/ro/wav/effect/priest_suffragium.wav",
+   "target": null,
+   "sha256": "329ce36a0bfa7c7a7c4ed5dee96e66971b44c66e042d8e66d6e72d361b4615b7",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "priest_aspersio.wav",
+   "file": "raw/ro/wav/effect/priest_aspersio.wav",
+   "target": null,
+   "sha256": "6ce76191672a0a67771cd3def6a291c6a565eac782e69ba13ab73287dab997f2",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_coin2.wav",
+   "file": "raw/ro/wav/effect/ef_coin2.wav",
+   "target": null,
+   "sha256": "fab302446446b5dae45c090a77bda871d1a80f5c10fab0e1407e5ff88608426a",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "black_adrenalinerush_a.wav",
+   "file": "raw/ro/wav/effect/black_adrenalinerush_a.wav",
+   "target": null,
+   "sha256": "de7fc4e189f7bec5adc39bf0b2c49ed1c67cf0349aee3256909f7513fb3473fc",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "black_overthrust.wav",
+   "file": "raw/ro/wav/effect/black_overthrust.wav",
+   "target": null,
+   "sha256": "e5c8c58b2579b6aba1bd90934d96b85277ec6b2e66e77a70375707653db6fa47",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "black_weapon_perfection.wav",
+   "file": "raw/ro/wav/effect/black_weapon_perfection.wav",
+   "target": null,
+   "sha256": "706a669ab61148a7e6eade6f1915a63b7032c5af03efcc11298de700c0d9cb5c",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "black_maximize_power_sword_bic.wav",
+   "file": "raw/ro/wav/effect/black_maximize_power_sword_bic.wav",
+   "target": null,
+   "sha256": "fd178d34501243a2f92c4c2a49420802358730185de8aa0abbc57aafa7275c14",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "p_success.wav",
+   "file": "raw/ro/wav/effect/p_success.wav",
+   "target": null,
+   "sha256": "9a549b56cd8da8c13ed985615c9013f067e45956bc64aaadbc4a0684eb9966f1",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "p_failed.wav",
+   "file": "raw/ro/wav/effect/p_failed.wav",
+   "target": null,
+   "sha256": "4f4e1798cdb09b5dd303e602acaa026ab725f7a41effe9370f88e6fe60fa0821",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "sage_magic rod.wav",
+   "file": "raw/ro/wav/effect/sage_magic rod.wav",
+   "target": null,
+   "sha256": "47e2619fc44d2a05b93c923326687bebf8c8dad546726c238bde2be2f35478e2",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "sage_spell breake.wav",
+   "file": "raw/ro/wav/effect/sage_spell breake.wav",
+   "target": null,
+   "sha256": "4d96b93d46ac841a10fa34082f825e4e8a73380014bec7dd8b7758767b8fe26c",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "st_mvp.wav",
+   "file": "raw/ro/wav/effect/st_mvp.wav",
+   "target": null,
+   "sha256": "0a2b2467dfb506c61c052f7e392fee8c6569db0d12131ec3e587860d7bea32c2",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "bs_refinesuccess.wav",
+   "file": "raw/ro/wav/effect/bs_refinesuccess.wav",
+   "target": null,
+   "sha256": "86d37b152092f52a32bb0f2dd37811dedf004ddfe00e833e9825f21a98208990",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "bs_refinefailed.wav",
+   "file": "raw/ro/wav/effect/bs_refinefailed.wav",
+   "target": null,
+   "sha256": "a6708153569027185943e2be37c699243449c51087388a4ae11d964390847edb",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "drop_blue.wav",
+   "file": "raw/ro/wav/effect/drop_blue.wav",
+   "target": null,
+   "sha256": "da6795c12dd9e4060b305da152f77b8b3378580bd24fac8185f4467090188522",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "drop_purple.wav",
+   "file": "raw/ro/wav/effect/drop_purple.wav",
+   "target": null,
+   "sha256": "045cc78225b1f99aa3c0a4b7f6f6e672e2977a36d02d6d69710e80d9fca7061f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "drop_yellow.wav",
+   "file": "raw/ro/wav/effect/drop_yellow.wav",
+   "target": null,
+   "sha256": "8e361ad31581173a66adf6d7d6e203e2f3071e4b76a4ec5281784151c81d88fd",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "drop_red.wav",
+   "file": "raw/ro/wav/effect/drop_red.wav",
+   "target": null,
+   "sha256": "ef62ab4ab5d25b241ffa53d0bee22e3d92038b163ea89c68fd51a6ce560619af",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "drop_green.wav",
+   "file": "raw/ro/wav/effect/drop_green.wav",
+   "target": null,
+   "sha256": "80d753a9fdbc1264369402bbad8a782eafafbb587003805ee8124df592ba55b0",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "drop_pink.wav",
+   "file": "raw/ro/wav/effect/drop_pink.wav",
+   "target": null,
+   "sha256": "5bb849c76bad22638fb6dcbfc357ce95ca334edec94b1a417837a2ba5e384f94",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_portal.wav",
+   "file": "raw/ro/wav/effect/ef_portal.wav",
+   "target": null,
+   "sha256": "72d16166d66410badebf65fef2053656a9dbdc95e810402ffad4ba9475de2304",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_teleportation.wav",
+   "file": "raw/ro/wav/effect/ef_teleportation.wav",
+   "target": null,
+   "sha256": "40d869c944fed43dd3bd197527a2e87507f6a539315df55fe2b9ff571234f97f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_readyportal.wav",
+   "file": "raw/ro/wav/effect/ef_readyportal.wav",
+   "target": null,
+   "sha256": "d011b5576002352515f68a0d1b4a138389cc90a68e9df8fee2363644fb63771a",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_firearrow.wav",
+   "file": "raw/ro/wav/effect/ef_firearrow.wav",
+   "target": null,
+   "sha256": "4ea6c333110b01a48101def905bc83b9ddd9bccbb1d0424dacc7f26617ae2dbd",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_firearrow1.wav",
+   "file": "raw/ro/wav/effect/ef_firearrow1.wav",
+   "target": null,
+   "sha256": "4ea6c333110b01a48101def905bc83b9ddd9bccbb1d0424dacc7f26617ae2dbd",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_firearrow2.wav",
+   "file": "raw/ro/wav/effect/ef_firearrow2.wav",
+   "target": null,
+   "sha256": "c6b6004b437a8d487a0a79100a0cf50a2edf455733127f56fdc298ca099fa015",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_firearrow3.wav",
+   "file": "raw/ro/wav/effect/ef_firearrow3.wav",
+   "target": null,
+   "sha256": "6920a84a3f73b402ad29637e58c421d906acccd8f0e73032a1ca7200adb800c9",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_icearrow.wav",
+   "file": "raw/ro/wav/effect/ef_icearrow.wav",
+   "target": null,
+   "sha256": "1b4351822341722610738c6c91407d3c73e941c624f103c8d2453bf7642b34e4",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_icearrow1.wav",
+   "file": "raw/ro/wav/effect/ef_icearrow1.wav",
+   "target": null,
+   "sha256": "1b4351822341722610738c6c91407d3c73e941c624f103c8d2453bf7642b34e4",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_icearrow2.wav",
+   "file": "raw/ro/wav/effect/ef_icearrow2.wav",
+   "target": null,
+   "sha256": "614093c8a4d27f18930ae6bea24d3c596ffa8ee0821b31f31a857761158eb1e9",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "sound",
+   "id": "ef_icearrow3.wav",
+   "file": "raw/ro/wav/effect/ef_icearrow3.wav",
+   "target": null,
+   "sha256": "b7d662cac53694ac7585ab388710236daeba2611864b4a8e4e4b22c09f07764d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "_attack_dagger.wav",
+   "file": "raw/ro/wav/_attack_dagger.wav",
+   "target": null,
+   "sha256": "9f75af63360c3e8a9724d7a4ef58aed89c9e6c86980efe0539a217f0b8e3301b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "_enemy_hit_fire2.wav",
+   "file": "raw/ro/wav/_enemy_hit_fire2.wav",
+   "target": null,
+   "sha256": "84cdfe52859fb4db52a0caebde2863e8084a3c07d815487c3d27fcc3f2020947",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "alarm_die.wav",
+   "file": "raw/ro/wav/alarm_die.wav",
+   "target": null,
+   "sha256": "61b90403c6df9e49f4a4ec7ecd85291d9ab5ec55758aa17084ae908e480cfe3d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "alarm_move.wav",
+   "file": "raw/ro/wav/alarm_move.wav",
+   "target": null,
+   "sha256": "845906418661dae0da1ee71ca939a08c867a12c9cf4b1983d1519d7d081b2621",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "anacondaq_attack.wav",
+   "file": "raw/ro/wav/anacondaq_attack.wav",
+   "target": null,
+   "sha256": "8695628422dca05454a3227c63e7df164fafc97a78ebe81fcf2aea853bd464ee",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "anacondaq_damage.wav",
+   "file": "raw/ro/wav/anacondaq_damage.wav",
+   "target": null,
+   "sha256": "e92b81f19c0aa0f41999cb9fc55e8b41ce35b4b55e540bc5fb36fa48ee4781e1",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "anacondaq_die.wav",
+   "file": "raw/ro/wav/anacondaq_die.wav",
+   "target": null,
+   "sha256": "6c4436bec65efd24628dc75419196e49630e9ca35fe65f122488164415075b09",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "anacondaq_move.wav",
+   "file": "raw/ro/wav/anacondaq_move.wav",
+   "target": null,
+   "sha256": "62eacd6dd5eb4d737aee888f0791c30fbf0f1c7b6316dcc2a8444bb44f3d1628",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "baphomet__attack.wav",
+   "file": "raw/ro/wav/baphomet__attack.wav",
+   "target": null,
+   "sha256": "52eb4218c085b854d4b1b9bb74a30681df0da584037bd4d2c443f393756afd5b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "baphomet__breath.wav",
+   "file": "raw/ro/wav/baphomet__breath.wav",
+   "target": null,
+   "sha256": "5957bf20af2f7767d7babb706f9f5cf2d04827be6cb78908ab1705b954b0d030",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "baphomet__damage.wav",
+   "file": "raw/ro/wav/baphomet__damage.wav",
+   "target": null,
+   "sha256": "835d71630629007e01bc97556b06af9821c2d25d0e272ea69585897b41263cdd",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "baphomet__die.wav",
+   "file": "raw/ro/wav/baphomet__die.wav",
+   "target": null,
+   "sha256": "e2d41db7c57de4e864d40fca76acc194e99490ac5e17e7d70f2ef187767465e5",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bigfoot_attack.wav",
+   "file": "raw/ro/wav/bigfoot_attack.wav",
+   "target": null,
+   "sha256": "21e91b045d9604a8eecfd6fb4e0616f6e657c6e5fbe4a55cffcdfb5f228b3752",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bigfoot_damage.wav",
+   "file": "raw/ro/wav/bigfoot_damage.wav",
+   "target": null,
+   "sha256": "0fd7e89aebe721a255f8e3268ca79547db7dc9401899565fcc85714f606db9a7",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bigfoot_die.wav",
+   "file": "raw/ro/wav/bigfoot_die.wav",
+   "target": null,
+   "sha256": "8dc04afce007f4b0fcd2d806f7d5a97dacfd999888167ef26fc3b61b21b52c90",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bigfoot_die2.wav",
+   "file": "raw/ro/wav/bigfoot_die2.wav",
+   "target": null,
+   "sha256": "2c6b6a874d119026ccfe3559fd67d616af387f9d06930a48ad7ba15f851eae56",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bigfoot_snore.wav",
+   "file": "raw/ro/wav/bigfoot_snore.wav",
+   "target": null,
+   "sha256": "763535a25105b9c12309b77ddaa7c58e9e6f971fd3de5664ea9672ed6371e731",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bigfoot_stand1.wav",
+   "file": "raw/ro/wav/bigfoot_stand1.wav",
+   "target": null,
+   "sha256": "0fc6f345db5a4ca99ee80c7ddea50052e4d999f4dd55592072ab4fbfb6cfc52a",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bigfoot_stand2.wav",
+   "file": "raw/ro/wav/bigfoot_stand2.wav",
+   "target": null,
+   "sha256": "e1d9bcddb0dcde4855f8dd79d8f606267f5a71caa21847a7afa660a458b5fe51",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bigfoot_step1.wav",
+   "file": "raw/ro/wav/bigfoot_step1.wav",
+   "target": null,
+   "sha256": "c36fc28a498ff2f57aeee87b5fa7b25b5f0877fe6e59e481fb2ef03b8c8c85c8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bigfoot_step2.wav",
+   "file": "raw/ro/wav/bigfoot_step2.wav",
+   "target": null,
+   "sha256": "187de70029221568d2cb60158d29a53bf4ef4b3ef7b90f244c103ebf9d1cd364",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bloody_knight_die.wav",
+   "file": "raw/ro/wav/bloody_knight_die.wav",
+   "target": null,
+   "sha256": "16faac9e0c685795a29ff14f3086774faa24f118b05efd2531b9be071ed160d1",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bloody_knight_move1.wav",
+   "file": "raw/ro/wav/bloody_knight_move1.wav",
+   "target": null,
+   "sha256": "db23f4cce97d5f432a2f5c1d6ee57981b9ff1aac607129edd996e879ef8939fd",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bloody_knight_move2.wav",
+   "file": "raw/ro/wav/bloody_knight_move2.wav",
+   "target": null,
+   "sha256": "ccda4838ade2cbea759ed0d769bae9fe7d471e0f5c5fdf6e440327404e30f839",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "bloody_knight_stand.wav",
+   "file": "raw/ro/wav/bloody_knight_stand.wav",
+   "target": null,
+   "sha256": "418e4acbc18e33ee76c99665d59cd3c94ed1569706568cf03cd844350b5ad1db",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "c_tower_manager_attack.wav",
+   "file": "raw/ro/wav/c_tower_manager_attack.wav",
+   "target": null,
+   "sha256": "53de76c15040cba166fad1f8ac4a7edd509590f3276b7d3e52de481095f20d07",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "c_tower_manager_die.wav",
+   "file": "raw/ro/wav/c_tower_manager_die.wav",
+   "target": null,
+   "sha256": "5d8f2e96f635a0f7c07defe335c878e039e131c37e1d3b08eef30c7ac7e960d7",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "c_tower_manager_die2.wav",
+   "file": "raw/ro/wav/c_tower_manager_die2.wav",
+   "target": null,
+   "sha256": "ea545fe1586530fa57838e16556db5a6948eed5f84b4d883f227200b66cd8cab",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "c_tower_manager_stand.wav",
+   "file": "raw/ro/wav/c_tower_manager_stand.wav",
+   "target": null,
+   "sha256": "9f4d8e1caa2c71cca41f5a0672a12e30bc46873f4350ce3da415e64bee717d9e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "chocho_attack.wav",
+   "file": "raw/ro/wav/chocho_attack.wav",
+   "target": null,
+   "sha256": "5167b457da09e5ce739152bab3394baf2a5505676faf7500f417233a13c359d7",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "chocho_damage.wav",
+   "file": "raw/ro/wav/chocho_damage.wav",
+   "target": null,
+   "sha256": "ff144210155a7fe041956a8e2a7360b356c8aeef4a427f9125b8bb237313b4c8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "chocho_die.wav",
+   "file": "raw/ro/wav/chocho_die.wav",
+   "target": null,
+   "sha256": "8c13af120ccd01d54add94191ea28e8883faa3f5d1482de7745d018bdbc6397c",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "chocho_stand.wav",
+   "file": "raw/ro/wav/chocho_stand.wav",
+   "target": null,
+   "sha256": "11402d292beb23f59ecf1f9b675fa804e07367c5f41e7eca3ac6901f8317c732",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "clock_stand.wav",
+   "file": "raw/ro/wav/clock_stand.wav",
+   "target": null,
+   "sha256": "a5740deb8a56283b5c1d68953900609d1abc4ddd55b4d5d6ae56a1e53367a3a3",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "deviruchi_attack.wav",
+   "file": "raw/ro/wav/deviruchi_attack.wav",
+   "target": null,
+   "sha256": "e10212e008b95718fed28f3e327ebb91d500349b133eed57c00931fb4a1d7845",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "deviruchi_move.wav",
+   "file": "raw/ro/wav/deviruchi_move.wav",
+   "target": null,
+   "sha256": "398eb2a877705f16b865be201b9508081a6fa29f5f596e243b831195097f3006",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "deviruchi_stand.wav",
+   "file": "raw/ro/wav/deviruchi_stand.wav",
+   "target": null,
+   "sha256": "e40abb3952fee80fb815cb26a0fcf5f5eb971f5443352ab7603ee4ddb9766019",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "disguise_attack.wav",
+   "file": "raw/ro/wav/disguise_attack.wav",
+   "target": null,
+   "sha256": "5aca1b9db1e20a6a08632bd649cc41e9236a85293a85792da913146e6241e4a5",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "disguise_die.wav",
+   "file": "raw/ro/wav/disguise_die.wav",
+   "target": null,
+   "sha256": "256091813f8b202226481552eea9e2197f7a6a5da2ee827f6e077161982f71c0",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "disguise_die01.wav",
+   "file": "raw/ro/wav/disguise_die01.wav",
+   "target": null,
+   "sha256": "16aa294114cc9da0f936ce6485fb2c7a3b95b2098f945e7551e5ecc5c5c7793f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "disguise_stand.wav",
+   "file": "raw/ro/wav/disguise_stand.wav",
+   "target": null,
+   "sha256": "7447d33f17edab54bf5e50e6eddf28b02744fd663e889ff2eca568d312b3a192",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "elder_attack.wav",
+   "file": "raw/ro/wav/elder_attack.wav",
+   "target": null,
+   "sha256": "a4a410f6b69a02a1680dffeb98371c7a445b5c38152f7542e7db21c10cc28213",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "elder_wilow_attack.wav",
+   "file": "raw/ro/wav/elder_wilow_attack.wav",
+   "target": null,
+   "sha256": "6b42d0113c592e4769eafe50711b820b20bc5c39fdb011bfd020bcf4525b8dee",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "elder_wilow_damage.wav",
+   "file": "raw/ro/wav/elder_wilow_damage.wav",
+   "target": null,
+   "sha256": "653f37ceb5716bb665465cc88adea9a00f0832a6d7bac3c51e33e8593eb204a9",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "elder_wilow_die.wav",
+   "file": "raw/ro/wav/elder_wilow_die.wav",
+   "target": null,
+   "sha256": "c1fc238f1ee6e1366d15da4f1ceb217749614e61731f8501129a2676f26c2f92",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "elder_wilow_die2.wav",
+   "file": "raw/ro/wav/elder_wilow_die2.wav",
+   "target": null,
+   "sha256": "51dd970566f1e5a0143c0e3d8bcddf3a73f58964c3a9e1e9cf0c7cf3d9b33d20",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "evil_druid_attack.wav",
+   "file": "raw/ro/wav/evil_druid_attack.wav",
+   "target": null,
+   "sha256": "6ad35d82cd439731941f5adc7ec061ac25b21a505696eb98a720a6ca19eed410",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "evil_druid_damage.wav",
+   "file": "raw/ro/wav/evil_druid_damage.wav",
+   "target": null,
+   "sha256": "20fda739fd9aba7d09210818d6804c02470cd868c48c41ec97a95b20399dd74c",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "evil_druid_die.wav",
+   "file": "raw/ro/wav/evil_druid_die.wav",
+   "target": null,
+   "sha256": "78f0f45dd4870a292f4c4d11be7cbacc6ef499a6b9f3c836d9be6ee27be1eaf1",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "evil_druid_die2.wav",
+   "file": "raw/ro/wav/evil_druid_die2.wav",
+   "target": null,
+   "sha256": "094c74ef24f1a4d4eadaf80a3f396c37b126809e86196c1db648fcfdfb9ac562",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "farmiliar_attack.wav",
+   "file": "raw/ro/wav/farmiliar_attack.wav",
+   "target": null,
+   "sha256": "6f60905a225cc19d6640a20df8671ca6d59c337745ce31bd6ff8455b05e97cc7",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "farmiliar_damage.wav",
+   "file": "raw/ro/wav/farmiliar_damage.wav",
+   "target": null,
+   "sha256": "39f2fe5314208f80c009bd51266d2fadc303f7e7580fafa0377b0b0ebb82ff95",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "farmiliar_die.wav",
+   "file": "raw/ro/wav/farmiliar_die.wav",
+   "target": null,
+   "sha256": "b8e8ff4b8b480363979b38dd16d6b183404cf1d80b2fbb36ee27a069756223a4",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "farmiliar_stand1.wav",
+   "file": "raw/ro/wav/farmiliar_stand1.wav",
+   "target": null,
+   "sha256": "bb2b2754d23967438f3c13e27693a4527cf5ab14af8043f1eb6344c5d08a376f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "farmiliar_stand2.wav",
+   "file": "raw/ro/wav/farmiliar_stand2.wav",
+   "target": null,
+   "sha256": "86f1b68effa95d14bf365c9dd05f3402ac91196389a485fc5a8e7930a8402877",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ghoul_attack1.wav",
+   "file": "raw/ro/wav/ghoul_attack1.wav",
+   "target": null,
+   "sha256": "32a42d73520ec0e7a7dc120482770a86ac37637c0b892a5e0004efe52c878358",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ghoul_attack2.wav",
+   "file": "raw/ro/wav/ghoul_attack2.wav",
+   "target": null,
+   "sha256": "c666bed2beede15819bfa9fb70aa78ffc07d25f0349c29da437276e5d09d2e09",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ghoul_attack3.wav",
+   "file": "raw/ro/wav/ghoul_attack3.wav",
+   "target": null,
+   "sha256": "afdc5b325394b8ff8cbadf306404b1d7d3ef3d2f8961d2622ed280772bcd5d80",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ghoul_attack4.wav",
+   "file": "raw/ro/wav/ghoul_attack4.wav",
+   "target": null,
+   "sha256": "566226ca42fe585e1ba0bd3746537b83f31f90593b20b045739470822c10621f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ghoul_damage.wav",
+   "file": "raw/ro/wav/ghoul_damage.wav",
+   "target": null,
+   "sha256": "60efb4494a237e3772ea7e099187262be48c455a8e5de917e829f345de965f46",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ghoul_die1.wav",
+   "file": "raw/ro/wav/ghoul_die1.wav",
+   "target": null,
+   "sha256": "656f7b0dbb01f2d99a5873a807e334f26f96a71c6652a06ea55881e6ba0ee0d0",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ghoul_die2.wav",
+   "file": "raw/ro/wav/ghoul_die2.wav",
+   "target": null,
+   "sha256": "4b428ef9f5005f2b35eb78553851acd95d9bc72c28ee0df48c303b7d4e16fe58",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ghoul_step1.wav",
+   "file": "raw/ro/wav/ghoul_step1.wav",
+   "target": null,
+   "sha256": "66e3d32d7818350d20b5837597ace06b722eec886a0e8769b687ce9bd29584c3",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ghoul_step2.wav",
+   "file": "raw/ro/wav/ghoul_step2.wav",
+   "target": null,
+   "sha256": "4f86dc2eeb0017c922c2104c73fdffda8d7ce28f2b539f0abb04a8bddfca3664",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "hornet_damage.wav",
+   "file": "raw/ro/wav/hornet_damage.wav",
+   "target": null,
+   "sha256": "15248c59d1f39f3528f2f7a5d87492a4dff8bb2b5cfcb015fbb07bcb943bd3da",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "hydra_attack.wav",
+   "file": "raw/ro/wav/hydra_attack.wav",
+   "target": null,
+   "sha256": "7fbb0e156af9cca6f1fe4e9a0308b22d3b4fb365eb3889047d7209e9d9318382",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "hydra_damage.wav",
+   "file": "raw/ro/wav/hydra_damage.wav",
+   "target": null,
+   "sha256": "c442e9ef487ecce43978578d577e3fc17fc55293c65a57a20f49d8b5b633868d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "hydra_die.wav",
+   "file": "raw/ro/wav/hydra_die.wav",
+   "target": null,
+   "sha256": "6ec73ff7383ad200ad3311369f003d47a422d998943a5631b060aef044a59b6c",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "hydra_die2.wav",
+   "file": "raw/ro/wav/hydra_die2.wav",
+   "target": null,
+   "sha256": "fb238ed5b61e027df68945309a1782f2fac6f373be181b5ba1bfea90f6477781",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "hydra_die3.wav",
+   "file": "raw/ro/wav/hydra_die3.wav",
+   "target": null,
+   "sha256": "3e34527fc8d545b42a8a1f00ed996d5a4cf9822d8a788443ca5590c3dad9fca9",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "hydra_stand.wav",
+   "file": "raw/ro/wav/hydra_stand.wav",
+   "target": null,
+   "sha256": "d9a133076630de80949ff227c9b482f0f3c46d9d70e9f5e36e44b3371878042b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "hylozoist_attack.wav",
+   "file": "raw/ro/wav/hylozoist_attack.wav",
+   "target": null,
+   "sha256": "2540fbe2fe5005875fbd33cf49a9b36faeae6bbe60c42751fd45d1955d55184f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "hylozoist_die.wav",
+   "file": "raw/ro/wav/hylozoist_die.wav",
+   "target": null,
+   "sha256": "20ba2e4c0b2605cdcf369d73d196bb73ec662e6b296d6783358a0d50f30e15f8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "khalitzburg_attack.wav",
+   "file": "raw/ro/wav/khalitzburg_attack.wav",
+   "target": null,
+   "sha256": "d08a94e3be9cf7bc64eda88c77f5848b83eb9aaa520dc2da467f59f3199f2e30",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "khalitzburg_die.wav",
+   "file": "raw/ro/wav/khalitzburg_die.wav",
+   "target": null,
+   "sha256": "0a2f6c53af0907b8e3c0b8e6bf1f36cda14444ff240e1dcca2ea7b49291a2d2f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "khalitzburg_move.wav",
+   "file": "raw/ro/wav/khalitzburg_move.wav",
+   "target": null,
+   "sha256": "d9b2930ac18def8c06991614a74fad68cffc578dd7649e9c6b6face27a04c343",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "knight_of_abyss_attack1.wav",
+   "file": "raw/ro/wav/knight_of_abyss_attack1.wav",
+   "target": null,
+   "sha256": "827e2945fadc6541c551eba631327824d4f4c24bbd3ad1d0cc1563f7caa80fdc",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "knight_of_abyss_attack2.wav",
+   "file": "raw/ro/wav/knight_of_abyss_attack2.wav",
+   "target": null,
+   "sha256": "41535bef232ea192e46cf001e07b14879c328cbe0ccd41c5fc254b57118e7ceb",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "knight_of_abyss_die.wav",
+   "file": "raw/ro/wav/knight_of_abyss_die.wav",
+   "target": null,
+   "sha256": "440515831fa801d2ec33547bade7ad64c332762acd7af8b42f7fb2869de515c0",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "knight_of_abyss_move.wav",
+   "file": "raw/ro/wav/knight_of_abyss_move.wav",
+   "target": null,
+   "sha256": "4af9e147f88a9643e3eb32a419db3cdcbc707eaaa7203b77ac127eb307f8f842",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "knight_of_abyss_stand.wav",
+   "file": "raw/ro/wav/knight_of_abyss_stand.wav",
+   "target": null,
+   "sha256": "129d5b98a619f6f6b4adc8f54980ee445e21c572219bc47446ddb05c14e270cf",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "kocot_foot1.wav",
+   "file": "raw/ro/wav/kocot_foot1.wav",
+   "target": null,
+   "sha256": "dadf839bd0bc1fbee36cf06664fa2771b632db183a364f340a8aa1fe5c32e9c7",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "kocot_foot2.wav",
+   "file": "raw/ro/wav/kocot_foot2.wav",
+   "target": null,
+   "sha256": "8c9526aceb34b734caad0eeb1a16558304f98539e808b7036d366dbc55a61665",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "lord_of_death_attack.wav",
+   "file": "raw/ro/wav/lord_of_death_attack.wav",
+   "target": null,
+   "sha256": "79f4354aa3e8b90ec6d31dd54c44dcc9ef44b6ef595de90c336222d925da34fc",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "lord_of_death_die.wav",
+   "file": "raw/ro/wav/lord_of_death_die.wav",
+   "target": null,
+   "sha256": "2fb13fe57da516fa7c5010db28710f1e62f4b0bbf7523ab93936121f5385300f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "lude_attack.wav",
+   "file": "raw/ro/wav/lude_attack.wav",
+   "target": null,
+   "sha256": "18701901e267b43f6e6deaade8f6059a346b987d36a3242ea6ba4293ef23fb3c",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "lude_die.wav",
+   "file": "raw/ro/wav/lude_die.wav",
+   "target": null,
+   "sha256": "3b1bc91f7dc3a105decfc0cb5ef31ce0c9dce6fe0f63e60e05325dafc3447fc6",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "lunatic_attack.wav",
+   "file": "raw/ro/wav/lunatic_attack.wav",
+   "target": null,
+   "sha256": "1e055bce42266118dff5ff55f3d51643b02875a3cf7eac6c403bdc2c6afdc1c9",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "lunatic_die.wav",
+   "file": "raw/ro/wav/lunatic_die.wav",
+   "target": null,
+   "sha256": "f40381b96a61e07295100fda911d4ae712391013405b10f647b08540e2d29ab3",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "mantis_attack.wav",
+   "file": "raw/ro/wav/mantis_attack.wav",
+   "target": null,
+   "sha256": "72df184e978153f2b8545cf9ece05b52ac9e096c6a4fb3072775daf562552fa0",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "mantis_die.wav",
+   "file": "raw/ro/wav/mantis_die.wav",
+   "target": null,
+   "sha256": "4ef017c0f24a3baa845852bc238b154f46292992d700c4e2cec1d545034b7b6f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "mantis_move.wav",
+   "file": "raw/ro/wav/mantis_move.wav",
+   "target": null,
+   "sha256": "df1bc9b11cad9f780c668a204cebab03fca31ea7b5239dc823d3662e1796bd00",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "metaller_attack.wav",
+   "file": "raw/ro/wav/metaller_attack.wav",
+   "target": null,
+   "sha256": "2aa4dab51eafeac96c6e8b2fbd09519d84d4179353f62a324654dae0874389cf",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "metaller_damage.wav",
+   "file": "raw/ro/wav/metaller_damage.wav",
+   "target": null,
+   "sha256": "72dc5180bc3b9d5768bc6d36310af96b843b0ca0c9177e052bcb45fd3c4950a6",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "metaller_die1.wav",
+   "file": "raw/ro/wav/metaller_die1.wav",
+   "target": null,
+   "sha256": "d5b5bbf803e2cdef96bee8a9c7956e7d3c58b97d02cff898ac118f7a530f11eb",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "metaller_die2.wav",
+   "file": "raw/ro/wav/metaller_die2.wav",
+   "target": null,
+   "sha256": "c0ceeb9344c0a8e9a4340ad3a9d6efb09ee7bb8309814e2b14f33c0579485604",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "metaller_step1.wav",
+   "file": "raw/ro/wav/metaller_step1.wav",
+   "target": null,
+   "sha256": "c5c5734560556992a1c28812377c6b508689451799523189cc17156c555dd957",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "metaller_step2.wav",
+   "file": "raw/ro/wav/metaller_step2.wav",
+   "target": null,
+   "sha256": "6fb8b2b8031620c41f3b3605380d68cada8f34c2d5878a451ad3f42e73d6294f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "metaller_step3.wav",
+   "file": "raw/ro/wav/metaller_step3.wav",
+   "target": null,
+   "sha256": "597dc071b250b5fdad8c044cd629d19d412c6b0aa184e145045c176cf8c9e55d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_book.wav",
+   "file": "raw/ro/wav/monster_book.wav",
+   "target": null,
+   "sha256": "395aede26bb4ca92233ca9cf72fd73c19e42ed5069f2b33ebc8c5fb4d48f0049",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_clothes.wav",
+   "file": "raw/ro/wav/monster_clothes.wav",
+   "target": null,
+   "sha256": "62756398fd42b8ddc5aa596815f4a7f10a1fcfd1579fc8a5ead802d899df6874",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_feather.wav",
+   "file": "raw/ro/wav/monster_feather.wav",
+   "target": null,
+   "sha256": "c5a1f3833245dfa45ab9ec11feba5cce836d2fda4dcbc3cd1a0e26a5f1f16ae3",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_feather_s.wav",
+   "file": "raw/ro/wav/monster_feather_s.wav",
+   "target": null,
+   "sha256": "702d02ad7918b40733ed184e25676070f0126881ef3cd17be53cb03f334808e3",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_flesh.wav",
+   "file": "raw/ro/wav/monster_flesh.wav",
+   "target": null,
+   "sha256": "9d4ed8ae2af590ca8c12c74b17c57f23883b1040d25bf60e4c18a1d129960e27",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_insect.wav",
+   "file": "raw/ro/wav/monster_insect.wav",
+   "target": null,
+   "sha256": "930e7b8ff71c04e8df990b3495df0e43dda8298dd4269efbb53f12ac3bdbfadf",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_mechanic.wav",
+   "file": "raw/ro/wav/monster_mechanic.wav",
+   "target": null,
+   "sha256": "989d4179eb93265326e80f84deeb6aa4548e374b422650f739f5c2cb9dd0cde0",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_metal.wav",
+   "file": "raw/ro/wav/monster_metal.wav",
+   "target": null,
+   "sha256": "0290a64adcd5546fbd0baec0abbbc34dfe6c3223e2d8df9a8f1358939112b74f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_poring.wav",
+   "file": "raw/ro/wav/monster_poring.wav",
+   "target": null,
+   "sha256": "bdc3e5bc1331ef233ccf8753bce0f5ac0120d6fd75ffea9e1d772ef4970a525f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_reptiles.wav",
+   "file": "raw/ro/wav/monster_reptiles.wav",
+   "target": null,
+   "sha256": "a379a6ed889049e70d46ab0c652c90a015980693f7fd243955edef24c9c04621",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_shell.wav",
+   "file": "raw/ro/wav/monster_shell.wav",
+   "target": null,
+   "sha256": "0406a84fd0e39a5caf4a704e080895084249c8a2e527bcaf413629ff00e7317a",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_skelton.wav",
+   "file": "raw/ro/wav/monster_skelton.wav",
+   "target": null,
+   "sha256": "031e6112de775d77f926a80d8149898dbda6930a070a5db3a9763806309f376f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_woodenmail.wav",
+   "file": "raw/ro/wav/monster_woodenmail.wav",
+   "target": null,
+   "sha256": "60e5db8466f14fc4b0e6dc652296eb83704b5ada1c4e10e4dec002aae14dc951",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "monster_zombie.wav",
+   "file": "raw/ro/wav/monster_zombie.wav",
+   "target": null,
+   "sha256": "f44c8772b467e0edbfe2be6366ec6ce9aba19e4cd6e99a6d73f1b6ae211108af",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "mummy_attack.wav",
+   "file": "raw/ro/wav/mummy_attack.wav",
+   "target": null,
+   "sha256": "3ab892d8f6a4aed6e4626a1448a19673fb872468821a8b5e216da506abcd723a",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "mummy_damage.wav",
+   "file": "raw/ro/wav/mummy_damage.wav",
+   "target": null,
+   "sha256": "43dd04ef1da99d8b8dd37a6fc3a0a7c7c7e3777ffc4fcb0bd862ce16683b89e9",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "mummy_die.wav",
+   "file": "raw/ro/wav/mummy_die.wav",
+   "target": null,
+   "sha256": "5f60105edc9d6d48b2e8cd480800ceda51e50530cf20553f7b9d5f189a806737",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "mummy_move1.wav",
+   "file": "raw/ro/wav/mummy_move1.wav",
+   "target": null,
+   "sha256": "482233d40019285c3e2edbb3d5229bbdbff9d683be63faa574bdb874361e0c64",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "mummy_move2.wav",
+   "file": "raw/ro/wav/mummy_move2.wav",
+   "target": null,
+   "sha256": "a1facf40bd8b2311bd16e2d7a3f7d41f6cf819ebf6a0b91784ce592ab70bcedb",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "orc_archer_attack.wav",
+   "file": "raw/ro/wav/orc_archer_attack.wav",
+   "target": null,
+   "sha256": "0ad8f06a4e6a4d27daacc085ea70fdc345f676ee5a9d424d72623f8c15f24ea1",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "orc_lord_attack.wav",
+   "file": "raw/ro/wav/orc_lord_attack.wav",
+   "target": null,
+   "sha256": "ac7c0543740b40cdb01c9cd491eda227b29324044222b98ab1c5ca994146927f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "orc_lord_die1.wav",
+   "file": "raw/ro/wav/orc_lord_die1.wav",
+   "target": null,
+   "sha256": "952e5863015eb7178565a92e178a2cb5003159d5b6f6df699e817d9105212b3f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "orc_lord_die2.wav",
+   "file": "raw/ro/wav/orc_lord_die2.wav",
+   "target": null,
+   "sha256": "ae3b449f9f5f3edf8a1f06d939593af71e11f091b1600b3d909f98ab4fe8aae0",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "orc_lord_stand.wav",
+   "file": "raw/ro/wav/orc_lord_stand.wav",
+   "target": null,
+   "sha256": "599d866c8e736ad2b1c3170209b18785ed6d69e3d6d6677684e78a7f69728ec8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "orc_skeleton_die.wav",
+   "file": "raw/ro/wav/orc_skeleton_die.wav",
+   "target": null,
+   "sha256": "0dffa1c38a9edd4c4a20d4416b7e0d45eedc1a30a44adc39e798db23e6a4875b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "orc_skeleton_move.wav",
+   "file": "raw/ro/wav/orc_skeleton_move.wav",
+   "target": null,
+   "sha256": "86dd328839441b20752d2fe471e3da12c8a7ccc58ee91d8934f2f61a76bc34ec",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "orc_skeleton_stand.wav",
+   "file": "raw/ro/wav/orc_skeleton_stand.wav",
+   "target": null,
+   "sha256": "7e513b76bfa3715b952c6d570cd5b44446a90ddea1271c425ef6df96aa0f665f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ork_warrior_attack1.wav",
+   "file": "raw/ro/wav/ork_warrior_attack1.wav",
+   "target": null,
+   "sha256": "3870dc43552cbf862c2e840713dac9129b395e0a7ba2e2a0f11ada54be87f20c",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ork_warrior_attack2.wav",
+   "file": "raw/ro/wav/ork_warrior_attack2.wav",
+   "target": null,
+   "sha256": "ab7b676b40e0ac88fa0589302fcfd0f52a41cb10437ed2314821d54feaade259",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ork_warrior_breath.wav",
+   "file": "raw/ro/wav/ork_warrior_breath.wav",
+   "target": null,
+   "sha256": "c4bd352c8837876373def0782477889472eb6cd2f5b63c825a777acbb05e9814",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ork_warrior_damage.wav",
+   "file": "raw/ro/wav/ork_warrior_damage.wav",
+   "target": null,
+   "sha256": "b52048196f82f8c5e6662b4e9b7532e140563a02af6799c3ed9d31791b870265",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ork_warrior_die1.wav",
+   "file": "raw/ro/wav/ork_warrior_die1.wav",
+   "target": null,
+   "sha256": "5039bcb6b7a3bbb180f91a54f7a6ca091259ab980228c61dbb5179b2fe0650dd",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ork_warrior_die2.wav",
+   "file": "raw/ro/wav/ork_warrior_die2.wav",
+   "target": null,
+   "sha256": "746189b177402fe7b4bf7ddd21c62759399d9d098b054453ec56cbb92440a6a8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ork_warrior_step1.wav",
+   "file": "raw/ro/wav/ork_warrior_step1.wav",
+   "target": null,
+   "sha256": "349a94fc4ba21840466792b5f17c883166f434b51056368c950a8af35050ca11",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "ork_warrior_step2.wav",
+   "file": "raw/ro/wav/ork_warrior_step2.wav",
+   "target": null,
+   "sha256": "13dc2ef7f8c55f9d07476f9d0e9599649d0f36162e99374aaa6877951552735b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "owl_duke_die1.wav",
+   "file": "raw/ro/wav/owl_duke_die1.wav",
+   "target": null,
+   "sha256": "3561483dc6ab821dfce326178c490f2290a71cc40f8ea7449f5e00ea16292490",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "owl_duke_die2.wav",
+   "file": "raw/ro/wav/owl_duke_die2.wav",
+   "target": null,
+   "sha256": "7a28db97fb0a33c7e2e6497a5c0371b4dbede3d77d275023f68f7d68368aad3d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "peco_egg_heartbeat.wav",
+   "file": "raw/ro/wav/peco_egg_heartbeat.wav",
+   "target": null,
+   "sha256": "9a802ed317e8ee8974f1b5300470cac3823de2fb4d48ab3f5f9a63e19a412db4",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "pharaoh_attack.wav",
+   "file": "raw/ro/wav/pharaoh_attack.wav",
+   "target": null,
+   "sha256": "a2b1c40130af9df71eea5ad47699d1f9c1f7fa5cea33e5a86f930a6c0a8738d8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "pharaoh_die.wav",
+   "file": "raw/ro/wav/pharaoh_die.wav",
+   "target": null,
+   "sha256": "c7432d4083107daebc0b171472123f8655efecfdfb6dc11b448b14c572f127b5",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "poring_attack.wav",
+   "file": "raw/ro/wav/poring_attack.wav",
+   "target": null,
+   "sha256": "8ce344cd0ca8f2cab2c3ff5b2275fb2e5e1ee8dd7a33b0f83e0b399897635907",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "poring_damage.wav",
+   "file": "raw/ro/wav/poring_damage.wav",
+   "target": null,
+   "sha256": "0ef1ecc8602c650a7b0c9f185ecac7019c624ce046a7c11215d27f6c9e5451f8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "poring_die.wav",
+   "file": "raw/ro/wav/poring_die.wav",
+   "target": null,
+   "sha256": "a6885bf27a9a34655587a496ebebc95404e48f2bb6101dc6bd65c267b1235d6d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "poring_move.wav",
+   "file": "raw/ro/wav/poring_move.wav",
+   "target": null,
+   "sha256": "946521ba8603516a9cb63051ff718d6d97a9b1a94bee4233c99852a44d57f749",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "punk_attack.wav",
+   "file": "raw/ro/wav/punk_attack.wav",
+   "target": null,
+   "sha256": "86be8f1f325027cab64d8333399bf93a7b410b620ee8f504dd5ecfd96adfea3d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "pupa_die.wav",
+   "file": "raw/ro/wav/pupa_die.wav",
+   "target": null,
+   "sha256": "ee4bb991d7cf75b53f5a01c234547d4a066b34be90d3f23b40d563babadb9927",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "pupa_split.wav",
+   "file": "raw/ro/wav/pupa_split.wav",
+   "target": null,
+   "sha256": "5dfccaf2f49b4e81c55af369a71d6fff4ae57327c19e7c699e600e820c36f2e0",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "raydric_damage.wav",
+   "file": "raw/ro/wav/raydric_damage.wav",
+   "target": null,
+   "sha256": "687947a5245662f5daf9ea6817d222213a3fe4e6947b2e6d95968e7b5b003d6e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "raydric_die.wav",
+   "file": "raw/ro/wav/raydric_die.wav",
+   "target": null,
+   "sha256": "f5855cafb57e574aec6f370d6b06e7ce13f3d84f699f3d0c3d89fa6667d25696",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "rideword_stand.wav",
+   "file": "raw/ro/wav/rideword_stand.wav",
+   "target": null,
+   "sha256": "ac05b5490b9b2614f1a405cb99e21a136b821c56dea6ced51efa08b878e33920",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "roda_frog_attack1.wav",
+   "file": "raw/ro/wav/roda_frog_attack1.wav",
+   "target": null,
+   "sha256": "515a109ab8b918f6eee3d058621d404e9dd4cdd8a34789b2530476cf584bd4aa",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "roda_frog_attack2.wav",
+   "file": "raw/ro/wav/roda_frog_attack2.wav",
+   "target": null,
+   "sha256": "dfb66fdf1fff58f7eda2799fd55093cf09a9d8266341bab514844d654f2f8c95",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "roda_frog_damage.wav",
+   "file": "raw/ro/wav/roda_frog_damage.wav",
+   "target": null,
+   "sha256": "2c074869b2d6811c51c83435f50fd67bd316361474d08881acf64934f2e8b0ab",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "roda_frog_die.wav",
+   "file": "raw/ro/wav/roda_frog_die.wav",
+   "target": null,
+   "sha256": "9ec3e25f227a21260f50b761af998e1fbf0526a79cf52f6657d99f6d4c57ca15",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "roda_frog_stand.wav",
+   "file": "raw/ro/wav/roda_frog_stand.wav",
+   "target": null,
+   "sha256": "b4f8ff7ea297a458f9da120ee0c3ddf3c78a66a5c803d32ced75cd351e7dc747",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "skel_prisoner_die.wav",
+   "file": "raw/ro/wav/skel_prisoner_die.wav",
+   "target": null,
+   "sha256": "3fe969746b0f99e68ca91ef54a22902cf9811eaaedc7fe560ac5012486198e7d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "skel_prisoner_stand.wav",
+   "file": "raw/ro/wav/skel_prisoner_stand.wav",
+   "target": null,
+   "sha256": "76671584e1698ddaae93b939c8098e589e4853aef93ddd90a75042c180f1b0f2",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "tarou_die.wav",
+   "file": "raw/ro/wav/tarou_die.wav",
+   "target": null,
+   "sha256": "b034ca0a73df2b5362a463b6b97d3a36631617b2b876384413bc7cc8f5df6c4c",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "tarou_move.wav",
+   "file": "raw/ro/wav/tarou_move.wav",
+   "target": null,
+   "sha256": "55a4ddecfa06eab754383980e469fe2dc04db88ffe116669cd145709726d36c8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "tarou_stand.wav",
+   "file": "raw/ro/wav/tarou_stand.wav",
+   "target": null,
+   "sha256": "85e9a6df9559f3dc167093f166dc4f9ebb547ebc58017cc158523c0c268a09cd",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "thief_bug_damage.wav",
+   "file": "raw/ro/wav/thief_bug_damage.wav",
+   "target": null,
+   "sha256": "5f6a2c1f4dda905081e357a99cbf92a2710dc752db5500dfde77ac3290c366a9",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "were_wolf_attack.wav",
+   "file": "raw/ro/wav/were_wolf_attack.wav",
+   "target": null,
+   "sha256": "b98b9cb6a5fcedf57874decffa290ed374d3daa186253a512980d52e61188643",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "were_wolf_foot1.wav",
+   "file": "raw/ro/wav/were_wolf_foot1.wav",
+   "target": null,
+   "sha256": "4cd3e11fc5d222fb8ed7264b16abc658dc154f8717746c4791ccb8c3b1cc2d51",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "were_wolf_foot2.wav",
+   "file": "raw/ro/wav/were_wolf_foot2.wav",
+   "target": null,
+   "sha256": "9c7125736b353db41837f65f4492187b82db75872f9008786af836f96d2f339e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "whisper_die.wav",
+   "file": "raw/ro/wav/whisper_die.wav",
+   "target": null,
+   "sha256": "3862eb25b00f63dd7bb1ed060729e5586010d79af27ea1adf8033f6090b4ef93",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "whisper_move.wav",
+   "file": "raw/ro/wav/whisper_move.wav",
+   "target": null,
+   "sha256": "d6fc25ac9db695f5b9b65c68543544653768076b0020b35543c4b1da5a8f1f7e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "wind_ghost_attack.wav",
+   "file": "raw/ro/wav/wind_ghost_attack.wav",
+   "target": null,
+   "sha256": "9657bac7243404b54c103d0266a0cf6b168eeca519e409e6eaf3f49857ce2610",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "wind_ghost_move.wav",
+   "file": "raw/ro/wav/wind_ghost_move.wav",
+   "target": null,
+   "sha256": "17e6a62bd9d5dab08ff834f69737abb86c2624d85cb5edfd213ea412afc1fef0",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "wolf_attack.wav",
+   "file": "raw/ro/wav/wolf_attack.wav",
+   "target": null,
+   "sha256": "598f3a9fd7a6319e514384e7e49fd734f129280e6e4823ecbec5304d9c9bc0c8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "wolf_damage.wav",
+   "file": "raw/ro/wav/wolf_damage.wav",
+   "target": null,
+   "sha256": "b089072f372e5a26c56b84d0b63cecf170349c4f4c0d2e61a134590f059f60be",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "wolf_die.wav",
+   "file": "raw/ro/wav/wolf_die.wav",
+   "target": null,
+   "sha256": "29605aa363079454a625f6c99af4f53cfd5c257dcd17623d08ec4995f88b03a7",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "wolf_stand.wav",
+   "file": "raw/ro/wav/wolf_stand.wav",
+   "target": null,
+   "sha256": "079f081c3e78c8d5d7e96582fcefdbed969bdc0bf70f1a014bb727ffd4eb6183",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "worm_tail_attack.wav",
+   "file": "raw/ro/wav/worm_tail_attack.wav",
+   "target": null,
+   "sha256": "302f5336c97c332b7a3fc801079693035a5948d897ba23f32319cc546ef2e481",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "worm_tail_damage.wav",
+   "file": "raw/ro/wav/worm_tail_damage.wav",
+   "target": null,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "worm_tail_die.wav",
+   "file": "raw/ro/wav/worm_tail_die.wav",
+   "target": null,
+   "sha256": "ef65d2f8cc4b1fafb1fb155a2c133a1d227013a86fbba18addc0af7b67121977",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "wraith_attack.wav",
+   "file": "raw/ro/wav/wraith_attack.wav",
+   "target": null,
+   "sha256": "ae6105bacad2dc12433ffd2cbf6b130c8bfe22a0e41bb56153ff5bc07e590dcb",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "wraith_die.wav",
+   "file": "raw/ro/wav/wraith_die.wav",
+   "target": null,
+   "sha256": "a8bcea13d3e8427db00a919f10dc29d8af6068dc6e001729f16e1754f9331cf8",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "yoyo_hop2.wav",
+   "file": "raw/ro/wav/yoyo_hop2.wav",
+   "target": null,
+   "sha256": "26def2eb737e17843f4da54ef430edf0169beca1d6e68d577f5e22f0c8090e6f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "zombie_prisoner_attack.wav",
+   "file": "raw/ro/wav/zombie_prisoner_attack.wav",
+   "target": null,
+   "sha256": "1b19992e26dd88d243ed7fd8d5fe2d9ae6ce8d04a70ec933f033fd85a24f6f15",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "zombie_prisoner_die.wav",
+   "file": "raw/ro/wav/zombie_prisoner_die.wav",
+   "target": null,
+   "sha256": "29eaf09d2f5de0a90e94687f48ca059c896ae3896bbb4739d1661cdd1a29f93b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "zombie_prisoner_move1.wav",
+   "file": "raw/ro/wav/zombie_prisoner_move1.wav",
+   "target": null,
+   "sha256": "855d843303dc89cf052eac189e4648bf2b679288afe365e06be343d36bfefa11",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "zombie_prisoner_move2.wav",
+   "file": "raw/ro/wav/zombie_prisoner_move2.wav",
+   "target": null,
+   "sha256": "5edaed9bb78bfbabda05de1c5deae8bbe45000aba2fb7a56d39c4901eb0ef917",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "monster_sound",
+   "id": "zombie_prisoner_stand.wav",
+   "file": "raw/ro/wav/zombie_prisoner_stand.wav",
+   "target": null,
+   "sha256": "76671584e1698ddaae93b939c8098e589e4853aef93ddd90a75042c180f1b0f2",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "mp3nametable.txt",
+   "file": "raw/ro/mp3nametable.txt",
+   "target": null,
+   "sha256": "529039e33688df12074a59585072882a70297f91b67bcfede5dda7c0a8cbaddc",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "01.mp3",
+   "file": "raw/ro/bgm/01.mp3",
+   "target": null,
+   "sha256": "03d6c7f34b255750de3ee5a5905c51d69e1acd91515611946642d68cdecbffcd",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "05.mp3",
+   "file": "raw/ro/bgm/05.mp3",
+   "target": null,
+   "sha256": "38b70bc226f07ca2a5ff41548450fb835dc8be0d70975c252f4f0459e0d683d7",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "06.mp3",
+   "file": "raw/ro/bgm/06.mp3",
+   "target": null,
+   "sha256": "d54629b6c6cb8508786a5101b78495768d5c3d5398cb92f52de54ccfe856dbd1",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "08.mp3",
+   "file": "raw/ro/bgm/08.mp3",
+   "target": null,
+   "sha256": "93841c38b5fa8d6f6137198091368ed679c45205470c93a63ca1b352b086b118",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "11.mp3",
+   "file": "raw/ro/bgm/11.mp3",
+   "target": null,
+   "sha256": "f1b4ed07892587d2056c344a06a016ffe9c457cd8134e11c228f5a39629ad1be",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "12.mp3",
+   "file": "raw/ro/bgm/12.mp3",
+   "target": null,
+   "sha256": "814a8484603741406bdb5ad0f16f4b9d4bca6218f8c23d88cbf6983e6c6da58e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "14.mp3",
+   "file": "raw/ro/bgm/14.mp3",
+   "target": null,
+   "sha256": "dd21babc179bab9eafe9fb2e82ff1f6c02f02bc43c7ee76ae4d6582f0dab8130",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "15.mp3",
+   "file": "raw/ro/bgm/15.mp3",
+   "target": null,
+   "sha256": "cdb3fc5af447730e5e40a2feb469341aae766e5bdb2257fc03084b919cda2ef7",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "16.mp3",
+   "file": "raw/ro/bgm/16.mp3",
+   "target": null,
+   "sha256": "fc057c4b45596b2ae9df54d1928bb783b426e87ef55b05e7dc5054227164a882",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "17.mp3",
+   "file": "raw/ro/bgm/17.mp3",
+   "target": null,
+   "sha256": "25111ce5628a283fddd97e28cf54a82056588364bf51241aea947d746a81587d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "19.mp3",
+   "file": "raw/ro/bgm/19.mp3",
+   "target": null,
+   "sha256": "8b06764baae3fd8eaa05e562215bd8d2933f28607bb83d4f7d4bac57ad375223",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "20.mp3",
+   "file": "raw/ro/bgm/20.mp3",
+   "target": null,
+   "sha256": "2ccad463651282d4836e9e910b022c923884063b6ffdeb2284ef39e80af8cfbf",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "21.mp3",
+   "file": "raw/ro/bgm/21.mp3",
+   "target": null,
+   "sha256": "18e3b8c4c688d5be1db9401922e511343343e80a081c2056b1a60dcd4853810e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "22.mp3",
+   "file": "raw/ro/bgm/22.mp3",
+   "target": null,
+   "sha256": "27aa738d7ccf89263f8f5d2287236b9bf787a90b5d17b5d478cb752a0c0b5788",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "26.mp3",
+   "file": "raw/ro/bgm/26.mp3",
+   "target": null,
+   "sha256": "3b45fd8fe879fb613c736072d0701c19b5f7f57c9f9d86861e836d6a76441925",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "35.mp3",
+   "file": "raw/ro/bgm/35.mp3",
+   "target": null,
+   "sha256": "9422d9e871cd8db29dd9eb5a34d39e8660d22e0491cfc8bf8a553668b9e3a10b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "39.mp3",
+   "file": "raw/ro/bgm/39.mp3",
+   "target": null,
+   "sha256": "20d2ebd35a46d33b798be2eff521b51e8b02956e9eba6bc3a7c3bdee0aa9f27b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "40.mp3",
+   "file": "raw/ro/bgm/40.mp3",
+   "target": null,
+   "sha256": "26d46bfdcb3e5af67bb72e9616acb71253b87c4c710c1f948344341758f978ce",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "42.mp3",
+   "file": "raw/ro/bgm/42.mp3",
+   "target": null,
+   "sha256": "4a5747ec1b4f2dec43b2d8baf44916ae12a8c596700e73820fe34b8a9f0254b1",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "48.mp3",
+   "file": "raw/ro/bgm/48.mp3",
+   "target": null,
+   "sha256": "069e02272aed8606cda8755dd518256080e761743607ac92f35a306bb3c9a688",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "60.mp3",
+   "file": "raw/ro/bgm/60.mp3",
+   "target": null,
+   "sha256": "1ceb0ca24daab93c1e2bef2f99216a30efdf4440bd2e942b0b21b33e4019771a",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "84.mp3",
+   "file": "raw/ro/bgm/84.mp3",
+   "target": null,
+   "sha256": "06fab3470782a9f38746c58bcf8407f47b153da400c169021443bb2702d88a93",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm",
+   "id": "85.mp3",
+   "file": "raw/ro/bgm/85.mp3",
+   "target": null,
+   "sha256": "2c27814965c273b43e6dfee139217e1af36d79e60ac07f6d2a9628c11fb1d1e0",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "02.mp3",
+   "file": "raw/ro/bgm/02.mp3",
+   "target": null,
+   "sha256": "d2df506790bd26131a288c9bd6fa1cd3130d8a436e7a74932a3e269e8c6103fa",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "03.mp3",
+   "file": "raw/ro/bgm/03.mp3",
+   "target": null,
+   "sha256": "7a67f772062b6ca40ddcdd310f5b69189f55eb544f067798e9d0a4d09cb4eb30",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "18.mp3",
+   "file": "raw/ro/bgm/18.mp3",
+   "target": null,
+   "sha256": "42e99274271dd4609296dbf9742375c6b5315349e0039d454b3a360fc74da010",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "24.mp3",
+   "file": "raw/ro/bgm/24.mp3",
+   "target": null,
+   "sha256": "b41dfc0938fa642947e50788687f229aecf234aee1a64c7b4a5696eda405907d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "36.mp3",
+   "file": "raw/ro/bgm/36.mp3",
+   "target": null,
+   "sha256": "e602413c136429e6be6091bc26037500a01ee8a0019c89215958cce26f8968cc",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "37.mp3",
+   "file": "raw/ro/bgm/37.mp3",
+   "target": null,
+   "sha256": "0499a0d9a6247d9196ed02e9b5105f1ba15f0e8f8578fff5844d35f41a78d19f",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "38.mp3",
+   "file": "raw/ro/bgm/38.mp3",
+   "target": null,
+   "sha256": "5af5ef1cf738b9687973da52a9a6c2cd6602761f1b33199c423830b04901a5cc",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "43.mp3",
+   "file": "raw/ro/bgm/43.mp3",
+   "target": null,
+   "sha256": "20ad3740614ebd391c08daca355c81fc60911cbab2273aa7ec5c0b4ac102d61d",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "44.mp3",
+   "file": "raw/ro/bgm/44.mp3",
+   "target": null,
+   "sha256": "76bd73a8ec20b19315411162105dc76fca6216187632ba77b518a9317a66ec5e",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "47.mp3",
+   "file": "raw/ro/bgm/47.mp3",
+   "target": null,
+   "sha256": "03c5813e4759eb5b0fab515477e092f64dd302f9b8247cced637644e50097448",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "52.mp3",
+   "file": "raw/ro/bgm/52.mp3",
+   "target": null,
+   "sha256": "a1e49515b8d0821b8f77218b16cda3414041490cedb9e6f40047cc4b906eeabc",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  },
+  {
+   "kind": "bgm_optional",
+   "id": "61.mp3",
+   "file": "raw/ro/bgm/61.mp3",
+   "target": null,
+   "sha256": "89999d3e59e2bc7fd9e2510e4e49ee672dd6de2f7029fa71c2905f3d1c484a8b",
+   "status": "raw_needs_conversion",
+   "note": "оригинал; ogg/петли делает агент"
+  }
+ ]
+}
