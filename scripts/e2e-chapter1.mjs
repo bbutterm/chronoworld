@@ -404,7 +404,13 @@ const autoSquad = async (stage, shotName) => {
  */
 const chapterDone = async () => {
   await waitScene('ChapterDone');
-  await sleep(900);
+  // Летопись главы (lore-route §5.3) открывается сама через ~1,4 с — прочитать (скриншот) и закрыть.
+  await page.waitForFunction(() => !!window.__game.scene.getScene('ChapterDone').children.getByName('dialogue'), null, { timeout: 8000 }).catch(() => {});
+  if (!(await dialogueOpen('ChapterDone'))) throw new Error('на «Глава пройдена» не открылась летопись главы');
+  await sleep(500);
+  await shot('chapter-chronicle');
+  await skipDialogues('ChapterDone');
+  await sleep(400);
   await shot('chapter-done');
   if (!(await findText('ChapterDone', 'Глава 1 пройдена!'))) throw new Error('нет заголовка «Глава 1 пройдена!»');
   if (!(await hasTextPrefix('ChapterDone', 'Грета присоединяется'))) throw new Error('нет карточки нового героя (Грета)');

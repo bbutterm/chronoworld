@@ -132,8 +132,8 @@ function buildPage(scene: Phaser.Scene, root: Phaser.GameObjects.Container, p: S
   const cx = GAME_W / 2;
   let y = 200;
   if (p.finding) {
-    root.add(findingIcon(scene, cx, y + 40, 120, p.finding));
-    y += 120;
+    root.add(findingIcon(scene, cx, y + 20, 120, p.finding));
+    y += 130;
   }
   const kicker = text(scene, cx, y, p.kicker.toUpperCase(), FS.h3, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE }).setName('pageKicker');
   kicker.setLetterSpacing?.(6);
