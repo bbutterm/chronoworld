@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "sewer_bug_egg_shell",
+  "name": "Твёрдая скорлупа",
+  "description": "Скорлупа твердеет от сырости: щит 20% ОЗ себе.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.2
+    }
+  ]
+}

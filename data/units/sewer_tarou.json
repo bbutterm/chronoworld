@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "sewer_tarou",
+  "name": "Тару",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 390,
+    "atk": 39,
+    "def": 4,
+    "spd": 135
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "sewer_tarou_pounce",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "lunatic",
+    "tint": "#7d7064",
+    "scale": 0.75,
+    "hitFx": "fx_hit"
+  }
+}

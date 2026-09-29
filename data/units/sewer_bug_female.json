@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "sewer_bug_female",
+  "name": "Жук-вор самка",
+  "kind": "monster",
+  "role": "healer",
+  "stats": {
+    "hp": 360,
+    "atk": 30,
+    "def": 4,
+    "spd": 110
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "sewer_bug_female_nurse",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "elite",
+    "tint": "#8c4a5e",
+    "scale": 0.7,
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  }
+}

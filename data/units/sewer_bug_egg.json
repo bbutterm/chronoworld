@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "sewer_bug_egg",
+  "name": "Яйцо жука-вора",
+  "kind": "monster",
+  "role": "tank",
+  "stats": {
+    "hp": 880,
+    "atk": 30,
+    "def": 16,
+    "spd": 80
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "sewer_bug_egg_shell",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "fast",
+    "tint": "#e3d9b8",
+    "scale": 0.9,
+    "hitFx": "fx_hit"
+  }
+}

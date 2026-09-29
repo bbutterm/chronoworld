@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "sewer_golden_bug_coin_rain",
+  "name": "Монетный дождь",
+  "description": "Жук встряхивает панцирь — на всех врагов сыплется раскалённая медь: урон и «Ожог медью» на 3 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.5
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "copper_burn",
+        "name": "Ожог медью",
+        "turns": 3,
+        "dot": {
+          "k": 0.12
+        }
+      }
+    }
+  ]
+}
