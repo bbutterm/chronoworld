@@ -61,6 +61,8 @@ export const V2_SCALE = 3.2;
 interface V2Class {
   cell: [number, number];
   anchor: [number, number];
+  /** Колонок в листе класса (monster_xl, boss_xl — 6); нет — общее `columns` манифеста (8). */
+  columns?: number;
   anims: string[];
 }
 interface V2Anim {
@@ -112,7 +114,8 @@ export function normalizeV2(json: SpritesV2, fixes: SpriteFixes = {}): SpriteDef
       file: s.file,
       cell: cls.cell,
       anchor: cls.anchor,
-      columns: json.columns,
+      // Колонки — класса, а не манифеста: у XL-листов 6 колонок, и кадр ряда r — r × 6 + i (Phaser режет лист по ширине).
+      columns: cls.columns ?? json.columns,
       scale: V2_SCALE,
       anims,
       portrait: s.portrait,
