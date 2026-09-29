@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { BRANCH_RARITY, branchOptions, heroCard, heroTemplate, type BranchView, type CardRarity, type HeroState, type SaveState } from '../core';
 import { CONTENT, GAME } from './content';
-import { heroSprite, ROLE_NAMES } from './flow';
+import { formatNumber, heroSprite, ROLE_NAMES, STAT_KEYS, STAT_LABELS } from './flow';
 import { glowTexture, iconBadge, rarityPalette } from './heroCard';
 import { juiceOn, pulse } from './juice';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
@@ -116,7 +116,7 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
 
   branches.forEach((b, i) => {
     const x = GAME_W / 2 + (i === 0 ? -1 : 1) * (PANEL_W / 2 + PANEL_GAP / 2);
-    const h = branchPanel(scene, layer, x, b, t?.gender ?? 'm', opts.templateId, b.job === opts.current);
+    const h = branchPanel(scene, layer, x, b, t?.gender ?? 'm', opts.templateId, b.job === opts.current, branchStats(opts, b.job));
     highlights.push({ job: b.job, frame: h.frame, glow: h.glow, mark: h.mark });
     const pick = !opts.viewOnly && b.job !== opts.current;
     if (pick) {
@@ -165,6 +165,7 @@ function branchPanel(
   gender: 'm' | 'f',
   templateId: string,
   isCurrent: boolean,
+  stats: BranchStats | null = null,
 ): { frame: Phaser.GameObjects.Rectangle; glow: Phaser.GameObjects.Image; mark: Phaser.GameObjects.Container; skillHits: { skill: string; hit: Phaser.GameObjects.Rectangle; level: number }[] } {
   const rarity: CardRarity = BRANCH_RARITY;
   const pal = rarityPalette(rarity);
@@ -203,6 +204,17 @@ function branchPanel(
   layer.add(iconBadge(scene, roleText.x - roleText.width / 2 - 30, y, b.role, 24, pal.tint));
   layer.add(roleText);
   y += 50;
+  // BUG-065: статы героя в этой ветке (при смене ветки — разница с нынешней).
+  if (stats) {
+    const parts = STAT_KEYS.map((k) => {
+      const d = stats.now ? stats.next[k] - stats.now[k] : 0;
+      return `${STAT_LABELS[k]} ${formatNumber(stats.next[k])}${d ? ` (${d > 0 ? '+' : '−'}${formatNumber(Math.abs(d))})` : ''}`;
+    });
+    const st = text(scene, x, y - 6, `${parts[0]} · ${parts[1]}\n${parts[2]} · ${parts[3]}`, FS.caption, C.text, { ...OUTLINE, align: 'center', lineSpacing: -2 }).setOrigin(0.5, 0).setName(`branchStats_${b.job}`);
+    if (st.width > PANEL_W - 30) st.setScale((PANEL_W - 30) / st.width);
+    layer.add(st);
+    y += st.displayHeight + 12;
+  }
   if (b.promotion) {
     const p = text(scene, x, y, fitLines(scene, `«${b.promotion}»`, FS.caption, PANEL_W - 50, 5, 'italic'), FS.caption, C.title, { fontStyle: 'italic', ...OUTLINE, lineSpacing: 2 }).setOrigin(0.5, 0);
     layer.add(p);
@@ -248,6 +260,29 @@ function branchPanel(
     ]));
   }
   return { frame, glow, mark, skillHits };
+}
+
+type StatsOf = ReturnType<typeof heroCard>['stats'];
+interface BranchStats {
+  next: StatsOf;
+  /** Нынешняя ветка героя (смена ветки) — для разницы; первая ветка — без разницы. */
+  now: StatsOf | null;
+}
+
+/** Статы героя opts.heroId в ветке job (null — окно без героя: «Контракт героя»). */
+function branchStats(opts: BranchPickerOptions, job: string): BranchStats | null {
+  const hero = opts.heroId && opts.save ? opts.save.heroes.find((h) => h.id === opts.heroId) : undefined;
+  if (!hero || !GAME.content.heroes[hero.templateId]) return null;
+  try {
+    // Ветку выбирают при вознесении в фиолетовый: статы — уже на фиолетовом (как после вознесения).
+    const ids = GAME.cards.rarities.map((r) => r.id);
+    const rarity = ids.indexOf(hero.rarity) < ids.indexOf(BRANCH_RARITY) ? BRANCH_RARITY : hero.rarity;
+    const next = heroCard({ ...hero, rarity, branch: job }, GAME).stats;
+    const now = opts.current && hero.branch && job !== opts.current ? heroCard(hero, GAME).stats : null;
+    return { next, now };
+  } catch {
+    return null;
+  }
 }
 
 /** Строки текста после переноса по ширине width (шрифт FS, стиль fontStyle). */
