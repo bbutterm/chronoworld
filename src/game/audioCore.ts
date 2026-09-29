@@ -2,7 +2,7 @@
  * Логика звука без Web Audio и Phaser (проверяется в тестах): настройки громкости в localStorage,
  * ограничитель частоты и числа одновременных звуков, выбор музыки и фона по экрану, причины паузы.
  */
-import { SFX, type AmbienceId, type AudioCategory, type MusicId, type SfxId } from './audioCatalog';
+import { SFX, type AmbienceId, type AudioCategory, type BattleTier, type MusicId, type SfxId } from './audioCatalog';
 
 // ---------- настройки ----------
 
@@ -16,9 +16,14 @@ export interface AudioSettings {
   sfx: number;
   /** «Без звука»: всё молчит, громкости запоминаются. */
   muted: boolean;
+  /**
+   * «Звуки боя»: false — в бою молчат удары, навыки и смерти (музыка боя и интерфейс звучат). Одна и та же настройка —
+   * строка в Настройках и значок динамика в верхней панели боя (кампания, Башня, Охота).
+   */
+  battleSfx: boolean;
 }
 
-export const DEFAULT_AUDIO: Readonly<AudioSettings> = { music: 0.5, sfx: 0.75, muted: false };
+export const DEFAULT_AUDIO: Readonly<AudioSettings> = { music: 0.5, sfx: 0.75, muted: false, battleSfx: true };
 
 /** Шаги громкости в настройках (кнопка по кругу): 0 — выключено. */
 export const VOLUME_STEPS = [0, 0.25, 0.5, 0.75, 1] as const;
@@ -46,7 +51,7 @@ export function loadAudioSettings(storage?: KV | null): AudioSettings {
     if (!raw) return { ...DEFAULT_AUDIO };
     const v = JSON.parse(raw) as Partial<AudioSettings> | null;
     if (!v || typeof v !== 'object') return { ...DEFAULT_AUDIO };
-    return { music: clamp01(v.music, DEFAULT_AUDIO.music), sfx: clamp01(v.sfx, DEFAULT_AUDIO.sfx), muted: v.muted === true };
+    return { music: clamp01(v.music, DEFAULT_AUDIO.music), sfx: clamp01(v.sfx, DEFAULT_AUDIO.sfx), muted: v.muted === true, battleSfx: v.battleSfx !== false };
   } catch {
     return { ...DEFAULT_AUDIO };
   }
@@ -55,7 +60,7 @@ export function loadAudioSettings(storage?: KV | null): AudioSettings {
 /** Запомнить настройки (ошибка хранилища не мешает игре). */
 export function saveAudioSettings(s: AudioSettings, storage?: KV | null): void {
   try {
-    store(storage)?.setItem(AUDIO_KEY, JSON.stringify({ music: s.music, sfx: s.sfx, muted: s.muted }));
+    store(storage)?.setItem(AUDIO_KEY, JSON.stringify({ music: s.music, sfx: s.sfx, muted: s.muted, battleSfx: s.battleSfx }));
   } catch {
     // Не запомнили — не страшно.
   }
@@ -70,12 +75,17 @@ export function nextVolume(v: number): number {
 /** Подпись громкости на кнопке настроек. */
 export const volumeLabel = (v: number): string => (v <= 0 ? 'Выкл' : `${Math.round(v * 100)}%`);
 
-/** Итоговая громкость категории с учётом «Без звука» (интерфейс чуть тише звуков боя). */
+/** Итоговая громкость категории с учётом «Без звука» и «Звуков боя» (интерфейс чуть тише звуков). */
 export function categoryVolume(cat: AudioCategory, s: AudioSettings): number {
   if (s.muted) return 0;
   if (cat === 'music') return s.music;
+  if (cat === 'battle') return s.battleSfx ? s.sfx : 0;
   return cat === 'ui' ? s.sfx * 0.8 : s.sfx;
 }
+
+/** Подпись и тост кнопки «Звуки боя» (Настройки и значок в бою). */
+export const battleSfxLabel = (s: Pick<AudioSettings, 'battleSfx'>): string => (s.battleSfx ? 'Вкл' : 'Выкл');
+export const battleSfxToast = (s: Pick<AudioSettings, 'battleSfx'>): string => (s.battleSfx ? 'Звуки боя включены' : 'Звуки боя выключены');
 
 // ---------- ограничитель ----------
 
@@ -129,8 +139,112 @@ export class SfxLimiter {
   }
 }
 
-/** Правило ограничителя для звука из каталога. */
-export const ruleOf = (id: SfxId) => ({ gap: SFX[id].gap, voices: SFX[id].voices, priority: 'duck' in SFX[id] });
+/** Правило ограничителя для звука из каталога (tier — только у звуков боя). */
+export const ruleOf = (id: SfxId): SoundRule => {
+  const d = SFX[id] as { gap: number; voices: number; duck?: boolean; tier?: BattleTier };
+  return { gap: d.gap, voices: d.voices, priority: 'duck' in d || d.tier === 'major', tier: d.tier, always: 'duck' in d };
+};
+
+export interface SoundRule {
+  gap: number;
+  voices: number;
+  /** Вытесняет старые звуки, когда голосов нет. */
+  priority?: boolean;
+  /** Звук боя: важность для ограничителя плотности (BattleMix). */
+  tier?: BattleTier;
+  /** Стингер (баннер и смерть босса): плотность его не режет вовсе. */
+  always?: boolean;
+}
+
+/**
+ * Плотность звуков боя (жалоба «в бою звука слишком много», docs/design/audio.md): считает звуки боя по реальному
+ * времени (на 2x бой вдвое быстрее, а звуков в секунду — столько же, сколько на 1x).
+ * - minor (удары, взмахи, выстрелы, атаки монстров, баффы): не больше MINOR_PER_WINDOW за окно WINDOW_MS и
+ *   MINOR_PER_SEC за секунду; в пределах MAJOR_SHADOW_MS от ульты / смерти / босса — тишина (важное слышно чисто);
+ * - skill (навыки, лечение, оглушение, «крит» ульты): не больше SKILL_PER_WINDOW за окно и SKILL_PER_SEC за секунду;
+ * - major (ульта, смерти, рог начала): не больше MAJOR_PER_WINDOW за окно (три смерти от одной ульты — два звука),
+ *   ударами не вытесняются; стингеры босса (always) — всегда.
+ * Время может идти не по порядку (звук планируется с задержкой до кадра удара) — окна симметричные.
+ */
+export const BATTLE_DENSITY = {
+  WINDOW_MS: 100,
+  MINOR_PER_WINDOW: 1,
+  MINOR_PER_SEC: 4,
+  SKILL_PER_WINDOW: 1,
+  SKILL_PER_SEC: 2,
+  MAJOR_PER_WINDOW: 2,
+  MAJOR_SHADOW_MS: 120,
+} as const;
+
+export class BattleMix {
+  private readonly played: Record<BattleTier, number[]> = { minor: [], skill: [], major: [] };
+
+  constructor(private readonly d: typeof BATTLE_DENSITY = BATTLE_DENSITY) {}
+
+  /** Есть ли звук этой важности ближе half мс к now. */
+  private near(list: number[], now: number, half: number): boolean {
+    return list.some((t) => Math.abs(t - now) < half);
+  }
+
+  /** Если добавить now, в любом окне длиной span будет не больше limit звуков (время может идти не по порядку). */
+  private fits(list: number[], now: number, span: number, limit: number): boolean {
+    const near = list.filter((t) => t > now - span && t < now + span);
+    near.push(now);
+    near.sort((a, b) => a - b);
+    for (let i = 0, j = 0; i < near.length && near[i] <= now; i++) {
+      while (j < near.length && near[j] - near[i] < span) j++;
+      if (j - i > limit) return false;
+    }
+    return true;
+  }
+
+  /** Можно ли сыграть звук боя этой важности в момент now (мс), не записывая его. */
+  allows(tier: BattleTier, now: number, always = false): boolean {
+    const d = this.d;
+    if (always) return true;
+    if (tier === 'major') return this.fits(this.played.major, now, d.WINDOW_MS, d.MAJOR_PER_WINDOW);
+    if (tier === 'minor') {
+      if (this.near(this.played.major, now, d.MAJOR_SHADOW_MS)) return false;
+      return this.fits(this.played.minor, now, d.WINDOW_MS, d.MINOR_PER_WINDOW) && this.fits(this.played.minor, now, 1000, d.MINOR_PER_SEC);
+    }
+    return this.fits(this.played.skill, now, d.WINDOW_MS, d.SKILL_PER_WINDOW) && this.fits(this.played.skill, now, 1000, d.SKILL_PER_SEC);
+  }
+
+  /** Записать сыгранный звук. */
+  add(tier: BattleTier, now: number): void {
+    const list = this.played[tier];
+    list.push(now);
+    // Старше 2 с (с запасом на задержки) — не нужны.
+    if (list.length > 64) this.played[tier] = list.filter((t) => t > now - 2000);
+  }
+
+  reset(): void {
+    this.played.minor = [];
+    this.played.skill = [];
+    this.played.major = [];
+  }
+}
+
+/**
+ * Ограничитель движка: частота и голоса (SfxLimiter) + плотность звуков боя (BattleMix). Один и тот же класс —
+ * в AudioEngine и в замере плотности (tests/battle-audio-density.test.ts), чтобы цифры в документе были честными.
+ */
+export class SoundGate {
+  readonly limiter: SfxLimiter;
+  readonly mix: BattleMix;
+
+  constructor(maxVoices = MAX_VOICES, density: typeof BATTLE_DENSITY = BATTLE_DENSITY) {
+    this.limiter = new SfxLimiter(maxVoices);
+    this.mix = new BattleMix(density);
+  }
+
+  tryPlay(id: string, now: number, dur: number, rule: SoundRule): boolean {
+    if (rule.tier && !this.mix.allows(rule.tier, now, rule.always)) return false;
+    if (!this.limiter.tryPlay(id, now, dur, rule)) return false;
+    if (rule.tier) this.mix.add(rule.tier, now);
+    return true;
+  }
+}
 
 /**
  * Серия монет «звенит» вверх: каждая следующая в пределах окна — на полутон выше (до октавы), как в AFK-играх.

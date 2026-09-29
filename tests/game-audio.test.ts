@@ -44,9 +44,9 @@ describe('звук: настройки громкости (localStorage)', () =>
 
   it('сохраняются и читаются обратно под своим ключом', () => {
     const s = memStore();
-    saveAudioSettings({ music: 0.25, sfx: 1, muted: true }, s);
+    saveAudioSettings({ music: 0.25, sfx: 1, muted: true, battleSfx: false }, s);
     expect(s.m.has(AUDIO_KEY)).toBe(true);
-    expect(loadAudioSettings(s)).toEqual({ music: 0.25, sfx: 1, muted: true });
+    expect(loadAudioSettings(s)).toEqual({ music: 0.25, sfx: 1, muted: true, battleSfx: false });
   });
 
   it('мусор, чужие типы и выход за 0…1 не ломают игру', () => {
@@ -54,7 +54,7 @@ describe('звук: настройки громкости (localStorage)', () =>
     s.setItem(AUDIO_KEY, '{oops');
     expect(loadAudioSettings(s)).toEqual(DEFAULT_AUDIO);
     s.setItem(AUDIO_KEY, JSON.stringify({ music: 7, sfx: -1, muted: 'yes' }));
-    expect(loadAudioSettings(s)).toEqual({ music: 1, sfx: 0, muted: false });
+    expect(loadAudioSettings(s)).toEqual({ music: 1, sfx: 0, muted: false, battleSfx: true });
     s.setItem(AUDIO_KEY, 'null');
     expect(loadAudioSettings(s)).toEqual(DEFAULT_AUDIO);
   });
@@ -69,7 +69,7 @@ describe('звук: настройки громкости (localStorage)', () =>
       },
     };
     expect(loadAudioSettings(bad)).toEqual(DEFAULT_AUDIO);
-    expect(() => saveAudioSettings({ music: 1, sfx: 1, muted: false }, bad)).not.toThrow();
+    expect(() => saveAudioSettings({ music: 1, sfx: 1, muted: false, battleSfx: true }, bad)).not.toThrow();
   });
 
   it('шаги громкости по кругу и подписи', () => {
@@ -83,11 +83,12 @@ describe('звук: настройки громкости (localStorage)', () =>
   });
 
   it('«Без звука» глушит все категории, интерфейс тише звуков', () => {
-    const s = { music: 0.5, sfx: 1, muted: false };
+    const s = { music: 0.5, sfx: 1, muted: false, battleSfx: true };
     expect(categoryVolume('music', s)).toBe(0.5);
     expect(categoryVolume('sfx', s)).toBe(1);
+    expect(categoryVolume('battle', s)).toBe(1);
     expect(categoryVolume('ui', s)).toBeLessThan(1);
-    for (const c of ['music', 'sfx', 'ui'] as const) expect(categoryVolume(c, { ...s, muted: true })).toBe(0);
+    for (const c of ['music', 'sfx', 'battle', 'ui'] as const) expect(categoryVolume(c, { ...s, muted: true })).toBe(0);
   });
 });
 
@@ -355,7 +356,8 @@ describe('звук: каталог', () => {
   it('стингеры приглушают музыку, интерфейс — в своей категории', () => {
     expect('duck' in SFX.victory && SFX.victory.duck).toBe(true);
     expect(SFX.ui_tap.cat).toBe('ui');
-    expect(SFX.hit_sword.cat).toBe('sfx');
+    expect(SFX.hit_sword.cat).toBe('battle');
+    expect(SFX.victory.cat).toBe('sfx');
   });
 });
 

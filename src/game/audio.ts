@@ -1,9 +1,10 @@
 /**
  * Звук игры (issue #26, docs/design/audio.md): обёртка над Web Audio контекстом звукового менеджера Phaser.
  *
- * - Категории: музыка, звуки (бой, награды), интерфейс — свои шины громкости; настройки «Музыка», «Звуки»,
- *   «Без звука» (audioCore.ts, localStorage).
- * - Звук: `sfx('coin')` из любого места; ограничитель частоты и числа голосов (SfxLimiter), серия монет — вверх по тону.
+ * - Категории: музыка, звуки (награды), звуки боя, интерфейс — свои шины громкости; настройки «Музыка», «Звуки»,
+ *   «Звуки боя» (вкл/выкл; та же кнопка-динамик в бою), «Без звука» (audioCore.ts, localStorage).
+ * - Звук: `sfx('coin')` из любого места; ограничитель частоты и числа голосов (SfxLimiter) и плотности звуков боя
+ *   (BattleMix: удары режутся первыми, ульта и смерти слышны всегда), серия монет — вверх по тону.
  *   Звуки — AudioBuffer (короткие, старт мгновенный), файлы качаются в фоне после старта.
  * - Музыка и фон: `music('home')`, `ambience('amb_swamp')` — плавная смена (перекрёстное затухание), музыка
  *   приглушается под стингеры (победа, повышение уровня). Экран сам выбирает музыку (sceneSound при старте сцены).
@@ -21,7 +22,7 @@
  */
 import type Phaser from 'phaser';
 import { AMBIENCE, MUSIC, SFX, SUMMON_REVEAL, SUMMON_TENSION_MS, type AmbienceId, type MusicId, type SfxId } from './audioCatalog';
-import { categoryVolume, loadAudioSettings, MuteReasons, PitchStreak, ruleOf, saveAudioSettings, SfxLimiter, type AudioSettings, type SceneSound } from './audioCore';
+import { categoryVolume, loadAudioSettings, MuteReasons, PitchStreak, ruleOf, saveAudioSettings, SoundGate, type AudioSettings, type SceneSound, type SoundRule } from './audioCore';
 import { musicJob, synthAmbience, synthSfx, type Pcm } from './audioSynth';
 
 // ---------- файлы владельца ----------
@@ -163,12 +164,13 @@ export class AudioEngine {
   /** Потоки, которым браузер не дал играть до первого касания (автоплей): play() ещё раз в unlock. */
   private readonly pendingPlay = new Set<StreamTrack>();
   private readonly loading = new Map<string, Promise<AudioBuffer | null>>();
-  private readonly limiter = new SfxLimiter();
+  /** Частота, голоса и плотность звуков боя (audioCore.ts). */
+  private readonly limiter = new SoundGate();
   private readonly coinPitch = new PitchStreak();
   private readonly gemPitch = new PitchStreak();
   readonly mute = new MuteReasons();
   private readonly master: GainNode;
-  private readonly bus: { music: GainNode; duck: GainNode; sfx: GainNode; ui: GainNode };
+  private readonly bus: { music: GainNode; duck: GainNode; sfx: GainNode; battle: GainNode; ui: GainNode };
   private musicTrack: Track | null = null;
   private ambTrack: Track | null = null;
   /** Какую музыку просили последней (файл ещё грузится — не перебивать более поздней просьбой). */
@@ -183,10 +185,11 @@ export class AudioEngine {
     this.master = ctx.createGain();
     this.master.connect(out);
     const g = () => ctx.createGain();
-    this.bus = { music: g(), duck: g(), sfx: g(), ui: g() };
+    this.bus = { music: g(), duck: g(), sfx: g(), battle: g(), ui: g() };
     this.bus.duck.connect(this.bus.music);
     this.bus.music.connect(this.master);
     this.bus.sfx.connect(this.master);
+    this.bus.battle.connect(this.master);
     this.bus.ui.connect(this.master);
     this.applyVolumes();
   }
@@ -202,6 +205,7 @@ export class AudioEngine {
     this.set(this.master.gain, this.mute.active ? 0 : 1, 0.02);
     this.set(this.bus.music.gain, categoryVolume('music', s));
     this.set(this.bus.sfx.gain, categoryVolume('sfx', s));
+    this.set(this.bus.battle.gain, categoryVolume('battle', s));
     this.set(this.bus.ui.gain, categoryVolume('ui', s));
   }
 
@@ -325,8 +329,8 @@ export class AudioEngine {
   }
 
   play(id: SfxId, o: PlayOpts = {}): void {
-    if (this.silent()) return;
     const def = SFX[id];
+    if (this.silent(def.cat)) return;
     const buf = this.sfxBuffer(id);
     if (!buf) return;
     let rate = o.rate ?? 1;
@@ -334,14 +338,14 @@ export class AudioEngine {
     if (!this.limiter.tryPlay(id, now, (buf.duration / rate) * 1000, ruleOf(id))) return;
     if (id === 'coin') rate *= this.coinPitch.next(now);
     if (id === 'gem') rate *= this.gemPitch.next(now);
-    this.emit(buf, def.gain * (o.gain ?? 1), def.cat === 'ui' ? this.bus.ui : this.bus.sfx, rate, o.delay ?? 0, 'duck' in def && !!def.duck);
+    this.emit(buf, def.gain * (o.gain ?? 1), this.bus[def.cat], rate, o.delay ?? 0, 'duck' in def && !!def.duck);
   }
 
   /**
    * Звук-файл без записи в каталоге (звуки монстров RO, mon_*). false — файла нет или он ещё не загружен
    * (вызывающий играет общий звук каталога); true — звук сыгран или пропущен ограничителем / выключенным звуком.
    */
-  playFile(name: string, rule: { gap: number; voices: number }, o: PlayOpts = {}): boolean {
+  playFile(name: string, rule: SoundRule, o: PlayOpts = {}): boolean {
     if (!FILES[name]) return false;
     const key = `sfx:${name}`;
     const buf = this.buffers.get(key);
@@ -349,15 +353,17 @@ export class AudioEngine {
       this.enqueue(key, fileUrls(name));
       return false;
     }
-    if (this.silent()) return true;
+    // Файлы без каталога — звуки монстров RO: шина «Звуки боя».
+    if (this.silent('battle')) return true;
     const rate = o.rate ?? 1;
     const now = performance.now() + (o.delay ?? 0) * 1000;
-    if (this.limiter.tryPlay(name, now, (buf.duration / rate) * 1000, rule)) this.emit(buf, o.gain ?? 1, this.bus.sfx, rate, o.delay ?? 0, false);
+    if (this.limiter.tryPlay(name, now, (buf.duration / rate) * 1000, rule)) this.emit(buf, o.gain ?? 1, this.bus.battle, rate, o.delay ?? 0, false);
     return true;
   }
 
-  private silent(): boolean {
-    return this.mute.active || audioSettings.muted || audioSettings.sfx <= 0;
+  /** Звук этой категории сейчас не слышен — не тратить на него голос. */
+  private silent(cat: 'sfx' | 'battle' | 'ui'): boolean {
+    return this.mute.active || categoryVolume(cat, audioSettings) <= 0;
   }
 
   private emit(buf: AudioBuffer, gain: number, bus: AudioNode, rate: number, delay: number, duck: boolean): void {
@@ -698,7 +704,7 @@ export function sfx(id: SfxId, o: PlayOpts = {}): void {
  * Свой звук-файл (звуки монстров RO, mon_*): false — файла нет или ещё не загружен (тогда сыграть общий звук
  * каталога), true — обработан. rule — ограничитель частоты для этого файла.
  */
-export function sfxFile(name: string, rule: { gap: number; voices: number }, o: { rate?: number; gain?: number; delay?: number } = {}): boolean {
+export function sfxFile(name: string, rule: SoundRule, o: { rate?: number; gain?: number; delay?: number } = {}): boolean {
   try {
     return engine?.playFile(name, rule, o) ?? false;
   } catch {
