@@ -165,8 +165,9 @@ export class TavernScene extends Phaser.Scene {
   private topRow(st: SummonStatus): void {
     const y = CONTENT_TOP + 50;
     // Свитки призыва — «таблетка» как у валюты в шапке.
-    const pill = this.add.container(170, y, [panel(this, 0, 0, 260, 76, 'k:buttonLong_beige'), roIconImage(this, -88, 0, 'scrolls', 52) ?? this.add.image(-88, 0, skinIcon('scroll')).setDisplaySize(52, 52).setTint(SKIN_TINT.gold)]);
-    pill.add(text(this, 12, -2, `Свитки: ${formatNumber(st.scrolls)}`, FS.body, C.title, { fontStyle: 'bold' }));
+    // Значок — слева, подпись — сразу правее него (раньше центрированная подпись заезжала на значок).
+    const pill = this.add.container(180, y, [panel(this, 0, 0, 290, 76, 'k:buttonLong_beige'), roIconImage(this, -104, 0, 'scrolls', 52) ?? this.add.image(-104, 0, skinIcon('scroll')).setDisplaySize(52, 52).setTint(SKIN_TINT.gold)]);
+    pill.add(ellipsize(text(this, -68, -2, `Свитки: ${formatNumber(st.scrolls)}`, FS.body, C.title, { fontStyle: 'bold' }).setOrigin(0, 0.5), 200));
     pill.setName('scrollsPill');
     text(this, 540, y, `Призывов: ${formatNumber(st.total)}`, FS.small, C.muted, OUTLINE);
     button(this, 910, y, 240, 90, 'ui_btn_secondary', 'Шансы', () => this.openRates(), FS.h3, { sound: null });
@@ -180,6 +181,8 @@ export class TavernScene extends Phaser.Scene {
       const b = button(this, 820, gy, 330, 120, 'ui_btn_primary', 'Забрать подарок', () => this.claimWelcome({ x: 820, y: gy }), FS.h3);
       pulse(this, b.container);
     } else {
+      // Тёмная подложка: вывеска читается поверх бутылок на полках фона.
+      this.add.graphics().fillStyle(0x120b06, 0.55).fillRoundedRect(GAME_W / 2 - 470, gy - 70, 940, 150, 28);
       text(this, GAME_W / 2, gy - 20, 'Таверна «Два колокола»', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 });
       text(this, GAME_W / 2, gy + 45, 'Наёмники ищут работу — кто сядет за ваш стол?', FS.small, C.muted, OUTLINE);
     }

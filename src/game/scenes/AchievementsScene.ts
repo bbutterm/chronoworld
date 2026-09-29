@@ -72,7 +72,10 @@ export class AchievementsScene extends Phaser.Scene {
     // На жёлтой (выполнено) полосе — тёмная подпись без обводки, на зелёной/серой — белая с обводкой.
     const onGold = a.done && !a.claimed;
     s.add(text(this, 290, y + 45, `${formatNumber(a.progress)} / ${formatNumber(a.target)}`, FS.caption, onGold ? C.titleStroke : C.text, { fontStyle: 'bold', stroke: onGold ? C.none : C.stroke, strokeThickness: onGold ? 0 : 4 }));
-    s.add(text(this, 540, y + 45, metaRewardsText(a.rewards, ' в запас'), FS.small, grey ? C.disabled : dark ? C.inkGold : C.gold, { fontStyle: 'bold', align: 'left', wordWrap: { width: 280 } }).setOrigin(0, 0.5));
+    const rw = text(this, 540, y + 45, metaRewardsText(a.rewards, ' в запас'), FS.small, grey ? C.disabled : dark ? C.inkGold : C.gold, { fontStyle: 'bold', align: 'left', wordWrap: { width: 320 }, lineSpacing: -4 }).setOrigin(0, 0.5);
+    // Две строки награды — выше, чтобы не упираться в нижнюю кромку карточки.
+    if (rw.height > 50) rw.setY(y + 28);
+    s.add(rw);
 
     const bx = 900;
     if (a.claimed) {

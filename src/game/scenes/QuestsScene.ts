@@ -87,7 +87,8 @@ export class QuestsScene extends Phaser.Scene {
       cornerBadge(this, x0, y, 104, 104, 1);
       pulse(this, b.container, 1.08, 600);
     }
-    text(this, x0, y + 95, rewardText(m.rewards), FS.small, m.claimed ? C.disabled : C.text, { stroke: C.stroke, strokeThickness: 4, lineSpacing: 2 });
+    // Число и слово — в две строки: подписи соседних порогов («300 опыта 500 золота») не слипаются.
+    text(this, x0, y + 115, rewardText(m.rewards).replace(/ /g, '\n'), FS.small, m.claimed ? C.disabled : C.text, { stroke: C.stroke, strokeThickness: 4, lineSpacing: 2 });
   }
 
   private questRow(q: QuestView, y: number, h: number): void {

@@ -17,7 +17,7 @@ import { confirmOpen, CONTENT_TOP, contentBottom, portrait, screen, unitFigure, 
 import { commit, now, session, today } from '../session';
 import { SKIN_TINT, skinIcon } from '../skin';
 import { portraitKey } from '../sprites';
-import { button, ellipsize, panel, progressBar, ScrollArea, text, toast } from '../ui';
+import { button, clampLines, ellipsize, panel, progressBar, ScrollArea, text, toast } from '../ui';
 import { randomLine } from '../loreView';
 import { C, FS, TINT } from '../theme';
 import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
@@ -131,7 +131,8 @@ export class ExpeditionsScene extends Phaser.Scene {
 
     const top = y - h / 2;
     a.add(ellipsize(text(this, COL_X, top + 44, loc.name, FS.h2, v.unlocked ? C.title : C.disabled, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5), COL_W));
-    a.add(text(this, COL_X, top + 80, loc.description, FS.small, v.unlocked ? C.muted : C.disabled, { align: 'left', wordWrap: { width: COL_W } }).setOrigin(0, 0));
+    // Описание — не больше двух строк: третья наезжала на «Откроется на этапе …» / мощь отряда.
+    a.add(clampLines(text(this, COL_X, top + 80, loc.description, FS.small, v.unlocked ? C.muted : C.disabled, { align: 'left', wordWrap: { width: COL_W } }).setOrigin(0, 0), 2));
 
     const r: Rows = { a: top + 196, b: top + 256, c: top + 334, d1: top + 402, d2: top + 440 };
     if (!v.unlocked) {
@@ -234,17 +235,17 @@ export class ExpeditionsScene extends Phaser.Scene {
 
     // Сроки: 1 / 4 / 8 ч (выбор общий для всех локаций и запоминается).
     const ds = GAME.meta.expeditions.durations;
-    const chipW = 128;
+    const chipW = 118;
     ds.forEach((d, i) => {
-      const x = COL_X + chipW / 2 + i * (chipW + 12);
+      const x = COL_X + chipW / 2 + i * (chipW + 10);
       const on = d.hours === this.hours;
       const chip = button(this, x, r.c, chipW, 88, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', `${d.hours} ч`, a.tap(() => this.pickHours(d.hours)), FS.h3, { sound: 'ui_tab' });
       chip.container.setName(`hours_${loc.id}_${d.hours}`);
       if (on) chip.label.setColor('#f0cf8a');
       a.add(chip.container);
     });
-    const sendX = LEFT + CARD_W - 24 - 115;
-    const send = button(this, sendX, r.c, 230, 110, party.ok ? 'ui_btn_primary' : 'k:buttonLong_grey', 'Отправить', a.tap(() => this.send(v)), FS.h3);
+    const sendX = LEFT + CARD_W - 24 - 125;
+    const send = button(this, sendX, r.c, 250, 110, party.ok ? 'ui_btn_primary' : 'k:buttonLong_grey', 'Отправить', a.tap(() => this.send(v)), FS.h3);
     send.container.setName(`send_${loc.id}`);
     if (!party.ok) send.setEnabled(false);
     a.add(send.container);

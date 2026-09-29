@@ -79,7 +79,10 @@ export class TowerScene extends Phaser.Scene {
     panel(this, x, y, SLOT_W, 230, u ? 'ui_slot_filled' : 'ui_slot_empty');
     // У босса над слотом — «БОСС» вместо «фронт/тыл» (в слоте слева вверху — уровень).
     if (!boss) text(this, x, y - 138, i < 2 ? 'фронт' : 'тыл', FS.caption, C.dim);
-    if (!u) return;
+    if (!u) {
+      text(this, x, y, 'пусто', FS.caption, C.placeholder);
+      return;
+    }
     if (boss) this.add.rectangle(x, y, SLOT_W - 8, 222).setStrokeStyle(6, 0xd64545);
     // Уровень врага (core/features/levels.ts: редкость — полоса текущего этапа игрока) — в левом верхнем углу, как у героев.
     const save = session.save;
@@ -96,7 +99,9 @@ export class TowerScene extends Phaser.Scene {
       .setName(`towerLevel${i}`);
     portrait(this, x, y - 38, portraitKey(u.visual.sprite), 116).setTint(unitTint(u.visual));
     // T3-26: имя врага целиком (две строки при необходимости) и его мощь.
-    fitName(text(this, x, y + 45, u.name, FS.caption, boss ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, lineSpacing: -4 }), SLOT_W - 14);
+    const nm = fitName(text(this, x, y + 45, u.name, FS.caption, boss ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, lineSpacing: -4 }), SLOT_W - 14);
+    // Имя в две строки — чуть выше, чтобы не наезжать на мощь под ним.
+    if (nm.text.includes('\n')) nm.setY(y + 30);
     text(this, x, y + 94, formatNumber(unitPower(u, GAME)), FS.small, boss ? C.danger : C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
     if (boss) text(this, x, y - 138, 'БОСС', FS.small, C.text, { fontStyle: 'bold', backgroundColor: C.labelDanger, padding: { x: 10, y: 2 } });
   }

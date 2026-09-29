@@ -438,7 +438,8 @@ export class HeroScene extends Phaser.Scene {
       // Не влезает (миллионы в запасе) — шрифт мельче, затем без «есть».
       const price = (y: number, label: string, cost: number, have: number, color: string) => {
         const t = text(this, x, y, `${label} −${formatNumber(cost)} (есть ${formatNumber(have)})`, FS.body, color, { stroke: C.stroke, strokeThickness: 4, fontStyle: 'bold' }).setOrigin(0, 0.5);
-        if (t.width > maxW) t.setFontSize(FS.caption - 4);
+        // Не мельче FS.small (26 px на 390×844 не читались): дальше — без «есть».
+        if (t.width > maxW) t.setFontSize(FS.small);
         if (t.width > maxW) t.setFontSize(FS.body).setText(`${label} −${formatNumber(cost)}`);
         box.add(ellipsize(t, maxW));
       };
