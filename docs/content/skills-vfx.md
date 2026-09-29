@@ -32,6 +32,74 @@
 | с иконкой RO | 31 | 118 (без RO — 1: «Удар сковородой», символ кодом) |
 | групп одинаково выглядящих навыков | 14 | 0 (тест `tests/skill-visuals.test.ts`) |
 
+## Атласы RO в бою (29.09)
+
+Кадры RO (`assets/effects`, 42 атласа) привязаны к навыкам в `assets/effects/effects.json → skills`: 113 навыков, 128 привязок
+(было 35 навыков), все 36 атласов навыков `fx_job_*` / `fx_swordman_*` играют в бою (было 28; тест
+`tests/animated-fx.test.ts` не даст оставить атлас без навыка). Роли: `hit`, `buff`, `debuff`, `cast`, `ground` и новая
+`projectile` — атлас летит от кастера к цели, кадры по кругу (`skillSigs.ts flyAtlas`, вид полёта — `FLY_LOOK`). Атлас
+дополняет рецепт навыка (процедурный снаряд уступает атласу, искры и кольца рецепта остаются); без загруженного атласа —
+прежний вид. Как подключить новый — `docs/CONTENT_RECIPES.md`, раздел 12а.
+
+Порядок подключения: ульты героев и боссов/мини-боссов, затем частые навыки монстров (разрезы, яды, удары), баффы и щиты.
+Семь атласов владельца из `art/ro-effects-bulk`: Огненный шар и Лисий огонь (`fx_job_mage_fire_ball_projectile` летит),
+Ледяная стрела и Ледяной клинок (осколок `frost_diver_release` падает/летит острием вперёд), Гром Юпитера (шар молний летит,
+`jupitel_thunder_target` — на цели), Кислотный террор, Кислотный всплеск и Огненная бутыль (колба кувыркается по дуге),
+Ядовитый нож (нож), Град стрел (пучок стрел падает на каждую цель), Вулкан (земля). Кража (`fx_job_thief_steal`) — блеск
+на цели у Кражи, Грабежа, Маммонита и Монетного дождя.
+
+Атлас → навыки («новое» — привязано 29.09):
+
+- `fx_job_acolyte_blessing` — Ассумптио `job_priest_assumptio` (buff, новое); Благословение `job_acolyte_blessing` (buff); Благословение Изиды `mob4_isis_blessing` (buff, новое)
+- `fx_job_acolyte_holy_light` — Лунный зов `mob5_boss_moon_call` (hit, новое); Магнус Экзорцизмус `job_priest_magnus_exorcismus` (hit, новое); Святой свет `job_acolyte_holy_light` (hit)
+- `fx_job_acolyte_increase_agi` — Повышение ловкости `job_acolyte_increase_agi` (buff); Свистать всех наверх `mob6_bosun_all_hands` (buff, новое)
+- `fx_job_acolyte_signum_crucis` — Знак креста `job_acolyte_signum_crucis` (debuff); Проклятие договора `maze_baphomet_curse` (debuff, новое)
+- `fx_job_alchemist_acid_terror_projectile` — Кислотный всплеск `job_alchemist_acid_bomb` (projectile, новое); Кислотный террор `job_alchemist_acid_terror` (projectile, новое); Огненная бутыль `job_alchemist_demonstration` (projectile, новое)
+- `fx_job_archer_arrow_shower_source` — Дождь стрел `job_archer_arrow_shower` (projectile, новое)
+- `fx_job_assassin_sonic_blow` — Абордажный крюк `mob6_boss_boarding_hook` (hit, новое); Звуковой удар `job_assassin_sonic_blow` (hit); Коса управителя `mob_lord_of_death_scythe` (hit, новое); Коса хранителя `maze_baphomet_scythe` (hit, новое); Кровавый нож `mob7_fast_bloody_knife` (hit, новое); Мрачный клык `job_assassin_grimtooth` (hit, новое); Призрачная коса `mob7_melee_ghost_scythe` (hit, новое); Проклятый таран `mob3_elite_cleave` (hit); Прыжок `assassin_leap` (hit); Размах `warrior_cleave` (hit); Рассечь `mob3_melee_rend` (hit); Ржавая сабля `mob6_melee_rusty_saber` (hit, новое); Рубящий топор `orc_warrior_axe_rend` (hit, новое); Серпы богомола `maze_mantis_scythes` (hit, новое); Спиральный пронзатель `job_knight_spiral_pierce` (hit, новое); Стрелки-клинки `alde_keeper_hands` (hit, новое); Удар в спину `job_rogue_back_stab` (hit, новое); Хватка шакала `mob4_verit_maul` (hit, новое)
+- `fx_job_blacksmith_weapon_perfection` — Совершенство оружия `job_blacksmith_weapon_perfection` (buff)
+- `fx_job_crusader_defender` — Ангелус `job_acolyte_angelus` (buff, новое); Желейная броня `mob_mastering_jelly_armor` (buff, новое); Защита `job_crusader_defender` (buff); Панцирь `mob6_tank_shell` (buff, новое); Пелены вечности `mob4_boss_wrappings` (buff, новое); Печать Мунэ `mob5_munak_talisman` (buff, новое); Стальное тело `job_monk_steel_body` (buff, новое); Стена щитов `guard_shield_wall` (buff, новое)
+- `fx_job_crusader_grand_cross` — Великий крест `job_crusader_grand_cross` (ground); Магнус Экзорцизмус `job_priest_magnus_exorcismus` (ground, новое); Суд фараона `mob4_boss_ult` (ground, новое)
+- `fx_job_crusader_holy_cross` — Святой крест `job_crusader_holy_cross` (hit)
+- `fx_job_crusader_shield_charge` — Атака с разбега `job_knight_charge_attack` (hit, новое); Лунный прыжок `mob_eclipse_moon_leap` (hit, новое); Сокрушение `mob_elite_smash` (hit, новое); Удар предка `orc_skeleton_ancestor_blow` (hit, новое); Удар щитом `job_crusader_shield_charge` (hit); Якорь за борт `mob6_bosun_anchor` (hit, новое)
+- `fx_job_hunter_claymore_trap` — Залп призрачных пушек `mob6_boss_ghost_cannons` (hit, новое); Клеймор `job_hunter_claymore_trap` (hit); Удар Асуры `job_monk_asura_strike` (hit, новое)
+- `fx_job_hunter_sandman` — Гнилые споры `mob2_boss_rot_spores` (debuff, новое); Сонная ловушка `job_hunter_sandman` (debuff)
+- `fx_job_knight_bowling_bash` — Боулинг Баш `job_knight_bowling_bash` (cast)
+- `fx_job_knight_two_hand_quicken` — Боевая шкура `orc_high_war_hide` (buff, новое); Двуручная спешка `job_knight_two_hand_quicken` (buff); Импозицио Манус `job_priest_impositio_manus` (buff, новое); Мощный удар `job_blacksmith_power_thrust` (buff, новое)
+- `fx_job_mage_fire_ball_projectile` — Лисий огонь `mob5_horong_foxfire` (projectile, новое); Огненный шар `job_mage_fire_ball` (projectile, новое)
+- `fx_job_mage_fire_bolt` — Лисий огонь `mob5_horong_foxfire` (hit, новое); Метеоритный дождь `job_wizard_meteor_storm` (hit, новое); Метеоритный дождь `mob7_boss_meteor_storm` (hit, новое); Огненная бутыль `job_alchemist_demonstration` (hit, новое); Огненная стрела `job_mage_fire_bolt` (hit); Огненный шар `job_mage_fire_ball` (hit); Огненный шторм `mage_firestorm` (hit, новое)
+- `fx_job_mage_frost_diver` — Кольцо мороза `job_wizard_frost_nova` (hit, новое); Ледяная стрела `job_mage_cold_bolt` (hit, новое); Ледяной удар `job_mage_frost_diver` (hit)
+- `fx_job_mage_frost_diver_release` — Ледяная стрела `job_mage_cold_bolt` (projectile, новое); Ледяной удар `job_mage_frost_diver` (projectile, новое)
+- `fx_job_mage_thunderstorm` — Гроза `job_mage_thunderstorm` (hit)
+- `fx_job_merchant_cart_revolution` — Метеоритный удар `job_assassin_meteor_assault` (hit, новое); Удар молота `job_blacksmith_hammer_fall` (hit, новое); Удар тележкой `job_merchant_cart_revolution` (hit); Удар тележкой мастера `job_blacksmith_cart_termination` (hit, новое)
+- `fx_job_sage_dispell` — Лекс Этерна `job_priest_lex_aeterna` (debuff, новое); Мёртвая волна `mob3_boss_nova` (debuff, новое); Обратный ход `alde_keeper_rewind` (debuff, новое); Печать по тылу `maze_scribe_seal` (debuff, новое); Печать упокоения `mob5_munak_elder_seal` (debuff, новое); Проклятие `mob_boss2_curse` (debuff, новое); Проклятие мумии `mob4_mummy_curse` (debuff, новое); Развеивание `job_sage_dispell` (debuff); Разоружение `job_rogue_strip_weapon` (debuff, новое); Снять доспех `job_rogue_strip_armor` (debuff, новое); Суд фараона `mob4_boss_ult` (debuff, новое); Цепи тьмы `mob7_boss_dark_chains` (debuff, новое)
+- `fx_job_sage_earth_spike` — Землетрясение `mob_boss1_quake` (hit, новое); Земляной шип `job_sage_earth_spike` (hit); Небесный удар `job_sage_heavens_drive` (hit, новое)
+- `fx_job_sage_heavens_drive` — Землетрясение `mob_boss1_quake` (ground, новое); Небесный удар `job_sage_heavens_drive` (ground); Подъём предков `orc_lord_ancestors_rise` (ground, новое)
+- `fx_job_sage_volcano_ground` — Вулкан `job_sage_volcano` (ground)
+- `fx_job_swordman_magnum_break` — Магнум Брейк `job_swordman_magnum_break` (cast)
+- `fx_job_thief_envenom` — Бросок гремучей `maze_side_winder_venom` (hit, новое); Гнилой укус `mob2_melee_bite` (hit, новое); Гнилые споры `mob2_boss_rot_spores` (hit, новое); Жало скорпиона `mob4_scorpion_sting` (hit, новое); Кислый плевок `sewer_plankton_spit` (hit, новое); Могильный укус `orc_zombie_grave_bite` (hit, новое); Отравление `job_thief_envenom` (hit); Отравленная стрела `mob2_ranged_poison_arrow` (hit); Проклятие `mob_boss2_curse` (hit, новое); Ядовитая слизь `mob_poporing_goo` (hit); Ядовитый взрыв `job_assassin_venom_splasher` (hit, новое); Ядовитый нож `job_thief_venom_knife` (hit, новое)
+- `fx_job_thief_steal` — Грабёж `job_rogue_gank` (hit, новое); Кража `job_thief_steal` (hit, новое); Маммонит `job_merchant_mammonite` (hit, новое); Монетный дождь `sewer_golden_bug_coin_rain` (hit, новое)
+- `fx_job_thief_venom_knife_projectile` — Ядовитый нож `job_thief_venom_knife` (projectile, новое)
+- `fx_job_wizard_jupitel_thunder_projectile` — Гром Юпитера `job_wizard_jupitel_thunder` (projectile, новое)
+- `fx_job_wizard_jupitel_thunder_target` — Гром Юпитера `job_wizard_jupitel_thunder` (hit, новое)
+- `fx_job_wizard_meteor_storm` — Метеоритный дождь `job_wizard_meteor_storm` (ground); Метеоритный дождь `mob7_boss_meteor_storm` (ground, новое)
+- `fx_job_wizard_storm_gust` — Марш мёртвых `mob_lord_of_death_march` (ground, новое); Снежная буря `job_wizard_storm_gust` (ground)
+- `fx_swordman_bash` — Баш `swordman_bash` (cast)
+- `fx_swordman_endure` — Барабан войны `orc_lady_war_drum` (buff, новое); Вой бродяги `maze_vagabond_wolf_howl` (buff, новое); Смотр войска `mob_lord_of_death_review` (buff, новое); Стойкость `swordman_endure` (buff)
+
+## Зрелищность боя (29.09)
+
+- Ульта монстра/босса (событие `ult`) и «большой» навык героя (`SkillVisual.big` в `skillVisuals.ts` — самый крупный
+  активный навык каждой из 36 форм, тест `tests/battle-spectacle.test.ts`): аура подготовки у кастера ≈ 0,3 с (искры
+  стягиваются, кольцо под ногами — `playCharge`), в момент удара — лёгкая встряска 160 мс и белая вспышка экрана 10%,
+  кольцо на каждой цели (`playBigImpact`). Встряска не чаще раза в 450 мс (`SHAKE_GAP_MS`).
+- Крупный удар (≥ 25% ОЗ цели или удар ульты) — золотая звезда-вспышка «крита» за цифрой (`playCrit`, ≈ 0,3 с).
+- Бафф и щит на союзнике — три искорки мерцают над головой, ниже полосок (`playTwinkle`, ≈ 0,7 с); щит с листом RO
+  (роль `buff`) — лист вместо общего щита.
+- Смерть босса — вспышка экрана, встряска, золотые кольца и искры (`playBossDeath`), fx_death крупнее и пауза «hit stop»
+  100 мс: часы боя, твины и анимации фигур замирают (`BattleScene.hitStop`, снимается на «Пропустить» и выходе из боя).
+- «Уменьшить анимацию» (Настройки): без встряски, вспышек экрана и hit stop, частиц вдвое меньше; ауры и атласы остаются.
+
 ## Что выглядело одинаково (до)
 
 - пассивки ["status"]: Стойкость (`swordman_endure`), Парирование (`job_knight_parrying`), Совиный глаз (`job_archer_owls_eye`), Глаз стервятника (`job_archer_vultures_eye`), Гроза зверей (`job_hunter_beast_bane`), Поэма Браги (`job_bard_poem_of_bragi`), Уклонение (`job_thief_improve_dodge`), Мастерство катара (`job_assassin_katar_mastery`), Плагиат (`job_rogue_plagiarism`), Громкий голос (`job_merchant_crazy_uproar`), Наценка (`job_merchant_overcharge`), Владение двуручным мечом (`job_knight_two_hand_mastery`), Авто-Берсерк (`job_swordman_auto_berserk`), Двуручная спешка (`job_knight_two_hand_quicken`), Восстановление SP (`job_mage_sp_recovery`), Усиление магии (`job_wizard_mystical_amplification`), Свободное чтение (`job_sage_free_cast`), Выброс адреналина (`job_blacksmith_adrenaline_rush`), Божья защита (`job_acolyte_divine_protection`), Магнификат (`job_priest_magnificat`), Призыв сфер (`job_monk_call_spirits`), Железный кулак (`job_monk_iron_hand`), Отравленное оружие (`job_assassin_enchant_poison`)
