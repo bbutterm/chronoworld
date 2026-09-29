@@ -85,6 +85,29 @@ Not bound to skills: the game currently draws a procedural cast circle (`src/gam
 replacing it with these sheets by element is a code change (castLoop event), for the agent.
 The water/fire/wind/earth/poison pillars are tall (cells up to 286×832), the sheets fit in 2048 px with 14–16 of 17 frames.
 
+## Part 4 — missing skill components (`raw/ro-build/effects/p4/`)
+
+Skills the inventory tool (`tools/ro_effect_inventory.py`) could not match to RO by name: RO effects found by hand in
+roBrowser `SkillEffect.js` / `SkillUnit.js`.
+
+New sheets, `skills` (exact RO matches): Safety Wall buff (EF_GLASSWALL2 315, pinkish pillar), Devotion buff (251),
+Strip Weapon / Strip Armor debuff (269 / 271: an icon of the item flies off), Ankle Snare ground (`ef_trap_01`, the trap
+is small, 34×28), Soul Drain cast (217: blue orbs fly to the caster).
+Mapping only, to sheets already in main or part 1 (same RO id): Auto Guard → `fx_job_knight_parrying` (336, needs part 1),
+Heal → `fx_heal` (312), hits of Bash / Double Strafe / Bowling Bash → `fx_hit` (EF_HIT2 1), hero ultimate
+`priest_blessing` → `fx_job_acolyte_blessing` (AL_BLESSING 42).
+
+`suggestedSkills` — **suggestions, not applied**: monster ultimates have no RO skill; picked by meaning from RO monster
+NPC skills (needs the owner's approval): rot_spores → NPC_POISON, tank_mire → NPC_EVILLAND (one cell, weak), tank_guard →
+NPC_DEFENDER, mastering_jelly_armor → NPC_KEEPING, elite_smash → NPC_STUNATTACK, boss_nova → NPC_DARKSTRIKE.
+
+Not captured (roBrowser has no visual for these or they are not in the viewer list; the resources are in the client):
+Scream 296, Don't Forget Me 292, Fortune's Kiss 293, Apple of Idun 289, Poem of Bragi 288, Demonstration 302, Triple Attack 329,
+Steel Body 254, Potion Pitcher 299, Chemical Protection 300, NPC_EARTHQUAKE 666, NPC_POWERUP 456, NPC_CURSEATTACK 196,
+NPC_DARKNESSATTACK 180. Raid (Sightless Mind 276) is a full-screen darkening, 2304×1668, does not fit into a 2048 sheet.
+Passives (masteries, Owl's Eye, Double Attack, etc.) have no effect in RO — nothing to extract; Asura Strike and
+Blade Stop in roBrowser are code tied to the entity (FUNC).
+
 ## Hook-up (agent)
 
 1. For each part: copy the PNGs to `assets/effects/`, merge `effects` and `skills` from `effects.fragment.json` into `assets/effects/effects.json`.

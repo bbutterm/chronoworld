@@ -1,0 +1,10 @@
+[["job_mage_safety_wall","buff","315"],["job_crusader_devotion","buff","251"],["job_rogue_raid","cast","276"],
+ ["job_rogue_strip_weapon","debuff","269"],["job_rogue_strip_armor","debuff","271"],["job_hunter_ankle_snare","ground","ef_trap_01"],
+ ["job_bard_scream","cast","296"],["job_dancer_dont_forget_me","debuff","292"],["job_dancer_fortune_kiss","buff","293"],
+ ["job_alchemist_demonstration","ground","302"],["job_monk_triple_attack","hit","329"],["job_monk_steel_body","buff","254"],
+ ["job_alchemist_potion_pitcher","buff","299"],["job_alchemist_chemical_protection","buff","300"],["job_wizard_soul_drain","cast","217"],
+ ["job_bard_apple_of_idun","buff","289"],["job_bard_poem_of_bragi","buff","288"],
+ ["mob_boss1_quake","ground","666"],["mob_boss2_curse","debuff","196"],["mob2_boss_rot_spores","hit","192"],
+ ["mob2_tank_mire","ground","674"],["mob2_elite_frenzy","buff","456"],["mob_tank_guard","buff","213"],
+ ["mob_mastering_jelly_armor","buff","214"],["mob3_fast_haunt","hit","180"],["mob_elite_smash","hit","194"],
+ ["mob3_boss_nova","hit","451"]]

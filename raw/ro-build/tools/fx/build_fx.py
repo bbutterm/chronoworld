@@ -21,6 +21,19 @@ ATTACH = {'hit': 'target', 'debuff': 'target', 'buff': 'target', 'cast': 'caster
 REUSE = {'job_wizard_meteor_storm': {'hit': 'fx_job_mage_fire_bolt'},      # WZ_METEOR hitEffectId 49 = EF_FIREHIT
          'job_mage_energy_coat': {'buff': 'fx_shield'},                     # MG_ENERGYCOAT effectId 169 = fx_shield
          'job_assassin_enchant_poison': {'hit': 'fx_job_thief_envenom'}}    # AS_ENCHANTPOISON effectId 20 = EF_PATTACK
+# part 4: exact RO matches to sheets that exist in main or earlier parts (mapping only)
+REUSE4 = {'job_crusader_auto_guard': {'buff': 'fx_job_knight_parrying'},      # CR_AUTOGUARD effectId 336 = LK_PARRYING 336 (part 1)
+          'job_acolyte_heal': {'buff': 'fx_heal'},                            # AL_HEAL 312 = fx_heal
+          'swordman_bash': {'hit': 'fx_hit'},                                 # SM_BASH hitEffectId 1 = EF_HIT2
+          'job_archer_double_strafe': {'hit': 'fx_hit'},                      # AC_DOUBLE hitEffectId 1
+          'job_knight_bowling_bash': {'hit': 'fx_hit'},                       # KN_BOWLINGBASH hitEffectId 1
+          'job_alchemist_slim_potion': {'buff': 'fx_job_alchemist_potion_pitcher'},  # CR_SLIMPITCHER has no own effect in RO; Aid Potion 299
+          'priest_blessing': {'buff': 'fx_job_acolyte_blessing'}}            # hero ultimate "Благословение" = AL_BLESSING 42
+# part 4: monster ultimates have no RO skill; RO NPC_* skills chosen by meaning -> suggestions, not applied mapping
+SUGGESTED = {'mob_boss1_quake': 'NPC_EARTHQUAKE', 'mob_boss2_curse': 'NPC_CURSEATTACK', 'mob2_boss_rot_spores': 'NPC_POISON',
+             'mob2_tank_mire': 'NPC_EVILLAND', 'mob2_elite_frenzy': 'NPC_POWERUP', 'mob_tank_guard': 'NPC_DEFENDER',
+             'mob_mastering_jelly_armor': 'NPC_KEEPING', 'mob3_fast_haunt': 'NPC_DARKNESSATTACK', 'mob_elite_smash': 'NPC_STUNATTACK',
+             'mob3_boss_nova': 'NPC_DARKSTRIKE'}
 ALPHA_FLOOR = {'fx_magic': 24, 'fx_job_mage_thunderstorm': 25}             # as noted for the main sheets
 # crop/empty threshold per effect: faint source-quad noise far from the effect inflates the cell (main notes the same)
 THRESHOLD = {'fx_magic': 24, 'fx_job_mage_thunderstorm': 25, 'fx_job_acolyte_signum_crucis': 24, 'fx_job_wizard_storm_gust': 24,
@@ -87,7 +100,7 @@ def alpha_floor(png, floor):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--part', type=int, required=True, choices=[1, 2, 3])
+    ap.add_argument('--part', type=int, required=True, choices=[1, 2, 3, 4])
     ap.add_argument('--root', default='/root/ro-client-extraction-2/fxwork')
     ap.add_argument('--raw', help='capture dir (default <root>/raw/p<N>)')
     a = ap.parse_args()
@@ -114,7 +127,7 @@ def main():
         meta = json.load(open(meta_p))
         if meta.get('firstContent', -1) < 0:
             results.append(dict(key=key, role=role, ro=eff, status='empty')); continue
-        if part == 1:
+        if part in (1, 4):
             fx_id = f'fx_{key}' if len(roles[key]) == 1 and role != 'projectile' else f'fx_{key}_{role}'
             if fx_id in main_by_id:
                 fx_id = f'{fx_id}_{role}'
@@ -162,17 +175,25 @@ def main():
             for r in results:
                 if r.get('id') == e['id'] and r['post']:
                     e['source']['post'] = r['post']
-    skills = {}
-    if part == 1:
+    skills, suggested = {}, {}
+    if part in (1, 4):
         for r in results:
             if r['status'] == 'built' and r['role'] != 'projectile':
-                skills.setdefault(r['key'], {})[r['role']] = r['id']
-        for k, m in REUSE.items():
-            skills.setdefault(k, {}).update(m)
+                if r['key'] in SUGGESTED:
+                    suggested.setdefault(r['key'], {'roSkill': SUGGESTED[r['key']]})[r['role']] = r['id']
+                else:
+                    skills.setdefault(r['key'], {})[r['role']] = r['id']
+        known = set(main_by_id) | built
+        if part == 4 and os.path.exists(f'{root}/out/p1/effects.fragment.json'):
+            known |= {e['id'] for e in json.load(open(f'{root}/out/p1/effects.fragment.json'))['effects']}
+        for k, m in (REUSE if part == 1 else REUSE4).items():
+            ok = {role: fx for role, fx in m.items() if fx in known}   # never map to a sheet that does not exist
+            if ok:
+                skills.setdefault(k, {}).update(ok)
         for k, m in skills.items():
             doc['skills'].setdefault(k, {}).update(m)
     json.dump(doc, open(f'{repo_fx}/effects.json', 'w'), ensure_ascii=False, indent=2)
-    frag = dict(schema=1, part=part, effects=[e for e in doc['effects'] if e['id'] in built], skills=skills, results=results)
+    frag = dict(schema=1, part=part, effects=[e for e in doc['effects'] if e['id'] in built], skills=skills, suggestedSkills=suggested, results=results)
     json.dump(frag, open(f'{out}/effects.fragment.json', 'w'), ensure_ascii=False, indent=1)
     for r in results:
         print(r['status'], r.get('id', r['key']), r['role'], r['ro'], r.get('frames', ''), r.get('cell', ''),
