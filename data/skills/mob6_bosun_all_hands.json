@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob6_bosun_all_hands",
+  "name": "Свистать всех наверх",
+  "description": "Боцман свистит мёртвой команде: все союзники получают +20% атаки и +15% скорости на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "all_hands",
+        "name": "Свистать всех наверх",
+        "turns": 2,
+        "stats": {
+          "atk": 0.2,
+          "spd": 0.15
+        }
+      }
+    }
+  ]
+}

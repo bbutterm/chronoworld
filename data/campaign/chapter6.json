@@ -63,6 +63,39 @@
       }
     },
     {
+      "id": "ch6_s11",
+      "name": "Косяк сворд-фишей",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_fast",
+          "mult": 0.44
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.44
+        },
+        null,
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.44
+        },
+        {
+          "unit": "mob6_fast",
+          "mult": 0.44
+        }
+      ],
+      "rewards": {
+        "jobExp": 23680,
+        "gold": 16647
+      },
+      "offlinePerMinute": {
+        "jobExp": 789,
+        "gold": 555
+      }
+    },
+    {
       "id": "ch6_s3",
       "name": "Коралловый риф",
       "boss": false,
@@ -159,6 +192,42 @@
       }
     },
     {
+      "id": "ch6_s12",
+      "name": "Пробоина в борту",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_melee",
+          "mult": 0.292
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.292
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.292
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.292
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.292
+        }
+      ],
+      "rewards": {
+        "jobExp": 26650,
+        "gold": 18731
+      },
+      "offlinePerMinute": {
+        "jobExp": 888,
+        "gold": 624
+      }
+    },
+    {
       "id": "ch6_s6",
       "name": "Верхняя палуба",
       "boss": false,
@@ -191,6 +260,39 @@
       "offlinePerMinute": {
         "jobExp": 906,
         "gold": 637
+      }
+    },
+    {
+      "id": "ch6_s13",
+      "name": "Свисток боцмана",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_melee",
+          "mult": 0.267
+        },
+        {
+          "unit": "mob6_bosun",
+          "mult": 0.267
+        },
+        null,
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.267
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.267
+        }
+      ],
+      "rewards": {
+        "jobExp": 27715,
+        "gold": 19481
+      },
+      "offlinePerMinute": {
+        "jobExp": 924,
+        "gold": 649
       }
     },
     {
@@ -229,6 +331,42 @@
       }
     },
     {
+      "id": "ch6_s14",
+      "name": "Пороховой погреб",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_tank",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_tank",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.22
+        }
+      ],
+      "rewards": {
+        "jobExp": 28824,
+        "gold": 20246
+      },
+      "offlinePerMinute": {
+        "jobExp": 961,
+        "gold": 675
+      }
+    },
+    {
       "id": "ch6_s8",
       "name": "Затопленный трюм",
       "boss": false,
@@ -264,6 +402,42 @@
       }
     },
     {
+      "id": "ch6_s15",
+      "name": "Песни обеонов",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_tank",
+          "mult": 0.153
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.153
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.153
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.153
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.153
+        }
+      ],
+      "rewards": {
+        "jobExp": 29979,
+        "gold": 21056
+      },
+      "offlinePerMinute": {
+        "jobExp": 999,
+        "gold": 702
+      }
+    },
+    {
       "id": "ch6_s9",
       "name": "Кают-компания мертвецов",
       "boss": false,
@@ -296,6 +470,114 @@
       "offlinePerMinute": {
         "jobExp": 1019,
         "gold": 716
+      }
+    },
+    {
+      "id": "ch6_s16",
+      "name": "Штурманская рубка",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_elite",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_fast",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_fast",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.22
+        }
+      ],
+      "rewards": {
+        "jobExp": 30870,
+        "gold": 21695
+      },
+      "offlinePerMinute": {
+        "jobExp": 1029,
+        "gold": 723
+      }
+    },
+    {
+      "id": "ch6_s17",
+      "name": "Сокровищница Дрейка",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_tank",
+          "mult": 0.194
+        },
+        {
+          "unit": "mob6_elite",
+          "mult": 0.194
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.194
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.194
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.194
+        }
+      ],
+      "rewards": {
+        "jobExp": 31172,
+        "gold": 21913
+      },
+      "offlinePerMinute": {
+        "jobExp": 1039,
+        "gold": 730
+      }
+    },
+    {
+      "id": "ch6_s18",
+      "name": "Трап мертвецов",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_melee",
+          "mult": 0.242
+        },
+        {
+          "unit": "mob6_elite",
+          "mult": 0.242
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.242
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.242
+        },
+        {
+          "unit": "mob6_fast",
+          "mult": 0.242
+        }
+      ],
+      "rewards": {
+        "jobExp": 31478,
+        "gold": 22132
+      },
+      "offlinePerMinute": {
+        "jobExp": 1050,
+        "gold": 738
       }
     },
     {
