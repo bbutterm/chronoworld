@@ -38,7 +38,9 @@ import { BarkLayer, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, UltPresenter } f
 import { RO_DIGIT_H } from '../numberFont';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
-import { button, panel, text, tutorialHint } from '../ui';
+import { button, panel, text, toast, tutorialHint } from '../ui';
+import { audioSettings, setAudioSettings } from '../audio';
+import { battleSfxToast } from '../audioCore';
 import { hintDone, markHint } from '../hints';
 import { isUnlocked } from '../unlockBanner';
 import { ease, Scheduler } from '../perf';
@@ -493,6 +495,7 @@ export class BattleScene extends Phaser.Scene {
       this.time.timeScale = playback.speed;
     });
     button(this, 900, 360, 280, 110, 'ui_btn_skip', 'Пропустить', () => this.skip());
+    this.battleSoundButton();
     // Обучение (hints.ts): скорость ×2 открылась (этап 1-2) — указатель на кнопку скорости в первом бою на 1x.
     if (this.stage && playback.speed === 1 && isUnlocked('speed_x2') && !hintDone('battle_speed')) {
       speedHint = tutorialHint(this, 'battle_speed', 180, 360, 'below', { w: 280, h: 110 });
@@ -532,6 +535,44 @@ export class BattleScene extends Phaser.Scene {
     };
     if (this.introLeft > 0) this.later.after(this.introLeft + BOSS_OUT_MS, startBark);
     else this.later.after(500, startBark);
+  }
+
+  /**
+   * Значок динамика в правом верхнем углу (справа от панели с названием этапа, не над «1x» / «Пропустить»): звуки боя
+   * вкл/выкл — та же настройка, что строка «Звуки боя» в Настройках (audioSettings.battleSfx, запоминается). Музыку боя
+   * и интерфейс не трогает. Касание 130×130 (≈47 CSS px на 390 px ширины).
+   */
+  private battleSoundButton(): void {
+    const icon = this.add.graphics();
+    const draw = () => {
+      const on = audioSettings.battleSfx;
+      icon.clear();
+      icon.fillStyle(0xf3e6c4, on ? 1 : 0.6);
+      // Динамик: корпус и раструб.
+      icon.fillRect(-34, -12, 16, 24);
+      icon.fillTriangle(-18, -12, 4, -30, 4, 30);
+      icon.fillTriangle(-18, -12, -18, 12, 4, 30);
+      icon.lineStyle(6, on ? 0xf3e6c4 : 0xe0564a, 1);
+      if (on) {
+        icon.beginPath();
+        icon.arc(8, 0, 14, -0.9, 0.9);
+        icon.strokePath();
+        icon.beginPath();
+        icon.arc(8, 0, 28, -0.9, 0.9);
+        icon.strokePath();
+      } else {
+        icon.lineBetween(14, -14, 38, 14);
+        icon.lineBetween(14, 14, 38, -14);
+      }
+    };
+    const btn = button(this, GAME_W - 80, 130, 130, 130, 'ui_btn_speed', '', () => {
+      setAudioSettings({ battleSfx: !audioSettings.battleSfx });
+      draw();
+      toast(this, battleSfxToast(audioSettings), undefined, 1600);
+    }, undefined, { repeat: true });
+    btn.container.add(icon);
+    btn.container.setName('battleSound');
+    draw();
   }
 
   /**

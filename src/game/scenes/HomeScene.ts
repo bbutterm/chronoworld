@@ -13,7 +13,7 @@ import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
 import { audioSettings, setAudioSettings, sfx } from '../audio';
 import { hapticSettings, setHapticsOn } from '../haptics';
-import { nextVolume, volumeLabel } from '../audioCore';
+import { battleSfxLabel, nextVolume, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
 import { shopTile } from '../shopEntry';
 import { achievementsTile, questsTile } from '../featureTiles';
@@ -132,7 +132,7 @@ export class HomeScene extends Phaser.Scene {
     y += 70;
     layer.add(text(this, cx, y, 'Без полёта наград, пульса и «выезда» списков', FS.small, C.muted));
 
-    // Звук (issue #26): громкость музыки и звуков шагами по кругу, «Без звука» — всё молчит (громкости помнятся).
+    // Звук (issue #26): громкость музыки и звуков шагами по кругу, «Звуки боя» вкл/выкл, «Без звука» — всё молчит (громкости помнятся).
     const volumeRow = (label: string, name: string, get: () => string, change: () => void) => {
       y += 100;
       layer.add(text(this, cx - bw / 2, y, label, FS.h3, C.text, OUTLINE).setOrigin(0, 0.5));
@@ -146,6 +146,8 @@ export class HomeScene extends Phaser.Scene {
     };
     volumeRow('Музыка', 'musicVolume', () => volumeLabel(audioSettings.music), () => setAudioSettings({ music: nextVolume(audioSettings.music) }));
     volumeRow('Звуки', 'sfxVolume', () => volumeLabel(audioSettings.sfx), () => setAudioSettings({ sfx: nextVolume(audioSettings.sfx) }));
+    // Та же настройка, что значок динамика в верхней панели боя: удары, навыки и смерти (музыка и интерфейс звучат).
+    volumeRow('Звуки боя', 'battleSfx', () => battleSfxLabel(audioSettings), () => setAudioSettings({ battleSfx: !audioSettings.battleSfx }));
     volumeRow('Без звука', 'muteAll', () => (audioSettings.muted ? 'Вкл' : 'Выкл'), () => setAudioSettings({ muted: !audioSettings.muted }));
     // Вибрация (Telegram HapticFeedback, на Android вне Telegram — vibrate; haptics.ts).
     volumeRow('Вибрация', 'haptics', () => (hapticSettings.on ? 'Вкл' : 'Выкл'), () => setHapticsOn(!hapticSettings.on));
