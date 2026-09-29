@@ -355,6 +355,12 @@ export const SaveStateSchema = z.object({
    * после финала). Каждая показывается сама один раз, потом живёт в «Летописи». Без смены версии: нет поля — пусто.
    */
   seenPages: z.array(z.string()).optional(),
+  /**
+   * Прочитанные кусочки истории героев (data/lore/hero_stories.json): id карточки → уровни-пороги прочитанных кусочков
+   * (src/core/lore/heroStories.ts). Прочитанный кусочек остаётся открытым, даже если копию героя отдали в корм.
+   * Без смены версии: нет поля — ничего не прочитано.
+   */
+  heroStoryRead: z.record(z.string(), z.array(z.number().int().positive())).optional(),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;
