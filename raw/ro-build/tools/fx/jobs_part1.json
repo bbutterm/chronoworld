@@ -1,0 +1,9 @@
+[["job_swordman_provoke","debuff","67"],["job_merchant_mammonite","hit","10"],["job_mage_cold_bolt","projectile","ef_coldbolt"],
+ ["job_mage_fire_bolt","projectile","ef_firebolt"],["job_mage_frost_diver","projectile","27"],["job_archer_arrow_shower","ground","ef_arrow_shower_projectile"],
+ ["job_archer_improve_concentration","buff","153"],["job_acolyte_angelus","buff","41"],["job_thief_venom_knife","projectile","600"],
+ ["job_blacksmith_hammer_fall","ground","102"],["job_wizard_jupitel_thunder","hit","93"],["job_wizard_jupitel_thunder","projectile","94"],
+ ["job_wizard_quagmire","ground","95"],["job_sage_volcano","ground","239"],["job_alchemist_acid_terror","projectile","298"],
+ ["job_priest_impositio_manus","buff","84"],["job_priest_magnus_exorcismus","ground","318"],["job_priest_magnus_exorcismus","cast","113"],
+ ["job_priest_lex_aeterna","debuff","85"],["job_priest_kyrie_eleison","buff","112"],["job_priest_sanctuary","ground","319"],
+ ["job_priest_assumptio","buff","440"],["job_assassin_grimtooth","hit","132"],["job_assassin_venom_splasher","hit","129"],
+ ["job_knight_parrying","buff","336"],["job_merchant_crazy_uproar","buff","311"],["job_priest_magnificat","buff","76"]]
