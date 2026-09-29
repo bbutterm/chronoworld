@@ -584,7 +584,23 @@ const RECIPES: Record<SfxId, () => Float32Array> = {
     for (const m of [40, 52, 55]) tone(b, SFX_RATE, { at: 0.9, f: midi(m), dur: 1.05, wave: 'tri', gain: 0.35, decay: 0.5 });
     return finish(b, 0.8);
   },
+  // Взмахи по оружию и заточка: заглушки из готовых (файлы RO их заменяют, tools/ro_audio.py).
+  swing_dagger: () => RECIPES.swing(),
+  swing_blunt: () => layer([RECIPES.swing(), 0]),
+  refine_success: () => layer([RECIPES.equip(), 0], [RECIPES.coin(), 0.06]),
+  refine_fail: () => layer([RECIPES.hit_blunt(), 0], [RECIPES.ui_error(), 0.12]),
 };
+
+/** Сложить готовые звуки со сдвигом (с) и привести к пику 0.8. */
+function layer(...parts: [Float32Array, number][]): Float32Array {
+  const len = Math.max(...parts.map(([d, at]) => d.length + Math.round(at * SFX_RATE)));
+  const out = new Float32Array(len);
+  for (const [d, at] of parts) {
+    const o = Math.round(at * SFX_RATE);
+    for (let i = 0; i < d.length; i++) out[o + i] += d[i];
+  }
+  return finish(out, 0.8);
+}
 
 /** Сэмплы заглушки звука id (рендерится при каждом вызове — кэширует audio.ts). */
 export function synthSfx(id: SfxId): Pcm {
@@ -646,7 +662,30 @@ const HIJAZ = [0, 1, 4, 5, 7, 8, 10];
 /** Минорная пентатоника: ночной лес Пайона (аккорды из ступеней 0-2-4 выходят квартовыми — «воздушными»). */
 const MIN_PENTA = [0, 3, 5, 7, 10];
 
-const MUSIC_SPECS: Record<MusicId, MusicSpec> = {
+/**
+ * Дорожки без своей заглушки звучат как прежняя тема слота (файлов владельца пока нет — docs/design/audio.md,
+ * «Музыка: заказ»): канализация — топь, орки — пустыня, часовая башня и Башня — склеп, лабиринт — ночной лес,
+ * экран входа — главная.
+ */
+const MUSIC_ALIAS = {
+  title: 'home',
+  tower: 'map_crypt',
+  battle_tower: 'battle_crypt',
+  map_sewer: 'map_swamp',
+  battle_sewer: 'battle_swamp',
+  map_orc: 'map_desert',
+  battle_orc: 'battle_desert',
+  map_clocktower: 'map_crypt',
+  battle_clocktower: 'battle_crypt',
+  map_labyrinth: 'map_grove',
+  battle_labyrinth: 'battle_grove',
+} as const satisfies Partial<Record<MusicId, MusicId>>;
+type AliasId = keyof typeof MUSIC_ALIAS;
+
+/** Чья заглушка играет у дорожки (своя или прежней темы слота, MUSIC_ALIAS). */
+export const musicSpecOf = (id: MusicId): Exclude<MusicId, AliasId> => (id in MUSIC_ALIAS ? MUSIC_ALIAS[id as AliasId] : (id as Exclude<MusicId, AliasId>));
+
+const MUSIC_SPECS: Record<Exclude<MusicId, AliasId>, MusicSpec> = {
   home: { bpm: 76, root: 60, scale: MAJOR, chords: [0, 5, 3, 4, 0, 5, 3, 4], bars: 8, lead: 'box', density: 0.45, bass: 'half', drums: 'none', seed: 1 },
   tavern: { bpm: 100, root: 55, scale: MAJOR, chords: [0, 3, 4, 0, 0, 3, 4, 0], bars: 8, lead: 'lute', density: 0.6, bass: 'half', drums: 'soft', seed: 2 },
   map_meadow: { bpm: 84, root: 62, scale: MAJOR, chords: [0, 4, 5, 3, 0, 4, 3, 4], bars: 8, lead: 'lute', density: 0.5, bass: 'half', drums: 'none', seed: 3 },
@@ -693,7 +732,7 @@ export function synthMusic(id: MusicId): Pcm {
  * чтобы смена экрана не «подвисала» на телефоне. pcm готов после последнего шага.
  */
 export function musicJob(id: MusicId): { pcm: Pcm; steps: (() => void)[] } {
-  const spec = MUSIC_SPECS[id];
+  const spec = MUSIC_SPECS[musicSpecOf(id)];
   const rate = LOOP_RATE;
   const beat = 60 / spec.bpm;
   const barLen = beat * 4;

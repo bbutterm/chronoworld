@@ -8,9 +8,11 @@
  * раздел «Точки подключения».
  */
 import type { BattleEvent, BattleResult, UnitDef } from '../core';
-import { sfx } from './audio';
+import monsterSoundsJson from '../../data/monster_sounds.json';
+import { preloadSoundFiles, sfx, sfxFile } from './audio';
 import type { SfxId } from './audioCatalog';
 import { CONTENT } from './content';
+import { MonsterSoundsSchema, monsterSoundFile, type MonsterSound, type MonsterSoundKind, type MonsterSounds } from './monsterSounds';
 import { elementOf, type Element } from './skillLook';
 import { playback } from './state';
 
@@ -37,6 +39,37 @@ export function weaponOf(def: UnitDef | undefined): Weapon {
   return WEAPON_KEYS.find(([, re]) => re.test(key))?.[0] ?? 'hit_sword';
 }
 
+/** Взмах по оружию героя (звуки взмаха RO: меч, кинжал/катар, булава/топор). */
+const SWING: Partial<Record<Weapon, SfxId>> = { hit_dagger: 'swing_dagger', hit_blunt: 'swing_blunt' };
+export const swingOf = (w: Weapon): SfxId => SWING[w] ?? 'swing';
+
+/** Свои звуки монстров RO по листу спрайта (data/monster_sounds.json; ошибка в файле — общие звуки, content:check её покажет). */
+const MONSTER_SOUNDS: MonsterSounds['sprites'] = (() => {
+  const r = MonsterSoundsSchema.safeParse(monsterSoundsJson);
+  return r.success ? r.data.sprites : {};
+})();
+
+/** Звуки монстра (не героя) по его листу; нет — общие звуки каталога. */
+export function monsterSoundsOf(def: UnitDef | undefined): MonsterSound | undefined {
+  if (!def || def.kind === 'hero') return undefined;
+  return MONSTER_SOUNDS[def.visual.sprite];
+}
+
+/** Ограничитель для файла звука монстра: удар — как взмах, смерть — как общий «пуф». */
+const MONSTER_RULE: Record<MonsterSoundKind, { gap: number; voices: number; gain: number }> = {
+  attack: { gap: 70, voices: 2, gain: 0.45 },
+  death: { gap: 60, voices: 3, gain: 0.6 },
+};
+
+/** Сыграть свой звук монстра (по очереди из списка). false — своего звука нет или он ещё грузится. */
+function monsterSound(u: UnitAudio, kind: MonsterSoundKind, delay: number): boolean {
+  const list = u.sounds?.[kind];
+  if (!list?.length) return false;
+  const name = list[u.turn++ % list.length];
+  const rule = MONSTER_RULE[kind];
+  return sfxFile(monsterSoundFile(name), rule, { delay, gain: rule.gain });
+}
+
 const CAST: Record<Element, SfxId> = {
   fire: 'cast_fire',
   ice: 'cast_ice',
@@ -57,6 +90,10 @@ interface UnitAudio {
   /** Звук попадания последней атаки. */
   hit: SfxId;
   inUlt: boolean;
+  /** Свои звуки RO (монстры). */
+  sounds: MonsterSound | undefined;
+  /** Счётчик для чередования своих звуков. */
+  turn: number;
 }
 
 interface BattleAudioState {
@@ -69,11 +106,16 @@ function stateOf(result: BattleResult, defs: Record<string, UnitDef>): BattleAud
   let s = states.get(result);
   if (!s) {
     s = { units: new Map() };
+    const files = new Set<string>();
     for (const u of result.units) {
       const def = defs[u.unitId];
-      s.units.set(u.uid, { def, side: u.side, impact: WINDUP_MS / 1000, hit: weaponOf(def), inUlt: false });
+      const sounds = monsterSoundsOf(def);
+      for (const n of [...(sounds?.attack ?? []), ...(sounds?.death ?? [])]) files.add(monsterSoundFile(n));
+      s.units.set(u.uid, { def, side: u.side, impact: WINDUP_MS / 1000, hit: weaponOf(def), inUlt: false, sounds, turn: 0 });
     }
     states.set(result, s);
+    // Звуки монстров этого боя — заранее (первое событие лога приходит до первого удара).
+    preloadSoundFiles([...files]);
   }
   return s;
 }
@@ -98,9 +140,10 @@ export function battleSound(e: BattleEvent, animate: boolean, result: BattleResu
       u.impact = (WINDUP_MS + (e.kind === 'melee' ? 0 : FLIGHT_MS)) / 1000;
       u.hit = magic ? 'hit_magic' : e.kind === 'melee' ? weaponOf(u.def) : weaponOf(u.def) === 'hit_magic' ? 'hit_magic' : 'hit_arrow';
       if (e.kind === 'heal') return;
-      // Активный навык — звук стихии; обычная атака — взмах / выстрел.
+      // Активный навык — звук стихии; обычная атака — свой звук монстра RO, иначе взмах по оружию / выстрел.
       if (e.name && el !== 'physical') sfx(CAST[el], { delay: scaled(0.08) });
-      else if (e.kind === 'melee') sfx('swing', { delay: scaled(WINDUP_MS / 1000) * 0.6 });
+      else if (monsterSound(u, 'attack', scaled(WINDUP_MS / 1000) * 0.6)) return;
+      else if (e.kind === 'melee') sfx(swingOf(weaponOf(u.def)), { delay: scaled(WINDUP_MS / 1000) * 0.6 });
       else if (u.hit === 'hit_arrow') sfx('bow_shot', { delay: scaled(0.12) });
       return;
     }
@@ -151,8 +194,10 @@ export function battleSound(e: BattleEvent, animate: boolean, result: BattleResu
       const u = s.units.get(e.unit);
       const killer = e.killer ? s.units.get(e.killer) : undefined;
       const delay = scaled((killer?.impact ?? 0) + 0.15);
-      if (u?.def?.kind === 'boss') sfx('boss_death', { delay });
-      else sfx(u?.side === 'A' ? 'death_hero' : 'death_monster', { delay });
+      // Свой звук смерти монстра RO; босс — ещё и фанфара MVP.
+      const own = !!u && monsterSound(u, 'death', delay);
+      if (u?.def?.kind === 'boss') sfx('boss_death', { delay: delay + (own ? 0.25 : 0) });
+      else if (!own) sfx(u?.side === 'A' ? 'death_hero' : 'death_monster', { delay });
       return;
     }
     default:

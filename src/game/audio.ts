@@ -28,21 +28,48 @@ for (const path of Object.keys(import.meta.glob('../../assets/audio/*.{ogg,m4a,m
   if (m) (FILES[m[1]] ??= {})[m[2]] = `audio/${name}`;
 }
 
-/** Лучший формат файла для этого браузера (OGG — Android/Chrome, M4A — iOS Safari, MP3 — запасной). */
-function fileUrl(base: string): string | null {
-  const f = FILES[base];
-  if (!f) return null;
-  let probe: HTMLAudioElement | null = null;
-  try {
-    probe = typeof document !== 'undefined' ? document.createElement('audio') : null;
-  } catch {
-    probe = null;
+let canPlay: ((type: string) => boolean) | null = null;
+/** Умеет ли браузер этот тип (проба одним <audio>, ответ запоминается). */
+function can(type: string): boolean {
+  if (!canPlay) {
+    let probe: HTMLAudioElement | null = null;
+    try {
+      probe = typeof document !== 'undefined' ? document.createElement('audio') : null;
+    } catch {
+      probe = null;
+    }
+    const memo = new Map<string, boolean>();
+    canPlay = (t) => {
+      let v = memo.get(t);
+      if (v === undefined) memo.set(t, (v = !!probe?.canPlayType?.(t).replace('no', '')));
+      return v;
+    };
   }
-  const can = (type: string) => !!probe?.canPlayType?.(type).replace('no', '');
-  if (f.ogg && (can('audio/ogg; codecs="vorbis"') || can('audio/ogg; codecs="opus"'))) return f.ogg;
-  if (f.m4a && can('audio/mp4; codecs="mp4a.40.2"')) return f.m4a;
-  if (f.mp3) return f.mp3;
-  return f.ogg ?? f.m4a ?? null;
+  return canPlay(type);
+}
+
+/**
+ * Файлы в порядке предпочтения для этого браузера: OGG (Opus/Vorbis — Chrome, Android, Firefox), M4A (AAC — Safari,
+ * iOS, macOS), MP3 (везде). Сначала те, что браузер обещает сыграть; остальные — в конце, на случай неверного ответа
+ * canPlayType. Не раскодировался первый — пробуем следующий (load).
+ */
+function fileUrls(base: string): string[] {
+  const f = FILES[base];
+  if (!f) return [];
+  const ok = {
+    ogg: can('audio/ogg; codecs="opus"') || can('audio/ogg; codecs="vorbis"'),
+    m4a: can('audio/mp4; codecs="mp4a.40.2"'),
+    mp3: can('audio/mpeg'),
+  };
+  const order = (['ogg', 'm4a', 'mp3'] as const).filter((e) => f[e]);
+  return [...order.filter((e) => ok[e]), ...order.filter((e) => !ok[e])].map((e) => f[e]);
+}
+
+/** Варианты звука: <id>, <id>_v2, <id>_v3… (удары RO — несколько файлов, чередуются). Только те, что есть. */
+function sfxVariants(id: string): string[] {
+  const out: string[] = FILES[id] ? [id] : [];
+  for (let k = 2; FILES[`${id}_v${k}`]; k++) out.push(`${id}_v${k}`);
+  return out;
 }
 
 /** Какие звуки и дорожки заменены файлами владельца (для отладки и отчёта). */
@@ -75,6 +102,12 @@ interface Track {
 }
 
 const FADE_S = 0.8;
+/** Файлы звуков качаем не больше стольких сразу. */
+const LOAD_PARALLEL = 3;
+/** Через сколько мс после старта начинать качать звуки (экран загрузки и первый экран — важнее). */
+const PRELOAD_DELAY_MS = 1500;
+
+type PlayOpts = { rate?: number; gain?: number; delay?: number };
 const DUCK_TO = 0.35;
 
 class AudioEngine {
@@ -123,16 +156,16 @@ class AudioEngine {
   }
 
   /**
-   * Файл владельца (если есть) или заглушка; null — пока грузится файл или рендерится длинная заглушка
+   * Файл (если есть) или заглушка; null — пока грузится файл или рендерится длинная заглушка
    * (звук пропускается, музыка заиграет, когда будет готова). Файл не загрузился — заглушка.
    */
   private buffer(key: string, files: readonly string[], synth: () => Pcm | Job): AudioBuffer | null {
     const have = this.buffers.get(key);
     if (have) return have;
     if (this.loading.has(key)) return null;
-    const url = FILES_FAILED.has(key) ? null : files.map(fileUrl).find((u) => u);
-    if (url) {
-      void this.load(key, url);
+    const urls = FILES_FAILED.has(key) ? [] : (files.map(fileUrls).find((u) => u.length) ?? []);
+    if (urls.length) {
+      void this.load(key, urls);
       return null;
     }
     const made = synth();
@@ -152,19 +185,26 @@ class AudioEngine {
     return buf;
   }
 
-  /** Загрузить и раскодировать файл (один раз); ошибка — заглушка вместо файла. */
-  load(key: string, url: string): Promise<AudioBuffer | null> {
+  /**
+   * Загрузить и раскодировать файл (один раз). urls — один звук в разных форматах: не скачался или не раскодировался
+   * первый (Safari и Ogg) — следующий. Ни один — ключ помечен, дальше играет заглушка.
+   */
+  load(key: string, urls: readonly string[]): Promise<AudioBuffer | null> {
     const busy = this.loading.get(key);
     if (busy) return busy;
-    const p = fetch(url)
-      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`${r.status}`))))
-      .then((data) => this.ctx.decodeAudioData(data))
+    const attempt = (i: number): Promise<AudioBuffer> =>
+      fetch(urls[i])
+        .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`${r.status}`))))
+        .then((data) => this.ctx.decodeAudioData(data))
+        .catch((e: unknown) => (i + 1 < urls.length ? attempt(i + 1) : Promise.reject(e)));
+    const p = attempt(0)
       .then((buf) => {
         this.buffers.set(key, buf);
+        this.loading.delete(key);
         return buf;
       })
       .catch((e: unknown) => {
-        console.warn(`Звук ${url} не загрузился (${String(e)}), играет заглушка`);
+        console.warn(`Звук ${urls.join(' / ')} не загрузился (${String(e)}), играет заглушка`);
         FILES_FAILED.add(key);
         this.loading.delete(key);
         return null;
@@ -173,17 +213,39 @@ class AudioEngine {
     return p;
   }
 
+  /** Очередь загрузки файлов звуков: не больше LOAD_PARALLEL сразу (не спорить с картинками экрана за сеть). */
+  private readonly queue: [string, string[]][] = [];
+  private queued = new Set<string>();
+  private inFlight = 0;
+  private enqueue(key: string, urls: string[]): void {
+    if (this.buffers.has(key) || this.loading.has(key) || this.queued.has(key) || FILES_FAILED.has(key) || !urls.length) return;
+    this.queued.add(key);
+    this.queue.push([key, urls]);
+    this.pump();
+  }
+  private pump(): void {
+    while (this.inFlight < LOAD_PARALLEL && this.queue.length) {
+      const [key, urls] = this.queue.shift()!;
+      this.queued.delete(key);
+      this.inFlight++;
+      void this.load(key, urls).finally(() => {
+        this.inFlight--;
+        this.pump();
+      });
+    }
+  }
+
   /**
-   * В фоне после старта: файлы владельца загрузить, заглушки отрендерить заранее (по одной за тик) —
-   * первое нажатие не ждёт синтеза. Интерфейс и награды — первыми.
+   * В фоне после старта: файлы звуков загрузить (интерфейс и награды — первыми, по порядку каталога), заглушки
+   * отрендерить заранее (по одной за тик) — первое нажатие не ждёт синтеза. Музыка сюда не входит: она грузится,
+   * только когда экран её попросит.
    */
   preloadSfx(): void {
     const ids = Object.keys(SFX) as SfxId[];
-    for (const id of ids) {
-      const url = fileUrl(id);
-      if (url) void this.load(`sfx:${id}`, url);
-    }
-    const queue = ids.filter((id) => !fileUrl(id));
+    setTimeout(() => {
+      for (const id of ids) for (const v of sfxVariants(id)) this.enqueue(`sfx:${v}`, fileUrls(v));
+    }, PRELOAD_DELAY_MS);
+    const queue = ids.filter((id) => !sfxVariants(id).length);
     const tick = () => {
       const id = queue.shift();
       if (!id) return;
@@ -193,12 +255,27 @@ class AudioEngine {
     setTimeout(tick, 300);
   }
 
-  private sfxBuffer(id: SfxId): AudioBuffer | null {
-    return this.buffer(`sfx:${id}`, [id], () => synthSfx(id));
+  /** Загрузить файлы заранее (звуки монстров перед боем). Нет файла — пропустить. */
+  preloadFiles(names: readonly string[]): void {
+    for (const n of names) this.enqueue(`sfx:${n}`, fileUrls(n));
   }
 
-  play(id: SfxId, o: { rate?: number; gain?: number; delay?: number } = {}): void {
-    if (this.mute.active || audioSettings.muted || audioSettings.sfx <= 0) return;
+  private readonly lastVariant = new Map<string, number>();
+  /** Буфер звука: вариант файла (случайный, не тот же, что в прошлый раз) или заглушка. */
+  private sfxBuffer(id: SfxId): AudioBuffer | null {
+    const vars = sfxVariants(id);
+    if (vars.length <= 1) return this.buffer(`sfx:${id}`, [id], () => synthSfx(id));
+    const last = this.lastVariant.get(id) ?? -1;
+    let k = Math.floor(Math.random() * (vars.length - 1));
+    if (k >= last && last >= 0) k++;
+    this.lastVariant.set(id, k);
+    const buf = this.buffer(`sfx:${vars[k]}`, [vars[k]], () => synthSfx(id));
+    // Этот вариант ещё грузится — сыграть любой готовый.
+    return buf ?? vars.map((v) => this.buffers.get(`sfx:${v}`)).find((b) => b) ?? null;
+  }
+
+  play(id: SfxId, o: PlayOpts = {}): void {
+    if (this.silent()) return;
     const def = SFX[id];
     const buf = this.sfxBuffer(id);
     if (!buf) return;
@@ -207,16 +284,43 @@ class AudioEngine {
     if (!this.limiter.tryPlay(id, now, (buf.duration / rate) * 1000, ruleOf(id))) return;
     if (id === 'coin') rate *= this.coinPitch.next(now);
     if (id === 'gem') rate *= this.gemPitch.next(now);
+    this.emit(buf, def.gain * (o.gain ?? 1), def.cat === 'ui' ? this.bus.ui : this.bus.sfx, rate, o.delay ?? 0, 'duck' in def && !!def.duck);
+  }
+
+  /**
+   * Звук-файл без записи в каталоге (звуки монстров RO, mon_*). false — файла нет или он ещё не загружен
+   * (вызывающий играет общий звук каталога); true — звук сыгран или пропущен ограничителем / выключенным звуком.
+   */
+  playFile(name: string, rule: { gap: number; voices: number }, o: PlayOpts = {}): boolean {
+    if (!FILES[name]) return false;
+    const key = `sfx:${name}`;
+    const buf = this.buffers.get(key);
+    if (!buf) {
+      this.enqueue(key, fileUrls(name));
+      return false;
+    }
+    if (this.silent()) return true;
+    const rate = o.rate ?? 1;
+    const now = performance.now() + (o.delay ?? 0) * 1000;
+    if (this.limiter.tryPlay(name, now, (buf.duration / rate) * 1000, rule)) this.emit(buf, o.gain ?? 1, this.bus.sfx, rate, o.delay ?? 0, false);
+    return true;
+  }
+
+  private silent(): boolean {
+    return this.mute.active || audioSettings.muted || audioSettings.sfx <= 0;
+  }
+
+  private emit(buf: AudioBuffer, gain: number, bus: AudioNode, rate: number, delay: number, duck: boolean): void {
     const src = this.ctx.createBufferSource();
     src.buffer = buf;
     src.playbackRate.value = rate;
     const g = this.ctx.createGain();
-    g.gain.value = def.gain * (o.gain ?? 1);
-    src.connect(g).connect(def.cat === 'ui' ? this.bus.ui : this.bus.sfx);
-    const at = this.ctx.currentTime + (o.delay ?? 0);
+    g.gain.value = gain;
+    src.connect(g).connect(bus);
+    const at = this.ctx.currentTime + delay;
     src.start(at);
     src.onended = () => g.disconnect();
-    if ('duck' in def && def.duck) this.duck(at, buf.duration / rate);
+    if (duck) this.duck(at, buf.duration / rate);
   }
 
   /** Приглушить музыку на время стингера и плавно вернуть. */
@@ -236,8 +340,14 @@ class AudioEngine {
     const src = this.ctx.createBufferSource();
     src.buffer = buf;
     src.loop = true;
+    // Файл с тишиной по краям (задержка кодека MP3/AAC) — петля без неё, иначе на стыке пауза.
+    const [a, b] = loopEdges(buf);
+    if (a > 0 || b < buf.duration) {
+      src.loopStart = a;
+      src.loopEnd = b;
+    }
     src.connect(g);
-    src.start();
+    src.start(0, a);
     const t = this.ctx.currentTime;
     g.gain.setValueAtTime(0, t);
     g.gain.linearRampToValueAtTime(gain, t + FADE_S);
@@ -259,18 +369,22 @@ class AudioEngine {
   }
 
   music(id: MusicId | null): void {
-    const key = id ? `music:${id}` : null;
-    this.wantMusic = key;
-    if (this.musicTrack?.id === key) return;
-    if (!id || !key) {
+    if (!id) {
+      this.wantMusic = null;
       this.stopTrack(this.musicTrack);
       this.musicTrack = null;
       return;
     }
     const def = MUSIC[id];
-    const buf = this.buffer(key, def.files, () => musicJob(id));
+    // Ключ — по файлу: у двух дорожек один файл (карта и бой канализации) — музыка не перезапускается.
+    const file = def.files.find((f) => FILES[f] && !FILES_FAILED.has(`music:${f}`));
+    const key = file ? `music:${file}` : `music:${id}`;
+    this.wantMusic = key;
+    if (this.musicTrack?.id === key) return;
+    const buf = this.buffer(key, file ? [file] : [], () => musicJob(id));
     if (!buf) {
-      // Файл грузится или заглушка рендерится: как будет готово — заиграет, если её всё ещё ждут.
+      // Файл грузится или заглушка рендерится: как будет готово — заиграет, если её всё ещё ждут
+      // (файл не загрузился — следующий файл дорожки или заглушка).
       void this.loading.get(key)?.then(() => {
         if (this.wantMusic === key) this.music(id);
       });
@@ -348,6 +462,18 @@ function runSteps(steps: (() => void)[]): Promise<void> {
   });
 }
 
+/** Начало и конец звука без цифровой тишины по краям, с (для петли). */
+export function loopEdges(buf: { duration: number; length: number; sampleRate: number; numberOfChannels: number; getChannelData(c: number): Float32Array }): [number, number] {
+  const ch = [...Array(buf.numberOfChannels).keys()].map((c) => buf.getChannelData(c));
+  const loud = (i: number) => ch.some((d) => Math.abs(d[i]) > 1e-4);
+  let a = 0;
+  while (a < buf.length && !loud(a)) a++;
+  let b = buf.length;
+  while (b > a && !loud(b - 1)) b--;
+  if (b - a < buf.sampleRate * 0.5) return [0, buf.duration];
+  return [a / buf.sampleRate, b / buf.sampleRate];
+}
+
 function pcmBuffer(ctx: AudioContext, pcm: Pcm): AudioBuffer {
   const buf = ctx.createBuffer(1, pcm.data.length, pcm.rate);
   buf.getChannelData(0).set(pcm.data);
@@ -365,9 +491,30 @@ export const audioStats = () => engine?.stats() ?? null;
 // ---------- публичный API ----------
 
 /** Проиграть звук. Безопасно звать всегда: нет звука / выключен / слишком часто — ничего не делает. */
-export function sfx(id: SfxId, o: { rate?: number; gain?: number; delay?: number } = {}): void {
+export function sfx(id: SfxId, o: PlayOpts = {}): void {
   try {
     engine?.play(id, o);
+  } catch {
+    // Звук не должен ломать игру.
+  }
+}
+
+/**
+ * Свой звук-файл (звуки монстров RO, mon_*): false — файла нет или ещё не загружен (тогда сыграть общий звук
+ * каталога), true — обработан. rule — ограничитель частоты для этого файла.
+ */
+export function sfxFile(name: string, rule: { gap: number; voices: number }, o: { rate?: number; gain?: number; delay?: number } = {}): boolean {
+  try {
+    return engine?.playFile(name, rule, o) ?? false;
+  } catch {
+    return false;
+  }
+}
+
+/** Загрузить звуки-файлы заранее (перед боем — звуки его монстров). */
+export function preloadSoundFiles(names: readonly string[]): void {
+  try {
+    engine?.preloadFiles(names);
   } catch {
     // Звук не должен ломать игру.
   }

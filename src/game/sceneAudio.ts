@@ -1,33 +1,17 @@
 import type Phaser from 'phaser';
-import { getStage } from '../core';
+import { getStage, towerStatus } from '../core';
 import { sfx } from './audio';
 import { sceneSound, type SceneSound, type Theme as SoundTheme } from './audioCore';
-import { themeOfBattle, themeOfChapter, type Theme } from './backdrops';
+import { themeOfBattle, themeOfChapter, themeOfTowerFloor, type Theme } from './backdrops';
 import { CONTENT, GAME } from './content';
 import { currentStage } from './flow';
 import { session } from './session';
 
 /**
- * Звуковая тема по теме фона (музыка карты, боя и фон). Бой с боссом — общая тема `boss` во всех главах (узнаваемый
- * сигнал «MVP», как в RO), вкус главы в нём держит фон главы (amb_*), который играет и там. Гласт Хейм (гл. 8) звучит
- * как старая глава 3 («склеп»), Нифльхейм (гл. 10) — как старая глава 7. Слоты маршрута без своей музыки пока берут
- * подходящую из имеющейся: канализация — топь (вода, капли), орки — пустыня (боевые барабаны), часовая башня — склеп
- * (колокола), лабиринт — ночной лес. Своя музыка слота — новые дорожки в audioCatalog.ts/audioSynth.ts и строка здесь.
+ * Звуковая тема = тема фона главы (у каждой темы — своя музыка карты и боя, docs/design/audio.md). Бой с боссом — общая
+ * тема `boss` во всех главах (узнаваемый сигнал «MVP», как в RO), вкус главы в нём держит фон главы (amb_*).
  */
-const SOUND_THEME: Record<Theme, SoundTheme> = {
-  meadow: 'meadow',
-  sewer: 'swamp',
-  orc: 'desert',
-  desert: 'desert',
-  grove: 'grove',
-  shipwreck: 'shipwreck',
-  clocktower: 'crypt',
-  crypt: 'crypt',
-  labyrinth: 'grove',
-  niflheim: 'niflheim',
-  swamp: 'swamp',
-};
-export const soundTheme = (t: Theme): SoundTheme => SOUND_THEME[t];
+export const soundTheme = (t: Theme): SoundTheme => t;
 
 /**
  * Звук экрана при его старте (installAudio в BootScene): музыка и фон по сцене, теме главы и боссу;
@@ -49,8 +33,18 @@ export function sceneSoundOf(scene: Phaser.Scene): SceneSound {
       boss = false;
     }
     sfx(boss ? 'boss_intro' : 'battle_start', { delay: 0.2 });
-    const theme = data.mode === 'tower' ? 'crypt' : soundTheme(themeOfBattle({ stageId: data.stageId }));
-    return sceneSound(key, { theme, boss });
+    if (data.mode === 'tower') return sceneSound(key, { theme: soundTheme(towerTheme()), tower: true });
+    return sceneSound(key, { theme: soundTheme(themeOfBattle({ stageId: data.stageId })), boss });
   }
   return sceneSound(key);
+}
+
+/** Тема яруса Башни, на который идёт бой (фон боя в Башне — по ярусу). */
+function towerTheme(): Theme {
+  try {
+    const next = towerStatus(session.save, GAME).next;
+    return next !== null ? themeOfTowerFloor(next) : 'crypt';
+  } catch {
+    return 'crypt';
+  }
 }
