@@ -45,10 +45,10 @@ import { hintDone, markHint } from '../hints';
 import { isUnlocked } from '../unlockBanner';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
-import { animatedFxKey, battleFxIds, skillFx } from '../animatedFx';
+import { animatedFxKey, battleFxIds, skillFx, type SkillFx as AtlasRoles } from '../animatedFx';
 import { holdAnimatedFx } from '../assets';
 import { FIRE_BOLT_MS, FIRE_BOLT_STEP, SkillFx, STAR_TEX, type CastRig, type FxPoint, type HitStyle } from '../skillFx';
-import { playAura, playProc, playSignature, type SigCtx } from '../skillSigs';
+import { flyAtlas, playAura, playBigImpact, playBossDeath, playCharge, playCrit, playProc, playSignature, playTwinkle, type SigCtx } from '../skillSigs';
 import { visualOf } from '../skillVisuals';
 import { motion } from '../state';
 import { buffColor, ELEMENT_COLORS, lookOf } from '../skillLook';
@@ -84,6 +84,10 @@ const HIT_FLASH_MS = 45;
 const HEAL_TINT_MS = 220;
 /** Полёт снаряда навыка (огненная стрела, ледяной осколок), мс на 1x, и шаг между снарядами одного навыка. */
 const SKILL_PROJECTILE_MS = 320;
+/** Пауза-«hit stop» на смерти босса (мс): бой, твины и анимации замирают на миг. «Уменьшить анимацию» — без неё. */
+const BOSS_HIT_STOP_MS = 100;
+/** Крупный удар — от этой доли ОЗ цели: подсветка «крита» (skillSigs playCrit). */
+const CRIT_HP_PART = 0.25;
 const SKILL_VOLLEY_STEP = 120;
 /**
  * Значки перезарядки активных навыков под полоской HP героя — спокойно, как в AFK Arena: мелкие, не больше CD_SLOTS
@@ -333,6 +337,8 @@ export class BattleScene extends Phaser.Scene {
   private sfx!: SkillFx;
   /** Сколько мс (с учётом скорости) бой ещё стоит ради баннера босса. */
   private introLeft = 0;
+  /** Осталось паузы «hit stop», мс реального времени (0 — бой идёт). */
+  private stopLeft = 0;
   /** Уровни врагов (core/features/levels.ts): редкость полосы и поправка босс-этапа; null — тестовый бой (без уровней). */
   private levels: { rarity: CardRarity; bossFactor: number } | null = null;
   /** BUG-061: панель героев отряда над ареной (портрет, здоровье, энергия). */
@@ -828,6 +834,11 @@ export class BattleScene extends Phaser.Scene {
     if (!this.ready) return;
     // U: после паузы/подвисания бой не «прыгает» вперёд — шаг не больше MAX_FRAME_MS.
     const delta = clampDelta(rawDelta);
+    if (this.stopLeft > 0) {
+      this.stopLeft -= delta;
+      if (this.stopLeft <= 0) this.endHitStop();
+      return;
+    }
     this.ambient?.step(delta);
     // Лёгкие анимации (цифры, вспышки, снаряды, след HP, оттенок попадания) идут и после конца боя — до смены сцены.
     const dt = delta * this.tweens.timeScale;
@@ -971,6 +982,7 @@ export class BattleScene extends Phaser.Scene {
     this.heroPanel = null;
     // Сцена-синглтон живёт всю игру: ссылка на уничтоженный текст таймера держала бы его (и canvas) до следующего боя.
     this.timeText = undefined as unknown as Phaser.GameObjects.Text;
+    this.endHitStop();
     this.later.clear();
     this.floats?.clear();
     this.barks?.clear();
@@ -987,6 +999,7 @@ export class BattleScene extends Phaser.Scene {
     if (this.finished || !this.ready) return;
     this.skipping = true;
     this.introLeft = 0;
+    this.endHitStop();
     this.later.flush();
     this.sfx.cancel();
     this.floats.cancel();
@@ -1108,6 +1121,8 @@ export class BattleScene extends Phaser.Scene {
           if (!v.moveKind) this.faceFoe(v);
         }
         let impact = this.once(v, 'attack');
+        // «Ульта» героя (SkillVisual.big): аура подготовки у кастера, встряска и вспышка в момент удара.
+        if (e.name && skill && visualOf(skill.id)?.big) this.bigCue(v, skill, e.t);
         if (e.name && skill && this.skillVisual(v, skill, impact)) return;
         if (e.kind !== 'melee' && target) {
           const tex = e.kind === 'heal' ? 'fx_heal' : (v.def.visual.projectile ?? 'fx_magic');
@@ -1133,7 +1148,10 @@ export class BattleScene extends Phaser.Scene {
         v.impactAt = this.time.now + impact;
         this.spotlight(v, e.name, e.skill);
         const skill = CONTENT.skills[e.skill];
-        if (skill) this.skillVisual(v, skill, impact);
+        if (skill) {
+          this.bigCue(v, skill, e.t);
+          this.skillVisual(v, skill, impact);
+        }
         // Ульта босса — экран вздрагивает в момент удара.
         if (v.def.kind === 'boss') this.sfx.later(Math.max(0, v.impactAt - this.time.now), () => this.sfx.shake(0.009, 280));
         return;
@@ -1248,16 +1266,20 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'buff': {
         const v = this.views.get(e.target)!;
-        const shieldLook = visualOf(this.skillOf(this.views.get(e.source), e.t));
+        const shieldSkill = this.skillOf(this.views.get(e.source), e.t);
+        const shieldLook = visualOf(shieldSkill);
         this.atImpact(e.source, animate, (animate) => {
           if (v.shownDead) return;
           v.shield = e.shield;
           this.redraw(v);
           if (animate) {
             if (!this.popRo(v, e.amount, RO_TINT.shield, 0.9, RO_RISE)) this.popNumber(v, `щит +${e.amount}`, '#bcd6ff', false, 30);
-            this.fx(v, 'fx_shield', 1.4, 400);
+            // Лист RO навыка (effects.json → skills.<id>.buff) заменяет общий щит и процедурную ауру.
+            const sheet = skillFx(shieldSkill)?.buff;
+            this.fx(v, sheet ?? 'fx_shield', sheet ? 1.2 : 1.4, 400);
             // Свой щит навыка (Кирие — двойной пузырь, Стена безопасности — розовые столбы…), иначе общий столб искр.
-            if (shieldLook?.aura) playAura(this.sfx, shieldLook.aura, this.point(v), shieldLook.tint ?? 0x9cc8ff);
+            if (sheet) playTwinkle(this.sfx, v.node.x, this.headY(v), 0x9cc8ff);
+            else if (shieldLook?.aura) playAura(this.sfx, shieldLook.aura, this.point(v), shieldLook.tint ?? 0x9cc8ff);
             else this.sfx.buff(this.point(v), 0x9cc8ff);
           }
         }, { on: v });
@@ -1294,6 +1316,8 @@ export class BattleScene extends Phaser.Scene {
             // Нарисованный художником лист баффа (effects.json → skills) заменяет процедурную ауру; иначе своя аура баффа
             // (ноты песни, сердечки, нимб, меч света…), иначе общий столб искр цвета статуса.
             const look = visualOf(srcSkillId);
+            // Бафф — искорки мерцают над головой (у каждого союзника, короткие).
+            playTwinkle(this.sfx, v.node.x, this.headY(v), look?.tint ?? buffColor(def));
             if (sheet) {
               // только лист
             } else if (look?.aura) playAura(this.sfx, look.aura, this.point(v), look.tint ?? buffColor(def));
@@ -1472,9 +1496,15 @@ export class BattleScene extends Phaser.Scene {
     else v.shadow.setAlpha(0);
     if (animate) this.bossBark(v, 'defeat');
     if (animate) {
-      this.fx(v, 'fx_death', 1.6, 600);
+      const boss = v.def.kind === 'boss';
+      this.fx(v, 'fx_death', boss ? 2.4 : 1.6, 600);
       // Облачко дыма у ног (как в AFK Arena), у босса — крупнее.
-      this.sfx.deathPuff(this.point(v), v.def.kind === 'boss');
+      this.sfx.deathPuff(this.point(v), boss);
+      // Смерть босса: вспышка, встряска, кольца — и пауза «hit stop» на миг (не при «Уменьшить анимацию»).
+      if (boss) {
+        playBossDeath(this.sfx, this.point(v));
+        this.hitStop(BOSS_HIT_STOP_MS);
+      }
     }
   }
 
@@ -1618,6 +1648,56 @@ export class BattleScene extends Phaser.Scene {
     return { x: v.node.x, y: bodyY(v), feet: v.node.y };
   }
 
+  /** Роли атласов RO навыка (effects.json → skills), текстуры которых уже загружены; без загруженных — undefined. */
+  private loadedFx(skillId: string | undefined): AtlasRoles | undefined {
+    const roles = skillFx(skillId);
+    if (!roles) return undefined;
+    let out: AtlasRoles | undefined;
+    for (const [role, id] of Object.entries(roles) as [keyof AtlasRoles, string][]) {
+      if (id && this.textures.exists(animatedFxKey(id))) (out ??= {})[role] = id;
+    }
+    return out;
+  }
+
+  /** Высота «над головой» для мерцания баффа: у макушки, ниже полосок ОЗ. */
+  private headY(v: UnitView): number {
+    return v.node.y - v.look.height * 0.92;
+  }
+
+  /**
+   * Ульта (событие ult) или «большой» навык героя: аура подготовки у кастера сейчас, в момент удара — лёгкая встряска,
+   * вспышка экрана и кольца на целях (цели — из плана ударов навыка, иначе из событий того же момента).
+   */
+  private bigCue(v: UnitView, skill: SkillDef, t: number): void {
+    if (this.skipping) return;
+    const look = lookOf(skill);
+    const tint = visualOf(skill.id)?.tint ?? (look.element === 'physical' ? 0xffe0a0 : ELEMENT_COLORS[look.element].main);
+    playCharge(this.sfx, this.point(v), tint);
+    const now = this.eventTargets(v, t);
+    this.later.after(0, () => {
+      if (this.skipping) return;
+      const planned = [...v.hitPlan.keys()].map((uid) => this.views.get(uid)).filter((u): u is UnitView => !!u);
+      const pts = (planned.length ? planned : now).filter((u) => u.side !== v.side).map((u) => this.point(u));
+      if (!pts.length) return;
+      this.sfx.later(Math.max(0, v.impactAt - this.time.now), () => playBigImpact(this.sfx, pts, tint));
+    });
+  }
+
+  /** Пауза «hit stop»: часы боя, твины и анимации фигур замирают на ms (реального времени). */
+  private hitStop(ms: number): void {
+    if (motion.reduced || this.skipping || this.stopLeft > 0) return;
+    this.stopLeft = ms;
+    this.tweens.pauseAll();
+    this.anims.pauseAll();
+  }
+
+  private endHitStop(): void {
+    if (this.stopLeft === 0) return;
+    this.stopLeft = 0;
+    this.tweens.resumeAll();
+    this.anims.resumeAll();
+  }
+
   /** Authored caster cue, keyed so an interrupted timed cast cannot leave its old atlas on screen. */
   private castCue(v: UnitView, skillId: string): void {
     const id = skillFx(skillId)?.cast;
@@ -1676,7 +1756,7 @@ export class BattleScene extends Phaser.Scene {
       if (!targets.length && flies && t !== undefined && COMBAT.projectileSeconds) targets = this.eventTargets(v, Math.round((t + COMBAT.projectileSeconds) * 100) / 100, true);
       const pts = new Map<UnitView, FxPoint>();
       for (const u of targets) if (!pts.has(u)) pts.set(u, this.point(u));
-      const k: SigCtx = { c: this.point(v), hits: targets.map((u) => pts.get(u)!), uniq: [...pts.values()], dir: v.snap.side === 'A' ? 1 : -1, tint };
+      const k: SigCtx = { c: this.point(v), hits: targets.map((u) => pts.get(u)!), uniq: [...pts.values()], dir: v.snap.side === 'A' ? 1 : -1, tint, atlas: this.loadedFx(skill.id) };
       const times = playSignature(this.sfx, vis.sig, k, impact);
       this.groundCue(v, skill, targets, impact);
       targets.forEach((tv, i) => {
@@ -1712,8 +1792,12 @@ export class BattleScene extends Phaser.Scene {
         const flight = look.projectile === 'meteor' ? SKILL_PROJECTILE_MS * 1.6 : look.projectile === 'beam' ? 90 : look.projectile === 'rock' ? 120 : SKILL_PROJECTILE_MS;
         const to = this.point(tv);
         const onHit = () => this.sfx.impact(this.point(tv), tint, look.projectile === 'meteor');
-        // Стрелы навыков — светящиеся; заряженная стрела крупнее.
-        if (look.projectile === 'arrow') this.sfx.glowArrow(from, to, tint, skill.id === 'job_archer_charge_arrow' ? 1.9 : 1.35, SKILL_PROJECTILE_MS, delay, onHit);
+        // Атлас RO навыка (effects.json → skills.<id>.projectile) летит вместо процедурного снаряда.
+        const atlas = this.loadedFx(skill.id)?.projectile;
+        if (atlas && look.projectile !== 'beam' && look.projectile !== 'rock') {
+          const arc = look.projectile === 'meteor' ? 0 : Math.min(120, Math.abs(to.x - from.x) * 0.18);
+          flyAtlas(this.sfx, atlas, look.projectile === 'meteor' ? { x: to.x - 260, y: to.y - 760 } : from, to, flight, delay, arc, tint, onHit);
+        } else if (look.projectile === 'arrow') this.sfx.glowArrow(from, to, tint, skill.id === 'job_archer_charge_arrow' ? 1.9 : 1.35, SKILL_PROJECTILE_MS, delay, onHit);
         else this.sfx.projectile(look.projectile!, from, to, tint, SKILL_PROJECTILE_MS, delay, onHit);
         const at = now + delay + flight;
         const q = v.hitPlan.get(tv.snap.uid);
@@ -1742,6 +1826,12 @@ export class BattleScene extends Phaser.Scene {
       const center = melee ? this.point(v) : { x: avg(pts.map((p) => p.x)), y: avg(pts.map((p) => p.y)), feet: avg(pts.map((p) => p.feet)) };
       this.groundCue(v, skill, uniq, impact);
       const hitAt = this.sfx.areaAt(impact, look.area, pts, center, tint);
+      // Атлас-снаряд у площади (Град стрел — пучок стрел RO) падает сверху на каждую цель к моменту удара.
+      const rain = this.loadedFx(skill.id)?.projectile;
+      if (rain) {
+        const dir = v.snap.side === 'A' ? 1 : -1;
+        pts.forEach((p, i) => flyAtlas(this.sfx, rain, { x: p.x - dir * 90, y: p.y - 520 }, { x: p.x, y: p.y - 10 }, 240, Math.max(0, hitAt - 240 + i * 30), 0, tint));
+      }
       v.impactAt = now + hitAt;
       if (uniq.length >= 3 && look.area !== 'sanctuary') this.sfx.later(hitAt, () => this.sfx.shake(0.005, 180));
       return true;
@@ -1783,6 +1873,8 @@ export class BattleScene extends Phaser.Scene {
       const heavy = ult || active || hpPart >= v.snap.maxHp * 0.2;
       this.sfx.strike(hpPart > 0 ? src.hitStyle : 'magic', p, dir, heavy, hpPart > 0 ? src.hitTint : 0xbcd6ff);
     }
+    // Крупный удар (≥ CRIT_HP_PART ОЗ цели или удар ульты) — золотая звезда-вспышка, как крит.
+    if (hpPart > 0 && (ult || hpPart >= v.snap.maxHp * CRIT_HP_PART)) playCrit(this.sfx, p, dir);
     if (hpPart >= v.snap.maxHp * 0.35 || (ult && src.def.kind === 'boss')) this.sfx.shake(0.004, 140);
   }
 
