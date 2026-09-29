@@ -174,6 +174,11 @@
   "png": 230957,
   "webp": 197114
  },
+ "fx/damage/numbers.png": {
+  "sha1": "8ea50f6a70e1cdb2dbcabe229b8c7a297af93614",
+  "png": 2280,
+  "webp": 1314
+ },
  "fx/fx_arrow.png": {
   "sha1": "b244762cf2e5833cb527a7f674f53433fa6eb6a3",
   "png": 3318,
@@ -1153,6 +1158,676 @@
   "sha1": "0d8b365e52e0c69592f4540d21be20768a411c8e",
   "png": 25956,
   "webp": 15268
+ },
+ "ui/collection/item_abyss_blade.png": {
+  "sha1": "696bfafa1ca09d23e6d98d15f89f9c12db82db63",
+  "png": 2133,
+  "webp": 1288
+ },
+ "ui/collection/item_adventurers_suit.png": {
+  "sha1": "5bcc1f08f735fa33218f16bba2df9b38aa11b008",
+  "png": 10554,
+  "webp": 8116
+ },
+ "ui/collection/item_alarm_mask.png": {
+  "sha1": "a612e63a7d5f4d4f28db2a225093b193b9ab996c",
+  "png": 6053,
+  "webp": 4088
+ },
+ "ui/collection/item_arbalest.png": {
+  "sha1": "05339342c45612364e06655ef31d4b0204d95e52",
+  "png": 5463,
+  "webp": 4070
+ },
+ "ui/collection/item_axe.png": {
+  "sha1": "4895e2816c092a8b0cd1fcfbdaf2abaf678abf3b",
+  "png": 6800,
+  "webp": 4876
+ },
+ "ui/collection/item_bandana.png": {
+  "sha1": "53e8d1cedbe566cbc2d75dece1f10ef88f6eb8ee",
+  "png": 5549,
+  "webp": 3956
+ },
+ "ui/collection/item_battle_axe.png": {
+  "sha1": "ce8f1ecbe03e8ac88b277f94ca4d36722335bfd6",
+  "png": 6899,
+  "webp": 5278
+ },
+ "ui/collection/item_biretta.png": {
+  "sha1": "8e6b2947063c4edb0a5f4cd17ed3807dc8769f54",
+  "png": 3461,
+  "webp": 2732
+ },
+ "ui/collection/item_blessed_ore.png": {
+  "sha1": "3b754e8fc103d2cb7eadc11842c2d0ed00118d56",
+  "png": 4632,
+  "webp": 3400
+ },
+ "ui/collection/item_bloody_axe.png": {
+  "sha1": "ff388e5fe1edf9e2fa460e852603b31939bbbd1f",
+  "png": 4224,
+  "webp": 3336
+ },
+ "ui/collection/item_boots.png": {
+  "sha1": "3055be62e9cc19058cef0ed233706bdebf10c8cb",
+  "png": 7573,
+  "webp": 5696
+ },
+ "ui/collection/item_bow.png": {
+  "sha1": "8be80043af2f98c011cba1cac5608f5fbe264b6e",
+  "png": 4498,
+  "webp": 3334
+ },
+ "ui/collection/item_cap.png": {
+  "sha1": "21829e1f17c62e80622d7b20bda2a5d3f1de0def",
+  "png": 5104,
+  "webp": 3784
+ },
+ "ui/collection/item_captain_coat.png": {
+  "sha1": "e29b3cac92e68395a3ea0875c65f1c5707f901dd",
+  "png": 9370,
+  "webp": 6552
+ },
+ "ui/collection/item_chain_mail.png": {
+  "sha1": "5482618fea3832163eb4263fb0cd8962c9f2e70f",
+  "png": 9055,
+  "webp": 5912
+ },
+ "ui/collection/item_claymore.png": {
+  "sha1": "d5acf1ed9bb4bc7f861e1abdc9de55e68ee9b196",
+  "png": 2567,
+  "webp": 1660
+ },
+ "ui/collection/item_clockwork_mail.png": {
+  "sha1": "56a5120325e0dadc1c07fee8764548d08502a2b1",
+  "png": 9964,
+  "webp": 6714
+ },
+ "ui/collection/item_composite_bow.png": {
+  "sha1": "8448829569498eceeef5bacf368c4764ee85867b",
+  "png": 4412,
+  "webp": 3250
+ },
+ "ui/collection/item_cotton_shirt.png": {
+  "sha1": "b07a093151ed9cbb9f9805301a42f122fa190ae9",
+  "png": 9835,
+  "webp": 7136
+ },
+ "ui/collection/item_crown.png": {
+  "sha1": "c68575459656db7085b4438bfb8fb7e8cec17a1f",
+  "png": 5647,
+  "webp": 4446
+ },
+ "ui/collection/item_dagger.png": {
+  "sha1": "a29c51079c113a14b0e14be2fd1c74551ba29939",
+  "png": 5524,
+  "webp": 3894
+ },
+ "ui/collection/item_dark_lord_robe.png": {
+  "sha1": "d776af6e383e4110b4adf73eb742ec9fef14b5f8",
+  "png": 11273,
+  "webp": 7404
+ },
+ "ui/collection/item_desert_sandals.png": {
+  "sha1": "aa427fb4f0caf28054949512d4c8543dc627c37a",
+  "png": 6826,
+  "webp": 5266
+ },
+ "ui/collection/item_full_plate.png": {
+  "sha1": "59bddca861fe3233fa7c50c9e68e5036f5a4db86",
+  "png": 9140,
+  "webp": 6364
+ },
+ "ui/collection/item_gems.png": {
+  "sha1": "8d9584b0353b53fd46190a768f2118498ddeca5f",
+  "png": 5628,
+  "webp": 4174
+ },
+ "ui/collection/item_geta.png": {
+  "sha1": "06ba72be5baaadf94823e874c638ec09d3ffdbc3",
+  "png": 6664,
+  "webp": 4738
+ },
+ "ui/collection/item_gjoll_helm.png": {
+  "sha1": "e7d3ef8f2d5929e76c646349aeec5e31611fc534",
+  "png": 7954,
+  "webp": 5612
+ },
+ "ui/collection/item_gladius.png": {
+  "sha1": "367f04499086124672ba2d6bff289928c4b8e054",
+  "png": 4738,
+  "webp": 3372
+ },
+ "ui/collection/item_gold.png": {
+  "sha1": "6f5cc2cbc172d9605f51239d02a4213c0eb1e71a",
+  "png": 7609,
+  "webp": 5396
+ },
+ "ui/collection/item_greaves.png": {
+  "sha1": "1b5c25007d1c4d012672d9dd4b44a3281891594b",
+  "png": 9451,
+  "webp": 5498
+ },
+ "ui/collection/item_helm.png": {
+  "sha1": "4d75d8d66f4ec18cb29f029b3b0cf6cc75b6d6f9",
+  "png": 9620,
+  "webp": 6998
+ },
+ "ui/collection/item_helm_of_darkness.png": {
+  "sha1": "d256359c7ba4ec256362af62077fce450a3a5d81",
+  "png": 3853,
+  "webp": 2858
+ },
+ "ui/collection/item_hero_card.png": {
+  "sha1": "f7d4a26daeb39f4ce9499feaea7b89bef09ad417",
+  "png": 4161,
+  "webp": 3384
+ },
+ "ui/collection/item_hero_exp.png": {
+  "sha1": "a277a5e489becef9e3ca241ece6616d75fe82994",
+  "png": 8318,
+  "webp": 5954
+ },
+ "ui/collection/item_isis_mantle.png": {
+  "sha1": "f9d03efdafc6d05924815f473c3b755cf60c95ac",
+  "png": 7452,
+  "webp": 5282
+ },
+ "ui/collection/item_jellopy.png": {
+  "sha1": "b66c3cf20721b5784d44bb8b75111df1460632aa",
+  "png": 5301,
+  "webp": 3592
+ },
+ "ui/collection/item_katar.png": {
+  "sha1": "72edc3c9172db5296ff2ed6daa9f3a3162d9f93f",
+  "png": 2991,
+  "webp": 2168
+ },
+ "ui/collection/item_keeper_hammer.png": {
+  "sha1": "d77266e410f9f374f1e45218635e64a8e3748ccf",
+  "png": 4618,
+  "webp": 3758
+ },
+ "ui/collection/item_kitsune_mask.png": {
+  "sha1": "a67fe3d907582f32c8faa7bf265ca87fda2c65c0",
+  "png": 6575,
+  "webp": 4770
+ },
+ "ui/collection/item_knife.png": {
+  "sha1": "d418537d66d038050434a71cdc9e1163a4155f92",
+  "png": 6100,
+  "webp": 4306
+ },
+ "ui/collection/item_knuckle.png": {
+  "sha1": "91e07ce2ffa01039d184ffc94587c3b0fd3a75c7",
+  "png": 3190,
+  "webp": 2340
+ },
+ "ui/collection/item_mace.png": {
+  "sha1": "ac09075f58180cb415d009e71abe2476f20e5fd0",
+  "png": 6101,
+  "webp": 4464
+ },
+ "ui/collection/item_moonlight_dagger.png": {
+  "sha1": "20e9b8b51af712a6f0697802064cc86e31c387be",
+  "png": 3251,
+  "webp": 2342
+ },
+ "ui/collection/item_ninja_suit.png": {
+  "sha1": "ff692c99ded5350b42fb154c7a754e8fee0f8ca1",
+  "png": 10114,
+  "webp": 7500
+ },
+ "ui/collection/item_old_blue_box.png": {
+  "sha1": "1e71ff738b53fb27a3b00f66432cb760531f864e",
+  "png": 4574,
+  "webp": 3460
+ },
+ "ui/collection/item_owl_boots.png": {
+  "sha1": "9af141ff50ecf29d05b73b298859812321f4b998",
+  "png": 10280,
+  "webp": 6970
+ },
+ "ui/collection/item_pharaoh_headdress.png": {
+  "sha1": "810d5f5989e0e7752f639010c706c63c80f4226d",
+  "png": 8393,
+  "webp": 5720
+ },
+ "ui/collection/item_pirate_bandana.png": {
+  "sha1": "74f6cf8cef7bff21e56fb5a7d73f0bd9d56b6e87",
+  "png": 3677,
+  "webp": 2556
+ },
+ "ui/collection/item_pirate_saber.png": {
+  "sha1": "dc149d37f043345f5d028605d2e087a70c566015",
+  "png": 2822,
+  "webp": 1952
+ },
+ "ui/collection/item_red_potion.png": {
+  "sha1": "22cfb348bc62b3bd9b67fc70ca2459da3c4e0b20",
+  "png": 3999,
+  "webp": 3060
+ },
+ "ui/collection/item_rod.png": {
+  "sha1": "1de692f509d9e2cdd22a2b8bcb2cb1e725320207",
+  "png": 5595,
+  "webp": 3794
+ },
+ "ui/collection/item_saint_robe.png": {
+  "sha1": "0824ec5e9e2bd33ae19b8faae276a4516a628122",
+  "png": 8611,
+  "webp": 6296
+ },
+ "ui/collection/item_sandals.png": {
+  "sha1": "b8b166b834b8f8b4d1d146611db5bb3da7456743",
+  "png": 6243,
+  "webp": 4730
+ },
+ "ui/collection/item_scrolls.png": {
+  "sha1": "f8eb26fadaf18e5db95a50b5d81b3b58b9233058",
+  "png": 3905,
+  "webp": 3128
+ },
+ "ui/collection/item_sea_boots.png": {
+  "sha1": "2cc7b27e26b1f5321bb4241bf40a0eb5f932f651",
+  "png": 10057,
+  "webp": 6546
+ },
+ "ui/collection/item_sentry_greaves.png": {
+  "sha1": "c82c05639437ab9545a29ed976a734fe0fbc03f7",
+  "png": 8409,
+  "webp": 5798
+ },
+ "ui/collection/item_shoes.png": {
+  "sha1": "501bd1f79b1993ecdc33571c24ea4402ecff36dc",
+  "png": 8336,
+  "webp": 6034
+ },
+ "ui/collection/item_silk_robe.png": {
+  "sha1": "fe4aea1e2d7a49a42c9b6645ded6c9d2c0c3ce57",
+  "png": 7811,
+  "webp": 6140
+ },
+ "ui/collection/item_sleipnir.png": {
+  "sha1": "21ae70d9c8f6af44872c18e003cae1f4d6c8cce0",
+  "png": 15790,
+  "webp": 10296
+ },
+ "ui/collection/item_sograt_scimitar.png": {
+  "sha1": "eb72d0cee6892dfe8f2db8c6bc4ccfacea5d12e9",
+  "png": 5096,
+  "webp": 3936
+ },
+ "ui/collection/item_staff.png": {
+  "sha1": "fee9fa26a1721d8ec762fc85ce860826322f28ba",
+  "png": 3599,
+  "webp": 2662
+ },
+ "ui/collection/item_sword.png": {
+  "sha1": "a8c93255da548cedaa0ac90db00d9a05ac727e1a",
+  "png": 4154,
+  "webp": 3194
+ },
+ "ui/collection/item_treasure_chest.png": {
+  "sha1": "b1f5260b765af1ce14ae375b8d12dbe1c354cbde",
+  "png": 10386,
+  "webp": 7716
+ },
+ "ui/collection/item_valkyrie_armor.png": {
+  "sha1": "d0e6146d3eed6e054a573df4745459a2363a8aef",
+  "png": 11569,
+  "webp": 9090
+ },
+ "ui/collection/item_valkyrie_boots.png": {
+  "sha1": "2ef11df9372a41ac1d3954d6d49e10a3a48637c6",
+  "png": 7324,
+  "webp": 5712
+ },
+ "ui/collection/item_violin.png": {
+  "sha1": "02f7aca2a63913ae253d907d07888214817d6fdb",
+  "png": 3901,
+  "webp": 2980
+ },
+ "ui/collection/item_wizardry_staff.png": {
+  "sha1": "d9c550b4a14f0e77293afac3bc0cb7a80b1eadc7",
+  "png": 5214,
+  "webp": 3500
+ },
+ "ui/icons/item_abyss_blade.png": {
+  "sha1": "bfbb4b22b386cb3629c0f6f02bd325a5eb961ff6",
+  "png": 981,
+  "webp": 202
+ },
+ "ui/icons/item_adventurers_suit.png": {
+  "sha1": "c8167cacc7e74137f7288dd73b8257cef7f195fa",
+  "png": 1077,
+  "webp": 288
+ },
+ "ui/icons/item_alarm_mask.png": {
+  "sha1": "56c9c5b004cd0db21390da65a3e398384540f5dc",
+  "png": 1008,
+  "webp": 226
+ },
+ "ui/icons/item_arbalest.png": {
+  "sha1": "ab6c1ca5f903bd639df7cfc271694876c9cbacc9",
+  "png": 1081,
+  "webp": 306
+ },
+ "ui/icons/item_axe.png": {
+  "sha1": "5c17b41118b634843d4059d993344816b48765b6",
+  "png": 1002,
+  "webp": 216
+ },
+ "ui/icons/item_bandana.png": {
+  "sha1": "37726731355c3bec41e8b531e2f9ac2e5129074a",
+  "png": 990,
+  "webp": 196
+ },
+ "ui/icons/item_battle_axe.png": {
+  "sha1": "4138678aa90e9e769b8e0e1c71f319a363c0dc18",
+  "png": 1023,
+  "webp": 268
+ },
+ "ui/icons/item_biretta.png": {
+  "sha1": "237e383e6bc4ad4ee663367606f873e41241fc5e",
+  "png": 974,
+  "webp": 202
+ },
+ "ui/icons/item_blessed_ore.png": {
+  "sha1": "14651bc938d449a9654b0dbd43271107241d0bc4",
+  "png": 980,
+  "webp": 184
+ },
+ "ui/icons/item_bloody_axe.png": {
+  "sha1": "f6ef1b48f83f848f179afd1cc50b91aa7ae5fb13",
+  "png": 1062,
+  "webp": 300
+ },
+ "ui/icons/item_boots.png": {
+  "sha1": "0483320584261e38b591c3943760512cf4ce07a9",
+  "png": 1023,
+  "webp": 226
+ },
+ "ui/icons/item_bow.png": {
+  "sha1": "0ac5ba1ded563cec97bbf606fb9f038a4cfefc59",
+  "png": 972,
+  "webp": 166
+ },
+ "ui/icons/item_cap.png": {
+  "sha1": "96c409aceaaf52e204667cbc986a974c98a9619d",
+  "png": 968,
+  "webp": 158
+ },
+ "ui/icons/item_captain_coat.png": {
+  "sha1": "4103a098366d0a104fd4a5547a04ffbd2b1b59f4",
+  "png": 1062,
+  "webp": 282
+ },
+ "ui/icons/item_chain_mail.png": {
+  "sha1": "bd2c10c11f1862e87f3d3338e196fda0bfc7adc1",
+  "png": 1034,
+  "webp": 242
+ },
+ "ui/icons/item_claymore.png": {
+  "sha1": "b50863fa21a5bf370c40e2fea8671c74ad05c255",
+  "png": 941,
+  "webp": 158
+ },
+ "ui/icons/item_clockwork_mail.png": {
+  "sha1": "e66220c075c89237efe3c10c89a9b1dc96dcf37f",
+  "png": 1058,
+  "webp": 274
+ },
+ "ui/icons/item_composite_bow.png": {
+  "sha1": "5a97886b8e3035723d26547498ef7bf02575f80b",
+  "png": 1004,
+  "webp": 214
+ },
+ "ui/icons/item_cotton_shirt.png": {
+  "sha1": "272fc9d547e069e8b79b8f0dbfa4938cde118613",
+  "png": 1040,
+  "webp": 236
+ },
+ "ui/icons/item_crown.png": {
+  "sha1": "1a80772797b6c47e0aaa21ed22b6606b2ca7d6ca",
+  "png": 1025,
+  "webp": 234
+ },
+ "ui/icons/item_dagger.png": {
+  "sha1": "63c9f0a995ce2db5ea74510101d7349b8814cce1",
+  "png": 949,
+  "webp": 154
+ },
+ "ui/icons/item_dark_lord_robe.png": {
+  "sha1": "c720aea042b859b92b2568c221fa2382b45349be",
+  "png": 1099,
+  "webp": 328
+ },
+ "ui/icons/item_desert_sandals.png": {
+  "sha1": "864d5ca3ee968d04bffea7036be578b6ef6d8c95",
+  "png": 1032,
+  "webp": 256
+ },
+ "ui/icons/item_full_plate.png": {
+  "sha1": "70e3e57f090b0086267293c280ce0935081a4bcf",
+  "png": 1095,
+  "webp": 320
+ },
+ "ui/icons/item_gems.png": {
+  "sha1": "a287e06cb0108dbc75d7591b819a28a2095104d3",
+  "png": 949,
+  "webp": 116
+ },
+ "ui/icons/item_geta.png": {
+  "sha1": "a15d591703e858354d3774e99a711345c6a88efa",
+  "png": 1089,
+  "webp": 326
+ },
+ "ui/icons/item_gjoll_helm.png": {
+  "sha1": "b7d5c4abb264341c03d1734f0773709baf40e7f9",
+  "png": 1036,
+  "webp": 260
+ },
+ "ui/icons/item_gladius.png": {
+  "sha1": "4ddfa5f2b4839038f196d64499aca20f3796db1b",
+  "png": 965,
+  "webp": 182
+ },
+ "ui/icons/item_gold.png": {
+  "sha1": "5a17cbaa83f078a7f57b426bba55c3aa897f381d",
+  "png": 1109,
+  "webp": 350
+ },
+ "ui/icons/item_greaves.png": {
+  "sha1": "a711371dea5a0041e2957d9ba32e15b2f5e8257b",
+  "png": 1041,
+  "webp": 262
+ },
+ "ui/icons/item_helm.png": {
+  "sha1": "b108314d73ecf9047a6d9338232fc611ad877ddb",
+  "png": 981,
+  "webp": 174
+ },
+ "ui/icons/item_helm_of_darkness.png": {
+  "sha1": "bb6b4f56c3b3ca6e76e359b35d3be4d208ae5716",
+  "png": 1044,
+  "webp": 268
+ },
+ "ui/icons/item_hero_card.png": {
+  "sha1": "eaefecb5478940321b0d79a667bfe3a825484131",
+  "png": 1062,
+  "webp": 276
+ },
+ "ui/icons/item_hero_exp.png": {
+  "sha1": "b5ab6174dbe0e32b36d24d52b354f13e7c578805",
+  "png": 1048,
+  "webp": 270
+ },
+ "ui/icons/item_isis_mantle.png": {
+  "sha1": "4f20a182019331a4d73c91fba2e61d84ff2543df",
+  "png": 1069,
+  "webp": 280
+ },
+ "ui/icons/item_jellopy.png": {
+  "sha1": "fe4ad446b9b9f4759f975b4d1e479fcd1c3dd887",
+  "png": 936,
+  "webp": 132
+ },
+ "ui/icons/item_katar.png": {
+  "sha1": "bc5b7ac194213b52cb5d20378016904cf7df677d",
+  "png": 996,
+  "webp": 226
+ },
+ "ui/icons/item_keeper_hammer.png": {
+  "sha1": "80b570846e1d2a06980eea3e3a9034c4835e259d",
+  "png": 1014,
+  "webp": 238
+ },
+ "ui/icons/item_kitsune_mask.png": {
+  "sha1": "2fc268b84a28ff2acb3039fcf6147ba98a9a8bd0",
+  "png": 1022,
+  "webp": 256
+ },
+ "ui/icons/item_knife.png": {
+  "sha1": "b03edcaa717ecadcdbb7be7bb2805ed552c0e23c",
+  "png": 938,
+  "webp": 142
+ },
+ "ui/icons/item_knuckle.png": {
+  "sha1": "2ec3a987729d296c7699631c597a8a19d1f35faa",
+  "png": 1013,
+  "webp": 230
+ },
+ "ui/icons/item_mace.png": {
+  "sha1": "5ec4a765523c582d6e15bc1adf098ef6af1d3151",
+  "png": 974,
+  "webp": 202
+ },
+ "ui/icons/item_moonlight_dagger.png": {
+  "sha1": "d20ff9c790927c21f9a384853221e18df516991e",
+  "png": 1023,
+  "webp": 286
+ },
+ "ui/icons/item_ninja_suit.png": {
+  "sha1": "e3c29e39c46ae71fa5a00c333493070b30d80dbe",
+  "png": 1032,
+  "webp": 244
+ },
+ "ui/icons/item_old_blue_box.png": {
+  "sha1": "d44f9cd701d895ec40b47b178d065603c2d381c3",
+  "png": 1024,
+  "webp": 256
+ },
+ "ui/icons/item_owl_boots.png": {
+  "sha1": "c6c97dc3c81dcc65c945117dd849cc2f2b92647a",
+  "png": 1149,
+  "webp": 406
+ },
+ "ui/icons/item_pharaoh_headdress.png": {
+  "sha1": "e210fe99a88d2389b8b36bed2bef1e7938fc99a4",
+  "png": 1091,
+  "webp": 328
+ },
+ "ui/icons/item_pirate_bandana.png": {
+  "sha1": "f691ffde4a77e78e847d6051a52505d3e18a1cd7",
+  "png": 1018,
+  "webp": 220
+ },
+ "ui/icons/item_pirate_saber.png": {
+  "sha1": "5a9829d4900b9f729dee14815c670891573a646e",
+  "png": 983,
+  "webp": 220
+ },
+ "ui/icons/item_red_potion.png": {
+  "sha1": "86aaa6ba4715ce18d7e8b78b17bc50952a6218f0",
+  "png": 1024,
+  "webp": 254
+ },
+ "ui/icons/item_rod.png": {
+  "sha1": "9c402c4095b485ff88e0c7d353c13dab4f8c6f64",
+  "png": 946,
+  "webp": 140
+ },
+ "ui/icons/item_saint_robe.png": {
+  "sha1": "944834bf62230fd6567857661d06299dc44cc0dd",
+  "png": 1071,
+  "webp": 302
+ },
+ "ui/icons/item_sandals.png": {
+  "sha1": "69cd92c79c00a06fb54b312f4c5be5d196def3da",
+  "png": 991,
+  "webp": 210
+ },
+ "ui/icons/item_scrolls.png": {
+  "sha1": "13570f1e819d594aa1a5874b2a3e65c9979c6ed5",
+  "png": 1024,
+  "webp": 246
+ },
+ "ui/icons/item_sea_boots.png": {
+  "sha1": "a3777f1444cfb2d10645f2d96f845daa99be35e8",
+  "png": 1088,
+  "webp": 340
+ },
+ "ui/icons/item_sentry_greaves.png": {
+  "sha1": "359318bd5cf0e7265f478f9467b9e0379c501eb3",
+  "png": 1031,
+  "webp": 266
+ },
+ "ui/icons/item_shoes.png": {
+  "sha1": "524579da2893fa5cdbb4f7488b3b4d88ab36a94d",
+  "png": 1000,
+  "webp": 198
+ },
+ "ui/icons/item_silk_robe.png": {
+  "sha1": "b453e238cfeb4af89124adec9c467c552586bf9f",
+  "png": 1053,
+  "webp": 270
+ },
+ "ui/icons/item_sleipnir.png": {
+  "sha1": "2adf93c08278ac96cddcb25b6a66ee425be2fe15",
+  "png": 1084,
+  "webp": 340
+ },
+ "ui/icons/item_sograt_scimitar.png": {
+  "sha1": "3b38ed88ab891a748086c1cb1c1fe9c7ea4d441f",
+  "png": 970,
+  "webp": 192
+ },
+ "ui/icons/item_staff.png": {
+  "sha1": "8bb320cab7fea8bfc3d54f91d7d2cba70e6e794e",
+  "png": 991,
+  "webp": 210
+ },
+ "ui/icons/item_sword.png": {
+  "sha1": "23c4d2fa729c89830a356d73605f8b22bc26c861",
+  "png": 946,
+  "webp": 152
+ },
+ "ui/icons/item_treasure_chest.png": {
+  "sha1": "fb0e942d433d94359580fa14d18134198a0ca7a9",
+  "png": 1148,
+  "webp": 398
+ },
+ "ui/icons/item_valkyrie_armor.png": {
+  "sha1": "398af1d0f65809382a80a5cb1e85e3874cb6e66b",
+  "png": 1184,
+  "webp": 462
+ },
+ "ui/icons/item_valkyrie_boots.png": {
+  "sha1": "78184b267fc2cdab8515d82a5486b913705426ea",
+  "png": 1038,
+  "webp": 292
+ },
+ "ui/icons/item_violin.png": {
+  "sha1": "1f6b83dafc403b4cd36f44d4f4ce5148786fec5a",
+  "png": 1032,
+  "webp": 244
+ },
+ "ui/icons/item_wizardry_staff.png": {
+  "sha1": "5c3048799c749d98bf32f67f99fd46483ade4886",
+  "png": 972,
+  "webp": 172
  },
  "ui/icons/skill_ac_chargearrow.png": {
   "sha1": "b9a4669822f4a7719268994220d06da6fea8a86c",
