@@ -304,19 +304,19 @@
       "enemies": [
         {
           "unit": "alde_owl_baron",
-          "mult": 0.1246
+          "mult": 0.1296
         },
         {
           "unit": "alde_alarm",
-          "mult": 0.1246
+          "mult": 0.1296
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1246
+          "mult": 0.1296
         },
         {
           "unit": "alde_elder",
-          "mult": 0.1246
+          "mult": 0.1296
         },
         null
       ],
