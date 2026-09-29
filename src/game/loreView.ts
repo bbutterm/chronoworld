@@ -2,13 +2,13 @@ import Phaser from 'phaser';
 import { chronicleKeys, firstSentence, jobTitle, refinedStats, unseenCount, type ChronicleTab, type ItemDef, type LineKind, type UnitDef } from '../core';
 import { GAME, LORE } from './content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, ROLE_NAMES, SLOT_NAMES } from './flow';
-import { itemCell } from './itemIcons';
+import { hasCollectionArt, itemCell, itemIconKey, loadCollectionArt, refineBadge, roIconImage } from './itemIcons';
 import { GAME_H, GAME_W } from './layout';
 import { badge, popIn, unitFigure, unitTint } from './screen';
 import { session } from './session';
 import { SKIN_TINT } from './skin';
 import { button, panel, ScrollArea, text } from './ui';
-import { C, FS, OUTLINE } from './theme';
+import { C, FS, OUTLINE, TINT } from './theme';
 
 /**
  * Летопись (лор RO, data/lore): общие помощники экранов — прочитанные записи (localStorage), значок «новое»,
@@ -243,7 +243,27 @@ export function itemModal(scene: Phaser.Scene, def: ItemDef, opts: { refine?: nu
     titleColor: RARITY_COLORS[def.rarity],
     subtitle: `${RARITY_NAMES[def.rarity]} · ${SLOT_NAMES[def.slot]}${def.minChapter > 1 ? ` · с главы ${def.minChapter}` : ''}`,
     art: (add, x, y) => {
-      for (const obj of itemCell(scene, x, y, 180, def.slot, Phaser.Display.Color.HexStringToColor(RARITY_COLORS[def.rarity]).color, def.id, refine)) add(obj);
+      const color = Phaser.Display.Color.HexStringToColor(RARITY_COLORS[def.rarity]).color;
+      if (!hasCollectionArt(def.id)) {
+        for (const obj of itemCell(scene, x, y, 180, def.slot, color, def.id, refine)) add(obj);
+        return;
+      }
+      // Большая картинка RO (collection, 75×100 ×2) в рамке редкости; пока грузится — ячейка с иконкой на её месте.
+      const frame = scene.add.rectangle(x, y, 166, 216, TINT.checkOff, 0.95).setStrokeStyle(4, color, 1);
+      const back = scene.add.rectangle(x, y, 158, 208, color, 0.18);
+      add(frame);
+      add(back);
+      const ico = roIconImage(scene, x, y, def.id, 120) ?? scene.add.image(x, y, itemIconKey(scene, def.slot, def.id)).setDisplaySize(120, 120).setTint(color);
+      add(ico);
+      const badge = refine > 0 ? refineBadge(scene, x - 83 + 6, y - 108 + 2, refine, FS.small) : undefined;
+      if (badge) add(badge);
+      void loadCollectionArt(scene.game, def.id).then((key) => {
+        if (!key || !frame.scene || !frame.active) return;
+        ico.destroy();
+        const pic = scene.add.image(x, y, key).setScale(2);
+        add(pic);
+        if (badge) badge.parentContainer?.bringToTop(badge);
+      });
     },
     blocks,
     lock: opts.lock,

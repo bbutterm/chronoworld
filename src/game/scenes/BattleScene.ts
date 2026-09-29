@@ -34,7 +34,8 @@ import { SKIN, SKIN_TINT } from '../skin';
 import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../sprites';
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
-import { BarkLayer, clampX, DEPTH, FloatLayer, UltPresenter } from '../battleFx';
+import { BarkLayer, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, UltPresenter } from '../battleFx';
+import { RO_DIGIT_H } from '../numberFont';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
 import { button, panel, text, tutorialHint } from '../ui';
@@ -1141,9 +1142,13 @@ export class BattleScene extends Phaser.Scene {
           const hpPart = e.amount - e.absorbed;
           const src = this.views.get(e.source);
           const sk = dmgSkill ? CONTENT.skills[dmgSkill] : undefined;
-          const style = numberStyle(sk, src);
-          const color = e.dot ? '#9be36b' : big && hpPart > 0 ? '#ffd84a' : hpPart > 0 ? style.color : '#bcd6ff';
-          this.popNumber(v, hpPart > 0 ? `-${hpPart}${big ? '!' : ''}` : `(${e.absorbed})`, color, big && hpPart > 0, style.size);
+          // Цифры RO: белые — по монстрам, красные — по героям, жёлтые крупные — удар ульты, голубые — ушло в щит.
+          const roTint = hpPart <= 0 ? RO_TINT.shield : big ? RO_TINT.ult : v.snap.side === 'A' ? RO_TINT.hero : RO_TINT.enemy;
+          if (!this.popRo(v, hpPart > 0 ? hpPart : e.absorbed, roTint, big && hpPart > 0 ? 1.6 : e.dot ? 0.9 : 1.15, RO_HIT)) {
+            const style = numberStyle(sk, src);
+            const color = e.dot ? '#9be36b' : big && hpPart > 0 ? '#ffd84a' : hpPart > 0 ? style.color : '#bcd6ff';
+            this.popNumber(v, hpPart > 0 ? `-${hpPart}${big ? '!' : ''}` : `(${e.absorbed})`, color, big && hpPart > 0, style.size);
+          }
           this.hurt(v);
           if (e.dot) return;
           const hit = hitFxOf(src, dmgSkill);
@@ -1163,7 +1168,8 @@ export class BattleScene extends Phaser.Scene {
           if (animate && e.amount > 0) {
             // RO Heal: крупное зелёное «+N» с тёмно-зелёной обводкой, столб света (skillFx.heal), лист fx_heal
             // в рост фигуры и короткий бело-зелёный отсвет на самом юните.
-            this.popNumber(v, `+${e.amount}`, '#8dff9a', false, 54, '#0b3d12');
+            // Лечение в RO — зелёные цифры без «+», прямо вверх.
+            if (!this.popRo(v, e.amount, RO_TINT.heal, 1.15, RO_RISE)) this.popNumber(v, `+${e.amount}`, '#8dff9a', false, 54, '#0b3d12');
             this.fx(v, 'fx_heal', 1.3);
             // Первая помощь и мелкое восстановление (пассивки) — маленький столб с крестиком.
             const small = this.views.get(e.source)?.lastSkill === 'novice_first_aid' || e.amount < v.snap.maxHp * 0.08;
@@ -1186,7 +1192,7 @@ export class BattleScene extends Phaser.Scene {
           v.shield = e.shield;
           this.redraw(v);
           if (animate) {
-            this.popNumber(v, `щит +${e.amount}`, '#bcd6ff', false, 30);
+            if (!this.popRo(v, e.amount, RO_TINT.shield, 0.9, RO_RISE)) this.popNumber(v, `щит +${e.amount}`, '#bcd6ff', false, 30);
             this.fx(v, 'fx_shield', 1.4, 400);
             // Свой щит навыка (Кирие — двойной пузырь, Стена безопасности — розовые столбы…), иначе общий столб искр.
             if (shieldLook?.aura) playAura(this.sfx, shieldLook.aura, this.point(v), shieldLook.tint ?? 0x9cc8ff);
@@ -1466,6 +1472,29 @@ export class BattleScene extends Phaser.Scene {
     const y = top + slot * FLOAT_STEP;
     // Пул надписей: не больше MAX_FLOATS на экране, цифры — растровым шрифтом стиля; у края экрана цифра не обрезается.
     this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : stroke, big ? 8 : 6, DEPTH.numbers + slot, FLOAT_RISE, big ? 650 : 450, big, v.snap.uid);
+  }
+
+  /**
+   * Цифра RO над юнитом (атлас numbers, только число): то же место в столбике, что у popNumber; урон (RO_HIT) летит
+   * дугой к тылу юнита, лечение и щит (RO_RISE) — вверх. false — атлас не загрузился (рисует popNumber).
+   */
+  private popRo(v: UnitView, amount: number, tint: number, scale: number, mode: number): boolean {
+    const now = this.time.now;
+    let slot = v.floatSlots.findIndex((t) => t <= now);
+    if (slot < 0) {
+      slot = 0;
+      for (let i = 1; i < v.floatSlots.length; i++) if (v.floatSlots[i] < v.floatSlots[slot]) slot = i;
+    }
+    const h = RO_DIGIT_H * scale;
+    const dir = v.snap.side === 'A' ? -1 : 1;
+    const nameBottom = v.node.y + v.nameY + 14;
+    const top = Math.max(bodyY(v) - 30, nameBottom + h / 2 + (mode === RO_HIT ? 40 : 60));
+    // Соседние места столбика — на высоту цифры ниже и чуть к тылу: одновременные удары не сливаются в одно число.
+    const x = v.node.x + dir * (30 + slot * 22) + rnd(10);
+    const y = top + slot * Math.max(FLOAT_STEP, h * 0.9);
+    if (!this.floats.roNumber(x, y, String(Math.round(amount)), tint, scale, DEPTH.numbers + slot, mode, dir, v.snap.uid)) return false;
+    v.floatSlots[slot] = now + FLOAT_SLOT_MS;
+    return true;
   }
 
   /**
@@ -1885,6 +1914,15 @@ const baseTint = (v: UnitView): number => (v.frozen ? FROZEN_TINT : unitTint(v.d
  * Цвет и размер цифры урона по навыку: обычная атака — белая, магия (стихийный навык, каст) — цветом стихии
  * (огонь оранжевый, лёд голубой, молния жёлтая, прочая магия — сиреневая), активный навык — крупнее.
  */
+/** Цвета цифр RO (tint белых цифр атласа, как в клиенте RO). */
+const RO_TINT = {
+  enemy: 0xffffff,
+  hero: 0xff4a3a,
+  ult: 0xffd23a,
+  heal: 0x5cff6a,
+  shield: 0x8cc8ff,
+} as const;
+
 function numberStyle(sk: SkillDef | undefined, src: UnitView | undefined): { color: string; size: number } {
   if (!sk) return { color: '#ffffff', size: 40 };
   const active = !!src && (src.def.skills.actives.includes(sk.id) || src.def.skills.ult === sk.id);

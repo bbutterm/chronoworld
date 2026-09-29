@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { animatedFrameAt, animatedFxDuration, animatedFxKey, selectedAnimatedEffect, type AnimatedEffect } from './animatedFx';
 import { FONT, GAME_H, GAME_W } from './layout';
-import { coversNumber, numberFont, numberFrameWidth, numberOrigin } from './numberFont';
+import { coversNumber, coversRoDigits, numberFont, numberFrameWidth, numberOrigin, RO_DIGIT_H, roDamageFont } from './numberFont';
 import { clamp01, ease, Pool, TextStyleCache } from './perf';
 import { text } from './ui';
 
@@ -205,6 +205,8 @@ interface Transient {
   effect?: AnimatedEffect;
   /** Чья надпись (uid юнита): у одного юнита на экране не больше нескольких надписей своего вида. */
   key?: string;
+  /** Цифра RO: 0 — прежняя цифра шрифтом, RO_HIT — урон (дуга в сторону), RO_RISE — лечение/щит (прямо вверх). */
+  mode: number;
 }
 
 /** Кривые твинов, которые раньше делали то же самое (время — мс на 1x). */
@@ -223,6 +225,24 @@ const HEADLINE_STACK = 32;
 export const NUMBERS_PER_UNIT = 4;
 /** Отступ надписи от края экрана. */
 const EDGE = 8;
+
+/**
+ * Цифры RO (roBrowser Renderer/Effects/Damage.js): урон вылетает над целью, по дуге подпрыгивает вверх и в сторону,
+ * опускается ниже старта, уменьшаясь и угасая; лечение поднимается прямо вверх, не меняя размера.
+ */
+export const RO_HIT = 1;
+export const RO_RISE = 2;
+const RO_HIT_MS = 1100;
+const RO_RISE_MS = 1300;
+/** Высота дуги урона и снос в сторону (единицы игры, экран 1080×1920). */
+const RO_ARC = 64;
+const RO_DRIFT = 96;
+/** Подъём цифры лечения. */
+const RO_RISE_H = 110;
+/** К концу дуги цифра урона уменьшается до этой доли (в RO — до нуля; так её ещё можно прочесть). */
+const RO_END_SCALE = 0.5;
+/** Доля жизни цифры RO, после которой она гаснет. */
+const RO_FADE_AT = 0.55;
 
 /**
  * Короткоживущие объекты боя — цифры урона, подписи статусов, вспышки попаданий и снаряды — из пулов,
@@ -281,13 +301,43 @@ export class FloatLayer {
     return t;
   }
 
+  /**
+   * Цифра урона RO (только 0–9, атлас numbers): tint — цвет (белый — по монстру, красный — по герою, зелёный — лечение,
+   * жёлтый — ульта), scale — начальный размер (1 = 42 единицы), mode — RO_HIT (дуга в сторону dir) или RO_RISE (вверх).
+   * false — атлас не загрузился или в строке не только цифры: вызывающий рисует прежней цифрой (number).
+   */
+  roNumber(x: number, y: number, value: string, tint: number, scale: number, depth: number, mode: number, dir: number, key?: string): boolean {
+    const font = coversRoDigits(value) ? roDamageFont(this.scene) : null;
+    if (!font) return false;
+    if (key) this.limit(Kind.Number, key, NUMBERS_PER_UNIT - 1);
+    this.room();
+    const t = this.digits.acquire();
+    if (t.font !== font) t.setFont(font, RO_DIGIT_H);
+    t.setScale(scale).setText(value).setOrigin(0.5, 0.5).setTint(tint).setAlpha(1).setDepth(depth);
+    const w = t.getTextBounds(true).local.width * scale;
+    const x0 = clampX(x, w);
+    // Снос в сторону — туда, где хватает места до края экрана.
+    let drift = mode === RO_HIT ? dir * RO_DRIFT : 0;
+    if (clampX(x0 + drift, w) !== x0 + drift) drift = -drift;
+    t.setPosition(x0, y);
+    this.scene.children.bringToTop(t);
+    const r = this.start(Kind.Number, t, mode === RO_HIT ? RO_HIT_MS : RO_RISE_MS);
+    r.key = key;
+    r.mode = mode;
+    r.x0 = x0;
+    r.y0 = y;
+    r.x1 = drift;
+    r.s = scale;
+    return true;
+  }
+
   /** Цифра растровым шрифтом стиля: рамка, центр и шаг символов — как у Text той же строки. */
   private digit(x: number, y: number, value: string, size: number, color: string, stroke: string, thick: number, depth: number): Phaser.GameObjects.BitmapText {
     const font = this.fontFor(this.styles.get(size, color, stroke, thick, true));
     this.room();
     const t = this.digits.acquire();
     if (t.font !== font.key) t.setFont(font.key, font.size);
-    t.setScale(1).setText(value);
+    t.setScale(1).clearTint().setText(value);
     const w = t.getTextBounds(false).local.width;
     t.setOrigin(numberOrigin(font, w), 0.5);
     t.setPosition(clampX(x, numberFrameWidth(font, w)), y).setAlpha(1).setDepth(depth);
@@ -396,6 +446,17 @@ export class FloatLayer {
       const o = r.obj;
       switch (r.kind) {
         case Kind.Number: {
+          if (r.mode) {
+            const p = clamp01(r.t / r.dur);
+            o.alpha = p <= RO_FADE_AT ? 1 : 1 - (p - RO_FADE_AT) / (1 - RO_FADE_AT);
+            if (r.mode === RO_HIT) {
+              // Дуга RO: вверх до пика на трети пути, затем вниз ниже старта; снос в сторону и уменьшение — равномерно.
+              o.x = r.x0 + r.x1 * p;
+              o.y = r.y0 - RO_ARC * Math.sin(1.5 * Math.PI * p);
+              o.setScale(r.s * (1 - (1 - RO_END_SCALE) * p));
+            } else o.y = r.y0 - RO_RISE_H * ease.quadOut(p);
+            break;
+          }
           o.y = r.y0 + (r.y1 - r.y0) * ease.quadOut(clamp01(r.t / NUM_RISE_MS));
           o.alpha = r.t <= r.a ? 1 : 1 - clamp01((r.t - r.a) / NUM_FADE_MS);
           if (r.s) o.setScale(1.6 - 0.6 * ease.backOut(clamp01(r.t / NUM_POP_MS)));
@@ -467,7 +528,7 @@ export class FloatLayer {
   }
 
   private start(kind: Kind, obj: Transient['obj'], dur: number): Transient {
-    const r = this.spare.pop() ?? { kind, obj, seq: 0, t: 0, dur, x0: 0, y0: 0, x1: 0, y1: 0, a: 0, s: 0 };
+    const r = this.spare.pop() ?? { kind, obj, seq: 0, t: 0, dur, x0: 0, y0: 0, x1: 0, y1: 0, a: 0, s: 0, mode: 0 };
     r.kind = kind;
     r.seq = this.seq++;
     r.obj = obj;
@@ -477,6 +538,7 @@ export class FloatLayer {
     r.s = 0;
     r.effect = undefined;
     r.key = undefined;
+    r.mode = 0;
     this.live.push(r);
     return r;
   }

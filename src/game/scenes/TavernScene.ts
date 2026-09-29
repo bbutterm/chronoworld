@@ -37,6 +37,7 @@ import { markTavernSeen } from '../tavernEntry';
 import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
 import { button, ellipsize, panel, progressBar, text, toast, tutorialHint } from '../ui';
 import { hintDone, markHint } from '../hints';
+import { roIconImage } from '../itemIcons';
 
 /** Цвет редкости (#rrggbb) → число для tint и заливок. */
 const colorOf = (hex: string): number => Phaser.Display.Color.HexStringToColor(hex).color;
@@ -164,7 +165,7 @@ export class TavernScene extends Phaser.Scene {
   private topRow(st: SummonStatus): void {
     const y = CONTENT_TOP + 50;
     // Свитки призыва — «таблетка» как у валюты в шапке.
-    const pill = this.add.container(170, y, [panel(this, 0, 0, 260, 76, 'k:buttonLong_beige'), this.add.image(-88, 0, skinIcon('scroll')).setDisplaySize(52, 52).setTint(SKIN_TINT.gold)]);
+    const pill = this.add.container(170, y, [panel(this, 0, 0, 260, 76, 'k:buttonLong_beige'), roIconImage(this, -88, 0, 'scrolls', 52) ?? this.add.image(-88, 0, skinIcon('scroll')).setDisplaySize(52, 52).setTint(SKIN_TINT.gold)]);
     pill.add(text(this, 12, -2, `Свитки: ${formatNumber(st.scrolls)}`, FS.body, C.title, { fontStyle: 'bold' }));
     pill.setName('scrollsPill');
     text(this, 540, y, `Призывов: ${formatNumber(st.total)}`, FS.small, C.muted, OUTLINE);

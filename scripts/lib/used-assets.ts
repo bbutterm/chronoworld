@@ -120,7 +120,7 @@ export function collectUsedAssets(root: string): UsedAssets {
     v2: readJson(join(assets, 'sprites/sprites.json')),
     spriteIds: contentSpriteIds(root),
     skillIcons: skillIconFiles(root),
-    extra: [...bustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root)],
+    extra: [...bustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root), ...roItemFiles(root), ...damageDigitFiles(root)],
   });
 }
 
@@ -164,6 +164,25 @@ export function skillIconFiles(root: string): string[] {
     .map((n) => `ui/icons/${n}`);
 }
 
+/**
+ * Иконки и картинки предметов RO (src/game/itemIcons.ts): assets/ui/icons/item_<id>.png (грузит экран загрузки)
+ * и assets/ui/collection/item_<id>.png (окно предмета, по требованию).
+ */
+export function roItemFiles(root: string, dirs: readonly string[] = ['ui/icons', 'ui/collection']): string[] {
+  const out: string[] = [];
+  for (const d of dirs) {
+    const dir = join(root, ASSETS_DIR, d);
+    if (!existsSync(dir)) continue;
+    for (const n of readdirSync(dir).filter((n) => /^item_[a-z0-9_]+\.png$/.test(n)).sort()) out.push(`${d}/${n}`);
+  }
+  return out;
+}
+
+/** Атлас цифр урона RO (src/game/numberFont.ts): PNG грузит экран загрузки, рамки кадров — JSON в бандле. */
+export function damageDigitFiles(root: string): string[] {
+  return existsSync(join(root, ASSETS_DIR, 'fx/damage/numbers.png')) ? ['fx/damage/numbers.png'] : [];
+}
+
 /** Все файлы в assets/ (пути внутри assets/, через `/`). */
 export function listAssetFiles(root: string): string[] {
   const base = join(root, ASSETS_DIR);
@@ -194,6 +213,7 @@ export function bootFiles(root: string, skinReplaced: ReadonlySet<string>): stri
     if (a.atlasXml) out.add(clean(a.atlasXml));
   }
   for (const f of skillIconFiles(root)) out.add(f);
+  for (const f of [...roItemFiles(root, ['ui/icons']), ...damageDigitFiles(root)]) out.add(f);
   const registry = buildRegistry(readJson(join(assets, 'sprites.legacy.json')), readJson(join(assets, 'sprites/sprites.json')));
   for (const id of contentSpriteIds(root)) {
     const p = registry[id]?.portrait;
