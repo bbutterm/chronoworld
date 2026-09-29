@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
+import { packSheet } from '../pipeline/sheetPack';
 import { buildRegistry, resolveAnim, type AnimName, type LegacySprites, type SpriteDef, type SpriteFixes, type SpritesV2 } from '../pipeline/sprites';
 import { assetUrl } from './assetUrl';
+import { addPackedTexture } from './packedTexture';
 import { FONT, GAME_H, GAME_W } from './layout';
 import { SheetLru, textureBytes } from './spriteCache';
 import { setSpriteLookup } from './spriteRegistry';
@@ -92,7 +94,10 @@ function loadSheet(game: Phaser.Game, id: string): Promise<void> {
       return;
     }
     const key = spriteKey(id);
-    const tex = tm.addSpriteSheet(key, img, { frameWidth: s.cell[0], frameHeight: s.cell[1] });
+    // В памяти — только проигрываемые кадры, вырезанные по bbox анимации и сложенные плотно (sheetPack.ts): в 5–15 раз
+    // меньше видеопамяти, пиксели те же. Не упаковался (старый лист без bbox) — лист целиком, как раньше.
+    const pack = packSheet(s);
+    const tex = (pack && addPackedTexture(tm, key, img, pack, s.cell)) || tm.addSpriteSheet(key, img, { frameWidth: s.cell[0], frameHeight: s.cell[1] });
     if (!tex) return;
     tex.setFilter(Phaser.Textures.FilterMode.NEAREST);
     for (const [name, a] of Object.entries(s.anims)) {
@@ -109,7 +114,8 @@ function loadSheet(game: Phaser.Game, id: string): Promise<void> {
       const frame = tm.getFrame(key, (s.anims.idle?.row ?? 0) * s.columns);
       if (frame) portraitFromFrame(tm, pk, key, frame);
     }
-    lru.add(id, textureBytes(img.width, img.height));
+    const src = tex.source[0];
+    lru.add(id, textureBytes(src.width, src.height));
   });
   inflight.set(id, p);
   return p;
@@ -267,11 +273,12 @@ export const spriteStats = () => ({ sheets: lru.ids(), bytes: lru.bytes, budget:
 
 /** Портрет из кадра: квадрат вокруг непрозрачных пикселей, уменьшенный до PORTRAIT_SIZE (один раз на спрайт). */
 function portraitFromFrame(tm: Phaser.Textures.TextureManager, pk: string, key: string, frame: Phaser.Textures.Frame): void {
-  const w = frame.cutWidth;
-  const h = frame.cutHeight;
+  // Кадр упакованного листа обрезан (trim) — рисуем его на место в клетке, как в полном листе.
+  const w = frame.realWidth;
+  const h = frame.realHeight;
   const tmp = tm.createCanvas(`${pk}__tmp`, w, h);
   if (!tmp) return;
-  tmp.drawFrame(key, frame.name);
+  tmp.drawFrame(key, frame.name, frame.x, frame.y);
   const data = tmp.getContext().getImageData(0, 0, w, h).data;
   let x0 = w;
   let y0 = h;

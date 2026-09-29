@@ -144,7 +144,7 @@ export class PrepScene extends Phaser.Scene {
           continue;
         }
         // Спрайт в слоте чуть меньше, чем в бою.
-        v.hero.setTexture(view.key, 0).setOrigin(view.originX, view.originY).setScale((view.size / v.hero.frame.height) * 0.62);
+        v.hero.setTexture(view.key, 0).setOrigin(view.originX, view.originY).setScale((view.size / v.hero.frame.realHeight) * 0.62);
         const idle = anim(view, spriteId, 'idle');
         if (idle) v.hero.play({ key: idle, repeat: -1 });
         else v.hero.stop();

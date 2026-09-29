@@ -24,7 +24,7 @@ const effects = new Map<string, AnimatedEffect>(catalog.effects.map((effect) => 
 }]));
 
 export const animatedFxKey = (id: string): string => `anim_${id}`;
-/** Все анимированные эффекты каталога (бой ждёт их загрузки перед первым кадром). */
+/** Все анимированные эффекты каталога. */
 export const animatedFxIds = (): string[] => [...effects.keys()];
 
 /** Roles are event semantics, not interchangeable atlas labels. Projectile capture is not flight. */
@@ -38,6 +38,19 @@ export interface SkillFx {
 const skillMap = (catalog as unknown as { skills?: Record<string, SkillFx> }).skills ?? {};
 export const skillFx = (skillId: string | undefined): SkillFx | undefined => (skillId ? skillMap[skillId] : undefined);
 export const animatedEffect = (id: string): AnimatedEffect | undefined => effects.get(id);
+
+/**
+ * Какие анимированные эффекты может показать бой (грузятся только они — все листы каталога вместе ≈ 100 МБ видеопамяти):
+ * общие (удар, магия, лечение, щит, смерть… — всё, что не fx_job_*), эффекты навыков юнитов боя по каталогу
+ * (hit/buff/cast/ground/debuff) и visual.hitFx / visual.projectile юнитов.
+ */
+export function battleFxIds(skillIds: Iterable<string | undefined>, extra: Iterable<string | undefined> = []): string[] {
+  const out = new Set<string>();
+  for (const id of effects.keys()) if (!id.startsWith('fx_job_')) out.add(id);
+  for (const sk of skillIds) for (const id of Object.values(skillFx(sk) ?? {})) if (id && effects.has(id)) out.add(id);
+  for (const id of extra) if (id && effects.has(id)) out.add(id);
+  return [...out];
+}
 export function selectedAnimatedEffect(id: string, kind: 'flash' | 'projectile', loaded: boolean): AnimatedEffect | undefined {
   if (!loaded || (kind === 'projectile' && id !== 'fx_arrow')) return undefined;
   return animatedEffect(id);
