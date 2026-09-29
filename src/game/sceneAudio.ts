@@ -7,15 +7,18 @@ import { CONTENT, GAME } from './content';
 import { currentStage } from './flow';
 import { session } from './session';
 
-/** Звуковая тема по теме фона: своих звуков у глав 4–7 нет — берём ближайшие по настроению. */
+/**
+ * Звуковая тема по теме фона: у каждой главы своя (музыка карты, боя и фон). Бой с боссом — общая тема `boss`
+ * во всех главах (узнаваемый сигнал «MVP», как в RO), вкус главы в нём держит фон главы (amb_*), который играет и там.
+ */
 const SOUND_THEME: Record<Theme, SoundTheme> = {
   meadow: 'meadow',
   swamp: 'swamp',
   crypt: 'crypt',
-  desert: 'meadow',
-  grove: 'meadow',
-  shipwreck: 'swamp',
-  niflheim: 'crypt',
+  desert: 'desert',
+  grove: 'grove',
+  shipwreck: 'shipwreck',
+  niflheim: 'niflheim',
 };
 export const soundTheme = (t: Theme): SoundTheme => SOUND_THEME[t];
 

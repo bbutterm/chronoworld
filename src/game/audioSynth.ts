@@ -3,7 +3,7 @@
  * не молчит. Всё — чистые функции без Web Audio: на выходе моно-сэмплы Float32 (−1…1), детерминированно
  * (свой генератор шума), поэтому проверяется в тестах. Рендер ленивый — при первом проигрывании звука.
  *
- * Звуки: 22 050 Гц, 0.03–2 с. Музыка и фон: 16 000 Гц, бесшовные петли 10–25 с (тихие, без резких звуков).
+ * Звуки: 22 050 Гц, 0.03–2 с. Музыка и фон: 16 000 Гц, бесшовные петли 10–33 с (тихие, без резких звуков).
  */
 import { SFX, type AmbienceId, type MusicId, type SfxId } from './audioCatalog';
 
@@ -543,6 +543,14 @@ const RECIPES: Record<SfxId, () => Float32Array> = {
     arp(b, [72, 76, 79, 84], 0.09, { at: 0.5, dur: 0.8, harm: BELL, wave: 'sine', gain: 0.35 });
     return finish(b, 0.9);
   },
+  bell_chime: () => {
+    const b = make(1.4);
+    // Колокольчик Греты: два светлых удара язычка (ми — соль-диез), долгий мерцающий хвост.
+    tone(b, SFX_RATE, { f: midi(88), dur: 1.3, decay: 0.45, harm: BELL, gain: 0.55, vib: [0.002, 6] });
+    tone(b, SFX_RATE, { at: 0.16, f: midi(92), dur: 1.2, decay: 0.4, harm: BELL, gain: 0.35, vib: [0.002, 7] });
+    noise(b, SFX_RATE, { dur: 0.02, hp: 5000, gain: 0.15, decay: 0.006 });
+    return finish(b, 0.75);
+  },
   battle_start: () => {
     const b = make(0.9);
     tone(b, SFX_RATE, { f: midi(55), dur: 0.25, attack: 0.03, decay: 0.2, wave: 'saw', gain: 0.5 });
@@ -597,22 +605,46 @@ interface MusicSpec {
   /** Гармония: ступени лада по тактам. */
   chords: number[];
   bars: number;
-  lead: 'box' | 'lute' | 'bell' | 'none';
+  /** Мелодия: шкатулка, лютня, колокол; главы 4–7 — уд, флейта, кото, хорал (орган и голоса). */
+  lead: 'box' | 'lute' | 'bell' | 'oud' | 'flute' | 'koto' | 'choir' | 'none';
   /** Доля восьмых с нотой мелодии. */
   density: number;
+  /** Длина шага мелодии в восьмых (1 — восьмые, 2 — четверти, 4 — половинные; хорал и флейта — медленнее). */
+  step?: number;
+  /** Пэд: мягкий треугольный (по умолчанию), орган (Нифльхейм), глубокий подводный с биениями (корабль). */
+  pad?: 'tri' | 'organ' | 'deep';
+  /** Тихое арпеджио аккорда восьмыми щипком кото (лес Пайона). */
+  arp?: boolean;
   bass: 'none' | 'half' | 'pulse';
-  drums: 'none' | 'soft' | 'march' | 'heavy';
+  /** darbuka — ритм максум (дум-тек, пустыня), darbuka_war — он же с бубном, taiko — большие барабаны и деревяшка. */
+  drums: 'none' | 'soft' | 'march' | 'heavy' | 'darbuka' | 'darbuka_war' | 'taiko';
   /** Педаль тоники в басу (склеп, босс). */
   drone?: boolean;
   seed: number;
 }
 
 const PENTA = [0, 2, 4, 7, 9];
+/** Щипок уда: гнусавый, с сильными 2-й и 3-й гармониками. */
+const OUD: [number, number][] = [
+  [2, 0.5],
+  [3, 0.35],
+  [5, 0.12],
+];
+/** Щипок кото: яркие обертоны (струна у края). */
+const KOTO: [number, number][] = [
+  [2, 0.4],
+  [3, 0.2],
+  [4, 0.08],
+];
 const MAJOR = [0, 2, 4, 5, 7, 9, 11];
 const MINOR = [0, 2, 3, 5, 7, 8, 10];
 const DORIAN = [0, 2, 3, 5, 7, 9, 10];
 const HARM_MINOR = [0, 2, 3, 5, 7, 8, 11];
 const PHRYGIAN = [0, 1, 3, 5, 7, 8, 10];
+/** Хиджаз (фригийский доминантовый): увеличенная секунда 1→3 — «восточный» лад Морока. */
+const HIJAZ = [0, 1, 4, 5, 7, 8, 10];
+/** Минорная пентатоника: ночной лес Пайона (аккорды из ступеней 0-2-4 выходят квартовыми — «воздушными»). */
+const MIN_PENTA = [0, 3, 5, 7, 10];
 
 const MUSIC_SPECS: Record<MusicId, MusicSpec> = {
   home: { bpm: 76, root: 60, scale: MAJOR, chords: [0, 5, 3, 4, 0, 5, 3, 4], bars: 8, lead: 'box', density: 0.45, bass: 'half', drums: 'none', seed: 1 },
@@ -624,7 +656,23 @@ const MUSIC_SPECS: Record<MusicId, MusicSpec> = {
   battle_swamp: { bpm: 106, root: 53, scale: DORIAN, chords: [0, 6, 0, 3, 0, 6, 3, 4], bars: 8, lead: 'lute', density: 0.45, bass: 'pulse', drums: 'march', seed: 7 },
   battle_crypt: { bpm: 104, root: 50, scale: HARM_MINOR, chords: [0, 5, 3, 4, 0, 5, 1, 4], bars: 8, lead: 'bell', density: 0.45, bass: 'pulse', drums: 'march', drone: true, seed: 8 },
   boss: { bpm: 124, root: 50, scale: PHRYGIAN, chords: [0, 1, 0, 6, 0, 1, 5, 4], bars: 8, lead: 'lute', density: 0.5, bass: 'pulse', drums: 'heavy', drone: true, seed: 9 },
+  // Главы 4–7.
+  map_desert: { bpm: 84, root: 62, scale: HIJAZ, chords: [0, 1, 0, 6, 0, 1, 6, 0], bars: 8, lead: 'oud', density: 0.5, bass: 'half', drums: 'darbuka', drone: true, seed: 10 },
+  battle_desert: { bpm: 112, root: 57, scale: HIJAZ, chords: [0, 1, 0, 6, 0, 1, 4, 0], bars: 8, lead: 'oud', density: 0.6, bass: 'pulse', drums: 'darbuka_war', drone: true, seed: 11 },
+  map_grove: { bpm: 68, root: 64, scale: MIN_PENTA, chords: [0, 1, 3, 2, 0, 1, 3, 4], bars: 8, lead: 'flute', step: 2, density: 0.6, arp: true, bass: 'half', drums: 'none', seed: 12 },
+  battle_grove: { bpm: 108, root: 57, scale: MIN_PENTA, chords: [0, 3, 1, 4, 0, 3, 2, 4], bars: 8, lead: 'koto', density: 0.55, arp: true, bass: 'pulse', drums: 'taiko', seed: 13 },
+  map_shipwreck: { bpm: 60, root: 52, scale: MINOR, chords: [0, 5, 2, 6, 0, 5, 3, 4], bars: 8, lead: 'bell', step: 2, density: 0.45, pad: 'deep', bass: 'half', drums: 'none', drone: true, seed: 14 },
+  battle_shipwreck: { bpm: 100, root: 52, scale: MINOR, chords: [0, 5, 3, 4, 0, 5, 6, 4], bars: 8, lead: 'lute', density: 0.5, pad: 'deep', bass: 'pulse', drums: 'march', seed: 15 },
+  map_niflheim: { bpm: 60, root: 50, scale: HARM_MINOR, chords: [0, 3, 5, 4, 0, 5, 3, 4], bars: 8, lead: 'choir', step: 4, density: 0.9, pad: 'organ', bass: 'half', drums: 'none', drone: true, seed: 16 },
+  battle_niflheim: { bpm: 100, root: 50, scale: HARM_MINOR, chords: [0, 5, 3, 4, 0, 1, 5, 4], bars: 8, lead: 'bell', density: 0.45, pad: 'organ', bass: 'pulse', drums: 'march', drone: true, seed: 17 },
 };
+
+/** Орган: основной тон и обертоны регистров 4', 2 2/3', 2'. */
+const ORGAN: [number, number][] = [
+  [2, 0.45],
+  [3, 0.18],
+  [4, 0.14],
+];
 
 /** Нота ступени deg лада (ступени за пределами лада — через октаву). */
 function degree(spec: MusicSpec, deg: number, octave = 0): number {
@@ -641,7 +689,7 @@ export function synthMusic(id: MusicId): Pcm {
 }
 
 /**
- * Рендер музыки по шагам (такт за шагом, последний — нормализация): audio.ts выполняет их между кадрами,
+ * Рендер музыки по шагам (на такт — пэд и всё остальное, последний шаг — нормализация): audio.ts выполняет их между кадрами,
  * чтобы смена экрана не «подвисала» на телефоне. pcm готов после последнего шага.
  */
 export function musicJob(id: MusicId): { pcm: Pcm; steps: (() => void)[] } {
@@ -654,15 +702,37 @@ export function musicJob(id: MusicId): { pcm: Pcm; steps: (() => void)[] } {
   const penta = spec.scale === MAJOR ? PENTA : null;
   const steps: (() => void)[] = [];
   const pcm: Pcm = { rate, data: b, loop: true };
-  for (let bar = 0; bar < spec.bars; bar++) steps.push(() => renderBar(bar));
+  // Такт — два шага (пэд отдельно от остального): тяжёлые пэды глав 4–7 не дают длинного кадра на телефоне.
+  for (let bar = 0; bar < spec.bars; bar++) steps.push(() => renderPad(bar), () => renderBar(bar));
   steps.push(() => finish(b, 0.7));
   return { pcm, steps };
+
+  function renderPad(bar: number): void {
+    const c = spec.chords[bar % spec.chords.length];
+    const t0 = bar * barLen;
+    // Пэд: трезвучие, мягкая атака, через край такта (петля — в начало).
+    const pad = spec.pad ?? 'tri';
+    if (pad === 'tri') for (const k of [0, 2, 4]) tone(b, rate, { at: t0, f: midi(degree(spec, c + k, 0)), dur: barLen * 1.15, attack: barLen * 0.3, decay: barLen * 0.8, gain: 0.09, wave: 'tri', vib: [0.003, 4 + k] }, true);
+    else if (pad === 'organ') {
+      // Орган: аккорд держится весь такт (почти без затухания), лёгкое «дыхание» мехов.
+      for (const k of [0, 2, 4]) tone(b, rate, { at: t0, f: midi(degree(spec, c + k, 0)), dur: barLen * 1.08, attack: 0.12, decay: barLen * 3, gain: 0.065, harm: ORGAN, vib: [0.0015, 5.5] }, true);
+    } else {
+      // Глубина: аккорд октавой ниже, каждая нота — пара чуть расстроенных синусов (медленные биения, «вода»).
+      for (const k of [0, 2, 4]) {
+        const f = midi(degree(spec, c + k, -1));
+        for (const d of [1, 1.006]) tone(b, rate, { at: t0, f: f * d, dur: barLen * 1.25, attack: barLen * 0.45, decay: barLen * 0.9, gain: 0.085, vib: [0.004, 0.3 + k * 0.1] }, true);
+      }
+    }
+    // Кото: щипки аккорда восьмыми, тихо, под мелодией.
+    if (spec.arp) {
+      const pat = [0, 2, 4, 7, 4, 2, 4, 7];
+      for (let e = 0; e < 8; e++) tone(b, rate, { at: t0 + e * beat * 0.5, f: midi(degree(spec, c + pat[e], 0)), dur: beat * 0.9, decay: beat * 0.25, gain: 0.06, wave: 'tri', harm: KOTO }, true);
+    }
+  }
 
   function renderBar(bar: number): void {
     const c = spec.chords[bar % spec.chords.length];
     const t0 = bar * barLen;
-    // Пэд: трезвучие, мягкая атака, через край такта (петля — в начало).
-    for (const k of [0, 2, 4]) tone(b, rate, { at: t0, f: midi(degree(spec, c + k, 0)), dur: barLen * 1.15, attack: barLen * 0.3, decay: barLen * 0.8, gain: 0.09, wave: 'tri', vib: [0.003, 4 + k] }, true);
     // Бас.
     if (spec.bass === 'half') for (let h = 0; h < 2; h++) tone(b, rate, { at: t0 + h * barLen * 0.5, f: midi(degree(spec, c, -2)), dur: barLen * 0.5, decay: barLen * 0.3, gain: 0.22, wave: 'tri' }, true);
     if (spec.bass === 'pulse') for (let e = 0; e < 8; e++) tone(b, rate, { at: t0 + e * beat * 0.5, f: midi(degree(spec, c + (e === 6 ? 4 : 0), -2)), dur: beat * 0.45, decay: beat * 0.2, gain: 0.2, wave: 'tri' }, true);
@@ -670,7 +740,8 @@ export function musicJob(id: MusicId): { pcm: Pcm; steps: (() => void)[] } {
     // Мелодия по восьмым: ноты аккорда и лада, плавные шаги.
     if (spec.lead !== 'none') {
       let last = c + 7;
-      for (let e = 0; e < 8; e++) {
+      const st = spec.step ?? 1;
+      for (let e = 0; e < 8; e += st) {
         const strong = e % 2 === 0;
         if (r() > spec.density * (strong ? 1.3 : 0.7)) continue;
         const step = [-2, -1, 0, 1, 1, 2][Math.floor(r() * 6)];
@@ -680,11 +751,50 @@ export function musicJob(id: MusicId): { pcm: Pcm; steps: (() => void)[] } {
         const at = t0 + e * beat * 0.5;
         if (spec.lead === 'box') tone(b, rate, { at, f: midi(m), dur: beat * 1.5, decay: beat * 0.5, gain: 0.16, harm: BELL }, true);
         else if (spec.lead === 'bell') tone(b, rate, { at, f: midi(m), dur: beat * 2, decay: beat * 0.8, gain: 0.13, harm: BELL }, true);
-        else tone(b, rate, { at, f: midi(m), dur: beat * 0.8, decay: beat * 0.18, gain: 0.17, wave: 'tri', harm: [[2, 0.25]] }, true);
+        else if (spec.lead === 'oud') {
+          // Уд: яркий щипок (обертоны без пилы — нет наложения спектра на 16 кГц) с подъездом к ноте снизу;
+          // на сильной доле иногда двойной щипок (тремоло медиатором).
+          tone(b, rate, { at, f: midi(m) * 0.985, to: midi(m), dur: beat * 0.7, attack: 0.003, decay: beat * 0.16, gain: 0.14, wave: 'tri', harm: OUD }, true);
+          if (strong && r() < 0.35) tone(b, rate, { at: at + beat * 0.25, f: midi(m), dur: beat * 0.4, attack: 0.003, decay: beat * 0.1, gain: 0.09, wave: 'tri', harm: OUD }, true);
+        } else if (spec.lead === 'flute') {
+          // Бамбуковая флейта: мягкая атака, вибрато, немного «дыхания».
+          const len = beat * 0.5 * st;
+          tone(b, rate, { at, f: midi(m), dur: len * 1.1, attack: 0.07, decay: len * 1.4, gain: 0.15, vib: [0.01, 5], harm: [[2, 0.12], [3, 0.04]] }, true);
+          noise(b, rate, { at, dur: Math.min(0.25, len), hp: 2500, lp: 6000, attack: 0.04, decay: 0.08, gain: 0.03, seed: 300 + bar * 8 + e }, true);
+        } else if (spec.lead === 'koto') {
+          tone(b, rate, { at, f: midi(m), dur: beat * 1.1, attack: 0.002, decay: beat * 0.3, gain: 0.16, wave: 'tri', harm: KOTO }, true);
+        } else if (spec.lead === 'choir') {
+          // Хорал: долгие ноты, голос (треугольник с вибрато) и органный обертон — медленно, как в пустом соборе.
+          const len = beat * 0.5 * st;
+          tone(b, rate, { at, f: midi(m), dur: len * 1.15, attack: len * 0.25, decay: len * 1.2, gain: 0.11, wave: 'tri', vib: [0.006, 4.8] }, true);
+          tone(b, rate, { at, f: midi(m) * 1.003, dur: len * 1.15, attack: len * 0.3, decay: len * 1.2, gain: 0.05, harm: ORGAN }, true);
+        } else tone(b, rate, { at, f: midi(m), dur: beat * 0.8, decay: beat * 0.18, gain: 0.17, wave: 'tri', harm: [[2, 0.25]] }, true);
       }
     }
+    // Дарбука: максум «дум-тек-ка-тек-дум-ка-тек-ка» восьмыми (дум — низкий удар в центр, тек — звонкий по краю).
+    if (spec.drums === 'darbuka' || spec.drums === 'darbuka_war') {
+      const war = spec.drums === 'darbuka_war';
+      const maqsum = ['D', 'T', 'k', 'T', 'D', 'k', 'T', 'k'];
+      for (let e = 0; e < 8; e++) {
+        const at = t0 + e * beat * 0.5;
+        const hit = maqsum[e];
+        if (hit === 'D') tone(b, rate, { at, f: 190, to: 95, dur: 0.22, decay: 0.08, gain: war ? 0.34 : 0.26 }, true);
+        else {
+          const g = hit === 'T' ? 1 : 0.45;
+          noise(b, rate, { at, dur: 0.05, hp: 2200, lp: 7000, decay: 0.012, gain: 0.16 * g, seed: 500 + bar * 8 + e }, true);
+          tone(b, rate, { at, f: 820, to: 700, dur: 0.05, decay: 0.012, gain: 0.08 * g, wave: 'tri' }, true);
+        }
+      }
+      // Бой: сверху бубен (рамочный барабан) на 2 и 4.
+      if (war) for (const q of [1, 3]) noise(b, rate, { at: t0 + q * beat, dur: 0.16, lp: 3200, hp: 700, decay: 0.05, gain: 0.13, seed: 600 + bar * 4 + q }, true);
+    }
+    // Тайко: большой барабан на 1, «и» второй доли и 3; деревянные щелчки на слабых восьмых.
+    if (spec.drums === 'taiko') {
+      for (const [q, g] of [[0, 1], [1.5, 0.6], [2, 0.85]] as const) tone(b, rate, { at: t0 + q * beat, f: 95, to: 48, dur: 0.4, decay: 0.13, gain: 0.36 * g }, true);
+      for (let e = 1; e < 8; e += 2) tone(b, rate, { at: t0 + e * beat * 0.5, f: 1250, to: 1150, dur: 0.035, decay: 0.009, gain: 0.07, wave: 'tri' }, true);
+    }
     // Барабаны: бочка, мягкий «шейкер», малый на 2 и 4.
-    if (spec.drums !== 'none') {
+    if (spec.drums === 'soft' || spec.drums === 'march' || spec.drums === 'heavy') {
       for (let q = 0; q < 4; q++) {
         const at = t0 + q * beat;
         const kick = spec.drums === 'soft' ? q === 0 || q === 2 : true;
@@ -719,6 +829,13 @@ function loopify(b: Float32Array, rate: number, fade: number): Float32Array {
 }
 
 export function synthAmbience(id: AmbienceId): Pcm {
+  const own = AMB_RECIPES[id as keyof typeof AMB_RECIPES];
+  if (own) {
+    const rate = LOOP_RATE;
+    const b = make(AMB_LEN + 1, rate);
+    own(b, rate, rng(AMB_SEEDS[id as keyof typeof AMB_SEEDS]));
+    return { rate, data: finish(loopify(b, rate, 1), 0.5), loop: true };
+  }
   const rate = LOOP_RATE;
   const len = 10;
   const b = make(len + 1, rate);
@@ -749,3 +866,92 @@ export function synthAmbience(id: AmbienceId): Pcm {
   }
   return { rate, data: finish(loopify(b, rate, 1), 0.5), loop: true };
 }
+
+// ---------- фоны глав 4–7 ----------
+
+/** Длина петли фонов глав 4–7, с (+1 с на склейку). Длинные звоны ставим в первую половину — хвост успевает стихнуть. */
+const AMB_LEN = 12;
+const AMB_SEEDS = { amb_desert: 401, amb_grove: 402, amb_shipwreck: 403, amb_niflheim: 404 } as const;
+
+/** Порывы ветра: шум с «дышащим» фильтром, перекрывающиеся волны. */
+function gusts(b: Float32Array, rate: number, n: number, lp: number, lpTo: number, gain: number, seed: number): void {
+  const step = AMB_LEN / n;
+  for (let k = 0; k < n; k++) noise(b, rate, { at: k * step, dur: step * 1.6, lp: k % 2 ? lpTo : lp, lpTo: k % 2 ? lp : lpTo, attack: step * 0.6, decay: step * 0.6, gain, seed: seed + k });
+}
+
+const AMB_RECIPES: Record<'amb_desert' | 'amb_grove' | 'amb_shipwreck' | 'amb_niflheim', (b: Float32Array, rate: number, r: () => number) => void> = {
+  amb_desert: (b, rate, r) => {
+    // Горячий ветер: ровный низкий поток и порывы посветлее.
+    gusts(b, rate, 6, 450, 1100, 0.5, 410);
+    // Песок: шипящий шорох, накатывает волнами вместе с порывами.
+    for (let k = 0; k < 4; k++) noise(b, rate, { at: k * 3, dur: 4.5, hp: 2800, lp: 7000, attack: 1.8, decay: 1.2, gain: 0.12 + r() * 0.06, seed: 420 + k });
+    // Свист ветра в камнях: тонкий, с плавным вибрато.
+    for (let k = 0; k < 2; k++) {
+      const f = 780 + r() * 300;
+      tone(b, rate, { at: 1 + k * 5 + r(), f, to: f * (1.1 + r() * 0.15), dur: 3, attack: 1.2, decay: 0.9, gain: 0.035, vib: [0.02, 0.7] });
+    }
+  },
+  amb_grove: (b, rate, r) => {
+    // Тихий ночной ветерок в листве.
+    gusts(b, rate, 5, 350, 650, 0.3, 430);
+    // Сверчки: серии коротких стрекотов (3–4 импульса), два «голоса» на разной высоте, у каждого свой ритм.
+    for (const [f, period, g] of [[4300, 0.9, 0.09], [3700, 1.3, 0.07]] as const) {
+      for (let t = r() * period; t < AMB_LEN; t += period * (0.85 + r() * 0.3)) {
+        if (r() < 0.2) continue;
+        for (let j = 0; j < 4; j++) tone(b, rate, { at: t + j * 0.028, f, dur: 0.02, attack: 0.003, decay: 0.008, gain: g });
+      }
+    }
+    // Бамбуковые фонари на ветру: глухие деревянные «ток-ток».
+    for (let i = 0; i < 4; i++) {
+      const at = r() * (AMB_LEN - 1);
+      const f = 480 + r() * 260;
+      tone(b, rate, { at, f, to: f * 0.92, dur: 0.07, decay: 0.02, gain: 0.12, wave: 'tri' });
+      tone(b, rate, { at: at + 0.13 + r() * 0.1, f: f * 1.2, to: f * 1.1, dur: 0.06, decay: 0.018, gain: 0.08, wave: 'tri' });
+    }
+    // Далёкий храмовый колокольчик — раз за петлю, тихо.
+    tone(b, rate, { at: 2.5, f: midi(84), dur: 4, decay: 1.2, harm: BELL, gain: 0.07, vib: [0.002, 5] });
+    tone(b, rate, { at: 2.72, f: midi(79), dur: 3.5, decay: 1, harm: BELL, gain: 0.045 });
+  },
+  amb_shipwreck: (b, rate, r) => {
+    // Гул глубины: очень низкий шум и медленно плывущий низкий тон.
+    gusts(b, rate, 4, 160, 260, 0.6, 440);
+    tone(b, rate, { f: 48, dur: AMB_LEN + 1, attack: 1, gain: 0.14, vib: [0.015, 0.15] });
+    // Скрип дерева: «трещотка» низких щелчков (редкая пила) и стонущий тон с дрожью.
+    for (let i = 0; i < 3; i++) {
+      const at = 0.8 + i * 3.6 + r() * 1.2;
+      const f = 28 + r() * 10;
+      tone(b, rate, { at, f, to: f * 1.6, dur: 0.9, attack: 0.15, decay: 0.5, wave: 'saw', gain: 0.1 });
+      tone(b, rate, { at, f: 260 + r() * 80, to: 200 + r() * 40, dur: 0.9, attack: 0.2, decay: 0.45, wave: 'tri', gain: 0.05, vib: [0.03, 23] });
+    }
+    // Капли.
+    for (let i = 0; i < 6; i++) {
+      const f = 1300 + r() * 700;
+      tone(b, rate, { at: r() * AMB_LEN, f, to: f * 0.55, dur: 0.1, decay: 0.025, gain: 0.18 });
+    }
+    // Пузырьки: цепочки быстрых «блоп» вверх.
+    for (let i = 0; i < 4; i++) {
+      const at = r() * (AMB_LEN - 1);
+      const n = 4 + Math.floor(r() * 5);
+      for (let j = 0; j < n; j++) {
+        const f = 350 + r() * 500;
+        tone(b, rate, { at: at + j * (0.05 + r() * 0.06), f, to: f * 2.4, dur: 0.045, decay: 0.015, gain: 0.08 });
+      }
+    }
+    // Корабельный колокол сквозь толщу воды: низкий, глухой, раз за петлю.
+    tone(b, rate, { at: 1.5, f: midi(64), dur: 5, attack: 0.01, decay: 1.6, harm: [[2.01, 0.25], [2.76, 0.12]], gain: 0.13, vib: [0.004, 0.8] });
+  },
+  amb_niflheim: (b, rate, r) => {
+    // Ледяной ветер и его вой: шум и два длинных «воющих» тона, которые поднимаются и опадают.
+    gusts(b, rate, 5, 300, 800, 0.45, 450);
+    for (let k = 0; k < 2; k++) {
+      const at = 0.5 + k * 5.5 + r();
+      const f = 330 + r() * 120;
+      tone(b, rate, { at, f, to: f * 1.35, dur: 2.2, attack: 1.2, decay: 2, gain: 0.05, vib: [0.025, 0.9] });
+      tone(b, rate, { at: at + 2.1, f: f * 1.35, to: f * 0.9, dur: 2.4, attack: 0.1, decay: 0.9, gain: 0.05, vib: [0.025, 0.9] });
+    }
+    // Низкий гул земли мёртвых.
+    tone(b, rate, { f: 41, dur: AMB_LEN + 1, attack: 1, gain: 0.1, vib: [0.01, 0.12] });
+    // Далёкий погребальный звон: два медленных удара низкого колокола.
+    for (const at of [1, 4.2]) tone(b, rate, { at, f: midi(45), dur: 4.5, attack: 0.01, decay: 1.6, harm: [[2, 0.4], [2.4, 0.25], [3.01, 0.2]], gain: 0.16 });
+  },
+};

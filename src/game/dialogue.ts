@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { sfx } from './audio';
+import { lineChimes } from './audioCore';
 import { markScenesSeen, pendingScenes, type StoryScene, type StoryTrigger } from '../core';
 import { GAME } from './content';
 import { GAME_H, GAME_W } from './layout';
@@ -157,6 +159,8 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     nameText.setText(who.name);
     setFace(who.sprite, who.gender);
     full = l.text;
+    // Колокольчик Греты звенит в реплике — слышно (ограничитель не даст звенеть чаще раза в 1.5 с).
+    if (lineChimes(full)) sfx('bell_chime', { delay: 0.2 });
     shown = 0;
     body.setText('');
     more.setText('');

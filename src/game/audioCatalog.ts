@@ -83,6 +83,8 @@ export const SFX = {
   death_hero: fx('герой пал', 0.6, 150, 2),
   boss_intro: sting('баннер босса: барабаны и рог', 0.85),
   boss_death: sting('босс побеждён', 0.85),
+  // ---------- сюжет ----------
+  bell_chime: fx('колокольчик Греты звенит в реплике сюжета (светлый короткий звон)', 0.45, 1500, 1),
   // ---------- итоги ----------
   battle_start: fx('начало боя (рог)', 0.55, 500, 1),
   victory: sting('победа (джингл)', 0.85),
@@ -112,6 +114,15 @@ export const MUSIC = {
   battle_meadow: { gain: 0.45, files: ['music_battle_meadow', 'music_battle'], desc: 'бой в главе 1', ro: 'поле Пронтеры (быстрее) или своя боевая' },
   battle_swamp: { gain: 0.45, files: ['music_battle_swamp', 'music_battle'], desc: 'бой в главе 2' },
   battle_crypt: { gain: 0.45, files: ['music_battle_crypt', 'music_battle'], desc: 'бой в главе 3 и в башне' },
+  // Главы 4–7: свои темы (раньше звучали темы глав 1–3).
+  map_desert: { gain: 0.5, files: ['music_map_desert', 'music_map'], desc: 'карта главы 4 (пустыня Сограт): восточный лад, уд, дарбука', ro: 'Theme of Morroc (карта morocc; поля moc_fild*)' },
+  map_grove: { gain: 0.5, files: ['music_map_grove', 'music_map'], desc: 'карта главы 5 (лес Пайона ночью): пентатоника, флейта, кото', ro: 'Theme of Payon (карта payon; поля pay_fild*)' },
+  map_shipwreck: { gain: 0.5, files: ['music_map_shipwreck', 'music_map'], desc: 'карта главы 6 (затонувший корабль): медленные глубокие пэды, подводный колокол', ro: 'Sunken Ship / Izlude (treasure01, iz_dun*; izlude)' },
+  map_niflheim: { gain: 0.5, files: ['music_map_niflheim', 'music_map'], desc: 'карта главы 7 (Нифльхейм): мрачный орган и хорал, минор', ro: 'Niflheim (карта niflheim; nif_fild*)' },
+  battle_desert: { gain: 0.45, files: ['music_battle_desert', 'music_battle'], desc: 'бой в главе 4: уд и боевая дарбука', ro: 'Morroc / пирамиды (moc_pryd*) — быстрее' },
+  battle_grove: { gain: 0.45, files: ['music_battle_grove', 'music_battle'], desc: 'бой в главе 5: кото и тайко', ro: 'Payon Cave (pay_dun*)' },
+  battle_shipwreck: { gain: 0.45, files: ['music_battle_shipwreck', 'music_battle'], desc: 'бой в главе 6: лютня над глубоким пэдом', ro: 'Sunken Ship (treasure02) / Byalan (iz_dun*)' },
+  battle_niflheim: { gain: 0.45, files: ['music_battle_niflheim', 'music_battle'], desc: 'бой в главе 7: орган, колокола, марш', ro: 'Niflheim / Gyoll (nif_fild*)' },
   boss: { gain: 0.5, files: ['music_boss'], desc: 'бой с боссом главы', ro: 'тема MVP-босса' },
 } as const satisfies Record<string, TrackDef>;
 
@@ -122,6 +133,10 @@ export const AMBIENCE = {
   amb_meadow: { gain: 0.35, files: ['amb_meadow'], desc: 'луг: ветер, птицы' },
   amb_swamp: { gain: 0.35, files: ['amb_swamp'], desc: 'топь: бульканье, лягушки' },
   amb_crypt: { gain: 0.35, files: ['amb_crypt'], desc: 'склеп: капли, гул' },
+  amb_desert: { gain: 0.35, files: ['amb_desert'], desc: 'пустыня: порывы ветра, шорох песка, свист' },
+  amb_grove: { gain: 0.35, files: ['amb_grove'], desc: 'ночной лес Пайона: сверчки, стук бамбуковых фонарей, далёкий колокольчик' },
+  amb_shipwreck: { gain: 0.35, files: ['amb_shipwreck'], desc: 'затонувший корабль: гул глубины, скрип дерева, капли, пузырьки, редкий корабельный колокол' },
+  amb_niflheim: { gain: 0.35, files: ['amb_niflheim'], desc: 'Нифльхейм: завывание ветра, далёкий погребальный звон' },
 } as const satisfies Record<string, TrackDef>;
 
 export type AmbienceId = keyof typeof AMBIENCE;
