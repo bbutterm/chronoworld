@@ -108,10 +108,12 @@ describe('находки', () => {
     expect(deserialize(serialize(fresh)).findings).toBeUndefined();
   });
 
-  it('проверка: повтор id находки — ошибка, больше 4 в главе и barks не у босса — предупреждения', () => {
+  it('проверка: повтор id находки — ошибка, больше 4 в главе и юнит с репликами дважды в этапе — предупреждения', () => {
     expect(validatePageTexts(ctx.content)).toEqual({ errors: [], warnings: [] });
     const stages = ch1.stages.map((s, i) => (i < 5 ? { ...s, finding: { id: i === 1 ? 'dup' : i === 0 ? 'dup' : `f${i}`, title: 'Н', text: 'т', kind: 'note' as const } } : s));
     const monster = Object.values(ctx.content.units).find((u) => u.kind === 'monster')!;
+    // Мини-босс с репликами — можно; два одинаковых говорящих в одном этапе — предупреждение.
+    stages[6] = { ...stages[6], enemies: [{ unit: monster.id, mult: 1 }, { unit: monster.id, mult: 1 }, null, null, null] } as (typeof stages)[number];
     const content = {
       chapters: [{ ...ch1, stages }],
       units: { [monster.id]: { ...monster, barks: { start: 'Пи!' } } },
@@ -120,7 +122,8 @@ describe('находки', () => {
     expect(r.errors).toHaveLength(1);
     expect(r.errors[0]).toContain('dup');
     expect(r.warnings.some((w) => w.includes('находок ') && w.includes('больше 4'))).toBe(true);
-    expect(r.warnings.some((w) => w.includes('barks'))).toBe(true);
+    expect(r.warnings.some((w) => w.includes('barks') && w.includes(stages[6].id))).toBe(true);
+    expect(r.warnings.filter((w) => w.includes('barks'))).toHaveLength(1);
   });
 });
 
