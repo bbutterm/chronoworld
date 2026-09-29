@@ -22,6 +22,7 @@ import {
   ascendRequirement,
   ascendAll,
   heroRole,
+  withGear,
   autoFodder,
   autoChain,
   chooseBranch,
@@ -674,8 +675,9 @@ class Sim {
     const members = base.flatMap((id) => this.save.heroes.filter((h) => h.id === id));
     if (members.length === 0) return base;
     const floor = Math.min(...members.map((h) => h.level));
-    const pot = (h: SaveState['heroes'][number]) =>
-      heroPower({ ...h, level: Math.max(h.level, Math.min(floor, maxLevelOf(this.ctx, h.rarity))) }, this.ctx, this.save);
+    // Контекст с экипировкой — один на вызов (withGear на каждого героя был треть времени модели).
+    const gear = withGear(this.ctx, this.save);
+    const pot = (h: SaveState['heroes'][number]) => heroPower({ ...h, level: Math.max(h.level, Math.min(floor, maxLevelOf(this.ctx, h.rarity))) }, gear);
     const squad = members.map((h) => ({ hero: h, pot: pot(h) }));
     const inSquad = new Set(members.map((h) => h.templateId));
     const bench = [...new Set(this.save.heroes.map((h) => h.templateId))]
@@ -700,10 +702,14 @@ class Sim {
     const healer = (h: SaveState['heroes'][number]) => heroRole(h, this.ctx) === 'healer';
     if (this.model.healer && squad.length >= 3 && !squad.some((x) => healer(x.hero)) && this.save.heroes.some(healer)) {
       const used = new Set(squad.map((x) => x.hero.templateId));
-      const best = this.save.heroes
-        .filter((h) => healer(h) && !used.has(h.templateId))
-        .map((h) => ({ hero: h, pot: pot(h) }))
-        .sort((a, b) => b.pot - a.pot || (a.hero.id < b.hero.id ? -1 : 1))[0];
+      // По одному кандидату на героя (старшая редкость, затем уровень) — мощь с экипировкой считается дорого.
+      const top = new Map<string, SaveState['heroes'][number]>();
+      for (const h of this.save.heroes) {
+        if (!healer(h) || used.has(h.templateId)) continue;
+        const cur = top.get(h.templateId);
+        if (!cur || rarityIndex(h.rarity) > rarityIndex(cur.rarity) || (h.rarity === cur.rarity && h.level > cur.level)) top.set(h.templateId, h);
+      }
+      const best = [...top.values()].map((h) => ({ hero: h, pot: pot(h) })).sort((a, b) => b.pot - a.pot || (a.hero.id < b.hero.id ? -1 : 1))[0];
       const tanks = squad.filter((x) => heroRole(x.hero, this.ctx) === 'tank').length;
       const out = squad
         .filter((x) => heroRole(x.hero, this.ctx) !== 'tank' || tanks > 1)
