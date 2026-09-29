@@ -178,7 +178,7 @@ allIds.forEach((id, i) => {
   if (!i) return;
   const ts = runs.map((r, k) => clears[k].get(id) ?? r.end + 24);
   const gaps = runs.map((r, k) => ts[k] - (clears[k].get(allIds[i - 1]) ?? r.end + 24));
-  if (median(gaps) >= 4 && runs.filter((r, k) => clears[k].has(id)).length * 2 > runs.length) calib.push(modelD(id, cur.get(id)!) - lnP(median(ts)));
+  if (median(gaps) >= 4 && runs.filter((_, k) => clears[k].has(id)).length * 2 > runs.length) calib.push(modelD(id, cur.get(id)!) - lnP(median(ts)));
 });
 const C = median(calib);
 console.log(`калибровка: ${calib.length} этапов-стен, C = ${C.toFixed(3)}`);
