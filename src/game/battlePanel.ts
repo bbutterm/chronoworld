@@ -31,7 +31,7 @@ export const PANEL_Y = 585;
 const CARD_W = 184;
 const CARD_H = 196;
 const GAP = 12;
-const FACE = 104;
+const FACE = 132;
 const BAR_W = CARD_W - 28;
 
 export class HeroPanel {
@@ -42,16 +42,16 @@ export class HeroPanel {
     const x0 = GAME_W / 2 - ((n - 1) * (CARD_W + GAP)) / 2;
     units.forEach((u, i) => {
       const x = x0 + i * (CARD_W + GAP);
-      const back = scene.add.rectangle(0, 0, CARD_W, CARD_H, 0x140e09, 0.62).setStrokeStyle(3, 0xc9a45c, 0.7);
-      const face = portrait(scene, 0, -34, portraitKey(u.sprite), FACE);
+      const back = scene.add.rectangle(0, 0, CARD_W, CARD_H, 0x140e09, 0.8).setStrokeStyle(3, 0xc9a45c, 0.7);
+      const face = portrait(scene, 0, -30, portraitKey(u.sprite), FACE);
       const name = text(scene, 0, 42, u.name, 26, '#f3e3c0', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 });
       if (name.width > CARD_W - 12) name.setScale((CARD_W - 12) / name.width);
-      const hpBack = scene.add.rectangle(0, 68, BAR_W + 4, 16, 0x000000, 0.8);
+      const hpBack = scene.add.rectangle(0, 68, BAR_W + 4, 16, 0x2a2420, 0.95).setStrokeStyle(2, 0x000000, 0.8);
       const hp = scene.add.rectangle(-BAR_W / 2, 68, BAR_W, 12, 0x5fd35f).setOrigin(0, 0.5);
       const parts: Phaser.GameObjects.GameObject[] = [back, face, name, hpBack, hp];
       let energy: Phaser.GameObjects.Rectangle | null = null;
       if (u.hasUlt) {
-        const enBack = scene.add.rectangle(0, 84, BAR_W + 4, 10, 0x000000, 0.8);
+        const enBack = scene.add.rectangle(0, 84, BAR_W + 4, 10, 0x2a2420, 0.95).setStrokeStyle(2, 0x000000, 0.8);
         energy = scene.add.rectangle(-BAR_W / 2, 84, 0, 6, 0x6fc8ff).setOrigin(0, 0.5);
         parts.push(enBack, energy);
       }
