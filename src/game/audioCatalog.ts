@@ -111,40 +111,44 @@ export interface TrackDef {
 }
 
 /**
- * Музыка. Файлы музыки владелец готовит сам (docs/design/audio.md, «Музыка: заказ»): assets/audio/<файл>.ogg + .m4a,
- * петля до 1.5 МБ. ro — какой трек клиента RO (raw/ro/bgm/NN.mp3, номер по mp3nametable.txt) предназначен дорожке.
- * Файла нет — играет заглушка (audioSynth.ts; новые темы — как прежняя тема слота, MUSIC_ALIAS).
+ * Музыка. Файлы — треки RO из raw/ro-build/audio (music.json, docs/RO_SCRO_IMPORT.md шаг 6): assets/audio/<файл>.ogg
+ * (Opus) + .m4a (AAC), −16 LUFS, до 1.45 МБ; играют потоком (audio.ts, docs/TASK_MUSIC_STREAMING.md). ro — какой трек
+ * клиента RO (raw/ro/bgm/NN.mp3) у дорожки. Один трек на две дорожки — один файл: вторая дорожка берёт его вторым в files
+ * (бой канализации и лабиринта — файл карты, бой Башни — файл экрана Башни), в сборке он один.
+ * gain: меню и карты 0.42, бои 0.36 (−1.5 и −1.9 дБ к прежним 0.5 / 0.45) — плотная музыка RO не перекрывает удары
+ * и нажатия (замер: музыка ≈ −16 дБ RMS в файле, удары RO ≈ −12 дБ RMS за 400 мс; итог в миксе — удары на ~9 дБ громче).
+ * Файла нет или он не играет — заглушка (audioSynth.ts; новые темы — как прежняя тема слота, MUSIC_ALIAS).
  */
 export const MUSIC = {
-  title: { gain: 0.5, files: ['music_title'], desc: 'экран входа / заставка (на будущее: сцены входа пока нет)', ro: '01.mp3 Title (экран логина RO)' },
-  home: { gain: 0.5, files: ['music_home'], desc: 'главная (лагерь героев), спокойно', ro: '08.mp3 Theme of Prontera (prontera)' },
-  tavern: { gain: 0.5, files: ['music_tavern', 'music_home'], desc: 'таверна: призыв героев, весело', ro: '26.mp3 Everlasting Wanderers (izlude; название проверить)' },
-  tower: { gain: 0.5, files: ['music_tower'], desc: 'экран Башни испытаний', ro: '21.mp3 Through the Tower (gef_dun00–01, башня Геффена)' },
-  battle_tower: { gain: 0.45, files: ['music_battle_tower', 'music_tower'], desc: 'бой в Башне (без своего файла — та же тема Башни, не перезапускается)', ro: '21.mp3 Through the Tower' },
-  map_meadow: { gain: 0.5, files: ['music_map_meadow', 'music_map'], desc: 'карта главы 1 (поля Пронтеры)', ro: '12.mp3 Streamside (prt_fild08)' },
-  battle_meadow: { gain: 0.45, files: ['music_battle_meadow', 'music_battle'], desc: 'бой в главе 1', ro: '05.mp3 Tread on the Ground (prt_fild00/02/03)' },
-  map_sewer: { gain: 0.5, files: ['music_map_sewer', 'music_map'], desc: 'карта главы 2 (канализация Пронтеры)', ro: '19.mp3 Under the Ground (prt_sewb1–4)' },
-  battle_sewer: { gain: 0.45, files: ['music_battle_sewer', 'music_map_sewer', 'music_battle'], desc: 'бой в главе 2 (без своего файла — тот же трек, что на карте)', ro: '19.mp3 Under the Ground' },
-  map_orc: { gain: 0.5, files: ['music_map_orc', 'music_map'], desc: 'карта главы 3 (орочья деревня)', ro: '35.mp3 TeMPoison (gef_fild10, in_orcs01)' },
-  battle_orc: { gain: 0.45, files: ['music_battle_orc', 'music_battle'], desc: 'бой в главе 3', ro: '48.mp3 Help Yourself (orcsdun01–02)' },
-  map_desert: { gain: 0.5, files: ['music_map_desert', 'music_map'], desc: 'карта главы 4 (пустыня Сограт, Моррок)', ro: '11.mp3 Theme of Morroc (morocc)' },
-  battle_desert: { gain: 0.45, files: ['music_battle_desert', 'music_battle'], desc: 'бой в главе 4', ro: '22.mp3 Backattack!! (moc_pryd01–06)' },
-  map_grove: { gain: 0.5, files: ['music_map_grove', 'music_map'], desc: 'карта главы 5 (лес Пайона)', ro: '14.mp3 Theme of Payon (payon)' },
-  battle_grove: { gain: 0.45, files: ['music_battle_grove', 'music_battle'], desc: 'бой в главе 5', ro: '20.mp3 Ancient Groover (pay_dun00–02)' },
-  map_shipwreck: { gain: 0.5, files: ['music_map_shipwreck', 'music_map'], desc: 'карта главы 6 (корабль, Альберта)', ro: '15.mp3 Theme of Alberta (alberta)' },
-  battle_shipwreck: { gain: 0.45, files: ['music_battle_shipwreck', 'music_battle'], desc: 'бой в главе 6', ro: '17.mp3 Treasure Hunter (treasure01–02)' },
-  map_clocktower: { gain: 0.5, files: ['music_map_clocktower', 'music_map'], desc: 'карта главы 7 (Альдебаран, часовая башня)', ro: '39.mp3 Theme of Al de Baran (aldebaran)' },
-  battle_clocktower: { gain: 0.45, files: ['music_battle_clocktower', 'music_battle'], desc: 'бой в главе 7', ro: '60.mp3 Aeon (c_tower1–4)' },
-  map_crypt: { gain: 0.5, files: ['music_map_crypt', 'music_map'], desc: 'карта главы 8 (Гласт Хейм)', ro: '42.mp3 (glast_01; название проверить)' },
-  battle_crypt: { gain: 0.45, files: ['music_battle_crypt', 'music_battle'], desc: 'бой в главе 8', ro: '40.mp3 Fear… (gl_church, gl_prison)' },
-  map_labyrinth: { gain: 0.5, files: ['music_map_labyrinth', 'music_map'], desc: 'карта главы 9 (Лабиринтный лес; главы ещё нет)', ro: '16.mp3 Labyrinth (prt_maze01–03)' },
-  battle_labyrinth: { gain: 0.45, files: ['music_battle_labyrinth', 'music_map_labyrinth', 'music_battle'], desc: 'бой в главе 9 (без своего файла — тот же трек, что на карте)', ro: '16.mp3 Labyrinth' },
-  map_niflheim: { gain: 0.5, files: ['music_map_niflheim', 'music_map'], desc: 'карта главы 10 (Нифльхейм)', ro: '84.mp3 (niflheim; название проверить)' },
-  battle_niflheim: { gain: 0.45, files: ['music_battle_niflheim', 'music_battle'], desc: 'бой в главе 10', ro: '85.mp3 (nif_fild01–02; название проверить)' },
+  title: { gain: 0.42, files: ['music_title'], desc: 'экран входа / заставка (на будущее: сцены входа пока нет)', ro: '01.mp3 Title (экран логина RO)' },
+  home: { gain: 0.42, files: ['music_home'], desc: 'главная (лагерь героев), спокойно', ro: '08.mp3 Theme of Prontera (prontera)' },
+  tavern: { gain: 0.42, files: ['music_tavern', 'music_home'], desc: 'таверна: призыв героев, весело', ro: '26.mp3 Everlasting Wanderers (izlude; название проверить)' },
+  tower: { gain: 0.42, files: ['music_tower'], desc: 'экран Башни испытаний', ro: '21.mp3 Through the Tower (gef_dun00–01, башня Геффена)' },
+  battle_tower: { gain: 0.36, files: ['music_battle_tower', 'music_tower'], desc: 'бой в Башне (без своего файла — та же тема Башни, не перезапускается)', ro: '21.mp3 Through the Tower' },
+  map_meadow: { gain: 0.42, files: ['music_map_meadow', 'music_map'], desc: 'карта главы 1 (поля Пронтеры)', ro: '12.mp3 Streamside (prt_fild08)' },
+  battle_meadow: { gain: 0.36, files: ['music_battle_meadow', 'music_battle'], desc: 'бой в главе 1', ro: '05.mp3 Tread on the Ground (prt_fild00/02/03)' },
+  map_sewer: { gain: 0.42, files: ['music_map_sewer', 'music_map'], desc: 'карта главы 2 (канализация Пронтеры)', ro: '19.mp3 Under the Ground (prt_sewb1–4)' },
+  battle_sewer: { gain: 0.36, files: ['music_battle_sewer', 'music_map_sewer', 'music_battle'], desc: 'бой в главе 2 (без своего файла — тот же трек, что на карте)', ro: '19.mp3 Under the Ground' },
+  map_orc: { gain: 0.42, files: ['music_map_orc', 'music_map'], desc: 'карта главы 3 (орочья деревня)', ro: '35.mp3 TeMPoison (gef_fild10, in_orcs01)' },
+  battle_orc: { gain: 0.36, files: ['music_battle_orc', 'music_battle'], desc: 'бой в главе 3', ro: '48.mp3 Help Yourself (orcsdun01–02)' },
+  map_desert: { gain: 0.42, files: ['music_map_desert', 'music_map'], desc: 'карта главы 4 (пустыня Сограт, Моррок)', ro: '11.mp3 Theme of Morroc (morocc)' },
+  battle_desert: { gain: 0.36, files: ['music_battle_desert', 'music_battle'], desc: 'бой в главе 4', ro: '22.mp3 Backattack!! (moc_pryd01–06)' },
+  map_grove: { gain: 0.42, files: ['music_map_grove', 'music_map'], desc: 'карта главы 5 (лес Пайона)', ro: '14.mp3 Theme of Payon (payon)' },
+  battle_grove: { gain: 0.36, files: ['music_battle_grove', 'music_battle'], desc: 'бой в главе 5', ro: '20.mp3 Ancient Groover (pay_dun00–02)' },
+  map_shipwreck: { gain: 0.42, files: ['music_map_shipwreck', 'music_map'], desc: 'карта главы 6 (корабль, Альберта)', ro: '15.mp3 Theme of Alberta (alberta)' },
+  battle_shipwreck: { gain: 0.36, files: ['music_battle_shipwreck', 'music_battle'], desc: 'бой в главе 6', ro: '17.mp3 Treasure Hunter (treasure01–02)' },
+  map_clocktower: { gain: 0.42, files: ['music_map_clocktower', 'music_map'], desc: 'карта главы 7 (Альдебаран, часовая башня)', ro: '39.mp3 Theme of Al de Baran (aldebaran)' },
+  battle_clocktower: { gain: 0.36, files: ['music_battle_clocktower', 'music_battle'], desc: 'бой в главе 7', ro: '60.mp3 Aeon (c_tower1–4)' },
+  map_crypt: { gain: 0.42, files: ['music_map_crypt', 'music_map'], desc: 'карта главы 8 (Гласт Хейм)', ro: '42.mp3 (glast_01; название проверить)' },
+  battle_crypt: { gain: 0.36, files: ['music_battle_crypt', 'music_battle'], desc: 'бой в главе 8', ro: '40.mp3 Fear… (gl_church, gl_prison)' },
+  map_labyrinth: { gain: 0.42, files: ['music_map_labyrinth', 'music_map'], desc: 'карта главы 9 (Лабиринтный лес; главы ещё нет)', ro: '16.mp3 Labyrinth (prt_maze01–03)' },
+  battle_labyrinth: { gain: 0.36, files: ['music_battle_labyrinth', 'music_map_labyrinth', 'music_battle'], desc: 'бой в главе 9 (без своего файла — тот же трек, что на карте)', ro: '16.mp3 Labyrinth' },
+  map_niflheim: { gain: 0.42, files: ['music_map_niflheim', 'music_map'], desc: 'карта главы 10 (Нифльхейм)', ro: '84.mp3 (niflheim; название проверить)' },
+  battle_niflheim: { gain: 0.36, files: ['music_battle_niflheim', 'music_battle'], desc: 'бой в главе 10', ro: '85.mp3 (nif_fild01–02; название проверить)' },
   // Проклятые топи — только ярус Башни; бои Башни играют battle_tower, эти дорожки — запас для яруса без своей музыки.
-  map_swamp: { gain: 0.5, files: ['music_map_swamp', 'music_map'], desc: 'топи (ярус Башни)' },
-  battle_swamp: { gain: 0.45, files: ['music_battle_swamp', 'music_battle'], desc: 'бой в топях (ярус Башни)' },
-  boss: { gain: 0.5, files: ['music_boss'], desc: 'бой с боссом главы (все главы)', ro: '06.mp3 Risk Your Life (mag_dun01–02)' },
+  map_swamp: { gain: 0.42, files: ['music_map_swamp', 'music_map'], desc: 'топи (ярус Башни)' },
+  battle_swamp: { gain: 0.36, files: ['music_battle_swamp', 'music_battle'], desc: 'бой в топях (ярус Башни)' },
+  boss: { gain: 0.42, files: ['music_boss'], desc: 'бой с боссом главы (все главы)', ro: '06.mp3 Risk Your Life (mag_dun01–02)' },
 } as const satisfies Record<string, TrackDef>;
 
 export type MusicId = keyof typeof MUSIC;

@@ -1,7 +1,7 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { audioFiles } from '../scripts/lib/used-assets';
 import { AMBIENCE_IDS, MUSIC, MUSIC_IDS, SFX, SFX_IDS, SUMMON_REVEAL } from '../src/game/audioCatalog';
 import {
@@ -22,6 +22,7 @@ import {
   THEMES,
   volumeLabel,
 } from '../src/game/audioCore';
+import { AudioEngine, trackSource } from '../src/game/audio';
 import { hasRecipe, musicJob, musicSpecOf, synthAmbience, synthMusic, synthSfx } from '../src/game/audioSynth';
 import { battleSound, monsterSoundsOf, swingOf, weaponOf } from '../src/game/battleAudio';
 import { MonsterSoundsSchema, monsterSoundFile, monsterSoundFiles } from '../src/game/monsterSounds';
@@ -363,7 +364,279 @@ describe('звук: файлы владельца попадают в сборк
     const root = mkdtempSync(join(tmpdir(), 'audio-'));
     expect(audioFiles(root)).toEqual([]);
     mkdirSync(join(root, 'assets/audio'), { recursive: true });
-    for (const f of ['hit_sword.ogg', 'hit_sword.m4a', 'music_home.mp3', 'notes.txt', 'Bad Name.ogg']) writeFileSync(join(root, 'assets/audio', f), '');
+    for (const f of ['hit_sword.ogg', 'hit_sword.m4a', 'music_home.mp3', 'music_spare_03.ogg', 'notes.txt', 'Bad Name.ogg']) writeFileSync(join(root, 'assets/audio', f), '');
+    // Запасной трек без дорожки в MUSIC (music_spare_03) в сборку не едет.
     expect(audioFiles(root)).toEqual(['audio/hit_sword.m4a', 'audio/hit_sword.ogg', 'audio/music_home.mp3']);
   });
+});
+
+describe('звук: музыка RO — файлы', () => {
+  // Треки RO (raw/ro-build/audio, docs/RO_SCRO_IMPORT.md шаг 6): у каждой дорожки с треком RO — пара ogg + m4a,
+  // своя или общая (бой канализации — файл карты). title — сцены входа нет, файл не кладём.
+  const has = (f: string) => existsSync(`assets/audio/${f}.ogg`) && existsSync(`assets/audio/${f}.m4a`);
+  it('у каждой дорожки с треком RO (кроме title и запасных топей) есть файл; один трек — один файл', () => {
+    const used = new Map<string, string>();
+    for (const id of MUSIC_IDS) {
+      const def = MUSIC[id] as { files: readonly string[]; ro?: string };
+      if (!def.ro || id === 'title') continue;
+      const file = def.files.find(has);
+      expect(file, id).toBeTruthy();
+      // Одинаковый трек RO у двух дорожек — один файл на обе (в сборке без дублей).
+      const track = def.ro.slice(0, 6);
+      const prev = used.get(track);
+      if (prev) expect(file, `${id}: трек ${track} уже в ${prev}`).toBe(prev);
+      used.set(track, file!);
+    }
+    expect(used.size).toBe(22);
+  });
+
+  it('файлы музыки — до 1.5 МБ каждый (петля качается быстро и на 3G)', () => {
+    for (const id of MUSIC_IDS)
+      for (const f of MUSIC[id].files)
+        for (const ext of ['ogg', 'm4a'])
+          if (existsSync(`assets/audio/${f}.${ext}`)) expect(statSync(`assets/audio/${f}.${ext}`).size, `${f}.${ext}`).toBeLessThanOrEqual(1.5 * 1024 * 1024);
+  });
+});
+
+describe('звук: выбор источника дорожки (файл потоком / заглушка)', () => {
+  const urlsOf = (have: Record<string, string[]>) => (f: string) => have[f] ?? [];
+  it('есть файл — поток, ключ по файлу (две дорожки с одним файлом — одна музыка)', () => {
+    const u = urlsOf({ music_map_sewer: ['audio/music_map_sewer.ogg', 'audio/music_map_sewer.m4a'] });
+    expect(trackSource('music', 'map_sewer', ['music_map_sewer', 'music_map'], u, new Set())).toEqual({ kind: 'stream', key: 'music:music_map_sewer', urls: ['audio/music_map_sewer.ogg', 'audio/music_map_sewer.m4a'] });
+    expect(trackSource('music', 'battle_sewer', ['music_battle_sewer', 'music_map_sewer', 'music_battle'], u, new Set())).toMatchObject({ kind: 'stream', key: 'music:music_map_sewer' });
+  });
+
+  it('нет файла или он не заиграл — следующий файл дорожки, иначе заглушка (ключ по дорожке)', () => {
+    const u = urlsOf({ music_tower: ['audio/music_tower.ogg'], music_home: ['audio/music_home.ogg'] });
+    expect(trackSource('music', 'battle_tower', ['music_battle_tower', 'music_tower'], u, new Set(['music:music_tower']))).toEqual({ kind: 'buffer', key: 'music:battle_tower' });
+    expect(trackSource('music', 'tavern', ['music_tavern', 'music_home'], u, new Set())).toMatchObject({ kind: 'stream', key: 'music:music_home' });
+    expect(trackSource('music', 'map_swamp', ['music_map_swamp', 'music_map'], u, new Set())).toEqual({ kind: 'buffer', key: 'music:map_swamp' });
+    expect(trackSource('amb', 'amb_crypt', ['amb_crypt'], u, new Set())).toEqual({ kind: 'buffer', key: 'amb:amb_crypt' });
+  });
+});
+
+// ---------- движок с поддельным Web Audio и <audio> (в node их нет) ----------
+
+class FakeParam {
+  value = 0;
+  cancelScheduledValues() {}
+  setTargetAtTime(v: number) {
+    this.value = v;
+  }
+  setValueAtTime(v: number) {
+    this.value = v;
+  }
+  linearRampToValueAtTime(v: number) {
+    this.value = v;
+  }
+}
+class FakeNode {
+  connected = true;
+  connect<T>(n: T): T {
+    return n;
+  }
+  disconnect() {
+    this.connected = false;
+  }
+}
+class FakeGain extends FakeNode {
+  gain = new FakeParam();
+}
+
+function fakeCtx() {
+  return {
+    currentTime: 0,
+    state: 'running',
+    createGain: vi.fn(() => new FakeGain()),
+    createMediaElementSource: vi.fn(() => new FakeNode()),
+    createBufferSource: vi.fn(() => ({ buffer: null, loop: false, loopStart: 0, loopEnd: 0, playbackRate: new FakeParam(), connect: <T>(n: T) => n, disconnect() {}, start: vi.fn(), stop: vi.fn(), onended: null })),
+    decodeAudioData: vi.fn(() => Promise.reject(new Error('файл музыки не раскодируют целиком'))),
+    createBuffer: vi.fn((ch: number, len: number, rate: number) => {
+      const d = [...Array(ch)].map(() => new Float32Array(len));
+      return { numberOfChannels: ch, length: len, sampleRate: rate, duration: len / rate, getChannelData: (c: number) => d[c] };
+    }),
+    suspend: vi.fn(() => Promise.resolve()),
+    resume: vi.fn(() => Promise.resolve()),
+  };
+}
+
+/** Поддельный <audio>: ok — играет; autoplay — отказ до «касания»; broken — файл не читается (ошибка + отказ play). */
+class FakeAudio {
+  static all: FakeAudio[] = [];
+  static mode: 'ok' | 'autoplay' | 'broken' = 'ok';
+  static touched = false;
+  loop = false;
+  preload = '';
+  src = '';
+  paused = true;
+  error: { code: number } | null = null;
+  private readonly on = new Map<string, (() => void)[]>();
+  constructor() {
+    FakeAudio.all.push(this);
+  }
+  play = vi.fn((): Promise<void> => {
+    if (FakeAudio.mode === 'broken') {
+      this.error = { code: 4 };
+      queueMicrotask(() => this.emit('error'));
+      return Promise.reject(Object.assign(new Error('не поддерживается'), { name: 'NotSupportedError' }));
+    }
+    if (FakeAudio.mode === 'autoplay' && !FakeAudio.touched) return Promise.reject(Object.assign(new Error('нужно касание'), { name: 'NotAllowedError' }));
+    this.paused = false;
+    queueMicrotask(() => this.emit('playing'));
+    return Promise.resolve();
+  });
+  pause = vi.fn(() => {
+    this.paused = true;
+  });
+  load = vi.fn();
+  removeAttribute = vi.fn((a: string) => {
+    if (a === 'src') this.src = '';
+  });
+  addEventListener(t: string, f: () => void) {
+    this.on.set(t, [...(this.on.get(t) ?? []), f]);
+  }
+  emit(t: string) {
+    for (const f of this.on.get(t) ?? []) f();
+  }
+}
+
+const flush = async () => {
+  for (let i = 0; i < 5; i++) await Promise.resolve();
+};
+
+describe('звук: музыка из файлов играет потоком', () => {
+  let ctx: ReturnType<typeof fakeCtx>;
+  let eng: AudioEngine;
+  const OrigAudio = (globalThis as { Audio?: unknown }).Audio;
+  beforeEach(() => {
+    vi.useFakeTimers();
+    FakeAudio.all = [];
+    FakeAudio.mode = 'ok';
+    FakeAudio.touched = false;
+    (globalThis as { Audio?: unknown }).Audio = FakeAudio;
+    ctx = fakeCtx();
+    eng = new AudioEngine(ctx as unknown as AudioContext, new FakeNode() as unknown as AudioNode);
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    (globalThis as { Audio?: unknown }).Audio = OrigAudio;
+    vi.restoreAllMocks();
+  });
+
+  it('музыка с файлом не раскодируется целиком и не лежит в буферах', async () => {
+    eng.music('home');
+    await flush();
+    expect(ctx.decodeAudioData).not.toHaveBeenCalled();
+    expect(ctx.createBufferSource).not.toHaveBeenCalled();
+    expect(ctx.createMediaElementSource).toHaveBeenCalledTimes(1);
+    const el = FakeAudio.all[0];
+    expect(el.loop).toBe(true);
+    expect(el.src).toMatch(/audio\/music_home\.(ogg|m4a)$/);
+    expect(eng.stats()).toMatchObject({ buffers: 0, trackBuffers: [], streams: 1, music: 'music:music_home' });
+  });
+
+  it('главная → бой → главная ×10: после затухания живёт один поток, остальные отпущены', async () => {
+    eng.music('home');
+    for (let i = 0; i < 10; i++) {
+      for (const id of ['battle_meadow', 'home'] as const) {
+        eng.music(id);
+        await flush();
+        expect(eng.stats().streams).toBeLessThanOrEqual(2);
+        vi.advanceTimersByTime(900);
+        expect(eng.stats().streams).toBe(1);
+      }
+    }
+    expect(eng.stats()).toMatchObject({ buffers: 0, streams: 1, music: 'music:music_home' });
+    expect(ctx.decodeAudioData).not.toHaveBeenCalled();
+    // Каждый старт — новый элемент; все, кроме последнего, отпущены: пауза, файл снят, load(), узлы отключены.
+    expect(FakeAudio.all.length).toBe(21);
+    for (const el of FakeAudio.all.slice(0, -1)) {
+      expect(el.pause).toHaveBeenCalled();
+      expect(el.src).toBe('');
+      expect(el.load).toHaveBeenCalled();
+    }
+    const nodes = ctx.createMediaElementSource.mock.results.map((r) => r.value as FakeNode);
+    expect(nodes.filter((n) => n.connected).length).toBe(1);
+    expect(FakeAudio.all.at(-1)!.src).not.toBe('');
+  });
+
+  it('та же дорожка и дорожка с тем же файлом не перезапускаются (карта и бой канализации)', async () => {
+    eng.music('map_sewer');
+    eng.music('battle_sewer');
+    eng.music('map_sewer');
+    await flush();
+    expect(FakeAudio.all.length).toBe(1);
+    // Бой Башни без своего файла — музыка экрана Башни продолжает играть.
+    eng.music('tower');
+    eng.music('battle_tower');
+    expect(FakeAudio.all.length).toBe(2);
+  });
+
+  it('свернули Telegram — поток на паузе; вернулись — играет дальше с того же места', async () => {
+    eng.music('home');
+    await flush();
+    const el = FakeAudio.all[0];
+    expect(el.play).toHaveBeenCalledTimes(1);
+    eng.setMuted('telegram', true);
+    expect(el.pause).toHaveBeenCalledTimes(1);
+    expect(ctx.suspend).toHaveBeenCalled();
+    // Пока свернуто, новая музыка не стартует (ждёт возврата).
+    eng.music('battle_meadow');
+    const el2 = FakeAudio.all[1];
+    expect(el2.play).not.toHaveBeenCalled();
+    eng.setMuted('telegram', false);
+    expect(el2.play).toHaveBeenCalledTimes(1);
+    // Старый затухает и отпускается, не возобновляясь.
+    expect(el.play).toHaveBeenCalledTimes(1);
+    vi.advanceTimersByTime(900);
+    expect(eng.stats().streams).toBe(1);
+    expect(el.load).toHaveBeenCalled();
+  });
+
+  it('до первого касания браузер не даёт играть — play() повторяется при касании', async () => {
+    FakeAudio.mode = 'autoplay';
+    eng.music('home');
+    await flush();
+    const el = FakeAudio.all[0];
+    expect(eng.hasPending).toBe(true);
+    expect(eng.stats().streams).toBe(1);
+    expect(eng.failed.size).toBe(0);
+    FakeAudio.touched = true;
+    eng.retryPending();
+    await flush();
+    expect(el.play).toHaveBeenCalledTimes(2);
+    expect(eng.hasPending).toBe(false);
+    expect(el.paused).toBe(false);
+  });
+
+  it('файл не читается ни в одном формате — заглушка из кода, файл больше не пробуем', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    FakeAudio.mode = 'broken';
+    eng.music('boss');
+    await flush();
+    const el = FakeAudio.all[0];
+    // ogg, затем m4a — один раз каждый (ошибка и отказ play() — одна попытка).
+    expect(el.play).toHaveBeenCalledTimes(2);
+    expect(eng.failed.has('music:music_boss')).toBe(true);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(String(warn.mock.calls[0][0])).toMatch(/^Звук .*music_boss.* не загрузился .*играет заглушка$/);
+    expect(eng.stats().streams).toBe(0);
+    await vi.runAllTimersAsync();
+    await flush();
+    expect(ctx.createBufferSource).toHaveBeenCalledTimes(1);
+    expect(eng.stats()).toMatchObject({ streams: 0, music: 'music:boss', trackBuffers: ['music:boss'] });
+    expect(ctx.decodeAudioData).not.toHaveBeenCalled();
+    // Повторный вызов — сразу заглушка, без новых элементов.
+    eng.music('home');
+    eng.music('boss');
+    expect(FakeAudio.all.filter((a) => a.src.includes('music_boss')).length).toBe(0);
+  }, 30_000);
+
+  it('дорожка без файла (топи) — заглушка в памяти, как раньше', async () => {
+    eng.music('map_swamp');
+    await vi.runAllTimersAsync();
+    await flush();
+    expect(FakeAudio.all.length).toBe(0);
+    expect(eng.stats()).toMatchObject({ streams: 0, music: 'music:map_swamp', trackBuffers: ['music:map_swamp'] });
+  }, 30_000);
 });

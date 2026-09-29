@@ -12,6 +12,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../../src/pipeline/sprites.ts';
+import { AMBIENCE, MUSIC } from '../../src/game/audioCatalog.ts';
 
 export const ASSETS_DIR = 'assets';
 
@@ -154,12 +155,20 @@ export function themeBackgroundFiles(root: string): string[] {
     .map((n) => `backgrounds/${n}`);
 }
 
-/** Звуки и музыка от владельца (src/game/audio.ts): assets/audio/<id>.(ogg|m4a|mp3) — игра берёт подходящий формат. */
+/** Файлы, на которые ссылаются дорожки музыки и фона (audioCatalog.ts, поле files). */
+const TRACK_FILES = new Set<string>([...Object.values(MUSIC), ...Object.values(AMBIENCE)].flatMap((t) => [...t.files]));
+
+/**
+ * Звуки и музыка от владельца (src/game/audio.ts): assets/audio/<id>.(ogg|m4a|mp3) — игра берёт подходящий формат.
+ * Музыка (music_*) — только файлы, на которые ссылается каталог MUSIC: запасной трек без дорожки в сборку не едет
+ * (треки RO — до 1.45 МБ каждый).
+ */
 export function audioFiles(root: string): string[] {
   const dir = join(root, ASSETS_DIR, 'audio');
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
     .filter((n) => /^[a-z0-9_]+\.(ogg|m4a|mp3)$/.test(n))
+    .filter((n) => !n.startsWith('music_') || TRACK_FILES.has(n.replace(/\.[a-z0-9]+$/, '')))
     .sort()
     .map((n) => `audio/${n}`);
 }

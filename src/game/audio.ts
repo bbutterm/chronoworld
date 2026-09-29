@@ -4,12 +4,18 @@
  * - Категории: музыка, звуки (бой, награды), интерфейс — свои шины громкости; настройки «Музыка», «Звуки»,
  *   «Без звука» (audioCore.ts, localStorage).
  * - Звук: `sfx('coin')` из любого места; ограничитель частоты и числа голосов (SfxLimiter), серия монет — вверх по тону.
+ *   Звуки — AudioBuffer (короткие, старт мгновенный), файлы качаются в фоне после старта.
  * - Музыка и фон: `music('home')`, `ambience('amb_swamp')` — плавная смена (перекрёстное затухание), музыка
  *   приглушается под стингеры (победа, повышение уровня). Экран сам выбирает музыку (sceneSound при старте сцены).
+ *   Дорожка из файла (треки RO, 98–273 с) играет ПОТОКОМ: HTMLAudioElement → createMediaElementSource → GainNode → шина;
+ *   браузер декодирует кусками, в памяти несколько МБ при любой длине (AudioBuffer трека RO — до ~105 МБ PCM;
+ *   docs/TASK_MUSIC_STREAMING.md). Остановленный поток отпускает декодер и сеть (src снят, load()). Заглушки без
+ *   файла — AudioBuffer, как звуки (в памяти — две последние, по ~1.5 МБ).
  * - Файлы владельца: assets/audio/<id>.(ogg|m4a|mp3) побеждают заглушки (как фоны глав в backdrops.ts);
- *   нет файла — звук синтезируется кодом (audioSynth.ts) при первом проигрывании.
- * - Разблокировка на iOS/Android — первым касанием (Phaser + своя подстраховка); вкладка скрыта / Telegram
- *   свёрнут — тишина. Нет Web Audio (headless, старый браузер) — всё молча ничего не делает.
+ *   нет файла или он не играет — звук синтезируется кодом (audioSynth.ts).
+ * - Разблокировка на iOS/Android — первым касанием (Phaser + своя подстраховка, она же повторяет play() потоков,
+ *   которым браузер не дал играть до касания); вкладка скрыта / Telegram свёрнут — тишина, потоки на паузе (не качают
+ *   и не тратят батарею) и продолжают с того же места. Нет Web Audio (headless, старый браузер) — всё молча ничего не делает.
  *
  * Модуль не импортирует Phaser во время выполнения (только типы) — его можно звать из тестируемых модулей (juice.ts).
  */
@@ -95,10 +101,48 @@ interface WebAudioManager {
   once?: (event: string, fn: () => void) => void;
 }
 
-interface Track {
+/** Дорожка музыки или фона: заглушка (AudioBuffer в памяти) или файл потоком (<audio> через Web Audio). */
+type Track = BufferTrack | StreamTrack;
+interface BufferTrack {
+  kind: 'buffer';
   id: string;
   gain: GainNode;
-  src: AudioBufferSourceNode | null;
+  src: AudioBufferSourceNode;
+}
+interface StreamTrack {
+  kind: 'stream';
+  id: string;
+  gain: GainNode;
+  el: HTMLAudioElement;
+  node: MediaElementAudioSourceNode;
+  /** Один файл в разных форматах (ogg, m4a…) и какой сейчас пробуем. */
+  urls: readonly string[];
+  at: number;
+  /** Уже звучал (нарастание сделано). */
+  started: boolean;
+  /** Затухает перед освобождением (не продолжать после паузы). */
+  stopping: boolean;
+  /** Файл не играет: заглушка вместо него (music / ambience ещё раз). */
+  onFail: () => void;
+}
+
+/** Откуда играть дорожку: файл потоком (есть и не ломался) или заглушка из кода (AudioBuffer). */
+export type TrackSource = { kind: 'stream'; key: string; urls: string[] } | { kind: 'buffer'; key: string };
+
+/**
+ * Выбор источника дорожки (чистая функция, проверяется в тестах). files — файлы дорожки по порядку (своя, затем общая);
+ * urlsOf — URL файла в форматах браузера (нет файла — пусто); failed — ключи файлов, которые не заиграли.
+ * Ключ потока — по файлу: две дорожки с одним файлом (карта и бой канализации) — одна и та же музыка, без перезапуска.
+ * Ключ заглушки — по дорожке.
+ */
+export function trackSource(prefix: 'music' | 'amb', id: string, files: readonly string[], urlsOf: (f: string) => string[], failed: ReadonlySet<string>): TrackSource {
+  for (const f of files) {
+    const key = `${prefix}:${f}`;
+    if (failed.has(key)) continue;
+    const urls = urlsOf(f);
+    if (urls.length) return { kind: 'stream', key, urls };
+  }
+  return { kind: 'buffer', key: prefix === 'amb' ? `amb:${id}` : `music:${id}` };
 }
 
 const FADE_S = 0.8;
@@ -110,8 +154,14 @@ const PRELOAD_DELAY_MS = 1500;
 type PlayOpts = { rate?: number; gain?: number; delay?: number };
 const DUCK_TO = 0.35;
 
-class AudioEngine {
+export class AudioEngine {
   private readonly buffers = new Map<string, AudioBuffer>();
+  /** Ключи файлов, которые не загрузились / не заиграли: дальше вместо них заглушка. */
+  readonly failed = new Set<string>();
+  /** Живые потоки (играют или затухают перед освобождением). */
+  private readonly streams = new Set<StreamTrack>();
+  /** Потоки, которым браузер не дал играть до первого касания (автоплей): play() ещё раз в unlock. */
+  private readonly pendingPlay = new Set<StreamTrack>();
   private readonly loading = new Map<string, Promise<AudioBuffer | null>>();
   private readonly limiter = new SfxLimiter();
   private readonly coinPitch = new PitchStreak();
@@ -163,7 +213,7 @@ class AudioEngine {
     const have = this.buffers.get(key);
     if (have) return have;
     if (this.loading.has(key)) return null;
-    const urls = FILES_FAILED.has(key) ? [] : (files.map(fileUrls).find((u) => u.length) ?? []);
+    const urls = this.failed.has(key) ? [] : (files.map(fileUrls).find((u) => u.length) ?? []);
     if (urls.length) {
       void this.load(key, urls);
       return null;
@@ -205,7 +255,7 @@ class AudioEngine {
       })
       .catch((e: unknown) => {
         console.warn(`Звук ${urls.join(' / ')} не загрузился (${String(e)}), играет заглушка`);
-        FILES_FAILED.add(key);
+        this.failed.add(key);
         this.loading.delete(key);
         return null;
       });
@@ -218,7 +268,7 @@ class AudioEngine {
   private queued = new Set<string>();
   private inFlight = 0;
   private enqueue(key: string, urls: string[]): void {
-    if (this.buffers.has(key) || this.loading.has(key) || this.queued.has(key) || FILES_FAILED.has(key) || !urls.length) return;
+    if (this.buffers.has(key) || this.loading.has(key) || this.queued.has(key) || this.failed.has(key) || !urls.length) return;
     this.queued.add(key);
     this.queue.push([key, urls]);
     this.pump();
@@ -333,6 +383,7 @@ class AudioEngine {
     p.setTargetAtTime(1, end, 0.4);
   }
 
+  /** Заглушка (AudioBuffer в памяти): петля, нарастание за FADE_S. */
   private startTrack(key: string, buf: AudioBuffer, gain: number, bus: AudioNode): Track {
     const g = this.ctx.createGain();
     g.gain.value = 0;
@@ -348,10 +399,113 @@ class AudioEngine {
     }
     src.connect(g);
     src.start(0, a);
+    this.fadeIn(g, gain);
+    return { kind: 'buffer', id: key, gain: g, src };
+  }
+
+  private fadeIn(g: GainNode, gain: number): void {
     const t = this.ctx.currentTime;
+    g.gain.cancelScheduledValues(t);
     g.gain.setValueAtTime(0, t);
     g.gain.linearRampToValueAtTime(gain, t + FADE_S);
-    return { id: key, gain: g, src };
+  }
+
+  /**
+   * Файл потоком: <audio> → MediaElementAudioSourceNode → GainNode → шина. Браузер декодирует кусками — в памяти
+   * несколько МБ при любой длине трека. Элемент новый на каждый старт (createMediaElementSource — один раз на элемент).
+   * Ассеты с того же домена — crossOrigin не нужен (переедут на CDN — el.crossOrigin = 'anonymous' и CORS на CDN,
+   * иначе Web Audio получит тишину). Нарастание — когда звук реально пошёл (файл докачался, касание было).
+   */
+  private startStream(key: string, urls: readonly string[], gain: number, bus: AudioNode, onFail: () => void): StreamTrack {
+    const el = new Audio();
+    el.loop = true;
+    el.preload = 'auto';
+    el.src = urls[0];
+    const node = this.ctx.createMediaElementSource(el);
+    const g = this.ctx.createGain();
+    g.gain.value = 0;
+    node.connect(g);
+    g.connect(bus);
+    const tr: StreamTrack = { kind: 'stream', id: key, gain: g, el, node, urls, at: 0, started: false, stopping: false, onFail };
+    this.streams.add(tr);
+    el.addEventListener('playing', () => {
+      if (tr.started || tr.stopping) return;
+      tr.started = true;
+      this.fadeIn(g, gain);
+    });
+    el.addEventListener('error', () => this.streamFailed(tr, tr.at, el.error ? `код ${el.error.code}` : 'ошибка'));
+    this.playStream(tr);
+    return tr;
+  }
+
+  /** play() потока. До первого касания браузер отказывает (автоплей) — повторим в unlock; иное — файл не играет. */
+  private playStream(tr: StreamTrack): void {
+    if (tr.stopping || this.mute.active) return;
+    const at = tr.at;
+    let p: Promise<void> | undefined;
+    try {
+      p = tr.el.play();
+    } catch (e) {
+      this.streamFailed(tr, at, String(e));
+      return;
+    }
+    p?.then(
+      () => this.pendingPlay.delete(tr),
+      (e: unknown) => {
+        const name = (e as { name?: string } | null)?.name;
+        if (name === 'NotAllowedError') this.pendingPlay.add(tr);
+        // AbortError — play() прервали паузой / сменой файла (свернули, остановили): не ошибка файла.
+        else if (name !== 'AbortError') this.streamFailed(tr, at, String(e));
+      },
+    );
+  }
+
+  /** Были отказы автоплея: после касания попробовать ещё раз (зовётся из обработчика касания — жест пользователя). */
+  retryPending(): void {
+    for (const tr of [...this.pendingPlay]) {
+      this.pendingPlay.delete(tr);
+      this.playStream(tr);
+    }
+  }
+
+  get hasPending(): boolean {
+    return this.pendingPlay.size > 0;
+  }
+
+  /**
+   * Файл в этом формате не играет: следующий формат (ogg → m4a), иначе ключ помечен и дорожка — заглушкой.
+   * at — какой формат пробовали (ошибка и отказ play() могут прийти оба — считаем один раз).
+   */
+  private streamFailed(tr: StreamTrack, at: number, why: string): void {
+    if (tr.stopping || at !== tr.at) return;
+    if (tr.at + 1 < tr.urls.length) {
+      tr.at++;
+      tr.el.src = tr.urls[tr.at];
+      this.playStream(tr);
+      return;
+    }
+    console.warn(`Звук ${tr.urls.join(' / ')} не загрузился (${why}), играет заглушка`);
+    this.failed.add(tr.id);
+    this.release(tr);
+    tr.onFail();
+  }
+
+  /** Отпустить поток: пауза, снять файл (load() освобождает декодер и сеть), отключить узлы, забыть ссылки. */
+  private release(tr: StreamTrack): void {
+    tr.stopping = true;
+    this.streams.delete(tr);
+    this.pendingPlay.delete(tr);
+    try {
+      tr.el.pause();
+      tr.el.removeAttribute('src');
+      tr.el.load();
+    } catch {
+      // Элемент уже мёртв — не страшно.
+    }
+    tr.node.disconnect();
+    tr.gain.disconnect();
+    if (this.musicTrack === tr) this.musicTrack = null;
+    if (this.ambTrack === tr) this.ambTrack = null;
   }
 
   private stopTrack(tr: Track | null): void {
@@ -360,12 +514,19 @@ class AudioEngine {
     tr.gain.gain.cancelScheduledValues(t);
     tr.gain.gain.setValueAtTime(tr.gain.gain.value, t);
     tr.gain.gain.linearRampToValueAtTime(0, t + FADE_S);
+    if (tr.kind === 'stream') {
+      tr.stopping = true;
+      this.pendingPlay.delete(tr);
+      // Таймер, а не часы контекста: свёрнутый (suspend) контекст стоит, а поток отпустить нужно всё равно.
+      setTimeout(() => this.release(tr), FADE_S * 1000 + 50);
+      return;
+    }
     try {
-      tr.src?.stop(t + FADE_S + 0.05);
+      tr.src.stop(t + FADE_S + 0.05);
     } catch {
       // Уже остановлен.
     }
-    if (tr.src) tr.src.onended = () => tr.gain.disconnect();
+    tr.src.onended = () => tr.gain.disconnect();
   }
 
   music(id: MusicId | null): void {
@@ -377,14 +538,20 @@ class AudioEngine {
     }
     const def = MUSIC[id];
     // Ключ — по файлу: у двух дорожек один файл (карта и бой канализации) — музыка не перезапускается.
-    const file = def.files.find((f) => FILES[f] && !FILES_FAILED.has(`music:${f}`));
-    const key = file ? `music:${file}` : `music:${id}`;
+    const src = trackSource('music', id, def.files, fileUrls, this.failed);
+    const key = src.key;
     this.wantMusic = key;
     if (this.musicTrack?.id === key) return;
-    const buf = this.buffer(key, file ? [file] : [], () => musicJob(id));
+    if (src.kind === 'stream') {
+      this.stopTrack(this.musicTrack);
+      this.musicTrack = this.startStream(key, src.urls, def.gain, this.bus.duck, () => {
+        if (this.wantMusic === key) this.music(id);
+      });
+      return;
+    }
+    const buf = this.buffer(key, [], () => musicJob(id));
     if (!buf) {
-      // Файл грузится или заглушка рендерится: как будет готово — заиграет, если её всё ещё ждут
-      // (файл не загрузился — следующий файл дорожки или заглушка).
+      // Заглушка рендерится: как будет готова — заиграет, если её всё ещё ждут.
       void this.loading.get(key)?.then(() => {
         if (this.wantMusic === key) this.music(id);
       });
@@ -395,7 +562,10 @@ class AudioEngine {
     this.keepRecentMusic(key);
   }
 
-  /** Музыка в памяти (~1.5 МБ на петлю): держим две последние дорожки (главная ↔ бой без повторного рендера). */
+  /**
+   * Заглушки музыки в памяти (~1.5 МБ на петлю 10–35 с): держим две последние (главная ↔ бой без повторного рендера).
+   * Музыка из файлов сюда не попадает: она играет потоком, повторный старт берёт файл из HTTP-кэша браузера.
+   */
   private readonly recentMusic: string[] = [];
   private keepRecentMusic(key: string): void {
     const r = this.recentMusic;
@@ -406,16 +576,25 @@ class AudioEngine {
   }
 
   ambience(id: AmbienceId | null): void {
-    const key = id ? `amb:${id}` : null;
-    this.wantAmb = key;
-    if (this.ambTrack?.id === key) return;
-    if (!id || !key) {
+    if (!id) {
+      this.wantAmb = null;
       this.stopTrack(this.ambTrack);
       this.ambTrack = null;
       return;
     }
     const def = AMBIENCE[id];
-    const buf = this.buffer(key, def.files, () => synthAmbience(id));
+    const src = trackSource('amb', id, def.files, fileUrls, this.failed);
+    const key = src.key;
+    this.wantAmb = key;
+    if (this.ambTrack?.id === key) return;
+    if (src.kind === 'stream') {
+      this.stopTrack(this.ambTrack);
+      this.ambTrack = this.startStream(key, src.urls, def.gain, this.bus.sfx, () => {
+        if (this.wantAmb === key) this.ambience(id);
+      });
+      return;
+    }
+    const buf = this.buffer(key, [], () => synthAmbience(id));
     if (!buf) {
       void this.loading.get(key)?.then(() => {
         if (this.wantAmb === key) this.ambience(id);
@@ -426,10 +605,22 @@ class AudioEngine {
     this.ambTrack = this.startTrack(key, buf, def.gain, this.bus.sfx);
   }
 
-  /** Вкладка скрыта / Telegram свёрнут: тишина (и остановка аудио-часов, чтобы не тратить батарею). */
+  /**
+   * Вкладка скрыта / Telegram свёрнут: тишина и остановка аудио-часов (батарея). Потоки — на паузу: suspend контекста
+   * <audio> не останавливает, он бы качал и декодировал дальше. Вернулись — продолжают с того же места.
+   */
   setMuted(reason: string, on: boolean): void {
     if (!this.mute.toggle(reason, on)) return;
     this.applyVolumes();
+    for (const tr of this.streams) {
+      if (this.mute.active) {
+        try {
+          tr.el.pause();
+        } catch {
+          // Не страшно.
+        }
+      } else this.playStream(tr);
+    }
     try {
       if (this.mute.active) void this.ctx.suspend();
       else void this.ctx.resume();
@@ -438,13 +629,17 @@ class AudioEngine {
     }
   }
 
-  /** Сколько буферов в памяти (отладка). */
-  stats(): { buffers: number; music: string | null; ambience: string | null } {
-    return { buffers: this.buffers.size, music: this.musicTrack?.id ?? null, ambience: this.ambTrack?.id ?? null };
+  /**
+   * Отладка и тесты (window.__audio.stats() в dev): буферы в памяти (trackBuffers — из них заглушки музыки и фона;
+   * файлов музыки среди них нет), живые потоки (играют или затухают: после смены музыки ≤ 2 на время затухания, 1 потом),
+   * текущие музыка и фон.
+   */
+  stats(): { buffers: number; trackBuffers: string[]; streams: number; music: string | null; ambience: string | null } {
+    const trackBuffers = [...this.buffers.keys()].filter((k) => k.startsWith('music:') || k.startsWith('amb:'));
+    return { buffers: this.buffers.size, trackBuffers, streams: this.streams.size, music: this.musicTrack?.id ?? null, ambience: this.ambTrack?.id ?? null };
   }
 }
 
-const FILES_FAILED = new Set<string>();
 
 type Job = { pcm: Pcm; steps: (() => void)[] };
 
@@ -574,11 +769,14 @@ export function installAudio(game: Phaser.Game, sceneFor?: (scene: Phaser.Scene)
     return;
   }
   const eng = engine;
-  // Разблокировка: Phaser возобновляет контекст по первому касанию; подстраховка — своим pointerup/touchend.
+  // Разблокировка: Phaser возобновляет контекст по первому касанию; подстраховка — своим pointerup/touchend
+  // (слушаем, пока контекст не пошёл и есть потоки, ждущие касания).
   if (typeof document !== 'undefined') {
     const unlock = () => {
       if (eng.ctx.state !== 'running' && !eng.mute.active) void eng.ctx.resume().catch(() => undefined);
-      if (eng.ctx.state === 'running') {
+      // Музыка-поток, которой браузер не дал играть до касания, — play() ещё раз внутри жеста.
+      eng.retryPending();
+      if (eng.ctx.state === 'running' && !eng.hasPending) {
         document.removeEventListener('pointerup', unlock, true);
         document.removeEventListener('touchend', unlock, true);
       }
@@ -594,7 +792,7 @@ export function installAudio(game: Phaser.Game, sceneFor?: (scene: Phaser.Scene)
     tg?.onEvent?.('activated', () => eng.setMuted('telegram', false));
   }
   eng.preloadSfx();
-  // Для отладки и e2e: window.__audio.stats() — буферы, текущая музыка и фон.
+  // Для отладки и e2e: window.__audio.stats() — буферы, потоки, текущая музыка и фон.
   if (import.meta.env.DEV && typeof window !== 'undefined') Object.assign(window, { __audio: { stats: audioStats, files: audioFiles, settings: audioSettings } });
   if (sceneFor) {
     for (const scene of game.scene.scenes) {
