@@ -115,11 +115,7 @@ for (let it = 0; it < iters; it++) {
     factors[s.id] = f;
     if (fit) log += `${s.id} ${a.toFixed(1)}[${lo},${hi}]×${f.toFixed(2)} `;
   }
-  // Понижение этапа, упёртого в монотонность Σ, тянет вниз и предыдущий (наполовину).
-  for (let i = ids.length - 1; i > 0; i--) {
-    const f = factors[ids[i]];
-    if (f < 1 && stageById.get(ids[i - 1])!.chapter === stageById.get(ids[i])!.chapter) factors[ids[i - 1]] = Math.min(factors[ids[i - 1]], Math.sqrt(f));
-  }
+  // Понижение этапа, упёртого в монотонность Σ, тянет вниз и предыдущие — обратный проход при записи (ниже).
   console.log(`iter ${it}: score ${score.toFixed(2)}\n  ${log}`);
   if (score < best.score) best = { score, data: files.map((f) => readFileSync(f, 'utf8')) };
   if (dry) break;
@@ -130,22 +126,38 @@ for (let it = 0; it < iters; it++) {
   }
   for (const file of files) {
     const d = JSON.parse(readFileSync(file, 'utf8')) as { stages: Stage[] };
-    let prev: { hp: number; atk: number } | null = null;
-    d.stages.forEach((st) => {
-      // Ступень роста (вставные этапы главы 1 её не двигают — src/core/campaign/campaign.ts, growthStep).
+    // Σhp/Σatk этапа (ступень роста: вставные этапы её не двигают — src/core/campaign/campaign.ts, growthStep).
+    const sumOf = (st: Stage) => {
       const gi = growthStep(stageById.get(st.id)!, ctx0);
+      let hp = 0;
+      let atk = 0;
+      for (const e of st.enemies) if (e) {
+        const u = ctx.content.units[e.unit];
+        hp += Math.round(u.stats.hp * (e.mult ?? 1) * Math.pow(growth, gi));
+        atk += Math.round(u.stats.atk * (e.mult ?? 1) * Math.pow(growth, gi));
+      }
+      return { hp, atk };
+    };
+    for (const st of d.stages) {
       const k = factors[st.id] ?? 1;
       for (const e of st.enemies) if (e) e.mult = Math.round((e.mult ?? 1) * k * 100) / 100;
-      const sum = () => {
-        let hp = 0;
-        let atk = 0;
-        for (const e of st.enemies) if (e) {
-          const u = ctx.content.units[e.unit];
-          hp += Math.round(u.stats.hp * (e.mult ?? 1) * Math.pow(growth, gi));
-          atk += Math.round(u.stats.atk * (e.mult ?? 1) * Math.pow(growth, gi));
-        }
-        return { hp, atk };
-      };
+    }
+    // Обратный проход: этап, который понижаем (опаздывает), упирается в Σ предыдущего — тогда понижаем и предыдущий,
+    // ровно до монотонности (цепочка до начала главы). Иначе прямой проход ниже поднял бы этап обратно и стена
+    // (мини-босс из трёх врагов при той же Σ, что у этапа из пяти) не уходила бы никогда.
+    const lowered = new Set(d.stages.filter((st) => (factors[st.id] ?? 1) < 1).map((st) => st.id));
+    for (let i = d.stages.length - 1; i > 0; i--) {
+      if (!lowered.has(d.stages[i].id)) continue;
+      const cur = sumOf(d.stages[i]);
+      const prev = sumOf(d.stages[i - 1]);
+      const r = Math.min(cur.hp / prev.hp, cur.atk / prev.atk) / 1.004;
+      if (r >= 1) continue;
+      for (const e of d.stages[i - 1].enemies) if (e) e.mult = Math.floor((e.mult ?? 1) * r * 100) / 100;
+      lowered.add(d.stages[i - 1].id);
+    }
+    let prev: { hp: number; atk: number } | null = null;
+    d.stages.forEach((st) => {
+      const sum = () => sumOf(st);
       let cur = sum();
       // Монотонность Σhp/Σatk: поднять весь этап (соотношения внутри этапа — как задумал дизайнер).
       for (let g = 0; g < 200 && prev && (cur.hp < prev.hp * 1.003 || cur.atk < prev.atk * 1.003); g++) {
