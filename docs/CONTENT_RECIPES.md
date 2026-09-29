@@ -179,6 +179,11 @@ id вида `chapterN` выводится сам (`ch<N>`).
 8. **Рекомендуемая мощь:** `npm run balance -- --days 10 --fit-recommended` → печатает `power.recommendedStages`: перенести этапы новой
    главы в `data/progression.json → power.recommendedStages` (только отличающиеся > 5% от общего коэффициента). `tests/balance.test.ts`
    проверяет, что поражения модели — не ниже 0.85 рекомендуемой.
+   Поздние главы (4+, так подобраны 7, 8, 10) — `scripts/balance-smooth.ts --chapters <главы> --base <глава перед ними>`: замер силы
+   по бою, `--fit` по целям «босс главы к N ч», `--recommended` (docs/content/balance.md, 6а и «Маршрут из 10 глав»). Затем уровни:
+   `npm run balance -- --levels --days <до конца главы>` и тест `tests/features-levels.test.ts` (уровень босса и «герои ур. N» ±5 от боя
+   эталонных отрядов): если герои модели переходят в новую редкость — новая полоса `power.levels.bands`; если модель берёт босса с первой
+   попытки, коэффициент рекомендуемой мощи босс-этапа — по эталонным отрядам (так ch7_s10, ch8_s18, ch10_s18).
 9. **Итог экономики:** `npm run balance -- --days 10` — сводка «первое прохождение», стены, сигналы; записать итерацию и таблицу в
    `docs/content/balance.md` (раздел 3) и `docs/content/campaign.md`.
 10. **Фоны и музыка:** поле `theme` главы (`CHAPTER_THEMES` в `src/core/campaign/schema.ts`: meadow, sewer, orc, desert, grove, shipwreck,
