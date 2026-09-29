@@ -447,6 +447,20 @@ const afterLoss = async () => {
     await skipDialogues('Campaign');
     log('после поражения: бесплатные быстрые награды');
   }
+  // Как живой игрок: подождать сундук офлайн-наград (режим тестировщика «+12 ч»), собрать и улучшить героев.
+  if (await findText('Campaign', '+12 ч')) {
+    await clickText('Campaign', '+12 ч');
+    await sleep(900);
+    await waitScene('Campaign');
+    await skipDialogues('Campaign');
+    if (await findText('Campaign', 'Собрать')) {
+      await clickText('Campaign', 'Собрать');
+      await sleep(900);
+      await waitScene('Campaign');
+      await skipDialogues('Campaign');
+      log('после поражения: +12 ч, сундук собран');
+    }
+  }
   const levels = await levelUpSquad();
   log(`после поражения: «Улучшить» +${levels} ур.`);
 };
