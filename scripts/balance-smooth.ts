@@ -274,7 +274,7 @@ const median = (xs: number[]) => {
 
 const ctx0 = loadFullContext();
 const anchorsArg = flag('anchors').length ? list('anchors', []) : null;
-if (!anchorsArg && !FIT) {
+if (!anchorsArg && !FIT && !argv.includes('--recommended')) {
   console.log(`Эталон: фиолетовые ур. ${LEVEL}, ${SEEDS} seed на точку`);
   const d = measure(ctx0, new Set(['chapter3', ...FIT_CHAPTERS]));
   print(ctx0, d);
