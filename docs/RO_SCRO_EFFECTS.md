@@ -108,6 +108,19 @@ NPC_DARKNESSATTACK 180. Raid (Sightless Mind 276) is a full-screen darkening, 23
 Passives (masteries, Owl's Eye, Double Attack, etc.) have no effect in RO — nothing to extract; Asura Strike and
 Blade Stop in roBrowser are code tied to the entity (FUNC).
 
+## Part 5 — client files that roBrowser does not use (`raw/ro-build/effects/p5/`)
+
+Some effects that roBrowser has no picture for do exist in the client as STR or effect sprites:
+- STR through the same EffectViewer (the file is registered as a temporary entry in its table, `capture_effect.mjs --str <file>`):
+  Adrenaline Rush buff ← `adrenaline.str` (syringe + red flash; in roBrowser 98 is a FUNC with no picture),
+  Auto Counter cast ← `autocounter.str` (the word "COUNTER!" in a ring; roBrowser hard-codes 131 in onEntityCastCancel).
+- Effect sprites SPR+ACT through our renderer (`build_spr_fx.py`, action 0, ×1, native ACT timing, blend normal — exact alpha):
+  Demonstration ground ← `data/sprite/이팩트/데몬스트레이션` (AM_DEMONSTRATION groundEffectId 302, 5 frames of fire 100 ms).
+- `suggestedSkills`: mob2_elite_frenzy ← `mid_frenzy.str` (LK_BERSERK frenzy), mob_boss1_quake ← sprite
+  `어스퀘이크` (NPC_EARTHQUAKE 666: ground cracks, 31 frames at 25 ms, 470×238 cell).
+The dance/song ground textures (`poembragi.tga`, `appleidun.tga`, `fortunekiss.tga`, `dontforgetme.tga`, `assassincross.tga`) are
+32×32 map-cell marks, not effects — not delivered.
+
 ## Hook-up (agent)
 
 1. For each part: copy the PNGs to `assets/effects/`, merge `effects` and `skills` from `effects.fragment.json` into `assets/effects/effects.json`.

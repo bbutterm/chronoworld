@@ -31,7 +31,7 @@ REUSE4 = {'job_crusader_auto_guard': {'buff': 'fx_job_knight_parrying'},      # 
           'priest_blessing': {'buff': 'fx_job_acolyte_blessing'}}            # hero ultimate "Благословение" = AL_BLESSING 42
 # part 4: monster ultimates have no RO skill; RO NPC_* skills chosen by meaning -> suggestions, not applied mapping
 SUGGESTED = {'mob_boss1_quake': 'NPC_EARTHQUAKE', 'mob_boss2_curse': 'NPC_CURSEATTACK', 'mob2_boss_rot_spores': 'NPC_POISON',
-             'mob2_tank_mire': 'NPC_EVILLAND', 'mob2_elite_frenzy': 'NPC_POWERUP', 'mob_tank_guard': 'NPC_DEFENDER',
+             'mob2_tank_mire': 'NPC_EVILLAND', 'mob2_elite_frenzy': 'LK_BERSERK (mid_frenzy.str)', 'mob_tank_guard': 'NPC_DEFENDER',
              'mob_mastering_jelly_armor': 'NPC_KEEPING', 'mob3_fast_haunt': 'NPC_DARKNESSATTACK', 'mob_elite_smash': 'NPC_STUNATTACK',
              'mob3_boss_nova': 'NPC_DARKSTRIKE'}
 ALPHA_FLOOR = {'fx_magic': 24, 'fx_job_mage_thunderstorm': 25}             # as noted for the main sheets
@@ -100,7 +100,7 @@ def alpha_floor(png, floor):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--part', type=int, required=True, choices=[1, 2, 3, 4])
+    ap.add_argument('--part', type=int, required=True, choices=[1, 2, 3, 4, 5])
     ap.add_argument('--root', default='/root/ro-client-extraction-2/fxwork')
     ap.add_argument('--raw', help='capture dir (default <root>/raw/p<N>)')
     a = ap.parse_args()
@@ -127,7 +127,7 @@ def main():
         meta = json.load(open(meta_p))
         if meta.get('firstContent', -1) < 0:
             results.append(dict(key=key, role=role, ro=eff, status='empty')); continue
-        if part in (1, 4):
+        if part in (1, 4, 5):
             fx_id = f'fx_{key}' if len(roles[key]) == 1 and role != 'projectile' else f'fx_{key}_{role}'
             if fx_id in main_by_id:
                 fx_id = f'{fx_id}_{role}'
@@ -176,7 +176,7 @@ def main():
                 if r.get('id') == e['id'] and r['post']:
                     e['source']['post'] = r['post']
     skills, suggested = {}, {}
-    if part in (1, 4):
+    if part in (1, 4, 5):
         for r in results:
             if r['status'] == 'built' and r['role'] != 'projectile':
                 if r['key'] in SUGGESTED:
@@ -186,7 +186,7 @@ def main():
         known = set(main_by_id) | built
         if part == 4 and os.path.exists(f'{root}/out/p1/effects.fragment.json'):
             known |= {e['id'] for e in json.load(open(f'{root}/out/p1/effects.fragment.json'))['effects']}
-        for k, m in (REUSE if part == 1 else REUSE4).items():
+        for k, m in (REUSE if part == 1 else REUSE4 if part == 4 else {}).items():
             ok = {role: fx for role, fx in m.items() if fx in known}   # never map to a sheet that does not exist
             if ok:
                 skills.setdefault(k, {}).update(ok)

@@ -21,7 +21,7 @@ process.on('uncaughtException', e => { if (benign(e)) return; console.error(e); 
 process.on('unhandledRejection', e => { if (benign(e)) return; console.error(e); process.exit(1); });
 
 function args() {
-	const a = { fps: 12, max: 4500, seed: 1, warm: 2500, size: '800x600', loop: false, tail: 4, zoom: 0, duration: 0 };
+	const a = { fps: 12, max: 4500, seed: 1, warm: 2500, size: '800x600', loop: false, tail: 4, zoom: 0, duration: 0, str: '' };
 	const v = process.argv.slice(2);
 	for (let i = 0; i < v.length; i++) {
 		const k = v[i].replace(/^--/, '');
@@ -96,7 +96,7 @@ for (let i = 0; i < 120 && !frame; i++) {
 if (!frame) { console.error('EffectViewer not found: check --url / remoteClient'); await finish(2); }
 
 const trigger = async id => {
-	if (A.duration) {
+	if (A.duration || A.str) {
 		// cast auras etc.: duration normally comes from the packet (e.g. cast delayTime); spam directly like the client
 		return frame.evaluate(async ([id, duration]) => {
 			const S = (await import(new URL('/src/Engine/SessionStorage.js', location.origin).href)).default;
@@ -110,6 +110,15 @@ const trigger = async id => {
 	await sel.selectOption(String(id));
 };
 
+if (A.str) {
+	// a client STR file roBrowser's table does not use: register it as a temporary table entry
+	A.effect = 'str_' + A.str;
+	A.duration = A.duration || 3000;
+	await frame.evaluate(async ([key, file]) => {
+		const T = (await import(new URL('/src/DB/Effects/EffectTable.js', location.origin).href)).default;
+		T[key] = [{ type: 'STR', file, attachedEntity: true }];
+	}, [A.effect, A.str]);
+}
 const hidden = await frame.evaluate(async () => {
 	const S = (await import(new URL('/src/Engine/SessionStorage.js', location.origin).href)).default;
 	if (!S.Entity) return false;
@@ -175,7 +184,7 @@ for (; n < maxFrames; n++) {
 	if (!A.loop && firstContent >= 0 && emptyRun >= A.tail) { n++; break; }
 }
 
-const meta = { entityHidden: true, duration: A.duration || null, effectId: A.effect, stepMs, fps: A.fps, loop: A.loop, seed: A.seed, frames: n, firstContent,
+const meta = { strFile: A.str || null, entityHidden: true, duration: A.duration || null, effectId: A.effect, stepMs, fps: A.fps, loop: A.loop, seed: A.seed, frames: n, firstContent,
 	renderer: 'roBrowserLegacy EffectViewer', source: 'scRO GRF via tools/ro_remote_client.py', ...calib };
 fs.writeFileSync(path.join(A.out, 'meta.json'), JSON.stringify(meta, null, 2));
 console.log(JSON.stringify(meta));
