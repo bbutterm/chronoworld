@@ -287,8 +287,7 @@ export class InventoryScene extends Phaser.Scene {
       if (e.type === 'refineBroken') {
         // Поломка: глухой удар, тряска экрана и осколки из ячейки предмета.
         const color = def ? Phaser.Display.Color.HexStringToColor(RARITY_COLORS[def.rarity]).color : TINT.frame;
-        sfx('hit_blunt');
-        sfx('ui_error', { delay: 120 });
+        sfx('refine_fail');
         this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
         this.events.once(Phaser.Scenes.Events.CREATE, () => {
           shatter(this, at, color);
@@ -298,8 +297,7 @@ export class InventoryScene extends Phaser.Scene {
         });
         return;
       }
-      sfx('equip', { rate: 1.3 });
-      sfx('coin', { delay: 60 });
+      sfx('refine_success');
       this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
       this.events.once(Phaser.Scenes.Events.CREATE, () => {
         burst(this, at);

@@ -755,8 +755,7 @@ export class HeroScene extends Phaser.Scene {
     try {
       const r = actRefineAll(session.save, hero.id, GAME);
       commit(r.save);
-      sfx('equip', { rate: 1.3 });
-      sfx('coin', { delay: 60 });
+      sfx('refine_success');
       this.reopen({ heroId: hero.id, tab: 'gear' });
       const sc = this.scene.get('Hero');
       sc.events.once(Phaser.Scenes.Events.CREATE, () => {
