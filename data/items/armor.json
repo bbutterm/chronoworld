@@ -67,6 +67,51 @@
         "acolyte"
       ],
       "minChapter": 2
+    },
+    {
+      "id": "isis_mantle",
+      "name": "Мантия Изиды",
+      "slot": "armor",
+      "rarity": "epic",
+      "stats": {
+        "hp": 450,
+        "def": 18
+      },
+      "minChapter": 4
+    },
+    {
+      "id": "ninja_suit",
+      "name": "Костюм ниндзя",
+      "slot": "armor",
+      "rarity": "epic",
+      "stats": {
+        "hp": 600,
+        "def": 24,
+        "spd": 2
+      },
+      "minChapter": 5
+    },
+    {
+      "id": "captain_coat",
+      "name": "Камзол капитана",
+      "slot": "armor",
+      "rarity": "epic",
+      "stats": {
+        "hp": 800,
+        "def": 32
+      },
+      "minChapter": 6
+    },
+    {
+      "id": "dark_lord_robe",
+      "name": "Мантия Тёмного лорда",
+      "slot": "armor",
+      "rarity": "epic",
+      "stats": {
+        "hp": 1050,
+        "def": 42
+      },
+      "minChapter": 7
     }
   ]
 }

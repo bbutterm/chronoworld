@@ -9,7 +9,7 @@ import { commit, now, session } from '../session';
 import { SKIN } from '../skin';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
 import { chapterSummary, playTimeText, sceneLabel, seenChapterScenes } from '../storyView';
-import { button, ellipsize, panel, text } from '../ui';
+import { button, ellipsize, panel, ScrollArea, text } from '../ui';
 import { C, FS, OUTLINE, TINT } from '../theme';
 
 export interface ChapterDoneData {
@@ -99,7 +99,8 @@ export class ChapterDoneScene extends Phaser.Scene {
       text(this, 970, y, value, FS.body, color, { fontStyle: 'bold' }).setOrigin(1, 0.5);
     };
     row(sy - 75, 'Этапы', `${sum.cleared} / ${sum.stages}`, C.success);
-    row(sy - 25, 'В пути', playTimeText(now() - save.createdAt));
+    // LT-11: время считается с начала игры (своего счёта у главы нет) — так и подписано.
+    row(sy - 25, 'С начала игры', playTimeText(now() - save.createdAt));
     row(sy + 25, 'Награды главы', `золото ${formatNumber(sum.gold)} · опыт ${formatNumber(sum.jobExp)}`, C.gold);
     row(sy + 75, 'Трофеев в сумке', String(sum.items), '#6fb8ff');
 
@@ -108,18 +109,22 @@ export class ChapterDoneScene extends Phaser.Scene {
     if (sum.recruit) {
       const hero = sum.recruit;
       const c = heroCard(hero, GAME);
+      // Герой мог прийти из Таверны раньше своей сцены (пул — все 12): тогда рекрут принёс копию, и «новый» — неправда.
+      const had = save.heroes.filter((h) => h.templateId === hero.templateId).length > 1;
       card(this, cx, ry, 1000, 620, true);
-      text(this, cx, ry - 260, 'Новый герой в отряде!', FS.h2, C.inkGold, { fontStyle: 'bold' });
+      text(this, cx, ry - 260, had ? 'Герой истории с вами' : 'Новый герой в отряде!', FS.h2, C.inkGold, { fontStyle: 'bold' });
       // Тёплый отсвет за новым героем и тень под ногами.
       const halo = this.add.ellipse(cx, ry + 40, 420, 300, 0xffd27a, 0.1).setBlendMode(Phaser.BlendModes.ADD);
       this.tweens.add({ targets: halo, fillAlpha: { from: 0.06, to: 0.16 }, yoyo: true, repeat: -1, duration: 1400, ease: 'Sine.easeInOut' });
       this.add.ellipse(cx, ry + 110, 300, 60, 0x000000, 0.3);
       unitFigure(this, heroSprite(hero, GAME), cx, ry + 110, 300, { maxScale: 2 });
-      text(this, cx, ry + 180, `${c.name} присоединяется к отряду`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
+      text(this, cx, ry + 180, had ? `${c.name} присоединяется по сюжету` : `${c.name} присоединяется к отряду`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
       text(this, cx, ry + 240, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
     } else {
       card(this, cx, ry, 1000, 300, true);
-      text(this, cx, ry, 'Отряд готов к новым землям', FS.h2, C.ink, { fontStyle: 'bold' });
+      // LT-11: после последней главы новых земель пока нет — куда идти дальше.
+      text(this, cx, ry - (sum.next ? 0 : 30), sum.next ? 'Отряд готов к новым землям' : 'Новые главы — скоро', FS.h2, C.ink, { fontStyle: 'bold' });
+      if (!sum.next) text(this, cx, ry + 40, 'А пока — Башня испытаний и Охота в «Приключениях»', FS.body, C.inkMuted, { wordWrap: { width: 900 } });
     }
 
     // --- Кнопки ---
@@ -143,7 +148,9 @@ export function openStoryHistory(sc: Phaser.Scene, chapterId: string): void {
   const layer = sc.add.container(0, 0).setDepth(9000).setName(HISTORY);
   const shade = sc.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
   const rowH = 118;
-  const h = Math.min(1500, 370 + Math.max(1, scenes.length) * rowH);
+  // NB-01: все увиденные сцены (в главе 1 их 13) — не влезают в окно, список прокручивается.
+  const visibleRows = Math.min(Math.max(1, scenes.length), 9);
+  const h = 370 + visibleRows * rowH;
   const top = GAME_H / 2 - h / 2;
   const box = panel(sc, GAME_W / 2, GAME_H / 2, 940, h, 'ui_panel').setInteractive();
   const head = text(sc, GAME_W / 2, top + 80, 'История главы', FS.h1, C.title, { fontStyle: 'bold', ...OUTLINE });
@@ -153,16 +160,21 @@ export function openStoryHistory(sc: Phaser.Scene, chapterId: string): void {
   const close = () => layer.destroy();
   shade.on('pointerup', close);
   if (!scenes.length) layer.add(text(sc, GAME_W / 2, top + 200, 'Сцен этой главы вы ещё не видели', FS.body, C.muted));
-  // Не влезают все — последние (свежие) сцены.
-  const fit = Math.max(1, Math.floor((h - 370) / rowH));
-  scenes.slice(-fit).forEach((s, i) => {
-    const b = button(sc, GAME_W / 2, top + 200 + i * rowH, 800, 100, 'k:buttonLong_beige', `▶  ${sceneLabel(s, GAME)}`, () => {
-      close();
-      playScenes(sc, [s], () => {});
-    }, FS.h3);
-    layer.add(b.container);
-  });
   const done = button(sc, GAME_W / 2, top + h - 90, 400, 110, 'ui_btn_primary', 'Закрыть', close, FS.h3);
   layer.add(done.container);
   popIn(sc, layer, shade);
+  // Список — после popIn: прокрутка живёт в координатах экрана, окно «вырастает» без неё (160 мс).
+  const listTop = top + 150;
+  const area = new ScrollArea(sc, listTop, listTop + visibleRows * rowH);
+  layer.add(area.parts);
+  // Полоса прокрутки — у правой кромки окна, а не экрана.
+  (area.parts[1] as Phaser.GameObjects.Rectangle).setX(GAME_W / 2 + 448);
+  scenes.forEach((s, i) => {
+    const b = button(sc, GAME_W / 2, rowH / 2 + i * rowH, 800, 100, 'k:buttonLong_beige', `▶  ${sceneLabel(s, GAME)}`, area.tap(() => {
+      close();
+      playScenes(sc, [s], () => {});
+    }), FS.h3);
+    area.add(b.container);
+  });
+  area.setContentHeight(scenes.length * rowH);
 }

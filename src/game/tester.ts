@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_W, HEADER_H } from './layout';
+import { GAME_W } from './layout';
 import { commit, session, shiftTime, timeShiftMs } from './session';
 import { button, toast } from './ui';
 import { C, FS } from './theme';
@@ -25,15 +25,17 @@ const HOURS = 12;
 
 /**
  * Кнопки тестировщика. band — высота полосы над шапкой (screen.ts topBand): на вытянутых экранах кнопки там слева
- * (валюта справа), на 9:16 — по центру на нижней кромке шапки. Нажатие перезапускает экран с новыми гемами и временем.
+ * (валюта справа), на 9:16 — узкой строкой у верхнего края шапки, над названием экрана (MT-20 / NB-14 / LT-21: на нижней
+ * кромке шапки они закрывали названия этапов, баннер главы и «Инвентарь»). Нажатие перезапускает экран.
  */
 export function testerButtons(scene: Phaser.Scene, band: number, bandMin: number): void {
   if (!testerOn()) return;
   const inBand = band >= bandMin;
-  const y = inBand ? -band / 2 : HEADER_H + 6;
+  // 9:16: выше названия (оно по центру шапки, ~50…100) и левее валюты (справа, от ~780).
+  const y = inBand ? -band / 2 : 22;
   const x0 = inBand ? 115 : GAME_W / 2 - 90;
   const mk = (x: number, label: string, onTap: () => void) => {
-    const b = button(scene, x, y, inBand ? 190 : 170, inBand ? 60 : 48, 'ui_btn_secondary', label, onTap, FS.caption, { repeat: true });
+    const b = button(scene, x, y, inBand ? 190 : 170, inBand ? 60 : 40, 'ui_btn_secondary', label, onTap, inBand ? FS.caption : FS.caption - 6, { repeat: true });
     b.container.setDepth(8000).setAlpha(0.85).setName(`tester_${label}`);
   };
   mk(x0, `+${GEMS} гемов`, () => {

@@ -16,8 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "dark_priest",
-    "tint": "#ff8a3d",
+    "sprite": "horong",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

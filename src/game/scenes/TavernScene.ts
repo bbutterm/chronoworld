@@ -4,7 +4,7 @@ import { SUMMON_REVEAL } from '../audioCatalog';
 import { sfx, summonSound } from '../audio';
 import { screenBackground } from '../backdrops';
 import { GAME } from '../content';
-import { describeEvents, formatNumber, heroSprite } from '../flow';
+import { describeEvents, formatNumber, heroSprite, stageNo } from '../flow';
 import { afterRewardFly, pulse, queueRewardFly } from '../juice';
 import { GAME_H, GAME_W, BLEED_X, BLEED_Y } from '../layout';
 import { card, CONTENT_TOP, gemIcon, popIn, screen, unitFigure } from '../screen';
@@ -35,7 +35,8 @@ import { BEAM, CARD_BACK, CIRCLE, GLOW, SPARK, setTavernBackground, TAVERN_BG, T
 import { drawHeroCard, heroCardSize } from '../heroCard';
 import { markTavernSeen } from '../tavernEntry';
 import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
-import { button, ellipsize, panel, progressBar, text, toast } from '../ui';
+import { button, ellipsize, panel, progressBar, text, toast, tutorialHint } from '../ui';
+import { hintDone, markHint } from '../hints';
 
 /** Цвет редкости (#rrggbb) → число для tint и заливок. */
 const colorOf = (hex: string): number => Phaser.Display.Color.HexStringToColor(hex).color;
@@ -62,6 +63,8 @@ const TABLE_Y = 1000;
 /** Откуда вылетают карты (колода у края стола). */
 const DECK = { x: GAME_W / 2, y: 1720 };
 const DEPTH = 5000;
+/** Строки прогресса призыва (гарант, первый ×10) — плашка обучения их не закрывает (MT-07). */
+const TAVERN_INFO = ['До синей', 'До фиолетовой', 'Первый призыв', 'Шансы', 'Гарант'];
 
 type Phase = 'deal' | 'pick' | 'flipping' | 'showcase' | 'done';
 
@@ -122,6 +125,7 @@ export class TavernScene extends Phaser.Scene {
     this.showcase();
     this.pity(st);
     this.buttons(st);
+    if (!data.reveal?.results.length) this.tutorial(st);
     if (data.toast?.length) afterRewardFly(this, () => toast(this, data.toast!.join('\n'), C.success, 5000));
     if (data.reveal?.results.length) this.startReveal(data.reveal.results, data.reveal.count);
   }
@@ -152,7 +156,7 @@ export class TavernScene extends Phaser.Scene {
     const stage = GAME.content.stages.find((s) => s.id === st.unlockAfterStage);
     card(this, GAME_W / 2, 800, 960, 360);
     text(this, GAME_W / 2, 700, 'Таверна пока закрыта', FS.h1, C.title, TITLE_STYLE);
-    text(this, GAME_W / 2, 820, `Откроется после этапа ${stage ? `${stage.globalIndex + 1} «${stage.name}»` : st.unlockAfterStage}`, FS.body, C.text, { ...OUTLINE, wordWrap: { width: 860 } });
+    text(this, GAME_W / 2, 820, `Откроется после этапа ${stage ? `${stageNo(stage, GAME)} «${stage.name}»` : st.unlockAfterStage}`, FS.body, C.text, { ...OUTLINE, wordWrap: { width: 860 } });
     button(this, GAME_W / 2, 1100, 520, 120, 'ui_btn_primary', 'В кампанию', () => this.scene.start('Campaign'), FS.h2);
   }
 
@@ -175,7 +179,7 @@ export class TavernScene extends Phaser.Scene {
       const b = button(this, 820, gy, 330, 120, 'ui_btn_primary', 'Забрать подарок', () => this.claimWelcome({ x: 820, y: gy }), FS.h3);
       pulse(this, b.container);
     } else {
-      text(this, GAME_W / 2, gy - 20, 'Таверна Пронтеры', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 });
+      text(this, GAME_W / 2, gy - 20, 'Таверна «Два колокола»', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 });
       text(this, GAME_W / 2, gy + 45, 'Наёмники ищут работу — кто сядет за ваш стол?', FS.small, C.muted, OUTLINE);
     }
   }
@@ -267,6 +271,24 @@ export class TavernScene extends Phaser.Scene {
     text(this, GAME_W / 2, 1815, `Гарант: ${GAME.summon.pity.map((p) => `${RARITY_CARD[p.rarity]} — на ${p.every}-м призыве`).join(', ')}`, FS.small, C.dim, { ...OUTLINE, wordWrap: { width: 1000 } });
   }
 
+  /**
+   * Ведущее обучение (hints.ts, шаг tavern_summon): до первого ×10 — указатель на «Забрать подарок», затем на ×10
+   * (свитки или гемы — что доступно). Шаг выполнен первым ×10 (pull) или касанием плашки.
+   */
+  private tutorial(st: SummonStatus): void {
+    if (session.save.summon.firstTenDone || hintDone('tavern_summon')) return;
+    if (!session.save.summon.welcomeGiven) {
+      tutorialHint(this, 'tavern_summon', 820, CONTENT_TOP + 200, 'below', { w: 330, h: 120 }, { text: 'Заберите подарок Гаррета — свитки и гемы на призыв', avoidText: TAVERN_INFO });
+      return;
+    }
+    const opts = pullOptions(st);
+    const scroll = opts.find((o) => o.id === 'scroll10' && o.enabled);
+    const gems = opts.find((o) => o.id === 'gems10' && o.enabled);
+    const msg = `Призыв ×10 — ${firstTenText(st.firstTenCount, st.firstTenRarity)}!`;
+    if (scroll) tutorialHint(this, 'tavern_summon', 880, 1455, 'above', { w: 316, h: 116 }, { text: msg, avoidText: TAVERN_INFO });
+    else if (gems) tutorialHint(this, 'tavern_summon', 800, 1620, 'above', { w: 490, h: 150 }, { text: msg, avoidText: TAVERN_INFO });
+  }
+
   // ---------- действия ----------
 
   private claimWelcome(at: { x: number; y: number }): void {
@@ -283,6 +305,7 @@ export class TavernScene extends Phaser.Scene {
     try {
       const r = actSummon(session.save, today(), o.count, o.pay, GAME);
       commit(r.save);
+      if (o.count === 10) markHint('tavern_summon');
       this.scene.restart({ reveal: { results: r.results, count: o.count } } satisfies TavernData);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
@@ -381,7 +404,7 @@ export class TavernScene extends Phaser.Scene {
     const cv: CardView = { i, slot, root, glow, back, face, flipped: false, busy: false };
     root.on('pointerup', () => {
       if (state.phase === 'pick') void this.flip(state, cv, 'tap');
-      else if (state.phase === 'done') this.scene.start('Hero', { heroId: r.heroId });
+      else if (state.phase === 'done') this.scene.start('Hero', { heroId: r.heroId, back: { to: 'Tavern' } });
     });
     state.layer.add(root);
     return cv;
@@ -652,7 +675,7 @@ export class TavernScene extends Phaser.Scene {
     state.title.setText('Итог призыва');
     L.add(ellipsize(text(this, GAME_W / 2, 310, summaryLine(state.results), FS.body, C.text, { fontStyle: 'bold', ...OUTLINE }), 1000).setName('summaryLine'));
     const hasDup = state.tags.some((t) => t.kind === 'copy');
-    L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Копии — корм для вознесения (все карты — в Инвентаре). Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
+    L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Копии нужны для вознесения героя (все карты — в Инвентаре). Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
 
     const best = bestResult(state.results);
     const st = summonStatus(session.save, today(), GAME);

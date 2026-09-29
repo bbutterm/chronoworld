@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { markHint } from '../hints';
 import { heroPower, progressLevelBand, squadPower, towerFloor, towerStatus, unitLevel, unitPower, withGear } from '../../core';
 import { GAME } from '../content';
-import { enemyLevelColor, formatNumber, heroSprite, levelLabel, POWER_COLORS, powerTone } from '../flow';
+import { enemyLevelColor, formatNumber, heroSprite, levelLabel, POWER_COLORS, powerTone, stageNo } from '../flow';
 import { GAME_W } from '../layout';
 import { card, CONTENT_TOP, gemIcon, portrait, screen, unitTint } from '../screen';
 import { session } from '../session';
@@ -35,7 +35,7 @@ export class TowerScene extends Phaser.Scene {
       card(this, GAME_W / 2, top + 300, 1000, 500);
       this.add.image(GAME_W / 2, top + 160, skinIcon('lock')).setDisplaySize(120, 120).setTint(SKIN_TINT.gold);
       text(this, GAME_W / 2, top + 300, 'Башня пока закрыта', FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 });
-      text(this, GAME_W / 2, top + 380, stage ? `Пройдите этап ${stage.globalIndex + 1} «${stage.name}» кампании` : 'Пройдите кампанию дальше', FS.h3, C.text, {
+      text(this, GAME_W / 2, top + 380, stage ? `Пройдите этап ${stageNo(stage, GAME)} «${stage.name}» кампании` : 'Пройдите кампанию дальше', FS.h3, C.text, {
         wordWrap: { width: 880 },
       });
       button(this, GAME_W / 2, top + 650, 640, 140, 'ui_btn_primary', 'В кампанию', () => this.scene.start('Campaign'), FS.h1);

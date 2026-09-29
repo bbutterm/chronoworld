@@ -2,6 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "priest",
   "name": "Жрец",
+  "nameF": "Жрица",
   "description": "Вторая профессия Аколита: лечение, щиты и изгнание нечисти.",
   "tier": 2,
   "from": [

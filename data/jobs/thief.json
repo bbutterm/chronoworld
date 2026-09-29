@@ -2,6 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "thief",
   "name": "Вор",
+  "nameF": "Воровка",
   "description": "Быстрый боец с ядом. Дальше — Ассасин или Разбойник.",
   "tier": 1,
   "from": [

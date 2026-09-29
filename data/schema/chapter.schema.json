@@ -35,6 +35,9 @@
             "default": false,
             "type": "boolean"
           },
+          "inserted": {
+            "type": "boolean"
+          },
           "enemies": {
             "minItems": 5,
             "maxItems": 5,

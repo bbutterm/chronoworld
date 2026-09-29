@@ -23,19 +23,23 @@ function dropRng(seed: number): Rng {
 
 /**
  * K6. Предметы за победу на этапе (id описаний, 0 или 1 шт.). Детерминированно по seed боя.
- * - firstClear и rule.firstClearGuaranteed → ровно 1 предмет (веса firstClearRarityWeights ?? rarityWeights);
+ * - firstClear и rule.firstClearGuaranteed → ровно 1 предмет (веса firstClearRarityWeights ?? rarityWeights; босс главы —
+ *   bossFirstClearRarityWeights, если есть);
  * - иначе с шансом rule.chance — 1 предмет по rarityWeights;
  * - предмет — равновероятно среди предметов выбранной редкости с drop ≠ false и minChapter ≤ глава этапа
+ *   (и ≥ rule.itemsFromChapter, если задано — «свои» вещи поздних глав)
  *   (по порядку id); редкости без таких предметов не выпадают (их вес уходит остальным).
  */
 export function rollDrops(stageId: string, seed: number, firstClear: boolean, ctx: EquipmentContext): string[] {
   const rule = dropRule(stageId, ctx);
   if (!rule) return [];
   const rng = dropRng(seed);
-  const pools = itemPools(ctx.equipment.items, chapterNumber(getStage(ctx, stageId).chapter, ctx));
+  const stage = getStage(ctx, stageId);
+  const pools = itemPools(ctx.equipment.items, chapterNumber(stage.chapter, ctx), rule.itemsFromChapter);
 
   let weights: RarityWeights;
-  if (firstClear && rule.firstClearGuaranteed) weights = rule.firstClearRarityWeights ?? rule.rarityWeights;
+  if (firstClear && rule.firstClearGuaranteed)
+    weights = (stage.boss ? rule.bossFirstClearRarityWeights : undefined) ?? rule.firstClearRarityWeights ?? rule.rarityWeights;
   else if (rng.next() < rule.chance) weights = rule.rarityWeights;
   else return [];
 

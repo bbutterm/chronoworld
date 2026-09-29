@@ -8,7 +8,12 @@ import type { loadFullContext } from '../scripts/lib/content-node';
 
 type FullContext = ReturnType<typeof loadFullContext>;
 
-export const FORMATION_STAGES = ['ch1_s5', 'ch1_s6', 'ch1_s7', 'ch1_s8', 'ch1_s9', 'ch1_s10'];
+/**
+ * Вторая половина главы 1 — все этапы с Таверны до босса в порядке игры (глава 1 — 18 этапов с 28.09; было ch1_s5…s10 из 10).
+ * Прежние 6 этапов после перебаланса длинной главы стали сильнее (mult ×1.1–1.35) — метрика строя меряется по всей
+ * половине главы, как и задумывалось («середина главы 1 и босс»).
+ */
+export const FORMATION_STAGES = ['ch1_s5', 'ch1_s12', 'ch1_s6', 'ch1_s13', 'ch1_s7', 'ch1_s14', 'ch1_s8', 'ch1_s15', 'ch1_s9', 'ch1_s16', 'ch1_s17', 'ch1_s18', 'ch1_s10'];
 
 /** Отряды 3–5 героев первых профессий (слоты 0–1 — фронт, 2–4 — тыл). */
 export const FORMATION_SQUADS: Record<number, (string | null)[]> = {

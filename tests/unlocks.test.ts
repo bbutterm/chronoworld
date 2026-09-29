@@ -72,9 +72,11 @@ describe('открытие функций: data/unlocks.json', () => {
     expect(towerUnlocked(clearedUpTo('ch1_s10'), ctx)).toBe(true);
   });
 
-  it('подпись замка «Откроется на этапе 1-8» (глава-этап); открыта — пусто; нет в таблице — открыта сразу', () => {
+  it('подпись замка «Откроется на этапе 1-12» (глава-номер по порядку в главе); открыта — пусто; нет в таблице — открыта сразу', () => {
     expect(lockedText(newGame(ctx, 0), 'bounties', ctx)).toBe(`Откроется на этапе ${stageLabel(featureStage('bounties', ctx)!, ctx.content)}`);
-    expect(stageLabel('ch1_s8', ctx.content)).toBe('1-8');
+    // Глава 1 — 18 этапов: номер — место этапа в главе, а не число в id (вставной ch1_s11 — третий, ch1_s8 — двенадцатый).
+    expect(stageLabel('ch1_s8', ctx.content)).toBe('1-12');
+    expect(stageLabel('ch1_s11', ctx.content)).toBe('1-3');
     expect(stageLabel('ch2_s1', ctx.content)).toBe('2-1');
     expect(lockedText(clearedUpTo('ch1_s10'), 'tower', ctx)).toBe('');
     const noTable = { ...ctx, unlocks: undefined };
@@ -103,16 +105,16 @@ describe('баннер «Новая функция!»: один раз', () => {
     // Следующий этап — новые баннеры только для новых функций.
     const next = { ...s, campaign: { cleared: stages.slice(0, stages.indexOf('ch1_s5') + 1) } };
     expect(pendingUnlocks(next, ctx).map((f) => f.id)).toEqual(['tavern']);
-    expect(featureViews(next, ctx).find((f) => f.id === 'tavern')).toMatchObject({ unlocked: true, seen: false, stageLabel: '1-5' });
+    expect(featureViews(next, ctx).find((f) => f.id === 'tavern')).toMatchObject({ unlocked: true, seen: false, stageLabel: '1-6' });
   });
 
   it('отметка переживает запись и загрузку', () => {
     const storage = new MemoryStorage();
-    const s = markUnlocksSeen(clearedUpTo('ch1_s2'), ['fast_rewards']);
+    const s = markUnlocksSeen(clearedUpTo('ch1_s6'), ['speed_x2', 'tavern']);
     persist(storage, s);
     const r = loadOrNew(storage, ctx, 0);
-    expect(r.save.seenUnlocks).toEqual(['fast_rewards']);
-    expect(pendingUnlocks(r.save, ctx).map((f) => f.id)).toEqual(['quests']);
+    expect(r.save.seenUnlocks).toEqual(['speed_x2', 'tavern']);
+    expect(pendingUnlocks(r.save, ctx).map((f) => f.id)).toEqual(['fast_rewards']);
   });
 });
 
@@ -136,8 +138,9 @@ describe('старые сохранения без seenUnlocks', () => {
 
   it('игрок до Таверны: открытое — показано, Таверна после ch1_s5 — баннер будет', () => {
     const r = sanitizeSave(old('ch1_s3'), ctx);
-    expect(r.save.seenUnlocks).toEqual(['fast_rewards', 'quests', 'speed_x2', 'achievements']);
-    const after = { ...r.save, campaign: { cleared: stages.slice(0, 5) } };
+    // Глава 1 — 18 этапов: к ch1_s3 (4-й этап) открыта только скорость ×2 (ch1_s2), остальное — по одной позже.
+    expect(r.save.seenUnlocks).toEqual(['speed_x2']);
+    const after = { ...r.save, campaign: { cleared: stages.slice(0, stages.indexOf('ch1_s5') + 1) } };
     expect(pendingUnlocks(after, ctx).map((f) => f.id)).toEqual(['tavern']);
   });
 

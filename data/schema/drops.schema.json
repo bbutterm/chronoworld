@@ -61,6 +61,28 @@
                 "minimum": 0
               }
             }
+          },
+          "bossFirstClearRarityWeights": {
+            "type": "object",
+            "properties": {
+              "common": {
+                "type": "number",
+                "minimum": 0
+              },
+              "rare": {
+                "type": "number",
+                "minimum": 0
+              },
+              "epic": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "itemsFromChapter": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
           }
         },
         "required": [
@@ -91,6 +113,11 @@
                 "type": "number",
                 "minimum": 0,
                 "maximum": 1
+              },
+              "itemsFromChapter": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
               },
               "rarityWeights": {
                 "type": "object",

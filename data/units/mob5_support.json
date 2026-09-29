@@ -16,8 +16,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "dark_priest",
-    "tint": "#b8dcff",
+    "sprite": "sohee",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
   }

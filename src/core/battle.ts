@@ -168,7 +168,9 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     target.hp -= hpLoss;
     if (report[srcUid]) report[srcUid].damageDealt += absorbed + hpLoss;
     report[target.uid].damageTaken += absorbed + hpLoss;
-    if (target.hp > 0 && !dot) addEnergy(target, cfg.energy.perHitTaken);
+    // Энергия за полученный удар — только за урон по ОЗ (как в AFK: энергия от потерянного здоровья). Удар, целиком
+    // принятый щитом, ульту не заряжает — иначе щит-ульта («Песчаная стена») перезаряжала сама себя (LT-01).
+    if (target.hp > 0 && !dot && hpLoss > 0) addEnergy(target, cfg.energy.perHitTaken);
     emit({ t, type: 'damage', source: srcUid, target: target.uid, amount: dmg, absorbed, hp: target.hp, shield: target.shield, energy: target.energy, ...(dot ? { dot } : {}) });
     if (target.hp <= 0) kill(target, src);
     else if (!dot) trigger(target, 'hit');
@@ -191,7 +193,10 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         return;
       }
       case 'shield': {
-        const amount = Math.floor(target.maxHp * e.pctMaxHp * sp);
+        // LT-01: щиты складываются, но не выше потолка (доля макс. ОЗ носителя, combat.json shieldCapPctMaxHp) —
+        // иначе щит, заряжаемый от получаемого урона, растёт быстрее урона отряда и бой уходит в «время вышло».
+        const cap = Math.floor(target.maxHp * (cfg.shieldCapPctMaxHp ?? 0.5));
+        const amount = Math.max(0, Math.min(Math.floor(target.maxHp * e.pctMaxHp * sp), cap - target.shield));
         target.shield += amount;
         report[u.uid].shieldGiven += amount;
         emit({ t, type: 'buff', source: u.uid, target: target.uid, kind: 'shield', amount, shield: target.shield });

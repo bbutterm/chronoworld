@@ -27,7 +27,7 @@ import {
 } from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
-import { enemyLevelColor, heroSprite, levelLabel, stageSeed } from '../flow';
+import { enemyLevelColor, heroSprite, levelLabel, stageNo, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { SKIN, SKIN_TINT } from '../skin';
@@ -37,7 +37,9 @@ import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state'
 import { clampX, DEPTH, FloatLayer, UltPresenter } from '../battleFx';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
-import { button, panel, text } from '../ui';
+import { button, panel, text, tutorialHint } from '../ui';
+import { hintDone, markHint } from '../hints';
+import { isUnlocked } from '../unlockBanner';
 import { ease, Scheduler } from '../perf';
 import { unitTint } from '../screen';
 import { animatedFxIds, animatedFxKey, skillFx } from '../animatedFx';
@@ -101,7 +103,8 @@ const STATUS_ICON = 24;
 const STATUS_MAX = 2;
 const STATUS_GAP = 3;
 /** Имена над юнитами (T2-15, T3-02): мелко, видны первые секунды боя, потом гаснут; касание юнита — показать снова. */
-const NAME_SIZE = 20;
+/** NB-19: 20 → 26 (≈ 9 css px на 360×640 — не читалось). */
+const NAME_SIZE = 26;
 /** Подпись уровня врага слева от полоски HP. */
 const LEVEL_SIZE = 20;
 const NAME_SHOW_S = 3;
@@ -391,7 +394,7 @@ export class BattleScene extends Phaser.Scene {
       for (const u of enemySquad(data.stageId, GAME)) if (u) this.defs[u.id] = u;
       const st = getStage(GAME, data.stageId);
       this.levels = { rarity: levelBand(data.stageId, GAME).rarity, bossFactor: recommendedFactor(data.stageId, GAME) };
-      title = `Этап ${st.globalIndex + 1}. ${st.name}`;
+      title = `Этап ${stageNo(st, GAME)}. ${st.name}`;
       this.theme = themeOfBattle({ stageId: data.stageId });
     } else if (data.mode === 'tower') {
       const save = session.save;
@@ -462,9 +465,15 @@ export class BattleScene extends Phaser.Scene {
     this.showTime(0);
     if (DEBUG) text(this, GAME_W / 2, 195, `seed ${this.result.seed}`, 22, '#e0cfb0');
 
+    let speedHint: Phaser.GameObjects.Container | null = null;
     const speedBtn = button(this, 180, 360, 280, 110, 'ui_btn_speed', `${playback.speed}x`, () => {
       // Выбор скорости запоминается (localStorage) и действует в следующих боях.
       setPlaybackSpeed(nextPlaybackSpeed());
+      if (playback.speed > 1) {
+        markHint('battle_speed');
+        speedHint?.destroy();
+        speedHint = null;
+      }
       speedBtn.setLabel(`${playback.speed}x`);
       for (const v of this.views.values()) v.sprite.anims.timeScale = playback.speed;
       this.sfx.setSpeed(playback.speed);
@@ -472,6 +481,10 @@ export class BattleScene extends Phaser.Scene {
       this.time.timeScale = playback.speed;
     });
     button(this, 900, 360, 280, 110, 'ui_btn_skip', 'Пропустить', () => this.skip());
+    // Обучение (hints.ts): скорость ×2 открылась (этап 1-2) — указатель на кнопку скорости в первом бою на 1x.
+    if (this.stage && playback.speed === 1 && isUnlocked('speed_x2') && !hintDone('battle_speed')) {
+      speedHint = tutorialHint(this, 'battle_speed', 180, 360, 'below', { w: 280, h: 110 });
+    }
     // Вся анимация (твины, задержки) идёт в темпе выбранной скорости.
     this.tweens.timeScale = playback.speed;
     this.time.timeScale = playback.speed;
@@ -581,7 +594,12 @@ export class BattleScene extends Phaser.Scene {
     const castBar = this.add.image(ox - castW / 2, nameY + 4, 'ui_bar_energy').setOrigin(0, 0.5).setDisplaySize(castW, 12).setVisible(false);
     // Название навыка — на груди кастера, не над головой: в заднем ряду над головой уже полоски соседа сверху (T2-15).
     const castLabel = text(this, ox, -look.height * 0.58, '', 25, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setVisible(false);
-    const name = text(this, ox, nameY, def.name, NAME_SIZE, '#ffffff', { stroke: '#000000', strokeThickness: 4 });
+    // NB-19: имя — под своими полосками (у ног), а не над макушкой: над головой заднего ряда висят полоски соседа
+    // сверху, и подпись читалась как чужая.
+    // У героев под полоской — значки перезарядки навыков: имя ниже них.
+    const cdRow = snap.side === 'A' && def.skills.actives.length > 0 ? CD_ICON + 2 : 0;
+    const nameUnder = (hasUlt ? 38 : 24) + 4 + cdRow + NAME_SIZE / 2;
+    const name = text(this, ox, nameUnder, def.name, NAME_SIZE, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 });
     const bars: Phaser.GameObjects.Components.Visible[] = [barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
     const parts: Phaser.GameObjects.GameObject[] = [shadow, sprite, barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
     // Уровень врага (как в AFK) — слева от полоски HP, цветом против среднего уровня отряда; виден весь бой.

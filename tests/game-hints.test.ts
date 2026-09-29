@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { newGame, type SaveState } from '../src/core';
 import { autoNextStage, heroesBadgeCount } from '../src/game/flow';
-import { HINT_KEY, hintDone, markHint, pickHomeHint, reloadHints, resetHints, type HintId } from '../src/game/hints';
+import { HINT_KEY, HINT_TEXT, hintDone, markHint, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, setHintObsolete, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
 import { loadFullContext, loadGameContext } from '../scripts/lib/content-node';
 import { placeCallout } from '../src/game/hintLayout';
 
@@ -20,6 +20,56 @@ describe('R: подсказки первой сессии', () => {
     expect(pickHomeHint({ ...base, cleared: 1, chestHasIncome: true }, none)).toBe('chest_claim');
     expect(pickHomeHint({ ...base, cleared: 3, levelUpReady: true }, none)).toBe('level_up');
     expect(pickHomeHint({ ...base, cleared: 9, towerUnlocked: true }, none)).toBe('tower_open');
+  });
+
+  it('ведущее обучение главы 1: цепочка по порядку, у каждого шага — русский текст, шаги не повторяются', () => {
+    expect(new Set(TUTORIAL_CHAIN).size).toBe(TUTORIAL_CHAIN.length);
+    for (const id of TUTORIAL_CHAIN) expect(HINT_TEXT[id]).toMatch(/[а-яё]/i);
+    // Страница «Кампания»: всё готово сразу — шаги идут по одному в порядке цепочки, выполненный уходит.
+    const all = { cleared: 5, chestHasIncome: true, levelUpReady: true, towerUnlocked: false, tavernReady: true, ascendReady: true, fastRewardsFree: true, questsUnlocked: true };
+    const done = new Set<HintId>();
+    const seen: HintId[] = [];
+    for (let id = pickHomeHint(all, (x) => done.has(x)); id; id = pickHomeHint(all, (x) => done.has(x))) {
+      seen.push(id);
+      done.add(id);
+    }
+    expect(seen).toEqual(['chest_claim', 'level_up', 'tavern_summon', 'fast_rewards', 'quests_open', 'ascend']);
+    expect(seen).toEqual(TUTORIAL_CHAIN.filter((id) => seen.includes(id)));
+  });
+
+  it('итоги боя: сначала «Дальше», потом «К кампании»; расстановка: «Авто» при новых героях, иначе «В бой»', () => {
+    const done = new Set<HintId>();
+    const isDone = (x: HintId) => done.has(x);
+    expect(pickResultHint({ hasNext: true, chestOrLevel: true }, isDone)).toBe('result_next');
+    done.add('result_next');
+    expect(pickResultHint({ hasNext: true, chestOrLevel: false }, isDone)).toBeNull();
+    expect(pickResultHint({ hasNext: true, chestOrLevel: true }, isDone)).toBe('result_home');
+    done.add('chest_claim');
+    expect(pickResultHint({ hasNext: true, chestOrLevel: true }, isDone)).toBeNull();
+    expect(pickPrepHint({ first: true, benchStronger: false, summoned: true }, isDone)).toBe('stage_fight');
+    expect(pickPrepHint({ first: true, benchStronger: true, summoned: true }, isDone)).toBe('prep_auto');
+    // До первого ×10 в Таверне (сильнее — только случайная карта из боя) шаг «Авто» не тратится.
+    expect(pickPrepHint({ first: true, benchStronger: true, summoned: false }, isDone)).toBe('stage_fight');
+    expect(pickPrepHint({ first: false, benchStronger: true, summoned: false }, isDone)).toBeNull();
+    done.add('prep_auto');
+    done.add('stage_fight');
+    expect(pickPrepHint({ first: true, benchStronger: true, summoned: true }, isDone)).toBeNull();
+  });
+
+  it('шаг, ненужный по прогрессу сохранения (новое устройство), считается выполненным; сбой проверки — не выполнен', () => {
+    resetHints();
+    setHintObsolete((id) => id === 'level_up');
+    try {
+      expect(hintDone('level_up')).toBe(true);
+      expect(hintDone('chest_claim')).toBe(false);
+      expect(pickHomeHint({ ...base, cleared: 20, levelUpReady: true, chestHasIncome: true }, (id) => id === 'chest_claim' || hintDone(id))).toBeNull();
+      setHintObsolete(() => {
+        throw new Error('сохранение ещё не загружено');
+      });
+      expect(hintDone('level_up')).toBe(false);
+    } finally {
+      setHintObsolete(() => false);
+    }
   });
 
   it('выполненная подсказка больше не показывается', () => {
@@ -141,6 +191,17 @@ describe('S: плашка подсказки не закрывает други�
     expect(p.box.x + p.box.w).toBeLessThanOrEqual(fastBtn.x);
     expect(p.box.x).toBeLessThanOrEqual(540 - 32);
     expect(p.box.x + p.box.w).toBeGreaterThanOrEqual(540 + 32);
+  });
+
+  it('итоги: «Дальше» у правого края, слева «Авто: следующий этап» — строка не влезает, узкая плашка в две строки влезает', () => {
+    // ResultScene: «Дальше» (890, 1830, 330×130), переключатель «Авто» (280, 1680, 520×96), снизу — край экрана.
+    const next = { x: 890, y: 1830, w: 330, h: 130 };
+    const avoid = [{ x: 20, y: 1632, w: 520, h: 96 }, { x: 25, y: 1765, w: 330, h: 130 }, { x: 375, y: 1765, w: 330, h: 130 }];
+    const wide = placeCallout(next, { w: 700, h: 60 }, { ...screen, prefer: 'above', avoid });
+    expect(wide.overlap).toBeGreaterThan(0);
+    // hintPointer (ui.ts) переносит строку уже, пока плашка не перестанет закрывать кнопки.
+    const narrow = placeCallout(next, { w: 460, h: 100 }, { ...screen, prefer: 'above', avoid });
+    expect(narrow).toMatchObject({ side: 'above', overlap: 0 });
   });
 
   it('предпочтительная сторона занята — выбирается другая', () => {

@@ -4,7 +4,8 @@ import { SKIN, SKIN_DARK_LABEL } from './skin';
 import { FONT, GAME_H, GAME_W, HEADER_H } from './layout';
 import { worldPoint } from './viewport';
 import { C, FS, TINT, TOUCH } from './theme';
-import { HINT_GEOM, placeCallout, type HintSide, type Rect } from './hintLayout';
+import { arrowRect, HINT_GEOM, overlapArea, placeCallout, type CalloutPlan, type HintSide, type Rect } from './hintLayout';
+import { HINT_TEXT, markHint, type HintId } from './hints';
 import { barFrom, juiceOn } from './juice';
 import { sfx } from './audio';
 import type { SfxId } from './audioCatalog';
@@ -27,6 +28,25 @@ function debounce(): () => boolean {
     last = t;
     return true;
   };
+}
+
+/** Сколько после закрытия окна не принимать касания (MT-02: второй быстрый тап «проваливался» в кнопку под окном). */
+export const SHIELD_MS = 400;
+let shieldTimer = 0;
+
+/**
+ * «Щит» от проваливающегося тапа: на ms весь ввод игры (все сцены) выключен. Зовётся, когда закрывается модальное
+ * окно (popIn) — касание, закрывшее окно, уже обработано, а следующее быстрое не попадёт ни в элемент под окном,
+ * ни в новый экран, если окно запустило переход.
+ */
+export function shieldTaps(game: Phaser.Game | undefined, ms = SHIELD_MS): void {
+  const mgr = game?.input;
+  if (!mgr) return;
+  mgr.enabled = false;
+  window.clearTimeout(shieldTimer);
+  shieldTimer = window.setTimeout(() => {
+    mgr.enabled = true;
+  }, ms);
 }
 
 /** Kenney UI нарисован мелко: 9-slice строим в меньшем размере и увеличиваем, чтобы рамки были заметны. */
@@ -204,6 +224,13 @@ export function dangerButton(
 ): ReturnType<typeof button> {
   const b = button(scene, x, y, w, h, 'k:buttonLong_beige', label, onClick, fontSize);
   b.label.setColor('#ff8a7a').setStroke('#2a0804', 6);
+  // MT-19: выключенная — серая, без красной подписи («Удалить прочитанные» при пустой почте выглядела активной).
+  const setEnabled = b.setEnabled;
+  b.setEnabled = (on) => {
+    setEnabled(on);
+    if (b.label.scene) b.label.setColor(on ? '#ff8a7a' : C.disabled).setStroke(on ? '#2a0804' : '#000000', on ? 6 : 0);
+    return b;
+  };
   return b;
 }
 
@@ -239,11 +266,11 @@ export class ScrollArea {
     // Видимая полоса списка (для e2e-проверки «кнопку ничто не перекрывает»: вне полосы содержимое скрыто маской).
     this.content.setData('clip', [top, bottom]);
     this.thumb = scene.add.rectangle(w - 6, top, 8, 40, TINT.frame, 0.8).setOrigin(0.5, 0).setDepth(20).setVisible(false);
-    scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
+    const down = (p: Phaser.Input.Pointer) => {
       this.dragged = false;
       this.dragFrom = this.inside(p) && !this.locked ? { y: this.wy(p), scroll: this.content.y } : null;
-    });
-    scene.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+    };
+    const move = (p: Phaser.Input.Pointer) => {
       if (!this.dragFrom || !p.isDown) return;
       if (!this.dragged && Math.abs(this.wy(p) - this.dragFrom.y) > 14 && this.scrollable) {
         this.dragged = true;
@@ -251,19 +278,37 @@ export class ScrollArea {
         scene.input.emit(CANCEL_PRESS);
       }
       if (this.dragged) this.scrollTo(this.dragFrom.scroll + (this.wy(p) - this.dragFrom.y));
-    });
-    scene.input.on('pointerup', () => {
+    };
+    const up = () => {
       this.dragFrom = null;
-    });
-    scene.input.on('wheel', (p: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
+    };
+    const wheel = (p: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
       if (!this.locked && this.inside(p)) this.scrollTo(this.content.y - dy);
-    });
+    };
+    scene.input.on('pointerdown', down);
+    scene.input.on('pointermove', move);
+    scene.input.on('pointerup', up);
+    scene.input.on('wheel', wheel);
     // Маска Phaser не отсекает ввод: карточка под нижним краем полосы (скрыта маской) ловила нажатия поверх
     // нижней навигации, и «КАМПАНИЯ»/«ГЛАВНАЯ» не срабатывали. Каждый кадр новые интерактивные объекты
     // списка получают проверку попадания «указатель внутри полосы» — вне полосы их для ввода как будто нет.
     const guard = () => this.guardInput(this.content);
     scene.events.on(Phaser.Scenes.Events.PRE_UPDATE, guard);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard));
+    // Список в модальном окне закрывается раньше сцены — снять обработчики вместе с содержимым.
+    this.content.once(Phaser.GameObjects.Events.DESTROY, () => {
+      scene.input.off('pointerdown', down);
+      scene.input.off('pointermove', move);
+      scene.input.off('pointerup', up);
+      scene.input.off('wheel', wheel);
+      scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard);
+      if (this.thumb.scene) this.thumb.destroy();
+    });
+  }
+
+  /** Содержимое и полоса прокрутки — положить в слой модального окна (над его фоном). */
+  get parts(): Phaser.GameObjects.GameObject[] {
+    return [this.content, this.thumb];
   }
 
   /** Обернуть проверку попадания у интерактивных потомков контейнера (один раз на объект). */
@@ -448,8 +493,16 @@ export function progressBar(
  * R/S. Указатель подсказки на цель (x, y): пульсирующее кольцо, прыгающая стрелка и плашка с одной строкой.
  * side — предпочтительная сторона плашки ('auto' — без предпочтения). Сторону и сдвиг вбок выбирает placeCallout
  * (hintLayout.ts), чтобы плашка не закрывала другие элементы управления сцены: все интерактивные объекты,
- * кроме самой цели, плюс opts.avoid. target — размер цели (рамка пульсирует вокруг неё).
- * Ничего не перехватывает: нажатия проходят к кнопке под ним.
+ * кроме самой цели, плюс opts.avoid и видимые подписи, начинающиеся с opts.avoidText. target — размер цели.
+ * Рамка и стрелка ничего не перехватывают: нажатия проходят к кнопке под ними. opts.skip — плашку можно коснуться
+ * (в углу «✕»): подсказка скрывается и больше не показывается (обучение пропускаемое).
+ *
+ * Правила (отчёты тестировщиков NB-03/04, MT-07, LT-10, NB-13):
+ * - одна подсказка на экране: новая убирает прежнюю;
+ * - раскладка считается на следующем кадре, когда сцена достроена (вкладки и кнопки, созданные после вызова, тоже
+ *   обходятся), и ждёт, пока закроются сюжетный диалог и баннер «Новая функция!» — под ними подсказку не видно;
+ * - плашка никогда не закрывает кнопки: не влезает в строку — переносится уже; нигде нет места — остаются рамка
+ *   (и стрелка, если она ничего не закрывает), а текст показывается всплывающим сообщением.
  */
 export function hintPointer(
   scene: Phaser.Scene,
@@ -458,8 +511,34 @@ export function hintPointer(
   message: string,
   side: HintSide | 'auto',
   target: { w: number; h: number },
-  opts: { avoid?: Rect[] } = {},
+  opts: { avoid?: Rect[]; avoidText?: string[]; skip?: () => void } = {},
 ): Phaser.GameObjects.Container {
+  // Одна подсказка за раз: прежняя (другой шаг или та же после перерисовки) уходит.
+  for (const o of [...scene.children.list]) if (o.name === 'hint') o.destroy();
+  const c = scene.add.container(0, 0).setDepth(8000).setName('hint');
+  const build = () => {
+    if (!c.scene || !c.active) return;
+    // Сюжетный диалог или баннер открытия поверх — подождать, пока их закроют (NB-13).
+    if (scene.children.getByName('dialogue') || scene.children.getByName('unlockBanner')) {
+      scene.events.once(Phaser.Scenes.Events.POST_UPDATE, build);
+      return;
+    }
+    drawHint(scene, c, x, y, message, side, target, opts);
+  };
+  scene.events.once(Phaser.Scenes.Events.POST_UPDATE, build);
+  return c;
+}
+
+function drawHint(
+  scene: Phaser.Scene,
+  c: Phaser.GameObjects.Container,
+  x: number,
+  y: number,
+  message: string,
+  side: HintSide | 'auto',
+  target: { w: number; h: number },
+  opts: { avoid?: Rect[]; avoidText?: string[]; skip?: () => void },
+): void {
   const w = GAME_W;
   const h = GAME_H;
   // T3-13: рамка (и её пульс) не выходит за поле и не уходит под нижний край: у края цель обводится плотнее.
@@ -468,32 +547,105 @@ export function hintPointer(
   const grow = Math.max(0, Math.min(40, room * 2 - pad - 8));
   const ring = scene.add.rectangle(x, y, target.w + pad, target.h + pad).setStrokeStyle(8, TINT.gold, 1);
   if (juiceOn()) scene.tweens.add({ targets: ring, scaleX: 1 + grow / (target.w + pad), scaleY: 1 + grow / (target.h + pad), alpha: grow > 0 ? 0.15 : 0.35, yoyo: grow <= 0, duration: 800, repeat: -1 });
+  c.add(ring);
   const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
-  const box = { w: Math.min(w - 60, t.width + 60), h: t.height + 22 };
-  const plan = placeCallout({ x, y, ...target }, box, {
-    prefer: side === 'auto' ? undefined : side,
-    avoid: [...controlRects(scene, x, y), ...(opts.avoid ?? [])],
-    top: HEADER_H + 8,
-    bottom: h,
-    width: w,
-  });
-  const dir = plan.side === 'above' ? -1 : 1;
-  const ay = plan.arrowY;
-  // Стрелка остриём к цели: над целью — вниз, под целью — вверх.
+  const closeW = opts.skip ? 44 : 0;
+  const avoid = [...controlRects(scene, x, y), ...textRects(scene, opts.avoidText ?? []), ...(opts.avoid ?? [])];
+  const tgt = { x, y, ...target };
+  // Плашка в одну строку не везде помещается между кнопками (итоги: «Дальше» у правого края, слева — «Авто»):
+  // тогда та же строка переносится уже — узкая плашка встаёт рядом с целью, ничего не закрывая.
+  let best: CalloutPlan | null = null;
+  let wrap = w - 200;
+  for (const ww of [w - 200, 640, 520, 420, 340]) {
+    t.setWordWrapWidth(ww);
+    const p = placeCallout(tgt, { w: Math.min(w - 60, t.width + 60 + closeW), h: t.height + 22 }, {
+      prefer: side === 'auto' ? undefined : side,
+      avoid,
+      top: HEADER_H + 8,
+      bottom: h,
+      width: w,
+    });
+    if (!best || p.overlap < best.overlap) {
+      best = p;
+      wrap = ww;
+    }
+    if (p.overlap === 0) break;
+  }
+  t.setWordWrapWidth(wrap);
+  const plan = best!;
   const g = HINT_GEOM;
-  const arrow =
-    plan.side === 'above'
-      ? scene.add.triangle(x, ay, 0, 0, g.arrowW, 0, g.arrowW / 2, g.arrowH, TINT.gold)
-      : scene.add.triangle(x, ay, 0, g.arrowH, g.arrowW, g.arrowH, g.arrowW / 2, 0, TINT.gold);
-  arrow.setStrokeStyle(4, TINT.header);
-  if (juiceOn()) scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, repeat: -1, duration: 450, ease: 'Sine.easeInOut' });
+  const arrowAt = (sd: HintSide) => {
+    const ay = arrowRect(tgt, sd).y + g.arrowH / 2;
+    const dir = sd === 'above' ? -1 : 1;
+    // Стрелка остриём к цели: над целью — вниз, под целью — вверх.
+    const arrow =
+      sd === 'above'
+        ? scene.add.triangle(x, ay, 0, 0, g.arrowW, 0, g.arrowW / 2, g.arrowH, TINT.gold)
+        : scene.add.triangle(x, ay, 0, g.arrowH, g.arrowW, g.arrowH, g.arrowW / 2, 0, TINT.gold);
+    arrow.setStrokeStyle(4, TINT.header);
+    if (juiceOn()) scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, repeat: -1, duration: 450, ease: 'Sine.easeInOut' });
+    c.add(arrow);
+  };
+  if (plan.overlap > 0) {
+    // Места для плашки нет — рамка, стрелка (где она ничего не закрывает) и текст всплывающим сообщением.
+    t.destroy();
+    const free = (['above', 'below'] as HintSide[]).find((sd) => {
+      const a = arrowRect(tgt, sd);
+      return a.y >= HEADER_H && a.y + a.h <= h && avoid.every((r) => overlapArea(a, r) === 0);
+    });
+    if (free) arrowAt(free);
+    toast(scene, message, C.title, 4500, 'middle');
+    c.setData('hintBox', { x, y, w: 0, h: 0 }).setData('hintOverlap', 0).setData('hintSide', free ?? 'none').setData('hintMode', 'ring');
+    return;
+  }
+  arrowAt(plan.side);
   const b = plan.box;
   const bg = scene.add.rectangle(b.x + b.w / 2, b.y + b.h / 2, b.w, b.h, 0x000000, 0.85).setStrokeStyle(4, TINT.gold);
-  t.setPosition(b.x + b.w / 2, b.y + b.h / 2);
-  const c = scene.add.container(0, 0, [ring, arrow, bg, t]).setDepth(8000).setName('hint');
+  t.setPosition(b.x + b.w / 2 - closeW / 2, b.y + b.h / 2);
+  c.add([bg, t]);
+  if (opts.skip) {
+    const skip = opts.skip;
+    c.add(text(scene, b.x + b.w - 30, b.y + b.h / 2, '✕', FS.body, C.muted, { fontStyle: 'bold' }).setName('hintSkip'));
+    bg.setInteractive({ useHandCursor: true }).on('pointerup', () => {
+      skip();
+      c.destroy();
+    });
+  }
   // Для e2e и отладки: где оказалась плашка и что она закрыла.
-  c.setData('hintBox', b).setData('hintOverlap', plan.overlap).setData('hintSide', plan.side);
-  return c;
+  c.setData('hintBox', b).setData('hintOverlap', plan.overlap).setData('hintSide', plan.side).setData('hintMode', 'box');
+}
+
+/**
+ * Подсказка обучения id (hints.ts): текст HINT_TEXT[id] (или opts.text), касание плашки — пропустить (markHint).
+ */
+export function tutorialHint(
+  scene: Phaser.Scene,
+  id: HintId,
+  x: number,
+  y: number,
+  side: HintSide | 'auto',
+  target: { w: number; h: number },
+  opts: { avoid?: Rect[]; avoidText?: string[]; text?: string } = {},
+): Phaser.GameObjects.Container {
+  return hintPointer(scene, x, y, opts.text ?? HINT_TEXT[id], side, target, { avoid: opts.avoid, avoidText: opts.avoidText, skip: () => markHint(id) }).setData('hintId', id);
+}
+
+/** Прямоугольники видимых подписей сцены, текст которых начинается с одной из строк (что плашка не должна закрывать). */
+function textRects(scene: Phaser.Scene, prefixes: string[]): Rect[] {
+  if (!prefixes.length) return [];
+  const out: Rect[] = [];
+  const walk = (list: Phaser.GameObjects.GameObject[], visible: boolean) => {
+    for (const o of list) {
+      const vis = visible && (o as unknown as { visible?: boolean }).visible !== false;
+      if (o instanceof Phaser.GameObjects.Container) walk(o.list, vis);
+      else if (vis && o instanceof Phaser.GameObjects.Text && prefixes.some((p) => o.text.startsWith(p))) {
+        const r = o.getBounds();
+        out.push({ x: r.x, y: r.y, w: r.width, h: r.height });
+      }
+    }
+  };
+  walk(scene.children.list, true);
+  return out;
 }
 
 /**
@@ -583,7 +735,9 @@ export function toast(scene: Phaser.Scene, message: string, color: string = C.ti
   const w = GAME_W;
   const t = text(scene, 0, 0, message, FS.h3, color, { wordWrap: { width: w - 160 }, lineSpacing: 6 });
   const bgH = t.height + 50;
-  const bg = scene.add.rectangle(0, 0, w - 100, bgH, 0x000000, 0.88).setStrokeStyle(3, 0xc8a060);
+  // MT-17: плашка по ширине текста, а не во весь экран — меньше закрывает кнопки шапки и строку под ней
+  // (касания она не ловит: кнопка под тостом нажимается).
+  const bg = scene.add.rectangle(0, 0, Math.min(w - 100, Math.max(420, t.width + 80)), bgH, 0x000000, 0.88).setStrokeStyle(3, 0xc8a060);
   const prevBottom = stack.reduce((n, e) => n + e.h + TOAST_GAP, 0);
   const c = scene.add.container(w / 2, (at === 'middle' ? top : top + prevBottom) + bgH / 2, [bg, t]).setDepth(10000).setAlpha(0);
   scene.tweens.add({ targets: c, alpha: 1, duration: 200 });

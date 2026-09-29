@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { oreIcon } from '../itemIcons';
 import { GAME } from '../content';
-import { autoNextStage, decimal, defeatAdvice, describeEvents, formatNumber, itemStatsText, keyEventsFirst, levelUpReady, nextOpenStage, RARITY_COLORS, type AutoStop } from '../flow';
+import { autoNextStage, decimal, defeatAdvice, describeEvents, formatNumber, itemStatsText, keyEventsFirst, levelUpReady, nextOpenStage, stageNo, RARITY_COLORS, type AutoStop } from '../flow';
 import type { BattleResult, Side } from '../../core';
 import { GAME_W } from '../layout';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
-import { button, ellipsize, panel, progressBar, ScrollArea, text } from '../ui';
+import { button, ellipsize, panel, progressBar, ScrollArea, text, tutorialHint } from '../ui';
+import { markHint, pickResultHint } from '../hints';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
 import type { ResultData } from './BattleScene';
@@ -47,6 +48,8 @@ export class ResultScene extends Phaser.Scene {
   /** Низ таблицы итогов и верх строки «Авто» (для e2e-проверки раскладки). */
   tableEnd = 0;
   autoTop = Infinity;
+  /** Подпись справа от «Авто: следующий этап» (пояснение или отсчёт). */
+  private autoStatus: Phaser.GameObjects.Text | null = null;
   /** Сколько строк событий на экране (e2e: ничего не спрятано). */
   eventLines = 0;
 
@@ -109,7 +112,7 @@ export class ResultScene extends Phaser.Scene {
       // K6: выпавшие предметы — цветом редкости.
       for (const d of stage?.outcome.drops ?? []) {
         const def = GAME.equipment.items[d.itemId];
-        const t = text(this, GAME_W / 2, y, `Трофей: ${def?.name ?? d.itemId}${def ? `  (${itemStatsText(def.stats)})` : ''}`, FS.body, def ? RARITY_COLORS[def.rarity] : C.text, BOLD_OUTLINE);
+        const t = text(this, GAME_W / 2, y, `Трофей: ${def?.name ?? d.itemId}${def ? ` (${itemStatsText(def.stats)})` : ''}`, FS.body, def ? RARITY_COLORS[def.rarity] : C.text, BOLD_OUTLINE);
         this.tweens.add({ targets: t, scale: { from: 1.25, to: 1 }, duration: 500, ease: 'Back.easeOut' });
         y += 50;
       }
@@ -252,9 +255,13 @@ export class ResultScene extends Phaser.Scene {
         this.autoRow(stage.stageId, win)();
         return;
       }
-      button(this, 190, 1830, bw, 130, 'k:buttonLong_beige', 'К кампании', () => this.scene.start('Campaign'), FS.h3);
+      button(this, 190, 1830, bw, 130, 'k:buttonLong_beige', 'К кампании', () => {
+        markHint('result_home');
+        this.scene.start('Campaign');
+      }, FS.h3);
       button(this, 540, 1830, bw, 130, 'ui_btn_secondary', 'Повторить', retry, FS.h3);
       const nextBtn = button(this, 890, 1830, bw, 130, 'ui_btn_primary', 'Дальше', () => {
+        markHint('result_next');
         if (next) this.scene.start('Stage', { stageId: next.id });
       }, FS.h2);
       if (!next) nextBtn.setEnabled(false).container.disableInteractive();
@@ -272,7 +279,23 @@ export class ResultScene extends Phaser.Scene {
           startChapterDone(this, { chapterId: stageInfo.chapter });
           // Этап открыл функцию — баннер «Новая функция!» (в авто-режиме не мешаем: покажется на карте или главной).
         } else if (autoAdvance.on) beginAuto();
-        else showUnlockBanners(this, beginAuto);
+        else
+          showUnlockBanners(this, () => {
+            // Обучение (hints.ts): первая победа — «Дальше»; потом, когда копится сундук или хватает на уровень, — «К кампании».
+            const hint = firstClear ? pickResultHint({ hasNext: !!next, chestOrLevel: levelUpReady(session.save, GAME).length > 0 || session.save.campaign.cleared.length >= 2 }) : null;
+            // Над «Дальше» — пояснение к «Авто» («Включите — бои пойдут сами…»): пока указатель на экране, оно
+            // скрыто, чтобы плашка встала над кнопкой, ничего не закрывая (MT-07); ушла плашка — пояснение вернулось.
+            const st = this.autoStatus;
+            const note = st?.text ?? '';
+            const view = hint ? tutorialHint(this, hint, hint === 'result_next' ? 890 : 190, 1830, 'above', { w: bw, h: 130 }) : null;
+            if (view && st && note && !autoAdvance.on) {
+              st.setText('');
+              view.once(Phaser.GameObjects.Events.DESTROY, () => {
+                if (st.scene && !st.text) st.setText(note);
+              });
+            }
+            beginAuto();
+          });
       }, { auto: autoAdvance.on });
       return;
     }
@@ -313,6 +336,7 @@ export class ResultScene extends Phaser.Scene {
     drawMark();
 
     const status = text(this, 790, y - 16, '', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 480 } });
+    this.autoStatus = status;
     const bar = progressBar(this, 580, y + 32, 420, 16, 0, TINT.gold).setVisible(false);
     const fill = bar.list[1] as Phaser.GameObjects.Rectangle;
     const fullW = 420 - 4;
@@ -338,7 +362,7 @@ export class ResultScene extends Phaser.Scene {
       const tick = () => {
         elapsed += STEP;
         const left = Math.max(0, AUTO_DELAY_MS - elapsed);
-        status.setText(`Этап ${next.globalIndex + 1} через ${decimal(left / 1000, 1)} с\nкоснитесь экрана — отмена`).setColor(C.gold);
+        status.setText(`Этап ${stageNo(next, GAME)} через ${decimal(left / 1000, 1)} с\nкоснитесь экрана — отмена`).setColor(C.gold);
         fill.width = fullW * (1 - left / AUTO_DELAY_MS);
         if (left > 0) return;
         cancel('');

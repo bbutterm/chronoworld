@@ -6,6 +6,7 @@ import type { SaveState } from '../save/schema';
 import type { FeatureContext, FeatureEvent } from './config';
 import { rollDay } from './daily';
 import { FeatureError } from './errors';
+import { groupDigits } from '../format';
 
 export interface FastRewards {
   /** Засчитанные минуты дохода (hours × 60). */
@@ -83,7 +84,7 @@ export function useFastRewards(
   const rewards = fastRewardsPreview(s, ctx);
   if (rewards.gold <= 0 && rewards.jobExp <= 0) throw new FeatureError('no_income', 'Пройдите хотя бы один этап кампании, чтобы получать быстрые награды');
   const cost = status.nextCost;
-  if (s.currency.gems < cost) throw new FeatureError('not_enough_gems', `Нужно ${cost} гемов, есть ${s.currency.gems}`);
+  if (s.currency.gems < cost) throw new FeatureError('not_enough_gems', `Нужно ${groupDigits(cost)} гемов, есть ${groupDigits(s.currency.gems)}`);
 
   const rolled = fastRewardsLoot(s, day, ctx);
   const withIncome: SaveState = addHeroExp({

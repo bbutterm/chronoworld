@@ -6,6 +6,7 @@
 import {
   ascendRequirement,
   activeForm,
+  autoFodder,
   BRANCH_RARITY,
   CARD_RARITIES,
   cardStats,
@@ -133,11 +134,9 @@ export function copyCounter(save: SaveState, heroId: string, ctx: GameContext): 
   const same = req?.fodder.find((f) => f.kind === 'same');
   if (!same) return { others, text: `Копий: ${others}` };
   const have = Math.min(same.count, same.candidates.length);
-  const rn = RARITY_PLURAL_GEN[same.rarity];
-  return { others, have, need: same.count, rarity: same.rarity, text: `Копий: ${others} · в корм ${rn} ${have}/${same.count}` };
+  // NB-11: одно слово и один счёт — «копии» (запасные карты этого героя), сколько подходит к вознесению из нужных.
+  return { others, have, need: same.count, rarity: same.rarity, text: `Копий: ${others} · к вознесению ${have}/${same.count}` };
 }
-
-const RARITY_PLURAL_GEN: Record<CardRarity, string> = { green: 'зел.', blue: 'син.', purple: 'фиол.', gold: 'зол.', red: 'кр.' };
 
 /** Сколько разных шаблонов собрано и всего: «12/25». */
 export function collectionCount(save: SaveState, ctx: GameContext): { owned: number; total: number } {
@@ -207,13 +206,14 @@ export interface AscendPreview {
 
 /**
  * Превью вознесения: что станет с карточкой на следующей редкости (null — максимум). choice — ветка, выбранная на
- * экране вознесения (переход с выбором ветки); не выбрана — превью по первой ветке героя.
+ * экране вознесения (переход на фиолетовый и выше, если у героя ещё нет ветки); не выбрана — превью без ветки, как
+ * реально получится (LT-08: фиолетовый без ветки станет золотым без ветки, профессию не меняет).
  */
 export function ascendPreview(hero: HeroState, ctx: GameContext, choice?: string): AscendPreview | null {
   const t = heroTemplate(ctx, hero.templateId);
   const to = nextRarity(hero.rarity);
   if (!to || rarityIndex(hero.rarity) >= rarityIndex(t.maxRarity)) return null;
-  const pick = choice && t.branches.some((b) => b.job === choice) ? choice : t.branches[0]?.job;
+  const pick = choice && t.branches.some((b) => b.job === choice) ? choice : undefined;
   const branch = hero.branch ?? (rarityIndex(to) >= rarityIndex(BRANCH_RARITY) ? pick : undefined);
   const f0 = activeForm(t, hero);
   const f1 = activeForm(t, { rarity: to, branch });
@@ -249,7 +249,7 @@ export function copySources(_save: SaveState, templateId: string, ctx: GameConte
   const name = ctx.content.heroes[templateId]?.name ?? templateId;
   const pct = (x: number | undefined) => `${Math.round((x ?? 0) * 1000) / 10}%`;
   return [
-    `Копии ${name}: Таверна (любой герой — ${ctx.summon.rates.map((r) => `${rarityDef(ctx, r.rarity).name.toLowerCase()} ${Math.round(r.chance * 100)}%`).join(', ')})`,
+    `Таверна — там выпадает и ${name} (любой герой: ${ctx.summon.rates.map((r) => `${rarityDef(ctx, r.rarity).name.toLowerCase()} ${Math.round(r.chance * 100)}%`).join(', ')})`,
     `Карты героя (случайный герой): первое прохождение этапа — ${pct(hc.firstClear.blue)} синяя, босс главы — ${pct(hc.bossFirstClear.blue)}`,
     'Сундук, охота, экспедиции, достижения, Лавка, события',
   ];
@@ -291,6 +291,116 @@ export function ascendReadyWith(save: SaveState, heroId: string, chosen: readonl
   if (!req || req.blockers.length) return false;
   if (!req.fodder.length) return true;
   return placeFodder(req, chosen).every((x) => x !== null);
+}
+
+/** Подпись пустого слота корма в две строки: кто («Алан» / «Любой») и редкость строчными («синий»). */
+export function fodderSlotCaption(slot: Pick<FodderSlotView, 'kind' | 'rarity'>, target: HeroState, ctx: GameContext): { who: string; rarity: string } {
+  const who = slot.kind === 'same' ? heroTemplate(ctx, target.templateId).name : 'Любой';
+  return { who, rarity: rarityDef(ctx, slot.rarity).name.toLowerCase() };
+}
+
+/** Почему карточку нельзя отдать в корм — короткой меткой для плитки (как fodderBlocker ядра): null — свободна. */
+export function fodderTag(save: SaveState, heroId: string): 'закреплён' | 'в отряде' | 'в пресете' | 'в экспедиции' | null {
+  const h = save.heroes.find((x) => x.id === heroId);
+  if (!h) return null;
+  if (h.locked) return 'закреплён';
+  if (save.squad.includes(h.id)) return 'в отряде';
+  if (save.presets.some((p) => p.squad.includes(h.id))) return 'в пресете';
+  if (save.bounties.active.some((b) => b.heroIds.includes(h.id))) return 'в экспедиции';
+  return null;
+}
+
+export interface FodderOption {
+  id: string;
+  level: number;
+  /** Уже лежит в другом слоте. */
+  chosen: boolean;
+  /** Занята (закреплена, в отряде…) — в корм нельзя, пока не освободить. */
+  tag: ReturnType<typeof fodderTag>;
+}
+
+/**
+ * Окно выбора корма для группы слотов group: все подходящие карточки игрока (кроме цели) — свободные первыми (слабые
+ * первыми, как предлагает ядро), затем занятые с меткой «в отряде» / «закреплён» (их выбрать нельзя — ядро их не
+ * примет, merge.ts fodderBlocker).
+ */
+export function fodderOptions(save: SaveState, req: { heroId: string; fodder: readonly FodderSlotView[] }, group: number, chosen: readonly string[]): FodderOption[] {
+  const g = req.fodder[group];
+  const target = save.heroes.find((h) => h.id === req.heroId);
+  if (!g || !target) return [];
+  const free = g.candidates.map((id) => save.heroes.find((h) => h.id === id)!).filter(Boolean);
+  const busy = save.heroes
+    .filter((h) => h.id !== target.id && h.rarity === g.rarity && (g.kind === 'any' || h.templateId === target.templateId) && !g.candidates.includes(h.id))
+    .sort((a, b) => a.level - b.level || (a.id < b.id ? -1 : 1));
+  return [
+    ...free.map((h) => ({ id: h.id, level: h.level, chosen: chosen.includes(h.id), tag: null })),
+    ...busy.map((h) => ({ id: h.id, level: h.level, chosen: false, tag: fodderTag(save, h.id) })),
+  ];
+}
+
+/** Мощь «было → станет» при вознесении (powerOf — heroPower с экипировкой; ветка — выбранная на экране, иначе без ветки). */
+export function ascendPower(hero: HeroState, ctx: GameContext, powerOf: (h: HeroState) => number, branch?: string): { from: number; to: number } | null {
+  const prev = ascendPreview(hero, ctx, branch);
+  if (!prev) return null;
+  const t = heroTemplate(ctx, hero.templateId);
+  const pick = branch && t.branches.some((b) => b.job === branch) ? branch : undefined;
+  const nextBranch = hero.branch ?? (rarityIndex(prev.to) >= rarityIndex(BRANCH_RARITY) ? pick : undefined);
+  const after: HeroState = { ...hero, rarity: prev.to, ...(nextBranch ? { branch: nextBranch } : {}) };
+  return { from: powerOf(hero), to: powerOf(after) };
+}
+
+/**
+ * Состояние кнопки «Вознести» и понятная причина, если нельзя (первая по важности): нет копий → не выбран корм →
+ * не хватает золота → не выбрана ветка. reason — строка для игрока; ready — можно нажимать.
+ */
+export function ascendButtonState(
+  save: SaveState,
+  heroId: string,
+  chosen: readonly string[],
+  ctx: GameContext,
+  opts: { branchChosen?: boolean } = {},
+): { ready: boolean; reason: string | null } {
+  const hero = save.heroes.find((h) => h.id === heroId);
+  const req = ascendRequirement(save, heroId, ctx);
+  if (!hero || !req) return { ready: false, reason: 'Максимальная редкость' };
+  const slots = fodderSlots(req);
+  const placed = placeFodder(req, chosen);
+  const empty = slots.filter((_, i) => placed[i] === null);
+  // Каких карт нет совсем (свободных подходящих меньше, чем пустых слотов группы).
+  for (let g = 0; g < req.fodder.length; g++) {
+    const f = req.fodder[g];
+    const emptyHere = empty.filter((s) => s.group === g).length;
+    const left = f.candidates.filter((id) => !chosen.includes(id)).length;
+    if (emptyHere > left) {
+      const c = fodderSlotCaption(f, hero, ctx);
+      const n = emptyHere - left;
+      return { ready: false, reason: `Не хватает ${n} ${n === 1 ? 'карты' : 'карт'}: ${c.who === 'Любой' ? 'любой' : c.who}, ${c.rarity}` };
+    }
+  }
+  if (empty.length) return { ready: false, reason: `Положите в корм ещё ${empty.length} ${empty.length === 1 ? 'карту' : 'карты'} — или «Авто»` };
+  if (save.resources.gold < req.gold) return { ready: false, reason: `Не хватает золота: ${formatNumber(req.gold - save.resources.gold)}` };
+  if (needsBranchPick(hero, req.to) && !opts.branchChosen) return { ready: false, reason: 'Выберите ветку второй профессии' };
+  return { ready: true, reason: null };
+}
+
+/**
+ * Короткая подпись под «Вознести» на карточке героя (LT-07 — точная причина): «копии готовы!» / «нужны копии» /
+ * «нужно 20 000 золота»; null — вознести некуда. ready — копии и золото есть.
+ */
+export function ascendHint(save: SaveState, heroId: string, ctx: GameContext): { ready: boolean; text: string } | null {
+  const req = ascendRequirement(save, heroId, ctx);
+  if (!req) return null;
+  if (!req.fodder.every((f) => f.candidates.length >= f.count) || !autoFodder(save, heroId, ctx)) return { ready: false, text: 'нужны копии' };
+  if (save.resources.gold < req.gold) return { ready: false, text: `нужно ${formatNumber(req.gold)} золота` };
+  return { ready: true, text: 'копии готовы!' };
+}
+
+/**
+ * Выбирать ли ветку на экране вознесения: у героя ещё нет ветки, а новая редкость — фиолетовая или выше (синий →
+ * фиолетовый и фиолетовый без ветки после «Вознести всех» → золотой; ядро примет её в actAscend opts.branch).
+ */
+export function needsBranchPick(hero: Pick<HeroState, 'branch'>, to: CardRarity): boolean {
+  return !hero.branch && rarityIndex(to) >= rarityIndex(BRANCH_RARITY);
 }
 
 /** Есть ли в корме ценные карточки (синие и выше) — перед вознесением спросить подтверждение. */

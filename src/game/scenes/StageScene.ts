@@ -2,14 +2,14 @@ import Phaser from 'phaser';
 import { actSkipStage, autoFormation, dropText, enemySquad, getStage, stageCardDrop, stageLevels, stageStatus } from '../../core';
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
-import { formatNumber, recommendedPower, stageSeed } from '../flow';
+import { formatNumber, recommendedPower, stageNo, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { screen } from '../screen';
 import { commit, session, today } from '../session';
-import { button, hintPointer, text, toast } from '../ui';
+import { button, text, toast, tutorialHint } from '../ui';
 import { ctaShine, glow } from '../decor';
 import { skinIcon } from '../skin';
-import { HINT_TEXT, hintDone, markHint } from '../hints';
+import { markHint, pickPrepHint } from '../hints';
 import { startStageBattle } from '../dialogue';
 import { squadDefs, type ResultData } from './BattleScene';
 import { FormationEditor } from '../squadEditor';
@@ -35,6 +35,7 @@ export class StageScene extends Phaser.Scene {
   private stageId!: string;
   private editor!: FormationEditor;
   private fightBtns: ReturnType<typeof button>[] = [];
+  private autoHint: Phaser.GameObjects.Container | null = null;
 
   constructor() {
     super('Stage');
@@ -42,10 +43,11 @@ export class StageScene extends Phaser.Scene {
 
   create(data: { stageId: string }): void {
     this.stageId = data.stageId;
+    this.autoHint = null;
     const stage = getStage(GAME, this.stageId);
     // «Назад» — в главу этого этапа, а не в текущую главу игрока.
     const chapter = Math.max(0, CONTENT.chapters.findIndex((c) => c.id === stage.chapter));
-    screen(this, `Этап ${stage.globalIndex + 1}${stage.boss ? ' · БОСС' : ''}`, null, { to: 'Campaign', data: { chapter } });
+    screen(this, `Этап ${stageNo(stage, GAME)}${stage.boss ? ' · БОСС' : ''}`, null, { to: 'Campaign', data: { chapter } });
 
     // --- Этап и награда ---
     const first = stageStatus(session.save, this.stageId, GAME) !== 'cleared';
@@ -103,7 +105,12 @@ export class StageScene extends Phaser.Scene {
     }
     this.editor.draw();
     // R: подсказка новичку — первый бой. После отряда: hintPointer обходит все кнопки, слоты и карточки сцены.
-    if (first && !hintDone('stage_fight')) hintPointer(this, GAME_W / 2, L.fightY, HINT_TEXT.stage_fight, 'above', { w: 640, h: 150 });
+    // Обучение: после Таверны сильнейшие герои вне отряда — сначала «Авто» (prep_auto), иначе «В бой».
+    const ids = (sq: readonly (string | null)[]) => JSON.stringify(sq.filter(Boolean).sort());
+    const benchStronger = ids(autoFormation(session.save, GAME)) !== ids(session.save.squad);
+    const hint = pickPrepHint({ first, benchStronger, summoned: session.save.summon.firstTenDone });
+    if (hint === 'prep_auto') this.autoHint = tutorialHint(this, hint, 610, L.rosterHeadY, 'above', { w: 220, h: 90 }, { avoidText: ['Нажмите на героя'] });
+    else if (hint === 'stage_fight') tutorialHint(this, hint, GAME_W / 2, L.fightY, 'above', { w: 640, h: 150 });
   }
 
   /** Доступность «В бой» — после каждого изменения отряда (мощь и предупреждение рисует редактор). */
@@ -114,6 +121,9 @@ export class StageScene extends Phaser.Scene {
 
   /** K8: авто-расстановка сильнейших героев. */
   private auto(): void {
+    markHint('prep_auto');
+    this.autoHint?.destroy();
+    this.autoHint = null;
     commit({ ...session.save, squad: autoFormation(session.save, GAME) });
     this.editor.replaced();
     toast(this, 'Отряд расставлен автоматически');

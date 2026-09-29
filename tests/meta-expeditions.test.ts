@@ -26,6 +26,7 @@ import {
   validateExpeditions,
   type CardRarity,
   type SaveState,
+  groupDigits,
 } from '../src/core';
 import { expeditionsBadgeCount } from '../src/game/flow';
 import { loadFullContext } from '../scripts/lib/content-node';
@@ -68,8 +69,9 @@ const power = (s: SaveState, id: string) => heroPower(s.heroes.find((h) => h.id 
 const sumPower = (s: SaveState, ids: readonly string[]) => ids.reduce((n, id) => n + power(s, id), 0);
 
 describe('K9 экспедиции: конфиг', () => {
-  it('4 локации открываются по ходу кампании, сроки 1 / 4 / 8 ч, пороги мощи растут', () => {
-    expect(LOCS.map((l) => l.id)).toEqual(['ant_hell', 'payon_cave', 'morroc_pyramid', 'clock_tower']);
+  it('8 локаций открываются по ходу кампании (4 — главы 1–3, по одной на главы 4–7), сроки 1 / 4 / 8 ч, пороги мощи растут', () => {
+    expect(LOCS.map((l) => l.id)).toEqual(['ant_hell', 'payon_cave', 'morroc_pyramid', 'clock_tower', 'sphinx_dungeon', 'kitsune_shrine', 'ghost_ship', 'gyoll_valley']);
+    expect(LOCS.slice(4).map((l) => l.stage)).toEqual(['ch4_s1', 'ch5_s1', 'ch6_s1', 'ch7_s1']);
     expect(ctx.meta.expeditions.durations.map((d) => d.hours)).toEqual([1, 4, 8]);
     const order = LOCS.map((l) => ctx.content.stages.findIndex((s) => s.id === l.stage));
     expect(order.every((x, i) => x >= 0 && (i === 0 || x > order[i - 1]))).toBe(true);
@@ -90,7 +92,7 @@ describe('K9 экспедиции: конфиг', () => {
     expect(ok).toEqual([]);
   });
 
-  it('длинные экспедиции выгоднее в час; за сутки (3 × 4 ч + 8 ч) все четыре локации дают ≈ бюджет доски поручений', () => {
+  it('длинные экспедиции выгоднее в час; за сутки (3 × 4 ч + 8 ч) четыре локации глав 1–3 дают ≈ бюджет доски поручений', () => {
     for (const l of LOCS) {
       const perHour = (h: number) => expectedExpeditionLoot(l, h, ctx).gold / h;
       expect(perHour(4)).toBeGreaterThan(perHour(1));
@@ -98,7 +100,7 @@ describe('K9 экспедиции: конфиг', () => {
     }
     expect(lootHours(8, ctx)).toBeCloseTo(9.6);
     const day = { gold: 0, jobExp: 0, gems: 0, heroCards: 0, items: 0, scrolls: 0 };
-    for (const l of LOCS) {
+    for (const l of LOCS.slice(0, 4)) {
       for (const h of [4, 4, 4, 8]) {
         const e = expectedExpeditionLoot(l, h, ctx);
         for (const k of Object.keys(day) as (keyof typeof day)[]) day[k] += e[k];
@@ -117,13 +119,24 @@ describe('K9 экспедиции: конфиг', () => {
     expect(day.items).toBeLessThan(2);
     expect(day.scrolls).toBeLessThan(0.3);
   });
+
+  it('локации глав 4–7 (LT-05): золото и опыт растут с главой, гемов мало (добавка к бюджету ≤ 15 в день на все четыре)', () => {
+    const late = LOCS.slice(4);
+    late.forEach((l, i) => {
+      expect(l.perHour.gold, l.id).toBeGreaterThan((i === 0 ? LOCS[3] : late[i - 1]).perHour.gold * 1.4);
+      expect(l.perHour.jobExp, l.id).toBeGreaterThan(l.perHour.gold);
+    });
+    let gems = 0;
+    for (const l of late) for (const h of [4, 4, 4, 8]) gems += expectedExpeditionLoot(l, h, ctx).gems;
+    expect(gems).toBeLessThanOrEqual(15);
+  });
 });
 
 describe('K9 экспедиции: отправка', () => {
   it('закрытая и неизвестная локация, неверный срок', () => {
     const s = newGame(ctx, T0, D1);
     expect(codeOf(() => startExpedition(s, 'ant_hell', 4, T0, ctx))).toBe('location_locked');
-    expect(() => startExpedition(s, 'ant_hell', 4, T0, ctx)).toThrow(/Откроется на этапе 1-8/i);
+    expect(() => startExpedition(s, 'ant_hell', 4, T0, ctx)).toThrow(/Откроется на этапе 1-12/i); // глава 1 — 18 этапов: ch1_s8 двенадцатый
     const open = clearedTo('ch1_s8');
     expect(codeOf(() => startExpedition(open, 'nowhere', 4, T0, ctx))).toBe('unknown_location');
     expect(codeOf(() => startExpedition(open, 'ant_hell', 3, T0, ctx))).toBe('invalid_duration');
@@ -156,7 +169,7 @@ describe('K9 экспедиции: отправка', () => {
     expect(pick.power).toBe(top5);
     expect(pick.need).toBe(loc('clock_tower').power);
     expect(codeOf(() => startExpedition(s, 'clock_tower', 8, T0, ctx))).toBe('not_enough_power');
-    expect(() => startExpedition(s, 'clock_tower', 8, T0, ctx)).toThrow(`${pick.power} / нужно ${pick.need}`);
+    expect(() => startExpedition(s, 'clock_tower', 8, T0, ctx)).toThrow(`${groupDigits(pick.power)} / нужно ${groupDigits(pick.need)}`); // числа — с разрядами (LT-07)
   });
 
   it('автоподбор: сначала те, кого нельзя отдать в корм (отряд, сюжетные), копии — последними; лишних нет', () => {

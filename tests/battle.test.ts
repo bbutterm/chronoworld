@@ -220,3 +220,24 @@ describe('пассивки', () => {
     }
   });
 });
+
+describe('щит (LT-01)', () => {
+  it('щиты складываются только до потолка — доли макс. ОЗ носителя', () => {
+    const c = content(
+      [
+        unitDef('turtle', { skills: { basic: 'shot', passives: ['bark'] } }, { hp: 10_000, atk: 1, def: 1000 }),
+        unitDef('hitter', noUlt, { hp: 100_000, atk: 50 }),
+      ],
+      [skill('bark', { trigger: 'hit', target: { side: 'ally', pick: 'self' }, effects: [{ type: 'shield', pctMaxHp: 0.2 }] })],
+    );
+    const r = simulateBattle(c, ['hitter', 'hitter', 'hitter'], ['turtle'], 1);
+    const cap = Math.floor(10_000 * (cfg.shieldCapPctMaxHp ?? 0.5));
+    const shields = of(r.log, 'buff').filter((e) => e.target === 'B0' && e.kind === 'shield');
+    expect(shields.length).toBeGreaterThan(5);
+    for (const e of shields) {
+      expect(e.shield ?? 0).toBeLessThanOrEqual(cap);
+      expect(e.amount).toBeGreaterThanOrEqual(0);
+    }
+    expect(Math.max(...shields.map((e) => e.shield ?? 0))).toBe(cap);
+  });
+});

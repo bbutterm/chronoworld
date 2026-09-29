@@ -3,7 +3,7 @@
  */
 import { heroGender, heroName, storyOrder, type Gender, type GameContext, type HeroState, type SaveState, type SpeakerDef, type StageInfo, type StoryContext, type StoryDef, type StoryScene } from '../core';
 import { genderedSpriteId } from '../pipeline/sprites';
-import { heroSprite } from './flow';
+import { heroSprite, stageNo } from './flow';
 import { hasSprite } from './spriteRegistry';
 
 export interface SpeakerView {
@@ -71,7 +71,7 @@ export function sceneLabel(scene: StoryScene, ctx: GameContext): string {
   if (scene.trigger === 'chapterStart') return 'Вступление';
   if (isChapterFinale(scene, ctx)) return 'Финал главы';
   const stage = ctx.content.stages.find((s) => s.id === scene.stageId);
-  const n = stage ? stage.globalIndex + 1 : '?';
+  const n = stage ? stageNo(stage, ctx) : '?';
   return scene.trigger === 'beforeStage' ? `Перед этапом ${n}${stage?.boss ? ' (босс)' : ''}` : `После этапа ${n}`;
 }
 

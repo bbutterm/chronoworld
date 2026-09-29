@@ -11,13 +11,15 @@
     { "unit": "mob_moonlight", "hpMult": 180, "atkMult": 1, "defMult": 1, "scale": 1.6, "title": "Лиса из лунного сада" }
   ],
   "tiers": [
-    { "damage": 5000, "rewards": { "gold": 450, "jobExp": 100 } },
-    { "damage": 15000, "rewards": { "gold": 750, "jobExp": 150, "gems": 2 } },
-    { "damage": 30000, "rewards": { "gold": 1050, "jobExp": 200, "gems": 3 } },
-    { "damage": 50000, "rewards": { "gold": 1350, "jobExp": 250, "gems": 4 } },
-    { "damage": 80000, "rewards": { "gold": 1800, "jobExp": 350, "gems": 5, "heroCards": { "blue": 0.03 } } },
-    { "damage": 120000, "rewards": { "gold": 2250, "jobExp": 450, "gems": 6, "heroCards": { "blue": 0.03 }, "item": "common" } },
-    { "damage": 180000, "rewards": { "gold": 3000, "jobExp": 600, "gems": 8, "heroCards": { "blue": 0.07 }, "item": "rare" } },
-    { "damage": 260000, "rewards": { "gold": 3750, "jobExp": 750, "gems": 10, "heroCards": { "blue": 0.07, "purple": 0.01 }, "item": "epic" } }
+    { "damage": 5000, "rewards": { "gold": 1200, "jobExp": 1700 } },
+    { "damage": 15000, "rewards": { "gold": 2000, "jobExp": 2800, "gems": 2 } },
+    { "damage": 30000, "rewards": { "gold": 3200, "jobExp": 4500, "gems": 3 } },
+    { "damage": 50000, "rewards": { "gold": 4800, "jobExp": 6700, "gems": 4 } },
+    { "damage": 80000, "rewards": { "gold": 7000, "jobExp": 9800, "gems": 5, "heroCards": { "blue": 0.03 } } },
+    { "damage": 120000, "rewards": { "gold": 10000, "jobExp": 14000, "gems": 6, "heroCards": { "blue": 0.03 }, "item": "common" } },
+    { "damage": 180000, "rewards": { "gold": 15000, "jobExp": 21000, "gems": 8, "heroCards": { "blue": 0.07 }, "item": "rare" } },
+    { "damage": 260000, "rewards": { "gold": 22000, "jobExp": 31000, "gems": 10, "heroCards": { "blue": 0.07, "purple": 0.01 }, "item": "epic" } },
+    { "damage": 380000, "rewards": { "gold": 32000, "jobExp": 45000, "gems": 10, "heroCards": { "blue": 0.1, "purple": 0.015 }, "item": "epic" } },
+    { "damage": 550000, "rewards": { "gold": 45000, "jobExp": 63000, "gems": 10, "heroCards": { "blue": 0.12, "purple": 0.02 }, "item": "epic" } }
   ]
 }

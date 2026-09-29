@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { actClaimActivity, actClaimAllQuests, actClaimQuest, questStatus, type MilestoneRewards, type MilestoneView, type QuestView } from '../../core';
 import { GAME } from '../content';
-import { claimableCount, describeEvents, formatNumber, questDestination, untilReset } from '../flow';
+import { claimableCount, describeEvents, formatNumber, gemsText, pointsText, questDestination, untilReset } from '../flow';
 import { GAME_W } from '../layout';
 import { card, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
 import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 import { commit, now, restartOnNewDay, session, today } from '../session';
 import { button, emptyState, progressBar, ScrollArea, text, toast } from '../ui';
+import { markHint } from '../hints';
 import { SKIN, SKIN_TINT, skinIcon } from '../skin';
 import { C, FS, TINT } from '../theme';
 
@@ -29,6 +30,8 @@ export class QuestsScene extends Phaser.Scene {
 
   create(): void {
     screen(this, 'Задания дня', 'Home', { to: 'Home' });
+    // Обучение (hints.ts): последний шаг цепочки главы 1 — задания открыты и найдены.
+    markHint('quests_open');
     restartOnNewDay(this);
     const st = questStatus(session.save, GAME, today());
 
@@ -106,7 +109,7 @@ export class QuestsScene extends Phaser.Scene {
       stroke: onGold ? C.none : C.stroke,
       strokeThickness: onGold ? 0 : 4,
     }));
-    a.add(text(this, 600, y + h * 0.22, `+${q.points} очк.`, FS.body, dark ? C.inkMuted : C.success, { fontStyle: 'bold' }));
+    a.add(text(this, 600, y + h * 0.22, `+${pointsText(q.points)}`, FS.body, dark ? C.inkMuted : C.success, { fontStyle: 'bold' }));
 
     const bx = 880;
     if (q.claimed) {
@@ -181,8 +184,8 @@ export class QuestsScene extends Phaser.Scene {
 /** Награда порога: «200 золота», «20 гемов», «100 опыта» (по строке на вид). */
 function rewardText(r: MilestoneRewards): string {
   const parts: string[] = [];
-  if (r.gold) parts.push(`${formatNumber(r.gold)} зол.`);
-  if (r.gems) parts.push(`${formatNumber(r.gems)} гем.`);
+  if (r.gold) parts.push(`${formatNumber(r.gold)} золота`);
+  if (r.gems) parts.push(gemsText(r.gems));
   if (r.jobExp) parts.push(`${formatNumber(r.jobExp)} опыта`);
   return parts.join('\n') || '—';
 }

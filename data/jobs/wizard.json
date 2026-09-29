@@ -2,6 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "wizard",
   "name": "Волшебник",
+  "nameF": "Волшебница",
   "description": "Вторая профессия Мага: разрушительная магия по площади.",
   "tier": 2,
   "from": [

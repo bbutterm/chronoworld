@@ -11,7 +11,7 @@ type Ctx = CanvasRenderingContext2D;
 
 const S = 96;
 
-type Shape = Slot | 'bow' | 'staff' | 'axe';
+type Shape = Slot | 'bow' | 'staff' | 'axe' | 'knuckle' | 'violin';
 
 const DRAW: Record<Shape, (c: Ctx) => void> = {
   weapon: (c) => {
@@ -163,14 +163,70 @@ const DRAW: Record<Shape, (c: Ctx) => void> = {
     c.fillStyle = '#c0c0c0';
     c.fillRect(30, 12, 28, 8);
   },
+  knuckle: (c) => {
+    // Кастет: четыре кольца на пальцы и упор под ладонь.
+    c.fillStyle = '#e0e0e0';
+    // Скруглённая планка (без roundRect — его нет в старых WebView).
+    c.fillRect(24, 30, 48, 30);
+    c.beginPath();
+    c.arc(24, 45, 15, 0, Math.PI * 2);
+    c.arc(72, 45, 15, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#b0b0b0';
+    c.beginPath();
+    c.moveTo(22, 58);
+    c.quadraticCurveTo(48, 90, 74, 58);
+    c.lineTo(66, 58);
+    c.quadraticCurveTo(48, 78, 30, 58);
+    c.closePath();
+    c.fill();
+    c.fillStyle = '#4a4a4a';
+    for (let i = 0; i < 4; i++) {
+      c.beginPath();
+      c.arc(22 + i * 17.3, 45, 6.5, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.fillStyle = '#ffffff';
+    for (let i = 0; i < 4; i++) c.fillRect(17 + i * 17.3, 32, 10, 4);
+  },
+  violin: (c) => {
+    // Скрипка по диагонали: корпус «восьмёркой», гриф, завиток; смычок поперёк.
+    c.save();
+    c.translate(S / 2, S / 2);
+    c.rotate(-Math.PI / 5);
+    c.fillStyle = '#e8e8e8';
+    c.beginPath();
+    c.ellipse(0, 18, 18, 17, 0, 0, Math.PI * 2);
+    c.ellipse(0, -8, 14, 13, 0, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#9a9a9a';
+    c.fillRect(-3, -44, 6, 40);
+    c.beginPath();
+    c.arc(0, -46, 6, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#5a5a5a';
+    c.fillRect(-7, 4, 4, 10);
+    c.fillRect(3, 4, 4, 10);
+    c.fillRect(-8, 24, 16, 4);
+    c.restore();
+    c.strokeStyle = '#c8c8c8';
+    c.lineWidth = 4;
+    c.beginPath();
+    c.moveTo(18, 22);
+    c.lineTo(80, 76);
+    c.stroke();
+  },
 };
 
-/** Форма иконки: слот, а у оружия — вид по id предмета (лук, посох, топор; остальное — клинок). */
+/** Форма иконки: слот, а у оружия — вид по id предмета (лук, посох, топор, кастет, скрипка; остальное — клинок). */
 function shapeOf(slot: Slot, itemId = ''): Shape {
   if (slot !== 'weapon') return slot;
   if (/bow|arbalest/.test(itemId)) return 'bow';
   if (/staff|rod|mace/.test(itemId)) return 'staff';
   if (/axe/.test(itemId)) return 'axe';
+  // MT-13: кастет и скрипка — не клинок (было не отличить от «Меча»).
+  if (/knuckle|claw|fist/.test(itemId)) return 'knuckle';
+  if (/violin|guitar|lute|harp/.test(itemId)) return 'violin';
   return 'weapon';
 }
 

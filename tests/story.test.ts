@@ -20,6 +20,8 @@ const cleared = (save: SaveState, n: number): SaveState => ({
   ...save,
   campaign: { cleared: ctx.content.stages.slice(0, n).map((s) => s.id) },
 });
+/** Сколько этапов кампании стоит перед этапом id (глава 1 — 18 этапов, вставные ch1_s11…s18 между выпущенными). */
+const before = (id: string) => ctx.content.stages.findIndex((s) => s.id === id);
 
 /** Сюжет главы 1 с правкой — проблемы сборки. */
 const problemsWith = (edit: (story: any) => void): string[] => {
@@ -39,7 +41,21 @@ describe('сюжет: данные', () => {
   it('data/story/chapter1.json загружается в контекст', () => {
     expect(ctx.story.chapters.chapter1).toBeDefined();
     const ch1 = ctx.story.scenes.filter((s) => s.chapter === 'chapter1');
-    expect(ids(ch1)).toEqual(['ch1_intro', 'ch1_s1_before', 'ch1_s4_before', 'ch1_s4_after', 'ch1_s7_before', 'ch1_s10_before', 'ch1_outro']);
+    expect(ids(ch1)).toEqual([
+      'ch1_intro',
+      'ch1_s1_before',
+      'ch1_s11_after',
+      'ch1_s4_before',
+      'ch1_s4_after',
+      'ch1_s5_after',
+      'ch1_s6_after',
+      'ch1_s7_before',
+      'ch1_s15_after',
+      'ch1_s16_after',
+      'ch1_s18_before',
+      'ch1_s10_before',
+      'ch1_outro',
+    ]);
   });
 
   it('data/story/chapter2.json: вступление, сцена босса и знакомство с Дорном (QA T5-27)', () => {
@@ -63,7 +79,7 @@ describe('сюжет: данные', () => {
     expect(problemsWith((s) => (s.scenes[0].lines[0].speaker = 'nobody')).join('\n')).toMatch(/спикер nobody не объявлен/);
     expect(problemsWith((s) => (s.scenes[0].lines[0].text = 'а'.repeat(121))).join('\n')).toMatch(/длиннее 120/);
     expect(problemsWith((s) => (s.scenes[2].id = 'ch1_intro')).join('\n')).toMatch(/id уже занят/);
-    expect(problemsWith((s) => (s.scenes[2].stageId = 'ch1_s1')).join('\n')).toMatch(/вторая сцена beforeStage/);
+    expect(problemsWith((s) => (s.scenes.find((x: { id: string }) => x.id === 'ch1_s4_before').stageId = 'ch1_s1')).join('\n')).toMatch(/вторая сцена beforeStage/);
   });
 
   it('stageId обязателен для before/afterStage, bossIntro — только у босс-этапа', () => {
@@ -98,22 +114,22 @@ describe('сюжет: какую сцену показать', () => {
 
   it('beforeStage — только на открытом не пройденном этапе', () => {
     expect(pendingScenes(save0, { type: 'beforeStage', stageId: 'ch1_s4' }, ctx)).toEqual([]); // закрыт
-    expect(ids(pendingScenes(cleared(save0, 3), { type: 'beforeStage', stageId: 'ch1_s4' }, ctx))).toEqual(['ch1_s4_before']);
-    expect(pendingScenes(cleared(save0, 4), { type: 'beforeStage', stageId: 'ch1_s4' }, ctx)).toEqual([]); // повтор
+    expect(ids(pendingScenes(cleared(save0, before('ch1_s4')), { type: 'beforeStage', stageId: 'ch1_s4' }, ctx))).toEqual(['ch1_s4_before']);
+    expect(pendingScenes(cleared(save0, before('ch1_s4') + 1), { type: 'beforeStage', stageId: 'ch1_s4' }, ctx)).toEqual([]); // повтор
     expect(pendingScenes(cleared(save0, 1), { type: 'beforeStage', stageId: 'ch1_s2' }, ctx)).toEqual([]); // сцены нет
   });
 
   it('afterStage — только при первой победе', () => {
-    const s = cleared(save0, 4);
+    const s = cleared(save0, before('ch1_s4') + 1);
     expect(ids(pendingScenes(s, { type: 'afterStage', stageId: 'ch1_s4', firstClear: true }, ctx))).toEqual(['ch1_s4_after']);
     expect(pendingScenes(s, { type: 'afterStage', stageId: 'ch1_s4', firstClear: false }, ctx)).toEqual([]);
     expect(pendingScenes(markScenesSeen(s, ['ch1_s4_after']), { type: 'afterStage', stageId: 'ch1_s4', firstClear: true }, ctx)).toEqual([]);
-    const boss = pendingScenes(cleared(save0, 10), { type: 'afterStage', stageId: 'ch1_s10', firstClear: true }, ctx);
+    const boss = pendingScenes(cleared(save0, before('ch1_s10') + 1), { type: 'afterStage', stageId: 'ch1_s10', firstClear: true }, ctx);
     expect(ids(boss)).toEqual(['ch1_outro']);
   });
 
   it('босс-этап: сцена с bossIntro', () => {
-    const [s] = pendingScenes(cleared(save0, 9), { type: 'beforeStage', stageId: 'ch1_s10' }, ctx);
+    const [s] = pendingScenes(cleared(save0, before('ch1_s10')), { type: 'beforeStage', stageId: 'ch1_s10' }, ctx);
     expect(s.id).toBe('ch1_s10_before');
     expect(s.bossIntro).toEqual({ title: 'Мастеринг', subtitle: 'Король порингов' });
   });

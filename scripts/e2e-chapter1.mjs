@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 // Прохождение главы 1 через интерфейс, как новый игрок: новая игра (Алан, Бран, Вика — зелёные карточки ур. 1) →
-// этапы 1–10 (Кампания → этап → «В бой» → «Пропустить»; поражение — «Повторить»), после каждой победы опыт из общего
+// этапы 1–18 (глава 1 растянута: порядок — data/campaign/chapter1.json, босс ch1_s10 последний; карта — двумя участками)
+// (Кампания → этап → «В бой» → «Пропустить»; поражение — «Повторить»), после каждой победы опыт из общего
 // запаса тратится кнопкой «Улучшить» на карточке героя (по уровню самому низкому герою отряда). Сюжетные диалоги:
 // вступление главы пролистывается касаниями, остальные закрываются «Пропустить» (кнопка проверяется на перекрытие,
-// как и остальные). После этапа 5 (подарок Таверны: гемы и 10 свитков) — как игрок: Главная → Таверна → «Бесплатно»
-// и «Свитки ×10» → «Открыть все» → «Готово»; на экране этапа «Авто» ставит сильнейших (и перед каждым боем с этапа 6).
+// как и остальные). После ch1_s5 (6-й этап; подарок Таверны: гемы и 10 свитков) — как игрок: Город → Таверна → «Бесплатно»
+// и «Свитки ×10» → «Открыть все» → «Готово»; на экране этапа «Авто» ставит сильнейших (и перед каждым боем после Таверны).
+// Ведущее обучение (src/game/hints.ts): каждая показанная подсказка записывается (id) и проверяется — плашка не закрывает
+// кнопки (hintOverlap 0); шаги выполняются, как их показывает указатель. В конце — реальное время главы (бои на «Пропустить»).
 // В журнале у каждой попытки — мощь отряда против рекомендуемой (stagePowerCheck). Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
-//   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке)
+//   npm run e2e:chapter1        (скриншоты — в E2E_SHOTS_DIR или во временной папке; экран — E2E_VIEWPORT, например 360x640)
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -33,7 +36,9 @@ for (let i = 0; i < 150; i++) {
   await sleep(200);
 }
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 540, height: 960 } });
+// E2E_VIEWPORT=390x844 — прогон на другом экране телефона (раскладка подсказок и кнопок); по умолчанию 540×960.
+const [VW, VH] = (process.env.E2E_VIEWPORT ?? '540x960').split('x').map(Number);
+const page = await browser.newPage({ viewport: { width: VW, height: VH } });
 const problems = [];
 page.on('console', (m) => m.type() === 'error' && !/favicon/.test(m.location()?.url ?? '') && problems.push(`console.error: ${m.text()}`));
 page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`));
@@ -190,6 +195,42 @@ const tapThroughDialogue = async (sceneKey, shotName) => {
 };
 let seenDialogues = 0;
 
+/** Подсказки обучения, увиденные за прогон: id → сколько раз (шаг может указывать дважды: вкладка → цель). */
+const hintsSeen = new Map();
+/** Экран:подсказка, для которых уже снят скриншот (одна подсказка бывает на нескольких экранах: вкладка → цель). */
+const hintShots = new Set();
+/** Записать подсказку на экране (hints.ts): id и перекрытие кнопок плашкой. */
+const recordHint = async (sceneKey) => {
+  // Плашку hintPointer раскладывает на следующем кадре (и после диалога/баннера) — подождать, пока она встанет.
+  for (let i = 0; i < 25; i++) {
+    const pending = await page.evaluate((k) => {
+      if (!window.__game.scene.isActive(k)) return false;
+      return window.__game.scene.getScene(k).children.list.some((o) => o.name === 'hint' && o.active && !o.getData?.('hintBox'));
+    }, sceneKey);
+    if (!pending) break;
+    await sleep(200);
+  }
+  const h = await page.evaluate((k) => {
+    if (!window.__game.scene.isActive(k)) return null;
+    const list = window.__game.scene.getScene(k).children.list;
+    const c = list.find((o) => o.getData?.('hintBox') && o.active);
+    const txt = c?.list?.find((o) => o.type === 'Text' && o.name !== 'hintSkip')?.text;
+    const count = list.filter((o) => o.name === 'hint' && o.active).length;
+    return c ? { id: c.getData('hintId') ?? txt, overlap: c.getData('hintOverlap'), side: c.getData('hintSide'), mode: c.getData('hintMode'), count } : null;
+  }, sceneKey);
+  if (!h) return null;
+  // Одна подсказка за раз (MT-07): hintPointer убирает прежнюю.
+  if (h.count > 1) problems.push(`[${sceneKey}] на экране ${h.count} подсказки сразу`);
+  if (!hintsSeen.has(h.id) || !hintShots.has(`${sceneKey}:${h.id}`)) {
+    hintShots.add(`${sceneKey}:${h.id}`);
+    log(`подсказка [${sceneKey}]: ${h.id}${h.mode === 'ring' ? ' (плашке нет места — рамка и сообщение)' : ''}`);
+    await shot(`hint-${sceneKey}-${String(h.id).replace(/[^a-z0-9_]/gi, '').slice(0, 24) || 'text'}`);
+  }
+  hintsSeen.set(h.id, (hintsSeen.get(h.id) ?? 0) + 1);
+  if (h.overlap !== 0) problems.push(`[${sceneKey}] подсказка ${h.id}: плашка закрывает кнопки (перекрытие ${h.overlap}, сторона ${h.side})`);
+  return h.id;
+};
+
 /**
  * «Улучшить» через интерфейс: Герои → карточка героя (самого низкого уровня в отряде) → «Улучшить», пока опыта и
  * золота хватает (уровень в сохранении перестал расти — стоп). Возвращает число поднятых уровней.
@@ -197,6 +238,7 @@ let seenDialogues = 0;
 const levelUpSquad = async (shotName) => {
   await clickText('Campaign', 'ГЕРОИ');
   await waitScene('Heroes');
+  await recordHint('Heroes');
   let levels = 0;
   const stuck = new Set();
   for (let n = 0; n < 40; n++) {
@@ -209,6 +251,8 @@ const levelUpSquad = async (shotName) => {
       active.scene.start('Hero', { heroId: id });
     }, hero.id);
     await waitScene('Hero');
+    // Подсказки карточки героя («Улучшить», «Вознести», трофеи) — не закрывают вкладки и кнопки (LT-10).
+    await recordHint('Hero');
     if (!(await findText('Hero', 'Улучшить'))) {
       stuck.add(hero.id);
       continue;
@@ -226,6 +270,57 @@ const levelUpSquad = async (shotName) => {
   await clickText('Hero', 'КАМПАНИЯ');
   await waitScene('Campaign');
   return levels;
+};
+
+/**
+ * Шаг обучения «вознесение» (указатель на вкладку «Герои»): как игрок — карточка героя, которого можно вознести копиями
+ * (flow.ts ascendReady) → «Вознести» → «Авто» (корм) → «Вознести» → подтверждение → «Отлично!» → «Кампания».
+ */
+const ascendStep = async () => {
+  const heroId = await page.evaluate(async () => {
+    const [{ ascendReady }, { GAME }, { session }] = await Promise.all([
+      import('/src/game/flow.ts'),
+      import('/src/game/content.ts'),
+      import('/src/game/session.ts'),
+    ]);
+    return ascendReady(session.save, GAME)[0]?.id ?? null;
+  });
+  if (!heroId) throw new Error('указатель «вознести», но вознести некого');
+  const before = (await save()).heroes.find((h) => h.id === heroId);
+  await clickText('Campaign', 'ГЕРОИ');
+  await waitScene('Heroes');
+  // Тело в фигурных скобках: scene.start возвращает ScenePlugin (циклический граф) — его сериализация вешает evaluate.
+  await page.evaluate((id) => {
+    window.__game.scene.getScenes(true)[0].scene.start('Hero', { heroId: id });
+  }, heroId);
+  await waitScene('Hero');
+  await clickText('Hero', 'Вознести');
+  await waitScene('Ascend');
+  await clickText('Ascend', 'Авто');
+  await sleep(500);
+  await shot('ascend');
+  // Кнопка — «Вознести · N золота» (цена в подписи).
+  const ascLabel = await page.evaluate(() => {
+    const all = (list) => list.flatMap((o) => (o.list ? [o, ...all(o.list)] : [o]));
+    return all(window.__game.scene.getScene('Ascend').children.list).find((o) => o.type === 'Text' && o.visible && o.text.startsWith('Вознести'))?.text ?? null;
+  });
+  if (!ascLabel) throw new Error('на экране вознесения нет кнопки «Вознести…»');
+  await clickText('Ascend', ascLabel);
+  await sleep(500);
+  // Подтверждение (confirm): кнопка «Вознести» модального окна — самая верхняя.
+  await clickText('Ascend', 'Вознести', true);
+  await sleep(1500);
+  const after = (await save()).heroes.find((h) => h.id === heroId);
+  if (!after || after.rarity === before.rarity) throw new Error(`вознесение ${before.templateId} ${before.rarity} не прошло`);
+  log(`обучение: вознесение ${before.templateId} ${before.rarity} → ${after.rarity}`);
+  if (await findText('Ascend', 'Отлично!', true)) {
+    await clickText('Ascend', 'Отлично!', true);
+    await waitScene('Hero');
+  }
+  const active = await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key);
+  await clickText(active, 'КАМПАНИЯ');
+  await waitScene('Campaign');
+  await skipDialogues('Campaign');
 };
 
 /** Мощь отряда против рекомендуемой мощи этапа (для отчёта при поражении; считает ядро в браузере). */
@@ -246,13 +341,17 @@ const powerLine = (stageId) =>
  * «Бесплатно» (если есть) и «Свитки ×10» → «Открыть все» → итог (скриншот) → «Готово» → «‹ Назад» в «Город».
  */
 const visitTavern = async () => {
+  await recordHint('Campaign');
   await clickText('Campaign', 'ГОРОД');
   await waitScene('Home');
   await skipDialogues('Home');
+  await recordHint('Home');
   await clickText('Home', 'Таверна');
   await waitScene('Tavern');
   await sleep(600);
   await shot('tavern');
+  // Подарок Гаррета кампания выдаёт сама (grantTavernWelcome) — указатель на ×10.
+  await recordHint('Tavern');
   const before = (await save()).heroes.length;
   const pulls = [];
   if (await findText('Tavern', 'Бесплатно')) pulls.push('Бесплатно');
@@ -288,8 +387,9 @@ const visitTavern = async () => {
 
 /** Экран этапа → «Авто» (сильнейшие герои по ролям) → «‹ Назад» на карту. */
 const autoSquad = async (stage, shotName) => {
-  await clickText('Campaign', String(stage));
+  await clickText('Campaign', `1-${stage}`);
   await waitScene('Stage');
+  if ((await recordHint('Stage')) !== 'prep_auto') problems.push('после Таверны на расстановке нет подсказки «Авто»');
   await clickText('Stage', 'Авто');
   await sleep(500);
   if (shotName) await shot(shotName);
@@ -312,6 +412,14 @@ const chapterDone = async () => {
   await sleep(600);
   await shot('chapter-history');
   if (!(await findText('ChapterDone', '▶  Финал главы'))) throw new Error('в «Истории» нет финала главы');
+  // NB-01: все сцены главы (13) — список прокручивается, первая — «Вступление»; к финалу — колесом вниз.
+  if (!(await findText('ChapterDone', '▶  Вступление'))) throw new Error('в «Истории» нет «Вступления» (видны не все сцены)');
+  {
+    const box = await page.locator('canvas').boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.wheel(0, 3000);
+    await sleep(400);
+  }
   await clickText('ChapterDone', '▶  Финал главы');
   await sleep(600);
   if (!(await dialogueOpen('ChapterDone'))) throw new Error('«История»: сцена не открылась');
@@ -339,6 +447,20 @@ const afterLoss = async () => {
     await skipDialogues('Campaign');
     log('после поражения: бесплатные быстрые награды');
   }
+  // Как живой игрок: подождать сундук офлайн-наград (режим тестировщика «+12 ч»), собрать и улучшить героев.
+  if (await findText('Campaign', '+12 ч')) {
+    await clickText('Campaign', '+12 ч');
+    await sleep(900);
+    await waitScene('Campaign');
+    await skipDialogues('Campaign');
+    if (await findText('Campaign', 'Собрать')) {
+      await clickText('Campaign', 'Собрать');
+      await sleep(900);
+      await waitScene('Campaign');
+      await skipDialogues('Campaign');
+      log('после поражения: +12 ч, сундук собран');
+    }
+  }
   const levels = await levelUpSquad();
   log(`после поражения: «Улучшить» +${levels} ур.`);
 };
@@ -351,7 +473,16 @@ try {
   // Игра открывается на странице «Кампания» (вступление главы — там же).
   await waitScene('Campaign', 60000);
   await shot('campaign-new');
-  for (let stage = 1; stage <= 10; stage++) {
+  const t0 = Date.now();
+  // Порядок этапов главы 1 — порядок массива (вставные ch1_s11… между выпущенными; босс ch1_s10 — последний).
+  const order = JSON.parse(readFileSync('data/campaign/chapter1.json', 'utf8')).stages.map((x) => x.id);
+  const TAVERN = order.indexOf('ch1_s5') + 1;
+  const LAST = order.length;
+  const MID = Math.ceil(LAST / 2);
+  const splits = [];
+  for (let stage = 1; stage <= LAST; stage++) {
+    const stageId = order[stage - 1];
+    const ts = Date.now();
     let won = false;
     for (let t = 1; t <= MAX_TRIES && !won; t++) {
       // После поражения — как игрок: бесплатные быстрые награды на главной, «Улучшить» и снова в бой.
@@ -366,60 +497,114 @@ try {
           await tapThroughDialogue('Campaign', 'dialogue-intro');
         }
         await skipDialogues('Campaign');
-        await clickText('Campaign', String(stage));
+        const ch = await recordHint('Campaign');
+        if (stage === 1 && ch !== 'home_campaign') problems.push(`новичок: на карте нет подсказки «В бой» (${ch})`);
+        // Быстрые награды — шаг обучения: бесплатно раз в день, указатель на кнопку.
+        if (ch === 'fast_rewards') {
+          await clickText('Campaign', 'Бесплатно');
+          await sleep(500);
+          await clickText('Campaign', 'Забрать', true);
+          await sleep(800);
+          await waitScene('Campaign');
+          await skipDialogues('Campaign');
+          log('обучение: быстрые награды забраны');
+        }
+        // Вознесение копиями — шаг после Таверны: указатель на «Герои», игрок возносит героя.
+        if ((await recordHint('Campaign')) === 'ascend') await ascendStep();
+        // Задания дня — последний шаг: Город → плитка «Задания» → назад.
+        if ((await recordHint('Campaign')) === 'quests_open') {
+          await clickText('Campaign', 'ГОРОД');
+          await waitScene('Home');
+          await skipDialogues('Home');
+          if ((await recordHint('Home')) !== 'quests_open') problems.push('в Городе нет указателя на задания');
+          await clickText('Home', 'Задания');
+          await waitScene('Quests');
+          await sleep(400);
+          await shot('quests');
+          await clickText('Quests', 'КАМПАНИЯ');
+          await waitScene('Campaign');
+          await skipDialogues('Campaign');
+          log('обучение: задания открыты');
+        }
+        await clickText('Campaign', `1-${stage}`);
         await waitScene('Stage');
+        const prepHint = await recordHint('Stage');
+        if (prepHint === 'prep_auto' && stage <= TAVERN) problems.push(`этап ${stage}: подсказка «Авто» до первого призыва в Таверне`);
         // Как игрок с новыми героями из Таверны: перед боем — «Авто» (сильнейшие по ролям).
-        if (stage > 5) {
+        if (stage > TAVERN || prepHint === 'prep_auto') {
           await clickText('Stage', 'Авто');
           await sleep(400);
         }
-        if (stage === 1 || stage === 5 || stage === 10) await shot(`stage${stage}`);
+        if (stage === 1 || stage === TAVERN || stage === LAST) await shot(`stage${stage}`);
         await clickText('Stage', 'В бой');
-        // Сюжет перед боем (этапы 1, 4, 7, 10): бой не начнётся, пока диалог открыт.
+        // Сюжет перед боем: бой не начнётся, пока диалог открыт.
         await sleep(500);
-        await skipDialogues('Stage', stage === 10 ? 'dialogue-boss' : undefined);
+        await skipDialogues('Stage', stage === LAST ? 'dialogue-boss' : undefined);
       }
       await waitScene('Battle');
-      // Бой: первый этап, середина главы (новые монстры — Рокер, Мандрагора) и босс.
-      if (stage === 1 || stage === 5 || stage === 8 || stage === 10) {
-        await sleep(stage === 10 ? 5000 : 2500);
+      // Скорость ×2 — шаг обучения (открывается на ch1_s2): как игрок, один раз нажать кнопку скорости.
+      if ((await recordHint('Battle')) === 'battle_speed') {
+        await clickText('Battle', '1x');
+        log('обучение: скорость боя ×2');
+      }
+      // Бой: первый этап, Таверна, середина главы и босс.
+      if (stage === 1 || stage === TAVERN || stage === MID || stage === LAST) {
+        await sleep(stage === LAST ? 5000 : 2500);
         await shot(`battle${stage}`);
       }
       // Затемнение ульты накрывает экран на ~1 с — дождаться, пока оно сойдёт, и только тогда жать «Пропустить».
       for (let i = 0; i < 20 && (await coveredBy('Battle', 'Пропустить')); i++) await sleep(200);
-      if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
+      // Короткий бой (этап 1 — ~2 с) может закончиться сам, пока ждали скриншот: «Пропустить» уже убрана — ждём итоги.
+      if ((await page.evaluate(() => window.__game.scene.isActive('Battle'))) && (await findText('Battle', 'Пропустить'))) await clickText('Battle', 'Пропустить');
       await waitScene('Result');
       await sleep(500);
-      // Сюжет после первой победы (этапы 4 и 10) — поверх итогов.
-      await skipDialogues('Result', stage === 10 ? 'dialogue-outro' : undefined);
-      won = (await save()).campaign.cleared.includes(`ch1_s${stage}`);
-      log(`этап ${stage}, попытка ${t}: ${won ? 'победа' : 'поражение'} | ${await powerLine(`ch1_s${stage}`)}`);
+      // Сюжет после первой победы — поверх итогов.
+      await skipDialogues('Result', stage === LAST ? 'dialogue-outro' : undefined);
+      won = (await save()).campaign.cleared.includes(stageId);
+      if (won && stage < LAST) await recordHint('Result');
+      log(`этап ${stage} (${stageId}), попытка ${t}: ${won ? 'победа' : 'поражение'} | ${await powerLine(stageId)}`);
     }
-    if (!won) throw new Error(`этап ${stage} не пройден за ${MAX_TRIES} попыток`);
-    if (stage === 10) {
+    if (!won) throw new Error(`этап ${stage} (${stageId}) не пройден за ${MAX_TRIES} попыток`);
+    splits.push(`${stage}:${Math.round((Date.now() - ts) / 1000)}с`);
+    if (stage === LAST) {
       await chapterDone();
       continue;
     }
     await clickText('Result', 'К кампании');
     await waitScene('Campaign');
     await skipDialogues('Campaign');
-    if (stage === 5) {
-      // Подарок Таверны выдан за этап 5 — призыв ×10 свитками, новые герои в отряд (Авто), затем «Улучшить».
-      if (!(await save()).summon?.welcomeGiven) throw new Error('после этапа 5 не выдан подарок Таверны');
+    if (stage === TAVERN) {
+      // Подарок Таверны выдан за этап с Таверной — призыв ×10 свитками, новые герои в отряд (Авто), затем «Улучшить».
+      if (!(await save()).summon?.welcomeGiven) throw new Error('после открытия Таверны не выдан подарок Таверны');
       await visitTavern();
-      await autoSquad(6, 'squad-auto');
+      await autoSquad(TAVERN + 1, 'squad-auto');
       const s = await save();
       log(`отряд после «Авто»: ${s.squad.map((id) => { const h = s.heroes.find((x) => x.id === id); return h ? `${h.templateId} ${h.rarity} ${h.level}` : '—'; }).join(', ')}`);
+    }
+    // Сундук — шаг обучения: «Собрать» на карте, когда указатель на нём.
+    if ((await recordHint('Campaign')) === 'chest_claim') {
+      await clickText('Campaign', 'Собрать');
+      await sleep(900);
+      await waitScene('Campaign');
+      await skipDialogues('Campaign');
+      log('обучение: сундук собран');
     }
     const levels = await levelUpSquad(stage === 2 ? 'hero-levelup' : undefined);
     const s = await save();
     log(`«Улучшить»: +${levels} ур. | ${s.heroes.map((h) => `${h.templateId} ${h.level}`).join(', ')} | в запасе ${s.resources.heroExp}`);
     if (stage === 2 && levels === 0) throw new Error('после этапа 2 «Улучшить» не подняло ни одного уровня');
   }
+  const minutes = (Date.now() - t0) / 60000;
+  log(`время главы 1 через интерфейс (бои — «Пропустить»): ${minutes.toFixed(1)} мин; по этапам ${splits.join(' ')}`);
+  log(`подсказки обучения: ${[...hintsSeen].map(([id, n]) => `${id}×${n}`).join(', ')}`);
+  // Вознесение (ascend) — не обязательный шаг: три копии одного героя зависят от удачи в Таверне; показан — выполняем.
+  for (const id of ['home_campaign', 'stage_fight', 'battle_speed', 'result_next', 'chest_claim', 'level_up', 'tavern_summon', 'prep_auto', 'fast_rewards', 'quests_open']) {
+    if (!hintsSeen.has(id)) problems.push(`подсказка обучения ${id} не показалась`);
+  }
   const s = await save();
   log('итог:', s.heroes.map((h) => `${h.templateId} ${h.rarity} ${h.level}`).join(', '), '| пройдено этапов:', s.campaign.cleared.length);
   if (!s.heroes.some((h) => h.templateId === 'greta')) throw new Error('после босса главы нет Греты');
-  if (!s.summon?.welcomeGiven) throw new Error('после этапа 5 не выдан подарок Таверны');
+  if (!s.summon?.welcomeGiven) throw new Error('после открытия Таверны не выдан подарок Таверны');
   log(`сюжетных сцен закрыто: ${seenDialogues}, в сохранении увидено: ${(s.seenScenes ?? []).join(', ')}`);
   if (!(s.seenScenes ?? []).includes('ch1_outro')) throw new Error('финальная сцена главы не показана');
   // Открытия главы 1 (data/unlocks.json): каждый баннер показан ровно один раз и отмечен в сохранении.

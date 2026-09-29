@@ -23,6 +23,7 @@ import {
   heroSkillList,
   heroSlots,
   heroTemplate,
+  jobTitle,
   levelUpInfo,
   markHeroSeen,
   rarityDef,
@@ -38,20 +39,34 @@ import { ascendReady, formatNumber, heroSprite, itemStatsText, levelText, RARITY
 import { GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
-import { button, ellipsize, hintPointer, panel, pressable, ScrollArea, text, toast } from '../ui';
+import { button, ellipsize, panel, pressable, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { C, FS, TINT } from '../theme';
 import { skillIcon } from '../skillIcons';
 import { sfx } from '../audio';
 import { bump, burst, countUp, juiceOn, pulse } from '../juice';
 import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, iconBadge, raysTexture, rarityBackdrop, rarityPalette, rarityPips } from '../heroCard';
-import { browseNeighbours, copyCounter, heroesUi, inventoryUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
+import { ascendHint, browseNeighbours, copyCounter, heroesUi, inventoryUi, levelShortage, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
 import { openBranchPicker } from '../branchPicker';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
 
 const SKILL_ROW_H = 118;
+/** Редкость в родительном падеже: «растёт до красного». */
+const RARITY_GEN: Record<string, string> = { green: 'зелёного', blue: 'синего', purple: 'фиолетового', gold: 'золотого', red: 'красного' };
 type Tab = 'skills' | 'gear' | 'story';
+
+/** Экран, куда возвращает «‹ Назад» карточки героя (Инвентарь → «Карты героев», итоги Таверны…). */
+export interface HeroBack {
+  to: string;
+  data?: object;
+}
+
+export interface HeroData {
+  heroId: string;
+  tab?: Tab;
+  back?: HeroBack;
+}
 const TABS: { id: Tab; label: string }[] = [
   { id: 'skills', label: 'Навыки' },
   { id: 'gear', label: 'Снаряжение' },
@@ -92,6 +107,8 @@ export class HeroScene extends Phaser.Scene {
 
   private heroId = '';
   private tab: Tab = 'skills';
+  /** Куда ведёт «‹ Назад» (по умолчанию — список «Герои»). */
+  private back?: HeroBack;
   /** Счётчик строк навыков (имена skillRow_N для e2e и скриншотов). */
   private skillRows = 0;
   private tabArea!: ScrollArea;
@@ -112,8 +129,9 @@ export class HeroScene extends Phaser.Scene {
   private holdFired = false;
   private holdCount = 0;
 
-  create(data: { heroId: string; tab?: Tab }): void {
+  create(data: HeroData): void {
     this.heroId = data.heroId;
+    this.back = data.back;
     this.figure = null;
     this.holdTimer = this.repeatTimer = undefined;
     this.holdFired = false;
@@ -123,7 +141,7 @@ export class HeroScene extends Phaser.Scene {
       hero = this.hero();
     }
     const c = hero && GAME.content.heroes[hero.templateId] ? heroCard(hero, GAME) : undefined;
-    screen(this, c ? (c.branch ? `${c.name} · ${c.jobName}` : c.name) : 'Герой', 'Heroes', { to: 'Heroes' });
+    screen(this, c ? (c.branch ? `${c.name} · ${c.jobName}` : c.name) : 'Герой', 'Heroes', this.back ?? { to: 'Heroes' });
     if (!hero || !c) return;
     const ups = gearUpgrades(session.save, hero.id, GAME);
     this.tab = data.tab ?? heroesUi.tab ?? (ups.length && !hintDone('equip_gear') ? 'gear' : 'skills');
@@ -141,6 +159,11 @@ export class HeroScene extends Phaser.Scene {
       this.input.off('pointerup', stop);
       this.stopHold();
     });
+  }
+
+  /** Перезапуск карточки (вкладка, соседний герой, после действия) — «Назад» ведёт туда же, откуда пришли (MT-04). */
+  private reopen(data: Omit<HeroData, 'back'>): void {
+    this.scene.restart({ ...data, back: this.back });
   }
 
   private hero(): HeroState | undefined {
@@ -240,8 +263,9 @@ export class HeroScene extends Phaser.Scene {
     // Листание ‹ › по списку «Героев».
     const order = heroesUi.order.length ? heroesUi.order : session.save.heroes.map((h) => h.id);
     const nb = browseNeighbours(order, hero.id, (id) => session.save.heroes.some((h) => h.id === id));
-    if (nb.prev) button(this, 60, TOP + 300, 84, 130, 'k:buttonSquare_beige', '‹', () => this.scene.restart({ heroId: nb.prev, tab: this.tab }), FS.hero, { sound: 'ui_tab' }).container.setName('prevHero');
-    if (nb.next) button(this, 1020, TOP + 300, 84, 130, 'k:buttonSquare_beige', '›', () => this.scene.restart({ heroId: nb.next, tab: this.tab }), FS.hero, { sound: 'ui_tab' }).container.setName('nextHero');
+    const { prev, next } = nb;
+    if (prev) button(this, 60, TOP + 300, 84, 130, 'k:buttonSquare_beige', '‹', () => this.reopen({ heroId: prev, tab: this.tab }), FS.hero, { sound: 'ui_tab' }).container.setName('prevHero');
+    if (next) button(this, 1020, TOP + 300, 84, 130, 'k:buttonSquare_beige', '›', () => this.reopen({ heroId: next, tab: this.tab }), FS.hero, { sound: 'ui_tab' }).container.setName('nextHero');
   }
 
   /** Ветка второй профессии: «Выбрать ветку» (фиолетовый без ветки), «Сменить ветку» (цена), превью веток ниже. */
@@ -283,7 +307,7 @@ export class HeroScene extends Phaser.Scene {
   /** «Выбрать ветку» (бесплатно) или «Сменить ветку» (первая смена бесплатно, дальше гемы). */
   private pickBranch(hero: HeroState, c: HeroCard): void {
     const st = branchStatus(session.save, hero.id, GAME);
-    const jobName = (job: string) => GAME.content.jobs[job]?.name ?? job;
+    const jobName = (job: string) => jobTitle(GAME, job, c.gender);
     const change = st.canChange;
     const other = change ? c.branches.find((b) => b.job !== st.branch)?.job : undefined;
     const gems = session.save.currency.gems;
@@ -297,6 +321,8 @@ export class HeroScene extends Phaser.Scene {
       ...(other ? { selected: other } : {}),
       heroId: hero.id,
       save: session.save,
+      // LT-16: гемов на смену не хватает — кнопка серая, причина над ней.
+      blocked: () => (change && !st.changeFree && gems < st.changeCost ? `Нужно ${formatNumber(st.changeCost)} гемов, есть ${formatNumber(gems)}` : null),
       confirmLabel: (job) => (!job ? 'Выберите ветку' : change ? (st.changeFree ? `Сменить: ${jobName(job)}` : `Сменить за ${formatNumber(st.changeCost)} гемов`) : `Выбрать: ${jobName(job)}`),
       onConfirm: (job) => {
         try {
@@ -304,7 +330,7 @@ export class HeroScene extends Phaser.Scene {
           const spent = 'gems' in r ? (r.gems as number) : 0;
           commit(r.save);
           sfx('job_change');
-          this.scene.restart({ heroId: hero.id, tab: this.tab });
+          this.reopen({ heroId: hero.id, tab: this.tab });
           const sc = this.scene.get('Hero');
           sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `${c.name} — теперь ${jobName(job)}!${spent ? ` (−${formatNumber(spent)} гемов)` : ''}`, C.success, 3000));
         } catch (e) {
@@ -319,7 +345,7 @@ export class HeroScene extends Phaser.Scene {
     if (!hero) return;
     commit(setHeroLocked(session.save, hero.id, !hero.locked));
     toast(this, hero.locked ? 'Замок снят — карточку можно отдать в корм' : 'Закреплено — карточка не уйдёт в корм', C.success, 2500);
-    this.scene.restart({ heroId: hero.id, tab: this.tab });
+    this.reopen({ heroId: hero.id, tab: this.tab });
   }
 
   // ---------- статы ----------
@@ -362,15 +388,18 @@ export class HeroScene extends Phaser.Scene {
       this.ui.up = up;
       this.ui.upGlow = glow;
       if (juiceOn()) this.tweens.add({ targets: glow, scale: glow.scale * 1.08, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-      if (info.canLevel && !hintDone('level_up')) hintPointer(this, UP_X, ACT_Y, 'Опыт из запаса — в уровень героя', 'below', { w: 330, h: 130 });
+      if (info.canLevel && !hintDone('level_up')) tutorialHint(this, 'level_up', UP_X, ACT_Y, 'below', { w: 330, h: 130 }, { text: 'Опыт из запаса — в уровень героя' });
       // Вознесение до предела (призывные — кормом в любой момент; сюжетные — осколками).
       if (req) {
         const asc = button(this, 560, ACT_Y - 18, 220, 96, canAscend ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести', () => this.openAscend(), FS.h3);
         asc.container.setName('ascendBtn');
         if (canAscend) pulse(this, asc.container, 1.05);
         else asc.setEnabled(false);
-        const sub = canAscend ? 'копии готовы!' : 'нужны копии';
-        text(this, 560, ACT_Y + 55, sub, FS.caption, canAscend ? C.positive : C.muted, { stroke: C.stroke, strokeThickness: 4 });
+        // Обучение (шаг ascend): «Улучшить» уже показано — теперь «Вознести».
+        if (canAscend && !hintDone('ascend') && hintDone('level_up')) tutorialHint(this, 'ascend', 560, ACT_Y - 18, 'above', { w: 220, h: 96 }, { text: 'Три копии — «Вознести»: редкость выше, герой сильнее' });
+        const hint = ascendHint(session.save, hero.id, GAME);
+        const sub = canAscend ? 'копии готовы!' : (hint?.text ?? 'нужны копии');
+        ellipsize(text(this, 560, ACT_Y + 55, sub, FS.caption, canAscend ? C.positive : C.muted, { stroke: C.stroke, strokeThickness: 4 }), 300);
       }
     } else if (req) {
       const glow = this.add.image(UP_X, ACT_Y, glowTexture(this)).setDisplaySize(520, 240).setTint(0xffe08a).setBlendMode(Phaser.BlendModes.ADD).setAlpha(canAscend ? 0.7 : 0);
@@ -400,17 +429,27 @@ export class HeroScene extends Phaser.Scene {
     const line = (y: number, s: string, color: string, size: number = FS.caption, bold = false) =>
       box.add(ellipsize(text(this, x, y, s, size, color, { stroke: C.stroke, strokeThickness: 4, ...(bold ? { fontStyle: 'bold' } : {}) }).setOrigin(0, 0.5), maxW));
     if (info.cost) {
-      line(ACT_Y - 62, `Опыт ${formatNumber(info.cost.exp)} / ${formatNumber(info.pool)}`, info.blocker === 'not_enough_exp' ? C.warning : C.text, FS.body, true);
-      line(ACT_Y - 18, `Золото ${formatNumber(info.cost.gold)} / ${formatNumber(info.gold)}`, info.blocker === 'not_enough_gold' ? C.warning : C.text, FS.body, true);
+      // NB-17: цена уровня и запас — не «100 / 210» (читалось как прогресс), а «−100 (есть 210)».
+      // Не влезает (миллионы в запасе) — шрифт мельче, затем без «есть».
+      const price = (y: number, label: string, cost: number, have: number, color: string) => {
+        const t = text(this, x, y, `${label} −${formatNumber(cost)} (есть ${formatNumber(have)})`, FS.body, color, { stroke: C.stroke, strokeThickness: 4, fontStyle: 'bold' }).setOrigin(0, 0.5);
+        if (t.width > maxW) t.setFontSize(FS.caption - 4);
+        if (t.width > maxW) t.setFontSize(FS.body).setText(`${label} −${formatNumber(cost)}`);
+        box.add(ellipsize(t, maxW));
+      };
+      price(ACT_Y - 62, 'Опыт', info.cost.exp, info.pool, info.blocker === 'not_enough_exp' ? C.warning : C.text);
+      price(ACT_Y - 18, 'Золото', info.cost.gold, info.gold, info.blocker === 'not_enough_gold' ? C.warning : C.text);
       const short = levelShortage(info);
       if (short) line(ACT_Y + 28, short, C.danger, FS.caption, true);
-      else line(ACT_Y + 28, info.affordable > 1 ? `хватит на ${info.affordable} ур. (держите)` : 'хватит на 1 уровень', C.positive);
+      else line(ACT_Y + 28, info.affordable > 1 ? `хватит на ${info.affordable} ур.` : 'хватит на 1 уровень', C.positive);
       const toCap = info.maxLevel - info.level;
       line(ACT_Y + 68, `до предела: ${toCap} ур.`, C.dim);
     } else if (req) {
-      const note = req.blockers[0] ?? 'Предел редкости — вознесите героя';
+      // LT-07: точная причина — копии или золото (с разделителями разрядов).
+      const hint = ascendHint(session.save, hero.id, GAME);
+      const note = !hint || hint.ready ? 'Предел редкости — вознесите героя' : hint.text === 'нужны копии' ? 'Нужны копии героя — «Вознести» покажет, где взять' : `Для вознесения ${hint.text}`;
       line(ACT_Y - 50, 'Предел уровня редкости', C.title, FS.body, true);
-      box.add(text(this, x, ACT_Y + 20, note, FS.caption, req.blockers.length ? C.warning : C.positive, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 560 } }).setOrigin(0, 0.5));
+      box.add(text(this, x, ACT_Y + 20, note, FS.caption, hint && !hint.ready ? C.warning : C.positive, { stroke: C.stroke, strokeThickness: 4, wordWrap: { width: 560 } }).setOrigin(0, 0.5));
     }
   }
 
@@ -488,7 +527,7 @@ export class HeroScene extends Phaser.Scene {
       // Упёрлись в предел — на месте «Улучшить» встанет «Вознести».
       if (!levelUpInfo(session.save, hero.id, GAME).cost) {
         this.stopHold();
-        this.time.delayedCall(700, () => this.scene.restart({ heroId: hero.id, tab: this.tab }));
+        this.time.delayedCall(700, () => this.reopen({ heroId: hero.id, tab: this.tab }));
       }
       return true;
     } catch (e) {
@@ -549,7 +588,7 @@ export class HeroScene extends Phaser.Scene {
         if (this.tab === t.id) return;
         this.tab = t.id;
         heroesUi.tab = t.id;
-        this.scene.restart({ heroId: this.heroId, tab: t.id });
+        this.reopen({ heroId: this.heroId, tab: t.id });
       }, FS.h3, { sound: 'ui_tab' });
       b.container.setName(`tab_${t.id}`);
       if (on) b.label.setColor('#f0cf8a');
@@ -651,7 +690,9 @@ export class HeroScene extends Phaser.Scene {
       const best = button(this, GAME_W / 2, y + 60, 700, 110, 'ui_btn_primary', `Надеть лучшее (${ups.length})`, () => this.equipBest(hero), FS.h3);
       best.container.setName('equipBestBtn');
       a.add(best.container);
-      if (!hintDone('equip_gear')) hintPointer(this, GAME_W / 2, TAB_TOP + 8 + y + 60, 'Наденьте трофеи', 'above', { w: 700, h: 110 });
+      // Одна подсказка на карточке: шаг обучения «Улучшить» (level_up) важнее трофеев — они подождут.
+      const levelStep = !hintDone('level_up') && levelUpInfo(session.save, hero.id, GAME).canLevel;
+      if (!hintDone('equip_gear') && !levelStep) tutorialHint(this, 'equip_gear', GAME_W / 2, TAB_TOP + 8 + y + 60, 'above', { w: 700, h: 110 }, { text: 'Наденьте трофеи' });
       y += 130;
     } else {
       a.add(text(this, GAME_W / 2, y + 50, 'Нажмите на слот, чтобы выбрать предмет', FS.caption, C.dim));
@@ -715,7 +756,7 @@ export class HeroScene extends Phaser.Scene {
       commit(r.save);
       sfx('equip', { rate: 1.3 });
       sfx('coin', { delay: 60 });
-      this.scene.restart({ heroId: hero.id, tab: 'gear' });
+      this.reopen({ heroId: hero.id, tab: 'gear' });
       const sc = this.scene.get('Hero');
       sc.events.once(Phaser.Scenes.Events.CREATE, () => {
         burst(sc, { x: GAME_W / 2, y: TAB_TOP + 120 });
@@ -730,7 +771,7 @@ export class HeroScene extends Phaser.Scene {
   private gearSlot(hero: HeroState, slot: Slot, item: ReturnType<typeof heroSlots>[Slot], x: number, y: number, better = false): void {
     const a = this.tabArea;
     const bg = a.add(panel(this, x, y, 244, 200, item ? 'ui_slot_filled' : 'ui_slot_empty'));
-    pressable(this, bg, 244, 200, a.tap(() => this.scene.start('Inventory', { heroId: hero.id, slot })));
+    pressable(this, bg, 244, 200, a.tap(() => this.scene.start('Inventory', { heroId: hero.id, slot, heroBack: this.back })));
     a.add(text(this, x, y - 70, SLOT_NAMES[slot], FS.small, C.dim));
     if (better) {
       a.add(this.add.circle(x + 98, y - 76, 22, TINT.success).setStrokeStyle(3, 0xffffff));
@@ -755,7 +796,7 @@ export class HeroScene extends Phaser.Scene {
       markHint('equip_gear');
       sfx('equip');
       const names = r.equipped.map((u) => GAME.equipment.items[u.itemId]?.name ?? u.itemId);
-      this.scene.restart({ heroId: hero.id, tab: 'gear' });
+      this.reopen({ heroId: hero.id, tab: 'gear' });
       const sc = this.scene.get('Hero');
       sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `${heroCard(hero, GAME).name}: надето — ${names.join(', ')}`, C.success, 3000));
     } catch (e) {
@@ -776,7 +817,7 @@ export class HeroScene extends Phaser.Scene {
       y += t.height + 14;
     };
     // Начало пути (первая профессия), затем — форма после возвышения: выбранная ветка целиком, другая — превью серым.
-    const firstJob = CONTENT.jobs[heroTemplate(GAME, hero.templateId).job]?.name;
+    const firstJob = jobTitle(GAME, heroTemplate(GAME, hero.templateId).job, c.gender);
     if (c.branch && firstJob) head(`Начало пути: ${firstJob}`);
     para(c.bio, C.text);
     if (c.hook) para(`«${c.hook}»`, C.title, FS.body, { fontStyle: 'italic' });
@@ -802,7 +843,7 @@ export class HeroScene extends Phaser.Scene {
       }
     }
     y += 10;
-    para(`${c.gender === 'f' ? 'Героиня' : 'Герой'} гильдии ${GUILD_NAMES[c.line] ?? '—'} · ${c.source === 'story' ? 'сюжет' : 'Таверна'} · до «${rarityDef(GAME, c.maxRarity).name}»`, C.dim, FS.caption);
+    para(`${c.gender === 'f' ? 'Героиня' : 'Герой'} гильдии ${GUILD_NAMES[c.line] ?? '—'} · ${c.source === 'story' ? 'сюжет' : 'Таверна'} · растёт до ${RARITY_GEN[c.maxRarity] ?? rarityDef(GAME, c.maxRarity).name.toLowerCase()}`, C.dim, FS.caption);
     para('Растёт копиями: копии этого героя (и любых — на красный) уходят в корм при вознесении.', C.muted, FS.caption);
     for (const s of copySources(session.save, hero.templateId, GAME)) para(`• ${s}`, C.muted, FS.caption);
     a.setContentHeight(y + 10);

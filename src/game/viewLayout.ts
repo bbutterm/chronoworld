@@ -32,6 +32,8 @@ export interface View {
   worldH: number;
   /** Верх безопасной области (под вырезом) в координатах мира: ≤ 0; на 9:16 без выреза — 0. */
   safeTop: number;
+  /** Низ безопасной области (над «домашней полоской») в координатах мира: ≥ GAME_H; на 9:16 — GAME_H. */
+  safeBottom: number;
 }
 
 /**
@@ -73,6 +75,7 @@ export function computeView(w: number, h: number, dpr: number, insets: Insets = 
     worldW: right - left,
     worldH: bottom - top,
     safeTop: Math.min(0, Math.max(top, GAME_H / 2 - (cy - insets.top) / s)),
+    safeBottom: Math.max(GAME_H, Math.min(bottom, GAME_H / 2 + (h - insets.bottom - cy) / s)),
   };
 }
 

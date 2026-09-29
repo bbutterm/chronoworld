@@ -67,6 +67,13 @@ export const DropRuleSchema = z.object({
   firstClearGuaranteed: z.boolean().default(true),
   /** Веса редкостей для гарантированного предмета; без поля — rarityWeights. */
   firstClearRarityWeights: RarityWeightsSchema.optional(),
+  /** Первая победа над боссом главы (этап boss): веса редкостей; без поля — firstClearRarityWeights (LT-06: эпик своей главы). */
+  bossFirstClearRarityWeights: RarityWeightsSchema.optional(),
+  /**
+   * Только «свои» предметы (LT-06): из пула берутся вещи с minChapter не меньше этого номера главы (и, как всегда, не больше
+   * главы источника) — в главах 4–7 не падают вещи главы 1. Редкость без таких вещей не выпадает (вес уходит остальным).
+   */
+  itemsFromChapter: z.number().int().min(1).optional(),
 });
 
 /** Бросок сундука за тик: с шансом chance — count штук. */
@@ -84,6 +91,8 @@ export const ChestRuleSchema = z.object({
   chapter: id.optional(),
   /** Шанс одного предмета за тик (0..1). */
   item: z.number().min(0).max(1),
+  /** Только вещи с minChapter не меньше этого номера главы (как DropRule.itemsFromChapter). */
+  itemsFromChapter: z.number().int().min(1).optional(),
   /** Веса редкостей предмета; без поля — rarityWeights правила выпадения этой главы (rules). */
   rarityWeights: RarityWeightsSchema.optional(),
   /**

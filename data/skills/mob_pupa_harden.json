@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_pupa_harden",
+  "name": "Твёрдый кокон",
+  "description": "Кокон твердеет: щит 20% ОЗ себе. Сама Пупа почти не бьёт — она прикрывает тех, кто сзади.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.2
+    }
+  ]
+}

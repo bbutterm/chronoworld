@@ -2,6 +2,7 @@
   "$schema": "../schema/job.schema.json",
   "id": "rogue",
   "name": "Разбойник",
+  "nameF": "Разбойница",
   "description": "Вторая профессия Вора: грабёж, плагиат и разоружение.",
   "tier": 2,
   "from": [

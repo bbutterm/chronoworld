@@ -12,7 +12,7 @@ import {
 } from '../../core';
 import { GAME } from '../content';
 import { ribbon, slowRays, glow } from '../decor';
-import { formatNumber } from '../flow';
+import { daysText, formatNumber, pointsText } from '../flow';
 import { drawHeroCard, heroCardIcon, heroCardSize } from '../heroCard';
 import { touchToday } from '../homeEvents';
 import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
@@ -152,7 +152,7 @@ export class EventsScene extends Phaser.Scene {
     } else if (!d.reached) {
       const st = loginStatus(session.save, today(), GAME);
       const n = d.day - st.loginDays;
-      const t = text(this, x + 20, y, n === 1 ? 'Завтра' : `Через ${n} дн.`, FS.small, C.dim, OUTLINE);
+      const t = text(this, x + 20, y, n === 1 ? 'Завтра' : `Через ${daysText(n)}`, FS.small, C.dim, OUTLINE);
       this.add.image(t.x - t.width / 2 - 24, y, skinIcon('lock')).setDisplaySize(34, 34).setTint(SKIN_TINT.creamDim);
     }
   }
@@ -195,7 +195,7 @@ export class EventsScene extends Phaser.Scene {
     if (d.claimed) return toast(this, 'Эта награда уже получена');
     if (!d.reached) {
       const n = d.day - loginStatus(session.save, today(), GAME).loginDays;
-      return toast(this, n === 1 ? 'Награда откроется завтра — заходите!' : `Награда откроется через ${n} дн. входа`);
+      return toast(this, n === 1 ? 'Награда откроется завтра — заходите!' : `Награда откроется через ${daysText(n)} входа`);
     }
     try {
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
@@ -217,7 +217,7 @@ export class EventsScene extends Phaser.Scene {
     const when = st.active
       ? st.daysLeft === 0
         ? `День ${st.eventDay} из ${st.durationDays} — последний день заданий`
-        : `День ${st.eventDay} из ${st.durationDays} · до конца ${st.daysLeft} дн.`
+        : `День ${st.eventDay} из ${st.durationDays} · до конца ${daysText(st.daysLeft)}`
       : 'Задания закончились — заберите награды сегодня';
     text(this, 60, top + 125, when, FS.small, st.active ? C.muted : C.gold, OUTLINE).setOrigin(0, 0.5);
     text(this, 60, top + 175, `Очки: ${st.points} / ${st.maxPoints}`, FS.h3, C.title, TITLE_STYLE).setOrigin(0, 0.5);
@@ -232,7 +232,7 @@ export class EventsScene extends Phaser.Scene {
       const cy = top + 105 + ch / 2;
       if (!final.claimed) slowRays(this, cx, cy, 260, 0.3, 0xd890ff);
       heroCardIcon(this, cx, cy, ch, finalPick.rarity, undefined, { pick: true, dim: final.claimed });
-      text(this, cx, cy + ch / 2 + 22, `за ${final.points} очк.`, FS.caption, C.gold, OUTLINE);
+      text(this, cx, cy + ch / 2 + 22, `за ${pointsText(final.points)}`, FS.caption, C.gold, OUTLINE);
     }
     if (hero) {
       const cw = 150;
@@ -241,7 +241,7 @@ export class EventsScene extends Phaser.Scene {
       const cy = top + 105 + h / 2;
       if (!final.claimed) slowRays(this, cx, cy, 260, 0.3, 0xd890ff);
       drawHeroCard(this, cx, cy, hero, { w: cw, glow: final.ready, level: null, showPips: false }).setAlpha(final.claimed ? 0.6 : 1);
-      text(this, cx, cy + h / 2 + 22, `за ${final.points} очк.`, FS.caption, C.gold, OUTLINE);
+      text(this, cx, cy + h / 2 + 22, `за ${pointsText(final.points)}`, FS.caption, C.gold, OUTLINE);
     }
 
     const barY = NB.barY;
@@ -269,7 +269,7 @@ export class EventsScene extends Phaser.Scene {
     this.area = new ScrollArea(this, NB.listTop, CONTENT_BOTTOM + 10);
     if (day.locked) {
       const left = this.day - st.eventDay;
-      this.area.add(text(this, GAME_W / 2, 60, left === 1 ? `Задания дня ${this.day} откроются завтра` : `Задания дня ${this.day} откроются через ${left} дн.`, FS.body, C.muted, OUTLINE));
+      this.area.add(text(this, GAME_W / 2, 60, left === 1 ? `Задания дня ${this.day} откроются завтра` : `Задания дня ${this.day} откроются через ${daysText(left)}`, FS.body, C.muted, OUTLINE));
     }
     const rows = day.tasks.map((t, i) => collect(this.area!.content, () => this.taskRow(t, (day.locked ? 120 : 0) + NB.rowH * (i + 0.5), NB.rowH - 14, st.open)));
     this.area.setContentHeight((day.locked ? 120 : 0) + NB.rowH * day.tasks.length + 10);
@@ -309,7 +309,7 @@ export class EventsScene extends Phaser.Scene {
     }).setOrigin(0, 0.5));
     a.add(progressBar(this, 60, y + h * 0.22, 420, 30, t.progress / t.target, t.done ? TINT.gold : TINT.success, { key: `nb:${t.id}` }));
     a.add(text(this, 270, y + h * 0.22, `${formatNumber(t.progress)} / ${formatNumber(t.target)}`, FS.caption, t.done ? C.titleStroke : C.text, t.done ? { fontStyle: 'bold' } : { fontStyle: 'bold', ...OUTLINE }));
-    a.add(text(this, 560, y + h * 0.22, `+${t.points} очк.`, FS.body, dark ? C.inkMuted : grey ? C.disabled : C.success, { fontStyle: 'bold' }));
+    a.add(text(this, 560, y + h * 0.22, `+${pointsText(t.points)}`, FS.body, dark ? C.inkMuted : grey ? C.disabled : C.success, { fontStyle: 'bold' }));
     const bx = 880;
     if (t.claimed) {
       const done = a.add(text(this, bx + 24, y, 'Готово', FS.body, C.success, { fontStyle: 'bold' }));

@@ -17,6 +17,7 @@ import { heroSlots } from './equipment';
 import { EquipmentError } from './errors';
 import type { EquipmentConfig, EquipmentContext } from './load';
 import { SLOTS, type ItemDef, type ItemStats, type RefineConfig } from './schema';
+import { groupDigits } from '../format';
 
 /** Контекст, из которого берётся конфиг заточки. */
 type RefineCtx = { equipment: EquipmentConfig };
@@ -180,7 +181,7 @@ export function refineItem(save: SaveState, instanceId: string, ctx: EquipmentCo
   const cost = refineModeCost(item, def, ctx, mode);
   if (!cost) throw new EquipmentError('refine_max', `${refinedName(def, from)}: заточка на максимуме`);
   if (mode === 'ore' && blessedOre(save) < 1) throw new EquipmentError('not_enough_ore', 'Нет Благословенной руды — она падает с боссов');
-  if (save.resources.gold < cost.gold) throw new EquipmentError('not_enough_gold', `Не хватает золота: нужно ${cost.gold}, есть ${save.resources.gold}`);
+  if (save.resources.gold < cost.gold) throw new EquipmentError('not_enough_gold', `Не хватает золота: нужно ${groupDigits(cost.gold)}, есть ${groupDigits(save.resources.gold)}`);
   const seq = save.inventory.refineSeq ?? 0;
   const chance = refineBreakChance(from, ctx, mode);
   const broken = chance > 0 && new Rng(opts.seed ?? refineSeed(save.createdAt, seq)).next() < chance;

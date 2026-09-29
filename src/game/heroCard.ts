@@ -40,12 +40,12 @@ const PALETTE_EXTRA: Record<CardRarity | 'none', { light: string; dark: string }
   green: { light: '#b6f0a0', dark: '#1f5a24' },
   blue: { light: '#a8d4ff', dark: '#173e86' },
   purple: { light: '#e2c2ff', dark: '#4a1f8a' },
-  gold: { light: '#fff0b0', dark: '#8a5a10' },
+  gold: { light: '#ffc65a', dark: '#7a3a00' },
   red: { light: '#ffb8a0', dark: '#7a140e' },
   none: { light: '#9a9a9a', dark: '#2a2a2a' },
 };
 
-const FALLBACK_COLOR: Record<CardRarity, string> = { green: '#4CAF50', blue: '#3F8CFF', purple: '#A05CFF', gold: '#F5B82E', red: '#E0443A' };
+const FALLBACK_COLOR: Record<CardRarity, string> = { green: '#4CAF50', blue: '#3F8CFF', purple: '#A05CFF', gold: '#FF9A1A', red: '#E0443A' };
 
 const hex = (s: string) => Phaser.Display.Color.HexStringToColor(s).color;
 
@@ -71,7 +71,7 @@ export const GUILD_NAMES: Record<string, string> = {
   acolyte: 'Пронтера',
   mage: 'Гефен',
   archer: 'Пайон',
-  thief: 'Морок',
+  thief: 'Моррок',
   merchant: 'Альберта',
 };
 
@@ -686,7 +686,8 @@ export function drawHeroCard(scene: Phaser.Scene, x: number, y: number, subject:
     if (juiceOn()) scene.tweens.add({ targets: nt, scale: 1.08, duration: 520, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   }
   if (!greyed && (opts.copies ?? 0) >= 2) {
-    const ct = text(scene, 0, 0, `×${opts.copies}`, small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
+    // NB-11: «+1» — столько запасных копий (как «Копий: 1» на карточке героя), а не всего карт героя.
+    const ct = text(scene, 0, 0, `+${(opts.copies ?? 1) - 1}`, small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
     const cw = ct.width + 20 * s;
     const cx = w / 2 - 36 * s;
     const cy = -h / 2 + 88 * s;

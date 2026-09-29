@@ -104,6 +104,12 @@ const tmpl = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext) => heroTemp
 
 export const heroName = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext): string => ctx.content.heroes[hero.templateId]?.name ?? hero.templateId;
 export const heroGender = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext): Gender => ctx.content.heroes[hero.templateId]?.gender ?? 'm';
+/** Название профессии по полу героя: у героинь — nameF («Жрица»), если задано (data/jobs). Одно место для всех экранов. */
+export function jobTitle(ctx: GameContext, job: string, gender: Gender = 'm'): string {
+  const j = ctx.content.jobs[job];
+  if (!j) return job;
+  return gender === 'f' && j.nameF ? j.nameF : j.name;
+}
 /** Класс (id профессии) героя сейчас — с учётом ветки. */
 export const heroJobId = (hero: HeroKey, ctx: GameContext): string => activeForm(tmpl(hero, ctx), hero).job;
 export const heroRole = (hero: HeroKey, ctx: GameContext): HeroTemplate['role'] => activeForm(tmpl(hero, ctx), hero).role;
@@ -219,10 +225,10 @@ export interface BranchView {
   sprite?: string;
 }
 
-export function branchView(b: HeroBranch, ctx: GameContext): BranchView {
+export function branchView(b: HeroBranch, ctx: GameContext, gender: Gender = 'm'): BranchView {
   return {
     job: b.job,
-    jobName: ctx.content.jobs[b.job]?.name ?? b.job,
+    jobName: jobTitle(ctx, b.job, gender),
     role: b.role,
     skills: b.skills,
     promotion: b.promotion,
@@ -233,7 +239,8 @@ export function branchView(b: HeroBranch, ctx: GameContext): BranchView {
 
 /** Обе ветки героя (для превью на синем, выбора на вознесении и «Сменить ветку»). */
 export function branchOptions(templateId: string, ctx: GameContext): BranchView[] {
-  return heroTemplate(ctx, templateId).branches.map((b) => branchView(b, ctx));
+  const t = heroTemplate(ctx, templateId);
+  return t.branches.map((b) => branchView(b, ctx, t.gender));
 }
 
 /** Всё о герое для экранов «Герои» / «Герой» одним объектом. */
@@ -279,7 +286,7 @@ export function heroCard(hero: HeroState, ctx: GameContext): HeroCard {
     gender: t.gender,
     source: t.source,
     job: form.job,
-    jobName: ctx.content.jobs[form.job]?.name ?? form.job,
+    jobName: jobTitle(ctx, form.job, t.gender),
     line: t.line,
     role: form.role,
     rarity: rarityDef(ctx, hero.rarity),
@@ -290,7 +297,7 @@ export function heroCard(hero: HeroState, ctx: GameContext): HeroCard {
     skills: heroSkillList(hero, ctx),
     ...(form.branch ? { branch: form.branch } : {}),
     needsBranch: needsBranch(hero, ctx),
-    branches: t.branches.map((b) => branchView(b, ctx)),
+    branches: t.branches.map((b) => branchView(b, ctx, t.gender)),
     ...(below ? { branchAt: BRANCH_RARITY } : {}),
     bio: t.bio,
     hook: t.hook,

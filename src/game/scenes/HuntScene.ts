@@ -30,7 +30,8 @@ export function huntRewardText(r: HuntReward): string {
   return parts.join(' · ') || '—';
 }
 
-const ROW_H = 74;
+/** Строка порога: двухстрочные награды (карта героя, предмет) не касаются соседних (MT-14). */
+const ROW_H = 78;
 
 /**
  * «Охота на босса» (аналог гильдейской охоты AFK Arena): босс дня, пороги урона с наградами и отметкой лучшего
@@ -84,31 +85,34 @@ export class HuntScene extends Phaser.Scene {
 
   /** Пороги урона: полоса лучшего результата с отметками порогов и список наград. */
   private tiers(st: HuntStatus, top: number): void {
-    const h = 150 + st.tiers.length * ROW_H;
+    // MT-14: номера порогов — под шкалой (над ней их закрывала лента «Награда за урон»).
+    const h = 190 + st.tiers.length * ROW_H;
     card(this, GAME_W / 2, top + h / 2, 1040, h);
     ribbon(this, GAME_W / 2, top + 40, 'Награда за урон', { size: FS.h3, minW: 420 });
 
     // Полоса: шкала по порогам (каждый порог — равный отрезок), заливка — лучший урон.
     const bx = 90;
     const bw = GAME_W - 180;
-    const by = top + 105;
+    const by = top + 100;
     const pos = tierPosition(st.best, st.tiers.map((t) => t.damage));
     progressBar(this, bx, by, bw, 26, pos, 0xd6a645, { key: 'hunt_best' });
     st.tiers.forEach((_, i) => {
       const x = bx + (bw * (i + 1)) / st.tiers.length;
       const reached = i <= st.bestTier;
       this.add.rectangle(x, by, 4, 34, reached ? 0xffe08a : 0x6a5a40);
-      text(this, x - 2, by - 32, `${i + 1}`, FS.caption, reached ? SKIN.goldLight : C.dim, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 });
+      text(this, x - 2, by + 36, `${i + 1}`, FS.caption, reached ? SKIN.goldLight : C.dim, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 });
     });
 
     st.tiers.forEach((t, i) => {
-      const y = top + 165 + i * ROW_H;
+      const y = top + 190 + ROW_H / 2 - 4 + i * ROW_H;
       const reached = i <= st.bestTier;
       const current = i === st.bestTier;
       if (current) this.add.rectangle(GAME_W / 2, y, 1000, ROW_H - 8, 0xd6a645, 0.18).setStrokeStyle(3, SKIN_TINT.gold, 0.8);
       text(this, 90, y, `${i + 1}`, FS.h3, reached ? SKIN.goldLight : C.dim, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
       text(this, 140, y, formatNumber(t.damage), FS.body, reached ? C.gold : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5);
-      text(this, 330, y, huntRewardText(t.rewards), FS.small, reached ? SKIN.cream : C.muted, { ...OUTLINE, wordWrap: { width: 640 }, align: 'left' }).setOrigin(0, 0.5);
+      const rw = text(this, 330, y, huntRewardText(t.rewards), FS.small, reached ? SKIN.cream : C.muted, { ...OUTLINE, wordWrap: { width: 640 }, align: 'left', lineSpacing: -2 }).setOrigin(0, 0.5);
+      // Две строки — мельче, чтобы не касаться соседних порогов (MT-14).
+      if (rw.height > ROW_H * 0.6) rw.setFontSize(FS.caption - 5);
       if (reached) this.add.image(GAME_W - 80, y, skinIcon('check')).setDisplaySize(36, 36).setTint(0x9fe0a6);
     });
   }
@@ -116,7 +120,9 @@ export class HuntScene extends Phaser.Scene {
   /** Попытки, «Зачистка», «В бой». */
   private footer(st: HuntStatus): void {
     const y = GAME_H - 170 - 120;
-    text(this, GAME_W / 2, y - 110, st.attemptsLeft > 0 ? `Попыток сегодня: ${st.attemptsLeft} из ${st.attemptsPerDay}` : 'Попытки кончились — новый босс завтра', FS.h3, st.attemptsLeft > 0 ? C.text : C.muted, {
+    // MT-14: руда в итогах была сюрпризом — первая попытка дня (бой или зачистка) даёт ещё Благословенную руду.
+    const ore = st.attemptsLeft === st.attemptsPerDay ? ' · первая даёт руду' : '';
+    text(this, GAME_W / 2, y - 110, st.attemptsLeft > 0 ? `Попыток сегодня: ${st.attemptsLeft} из ${st.attemptsPerDay}${ore}` : 'Попытки кончились — новый босс завтра', FS.h3, st.attemptsLeft > 0 ? C.text : C.muted, {
       fontStyle: 'bold',
       stroke: C.stroke,
       strokeThickness: 5,

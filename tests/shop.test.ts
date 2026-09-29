@@ -235,5 +235,6 @@ describe('Лавка в модели игрока (npm run balance)', () => {
     const off = runBalance(full, days, { ...PLAYER_MODEL, shop: false });
     expect(off.spend.shop.gold).toBe(0);
     expect(off.save.shop).toBeUndefined();
-  });
+    // Прогон модели игрока на 4 дня — тяжёлый (≈5 с, модель с «Вознести всех» и лекарем); лимит времени вызова, не порог качества.
+  }, 30_000);
 });
