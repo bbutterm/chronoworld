@@ -17,8 +17,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "scorpion",
-    "tint": "#9fc46e",
+    "sprite": "side_winder",
     "hitFx": "fx_hit"
   }
 }

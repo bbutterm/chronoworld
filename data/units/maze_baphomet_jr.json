@@ -17,9 +17,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "boss2",
-    "tint": "#d9b98c",
-    "scale": 0.55,
+    "sprite": "baphomet_jr",
     "hitFx": "fx_hit"
   }
 }

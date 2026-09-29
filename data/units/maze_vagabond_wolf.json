@@ -20,8 +20,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "nine_tail",
-    "tint": "#a09282",
+    "sprite": "vagabond_wolf",
     "hitFx": "fx_hit"
   }
 }

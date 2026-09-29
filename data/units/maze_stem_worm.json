@@ -17,8 +17,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "tank",
-    "tint": "#8fae62",
+    "sprite": "stem_worm",
     "hitFx": "fx_hit"
   }
 }

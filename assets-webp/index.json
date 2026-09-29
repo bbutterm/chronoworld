@@ -319,6 +319,11 @@
   "png": 71509,
   "webp": 38186
  },
+ "sprites/bosses/deviruchi.png": {
+  "sha1": "d6f5f8dacbdc257df7ee31f20dc158eb73c0e3b6",
+  "png": 10199,
+  "webp": 6052
+ },
  "sprites/bosses/drake.png": {
   "sha1": "3c86a1d82ff6df4efe8e3cbb31c941a8c60e6bac",
   "png": 105162,
@@ -338,6 +343,11 @@
   "sha1": "bac45e87a81c04e15ce79ff40a49b6860320ec6f",
   "png": 15176,
   "webp": 7944
+ },
+ "sprites/bosses/ghostring.png": {
+  "sha1": "fcbc82e4e4f5e34d821679d098e91a2227e25993",
+  "png": 11564,
+  "webp": 6708
  },
  "sprites/bosses/horong.png": {
   "sha1": "1b724a49ca655becb15c611e8a72de2c86dab551",
@@ -408,6 +418,11 @@
   "sha1": "58d5e86d5784a13c829dc9fe9672e819daf6d5b4",
   "png": 27709,
   "webp": 18164
+ },
+ "sprites/bosses/vagabond_wolf.png": {
+  "sha1": "a9d10173264569a8efb27802a6591a898d10a50b",
+  "png": 23513,
+  "webp": 14224
  },
  "sprites/bosses/vocal.png": {
   "sha1": "e0c69a8ddb50abb4aaec67052b1b98fd6264cef1",
@@ -744,6 +759,11 @@
   "png": 21930,
   "webp": 18074
  },
+ "sprites/monsters/baphomet_jr.png": {
+  "sha1": "61c5c1324911268308658830e8237004c970c5f2",
+  "png": 11713,
+  "webp": 6314
+ },
  "sprites/monsters/bloody_murderer.png": {
   "sha1": "cf9b44404a29f1471c876969f9d6ec7630a2dcc0",
   "png": 124990,
@@ -804,6 +824,11 @@
   "png": 126406,
   "webp": 43158
  },
+ "sprites/monsters/hunter_fly.png": {
+  "sha1": "7d31319d7afe41131174634bc871cbe5851f9f04",
+  "png": 8402,
+  "webp": 4460
+ },
  "sprites/monsters/hydra.png": {
   "sha1": "26ab1de7f2bdbbef925eb4112665aabd62c442a9",
   "png": 18271,
@@ -828,6 +853,11 @@
   "sha1": "8f77ec68e93418c99b18b0d06333611c65208185",
   "png": 30138,
   "webp": 17292
+ },
+ "sprites/monsters/mantis.png": {
+  "sha1": "fcdeee14b382784d4f53526a1a40fb4faede07f7",
+  "png": 15911,
+  "webp": 9930
  },
  "sprites/monsters/marduk.png": {
   "sha1": "0bc1f95583b1290bd4706cd149f4a4168ced24ba",
@@ -939,10 +969,20 @@
   "png": 33740,
   "webp": 14486
  },
+ "sprites/monsters/side_winder.png": {
+  "sha1": "58fb3dda5236ca58c0c8ddfd5716fc8c26ac764d",
+  "png": 10724,
+  "webp": 6268
+ },
  "sprites/monsters/steel_chonchon.png": {
   "sha1": "59291586fef037626abe035ef983cb75f534d1c1",
   "png": 8356,
   "webp": 4392
+ },
+ "sprites/monsters/stem_worm.png": {
+  "sha1": "884c21de42b781c72d4cb310edd133036b671b08",
+  "png": 12608,
+  "webp": 7388
  },
  "sprites/monsters/tank.png": {
   "sha1": "704cb163b78f5db665c004df95ef427c0c26ca22",
@@ -1434,6 +1474,11 @@
   "png": 9835,
   "webp": 7136
  },
+ "ui/collection/item_crescent_scythe.png": {
+  "sha1": "696bfafa1ca09d23e6d98d15f89f9c12db82db63",
+  "png": 2133,
+  "webp": 1288
+ },
  "ui/collection/item_crown.png": {
   "sha1": "c68575459656db7085b4438bfb8fb7e8cec17a1f",
   "png": 5647,
@@ -1549,6 +1594,16 @@
   "png": 6101,
   "webp": 4464
  },
+ "ui/collection/item_majestic_goat.png": {
+  "sha1": "c68575459656db7085b4438bfb8fb7e8cec17a1f",
+  "png": 5647,
+  "webp": 4446
+ },
+ "ui/collection/item_maze_boots.png": {
+  "sha1": "9af141ff50ecf29d05b73b298859812321f4b998",
+  "png": 10280,
+  "webp": 6970
+ },
  "ui/collection/item_moonlight_dagger.png": {
   "sha1": "20e9b8b51af712a6f0697802064cc86e31c387be",
   "png": 3251,
@@ -1568,6 +1623,11 @@
   "sha1": "9af141ff50ecf29d05b73b298859812321f4b998",
   "png": 10280,
   "webp": 6970
+ },
+ "ui/collection/item_pact_robe.png": {
+  "sha1": "d776af6e383e4110b4adf73eb742ec9fef14b5f8",
+  "png": 11273,
+  "webp": 7404
  },
  "ui/collection/item_pharaoh_headdress.png": {
   "sha1": "810d5f5989e0e7752f639010c706c63c80f4226d",
@@ -1769,6 +1829,11 @@
   "png": 1040,
   "webp": 236
  },
+ "ui/icons/item_crescent_scythe.png": {
+  "sha1": "bfbb4b22b386cb3629c0f6f02bd325a5eb961ff6",
+  "png": 981,
+  "webp": 202
+ },
  "ui/icons/item_crown.png": {
   "sha1": "1a80772797b6c47e0aaa21ed22b6606b2ca7d6ca",
   "png": 1025,
@@ -1884,6 +1949,16 @@
   "png": 974,
   "webp": 202
  },
+ "ui/icons/item_majestic_goat.png": {
+  "sha1": "1a80772797b6c47e0aaa21ed22b6606b2ca7d6ca",
+  "png": 1025,
+  "webp": 234
+ },
+ "ui/icons/item_maze_boots.png": {
+  "sha1": "c6c97dc3c81dcc65c945117dd849cc2f2b92647a",
+  "png": 1149,
+  "webp": 406
+ },
  "ui/icons/item_moonlight_dagger.png": {
   "sha1": "d20ff9c790927c21f9a384853221e18df516991e",
   "png": 1023,
@@ -1903,6 +1978,11 @@
   "sha1": "c6c97dc3c81dcc65c945117dd849cc2f2b92647a",
   "png": 1149,
   "webp": 406
+ },
+ "ui/icons/item_pact_robe.png": {
+  "sha1": "c720aea042b859b92b2568c221fa2382b45349be",
+  "png": 1099,
+  "webp": 328
  },
  "ui/icons/item_pharaoh_headdress.png": {
   "sha1": "e210fe99a88d2389b8b36bed2bef1e7938fc99a4",
