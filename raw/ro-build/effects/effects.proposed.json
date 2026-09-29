@@ -1,0 +1,2492 @@
+{
+  "schema": 1,
+  "effects": [
+    {
+      "id": "fx_job_acolyte_signum_crucis",
+      "file": "effects/fx_job_acolyte_signum_crucis.png",
+      "cell": [
+        236,
+        260
+      ],
+      "columns": 8,
+      "frames": 22,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        119.0,
+        161.3
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "40",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 0.6511,
+        "outputScale": 0.35,
+        "seed": 1,
+        "note": "EF_SIGNUM 40: AL_CRUCIS debuff; zoom 200, full 12fps no significant canvas-edge pixels"
+      }
+    },
+    {
+      "id": "fx_job_wizard_storm_gust",
+      "file": "effects/fx_job_wizard_storm_gust.png",
+      "cell": [
+        362,
+        308
+      ],
+      "columns": 5,
+      "frames": 22,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 83,
+      "blend": "normal",
+      "anchor": [
+        166.4,
+        172.8
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "89",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.6,
+        "seed": 1,
+        "note": "WZ_STORMGUST EF_STORMGUST 89; blizzard area"
+      }
+    },
+    {
+      "id": "fx_job_blacksmith_weapon_perfection",
+      "file": "effects/fx_job_blacksmith_weapon_perfection.png",
+      "cell": [
+        320,
+        308
+      ],
+      "columns": 6,
+      "frames": 20,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        159.0,
+        214.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "103",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 0.75,
+        "seed": 1,
+        "note": "BS_WEAPONPERFECT EF_PERFECTION 103; ally buff sword and green arcs"
+      }
+    },
+    {
+      "id": "fx_job_crusader_holy_cross",
+      "file": "effects/fx_job_crusader_holy_cross.png",
+      "cell": [
+        442,
+        442
+      ],
+      "columns": 4,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        220.2,
+        273.7
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "245",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 0.6511,
+        "outputScale": 0.85,
+        "seed": 1,
+        "note": "CR_HOLYCROSS EF_HOLYCROSS 245; recaptured at zoom 200 to keep edge flare within canvas"
+      }
+    },
+    {
+      "id": "fx_job_wizard_meteor_storm",
+      "file": "effects/fx_job_wizard_meteor_storm.png",
+      "cell": [
+        250,
+        458
+      ],
+      "columns": 8,
+      "frames": 18,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        113.4,
+        403.2
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "92",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 0.372,
+        "outputScale": 0.5,
+        "seed": 1,
+        "note": "WZ_METEOR effectId 92; falling meteor; zoom 350 to avoid top clipping; fire hit separate"
+      }
+    },
+    {
+      "id": "fx_job_swordman_provoke",
+      "file": "effects/fx_job_swordman_provoke.png",
+      "cell": [
+        386,
+        236
+      ],
+      "columns": 5,
+      "frames": 14,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        193.0,
+        205.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "67",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 67; role debuff"
+      }
+    },
+    {
+      "id": "fx_job_merchant_mammonite",
+      "file": "effects/fx_job_merchant_mammonite.png",
+      "cell": [
+        352,
+        314
+      ],
+      "columns": 5,
+      "frames": 9,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        171.0,
+        272.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "10",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 10; role hit"
+      }
+    },
+    {
+      "id": "fx_job_mage_cold_bolt_projectile",
+      "file": "effects/fx_job_mage_cold_bolt_projectile.png",
+      "cell": [
+        298,
+        592
+      ],
+      "columns": 6,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        141.0,
+        479.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "ef_coldbolt",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect ef_coldbolt; role projectile; atlas only: no projectile travel hook in game"
+      }
+    },
+    {
+      "id": "fx_job_mage_fire_bolt_projectile",
+      "file": "effects/fx_job_mage_fire_bolt_projectile.png",
+      "cell": [
+        186,
+        556
+      ],
+      "columns": 6,
+      "frames": 6,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        21.0,
+        519.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "ef_firebolt",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect ef_firebolt; role projectile; atlas only: no projectile travel hook in game"
+      }
+    },
+    {
+      "id": "fx_job_mage_frost_diver_projectile",
+      "file": "effects/fx_job_mage_frost_diver_projectile.png",
+      "cell": [
+        28,
+        148
+      ],
+      "columns": 8,
+      "frames": 8,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        28.0,
+        52.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "27",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 27; role projectile; atlas only: no projectile travel hook in game"
+      }
+    },
+    {
+      "id": "fx_job_archer_arrow_shower",
+      "file": "effects/fx_job_archer_arrow_shower.png",
+      "cell": [
+        102,
+        92
+      ],
+      "columns": 1,
+      "frames": 1,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        50.0,
+        66.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "ef_arrow_shower_projectile",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect ef_arrow_shower_projectile; role ground"
+      }
+    },
+    {
+      "id": "fx_job_archer_improve_concentration",
+      "file": "effects/fx_job_archer_improve_concentration.png",
+      "cell": [
+        218,
+        210
+      ],
+      "columns": 6,
+      "frames": 6,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        105.0,
+        155.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "153",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 153; role buff"
+      }
+    },
+    {
+      "id": "fx_job_acolyte_angelus",
+      "file": "effects/fx_job_acolyte_angelus.png",
+      "cell": [
+        320,
+        318
+      ],
+      "columns": 6,
+      "frames": 36,
+      "ms": 106.48,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        160.0,
+        220.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "41",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 41; role buff"
+      }
+    },
+    {
+      "id": "fx_job_thief_venom_knife_projectile",
+      "file": "effects/fx_job_thief_venom_knife_projectile.png",
+      "cell": [
+        42,
+        40
+      ],
+      "columns": 2,
+      "frames": 2,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        20.0,
+        42.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "600",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 600; role projectile; atlas only: no projectile travel hook in game"
+      }
+    },
+    {
+      "id": "fx_job_blacksmith_hammer_fall",
+      "file": "effects/fx_job_blacksmith_hammer_fall.png",
+      "cell": [
+        638,
+        444
+      ],
+      "columns": 3,
+      "frames": 12,
+      "ms": 104.17,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        317.0,
+        286.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "102",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 102; role ground"
+      }
+    },
+    {
+      "id": "fx_job_wizard_jupitel_thunder_hit",
+      "file": "effects/fx_job_wizard_jupitel_thunder_hit.png",
+      "cell": [
+        50,
+        50
+      ],
+      "columns": 2,
+      "frames": 2,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        25.0,
+        25.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "93",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 93; role hit"
+      }
+    },
+    {
+      "id": "fx_job_wizard_jupitel_thunder_projectile",
+      "file": "effects/fx_job_wizard_jupitel_thunder_projectile.png",
+      "cell": [
+        80,
+        80
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        39.0,
+        40.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "94",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 94; role projectile; atlas only: no projectile travel hook in game"
+      }
+    },
+    {
+      "id": "fx_job_wizard_quagmire",
+      "file": "effects/fx_job_wizard_quagmire.png",
+      "cell": [
+        60,
+        178
+      ],
+      "columns": 8,
+      "frames": 23,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        30.0,
+        136.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "95",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 95; role ground"
+      }
+    },
+    {
+      "id": "fx_job_sage_volcano",
+      "file": "effects/fx_job_sage_volcano.png",
+      "cell": [
+        90,
+        84
+      ],
+      "columns": 8,
+      "frames": 24,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        44.0,
+        67.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "239",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 239; role ground; continuous in RO: first 24 frames kept"
+      }
+    },
+    {
+      "id": "fx_job_alchemist_acid_terror_projectile",
+      "file": "effects/fx_job_alchemist_acid_terror_projectile.png",
+      "cell": [
+        32,
+        34
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        15.0,
+        39.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "298",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 298; role projectile; atlas only: no projectile travel hook in game"
+      }
+    },
+    {
+      "id": "fx_job_priest_impositio_manus",
+      "file": "effects/fx_job_priest_impositio_manus.png",
+      "cell": [
+        190,
+        246
+      ],
+      "columns": 8,
+      "frames": 30,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        95.0,
+        215.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "84",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 84; role buff"
+      }
+    },
+    {
+      "id": "fx_job_priest_magnus_exorcismus_ground",
+      "file": "effects/fx_job_priest_magnus_exorcismus_ground.png",
+      "cell": [
+        42,
+        124
+      ],
+      "columns": 8,
+      "frames": 30,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        21.0,
+        109.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "318",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 318; role ground; looping in RO: one 30-frame cycle kept"
+      }
+    },
+    {
+      "id": "fx_job_priest_magnus_exorcismus_cast",
+      "file": "effects/fx_job_priest_magnus_exorcismus_cast.png",
+      "cell": [
+        636,
+        496
+      ],
+      "columns": 3,
+      "frames": 12,
+      "ms": 256.94,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        319.0,
+        373.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "113",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 113; role cast"
+      }
+    },
+    {
+      "id": "fx_job_priest_lex_aeterna",
+      "file": "effects/fx_job_priest_lex_aeterna.png",
+      "cell": [
+        354,
+        482
+      ],
+      "columns": 5,
+      "frames": 20,
+      "ms": 112.5,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        156.0,
+        410.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "85",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 85; role debuff"
+      }
+    },
+    {
+      "id": "fx_job_priest_kyrie_eleison",
+      "file": "effects/fx_job_priest_kyrie_eleison.png",
+      "cell": [
+        584,
+        576
+      ],
+      "columns": 3,
+      "frames": 9,
+      "ms": 212.96,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        318.0,
+        404.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "112",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 112; role buff"
+      }
+    },
+    {
+      "id": "fx_job_priest_sanctuary",
+      "file": "effects/fx_job_priest_sanctuary.png",
+      "cell": [
+        40,
+        64
+      ],
+      "columns": 8,
+      "frames": 30,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        20.0,
+        49.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "319",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 319; role ground; looping in RO: one 30-frame cycle kept"
+      }
+    },
+    {
+      "id": "fx_job_priest_assumptio",
+      "file": "effects/fx_job_priest_assumptio.png",
+      "cell": [
+        532,
+        614
+      ],
+      "columns": 3,
+      "frames": 9,
+      "ms": 259.26,
+      "loop": false,
+      "delayMs": 83,
+      "blend": "normal",
+      "anchor": [
+        201.0,
+        410.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "440",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 440; role buff"
+      }
+    },
+    {
+      "id": "fx_job_assassin_grimtooth",
+      "file": "effects/fx_job_assassin_grimtooth.png",
+      "cell": [
+        68,
+        176
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        31.0,
+        142.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "132",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 132; role hit; looping in RO: one 12-frame cycle kept"
+      }
+    },
+    {
+      "id": "fx_job_assassin_venom_splasher",
+      "file": "effects/fx_job_assassin_venom_splasher.png",
+      "cell": [
+        368,
+        368
+      ],
+      "columns": 5,
+      "frames": 18,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        172.0,
+        273.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "129",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 129; role hit"
+      }
+    },
+    {
+      "id": "fx_job_knight_parrying",
+      "file": "effects/fx_job_knight_parrying.png",
+      "cell": [
+        104,
+        96
+      ],
+      "columns": 7,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        52.0,
+        94.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "336",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 336; role buff"
+      }
+    },
+    {
+      "id": "fx_job_merchant_crazy_uproar",
+      "file": "effects/fx_job_merchant_crazy_uproar.png",
+      "cell": [
+        242,
+        246
+      ],
+      "columns": 8,
+      "frames": 9,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        117.0,
+        206.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "311",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 311; role buff"
+      }
+    },
+    {
+      "id": "fx_job_priest_magnificat",
+      "file": "effects/fx_job_priest_magnificat.png",
+      "cell": [
+        406,
+        296
+      ],
+      "columns": 5,
+      "frames": 20,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        204.0,
+        282.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "76",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 76; role buff"
+      }
+    },
+    {
+      "id": "fx_hit",
+      "file": "effects/fx_hit.png",
+      "cell": [
+        578,
+        468
+      ],
+      "columns": 3,
+      "frames": 4,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        280.0,
+        204.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "1",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 1; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_arrow",
+      "file": "effects/fx_arrow.png",
+      "cell": [
+        66,
+        12
+      ],
+      "columns": 1,
+      "frames": 1,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        33.0,
+        28.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "ef_arrow_projectile",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect ef_arrow_projectile; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_magic",
+      "file": "effects/fx_magic.png",
+      "cell": [
+        80,
+        122
+      ],
+      "columns": 8,
+      "frames": 8,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        38.0,
+        133.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "182",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 182; role replace; re-capture of the main sheet from the owner client",
+        "post": [
+          "alpha < 24 cleared"
+        ]
+      }
+    },
+    {
+      "id": "fx_heal",
+      "file": "effects/fx_heal.png",
+      "cell": [
+        104,
+        248
+      ],
+      "columns": 8,
+      "frames": 17,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        49.0,
+        214.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "312",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 312; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_death",
+      "file": "effects/fx_death.png",
+      "cell": [
+        216,
+        346
+      ],
+      "columns": 8,
+      "frames": 22,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 500,
+      "blend": "normal",
+      "anchor": [
+        97.0,
+        305.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "372",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 372; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_shield",
+      "file": "effects/fx_shield.png",
+      "cell": [
+        306,
+        302
+      ],
+      "columns": 4,
+      "frames": 4,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 83,
+      "blend": "normal",
+      "anchor": [
+        155.0,
+        259.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "169",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 169; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_acolyte_blessing",
+      "file": "effects/fx_job_acolyte_blessing.png",
+      "cell": [
+        122,
+        256
+      ],
+      "columns": 8,
+      "frames": 29,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        60.0,
+        195.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "42",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 42; role replace; re-capture of the main sheet from the owner client",
+        "post": [
+          "gold grade (tools/tint_blessing_effect.py logic)"
+        ]
+      }
+    },
+    {
+      "id": "fx_job_mage_thunderstorm",
+      "file": "effects/fx_job_mage_thunderstorm.png",
+      "cell": [
+        452,
+        526
+      ],
+      "columns": 4,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        226.0,
+        367.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "30",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 30; role replace; re-capture of the main sheet from the owner client",
+        "post": [
+          "alpha < 25 cleared"
+        ]
+      }
+    },
+    {
+      "id": "fx_job_mage_fire_bolt",
+      "file": "effects/fx_job_mage_fire_bolt.png",
+      "cell": [
+        268,
+        262
+      ],
+      "columns": 5,
+      "frames": 5,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        155.0,
+        157.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "49",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 49; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_mage_fire_ball_projectile",
+      "file": "effects/fx_job_mage_fire_ball_projectile.png",
+      "cell": [
+        114,
+        48
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        58.0,
+        53.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "24",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 24; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_mage_frost_diver",
+      "file": "effects/fx_job_mage_frost_diver.png",
+      "cell": [
+        266,
+        258
+      ],
+      "columns": 7,
+      "frames": 12,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        129.0,
+        137.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "28",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 28; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_merchant_cart_revolution",
+      "file": "effects/fx_job_merchant_cart_revolution.png",
+      "cell": [
+        322,
+        348
+      ],
+      "columns": 4,
+      "frames": 4,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        160.0,
+        210.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "170",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 170; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_acolyte_holy_light",
+      "file": "effects/fx_job_acolyte_holy_light.png",
+      "cell": [
+        284,
+        284
+      ],
+      "columns": 4,
+      "frames": 4,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        142.0,
+        179.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "152",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 152; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_acolyte_increase_agi",
+      "file": "effects/fx_job_acolyte_increase_agi.png",
+      "cell": [
+        108,
+        228
+      ],
+      "columns": 8,
+      "frames": 33,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        56.0,
+        181.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "37",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 37; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_swordman_bash",
+      "file": "effects/fx_swordman_bash.png",
+      "cell": [
+        236,
+        242
+      ],
+      "columns": 8,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        116.0,
+        141.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "16",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 16; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_thief_envenom",
+      "file": "effects/fx_job_thief_envenom.png",
+      "cell": [
+        152,
+        196
+      ],
+      "columns": 8,
+      "frames": 33,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        74.0,
+        159.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "20",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 20; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_crusader_defender",
+      "file": "effects/fx_job_crusader_defender.png",
+      "cell": [
+        120,
+        292
+      ],
+      "columns": 8,
+      "frames": 35,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        60.0,
+        249.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "222",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 222; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_assassin_sonic_blow",
+      "file": "effects/fx_job_assassin_sonic_blow.png",
+      "cell": [
+        264,
+        286
+      ],
+      "columns": 7,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        127.0,
+        165.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "143",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 143; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_crusader_grand_cross",
+      "file": "effects/fx_job_crusader_grand_cross.png",
+      "cell": [
+        332,
+        308
+      ],
+      "columns": 6,
+      "frames": 23,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        165.0,
+        180.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "226",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 226; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_crusader_shield_charge",
+      "file": "effects/fx_job_crusader_shield_charge.png",
+      "cell": [
+        228,
+        190
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        128.0,
+        194.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "246",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 246; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_hunter_claymore_trap",
+      "file": "effects/fx_job_hunter_claymore_trap.png",
+      "cell": [
+        448,
+        388
+      ],
+      "columns": 4,
+      "frames": 10,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        224.0,
+        249.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "107",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 107; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_hunter_sandman",
+      "file": "effects/fx_job_hunter_sandman.png",
+      "cell": [
+        392,
+        242
+      ],
+      "columns": 5,
+      "frames": 17,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        194.0,
+        152.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "139",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 139; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_swordman_endure",
+      "file": "effects/fx_swordman_endure.png",
+      "cell": [
+        182,
+        182
+      ],
+      "columns": 8,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        91.0,
+        137.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "11",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 11; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_knight_bowling_bash",
+      "file": "effects/fx_job_knight_bowling_bash.png",
+      "cell": [
+        426,
+        332
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        206.0,
+        172.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "149",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 149; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_sage_earth_spike",
+      "file": "effects/fx_job_sage_earth_spike.png",
+      "cell": [
+        62,
+        70
+      ],
+      "columns": 8,
+      "frames": 28,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        30.0,
+        42.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "79",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 79; role replace; re-capture of the main sheet from the owner client; looping in RO: one 28-frame cycle kept"
+      }
+    },
+    {
+      "id": "fx_job_sage_heavens_drive",
+      "file": "effects/fx_job_sage_heavens_drive.png",
+      "cell": [
+        212,
+        216
+      ],
+      "columns": 8,
+      "frames": 14,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        119.0,
+        107.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "142",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 142; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_sage_dispell",
+      "file": "effects/fx_job_sage_dispell.png",
+      "cell": [
+        192,
+        340
+      ],
+      "columns": 7,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        94.0,
+        301.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "235",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 235; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_knight_two_hand_quicken",
+      "file": "effects/fx_job_knight_two_hand_quicken.png",
+      "cell": [
+        312,
+        328
+      ],
+      "columns": 4,
+      "frames": 4,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        152.0,
+        164.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "130",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 130; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_thief_steal",
+      "file": "effects/fx_job_thief_steal.png",
+      "cell": [
+        220,
+        202
+      ],
+      "columns": 5,
+      "frames": 5,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        100.0,
+        131.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "18",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 18; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_job_swordman_magnum_break",
+      "file": "effects/fx_job_swordman_magnum_break.png",
+      "cell": [
+        348,
+        252
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        174.0,
+        134.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "17",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 17; role replace; re-capture of the main sheet from the owner client"
+      }
+    },
+    {
+      "id": "fx_cast_neutral",
+      "file": "effects/fx_cast_neutral.png",
+      "cell": [
+        372,
+        276
+      ],
+      "columns": 5,
+      "frames": 17,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        186.0,
+        225.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "12",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 12; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_water",
+      "file": "effects/fx_cast_water.png",
+      "cell": [
+        254,
+        712
+      ],
+      "columns": 8,
+      "frames": 16,
+      "ms": 88.54,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        127.0,
+        674.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "54",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 0.6945,
+        "seed": 1,
+        "note": "scRO client; RO effect 54; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_fire",
+      "file": "effects/fx_cast_fire.png",
+      "cell": [
+        286,
+        802
+      ],
+      "columns": 7,
+      "frames": 14,
+      "ms": 101.19,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        143.0,
+        759.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "55",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 0.6945,
+        "seed": 1,
+        "note": "scRO client; RO effect 55; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_wind",
+      "file": "effects/fx_cast_wind.png",
+      "cell": [
+        276,
+        794
+      ],
+      "columns": 7,
+      "frames": 14,
+      "ms": 101.19,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        140.0,
+        754.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "56",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 0.6945,
+        "seed": 1,
+        "note": "scRO client; RO effect 56; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_earth",
+      "file": "effects/fx_cast_earth.png",
+      "cell": [
+        286,
+        832
+      ],
+      "columns": 7,
+      "frames": 14,
+      "ms": 101.19,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        143.0,
+        790.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "57",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 0.6945,
+        "seed": 1,
+        "note": "scRO client; RO effect 57; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_holy",
+      "file": "effects/fx_cast_holy.png",
+      "cell": [
+        372,
+        276
+      ],
+      "columns": 5,
+      "frames": 17,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        185.0,
+        225.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "58",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 58; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_poison",
+      "file": "effects/fx_cast_poison.png",
+      "cell": [
+        240,
+        688
+      ],
+      "columns": 8,
+      "frames": 16,
+      "ms": 88.54,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        108.0,
+        647.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "59",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 0.6945,
+        "seed": 1,
+        "note": "scRO client; RO effect 59; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_dark",
+      "file": "effects/fx_cast_dark.png",
+      "cell": [
+        304,
+        226
+      ],
+      "columns": 6,
+      "frames": 17,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        165.0,
+        182.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "454",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 454; role cast"
+      }
+    },
+    {
+      "id": "fx_job_mage_safety_wall",
+      "file": "effects/fx_job_mage_safety_wall.png",
+      "cell": [
+        190,
+        298
+      ],
+      "columns": 8,
+      "frames": 24,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        95.0,
+        246.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "315",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 315; role buff; continuous in RO: first 24 frames kept"
+      }
+    },
+    {
+      "id": "fx_job_crusader_devotion",
+      "file": "effects/fx_job_crusader_devotion.png",
+      "cell": [
+        180,
+        136
+      ],
+      "columns": 8,
+      "frames": 14,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        90.0,
+        272.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "251",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 251; role buff"
+      }
+    },
+    {
+      "id": "fx_job_rogue_strip_weapon",
+      "file": "effects/fx_job_rogue_strip_weapon.png",
+      "cell": [
+        58,
+        54
+      ],
+      "columns": 8,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        28.0,
+        148.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "269",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 269; role debuff"
+      }
+    },
+    {
+      "id": "fx_job_rogue_strip_armor",
+      "file": "effects/fx_job_rogue_strip_armor.png",
+      "cell": [
+        66,
+        60
+      ],
+      "columns": 8,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        31.0,
+        153.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "271",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 271; role debuff"
+      }
+    },
+    {
+      "id": "fx_job_hunter_ankle_snare",
+      "file": "effects/fx_job_hunter_ankle_snare.png",
+      "cell": [
+        34,
+        28
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        17.0,
+        19.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "ef_trap_01",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect ef_trap_01; role ground; looping in RO: one 12-frame cycle kept"
+      }
+    },
+    {
+      "id": "fx_job_wizard_soul_drain",
+      "file": "effects/fx_job_wizard_soul_drain.png",
+      "cell": [
+        610,
+        450
+      ],
+      "columns": 3,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        251.0,
+        376.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "217",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 217; role cast"
+      }
+    },
+    {
+      "id": "fx_mob2_boss_rot_spores",
+      "file": "effects/fx_mob2_boss_rot_spores.png",
+      "cell": [
+        150,
+        132
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        74.0,
+        140.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "192",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 192; role hit"
+      }
+    },
+    {
+      "id": "fx_mob2_tank_mire",
+      "file": "effects/fx_mob2_tank_mire.png",
+      "cell": [
+        42,
+        52
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        21.0,
+        36.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "674",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 674; role ground; looping in RO: one 12-frame cycle kept"
+      }
+    },
+    {
+      "id": "fx_mob_tank_guard",
+      "file": "effects/fx_mob_tank_guard.png",
+      "cell": [
+        120,
+        120
+      ],
+      "columns": 6,
+      "frames": 6,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        58.0,
+        123.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "213",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 213; role buff"
+      }
+    },
+    {
+      "id": "fx_mob_mastering_jelly_armor",
+      "file": "effects/fx_mob_mastering_jelly_armor.png",
+      "cell": [
+        96,
+        134
+      ],
+      "columns": 8,
+      "frames": 8,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        41.0,
+        126.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "214",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 214; role buff"
+      }
+    },
+    {
+      "id": "fx_mob_elite_smash",
+      "file": "effects/fx_mob_elite_smash.png",
+      "cell": [
+        232,
+        224
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        108.0,
+        227.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "194",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 194; role hit"
+      }
+    },
+    {
+      "id": "fx_mob3_boss_nova",
+      "file": "effects/fx_mob3_boss_nova.png",
+      "cell": [
+        358,
+        334
+      ],
+      "columns": 4,
+      "frames": 4,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        131.0,
+        139.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "451",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 451; role hit"
+      }
+    },
+    {
+      "id": "fx_job_blacksmith_adrenaline_rush",
+      "file": "effects/fx_job_blacksmith_adrenaline_rush.png",
+      "cell": [
+        488,
+        490
+      ],
+      "columns": 4,
+      "frames": 16,
+      "ms": 93.75,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        229.0,
+        269.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "str_adrenaline",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect str_adrenaline; role buff"
+      }
+    },
+    {
+      "id": "fx_job_knight_auto_counter",
+      "file": "effects/fx_job_knight_auto_counter.png",
+      "cell": [
+        260,
+        260
+      ],
+      "columns": 7,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        130.0,
+        156.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "str_autocounter",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect str_autocounter; role cast"
+      }
+    },
+    {
+      "id": "fx_mob2_elite_frenzy",
+      "file": "effects/fx_mob2_elite_frenzy.png",
+      "cell": [
+        382,
+        412
+      ],
+      "columns": 5,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        217.0,
+        216.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "str_mid_frenzy",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect str_mid_frenzy; role buff"
+      }
+    },
+    {
+      "id": "fx_job_alchemist_demonstration",
+      "file": "effects/fx_job_alchemist_demonstration.png",
+      "cell": [
+        72,
+        108
+      ],
+      "columns": 5,
+      "frames": 5,
+      "ms": 100,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        36,
+        95
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "sprite 데몬스트레이션",
+        "renderer": "tools/ro_spr_act.py (SPR+ACT, action 0, native x1)",
+        "scale": 1,
+        "note": "scRO client data/sprite/이팩트/데몬스트레이션.spr/.act"
+      }
+    },
+    {
+      "id": "fx_mob_boss1_quake",
+      "file": "effects/fx_mob_boss1_quake.png",
+      "cell": [
+        470,
+        238
+      ],
+      "columns": 4,
+      "frames": 31,
+      "ms": 25,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        222,
+        113
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "sprite 어스퀘이크",
+        "renderer": "tools/ro_spr_act.py (SPR+ACT, action 0, native x1)",
+        "scale": 1,
+        "note": "scRO client data/sprite/이팩트/어스퀘이크.spr/.act"
+      }
+    }
+  ],
+  "skills": {
+    "assassin_leap": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "job_acolyte_blessing": {
+      "buff": "fx_job_acolyte_blessing"
+    },
+    "job_acolyte_holy_light": {
+      "hit": "fx_job_acolyte_holy_light"
+    },
+    "job_acolyte_increase_agi": {
+      "buff": "fx_job_acolyte_increase_agi"
+    },
+    "job_acolyte_signum_crucis": {
+      "debuff": "fx_job_acolyte_signum_crucis"
+    },
+    "job_assassin_sonic_blow": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "job_blacksmith_weapon_perfection": {
+      "buff": "fx_job_blacksmith_weapon_perfection"
+    },
+    "job_crusader_defender": {
+      "buff": "fx_job_crusader_defender"
+    },
+    "job_crusader_grand_cross": {
+      "ground": "fx_job_crusader_grand_cross"
+    },
+    "job_crusader_holy_cross": {
+      "hit": "fx_job_crusader_holy_cross"
+    },
+    "job_crusader_shield_charge": {
+      "hit": "fx_job_crusader_shield_charge"
+    },
+    "job_hunter_claymore_trap": {
+      "hit": "fx_job_hunter_claymore_trap"
+    },
+    "job_hunter_sandman": {
+      "debuff": "fx_job_hunter_sandman"
+    },
+    "job_knight_bowling_bash": {
+      "cast": "fx_job_knight_bowling_bash",
+      "hit": "fx_hit"
+    },
+    "job_knight_two_hand_quicken": {
+      "buff": "fx_job_knight_two_hand_quicken"
+    },
+    "job_mage_fire_ball": {
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "job_mage_fire_bolt": {
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "job_mage_frost_diver": {
+      "hit": "fx_job_mage_frost_diver"
+    },
+    "job_mage_thunderstorm": {
+      "hit": "fx_job_mage_thunderstorm"
+    },
+    "job_merchant_cart_revolution": {
+      "hit": "fx_job_merchant_cart_revolution"
+    },
+    "job_sage_dispell": {
+      "debuff": "fx_job_sage_dispell"
+    },
+    "job_sage_earth_spike": {
+      "hit": "fx_job_sage_earth_spike"
+    },
+    "job_sage_heavens_drive": {
+      "ground": "fx_job_sage_heavens_drive"
+    },
+    "job_swordman_magnum_break": {
+      "cast": "fx_job_swordman_magnum_break"
+    },
+    "job_thief_envenom": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "job_wizard_meteor_storm": {
+      "ground": "fx_job_wizard_meteor_storm",
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "job_wizard_storm_gust": {
+      "ground": "fx_job_wizard_storm_gust"
+    },
+    "mob2_ranged_poison_arrow": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "mob3_elite_cleave": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "mob3_melee_rend": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "mob_poporing_goo": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "swordman_bash": {
+      "cast": "fx_swordman_bash",
+      "hit": "fx_hit"
+    },
+    "swordman_endure": {
+      "buff": "fx_swordman_endure"
+    },
+    "warrior_cleave": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "job_swordman_provoke": {
+      "debuff": "fx_job_swordman_provoke"
+    },
+    "job_merchant_mammonite": {
+      "hit": "fx_job_merchant_mammonite"
+    },
+    "job_archer_arrow_shower": {
+      "ground": "fx_job_archer_arrow_shower"
+    },
+    "job_archer_improve_concentration": {
+      "buff": "fx_job_archer_improve_concentration"
+    },
+    "job_acolyte_angelus": {
+      "buff": "fx_job_acolyte_angelus"
+    },
+    "job_blacksmith_hammer_fall": {
+      "ground": "fx_job_blacksmith_hammer_fall"
+    },
+    "job_wizard_jupitel_thunder": {
+      "hit": "fx_job_wizard_jupitel_thunder_hit"
+    },
+    "job_wizard_quagmire": {
+      "ground": "fx_job_wizard_quagmire"
+    },
+    "job_sage_volcano": {
+      "ground": "fx_job_sage_volcano"
+    },
+    "job_priest_impositio_manus": {
+      "buff": "fx_job_priest_impositio_manus"
+    },
+    "job_priest_magnus_exorcismus": {
+      "ground": "fx_job_priest_magnus_exorcismus_ground",
+      "cast": "fx_job_priest_magnus_exorcismus_cast"
+    },
+    "job_priest_lex_aeterna": {
+      "debuff": "fx_job_priest_lex_aeterna"
+    },
+    "job_priest_kyrie_eleison": {
+      "buff": "fx_job_priest_kyrie_eleison"
+    },
+    "job_priest_sanctuary": {
+      "ground": "fx_job_priest_sanctuary"
+    },
+    "job_priest_assumptio": {
+      "buff": "fx_job_priest_assumptio"
+    },
+    "job_assassin_grimtooth": {
+      "hit": "fx_job_assassin_grimtooth"
+    },
+    "job_assassin_venom_splasher": {
+      "hit": "fx_job_assassin_venom_splasher"
+    },
+    "job_knight_parrying": {
+      "buff": "fx_job_knight_parrying"
+    },
+    "job_merchant_crazy_uproar": {
+      "buff": "fx_job_merchant_crazy_uproar"
+    },
+    "job_priest_magnificat": {
+      "buff": "fx_job_priest_magnificat"
+    },
+    "job_mage_energy_coat": {
+      "buff": "fx_shield"
+    },
+    "job_assassin_enchant_poison": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "job_mage_safety_wall": {
+      "buff": "fx_job_mage_safety_wall"
+    },
+    "job_crusader_devotion": {
+      "buff": "fx_job_crusader_devotion"
+    },
+    "job_rogue_strip_weapon": {
+      "debuff": "fx_job_rogue_strip_weapon"
+    },
+    "job_rogue_strip_armor": {
+      "debuff": "fx_job_rogue_strip_armor"
+    },
+    "job_hunter_ankle_snare": {
+      "ground": "fx_job_hunter_ankle_snare"
+    },
+    "job_wizard_soul_drain": {
+      "cast": "fx_job_wizard_soul_drain"
+    },
+    "job_crusader_auto_guard": {
+      "buff": "fx_job_knight_parrying"
+    },
+    "job_acolyte_heal": {
+      "buff": "fx_heal"
+    },
+    "job_archer_double_strafe": {
+      "hit": "fx_hit"
+    },
+    "priest_blessing": {
+      "buff": "fx_job_acolyte_blessing"
+    },
+    "job_blacksmith_adrenaline_rush": {
+      "buff": "fx_job_blacksmith_adrenaline_rush"
+    },
+    "job_knight_auto_counter": {
+      "cast": "fx_job_knight_auto_counter"
+    },
+    "job_alchemist_demonstration": {
+      "ground": "fx_job_alchemist_demonstration"
+    }
+  }
+}

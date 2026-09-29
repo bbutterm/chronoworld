@@ -121,6 +121,18 @@ Some effects that roBrowser has no picture for do exist in the client as STR or 
 The dance/song ground textures (`poembragi.tga`, `appleidun.tga`, `fortunekiss.tga`, `dontforgetme.tga`, `assassincross.tga`) are
 32×32 map-cell marks, not effects — not delivered.
 
+## Summary and the combined effects.json
+
+`raw/ro-build/effects/effects.proposed.json` — the ready `assets/effects/effects.json`: main + parts 1–5
+(from part 2 only `replace`; `keep_main` are left as in main; `suggestedSkills` are NOT included).
+Result: **87 effects instead of 35, 69 skills with an effect instead of 34**. Every `skills` reference points to an existing entry (checked).
+`raw/ro-build/effects/effects.sources.json` → `png`: where each PNG comes from (main or `raw/ro-build/effects/pN/...`),
+`suggestedSkills`: suggestions for monster ultimates (8), `keptFromMain`: what was left from main.
+
+Order for the agent: copy the PNGs listed in `effects.sources.json` → `png` (those not from main) into `assets/effects/`,
+put `effects.proposed.json` in place of `assets/effects/effects.json`, then `npm run assets:webp`, `npm run check`,
+`npm run assets:report` (budget), e2e with battles. Monster suggestions — only after the owner approves them.
+
 ## Hook-up (agent)
 
 1. For each part: copy the PNGs to `assets/effects/`, merge `effects` and `skills` from `effects.fragment.json` into `assets/effects/effects.json`.
