@@ -46,10 +46,12 @@ const DIALOGUE_NAME = 'dialogue';
 const DEPTH = 9500;
 /** Касание раньше этого (мс) после показа страницы не листает — хвост прошлого нажатия. */
 const GUARD_MS = 350;
-const TEXT_W = 860;
+/** Ширина текста и его шрифт: страница во весь экран 9:16, текст крупнее основного (на 390×844 ≈ 15 px). */
+const TEXT_W = 900;
+const BODY_FS = 42;
 const BODY_TOP_MIN = 520;
-const BODY_BOTTOM = 1620;
-const BTN_Y = 1770;
+const BODY_BOTTOM = 1690;
+const BTN_Y = 1805;
 
 /** Открыта ли страница на экране (тот же слой, что у диалога). */
 export const pageOpen = (scene: Phaser.Scene) => !!scene.children.getByName(DIALOGUE_NAME);
@@ -152,19 +154,19 @@ function buildPage(scene: Phaser.Scene, root: Phaser.GameObjects.Container, p: S
   root.add(divider(scene, cx, y));
   y += 40;
   if (p.quote) {
-    const q = text(scene, cx, y, `«${p.quote}»`, FS.body, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 900 }, align: 'center', lineSpacing: 6 }).setOrigin(0.5, 0);
+    const q = text(scene, cx, y, `«${p.quote}»`, FS.h3, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 960 }, align: 'center', lineSpacing: 6 }).setOrigin(0.5, 0);
     root.add(q);
     y += q.height + 30;
   }
 
   // Текст на панели: ширина TEXT_W, по высоте — сколько есть места; не влезает — прокрутка пальцем.
-  const body = text(scene, 0, 0, p.text, 34, SKIN.cream, { align: 'left', wordWrap: { width: TEXT_W, useAdvancedWrap: true }, lineSpacing: 12 }).setOrigin(0, 0).setName('pageText');
+  const body = text(scene, 0, 0, p.text, BODY_FS, SKIN.cream, { align: 'left', wordWrap: { width: TEXT_W, useAdvancedWrap: true }, lineSpacing: 14 }).setOrigin(0, 0).setName('pageText');
   const extras: Phaser.GameObjects.Text[] = [];
-  if (p.source) extras.push(text(scene, 0, 0, `— ${p.source}`, FS.small, SKIN.creamDim, { fontStyle: 'italic', align: 'right', wordWrap: { width: TEXT_W } }).setOrigin(1, 0));
-  if (p.comment) extras.push(text(scene, 0, 0, `${p.comment.speaker}: «${p.comment.text}»`, FS.body, C.inkInfo, { fontStyle: 'italic', align: 'left', wordWrap: { width: TEXT_W } }).setOrigin(0, 0).setName('pageComment'));
+  if (p.source) extras.push(text(scene, 0, 0, `— ${p.source}`, FS.body, SKIN.creamDim, { fontStyle: 'italic', align: 'right', wordWrap: { width: TEXT_W } }).setOrigin(1, 0));
+  if (p.comment) extras.push(text(scene, 0, 0, `${p.comment.speaker}: «${p.comment.text}»`, FS.h3, C.inkInfo, { fontStyle: 'italic', align: 'left', wordWrap: { width: TEXT_W } }).setOrigin(0, 0).setName('pageComment'));
   const GAP = 28;
   const contentH = body.height + extras.reduce((s, t) => s + GAP + t.height, 0);
-  const PAD = 56;
+  const PAD = 48;
   const top = Math.max(y, BODY_TOP_MIN - 60);
   const room = BODY_BOTTOM - top - 2 * PAD;
   const viewH = Math.min(contentH, room);
@@ -206,7 +208,7 @@ function buildPage(scene: Phaser.Scene, root: Phaser.GameObjects.Container, p: S
 }
 
 /** Золотая черта, гаснущая к краям, с ромбом по центру. */
-function divider(scene: Phaser.Scene, cx: number, y: number): Phaser.GameObjects.Graphics {
+export function divider(scene: Phaser.Scene, cx: number, y: number): Phaser.GameObjects.Graphics {
   const g = scene.add.graphics();
   for (const d of [-1, 1]) {
     for (let i = 0; i < 14; i++) {

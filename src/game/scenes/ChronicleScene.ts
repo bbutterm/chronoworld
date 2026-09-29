@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { bestiary, chapterChronicle, chapterCleared, findingEntries, FINDING_KIND_NAMES, firstSentence, heroEntries, heroTemplate, introPages, itemEntries, jobTitle, worldEntries, type BestiaryEntry, type ChronicleTab, type FindingEntry, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
+import { hasHeroStory, heroStoryNew, heroStoryProgress, openHeroStory, storyDot } from '../heroStoryView';
 import { chroniclePage, findingIcon, findingPage, introPages as introPageList, showPages, type StoryPage } from '../storyPage';
 import { seenChapterScenes } from '../storyView';
 import { openStoryHistory } from './ChapterDoneScene';
@@ -337,7 +338,9 @@ export class ChronicleScene extends Phaser.Scene {
       const x = colX(i % COLS);
       const y = Math.floor(i / COLS) * (CH + 30) + CH / 2 + 16;
       drawHeroCard(this, x, y, h.templateId, { w: CW, parent: this.area.content, greyed: h.owned ? false : 'Не получен', onTap: this.area.tap(() => this.heroModal(h)) });
-      if (h.owned && LORE.heroes[h.templateId]) this.newDot(x + CW / 2 - 10, y - CH / 2 + 10, `heroes:${h.templateId}`);
+      // Новое: непрочитанный кусочек истории героя (книжка) или ещё не открытая запись героя (точка).
+      if (h.owned && heroStoryNew(h.templateId)) this.area.add(storyDot(this, x + CW / 2 - 10, y - CH / 2 + 10, 20));
+      else if (h.owned && LORE.heroes[h.templateId]) this.newDot(x + CW / 2 - 10, y - CH / 2 + 10, `heroes:${h.templateId}`);
     });
     this.area.setContentHeight(Math.ceil(list.length / COLS) * (CH + 30) + 30);
   }
@@ -366,6 +369,16 @@ export class ChronicleScene extends Phaser.Scene {
       art: (add, x, y) => add(drawHeroCard(this, x, y, h.templateId, { w: 180, showPips: false, greyed: h.owned ? false : 'Не получен' })),
       blocks,
       lock: this.area,
+      // История героя кусочками (каждые 10 уровней) — страница во весь экран; закрыли — список обновит отметки.
+      ...(h.owned && hasHeroStory(h.templateId)
+        ? {
+            extra: {
+              label: `История · ${heroStoryProgress(h.templateId).open} из ${heroStoryProgress(h.templateId).total}`,
+              dot: heroStoryNew(h.templateId) > 0,
+              onTap: () => openHeroStory(this, h.templateId, { lock: this.area, onClose: () => this.scene.restart({ tab: 'heroes' } satisfies ChronicleData) }),
+            },
+          }
+        : {}),
     });
   }
 }

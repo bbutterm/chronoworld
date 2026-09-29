@@ -1,0 +1,48 @@
+{
+  "title": "Летопись: история героя кусочками (id карточки → кусочки по уровням 10, 20, … 100)",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "entries": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "required": [
+            "level",
+            "title",
+            "text"
+          ]
+        }
+      }
+    }
+  }
+}

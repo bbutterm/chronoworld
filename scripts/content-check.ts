@@ -69,7 +69,7 @@ const loreFiles = existsSync(loreDir)
 const loreParsed = parseLore(loreFiles);
 errors.push(...loreParsed.problems);
 if (built.ctx) {
-  const lint = validateLore(loreParsed.lore, { content: built.ctx.content, items: built.ctx.equipment.items, tower: built.ctx.tower, hunt: built.ctx.hunt });
+  const lint = validateLore(loreParsed.lore, { content: built.ctx.content, items: built.ctx.equipment.items, tower: built.ctx.tower, hunt: built.ctx.hunt, cards: built.ctx.cards });
   errors.push(...lint.errors);
   warnings.push(...lint.warnings);
   // 11. Тексты «между этапами» (эпизод, легенда, летопись глав, находки этапов, реплики боссов): уникальность id находок — ✗.
@@ -226,7 +226,7 @@ if (content) {
       `навыков: ${Object.keys(content.skills).length}, профессий: ${Object.keys(content.jobs).length}, карточек героев: ${Object.keys(content.heroes).length}, этапов: ${content.stages.length}, ` +
       `сюжетных сцен: ${built.ctx?.story.scenes.length ?? 0}, ` +
       `летопись: монстров ${Object.keys(loreParsed.lore.monsters).length}, предметов ${Object.keys(loreParsed.lore.items).length}, ` +
-      `героев ${Object.keys(loreParsed.lore.heroes).length}, профессий ${Object.keys(loreParsed.lore.jobs).length}, глав ${Object.keys(loreParsed.lore.chapters).length}, записей мира ${loreParsed.lore.world.length}, ` +
+      `героев ${Object.keys(loreParsed.lore.heroes).length}, кусочков истории героев ${Object.values(loreParsed.lore.heroStories).flat().length}, профессий ${Object.keys(loreParsed.lore.jobs).length}, глав ${Object.keys(loreParsed.lore.chapters).length}, записей мира ${loreParsed.lore.world.length}, ` +
       `строк-комментариев ${Object.values(loreParsed.lore.lines).flat().length}; ` +
       `тексты глав: эпизодов ${content.chapters.filter((c) => c.episode).length}, легенд ${content.chapters.filter((c) => c.legend).length}, ` +
       `летописей ${content.chapters.filter((c) => c.chronicle).length}, находок ${content.stages.filter((s) => s.finding).length}, ` +

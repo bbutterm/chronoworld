@@ -21,6 +21,9 @@ export const LORE_LIMITS = {
   /** Черта героя и их число. */
   quirk: 140,
   quirks: 6,
+  /** Кусочек истории героя (hero_stories.json): заголовок и текст — жёсткие пределы схемы. */
+  storyTitle: 60,
+  storyText: 500,
 } as const;
 
 export const MonsterLoreSchema = z.object({
@@ -34,6 +37,13 @@ export const MonsterLoreSchema = z.object({
 export const HeroLoreSchema = z.object({
   story: text,
   quirks: z.array(text),
+});
+
+/** Кусочек истории героя: открывается, когда копия героя доходит до уровня level (docs/design/story.md §4). */
+export const HeroStoryPieceSchema = z.object({
+  level: z.number().int().positive(),
+  title: z.string().min(1).max(LORE_LIMITS.storyTitle, `заголовок: не длиннее ${LORE_LIMITS.storyTitle} символов`),
+  text: z.string().min(1).max(LORE_LIMITS.storyText, `текст: не длиннее ${LORE_LIMITS.storyText} символов`),
 });
 
 export const ChapterLoreSchema = z.object({
@@ -61,6 +71,11 @@ export const MonstersLoreSchema = file(MonsterLoreSchema);
 export const ItemsLoreSchema = file(text);
 /** data/lore/heroes.json — id карточки героя (data/heroes) → история и черты. */
 export const HeroesLoreSchema = file(HeroLoreSchema);
+/**
+ * data/lore/hero_stories.json — id карточки героя → кусочки истории по уровням (10, 20, … до предела уровня, не выше 100).
+ * Пороги и полноту проверяет validateLore (content:check).
+ */
+export const HeroStoriesLoreSchema = file(z.array(HeroStoryPieceSchema));
 /** data/lore/jobs.json — id профессии (data/jobs) → описание гильдии/профессии. */
 export const JobsLoreSchema = file(text);
 /** data/lore/world.json — главы (id главы data/campaign) и записи о мире. */
@@ -103,6 +118,7 @@ export const LinesLoreSchema = z
 
 export type MonsterLore = z.infer<typeof MonsterLoreSchema>;
 export type HeroLore = z.infer<typeof HeroLoreSchema>;
+export type HeroStoryPiece = z.infer<typeof HeroStoryPieceSchema>;
 export type ChapterLore = z.infer<typeof ChapterLoreSchema>;
 export type WorldEntry = z.infer<typeof WorldEntrySchema>;
 
@@ -111,6 +127,8 @@ export interface Lore {
   monsters: Record<string, MonsterLore>;
   items: Record<string, string>;
   heroes: Record<string, HeroLore>;
+  /** Истории героев кусочками по уровням (data/lore/hero_stories.json), по возрастанию level. */
+  heroStories: Record<string, HeroStoryPiece[]>;
   jobs: Record<string, string>;
   chapters: Record<string, ChapterLore>;
   world: WorldEntry[];

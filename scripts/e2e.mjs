@@ -406,6 +406,31 @@ async function main() {
     await clickText('Hero', 'История');
     await waitScene('Hero');
     if (!(await hasText('Hero', 'Растёт копиями'))) problems.push('карточка героя: во вкладке «История» нет «Растёт копиями»');
+    // История героя кусочками (каждые 10 уровней): кнопка во вкладке «История» открывает страницу во весь экран.
+    {
+      const pos = await page.evaluate(() => {
+        const all = (list) => list.flatMap((o) => (o.list ? [o, ...all(o.list)] : [o]));
+        const b = all(window.__game.scene.getScene('Hero').children.list).find((o) => o.name === 'heroStoryBtn');
+        if (!b) return null;
+        const r = b.getBounds();
+        return [r.centerX, r.centerY];
+      });
+      if (!pos) problems.push('карточка героя: во вкладке «История» нет кнопки «История героя»');
+      else {
+        await clickGame(pos[0], pos[1]);
+        await sleep(600);
+        const open = await page.evaluate(() => !!window.__game.scene.getScene('Hero').children.getByName('heroStory'));
+        if (!open) problems.push('кнопка «История героя» не открыла страницу истории');
+        else {
+          for (const t of ['ИСТОРИЯ ГЕРОЯ', 'Открыто ', 'Ур. 100 · Откроется на ур. 100']) if (!(await hasText('Hero', t))) problems.push(`страница истории героя: нет «${t}»`);
+          await shot('hero-story');
+          await clickText('Hero', 'Закрыть');
+          await sleep(500);
+          await waitScene('Hero');
+          if (await page.evaluate(() => !!window.__game.scene.getScene('Hero').children.getByName('heroStory'))) problems.push('страница истории героя не закрылась');
+        }
+      }
+    }
     await clickText('Hero', 'Навыки');
     await waitScene('Hero');
     // Экран вознесения: слоты копий, откуда брать копии и кнопка «Вознести».
