@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "alde_owl_duke_preen",
+  "name": "Перо к перу",
+  "description": "Раненый герцог приглаживает перья и собирается: лечит себя (2 × атака).",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self",
+    "onlyWounded": true
+  },
+  "cooldown": 10,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "heal",
+      "k": 2
+    }
+  ],
+  "fallback": "basic_melee"
+}

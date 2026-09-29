@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "alde_alarm_ring",
+  "name": "Трезвон",
+  "description": "Будильник звенит в упор по всему фронту: урон и «Звон в ушах» (−25% скорости) на 2 хода.",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.1
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "ear_ringing",
+        "name": "Звон в ушах",
+        "turns": 2,
+        "stats": {
+          "spd": -0.25
+        }
+      }
+    }
+  ]
+}

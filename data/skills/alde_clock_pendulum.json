@@ -1,0 +1,39 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "alde_clock_pendulum",
+  "name": "Удар маятника",
+  "description": "Тяжёлый маятник выносит врага в тылу: урон, 60% оглушить на ход и «Ушиб» (урон каждый ход) на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    },
+    {
+      "type": "status",
+      "chance": 0.6,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "pendulum_bruise",
+        "name": "Ушиб",
+        "turns": 2,
+        "dot": {
+          "k": 0.12
+        }
+      }
+    }
+  ]
+}

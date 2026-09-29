@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "alde_mimic",
+  "name": "Мимик",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 620,
+    "atk": 52,
+    "def": 12,
+    "spd": 88
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "alde_mimic_snap",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "mimic",
+    "hitFx": "fx_hit"
+  }
+}
