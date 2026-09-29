@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "sewer_thief_bug_snatch",
+  "name": "Цап-хап",
+  "description": "Жук кусает ближайшего врага и утаскивает пряжку или монету: урон и «Обчищен» (−15% атаки) на 2 хода.",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "robbed",
+        "name": "Обчищен",
+        "turns": 2,
+        "stats": {
+          "atk": -0.15
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "alde_owl_baron_wings",
+  "name": "Крылья-щит",
+  "description": "Барон запахивается в крылья: щит 20% ОЗ себе.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 10,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.2
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "alde_elder_oil",
+  "name": "Капля масла",
+  "description": "Старейшина смазывает самого раненого союзника (1.8 × атака); если все целы — атакует.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true,
+    "onlyWounded": true
+  },
+  "cooldown": 6,
+  "priority": 10,
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.8
+    }
+  ],
+  "fallback": "basic_ranged"
+}

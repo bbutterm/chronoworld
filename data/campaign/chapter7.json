@@ -1,25 +1,40 @@
 {
   "$schema": "../schema/chapter.schema.json",
   "id": "chapter7",
-  "name": "Глава 7. Нифльхейм",
+  "name": "Глава 7. Летопись часов",
   "order": 7,
+  "episode": {
+    "title": "Летопись часов",
+    "subtitle": "Альдебаран и Часовая башня",
+    "quote": "Время не лечит. Время записывает.",
+    "text": "Альдебаран живёт по часам: по ним открывают шлюзы, варят зелья и платят Кафре. Над каналами стоит башня, и её бой слышно в каждом дворе.\n\nНо неделю назад часы на башне пошли назад, и никто в городе не может вспомнить, что было вчера. Кафра встречает гостей в третий раз за утро, а в архиве бледнеют чернила.\n\nАрхивариус просит одного: завести башню. А Бран просит другого — найти страницу, где записано, кто первым открыл ворота."
+  },
+  "legend": {
+    "title": "Башня, которая помнит",
+    "text": "Мастер башни Альдебарана поклялся записывать каждый час Мидгарда — и башня записывает до сих пор: войны, свадьбы, цены на яблоки. Говорят, если её правильно завести, она расскажет всё. Если неправильно — забудет всё сама.",
+    "source": "из путеводителя Кафры"
+  },
+  "chronicle": {
+    "title": "Две страницы",
+    "text": "В Альдебаране часы шли назад, и город неделю не помнил вчера. Отряд поднялся в башню мимо будильников и сов, спустился в архив и нашёл, что там побывал «вежливый господин в сером»: он вынес том «Двадцать лет назад» и оставил серый волос. Смотритель башни, заклеймённый рогатым знаком, раз за разом прокручивал одну ночь — 3:13, падение Гласт Хейма. Когда он уснул, часы пошли вперёд. Архивариус Одо отдал отряду две страницы: устав ночного караула Гласт Хейма и запись двадцатилетней давности, где рядом с именем капитана Гаррета стоит второе имя — Ансгар."
+  },
   "stages": [
     {
       "id": "ch7_s1",
-      "name": "Врата мёртвых",
+      "name": "Каналы Альдебарана",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob7_melee",
-          "mult": 0.297
+          "unit": "alde_alarm",
+          "mult": 0.3005
         },
         {
-          "unit": "mob7_tank",
-          "mult": 0.297
+          "unit": "alde_clock",
+          "mult": 0.3005
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.297
+          "unit": "alde_rideword",
+          "mult": 0.3005
         },
         null,
         null
@@ -35,24 +50,24 @@
     },
     {
       "id": "ch7_s2",
-      "name": "Река забвения",
+      "name": "Площадь часов",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob7_tank",
-          "mult": 0.202
+          "unit": "alde_clock",
+          "mult": 0.1845
         },
         {
-          "unit": "mob7_melee",
-          "mult": 0.202
+          "unit": "alde_alarm",
+          "mult": 0.1845
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.202
+          "unit": "alde_rideword",
+          "mult": 0.1845
         },
         {
-          "unit": "mob7_support",
-          "mult": 0.202
+          "unit": "alde_elder",
+          "mult": 0.1845
         },
         null
       ],
@@ -67,25 +82,25 @@
     },
     {
       "id": "ch7_s11",
-      "name": "Лодка перевозчика",
+      "name": "Двери башни",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob7_melee",
-          "mult": 0.236
+          "unit": "alde_alarm",
+          "mult": 0.2421
         },
         {
-          "unit": "mob7_melee",
-          "mult": 0.236
+          "unit": "alde_alarm",
+          "mult": 0.2421
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.236
+          "unit": "alde_rideword",
+          "mult": 0.2421
         },
         {
-          "unit": "mob7_support",
-          "mult": 0.236
+          "unit": "alde_elder",
+          "mult": 0.2421
         },
         null
       ],
@@ -100,24 +115,24 @@
     },
     {
       "id": "ch7_s3",
-      "name": "Деревня призраков",
+      "name": "Зал маятников",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob7_elite",
-          "mult": 0.163
+          "unit": "alde_owl_duke",
+          "mult": 0.1693
         },
         {
-          "unit": "mob7_melee",
-          "mult": 0.163
+          "unit": "alde_alarm",
+          "mult": 0.1693
         },
         {
-          "unit": "mob7_fast",
-          "mult": 0.163
+          "unit": "alde_punk",
+          "mult": 0.1693
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.163
+          "unit": "alde_rideword",
+          "mult": 0.1693
         },
         null
       ],
@@ -132,28 +147,28 @@
     },
     {
       "id": "ch7_s4",
-      "name": "Туманная переправа",
+      "name": "Будильники",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob7_tank",
-          "mult": 0.154
+          "unit": "alde_clock",
+          "mult": 0.1606
         },
         {
-          "unit": "mob7_melee",
-          "mult": 0.154
+          "unit": "alde_alarm",
+          "mult": 0.1606
         },
         {
-          "unit": "mob7_fast",
-          "mult": 0.154
+          "unit": "alde_punk",
+          "mult": 0.1606
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.154
+          "unit": "alde_rideword",
+          "mult": 0.1606
         },
         {
-          "unit": "mob7_support",
-          "mult": 0.154
+          "unit": "alde_elder",
+          "mult": 0.1606
         }
       ],
       "rewards": {
@@ -167,28 +182,28 @@
     },
     {
       "id": "ch7_s5",
-      "name": "Роща висельников",
+      "name": "Зал шестерён",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob7_tank",
-          "mult": 0.149
+          "unit": "alde_clock",
+          "mult": 0.1583
         },
         {
-          "unit": "mob7_tank",
-          "mult": 0.149
+          "unit": "alde_clock",
+          "mult": 0.1583
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.149
+          "unit": "alde_rideword",
+          "mult": 0.1583
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.149
+          "unit": "alde_rideword",
+          "mult": 0.1583
         },
         {
-          "unit": "mob7_fast",
-          "mult": 0.149
+          "unit": "alde_punk",
+          "mult": 0.1583
         }
       ],
       "rewards": {
@@ -202,29 +217,29 @@
     },
     {
       "id": "ch7_s12",
-      "name": "Кладбище без имён",
+      "name": "Библиотека райдвордов",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob7_tank",
-          "mult": 0.159
+          "unit": "alde_clock",
+          "mult": 0.1659
         },
         {
-          "unit": "mob7_melee",
-          "mult": 0.159
+          "unit": "alde_alarm",
+          "mult": 0.1659
         },
         {
-          "unit": "mob7_fast",
-          "mult": 0.159
+          "unit": "alde_punk",
+          "mult": 0.1659
         },
         {
-          "unit": "mob7_support",
-          "mult": 0.159
+          "unit": "alde_elder",
+          "mult": 0.1659
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.159
+          "unit": "alde_rideword",
+          "mult": 0.1659
         }
       ],
       "rewards": {
@@ -234,32 +249,42 @@
       "offlinePerMinute": {
         "jobExp": 1315,
         "gold": 924
+      },
+      "finding": {
+        "id": "ch7_f_7a_bell_alloy",
+        "title": "Рецепт на полях",
+        "kind": "note",
+        "text": "В книге о литье кто-то мелко записал на полях: «Колокольный металл собора Гласт Хейма. Олово, медь и щепоть серебра с алтаря. Отбивает смену караула — и живым, и мёртвым». Ниже нарисован колокол с трещиной и стрелкой: «обломки — к кладоискателям».",
+        "comment": {
+          "speaker": "Грета",
+          "text": "Мой колокольчик — оттуда. Бабушка говорила «соборный», а я думала — для красоты."
+        }
       }
     },
     {
       "id": "ch7_s6",
-      "name": "Долина стенаний",
+      "name": "Совиный чердак",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob7_elite",
-          "mult": 0.123
+          "unit": "alde_owl_duke",
+          "mult": 0.1317
         },
         {
-          "unit": "mob7_tank",
-          "mult": 0.123
+          "unit": "alde_clock",
+          "mult": 0.1317
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.123
+          "unit": "alde_rideword",
+          "mult": 0.1317
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.123
+          "unit": "alde_rideword",
+          "mult": 0.1317
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.123
+          "unit": "alde_rideword",
+          "mult": 0.1317
         }
       ],
       "rewards": {
@@ -273,25 +298,25 @@
     },
     {
       "id": "ch7_s13",
-      "name": "Мост Гьёлль",
+      "name": "Гнездо Совиного барона",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob7_bridge_warden",
-          "mult": 0.119
+          "unit": "alde_owl_baron",
+          "mult": 0.1296
         },
         {
-          "unit": "mob7_melee",
-          "mult": 0.119
+          "unit": "alde_alarm",
+          "mult": 0.1296
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.119
+          "unit": "alde_rideword",
+          "mult": 0.1296
         },
         {
-          "unit": "mob7_support",
-          "mult": 0.119
+          "unit": "alde_elder",
+          "mult": 0.1296
         },
         null
       ],
@@ -306,28 +331,28 @@
     },
     {
       "id": "ch7_s7",
-      "name": "Кровавый балаган",
+      "name": "Верхний циферблат",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob7_elite",
-          "mult": 0.098
+          "unit": "alde_owl_duke",
+          "mult": 0.1067
         },
         {
-          "unit": "mob7_elite",
-          "mult": 0.098
+          "unit": "alde_owl_duke",
+          "mult": 0.1067
         },
         {
-          "unit": "mob7_fast",
-          "mult": 0.098
+          "unit": "alde_punk",
+          "mult": 0.1067
         },
         {
-          "unit": "mob7_fast",
-          "mult": 0.098
+          "unit": "alde_punk",
+          "mult": 0.1067
         },
         {
-          "unit": "mob7_support",
-          "mult": 0.098
+          "unit": "alde_elder",
+          "mult": 0.1067
         }
       ],
       "rewards": {
@@ -341,29 +366,29 @@
     },
     {
       "id": "ch7_s14",
-      "name": "Кукольный театр",
+      "name": "Мастерская панков",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob7_fast",
-          "mult": 0.165
+          "unit": "alde_punk",
+          "mult": 0.1716
         },
         {
-          "unit": "mob7_fast",
-          "mult": 0.165
+          "unit": "alde_punk",
+          "mult": 0.1716
         },
         {
-          "unit": "mob7_fast",
-          "mult": 0.165
+          "unit": "alde_punk",
+          "mult": 0.1716
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.165
+          "unit": "alde_rideword",
+          "mult": 0.1716
         },
         {
-          "unit": "mob7_support",
-          "mult": 0.165
+          "unit": "alde_elder",
+          "mult": 0.1716
         }
       ],
       "rewards": {
@@ -377,28 +402,28 @@
     },
     {
       "id": "ch7_s8",
-      "name": "Стены Чёрной цитадели",
+      "name": "Лестница в подвал",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob7_tank",
-          "mult": 0.109
+          "unit": "alde_clock",
+          "mult": 0.122
         },
         {
-          "unit": "mob7_elite",
-          "mult": 0.109
+          "unit": "alde_owl_duke",
+          "mult": 0.122
         },
         {
-          "unit": "mob7_elite",
-          "mult": 0.109
+          "unit": "alde_owl_duke",
+          "mult": 0.122
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.109
+          "unit": "alde_rideword",
+          "mult": 0.122
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.109
+          "unit": "alde_rideword",
+          "mult": 0.122
         }
       ],
       "rewards": {
@@ -408,33 +433,43 @@
       "offlinePerMinute": {
         "jobExp": 1450,
         "gold": 1019
+      },
+      "finding": {
+        "id": "ch7_f_7a_grey_hair",
+        "title": "Заметка алхимика",
+        "kind": "note",
+        "text": "Листок из гильдии алхимиков, приколотый к полке у лестницы: «Кто-то вынес из архива один том. Замок цел, пыль не тронута. На полке остался серый волос — длинный, не совиный. Бирка тома: „Двадцать лет назад“. Прошу архивариуса проверить опись». Ответа на листке нет.",
+        "comment": {
+          "speaker": "Дорн",
+          "text": "Замок цел, пыль цела. Так ходят только те, кого впустили сами."
+        }
       }
     },
     {
       "id": "ch7_s15",
-      "name": "Двор цитадели",
+      "name": "Архив",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob7_tank",
-          "mult": 0.119
+          "unit": "alde_clock",
+          "mult": 0.1233
         },
         {
-          "unit": "mob7_tank",
-          "mult": 0.119
+          "unit": "alde_clock",
+          "mult": 0.1233
         },
         {
-          "unit": "mob7_elite",
-          "mult": 0.119
+          "unit": "alde_owl_duke",
+          "mult": 0.1233
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.119
+          "unit": "alde_rideword",
+          "mult": 0.1233
         },
         {
-          "unit": "mob7_support",
-          "mult": 0.119
+          "unit": "alde_elder",
+          "mult": 0.1233
         }
       ],
       "rewards": {
@@ -444,32 +479,42 @@
       "offlinePerMinute": {
         "jobExp": 1479,
         "gold": 1039
+      },
+      "finding": {
+        "id": "ch7_f_7a_guest_card",
+        "title": "Карточка архива",
+        "kind": "item",
+        "text": "Жёлтая карточка из ящика «Гласт Хейм», почерк старый, чернила выцвели: «Пир у владыки в ночь падения. Гостей — сорок. Один гость без имени: в сером, вежлив, пришёл пешком, ушёл до рассвета». Внизу приписка другой рукой, свежая: «Сверено».",
+        "comment": {
+          "speaker": "Бран",
+          "text": "«Сверено». Кто-то проверял, записан ли он. Значит, ему важно, что здесь помнят."
+        }
       }
     },
     {
       "id": "ch7_s9",
-      "name": "Зал Чёрного колокола",
+      "name": "Обратный ход",
       "boss": false,
       "enemies": [
         {
-          "unit": "mob7_elite",
-          "mult": 0.084
+          "unit": "alde_owl_duke",
+          "mult": 0.0943
         },
         {
-          "unit": "mob7_tank",
-          "mult": 0.084
+          "unit": "alde_clock",
+          "mult": 0.0943
         },
         {
-          "unit": "mob7_elite",
-          "mult": 0.084
+          "unit": "alde_owl_duke",
+          "mult": 0.0943
         },
         {
-          "unit": "mob7_elite",
-          "mult": 0.084
+          "unit": "alde_owl_duke",
+          "mult": 0.0943
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.084
+          "unit": "alde_rideword",
+          "mult": 0.0943
         }
       ],
       "rewards": {
@@ -483,29 +528,29 @@
     },
     {
       "id": "ch7_s16",
-      "name": "Лестница звонаря",
+      "name": "Сундуки архива",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob7_elite",
-          "mult": 0.111
+          "unit": "alde_owl_duke",
+          "mult": 0.1287
         },
         {
-          "unit": "mob7_melee",
-          "mult": 0.111
+          "unit": "alde_mimic",
+          "mult": 0.1287
         },
         {
-          "unit": "mob7_fast",
-          "mult": 0.111
+          "unit": "alde_punk",
+          "mult": 0.1287
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.111
+          "unit": "alde_rideword",
+          "mult": 0.1287
         },
         {
-          "unit": "mob7_support",
-          "mult": 0.111
+          "unit": "alde_elder",
+          "mult": 0.1287
         }
       ],
       "rewards": {
@@ -519,29 +564,29 @@
     },
     {
       "id": "ch7_s17",
-      "name": "Колокольня",
+      "name": "Зал остановленного часа",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob7_tank",
-          "mult": 0.102
+          "unit": "alde_clock",
+          "mult": 0.1148
         },
         {
-          "unit": "mob7_elite",
-          "mult": 0.102
+          "unit": "alde_owl_duke",
+          "mult": 0.1148
         },
         {
-          "unit": "mob7_elite",
-          "mult": 0.102
+          "unit": "alde_owl_duke",
+          "mult": 0.1148
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.102
+          "unit": "alde_rideword",
+          "mult": 0.1148
         },
         {
-          "unit": "mob7_support",
-          "mult": 0.102
+          "unit": "alde_elder",
+          "mult": 0.1148
         }
       ],
       "rewards": {
@@ -551,33 +596,43 @@
       "offlinePerMinute": {
         "jobExp": 1538,
         "gold": 1081
+      },
+      "finding": {
+        "id": "ch7_f_7a_three_thirteen",
+        "title": "Страница летописи",
+        "kind": "inscription",
+        "text": "Страница летописи башни, строки ровные, как шестерни: «В ночь падения Гласт Хейма часы башни остановились на 3:13. Владыка города открыл ворота ночного караула и впустил гостя. Караул стоял до конца. Караул стоит и теперь». Дальше страница пустая — башня тогда впервые замолчала.",
+        "comment": {
+          "speaker": "Вика",
+          "text": "Караул стоит и теперь… Значит, они до сих пор там. Все эти годы."
+        }
       }
     },
     {
       "id": "ch7_s18",
-      "name": "Врата тронного зала",
+      "name": "Сердце механизма",
       "boss": false,
       "inserted": true,
       "enemies": [
         {
-          "unit": "mob7_elite",
-          "mult": 0.101
+          "unit": "alde_owl_duke",
+          "mult": 0.1146
         },
         {
-          "unit": "mob7_melee",
-          "mult": 0.101
+          "unit": "alde_alarm",
+          "mult": 0.1146
         },
         {
-          "unit": "mob7_elite",
-          "mult": 0.101
+          "unit": "alde_owl_duke",
+          "mult": 0.1146
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.101
+          "unit": "alde_rideword",
+          "mult": 0.1146
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.101
+          "unit": "alde_rideword",
+          "mult": 0.1146
         }
       ],
       "rewards": {
@@ -591,28 +646,28 @@
     },
     {
       "id": "ch7_s10",
-      "name": "Трон Тёмного лорда",
+      "name": "Смотритель часовой башни",
       "boss": true,
       "enemies": [
         {
-          "unit": "mob7_elite",
-          "mult": 0.08
+          "unit": "alde_owl_duke",
+          "mult": 0.0901
         },
         {
-          "unit": "mob7_boss",
-          "mult": 0.061
+          "unit": "alde_keeper",
+          "mult": 0.0687
         },
         {
-          "unit": "mob7_elite",
-          "mult": 0.08
+          "unit": "alde_owl_duke",
+          "mult": 0.0901
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.08
+          "unit": "alde_rideword",
+          "mult": 0.0901
         },
         {
-          "unit": "mob7_ranged",
-          "mult": 0.08
+          "unit": "alde_rideword",
+          "mult": 0.0901
         }
       ],
       "rewards": {

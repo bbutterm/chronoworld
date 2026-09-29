@@ -1,8 +1,8 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "mob7_boss_black_toll",
-  "name": "Похоронный звон",
-  "description": "Когда гибнет союзник, колокол звонит по нему: лорд получает 25 энергии.",
+  "name": "Последний вздох",
+  "description": "Когда гибнет союзник, лорд забирает его последний вздох: +25 энергии.",
   "trigger": "allyDeath",
   "target": {
     "side": "ally",

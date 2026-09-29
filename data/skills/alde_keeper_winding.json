@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "alde_keeper_winding",
+  "name": "Завод пружины",
+  "description": "Долгий каст: Смотритель заводит главную пружину и прячется за щитом на 18% макс. ОЗ. Оглушение сбивает каст.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 18,
+  "castTime": 1.5,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.18
+    }
+  ]
+}

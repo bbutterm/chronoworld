@@ -51,7 +51,13 @@ const DAYS = num('days', 11);
 const FIT = num('fit', 0);
 const MODEL_SEEDS = list('seeds-model', [1, 2, 3]);
 const TARGETS = list('targets', [136, 164, 192, 220]);
-const FIT_CHAPTERS = ['chapter4', 'chapter5', 'chapter6', 'chapter7'];
+/**
+ * --chapters chapter8,chapter10 — какие главы подбирать (по умолчанию 4–7). База («--a3», конец прошлой главы) — глава
+ * перед первой из них в порядке кампании (для 4–7 — глава 3, для 8 — глава 7); --base <id> — явно. Замер D — база и
+ * подбираемые главы; прочие главы не трогаются. Маршрут из 10 глав (29.09): главы 8 и 10 подобраны отдельно от 4–7,
+ * продолжают их кривую; глава 9 пока не написана, глава 10 идёт сразу за 8-й.
+ */
+const FIT_CHAPTERS = flag('chapters').length ? flag('chapters').at(-1)!.split(',') : ['chapter4', 'chapter5', 'chapter6', 'chapter7'];
 const STEPS = num('steps', 9);
 const MODEL_SQUAD_SEEDS = list('model-squads', [1, 2, 3, 4]);
 const MODEL_SQUAD_DAYS = list('model-days', [4, 6, 8]);
@@ -110,7 +116,17 @@ function print(ctx: FullContext, d: Map<string, number>, target?: Map<string, nu
  * Мини-боссы середины глав (docs/content/campaign.md): первый этап главы с таким врагом — ступенька ×--mini над трендом
  * (мягкая стена внутри главы), дальше тренд идёт как шёл.
  */
-const MINI_BOSS_UNITS = new Set(['mob4_ancient_mummy', 'mob5_munak_elder', 'mob6_bosun', 'mob7_bridge_warden']);
+const MINI_BOSS_UNITS = new Set([
+  'mob4_ancient_mummy',
+  'mob5_munak_elder',
+  'mob6_bosun',
+  // Маршрут из 10 глав: Страж моста — гл. 10, Верховный жрец — мини-босс гл. 8; слоты 2 и 7 — свои мини-боссы.
+  'mob7_bridge_warden',
+  'mob3_boss',
+  'orc_hero',
+  'sewer_bug_leader',
+  'alde_owl_baron',
+]);
 const MINI = num('mini', 1.1);
 
 function miniBossStages(ctx: FullContext): Set<string> {
@@ -259,7 +275,8 @@ function write(d0: Map<string, number>, targets: Map<string, number>): void {
     const json = structuredClone(original.get(chapter)!);
     for (const st of json.stages) {
       const f = targets.get(st.id)! / d0.get(st.id)!;
-      for (const e of st.enemies) if (e) e.mult = Math.round((e.mult ?? 1) * f * 1000) / 1000;
+      // 4 знака: у поздних глав mult — сотые доли (рост силы 1.08^N), 3 знака дают ошибку округления до 3%.
+      for (const e of st.enemies) if (e) e.mult = Math.round((e.mult ?? 1) * f * 10000) / 10000;
     }
     writeFileSync(files.get(chapter)!, JSON.stringify(json, null, 2) + '\n');
   }
@@ -273,10 +290,14 @@ const median = (xs: number[]) => {
 // ---------- запуск ----------
 
 const ctx0 = loadFullContext();
+for (const c of FIT_CHAPTERS) if (!ctx0.content.chapters.some((x) => x.id === c)) throw new Error(`--chapters: главы ${c} нет в data/campaign`);
+/** База: глава перед первой подбираемой (её конец — начало кривой, --a3). */
+const BASE =
+  flag('base').at(-1) ?? ctx0.content.chapters[Math.max(0, ctx0.content.chapters.findIndex((c) => c.id === FIT_CHAPTERS[0]) - 1)].id;
 const anchorsArg = flag('anchors').length ? list('anchors', []) : null;
 if (!anchorsArg && !FIT && !argv.includes('--recommended')) {
   console.log(`Эталон: фиолетовые ур. ${LEVEL}, ${SEEDS} seed на точку`);
-  const d = measure(ctx0, new Set(['chapter3', ...FIT_CHAPTERS]));
+  const d = measure(ctx0, new Set([BASE, ...FIT_CHAPTERS]));
   print(ctx0, d);
   // --save-d файл: замер в JSON, чтобы подбор (--fit --load-d файл) не мерил заново (~полчаса).
   if (flag('save-d').length) writeFileSync(flag('save-d').at(-1)!, JSON.stringify(Object.fromEntries(d), null, 1) + '\n');
@@ -304,16 +325,16 @@ const known = anchorsArg && Number.isFinite(a3Arg);
 const loaded = flag('load-d').length ? new Map(Object.entries(JSON.parse(readFileSync(flag('load-d').at(-1)!, 'utf8')) as Record<string, number>)) : null;
 if (!known && !loaded) console.log(`Замер D (эталон — фиолетовые ур. ${LEVEL}, ${SEEDS} seed)…`);
 // --load-d важнее: замер текущих данных, --anchors — тогда только стартовые якоря подбора.
-const d0 = loaded ?? (known ? targetsFor(ctx0, a3Arg, anchorsArg) : measure(ctx0, new Set(['chapter3', ...FIT_CHAPTERS])));
+const d0 = loaded ?? (known ? targetsFor(ctx0, a3Arg, anchorsArg) : measure(ctx0, new Set([BASE, ...FIT_CHAPTERS])));
 // Конец главы 3 — по последним трём рядовым этапам (замер шумит на ±5%). Главы 1–3 не трогаем.
 // --a3 без --anchors — начало главы 4 задано явно (ближе к боссу главы 3, чтобы после него глава 4 не проходилась
 // целиком за одну сессию), иначе — замер конца главы 3.
-const a3 = known || Number.isFinite(a3Arg) ? a3Arg : median(ctx0.content.stages.filter((s) => s.chapter === 'chapter3' && !s.boss).map((s) => d0.get(s.id)!).slice(-3));
+const a3 = known || Number.isFinite(a3Arg) ? a3Arg : median(ctx0.content.stages.filter((s) => s.chapter === BASE && !s.boss).map((s) => d0.get(s.id)!).slice(-3));
 let anchors = anchorsArg ?? FIT_CHAPTERS.map((chapter) => {
   const regular = ctx0.content.stages.filter((s) => s.chapter === chapter && !s.boss).map((s) => d0.get(s.id)!);
   return median(regular.slice(-3));
 });
-console.log(`конец главы 3: D ${a3.toFixed(3)}; якоря глав 4–7: ${anchors.map((a) => a.toFixed(3)).join(', ')}`);
+console.log(`конец главы ${BASE}: D ${a3.toFixed(3)}; якоря ${FIT_CHAPTERS.join(", ")}: ${anchors.map((a) => a.toFixed(3)).join(", ")}`);
 
 if (!FIT) {
   const t = targetsFor(ctx0, a3, anchors);

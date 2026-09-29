@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "sewer_bug_leader_clutch",
+  "name": "Приданое для кладки",
+  "description": "Вожак бросается на ближайшего врага переднего ряда: три удара жвалами.",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest",
+    "row": "front"
+  },
+  "hits": 3,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    }
+  ]
+}

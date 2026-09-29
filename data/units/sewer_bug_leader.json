@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "sewer_bug_leader",
+  "name": "Вожак жуков",
+  "kind": "monster",
+  "role": "damage",
+  "stats": {
+    "hp": 1680,
+    "atk": 93,
+    "def": 14,
+    "spd": 105
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "sewer_bug_leader_clutch",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "elite",
+    "tint": "#2f4a36",
+    "scale": 1.1,
+    "hitFx": "fx_hit"
+  },
+  "barks": {
+    "start": "Щёлк! Кладка! Кто тронет кладку — станет кладкой!",
+    "half": "Щёлк-щёлк… самка, сюда! Нас грабят! Нас!",
+    "defeat": "Щёлк… берите ложки… яйца не берите…",
+    "victory": "Щёлк. Ещё пряжки в приданое. Спасибо, что зашли."
+  }
+}

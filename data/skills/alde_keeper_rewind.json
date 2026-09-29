@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "alde_keeper_rewind",
+  "name": "Обратный ход",
+  "description": "Все стрелки башни рвутся назад: урон по всем врагам и «Стёртый час» (урон каждый ход) на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "erased_hour",
+        "name": "Стёртый час",
+        "turns": 2,
+        "dot": {
+          "k": 0.12
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "orc_lord_ancestors_rise",
+  "name": "Подъём предков",
+  "description": "Орк-лорд бьёт секирой оземь, из-под камня тянутся руки мёртвых: урон по всем врагам и хватка (−15% атаки на 2 хода).",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "ancestor_grip",
+        "name": "Хватка предков",
+        "turns": 2,
+        "stats": {
+          "atk": -0.15
+        }
+      }
+    }
+  ]
+}

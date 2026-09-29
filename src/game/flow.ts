@@ -382,9 +382,10 @@ export function formatNumber(n: number): string {
  * MT-05 / NB-10: номер этапа «глава-этап», как в AFK Arena («2-5») — один формат на карте, в «В бой», в баннерах и
  * замках. Номер в главе — по месту в списке главы (index), а не по id: этапы вставляют в середину главы.
  */
-export function stageNo(stage: { chapter: string; index: number }, ctx: { content: { chapters: readonly { id: string }[] } }): string {
-  const ch = ctx.content.chapters.findIndex((c) => c.id === stage.chapter);
-  return `${ch + 1}-${stage.index + 1}`;
+export function stageNo(stage: { chapter: string; index: number }, ctx: { content: { chapters: readonly { id: string; order: number }[] } }): string {
+  // Номер главы — на маршруте (order): после главы 8 идёт «10-1», пока глава 9 не написана.
+  const ch = ctx.content.chapters.find((c) => c.id === stage.chapter);
+  return `${ch?.order ?? 1}-${stage.index + 1}`;
 }
 
 // ---------- K6. Экипировка ----------
