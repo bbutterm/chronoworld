@@ -34,6 +34,39 @@
       }
     },
     {
+      "id": "ch2_s11",
+      "name": "Затопленный погост",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob2_melee",
+          "mult": 0.971
+        },
+        {
+          "unit": "mob2_tank",
+          "mult": 0.992
+        },
+        {
+          "unit": "mob2_melee",
+          "mult": 0.971
+        },
+        null,
+        {
+          "unit": "mob2_ranged",
+          "mult": 0.971
+        }
+      ],
+      "rewards": {
+        "jobExp": 1120,
+        "gold": 780
+      },
+      "offlinePerMinute": {
+        "jobExp": 37,
+        "gold": 26
+      }
+    },
+    {
       "id": "ch2_s2",
       "name": "Туманная низина",
       "boss": false,
@@ -63,6 +96,39 @@
       "offlinePerMinute": {
         "jobExp": 39,
         "gold": 27
+      }
+    },
+    {
+      "id": "ch2_s12",
+      "name": "Гнилые мостки",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob2_tank",
+          "mult": 1.279
+        },
+        {
+          "unit": "mob_poporing",
+          "mult": 1.279
+        },
+        null,
+        {
+          "unit": "mob_marin",
+          "mult": 1.279
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1.279
+        }
+      ],
+      "rewards": {
+        "jobExp": 1230,
+        "gold": 850
+      },
+      "offlinePerMinute": {
+        "jobExp": 41,
+        "gold": 28
       }
     },
     {
@@ -101,6 +167,42 @@
       }
     },
     {
+      "id": "ch2_s13",
+      "name": "Кузнечиковы кочки",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob2_fast",
+          "mult": 1.212
+        },
+        {
+          "unit": "mob2_tank",
+          "mult": 1.371
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 1.212
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 1.212
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 1.212
+        }
+      ],
+      "rewards": {
+        "jobExp": 1350,
+        "gold": 940
+      },
+      "offlinePerMinute": {
+        "jobExp": 45,
+        "gold": 31
+      }
+    },
+    {
       "id": "ch2_s4",
       "name": "Кочки и засада",
       "boss": false,
@@ -133,6 +235,42 @@
       }
     },
     {
+      "id": "ch2_s14",
+      "name": "Страж омута",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob2_fast",
+          "mult": 0.841
+        },
+        {
+          "unit": "mob2_elite",
+          "mult": 1.851
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 0.841
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 0.841
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 0.841
+        }
+      ],
+      "rewards": {
+        "jobExp": 1470,
+        "gold": 1030
+      },
+      "offlinePerMinute": {
+        "jobExp": 49,
+        "gold": 34
+      }
+    },
+    {
       "id": "ch2_s5",
       "name": "Омут утопленника",
       "boss": false,
@@ -162,6 +300,42 @@
       "offlinePerMinute": {
         "jobExp": 51,
         "gold": 36
+      }
+    },
+    {
+      "id": "ch2_s15",
+      "name": "Тропа контрабандистов",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob2_melee",
+          "mult": 1.343
+        },
+        {
+          "unit": "mob2_tank",
+          "mult": 1.385
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 1.343
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1.343
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1.343
+        }
+      ],
+      "rewards": {
+        "jobExp": 1590,
+        "gold": 1110
+      },
+      "offlinePerMinute": {
+        "jobExp": 53,
+        "gold": 37
       }
     },
     {
@@ -200,6 +374,42 @@
       }
     },
     {
+      "id": "ch2_s16",
+      "name": "Болотные огни",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob2_tank",
+          "mult": 1.42
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 1.297
+        },
+        {
+          "unit": "mob2_fast",
+          "mult": 1.297
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1.297
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1.297
+        }
+      ],
+      "rewards": {
+        "jobExp": 1720,
+        "gold": 1200
+      },
+      "offlinePerMinute": {
+        "jobExp": 57,
+        "gold": 40
+      }
+    },
+    {
       "id": "ch2_s7",
       "name": "Шорох в тумане",
       "boss": false,
@@ -235,6 +445,42 @@
       }
     },
     {
+      "id": "ch2_s17",
+      "name": "Шлемы в трясине",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob2_melee",
+          "mult": 1.168
+        },
+        {
+          "unit": "mob2_elite",
+          "mult": 1.169
+        },
+        {
+          "unit": "mob2_melee",
+          "mult": 1.168
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1.168
+        },
+        {
+          "unit": "mob_marin",
+          "mult": 1.168
+        }
+      ],
+      "rewards": {
+        "jobExp": 1890,
+        "gold": 1320
+      },
+      "offlinePerMinute": {
+        "jobExp": 63,
+        "gold": 44
+      }
+    },
+    {
       "id": "ch2_s8",
       "name": "Ярость топей",
       "boss": false,
@@ -267,6 +513,42 @@
       "offlinePerMinute": {
         "jobExp": 66,
         "gold": 46
+      }
+    },
+    {
+      "id": "ch2_s18",
+      "name": "Шепчущие ивы",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob2_melee",
+          "mult": 1.226
+        },
+        {
+          "unit": "mob2_tank",
+          "mult": 1.158
+        },
+        {
+          "unit": "mob2_melee",
+          "mult": 1.226
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1.226
+        },
+        {
+          "unit": "mob2_ranged",
+          "mult": 1.226
+        }
+      ],
+      "rewards": {
+        "jobExp": 2070,
+        "gold": 1440
+      },
+      "offlinePerMinute": {
+        "jobExp": 69,
+        "gold": 48
       }
     },
     {

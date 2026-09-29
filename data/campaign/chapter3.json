@@ -34,6 +34,39 @@
       }
     },
     {
+      "id": "ch3_s11",
+      "name": "Ржавые решётки",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 0.911
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.911
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.911
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.911
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 2670,
+        "gold": 1860
+      },
+      "offlinePerMinute": {
+        "jobExp": 89,
+        "gold": 62
+      }
+    },
+    {
       "id": "ch3_s2",
       "name": "Зал стражей",
       "boss": false,
@@ -63,6 +96,42 @@
       "offlinePerMinute": {
         "jobExp": 93,
         "gold": 65
+      }
+    },
+    {
+      "id": "ch3_s12",
+      "name": "Оружейная рыцарей",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 0.884
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.884
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.884
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.884
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.884
+        }
+      ],
+      "rewards": {
+        "jobExp": 2910,
+        "gold": 2040
+      },
+      "offlinePerMinute": {
+        "jobExp": 97,
+        "gold": 68
       }
     },
     {
@@ -101,6 +170,42 @@
       }
     },
     {
+      "id": "ch3_s13",
+      "name": "Колокольня гаргулий",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_fast",
+          "mult": 1.199
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1.199
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1.199
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1.199
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.199
+        }
+      ],
+      "rewards": {
+        "jobExp": 3160,
+        "gold": 2220
+      },
+      "offlinePerMinute": {
+        "jobExp": 105,
+        "gold": 74
+      }
+    },
+    {
       "id": "ch3_s4",
       "name": "Костяной строй",
       "boss": false,
@@ -133,6 +238,42 @@
       "offlinePerMinute": {
         "jobExp": 110,
         "gold": 77
+      }
+    },
+    {
+      "id": "ch3_s14",
+      "name": "Темницы Гласт Хейма",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 1.09
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1.09
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1.09
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.078
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1.078
+        }
+      ],
+      "rewards": {
+        "jobExp": 3450,
+        "gold": 2410
+      },
+      "offlinePerMinute": {
+        "jobExp": 115,
+        "gold": 80
       }
     },
     {
@@ -171,6 +312,36 @@
       }
     },
     {
+      "id": "ch3_s15",
+      "name": "Рыцарь на мосту",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        null,
+        {
+          "unit": "mob3_knight",
+          "mult": 1.585
+        },
+        null,
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.765
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.765
+        }
+      ],
+      "rewards": {
+        "jobExp": 3760,
+        "gold": 2640
+      },
+      "offlinePerMinute": {
+        "jobExp": 125,
+        "gold": 88
+      }
+    },
+    {
       "id": "ch3_s6",
       "name": "Катакомбы",
       "boss": false,
@@ -203,6 +374,42 @@
       "offlinePerMinute": {
         "jobExp": 131,
         "gold": 92
+      }
+    },
+    {
+      "id": "ch3_s16",
+      "name": "Костница",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 1.028
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.804
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1.028
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.028
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.028
+        }
+      ],
+      "rewards": {
+        "jobExp": 4110,
+        "gold": 2880
+      },
+      "offlinePerMinute": {
+        "jobExp": 137,
+        "gold": 96
       }
     },
     {
@@ -241,6 +448,36 @@
       }
     },
     {
+      "id": "ch3_s17",
+      "name": "Хоры капеллы",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 1.311
+        },
+        null,
+        null,
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.688
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.688
+        }
+      ],
+      "rewards": {
+        "jobExp": 4480,
+        "gold": 3130
+      },
+      "offlinePerMinute": {
+        "jobExp": 149,
+        "gold": 104
+      }
+    },
+    {
       "id": "ch3_s8",
       "name": "Орден смерти",
       "boss": false,
@@ -273,6 +510,42 @@
       "offlinePerMinute": {
         "jobExp": 156,
         "gold": 109
+      }
+    },
+    {
+      "id": "ch3_s18",
+      "name": "Ночной караул",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_elite",
+          "mult": 0.829
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.784
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.784
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.784
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.784
+        }
+      ],
+      "rewards": {
+        "jobExp": 4890,
+        "gold": 3420
+      },
+      "offlinePerMinute": {
+        "jobExp": 163,
+        "gold": 114
       }
     },
     {

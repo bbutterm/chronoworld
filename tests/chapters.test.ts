@@ -48,25 +48,27 @@ describe('K3 главы 2–3', () => {
     }
   });
 
-  it('выпущенные главы 1–3: id этапов ch<N>_s1…s10 на месте (id в сохранениях игроков); глава 1 растянута до 18 этапов', () => {
-    // Главы 2–3 — ровно 10 этапов ch<N>_s1…s10. Глава 1 (28.09, «растянуть главу 1», docs/design/chapter1.md): выпущенные
-    // ch1_s1…s10 не переименованы и идут в прежнем порядке, босс ch1_s10 — последний; вставные ch1_s11…s18 — между ними
-    // (помечены inserted: не двигают рост силы врагов, поэтому главы 2–7 не усилились).
+  it('выпущенные главы 1–3: id этапов ch<N>_s1…s10 на месте (id в сохранениях игроков); главы растянуты до 18 этапов', () => {
+    // Глава 1 (28.09, «растянуть главу 1», docs/design/chapter1.md), главы 2–3 (29.09, «растянуть главы до 18 этапов»):
+    // выпущенные ch<N>_s1…s10 не переименованы и идут в прежнем порядке, босс ch<N>_s10 — последний; вставные ch<N>_s11…s18 —
+    // между ними (помечены inserted: не двигают рост силы врагов, поэтому следующие главы не усилились).
     for (const [n, c] of RELEASED.entries()) {
       const ids = chapterStages(c).map((s) => s.id);
       const released = Array.from({ length: 10 }, (_, i) => `ch${n + 1}_s${i + 1}`);
-      if (c === 'chapter1') {
-        expect(ids.filter((id) => released.includes(id))).toEqual(released);
-        expect(ids.filter((id) => !released.includes(id)).sort()).toEqual(Array.from({ length: 8 }, (_, i) => `ch1_s${i + 11}`).sort());
-        expect(ids).toHaveLength(18);
-        for (const s of chapterStages(c)) expect(!!s.inserted, s.id).toBe(!released.includes(s.id));
-      } else expect(ids).toEqual(released);
+      expect(ids.filter((id) => released.includes(id)), c).toEqual(released);
+      expect(ids.filter((id) => !released.includes(id)).sort(), c).toEqual(Array.from({ length: 8 }, (_, i) => `ch${n + 1}_s${i + 11}`).sort());
+      expect(ids, c).toHaveLength(18);
+      expect(ids.at(-1), c).toBe(`ch${n + 1}_s10`);
+      for (const s of chapterStages(c)) expect(!!s.inserted, s.id).toBe(!released.includes(s.id));
     }
     // Ступень роста врагов выпущенных этапов — прежняя (как globalIndex до вставки): ch<N>_s<k> → (N−1)·10 + k − 1.
     for (const [n, c] of RELEASED.entries())
       for (const s of chapterStages(c).filter((x) => !x.inserted)) expect(growthStep(s, ctx), s.id).toBe(n * 10 + Number(s.id.split('_s')[1]) - 1);
     // Вставной этап растёт как предыдущий обычный: ch1_s11 (после ch1_s2) — ступень 1.
     expect(growthStep(stages.find((s) => s.id === 'ch1_s11')!, ctx)).toBe(1);
+    // ch2_s11 (после ch2_s1) — ступень 10, ch3_s18 (после ch3_s8) — ступень 27.
+    expect(growthStep(stages.find((s) => s.id === 'ch2_s11')!, ctx)).toBe(10);
+    expect(growthStep(stages.find((s) => s.id === 'ch3_s18')!, ctx)).toBe(27);
   });
 
   it('боссы глав 2–3 — мини-боссы: Древняя ива (mob2_boss, лист ивы) и Верховный жрец (mob3_boss, лист Тёмного жреца)', () => {
@@ -168,7 +170,7 @@ describe('K3 главы 2–3', () => {
     const ch1 = chapterStages('chapter1').length;
     expect(stageStatus(clearedUpTo(ch1 - 1), 'ch2_s1', ctx)).toBe('locked');
     expect(stageStatus(clearedUpTo(ch1), 'ch2_s1', ctx)).toBe('open');
-    expect(stageStatus(clearedUpTo(ch1 + 10), 'ch3_s1', ctx)).toBe('open');
+    expect(stageStatus(clearedUpTo(ch1 + chapterStages('chapter2').length), 'ch3_s1', ctx)).toBe('open');
     for (const c of chapters.slice(1)) {
       const first = chapterStages(c.id)[0];
       expect(stageStatus(clearedUpTo(first.globalIndex - 1), first.id, ctx), first.id).toBe('locked');
@@ -180,7 +182,7 @@ describe('K3 главы 2–3', () => {
     const g = ctx.progression.campaign.enemyStatGrowthPerStage;
     const e = enemySquad('ch3_s1', ctx)[0]!;
     const slot = stages.find((s) => s.id === 'ch3_s1')!.enemies[0]!;
-    // ch3_s1 — 29-й по порядку (глава 1 — 18 этапов), но ступень роста прежняя — 20: глава 3 не усилилась.
+    // ch3_s1 — 37-й по порядку (главы 1–2 — по 18 этапов), но ступень роста прежняя — 20: глава 3 не усилилась.
     expect(e.stats.hp).toBe(Math.round(ctx.content.units[slot.unit].stats.hp * slot.mult * Math.pow(1 + g, 20)));
     for (let i = 1; i < stages.length; i++) {
       expect(stages[i].offlinePerMinute.gold).toBeGreaterThan(stages[i - 1].offlinePerMinute.gold);

@@ -60,7 +60,39 @@ describe('сюжет: данные', () => {
 
   it('data/story/chapter2.json: вступление, сцена босса и знакомство с Дорном (QA T5-27)', () => {
     const ch2 = ctx.story.scenes.filter((s) => s.chapter === 'chapter2');
-    expect(ids(ch2)).toEqual(['ch2_intro', 'ch2_s2_after', 'ch2_s5_before', 'ch2_s7_after', 'ch2_s9_before', 'ch2_s10_before', 'ch2_outro']);
+    // Глава 2 растянута до 18 этапов (29.09): новые сцены на вставных ch2_s11, s13, s14, s17 — в порядке прохождения.
+    expect(ids(ch2)).toEqual([
+      'ch2_intro',
+      'ch2_s11_after',
+      'ch2_s2_after',
+      'ch2_s13_after',
+      'ch2_s14_before',
+      'ch2_s5_before',
+      'ch2_s7_after',
+      'ch2_s17_after',
+      'ch2_s9_before',
+      'ch2_s10_before',
+      'ch2_outro',
+    ]);
+    // Глава 3 (29.09): новые сцены на вставных ch3_s12, s13, s15 (Рыцарь бездны), s17.
+    expect(ids(ctx.story.scenes.filter((s) => s.chapter === 'chapter3'))).toEqual([
+      'ch3_intro',
+      'ch3_s2_after',
+      'ch3_s12_after',
+      'ch3_s13_after',
+      'ch3_s5_after',
+      'ch3_s15_before',
+      'ch3_s7_before',
+      'ch3_s17_after',
+      'ch3_s8_after',
+      'ch3_s10_before',
+      'ch3_outro',
+    ]);
+    // Сцены глав 2–3 идут в порядке прохождения этапов.
+    for (const ch of ['chapter2', 'chapter3']) {
+      const at = ctx.story.scenes.filter((s) => s.chapter === ch && s.stageId).map((s) => before(s.stageId!) + (s.trigger === 'afterStage' ? 0.5 : 0));
+      expect(at, ch).toEqual([...at].sort((a, b) => a - b));
+    }
     expect(ch2.find((s) => s.id === 'ch2_s10_before')!.bossIntro?.title).toBe(ctx.content.units.mob2_boss.name);
     const dorn = ctx.progression.heroes.recruits.find((r) => r.template === 'dorn')!;
     const outro = ch2.find((s) => s.id === 'ch2_outro')!;
