@@ -127,7 +127,8 @@ const refD = (id: string, mult: number) => M.ref[id] + shift(id, mult);
 const modelD = (id: string, mult: number) => M.model[id] + shift(id, mult);
 
 // --- график ---
-const runs = JSON.parse(readFileSync(flag('runs').at(-1)!, 'utf8')) as ModelRun[];
+// --runs a.json[,b.json…] — прогоны модели (walls-par / runModels), несколько файлов складываются (больше seed — меньше шума).
+const runs = flag('runs').at(-1)!.split(',').flatMap((f) => JSON.parse(readFileSync(f, 'utf8')) as ModelRun[]);
 /**
  * --relative: график главы — от факта босса прошлой главы (медиана прогонов), длина главы — по целям. Опоздание прошлой
  * главы не делает эту легче: каждая глава правит только свою длину и форму, ошибки не гуляют по цепочке глав.
@@ -196,6 +197,30 @@ for (const id of allIds) {
   } else raw.set(id, Math.exp(want - modelD(id, cur.get(id)!)));
   const f = Math.min(MAX_STEP, Math.max(1 / MAX_STEP, raw.get(id)!));
   next.set(id, cur.get(id)! * f);
+}
+/**
+ * --tilt [доля]: поправки этапов не по отдельности, а тремя числами на главу — масштаб, наклон (ln-линейный по номеру
+ * рядового этапа) и ступенька босса над концом линии, МНК по ln поправок; затем × доля (0.5 — полшага). Модель хаотична
+ * (±20–70 ч по медиане 8 seed на тех же данных), поэтому поэтапная погоня за шумом раскачивает главы; три числа на главу
+ * шум усредняют. Наклон и масштаб не меняют отношения этапов к тренду главы (тест tests/chapters.test.ts).
+ */
+const TILT = flag('tilt').length ? Number(flag('tilt').at(-1)) : 0;
+if (TILT) {
+  for (const c of CHAPTERS) {
+    const stages = chapterStages.get(c)!;
+    const reg = stages.filter((s) => !s.boss);
+    const n = reg.length;
+    const xs = reg.map((_, i) => i / (n - 1) - 0.5);
+    const ys = reg.map((s) => Math.log(raw.get(s.id)!));
+    const ym = ys.reduce((a, b) => a + b, 0) / n;
+    const b = xs.reduce((acc, x, i) => acc + x * (ys[i] - ym), 0) / xs.reduce((acc, x) => acc + x * x, 0);
+    const boss = stages.find((s) => s.boss)!;
+    const step = Math.log(raw.get(boss.id)!) - (ym + b * 0.5);
+    const clamp = (f: number) => Math.min(MAX_STEP, Math.max(1 / MAX_STEP, f));
+    reg.forEach((s, i) => next.set(s.id, cur.get(s.id)! * clamp(Math.exp(TILT * (ym + b * xs[i])))));
+    next.set(boss.id, cur.get(boss.id)! * clamp(Math.exp(TILT * (ym + b * 0.5 + step))));
+    console.log(`${c}: масштаб ×${Math.exp(TILT * ym).toFixed(3)}, наклон ×${Math.exp(TILT * b).toFixed(3)} (конец / начало), босс ×${Math.exp(TILT * step).toFixed(3)}`);
+  }
 }
 for (const c of CHAPTERS) {
   const stages = chapterStages.get(c)!;
