@@ -34,7 +34,7 @@ import {
   type Slot,
   type Stats,
 } from '../../core';
-import { CONTENT, GAME } from '../content';
+import { CONTENT, GAME, LORE } from '../content';
 import { ascendReady, formatNumber, heroSprite, itemStatsText, levelText, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
 import { GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
@@ -821,6 +821,17 @@ export class HeroScene extends Phaser.Scene {
     if (c.branch && firstJob) head(`Начало пути: ${firstJob}`);
     para(c.bio, C.text);
     if (c.hook) para(`«${c.hook}»`, C.title, FS.body, { fontStyle: 'italic' });
+    // Летопись (data/lore/heroes.json): история героя и черты характера — если писатель их добавил.
+    const lore = LORE.heroes[hero.templateId];
+    if (lore) {
+      y += 10;
+      head('История');
+      para(lore.story, C.text);
+      if (lore.quirks.length) {
+        head('Черты');
+        para(lore.quirks.map((q) => `• ${q}`).join('\n'), C.muted, FS.small);
+      }
+    }
     const rn = GAME.cards.rarities.find((r) => r.id === (c.branchAt ?? 'purple'))?.name ?? 'Фиолетовый';
     const chosen = c.branches.find((b) => b.job === c.branch);
     const branchStory = (b: (typeof c.branches)[number], dim: boolean) => {

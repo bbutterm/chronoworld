@@ -22,6 +22,7 @@ import { TavernScene } from './game/scenes/TavernScene';
 import { EventsScene } from './game/scenes/EventsScene';
 import { MailScene } from './game/scenes/MailScene';
 import { ShopScene } from './game/scenes/ShopScene';
+import { ChronicleScene } from './game/scenes/ChronicleScene';
 import { ensureAnimatedFx } from './game/assets';
 import { webpReady } from './game/assetUrl';
 import { installLifecycle, type LoopLike } from './game/lifecycle';
@@ -55,7 +56,7 @@ const game = new Phaser.Game({
   },
   // U: 30 FPS по настройке — ограничитель ставит installLifecycle ниже (его можно менять на лету).
   fps: { target: 60 },
-  scene: [BootScene, HomeScene, AdventureScene, CampaignScene, StageScene, HeroesScene, HeroScene, AscendScene, HeroPickScene, PrepScene, BattleScene, ResultScene, QuestsScene, TowerScene, HuntScene, InventoryScene, SquadScene, ExpeditionsScene, AchievementsScene, TavernScene, EventsScene, MailScene, ShopScene],
+  scene: [BootScene, HomeScene, AdventureScene, CampaignScene, StageScene, HeroesScene, HeroScene, AscendScene, HeroPickScene, PrepScene, BattleScene, ResultScene, QuestsScene, TowerScene, HuntScene, InventoryScene, SquadScene, ExpeditionsScene, AchievementsScene, TavernScene, EventsScene, MailScene, ShopScene, ChronicleScene],
 });
 
 installViewport(game);

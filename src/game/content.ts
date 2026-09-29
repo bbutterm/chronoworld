@@ -10,7 +10,7 @@ import shopJson from '../../data/shop.json';
 import summonJson from '../../data/summon.json';
 import towerJson from '../../data/tower.json';
 import unlocksJson from '../../data/unlocks.json';
-import { buildGameContext, type FullContext, type RawFile } from '../core';
+import { buildGameContext, parseLore, type FullContext, type Lore, type RawFile } from '../core';
 
 export type { FullContext };
 
@@ -45,6 +45,14 @@ export const GAME: FullContext = buildGameContext({
   shop: shopJson,
   stories: toFiles(import.meta.glob('../../data/story/*.json', { eager: true, import: 'default' })),
 });
+
+/**
+ * Летопись (data/lore/*.json): тексты о мире, монстрах, предметах, героях и профессиях. Файлы необязательны и читаются
+ * текстом: нет файла, пустой или битый — раздел пуст, игра работает (ошибки покажет npm run content:check).
+ */
+const loreParsed = parseLore(toFiles(import.meta.glob('../../data/lore/*.json', { eager: true, query: '?raw', import: 'default' })));
+if (loreParsed.problems.length) console.warn('Летопись:', loreParsed.problems.join('\n'));
+export const LORE: Lore = loreParsed.lore;
 
 /** Юниты, навыки, профессии и этапы кампании. */
 export const CONTENT = GAME.content;
