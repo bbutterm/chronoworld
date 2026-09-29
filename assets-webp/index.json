@@ -2699,6 +2699,11 @@
   "png": 519,
   "webp": 192
  },
+ "ui/illust/kafra_01.png": {
+  "sha1": "0be3a5c9391287b1f1342cddd525b735f52b8c35",
+  "png": 158026,
+  "webp": 95754
+ },
  "ui/kenney_uipack_rpg_sheet.png": {
   "sha1": "1a841d57dc3317beeb22eade9b3fe4e89c641a20",
   "png": 32558,

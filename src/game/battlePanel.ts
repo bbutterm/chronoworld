@@ -27,7 +27,7 @@ interface Entry {
 }
 
 /** Центр панели по высоте (между кнопками «1x / Пропустить» и макушками бойцов). */
-export const PANEL_Y = 585;
+export const PANEL_Y = 610;
 const CARD_W = 184;
 const CARD_H = 196;
 const GAP = 12;
