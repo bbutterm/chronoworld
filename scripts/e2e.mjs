@@ -449,7 +449,7 @@ async function main() {
     await clickNamed('Home', 'settings');
     await sleep(200);
     if (!(await hasText('Home', 'Версия '))) problems.push('в настройках нет версии');
-    if (!(await hasText('Home', 'Сбросить прогресс'))) problems.push('в настройках нет «Сбросить прогресс»');
+    if (!(await hasText('Home', 'Начать заново'))) problems.push('в настройках нет «Начать заново»');
     await shot('settings');
     // U: ограничение FPS — 30 запоминается и включает ограничитель цикла Phaser; возвращаем 60.
     await clickText('Home', '60 FPS');
@@ -621,6 +621,40 @@ async function main() {
     });
     if (saved.rare < 1 || !saved.firstTenDone || saved.gems !== 0) problems.push(`Таверна: сохранение после ×10 ${JSON.stringify(saved)}`);
     else log('Таверна: подарок, ×10 с гарантированной синей, итог — ок');
+
+    // 7. «Начать заново» (настройки): два подтверждения → перезагрузка → экран нового игрока (Эпизод 1, вступление главы,
+    // «В бой · этап 1-1»), часы тестировщика без сдвига, ключей игры кроме сохранения нет.
+    await page.evaluate(() => {
+      localStorage.setItem('chronoworld.timeShift', String(12 * 3600_000));
+      localStorage.setItem('chronoworld.hints', '["home_campaign"]');
+    });
+    await page.evaluate(() => window.__game.scene.getScene('Tavern').scene.start('Home'));
+    await waitScene('Home');
+    await clickNamed('Home', 'settings');
+    await sleep(200);
+    await clickText('Home', 'Начать заново');
+    await sleep(300);
+    await shot('start-over-confirm');
+    if (!(await hasText('Home', 'Весь прогресс будет удалён'))) problems.push('«Начать заново»: нет первого подтверждения');
+    await clickText('Home', 'Удалить');
+    await sleep(300);
+    if (!(await hasText('Home', 'Точно?'))) problems.push('«Начать заново»: нет второго подтверждения');
+    await Promise.all([page.waitForEvent('load'), clickText('Home', 'Да, заново')]);
+    await waitScene('Campaign', 30000);
+    await shot('start-over-new-player');
+    if (!(await hasText('Campaign', 'ЭПИЗОД 1'))) problems.push('после «Начать заново» нет страницы «Эпизод 1»');
+    await skipDialogues('Campaign');
+    if (!(await hasText('Campaign', 'В бой · этап 1-1'))) problems.push('после «Начать заново» кампания не с этапа 1-1');
+    const fresh = await page.evaluate(() => ({
+      keys: Object.keys(localStorage).filter((k) => k.startsWith('chronoworld.')),
+      save: JSON.parse(localStorage.getItem('chronoworld.save.v1')),
+    }));
+    if (fresh.save.campaign.cleared.length) problems.push(`после «Начать заново» пройдены этапы: ${fresh.save.campaign.cleared}`);
+    if (fresh.save.heroes.some((h) => h.rarity !== 'green')) problems.push('после «Начать заново» остались герои из Таверны');
+    const extra = fresh.keys.filter((k) => !['chronoworld.save.v1', 'chronoworld.hints'].includes(k));
+    if (extra.length) problems.push(`после «Начать заново» остались ключи: ${extra.join(', ')}`);
+    if (fresh.keys.includes('chronoworld.timeShift')) problems.push('после «Начать заново» не сброшен сдвиг часов');
+    if (!problems.length) log('«Начать заново»: новая игра, вступление главы 1, ключи очищены');
   } catch (e) {
     problems.push(`сценарий: ${e.message}`);
     // Для разбора: какие сцены активны и как выглядел экран в момент падения.

@@ -277,6 +277,7 @@ export class CampaignScene extends Phaser.Scene {
       name.setX(lx).setOrigin(right ? 0 : 1, 0.5);
       if (name.width > room) name.setFontSize(FS.body);
       ellipsize(name, room);
+      let sub: Phaser.GameObjects.Text;
       if (st === 'open') {
         // «Почти готово»: у текущего этапа — мощь отряда против рекомендуемой, цветом тона (зелёный / жёлтый / красный).
         const pc = powerCheck(session.save, s.id, GAME);
@@ -286,10 +287,16 @@ export class CampaignScene extends Phaser.Scene {
           strokeThickness: 5,
         }).setOrigin(right ? 0 : 1, 0.5).setName('stagePower');
         ellipsize(pw, room);
+        sub = pw;
       } else {
         const status = st === 'cleared' ? 'пройден' : s.boss ? 'босс' : 'закрыт';
-        text(this, lx, y + 21, status, FS.caption, st === 'cleared' ? C.success : SKIN.creamDim, { stroke: '#000000', strokeThickness: 4 }).setOrigin(right ? 0 : 1, 0.5);
+        sub = text(this, lx, y + 21, status, FS.caption, st === 'cleared' ? C.success : SKIN.creamDim, { stroke: '#000000', strokeThickness: 4 }).setOrigin(right ? 0 : 1, 0.5);
       }
+      // BUG-068 (T3-33): тёмная подложка под названием и состоянием — подписи читаются на светлом фоне и поверх тропы.
+      const pw2 = Math.max(name.displayWidth, sub.displayWidth) + 28;
+      const plate = this.add.graphics();
+      plate.fillStyle(0x0b0a08, 0.5).fillRoundedRect(right ? lx - 14 : lx - pw2 + 14, y - 44, pw2, 90, 18);
+      this.children.moveBelow(plate as never, name as never);
     });
 
     // Живой фон карты: несколько искр поднимаются над тропой.

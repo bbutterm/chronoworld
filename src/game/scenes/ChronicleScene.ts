@@ -10,7 +10,7 @@ import { drawHeroCard, GUILD_NAMES } from '../heroCard';
 import { itemCell } from '../itemIcons';
 import { GAME_W } from '../layout';
 import { loreKeys, loreModal, loreUnseen, markLoreSeen, monsterModal, itemModal, roleName, seenLore, type LoreBlock } from '../loreView';
-import { card, cornerBadge, CONTENT_BOTTOM, CONTENT_TOP, portrait, screen, unitTint } from '../screen';
+import { badge, card, CONTENT_TOP, contentBottom, portrait, screen, unitTint } from '../screen';
 import { session } from '../session';
 import { portraitKey } from '../sprites';
 import { button, ellipsize, emptyState, pressable, ScrollArea, text, toast } from '../ui';
@@ -71,11 +71,12 @@ export class ChronicleScene extends Phaser.Scene {
         if (!on) this.scene.restart({ tab: t.id } satisfies ChronicleData);
       }, FS.small, { sound: 'ui_tab' });
       b.container.setName(`chronicleTab_${t.id}`);
-      if (!on) cornerBadge(this, x, ty, w - 12, TOUCH, unseen[t.id]);
+      // Кружок — на верхней кромке вкладки, над подписью (в углу он закрывал «Бестиарий», «Предметы»).
+      if (!on) badge(this, x + (w - 12) / 2 - 20, ty - TOUCH / 2 - 4, unseen[t.id]);
     });
     const keys = loreKeys()[this.tab];
     this.readable = new Set(keys);
-    this.area = new ScrollArea(this, CONTENT_TOP + 170, CONTENT_BOTTOM + 10);
+    this.area = new ScrollArea(this, CONTENT_TOP + 170, contentBottom() + 10);
     if (this.tab === 'world') this.world();
     else if (this.tab === 'findings') this.findings();
     else if (this.tab === 'bestiary') this.bestiary();

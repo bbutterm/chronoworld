@@ -96,7 +96,8 @@ export function chronicleButton(scene: Phaser.Scene, x: number, y: number, w = 2
   b.container.add(bookIcon(scene, 28 - b.label.width / 2 - 34, -4, 50));
   b.container.setName('chronicleBtn');
   const n = loreUnseen().total;
-  if (n > 0) badge(scene, x + w / 2 - 14, y - h / 2 + 10, n)?.setName('chronicleBadge');
+  // Кружок — на верхней кромке кнопки, выше строки текста: широкий «99+» не закрывает «Летопись».
+  if (n > 0) badge(scene, x + w / 2 - 16, y - h / 2 - 6, n)?.setName('chronicleBadge');
   return b.container;
 }
 

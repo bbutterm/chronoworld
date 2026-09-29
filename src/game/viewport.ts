@@ -125,9 +125,13 @@ export function bleedImage(scene: Phaser.Scene, img: Phaser.GameObjects.Image): 
   const sw = Math.min(fw, Math.max(1, Math.round((BLEED_X * fw) / GAME_W)));
   const parts: Phaser.GameObjects.Image[] = [];
   const list = scene.children;
+  // Картинка в контейнере (фон страницы сюжета поверх экрана) — полосы кладутся в тот же контейнер сразу за ней,
+  // иначе они оказывались в корне сцены под всем слоем и на полях оставались чёрные полосы.
+  const box = img.parentContainer;
   const put = (s: Phaser.GameObjects.Image, alpha: number) => {
     s.setAlpha(alpha).setDepth(img.depth).setScrollFactor(img.scrollFactorX, img.scrollFactorY);
-    list.moveTo(s, list.getIndex(img) + 1 + parts.length);
+    if (box) box.addAt(s, box.getIndex(img) + 1 + parts.length);
+    else list.moveTo(s, list.getIndex(img) + 1 + parts.length);
     parts.push(s);
   };
   const mirror = (name: string, sx: number, sy: number, w: number, h: number, x: number, y: number, dw: number, dh: number, flipX: boolean, flipY: boolean) => {

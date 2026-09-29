@@ -37,7 +37,7 @@ import {
 import { CONTENT, GAME, LORE } from '../content';
 import { ascendReady, formatNumber, heroSprite, itemStatsText, levelText, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
 import { GAME_W } from '../layout';
-import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, screen, unitFigure } from '../screen';
+import { card, confirm, CONTENT_TOP, contentBottom, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
 import { button, ellipsize, panel, pressable, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { C, FS, TINT } from '../theme';
@@ -247,6 +247,9 @@ export class HeroScene extends Phaser.Scene {
       ellipsize(t, 470);
       const bg = this.add.rectangle(FIG_X, TOP + 488, Math.min(490, t.width + 30), 40, 0x0b0805, 0.72).setStrokeStyle(2, pal.tint, 0.8);
       this.children.bringToTop(t);
+      // Фигура героя догружается позже и вставала поверх плашки («Ко|пий») — плашка всегда над витриной.
+      bg.setDepth(5);
+      t.setDepth(6);
       if (more) {
         pressable(this, bg, bg.width, 56, () => {
           inventoryUi.tab = 'cards';
@@ -435,7 +438,8 @@ export class HeroScene extends Phaser.Scene {
       // Не влезает (миллионы в запасе) — шрифт мельче, затем без «есть».
       const price = (y: number, label: string, cost: number, have: number, color: string) => {
         const t = text(this, x, y, `${label} −${formatNumber(cost)} (есть ${formatNumber(have)})`, FS.body, color, { stroke: C.stroke, strokeThickness: 4, fontStyle: 'bold' }).setOrigin(0, 0.5);
-        if (t.width > maxW) t.setFontSize(FS.caption - 4);
+        // Не мельче FS.small (26 px на 390×844 не читались): дальше — без «есть».
+        if (t.width > maxW) t.setFontSize(FS.small);
         if (t.width > maxW) t.setFontSize(FS.body).setText(`${label} −${formatNumber(cost)}`);
         box.add(ellipsize(t, maxW));
       };
@@ -604,8 +608,10 @@ export class HeroScene extends Phaser.Scene {
       }
     });
     this.storyTabDot();
-    card(this, GAME_W / 2, (TAB_TOP + CONTENT_BOTTOM) / 2, 1040, CONTENT_BOTTOM - TAB_TOP);
-    this.tabArea = new ScrollArea(this, TAB_TOP + 8, CONTENT_BOTTOM - 8);
+    // Панель вкладок — до навигации (на вытянутых экранах ниже CONTENT_BOTTOM, без пустой полосы под ней).
+    const tabBottom = contentBottom();
+    card(this, GAME_W / 2, (TAB_TOP + tabBottom) / 2, 1040, tabBottom - TAB_TOP);
+    this.tabArea = new ScrollArea(this, TAB_TOP + 8, tabBottom - 8);
   }
 
   /** Отметка «новое» на вкладке «История»: открыт непрочитанный кусочек истории героя (heroStoryView). */

@@ -238,7 +238,8 @@ export class ResultScene extends Phaser.Scene {
           })
             .setOrigin(0, 0.5)
             .setAlpha(alpha);
-          if (name.width > cols[1] - 70 - name.x) name.setScale((cols[1] - 70 - name.x) / name.width);
+          // BUG-039 (T3-14): длинное имя — тем же шрифтом с многоточием, не мельче соседних строк.
+          ellipsize(name, cols[1] - 70 - name.x);
           if (isMvp) {
             // «MVP» — золотая плашка справа от имени; не влезает в строку — под именем (строка тогда выше).
             const tag = text(this, 0, 0, 'MVP', FS.caption, '#2a1c08', { fontStyle: 'bold' });

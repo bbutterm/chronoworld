@@ -3,7 +3,7 @@ import { actClaimActivity, actClaimAllQuests, actClaimQuest, questStatus, type M
 import { GAME } from '../content';
 import { claimableCount, describeEvents, formatNumber, gemsText, pointsText, questDestination, untilReset } from '../flow';
 import { GAME_W } from '../layout';
-import { card, CONTENT_BOTTOM, CONTENT_TOP, cornerBadge, screen } from '../screen';
+import { card, CONTENT_TOP, contentBottom, cornerBadge, screen } from '../screen';
 import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 import { commit, now, restartOnNewDay, session, today } from '../session';
 import { button, emptyState, progressBar, ScrollArea, text, toast } from '../ui';
@@ -62,7 +62,7 @@ export class QuestsScene extends Phaser.Scene {
       pulse(this, all.container, 1.04, 700);
       listTop = top + 540;
     }
-    this.area = new ScrollArea(this, listTop, CONTENT_BOTTOM + 10);
+    this.area = new ScrollArea(this, listTop, contentBottom() + 10);
     if (!st.quests.length) this.area.add(emptyState(this, GAME_W / 2, 200, 'На сегодня заданий нет.\nНовые появятся после полуночи.'));
     const rows = st.quests.map((q, i) => collect(this.area.content, () => this.questRow(q, ROW_H * (i + 0.5), ROW_H - ROW_GAP)));
     this.area.setContentHeight(ROW_H * st.quests.length);
@@ -87,7 +87,8 @@ export class QuestsScene extends Phaser.Scene {
       cornerBadge(this, x0, y, 104, 104, 1);
       pulse(this, b.container, 1.08, 600);
     }
-    text(this, x0, y + 95, rewardText(m.rewards), FS.small, m.claimed ? C.disabled : C.text, { stroke: C.stroke, strokeThickness: 4, lineSpacing: 2 });
+    // Число и слово — в две строки: подписи соседних порогов («300 опыта 500 золота») не слипаются.
+    text(this, x0, y + 115, rewardText(m.rewards).replace(/ /g, '\n'), FS.small, m.claimed ? C.disabled : C.text, { stroke: C.stroke, strokeThickness: 4, lineSpacing: 2 });
   }
 
   private questRow(q: QuestView, y: number, h: number): void {

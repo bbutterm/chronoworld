@@ -28,7 +28,7 @@ import {
 import { GAME } from '../content';
 import { diffText, equipBlocker, formatNumber, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS, statDiff, type InventoryRow } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
-import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, emptyCard, popIn, screen } from '../screen';
+import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, emptyCard, popIn, screen } from '../screen';
 import { commit, session } from '../session';
 import { button, ellipsize, panel, pressable, ScrollArea, text, toast } from '../ui';
 import { randomLine } from '../loreView';
@@ -591,7 +591,7 @@ export class InventoryScene extends Phaser.Scene {
       return;
     }
     const RH = 150;
-    const area = (this.area = new ScrollArea(this, top, CONTENT_BOTTOM + 10));
+    const area = (this.area = new ScrollArea(this, top, contentBottom() + 10));
     area.setContentHeight(rows.length * RH + 10);
     rows.forEach((row, i) => {
       const y = RH * (i + 0.5);

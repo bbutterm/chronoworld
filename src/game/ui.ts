@@ -435,6 +435,24 @@ export function pressable<T extends Tappable>(scene: Phaser.Scene, target: T, w:
 }
 
 /** Обрезать однострочный текст многоточием, чтобы он влез в maxWidth. */
+/**
+ * Текст с переносом — не больше lines строк: лишние слова срезаются, в конце «…» (описания в карточках фиксированной
+ * высоты не наезжают на строки ниже).
+ */
+export function clampLines(t: Phaser.GameObjects.Text, lines: number): Phaser.GameObjects.Text {
+  const full = t.text;
+  const count = () => t.getWrappedText(t.text).length;
+  if (count() <= lines) return t;
+  const words = full.split(' ');
+  let n = words.length;
+  while (n > 1) {
+    n--;
+    t.setText(words.slice(0, n).join(' ').replace(/[,.;:—–-]+$/, '') + '…');
+    if (count() <= lines) break;
+  }
+  return t;
+}
+
 export function ellipsize(t: Phaser.GameObjects.Text, maxWidth: number): Phaser.GameObjects.Text {
   const full = t.text;
   if (t.width <= maxWidth) return t;

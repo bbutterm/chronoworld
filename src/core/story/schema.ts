@@ -12,6 +12,11 @@ export const STORY_LINE_MAX = 120;
 export const SpeakerSchema = z.object({
   name: z.string().min(1),
   portrait: z.string().min(1),
+  /**
+   * Крупная иллюстрация NPC (как в RO — Кафра и др.): файл assets/ui/illust/<illust>.png (≈ 320×480, фон прозрачный).
+   * Когда спикер говорит, диалог показывает её в полный рост слева над плашкой вместо портрета в рамке.
+   */
+  illust: id.optional(),
 });
 
 export const StoryLineSchema = z.object({

@@ -56,6 +56,7 @@ import { skillIcon, statusIcon } from '../skillIcons';
 import type { SkillDef, StatusDef } from '../../core';
 import { battleSound } from '../battleAudio';
 import { huntHud, type HuntHud } from '../huntBattle';
+import { HeroPanel } from '../battlePanel';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -332,6 +333,8 @@ export class BattleScene extends Phaser.Scene {
   private introLeft = 0;
   /** Уровни врагов (core/features/levels.ts): редкость полосы и поправка босс-этапа; null — тестовый бой (без уровней). */
   private levels: { rarity: CardRarity; bossFactor: number } | null = null;
+  /** BUG-061: панель героев отряда над ареной (портрет, здоровье, энергия). */
+  private heroPanel: HeroPanel | null = null;
   /** Полоска HP босса наверху (только на босс-этапе). */
   private bossBar: { uid: string; fill: Phaser.GameObjects.Image } | null = null;
   /** Тема поля (глава этапа / ярус башни) и лёгкие частицы по ней. */
@@ -505,6 +508,18 @@ export class BattleScene extends Phaser.Scene {
     this.barks = new BarkLayer(this);
     this.barked.clear();
     for (const u of this.result.units) this.buildUnit(u);
+    this.heroPanel = new HeroPanel(
+      this,
+      this.result.units
+        .filter((u) => u.side === 'A')
+        .sort((a, b) => a.slot - b.slot)
+        .map((u) => {
+          const def = this.defs[u.unitId];
+          return { uid: u.uid, name: def?.name ?? u.unitId, sprite: def?.visual.sprite ?? u.unitId, hasUlt: !!def?.skills.ult };
+        }),
+      20,
+    );
+    for (const v of this.viewList) this.redraw(v);
     if (this.stage && getStage(GAME, this.stage.stageId).boss) this.bossIntro();
     if (this.hunt) {
       const boss = this.result.units.find((u) => u.side === 'B')!;
@@ -912,6 +927,7 @@ export class BattleScene extends Phaser.Scene {
     this.viewList.length = 0;
     this.ambient = null;
     this.bossBar = null;
+    this.heroPanel = null;
     // Сцена-синглтон живёт всю игру: ссылка на уничтоженный текст таймера держала бы его (и canvas) до следующего боя.
     this.timeText = undefined as unknown as Phaser.GameObjects.Text;
     this.later.clear();
@@ -1442,6 +1458,7 @@ export class BattleScene extends Phaser.Scene {
       v.trailT = 0;
     }
     cropBar(v.energyBar, v.energy / COMBAT.energy.max);
+    this.heroPanel?.set(v.snap.uid, pct, v.energy / COMBAT.energy.max, !v.shownDead && v.hp > 0);
     v.shieldBar.setVisible(v.alive && v.shield > 0);
     cropBar(v.shieldBar, Math.min(1, v.shield / max));
   }

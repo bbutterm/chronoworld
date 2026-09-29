@@ -18,20 +18,31 @@ export interface HuntSceneData {
   outcome?: HuntOutcome;
 }
 
-/** Награда порога одной строкой: «золото 450 · опыт 100 · гемы 2 · карта героя 3% · предмет (редкий)». */
-export function huntRewardText(r: HuntReward): string {
+/**
+ * Награда порога: «золото 450 · опыт 100 · гемы 2 · карта героя 3% · предмет (редкий)». lines — редкие награды
+ * (карта, предмет) второй строкой: так строка порога не переносится посреди слов и шрифт не мельчает.
+ */
+export function huntRewardText(r: HuntReward, lines = false): string {
   const parts: string[] = [];
   if (r.gold) parts.push(`золото ${formatNumber(r.gold)}`);
   if (r.jobExp) parts.push(`опыт ${formatNumber(r.jobExp)}`);
   if (r.gems) parts.push(`гемы ${r.gems}`);
+  const extra: string[] = [];
   const cards = (r.heroCards?.blue ?? 0) + (r.heroCards?.purple ?? 0);
-  if (cards > 0) parts.push(`карта героя ${Math.round(cards * 100)}%`);
-  if (r.item) parts.push(`предмет (${RARITY_NAMES[r.item].toLowerCase()})`);
-  return parts.join(' · ') || '—';
+  if (cards > 0) extra.push(`карта героя ${Math.round(cards * 100)}%`);
+  if (r.item) extra.push(`предмет (${RARITY_NAMES[r.item].toLowerCase()})`);
+  if (lines && parts.length && extra.length) return `${parts.join(' · ')}\n${extra.join(' · ')}`;
+  return [...parts, ...extra].join(' · ') || '—';
 }
 
-/** Строка порога: двухстрочные награды (карта героя, предмет) не касаются соседних (MT-14). */
+/** Строка порога: двухстрочные награды (карта героя, предмет) не касаются соседних (MT-14). Порогов много — ниже (до ROW_MIN). */
 const ROW_H = 78;
+const ROW_MIN = 66;
+/** Шапка карточки порогов: лента, шкала, номера под шкалой. */
+const TIERS_HEAD = 160;
+/** Строка «Попыток сегодня» и кнопки внизу: карточка порогов кончается выше. */
+const FOOTER_Y = GAME_H - 170 - 120;
+const TIERS_BOTTOM = FOOTER_Y - 110 - 40;
 
 /**
  * «Охота на босса» (аналог гильдейской охоты AFK Arena): босс дня, пороги урона с наградами и отметкой лучшего
@@ -52,7 +63,7 @@ export class HuntScene extends Phaser.Scene {
     const top = CONTENT_TOP;
     const groups: Phaser.GameObjects.GameObject[][] = [];
     groups.push(collect(this.children, () => this.bossCard(st, top)));
-    groups.push(collect(this.children, () => this.tiers(st, top + 470)));
+    groups.push(collect(this.children, () => this.tiers(st, top + 420)));
     groups.push(collect(this.children, () => this.footer(st)));
     staggerIn(this, 'Hunt', groups);
     if (data.outcome) this.showOutcome(data.outcome);
@@ -61,22 +72,22 @@ export class HuntScene extends Phaser.Scene {
   /** Босс дня: фигура в ореоле, имя, подпись, мощь, лучший урон. */
   private bossCard(st: HuntStatus, top: number): void {
     const def = st.boss.def;
-    card(this, GAME_W / 2, top + 220, 1040, 440);
+    card(this, GAME_W / 2, top + 200, 1040, 400);
     const fx = 290;
-    glow(this, fx, top + 230, 380, 0xd64545, 0.3, true);
-    slowRays(this, fx, top + 230, 420, 0.18, 0xffb070);
-    unitFigure(this, def.visual.sprite, fx, top + 390, 300, {
+    glow(this, fx, top + 210, 360, 0xd64545, 0.3, true);
+    slowRays(this, fx, top + 210, 400, 0.18, 0xffb070);
+    unitFigure(this, def.visual.sprite, fx, top + 365, 280, {
       maxScale: 2,
       onReady: (o) => o.setTint(unitTint(def.visual)),
     });
     const tx = 540;
-    text(this, tx, top + 70, 'Босс дня', FS.small, C.muted).setOrigin(0, 0.5);
+    text(this, tx, top + 60, 'Босс дня', FS.small, C.muted).setOrigin(0, 0.5);
     // Уровня у босса охоты нет: его здоровье — запас на урон (×180–200), «ур. 140» только пугал бы. Цель — порог урона.
-    text(this, tx, top + 130, def.name, FS.h1, C.title, TITLE_STYLE).setOrigin(0, 0.5);
-    if (st.boss.title) text(this, tx, top + 190, st.boss.title, FS.small, SKIN.cream, { ...OUTLINE, wordWrap: { width: 470 }, align: 'left' }).setOrigin(0, 0.5);
-    text(this, tx, top + 250, `Здоровье ${formatNumber(def.stats.hp)}`, FS.body, C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
-    text(this, tx, top + 305, `Бой ${GAME.hunt.timeLimitSeconds} с · награда по урону`, FS.small, C.muted).setOrigin(0, 0.5);
-    text(this, tx, top + 365, st.best > 0 ? `Лучший урон: ${formatNumber(st.best)}` : 'Ещё не бились', FS.h3, st.best > 0 ? C.gold : C.dim, {
+    text(this, tx, top + 115, def.name, FS.h1, C.title, TITLE_STYLE).setOrigin(0, 0.5);
+    if (st.boss.title) text(this, tx, top + 170, st.boss.title, FS.small, SKIN.cream, { ...OUTLINE, wordWrap: { width: 470 }, align: 'left' }).setOrigin(0, 0.5);
+    text(this, tx, top + 225, `Здоровье ${formatNumber(def.stats.hp)}`, FS.body, C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
+    text(this, tx, top + 275, `Бой ${GAME.hunt.timeLimitSeconds} с · награда по урону`, FS.small, C.muted).setOrigin(0, 0.5);
+    text(this, tx, top + 330, st.best > 0 ? `Лучший урон: ${formatNumber(st.best)}` : 'Ещё не бились', FS.h3, st.best > 0 ? C.gold : C.dim, {
       fontStyle: 'bold',
       stroke: C.stroke,
       strokeThickness: 5,
@@ -86,14 +97,16 @@ export class HuntScene extends Phaser.Scene {
   /** Пороги урона: полоса лучшего результата с отметками порогов и список наград. */
   private tiers(st: HuntStatus, top: number): void {
     // MT-14: номера порогов — под шкалой (над ней их закрывала лента «Награда за урон»).
-    const h = 190 + st.tiers.length * ROW_H;
+    const n = Math.max(1, st.tiers.length);
+    const rowH = Phaser.Math.Clamp(Math.floor((TIERS_BOTTOM - top - TIERS_HEAD - 20) / n), ROW_MIN, ROW_H);
+    const h = TIERS_HEAD + 20 + st.tiers.length * rowH;
     card(this, GAME_W / 2, top + h / 2, 1040, h);
     ribbon(this, GAME_W / 2, top + 40, 'Награда за урон', { size: FS.h3, minW: 420 });
 
     // Полоса: шкала по порогам (каждый порог — равный отрезок), заливка — лучший урон.
     const bx = 90;
     const bw = GAME_W - 180;
-    const by = top + 100;
+    const by = top + 92;
     const pos = tierPosition(st.best, st.tiers.map((t) => t.damage));
     progressBar(this, bx, by, bw, 26, pos, 0xd6a645, { key: 'hunt_best' });
     st.tiers.forEach((_, i) => {
@@ -104,22 +117,22 @@ export class HuntScene extends Phaser.Scene {
     });
 
     st.tiers.forEach((t, i) => {
-      const y = top + 190 + ROW_H / 2 - 4 + i * ROW_H;
+      const y = top + TIERS_HEAD + rowH / 2 + i * rowH;
       const reached = i <= st.bestTier;
       const current = i === st.bestTier;
-      if (current) this.add.rectangle(GAME_W / 2, y, 1000, ROW_H - 8, 0xd6a645, 0.18).setStrokeStyle(3, SKIN_TINT.gold, 0.8);
+      if (current) this.add.rectangle(GAME_W / 2, y, 1000, rowH - 6, 0xd6a645, 0.18).setStrokeStyle(3, SKIN_TINT.gold, 0.8);
       text(this, 90, y, `${i + 1}`, FS.h3, reached ? SKIN.goldLight : C.dim, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
       text(this, 140, y, formatNumber(t.damage), FS.body, reached ? C.gold : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5);
-      const rw = text(this, 330, y, huntRewardText(t.rewards), FS.small, reached ? SKIN.cream : C.muted, { ...OUTLINE, wordWrap: { width: 640 }, align: 'left', lineSpacing: -2 }).setOrigin(0, 0.5);
-      // Две строки — мельче, чтобы не касаться соседних порогов (MT-14).
-      if (rw.height > ROW_H * 0.6) rw.setFontSize(FS.caption - 5);
+      // Редкие награды — второй строкой (не перенос посреди слов); не влезает по ширине — «…».
+      const rw = text(this, 330, y, huntRewardText(t.rewards, true), FS.caption - 2, reached ? SKIN.cream : C.muted, { ...OUTLINE, align: 'left', lineSpacing: -6 }).setOrigin(0, 0.5);
+      if (rw.width > 640) rw.setScale(640 / rw.width);
       if (reached) this.add.image(GAME_W - 80, y, skinIcon('check')).setDisplaySize(36, 36).setTint(0x9fe0a6);
     });
   }
 
   /** Попытки, «Зачистка», «В бой». */
   private footer(st: HuntStatus): void {
-    const y = GAME_H - 170 - 120;
+    const y = FOOTER_Y;
     // MT-14: руда в итогах была сюрпризом — первая попытка дня (бой или зачистка) даёт ещё Благословенную руду.
     const ore = st.attemptsLeft === st.attemptsPerDay ? ' · первая даёт руду' : '';
     text(this, GAME_W / 2, y - 110, st.attemptsLeft > 0 ? `Попыток сегодня: ${st.attemptsLeft} из ${st.attemptsPerDay}${ore}` : 'Попытки кончились — новый босс завтра', FS.h3, st.attemptsLeft > 0 ? C.text : C.muted, {

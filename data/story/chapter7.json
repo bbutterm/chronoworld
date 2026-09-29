@@ -9,7 +9,7 @@
     "hero4": { "name": "Грета", "portrait": "hero" },
     "hero5": { "name": "Дорн", "portrait": "hero" },
     "archivist": { "name": "Архивариус Одо", "portrait": "sage" },
-    "kafra": { "name": "Кафра", "portrait": "npc_kafra" },
+    "kafra": { "name": "Кафра", "portrait": "npc_kafra", "illust": "kafra_01" },
     "baron": { "name": "Совиный барон", "portrait": "unit:alde_owl_baron" },
     "keeper": { "name": "Смотритель часовой башни", "portrait": "unit:alde_keeper" }
   },

@@ -120,8 +120,18 @@ export function collectUsedAssets(root: string): UsedAssets {
     v2: readJson(join(assets, 'sprites/sprites.json')),
     spriteIds: contentSpriteIds(root),
     skillIcons: skillIconFiles(root),
-    extra: [...bustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root), ...roItemFiles(root), ...damageDigitFiles(root)],
+    extra: [...bustFiles(root), ...illustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root), ...roItemFiles(root), ...damageDigitFiles(root)],
   });
+}
+
+/** Иллюстрации NPC для диалогов (src/game/illust.ts): assets/ui/illust/<id>.png. */
+export function illustFiles(root: string): string[] {
+  const dir = join(root, ASSETS_DIR, 'ui/illust');
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((n) => /^[a-z0-9_]+\.png$/.test(n))
+    .sort()
+    .map((n) => `ui/illust/${n}`);
 }
 
 /** Бюсты RO для портретов в рамке (src/game/portraitFrame.ts): assets/ro/portraits/hero_*_portrait.png. */

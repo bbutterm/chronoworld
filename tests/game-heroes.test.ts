@@ -98,11 +98,11 @@ describe('H4 «Герой»: уровень и навыки', () => {
     expect(nextLevelDelta({ ...iris, level: 20 }, ctx)).toBeNull();
   });
 
-  it('«до апа не хватает N»: опыта / золота / предел', () => {
+  it('«до уровня не хватает N»: опыта / золота / предел', () => {
     const s = newGame(ctx, 0);
     const h = s.heroes[0];
     const poor = { ...s, resources: { ...s.resources, heroExp: 0 } };
-    expect(levelShortage(levelUpInfo(poor, h.id, ctx))).toMatch(/^до апа не хватает \d+ опыта$/);
+    expect(levelShortage(levelUpInfo(poor, h.id, ctx))).toMatch(/^до уровня не хватает \d+ опыта$/);
     const noGold = { ...addHeroExp(s, 10_000), resources: { ...addHeroExp(s, 10_000).resources, gold: 0 } };
     expect(levelShortage(levelUpInfo(noGold, h.id, ctx))).toMatch(/золота$/);
     const ok = { ...addHeroExp(s, 10_000), resources: { ...addHeroExp(s, 10_000).resources, gold: 10_000 } };

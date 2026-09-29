@@ -76,9 +76,37 @@ export function commit(save: SaveState): void {
   }
 }
 
-/** Начать заново: новая игра сразу записывается поверх старой. */
-export function resetProgress(): void {
-  commit(newGame(GAME, now(), today()));
+/** Префикс всех ключей игры в localStorage (сохранение, его резервные копии, настройки, подсказки, «прочитано»). */
+export const GAME_KEY_PREFIX = 'chronoworld.';
+
+/**
+ * «Начать заново» из настроек: как у нового игрока на чистом браузере. Сдвиг часов тестировщика — в ноль (новая игра
+ * ставит отметки времени по настоящим часам), новая игра записывается поверх старой (ревизия растёт — другие вкладки
+ * с игрой станут «устаревшими» и не перетрут её), все остальные ключи игры (резервные копии, подсказки, прочитанная
+ * Летопись, Таверна, настройки) удаляются. Потом страница перезагружается — память модулей тоже чистая, и игра
+ * открывается вступлением главы 1. Возвращает удалённые ключи (для тестов).
+ */
+export function startOver(storage: Storage | null | undefined = globalThis.localStorage, reload = true): string[] {
+  timeShift = 0;
+  commit(newGame(GAME, Date.now(), today()));
+  const removed: string[] = [];
+  try {
+    if (storage) {
+      const keys: string[] = [];
+      for (let i = 0; i < storage.length; i++) {
+        const k = storage.key(i);
+        if (k?.startsWith(GAME_KEY_PREFIX) && k !== slot.storage.key) keys.push(k);
+      }
+      for (const k of keys) {
+        storage.removeItem(k);
+        removed.push(k);
+      }
+    }
+  } catch {
+    /* хранилище недоступно — чистить нечего */
+  }
+  if (reload && typeof location !== 'undefined') location.reload();
+  return removed;
 }
 
 /** Забрать накопившиеся предупреждения (каждое показывается один раз). */

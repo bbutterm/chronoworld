@@ -3,7 +3,7 @@ import { resetHints } from '../hints';
 import { GAME_H, GAME_W, HEADER_H } from '../layout';
 import { confirm, popIn, screen } from '../screen';
 import { collect, staggerIn } from '../juice';
-import { resetProgress, restartOnNewDay, session } from '../session';
+import { restartOnNewDay, session, startOver } from '../session';
 import { button, dangerButton, panel, text, toast, tutorialHint } from '../ui';
 import { cityHint } from '../tutorial';
 import { C, FS, OUTLINE, TOUCH } from '../theme';
@@ -162,13 +162,11 @@ export class HomeScene extends Phaser.Scene {
     );
     y += 140;
     layer.add(
-      dangerButton(this, cx, y, bw, 110, 'Сбросить прогресс', () =>
-        confirm(this, 'Сбросить весь прогресс? Герои, этапы, золото и предметы пропадут.', 'Сбросить', () =>
-          confirm(this, 'Точно? Отменить будет нельзя.', 'Да, сбросить', () => {
-            resetProgress();
-            // Новая игра — новичок: подсказки первой сессии снова нужны.
-            resetHints();
-            this.scene.restart();
+      dangerButton(this, cx, y, bw, 110, 'Начать заново', () =>
+        confirm(this, 'Весь прогресс будет удалён: герои, этапы, золото и предметы. Начать игру с самого начала?', 'Удалить', () =>
+          confirm(this, 'Точно? Отменить будет нельзя.', 'Да, заново', () => {
+            // Чистое сохранение, сдвиг часов тестировщика и все ключи игры — в ноль; перезагрузка → вступление главы 1.
+            startOver();
           }, { danger: true }),
         { danger: true }),
       FS.h2).container,

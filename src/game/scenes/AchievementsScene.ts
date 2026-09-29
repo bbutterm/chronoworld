@@ -3,7 +3,7 @@ import { achievementStatus, actClaimAchievement, actClaimAllAchievements, type A
 import { GAME } from '../content';
 import { claimableAchievements, describeEvents, formatNumber, metaRewardsText, sortAchievements } from '../flow';
 import { GAME_W } from '../layout';
-import { CONTENT_BOTTOM, CONTENT_TOP, screen, type NavTab } from '../screen';
+import { CONTENT_TOP, contentBottom, screen, type NavTab } from '../screen';
 import { commit, session, today } from '../session';
 import { button, ellipsize, emptyState, panel, progressBar, ScrollArea, text, toast } from '../ui';
 import { medallion } from '../decor';
@@ -49,7 +49,7 @@ export class AchievementsScene extends Phaser.Scene {
     // Пустое состояние «забрать нечего» — подсказка, что делать дальше.
     else if (views.length && got < views.length) text(this, GAME_W - 50, CONTENT_TOP + 40, 'Забрать пока нечего — играйте дальше', FS.small, C.muted).setOrigin(1, 0.5);
 
-    this.area = new ScrollArea(this, CONTENT_TOP + 90, CONTENT_BOTTOM + 10);
+    this.area = new ScrollArea(this, CONTENT_TOP + 90, contentBottom() + 10);
     if (!views.length) emptyState(this, GAME_W / 2, CONTENT_TOP + 300, 'Достижений пока нет.');
     const list = sortAchievements(views);
     const rows = list.map((a, i) => collect(this.area.content, () => this.row(a, ROW_H * (i + 0.5))));
@@ -72,7 +72,10 @@ export class AchievementsScene extends Phaser.Scene {
     // На жёлтой (выполнено) полосе — тёмная подпись без обводки, на зелёной/серой — белая с обводкой.
     const onGold = a.done && !a.claimed;
     s.add(text(this, 290, y + 45, `${formatNumber(a.progress)} / ${formatNumber(a.target)}`, FS.caption, onGold ? C.titleStroke : C.text, { fontStyle: 'bold', stroke: onGold ? C.none : C.stroke, strokeThickness: onGold ? 0 : 4 }));
-    s.add(text(this, 540, y + 45, metaRewardsText(a.rewards, ' в запас'), FS.small, grey ? C.disabled : dark ? C.inkGold : C.gold, { fontStyle: 'bold', align: 'left', wordWrap: { width: 280 } }).setOrigin(0, 0.5));
+    const rw = text(this, 540, y + 45, metaRewardsText(a.rewards, ' в запас'), FS.small, grey ? C.disabled : dark ? C.inkGold : C.gold, { fontStyle: 'bold', align: 'left', wordWrap: { width: 320 }, lineSpacing: -4 }).setOrigin(0, 0.5);
+    // Две строки награды — выше, чтобы не упираться в нижнюю кромку карточки.
+    if (rw.height > 50) rw.setY(y + 28);
+    s.add(rw);
 
     const bx = 900;
     if (a.claimed) {
