@@ -182,9 +182,10 @@ export class TavernScene extends Phaser.Scene {
       pulse(this, b.container);
     } else {
       // Тёмная подложка: вывеска читается поверх бутылок на полках фона.
-      this.add.graphics().fillStyle(0x120b06, 0.55).fillRoundedRect(GAME_W / 2 - 470, gy - 70, 940, 150, 28);
-      text(this, GAME_W / 2, gy - 20, 'Таверна «Два колокола»', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 });
-      text(this, GAME_W / 2, gy + 45, 'Наёмники ищут работу — кто сядет за ваш стол?', FS.small, C.muted, OUTLINE);
+      // Полки с бутылками рисуются позже — подложка и вывеска поверх них (глубина).
+      this.add.graphics().fillStyle(0x120b06, 0.7).fillRoundedRect(GAME_W / 2 - 470, gy - 70, 940, 150, 28).setDepth(2);
+      text(this, GAME_W / 2, gy - 20, 'Таверна «Два колокола»', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 }).setDepth(3);
+      text(this, GAME_W / 2, gy + 45, 'Наёмники ищут работу — кто сядет за ваш стол?', FS.small, C.muted, OUTLINE).setDepth(3);
     }
   }
 
