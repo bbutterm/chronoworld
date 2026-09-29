@@ -3,6 +3,7 @@ import { sfx } from './audio';
 import { lineChimes } from './audioCore';
 import { episodePageId, markPageSeen, markScenesSeen, pendingIntro, pendingScenes, type StoryScene, type StoryTrigger } from '../core';
 import { GAME } from './content';
+import { illustKey, loadIllust } from './illust';
 import { GAME_H, GAME_W } from './layout';
 import { framedPortrait } from './portraitFrame';
 import { commit, session } from './session';
@@ -40,6 +41,12 @@ const PANEL_Y = GAME_H - 30 - PANEL_H / 2;
 const PORTRAIT = 250;
 const BODY_FS = 42;
 const BODY_Y = 140;
+/**
+ * Иллюстрация NPC (спикер с `illust`, например Кафра): в полный рост слева над плашкой, нижняя часть уходит за плашку —
+ * текст реплики не закрывает. Высота на экране (исходник 320×480).
+ */
+const ILLUST_H = 820;
+const ILLUST_UNDER = 150;
 
 export interface DialogueOptions {
   /** Строки листаются сами (авто-прохождение не должно ждать игрока). Касание по-прежнему листает. */
@@ -111,6 +118,8 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   const px = left + 40 + PORTRAIT / 2;
   const py = top - 20;
   const face = scene.add.container(px, py);
+  // Слой иллюстрации — за плашкой (плашка закрывает её низ), портрет в рамке в это время скрыт.
+  const art = scene.add.container(0, 0);
   const nameText = text(scene, px + PORTRAIT / 2 + 40, top + 48, '', FS.h1, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
   const body = text(scene, left + 50, top + BODY_Y, '', BODY_FS, SKIN.cream, {
     wordWrap: { width: PANEL_W - 100, useAdvancedWrap: true },
@@ -123,7 +132,12 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   const nameTrim = scene.add.image(px + PORTRAIT / 2 + 40, top + 92, 'skin_trim').setOrigin(0, 0.5).setDisplaySize(PANEL_W - PORTRAIT - 150, 10);
   // Вверху плашки — тёплый отсвет, как от портрета.
   const warm = scene.add.image(px + 60, top + 40, 'skin_glow').setDisplaySize(520, 260).setTint(0xffc870).setAlpha(0.14).setBlendMode(Phaser.BlendModes.ADD);
-  layer.add([shade, box, warm, nameTrim, face, nameText, body, more, skip.container]);
+  layer.add([shade, art, box, warm, nameTrim, face, nameText, body, more, skip.container]);
+  // Иллюстрации спикеров сцены — загрузить заранее (к их первой реплике обычно уже готовы).
+  for (const l of s.lines) {
+    const ill = story?.speakers[l.speaker]?.illust;
+    if (ill) void loadIllust(scene.game, ill);
+  }
 
   let line = -1;
   let shown = 0;
@@ -156,7 +170,40 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     if (auto) autoNext = scene.time.delayedCall(AUTO_LINE_MS + full.length * AUTO_CHAR_MS, advance);
   };
   let faceOf: string | null | undefined;
-  const setFace = (sprite: string | null, gender?: 'm' | 'f') => {
+  let artOf: string | null = null;
+  /** Имя и кромка: с портретом — правее рамки, с иллюстрацией — от левого края плашки. */
+  const placeName = (withFace: boolean) => {
+    const x = withFace ? px + PORTRAIT / 2 + 40 : left + 50;
+    nameText.setX(x);
+    nameTrim.setX(x).setDisplaySize(withFace ? PANEL_W - PORTRAIT - 150 : PANEL_W - 100, 10);
+  };
+  const setArt = (id: string | null) => {
+    if (id === artOf) return;
+    artOf = id;
+    art.removeAll(true);
+    const on = !!id && scene.textures.exists(illustKey(id));
+    face.setVisible(!on);
+    placeName(!on);
+    if (!on || !id) return;
+    const img = scene.add.image(0, 0, illustKey(id)).setOrigin(0.5, 1);
+    const k = ILLUST_H / img.height;
+    img.setScale(k);
+    const x = left + 20 + (img.width * k) / 2;
+    img.setPosition(x - 60, top + ILLUST_UNDER).setAlpha(0);
+    art.add(img);
+    // Появление — выезд слева с проявлением.
+    scene.tweens.add({ targets: img, x, alpha: 1, duration: 220, ease: 'Cubic.easeOut' });
+  };
+  const setFace = (sprite: string | null, gender?: 'm' | 'f', illust?: string) => {
+    if (illust && scene.textures.exists(illustKey(illust))) return setArt(illust);
+    setArt(null);
+    if (illust) {
+      // Иллюстрация ещё грузится — пока портрет, по готовности подменим (если эта реплика ещё на экране).
+      const lineNow = line;
+      void loadIllust(scene.game, illust).then((ok) => {
+        if (ok && !closed && line === lineNow) setArt(illust);
+      });
+    }
     // Тот же говорящий — портрет не пересобираем (бюст уже на месте, без мигания).
     const faceId = sprite && gender ? `${sprite}|${gender}` : sprite;
     if (faceId === faceOf) return;
@@ -175,7 +222,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     const l = s.lines[i];
     const who = speakerView(story, l.speaker, session.save, GAME);
     nameText.setText(who.name);
-    setFace(who.sprite, who.gender);
+    setFace(who.sprite, who.gender, who.illust);
     full = l.text;
     // Колокольчик Греты звенит в реплике — слышно (ограничитель не даст звенеть чаще раза в 1.5 с).
     if (lineChimes(full)) sfx('bell_chime', { delay: 0.2 });

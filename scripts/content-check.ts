@@ -157,6 +157,12 @@ if (content) {
         warnings.push(`сюжет ${story.chapter}: портрет спикера ${key} (${sp.portrait}) не найден — в игре будет иконка`);
       }
     }
+    // Иллюстрация спикера (Кафра) — файл assets/ui/illust/<id>.png; нет файла — ошибка (диалог покажет портрет, но ссылка битая).
+    for (const [key, sp] of Object.entries(story.speakers)) {
+      if (sp.illust && !existsSync(join(ROOT, 'assets/ui/illust', `${sp.illust}.png`))) {
+        errors.push(`сюжет ${story.chapter}: иллюстрация спикера ${key} — нет файла assets/ui/illust/${sp.illust}.png`);
+      }
+    }
   }
 
   // 5. Дымовой прогон
