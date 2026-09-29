@@ -10,6 +10,7 @@ import { speedGate } from './state';
 import { mugIcon } from './tavernEntry';
 import { C, FS, OUTLINE, TITLE_STYLE } from './theme';
 import { button, pressable, text, toast } from './ui';
+import { haptic } from './haptics';
 
 /**
  * Открытие функций по этапам (data/unlocks.json, ядро — src/core/unlocks): замки на закрытом («Откроется на этапе 1-8»,
@@ -217,5 +218,6 @@ function banner(scene: Phaser.Scene, f: FeatureView, more: number, close: (go: b
   layer.add(button(scene, cx - 215, by, 380, BTN_H, 'k:buttonLong_beige', 'Позже', () => done(false), FS.h2).container);
   layer.add(button(scene, cx + 215, by, 380, BTN_H, 'ui_btn_primary', 'Перейти', () => done(true), FS.h2).container);
   if (more > 0) layer.add(text(scene, cx, boxTop + boxH + 44, `Ещё новых функций: ${more}`, FS.small, C.muted, OUTLINE));
+  haptic('unlock');
   popIn(scene, layer, shade);
 }

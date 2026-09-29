@@ -21,6 +21,7 @@ import { chapterLastStage } from '../storyView';
 import { startChapterDone } from './ChapterDoneScene';
 import { addThemeBackground, themeOfBattle } from '../backdrops';
 import { sfx } from '../audio';
+import { haptic } from '../haptics';
 import { glow, slowRays, sparkBurst } from '../decor';
 import { showUnlockBanners } from '../unlockBanner';
 import { heroCardIcon, rarityColor, rarityName } from '../heroCard';
@@ -96,7 +97,11 @@ export class ResultScene extends Phaser.Scene {
     const outcome = stage?.outcome ?? tower?.outcome;
     // Стингер итога (музыка боя приглушается под него); повышение уровня / редкий трофей — следом.
     sfx(win ? 'victory' : 'defeat');
-    if (outcome?.events.some((e) => e.type === 'levelUp')) sfx('level_up', { delay: 1.6 });
+    haptic(win ? 'victory' : 'defeat');
+    if (outcome?.events.some((e) => e.type === 'levelUp')) {
+      sfx('level_up', { delay: 1.6 });
+      haptic('levelUp', 1600);
+    }
     if (outcome) {
       const events = outcome.events;
       const rewards = events.find((e) => e.type === 'rewards');

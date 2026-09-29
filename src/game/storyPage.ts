@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { FINDING_KIND_NAMES, type ChapterChronicleDef, type EpisodeDef, type FindingDef, type FindingKind, type IntroPages, type LegendDef } from '../core';
 import { sfx } from './audio';
+import { haptic } from './haptics';
 import { setThemeBackground, themeOfChapter } from './backdrops';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
 import { bleedImage } from './viewport';
@@ -132,6 +133,7 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
     page.setAlpha(0);
     scene.tweens.add({ targets: page, alpha: 1, duration: 260 });
     sfx(i === 0 ? 'ui_open' : 'ui_tab');
+    if (i === 0) haptic('soft');
   };
   show(0);
 }

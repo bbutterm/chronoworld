@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { actSummon, addHeroCard, grantTavernWelcome, heroCard, needsBranch, rarityDef, summonPool, summonStatus, type HeroState, type SummonResult, type SummonStatus } from '../../core';
 import { SUMMON_REVEAL } from '../audioCatalog';
 import { sfx, summonSound } from '../audio';
+import { haptic } from '../haptics';
 import { screenBackground } from '../backdrops';
 import { GAME } from '../content';
 import { describeEvents, formatNumber, heroSprite, stageNo } from '../flow';
@@ -64,6 +65,9 @@ const TABLE_Y = 1000;
 /** Откуда вылетают карты (колода у края стола). */
 const DECK = { x: GAME_W / 2, y: 1720 };
 const DEPTH = 5000;
+
+/** Вибрация переворота карты: фиолетовая и выше — тяжёлый удар, остальные — лёгкий. */
+const flipHaptic = (r: Parameters<typeof tensionMs>[0]) => haptic(tensionMs(r) >= tensionMs('purple') ? 'cardRare' : 'cardFlip');
 /** Строки прогресса призыва (гарант, первый ×10) — плашка обучения их не закрывает (MT-07). */
 const TAVERN_INFO = ['До синей', 'До фиолетовой', 'Первый призыв', 'Шансы', 'Гарант'];
 
@@ -388,7 +392,10 @@ export class TavernScene extends Phaser.Scene {
         // Уменьшить анимацию: карты сразу лицом вверх, один звук лучшей карты, итог.
         for (const cv of state.cards) this.showFace(state, cv, false);
         const best = bestResult(results);
-        if (best) sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
+        if (best) {
+          sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
+          flipHaptic(best.rarity);
+        }
         this.finish(state);
         return;
       }
@@ -487,6 +494,7 @@ export class TavernScene extends Phaser.Scene {
       this.time.delayedCall(wait, () => {
         if (this.reveal !== state || !root.scene || cv.flipped) return resolve();
         if (!tense) sfx(SUMMON_REVEAL[SOUND_RARITY[rarity]]);
+        flipHaptic(rarity);
         this.tweens.add({
           targets: root,
           scaleX: 0,
@@ -664,7 +672,10 @@ export class TavernScene extends Phaser.Scene {
       if (!cv.flipped) this.showFace(state, cv, false);
     }
     const best = bestResult(state.results);
-    if (best) sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
+    if (best) {
+      sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
+      flipHaptic(best.rarity);
+    }
     this.finish(state);
   }
 

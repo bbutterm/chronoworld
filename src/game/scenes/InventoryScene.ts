@@ -38,6 +38,7 @@ import { itemCell, oreIcon } from '../itemIcons';
 import { burst, staggerIn } from '../juice';
 import { markHint } from '../hints';
 import { sfx } from '../audio';
+import { haptic } from '../haptics';
 import { cardIcon, drawHeroCard, heroCardIcon, heroCardSize, rarityColor } from '../heroCard';
 import type { HeroBack, HeroData } from './HeroScene';
 import { heroCardsList, heroCardsTable, inventoryUi, RARITY_ORDER, type HeroCardsRow } from '../heroesView';
@@ -288,6 +289,7 @@ export class InventoryScene extends Phaser.Scene {
         // Поломка: глухой удар, тряска экрана и осколки из ячейки предмета.
         const color = def ? Phaser.Display.Color.HexStringToColor(RARITY_COLORS[def.rarity]).color : TINT.frame;
         sfx('refine_fail');
+        haptic('refineFail');
         this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
         this.events.once(Phaser.Scenes.Events.CREATE, () => {
           shatter(this, at, color);
@@ -298,6 +300,7 @@ export class InventoryScene extends Phaser.Scene {
         return;
       }
       sfx('refine_success');
+      haptic('refineOk');
       this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
       this.events.once(Phaser.Scenes.Events.CREATE, () => {
         burst(this, at);

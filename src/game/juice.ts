@@ -3,6 +3,7 @@ import { formatNumber } from './flow';
 import { motion } from './state';
 import { TINT } from './theme';
 import { sfx } from './audio';
+import { haptic } from './haptics';
 
 /**
  * «Сочность» меню в духе AFK Arena — дёшево и сдержанно: награды летят к валюте в шапке, числа отсчитываются,
@@ -170,6 +171,7 @@ export function queueRewardFly(sceneKey: string, from: Point, before: { gold: nu
   pending = { scene: sceneKey, from, gold: before.gold, gems: before.gems, burst: !!opts.burst };
   // Звук — в момент нажатия «Забрать» (монеты прилетят уже на новом экране и звякнут каждая своим звуком).
   sfx(opts.burst ? 'chest_open' : 'claim');
+  haptic('reward');
 }
 
 /**
