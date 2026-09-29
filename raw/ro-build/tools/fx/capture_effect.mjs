@@ -21,7 +21,7 @@ process.on('uncaughtException', e => { if (benign(e)) return; console.error(e); 
 process.on('unhandledRejection', e => { if (benign(e)) return; console.error(e); process.exit(1); });
 
 function args() {
-	const a = { fps: 12, max: 4500, seed: 1, warm: 2500, size: '800x600', loop: false, tail: 4, zoom: 0 };
+	const a = { fps: 12, max: 4500, seed: 1, warm: 2500, size: '800x600', loop: false, tail: 4, zoom: 0, duration: 0 };
 	const v = process.argv.slice(2);
 	for (let i = 0; i < v.length; i++) {
 		const k = v[i].replace(/^--/, '');
@@ -29,7 +29,7 @@ function args() {
 		a[k] = v[++i];
 	}
 	for (const k of ['url', 'effect', 'out']) if (!a[k]) { console.error(`need --${k}`); process.exit(1); }
-	for (const k of ['fps', 'max', 'seed', 'warm', 'tail', 'zoom']) a[k] = +a[k];
+	for (const k of ['fps', 'max', 'seed', 'warm', 'tail', 'zoom', 'duration']) a[k] = +a[k];
 	return a;
 }
 
@@ -96,6 +96,15 @@ for (let i = 0; i < 120 && !frame; i++) {
 if (!frame) { console.error('EffectViewer not found: check --url / remoteClient'); await finish(2); }
 
 const trigger = async id => {
+	if (A.duration) {
+		// cast auras etc.: duration normally comes from the packet (e.g. cast delayTime); spam directly like the client
+		return frame.evaluate(async ([id, duration]) => {
+			const S = (await import(new URL('/src/Engine/SessionStorage.js', location.origin).href)).default;
+			const EM = (await import(new URL('/src/Renderer/EffectManager.js', location.origin).href)).default;
+			EM.spam({ effectId: isNaN(id) ? id : Number(id), ownerAID: S.Entity.GID, otherAID: S.Entity.GID,
+				position: S.Entity.position, duration, startTick: Date.now() });
+		}, [String(id), A.duration]);
+	}
 	const sel = frame.locator('#EffectViewer select').first();
 	if (!(await sel.locator(`option[value="${id}"]`).count())) throw new Error(`effect ${id} is not in the EffectViewer list`);
 	await sel.selectOption(String(id));
@@ -166,7 +175,7 @@ for (; n < maxFrames; n++) {
 	if (!A.loop && firstContent >= 0 && emptyRun >= A.tail) { n++; break; }
 }
 
-const meta = { entityHidden: true, effectId: A.effect, stepMs, fps: A.fps, loop: A.loop, seed: A.seed, frames: n, firstContent,
+const meta = { entityHidden: true, duration: A.duration || null, effectId: A.effect, stepMs, fps: A.fps, loop: A.loop, seed: A.seed, frames: n, firstContent,
 	renderer: 'roBrowserLegacy EffectViewer', source: 'scRO GRF via tools/ro_remote_client.py', ...calib };
 fs.writeFileSync(path.join(A.out, 'meta.json'), JSON.stringify(meta, null, 2));
 console.log(JSON.stringify(meta));

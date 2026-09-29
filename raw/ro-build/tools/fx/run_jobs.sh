@@ -16,7 +16,7 @@ print(0)
 PY
 }
 cap() { # out effect page size zoom screen
-  timeout 290 xvfb-run -a -s "-screen 0 $6" node capture_effect.mjs --url "$URL/$3" --effect "$2" --out "$1" --size "$4" --zoom "$5" >> "$LOG" 2>&1
+  timeout 290 xvfb-run -a -s "-screen 0 $6" node capture_effect.mjs --url "$URL/$3" --effect "$2" --out "$1" --size "$4" --zoom "$5" ${DURATION:+--duration $DURATION} >> "$LOG" 2>&1
   echo $?
 }
 python3 -c "import json,sys;[print(*j[:3]) for j in json.load(open(sys.argv[1]))]" "$JOBS" | while read skill role eff; do

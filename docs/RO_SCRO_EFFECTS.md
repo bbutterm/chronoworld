@@ -74,6 +74,17 @@ Same post-processing as main: gold grade for Blessing (`tools/tint_blessing_effe
   Meteor Storm (8 of 18: the meteor falls from high up, 476×988 cell).
 `qa/effects_*.png` — the first column is the current main sheet (middle frame), then scRO frames 0 / middle / last.
 
+## Part 3 — cast auras by element (`raw/ro-build/effects/p3/`)
+
+`fx_cast_<element>` — the RO aura while a spell is being cast (pillar of light over a ring at the feet), attach `caster`.
+Element → RO effect, as the client picks it (`Engine/MapEngine/Entity.js`, onEntityCast): neutral 12 (EF_BEGINSPELL, yellow),
+water 54, earth 57, fire 55, wind 56, poison 59, holy/ghost 58, dark/undead 454 (EF_DARKCASTING — in roBrowser it comes out
+whitish, check by eye). In RO the aura lasts as long as the cast (`delayTime` from the packet) — captured with a 1.5 s cast:
+fade in → hold → fade out. For a long cast, loop the middle frames (the steady part), play the fade-out at the end of the cast.
+Not bound to skills: the game currently draws a procedural cast circle (`src/game/skillFx.ts`, element from `skillLook.ts`) —
+replacing it with these sheets by element is a code change (castLoop event), for the agent.
+The water/fire/wind/earth/poison pillars are tall (cells up to 286×832), the sheets fit in 2048 px with 14–16 of 17 frames.
+
 ## Hook-up (agent)
 
 1. For each part: copy the PNGs to `assets/effects/`, merge `effects` and `skills` from `effects.fragment.json` into `assets/effects/effects.json`.

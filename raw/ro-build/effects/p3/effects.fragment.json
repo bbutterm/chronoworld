@@ -1,0 +1,409 @@
+{
+ "schema": 1,
+ "part": 3,
+ "effects": [
+  {
+   "id": "fx_cast_neutral",
+   "file": "effects/fx_cast_neutral.png",
+   "cell": [
+    372,
+    276
+   ],
+   "columns": 5,
+   "frames": 17,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    186.0,
+    225.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "12",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 12; role cast"
+   }
+  },
+  {
+   "id": "fx_cast_water",
+   "file": "effects/fx_cast_water.png",
+   "cell": [
+    254,
+    712
+   ],
+   "columns": 8,
+   "frames": 16,
+   "ms": 88.54,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    127.0,
+    674.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "54",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 0.6945,
+    "seed": 1,
+    "note": "scRO client; RO effect 54; role cast"
+   }
+  },
+  {
+   "id": "fx_cast_fire",
+   "file": "effects/fx_cast_fire.png",
+   "cell": [
+    286,
+    802
+   ],
+   "columns": 7,
+   "frames": 14,
+   "ms": 101.19,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    143.0,
+    759.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "55",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 0.6945,
+    "seed": 1,
+    "note": "scRO client; RO effect 55; role cast"
+   }
+  },
+  {
+   "id": "fx_cast_wind",
+   "file": "effects/fx_cast_wind.png",
+   "cell": [
+    276,
+    794
+   ],
+   "columns": 7,
+   "frames": 14,
+   "ms": 101.19,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    140.0,
+    754.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "56",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 0.6945,
+    "seed": 1,
+    "note": "scRO client; RO effect 56; role cast"
+   }
+  },
+  {
+   "id": "fx_cast_earth",
+   "file": "effects/fx_cast_earth.png",
+   "cell": [
+    286,
+    832
+   ],
+   "columns": 7,
+   "frames": 14,
+   "ms": 101.19,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    143.0,
+    790.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "57",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 0.6945,
+    "seed": 1,
+    "note": "scRO client; RO effect 57; role cast"
+   }
+  },
+  {
+   "id": "fx_cast_holy",
+   "file": "effects/fx_cast_holy.png",
+   "cell": [
+    372,
+    276
+   ],
+   "columns": 5,
+   "frames": 17,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    185.0,
+    225.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "58",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 58; role cast"
+   }
+  },
+  {
+   "id": "fx_cast_poison",
+   "file": "effects/fx_cast_poison.png",
+   "cell": [
+    240,
+    688
+   ],
+   "columns": 8,
+   "frames": 16,
+   "ms": 88.54,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    108.0,
+    647.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "59",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 0.6945,
+    "seed": 1,
+    "note": "scRO client; RO effect 59; role cast"
+   }
+  },
+  {
+   "id": "fx_cast_dark",
+   "file": "effects/fx_cast_dark.png",
+   "cell": [
+    304,
+    226
+   ],
+   "columns": 6,
+   "frames": 17,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    165.0,
+    182.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "454",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 454; role cast"
+   }
+  }
+ ],
+ "skills": {},
+ "results": [
+  {
+   "key": "fx_cast_neutral",
+   "role": "cast",
+   "ro": "12",
+   "id": "fx_cast_neutral",
+   "status": "built",
+   "raw": "raw/p3d/fx_cast_neutral__cast__12",
+   "zoom": 125,
+   "frames": 17,
+   "cell": [
+    372,
+    276
+   ],
+   "sheet": [
+    1860,
+    1104
+   ],
+   "bytes": 894623,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "fx_cast_water",
+   "role": "cast",
+   "ro": "54",
+   "id": "fx_cast_water",
+   "status": "built",
+   "raw": "raw/p3d/fx_cast_water__cast__54__L375",
+   "zoom": 375,
+   "frames": 16,
+   "cell": [
+    254,
+    712
+   ],
+   "sheet": [
+    2032,
+    1424
+   ],
+   "bytes": 675885,
+   "thinned": 17,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "fx_cast_fire",
+   "role": "cast",
+   "ro": "55",
+   "id": "fx_cast_fire",
+   "status": "built",
+   "raw": "raw/p3d/fx_cast_fire__cast__55__L375",
+   "zoom": 375,
+   "frames": 14,
+   "cell": [
+    286,
+    802
+   ],
+   "sheet": [
+    2002,
+    1604
+   ],
+   "bytes": 711026,
+   "thinned": 17,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "fx_cast_wind",
+   "role": "cast",
+   "ro": "56",
+   "id": "fx_cast_wind",
+   "status": "built",
+   "raw": "raw/p3d/fx_cast_wind__cast__56__L375",
+   "zoom": 375,
+   "frames": 14,
+   "cell": [
+    276,
+    794
+   ],
+   "sheet": [
+    1932,
+    1588
+   ],
+   "bytes": 692185,
+   "thinned": 17,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "fx_cast_earth",
+   "role": "cast",
+   "ro": "57",
+   "id": "fx_cast_earth",
+   "status": "built",
+   "raw": "raw/p3d/fx_cast_earth__cast__57__L375",
+   "zoom": 375,
+   "frames": 14,
+   "cell": [
+    286,
+    832
+   ],
+   "sheet": [
+    2002,
+    1664
+   ],
+   "bytes": 931880,
+   "thinned": 17,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "fx_cast_holy",
+   "role": "cast",
+   "ro": "58",
+   "id": "fx_cast_holy",
+   "status": "built",
+   "raw": "raw/p3d/fx_cast_holy__cast__58",
+   "zoom": 125,
+   "frames": 17,
+   "cell": [
+    372,
+    276
+   ],
+   "sheet": [
+    1860,
+    1104
+   ],
+   "bytes": 356769,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "fx_cast_poison",
+   "role": "cast",
+   "ro": "59",
+   "id": "fx_cast_poison",
+   "status": "built",
+   "raw": "raw/p3d/fx_cast_poison__cast__59__L375",
+   "zoom": 375,
+   "frames": 16,
+   "cell": [
+    240,
+    688
+   ],
+   "sheet": [
+    1920,
+    1376
+   ],
+   "bytes": 746434,
+   "thinned": 17,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "fx_cast_dark",
+   "role": "cast",
+   "ro": "454",
+   "id": "fx_cast_dark",
+   "status": "built",
+   "raw": "raw/p3d/fx_cast_dark__cast__454",
+   "zoom": 125,
+   "frames": 17,
+   "cell": [
+    304,
+    226
+   ],
+   "sheet": [
+    1824,
+    678
+   ],
+   "bytes": 258402,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  }
+ ]
+}

@@ -89,10 +89,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--part', type=int, required=True, choices=[1, 2, 3])
     ap.add_argument('--root', default='/root/ro-client-extraction-2/fxwork')
+    ap.add_argument('--raw', help='capture dir (default <root>/raw/p<N>)')
     a = ap.parse_args()
     root, part = a.root, a.part
     jobs = json.load(open(f'{root}/cap/jobs_part{part}.json'))
-    raw_dir = f'{root}/raw/p{part}'
+    raw_dir = a.raw or f'{root}/raw/p{part}'
     out = f'{root}/out/p{part}'
     repo_fx = f'{out}/assets/effects'
     os.makedirs(repo_fx, exist_ok=True)

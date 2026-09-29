@@ -5,6 +5,6 @@
    `npx vite --host 127.0.0.1 --port 5173` (dev server: calibration imports `/src/Renderer/Camera.js`).
 3. `npm i playwright@1.58.2` next to `capture_effect.mjs`; a browser: an Electron build (`ELECTRON=.../electron`, under `xvfb-run`)
    or Chrome (`CHROME=...`). Do not run `playwright install` (see CLAUDE.md).
-4. `./run_jobs.sh jobs_partN.json <raw>/pN <log>` — resumable; edge-touching effects are re-captured on 1600×1200 at zoom 250/375.
+4. `./run_jobs.sh jobs_partN.json <raw>/pN <log>` (cast auras: `DURATION=1500 ./run_jobs.sh ...`, the effect is started via EffectManager.spam with a duration) — resumable; edge-touching effects are re-captured on 1600×1200 at zoom 250/375.
 5. `python3 build_fx.py --part N --root <workdir>` (expects `<workdir>/main` = checkout of main, `<workdir>/cap` = these files),
    then `python3 qa_fx.py --part N`.
