@@ -68,7 +68,7 @@ export class ChronicleScene extends Phaser.Scene {
       const x = 20 + w * (i + 0.5);
       const b = button(this, x, ty, w - 12, TOUCH, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label, () => {
         if (!on) this.scene.restart({ tab: t.id } satisfies ChronicleData);
-      }, FS.body, { sound: 'ui_tab' });
+      }, FS.small, { sound: 'ui_tab' });
       b.container.setName(`chronicleTab_${t.id}`);
       if (!on) cornerBadge(this, x, ty, w - 12, TOUCH, unseen[t.id]);
     });

@@ -112,16 +112,16 @@ export class ResultScene extends Phaser.Scene {
         // Строка Гаррета вместо сухого «Поражение» (lore-route §5.8, data/lore/lines.json → defeat).
         const said = randomLine('defeat');
         if (said) {
-          y += 58;
-          ellipsize(text(this, GAME_W / 2, y, said, FS.small, C.title, { fontStyle: 'italic', ...OUTLINE }), 990).setName('resultLine');
+          const t = text(this, GAME_W / 2, y + 40, said, FS.small, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 990 }, align: 'center' }).setOrigin(0.5, 0).setName('resultLine');
+          y += 40 + t.height - 20;
         }
       }
       // Этаж-босс Башни взят — «надпись на стене этажа» (lines.json → towerFloor).
       if (tower && win && tower.floor % GAME.tower.bossEvery === 0) {
         const wall = randomLine('towerFloor');
         if (wall) {
-          y += 55;
-          ellipsize(text(this, GAME_W / 2, y, wall, FS.small, C.title, { fontStyle: 'italic', ...OUTLINE }), 990).setName('resultLine');
+          const t = text(this, GAME_W / 2, y + 35, wall, FS.small, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 990 }, align: 'center' }).setOrigin(0.5, 0).setName('resultLine');
+          y += 35 + t.height - 20;
         }
       }
       y += 55;
