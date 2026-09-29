@@ -8,7 +8,7 @@ import { campLevel, formatNumber, heroesNavBadge, heroSprite, leadHero, POWER_CO
 import { framedPortrait } from './portraitFrame';
 import { view } from './viewport';
 import { heroGender } from '../core';
-import { button, ellipsize, emptyState, icon, panel, text, toast } from './ui';
+import { button, ellipsize, emptyState, icon, panel, shieldTaps, text, toast } from './ui';
 import { hasArt } from './assets';
 import { C, FS, SP, TINT } from './theme';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
@@ -102,13 +102,14 @@ export function screen(
 
   if (active) {
     // Панель навигации: тот же градиент, перевёрнутый (бронза сверху), и золотая кромка по верху.
-    scene.add.image(GAME_W / 2, GAME_H - (NAV_H - BLEED_Y) / 2, 'skin_header_grad').setDisplaySize(fullW, NAV_H + BLEED_Y).setFlipY(true).setAlpha(0.96);
-    scene.add.image(GAME_W / 2, GAME_H - NAV_H - 1, 'skin_trim').setDisplaySize(fullW, 12).setFlipY(true);
+    const navBottom = GAME_H + navShift();
+    scene.add.image(GAME_W / 2, navBottom - (NAV_H - BLEED_Y) / 2, 'skin_header_grad').setDisplaySize(fullW, NAV_H + BLEED_Y).setFlipY(true).setAlpha(0.96);
+    scene.add.image(GAME_W / 2, navBottom - NAV_H - 1, 'skin_trim').setDisplaySize(fullW, 12).setFlipY(true);
     const w = GAME_W / TABS.length;
     TABS.forEach((t, i) => {
       const on = t.scene === active;
       const bx = w * (i + 0.5);
-      const by = GAME_H - NAV_H / 2;
+      const by = navBottom - NAV_H / 2;
       // Плитка вкладки как в референсе: контурная иконка и подпись капсом под ней; активная — золотая рамка.
       const btn = button(scene, bx, by, NAV_TAB_W, NAV_H - 30, on ? 'skin_tab_active' : 'skin_tab', t.label.toUpperCase(), () => {
         // T1-04: на подэкранах вкладки (карточка героя, инвентарь) вкладка ведёт к её корневому экрану.
@@ -175,6 +176,19 @@ export function noticeModal(scene: Phaser.Scene, title: string, paragraphs: read
 
 /** Полоса над шапкой не ниже этого (ед. мира) — туда переезжает валюта. */
 const BAND_MIN = 84;
+
+/**
+ * NB-21: на сколько панель навигации опущена ниже поля 1080×1920 — к низу безопасной области вытянутого экрана
+ * (как в AFK Arena), чтобы под ней не оставалась пустая полоса. 0 — на 9:16.
+ */
+export function navShift(): number {
+  return Math.max(0, Math.min(BLEED_Y, view().safeBottom - GAME_H));
+}
+
+/** Центр вкладок навигации по высоте (с учётом navShift) — для указателей подсказок на вкладки. */
+export function navY(): number {
+  return GAME_H - NAV_H / 2 + navShift();
+}
 
 /** Высота видимой полосы над полем на вытянутых экранах (ниже выреза), в ед. мира; 0 — полосы нет (9:16). */
 export function topBand(): number {
@@ -419,6 +433,9 @@ export const DANGER_BTN = 'skin_btn_danger';
 /** Появление модального окна: затемнение проявляется, окно чуть «вырастает» из центра экрана. */
 export function popIn(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, shade?: Phaser.GameObjects.GameObject): void {
   sfx('ui_open');
+  // MT-02: окно закрылось (или его экран ушёл) — короткий щит от второго быстрого тапа.
+  const game = scene.sys.game;
+  layer.once(Phaser.GameObjects.Events.DESTROY, () => shieldTaps(game));
   const rest = layer.list.filter((o) => o !== shade) as unknown as (Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Alpha)[];
   if (shade) scene.tweens.add({ targets: shade, alpha: { from: 0, to: 1 }, duration: 140 });
   // Масштаб контейнера — от центра экрана: сдвигаем начало координат в центр.

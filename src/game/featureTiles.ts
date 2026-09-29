@@ -63,7 +63,7 @@ export function towerTile(scene: Phaser.Scene, x: number, y: number, w: number, 
     title: 'Башня испытаний',
     art: glyph(scene, 'tower'),
     open: ts.unlocked,
-    status: { text: ts.next === null ? 'Вершина взята!' : `Этаж ${ts.floor} · дальше ${ts.next}`, color: C.gold },
+    status: { text: ts.next === null ? 'Вершина взята!' : ts.floor === 0 ? `Впереди этаж ${ts.next}` : `Взят этаж ${ts.floor} · дальше ${ts.next}`, color: C.gold },
     note: 'Сто этажей врагов — награда за каждый',
     lockId: 'tower',
     onOpen: () => {

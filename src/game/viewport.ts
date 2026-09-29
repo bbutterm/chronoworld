@@ -222,7 +222,9 @@ export function installViewport(game: Phaser.Game): void {
     st.top = `${v.cssTop}px`;
     st.width = `${v.cssW}px`;
     st.height = `${v.cssH}px`;
-    sm.updateBounds();
+    // MT-01: resize() выше пересчитал displayScale по СТАРОМУ css-размеру холста; после смены стиля — заново,
+    // иначе координаты тапов остаются от прошлого размера окна (поворот, раскрытие Telegram) до перезагрузки.
+    sm.refresh();
   };
   let pending = 0;
   const schedule = () => {

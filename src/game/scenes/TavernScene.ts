@@ -4,7 +4,7 @@ import { SUMMON_REVEAL } from '../audioCatalog';
 import { sfx, summonSound } from '../audio';
 import { screenBackground } from '../backdrops';
 import { GAME } from '../content';
-import { describeEvents, formatNumber, heroSprite } from '../flow';
+import { describeEvents, formatNumber, heroSprite, stageNo } from '../flow';
 import { afterRewardFly, pulse, queueRewardFly } from '../juice';
 import { GAME_H, GAME_W, BLEED_X, BLEED_Y } from '../layout';
 import { card, CONTENT_TOP, gemIcon, popIn, screen, unitFigure } from '../screen';
@@ -156,7 +156,7 @@ export class TavernScene extends Phaser.Scene {
     const stage = GAME.content.stages.find((s) => s.id === st.unlockAfterStage);
     card(this, GAME_W / 2, 800, 960, 360);
     text(this, GAME_W / 2, 700, 'Таверна пока закрыта', FS.h1, C.title, TITLE_STYLE);
-    text(this, GAME_W / 2, 820, `Откроется после этапа ${stage ? `${stage.globalIndex + 1} «${stage.name}»` : st.unlockAfterStage}`, FS.body, C.text, { ...OUTLINE, wordWrap: { width: 860 } });
+    text(this, GAME_W / 2, 820, `Откроется после этапа ${stage ? `${stageNo(stage, GAME)} «${stage.name}»` : st.unlockAfterStage}`, FS.body, C.text, { ...OUTLINE, wordWrap: { width: 860 } });
     button(this, GAME_W / 2, 1100, 520, 120, 'ui_btn_primary', 'В кампанию', () => this.scene.start('Campaign'), FS.h2);
   }
 
@@ -404,7 +404,7 @@ export class TavernScene extends Phaser.Scene {
     const cv: CardView = { i, slot, root, glow, back, face, flipped: false, busy: false };
     root.on('pointerup', () => {
       if (state.phase === 'pick') void this.flip(state, cv, 'tap');
-      else if (state.phase === 'done') this.scene.start('Hero', { heroId: r.heroId });
+      else if (state.phase === 'done') this.scene.start('Hero', { heroId: r.heroId, back: { to: 'Tavern' } });
     });
     state.layer.add(root);
     return cv;
@@ -675,7 +675,7 @@ export class TavernScene extends Phaser.Scene {
     state.title.setText('Итог призыва');
     L.add(ellipsize(text(this, GAME_W / 2, 310, summaryLine(state.results), FS.body, C.text, { fontStyle: 'bold', ...OUTLINE }), 1000).setName('summaryLine'));
     const hasDup = state.tags.some((t) => t.kind === 'copy');
-    L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Копии — корм для вознесения (все карты — в Инвентаре). Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
+    L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Копии нужны для вознесения героя (все карты — в Инвентаре). Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
 
     const best = bestResult(state.results);
     const st = summonStatus(session.save, today(), GAME);

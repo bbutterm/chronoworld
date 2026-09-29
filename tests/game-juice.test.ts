@@ -85,7 +85,7 @@ describe('juice: «сочность» меню и «Уменьшить аним�
     const t = { scene: {}, setText: (s: string) => ((shown = s), t) } as unknown as Phaser.GameObjects.Text;
     setReducedMotion(true);
     countUp(scene, t, 0, 12345);
-    expect(shown).toBe('12 345');
+    expect(shown).toBe('12\u00a0345'); // разряды — неразрывным пробелом (LT-13)
     expect(counters).toHaveLength(0);
     setReducedMotion(false);
     countUp(scene, t, 0, 500);

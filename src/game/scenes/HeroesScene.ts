@@ -85,7 +85,7 @@ export class HeroesScene extends Phaser.Scene {
         c.add(this.add.image(0, -4, cardIcon(this, line)).setDisplaySize(62, 62).setTint(f.line === line ? 0xffe08a : 0xeadfc6));
       }, `Линия: ${this.content.jobs[line]?.name ?? line} (${GUILD_NAMES[line] ?? ''})`);
     });
-    const sortBtn = button(this, 880, r1, 300, CHIP, 'ui_btn_secondary', `${SORT_LABELS[heroesUi.sort]} ▼`, () => {
+    const sortBtn = button(this, 880, r1, 300, CHIP, 'ui_btn_secondary', `${SORT_LABELS[heroesUi.sort]} ↕`, () => {
       heroesUi.sort = SORT_ORDER[(SORT_ORDER.indexOf(heroesUi.sort) + 1) % SORT_ORDER.length];
       this.scene.restart();
     }, FS.h3, { sound: 'ui_toggle' });

@@ -387,7 +387,7 @@ const visitTavern = async () => {
 
 /** Экран этапа → «Авто» (сильнейшие герои по ролям) → «‹ Назад» на карту. */
 const autoSquad = async (stage, shotName) => {
-  await clickText('Campaign', String(stage));
+  await clickText('Campaign', `1-${stage}`);
   await waitScene('Stage');
   if ((await recordHint('Stage')) !== 'prep_auto') problems.push('после Таверны на расстановке нет подсказки «Авто»');
   await clickText('Stage', 'Авто');
@@ -412,6 +412,14 @@ const chapterDone = async () => {
   await sleep(600);
   await shot('chapter-history');
   if (!(await findText('ChapterDone', '▶  Финал главы'))) throw new Error('в «Истории» нет финала главы');
+  // NB-01: все сцены главы (13) — список прокручивается, первая — «Вступление»; к финалу — колесом вниз.
+  if (!(await findText('ChapterDone', '▶  Вступление'))) throw new Error('в «Истории» нет «Вступления» (видны не все сцены)');
+  {
+    const box = await page.locator('canvas').boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.wheel(0, 3000);
+    await sleep(400);
+  }
   await clickText('ChapterDone', '▶  Финал главы');
   await sleep(600);
   if (!(await dialogueOpen('ChapterDone'))) throw new Error('«История»: сцена не открылась');
@@ -504,7 +512,7 @@ try {
           await skipDialogues('Campaign');
           log('обучение: задания открыты');
         }
-        await clickText('Campaign', String(stage));
+        await clickText('Campaign', `1-${stage}`);
         await waitScene('Stage');
         const prepHint = await recordHint('Stage');
         if (prepHint === 'prep_auto' && stage <= TAVERN) problems.push(`этап ${stage}: подсказка «Авто» до первого призыва в Таверне`);

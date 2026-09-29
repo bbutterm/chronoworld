@@ -39,11 +39,12 @@ describe('помощники экранов K1–K7', () => {
     expect(powerTone(0, 0)).toBe('ahead');
   });
 
-  it('formatNumber разбивает разряды пробелом', () => {
+  // LT-13: разряды — неразрывным пробелом (U+00A0), чтобы перенос строки не рвал число.
+  it('formatNumber разбивает разряды неразрывным пробелом', () => {
     expect(formatNumber(0)).toBe('0');
     expect(formatNumber(999)).toBe('999');
-    expect(formatNumber(12345)).toBe('12 345');
-    expect(formatNumber(1234567.4)).toBe('1 234 567');
+    expect(formatNumber(12345)).toBe('12\u00a0345');
+    expect(formatNumber(1234567.4)).toBe('1\u00a0234\u00a0567');
   });
 
   it('P: короткие русские подписи статов одни на все экраны', () => {

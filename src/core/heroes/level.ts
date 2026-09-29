@@ -2,6 +2,7 @@ import type { GameContext, ProgressEvent } from '../progression/types';
 import type { HeroState, SaveState } from '../save/schema';
 import { activeForm, heroName, heroTemplate, maxLevelOf } from './card';
 import { HeroError } from './errors';
+import { groupDigits } from '../format';
 
 /**
  * Уровень карточки (AFK): опыт героев — общий пул save.resources.heroExp (награды этапов, сундука, башни, поручений…),
@@ -96,8 +97,8 @@ export function levelUpHero(save: SaveState, heroId: string, ctx: GameContext, t
   if (!info.canLevel) {
     const name = heroName(hero, ctx);
     if (info.blocker === 'max_level') throw new HeroError('max_level', `${name}: предел уровня ${info.maxLevel} — нужно вознесение`);
-    if (info.blocker === 'not_enough_exp') throw new HeroError('not_enough_exp', `Не хватает опыта: нужно ${info.cost!.exp}, в запасе ${info.pool}`);
-    throw new HeroError('not_enough_gold', `Не хватает золота: нужно ${info.cost!.gold}, есть ${info.gold}`);
+    if (info.blocker === 'not_enough_exp') throw new HeroError('not_enough_exp', `Не хватает опыта: нужно ${groupDigits(info.cost!.exp)}, в запасе ${groupDigits(info.pool)}`);
+    throw new HeroError('not_enough_gold', `Не хватает золота: нужно ${groupDigits(info.cost!.gold)}, есть ${groupDigits(info.gold)}`);
   }
   const n = Math.max(1, Math.min(Math.floor(times), info.affordable));
   const spent = levelRangeCost(hero.level, hero.level + n, ctx);

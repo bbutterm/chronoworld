@@ -5,7 +5,7 @@ import { migrateV3toV4 } from '../heroes/migrate';
 import { migrateHeroesV2 } from '../heroes/migrate-v7';
 import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/roster';
 import type { GameContext } from '../progression/types';
-import { initSeenUnlocks } from '../unlocks/unlocks';
+import { initSeenUnlocks, stageLabel } from '../unlocks/unlocks';
 import type { UnlocksConfig } from '../unlocks/schema';
 import { fillClearedGaps } from './campaign-gaps';
 import { migrateBountiesToExpeditions } from './migrate-expeditions';
@@ -202,7 +202,7 @@ export function sanitizeSave(
   if (gaps.filled.length) {
     save = gaps.save;
     changed = true;
-    const num = (id: string) => ctx.content.stages.find((s) => s.id === id)!.globalIndex + 1;
+    const num = (id: string) => stageLabel(id, ctx.content);
     warnings.push(`В кампании появились новые этапы перед уже пройденными — они засчитаны пройденными (этапы ${gaps.filled.map(num).join(', ')}).`);
   }
   if (ctx.unlocks && !save.seenUnlocks) {

@@ -23,6 +23,13 @@ describe('copyTags (итог призыва)', () => {
     // Сетка ×10 — коротко.
     expect(copyTags(results, now, false).map((t) => t.text)).toEqual(['копия ×2', 'Новый!', 'копия ×2']);
   });
+
+  it('NB-12 / LT-15: у копий одного героя в серии — свой номер по порядку, а не общий итог', () => {
+    const before = [{ templateId: 'bran' }, { templateId: 'bran' }, { templateId: 'bran' }];
+    const results = [{ templateId: 'bran' }, { templateId: 'alan' }, { templateId: 'bran' }, { templateId: 'bran' }, { templateId: 'bran' }];
+    const now = [...before, ...results];
+    expect(copyTags(results, now, false).map((t) => t.text)).toEqual(['копия ×4', 'Новый!', 'копия ×5', 'копия ×6', 'копия ×7']);
+  });
 });
 
 describe('Инвентарь → «Карты героев»', () => {

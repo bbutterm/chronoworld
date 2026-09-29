@@ -1,5 +1,6 @@
 export * from './types';
 export * from './rng';
+export * from './format';
 export * from './config';
 export * from './formulas';
 export * from './targeting';

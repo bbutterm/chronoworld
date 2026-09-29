@@ -136,6 +136,7 @@ export function resultTag(r: Pick<SummonResult, 'isNew'>): { text: string; kind:
  * Была ли карта копией героя, который уже был у игрока (тот же templateId), и сколько экземпляров героя стало.
  * heroesNow — save.heroes после призыва. Первая карта нового героя в серии — «Новый герой!», следующие такие же — копии.
  * big — крупный показ (×1): «копия · теперь ×N»; в сетке ×10 — короче («копия ×N»), чтобы не наезжать на соседей.
+ * NB-12 / LT-15: N — сколько карт героя стало с этой картой (четыре Брана при трёх — ×4, ×5, ×6, ×7), а не итог серии у всех.
  */
 export function copyTags(results: readonly Pick<SummonResult, 'templateId'>[], heroesNow: readonly { templateId: string }[], big: boolean): { text: string; kind: 'new' | 'copy'; total: number }[] {
   const total = new Map<string, number>();
@@ -148,7 +149,8 @@ export function copyTags(results: readonly Pick<SummonResult, 'templateId'>[], h
     const before = n - (inBatch.get(r.templateId) ?? 0) + (seen.get(r.templateId) ?? 0);
     seen.set(r.templateId, (seen.get(r.templateId) ?? 0) + 1);
     if (before <= 0) return { text: big ? 'Новый герой!' : 'Новый!', kind: 'new' as const, total: n };
-    return { text: big ? `копия · теперь ×${n}` : `копия ×${n}`, kind: 'copy' as const, total: n };
+    const k = before + 1;
+    return { text: big ? `копия · теперь ×${k}` : `копия ×${k}`, kind: 'copy' as const, total: n };
   });
 }
 
@@ -165,7 +167,7 @@ export function bestResult<T extends Pick<SummonResult, 'rarity' | 'isNew'>>(res
   return best;
 }
 
-/** Итог серии одной строкой: «Фиолетовых 1 · синих 3 · зелёных 6 · новых 4 · дублей 6». */
+/** Итог серии одной строкой: «Фиолетовых 1 · синих 3 · зелёных 6 · новых 4 · копий 6» (NB-12: «копии», не «дубли»). */
 export function summaryLine(results: readonly Pick<SummonResult, 'rarity' | 'isNew'>[]): string {
   const counts = new Map<CardRarity, number>();
   for (const r of results) counts.set(r.rarity, (counts.get(r.rarity) ?? 0) + 1);
@@ -173,7 +175,7 @@ export function summaryLine(results: readonly Pick<SummonResult, 'rarity' | 'isN
   const fresh = results.filter((r) => r.isNew).length;
   const dups = results.length - fresh;
   if (fresh) parts.push(`новых ${fresh}`);
-  if (dups) parts.push(`дублей ${dups}`);
+  if (dups) parts.push(`копий ${dups}`);
   const s = parts.join(' · ');
   return s.charAt(0).toUpperCase() + s.slice(1);
 }

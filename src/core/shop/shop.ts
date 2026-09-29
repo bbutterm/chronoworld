@@ -18,6 +18,7 @@ import { DayStringSchema, type SaveState, type ShopSlot, type ShopState } from '
 import type { Content } from '../types';
 import { featureUnlocked } from '../unlocks/unlocks';
 import { ShopConfigSchema, type ShopConfig, type ShopGood } from './schema';
+import { groupDigits } from '../format';
 
 export type ShopErrorCode =
   | 'invalid_config'
@@ -256,7 +257,7 @@ export function refreshShop(save: SaveState, day: string, ctx: ShopContext): Sav
   const s = save.shop!;
   const cost = refreshCost(s.refreshes, ctx);
   if (cost === null) throw new ShopError('refresh_limit', `Обновлять лавку можно ${ctx.shop.refresh.maxPerDay} раз в день`);
-  if (save.currency.gems < cost) throw new ShopError('not_enough_gems', `Не хватает гемов: нужно ${cost}, у вас ${save.currency.gems}`);
+  if (save.currency.gems < cost) throw new ShopError('not_enough_gems', `Не хватает гемов: нужно ${groupDigits(cost)}, у вас ${groupDigits(save.currency.gems)}`);
   const refreshes = s.refreshes + 1;
   return {
     ...save,
@@ -291,10 +292,10 @@ export function buyShopSlot(save: SaveState, day: string, index: number, ctx: Sh
   const today = s.boughtToday[slot.good] ?? 0;
   if (g?.perDay && today >= g.perDay) throw new ShopError('day_limit', `Этот товар можно купить ${g.perDay} раз в день`);
   if (slot.currency === 'gold' && save.resources.gold < slot.price) {
-    throw new ShopError('not_enough_gold', `Не хватает золота: нужно ${slot.price}, у вас ${save.resources.gold}`);
+    throw new ShopError('not_enough_gold', `Не хватает золота: нужно ${groupDigits(slot.price)}, у вас ${groupDigits(save.resources.gold)}`);
   }
   if (slot.currency === 'gems' && save.currency.gems < slot.price) {
-    throw new ShopError('not_enough_gems', `Не хватает гемов: нужно ${slot.price}, у вас ${save.currency.gems}`);
+    throw new ShopError('not_enough_gems', `Не хватает гемов: нужно ${groupDigits(slot.price)}, у вас ${groupDigits(save.currency.gems)}`);
   }
   if (slot.kind === 'item' && (!slot.itemId || !ctx.equipment.items[slot.itemId])) throw new ShopError('unavailable', 'Этого предмета больше нет в игре');
   if (slot.kind === 'heroCard' && (!slot.hero || !ctx.content.heroes[slot.hero])) throw new ShopError('unavailable', 'Этого героя больше нет в игре');

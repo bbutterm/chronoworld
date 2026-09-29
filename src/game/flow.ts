@@ -5,11 +5,14 @@ import {
   ascendRequirement,
   canEquip,
   heroesWithGearUpgrades,
+  groupDigits,
+  heroPower,
   needsBranch,
   pendingPicks,
   heroGender,
   heroJobId,
   heroName,
+  jobTitle,
   heroSpriteOverride,
   levelUpInfo,
   misplacedInFront,
@@ -54,6 +57,7 @@ import {
 } from '../core';
 import { genderedSpriteId } from '../pipeline/sprites';
 import { hasSprite } from './spriteRegistry';
+import { plural } from './skillFacts';
 import { C } from './theme';
 
 export const ROLE_NAMES: Record<string, string> = { tank: 'Танк', damage: 'Урон', healer: 'Лекарь', support: 'Поддержка' };
@@ -130,11 +134,24 @@ export function ascendReady(save: SaveState, ctx: GameContext): HeroState[] {
  * из инвентаря (каждый герой считается один раз). «Улучшить» не считается — оно доступно почти всегда.
  */
 export function heroesBadgeCount(save: SaveState, ctx: GearContext & GameContext): number {
-  const ids = new Set(heroesWithGearUpgrades(save, ctx));
-  for (const h of ascendReady(save, ctx)) ids.add(h.id);
-  // Фиолетовые без ветки («Выберите ветку!») и невыбранные «Контракты героя».
-  for (const h of save.heroes) if (ctx.content.heroes[h.templateId] && needsBranch(h, ctx)) ids.add(h.id);
-  return ids.size + pendingPicks(save).length;
+  // MT-06 / NB-11: считаем героев (как плитки в «Героях» — копии одной плиткой), а не карты: копия-корм с «вещью
+  // получше» не повод для значка. Герой в счёте, если его можно вознести или ему нужна ветка (любая его карта), или
+  // его основной карте (в отряде, иначе самой сильной) есть что надеть получше.
+  const gear = new Set(heroesWithGearUpgrades(save, ctx));
+  const ready = new Set(ascendReady(save, ctx).map((h) => h.id));
+  const byTemplate = new Map<string, HeroState[]>();
+  for (const h of save.heroes) {
+    if (!ctx.content.heroes[h.templateId]) continue;
+    const list = byTemplate.get(h.templateId);
+    if (list) list.push(h);
+    else byTemplate.set(h.templateId, [h]);
+  }
+  let n = 0;
+  for (const list of byTemplate.values()) {
+    const main = list.find((h) => save.squad.includes(h.id)) ?? [...list].sort((a, b) => heroPower(b, ctx, save) - heroPower(a, ctx, save))[0];
+    if (gear.has(main.id) || list.some((h) => ready.has(h.id) || needsBranch(h, ctx))) n++;
+  }
+  return n + pendingPicks(save).length;
 }
 
 /**
@@ -162,7 +179,11 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventR
     return h ? heroName(h, ctx) : id;
   };
   const skillName = (id: string) => ctx.content.skills[id]?.name ?? id;
-  const jobName = (id: string) => ctx.content.jobs[id]?.name ?? id;
+  // Профессия по полу героя события («теперь Жрица!», не «Жрец»).
+  const jobName = (id: string, heroId?: string) => {
+    const h = heroId ? save.heroes.find((x) => x.id === heroId) : undefined;
+    return jobTitle(ctx, id, h ? heroGender(h, ctx) : 'm');
+  };
   const rarityName = (id: string) => ctx.cards.rarities.find((r) => r.id === id)?.name ?? id;
   const lines: string[] = [];
   // Несколько level-up подряд у одного героя — одна строка с итоговым уровнем.
@@ -176,15 +197,15 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventR
   for (const e of events) {
     if (e.type === 'skillUnlocked') lines.push(`${nameOf(e.heroId)}: новый навык «${skillName(e.skill)}»`);
     if (e.type === 'heroJoined') lines.unshift(e.copy ? `${e.name}: пришла копия героя (для вознесения)` : `Новый герой в отряде: ${e.name}!`);
-    if (e.type === 'ascended') lines.push(`${nameOf(e.heroId)}: ${rarityName(e.from)} → ${rarityName(e.to)}${e.jobChanged ? ` — теперь ${jobName(e.job)}!` : ''}`);
+    if (e.type === 'ascended') lines.push(`${nameOf(e.heroId)}: ${rarityName(e.from)} → ${rarityName(e.to)}${e.jobChanged ? ` — теперь ${jobName(e.job, e.heroId)}!` : ''}`);
     if (e.type === 'heroCard') lines.push(`Карта героя: ${e.name} (${rarityName(e.rarity)})`);
     if (e.type === 'heroPick') lines.push(`Контракт героя: ${rarityName(e.rarity).toLowerCase()} герой на выбор — «Герои»`);
-    if (e.type === 'branchChosen') lines.push(`${nameOf(e.heroId)}: ветка — ${jobName(e.branch)}${e.gems ? ` (−${formatNumber(e.gems)} гемов)` : ''}`);
+    if (e.type === 'branchChosen') lines.push(`${nameOf(e.heroId)}: ветка — ${jobName(e.branch, e.heroId)}${e.gems ? ` (−${formatNumber(e.gems)} гемов)` : ''}`);
     if (e.type === 'blessedOre') lines.push(`Благословенная руда ×${e.count}`);
     if (e.type === 'tavernUnlocked') lines.unshift(`Открыта Таверна! Подарок: гемы +${formatNumber(e.gems)}, свитки призыва +${e.scrolls}`);
     if (e.type === 'stageUnlocked') {
       const s = ctx.content.stages.find((x) => x.id === e.stageId);
-      if (s) lines.push(`Открыт этап ${s.globalIndex + 1}: ${s.name}`);
+      if (s) lines.push(`Открыт этап ${stageNo(s, ctx)}: ${s.name}`);
     }
   }
   const gems = events.reduce((sum, e) => sum + (e.type === 'gems' ? e.amount : 0), 0);
@@ -353,7 +374,17 @@ export function leadHero(save: SaveState): HeroState | undefined {
 
 /** Число с разбивкой по разрядам: 12345 → «12 345». */
 export function formatNumber(n: number): string {
-  return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  // LT-13: разряды — неразрывным пробелом (core groupDigits): перенос строки внутри числа невозможен.
+  return groupDigits(n);
+}
+
+/**
+ * MT-05 / NB-10: номер этапа «глава-этап», как в AFK Arena («2-5») — один формат на карте, в «В бой», в баннерах и
+ * замках. Номер в главе — по месту в списке главы (index), а не по id: этапы вставляют в середину главы.
+ */
+export function stageNo(stage: { chapter: string; index: number }, ctx: { content: { chapters: readonly { id: string }[] } }): string {
+  const ch = ctx.content.chapters.findIndex((c) => c.id === stage.chapter);
+  return `${ch + 1}-${stage.index + 1}`;
 }
 
 // ---------- K6. Экипировка ----------
@@ -496,25 +527,40 @@ export function countdownText(ms: number): string {
   return h > 0 ? `${h}:${p(m)}:${p(sec)}` : `${m}:${p(sec)}`;
 }
 
-/** Награда K10 одной строкой: «300 зол. · 50 опыта · 5 гем.» (нулевые не пишем). */
+/** «5 гемов», «1 гем», «22 гема». */
+export function gemsText(n: number): string {
+  return `${formatNumber(n)} ${plural(n, 'гем', 'гема', 'гемов')}`;
+}
+
+/** «10 очков», «1 очко», «3 очка» (задания, события). */
+export function pointsText(n: number): string {
+  return `${formatNumber(n)} ${plural(n, 'очко', 'очка', 'очков')}`;
+}
+
+/** «3 дня», «1 день», «5 дней». */
+export function daysText(n: number): string {
+  return `${n} ${plural(n, 'день', 'дня', 'дней')}`;
+}
+
+/** Награда K10 одной строкой: «300 золота · 50 опыта · 5 гемов» (нулевые не пишем; MT-19 — без «зол./гем.»). */
 export function metaRewardsText(r: Omit<MetaRewards, 'heroCards'> & { heroCards?: MetaRewards['heroCards'] }, jobExpSuffix = ''): string {
   const parts: string[] = [];
-  if (r.gold) parts.push(`${formatNumber(r.gold)} зол.`);
+  if (r.gold) parts.push(`${formatNumber(r.gold)} золота`);
   if (r.jobExp) parts.push(`${formatNumber(r.jobExp)} опыта${jobExpSuffix}`);
-  if (r.gems) parts.push(`${formatNumber(r.gems)} гем.`);
+  if (r.gems) parts.push(gemsText(r.gems));
   const cards = (r.heroCards?.blue ?? 0) + (r.heroCards?.purple ?? 0);
-  if (cards > 0) parts.push(cards >= 1 && Number.isInteger(cards) ? `${cards} карт. героя` : `карта героя ${Math.round(cards * 100)}%`);
+  if (cards > 0) parts.push(cards >= 1 && Number.isInteger(cards) ? `${cards} ${plural(cards, 'карта', 'карты', 'карт')} героя` : `карта героя ${Math.round(cards * 100)}%`);
   return parts.join(' · ') || '—';
 }
 
-/** Что даст экспедиция (до отправки): «≈ 660 зол. · 880 опыта» и находки «гемы, карты героя, предметы» — по средним. */
+/** Что даст экспедиция (до отправки): «≈ 660 золота · 880 опыта» и находки «гемы, карты героя, предметы» — по средним. */
 export function expectedLootText(e: ExpectedLoot): { base: string; finds: string } {
   const finds: string[] = [];
   if (e.gems > 0) finds.push(`гемы ≈${Math.max(1, Math.round(e.gems))}`);
   if (e.heroCards > 0) finds.push('карты героя');
   if (e.items > 0) finds.push('снаряжение');
   if (e.scrolls > 0) finds.push('свитки');
-  return { base: `${formatNumber(e.gold)} зол. · ${formatNumber(e.jobExp)} опыта`, finds: finds.length ? `Находки: ${finds.join(', ')}` : '' };
+  return { base: `${formatNumber(e.gold)} золота · ${formatNumber(e.jobExp)} опыта`, finds: finds.length ? `Находки: ${finds.join(', ')}` : '' };
 }
 
 /**

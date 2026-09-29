@@ -30,6 +30,25 @@ function debounce(): () => boolean {
   };
 }
 
+/** Сколько после закрытия окна не принимать касания (MT-02: второй быстрый тап «проваливался» в кнопку под окном). */
+export const SHIELD_MS = 400;
+let shieldTimer = 0;
+
+/**
+ * «Щит» от проваливающегося тапа: на ms весь ввод игры (все сцены) выключен. Зовётся, когда закрывается модальное
+ * окно (popIn) — касание, закрывшее окно, уже обработано, а следующее быстрое не попадёт ни в элемент под окном,
+ * ни в новый экран, если окно запустило переход.
+ */
+export function shieldTaps(game: Phaser.Game | undefined, ms = SHIELD_MS): void {
+  const mgr = game?.input;
+  if (!mgr) return;
+  mgr.enabled = false;
+  window.clearTimeout(shieldTimer);
+  shieldTimer = window.setTimeout(() => {
+    mgr.enabled = true;
+  }, ms);
+}
+
 /** Kenney UI нарисован мелко: 9-slice строим в меньшем размере и увеличиваем, чтобы рамки были заметны. */
 const UI_SCALE = 2.5;
 
@@ -205,6 +224,13 @@ export function dangerButton(
 ): ReturnType<typeof button> {
   const b = button(scene, x, y, w, h, 'k:buttonLong_beige', label, onClick, fontSize);
   b.label.setColor('#ff8a7a').setStroke('#2a0804', 6);
+  // MT-19: выключенная — серая, без красной подписи («Удалить прочитанные» при пустой почте выглядела активной).
+  const setEnabled = b.setEnabled;
+  b.setEnabled = (on) => {
+    setEnabled(on);
+    if (b.label.scene) b.label.setColor(on ? '#ff8a7a' : C.disabled).setStroke(on ? '#2a0804' : '#000000', on ? 6 : 0);
+    return b;
+  };
   return b;
 }
 
@@ -240,11 +266,11 @@ export class ScrollArea {
     // Видимая полоса списка (для e2e-проверки «кнопку ничто не перекрывает»: вне полосы содержимое скрыто маской).
     this.content.setData('clip', [top, bottom]);
     this.thumb = scene.add.rectangle(w - 6, top, 8, 40, TINT.frame, 0.8).setOrigin(0.5, 0).setDepth(20).setVisible(false);
-    scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
+    const down = (p: Phaser.Input.Pointer) => {
       this.dragged = false;
       this.dragFrom = this.inside(p) && !this.locked ? { y: this.wy(p), scroll: this.content.y } : null;
-    });
-    scene.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+    };
+    const move = (p: Phaser.Input.Pointer) => {
       if (!this.dragFrom || !p.isDown) return;
       if (!this.dragged && Math.abs(this.wy(p) - this.dragFrom.y) > 14 && this.scrollable) {
         this.dragged = true;
@@ -252,19 +278,37 @@ export class ScrollArea {
         scene.input.emit(CANCEL_PRESS);
       }
       if (this.dragged) this.scrollTo(this.dragFrom.scroll + (this.wy(p) - this.dragFrom.y));
-    });
-    scene.input.on('pointerup', () => {
+    };
+    const up = () => {
       this.dragFrom = null;
-    });
-    scene.input.on('wheel', (p: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
+    };
+    const wheel = (p: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
       if (!this.locked && this.inside(p)) this.scrollTo(this.content.y - dy);
-    });
+    };
+    scene.input.on('pointerdown', down);
+    scene.input.on('pointermove', move);
+    scene.input.on('pointerup', up);
+    scene.input.on('wheel', wheel);
     // Маска Phaser не отсекает ввод: карточка под нижним краем полосы (скрыта маской) ловила нажатия поверх
     // нижней навигации, и «КАМПАНИЯ»/«ГЛАВНАЯ» не срабатывали. Каждый кадр новые интерактивные объекты
     // списка получают проверку попадания «указатель внутри полосы» — вне полосы их для ввода как будто нет.
     const guard = () => this.guardInput(this.content);
     scene.events.on(Phaser.Scenes.Events.PRE_UPDATE, guard);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard));
+    // Список в модальном окне закрывается раньше сцены — снять обработчики вместе с содержимым.
+    this.content.once(Phaser.GameObjects.Events.DESTROY, () => {
+      scene.input.off('pointerdown', down);
+      scene.input.off('pointermove', move);
+      scene.input.off('pointerup', up);
+      scene.input.off('wheel', wheel);
+      scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard);
+      if (this.thumb.scene) this.thumb.destroy();
+    });
+  }
+
+  /** Содержимое и полоса прокрутки — положить в слой модального окна (над его фоном). */
+  get parts(): Phaser.GameObjects.GameObject[] {
+    return [this.content, this.thumb];
   }
 
   /** Обернуть проверку попадания у интерактивных потомков контейнера (один раз на объект). */
@@ -691,7 +735,9 @@ export function toast(scene: Phaser.Scene, message: string, color: string = C.ti
   const w = GAME_W;
   const t = text(scene, 0, 0, message, FS.h3, color, { wordWrap: { width: w - 160 }, lineSpacing: 6 });
   const bgH = t.height + 50;
-  const bg = scene.add.rectangle(0, 0, w - 100, bgH, 0x000000, 0.88).setStrokeStyle(3, 0xc8a060);
+  // MT-17: плашка по ширине текста, а не во весь экран — меньше закрывает кнопки шапки и строку под ней
+  // (касания она не ловит: кнопка под тостом нажимается).
+  const bg = scene.add.rectangle(0, 0, Math.min(w - 100, Math.max(420, t.width + 80)), bgH, 0x000000, 0.88).setStrokeStyle(3, 0xc8a060);
   const prevBottom = stack.reduce((n, e) => n + e.h + TOAST_GAP, 0);
   const c = scene.add.container(w / 2, (at === 'middle' ? top : top + prevBottom) + bgH / 2, [bg, t]).setDepth(10000).setAlpha(0);
   scene.tweens.add({ targets: c, alpha: 1, duration: 200 });
