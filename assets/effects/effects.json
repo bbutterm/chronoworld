@@ -941,6 +941,195 @@
         "seed": 1,
         "note": "SM_MAGNUM effectIdOnCaster 17; warm caster ring, not area explosion"
       }
+    },
+    {
+      "id": "fx_job_mage_frost_diver_release",
+      "file": "effects/fx_job_mage_frost_diver_release.png",
+      "cell": [
+        28,
+        148
+      ],
+      "columns": 8,
+      "frames": 8,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        28.0,
+        52.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "27",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "MG_FROSTDIVER.releaseEffectId 27; authentic travelling-source animation; runtime projectile motion not wired"
+      }
+    },
+    {
+      "id": "fx_job_wizard_jupitel_thunder_target",
+      "file": "effects/fx_job_wizard_jupitel_thunder_target.png",
+      "cell": [
+        50,
+        50
+      ],
+      "columns": 2,
+      "frames": 2,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        24.0,
+        25.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "93",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "WZ_JUPITEL.effectId 93; use-level target effect, kept art-only because runtime has no exact use-level target hook"
+      }
+    },
+    {
+      "id": "fx_job_wizard_jupitel_thunder_projectile",
+      "file": "effects/fx_job_wizard_jupitel_thunder_projectile.png",
+      "cell": [
+        80,
+        80
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        39.0,
+        40.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "94",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "WZ_JUPITEL.beforeHitEffectId 94; projectile source; runtime flight not wired"
+      }
+    },
+    {
+      "id": "fx_job_sage_volcano_ground",
+      "file": "effects/fx_job_sage_volcano_ground.png",
+      "cell": [
+        122,
+        98
+      ],
+      "columns": 8,
+      "frames": 28,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        61.0,
+        74.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "239",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "SA_VOLCANO.groundEffectId 239; ground area effect"
+      }
+    },
+    {
+      "id": "fx_job_alchemist_acid_terror_projectile",
+      "file": "effects/fx_job_alchemist_acid_terror_projectile.png",
+      "cell": [
+        32,
+        34
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        15.0,
+        39.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "298",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "AM_ACIDTERROR.beforeHitEffectId 298; authentic pre-hit projectile cue; runtime flight not wired"
+      }
+    },
+    {
+      "id": "fx_job_thief_venom_knife_projectile",
+      "file": "effects/fx_job_thief_venom_knife_projectile.png",
+      "cell": [
+        42,
+        38
+      ],
+      "columns": 2,
+      "frames": 2,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        20.0,
+        41.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "600",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "AS_VENOMKNIFE.beforeHitEffectId 600; authentic thrown-knife source; runtime flight not wired"
+      }
+    },
+    {
+      "id": "fx_job_archer_arrow_shower_source",
+      "file": "effects/fx_job_archer_arrow_shower_source.png",
+      "cell": [
+        102,
+        92
+      ],
+      "columns": 1,
+      "frames": 1,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        50.0,
+        66.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "ef_arrow_shower_projectile",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "AC_SHOWER.effectId ef_arrow_shower_projectile; original named 3D source duplicated 10x; role contextual, not mapped to area"
+      }
     }
   ],
   "skills": {
@@ -1045,6 +1234,9 @@
     },
     "warrior_cleave": {
       "hit": "fx_job_assassin_sonic_blow"
+    },
+    "job_sage_volcano": {
+      "ground": "fx_job_sage_volcano_ground"
     }
   }
 }
