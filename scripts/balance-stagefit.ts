@@ -222,6 +222,47 @@ if (TILT) {
     console.log(`${c}: масштаб ×${Math.exp(TILT * ym).toFixed(3)}, наклон ×${Math.exp(TILT * b).toFixed(3)} (конец / начало), босс ×${Math.exp(TILT * step).toFixed(3)}`);
   }
 }
+/**
+ * --shape: форма глав по профилю модели (замер), без погони за часами. Сила этапа «для модели» (профиль отрядов модели,
+ * общий для всех глав) ложится на прямую (в ln): начало главы — босс прошлой × --start-ratio (0.93), конец рядовых —
+ * босс главы ÷ --boss-step (1.07), мини-босс — × --mini-step (1.06) над прямой. Босс главы — нынешний × --boss-scale
+ * (по главам через запятую, 1 — не трогать): он задаёт темп, форма — только стены. Первая глава из --chapters (нет босса
+ * прошлой в замере) — начало × --first-start (1) от нынешнего тренда. Затем прижим к тренду эталонных отрядов (тест).
+ * Зачем: у модели глава начиналась с ×0.74–0.77 босса прошлой (полглавы за сессию) и росла ×1.3–1.8 с пиками ×1.15–1.3 на
+ * отдельных этапах (ch4_s13, ch8_s14–s15) — стены по 2–4 суток у части seed.
+ */
+if (argv.includes('--shape')) {
+  const START_RATIO = Math.log(num('start-ratio', 0.93));
+  const BOSS_STEP = Math.log(num('boss-step', 1.07));
+  const MINI_STEP = Math.log(num('mini-step', 1.06));
+  const FIRST_START = Math.log(num('first-start', 1));
+  const bossScale = flag('boss-scale').length ? flag('boss-scale').at(-1)!.split(',').map(Number) : [];
+  let prevBoss: number | null = null;
+  CHAPTERS.forEach((c, ci) => {
+    const stages = chapterStages.get(c)!;
+    const reg = stages.filter((s) => !s.boss);
+    const boss = stages.find((s) => s.boss)!;
+    const n = reg.length;
+    const m = reg.findIndex((s) => s.enemies.some((e) => e && MINI_BOSS_UNITS.has(e.unit)));
+    const bossD = modelD(boss.id, cur.get(boss.id)!) + Math.log(bossScale[ci] ?? 1);
+    let start: number;
+    if (prevBoss === null) {
+      const ys = reg.map((s) => modelD(s.id, cur.get(s.id)!));
+      const xm = (n - 1) / 2;
+      const ym = ys.reduce((a, b) => a + b, 0) / n;
+      const slope = ys.reduce((a, y, i) => a + (i - xm) * (y - ym), 0) / ys.reduce((a, _, i) => a + (i - xm) ** 2, 0);
+      start = ym - slope * xm + FIRST_START;
+    } else start = prevBoss + START_RATIO;
+    const end = bossD - BOSS_STEP;
+    reg.forEach((s, i) => {
+      const want = start + ((end - start) * i) / (n - 1) + (i === m ? MINI_STEP : 0);
+      next.set(s.id, cur.get(s.id)! * Math.exp(want - modelD(s.id, cur.get(s.id)!)));
+    });
+    next.set(boss.id, cur.get(boss.id)! * Math.exp(bossD - modelD(boss.id, cur.get(boss.id)!)));
+    prevBoss = bossD;
+    console.log(`${c}: для модели — начало ×${Math.exp(start - bossD).toFixed(2)} босса, рост рядовых ×${Math.exp(end - start).toFixed(2)}`);
+  });
+}
 for (const c of CHAPTERS) {
   const stages = chapterStages.get(c)!;
   for (let pass = 0; pass < 8; pass++) {
@@ -235,7 +276,10 @@ for (const c of CHAPTERS) {
       const dev = refD(s.id, next.get(s.id)!) - trend(i);
       const [lo, hi] = s.boss ? [BOSS_LO, BOSS_HI] : [TREND_LO, TREND_HI];
       const cl = Math.min(hi, Math.max(lo, dev));
-      if (cl !== dev) next.set(s.id, next.get(s.id)! * Math.exp(cl - dev));
+      // --shape: босс задаёт темп — ниже ступеньки над трендом эталонных отрядов опускаются рядовые (тренд), а не растёт босс.
+      if (cl !== dev && s.boss && dev < lo && argv.includes('--shape')) {
+        for (const r of stages) if (!r.boss) next.set(r.id, next.get(r.id)! * Math.exp(dev - lo));
+      } else if (cl !== dev) next.set(s.id, next.get(s.id)! * Math.exp(cl - dev));
     });
   }
 }

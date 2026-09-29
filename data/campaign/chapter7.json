@@ -26,15 +26,15 @@
       "enemies": [
         {
           "unit": "alde_alarm",
-          "mult": 0.3585
+          "mult": 0.3283
         },
         {
           "unit": "alde_clock",
-          "mult": 0.3585
+          "mult": 0.3283
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.3585
+          "mult": 0.3283
         },
         null,
         null
@@ -55,19 +55,19 @@
       "enemies": [
         {
           "unit": "alde_clock",
-          "mult": 0.2216
+          "mult": 0.2072
         },
         {
           "unit": "alde_alarm",
-          "mult": 0.2216
+          "mult": 0.2072
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.2216
+          "mult": 0.2072
         },
         {
           "unit": "alde_elder",
-          "mult": 0.2216
+          "mult": 0.2072
         },
         null
       ],
@@ -88,19 +88,19 @@
       "enemies": [
         {
           "unit": "alde_alarm",
-          "mult": 0.2846
+          "mult": 0.2731
         },
         {
           "unit": "alde_alarm",
-          "mult": 0.2846
+          "mult": 0.2731
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.2846
+          "mult": 0.2731
         },
         {
           "unit": "alde_elder",
-          "mult": 0.2846
+          "mult": 0.2731
         },
         null
       ],
@@ -120,19 +120,19 @@
       "enemies": [
         {
           "unit": "alde_owl_duke",
-          "mult": 0.2115
+          "mult": 0.2044
         },
         {
           "unit": "alde_alarm",
-          "mult": 0.2115
+          "mult": 0.2044
         },
         {
           "unit": "alde_punk",
-          "mult": 0.2115
+          "mult": 0.2044
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.2115
+          "mult": 0.2044
         },
         null
       ],
@@ -152,23 +152,23 @@
       "enemies": [
         {
           "unit": "alde_clock",
-          "mult": 0.1815
+          "mult": 0.1729
         },
         {
           "unit": "alde_alarm",
-          "mult": 0.1815
+          "mult": 0.1729
         },
         {
           "unit": "alde_punk",
-          "mult": 0.1815
+          "mult": 0.1729
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1815
+          "mult": 0.1729
         },
         {
           "unit": "alde_elder",
-          "mult": 0.1815
+          "mult": 0.1729
         }
       ],
       "rewards": {
@@ -187,23 +187,23 @@
       "enemies": [
         {
           "unit": "alde_clock",
-          "mult": 0.1845
+          "mult": 0.1755
         },
         {
           "unit": "alde_clock",
-          "mult": 0.1845
+          "mult": 0.1755
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1845
+          "mult": 0.1755
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1845
+          "mult": 0.1755
         },
         {
           "unit": "alde_punk",
-          "mult": 0.1845
+          "mult": 0.1755
         }
       ],
       "rewards": {
@@ -223,23 +223,23 @@
       "enemies": [
         {
           "unit": "alde_clock",
-          "mult": 0.1668
+          "mult": 0.1647
         },
         {
           "unit": "alde_alarm",
-          "mult": 0.1668
+          "mult": 0.1647
         },
         {
           "unit": "alde_punk",
-          "mult": 0.1668
+          "mult": 0.1647
         },
         {
           "unit": "alde_elder",
-          "mult": 0.1668
+          "mult": 0.1647
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1668
+          "mult": 0.1647
         }
       ],
       "rewards": {
@@ -268,23 +268,23 @@
       "enemies": [
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1549
+          "mult": 0.1543
         },
         {
           "unit": "alde_clock",
-          "mult": 0.1549
+          "mult": 0.1543
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1549
+          "mult": 0.1543
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1549
+          "mult": 0.1543
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1549
+          "mult": 0.1543
         }
       ],
       "rewards": {
@@ -304,23 +304,23 @@
       "enemies": [
         {
           "unit": "alde_owl_baron",
-          "mult": 0.1346
+          "mult": 0.1304
         },
         {
           "unit": "alde_alarm",
-          "mult": 0.1158
+          "mult": 0.1123
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1158
+          "mult": 0.1123
         },
         {
           "unit": "alde_elder",
-          "mult": 0.107
+          "mult": 0.1037
         },
         {
           "unit": "alde_punk",
-          "mult": 0.1158
+          "mult": 0.1123
         }
       ],
       "rewards": {
@@ -339,23 +339,23 @@
       "enemies": [
         {
           "unit": "alde_owl_duke",
-          "mult": 0.124
+          "mult": 0.1209
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.124
+          "mult": 0.1209
         },
         {
           "unit": "alde_punk",
-          "mult": 0.124
+          "mult": 0.1209
         },
         {
           "unit": "alde_punk",
-          "mult": 0.124
+          "mult": 0.1209
         },
         {
           "unit": "alde_elder",
-          "mult": 0.124
+          "mult": 0.1209
         }
       ],
       "rewards": {
@@ -410,23 +410,23 @@
       "enemies": [
         {
           "unit": "alde_clock",
-          "mult": 0.1352
+          "mult": 0.1286
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1352
+          "mult": 0.1286
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1352
+          "mult": 0.1286
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1352
+          "mult": 0.1286
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1352
+          "mult": 0.1286
         }
       ],
       "rewards": {
@@ -456,23 +456,23 @@
       "enemies": [
         {
           "unit": "alde_clock",
-          "mult": 0.1249
+          "mult": 0.1208
         },
         {
           "unit": "alde_clock",
-          "mult": 0.1249
+          "mult": 0.1208
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1249
+          "mult": 0.1208
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1249
+          "mult": 0.1208
         },
         {
           "unit": "alde_elder",
-          "mult": 0.1249
+          "mult": 0.1208
         }
       ],
       "rewards": {
@@ -501,23 +501,23 @@
       "enemies": [
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1089
+          "mult": 0.1099
         },
         {
           "unit": "alde_clock",
-          "mult": 0.1089
+          "mult": 0.1099
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1089
+          "mult": 0.1099
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1089
+          "mult": 0.1099
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1089
+          "mult": 0.1099
         }
       ],
       "rewards": {
@@ -537,23 +537,23 @@
       "enemies": [
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1235
+          "mult": 0.1271
         },
         {
           "unit": "alde_mimic",
-          "mult": 0.1235
+          "mult": 0.1271
         },
         {
           "unit": "alde_punk",
-          "mult": 0.1235
+          "mult": 0.1271
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1235
+          "mult": 0.1271
         },
         {
           "unit": "alde_elder",
-          "mult": 0.1235
+          "mult": 0.1271
         }
       ],
       "rewards": {
@@ -573,23 +573,23 @@
       "enemies": [
         {
           "unit": "alde_clock",
-          "mult": 0.1104
+          "mult": 0.1105
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1104
+          "mult": 0.1105
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1104
+          "mult": 0.1105
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1104
+          "mult": 0.1105
         },
         {
           "unit": "alde_elder",
-          "mult": 0.1104
+          "mult": 0.1105
         }
       ],
       "rewards": {
@@ -619,23 +619,23 @@
       "enemies": [
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1346
+          "mult": 0.1415
         },
         {
           "unit": "alde_alarm",
-          "mult": 0.1346
+          "mult": 0.1415
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1346
+          "mult": 0.1415
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1346
+          "mult": 0.1415
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1346
+          "mult": 0.1415
         }
       ],
       "rewards": {
@@ -654,23 +654,23 @@
       "enemies": [
         {
           "unit": "alde_owl_duke",
-          "mult": 0.09582
+          "mult": 0.0979
         },
         {
           "unit": "alde_keeper",
-          "mult": 0.07311
+          "mult": 0.0747
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.09582
+          "mult": 0.0979
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.09582
+          "mult": 0.0979
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.09582
+          "mult": 0.0979
         }
       ],
       "rewards": {
