@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BRANCH_RARITY, claimHeroPick, heroCard, jobTitle, pendingPicks, pickOptions, rarityIndex, type HeroPick } from '../../core';
 import { sfx } from '../audio';
+import { haptic } from '../haptics';
 import { openBranchPicker } from '../branchPicker';
 import { GAME } from '../content';
 import { ROLE_NAMES } from '../flow';
@@ -132,6 +133,7 @@ export class HeroPickScene extends Phaser.Scene {
     layer.add(go.container);
     if (more) layer.add(button(this, GAME_W / 2 - 250, GAME_H - 250, 460, 130, 'ui_btn_secondary', `Ещё контракт (${more})`, () => this.scene.restart({ back: this.back }), FS.h3).container);
     sfx('rarity_up');
+    haptic('levelUp');
     sfx('job_change', { delay: 0.5 });
     if (juiceOn()) {
       this.tweens.add({ targets: rays, angle: 360, duration: 30000, repeat: -1 });

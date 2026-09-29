@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { heroPeakLevel, heroStoryPieces, heroStoryUnread, heroTemplate, markHeroStoryRead, newlyOpenedStories, type SaveState } from '../core';
 import { sfx } from './audio';
+import { haptic } from './haptics';
 import { GAME, LORE } from './content';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
 import { commit, session } from './session';
@@ -167,6 +168,7 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
   layer.setAlpha(0);
   scene.tweens.add({ targets: layer, alpha: 1, duration: 220 });
   sfx('ui_open');
+  haptic('soft');
   return layer;
 }
 

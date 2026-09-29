@@ -11,6 +11,7 @@ import type { BattleEvent, BattleResult, UnitDef } from '../core';
 import monsterSoundsJson from '../../data/monster_sounds.json';
 import { preloadSoundFiles, sfx, sfxFile } from './audio';
 import type { SfxId } from './audioCatalog';
+import { haptic } from './haptics';
 import { CONTENT } from './content';
 import { MonsterSoundsSchema, monsterSoundFile, type MonsterSound, type MonsterSoundKind, type MonsterSounds } from './monsterSounds';
 import { elementOf, type Element } from './skillLook';
@@ -20,6 +21,8 @@ import { playback } from './state';
 const WINDUP_MS = 260;
 /** Полёт снаряда, мс. */
 const FLIGHT_MS = 300;
+/** «Сильный удар» по герою для вибрации — не меньше этой доли его здоровья. */
+const HURT_SHARE = 0.3;
 
 type Weapon = 'hit_sword' | 'hit_dagger' | 'hit_blunt' | 'hit_arrow' | 'hit_claw' | 'hit_magic';
 
@@ -85,6 +88,7 @@ const CAST: Record<Element, SfxId> = {
 interface UnitAudio {
   def: UnitDef | undefined;
   side: string;
+  maxHp: number;
   /** Задержка удара последней атаки, с (при скорости 1x). */
   impact: number;
   /** Звук попадания последней атаки. */
@@ -111,7 +115,7 @@ function stateOf(result: BattleResult, defs: Record<string, UnitDef>): BattleAud
       const def = defs[u.unitId];
       const sounds = monsterSoundsOf(def);
       for (const n of [...(sounds?.attack ?? []), ...(sounds?.death ?? [])]) files.add(monsterSoundFile(n));
-      s.units.set(u.uid, { def, side: u.side, impact: WINDUP_MS / 1000, hit: weaponOf(def), inUlt: false, sounds, turn: 0 });
+      s.units.set(u.uid, { def, side: u.side, maxHp: u.maxHp, impact: WINDUP_MS / 1000, hit: weaponOf(def), inUlt: false, sounds, turn: 0 });
     }
     states.set(result, s);
     // Звуки монстров этого боя — заранее (первое событие лога приходит до первого удара).
@@ -172,6 +176,9 @@ export function battleSound(e: BattleEvent, animate: boolean, result: BattleResu
       }
       sfx(u?.hit ?? 'hit_blunt', { delay, gain, rate: 0.94 + ((e.amount * 7) % 13) / 100 });
       if (u?.inUlt) sfx('crit', { delay });
+      // Вибрация: удар ульты своего героя; по герою прошёл сильный удар (редко — окно в таблице haptics.ts).
+      if (u?.inUlt && u.side === 'A') haptic('ultHit', delay * 1000);
+      if (target?.side === 'A' && e.amount - e.absorbed >= target.maxHp * HURT_SHARE) haptic('heroHurt', delay * 1000);
       return;
     }
     case 'heal':
@@ -198,6 +205,8 @@ export function battleSound(e: BattleEvent, animate: boolean, result: BattleResu
       const own = !!u && monsterSound(u, 'death', delay);
       if (u?.def?.kind === 'boss') sfx('boss_death', { delay: delay + (own ? 0.25 : 0) });
       else if (!own) sfx(u?.side === 'A' ? 'death_hero' : 'death_monster', { delay });
+      if (u?.def?.kind === 'boss') haptic('bossDown', delay * 1000);
+      else if (u?.side === 'A') haptic('heroDown', delay * 1000);
       return;
     }
     default:

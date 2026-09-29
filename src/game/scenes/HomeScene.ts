@@ -12,6 +12,7 @@ import { fps, motion, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPla
 import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
 import { audioSettings, setAudioSettings, sfx } from '../audio';
+import { hapticSettings, setHapticsOn } from '../haptics';
 import { nextVolume, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
 import { shopTile } from '../shopEntry';
@@ -146,6 +147,8 @@ export class HomeScene extends Phaser.Scene {
     volumeRow('Музыка', 'musicVolume', () => volumeLabel(audioSettings.music), () => setAudioSettings({ music: nextVolume(audioSettings.music) }));
     volumeRow('Звуки', 'sfxVolume', () => volumeLabel(audioSettings.sfx), () => setAudioSettings({ sfx: nextVolume(audioSettings.sfx) }));
     volumeRow('Без звука', 'muteAll', () => (audioSettings.muted ? 'Вкл' : 'Выкл'), () => setAudioSettings({ muted: !audioSettings.muted }));
+    // Вибрация (Telegram HapticFeedback, на Android вне Telegram — vibrate; haptics.ts).
+    volumeRow('Вибрация', 'haptics', () => (hapticSettings.on ? 'Вкл' : 'Выкл'), () => setHapticsOn(!hapticSettings.on));
 
     y += 110;
     // T3-24/T5-26: тестовый бой — инструмент разработчика (dev-сборка или ?dev=1 в адресе), игроку не показываем.

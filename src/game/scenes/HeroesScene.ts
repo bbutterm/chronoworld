@@ -7,6 +7,7 @@ import { confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, cornerBadge, scree
 import { countUp, staggerIn } from '../juice';
 import { commit, session } from '../session';
 import { sfx } from '../audio';
+import { haptic } from '../haptics';
 import { RARITY_CARD } from '../tavern';
 import { button, ellipsize, emptyState, pressable, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { hintDone } from '../hints';
@@ -202,6 +203,7 @@ export class HeroesScene extends Phaser.Scene {
       if (!r.done.length) return;
       commit(r.save);
       sfx('rarity_up');
+      haptic('levelUp');
       const res = ascendAllSummary(r.done);
       const branch = res.filter((x) => x.branchPending).map((x) => x.name);
       const msg = `Вознесено: ${res.map((x) => `${x.name} (${RARITY_CARD[x.to]})`).join(', ')}${branch.length ? `. Выберите ветку: ${branch.join(', ')}` : ''}`;

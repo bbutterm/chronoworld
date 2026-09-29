@@ -43,6 +43,7 @@ import { button, ellipsize, panel, pressable, ScrollArea, text, toast, tutorialH
 import { C, FS, TINT } from '../theme';
 import { skillIcon } from '../skillIcons';
 import { sfx } from '../audio';
+import { haptic } from '../haptics';
 import { bump, burst, countUp, juiceOn, pulse } from '../juice';
 import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, iconBadge, raysTexture, rarityBackdrop, rarityPalette, rarityPips } from '../heroCard';
@@ -335,6 +336,7 @@ export class HeroScene extends Phaser.Scene {
           const spent = 'gems' in r ? (r.gems as number) : 0;
           commit(r.save);
           sfx('job_change');
+          haptic('levelUp');
           this.reopen({ heroId: hero.id, tab: this.tab });
           const sc = this.scene.get('Hero');
           sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `${c.name} — теперь ${jobName(job)}!${spent ? ` (−${formatNumber(spent)} гемов)` : ''}`, C.success, 3000));
@@ -525,6 +527,7 @@ export class HeroScene extends Phaser.Scene {
       // Уровень открыл кусочек истории героя — тост и отметка «новое» на вкладке «История».
       if (toastOpenedStories(this, saveBefore, r.save, hero.templateId)) this.storyTabDot(true);
       markHint('level_up');
+      haptic('levelUp');
       sfx('level_up', hold ? { gain: 0.55, rate: 1 + Math.min(0.4, this.holdCount * 0.03) } : {});
       this.levelFx();
       this.renderDynamic(prev);
@@ -776,6 +779,7 @@ export class HeroScene extends Phaser.Scene {
       const r = actRefineAll(session.save, hero.id, GAME);
       commit(r.save);
       sfx('refine_success');
+      haptic('refineOk');
       this.reopen({ heroId: hero.id, tab: 'gear' });
       const sc = this.scene.get('Hero');
       sc.events.once(Phaser.Scenes.Events.CREATE, () => {

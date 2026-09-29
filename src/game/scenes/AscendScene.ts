@@ -22,6 +22,7 @@ import { button, ellipsize, emptyState, pressable, ScrollArea, text, toast } fro
 import { markHint } from '../hints';
 import { C, FS, OUTLINE } from '../theme';
 import { sfx } from '../audio';
+import { haptic } from '../haptics';
 import { burst, countUp, juiceOn, pulse } from '../juice';
 import { drawHeroCard, glowTexture, heroCardSize, raysTexture, rarityColor, rarityName, rarityPalette, rarityPips } from '../heroCard';
 import {
@@ -394,7 +395,10 @@ export class AscendScene extends Phaser.Scene {
         break;
       }
     }
-    if (done) sfx('rarity_up');
+    if (done) {
+      sfx('rarity_up');
+      haptic('levelUp');
+    }
     const ids = autoFodder(session.save, hero.id, GAME);
     chosenFor = { heroId: hero.id, ids: ids ?? [] };
     this.scene.restart({ heroId: hero.id });
@@ -598,6 +602,7 @@ export class AscendScene extends Phaser.Scene {
 
     const finish = (newCard: Phaser.GameObjects.Container) => {
       sfx('rarity_up');
+      haptic('levelUp');
       if (jobChanged) sfx('job_change', { delay: 0.6 });
       countUp(this, powerLine, before.power, power, (n) => `Мощь ${formatNumber(n)}`, { duration: 900, delay: motion ? 250 : 0 });
       if (!motion) {
