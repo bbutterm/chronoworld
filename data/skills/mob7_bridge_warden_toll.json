@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob7_bridge_warden_toll",
+  "name": "Плата за мост",
+  "description": "Страж требует плату с живых: урон всем врагам и «Могильный холод» (−20% скорости) на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "grave_chill",
+        "name": "Могильный холод",
+        "turns": 2,
+        "stats": {
+          "spd": -0.2
+        }
+      }
+    }
+  ]
+}

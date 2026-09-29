@@ -34,6 +34,39 @@
       }
     },
     {
+      "id": "ch3_s11",
+      "name": "Ржавые решётки",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 0.91
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.91
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.91
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.91
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 2670,
+        "gold": 1860
+      },
+      "offlinePerMinute": {
+        "jobExp": 89,
+        "gold": 62
+      }
+    },
+    {
       "id": "ch3_s2",
       "name": "Зал стражей",
       "boss": false,
@@ -66,29 +99,65 @@
       }
     },
     {
+      "id": "ch3_s12",
+      "name": "Оружейная рыцарей",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 0.88
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.88
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.88
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.88
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.88
+        }
+      ],
+      "rewards": {
+        "jobExp": 2910,
+        "gold": 2040
+      },
+      "offlinePerMinute": {
+        "jobExp": 97,
+        "gold": 68
+      }
+    },
+    {
       "id": "ch3_s3",
       "name": "Призрачная охота",
       "boss": false,
       "enemies": [
         {
           "unit": "mob3_fast",
-          "mult": 1.19
+          "mult": 1.15
         },
         {
           "unit": "mob3_tank",
-          "mult": 0.44
+          "mult": 0.42
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1.19
+          "mult": 1.15
         },
         {
           "unit": "mob3_fast",
-          "mult": 1.19
+          "mult": 1.15
         },
         {
           "unit": "mob3_fast",
-          "mult": 1.19
+          "mult": 1.15
         }
       ],
       "rewards": {
@@ -101,29 +170,65 @@
       }
     },
     {
+      "id": "ch3_s13",
+      "name": "Колокольня гаргулий",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_fast",
+          "mult": 1.13
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1.13
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1.13
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1.13
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.13
+        }
+      ],
+      "rewards": {
+        "jobExp": 3160,
+        "gold": 2220
+      },
+      "offlinePerMinute": {
+        "jobExp": 105,
+        "gold": 74
+      }
+    },
+    {
       "id": "ch3_s4",
       "name": "Костяной строй",
       "boss": false,
       "enemies": [
         {
           "unit": "mob3_melee",
-          "mult": 0.65
+          "mult": 0.6
         },
         {
           "unit": "mob3_tank",
-          "mult": 0.65
+          "mult": 0.6
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1.35
+          "mult": 1.25
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1.35
+          "mult": 1.25
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1.35
+          "mult": 1.25
         }
       ],
       "rewards": {
@@ -136,29 +241,65 @@
       }
     },
     {
+      "id": "ch3_s14",
+      "name": "Темницы Гласт Хейма",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 1.01
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1.01
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1.01
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1
+        },
+        {
+          "unit": "mob3_fast",
+          "mult": 1
+        }
+      ],
+      "rewards": {
+        "jobExp": 3450,
+        "gold": 2410
+      },
+      "offlinePerMinute": {
+        "jobExp": 115,
+        "gold": 80
+      }
+    },
+    {
       "id": "ch3_s5",
       "name": "Мимик у моста",
       "boss": false,
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 0.94
+          "mult": 0.87
         },
         {
           "unit": "mob3_melee",
-          "mult": 0.94
+          "mult": 0.87
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.94
+          "mult": 0.87
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.94
+          "mult": 0.87
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.94
+          "mult": 0.87
         }
       ],
       "rewards": {
@@ -168,6 +309,36 @@
       "offlinePerMinute": {
         "jobExp": 120,
         "gold": 84
+      }
+    },
+    {
+      "id": "ch3_s15",
+      "name": "Рыцарь на мосту",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        null,
+        {
+          "unit": "mob3_knight",
+          "mult": 1.48
+        },
+        null,
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.72
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.72
+        }
+      ],
+      "rewards": {
+        "jobExp": 3760,
+        "gold": 2640
+      },
+      "offlinePerMinute": {
+        "jobExp": 125,
+        "gold": 88
       }
     },
     {
@@ -206,29 +377,65 @@
       }
     },
     {
+      "id": "ch3_s16",
+      "name": "Костница",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_melee",
+          "mult": 1.04
+        },
+        {
+          "unit": "mob3_tank",
+          "mult": 0.81
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 1.04
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.04
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.04
+        }
+      ],
+      "rewards": {
+        "jobExp": 4110,
+        "gold": 2880
+      },
+      "offlinePerMinute": {
+        "jobExp": 137,
+        "gold": 96
+      }
+    },
+    {
       "id": "ch3_s7",
       "name": "Стая теней",
       "boss": false,
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 0.87
+          "mult": 0.89
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.87
+          "mult": 0.89
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.87
+          "mult": 0.89
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.87
+          "mult": 0.89
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.87
+          "mult": 0.89
         }
       ],
       "rewards": {
@@ -241,29 +448,59 @@
       }
     },
     {
+      "id": "ch3_s17",
+      "name": "Хоры капеллы",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_tank",
+          "mult": 1.39
+        },
+        null,
+        null,
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.79
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 1.79
+        }
+      ],
+      "rewards": {
+        "jobExp": 4480,
+        "gold": 3130
+      },
+      "offlinePerMinute": {
+        "jobExp": 149,
+        "gold": 104
+      }
+    },
+    {
       "id": "ch3_s8",
       "name": "Орден смерти",
       "boss": false,
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 0.57
+          "mult": 0.61
         },
         {
           "unit": "mob3_elite",
-          "mult": 0.57
+          "mult": 0.61
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.88
+          "mult": 0.94
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.88
+          "mult": 0.94
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.88
+          "mult": 0.94
         }
       ],
       "rewards": {
@@ -276,29 +513,65 @@
       }
     },
     {
+      "id": "ch3_s18",
+      "name": "Ночной караул",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob3_elite",
+          "mult": 0.89
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.84
+        },
+        {
+          "unit": "mob3_melee",
+          "mult": 0.84
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.84
+        },
+        {
+          "unit": "mob3_ranged",
+          "mult": 0.84
+        }
+      ],
+      "rewards": {
+        "jobExp": 4890,
+        "gold": 3420
+      },
+      "offlinePerMinute": {
+        "jobExp": 163,
+        "gold": 114
+      }
+    },
+    {
       "id": "ch3_s9",
       "name": "Преддверие алтаря",
       "boss": false,
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 0.47
+          "mult": 0.51
         },
         {
           "unit": "mob3_tank",
-          "mult": 0.47
+          "mult": 0.51
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1.02
+          "mult": 1.09
         },
         {
           "unit": "mob3_fast",
-          "mult": 1.02
+          "mult": 1.09
         },
         {
           "unit": "mob3_ranged",
-          "mult": 1.02
+          "mult": 1.09
         }
       ],
       "rewards": {
@@ -317,23 +590,23 @@
       "enemies": [
         {
           "unit": "mob3_tank",
-          "mult": 0.3
+          "mult": 0.34
         },
         {
           "unit": "mob3_elite",
-          "mult": 0.3
+          "mult": 0.34
         },
         {
           "unit": "mob3_boss",
-          "mult": 0.62
+          "mult": 0.7
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.97
+          "mult": 1.1
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.97
+          "mult": 1.1
         }
       ],
       "rewards": {

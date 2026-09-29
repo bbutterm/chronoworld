@@ -11,16 +11,16 @@
       "enemies": [
         {
           "unit": "mob6_melee",
-          "mult": 0.672
+          "mult": 0.639
         },
         null,
         {
           "unit": "mob6_ranged",
-          "mult": 0.672
+          "mult": 0.639
         },
         {
           "unit": "mob6_fast",
-          "mult": 0.672
+          "mult": 0.639
         },
         null
       ],
@@ -40,15 +40,15 @@
       "enemies": [
         {
           "unit": "mob6_melee",
-          "mult": 0.601
+          "mult": 0.578
         },
         {
           "unit": "mob6_melee",
-          "mult": 0.601
+          "mult": 0.578
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.601
+          "mult": 0.578
         },
         null,
         null
@@ -63,26 +63,59 @@
       }
     },
     {
+      "id": "ch6_s11",
+      "name": "Косяк сворд-фишей",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_fast",
+          "mult": 0.448
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.448
+        },
+        null,
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.448
+        },
+        {
+          "unit": "mob6_fast",
+          "mult": 0.448
+        }
+      ],
+      "rewards": {
+        "jobExp": 23680,
+        "gold": 16647
+      },
+      "offlinePerMinute": {
+        "jobExp": 789,
+        "gold": 555
+      }
+    },
+    {
       "id": "ch6_s3",
       "name": "Коралловый риф",
       "boss": false,
       "enemies": [
         {
           "unit": "mob6_tank",
-          "mult": 0.207
+          "mult": 0.188
         },
         null,
         {
           "unit": "mob6_ranged",
-          "mult": 0.207
+          "mult": 0.188
         },
         {
           "unit": "mob6_support",
-          "mult": 0.207
+          "mult": 0.188
         },
         {
           "unit": "mob6_fast",
-          "mult": 0.207
+          "mult": 0.188
         }
       ],
       "rewards": {
@@ -101,20 +134,20 @@
       "enemies": [
         {
           "unit": "mob6_tank",
-          "mult": 0.295
+          "mult": 0.273
         },
         {
           "unit": "mob6_melee",
-          "mult": 0.295
+          "mult": 0.273
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.295
+          "mult": 0.273
         },
         null,
         {
           "unit": "mob6_fast",
-          "mult": 0.295
+          "mult": 0.273
         }
       ],
       "rewards": {
@@ -133,19 +166,19 @@
       "enemies": [
         {
           "unit": "mob6_elite",
-          "mult": 0.188
+          "mult": 0.179
         },
         {
           "unit": "mob6_tank",
-          "mult": 0.188
+          "mult": 0.179
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.188
+          "mult": 0.179
         },
         {
           "unit": "mob6_support",
-          "mult": 0.188
+          "mult": 0.179
         },
         null
       ],
@@ -159,29 +192,65 @@
       }
     },
     {
+      "id": "ch6_s12",
+      "name": "Пробоина в борту",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_melee",
+          "mult": 0.306
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.306
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.306
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.306
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.306
+        }
+      ],
+      "rewards": {
+        "jobExp": 26650,
+        "gold": 18731
+      },
+      "offlinePerMinute": {
+        "jobExp": 888,
+        "gold": 624
+      }
+    },
+    {
       "id": "ch6_s6",
       "name": "Верхняя палуба",
       "boss": false,
       "enemies": [
         {
           "unit": "mob6_tank",
-          "mult": 0.173
+          "mult": 0.149
         },
         {
           "unit": "mob6_elite",
-          "mult": 0.173
+          "mult": 0.149
         },
         {
           "unit": "mob6_fast",
-          "mult": 0.173
+          "mult": 0.149
         },
         {
           "unit": "mob6_support",
-          "mult": 0.173
+          "mult": 0.149
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.173
+          "mult": 0.149
         }
       ],
       "rewards": {
@@ -194,29 +263,62 @@
       }
     },
     {
+      "id": "ch6_s13",
+      "name": "Свисток боцмана",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_melee",
+          "mult": 0.25
+        },
+        {
+          "unit": "mob6_bosun",
+          "mult": 0.25
+        },
+        null,
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.25
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.25
+        }
+      ],
+      "rewards": {
+        "jobExp": 27715,
+        "gold": 19481
+      },
+      "offlinePerMinute": {
+        "jobExp": 924,
+        "gold": 649
+      }
+    },
+    {
       "id": "ch6_s7",
       "name": "Пушечная палуба",
       "boss": false,
       "enemies": [
         {
           "unit": "mob6_tank",
-          "mult": 0.235
+          "mult": 0.219
         },
         {
           "unit": "mob6_melee",
-          "mult": 0.235
+          "mult": 0.219
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.235
+          "mult": 0.219
         },
         {
           "unit": "mob6_elite",
-          "mult": 0.235
+          "mult": 0.219
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.235
+          "mult": 0.219
         }
       ],
       "rewards": {
@@ -229,29 +331,65 @@
       }
     },
     {
+      "id": "ch6_s14",
+      "name": "Пороховой погреб",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_tank",
+          "mult": 0.19
+        },
+        {
+          "unit": "mob6_tank",
+          "mult": 0.19
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.19
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.19
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.19
+        }
+      ],
+      "rewards": {
+        "jobExp": 28824,
+        "gold": 20246
+      },
+      "offlinePerMinute": {
+        "jobExp": 961,
+        "gold": 675
+      }
+    },
+    {
       "id": "ch6_s8",
       "name": "Затопленный трюм",
       "boss": false,
       "enemies": [
         {
           "unit": "mob6_elite",
-          "mult": 0.189
+          "mult": 0.177
         },
         {
           "unit": "mob6_elite",
-          "mult": 0.189
+          "mult": 0.177
         },
         {
           "unit": "mob6_fast",
-          "mult": 0.189
+          "mult": 0.177
         },
         {
           "unit": "mob6_support",
-          "mult": 0.189
+          "mult": 0.177
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.189
+          "mult": 0.177
         }
       ],
       "rewards": {
@@ -264,29 +402,65 @@
       }
     },
     {
+      "id": "ch6_s15",
+      "name": "Песни обеонов",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_tank",
+          "mult": 0.118
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.118
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.118
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.118
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.118
+        }
+      ],
+      "rewards": {
+        "jobExp": 29979,
+        "gold": 21056
+      },
+      "offlinePerMinute": {
+        "jobExp": 999,
+        "gold": 702
+      }
+    },
+    {
       "id": "ch6_s9",
       "name": "Кают-компания мертвецов",
       "boss": false,
       "enemies": [
         {
           "unit": "mob6_tank",
-          "mult": 0.185
+          "mult": 0.17
         },
         {
           "unit": "mob6_elite",
-          "mult": 0.185
+          "mult": 0.17
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.185
+          "mult": 0.17
         },
         {
           "unit": "mob6_elite",
-          "mult": 0.185
+          "mult": 0.17
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.185
+          "mult": 0.17
         }
       ],
       "rewards": {
@@ -299,29 +473,137 @@
       }
     },
     {
+      "id": "ch6_s16",
+      "name": "Штурманская рубка",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_elite",
+          "mult": 0.204
+        },
+        {
+          "unit": "mob6_fast",
+          "mult": 0.204
+        },
+        {
+          "unit": "mob6_fast",
+          "mult": 0.204
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.204
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.204
+        }
+      ],
+      "rewards": {
+        "jobExp": 30870,
+        "gold": 21695
+      },
+      "offlinePerMinute": {
+        "jobExp": 1029,
+        "gold": 723
+      }
+    },
+    {
+      "id": "ch6_s17",
+      "name": "Сокровищница Дрейка",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_tank",
+          "mult": 0.182
+        },
+        {
+          "unit": "mob6_elite",
+          "mult": 0.182
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.182
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.182
+        },
+        {
+          "unit": "mob6_ranged",
+          "mult": 0.182
+        }
+      ],
+      "rewards": {
+        "jobExp": 31172,
+        "gold": 21913
+      },
+      "offlinePerMinute": {
+        "jobExp": 1039,
+        "gold": 730
+      }
+    },
+    {
+      "id": "ch6_s18",
+      "name": "Трап мертвецов",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob6_melee",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_elite",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_melee",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_support",
+          "mult": 0.22
+        },
+        {
+          "unit": "mob6_fast",
+          "mult": 0.22
+        }
+      ],
+      "rewards": {
+        "jobExp": 31478,
+        "gold": 22132
+      },
+      "offlinePerMinute": {
+        "jobExp": 1050,
+        "gold": 738
+      }
+    },
+    {
       "id": "ch6_s10",
       "name": "Каюта капитана",
       "boss": true,
       "enemies": [
         {
           "unit": "mob6_elite",
-          "mult": 0.148
+          "mult": 0.151
         },
         {
           "unit": "mob6_boss",
-          "mult": 0.115
+          "mult": 0.117
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.148
+          "mult": 0.151
         },
         {
           "unit": "mob6_support",
-          "mult": 0.148
+          "mult": 0.151
         },
         {
           "unit": "mob6_ranged",
-          "mult": 0.148
+          "mult": 0.151
         }
       ],
       "rewards": {

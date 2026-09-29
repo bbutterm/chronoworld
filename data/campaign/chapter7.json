@@ -11,15 +11,15 @@
       "enemies": [
         {
           "unit": "mob7_melee",
-          "mult": 0.313
+          "mult": 0.303
         },
         {
           "unit": "mob7_tank",
-          "mult": 0.313
+          "mult": 0.303
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.313
+          "mult": 0.303
         },
         null,
         null
@@ -40,19 +40,19 @@
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.227
+          "mult": 0.204
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.227
+          "mult": 0.204
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.227
+          "mult": 0.204
         },
         {
           "unit": "mob7_support",
-          "mult": 0.227
+          "mult": 0.204
         },
         null
       ],
@@ -66,25 +66,58 @@
       }
     },
     {
+      "id": "ch7_s11",
+      "name": "Лодка перевозчика",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_melee",
+          "mult": 0.246
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.246
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.246
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.246
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 35063,
+        "gold": 24640
+      },
+      "offlinePerMinute": {
+        "jobExp": 1169,
+        "gold": 821
+      }
+    },
+    {
       "id": "ch7_s3",
       "name": "Деревня призраков",
       "boss": false,
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.177
+          "mult": 0.169
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.177
+          "mult": 0.169
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.177
+          "mult": 0.169
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.177
+          "mult": 0.169
         },
         null
       ],
@@ -104,23 +137,23 @@
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.172
+          "mult": 0.162
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.172
+          "mult": 0.162
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.172
+          "mult": 0.162
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.172
+          "mult": 0.162
         },
         {
           "unit": "mob7_support",
-          "mult": 0.172
+          "mult": 0.162
         }
       ],
       "rewards": {
@@ -139,23 +172,23 @@
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.155
+          "mult": 0.141
         },
         {
           "unit": "mob7_tank",
-          "mult": 0.155
+          "mult": 0.141
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.155
+          "mult": 0.141
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.155
+          "mult": 0.141
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.155
+          "mult": 0.141
         }
       ],
       "rewards": {
@@ -168,29 +201,65 @@
       }
     },
     {
+      "id": "ch7_s12",
+      "name": "Кладбище без имён",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.15
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.15
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.15
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.15
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.15
+        }
+      ],
+      "rewards": {
+        "jobExp": 39442,
+        "gold": 27715
+      },
+      "offlinePerMinute": {
+        "jobExp": 1315,
+        "gold": 924
+      }
+    },
+    {
       "id": "ch7_s6",
       "name": "Долина стенаний",
       "boss": false,
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.128
+          "mult": 0.118
         },
         {
           "unit": "mob7_tank",
-          "mult": 0.128
+          "mult": 0.118
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.128
+          "mult": 0.118
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.128
+          "mult": 0.118
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.128
+          "mult": 0.118
         }
       ],
       "rewards": {
@@ -203,29 +272,62 @@
       }
     },
     {
+      "id": "ch7_s13",
+      "name": "Мост Гьёлль",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_bridge_warden",
+          "mult": 0.126
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.126
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.126
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.126
+        },
+        null
+      ],
+      "rewards": {
+        "jobExp": 41017,
+        "gold": 28824
+      },
+      "offlinePerMinute": {
+        "jobExp": 1367,
+        "gold": 961
+      }
+    },
+    {
       "id": "ch7_s7",
       "name": "Кровавый балаган",
       "boss": false,
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.102
+          "mult": 0.096
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.102
+          "mult": 0.096
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.102
+          "mult": 0.096
         },
         {
           "unit": "mob7_fast",
-          "mult": 0.102
+          "mult": 0.096
         },
         {
           "unit": "mob7_support",
-          "mult": 0.102
+          "mult": 0.096
         }
       ],
       "rewards": {
@@ -238,29 +340,65 @@
       }
     },
     {
+      "id": "ch7_s14",
+      "name": "Кукольный театр",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_fast",
+          "mult": 0.161
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.161
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.161
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.161
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.161
+        }
+      ],
+      "rewards": {
+        "jobExp": 42652,
+        "gold": 29979
+      },
+      "offlinePerMinute": {
+        "jobExp": 1422,
+        "gold": 999
+      }
+    },
+    {
       "id": "ch7_s8",
       "name": "Стены Чёрной цитадели",
       "boss": false,
       "enemies": [
         {
           "unit": "mob7_tank",
-          "mult": 0.107
+          "mult": 0.099
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.107
+          "mult": 0.099
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.107
+          "mult": 0.099
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.107
+          "mult": 0.099
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.107
+          "mult": 0.099
         }
       ],
       "rewards": {
@@ -273,29 +411,65 @@
       }
     },
     {
+      "id": "ch7_s15",
+      "name": "Двор цитадели",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.11
+        },
+        {
+          "unit": "mob7_tank",
+          "mult": 0.11
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.11
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.11
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.11
+        }
+      ],
+      "rewards": {
+        "jobExp": 44361,
+        "gold": 31179
+      },
+      "offlinePerMinute": {
+        "jobExp": 1479,
+        "gold": 1039
+      }
+    },
+    {
       "id": "ch7_s9",
       "name": "Зал Чёрного колокола",
       "boss": false,
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.084
+          "mult": 0.076
         },
         {
           "unit": "mob7_tank",
-          "mult": 0.084
+          "mult": 0.076
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.084
+          "mult": 0.076
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.084
+          "mult": 0.076
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.084
+          "mult": 0.076
         }
       ],
       "rewards": {
@@ -308,29 +482,137 @@
       }
     },
     {
+      "id": "ch7_s16",
+      "name": "Лестница звонаря",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.102
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.102
+        },
+        {
+          "unit": "mob7_fast",
+          "mult": 0.102
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.102
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.102
+        }
+      ],
+      "rewards": {
+        "jobExp": 45686,
+        "gold": 32115
+      },
+      "offlinePerMinute": {
+        "jobExp": 1523,
+        "gold": 1070
+      }
+    },
+    {
+      "id": "ch7_s17",
+      "name": "Колокольня",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_tank",
+          "mult": 0.093
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.093
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.093
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.093
+        },
+        {
+          "unit": "mob7_support",
+          "mult": 0.093
+        }
+      ],
+      "rewards": {
+        "jobExp": 46136,
+        "gold": 32433
+      },
+      "offlinePerMinute": {
+        "jobExp": 1538,
+        "gold": 1081
+      }
+    },
+    {
+      "id": "ch7_s18",
+      "name": "Врата тронного зала",
+      "boss": false,
+      "inserted": true,
+      "enemies": [
+        {
+          "unit": "mob7_elite",
+          "mult": 0.093
+        },
+        {
+          "unit": "mob7_melee",
+          "mult": 0.093
+        },
+        {
+          "unit": "mob7_elite",
+          "mult": 0.093
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.093
+        },
+        {
+          "unit": "mob7_ranged",
+          "mult": 0.093
+        }
+      ],
+      "rewards": {
+        "jobExp": 46591,
+        "gold": 32755
+      },
+      "offlinePerMinute": {
+        "jobExp": 1554,
+        "gold": 1091
+      }
+    },
+    {
       "id": "ch7_s10",
       "name": "Трон Тёмного лорда",
       "boss": true,
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.075
+          "mult": 0.073
         },
         {
           "unit": "mob7_boss",
-          "mult": 0.057
+          "mult": 0.055
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.075
+          "mult": 0.073
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.075
+          "mult": 0.073
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.075
+          "mult": 0.073
         }
       ],
       "rewards": {

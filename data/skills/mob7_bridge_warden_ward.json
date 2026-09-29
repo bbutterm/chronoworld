@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob7_bridge_warden_ward",
+  "name": "Щит моста",
+  "description": "Страж поднимает щит: щит 20% ОЗ себе.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 10,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.2
+    }
+  ]
+}

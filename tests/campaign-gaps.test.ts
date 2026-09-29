@@ -56,7 +56,9 @@ describe('вставные этапы главы 1 и старые сохран�
     storage.save(serialize(withCleared([...ch1Old, 'ch2_s1', 'ch2_s2'])));
     const r = loadOrNew(storage, ctx, 0);
     expect(r.warnings).toHaveLength(1);
-    expect(r.save.campaign.cleared).toHaveLength(18 + 2);
+    // 18 этапов главы 1, ch2_s1, ch2_s2 и вставной ch2_s11 между ними (главы 2–7 тоже растянуты до 18 — засчитан).
+    expect(r.save.campaign.cleared).toHaveLength(18 + 3);
+    expect(r.save.campaign.cleared).toContain('ch2_s11');
     persist(storage, r.save);
     const again = loadOrNew(storage, ctx, 0);
     expect(again.warnings).toBeUndefined();

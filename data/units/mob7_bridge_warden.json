@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob7_bridge_warden",
+  "name": "Страж моста Гьёлль",
+  "kind": "monster",
+  "role": "tank",
+  "stats": {
+    "hp": 1700,
+    "atk": 58,
+    "def": 18,
+    "spd": 90
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob7_bridge_warden_toll",
+    "actives": [
+      "mob7_bridge_warden_ward"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "dullahan",
+    "tint": "#c8b8ff",
+    "scale": 1.3,
+    "hitFx": "fx_hit"
+  }
+}
