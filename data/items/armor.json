@@ -108,10 +108,32 @@
       "slot": "armor",
       "rarity": "epic",
       "stats": {
+        "hp": 1365,
+        "def": 55
+      },
+      "minChapter": 8
+    },
+    {
+      "id": "clockwork_mail",
+      "name": "Кольчуга часовщика",
+      "slot": "armor",
+      "rarity": "epic",
+      "stats": {
         "hp": 1050,
         "def": 42
       },
       "minChapter": 7
+    },
+    {
+      "id": "valkyrie_armor",
+      "name": "Доспех валькирии",
+      "slot": "armor",
+      "rarity": "epic",
+      "stats": {
+        "hp": 1775,
+        "def": 71
+      },
+      "minChapter": 10
     }
   ]
 }

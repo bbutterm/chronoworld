@@ -4,23 +4,23 @@ import type { SaveState } from '../save/schema';
 /**
  * Ворота предметов по главам (data/items → minChapter): знаменитые предметы RO не должны падать в самом начале.
  * Каждый источник предметов (этапы, сундук и быстрые награды, Лавка, охота) выбирает только предметы
- * с minChapter ≤ «своей» главы. Номер главы — с 1, по порядку content.chapters (data/campaign).
+ * с minChapter ≤ «своей» главы. Номер главы — номер на маршруте (поле order в data/campaign: 1…10; глава 9 может
+ * отсутствовать, номера после неё не сдвигаются — ворота предметов не «переезжают» при вставке главы).
  */
 
-/** Номер главы (с 1) по id; неизвестная глава — 1 (самые строгие ворота). */
+/** Номер главы на маршруте (order) по id; неизвестная глава — 1 (самые строгие ворота). */
 export function chapterNumber(chapterId: string, ctx: { content: Pick<Content, 'chapters'> }): number {
-  const i = ctx.content.chapters.findIndex((c) => c.id === chapterId);
-  return i < 0 ? 1 : i + 1;
+  return ctx.content.chapters.find((c) => c.id === chapterId)?.order ?? 1;
 }
 
-/** Глава игрока (с 1) — глава самого дальнего пройденного этапа; ничего не пройдено — 1. Для Лавки и охоты. */
+/** Глава игрока (номер на маршруте) — глава самого дальнего пройденного этапа; ничего не пройдено — 1. Для Лавки и охоты. */
 export function progressChapter(save: Pick<SaveState, 'campaign'>, ctx: { content: Pick<Content, 'chapters' | 'stages'> }): number {
   const cleared = new Set(save.campaign.cleared);
-  let chapter = 0;
+  let chapter = 1;
   for (const s of ctx.content.stages) {
     if (!cleared.has(s.id)) continue;
-    const i = ctx.content.chapters.findIndex((c) => c.id === s.chapter);
-    if (i > chapter) chapter = i;
+    const n = chapterNumber(s.chapter, ctx);
+    if (n > chapter) chapter = n;
   }
-  return chapter + 1;
+  return chapter;
 }

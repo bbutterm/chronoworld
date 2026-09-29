@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_lord_of_death_march",
+  "name": "Марш мёртвых",
+  "description": "Войско Нифльхейма идёт через поле: урон всем врагам и «Могильный холод» (−25% скорости) на 2 хода.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.85
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "grave_chill",
+        "name": "Могильный холод",
+        "turns": 2,
+        "stats": {
+          "spd": -0.25
+        }
+      }
+    }
+  ]
+}

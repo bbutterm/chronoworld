@@ -121,6 +121,59 @@ describe('сюжет: данные', () => {
   });
 });
 
+describe('сюжет глав 8 и 10 (перенос старых глав 3 и 7, story.md §5.8, §5.10)', () => {
+  it('сцены ch8_* и ch10_* по библии, в порядке прохождения; баннер — только у босса, мини-боссы без него', () => {
+    expect(ids(ctx.story.scenes.filter((s) => s.chapter === 'chapter8'))).toEqual([
+      'ch8_intro',
+      'ch8_s3_after',
+      'ch8_s4_after',
+      'ch8_s6_after',
+      'ch8_s9_after',
+      'ch8_s10_before',
+      'ch8_s13_before',
+      'ch8_s14_after',
+      'ch8_s15_before',
+      'ch8_s15_after',
+      'ch8_s16_after',
+      'ch8_s17_before',
+      'ch8_s18_before',
+      'ch8_outro',
+    ]);
+    expect(ids(ctx.story.scenes.filter((s) => s.chapter === 'chapter10'))).toEqual([
+      'ch10_intro',
+      'ch10_s1_after',
+      'ch10_s3_after',
+      'ch10_s4_before',
+      'ch10_s6_after',
+      'ch10_s7_after',
+      'ch10_s8_after',
+      'ch10_s9_before',
+      'ch10_s12_before',
+      'ch10_s13_after',
+      'ch10_s14_after',
+      'ch10_s16_after',
+      'ch10_s17_before',
+      'ch10_s18_before',
+      'ch10_outro',
+    ]);
+    for (const ch of ['chapter8', 'chapter10']) {
+      const scenes = ctx.story.scenes.filter((s) => s.chapter === ch);
+      const at = scenes.filter((s) => s.stageId).map((s) => before(s.stageId!) + (s.trigger === 'afterStage' ? 0.5 : 0));
+      expect(at, ch).toEqual([...at].sort((a, b) => a - b));
+      const boss = ctx.content.stages.filter((s) => s.chapter === ch).at(-1)!.id;
+      expect(scenes.filter((s) => s.bossIntro).map((s) => s.stageId), ch).toEqual([boss]);
+    }
+    expect(ctx.story.scenes.find((s) => s.id === 'ch8_s18_before')!.bossIntro?.title).toBe(ctx.content.units.mob7_boss.name);
+    expect(ctx.story.scenes.find((s) => s.id === 'ch10_s18_before')!.bossIntro?.title).toBe(ctx.content.units.mob_lord_of_death.name);
+  });
+
+  it('новая нить: в главах 8 и 10 нет Звонарей, осколков, Чёрного колокола и Проклятых топей (story.md §6.2 п. 5)', () => {
+    const banned = /звонар|осколк|чёрн\w* колокол|проклят\w* топ|хельмут/i;
+    for (const s of ctx.story.scenes.filter((x) => x.chapter === 'chapter8' || x.chapter === 'chapter10'))
+      for (const l of s.lines) expect(banned.test(l.text), `${s.id}: ${l.text}`).toBe(false);
+  });
+});
+
 describe('сюжет: какую сцену показать', () => {
   const save0 = newGame(ctx, 1000);
 

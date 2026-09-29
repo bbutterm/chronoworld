@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { enemySquad, growthStep, newGame, playStage, stageStatus, type SaveState } from '../src/core';
+import { chapterTheme, enemySquad, growthStep, newGame, playStage, stageLabel, stageStatus, type SaveState } from '../src/core';
 import { loadGameContext, ROOT } from '../scripts/lib/content-node';
 import { loadFullContext, SMOOTH_SQUADS, smoothSquads, stageThreshold } from '../scripts/lib/player-model';
 
@@ -201,5 +201,56 @@ describe('K3 главы 2–3', () => {
       expect(['A', 'B']).toContain(out.result.winner);
       expect(out.save.battleSeq).toBe(1);
     }
+  });
+});
+
+describe('маршрут из 10 глав (docs/design/lore-route.md §0, §4.2)', () => {
+  it('номер главы — order: по возрастанию, в пределах 1…10, заголовок «Глава N.» совпадает с маршрутом', () => {
+    for (const c of chapters) {
+      expect(c.order, c.id).toBeGreaterThanOrEqual(1);
+      expect(c.order, c.id).toBeLessThanOrEqual(10);
+      expect(c.id, 'id главы — chapter<order>').toBe(`chapter${c.order}`);
+      expect(c.name.startsWith(`Глава ${c.order}. `), `${c.id}: ${c.name}`).toBe(true);
+    }
+    // Глава 9 (Лабиринтный лес) ещё не написана: после главы 8 идёт 10-я, номера этапов — «10-K».
+    expect(chapters.find((c) => c.id === 'chapter8')?.name).toBe('Глава 8. Гласт Хейм');
+    expect(chapters.find((c) => c.id === 'chapter10')?.name).toBe('Глава 10. Нифльхейм');
+    expect(stageLabel('ch10_s1', ctx.content)).toBe('10-1');
+    expect(stageLabel('ch8_s18', ctx.content)).toBe('8-18');
+  });
+
+  it('главы 8 и 10: 18 этапов ch<N>_s1…s18 подряд, босс — s18; по 10 ступеней роста на главу, как у глав 1–7', () => {
+    for (const [c, n] of [['chapter8', 8], ['chapter10', 10]] as const) {
+      const ids = chapterStages(c).map((s) => s.id);
+      expect(ids, c).toEqual(Array.from({ length: 18 }, (_, i) => `ch${n}_s${i + 1}`));
+      expect(chapterStages(c).filter((s) => !s.inserted), c).toHaveLength(10);
+    }
+    // Ступень роста: главы 1–7 — по 10 обычных этапов, поэтому гл. 8 начинает с 70-й, гл. 10 (пока без гл. 9) — с 80-й.
+    // Когда появится глава 9 с 10 обычными этапами, гл. 10 сдвинется на 10 ступеней (×2.16) — mult гл. 10 пересчитать.
+    expect(growthStep(stages.find((s) => s.id === 'ch8_s1')!, ctx)).toBe(70);
+    expect(growthStep(stages.find((s) => s.id === 'ch10_s1')!, ctx)).toBe(80);
+  });
+
+  it('боссы: Гласт Хейм — Тёмный лорд (s18) и мини-босс Верховный жрец (s15); Нифльхейм — Владыка мёртвых (s18) и Страж моста (s9)', () => {
+    const units = (id: string) => stages.find((s) => s.id === id)!.enemies.flatMap((e) => (e ? [e.unit] : []));
+    expect(units('ch8_s18')).toContain('mob7_boss');
+    expect(ctx.content.units.mob7_boss.visual.sprite).toBe('dark_lord');
+    expect(units('ch8_s15')).toContain('mob3_boss');
+    expect(units('ch10_s18')).toContain('mob_lord_of_death');
+    expect(ctx.content.units.mob_lord_of_death.kind).toBe('boss');
+    expect(units('ch10_s9')).toContain('mob7_bridge_warden');
+    // Тёмный лорд больше не босс Нифльхейма.
+    for (const s of chapterStages('chapter10')) expect(units(s.id), s.id).not.toContain('mob7_boss');
+  });
+
+  it('тема главы (фон и музыка) — по содержимому, а не по месту: Гласт Хейм — склеп, Нифльхейм — Нифльхейм, слоты 2/3/7 — свои', () => {
+    const theme = (id: string) => chapterTheme(chapters.find((c) => c.id === id));
+    expect(theme('chapter8')).toBe('crypt');
+    expect(theme('chapter10')).toBe('niflheim');
+    expect(theme('chapter2')).toBe('sewer');
+    expect(theme('chapter3')).toBe('orc');
+    expect(theme('chapter7')).toBe('clocktower');
+    expect(theme('chapter1')).toBe('meadow');
+    expect(chapterTheme(undefined)).toBe('meadow');
   });
 });

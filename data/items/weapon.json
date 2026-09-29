@@ -262,10 +262,32 @@
       "slot": "weapon",
       "rarity": "epic",
       "stats": {
+        "atk": 228,
+        "def": 10
+      },
+      "minChapter": 10
+    },
+    {
+      "id": "keeper_hammer",
+      "name": "Молот смотрителя",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
         "atk": 135,
         "def": 6
       },
       "minChapter": 7
+    },
+    {
+      "id": "abyss_blade",
+      "name": "Клинок бездны",
+      "slot": "weapon",
+      "rarity": "epic",
+      "stats": {
+        "atk": 175,
+        "def": 8
+      },
+      "minChapter": 8
     }
   ]
 }

@@ -97,7 +97,7 @@ export interface ChapterSummary {
   items: number;
   /** Герой, присоединившийся после босса главы (progression.heroes.recruits), если он уже у игрока. */
   recruit?: HeroState;
-  /** Следующая глава (для «Глава N ›»): индекс в content.chapters, номер и название. */
+  /** Следующая глава (для «Глава N ›»): индекс в content.chapters, номер на маршруте (order) и название. */
   next?: { index: number; number: number; name: string };
 }
 
@@ -112,7 +112,7 @@ export function chapterSummary(save: SaveState, chapterId: string, ctx: GameCont
   const nextChapter = index >= 0 ? chapters[index + 1] : undefined;
   return {
     chapterId,
-    number: index + 1,
+    number: chapters[index]?.order ?? index + 1,
     name: chapters[index]?.name ?? chapterId,
     cleared,
     stages: stages.length,
@@ -120,7 +120,7 @@ export function chapterSummary(save: SaveState, chapterId: string, ctx: GameCont
     jobExp: stages.reduce((sum, s) => sum + s.rewards.jobExp, 0),
     items: save.inventory.items.length,
     recruit,
-    next: nextChapter ? { index: index + 1, number: index + 2, name: nextChapter.name } : undefined,
+    next: nextChapter ? { index: index + 1, number: nextChapter.order, name: nextChapter.name } : undefined,
   };
 }
 

@@ -86,8 +86,10 @@ checkout (`ln -s /home/user/chronoworld/node_modules node_modules`). Не мен
   `resources.heroExp` + золото), `data/summon.json` (Таверна). Осколков нет — копии того же героя и карты случайных героев.
   Сохранение v7; замороженные миграции `src/core/heroes/migrate.ts` (v3→v4) и `migrate-v7.ts` — не менять. API экранов —
   `docs/AGENTS.md`, раздел 2а. Опыт наград (`rewards.jobExp`) идёт в пул.
-- Кампания — 7 глав (70 этапов, `data/campaign`), главы 4–7 на листах-заплатках (арт — issue #69). Режим тестировщика
-  (`src/game/tester.ts`: «+300 гемов», «+12 ч») пока включён для всех.
+- Кампания — маршрут из 10 глав по классическому RO (`docs/design/lore-route.md`, библия `docs/design/story.md`): в данных 9 глав
+  по 18 этапов (1–8 и 10; глава 9 «Лабиринтный лес» — позже), `data/campaign`. Слоты стабильны, содержимое переезжает; номер главы —
+  `order` (после 8-й идёт 10-я), фон и музыка — по теме главы (`theme`), не по месту. Главы 4+ на листах-заплатках (арт — issue #69).
+  Режим тестировщика (`src/game/tester.ts`: «+300 гемов», «+12 ч») пока включён для всех.
 - Мета: экспедиции (`src/core/meta/expeditions.ts`), события/почта (`src/core/events`), открытия по этапам (`data/unlocks.json`),
   охота (`src/core/hunt`), лавка (`src/core/shop`), заточка снаряжения +1…+10 (поломка 0%…90%, надёжная ×5 цены ÷5 шанса, Благословенная руда с боссов — 100%) — сток золота (`src/core/equipment/refine.ts`,
   `data/drops.json → refine`), сундук с трофеями (`src/core/equipment/chest.ts`), предметы по главам (`minChapter`).

@@ -94,10 +94,32 @@
       "slot": "boots",
       "rarity": "epic",
       "stats": {
+        "hp": 777,
+        "spd": 17
+      },
+      "minChapter": 10
+    },
+    {
+      "id": "owl_boots",
+      "name": "Сапоги совы",
+      "slot": "boots",
+      "rarity": "epic",
+      "stats": {
         "hp": 460,
         "spd": 10
       },
       "minChapter": 7
+    },
+    {
+      "id": "sentry_greaves",
+      "name": "Поножи ночного караула",
+      "slot": "boots",
+      "rarity": "epic",
+      "stats": {
+        "hp": 600,
+        "spd": 13
+      },
+      "minChapter": 8
     }
   ]
 }

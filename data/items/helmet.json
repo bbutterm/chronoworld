@@ -93,10 +93,32 @@
       "slot": "helmet",
       "rarity": "epic",
       "stats": {
+        "hp": 845,
+        "def": 39
+      },
+      "minChapter": 8
+    },
+    {
+      "id": "alarm_mask",
+      "name": "Маска Будильника",
+      "slot": "helmet",
+      "rarity": "epic",
+      "stats": {
         "hp": 650,
         "def": 30
       },
       "minChapter": 7
+    },
+    {
+      "id": "gjoll_helm",
+      "name": "Шлем стража Гьёлль",
+      "slot": "helmet",
+      "rarity": "epic",
+      "stats": {
+        "hp": 1100,
+        "def": 51
+      },
+      "minChapter": 10
     }
   ]
 }

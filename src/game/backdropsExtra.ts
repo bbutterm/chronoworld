@@ -103,7 +103,7 @@ export function deadTree(c: Ctx, r: Rng, x: number, base: number, h: number, col
 // ---------------------------------------------------------------------------------------------------------------
 
 /** Зерно/шум: n мелких точек цветами colors в прямоугольнике. */
-function grain(c: Ctx, r: Rng, x0: number, y0: number, w: number, h: number, n: number, colors: string[], size = 2): void {
+export function grain(c: Ctx, r: Rng, x0: number, y0: number, w: number, h: number, n: number, colors: string[], size = 2): void {
   for (let i = 0; i < n; i++) {
     c.fillStyle = colors[Math.floor(r.rnd() * colors.length)];
     const s = r.between(size * 0.5, size * 1.5);
@@ -112,7 +112,7 @@ function grain(c: Ctx, r: Rng, x0: number, y0: number, w: number, h: number, n: 
 }
 
 /** Мягкая «площадка» в центре поля: пятно цвета color с растушёванным краем (как вытоптанная земля у луга). */
-function clearing(c: Ctx, cx: number, cy: number, rx: number, ry: number, color: string, a: number): void {
+export function clearing(c: Ctx, cx: number, cy: number, rx: number, ry: number, color: string, a: number): void {
   c.save();
   c.translate(cx, cy);
   c.scale(1, ry / rx);
@@ -125,7 +125,7 @@ function clearing(c: Ctx, cx: number, cy: number, rx: number, ry: number, color:
 }
 
 /** Гряда: волнистая линия (сумма синусов) от y ≈ base, залитая вниз до bottom. Возвращает точки гребня. */
-function ridge(c: Ctx, r: Rng, W: number, base: number, amp: number, bottom: number, fill: string | CanvasGradient, freq = 1): Array<[number, number]> {
+export function ridge(c: Ctx, r: Rng, W: number, base: number, amp: number, bottom: number, fill: string | CanvasGradient, freq = 1): Array<[number, number]> {
   const p1 = r.between(0, Math.PI * 2);
   const p2 = r.between(0, Math.PI * 2);
   const f1 = r.between(1.2, 2.2) * freq;
@@ -156,7 +156,7 @@ function crest(c: Ctx, pts: Array<[number, number]>, color: string, w: number): 
 }
 
 /** Звёзды: точки разной яркости в верхней полосе. */
-function stars(c: Ctx, r: Rng, W: number, h: number, n: number, color = '255,250,235'): void {
+export function stars(c: Ctx, r: Rng, W: number, h: number, n: number, color = '255,250,235'): void {
   for (let i = 0; i < n; i++) {
     c.fillStyle = `rgba(${color},${r.between(0.25, 0.9)})`;
     const s = r.rnd() < 0.1 ? 2.5 : r.between(1, 1.8);
@@ -215,7 +215,7 @@ function sun(c: Ctx, x: number, y: number, rad: number, halo: string): void {
 }
 
 /** Тень-эллипс под предметом. */
-function shadow(c: Ctx, x: number, y: number, rx: number, ry: number, a = 0.3): void {
+export function shadow(c: Ctx, x: number, y: number, rx: number, ry: number, a = 0.3): void {
   c.fillStyle = `rgba(0,0,0,${a})`;
   c.beginPath();
   c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
@@ -223,7 +223,7 @@ function shadow(c: Ctx, x: number, y: number, rx: number, ry: number, a = 0.3): 
 }
 
 /** Валун: неровный многоугольник, светлый верх, тёмный низ. */
-function boulder(c: Ctx, r: Rng, x: number, y: number, s: number, light: string, dark: string): void {
+export function boulder(c: Ctx, r: Rng, x: number, y: number, s: number, light: string, dark: string): void {
   shadow(c, x + s * 0.1, y + 2, s * 1.1, s * 0.3);
   const n = 8;
   const pts: Array<[number, number]> = [];
@@ -324,7 +324,7 @@ function palm(c: Ctx, r: Rng, x: number, base: number, h: number, lean: number, 
 }
 
 /** Колючий куст пустыни. */
-function dryBush(c: Ctx, r: Rng, x: number, y: number, s: number): void {
+export function dryBush(c: Ctx, r: Rng, x: number, y: number, s: number): void {
   c.strokeStyle = '#6a4a26';
   c.lineWidth = 1.6;
   c.lineCap = 'round';

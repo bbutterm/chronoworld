@@ -50,13 +50,19 @@ export function sendMail(
 
 /**
  * Доставить системные письма data/events.json → mail.letters, которых у игрока ещё не было (mail.delivered),
- * по порядку файла (первое окажется ниже в списке). untilDay прошёл — письмо не доставляется. Ничего нового — тот же save.
+ * по порядку файла (первое окажется ниже в списке). untilDay прошёл — письмо не доставляется. onlyIfCleared: этап не
+ * пройден — письмо помечается доставленным без показа (объявление только для уже игравших). Ничего нового — тот же save.
  */
 export function deliverSystemMail(save: SaveState, day: string, ctx: EventsContext): SaveState {
   let s = save;
   const delivered = new Set(mailOf(save).delivered);
   for (const def of ctx.events.mail.letters) {
     if (delivered.has(def.id) || (def.untilDay && day > def.untilDay)) continue;
+    if (def.onlyIfCleared && !s.campaign.cleared.includes(def.onlyIfCleared)) {
+      const mail = mailOf(s);
+      s = { ...s, mail: { ...mail, delivered: [...mail.delivered, def.id] } };
+      continue;
+    }
     s = sendMail(s, day, { from: def.from, title: def.title, body: def.body, rewards: def.rewards, source: def.id });
   }
   return s;

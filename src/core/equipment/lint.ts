@@ -27,14 +27,16 @@ export function lintItemGates(ctx: GateLintContext): { errors: string[]; warning
   const warnings: string[] = [];
   const { items, drops } = ctx.equipment;
   const chapters = ctx.content.chapters.map((c) => c.id);
-  const last = chapters.length;
+  /** Номера глав на маршруте (order; глава 9 может отсутствовать). */
+  const numbers = ctx.content.chapters.map((c) => c.order);
+  const last = Math.max(...numbers);
   const pools = (chapter: number) => itemPools(items, chapter);
 
   for (const def of Object.values(items)) {
     if ((def.minChapter ?? 1) > last && def.drop) warnings.push(`предмет ${def.id}: minChapter ${def.minChapter}, а глав ${last} — пока не выпадает нигде`);
   }
   chapters.forEach((chapterId, i) => {
-    const n = i + 1;
+    const n = numbers[i];
     for (const slot of SLOTS) {
       const any = Object.values(items).some((d) => d.drop && d.slot === slot && (d.minChapter ?? 1) <= n);
       if (!any) warnings.push(`глава ${n} (${chapterId}): нет открытых предметов слота ${slot} (minChapter)`);
@@ -77,10 +79,10 @@ export function lintItemGates(ctx: GateLintContext): { errors: string[]; warning
       if (g.kind !== 'item' || !g.rarity) continue;
       const from = g.fromStage ? chapterNumber(stageChapter.get(g.fromStage) ?? chapters[0], ctx) : 1;
       if (!pools(from)[g.rarity].length) {
-        const first = chapters.findIndex((_, i) => pools(i + 1)[g.rarity!].length > 0);
+        const first = numbers.find((n) => pools(n)[g.rarity!].length > 0);
         errors.push(
           `data/shop.json: товар ${g.id} открыт с главы ${from}, но предметов ${g.rarity} там нет (minChapter)` +
-            (first >= 0 ? ` — поставьте fromStage на этап главы ${first + 1}` : ''),
+            (first !== undefined ? ` — поставьте fromStage на этап главы ${first}` : ''),
         );
       }
     }
@@ -89,7 +91,7 @@ export function lintItemGates(ctx: GateLintContext): { errors: string[]; warning
   if (ctx.hunt) {
     ctx.hunt.tiers.forEach((t, i) => {
       const r = t.rewards.item;
-      if (r && !chapters.some((_, c) => pools(c + 1)[r].length > 0)) errors.push(`data/hunt.json: tiers.${i} — предметов ${r} нет ни в одной главе (minChapter)`);
+      if (r && !numbers.some((n) => pools(n)[r].length > 0)) errors.push(`data/hunt.json: tiers.${i} — предметов ${r} нет ни в одной главе (minChapter)`);
     });
   }
   return { errors, warnings };

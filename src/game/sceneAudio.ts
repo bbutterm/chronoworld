@@ -8,17 +8,24 @@ import { currentStage } from './flow';
 import { session } from './session';
 
 /**
- * Звуковая тема по теме фона: у каждой главы своя (музыка карты, боя и фон). Бой с боссом — общая тема `boss`
- * во всех главах (узнаваемый сигнал «MVP», как в RO), вкус главы в нём держит фон главы (amb_*), который играет и там.
+ * Звуковая тема по теме фона (музыка карты, боя и фон). Бой с боссом — общая тема `boss` во всех главах (узнаваемый
+ * сигнал «MVP», как в RO), вкус главы в нём держит фон главы (amb_*), который играет и там. Гласт Хейм (гл. 8) звучит
+ * как старая глава 3 («склеп»), Нифльхейм (гл. 10) — как старая глава 7. Слоты маршрута без своей музыки пока берут
+ * подходящую из имеющейся: канализация — топь (вода, капли), орки — пустыня (боевые барабаны), часовая башня — склеп
+ * (колокола), лабиринт — ночной лес. Своя музыка слота — новые дорожки в audioCatalog.ts/audioSynth.ts и строка здесь.
  */
 const SOUND_THEME: Record<Theme, SoundTheme> = {
   meadow: 'meadow',
-  swamp: 'swamp',
-  crypt: 'crypt',
+  sewer: 'swamp',
+  orc: 'desert',
   desert: 'desert',
   grove: 'grove',
   shipwreck: 'shipwreck',
+  clocktower: 'crypt',
+  crypt: 'crypt',
+  labyrinth: 'grove',
   niflheim: 'niflheim',
+  swamp: 'swamp',
 };
 export const soundTheme = (t: Theme): SoundTheme => SOUND_THEME[t];
 

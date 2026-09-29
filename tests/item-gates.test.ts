@@ -98,12 +98,13 @@ describe('ворота предметов: выпадение с этапов', 
   });
 });
 
-describe('трофеи глав 4–7 (LT-06): свои вещи главы, босс — эпик', () => {
-  const late = ['chapter4', 'chapter5', 'chapter6', 'chapter7'];
-  // Глава 7 берёт вещи глав 6–7 (редких вещей главы 7 нет — редкие из главы 6).
+describe('трофеи глав 4+ (LT-06): свои вещи главы, босс — эпик', () => {
+  // Маршрут из 10 глав: главы 7 (Альдебаран), 8 (Гласт Хейм) и 10 (Нифльхейм) — со своими вещами; глава 9 пока не написана.
+  const late = ['chapter4', 'chapter5', 'chapter6', 'chapter7', 'chapter8', 'chapter10'];
+  // Главы 7+ берут вещи с главы 6 до своей (редких вещей у них нет — редкие из главы 6).
   const from = (chapter: string) => Math.min(chapterNumber(chapter, ctx), 6);
 
-  it('у каждой главы 4–7 — 4 новые вещи (оружие, доспех, шлем, обувь) с minChapter этой главы', () => {
+  it('у каждой главы 4+ — 4 новые вещи (оружие, доспех, шлем, обувь) с minChapter этой главы', () => {
     for (const chapter of late) {
       const n = chapterNumber(chapter, ctx);
       const own = Object.values(items).filter((d) => d.minChapter === n);
@@ -111,7 +112,7 @@ describe('трофеи глав 4–7 (LT-06): свои вещи главы, б�
     }
   });
 
-  it('этапы глав 4–7: только вещи своей главы (не главы 1), первая победа над боссом — эпик', () => {
+  it('этапы глав 4+: только вещи своей главы (не главы 1), первая победа над боссом — эпик', () => {
     for (const chapter of late) {
       const stages = stagesOf(chapter);
       for (const st of stages) {
@@ -132,7 +133,7 @@ describe('трофеи глав 4–7 (LT-06): свои вещи главы, б�
     }
   });
 
-  it('сундук глав 4–7: вещи своей главы', () => {
+  it('сундук глав 4+: вещи своей главы', () => {
     for (const chapter of late) {
       const loot = rollChestLoot(chapter, 2000, 7, ctx).items;
       expect(loot.length, chapter).toBeGreaterThan(0);
@@ -248,7 +249,9 @@ describe('ворота предметов: content:check', () => {
   });
 
   it('порог охоты с редкостью, закрытой во всех главах, — ошибка; предмет позже последней главы и пустой слот — предупреждения', () => {
-    const late = withItems((d) => (d.rarity === 'epic' ? { ...d, minChapter: 9 } : d));
+    // Позже последней главы маршрута (номер — order: сейчас 10, глава 9 пропущена).
+    const lastChapter = Math.max(...ctx.content.chapters.map((c) => c.order));
+    const late = withItems((d) => (d.rarity === 'epic' ? { ...d, minChapter: lastChapter + 1 } : d));
     const r = lintItemGates({ ...late, hunt: { ...ctx.hunt, tiers: [{ damage: 1, rewards: { item: 'epic' } }] } });
     expect(r.errors.some((e) => e.includes('data/hunt.json'))).toBe(true);
     expect(r.warnings.some((w) => w.includes('sleipnir') && w.includes('не выпадает'))).toBe(true);
