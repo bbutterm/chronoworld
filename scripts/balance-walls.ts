@@ -5,6 +5,7 @@
  *   npx tsx scripts/balance-walls.ts                          seed 1–6, 11 дней, 4 сессии в день
  *   npx tsx scripts/balance-walls.ts --seeds 1,2,3 --days 10 --wall 4 --json /tmp/w.json
  *
+ * Для каждой главы также — побед по сессиям (4-часовой слот) и больше всего за одну сессию.
  * Стена — промежуток ≥ --wall часов (4) между первыми прохождениями соседних этапов (как findWalls: этап, на котором стоял).
  * Для каждой главы: час прохождения босса (медиана и разброс), стены внутри главы (рядовые этапы) и серии побед между ними.
  */
@@ -36,6 +37,8 @@ interface SeedRun {
   walls: Record<string, { stage: string; hours: number; at: number }[]>;
   /** Побед (первых прохождений) по главам между стенами: серии. */
   runs: Record<string, number[]>;
+  /** Побед главы по сессиям (сессия — 4-часовой слот от начала первой): «ровный темп» — не вся глава за одну сессию. */
+  perSession: Record<string, number[]>;
   winsByDay: number[];
   battlesByDay: number[];
   battleWinsByDay: number[];
@@ -45,8 +48,14 @@ const out: SeedRun[] = [];
 for (const seed of SEEDS) {
   const res = runBalance(ctx, DAYS, { ...PLAYER_MODEL, seedBase: seed });
   const t0 = res.rows[0].time_h;
-  const r: SeedRun = { seed, boss: {}, walls: {}, runs: {}, winsByDay: Array(DAYS).fill(0), battlesByDay: Array(DAYS).fill(0), battleWinsByDay: Array(DAYS).fill(0) };
+  const r: SeedRun = { seed, boss: {}, walls: {}, runs: {}, perSession: {}, winsByDay: Array(DAYS).fill(0), battlesByDay: Array(DAYS).fill(0), battleWinsByDay: Array(DAYS).fill(0) };
   for (const c of chapters) {
+    const bySession = new Map<number, number>();
+    for (const f of res.firstClears.filter((x) => stageChapter.get(x.stageId) === c)) {
+      const k = Math.floor((f.time_h - t0 + 0.01) / 4);
+      bySession.set(k, (bySession.get(k) ?? 0) + 1);
+    }
+    r.perSession[c] = [...bySession.values()];
     r.walls[c] = [];
     r.runs[c] = [];
     const fc = res.firstClears.find((f) => f.stageId === bossOf.get(c));
@@ -92,11 +101,13 @@ for (const c of chapters) {
     const inner = r.walls[c].filter((w) => w.stage !== bossOf.get(c));
     const bw = r.walls[c].find((w) => w.stage === bossOf.get(c));
     console.log(
-      `  seed ${r.seed}: стены ${inner.map((w) => `${w.stage} ${w.hours} ч (@${w.at})`).join(', ') || '—'}${bw ? `; босс ${bw.hours} ч` : ''}; серии побед ${r.runs[c].join('+')}`,
+      `  seed ${r.seed}: стены ${inner.map((w) => `${w.stage} ${w.hours} ч (@${w.at})`).join(', ') || '—'}${bw ? `; босс ${bw.hours} ч` : ''}; серии побед ${r.runs[c].join('+')}; по сессиям ${r.perSession[c].join('+')}`,
     );
   }
   const innerCounts = out.map((r) => r.walls[c].filter((w) => w.stage !== bossOf.get(c)).length);
   console.log(`  стен внутри главы (медиана): ${median(innerCounts)}; по seed ${innerCounts.join(' ')}`);
+  const maxShare = out.map((r) => Math.max(0, ...r.perSession[c]));
+  console.log(`  больше всего побед главы за одну сессию: медиана ${median(maxShare)}; по seed ${maxShare.join(' ')}`);
 }
 console.log(`\nПобед (первых прохождений) по дням: seed 1 — ${out[0].winsByDay.join(' ')}`);
 console.log(`  медиана — ${Array.from({ length: DAYS }, (_, d) => median(out.map((r) => r.winsByDay[d]))).join(' ')}`);
