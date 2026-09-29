@@ -64,7 +64,7 @@
       "stage": "ch3_s1",
       "power": 3800,
       "tint": "#566a8c",
-      "monster": "mob3_elite",
+      "monster": "alde_mimic",
       "perHour": { "gold": 65, "jobExp": 85 },
       "loot": [
         { "kind": "item", "chance": 0.011, "items": ["helm", "chain_mail", "boots", "greaves"] },

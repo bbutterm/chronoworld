@@ -320,6 +320,29 @@ export const SKILL_VISUALS: Record<string, SkillVisual> = {
   mob_fast_lunge: { hit: 'leap' },
   mob3_fast_haunt: { hit: 'leap' },
   assassin_leap: { hit: 'leap' },
+  // Маршрут из 10 глав (29.09). Глава 2 — канализация: жуки кусают и воруют, Золотой жук сыплет раскалённой медью.
+  sewer_thief_bug_snatch: { hit: 'steal' },
+  sewer_bug_male_rush: { hit: 'bite' },
+  sewer_bug_leader_clutch: { hit: 'bite', tint: 0x9ac070 },
+  sewer_familiar_bite: { hit: 'bite', tint: 0xb04a6a },
+  sewer_tarou_pounce: { hit: 'leap' },
+  sewer_golden_bug_coin_rain: { hit: 'coins', tint: 0xffb040 },
+  // Глава 3 — орки: удары топором и предков, пике чончона, хватка предков из-под земли.
+  orc_warrior_axe_rend: { hit: 'smash' },
+  orc_zombie_grave_bite: { hit: 'bite', tint: 0x8fd06a },
+  orc_skeleton_ancestor_blow: { hit: 'smash' },
+  orc_chonchon_dive: { hit: 'leap' },
+  orc_hero_chief_roar: { hit: 'knock', tint: 0xff9a50 },
+  orc_lord_ancestors_rise: { hit: 'roots', tint: 0xc8b890 },
+  // Глава 7 — часовая башня: маятник, стрелки-клинки, совиные налёты, пыльный вихрь Панка, мимик.
+  alde_clock_pendulum: { hit: 'knock', tint: 0xd8b060 },
+  alde_keeper_hands: { hit: 'double', tint: 0xe0c070 },
+  alde_mimic_snap: { hit: 'bite' },
+  alde_owl_baron_swoop: { hit: 'peck', tint: 0xb8a8e0 },
+  alde_owl_duke_dive: { hit: 'peck' },
+  alde_punk_gust: { hit: 'sand', tint: 0xc8d8ff },
+  // Глава 10 — Владыка мёртвых: взмах косы по фронту.
+  mob_lord_of_death_scythe: { hit: 'smash', tint: 0x9fd4ff },
 };
 
 export const visualOf = (id: string | undefined): SkillVisual | undefined => (id ? SKILL_VISUALS[id] : undefined);
