@@ -20,6 +20,9 @@ import {
   actPlayStage,
   actSummon,
   ascendRequirement,
+  ascendAll,
+  heroRole,
+  withGear,
   autoFodder,
   autoChain,
   chooseBranch,
@@ -63,6 +66,7 @@ import {
   enemyScale,
   levelBand,
   stageLevels,
+  supportFactor,
   enemySquad,
   CARD_RARITIES,
   summonStatus,
@@ -125,6 +129,10 @@ export interface PlayerModel {
   levelUpSec: number;
   summonSec: number;
   ascendSec: number;
+  /** «Вознести всех» после вознесений отряда (как игрок по красной точке; `--no-ascend-all` — выключить). */
+  ascendAll: boolean;
+  /** Отряд с лекарем, если лекарь есть (как «Авто»; `--no-healer` — выключить). */
+  healer: boolean;
   /** Сколько поражений на одном этапе за сессию игрок терпит (после каждой — сундук, быстрые награды, уровни). */
   maxLossesPerSession: number;
   /** Башня: не больше стольких штурмов за сессию… */
@@ -199,6 +207,8 @@ export const PLAYER_MODEL: PlayerModel = {
   levelUpSec: 2,
   summonSec: 20,
   ascendSec: 20,
+  ascendAll: true,
+  healer: true,
   maxLossesPerSession: 3,
   towerMaxAttemptsPerSession: 10,
   towerMaxLossesPerSession: 2,
@@ -569,7 +579,35 @@ class Sim {
       this.ascend(hero.id, autoFodder(this.save, hero.id, this.ctx) ?? []);
       this.save = { ...this.save, squad: this.formation() };
     }
+    if (this.model.ascendAll) this.ascendEveryone();
     this.levelSquad();
+  }
+
+  /**
+   * «Вознести всех» (ascendAll, кнопка на экране «Герои») — как живой игрок: после вознесений отряда нажать, если есть
+   * кого (копии одного героя вверх по цепочке, в том числе фиолетовые копии → золотой). Ветки новых фиолетовых — по
+   * политике модели, отряд пересобирается. Вознесение для игрока важнее уровней (редкость поднимает предел уровня и
+   * статы), поэтому золото на план тратится первым.
+   */
+  ascendEveryone(): void {
+    // Быстрая проверка (модель зовёт это каждую сессию): вознесению нужны хотя бы 3 экземпляра одного героя.
+    const copies = new Map<string, number>();
+    for (const h of this.save.heroes) copies.set(h.templateId, (copies.get(h.templateId) ?? 0) + 1);
+    if (![...copies.values()].some((n) => n >= 3)) return;
+    const plan = ascendAll(this.save, this.ctx);
+    if (!plan.done.length) return;
+    this.step('heroes', plan.save);
+    for (const d of plan.done) {
+      this.spendTime(this.model.ascendSec * 1000);
+      this.ascensions.push({ day: this.dayNo, t: this.t, active_min: this.activeMin, heroId: d.heroId, templateId: d.templateId, rarity: d.to });
+    }
+    for (const h of this.save.heroes) {
+      if (!needsBranch(h, this.ctx)) continue;
+      const branch = this.branchFor(h.templateId, h.id);
+      this.step('heroes', chooseBranch(this.save, h.id, branch, this.ctx).save);
+      this.branches.push({ day: this.dayNo, t: this.t, templateId: h.templateId, branch, via: 'ascend' });
+    }
+    this.save = { ...this.save, squad: this.formation() };
   }
 
   /** Вознесение с политикой ветки (если переход с выбором ветки). */
@@ -637,8 +675,9 @@ class Sim {
     const members = base.flatMap((id) => this.save.heroes.filter((h) => h.id === id));
     if (members.length === 0) return base;
     const floor = Math.min(...members.map((h) => h.level));
-    const pot = (h: SaveState['heroes'][number]) =>
-      heroPower({ ...h, level: Math.max(h.level, Math.min(floor, maxLevelOf(this.ctx, h.rarity))) }, this.ctx, this.save);
+    // Контекст с экипировкой — один на вызов (withGear на каждого героя был треть времени модели).
+    const gear = withGear(this.ctx, this.save);
+    const pot = (h: SaveState['heroes'][number]) => heroPower({ ...h, level: Math.max(h.level, Math.min(floor, maxLevelOf(this.ctx, h.rarity))) }, gear);
     const squad = members.map((h) => ({ hero: h, pot: pot(h) }));
     const inSquad = new Set(members.map((h) => h.templateId));
     const bench = [...new Set(this.save.heroes.map((h) => h.templateId))]
@@ -656,6 +695,29 @@ class Sim {
       if (c.pot < weakest.pot * 1.1) break;
       squad[squad.indexOf(weakest)] = c;
       changed = true;
+    }
+    // Лекарь (как «Авто» и живой игрок): нет в отряде — лучший лекарь вместо самого слабого не-танка, если он не
+    // слабее по редкости и почти не слабее по потенциалу (≥ 0.9 заменяемого): зелёного лекаря вместо фиолетового
+    // бойца игрок не ставит — такой отряд проигрывает (замер: стена ch3_s10 12 → 40 ч).
+    const healer = (h: SaveState['heroes'][number]) => heroRole(h, this.ctx) === 'healer';
+    if (this.model.healer && squad.length >= 3 && !squad.some((x) => healer(x.hero)) && this.save.heroes.some(healer)) {
+      const used = new Set(squad.map((x) => x.hero.templateId));
+      // По одному кандидату на героя (старшая редкость, затем уровень) — мощь с экипировкой считается дорого.
+      const top = new Map<string, SaveState['heroes'][number]>();
+      for (const h of this.save.heroes) {
+        if (!healer(h) || used.has(h.templateId)) continue;
+        const cur = top.get(h.templateId);
+        if (!cur || rarityIndex(h.rarity) > rarityIndex(cur.rarity) || (h.rarity === cur.rarity && h.level > cur.level)) top.set(h.templateId, h);
+      }
+      const best = [...top.values()].map((h) => ({ hero: h, pot: pot(h) })).sort((a, b) => b.pot - a.pot || (a.hero.id < b.hero.id ? -1 : 1))[0];
+      const tanks = squad.filter((x) => heroRole(x.hero, this.ctx) === 'tank').length;
+      const out = squad
+        .filter((x) => heroRole(x.hero, this.ctx) !== 'tank' || tanks > 1)
+        .reduce<(typeof squad)[number] | null>((w, x) => (!w || x.pot < w.pot ? x : w), null);
+      if (best && out && rarityIndex(best.hero.rarity) >= rarityIndex(out.hero.rarity) && best.pot >= out.pot * 0.9) {
+        squad[squad.indexOf(out)] = best;
+        changed = true;
+      }
     }
     if (!changed) return base;
     const ids: (string | null)[] = squad.map((x) => x.hero.id);
@@ -1566,6 +1628,49 @@ export const REFERENCE_SQUADS = [
 ];
 
 /**
+ * Эталонные отряды замера силы этапа (scripts/balance-smooth.ts, тест tests/chapters.test.ts): три REFERENCE_SQUADS (танк,
+ * лекарь, трое бойцов) и два «перекошенных», как у живого игрока и модели: весь ближний бой (два рыцаря, кузнец, ассасин,
+ * жрец) и весь дальний (охотник, волшебники, бард, монах). Фиолетовые уровня level, ветка своей роли (PLAYER_MODEL.branch
+ * = keep), без экипировки.
+ */
+export const SMOOTH_SQUADS = [...REFERENCE_SQUADS, ['alan', 'iris', 'otto', 'zara', 'vika'], ['bran', 'kai', 'lira', 'meilin', 'teo']];
+
+export function smoothSquads(ctx: FullContext, level: number, lists: readonly string[][] = SMOOTH_SQUADS): UnitDef[][] {
+  return lists.map((ids) =>
+    ids.map((templateId, i) => {
+      const t = ctx.content.heroes[templateId];
+      const branch = (t.branches.find((b) => b.role === t.role) ?? t.branches[0]).job;
+      return buildUnit({ id: `ref${i}`, templateId, rarity: 'purple', level, branch }, ctx);
+    }),
+  );
+}
+
+/** Враги этапа со статами × k (hp, atk, def — ровно как mult этапа). */
+export function scaledEnemies(enemies: readonly (UnitDef | null)[], k: number): (UnitDef | null)[] {
+  return enemies.map((u) =>
+    u ? { ...u, stats: { ...u.stats, hp: Math.max(1, Math.round(u.stats.hp * k)), atk: Math.round(u.stats.atk * k), def: Math.round(u.stats.def * k) } } : null,
+  );
+}
+
+/**
+ * k* отряда на этапе: множитель статов врагов, при котором отряд побеждает в половине из seeds боёв (двоичный поиск по
+ * log k в [lo, hi], steps шагов). Сила этапа для отряда — 1 / k*; линейна по mult этапа.
+ */
+export function stageThreshold(ctx: FullContext, squad: readonly (UnitDef | null)[], enemies: readonly (UnitDef | null)[], seeds = 8, steps = 9, lo = 0.03, hi = 30): number {
+  let a = Math.log(lo);
+  let b = Math.log(hi);
+  for (let it = 0; it < steps; it++) {
+    const mid = (a + b) / 2;
+    const e = scaledEnemies(enemies, Math.exp(mid));
+    let n = 0;
+    for (let seed = 1; seed <= seeds; seed++) if (simulateBattle(ctx.content, [...squad], e, seed, { combat: ctx.combat, log: false }).winner === 'A') n++;
+    if (n * 2 >= seeds) a = mid;
+    else b = mid;
+  }
+  return Math.exp((a + b) / 2);
+}
+
+/**
  * «Уровень по бою»: наименьший уровень, при котором эталонный отряд (squad героев редкости полосы этапа, с фиолетового —
  * первая ветка, без экипировки) выигрывает ≥ половины из `seeds` боёв этапа. Медиана по REFERENCE_SQUADS; двоичный поиск.
  */
@@ -1642,7 +1747,8 @@ export function fitLevels(ctx: FullContext, days = 8): { rows: LevelFitRow[]; su
       recommendedRarity: info.recommended.rarity,
       typical: info.typical,
       ...(info.boss !== undefined ? { boss: info.boss } : {}),
-      scale: mobs.length ? round2(medianOf(mobs.map((u) => u.stats.hp * u.stats.atk)) / hero) : NaN,
+      // Как unitLevel: × поддержка (supportFactor) и × (врагов / отряд полосы)² (этап из 3 врагов против 5 героев).
+      scale: mobs.length ? round2(medianOf(mobs.map((u) => u.stats.hp * u.stats.atk * supportFactor(u, ctx) * (units.length / band.squad) ** 2)) / hero) : NaN,
       ...(boss ? { bossScale: round2((boss.stats.hp * boss.stats.atk * f2) / (scale * hero)) } : {}),
     });
   }

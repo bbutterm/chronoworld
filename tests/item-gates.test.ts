@@ -98,6 +98,49 @@ describe('ворота предметов: выпадение с этапов', 
   });
 });
 
+describe('трофеи глав 4–7 (LT-06): свои вещи главы, босс — эпик', () => {
+  const late = ['chapter4', 'chapter5', 'chapter6', 'chapter7'];
+  // Глава 7 берёт вещи глав 6–7 (редких вещей главы 7 нет — редкие из главы 6).
+  const from = (chapter: string) => Math.min(chapterNumber(chapter, ctx), 6);
+
+  it('у каждой главы 4–7 — 4 новые вещи (оружие, доспех, шлем, обувь) с minChapter этой главы', () => {
+    for (const chapter of late) {
+      const n = chapterNumber(chapter, ctx);
+      const own = Object.values(items).filter((d) => d.minChapter === n);
+      expect(own.map((d) => d.slot).sort(), chapter).toEqual(['armor', 'boots', 'helmet', 'weapon']);
+    }
+  });
+
+  it('этапы глав 4–7: только вещи своей главы (не главы 1), первая победа над боссом — эпик', () => {
+    for (const chapter of late) {
+      const stages = stagesOf(chapter);
+      for (const st of stages) {
+        for (let seed = 1; seed <= 60; seed++) {
+          for (const first of [true, false]) {
+            for (const id of rollDrops(st, seed, first, ctx)) {
+              expect(items[id].minChapter ?? 1, `${st}: ${id}`).toBeGreaterThanOrEqual(from(chapter));
+              expect(items[id].minChapter ?? 1, `${st}: ${id}`).toBeLessThanOrEqual(chapterNumber(chapter, ctx));
+            }
+          }
+        }
+      }
+      for (let seed = 1; seed <= 30; seed++) {
+        const boss = rollDrops(stages.at(-1)!, seed, true, ctx);
+        expect(boss).toHaveLength(1);
+        expect(items[boss[0]].rarity, chapter).toBe('epic');
+      }
+    }
+  });
+
+  it('сундук глав 4–7: вещи своей главы', () => {
+    for (const chapter of late) {
+      const loot = rollChestLoot(chapter, 2000, 7, ctx).items;
+      expect(loot.length, chapter).toBeGreaterThan(0);
+      for (const id of loot) expect(items[id].minChapter ?? 1, `${chapter}: ${id}`).toBeGreaterThanOrEqual(from(chapter));
+    }
+  });
+});
+
 describe('ворота предметов: сундук и быстрые награды', () => {
   const epicChest = { ...ctx, equipment: { ...ctx.equipment, drops: parseDrops({ rules: [EPIC_ONLY], chest: { tickMinutes: 30, rules: [{ item: 1 }] } }) } };
 

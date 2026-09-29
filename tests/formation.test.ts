@@ -37,8 +37,12 @@ describe('строй боя (T2-05)', () => {
       expect(dashes.length, String(seed)).toBeGreaterThan(0);
       // Каждый прыжок в тыл (x < линии фронта героев) сопровождается прыжком назад.
       const frontX = ctx.combat.field.slotsA[ctx.combat.slots.front[0]][0];
+      // Прыжок назад — следующий рывок босса через dashSeconds + diveReturnSeconds (± тик). Куда — к прежнему
+      // противнику: пока фронт героев стоит, это x ≥ линии фронта; когда фронт пал (LT-01: бой после потолка щита
+      // идёт иначе), прежний противник может стоять и глубже — поэтому считаем по времени, а не по x.
+      const returnAt = ctx.combat.movement.dashSeconds + (ctx.combat.movement.diveReturnSeconds ?? 0.8);
       const into = dashes.filter((e) => e.type === 'move' && e.to[0] < frontX);
-      const back = dashes.filter((e) => e.type === 'move' && e.to[0] >= frontX);
+      const back = into.filter((d) => dashes.some((e) => e !== d && Math.abs(e.t - d.t - returnAt) <= ctx.combat.tickSeconds + 1e-9));
       // Последний прыжок может остаться без возврата, если бой кончился раньше: босс погиб или отряд героев пал
       // (баланс 27.09: босс главы 1 рассчитан на отряд с Таверной, отряд ур. 1 здесь проигрывает).
       const ended = r.log.some((e) => e.type === 'death' && e.unit === boss.uid) || r.winner === 'B';

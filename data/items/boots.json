@@ -53,6 +53,51 @@
         "spd": 8
       },
       "minChapter": 3
+    },
+    {
+      "id": "desert_sandals",
+      "name": "Сандалии пустыни",
+      "slot": "boots",
+      "rarity": "rare",
+      "stats": {
+        "hp": 150,
+        "spd": 5
+      },
+      "minChapter": 4
+    },
+    {
+      "id": "geta",
+      "name": "Гэта",
+      "slot": "boots",
+      "rarity": "rare",
+      "stats": {
+        "hp": 200,
+        "spd": 6
+      },
+      "minChapter": 5
+    },
+    {
+      "id": "sea_boots",
+      "name": "Сапоги морского волка",
+      "slot": "boots",
+      "rarity": "rare",
+      "stats": {
+        "hp": 270,
+        "def": 6,
+        "spd": 7
+      },
+      "minChapter": 6
+    },
+    {
+      "id": "valkyrie_boots",
+      "name": "Сапоги валькирии",
+      "slot": "boots",
+      "rarity": "epic",
+      "stats": {
+        "hp": 460,
+        "spd": 10
+      },
+      "minChapter": 7
     }
   ]
 }

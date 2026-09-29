@@ -134,7 +134,10 @@ const OPS: [string, number, Op][] = [
     'ascend',
     3,
     (w, rng, day) => {
-      const id = heroId(rng, w.save);
+      // Обычно — герой, у которого есть корм (иначе вознесение почти всегда упирается в «нет копий», и фазз доходил до
+      // успешного вознесения один раз на 50 прогонов — любой сдвиг боя его терял), иногда — случайный.
+      const ready = w.save.heroes.filter((h) => autoFodder(w.save, h.id, ctx));
+      const id = ready.length && rng.next() < 0.7 ? pick(rng, ready).id : heroId(rng, w.save);
       // Обычно — подобранный корм, иногда — случайные карточки (проверка отказов).
       const fodder = rng.next() < 0.8 ? (autoFodder(w.save, id, ctx) ?? []) : heroGroup(rng, w.save, rng.int(4));
       // Ветка: обычно своя (случайная из двух), иногда чужая или без ветки (отказы branch_required / bad_branch).

@@ -47,12 +47,13 @@ export function lintItemGates(ctx: GateLintContext): { errors: string[]; warning
 
   for (const chapterId of chapters) {
     const n = chapterNumber(chapterId, ctx);
-    const pool = pools(n);
     const rule = ruleFor(drops.rules, chapterId);
+    const pool = itemPools(items, n, rule?.itemsFromChapter);
     if (rule) {
       for (const [field, w] of [
         ['rarityWeights', rule.rarityWeights],
         ['firstClearRarityWeights', rule.firstClearRarityWeights],
+        ['bossFirstClearRarityWeights', rule.bossFirstClearRarityWeights],
       ] as const) {
         if (!w) continue;
         const open = positive(w).filter((r) => pool[r].length > 0);
@@ -65,7 +66,8 @@ export function lintItemGates(ctx: GateLintContext): { errors: string[]; warning
     const chest = drops.chest ? ruleFor(drops.chest.rules, chapterId) : undefined;
     if (chest && chest.item > 0) {
       const w = chest.rarityWeights ?? rule?.rarityWeights ?? { common: 1 };
-      if (!positive(w).some((r) => pool[r].length > 0)) errors.push(`drops.chest.rules (${chapterId}): шанс предмета ${chest.item}, но в главе ${n} все его редкости закрыты (minChapter)`);
+      const chestPool = itemPools(items, n, chest.itemsFromChapter);
+      if (!positive(w).some((r) => chestPool[r].length > 0)) errors.push(`drops.chest.rules (${chapterId}): шанс предмета ${chest.item}, но в главе ${n} все его редкости закрыты (minChapter)`);
     }
   }
 

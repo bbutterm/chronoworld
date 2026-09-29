@@ -12,9 +12,11 @@ import {
   progressLevelBand,
   rarityIndex,
   recommendedHeroLevel,
+  recommendedFactor,
   recommendedPower,
   squadAverageLevel,
   stageLevels,
+  supportFactor,
   towerFloor,
   unitLevel,
   type FeatureContext,
@@ -76,11 +78,11 @@ describe('уровни врагов и рекомендуемый уровень
     expect(lintLevelBands(withLevels({ enemyScale: 1, bands: [{ fromStage: STAGES[3].id, rarity: 'green', squad: 5 }] }))[0]).toMatch(/первого этапа/);
   });
 
-  it('рекомендуемый уровень согласован с рекомендуемой мощью: squad героев ур. L набирают её, ур. L − 1 — нет', () => {
+  it('рекомендуемый уровень согласован с рекомендуемой мощью без доли экипировки: squad героев ур. L набирают её, ур. L − 1 — нет', () => {
     for (const s of STAGES) {
       const rec = recommendedHeroLevel(s.id, CTX);
       const band = levelBand(s.id, CTX);
-      const power = recommendedPower(s.id, CTX);
+      const power = recommendedPower(s.id, CTX) * (1 - (band.gear ?? 0));
       expect(rarityIndex(rec.rarity)).toBeGreaterThanOrEqual(rarityIndex(band.rarity));
       expect(rec.squad).toBe(band.squad);
       expect(rec.level).toBeLessThanOrEqual(CTX.cards.rarities[rarityIndex(rec.rarity)].maxLevel);
@@ -108,6 +110,31 @@ describe('уровни врагов и рекомендуемый уровень
     }
   });
 
+  it('LT-03: враги этапа не ниже ¾ рекомендуемого уровня, босс не ниже свиты, поддержка (лекарь, щиты союзникам) — выше своих hp·atk', () => {
+    const share = CTX.features.power.levels!.stageFloor!;
+    expect(share).toBeGreaterThan(0);
+    for (const s of STAGES) {
+      const l = stageLevels(s.id, CTX);
+      const units = enemySquad(s.id, CTX);
+      const rec = l.recommended.rarity === l.rarity ? l.recommended.level : null;
+      units.forEach((u, i) => {
+        if (!u) return;
+        if (rec !== null) expect(l.enemies[i]!, `${s.id}: ${u.name}`).toBeGreaterThanOrEqual(Math.round(rec * share));
+        // Экран боя считает уровень по одному юниту — число то же, что на подготовке.
+        expect(unitLevel(u, l.rarity, CTX, recommendedFactor(s.id, CTX)), `${s.id}: ${u.name}`).toBe(l.enemies[i]);
+      });
+      if (l.boss !== undefined) for (const x of l.enemies) if (x !== null) expect(l.boss, s.id).toBeGreaterThanOrEqual(x);
+    }
+    // Изида (лекарь) и Песчаник (щит фронту) — поддержка; Мардук (маг) — нет; босс — всегда 1.
+    expect(supportFactor(CTX.content.units.mob4_support, CTX)).toBeGreaterThan(1);
+    expect(supportFactor(CTX.content.units.mob4_tank, CTX)).toBeGreaterThan(1);
+    expect(supportFactor(CTX.content.units.mob4_ranged, CTX)).toBe(1);
+    expect(supportFactor(CTX.content.units.mob4_boss, CTX)).toBe(1);
+    // Вне кампании (башня, тестовый юнит) границы этапа нет.
+    const lone: UnitDef = { ...CTX.content.units.mob4_support, id: 'lone' };
+    expect(unitLevel(lone, 'purple', CTX)).toBe(unitLevel({ ...lone, id: 'lone_x' }, 'purple', CTX));
+  });
+
   it('башня: уровни этажей растут с этажом; босс-этажи — с уровнем босса', () => {
     const lv = (n: number) => enemyLevels(towerFloor(n, CTX).enemies, 'blue', CTX);
     expect(lv(40).typical).toBeGreaterThanOrEqual(lv(10).typical);
@@ -115,11 +142,15 @@ describe('уровни врагов и рекомендуемый уровень
   });
 
   it('калибровка: босс-этапы глав — рекомендуемый уровень и уровень босса в пределах ±5 от «уровня по бою» эталонных отрядов', () => {
-    // docs/content/balance.md, 4а. Перемерять: npm run balance -- --levels.
+    // docs/content/balance.md, 4а. Перемерять: npm run balance -- --levels. Эталонные отряды «по бою» — без экипировки, поэтому
+    // рекомендация сравнивается без поправки полосы на экипировку (band.gear: на экране уровень ниже на её долю мощи).
+    const lv = CTX.features.power.levels!;
+    const noGear = withLevels({ ...lv, bands: lv.bands.map((b) => ({ ...b, gear: 0 })) });
     for (const s of STAGES.filter((x) => x.boss && x.globalIndex > 10)) {
       const battle = referenceLevel(s.id, CTX, 8);
       const l = stageLevels(s.id, CTX);
-      expect(Math.abs(l.recommended.level - battle), `${s.id}: рекомендуем ${l.recommended.level}, по бою ${battle}`).toBeLessThanOrEqual(5);
+      const rec = recommendedHeroLevel(s.id, noGear);
+      expect(Math.abs(rec.level - battle), `${s.id}: рекомендуем без вещей ${rec.level}, по бою ${battle}`).toBeLessThanOrEqual(5);
       expect(Math.abs(l.boss! - battle), `${s.id}: босс ${l.boss}, по бою ${battle}`).toBeLessThanOrEqual(5);
     }
   });

@@ -100,10 +100,82 @@ export function bossScale(ctx: FeatureContext): number {
  * линейна по статам, hp·atk квадратична). Замер (balance.md, 4а): с ней bossScale у всех боссов 4–5, без неё — 4…8.
  * У рядовых врагов поправку не берём: у этапов из 3 врагов она > 1 (им нужен отряд сильнее суммы), но каждый враг
  * от этого не крепче. Башня и охота — bossFactor 1.
+ * LT-03: hp·atk × supportFactor (лекари и юниты, что лечат/щитуют/усиливают союзников, — power.levels.roleScale,
+ * supportScale); у врагов этапа кампании — × (число врагов / отряд полосы)² (crowdFactor), не ниже stageFloor ×
+ * рекомендуемого уровня этапа, свита босс-этапа — не выше босса.
  */
 export function unitLevel(unit: UnitDef, rarity: CardRarity, ctx: FeatureContext, bossFactor = 1): number {
-  const k = unit.kind === 'boss' ? (enemyScale(ctx) * bossScale(ctx)) / (bossFactor * bossFactor) : enemyScale(ctx);
-  return levelForHpAtk((unit.stats.hp * unit.stats.atk) / k, rarity, ctx);
+  // Враг этапа кампании (id `<этап>_<слот>`, как у enemySquad) — поправка на число врагов, нижняя граница этапа, свита — не
+  // выше босса. Так уровень одинаков на подготовке (stageLevels) и в бою (экран боя зовёт unitLevel по одному юниту).
+  const at = campaignSlot(unit, ctx);
+  if (!at) return rawUnitLevel(unit, rarity, ctx, bossFactor, 1);
+  const enemies = enemySquad(at.stageId, ctx);
+  const crowd = crowdFactor(at.stageId, enemies, ctx);
+  const scale = levelBand(at.stageId, ctx).enemyScale;
+  const floor = stageFloorLevel(at.stageId, rarity, ctx);
+  if (unit.kind === 'boss') return Math.max(rawUnitLevel(unit, rarity, ctx, bossFactor, crowd, scale), stageFloorLevel(at.stageId, rarity, ctx, true));
+  const level = Math.max(rawUnitLevel(unit, rarity, ctx, bossFactor, crowd, scale), floor);
+  // Босс — самый сильный на своём этапе (QA LT-03: «Тёмный лорд ур. 52, Лоли Рури ур. 64»): свита не выше босса. Уровень босса
+  // откалиброван (bossScale, тест «по бою»), а элитная свита на верхних уровнях, где hp·atk героя растёт медленно, «улетала».
+  const bosses = enemies.filter((e): e is UnitDef => !!e && e.kind === 'boss');
+  if (!bosses.length) return level;
+  return Math.min(level, Math.max(...bosses.map((b) => Math.max(rawUnitLevel(b, rarity, ctx, bossFactor, crowd, scale), stageFloorLevel(at.stageId, rarity, ctx, true)))));
+}
+
+/**
+ * Поправка на число врагов этапа: (n / отряд полосы)². По Ланчестеру сила стороны ~ (Σhp)(Σatk) = n²·hp·atk, поэтому трое
+ * врагов против пятерых героев — каждый «как» герой с hp·atk × (3/5)² (иначе враги этапов из 3 показывались на 50–100 уровней
+ * выше отряда). Боссов не касается (bossScale рассчитан на весь отряд).
+ */
+function crowdFactor(stageId: string, enemies: readonly (UnitDef | null)[], ctx: FeatureContext): number {
+  const n = enemies.filter((e) => e !== null).length;
+  return (n / levelBand(stageId, ctx).squad) ** 2;
+}
+
+/**
+ * Множитель «поддержки» (LT-03): роль (power.levels.roleScale) и навыки лечения/щита/усиления других союзников (supportScale).
+ * У боссов — 1 (босс рассчитан целиком, bossScale).
+ */
+export function supportFactor(unit: UnitDef, ctx: FeatureContext): number {
+  const lv = ctx.features.power.levels;
+  const role = lv?.roleScale?.[unit.role] ?? 1;
+  const skills = ctx.content.skills;
+  const ids = [unit.skills.basic, unit.skills.ult, ...(unit.skills.actives ?? []), ...(unit.skills.passives ?? [])];
+  const helps = ids.some((id) => {
+    const sk = id ? skills[id] : undefined;
+    // Только помощь другим (щит «себе» — живучесть, она уже в hp); босс рассчитан целиком (bossScale), его не трогаем.
+    return !!sk && sk.target.side === 'ally' && sk.target.pick !== 'self' && sk.effects.some((e) => e.type === 'heal' || e.type === 'shield' || (e.type === 'status' && Object.values(e.status.stats ?? {}).some((v) => (v ?? 0) > 0)));
+  });
+  return unit.kind === 'boss' ? 1 : Math.max(role, helps ? (lv?.supportScale ?? 1) : 1);
+}
+
+/** Уровень врага только по его статам (hp·atk × поддержка × поправка на число врагов / масштаб), без границ этапа. */
+function rawUnitLevel(unit: UnitDef, rarity: CardRarity, ctx: FeatureContext, bossFactor: number, crowd: number, bandScale?: number): number {
+  // Масштаб полосы — только рядовым врагам (босс откалиброван bossScale от общего enemyScale).
+  const k = unit.kind === 'boss' ? (enemyScale(ctx) * bossScale(ctx)) / (bossFactor * bossFactor) : (bandScale ?? enemyScale(ctx)) / crowd;
+  return levelForHpAtk((unit.stats.hp * unit.stats.atk * supportFactor(unit, ctx)) / k, rarity, ctx);
+}
+
+/** Этап и слот врага кампании по id `<этап>_<слот>` (enemySquad); иначе null (башня, охота, тестовые юниты). */
+function campaignSlot(unit: UnitDef, ctx: FeatureContext): { stageId: string; slot: number } | null {
+  const m = /^(.+)_(\d+)$/.exec(unit.id);
+  if (!m || !ctx.content.stages.some((s) => s.id === m[1])) return null;
+  return { stageId: m[1], slot: Number(m[2]) };
+}
+
+/**
+ * Нижняя граница уровня врага этапа (power.levels.stageFloor × рекомендуемый уровень героев). Рекомендуемая редкость выше
+ * редкости полосы (rarity) — граница от предела уровня редкости полосы. Нет stageFloor — 1.
+ */
+export function stageFloorLevel(stageId: string, rarity: CardRarity, ctx: FeatureContext, boss = false): number {
+  const share = ctx.features.power.levels?.stageFloor;
+  if (!share) return 1;
+  // Босс — не ниже рекомендуемого уровня без поправки на экипировку (уровень «по бою» эталонных отрядов без вещей):
+  // bossFactor² в его hp·atk откалиброван под коэффициенты глав 1–3, а у глав 4–7 коэффициент рекомендуемой мощи включает
+  // тренд мощи к силе боя (scripts/balance-smooth.ts) — одной формулой босса Тёмный лорд выходил на 15 уровней ниже боя.
+  const rec = recommendedHeroLevel(stageId, ctx, !boss);
+  const level = rec.rarity === rarity ? rec.level : rarityIndex(rec.rarity) > rarityIndex(rarity) ? ctx.cards.rarities[rarityIndex(rarity)].maxLevel : 1;
+  return Math.max(1, Math.round(level * (boss ? 1 : share)));
 }
 
 /** Полоса этапа (power.levels.bands): последняя с fromStage не позже этапа. Нет полос — зелёные, отряд 5. */
@@ -152,11 +224,13 @@ function levelForSquadPower(power: number, rarity: CardRarity, squad: number, ct
 
 /**
  * «Рекомендуем: герои ур. N (синие)»: наименьший уровень, при котором отряд полосы этапа (squad героев её редкости) набирает
- * мощь ≥ recommendedPower. Уровень выше предела редкости — берётся следующая редкость (у красных — предел 100 и выше не растёт).
+ * мощь ≥ recommendedPower × (1 − band.gear) (часть мощи — экипировка). Уровень выше предела редкости — берётся следующая редкость (у красных — предел 100 и выше не растёт).
  */
-export function recommendedHeroLevel(stageId: string, ctx: FeatureContext): RecommendedLevel {
+export function recommendedHeroLevel(stageId: string, ctx: FeatureContext, gear = true): RecommendedLevel {
   const band = levelBand(stageId, ctx);
-  const power = recommendedPower(stageId, ctx);
+  // Часть рекомендуемой мощи даёт экипировка (band.gear) — уровень героев без вещей считается по остатку (gear = false —
+  // вся мощь на героев: для сравнения с эталонными отрядами без вещей).
+  const power = recommendedPower(stageId, ctx) * (1 - (gear ? (band.gear ?? 0) : 0));
   for (const rarity of CARD_RARITIES.slice(rarityIndex(band.rarity))) {
     const level = levelForSquadPower(power, rarity, band.squad, ctx);
     if (level !== null) return { level, rarity, squad: band.squad };

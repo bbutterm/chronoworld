@@ -18,6 +18,7 @@
   },
   "projectileSeconds": 0.3,
   "statusTurnSeconds": 1,
+  "shieldCapPctMaxHp": 0.5,
   "movement": {
     "meleeRange": 130,
     "moveSpeed": 320,
