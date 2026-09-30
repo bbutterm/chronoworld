@@ -1399,7 +1399,7 @@ export class BattleScene extends Phaser.Scene {
       case 'enrage':
         if (animate && !this.skipping) {
           this.sfx.flash(0xff6040, 0.18, 260);
-          this.floats.headline(GAME_W / 2, BOSS_BAR_Y + 70, 'Ярость! Урон растёт', 34, '#ff8a6a', DEPTH.numbers, 'enrage');
+          this.floats.headline(GAME_W / 2, BOSS_BAR_Y + 70, 'Ярость! Урон растёт, лечение слабеет', 34, '#ff8a6a', DEPTH.numbers, 'enrage');
         }
         return;
       case 'end':
