@@ -13,6 +13,8 @@ import { summon, type SummonPay, type SummonResult } from '../heroes/summon';
 import type { GameContext, ProgressEvent } from '../progression/types';
 import type { SaveState } from '../save/schema';
 import { climbTower, type TowerContext, type TowerOutcome } from '../tower/tower';
+import { fightTowerFloor, type TowerFightOutcome } from '../tower/run';
+import type { PlayerControl } from '../types';
 import type { FeatureContext, FeatureEvent } from './config';
 import { useFastRewards, type FastRewards } from './fastRewards';
 import { claimActivity, claimAllQuests, claimQuest, recordActivity, type MilestoneRewards } from './quests';
@@ -129,6 +131,13 @@ export function actUnequip(save: SaveState, itemInstanceId: string): SaveState {
 /** climbTower (K4) + tower_attempt (за каждый штурм, и победу, и поражение). */
 export function actClimbTower(save: SaveState, day: string, seed: number, ctx: TowerContext): TowerOutcome {
   const out = climbTower(save, seed, ctx);
+  const s = syncAchievementCounters(trackAchievement(recordActivity(out.save, day, 'tower_attempt'), 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
+  return { ...out, save: s };
+}
+
+/** Забег Башни (рогалик): fightTowerFloor + tower_attempt (за каждый бой забега) + battles_won + максимумы (рекорд этажа). */
+export function actTowerFight(save: SaveState, day: string, ctx: TowerContext, control?: PlayerControl): TowerFightOutcome {
+  const out = fightTowerFloor(save, day, ctx, control);
   const s = syncAchievementCounters(trackAchievement(recordActivity(out.save, day, 'tower_attempt'), 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
   return { ...out, save: s };
 }

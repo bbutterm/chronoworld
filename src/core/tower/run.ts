@@ -23,6 +23,7 @@ import {
   type TowerRunSummary,
   type TowerSave,
   type TowerUpgrade,
+  TowerSaveSchema,
 } from './runSchema';
 import type { TowerConfig } from './schema';
 import { TowerError, towerUnlocked, type TowerContext } from './tower';
@@ -85,7 +86,7 @@ export function buyTowerUpgrade(save: SaveState, id: string, ctx: TowerContext):
   const cost = up.costs[level];
   const shards = save.tower.shards ?? 0;
   if (shards < cost) throw new TowerError('not_enough_shards', `Нужно ${cost} осколков башни`);
-  return { ...save, tower: { ...save.tower, shards: shards - cost, upgrades: { ...save.tower.upgrades, [id]: level + 1 } } };
+  return { ...save, tower: normTower({ ...save.tower, shards: shards - cost, upgrades: { ...save.tower.upgrades, [id]: level + 1 } }) };
 }
 
 // ---------- ступень и этажи ----------
@@ -306,11 +307,16 @@ function need(save: SaveState): TowerRun {
   return r;
 }
 
+/** save.tower в порядке ключей схемы (serialize(deserialize(x)) === serialize(x)); undefined-поля убираются. */
+function normTower(t: TowerSave): TowerSave {
+  return TowerSaveSchema.parse(JSON.parse(JSON.stringify(t)));
+}
+
 const withRun = (save: SaveState, run: TowerRun | undefined, patch: Partial<TowerSave> = {}): SaveState => {
   const tower: TowerSave = { ...save.tower, ...patch };
   if (run) tower.run = run;
   else delete tower.run;
-  return { ...save, tower };
+  return { ...save, tower: normTower(tower) };
 };
 
 /**
