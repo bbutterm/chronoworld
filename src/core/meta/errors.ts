@@ -20,6 +20,11 @@ export type MetaErrorCode =
   | 'hero_busy'
   | 'expedition_not_running'
   | 'expedition_not_finished'
+  // События экспедиций (meta/expedition-events.ts)
+  | 'unknown_event'
+  | 'event_not_ready'
+  | 'event_resolved'
+  | 'unknown_choice'
   // K10 достижения
   | 'unknown_achievement'
   | 'invalid_counter'

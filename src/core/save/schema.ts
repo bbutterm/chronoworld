@@ -112,6 +112,23 @@ export const ExpeditionRewardsSchema = z.object({
   items: z.array(z.string()),
 });
 
+/** Событие экспедиции: id из data/expedition_events.json, когда случается (мс) и решение (если уже принято). */
+export const ExpeditionEventStateSchema = z.object({
+  id: z.string().min(1),
+  at: z.number(),
+  /** Выбранный вариант; нет — ждёт решения (при «Забрать» — вариант по умолчанию). */
+  choice: z.string().optional(),
+  /** Удался ли вариант. */
+  ok: z.boolean().optional(),
+  /** Выбрано само (игрок не решил до «Забрать»). */
+  auto: z.boolean().optional(),
+  /** Кто действовал и второй герой (для «сблизились»): id героев. */
+  actor: z.string().optional(),
+  partner: z.string().optional(),
+  /** Найденный предмет (id из data/items). */
+  item: z.string().optional(),
+});
+
 /** v6. Экспедиция в пути: локация, длительность, отряд (id героев), мощь отряда при отправке, время (мс) и добыча. */
 export const ActiveExpeditionSchema = z.object({
   /** id локации из data/expeditions.json (на локации — одна экспедиция). */
@@ -122,7 +139,18 @@ export const ActiveExpeditionSchema = z.object({
   startedAt: z.number(),
   endsAt: z.number(),
   rewards: ExpeditionRewardsSchema,
+  /**
+   * События в пути («текстовые приключения», meta/expedition-events.ts): выпадают при отправке. Без смены версии:
+   * нет поля (экспедиция из старого сохранения) — событий нет.
+   */
+  events: z.array(ExpeditionEventStateSchema).optional(),
 });
+
+/** Запись Летописи экспедиций. */
+export const ExpeditionJournalEntrySchema = z.object({ at: z.number(), location: z.string(), text: z.string() });
+
+/** «Сблизились» в экспедиции: пара героев (id), где и когда. Отдельно от других систем близости. */
+export const ExpeditionBondSchema = z.object({ heroes: z.tuple([z.string(), z.string()]), location: z.string(), at: z.number() });
 
 /**
  * v6. Экспедиции (K9, заменили доску поручений). Ключ сохранения `bounties` оставлен историческим — как id функции
@@ -130,6 +158,10 @@ export const ActiveExpeditionSchema = z.object({
  */
 export const ExpeditionsStateSchema = z.object({
   active: z.array(ActiveExpeditionSchema),
+  /** Летопись экспедиций (последние записи; без смены версии — нет поля, пусто). */
+  journal: z.array(ExpeditionJournalEntrySchema).optional(),
+  /** Кто с кем сблизился в экспедициях (без смены версии — нет поля, пусто). */
+  bonds: z.array(ExpeditionBondSchema).optional(),
 });
 
 /** v3 (K10). Счётчики достижений (ключ → значение) и id полученных достижений. */
@@ -377,6 +409,9 @@ export type ItemInstance = z.infer<typeof ItemInstanceSchema>;
 export type Preset = z.infer<typeof PresetSchema>;
 export type ExpeditionRewards = z.infer<typeof ExpeditionRewardsSchema>;
 export type ActiveExpedition = z.infer<typeof ActiveExpeditionSchema>;
+export type ExpeditionEventState = z.infer<typeof ExpeditionEventStateSchema>;
+export type ExpeditionJournalEntry = z.infer<typeof ExpeditionJournalEntrySchema>;
+export type ExpeditionBond = z.infer<typeof ExpeditionBondSchema>;
 export type ExpeditionsState = z.infer<typeof ExpeditionsStateSchema>;
 export type AchievementsState = z.infer<typeof AchievementsStateSchema>;
 export type RewardBundle = z.infer<typeof RewardBundleSchema>;

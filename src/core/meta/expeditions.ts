@@ -24,12 +24,18 @@ import { stageLabel } from '../unlocks/unlocks';
 import { grantMetaRewards, syncAchievementCounters, trackAchievement, type MetaEvent } from './achievements';
 import type { ExpeditionDuration, ExpeditionLocation, ExpeditionLoot, MetaContext } from './config';
 import { MetaError } from './errors';
+import { autoResolveEvents, expeditionEventsSeed, expeditionStory, recordStory, rewardsWithStory, rollExpeditionEvents, type ExpeditionStoryLine } from './expedition-events';
+import type { ExpeditionEventsConfig } from './expedition-events-schema';
 import { groupDigits } from '../format';
 
 const HOUR_MS = 3_600_000;
 
 /** Контекст экспедиций: конфиг K9 + мощь героев (K2) + экипировка (мощь с предметами, добыча-предметы). */
-export type ExpeditionContext = MetaContext & FeatureContext & { equipment?: EquipmentConfig };
+export type ExpeditionContext = MetaContext & FeatureContext & {
+  equipment?: EquipmentConfig;
+  /** События в пути (data/expedition_events.json); нет — экспедиции без событий, как раньше. */
+  expeditionEvents?: ExpeditionEventsConfig;
+};
 
 /** Пустая добыча. */
 export function emptyExpeditionRewards(): ExpeditionRewards {
@@ -269,15 +275,20 @@ export function startExpedition(
     if (power < loc.power) throw new MetaError('not_enough_power', `${loc.name}: мало мощи — ${groupDigits(power)} / нужно ${groupDigits(loc.power)}`);
     ids = [...heroIds];
   }
+  const endsAt = now + Math.round(hours * HOUR_MS);
   const entry: ActiveExpedition = {
     location: loc.id,
     hours,
     heroIds: ids,
     power,
     startedAt: now,
-    endsAt: now + Math.round(hours * HOUR_MS),
+    endsAt,
     rewards: rollExpeditionLoot(loc, hours, expeditionSeed(save, loc.id, now), ctx),
   };
+  if (ctx.expeditionEvents) {
+    const events = rollExpeditionEvents(loc.id, now, endsAt, hours, expeditionEventsSeed(save, loc.id, now), ctx.expeditionEvents);
+    if (events.length) entry.events = events;
+  }
   return { ...save, bounties: { ...save.bounties, active: [...save.bounties.active, entry] } };
 }
 
@@ -328,6 +339,8 @@ export interface ExpeditionClaim {
   /** Новые экземпляры предметов в инвентаре. */
   added: ItemInstance[];
   events: MetaEvent[];
+  /** Рассказ: события в пути, выборы и исходы (нерешённые — вариантом по умолчанию). Пусто — событий не было. */
+  story: ExpeditionStoryLine[];
 }
 
 /**
@@ -350,8 +363,13 @@ export function claimExpedition(save: SaveState, locationId: string, now: number
   }
   const heroIds = e.heroIds.filter((id) => save.heroes.some((h) => h.id === id));
   const events: MetaEvent[] = [{ type: 'expeditionDone', location: e.location, heroIds }];
-  const r = e.rewards;
-  let next: SaveState = { ...save, bounties: { ...save.bounties, active: save.bounties.active.filter((x) => x !== e) } };
+  // События в пути: нерешённые — вариантом по умолчанию; золото, опыт, гемы и предметы исходов — к снимку добычи.
+  const resolved = autoResolveEvents(save, e, ctx);
+  const story = expeditionStory(save, resolved, ctx);
+  const r = rewardsWithStory(e.rewards, story);
+  // Летопись решённых игроком событий записана при выборе; здесь — выбранные сами.
+  const bounties = recordStory({ ...save.bounties, active: save.bounties.active.filter((x) => x !== e) }, e.location, story.filter((l) => l.auto), ctx.expeditionEvents);
+  let next: SaveState = { ...save, bounties };
   next = grantMetaRewards(next, { gold: r.gold, gems: r.gems, jobExp: r.jobExp }, ctx, events, 0).save;
   // Карты героя: сколько — в снимке, какие герои — при получении (seed экспедиции).
   const cards = grantHeroCards(next, pickHeroCards(r.heroCards, cardRng(expeditionSeed(save, e.location, e.startedAt)), ctx), ctx);
@@ -362,7 +380,7 @@ export function claimExpedition(save: SaveState, locationId: string, now: number
   const items = known ? r.items.filter((id) => known[id]) : [];
   const got = addItems(next, items);
   next = syncAchievementCounters(trackAchievement(got.save, 'bounties_done', 1, 'add'));
-  return { save: next, rewards: { ...r, items }, added: got.added, events };
+  return { save: next, rewards: { ...r, items }, added: got.added, events, story };
 }
 
 /** Сложить добычу нескольких экспедиций. */
@@ -385,12 +403,18 @@ export function sumExpeditionRewards(list: readonly ExpeditionRewards[]): Expedi
  * конфига — в конце).
  * claimed — id локаций. Нечего забрать — тот же save.
  */
-export function claimAllExpeditions(save: SaveState, now: number, ctx: ExpeditionContext): ExpeditionClaim & { claimed: string[] } {
+export function claimAllExpeditions(
+  save: SaveState,
+  now: number,
+  ctx: ExpeditionContext,
+): ExpeditionClaim & { claimed: string[]; stories: { location: string; story: ExpeditionStoryLine[] }[] } {
   let next = save;
   const all: ExpeditionRewards[] = [];
   const added: ItemInstance[] = [];
   const events: MetaEvent[] = [];
   const claimed: string[] = [];
+  const story: ExpeditionStoryLine[] = [];
+  const stories: { location: string; story: ExpeditionStoryLine[] }[] = [];
   const rank = (id: string) => {
     const i = ctx.meta.expeditions.locations.findIndex((l) => l.id === id);
     return i < 0 ? Infinity : i;
@@ -403,8 +427,10 @@ export function claimAllExpeditions(save: SaveState, now: number, ctx: Expeditio
     added.push(...r.added);
     events.push(...r.events);
     claimed.push(e.location);
+    story.push(...r.story);
+    if (r.story.length) stories.push({ location: e.location, story: r.story });
   }
-  return { save: next, rewards: sumExpeditionRewards(all), added, events, claimed };
+  return { save: next, rewards: sumExpeditionRewards(all), added, events, claimed, story, stories };
 }
 
 /**

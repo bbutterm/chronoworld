@@ -23,6 +23,7 @@ import {
   SLOTS,
   squadPower,
   finishedExpeditions,
+  pendingExpeditionEvents,
   idleExpeditions,
   type ExpeditionContext,
   type ExpectedLoot,
@@ -689,7 +690,7 @@ export function expectedLootText(e: ExpectedLoot): { base: string; finds: string
  * отправить отряд (простаивают). Как в AFK: кружок, пока экспедиции не «работают» целиком.
  */
 export function expeditionsBadgeCount(save: SaveState, now: number, ctx: ExpeditionContext): number {
-  return finishedExpeditions(save, now) + idleExpeditions(save, ctx);
+  return finishedExpeditions(save, now) + idleExpeditions(save, ctx) + pendingExpeditionEvents(save, now);
 }
 
 // ---------- K10. Достижения ----------

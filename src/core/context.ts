@@ -10,7 +10,7 @@ import { buildItems, parseDrops, withEquipment, type EquipmentContext } from './
 import { parseEventsConfig, validateEventsConfig, type EventsContext } from './events';
 import { parseFeaturesConfig, withFeatures, type FeatureContext } from './features';
 import { parseHeroesConfig, validateHeroesConfig } from './heroes/config';
-import { parseMetaConfig, validateExpeditions, withMeta, type MetaContext } from './meta';
+import { parseExpeditionEvents, parseMetaConfig, validateExpeditionEvents, validateExpeditions, withMeta, type ExpeditionEventsConfig, type MetaContext } from './meta';
 import { ProgressionConfigSchema } from './progression/schema';
 import type { GameContext } from './progression/types';
 import { buildStory, type StoryContext } from './story/story';
@@ -26,6 +26,8 @@ export type FullContext = FeatureContext & EquipmentContext & TowerContext & Met
   hunt: HuntConfig;
   /** Лавка (data/shop.json); нет файла — Лавки нет. */
   shop?: ShopConfig;
+  /** События экспедиций (data/expedition_events.json); нет файла — экспедиции без событий. */
+  expeditionEvents?: ExpeditionEventsConfig;
 };
 
 /** Сырые данные data/ — содержимое JSON без разбора. */
@@ -48,6 +50,8 @@ export interface RawGameData {
   /** data/expeditions.json — экспедиции (K9) и лимиты пресетов (K8). */
   expeditions: unknown;
   achievements: unknown;
+  /** data/expedition_events.json — события экспедиций («текстовые приключения»); нет — без событий. */
+  expeditionEvents?: unknown;
   /** data/events.json — «Вход 7 дней», «7 дней новичка», системные письма. */
   events: unknown;
   /** data/hunt.json — «Охота на босса». */
@@ -120,6 +124,7 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     stage('data/events.json', () => parseEventsConfig(raw.events));
     stage('data/hunt.json', () => parseHuntConfig(raw.hunt));
     if (raw.shop !== undefined) stage('data/shop.json', () => parseShopConfig(raw.shop));
+    if (raw.expeditionEvents !== undefined) stage('data/expedition_events.json', () => parseExpeditionEvents(raw.expeditionEvents));
     return { content, problems };
   }
 
@@ -138,6 +143,8 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
   const tower = stage('data/tower.json', () => withTower(base, raw.tower).tower);
   const meta = stage('data/expeditions.json / data/achievements.json', () => withMeta(base, raw.expeditions, raw.achievements).meta);
   if (meta) validateExpeditions(meta.expeditions, content, equipment?.items, problems);
+  const expeditionEvents = raw.expeditionEvents === undefined ? undefined : stage('data/expedition_events.json', () => parseExpeditionEvents(raw.expeditionEvents));
+  if (expeditionEvents && meta) validateExpeditionEvents(expeditionEvents, meta.expeditions.locations, base, problems);
   const story = stage('data/story', () => buildStory(normalize(raw.stories ?? []), content, problems));
   const events = stage('data/events.json', () => parseEventsConfig(raw.events));
   if (events) validateEventsConfig(events, base, problems);
@@ -147,7 +154,7 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
 
   if (problems.length || !features || !equipment || !tower || !meta || !story || !events || !hunt) return { content, problems };
   return {
-    ctx: { ...base, features, equipment, tower, meta, story, events, hunt, ...(shop ? { shop } : {}) },
+    ctx: { ...base, features, equipment, tower, meta, story, events, hunt, ...(shop ? { shop } : {}), ...(expeditionEvents ? { expeditionEvents } : {}) },
     content,
     problems,
   };
