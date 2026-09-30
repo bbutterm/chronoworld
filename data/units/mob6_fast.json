@@ -17,6 +17,7 @@
     "ult": "mob6_fast_pierce",
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "swordfish",
     "hitFx": "fx_hit"

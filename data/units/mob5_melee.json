@@ -16,6 +16,7 @@
     "ult": "mob5_bongun_hop",
     "passives": []
   },
+  "behavior": "pack",
   "visual": {
     "sprite": "bongun",
     "hitFx": "fx_hit"

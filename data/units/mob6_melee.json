@@ -16,6 +16,7 @@
     "ult": "mob6_melee_rusty_saber",
     "passives": []
   },
+  "behavior": "pack",
   "visual": {
     "sprite": "pirate_skel",
     "hitFx": "fx_hit"

@@ -17,6 +17,7 @@
     "ult": "alde_punk_gust",
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "punk",
     "hitFx": "fx_hit"

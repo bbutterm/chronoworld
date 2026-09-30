@@ -16,6 +16,7 @@
     "ult": "mob6_support_siren_song",
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "obeaune",
     "hitFx": "fx_hit",

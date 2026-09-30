@@ -17,6 +17,7 @@
     "ult": "mob4_scorpion_sting",
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "scorpion",
     "hitFx": "fx_hit"

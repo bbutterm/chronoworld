@@ -16,6 +16,7 @@
     "ult": "orc_warrior_axe_rend",
     "passives": []
   },
+  "behavior": "pack",
   "visual": {
     "sprite": "orc_warrior",
     "hitFx": "fx_hit"

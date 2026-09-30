@@ -17,6 +17,7 @@
     "ult": "mob7_fast_bloody_knife",
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "bloody_murderer",
     "hitFx": "fx_hit"

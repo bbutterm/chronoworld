@@ -19,6 +19,7 @@
     ],
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "deviruchi",
     "hitFx": "fx_hit",

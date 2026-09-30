@@ -4,6 +4,7 @@ import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
 import { formatNumber, recommendedPower, stageLevelsFor, stageNo, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
+import { COMBAT as COMBAT_CFG } from '../../core';
 import { screen } from '../screen';
 import { commit, session, today } from '../session';
 import { button, pressable, text, toast, tutorialHint } from '../ui';
@@ -15,6 +16,10 @@ import { startStageBattle } from '../dialogue';
 import { squadDefs, type ResultData } from './BattleScene';
 import { FormationEditor } from '../squadEditor';
 import { C, FS } from '../theme';
+import { enemyTraits } from '../../core/behavior';
+import { defenseElement, ELEMENT_NAMES, weakTo, type Element } from '../../core/elements';
+import { elementBadge, elementTitle } from '../battleElements';
+import type { UnitDef } from '../../core';
 
 /** Геометрия экрана этапа (игровые единицы 1080×1920). */
 const L = {
@@ -22,8 +27,10 @@ const L = {
   rewardY: 230,
   cardY: 272,
   field: { top: 298, bottom: 1010 },
-  rosterHeadY: 1128,
-  roster: { top: 1180, bottom: 1704 },
+  /** Разведка (docs/design/battle-decisions.md §2): строка об особенностях врагов под полем. */
+  scoutY: 1114,
+  rosterHeadY: 1184,
+  roster: { top: 1236, bottom: 1704 },
   fightY: GAME_H - 110,
 } as const;
 
@@ -107,6 +114,7 @@ export class StageScene extends Phaser.Scene {
     }
     this.editor.draw();
     this.enemyTaps(stage.enemies.map((e) => e?.unit ?? null));
+    this.scouting(enemySquad(this.stageId, GAME));
     // R: подсказка новичку — первый бой. После отряда: hintPointer обходит все кнопки, слоты и карточки сцены.
     // Обучение: после Таверны сильнейшие герои вне отряда — сначала «Авто» (prep_auto), иначе «В бой».
     const ids = (sq: readonly (string | null)[]) => JSON.stringify(sq.filter(Boolean).sort());
@@ -129,9 +137,72 @@ export class StageScene extends Phaser.Scene {
       const zone = this.add.zone(p.x, p.y + 10, 190, 170).setName(`enemyInfo${i}`);
       pressable(this, zone, 190, 170, () => {
         const teaser = monsterTeaser(unit.id);
-        toast(this, teaser ? `${unit.name} — ${teaser}` : `${unit.name} · ${roleName(unit)}`, C.title, 5000, 'middle');
+        const traits = enemyTraits(unit, CONTENT, GAME.combat ?? COMBAT_CFG);
+        const el = defenseElement(unit);
+        const extra = [el !== 'neutral' ? `стихия: ${ELEMENT_NAMES[el]}` : '', ...traits.slice(0, 2)].filter(Boolean).join(', ');
+        const head = teaser ? `${unit.name} — ${teaser}` : `${unit.name} · ${roleName(unit)}`;
+        toast(this, extra ? `${head}\n${extra}` : head, C.title, 5000, 'middle');
       });
+      // Стихия врага — значок у фигуры (слева сверху; справа — уровень).
+      const el = defenseElement(unit);
+      if (el !== 'neutral') elementBadge(this, p.x - 74, p.y - 30, el, 34).setDepth(3);
     });
+  }
+
+  /**
+   * Разведка: одна строка под полем — главные особенности врагов (из данных: стая, лечит, заряд…) и к каким стихиям
+   * они уязвимы; касание — список по типам врагов.
+   */
+  private scouting(enemies: (UnitDef | null)[]): void {
+    const cfg = GAME.combat ?? COMBAT_CFG;
+    const types = [...new Map(enemies.filter((u): u is UnitDef => !!u).map((u) => [u.id, u])).values()];
+    if (types.length === 0) return;
+    const traits: string[] = [];
+    for (const u of types) {
+      const t = enemyTraits(u, CONTENT, cfg)[0];
+      if (t && !traits.includes(t)) traits.push(t);
+    }
+    const weak = new Map<Element, number>();
+    for (const u of enemies) if (u) for (const el of weakTo(cfg.elements, defenseElement(u))) weak.set(el, (weak.get(el) ?? 0) + 1);
+    const best = [...weak.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([el]) => ELEMENT_NAMES[el]);
+    const parts = [traits.slice(0, 3).join(', '), best.length ? `уязвимы: ${best.join(', ')}` : ''].filter(Boolean);
+    const line = text(this, GAME_W / 2, L.scoutY, `Разведка: ${parts.join(' · ') || 'обычные враги'}  ›`, FS.caption, C.info, { stroke: C.stroke, strokeThickness: 4 }).setName('stageScout');
+    if (line.width > GAME_W - 60) line.setScale((GAME_W - 60) / line.width);
+    const zone = this.add.zone(GAME_W / 2, L.scoutY, GAME_W - 40, 60).setName('stageScoutZone');
+    pressable(this, zone, GAME_W - 40, 60, () => this.scoutPanel(types));
+  }
+
+  /** Список врагов этапа: значок стихии, имя, особенности. Касание где угодно — закрыть. */
+  private scoutPanel(types: UnitDef[]): void {
+    const cfg = GAME.combat ?? COMBAT_CFG;
+    const rowH = 96;
+    const h = 150 + types.length * rowH;
+    const top = GAME_H / 2 - h / 2;
+    const block = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.6).setDepth(50).setInteractive();
+    const box = this.add.rectangle(GAME_W / 2, GAME_H / 2, 980, h, 0x1d1510, 0.97).setStrokeStyle(4, 0xc9a45c, 0.9).setDepth(50);
+    const nodes: Phaser.GameObjects.GameObject[] = [block, box];
+    nodes.push(text(this, GAME_W / 2, top + 50, 'Разведка', FS.h2, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setDepth(51));
+    types.forEach((u, i) => {
+      const y = top + 120 + i * rowH;
+      const el = defenseElement(u);
+      nodes.push(elementBadge(this, 90, y, el, 44).setDepth(51));
+      const name = text(this, 130, y - 20, `${u.name}${u.kind === 'boss' ? ' · босс' : ''}${el !== 'neutral' ? ` · ${elementTitle(el)}` : ''}`, FS.small, u.kind === 'boss' ? C.danger : C.text, {
+        fontStyle: 'bold',
+        stroke: C.stroke,
+        strokeThickness: 4,
+      })
+        .setOrigin(0, 0.5)
+        .setDepth(51);
+      if (name.width > 900) name.setScale(900 / name.width);
+      const tr = enemyTraits(u, CONTENT, cfg);
+      const weak = weakTo(cfg.elements, el).map((x) => ELEMENT_NAMES[x]);
+      const desc = [tr.slice(0, 3).join(', '), weak.length ? `слабость: ${weak.join(', ')}` : ''].filter(Boolean).join(' · ') || 'без особенностей';
+      const d = text(this, 130, y + 20, desc, FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3 }).setOrigin(0, 0.5).setDepth(51);
+      if (d.width > 900) d.setScale(900 / d.width);
+      nodes.push(name, d);
+    });
+    nodes.push(text(this, GAME_W / 2, top + h - 34, 'Коснитесь, чтобы закрыть', FS.caption, C.dim).setDepth(51));
+    block.once('pointerup', () => nodes.forEach((n) => n.destroy()));
   }
 
   /** Доступность «В бой» — после каждого изменения отряда (мощь и предупреждение рисует редактор). */

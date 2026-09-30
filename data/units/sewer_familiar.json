@@ -16,6 +16,7 @@
     "ult": "sewer_familiar_bite",
     "passives": []
   },
+  "behavior": "pack",
   "visual": {
     "sprite": "familiar",
     "hitFx": "fx_hit"

@@ -16,6 +16,7 @@
     "ult": "mob3_melee_rend",
     "passives": []
   },
+  "behavior": "pack",
   "visual": {
     "sprite": "ghoul",
     "hitFx": "fx_hit"

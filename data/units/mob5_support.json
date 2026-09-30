@@ -16,6 +16,7 @@
     "ult": "mob5_sohee_lament",
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "sohee",
     "hitFx": "fx_hit",

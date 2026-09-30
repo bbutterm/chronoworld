@@ -16,6 +16,7 @@
     "ult": "mob4_isis_blessing",
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "isis",
     "hitFx": "fx_hit",

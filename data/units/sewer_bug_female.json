@@ -16,6 +16,7 @@
     "ult": "sewer_bug_female_nurse",
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "thief_bug_female",
     "hitFx": "fx_hit",

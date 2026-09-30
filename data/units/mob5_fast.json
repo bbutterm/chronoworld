@@ -17,6 +17,7 @@
     "ult": "mob5_smokie_smoke",
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "smokie",
     "hitFx": "fx_hit"

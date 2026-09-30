@@ -18,6 +18,7 @@
     "actives": [],
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "hunter_fly",
     "hitFx": "fx_hit"
