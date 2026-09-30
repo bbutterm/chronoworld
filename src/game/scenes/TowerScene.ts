@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { markHint } from '../hints';
 import { heroPower, progressLevelBand, squadPower, towerFloor, towerStatus, unitLevel, unitPower, withGear } from '../../core';
 import { GAME } from '../content';
-import { enemyLevelColor, formatNumber, heroSprite, levelLabel, POWER_COLORS, powerTone, stageNo } from '../flow';
+import { enemyLevelColor, formatNumber, heroSprite, levelLabel, POWER_COLORS, powerTone, squadRarity, stageNo } from '../flow';
 import { GAME_W } from '../layout';
 import { card, CONTENT_TOP, gemIcon, portrait, screen, unitTint } from '../screen';
 import { session } from '../session';
@@ -86,7 +86,8 @@ export class TowerScene extends Phaser.Scene {
     if (boss) this.add.rectangle(x, y, SLOT_W - 8, 222).setStrokeStyle(6, 0xd64545);
     // Уровень врага (core/features/levels.ts: редкость — полоса текущего этапа игрока) — в левом верхнем углу, как у героев.
     const save = session.save;
-    const level = unitLevel(u, progressLevelBand(save, GAME).rarity, GAME);
+    // RN-11: в единицах редкости отряда (как на подготовке к этапу).
+    const level = unitLevel(u, squadRarity(save) ?? progressLevelBand(save, GAME).rarity, GAME);
     text(this, x - SLOT_W / 2 + 8, y - 115 + 8, levelLabel(level), FS.caption, enemyLevelColor(level, save), {
       fontStyle: 'bold',
       stroke: C.stroke,

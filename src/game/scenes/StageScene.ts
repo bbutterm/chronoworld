@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
-import { actSkipStage, autoFormation, dropText, enemySquad, getStage, stageCardDrop, stageLevels, stageStatus } from '../../core';
+import { actSkipStage, autoFormation, dropText, enemySquad, getStage, stageCardDrop, stageStatus } from '../../core';
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
-import { formatNumber, recommendedPower, stageNo, stageSeed } from '../flow';
+import { formatNumber, recommendedPower, stageLevelsFor, stageNo, stageSeed } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { screen } from '../screen';
 import { commit, session, today } from '../session';
@@ -72,7 +72,8 @@ export class StageScene extends Phaser.Scene {
     }
 
     // --- Поле (отряд против противника) и список героев ---
-    const levels = stageLevels(this.stageId, GAME);
+    // RN-11: уровни врагов — в единицах редкости отряда игрока (сравнимы с уровнями его героев).
+    const levels = stageLevelsFor(session.save, this.stageId, GAME);
     this.editor = new FormationEditor(this, {
       field: L.field,
       enemies: enemySquad(this.stageId, GAME),

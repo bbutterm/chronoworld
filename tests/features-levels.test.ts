@@ -23,7 +23,7 @@ import {
   type UnitDef,
 } from '../src/core';
 import { loadFullContext, referenceLevel } from '../scripts/lib/player-model';
-import { enemyLevelColor, LEVEL_COLORS, levelLabel, recommendText } from '../src/game/flow';
+import { enemyLevelColor, LEVEL_COLORS, levelLabel, recommendText, squadRarity, stageLevelsFor } from '../src/game/flow';
 
 const CTX = loadFullContext();
 const STAGES = CTX.content.stages;
@@ -177,15 +177,31 @@ describe('уровни врагов и рекомендуемый уровень
 });
 
 describe('уровни врагов на экранах (flow.ts)', () => {
-  it('подписи и цвет: «ур. N», «герои ур. N (синие)», цвет против среднего уровня отряда', () => {
+  it('подписи и цвет: «ур. N», «Синие герои ур. N», цвет против среднего уровня отряда', () => {
     expect(levelLabel(18)).toBe('ур. 18');
-    expect(recommendText({ level: 18, rarity: 'blue' })).toBe('герои ур. 18 (синие)');
-    expect(recommendText({ level: 22, rarity: 'purple' })).toBe('герои ур. 22 (фиолетовые)');
+    expect(recommendText({ level: 18, rarity: 'blue' })).toBe('Синие герои ур. 18');
+    expect(recommendText({ level: 22, rarity: 'purple' })).toBe('Фиолетовые герои ур. 22');
     const save = newGame(CTX, 0);
     const avg = squadAverageLevel(save);
     expect(enemyLevelColor(avg, save)).toBe(LEVEL_COLORS.white);
     expect(enemyLevelColor(avg + 1, save)).toBe(LEVEL_COLORS.yellow);
     expect(enemyLevelColor(avg + 6, save)).toBe(LEVEL_COLORS.red);
     expect(new Set(Object.values(LEVEL_COLORS)).size).toBe(3);
+  });
+});
+
+describe('RN-11: уровни врагов в единицах редкости отряда', () => {
+  it('зелёный отряд на синей полосе видит врагов выше, чем «синие» уровни (сравнимо со своими)', () => {
+    const ctx = loadFullContext();
+    const stage = ctx.content.stages.find((s) => s.chapter === ctx.content.chapters[1].id)!;
+    const heroes = ['alan', 'bran', 'vika'].map((t, i) => ({ id: `h${i + 1}`, templateId: t, rarity: 'green' as const, level: 6 }));
+    const save = { heroes, squad: ['h1', 'h2', 'h3', null, null] };
+    expect(squadRarity(save)).toBe('green');
+    const mine = stageLevelsFor(save, stage.id, ctx);
+    const band = stageLevelsFor({ heroes: [], squad: [null, null, null, null, null] }, stage.id, ctx);
+    expect(band.rarity).toBe('blue');
+    expect(mine.rarity).toBe('green');
+    expect(mine.typical).toBeGreaterThan(band.typical);
+    expect(squadRarity({ heroes: [...heroes, { id: 'h4', templateId: 'greta', rarity: 'blue', level: 1 }], squad: ['h1', 'h4', null, null, null] })).toBe('green');
   });
 });
