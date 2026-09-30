@@ -3,6 +3,7 @@
  */
 import {
   ascendRequirement,
+  maxLevelOf,
   canEquip,
   actEquipBest,
   heroesWithGearUpgrades,
@@ -283,7 +284,16 @@ export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): {
   if (misplacedInFront(save, ctx).length) return { text: 'Стрелки и лекари стоят во фронте — «Отряд» → «Переставить».', action: 'Squad' };
   const free = save.heroes.filter((h) => !save.squad.includes(h.id)).length;
   if (free > 0 && save.squad.includes(null)) return { text: 'В отряде есть пустые места — возьмите всех героев («Отряд»).', action: 'Squad' };
+  // RR-02: отряд упёрся в пределы уровней редкостей — «ждите и прокачивайте» не поможет: нужны копии и вознесение.
+  if (squadAtLevelCap(save, ctx)) return { text: 'Отряд на пределе уровней своих редкостей — опыт больше не усилит. Нужны копии героев (Таверна, карты с этапов, Лавка) и «Вознести».', action: 'Heroes' };
   return { text: 'Прокачайте героев: повторите пройденные этапы и заберите сундук в кампании, затем «Улучшить».', action: 'Campaign' };
+}
+
+/** RR-02. Больше половины героев отряда — на пределе уровня своей редкости (опыт им уже не поднимет уровень). */
+export function squadAtLevelCap(save: SaveState, ctx: GameContext): boolean {
+  const squad = save.squad.map((id) => save.heroes.find((h) => h.id === id)).filter((h): h is HeroState => !!h);
+  const capped = squad.filter((h) => h.level >= maxLevelOf(ctx, h.rarity)).length;
+  return squad.length > 0 && capped * 2 > squad.length;
 }
 
 /**
