@@ -4,6 +4,7 @@
   "name": "Кровавый убийца",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 430,
     "atk": 46,
@@ -16,6 +17,7 @@
     "ult": "mob7_fast_bloody_knife",
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "bloody_murderer",
     "hitFx": "fx_hit"

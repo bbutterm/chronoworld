@@ -4,6 +4,7 @@
   "name": "Гострин",
   "kind": "monster",
   "role": "tank",
+  "element": "dark",
   "stats": {
     "hp": 900,
     "atk": 40,

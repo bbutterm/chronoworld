@@ -4,6 +4,7 @@
   "name": "Скелет-лучник топей",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 360,
     "atk": 44,

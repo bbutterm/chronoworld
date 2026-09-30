@@ -4,6 +4,7 @@
   "name": "Тёмный лорд",
   "kind": "boss",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 2604,
     "atk": 110,
@@ -70,5 +71,10 @@
         }
       ]
     }
-  ]
+  ],
+  "charge": {
+    "skill": "mob7_boss_black_storm",
+    "first": 14,
+    "every": 20
+  }
 }

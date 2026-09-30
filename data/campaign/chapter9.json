@@ -27,15 +27,15 @@
       "enemies": [
         {
           "unit": "maze_mantis",
-          "mult": 0.1491
+          "mult": 0.1521
         },
         {
           "unit": "maze_stem_worm",
-          "mult": 0.1491
+          "mult": 0.1521
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.1491
+          "mult": 0.1521
         },
         null,
         null
@@ -56,19 +56,19 @@
       "enemies": [
         {
           "unit": "maze_mantis",
-          "mult": 0.1145
+          "mult": 0.1053
         },
         {
           "unit": "maze_stem_worm",
-          "mult": 0.1145
+          "mult": 0.1053
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.1145
+          "mult": 0.1053
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.1145
+          "mult": 0.1053
         },
         null
       ],
@@ -99,19 +99,19 @@
       "enemies": [
         {
           "unit": "maze_side_winder",
-          "mult": 0.1215
+          "mult": 0.1106
         },
         {
           "unit": "maze_mantis",
-          "mult": 0.1215
+          "mult": 0.1106
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.1215
+          "mult": 0.1106
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.1215
+          "mult": 0.1106
         },
         null
       ],
@@ -131,23 +131,23 @@
       "enemies": [
         {
           "unit": "maze_stem_worm",
-          "mult": 0.0924
+          "mult": 0.0878
         },
         {
           "unit": "maze_mantis",
-          "mult": 0.0924
+          "mult": 0.0878
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.0924
+          "mult": 0.0878
         },
         {
           "unit": "maze_deviruchi",
-          "mult": 0.0924
+          "mult": 0.0878
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.0924
+          "mult": 0.0878
         }
       ],
       "rewards": {
@@ -166,23 +166,23 @@
       "enemies": [
         {
           "unit": "maze_side_winder",
-          "mult": 0.1
+          "mult": 0.096
         },
         {
           "unit": "maze_side_winder",
-          "mult": 0.1
+          "mult": 0.096
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.1
+          "mult": 0.096
         },
         {
           "unit": "maze_deviruchi",
-          "mult": 0.1
+          "mult": 0.096
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.1
+          "mult": 0.096
         }
       ],
       "rewards": {
@@ -247,23 +247,23 @@
       "enemies": [
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.076
+          "mult": 0.0638
         },
         {
           "unit": "maze_stem_worm",
-          "mult": 0.076
+          "mult": 0.0638
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.076
+          "mult": 0.0638
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.076
+          "mult": 0.0638
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.076
+          "mult": 0.0638
         }
       ],
       "rewards": {
@@ -318,23 +318,23 @@
       "enemies": [
         {
           "unit": "maze_baphomet_jr",
-          "mult": 0.0732
+          "mult": 0.0726
         },
         {
           "unit": "maze_side_winder",
-          "mult": 0.0732
+          "mult": 0.0726
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.0732
+          "mult": 0.0726
         },
         {
           "unit": "maze_deviruchi",
-          "mult": 0.0732
+          "mult": 0.0726
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.0732
+          "mult": 0.0726
         }
       ],
       "rewards": {
@@ -396,23 +396,23 @@
       "enemies": [
         {
           "unit": "maze_baphomet_jr",
-          "mult": 0.0662
+          "mult": 0.0609
         },
         {
           "unit": "maze_mantis",
-          "mult": 0.0662
+          "mult": 0.0609
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.0662
+          "mult": 0.0609
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.0662
+          "mult": 0.0609
         },
         {
           "unit": "maze_deviruchi",
-          "mult": 0.0662
+          "mult": 0.0609
         }
       ],
       "rewards": {
@@ -431,23 +431,23 @@
       "enemies": [
         {
           "unit": "maze_ghostring",
-          "mult": 0.0596
+          "mult": 0.0572
         },
         {
           "unit": "maze_side_winder",
-          "mult": 0.0596
+          "mult": 0.0572
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.0596
+          "mult": 0.0572
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.0596
+          "mult": 0.0572
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.0596
+          "mult": 0.0572
         }
       ],
       "rewards": {

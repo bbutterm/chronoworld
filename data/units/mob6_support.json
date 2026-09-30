@@ -4,6 +4,7 @@
   "name": "Обеон",
   "kind": "monster",
   "role": "healer",
+  "element": "water",
   "stats": {
     "hp": 450,
     "atk": 38,
@@ -15,6 +16,7 @@
     "ult": "mob6_support_siren_song",
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "obeaune",
     "hitFx": "fx_hit",

@@ -16,5 +16,6 @@
       "type": "damage",
       "k": 1.8
     }
-  ]
+  ],
+  "element": "fire"
 }

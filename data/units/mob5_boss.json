@@ -4,6 +4,7 @@
   "name": "Лунный цветок",
   "kind": "boss",
   "role": "damage",
+  "element": "fire",
   "stats": {
     "hp": 3600,
     "atk": 92,
@@ -65,5 +66,10 @@
         }
       ]
     }
-  ]
+  ],
+  "charge": {
+    "skill": "mob5_boss_moon_flame",
+    "first": 14,
+    "every": 20
+  }
 }

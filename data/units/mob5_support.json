@@ -4,6 +4,7 @@
   "name": "Сохи",
   "kind": "monster",
   "role": "healer",
+  "element": "water",
   "stats": {
     "hp": 480,
     "atk": 40,
@@ -15,6 +16,7 @@
     "ult": "mob5_sohee_lament",
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "sohee",
     "hitFx": "fx_hit",

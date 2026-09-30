@@ -4,6 +4,7 @@
   "name": "Мунэ",
   "kind": "monster",
   "role": "tank",
+  "element": "undead",
   "stats": {
     "hp": 980,
     "atk": 33,

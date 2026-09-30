@@ -4,6 +4,7 @@
   "name": "Лоли Рури",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 1200,
     "atk": 64,

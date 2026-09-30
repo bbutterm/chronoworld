@@ -4,6 +4,7 @@
   "name": "Муха-охотник",
   "kind": "monster",
   "role": "damage",
+  "element": "wind",
   "stats": {
     "hp": 420,
     "atk": 45,
@@ -17,6 +18,7 @@
     "actives": [],
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "hunter_fly",
     "hitFx": "fx_hit"

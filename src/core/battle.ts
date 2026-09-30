@@ -1,11 +1,13 @@
 import { resolveBehavior } from './behavior';
 import { COMBAT } from './config';
+import { defenseElement, elementMult, skillElement } from './elements';
 import { calcDamage, calcHeal } from './formulas';
 import { Rng } from './rng';
 import { dist, inRow, selectTargets } from './targeting';
 import type {
   ActiveStatus,
   BattleEvent,
+  BattleInput,
   BattleResult,
   CombatConfig,
   Content,
@@ -31,6 +33,13 @@ export interface BattleOptions {
    * фаз боссов и ярости; от профиля остаётся только «ассасин остаётся в тылу». Для сравнения баланса (sim --behavior off).
    */
   behavior?: boolean;
+  /**
+   * Ульта вручную (docs/design/battle-decisions.md §1): ульты стороны A срабатывают только по вводу inputs. Нет — из
+   * combat.player, иначе авто (как всегда: idle, офлайн, «Пропустить бой», скрипты баланса).
+   */
+  manualUlt?: boolean;
+  /** Вводы игрока (ульта героя, смена режима); вместе с seed задают бой. */
+  inputs?: BattleInput[];
 }
 
 class BattleEnded extends Error {}
@@ -101,6 +110,27 @@ export function makeUnit(def: UnitDef, side: Side, slot: number, uid: string, co
   };
 }
 
+/**
+ * Ульта бойца для ручного режима: skills.ult (на полной энергии), у героя без неё — активный навык с самой долгой
+ * перезарядкой не короче combat.json manual.minCooldown (равенство — открытый позже). null — ульты нет.
+ */
+export function ultSkillOf(def: UnitDef, skills: Record<string, SkillDef>, cfg: CombatConfig = COMBAT): SkillDef | null {
+  if (def.skills.ult) return skills[def.skills.ult] ?? null;
+  const min = cfg.manual?.minCooldown ?? 10;
+  let best: SkillDef | null = null;
+  let bestCd = -1;
+  for (const id of def.skills.actives) {
+    const s = skills[id];
+    if (!s) continue;
+    const cd = s.cooldown ?? cfg.skills?.defaultCooldown ?? 8;
+    if (cd >= min && cd >= bestCd) {
+      best = s;
+      bestCd = cd;
+    }
+  }
+  return best;
+}
+
 /** Порядок активных навыков: больший priority раньше, при равенстве — открытый позже (стоит дальше в списке). */
 export function orderActives(skills: SkillDef[]): SkillDef[] {
   return skills
@@ -136,6 +166,24 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const a = createUnits(squadA, 'A', content, cfg, on);
   const b = createUnits(squadB, 'B', content, cfg, on);
   const all = [...a, ...b];
+
+  // ---------- ульта вручную (docs/design/battle-decisions.md §1) ----------
+  /** Ульта героев стороны A (ручной режим держит её до ввода). */
+  const ultOf = new Map<Unit, SkillDef>();
+  for (const u of a) {
+    const s = ultSkillOf(u.def, content.skills, cfg);
+    if (s) ultOf.set(u, s);
+  }
+  let manual = opts.manualUlt ?? cfg.player?.manualUlt ?? false;
+  const inputs = (opts.inputs ?? cfg.player?.inputs ?? []).map((x, i) => ({ x, i })).sort((p, q) => p.x.t - q.x.t || p.i - q.i).map((p) => p.x);
+  let inputAt = 0;
+  /** Взведённые ульты (касание было, ждут возможности) и о чьей готовности уже сказали событием ready. */
+  const armed = new Set<Unit>();
+  /** Идёт ульта по касанию (только она сбивает заряд босса и сама целится в заряжающего). */
+  let manualFiring = false;
+  const readyShown = new Set<Unit>();
+  const manualOn = (u: Unit) => manual && u.side === 'A' && ultOf.has(u);
+
   const snapshots = all.map((u) => ({
     uid: u.uid,
     side: u.side,
@@ -171,6 +219,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const turnSeconds = cfg.statusTurnSeconds ?? 1;
   let statusSeq = 0;
   const stunned = (u: Unit) => u.statuses.some((s) => s.def.stun);
+  /** Стихии — только с профилями (снимки боёв behavior: false не меняются). */
+  const elements = on ? cfg.elements : undefined;
 
   const emit = (e: BattleEvent) => {
     if (keepLog) log.push(e);
@@ -204,7 +254,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     checkEnd();
   };
 
-  const applyDamage = (src: Unit | null, srcUid: string, target: Unit, dmg: number, dot = false, redirect?: string) => {
+  const applyDamage = (src: Unit | null, srcUid: string, target: Unit, dmg: number, dot = false, redirect?: string, elem?: 'weak' | 'resist') => {
     // Трус на бегу подставляет спину: урон больше (бой не затягивается от побега).
     if (fleeing.size > 0 && redirect === undefined && fleeing.has(target)) dmg = Math.round(dmg * (1 + target.bh.coward!.damageTaken));
     // Связь (Самопожертвование): доля урона по союзнику уходит защитнику; перенаправленный урон дальше не перенаправляется.
@@ -240,6 +290,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       energy: target.energy,
       ...(dot ? { dot } : {}),
       ...(redirect ? { redirect } : {}),
+      ...(elem ? { elem } : {}),
     });
     // Порог фазы босса: фаза встаёт в очередь и срабатывает в начале следующего тика (не посреди чужого навыка).
     if (target.hp > 0 && hpLoss > 0 && target.def.phases && on) checkPhases(target);
@@ -253,9 +304,14 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     // «Сила навыков» редкости карточки (золотой/красный) — множитель урона/лечения/щита навыков, кроме обычной атаки.
     const sp = skill && skill.id !== u.def.skills.basic ? (u.def.skillPower ?? 1) : 1;
     switch (e.type) {
-      case 'damage':
-        applyDamage(u, u.uid, target, rage(calcDamage(stat(u, 'atk'), e.k * sp, stat(target, 'def'), rng, cfg)));
+      case 'damage': {
+        let dmg = rage(calcDamage(stat(u, 'atk'), e.k * sp, stat(target, 'def'), rng, cfg));
+        // Стихии (с профилями): множитель по стихии навыка и защите цели.
+        const m = elements && skill ? elementMult(elements, skillElement(skill), defenseElement(target.def)) : 1;
+        if (m !== 1) dmg = Math.max(1, Math.round(dmg * m));
+        applyDamage(u, u.uid, target, dmg, false, undefined, m > 1 ? 'weak' : m < 1 ? 'resist' : undefined);
         return;
+      }
       case 'heal': {
         const amount = Math.min(Math.round(mend(calcHeal(stat(u, 'atk'), e.k * sp)) * healRepeat(u, target)), target.maxHp - target.hp);
         target.hp += amount;
@@ -1019,6 +1075,14 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         if (tg.count <= 1) return [tau];
         return [tau, ...selectTargets(u, tg, allies(u), enemies(u), rng, cfg).filter((x) => x !== tau)].slice(0, tg.count);
       }
+      // Ульта по касанию, пока враг заряжает удар, — в заряжающего (сбить).
+      if (manualFiring && ultOf.get(u) === skill) {
+        const ch = chargingFoe(u);
+        if (ch) {
+          if (tg.count <= 1) return [ch];
+          return [ch, ...selectTargets(u, tg, allies(u), enemies(u), rng, cfg).filter((x) => x !== ch)].slice(0, tg.count);
+        }
+      }
       const dive = u.bh.dive;
       if (dive && dive.priority.length > 0 && tg.pick !== 'random' && hasDash(skill)) {
         let best: Unit | null = null;
@@ -1611,7 +1675,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       if (u.alive) emit({ t, type: 'skip', unit: u.uid, reason: 'stun' });
       return true;
     }
-    const useUlt = !!u.ult && u.energy >= cfg.energy.max && skillReady(u, u.ult);
+    const useUlt = !!u.ult && u.energy >= cfg.energy.max && skillReady(u, u.ult) && !manualOn(u);
     // Готовый навык дальнего действия можно применить и не дойдя до цели. Навык без целей (лечение при полном HP)
     // не готов: ход на него не тратится (T2-01).
     const active = useUlt || u.moving ? null : pickActive(u);
@@ -1624,23 +1688,156 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     if (active && startActive(u, active.skill, active.targets)) {
       // активный навык применён или начат каст
     } else if (useUlt && u.ult) {
-      u.energy = 0;
-      report[u.uid].ults++;
-      const ult = u.ult;
-      const targets = pickFor(u, ult);
-      emit({
-        t,
-        type: 'ult',
-        unit: u.uid,
-        skill: ult.id,
-        name: ult.name,
-        targets: targets.map((x) => x.uid),
-      });
-      useSkill(u, ult, targets);
+      fireUlt(u, u.ult);
     } else if (skillReady(u, u.basic)) {
       basicAction(u, u.basic);
     }
     return true;
+  };
+
+  /** Ульта на энергии (skills.ult): энергия в ноль, событие ult, заряд врага в целях — сбит. */
+  const fireUlt = (u: Unit, ult: SkillDef) => {
+    u.energy = 0;
+    report[u.uid].ults++;
+    const targets = pickFor(u, ult);
+    emit({
+      t,
+      type: 'ult',
+      unit: u.uid,
+      skill: ult.id,
+      name: ult.name,
+      targets: targets.map((x) => x.uid),
+    });
+    breakCharges(u, ult, targets);
+    useSkill(u, ult, targets);
+  };
+
+  /**
+   * Взведённая касанием ульта: срабатывает при первой возможности вне очереди хода (шкала обнуляется, как после хода).
+   * Не может сейчас (оглушён, кастует, бежит, ближний не дошёл, нет целей) — ждёт следующего тика.
+   */
+  const fireManual = (u: Unit) => {
+    manualFiring = true;
+    try {
+      fireManualInner(u);
+    } finally {
+      manualFiring = false;
+    }
+  };
+  const fireManualInner = (u: Unit) => {
+    if (!u.alive) {
+      armed.delete(u);
+      return;
+    }
+    if (stunned(u) || (fleeing.size > 0 && fleeing.has(u))) return;
+    const s = ultOf.get(u)!;
+    // Дальняя ульта — и на ходу; ближняя — когда дошёл до цели.
+    const can = s.range === 'ranged' || skillReady(u, s);
+    if (!can) return;
+    if (u.ult === s ? u.energy < cfg.energy.max : (u.readyAt[s.id] ?? 0) > t + 1e-9) return;
+    const targets = u.ult === s ? [] : activeTargets(u, s);
+    if (u.ult !== s && targets.length === 0) return;
+    // Касание важнее своего каста: каст обрывается (без перезарядки), ульта — сейчас.
+    if (u.casting) {
+      const c = u.casting.skill;
+      u.casting = null;
+      emit({ t, type: 'cast', unit: u.uid, skill: c.id, name: c.name, duration: 0, action: 'interrupt', reason: 'ult' });
+    }
+    if (u.ult === s) {
+      fireUlt(u, s);
+    } else {
+      // Ульта по касанию — сразу, без каста (как в AFK): иначе долгий каст не успевал сбить заряд босса.
+      if (!startActive(u, s, targets, true)) return;
+    }
+    armed.delete(u);
+    readyShown.delete(u);
+    u.gauge = 0;
+  };
+
+  /** Ульта готова (энергия полная / перезарядка прошла). */
+  const ultReady = (u: Unit) => {
+    const s = ultOf.get(u);
+    if (!s || !u.alive) return false;
+    return u.ult === s ? u.energy >= cfg.energy.max : (u.readyAt[s.id] ?? 0) <= t + 1e-9;
+  };
+
+  /** Вводы игрока к этому тику: смена режима, взвести ульту (если готова; иначе ввод пропадает). */
+  const takeInputs = () => {
+    while (inputAt < inputs.length && inputs[inputAt].t <= t + 1e-9) {
+      const x = inputs[inputAt++];
+      if ('auto' in x) {
+        if (manual === !x.auto) continue;
+        manual = !x.auto;
+        emit({ t, type: 'mode', auto: x.auto });
+        if (!manual) {
+          armed.clear();
+          readyShown.clear();
+        }
+        continue;
+      }
+      const u = a.find((q) => q.uid === x.uid);
+      if (u && manualOn(u) && ultReady(u)) armed.add(u);
+    }
+  };
+
+  /** Ручной режим: сказать о готовой ульте (ready) один раз; ульта перестала быть готовой (энергию отняли) — lost. */
+  const announceReady = () => {
+    for (const u of a) {
+      if (!manualOn(u) || armed.has(u)) continue;
+      const r = ultReady(u);
+      if (r && !readyShown.has(u)) {
+        readyShown.add(u);
+        emit({ t, type: 'ready', unit: u.uid, skill: ultOf.get(u)!.id });
+      } else if (!r && readyShown.has(u)) {
+        readyShown.delete(u);
+        if (u.alive) emit({ t, type: 'ready', unit: u.uid, skill: ultOf.get(u)!.id, lost: true });
+      }
+    }
+  };
+
+  // ---------- заряд босса (docs/design/battle-decisions.md §4) ----------
+
+  const chargers = on ? all.filter((u) => u.def.charge && content.skills[u.def.charge.skill]) : [];
+  /** Когда начать следующий заряд (Infinity — заряд идёт). */
+  const nextCharge = new Map<Unit, number>(chargers.map((u) => [u, u.def.charge!.first]));
+  const brokenStatus = { id: 'charge_broken', name: 'Сбит', turns: cfg.charge?.stunTurns ?? 3, stun: true };
+
+  /** Враг, который сейчас заряжает удар (босс раньше, равенство — меньший слот). */
+  const chargingFoe = (u: Unit): Unit | null => {
+    for (const x of enemies(u)) if (x.alive && x.casting?.charge) return x;
+    return null;
+  };
+
+  /** Начать заряд, когда пришло время (не оглушён, не кастует, не идёт); после удара/сбития — следующий через every. */
+  const chargeTick = () => {
+    for (const u of chargers) {
+      if (!u.alive) continue;
+      const next = nextCharge.get(u)!;
+      if (next === Infinity) {
+        if (!u.casting?.charge) nextCharge.set(u, round2(t + u.def.charge!.every));
+        continue;
+      }
+      if (t + 1e-9 < next || u.casting || u.moving || stunned(u) || (fleeing.size > 0 && fleeing.has(u))) continue;
+      const skill = content.skills[u.def.charge!.skill];
+      u.casting = { skill, until: round2(t + skill.castTime), charge: true };
+      nextCharge.set(u, Infinity);
+      emit({ t, type: 'cast', unit: u.uid, skill: skill.id, name: skill.name, duration: skill.castTime, action: 'start', charge: true });
+    }
+  };
+
+  /**
+   * Ульта по касанию попала в заряжающего врага — «Сбито!»: каст пропал, враг оглушён. Авто-ульты заряд не сбивают (иначе
+   * пять авто-ульт сбивали почти каждый заряд и босс брался «ожиданием»); оглушение любым навыком сбивает всегда.
+   */
+  const breakCharges = (u: Unit, skill: SkillDef, targets: readonly Unit[]) => {
+    if (!manualFiring || ultOf.get(u) !== skill) return;
+    for (const x of targets) {
+      if (!x.alive || !x.casting?.charge) continue;
+      const c = x.casting.skill;
+      x.casting = null;
+      emit({ t, type: 'cast', unit: x.uid, skill: c.id, name: c.name, duration: 0, action: 'interrupt', reason: 'break' });
+      applyEffect(u, { type: 'status', status: brokenStatus, chance: 1 }, x);
+    }
   };
 
   /**
@@ -1692,6 +1889,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       name: skill.name,
       cooldown: cd,
     });
+    // Удар по кругу сбивает заряд любого, кто в круге (случайные метеоры могли не выбрать его первым).
+    if (manualFiring) breakCharges(u, skill, area ? enemies(u).filter((o) => o.alive && Math.hypot(o.x - area.x, o.y - area.y) <= area.r + o.body) : targets);
     launch(u, skill, targets, area);
   };
 
@@ -1699,6 +1898,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const pickActive = (u: Unit): { skill: SkillDef; targets: Unit[] } | null => {
     for (const skill of u.bh.panicPct !== undefined && panicking(u) ? healFirst(u) : u.actives) {
       if ((u.readyAt[skill.id] ?? 0) > t + 1e-9) continue;
+      if (manual && manualOn(u) && ultOf.get(u) === skill) continue;
       if (u.bh.counter && holdInterrupt(u, skill)) continue;
       if (!skillReady(u, skill)) continue;
       const targets = activeTargets(u, skill);
@@ -1708,13 +1908,19 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   };
 
   /** Применяет выбранный навык или начинает каст. Цели проверяются заново (начало хода могло их изменить). */
-  const startActive = (u: Unit, skill: SkillDef, picked: Unit[]): boolean => {
+  const startActive = (u: Unit, skill: SkillDef, picked: Unit[], instant = false): boolean => {
     let targets = picked.filter((x) => x.alive);
     if (healOnly(skill)) targets = wounded(targets);
     if (targets.length === 0) return false;
     // Маг: удар по кругу там, где больше всего врагов (скопление меньше minCluster — как раньше).
-    const area = skill.area && u.bh.area && skill.target.side === 'enemy' ? areaSpot(u, skill.area.radius, u.bh.area.minCluster) : null;
-    if (skill.castTime > 0) {
+    const ch = skill.area && manualFiring && ultOf.get(u) === skill ? chargingFoe(u) : null;
+    const area =
+      skill.area && u.bh.area && skill.target.side === 'enemy'
+        ? ch
+          ? { x: round2(ch.x), y: round2(ch.y), r: skill.area.radius }
+          : areaSpot(u, skill.area.radius, u.bh.area.minCluster)
+        : null;
+    if (skill.castTime > 0 && !instant) {
       u.casting = { skill, until: round2(t + skill.castTime), ...(area ? { at: [area.x, area.y] as [number, number], radius: area.r } : {}) };
       emit({
         t,
@@ -1849,6 +2055,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         if (phased.length > 0) timePhases();
         if (phaseQueue.length > 0) runPhases();
       }
+      if (inputAt < inputs.length) takeInputs();
       landProjectiles();
       tickStatuses();
       for (const u of all) if (u.alive && !stunned(u)) stepMove(u);
@@ -1863,6 +2070,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       for (const u of rangedMovers) planRanged(u);
 
       for (const u of all) if (u.alive && u.casting) finishCast(u);
+      if (chargers.length > 0) chargeTick();
+      if (armed.size > 0) for (const u of a) if (armed.has(u)) fireManual(u);
 
       const ready: Unit[] = [];
       for (const u of all) {
@@ -1879,6 +2088,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         if (!u.alive) continue;
         if (act(u)) u.gauge = 0;
       }
+      if (manual) announceReady();
     }
     t = cfg.timeLimitSeconds;
     winner = 'B';

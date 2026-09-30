@@ -257,5 +257,42 @@
     "repeat": 0.5,
     "floor": 0.2,
     "stackShields": false
+  },
+  "elements": {
+    "$comment": "Стихии RO (docs/design/battle-decisions.md §3): атака (стихия навыка) → защита (стихия юнита) → множитель урона. Нет в таблице — ×1.",
+    "chart": {
+      "fire": {
+        "earth": 1.5,
+        "undead": 1.5,
+        "water": 0.75
+      },
+      "earth": {
+        "wind": 1.5,
+        "fire": 0.75
+      },
+      "wind": {
+        "water": 1.5,
+        "earth": 0.75
+      },
+      "water": {
+        "fire": 1.5,
+        "wind": 0.75
+      },
+      "holy": {
+        "undead": 1.5,
+        "dark": 1.5
+      },
+      "dark": {
+        "holy": 1.5,
+        "undead": 0.75
+      }
+    },
+    "popupSeconds": 6
+  },
+  "manual": {
+    "minCooldown": 10
+  },
+  "charge": {
+    "stunTurns": 3
   }
 }

@@ -4,6 +4,7 @@
   "name": "Вокал",
   "kind": "boss",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 2000,
     "atk": 52,

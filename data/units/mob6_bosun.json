@@ -4,6 +4,7 @@
   "name": "Боцман-призрак",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 1500,
     "atk": 62,

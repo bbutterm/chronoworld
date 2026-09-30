@@ -4,6 +4,7 @@
   "name": "Орк-воин",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 500,
     "atk": 45,
@@ -15,6 +16,7 @@
     "ult": "orc_warrior_axe_rend",
     "passives": []
   },
+  "behavior": "pack",
   "visual": {
     "sprite": "orc_warrior",
     "hitFx": "fx_hit"

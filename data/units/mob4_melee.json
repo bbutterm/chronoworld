@@ -4,6 +4,7 @@
   "name": "Мумия",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 560,
     "atk": 48,

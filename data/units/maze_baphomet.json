@@ -4,6 +4,7 @@
   "name": "Бафомет",
   "kind": "boss",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 4400,
     "atk": 110,
@@ -64,5 +65,10 @@
         }
       ]
     }
-  ]
+  ],
+  "charge": {
+    "skill": "maze_baphomet_reaping",
+    "first": 14,
+    "every": 20
+  }
 }

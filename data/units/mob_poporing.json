@@ -4,6 +4,7 @@
   "name": "Попоринг",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 470,
     "atk": 40,

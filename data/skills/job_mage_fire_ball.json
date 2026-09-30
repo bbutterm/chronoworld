@@ -20,5 +20,6 @@
   ],
   "area": {
     "radius": 220
-  }
+  },
+  "element": "fire"
 }

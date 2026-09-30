@@ -4,6 +4,7 @@
   "name": "Герой орков",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 1300,
     "atk": 100,

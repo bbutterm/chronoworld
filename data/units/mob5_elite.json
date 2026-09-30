@@ -4,6 +4,7 @@
   "name": "Девятихвостая",
   "kind": "monster",
   "role": "damage",
+  "element": "fire",
   "stats": {
     "hp": 1180,
     "atk": 61,

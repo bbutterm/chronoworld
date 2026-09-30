@@ -4,6 +4,7 @@
   "name": "Мистресс",
   "kind": "boss",
   "role": "damage",
+  "element": "wind",
   "stats": {
     "hp": 3000,
     "atk": 65,

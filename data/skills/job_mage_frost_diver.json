@@ -28,5 +28,6 @@
         "stun": true
       }
     }
-  ]
+  ],
+  "element": "water"
 }

@@ -3,6 +3,7 @@ import type { SkillDef, StatMods, StatusDef, UnitDef } from './content/schema';
 import type { JobDef } from './progression/schema';
 import type { HeroTemplate } from './heroes/schema';
 import type { BehaviorProfile, EnrageConfig, SustainConfig } from './behavior';
+import type { ElementsConfig } from './elements';
 
 export type { Effect, PhaseActionDef, PhaseDef, SkillDef, StatMods, StatusDef, Stats, TargetDef, UnitDef } from './content/schema';
 
@@ -76,6 +77,17 @@ export interface CombatConfig {
   enrage?: EnrageConfig;
   /** Живучесть врагов: убывающее повторное лечение одной цели, щиты не складываются. */
   sustain?: SustainConfig;
+  /** Стихии (docs/design/battle-decisions.md §3): атака → защита → множитель. Нет — стихий нет. */
+  elements?: ElementsConfig;
+  /** Ульта вручную: ульта героя — активный навык с самой долгой перезарядкой, не короче minCooldown секунд. */
+  manual?: { minCooldown: number };
+  /** Заряд босса: сбитый ультой или оглушением босс оглушён на stunTurns «ходов» статуса. */
+  charge?: { stunTurns: number };
+  /**
+   * Управление игроком для этого боя (не из combat.json — подставляет экран боя, чтобы ввод дошёл через actPlayStage):
+   * то же, что BattleOptions.manualUlt / inputs (опции боя важнее).
+   */
+  player?: PlayerControl;
   slots: { count: number; front: number[]; back: number[] };
   field: {
     width: number;
@@ -83,6 +95,18 @@ export interface CombatConfig {
     /** Границы поля для точек ног: юниты не уходят за край экрана. */
     bounds?: { minX: number; maxX: number; minY: number; maxY: number };
   };
+}
+
+/**
+ * Ввод игрока (docs/design/battle-decisions.md §1): uid — «ульта этого героя» (с тика t, если готова); auto — переключить
+ * режим с тика t (true — ульты сами, false — вручную). t округляется вверх до тика симуляции.
+ */
+export type BattleInput = { t: number; uid: string } | { t: number; auto: boolean };
+
+export interface PlayerControl {
+  /** Ульты стороны A — только по вводу (иначе авто, как всегда). */
+  manualUlt?: boolean;
+  inputs?: BattleInput[];
 }
 
 export interface ActiveStatus {
@@ -112,7 +136,7 @@ export interface Unit {
   /** Когда навык снова готов: время боя (с) по id навыка. */
   readyAt: Record<string, number>;
   /** Идёт каст: навык и время окончания. */
-  casting: { skill: SkillDef; until: number; at?: [number, number]; radius?: number } | null;
+  casting: { skill: SkillDef; until: number; at?: [number, number]; radius?: number; charge?: boolean } | null;
   passives: SkillDef[];
   maxHp: number;
   hp: number;
@@ -182,9 +206,12 @@ export type BattleEvent = BaseEvent &
         action: 'start' | 'interrupt';
         /**
          * Только для interrupt: stun — каст сбит оглушением; dispel — сбит статусом interrupt (Развеивание контрмага);
-         * noTarget — к концу каста не осталось целей (каст пропал).
+         * noTarget — к концу каста не осталось целей (каст пропал); break — заряд босса сбит ультой; ult — свой каст оборван
+         * ультой по касанию.
          */
-        reason?: 'stun' | 'dispel' | 'noTarget';
+        reason?: 'stun' | 'dispel' | 'noTarget' | 'break' | 'ult';
+        /** Заряд босса (start): сбить ультой или оглушением. */
+        charge?: boolean;
         /** Удар по кругу (маг, навык с area): центр круга на земле и радиус. */
         at?: [number, number];
         radius?: number;
@@ -203,6 +230,8 @@ export type BattleEvent = BaseEvent &
         dot?: boolean;
         /** Урон перенаправлен связью (Самопожертвование): target — защитник, from — тот, кого он закрыл. */
         redirect?: string;
+        /** Стихия: weak — по слабости (×>1), resist — стойкость (×<1). */
+        elem?: 'weak' | 'resist';
       }
     | { type: 'heal'; source: string; target: string; amount: number; hp: number }
     | { type: 'buff'; source: string; target: string; kind: 'shield'; amount: number; shield: number }
@@ -234,6 +263,10 @@ export type BattleEvent = BaseEvent &
     /** Аура барда/танцовщицы (пассивка с aura): круг радиуса radius вокруг unit, кто внутри — получает статус навыка. */
     | { type: 'aura'; unit: string; skill: string; radius: number }
     | { type: 'energy'; unit: string; energy: number }
+    /** Ручной режим: ульта героя готова и ждёт касания (skill — её навык). */
+    | { type: 'ready'; unit: string; skill: string; lost?: boolean }
+    /** Ввод игрока сменил режим ульт. */
+    | { type: 'mode'; auto: boolean }
     | { type: 'death'; unit: string; killer: string | null }
     | { type: 'end'; winner: Side; reason: 'wipe' | 'timeout' }
   );

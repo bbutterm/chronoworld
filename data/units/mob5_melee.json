@@ -4,6 +4,7 @@
   "name": "Бонгун",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 520,
     "atk": 46,
@@ -15,6 +16,7 @@
     "ult": "mob5_bongun_hop",
     "passives": []
   },
+  "behavior": "pack",
   "visual": {
     "sprite": "bongun",
     "hitFx": "fx_hit"

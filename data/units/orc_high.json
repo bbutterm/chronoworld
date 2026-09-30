@@ -4,6 +4,7 @@
   "name": "Высший орк",
   "kind": "monster",
   "role": "tank",
+  "element": "fire",
   "stats": {
     "hp": 950,
     "atk": 32,
