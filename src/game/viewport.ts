@@ -107,57 +107,134 @@ function fadeTexture(scene: Phaser.Scene): string {
   return FADE_TEX;
 }
 
+/** Ширина/высота «полосы-заливки» поля (маленькая canvas-текстура, растягивается с линейной фильтрацией). */
+const FILL_N = 64;
+const FILL_DEPTH = 16;
+/** Какая доля картинки у кромки берётся как образец цвета (1,5 %: небо/земля без крыш и башен). */
+const EDGE_FRAC = 0.015;
+/** Источник, по которому сделана заливка (картинке сменили текстуру под тем же ключом — пересобрать). */
+const fillSource = new Map<string, unknown>();
+
+type Side = 't' | 'b' | 'l' | 'r';
+
 /**
- * Продолжение полноэкранной картинки на поля вытянутых/широких экранов: зеркальное отражение краевой полосы
- * картинки (трава, камни, небо продолжаются без швов и без растянутых «полос»), углы — отражение углов, поверх —
- * мягкое затемнение к кромке экрана (тёмный тон темы). Кладётся сразу над картинкой в списке отображения — всё,
- * что нарисовано позже, остаётся сверху. Повторный вызов (картинке сменили текстуру) заменяет прежние полосы.
+ * RN-01. Заливка поля одной стороны: образец кромки картинки (EDGE_FRAC), у шва — в полную ширину (64 точки, цвета
+ * неба/земли по месту), к краю экрана — всё мягче (размытие до 6 точек). Никаких отражений: раньше поле было
+ * зеркалом верхних строк, и над каждым боем висели перевёрнутые крыши, пирамиды и вторая луна.
+ * null — источник не читается (текстура без картинки) — тогда поле просто затемняется.
  */
-export function bleedImage(scene: Phaser.Scene, img: Phaser.GameObjects.Image): void {
-  const old = img.getData?.('bleed') as Phaser.GameObjects.Image[] | undefined;
-  old?.forEach((o) => o.destroy());
-  const f = img.frame;
+function edgeFill(scene: Phaser.Scene, f: Phaser.Textures.Frame, side: Side): string | null {
   const tex = f.texture;
+  const src = tex.getSourceImage(f.sourceIndex) as CanvasImageSource | undefined;
+  if (!src || !(src instanceof HTMLImageElement || src instanceof HTMLCanvasElement || (typeof ImageBitmap !== 'undefined' && src instanceof ImageBitmap))) return null;
+  const key = `__bleedfill:${tex.key}:${f.name}:${side}`;
+  if (scene.textures.exists(key)) {
+    if (fillSource.get(key) === src) return key;
+    scene.textures.remove(key);
+  }
+  const horiz = side === 't' || side === 'b';
   const fw = f.cutWidth;
   const fh = f.cutHeight;
-  // Сколько пикселей источника уходит на поле (картинка растянута на GAME_W×GAME_H).
-  const sh = Math.min(fh, Math.max(1, Math.round((BLEED_Y * fh) / GAME_H)));
-  const sw = Math.min(fw, Math.max(1, Math.round((BLEED_X * fw) / GAME_W)));
-  const parts: Phaser.GameObjects.Image[] = [];
+  const sh = Math.max(1, Math.round(fh * EDGE_FRAC));
+  const sw = Math.max(1, Math.round(fw * EDGE_FRAC));
+  // Образец кромки в координатах источника.
+  const sx = f.cutX + (side === 'r' ? fw - sw : 0);
+  const sy = f.cutY + (side === 'b' ? fh - sh : 0);
+  const w = horiz ? fw : sw;
+  const h = horiz ? sh : fh;
+  const tw = horiz ? FILL_N : FILL_DEPTH;
+  const th = horiz ? FILL_DEPTH : FILL_N;
+  const t = scene.textures.createCanvas(key, tw, th);
+  if (!t) return null;
+  try {
+    const ctx = t.getContext();
+    ctx.imageSmoothingEnabled = true;
+    const line = (n: number) => {
+      const c = document.createElement('canvas');
+      c.width = horiz ? n : 1;
+      c.height = horiz ? 1 : n;
+      const g = c.getContext('2d')!;
+      g.imageSmoothingEnabled = true;
+      g.imageSmoothingQuality = 'high';
+      g.drawImage(src, sx, sy, w, h, 0, 0, c.width, c.height);
+      return c;
+    };
+    const sharp = line(FILL_N);
+    const soft = line(6);
+    for (let i = 0; i < FILL_DEPTH; i++) {
+      // k: 0 — у кромки экрана (мягко), 1 — у шва с картинкой (образец как есть).
+      const k = i / (FILL_DEPTH - 1);
+      const near = side === 't' || side === 'l' ? k : 1 - k;
+      const [dx, dy, dw, dh] = horiz ? [0, i, tw, 1] : [i, 0, 1, th];
+      ctx.globalAlpha = 1;
+      ctx.drawImage(soft, 0, 0, soft.width, soft.height, dx, dy, dw, dh);
+      ctx.globalAlpha = near;
+      ctx.drawImage(sharp, 0, 0, sharp.width, sharp.height, dx, dy, dw, dh);
+    }
+    ctx.globalAlpha = 1;
+    t.refresh();
+    if (horiz) {
+      // Кадры крайних столбцов — для углов (новый кадр не должен стать кадром по умолчанию).
+      const first = t.firstFrame;
+      t.add('c0', 0, 0, 0, 1, FILL_DEPTH);
+      t.add('c1', 0, FILL_N - 1, 0, 1, FILL_DEPTH);
+      t.firstFrame = first;
+    }
+  } catch {
+    // Картинка с другого источника (taint) или ещё не декодирована — без заливки.
+    scene.textures.remove(key);
+    return null;
+  }
+  fillSource.set(key, src);
+  return key;
+}
+
+/**
+ * Продолжение полноэкранной картинки на поля вытянутых/широких экранов (RN-01): образец цвета у кромки картинки,
+ * растянутый на поле и размытый к краю экрана (edgeFill), углы — средний цвет соседних полос, поверх — затемнение
+ * к кромке экрана. Отражений нет. Кладётся сразу над картинкой в списке отображения — всё, что нарисовано позже,
+ * остаётся сверху. Повторный вызов (картинке сменили текстуру) заменяет прежние полосы.
+ */
+export function bleedImage(scene: Phaser.Scene, img: Phaser.GameObjects.Image): void {
+  const old = img.getData?.('bleed') as Phaser.GameObjects.GameObject[] | undefined;
+  old?.forEach((o) => o.destroy());
+  const f = img.frame;
+  const parts: Phaser.GameObjects.GameObject[] = [];
   const list = scene.children;
   // Картинка в контейнере (фон страницы сюжета поверх экрана) — полосы кладутся в тот же контейнер сразу за ней,
   // иначе они оказывались в корне сцены под всем слоем и на полях оставались чёрные полосы.
   const box = img.parentContainer;
-  const put = (s: Phaser.GameObjects.Image, alpha: number) => {
+  const put = <T extends Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle>(s: T, alpha: number): T => {
     s.setAlpha(alpha).setDepth(img.depth).setScrollFactor(img.scrollFactorX, img.scrollFactorY);
     if (box) box.addAt(s, box.getIndex(img) + 1 + parts.length);
     else list.moveTo(s, list.getIndex(img) + 1 + parts.length);
     parts.push(s);
-  };
-  const mirror = (name: string, sx: number, sy: number, w: number, h: number, x: number, y: number, dw: number, dh: number, flipX: boolean, flipY: boolean) => {
-    const key = `bleed:${f.name}:${name}:${w}x${h}`;
-    if (!tex.has(key)) {
-      // Новый кадр в текстуре с одним __BASE стал бы её кадром по умолчанию — возвращаем прежний.
-      const first = tex.firstFrame;
-      tex.add(key, f.sourceIndex, f.cutX + sx, f.cutY + sy, w, h);
-      tex.firstFrame = first;
-    }
-    const s = scene.add.image(x, y, tex.key, key).setDisplaySize(dw + 1, dh + 1).setFlip(flipX, flipY);
-    if (img.isTinted) s.setTint(img.tintTopLeft);
-    put(s, img.alpha);
+    return s;
   };
   const L = -BLEED_X / 2;
   const R = GAME_W + BLEED_X / 2;
   const T = -BLEED_Y / 2;
   const B = GAME_H + BLEED_Y / 2;
-  mirror('t', 0, 0, fw, sh, GAME_W / 2, T, GAME_W, BLEED_Y, false, true);
-  mirror('b', 0, fh - sh, fw, sh, GAME_W / 2, B, GAME_W, BLEED_Y, false, true);
-  mirror('l', 0, 0, sw, fh, L, GAME_H / 2, BLEED_X, GAME_H, true, false);
-  mirror('r', fw - sw, 0, sw, fh, R, GAME_H / 2, BLEED_X, GAME_H, true, false);
-  mirror('tl', 0, 0, sw, sh, L, T, BLEED_X, BLEED_Y, true, true);
-  mirror('tr', fw - sw, 0, sw, sh, R, T, BLEED_X, BLEED_Y, true, true);
-  mirror('bl', 0, fh - sh, sw, sh, L, B, BLEED_X, BLEED_Y, true, true);
-  mirror('br', fw - sw, fh - sh, sw, sh, R, B, BLEED_X, BLEED_Y, true, true);
+  const tint = (s: Phaser.GameObjects.Image) => (img.isTinted ? s.setTint(img.tintTopLeft) : s);
+  const band = (side: Side, x: number, y: number, dw: number, dh: number) => {
+    const key = edgeFill(scene, f, side);
+    if (key) put(tint(scene.add.image(x, y, key).setDisplaySize(dw + 2, dh + 2)), img.alpha);
+    else put(scene.add.rectangle(x, y, dw + 2, dh + 2, 0x07060a), img.alpha);
+    return key;
+  };
+  const top = band('t', GAME_W / 2, T, GAME_W, BLEED_Y);
+  const bottom = band('b', GAME_W / 2, B, GAME_W, BLEED_Y);
+  band('l', L, GAME_H / 2, BLEED_X, GAME_H);
+  band('r', R, GAME_H / 2, BLEED_X, GAME_H);
+  // Углы: крайний столбец полосы сверху/снизу (кадры c0/c1 заливки), растянутый на угол.
+  const corner = (key: string | null, x: number, y: number, fromLeft: boolean) => {
+    if (!key) return put(scene.add.rectangle(x, y, BLEED_X + 2, BLEED_Y + 2, 0x07060a), img.alpha);
+    return put(tint(scene.add.image(x, y, key, fromLeft ? 'c0' : 'c1').setDisplaySize(BLEED_X + 2, BLEED_Y + 2)), img.alpha);
+  };
+  corner(top, L, T, true);
+  corner(top, R, T, false);
+  corner(bottom, L, B, true);
+  corner(bottom, R, B, false);
   // Затемнение к кромке: сверху и снизу — на всю ширину с углами, слева и справа — повёрнутый градиент.
   const fade = fadeTexture(scene);
   const W = GAME_W + 2 * BLEED_X;

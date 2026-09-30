@@ -149,6 +149,23 @@ async function main() {
       await clickGame(pos[0], pos[1]);
     };
     /** Есть ли в сцене видимый текст, начинающийся с prefix (во вложенных контейнерах тоже). */
+    /**
+     * «Пропустить» боя — только пока активна сцена Battle. Проверка и нажатие — одним вызовом в странице (кнопка вызывает
+     * BattleScene.skip()): иначе бой успевал закончиться между проверкой и кликом мышью, и клик попадал в «Пропустить»
+     * страницы находки на итогах («нет страницы находки после первой победы на этапе 1»).
+     */
+    const skipBattle = async () => {
+      const done = await page.evaluate(() => {
+        const g = window.__game;
+        if (!g.scene.isActive('Battle')) return false;
+        const sc = g.scene.getScene('Battle');
+        if (typeof sc.skip !== 'function') return false;
+        sc.skip();
+        return true;
+      });
+      if (done) log('бой: «Пропустить»');
+      return done;
+    };
     /** Сюжетный диалог (src/game/dialogue.ts) на сцене — закрыть «Пропустить» (все сцены подряд). */
     const skipDialogues = async (sceneKey) => {
       for (let n = 0; n < 6; n++) {
@@ -321,7 +338,7 @@ async function main() {
     if (!(await hasText('Battle', `Скорость боя ×2: откроется на этапе ${speedLabel}`))) problems.push(`нет тоста «Скорость боя ×2: откроется на этапе ${speedLabel}»`);
     await sleep(1500);
     await shot('battle');
-    if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
+    await skipBattle();
     await waitScene('Result');
     await sleep(600);
     // Находка этапа 1 (lore-route §5.4) — страница поверх итогов после первой победы; «Пропустить».
@@ -343,7 +360,7 @@ async function main() {
     await waitScene('Battle', 10000);
     const autoFlag = await page.evaluate(() => localStorage.getItem('chronoworld.autoAdvance'));
     if (autoFlag !== '1') problems.push(`авто-прохождение не запомнилось: ${autoFlag}`);
-    if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) await clickText('Battle', 'Пропустить');
+    await skipBattle();
     await waitScene('Result');
     // Отсчёт идёт 2 с: придерживаем его таймер, снимаем экран, отпускаем и отменяем касанием.
     const counting = await page.evaluate(() => {
