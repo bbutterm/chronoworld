@@ -70,7 +70,7 @@
   ],
   "charge": {
     "skill": "mob_mastering_royal_splash",
-    "first": 14,
+    "first": 18,
     "every": 20
   }
 }
