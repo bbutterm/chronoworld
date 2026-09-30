@@ -28,7 +28,7 @@ const L = {
   cardY: 272,
   field: { top: 298, bottom: 1010 },
   /** Разведка (docs/design/battle-decisions.md §2): строка об особенностях врагов под полем. */
-  scoutY: 1114,
+  scoutY: 1118,
   rosterHeadY: 1184,
   roster: { top: 1236, bottom: 1704 },
   fightY: GAME_H - 110,
@@ -168,8 +168,8 @@ export class StageScene extends Phaser.Scene {
     const parts = [traits.slice(0, 3).join(', '), best.length ? `уязвимы: ${best.join(', ')}` : ''].filter(Boolean);
     const line = text(this, GAME_W / 2, L.scoutY, `Разведка: ${parts.join(' · ') || 'обычные враги'}  ›`, FS.caption, C.info, { stroke: C.stroke, strokeThickness: 4 }).setName('stageScout');
     if (line.width > GAME_W - 60) line.setScale((GAME_W - 60) / line.width);
-    const zone = this.add.zone(GAME_W / 2, L.scoutY, GAME_W - 40, 60).setName('stageScoutZone');
-    pressable(this, zone, GAME_W - 40, 60, () => this.scoutPanel(types));
+    const zone = this.add.zone(GAME_W / 2, L.scoutY, GAME_W - 40, 40).setName('stageScoutZone');
+    pressable(this, zone, GAME_W - 40, 40, () => this.scoutPanel(types));
   }
 
   /** Список врагов этапа: значок стихии, имя, особенности. Касание где угодно — закрыть. */

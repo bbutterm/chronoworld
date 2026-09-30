@@ -4,9 +4,11 @@
  *
  *   npx tsx scripts/balance-decisions.ts                 k* всех этапов «до» (правила боя без стихий, заряда и новых
  *                                                        профилей — тот же контент, эти поля сняты) и «после», по главам
- *   npx tsx scripts/balance-decisions.ts --apply [1.12]  mult врагов этапа × (k* после / до) — сила этапа для эталонных
+ *   npx tsx scripts/balance-decisions.ts --out r.json   то же и отношения k* после/до по этапам — в файл
+ *   npx tsx scripts/balance-decisions.ts --apply [1] --from r.json
+ *                                                        mult врагов этапа × (k* после / до) — сила этапа для эталонных
  *                                                        отрядов как до правки (главы 1–3 — отношением главы, сдвиг < 2% не
- *                                                        трогаем), боссы глав — ещё × boss (по умолчанию 1.12: в авто тяжелее)
+ *                                                        трогаем); боссы глав не выравниваются (заряд делает их тяжелее в авто), только × boss (по умолчанию 1)
  *   npx tsx scripts/balance-decisions.ts --bosses        боссы глав: k* в авто и у «игрока» (ульты вручную: одну держит
  *                                                        на заряд босса, остальные — сразу), без правки данных
  */
@@ -121,11 +123,19 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     }
   } else {
     const apply = args.includes('--apply');
-    const bossK = Number(args.find((a) => /^\d/.test(a)) ?? 1.12);
+    const bossK = Number(args.find((a) => /^\d/.test(a)) ?? 1);
+    const opt = (k: string) => (args.includes(k) ? args[args.indexOf(k) + 1] : undefined);
+    const from = opt('--from');
+    const out = opt('--out');
     const pre = beforeContext(ctx);
-    const ratio: Record<string, number> = {};
+    const ratio: Record<string, number> = from ? JSON.parse(readFileSync(from, 'utf8')) : {};
     const factor = new Map<string, number>();
     for (const ch of ctx.content.chapters) {
+      if (from) {
+        const ids = ctx.content.stages.filter((s) => s.chapter === ch.id).map((s) => s.id);
+        factor.set(ch.id, geo(ids.map((id) => ratio[id])));
+        continue;
+      }
       const squads = bandSquads(ctx, ch.order).slice(0, 3);
       const ids = ctx.content.stages.filter((s) => s.chapter === ch.id).map((s) => s.id);
       for (const id of ids) {
@@ -137,15 +147,16 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       factor.set(ch.id, r);
       console.log(`глава ${ch.order}: k* после/до ×${r.toFixed(3)} (этапы ${ids.map((id) => ratio[id].toFixed(2)).join(' ')})`);
     }
+    if (out) writeFileSync(out, JSON.stringify(ratio));
     if (apply)
       for (const ch of ctx.content.chapters) {
         const file = join(ROOT, 'data/campaign', `${ch.id}.json`);
         const raw = JSON.parse(readFileSync(file, 'utf8'));
         let touched = 0;
         for (const s of raw.stages) {
-          let f = ch.order <= 3 ? factor.get(ch.id)! : ratio[s.id];
+          // Боссы глав не выравниваются: заряд делает их тяжелее в авто — так задумано (ответ — ульта по касанию); bossK — ещё.
+          let f = s.boss ? bossK : ch.order <= 3 ? factor.get(ch.id)! : ratio[s.id];
           if (Math.abs(Math.log(f)) < Math.log(1.02)) f = 1;
-          if (s.boss) f *= bossK;
           if (f === 1) continue;
           for (const e of s.enemies) if (e) e.mult = Math.round(e.mult * f * 10000) / 10000;
           touched++;
