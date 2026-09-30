@@ -1327,8 +1327,11 @@ export class BattleScene extends Phaser.Scene {
             this.fx(v, 'fx_heal', 1.3);
             // Первая помощь и мелкое восстановление (пассивки) — маленький столб с крестиком.
             const small = this.views.get(e.source)?.lastSkill === 'novice_first_aid' || e.amount < v.snap.maxHp * 0.08;
+            // RR-15: столбы лечения и ауры на своих героях — прозрачнее (SkillFx.soft).
+            this.sfx.soft = v.snap.side === 'A';
             this.sfx.heal(this.point(v), e.amount >= v.snap.maxHp * 0.15, small);
             if (healAura?.aura) playAura(this.sfx, healAura.aura, this.point(v), healAura.tint ?? 0x8dff9a);
+            this.sfx.soft = false;
             if (v.tintLeft <= 0) {
               v.sprite.setTint(0xc8ffcc);
               v.flashFill = false;
@@ -1352,9 +1355,11 @@ export class BattleScene extends Phaser.Scene {
             const sheet = skillFx(shieldSkill)?.buff;
             this.fx(v, sheet ?? 'fx_shield', sheet ? 1.2 : 1.4, 400);
             // Свой щит навыка (Кирие — двойной пузырь, Стена безопасности — розовые столбы…), иначе общий столб искр.
+            this.sfx.soft = v.snap.side === 'A';
             if (sheet) playTwinkle(this.sfx, v.node.x, this.headY(v), 0x9cc8ff);
             else if (shieldLook?.aura) playAura(this.sfx, shieldLook.aura, this.point(v), shieldLook.tint ?? 0x9cc8ff);
             else this.sfx.buff(this.point(v), 0x9cc8ff);
+            this.sfx.soft = false;
           }
         }, { on: v });
         return;
@@ -1384,7 +1389,9 @@ export class BattleScene extends Phaser.Scene {
           }
           if (!animate) return;
           if (!ally && v.alive && !this.floats.catalogFlash(v.node.x, v.node.y, skillFx(srcSkillId)?.debuff, 220, undefined, undefined, v.snap.side === 'A')) {
+            this.sfx.soft = v.snap.side === 'A';
             this.statusVisual(v, e.status, def);
+            this.sfx.soft = false;
           }
           // Бафф на весь отряд (Ускорение, Благословение): подпись не пишем над каждым — хватает искр и значка у HP.
           const srcSkill = srcSkillId ? CONTENT.skills[srcSkillId] : undefined;
@@ -1402,11 +1409,13 @@ export class BattleScene extends Phaser.Scene {
             // (ноты песни, сердечки, нимб, меч света…), иначе общий столб искр цвета статуса.
             const look = visualOf(srcSkillId);
             // Бафф — искорки мерцают над головой (у каждого союзника, короткие).
+            this.sfx.soft = v.snap.side === 'A';
             playTwinkle(this.sfx, v.node.x, this.headY(v), look?.tint ?? buffColor(def));
             if (sheet) {
               // только лист
             } else if (look?.aura) playAura(this.sfx, look.aura, this.point(v), look.tint ?? buffColor(def));
             else this.sfx.buff(this.point(v), buffColor(def));
+            this.sfx.soft = false;
           }
         }, { on: v });
         return;
@@ -1897,6 +1906,16 @@ export class BattleScene extends Phaser.Scene {
    * false — у навыка нет особого вида, работает обычная атака.
    */
   private skillVisual(v: UnitView, skill: SkillDef, impact: number): boolean {
+    // RR-15: навык врага по отряду — его эффекты (и отложенные продолжения) прозрачнее: фигуры героев видны.
+    this.sfx.soft = v.snap.side === 'B' && skill.target.side === 'enemy';
+    try {
+      return this.skillVisualInner(v, skill, impact);
+    } finally {
+      this.sfx.soft = false;
+    }
+  }
+
+  private skillVisualInner(v: UnitView, skill: SkillDef, impact: number): boolean {
     const look = lookOf(skill);
     const vis = visualOf(skill.id);
     const tint = vis?.tint ?? (look.element === 'physical' ? 0xffe0a0 : ELEMENT_COLORS[look.element].main);

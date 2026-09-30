@@ -614,6 +614,9 @@ function drawMagicCircle(c: Ctx): void {
 }
 
 /** Одна живая анимация: fn(p) каждый кадр (p 0..1), после — картинка возвращается в пул. */
+/** RR-15: прозрачность эффектов навыков врага по отряду. */
+const SOFT_ALPHA = 0.55;
+
 interface Live {
   t: number;
   delay: number;
@@ -622,6 +625,8 @@ interface Live {
   fn: (p: number, obj: Phaser.GameObjects.Image | null) => void;
   done?: () => void;
   started: boolean;
+  /** RR-15: эффект навыка врага по отряду — прозрачнее (SkillFx.soft на момент запуска). */
+  soft: boolean;
 }
 
 /** Точка для эффекта: x, центр тела и ноги. */
@@ -641,6 +646,11 @@ const NORMAL = Phaser.BlendModes.NORMAL;
 const AREA_HIT: Record<Area, number> = { lightning: 120, ring: 110, quake: 110, arrows: 260, blizzard: 320, holy: 120, cloud: 150, sanctuary: 200 };
 
 export class SkillFx {
+  /**
+   * RR-15: эффекты, запущенные при soft = true (навык врага по отряду), рисуются с прозрачностью × SOFT_ALPHA — и их
+   * отложенные продолжения тоже (флаг запоминается в записи). Ставит BattleScene вокруг playSignature/flyAtlas.
+   */
+  soft = false;
   private readonly images: Pool<Phaser.GameObjects.Image>;
   private readonly live: Live[] = [];
   private readonly sparks: Phaser.GameObjects.Particles.ParticleEmitter;
@@ -729,13 +739,17 @@ export class SkillFx {
         r.obj?.setVisible(true);
       }
       const p = clamp01((r.t - r.delay) / r.dur);
+      const was = this.soft;
+      this.soft = r.soft;
       r.fn(p, r.obj);
+      if (r.soft && r.obj) r.obj.alpha *= SOFT_ALPHA;
       if (p >= 1) {
         const last = this.live.pop()!;
         if (last !== r) this.live[i] = last;
         if (r.obj) this.images.release(r.obj);
         r.done?.();
       }
+      this.soft = was;
     }
   }
 
@@ -756,7 +770,7 @@ export class SkillFx {
       r.done?.();
     }
     if (obj && delay > 0) obj.setVisible(false);
-    this.live.push({ t: 0, delay, dur: Math.max(1, dur), obj, fn, done, started: false });
+    this.live.push({ t: 0, delay, dur: Math.max(1, dur), obj, fn, done, started: false, soft: this.soft });
   }
 
   /** Отложенный вызов по времени боя (без картинки). */
