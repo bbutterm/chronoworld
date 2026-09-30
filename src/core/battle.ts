@@ -179,6 +179,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   let inputAt = 0;
   /** Взведённые ульты (касание было, ждут возможности) и о чьей готовности уже сказали событием ready. */
   const armed = new Set<Unit>();
+  /** Идёт ульта по касанию (только она сбивает заряд босса и сама целится в заряжающего). */
+  let manualFiring = false;
   const readyShown = new Set<Unit>();
   const manualOn = (u: Unit) => manual && u.side === 'A' && ultOf.has(u);
 
@@ -1073,8 +1075,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         if (tg.count <= 1) return [tau];
         return [tau, ...selectTargets(u, tg, allies(u), enemies(u), rng, cfg).filter((x) => x !== tau)].slice(0, tg.count);
       }
-      // Ульта героя, пока враг заряжает удар, — в заряжающего (сбить).
-      if (chargers.length > 0 && ultOf.get(u) === skill) {
+      // Ульта по касанию, пока враг заряжает удар, — в заряжающего (сбить).
+      if (manualFiring && ultOf.get(u) === skill) {
         const ch = chargingFoe(u);
         if (ch) {
           if (tg.count <= 1) return [ch];
@@ -1715,6 +1717,14 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
    * Не может сейчас (оглушён, кастует, бежит, ближний не дошёл, нет целей) — ждёт следующего тика.
    */
   const fireManual = (u: Unit) => {
+    manualFiring = true;
+    try {
+      fireManualInner(u);
+    } finally {
+      manualFiring = false;
+    }
+  };
+  const fireManualInner = (u: Unit) => {
     if (!u.alive) {
       armed.delete(u);
       return;
@@ -1815,9 +1825,12 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     }
   };
 
-  /** Ульта героя попала в заряжающего врага — «Сбито!»: каст пропал, враг оглушён. */
+  /**
+   * Ульта по касанию попала в заряжающего врага — «Сбито!»: каст пропал, враг оглушён. Авто-ульты заряд не сбивают (иначе
+   * пять авто-ульт сбивали почти каждый заряд и босс брался «ожиданием»); оглушение любым навыком сбивает всегда.
+   */
   const breakCharges = (u: Unit, skill: SkillDef, targets: readonly Unit[]) => {
-    if (chargers.length === 0 || ultOf.get(u) !== skill) return;
+    if (!manualFiring || ultOf.get(u) !== skill) return;
     for (const x of targets) {
       if (!x.alive || !x.casting?.charge) continue;
       const c = x.casting.skill;
@@ -1877,7 +1890,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       cooldown: cd,
     });
     // Удар по кругу сбивает заряд любого, кто в круге (случайные метеоры могли не выбрать его первым).
-    if (chargers.length > 0) breakCharges(u, skill, area ? enemies(u).filter((o) => o.alive && Math.hypot(o.x - area.x, o.y - area.y) <= area.r + o.body) : targets);
+    if (manualFiring) breakCharges(u, skill, area ? enemies(u).filter((o) => o.alive && Math.hypot(o.x - area.x, o.y - area.y) <= area.r + o.body) : targets);
     launch(u, skill, targets, area);
   };
 
@@ -1900,7 +1913,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     if (healOnly(skill)) targets = wounded(targets);
     if (targets.length === 0) return false;
     // Маг: удар по кругу там, где больше всего врагов (скопление меньше minCluster — как раньше).
-    const ch = skill.area && chargers.length > 0 && ultOf.get(u) === skill ? chargingFoe(u) : null;
+    const ch = skill.area && manualFiring && ultOf.get(u) === skill ? chargingFoe(u) : null;
     const area =
       skill.area && u.bh.area && skill.target.side === 'enemy'
         ? ch

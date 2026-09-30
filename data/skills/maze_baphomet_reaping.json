@@ -12,7 +12,7 @@
   "effects": [
     {
       "type": "damage",
-      "k": 2.5
+      "k": 7.5
     }
   ],
   "element": "dark"
