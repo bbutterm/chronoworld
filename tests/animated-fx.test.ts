@@ -81,7 +81,8 @@ describe('эффекты навыков (effects.json → skills)', () => {
     expect(skillFx('job_crusader_holy_cross')?.hit).toBe('fx_job_crusader_holy_cross');
     expect(skillFx('job_crusader_shield_charge')?.hit).toBe('fx_job_crusader_shield_charge');
     // Летящий щит — только у Удара щитом (не у якоря, прыжка и удара предка).
-    expect(skillFx('mob6_bosun_anchor')).toBeUndefined();
+    // 30.09: у якоря теперь звёзды оглушения монстров RO (NPC_STUNATTACK 194), но не щит.
+    expect(skillFx('mob6_bosun_anchor')).toEqual({ hit: 'fx_npc_stun_attack' });
     expect(skillFx('job_mage_frost_diver')?.projectile).toBe('fx_job_mage_frost_diver_spikes');
     expect(skillFx('job_sage_heavens_drive')?.ground).toBeUndefined();
     expect(skillFx('job_hunter_claymore_trap')?.hit).toBe('fx_job_hunter_claymore_trap');

@@ -1212,7 +1212,7 @@
       "loop": false,
       "delayMs": 0,
       "blend": "add",
-      "scale": 1.01,
+      "scale": 1.4,
       "anchor": [
         98.7,
         335.3
@@ -1884,7 +1884,7 @@
       "loop": false,
       "delayMs": 0,
       "blend": "add",
-      "scale": 2.0,
+      "scale": 2.6,
       "anchor": [
         74.0,
         140.0
@@ -2041,6 +2041,21 @@
     }
   ],
   "skills": {
+    "alde_clock_pendulum": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "alde_keeper_hands": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "alde_keeper_winding": {
+      "buff": "fx_npc_defender"
+    },
+    "alde_mimic_snap": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "alde_owl_baron_wings": {
+      "buff": "fx_npc_defender"
+    },
     "guard_shield_wall": {
       "buff": "fx_npc_defender"
     },
@@ -2226,11 +2241,20 @@
     "mage_firestorm": {
       "hit": "fx_job_mage_fire_bolt"
     },
+    "maze_baphomet_bargain": {
+      "buff": "fx_npc_defender"
+    },
+    "maze_ghostring_fade": {
+      "buff": "fx_npc_defender"
+    },
     "maze_scribe_seal": {
       "hit": "fx_npc_stun_attack"
     },
     "maze_side_winder_venom": {
       "hit": "fx_npc_poison"
+    },
+    "maze_stem_worm_grip": {
+      "hit": "fx_npc_stun_attack"
     },
     "mob2_boss_rot_spores": {
       "hit": "fx_npc_poison"
@@ -2247,6 +2271,9 @@
     "mob3_boss_nova": {
       "hit": "fx_npc_dark_strike"
     },
+    "mob3_elite_cleave": {
+      "hit": "fx_npc_stun_attack"
+    },
     "mob3_tank_guard": {
       "buff": "fx_npc_defender"
     },
@@ -2256,8 +2283,17 @@
     "mob4_isis_blessing": {
       "buff": "fx_job_acolyte_blessing"
     },
+    "mob4_sandman_sand_wall": {
+      "buff": "fx_npc_defender"
+    },
     "mob4_scorpion_sting": {
       "hit": "fx_npc_poison"
+    },
+    "mob5_bongun_hop": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "mob5_boss_moon_veil": {
+      "buff": "fx_npc_defender"
     },
     "mob5_horong_foxfire": {
       "hit": "fx_job_mage_fire_bolt"
@@ -2268,7 +2304,16 @@
     "mob6_bosun_all_hands": {
       "buff": "fx_job_acolyte_increase_agi"
     },
+    "mob6_bosun_anchor": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "mob6_elite_tentacles": {
+      "hit": "fx_npc_stun_attack"
+    },
     "mob6_tank_shell": {
+      "buff": "fx_npc_defender"
+    },
+    "mob7_boss_bell_ward": {
       "buff": "fx_npc_defender"
     },
     "mob7_boss_dark_chains": {
@@ -2277,6 +2322,12 @@
     "mob7_boss_meteor_storm": {
       "ground": "fx_job_wizard_meteor_storm",
       "hit": "fx_job_mage_fire_bolt"
+    },
+    "mob7_bridge_warden_ward": {
+      "buff": "fx_npc_defender"
+    },
+    "mob7_tank_noose": {
+      "hit": "fx_npc_stun_attack"
     },
     "mob_boss1_quake": {
       "ground": "fx_npc_earthquake"
@@ -2293,14 +2344,26 @@
     "mob_poporing_goo": {
       "hit": "fx_npc_poison"
     },
+    "mob_pupa_harden": {
+      "buff": "fx_npc_defender"
+    },
+    "mob_rocker_kick": {
+      "hit": "fx_npc_stun_attack"
+    },
     "mob_tank_guard": {
       "buff": "fx_npc_defender"
     },
     "orc_high_war_hide": {
       "buff": "fx_npc_defender"
     },
+    "orc_skeleton_ancestor_blow": {
+      "hit": "fx_npc_stun_attack"
+    },
     "orc_zombie_grave_bite": {
       "hit": "fx_npc_poison"
+    },
+    "sewer_bug_egg_shell": {
+      "buff": "fx_npc_defender"
     },
     "sewer_plankton_spit": {
       "hit": "fx_npc_poison"
