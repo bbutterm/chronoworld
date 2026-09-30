@@ -69,7 +69,7 @@ describe('симулятор', () => {
     const withRules = t(on);
     const without = t(off);
     expect(withRules / without, `с профилями ${withRules.toFixed(0)} мс CPU, без ${without.toFixed(0)} мс`).toBeLessThan(1.25);
-  });
+  }, 30_000); // лимит времени вызова (2000+ боёв; под нагрузкой контейнера стены > 5 с), не порог — порог выше: +25% CPU
 
   it('результаты серии воспроизводимы', () => {
     expect(runSeries(GAME, SQUAD, SQUAD, 50, 1)).toEqual(runSeries(GAME, SQUAD, SQUAD, 50, 1));
