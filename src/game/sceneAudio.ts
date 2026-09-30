@@ -19,11 +19,12 @@ export const soundTheme = (t: Theme): SoundTheme => t;
  */
 export function sceneSoundOf(scene: Phaser.Scene): SceneSound {
   const key = scene.sys.settings.key;
-  const data = (scene.sys.settings.data ?? {}) as { chapter?: number; stageId?: string; mode?: string };
+  const data = (scene.sys.settings.data ?? {}) as { chapter?: number; stageId?: string; mode?: string; chapterId?: string };
   if (key === 'Campaign') {
     const ci = data.chapter ?? Math.max(0, CONTENT.chapters.findIndex((c) => c.id === currentStage(session.save, GAME)?.chapter));
     return sceneSound(key, { theme: soundTheme(themeOfChapter(CONTENT.chapters[ci]?.id)) });
   }
+  if (key === 'ChapterDone') return sceneSound(key, { theme: soundTheme(themeOfChapter(data.chapterId)) });
   if (key === 'Stage' && data.stageId) return sceneSound(key, { theme: soundTheme(themeOfBattle({ stageId: data.stageId })) });
   if (key === 'Battle') {
     let boss = false;

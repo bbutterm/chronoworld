@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { GAME } from '../content';
 import { haptic } from '../haptics';
+import { applySceneSound } from '../audio';
+import { sceneSoundOf } from '../sceneAudio';
 import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
@@ -45,6 +47,12 @@ export class ChapterDoneScene extends Phaser.Scene {
     const sum = chapterSummary(save, data.chapterId, GAME);
     // Глава пройдена — открылась следующая.
     haptic('unlock');
+    // Сцену добавляют при первом показе — хук звука экранов (installAudio) её не знает: музыка босса сменяется картой главы сама.
+    try {
+      applySceneSound(sceneSoundOf(this));
+    } catch {
+      // Звук не должен ломать экран.
+    }
     const cx = GAME_W / 2;
     // Фон — карта пройденной главы (луг, топь, склеп), притемнённая.
     setThemeBackground(this.add.image(cx, GAME_H / 2, 'skin_bg_forest'), 'map', themeOfChapter(data.chapterId));

@@ -329,6 +329,8 @@ export function sceneSound(key: string, o: { theme?: Theme; boss?: boolean; towe
       return { music: 'tavern', ambience: null };
     case 'Campaign':
     case 'Stage':
+    // «Глава пройдена»: тема босса (бой главы) сменяется музыкой карты пройденной главы.
+    case 'ChapterDone':
       return { music: `map_${theme}`, ambience: null };
     case 'Battle':
       // Башня: своя тема во всех боях (фон — по ярусу); босс главы — общая тема босса.

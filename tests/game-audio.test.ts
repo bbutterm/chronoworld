@@ -151,6 +151,8 @@ describe('звук: музыка по экранам', () => {
     expect(sceneSound('Campaign', { theme: 'swamp' }).music).toBe('map_swamp');
     expect(sceneSound('Battle', { theme: 'crypt' })).toEqual({ music: 'battle_crypt', ambience: 'amb_crypt' });
     expect(sceneSound('Battle', { theme: 'meadow', boss: true }).music).toBe('boss');
+    // «Глава пройдена» после боя с боссом — музыка карты главы, а не тема босса.
+    expect(sceneSound('ChapterDone', { theme: 'desert' }).music).toBe('map_desert');
     // Меню не меняет музыку.
     expect(sceneSound('Heroes').music).toBeNull();
     expect(sceneSound('Heroes').ambience).toBeUndefined();
