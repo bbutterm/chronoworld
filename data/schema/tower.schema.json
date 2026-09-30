@@ -128,6 +128,2021 @@
         ]
       }
     },
+    "run": {
+      "type": "object",
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "tierMult": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "growthPerFloor": {
+          "type": "number",
+          "minimum": 0
+        },
+        "eliteMult": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "bossMult": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "bossEvery": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "blessingEvery": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "choices": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 5
+        },
+        "afterBattleHeal": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "restHeal": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rarity": {
+          "type": "object",
+          "properties": {
+            "floor": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "enum": [
+                  "common",
+                  "rare",
+                  "legendary"
+                ]
+              },
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "elite": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "enum": [
+                  "common",
+                  "rare",
+                  "legendary"
+                ]
+              },
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "boss": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "enum": [
+                  "common",
+                  "rare",
+                  "legendary"
+                ]
+              },
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "event": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "enum": [
+                  "common",
+                  "rare",
+                  "legendary"
+                ]
+              },
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "start": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "enum": [
+                  "common",
+                  "rare",
+                  "legendary"
+                ]
+              },
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "required": [
+            "floor",
+            "elite",
+            "boss",
+            "event",
+            "start"
+          ]
+        },
+        "paths": {
+          "type": "object",
+          "properties": {
+            "weights": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "enum": [
+                  "battle",
+                  "elite",
+                  "event",
+                  "rest",
+                  "boss"
+                ]
+              },
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "minFloor": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "enum": [
+                  "battle",
+                  "elite",
+                  "event",
+                  "rest",
+                  "boss"
+                ]
+              },
+              "additionalProperties": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            }
+          },
+          "required": [
+            "weights",
+            "minFloor"
+          ]
+        },
+        "shards": {
+          "type": "object",
+          "properties": {
+            "floor": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "elite": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "boss": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "floor",
+            "elite",
+            "boss"
+          ]
+        },
+        "lootPerFloor": {
+          "type": "number",
+          "minimum": 0
+        },
+        "record": {
+          "type": "object",
+          "properties": {
+            "gemsPerFloor": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "bossGems": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "gemsPerFloor",
+            "bossGems"
+          ]
+        },
+        "families": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20
+              },
+              "color": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "need": {
+                "default": 2,
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 9007199254740991
+              },
+              "bonusText": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 90
+              },
+              "bonus": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "firstStrike"
+                        },
+                        "mult": {
+                          "type": "number",
+                          "minimum": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "mult"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "startShield"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "killHeal"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "reviveOnce"
+                        },
+                        "hpPct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "healer": {
+                          "default": false,
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "hpPct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "splash"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "radius": {
+                          "default": 250,
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "on": {
+                          "type": "string",
+                          "enum": [
+                            "basic",
+                            "skill"
+                          ]
+                        },
+                        "element": {
+                          "type": "string",
+                          "enum": [
+                            "neutral",
+                            "fire",
+                            "water",
+                            "earth",
+                            "wind",
+                            "holy",
+                            "dark",
+                            "undead"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct",
+                        "on"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "echo"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "allyDeathRage"
+                        },
+                        "atkPct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "atkPct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "cowardBomb"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "radius": {
+                          "default": 260,
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "element"
+                        },
+                        "element": {
+                          "type": "string",
+                          "enum": [
+                            "neutral",
+                            "fire",
+                            "water",
+                            "earth",
+                            "wind",
+                            "holy",
+                            "dark",
+                            "undead"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "element"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "execute"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.9
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "regen"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "every": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct",
+                        "every"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "atk"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": -0.9,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "healTaken"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": -0.9,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "startHpLoss"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.9
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "lastStand"
+                        },
+                        "atkPct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "shieldPct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "atkPct",
+                        "shieldPct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "rowGuard"
+                        },
+                        "row": {
+                          "type": "string",
+                          "enum": [
+                            "front",
+                            "back"
+                          ]
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.9
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "row",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "swiftStart"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "poison"
+                        },
+                        "chance": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "k": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "turns": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "chance",
+                        "k",
+                        "turns"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "stun"
+                        },
+                        "chance": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "turns": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "chance",
+                        "turns"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "skillShield"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.9
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "dodgeFirst"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "doubleHit"
+                        },
+                        "chance": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "chance"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "ultReset"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "meteor"
+                        },
+                        "chance": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "k": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "chance",
+                        "k"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "killHaste"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "ultHaste"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "reviveRun"
+                        },
+                        "hpPct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "hpPct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "recruit"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "afterHeal"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "greed"
+                        },
+                        "shards": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "enemies": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "shards",
+                        "enemies"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "color",
+              "bonusText",
+              "bonus"
+            ]
+          }
+        },
+        "blessings": {
+          "minItems": 3,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 28
+              },
+              "rarity": {
+                "type": "string",
+                "enum": [
+                  "common",
+                  "rare",
+                  "legendary"
+                ]
+              },
+              "family": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "monster": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "icon": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 110
+              },
+              "cost": {
+                "default": false,
+                "type": "boolean"
+              },
+              "requires": {
+                "type": "string",
+                "enum": [
+                  "fallen",
+                  "slot"
+                ]
+              },
+              "effects": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "firstStrike"
+                        },
+                        "mult": {
+                          "type": "number",
+                          "minimum": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "mult"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "startShield"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "killHeal"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "reviveOnce"
+                        },
+                        "hpPct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "healer": {
+                          "default": false,
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "hpPct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "splash"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "radius": {
+                          "default": 250,
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "on": {
+                          "type": "string",
+                          "enum": [
+                            "basic",
+                            "skill"
+                          ]
+                        },
+                        "element": {
+                          "type": "string",
+                          "enum": [
+                            "neutral",
+                            "fire",
+                            "water",
+                            "earth",
+                            "wind",
+                            "holy",
+                            "dark",
+                            "undead"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct",
+                        "on"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "echo"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "allyDeathRage"
+                        },
+                        "atkPct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "atkPct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "cowardBomb"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "radius": {
+                          "default": 260,
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "element"
+                        },
+                        "element": {
+                          "type": "string",
+                          "enum": [
+                            "neutral",
+                            "fire",
+                            "water",
+                            "earth",
+                            "wind",
+                            "holy",
+                            "dark",
+                            "undead"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "element"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "execute"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.9
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "regen"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "every": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct",
+                        "every"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "atk"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": -0.9,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "healTaken"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": -0.9,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "startHpLoss"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.9
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "lastStand"
+                        },
+                        "atkPct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "shieldPct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "atkPct",
+                        "shieldPct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "rowGuard"
+                        },
+                        "row": {
+                          "type": "string",
+                          "enum": [
+                            "front",
+                            "back"
+                          ]
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.9
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "row",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "swiftStart"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "poison"
+                        },
+                        "chance": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "k": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "turns": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "chance",
+                        "k",
+                        "turns"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "stun"
+                        },
+                        "chance": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "turns": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "chance",
+                        "turns"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "skillShield"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.9
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "dodgeFirst"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "doubleHit"
+                        },
+                        "chance": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "chance"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "ultReset"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "meteor"
+                        },
+                        "chance": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "k": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "chance",
+                        "k"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "killHaste"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "ultHaste"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "reviveRun"
+                        },
+                        "hpPct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "hpPct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "recruit"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "afterHeal"
+                        },
+                        "pct": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "pct"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "greed"
+                        },
+                        "shards": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "enemies": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 5
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "shards",
+                        "enemies"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "rarity",
+              "family",
+              "text",
+              "effects"
+            ]
+          }
+        },
+        "events": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 30
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240
+              },
+              "monster": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "icon": {
+                "type": "string"
+              },
+              "options": {
+                "minItems": 1,
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 30
+                    },
+                    "hint": {
+                      "default": "",
+                      "type": "string",
+                      "maxLength": 60
+                    },
+                    "result": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 140
+                    },
+                    "resultLose": {
+                      "type": "string",
+                      "maxLength": 140
+                    },
+                    "requires": {
+                      "type": "object",
+                      "properties": {
+                        "shards": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "fallen": {
+                          "type": "boolean"
+                        },
+                        "cards": {
+                          "type": "boolean"
+                        }
+                      }
+                    },
+                    "outcomes": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "hp"
+                                  },
+                                  "pct": {
+                                    "type": "number",
+                                    "minimum": -0.9,
+                                    "maximum": 1
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "pct"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "card"
+                                  },
+                                  "rarity": {
+                                    "default": "common",
+                                    "type": "string",
+                                    "enum": [
+                                      "common",
+                                      "rare",
+                                      "legendary"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "kind"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "shards"
+                                  },
+                                  "n": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "n"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "revive"
+                                  },
+                                  "hpPct": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 5
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "hpPct"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "upgradeCard"
+                                  }
+                                },
+                                "required": [
+                                  "kind"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "gamble"
+                              },
+                              "chance": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "win": {
+                                "type": "array",
+                                "items": {
+                                  "oneOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "hp"
+                                        },
+                                        "pct": {
+                                          "type": "number",
+                                          "minimum": -0.9,
+                                          "maximum": 1
+                                        }
+                                      },
+                                      "required": [
+                                        "kind",
+                                        "pct"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "card"
+                                        },
+                                        "rarity": {
+                                          "default": "common",
+                                          "type": "string",
+                                          "enum": [
+                                            "common",
+                                            "rare",
+                                            "legendary"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "kind"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "shards"
+                                        },
+                                        "n": {
+                                          "type": "integer",
+                                          "minimum": -9007199254740991,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "required": [
+                                        "kind",
+                                        "n"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "revive"
+                                        },
+                                        "hpPct": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 5
+                                        }
+                                      },
+                                      "required": [
+                                        "kind",
+                                        "hpPct"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "upgradeCard"
+                                        }
+                                      },
+                                      "required": [
+                                        "kind"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              "lose": {
+                                "type": "array",
+                                "items": {
+                                  "oneOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "hp"
+                                        },
+                                        "pct": {
+                                          "type": "number",
+                                          "minimum": -0.9,
+                                          "maximum": 1
+                                        }
+                                      },
+                                      "required": [
+                                        "kind",
+                                        "pct"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "card"
+                                        },
+                                        "rarity": {
+                                          "default": "common",
+                                          "type": "string",
+                                          "enum": [
+                                            "common",
+                                            "rare",
+                                            "legendary"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "kind"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "shards"
+                                        },
+                                        "n": {
+                                          "type": "integer",
+                                          "minimum": -9007199254740991,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "required": [
+                                        "kind",
+                                        "n"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "revive"
+                                        },
+                                        "hpPct": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 5
+                                        }
+                                      },
+                                      "required": [
+                                        "kind",
+                                        "hpPct"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "upgradeCard"
+                                        }
+                                      },
+                                      "required": [
+                                        "kind"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "chance",
+                              "win",
+                              "lose"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "result",
+                    "outcomes"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "text",
+              "options"
+            ]
+          }
+        },
+        "upgrades": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 90
+              },
+              "effect": {
+                "type": "string",
+                "enum": [
+                  "startBlessing",
+                  "extraChoice",
+                  "restHeal",
+                  "afterHeal",
+                  "reroll",
+                  "shards",
+                  "secondWind"
+                ]
+              },
+              "value": {
+                "default": 1,
+                "type": "number",
+                "minimum": 0
+              },
+              "costs": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "text",
+              "effect",
+              "costs"
+            ]
+          }
+        }
+      },
+      "required": [
+        "tierMult",
+        "growthPerFloor",
+        "eliteMult",
+        "bossMult",
+        "bossEvery",
+        "blessingEvery",
+        "choices",
+        "afterBattleHeal",
+        "restHeal",
+        "rarity",
+        "paths",
+        "shards",
+        "lootPerFloor",
+        "record",
+        "families",
+        "blessings",
+        "events",
+        "upgrades"
+      ]
+    },
     "rewards": {
       "type": "object",
       "properties": {

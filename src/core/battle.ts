@@ -7,6 +7,8 @@ import { dist, inRow, selectTargets } from './targeting';
 import type {
   ActiveStatus,
   BattleEvent,
+  BattleHookApi,
+  BattleHooks,
   BattleInput,
   BattleResult,
   CombatConfig,
@@ -21,7 +23,6 @@ import type {
   UnitDef,
   UnitReport,
   UnitSnapshot,
-
 } from './types';
 
 export interface BattleOptions {
@@ -40,6 +41,8 @@ export interface BattleOptions {
   manualUlt?: boolean;
   /** Вводы игрока (ульта героя, смена режима); вместе с seed задают бой. */
   inputs?: BattleInput[];
+  /** Хуки благословений Башни (src/core/tower/blessings.ts). Нет — бой прежний. */
+  hooks?: BattleHooks;
 }
 
 class BattleEnded extends Error {}
@@ -184,7 +187,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const readyShown = new Set<Unit>();
   const manualOn = (u: Unit) => manual && u.side === 'A' && ultOf.has(u);
 
-  const snapshots = all.map((u) => ({
+  const snapshots: UnitSnapshot[] = all.map((u) => ({
     uid: u.uid,
     side: u.side,
     slot: u.slot,
@@ -227,6 +230,40 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   };
   const allies = (u: Unit) => (u.side === 'A' ? a : b);
   const enemies = (u: Unit) => (u.side === 'A' ? b : a);
+  // Хуки благословений Башни: доступ к бою только через api (функции ниже определены к моменту вызова).
+  const hooks = opts.hooks;
+  const api: BattleHookApi | null = hooks
+    ? {
+        get t() {
+          return t;
+        },
+        a,
+        b,
+        combat: cfg,
+        random: () => rng.next(),
+        emit: (e) => emit(e),
+        damage: (src, srcUid, target, amount) => {
+          if (target.alive) applyDamage(src, srcUid, target, Math.max(0, Math.round(amount)));
+        },
+        heal: (src, target, amount) => {
+          if (!target.alive) return;
+          const v = Math.max(0, Math.min(Math.round(amount), target.maxHp - target.hp));
+          target.hp += v;
+          report[src.uid].healingDone += v;
+          emit({ t, type: 'heal', source: src.uid, target: target.uid, amount: v, hp: target.hp });
+        },
+        shield: (src, target, amount) => {
+          if (!target.alive) return;
+          const cap = Math.floor(target.maxHp * (cfg.shieldCapPctMaxHp ?? 0.5));
+          const v = Math.max(0, Math.min(Math.round(amount), cap - target.shield));
+          target.shield += v;
+          report[src.uid].shieldGiven += v;
+          emit({ t, type: 'buff', source: src.uid, target: target.uid, kind: 'shield', amount: v, shield: target.shield });
+        },
+        status: (src, target, status) => applyEffect(src, { type: 'status', status, chance: 1 }, target),
+        ultOf: (u) => ultOf.get(u),
+      }
+    : null;
   const addEnergy = (u: Unit, v: number) => {
     u.energy = Math.max(0, Math.min(cfg.energy.max, u.energy + v));
   };
@@ -243,6 +280,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   // ---------- эффекты ----------
 
   const kill = (target: Unit, killer: Unit | null) => {
+    if (hooks?.dying && hooks.dying(api!, target, killer)) return;
     target.alive = false;
     target.statuses = [];
     target.moving = null;
@@ -251,6 +289,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     emit({ t, type: 'death', unit: target.uid, killer: killer?.uid ?? null });
     if (killer) trigger(killer, 'kill');
     for (const ally of allies(target)) if (ally.alive) trigger(ally, 'allyDeath');
+    hooks?.death?.(api!, target, killer);
     checkEnd();
   };
 
@@ -309,11 +348,14 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         // Стихии (с профилями): множитель по стихии навыка и защите цели.
         const m = elements && skill ? elementMult(elements, skillElement(skill), defenseElement(target.def)) : 1;
         if (m !== 1) dmg = Math.max(1, Math.round(dmg * m));
+        if (hooks?.damage) dmg = Math.max(0, Math.round(hooks.damage(api!, u, target, dmg, skill)));
         applyDamage(u, u.uid, target, dmg, false, undefined, m > 1 ? 'weak' : m < 1 ? 'resist' : undefined);
         return;
       }
       case 'heal': {
-        const amount = Math.min(Math.round(mend(calcHeal(stat(u, 'atk'), e.k * sp)) * healRepeat(u, target)), target.maxHp - target.hp);
+        let raw = Math.round(mend(calcHeal(stat(u, 'atk'), e.k * sp)) * healRepeat(u, target));
+        if (hooks?.heal) raw = Math.max(0, Math.round(hooks.heal(api!, u, target, raw)));
+        const amount = Math.min(raw, target.maxHp - target.hp);
         target.hp += amount;
         report[u.uid].healingDone += amount;
         emit({
@@ -1710,6 +1752,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     });
     breakCharges(u, ult, targets);
     useSkill(u, ult, targets);
+    hooks?.skill?.(api!, u, ult);
   };
 
   /**
@@ -1892,6 +1935,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     // Удар по кругу сбивает заряд любого, кто в круге (случайные метеоры могли не выбрать его первым).
     if (manualFiring) breakCharges(u, skill, area ? enemies(u).filter((o) => o.alive && Math.hypot(o.x - area.x, o.y - area.y) <= area.r + o.body) : targets);
     launch(u, skill, targets, area);
+    hooks?.skill?.(api!, u, skill);
   };
 
   /** Готовый активный навык с наибольшим приоритетом, у которого есть цели. null — готовых нет. */
@@ -2042,6 +2086,14 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     checkEnd();
     // Ауры бардов видны с начала боя (круг под исполнителем).
     if (on) for (const u of all) for (const p of u.passives) if (p.aura) emit({ t, type: 'aura', unit: u.uid, skill: p.id, radius: p.aura.radius });
+    if (hooks?.start) {
+      hooks.start(api!);
+      // Раны прошлых этажей (забег Башни): сцена начинает с этих ОЗ.
+      all.forEach((u, i) => {
+        if (u.hp < u.maxHp) snapshots[i].hp = u.hp;
+      });
+      checkEnd();
+    }
     for (const u of all) trigger(u, 'battleStart');
     for (let tick = 1; tick <= maxTicks; tick++) {
       t = Math.round(tick * cfg.tickSeconds * 1000) / 1000;
@@ -2058,6 +2110,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       if (inputAt < inputs.length) takeInputs();
       landProjectiles();
       tickStatuses();
+      if (hooks?.tick) hooks.tick(api!);
       for (const u of all) if (u.alive && !stunned(u)) stepMove(u);
       diveBack();
       if (cowards.length > 0 && tickNo % 3 === 0) cowardice();
@@ -2097,6 +2150,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     if (!(err instanceof BattleEnded)) throw err;
   }
 
+  hooks?.end?.(api!, winner);
   emit({ t, type: 'end', winner, reason });
 
   return { seed, winner, reason, duration: t, units: snapshots, ...(spawned.length > 0 ? { spawned } : {}), log, report };

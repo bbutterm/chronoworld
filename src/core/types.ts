@@ -268,8 +268,52 @@ export type BattleEvent = BaseEvent &
     /** Ввод игрока сменил режим ульт. */
     | { type: 'mode'; auto: boolean }
     | { type: 'death'; unit: string; killer: string | null }
+    /** Сработало благословение Башни (src/core/tower/blessings.ts): card — id карты, text — подпись над unit. */
+    | { type: 'bless'; unit: string; card: string; text: string }
     | { type: 'end'; winner: Side; reason: 'wipe' | 'timeout' }
   );
+
+/**
+ * Доступ хуков боя к бою (благословения Башни). Всё, что хуки делают с боем, — через эти функции (события для сцены
+ * пишутся сами) или прямой правкой полей Unit (hp до начала, base, gauge, readyAt).
+ */
+export interface BattleHookApi {
+  /** Время боя, с. */
+  readonly t: number;
+  readonly a: readonly Unit[];
+  readonly b: readonly Unit[];
+  readonly combat: CombatConfig;
+  /** Случайное число [0, 1) из rng боя (только когда хуки есть — без них последовательность rng прежняя). */
+  random(): number;
+  emit(e: BattleEvent): void;
+  /** Урон мимо формулы (щит, связь, смерть — как у обычного урона). src null — «ничей» (взрыв). */
+  damage(src: Unit | null, srcUid: string, target: Unit, amount: number): void;
+  heal(src: Unit, target: Unit, amount: number): void;
+  shield(src: Unit, target: Unit, amount: number): void;
+  status(src: Unit, target: Unit, status: StatusDef): void;
+  /** Ульта бойца стороны A (ручной режим / самый долгий навык). */
+  ultOf(u: Unit): SkillDef | undefined;
+}
+
+/** Хуки боя (BattleOptions.hooks). Без хуков бой и лог — прежние. */
+export interface BattleHooks {
+  /** После создания юнитов, до пассивок начала боя: ОЗ, щиты, шкала, статы. */
+  start?(api: BattleHookApi): void;
+  /** Урон навыка/атаки src по target (после стихий), до щита: вернуть новый урон. */
+  damage?(api: BattleHookApi, src: Unit, target: Unit, dmg: number, skill: SkillDef | undefined): number;
+  /** Лечение src → target до ограничения недостающими ОЗ: вернуть новое. */
+  heal?(api: BattleHookApi, src: Unit, target: Unit, amount: number): number;
+  /** ОЗ target упали до 0: true — не умирает (хук сам поднял ОЗ и написал событие). */
+  dying?(api: BattleHookApi, target: Unit, killer: Unit | null): boolean;
+  /** target погиб (событие death уже в логе). */
+  death?(api: BattleHookApi, target: Unit, killer: Unit | null): void;
+  /** Применён активный навык или ульта. */
+  skill?(api: BattleHookApi, u: Unit, skill: SkillDef): void;
+  /** Каждый тик после статусов. */
+  tick?(api: BattleHookApi): void;
+  /** Бой окончен (до события end). */
+  end?(api: BattleHookApi, winner: Side): void;
+}
 
 export interface UnitSnapshot {
   uid: string;
@@ -277,6 +321,8 @@ export interface UnitSnapshot {
   slot: number;
   unitId: string;
   maxHp: number;
+  /** ОЗ в начале боя, если не полные (забег Башни: раны прошлых этажей). */
+  hp?: number;
   x: number;
   y: number;
 }
