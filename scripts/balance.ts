@@ -13,7 +13,8 @@ import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { newGame, recommendedPower } from '../src/core';
 import { ROOT } from './lib/content-node';
-import { findWalls, fitLevels, fitRecommended, hookMetrics, loadFullContext, perDay, PLAYER_MODEL, runBalance, signals, SOURCES, timeline, toCsv, total } from './lib/player-model';
+import { findWalls, FIT_SEEDS, FIT_SESSIONS, fitLevels, fitRecommendedFrom, hookMetrics, loadFullContext, perDay, PLAYER_MODEL, runBalance, signals, SOURCES, timeline, toCsv, total } from './lib/player-model';
+import { runModels } from './balance-run';
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
@@ -52,7 +53,9 @@ const ctx = loadFullContext();
 
 if (process.argv.includes('--fit-recommended')) {
   // Подбор power.recommendedStages: пороги мощи по 12 моделям игрока (docs/content/balance.md, «Рекомендуемая мощь»).
-  const fit = fitRecommended(ctx, days);
+  // 24 модели (2/3/4/6 сессий × seed 1–6) — параллельно, по процессу на модель (scripts/balance-run.ts).
+  const runs = (await Promise.all(FIT_SESSIONS.map((s) => runModels(FIT_SEEDS, days, s, 2)))).flat();
+  const fit = fitRecommendedFrom(ctx, runs.map((r) => r.stageBattles!));
   const defaults = ctx.features.power;
   // Этапы, которые подбор не трогал (нет поражений, победы выше пола), сохраняют свой коэффициент (например, ch1_s10).
   const fitted = new Set(fit.map((f) => f.stageId));
