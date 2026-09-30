@@ -652,23 +652,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.0204
+          "mult": 0.0194
         },
         {
           "unit": "mob_lord_of_death",
-          "mult": 0.0143
+          "mult": 0.0136
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.0204
+          "mult": 0.0194
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.0204
+          "mult": 0.0194
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.0204
+          "mult": 0.0194
         }
       ],
       "rewards": {

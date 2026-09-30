@@ -105,7 +105,7 @@
       "ch4_s12": 1.23,
       "ch4_s6": 0.96,
       "ch4_s7": 1.15,
-      "ch4_s14": 1.76,
+      "ch4_s14": 1.55,
       "ch4_s8": 0.91,
       "ch4_s15": 1.13,
       "ch4_s9": 0.81,
@@ -209,7 +209,8 @@
         { "fromStage": "ch4_s1", "rarity": "purple", "squad": 5, "gear": 0.1 },
         { "fromStage": "ch6_s1", "rarity": "purple", "squad": 5, "gear": 0.14 },
         { "fromStage": "ch6_s3", "rarity": "gold", "squad": 5, "gear": 0.15, "enemyScale": 2.4 },
-        { "fromStage": "ch8_s1", "rarity": "red", "squad": 5, "gear": 0.15, "enemyScale": 2.4 }
+        { "fromStage": "ch8_s1", "rarity": "red", "squad": 5, "gear": 0.15, "enemyScale": 2.4 },
+        { "fromStage": "ch10_s1", "rarity": "red", "squad": 5, "gear": 0.22, "enemyScale": 2.4 }
       ]
     }
   },
