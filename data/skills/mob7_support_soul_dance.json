@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob7_support_soul_dance",
   "name": "Хоровод душ",
-  "description": "Души кружат над нежитью: лечат всех союзников (1 × атака) и дают +15% атаки на 2 хода.",
+  "description": "Души кружат над нежитью: лечат всех союзников (0.55 × атака) и дают +15% атаки на 2 хода.",
   "range": "ranged",
   "target": {
     "side": "ally",
@@ -12,7 +12,7 @@
   "effects": [
     {
       "type": "heal",
-      "k": 1
+      "k": 0.55
     },
     {
       "type": "status",

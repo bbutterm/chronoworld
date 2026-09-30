@@ -1,14 +1,14 @@
 {
   "$schema": "schema/hunt.schema.json",
-  "$comment": "Охота на босса (аналог гильдейской охоты AFK Arena, одиночная). Этап открытия — data/unlocks.json (hunt). Босс дня — bosses[номер дня mod длина]; hp огромный, босс падать не должен. Награда — высший порог tiers, которого достиг урон за бой. Рецепт — docs/CONTENT_RECIPES.md «Босс охоты», числа — docs/content/balance.md.",
+  "$comment": "Охота на босса (аналог гильдейской охоты AFK Arena, одиночная). Этап открытия — data/unlocks.json (hunt). Босс дня — bosses[номер дня mod длина]; hp огромный, босс падать не должен. Награда — высший порог tiers, которого достиг урон за бой. Рецепт — docs/CONTENT_RECIPES.md «Босс охоты», числа — docs/content/balance.md. hpMult ×4 (BUG-164, 30.09): 10-й порог (550 000) был выше ОЗ всех боссов (504–540 тыс.) — лучшая награда не выпадала, босс падал; теперь ОЗ 2–2.1 млн.",
   "attemptsPerDay": 2,
   "timeLimitSeconds": 45,
   "sweep": true,
   "slot": 0,
   "bosses": [
-    { "unit": "mob_mastering", "hpMult": 200, "atkMult": 1.5, "defMult": 1, "scale": 1.8, "title": "Король порингов вернулся" },
-    { "unit": "mob_osiris", "hpMult": 180, "atkMult": 1.5, "defMult": 1, "scale": 1.6, "title": "Владыка пирамид" },
-    { "unit": "mob_moonlight", "hpMult": 180, "atkMult": 1, "defMult": 1, "scale": 1.6, "title": "Лиса из лунного сада" }
+    { "unit": "mob_mastering", "hpMult": 800, "atkMult": 1.5, "defMult": 1, "scale": 1.8, "title": "Король порингов вернулся" },
+    { "unit": "mob_osiris", "hpMult": 720, "atkMult": 1.5, "defMult": 1, "scale": 1.6, "title": "Владыка пирамид" },
+    { "unit": "mob_moonlight", "hpMult": 720, "atkMult": 1, "defMult": 1, "scale": 1.6, "title": "Лиса из лунного сада" }
   ],
   "tiers": [
     { "damage": 5000, "rewards": { "gold": 1200, "jobExp": 1700 } },
