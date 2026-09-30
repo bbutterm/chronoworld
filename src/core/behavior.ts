@@ -54,6 +54,32 @@ export const BehaviorProfileSchema = z.object({
   intercept: z.object({ radius: z.number().positive(), cooldown: z.number().nonnegative() }).optional(),
   /** Защитник: цель сражения — враг, ближайший к союзнику под своей связью (без связи — к самому раненому союзнику). */
   protect: z.boolean().optional(),
+  /**
+   * Маг: навык с полем area бьёт по кругу там, где больше всего врагов (центр — враг с наибольшим числом соседей в радиусе
+   * навыка), круг виден на земле всё время каста. Лучшее скопление меньше minCluster — навык бьёт как раньше.
+   */
+  area: z.object({ minCluster: z.number().int().positive() }).optional(),
+  /**
+   * Контрмаг: одиночный навык со статусом interrupt бьёт врага, который сейчас кастует (сбивает каст); если у врагов есть
+   * касты, но сейчас никто не кастует, — держит такой навык готовым до hold секунд.
+   */
+  counter: z.object({ hold: z.number().nonnegative() }).optional(),
+  /** Бард: стоит в центре живых союзников, сдвинувшись на backOffset к своему краю; идёт, если центр ушёл дальше followSlack. */
+  center: z.object({ backOffset: z.number().nonnegative(), followSlack: z.number().positive() }).optional(),
+  /**
+   * Таран: цель сражения (в начале боя и после убийства) и рывок навыка с pick nearest — враг с наибольшим числом врагов
+   * в радиусе radius (удары по площади задевают больше).
+   */
+  cluster: z.object({ radius: z.number().positive() }).optional(),
+  /** Торговец: враг ниже доли pct ОЗ не дальше radius — добить (если текущая цель выше половины ОЗ). */
+  execute: z.object({ pct: z.number().min(0).max(1), radius: z.number().positive() }).optional(),
+  /** Стая: ближние со стаей бьют того, кого уже бьют сородичи по стае (не больше limit сородичей на цель). */
+  pack: z.object({ limit: z.number().int().positive() }).optional(),
+  /**
+   * Трус: ниже доли hpPct ОЗ один раз за бой бежит к своим (к лекарю, иначе к своему краю поля) и seconds секунд не бьёт;
+   * бегущий получает урон × (1 + damageTaken); последний живой своей стороны не бежит.
+   */
+  coward: z.object({ hpPct: z.number().min(0).max(1), seconds: z.number().positive(), damageTaken: z.number().nonnegative() }).optional(),
 });
 
 export type BehaviorProfile = z.infer<typeof BehaviorProfileSchema>;
@@ -65,12 +91,28 @@ export type BehaviorProfile = z.infer<typeof BehaviorProfileSchema>;
 export const EnrageSchema = z.object({ afterSeconds: z.number().positive(), perSecond: z.number().nonnegative(), healPerSecond: z.number().nonnegative().default(0) });
 export type EnrageConfig = z.infer<typeof EnrageSchema>;
 
+/**
+ * Живучесть врагов (бои «на пределе» глав 6, 9, 10 уходили в «время вышло»): лечение от юнитов видов kinds по одной цели
+ * чаще чем раз в window секунд слабеет — каждое следующее × repeat (не ниже floor); щиты от них не складываются (новый
+ * щит только догоняет прежний до своей величины), если stackShields false.
+ */
+export const SustainSchema = z.object({
+  $comment: z.string().optional(),
+  kinds: z.array(z.enum(['hero', 'monster', 'boss'])).min(1),
+  window: z.number().positive(),
+  repeat: z.number().min(0).max(1),
+  floor: z.number().min(0).max(1),
+  stackShields: z.boolean(),
+});
+export type SustainConfig = z.infer<typeof SustainSchema>;
+
 /** Часть data/combat.json про поведение — проверяется content:check. */
 export const BehaviorConfigSchema = z.object({
   behaviors: z.record(z.string().regex(/^[a-z][a-z0-9_]*$/), BehaviorProfileSchema),
   /** Профиль по умолчанию: ключ `<kind>_<role>_<melee|ranged>`, затем `<kind>` (hero, monster, boss); нет — line. */
   behaviorDefaults: z.record(z.string(), z.string()).default({}),
   enrage: EnrageSchema.optional(),
+  sustain: SustainSchema.optional(),
 });
 
 /** Нулевой профиль: поведение боя до профилей (ближний держит линию, дальний стоит на слоте). */
@@ -99,7 +141,7 @@ export function resolveBehavior(def: Pick<UnitDef, 'behavior' | 'kind' | 'role'>
 export function lintBehaviors(content: Content, cfg: CombatConfig): { errors: string[]; warnings: string[] } {
   const errors: string[] = [];
   const warnings: string[] = [];
-  const parsed = BehaviorConfigSchema.safeParse({ behaviors: cfg.behaviors ?? {}, behaviorDefaults: cfg.behaviorDefaults ?? {}, enrage: cfg.enrage });
+  const parsed = BehaviorConfigSchema.safeParse({ behaviors: cfg.behaviors ?? {}, behaviorDefaults: cfg.behaviorDefaults ?? {}, enrage: cfg.enrage, sustain: cfg.sustain });
   if (!parsed.success) for (const i of parsed.error.issues) errors.push(`data/combat.json: ${i.path.join('.')} — ${i.message}`);
   const lib = cfg.behaviors ?? {};
   const known = (owner: string, id: string | undefined) => {
@@ -125,6 +167,12 @@ export function lintBehaviors(content: Content, cfg: CombatConfig): { errors: st
       }
     }
   }
+  for (const s of Object.values(content.skills)) {
+    if (s.aura && s.trigger !== 'turnStart') errors.push(`навык ${s.id}: аура (aura) работает только у пассивки trigger turnStart`);
+    if (s.area && (s.trigger || s.target.side !== 'enemy')) errors.push(`навык ${s.id}: удар по кругу (area) — только у активного навыка по врагам`);
+  }
+  for (const u of Object.values(content.units))
+    if (u.kind === 'boss' && u.behavior && (lib[u.behavior]?.coward || lib[u.behavior]?.pack)) warnings.push(`юнит ${u.id}: босс с профилем ${u.behavior} (трус/стая — для рядовых)`);
   for (const j of Object.values(content.jobs)) known(`профессия ${j.id}`, j.behavior);
   for (const t of Object.values(content.heroes)) {
     known(`карточка ${t.id}`, t.behavior);

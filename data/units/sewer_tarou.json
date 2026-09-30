@@ -18,5 +18,6 @@
   "visual": {
     "sprite": "tarou",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "pack"
 }

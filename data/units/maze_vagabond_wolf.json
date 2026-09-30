@@ -22,5 +22,6 @@
   "visual": {
     "sprite": "vagabond_wolf",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "pack"
 }

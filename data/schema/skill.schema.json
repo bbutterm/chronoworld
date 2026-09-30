@@ -197,6 +197,9 @@
                   },
                   "taunt": {
                     "type": "boolean"
+                  },
+                  "interrupt": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -310,6 +313,30 @@
     "priority": {
       "default": 0,
       "type": "number"
+    },
+    "area": {
+      "type": "object",
+      "properties": {
+        "radius": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "radius"
+      ]
+    },
+    "aura": {
+      "type": "object",
+      "properties": {
+        "radius": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "radius"
+      ]
     }
   },
   "required": [

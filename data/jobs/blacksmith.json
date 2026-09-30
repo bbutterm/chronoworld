@@ -48,5 +48,5 @@
     "sprite": "blacksmith",
     "hitFx": "fx_hit"
   },
-  "behavior": "trader"
+  "behavior": "smith"
 }

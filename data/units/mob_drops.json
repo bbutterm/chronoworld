@@ -18,5 +18,6 @@
   "visual": {
     "sprite": "drops",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "pack"
 }

@@ -1692,7 +1692,7 @@ export class BattleScene extends Phaser.Scene {
    * Поведение в бою (docs/design/battle-behavior.md) — подписи шагов по причине: отход стрелка — «Отход!» один раз за бой
    * (дальше видно и так: пятится лицом к врагу), перехват стража — «Перехват!» каждый раз. Лекарь за танком — просто идёт.
    */
-  private behaviorMove(v: UnitView, reason: 'kite' | 'follow' | 'intercept' | undefined): void {
+  private behaviorMove(v: UnitView, reason: 'kite' | 'follow' | 'intercept' | 'flee' | undefined): void {
     if (reason === 'kite' && !v.kiteShown) {
       v.kiteShown = true;
       this.headline(v, 'Отход!', '#9fe3ff');

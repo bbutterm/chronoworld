@@ -19,5 +19,6 @@
     "sprite": "mandragora",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
-  }
+  },
+  "behavior": "coward"
 }

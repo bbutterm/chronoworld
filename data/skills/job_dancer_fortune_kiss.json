@@ -2,24 +2,26 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_dancer_fortune_kiss",
   "name": "Поцелуй удачи",
-  "description": "+25% атаки всем союзникам на 3 с.",
+  "description": "Аура: союзники в круге вокруг танцовщицы получают +10% атаки (вышел из круга — через 2 с бафф спадает).",
   "range": "ranged",
+  "trigger": "turnStart",
   "target": {
     "side": "ally",
     "pick": "all",
     "includeSelf": true
   },
-  "cooldown": 18,
-  "priority": 5,
+  "aura": {
+    "radius": 300
+  },
   "effects": [
     {
       "type": "status",
       "status": {
         "id": "fortune_kiss",
         "name": "Поцелуй удачи",
-        "turns": 3,
+        "turns": 2,
         "stats": {
-          "atk": 0.25
+          "atk": 0.1
         }
       }
     }

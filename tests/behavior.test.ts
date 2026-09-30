@@ -30,7 +30,8 @@ describe('каркас профилей', () => {
     const [sq] = smoothSquads(ctx, 45, [['alan', 'vika', 'bran', 'kai', 'zara']]);
     expect(sq.map((u) => u.behavior)).toEqual(['guard', 'medic', 'marksman', 'caster', 'assassin']);
     expect(resolveBehavior(ctx.content.units.mob_lunatic, false, ctx.combat).id).toBe('leaper');
-    expect(resolveBehavior(ctx.content.units.mob_poporing, false, ctx.combat).id).toBe('line');
+    expect(resolveBehavior(ctx.content.units.mob_poporing, false, ctx.combat).id).toBe('pack');
+    expect(resolveBehavior(ctx.content.units.mob_tank, false, ctx.combat).id).toBe('line');
     expect(resolveBehavior(ctx.content.units.mob_lunatic, false, ctx.combat, false).profile.dive?.stay).toBe(true);
     expect(resolveBehavior({ ...sq[2] }, true, ctx.combat, false).profile).toEqual({ name: 'Держит линию' });
   });
