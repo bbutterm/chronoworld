@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_dark_lord_hell_gate",
+  "name": "Врата ада",
+  "description": "Тёмный лорд открывает врата: удар по всему отряду. Сбейте ультой или оглушением!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "element": "dark",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 5.5
+    }
+  ]
+}

@@ -87,6 +87,8 @@ export const ItemInstanceSchema = z.object({
    * введения поломки, сейчас +10) — sanitizeSave ограничивает до maxLevel.
    */
   refine: z.number().int().min(0).max(20).optional(),
+  /** Вставленная карта MVP (id из data/hunt.json → cards; equipment/cards.ts). Без смены версии: нет поля — слот пуст. */
+  card: z.string().optional(),
 });
 
 /** v3 (K8). Сохранённая расстановка отряда: 5 слотов, id героя или null. */
@@ -278,6 +280,12 @@ export const HuntStateSchema = z.object({
   day: DayStringSchema,
   used: z.number().int().nonnegative(),
   best: z.record(z.string(), z.number().int().nonnegative()),
+  /** MVP-охота (docs/design/mvp-hunt.md), без смены версии: побед над каждым MVP (id юнита). Нет поля — ни одной. */
+  kills: z.record(z.string(), z.number().int().nonnegative()).optional(),
+  /** Невставленные карты MVP: id карты → штук. */
+  cards: z.record(z.string(), z.number().int().nonnegative()).optional(),
+  /** Побед подряд без карты (гарантия hunt.mvp.cardPity). */
+  dry: z.number().int().nonnegative().optional(),
 });
 
 export const SaveStateSchema = z.object({

@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_osiris_curse",
+  "name": "Проклятие пирамид",
+  "description": "Осирис шепчет проклятие гробницы на весь отряд. Сбейте ультой или оглушением!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "element": "undead",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 4.5
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "pharaoh_seal",
+        "name": "Печать фараона",
+        "turns": 3,
+        "stats": {
+          "def": -0.25
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mvp_baphomet",
+  "name": "Бафомет",
+  "kind": "boss",
+  "role": "damage",
+  "element": "dark",
+  "stats": {
+    "hp": 10000,
+    "atk": 100,
+    "def": 20,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "maze_baphomet_curse",
+    "actives": [
+      "maze_baphomet_scythe"
+    ],
+    "passives": [
+      "maze_baphomet_collector"
+    ]
+  },
+  "visual": {
+    "sprite": "boss2",
+    "hitFx": "fx_hit",
+    "scale": 1.3
+  },
+  "barks": {
+    "start": "Ещё одна гильдия охотников? Лабиринт любит свежее мясо.",
+    "half": "Дети мои, к отцу! Разорвите их!",
+    "rage": "Довольно игр! Сейчас вы узнаете Бафомета!",
+    "defeat": "Лабиринт… запомнит… вас…",
+    "victory": "Ещё косточки в коллекцию лабиринта."
+  },
+  "phases": [
+    {
+      "atHpPct": 0.6,
+      "title": "Дети лабиринта",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "maze_baphomet_jr",
+          "count": 2,
+          "hp": 0.05,
+          "atk": 0.4
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.3,
+      "title": "Ярость!",
+      "bark": "rage",
+      "actions": [
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.3,
+              "spd": 0.2
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "charge": {
+    "skill": "mvp_baphomet_dark_blow",
+    "first": 10,
+    "every": 16
+  }
+}

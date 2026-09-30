@@ -2,6 +2,7 @@ import { heroJobId } from '../heroes/card';
 import type { GameContext } from '../progression/types';
 import type { GearLookup, StatBonus } from '../progression/stats';
 import type { HeroState, ItemInstance, SaveState } from '../save/schema';
+import { heroCardStats, type CardsLookup } from './cards';
 import { EquipmentError } from './errors';
 import { refinedStats, refineLevel } from './refine';
 import type { EquipmentContext } from './load';
@@ -41,9 +42,17 @@ export function equipmentStats(items: readonly ItemDef[]): StatBonus {
   return sum;
 }
 
-/** Прибавка экипировки героя с заточкой (неизвестные контенту предметы в сохранении не считаются). */
-export function heroGearStats(save: SaveState, heroId: string, ctx: EquipmentContext): StatBonus {
-  return equipmentStats(Object.values(heroSlots(save, heroId, ctx)).map((s) => ({ ...s.def, stats: refinedStats(s.def, refineLevel(s.instance), ctx) })));
+/**
+ * Прибавка экипировки героя с заточкой и вставленными картами MVP (cards.ts; неизвестные контенту предметы в сохранении
+ * не считаются).
+ */
+export function heroGearStats(save: SaveState, heroId: string, ctx: EquipmentContext & CardsLookup): StatBonus {
+  const slots = Object.values(heroSlots(save, heroId, ctx));
+  const sum = equipmentStats(slots.map((s) => ({ ...s.def, stats: refinedStats(s.def, refineLevel(s.instance), ctx) })));
+  const hero = save.heroes.find((h) => h.id === heroId);
+  if (!hero || !slots.some((s) => s.instance.card)) return sum;
+  const c = heroCardStats(hero, slots.map((s) => s.instance), ctx);
+  return { hp: sum.hp + c.hp, atk: sum.atk + c.atk, def: sum.def + c.def, spd: sum.spd + c.spd };
 }
 
 /**
