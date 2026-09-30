@@ -371,7 +371,7 @@ heroes?: [id героя], heroCards?: {blue?, purple?}, heroPicks?: [{rarity}]}`
 | Лист карточки героя (класс RO по имени: `knight_m`, `wizard_f`…) | `sprites.json` | `visual.sprite` карточки (`data/heroes`) или её формы; content:check ⚠ — у кого ещё откат по полу |
 | Битые кадры | — | `assets/sprites/fixes.json` → `{"<id>": {"skip": {"death": [2, 3]}}}` |
 | Иконка навыка | `assets/ui/icons/skill_<id навыка>.png` (квадрат, рисуется в 96×96) | сама; RO-иконка — `RO_SKILL_ICONS` |
-| Эффект | `assets/effects/<id>.png` (атлас) | `assets/effects/effects.json → effects` (cell, columns, frames, ms, anchor) и `→ skills` |
+| Эффект | `assets/effects/<id>.png` (атлас) | `assets/effects/effects.json → effects` (cell, columns, frames, ms, anchor) и `→ skills` (роль на навык), пошагово — раздел 12а |
 | Фон боя/карты главы | `assets/backgrounds/bg_battle_ch<N>.jpg`, `bg_map_ch<N>.jpg` | сам (glob в `backdrops.ts`), N — тема 1–3 |
 | UI (кнопки, панели, сундук, иконки) | `assets/ui/*.png` | `assets/manifest.json → assets.<id>` (`file`, `w`, `h`, `slice` для 9-slice); id скина из `skin.ts` — файл побеждает |
 | Звук / музыка | `assets/audio/<id>.ogg` + `<id>.m4a` (id — `src/game/audioCatalog.ts`; музыка `music_*`, фоны `amb_*`) | сам (glob в `audio.ts`, файл побеждает заглушку); список и форматы — `docs/design/audio.md`, `docs/ART_EXTRACT_RO.md` 6.1 |
@@ -380,6 +380,36 @@ heroes?: [id героя], heroCards?: {blue?, purple?}, heroPicks?: [{rarity}]}`
 глазами (`npm run dev`); отметить issue и `docs/qa/FIXLIST.md` «Ждёт графики».
 Новый или заменённый PNG — `npm run assets:webp` (WebP без потерь для прод-сборки, коммитить `assets-webp/`). Без этого
 файл уходит в игру как PNG (работает, просто тяжелее; `npm run build` предупредит), см. `docs/content/performance.md`, «Загрузка».
+
+## 12а. Новый эффект способности (атлас RO) — за 10–15 минут
+
+Владелец время от времени кладёт атласы эффектов в git (ветка `art/…` или сразу `main`). Цель — чтобы каждый новый атлас
+в тот же день играл в бою. Порядок:
+
+1. Подтянуть арт: `git fetch origin && git merge origin/main` (или ветку владельца), `git show --stat <коммит>` — какие
+   `assets/effects/fx_*.png` пришли. Владелец обычно сам дописывает запись в `assets/effects/effects.json → effects`
+   (`id`, `file`, `cell`, `columns`, `frames`, `ms`, `delayMs`, `anchor` — точка ног в клетке) и строку в `assets/effects/README.md`.
+   Если записи нет — добавить её по образцу соседних (клетка = ширина листа / `columns`). Не подключённый атлас найдёт тест
+   `tests/animated-fx.test.ts` («все привязки…»): любой `fx_job_*` / `fx_swordman_*` без навыка — ошибка. Счётчик атласов
+   в том же тесте и список в `tests/used-assets.test.ts` — обновить.
+2. Посмотреть кадры: открыть PNG или склеить превью (Pillow, клетки по `cell`) — что это: попадание, аура, площадь, снаряд.
+3. Привязать к навыку — строка в `effects.json → skills`: `"<id навыка>": {"<роль>": "<id атласа>"}`. Роли:
+   `hit` — на каждой цели в момент урона (вспышка, взрыв, разрез); `buff` — на союзнике, когда навык даёт бафф или щит
+   (заменяет общий щит и процедурную ауру); `debuff` — на враге, когда навык вешает статус; `cast` — на кастере в начале
+   удара/каста; `ground` — один раз по площади (центр целей; ближний навык — под кастером); `projectile` — летит от кастера
+   к цели, кадры по кругу (рецепты-снаряды `skillSigs.ts`: Огненный шар, Ледяная стрела, Гром Юпитера, колбы алхимика,
+   Ядовитый нож; все навыки с `lookOf(...).projectile`; у площади `arrows` — падает сверху на каждую цель).
+   Один атлас можно дать многим навыкам (монстрам — охотно: разрезы, яды, взрывы). Кода не нужно.
+   Для `projectile` при необходимости — строка в `FLY_LOOK` (`src/game/skillSigs.ts`): ширина на экране и поворот
+   (`dir` — картинка смотрит вправо, `up` — вверх; без поворота — если кувырок уже в кадрах).
+4. Память: бой грузит только атласы навыков своих юнитов (`battleFxIds`), роли из `skills` подхватываются сами. Тяжёлые листы
+   (больше 8 МБ по w×h×4: Буря, Метеоры, Совершенство оружия, Святой крест) — только ультам героев и боссов, не рядовым монстрам.
+5. WebP: `npm run assets:webp` (коммитить `assets-webp/`), затем `npm run check`.
+6. Глазами: `npx tsx scripts/skillfx-save.ts > /tmp/squads.json`, затем
+   `SHOTS_SIZE=390x844 SHOTS_PORT=5781 node scripts/skillfx-shots.mjs /tmp/squads.json /tmp/fx <отряд>` — кадры навыков героев
+   в бою (отряды «ветки-1…5», «база-1…3» — в `skillfx-save.ts`). Эффект читается на 390×844, не закрывает цифры и полоски.
+   Монстров — `npm run dev`, этап с этим монстром.
+7. Строка в `docs/content/skills-vfx.md` («Атласы RO»), коммит.
 
 ## 13. Баланс главы
 

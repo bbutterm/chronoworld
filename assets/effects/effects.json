@@ -941,11 +941,212 @@
         "seed": 1,
         "note": "SM_MAGNUM effectIdOnCaster 17; warm caster ring, not area explosion"
       }
+    },
+    {
+      "id": "fx_job_mage_frost_diver_release",
+      "file": "effects/fx_job_mage_frost_diver_release.png",
+      "cell": [
+        28,
+        148
+      ],
+      "columns": 8,
+      "frames": 8,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        28.0,
+        52.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "27",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "MG_FROSTDIVER.releaseEffectId 27; authentic travelling-source animation; runtime projectile motion not wired"
+      }
+    },
+    {
+      "id": "fx_job_wizard_jupitel_thunder_target",
+      "file": "effects/fx_job_wizard_jupitel_thunder_target.png",
+      "cell": [
+        50,
+        50
+      ],
+      "columns": 2,
+      "frames": 2,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        24.0,
+        25.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "93",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "WZ_JUPITEL.effectId 93; use-level target effect, kept art-only because runtime has no exact use-level target hook"
+      }
+    },
+    {
+      "id": "fx_job_wizard_jupitel_thunder_projectile",
+      "file": "effects/fx_job_wizard_jupitel_thunder_projectile.png",
+      "cell": [
+        80,
+        80
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        39.0,
+        40.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "94",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "WZ_JUPITEL.beforeHitEffectId 94; projectile source; runtime flight not wired"
+      }
+    },
+    {
+      "id": "fx_job_sage_volcano_ground",
+      "file": "effects/fx_job_sage_volcano_ground.png",
+      "cell": [
+        122,
+        98
+      ],
+      "columns": 8,
+      "frames": 28,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        61.0,
+        74.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "239",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "SA_VOLCANO.groundEffectId 239; ground area effect"
+      }
+    },
+    {
+      "id": "fx_job_alchemist_acid_terror_projectile",
+      "file": "effects/fx_job_alchemist_acid_terror_projectile.png",
+      "cell": [
+        32,
+        34
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        15.0,
+        39.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "298",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "AM_ACIDTERROR.beforeHitEffectId 298; authentic pre-hit projectile cue; runtime flight not wired"
+      }
+    },
+    {
+      "id": "fx_job_thief_venom_knife_projectile",
+      "file": "effects/fx_job_thief_venom_knife_projectile.png",
+      "cell": [
+        42,
+        38
+      ],
+      "columns": 2,
+      "frames": 2,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        20.0,
+        41.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "600",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "AS_VENOMKNIFE.beforeHitEffectId 600; authentic thrown-knife source; runtime flight not wired"
+      }
+    },
+    {
+      "id": "fx_job_archer_arrow_shower_source",
+      "file": "effects/fx_job_archer_arrow_shower_source.png",
+      "cell": [
+        102,
+        92
+      ],
+      "columns": 1,
+      "frames": 1,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        50.0,
+        66.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "ef_arrow_shower_projectile",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "AC_SHOWER.effectId ef_arrow_shower_projectile; original named 3D source duplicated 10x; role contextual, not mapped to area"
+      }
     }
   ],
   "skills": {
+    "alde_keeper_hands": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "alde_keeper_rewind": {
+      "debuff": "fx_job_sage_dispell"
+    },
     "assassin_leap": {
       "hit": "fx_job_assassin_sonic_blow"
+    },
+    "guard_shield_wall": {
+      "buff": "fx_job_crusader_defender"
+    },
+    "job_acolyte_angelus": {
+      "buff": "fx_job_crusader_defender"
     },
     "job_acolyte_blessing": {
       "buff": "fx_job_acolyte_blessing"
@@ -959,8 +1160,39 @@
     "job_acolyte_signum_crucis": {
       "debuff": "fx_job_acolyte_signum_crucis"
     },
+    "job_alchemist_acid_bomb": {
+      "projectile": "fx_job_alchemist_acid_terror_projectile"
+    },
+    "job_alchemist_acid_terror": {
+      "projectile": "fx_job_alchemist_acid_terror_projectile"
+    },
+    "job_alchemist_demonstration": {
+      "projectile": "fx_job_alchemist_acid_terror_projectile",
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "job_archer_arrow_shower": {
+      "projectile": "fx_job_archer_arrow_shower_source"
+    },
+    "job_assassin_grimtooth": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "job_assassin_meteor_assault": {
+      "hit": "fx_job_merchant_cart_revolution"
+    },
     "job_assassin_sonic_blow": {
       "hit": "fx_job_assassin_sonic_blow"
+    },
+    "job_assassin_venom_splasher": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "job_blacksmith_cart_termination": {
+      "hit": "fx_job_merchant_cart_revolution"
+    },
+    "job_blacksmith_hammer_fall": {
+      "hit": "fx_job_merchant_cart_revolution"
+    },
+    "job_blacksmith_power_thrust": {
+      "buff": "fx_job_knight_two_hand_quicken"
     },
     "job_blacksmith_weapon_perfection": {
       "buff": "fx_job_blacksmith_weapon_perfection"
@@ -986,23 +1218,69 @@
     "job_knight_bowling_bash": {
       "cast": "fx_job_knight_bowling_bash"
     },
+    "job_knight_charge_attack": {
+      "hit": "fx_job_crusader_shield_charge"
+    },
+    "job_knight_spiral_pierce": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
     "job_knight_two_hand_quicken": {
       "buff": "fx_job_knight_two_hand_quicken"
     },
+    "job_mage_cold_bolt": {
+      "projectile": "fx_job_mage_frost_diver_release",
+      "hit": "fx_job_mage_frost_diver"
+    },
     "job_mage_fire_ball": {
-      "hit": "fx_job_mage_fire_bolt"
+      "hit": "fx_job_mage_fire_bolt",
+      "projectile": "fx_job_mage_fire_ball_projectile"
     },
     "job_mage_fire_bolt": {
       "hit": "fx_job_mage_fire_bolt"
     },
     "job_mage_frost_diver": {
-      "hit": "fx_job_mage_frost_diver"
+      "hit": "fx_job_mage_frost_diver",
+      "projectile": "fx_job_mage_frost_diver_release"
     },
     "job_mage_thunderstorm": {
       "hit": "fx_job_mage_thunderstorm"
     },
     "job_merchant_cart_revolution": {
       "hit": "fx_job_merchant_cart_revolution"
+    },
+    "job_merchant_mammonite": {
+      "hit": "fx_job_thief_steal"
+    },
+    "job_monk_asura_strike": {
+      "hit": "fx_job_hunter_claymore_trap"
+    },
+    "job_monk_steel_body": {
+      "buff": "fx_job_crusader_defender"
+    },
+    "job_priest_assumptio": {
+      "buff": "fx_job_acolyte_blessing"
+    },
+    "job_priest_impositio_manus": {
+      "buff": "fx_job_knight_two_hand_quicken"
+    },
+    "job_priest_lex_aeterna": {
+      "debuff": "fx_job_sage_dispell"
+    },
+    "job_priest_magnus_exorcismus": {
+      "ground": "fx_job_crusader_grand_cross",
+      "hit": "fx_job_acolyte_holy_light"
+    },
+    "job_rogue_back_stab": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "job_rogue_gank": {
+      "hit": "fx_job_thief_steal"
+    },
+    "job_rogue_strip_armor": {
+      "debuff": "fx_job_sage_dispell"
+    },
+    "job_rogue_strip_weapon": {
+      "debuff": "fx_job_sage_dispell"
     },
     "job_sage_dispell": {
       "debuff": "fx_job_sage_dispell"
@@ -1011,7 +1289,11 @@
       "hit": "fx_job_sage_earth_spike"
     },
     "job_sage_heavens_drive": {
-      "ground": "fx_job_sage_heavens_drive"
+      "ground": "fx_job_sage_heavens_drive",
+      "hit": "fx_job_sage_earth_spike"
+    },
+    "job_sage_volcano": {
+      "ground": "fx_job_sage_volcano_ground"
     },
     "job_swordman_magnum_break": {
       "cast": "fx_job_swordman_magnum_break"
@@ -1019,14 +1301,60 @@
     "job_thief_envenom": {
       "hit": "fx_job_thief_envenom"
     },
+    "job_thief_steal": {
+      "hit": "fx_job_thief_steal"
+    },
+    "job_thief_venom_knife": {
+      "projectile": "fx_job_thief_venom_knife_projectile",
+      "hit": "fx_job_thief_envenom"
+    },
+    "job_wizard_frost_nova": {
+      "hit": "fx_job_mage_frost_diver"
+    },
+    "job_wizard_jupitel_thunder": {
+      "projectile": "fx_job_wizard_jupitel_thunder_projectile",
+      "hit": "fx_job_wizard_jupitel_thunder_target"
+    },
     "job_wizard_meteor_storm": {
-      "ground": "fx_job_wizard_meteor_storm"
+      "ground": "fx_job_wizard_meteor_storm",
+      "hit": "fx_job_mage_fire_bolt"
     },
     "job_wizard_storm_gust": {
       "ground": "fx_job_wizard_storm_gust"
     },
+    "mage_firestorm": {
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "maze_baphomet_curse": {
+      "debuff": "fx_job_acolyte_signum_crucis"
+    },
+    "maze_baphomet_scythe": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "maze_mantis_scythes": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "maze_scribe_seal": {
+      "debuff": "fx_job_sage_dispell"
+    },
+    "maze_side_winder_venom": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "maze_vagabond_wolf_howl": {
+      "buff": "fx_swordman_endure"
+    },
+    "mob2_boss_rot_spores": {
+      "hit": "fx_job_thief_envenom",
+      "debuff": "fx_job_hunter_sandman"
+    },
+    "mob2_melee_bite": {
+      "hit": "fx_job_thief_envenom"
+    },
     "mob2_ranged_poison_arrow": {
       "hit": "fx_job_thief_envenom"
+    },
+    "mob3_boss_nova": {
+      "debuff": "fx_job_sage_dispell"
     },
     "mob3_elite_cleave": {
       "hit": "fx_job_assassin_sonic_blow"
@@ -1034,7 +1362,120 @@
     "mob3_melee_rend": {
       "hit": "fx_job_assassin_sonic_blow"
     },
+    "mob4_boss_ult": {
+      "ground": "fx_job_crusader_grand_cross",
+      "debuff": "fx_job_sage_dispell"
+    },
+    "mob4_boss_wrappings": {
+      "buff": "fx_job_crusader_defender"
+    },
+    "mob4_isis_blessing": {
+      "buff": "fx_job_acolyte_blessing"
+    },
+    "mob4_mummy_curse": {
+      "debuff": "fx_job_sage_dispell"
+    },
+    "mob4_scorpion_sting": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "mob4_verit_maul": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "mob5_boss_moon_call": {
+      "hit": "fx_job_acolyte_holy_light"
+    },
+    "mob5_horong_foxfire": {
+      "projectile": "fx_job_mage_fire_ball_projectile",
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "mob5_munak_elder_seal": {
+      "debuff": "fx_job_sage_dispell"
+    },
+    "mob5_munak_talisman": {
+      "buff": "fx_job_crusader_defender"
+    },
+    "mob6_boss_boarding_hook": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "mob6_boss_ghost_cannons": {
+      "hit": "fx_job_hunter_claymore_trap"
+    },
+    "mob6_bosun_all_hands": {
+      "buff": "fx_job_acolyte_increase_agi"
+    },
+    "mob6_bosun_anchor": {
+      "hit": "fx_job_crusader_shield_charge"
+    },
+    "mob6_melee_rusty_saber": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "mob6_tank_shell": {
+      "buff": "fx_job_crusader_defender"
+    },
+    "mob7_boss_dark_chains": {
+      "debuff": "fx_job_sage_dispell"
+    },
+    "mob7_boss_meteor_storm": {
+      "ground": "fx_job_wizard_meteor_storm",
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "mob7_fast_bloody_knife": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "mob7_melee_ghost_scythe": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "mob_boss1_quake": {
+      "ground": "fx_job_sage_heavens_drive",
+      "hit": "fx_job_sage_earth_spike"
+    },
+    "mob_boss2_curse": {
+      "hit": "fx_job_thief_envenom",
+      "debuff": "fx_job_sage_dispell"
+    },
+    "mob_eclipse_moon_leap": {
+      "hit": "fx_job_crusader_shield_charge"
+    },
+    "mob_elite_smash": {
+      "hit": "fx_job_crusader_shield_charge"
+    },
+    "mob_lord_of_death_march": {
+      "ground": "fx_job_wizard_storm_gust"
+    },
+    "mob_lord_of_death_review": {
+      "buff": "fx_swordman_endure"
+    },
+    "mob_lord_of_death_scythe": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "mob_mastering_jelly_armor": {
+      "buff": "fx_job_crusader_defender"
+    },
     "mob_poporing_goo": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "orc_high_war_hide": {
+      "buff": "fx_job_knight_two_hand_quicken"
+    },
+    "orc_lady_war_drum": {
+      "buff": "fx_swordman_endure"
+    },
+    "orc_lord_ancestors_rise": {
+      "ground": "fx_job_sage_heavens_drive"
+    },
+    "orc_skeleton_ancestor_blow": {
+      "hit": "fx_job_crusader_shield_charge"
+    },
+    "orc_warrior_axe_rend": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "orc_zombie_grave_bite": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "sewer_golden_bug_coin_rain": {
+      "hit": "fx_job_thief_steal"
+    },
+    "sewer_plankton_spit": {
       "hit": "fx_job_thief_envenom"
     },
     "swordman_bash": {

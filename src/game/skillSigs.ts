@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { animatedEffect, animatedFxKey, loopFrameAt, type SkillFx as AtlasRoles } from './animatedFx';
 import { clamp01, ease } from './perf';
 import { FIRE_BOLT_MS, FX_TEX as T, SFX_DEPTH, type FxPoint, type SkillFx } from './skillFx';
 import type { Aura, Proc, Signature } from './skillVisuals';
@@ -22,6 +23,8 @@ export interface SigCtx {
   /** 1 — бьёт вправо (отряд A), −1 — влево. */
   dir: number;
   tint: number;
+  /** Атласы RO этого навыка (effects.json → skills), уже загруженные: рецепт берёт projectile вместо своего снаряда. */
+  atlas?: AtlasRoles;
 }
 
 interface SigDef {
@@ -71,6 +74,57 @@ function fly(fx: SkillFx, tex: string, x0: number, y0: number, x1: number, y1: n
     if (spin) im!.setRotation(spin * q);
     if (trail >= 0 && (frame++ & 1) === 0) fx.trailAt(x, y, trail);
   }, delay, onLand);
+}
+
+/**
+ * Как летит атлас-снаряд (роль projectile): ширина на экране (единицы игры 1080×1920) и поворот.
+ * rot: 'dir' — картинка смотрит вправо, поворачивается по направлению полёта; 'up' — смотрит вверх (ледяной осколок);
+ * без rot — не поворачивается (кувыркающийся нож и колба уже нарисованы кадрами). Нет в таблице — ширина клетки ×1.6.
+ */
+export const FLY_LOOK: Record<string, { w?: number; rot?: 'dir' | 'up' }> = {
+  fx_job_mage_fire_ball_projectile: { w: 200, rot: 'dir' },
+  fx_job_mage_frost_diver_release: { w: 46, rot: 'up' },
+  fx_job_wizard_jupitel_thunder_projectile: { w: 150 },
+  fx_job_alchemist_acid_terror_projectile: { w: 76 },
+  fx_job_thief_venom_knife_projectile: { w: 92 },
+  fx_job_archer_arrow_shower_source: { w: 200 },
+};
+
+/**
+ * Атлас-снаряд RO (effects.json, роль projectile) летит из from в to за dur (кадры — по кругу), с дугой arc,
+ * шлейфом trail (цвет, −1 — без) и оттенком tint; по прилёте — onLand. Картинка — из пула SkillFx, как у процедурных.
+ * false — атласа нет в каталоге (вызывающий рисует свой снаряд).
+ */
+export function flyAtlas(fx: SkillFx, id: string, from: { x: number; y: number }, to: { x: number; y: number }, dur: number, delay: number, arc = 0, trail = -1, onLand?: () => void, tint = 0xffffff): boolean {
+  const eff = animatedEffect(id);
+  if (!eff) return false;
+  const look = FLY_LOOK[id] ?? {};
+  const w = look.w ?? eff.cell[0] * 1.6;
+  const o = fx.img(animatedFxKey(id), from.x, from.y, tint, SFX_DEPTH + 3, NORMAL);
+  o.setFrame(0).setOrigin(0.5).setDisplaySize(w, (w * eff.cell[1]) / eff.cell[0]);
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  let frame = 0;
+  fx.run(o, dur, (q, im) => {
+    const x = from.x + dx * q;
+    const y = from.y + dy * q - Math.sin(q * Math.PI) * arc;
+    im!.setPosition(x, y).setFrame(loopFrameAt(eff, q * dur));
+    if (look.rot) {
+      const a = Math.atan2(dy - arc * Math.PI * Math.cos(q * Math.PI), dx);
+      im!.setRotation(look.rot === 'up' ? a + Math.PI / 2 : a);
+    }
+    if (trail >= 0 && (frame++ & 1) === 0) fx.trailAt(x, y, trail);
+  }, delay, onLand);
+  return true;
+}
+
+/**
+ * Снаряд навыка: атлас RO (k.atlas.projectile) по той же траектории, иначе процедурный (own). Атлас кладёт свой
+ * шлейф trail и дугу arc; попадание — onLand в обоих случаях.
+ */
+function shot(fx: SkillFx, k: SigCtx, from: { x: number; y: number }, to: { x: number; y: number }, dur: number, delay: number, arc: number, trail: number, onLand: () => void, own: () => void): void {
+  const id = k.atlas?.projectile;
+  if (!id || !flyAtlas(fx, id, from, to, dur, delay, arc, trail, onLand)) own();
 }
 
 /** Кольцо по земле под точкой. */
@@ -511,7 +565,11 @@ const SIGS: Record<Signature, SigDef> = {
     draw: (fx, k) => {
       const p = k.uniq[0];
       if (!p) return;
-      fly(fx, T.blade, k.c.x, k.c.y - 10, p.x, p.y, 0xc8ffa0, 0.8, 240, 0, 0x8fe04a, () => fx.skillHit('envenom', p, k.dir), 0, NORMAL);
+      const land = () => fx.skillHit('envenom', p, k.dir);
+      const knife = k.atlas?.projectile;
+      if (!knife || !flyAtlas(fx, knife, { x: k.c.x, y: k.c.y - 10 }, p, 240, 0, 20, 0x8fe04a, land)) {
+        fly(fx, T.blade, k.c.x, k.c.y - 10, p.x, p.y, 0xc8ffa0, 0.8, 240, 0, 0x8fe04a, land, 0, NORMAL);
+      }
     },
   },
   sonicBlow: {
@@ -701,7 +759,8 @@ const SIGS: Record<Signature, SigDef> = {
     draw: (fx, k) => {
       const p = k.uniq[0];
       if (!p) return;
-      lob(fx, T.flask, k.c, p, 0xc8f040, 1.2, 380, 0, 160, 9, () => acidSplash(fx, p, 0xc8f040));
+      const land = () => acidSplash(fx, p, 0xc8f040);
+      shot(fx, k, { x: k.c.x, y: k.c.y - 30 }, p, 380, 0, 160, -1, land, () => lob(fx, T.flask, k.c, p, 0xc8f040, 1.2, 380, 0, 160, 9, land));
     },
   },
   demonstration: {
@@ -710,18 +769,22 @@ const SIGS: Record<Signature, SigDef> = {
     draw: (fx, k) => {
       const p = k.uniq[0];
       if (!p) return;
-      lob(fx, T.flask, k.c, p, 0xff7a2a, 1.2, 380, 0, 160, 9, () => {
+      const land = () => {
         fx.fireBurst(p.x, p.y, p.feet, true, motion.reduced);
         fx.splat(p.x, p.feet - 10, 0x3a2010, 1.3);
         fx.later(160, () => fx.rise(p.x, p.feet - 10, 0xff8a20, 8, 40));
-      });
+      };
+      shot(fx, k, { x: k.c.x, y: k.c.y - 30 }, p, 380, 0, 160, 0xff8a20, land, () => lob(fx, T.flask, k.c, p, 0xff7a2a, 1.2, 380, 0, 160, 9, land));
     },
   },
   acidBomb: {
     // Кислотный всплеск: колбы градом на всех врагов.
     hit: (k, i) => 380 + indexOf(k, i) * 80,
     draw: (fx, k) => {
-      k.uniq.forEach((p, i) => lob(fx, T.flask, k.c, p, 0xb8f040, 1.1, 380, i * 80, 200, 11, () => acidSplash(fx, p, 0xb8f040)));
+      k.uniq.forEach((p, i) => {
+        const land = () => acidSplash(fx, p, 0xb8f040);
+        shot(fx, k, { x: k.c.x, y: k.c.y - 30 }, p, 380, i * 80, 200, -1, land, () => lob(fx, T.flask, k.c, p, 0xb8f040, 1.1, 380, i * 80, 200, 11, land));
+      });
     },
   },
   slimPotion: {
@@ -742,10 +805,11 @@ const SIGS: Record<Signature, SigDef> = {
     draw: (fx, k) => {
       const p = k.uniq[0];
       if (!p) return;
-      fx.projectile('fireball', k.c, p, 0xff8a20, 300, 0, () => {
+      const land = () => {
         fx.fireBurst(p.x, p.y, p.feet, true, motion.reduced);
         groundRing(fx, p, 0xff5a10, 0.5, 4, 520);
-      });
+      };
+      shot(fx, k, k.c, p, 300, 0, Math.min(120, Math.abs(p.x - k.c.x) * 0.18), 0xff8a20, land, () => fx.projectile('fireball', k.c, p, 0xff8a20, 300, 0, land));
     },
   },
   coldBolt: {
@@ -756,11 +820,12 @@ const SIGS: Record<Signature, SigDef> = {
         const side = k.c.x <= p.x ? -1 : 1;
         const tx = p.x + ((i % 3) - 1) * 22;
         const from = { x: tx + side * 200, y: p.y - 600, feet: p.feet };
-        fx.projectile('ice', from, { ...p, x: tx }, 0x9fe6ff, FIRE_BOLT_MS, i * 150, () => {
+        const land = () => {
           fx.glow(tx, p.y, 0xbfeaff, 0.8, 3, 320, 0, 1);
           fx.burst(tx, p.y, 0xdff6ff, 10);
           groundRing(fx, p, 0x8fdcff, 0.4, 2.4, 420);
-        });
+        };
+        shot(fx, k, from, { x: tx, y: p.y }, FIRE_BOLT_MS, i * 150, 0, 0xbfeaff, land, () => fx.projectile('ice', from, { ...p, x: tx }, 0x9fe6ff, FIRE_BOLT_MS, i * 150, land));
       });
     },
   },
@@ -770,12 +835,13 @@ const SIGS: Record<Signature, SigDef> = {
     draw: (fx, k) => {
       const p = k.uniq[0];
       if (!p) return;
-      fx.projectile('lightning', k.c, p, 0xffe45a, 300, 0, () => {
+      const land = () => {
         for (let i = 0; i < 3; i++) fx.lightning({ x: p.x + (i - 1) * 50, y: p.y, feet: p.feet }, 0xffe45a, i * 50);
         for (let i = 0; i < 3; i++) fx.streakAt(p.x + k.dir * 80, p.y - 20 + i * 20, k.dir, 0xfff3a8, 1.6, 280, i * 30);
         fx.glow(p.x, p.y, 0xffe45a, 1, 4, 380, 0, 1);
         fx.flash(0xfff3a8, 0.08, 160);
-      });
+      };
+      shot(fx, k, k.c, p, 300, 0, 40, 0x9fb8ff, land, () => fx.projectile('lightning', k.c, p, 0xffe45a, 300, 0, land));
     },
   },
   meteorStorm: {
@@ -1239,4 +1305,60 @@ export function playProc(fx: SkillFx, proc: Proc, c: FxPoint, targets: FxPoint[]
       riseTex(fx, T.note, c, tint, 2, 40, 700, 0.7);
       return;
   }
+}
+
+// ---------- зрелищность: ульта, крупный удар, смерть босса, бафф ----------
+
+/**
+ * Подготовка ульты (ульта монстра/босса, «большой» навык героя — SkillVisual.big): короткая вспышка-аура у кастера —
+ * искры стягиваются к телу, кольцо под ногами, столбик света. ≈ 300 мс, не выше головы — не заходит на полоски.
+ */
+export function playCharge(fx: SkillFx, c: FxPoint, tint: number): void {
+  converge(fx, c.x, c.y, tint, 10, 130, 240);
+  fx.glow(c.x, c.y, tint, 0.6, 3.2, 320, 0, 0.75);
+  fx.glow(c.x, c.y, 0xffffff, 0.3, 1.6, 200, 60, 0.8);
+  groundRing(fx, c, tint, 0.4, 3.4, 420);
+  fx.rise(c.x, c.feet, tint, 6, 40);
+}
+
+/** Попадание ульты: лёгкая встряска и вспышка экрана (обе — не при «Уменьшить анимацию»), кольцо на каждой цели. */
+export function playBigImpact(fx: SkillFx, targets: FxPoint[], tint: number): void {
+  fx.shake(0.0045, 160);
+  fx.flash(0xffffff, 0.1, 150);
+  for (const p of targets.slice(0, 5)) fx.glow(p.x, p.y, tint, 0.4, 2.8, 300, 0, 0.9, T.ring);
+}
+
+/** Крупный удар (≥ 25% ОЗ цели, удар ульты): золотая звезда-вспышка «крита» за цифрой, белое ядро, искры. */
+export function playCrit(fx: SkillFx, p: FxPoint, dir: number): void {
+  const x = p.x - dir * 6;
+  fx.glow(x, p.y, 0xffe070, 1.4, 4.2, 220, 0, 1, T.spark);
+  fx.glow(x, p.y, 0xffffff, 0.6, 2.2, 140, 0, 1);
+  fx.glow(x, p.y, 0xffc040, 0.4, 3, 300, 0, 0.9, T.ring);
+  fx.burst(x, p.y, 0xfff0a0, 10);
+}
+
+/** Бафф на союзнике: три искорки мерцают над головой (≈ 0,7 с), под полосками ОЗ. */
+export function playTwinkle(fx: SkillFx, x: number, y: number, tint: number): void {
+  for (let i = 0; i < 3; i++) {
+    const sx = x + (i - 1) * 34;
+    const sy = y - (i === 1 ? 14 : 0);
+    const o = fx.img(T.spark, sx, sy, i === 1 ? 0xffffff : tint, SFX_DEPTH + 3, ADD);
+    o.setScale(0);
+    fx.run(o, 520, (q, im) => {
+      const s = Math.sin(q * Math.PI);
+      im!.setScale(0.9 * s * (0.8 + 0.2 * Math.sin(q * 18))).setAlpha(s).setRotation(q * 1.5);
+    }, i * 110);
+  }
+}
+
+/** Смерть босса: белая вспышка, сильная встряска, огненно-золотые кольца и столб искр (пауза-«hit stop» — в BattleScene). */
+export function playBossDeath(fx: SkillFx, p: FxPoint): void {
+  fx.flash(0xffffff, 0.28, 260);
+  fx.shake(0.01, 320);
+  fx.glow(p.x, p.y, 0xffd060, 1.2, 7, 620, 0, 1);
+  fx.glow(p.x, p.y, 0xffffff, 0.8, 3.6, 300, 0, 1);
+  fx.glow(p.x, p.y, 0xff8a3a, 0.5, 6, 700, 80, 0.9, T.ring);
+  groundRing(fx, p, 0xffd060, 0.6, 9, 800);
+  fx.burst(p.x, p.y, 0xffe890, 26);
+  fx.rise(p.x, p.feet, 0xffd060, 12, 70);
 }

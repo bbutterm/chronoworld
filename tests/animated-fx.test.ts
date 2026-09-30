@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, queueAnimatedFx, selectedAnimatedEffect } from '../src/game/animatedFx';
+import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, loopFrameAt, queueAnimatedFx, selectedAnimatedEffect } from '../src/game/animatedFx';
 
 describe('RO animated effects', () => {
-  it('queues all 35 captured atlases with catalog cell sizes', () => {
+  it('queues all 42 captured atlases with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(35);
+    expect(queued).toHaveLength(42);
+    expect(queued).toContainEqual(['anim_fx_job_sage_volcano_ground', 'effects/fx_job_sage_volcano_ground.png', 122, 98]);
+    expect(queued).toContainEqual(['anim_fx_job_thief_venom_knife_projectile', 'effects/fx_job_thief_venom_knife_projectile.png', 42, 38]);
     expect(queued).toContainEqual(['anim_fx_job_thief_steal', 'effects/fx_job_thief_steal.png', 188, 176]);
     expect(queued).toContainEqual(['anim_fx_job_swordman_magnum_break', 'effects/fx_job_swordman_magnum_break.png', 276, 198]);
     expect(queued).toContainEqual(['anim_fx_swordman_endure', 'effects/fx_swordman_endure.png', 156, 156]);
@@ -86,9 +88,41 @@ describe('эффекты навыков (effects.json → skills)', () => {
       expect(roles.buff).toBeUndefined();
       for (const fxId of Object.values(roles)) expect(animatedEffect(fxId)).toBeDefined();
     }
-    // EF_FIREBALL is a beforeHit capture, not a freely travelling projectile.
-    expect('projectile' in (skillFx('job_mage_fire_ball') ?? {})).toBe(false);
+    // Роль projectile (29.09): кадры EF_FIREBALL летят от мага к цели (skillSigs flyAtlas, кадры по кругу),
+    // попадание — по-прежнему отдельный лист огня.
+    expect(skillFx('job_mage_fire_ball')?.projectile).toBe('fx_job_mage_fire_ball_projectile');
+    expect(skillFx('job_thief_venom_knife')?.projectile).toBe('fx_job_thief_venom_knife_projectile');
+    expect(skillFx('job_wizard_jupitel_thunder')).toEqual({ projectile: 'fx_job_wizard_jupitel_thunder_projectile', hit: 'fx_job_wizard_jupitel_thunder_target' });
   });
+  it('все привязки: навык есть в контенте, роль известна, атлас есть в каталоге; каждый атлас к чему-то привязан', async () => {
+    const { skillFx: _unused } = await import('../src/game/animatedFx');
+    void _unused;
+    const { loadFullContext } = await import('../scripts/lib/content-node');
+    const catalog = (await import('../assets/effects/effects.json')).default as unknown as { effects: { id: string }[]; skills: Record<string, Record<string, string>> };
+    const skills = loadFullContext().content.skills;
+    const roles = new Set(['hit', 'buff', 'cast', 'ground', 'debuff', 'projectile']);
+    const used = new Set<string>();
+    for (const [skill, map] of Object.entries(catalog.skills)) {
+      expect(skills[skill], `нет навыка ${skill}`).toBeDefined();
+      for (const [role, fx] of Object.entries(map)) {
+        expect(roles.has(role), `${skill}: роль ${role}`).toBe(true);
+        expect(animatedEffect(fx), `${skill}: нет атласа ${fx}`).toBeDefined();
+        used.add(fx);
+      }
+    }
+    // Общие (fx_hit, fx_heal…) рисуются правилами боя; все атласы навыков fx_job_* / fx_swordman_* должны быть подключены.
+    const idle = catalog.effects.map((e) => e.id).filter((id) => !used.has(id) && /^fx_(job|swordman)_/.test(id));
+    expect(idle).toEqual([]);
+  });
+
+  it('летящий атлас: кадры по кругу без паузы', () => {
+    const knife = animatedEffect('fx_job_thief_venom_knife_projectile')!;
+    expect(loopFrameAt(knife, 0)).toBe(0);
+    expect(loopFrameAt(knife, knife.ms)).toBe(1);
+    expect(loopFrameAt(knife, knife.ms * 2)).toBe(0);
+    expect(loopFrameAt(animatedEffect('fx_job_archer_arrow_shower_source')!, 999)).toBe(0);
+  });
+
   it('skillFx: нет привязки — undefined, без id — undefined', async () => {
     const { skillFx } = await import('../src/game/animatedFx');
     expect(skillFx(undefined)).toBeUndefined();

@@ -593,8 +593,16 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
   Удары и статусы пассивки рисуются по ней (событие `passive` → `UnitView.proc`), а не по последней атаке.
 - **Эффекты навыков (общие правила):** `skillLook.ts` выводит стихию/снаряд/площадь из id и эффектов (`FX_OVERRIDE` — явные), `skillFx.ts` рисует их кодом;
   кадры RO — `assets/effects/effects.json` (`fx_hit`, `fx_arrow`, `fx_magic`, `fx_heal`, `fx_death`, `fx_shield`), карта навык → эффект —
-  секция `skills` там же (`{"<skillId>": {"hit": "...", "buff": "..."}}`, сейчас пустая — работают правила по умолчанию, см.
-  `assets/effects/README.md`); статичные `assets/fx/*` — запасные.
+  секция `skills` там же (роли `hit` — на цели при уроне, `buff` — на союзнике при баффе/щите, `debuff` — на враге при статусе,
+  `cast` — на кастере, `ground` — раз по площади, `projectile` — летит от кастера к цели, кадры по кругу: `skillSigs.ts flyAtlas`,
+  вид полёта — `FLY_LOOK`; семантика — `assets/effects/README.md`); статичные `assets/fx/*` — запасные. Бой грузит только атласы
+  навыков своих юнитов (`battleFxIds`, роли из `skills` учитываются сами). Рецепт «подключить новый эффект за 10–15 минут» —
+  `docs/CONTENT_RECIPES.md`, раздел 12а; что к чему привязано — `docs/content/skills-vfx.md`, «Атласы RO».
+- **Зрелищность боя (29.09):** ульта монстра/босса (событие `ult`) и «большой» навык героя (`SkillVisual.big`, по одному на
+  каждую из 36 форм, тест `tests/battle-spectacle.test.ts`) — аура подготовки у кастера (`playCharge`), в момент удара лёгкая
+  встряска и вспышка (`playBigImpact`); крупный удар (≥ 25% ОЗ цели или удар ульты) — золотая вспышка «крита» (`playCrit`);
+  бафф/щит — мерцание над головой (`playTwinkle`); смерть босса — `playBossDeath` и пауза «hit stop» 100 мс (`BattleScene.hitStop`:
+  стоят часы боя, твины и анимации). «Уменьшить анимацию» снимает тряску, вспышки экрана и hit stop.
 - **Значки навыков:** `assets/ui/icons/skill_<id навыка>.png` (если есть) → иконка RO `skill_<ro>.png` через `RO_SKILL_ICONS` в
   `skillLook.ts` (120 иконок RO первых и вторых профессий, родные 24×24, рисуются ×3 в рамке) → символ кодом. Поле `icon` навыка (id манифеста, например `icon_ult_mage` → `assets/ro/icons`) проверяется, но экранами не используется.
 - **Фоны:** тема по порядку главы (1 луг, 2 топь, 3 склеп, дальше по кругу) и по полосе башни; рисуются кодом (`backdrops.ts`).
@@ -660,7 +668,8 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
   `scripts/lib/used-assets.ts`). Бюджет `check_sprites.py` (3 МБ доставляемых спрайтов) после импорта превышен — 4.1 МБ.
 - **Иконки навыков RO:** `python3 tools/extract_ro_skill_icons.py` (список `SKILLS` в скрипте) → `assets/ui/icons/skill_<ro>.png`,
   затем строка в `RO_SKILL_ICONS` (`src/game/skillLook.ts`). Своя иконка навыка — просто `assets/ui/icons/skill_<id навыка>.png`.
-- **Эффекты:** атлас в `assets/effects/` + запись в `effects.json → effects`; привязка к навыку — `effects.json → skills`.
+- **Эффекты:** атлас в `assets/effects/` + запись в `effects.json → effects`; привязка к навыку — `effects.json → skills`
+  (роли hit/buff/debuff/cast/ground/projectile), WebP — `npm run assets:webp`; пошагово — `docs/CONTENT_RECIPES.md`, раздел 12а.
 - **Фоны:** `assets/backgrounds/bg_battle_ch<N>.jpg` / `bg_map_ch<N>.jpg` (720×1280 или 1080×1920, JPEG ради веса) — подхватываются glob'ом.
 - **UI:** PNG в `assets/ui/` + запись в `assets/manifest.json` с id скина — файл побеждает нарисованный.
 - После любого арта: `npm run content:check`, `npm run assets:report` (вес, листы > 2048), глазами — `npm run dev` или скриншоты e2e.
