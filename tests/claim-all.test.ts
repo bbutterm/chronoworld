@@ -69,14 +69,15 @@ describe('«Забрать всё» заданий и достижений', () 
 });
 
 describe('красные кружки плиток главной', () => {
-  it('башня: кружок, когда мощь отряда не ниже мощи следующего этажа', () => {
+  it('башня (рогалик): кружок, пока добыча дня не взята или в забеге ждёт выбор', () => {
     const s = newGame(ctx, 0, D1);
     // Башня закрыта в новой игре.
-    expect(towerBadgeCount(s, ctx)).toBe(0);
+    expect(towerBadgeCount(s, ctx, D1)).toBe(0);
     const open = { ...s, campaign: { ...s.campaign, cleared: [...new Set([...s.campaign.cleared, ctx.tower.unlockAfterStage!])] } };
-    const strong = { ...open, heroes: open.heroes.map((h) => ({ ...h, level: 20 })) };
-    expect(towerBadgeCount(strong, ctx)).toBe(1);
-    const top = { ...strong, tower: { floor: ctx.tower.maxFloor } };
-    expect(towerBadgeCount(top, ctx)).toBe(0);
+    expect(towerBadgeCount(open, ctx, D1)).toBe(1);
+    // Забег сегодня уже был — добыча взята.
+    const done = { ...open, tower: { ...open.tower, lootDay: D1, lootFloor: 5 } };
+    expect(towerBadgeCount(done, ctx, D1)).toBe(0);
+    expect(towerBadgeCount(done, ctx, '2026-09-27')).toBe(1);
   });
 });

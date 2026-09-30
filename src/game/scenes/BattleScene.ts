@@ -1,7 +1,10 @@
 import Phaser from 'phaser';
 import {
-  actClimbTower,
   actPlayStage,
+  actTowerFight,
+  runConfig,
+  towerRunSquad,
+  type TowerFightOutcome,
   buildUnit,
   COMBAT,
   enemySquad,
@@ -14,7 +17,6 @@ import {
   ultSkillOf,
   unitLevel,
   type CardRarity,
-  towerFloor,
   withGear,
   type BattleEvent,
   type BattleInput,
@@ -33,8 +35,8 @@ import { CONTENT, GAME } from '../content';
 import { enemyLevelColor, heroSprite, levelLabel, stageLevelsFor, stageNo, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
-import { SKIN, SKIN_TINT } from '../skin';
-import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../sprites';
+import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
+import { anim, hitDelay, lazyPortrait, portraitKey, spriteView, whenSprites, type SpriteView } from '../sprites';
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
 import { BarkLayer, BEHAVIOR_LABEL_DEPTH, BEHAVIOR_LABEL_SIZE, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, UltPresenter } from '../battleFx';
@@ -347,6 +349,8 @@ export class BattleScene extends Phaser.Scene {
   private defs: Record<string, UnitDef> = {};
   private stage?: ResultData['stage'];
   private tower?: ResultData['tower'];
+  /** Забег Башни (рогалик): итог боя этажа; после боя — экран Башни, а не итоги. */
+  private towerRun?: { outcome: TowerFightOutcome };
   /** Охота на босса: итог ядра и счётчик урона (huntBattle.ts); после боя — экран охоты, а не итоги. */
   private hunt?: { outcome: HuntOutcome; hud?: HuntHud };
   private committed = false;
@@ -458,6 +462,7 @@ export class BattleScene extends Phaser.Scene {
     let title = 'Тестовый бой';
     this.stage = undefined;
     this.tower = undefined;
+    this.towerRun = undefined;
     this.hunt = undefined;
     this.levels = null;
     if (data.mode === 'stage') {
@@ -496,10 +501,13 @@ export class BattleScene extends Phaser.Scene {
       title = `Этап ${stageNo(st, GAME)}. ${st.name}`;
       this.theme = themeOfBattle({ stageId: data.stageId });
     } else if (data.mode === 'tower') {
+      // Забег Башни (docs/design/tower-roguelite.md): бой этажа с ранами и картами; ручная ульта — как в кампании.
       const save = session.save;
-      let outcome: TowerOutcome;
+      const day = today();
+      const run = (ctl: PlayerControl) => actTowerFight(save, day, GAME, ctl);
+      let outcome: TowerFightOutcome;
       try {
-        outcome = actClimbTower(save, today(), stageSeed(save), GAME);
+        outcome = run({ manualUlt: wantManual, inputs: [] });
       } catch (e) {
         console.warn(e);
         this.finished = true;
@@ -507,11 +515,22 @@ export class BattleScene extends Phaser.Scene {
         return;
       }
       this.result = outcome.result;
-      this.tower = { floor: outcome.floor, outcome };
-      this.defs = squadDefs(save);
-      for (const u of towerFloor(outcome.floor, GAME).enemies) if (u) this.defs[u.id] = u;
+      this.towerRun = { outcome };
+      this.manual = this.startManual = wantManual;
+      this.rerun = (ctl) => {
+        const o = run(ctl);
+        this.towerRun = { outcome: o };
+        return o.result;
+      };
+      this.defs = {};
+      for (const u of towerRunSquad(save, GAME).squad) {
+        const hero = u ? save.heroes.find((h) => h.id === u.id) : undefined;
+        if (u && hero) this.defs[u.id] = { ...u, visual: { ...u.visual, sprite: heroSprite(hero, GAME) } };
+      }
+      for (const u of outcome.enemies) if (u) this.defs[u.id] = u;
       this.levels = { rarity: progressLevelBand(save, GAME).rarity, bossFactor: 1 };
-      title = `Башня · этаж ${outcome.floor}`;
+      const kindName = outcome.kind === 'boss' ? ' · босс' : outcome.kind === 'elite' ? ' · элита' : '';
+      title = `Башня · этаж ${outcome.floor}${kindName}`;
       this.theme = themeOfBattle({ towerFloor: outcome.floor });
     } else if (data.mode === 'hunt') {
       const save = session.save;
@@ -600,6 +619,7 @@ export class BattleScene extends Phaser.Scene {
       this.modeBtn.container.setName('ultModeBtn');
     }
     this.battleSoundButton();
+    if (this.towerRun) this.towerCards();
     // Обучение (hints.ts): скорость ×2 открылась (этап 1-2) — указатель на кнопку скорости в первом бою на 1x.
     if (this.stage && playback.speed === 1 && isUnlocked('speed_x2') && !hintDone('battle_speed')) {
       speedHint = tutorialHint(this, 'battle_speed', 180, 360, 'below', { w: 280, h: 110 });
@@ -866,7 +886,7 @@ export class BattleScene extends Phaser.Scene {
       flashFill: false,
       lastFlash: -Infinity,
       bars,
-      hp: snap.maxHp,
+      hp: snap.hp ?? snap.maxHp,
       shield: 0,
       energy: 0,
       alive: true,
@@ -1658,6 +1678,16 @@ export class BattleScene extends Phaser.Scene {
       case 'mode':
         if (e.auto) for (const uid of this.ultSkill.keys()) this.heroPanel?.setReady(uid, false);
         return;
+      case 'bless': {
+        // Благословение Башни сработало: золотистая подпись над юнитом (не чаще раза в 1,5 с над одним).
+        const v = this.views.get(e.unit);
+        if (!v || !animate) return;
+        const key = `bless:${e.unit}`;
+        if (this.time.now - (this.redirectShown.get(key) ?? -Infinity) < 1500) return;
+        this.redirectShown.set(key, this.time.now);
+        this.headline(v, e.text, '#ffe08a');
+        return;
+      }
       case 'enrage':
         if (animate && !this.skipping) {
           this.sfx.flash(0xff6040, 0.18, 260);
@@ -1673,7 +1703,9 @@ export class BattleScene extends Phaser.Scene {
         this.time.delayedCall(animate ? 1200 : 150, () =>
           this.hunt
             ? this.scene.start('Hunt', { outcome: this.hunt.outcome })
-            : this.scene.start('Result', { result: this.result, defs: this.defs, stage: this.stage, tower: this.tower } satisfies ResultData),
+            : this.towerRun
+              ? this.scene.start('Tower', { fight: { floor: this.towerRun.outcome.floor, win: this.result.winner === 'A', events: this.towerRun.outcome.events } })
+              : this.scene.start('Result', { result: this.result, defs: this.defs, stage: this.stage, tower: this.tower } satisfies ResultData),
         );
         return;
     }
@@ -1727,8 +1759,35 @@ export class BattleScene extends Phaser.Scene {
   }
 
   /** Итог этапа или этажа записывается один раз — в конце боя (и при «Пропустить»). */
+  /** Карты забега Башни — ряд значков под заголовком (рамка по редкости, портрет монстра карты). */
+  private towerCards(): void {
+    const run = session.save.tower.run;
+    if (!run?.cards.length) return;
+    const cfg = runConfig(GAME);
+    const size = 58;
+    const max = 10;
+    const shown = run.cards.slice(0, max);
+    const x0 = GAME_W / 2 - ((shown.length - 1) * (size + 8)) / 2;
+    shown.forEach((id, i) => {
+      const b = cfg.blessings.find((x) => x.id === id);
+      if (!b) return;
+      const x = x0 + i * (size + 8);
+      const y = 262;
+      const frame = b.rarity === 'legendary' ? 0xffb830 : b.rarity === 'rare' ? 0x4aa8ff : 0xc8b89a;
+      this.add.rectangle(x, y, size, size, 0x1c140c, 0.9).setStrokeStyle(4, frame).setDepth(PANEL_DEPTH);
+      const u = b.monster ? GAME.content.units[b.monster] : undefined;
+      if (u) {
+        const img = this.add.image(x, y, portraitKey(u.visual.sprite)).setDepth(PANEL_DEPTH).setTint(unitTint(u.visual));
+        const fit = () => img.setScale((size - 10) / Math.max(img.width, img.height, 1));
+        lazyPortrait(this, portraitKey(u.visual.sprite), img, fit);
+        fit();
+      } else this.add.image(x, y, skinIcon((b.icon ?? 'star') as SkinIcon)).setDisplaySize(size - 16, size - 16).setTint(0xffe08a).setDepth(PANEL_DEPTH);
+    });
+    if (run.cards.length > max) text(this, x0 + max * (size + 8), 262, `+${run.cards.length - max}`, 30, '#ffe08a', { fontStyle: 'bold' }).setDepth(PANEL_DEPTH);
+  }
+
   private commitStage(): void {
-    const out = this.stage?.outcome ?? this.tower?.outcome ?? this.hunt?.outcome;
+    const out = this.stage?.outcome ?? this.tower?.outcome ?? this.towerRun?.outcome ?? this.hunt?.outcome;
     if (!out || this.committed) return;
     this.committed = true;
     commit(out.save);
