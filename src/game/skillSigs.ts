@@ -4,6 +4,7 @@ import { clamp01, ease } from './perf';
 import { FIRE_BOLT_MS, FX_TEX as T, SFX_DEPTH, type FxPoint, type SkillFx } from './skillFx';
 import type { Aura, Proc, Signature } from './skillVisuals';
 import { motion } from './state';
+import { SKILL_FX_SIZE } from './battleFx';
 
 /**
  * Рецепты своего вида навыков (таблица — skillVisuals.ts): всё собрано из примитивов SkillFx (пул картинок, общие
@@ -101,7 +102,7 @@ function groundRun(fx: SkillFx, id: string, eff: NonNullable<ReturnType<typeof a
   const f1 = to.feet ?? to.y + 60;
   const n = Math.max(2, Math.min(7, Math.round(Math.hypot(to.x - from.x, f1 - f0) / SPIKE_STEP)));
   const blend = eff.blend === 'add' ? ADD : NORMAL;
-  const s = eff.scale ?? 1.6;
+  const s = (eff.scale ?? 1.6) * SKILL_FX_SIZE;
   for (let i = 1; i <= n; i++) {
     const q = i / n;
     const x = from.x + (to.x - from.x) * q;
@@ -134,7 +135,7 @@ export function flyAtlas(fx: SkillFx, id: string, from: { x: number; y: number; 
     groundRun(fx, id, eff, from, to, dur, delay, onLand, tint);
     return true;
   }
-  const w = look.w ?? eff.cell[0] * (eff.scale ?? 1.6);
+  const w = (look.w ?? eff.cell[0] * (eff.scale ?? 1.6)) * SKILL_FX_SIZE;
   const o = fx.img(animatedFxKey(id), from.x, from.y, tint, SFX_DEPTH + 3, eff.blend === 'add' ? ADD : NORMAL);
   o.setFrame(0).setOrigin(0.5).setDisplaySize(w, (w * eff.cell[1]) / eff.cell[0]);
   const dx = to.x - from.x;

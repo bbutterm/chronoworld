@@ -1436,7 +1436,7 @@
       "loop": false,
       "delayMs": 0,
       "blend": "add",
-      "scale": 0.98,
+      "scale": 1.45,
       "anchor": [
         222.6,
         282.8
