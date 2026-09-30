@@ -197,9 +197,11 @@ describe('звук: темы глав 4–7', () => {
     for (const theme of THEMES.filter((t) => t !== 'swamp'))
       for (const kind of ['map', 'battle'] as const) expect((MUSIC[`${kind}_${theme}` as keyof typeof MUSIC] as { ro?: string }).ro, `${kind}_${theme}`).toMatch(/^\d\d\.mp3/);
     for (const id of ['title', 'home', 'tavern', 'tower', 'battle_tower', 'boss'] as const) expect((MUSIC[id] as { ro?: string }).ro, id).toMatch(/^\d\d\.mp3/);
-    // Карта и бой канализации и лабиринта — один трек RO: бой без своего файла берёт файл карты.
+    // Карта и бой канализации — один трек RO: бой без своего файла берёт файл карты.
     expect(MUSIC.battle_sewer.files).toContain('music_map_sewer');
-    expect(MUSIC.battle_labyrinth.files).toContain('music_map_labyrinth');
+    // Лабиринт (глава 9) — своя боевая тема (47.mp3), а не трек карты (отчёт RL, «Музыка»).
+    expect(MUSIC.battle_labyrinth.files).toEqual(['music_battle_labyrinth', 'music_battle']);
+    expect(MUSIC.battle_labyrinth.ro).not.toBe(MUSIC.map_labyrinth.ro);
   });
 
   it('у новых дорожек есть описание и ориентир из RO, файл владельца — своя дорожка, затем общая', () => {
@@ -389,7 +391,8 @@ describe('звук: музыка RO — файлы', () => {
       if (prev) expect(file, `${id}: трек ${track} уже в ${prev}`).toBe(prev);
       used.set(track, file!);
     }
-    expect(used.size).toBe(22);
+    // 23: с 30.09 у боя главы 9 своя тема (47.mp3), раньше он брал трек карты.
+    expect(used.size).toBe(23);
   });
 
   it('файлы музыки — до 1.5 МБ каждый (петля качается быстро и на 3G)', () => {

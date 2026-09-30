@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import { bestiary, chapterChronicle, chapterCleared, findingEntries, FINDING_KIND_NAMES, firstSentence, heroEntries, heroTemplate, introPages, itemEntries, jobTitle, worldEntries, type BestiaryEntry, type ChronicleTab, type FindingEntry, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
+import { bestiary, chapterChronicle, chapterCleared, findingEntries, FINDING_KIND_NAMES, firstSentence, heroEntries, heroTemplate, introPages, itemEntries, jobTitle, keeperIds, worldEntries, type BestiaryEntry, type ChronicleTab, type FindingEntry, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
 import { hasHeroStory, heroStoryNew, heroStoryProgress, openHeroStory, storyDot } from '../heroStoryView';
 import { chroniclePage, findingIcon, findingPage, introPages as introPageList, showPages, type StoryPage } from '../storyPage';
 import { seenChapterScenes } from '../storyView';
 import { openStoryHistory } from './ChapterDoneScene';
 import { CONTENT, GAME, LORE } from '../content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES } from '../flow';
-import { drawHeroCard } from '../heroCard';
+import { drawHeroCard, heroCardSize } from '../heroCard';
 import { itemCell } from '../itemIcons';
 import { GAME_W } from '../layout';
 import { loreKeys, loreModal, loreUnseen, markLoreSeen, monsterModal, itemModal, roleName, seenLore, type LoreBlock } from '../loreView';
@@ -29,6 +29,8 @@ let lastTab: ChronicleTab = 'world';
 
 export interface ChronicleData {
   tab?: ChronicleTab;
+  /** Прокрутка списка после перезапуска (закрыли историю героя — список остаётся на том же месте, BUG-155). */
+  scroll?: number;
 }
 
 /** Сетка плиток: 3 колонки. */
@@ -82,6 +84,7 @@ export class ChronicleScene extends Phaser.Scene {
     else if (this.tab === 'bestiary') this.bestiary();
     else if (this.tab === 'items') this.items();
     else this.heroes();
+    if (data.scroll) this.area.offset = data.scroll;
     markLoreSeen(keys);
   }
 
@@ -330,18 +333,28 @@ export class ChronicleScene extends Phaser.Scene {
 
   // ---------- Герои ----------
 
+  /**
+   * Каким герой стал у игрока (BUG-155): лучший экземпляр — редкость, форма, уровень; не получен — серая карточка.
+   */
+  private heroSubject(templateId: string) {
+    const keep = keeperIds(session.save);
+    return session.save.heroes.find((x) => x.templateId === templateId && keep.has(x.id)) ?? templateId;
+  }
+
   private heroes(): void {
     const list = heroEntries(session.save, CONTENT);
     this.summary(list.filter((h) => h.owned).length, list.length, ' · нажмите на героя', 'Получено');
     const CW = 300;
-    const CH = Math.round(CW * 1.36);
+    const CH = heroCardSize(CW).h;
     list.forEach((h, i) => {
       const x = colX(i % COLS);
       const y = Math.floor(i / COLS) * (CH + 30) + CH / 2 + 16;
-      drawHeroCard(this, x, y, h.templateId, { w: CW, parent: this.area.content, greyed: h.owned ? false : 'Не получен', onTap: this.area.tap(() => this.heroModal(h)) });
-      // Новое: непрочитанный кусочек истории героя (книжка) или ещё не открытая запись героя (точка).
-      if (h.owned && heroStoryNew(h.templateId)) this.area.add(storyDot(this, x + CW / 2 - 10, y - CH / 2 + 10, 20));
-      else if (h.owned && LORE.heroes[h.templateId]) this.newDot(x + CW / 2 - 10, y - CH / 2 + 10, `heroes:${h.templateId}`);
+      drawHeroCard(this, x, y, this.heroSubject(h.templateId), { w: CW, parent: this.area.content, greyed: h.owned ? false : 'Не получен', onTap: this.area.tap(() => this.heroModal(h)) });
+      // Новое: непрочитанный кусочек истории (книжка) или ещё не открытая запись героя (точка) — по центру верхней
+      // кромки, между значками класса и роли (в углу отметка ложилась на значок роли).
+      const my = y - CH / 2 + 30;
+      if (h.owned && heroStoryNew(h.templateId)) this.area.add(storyDot(this, x, my, 20));
+      else if (h.owned && LORE.heroes[h.templateId]) this.newDot(x, my, `heroes:${h.templateId}`);
     });
     this.area.setContentHeight(Math.ceil(list.length / COLS) * (CH + 30) + 30);
   }
@@ -352,7 +365,8 @@ export class ChronicleScene extends Phaser.Scene {
     const blocks: LoreBlock[] = [{ text: t.bio, color: C.text }];
     if (t.hook) blocks.push({ text: `«${t.hook}»`, italic: true, color: C.title });
     if (h.owned && l) {
-      blocks.push({ text: 'История', bold: true, color: C.title, size: FS.h3, gap: 10 });
+      // «Легенда героя» — краткая биография; «История героя» — кусочки по уровням (кнопка внизу). BUG-155.
+      blocks.push({ text: 'Легенда героя', bold: true, color: C.title, size: FS.h3, gap: 10 });
       blocks.push({ text: l.story });
       if (l.quirks.length) {
         blocks.push({ text: 'Черты', bold: true, color: C.title, size: FS.h3, gap: 10 });
@@ -368,16 +382,17 @@ export class ChronicleScene extends Phaser.Scene {
       title: t.name,
       // Гильдию первой профессии называет блок «Гильдия» ниже (data/lore/jobs.json: мечники — Излуд), здесь — путь героя.
       subtitle: `${jobTitle(GAME, t.job, t.gender)} → ${t.branches.map((b) => jobTitle(GAME, b.job, t.gender)).join(' или ')}${h.owned ? '' : ' · не получен'}`,
-      art: (add, x, y) => add(drawHeroCard(this, x, y, h.templateId, { w: 180, showPips: false, greyed: h.owned ? false : 'Не получен' })),
+      art: (add, x, y) => add(drawHeroCard(this, x, y, this.heroSubject(h.templateId), { w: 180, showPips: false, greyed: h.owned ? false : 'Не получен' })),
       blocks,
       lock: this.area,
       // История героя кусочками (каждые 10 уровней) — страница во весь экран; закрыли — список обновит отметки.
       ...(h.owned && hasHeroStory(h.templateId)
         ? {
             extra: {
-              label: `История · ${heroStoryProgress(h.templateId).open} из ${heroStoryProgress(h.templateId).total}`,
+              label: `История героя · ${heroStoryProgress(h.templateId).open} из ${heroStoryProgress(h.templateId).total}`,
               dot: heroStoryNew(h.templateId) > 0,
-              onTap: () => openHeroStory(this, h.templateId, { lock: this.area, onClose: () => this.scene.restart({ tab: 'heroes' } satisfies ChronicleData) }),
+              onTap: () =>
+                openHeroStory(this, h.templateId, { lock: this.area, onClose: () => this.scene.restart({ tab: 'heroes', scroll: this.area.offset } satisfies ChronicleData) }),
             },
           }
         : {}),

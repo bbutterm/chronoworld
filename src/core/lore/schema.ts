@@ -50,6 +50,12 @@ export const HeroStoryPieceSchema = z.object({
   branch: z.string().regex(/^[a-z0-9_]+$/, 'branch — id профессии: латиница a-z, цифры и _').optional(),
   title: z.string().min(1).max(LORE_LIMITS.storyTitle, `заголовок: не длиннее ${LORE_LIMITS.storyTitle} символов`),
   text: z.string().min(1).max(LORE_LIMITS.storyText, `текст: не длиннее ${LORE_LIMITS.storyText} символов`),
+  /**
+   * Сюжетный замок (BUG-167): кусочек открыт, только если этот этап кампании пройден (и уровень дошёл до level). Нет поля —
+   * действует правило по уровню из unlockByLevel файла. Для спойлеров — этап строго после сцены, где игрок узнаёт то же
+   * самое в кампании (имя Ансгара — после главы 7, брат/Бенедикт/Тиль — после раскрытия в главе 8, финал — после главы 10).
+   */
+  unlockAfterStage: z.string().regex(/^[a-z0-9_]+$/, 'unlockAfterStage — id этапа из data/campaign').optional(),
 });
 
 export const ChapterLoreSchema = z.object({
@@ -81,7 +87,13 @@ export const HeroesLoreSchema = file(HeroLoreSchema);
  * data/lore/hero_stories.json — id карточки героя → кусочки истории по уровням: общие 10–50 и по ветке второй профессии
  * 60–100 (для каждой из двух веток), не выше предела уровня. Пороги и полноту проверяет validateLore (content:check).
  */
-export const HeroStoriesLoreSchema = file(z.array(HeroStoryPieceSchema));
+export const HeroStoriesLoreSchema = file(z.array(HeroStoryPieceSchema)).extend({
+  /**
+   * Правило «уровень → место в кампании» (BUG-167): порог уровня → этап, после которого открываются кусочки этого и более
+   * высоких уровней (берётся ближайший порог ≤ level). Кусочек со своим unlockAfterStage правило не трогает.
+   */
+  unlockByLevel: z.record(z.string().regex(/^[0-9]+$/, 'ключ — уровень'), z.string().regex(/^[a-z0-9_]+$/)).default({}),
+});
 /** data/lore/jobs.json — id профессии (data/jobs) → описание гильдии/профессии. */
 export const JobsLoreSchema = file(text);
 /** data/lore/world.json — главы (id главы data/campaign) и записи о мире. */

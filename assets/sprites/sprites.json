@@ -186,6 +186,7 @@
   {"id":"alarm","class":"boss_xl","file":"sprites/bosses_xl/alarm.png","hitFrames":{"attack":4},"bbox":{"idle":[55,124,143,241],"walk":[54,124,151,244],"attack":[45,53,183,287],"hurt":[49,119,135,241],"death":[48,119,190,254]}},
   {"id":"abysmal_knight","class":"boss_xxl","file":"sprites/bosses_xl/abysmal_knight.png","hitFrames":{"attack":4},"bbox":{"idle":[93,60,272,335],"walk":[86,54,275,341],"attack":[7,12,338,360],"hurt":[88,53,269,335],"death":[15,7,320,358]}},
   {"id":"clock_tower_manager","class":"boss_xxl","file":"sprites/bosses_xl/clock_tower_manager.png","hitFrames":{"attack":3},"bbox":{"idle":[122,111,225,290],"walk":[122,144,225,275],"attack":[70,141,308,330],"hurt":[103,142,225,272],"death":[118,54,225,310]}},
-  {"id":"npc_kafra","class":"npc","file":"sprites/npcs/4_f_kafra1.png","portrait":"sprites/portraits/npc_4_f_kafra1.png","bbox":{"idle":[77,37,119,130],"idle_e":[81,37,123,130],"walk_s":[77,37,119,130],"walk":[81,37,123,130]}}
+  {"id":"npc_kafra","class":"npc","file":"sprites/npcs/4_f_kafra1.png","portrait":"sprites/portraits/npc_4_f_kafra1.png","bbox":{"idle":[77,37,119,130],"idle_e":[81,37,123,130],"walk_s":[77,37,119,130],"walk":[81,37,123,130]}},
+  {"id":"npc_ansgar","class":"npc","file":"sprites/npcs/4_m_darkpriest.png","portrait":"sprites/portraits/npc_4_m_darkpriest.png","bbox":{"idle":[78,32,124,133],"idle_e":[78,32,123,133],"walk_s":[80,32,122,134],"walk":[78,32,120,134]}}
  ]
 }

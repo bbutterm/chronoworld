@@ -67,8 +67,24 @@ export function parseLore(files: readonly RawFile[]): { lore: Lore; problems: st
     if (name === 'monsters.json') lore.monsters = d.entries as Lore['monsters'];
     else if (name === 'items.json') lore.items = d.entries as Lore['items'];
     else if (name === 'heroes.json') lore.heroes = d.entries as Lore['heroes'];
-    else if (name === 'hero_stories.json')
-      lore.heroStories = Object.fromEntries(Object.entries(d.entries as Lore['heroStories']).map(([id, list]) => [id, [...list].sort((a, b) => a.level - b.level)]));
+    else if (name === 'hero_stories.json') {
+      // Правило «уровень → этап» подставляется в кусочки без своего unlockAfterStage (ядро смотрит только на поле кусочка).
+      const gates = Object.entries((d.unlockByLevel ?? {}) as Record<string, string>)
+        .map(([l, st]) => [Number(l), st] as const)
+        .sort((a, b) => b[0] - a[0]);
+      const gate = (level: number) => gates.find(([l]) => l <= level)?.[1];
+      lore.heroStories = Object.fromEntries(
+        Object.entries(d.entries as Lore['heroStories']).map(([id, list]) => [
+          id,
+          [...list]
+            .sort((a, b) => a.level - b.level)
+            .map((p) => {
+              const st = p.unlockAfterStage ?? gate(p.level);
+              return st ? { ...p, unlockAfterStage: st } : p;
+            }),
+        ]),
+      );
+    }
     else if (name === 'jobs.json') lore.jobs = d.entries as Lore['jobs'];
     else if (name === 'lines.json') {
       for (const k of Object.keys(LINE_KINDS) as LineKind[]) lore.lines[k] = (d[k] as string[] | undefined) ?? [];
@@ -160,6 +176,10 @@ export function validateLore(lore: Lore, ctx: LoreCheckContext): { errors: strin
       check('', heroStoryCommonLevels(cap), list.filter((p) => !p.branch).map((p) => p.level));
       const branchLevels = heroStoryBranchLevels(cap);
       for (const b of branches) check(` ветки ${b}`, branchLevels, list.filter((p) => p.branch === b).map((p) => p.level));
+      for (const p of list) {
+        if (p.unlockAfterStage && !ctx.content.stages.some((s) => s.id === p.unlockAfterStage))
+          errors.push(`${at} — ур. ${p.level}${p.branch ? ` (${p.branch})` : ''}: unlockAfterStage = "${p.unlockAfterStage}" — нет такого этапа`);
+      }
       const titles = list.map((p) => p.title);
       const dt = titles.find((x, i) => titles.indexOf(x) !== i);
       if (dt) warnings.push(`${at} — заголовок повторяется: «${dt}»`);

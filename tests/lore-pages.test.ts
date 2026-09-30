@@ -152,6 +152,14 @@ describe('реплики и строки', () => {
     const bad = parseLore([{ file: 'data/lore/lines.json', data: { victory: ['x'] } }]);
     expect(bad.problems).toHaveLength(1);
   });
+
+  it('строки заточки общие для любого слота: без «клинка», «острия», «рукояти» (BUG-166 — броня и сапоги тоже точатся)', async () => {
+    const { readFileSync } = await import('node:fs');
+    const raw = JSON.parse(readFileSync('data/lore/lines.json', 'utf8')) as Record<string, unknown>;
+    const lines = parseLore([{ file: 'data/lore/lines.json', data: raw }]).lore.lines;
+    for (const l of [...lines.refineSuccess, ...lines.refineBreak]) expect(l, l).not.toMatch(/клин|остри|рукоят|лезви|ножн/i);
+    expect(lines.refineSuccess.length).toBeGreaterThan(3);
+  });
 });
 
 describe('бестиарий: Башня и Охота', () => {

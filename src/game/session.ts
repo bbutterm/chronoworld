@@ -80,11 +80,17 @@ export function commit(save: SaveState): void {
 export const GAME_KEY_PREFIX = 'chronoworld.';
 
 /**
+ * Настройки устройства — не прогресс (BUG-165, решение 30.09): «Начать заново» их не трогает. Звук и «Звуки боя»,
+ * вибрация, скорость боя, предел FPS, «меньше движения».
+ */
+export const SETTINGS_KEYS: readonly string[] = ['chronoworld.audio', 'chronoworld.haptics', 'chronoworld.battleSpeed', 'chronoworld.fpsCap', 'chronoworld.reduceMotion'];
+
+/**
  * «Начать заново» из настроек: как у нового игрока на чистом браузере. Сдвиг часов тестировщика — в ноль (новая игра
  * ставит отметки времени по настоящим часам), новая игра записывается поверх старой (ревизия растёт — другие вкладки
  * с игрой станут «устаревшими» и не перетрут её), все остальные ключи игры (резервные копии, подсказки, прочитанная
- * Летопись, Таверна, настройки) удаляются. Потом страница перезагружается — память модулей тоже чистая, и игра
- * открывается вступлением главы 1. Возвращает удалённые ключи (для тестов).
+ * Летопись, Таверна) удаляются, кроме настроек устройства (SETTINGS_KEYS). Потом страница перезагружается — память
+ * модулей тоже чистая, и игра открывается вступлением главы 1. Возвращает удалённые ключи (для тестов).
  */
 export function startOver(storage: Storage | null | undefined = globalThis.localStorage, reload = true): string[] {
   timeShift = 0;
@@ -95,7 +101,7 @@ export function startOver(storage: Storage | null | undefined = globalThis.local
       const keys: string[] = [];
       for (let i = 0; i < storage.length; i++) {
         const k = storage.key(i);
-        if (k?.startsWith(GAME_KEY_PREFIX) && k !== slot.storage.key) keys.push(k);
+        if (k?.startsWith(GAME_KEY_PREFIX) && k !== slot.storage.key && !SETTINGS_KEYS.includes(k)) keys.push(k);
       }
       for (const k of keys) {
         storage.removeItem(k);

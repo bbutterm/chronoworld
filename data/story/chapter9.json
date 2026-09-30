@@ -5,7 +5,7 @@
   "speakers": {
     "garret": {
       "name": "Капитан Гаррет",
-      "portrait": "knight"
+      "portrait": "npc_garret"
     },
     "hero1": {
       "name": "Алан",
@@ -40,8 +40,8 @@
       "portrait": "unit:maze_baphomet"
     },
     "herald": {
-      "name": "Серый капюшон",
-      "portrait": "unit:mob3_ranged"
+      "name": "Ансгар",
+      "portrait": "npc_ansgar"
     }
   },
   "scenes": [
