@@ -606,7 +606,8 @@
         "outputScale": 0.8,
         "seed": 1,
         "note": "CR_SHIELDCHARGE EF_SHIELDCHARGE 246; shield on target, flight not tweened"
-      }
+      },
+      "from": "right"
     },
     {
       "id": "fx_job_hunter_claymore_trap",
@@ -915,7 +916,8 @@
         "outputScale": 0.5,
         "seed": 1,
         "note": "WZ_METEOR effectId 92; falling meteor; zoom 350 to avoid top clipping; fire hit separate"
-      }
+      },
+      "from": "right"
     },
     {
       "id": "fx_job_thief_steal",
@@ -1199,14 +1201,8 @@
     }
   ],
   "skills": {
-    "alde_keeper_hands": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "alde_keeper_rewind": {
       "debuff": "fx_job_sage_dispell"
-    },
-    "assassin_leap": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "guard_shield_wall": {
       "buff": "fx_job_crusader_defender"
@@ -1238,9 +1234,6 @@
     },
     "job_archer_arrow_shower": {
       "projectile": "fx_job_archer_arrow_shower_source"
-    },
-    "job_assassin_grimtooth": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "job_assassin_meteor_assault": {
       "hit": "fx_job_merchant_cart_revolution"
@@ -1283,12 +1276,6 @@
     },
     "job_knight_bowling_bash": {
       "cast": "fx_job_knight_bowling_bash"
-    },
-    "job_knight_charge_attack": {
-      "hit": "fx_job_crusader_shield_charge"
-    },
-    "job_knight_spiral_pierce": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "job_knight_two_hand_quicken": {
       "buff": "fx_job_knight_two_hand_quicken"
@@ -1335,9 +1322,6 @@
     "job_priest_magnus_exorcismus": {
       "ground": "fx_job_crusader_grand_cross",
       "hit": "fx_job_acolyte_holy_light"
-    },
-    "job_rogue_back_stab": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "job_rogue_gank": {
       "hit": "fx_job_thief_steal"
@@ -1393,12 +1377,6 @@
     "maze_baphomet_curse": {
       "debuff": "fx_job_acolyte_signum_crucis"
     },
-    "maze_baphomet_scythe": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
-    "maze_mantis_scythes": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "maze_scribe_seal": {
       "debuff": "fx_job_sage_dispell"
     },
@@ -1421,12 +1399,6 @@
     "mob3_boss_nova": {
       "debuff": "fx_job_sage_dispell"
     },
-    "mob3_elite_cleave": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
-    "mob3_melee_rend": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "mob4_boss_ult": {
       "ground": "fx_job_crusader_grand_cross",
       "debuff": "fx_job_sage_dispell"
@@ -1443,9 +1415,6 @@
     "mob4_scorpion_sting": {
       "hit": "fx_job_thief_envenom"
     },
-    "mob4_verit_maul": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "mob5_boss_moon_call": {
       "hit": "fx_job_acolyte_holy_light"
     },
@@ -1459,20 +1428,11 @@
     "mob5_munak_talisman": {
       "buff": "fx_job_crusader_defender"
     },
-    "mob6_boss_boarding_hook": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "mob6_boss_ghost_cannons": {
       "hit": "fx_job_hunter_claymore_trap"
     },
     "mob6_bosun_all_hands": {
       "buff": "fx_job_acolyte_increase_agi"
-    },
-    "mob6_bosun_anchor": {
-      "hit": "fx_job_crusader_shield_charge"
-    },
-    "mob6_melee_rusty_saber": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "mob6_tank_shell": {
       "buff": "fx_job_crusader_defender"
@@ -1484,12 +1444,6 @@
       "ground": "fx_job_wizard_meteor_storm",
       "hit": "fx_job_mage_fire_bolt"
     },
-    "mob7_fast_bloody_knife": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
-    "mob7_melee_ghost_scythe": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "mob_boss1_quake": {
       "hit": "fx_job_sage_earth_spike"
     },
@@ -1497,20 +1451,11 @@
       "hit": "fx_job_thief_envenom",
       "debuff": "fx_job_sage_dispell"
     },
-    "mob_eclipse_moon_leap": {
-      "hit": "fx_job_crusader_shield_charge"
-    },
-    "mob_elite_smash": {
-      "hit": "fx_job_crusader_shield_charge"
-    },
     "mob_lord_of_death_march": {
       "ground": "fx_job_wizard_storm_gust"
     },
     "mob_lord_of_death_review": {
       "buff": "fx_swordman_endure"
-    },
-    "mob_lord_of_death_scythe": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "mob_mastering_jelly_armor": {
       "buff": "fx_job_crusader_defender"
@@ -1523,12 +1468,6 @@
     },
     "orc_lady_war_drum": {
       "buff": "fx_swordman_endure"
-    },
-    "orc_skeleton_ancestor_blow": {
-      "hit": "fx_job_crusader_shield_charge"
-    },
-    "orc_warrior_axe_rend": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "orc_zombie_grave_bite": {
       "hit": "fx_job_thief_envenom"
@@ -1544,9 +1483,6 @@
     },
     "swordman_endure": {
       "buff": "fx_swordman_endure"
-    },
-    "warrior_cleave": {
-      "hit": "fx_job_assassin_sonic_blow"
     }
   },
   "rejected": {

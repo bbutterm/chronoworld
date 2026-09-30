@@ -405,18 +405,23 @@ export class FloatLayer {
   }
 
   /** Atlas-only role: absent atlas leaves the procedural fallback in charge (never a missing static texture). */
-  catalogFlash(x: number, feetY: number, id: string | undefined, size: number, key?: string): boolean {
+  catalogFlash(x: number, feetY: number, id: string | undefined, size: number, key?: string, fromX?: number): boolean {
     if (!id || !selectedAnimatedEffect(id, 'flash', this.scene.textures.exists(animatedFxKey(id)))) return false;
-    this.flash(x, feetY, id, size, 1, 250, DEPTH.fx, feetY, key);
+    this.flash(x, feetY, id, size, 1, 250, DEPTH.fx, feetY, key, fromX);
     return true;
   }
 
-  /** Вспышка: картинка size×size гаснет от alpha до 0 и растёт в 1.2 раза за duration. */
-  flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y, key?: string): void {
+  /**
+   * Вспышка: картинка size×size гаснет от alpha до 0 и растёт в 1.2 раза за duration. fromX — x кастера: атлас с
+   * effects.json → from отражается, если кастер с другой стороны.
+   */
+  flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y, key?: string, fromX?: number): void {
     const effect = selectedAnimatedEffect(texId, 'flash', this.scene.textures.exists(animatedFxKey(texId)));
     const img = this.image(x, effect ? feetY : y, effect ? animatedFxKey(texId) : texId, size, depth).setAlpha(alpha);
     if (effect) {
-      img.setFrame(0).setOrigin(effect.anchor[0] / effect.cell[0], effect.anchor[1] / effect.cell[1]);
+      const flip = !!effect.from && fromX !== undefined && fromX !== x && (effect.from === 'right') === (fromX < x);
+      const ox = effect.anchor[0] / effect.cell[0];
+      img.setFrame(0).setOrigin(flip ? 1 - ox : ox, effect.anchor[1] / effect.cell[1]).setFlipX(flip);
       // Атлас навыка со своим масштабом (effects.json → scale): размер кадра RO, непрозрачный — роль не сжимает
       // крупный лист до точки и не делает его полупрозрачным.
       if (effect.scale) img.setScale(effect.scale).setAlpha(effect.alpha ?? 1);

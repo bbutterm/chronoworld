@@ -120,7 +120,7 @@ try {
         if (roles.buff) sc.fx(ally, roles.buff, 1.2, 400);
         if (roles.ground) sc.groundCue(c, def, foes.slice(0, 3), at);
         sc.sfx.later(at, () => {
-          if (roles.hit) sc.fx(t, roles.hit, 0.45, 200, 0.5);
+          if (roles.hit) sc.fx(t, roles.hit, 0.45, 200, 0.5, c.node.x);
           if (roles.debuff) sc.floats.catalogFlash(t.node.x, t.node.y, roles.debuff, 220);
         });
         // Кроп: кастер и цель с запасом (единицы игры → CSS-пиксели холста).

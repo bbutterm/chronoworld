@@ -28,6 +28,11 @@ export interface AnimatedEffect {
    * статичные камни RO (Земляной шип), у которых движение в клиенте — 3D, а в захвате его нет.
    */
   rise?: number;
+  /**
+   * С какой стороны в кадрах прилетает эффект ('right' — щит Удара щитом и метеор летят справа сверху): если кастер с
+   * другой стороны, кадр отражается, чтобы удар шёл от кастера (у ульты героя слева — слева).
+   */
+  from?: 'left' | 'right';
 }
 
 const effects = new Map<string, AnimatedEffect>(catalog.effects.map((effect) => [effect.id, {
@@ -43,6 +48,7 @@ const effects = new Map<string, AnimatedEffect>(catalog.effects.map((effect) => 
   scale: (effect as { scale?: number }).scale,
   alpha: (effect as { alpha?: number }).alpha,
   rise: (effect as { rise?: number }).rise,
+  from: (effect as { from?: 'left' | 'right' }).from,
 }]));
 
 export const animatedFxKey = (id: string): string => `anim_${id}`;

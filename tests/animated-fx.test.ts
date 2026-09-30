@@ -60,7 +60,8 @@ describe('эффекты навыков (effects.json → skills)', () => {
     expect(skillFx('job_knight_two_hand_quicken')?.buff).toBe('fx_job_knight_two_hand_quicken');
     expect(skillFx('job_sage_earth_spike')?.hit).toBe('fx_job_sage_earth_spike');
     expect(skillFx('mob2_ranged_poison_arrow')?.hit).toBe('fx_job_thief_envenom');
-    expect(skillFx('mob3_melee_rend')?.hit).toBe('fx_job_assassin_sonic_blow');
+    // Аудит 30.09: иероглиф 滅 Звукового удара — только у самого Звукового удара, не на каждом разрезе монстров.
+    expect(skillFx('mob3_melee_rend')).toBeUndefined();
     expect(skillFx('job_mage_thunderstorm')?.hit).toBe('fx_job_mage_thunderstorm');
     expect(skillFx('job_acolyte_blessing')?.buff).toBe('fx_job_acolyte_blessing');
     expect(skillFx('job_mage_fire_bolt')?.hit).toBe('fx_job_mage_fire_bolt');
@@ -77,6 +78,10 @@ describe('эффекты навыков (effects.json → skills)', () => {
     expect(skillFx('job_assassin_sonic_blow')?.hit).toBe('fx_job_assassin_sonic_blow');
     expect(skillFx('job_crusader_holy_cross')?.hit).toBe('fx_job_crusader_holy_cross');
     expect(skillFx('job_crusader_shield_charge')?.hit).toBe('fx_job_crusader_shield_charge');
+    // Летящий щит — только у Удара щитом (не у якоря, прыжка и удара предка).
+    expect(skillFx('mob6_bosun_anchor')).toBeUndefined();
+    expect(skillFx('job_mage_frost_diver')?.projectile).toBe('fx_job_mage_frost_diver_spikes');
+    expect(skillFx('job_sage_heavens_drive')?.ground).toBeUndefined();
     expect(skillFx('job_hunter_claymore_trap')?.hit).toBe('fx_job_hunter_claymore_trap');
     expect(skillFx('swordman_bash')).toEqual({ cast: 'fx_swordman_bash' });
     expect(skillFx('job_crusader_grand_cross')).toEqual({ ground: 'fx_job_crusader_grand_cross' });
