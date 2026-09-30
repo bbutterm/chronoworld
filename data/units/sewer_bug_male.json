@@ -18,5 +18,6 @@
   "visual": {
     "sprite": "thief_bug_male",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "coward"
 }

@@ -54,6 +54,8 @@ export const StatusSchema = z.object({
    * наложившего статус, пока тот жив; ближний носитель идёт к нему (лимит бойцов на цель не действует).
    */
   taunt: z.boolean().optional(),
+  /** Сбивает каст носителя (Развеивание контрмага): каст пропадает, навык уходит в перезарядку. Только с профилями поведения. */
+  interrupt: z.boolean().optional(),
 });
 
 export const EffectSchema = z.discriminatedUnion('type', [
@@ -99,6 +101,13 @@ export const SkillSchema = z.object({
   castTime: z.number().nonnegative().default(0),
   /** Приоритет среди активных: больше — раньше. При равенстве — навык, открытый позже. */
   priority: z.number().default(0),
+  /**
+   * Удар по кругу (профиль мага с area): точка удара — там, где больше всего врагов, цели — враги в круге radius в конце
+   * каста (вышедший не задет). Без профиля — как без поля.
+   */
+  area: z.object({ radius: z.number().positive() }).optional(),
+  /** Аура (пассивка turnStart, профиль барда): статус получают только союзники не дальше radius от исполнителя. */
+  aura: z.object({ radius: z.number().positive() }).optional(),
 });
 
 export const VisualSchema = z.object({

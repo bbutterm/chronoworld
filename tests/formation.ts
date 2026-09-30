@@ -43,7 +43,7 @@ export interface FormationStats {
 }
 
 /** Позиции юнитов боя по тикам. */
-export function sampleBattle(r: BattleResult, cfg: CombatConfig, onTick: (pts: number[][]) => void) {
+export function sampleBattle(r: BattleResult, cfg: CombatConfig, onTick: (pts: number[][], uids: string[]) => void) {
   const mv: Record<string, { from: number[]; to: number[]; t0: number; dur: number }> = {};
   for (const u of r.units) mv[u.uid] = { from: [u.x, u.y], to: [u.x, u.y], t0: 0, dur: 0 };
   const pos = (uid: string, t: number) => {
@@ -65,7 +65,11 @@ export function sampleBattle(r: BattleResult, cfg: CombatConfig, onTick: (pts: n
       if (e.type === 'move') mv[e.unit] = { from: pos(e.unit, e.t), to: e.to, t0: e.t, dur: e.duration };
       if (e.type === 'death') dead.add(e.unit);
     }
-    onTick(present.filter((u) => !dead.has(u)).map((u) => pos(u, t)));
+    const live = present.filter((u) => !dead.has(u));
+    onTick(
+      live.map((u) => pos(u, t)),
+      live,
+    );
   }
 }
 

@@ -2,7 +2,7 @@ import type { ChapterDef, StageInfo } from './campaign/schema';
 import type { SkillDef, StatMods, StatusDef, UnitDef } from './content/schema';
 import type { JobDef } from './progression/schema';
 import type { HeroTemplate } from './heroes/schema';
-import type { BehaviorProfile, EnrageConfig } from './behavior';
+import type { BehaviorProfile, EnrageConfig, SustainConfig } from './behavior';
 
 export type { Effect, PhaseActionDef, PhaseDef, SkillDef, StatMods, StatusDef, Stats, TargetDef, UnitDef } from './content/schema';
 
@@ -74,6 +74,8 @@ export interface CombatConfig {
   behaviorDefaults?: Record<string, string>;
   /** Мягкая ярость всех после afterSeconds боя: урон растёт на perSecond за секунду сверх порога. */
   enrage?: EnrageConfig;
+  /** Живучесть врагов: убывающее повторное лечение одной цели, щиты не складываются. */
+  sustain?: SustainConfig;
   slots: { count: number; front: number[]; back: number[] };
   field: {
     width: number;
@@ -110,7 +112,7 @@ export interface Unit {
   /** Когда навык снова готов: время боя (с) по id навыка. */
   readyAt: Record<string, number>;
   /** Идёт каст: навык и время окончания. */
-  casting: { skill: SkillDef; until: number } | null;
+  casting: { skill: SkillDef; until: number; at?: [number, number]; radius?: number } | null;
   passives: SkillDef[];
   maxHp: number;
   hp: number;
@@ -157,7 +159,7 @@ export type BattleEvent = BaseEvent &
         duration: number;
         kind: 'walk' | 'dash';
         /** Почему (профили поведения): kite — отход стрелка, follow — лекарь за танком, intercept — перехват стража. */
-        reason?: 'kite' | 'follow' | 'intercept';
+        reason?: 'kite' | 'follow' | 'intercept' | 'flee';
       }
     | {
         type: 'attack';
@@ -178,8 +180,14 @@ export type BattleEvent = BaseEvent &
         name: string;
         duration: number;
         action: 'start' | 'interrupt';
-        /** Только для interrupt: stun — каст сбит оглушением; noTarget — к концу каста не осталось целей (каст пропал). */
-        reason?: 'stun' | 'noTarget';
+        /**
+         * Только для interrupt: stun — каст сбит оглушением; dispel — сбит статусом interrupt (Развеивание контрмага);
+         * noTarget — к концу каста не осталось целей (каст пропал).
+         */
+        reason?: 'stun' | 'dispel' | 'noTarget';
+        /** Удар по кругу (маг, навык с area): центр круга на земле и радиус. */
+        at?: [number, number];
+        radius?: number;
       }
     | { type: 'ult'; unit: string; skill: string; name: string; targets: string[] }
     | { type: 'passive'; unit: string; skill: string; name: string }
@@ -205,7 +213,8 @@ export type BattleEvent = BaseEvent &
         status: string;
         name: string;
         turns: number;
-        action: 'apply' | 'expire';
+        /** refresh — аура продлила статус тому, у кого он уже был (сцена не рисует). */
+        action: 'apply' | 'expire' | 'refresh';
         /** Для apply: длительность в секундах боя (turns × statusTurnSeconds). */
         seconds?: number;
         /** Статус-провокация: носитель бьёт source. */
@@ -222,6 +231,8 @@ export type BattleEvent = BaseEvent &
       }
     | { type: 'spawn'; unit: string; unitId: string; source: string; x: number; y: number; maxHp: number }
     | { type: 'enrage'; afterSeconds: number; perSecond: number }
+    /** Аура барда/танцовщицы (пассивка с aura): круг радиуса radius вокруг unit, кто внутри — получает статус навыка. */
+    | { type: 'aura'; unit: string; skill: string; radius: number }
     | { type: 'energy'; unit: string; energy: number }
     | { type: 'death'; unit: string; killer: string | null }
     | { type: 'end'; winner: Side; reason: 'wipe' | 'timeout' }

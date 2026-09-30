@@ -4,7 +4,8 @@ import { text } from './ui';
 
 /**
  * Поведение в бою на экране (docs/design/battle-behavior.md): знак провокации «!» над врагом и красная пунктирная линия
- * к стражу, золотая нить связи крестоносца, засечки фаз на полосе босса и надпись фазы. Объекты создаются по событиям
+ * к стражу, золотая нить связи крестоносца, засечки фаз на полосе босса и надпись фазы; круг удара мага на земле (растёт
+ * с кастом, вспышка в момент удара), цветной круг ауры барда/танцовщицы. Объекты создаются по событиям
  * боя и живут, пока жив статус/связь; update() каждый кадр ставит их к показанным фигурам. Без утечек: clear() на выходе.
  */
 
@@ -16,17 +17,45 @@ export interface FxAnchor {
 }
 
 const TAUNT_COLOR = '#ff4a3a';
+/** Круги на земле (удар мага, аура барда) — под живыми фигурами (их глубина — y ног, поле от 900), над павшими. */
+const GROUND_DEPTH = 850;
 const LINK_COLOR = 0xffd66b;
 const TAUNT_LINE = 0xff5a4a;
 
 export class BehaviorFx {
   private readonly taunts = new Map<FxAnchor, { mark: Phaser.GameObjects.Text; source: FxAnchor; lineUntil: number }>();
   private readonly links = new Map<FxAnchor, { guard: FxAnchor; phase: number }>();
+  /** Круг удара мага: кастер → центр, радиус, цвет стихии, когда начат и сколько длится каст (мс). */
+  private readonly areas = new Map<FxAnchor, { x: number; y: number; r: number; color: number; start: number; dur: number }>();
+  /** Вспышки удара по кругу: центр, радиус, цвет, когда. */
+  private readonly blasts: { x: number; y: number; r: number; color: number; start: number }[] = [];
+  /** Ауры бардов: исполнитель → радиус, цвет, вид (ноты / лепестки). */
+  private readonly auras = new Map<FxAnchor, { r: number; color: number; petals: boolean }>();
   private readonly gfx: Phaser.GameObjects.Graphics;
+  private readonly ground: Phaser.GameObjects.Graphics;
   private clock = 0;
 
   constructor(private readonly scene: Phaser.Scene) {
     this.gfx = scene.add.graphics().setDepth(DEPTH.fx - 10);
+    this.ground = scene.add.graphics().setDepth(GROUND_DEPTH);
+  }
+
+  /** Маг начал каст по кругу: круг цвета стихии на земле растёт вместе с полосой каста. */
+  castArea(caster: FxAnchor, x: number, y: number, r: number, color: number, durMs: number): void {
+    this.areas.set(caster, { x, y, r, color, start: this.clock, dur: Math.max(1, durMs) });
+  }
+
+  /** Каст кончился: impact — удар по кругу (вспышка), иначе круг просто гаснет (сорван, пусто). */
+  endArea(caster: FxAnchor, impact: boolean): void {
+    const a = this.areas.get(caster);
+    if (!a) return;
+    this.areas.delete(caster);
+    if (impact) this.blasts.push({ x: a.x, y: a.y, r: a.r, color: a.color, start: this.clock });
+  }
+
+  /** Аура барда/танцовщицы: цветной круг под исполнителем, пока он жив. */
+  aura(unit: FxAnchor, r: number, color: number, petals: boolean): void {
+    this.auras.set(unit, { r, color, petals });
   }
 
   /** Провокация: «!» над врагом, пока статус висит; линия к стражу — 0,4 с. */
@@ -69,6 +98,7 @@ export class BehaviorFx {
     this.clock += dt;
     const g = this.gfx;
     g.clear();
+    this.drawGround();
     for (const [target, t] of this.taunts) {
       if (!target.alive) {
         this.untaunt(target);
@@ -93,11 +123,69 @@ export class BehaviorFx {
     }
   }
 
+  /** Земля: круги ударов магов (растут с кастом), вспышки удара, ауры бардов. Эллипсы — поле в псевдоперспективе. */
+  private drawGround(): void {
+    const g = this.ground;
+    g.clear();
+    const SQ = 0.8;
+    for (const [caster, a] of this.areas) {
+      if (!caster.alive) {
+        this.areas.delete(caster);
+        continue;
+      }
+      const k = Math.min(1, (this.clock - a.start) / a.dur);
+      const pulse = 0.5 + 0.5 * Math.sin(this.clock / 110);
+      g.fillStyle(a.color, 0.1 + 0.08 * k).fillEllipse(a.x, a.y, a.r * 2, a.r * 2 * SQ);
+      g.lineStyle(4, a.color, 0.55 + 0.25 * pulse).strokeEllipse(a.x, a.y, a.r * 2, a.r * 2 * SQ);
+      const rr = a.r * (0.25 + 0.75 * k);
+      g.fillStyle(a.color, 0.18 + 0.2 * k).fillEllipse(a.x, a.y, rr * 2, rr * 2 * SQ);
+      g.lineStyle(3, 0xffffff, 0.35 + 0.4 * k).strokeEllipse(a.x, a.y, rr * 2, rr * 2 * SQ);
+    }
+    for (let i = this.blasts.length - 1; i >= 0; i--) {
+      const b = this.blasts[i];
+      const k = (this.clock - b.start) / 380;
+      if (k >= 1) {
+        this.blasts.splice(i, 1);
+        continue;
+      }
+      const r = b.r * (1 + 0.25 * k);
+      g.fillStyle(b.color, 0.45 * (1 - k)).fillEllipse(b.x, b.y, r * 2, r * 2 * SQ);
+      g.lineStyle(8 * (1 - k) + 2, 0xffffff, 0.8 * (1 - k)).strokeEllipse(b.x, b.y, r * 2, r * 2 * SQ);
+    }
+    for (const [u, a] of this.auras) {
+      if (!u.alive) {
+        this.auras.delete(u);
+        continue;
+      }
+      const x = u.node.x;
+      const y = u.node.y;
+      const pulse = 0.5 + 0.5 * Math.sin(this.clock / 260);
+      g.fillStyle(a.color, 0.09 + 0.04 * pulse).fillEllipse(x, y, a.r * 2, a.r * 2 * SQ);
+      g.lineStyle(4, a.color, 0.5 + 0.2 * pulse).strokeEllipse(x, y, a.r * 2, a.r * 2 * SQ);
+      // По краю бегут ноты (бард) или лепестки (танцовщица).
+      const n = 8;
+      for (let i = 0; i < n; i++) {
+        const ang = this.clock / 1400 + (i * Math.PI * 2) / n;
+        const px = x + Math.cos(ang) * a.r;
+        const py = y + Math.sin(ang) * a.r * SQ;
+        if (a.petals) g.fillStyle(0xffe0f0, 0.9).fillEllipse(px, py, 16, 9);
+        else {
+          g.fillStyle(0xffffff, 0.9).fillCircle(px, py, 6);
+          g.lineStyle(3, 0xffffff, 0.9).lineBetween(px + 5, py, px + 5, py - 16);
+        }
+      }
+    }
+  }
+
   clear(): void {
     for (const t of this.taunts.values()) t.mark.destroy();
     this.taunts.clear();
     this.links.clear();
+    this.areas.clear();
+    this.blasts.length = 0;
+    this.auras.clear();
     this.gfx.clear();
+    this.ground.clear();
   }
 }
 

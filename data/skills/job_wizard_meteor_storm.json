@@ -17,5 +17,8 @@
       "type": "damage",
       "k": 0.9
     }
-  ]
+  ],
+  "area": {
+    "radius": 260
+  }
 }

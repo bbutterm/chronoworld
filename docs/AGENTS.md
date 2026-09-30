@@ -281,8 +281,9 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 `skills.defaultCooldown` 8, `projectileSeconds` 0.3, `statusTurnSeconds` 1, `movement` (`meleeRange` 130, `moveSpeed` 320,
 `stackAngles`, `retargetSeconds`, `bodyRadius`, `minSeparation`, `meleeAoeRadius`, `maxMeleePerTarget` 2, `diveReturnSeconds`),
 `slots`, `field` (ширина 1080, `bounds`, координаты слотов стороны A; B — зеркало); `behaviors` — библиотека профилей поведения,
-`behaviorDefaults` — профиль по умолчанию (`<kind>_<role>_<melee|ranged>`, затем `<kind>`), `enrage` — ярость всех после 60 с (урон +10%/с, лечение и щиты −5%/с)
-(docs/design/battle-behavior.md; схема — `src/core/behavior.ts`).
+`behaviorDefaults` — профиль по умолчанию (`<kind>_<role>_<melee|ranged>`, затем `<kind>`), `enrage` — ярость всех после 60 с (урон +15%/с, лечение и щиты −5%/с),
+`sustain` — живучесть врагов (лечение и щиты от монстров/боссов одной цели чаще раза в 12 с — ×0.5 за каждое следующее, не ниже 0.2;
+их щиты не складываются) (docs/design/battle-behavior.md; схема — `src/core/behavior.ts`).
 
 ### Предметы, задания, экспедиции, достижения
 
@@ -564,7 +565,14 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
   `battle.ts`: `focus` (стрелок бьёт самого раненого), `kite` (отход от ближнего, ≤ 3 за бой), `anchor` (лекарь заднего ряда — за
   танком), `panicPct`, `dive.priority` (ассасин прыгает в лекаря/поддержку/стрелка), `flank` (вор встаёт сбоку), `intercept` (страж
   рывком встаёт между врагом и нашим тылом), `protect` (крестоносец идёт к тому, кто бьёт союзника под связью); статус `taunt`
-  (провокация: носитель бьёт наложившего) и эффект `link` (доля урона по союзнику — защитнику). Фазы боссов — `phases` юнита
+  (провокация: носитель бьёт наложившего) и эффект `link` (доля урона по союзнику — защитнику). Шаги 4–5: `area` (маг: навык с полем
+  `area {radius}` — по кругу там, где больше всего врагов, круг в `cast.at/radius`; цели — кто в круге в конце каста, пустой круг —
+  `noTarget` и половинная перезарядка), `counter` (Мудрец-Лира: навык со статусом `interrupt` — во врага, который кастует; каст
+  сорван `reason: dispel`, навык врага уходит в перезарядку; держит Развеивание до `hold` с, если у врагов есть касты), `center` (бард
+  в центре своих; пассивка с `aura {radius}` на `turnStart` — статус союзникам в круге, продление — `status refresh`; событие `aura`
+  в начале боя), `cluster` (таран/кузнец: цель и рывок — в гущу), `execute` (торговец добивает врага < 30% рядом), `pack` (стая —
+  к цели сородичей, не больше 2 на цель), `coward` (трус < 25% ОЗ раз за бой бежит к своему лекарю/краю на 3 с, `move.reason: flee`,
+  не бьёт, получает +20% урона; последний живой не бежит). `combat.json → sustain` — убывающее лечение и щиты врагов. Фазы боссов — `phases` юнита
   (`atHpPct`/`atSeconds`: `addActive`, `status`, `energy`, `shield`, `summon` — свита B5, B6…, не больше 4 живых; в `BattleResult.spawned`).
   `simulateBattle(..., { behavior: false })` — бой «как до профилей» (для сравнения; тест логов `behavior.test.ts`), `npm run sim -- --behavior off`.
 - **Касты:** `castTime > 0` → событие `cast` `start`, эффект в конце; оглушение → `cast` `interrupt` `reason: stun` (перезарядка не тратится),
@@ -575,9 +583,13 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 - **Энергия:** +25 за действие, +10 за полученный удар (не от dot).
 - **События для UI** (`BattleEvent`, `types.ts`): `turn`, `skip`, `move` (walk/dash, from/to/duration), `attack`, `cast`, `ult`, `passive`,
   `damage` (`redirect` — урон по связи), `heal`, `buff` (щит), `status` (apply/expire, `taunt`), `energy`, `death`, `end`; профили — `move.reason`
-  (`kite`, `follow`, `intercept`), `link` (apply/break), `phase`, `spawn`, `enrage`. Сцена Phaser только проигрывает лог; удар показывается
+  (`kite`, `follow`, `intercept`, `flee`), `link` (apply/break), `phase`, `spawn`, `enrage`, `aura`; `cast.at/radius` (круг мага),
+  `cast.reason: dispel`, `status.action: refresh` (аура продлила — сцена не рисует). Сцена Phaser только проигрывает лог; удар показывается
   на кадре `hitFrame` анимации атаки.
-- Проверки: `tests/battle*.test.ts`, `actives.test.ts`, `formation.test.ts` (строй), `fuzz-battle.test.ts` (инварианты на случайных отрядах).
+- Проверки: `tests/battle*.test.ts`, `actives.test.ts`, `formation.test.ts` (строй), `fuzz-battle.test.ts` (инварианты на случайных отрядах),
+  `behavior*.test.ts` (профили: шаги 1–3, `behavior-steps45.test.ts` — маг, контрмаг, аура, трус, стая, таран, живучесть врагов).
+  Сцена: круг мага и аура — `src/game/battleBehaviorFx.ts` (земля под фигурами), подписи «Сбито!», «Бежит!» — `BattleScene.ts`;
+  кадры — `scripts/behavior-save.ts` + `scripts/behavior-shots.mjs` (сцены `круг`, `аура`, `трус`).
 
 ---
 

@@ -26,5 +26,8 @@
         "stun": true
       }
     }
-  ]
+  ],
+  "area": {
+    "radius": 260
+  }
 }

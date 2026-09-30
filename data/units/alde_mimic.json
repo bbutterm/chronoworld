@@ -18,5 +18,6 @@
   "visual": {
     "sprite": "mimic",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "coward"
 }

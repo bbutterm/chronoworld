@@ -264,6 +264,9 @@
                         },
                         "taunt": {
                           "type": "boolean"
+                        },
+                        "interrupt": {
+                          "type": "boolean"
                         }
                       },
                       "required": [

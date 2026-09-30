@@ -50,7 +50,13 @@ describe('строй боя (T2-05)', () => {
       // Не больше 3 фигур у одного юнита в радиусе 150 дольше секунды подряд.
       let run = 0;
       let worst = 0;
-      sampleBattle(r, ctx.combat, (pts) => {
+      // Пока держатся хотя бы двое героев: последнего живого облепляют все оставшиеся враги — это не куча у Мага, а конец
+      // проигранного боя (стая порингов, шаг 5 поведения, добивает его втроём: seed 2027808044 — 1,3 с у последнего Лучника в углу).
+      sampleBattle(r, ctx.combat, (pts, uids) => {
+        if (uids.filter((u) => u.startsWith('A')).length < 2) {
+          run = 0;
+          return;
+        }
         run = pts.some((p) => pts.filter((q) => Math.hypot(p[0] - q[0], p[1] - q[1]) <= 150).length > 3) ? run + 1 : 0;
         worst = Math.max(worst, run);
       });

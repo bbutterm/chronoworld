@@ -2,9 +2,9 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_bard_poem_of_bragi",
   "name": "Поэма Браги",
-  "description": "В начале боя: +15% скорости всем союзникам на 4 с — каст и перезарядка быстрее.",
+  "description": "Аура: союзники в круге вокруг барда получают +10% скорости (вышел из круга — через 2 с бафф спадает).",
   "range": "ranged",
-  "trigger": "battleStart",
+  "trigger": "turnStart",
   "target": {
     "side": "ally",
     "pick": "all",
@@ -16,11 +16,14 @@
       "status": {
         "id": "poem_of_bragi",
         "name": "Поэма Браги",
-        "turns": 4,
+        "turns": 2,
         "stats": {
-          "spd": 0.15
+          "spd": 0.1
         }
       }
     }
-  ]
+  ],
+  "aura": {
+    "radius": 300
+  }
 }
