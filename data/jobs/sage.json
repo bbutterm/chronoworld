@@ -48,5 +48,6 @@
     "sprite": "sage",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
-  }
+  },
+  "behavior": "caster"
 }

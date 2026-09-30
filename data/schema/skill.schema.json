@@ -194,6 +194,9 @@
                     "required": [
                       "k"
                     ]
+                  },
+                  "taunt": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -240,6 +243,36 @@
             },
             "required": [
               "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "link"
+              },
+              "pct": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 0.5
+              },
+              "turns": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "breakAtHpPct": {
+                "default": 0.25,
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "type",
+              "pct",
+              "turns"
             ]
           }
         ]

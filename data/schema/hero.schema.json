@@ -112,6 +112,10 @@
         ]
       }
     },
+    "behavior": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
     "branches": {
       "minItems": 2,
       "maxItems": 2,
@@ -192,6 +196,10 @@
                 "type": "string"
               }
             }
+          },
+          "behavior": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
           }
         },
         "required": [

@@ -49,5 +49,6 @@
     "sprite": "mage",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
-  }
+  },
+  "behavior": "caster"
 }

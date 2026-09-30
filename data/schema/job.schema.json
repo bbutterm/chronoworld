@@ -155,6 +155,10 @@
       "required": [
         "sprite"
       ]
+    },
+    "behavior": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
     }
   },
   "required": [

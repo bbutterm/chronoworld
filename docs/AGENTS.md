@@ -279,8 +279,10 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 
 `actionThreshold` 1000, `tickSeconds` 0.1, `timeLimitSeconds` 90, `damage`, `energy` (max 100, +25 за действие, +10 за полученный удар),
 `skills.defaultCooldown` 8, `projectileSeconds` 0.3, `statusTurnSeconds` 1, `movement` (`meleeRange` 130, `moveSpeed` 320,
-`stackAngles`, `retargetSeconds`, `bodyRadius`, `minSeparation`, `meleeAoeRadius`, `maxMeleePerTarget` 2, `diveStay`, `diveReturnSeconds`),
-`slots`, `field` (ширина 1080, `bounds`, координаты слотов стороны A; B — зеркало).
+`stackAngles`, `retargetSeconds`, `bodyRadius`, `minSeparation`, `meleeAoeRadius`, `maxMeleePerTarget` 2, `diveReturnSeconds`),
+`slots`, `field` (ширина 1080, `bounds`, координаты слотов стороны A; B — зеркало); `behaviors` — библиотека профилей поведения,
+`behaviorDefaults` — профиль по умолчанию (`<kind>_<role>_<melee|ranged>`, затем `<kind>`), `enrage` — мягкая ярость всех после 60 с
+(docs/design/battle-behavior.md; схема — `src/core/behavior.ts`).
 
 ### Предметы, задания, экспедиции, достижения
 
@@ -555,7 +557,16 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
   `maxMeleePerTarget` (2) ближних противников; встаёт в веер `stackAngles` на `0.9 × meleeRange` (+ радиусы тел), пропуская занятые
   (`minSeparation`) и точки за `field.bounds`. Не может дойти `retargetSeconds` — меняет цель. Досягаемость — `reach = range + body цели + body своё`.
 - **Рывки и прыжки в тыл:** эффект `dash`. Прыгнувший в тыл врага возвращается к прежнему противнику через `diveReturnSeconds`,
-  если навык не в `movement.diveStay` (те остаются). Враг, прыгнувший в наш тыл, для ближних — цель в последнюю очередь.
+  если его профиль не «остаётся в тылу» (`dive.stay`: `assassin`, `leaper`). Враг, прыгнувший в наш тыл, для ближних — цель в
+  последнюю очередь; за прыгуном, который сейчас вернётся, ближние не гоняются.
+- **Профили поведения** (`docs/design/battle-behavior.md`, `src/core/behavior.ts`): у юнита `behavior` — id профиля из
+  `combat.json → behaviors` (свой → форма героя `data/heroes` → профессия `data/jobs` → `behaviorDefaults` → `line`). Правила в
+  `battle.ts`: `focus` (стрелок бьёт самого раненого), `kite` (отход от ближнего, ≤ 3 за бой), `anchor` (лекарь заднего ряда — за
+  танком), `panicPct`, `dive.priority` (ассасин прыгает в лекаря/поддержку/стрелка), `flank` (вор встаёт сбоку), `intercept` (страж
+  рывком встаёт между врагом и нашим тылом), `protect` (крестоносец идёт к тому, кто бьёт союзника под связью); статус `taunt`
+  (провокация: носитель бьёт наложившего) и эффект `link` (доля урона по союзнику — защитнику). Фазы боссов — `phases` юнита
+  (`atHpPct`/`atSeconds`: `addActive`, `status`, `energy`, `shield`, `summon` — свита B5, B6…, не больше 4 живых; в `BattleResult.spawned`).
+  `simulateBattle(..., { behavior: false })` — бой «как до профилей» (для сравнения; тест логов `behavior.test.ts`), `npm run sim -- --behavior off`.
 - **Касты:** `castTime > 0` → событие `cast` `start`, эффект в конце; оглушение → `cast` `interrupt` `reason: stun` (перезарядка не тратится),
   цели пропали → `reason: noTarget`.
 - **Снаряды:** дальняя атака по врагу долетает через `projectileSeconds`; погибшая за это время цель не получает урон.
@@ -563,7 +574,8 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
   статус спадает по времени у любого носителя (и бегущего, и оглушённого).
 - **Энергия:** +25 за действие, +10 за полученный удар (не от dot).
 - **События для UI** (`BattleEvent`, `types.ts`): `turn`, `skip`, `move` (walk/dash, from/to/duration), `attack`, `cast`, `ult`, `passive`,
-  `damage`, `heal`, `buff` (щит), `status` (apply/expire), `energy`, `death`, `end`. Сцена Phaser только проигрывает лог; удар показывается
+  `damage` (`redirect` — урон по связи), `heal`, `buff` (щит), `status` (apply/expire, `taunt`), `energy`, `death`, `end`; профили — `move.reason`
+  (`kite`, `follow`, `intercept`), `link` (apply/break), `phase`, `spawn`, `enrage`. Сцена Phaser только проигрывает лог; удар показывается
   на кадре `hitFrame` анимации атаки.
 - Проверки: `tests/battle*.test.ts`, `actives.test.ts`, `formation.test.ts` (строй), `fuzz-battle.test.ts` (инварианты на случайных отрядах).
 

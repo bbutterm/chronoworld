@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { parseSquad, runSeries } from '../src/core';
-import { loadContent } from '../scripts/lib/content-node';
+import { loadContent, loadFullContext } from '../scripts/lib/content-node';
+import { smoothSquads } from '../scripts/lib/player-model';
 
 const GAME = loadContent();
 const SQUAD = parseSquad('guard,warrior,archer,mage,priest');
+/**
+ * Герои с профилями поведения (docs/design/battle-behavior.md §5): страж, стрелок, лекарь, маг, охотница против
+ * тарана, ассасина, монаха, мага и кузнеца — фиолетовые ур. 45. Меряет правила профилей (кайт, якорь, фокус, прыжки).
+ */
+const FULL = loadFullContext();
+const HEROES = smoothSquads(FULL, 45, [['alan', 'bran', 'vika', 'lira', 'meilin']])[0];
+const FOES = smoothSquads(FULL, 45, [['iris', 'zara', 'teo', 'kai', 'otto']])[0];
 
 /** Процессорное время (мс) потока (Node ≥ 22.19 / 23.9), иначе процесса, потраченное на fn. */
 function cpuMs(fn: () => unknown): number {
@@ -47,6 +55,20 @@ describe('симулятор', () => {
     // Сейчас бои ≈ 12 эталонов (эталон ≈ 110 мс CPU); регрессия примерно в 2 раза выйдет за 25.
     const calib = Math.min(cpuMs(calibration), cpuMs(calibration));
     expect(battles / calib, `бои ${battles.toFixed(0)} мс CPU, эталон ${calib.toFixed(0)} мс`).toBeLessThan(25);
+  });
+
+  it('профили поведения: 1000 боёв героев не дороже +25% к тем же боям без профилей', () => {
+    // docs/design/battle-behavior.md §5: бюджет правил — +25%. Сравнение в одном процессе (под нагрузкой оба замера
+    // замедляются одинаково); лучший из двух замеров каждого вида. Сейчас ≈ 1.0: бои с профилями короче (≈ 35 с против
+    // 50 с), тик дороже на ≈ 40% (плотнее бой: те же удары за меньше тиков).
+    const on = { combat: FULL.combat };
+    const off = { combat: FULL.combat, behavior: false };
+    runSeries(FULL.content, HEROES, FOES, 30, 1, on);
+    runSeries(FULL.content, HEROES, FOES, 30, 1, off);
+    const t = (opts: typeof on) => Math.min(...[0, 1].map(() => cpuMs(() => expect(runSeries(FULL.content, HEROES, FOES, 500, 1, opts).n).toBe(500))));
+    const withRules = t(on);
+    const without = t(off);
+    expect(withRules / without, `с профилями ${withRules.toFixed(0)} мс CPU, без ${without.toFixed(0)} мс`).toBeLessThan(1.25);
   });
 
   it('результаты серии воспроизводимы', () => {

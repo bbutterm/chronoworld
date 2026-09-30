@@ -47,5 +47,6 @@
   "visual": {
     "sprite": "merchant",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "trader"
 }

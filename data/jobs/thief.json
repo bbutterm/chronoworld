@@ -48,5 +48,6 @@
   "visual": {
     "sprite": "thief",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "flanker"
 }

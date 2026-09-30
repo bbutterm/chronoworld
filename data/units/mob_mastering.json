@@ -31,5 +31,40 @@
     "half": "Пу… ринг?! Не трогать желе! Это королевское желе!",
     "defeat": "Пу-у… колокольчик… был… вкусный…",
     "victory": "Пу-ринг! Ещё три часа — и вы тоже станете желе."
-  }
+  },
+  "phases": [
+    {
+      "atHpPct": 0.5,
+      "title": "Королевский гнев",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.15
+        },
+        {
+          "type": "energy",
+          "amount": 100
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.25,
+      "title": "Ярость!",
+      "actions": [
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.25,
+              "spd": 0.15
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

@@ -48,5 +48,6 @@
   "visual": {
     "sprite": "rogue",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "line"
 }

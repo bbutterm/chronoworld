@@ -37,6 +37,8 @@ export const JobSchema = z.object({
   basic: id,
   skills: z.array(z.object({ jobLevel: z.number().int().positive(), skill: id })).default([]),
   visual: VisualSchema,
+  /** Профиль поведения в бою (id из data/combat.json → behaviors): герои этой профессии получают его через buildUnit. */
+  behavior: id.optional(),
 });
 
 /** Окно первого прохождения этапа: [с, по] — часы от начала первой сессии модели игрока. */

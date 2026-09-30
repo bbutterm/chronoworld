@@ -59,8 +59,10 @@ export function battleProblems(r: BattleResult, cfg: CombatConfig): string[] {
   numbers(r.units, 'units', nums);
   for (const [path, n] of nums) if (!Number.isFinite(n)) p.push(`${path} = ${n}`);
 
-  const maxHp = new Map(r.units.map((u) => [u.uid, u.maxHp]));
-  const side = new Map(r.units.map((u) => [u.uid, u.side]));
+  // Свита фаз босса (r.spawned) — такие же юниты боя.
+  const units = [...r.units, ...(r.spawned ?? [])];
+  const maxHp = new Map(units.map((u) => [u.uid, u.maxHp]));
+  const side = new Map(units.map((u) => [u.uid, u.side]));
   const dead = new Set<string>();
   const known = (uid: string, e: BattleEvent) => {
     if (!maxHp.has(uid)) p.push(`#${r.log.indexOf(e)} ${e.type}: неизвестный юнит ${uid}`);

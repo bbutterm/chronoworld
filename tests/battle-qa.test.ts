@@ -56,6 +56,7 @@ function tracker(r: BattleResult) {
   };
   const still = (uid: string, t: number) => t >= mv[uid].t0 + mv[uid].dur - 1e-9;
   const apply = (e: BattleEvent) => {
+    if (e.type === 'spawn') mv[e.unit] = { from: [e.x, e.y], to: [e.x, e.y], t0: e.t, dur: 0 };
     if (e.type === 'move') mv[e.unit] = { from: pos(e.unit, e.t), to: e.to, t0: e.t, dur: e.duration };
   };
   return { pos, still, apply };
@@ -68,15 +69,18 @@ function tracker(r: BattleResult) {
 function replay(r: BattleResult, onEvent: (e: BattleEvent, tr: ReturnType<typeof tracker>, dead: Set<string>) => void, onTick?: (t: number, tr: ReturnType<typeof tracker>, alive: string[]) => void) {
   const tr = tracker(r);
   const dead = new Set<string>();
+  // Свита фаз босса — на поле с события spawn.
+  const present = r.units.map((u) => u.uid);
   let i = 0;
   for (let t = 0; t <= r.duration + 1e-9; t = Math.round((t + COMBAT.tickSeconds) * 1000) / 1000) {
     while (i < r.log.length && r.log[i].t <= t + 1e-9) {
       const e = r.log[i++];
       onEvent(e, tr, dead);
       tr.apply(e);
+      if (e.type === 'spawn') present.push(e.unit);
       if (e.type === 'death') dead.add(e.unit);
     }
-    onTick?.(t, tr, r.units.map((u) => u.uid).filter((u) => !dead.has(u)));
+    onTick?.(t, tr, present.filter((u) => !dead.has(u)));
   }
 }
 
@@ -413,8 +417,9 @@ describe('QA T2 (бой) — регрессии пакета P1', () => {
     for (const q of [QA.stage1, QA.boss3]) {
       const { r, enemies } = fight(q.squad, q.lvl, q.stage, q.seed);
       const body = (uid: string) => {
-        const u = r.units.find((x) => x.uid === uid)!;
-        const def = u.side === 'B' ? enemies[u.slot] : null;
+        // Свита фаз босса (не в r.units) — рядовые монстры, радиус тела 0.
+        const u = r.units.find((x) => x.uid === uid);
+        const def = u?.side === 'B' ? enemies[u.slot] : null;
         return def ? (def.bodyRadius ?? MOVE.bodyRadius?.[def.kind] ?? 0) : 0;
       };
       replay(r, (e, tr) => {
