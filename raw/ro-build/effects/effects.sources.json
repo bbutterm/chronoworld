@@ -1,0 +1,132 @@
+{
+ "png": {
+  "fx_hit": "raw/ro-build/effects/p2/assets/effects/fx_hit.png",
+  "fx_arrow": "raw/ro-build/effects/p2/assets/effects/fx_arrow.png",
+  "fx_magic": "raw/ro-build/effects/p2/assets/effects/fx_magic.png",
+  "fx_heal": "raw/ro-build/effects/p2/assets/effects/fx_heal.png",
+  "fx_death": "raw/ro-build/effects/p2/assets/effects/fx_death.png",
+  "fx_shield": "raw/ro-build/effects/p2/assets/effects/fx_shield.png",
+  "fx_job_acolyte_blessing": "raw/ro-build/effects/p2/assets/effects/fx_job_acolyte_blessing.png",
+  "fx_job_mage_thunderstorm": "raw/ro-build/effects/p2/assets/effects/fx_job_mage_thunderstorm.png",
+  "fx_job_mage_fire_bolt": "raw/ro-build/effects/p2/assets/effects/fx_job_mage_fire_bolt.png",
+  "fx_job_mage_fire_ball_projectile": "raw/ro-build/effects/p2/assets/effects/fx_job_mage_fire_ball_projectile.png",
+  "fx_job_mage_frost_diver": "raw/ro-build/effects/p2/assets/effects/fx_job_mage_frost_diver.png",
+  "fx_job_merchant_cart_revolution": "raw/ro-build/effects/p2/assets/effects/fx_job_merchant_cart_revolution.png",
+  "fx_job_acolyte_holy_light": "raw/ro-build/effects/p2/assets/effects/fx_job_acolyte_holy_light.png",
+  "fx_job_acolyte_increase_agi": "raw/ro-build/effects/p2/assets/effects/fx_job_acolyte_increase_agi.png",
+  "fx_job_acolyte_signum_crucis": "assets/effects/fx_job_acolyte_signum_crucis.png (main)",
+  "fx_swordman_bash": "raw/ro-build/effects/p2/assets/effects/fx_swordman_bash.png",
+  "fx_job_thief_envenom": "raw/ro-build/effects/p2/assets/effects/fx_job_thief_envenom.png",
+  "fx_job_crusader_defender": "raw/ro-build/effects/p2/assets/effects/fx_job_crusader_defender.png",
+  "fx_job_assassin_sonic_blow": "raw/ro-build/effects/p2/assets/effects/fx_job_assassin_sonic_blow.png",
+  "fx_job_crusader_grand_cross": "raw/ro-build/effects/p2/assets/effects/fx_job_crusader_grand_cross.png",
+  "fx_job_wizard_storm_gust": "assets/effects/fx_job_wizard_storm_gust.png (main)",
+  "fx_job_crusader_shield_charge": "raw/ro-build/effects/p2/assets/effects/fx_job_crusader_shield_charge.png",
+  "fx_job_hunter_claymore_trap": "raw/ro-build/effects/p2/assets/effects/fx_job_hunter_claymore_trap.png",
+  "fx_job_hunter_sandman": "raw/ro-build/effects/p2/assets/effects/fx_job_hunter_sandman.png",
+  "fx_job_blacksmith_weapon_perfection": "assets/effects/fx_job_blacksmith_weapon_perfection.png (main)",
+  "fx_job_crusader_holy_cross": "assets/effects/fx_job_crusader_holy_cross.png (main)",
+  "fx_swordman_endure": "raw/ro-build/effects/p2/assets/effects/fx_swordman_endure.png",
+  "fx_job_knight_bowling_bash": "raw/ro-build/effects/p2/assets/effects/fx_job_knight_bowling_bash.png",
+  "fx_job_sage_earth_spike": "raw/ro-build/effects/p2/assets/effects/fx_job_sage_earth_spike.png",
+  "fx_job_sage_heavens_drive": "raw/ro-build/effects/p2/assets/effects/fx_job_sage_heavens_drive.png",
+  "fx_job_sage_dispell": "raw/ro-build/effects/p2/assets/effects/fx_job_sage_dispell.png",
+  "fx_job_knight_two_hand_quicken": "raw/ro-build/effects/p2/assets/effects/fx_job_knight_two_hand_quicken.png",
+  "fx_job_wizard_meteor_storm": "assets/effects/fx_job_wizard_meteor_storm.png (main)",
+  "fx_job_thief_steal": "raw/ro-build/effects/p2/assets/effects/fx_job_thief_steal.png",
+  "fx_job_swordman_magnum_break": "raw/ro-build/effects/p2/assets/effects/fx_job_swordman_magnum_break.png",
+  "fx_job_swordman_provoke": "raw/ro-build/effects/p1/assets/effects/fx_job_swordman_provoke.png",
+  "fx_job_merchant_mammonite": "raw/ro-build/effects/p1/assets/effects/fx_job_merchant_mammonite.png",
+  "fx_job_mage_cold_bolt_projectile": "raw/ro-build/effects/p1/assets/effects/fx_job_mage_cold_bolt_projectile.png",
+  "fx_job_mage_fire_bolt_projectile": "raw/ro-build/effects/p1/assets/effects/fx_job_mage_fire_bolt_projectile.png",
+  "fx_job_mage_frost_diver_projectile": "raw/ro-build/effects/p1/assets/effects/fx_job_mage_frost_diver_projectile.png",
+  "fx_job_archer_arrow_shower": "raw/ro-build/effects/p1/assets/effects/fx_job_archer_arrow_shower.png",
+  "fx_job_archer_improve_concentration": "raw/ro-build/effects/p1/assets/effects/fx_job_archer_improve_concentration.png",
+  "fx_job_acolyte_angelus": "raw/ro-build/effects/p1/assets/effects/fx_job_acolyte_angelus.png",
+  "fx_job_thief_venom_knife_projectile": "raw/ro-build/effects/p1/assets/effects/fx_job_thief_venom_knife_projectile.png",
+  "fx_job_blacksmith_hammer_fall": "raw/ro-build/effects/p1/assets/effects/fx_job_blacksmith_hammer_fall.png",
+  "fx_job_wizard_jupitel_thunder_hit": "raw/ro-build/effects/p1/assets/effects/fx_job_wizard_jupitel_thunder_hit.png",
+  "fx_job_wizard_jupitel_thunder_projectile": "raw/ro-build/effects/p1/assets/effects/fx_job_wizard_jupitel_thunder_projectile.png",
+  "fx_job_wizard_quagmire": "raw/ro-build/effects/p1/assets/effects/fx_job_wizard_quagmire.png",
+  "fx_job_sage_volcano": "raw/ro-build/effects/p1/assets/effects/fx_job_sage_volcano.png",
+  "fx_job_alchemist_acid_terror_projectile": "raw/ro-build/effects/p1/assets/effects/fx_job_alchemist_acid_terror_projectile.png",
+  "fx_job_priest_impositio_manus": "raw/ro-build/effects/p1/assets/effects/fx_job_priest_impositio_manus.png",
+  "fx_job_priest_magnus_exorcismus_ground": "raw/ro-build/effects/p1/assets/effects/fx_job_priest_magnus_exorcismus_ground.png",
+  "fx_job_priest_magnus_exorcismus_cast": "raw/ro-build/effects/p1/assets/effects/fx_job_priest_magnus_exorcismus_cast.png",
+  "fx_job_priest_lex_aeterna": "raw/ro-build/effects/p1/assets/effects/fx_job_priest_lex_aeterna.png",
+  "fx_job_priest_kyrie_eleison": "raw/ro-build/effects/p1/assets/effects/fx_job_priest_kyrie_eleison.png",
+  "fx_job_priest_sanctuary": "raw/ro-build/effects/p1/assets/effects/fx_job_priest_sanctuary.png",
+  "fx_job_priest_assumptio": "raw/ro-build/effects/p1/assets/effects/fx_job_priest_assumptio.png",
+  "fx_job_assassin_grimtooth": "raw/ro-build/effects/p1/assets/effects/fx_job_assassin_grimtooth.png",
+  "fx_job_assassin_venom_splasher": "raw/ro-build/effects/p1/assets/effects/fx_job_assassin_venom_splasher.png",
+  "fx_job_knight_parrying": "raw/ro-build/effects/p1/assets/effects/fx_job_knight_parrying.png",
+  "fx_job_merchant_crazy_uproar": "raw/ro-build/effects/p1/assets/effects/fx_job_merchant_crazy_uproar.png",
+  "fx_job_priest_magnificat": "raw/ro-build/effects/p1/assets/effects/fx_job_priest_magnificat.png",
+  "fx_cast_neutral": "raw/ro-build/effects/p3/assets/effects/fx_cast_neutral.png",
+  "fx_cast_water": "raw/ro-build/effects/p3/assets/effects/fx_cast_water.png",
+  "fx_cast_fire": "raw/ro-build/effects/p3/assets/effects/fx_cast_fire.png",
+  "fx_cast_wind": "raw/ro-build/effects/p3/assets/effects/fx_cast_wind.png",
+  "fx_cast_earth": "raw/ro-build/effects/p3/assets/effects/fx_cast_earth.png",
+  "fx_cast_holy": "raw/ro-build/effects/p3/assets/effects/fx_cast_holy.png",
+  "fx_cast_poison": "raw/ro-build/effects/p3/assets/effects/fx_cast_poison.png",
+  "fx_cast_dark": "raw/ro-build/effects/p3/assets/effects/fx_cast_dark.png",
+  "fx_job_mage_safety_wall": "raw/ro-build/effects/p4/assets/effects/fx_job_mage_safety_wall.png",
+  "fx_job_crusader_devotion": "raw/ro-build/effects/p4/assets/effects/fx_job_crusader_devotion.png",
+  "fx_job_rogue_strip_weapon": "raw/ro-build/effects/p4/assets/effects/fx_job_rogue_strip_weapon.png",
+  "fx_job_rogue_strip_armor": "raw/ro-build/effects/p4/assets/effects/fx_job_rogue_strip_armor.png",
+  "fx_job_hunter_ankle_snare": "raw/ro-build/effects/p4/assets/effects/fx_job_hunter_ankle_snare.png",
+  "fx_job_wizard_soul_drain": "raw/ro-build/effects/p4/assets/effects/fx_job_wizard_soul_drain.png",
+  "fx_mob2_boss_rot_spores": "raw/ro-build/effects/p4/assets/effects/fx_mob2_boss_rot_spores.png",
+  "fx_mob2_tank_mire": "raw/ro-build/effects/p4/assets/effects/fx_mob2_tank_mire.png",
+  "fx_mob_tank_guard": "raw/ro-build/effects/p4/assets/effects/fx_mob_tank_guard.png",
+  "fx_mob_mastering_jelly_armor": "raw/ro-build/effects/p4/assets/effects/fx_mob_mastering_jelly_armor.png",
+  "fx_mob_elite_smash": "raw/ro-build/effects/p4/assets/effects/fx_mob_elite_smash.png",
+  "fx_mob3_boss_nova": "raw/ro-build/effects/p4/assets/effects/fx_mob3_boss_nova.png",
+  "fx_job_blacksmith_adrenaline_rush": "raw/ro-build/effects/p5/assets/effects/fx_job_blacksmith_adrenaline_rush.png",
+  "fx_job_knight_auto_counter": "raw/ro-build/effects/p5/assets/effects/fx_job_knight_auto_counter.png",
+  "fx_mob2_elite_frenzy": "raw/ro-build/effects/p5/assets/effects/fx_mob2_elite_frenzy.png",
+  "fx_job_alchemist_demonstration": "raw/ro-build/effects/p5/assets/effects/fx_job_alchemist_demonstration.png",
+  "fx_mob_boss1_quake": "raw/ro-build/effects/p5/assets/effects/fx_mob_boss1_quake.png"
+ },
+ "suggestedSkills": {
+  "mob2_boss_rot_spores": {
+   "roSkill": "NPC_POISON",
+   "hit": "fx_mob2_boss_rot_spores"
+  },
+  "mob2_tank_mire": {
+   "roSkill": "NPC_EVILLAND",
+   "ground": "fx_mob2_tank_mire"
+  },
+  "mob_tank_guard": {
+   "roSkill": "NPC_DEFENDER",
+   "buff": "fx_mob_tank_guard"
+  },
+  "mob_mastering_jelly_armor": {
+   "roSkill": "NPC_KEEPING",
+   "buff": "fx_mob_mastering_jelly_armor"
+  },
+  "mob_elite_smash": {
+   "roSkill": "NPC_STUNATTACK",
+   "hit": "fx_mob_elite_smash"
+  },
+  "mob3_boss_nova": {
+   "roSkill": "NPC_DARKSTRIKE",
+   "hit": "fx_mob3_boss_nova"
+  },
+  "mob2_elite_frenzy": {
+   "roSkill": "LK_BERSERK (mid_frenzy.str)",
+   "buff": "fx_mob2_elite_frenzy"
+  },
+  "mob_boss1_quake": {
+   "roSkill": "NPC_EARTHQUAKE",
+   "ground": "fx_mob_boss1_quake"
+  }
+ },
+ "keptFromMain": [
+  "p2 keep main: fx_job_acolyte_signum_crucis",
+  "p2 keep main: fx_job_wizard_storm_gust",
+  "p2 keep main: fx_job_blacksmith_weapon_perfection",
+  "p2 keep main: fx_job_crusader_holy_cross",
+  "p2 keep main: fx_job_wizard_meteor_storm"
+ ]
+}

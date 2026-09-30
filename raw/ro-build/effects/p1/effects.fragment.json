@@ -1,0 +1,1430 @@
+{
+ "schema": 1,
+ "part": 1,
+ "effects": [
+  {
+   "id": "fx_job_swordman_provoke",
+   "file": "effects/fx_job_swordman_provoke.png",
+   "cell": [
+    386,
+    236
+   ],
+   "columns": 5,
+   "frames": 14,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    193.0,
+    205.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "67",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 67; role debuff"
+   }
+  },
+  {
+   "id": "fx_job_merchant_mammonite",
+   "file": "effects/fx_job_merchant_mammonite.png",
+   "cell": [
+    352,
+    314
+   ],
+   "columns": 5,
+   "frames": 9,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    171.0,
+    272.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "10",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 10; role hit"
+   }
+  },
+  {
+   "id": "fx_job_mage_cold_bolt_projectile",
+   "file": "effects/fx_job_mage_cold_bolt_projectile.png",
+   "cell": [
+    298,
+    592
+   ],
+   "columns": 6,
+   "frames": 11,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    141.0,
+    479.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "ef_coldbolt",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect ef_coldbolt; role projectile; atlas only: no projectile travel hook in game"
+   }
+  },
+  {
+   "id": "fx_job_mage_fire_bolt_projectile",
+   "file": "effects/fx_job_mage_fire_bolt_projectile.png",
+   "cell": [
+    186,
+    556
+   ],
+   "columns": 6,
+   "frames": 6,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    21.0,
+    519.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "ef_firebolt",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect ef_firebolt; role projectile; atlas only: no projectile travel hook in game"
+   }
+  },
+  {
+   "id": "fx_job_mage_frost_diver_projectile",
+   "file": "effects/fx_job_mage_frost_diver_projectile.png",
+   "cell": [
+    28,
+    148
+   ],
+   "columns": 8,
+   "frames": 8,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    28.0,
+    52.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "27",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 27; role projectile; atlas only: no projectile travel hook in game"
+   }
+  },
+  {
+   "id": "fx_job_archer_arrow_shower",
+   "file": "effects/fx_job_archer_arrow_shower.png",
+   "cell": [
+    102,
+    92
+   ],
+   "columns": 1,
+   "frames": 1,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    50.0,
+    66.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "ef_arrow_shower_projectile",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect ef_arrow_shower_projectile; role ground"
+   }
+  },
+  {
+   "id": "fx_job_archer_improve_concentration",
+   "file": "effects/fx_job_archer_improve_concentration.png",
+   "cell": [
+    218,
+    210
+   ],
+   "columns": 6,
+   "frames": 6,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    105.0,
+    155.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "153",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 153; role buff"
+   }
+  },
+  {
+   "id": "fx_job_acolyte_angelus",
+   "file": "effects/fx_job_acolyte_angelus.png",
+   "cell": [
+    320,
+    318
+   ],
+   "columns": 6,
+   "frames": 36,
+   "ms": 106.48,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    160.0,
+    220.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "41",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 41; role buff"
+   }
+  },
+  {
+   "id": "fx_job_thief_venom_knife_projectile",
+   "file": "effects/fx_job_thief_venom_knife_projectile.png",
+   "cell": [
+    42,
+    40
+   ],
+   "columns": 2,
+   "frames": 2,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    20.0,
+    42.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "600",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 600; role projectile; atlas only: no projectile travel hook in game"
+   }
+  },
+  {
+   "id": "fx_job_blacksmith_hammer_fall",
+   "file": "effects/fx_job_blacksmith_hammer_fall.png",
+   "cell": [
+    638,
+    444
+   ],
+   "columns": 3,
+   "frames": 12,
+   "ms": 104.17,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    317.0,
+    286.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "102",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 102; role ground"
+   }
+  },
+  {
+   "id": "fx_job_wizard_jupitel_thunder_hit",
+   "file": "effects/fx_job_wizard_jupitel_thunder_hit.png",
+   "cell": [
+    50,
+    50
+   ],
+   "columns": 2,
+   "frames": 2,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    25.0,
+    25.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "93",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 93; role hit"
+   }
+  },
+  {
+   "id": "fx_job_wizard_jupitel_thunder_projectile",
+   "file": "effects/fx_job_wizard_jupitel_thunder_projectile.png",
+   "cell": [
+    80,
+    80
+   ],
+   "columns": 3,
+   "frames": 3,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    39.0,
+    40.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "94",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 94; role projectile; atlas only: no projectile travel hook in game"
+   }
+  },
+  {
+   "id": "fx_job_wizard_quagmire",
+   "file": "effects/fx_job_wizard_quagmire.png",
+   "cell": [
+    60,
+    178
+   ],
+   "columns": 8,
+   "frames": 23,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    30.0,
+    136.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "95",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 95; role ground"
+   }
+  },
+  {
+   "id": "fx_job_sage_volcano",
+   "file": "effects/fx_job_sage_volcano.png",
+   "cell": [
+    90,
+    84
+   ],
+   "columns": 8,
+   "frames": 24,
+   "ms": 83.33,
+   "loop": true,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    44.0,
+    67.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "239",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 239; role ground; continuous in RO: first 24 frames kept"
+   }
+  },
+  {
+   "id": "fx_job_alchemist_acid_terror_projectile",
+   "file": "effects/fx_job_alchemist_acid_terror_projectile.png",
+   "cell": [
+    32,
+    34
+   ],
+   "columns": 3,
+   "frames": 3,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    15.0,
+    39.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "298",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 298; role projectile; atlas only: no projectile travel hook in game"
+   }
+  },
+  {
+   "id": "fx_job_priest_impositio_manus",
+   "file": "effects/fx_job_priest_impositio_manus.png",
+   "cell": [
+    190,
+    246
+   ],
+   "columns": 8,
+   "frames": 30,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    95.0,
+    215.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "84",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 84; role buff"
+   }
+  },
+  {
+   "id": "fx_job_priest_magnus_exorcismus_ground",
+   "file": "effects/fx_job_priest_magnus_exorcismus_ground.png",
+   "cell": [
+    42,
+    124
+   ],
+   "columns": 8,
+   "frames": 30,
+   "ms": 83.33,
+   "loop": true,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    21.0,
+    109.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "318",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 318; role ground; looping in RO: one 30-frame cycle kept"
+   }
+  },
+  {
+   "id": "fx_job_priest_magnus_exorcismus_cast",
+   "file": "effects/fx_job_priest_magnus_exorcismus_cast.png",
+   "cell": [
+    636,
+    496
+   ],
+   "columns": 3,
+   "frames": 12,
+   "ms": 256.94,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    319.0,
+    373.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "113",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 113; role cast"
+   }
+  },
+  {
+   "id": "fx_job_priest_lex_aeterna",
+   "file": "effects/fx_job_priest_lex_aeterna.png",
+   "cell": [
+    354,
+    482
+   ],
+   "columns": 5,
+   "frames": 20,
+   "ms": 112.5,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    156.0,
+    410.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "85",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 85; role debuff"
+   }
+  },
+  {
+   "id": "fx_job_priest_kyrie_eleison",
+   "file": "effects/fx_job_priest_kyrie_eleison.png",
+   "cell": [
+    584,
+    576
+   ],
+   "columns": 3,
+   "frames": 9,
+   "ms": 212.96,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    318.0,
+    404.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "112",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 112; role buff"
+   }
+  },
+  {
+   "id": "fx_job_priest_sanctuary",
+   "file": "effects/fx_job_priest_sanctuary.png",
+   "cell": [
+    40,
+    64
+   ],
+   "columns": 8,
+   "frames": 30,
+   "ms": 83.33,
+   "loop": true,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    20.0,
+    49.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "319",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 319; role ground; looping in RO: one 30-frame cycle kept"
+   }
+  },
+  {
+   "id": "fx_job_priest_assumptio",
+   "file": "effects/fx_job_priest_assumptio.png",
+   "cell": [
+    532,
+    614
+   ],
+   "columns": 3,
+   "frames": 9,
+   "ms": 259.26,
+   "loop": false,
+   "delayMs": 83,
+   "blend": "normal",
+   "anchor": [
+    201.0,
+    410.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "440",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 440; role buff"
+   }
+  },
+  {
+   "id": "fx_job_assassin_grimtooth",
+   "file": "effects/fx_job_assassin_grimtooth.png",
+   "cell": [
+    68,
+    176
+   ],
+   "columns": 8,
+   "frames": 12,
+   "ms": 83.33,
+   "loop": true,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    31.0,
+    142.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "132",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 132; role hit; looping in RO: one 12-frame cycle kept"
+   }
+  },
+  {
+   "id": "fx_job_assassin_venom_splasher",
+   "file": "effects/fx_job_assassin_venom_splasher.png",
+   "cell": [
+    368,
+    368
+   ],
+   "columns": 5,
+   "frames": 18,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    172.0,
+    273.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "129",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 129; role hit"
+   }
+  },
+  {
+   "id": "fx_job_knight_parrying",
+   "file": "effects/fx_job_knight_parrying.png",
+   "cell": [
+    104,
+    96
+   ],
+   "columns": 7,
+   "frames": 7,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    52.0,
+    94.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "336",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 336; role buff"
+   }
+  },
+  {
+   "id": "fx_job_merchant_crazy_uproar",
+   "file": "effects/fx_job_merchant_crazy_uproar.png",
+   "cell": [
+    242,
+    246
+   ],
+   "columns": 8,
+   "frames": 9,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    117.0,
+    206.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "311",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 311; role buff"
+   }
+  },
+  {
+   "id": "fx_job_priest_magnificat",
+   "file": "effects/fx_job_priest_magnificat.png",
+   "cell": [
+    406,
+    296
+   ],
+   "columns": 5,
+   "frames": 20,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    204.0,
+    282.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "76",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 76; role buff"
+   }
+  }
+ ],
+ "skills": {
+  "job_swordman_provoke": {
+   "debuff": "fx_job_swordman_provoke"
+  },
+  "job_merchant_mammonite": {
+   "hit": "fx_job_merchant_mammonite"
+  },
+  "job_archer_arrow_shower": {
+   "ground": "fx_job_archer_arrow_shower"
+  },
+  "job_archer_improve_concentration": {
+   "buff": "fx_job_archer_improve_concentration"
+  },
+  "job_acolyte_angelus": {
+   "buff": "fx_job_acolyte_angelus"
+  },
+  "job_blacksmith_hammer_fall": {
+   "ground": "fx_job_blacksmith_hammer_fall"
+  },
+  "job_wizard_jupitel_thunder": {
+   "hit": "fx_job_wizard_jupitel_thunder_hit"
+  },
+  "job_wizard_quagmire": {
+   "ground": "fx_job_wizard_quagmire"
+  },
+  "job_sage_volcano": {
+   "ground": "fx_job_sage_volcano"
+  },
+  "job_priest_impositio_manus": {
+   "buff": "fx_job_priest_impositio_manus"
+  },
+  "job_priest_magnus_exorcismus": {
+   "ground": "fx_job_priest_magnus_exorcismus_ground",
+   "cast": "fx_job_priest_magnus_exorcismus_cast"
+  },
+  "job_priest_lex_aeterna": {
+   "debuff": "fx_job_priest_lex_aeterna"
+  },
+  "job_priest_kyrie_eleison": {
+   "buff": "fx_job_priest_kyrie_eleison"
+  },
+  "job_priest_sanctuary": {
+   "ground": "fx_job_priest_sanctuary"
+  },
+  "job_priest_assumptio": {
+   "buff": "fx_job_priest_assumptio"
+  },
+  "job_assassin_grimtooth": {
+   "hit": "fx_job_assassin_grimtooth"
+  },
+  "job_assassin_venom_splasher": {
+   "hit": "fx_job_assassin_venom_splasher"
+  },
+  "job_knight_parrying": {
+   "buff": "fx_job_knight_parrying"
+  },
+  "job_merchant_crazy_uproar": {
+   "buff": "fx_job_merchant_crazy_uproar"
+  },
+  "job_priest_magnificat": {
+   "buff": "fx_job_priest_magnificat"
+  },
+  "job_wizard_meteor_storm": {
+   "hit": "fx_job_mage_fire_bolt"
+  },
+  "job_mage_energy_coat": {
+   "buff": "fx_shield"
+  },
+  "job_assassin_enchant_poison": {
+   "hit": "fx_job_thief_envenom"
+  }
+ },
+ "results": [
+  {
+   "key": "job_swordman_provoke",
+   "role": "debuff",
+   "ro": "67",
+   "id": "fx_job_swordman_provoke",
+   "status": "built",
+   "raw": "raw/p1/job_swordman_provoke__debuff__67",
+   "zoom": 125,
+   "frames": 14,
+   "cell": [
+    386,
+    236
+   ],
+   "sheet": [
+    1930,
+    708
+   ],
+   "bytes": 680340,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_merchant_mammonite",
+   "role": "hit",
+   "ro": "10",
+   "id": "fx_job_merchant_mammonite",
+   "status": "built",
+   "raw": "raw/p1/job_merchant_mammonite__hit__10",
+   "zoom": 125,
+   "frames": 9,
+   "cell": [
+    352,
+    314
+   ],
+   "sheet": [
+    1760,
+    628
+   ],
+   "bytes": 305960,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_mage_cold_bolt",
+   "role": "projectile",
+   "ro": "ef_coldbolt",
+   "id": "fx_job_mage_cold_bolt_projectile",
+   "status": "built",
+   "raw": "raw/p1/job_mage_cold_bolt__projectile__ef_coldbolt__L250",
+   "zoom": 250,
+   "frames": 11,
+   "cell": [
+    298,
+    592
+   ],
+   "sheet": [
+    1788,
+    1184
+   ],
+   "bytes": 231999,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_mage_fire_bolt",
+   "role": "projectile",
+   "ro": "ef_firebolt",
+   "id": "fx_job_mage_fire_bolt_projectile",
+   "status": "built",
+   "raw": "raw/p1/job_mage_fire_bolt__projectile__ef_firebolt__L250",
+   "zoom": 250,
+   "frames": 6,
+   "cell": [
+    186,
+    556
+   ],
+   "sheet": [
+    1116,
+    556
+   ],
+   "bytes": 35498,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_mage_frost_diver",
+   "role": "projectile",
+   "ro": "27",
+   "id": "fx_job_mage_frost_diver_projectile",
+   "status": "built",
+   "raw": "raw/p1/job_mage_frost_diver__projectile__27",
+   "zoom": 125,
+   "frames": 8,
+   "cell": [
+    28,
+    148
+   ],
+   "sheet": [
+    224,
+    148
+   ],
+   "bytes": 23469,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_archer_arrow_shower",
+   "role": "ground",
+   "ro": "ef_arrow_shower_projectile",
+   "id": "fx_job_archer_arrow_shower",
+   "status": "built",
+   "raw": "raw/p1/job_archer_arrow_shower__ground__ef_arrow_shower_projectile",
+   "zoom": 125,
+   "frames": 1,
+   "cell": [
+    102,
+    92
+   ],
+   "sheet": [
+    102,
+    92
+   ],
+   "bytes": 7933,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_archer_improve_concentration",
+   "role": "buff",
+   "ro": "153",
+   "id": "fx_job_archer_improve_concentration",
+   "status": "built",
+   "raw": "raw/p1/job_archer_improve_concentration__buff__153",
+   "zoom": 125,
+   "frames": 6,
+   "cell": [
+    218,
+    210
+   ],
+   "sheet": [
+    1308,
+    210
+   ],
+   "bytes": 162562,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_acolyte_angelus",
+   "role": "buff",
+   "ro": "41",
+   "id": "fx_job_acolyte_angelus",
+   "status": "built",
+   "raw": "raw/p1/job_acolyte_angelus__buff__41",
+   "zoom": 125,
+   "frames": 36,
+   "cell": [
+    320,
+    318
+   ],
+   "sheet": [
+    1920,
+    1908
+   ],
+   "bytes": 477467,
+   "thinned": 46,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_thief_venom_knife",
+   "role": "projectile",
+   "ro": "600",
+   "id": "fx_job_thief_venom_knife_projectile",
+   "status": "built",
+   "raw": "raw/p1/job_thief_venom_knife__projectile__600",
+   "zoom": 125,
+   "frames": 2,
+   "cell": [
+    42,
+    40
+   ],
+   "sheet": [
+    84,
+    40
+   ],
+   "bytes": 2765,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_blacksmith_hammer_fall",
+   "role": "ground",
+   "ro": "102",
+   "id": "fx_job_blacksmith_hammer_fall",
+   "status": "built",
+   "raw": "raw/p1/job_blacksmith_hammer_fall__ground__102",
+   "zoom": 125,
+   "frames": 12,
+   "cell": [
+    638,
+    444
+   ],
+   "sheet": [
+    1914,
+    1776
+   ],
+   "bytes": 905405,
+   "thinned": 15,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_wizard_jupitel_thunder",
+   "role": "hit",
+   "ro": "93",
+   "id": "fx_job_wizard_jupitel_thunder_hit",
+   "status": "built",
+   "raw": "raw/p1/job_wizard_jupitel_thunder__hit__93",
+   "zoom": 125,
+   "frames": 2,
+   "cell": [
+    50,
+    50
+   ],
+   "sheet": [
+    100,
+    50
+   ],
+   "bytes": 10355,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_wizard_jupitel_thunder",
+   "role": "projectile",
+   "ro": "94",
+   "id": "fx_job_wizard_jupitel_thunder_projectile",
+   "status": "built",
+   "raw": "raw/p1/job_wizard_jupitel_thunder__projectile__94",
+   "zoom": 125,
+   "frames": 3,
+   "cell": [
+    80,
+    80
+   ],
+   "sheet": [
+    240,
+    80
+   ],
+   "bytes": 34882,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_wizard_quagmire",
+   "role": "ground",
+   "ro": "95",
+   "id": "fx_job_wizard_quagmire",
+   "status": "built",
+   "raw": "raw/p1/job_wizard_quagmire__ground__95",
+   "zoom": 125,
+   "frames": 23,
+   "cell": [
+    60,
+    178
+   ],
+   "sheet": [
+    480,
+    534
+   ],
+   "bytes": 180715,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_sage_volcano",
+   "role": "ground",
+   "ro": "239",
+   "id": "fx_job_sage_volcano",
+   "status": "built",
+   "raw": "raw/p1/job_sage_volcano__ground__239",
+   "zoom": 125,
+   "frames": 24,
+   "cell": [
+    90,
+    84
+   ],
+   "sheet": [
+    720,
+    252
+   ],
+   "bytes": 144467,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": -24,
+   "mainFrames": null
+  },
+  {
+   "key": "job_alchemist_acid_terror",
+   "role": "projectile",
+   "ro": "298",
+   "id": "fx_job_alchemist_acid_terror_projectile",
+   "status": "built",
+   "raw": "raw/p1/job_alchemist_acid_terror__projectile__298",
+   "zoom": 125,
+   "frames": 3,
+   "cell": [
+    32,
+    34
+   ],
+   "sheet": [
+    96,
+    34
+   ],
+   "bytes": 4710,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_priest_impositio_manus",
+   "role": "buff",
+   "ro": "84",
+   "id": "fx_job_priest_impositio_manus",
+   "status": "built",
+   "raw": "raw/p1/job_priest_impositio_manus__buff__84",
+   "zoom": 125,
+   "frames": 30,
+   "cell": [
+    190,
+    246
+   ],
+   "sheet": [
+    1520,
+    984
+   ],
+   "bytes": 591824,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_priest_magnus_exorcismus",
+   "role": "ground",
+   "ro": "318",
+   "id": "fx_job_priest_magnus_exorcismus_ground",
+   "status": "built",
+   "raw": "raw/p1/job_priest_magnus_exorcismus__ground__318",
+   "zoom": 125,
+   "frames": 30,
+   "cell": [
+    42,
+    124
+   ],
+   "sheet": [
+    336,
+    496
+   ],
+   "bytes": 140135,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 30,
+   "mainFrames": null
+  },
+  {
+   "key": "job_priest_magnus_exorcismus",
+   "role": "cast",
+   "ro": "113",
+   "id": "fx_job_priest_magnus_exorcismus_cast",
+   "status": "built",
+   "raw": "raw/p1/job_priest_magnus_exorcismus__cast__113__L250",
+   "zoom": 250,
+   "frames": 12,
+   "cell": [
+    636,
+    496
+   ],
+   "sheet": [
+    1908,
+    1984
+   ],
+   "bytes": 1134152,
+   "thinned": 37,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_priest_lex_aeterna",
+   "role": "debuff",
+   "ro": "85",
+   "id": "fx_job_priest_lex_aeterna",
+   "status": "built",
+   "raw": "raw/p1/job_priest_lex_aeterna__debuff__85__L250",
+   "zoom": 250,
+   "frames": 20,
+   "cell": [
+    354,
+    482
+   ],
+   "sheet": [
+    1770,
+    1928
+   ],
+   "bytes": 979616,
+   "thinned": 27,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_priest_kyrie_eleison",
+   "role": "buff",
+   "ro": "112",
+   "id": "fx_job_priest_kyrie_eleison",
+   "status": "built",
+   "raw": "raw/p1/job_priest_kyrie_eleison__buff__112__L250",
+   "zoom": 250,
+   "frames": 9,
+   "cell": [
+    584,
+    576
+   ],
+   "sheet": [
+    1752,
+    1728
+   ],
+   "bytes": 738505,
+   "thinned": 23,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_priest_sanctuary",
+   "role": "ground",
+   "ro": "319",
+   "id": "fx_job_priest_sanctuary",
+   "status": "built",
+   "raw": "raw/p1/job_priest_sanctuary__ground__319",
+   "zoom": 125,
+   "frames": 30,
+   "cell": [
+    40,
+    64
+   ],
+   "sheet": [
+    320,
+    256
+   ],
+   "bytes": 75137,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 30,
+   "mainFrames": null
+  },
+  {
+   "key": "job_priest_assumptio",
+   "role": "buff",
+   "ro": "440",
+   "id": "fx_job_priest_assumptio",
+   "status": "built",
+   "raw": "raw/p1/job_priest_assumptio__buff__440__L250",
+   "zoom": 250,
+   "frames": 9,
+   "cell": [
+    532,
+    614
+   ],
+   "sheet": [
+    1596,
+    1842
+   ],
+   "bytes": 533061,
+   "thinned": 28,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_assassin_grimtooth",
+   "role": "hit",
+   "ro": "132",
+   "id": "fx_job_assassin_grimtooth",
+   "status": "built",
+   "raw": "raw/p1/job_assassin_grimtooth__hit__132",
+   "zoom": 125,
+   "frames": 12,
+   "cell": [
+    68,
+    176
+   ],
+   "sheet": [
+    544,
+    352
+   ],
+   "bytes": 36023,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 12,
+   "mainFrames": null
+  },
+  {
+   "key": "job_assassin_venom_splasher",
+   "role": "hit",
+   "ro": "129",
+   "id": "fx_job_assassin_venom_splasher",
+   "status": "built",
+   "raw": "raw/p1/job_assassin_venom_splasher__hit__129",
+   "zoom": 125,
+   "frames": 18,
+   "cell": [
+    368,
+    368
+   ],
+   "sheet": [
+    1840,
+    1472
+   ],
+   "bytes": 917125,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_knight_parrying",
+   "role": "buff",
+   "ro": "336",
+   "id": "fx_job_knight_parrying",
+   "status": "built",
+   "raw": "raw/p1/job_knight_parrying__buff__336",
+   "zoom": 125,
+   "frames": 7,
+   "cell": [
+    104,
+    96
+   ],
+   "sheet": [
+    728,
+    96
+   ],
+   "bytes": 50645,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_merchant_crazy_uproar",
+   "role": "buff",
+   "ro": "311",
+   "id": "fx_job_merchant_crazy_uproar",
+   "status": "built",
+   "raw": "raw/p1/job_merchant_crazy_uproar__buff__311",
+   "zoom": 125,
+   "frames": 9,
+   "cell": [
+    242,
+    246
+   ],
+   "sheet": [
+    1936,
+    492
+   ],
+   "bytes": 156744,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_priest_magnificat",
+   "role": "buff",
+   "ro": "76",
+   "id": "fx_job_priest_magnificat",
+   "status": "built",
+   "raw": "raw/p1/job_priest_magnificat__buff__76",
+   "zoom": 125,
+   "frames": 20,
+   "cell": [
+    406,
+    296
+   ],
+   "sheet": [
+    2030,
+    1184
+   ],
+   "bytes": 1128623,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  }
+ ]
+}

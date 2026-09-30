@@ -1,0 +1,1845 @@
+{
+ "schema": 1,
+ "part": 2,
+ "effects": [
+  {
+   "id": "fx_hit",
+   "file": "effects/fx_hit.png",
+   "cell": [
+    578,
+    468
+   ],
+   "columns": 3,
+   "frames": 4,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    280.0,
+    204.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "1",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 1; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_arrow",
+   "file": "effects/fx_arrow.png",
+   "cell": [
+    66,
+    12
+   ],
+   "columns": 1,
+   "frames": 1,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    33.0,
+    28.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "ef_arrow_projectile",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect ef_arrow_projectile; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_magic",
+   "file": "effects/fx_magic.png",
+   "cell": [
+    80,
+    122
+   ],
+   "columns": 8,
+   "frames": 8,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    38.0,
+    133.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "182",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 182; role replace; re-capture of the main sheet from the owner client",
+    "post": [
+     "alpha < 24 cleared"
+    ]
+   }
+  },
+  {
+   "id": "fx_heal",
+   "file": "effects/fx_heal.png",
+   "cell": [
+    104,
+    248
+   ],
+   "columns": 8,
+   "frames": 17,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    49.0,
+    214.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "312",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 312; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_death",
+   "file": "effects/fx_death.png",
+   "cell": [
+    216,
+    346
+   ],
+   "columns": 8,
+   "frames": 22,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 500,
+   "blend": "normal",
+   "anchor": [
+    97.0,
+    305.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "372",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 372; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_shield",
+   "file": "effects/fx_shield.png",
+   "cell": [
+    306,
+    302
+   ],
+   "columns": 4,
+   "frames": 4,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 83,
+   "blend": "normal",
+   "anchor": [
+    155.0,
+    259.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "169",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 169; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_acolyte_blessing",
+   "file": "effects/fx_job_acolyte_blessing.png",
+   "cell": [
+    122,
+    256
+   ],
+   "columns": 8,
+   "frames": 29,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    60.0,
+    195.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "42",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 42; role replace; re-capture of the main sheet from the owner client",
+    "post": [
+     "gold grade (tools/tint_blessing_effect.py logic)"
+    ]
+   }
+  },
+  {
+   "id": "fx_job_mage_thunderstorm",
+   "file": "effects/fx_job_mage_thunderstorm.png",
+   "cell": [
+    452,
+    526
+   ],
+   "columns": 4,
+   "frames": 11,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    226.0,
+    367.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "30",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 30; role replace; re-capture of the main sheet from the owner client",
+    "post": [
+     "alpha < 25 cleared"
+    ]
+   }
+  },
+  {
+   "id": "fx_job_mage_fire_bolt",
+   "file": "effects/fx_job_mage_fire_bolt.png",
+   "cell": [
+    268,
+    262
+   ],
+   "columns": 5,
+   "frames": 5,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    155.0,
+    157.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "49",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 49; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_mage_fire_ball_projectile",
+   "file": "effects/fx_job_mage_fire_ball_projectile.png",
+   "cell": [
+    114,
+    48
+   ],
+   "columns": 3,
+   "frames": 3,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    58.0,
+    53.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "24",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 24; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_mage_frost_diver",
+   "file": "effects/fx_job_mage_frost_diver.png",
+   "cell": [
+    266,
+    258
+   ],
+   "columns": 7,
+   "frames": 12,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    129.0,
+    137.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "28",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 28; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_merchant_cart_revolution",
+   "file": "effects/fx_job_merchant_cart_revolution.png",
+   "cell": [
+    322,
+    348
+   ],
+   "columns": 4,
+   "frames": 4,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    160.0,
+    210.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "170",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 170; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_acolyte_holy_light",
+   "file": "effects/fx_job_acolyte_holy_light.png",
+   "cell": [
+    284,
+    284
+   ],
+   "columns": 4,
+   "frames": 4,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    142.0,
+    179.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "152",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 152; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_acolyte_increase_agi",
+   "file": "effects/fx_job_acolyte_increase_agi.png",
+   "cell": [
+    108,
+    228
+   ],
+   "columns": 8,
+   "frames": 33,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    56.0,
+    181.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "37",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 37; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_acolyte_signum_crucis",
+   "file": "effects/fx_job_acolyte_signum_crucis.png",
+   "cell": [
+    626,
+    498
+   ],
+   "columns": 3,
+   "frames": 12,
+   "ms": 166.67,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    321.0,
+    332.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "40",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 40; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_swordman_bash",
+   "file": "effects/fx_swordman_bash.png",
+   "cell": [
+    236,
+    242
+   ],
+   "columns": 8,
+   "frames": 11,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    116.0,
+    141.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "16",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 16; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_thief_envenom",
+   "file": "effects/fx_job_thief_envenom.png",
+   "cell": [
+    152,
+    196
+   ],
+   "columns": 8,
+   "frames": 33,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    74.0,
+    159.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "20",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 20; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_crusader_defender",
+   "file": "effects/fx_job_crusader_defender.png",
+   "cell": [
+    120,
+    292
+   ],
+   "columns": 8,
+   "frames": 35,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    60.0,
+    249.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "222",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 222; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_assassin_sonic_blow",
+   "file": "effects/fx_job_assassin_sonic_blow.png",
+   "cell": [
+    264,
+    286
+   ],
+   "columns": 7,
+   "frames": 7,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    127.0,
+    165.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "143",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 143; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_crusader_grand_cross",
+   "file": "effects/fx_job_crusader_grand_cross.png",
+   "cell": [
+    332,
+    308
+   ],
+   "columns": 6,
+   "frames": 23,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    165.0,
+    180.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "226",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 226; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_wizard_storm_gust",
+   "file": "effects/fx_job_wizard_storm_gust.png",
+   "cell": [
+    646,
+    516
+   ],
+   "columns": 3,
+   "frames": 9,
+   "ms": 444.44,
+   "loop": false,
+   "delayMs": 83,
+   "blend": "normal",
+   "anchor": [
+    274.0,
+    275.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "89",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 89; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_crusader_shield_charge",
+   "file": "effects/fx_job_crusader_shield_charge.png",
+   "cell": [
+    228,
+    190
+   ],
+   "columns": 8,
+   "frames": 12,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    128.0,
+    194.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "246",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 246; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_hunter_claymore_trap",
+   "file": "effects/fx_job_hunter_claymore_trap.png",
+   "cell": [
+    448,
+    388
+   ],
+   "columns": 4,
+   "frames": 10,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    224.0,
+    249.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "107",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 107; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_hunter_sandman",
+   "file": "effects/fx_job_hunter_sandman.png",
+   "cell": [
+    392,
+    242
+   ],
+   "columns": 5,
+   "frames": 17,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    194.0,
+    152.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "139",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 139; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_blacksmith_weapon_perfection",
+   "file": "effects/fx_job_blacksmith_weapon_perfection.png",
+   "cell": [
+    422,
+    424
+   ],
+   "columns": 4,
+   "frames": 16,
+   "ms": 104.17,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    210.0,
+    300.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "103",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 103; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_crusader_holy_cross",
+   "file": "effects/fx_job_crusader_holy_cross.png",
+   "cell": [
+    516,
+    518
+   ],
+   "columns": 3,
+   "frames": 9,
+   "ms": 101.85,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    258.0,
+    321.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "245",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 245; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_swordman_endure",
+   "file": "effects/fx_swordman_endure.png",
+   "cell": [
+    182,
+    182
+   ],
+   "columns": 8,
+   "frames": 11,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    91.0,
+    137.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "11",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 11; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_knight_bowling_bash",
+   "file": "effects/fx_job_knight_bowling_bash.png",
+   "cell": [
+    426,
+    332
+   ],
+   "columns": 3,
+   "frames": 3,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    206.0,
+    172.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "149",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 149; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_sage_earth_spike",
+   "file": "effects/fx_job_sage_earth_spike.png",
+   "cell": [
+    62,
+    70
+   ],
+   "columns": 8,
+   "frames": 28,
+   "ms": 83.33,
+   "loop": true,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    30.0,
+    42.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "79",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 79; role replace; re-capture of the main sheet from the owner client; looping in RO: one 28-frame cycle kept"
+   }
+  },
+  {
+   "id": "fx_job_sage_heavens_drive",
+   "file": "effects/fx_job_sage_heavens_drive.png",
+   "cell": [
+    212,
+    216
+   ],
+   "columns": 8,
+   "frames": 14,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    119.0,
+    107.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "142",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 142; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_sage_dispell",
+   "file": "effects/fx_job_sage_dispell.png",
+   "cell": [
+    192,
+    340
+   ],
+   "columns": 7,
+   "frames": 7,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    94.0,
+    301.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "235",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 235; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_knight_two_hand_quicken",
+   "file": "effects/fx_job_knight_two_hand_quicken.png",
+   "cell": [
+    312,
+    328
+   ],
+   "columns": 4,
+   "frames": 4,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    152.0,
+    164.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "130",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 130; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_wizard_meteor_storm",
+   "file": "effects/fx_job_wizard_meteor_storm.png",
+   "cell": [
+    476,
+    988
+   ],
+   "columns": 4,
+   "frames": 8,
+   "ms": 187.5,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    188.9,
+    912.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "92",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 0.5209,
+    "seed": 1,
+    "note": "scRO client; RO effect 92; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_thief_steal",
+   "file": "effects/fx_job_thief_steal.png",
+   "cell": [
+    220,
+    202
+   ],
+   "columns": 5,
+   "frames": 5,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    100.0,
+    131.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "18",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 18; role replace; re-capture of the main sheet from the owner client"
+   }
+  },
+  {
+   "id": "fx_job_swordman_magnum_break",
+   "file": "effects/fx_job_swordman_magnum_break.png",
+   "cell": [
+    348,
+    252
+   ],
+   "columns": 3,
+   "frames": 3,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    174.0,
+    134.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "17",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 17; role replace; re-capture of the main sheet from the owner client"
+   }
+  }
+ ],
+ "skills": {},
+ "results": [
+  {
+   "key": "fx_hit",
+   "role": "replace",
+   "ro": "1",
+   "id": "fx_hit",
+   "status": "built",
+   "raw": "raw/p2/fx_hit__replace__1",
+   "zoom": 125,
+   "frames": 4,
+   "cell": [
+    578,
+    468
+   ],
+   "sheet": [
+    1734,
+    936
+   ],
+   "bytes": 152974,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 3,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_arrow",
+   "role": "replace",
+   "ro": "ef_arrow_projectile",
+   "id": "fx_arrow",
+   "status": "built",
+   "raw": "raw/p2/fx_arrow__replace__ef_arrow_projectile",
+   "zoom": 125,
+   "frames": 1,
+   "cell": [
+    66,
+    12
+   ],
+   "sheet": [
+    66,
+    12
+   ],
+   "bytes": 721,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 1,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_magic",
+   "role": "replace",
+   "ro": "182",
+   "id": "fx_magic",
+   "status": "built",
+   "raw": "raw/p2/fx_magic__replace__182",
+   "zoom": 125,
+   "frames": 8,
+   "cell": [
+    80,
+    122
+   ],
+   "sheet": [
+    640,
+    122
+   ],
+   "bytes": 33250,
+   "thinned": 0,
+   "clipped": false,
+   "post": [
+    "alpha < 24 cleared"
+   ],
+   "loopCycle": 0,
+   "mainFrames": 8,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_heal",
+   "role": "replace",
+   "ro": "312",
+   "id": "fx_heal",
+   "status": "built",
+   "raw": "raw/p2/fx_heal__replace__312",
+   "zoom": 125,
+   "frames": 17,
+   "cell": [
+    104,
+    248
+   ],
+   "sheet": [
+    832,
+    744
+   ],
+   "bytes": 280377,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 17,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_death",
+   "role": "replace",
+   "ro": "372",
+   "id": "fx_death",
+   "status": "built",
+   "raw": "raw/p2/fx_death__replace__372__L250",
+   "zoom": 250,
+   "frames": 22,
+   "cell": [
+    216,
+    346
+   ],
+   "sheet": [
+    1728,
+    1038
+   ],
+   "bytes": 325896,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 22,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_shield",
+   "role": "replace",
+   "ro": "169",
+   "id": "fx_shield",
+   "status": "built",
+   "raw": "raw/p2/fx_shield__replace__169",
+   "zoom": 125,
+   "frames": 4,
+   "cell": [
+    306,
+    302
+   ],
+   "sheet": [
+    1224,
+    302
+   ],
+   "bytes": 218448,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 3,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_acolyte_blessing",
+   "role": "replace",
+   "ro": "42",
+   "id": "fx_job_acolyte_blessing",
+   "status": "built",
+   "raw": "raw/p2/fx_job_acolyte_blessing__replace__42",
+   "zoom": 125,
+   "frames": 29,
+   "cell": [
+    122,
+    256
+   ],
+   "sheet": [
+    976,
+    1024
+   ],
+   "bytes": 133205,
+   "thinned": 0,
+   "clipped": false,
+   "post": [
+    "gold grade (tools/tint_blessing_effect.py logic)"
+   ],
+   "loopCycle": 0,
+   "mainFrames": 20,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_mage_thunderstorm",
+   "role": "replace",
+   "ro": "30",
+   "id": "fx_job_mage_thunderstorm",
+   "status": "built",
+   "raw": "raw/p2/fx_job_mage_thunderstorm__replace__30__L250",
+   "zoom": 250,
+   "frames": 11,
+   "cell": [
+    452,
+    526
+   ],
+   "sheet": [
+    1808,
+    1578
+   ],
+   "bytes": 1416317,
+   "thinned": 0,
+   "clipped": false,
+   "post": [
+    "alpha < 25 cleared"
+   ],
+   "loopCycle": 0,
+   "mainFrames": 11,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_mage_fire_bolt",
+   "role": "replace",
+   "ro": "49",
+   "id": "fx_job_mage_fire_bolt",
+   "status": "built",
+   "raw": "raw/p2/fx_job_mage_fire_bolt__replace__49",
+   "zoom": 125,
+   "frames": 5,
+   "cell": [
+    268,
+    262
+   ],
+   "sheet": [
+    1340,
+    262
+   ],
+   "bytes": 228469,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 5,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_mage_fire_ball_projectile",
+   "role": "replace",
+   "ro": "24",
+   "id": "fx_job_mage_fire_ball_projectile",
+   "status": "built",
+   "raw": "raw/p2/fx_job_mage_fire_ball_projectile__replace__24",
+   "zoom": 125,
+   "frames": 3,
+   "cell": [
+    114,
+    48
+   ],
+   "sheet": [
+    342,
+    48
+   ],
+   "bytes": 22798,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 3,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_mage_frost_diver",
+   "role": "replace",
+   "ro": "28",
+   "id": "fx_job_mage_frost_diver",
+   "status": "built",
+   "raw": "raw/p2/fx_job_mage_frost_diver__replace__28",
+   "zoom": 125,
+   "frames": 12,
+   "cell": [
+    266,
+    258
+   ],
+   "sheet": [
+    1862,
+    516
+   ],
+   "bytes": 881626,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 11,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_merchant_cart_revolution",
+   "role": "replace",
+   "ro": "170",
+   "id": "fx_job_merchant_cart_revolution",
+   "status": "built",
+   "raw": "raw/p2/fx_job_merchant_cart_revolution__replace__170",
+   "zoom": 125,
+   "frames": 4,
+   "cell": [
+    322,
+    348
+   ],
+   "sheet": [
+    1288,
+    348
+   ],
+   "bytes": 285716,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 3,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_acolyte_holy_light",
+   "role": "replace",
+   "ro": "152",
+   "id": "fx_job_acolyte_holy_light",
+   "status": "built",
+   "raw": "raw/p2/fx_job_acolyte_holy_light__replace__152",
+   "zoom": 125,
+   "frames": 4,
+   "cell": [
+    284,
+    284
+   ],
+   "sheet": [
+    1136,
+    284
+   ],
+   "bytes": 154896,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 4,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_acolyte_increase_agi",
+   "role": "replace",
+   "ro": "37",
+   "id": "fx_job_acolyte_increase_agi",
+   "status": "built",
+   "raw": "raw/p2/fx_job_acolyte_increase_agi__replace__37",
+   "zoom": 125,
+   "frames": 33,
+   "cell": [
+    108,
+    228
+   ],
+   "sheet": [
+    864,
+    1140
+   ],
+   "bytes": 71574,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 22,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_acolyte_signum_crucis",
+   "role": "replace",
+   "ro": "40",
+   "id": "fx_job_acolyte_signum_crucis",
+   "status": "built",
+   "raw": "raw/p2/fx_job_acolyte_signum_crucis__replace__40__L250",
+   "zoom": 250,
+   "frames": 12,
+   "cell": [
+    626,
+    498
+   ],
+   "sheet": [
+    1878,
+    1992
+   ],
+   "bytes": 608277,
+   "thinned": 24,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 22,
+   "recommendation": "keep_main",
+   "reason": "only 12 frames fit in 2048 px (main has 22)"
+  },
+  {
+   "key": "fx_swordman_bash",
+   "role": "replace",
+   "ro": "16",
+   "id": "fx_swordman_bash",
+   "status": "built",
+   "raw": "raw/p2/fx_swordman_bash__replace__16",
+   "zoom": 125,
+   "frames": 11,
+   "cell": [
+    236,
+    242
+   ],
+   "sheet": [
+    1888,
+    484
+   ],
+   "bytes": 106782,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 11,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_thief_envenom",
+   "role": "replace",
+   "ro": "20",
+   "id": "fx_job_thief_envenom",
+   "status": "built",
+   "raw": "raw/p2/fx_job_thief_envenom__replace__20",
+   "zoom": 125,
+   "frames": 33,
+   "cell": [
+    152,
+    196
+   ],
+   "sheet": [
+    1216,
+    980
+   ],
+   "bytes": 521876,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 23,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_crusader_defender",
+   "role": "replace",
+   "ro": "222",
+   "id": "fx_job_crusader_defender",
+   "status": "built",
+   "raw": "raw/p2/fx_job_crusader_defender__replace__222",
+   "zoom": 125,
+   "frames": 35,
+   "cell": [
+    120,
+    292
+   ],
+   "sheet": [
+    960,
+    1460
+   ],
+   "bytes": 347556,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 23,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_assassin_sonic_blow",
+   "role": "replace",
+   "ro": "143",
+   "id": "fx_job_assassin_sonic_blow",
+   "status": "built",
+   "raw": "raw/p2/fx_job_assassin_sonic_blow__replace__143",
+   "zoom": 125,
+   "frames": 7,
+   "cell": [
+    264,
+    286
+   ],
+   "sheet": [
+    1848,
+    286
+   ],
+   "bytes": 285418,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 7,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_crusader_grand_cross",
+   "role": "replace",
+   "ro": "226",
+   "id": "fx_job_crusader_grand_cross",
+   "status": "built",
+   "raw": "raw/p2/fx_job_crusader_grand_cross__replace__226",
+   "zoom": 125,
+   "frames": 23,
+   "cell": [
+    332,
+    308
+   ],
+   "sheet": [
+    1992,
+    1232
+   ],
+   "bytes": 1746006,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 23,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_wizard_storm_gust",
+   "role": "replace",
+   "ro": "89",
+   "id": "fx_job_wizard_storm_gust",
+   "status": "built",
+   "raw": "raw/p2/fx_job_wizard_storm_gust__replace__89__L250",
+   "zoom": 250,
+   "frames": 9,
+   "cell": [
+    646,
+    516
+   ],
+   "sheet": [
+    1938,
+    1548
+   ],
+   "bytes": 2016160,
+   "thinned": 48,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 22,
+   "recommendation": "keep_main",
+   "reason": "only 9 frames fit in 2048 px (main has 22)"
+  },
+  {
+   "key": "fx_job_crusader_shield_charge",
+   "role": "replace",
+   "ro": "246",
+   "id": "fx_job_crusader_shield_charge",
+   "status": "built",
+   "raw": "raw/p2/fx_job_crusader_shield_charge__replace__246",
+   "zoom": 125,
+   "frames": 12,
+   "cell": [
+    228,
+    190
+   ],
+   "sheet": [
+    1824,
+    380
+   ],
+   "bytes": 111159,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 12,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_hunter_claymore_trap",
+   "role": "replace",
+   "ro": "107",
+   "id": "fx_job_hunter_claymore_trap",
+   "status": "built",
+   "raw": "raw/p2/fx_job_hunter_claymore_trap__replace__107",
+   "zoom": 125,
+   "frames": 10,
+   "cell": [
+    448,
+    388
+   ],
+   "sheet": [
+    1792,
+    1164
+   ],
+   "bytes": 517743,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 9,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_hunter_sandman",
+   "role": "replace",
+   "ro": "139",
+   "id": "fx_job_hunter_sandman",
+   "status": "built",
+   "raw": "raw/p2/fx_job_hunter_sandman__replace__139",
+   "zoom": 125,
+   "frames": 17,
+   "cell": [
+    392,
+    242
+   ],
+   "sheet": [
+    1960,
+    968
+   ],
+   "bytes": 879054,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 17,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_blacksmith_weapon_perfection",
+   "role": "replace",
+   "ro": "103",
+   "id": "fx_job_blacksmith_weapon_perfection",
+   "status": "built",
+   "raw": "raw/p2/fx_job_blacksmith_weapon_perfection__replace__103__L250",
+   "zoom": 250,
+   "frames": 16,
+   "cell": [
+    422,
+    424
+   ],
+   "sheet": [
+    1688,
+    1696
+   ],
+   "bytes": 404745,
+   "thinned": 20,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 20,
+   "recommendation": "keep_main",
+   "reason": "only 16 frames fit in 2048 px (main has 20)"
+  },
+  {
+   "key": "fx_job_crusader_holy_cross",
+   "role": "replace",
+   "ro": "245",
+   "id": "fx_job_crusader_holy_cross",
+   "status": "built",
+   "raw": "raw/p2/fx_job_crusader_holy_cross__replace__245__L250",
+   "zoom": 250,
+   "frames": 9,
+   "cell": [
+    516,
+    518
+   ],
+   "sheet": [
+    1548,
+    1554
+   ],
+   "bytes": 237285,
+   "thinned": 11,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 11,
+   "recommendation": "keep_main",
+   "reason": "only 9 frames fit in 2048 px (main has 11)"
+  },
+  {
+   "key": "fx_swordman_endure",
+   "role": "replace",
+   "ro": "11",
+   "id": "fx_swordman_endure",
+   "status": "built",
+   "raw": "raw/p2/fx_swordman_endure__replace__11",
+   "zoom": 125,
+   "frames": 11,
+   "cell": [
+    182,
+    182
+   ],
+   "sheet": [
+    1456,
+    364
+   ],
+   "bytes": 290651,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 11,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_knight_bowling_bash",
+   "role": "replace",
+   "ro": "149",
+   "id": "fx_job_knight_bowling_bash",
+   "status": "built",
+   "raw": "raw/p2/fx_job_knight_bowling_bash__replace__149",
+   "zoom": 125,
+   "frames": 3,
+   "cell": [
+    426,
+    332
+   ],
+   "sheet": [
+    1278,
+    332
+   ],
+   "bytes": 132806,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 3,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_sage_earth_spike",
+   "role": "replace",
+   "ro": "79",
+   "id": "fx_job_sage_earth_spike",
+   "status": "built",
+   "raw": "raw/p2/fx_job_sage_earth_spike__replace__79",
+   "zoom": 125,
+   "frames": 28,
+   "cell": [
+    62,
+    70
+   ],
+   "sheet": [
+    496,
+    280
+   ],
+   "bytes": 82604,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 28,
+   "mainFrames": 28,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_sage_heavens_drive",
+   "role": "replace",
+   "ro": "142",
+   "id": "fx_job_sage_heavens_drive",
+   "status": "built",
+   "raw": "raw/p2/fx_job_sage_heavens_drive__replace__142",
+   "zoom": 125,
+   "frames": 14,
+   "cell": [
+    212,
+    216
+   ],
+   "sheet": [
+    1696,
+    432
+   ],
+   "bytes": 930440,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 15,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_sage_dispell",
+   "role": "replace",
+   "ro": "235",
+   "id": "fx_job_sage_dispell",
+   "status": "built",
+   "raw": "raw/p2/fx_job_sage_dispell__replace__235__L250",
+   "zoom": 250,
+   "frames": 7,
+   "cell": [
+    192,
+    340
+   ],
+   "sheet": [
+    1344,
+    340
+   ],
+   "bytes": 298559,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 7,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_knight_two_hand_quicken",
+   "role": "replace",
+   "ro": "130",
+   "id": "fx_job_knight_two_hand_quicken",
+   "status": "built",
+   "raw": "raw/p2/fx_job_knight_two_hand_quicken__replace__130",
+   "zoom": 125,
+   "frames": 4,
+   "cell": [
+    312,
+    328
+   ],
+   "sheet": [
+    1248,
+    328
+   ],
+   "bytes": 261955,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 4,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_wizard_meteor_storm",
+   "role": "replace",
+   "ro": "92",
+   "id": "fx_job_wizard_meteor_storm",
+   "status": "built",
+   "raw": "raw/p2/fx_job_wizard_meteor_storm__replace__92__L500",
+   "zoom": 500,
+   "frames": 8,
+   "cell": [
+    476,
+    988
+   ],
+   "sheet": [
+    1904,
+    1976
+   ],
+   "bytes": 864622,
+   "thinned": 18,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 18,
+   "recommendation": "keep_main",
+   "reason": "only 8 frames fit in 2048 px (main has 18)"
+  },
+  {
+   "key": "fx_job_thief_steal",
+   "role": "replace",
+   "ro": "18",
+   "id": "fx_job_thief_steal",
+   "status": "built",
+   "raw": "raw/p2/fx_job_thief_steal__replace__18",
+   "zoom": 125,
+   "frames": 5,
+   "cell": [
+    220,
+    202
+   ],
+   "sheet": [
+    1100,
+    202
+   ],
+   "bytes": 140492,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 5,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  },
+  {
+   "key": "fx_job_swordman_magnum_break",
+   "role": "replace",
+   "ro": "17",
+   "id": "fx_job_swordman_magnum_break",
+   "status": "built",
+   "raw": "raw/p2/fx_job_swordman_magnum_break__replace__17",
+   "zoom": 125,
+   "frames": 3,
+   "cell": [
+    348,
+    252
+   ],
+   "sheet": [
+    1044,
+    252
+   ],
+   "bytes": 171479,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": 3,
+   "recommendation": "replace",
+   "reason": "same or more frames, full extent, from the owner client"
+  }
+ ],
+ "note": "Replacement candidates for the 35 effects in main (same id/attach). Use recommendation: replace | keep_main."
+}

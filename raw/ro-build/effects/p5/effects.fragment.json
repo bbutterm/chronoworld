@@ -1,0 +1,261 @@
+{
+ "schema": 1,
+ "part": 5,
+ "effects": [
+  {
+   "id": "fx_job_blacksmith_adrenaline_rush",
+   "file": "effects/fx_job_blacksmith_adrenaline_rush.png",
+   "cell": [
+    488,
+    490
+   ],
+   "columns": 4,
+   "frames": 16,
+   "ms": 93.75,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    229.0,
+    269.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "str_adrenaline",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect str_adrenaline; role buff"
+   }
+  },
+  {
+   "id": "fx_job_knight_auto_counter",
+   "file": "effects/fx_job_knight_auto_counter.png",
+   "cell": [
+    260,
+    260
+   ],
+   "columns": 7,
+   "frames": 7,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    130.0,
+    156.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "str_autocounter",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect str_autocounter; role cast"
+   }
+  },
+  {
+   "id": "fx_mob2_elite_frenzy",
+   "file": "effects/fx_mob2_elite_frenzy.png",
+   "cell": [
+    382,
+    412
+   ],
+   "columns": 5,
+   "frames": 7,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    217.0,
+    216.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "str_mid_frenzy",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect str_mid_frenzy; role buff"
+   }
+  },
+  {
+   "id": "fx_job_alchemist_demonstration",
+   "file": "effects/fx_job_alchemist_demonstration.png",
+   "cell": [
+    72,
+    108
+   ],
+   "columns": 5,
+   "frames": 5,
+   "ms": 100,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    36,
+    95
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "sprite 데몬스트레이션",
+    "renderer": "tools/ro_spr_act.py (SPR+ACT, action 0, native x1)",
+    "scale": 1,
+    "note": "scRO client data/sprite/이팩트/데몬스트레이션.spr/.act"
+   }
+  },
+  {
+   "id": "fx_mob_boss1_quake",
+   "file": "effects/fx_mob_boss1_quake.png",
+   "cell": [
+    470,
+    238
+   ],
+   "columns": 4,
+   "frames": 31,
+   "ms": 25,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    222,
+    113
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "sprite 어스퀘이크",
+    "renderer": "tools/ro_spr_act.py (SPR+ACT, action 0, native x1)",
+    "scale": 1,
+    "note": "scRO client data/sprite/이팩트/어스퀘이크.spr/.act"
+   }
+  }
+ ],
+ "skills": {
+  "job_blacksmith_adrenaline_rush": {
+   "buff": "fx_job_blacksmith_adrenaline_rush"
+  },
+  "job_knight_auto_counter": {
+   "cast": "fx_job_knight_auto_counter"
+  },
+  "job_alchemist_demonstration": {
+   "ground": "fx_job_alchemist_demonstration"
+  }
+ },
+ "suggestedSkills": {
+  "mob2_elite_frenzy": {
+   "roSkill": "LK_BERSERK (mid_frenzy.str)",
+   "buff": "fx_mob2_elite_frenzy"
+  },
+  "mob_boss1_quake": {
+   "roSkill": "NPC_EARTHQUAKE",
+   "ground": "fx_mob_boss1_quake"
+  }
+ },
+ "results": [
+  {
+   "key": "job_blacksmith_adrenaline_rush",
+   "role": "buff",
+   "ro": "str_adrenaline",
+   "id": "fx_job_blacksmith_adrenaline_rush",
+   "status": "built",
+   "raw": "raw/p5/job_blacksmith_adrenaline_rush__buff__str_adrenaline",
+   "zoom": 125,
+   "frames": 16,
+   "cell": [
+    488,
+    490
+   ],
+   "sheet": [
+    1952,
+    1960
+   ],
+   "bytes": 583648,
+   "thinned": 18,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_knight_auto_counter",
+   "role": "cast",
+   "ro": "str_autocounter",
+   "id": "fx_job_knight_auto_counter",
+   "status": "built",
+   "raw": "raw/p5/job_knight_auto_counter__cast__str_autocounter",
+   "zoom": 125,
+   "frames": 7,
+   "cell": [
+    260,
+    260
+   ],
+   "sheet": [
+    1820,
+    260
+   ],
+   "bytes": 515853,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "mob2_elite_frenzy",
+   "role": "buff",
+   "ro": "str_mid_frenzy",
+   "id": "fx_mob2_elite_frenzy",
+   "status": "built",
+   "raw": "raw/p5/mob2_elite_frenzy__buff__str_mid_frenzy",
+   "zoom": 125,
+   "frames": 7,
+   "cell": [
+    382,
+    412
+   ],
+   "sheet": [
+    1910,
+    824
+   ],
+   "bytes": 402215,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_alchemist_demonstration",
+   "role": "ground",
+   "ro": "sprite 데몬스트레이션",
+   "id": "fx_job_alchemist_demonstration",
+   "status": "built",
+   "frames": 5,
+   "cell": [
+    72,
+    108
+   ],
+   "sheet": [
+    360,
+    108
+   ]
+  },
+  {
+   "key": "mob_boss1_quake",
+   "role": "ground",
+   "ro": "sprite 어스퀘이크",
+   "id": "fx_mob_boss1_quake",
+   "status": "built",
+   "frames": 31,
+   "cell": [
+    470,
+    238
+   ],
+   "sheet": [
+    1880,
+    1904
+   ]
+  }
+ ]
+}

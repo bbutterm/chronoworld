@@ -1,0 +1,767 @@
+{
+ "schema": 1,
+ "part": 4,
+ "effects": [
+  {
+   "id": "fx_job_mage_safety_wall",
+   "file": "effects/fx_job_mage_safety_wall.png",
+   "cell": [
+    190,
+    298
+   ],
+   "columns": 8,
+   "frames": 24,
+   "ms": 83.33,
+   "loop": true,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    95.0,
+    246.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "315",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 315; role buff; continuous in RO: first 24 frames kept"
+   }
+  },
+  {
+   "id": "fx_job_crusader_devotion",
+   "file": "effects/fx_job_crusader_devotion.png",
+   "cell": [
+    180,
+    136
+   ],
+   "columns": 8,
+   "frames": 14,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    90.0,
+    272.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "251",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 251; role buff"
+   }
+  },
+  {
+   "id": "fx_job_rogue_strip_weapon",
+   "file": "effects/fx_job_rogue_strip_weapon.png",
+   "cell": [
+    58,
+    54
+   ],
+   "columns": 8,
+   "frames": 11,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    28.0,
+    148.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "269",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 269; role debuff"
+   }
+  },
+  {
+   "id": "fx_job_rogue_strip_armor",
+   "file": "effects/fx_job_rogue_strip_armor.png",
+   "cell": [
+    66,
+    60
+   ],
+   "columns": 8,
+   "frames": 11,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    31.0,
+    153.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "271",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 271; role debuff"
+   }
+  },
+  {
+   "id": "fx_job_hunter_ankle_snare",
+   "file": "effects/fx_job_hunter_ankle_snare.png",
+   "cell": [
+    34,
+    28
+   ],
+   "columns": 8,
+   "frames": 12,
+   "ms": 83.33,
+   "loop": true,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    17.0,
+    19.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "ef_trap_01",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect ef_trap_01; role ground; looping in RO: one 12-frame cycle kept"
+   }
+  },
+  {
+   "id": "fx_job_wizard_soul_drain",
+   "file": "effects/fx_job_wizard_soul_drain.png",
+   "cell": [
+    610,
+    450
+   ],
+   "columns": 3,
+   "frames": 7,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    251.0,
+    376.0
+   ],
+   "attach": "caster",
+   "source": {
+    "roEffectId": "217",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 217; role cast"
+   }
+  },
+  {
+   "id": "fx_mob2_boss_rot_spores",
+   "file": "effects/fx_mob2_boss_rot_spores.png",
+   "cell": [
+    150,
+    132
+   ],
+   "columns": 3,
+   "frames": 3,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    74.0,
+    140.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "192",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 192; role hit"
+   }
+  },
+  {
+   "id": "fx_mob2_tank_mire",
+   "file": "effects/fx_mob2_tank_mire.png",
+   "cell": [
+    42,
+    52
+   ],
+   "columns": 8,
+   "frames": 12,
+   "ms": 83.33,
+   "loop": true,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    21.0,
+    36.0
+   ],
+   "attach": "ground",
+   "source": {
+    "roEffectId": "674",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 674; role ground; looping in RO: one 12-frame cycle kept"
+   }
+  },
+  {
+   "id": "fx_mob_tank_guard",
+   "file": "effects/fx_mob_tank_guard.png",
+   "cell": [
+    120,
+    120
+   ],
+   "columns": 6,
+   "frames": 6,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    58.0,
+    123.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "213",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 213; role buff"
+   }
+  },
+  {
+   "id": "fx_mob_mastering_jelly_armor",
+   "file": "effects/fx_mob_mastering_jelly_armor.png",
+   "cell": [
+    96,
+    134
+   ],
+   "columns": 8,
+   "frames": 8,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    41.0,
+    126.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "214",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 214; role buff"
+   }
+  },
+  {
+   "id": "fx_mob_elite_smash",
+   "file": "effects/fx_mob_elite_smash.png",
+   "cell": [
+    232,
+    224
+   ],
+   "columns": 8,
+   "frames": 12,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    108.0,
+    227.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "194",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 194; role hit"
+   }
+  },
+  {
+   "id": "fx_mob3_boss_nova",
+   "file": "effects/fx_mob3_boss_nova.png",
+   "cell": [
+    358,
+    334
+   ],
+   "columns": 4,
+   "frames": 4,
+   "ms": 83.33,
+   "loop": false,
+   "delayMs": 0,
+   "blend": "normal",
+   "anchor": [
+    131.0,
+    139.0
+   ],
+   "attach": "target",
+   "source": {
+    "roEffectId": "451",
+    "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+    "scale": 1.0417,
+    "seed": 1,
+    "note": "scRO client; RO effect 451; role hit"
+   }
+  }
+ ],
+ "skills": {
+  "job_mage_safety_wall": {
+   "buff": "fx_job_mage_safety_wall"
+  },
+  "job_crusader_devotion": {
+   "buff": "fx_job_crusader_devotion"
+  },
+  "job_rogue_strip_weapon": {
+   "debuff": "fx_job_rogue_strip_weapon"
+  },
+  "job_rogue_strip_armor": {
+   "debuff": "fx_job_rogue_strip_armor"
+  },
+  "job_hunter_ankle_snare": {
+   "ground": "fx_job_hunter_ankle_snare"
+  },
+  "job_wizard_soul_drain": {
+   "cast": "fx_job_wizard_soul_drain"
+  },
+  "job_crusader_auto_guard": {
+   "buff": "fx_job_knight_parrying"
+  },
+  "job_acolyte_heal": {
+   "buff": "fx_heal"
+  },
+  "swordman_bash": {
+   "hit": "fx_hit"
+  },
+  "job_archer_double_strafe": {
+   "hit": "fx_hit"
+  },
+  "job_knight_bowling_bash": {
+   "hit": "fx_hit"
+  },
+  "priest_blessing": {
+   "buff": "fx_job_acolyte_blessing"
+  }
+ },
+ "suggestedSkills": {
+  "mob2_boss_rot_spores": {
+   "roSkill": "NPC_POISON",
+   "hit": "fx_mob2_boss_rot_spores"
+  },
+  "mob2_tank_mire": {
+   "roSkill": "NPC_EVILLAND",
+   "ground": "fx_mob2_tank_mire"
+  },
+  "mob_tank_guard": {
+   "roSkill": "NPC_DEFENDER",
+   "buff": "fx_mob_tank_guard"
+  },
+  "mob_mastering_jelly_armor": {
+   "roSkill": "NPC_KEEPING",
+   "buff": "fx_mob_mastering_jelly_armor"
+  },
+  "mob_elite_smash": {
+   "roSkill": "NPC_STUNATTACK",
+   "hit": "fx_mob_elite_smash"
+  },
+  "mob3_boss_nova": {
+   "roSkill": "NPC_DARKSTRIKE",
+   "hit": "fx_mob3_boss_nova"
+  }
+ },
+ "results": [
+  {
+   "key": "job_mage_safety_wall",
+   "role": "buff",
+   "ro": "315",
+   "id": "fx_job_mage_safety_wall",
+   "status": "built",
+   "raw": "raw/p4/job_mage_safety_wall__buff__315",
+   "zoom": 125,
+   "frames": 24,
+   "cell": [
+    190,
+    298
+   ],
+   "sheet": [
+    1520,
+    894
+   ],
+   "bytes": 510419,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": -24,
+   "mainFrames": null
+  },
+  {
+   "key": "job_crusader_devotion",
+   "role": "buff",
+   "ro": "251",
+   "id": "fx_job_crusader_devotion",
+   "status": "built",
+   "raw": "raw/p4/job_crusader_devotion__buff__251",
+   "zoom": 125,
+   "frames": 14,
+   "cell": [
+    180,
+    136
+   ],
+   "sheet": [
+    1440,
+    272
+   ],
+   "bytes": 112917,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_rogue_raid",
+   "role": "cast",
+   "ro": "276",
+   "id": "fx_job_rogue_raid",
+   "status": "build_failed",
+   "error": "cell 2304x1668 exceeds 2048px"
+  },
+  {
+   "key": "job_rogue_strip_weapon",
+   "role": "debuff",
+   "ro": "269",
+   "id": "fx_job_rogue_strip_weapon",
+   "status": "built",
+   "raw": "raw/p4/job_rogue_strip_weapon__debuff__269",
+   "zoom": 125,
+   "frames": 11,
+   "cell": [
+    58,
+    54
+   ],
+   "sheet": [
+    464,
+    108
+   ],
+   "bytes": 15181,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_rogue_strip_armor",
+   "role": "debuff",
+   "ro": "271",
+   "id": "fx_job_rogue_strip_armor",
+   "status": "built",
+   "raw": "raw/p4/job_rogue_strip_armor__debuff__271",
+   "zoom": 125,
+   "frames": 11,
+   "cell": [
+    66,
+    60
+   ],
+   "sheet": [
+    528,
+    120
+   ],
+   "bytes": 27188,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_hunter_ankle_snare",
+   "role": "ground",
+   "ro": "ef_trap_01",
+   "id": "fx_job_hunter_ankle_snare",
+   "status": "built",
+   "raw": "raw/p4/job_hunter_ankle_snare__ground__ef_trap_01",
+   "zoom": 125,
+   "frames": 12,
+   "cell": [
+    34,
+    28
+   ],
+   "sheet": [
+    272,
+    56
+   ],
+   "bytes": 2481,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 12,
+   "mainFrames": null
+  },
+  {
+   "key": "job_bard_scream",
+   "role": "cast",
+   "ro": "296",
+   "status": "empty"
+  },
+  {
+   "key": "job_dancer_dont_forget_me",
+   "role": "debuff",
+   "ro": "292",
+   "status": "empty"
+  },
+  {
+   "key": "job_dancer_fortune_kiss",
+   "role": "buff",
+   "ro": "293",
+   "status": "empty"
+  },
+  {
+   "key": "job_alchemist_demonstration",
+   "role": "ground",
+   "ro": "302",
+   "status": "empty"
+  },
+  {
+   "key": "job_monk_triple_attack",
+   "role": "hit",
+   "ro": "329",
+   "status": "empty"
+  },
+  {
+   "key": "job_monk_steel_body",
+   "role": "buff",
+   "ro": "254",
+   "status": "empty"
+  },
+  {
+   "key": "job_alchemist_potion_pitcher",
+   "role": "buff",
+   "ro": "299",
+   "status": "not_captured",
+   "reason": "capture exit 1"
+  },
+  {
+   "key": "job_alchemist_chemical_protection",
+   "role": "buff",
+   "ro": "300",
+   "status": "empty"
+  },
+  {
+   "key": "job_wizard_soul_drain",
+   "role": "cast",
+   "ro": "217",
+   "id": "fx_job_wizard_soul_drain",
+   "status": "built",
+   "raw": "raw/p4/job_wizard_soul_drain__cast__217__L250",
+   "zoom": 250,
+   "frames": 7,
+   "cell": [
+    610,
+    450
+   ],
+   "sheet": [
+    1830,
+    1350
+   ],
+   "bytes": 323891,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "job_bard_apple_of_idun",
+   "role": "buff",
+   "ro": "289",
+   "status": "empty"
+  },
+  {
+   "key": "job_bard_poem_of_bragi",
+   "role": "buff",
+   "ro": "288",
+   "status": "empty"
+  },
+  {
+   "key": "mob_boss1_quake",
+   "role": "ground",
+   "ro": "666",
+   "status": "empty"
+  },
+  {
+   "key": "mob_boss2_curse",
+   "role": "debuff",
+   "ro": "196",
+   "status": "not_captured",
+   "reason": "capture exit 1"
+  },
+  {
+   "key": "mob2_boss_rot_spores",
+   "role": "hit",
+   "ro": "192",
+   "id": "fx_mob2_boss_rot_spores",
+   "status": "built",
+   "raw": "raw/p4/mob2_boss_rot_spores__hit__192",
+   "zoom": 125,
+   "frames": 3,
+   "cell": [
+    150,
+    132
+   ],
+   "sheet": [
+    450,
+    132
+   ],
+   "bytes": 48357,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "mob2_tank_mire",
+   "role": "ground",
+   "ro": "674",
+   "id": "fx_mob2_tank_mire",
+   "status": "built",
+   "raw": "raw/p4/mob2_tank_mire__ground__674",
+   "zoom": 125,
+   "frames": 12,
+   "cell": [
+    42,
+    52
+   ],
+   "sheet": [
+    336,
+    104
+   ],
+   "bytes": 42903,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 12,
+   "mainFrames": null
+  },
+  {
+   "key": "mob2_elite_frenzy",
+   "role": "buff",
+   "ro": "456",
+   "status": "empty"
+  },
+  {
+   "key": "mob_tank_guard",
+   "role": "buff",
+   "ro": "213",
+   "id": "fx_mob_tank_guard",
+   "status": "built",
+   "raw": "raw/p4/mob_tank_guard__buff__213",
+   "zoom": 125,
+   "frames": 6,
+   "cell": [
+    120,
+    120
+   ],
+   "sheet": [
+    720,
+    120
+   ],
+   "bytes": 52137,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "mob_mastering_jelly_armor",
+   "role": "buff",
+   "ro": "214",
+   "id": "fx_mob_mastering_jelly_armor",
+   "status": "built",
+   "raw": "raw/p4/mob_mastering_jelly_armor__buff__214",
+   "zoom": 125,
+   "frames": 8,
+   "cell": [
+    96,
+    134
+   ],
+   "sheet": [
+    768,
+    134
+   ],
+   "bytes": 83927,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "mob3_fast_haunt",
+   "role": "hit",
+   "ro": "180",
+   "status": "not_captured",
+   "reason": "capture exit 1"
+  },
+  {
+   "key": "mob_elite_smash",
+   "role": "hit",
+   "ro": "194",
+   "id": "fx_mob_elite_smash",
+   "status": "built",
+   "raw": "raw/p4/mob_elite_smash__hit__194",
+   "zoom": 125,
+   "frames": 12,
+   "cell": [
+    232,
+    224
+   ],
+   "sheet": [
+    1856,
+    448
+   ],
+   "bytes": 35530,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  },
+  {
+   "key": "mob3_boss_nova",
+   "role": "hit",
+   "ro": "451",
+   "id": "fx_mob3_boss_nova",
+   "status": "built",
+   "raw": "raw/p4/mob3_boss_nova__hit__451",
+   "zoom": 125,
+   "frames": 4,
+   "cell": [
+    358,
+    334
+   ],
+   "sheet": [
+    1432,
+    334
+   ],
+   "bytes": 166136,
+   "thinned": 0,
+   "clipped": false,
+   "post": [],
+   "loopCycle": 0,
+   "mainFrames": null
+  }
+ ]
+}
