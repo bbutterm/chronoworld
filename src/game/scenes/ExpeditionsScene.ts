@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import {
   actClaimAllExpeditions,
   actClaimExpedition,
+  autoParty,
   expectedExpeditionLoot,
   expeditionStatus,
   finishedExpeditions,
@@ -219,6 +220,20 @@ export class ExpeditionsScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Почему не хватает мощи (BUG-161): герои вернувшихся, но не забранных экспедиций ещё числятся в пути. Если с ними
+   * мощи хватило бы — «сначала заберите добычу», иначе — «усильте отряд».
+   */
+  private shortHint(locationId: string): string {
+    const save = session.save;
+    const t = now();
+    if (finishedExpeditions(save, t) > 0) {
+      const freed = { ...save, bounties: { ...save.bounties, active: save.bounties.active.filter((e) => t < e.endsAt) } };
+      if (autoParty(freed, locationId, GAME).ok) return 'Сначала заберите добычу вернувшихся экспедиций';
+    }
+    return 'Не хватает свободных героев — усильте отряд';
+  }
+
   private idleRows(v: ExpeditionView, r: Rows): void {
     const a = this.area;
     const loc = v.location;
@@ -231,7 +246,7 @@ export class ExpeditionsScene extends Phaser.Scene {
       }).setOrigin(0, 0.5),
     );
     if (party.ok) this.faces(party.heroIds, r.b);
-    else a.add(ellipsize(text(this, COL_X, r.b, 'Не хватает свободных героев — усильте отряд', FS.small, C.warning).setOrigin(0, 0.5), COL_W));
+    else a.add(ellipsize(text(this, COL_X, r.b, this.shortHint(loc.id), FS.small, C.warning).setOrigin(0, 0.5), COL_W));
 
     // Сроки: 1 / 4 / 8 ч (выбор общий для всех локаций и запоминается).
     const ds = GAME.meta.expeditions.durations;
