@@ -652,23 +652,23 @@
       "enemies": [
         {
           "unit": "mob3_tank",
-          "mult": 0.0337
+          "mult": 0.04044
         },
         {
           "unit": "mob7_boss",
-          "mult": 0.0505
+          "mult": 0.04242
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.0928
+          "mult": 0.1114
         },
         {
           "unit": "mob3_elite",
-          "mult": 0.0337
+          "mult": 0.04044
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.0928
+          "mult": 0.1114
         }
       ],
       "rewards": {

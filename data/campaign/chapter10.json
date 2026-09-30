@@ -315,19 +315,19 @@
       "enemies": [
         {
           "unit": "mob7_bridge_warden",
-          "mult": 0.02702
+          "mult": 0.02054
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.02702
+          "mult": 0.03377
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.02702
+          "mult": 0.03377
         },
         {
           "unit": "mob7_support",
-          "mult": 0.02702
+          "mult": 0.03377
         },
         null
       ],
@@ -652,23 +652,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.0175
+          "mult": 0.01663
         },
         {
           "unit": "mob_lord_of_death",
-          "mult": 0.0122
+          "mult": 0.01159
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.0175
+          "mult": 0.01663
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.0175
+          "mult": 0.01663
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.0175
+          "mult": 0.01663
         }
       ],
       "rewards": {

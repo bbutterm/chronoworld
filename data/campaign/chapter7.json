@@ -654,23 +654,23 @@
       "enemies": [
         {
           "unit": "alde_owl_duke",
-          "mult": 0.0979
+          "mult": 0.07296
         },
         {
           "unit": "alde_keeper",
-          "mult": 0.0747
+          "mult": 0.07963
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.0979
+          "mult": 0.07296
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.0979
+          "mult": 0.1043
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.0979
+          "mult": 0.1043
         }
       ],
       "rewards": {
