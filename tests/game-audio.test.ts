@@ -21,8 +21,12 @@ import {
   THEME_AMBIENCE,
   THEMES,
   volumeLabel,
+  applyAudioSession,
+  audioSessionType,
+  ownMusicLabel,
+  shouldHintOwnMusic,
 } from '../src/game/audioCore';
-import { AudioEngine, trackSource } from '../src/game/audio';
+import { AudioEngine, audioSettings, setAudioSettings, takeOwnMusicHint, trackSource } from '../src/game/audio';
 import { hasRecipe, musicJob, musicSpecOf, synthAmbience, synthMusic, synthSfx } from '../src/game/audioSynth';
 import { battleSound, monsterSoundsOf, swingOf, weaponOf } from '../src/game/battleAudio';
 import { MonsterSoundsSchema, monsterSoundFile, monsterSoundFiles } from '../src/game/monsterSounds';
@@ -44,9 +48,10 @@ describe('звук: настройки громкости (localStorage)', () =>
 
   it('сохраняются и читаются обратно под своим ключом', () => {
     const s = memStore();
-    saveAudioSettings({ music: 0.25, sfx: 1, muted: true, battleSfx: false }, s);
+    // «Своя музыка» и отметка её подсказки — в том же ключе (переживают «Начать заново», как остальной звук).
+    saveAudioSettings({ music: 0.25, sfx: 1, muted: true, battleSfx: false, ownMusic: true, ownMusicHint: true }, s);
     expect(s.m.has(AUDIO_KEY)).toBe(true);
-    expect(loadAudioSettings(s)).toEqual({ music: 0.25, sfx: 1, muted: true, battleSfx: false });
+    expect(loadAudioSettings(s)).toEqual({ music: 0.25, sfx: 1, muted: true, battleSfx: false, ownMusic: true, ownMusicHint: true });
   });
 
   it('мусор, чужие типы и выход за 0…1 не ломают игру', () => {
@@ -54,7 +59,10 @@ describe('звук: настройки громкости (localStorage)', () =>
     s.setItem(AUDIO_KEY, '{oops');
     expect(loadAudioSettings(s)).toEqual(DEFAULT_AUDIO);
     s.setItem(AUDIO_KEY, JSON.stringify({ music: 7, sfx: -1, muted: 'yes' }));
-    expect(loadAudioSettings(s)).toEqual({ music: 1, sfx: 0, muted: false, battleSfx: true });
+    expect(loadAudioSettings(s)).toEqual({ music: 1, sfx: 0, muted: false, battleSfx: true, ownMusic: false, ownMusicHint: false });
+    // Старая запись без «Своей музыки» — режим выключен.
+    s.setItem(AUDIO_KEY, JSON.stringify({ music: 0.5, sfx: 0.75, muted: false, battleSfx: true }));
+    expect(loadAudioSettings(s).ownMusic).toBe(false);
     s.setItem(AUDIO_KEY, 'null');
     expect(loadAudioSettings(s)).toEqual(DEFAULT_AUDIO);
   });
@@ -69,7 +77,7 @@ describe('звук: настройки громкости (localStorage)', () =>
       },
     };
     expect(loadAudioSettings(bad)).toEqual(DEFAULT_AUDIO);
-    expect(() => saveAudioSettings({ music: 1, sfx: 1, muted: false, battleSfx: true }, bad)).not.toThrow();
+    expect(() => saveAudioSettings({ ...DEFAULT_AUDIO }, bad)).not.toThrow();
   });
 
   it('шаги громкости по кругу и подписи', () => {
@@ -646,4 +654,121 @@ describe('звук: музыка из файлов играет потоком',
     expect(FakeAudio.all.length).toBe(0);
     expect(eng.stats()).toMatchObject({ streams: 0, music: 'music:map_swamp', trackBuffers: ['music:map_swamp'] });
   }, 30_000);
+});
+
+describe('звук: «Своя музыка» — игра не прерывает музыку игрока', () => {
+  let ctx: ReturnType<typeof fakeCtx>;
+  const OrigAudio = (globalThis as { Audio?: unknown }).Audio;
+  let session: { type: string };
+  const make = () => new AudioEngine(ctx as unknown as AudioContext, new FakeNode() as unknown as AudioNode);
+  beforeEach(() => {
+    vi.useFakeTimers();
+    FakeAudio.all = [];
+    FakeAudio.mode = 'ok';
+    FakeAudio.touched = false;
+    (globalThis as { Audio?: unknown }).Audio = FakeAudio;
+    session = { type: 'auto' };
+    vi.stubGlobal('navigator', { audioSession: session });
+    ctx = fakeCtx();
+  });
+  afterEach(() => {
+    setAudioSettings({ ownMusic: false, ownMusicHint: false });
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    (globalThis as { Audio?: unknown }).Audio = OrigAudio;
+    vi.restoreAllMocks();
+  });
+
+  it('аудиосессия iOS: ambient в режиме, auto без него; нет API или он бросает — молча null', () => {
+    expect(audioSessionType({ ownMusic: true })).toBe('ambient');
+    expect(audioSessionType({ ownMusic: false })).toBe('auto');
+    const s = { type: 'auto' };
+    expect(applyAudioSession('ambient', { audioSession: s })).toBe('ambient');
+    expect(s.type).toBe('ambient');
+    expect(applyAudioSession('ambient', {})).toBeNull();
+    expect(applyAudioSession('ambient', null)).toBeNull();
+    const bad = {
+      audioSession: Object.defineProperty({}, 'type', {
+        get: () => 'auto',
+        set: () => {
+          throw new Error('нельзя');
+        },
+      }),
+    };
+    expect(applyAudioSession('ambient', bad)).toBeNull();
+  });
+
+  it('режим включён: ни одного <audio>, музыки и фона нет, сессия ambient, звуки игры играют через Web Audio', async () => {
+    setAudioSettings({ ownMusic: true });
+    expect(session.type).toBe('ambient');
+    const eng = make();
+    for (const id of ['home', 'battle_meadow', 'boss', 'map_swamp'] as const) eng.music(id);
+    eng.ambience('amb_swamp');
+    await vi.runAllTimersAsync();
+    await flush();
+    expect(FakeAudio.all.length).toBe(0);
+    expect(ctx.createMediaElementSource).not.toHaveBeenCalled();
+    expect(eng.stats()).toMatchObject({ streams: 0, music: null, ambience: null, trackBuffers: [], ownMusic: true, session: 'ambient' });
+    // Звук интерфейса (заглушка без файла) — AudioBuffer в Web Audio, как всегда.
+    eng.play('ui_toggle');
+    expect(ctx.createBufferSource).toHaveBeenCalledTimes(1);
+    expect(eng.stats().streams).toBe(0);
+    // Свернули и вернули — сессия выставлена снова (до resume), <audio> не появились.
+    session.type = 'auto';
+    eng.setMuted('telegram', true);
+    eng.setMuted('telegram', false);
+    expect(session.type).toBe('ambient');
+    expect(FakeAudio.all.length).toBe(0);
+  }, 30_000);
+
+  it('включили во время музыки — плавно гаснет и <audio> отпущен; выключили — снова музыка экрана', async () => {
+    const eng = make();
+    expect(eng.stats().session).toBe('auto');
+    eng.music('home');
+    await flush();
+    const el = FakeAudio.all[0];
+    expect(eng.stats().streams).toBe(1);
+    expect(eng.musicHeard).toBe(true);
+
+    setAudioSettings({ ownMusic: true });
+    eng.syncOwnMusic();
+    expect(session.type).toBe('ambient');
+    expect(eng.stats().music).toBeNull();
+    // Затухание FADE_S, потом элемент отпущен: пауза, файл снят, load(), узлы отключены.
+    vi.advanceTimersByTime(900);
+    expect(eng.stats().streams).toBe(0);
+    expect(el.pause).toHaveBeenCalled();
+    expect(el.src).toBe('');
+    expect(el.load).toHaveBeenCalled();
+    expect(ctx.createMediaElementSource.mock.results.every((r) => !(r.value as FakeNode).connected)).toBe(true);
+
+    // Пока режим включён, экраны просят музыку — ни одного нового элемента.
+    eng.music('battle_meadow');
+    await flush();
+    expect(FakeAudio.all.length).toBe(1);
+
+    setAudioSettings({ ownMusic: false });
+    eng.syncOwnMusic();
+    await flush();
+    expect(session.type).toBe('auto');
+    expect(FakeAudio.all.length).toBe(2);
+    expect(FakeAudio.all[1].src).toMatch(/music_battle_meadow/);
+    expect(eng.stats()).toMatchObject({ streams: 1, music: 'music:music_battle_meadow', ownMusic: false });
+  });
+
+  it('подсказка в Городе: один раз, только после музыки игры и если режим не включён', () => {
+    const base = { ownMusic: false, ownMusicHint: false, muted: false, music: 0.5 };
+    expect(shouldHintOwnMusic(base, true)).toBe(true);
+    expect(shouldHintOwnMusic(base, false)).toBe(false);
+    expect(shouldHintOwnMusic({ ...base, ownMusic: true }, true)).toBe(false);
+    expect(shouldHintOwnMusic({ ...base, ownMusicHint: true }, true)).toBe(false);
+    expect(shouldHintOwnMusic({ ...base, muted: true }, true)).toBe(false);
+    expect(shouldHintOwnMusic({ ...base, music: 0 }, true)).toBe(false);
+    // Без движка (нет Web Audio) музыка не звучала — подсказки нет.
+    expect(takeOwnMusicHint()).toBe(false);
+    expect(audioSettings.ownMusicHint).toBe(false);
+    expect(ownMusicLabel({ ownMusic: true })).toBe('Вкл');
+    expect(categoryVolume('music', { ...DEFAULT_AUDIO, ownMusic: true })).toBe(0);
+    expect(categoryVolume('sfx', { ...DEFAULT_AUDIO, ownMusic: true })).toBe(DEFAULT_AUDIO.sfx);
+  });
 });
