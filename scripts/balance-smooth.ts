@@ -38,6 +38,7 @@ import { join } from 'node:path';
 import { buildUnit, enemySquad, stagePower, withGear, type UnitDef } from '../src/core';
 import { ROOT } from './lib/content-node';
 import { loadFullContext, PLAYER_MODEL, runBalance, smoothSquads, stageThreshold, type FullContext } from './lib/player-model';
+import { runModels } from './balance-run';
 
 const argv = process.argv.slice(2);
 const flag = (name: string) => argv.flatMap((a, i) => (a === `--${name}` && argv[i + 1] !== undefined ? [argv[i + 1]] : []));
@@ -297,6 +298,49 @@ for (const c of FIT_CHAPTERS) if (!ctx0.content.chapters.some((x) => x.id === c)
 const BASE =
   flag('base').at(-1) ?? ctx0.content.chapters[Math.max(0, ctx0.content.chapters.findIndex((c) => c.id === FIT_CHAPTERS[0]) - 1)].id;
 const anchorsArg = flag('anchors').length ? list('anchors', []) : null;
+
+/**
+ * --scale-fit N (29.09, общий баланс 10 глав): подобрать множитель каждой главы целиком, по главам последовательно
+ * (--chapters по порядку, цели --targets — час босса главы, медиана по --seeds-model). Весь этап × m, все этапы главы — одно
+ * m: форма главы (ступенька, мини-босс, босс) и тест тренда (tests/chapters.test.ts — отношения внутри главы) не меняются.
+ * Шаг: m × (P(цель) / P(факт))^γ, как у --fit; до N шагов на главу, остаётся лучший. Дней модели — до цели + 2 суток.
+ * Модель хаотична (выдачи Таверны), поэтому seed лучше 7–9: npx tsx scripts/balance-smooth.ts --chapters chapter4,…,chapter10
+ * --scale-fit 4 --targets 100,150,205,260,318,378,440 --seeds-model 1,2,3,4,5,6,7,8,9
+ */
+const SCALE_FIT = num('scale-fit', 0);
+if (SCALE_FIT) {
+  const chapterFile = (c: string) => files.get(c)!;
+  const scaleChapter = (c: string, json: ChapterJson, m: number) => {
+    const out = structuredClone(json);
+    for (const st of out.stages) for (const e of st.enemies) if (e) e.mult = Math.round((e.mult ?? 1) * m * 10000) / 10000;
+    writeFileSync(chapterFile(c), JSON.stringify(out, null, 2) + '\n');
+  };
+  for (const [ci, chapter] of FIT_CHAPTERS.entries()) {
+    const target = TARGETS[ci];
+    const days = Math.ceil((target + 8 + 48) / 24);
+    const base = JSON.parse(readFileSync(chapterFile(chapter), 'utf8')) as ChapterJson;
+    const boss = base.stages.at(-1)!.id;
+    let m = 1;
+    let best = { err: Infinity, m: 1, t: 0 };
+    for (let it = 0; it < SCALE_FIT; it++) {
+      scaleChapter(chapter, base, m);
+      const runs = await runModels(MODEL_SEEDS, days);
+      const times = runs.map((r) => new Map(r.clears).get(boss) ?? r.end + 24);
+      const t = median(times);
+      const P = (h: number) =>
+        median(runs.map((r) => r.battles.reduce((p, [bt, bp]) => (bt <= h + 0.2 ? Math.max(p, bp) : p), 0) || r.battles[0][1]));
+      const err = Math.abs(Math.log((t + 2) / (target + 2)));
+      console.log(`${chapter} ×${m.toFixed(3)}: босс ${boss} — ${t.toFixed(0)} ч [${times.map((x) => x.toFixed(0)).join('/')}] (цель ${target})`);
+      if (err < best.err) best = { err, m, t };
+      if (err < 0.03) break;
+      m *= Math.min(1.15, Math.max(0.87, Math.pow(P(target) / P(t), GAMMA)));
+    }
+    scaleChapter(chapter, base, best.m);
+    console.log(`${chapter}: ×${best.m.toFixed(3)} (босс ${best.t.toFixed(0)} ч)`);
+  }
+  process.exit(0);
+}
+
 if (!anchorsArg && !FIT && !argv.includes('--recommended')) {
   console.log(`Эталон: фиолетовые ур. ${LEVEL}, ${SEEDS} seed на точку`);
   const d = measure(ctx0, new Set([BASE, ...FIT_CHAPTERS]));
@@ -340,7 +384,10 @@ console.log(`конец главы ${BASE}: D ${a3.toFixed(3)}; якоря ${FIT
 
 if (!FIT) {
   const t = targetsFor(ctx0, a3, anchors);
-  write(d0, t);
+  // --dry — только цели и проверка тренда; --save-d файл — цели D в JSON (данные, записанные по этим якорям, имеют ровно
+  // такую D: следующий подбор части глав — --load-d этого файла без нового замера).
+  if (!argv.includes('--dry')) write(d0, t);
+  if (flag('save-d').length) writeFileSync(flag('save-d').at(-1)!, JSON.stringify(Object.fromEntries(t), null, 1) + '\n');
   print(ctx0, t);
   trendCheck(ctx0, t);
   process.exit(0);
@@ -350,18 +397,15 @@ let best = { score: Infinity, anchors };
 for (let it = 0; it < FIT; it++) {
   write(d0, targetsFor(ctx0, a3, anchors));
   const ctx = loadFullContext();
-  const runs = MODEL_SEEDS.map((seedBase) => {
-    const res = runBalance(ctx, DAYS, { ...PLAYER_MODEL, seedBase });
-    const t0 = res.rows[0].time_h;
-    const end = res.rows[res.rows.length - 1].time_h - t0;
-    const clear = new Map(res.firstClears.map((f) => [f.stageId, f.time_h - t0]));
-    const battles = res.battles.map((b) => ({ t: b.t - t0, p: b.squadPower }));
+  // Прогоны модели по seed — параллельно, по процессу на seed (scripts/balance-run.ts).
+  const runs = (await runModels(MODEL_SEEDS, DAYS)).map((r) => {
+    const clear = new Map(r.clears);
     const P = (t: number) => {
       let p = 0;
-      for (const b of battles) if (b.t <= t + 0.2) p = Math.max(p, b.p);
-      return p || battles[0].p;
+      for (const [bt, bp] of r.battles) if (bt <= t + 0.2) p = Math.max(p, bp);
+      return p || r.battles[0][1];
     };
-    return { end, clear, P };
+    return { end: r.end, clear, P };
   });
   const P = (t: number) => median(runs.map((r) => r.P(t)));
   let score = 0;
@@ -370,7 +414,7 @@ for (let it = 0; it < FIT; it++) {
     const boss = ctx.content.stages.filter((s) => s.chapter === FIT_CHAPTERS[c]).at(-1)!.id;
     const t = median(runs.map((r) => r.clear.get(boss) ?? r.end + 24));
     score += Math.abs(Math.log((t + 2) / (TARGETS[c] + 2)));
-    line.push(`${boss} ${t.toFixed(0)} ч (цель ${TARGETS[c]})`);
+    line.push(`${boss} ${t.toFixed(0)} ч [${runs.map((r) => (r.clear.has(boss) ? r.clear.get(boss)!.toFixed(0) : '—')).join('/')}] (цель ${TARGETS[c]})`);
     const f = Math.pow(P(TARGETS[c]) / P(t), GAMMA);
     return a * Math.min(1.25, Math.max(0.8, f));
   });

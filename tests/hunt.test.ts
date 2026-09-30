@@ -84,6 +84,11 @@ describe('Охота на босса: пороги и босс дня', () => {
     expect(a.def.id).toBe(HUNT_BOSS_ID);
     expect(a.def.stats.hp).toBe(Math.round(ctx.content.units[cfg.unit].stats.hp * cfg.hpMult));
   });
+
+  it('BUG-164: высший порог достижим, а босс не падает — ОЗ каждого босса ≥ 2 × урона 10-го порога', () => {
+    const top = ctx.hunt.tiers.at(-1)!.damage;
+    for (const b of ctx.hunt.bosses) expect(ctx.content.units[b.unit].stats.hp * b.hpMult, b.unit).toBeGreaterThanOrEqual(2 * top);
+  });
 });
 
 describe('Охота на босса: бой', () => {

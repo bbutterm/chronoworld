@@ -1552,13 +1552,50 @@ export function fitRecommended(
   days = 8,
   margin = 1.03,
   floor = 0.86,
-): { stageId: string; loss: number; win: number; threshold: number; suggested: number; current: number; n: number }[] {
+): FitRecommendedRow[] {
+  const runs: StageBattle[][] = [];
+  for (const sessionsPerDay of FIT_SESSIONS) {
+    for (const seedBase of FIT_SEEDS) {
+      const res = runBalance(ctx, days, fitModel(sessionsPerDay, seedBase));
+      runs.push(res.battles.filter((b) => b.kind === 'stage').map((b) => ({ target: b.target, win: b.win, squadPower: b.squadPower })));
+    }
+  }
+  return fitRecommendedFrom(ctx, runs, margin, floor);
+}
+
+export interface FitRecommendedRow {
+  stageId: string;
+  loss: number;
+  win: number;
+  threshold: number;
+  suggested: number;
+  current: number;
+  n: number;
+}
+/** Бой этапа кампании из журнала модели — для подбора рекомендуемой мощи. */
+export interface StageBattle {
+  target: string;
+  win: boolean;
+  squadPower: number;
+}
+/** Модели подбора рекомендуемой мощи: 2/3/4/6 сессий в день × seed 1–6 (24 модели). */
+export const FIT_SESSIONS = [2, 3, 4, 6];
+export const FIT_SEEDS = [1, 2, 3, 4, 5, 6];
+export const fitModel = (sessionsPerDay: number, seedBase: number): PlayerModel => ({
+  ...PLAYER_MODEL,
+  sessionsPerDay,
+  hoursBetweenSessions: sessionsPerDay >= 6 ? 2.5 : 4,
+  seedBase,
+});
+
+/** fitRecommended по готовым журналам боёв (прогоны можно считать параллельно — scripts/balance-run.ts). */
+export function fitRecommendedFrom(ctx: FullContext, runs: StageBattle[][], margin = 1.03, floor = 0.86): FitRecommendedRow[] {
   const per = new Map<string, { lo: number[]; hi: number[]; minLoss: number; minWin: number }>();
-  for (const sessionsPerDay of [2, 3, 4, 6]) {
-    for (const seedBase of [1, 2, 3, 4, 5, 6]) {
-      const res = runBalance(ctx, days, { ...PLAYER_MODEL, sessionsPerDay, hoursBetweenSessions: sessionsPerDay >= 6 ? 2.5 : 4, seedBase });
+  {
+    for (const battles of runs) {
+      const res = { battles };
       for (const s of ctx.content.stages) {
-        const bs = res.battles.filter((b) => b.kind === 'stage' && b.target === s.id);
+        const bs = res.battles.filter((b) => b.target === s.id);
         const win = bs.find((b) => b.win);
         if (!win) continue;
         const losses = bs.filter((b) => !b.win);

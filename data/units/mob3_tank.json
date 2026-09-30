@@ -12,7 +12,7 @@
   },
   "skills": {
     "basic": "basic_melee",
-    "ult": "mob_tank_guard",
+    "ult": "mob3_tank_guard",
     "passives": []
   },
   "visual": {

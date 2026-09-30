@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob3_tank_guard",
+  "name": "Проклятый доспех",
+  "description": "Доспех Рейдрика темнеет: щит 10% ОЗ себе.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.1
+    }
+  ]
+}

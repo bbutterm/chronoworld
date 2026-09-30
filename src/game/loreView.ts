@@ -190,7 +190,6 @@ export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.Game
     by += t.height + (b.gap ?? 22);
   }
   area.setContentHeight(bodyH);
-  layer.add(area.parts);
   if (o.extra) {
     const ex = o.extra;
     const eb = button(scene, cx - 230, top + boxH - 100, 460, 110, 'ui_btn_primary', ex.label, () => {
@@ -203,6 +202,11 @@ export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.Game
     layer.add(button(scene, cx + 250, top + boxH - 100, 380, 110, 'k:buttonLong_beige', 'Закрыть', close, FS.h3).container);
   } else layer.add(button(scene, cx, top + boxH - 100, 400, 110, 'ui_btn_primary', 'Закрыть', close, FS.h3).container);
   popIn(scene, layer, shade);
+  // Текст с прокруткой — в слой ПОСЛЕ popIn: popIn переносит детей слоя во внутренний контейнер со сдвигом на центр
+  // экрана, а ScrollArea считает границы прокрутки в координатах мира. Раньше первое же движение пальцем по длинной
+  // истории героя (Летопись → Герои → окно героя) отбрасывало текст на полэкрана вниз — «история отображается криво».
+  layer.add(area.parts);
+  scene.tweens.add({ targets: area.content, alpha: { from: 0, to: 1 }, duration: 160 });
   return layer;
 }
 

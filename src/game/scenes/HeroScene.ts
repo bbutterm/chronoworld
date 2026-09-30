@@ -332,6 +332,7 @@ export class HeroScene extends Phaser.Scene {
       confirmLabel: (job) => (!job ? 'Выберите ветку' : change ? (st.changeFree ? `Сменить: ${jobName(job)}` : `Сменить за ${formatNumber(st.changeCost)} гемов`) : `Выбрать: ${jobName(job)}`),
       onConfirm: (job) => {
         try {
+          const saveBefore = session.save;
           const r = change ? changeBranch(session.save, hero.id, job, GAME) : chooseBranch(session.save, hero.id, job, GAME);
           const spent = 'gems' in r ? (r.gems as number) : 0;
           commit(r.save);
@@ -339,7 +340,11 @@ export class HeroScene extends Phaser.Scene {
           haptic('levelUp');
           this.reopen({ heroId: hero.id, tab: this.tab });
           const sc = this.scene.get('Hero');
-          sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `${c.name} — теперь ${jobName(job)}!${spent ? ` (−${formatNumber(spent)} гемов)` : ''}`, C.success, 3000));
+          sc.events.once(Phaser.Scenes.Events.CREATE, () => {
+            toast(sc, `${c.name} — теперь ${jobName(job)}!${spent ? ` (−${formatNumber(spent)} гемов)` : ''}`, C.success, 3000);
+            // Ветка с уровнем 60+ сразу открывает свои кусочки истории (heroStories: кусочки по ветке).
+            sc.time.delayedCall(1600, () => toastOpenedStories(sc, saveBefore, r.save, hero.templateId));
+          });
         } catch (e) {
           toast(this, e instanceof Error ? e.message : String(e), C.error, 3000);
         }

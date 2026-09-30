@@ -11,6 +11,7 @@ import type { BattleEvent, BattleResult, UnitDef } from '../core';
 import monsterSoundsJson from '../../data/monster_sounds.json';
 import { preloadSoundFiles, sfx, sfxFile } from './audio';
 import type { SfxId } from './audioCatalog';
+import type { SoundRule } from './audioCore';
 import { haptic } from './haptics';
 import { CONTENT } from './content';
 import { MonsterSoundsSchema, monsterSoundFile, type MonsterSound, type MonsterSoundKind, type MonsterSounds } from './monsterSounds';
@@ -58,10 +59,13 @@ export function monsterSoundsOf(def: UnitDef | undefined): MonsterSound | undefi
   return MONSTER_SOUNDS[def.visual.sprite];
 }
 
-/** Ограничитель для файла звука монстра: удар — как взмах, смерть — как общий «пуф». */
-const MONSTER_RULE: Record<MonsterSoundKind, { gap: number; voices: number; gain: number }> = {
-  attack: { gap: 70, voices: 2, gain: 0.45 },
-  death: { gap: 60, voices: 3, gain: 0.6 },
+/**
+ * Ограничитель для файла звука монстра: удар — обычный звук боя (minor, −6 дБ к прежним 0.45), смерть — важный (major),
+ * как общий «пуф» (docs/design/audio.md, «Плотность звуков боя»).
+ */
+const MONSTER_RULE: Record<MonsterSoundKind, SoundRule & { gain: number }> = {
+  attack: { gap: 90, voices: 1, gain: 0.22, tier: 'minor' },
+  death: { gap: 60, voices: 3, gain: 0.45, tier: 'major', priority: true },
 };
 
 /** Сыграть свой звук монстра (по очереди из списка). false — своего звука нет или он ещё грузится. */
@@ -144,10 +148,10 @@ export function battleSound(e: BattleEvent, animate: boolean, result: BattleResu
       u.impact = (WINDUP_MS + (e.kind === 'melee' ? 0 : FLIGHT_MS)) / 1000;
       u.hit = magic ? 'hit_magic' : e.kind === 'melee' ? weaponOf(u.def) : weaponOf(u.def) === 'hit_magic' ? 'hit_magic' : 'hit_arrow';
       if (e.kind === 'heal') return;
-      // Активный навык — звук стихии; обычная атака — свой звук монстра RO, иначе взмах по оружию / выстрел.
+      // Активный навык — звук стихии; обычная атака — свой звук монстра RO, иначе выстрел лука. Взмах перед ударом
+      // ближнего боя больше не звучит: удар и взмах на каждую атаку удваивали кашу (docs/design/audio.md, «Плотность»).
       if (e.name && el !== 'physical') sfx(CAST[el], { delay: scaled(0.08) });
       else if (monsterSound(u, 'attack', scaled(WINDUP_MS / 1000) * 0.6)) return;
-      else if (e.kind === 'melee') sfx(swingOf(weaponOf(u.def)), { delay: scaled(WINDUP_MS / 1000) * 0.6 });
       else if (u.hit === 'hit_arrow') sfx('bow_shot', { delay: scaled(0.12) });
       return;
     }

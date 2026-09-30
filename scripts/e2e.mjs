@@ -422,7 +422,8 @@ async function main() {
         const open = await page.evaluate(() => !!window.__game.scene.getScene('Hero').children.getByName('heroStory'));
         if (!open) problems.push('кнопка «История героя» не открыла страницу истории');
         else {
-          for (const t of ['ИСТОРИЯ ГЕРОЯ', 'Открыто ', 'Ур. 100 · Откроется на ур. 100']) if (!(await hasText('Hero', t))) problems.push(`страница истории героя: нет «${t}»`);
+          // Герой без ветки: общие кусочки 10–50 и по строке на каждую ветку второй профессии (ур. 60–100).
+          for (const t of ['ИСТОРИЯ ГЕРОЯ', 'Открыто ', 'Ур. 50 · откроется на ур. 50', 'Ур. 60–100 · путь «']) if (!(await hasText('Hero', t))) problems.push(`страница истории героя: нет «${t}»`);
           await shot('hero-story');
           await clickText('Hero', 'Закрыть');
           await sleep(500);
