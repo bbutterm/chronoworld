@@ -3,7 +3,7 @@
  * страниц «Кампания» (указатель на кнопку или вкладку) и «Город» (указатель на плитку Таверны / Заданий).
  */
 import type { SaveState } from '../core';
-import { fastRewardsPreview, fastRewardsStatus, heroesWithGearUpgrades, towerStatus } from '../core';
+import { fastRewardsPreview, fastRewardsStatus, heroesWithGearUpgrades, needsBranch, towerStatus } from '../core';
 import { GAME } from './content';
 import { ascendReady, levelUpReady } from './flow';
 import { hintDone, setHintObsolete, type HintId, type HomeHintInput } from './hints';
@@ -23,6 +23,10 @@ export function homeHintInput(save: SaveState, chestHasIncome: boolean): HomeHin
     ascendReady: ascendReady(save, GAME).length > 0,
     fastRewardsFree: isUnlocked('fast_rewards') && fast.nextCost === 0 && (preview.gold > 0 || preview.jobExp > 0),
     questsUnlocked: isUnlocked('quests'),
+    branchPending: save.squad.some((id) => {
+      const h = id ? save.heroes.find((x) => x.id === id) : undefined;
+      return !!h && needsBranch(h, GAME);
+    }),
   };
 }
 
@@ -43,7 +47,7 @@ export function cityHint(save: SaveState, isDone: (id: HintId) => boolean = hint
  * Трофеи (equip_gear) — подсказка по событию, её оставляем: касание плашки её скрывает.
  */
 export function hintObsoleteFor(save: SaveState, id: HintId): boolean {
-  if (id === 'equip_gear') return false;
+  if (id === 'equip_gear' || id === 'branch_pick') return false;
   if (id === 'tower_open') return save.tower.floor > 0;
   if (id === 'tavern_summon' && save.summon.firstTenDone) return true;
   const first = GAME.content.chapters[0]?.id;
