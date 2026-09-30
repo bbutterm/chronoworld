@@ -275,7 +275,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         // иначе щит, заряжаемый от получаемого урона, растёт быстрее урона отряда и бой уходит в «время вышло».
         const cap = Math.floor(target.maxHp * (cfg.shieldCapPctMaxHp ?? 0.5));
         // В ярости (combat.json enrage) щиты слабеют так же, как лечение.
-        const want = mend(Math.floor(target.maxHp * e.pctMaxHp * sp));
+        const want = Math.round(mend(Math.floor(target.maxHp * e.pctMaxHp * sp)) * healRepeat(u, target));
         // Живучесть врагов (combat.json sustain): щит от них не складывается — только догоняет прежний до своей величины.
         const amount = Math.max(0, noStack(u) ? Math.min(want, cap) - target.shield : Math.min(want, cap - target.shield));
         target.shield += amount;
@@ -473,7 +473,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   /** Применить атаку сразу или отправить снаряд (дальняя атака по врагу, не рывок). */
   const launch = (u: Unit, skill: SkillDef, targets: Unit[], area?: Area) => {
     // Удар по кругу падает сразу в конце каста (круг на земле уже показал, куда).
-    const projectile = !area && projectileSeconds > 0 && skill.range === 'ranged' && skill.target.side === 'enemy' && !skill.effects.some((e) => e.type === 'dash');
+    // Сбивающий каст навык (Развеивание) — тоже сразу: иначе каст врага успевает кончиться, пока летит снаряд.
+    const projectile = !area && !(on && interrupts(skill)) && projectileSeconds > 0 && skill.range === 'ranged' && skill.target.side === 'enemy' && !skill.effects.some((e) => e.type === 'dash');
     if (!projectile) {
       useSkill(u, skill, targets, area);
       return;

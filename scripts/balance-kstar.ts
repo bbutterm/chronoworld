@@ -3,8 +3,8 @@
  * до и после правки боя: отношение k*после / k*до > 1 — этап стал легче (mult врагов можно поднять во столько же).
  *   npx tsx scripts/balance-kstar.ts before.json                снять снимок
  *   npx tsx scripts/balance-kstar.ts after.json before.json     снять и сравнить по главам (геометрическое среднее)
- *   npx tsx scripts/balance-kstar.ts after.json before.json --apply   умножить mult врагов глав на отношение (главы 4+ целиком,
- *                                                                      главы 1–3 — только если сдвиг больше 3%)
+ *   npx tsx scripts/balance-kstar.ts after.json before.json --apply   умножить mult врагов каждого этапа на его отношение
+ *                                                                      (сдвиг меньше 2% — шум, этап не трогается)
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -35,14 +35,20 @@ if (before) {
     factor.set(ch.id, r);
     console.log(`глава ${ch.order}: k* после/до ×${r.toFixed(3)} (этапы ${ids.map((id) => (k[id] / b[id]).toFixed(2)).join(' ')})`);
   }
+  // Поправка: mult врагов каждого этапа × своё отношение (сила этапа для эталонных отрядов — как до правки боя); сдвиг
+  // меньше 2% — шум замера, этап не трогается.
   if (apply)
     for (const ch of ctx.content.chapters) {
-      const f = factor.get(ch.id)!;
-      if (ch.order <= 3 && Math.abs(Math.log(f)) < Math.log(1.03)) continue;
       const file = join(ROOT, 'data/campaign', `${ch.id}.json`);
       const raw = JSON.parse(readFileSync(file, 'utf8'));
-      for (const s of raw.stages) for (const e of s.enemies) if (e) e.mult = Math.round(e.mult * f * 10000) / 10000;
+      let touched = 0;
+      for (const s of raw.stages) {
+        const f = k[s.id] / b[s.id];
+        if (Math.abs(Math.log(f)) < Math.log(1.02)) continue;
+        for (const e of s.enemies) if (e) e.mult = Math.round(e.mult * f * 10000) / 10000;
+        touched++;
+      }
       writeFileSync(file, JSON.stringify(raw, null, 2) + '\n');
-      console.log(`${ch.id}: mult ×${f.toFixed(3)}`);
+      console.log(`${ch.id}: ${touched} этапов, в среднем ×${factor.get(ch.id)!.toFixed(3)}`);
     }
 }

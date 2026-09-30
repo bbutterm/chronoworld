@@ -1130,6 +1130,8 @@ export class BattleScene extends Phaser.Scene {
         v.proc = undefined;
         v.energy = e.energy;
         this.endCast(v);
+        // Удар мага по кругу: вспышка на земле (круг рос весь каст).
+        this.behaviorFx?.endArea(v, animate);
         this.redraw(v);
         v.hitPlan.clear();
         const cd = e.cooldown !== undefined ? v.cdSkills.find((c) => c.skill.id === e.skill) : undefined;
@@ -1190,8 +1192,9 @@ export class BattleScene extends Phaser.Scene {
       case 'cast': {
         const v = this.views.get(e.unit)!;
         if (e.action === 'interrupt') {
+          this.behaviorFx?.endArea(v, false);
           // T2-08/T2-09: нейтральная подпись без рода. Оглушение — в момент удара оглушившего; пропавший без цели
-          // каст — серым «нет цели».
+          // каст — серым «нет цели»; Развеивание контрмага — «Сбито!».
           if (e.reason === 'noTarget') {
             this.endCast(v);
             if (animate) this.headline(v, 'нет цели', '#c8c0b0');
@@ -1199,7 +1202,7 @@ export class BattleScene extends Phaser.Scene {
           }
           this.atImpact(v.lastStatusSrc ?? null, animate, (animate) => {
             this.endCast(v);
-            if (animate && v.alive) this.headline(v, 'Каст сорван', '#ff9a8a');
+            if (animate && v.alive) this.headline(v, e.reason === 'dispel' ? 'Сбито!' : 'Каст сорван', e.reason === 'dispel' ? '#b8a0ff' : '#ff9a8a');
           }, { on: v });
           return;
         }
@@ -1212,6 +1215,8 @@ export class BattleScene extends Phaser.Scene {
         v.nameText.setVisible(false);
         cropBar(v.castBar, 0);
         if (!animate) return;
+        // Маг бьёт по кругу: круг на земле там, куда упадёт удар, растёт вместе с полосой каста.
+        if (e.at && e.radius) this.behaviorFx?.castArea(v, e.at[0], e.at[1], e.radius, col.main, e.duration * 1000);
         // Круг под ногами, аура и анимация каста — пока идёт каст.
         (v.castRig ??= this.sfx.castRig(v.node, v.look.height)).show(col.main);
         this.castCue(v, e.skill);
@@ -1228,7 +1233,10 @@ export class BattleScene extends Phaser.Scene {
         v.proc = { skill: e.skill, t: e.t };
         // Своя вспышка пассивки на кастере (сокол к цели, колба к союзнику, сферы…) — в момент срабатывания.
         const pv = visualOf(e.skill);
-        if (animate && pv?.proc && v.alive && !this.skipping) playProc(this.sfx, pv.proc, this.point(v), this.eventTargets(v, e.t).map((u) => this.point(u)), pv.tint ?? 0xffffff);
+        // Аура (Поэма Браги) срабатывает каждый ход барда — вспышка только в первый раз, дальше виден круг ауры.
+        const auraRepeat = !!CONTENT.skills[e.skill]?.aura && this.shownPassives.has(`${key}:proc`);
+        this.shownPassives.add(`${key}:proc`);
+        if (animate && pv?.proc && v.alive && !this.skipping && !auraRepeat) playProc(this.sfx, pv.proc, this.point(v), this.eventTargets(v, e.t).map((u) => this.point(u)), pv.tint ?? 0xffffff);
         return;
       }
       case 'skip': {
@@ -1323,6 +1331,8 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'status': {
         const v = this.views.get(e.target)!;
+        // Аура продлила статус (каждый ход барда) — значок уже висит, заново не рисуем.
+        if (e.action === 'refresh') return;
         if (e.action === 'expire') {
           if (this.tauntIds.has(e.status)) this.behaviorFx?.untaunt(v);
           this.setStatusIcon(v, e.status, undefined);
@@ -1396,6 +1406,13 @@ export class BattleScene extends Phaser.Scene {
       case 'spawn':
         this.spawnUnit(e, animate);
         return;
+      case 'aura': {
+        // Аура барда (ноты) / танцовщицы (лепестки) — цветной круг под исполнителем весь бой.
+        const v = this.views.get(e.unit);
+        const dancer = e.skill === 'job_dancer_fortune_kiss';
+        if (v) this.behaviorFx?.aura(v, e.radius, dancer ? 0xff7fc4 : 0x6fd0ff, dancer);
+        return;
+      }
       case 'enrage':
         if (animate && !this.skipping) {
           this.sfx.flash(0xff6040, 0.18, 260);
@@ -1697,6 +1714,8 @@ export class BattleScene extends Phaser.Scene {
       v.kiteShown = true;
       this.headline(v, 'Отход!', '#9fe3ff');
     } else if (reason === 'intercept') this.headline(v, 'Перехват!', '#ffe28a');
+    // Трус убегает к своим (раз за бой): разворачивается и бежит, в спину бьют сильнее.
+    else if (reason === 'flee') this.headline(v, 'Бежит!', '#ff8a6a');
   }
 
   private headline(v: UnitView, value: string, color: string): void {

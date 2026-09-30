@@ -242,8 +242,9 @@ export const SKILL_VISUALS: Record<string, SkillVisual> = {
   job_bard_assassin_cross: { sig: 'assassinCross', aura: 'song', tint: 0xff5a8a, big: true },
   job_bard_scream: { sig: 'scream', tint: 0xffa0d0 },
   job_dancer_slinging_arrow: { sig: 'slingingArrow', tint: 0xff8ac8 },
-  job_dancer_dont_forget_me: { sig: 'dontForgetMe', tint: 0xb070ff },
-  job_dancer_fortune_kiss: { sig: 'fortuneKiss', aura: 'kiss', tint: 0xff7ab0, big: true },
+  // «Не забывай меня» — большой навык танцовщицы: «Поцелуй удачи» стал аурой (пассивка, шаг 5 поведения в бою).
+  job_dancer_dont_forget_me: { sig: 'dontForgetMe', tint: 0xb070ff, big: true },
+  job_dancer_fortune_kiss: { aura: 'kiss', tint: 0xff7ab0 },
   // ---------- торговец ----------
   job_merchant_mammonite: { hit: 'coins' },
   job_merchant_pushcart: { aura: 'pushcart', proc: 'flash', tint: 0xd8a860 },
