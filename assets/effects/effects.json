@@ -976,34 +976,6 @@
       }
     },
     {
-      "id": "fx_job_mage_frost_diver_release",
-      "file": "effects/fx_job_mage_frost_diver_release.png",
-      "cell": [
-        28,
-        148
-      ],
-      "columns": 8,
-      "frames": 8,
-      "ms": 83.33,
-      "loop": false,
-      "delayMs": 0,
-      "blend": "add",
-      "scale": 1.5,
-      "anchor": [
-        28.0,
-        52.0
-      ],
-      "attach": "caster",
-      "source": {
-        "roEffectId": "27",
-        "renderer": "roBrowserLegacy EffectViewer",
-        "scale": 1.0417,
-        "outputScale": 1.0,
-        "seed": 1,
-        "note": "MG_FROSTDIVER.releaseEffectId 27; authentic travelling-source animation; runtime projectile motion not wired"
-      }
-    },
-    {
       "id": "fx_job_wizard_jupitel_thunder_target",
       "file": "effects/fx_job_wizard_jupitel_thunder_target.png",
       "cell": [
@@ -1198,17 +1170,897 @@
         "seed": 1,
         "note": "MG_FROSTDIVER.releaseEffectId 27 (same sheet as fx_job_mage_frost_diver_release): upright ice spikes growing along the ground from caster to target, as in RO; anchor at the spike base"
       }
+    },
+    {
+      "id": "fx_job_merchant_mammonite",
+      "file": "effects/fx_job_merchant_mammonite.png",
+      "cell": [
+        352,
+        314
+      ],
+      "columns": 5,
+      "frames": 9,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.48,
+      "anchor": [
+        171.0,
+        272.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "10",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_merchant_mammonite)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "MC_MAMMONITE effectId 10 (EF_COIN): merchant with a money bag, coin burst"
+      }
+    },
+    {
+      "id": "fx_job_mage_cold_bolt",
+      "file": "effects/fx_job_mage_cold_bolt.png",
+      "cell": [
+        209,
+        414
+      ],
+      "columns": 6,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.4,
+      "anchor": [
+        98.7,
+        335.3
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "ef_coldbolt",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_mage_cold_bolt_projectile)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "MG_COLDBOLT beforeHitEffectId 'ef_coldbolt': ice bolts falling onto the target"
+      }
+    },
+    {
+      "id": "fx_job_swordman_provoke",
+      "file": "effects/fx_job_swordman_provoke.png",
+      "cell": [
+        386,
+        236
+      ],
+      "columns": 5,
+      "frames": 14,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 0.85,
+      "anchor": [
+        193.0,
+        205.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "67",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_swordman_provoke)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "SM_PROVOKE successEffectId 67"
+      }
+    },
+    {
+      "id": "fx_job_archer_improve_concentration",
+      "file": "effects/fx_job_archer_improve_concentration.png",
+      "cell": [
+        218,
+        210
+      ],
+      "columns": 6,
+      "frames": 6,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.38,
+      "anchor": [
+        105.0,
+        155.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "153",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_archer_improve_concentration)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "AC_CONCENTRATION effectId 153"
+      }
+    },
+    {
+      "id": "fx_job_acolyte_angelus",
+      "file": "effects/fx_job_acolyte_angelus.png",
+      "cell": [
+        224,
+        223
+      ],
+      "columns": 6,
+      "frames": 36,
+      "ms": 106.48,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.47,
+      "anchor": [
+        112.0,
+        154.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "41",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_acolyte_angelus)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "AL_ANGELUS effectId 41"
+      }
+    },
+    {
+      "id": "fx_job_blacksmith_hammer_fall",
+      "file": "effects/fx_job_blacksmith_hammer_fall.png",
+      "cell": [
+        447,
+        311
+      ],
+      "columns": 3,
+      "frames": 12,
+      "ms": 104.17,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.25,
+      "anchor": [
+        221.9,
+        200.2
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "102",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_blacksmith_hammer_fall)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "BS_HAMMERFALL effectId 102"
+      }
+    },
+    {
+      "id": "fx_job_priest_impositio_manus",
+      "file": "effects/fx_job_priest_impositio_manus.png",
+      "cell": [
+        190,
+        246
+      ],
+      "columns": 8,
+      "frames": 30,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.3,
+      "anchor": [
+        95.0,
+        215.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "84",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_priest_impositio_manus)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "PR_IMPOSITIO effectId 84"
+      }
+    },
+    {
+      "id": "fx_job_priest_magnus_exorcismus",
+      "file": "effects/fx_job_priest_magnus_exorcismus.png",
+      "cell": [
+        445,
+        347
+      ],
+      "columns": 3,
+      "frames": 12,
+      "ms": 256.94,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.3,
+      "anchor": [
+        223.3,
+        261.1
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "113",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_priest_magnus_exorcismus_cast)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "PR_MAGNUS effectId 113 (big cross with angels)"
+      }
+    },
+    {
+      "id": "fx_job_priest_lex_aeterna",
+      "file": "effects/fx_job_priest_lex_aeterna.png",
+      "cell": [
+        248,
+        337
+      ],
+      "columns": 5,
+      "frames": 20,
+      "ms": 112.5,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.13,
+      "anchor": [
+        109.2,
+        287.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "85",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_priest_lex_aeterna)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "PR_LEXAETERNA effectId 85"
+      }
+    },
+    {
+      "id": "fx_job_priest_kyrie_eleison",
+      "file": "effects/fx_job_priest_kyrie_eleison.png",
+      "cell": [
+        409,
+        403
+      ],
+      "columns": 3,
+      "frames": 9,
+      "ms": 212.96,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 0.98,
+      "anchor": [
+        222.6,
+        282.8
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "112",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_priest_kyrie_eleison)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "PR_KYRIE effectId 112"
+      }
+    },
+    {
+      "id": "fx_job_priest_assumptio",
+      "file": "effects/fx_job_priest_assumptio.png",
+      "cell": [
+        372,
+        430
+      ],
+      "columns": 3,
+      "frames": 9,
+      "ms": 259.26,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 0.93,
+      "anchor": [
+        140.7,
+        287.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "440",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_priest_assumptio)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "HP_ASSUMPTIO effectId 440"
+      }
+    },
+    {
+      "id": "fx_job_priest_magnificat",
+      "file": "effects/fx_job_priest_magnificat.png",
+      "cell": [
+        284,
+        207
+      ],
+      "columns": 5,
+      "frames": 20,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.41,
+      "anchor": [
+        142.8,
+        197.4
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "76",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_priest_magnificat)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "PR_MAGNIFICAT effectId 76"
+      }
+    },
+    {
+      "id": "fx_job_assassin_grimtooth",
+      "file": "effects/fx_job_assassin_grimtooth.png",
+      "cell": [
+        68,
+        176
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.7,
+      "anchor": [
+        31.0,
+        142.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "132",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_assassin_grimtooth)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "AS_GRIMTOOTH hitEffectId 132"
+      }
+    },
+    {
+      "id": "fx_job_assassin_venom_splasher",
+      "file": "effects/fx_job_assassin_venom_splasher.png",
+      "cell": [
+        258,
+        258
+      ],
+      "columns": 5,
+      "frames": 18,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.63,
+      "anchor": [
+        120.4,
+        191.1
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "129",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_assassin_venom_splasher)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "AS_SPLASHER effectId 129"
+      }
+    },
+    {
+      "id": "fx_job_knight_parrying",
+      "file": "effects/fx_job_knight_parrying.png",
+      "cell": [
+        104,
+        96
+      ],
+      "columns": 7,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 2.69,
+      "anchor": [
+        52.0,
+        94.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "336",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_knight_parrying)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "LK_PARRYING / CR_AUTOGUARD effectId 336"
+      }
+    },
+    {
+      "id": "fx_job_merchant_crazy_uproar",
+      "file": "effects/fx_job_merchant_crazy_uproar.png",
+      "cell": [
+        242,
+        246
+      ],
+      "columns": 8,
+      "frames": 9,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.34,
+      "anchor": [
+        117.0,
+        206.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "311",
+        "renderer": "owner scRO client: raw/ro-build/effects/p1 (fx_job_merchant_crazy_uproar)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "MC_LOUD effectId 311"
+      }
+    },
+    {
+      "id": "fx_job_mage_safety_wall",
+      "file": "effects/fx_job_mage_safety_wall.png",
+      "cell": [
+        190,
+        298
+      ],
+      "columns": 8,
+      "frames": 24,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.07,
+      "anchor": [
+        95.0,
+        246.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "315",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_job_mage_safety_wall)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "MG_SAFETYWALL EF_GLASSWALL2 315 (skill unit)"
+      }
+    },
+    {
+      "id": "fx_job_crusader_devotion",
+      "file": "effects/fx_job_crusader_devotion.png",
+      "cell": [
+        180,
+        136
+      ],
+      "columns": 8,
+      "frames": 14,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.67,
+      "anchor": [
+        90.0,
+        272.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "251",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_job_crusader_devotion)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "CR_DEVOTION effectId 251"
+      }
+    },
+    {
+      "id": "fx_job_rogue_strip_weapon",
+      "file": "effects/fx_job_rogue_strip_weapon.png",
+      "cell": [
+        58,
+        54
+      ],
+      "columns": 8,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "scale": 3.1,
+      "anchor": [
+        28.0,
+        148.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "269",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_job_rogue_strip_weapon)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "RG_STRIPWEAPON successEffectId 269: weapon icon flies off"
+      }
+    },
+    {
+      "id": "fx_job_rogue_strip_armor",
+      "file": "effects/fx_job_rogue_strip_armor.png",
+      "cell": [
+        66,
+        60
+      ],
+      "columns": 8,
+      "frames": 11,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "scale": 2.73,
+      "anchor": [
+        31.0,
+        153.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "271",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_job_rogue_strip_armor)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "RG_STRIPARMOR successEffectId 271: armor icon flies off"
+      }
+    },
+    {
+      "id": "fx_job_hunter_ankle_snare",
+      "file": "effects/fx_job_hunter_ankle_snare.png",
+      "cell": [
+        34,
+        28
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 83.33,
+      "loop": true,
+      "delayMs": 0,
+      "blend": "normal",
+      "scale": 3.53,
+      "anchor": [
+        17.0,
+        19.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "ef_trap_01",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_job_hunter_ankle_snare)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "HT_ANKLESNARE groundEffectId 'ef_anklesnare' (trap sprite ef_trap_01)"
+      }
+    },
+    {
+      "id": "fx_job_wizard_soul_drain",
+      "file": "effects/fx_job_wizard_soul_drain.png",
+      "cell": [
+        427,
+        315
+      ],
+      "columns": 3,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.22,
+      "anchor": [
+        175.7,
+        263.2
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "217",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_job_wizard_soul_drain)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "HW_SOULDRAIN effectIdOnCaster 217: orbs fly to the caster"
+      }
+    },
+    {
+      "id": "fx_job_blacksmith_adrenaline_rush",
+      "file": "effects/fx_job_blacksmith_adrenaline_rush.png",
+      "cell": [
+        342,
+        343
+      ],
+      "columns": 4,
+      "frames": 16,
+      "ms": 93.75,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.11,
+      "anchor": [
+        160.3,
+        188.3
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "str_adrenaline",
+        "renderer": "owner scRO client: raw/ro-build/effects/p5 (fx_job_blacksmith_adrenaline_rush)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "BS_ADRENALINE 98: client file adrenaline.str (roBrowser has only a FUNC)"
+      }
+    },
+    {
+      "id": "fx_job_knight_auto_counter",
+      "file": "effects/fx_job_knight_auto_counter.png",
+      "cell": [
+        260,
+        260
+      ],
+      "columns": 7,
+      "frames": 7,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.15,
+      "anchor": [
+        130.0,
+        156.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "str_autocounter",
+        "renderer": "owner scRO client: raw/ro-build/effects/p5 (fx_job_knight_auto_counter)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "KN_AUTOCOUNTER 131: client file autocounter.str (\"COUNTER!\")"
+      }
+    },
+    {
+      "id": "fx_job_alchemist_demonstration",
+      "file": "effects/fx_job_alchemist_demonstration.png",
+      "cell": [
+        72,
+        108
+      ],
+      "columns": 5,
+      "frames": 5,
+      "ms": 100,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "scale": 2.41,
+      "anchor": [
+        36.0,
+        95.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "sprite 데몬스트레이션",
+        "renderer": "owner scRO client: raw/ro-build/effects/p5 (fx_job_alchemist_demonstration)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "AM_DEMONSTRATION groundEffectId 302: sprite data/sprite/이팩트/데몬스트레이션"
+      }
+    },
+    {
+      "id": "fx_npc_poison",
+      "file": "effects/fx_npc_poison.png",
+      "cell": [
+        150,
+        132
+      ],
+      "columns": 3,
+      "frames": 3,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 2.6,
+      "anchor": [
+        74.0,
+        140.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "192",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_mob2_boss_rot_spores)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "NPC_POISON effectId 192 (monster poison attack)"
+      }
+    },
+    {
+      "id": "fx_npc_defender",
+      "file": "effects/fx_npc_defender.png",
+      "cell": [
+        120,
+        120
+      ],
+      "columns": 6,
+      "frames": 6,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 2.33,
+      "anchor": [
+        58.0,
+        123.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "213",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_mob_tank_guard)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "NPC_DEFENDER effectId 213 (monster defence)"
+      }
+    },
+    {
+      "id": "fx_npc_keeping",
+      "file": "effects/fx_npc_keeping.png",
+      "cell": [
+        96,
+        134
+      ],
+      "columns": 8,
+      "frames": 8,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 2.24,
+      "anchor": [
+        41.0,
+        126.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "214",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_mob_mastering_jelly_armor)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "NPC_KEEPING effectId 214 (monster stone guard)"
+      }
+    },
+    {
+      "id": "fx_npc_stun_attack",
+      "file": "effects/fx_npc_stun_attack.png",
+      "cell": [
+        232,
+        224
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "scale": 1.42,
+      "anchor": [
+        108.0,
+        227.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "194",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_mob_elite_smash)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "NPC_STUNATTACK effectId 194 (stars)"
+      }
+    },
+    {
+      "id": "fx_npc_dark_strike",
+      "file": "effects/fx_npc_dark_strike.png",
+      "cell": [
+        358,
+        334
+      ],
+      "columns": 4,
+      "frames": 4,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 0.92,
+      "anchor": [
+        131.0,
+        139.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "451",
+        "renderer": "owner scRO client: raw/ro-build/effects/p4 (fx_mob3_boss_nova)",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "NPC_DARKSTRIKE effectId 451"
+      }
+    },
+    {
+      "id": "fx_npc_earthquake",
+      "file": "effects/fx_npc_earthquake.png",
+      "cell": [
+        329,
+        167
+      ],
+      "columns": 4,
+      "frames": 31,
+      "ms": 25,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "scale": 1.76,
+      "anchor": [
+        155.4,
+        79.1
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "sprite 어스퀘이크",
+        "renderer": "owner scRO client: raw/ro-build/effects/p5 (fx_mob_boss1_quake)",
+        "scale": 1.0417,
+        "outputScale": 0.7,
+        "seed": 1,
+        "note": "NPC_EARTHQUAKE 666: sprite data/sprite/이팩트/어스퀘이크 (ground cracks)"
+      }
     }
   ],
   "skills": {
-    "alde_keeper_rewind": {
-      "debuff": "fx_job_sage_dispell"
+    "alde_clock_pendulum": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "alde_keeper_hands": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "alde_keeper_winding": {
+      "buff": "fx_npc_defender"
+    },
+    "alde_mimic_snap": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "alde_owl_baron_wings": {
+      "buff": "fx_npc_defender"
     },
     "guard_shield_wall": {
-      "buff": "fx_job_crusader_defender"
+      "buff": "fx_npc_defender"
     },
     "job_acolyte_angelus": {
-      "buff": "fx_job_crusader_defender"
+      "buff": "fx_job_acolyte_angelus"
     },
     "job_acolyte_blessing": {
       "buff": "fx_job_acolyte_blessing"
@@ -1223,31 +2075,40 @@
       "debuff": "fx_job_acolyte_signum_crucis"
     },
     "job_alchemist_demonstration": {
-      "hit": "fx_job_mage_fire_bolt"
+      "ground": "fx_job_alchemist_demonstration"
     },
-    "job_assassin_meteor_assault": {
-      "hit": "fx_job_merchant_cart_revolution"
+    "job_archer_improve_concentration": {
+      "buff": "fx_job_archer_improve_concentration"
+    },
+    "job_assassin_enchant_poison": {
+      "debuff": "fx_job_thief_envenom"
+    },
+    "job_assassin_grimtooth": {
+      "hit": "fx_job_assassin_grimtooth"
     },
     "job_assassin_sonic_blow": {
       "hit": "fx_job_assassin_sonic_blow"
     },
     "job_assassin_venom_splasher": {
-      "hit": "fx_job_thief_envenom"
+      "hit": "fx_job_assassin_venom_splasher"
     },
-    "job_blacksmith_cart_termination": {
-      "hit": "fx_job_merchant_cart_revolution"
+    "job_blacksmith_adrenaline_rush": {
+      "buff": "fx_job_blacksmith_adrenaline_rush"
     },
     "job_blacksmith_hammer_fall": {
-      "hit": "fx_job_merchant_cart_revolution"
-    },
-    "job_blacksmith_power_thrust": {
-      "buff": "fx_job_knight_two_hand_quicken"
+      "ground": "fx_job_blacksmith_hammer_fall"
     },
     "job_blacksmith_weapon_perfection": {
       "buff": "fx_job_blacksmith_weapon_perfection"
     },
+    "job_crusader_auto_guard": {
+      "buff": "fx_job_knight_parrying"
+    },
     "job_crusader_defender": {
       "buff": "fx_job_crusader_defender"
+    },
+    "job_crusader_devotion": {
+      "buff": "fx_job_crusader_devotion"
     },
     "job_crusader_grand_cross": {
       "ground": "fx_job_crusader_grand_cross"
@@ -1258,21 +2119,32 @@
     "job_crusader_shield_charge": {
       "hit": "fx_job_crusader_shield_charge"
     },
+    "job_hunter_ankle_snare": {
+      "ground": "fx_job_hunter_ankle_snare"
+    },
     "job_hunter_claymore_trap": {
       "hit": "fx_job_hunter_claymore_trap"
     },
     "job_hunter_sandman": {
       "debuff": "fx_job_hunter_sandman"
     },
+    "job_knight_auto_counter": {
+      "cast": "fx_job_knight_auto_counter"
+    },
     "job_knight_bowling_bash": {
       "cast": "fx_job_knight_bowling_bash"
+    },
+    "job_knight_parrying": {
+      "buff": "fx_job_knight_parrying"
     },
     "job_knight_two_hand_quicken": {
       "buff": "fx_job_knight_two_hand_quicken"
     },
     "job_mage_cold_bolt": {
-      "projectile": "fx_job_mage_frost_diver_release",
-      "hit": "fx_job_mage_frost_diver"
+      "hit": "fx_job_mage_cold_bolt"
+    },
+    "job_mage_energy_coat": {
+      "buff": "fx_shield"
     },
     "job_mage_fire_ball": {
       "hit": "fx_job_mage_fire_bolt",
@@ -1285,42 +2157,48 @@
       "hit": "fx_job_mage_frost_diver",
       "projectile": "fx_job_mage_frost_diver_spikes"
     },
+    "job_mage_safety_wall": {
+      "buff": "fx_job_mage_safety_wall"
+    },
     "job_mage_thunderstorm": {
       "hit": "fx_job_mage_thunderstorm"
     },
     "job_merchant_cart_revolution": {
       "hit": "fx_job_merchant_cart_revolution"
     },
+    "job_merchant_crazy_uproar": {
+      "buff": "fx_job_merchant_crazy_uproar"
+    },
     "job_merchant_mammonite": {
-      "hit": "fx_job_thief_steal"
-    },
-    "job_monk_asura_strike": {
-      "hit": "fx_job_hunter_claymore_trap"
-    },
-    "job_monk_steel_body": {
-      "buff": "fx_job_crusader_defender"
+      "hit": "fx_job_merchant_mammonite"
     },
     "job_priest_assumptio": {
-      "buff": "fx_job_acolyte_blessing"
+      "buff": "fx_job_priest_assumptio"
     },
     "job_priest_impositio_manus": {
-      "buff": "fx_job_knight_two_hand_quicken"
+      "buff": "fx_job_priest_impositio_manus"
+    },
+    "job_priest_kyrie_eleison": {
+      "buff": "fx_job_priest_kyrie_eleison"
     },
     "job_priest_lex_aeterna": {
-      "debuff": "fx_job_sage_dispell"
+      "debuff": "fx_job_priest_lex_aeterna"
+    },
+    "job_priest_magnificat": {
+      "buff": "fx_job_priest_magnificat"
     },
     "job_priest_magnus_exorcismus": {
-      "ground": "fx_job_crusader_grand_cross",
+      "ground": "fx_job_priest_magnus_exorcismus",
       "hit": "fx_job_acolyte_holy_light"
     },
     "job_rogue_gank": {
       "hit": "fx_job_thief_steal"
     },
     "job_rogue_strip_armor": {
-      "debuff": "fx_job_sage_dispell"
+      "debuff": "fx_job_rogue_strip_armor"
     },
     "job_rogue_strip_weapon": {
-      "debuff": "fx_job_sage_dispell"
+      "debuff": "fx_job_rogue_strip_weapon"
     },
     "job_sage_dispell": {
       "debuff": "fx_job_sage_dispell"
@@ -1328,11 +2206,11 @@
     "job_sage_earth_spike": {
       "hit": "fx_job_sage_earth_spike"
     },
-    "job_sage_heavens_drive": {
-      "hit": "fx_job_sage_earth_spike"
-    },
     "job_swordman_magnum_break": {
       "cast": "fx_job_swordman_magnum_break"
+    },
+    "job_swordman_provoke": {
+      "debuff": "fx_job_swordman_provoke"
     },
     "job_thief_envenom": {
       "hit": "fx_job_thief_envenom"
@@ -1341,8 +2219,7 @@
       "hit": "fx_job_thief_steal"
     },
     "job_thief_venom_knife": {
-      "projectile": "fx_job_thief_venom_knife_projectile",
-      "hit": "fx_job_thief_envenom"
+      "projectile": "fx_job_thief_venom_knife_projectile"
     },
     "job_wizard_frost_nova": {
       "hit": "fx_job_mage_frost_diver"
@@ -1355,112 +2232,141 @@
       "ground": "fx_job_wizard_meteor_storm",
       "hit": "fx_job_mage_fire_bolt"
     },
+    "job_wizard_soul_drain": {
+      "cast": "fx_job_wizard_soul_drain"
+    },
     "job_wizard_storm_gust": {
       "ground": "fx_job_wizard_storm_gust"
     },
     "mage_firestorm": {
       "hit": "fx_job_mage_fire_bolt"
     },
-    "maze_baphomet_curse": {
-      "debuff": "fx_job_acolyte_signum_crucis"
+    "maze_baphomet_bargain": {
+      "buff": "fx_npc_defender"
+    },
+    "maze_ghostring_fade": {
+      "buff": "fx_npc_defender"
     },
     "maze_scribe_seal": {
-      "debuff": "fx_job_sage_dispell"
+      "hit": "fx_npc_stun_attack"
     },
     "maze_side_winder_venom": {
-      "hit": "fx_job_thief_envenom"
+      "hit": "fx_npc_poison"
     },
-    "maze_vagabond_wolf_howl": {
-      "buff": "fx_swordman_endure"
+    "maze_stem_worm_grip": {
+      "hit": "fx_npc_stun_attack"
     },
     "mob2_boss_rot_spores": {
-      "hit": "fx_job_thief_envenom",
-      "debuff": "fx_job_hunter_sandman"
+      "hit": "fx_npc_poison"
     },
     "mob2_melee_bite": {
-      "hit": "fx_job_thief_envenom"
+      "hit": "fx_npc_poison"
     },
     "mob2_ranged_poison_arrow": {
-      "hit": "fx_job_thief_envenom"
+      "hit": "fx_npc_poison"
+    },
+    "mob2_tank_mire": {
+      "buff": "fx_npc_defender"
     },
     "mob3_boss_nova": {
-      "debuff": "fx_job_sage_dispell"
+      "hit": "fx_npc_dark_strike"
     },
-    "mob4_boss_ult": {
-      "ground": "fx_job_crusader_grand_cross",
-      "debuff": "fx_job_sage_dispell"
+    "mob3_elite_cleave": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "mob3_tank_guard": {
+      "buff": "fx_npc_defender"
     },
     "mob4_boss_wrappings": {
-      "buff": "fx_job_crusader_defender"
+      "buff": "fx_npc_defender"
     },
     "mob4_isis_blessing": {
       "buff": "fx_job_acolyte_blessing"
     },
-    "mob4_mummy_curse": {
-      "debuff": "fx_job_sage_dispell"
+    "mob4_sandman_sand_wall": {
+      "buff": "fx_npc_defender"
     },
     "mob4_scorpion_sting": {
-      "hit": "fx_job_thief_envenom"
+      "hit": "fx_npc_poison"
     },
-    "mob5_boss_moon_call": {
-      "hit": "fx_job_acolyte_holy_light"
+    "mob5_bongun_hop": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "mob5_boss_moon_veil": {
+      "buff": "fx_npc_defender"
     },
     "mob5_horong_foxfire": {
-      "projectile": "fx_job_mage_fire_ball_projectile",
       "hit": "fx_job_mage_fire_bolt"
     },
-    "mob5_munak_elder_seal": {
-      "debuff": "fx_job_sage_dispell"
-    },
     "mob5_munak_talisman": {
-      "buff": "fx_job_crusader_defender"
-    },
-    "mob6_boss_ghost_cannons": {
-      "hit": "fx_job_hunter_claymore_trap"
+      "buff": "fx_npc_defender"
     },
     "mob6_bosun_all_hands": {
       "buff": "fx_job_acolyte_increase_agi"
     },
+    "mob6_bosun_anchor": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "mob6_elite_tentacles": {
+      "hit": "fx_npc_stun_attack"
+    },
     "mob6_tank_shell": {
-      "buff": "fx_job_crusader_defender"
+      "buff": "fx_npc_defender"
+    },
+    "mob7_boss_bell_ward": {
+      "buff": "fx_npc_defender"
     },
     "mob7_boss_dark_chains": {
-      "debuff": "fx_job_sage_dispell"
+      "hit": "fx_npc_stun_attack"
     },
     "mob7_boss_meteor_storm": {
       "ground": "fx_job_wizard_meteor_storm",
       "hit": "fx_job_mage_fire_bolt"
     },
+    "mob7_bridge_warden_ward": {
+      "buff": "fx_npc_defender"
+    },
+    "mob7_tank_noose": {
+      "hit": "fx_npc_stun_attack"
+    },
     "mob_boss1_quake": {
-      "hit": "fx_job_sage_earth_spike"
+      "ground": "fx_npc_earthquake"
     },
     "mob_boss2_curse": {
-      "hit": "fx_job_thief_envenom",
-      "debuff": "fx_job_sage_dispell"
+      "hit": "fx_npc_poison"
     },
-    "mob_lord_of_death_review": {
-      "buff": "fx_swordman_endure"
+    "mob_elite_smash": {
+      "hit": "fx_npc_stun_attack"
     },
     "mob_mastering_jelly_armor": {
-      "buff": "fx_job_crusader_defender"
+      "buff": "fx_npc_keeping"
     },
     "mob_poporing_goo": {
-      "hit": "fx_job_thief_envenom"
+      "hit": "fx_npc_poison"
+    },
+    "mob_pupa_harden": {
+      "buff": "fx_npc_defender"
+    },
+    "mob_rocker_kick": {
+      "hit": "fx_npc_stun_attack"
+    },
+    "mob_tank_guard": {
+      "buff": "fx_npc_defender"
     },
     "orc_high_war_hide": {
-      "buff": "fx_job_knight_two_hand_quicken"
+      "buff": "fx_npc_defender"
     },
-    "orc_lady_war_drum": {
-      "buff": "fx_swordman_endure"
+    "orc_skeleton_ancestor_blow": {
+      "hit": "fx_npc_stun_attack"
     },
     "orc_zombie_grave_bite": {
-      "hit": "fx_job_thief_envenom"
+      "hit": "fx_npc_poison"
     },
-    "sewer_golden_bug_coin_rain": {
-      "hit": "fx_job_thief_steal"
+    "sewer_bug_egg_shell": {
+      "buff": "fx_npc_defender"
     },
     "sewer_plankton_spit": {
-      "hit": "fx_job_thief_envenom"
+      "hit": "fx_npc_poison"
     },
     "swordman_bash": {
       "cast": "fx_swordman_bash"

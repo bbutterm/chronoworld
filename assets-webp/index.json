@@ -19,6 +19,11 @@
   "png": 141360,
   "webp": 106332
  },
+ "effects/fx_job_acolyte_angelus.png": {
+  "sha1": "1a35169158323f11aa492dc6e7634a1ca91a6b9f",
+  "png": 281434,
+  "webp": 191440
+ },
  "effects/fx_job_acolyte_blessing.png": {
   "sha1": "9ee7c4ed85a73fd7c151f5746c118ad1d95ff590",
   "png": 84028,
@@ -44,15 +49,45 @@
   "png": 4710,
   "webp": 4110
  },
+ "effects/fx_job_alchemist_demonstration.png": {
+  "sha1": "f822f2889f25680c45db3ef9ddd0e6e1e01bdd7d",
+  "png": 40278,
+  "webp": 26032
+ },
  "effects/fx_job_archer_arrow_shower_source.png": {
   "sha1": "c30f69dccfb7771086c23caab3aa191e0c2f7919",
   "png": 8074,
   "webp": 5438
  },
+ "effects/fx_job_archer_improve_concentration.png": {
+  "sha1": "d1a6b4e51c727dfd46208e7d6131d780c71a9202",
+  "png": 162562,
+  "webp": 107182
+ },
+ "effects/fx_job_assassin_grimtooth.png": {
+  "sha1": "b170d9b2367642550bbf5d235aa5610b845f72cd",
+  "png": 36023,
+  "webp": 16760
+ },
  "effects/fx_job_assassin_sonic_blow.png": {
   "sha1": "cb5bf0e754e5cbff415f4ccd3b7783981d818552",
   "png": 182268,
   "webp": 123700
+ },
+ "effects/fx_job_assassin_venom_splasher.png": {
+  "sha1": "ea0d079708558ad96b7d5bb1f8d8dc11119b4fa1",
+  "png": 519835,
+  "webp": 409514
+ },
+ "effects/fx_job_blacksmith_adrenaline_rush.png": {
+  "sha1": "1ce87839b85e96ff49622ad337a06e4173acb6da",
+  "png": 323419,
+  "webp": 272562
+ },
+ "effects/fx_job_blacksmith_hammer_fall.png": {
+  "sha1": "d9afbfb0434bb25c2a202ba79fa2c959507d75b5",
+  "png": 508729,
+  "webp": 401662
  },
  "effects/fx_job_blacksmith_weapon_perfection.png": {
   "sha1": "e08adaff9cd55c6269826b0e3a62cd10ede15f3c",
@@ -63,6 +98,11 @@
   "sha1": "6f098c99048f5ff3d523d0376286a0f3a8397360",
   "png": 157321,
   "webp": 90376
+ },
+ "effects/fx_job_crusader_devotion.png": {
+  "sha1": "61382f627d739e358ef46c2b49d9daf15ef8871b",
+  "png": 112917,
+  "webp": 84392
  },
  "effects/fx_job_crusader_grand_cross.png": {
   "sha1": "219ae9a8ddeeb80b4ad4d7dc709b7481582954df",
@@ -79,6 +119,11 @@
   "png": 81403,
   "webp": 62946
  },
+ "effects/fx_job_hunter_ankle_snare.png": {
+  "sha1": "be8ab8a75ce734571ee83fbe20183ed02148d2ae",
+  "png": 2481,
+  "webp": 1726
+ },
  "effects/fx_job_hunter_claymore_trap.png": {
   "sha1": "8d41355537231de15a085edb700fc2633dc66a8b",
   "png": 334036,
@@ -89,15 +134,30 @@
   "png": 553642,
   "webp": 383054
  },
+ "effects/fx_job_knight_auto_counter.png": {
+  "sha1": "2bbf771b02bb257c7e54228b2346c6bb925b0cd3",
+  "png": 515853,
+  "webp": 411710
+ },
  "effects/fx_job_knight_bowling_bash.png": {
   "sha1": "f04c76c264695ebfcdcb6543e33a7a4d6e754b5e",
   "png": 103830,
   "webp": 73638
  },
+ "effects/fx_job_knight_parrying.png": {
+  "sha1": "412dc18b159da1fffd601e6408f146e1ebe80bc3",
+  "png": 50645,
+  "webp": 32998
+ },
  "effects/fx_job_knight_two_hand_quicken.png": {
   "sha1": "74dd73169c5a03920c3f26ee092f285d32268c42",
   "png": 197877,
   "webp": 151752
+ },
+ "effects/fx_job_mage_cold_bolt.png": {
+  "sha1": "c8cd0eb9c9b44e64db8372e479341192e4aac500",
+  "png": 131723,
+  "webp": 99024
  },
  "effects/fx_job_mage_fire_ball_projectile.png": {
   "sha1": "1bfbaa3f97debff667d2c69811159762985735c1",
@@ -119,6 +179,11 @@
   "png": 23805,
   "webp": 19222
  },
+ "effects/fx_job_mage_safety_wall.png": {
+  "sha1": "566d37071474022226a1ef0176e4876ae8f42682",
+  "png": 510419,
+  "webp": 362188
+ },
  "effects/fx_job_mage_thunderstorm.png": {
   "sha1": "fcb36cf7f7d9cf3605e5d98c0cd4ab2b878463ef",
   "png": 804665,
@@ -128,6 +193,56 @@
   "sha1": "e5aeac40f3393927c0ae23d386fbb7a40071d42a",
   "png": 188472,
   "webp": 147562
+ },
+ "effects/fx_job_merchant_crazy_uproar.png": {
+  "sha1": "77c9ecdbc89acf0962b4f6fea4c7c2a7ef8d9341",
+  "png": 156744,
+  "webp": 105838
+ },
+ "effects/fx_job_merchant_mammonite.png": {
+  "sha1": "e29968ae8997f88a94d3abc924e351fa38f4fc3d",
+  "png": 305960,
+  "webp": 238212
+ },
+ "effects/fx_job_priest_assumptio.png": {
+  "sha1": "11bf5bff0ee04287af8e6d5f5025fd13c1b5b325",
+  "png": 302261,
+  "webp": 229228
+ },
+ "effects/fx_job_priest_impositio_manus.png": {
+  "sha1": "089908205f037a6b92b1f4414e243829a0ba2e73",
+  "png": 591824,
+  "webp": 486724
+ },
+ "effects/fx_job_priest_kyrie_eleison.png": {
+  "sha1": "2758d43e3f6c9eb2065651aee1946603ee22beaa",
+  "png": 418112,
+  "webp": 297294
+ },
+ "effects/fx_job_priest_lex_aeterna.png": {
+  "sha1": "08f485992adf3cd626c08791bc1eff262e668d80",
+  "png": 554513,
+  "webp": 444726
+ },
+ "effects/fx_job_priest_magnificat.png": {
+  "sha1": "5c831c59f58f244878e2df517f9b94f7cc3dc498",
+  "png": 614195,
+  "webp": 517550
+ },
+ "effects/fx_job_priest_magnus_exorcismus.png": {
+  "sha1": "04dcab043ffcea851b66887a626433e732985fb5",
+  "png": 633757,
+  "webp": 484422
+ },
+ "effects/fx_job_rogue_strip_armor.png": {
+  "sha1": "827f298e898dc00db07f2e558479c12e739f8fbf",
+  "png": 27188,
+  "webp": 22430
+ },
+ "effects/fx_job_rogue_strip_weapon.png": {
+  "sha1": "6c0e3378029f993cc8a53da45b25155123b434ed",
+  "png": 15181,
+  "webp": 11406
  },
  "effects/fx_job_sage_dispell.png": {
   "sha1": "b99d19e059335dcacff665217c26b9c120ef9fa1",
@@ -153,6 +268,11 @@
   "sha1": "f4581f4e4b1c199a03fd9d8262b4dd158996bd1a",
   "png": 123386,
   "webp": 88470
+ },
+ "effects/fx_job_swordman_provoke.png": {
+  "sha1": "296fd9e0e2ec850ba0353261153cb7011546cdf3",
+  "png": 680340,
+  "webp": 469260
  },
  "effects/fx_job_thief_envenom.png": {
   "sha1": "82ee3988db8f474140488140896a86637d741017",
@@ -184,6 +304,11 @@
   "png": 742878,
   "webp": 547318
  },
+ "effects/fx_job_wizard_soul_drain.png": {
+  "sha1": "182702252c587384bddd4a93c9023dcf9cc88193",
+  "png": 189585,
+  "webp": 81518
+ },
  "effects/fx_job_wizard_storm_gust.png": {
   "sha1": "ff853b04162b2365e83881f0bd960716758c0d88",
   "png": 2076575,
@@ -193,6 +318,36 @@
   "sha1": "47203f031fa5917623d1e5f1996e162b2326fbe3",
   "png": 50919,
   "webp": 32664
+ },
+ "effects/fx_npc_dark_strike.png": {
+  "sha1": "ba99914232f536dd7cf9d496698103112a6d51df",
+  "png": 166136,
+  "webp": 90548
+ },
+ "effects/fx_npc_defender.png": {
+  "sha1": "02a6d6d38c65b64c931160b9ae65f95643d385c3",
+  "png": 52137,
+  "webp": 40294
+ },
+ "effects/fx_npc_earthquake.png": {
+  "sha1": "53d1ccd7bd085d54fdf9221dcfab74cbe8c2e811",
+  "png": 643856,
+  "webp": 510988
+ },
+ "effects/fx_npc_keeping.png": {
+  "sha1": "d60c0327dd72779d6ec50ff70d3e13f590c305f5",
+  "png": 83927,
+  "webp": 72964
+ },
+ "effects/fx_npc_poison.png": {
+  "sha1": "1e6488a729562bda0bb70ba60499aa0b47e24774",
+  "png": 48357,
+  "webp": 33626
+ },
+ "effects/fx_npc_stun_attack.png": {
+  "sha1": "703849776ed1143f6e9e896435c123b3f76f2cf7",
+  "png": 35530,
+  "webp": 20036
  },
  "effects/fx_shield.png": {
   "sha1": "cbb57fccf7661c5fd897c466ce5aedcd29624e57",
