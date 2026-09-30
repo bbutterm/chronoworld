@@ -1020,9 +1020,10 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     const n = Math.hypot(dx, dy) || 1;
     dx /= n;
     dy /= n;
-    // Отходит на свободное место — вдвое дальше обычного зазора от других фигур (не в соседа по тылу, не в новую кучу).
-    const spot = findSpot(u, u.x, u.y, dx, dy, k.step, null, 0, minSep * 2);
-    if (clearance(u, null, spot.x, spot.y) < minSep * 2) return false;
+    // Отходит на свободное место — втрое дальше обычного зазора от других фигур (не к соседу по тылу, не в новую кучу).
+    const kiteSep = minSep * 3;
+    const spot = findSpot(u, u.x, u.y, dx, dy, k.step, null, 0, kiteSep);
+    if (clearance(u, null, spot.x, spot.y) < kiteSep) return false;
     // Упёрся в край или угол — не пятится на месте.
     if (Math.hypot(spot.x - threat.x, spot.y - threat.y) - d < k.minGain) return false;
     u.moving = null;

@@ -35,15 +35,16 @@
   "phases": [
     {
       "atHpPct": 0.5,
-      "title": "Королевская свита",
+      "title": "Королевский гнев",
       "bark": "half",
       "actions": [
         {
-          "type": "summon",
-          "unit": "mob_poporing",
-          "count": 2,
-          "hp": 0.12,
-          "atk": 0.45
+          "type": "shield",
+          "pctMaxHp": 0.15
+        },
+        {
+          "type": "energy",
+          "amount": 100
         }
       ]
     },

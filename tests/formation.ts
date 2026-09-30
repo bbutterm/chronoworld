@@ -52,14 +52,20 @@ export function sampleBattle(r: BattleResult, cfg: CombatConfig, onTick: (pts: n
     return [m.from[0] + (m.to[0] - m.from[0]) * k, m.from[1] + (m.to[1] - m.from[1]) * k];
   };
   const dead = new Set<string>();
+  // Свита фаз босса (spawn) — на поле с момента появления.
+  const present = r.units.map((u) => u.uid);
   let i = 0;
   for (let t = 0; t <= r.duration + 1e-9; t = Math.round((t + cfg.tickSeconds) * 1000) / 1000) {
     while (i < r.log.length && r.log[i].t <= t + 1e-9) {
       const e = r.log[i++];
+      if (e.type === 'spawn') {
+        mv[e.unit] = { from: [e.x, e.y], to: [e.x, e.y], t0: e.t, dur: 0 };
+        present.push(e.unit);
+      }
       if (e.type === 'move') mv[e.unit] = { from: pos(e.unit, e.t), to: e.to, t0: e.t, dur: e.duration };
       if (e.type === 'death') dead.add(e.unit);
     }
-    onTick(r.units.filter((u) => !dead.has(u.uid)).map((u) => pos(u.uid, t)));
+    onTick(present.filter((u) => !dead.has(u)).map((u) => pos(u, t)));
   }
 }
 
