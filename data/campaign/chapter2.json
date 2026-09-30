@@ -26,17 +26,17 @@
       "enemies": [
         {
           "unit": "sewer_thief_bug",
-          "mult": 1.22
+          "mult": 1.122
         },
         {
           "unit": "sewer_bug_egg",
-          "mult": 1.22
+          "mult": 1.122
         },
         null,
         null,
         {
           "unit": "sewer_plankton",
-          "mult": 1.22
+          "mult": 1.122
         }
       ],
       "rewards": {
@@ -66,20 +66,20 @@
       "enemies": [
         {
           "unit": "sewer_thief_bug",
-          "mult": 0.97
+          "mult": 0.8924
         },
         {
           "unit": "sewer_bug_egg",
-          "mult": 0.99
+          "mult": 0.9108
         },
         {
           "unit": "sewer_thief_bug",
-          "mult": 0.97
+          "mult": 0.8924
         },
         null,
         {
           "unit": "sewer_plankton",
-          "mult": 0.97
+          "mult": 0.8924
         }
       ],
       "rewards": {
@@ -98,20 +98,20 @@
       "enemies": [
         {
           "unit": "sewer_thief_bug",
-          "mult": 0.95
+          "mult": 0.874
         },
         {
           "unit": "sewer_bug_egg",
-          "mult": 0.95
+          "mult": 0.874
         },
         {
           "unit": "sewer_tarou",
-          "mult": 0.95
+          "mult": 0.874
         },
         null,
         {
           "unit": "sewer_plankton",
-          "mult": 0.95
+          "mult": 0.874
         }
       ],
       "rewards": {
@@ -131,20 +131,20 @@
       "enemies": [
         {
           "unit": "sewer_bug_egg",
-          "mult": 1.28
+          "mult": 1.178
         },
         {
           "unit": "sewer_thief_bug",
-          "mult": 1.28
+          "mult": 1.178
         },
         null,
         {
           "unit": "sewer_bug_female",
-          "mult": 1.28
+          "mult": 1.178
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.28
+          "mult": 1.178
         }
       ],
       "rewards": {
@@ -163,23 +163,23 @@
       "enemies": [
         {
           "unit": "sewer_tarou",
-          "mult": 0.99
+          "mult": 0.9108
         },
         {
           "unit": "sewer_bug_egg",
-          "mult": 1.43
+          "mult": 1.316
         },
         {
           "unit": "sewer_familiar",
-          "mult": 1.43
+          "mult": 1.316
         },
         {
           "unit": "sewer_tarou",
-          "mult": 0.99
+          "mult": 0.9108
         },
         {
           "unit": "sewer_tarou",
-          "mult": 0.99
+          "mult": 0.9108
         }
       ],
       "rewards": {
@@ -199,23 +199,23 @@
       "enemies": [
         {
           "unit": "sewer_tarou",
-          "mult": 1.65
+          "mult": 1.518
         },
         {
           "unit": "sewer_bug_egg",
-          "mult": 1.87
+          "mult": 1.72
         },
         {
           "unit": "sewer_tarou",
-          "mult": 1.65
+          "mult": 1.518
         },
         {
           "unit": "sewer_familiar",
-          "mult": 1.65
+          "mult": 1.518
         },
         {
           "unit": "sewer_familiar",
-          "mult": 1.65
+          "mult": 1.518
         }
       ],
       "rewards": {
@@ -234,20 +234,20 @@
       "enemies": [
         {
           "unit": "sewer_bug_egg",
-          "mult": 2.03
+          "mult": 1.868
         },
         {
           "unit": "sewer_thief_bug",
-          "mult": 2.03
+          "mult": 1.868
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.66
+          "mult": 1.527
         },
         null,
         {
           "unit": "sewer_plankton",
-          "mult": 1.66
+          "mult": 1.527
         }
       ],
       "rewards": {
@@ -267,23 +267,23 @@
       "enemies": [
         {
           "unit": "sewer_tarou",
-          "mult": 1.05
+          "mult": 0.966
         },
         {
           "unit": "sewer_bug_leader",
-          "mult": 1.437
+          "mult": 1.322
         },
         {
           "unit": "sewer_tarou",
-          "mult": 1.05
+          "mult": 0.966
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.05
+          "mult": 0.966
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.05
+          "mult": 0.966
         }
       ],
       "rewards": {
@@ -302,19 +302,19 @@
       "enemies": [
         {
           "unit": "sewer_bug_male",
-          "mult": 1.63
+          "mult": 1.5
         },
         {
           "unit": "sewer_thief_bug",
-          "mult": 1.63
+          "mult": 1.5
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.63
+          "mult": 1.5
         },
         {
           "unit": "sewer_tarou",
-          "mult": 1.63
+          "mult": 1.5
         },
         null
       ],
@@ -345,23 +345,23 @@
       "enemies": [
         {
           "unit": "sewer_thief_bug",
-          "mult": 1.51
+          "mult": 1.389
         },
         {
           "unit": "sewer_bug_egg",
-          "mult": 1.56
+          "mult": 1.435
         },
         {
           "unit": "sewer_tarou",
-          "mult": 1.51
+          "mult": 1.389
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.51
+          "mult": 1.389
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.51
+          "mult": 1.389
         }
       ],
       "rewards": {
@@ -390,23 +390,23 @@
       "enemies": [
         {
           "unit": "sewer_bug_egg",
-          "mult": 1.03
+          "mult": 0.9476
         },
         {
           "unit": "sewer_bug_egg",
-          "mult": 1.03
+          "mult": 0.9476
         },
         {
           "unit": "sewer_plankton",
-          "mult": 2.1
+          "mult": 1.932
         },
         {
           "unit": "sewer_tarou",
-          "mult": 2.1
+          "mult": 1.932
         },
         {
           "unit": "sewer_plankton",
-          "mult": 2.1
+          "mult": 1.932
         }
       ],
       "rewards": {
@@ -426,23 +426,23 @@
       "enemies": [
         {
           "unit": "sewer_bug_egg",
-          "mult": 1.86
+          "mult": 1.711
         },
         {
           "unit": "sewer_familiar",
-          "mult": 1.69
+          "mult": 1.555
         },
         {
           "unit": "sewer_familiar",
-          "mult": 1.69
+          "mult": 1.555
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.69
+          "mult": 1.555
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.69
+          "mult": 1.555
         }
       ],
       "rewards": {
@@ -461,23 +461,23 @@
       "enemies": [
         {
           "unit": "sewer_bug_egg",
-          "mult": 1.59
+          "mult": 1.463
         },
         {
           "unit": "sewer_thief_bug",
-          "mult": 1.59
+          "mult": 1.463
         },
         {
           "unit": "sewer_thief_bug",
-          "mult": 1.59
+          "mult": 1.463
         },
         {
           "unit": "sewer_tarou",
-          "mult": 1.59
+          "mult": 1.463
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.59
+          "mult": 1.463
         }
       ],
       "rewards": {
@@ -507,23 +507,23 @@
       "enemies": [
         {
           "unit": "sewer_thief_bug",
-          "mult": 1.52
+          "mult": 1.398
         },
         {
           "unit": "sewer_bug_male",
-          "mult": 1.52
+          "mult": 1.398
         },
         {
           "unit": "sewer_thief_bug",
-          "mult": 1.52
+          "mult": 1.398
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.52
+          "mult": 1.398
         },
         {
           "unit": "mob_marin",
-          "mult": 1.52
+          "mult": 1.398
         }
       ],
       "rewards": {
@@ -542,23 +542,23 @@
       "enemies": [
         {
           "unit": "sewer_bug_male",
-          "mult": 0.99
+          "mult": 0.9108
         },
         {
           "unit": "sewer_bug_male",
-          "mult": 0.99
+          "mult": 0.9108
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.6
+          "mult": 1.472
         },
         {
           "unit": "sewer_tarou",
-          "mult": 1.6
+          "mult": 1.472
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.6
+          "mult": 1.472
         }
       ],
       "rewards": {
@@ -578,23 +578,23 @@
       "enemies": [
         {
           "unit": "sewer_thief_bug",
-          "mult": 1.62
+          "mult": 1.49
         },
         {
           "unit": "sewer_bug_egg",
-          "mult": 1.35
+          "mult": 1.242
         },
         {
           "unit": "sewer_thief_bug",
-          "mult": 1.62
+          "mult": 1.49
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.62
+          "mult": 1.49
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.62
+          "mult": 1.49
         }
       ],
       "rewards": {
@@ -613,23 +613,23 @@
       "enemies": [
         {
           "unit": "sewer_bug_male",
-          "mult": 0.96
+          "mult": 0.8832
         },
         {
           "unit": "sewer_bug_egg",
-          "mult": 0.96
+          "mult": 0.8832
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.96
+          "mult": 1.803
         },
         {
           "unit": "sewer_thief_bug",
-          "mult": 0.96
+          "mult": 0.8832
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.96
+          "mult": 1.803
         }
       ],
       "rewards": {
@@ -648,23 +648,23 @@
       "enemies": [
         {
           "unit": "sewer_bug_egg",
-          "mult": 0.4
+          "mult": 0.368
         },
         {
           "unit": "sewer_golden_bug",
-          "mult": 0.8
+          "mult": 0.736
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.45
+          "mult": 1.334
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.45
+          "mult": 1.334
         },
         {
           "unit": "sewer_plankton",
-          "mult": 1.45
+          "mult": 1.334
         }
       ],
       "rewards": {
