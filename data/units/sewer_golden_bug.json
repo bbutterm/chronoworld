@@ -33,13 +33,9 @@
       "bark": "half",
       "actions": [
         {
-          "type": "energy",
-          "amount": 100
-        },
-        {
           "type": "summon",
           "unit": "sewer_thief_bug",
-          "count": 2,
+          "count": 1,
           "hp": 0.1,
           "atk": 0.4
         }
@@ -56,8 +52,8 @@
             "name": "Ярость",
             "turns": 99,
             "stats": {
-              "atk": 0.25,
-              "spd": 0.15
+              "atk": 0.15,
+              "spd": 0.1
             }
           }
         }

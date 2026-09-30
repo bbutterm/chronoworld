@@ -13,7 +13,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildUnit, enemySquad, recommendedFactor, recommendedHeroLevel, simulateBattle, type CardRarity, type UnitDef } from '../src/core';
+import { buildUnit, enemySquad, recommendedFactor, recommendedHeroLevel, simulateBattle, stageLevels, type CardRarity, type UnitDef } from '../src/core';
 import { ROOT } from './lib/content-node';
 import { loadFullContext, referenceLevel, scaledEnemies, SMOOTH_SQUADS, smoothSquads, stageThreshold, type FullContext } from './lib/player-model';
 
@@ -130,32 +130,34 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const lv = ctx.features.power.levels!;
     for (const s of ctx.content.stages.filter((x) => x.boss && x.globalIndex > 10)) {
       const battle = referenceLevel(s.id, ctx, 8);
-      const recAt = (k: number) => {
-        const c = { ...ctx, features: { ...ctx.features, power: { ...ctx.features.power, recommendedStages: { ...ctx.features.power.recommendedStages, [s.id]: k }, levels: { ...lv, bands: lv.bands.map((b) => ({ ...b, gear: 0 })) } } } };
-        return recommendedHeroLevel(s.id, c).level;
+      // Ошибка коэффициента k: наибольшее из |рекомендуем − по бою| и |уровень босса − по бою| (оба от k; рекомендация
+      // между редкостями скачет — поэтому перебор сеткой, а не двоичный поиск).
+      const err = (k: number) => {
+        const c = { ...ctx, features: { ...ctx.features, power: { ...ctx.features.power, recommendedStages: { ...ctx.features.power.recommendedStages, [s.id]: k } } } };
+        const cn = { ...c, features: { ...c.features, power: { ...c.features.power, levels: { ...lv, bands: lv.bands.map((b) => ({ ...b, gear: 0 })) } } } };
+        const rec = recommendedHeroLevel(s.id, cn).level;
+        const boss = stageLevels(s.id, c).boss ?? rec;
+        return { rec, boss, e: Math.max(Math.abs(rec - battle), Math.abs(boss - battle)) };
       };
       const cur = recommendedFactor(s.id, ctx);
-      const before = recAt(cur);
-      if (Math.abs(before - battle) <= 2) {
-        console.log(`${s.id}: рекомендуем ${before}, по бою ${battle} — как есть (${cur})`);
+      const before = err(cur);
+      if (before.e <= 2) {
+        console.log(`${s.id}: рекомендуем ${before.rec}, босс ${before.boss}, по бою ${battle} — как есть (${cur})`);
         continue;
       }
-      let lo = cur / 3;
-      let hi = cur * 3;
-      for (let i = 0; i < 30; i++) {
-        const mid = Math.sqrt(lo * hi);
-        if (recAt(mid) < battle) lo = mid;
-        else hi = mid;
-      }
-      const k = Math.round(hi * 100) / 100;
-      console.log(`${s.id}: рекомендуем ${before} → ${recAt(k)}, по бою ${battle}; коэффициент ${cur} → ${k}`);
+      let k = cur;
+      for (let x = 0.3; x <= 1.6; x += 0.01) if (err(x).e < err(k).e) k = Math.round(x * 100) / 100;
+      const after = err(k);
+      console.log(`${s.id}: рекомендуем ${before.rec} → ${after.rec}, босс ${before.boss} → ${after.boss}, по бою ${battle}; коэффициент ${cur} → ${k}`);
       const re = new RegExp(`("${s.id}": )[0-9.]+`);
       text = re.test(text) ? text.replace(re, `$1${k}`) : text.replace('"recommendedStages": {', `"recommendedStages": {\n      "${s.id}": ${k},`);
     }
     writeFileSync(file, text);
   } else if (arg('scale')) {
     // Ручная поправка: --scale ch1_s10=1.06,ch4_s10=1.1 — mult всех врагов этапа × k.
+    // Ключ — id этапа или главы (chapter5=0.95 — все этапы главы).
     const want = new Map(arg('scale')!.split(',').map((kv) => [kv.split('=')[0], Number(kv.split('=')[1])] as const));
+    for (const s of ctx.content.stages) if (want.has(s.chapter)) want.set(s.id, (want.get(s.id) ?? 1) * want.get(s.chapter)!);
     for (const c of ctx.content.chapters) {
       const file = join(ROOT, 'data/campaign', `${c.id}.json`);
       const raw = JSON.parse(readFileSync(file, 'utf8'));

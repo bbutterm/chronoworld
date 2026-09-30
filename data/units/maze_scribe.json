@@ -38,8 +38,8 @@
       "bark": "half",
       "actions": [
         {
-          "type": "energy",
-          "amount": 100
+          "type": "shield",
+          "pctMaxHp": 0.15
         }
       ]
     }

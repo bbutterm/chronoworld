@@ -39,13 +39,9 @@
       "bark": "half",
       "actions": [
         {
-          "type": "shield",
-          "pctMaxHp": 0.15
-        },
-        {
           "type": "summon",
           "unit": "mob5_fast",
-          "count": 2,
+          "count": 1,
           "hp": 0.1,
           "atk": 0.4
         }

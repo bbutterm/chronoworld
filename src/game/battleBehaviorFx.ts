@@ -119,7 +119,8 @@ function dashed(g: Phaser.GameObjects.Graphics, x0: number, y0: number, x1: numb
  * barX — левый край полосы, w — ширина, y — центр.
  */
 export function phaseNotches(scene: Phaser.Scene, barX: number, w: number, y: number, pcts: number[]): Phaser.GameObjects.Graphics {
-  const g = scene.add.graphics();
+  // Поверх подписи полосы (имя босса стоит ровно на середине — на засечке 50%).
+  const g = scene.add.graphics().setDepth(1);
   for (const p of pcts) {
     const x = barX + w * p;
     g.fillStyle(0x000000, 0.8).fillRect(x - 4, y - 22, 8, 44);

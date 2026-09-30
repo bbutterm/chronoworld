@@ -44,7 +44,8 @@ const MATCH = {
   кайт: (e) => e.type === 'move' && e.reason === 'kite',
   страж: (e) => e.type === 'move' && e.reason === 'intercept',
   провокация: (e) => e.type === 'status' && e.taunt === true,
-  связь: (e) => e.type === 'link' && e.action === 'apply',
+  // Связь — после баннера босса (первые секунды поле затемнено).
+  связь: (e) => e.type === 'link' && e.action === 'apply' && e.t >= 4,
   фаза: (e) => e.type === 'phase',
 };
 
