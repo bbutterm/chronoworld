@@ -160,18 +160,23 @@ export class BehaviorFx {
       const x = u.node.x;
       const y = u.node.y;
       const pulse = 0.5 + 0.5 * Math.sin(this.clock / 260);
-      g.fillStyle(a.color, 0.09 + 0.04 * pulse).fillEllipse(x, y, a.r * 2, a.r * 2 * SQ);
-      g.lineStyle(4, a.color, 0.5 + 0.2 * pulse).strokeEllipse(x, y, a.r * 2, a.r * 2 * SQ);
+      // Владелец 30.09: «аура барда бледновата» — ярче заливка и двойной край; под самим исполнителем — яркое пятно,
+      // чтобы было видно, чей это круг (RR-14).
+      g.fillStyle(a.color, 0.14 + 0.08 * pulse).fillEllipse(x, y, a.r * 2, a.r * 2 * SQ);
+      g.lineStyle(10, a.color, 0.3 + 0.15 * pulse).strokeEllipse(x, y, a.r * 2, a.r * 2 * SQ);
+      g.lineStyle(4, 0xffffff, 0.7 + 0.25 * pulse).strokeEllipse(x, y, a.r * 2, a.r * 2 * SQ);
+      g.fillStyle(a.color, 0.35 + 0.2 * pulse).fillEllipse(x, y, 150, 150 * SQ);
+      g.lineStyle(3, 0xffffff, 0.85).strokeEllipse(x, y, 150, 150 * SQ);
       // По краю бегут ноты (бард) или лепестки (танцовщица).
       const n = 8;
       for (let i = 0; i < n; i++) {
         const ang = this.clock / 1400 + (i * Math.PI * 2) / n;
         const px = x + Math.cos(ang) * a.r;
         const py = y + Math.sin(ang) * a.r * SQ;
-        if (a.petals) g.fillStyle(0xffe0f0, 0.9).fillEllipse(px, py, 16, 9);
+        if (a.petals) g.fillStyle(0xffe0f0, 1).fillEllipse(px, py, 22, 12);
         else {
-          g.fillStyle(0xffffff, 0.9).fillCircle(px, py, 6);
-          g.lineStyle(3, 0xffffff, 0.9).lineBetween(px + 5, py, px + 5, py - 16);
+          g.fillStyle(0xffffff, 1).fillCircle(px, py, 8);
+          g.lineStyle(4, 0xffffff, 1).lineBetween(px + 7, py, px + 7, py - 22);
         }
       }
     }
@@ -207,12 +212,12 @@ function dashed(g: Phaser.GameObjects.Graphics, x0: number, y0: number, x1: numb
  * barX — левый край полосы, w — ширина, y — центр.
  */
 export function phaseNotches(scene: Phaser.Scene, barX: number, w: number, y: number, pcts: number[]): Phaser.GameObjects.Graphics {
-  // Поверх подписи полосы (имя босса стоит ровно на середине — на засечке 50%).
+  // RR-04: засечки — только у верхнего и нижнего края полосы (зубцы), середину с именем босса не режут; имя — выше по глубине.
   const g = scene.add.graphics().setDepth(1);
   for (const p of pcts) {
     const x = barX + w * p;
-    g.fillStyle(0x000000, 0.8).fillRect(x - 4, y - 22, 8, 44);
-    g.fillStyle(0xffe28a, 1).fillRect(x - 2, y - 20, 4, 40);
+    g.fillStyle(0x000000, 0.85).fillTriangle(x - 9, y - 25, x + 9, y - 25, x, y - 11).fillTriangle(x - 9, y + 25, x + 9, y + 25, x, y + 11);
+    g.fillStyle(0xffe28a, 1).fillTriangle(x - 6, y - 23, x + 6, y - 23, x, y - 14).fillTriangle(x - 6, y + 23, x + 6, y + 23, x, y + 14);
   }
   return g;
 }

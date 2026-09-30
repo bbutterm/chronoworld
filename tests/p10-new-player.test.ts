@@ -109,6 +109,14 @@ describe('P10 T1-07: совет после поражения', () => {
     expect(defeatAdvice(copies, ctx).text).toMatch(/вознесению/);
   });
 
+  it('RR-02: отряд на пределе уровней редкостей — совет про копии и вознесение, а не «прокачайте»', () => {
+    const save = fresh();
+    const capped = { ...save, resources: { gold: 1e7, heroExp: 1e8 }, heroes: save.heroes.map((h) => ({ ...h, level: 20 })) };
+    expect(defeatAdvice(capped, ctx)).toMatchObject({ action: 'Heroes' });
+    expect(defeatAdvice(capped, ctx).text).toMatch(/пределе уровней.*копии.*Вознести/);
+    expect(defeatAdvice(save, ctx).text).not.toMatch(/пределе уровней/);
+  });
+
   it('вещи получше — первым делом; стрелок во фронте — «Отряд»', () => {
     const { save } = addItems(fresh(), ['cotton_shirt']);
     // RN-10: кнопка «Надеть лучшее» прямо на итогах (всему отряду).

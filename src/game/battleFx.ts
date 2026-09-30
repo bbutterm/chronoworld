@@ -7,6 +7,15 @@ import { text } from './ui';
 
 /** Общий множитель размера атласов навыков RO в бою (владелец 30.09: «со всеми спеллами покрупнее»). */
 export const SKILL_FX_SIZE = 1.35;
+/**
+ * RR-15: эффекты на своих героях (попадания врагов, их дебаффы, касты героев) — без укрупнения ×SKILL_FX_SIZE и
+ * полупрозрачные: в поздних главах эффекты закрывали фигуры отряда 92–100 % времени.
+ */
+export const ALLY_FX_ALPHA = 0.55;
+/** RR-15: крупных эффектов одновременно — не больше; сверх — новые бледнее, а эффекты на героях не рисуются. */
+export const MAX_BIG_FX = 5;
+/** «Крупный» эффект — шире этого (px поля). */
+const BIG_FX_PX = 260;
 
 /** Слои глубины боя: юниты — по y (до ~1700), затемнение ульты, выделенный кастер, эффекты, цифры, баннер. */
 export const DEPTH = {
@@ -19,9 +28,10 @@ export const DEPTH = {
 
 /**
  * Где висит баннер ульты: сразу под панелью героев (BUG-061, центр 610, высота 196; QA RN-05 — раньше 540 ложился на
- * портреты) и над макушками первого ряда — плашка живёт ~1,3 с.
+ * портреты) и над макушками первого ряда — плашка живёт ~1,3 с. RR-06: 770 → 792 — верх плашки (h 104, рамка 5)
+ * на ~30 px ниже карточек, а не впритык.
  */
-const BANNER_Y = 770;
+const BANNER_Y = 792;
 /** Ширина плашки: две (своя слева, чужая справа) помещаются в ряд. */
 const BANNER_W = 510;
 
@@ -213,6 +223,8 @@ interface Transient {
   key?: string;
   /** Цифра RO: 0 — прежняя цифра шрифтом, RO_HIT — урон (дуга в сторону), RO_RISE — лечение/щит (прямо вверх). */
   mode: number;
+  /** Подпись идёт за юнитом (RR-13: «Перехват!» — за стражем, а не на старой точке); x1 — сдвиг от него. */
+  follow?: { x: number };
 }
 
 /** Кривые твинов, которые раньше делали то же самое (время — мс на 1x). */
@@ -229,6 +241,12 @@ export const HEADLINES_PER_UNIT = 2;
 const HEADLINE_STACK = 32;
 /** Цифр над одним юнитом одновременно: лишняя самая старая уходит. */
 export const NUMBERS_PER_UNIT = 4;
+/**
+ * RR-13: подписи поведения («Бежит!», «Перехват!», «Каст сорван», «Сбито!», «Отход!») — крупнее подписей статусов и
+ * на своей глубине над цифрами урона (цифры поднимаются bringToTop только внутри DEPTH.numbers).
+ */
+export const BEHAVIOR_LABEL_SIZE = 36;
+export const BEHAVIOR_LABEL_DEPTH = 5100;
 /** Отступ надписи от края экрана. */
 const EDGE = 8;
 
@@ -361,7 +379,7 @@ export class FloatLayer {
    * key — чья подпись: прежние подписи того же юнита сдвигаются вверх и сразу гаснут, лишние снимаются (T3-02).
    * Подпись не выходит за края экрана.
    */
-  headline(x: number, y: number, value: string, size: number, color: string, depth: number, key?: string): Phaser.GameObjects.Text {
+  headline(x: number, y: number, value: string, size: number, color: string, depth: number, key?: string, follow?: { x: number }): Phaser.GameObjects.Text {
     if (key) {
       // Та же надпись у того же юнита только что была (пассивка «Уклонение» и её статус «Уклонение») — не дублируем.
       const same = this.live.find((r) => r.kind === Kind.Headline && r.key === key && (r.obj as Phaser.GameObjects.Text).text === value && r.t < r.dur * HEADLINE_HOLD);
@@ -378,6 +396,11 @@ export class FloatLayer {
     const r = this.start(Kind.Headline, t, HEADLINE_MS);
     r.y0 = y;
     r.key = key;
+    if (size >= BEHAVIOR_LABEL_SIZE) r.s = 1;
+    if (follow) {
+      r.follow = follow;
+      r.x1 = x - follow.x;
+    }
     return t;
   }
 
@@ -393,7 +416,8 @@ export class FloatLayer {
     let oldest = -1;
     for (let i = 0; i < this.live.length; i++) {
       const r = this.live[i];
-      if ((r.kind === Kind.Number || r.kind === Kind.Headline) && (oldest < 0 || r.seq < this.live[oldest].seq)) oldest = i;
+      // Подпись поведения (s = 1, RR-13) не вытесняется цифрами урона.
+      if ((r.kind === Kind.Number || (r.kind === Kind.Headline && r.s !== 1)) && (oldest < 0 || r.seq < this.live[oldest].seq)) oldest = i;
     }
     if (oldest >= 0) this.finish(oldest);
   }
@@ -411,18 +435,31 @@ export class FloatLayer {
   }
 
   /** Atlas-only role: absent atlas leaves the procedural fallback in charge (never a missing static texture). */
-  catalogFlash(x: number, feetY: number, id: string | undefined, size: number, key?: string, fromX?: number): boolean {
+  catalogFlash(x: number, feetY: number, id: string | undefined, size: number, key?: string, fromX?: number, onAlly = false): boolean {
     if (!id || !selectedAnimatedEffect(id, 'flash', this.scene.textures.exists(animatedFxKey(id)))) return false;
-    this.flash(x, feetY, id, size, 1, 250, DEPTH.fx, feetY, key, fromX);
+    this.flash(x, feetY, id, size, 1, 250, DEPTH.fx, feetY, key, fromX, onAlly);
     return true;
+  }
+
+  /** RR-15: сколько крупных эффектов сейчас на экране. */
+  private bigFx(): number {
+    let n = 0;
+    for (const r of this.live) if (r.kind === Kind.Fx && r.obj.visible && (r.obj as Phaser.GameObjects.Image).displayWidth >= BIG_FX_PX) n++;
+    return n;
   }
 
   /**
    * Вспышка: картинка size×size гаснет от alpha до 0 и растёт в 1.2 раза за duration. fromX — x кастера: атлас с
    * effects.json → from отражается, если кастер с другой стороны.
    */
-  flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y, key?: string, fromX?: number): void {
+  flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y, key?: string, fromX?: number, onAlly = false): void {
     const effect = selectedAnimatedEffect(texId, 'flash', this.scene.textures.exists(animatedFxKey(texId)));
+    // RR-15: на своих героях — меньше и прозрачнее; при толпе крупных эффектов — бледнее, а на героях не рисуем вовсе.
+    const crowded = this.bigFx() >= MAX_BIG_FX;
+    if (crowded && onAlly) return;
+    const dim = (onAlly ? ALLY_FX_ALPHA : 1) * (crowded ? 0.5 : 1);
+    if (onAlly) size /= SKILL_FX_SIZE;
+    alpha *= dim;
     const img = this.image(x, effect ? feetY : y, effect ? animatedFxKey(texId) : texId, size, depth).setAlpha(alpha);
     if (effect) {
       const flip = !!effect.from && fromX !== undefined && fromX !== x && (effect.from === 'right') === (fromX < x);
@@ -430,7 +467,7 @@ export class FloatLayer {
       img.setFrame(0).setOrigin(flip ? 1 - ox : ox, effect.anchor[1] / effect.cell[1]).setFlipX(flip);
       // Атлас навыка со своим масштабом (effects.json → scale): размер кадра RO, непрозрачный — роль не сжимает
       // крупный лист до точки и не делает его полупрозрачным.
-      if (effect.scale) img.setScale(effect.scale * SKILL_FX_SIZE).setAlpha(effect.alpha ?? 1);
+      if (effect.scale) img.setScale(effect.scale * (onAlly ? 1 : SKILL_FX_SIZE)).setAlpha((effect.alpha ?? 1) * dim);
       else img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]);
       img.setBlendMode(effect.blend === 'add' ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL).setVisible(effect.delayMs === 0);
     }
@@ -480,6 +517,7 @@ export class FloatLayer {
         case Kind.Headline: {
           const q = clamp01(r.t / r.dur);
           o.y = r.y0 - HEADLINE_RISE * ease.quadOut(q);
+          if (r.follow) o.x = clampX(r.follow.x + r.x1, (o as Phaser.GameObjects.Text).width);
           o.alpha = q <= HEADLINE_HOLD ? 1 : 1 - (q - HEADLINE_HOLD) / (1 - HEADLINE_HOLD);
           break;
         }
@@ -492,7 +530,7 @@ export class FloatLayer {
               // Камень растёт из земли (origin — точка ног) и уходит обратно в последнюю четверть жизни.
               const up = clamp01(r.t / r.effect.rise);
               const down = clamp01((r.dur - r.t) / (r.dur * 0.25));
-              (o as Phaser.GameObjects.Image).scaleY = r.effect.scale * SKILL_FX_SIZE * ease.backOut(Math.min(up, down));
+              (o as Phaser.GameObjects.Image).scaleY = r.s * ease.backOut(Math.min(up, down));
             }
           } else {
             const p = clamp01(r.t / r.dur);
@@ -560,6 +598,7 @@ export class FloatLayer {
     r.effect = undefined;
     r.key = undefined;
     r.mode = 0;
+    r.follow = undefined;
     this.live.push(r);
     return r;
   }

@@ -7,7 +7,6 @@ import {
   enemySquad,
   fightHunt,
   getStage,
-  levelBand,
   orderActives,
   progressLevelBand,
   recommendedFactor,
@@ -27,14 +26,14 @@ import {
 } from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
-import { enemyLevelColor, heroSprite, levelLabel, stageNo, stageSeed } from '../flow';
+import { enemyLevelColor, heroSprite, levelLabel, stageLevelsFor, stageNo, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { SKIN, SKIN_TINT } from '../skin';
 import { anim, hitDelay, spriteView, whenSprites, type SpriteView } from '../sprites';
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
-import { BarkLayer, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, UltPresenter } from '../battleFx';
+import { BarkLayer, BEHAVIOR_LABEL_DEPTH, BEHAVIOR_LABEL_SIZE, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, UltPresenter } from '../battleFx';
 import { RO_DIGIT_H } from '../numberFont';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
@@ -81,6 +80,16 @@ const HURT_COOLDOWN = 500;
 /** Красная вспышка при попадании, мс на 1x (перед ней HIT_FLASH_MS — белая заливка). */
 const HURT_TINT_MS = 90;
 const HIT_FLASH_MS = 45;
+/**
+ * RR-15 / BUG-158: белая заливка попадания — не чаще раза в HIT_FLASH_EVERY мс на юнита (по боссу бьют все пятеро и
+ * он был белым силуэтом весь бой); у босса белой заливки нет вовсе — только короткий светло-красный оттенок.
+ */
+const HIT_FLASH_EVERY = 400;
+/** RR-14: первые секунды боя (ауры, пассивки «на начало боя») — без подписей пассивок и статусов. */
+const OPENING_QUIET_S = 1;
+/** Глубина панели героев (RR-05): выше фигур поля, ниже затемнения ульты (DEPTH.dim). */
+const PANEL_DEPTH = 2800;
+const BOSS_HURT_TINT = 0xffb4a8;
 /** Бело-зелёный отсвет на юните, которого вылечили, мс на 1x. */
 const HEAL_TINT_MS = 220;
 /** Полёт снаряда навыка (огненная стрела, ледяной осколок), мс на 1x, и шаг между снарядами одного навыка. */
@@ -172,6 +181,14 @@ const BOSS_BAR_Y = 282;
 const BOSS_BAR_W = 700;
 /** Куда можно сдвинуть фигуру при расталкивании (поле 1080×1920; как bounds в combat.json). */
 const SPREAD_BOUNDS = COMBAT.field.bounds ?? { minX: 70, maxX: COMBAT.field.width - 70, minY: 900, maxY: 1840 };
+/**
+ * RR-03: поле ядра (x 70…1010 на ширине 1080) на экране чуть сжато к центру — отступающий к краю лекарь или маг
+ * (x ≈ 70) виден целиком вместе с цифрами и подписями, а не обрезан кромкой экрана. Только показ: ядро, лог и баланс
+ * не меняются. x ядра 0 → 86, 70 → 145, 540 → 540.
+ */
+const FIELD_CX = COMBAT.field.width / 2;
+export const FIELD_SQUEEZE = 0.84;
+export const fieldX = (x: number): number => FIELD_CX + (x - FIELD_CX) * FIELD_SQUEEZE;
 
 /**
  * Вид юнита. pos (SpreadUnit) — позиция из лога ядра (её двигают шаги), node — показанная: pos + смещение
@@ -227,6 +244,8 @@ interface UnitView extends SpreadUnit, GaitState {
   cdIcons: CdIcon[];
   /** Идёт белая вспышка попадания (затем — красный оттенок). */
   flashFill: boolean;
+  /** Когда была последняя белая вспышка (RR-15: не на каждый удар). */
+  lastFlash: number;
   /** Навык текущего действия (для эффекта попадания). */
   lastSkill?: string;
   /** Сработавшая пассивка (событие passive): её удары/статусы в тот же момент рисуются по ней, а не по lastSkill. */
@@ -330,6 +349,8 @@ export class BattleScene extends Phaser.Scene {
   private clock = 0;
   /** Какие пассивки уже подписывали в этом бою (unit:skill). */
   private shownPassives = new Set<string>();
+  /** RR-07: какие статусы уже подписывали над юнитом (unit:status) — подпись только при первом наложении. */
+  private shownStatuses = new Set<string>();
   private finished = false;
   private timeText!: Phaser.GameObjects.Text;
   /** Последняя показанная секунда таймера — текст перерисовываем раз в секунду, а не каждый кадр. */
@@ -351,7 +372,7 @@ export class BattleScene extends Phaser.Scene {
   /** Осталось паузы «hit stop», мс реального времени (0 — бой идёт). */
   private stopLeft = 0;
   /** Уровни врагов (core/features/levels.ts): редкость полосы и поправка босс-этапа; null — тестовый бой (без уровней). */
-  private levels: { rarity: CardRarity; bossFactor: number } | null = null;
+  private levels: { rarity: CardRarity; bossFactor: number; shift?: number } | null = null;
   /** BUG-061: панель героев отряда над ареной (портрет, здоровье, энергия). */
   private heroPanel: HeroPanel | null = null;
   /** Полоска HP босса наверху (только на босс-этапе). */
@@ -387,6 +408,7 @@ export class BattleScene extends Phaser.Scene {
     this.cursor = 0;
     this.clock = 0;
     this.shownPassives.clear();
+    this.shownStatuses.clear();
     this.finished = false;
     this.committed = false;
     this.ready = false;
@@ -419,7 +441,9 @@ export class BattleScene extends Phaser.Scene {
       this.defs = squadDefs(save);
       for (const u of enemySquad(data.stageId, GAME)) if (u) this.defs[u.id] = u;
       const st = getStage(GAME, data.stageId);
-      this.levels = { rarity: levelBand(data.stageId, GAME).rarity, bossFactor: recommendedFactor(data.stageId, GAME) };
+      // RR-16: та же шкала, что на экране этапа (редкость отряда, типичный враг = рекомендуемый уровень).
+      const lv = stageLevelsFor(save, data.stageId, GAME);
+      this.levels = { rarity: lv.rarity, bossFactor: recommendedFactor(data.stageId, GAME), shift: lv.shift };
       title = `Этап ${stageNo(st, GAME)}. ${st.name}`;
       this.theme = themeOfBattle({ stageId: data.stageId });
     } else if (data.mode === 'tower') {
@@ -545,7 +569,9 @@ export class BattleScene extends Phaser.Scene {
           const def = this.defs[u.unitId];
           return { uid: u.uid, name: def?.name ?? u.unitId, sprite: def?.visual.sprite ?? u.unitId, hasUlt: !!def?.skills.ult };
         }),
-      20,
+      // RR-05: панель — интерфейс, выше фигур поля (их глубина — y ног, до ~1850): высокий враг заднего ряда не ложится
+      // на карточки; затемнение ульты (2900) и эффекты — выше панели.
+      PANEL_DEPTH,
     );
     for (const v of this.viewList) this.redraw(v);
     if (this.stage && getStage(GAME, this.stage.stageId).boss) this.bossIntro();
@@ -613,7 +639,7 @@ export class BattleScene extends Phaser.Scene {
     const barX = GAME_W / 2 - BOSS_BAR_W / 2;
     this.add.image(GAME_W / 2, BOSS_BAR_Y, 'ui_bar_back').setDisplaySize(BOSS_BAR_W + 12, 46);
     const fill = this.add.image(barX, BOSS_BAR_Y, 'ui_bar_hp_enemy').setOrigin(0, 0.5).setDisplaySize(BOSS_BAR_W, 34);
-    text(this, GAME_W / 2, BOSS_BAR_Y, level !== null ? `${name} · ${levelLabel(level)}` : name, 28, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
+    text(this, GAME_W / 2, BOSS_BAR_Y, level !== null ? `${name} · ${levelLabel(level)}` : name, 32, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 7 }).setDepth(2);
     this.bossBar = { uid: boss.uid, fill };
     // Засечки фаз (50%, 25%…) видны с начала боя: игрок знает, когда босс сменит поведение.
     const pcts = (this.defs[boss.unitId].phases ?? []).flatMap((p) => (p.atHpPct !== undefined ? [p.atHpPct] : []));
@@ -732,7 +758,7 @@ export class BattleScene extends Phaser.Scene {
         parts.push(icon, sweep);
       }
     }
-    const node = this.add.container(snap.x, snap.y, [...parts, castBack, castBar, castLabel]).setDepth(snap.y);
+    const node = this.add.container(fieldX(snap.x), snap.y, [...parts, castBack, castBar, castLabel]).setDepth(snap.y);
 
     const v: UnitView = {
       snap,
@@ -767,6 +793,7 @@ export class BattleScene extends Phaser.Scene {
       cdSkills,
       cdIcons,
       flashFill: false,
+      lastFlash: -Infinity,
       bars,
       hp: snap.maxHp,
       shield: 0,
@@ -787,7 +814,7 @@ export class BattleScene extends Phaser.Scene {
       lastTrail: 0,
       spot: false,
       moveKind: null,
-      lastX: snap.x,
+      lastX: fieldX(snap.x),
       lastY: snap.y,
       vx: 0,
       vy: 0,
@@ -831,7 +858,7 @@ export class BattleScene extends Phaser.Scene {
 
   /** Уровень врага в этом бою (null — тестовый бой). */
   private enemyLevel(def: UnitDef): number | null {
-    return this.levels ? unitLevel(def, this.levels.rarity, GAME, this.levels.bossFactor) : null;
+    return this.levels ? Math.max(1, unitLevel(def, this.levels.rarity, GAME, this.levels.bossFactor) + (this.levels.shift ?? 0)) : null;
   }
 
   /** Подпись (имя, название каста) — целиком внутри экрана, даже у юнита у самого края (T3-02). */
@@ -964,7 +991,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private placeUnit(v: UnitView): void {
-    v.node.setPosition(v.pos.x + v.offX, v.pos.y + v.offY);
+    v.node.setPosition(fieldX(v.pos.x + v.offX), v.pos.y + v.offY);
     if (!v.shownDead && !v.spot) v.node.setDepth(v.node.y);
   }
 
@@ -1202,7 +1229,7 @@ export class BattleScene extends Phaser.Scene {
           }
           this.atImpact(v.lastStatusSrc ?? null, animate, (animate) => {
             this.endCast(v);
-            if (animate && v.alive) this.headline(v, e.reason === 'dispel' ? 'Сбито!' : 'Каст сорван', e.reason === 'dispel' ? '#b8a0ff' : '#ff9a8a');
+            if (animate && v.alive) this.behaviorLabel(v, e.reason === 'dispel' ? 'Сбито!' : 'Каст сорван', e.reason === 'dispel' ? '#b8a0ff' : '#ff9a8a');
           }, { on: v });
           return;
         }
@@ -1216,7 +1243,7 @@ export class BattleScene extends Phaser.Scene {
         cropBar(v.castBar, 0);
         if (!animate) return;
         // Маг бьёт по кругу: круг на земле там, куда упадёт удар, растёт вместе с полосой каста.
-        if (e.at && e.radius) this.behaviorFx?.castArea(v, e.at[0], e.at[1], e.radius, col.main, e.duration * 1000);
+        if (e.at && e.radius) this.behaviorFx?.castArea(v, fieldX(e.at[0]), e.at[1], e.radius * FIELD_SQUEEZE, col.main, e.duration * 1000);
         // Круг под ногами, аура и анимация каста — пока идёт каст.
         (v.castRig ??= this.sfx.castRig(v.node, v.look.height)).show(col.main);
         this.castCue(v, e.skill);
@@ -1228,8 +1255,11 @@ export class BattleScene extends Phaser.Scene {
         // Название пассивки — только при первом срабатывании у юнита за бой, иначе экран засоряется
         // (пассивки на начало хода срабатывают каждый ход).
         const key = `${e.unit}:${e.skill}`;
-        if (animate && !this.shownPassives.has(key)) this.headline(v, e.name, '#c9a0ff');
-        this.shownPassives.add(key);
+        // RR-14: в первую секунду боя пассивки и ауры всего поля срабатывают разом — их подписи не выводим (8–9 штук
+        // лежали пачкой на отряде); подпись выйдет при следующем срабатывании, по очереди ходов.
+        const opening = e.t < OPENING_QUIET_S;
+        if (animate && !opening && !this.shownPassives.has(key)) this.headline(v, e.name, '#c9a0ff');
+        if (!opening) this.shownPassives.add(key);
         v.proc = { skill: e.skill, t: e.t };
         // Своя вспышка пассивки на кастере (сокол к цели, колба к союзнику, сферы…) — в момент срабатывания.
         const pv = visualOf(e.skill);
@@ -1297,8 +1327,11 @@ export class BattleScene extends Phaser.Scene {
             this.fx(v, 'fx_heal', 1.3);
             // Первая помощь и мелкое восстановление (пассивки) — маленький столб с крестиком.
             const small = this.views.get(e.source)?.lastSkill === 'novice_first_aid' || e.amount < v.snap.maxHp * 0.08;
+            // RR-15: столбы лечения и ауры на своих героях — прозрачнее (SkillFx.soft).
+            this.sfx.soft = v.snap.side === 'A';
             this.sfx.heal(this.point(v), e.amount >= v.snap.maxHp * 0.15, small);
             if (healAura?.aura) playAura(this.sfx, healAura.aura, this.point(v), healAura.tint ?? 0x8dff9a);
+            this.sfx.soft = false;
             if (v.tintLeft <= 0) {
               v.sprite.setTint(0xc8ffcc);
               v.flashFill = false;
@@ -1322,9 +1355,11 @@ export class BattleScene extends Phaser.Scene {
             const sheet = skillFx(shieldSkill)?.buff;
             this.fx(v, sheet ?? 'fx_shield', sheet ? 1.2 : 1.4, 400);
             // Свой щит навыка (Кирие — двойной пузырь, Стена безопасности — розовые столбы…), иначе общий столб искр.
+            this.sfx.soft = v.snap.side === 'A';
             if (sheet) playTwinkle(this.sfx, v.node.x, this.headY(v), 0x9cc8ff);
             else if (shieldLook?.aura) playAura(this.sfx, shieldLook.aura, this.point(v), shieldLook.tint ?? 0x9cc8ff);
             else this.sfx.buff(this.point(v), 0x9cc8ff);
+            this.sfx.soft = false;
           }
         }, { on: v });
         return;
@@ -1353,12 +1388,20 @@ export class BattleScene extends Phaser.Scene {
             if (def?.stun) this.setStun(v, true, /замороз/i.test(e.name) || /frost|storm_gust/.test(srcSkillId ?? ''));
           }
           if (!animate) return;
-          if (!ally && v.alive && !this.floats.catalogFlash(v.node.x, v.node.y, skillFx(srcSkillId)?.debuff, 220)) {
+          if (!ally && v.alive && !this.floats.catalogFlash(v.node.x, v.node.y, skillFx(srcSkillId)?.debuff, 220, undefined, undefined, v.snap.side === 'A')) {
+            this.sfx.soft = v.snap.side === 'A';
             this.statusVisual(v, e.status, def);
+            this.sfx.soft = false;
           }
           // Бафф на весь отряд (Ускорение, Благословение): подпись не пишем над каждым — хватает искр и значка у HP.
           const srcSkill = srcSkillId ? CONTENT.skills[srcSkillId] : undefined;
-          if (!(ally && srcSkill?.target.pick === 'all')) this.headline(v, e.name, '#ffcf6b');
+          // RR-07: подпись статуса — при первом наложении на юнита за бой (дальше хватает значка у полоски ОЗ), и не в
+          // первую секунду боя (RR-14).
+          const statusKey = `${e.target}:${e.status}`;
+          if (!(ally && srcSkill?.target.pick === 'all') && e.t >= OPENING_QUIET_S && !this.shownStatuses.has(statusKey)) {
+            this.shownStatuses.add(statusKey);
+            this.headline(v, e.name, '#ffcf6b');
+          }
           if (ally) {
             const sheet = skillFx(srcSkillId)?.buff;
             this.fx(v, sheet ?? 'fx_shield', 1.2, 400);
@@ -1366,11 +1409,13 @@ export class BattleScene extends Phaser.Scene {
             // (ноты песни, сердечки, нимб, меч света…), иначе общий столб искр цвета статуса.
             const look = visualOf(srcSkillId);
             // Бафф — искорки мерцают над головой (у каждого союзника, короткие).
+            this.sfx.soft = v.snap.side === 'A';
             playTwinkle(this.sfx, v.node.x, this.headY(v), look?.tint ?? buffColor(def));
             if (sheet) {
               // только лист
             } else if (look?.aura) playAura(this.sfx, look.aura, this.point(v), look.tint ?? buffColor(def));
             else this.sfx.buff(this.point(v), buffColor(def));
+            this.sfx.soft = false;
           }
         }, { on: v });
         return;
@@ -1410,7 +1455,7 @@ export class BattleScene extends Phaser.Scene {
         // Аура барда (ноты) / танцовщицы (лепестки) — цветной круг под исполнителем весь бой.
         const v = this.views.get(e.unit);
         const dancer = e.skill === 'job_dancer_fortune_kiss';
-        if (v) this.behaviorFx?.aura(v, e.radius, dancer ? 0xff7fc4 : 0x6fd0ff, dancer);
+        if (v) this.behaviorFx?.aura(v, e.radius * FIELD_SQUEEZE, dancer ? 0xff7fc4 : 0x6fd0ff, dancer);
         return;
       }
       case 'enrage':
@@ -1466,7 +1511,7 @@ export class BattleScene extends Phaser.Scene {
     const v = this.views.get(e.unit)!;
     if (this.namesHidden) v.nameText.setAlpha(0);
     if (!animate || this.skipping) return;
-    this.sfx.puffCloud(e.x, e.y - 40, 0xcfc6b8, 10, 90, 620, 0.9);
+    this.sfx.puffCloud(fieldX(e.x), e.y - 40, 0xcfc6b8, 10, 90, 620, 0.9);
     v.node.setAlpha(0);
     this.tweens.add({ targets: v.node, alpha: 1, duration: 360, ease: 'Sine.easeOut' });
   }
@@ -1520,10 +1565,17 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private hurt(v: UnitView): void {
-    // Белая вспышка, затем красный оттенок.
-    v.sprite.setTintFill(0xffffff);
-    v.flashFill = true;
-    v.tintLeft = HURT_TINT_MS + HIT_FLASH_MS;
+    // Белая вспышка, затем красный оттенок; у босса и при частых ударах — только оттенок (RR-15, BUG-158).
+    const boss = v.def.kind === 'boss';
+    if (!boss && this.time.now - v.lastFlash >= HIT_FLASH_EVERY) {
+      v.sprite.setTintFill(0xffffff);
+      v.flashFill = true;
+      v.lastFlash = this.time.now;
+      v.tintLeft = HURT_TINT_MS + HIT_FLASH_MS;
+    } else if (!v.flashFill) {
+      v.sprite.setTint(boss ? BOSS_HURT_TINT : 0xff8080);
+      v.tintLeft = HURT_TINT_MS;
+    }
     if (!v.alive || this.time.now < v.busyUntil || this.time.now - v.lastHurt < HURT_COOLDOWN || v.moveTween) return;
     v.lastHurt = this.time.now;
     this.once(v, 'hurt');
@@ -1651,7 +1703,8 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private fx(v: UnitView, texId: string, scale: number, duration = 250, alpha = 0.8, fromX?: number): void {
-    this.floats.flash(v.node.x, bodyY(v), texId, 140 * scale, alpha, duration, DEPTH.fx, v.node.y, undefined, fromX);
+    // RR-15: на своих героях эффект меньше и прозрачнее (battleFx.ts → ALLY_FX_ALPHA).
+    this.floats.flash(v.node.x, bodyY(v), texId, 140 * scale, alpha, duration, DEPTH.fx, v.node.y, undefined, fromX, v.snap.side === 'A');
   }
 
   /**
@@ -1712,10 +1765,17 @@ export class BattleScene extends Phaser.Scene {
   private behaviorMove(v: UnitView, reason: 'kite' | 'follow' | 'intercept' | 'flee' | undefined): void {
     if (reason === 'kite' && !v.kiteShown) {
       v.kiteShown = true;
-      this.headline(v, 'Отход!', '#9fe3ff');
-    } else if (reason === 'intercept') this.headline(v, 'Перехват!', '#ffe28a');
+      this.behaviorLabel(v, 'Отход!', '#9fe3ff');
+    } else if (reason === 'intercept') this.behaviorLabel(v, 'Перехват!', '#ffe28a');
     // Трус убегает к своим (раз за бой): разворачивается и бежит, в спину бьют сильнее.
-    else if (reason === 'flee') this.headline(v, 'Бежит!', '#ff8a6a');
+    else if (reason === 'flee') this.behaviorLabel(v, 'Бежит!', '#ff8a6a');
+  }
+
+  /** RR-13: подпись поведения — крупная, над цифрами урона и идёт за юнитом (страж бежит к цели — «Перехват!» с ним). */
+  private behaviorLabel(v: UnitView, value: string, color: string): void {
+    if (this.skipping) return;
+    const y = v.node.y - v.look.height * 0.72 - 30;
+    this.floats.headline(v.node.x + v.labelX, y, value, BEHAVIOR_LABEL_SIZE, color, BEHAVIOR_LABEL_DEPTH, `${v.snap.uid}:bh`, v.node);
   }
 
   private headline(v: UnitView, value: string, color: string): void {
@@ -1825,7 +1885,7 @@ export class BattleScene extends Phaser.Scene {
   /** Authored caster cue, keyed so an interrupted timed cast cannot leave its old atlas on screen. */
   private castCue(v: UnitView, skillId: string): void {
     const id = skillFx(skillId)?.cast;
-    if (id) this.floats.catalogFlash(v.node.x, v.node.y, id, 190, `cast:${v.snap.uid}`);
+    if (id) this.floats.catalogFlash(v.node.x, v.node.y, id, 190, `cast:${v.snap.uid}`, undefined, v.snap.side === 'A');
   }
 
   /** One ground atlas per resolved area, never one column per target. Timing follows the skill impact. */
@@ -1836,7 +1896,7 @@ export class BattleScene extends Phaser.Scene {
     // Grand Cross originates under the crusader even though the game skill is ranged.
     const center = skill.id === 'job_crusader_grand_cross' || skill.range === 'melee'
       ? this.point(v) : { x: avg(pts.map((p) => p.x)), feet: avg(pts.map((p) => p.feet)) };
-    this.sfx.later(delay, () => this.floats.catalogFlash(center.x, center.feet, id, 320, undefined, v.node.x));
+    this.sfx.later(delay, () => this.floats.catalogFlash(center.x, center.feet, id, 320, undefined, v.node.x, targets[0].snap.side === 'A'));
   }
 
   /**
@@ -1846,6 +1906,16 @@ export class BattleScene extends Phaser.Scene {
    * false — у навыка нет особого вида, работает обычная атака.
    */
   private skillVisual(v: UnitView, skill: SkillDef, impact: number): boolean {
+    // RR-15: навык врага по отряду — его эффекты (и отложенные продолжения) прозрачнее: фигуры героев видны.
+    this.sfx.soft = v.snap.side === 'B' && skill.target.side === 'enemy';
+    try {
+      return this.skillVisualInner(v, skill, impact);
+    } finally {
+      this.sfx.soft = false;
+    }
+  }
+
+  private skillVisualInner(v: UnitView, skill: SkillDef, impact: number): boolean {
     const look = lookOf(skill);
     const vis = visualOf(skill.id);
     const tint = vis?.tint ?? (look.element === 'physical' ? 0xffe0a0 : ELEMENT_COLORS[look.element].main);

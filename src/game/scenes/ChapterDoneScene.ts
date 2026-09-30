@@ -6,7 +6,7 @@ import { sceneSoundOf } from '../sceneAudio';
 import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
-import { card, popIn, unitFigure } from '../screen';
+import { card, confirm, popIn, unitFigure } from '../screen';
 import { arrangeSquad, chapterChronicle, chroniclePageId, clearChapterDone, findingEntries, heroCard, heroName, heroPower, markPageSeen, pendingChronicle, type SaveState } from '../../core';
 import { chroniclePage, showPages } from '../storyPage';
 import { commit, now, session } from '../session';
@@ -139,10 +139,16 @@ export class ChapterDoneScene extends Phaser.Scene {
         text(this, cx, ry + 160, `${c.name} с вами — но не в отряде`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
         text(this, cx, ry + 212, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
         button(this, cx, ry + 280, 560, 96, 'ui_btn_primary', 'Взять в отряд', () => {
-          const r = takeIntoSquad(session.save, hero.id);
-          commit(r.save);
-          toast(this, r.replaced ? `${c.name} в отряде вместо: ${r.replaced}` : `${c.name} в отряде`);
-          this.scene.restart(data);
+          const take = () => {
+            const r = takeIntoSquad(session.save, hero.id);
+            commit(r.save);
+            toast(this, r.replaced ? `${c.name} в отряде вместо: ${r.replaced}` : `${c.name} в отряде`);
+            this.scene.restart(data);
+          };
+          // RR-01: не менять молча героя сильнее рекрута — спросить.
+          const out = squadSwapCandidate(session.save, hero.id);
+          if (out?.stronger) confirm(this, `${out.name} сильнее: ${formatNumber(out.power)} мощи против ${formatNumber(out.recruitPower)}. Снять ${out.name} ради ${c.name}?`, 'Заменить', take);
+          else take();
         }, FS.h3).container.setName('recruitTake');
       }
     } else {
@@ -184,28 +190,42 @@ export class ChapterDoneScene extends Phaser.Scene {
 }
 
 /**
- * RN-02. Поставить героя истории в отряд: на свободное место, иначе вместо самого слабого (по мощи) героя отряда;
- * затем расстановка по ролям (arrangeSquad). replaced — имя того, кого сняли.
+ * RN-02 / RR-01. Кого снять из полного отряда ради героя heroId: самый слабый по мощи; stronger — он сильнее рекрута
+ * (экран спрашивает, а не меняет молча). undefined — в отряде есть свободное место.
+ */
+export function squadSwapCandidate(save: SaveState, heroId: string): { slot: number; name: string; power: number; recruitPower: number; stronger: boolean } | undefined {
+  if (save.squad.some((id) => id === null)) return undefined;
+  let slot = -1;
+  let min = Infinity;
+  save.squad.forEach((id, i) => {
+    const h = save.heroes.find((x) => x.id === id);
+    if (!h) return;
+    const p = heroPower(h, GAME, save);
+    if (p < min) {
+      min = p;
+      slot = i;
+    }
+  });
+  const gone = save.heroes.find((x) => x.id === save.squad[slot]);
+  const recruit = save.heroes.find((x) => x.id === heroId);
+  if (slot < 0 || !gone || !recruit) return undefined;
+  const recruitPower = heroPower(recruit, GAME, save);
+  return { slot, name: heroName(gone, GAME), power: min, recruitPower, stronger: min > recruitPower };
+}
+
+/**
+ * RN-02. Поставить героя истории в отряд: на свободное место, иначе вместо самого слабого (по мощи) героя отряда
+ * (squadSwapCandidate; если он сильнее рекрута — экран сначала спрашивает); затем расстановка по ролям (arrangeSquad).
+ * replaced — имя того, кого сняли.
  */
 export function takeIntoSquad(save: SaveState, heroId: string): { save: SaveState; replaced?: string } {
   const squad = [...save.squad];
   let slot = squad.findIndex((id) => id === null);
   let replaced: string | undefined;
   if (slot < 0) {
-    let weakest = -1;
-    let min = Infinity;
-    squad.forEach((id, i) => {
-      const h = save.heroes.find((x) => x.id === id);
-      if (!h) return;
-      const p = heroPower(h, GAME, save);
-      if (p < min) {
-        min = p;
-        weakest = i;
-      }
-    });
-    slot = weakest;
-    const gone = save.heroes.find((x) => x.id === squad[slot]);
-    if (gone) replaced = heroName(gone, GAME);
+    const out = squadSwapCandidate(save, heroId);
+    slot = out?.slot ?? -1;
+    replaced = out?.name;
   }
   if (slot < 0) return { save };
   squad[slot] = heroId;

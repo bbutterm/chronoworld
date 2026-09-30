@@ -3,6 +3,7 @@
  */
 import {
   ascendRequirement,
+  maxLevelOf,
   canEquip,
   actEquipBest,
   heroesWithGearUpgrades,
@@ -204,7 +205,9 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventR
     if (e.type === 'skillUnlocked') lines.push(`${nameOf(e.heroId)}: новый навык «${skillName(e.skill)}»`);
     if (e.type === 'heroJoined') lines.unshift(
       e.copy
-        ? `${e.name}: пришла копия героя (для вознесения)`
+        ? `${e.name}: пришла копия героя (для вознесения)` +
+            (e.caughtUp ? ` — лучшая карточка героя теперь ур. ${e.level}, как у отряда` : '') +
+            (e.benched ? ' · поставьте в отряд: «Герои» или «Авто»' : '')
         : e.benched
           ? `${e.name} с вами${e.level && e.level > 1 ? ` (ур. ${e.level})` : ''} — поставьте в отряд: «Герои» или «Авто» перед боем`
           : `Новый герой в отряде: ${e.name}${e.level && e.level > 1 ? ` (ур. ${e.level})` : ''}!`,
@@ -281,7 +284,16 @@ export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): {
   if (misplacedInFront(save, ctx).length) return { text: 'Стрелки и лекари стоят во фронте — «Отряд» → «Переставить».', action: 'Squad' };
   const free = save.heroes.filter((h) => !save.squad.includes(h.id)).length;
   if (free > 0 && save.squad.includes(null)) return { text: 'В отряде есть пустые места — возьмите всех героев («Отряд»).', action: 'Squad' };
+  // RR-02: отряд упёрся в пределы уровней редкостей — «ждите и прокачивайте» не поможет: нужны копии и вознесение.
+  if (squadAtLevelCap(save, ctx)) return { text: 'Отряд на пределе уровней своих редкостей — опыт больше не усилит. Нужны копии героев (Таверна, карты с этапов, Лавка) и «Вознести».', action: 'Heroes' };
   return { text: 'Прокачайте героев: повторите пройденные этапы и заберите сундук в кампании, затем «Улучшить».', action: 'Campaign' };
+}
+
+/** RR-02. Больше половины героев отряда — на пределе уровня своей редкости (опыт им уже не поднимет уровень). */
+export function squadAtLevelCap(save: SaveState, ctx: GameContext): boolean {
+  const squad = save.squad.map((id) => save.heroes.find((h) => h.id === id)).filter((h): h is HeroState => !!h);
+  const capped = squad.filter((h) => h.level >= maxLevelOf(ctx, h.rarity)).length;
+  return squad.length > 0 && capped * 2 > squad.length;
 }
 
 /**
@@ -353,12 +365,57 @@ export function squadRarity(save: Pick<SaveState, 'squad' | 'heroes'>): CardRari
   return best;
 }
 
-/** RN-11. Уровни этапа для отряда игрока: враги — в единицах его редкости (squadRarity), рекомендация — как в ядре. */
-export function stageLevelsFor(save: Pick<SaveState, 'squad' | 'heroes'>, stageId: string, ctx: FeatureContext): StageLevels {
+/** RR-16: рекомендация уровня «по своему отряду». own — посчитана по героям игрока; capped — не хватает и на пределах редкостей. */
+export type StageRecommend = RecommendedLevel & { own?: boolean; capped?: boolean };
+
+/**
+ * RR-16. Уровень, до которого нужно поднять героев отряда игрока (те же герои, редкости и вещи; каждый — не выше предела
+ * своей редкости), чтобы мощь отряда дошла до рекомендуемой мощи этапа. Это та же проверка, что «Сил хватает / Нужно N»,
+ * только в уровнях: «Сил хватает» ⇔ средний уровень отряда ≥ этого. null — пустой отряд.
+ */
+export function ownRecommendedLevel(save: Pick<SaveState, 'squad' | 'heroes'>, stageId: string, ctx: FeatureContext): { level: number; capped: boolean } | null {
+  const squad = save.squad.map((id) => save.heroes.find((h) => h.id === id)).filter((h): h is HeroState => !!h);
+  if (!squad.length) return null;
+  const need = coreRecommendedPower(stageId, ctx);
+  const full = 'inventory' in save ? (save as SaveState) : undefined;
+  const powerAt = (level: number) => squad.reduce((sum, h) => sum + heroPower({ ...h, level: Math.min(level, maxLevelOf(ctx as GameContext, h.rarity)) }, ctx, full), 0);
+  const top = Math.max(...squad.map((h) => maxLevelOf(ctx as GameContext, h.rarity)));
+  if (powerAt(top) < need) return { level: top, capped: true };
+  let lo = 1;
+  let hi = top;
+  if (powerAt(1) >= need) return { level: 1, capped: false };
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (powerAt(mid) >= need) hi = mid;
+    else lo = mid;
+  }
+  return { level: hi, capped: false };
+}
+
+/**
+ * RN-11 / RR-16. Уровни этапа для отряда игрока — одна шкала на экране этапа и в бою. Рекомендация — уровень героев
+ * отряда игрока, при котором их мощь = рекомендуемой (ownRecommendedLevel: «Сил хватает» ⇔ уровень отряда не ниже).
+ * Уровни врагов — в редкости отряда (squadRarity) и сдвинуты так, что типичный враг этапа = этому уровню (shift;
+ * разница между врагами — как у ядра). Раньше на одном экране были «враги ур. 30–40», «Сил хватает 128 %» и
+ * «Фиолетовые герои ур. 6» у синего отряда ур. 24. Пустой отряд — как в ядре (полоса этапа).
+ */
+export function stageLevelsFor(save: Pick<SaveState, 'squad' | 'heroes'>, stageId: string, ctx: FeatureContext): StageLevels & { shift: number; recommended: StageRecommend } {
   const base = stageLevels(stageId, ctx);
   const rarity = squadRarity(save);
-  if (!rarity || rarity === base.rarity) return base;
-  return { ...base, rarity, ...enemyLevels(enemySquad(stageId, ctx), rarity, ctx, recommendedFactor(stageId, ctx)) };
+  const own = ownRecommendedLevel(save, stageId, ctx);
+  if (!rarity || !own) return { ...base, shift: 0 };
+  const raw = rarity === base.rarity ? base : { ...base, rarity, ...enemyLevels(enemySquad(stageId, ctx), rarity, ctx, recommendedFactor(stageId, ctx)) };
+  // На пределах редкостей сил не хватает — враги без сдвига (честно «выше» отряда), рекомендация — «нужны копии».
+  const shift = own.capped ? 0 : own.level - raw.typical;
+  const lv = (l: number) => Math.max(1, l + shift);
+  return {
+    ...raw,
+    recommended: { level: own.level, rarity, squad: save.squad.filter(Boolean).length, own: true, ...(own.capped ? { capped: true } : {}) },
+    enemies: raw.enemies.map((l) => (l === null ? null : lv(l))),
+    typical: lv(raw.typical),
+    ...(raw.boss !== undefined ? { boss: lv(raw.boss) } : {}),
+    shift,
+  };
 }
 
 /** «ур. 18» — подпись уровня врага. */
@@ -367,7 +424,10 @@ export function levelLabel(level: number): string {
 }
 
 /** «Синие герои ур. 18» — рекомендуемый уровень этапа (под «Нужно N» на экране этапа). */
-export function recommendText(rec: Pick<RecommendedLevel, 'level' | 'rarity'>): string {
+export function recommendText(rec: Pick<StageRecommend, 'level' | 'rarity' | 'own' | 'capped'>): string {
+  // RR-16: по своему отряду — «Героям нужен ур. 17»; на пределах редкостей — копии и вознесение (RR-02).
+  if (rec.capped) return 'Уровней не хватит — нужны копии и «Вознести»';
+  if (rec.own) return `Героям нужен ур. ${rec.level}`;
   // RN-11: редкость — словом впереди («синие герои ур. 18»), а не пометкой в скобках, которую новичок не читал.
   const r = RARITY_PLURAL[rec.rarity];
   return `${r.charAt(0).toUpperCase()}${r.slice(1)} герои ур. ${rec.level}`;

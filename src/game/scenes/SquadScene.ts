@@ -107,8 +107,7 @@ export class SquadScene extends Phaser.Scene {
 
   private auto(): void {
     commit({ ...session.save, squad: autoFormation(session.save, GAME) });
-    this.editor.replaced();
-    toast(this, 'Отряд расставлен автоматически');
+    this.editor.replaced('Отряд расставлен автоматически');
   }
 
   private savePreset(): void {

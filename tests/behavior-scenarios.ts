@@ -24,12 +24,23 @@ export const BEHAVIOR_COMPS: [string, ([string, number] | null)[]][] = [
   ['ch10_s18', [['mob7_elite', 6.481], ['mob_lord_of_death', 4.518], ['mob7_elite', 6.481], ['mob7_ranged', 6.481], ['mob7_ranged', 6.481]]],
 ];
 
+/**
+ * Базовые статы, замороженные вместе с множителями: правка баланса юнита в data/units не должна менять сценарии
+ * (снимок «нулевого профиля» сравнивает логи с кодом до профилей). RR-02 (30.09): ОЗ Тёмного лорда ×0.62 и Владыки
+ * мёртвых ×0.6 — в сценариях прежние 4200 и 4600.
+ */
+const FROZEN_STATS: Record<string, Partial<UnitDef['stats']>> = {
+  mob7_boss: { hp: 4200 },
+  mob_lord_of_death: { hp: 4600 },
+};
+
 /** Состав сценария с замороженными множителями (как enemySquad: hp/atk/def × k, id `<этап>_<слот>`). */
 export function compSquad(ctx: FullContext, name: string): (UnitDef | null)[] {
   const comp = BEHAVIOR_COMPS.find((c) => c[0] === name)![1];
   return comp.map((e, i) => {
     if (!e) return null;
-    const u = ctx.content.units[e[0]];
+    const def = ctx.content.units[e[0]];
+    const u = FROZEN_STATS[def.id] ? { ...def, stats: { ...def.stats, ...FROZEN_STATS[def.id] } } : def;
     const k = e[1];
     return { ...u, id: `${name}_${i}`, stats: { ...u.stats, hp: Math.max(1, Math.round(u.stats.hp * k)), atk: Math.round(u.stats.atk * k), def: Math.round(u.stats.def * k) } };
   });

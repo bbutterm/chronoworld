@@ -1,10 +1,10 @@
 import type { BattleResult } from '../types';
 import { simulateBattle } from '../battle';
 import type { UnitDef } from '../content/schema';
-import type { SaveState } from '../save/schema';
+import type { HeroState, SaveState } from '../save/schema';
 import { buildUnit } from '../heroes/card';
 import { addHeroExp } from '../heroes/level';
-import { addHeroCard, catchUpLevel, duplicateCardsInSquad, placeInSquad } from '../heroes/roster';
+import { addHeroCard, catchUpLevel, duplicateCardsInSquad, placeInSquad, storyHero } from '../heroes/roster';
 import { grantHeroCards, stageHeroCards } from '../heroes/cardDrops';
 import { grantTavernWelcome } from '../heroes/summon';
 import { GameRuleError, type GameContext, type ProgressEvent } from '../progression/types';
@@ -162,15 +162,27 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
       if (rc.afterStage !== stage.id) continue;
       const t = ctx.content.heroes[rc.template];
       if (!t) continue;
-      // Герой уже есть (из Таверны или миграции) — приходит его зелёная копия (корм для вознесения), в отряд не ставится.
-      const copy = next.heroes.some((h) => h.templateId === rc.template);
+      // Герой уже есть (из Таверны или миграции) — приходит его зелёная копия (корм для вознесения).
+      const had = storyHero(next, rc.template);
+      if (had) {
+        // RR-01: догоняющий уровень — и сильнейшему экземпляру, если он ниже среднего по отряду (Грета из Таверны ур. 1
+        // на «Глава пройдена» — ур. отряда). Уровни до него — дар (grantedLevel), в отряд — на свободное место.
+        const lvl = catchUpLevel(next, had.rarity, ctx);
+        const raised = lvl > had.level;
+        const best: HeroState = raised ? { ...had, level: lvl, grantedLevel: Math.max(had.grantedLevel ?? 1, lvl) } : had;
+        const r = addHeroCard(raised ? { ...next, heroes: next.heroes.map((h) => (h.id === had.id ? best : h)) } : next, rc.template, t.baseRarity);
+        next = { ...r.save, squad: placeInSquad(r.save.squad, best, r.save, ctx) };
+        const benched = !next.squad.includes(best.id);
+        events.push({ type: 'heroJoined', heroId: best.id, templateId: rc.template, name: t.name, level: best.level, copy: true, ...(raised ? { caughtUp: true } : {}), ...(benched ? { benched: true } : {}) });
+        continue;
+      }
       // RN-02: первый экземпляр приходит с догоняющим уровнем (средний по отряду, в пределах редкости) — даром, без возврата в корм.
-      const r = copy ? addHeroCard(next, rc.template, t.baseRarity) : addHeroCard(next, rc.template, t.baseRarity, { level: catchUpLevel(next, t.baseRarity, ctx), granted: true });
+      const r = addHeroCard(next, rc.template, t.baseRarity, { level: catchUpLevel(next, t.baseRarity, ctx), granted: true });
       // В отряд — на свободное место (передние — с первого слота, задние — с последнего), если есть.
-      next = copy ? r.save : { ...r.save, squad: placeInSquad(r.save.squad, r.hero, r.save, ctx) };
+      next = { ...r.save, squad: placeInSquad(r.save.squad, r.hero, r.save, ctx) };
       // benched — отряд полон, герой ждёт в коллекции (UI зовёт поставить его в отряд).
-      const benched = !copy && !next.squad.includes(r.hero.id);
-      events.push({ type: 'heroJoined', heroId: r.hero.id, templateId: rc.template, name: t.name, level: r.hero.level, ...(copy ? { copy: true } : {}), ...(benched ? { benched: true } : {}) });
+      const benched = !next.squad.includes(r.hero.id);
+      events.push({ type: 'heroJoined', heroId: r.hero.id, templateId: rc.template, name: t.name, level: r.hero.level, ...(benched ? { benched: true } : {}) });
     }
     const w = grantTavernWelcome(next, ctx);
     next = w.save;

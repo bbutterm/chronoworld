@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   baselineHero,
+  heroPower,
   enemyLevels,
   enemySquad,
   levelBand,
@@ -203,5 +204,29 @@ describe('RN-11: уровни врагов в единицах редкости 
     expect(mine.rarity).toBe('green');
     expect(mine.typical).toBeGreaterThan(band.typical);
     expect(squadRarity({ heroes: [...heroes, { id: 'h4', templateId: 'greta', rarity: 'blue', level: 1 }], squad: ['h1', 'h4', null, null, null] })).toBe('green');
+  });
+
+  it('RR-16: одна шкала — «Героям нужен ур. N» по своему отряду, «Сил хватает» ⇔ отряд не ниже N, типичный враг = N', () => {
+    const ctx = loadFullContext();
+    const id = 'ch3_s9';
+    const mk = (level: number) => {
+      const heroes = ['alan', 'bran', 'vika', 'dorn', 'zara'].map((t, i) => ({ id: `h${i + 1}`, templateId: t, rarity: 'blue' as const, level }));
+      return { heroes, squad: heroes.map((h) => h.id) };
+    };
+    const lv = stageLevelsFor(mk(1), id, ctx);
+    const n = lv.recommended.level;
+    expect(lv.recommended).toMatchObject({ own: true, rarity: 'blue' });
+    expect(recommendText(lv.recommended)).toBe(`Героям нужен ур. ${n}`);
+    expect(lv.typical).toBe(n);
+    // Та же граница, что у мощи: на ур. N отряд набирает рекомендуемую мощь, на ур. N − 1 — нет.
+    const power = (level: number) => mk(level).heroes.reduce((s, h) => s + heroPower(h, ctx), 0);
+    expect(power(n)).toBeGreaterThanOrEqual(recommendedPower(id, ctx));
+    expect(power(n - 1)).toBeLessThan(recommendedPower(id, ctx));
+    // Отряд на пределе редкости и всё равно слабее — рекомендация «копии и вознесение», враги без сдвига.
+    const weak = { heroes: [{ id: 'h1', templateId: 'alan', rarity: 'green' as const, level: 20 }], squad: ['h1', null, null, null, null] };
+    const capped = stageLevelsFor(weak, 'ch4_s1', ctx);
+    expect(capped.recommended.capped).toBe(true);
+    expect(recommendText(capped.recommended)).toMatch(/копии/);
+    expect(capped.shift).toBe(0);
   });
 });

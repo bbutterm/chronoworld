@@ -42,6 +42,8 @@ export interface FormationOpts {
   onChange?: () => void;
 }
 
+/** Сколько держится заметка в строке подсказки (RR-17), мс. */
+const NOTE_MS = 3000;
 const SLOT_H = 200;
 const ENEMY_W = 196;
 const CARD_W = 246;
@@ -86,6 +88,8 @@ export class FormationEditor {
   /** Вердикт «сил хватает / чуть не хватает / слабее» (только у этапа). */
   private verdict: Phaser.GameObjects.Container | null = null;
   private readonly tip: Phaser.GameObjects.Text;
+  /** RR-17: короткая заметка в строке подсказки («Отряд расставлен автоматически») и когда она отживёт. */
+  private note: { text: string; until: number } | null = null;
   private readonly fixBtn: ReturnType<typeof button>;
   private slotViews: Phaser.GameObjects.Container[] = [];
   private cardViews = new Map<string, Phaser.GameObjects.Container>();
@@ -370,6 +374,13 @@ export class FormationEditor {
       this.tip.setText(`${names.join(', ')} во фронте — дальнему бою место в тылу`).setColor(C.warning).setX(40).setOrigin(0, 0.5);
       ellipsize(this.tip, GAME_W - 400);
     } else {
+      // RR-17: «Отряд расставлен автоматически» — строкой подсказки над списком, а не тостом на названии этапа.
+      const note = this.note && this.scene.time.now < this.note.until ? this.note.text : null;
+      if (note) {
+        this.tip.setText(note).setColor(C.success).setX(GAME_W / 2).setOrigin(0.5);
+        ellipsize(this.tip, 1000);
+        return;
+      }
       const msg = !save.squad.some(Boolean)
         ? 'Поставьте в отряд хотя бы одного героя'
         : this.selected !== null
@@ -617,8 +628,16 @@ export class FormationEditor {
   }
 
   /** Отряд целиком заменён снаружи (авто, пресет) — перерисовать. */
-  replaced(): void {
+  replaced(note?: string): void {
     this.selected = null;
+    if (note) {
+      const until = this.scene.time.now + NOTE_MS;
+      this.note = { text: note, until };
+      // Подсказка вернётся к обычной, когда заметка отжила (если за это время ничего не менялось).
+      this.scene.time.delayedCall(NOTE_MS + 20, () => {
+        if (this.note?.until === until && this.tip.scene) this.draw();
+      });
+    }
     this.draw();
   }
 }
