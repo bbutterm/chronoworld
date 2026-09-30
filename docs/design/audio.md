@@ -137,7 +137,7 @@ id события = имя файла владельца (`assets/audio/<id>.ogg
 | Глава 6 корабль, Альберта | `map_shipwreck` / `battle_shipwreck` | `15.mp3` Theme of Alberta / `17.mp3` Treasure Hunter | `music_map_shipwreck` / `music_battle_shipwreck` |
 | Глава 7 Альдебаран, часовая башня | `map_clocktower` / `battle_clocktower` | `39.mp3` Theme of Al de Baran / `60.mp3` Aeon | `music_map_clocktower` / `music_battle_clocktower` |
 | Глава 8 Гласт Хейм | `map_crypt` / `battle_crypt` | `42.mp3` (название проверить) / `40.mp3` Fear… | `music_map_crypt` / `music_battle_crypt` |
-| Глава 9 Лабиринтный лес (главы ещё нет) | `map_labyrinth` / `battle_labyrinth` | `16.mp3` Labyrinth (карта и бой) | `music_map_labyrinth` (бой берёт его же) |
+| Глава 9 Лабиринтный лес | `map_labyrinth` / `battle_labyrinth` | `16.mp3` Labyrinth (карта), `47.mp3` (pay_dun03–04, бой) | `music_map_labyrinth`, `music_battle_labyrinth` |
 | Глава 10 Нифльхейм | `map_niflheim` / `battle_niflheim` | `84.mp3` / `85.mp3` (названия проверить) | `music_map_niflheim` / `music_battle_niflheim` |
 | Бой с боссом (все главы) | `boss` | `06.mp3` Risk Your Life | `music_boss` |
 | Топи (только ярус Башни; бои Башни играют `battle_tower`) | `map_swamp` / `battle_swamp` | — (запас) | `music_map_swamp` / `music_battle_swamp` |
