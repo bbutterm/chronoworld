@@ -98,6 +98,7 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
         const parts: string[] = [];
         for (const [k, v] of Object.entries(st.stats ?? {})) if (v) parts.push(`${signed(v)} ${STAT_RU[k] ?? k}`);
         if (st.stun) parts.push('оглушение');
+        if (st.taunt) parts.push('бьёт только заклинателя');
         // RN-08: бой идёт по секундам — длительность и тики статуса в секундах (combat.json statusTurnSeconds).
         const tick = o.turnSeconds > 0 ? o.turnSeconds : 1;
         const secs = (x: number) => `${Math.round(x * 10) / 10}`.replace('.', ',');
@@ -111,6 +112,11 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
       case 'dash':
         out.push('Рывок к цели');
         break;
+      case 'link': {
+        const dur = `${e.turns} ${plural(e.turns, 'ход', 'хода', 'ходов')}`;
+        out.push(`Связь: ${pct(e.pct)} урона по цели — на себя, ${dur} (рвётся ниже ${pct(e.breakAtHpPct)} своих ОЗ)`);
+        break;
+      }
     }
   }
   if (sk.fallback) {

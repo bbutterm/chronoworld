@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_crusader_devotion",
   "name": "Самопожертвование",
-  "description": "Щит 20% ОЗ самому раненому союзнику.",
+  "description": "Щит 10% ОЗ самому раненому союзнику и связь на 4 хода: 40% урона по нему принимает крестоносец.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {
@@ -14,7 +14,13 @@
   "effects": [
     {
       "type": "shield",
-      "pctMaxHp": 0.2
+      "pctMaxHp": 0.1
+    },
+    {
+      "type": "link",
+      "pct": 0.4,
+      "turns": 4,
+      "breakAtHpPct": 0.25
     }
   ]
 }

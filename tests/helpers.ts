@@ -108,6 +108,8 @@ export function unit(side: 'A' | 'B', slot: number, x: number, y: number, patch:
     range: Infinity,
     engage: null,
     moving: null,
+    behavior: 'line',
+    bh: { name: 'Держит линию' },
     ...patch,
   };
 }

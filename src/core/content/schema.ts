@@ -49,6 +49,11 @@ export const StatusSchema = z.object({
   stun: z.boolean().optional(),
   /** Урон раз в «ход» (statusTurnSeconds) после наложения: ATK наложившего × k. */
   dot: z.object({ k: z.number().positive() }).optional(),
+  /**
+   * Провокация (docs/design/battle-behavior.md, «Страж»): носитель бьёт одиночными атаками и навыками (pick не all)
+   * наложившего статус, пока тот жив; ближний носитель идёт к нему (лимит бойцов на цель не действует).
+   */
+  taunt: z.boolean().optional(),
 });
 
 export const EffectSchema = z.discriminatedUnion('type', [
@@ -59,6 +64,11 @@ export const EffectSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('energy'), amount: z.number() }),
   /** Рывок к первой цели (встать вплотную). */
   z.object({ type: z.literal('dash') }),
+  /**
+   * Связь (Самопожертвование крестоносца): pct урона по цели-союзнику уходит исполнителю, пока связь жива (turns «ходов»)
+   * и у исполнителя больше breakAtHpPct ОЗ. Одна связь на исполнителя; перенаправленный урон дальше не перенаправляется.
+   */
+  z.object({ type: z.literal('link'), pct: z.number().positive().max(0.5), turns: z.number().int().positive(), breakAtHpPct: z.number().min(0).max(1).default(0.25) }),
 ]);
 
 export const SkillSchema = z.object({
@@ -117,7 +127,43 @@ export const BarksSchema = z.object({
   half: bark.optional(),
   defeat: bark.optional(),
   victory: bark.optional(),
+  /** Фаза «ярость» (phases[].bark = rage): облачко в момент фазы. */
+  rage: bark.optional(),
 });
+
+/**
+ * Действие фазы босса (docs/design/battle-behavior.md §2.5): новый активный навык (готов сразу), статус на себя (ярость),
+ * энергия (мгновенная ульта), щит, призыв свиты. Свита: статы юнита unit, ОЗ = доля ОЗ босса hp, АТК = доля АТК босса atk,
+ * ЗАЩ = доля ЗАЩ босса def (по умолчанию как atk) — сила свиты растёт с множителем этапа сама.
+ */
+export const PhaseActionSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('addActive'), skill: id }),
+  z.object({ type: z.literal('status'), status: StatusSchema }),
+  z.object({ type: z.literal('energy'), amount: z.number() }),
+  z.object({ type: z.literal('shield'), pctMaxHp: z.number().positive().max(1) }),
+  z.object({
+    type: z.literal('summon'),
+    unit: id,
+    count: z.number().int().min(1).max(4),
+    hp: z.number().positive().max(1),
+    atk: z.number().positive().max(2),
+    def: z.number().positive().max(2).optional(),
+  }),
+]);
+
+/**
+ * Фаза: порог ОЗ (atHpPct, доля) или секунда боя (atSeconds) — ровно одно. Срабатывает один раз в начале следующего тика
+ * после пересечения порога; title — надпись над полосой босса («Фаза 2», «Ярость!»), bark — реплика из barks.
+ */
+export const PhaseSchema = z
+  .object({
+    atHpPct: z.number().gt(0).lt(1).optional(),
+    atSeconds: z.number().positive().optional(),
+    title: z.string().min(1).max(24),
+    bark: z.enum(['half', 'rage']).optional(),
+    actions: z.array(PhaseActionSchema).min(1),
+  })
+  .refine((p) => (p.atHpPct === undefined) !== (p.atSeconds === undefined), 'фаза: ровно одно из atHpPct / atSeconds');
 
 export const UnitSchema = z.object({
   $schema: z.string().optional(),
@@ -140,6 +186,13 @@ export const UnitSchema = z.object({
   skillPower: z.number().positive().optional(),
   /** Боевые реплики (только у боссов — kind boss; у остальных content:check предупредит, в бою не покажутся). */
   barks: BarksSchema.optional(),
+  /**
+   * Профиль поведения в бою — id из data/combat.json → behaviors (docs/design/battle-behavior.md). Нет — профиль
+   * по умолчанию (combat.json → behaviorDefaults по виду, роли и дальности). Героям кладёт buildUnit (ветка → шаблон → профессия).
+   */
+  behavior: id.optional(),
+  /** Фазы босса и мини-босса: пороги ОЗ / секунды боя и что происходит (новая атака, призыв свиты, ярость). */
+  phases: z.array(PhaseSchema).max(3).optional(),
 });
 
 export type Stats = z.infer<typeof StatsSchema>;
@@ -150,3 +203,5 @@ export type Effect = z.infer<typeof EffectSchema>;
 export type SkillDef = z.infer<typeof SkillSchema>;
 export type UnitDef = z.infer<typeof UnitSchema>;
 export type BarksDef = z.infer<typeof BarksSchema>;
+export type PhaseDef = z.infer<typeof PhaseSchema>;
+export type PhaseActionDef = z.infer<typeof PhaseActionSchema>;

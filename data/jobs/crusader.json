@@ -47,5 +47,6 @@
   "visual": {
     "sprite": "guard",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "paladin"
 }

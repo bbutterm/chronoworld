@@ -19,5 +19,6 @@
   "visual": {
     "sprite": "eclipse",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "leaper"
 }

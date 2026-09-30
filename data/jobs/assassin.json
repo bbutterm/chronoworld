@@ -47,5 +47,6 @@
   "visual": {
     "sprite": "assassin",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "assassin"
 }

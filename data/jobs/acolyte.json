@@ -52,5 +52,6 @@
     "sprite": "acolyte",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
-  }
+  },
+  "behavior": "medic"
 }

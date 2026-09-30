@@ -47,5 +47,6 @@
   "visual": {
     "sprite": "blacksmith",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "trader"
 }

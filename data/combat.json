@@ -40,16 +40,6 @@
     "minSeparation": 70,
     "meleeAoeRadius": 200,
     "maxMeleePerTarget": 2,
-    "diveStay": [
-      "mob_lunatic_leap",
-      "assassin_leap",
-      "mob_eclipse_moon_leap",
-      "mob3_fast_haunt",
-      "orc_chonchon_dive",
-      "job_assassin_venom_splasher",
-      "job_rogue_back_stab",
-      "job_monk_asura_strike"
-    ],
     "diveReturnSeconds": 0.8
   },
   "slots": {
@@ -94,5 +84,118 @@
         1730
       ]
     ]
+  },
+  "behaviors": {
+    "line": {
+      "name": "Держит линию",
+      "$comment": "Нулевой профиль: ближний — к ближайшему врагу фронта (не больше 2 на цель), дальний стоит на слоте."
+    },
+    "guard": {
+      "name": "Страж",
+      "intercept": {
+        "radius": 450,
+        "cooldown": 6
+      }
+    },
+    "paladin": {
+      "name": "Защитник",
+      "protect": true
+    },
+    "charger": {
+      "name": "Таран"
+    },
+    "marksman": {
+      "name": "Стрелок",
+      "focus": {
+        "pick": "lowestHpPct",
+        "margin": 0.25
+      },
+      "kite": {
+        "step": 160,
+        "trigger": 20,
+        "cooldown": 4,
+        "max": 3,
+        "minGain": 60
+      }
+    },
+    "trapper": {
+      "name": "Охотник-ловец",
+      "focus": {
+        "pick": "lowestHpPct",
+        "margin": 0.25
+      },
+      "kite": {
+        "step": 160,
+        "trigger": 20,
+        "cooldown": 4,
+        "max": 3,
+        "minGain": 60
+      }
+    },
+    "caster": {
+      "name": "Маг"
+    },
+    "counter": {
+      "name": "Контрмаг"
+    },
+    "medic": {
+      "name": "Лекарь за танком",
+      "anchor": {
+        "followDist": 220,
+        "followSlack": 120,
+        "maxDrift": 250,
+        "yShare": 0.3
+      },
+      "panicPct": 0.35,
+      "kite": {
+        "step": 140,
+        "trigger": 20,
+        "cooldown": 4,
+        "max": 1,
+        "minGain": 60
+      }
+    },
+    "aura": {
+      "name": "Бард"
+    },
+    "assassin": {
+      "name": "Ассасин",
+      "dive": {
+        "stay": true,
+        "priority": [
+          "healer",
+          "support",
+          "ranged"
+        ]
+      }
+    },
+    "leaper": {
+      "name": "Прыгун",
+      "$comment": "Монстры-прыгуны (Лунатик, Затмение, Чончон, «Призрак»): остаются в тылу, цель прыжка — по селектору навыка.",
+      "dive": {
+        "stay": true,
+        "priority": []
+      }
+    },
+    "flanker": {
+      "name": "Вор",
+      "flank": {
+        "angle": 90
+      }
+    },
+    "trader": {
+      "name": "Торговец"
+    }
+  },
+  "behaviorDefaults": {
+    "boss": "line",
+    "monster": "line",
+    "hero": "line"
+  },
+  "enrage": {
+    "$comment": "Ярость всех после 60 с боя (QA RN-22: бои до «времени вышло» при живом отряде): урон +10% за каждую секунду сверх (к 75 с — ×2,5, к 90 с — ×4), лечение и щиты −5% за секунду (с 80 с — ноль). Замер на пороге этапов глав 4–5: поражений по таймеру 94/130 → 28/34 из 324 (было 0,025 без ослабления лечения).",
+    "afterSeconds": 60,
+    "perSecond": 0.1,
+    "healPerSecond": 0.05
   }
 }

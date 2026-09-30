@@ -2,8 +2,9 @@ import type { ChapterDef, StageInfo } from './campaign/schema';
 import type { SkillDef, StatMods, StatusDef, UnitDef } from './content/schema';
 import type { JobDef } from './progression/schema';
 import type { HeroTemplate } from './heroes/schema';
+import type { BehaviorProfile, EnrageConfig } from './behavior';
 
-export type { Effect, SkillDef, StatMods, StatusDef, Stats, TargetDef, UnitDef } from './content/schema';
+export type { Effect, PhaseActionDef, PhaseDef, SkillDef, StatMods, StatusDef, Stats, TargetDef, UnitDef } from './content/schema';
 
 export type Side = 'A' | 'B';
 
@@ -55,11 +56,7 @@ export interface CombatConfig {
      * (первой — ту, что по обычной атаке, дальше ближайшую свободную). Рывок считается сверх лимита.
      */
     maxMeleePerTarget?: number;
-    /**
-     * Прыгнув в тыл, остаются там только юниты из этого списка («ассасины»). Остальные бьют и через
-     * diveReturnSeconds после рывка прыгают назад, к прежнему противнику.
-     */
-    diveStay?: string[];
+    /** Прыжок в тыл без «остаться» (профиль без dive.stay): через столько секунд после рывка — назад к прежнему противнику. */
     diveReturnSeconds?: number;
   };
   /** Полёт снаряда дальней атаки (с): урон приходит позже, по погибшей к тому времени цели снаряд пропадает. */
@@ -71,6 +68,12 @@ export interface CombatConfig {
    * Новые щиты складываются до потолка — как в AFK «щит до X% макс. здоровья».
    */
   shieldCapPctMaxHp?: number;
+  /** Библиотека профилей поведения (docs/design/battle-behavior.md): id → правила и числа. */
+  behaviors?: Record<string, BehaviorProfile>;
+  /** Профиль по умолчанию: `<kind>_<role>_<melee|ranged>`, затем `<kind>`; нет — line. */
+  behaviorDefaults?: Record<string, string>;
+  /** Мягкая ярость всех после afterSeconds боя: урон растёт на perSecond за секунду сверх порога. */
+  enrage?: EnrageConfig;
   slots: { count: number; front: number[]; back: number[] };
   field: {
     width: number;
@@ -128,6 +131,11 @@ export interface Unit {
   /** Цель сражения ближнего бойца: к ней он идёт и её бьёт. */
   engage: Unit | null;
   moving: { toX: number; toY: number } | null;
+  /** Профиль поведения (id из combat.json → behaviors) и его правила. */
+  behavior: string;
+  bh: BehaviorProfile;
+  /** Призван фазой босса посреди боя (свита). */
+  summoned?: boolean;
 }
 
 export type StatMod = keyof StatMods;
@@ -141,7 +149,16 @@ export type BattleEvent = BaseEvent &
   (
     | { type: 'turn'; unit: string }
     | { type: 'skip'; unit: string; reason: 'stun' }
-    | { type: 'move'; unit: string; from: [number, number]; to: [number, number]; duration: number; kind: 'walk' | 'dash' }
+    | {
+        type: 'move';
+        unit: string;
+        from: [number, number];
+        to: [number, number];
+        duration: number;
+        kind: 'walk' | 'dash';
+        /** Почему (профили поведения): kite — отход стрелка, follow — лекарь за танком, intercept — перехват стража. */
+        reason?: 'kite' | 'follow' | 'intercept';
+      }
     | {
         type: 'attack';
         unit: string;
@@ -176,6 +193,8 @@ export type BattleEvent = BaseEvent &
         shield: number;
         energy: number;
         dot?: boolean;
+        /** Урон перенаправлен связью (Самопожертвование): target — защитник, from — тот, кого он закрыл. */
+        redirect?: string;
       }
     | { type: 'heal'; source: string; target: string; amount: number; hp: number }
     | { type: 'buff'; source: string; target: string; kind: 'shield'; amount: number; shield: number }
@@ -189,7 +208,20 @@ export type BattleEvent = BaseEvent &
         action: 'apply' | 'expire';
         /** Для apply: длительность в секундах боя (turns × statusTurnSeconds). */
         seconds?: number;
+        /** Статус-провокация: носитель бьёт source. */
+        taunt?: boolean;
       }
+    | { type: 'link'; unit: string; target: string; action: 'apply' | 'break'; pct?: number; seconds?: number }
+    | {
+        type: 'phase';
+        unit: string;
+        /** Номер фазы в phases юнита (с 0). */
+        index: number;
+        title: string;
+        bark?: 'half' | 'rage';
+      }
+    | { type: 'spawn'; unit: string; unitId: string; source: string; x: number; y: number; maxHp: number }
+    | { type: 'enrage'; afterSeconds: number; perSecond: number }
     | { type: 'energy'; unit: string; energy: number }
     | { type: 'death'; unit: string; killer: string | null }
     | { type: 'end'; winner: Side; reason: 'wipe' | 'timeout' }
@@ -224,6 +256,8 @@ export interface BattleResult {
   reason: 'wipe' | 'timeout';
   duration: number;
   units: UnitSnapshot[];
+  /** Призванные посреди боя (свита фаз босса): снимки на момент появления; в отчёте report есть, в units — нет. */
+  spawned?: (UnitSnapshot & { t: number })[];
   log: BattleEvent[];
   report: Record<string, UnitReport>;
 }

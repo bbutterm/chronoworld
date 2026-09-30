@@ -29,5 +29,6 @@
   "visual": {
     "sprite": "novice",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "line"
 }

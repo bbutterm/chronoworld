@@ -5,6 +5,7 @@ export * from './config';
 export * from './formulas';
 export * from './targeting';
 export * from './battle';
+export * from './behavior';
 export * from './stats';
 export * from './content/schema';
 export * from './content/build';

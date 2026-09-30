@@ -19,5 +19,6 @@
   "visual": {
     "sprite": "lunatic",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "leaper"
 }

@@ -3,6 +3,7 @@
  *   npm run sim -- --a guard,warrior,archer,mage,priest --b guard,warrior,archer,mage,priest --n 1000
  *   npm run sim -- --a <отряд> --swaps --n 500     замена одного героя в зеркальном отряде
  *   npm run sim -- --log --seed 42                 лог одного боя
+ *   npm run sim -- ... --behavior off              бой как до профилей поведения (docs/design/battle-behavior.md) — для сравнения
  * Отряд — 5 id юнитов через запятую по слотам (0–1 фронт, 2–4 тыл), "-" — пустой слот.
  */
 import { parseSquad, runSeries, simulateBattle, swapCheck } from '../src/core';
@@ -20,13 +21,14 @@ const squadA = parseSquad(arg('a') ?? phase0.defaultSquadA.join(','));
 const squadB = parseSquad(arg('b') ?? arg('a') ?? phase0.defaultSquadB.join(','));
 const n = Number(arg('n') ?? 1000);
 const seed = Number(arg('seed') ?? 1);
+const opts = { behavior: arg('behavior') !== 'off' };
 
 const name = (id: string | null) => (id ? (content.units[id]?.name ?? id) : '—');
 const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
 const fmtSquad = (s: (string | null)[]) => `[${s.slice(0, 2).map(name).join(', ')} | ${s.slice(2).map(name).join(', ')}]`;
 
 if (flag('log')) {
-  const r = simulateBattle(content, squadA, squadB, seed);
+  const r = simulateBattle(content, squadA, squadB, seed, opts);
   for (const e of r.log) {
     const { t, type, ...rest } = e;
     console.log(`${t.toFixed(1).padStart(5)}  ${type.padEnd(7)} ${JSON.stringify(rest)}`);
@@ -43,7 +45,7 @@ if (flag('log')) {
   console.log(`${(ms / 1000).toFixed(2)} с`);
 } else {
   const started = performance.now();
-  const r = runSeries(content, squadA, squadB, n, seed);
+  const r = runSeries(content, squadA, squadB, n, seed, opts);
   const ms = performance.now() - started;
   console.log(`A ${fmtSquad(squadA)}`);
   console.log(`B ${fmtSquad(squadB)}`);
