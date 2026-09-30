@@ -168,10 +168,13 @@ describe('шаг 5: трусы, стаи, таран', () => {
         const foes = enemySquad(stage, ctx);
         const r = simulateBattle(ctx.content, [...SQ[0]], foes, seed, { combat: ctx.combat });
         const r0 = simulateBattle(ctx.content, [...SQ[0]], foes, seed, { combat: flat });
-        const f = r.log.find((e): e is Move => e.type === 'move' && e.reason === 'flee');
-        if (!f) continue;
-        const fi = r.log.indexOf(f);
-        const i = r.log.findIndex((e, k) => k > fi && e.type === 'damage' && e.target === f.unit && !e.redirect);
+        // Первый удар по любому бегущему (раньше прибавка ни на что не влияла).
+        const secs = base.coward!.seconds;
+        const flee = new Map<string, number>();
+        const i = r.log.findIndex((e) => {
+          if (e.type === 'move' && e.reason === 'flee') flee.set(e.unit, e.t);
+          return e.type === 'damage' && !e.redirect && flee.has(e.target) && e.t < flee.get(e.target)! + secs - 1e-9;
+        });
         if (i < 0) continue;
         // До этого удара бои одинаковые (прибавка ещё ни на что не влияла).
         expect(JSON.stringify(r0.log.slice(0, i))).toBe(JSON.stringify(r.log.slice(0, i)));
