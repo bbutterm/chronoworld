@@ -649,7 +649,7 @@ export class HeroScene extends Phaser.Scene {
     // Сила навыков редкости (золотой и красный).
     const power = rarityDef(GAME, hero.rarity).skillPower;
     const nextPow = GAME.cards.rarities.find((r) => r.skillPower > power);
-    const note = power !== 1 ? `Сила навыков ×${power} (${c.rarity.name})` : nextPow ? `С редкости «${nextPow.name}» — сила навыков ×${nextPow.skillPower}` : '';
+    const note = power !== 1 ? `Сила навыков ×${power} (${c.rarity.name})` : nextPow ? `Вознесение до редкости «${nextPow.name}» усилит навыки ×${nextPow.skillPower}` : '';
     if (note) {
       a.add(text(this, 60, y + 34, note, FS.caption, power !== 1 ? C.gold : C.dim, { fontStyle: power !== 1 ? 'bold' : 'normal' }).setOrigin(0, 0.5));
       y += 64;

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob4_scorpion_sting",
   "name": "Жало скорпиона",
-  "description": "Рывок к врагу тыла с наименьшим ОЗ: удар жалом и яд на 3 хода.",
+  "description": "Рывок к врагу тыла с наименьшим ОЗ: удар жалом и яд на 3 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

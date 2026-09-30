@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_rogue_strip_weapon",
   "name": "Разоружение",
-  "description": "Удар и −40% атаки цели на 3 хода.",
+  "description": "Удар и −40% атаки цели на 3 с.",
   "icon": "icon_ult_assassin",
   "range": "melee",
   "target": {

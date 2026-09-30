@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_crusader_shield_charge",
   "name": "Удар щитом",
-  "description": "Удар щитом (×1,5) ближайшему врагу фронта, шанс 40% оглушить на 1 ход.",
+  "description": "Удар щитом (×1,5) ближайшему врагу фронта, шанс 40% оглушить на 1 с.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

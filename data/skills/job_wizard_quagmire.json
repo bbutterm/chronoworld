@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_wizard_quagmire",
   "name": "Трясина",
-  "description": "−25% скорости и −15% защиты всем врагам на 3 хода.",
+  "description": "−25% скорости и −15% защиты всем врагам на 3 с.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

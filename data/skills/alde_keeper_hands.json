@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "alde_keeper_hands",
   "name": "Стрелки-клинки",
-  "description": "Две стрелки срываются с циферблата в тыл: урон двум врагам и 35% оглушить на ход.",
+  "description": "Две стрелки срываются с циферблата в тыл: урон двум врагам и 35% оглушить на 1 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

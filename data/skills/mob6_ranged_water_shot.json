@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob6_ranged_water_shot",
   "name": "Водяной выстрел",
-  "description": "Струя воды в самого раненого врага: урон и «Промок» (−25% скорости) на 2 хода.",
+  "description": "Струя воды в самого раненого врага: урон и «Промок» (−25% скорости) на 2 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

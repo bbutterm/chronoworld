@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_priest_magnificat",
   "name": "Магнификат",
-  "description": "В начале боя: +10% скорости всем союзникам на 5 ходов — навыки чаще.",
+  "description": "В начале боя: +10% скорости всем союзникам на 5 с — навыки чаще.",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {

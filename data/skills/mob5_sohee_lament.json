@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob5_sohee_lament",
   "name": "Призрачный плач",
-  "description": "Сохи плачет над лесом: лечит всех союзников и даёт им +15% атаки на 2 хода.",
+  "description": "Сохи плачет над лесом: лечит всех союзников и даёт им +15% атаки на 2 с.",
   "range": "ranged",
   "target": {
     "side": "ally",

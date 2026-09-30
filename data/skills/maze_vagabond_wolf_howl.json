@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "maze_vagabond_wolf_howl",
   "name": "Вой бродяги",
-  "description": "Волк воем собирает стаю: все союзники и он сам получают +20% атаки на 2 хода.",
+  "description": "Волк воем собирает стаю: все союзники и он сам получают +20% атаки на 2 с.",
   "range": "ranged",
   "target": {
     "side": "ally",

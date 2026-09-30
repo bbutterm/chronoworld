@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_alchemist_acid_terror",
   "name": "Кислотный террор",
-  "description": "Урон и −20% защиты цели на 3 хода.",
+  "description": "Урон и −20% защиты цели на 3 с.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

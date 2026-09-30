@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob6_elite_tentacles",
   "name": "Хватка щупалец",
-  "description": "Щупальца хлещут фронт: урон по двум врагам, 40% оглушить на ход.",
+  "description": "Щупальца хлещут фронт: урон по двум врагам, 40% оглушить на 1 с.",
   "range": "melee",
   "target": {
     "side": "enemy",

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_sage_volcano",
   "name": "Вулкан",
-  "description": "+25% атаки всем союзникам на 4 хода.",
+  "description": "+25% атаки всем союзникам на 4 с.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

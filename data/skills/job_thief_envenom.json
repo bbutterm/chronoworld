@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_thief_envenom",
   "name": "Отравление",
-  "description": "Удар ядом: урон и яд на 3 хода.",
+  "description": "Удар ядом: урон и яд на 3 с.",
   "icon": "icon_ult_assassin",
   "range": "melee",
   "target": {

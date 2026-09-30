@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob3_knight_abyss_charge",
   "name": "Натиск бездны",
-  "description": "Рыцарь бездны таранит весь фронт: урон и треснувшая броня (−25% защиты на 2 хода).",
+  "description": "Рыцарь бездны таранит весь фронт: урон и треснувшая броня (−25% защиты на 2 с).",
   "range": "melee",
   "target": {
     "side": "enemy",

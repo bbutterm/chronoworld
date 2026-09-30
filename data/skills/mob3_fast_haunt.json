@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob3_fast_haunt",
   "name": "Пикирование",
-  "description": "Рывок к врагу тыла с наименьшим ОЗ, удар и страх (−20% атаки на 2 хода).",
+  "description": "Рывок к врагу тыла с наименьшим ОЗ, удар и страх (−20% атаки на 2 с).",
   "range": "ranged",
   "target": {
     "side": "enemy",

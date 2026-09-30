@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob4_isis_blessing",
   "name": "Благословение Изиды",
-  "description": "Изида поёт гимн пирамиды: всем союзникам щит 12% макс. ОЗ и +20% атаки на 2 хода.",
+  "description": "Изида поёт гимн пирамиды: всем союзникам щит 12% макс. ОЗ и +20% атаки на 2 с.",
   "range": "ranged",
   "target": {
     "side": "ally",

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "orc_lady_war_drum",
   "name": "Барабан войны",
-  "description": "Орчиха бьёт в барабан: всем союзникам щит 10% макс. ОЗ и +15% атаки на 2 хода.",
+  "description": "Орчиха бьёт в барабан: всем союзникам щит 10% макс. ОЗ и +15% атаки на 2 с.",
   "range": "ranged",
   "target": {
     "side": "ally",
