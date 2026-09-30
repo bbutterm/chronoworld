@@ -7,7 +7,6 @@ import {
   enemySquad,
   fightHunt,
   getStage,
-  levelBand,
   orderActives,
   progressLevelBand,
   recommendedFactor,
@@ -27,7 +26,7 @@ import {
 } from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
-import { enemyLevelColor, heroSprite, levelLabel, stageNo, stageSeed } from '../flow';
+import { enemyLevelColor, heroSprite, levelLabel, stageLevelsFor, stageNo, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { SKIN, SKIN_TINT } from '../skin';
@@ -373,7 +372,7 @@ export class BattleScene extends Phaser.Scene {
   /** Осталось паузы «hit stop», мс реального времени (0 — бой идёт). */
   private stopLeft = 0;
   /** Уровни врагов (core/features/levels.ts): редкость полосы и поправка босс-этапа; null — тестовый бой (без уровней). */
-  private levels: { rarity: CardRarity; bossFactor: number } | null = null;
+  private levels: { rarity: CardRarity; bossFactor: number; shift?: number } | null = null;
   /** BUG-061: панель героев отряда над ареной (портрет, здоровье, энергия). */
   private heroPanel: HeroPanel | null = null;
   /** Полоска HP босса наверху (только на босс-этапе). */
@@ -442,7 +441,9 @@ export class BattleScene extends Phaser.Scene {
       this.defs = squadDefs(save);
       for (const u of enemySquad(data.stageId, GAME)) if (u) this.defs[u.id] = u;
       const st = getStage(GAME, data.stageId);
-      this.levels = { rarity: levelBand(data.stageId, GAME).rarity, bossFactor: recommendedFactor(data.stageId, GAME) };
+      // RR-16: та же шкала, что на экране этапа (редкость отряда, типичный враг = рекомендуемый уровень).
+      const lv = stageLevelsFor(save, data.stageId, GAME);
+      this.levels = { rarity: lv.rarity, bossFactor: recommendedFactor(data.stageId, GAME), shift: lv.shift };
       title = `Этап ${stageNo(st, GAME)}. ${st.name}`;
       this.theme = themeOfBattle({ stageId: data.stageId });
     } else if (data.mode === 'tower') {
@@ -857,7 +858,7 @@ export class BattleScene extends Phaser.Scene {
 
   /** Уровень врага в этом бою (null — тестовый бой). */
   private enemyLevel(def: UnitDef): number | null {
-    return this.levels ? unitLevel(def, this.levels.rarity, GAME, this.levels.bossFactor) : null;
+    return this.levels ? Math.max(1, unitLevel(def, this.levels.rarity, GAME, this.levels.bossFactor) + (this.levels.shift ?? 0)) : null;
   }
 
   /** Подпись (имя, название каста) — целиком внутри экрана, даже у юнита у самого края (T3-02). */
