@@ -3,10 +3,10 @@ import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, loo
 import catalogJson from '../assets/effects/effects.json';
 
 describe('RO animated effects', () => {
-  it('queues all 43 captured atlases (42 листа, осколок Frost Diver — два вида) with catalog cell sizes', () => {
+  it('queues all 73 captured atlases with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(43);
+    expect(queued).toHaveLength(73);
     expect(queued).toContainEqual(['anim_fx_job_sage_volcano_ground', 'effects/fx_job_sage_volcano_ground.png', 122, 98]);
     expect(queued).toContainEqual(['anim_fx_job_thief_venom_knife_projectile', 'effects/fx_job_thief_venom_knife_projectile.png', 42, 38]);
     expect(queued).toContainEqual(['anim_fx_job_thief_steal', 'effects/fx_job_thief_steal.png', 188, 176]);
@@ -60,7 +60,8 @@ describe('эффекты навыков (effects.json → skills)', () => {
     expect(skillFx('swordman_endure')?.buff).toBe('fx_swordman_endure');
     expect(skillFx('job_knight_two_hand_quicken')?.buff).toBe('fx_job_knight_two_hand_quicken');
     expect(skillFx('job_sage_earth_spike')?.hit).toBe('fx_job_sage_earth_spike');
-    expect(skillFx('mob2_ranged_poison_arrow')?.hit).toBe('fx_job_thief_envenom');
+    // Яд монстров — эффект монстрового навыка RO NPC_POISON (192), а не Отравление вора (жалоба 30.09 «чужие эффекты»).
+    expect(skillFx('mob2_ranged_poison_arrow')?.hit).toBe('fx_npc_poison');
     // Аудит 30.09: иероглиф 滅 Звукового удара — только у самого Звукового удара, не на каждом разрезе монстров.
     expect(skillFx('mob3_melee_rend')).toBeUndefined();
     expect(skillFx('job_mage_thunderstorm')?.hit).toBe('fx_job_mage_thunderstorm');
@@ -123,13 +124,13 @@ describe('эффекты навыков (effects.json → skills)', () => {
       expect(animatedEffect(id), `rejected: нет атласа ${id}`).toBeDefined();
       expect(used.has(id), `отклонённый атлас ${id} привязан к навыку`).toBe(false);
     }
-    const idle = catalog.effects.map((e) => e.id).filter((id) => !used.has(id) && !(id in rejected) && /^fx_(job|swordman)_/.test(id));
+    const idle = catalog.effects.map((e) => e.id).filter((id) => !used.has(id) && !(id in rejected) && /^fx_(job|swordman|npc)_/.test(id));
     expect(idle).toEqual([]);
   });
 
   it('аудит 30.09: у каждого атласа навыка свой масштаб и смешивание, в разумных пределах', () => {
     const catalog = catalogJson as { effects: { id: string }[] };
-    for (const { id } of catalog.effects.filter((e) => /^fx_(job|swordman)_/.test(e.id))) {
+    for (const { id } of catalog.effects.filter((e) => /^fx_(job|swordman|npc)_/.test(e.id))) {
       const e = animatedEffect(id)!;
       expect(e.scale, `${id}: scale`).toBeGreaterThan(0.5);
       expect(e.scale!, `${id}: scale`).toBeLessThan(4);

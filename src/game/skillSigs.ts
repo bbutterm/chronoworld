@@ -85,7 +85,6 @@ function fly(fx: SkillFx, tex: string, x0: number, y0: number, x1: number, y1: n
 export const FLY_LOOK: Record<string, { w?: number; rot?: 'dir' | 'up'; ground?: boolean; tint?: number }> = {
   fx_job_mage_fire_ball_projectile: { rot: 'dir' },
   // Лёд в захвате бело-сиреневый — с ADD и холодным оттенком читается льдом, а не белой палкой.
-  fx_job_mage_frost_diver_release: { rot: 'up', tint: 0xcdefff },
   fx_job_mage_frost_diver_spikes: { ground: true, tint: 0xcdefff },
 };
 
