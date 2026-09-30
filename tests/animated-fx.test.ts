@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, loopFrameAt, queueAnimatedFx, selectedAnimatedEffect } from '../src/game/animatedFx';
+import catalogJson from '../assets/effects/effects.json';
 
 describe('RO animated effects', () => {
   it('queues all 43 captured atlases (42 листа, осколок Frost Diver — два вида) with catalog cell sizes', () => {
@@ -124,6 +125,25 @@ describe('эффекты навыков (effects.json → skills)', () => {
     }
     const idle = catalog.effects.map((e) => e.id).filter((id) => !used.has(id) && !(id in rejected) && /^fx_(job|swordman)_/.test(id));
     expect(idle).toEqual([]);
+  });
+
+  it('аудит 30.09: у каждого атласа навыка свой масштаб и смешивание, в разумных пределах', () => {
+    const catalog = catalogJson as { effects: { id: string }[] };
+    for (const { id } of catalog.effects.filter((e) => /^fx_(job|swordman)_/.test(e.id))) {
+      const e = animatedEffect(id)!;
+      expect(e.scale, `${id}: scale`).toBeGreaterThan(0.5);
+      expect(e.scale!, `${id}: scale`).toBeLessThan(4);
+      expect(['add', 'normal']).toContain(e.blend);
+      // Самый крупный кадр на экране — не шире поля 1080 (Буря, Великий крест).
+      expect(e.cell[0] * e.scale!, `${id}: ширина на экране`).toBeLessThanOrEqual(1080);
+      if (e.alpha !== undefined) expect(e.alpha).toBeGreaterThan(0.3);
+    }
+    // Светящиеся эффекты RO — ADD (как в клиенте), твёрдые предметы — normal.
+    expect(animatedEffect('fx_job_wizard_storm_gust')!.blend).toBe('add');
+    expect(animatedEffect('fx_job_acolyte_holy_light')!.blend).toBe('add');
+    expect(animatedEffect('fx_job_thief_venom_knife_projectile')!.blend).toBe('normal');
+    // Щит Удара щитом прилетает справа — у героя слева кадр отражается.
+    expect(animatedEffect('fx_job_crusader_shield_charge')!.from).toBe('right');
   });
 
   it('летящий атлас: кадры по кругу без паузы', () => {

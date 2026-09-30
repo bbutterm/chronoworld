@@ -78,6 +78,7 @@ try {
     await assets.holdAnimatedFx(sc, ids);
     window.__sig = await import('/src/game/skillSigs.ts');
     window.__content = (await import('/src/game/content.ts')).CONTENT;
+    window.__look = await import('/src/game/skillLook.ts');
     let t = performance.now();
     window.__t = () => t;
     window.__step = (ms) => {
@@ -116,7 +117,12 @@ try {
         const def = window.__content.skills[skill] ?? { id: skill, range: 'ranged' };
         const at = roles.projectile ? FLIGHT : 0;
         if (roles.cast) sc.castCue(c, skill);
-        if (roles.projectile) S.flyAtlas(sc.sfx, roles.projectile, sc.point(c), sc.point(t), FLIGHT, 0, Math.min(120, Math.abs(t.node.x - c.node.x) * 0.18));
+        // Площадь «стрелы» (Град стрел): как BattleScene — пучок падает сверху на цель; остальные — от кастера к цели.
+        const rain = def.effects && window.__look?.lookOf(def).area === 'arrows';
+        const tp = sc.point(t);
+        const dir = c.snap.side === 'A' ? 1 : -1;
+        if (roles.projectile && rain) S.flyAtlas(sc.sfx, roles.projectile, { x: tp.x - dir * 90, y: tp.y - 520 }, { x: tp.x, y: tp.y - 10 }, 240, FLIGHT - 240, 0);
+        else if (roles.projectile) S.flyAtlas(sc.sfx, roles.projectile, sc.point(c), tp, FLIGHT, 0, Math.min(120, Math.abs(t.node.x - c.node.x) * 0.18));
         if (roles.buff) sc.fx(ally, roles.buff, 1.2, 400);
         if (roles.ground) sc.groundCue(c, def, foes.slice(0, 3), at);
         sc.sfx.later(at, () => {
@@ -148,7 +154,7 @@ try {
         await page.screenshot({ path: f, clip: { x: bx, y: by, width: Math.min(VW - bx, x1 - x0), height: Math.min(VH - by, y1 - y0) } });
         files.push(f);
       }
-      await page.evaluate((ms) => window.__step(ms), 1500);
+      await page.evaluate((ms) => window.__step(ms), 200);
       index[name] = { roles, ...info, files };
     }
   }
