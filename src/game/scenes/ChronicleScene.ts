@@ -6,7 +6,7 @@ import { seenChapterScenes } from '../storyView';
 import { openStoryHistory } from './ChapterDoneScene';
 import { CONTENT, GAME, LORE } from '../content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES } from '../flow';
-import { drawHeroCard, GUILD_NAMES } from '../heroCard';
+import { drawHeroCard } from '../heroCard';
 import { itemCell } from '../itemIcons';
 import { GAME_W } from '../layout';
 import { loreKeys, loreModal, loreUnseen, markLoreSeen, monsterModal, itemModal, roleName, seenLore, type LoreBlock } from '../loreView';
@@ -366,7 +366,8 @@ export class ChronicleScene extends Phaser.Scene {
     }
     loreModal(this, {
       title: t.name,
-      subtitle: `${jobTitle(GAME, t.job, t.gender)} · гильдия ${GUILD_NAMES[t.line] ?? '—'}${h.owned ? '' : ' · не получен'}`,
+      // Гильдию первой профессии называет блок «Гильдия» ниже (data/lore/jobs.json: мечники — Излуд), здесь — путь героя.
+      subtitle: `${jobTitle(GAME, t.job, t.gender)} → ${t.branches.map((b) => jobTitle(GAME, b.job, t.gender)).join(' или ')}${h.owned ? '' : ' · не получен'}`,
       art: (add, x, y) => add(drawHeroCard(this, x, y, h.templateId, { w: 180, showPips: false, greyed: h.owned ? false : 'Не получен' })),
       blocks,
       lock: this.area,

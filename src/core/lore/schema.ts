@@ -39,9 +39,15 @@ export const HeroLoreSchema = z.object({
   quirks: z.array(text),
 });
 
-/** Кусочек истории героя: открывается, когда копия героя доходит до уровня level (docs/design/story.md §4). */
+/**
+ * Кусочек истории героя: открывается, когда копия героя доходит до уровня level (docs/design/story.md §4). Кусочки
+ * уровней 10–50 общие; с 60 (HERO_STORY_BRANCH_FROM) — у каждой ветки второй профессии свои, поле branch — id профессии
+ * ветки из branches карточки (data/heroes). Такой кусочек открывает копия героя на этой ветке.
+ */
 export const HeroStoryPieceSchema = z.object({
   level: z.number().int().positive(),
+  /** Ветка второй профессии (id профессии из branches героя); нет — кусочек общий. */
+  branch: z.string().regex(/^[a-z0-9_]+$/, 'branch — id профессии: латиница a-z, цифры и _').optional(),
   title: z.string().min(1).max(LORE_LIMITS.storyTitle, `заголовок: не длиннее ${LORE_LIMITS.storyTitle} символов`),
   text: z.string().min(1).max(LORE_LIMITS.storyText, `текст: не длиннее ${LORE_LIMITS.storyText} символов`),
 });
@@ -72,8 +78,8 @@ export const ItemsLoreSchema = file(text);
 /** data/lore/heroes.json — id карточки героя (data/heroes) → история и черты. */
 export const HeroesLoreSchema = file(HeroLoreSchema);
 /**
- * data/lore/hero_stories.json — id карточки героя → кусочки истории по уровням (10, 20, … до предела уровня, не выше 100).
- * Пороги и полноту проверяет validateLore (content:check).
+ * data/lore/hero_stories.json — id карточки героя → кусочки истории по уровням: общие 10–50 и по ветке второй профессии
+ * 60–100 (для каждой из двух веток), не выше предела уровня. Пороги и полноту проверяет validateLore (content:check).
  */
 export const HeroStoriesLoreSchema = file(z.array(HeroStoryPieceSchema));
 /** data/lore/jobs.json — id профессии (data/jobs) → описание гильдии/профессии. */

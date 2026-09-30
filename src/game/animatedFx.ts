@@ -27,13 +27,20 @@ export const animatedFxKey = (id: string): string => `anim_${id}`;
 /** Все анимированные эффекты каталога. */
 export const animatedFxIds = (): string[] => [...effects.keys()];
 
-/** Roles are event semantics, not interchangeable atlas labels. Projectile capture is not flight. */
+/**
+ * Роли атласа навыка (effects.json → skills) — по событию боя, не взаимозаменяемы:
+ * - hit — на каждой цели в момент урона; buff — на союзнике при баффе/щите от навыка; debuff — на враге при статусе;
+ * - cast — на кастере в начале каста/удара; ground — один раз по площади навыка (центр целей или под кастером);
+ * - projectile — летит от кастера к цели (кадры крутятся по кругу всё время полёта, flyAtlas в skillSigs.ts):
+ *   рецепты навыков (skillSigs) и общий путь снаряда (BattleScene) берут его вместо процедурного снаряда.
+ */
 export interface SkillFx {
   hit?: string;
   buff?: string;
   cast?: string;
   ground?: string;
   debuff?: string;
+  projectile?: string;
 }
 const skillMap = (catalog as unknown as { skills?: Record<string, SkillFx> }).skills ?? {};
 export const skillFx = (skillId: string | undefined): SkillFx | undefined => (skillId ? skillMap[skillId] : undefined);
@@ -56,6 +63,10 @@ export function selectedAnimatedEffect(id: string, kind: 'flash' | 'projectile',
   return animatedEffect(id);
 }
 export const animatedFxDuration = (effect: AnimatedEffect): number => effect.delayMs + effect.frames * effect.ms;
+
+/** Кадр летящего атласа (projectile) через elapsedMs: кадры идут по кругу, без паузы delayMs. */
+export const loopFrameAt = (effect: AnimatedEffect, elapsedMs: number): number =>
+  effect.frames <= 1 ? 0 : Math.floor(Math.max(0, elapsedMs) / effect.ms + 1e-7) % effect.frames;
 
 /** -1 means the effect is still in its authored pre-roll delay. */
 export function animatedFrameAt(effect: AnimatedEffect, elapsedMs: number): number {

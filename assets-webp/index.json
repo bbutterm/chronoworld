@@ -39,6 +39,16 @@
   "png": 214437,
   "webp": 175136
  },
+ "effects/fx_job_alchemist_acid_terror_projectile.png": {
+  "sha1": "f48950ae203cd460524a0279e17526ad145f90bf",
+  "png": 4710,
+  "webp": 4110
+ },
+ "effects/fx_job_archer_arrow_shower_source.png": {
+  "sha1": "c30f69dccfb7771086c23caab3aa191e0c2f7919",
+  "png": 8074,
+  "webp": 5438
+ },
  "effects/fx_job_assassin_sonic_blow.png": {
   "sha1": "cb5bf0e754e5cbff415f4ccd3b7783981d818552",
   "png": 182268,
@@ -104,6 +114,11 @@
   "png": 641276,
   "webp": 480040
  },
+ "effects/fx_job_mage_frost_diver_release.png": {
+  "sha1": "81152174fc3932eaf10af3ac763f0841078f7324",
+  "png": 23805,
+  "webp": 19222
+ },
  "effects/fx_job_mage_thunderstorm.png": {
   "sha1": "fcb36cf7f7d9cf3605e5d98c0cd4ab2b878463ef",
   "png": 804665,
@@ -129,6 +144,11 @@
   "png": 635854,
   "webp": 482848
  },
+ "effects/fx_job_sage_volcano_ground.png": {
+  "sha1": "576b301def6fd2997673043f469e3675b1f11e51",
+  "png": 182788,
+  "webp": 125032
+ },
  "effects/fx_job_swordman_magnum_break.png": {
   "sha1": "f4581f4e4b1c199a03fd9d8262b4dd158996bd1a",
   "png": 123386,
@@ -143,6 +163,21 @@
   "sha1": "12c96f6fd1a8588222d167aaf3290c9d60d11284",
   "png": 108623,
   "webp": 66648
+ },
+ "effects/fx_job_thief_venom_knife_projectile.png": {
+  "sha1": "d1b00bcfdff4aff2e0ccf018f51c87fc4057a76a",
+  "png": 2775,
+  "webp": 2242
+ },
+ "effects/fx_job_wizard_jupitel_thunder_projectile.png": {
+  "sha1": "76ff0518f510c17fd81022aa9f6873e8bb6cbe56",
+  "png": 23699,
+  "webp": 18912
+ },
+ "effects/fx_job_wizard_jupitel_thunder_target.png": {
+  "sha1": "59a254fa61e38be303c07368212cc183abff14b2",
+  "png": 10123,
+  "webp": 8418
  },
  "effects/fx_job_wizard_meteor_storm.png": {
   "sha1": "ec0bcc0e350f686b4cc61b524d5d23bf6c701221",

@@ -9,7 +9,7 @@ import type { HuntConfig } from '../hunt/schema';
 import type { TowerConfig } from '../tower/schema';
 import { extraBestiaryUnits } from './chronicle';
 import type { Content } from '../types';
-import { heroStoryLevels } from './heroStories';
+import { heroStoryBranchLevels, heroStoryCommonLevels } from './heroStories';
 import { HeroesLoreSchema, HeroStoriesLoreSchema, ItemsLoreSchema, JobsLoreSchema, LINE_KINDS, LinesLoreSchema, LORE_LIMITS, MonstersLoreSchema, WorldLoreSchema, type LineKind, type Lore } from './schema';
 
 export const emptyLines = (): Lore['lines'] => Object.fromEntries(Object.keys(LINE_KINDS).map((k) => [k, []])) as unknown as Record<LineKind, string[]>;
@@ -133,7 +133,8 @@ export function validateLore(lore: Lore, ctx: LoreCheckContext): { errors: strin
     if (h.quirks.length > LORE_LIMITS.quirks) warnings.push(`${at}.quirks: ${h.quirks.length} черт — больше ${LORE_LIMITS.quirks}`);
     h.quirks.forEach((q, i) => long(`${at}.quirks.${i}`, q, LORE_LIMITS.quirk));
   }
-  // Истории героев кусочками: файл есть — у каждого героя все пороги (10, 20, … до предела его редкости, не выше 100).
+  // Истории героев кусочками: файл есть — у каждого героя все пороги: общие 10–50 и по каждой из двух веток второй
+  // профессии 60–100 (до предела его редкости, не выше 100). branch — только у кусочков с 60 и только ветки этого героя.
   if (Object.keys(lore.heroStories).length) {
     for (const id of Object.keys(lore.heroStories)) {
       if (!ctx.content.heroes[id]) errors.push(`data/lore/hero_stories.json: ${id} — нет карточки героя в data/heroes`);
@@ -141,15 +142,24 @@ export function validateLore(lore: Lore, ctx: LoreCheckContext): { errors: strin
     for (const t of Object.values(ctx.content.heroes)) {
       const at = `data/lore/hero_stories.json: ${t.id}`;
       const cap = ctx.cards?.rarities.find((r) => r.id === t.maxRarity)?.maxLevel ?? 100;
-      const want = heroStoryLevels(cap);
       const list = lore.heroStories[t.id] ?? [];
-      const have = list.map((p) => p.level);
-      const missing = want.filter((l) => !have.includes(l));
-      const extra = have.filter((l) => !want.includes(l));
-      const dup = have.filter((l, i) => have.indexOf(l) !== i);
-      if (missing.length) errors.push(`${at} — нет кусочков истории для уровней ${missing.join(', ')}`);
-      if (extra.length) errors.push(`${at} — лишние пороги ${extra.join(', ')} (ожидаются ${want.join(', ')})`);
-      if (dup.length) errors.push(`${at} — порог повторяется: ${dup.join(', ')}`);
+      const branches = (t.branches ?? []).map((b) => b.job);
+      const jobName = (j: string) => ctx.content.jobs[j]?.name ?? j;
+      for (const p of list) {
+        if (p.branch && !branches.includes(p.branch))
+          errors.push(`${at} — ур. ${p.level}: ветки «${jobName(p.branch)}» (${p.branch}) у героя нет — только ${branches.join(' или ') || 'нет веток'}`);
+      }
+      const check = (label: string, want: number[], have: number[]) => {
+        const missing = want.filter((l) => !have.includes(l));
+        const extra = have.filter((l) => !want.includes(l));
+        const dup = have.filter((l, i) => have.indexOf(l) !== i);
+        if (missing.length) errors.push(`${at} — нет кусочков истории${label} для уровней ${missing.join(', ')}`);
+        if (extra.length) errors.push(`${at} — лишние пороги${label} ${extra.join(', ')} (ожидаются ${want.join(', ') || 'нет'})`);
+        if (dup.length) errors.push(`${at} — порог повторяется${label}: ${dup.join(', ')}`);
+      };
+      check('', heroStoryCommonLevels(cap), list.filter((p) => !p.branch).map((p) => p.level));
+      const branchLevels = heroStoryBranchLevels(cap);
+      for (const b of branches) check(` ветки ${b}`, branchLevels, list.filter((p) => p.branch === b).map((p) => p.level));
       const titles = list.map((p) => p.title);
       const dt = titles.find((x, i) => titles.indexOf(x) !== i);
       if (dt) warnings.push(`${at} — заголовок повторяется: «${dt}»`);

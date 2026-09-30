@@ -3,7 +3,7 @@
 // базовые формы и обе ветки), бой этапа проигрывается по кадрам вручную (цикл Phaser усыплён, game.step по 16.7 мс),
 // при первом применении каждого навыка героя (атака навыком, конец каста, срабатывание пассивки) — серия кадров.
 //   npx tsx scripts/skillfx-save.ts > /tmp/squads.json
-//   SHOTS_PORT=5781 node scripts/skillfx-shots.mjs /tmp/squads.json <папка> [имя отряда…]
+//   SHOTS_SIZE=390x844 SHOTS_PORT=5781 node scripts/skillfx-shots.mjs /tmp/squads.json <папка> [имя отряда…]
 // В папке: <отряд>/<герой>_<навык>_<мс>.png и index.json (навык → кадры). Playwright глобальный (npm root -g),
 // Chromium — из PLAYWRIGHT_BROWSERS_PATH; скрипт ничего не устанавливает. Поднимает vite сам.
 import { execSync, spawn } from 'node:child_process';
@@ -54,7 +54,9 @@ try {
     // id героя в бою (h1…) → шаблон и форма: alan-knight, iris (база).
     const who = Object.fromEntries(JSON.parse(sq.save).heroes.map((h) => [h.id, h.branch ? `${h.templateId}-${h.branch}` : h.templateId]));
     mkdirSync(dir, { recursive: true });
-    const page = await browser.newPage({ viewport: { width: 540, height: 960 } });
+    // SHOTS_SIZE=390x844 — экран телефона (по умолчанию 540×960).
+    const [vw, vh] = (process.env.SHOTS_SIZE ?? '540x960').split('x').map(Number);
+    const page = await browser.newPage({ viewport: { width: vw, height: vh } });
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
