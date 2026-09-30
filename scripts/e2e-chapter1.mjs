@@ -413,7 +413,9 @@ const chapterDone = async () => {
   await sleep(400);
   await shot('chapter-done');
   if (!(await findText('ChapterDone', 'Глава 1 пройдена!'))) throw new Error('нет заголовка «Глава 1 пройдена!»');
-  if (!(await hasTextPrefix('ChapterDone', 'Грета присоединяется'))) throw new Error('нет карточки нового героя (Грета)');
+  // RN-02: при полном отряде Грета приходит в запас — «Грета с вами — но не в отряде» (кнопка «Взять в отряд»).
+  if (!(await hasTextPrefix('ChapterDone', 'Грета присоединяется')) && !(await hasTextPrefix('ChapterDone', 'Грета с вами')))
+    throw new Error('нет карточки нового героя (Грета)');
   await clickText('ChapterDone', 'История');
   await sleep(600);
   await shot('chapter-history');
