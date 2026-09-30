@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
-import { bestiary, chapterChronicle, chapterCleared, findingEntries, FINDING_KIND_NAMES, firstSentence, heroEntries, heroTemplate, introPages, itemEntries, jobTitle, keeperIds, worldEntries, type BestiaryEntry, type ChronicleTab, type FindingEntry, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
+import { bestiary, chapterChronicle, chapterCleared, eveningStatus, newEvenings, findingEntries, FINDING_KIND_NAMES, firstSentence, heroEntries, heroTemplate, introPages, itemEntries, jobTitle, keeperIds, worldEntries, type BestiaryEntry, type ChronicleTab, type FindingEntry, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
 import { hasHeroStory, heroStoryNew, heroStoryProgress, openHeroStory, storyDot } from '../heroStoryView';
 import { chroniclePage, findingIcon, findingPage, introPages as introPageList, showPages, type StoryPage } from '../storyPage';
 import { seenChapterScenes } from '../storyView';
 import { openStoryHistory } from './ChapterDoneScene';
+import { startTavernEvening } from './TavernEveningScene';
 import { CONTENT, GAME, LORE } from '../content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES } from '../flow';
 import { drawHeroCard, heroCardSize } from '../heroCard';
@@ -107,9 +108,34 @@ export class ChronicleScene extends Phaser.Scene {
       emptyState(this, GAME_W / 2, CONTENT_TOP + 400, 'Летописец ещё не начал свои записи.');
       return;
     }
-    let y = 0;
+    let y = this.tavernCard(0) + 20;
     for (const w of list) y = this.worldCard(w, y) + 20;
     this.area.setContentHeight(y + 20);
+  }
+
+  /** Вечера в «Двух колоколах» и близость (docs/design/tavern-evenings.md) — вход в «Вечера», новые — с отметкой. */
+  private tavernCard(top: number): number {
+    const t = GAME.story.tavern;
+    if (!t) return top - 20;
+    const a = this.area;
+    const fresh = newEvenings(session.save, GAME).length;
+    const open = t.evenings.filter((e) => eveningStatus(session.save, e, GAME) !== 'locked').length;
+    const h = 250;
+    const bg = a.add(card(this, GAME_W / 2, top + h / 2, 1040, h, true));
+    a.add(text(this, LEFT, top + 50, 'Вечера в «Двух колоколах»', FS.h3, C.inkGold, { fontStyle: 'bold' }).setOrigin(0, 0.5));
+    a.add(
+      text(this, LEFT, top + 88, `Разговоры отряда после глав, близость с героями, личные сцены и задания. Открыто вечеров: ${open} из ${t.evenings.length}.`, FS.small, C.ink, {
+        wordWrap: { width: 640 },
+        align: 'left',
+        lineSpacing: 4,
+      }).setOrigin(0, 0),
+    );
+    const b = button(this, 860, top + h / 2, 280, 110, fresh ? 'ui_btn_primary' : 'ui_btn_secondary', 'Открыть', a.tap(() => startTavernEvening(this, { mode: 'hub', back: { to: 'Chronicle', data: { tab: 'world' } } })), FS.h3);
+    b.container.setName('chronicleTavern');
+    a.add(b.container);
+    if (fresh) a.add(this.add.circle(1000, top + 30, 16, TINT.badge).setStrokeStyle(4, 0xffffff));
+    pressable(this, bg, 1040, h, a.tap(() => startTavernEvening(this, { mode: 'hub', back: { to: 'Chronicle', data: { tab: 'world' } } })));
+    return top + h;
   }
 
   private worldCard(w: WorldItem, top: number): number {
