@@ -250,7 +250,7 @@ describe('события экспедиций: получение', () => {
 
   it('Летопись и «сблизились» записываются в экспедиции; лимит записей', () => {
     const c = ctxWith((x) => {
-      x.journalMax = 3;
+      x.journalMax = 5;
       x.events.forEach((ev) => ev.choices.forEach((ch) => ((ch.chance = 1), (ch.chanceWith = 1))));
     });
     let s = game('ch1_s8', ['bran', 'zara']);
@@ -259,10 +259,20 @@ describe('события экспедиций: получение', () => {
       s = withParty(s, 'ant_hell', s.heroes.slice(0, 3).map((h) => h.id));
       s = withEvents(s, 'ant_hell', [{ id: 'road_night_owl', at: T0 + k * 2 * H + 1000 }]);
       s = chooseExpeditionEvent(s, 'ant_hell', 0, 'talk', T0 + k * 2 * H + 1000, c);
+      // Решённое игроком — в Летопись сразу; при «Забрать» не дублируется.
+      expect(s.bounties.journal).toHaveLength(k + 1);
+      s = claimExpedition(s, 'ant_hell', T0 + k * 2 * H + H, c).save;
+      expect(s.bounties.journal).toHaveLength(k + 1);
+    }
+    expect(s.bounties.bonds).toHaveLength(3);
+    // Не решил — запись при «Забрать»; лимит journalMax — последние.
+    for (let k = 3; k < 6; k++) {
+      s = startExpedition(s, 'ant_hell', 1, T0 + k * 2 * H, c);
+      s = withEvents(s, 'ant_hell', [{ id: 'ant_queen_song', at: T0 + k * 2 * H + 1000 }]);
       s = claimExpedition(s, 'ant_hell', T0 + k * 2 * H + H, c).save;
     }
-    expect(s.bounties.journal).toHaveLength(3);
-    expect(s.bounties.bonds).toHaveLength(3);
+    expect(s.bounties.journal).toHaveLength(5);
+    expect(s.bounties.journal![4].text).toMatch(/замирают/);
     const [a, b] = s.bounties.bonds![0].heroes;
     expect(a).not.toBe(b);
     expect(s.bounties.journal![0].text).not.toMatch(/\{/);

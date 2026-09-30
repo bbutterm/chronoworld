@@ -182,7 +182,11 @@ export function chooseExpeditionEvent(save: SaveState, locationId: string, index
   if (!choice) throw new MetaError('unknown_choice', `Нет варианта ${choiceId}`);
   const patch = rollOutcome(save, e, index, choice, ctx);
   const events = e.events!.map((x, i) => (i === index ? { ...x, ...patch } : x));
-  return { ...save, bounties: { ...save.bounties, active: save.bounties.active.map((x) => (x === e ? { ...e, events } : x)) } };
+  const next = { ...e, events };
+  // Летопись и «сблизились» — сразу (решённое игроком); выбранное само — при «Забрать».
+  const line = eventOutcome(save, next, index, ctx);
+  const bounties = recordStory({ ...save.bounties, active: save.bounties.active.map((x) => (x === e ? next : x)) }, e.location, line ? [line] : [], ctx.expeditionEvents);
+  return { ...save, bounties };
 }
 
 /** Все нерешённые события экспедиции — вариант по умолчанию (auto). Для «Забрать». */
@@ -201,6 +205,8 @@ export function autoResolveEvents(save: Pick<SaveState, 'createdAt' | 'heroes'>,
 /** Одна строка рассказа экспедиции. */
 export interface ExpeditionStoryLine {
   eventId: string;
+  /** Когда случилось (мс). */
+  at: number;
   title: string;
   /** Надпись выбранного варианта. */
   choice: string;
@@ -242,6 +248,7 @@ export function eventOutcome(
   const tier = cfg.tiers[out.reward];
   const line: ExpeditionStoryLine = {
     eventId: def.id,
+    at: ev.at,
     title: def.title,
     choice: choice.label,
     auto: !!ev.auto,
@@ -278,14 +285,13 @@ export function rewardsWithStory(base: ExpeditionRewards, story: readonly Expedi
 /** Записать Летопись и «сблизились» из рассказа (хранится не больше journalMax последних). */
 export function recordStory(
   bounties: SaveState['bounties'],
-  e: ActiveExpedition,
+  location: string,
   story: readonly ExpeditionStoryLine[],
   cfg: ExpeditionEventsConfig | undefined,
 ): SaveState['bounties'] {
   const max = cfg?.journalMax ?? 40;
-  const at = (i: number) => e.events?.[i]?.at ?? e.endsAt;
-  const journal: ExpeditionJournalEntry[] = story.flatMap((l, i) => (l.lore ? [{ at: at(i), location: e.location, text: l.lore }] : []));
-  const bonds: ExpeditionBond[] = story.flatMap((l, i) => (l.bond ? [{ heroes: l.bond, location: e.location, at: at(i) }] : []));
+  const journal: ExpeditionJournalEntry[] = story.flatMap((l) => (l.lore ? [{ at: l.at, location, text: l.lore }] : []));
+  const bonds: ExpeditionBond[] = story.flatMap((l) => (l.bond ? [{ heroes: l.bond, location, at: l.at }] : []));
   if (!journal.length && !bonds.length) return bounties;
   const next = { ...bounties };
   if (journal.length) next.journal = [...(bounties.journal ?? []), ...journal].slice(-max);

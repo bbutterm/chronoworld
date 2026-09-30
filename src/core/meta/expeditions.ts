@@ -367,7 +367,8 @@ export function claimExpedition(save: SaveState, locationId: string, now: number
   const resolved = autoResolveEvents(save, e, ctx);
   const story = expeditionStory(save, resolved, ctx);
   const r = rewardsWithStory(e.rewards, story);
-  const bounties = recordStory({ ...save.bounties, active: save.bounties.active.filter((x) => x !== e) }, resolved, story, ctx.expeditionEvents);
+  // Летопись решённых игроком событий записана при выборе; здесь — выбранные сами.
+  const bounties = recordStory({ ...save.bounties, active: save.bounties.active.filter((x) => x !== e) }, e.location, story.filter((l) => l.auto), ctx.expeditionEvents);
   let next: SaveState = { ...save, bounties };
   next = grantMetaRewards(next, { gold: r.gold, gems: r.gems, jobExp: r.jobExp }, ctx, events, 0).save;
   // Карты героя: сколько — в снимке, какие герои — при получении (seed экспедиции).
