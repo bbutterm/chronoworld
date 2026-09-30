@@ -4,6 +4,7 @@
   "name": "Орк-скелет",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 1150,
     "atk": 60,

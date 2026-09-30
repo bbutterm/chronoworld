@@ -4,6 +4,7 @@
   "name": "Скелет-пират",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 520,
     "atk": 46,

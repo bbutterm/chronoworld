@@ -4,6 +4,7 @@
   "name": "Девиручи",
   "kind": "monster",
   "role": "healer",
+  "element": "dark",
   "stats": {
     "hp": 500,
     "atk": 30,

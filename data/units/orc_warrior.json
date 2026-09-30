@@ -4,6 +4,7 @@
   "name": "Орк-воин",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 500,
     "atk": 45,

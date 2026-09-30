@@ -337,6 +337,19 @@
       "required": [
         "radius"
       ]
+    },
+    "element": {
+      "type": "string",
+      "enum": [
+        "neutral",
+        "fire",
+        "water",
+        "earth",
+        "wind",
+        "holy",
+        "dark",
+        "undead"
+      ]
     }
   },
   "required": [

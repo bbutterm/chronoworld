@@ -4,6 +4,7 @@
   "name": "Изида",
   "kind": "monster",
   "role": "healer",
+  "element": "dark",
   "stats": {
     "hp": 460,
     "atk": 44,

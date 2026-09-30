@@ -4,6 +4,7 @@
   "name": "Настоятель Мунэ",
   "kind": "monster",
   "role": "support",
+  "element": "undead",
   "stats": {
     "hp": 1550,
     "atk": 56,

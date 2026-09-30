@@ -4,6 +4,7 @@
   "name": "Часы",
   "kind": "monster",
   "role": "tank",
+  "element": "earth",
   "stats": {
     "hp": 1050,
     "atk": 34,

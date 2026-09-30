@@ -4,6 +4,7 @@
   "name": "Гиббет",
   "kind": "monster",
   "role": "tank",
+  "element": "dark",
   "stats": {
     "hp": 1050,
     "atk": 34,

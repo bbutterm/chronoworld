@@ -4,6 +4,7 @@
   "name": "Пупа",
   "kind": "monster",
   "role": "tank",
+  "element": "earth",
   "stats": {
     "hp": 620,
     "atk": 16,

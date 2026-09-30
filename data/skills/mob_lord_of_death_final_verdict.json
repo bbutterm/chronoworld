@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_lord_of_death_final_verdict",
+  "name": "Последний приговор",
+  "description": "Владыка мёртвых зачитывает приговор всем живым. Сбейте ультой!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 2.5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.5
+    }
+  ],
+  "element": "dark"
+}

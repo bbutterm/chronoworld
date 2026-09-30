@@ -4,6 +4,7 @@
   "name": "Мастеринг",
   "kind": "boss",
   "role": "tank",
+  "element": "water",
   "stats": {
     "hp": 2600,
     "atk": 55,
@@ -66,5 +67,10 @@
         }
       ]
     }
-  ]
+  ],
+  "charge": {
+    "skill": "mob_mastering_royal_splash",
+    "first": 14,
+    "every": 20
+  }
 }

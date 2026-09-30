@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ElementSchema } from '../elements';
 
 /**
  * Схемы контента. Юниты и навыки — это данные: новый герой, монстр или умение
@@ -108,6 +109,8 @@ export const SkillSchema = z.object({
   area: z.object({ radius: z.number().positive() }).optional(),
   /** Аура (пассивка turnStart, профиль барда): статус получают только союзники не дальше radius от исполнителя. */
   aura: z.object({ radius: z.number().positive() }).optional(),
+  /** Стихия атаки (docs/design/battle-decisions.md §3): множитель по стихии защиты цели — combat.json → elements. Нет — нейтраль. */
+  element: ElementSchema.optional(),
 });
 
 export const VisualSchema = z.object({
@@ -202,6 +205,13 @@ export const UnitSchema = z.object({
   behavior: id.optional(),
   /** Фазы босса и мини-босса: пороги ОЗ / секунды боя и что происходит (новая атака, призыв свиты, ярость). */
   phases: z.array(PhaseSchema).max(3).optional(),
+  /** Стихия защиты (RO): огонь, вода, земля, ветер, святость, тьма, нежить. Нет — нейтраль. */
+  element: ElementSchema.optional(),
+  /**
+   * Заряд босса (docs/design/battle-decisions.md §4): с first секунды боя и затем через every секунд после удара — каст навыка
+   * skill (castTime > 0). Ульта героя или оглушение за время каста — «Сбито!» и оглушение босса; иначе удар по отряду.
+   */
+  charge: z.object({ skill: id, first: z.number().nonnegative(), every: z.number().positive() }).optional(),
 });
 
 export type Stats = z.infer<typeof StatsSchema>;

@@ -4,6 +4,7 @@
   "name": "Тёмный лорд",
   "kind": "boss",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 3500,
     "atk": 90,

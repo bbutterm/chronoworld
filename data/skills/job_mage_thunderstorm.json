@@ -20,5 +20,6 @@
   ],
   "area": {
     "radius": 260
-  }
+  },
+  "element": "wind"
 }

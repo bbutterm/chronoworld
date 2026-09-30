@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_mastering_royal_splash",
+  "name": "Королевский плюх",
+  "description": "Мастеринг раздувается и рушится на весь отряд. Сбейте ультой!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 2.5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.5
+    }
+  ]
+}

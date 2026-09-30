@@ -4,6 +4,7 @@
   "name": "Болотный зомби",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 480,
     "atk": 42,

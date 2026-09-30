@@ -4,6 +4,7 @@
   "name": "Бафомет-младший",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 1150,
     "atk": 62,

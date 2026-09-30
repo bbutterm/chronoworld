@@ -4,6 +4,7 @@
   "name": "Муха-охотник",
   "kind": "monster",
   "role": "damage",
+  "element": "wind",
   "stats": {
     "hp": 420,
     "atk": 45,

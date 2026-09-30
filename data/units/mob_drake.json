@@ -4,6 +4,7 @@
   "name": "Дрейк",
   "kind": "boss",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 2800,
     "atk": 100,

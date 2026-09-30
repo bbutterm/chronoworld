@@ -4,6 +4,7 @@
   "name": "Скорпион",
   "kind": "monster",
   "role": "damage",
+  "element": "fire",
   "stats": {
     "hp": 440,
     "atk": 45,

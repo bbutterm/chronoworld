@@ -4,6 +4,7 @@
   "name": "Вожак жуков",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 1680,
     "atk": 93,

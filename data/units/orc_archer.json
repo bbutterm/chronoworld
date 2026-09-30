@@ -4,6 +4,7 @@
   "name": "Орк-лучник",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 370,
     "atk": 47,

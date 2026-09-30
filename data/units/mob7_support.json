@@ -4,6 +4,7 @@
   "name": "Квив",
   "kind": "monster",
   "role": "healer",
+  "element": "dark",
   "stats": {
     "hp": 520,
     "atk": 30,

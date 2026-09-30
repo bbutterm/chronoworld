@@ -16,5 +16,6 @@
       "type": "damage",
       "k": 0.8
     }
-  ]
+  ],
+  "element": "wind"
 }

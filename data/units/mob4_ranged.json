@@ -4,6 +4,7 @@
   "name": "Мардук",
   "kind": "monster",
   "role": "damage",
+  "element": "fire",
   "stats": {
     "hp": 390,
     "atk": 52,

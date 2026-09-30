@@ -4,6 +4,7 @@
   "name": "Панк",
   "kind": "monster",
   "role": "damage",
+  "element": "wind",
   "stats": {
     "hp": 430,
     "atk": 46,

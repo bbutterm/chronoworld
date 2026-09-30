@@ -4,6 +4,7 @@
   "name": "Древняя мумия",
   "kind": "monster",
   "role": "tank",
+  "element": "undead",
   "stats": {
     "hp": 1700,
     "atk": 58,

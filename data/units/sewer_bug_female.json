@@ -4,6 +4,7 @@
   "name": "Жук-вор самка",
   "kind": "monster",
   "role": "healer",
+  "element": "dark",
   "stats": {
     "hp": 360,
     "atk": 30,

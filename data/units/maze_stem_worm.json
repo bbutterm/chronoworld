@@ -4,6 +4,7 @@
   "name": "Стеблевой червь",
   "kind": "monster",
   "role": "tank",
+  "element": "wind",
   "stats": {
     "hp": 1000,
     "atk": 33,

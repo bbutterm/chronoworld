@@ -4,6 +4,7 @@
   "name": "Песчаник",
   "kind": "monster",
   "role": "tank",
+  "element": "earth",
   "stats": {
     "hp": 1000,
     "atk": 34,

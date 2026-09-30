@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "orc_lord_earth_breaker",
+  "name": "Сокрушение земли",
+  "description": "Орк-лорд заносит молот: удар расколет землю под отрядом. Сбейте ультой!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 2.5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.5
+    }
+  ],
+  "element": "earth"
+}

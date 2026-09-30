@@ -4,6 +4,7 @@
   "name": "Сворд-фиш",
   "kind": "monster",
   "role": "damage",
+  "element": "water",
   "stats": {
     "hp": 420,
     "atk": 42,

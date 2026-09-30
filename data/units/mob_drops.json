@@ -4,6 +4,7 @@
   "name": "Дропс",
   "kind": "monster",
   "role": "damage",
+  "element": "fire",
   "stats": {
     "hp": 430,
     "atk": 42,

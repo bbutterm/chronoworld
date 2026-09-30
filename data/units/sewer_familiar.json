@@ -4,6 +4,7 @@
   "name": "Фамилиар",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 390,
     "atk": 39,

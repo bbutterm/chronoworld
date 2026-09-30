@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "alde_keeper_midnight_strike",
+  "name": "Полночный бой",
+  "description": "Смотритель заводит башенные часы: с последним ударом время ударит по отряду. Сбейте ультой!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 2.5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.5
+    }
+  ]
+}

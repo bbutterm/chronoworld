@@ -4,6 +4,7 @@
   "name": "Бафомет",
   "kind": "boss",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 2800,
     "atk": 100,

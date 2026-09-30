@@ -17,5 +17,6 @@
       "type": "damage",
       "k": 2.2
     }
-  ]
+  ],
+  "element": "holy"
 }

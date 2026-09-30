@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Content, UnitDef } from './types';
 import type { CombatConfig } from './types';
+import { ElementsConfigSchema } from './elements';
 
 /**
  * Профили поведения в бою (docs/design/battle-behavior.md): как боец выбирает цель и где стоит. Профиль не добавляет
@@ -173,6 +174,18 @@ export function lintBehaviors(content: Content, cfg: CombatConfig): { errors: st
   }
   for (const u of Object.values(content.units))
     if (u.kind === 'boss' && u.behavior && (lib[u.behavior]?.coward || lib[u.behavior]?.pack)) warnings.push(`юнит ${u.id}: босс с профилем ${u.behavior} (трус/стая — для рядовых)`);
+  // Стихии и заряд босса (docs/design/battle-decisions.md).
+  if (cfg.elements) {
+    const el = ElementsConfigSchema.safeParse(cfg.elements);
+    if (!el.success) for (const i of el.error.issues) errors.push(`data/combat.json: elements.${i.path.join('.')} — ${i.message}`);
+  }
+  for (const u of Object.values(content.units)) {
+    if (!u.charge) continue;
+    const s = content.skills[u.charge.skill];
+    if (!s) errors.push(`юнит ${u.id}: заряд (charge) — навыка ${u.charge.skill} нет`);
+    else if (s.castTime <= 0 || s.trigger || s.target.side !== 'enemy') errors.push(`юнит ${u.id}: заряд ${s.id} — нужен навык по врагам с кастом (castTime > 0)`);
+    if (u.kind !== 'boss') warnings.push(`юнит ${u.id}: заряд (charge) — у рядового монстра`);
+  }
   for (const j of Object.values(content.jobs)) known(`профессия ${j.id}`, j.behavior);
   for (const t of Object.values(content.heroes)) {
     known(`карточка ${t.id}`, t.behavior);

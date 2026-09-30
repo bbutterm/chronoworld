@@ -4,6 +4,7 @@
   "name": "Банши",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 400,
     "atk": 50,

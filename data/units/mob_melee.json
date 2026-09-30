@@ -4,6 +4,7 @@
   "name": "Зомби",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 450,
     "atk": 40,

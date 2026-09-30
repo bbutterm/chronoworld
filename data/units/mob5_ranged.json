@@ -4,6 +4,7 @@
   "name": "Хоронг",
   "kind": "monster",
   "role": "damage",
+  "element": "fire",
   "stats": {
     "hp": 360,
     "atk": 48,

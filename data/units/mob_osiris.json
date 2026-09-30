@@ -4,6 +4,7 @@
   "name": "Осирис",
   "kind": "boss",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 3000,
     "atk": 65,

@@ -4,6 +4,7 @@
   "name": "Дрейк",
   "kind": "boss",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 3800,
     "atk": 112,
@@ -65,5 +66,10 @@
         }
       ]
     }
-  ]
+  ],
+  "charge": {
+    "skill": "mob6_boss_full_broadside",
+    "first": 14,
+    "every": 20
+  }
 }

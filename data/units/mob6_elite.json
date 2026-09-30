@@ -4,6 +4,7 @@
   "name": "Гидра",
   "kind": "monster",
   "role": "damage",
+  "element": "water",
   "stats": {
     "hp": 1200,
     "atk": 60,

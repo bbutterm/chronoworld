@@ -4,6 +4,7 @@
   "name": "Яйцо жука-вора",
   "kind": "monster",
   "role": "tank",
+  "element": "dark",
   "stats": {
     "hp": 880,
     "atk": 30,

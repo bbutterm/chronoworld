@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob7_boss_black_storm",
+  "name": "Чёрная буря",
+  "description": "Тёмный лорд собирает тьму в бурю над отрядом. Сбейте ультой!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 2.5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.5
+    }
+  ],
+  "element": "dark"
+}

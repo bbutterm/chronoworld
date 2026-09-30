@@ -4,6 +4,7 @@
   "name": "Тёмный жрец",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 370,
     "atk": 47,

@@ -4,6 +4,7 @@
   "name": "Кровавый убийца",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 430,
     "atk": 46,
