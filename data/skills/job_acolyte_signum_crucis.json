@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_acolyte_signum_crucis",
   "name": "Знак креста",
-  "description": "−20% защиты всем врагам на 3 хода.",
+  "description": "−20% защиты всем врагам на 3 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

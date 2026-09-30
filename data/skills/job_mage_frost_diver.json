@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_mage_frost_diver",
   "name": "Ледяной удар",
-  "description": "Урон и шанс 50% заморозить цель на ход.",
+  "description": "Урон и шанс 50% заморозить цель на 1 с.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

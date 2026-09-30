@@ -19,7 +19,7 @@ describe('пол героев (карточки)', () => {
     ]);
   });
 
-  it('рекруты: Грета (ж) после ch1_s10, Дорн (м) после ch2_s10 — зелёные карточки ур. 1', () => {
+  it('рекруты: Грета (ж) после ch1_s10, Дорн (м) после ch2_s10 — зелёные карточки с догоняющим уровнем (RN-02)', () => {
     expect(cfg.recruits.map((r) => [r.afterStage, r.template, ctx.content.heroes[r.template].gender])).toEqual([
       ['ch1_s10', 'greta', 'f'],
       ['ch2_s10', 'dorn', 'm'],
@@ -34,9 +34,10 @@ describe('пол героев (карточки)', () => {
     const win = Array.from({ length: 50 }, (_, seed) => playStage(s, 'ch1_s10', seed + 1, ctx)).find((r) => r.result.winner === 'A');
     expect(win).toBeDefined();
     const greta = win!.save.heroes.find((h) => h.templateId === 'greta')!;
-    expect(greta).toMatchObject({ rarity: 'green', level: 1 });
+    // RN-02: отряд ур. 40 — Грета догоняет до предела зелёной редкости (20), уровни даром (grantedLevel).
+    expect(greta).toMatchObject({ rarity: 'green', level: 20, grantedLevel: 20 });
     expect(heroGender(greta, ctx)).toBe('f');
-    expect(win!.events).toContainEqual({ type: 'heroJoined', heroId: greta.id, templateId: 'greta', name: 'Грета' });
+    expect(win!.events).toContainEqual({ type: 'heroJoined', heroId: greta.id, templateId: 'greta', name: 'Грета', level: 20 });
   });
 
   it('лист: свой лист карточки (форма) → `<лист класса>_f/_m` → базовый лист класса', () => {

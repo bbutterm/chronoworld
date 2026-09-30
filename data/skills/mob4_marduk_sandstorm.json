@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob4_marduk_sandstorm",
   "name": "Песчаная буря",
-  "description": "Мардук призывает бурю: урон по всем врагам и песок в глаза (−20% скорости на 2 хода).",
+  "description": "Мардук призывает бурю: урон по всем врагам и песок в глаза (−20% скорости на 2 с).",
   "range": "ranged",
   "target": {
     "side": "enemy",

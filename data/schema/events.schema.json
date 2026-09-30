@@ -368,6 +368,9 @@
               },
               "onlyIfCleared": {
                 "type": "string"
+              },
+              "afterStage": {
+                "type": "string"
               }
             },
             "required": [

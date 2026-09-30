@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "maze_scribe_penalty",
   "name": "Пеня",
-  "description": "Писарь начисляет пеню всем должникам: урон 0.8 × атака и «Пеня» (урон каждый ход) на 3 хода.",
+  "description": "Писарь начисляет пеню всем должникам: урон 0.8 × атака и «Пеня» (урон каждую секунду) на 3 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

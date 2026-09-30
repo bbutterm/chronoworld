@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_merchant_frying_pan",
   "name": "Удар сковородой",
-  "description": "Сковородой по голове (×1,6), шанс 30% оглушить на 1 ход. Личный приём Греты.",
+  "description": "Сковородой по голове (×1,6), шанс 30% оглушить на 1 с. Личный приём Греты.",
   "range": "melee",
   "target": {
     "side": "enemy",

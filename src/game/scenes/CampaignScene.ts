@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { hasArt } from '../assets';
-import { HINT_TEXT, hintDone, markHint, pickHomeHint, type HintId } from '../hints';
+import { HINT_TEXT, hintDone, hintShown, markHint, markHintShown, pickHomeHint, type HintId } from '../hints';
 import { homeHintInput } from '../tutorial';
 import { actClaimOffline, actUseFastRewards, episodePageId, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, markPageSeen, offlineRewards, pendingIntro, pendingScenes, stageStatus } from '../../core';
 import { introPages, showPages } from '../storyPage';
@@ -475,7 +475,8 @@ export class CampaignScene extends Phaser.Scene {
     const save = session.save;
     // Модальное окно или баннер открыты — подсказку не перестраиваем (она под ними всё равно не видна).
     if (confirmOpen(this) || this.children.getByName(UNLOCK_BANNER_NAME)) return;
-    const id = pickHomeHint(homeHintInput(save, chestHasIncome));
+    // RN-15: одноразовые («Башня открыта») — один показ, дальше не глушат другие шаги.
+    const id = pickHomeHint(homeHintInput(save, chestHasIncome), (h) => hintDone(h) || (h !== this.hintId && hintShown(h)));
     if (id === this.hintId) return;
     this.hintView?.destroy();
     this.hintView = null;
@@ -495,6 +496,8 @@ export class CampaignScene extends Phaser.Scene {
     // быстрые награды — кнопка слева от «В бой». Касание плашки — пропустить шаг.
     if (id === 'tavern_summon' || id === 'quests_open') this.hintView = tutorialHint(this, id, navTabX('Home'), tabY, 'above', tab);
     if (id === 'ascend') this.hintView = tutorialHint(this, id, navTabX('Heroes'), tabY, 'above', tab);
+    if (id === 'branch_pick') this.hintView = tutorialHint(this, id, navTabX('Heroes'), tabY, 'above', tab);
+    markHintShown(id);
     if (id === 'fast_rewards') this.hintView = tutorialHint(this, id, L.fastX, L.rowY, 'above', { w: L.fastW, h: L.fastH }, { avoidText: ['Сундук офлайн-наград'] });
     this.hintView?.once(Phaser.GameObjects.Events.DESTROY, () => {
       // Плашку пропустили касанием — на следующем тике покажется следующий шаг цепочки.

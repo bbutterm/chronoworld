@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_bard_assassin_cross",
   "name": "Закат ассасина",
-  "description": "+25% скорости и +15% атаки всем союзникам на 4 хода.",
+  "description": "+25% скорости и +15% атаки всем союзникам на 4 с.",
   "range": "ranged",
   "target": {
     "side": "ally",

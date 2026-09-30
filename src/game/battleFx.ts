@@ -405,19 +405,28 @@ export class FloatLayer {
   }
 
   /** Atlas-only role: absent atlas leaves the procedural fallback in charge (never a missing static texture). */
-  catalogFlash(x: number, feetY: number, id: string | undefined, size: number, key?: string): boolean {
+  catalogFlash(x: number, feetY: number, id: string | undefined, size: number, key?: string, fromX?: number): boolean {
     if (!id || !selectedAnimatedEffect(id, 'flash', this.scene.textures.exists(animatedFxKey(id)))) return false;
-    this.flash(x, feetY, id, size, 1, 250, DEPTH.fx, feetY, key);
+    this.flash(x, feetY, id, size, 1, 250, DEPTH.fx, feetY, key, fromX);
     return true;
   }
 
-  /** Вспышка: картинка size×size гаснет от alpha до 0 и растёт в 1.2 раза за duration. */
-  flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y, key?: string): void {
+  /**
+   * Вспышка: картинка size×size гаснет от alpha до 0 и растёт в 1.2 раза за duration. fromX — x кастера: атлас с
+   * effects.json → from отражается, если кастер с другой стороны.
+   */
+  flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y, key?: string, fromX?: number): void {
     const effect = selectedAnimatedEffect(texId, 'flash', this.scene.textures.exists(animatedFxKey(texId)));
     const img = this.image(x, effect ? feetY : y, effect ? animatedFxKey(texId) : texId, size, depth).setAlpha(alpha);
     if (effect) {
-      img.setFrame(0).setOrigin(effect.anchor[0] / effect.cell[0], effect.anchor[1] / effect.cell[1]);
-      img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]).setVisible(effect.delayMs === 0);
+      const flip = !!effect.from && fromX !== undefined && fromX !== x && (effect.from === 'right') === (fromX < x);
+      const ox = effect.anchor[0] / effect.cell[0];
+      img.setFrame(0).setOrigin(flip ? 1 - ox : ox, effect.anchor[1] / effect.cell[1]).setFlipX(flip);
+      // Атлас навыка со своим масштабом (effects.json → scale): размер кадра RO, непрозрачный — роль не сжимает
+      // крупный лист до точки и не делает его полупрозрачным.
+      if (effect.scale) img.setScale(effect.scale).setAlpha(effect.alpha ?? 1);
+      else img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]);
+      img.setBlendMode(effect.blend === 'add' ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL).setVisible(effect.delayMs === 0);
     }
     const r = this.start(Kind.Fx, img, effect ? animatedFxDuration(effect) : duration);
     r.effect = effect;
@@ -473,6 +482,12 @@ export class FloatLayer {
             const frame = animatedFrameAt(r.effect, r.t);
             o.setVisible(frame >= 0);
             if (frame >= 0) (o as Phaser.GameObjects.Image).setFrame(frame);
+            if (r.effect.rise && r.effect.scale) {
+              // Камень растёт из земли (origin — точка ног) и уходит обратно в последнюю четверть жизни.
+              const up = clamp01(r.t / r.effect.rise);
+              const down = clamp01((r.dur - r.t) / (r.dur * 0.25));
+              (o as Phaser.GameObjects.Image).scaleY = r.effect.scale * ease.backOut(Math.min(up, down));
+            }
           } else {
             const p = clamp01(r.t / r.dur);
             o.alpha = r.a * (1 - p);
@@ -522,7 +537,7 @@ export class FloatLayer {
 
   private image(x: number, y: number, texId: string, size: number, depth: number): Phaser.GameObjects.Image {
     const img = this.images.acquire();
-    img.setTexture(texId).setPosition(x, y).setOrigin(0.5).setFlipX(false).setScale(1).setDisplaySize(size, size).setAlpha(1).setDepth(depth);
+    img.setTexture(texId).setPosition(x, y).setOrigin(0.5).setFlipX(false).setScale(1).setDisplaySize(size, size).setAlpha(1).setDepth(depth).setBlendMode(Phaser.BlendModes.NORMAL);
     this.scene.children.bringToTop(img);
     return img;
   }

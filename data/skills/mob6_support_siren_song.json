@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob6_support_siren_song",
   "name": "Песнь сирены",
-  "description": "Обеон поёт: лечит всех союзников и даёт +20% атаки на 2 хода.",
+  "description": "Обеон поёт: лечит всех союзников и даёт +20% атаки на 2 с.",
   "range": "ranged",
   "target": {
     "side": "ally",

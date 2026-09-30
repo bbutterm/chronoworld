@@ -25,7 +25,8 @@ export type HintId =
   | 'fast_rewards'
   | 'quests_open'
   | 'tower_open'
-  | 'equip_gear';
+  | 'equip_gear'
+  | 'branch_pick';
 
 /** Цепочка обучения главы 1 по порядку (для документации и теста: каждая подсказка — одна, с текстом). */
 export const TUTORIAL_CHAIN: readonly HintId[] = [
@@ -63,7 +64,48 @@ export const HINT_TEXT: Record<HintId, string> = {
   tower_open: 'Башня испытаний открыта!',
   /** P10 (T1-08): в инвентаре лежат вещи лучше надетых. */
   equip_gear: 'Наденьте трофеи — загляните в «Герои»',
+  /** RN-21: в отряде фиолетовый без ветки. */
+  branch_pick: 'Выберите ветку — откроется вторая профессия и новая часть истории героя',
 };
+
+/**
+ * RN-15. Подсказки «открылась функция» — показываются на карте один раз (не висят главами до действия и не глушат
+ * другие шаги): показ сам помечает их (markHintShown). Указатель на самой странице функции живёт до действия.
+ */
+export const ONE_SHOT_HINTS: ReadonlySet<HintId> = new Set<HintId>(['tower_open']);
+export const HINT_SHOWN_KEY = 'chronoworld.hintsShown';
+
+let shown: Set<HintId> | null = null;
+function shownSet(): Set<HintId> {
+  if (shown) return shown;
+  try {
+    const raw = globalThis.localStorage?.getItem(HINT_SHOWN_KEY);
+    const arr: unknown = raw ? JSON.parse(raw) : [];
+    shown = new Set(Array.isArray(arr) ? (arr.filter((x) => typeof x === 'string') as HintId[]) : []);
+  } catch {
+    shown = new Set();
+  }
+  return shown;
+}
+
+/** Одноразовая подсказка уже показывалась на карте. */
+export function hintShown(id: HintId): boolean {
+  return ONE_SHOT_HINTS.has(id) && shownSet().has(id);
+}
+
+/** Запомнить показ одноразовой подсказки. */
+export function markHintShown(id: HintId): void {
+  if (!ONE_SHOT_HINTS.has(id)) return;
+  const set = shownSet();
+  if (set.has(id)) return;
+  set.add(id);
+  try {
+    globalThis.localStorage?.setItem(HINT_SHOWN_KEY, JSON.stringify([...set]));
+  } catch {
+    // Не запомнили — покажется ещё раз, не страшно.
+  }
+}
+
 
 /** Подпись под текстом плашки: касание плашки пропускает подсказку. */
 export const HINT_SKIP = 'коснитесь, чтобы скрыть';
@@ -122,8 +164,10 @@ export function markHint(id: HintId): void {
 /** «Сбросить подсказки» (и новая игра): все подсказки покажутся снова. */
 export function resetHints(): void {
   done = new Set();
+  shown = new Set();
   try {
     globalThis.localStorage?.removeItem(HINT_KEY);
+    globalThis.localStorage?.removeItem(HINT_SHOWN_KEY);
   } catch {
     // ничего
   }
@@ -132,6 +176,7 @@ export function resetHints(): void {
 /** Перечитать хранилище (для тестов и после внешней очистки localStorage). */
 export function reloadHints(): void {
   done = null;
+  shown = null;
 }
 
 export interface HomeHintInput {
@@ -152,6 +197,8 @@ export interface HomeHintInput {
   fastRewardsFree?: boolean;
   /** Задания дня открыты. */
   questsUnlocked?: boolean;
+  /** RN-21: в отряде фиолетовый (и выше) без ветки. */
+  branchPending?: boolean;
 }
 
 /**
@@ -167,6 +214,7 @@ export function pickHomeHint(s: HomeHintInput, isDone: (id: HintId) => boolean =
   if (s.fastRewardsFree && !isDone('fast_rewards')) return 'fast_rewards';
   if (s.questsUnlocked && !isDone('quests_open')) return 'quests_open';
   if (s.ascendReady && !isDone('ascend')) return 'ascend';
+  if (s.branchPending && !isDone('branch_pick')) return 'branch_pick';
   if (s.gearUpgrade && !isDone('equip_gear')) return 'equip_gear';
   if (s.towerUnlocked && !isDone('tower_open')) return 'tower_open';
   return null;

@@ -18,11 +18,31 @@
  *   которым браузер не дал играть до касания); вкладка скрыта / Telegram свёрнут — тишина, потоки на паузе (не качают
  *   и не тратят батарею) и продолжают с того же места. Нет Web Audio (headless, старый браузер) — всё молча ничего не делает.
  *
+ * - «Своя музыка» (audioSettings.ownMusic, docs/design/audio.md «Своя музыка игрока»): игрок слушает свою музыку
+ *   (Spotify, Яндекс Музыка, Apple Music). <audio> берёт аудиофокус на iOS и Android и останавливает чужую музыку, Web Audio
+ *   с AudioBuffer — нет (Chrome Android), а на iOS сессия 'ambient' (navigator.audioSession) смешивает звуки игры с
+ *   чужими. Поэтому в режиме музыка и фон игры не создаются вовсе, звуки — как обычно (AudioBuffer).
+ *
  * Модуль не импортирует Phaser во время выполнения (только типы) — его можно звать из тестируемых модулей (juice.ts).
  */
 import type Phaser from 'phaser';
 import { AMBIENCE, MUSIC, SFX, SUMMON_REVEAL, SUMMON_TENSION_MS, type AmbienceId, type MusicId, type SfxId } from './audioCatalog';
-import { categoryVolume, loadAudioSettings, MuteReasons, PitchStreak, ruleOf, saveAudioSettings, SoundGate, type AudioSettings, type SceneSound, type SoundRule } from './audioCore';
+import {
+  applyAudioSession,
+  audioSessionType,
+  categoryVolume,
+  loadAudioSettings,
+  MuteReasons,
+  PitchStreak,
+  ruleOf,
+  saveAudioSettings,
+  shouldHintOwnMusic,
+  SoundGate,
+  type AudioSessionType,
+  type AudioSettings,
+  type SceneSound,
+  type SoundRule,
+} from './audioCore';
 import { musicJob, synthAmbience, synthSfx, type Pcm } from './audioSynth';
 
 // ---------- файлы владельца ----------
@@ -86,11 +106,29 @@ export const audioFiles = (): string[] => Object.keys(FILES).sort();
 
 export const audioSettings: AudioSettings = loadAudioSettings();
 
-/** Изменить настройки (что передано) — запомнить и сразу применить. */
+// iOS: тип аудиосессии — до того, как Phaser создаст AudioContext (модуль грузится раньше new Phaser.Game).
+applyAudioSession(audioSessionType(audioSettings));
+
+/** Изменить настройки (что передано) — запомнить и сразу применить («Своя музыка» — погасить / вернуть музыку). */
 export function setAudioSettings(patch: Partial<AudioSettings>): void {
+  const wasOwn = audioSettings.ownMusic;
   Object.assign(audioSettings, patch);
   saveAudioSettings(audioSettings);
+  if (audioSettings.ownMusic !== wasOwn) {
+    if (engine) engine.syncOwnMusic();
+    else applyAudioSession(audioSessionType(audioSettings));
+  }
   engine?.applyVolumes();
+}
+
+/**
+ * Подсказка про «Свою музыку» (Город, один раз): true — показать сейчас (и больше никогда). Музыка игры должна была
+ * реально заиграть, настройка выключена.
+ */
+export function takeOwnMusicHint(): boolean {
+  if (!shouldHintOwnMusic(audioSettings, !!engine?.musicHeard)) return false;
+  setAudioSettings({ ownMusicHint: true });
+  return true;
 }
 
 // ---------- движок ----------
@@ -176,6 +214,13 @@ export class AudioEngine {
   /** Какую музыку просили последней (файл ещё грузится — не перебивать более поздней просьбой). */
   private wantMusic: string | null = null;
   private wantAmb: string | null = null;
+  /** Музыка и фон, которые просил экран (в режиме «Своя музыка» не играют; выключили режим — заиграют эти). */
+  private askedMusic: MusicId | null = null;
+  private askedAmb: AmbienceId | null = null;
+  /** Музыка игры хоть раз реально звучала (для подсказки про «Свою музыку»). */
+  musicHeard = false;
+  /** Какой тип аудиосессии выставлен (null — API нет: Chrome, Android, старый iOS). */
+  session: AudioSessionType | null = null;
   private duckUntil = 0;
 
   constructor(
@@ -191,7 +236,28 @@ export class AudioEngine {
     this.bus.sfx.connect(this.master);
     this.bus.battle.connect(this.master);
     this.bus.ui.connect(this.master);
+    this.session = applyAudioSession(audioSessionType(audioSettings));
     this.applyVolumes();
+  }
+
+  /**
+   * «Своя музыка» включили / выключили (audioSettings.ownMusic). Включили — аудиосессия 'ambient' (iOS), музыка и фон
+   * плавно гаснут, их <audio> отпускаются (пауза, файл снят — аудиофокус свободен); новых не создаём. Выключили —
+   * сессия 'auto', заиграет музыка и фон, которые просил текущий экран.
+   */
+  syncOwnMusic(): void {
+    this.session = applyAudioSession(audioSessionType(audioSettings));
+    if (audioSettings.ownMusic) {
+      this.wantMusic = null;
+      this.wantAmb = null;
+      this.stopTrack(this.musicTrack);
+      this.musicTrack = null;
+      this.stopTrack(this.ambTrack);
+      this.ambTrack = null;
+      return;
+    }
+    this.music(this.askedMusic);
+    this.ambience(this.askedAmb);
   }
 
   private set(p: AudioParam, v: number, tau = 0.05): void {
@@ -437,6 +503,7 @@ export class AudioEngine {
     el.addEventListener('playing', () => {
       if (tr.started || tr.stopping) return;
       tr.started = true;
+      if (key.startsWith('music:')) this.musicHeard = true;
       this.fadeIn(g, gain);
     });
     el.addEventListener('error', () => this.streamFailed(tr, tr.at, el.error ? `код ${el.error.code}` : 'ошибка'));
@@ -536,6 +603,9 @@ export class AudioEngine {
   }
 
   music(id: MusicId | null): void {
+    this.askedMusic = id;
+    // «Своя музыка»: музыки игры нет вовсе (ни <audio>, ни заглушки) — чужая музыка не прерывается.
+    if (audioSettings.ownMusic) id = null;
     if (!id) {
       this.wantMusic = null;
       this.stopTrack(this.musicTrack);
@@ -565,6 +635,7 @@ export class AudioEngine {
     }
     this.stopTrack(this.musicTrack);
     this.musicTrack = this.startTrack(key, buf, def.gain, this.bus.duck);
+    if (this.ctx.state === 'running' && !this.mute.active) this.musicHeard = true;
     this.keepRecentMusic(key);
   }
 
@@ -582,6 +653,8 @@ export class AudioEngine {
   }
 
   ambience(id: AmbienceId | null): void {
+    this.askedAmb = id;
+    if (audioSettings.ownMusic) id = null;
     if (!id) {
       this.wantAmb = null;
       this.stopTrack(this.ambTrack);
@@ -629,7 +702,11 @@ export class AudioEngine {
     }
     try {
       if (this.mute.active) void this.ctx.suspend();
-      else void this.ctx.resume();
+      else {
+        // iOS: тип сессии — до возобновления контекста (после сворачивания система могла его сбросить).
+        this.session = applyAudioSession(audioSessionType(audioSettings));
+        void this.ctx.resume();
+      }
     } catch {
       // Контекст закрыт — не страшно.
     }
@@ -640,9 +717,25 @@ export class AudioEngine {
    * файлов музыки среди них нет), живые потоки (играют или затухают: после смены музыки ≤ 2 на время затухания, 1 потом),
    * текущие музыка и фон.
    */
-  stats(): { buffers: number; trackBuffers: string[]; streams: number; music: string | null; ambience: string | null } {
+  stats(): {
+    buffers: number;
+    trackBuffers: string[];
+    streams: number;
+    music: string | null;
+    ambience: string | null;
+    ownMusic: boolean;
+    session: AudioSessionType | null;
+  } {
     const trackBuffers = [...this.buffers.keys()].filter((k) => k.startsWith('music:') || k.startsWith('amb:'));
-    return { buffers: this.buffers.size, trackBuffers, streams: this.streams.size, music: this.musicTrack?.id ?? null, ambience: this.ambTrack?.id ?? null };
+    return {
+      buffers: this.buffers.size,
+      trackBuffers,
+      streams: this.streams.size,
+      music: this.musicTrack?.id ?? null,
+      ambience: this.ambTrack?.id ?? null,
+      ownMusic: audioSettings.ownMusic,
+      session: this.session,
+    };
   }
 }
 
@@ -779,7 +872,11 @@ export function installAudio(game: Phaser.Game, sceneFor?: (scene: Phaser.Scene)
   // (слушаем, пока контекст не пошёл и есть потоки, ждущие касания).
   if (typeof document !== 'undefined') {
     const unlock = () => {
-      if (eng.ctx.state !== 'running' && !eng.mute.active) void eng.ctx.resume().catch(() => undefined);
+      if (eng.ctx.state !== 'running' && !eng.mute.active) {
+        // iOS: тип сессии ('ambient' при «Своей музыке») — до возобновления контекста.
+        eng.session = applyAudioSession(audioSessionType(audioSettings));
+        void eng.ctx.resume().catch(() => undefined);
+      }
       // Музыка-поток, которой браузер не дал играть до касания, — play() ещё раз внутри жеста.
       eng.retryPending();
       if (eng.ctx.state === 'running' && !eng.hasPending) {

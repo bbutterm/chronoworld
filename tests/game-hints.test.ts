@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { newGame, type SaveState } from '../src/core';
 import { autoNextStage, heroesBadgeCount } from '../src/game/flow';
-import { HINT_KEY, HINT_TEXT, hintDone, markHint, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, setHintObsolete, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
+import { HINT_KEY, HINT_TEXT, hintDone, hintShown, markHint, markHintShown, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, setHintObsolete, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
 import { loadFullContext, loadGameContext } from '../scripts/lib/content-node';
 import { placeCallout } from '../src/game/hintLayout';
 
@@ -77,6 +77,12 @@ describe('R: подсказки первой сессии', () => {
     const isDone = (id: HintId) => done.has(id);
     expect(pickHomeHint(base, isDone)).toBeNull();
     expect(pickHomeHint({ ...base, cleared: 2, chestHasIncome: true, towerUnlocked: true }, isDone)).toBe('tower_open');
+  });
+
+  it('RN-21: фиолетовый без ветки в отряде — «Выберите ветку» (после вознесения, до Башни)', () => {
+    const done = new Set<HintId>(['home_campaign']);
+    expect(pickHomeHint({ ...base, cleared: 40, branchPending: true, towerUnlocked: true }, (id) => done.has(id))).toBe('branch_pick');
+    expect(HINT_TEXT.branch_pick).toMatch(/ветк/);
   });
 
   describe('хранение в localStorage (отдельно от сохранения игры)', () => {
@@ -208,5 +214,33 @@ describe('S: плашка подсказки не закрывает други�
     const above = { x: 0, y: 820, w: 1080, h: 100 };
     const p = placeCallout({ x: 540, y: 1000, w: 400, h: 100 }, box, { ...screen, prefer: 'above', avoid: [above] });
     expect(p).toMatchObject({ side: 'below', overlap: 0 });
+  });
+
+  it('RN-15: «Башня открыта» на карте — один показ (markHintShown), остальные подсказки не глушит', () => {
+    const mem = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => mem.get(k) ?? null,
+      setItem: (k: string, v: string) => void mem.set(k, v),
+      removeItem: (k: string) => void mem.delete(k),
+    });
+    reloadHints();
+    const base = { cleared: 0, chestHasIncome: false, levelUpReady: false, towerUnlocked: false };
+    try {
+      expect(hintShown('tower_open')).toBe(false);
+      markHintShown('tower_open');
+      markHintShown('level_up');
+      reloadHints();
+      expect(hintShown('tower_open')).toBe(true);
+      // Не одноразовые не запоминаются показом.
+      expect(hintShown('level_up')).toBe(false);
+      const isDone = (id: HintId) => id === 'home_campaign' || hintDone(id) || hintShown(id);
+      expect(pickHomeHint({ ...base, cleared: 20, towerUnlocked: true }, isDone)).toBeNull();
+      expect(pickHomeHint({ ...base, cleared: 20, towerUnlocked: true, levelUpReady: true }, isDone)).toBe('level_up');
+      resetHints();
+      expect(hintShown('tower_open')).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+      reloadHints();
+    }
   });
 });

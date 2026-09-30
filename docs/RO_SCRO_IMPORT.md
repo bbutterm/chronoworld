@@ -75,7 +75,7 @@ Work in the working branch (`claude/idle-hero-rpg-gdd-rolicg`) after `git merge 
    **Hooked up (2026-09-29):** 22 tracks in `assets/audio/music_<id>.ogg|m4a`. Catalog ids differ from the proposed ones:
    map_orcs → `map_orc`, battle_orcs → `battle_orc`, map_aldebaran → `map_clocktower`, battle_aldebaran → `battle_clocktower`,
    map_maze → `map_labyrinth`. Tracks shared by two ids are one file: 19 → `music_map_sewer` (battle_sewer takes it),
-   16 → `music_map_labyrinth` (battle_labyrinth takes it), 21 → `music_tower` (battle_tower takes it). Not copied: title 01
+   16 → `music_map_labyrinth`, 47 → `music_battle_labyrinth` (30.09, own battle theme of chapter 9), 21 → `music_tower` (battle_tower takes it). Not copied: title 01
    (no Title scene yet), boss_aldebaran 61 and hunt 02 (no ids in `MUSIC`), spare tracks. Music gains in `MUSIC` were lowered
    for the dense RO tracks (menus/maps 0.42, battles 0.36) — see docs/design/audio.md, "Правила микса" 9.
    Rebuild: `python3 raw/ro-build/tools/build_music.py <repo root>` (ffmpeg with libopus and aac).

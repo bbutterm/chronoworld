@@ -4,6 +4,7 @@
 import {
   ascendRequirement,
   canEquip,
+  actEquipBest,
   heroesWithGearUpgrades,
   groupDigits,
   heroPower,
@@ -31,6 +32,11 @@ import {
   recommendedPower as coreRecommendedPower,
   levelTone,
   squadAverageLevel,
+  stageLevels,
+  enemyLevels,
+  enemySquad,
+  recommendedFactor,
+  type StageLevels,
   type CardRarity,
   type LevelTone,
   type RecommendedLevel,
@@ -196,7 +202,13 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventR
   for (const [heroId, l] of levels) lines.push(`${nameOf(heroId)}: ур. ${l.from} → ${l.to}`);
   for (const e of events) {
     if (e.type === 'skillUnlocked') lines.push(`${nameOf(e.heroId)}: новый навык «${skillName(e.skill)}»`);
-    if (e.type === 'heroJoined') lines.unshift(e.copy ? `${e.name}: пришла копия героя (для вознесения)` : `Новый герой в отряде: ${e.name}!`);
+    if (e.type === 'heroJoined') lines.unshift(
+      e.copy
+        ? `${e.name}: пришла копия героя (для вознесения)`
+        : e.benched
+          ? `${e.name} с вами${e.level && e.level > 1 ? ` (ур. ${e.level})` : ''} — поставьте в отряд: «Герои» или «Авто» перед боем`
+          : `Новый герой в отряде: ${e.name}${e.level && e.level > 1 ? ` (ур. ${e.level})` : ''}!`,
+    );
     if (e.type === 'ascended') lines.push(`${nameOf(e.heroId)}: ${rarityName(e.from)} → ${rarityName(e.to)}${e.jobChanged ? ` — теперь ${jobName(e.job, e.heroId)}!` : ''}`);
     if (e.type === 'heroCard') lines.push(`Карта героя: ${e.name} (${rarityName(e.rarity)})`);
     if (e.type === 'heroPick') lines.push(`Контракт героя: ${rarityName(e.rarity).toLowerCase()} герой на выбор — «Герои»`);
@@ -238,13 +250,32 @@ export function poolText(save: SaveState): string {
   return `Опыт в запасе: ${formatNumber(save.resources.heroExp)}`;
 }
 
+/** RN-10. Герои отряда, которым в сумке есть вещи лучше надетых. */
+export function squadGearUpgrades(save: SaveState, ctx: GearContext): string[] {
+  return heroesWithGearUpgrades(save, ctx).filter((id) => save.squad.includes(id));
+}
+
+/** RN-10. «Надеть лучшее» всему отряду (по порядку слотов): сколько вещей надето. */
+export function equipBestSquad(save: SaveState, ctx: GearContext): { save: SaveState; equipped: number } {
+  let s = save;
+  let equipped = 0;
+  for (const id of save.squad) {
+    if (!id) continue;
+    const r = actEquipBest(s, id, ctx);
+    s = r.save;
+    equipped += r.equipped.length;
+  }
+  return { save: s, equipped };
+}
+
 /**
  * P10 (T1-07). Совет после поражения на этапе — по делу, по порядку пользы:
  * вещи получше в инвентаре → «Улучшить» (хватает опыта) → вознесение → стрелки во фронте → свободные слоты при
  * запасных героях → прокачка. action — куда ведёт кнопка совета.
  */
-export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): { text: string; action: 'Heroes' | 'Squad' | 'Campaign' } {
-  if (heroesWithGearUpgrades(save, ctx).length) return { text: 'В инвентаре есть вещи получше — «Герои» → «Надеть лучшее».', action: 'Heroes' };
+export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): { text: string; action: 'EquipBest' | 'Heroes' | 'Squad' | 'Campaign' } {
+  // RN-10: только герои отряда (вещи «получше» для запасных ур. 1 в бою не помогут); кнопка «Надеть лучшее» — прямо на итогах.
+  if (squadGearUpgrades(save, ctx).length) return { text: 'В сумке есть вещи получше для отряда — «Надеть лучшее» ниже.', action: 'EquipBest' };
   if (levelUpReady(save, ctx).length) return { text: 'Опыта хватает на новый уровень — «Герои» → герой → «Улучшить».', action: 'Heroes' };
   if (ascendReady(save, ctx).length) return { text: 'Герой готов к вознесению — оно сильно его усилит («Герои»).', action: 'Heroes' };
   if (misplacedInFront(save, ctx).length) return { text: 'Стрелки и лекари стоят во фронте — «Отряд» → «Переставить».', action: 'Squad' };
@@ -303,14 +334,43 @@ export function enemyLevelColor(level: number, save: Pick<SaveState, 'squad' | '
   return LEVEL_COLORS[levelTone(level, squadAverageLevel(save))];
 }
 
+/**
+ * RN-11. Редкость отряда для уровней врагов: самая частая среди героев отряда (при равенстве — ниже). Уровень врага —
+ * «герой этой редкости такого же уровня»: так «ур. 12» у врага и «ур. 12» у ваших героев — одно и то же, а не уровень
+ * синего героя против зелёного отряда (глава 2: «враги ур. 1, а бьют отряд ур. 6»). Пустой отряд — null.
+ */
+export function squadRarity(save: Pick<SaveState, 'squad' | 'heroes'>): CardRarity | null {
+  const count = new Map<CardRarity, number>();
+  for (const id of save.squad) {
+    const h = id ? save.heroes.find((x) => x.id === id) : undefined;
+    if (h) count.set(h.rarity, (count.get(h.rarity) ?? 0) + 1);
+  }
+  let best: CardRarity | null = null;
+  for (const r of ['green', 'blue', 'purple', 'gold', 'red'] as const) {
+    const n = count.get(r) ?? 0;
+    if (n > 0 && (best === null || n > (count.get(best) ?? 0))) best = r;
+  }
+  return best;
+}
+
+/** RN-11. Уровни этапа для отряда игрока: враги — в единицах его редкости (squadRarity), рекомендация — как в ядре. */
+export function stageLevelsFor(save: Pick<SaveState, 'squad' | 'heroes'>, stageId: string, ctx: FeatureContext): StageLevels {
+  const base = stageLevels(stageId, ctx);
+  const rarity = squadRarity(save);
+  if (!rarity || rarity === base.rarity) return base;
+  return { ...base, rarity, ...enemyLevels(enemySquad(stageId, ctx), rarity, ctx, recommendedFactor(stageId, ctx)) };
+}
+
 /** «ур. 18» — подпись уровня врага. */
 export function levelLabel(level: number): string {
   return `ур. ${level}`;
 }
 
-/** «герои ур. 18 (синие)» — рекомендуемый уровень этапа (под «Нужно N» на экране этапа). */
+/** «Синие герои ур. 18» — рекомендуемый уровень этапа (под «Нужно N» на экране этапа). */
 export function recommendText(rec: Pick<RecommendedLevel, 'level' | 'rarity'>): string {
-  return `герои ур. ${rec.level} (${RARITY_PLURAL[rec.rarity]})`;
+  // RN-11: редкость — словом впереди («синие герои ур. 18»), а не пометкой в скобках, которую новичок не читал.
+  const r = RARITY_PLURAL[rec.rarity];
+  return `${r.charAt(0).toUpperCase()}${r.slice(1)} герои ур. ${rec.level}`;
 }
 
 /** Мощь текущего отряда против рекомендуемой мощи этапа: числа, тон (цвет) и подпись для плашек. */

@@ -11,9 +11,9 @@ import { motes, ribbon } from '../decor';
 import { fps, motion, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed, setReducedMotion } from '../state';
 import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
-import { audioSettings, setAudioSettings, sfx } from '../audio';
+import { audioSettings, setAudioSettings, sfx, takeOwnMusicHint } from '../audio';
 import { hapticSettings, setHapticsOn } from '../haptics';
-import { battleSfxLabel, nextVolume, volumeLabel } from '../audioCore';
+import { battleSfxLabel, nextVolume, OWN_MUSIC_HINT, ownMusicLabel, ownMusicToast, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
 import { shopTile } from '../shopEntry';
 import { achievementsTile, questsTile } from '../featureTiles';
@@ -74,6 +74,8 @@ export class HomeScene extends Phaser.Scene {
     // Открылась новая функция (data/unlocks.json) — баннер «Новая функция!», один раз.
     // Ведущее обучение (tutorial.ts): Таверна ×10, затем задания — указатель на плитку (после баннера).
     showUnlockBanners(this, () => {
+      // Музыка игры уже звучала — один раз подсказать, что можно слушать свою (шестерёнка → «Своя музыка»).
+      if (takeOwnMusicHint()) toast(this, OWN_MUSIC_HINT, undefined, 5000);
       const id = cityHint(session.save);
       // Игрок уже в Городе — текст без «в «Городе»»; лента-заголовок «Город» не закрывается (MT-07, NB-13).
       if (id === 'tavern_summon') tutorialHint(this, id, xl, y1, 'below', { w, h }, { text: 'Таверна открыта — наймите героев', avoidText: ['Город'] });
@@ -144,6 +146,11 @@ export class HomeScene extends Phaser.Scene {
       btn.container.setName(name);
       layer.add(btn.container);
     };
+    // «Своя музыка»: игрок слушает Spotify / Яндекс Музыку — музыка игры не играет и не забирает у них звук (audio.ts).
+    volumeRow('Своя музыка', 'ownMusic', () => ownMusicLabel(audioSettings), () => {
+      setAudioSettings({ ownMusic: !audioSettings.ownMusic, ownMusicHint: true });
+      toast(this, ownMusicToast(audioSettings), undefined, 3000);
+    });
     volumeRow('Музыка', 'musicVolume', () => volumeLabel(audioSettings.music), () => setAudioSettings({ music: nextVolume(audioSettings.music) }));
     volumeRow('Звуки', 'sfxVolume', () => volumeLabel(audioSettings.sfx), () => setAudioSettings({ sfx: nextVolume(audioSettings.sfx) }));
     // Та же настройка, что значок динамика в верхней панели боя: удары, навыки и смерти (музыка и интерфейс звучат).
@@ -168,9 +175,9 @@ export class HomeScene extends Phaser.Scene {
     y += 140;
     layer.add(
       dangerButton(this, cx, y, bw, 110, 'Начать заново', () =>
-        confirm(this, 'Весь прогресс будет удалён: герои, этапы, золото и предметы. Начать игру с самого начала?', 'Удалить', () =>
+        confirm(this, 'Весь прогресс будет удалён: герои, этапы, золото и предметы. Настройки звука, вибрации и скорости боя останутся. Начать игру с самого начала?', 'Удалить', () =>
           confirm(this, 'Точно? Отменить будет нельзя.', 'Да, заново', () => {
-            // Чистое сохранение, сдвиг часов тестировщика и все ключи игры — в ноль; перезагрузка → вступление главы 1.
+            // Чистое сохранение, сдвиг часов тестировщика и ключи прогресса — в ноль (настройки звука, вибрации и скорости остаются); перезагрузка → вступление главы 1.
             startOver();
           }, { danger: true }),
         { danger: true }),

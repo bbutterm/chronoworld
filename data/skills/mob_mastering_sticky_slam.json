@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob_mastering_sticky_slam",
   "name": "Липкий плюх",
-  "description": "Прыжок в тыл к врагу с наименьшим ОЗ: урон и «Липкость» (−30% скорости) на 2 хода.",
+  "description": "Прыжок в тыл к врагу с наименьшим ОЗ: урон и «Липкость» (−30% скорости) на 2 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

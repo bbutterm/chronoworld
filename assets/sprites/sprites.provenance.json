@@ -41826,6 +41826,13 @@
     50
    ]
   },
+  "npc_bruno": {
+   "source": {
+    "job": "1_m_librarymaster",
+    "gender": "m",
+    "renderer": "raw/ro-build/assets/sprites/npcs/1_m_librarymaster.png (scRO npc/1_m_librarymaster, 1 frame); rows idle south, idle east, repeated as walk south, walk east; 8 columns = same frame; RN-07: portrait of innkeeper Bruno"
+   }
+  },
   "npc_kafra": {
    "source": {
     "job": "4_f_kafra1",

@@ -479,7 +479,10 @@ export class BattleScene extends Phaser.Scene {
     addThemeBackground(this, 'battle', this.theme);
     this.ambient = new Ambient(this, this.theme);
     panel(this, GAME_W / 2, 130, 760, 200, 'ui_panel');
-    text(this, GAME_W / 2, 85, title, title.length > 20 ? 42 : 52, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
+    const titleText = text(this, GAME_W / 2, 85, title, title.length > 20 ? 42 : 52, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
+    // Длинное название («Этап 7-18. Смотритель часовой башни») — ужать в плашку 760, не залезая под значок динамика (BUG-157).
+    const TITLE_MAX = 700;
+    if (titleText.width > TITLE_MAX) titleText.setScale(TITLE_MAX / titleText.width);
     this.timeText = text(this, GAME_W / 2, 150, '', 40, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
     // Таймер виден сразу, и во время баннера босса (T2-13).
     this.showTime(0);
@@ -1233,7 +1236,7 @@ export class BattleScene extends Phaser.Scene {
           if (e.dot) return;
           const hit = hitFxOf(src, dmgSkill);
           if (hit === 'fx_magic') this.fx(v, hit, 1.7, 450, 0.95);
-          else this.fx(v, hit, 0.45, 200, 0.5);
+          else this.fx(v, hit, 0.45, 200, 0.5, src?.node.x);
           if (src) this.hitVisual(src, v, sk, hpPart, big);
         }, { plan: e.dot ? undefined : e.target, on: v });
         return;
@@ -1539,8 +1542,8 @@ export class BattleScene extends Phaser.Scene {
     this.floats.projectile(from.node.x, bodyY(from), to.node.x, bodyY(to), texId, 48, PROJECTILE_MS, DEPTH.fx);
   }
 
-  private fx(v: UnitView, texId: string, scale: number, duration = 250, alpha = 0.8): void {
-    this.floats.flash(v.node.x, bodyY(v), texId, 140 * scale, alpha, duration, DEPTH.fx, v.node.y);
+  private fx(v: UnitView, texId: string, scale: number, duration = 250, alpha = 0.8, fromX?: number): void {
+    this.floats.flash(v.node.x, bodyY(v), texId, 140 * scale, alpha, duration, DEPTH.fx, v.node.y, undefined, fromX);
   }
 
   /**
@@ -1712,7 +1715,7 @@ export class BattleScene extends Phaser.Scene {
     // Grand Cross originates under the crusader even though the game skill is ranged.
     const center = skill.id === 'job_crusader_grand_cross' || skill.range === 'melee'
       ? this.point(v) : { x: avg(pts.map((p) => p.x)), feet: avg(pts.map((p) => p.feet)) };
-    this.sfx.later(delay, () => this.floats.catalogFlash(center.x, center.feet, id, 320));
+    this.sfx.later(delay, () => this.floats.catalogFlash(center.x, center.feet, id, 320, undefined, v.node.x));
   }
 
   /**

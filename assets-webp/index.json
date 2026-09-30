@@ -704,6 +704,11 @@
   "png": 23920,
   "webp": 16348
  },
+ "sprites/heroes/npc_garret.png": {
+  "sha1": "f78fee1bf4a81c7c9ad044956d1868fee229ce30",
+  "png": 26671,
+  "webp": 18278
+ },
  "sprites/heroes/priest.png": {
   "sha1": "c26d7b7b4917a332ab5f780fae3a20b515614cfd",
   "png": 21666,
@@ -1079,10 +1084,20 @@
   "png": 34962,
   "webp": 21292
  },
+ "sprites/npcs/1_m_librarymaster.png": {
+  "sha1": "c6bdeffc2051488a676ee63d12f71f9e938ceab2",
+  "png": 28843,
+  "webp": 2554
+ },
  "sprites/npcs/4_f_kafra1.png": {
   "sha1": "54e99e42177f0a2db24044d2efa5fba40914378d",
   "png": 19530,
   "webp": 7764
+ },
+ "sprites/npcs/4_m_darkpriest.png": {
+  "sha1": "8460f19aee1d559e55d8d30916dbecaa83d02da5",
+  "png": 26631,
+  "webp": 19182
  },
  "sprites/portraits/acolyte.png": {
   "sha1": "a63a2f729bdb6f84f4fa5b6670c7a268e66ceac4",
@@ -1294,10 +1309,25 @@
   "png": 2413,
   "webp": 1388
  },
+ "sprites/portraits/npc_1_m_librarymaster.png": {
+  "sha1": "e70b799756f038bdf7ee96a0614c6d6437b7eb80",
+  "png": 1772,
+  "webp": 964
+ },
  "sprites/portraits/npc_4_f_kafra1.png": {
   "sha1": "47b373539766f046c72cb6a9579530d38d865a82",
   "png": 1816,
   "webp": 1050
+ },
+ "sprites/portraits/npc_4_m_darkpriest.png": {
+  "sha1": "45aeed059167d0af5716980c0a5175a3b87b8648",
+  "png": 1777,
+  "webp": 962
+ },
+ "sprites/portraits/npc_garret.png": {
+  "sha1": "5cc2e10e00f3662db635cc59b3a265020e000f5a",
+  "png": 2542,
+  "webp": 1434
  },
  "sprites/portraits/priest.png": {
   "sha1": "f2bfcd3653705ef2a095b8efc0cc6f004842ddf8",

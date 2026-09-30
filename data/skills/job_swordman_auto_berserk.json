@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_swordman_auto_berserk",
   "name": "Авто-Берсерк",
-  "description": "Когда по мечнику попали: шанс 25% — +30% атаки себе на 3 хода.",
+  "description": "Когда по мечнику попали: шанс 25% — +30% атаки себе на 3 с.",
   "range": "ranged",
   "trigger": "hit",
   "chance": 0.25,

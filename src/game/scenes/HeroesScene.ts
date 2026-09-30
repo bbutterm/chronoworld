@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { achievementStatus, ascendAll, ascendAllSummary, heroesWithGearUpgrades, heroPower, levelUpInfo, needsBranch, pendingPicks, squadPower, withGear, type CardRarity, type HeroState } from '../../core';
+import { achievementStatus, ascendAll, ascendAllSummary, chooseBranch, heroCard, jobTitle, heroesWithGearUpgrades, heroPower, levelUpInfo, needsBranch, pendingPicks, squadPower, withGear, type CardRarity, type HeroState } from '../../core';
 import { GAME } from '../content';
 import { ascendReady, claimableAchievements, formatNumber, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
@@ -17,6 +17,8 @@ import { collectionCount, collectionHeroes, groupCopies, heroesUi, inventoryUi, 
 import { pulse } from '../juice';
 import { heroStoryNew, storyDot } from '../heroStoryView';
 import { lockLabel } from '../unlockBanner';
+import { openBranchPicker } from '../branchPicker';
+import { toastOpenedStories } from '../heroStoryView';
 
 const COLS = 3;
 const TILE_W = 300;
@@ -67,7 +69,7 @@ export class HeroesScene extends Phaser.Scene {
     // Запас опыта (тратится «Улучшить» на карточке) и «Коллекция» — серые неполученные карточки.
     const rowY = CONTENT_TOP + 165;
     ellipsize(text(this, 30, rowY, `Опыт в запасе: ${formatNumber(save.resources.heroExp)}`, FS.body, C.gold, { stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('heroExpPool'), 420);
-    // «Вознести всех»: всех, кому хватает свободных копий того же героя и золота (ascendAll), с подтверждением.
+    // «Вознести всех»: всех, кому хватает свободных копий и золота (ascendAll; для красного — и лишних копий других), с подтверждением.
     const plan = ascendAll(save, GAME);
     const all = button(this, 590, rowY, 250, 96, plan.done.length ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести всех', () => this.ascendAllConfirm(), FS.small, { sound: 'ui_toggle' });
     all.container.setName('ascendAllBtn');
@@ -187,7 +189,7 @@ export class HeroesScene extends Phaser.Scene {
     const plan = ascendAll(session.save, GAME);
     const rows = ascendAllSummary(plan.done);
     if (!rows.length) {
-      toast(this, 'Вознести некого: нужны свободные копии того же героя и золото.', C.muted);
+      toast(this, 'Вознести некого: нужны свободные копии героя (для красного — ещё лишние фиолетовые) и золото.', C.muted);
       return;
     }
     const line = (r: (typeof rows)[number]) => `${r.name}: ${RARITY_CARD[r.from]} → ${RARITY_CARD[r.to]}${r.branchPending ? ' (ветка — потом)' : ''}`;
@@ -197,7 +199,11 @@ export class HeroesScene extends Phaser.Scene {
     const gold = session.save.resources.gold - plan.save.resources.gold;
     const eaten = plan.done.reduce((n, d) => n + d.consumed.length, 0);
     const cost = `${gold > 0 ? `Золото: −${formatNumber(gold)} · ` : ''}копий в корм: ${eaten}`;
-    confirm(this, `Вознести всех?\n\n${list.join('\n')}\n\n${cost}\nОтряд и закреплённые (замок) в корм не идут.`, 'Вознести', () => {
+    // Слоты «любой» (золотой → красный) едят лишние копии других героев — назвать их (BUG-168).
+    const byId = new Map(session.save.heroes.map((h) => [h.id, h]));
+    const others = plan.done.flatMap((d) => d.consumed.map((id) => byId.get(id)).filter((h) => h && h.templateId !== d.templateId).map((h) => this.content.heroes[h!.templateId]?.name ?? h!.templateId));
+    const otherLine = others.length ? `\nЛишние копии других героев: ${[...new Set(others)].join(', ')}.` : '';
+    confirm(this, `Вознести всех?\n\n${list.join('\n')}\n\n${cost}${otherLine}\nОтряд, закреплённые (замок) и лучший экземпляр каждого героя в корм не идут.`, 'Вознести', () => {
       // Сохранение могло измениться — считаем заново от текущего.
       const r = ascendAll(session.save, GAME);
       if (!r.done.length) return;
@@ -205,10 +211,14 @@ export class HeroesScene extends Phaser.Scene {
       sfx('rarity_up');
       haptic('levelUp');
       const res = ascendAllSummary(r.done);
-      const branch = res.filter((x) => x.branchPending).map((x) => x.name);
-      const msg = `Вознесено: ${res.map((x) => `${x.name} (${RARITY_CARD[x.to]})`).join(', ')}${branch.length ? `. Выберите ветку: ${branch.join(', ')}` : ''}`;
+      const msg = `Вознесено: ${res.map((x) => `${x.name} (${RARITY_CARD[x.to]})`).join(', ')}`;
+      // RN-21: фиолетовые без ветки — сразу окно выбора ветки по очереди (иначе вторую профессию и истории 60+ не увидеть).
+      const pending = res.filter((x) => x.branchPending).map((x) => x.heroId);
       this.scene.restart();
-      this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, msg, C.success, 5000));
+      this.events.once(Phaser.Scenes.Events.CREATE, () => {
+        toast(this, msg, C.success, 4000);
+        if (pending.length) this.time.delayedCall(500, () => pickBranchChain(this, pending));
+      });
     });
   }
 
@@ -260,4 +270,51 @@ export class HeroesScene extends Phaser.Scene {
     b.container.setName(name);
     draw(b.container);
   }
+}
+
+/**
+ * RN-21. Выбор ветки по очереди для фиолетовых без ветки (после «Вознести всех»): окно веток героя за героем.
+ * «Отмена» — остальных не спрашиваем, на плитках остаётся «Выберите ветку!».
+ */
+export function pickBranchChain(sc: Phaser.Scene, heroIds: readonly string[]): void {
+  const [id, ...rest] = heroIds;
+  const hero = session.save.heroes.find((h) => h.id === id);
+  if (!hero) return;
+  if (!needsBranch(hero, GAME)) return pickBranchChain(sc, rest);
+  const c = heroCard(hero, GAME);
+  const left = heroIds.length > 1 ? ` Дальше: ${rest.map((x) => heroCard(session.save.heroes.find((h) => h.id === x) ?? hero, GAME).name).join(', ')}.` : '';
+  openBranchPicker(sc, {
+    templateId: hero.templateId,
+    title: `${c.name}: выберите ветку`,
+    subtitle: `Вторая профессия и новая часть истории героя (ур. 60+). Выбор бесплатный, первая смена — тоже.${left}`,
+    heroId: hero.id,
+    save: session.save,
+    confirmLabel: (job) => (job ? `Выбрать: ${jobTitle(GAME, job, c.gender)}` : 'Выберите ветку'),
+    onConfirm: (job) => {
+      let say = (target: Phaser.Scene) => toast(target, `${c.name} — теперь ${jobTitle(GAME, job, c.gender)}!`, C.success, 2500);
+      try {
+        const before = session.save;
+        const r = chooseBranch(session.save, hero.id, job, GAME);
+        commit(r.save);
+        sfx('job_change');
+        haptic('levelUp');
+        const first = say;
+        say = (target) => {
+          first(target);
+          target.time.delayedCall(1600, () => toastOpenedStories(target, before, r.save, hero.templateId));
+        };
+      } catch (e) {
+        say = (target) => toast(target, e instanceof Error ? e.message : String(e), C.error, 3000);
+      }
+      if (rest.length) {
+        say(sc);
+        sc.time.delayedCall(400, () => pickBranchChain(sc, rest));
+      } else {
+        // Плитки перерисовать (ушла плашка «Выберите ветку!»), тост — уже на новом экземпляре сцены.
+        sc.scene.restart();
+        sc.events.once(Phaser.Scenes.Events.CREATE, () => say(sc));
+      }
+    },
+    onCancel: () => toast(sc, 'Ветку можно выбрать позже: карточка героя → «Выбрать ветку»', C.muted, 3500),
+  });
 }

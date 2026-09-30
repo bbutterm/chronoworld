@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob5_munak_talisman",
   "name": "Печать Мунэ",
-  "description": "Мунэ поправляет талисман на лбу: щит 20% ОЗ себе и +25% защиты на 3 хода.",
+  "description": "Мунэ поправляет талисман на лбу: щит 20% ОЗ себе и +25% защиты на 3 с.",
   "range": "ranged",
   "target": {
     "side": "ally",

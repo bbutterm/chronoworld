@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob_mastering_royal_bounce",
   "name": "Королевский прыжок",
-  "description": "Король порингов обрушивается на всех врагов: урон и шанс 25% оглушить на ход.",
+  "description": "Король порингов обрушивается на всех врагов: урон и шанс 25% оглушить на 1 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob6_bosun_anchor",
   "name": "Якорь за борт",
-  "description": "Боцман обрушивает якорь на ближайшего врага: урон и 35% оглушить на ход.",
+  "description": "Боцман обрушивает якорь на ближайшего врага: урон и 35% оглушить на 1 с.",
   "range": "melee",
   "target": {
     "side": "enemy",

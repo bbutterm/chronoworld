@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob_poporing_goo",
   "name": "Ядовитая слизь",
-  "description": "Плевок слизью: урон и яд на 3 хода.",
+  "description": "Плевок слизью: урон и яд на 3 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

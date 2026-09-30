@@ -159,8 +159,9 @@ export const MUSIC = {
   battle_clocktower: { gain: 0.36, files: ['music_battle_clocktower', 'music_battle'], desc: 'бой в главе 7', ro: '60.mp3 Aeon (c_tower1–4)' },
   map_crypt: { gain: 0.42, files: ['music_map_crypt', 'music_map'], desc: 'карта главы 8 (Гласт Хейм)', ro: '42.mp3 (glast_01; название проверить)' },
   battle_crypt: { gain: 0.36, files: ['music_battle_crypt', 'music_battle'], desc: 'бой в главе 8', ro: '40.mp3 Fear… (gl_church, gl_prison)' },
-  map_labyrinth: { gain: 0.42, files: ['music_map_labyrinth', 'music_map'], desc: 'карта главы 9 (Лабиринтный лес; главы ещё нет)', ro: '16.mp3 Labyrinth (prt_maze01–03)' },
-  battle_labyrinth: { gain: 0.36, files: ['music_battle_labyrinth', 'music_map_labyrinth', 'music_battle'], desc: 'бой в главе 9 (без своего файла — тот же трек, что на карте)', ro: '16.mp3 Labyrinth' },
+  map_labyrinth: { gain: 0.42, files: ['music_map_labyrinth', 'music_map'], desc: 'карта главы 9 (Лабиринтный лес)', ro: '16.mp3 Labyrinth (prt_maze01–03)' },
+  // Своя боевая тема (RL «Музыка»): тёмный лесной данж RO — 47.mp3 из pay_dun03–04 (в игре больше нигде не звучит).
+  battle_labyrinth: { gain: 0.36, files: ['music_battle_labyrinth', 'music_battle'], desc: 'бой в главе 9 (Лабиринтный лес)', ro: '47.mp3 (pay_dun03–04; название проверить)' },
   map_niflheim: { gain: 0.42, files: ['music_map_niflheim', 'music_map'], desc: 'карта главы 10 (Нифльхейм)', ro: '84.mp3 (niflheim; название проверить)' },
   battle_niflheim: { gain: 0.36, files: ['music_battle_niflheim', 'music_battle'], desc: 'бой в главе 10', ro: '85.mp3 (nif_fild01–02; название проверить)' },
   // Проклятые топи — только ярус Башни; бои Башни играют battle_tower, эти дорожки — запас для яруса без своей музыки.

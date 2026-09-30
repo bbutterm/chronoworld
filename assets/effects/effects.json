@@ -171,10 +171,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.5,
       "anchor": [
         48.2,
-        156.4
+        194.7
       ],
       "attach": "target",
       "source": {
@@ -198,7 +199,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.25,
       "anchor": [
         138.6,
         220.5
@@ -225,10 +227,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.45,
       "anchor": [
         105.2,
-        127.4
+        166.6
       ],
       "attach": "target",
       "source": {
@@ -252,7 +255,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.9,
       "anchor": [
         52.6,
         48.2
@@ -280,9 +284,10 @@
       "loop": false,
       "delayMs": 0,
       "blend": "normal",
+      "scale": 1.3,
       "anchor": [
         108.4,
-        114.8
+        150.0
       ],
       "attach": "target",
       "source": {
@@ -306,10 +311,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.3,
       "anchor": [
         128.2,
-        168.4
+        199.4
       ],
       "attach": "target",
       "source": {
@@ -333,10 +339,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.55,
       "anchor": [
         127.6,
-        161.2
+        194.1
       ],
       "attach": "target",
       "source": {
@@ -360,7 +367,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.55,
       "anchor": [
         49.4,
         153.8
@@ -387,10 +395,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.35,
       "anchor": [
         119.0,
-        161.3
+        208.7
       ],
       "attach": "target",
       "source": {
@@ -414,10 +423,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.4,
       "anchor": [
         98.2,
-        105.4
+        153.7
       ],
       "attach": "caster",
       "source": {
@@ -441,7 +451,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 2.0,
       "anchor": [
         60.2,
         127.4
@@ -468,7 +479,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.8,
       "anchor": [
         45.0,
         189.0
@@ -495,10 +507,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.5,
       "anchor": [
         95.0,
-        125.0
+        176.7
       ],
       "attach": "target",
       "source": {
@@ -522,7 +535,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 2.5,
       "anchor": [
         108.6,
         116.2
@@ -549,7 +563,9 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 83,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.6,
+      "alpha": 0.65,
       "anchor": [
         166.4,
         172.8
@@ -576,7 +592,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.45,
       "anchor": [
         103.2,
         155.4
@@ -589,7 +606,8 @@
         "outputScale": 0.8,
         "seed": 1,
         "note": "CR_SHIELDCHARGE EF_SHIELDCHARGE 246; shield on target, flight not tweened"
-      }
+      },
+      "from": "right"
     },
     {
       "id": "fx_job_hunter_claymore_trap",
@@ -603,10 +621,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.2,
       "anchor": [
         169.0,
-        187.0
+        208.7
       ],
       "attach": "target",
       "source": {
@@ -630,10 +649,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.4,
       "anchor": [
         147.0,
-        115.0
+        140.0
       ],
       "attach": "target",
       "source": {
@@ -657,7 +677,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.2,
       "anchor": [
         159.0,
         214.0
@@ -684,7 +705,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.0,
       "anchor": [
         220.2,
         273.7
@@ -711,7 +733,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.6,
       "anchor": [
         77.4,
         116.8
@@ -738,10 +761,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.65,
       "anchor": [
         175.4,
-        145.8
+        195.5
       ],
       "attach": "caster",
       "source": {
@@ -762,13 +786,15 @@
       ],
       "columns": 8,
       "frames": 28,
-      "ms": 83.33,
+      "ms": 32,
       "loop": false,
       "delayMs": 0,
       "blend": "normal",
+      "scale": 2.7,
+      "rise": 160,
       "anchor": [
-        28.6,
-        43.2
+        30.0,
+        66.0
       ],
       "attach": "target",
       "source": {
@@ -793,6 +819,7 @@
       "loop": false,
       "delayMs": 0,
       "blend": "normal",
+      "scale": 2.45,
       "anchor": [
         87.0,
         81.0
@@ -819,7 +846,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.3,
       "anchor": [
         82.4,
         244.8
@@ -846,10 +874,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.45,
       "anchor": [
         122.2,
-        131.4
+        189.6
       ],
       "attach": "caster",
       "source": {
@@ -873,7 +902,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.45,
       "anchor": [
         113.4,
         403.2
@@ -886,7 +916,8 @@
         "outputScale": 0.5,
         "seed": 1,
         "note": "WZ_METEOR effectId 92; falling meteor; zoom 350 to avoid top clipping; fire hit separate"
-      }
+      },
+      "from": "right"
     },
     {
       "id": "fx_job_thief_steal",
@@ -900,10 +931,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.2,
       "anchor": [
         85.4,
-        112.8
+        163.8
       ],
       "attach": "target",
       "source": {
@@ -927,7 +959,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.8,
       "anchor": [
         138.2,
         105.4
@@ -954,7 +987,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.5,
       "anchor": [
         28.0,
         52.0
@@ -981,10 +1015,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 3.5,
       "anchor": [
         24.0,
-        25.0
+        47.3
       ],
       "attach": "target",
       "source": {
@@ -1008,7 +1043,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 1.9,
       "anchor": [
         39.0,
         40.0
@@ -1035,7 +1071,8 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "normal",
+      "blend": "add",
+      "scale": 3.0,
       "anchor": [
         61.0,
         74.0
@@ -1063,6 +1100,7 @@
       "loop": false,
       "delayMs": 0,
       "blend": "normal",
+      "scale": 2.4,
       "anchor": [
         15.0,
         39.0
@@ -1090,6 +1128,7 @@
       "loop": false,
       "delayMs": 0,
       "blend": "normal",
+      "scale": 2.2,
       "anchor": [
         20.0,
         41.0
@@ -1117,6 +1156,7 @@
       "loop": false,
       "delayMs": 0,
       "blend": "normal",
+      "scale": 2.0,
       "anchor": [
         50.0,
         66.0
@@ -1130,17 +1170,39 @@
         "seed": 1,
         "note": "AC_SHOWER.effectId ef_arrow_shower_projectile; original named 3D source duplicated 10x; role contextual, not mapped to area"
       }
+    },
+    {
+      "id": "fx_job_mage_frost_diver_spikes",
+      "file": "effects/fx_job_mage_frost_diver_release.png",
+      "cell": [
+        28,
+        148
+      ],
+      "columns": 8,
+      "frames": 8,
+      "ms": 60,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.5,
+      "anchor": [
+        13.0,
+        146.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "27",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "MG_FROSTDIVER.releaseEffectId 27 (same sheet as fx_job_mage_frost_diver_release): upright ice spikes growing along the ground from caster to target, as in RO; anchor at the spike base"
+      }
     }
   ],
   "skills": {
-    "alde_keeper_hands": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "alde_keeper_rewind": {
       "debuff": "fx_job_sage_dispell"
-    },
-    "assassin_leap": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "guard_shield_wall": {
       "buff": "fx_job_crusader_defender"
@@ -1160,21 +1222,8 @@
     "job_acolyte_signum_crucis": {
       "debuff": "fx_job_acolyte_signum_crucis"
     },
-    "job_alchemist_acid_bomb": {
-      "projectile": "fx_job_alchemist_acid_terror_projectile"
-    },
-    "job_alchemist_acid_terror": {
-      "projectile": "fx_job_alchemist_acid_terror_projectile"
-    },
     "job_alchemist_demonstration": {
-      "projectile": "fx_job_alchemist_acid_terror_projectile",
       "hit": "fx_job_mage_fire_bolt"
-    },
-    "job_archer_arrow_shower": {
-      "projectile": "fx_job_archer_arrow_shower_source"
-    },
-    "job_assassin_grimtooth": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "job_assassin_meteor_assault": {
       "hit": "fx_job_merchant_cart_revolution"
@@ -1218,12 +1267,6 @@
     "job_knight_bowling_bash": {
       "cast": "fx_job_knight_bowling_bash"
     },
-    "job_knight_charge_attack": {
-      "hit": "fx_job_crusader_shield_charge"
-    },
-    "job_knight_spiral_pierce": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "job_knight_two_hand_quicken": {
       "buff": "fx_job_knight_two_hand_quicken"
     },
@@ -1240,7 +1283,7 @@
     },
     "job_mage_frost_diver": {
       "hit": "fx_job_mage_frost_diver",
-      "projectile": "fx_job_mage_frost_diver_release"
+      "projectile": "fx_job_mage_frost_diver_spikes"
     },
     "job_mage_thunderstorm": {
       "hit": "fx_job_mage_thunderstorm"
@@ -1270,9 +1313,6 @@
       "ground": "fx_job_crusader_grand_cross",
       "hit": "fx_job_acolyte_holy_light"
     },
-    "job_rogue_back_stab": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "job_rogue_gank": {
       "hit": "fx_job_thief_steal"
     },
@@ -1289,11 +1329,7 @@
       "hit": "fx_job_sage_earth_spike"
     },
     "job_sage_heavens_drive": {
-      "ground": "fx_job_sage_heavens_drive",
       "hit": "fx_job_sage_earth_spike"
-    },
-    "job_sage_volcano": {
-      "ground": "fx_job_sage_volcano_ground"
     },
     "job_swordman_magnum_break": {
       "cast": "fx_job_swordman_magnum_break"
@@ -1328,12 +1364,6 @@
     "maze_baphomet_curse": {
       "debuff": "fx_job_acolyte_signum_crucis"
     },
-    "maze_baphomet_scythe": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
-    "maze_mantis_scythes": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "maze_scribe_seal": {
       "debuff": "fx_job_sage_dispell"
     },
@@ -1356,12 +1386,6 @@
     "mob3_boss_nova": {
       "debuff": "fx_job_sage_dispell"
     },
-    "mob3_elite_cleave": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
-    "mob3_melee_rend": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "mob4_boss_ult": {
       "ground": "fx_job_crusader_grand_cross",
       "debuff": "fx_job_sage_dispell"
@@ -1378,9 +1402,6 @@
     "mob4_scorpion_sting": {
       "hit": "fx_job_thief_envenom"
     },
-    "mob4_verit_maul": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "mob5_boss_moon_call": {
       "hit": "fx_job_acolyte_holy_light"
     },
@@ -1394,20 +1415,11 @@
     "mob5_munak_talisman": {
       "buff": "fx_job_crusader_defender"
     },
-    "mob6_boss_boarding_hook": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "mob6_boss_ghost_cannons": {
       "hit": "fx_job_hunter_claymore_trap"
     },
     "mob6_bosun_all_hands": {
       "buff": "fx_job_acolyte_increase_agi"
-    },
-    "mob6_bosun_anchor": {
-      "hit": "fx_job_crusader_shield_charge"
-    },
-    "mob6_melee_rusty_saber": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "mob6_tank_shell": {
       "buff": "fx_job_crusader_defender"
@@ -1419,34 +1431,15 @@
       "ground": "fx_job_wizard_meteor_storm",
       "hit": "fx_job_mage_fire_bolt"
     },
-    "mob7_fast_bloody_knife": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
-    "mob7_melee_ghost_scythe": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
     "mob_boss1_quake": {
-      "ground": "fx_job_sage_heavens_drive",
       "hit": "fx_job_sage_earth_spike"
     },
     "mob_boss2_curse": {
       "hit": "fx_job_thief_envenom",
       "debuff": "fx_job_sage_dispell"
     },
-    "mob_eclipse_moon_leap": {
-      "hit": "fx_job_crusader_shield_charge"
-    },
-    "mob_elite_smash": {
-      "hit": "fx_job_crusader_shield_charge"
-    },
-    "mob_lord_of_death_march": {
-      "ground": "fx_job_wizard_storm_gust"
-    },
     "mob_lord_of_death_review": {
       "buff": "fx_swordman_endure"
-    },
-    "mob_lord_of_death_scythe": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "mob_mastering_jelly_armor": {
       "buff": "fx_job_crusader_defender"
@@ -1459,15 +1452,6 @@
     },
     "orc_lady_war_drum": {
       "buff": "fx_swordman_endure"
-    },
-    "orc_lord_ancestors_rise": {
-      "ground": "fx_job_sage_heavens_drive"
-    },
-    "orc_skeleton_ancestor_blow": {
-      "hit": "fx_job_crusader_shield_charge"
-    },
-    "orc_warrior_axe_rend": {
-      "hit": "fx_job_assassin_sonic_blow"
     },
     "orc_zombie_grave_bite": {
       "hit": "fx_job_thief_envenom"
@@ -1483,9 +1467,12 @@
     },
     "swordman_endure": {
       "buff": "fx_swordman_endure"
-    },
-    "warrior_cleave": {
-      "hit": "fx_job_assassin_sonic_blow"
     }
+  },
+  "rejected": {
+    "fx_job_sage_heavens_drive": "Небесный удар: захват — неподвижная плоская стена камней (3D-движение клиента не снято); в бою закрывала отряд бежевой плитой. Нужен арт: ряд шипов, вырастающих из земли.",
+    "fx_job_alchemist_acid_terror_projectile": "Колба Кислотного террора: захват 32×34 с альфой по яркости — в полёте бледное полупрозрачное зелёное пятно. Нужен арт: плотная колба 32–48 px (кадры кувырка). Пока летит процедурная колба.",
+    "fx_job_archer_arrow_shower_source": "Град стрел: захват — веер из 10 стрел, расходящихся из точки (статичный 3D-источник), в бою — бледная розовая «звезда». Нужен арт: пучок стрел, падающих вниз, или вонзившиеся стрелы. Пока — процедурные стрелы.",
+    "fx_job_sage_volcano_ground": "Вулкан: захват 122×98 — плоская бледно-розовая «корона» без огня; в бою читается пятном, а не извержением. Нужен арт: лава/огненный круг на земле. Пока — процедурный вулкан."
   }
 }

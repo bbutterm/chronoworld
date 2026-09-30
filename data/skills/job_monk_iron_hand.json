@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_monk_iron_hand",
   "name": "Железный кулак",
-  "description": "В начале боя: +20% атаки себе на 5 ходов.",
+  "description": "В начале боя: +20% атаки себе на 5 с.",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {

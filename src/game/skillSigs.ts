@@ -77,30 +77,66 @@ function fly(fx: SkillFx, tex: string, x0: number, y0: number, x1: number, y1: n
 }
 
 /**
- * Как летит атлас-снаряд (роль projectile): ширина на экране (единицы игры 1080×1920) и поворот.
- * rot: 'dir' — картинка смотрит вправо, поворачивается по направлению полёта; 'up' — смотрит вверх (ледяной осколок);
- * без rot — не поворачивается (кувыркающийся нож и колба уже нарисованы кадрами). Нет в таблице — ширина клетки ×1.6.
+ * Как летит атлас-снаряд (роль projectile): поворот и, при нужде, ширина на экране (единицы игры 1080×1920; без неё —
+ * клетка × effects.json → scale, иначе × 1.6). rot: 'dir' — картинка смотрит вправо, поворачивается по направлению
+ * полёта; 'up' — смотрит вверх (ледяной осколок: остриё к цели); без rot — не поворачивается (нож и колба кувыркаются
+ * в кадрах, пучок стрел падает сверху).
  */
-export const FLY_LOOK: Record<string, { w?: number; rot?: 'dir' | 'up' }> = {
-  fx_job_mage_fire_ball_projectile: { w: 200, rot: 'dir' },
-  fx_job_mage_frost_diver_release: { w: 46, rot: 'up' },
-  fx_job_wizard_jupitel_thunder_projectile: { w: 150 },
-  fx_job_alchemist_acid_terror_projectile: { w: 76 },
-  fx_job_thief_venom_knife_projectile: { w: 92 },
-  fx_job_archer_arrow_shower_source: { w: 200 },
+export const FLY_LOOK: Record<string, { w?: number; rot?: 'dir' | 'up'; ground?: boolean; tint?: number }> = {
+  fx_job_mage_fire_ball_projectile: { rot: 'dir' },
+  // Лёд в захвате бело-сиреневый — с ADD и холодным оттенком читается льдом, а не белой палкой.
+  fx_job_mage_frost_diver_release: { rot: 'up', tint: 0xcdefff },
+  fx_job_mage_frost_diver_spikes: { ground: true, tint: 0xcdefff },
 };
+
+/** Шаг ледяных шипов по земле (единицы игры) и сколько живёт один шип, мс. */
+const SPIKE_STEP = 90;
+const SPIKE_MS = 420;
+
+/**
+ * «Снаряд» по земле (ground в FLY_LOOK), как Frost Diver в RO: шипы вырастают из земли один за другим от ног кастера
+ * к ногам цели (кадр стоит, origin — точка ног атласа), каждый дальше — крупнее; последний — к моменту попадания.
+ */
+function groundRun(fx: SkillFx, id: string, eff: NonNullable<ReturnType<typeof animatedEffect>>, from: { x: number; y: number; feet?: number }, to: { x: number; y: number; feet?: number }, dur: number, delay: number, onLand: (() => void) | undefined, tint: number): void {
+  const f0 = from.feet ?? from.y + 60;
+  const f1 = to.feet ?? to.y + 60;
+  const n = Math.max(2, Math.min(7, Math.round(Math.hypot(to.x - from.x, f1 - f0) / SPIKE_STEP)));
+  const blend = eff.blend === 'add' ? ADD : NORMAL;
+  const s = eff.scale ?? 1.6;
+  for (let i = 1; i <= n; i++) {
+    const q = i / n;
+    const x = from.x + (to.x - from.x) * q;
+    const y = f0 + (f1 - f0) * q;
+    const o = fx.img(animatedFxKey(id), x, y, tint, SFX_DEPTH + 3, blend);
+    const k = s * (0.55 + 0.45 * q);
+    o.setFrame(0).setOrigin(eff.anchor[0] / eff.cell[0], eff.anchor[1] / eff.cell[1]).setScale(k, 0);
+    // Лёгкий наклон шипов вразнобой (детерминированно по номеру), как россыпь льда.
+    o.setRotation(((i * 37) % 7 - 3) * 0.06);
+    const at = delay + dur * (q - 1 / n);
+    fx.run(o, SPIKE_MS, (t, im) => {
+      const up = Math.min(1, t / 0.25);
+      im!.setScale(k, k * ease.backOut(up)).setFrame(loopFrameAt(eff, t * SPIKE_MS)).setAlpha(t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4);
+    }, at);
+  }
+  if (onLand) fx.later(delay + dur, onLand);
+}
 
 /**
  * Атлас-снаряд RO (effects.json, роль projectile) летит из from в to за dur (кадры — по кругу), с дугой arc,
  * шлейфом trail (цвет, −1 — без) и оттенком tint; по прилёте — onLand. Картинка — из пула SkillFx, как у процедурных.
  * false — атласа нет в каталоге (вызывающий рисует свой снаряд).
  */
-export function flyAtlas(fx: SkillFx, id: string, from: { x: number; y: number }, to: { x: number; y: number }, dur: number, delay: number, arc = 0, trail = -1, onLand?: () => void, tint = 0xffffff): boolean {
+export function flyAtlas(fx: SkillFx, id: string, from: { x: number; y: number; feet?: number }, to: { x: number; y: number; feet?: number }, dur: number, delay: number, arc = 0, trail = -1, onLand?: () => void, tint = 0xffffff): boolean {
   const eff = animatedEffect(id);
   if (!eff) return false;
   const look = FLY_LOOK[id] ?? {};
-  const w = look.w ?? eff.cell[0] * 1.6;
-  const o = fx.img(animatedFxKey(id), from.x, from.y, tint, SFX_DEPTH + 3, NORMAL);
+  if (look.tint !== undefined) tint = look.tint;
+  if (look.ground) {
+    groundRun(fx, id, eff, from, to, dur, delay, onLand, tint);
+    return true;
+  }
+  const w = look.w ?? eff.cell[0] * (eff.scale ?? 1.6);
+  const o = fx.img(animatedFxKey(id), from.x, from.y, tint, SFX_DEPTH + 3, eff.blend === 'add' ? ADD : NORMAL);
   o.setFrame(0).setOrigin(0.5).setDisplaySize(w, (w * eff.cell[1]) / eff.cell[0]);
   const dx = to.x - from.x;
   const dy = to.y - from.y;

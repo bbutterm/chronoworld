@@ -177,11 +177,18 @@ function buildPage(scene: Phaser.Scene, root: Phaser.GameObjects.Container, p: S
   const contentH = body.height + extras.reduce((s, t) => s + GAP + t.height, 0);
   const PAD = 48;
   const top = Math.max(y, BODY_TOP_MIN - 60);
-  const room = BODY_BOTTOM - top - 2 * PAD;
-  const viewH = Math.min(contentH, room);
+  const fullRoom = BODY_BOTTOM - top - 2 * PAD;
+  // Не влезает — прокрутка: место под подсказку «листайте» ПОД панелью (не на рамке), а окно — по целым строкам
+  // основного текста, чтобы нижняя строка не резалась маской пополам (BUG-159).
+  const scrolls = contentH > fullRoom;
+  const HINT_ROOM = 70;
+  const room = scrolls ? fullRoom - HINT_ROOM : fullRoom;
+  const lines = Math.max(1, body.getWrappedText().length);
+  const pitch = body.height / lines;
+  const viewH = scrolls ? Math.max(pitch, Math.floor(room / pitch) * pitch) : Math.min(contentH, room);
   // Панель по центру свободного места (короткий текст — не прилипает к заголовку).
   const panelH = viewH + 2 * PAD;
-  const panelTop = contentH < room ? top + Math.min(60, (room - contentH) / 3) : top;
+  const panelTop = !scrolls && contentH < room ? top + Math.min(60, (room - contentH) / 3) : top;
   const look = p.look ?? 'episode';
   const pn = panel(scene, cx, panelTop + panelH / 2, TEXT_W + 2 * PAD + 20, panelH, look === 'scroll' ? 'ui_panel_light' : 'ui_panel');
   root.add(pn);
@@ -200,7 +207,7 @@ function buildPage(scene: Phaser.Scene, root: Phaser.GameObjects.Container, p: S
     oy += t.height;
   }
   const inner = panelTop + PAD;
-  if (contentH <= room) {
+  if (!scrolls) {
     for (const t of [body, ...extras]) {
       t.setY(t.y + inner);
       root.add(t);
@@ -211,7 +218,7 @@ function buildPage(scene: Phaser.Scene, root: Phaser.GameObjects.Container, p: S
   for (const t of [body, ...extras]) a.add(t);
   a.setContentHeight(contentH + 10);
   root.add(a.parts);
-  const hint = text(scene, cx, inner + viewH + PAD / 2 + 4, '⇅ листайте текст', FS.caption, SKIN.creamDim, OUTLINE);
+  const hint = text(scene, cx, panelTop + panelH + 30, '⇅ листайте текст', FS.caption, SKIN.creamDim, OUTLINE).setName('pageScrollHint');
   root.add(hint);
   onArea(a);
 }

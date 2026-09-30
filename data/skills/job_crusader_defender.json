@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_crusader_defender",
   "name": "Защита",
-  "description": "+30% защиты всем союзникам на 3 хода.",
+  "description": "+30% защиты всем союзникам на 3 с.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

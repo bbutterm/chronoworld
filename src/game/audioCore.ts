@@ -21,9 +21,17 @@ export interface AudioSettings {
    * строка в Настройках и значок динамика в верхней панели боя (кампания, Башня, Охота).
    */
   battleSfx: boolean;
+  /**
+   * «Своя музыка» (docs/design/audio.md, «Своя музыка игрока»): игрок слушает Spotify / Яндекс Музыку / Apple Music.
+   * Музыка и фон игры не создаются вовсе (ни одного <audio>, который забрал бы аудиофокус), звуки игры — только
+   * Web Audio, на iOS сессия 'ambient' (смешивается с чужой музыкой).
+   */
+  ownMusic: boolean;
+  /** Подсказка про «Свою музыку» уже показана (один раз, в Городе после первой музыки). */
+  ownMusicHint: boolean;
 }
 
-export const DEFAULT_AUDIO: Readonly<AudioSettings> = { music: 0.5, sfx: 0.75, muted: false, battleSfx: true };
+export const DEFAULT_AUDIO: Readonly<AudioSettings> = { music: 0.5, sfx: 0.75, muted: false, battleSfx: true, ownMusic: false, ownMusicHint: false };
 
 /** Шаги громкости в настройках (кнопка по кругу): 0 — выключено. */
 export const VOLUME_STEPS = [0, 0.25, 0.5, 0.75, 1] as const;
@@ -51,7 +59,14 @@ export function loadAudioSettings(storage?: KV | null): AudioSettings {
     if (!raw) return { ...DEFAULT_AUDIO };
     const v = JSON.parse(raw) as Partial<AudioSettings> | null;
     if (!v || typeof v !== 'object') return { ...DEFAULT_AUDIO };
-    return { music: clamp01(v.music, DEFAULT_AUDIO.music), sfx: clamp01(v.sfx, DEFAULT_AUDIO.sfx), muted: v.muted === true, battleSfx: v.battleSfx !== false };
+    return {
+      music: clamp01(v.music, DEFAULT_AUDIO.music),
+      sfx: clamp01(v.sfx, DEFAULT_AUDIO.sfx),
+      muted: v.muted === true,
+      battleSfx: v.battleSfx !== false,
+      ownMusic: v.ownMusic === true,
+      ownMusicHint: v.ownMusicHint === true,
+    };
   } catch {
     return { ...DEFAULT_AUDIO };
   }
@@ -60,7 +75,7 @@ export function loadAudioSettings(storage?: KV | null): AudioSettings {
 /** Запомнить настройки (ошибка хранилища не мешает игре). */
 export function saveAudioSettings(s: AudioSettings, storage?: KV | null): void {
   try {
-    store(storage)?.setItem(AUDIO_KEY, JSON.stringify({ music: s.music, sfx: s.sfx, muted: s.muted, battleSfx: s.battleSfx }));
+    store(storage)?.setItem(AUDIO_KEY, JSON.stringify({ music: s.music, sfx: s.sfx, muted: s.muted, battleSfx: s.battleSfx, ownMusic: s.ownMusic, ownMusicHint: s.ownMusicHint }));
   } catch {
     // Не запомнили — не страшно.
   }
@@ -75,10 +90,10 @@ export function nextVolume(v: number): number {
 /** Подпись громкости на кнопке настроек. */
 export const volumeLabel = (v: number): string => (v <= 0 ? 'Выкл' : `${Math.round(v * 100)}%`);
 
-/** Итоговая громкость категории с учётом «Без звука» и «Звуков боя» (интерфейс чуть тише звуков). */
-export function categoryVolume(cat: AudioCategory, s: AudioSettings): number {
+/** Итоговая громкость категории с учётом «Без звука», «Звуков боя» и «Своей музыки» (интерфейс чуть тише звуков). */
+export function categoryVolume(cat: AudioCategory, s: Pick<AudioSettings, 'music' | 'sfx' | 'muted' | 'battleSfx'> & { ownMusic?: boolean }): number {
   if (s.muted) return 0;
-  if (cat === 'music') return s.music;
+  if (cat === 'music') return s.ownMusic ? 0 : s.music;
   if (cat === 'battle') return s.battleSfx ? s.sfx : 0;
   return cat === 'ui' ? s.sfx * 0.8 : s.sfx;
 }
@@ -86,6 +101,41 @@ export function categoryVolume(cat: AudioCategory, s: AudioSettings): number {
 /** Подпись и тост кнопки «Звуки боя» (Настройки и значок в бою). */
 export const battleSfxLabel = (s: Pick<AudioSettings, 'battleSfx'>): string => (s.battleSfx ? 'Вкл' : 'Выкл');
 export const battleSfxToast = (s: Pick<AudioSettings, 'battleSfx'>): string => (s.battleSfx ? 'Звуки боя включены' : 'Звуки боя выключены');
+
+export const ownMusicLabel = (s: Pick<AudioSettings, 'ownMusic'>): string => (s.ownMusic ? 'Вкл' : 'Выкл');
+export const ownMusicToast = (s: Pick<AudioSettings, 'ownMusic'>): string =>
+  s.ownMusic ? 'Музыка игры выключена — слушайте свою. Звуки игры остаются' : 'Музыка игры снова играет';
+/** Подсказка в Городе (один раз, после того как музыка игры реально заиграла). */
+export const OWN_MUSIC_HINT = 'Слушаете свою музыку? Шестерёнка → «Своя музыка» — игра не будет её прерывать';
+
+/** Показать подсказку про «Свою музыку»: музыка игры уже звучала, настройка выключена, подсказки ещё не было. */
+export const shouldHintOwnMusic = (s: Pick<AudioSettings, 'ownMusic' | 'ownMusicHint' | 'muted' | 'music'>, musicHeard: boolean): boolean =>
+  musicHeard && !s.ownMusic && !s.ownMusicHint && !s.muted && s.music > 0;
+
+// ---------- аудиосессия (iOS) ----------
+
+/**
+ * Тип аудиосессии страницы (WebKit Audio Session API, Safari / WKWebView iOS 16.4+): 'ambient' — звуки игры смешиваются
+ * с чужой музыкой и молчат в бесшумном режиме; 'auto' — по умолчанию (музыка игры через <audio> берёт аудиофокус).
+ */
+export type AudioSessionType = 'auto' | 'ambient';
+export const audioSessionType = (s: Pick<AudioSettings, 'ownMusic'>): AudioSessionType => (s.ownMusic ? 'ambient' : 'auto');
+
+/**
+ * Выставить navigator.audioSession.type (нет API — Chrome, Android, старый iOS — ничего не делает). Ставить до
+ * создания / возобновления AudioContext. Возвращает тип, который теперь стоит, или null (API нет / отказ).
+ */
+export function applyAudioSession(type: AudioSessionType, nav?: unknown): AudioSessionType | null {
+  try {
+    const n = (nav === undefined ? (globalThis as { navigator?: unknown }).navigator : nav) as { audioSession?: { type?: string } } | null | undefined;
+    const session = n?.audioSession;
+    if (!session || typeof session !== 'object' || !('type' in session)) return null;
+    if (session.type !== type) session.type = type;
+    return session.type === type ? type : null;
+  } catch {
+    return null;
+  }
+}
 
 // ---------- ограничитель ----------
 
@@ -329,6 +379,8 @@ export function sceneSound(key: string, o: { theme?: Theme; boss?: boolean; towe
       return { music: 'tavern', ambience: null };
     case 'Campaign':
     case 'Stage':
+    // «Глава пройдена»: тема босса (бой главы) сменяется музыкой карты пройденной главы.
+    case 'ChapterDone':
       return { music: `map_${theme}`, ambience: null };
     case 'Battle':
       // Башня: своя тема во всех боях (фон — по ярусу); босс главы — общая тема босса.

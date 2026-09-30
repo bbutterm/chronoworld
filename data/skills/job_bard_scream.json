@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_bard_scream",
   "name": "Крик",
-  "description": "Пронзительный крик танцовщицы: шанс 25% оглушить каждого врага на 1 ход.",
+  "description": "Пронзительный крик танцовщицы: шанс 25% оглушить каждого врага на 1 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

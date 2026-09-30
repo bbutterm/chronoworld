@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_assassin_katar_mastery",
   "name": "Мастерство катара",
-  "description": "В начале боя: +20% атаки себе на 4 хода.",
+  "description": "В начале боя: +20% атаки себе на 4 с.",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {
