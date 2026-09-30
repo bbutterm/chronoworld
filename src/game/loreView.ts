@@ -197,6 +197,9 @@ export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.Game
       ex.onTap();
     }, FS.h3);
     eb.container.setName('loreModalExtra');
+    // Длинная подпись («История героя · 12 из 15») — ужать под кнопку, а не вылезать за края.
+    const lbl = eb.container.list.find((o): o is Phaser.GameObjects.Text => o instanceof Phaser.GameObjects.Text);
+    if (lbl && lbl.width > 420) lbl.setScale(420 / lbl.width);
     if (ex.dot) eb.container.add(scene.add.circle(210, -44, 16, TINT.badge).setStrokeStyle(4, 0xffffff));
     layer.add(eb.container);
     layer.add(button(scene, cx + 250, top + boxH - 100, 380, 110, 'k:buttonLong_beige', 'Закрыть', close, FS.h3).container);
