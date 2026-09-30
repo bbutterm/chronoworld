@@ -77,17 +77,14 @@ function fly(fx: SkillFx, tex: string, x0: number, y0: number, x1: number, y1: n
 }
 
 /**
- * Как летит атлас-снаряд (роль projectile): ширина на экране (единицы игры 1080×1920) и поворот.
- * rot: 'dir' — картинка смотрит вправо, поворачивается по направлению полёта; 'up' — смотрит вверх (ледяной осколок);
- * без rot — не поворачивается (кувыркающийся нож и колба уже нарисованы кадрами). Нет в таблице — ширина клетки ×1.6.
+ * Как летит атлас-снаряд (роль projectile): поворот и, при нужде, ширина на экране (единицы игры 1080×1920; без неё —
+ * клетка × effects.json → scale, иначе × 1.6). rot: 'dir' — картинка смотрит вправо, поворачивается по направлению
+ * полёта; 'up' — смотрит вверх (ледяной осколок: остриё к цели); без rot — не поворачивается (нож и колба кувыркаются
+ * в кадрах, пучок стрел падает сверху).
  */
 export const FLY_LOOK: Record<string, { w?: number; rot?: 'dir' | 'up' }> = {
-  fx_job_mage_fire_ball_projectile: { w: 200, rot: 'dir' },
-  fx_job_mage_frost_diver_release: { w: 46, rot: 'up' },
-  fx_job_wizard_jupitel_thunder_projectile: { w: 150 },
-  fx_job_alchemist_acid_terror_projectile: { w: 76 },
-  fx_job_thief_venom_knife_projectile: { w: 92 },
-  fx_job_archer_arrow_shower_source: { w: 200 },
+  fx_job_mage_fire_ball_projectile: { rot: 'dir' },
+  fx_job_mage_frost_diver_release: { rot: 'up' },
 };
 
 /**
@@ -99,8 +96,8 @@ export function flyAtlas(fx: SkillFx, id: string, from: { x: number; y: number }
   const eff = animatedEffect(id);
   if (!eff) return false;
   const look = FLY_LOOK[id] ?? {};
-  const w = look.w ?? eff.cell[0] * 1.6;
-  const o = fx.img(animatedFxKey(id), from.x, from.y, tint, SFX_DEPTH + 3, NORMAL);
+  const w = look.w ?? eff.cell[0] * (eff.scale ?? 1.6);
+  const o = fx.img(animatedFxKey(id), from.x, from.y, tint, SFX_DEPTH + 3, eff.blend === 'add' ? ADD : NORMAL);
   o.setFrame(0).setOrigin(0.5).setDisplaySize(w, (w * eff.cell[1]) / eff.cell[0]);
   const dx = to.x - from.x;
   const dy = to.y - from.y;

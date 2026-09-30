@@ -417,7 +417,11 @@ export class FloatLayer {
     const img = this.image(x, effect ? feetY : y, effect ? animatedFxKey(texId) : texId, size, depth).setAlpha(alpha);
     if (effect) {
       img.setFrame(0).setOrigin(effect.anchor[0] / effect.cell[0], effect.anchor[1] / effect.cell[1]);
-      img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]).setVisible(effect.delayMs === 0);
+      // Атлас навыка со своим масштабом (effects.json → scale): размер кадра RO, непрозрачный — роль не сжимает
+      // крупный лист до точки и не делает его полупрозрачным.
+      if (effect.scale) img.setScale(effect.scale).setAlpha(1);
+      else img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]);
+      img.setBlendMode(effect.blend === 'add' ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL).setVisible(effect.delayMs === 0);
     }
     const r = this.start(Kind.Fx, img, effect ? animatedFxDuration(effect) : duration);
     r.effect = effect;
@@ -522,7 +526,7 @@ export class FloatLayer {
 
   private image(x: number, y: number, texId: string, size: number, depth: number): Phaser.GameObjects.Image {
     const img = this.images.acquire();
-    img.setTexture(texId).setPosition(x, y).setOrigin(0.5).setFlipX(false).setScale(1).setDisplaySize(size, size).setAlpha(1).setDepth(depth);
+    img.setTexture(texId).setPosition(x, y).setOrigin(0.5).setFlipX(false).setScale(1).setDisplaySize(size, size).setAlpha(1).setDepth(depth).setBlendMode(Phaser.BlendModes.NORMAL);
     this.scene.children.bringToTop(img);
     return img;
   }

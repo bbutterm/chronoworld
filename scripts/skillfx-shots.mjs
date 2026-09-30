@@ -18,6 +18,11 @@ if (!squadsFile || !outDir) throw new Error('usage: skillfx-shots.mjs <squads.js
 /** Кадры после применения навыка, мс времени сцены. */
 const OFFSETS = (process.env.SHOTS_OFFSETS ?? '120,320,560,900').split(',').map(Number);
 const REDUCED = process.env.SHOTS_REDUCED === '1';
+/** Чьи навыки снимать: A — герои (по умолчанию), B — монстры, AB — оба. */
+const SIDES = process.env.SHOTS_SIDES ?? 'A';
+/** SHOTS_ATLAS=1 — только навыки с атласом RO (effects.json → skills). */
+const ATLAS_ONLY = process.env.SHOTS_ATLAS === '1'
+  ? Object.keys(JSON.parse(readFileSync('assets/effects/effects.json', 'utf8')).skills) : null;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const log = (...a) => console.log('[shots]', ...a);
 
@@ -77,12 +82,12 @@ try {
     }, sq.stageId);
     await page.waitForFunction(() => window.__game.scene.getScene('Battle')?.ready === true, null, { timeout: 60000, polling: 100 });
     // Цикл Phaser — вручную: кадр за кадром по 16.7 мс, кадры в нужные моменты.
-    await page.evaluate((offsets) => {
+    await page.evaluate(([offsets, sides, only]) => {
       const g = window.__game;
       g.loop.sleep();
       const sc = g.scene.getScene('Battle');
-      window.__cap = { t: performance.now(), last: 0, seen: new Set(), queue: [], sc, offsets };
-    }, OFFSETS);
+      window.__cap = { t: performance.now(), last: 0, seen: new Set(), queue: [], sc, offsets, sides, only };
+    }, [OFFSETS, SIDES, ATLAS_ONLY]);
     let shots = 0;
     for (let guard = 0; guard < 20000; guard++) {
       const due = await page.evaluate(() => {
@@ -99,12 +104,14 @@ try {
           for (; c.last < sc.cursor; c.last++) {
             const e = log[c.last];
             const v = sc.views.get(e.unit);
-            if (!v || v.snap.side !== 'A') continue;
+            if (!v || !c.sides.includes(v.snap.side)) continue;
             let kind = null;
             if (e.type === 'attack' && e.name) kind = 'skill';
             else if (e.type === 'passive') kind = 'passive';
             else if (e.type === 'cast' && e.action === 'start') kind = 'cast';
+            else if (e.type === 'ult') kind = 'skill';
             if (!kind) continue;
+            if (c.only && !c.only.includes(e.skill)) continue;
             const key = `${v.def.id}:${e.skill}:${kind}`;
             if (c.seen.has(key)) continue;
             c.seen.add(key);

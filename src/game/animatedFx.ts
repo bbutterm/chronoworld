@@ -10,6 +10,17 @@ export interface AnimatedEffect {
   ms: number;
   delayMs: number;
   anchor: [number, number];
+  /**
+   * Смешивание: 'add' — как в клиенте RO (свечение складывается с фоном; в атласе цвет÷альфа, альфа = яркость — ADD
+   * даёт ровно исходный кадр на чёрном), 'normal' — твёрдые предметы (камни, нож, колба, стрелы).
+   */
+  blend: 'add' | 'normal';
+  /**
+   * Масштаб атласа навыка на экране: единиц игры (поле 1080×1920) на пиксель клетки. Задан — роли навыка (hit, buff,
+   * debuff, cast, ground, projectile) рисуют кадр в этом масштабе и непрозрачным, а не размером роли; нет — прежний размер.
+   * Ориентир — фигуры RO ×3.2 (V2_SCALE): захват EffectViewer ≈ RO ×1.04.
+   */
+  scale?: number;
 }
 
 const effects = new Map<string, AnimatedEffect>(catalog.effects.map((effect) => [effect.id, {
@@ -21,6 +32,8 @@ const effects = new Map<string, AnimatedEffect>(catalog.effects.map((effect) => 
   ms: effect.ms,
   delayMs: effect.delayMs,
   anchor: [effect.anchor[0], effect.anchor[1]],
+  blend: (effect as { blend?: string }).blend === 'add' ? 'add' : 'normal',
+  scale: (effect as { scale?: number }).scale,
 }]));
 
 export const animatedFxKey = (id: string): string => `anim_${id}`;
