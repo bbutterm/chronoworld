@@ -1,7 +1,7 @@
 /**
  * Сюжет в UI без Phaser (тесты — tests/story.test.ts): кто говорит и чей портрет показать.
  */
-import { heroGender, heroName, storyOrder, type Gender, type GameContext, type HeroState, type SaveState, type SpeakerDef, type StageInfo, type StoryContext, type StoryDef, type StoryScene } from '../core';
+import { heroGender, heroName, storyHero, storyOrder, type Gender, type GameContext, type HeroState, type SaveState, type SpeakerDef, type StageInfo, type StoryContext, type StoryDef, type StoryScene } from '../core';
 import { genderedSpriteId } from '../pipeline/sprites';
 import { heroSprite, stageNo } from './flow';
 import { hasSprite } from './spriteRegistry';
@@ -111,7 +111,8 @@ export function chapterSummary(save: SaveState, chapterId: string, ctx: GameCont
   const cleared = stages.filter((s) => save.campaign.cleared.includes(s.id)).length;
   const last = stages[stages.length - 1];
   const rc = last ? ctx.progression.heroes.recruits.find((r) => r.afterStage === last.id) : undefined;
-  const recruit = rc ? save.heroes.find((h) => h.templateId === rc.template) : undefined;
+  // RR-01: сильнейший экземпляр (тавернская Грета, подтянутая до уровня отряда), а не первый попавшийся.
+  const recruit = rc ? storyHero(save, rc.template) : undefined;
   const nextChapter = index >= 0 ? chapters[index + 1] : undefined;
   return {
     chapterId,

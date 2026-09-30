@@ -34,7 +34,18 @@ export type ProgressEvent =
   /** v6. Карта героя (новый экземпляр) из награды: этап, сундук, охота, поручение, событие… */
   | { type: 'heroCard'; heroId: string; templateId: string; rarity: CardRarity; name: string }
   /** Герой присоединился по сюжету; copy — он уже был у игрока (пришла его зелёная копия). */
-  | { type: 'heroJoined'; heroId: string; templateId: string; name: string; copy?: boolean; level?: number; benched?: boolean }
+  | {
+      type: 'heroJoined';
+      /** Новый экземпляр; при copy — сильнейший экземпляр героя (его зовут «Взять в отряд»), а копия ур. 1 ушла в коллекцию. */
+      heroId: string;
+      templateId: string;
+      name: string;
+      copy?: boolean;
+      level?: number;
+      benched?: boolean;
+      /** RR-01: сильнейший экземпляр подтянут до догоняющего уровня (copy). */
+      caughtUp?: boolean;
+    }
   /** Открылась Таверна: подарок гемов и свитков. */
   | { type: 'tavernUnlocked'; gems: number; scrolls: number }
   /** «Благословенная руда» с босса (заточка без риска поломки): первая победа над боссом главы, этаж-босс Башни. */

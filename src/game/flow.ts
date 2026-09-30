@@ -204,7 +204,9 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventR
     if (e.type === 'skillUnlocked') lines.push(`${nameOf(e.heroId)}: новый навык «${skillName(e.skill)}»`);
     if (e.type === 'heroJoined') lines.unshift(
       e.copy
-        ? `${e.name}: пришла копия героя (для вознесения)`
+        ? `${e.name}: пришла копия героя (для вознесения)` +
+            (e.caughtUp ? ` — лучшая карточка героя теперь ур. ${e.level}, как у отряда` : '') +
+            (e.benched ? ' · поставьте в отряд: «Герои» или «Авто»' : '')
         : e.benched
           ? `${e.name} с вами${e.level && e.level > 1 ? ` (ур. ${e.level})` : ''} — поставьте в отряд: «Герои» или «Авто» перед боем`
           : `Новый герой в отряде: ${e.name}${e.level && e.level > 1 ? ` (ур. ${e.level})` : ''}!`,

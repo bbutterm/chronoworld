@@ -40,6 +40,24 @@ describe('пол героев (карточки)', () => {
     expect(win!.events).toContainEqual({ type: 'heroJoined', heroId: greta.id, templateId: 'greta', name: 'Грета', level: 20 });
   });
 
+  it('RR-01: Грета уже пришла из Таверны (ур. 1) — рекрут подтягивает её до уровня отряда и ставит в свободный слот', () => {
+    let s = newGame(ctx, 1000);
+    const taverned = { id: 'h90', templateId: 'greta', rarity: 'green' as const, level: 1 };
+    s = {
+      ...s,
+      heroes: [...s.heroes.map((h) => ({ ...h, level: 15 })), taverned],
+      campaign: { cleared: ctx.content.stages.slice(0, ctx.content.stages.findIndex((st) => st.id === 'ch1_s10')).map((st) => st.id) },
+    } satisfies SaveState;
+    const win = Array.from({ length: 50 }, (_, seed) => playStage(s, 'ch1_s10', seed + 1, ctx)).find((r) => r.result.winner === 'A');
+    expect(win).toBeDefined();
+    const gretas = win!.save.heroes.filter((h) => h.templateId === 'greta');
+    // Тавернская Грета — ур. отряда (15), даром; копия ур. 1 — корм для вознесения.
+    expect(gretas.find((h) => h.id === 'h90')).toMatchObject({ level: 15, grantedLevel: 15 });
+    expect(gretas).toHaveLength(2);
+    expect(win!.save.squad).toContain('h90');
+    expect(win!.events).toContainEqual({ type: 'heroJoined', heroId: 'h90', templateId: 'greta', name: 'Грета', level: 15, copy: true, caughtUp: true });
+  });
+
   it('лист: свой лист карточки (форма) → `<лист класса>_f/_m` → базовый лист класса', () => {
     const has = (id: string) => ['swordman_f', 'acolyte_m', 'swordman_m', 'knight_m'].includes(id);
     expect(genderedSpriteId('swordman', 'f', has)).toBe('swordman_f');
