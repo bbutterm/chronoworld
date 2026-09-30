@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, loopFrameAt, queueAnimatedFx, selectedAnimatedEffect } from '../src/game/animatedFx';
+import catalogJson from '../assets/effects/effects.json';
 
 describe('RO animated effects', () => {
-  it('queues all 42 captured atlases with catalog cell sizes', () => {
+  it('queues all 43 captured atlases (42 листа, осколок Frost Diver — два вида) with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(42);
+    expect(queued).toHaveLength(43);
     expect(queued).toContainEqual(['anim_fx_job_sage_volcano_ground', 'effects/fx_job_sage_volcano_ground.png', 122, 98]);
     expect(queued).toContainEqual(['anim_fx_job_thief_venom_knife_projectile', 'effects/fx_job_thief_venom_knife_projectile.png', 42, 38]);
     expect(queued).toContainEqual(['anim_fx_job_thief_steal', 'effects/fx_job_thief_steal.png', 188, 176]);
@@ -60,7 +61,8 @@ describe('эффекты навыков (effects.json → skills)', () => {
     expect(skillFx('job_knight_two_hand_quicken')?.buff).toBe('fx_job_knight_two_hand_quicken');
     expect(skillFx('job_sage_earth_spike')?.hit).toBe('fx_job_sage_earth_spike');
     expect(skillFx('mob2_ranged_poison_arrow')?.hit).toBe('fx_job_thief_envenom');
-    expect(skillFx('mob3_melee_rend')?.hit).toBe('fx_job_assassin_sonic_blow');
+    // Аудит 30.09: иероглиф 滅 Звукового удара — только у самого Звукового удара, не на каждом разрезе монстров.
+    expect(skillFx('mob3_melee_rend')).toBeUndefined();
     expect(skillFx('job_mage_thunderstorm')?.hit).toBe('fx_job_mage_thunderstorm');
     expect(skillFx('job_acolyte_blessing')?.buff).toBe('fx_job_acolyte_blessing');
     expect(skillFx('job_mage_fire_bolt')?.hit).toBe('fx_job_mage_fire_bolt');
@@ -77,6 +79,10 @@ describe('эффекты навыков (effects.json → skills)', () => {
     expect(skillFx('job_assassin_sonic_blow')?.hit).toBe('fx_job_assassin_sonic_blow');
     expect(skillFx('job_crusader_holy_cross')?.hit).toBe('fx_job_crusader_holy_cross');
     expect(skillFx('job_crusader_shield_charge')?.hit).toBe('fx_job_crusader_shield_charge');
+    // Летящий щит — только у Удара щитом (не у якоря, прыжка и удара предка).
+    expect(skillFx('mob6_bosun_anchor')).toBeUndefined();
+    expect(skillFx('job_mage_frost_diver')?.projectile).toBe('fx_job_mage_frost_diver_spikes');
+    expect(skillFx('job_sage_heavens_drive')?.ground).toBeUndefined();
     expect(skillFx('job_hunter_claymore_trap')?.hit).toBe('fx_job_hunter_claymore_trap');
     expect(skillFx('swordman_bash')).toEqual({ cast: 'fx_swordman_bash' });
     expect(skillFx('job_crusader_grand_cross')).toEqual({ ground: 'fx_job_crusader_grand_cross' });
@@ -111,8 +117,33 @@ describe('эффекты навыков (effects.json → skills)', () => {
       }
     }
     // Общие (fx_hit, fx_heal…) рисуются правилами боя; все атласы навыков fx_job_* / fx_swordman_* должны быть подключены.
-    const idle = catalog.effects.map((e) => e.id).filter((id) => !used.has(id) && /^fx_(job|swordman)_/.test(id));
+    // Отклонённые аудитом (effects.json → rejected: id → почему, «нужен арт») не привязываются ни к чему.
+    const rejected = (catalog as unknown as { rejected?: Record<string, string> }).rejected ?? {};
+    for (const id of Object.keys(rejected)) {
+      expect(animatedEffect(id), `rejected: нет атласа ${id}`).toBeDefined();
+      expect(used.has(id), `отклонённый атлас ${id} привязан к навыку`).toBe(false);
+    }
+    const idle = catalog.effects.map((e) => e.id).filter((id) => !used.has(id) && !(id in rejected) && /^fx_(job|swordman)_/.test(id));
     expect(idle).toEqual([]);
+  });
+
+  it('аудит 30.09: у каждого атласа навыка свой масштаб и смешивание, в разумных пределах', () => {
+    const catalog = catalogJson as { effects: { id: string }[] };
+    for (const { id } of catalog.effects.filter((e) => /^fx_(job|swordman)_/.test(e.id))) {
+      const e = animatedEffect(id)!;
+      expect(e.scale, `${id}: scale`).toBeGreaterThan(0.5);
+      expect(e.scale!, `${id}: scale`).toBeLessThan(4);
+      expect(['add', 'normal']).toContain(e.blend);
+      // Самый крупный кадр на экране — не шире поля 1080 (Буря, Великий крест).
+      expect(e.cell[0] * e.scale!, `${id}: ширина на экране`).toBeLessThanOrEqual(1080);
+      if (e.alpha !== undefined) expect(e.alpha).toBeGreaterThan(0.3);
+    }
+    // Светящиеся эффекты RO — ADD (как в клиенте), твёрдые предметы — normal.
+    expect(animatedEffect('fx_job_wizard_storm_gust')!.blend).toBe('add');
+    expect(animatedEffect('fx_job_acolyte_holy_light')!.blend).toBe('add');
+    expect(animatedEffect('fx_job_thief_venom_knife_projectile')!.blend).toBe('normal');
+    // Щит Удара щитом прилетает справа — у героя слева кадр отражается.
+    expect(animatedEffect('fx_job_crusader_shield_charge')!.from).toBe('right');
   });
 
   it('летящий атлас: кадры по кругу без паузы', () => {
