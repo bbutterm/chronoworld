@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { heroPeakLevel, heroStoryBranches, heroStoryPieces, heroStoryUnread, heroTemplate, jobTitle, markHeroStoryRead, newlyOpenedStories, type HeroStoryEntry, type SaveState } from '../core';
+import { heroPeakLevel, heroStoryBranches, heroStoryGateLabel, heroStoryPieces, heroStoryUnread, heroTemplate, jobTitle, markHeroStoryRead, newlyOpenedStories, type HeroStoryEntry, type SaveState } from '../core';
 import { sfx } from './audio';
 import { haptic } from './haptics';
 import { GAME, LORE } from './content';
@@ -171,7 +171,10 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
   const lockedLine = (p: HeroStoryEntry) => {
     const peak = heroPeakLevel(session.save, templateId, p.branch);
     const left = nextClosed.get(p.branch ?? '') === p ? Math.max(0, p.level - peak) : 0;
-    const lock = text(scene, LEFT, ly, `Ур. ${p.level} · откроется на ур. ${p.level}${left ? ` (ещё ${left} ур.)` : ''}`, FS.h3, C.dim, { ...OUTLINE, wordWrap: { width: TEXT_W } })
+    // Два условия (BUG-167): уровень копии и место в кампании. Уровень есть — только «после главы N».
+    const gate = !p.stageReached && p.unlockAfterStage ? heroStoryGateLabel(p.unlockAfterStage, GAME.content) : '';
+    const how = p.levelReached ? `откроется ${gate}` : `откроется на ур. ${p.level}${left ? ` (ещё ${left} ур.)` : ''}${gate ? ` и ${gate}` : ''}`;
+    const lock = text(scene, LEFT, ly, `Ур. ${p.level} · ${how}`, FS.h3, C.dim, { ...OUTLINE, wordWrap: { width: TEXT_W } })
       .setOrigin(0, 0)
       .setName(`heroStoryLocked_${p.key}`);
     area.add(lock);

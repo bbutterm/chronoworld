@@ -4,12 +4,16 @@
  * у каждой из двух веток второй профессии (поле branch = id профессии из branches карточки героя).
  *
  * Общий кусочек открыт, если самая высокая копия героя дошла до его уровня. Кусочек ветки открыт, если до уровня дошла
- * копия героя НА ЭТОЙ ВЕТКЕ. Прочитанное не пропадает (копию отдали в корм, ветку сменили — «дневник всех путей»):
+ * копия героя НА ЭТОЙ ВЕТКЕ. Второе условие (BUG-167) — место в кампании: у кусочка с unlockAfterStage (своим или по
+ * правилу unlockByLevel файла, подставляется при разборе лора) этот этап должен быть пройден (save.campaign.cleared) —
+ * опыт в запасе у позднего игрока не должен открывать поворот главы 8 и финал раньше, чем их покажет кампания. Прочитанное не пропадает (копию отдали в корм, ветку сменили — «дневник всех путей»):
  * save.heroStoryRead[templateId] — уровни прочитанных общих кусочков, save.heroStoryRead[`${templateId}:${ветка}`] — уровни
  * прочитанных кусочков ветки (формат сохранения прежний: словарь «ключ → уровни»). Чистые функции от сохранения и лора;
  * без Date и Math.random.
  */
 import type { SaveState } from '../save/schema';
+import type { Content } from '../types';
+import { stageLabel } from '../unlocks/unlocks';
 import type { HeroStoryPiece, Lore } from './schema';
 
 /** Шаг порогов: кусочек каждые 10 уровней. */
@@ -37,7 +41,7 @@ export const heroStoryPieceKey = (p: Pick<HeroStoryPiece, 'level' | 'branch'>) =
 /** Ключ в save.heroStoryRead: id героя (общие кусочки) или `id:ветка`. */
 export const heroStoryReadKey = (templateId: string, branch?: string) => (branch ? `${templateId}:${branch}` : templateId);
 
-type StorySave = Pick<SaveState, 'heroes'> & Partial<Pick<SaveState, 'heroStoryRead'>>;
+type StorySave = Pick<SaveState, 'heroes'> & Partial<Pick<SaveState, 'heroStoryRead' | 'campaign'>>;
 
 /** Самый высокий уровень среди копий героя у игрока (0 — героя нет); с branch — только среди копий на этой ветке. */
 export function heroPeakLevel(save: Pick<SaveState, 'heroes'>, templateId: string, branch?: string): number {
@@ -62,6 +66,10 @@ export interface HeroStoryEntry extends HeroStoryPiece {
   /** Ключ кусочка (heroStoryPieceKey). */
   key: string;
   open: boolean;
+  /** Уровень копии героя дошёл до порога (без учёта места в кампании). */
+  levelReached: boolean;
+  /** Этап-замок unlockAfterStage пройден (нет замка — true). */
+  stageReached: boolean;
   /** Открыт и прочитан. */
   read: boolean;
   /**
@@ -87,13 +95,16 @@ export function heroStoryPieces(save: StorySave, templateId: string, lore: Pick<
     if (!peaks.has(k)) peaks.set(k, heroPeakLevel(save, templateId, branch));
     return peaks.get(k)!;
   };
+  const cleared = new Set(save.campaign?.cleared ?? []);
   return [...list]
     .sort((a, b) => rank(a) - rank(b) || a.level - b.level)
     .map((p) => {
       const wasRead = heroStoryReadLevels(save, templateId, p.branch).has(p.level);
-      const open = peakOf(p.branch) >= p.level || wasRead;
+      const levelReached = peakOf(p.branch) >= p.level;
+      const stageReached = !p.unlockAfterStage || cleared.has(p.unlockAfterStage);
+      const open = (levelReached && stageReached) || wasRead;
       const path: HeroStoryEntry['path'] = !p.branch ? 'common' : mine.includes(p.branch) ? 'mine' : 'other';
-      return { ...p, key: heroStoryPieceKey(p), open, read: open && wasRead, path };
+      return { ...p, key: heroStoryPieceKey(p), open, levelReached, stageReached, read: open && wasRead, path };
     });
 }
 
@@ -130,5 +141,17 @@ export function newlyOpenedStories(before: StorySave, after: StorySave, template
   const was = new Set(heroStoryPieces(before, templateId, lore).filter((p) => p.open).map((p) => p.key));
   return heroStoryPieces(after, templateId, lore)
     .filter((p) => p.open && !was.has(p.key))
-    .map(({ level, title, text, branch }) => ({ level, title, text, ...(branch ? { branch } : {}) }));
+    .map(({ level, title, text, branch, unlockAfterStage }) => ({ level, title, text, ...(branch ? { branch } : {}), ...(unlockAfterStage ? { unlockAfterStage } : {}) }));
+}
+
+/**
+ * Подпись сюжетного замка кусочка: «после главы 8» (этап — последний в главе) или «после этапа 8-16». Номер этапа, не
+ * название: название может само оказаться спойлером.
+ */
+export function heroStoryGateLabel(stageId: string, content: Pick<Content, 'stages' | 'chapters'>): string {
+  const st = content.stages.find((s) => s.id === stageId);
+  if (!st) return `после этапа ${stageId}`;
+  const ch = content.chapters.find((c) => c.id === st.chapter);
+  const last = Math.max(...content.stages.filter((s) => s.chapter === st.chapter).map((s) => s.index));
+  return st.index === last ? `после главы ${ch?.order ?? '?'}` : `после этапа ${stageLabel(stageId, content as Content)}`;
 }
