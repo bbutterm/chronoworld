@@ -281,7 +281,7 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 `skills.defaultCooldown` 8, `projectileSeconds` 0.3, `statusTurnSeconds` 1, `movement` (`meleeRange` 130, `moveSpeed` 320,
 `stackAngles`, `retargetSeconds`, `bodyRadius`, `minSeparation`, `meleeAoeRadius`, `maxMeleePerTarget` 2, `diveReturnSeconds`),
 `slots`, `field` (ширина 1080, `bounds`, координаты слотов стороны A; B — зеркало); `behaviors` — библиотека профилей поведения,
-`behaviorDefaults` — профиль по умолчанию (`<kind>_<role>_<melee|ranged>`, затем `<kind>`), `enrage` — мягкая ярость всех после 60 с
+`behaviorDefaults` — профиль по умолчанию (`<kind>_<role>_<melee|ranged>`, затем `<kind>`), `enrage` — ярость всех после 60 с (урон +10%/с, лечение и щиты −5%/с)
 (docs/design/battle-behavior.md; схема — `src/core/behavior.ts`).
 
 ### Предметы, задания, экспедиции, достижения
