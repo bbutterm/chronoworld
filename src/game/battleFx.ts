@@ -5,6 +5,9 @@ import { coversNumber, coversRoDigits, numberFont, numberFrameWidth, numberOrigi
 import { clamp01, ease, Pool, TextStyleCache } from './perf';
 import { text } from './ui';
 
+/** Общий множитель размера атласов навыков RO в бою (владелец 30.09: «со всеми спеллами покрупнее»). */
+export const SKILL_FX_SIZE = 1.35;
+
 /** Слои глубины боя: юниты — по y (до ~1700), затемнение ульты, выделенный кастер, эффекты, цифры, баннер. */
 export const DEPTH = {
   dim: 2900,
@@ -427,7 +430,7 @@ export class FloatLayer {
       img.setFrame(0).setOrigin(flip ? 1 - ox : ox, effect.anchor[1] / effect.cell[1]).setFlipX(flip);
       // Атлас навыка со своим масштабом (effects.json → scale): размер кадра RO, непрозрачный — роль не сжимает
       // крупный лист до точки и не делает его полупрозрачным.
-      if (effect.scale) img.setScale(effect.scale).setAlpha(effect.alpha ?? 1);
+      if (effect.scale) img.setScale(effect.scale * SKILL_FX_SIZE).setAlpha(effect.alpha ?? 1);
       else img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]);
       img.setBlendMode(effect.blend === 'add' ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL).setVisible(effect.delayMs === 0);
     }
@@ -489,7 +492,7 @@ export class FloatLayer {
               // Камень растёт из земли (origin — точка ног) и уходит обратно в последнюю четверть жизни.
               const up = clamp01(r.t / r.effect.rise);
               const down = clamp01((r.dur - r.t) / (r.dur * 0.25));
-              (o as Phaser.GameObjects.Image).scaleY = r.effect.scale * ease.backOut(Math.min(up, down));
+              (o as Phaser.GameObjects.Image).scaleY = r.effect.scale * SKILL_FX_SIZE * ease.backOut(Math.min(up, down));
             }
           } else {
             const p = clamp01(r.t / r.dur);
