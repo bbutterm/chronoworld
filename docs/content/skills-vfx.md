@@ -32,6 +32,100 @@
 | с иконкой RO | 31 | 118 (без RO — 1: «Удар сковородой», символ кодом) |
 | групп одинаково выглядящих навыков | 14 | 0 (тест `tests/skill-visuals.test.ts`) |
 
+## Только оригинальные эффекты RO (30.09, вечер)
+
+Жалоба владельца: «Маммонит — это большой мешок над головой, почему у тебя он другой? Мы что, зря оригинальные скилы
+из RO тянули». 29.09 атласы раздавали «по похожести»: Маммониту — блеск Кражи, Удару Асуры — взрыв Клеймора, Стальному
+телу — столб Защиты крестоносца, Лекс Этерне и Разоружению — круг Развеивания, Импозицио — сферу Двуручной спешки и т.д.
+Правило теперь: атлас RO — только навыку, чей это эффект в клиенте (roBrowser `SkillEffect.js`: effectId, hitEffectId,
+снаряд, эффект на земле…), монстрам — эффекты монстровых навыков клиента NPC_* по смыслу. Без своего атласа — прежний
+процедурный эффект (`skillVisuals.ts`), без чужой картинки.
+
+- Снято 54 подстановки: 20 у героев (19 навыков: Маммонит, Удар Асуры, Стальное тело, Мощный удар, Метеоритный удар,
+  Удар тележкой мастера, Небесный удар, Ледяная стрела ×2, Ядовитый нож — попадание, Ассумптио, Импозицио, Лекс Этерна,
+  Магнус — земля, Разоружение, Снять доспех, Ангелус, Удар молота, Огненная бутыль, Ядовитый взрыв) и 34 у монстров (31 навык).
+- Подключён 31 атлас, который владелец уже снял из своего клиента scRO (`raw/ro-build/effects` части 1, 4, 5;
+  `docs/RO_SCRO_EFFECTS.md`) и который 30.09 ещё не был в игре: Маммонит (EF_COIN 10 — торговец с мешком денег, монеты),
+  Ледяная стрела (`ef_coldbolt`), Провокация, Концентрация, Ангелус, Удар молота, Импозицио, Магнус (крест с ангелами),
+  Лекс Этерна, Кирие, Ассумптио, Магнификат, Мрачный клык, Ядовитый взрыв, Парирование и Автозащита (один эффект 336),
+  Громкий голос, Стена безопасности, Самопожертвование, Разоружение, Снять доспех, Капкан, Поглощение души, Адреналин,
+  Контратака, Огненная бутыль; монстрам — яд NPC_POISON, щит NPC_DEFENDER, NPC_KEEPING, звёзды NPC_STUNATTACK,
+  NPC_DARKSTRIKE, землетрясение NPC_EARTHQUAKE (`fx_npc_*`). Листы больше 8 МБ (w×h×4) уменьшены ×0.7, `scale` подобран
+  по размеру клетки (попадание ≈ 300–420 единиц, площадь ≈ 560), светящиеся — `add`, спрайты (трещины, огонь бутыли,
+  иконки оружия/доспеха, звёзды) — `normal`. Кадры в бою проверены `scripts/skillfx-atlas.mjs` на 390×844.
+- Итог: 109 навыков с атласом, у героев — 60 из 119 навыков (все со своим эффектом RO); 73 атласа.
+- Сторож: `tests/effects-ro-origin.test.ts` — белый список «навык → навык RO → id эффектов клиента»; атлас с чужим
+  `source.roEffectId` роняет тест.
+- Что ещё извлечь (ульты Асуры, Стального тела, Удара тележкой мастера, Метеоритного удара, попадания стихий 51/52/147…) —
+  `docs/RO_EFFECTS_EXTRACT.md`.
+
+Атлас → навыки (актуально):
+
+- `fx_job_acolyte_angelus` (RO 41) — Ангелус `job_acolyte_angelus` (buff)
+- `fx_job_acolyte_blessing` (RO 42) — Благословение `job_acolyte_blessing` (buff); Благословение Изиды `mob4_isis_blessing` (buff)
+- `fx_job_acolyte_holy_light` (RO 152) — Магнус Экзорцизмус `job_priest_magnus_exorcismus` (hit); Святой свет `job_acolyte_holy_light` (hit)
+- `fx_job_acolyte_increase_agi` (RO 37) — Повышение ловкости `job_acolyte_increase_agi` (buff); Свистать всех наверх `mob6_bosun_all_hands` (buff)
+- `fx_job_acolyte_signum_crucis` (RO 40) — Знак креста `job_acolyte_signum_crucis` (debuff)
+- `fx_job_alchemist_demonstration` (RO sprite 데몬스트레이션) — Огненная бутыль `job_alchemist_demonstration` (ground)
+- `fx_job_archer_improve_concentration` (RO 153) — Концентрация `job_archer_improve_concentration` (buff)
+- `fx_job_assassin_grimtooth` (RO 132) — Мрачный клык `job_assassin_grimtooth` (hit)
+- `fx_job_assassin_sonic_blow` (RO 143) — Звуковой удар `job_assassin_sonic_blow` (hit)
+- `fx_job_assassin_venom_splasher` (RO 129) — Ядовитый взрыв `job_assassin_venom_splasher` (hit)
+- `fx_job_blacksmith_adrenaline_rush` (RO str_adrenaline) — Выброс адреналина `job_blacksmith_adrenaline_rush` (buff)
+- `fx_job_blacksmith_hammer_fall` (RO 102) — Удар молота `job_blacksmith_hammer_fall` (ground)
+- `fx_job_blacksmith_weapon_perfection` (RO 103) — Совершенство оружия `job_blacksmith_weapon_perfection` (buff)
+- `fx_job_crusader_defender` (RO 222) — Защита `job_crusader_defender` (buff)
+- `fx_job_crusader_devotion` (RO 251) — Самопожертвование `job_crusader_devotion` (buff)
+- `fx_job_crusader_grand_cross` (RO 226) — Великий крест `job_crusader_grand_cross` (ground)
+- `fx_job_crusader_holy_cross` (RO 245) — Святой крест `job_crusader_holy_cross` (hit)
+- `fx_job_crusader_shield_charge` (RO 246) — Удар щитом `job_crusader_shield_charge` (hit)
+- `fx_job_hunter_ankle_snare` (RO ef_trap_01) — Капкан `job_hunter_ankle_snare` (ground)
+- `fx_job_hunter_claymore_trap` (RO 107) — Клеймор `job_hunter_claymore_trap` (hit)
+- `fx_job_hunter_sandman` (RO 139) — Сонная ловушка `job_hunter_sandman` (debuff)
+- `fx_job_knight_auto_counter` (RO str_autocounter) — Контратака `job_knight_auto_counter` (cast)
+- `fx_job_knight_bowling_bash` (RO 149) — Боулинг Баш `job_knight_bowling_bash` (cast)
+- `fx_job_knight_parrying` (RO 336) — Автозащита `job_crusader_auto_guard` (buff); Парирование `job_knight_parrying` (buff)
+- `fx_job_knight_two_hand_quicken` (RO 130) — Двуручная спешка `job_knight_two_hand_quicken` (buff)
+- `fx_job_mage_cold_bolt` (RO ef_coldbolt) — Ледяная стрела `job_mage_cold_bolt` (hit)
+- `fx_job_mage_fire_ball_projectile` (RO 24) — Огненный шар `job_mage_fire_ball` (projectile)
+- `fx_job_mage_fire_bolt` (RO 49) — Лисий огонь `mob5_horong_foxfire` (hit); Метеоритный дождь `job_wizard_meteor_storm` (hit); Метеоритный дождь `mob7_boss_meteor_storm` (hit); Огненная стрела `job_mage_fire_bolt` (hit); Огненный шар `job_mage_fire_ball` (hit); Огненный шторм `mage_firestorm` (hit)
+- `fx_job_mage_frost_diver` (RO 28) — Кольцо мороза `job_wizard_frost_nova` (hit); Ледяной удар `job_mage_frost_diver` (hit)
+- `fx_job_mage_frost_diver_spikes` (RO 27) — Ледяной удар `job_mage_frost_diver` (projectile)
+- `fx_job_mage_safety_wall` (RO 315) — Стена безопасности `job_mage_safety_wall` (buff)
+- `fx_job_mage_thunderstorm` (RO 30) — Гроза `job_mage_thunderstorm` (hit)
+- `fx_job_merchant_cart_revolution` (RO 170) — Удар тележкой `job_merchant_cart_revolution` (hit)
+- `fx_job_merchant_crazy_uproar` (RO 311) — Громкий голос `job_merchant_crazy_uproar` (buff)
+- `fx_job_merchant_mammonite` (RO 10) — Маммонит `job_merchant_mammonite` (hit)
+- `fx_job_priest_assumptio` (RO 440) — Ассумптио `job_priest_assumptio` (buff)
+- `fx_job_priest_impositio_manus` (RO 84) — Импозицио Манус `job_priest_impositio_manus` (buff)
+- `fx_job_priest_kyrie_eleison` (RO 112) — Кирие Элейсон `job_priest_kyrie_eleison` (buff)
+- `fx_job_priest_lex_aeterna` (RO 85) — Лекс Этерна `job_priest_lex_aeterna` (debuff)
+- `fx_job_priest_magnificat` (RO 76) — Магнификат `job_priest_magnificat` (buff)
+- `fx_job_priest_magnus_exorcismus` (RO 113) — Магнус Экзорцизмус `job_priest_magnus_exorcismus` (ground)
+- `fx_job_rogue_strip_armor` (RO 271) — Снять доспех `job_rogue_strip_armor` (debuff)
+- `fx_job_rogue_strip_weapon` (RO 269) — Разоружение `job_rogue_strip_weapon` (debuff)
+- `fx_job_sage_dispell` (RO 235) — Развеивание `job_sage_dispell` (debuff)
+- `fx_job_sage_earth_spike` (RO 79) — Земляной шип `job_sage_earth_spike` (hit)
+- `fx_job_swordman_magnum_break` (RO 17) — Магнум Брейк `job_swordman_magnum_break` (cast)
+- `fx_job_swordman_provoke` (RO 67) — Провокация `job_swordman_provoke` (debuff)
+- `fx_job_thief_envenom` (RO 20) — Отравление `job_thief_envenom` (hit); Отравленное оружие `job_assassin_enchant_poison` (debuff)
+- `fx_job_thief_steal` (RO 18) — Грабёж `job_rogue_gank` (hit); Кража `job_thief_steal` (hit)
+- `fx_job_thief_venom_knife_projectile` (RO 600) — Ядовитый нож `job_thief_venom_knife` (projectile)
+- `fx_job_wizard_jupitel_thunder_projectile` (RO 94) — Гром Юпитера `job_wizard_jupitel_thunder` (projectile)
+- `fx_job_wizard_jupitel_thunder_target` (RO 93) — Гром Юпитера `job_wizard_jupitel_thunder` (hit)
+- `fx_job_wizard_meteor_storm` (RO 92) — Метеоритный дождь `job_wizard_meteor_storm` (ground); Метеоритный дождь `mob7_boss_meteor_storm` (ground)
+- `fx_job_wizard_soul_drain` (RO 217) — Поглощение души `job_wizard_soul_drain` (cast)
+- `fx_job_wizard_storm_gust` (RO 89) — Снежная буря `job_wizard_storm_gust` (ground)
+- `fx_npc_dark_strike` (RO 451) — Мёртвая волна `mob3_boss_nova` (hit)
+- `fx_npc_defender` (RO 213) — Бестелесность `maze_ghostring_fade` (buff); Боевая шкура `orc_high_war_hide` (buff); Завод пружины `alde_keeper_winding` (buff); Корневая броня `mob_tank_guard` (buff); Крылья-щит `alde_owl_baron_wings` (buff); Лунная вуаль `mob5_boss_moon_veil` (buff); Моховая кора `mob2_tank_mire` (buff); Панцирь `mob6_tank_shell` (buff); Пелены вечности `mob4_boss_wrappings` (buff); Песчаная стена `mob4_sandman_sand_wall` (buff); Печать Мунэ `mob5_munak_talisman` (buff); Покров тьмы `mob7_boss_bell_ward` (buff); Проклятый доспех `mob3_tank_guard` (buff); Стена щитов `guard_shield_wall` (buff); Твёрдая скорлупа `sewer_bug_egg_shell` (buff); Твёрдый кокон `mob_pupa_harden` (buff); Торг `maze_baphomet_bargain` (buff); Щит моста `mob7_bridge_warden_ward` (buff)
+- `fx_npc_earthquake` (RO sprite 어스퀘이크) — Землетрясение `mob_boss1_quake` (ground)
+- `fx_npc_keeping` (RO 214) — Желейная броня `mob_mastering_jelly_armor` (buff)
+- `fx_npc_poison` (RO 192) — Бросок гремучей `maze_side_winder_venom` (hit); Гнилой укус `mob2_melee_bite` (hit); Гнилые споры `mob2_boss_rot_spores` (hit); Жало скорпиона `mob4_scorpion_sting` (hit); Кислый плевок `sewer_plankton_spit` (hit); Могильный укус `orc_zombie_grave_bite` (hit); Отравленная стрела `mob2_ranged_poison_arrow` (hit); Проклятие `mob_boss2_curse` (hit); Ядовитая слизь `mob_poporing_goo` (hit)
+- `fx_npc_stun_attack` (RO 194) — Захлоп крышки `alde_mimic_snap` (hit); Петля висельника `mob7_tank_noose` (hit); Печать по тылу `maze_scribe_seal` (hit); Пинок кузнечика `mob_rocker_kick` (hit); Проклятый таран `mob3_elite_cleave` (hit); Прыжок цзянши `mob5_bongun_hop` (hit); Сокрушение `mob_elite_smash` (hit); Стрелки-клинки `alde_keeper_hands` (hit); Удар маятника `alde_clock_pendulum` (hit); Удар предка `orc_skeleton_ancestor_blow` (hit); Хватка стебля `maze_stem_worm_grip` (hit); Хватка щупалец `mob6_elite_tentacles` (hit); Цепи тьмы `mob7_boss_dark_chains` (hit); Якорь за борт `mob6_bosun_anchor` (hit)
+- `fx_shield` (RO 169) — Энергетический покров `job_mage_energy_coat` (buff)
+- `fx_swordman_bash` (RO 16) — Баш `swordman_bash` (cast)
+- `fx_swordman_endure` (RO 11) — Стойкость `swordman_endure` (buff)
+
 ## Атласы RO в бою (29.09)
 
 Кадры RO (`assets/effects`, 42 атласа) привязаны к навыкам в `assets/effects/effects.json → skills`: 113 навыков, 128 привязок
@@ -48,7 +142,7 @@
 Ядовитый нож (нож), Град стрел (пучок стрел падает на каждую цель), Вулкан (земля). Кража (`fx_job_thief_steal`) — блеск
 на цели у Кражи, Грабежа, Маммонита и Монетного дождя.
 
-Атлас → навыки («новое» — привязано 29.09; аудит 30.09 часть привязок снял — см. следующий раздел):
+Атлас → навыки на 29.09 (история; «новое» — привязано 29.09; аудит 30.09 и правило «только свой эффект RO» многое сняли — актуальный список в разделе выше):
 
 - `fx_job_acolyte_blessing` — Ассумптио `job_priest_assumptio` (buff, новое); Благословение `job_acolyte_blessing` (buff); Благословение Изиды `mob4_isis_blessing` (buff, новое)
 - `fx_job_acolyte_holy_light` — Лунный зов `mob5_boss_moon_call` (hit, новое); Магнус Экзорцизмус `job_priest_magnus_exorcismus` (hit, новое); Святой свет `job_acolyte_holy_light` (hit)
