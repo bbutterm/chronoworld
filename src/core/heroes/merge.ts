@@ -240,7 +240,7 @@ export function ascendHero(
     throw new HeroError('bad_fodder', `${name}: корм не подходит — нужно ${rule.fodder.map((f) => `${f.count} × ${f.kind === 'same' ? name : 'любой герой'} (${rn(f.rarity)})`).join(' + ')}`);
   }
   const refund = consumed.reduce((sum, f) => {
-    const c = levelRangeCost(1, f.level, ctx);
+    const c = levelRangeCost(f.grantedLevel ?? 1, f.level, ctx);
     return { exp: sum.exp + c.exp, gold: sum.gold + c.gold };
   }, { exp: 0, gold: 0 });
   const gone = new Set(consumed.map((h) => h.id));

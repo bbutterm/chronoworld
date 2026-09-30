@@ -24,6 +24,12 @@ export const HeroStateSchema = z.object({
   branch: z.string().optional(),
   /** v6. Сколько раз ветку меняли (первая смена бесплатно — data/cards.json → branchChange). Нет поля — 0. */
   branchChanges: z.number().int().nonnegative().optional(),
+  /**
+   * Догоняющий уровень сюжетного героя (heroes/roster.ts catchUpLevel): до этого уровня герой пришёл даром. Опыт и
+   * золото за уровни ниже grantedLevel не возвращаются при отдаче в корм (merge.ts) — иначе дар превращался бы в ресурсы.
+   * Нет поля — 1.
+   */
+  grantedLevel: z.number().int().positive().optional(),
 });
 
 /** v4. Состояние Таверны. */

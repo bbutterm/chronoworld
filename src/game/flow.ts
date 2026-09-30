@@ -196,7 +196,13 @@ export function describeEvents(events: readonly (TowerEvent | MetaEvent | EventR
   for (const [heroId, l] of levels) lines.push(`${nameOf(heroId)}: ур. ${l.from} → ${l.to}`);
   for (const e of events) {
     if (e.type === 'skillUnlocked') lines.push(`${nameOf(e.heroId)}: новый навык «${skillName(e.skill)}»`);
-    if (e.type === 'heroJoined') lines.unshift(e.copy ? `${e.name}: пришла копия героя (для вознесения)` : `Новый герой в отряде: ${e.name}!`);
+    if (e.type === 'heroJoined') lines.unshift(
+      e.copy
+        ? `${e.name}: пришла копия героя (для вознесения)`
+        : e.benched
+          ? `${e.name} с вами${e.level && e.level > 1 ? ` (ур. ${e.level})` : ''} — поставьте в отряд: «Герои» или «Авто» перед боем`
+          : `Новый герой в отряде: ${e.name}${e.level && e.level > 1 ? ` (ур. ${e.level})` : ''}!`,
+    );
     if (e.type === 'ascended') lines.push(`${nameOf(e.heroId)}: ${rarityName(e.from)} → ${rarityName(e.to)}${e.jobChanged ? ` — теперь ${jobName(e.job, e.heroId)}!` : ''}`);
     if (e.type === 'heroCard') lines.push(`Карта героя: ${e.name} (${rarityName(e.rarity)})`);
     if (e.type === 'heroPick') lines.push(`Контракт героя: ${rarityName(e.rarity).toLowerCase()} герой на выбор — «Герои»`);

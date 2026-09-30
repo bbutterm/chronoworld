@@ -5,13 +5,13 @@ import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, popIn, unitFigure } from '../screen';
-import { chapterChronicle, chroniclePageId, clearChapterDone, findingEntries, heroCard, markPageSeen, pendingChronicle } from '../../core';
+import { arrangeSquad, chapterChronicle, chroniclePageId, clearChapterDone, findingEntries, heroCard, heroName, heroPower, markPageSeen, pendingChronicle, type SaveState } from '../../core';
 import { chroniclePage, showPages } from '../storyPage';
 import { commit, now, session } from '../session';
 import { SKIN } from '../skin';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
 import { chapterSummary, playTimeText, sceneLabel, seenChapterScenes } from '../storyView';
-import { button, ellipsize, panel, ScrollArea, text } from '../ui';
+import { button, ellipsize, panel, ScrollArea, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT } from '../theme';
 
 export interface ChapterDoneData {
@@ -122,8 +122,21 @@ export class ChapterDoneScene extends Phaser.Scene {
       this.tweens.add({ targets: halo, fillAlpha: { from: 0.06, to: 0.16 }, yoyo: true, repeat: -1, duration: 1400, ease: 'Sine.easeInOut' });
       this.add.ellipse(cx, ry + 110, 300, 60, 0x000000, 0.3);
       unitFigure(this, heroSprite(hero, GAME), cx, ry + 110, 300, { maxScale: 2 });
-      text(this, cx, ry + 180, had ? `${c.name} присоединяется по сюжету` : `${c.name} присоединяется к отряду`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
-      text(this, cx, ry + 240, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
+      // RN-02: герой истории, которого нет в отряде (отряд был полон), — явно зовём поставить его в бой.
+      const inSquad = save.squad.some((id) => id !== null && save.heroes.find((h) => h.id === id)?.templateId === hero.templateId);
+      if (inSquad) {
+        text(this, cx, ry + 180, had ? `${c.name} присоединяется по сюжету` : `${c.name} присоединяется к отряду`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
+        text(this, cx, ry + 240, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
+      } else {
+        text(this, cx, ry + 160, `${c.name} с вами — но не в отряде`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
+        text(this, cx, ry + 212, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
+        button(this, cx, ry + 280, 560, 96, 'ui_btn_primary', 'Взять в отряд', () => {
+          const r = takeIntoSquad(session.save, hero.id);
+          commit(r.save);
+          toast(this, r.replaced ? `${c.name} в отряде вместо: ${r.replaced}` : `${c.name} в отряде`);
+          this.scene.restart(data);
+        }, FS.h3).container.setName('recruitTake');
+      }
     } else {
       card(this, cx, ry, 1000, 300, true);
       // BUG-159: вместо одной и той же «Отряд готов к новым землям» — цитата главы (episode.quote) и куда дальше.
@@ -160,6 +173,36 @@ export class ChapterDoneScene extends Phaser.Scene {
     }, FS.hero);
     if (next) ellipsize(text(this, cx, 1820, next.name.replace(/^Глава\s*\d+\.\s*/, ''), FS.small, SKIN.creamDim, OUTLINE), 900);
   }
+}
+
+/**
+ * RN-02. Поставить героя истории в отряд: на свободное место, иначе вместо самого слабого (по мощи) героя отряда;
+ * затем расстановка по ролям (arrangeSquad). replaced — имя того, кого сняли.
+ */
+export function takeIntoSquad(save: SaveState, heroId: string): { save: SaveState; replaced?: string } {
+  const squad = [...save.squad];
+  let slot = squad.findIndex((id) => id === null);
+  let replaced: string | undefined;
+  if (slot < 0) {
+    let weakest = -1;
+    let min = Infinity;
+    squad.forEach((id, i) => {
+      const h = save.heroes.find((x) => x.id === id);
+      if (!h) return;
+      const p = heroPower(h, GAME, save);
+      if (p < min) {
+        min = p;
+        weakest = i;
+      }
+    });
+    slot = weakest;
+    const gone = save.heroes.find((x) => x.id === squad[slot]);
+    if (gone) replaced = heroName(gone, GAME);
+  }
+  if (slot < 0) return { save };
+  squad[slot] = heroId;
+  const next = { ...save, squad };
+  return { save: { ...next, squad: arrangeSquad(next, GAME) }, replaced };
 }
 
 /** «История» (P3 / T1-03): список увиденных сцен главы; касание — пересмотреть сцену поверх экрана. */
