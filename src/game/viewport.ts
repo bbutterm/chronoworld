@@ -112,8 +112,12 @@ const FILL_N = 64;
 const FILL_DEPTH = 16;
 /** Какая доля картинки у кромки берётся как образец цвета (1,5 %: небо/земля без крыш и башен). */
 const EDGE_FRAC = 0.015;
-/** Источник, по которому сделана заливка (картинке сменили текстуру под тем же ключом — пересобрать). */
-const fillSource = new Map<string, unknown>();
+/**
+ * Заливка по ключу текстуры фона: источник (слабая ссылка — вытесненный фон не держим в памяти) и номер поколения.
+ * Фон перерисовали под тем же ключом — новое поколение с новым ключом заливки (старую не удаляем: её могут ещё
+ * показывать полосы живой сцены; она крошечная, 64×16).
+ */
+const fills = new Map<string, { src: WeakRef<object> | null; gen: number }>();
 
 type Side = 't' | 'b' | 'l' | 'r';
 
@@ -127,11 +131,12 @@ function edgeFill(scene: Phaser.Scene, f: Phaser.Textures.Frame, side: Side): st
   const tex = f.texture;
   const src = tex.getSourceImage(f.sourceIndex) as CanvasImageSource | undefined;
   if (!src || !(src instanceof HTMLImageElement || src instanceof HTMLCanvasElement || (typeof ImageBitmap !== 'undefined' && src instanceof ImageBitmap))) return null;
-  const key = `__bleedfill:${tex.key}:${f.name}:${side}`;
-  if (scene.textures.exists(key)) {
-    if (fillSource.get(key) === src) return key;
-    scene.textures.remove(key);
-  }
+  const base = `__bleedfill:${tex.key}:${f.name}:${side}`;
+  const known = fills.get(base);
+  const same = !!known && known.src?.deref() === src;
+  const gen = known ? (same ? known.gen : known.gen + 1) : 0;
+  const key = `${base}:${gen}`;
+  if (scene.textures.exists(key)) return key;
   const horiz = side === 't' || side === 'b';
   const fw = f.cutWidth;
   const fh = f.cutHeight;
@@ -188,7 +193,7 @@ function edgeFill(scene: Phaser.Scene, f: Phaser.Textures.Frame, side: Side): st
     scene.textures.remove(key);
     return null;
   }
-  fillSource.set(key, src);
+  fills.set(base, { src: typeof WeakRef === 'function' ? new WeakRef(src as object) : null, gen });
   return key;
 }
 
