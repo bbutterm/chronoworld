@@ -1719,15 +1719,25 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       armed.delete(u);
       return;
     }
-    if (stunned(u) || u.casting || (fleeing.size > 0 && fleeing.has(u))) return;
+    if (stunned(u) || (fleeing.size > 0 && fleeing.has(u))) return;
     const s = ultOf.get(u)!;
+    // Дальняя ульта — и на ходу; ближняя — когда дошёл до цели.
+    const can = s.range === 'ranged' || skillReady(u, s);
+    if (!can) return;
+    if (u.ult === s ? u.energy < cfg.energy.max : (u.readyAt[s.id] ?? 0) > t + 1e-9) return;
+    const targets = u.ult === s ? [] : activeTargets(u, s);
+    if (u.ult !== s && targets.length === 0) return;
+    // Касание важнее своего каста: каст обрывается (без перезарядки), ульта — сейчас.
+    if (u.casting) {
+      const c = u.casting.skill;
+      u.casting = null;
+      emit({ t, type: 'cast', unit: u.uid, skill: c.id, name: c.name, duration: 0, action: 'interrupt', reason: 'ult' });
+    }
     if (u.ult === s) {
-      if (u.energy < cfg.energy.max || !skillReady(u, s)) return;
       fireUlt(u, s);
     } else {
-      if ((u.readyAt[s.id] ?? 0) > t + 1e-9 || !skillReady(u, s)) return;
-      const targets = activeTargets(u, s);
-      if (targets.length === 0 || !startActive(u, s, targets)) return;
+      // Ульта по касанию — сразу, без каста (как в AFK): иначе долгий каст не успевал сбить заряд босса.
+      if (!startActive(u, s, targets, true)) return;
     }
     armed.delete(u);
     readyShown.delete(u);
@@ -1866,7 +1876,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       name: skill.name,
       cooldown: cd,
     });
-    breakCharges(u, skill, targets);
+    // Удар по кругу сбивает заряд любого, кто в круге (случайные метеоры могли не выбрать его первым).
+    if (chargers.length > 0) breakCharges(u, skill, area ? enemies(u).filter((o) => o.alive && Math.hypot(o.x - area.x, o.y - area.y) <= area.r + o.body) : targets);
     launch(u, skill, targets, area);
   };
 
@@ -1884,7 +1895,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   };
 
   /** Применяет выбранный навык или начинает каст. Цели проверяются заново (начало хода могло их изменить). */
-  const startActive = (u: Unit, skill: SkillDef, picked: Unit[]): boolean => {
+  const startActive = (u: Unit, skill: SkillDef, picked: Unit[], instant = false): boolean => {
     let targets = picked.filter((x) => x.alive);
     if (healOnly(skill)) targets = wounded(targets);
     if (targets.length === 0) return false;
@@ -1896,7 +1907,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
           ? { x: round2(ch.x), y: round2(ch.y), r: skill.area.radius }
           : areaSpot(u, skill.area.radius, u.bh.area.minCluster)
         : null;
-    if (skill.castTime > 0) {
+    if (skill.castTime > 0 && !instant) {
       u.casting = { skill, until: round2(t + skill.castTime), ...(area ? { at: [area.x, area.y] as [number, number], radius: area.r } : {}) };
       emit({
         t,

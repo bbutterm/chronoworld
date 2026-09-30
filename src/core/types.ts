@@ -206,9 +206,10 @@ export type BattleEvent = BaseEvent &
         action: 'start' | 'interrupt';
         /**
          * Только для interrupt: stun — каст сбит оглушением; dispel — сбит статусом interrupt (Развеивание контрмага);
-         * noTarget — к концу каста не осталось целей (каст пропал).
+         * noTarget — к концу каста не осталось целей (каст пропал); break — заряд босса сбит ультой; ult — свой каст оборван
+         * ультой по касанию.
          */
-        reason?: 'stun' | 'dispel' | 'noTarget' | 'break';
+        reason?: 'stun' | 'dispel' | 'noTarget' | 'break' | 'ult';
         /** Заряд босса (start): сбить ультой или оглушением. */
         charge?: boolean;
         /** Удар по кругу (маг, навык с area): центр круга на земле и радиус. */

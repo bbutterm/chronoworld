@@ -8,7 +8,7 @@
     "side": "enemy",
     "pick": "all"
   },
-  "castTime": 2.5,
+  "castTime": 3,
   "effects": [
     {
       "type": "damage",
