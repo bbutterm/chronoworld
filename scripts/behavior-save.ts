@@ -3,6 +3,7 @@
  * за бой (ядро, как в игре) случается нужное событие — отход стрелка, перехват стража, провокация, связь крестоносца, фаза
  * босса со свитой. Печатает JSON: [{ name, stageId, event, save }].
  *   npx tsx scripts/behavior-save.ts > /tmp/behavior.json
+ *   npx tsx scripts/behavior-save.ts круг,аура,трус > /tmp/behavior2.json
  */
 import { addHeroCard, maxLevelOf, newGame, placeInSquad, playStage, rarityForLevel, serialize, type BattleEvent, type SaveState } from '../src/core';
 import { loadFullContext } from './lib/content-node';
@@ -15,11 +16,17 @@ const SCENES: { name: string; cards: string[]; level: number; stages: string[]; 
   { name: 'провокация', cards: ['alan/knight', 'iris/knight', 'bran/hunter', 'kai/wizard', 'vika/priest'], level: 40, stages: ['ch4_s10', 'ch4_s13', 'ch5_s10', 'ch3_s10'], want: (e) => e.type === 'status' && !!e.taunt },
   { name: 'связь', cards: ['alan/crusader', 'iris/knight', 'bran/hunter', 'kai/wizard', 'vika/priest'], level: 40, stages: ['ch4_s10', 'ch4_s13', 'ch5_s10', 'ch3_s10'], want: (e) => e.type === 'link' && e.action === 'apply' },
   { name: 'фаза', cards: ['alan/knight', 'iris/knight', 'bran/hunter', 'kai/wizard', 'vika/priest'], level: 20, stages: ['ch1_s10', 'ch2_s10', 'ch3_s10'], want: (e) => e.type === 'spawn' },
+  // Шаги 4–5: круг мага на земле, аура барда и танцовщицы, трус убегает (после баннера начала боя — t ≥ 4).
+  { name: 'круг', cards: ['alan/knight', 'vika/priest', 'kai/wizard', 'kai', 'lira/wizard'], level: 60, stages: ['ch4_s13', 'ch5_s12', 'ch6_s4', 'ch4_s18'], want: (e) => e.type === 'cast' && !!e.at && e.t >= 4 },
+  { name: 'аура', cards: ['alan/knight', 'vika/priest', 'bran/bard', 'kai/wizard', 'meilin/dancer'], level: 60, stages: ['ch4_s13', 'ch5_s12', 'ch4_s18'], want: (e) => e.type === 'status' && e.action === 'refresh' && e.t >= 5 },
+  { name: 'трус', cards: ['alan/knight', 'iris/knight', 'bran/hunter', 'kai/wizard', 'vika/priest'], level: 20, stages: ['ch2_s7', 'ch2_s17', 'ch2_s18', 'ch2_s5'], want: (e) => e.type === 'move' && e.reason === 'flee' && e.t >= 4 },
 ];
+/** Только названные сцены (аргументы через запятую), без аргумента — все. */
+const only = process.argv[2]?.split(',');
 const stageSeed = (save: SaveState) => (save.createdAt ^ Math.imul(save.battleSeq + 1, 0x9e3779b1)) >>> 0;
 const out: { name: string; stageId: string; event: string; save: string }[] = [];
 
-for (const sc of SCENES) {
+for (const sc of SCENES.filter((x) => !only || only.includes(x.name))) {
   const base = newGame(ctx, 1_700_000_000_000);
   let save: SaveState = { ...base, heroes: [], squad: [null, null, null, null, null], campaign: { ...base.campaign, cleared: ctx.content.stages.map((s) => s.id) } };
   for (const card of sc.cards) {

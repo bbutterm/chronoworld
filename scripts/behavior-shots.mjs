@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Кадры поведения в бою (docs/design/battle-behavior.md): отход стрелка, перехват стража, провокация, связь крестоносца,
-// фаза босса со свитой. Сохранения — scripts/behavior-save.ts; бой проигрывается по кадрам вручную (как skillfx-shots.mjs),
+// фаза босса со свитой; круг мага, аура барда/танцовщицы, трус убегает. Сохранения — scripts/behavior-save.ts; бой проигрывается по кадрам вручную (как skillfx-shots.mjs),
 // при первом нужном событии — серия кадров.
 //   npx tsx scripts/behavior-save.ts > /tmp/behavior.json
 //   SHOTS_SIZE=390x844 SHOTS_PORT=5791 node scripts/behavior-shots.mjs /tmp/behavior.json <папка>
@@ -47,6 +47,9 @@ const MATCH = {
   // Связь — после баннера босса (первые секунды поле затемнено).
   связь: (e) => e.type === 'link' && e.action === 'apply' && e.t >= 4,
   фаза: (e) => e.type === 'phase',
+  круг: (e) => e.type === 'cast' && !!e.at && e.t >= 4,
+  аура: (e) => e.type === 'status' && e.action === 'refresh' && e.t >= 5,
+  трус: (e) => e.type === 'move' && e.reason === 'flee' && e.t >= 4,
 };
 
 const scenes = JSON.parse(readFileSync(savesFile, 'utf8'));
