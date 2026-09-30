@@ -263,6 +263,24 @@ export function ascendHero(
   return { save: next, events, refund, consumed: [...gone] };
 }
 
+/**
+ * Лучший экземпляр каждого героя (выше редкость, в отряде, выше уровень, меньший id) — его «Вознести всех» не отдаёт в
+ * корм слотов «любой».
+ */
+export function keeperIds(save: Pick<SaveState, 'heroes' | 'squad'>): Set<string> {
+  const best = new Map<string, HeroState>();
+  const better = (a: HeroState, b: HeroState) =>
+    rarityIndex(a.rarity) - rarityIndex(b.rarity) ||
+    Number(save.squad.includes(a.id)) - Number(save.squad.includes(b.id)) ||
+    a.level - b.level ||
+    (a.id < b.id ? 1 : a.id > b.id ? -1 : 0);
+  for (const h of save.heroes) {
+    const cur = best.get(h.templateId);
+    if (!cur || better(h, cur) > 0) best.set(h.templateId, h);
+  }
+  return new Set([...best.values()].map((h) => h.id));
+}
+
 /** Одно вознесение «Вознести всех». */
 export interface AscendAllStep {
   heroId: string;
@@ -277,11 +295,14 @@ export interface AscendAllStep {
 }
 
 /**
- * «Вознести всех» (экран «Герои»): по кругу возносит всех, кому хватает свободных копий того же героя и золота, —
- * сначала дешёвые переходы (зелёные → синие), чтобы их итог шёл в корм следующих. Цель — сильнейший экземпляр своей
- * редкости (в отряде — первым, затем выше уровень), корм — самые слабые свободные копии того же героя (fodderBlocker:
- * не отряд, не пресет, не экспедиция, не замок); чужие герои в корм не идут (слоты «любой» закрываются тоже копиями).
- * Переход с выбором ветки — без ветки (deferBranch; уже выбранная сохраняется). Чистая функция; пусто — нечего.
+ * «Вознести всех» (экран «Герои»): по кругу возносит всех, кому хватает свободных копий и золота, — сначала дешёвые
+ * переходы (зелёные → синие), чтобы их итог шёл в корм следующих. Цель — сильнейший экземпляр своей редкости (в отряде —
+ * первым, затем выше уровень), корм — самые слабые свободные копии (fodderBlocker: не отряд, не пресет, не экспедиция,
+ * не замок). Слоты «та же» — копии того же героя. Слоты «любой» (золотой → красный, BUG-168) — сначала лишние копии
+ * того же героя, затем лишние копии других героев: лучший экземпляр каждого героя (keeperIds) в корм не идёт никогда,
+ * так что «Вознести всех» не убирает героя из коллекции. Свои вознесения других героев идут раньше (они дешевле), и
+ * их копии уходят сначала на них. Переход с выбором ветки — без ветки (deferBranch; уже выбранная сохраняется).
+ * Чистая функция; пусто — нечего.
  */
 export function ascendAll(save: SaveState, ctx: GameContext): { save: SaveState; events: ProgressEvent[]; done: AscendAllStep[] } {
   let cur = save;
@@ -300,7 +321,10 @@ export function ascendAll(save: SaveState, ctx: GameContext): { save: SaveState;
       const rule = mergeRule(hero, ctx);
       const to = nextRarity(hero.rarity);
       if (!rule || !to || s.resources.gold < rule.gold) continue;
-      const free = freeHeroes(s, hero.id, ctx).filter((h) => h.templateId === hero.templateId);
+      const keep = keeperIds(s);
+      const all = freeHeroes(s, hero.id, ctx);
+      // Сначала копии того же героя, затем лишние копии других (не лучший экземпляр своего героя); слабые первыми.
+      const free = [...all.filter((h) => h.templateId === hero.templateId), ...all.filter((h) => h.templateId !== hero.templateId && !keep.has(h.id))];
       const chosen: string[] = [];
       let ok = true;
       for (const slot of slotList(rule)) {

@@ -67,7 +67,7 @@ export class HeroesScene extends Phaser.Scene {
     // Запас опыта (тратится «Улучшить» на карточке) и «Коллекция» — серые неполученные карточки.
     const rowY = CONTENT_TOP + 165;
     ellipsize(text(this, 30, rowY, `Опыт в запасе: ${formatNumber(save.resources.heroExp)}`, FS.body, C.gold, { stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('heroExpPool'), 420);
-    // «Вознести всех»: всех, кому хватает свободных копий того же героя и золота (ascendAll), с подтверждением.
+    // «Вознести всех»: всех, кому хватает свободных копий и золота (ascendAll; для красного — и лишних копий других), с подтверждением.
     const plan = ascendAll(save, GAME);
     const all = button(this, 590, rowY, 250, 96, plan.done.length ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести всех', () => this.ascendAllConfirm(), FS.small, { sound: 'ui_toggle' });
     all.container.setName('ascendAllBtn');
@@ -187,7 +187,7 @@ export class HeroesScene extends Phaser.Scene {
     const plan = ascendAll(session.save, GAME);
     const rows = ascendAllSummary(plan.done);
     if (!rows.length) {
-      toast(this, 'Вознести некого: нужны свободные копии того же героя и золото.', C.muted);
+      toast(this, 'Вознести некого: нужны свободные копии героя (для красного — ещё лишние фиолетовые) и золото.', C.muted);
       return;
     }
     const line = (r: (typeof rows)[number]) => `${r.name}: ${RARITY_CARD[r.from]} → ${RARITY_CARD[r.to]}${r.branchPending ? ' (ветка — потом)' : ''}`;
@@ -197,7 +197,11 @@ export class HeroesScene extends Phaser.Scene {
     const gold = session.save.resources.gold - plan.save.resources.gold;
     const eaten = plan.done.reduce((n, d) => n + d.consumed.length, 0);
     const cost = `${gold > 0 ? `Золото: −${formatNumber(gold)} · ` : ''}копий в корм: ${eaten}`;
-    confirm(this, `Вознести всех?\n\n${list.join('\n')}\n\n${cost}\nОтряд и закреплённые (замок) в корм не идут.`, 'Вознести', () => {
+    // Слоты «любой» (золотой → красный) едят лишние копии других героев — назвать их (BUG-168).
+    const byId = new Map(session.save.heroes.map((h) => [h.id, h]));
+    const others = plan.done.flatMap((d) => d.consumed.map((id) => byId.get(id)).filter((h) => h && h.templateId !== d.templateId).map((h) => this.content.heroes[h!.templateId]?.name ?? h!.templateId));
+    const otherLine = others.length ? `\nЛишние копии других героев: ${[...new Set(others)].join(', ')}.` : '';
+    confirm(this, `Вознести всех?\n\n${list.join('\n')}\n\n${cost}${otherLine}\nОтряд, закреплённые (замок) и лучший экземпляр каждого героя в корм не идут.`, 'Вознести', () => {
       // Сохранение могло измениться — считаем заново от текущего.
       const r = ascendAll(session.save, GAME);
       if (!r.done.length) return;
