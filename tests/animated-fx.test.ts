@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, loopFrameAt, queueAnimatedFx, selectedAnimatedEffect } from '../src/game/animatedFx';
 
 describe('RO animated effects', () => {
-  it('queues all 42 captured atlases with catalog cell sizes', () => {
+  it('queues all 43 captured atlases (42 листа, осколок Frost Diver — два вида) with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(42);
+    expect(queued).toHaveLength(43);
     expect(queued).toContainEqual(['anim_fx_job_sage_volcano_ground', 'effects/fx_job_sage_volcano_ground.png', 122, 98]);
     expect(queued).toContainEqual(['anim_fx_job_thief_venom_knife_projectile', 'effects/fx_job_thief_venom_knife_projectile.png', 42, 38]);
     expect(queued).toContainEqual(['anim_fx_job_thief_steal', 'effects/fx_job_thief_steal.png', 188, 176]);
@@ -111,7 +111,13 @@ describe('эффекты навыков (effects.json → skills)', () => {
       }
     }
     // Общие (fx_hit, fx_heal…) рисуются правилами боя; все атласы навыков fx_job_* / fx_swordman_* должны быть подключены.
-    const idle = catalog.effects.map((e) => e.id).filter((id) => !used.has(id) && /^fx_(job|swordman)_/.test(id));
+    // Отклонённые аудитом (effects.json → rejected: id → почему, «нужен арт») не привязываются ни к чему.
+    const rejected = (catalog as unknown as { rejected?: Record<string, string> }).rejected ?? {};
+    for (const id of Object.keys(rejected)) {
+      expect(animatedEffect(id), `rejected: нет атласа ${id}`).toBeDefined();
+      expect(used.has(id), `отклонённый атлас ${id} привязан к навыку`).toBe(false);
+    }
+    const idle = catalog.effects.map((e) => e.id).filter((id) => !used.has(id) && !(id in rejected) && /^fx_(job|swordman)_/.test(id));
     expect(idle).toEqual([]);
   });
 

@@ -283,11 +283,11 @@
       "ms": 83.33,
       "loop": false,
       "delayMs": 0,
-      "blend": "add",
-      "scale": 1.5,
+      "blend": "normal",
+      "scale": 1.3,
       "anchor": [
         108.4,
-        114.8
+        150.0
       ],
       "attach": "target",
       "source": {
@@ -564,7 +564,8 @@
       "loop": false,
       "delayMs": 83,
       "blend": "add",
-      "scale": 1.85,
+      "scale": 1.6,
+      "alpha": 0.75,
       "anchor": [
         166.4,
         172.8
@@ -784,14 +785,15 @@
       ],
       "columns": 8,
       "frames": 28,
-      "ms": 83.33,
+      "ms": 32,
       "loop": false,
       "delayMs": 0,
       "blend": "normal",
       "scale": 2.7,
+      "rise": 160,
       "anchor": [
-        28.6,
-        43.2
+        30.0,
+        66.0
       ],
       "attach": "target",
       "source": {
@@ -984,7 +986,7 @@
       "loop": false,
       "delayMs": 0,
       "blend": "add",
-      "scale": 2.0,
+      "scale": 1.5,
       "anchor": [
         28.0,
         52.0
@@ -1166,6 +1168,34 @@
         "seed": 1,
         "note": "AC_SHOWER.effectId ef_arrow_shower_projectile; original named 3D source duplicated 10x; role contextual, not mapped to area"
       }
+    },
+    {
+      "id": "fx_job_mage_frost_diver_spikes",
+      "file": "effects/fx_job_mage_frost_diver_release.png",
+      "cell": [
+        28,
+        148
+      ],
+      "columns": 8,
+      "frames": 8,
+      "ms": 60,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "scale": 1.5,
+      "anchor": [
+        13.0,
+        146.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "27",
+        "renderer": "roBrowserLegacy EffectViewer",
+        "scale": 1.0417,
+        "outputScale": 1.0,
+        "seed": 1,
+        "note": "MG_FROSTDIVER.releaseEffectId 27 (same sheet as fx_job_mage_frost_diver_release): upright ice spikes growing along the ground from caster to target, as in RO; anchor at the spike base"
+      }
     }
   ],
   "skills": {
@@ -1276,7 +1306,7 @@
     },
     "job_mage_frost_diver": {
       "hit": "fx_job_mage_frost_diver",
-      "projectile": "fx_job_mage_frost_diver_release"
+      "projectile": "fx_job_mage_frost_diver_spikes"
     },
     "job_mage_thunderstorm": {
       "hit": "fx_job_mage_thunderstorm"
@@ -1325,7 +1355,6 @@
       "hit": "fx_job_sage_earth_spike"
     },
     "job_sage_heavens_drive": {
-      "ground": "fx_job_sage_heavens_drive",
       "hit": "fx_job_sage_earth_spike"
     },
     "job_sage_volcano": {
@@ -1462,7 +1491,6 @@
       "hit": "fx_job_assassin_sonic_blow"
     },
     "mob_boss1_quake": {
-      "ground": "fx_job_sage_heavens_drive",
       "hit": "fx_job_sage_earth_spike"
     },
     "mob_boss2_curse": {
@@ -1496,9 +1524,6 @@
     "orc_lady_war_drum": {
       "buff": "fx_swordman_endure"
     },
-    "orc_lord_ancestors_rise": {
-      "ground": "fx_job_sage_heavens_drive"
-    },
     "orc_skeleton_ancestor_blow": {
       "hit": "fx_job_crusader_shield_charge"
     },
@@ -1523,5 +1548,8 @@
     "warrior_cleave": {
       "hit": "fx_job_assassin_sonic_blow"
     }
+  },
+  "rejected": {
+    "fx_job_sage_heavens_drive": "Небесный удар: захват — неподвижная плоская стена камней (3D-движение клиента не снято); в бою закрывала отряд бежевой плитой. Нужен арт: ряд шипов, вырастающих из земли."
   }
 }

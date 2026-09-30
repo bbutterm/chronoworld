@@ -73,7 +73,7 @@ try {
         sessionStorage.setItem('skillfx-init', '1');
       }
     }, [sq.save, REDUCED]);
-    await page.goto(URL);
+    await page.goto(URL, { timeout: 180000 });
     await page.waitForFunction(() => window.__game?.scene?.isActive('Campaign'), null, { timeout: 60000, polling: 100 });
     await page.evaluate((stageId) => {
       const g = window.__game;

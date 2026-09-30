@@ -419,7 +419,7 @@ export class FloatLayer {
       img.setFrame(0).setOrigin(effect.anchor[0] / effect.cell[0], effect.anchor[1] / effect.cell[1]);
       // Атлас навыка со своим масштабом (effects.json → scale): размер кадра RO, непрозрачный — роль не сжимает
       // крупный лист до точки и не делает его полупрозрачным.
-      if (effect.scale) img.setScale(effect.scale).setAlpha(1);
+      if (effect.scale) img.setScale(effect.scale).setAlpha(effect.alpha ?? 1);
       else img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]);
       img.setBlendMode(effect.blend === 'add' ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL).setVisible(effect.delayMs === 0);
     }
@@ -477,6 +477,12 @@ export class FloatLayer {
             const frame = animatedFrameAt(r.effect, r.t);
             o.setVisible(frame >= 0);
             if (frame >= 0) (o as Phaser.GameObjects.Image).setFrame(frame);
+            if (r.effect.rise && r.effect.scale) {
+              // Камень растёт из земли (origin — точка ног) и уходит обратно в последнюю четверть жизни.
+              const up = clamp01(r.t / r.effect.rise);
+              const down = clamp01((r.dur - r.t) / (r.dur * 0.25));
+              (o as Phaser.GameObjects.Image).scaleY = r.effect.scale * ease.backOut(Math.min(up, down));
+            }
           } else {
             const p = clamp01(r.t / r.dur);
             o.alpha = r.a * (1 - p);

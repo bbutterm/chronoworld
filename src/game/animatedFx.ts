@@ -21,6 +21,13 @@ export interface AnimatedEffect {
    * Ориентир — фигуры RO ×3.2 (V2_SCALE): захват EffectViewer ≈ RO ×1.04.
    */
   scale?: number;
+  /** Непрозрачность атласа навыка (пересвеченные захваты — снег Бури), по умолчанию 1. */
+  alpha?: number;
+  /**
+   * Вырастает из земли за rise мс (масштаб по высоте от 0 от точки ног) и уходит обратно в последнюю четверть:
+   * статичные камни RO (Земляной шип), у которых движение в клиенте — 3D, а в захвате его нет.
+   */
+  rise?: number;
 }
 
 const effects = new Map<string, AnimatedEffect>(catalog.effects.map((effect) => [effect.id, {
@@ -34,6 +41,8 @@ const effects = new Map<string, AnimatedEffect>(catalog.effects.map((effect) => 
   anchor: [effect.anchor[0], effect.anchor[1]],
   blend: (effect as { blend?: string }).blend === 'add' ? 'add' : 'normal',
   scale: (effect as { scale?: number }).scale,
+  alpha: (effect as { alpha?: number }).alpha,
+  rise: (effect as { rise?: number }).rise,
 }]));
 
 export const animatedFxKey = (id: string): string => `anim_${id}`;
