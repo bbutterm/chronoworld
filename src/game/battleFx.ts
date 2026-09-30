@@ -14,8 +14,11 @@ export const DEPTH = {
   banner: 6000,
 } as const;
 
-/** Где висит баннер ульты: между кнопками скорости и первым рядом героев — не поверх отрядов. */
-const BANNER_Y = 540;
+/**
+ * Где висит баннер ульты: сразу под панелью героев (BUG-061, центр 610, высота 196; QA RN-05 — раньше 540 ложился на
+ * портреты) и над макушками первого ряда — плашка живёт ~1,3 с.
+ */
+const BANNER_Y = 770;
 /** Ширина плашки: две (своя слева, чужая справа) помещаются в ряд. */
 const BANNER_W = 510;
 
@@ -575,7 +578,11 @@ export interface BarkTarget {
 export class BarkLayer {
   private readonly items: { target: BarkTarget; box: Phaser.GameObjects.Container; left: number; w: number; h: number }[] = [];
 
-  constructor(private readonly scene: Phaser.Scene) {}
+  /** minTop — облачко не выше этой линии (низ панели героев, QA RN-16): иначе реплика ложилась на портреты. */
+  constructor(
+    private readonly scene: Phaser.Scene,
+    private readonly minTop = 0,
+  ) {}
 
   show(target: BarkTarget, line: string): void {
     const old = this.items.findIndex((b) => b.target === target);
@@ -602,7 +609,7 @@ export class BarkLayer {
 
   private place(b: { target: BarkTarget; box: Phaser.GameObjects.Container; w: number; h: number }): void {
     const x = Phaser.Math.Clamp(b.target.node.x, b.w / 2 + 10, GAME_W - b.w / 2 - 10);
-    const y = Math.max(b.h + 20, b.target.node.y + b.target.nameY - 40);
+    const y = Math.max(b.h + 20, this.minTop + b.h + 10, b.target.node.y + b.target.nameY - 40);
     b.box.setPosition(x, Math.min(y, GAME_H - 40));
   }
 

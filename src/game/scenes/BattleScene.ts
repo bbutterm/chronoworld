@@ -59,7 +59,7 @@ import { skillIcon, statusIcon } from '../skillIcons';
 import type { SkillDef, StatusDef } from '../../core';
 import { battleSound } from '../battleAudio';
 import { huntHud, type HuntHud } from '../huntBattle';
-import { HeroPanel } from '../battlePanel';
+import { HeroPanel, PANEL_BOTTOM } from '../battlePanel';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -530,7 +530,7 @@ export class BattleScene extends Phaser.Scene {
     this.floats = new FloatLayer(this);
     this.sfx = new SkillFx(this);
     this.sfx.setSpeed(playback.speed);
-    this.barks = new BarkLayer(this);
+    this.barks = new BarkLayer(this, PANEL_BOTTOM);
     this.barked.clear();
     this.behaviorFx = new BehaviorFx(this);
     this.tauntIds.clear();
@@ -1436,7 +1436,7 @@ export class BattleScene extends Phaser.Scene {
     this.sfx.shake(0.008, 260);
     this.sfx.glow(v.node.x, bodyY(v), tint, 0.6, 2.4, 520);
     this.sfx.rise(v.node.x, v.node.y, tint, 14, 70);
-    if (this.bossBar?.uid === v.snap.uid) this.floats.headline(GAME_W / 2, BOSS_BAR_Y + 64, e.title, 44, rage ? '#ff8a6a' : '#ffe28a', DEPTH.banner, `phase:${v.snap.uid}`);
+    if (this.bossBar?.uid === v.snap.uid) this.floats.headline(GAME_W / 2, BOSS_BAR_Y + 64, e.title, 38, rage ? '#ff8a6a' : '#ffe28a', DEPTH.banner, `phase:${v.snap.uid}`);
     else this.headline(v, e.title, rage ? '#ff8a6a' : '#ffe28a');
   }
 

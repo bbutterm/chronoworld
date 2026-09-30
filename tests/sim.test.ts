@@ -57,14 +57,18 @@ describe('симулятор', () => {
     expect(battles / calib, `бои ${battles.toFixed(0)} мс CPU, эталон ${calib.toFixed(0)} мс`).toBeLessThan(25);
   });
 
-  it('1000 боёв героев с профилями поведения быстрее 2 секунд', () => {
-    // Тот же порог и та же страховка эталоном, что у боёв юнитов (≈ 1.6 с здесь: бои короче, тик дороже на ≈ 35%).
-    const opts = { combat: FULL.combat };
-    runSeries(FULL.content, HEROES, FOES, 30, 1, opts);
-    const battles = cpuMs(() => expect(runSeries(FULL.content, HEROES, FOES, 1000, 1, opts).n).toBe(1000));
-    if (battles < 2000) return;
-    const calib = Math.min(cpuMs(calibration), cpuMs(calibration));
-    expect(battles / calib, `бои ${battles.toFixed(0)} мс CPU, эталон ${calib.toFixed(0)} мс`).toBeLessThan(25);
+  it('профили поведения: 1000 боёв героев не дороже +25% к тем же боям без профилей', () => {
+    // docs/design/battle-behavior.md §5: бюджет правил — +25%. Сравнение в одном процессе (под нагрузкой оба замера
+    // замедляются одинаково); лучший из двух замеров каждого вида. Сейчас ≈ 1.0: бои с профилями короче (≈ 35 с против
+    // 50 с), тик дороже на ≈ 40% (плотнее бой: те же удары за меньше тиков).
+    const on = { combat: FULL.combat };
+    const off = { combat: FULL.combat, behavior: false };
+    runSeries(FULL.content, HEROES, FOES, 30, 1, on);
+    runSeries(FULL.content, HEROES, FOES, 30, 1, off);
+    const t = (opts: typeof on) => Math.min(...[0, 1].map(() => cpuMs(() => expect(runSeries(FULL.content, HEROES, FOES, 500, 1, opts).n).toBe(500))));
+    const withRules = t(on);
+    const without = t(off);
+    expect(withRules / without, `с профилями ${withRules.toFixed(0)} мс CPU, без ${without.toFixed(0)} мс`).toBeLessThan(1.25);
   });
 
   it('результаты серии воспроизводимы', () => {

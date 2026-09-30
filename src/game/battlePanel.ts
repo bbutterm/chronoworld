@@ -30,6 +30,8 @@ interface Entry {
 export const PANEL_Y = 610;
 const CARD_W = 184;
 const CARD_H = 196;
+/** Нижний край панели: плашки навыков и реплики боссов — ниже него (QA RN-05, RN-16). */
+export const PANEL_BOTTOM = PANEL_Y + CARD_H / 2;
 const GAP = 12;
 const FACE = 132;
 const BAR_W = CARD_W - 28;

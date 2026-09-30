@@ -58,8 +58,11 @@ export const BehaviorProfileSchema = z.object({
 
 export type BehaviorProfile = z.infer<typeof BehaviorProfileSchema>;
 
-/** Ярость всех после afterSeconds боя: урон × (1 + perSecond × секунд сверх порога) — бои не тянутся до таймера. */
-export const EnrageSchema = z.object({ afterSeconds: z.number().positive(), perSecond: z.number().nonnegative() });
+/**
+ * Ярость всех после afterSeconds боя: урон × (1 + perSecond × секунд сверх порога), лечение и щиты × (1 − healPerSecond × секунд
+ * сверх порога, не меньше 0) — бои не тянутся до таймера («время вышло» при живом отряде — QA RN-22).
+ */
+export const EnrageSchema = z.object({ afterSeconds: z.number().positive(), perSecond: z.number().nonnegative(), healPerSecond: z.number().nonnegative().default(0) });
 export type EnrageConfig = z.infer<typeof EnrageSchema>;
 
 /** Часть data/combat.json про поведение — проверяется content:check. */

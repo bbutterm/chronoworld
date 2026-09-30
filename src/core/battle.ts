@@ -252,7 +252,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         applyDamage(u, u.uid, target, rage(calcDamage(stat(u, 'atk'), e.k * sp, stat(target, 'def'), rng, cfg)));
         return;
       case 'heal': {
-        const amount = Math.min(calcHeal(stat(u, 'atk'), e.k * sp), target.maxHp - target.hp);
+        const amount = Math.min(mend(calcHeal(stat(u, 'atk'), e.k * sp)), target.maxHp - target.hp);
         target.hp += amount;
         report[u.uid].healingDone += amount;
         emit({
@@ -269,7 +269,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         // LT-01: щиты складываются, но не выше потолка (доля макс. ОЗ носителя, combat.json shieldCapPctMaxHp) —
         // иначе щит, заряжаемый от получаемого урона, растёт быстрее урона отряда и бой уходит в «время вышло».
         const cap = Math.floor(target.maxHp * (cfg.shieldCapPctMaxHp ?? 0.5));
-        const amount = Math.max(0, Math.min(Math.floor(target.maxHp * e.pctMaxHp * sp), cap - target.shield));
+        // В ярости (combat.json enrage) щиты слабеют так же, как лечение.
+        const amount = Math.max(0, Math.min(mend(Math.floor(target.maxHp * e.pctMaxHp * sp)), cap - target.shield));
         target.shield += amount;
         report[u.uid].shieldGiven += amount;
         emit({
@@ -1117,6 +1118,11 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   function rage(d: number): number {
     if (!enrage || t <= enrage.afterSeconds) return d;
     return Math.max(1, Math.round(d * (1 + enrage.perSecond * (t - enrage.afterSeconds))));
+  }
+  /** Лечение в ярости слабеет (healPerSecond за секунду сверх порога). */
+  function mend(h: number): number {
+    if (!enrage?.healPerSecond || t <= enrage.afterSeconds) return h;
+    return Math.max(0, Math.round(h * Math.max(0, 1 - enrage.healPerSecond * (t - enrage.afterSeconds))));
   }
 
   /** Юниты с фазами, сработавшие фазы (по юниту) и очередь фаз к началу следующего тика. */
