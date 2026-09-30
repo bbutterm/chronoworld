@@ -146,8 +146,7 @@ export class StageScene extends Phaser.Scene {
     this.autoHint?.destroy();
     this.autoHint = null;
     commit({ ...session.save, squad: autoFormation(session.save, GAME) });
-    this.editor.replaced();
-    toast(this, 'Отряд расставлен автоматически');
+    this.editor.replaced('Отряд расставлен автоматически');
   }
 
   private fight(): void {
