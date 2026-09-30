@@ -38,6 +38,7 @@ import { BarkLayer, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, UltPresenter } f
 import { RO_DIGIT_H } from '../numberFont';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
+import { BehaviorFx, phaseNotches } from '../battleBehaviorFx';
 import { button, panel, text, toast, tutorialHint } from '../ui';
 import { audioSettings, setAudioSettings } from '../audio';
 import { battleSfxToast } from '../audioCore';
@@ -276,6 +277,10 @@ interface UnitView extends SpreadUnit, GaitState {
   faceDir: 1 | -1;
   /** Цель последней атаки — к ней юнит повёрнут, пока стоит. */
   lookAt: UnitView | null;
+  /** Отход стрелка (move reason kite): пятится лицом к врагу, не разворачиваясь. */
+  backpedal: boolean;
+  /** Подпись «Отход!» уже была (раз за бой). */
+  kiteShown: boolean;
   /** Зона касания тела (при развороте едет вместе с origin). */
   hitRect: Phaser.Geom.Rectangle;
   bodyW: number;
@@ -335,6 +340,12 @@ export class BattleScene extends Phaser.Scene {
   private barks!: BarkLayer;
   private barked = new Set<string>();
   private sfx!: SkillFx;
+  /** Поведение в бою: провокация «!», нить связи (docs/design/battle-behavior.md). */
+  private behaviorFx: BehaviorFx | null = null;
+  /** id статусов-провокаций боя (по событию apply с taunt) — на expire снять «!». */
+  private readonly tauntIds = new Set<string>();
+  /** Когда над защитником последний раз писали «↪» (перенаправленный урон), мс сцены. */
+  private readonly redirectShown = new Map<string, number>();
   /** Сколько мс (с учётом скорости) бой ещё стоит ради баннера босса. */
   private introLeft = 0;
   /** Осталось паузы «hit stop», мс реального времени (0 — бой идёт). */
@@ -453,11 +464,13 @@ export class BattleScene extends Phaser.Scene {
       this.defs = CONTENT.units;
     }
 
+    // Свита фаз босса (появится посреди боя): описание — юнит data/units (статы в бою свои, виду они не нужны).
+    for (const s of this.result.spawned ?? []) if (!this.defs[s.unitId]) this.defs[s.unitId] = CONTENT.units[s.unitId];
     // U: листы только этого боя — грузятся по требованию (уже в кэше — строим сразу, в этом же кадре).
-    const sprites = this.result.units.map((u) => this.defs[u.unitId].visual.sprite);
+    const sprites = [...this.result.units, ...(this.result.spawned ?? [])].map((u) => this.defs[u.unitId].visual.sprite);
     // Анимированные эффекты грузятся лениво (T4-12) и только нужные этому бою (навыки его юнитов, battleFxIds): бой ждёт
     // их вместе с листами юнитов (не дольше FX_WAIT_MS), иначе первые удары шли статичными картинками.
-    const unitDefs = this.result.units.map((u) => this.defs[u.unitId]);
+    const unitDefs = [...this.result.units, ...(this.result.spawned ?? [])].map((u) => this.defs[u.unitId]);
     const fxIds = battleFxIds(
       unitDefs.flatMap((d) => [d.skills.basic, d.skills.ult, ...d.skills.actives, ...d.skills.passives]),
       unitDefs.flatMap((d) => [d.visual.hitFx, d.visual.projectile]),
@@ -516,6 +529,9 @@ export class BattleScene extends Phaser.Scene {
     this.sfx.setSpeed(playback.speed);
     this.barks = new BarkLayer(this);
     this.barked.clear();
+    this.behaviorFx = new BehaviorFx(this);
+    this.tauntIds.clear();
+    this.redirectShown.clear();
     for (const u of this.result.units) this.buildUnit(u);
     this.heroPanel = new HeroPanel(
       this,
@@ -596,6 +612,9 @@ export class BattleScene extends Phaser.Scene {
     const fill = this.add.image(barX, BOSS_BAR_Y, 'ui_bar_hp_enemy').setOrigin(0, 0.5).setDisplaySize(BOSS_BAR_W, 34);
     text(this, GAME_W / 2, BOSS_BAR_Y, level !== null ? `${name} · ${levelLabel(level)}` : name, 28, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
     this.bossBar = { uid: boss.uid, fill };
+    // Засечки фаз (50%, 25%…) видны с начала боя: игрок знает, когда босс сменит поведение.
+    const pcts = (this.defs[boss.unitId].phases ?? []).flatMap((p) => (p.atHpPct !== undefined ? [p.atHpPct] : []));
+    if (pcts.length) phaseNotches(this, barX, BOSS_BAR_W, BOSS_BAR_Y, pcts);
     const v = this.views.get(boss.uid);
     if (v) this.redraw(v);
 
@@ -772,6 +791,8 @@ export class BattleScene extends Phaser.Scene {
       walking: false,
       faceDir: snap.side === 'A' ? 1 : -1,
       lookAt: null,
+      backpedal: false,
+      kiteShown: false,
       hitRect: new Phaser.Geom.Rectangle(0, 0, 0, 0),
       bodyW: 0,
       loopKeys: { idle: anim(look, spriteId, 'idle'), walk: anim(look, spriteId, 'walk'), cast: anim(look, spriteId, 'cast') },
@@ -846,6 +867,7 @@ export class BattleScene extends Phaser.Scene {
     this.floats.step(dt);
     this.barks.step(dt);
     this.sfx.step(dt);
+    this.behaviorFx?.update(dt);
     const views = this.viewList;
     for (let i = 0; i < views.length; i++) this.animateUnit(views[i], dt);
     this.layoutUnits(dt);
@@ -892,7 +914,7 @@ export class BattleScene extends Phaser.Scene {
   private gait(v: UnitView, dt: number): void {
     const dir = gaitStep(v, v.node.x, v.node.y, dt, v.alive ? v.moveKind : null);
     if (!v.alive || v.shownDead) return;
-    if (dir === null) this.faceFoe(v);
+    if (dir === null || v.backpedal) this.faceFoe(v);
     else if (dir !== 0) this.face(v, dir);
     // Разовая анимация (удар, каст ульты, «получил урон») доигрывает; оглушённый/замороженный не шагает.
     if (this.time.now < v.busyUntil) return;
@@ -988,6 +1010,10 @@ export class BattleScene extends Phaser.Scene {
     this.barks?.clear();
     this.sfx?.clear();
     this.ult?.clear();
+    this.behaviorFx?.clear();
+    this.behaviorFx = null;
+    this.tauntIds.clear();
+    this.redirectShown.clear();
   }
 
   /**
@@ -1089,6 +1115,8 @@ export class BattleScene extends Phaser.Scene {
           return;
         }
         this.moveTo(v, e.to[0], e.to[1], e.duration * 1000, e.kind);
+        v.backpedal = e.reason === 'kite';
+        this.behaviorMove(v, e.reason);
         return;
       }
       case 'attack': {
@@ -1230,6 +1258,11 @@ export class BattleScene extends Phaser.Scene {
             this.popNumber(v, hpPart > 0 ? `-${hpPart}${big ? '!' : ''}` : `(${e.absorbed})`, color, big && hpPart > 0, style.size);
           }
           this.hurt(v);
+          // Урон, принятый за союзника по связи (Самопожертвование), — серая «↪» над защитником (не чаще раза в 1,5 с).
+          if (e.redirect && this.time.now - (this.redirectShown.get(v.snap.uid) ?? -Infinity) > 1500) {
+            this.redirectShown.set(v.snap.uid, this.time.now);
+            this.headline(v, '↪ защита', '#d8d0c0');
+          }
           if (e.dot) return;
           const hit = hitFxOf(src, dmgSkill);
           if (hit === 'fx_magic') this.fx(v, hit, 1.7, 450, 0.95);
@@ -1288,6 +1321,7 @@ export class BattleScene extends Phaser.Scene {
       case 'status': {
         const v = this.views.get(e.target)!;
         if (e.action === 'expire') {
+          if (this.tauntIds.has(e.status)) this.behaviorFx?.untaunt(v);
           this.setStatusIcon(v, e.status, undefined);
           if (statusDef(e.status)?.stun) this.setStun(v, false, false);
           return;
@@ -1298,8 +1332,10 @@ export class BattleScene extends Phaser.Scene {
         const ally = !!src && src.snap.side === v.snap.side;
         v.lastStatusSrc = e.source;
         const srcSkillId = this.skillOf(src, e.t);
+        if (e.taunt) this.tauntIds.add(e.status);
         this.atImpact(e.source, animate, (animate) => {
           if (v.alive && !v.shownDead) {
+            if (e.taunt && src) this.behaviorFx?.taunt(v, src);
             this.setStatusIcon(v, e.status, def);
             if (def?.stun) this.setStun(v, true, /замороз/i.test(e.name) || /frost|storm_gust/.test(srcSkillId ?? ''));
           }
@@ -1343,6 +1379,26 @@ export class BattleScene extends Phaser.Scene {
         });
         return;
       }
+      case 'link': {
+        const g = this.views.get(e.unit);
+        const w = this.views.get(e.target);
+        if (!g || !w) return;
+        if (e.action === 'break') this.behaviorFx?.unlink(w);
+        else this.behaviorFx?.link(g, w);
+        return;
+      }
+      case 'phase':
+        this.showPhase(e, animate);
+        return;
+      case 'spawn':
+        this.spawnUnit(e, animate);
+        return;
+      case 'enrage':
+        if (animate && !this.skipping) {
+          this.sfx.flash(0xff6040, 0.18, 260);
+          this.floats.headline(GAME_W / 2, BOSS_BAR_Y + 70, 'Ярость! Урон растёт', 34, '#ff8a6a', DEPTH.numbers, 'enrage');
+        }
+        return;
       case 'end':
         this.finished = true;
         if (animate && this.result.winner === 'B') for (const v of this.viewList) if (v.alive) this.bossBark(v, 'victory');
@@ -1362,7 +1418,40 @@ export class BattleScene extends Phaser.Scene {
    * Реплика босса или мини-босса (поле юнита barks, lore-route §5.5): старт, ниже половины здоровья, гибель, победа —
    * каждая один раз за бой. Только вид: при «Пропустить» не показываются. Реплики есть только у именных юнитов.
    */
-  private bossBark(v: UnitView, kind: 'start' | 'half' | 'defeat' | 'victory'): void {
+  /**
+   * Фаза босса (событие phase ядра): реплика фазы, вспышка и встряска, надпись фазы у полосы босса (у мини-босса — над
+   * фигурой) и столб искр на самом боссе.
+   */
+  private showPhase(e: Extract<BattleEvent, { type: 'phase' }>, animate: boolean): void {
+    const v = this.views.get(e.unit);
+    if (!v) return;
+    if (e.bark) this.bossBark(v, e.bark);
+    if (!animate || this.skipping) return;
+    const rage = /ярост/i.test(e.title);
+    const tint = rage ? 0xff5a3a : 0xffd66b;
+    this.sfx.flash(tint, 0.3, 320);
+    this.sfx.shake(0.008, 260);
+    this.sfx.glow(v.node.x, bodyY(v), tint, 0.6, 2.4, 520);
+    this.sfx.rise(v.node.x, v.node.y, tint, 14, 70);
+    if (this.bossBar?.uid === v.snap.uid) this.floats.headline(GAME_W / 2, BOSS_BAR_Y + 64, e.title, 44, rage ? '#ff8a6a' : '#ffe28a', DEPTH.banner, `phase:${v.snap.uid}`);
+    else this.headline(v, e.title, rage ? '#ff8a6a' : '#ffe28a');
+  }
+
+  /** Свита фазы (событие spawn): фигура появляется в слоте из клуба дыма. */
+  private spawnUnit(e: Extract<BattleEvent, { type: 'spawn' }>, animate: boolean): void {
+    if (this.views.has(e.unit)) return;
+    const snap = this.result.spawned?.find((s) => s.uid === e.unit) ?? { uid: e.unit, side: e.unit[0] as 'A' | 'B', slot: 2, unitId: e.unitId, maxHp: e.maxHp, x: e.x, y: e.y };
+    if (!this.defs[snap.unitId]) this.defs[snap.unitId] = CONTENT.units[snap.unitId];
+    this.buildUnit(snap);
+    const v = this.views.get(e.unit)!;
+    if (this.namesHidden) v.nameText.setAlpha(0);
+    if (!animate || this.skipping) return;
+    this.sfx.puffCloud(e.x, e.y - 40, 0xcfc6b8, 10, 90, 620, 0.9);
+    v.node.setAlpha(0);
+    this.tweens.add({ targets: v.node, alpha: 1, duration: 360, ease: 'Sine.easeOut' });
+  }
+
+  private bossBark(v: UnitView, kind: 'start' | 'half' | 'rage' | 'defeat' | 'victory'): void {
     const line = v.def.barks?.[kind];
     if (!line || this.skipping || !this.barks) return;
     const key = `${v.snap.uid}:${kind}`;
@@ -1449,6 +1538,7 @@ export class BattleScene extends Phaser.Scene {
         v.moveTween = null;
         v.moveKind = null;
         v.moveDest = null;
+        v.backpedal = false;
         if (dash && !this.skipping) this.sfx.dashDust(v.node.x, v.node.y, -dir);
       },
     });
@@ -1516,7 +1606,8 @@ export class BattleScene extends Phaser.Scene {
     const pct = Phaser.Math.Clamp(v.hp / max, 0, 1);
     cropBar(v.hpBar, pct);
     if (this.bossBar?.uid === v.snap.uid) cropBar(this.bossBar.fill, pct);
-    if (pct > 0 && pct < 0.5 && v.alive) this.bossBark(v, 'half');
+    // Реплика «half» — по событию фазы (phase), если у юнита она привязана к фазе; иначе — на половине ОЗ, как раньше.
+    if (pct > 0 && pct < 0.5 && v.alive && !v.def.phases?.some((p) => p.bark === 'half')) this.bossBark(v, 'half');
     if (pct >= v.trail || !animate) {
       v.trailT = -1;
       v.trail = pct;
@@ -1594,6 +1685,17 @@ export class BattleScene extends Phaser.Scene {
    * Короткая подпись на юните (пассивка, статус, «оглушён») — уходит вверх к макушке. Над одним юнитом
    * не больше двух: новая сдвигает прежнюю вверх и та гаснет; у края экрана подпись не обрезается (T3-02).
    */
+  /**
+   * Поведение в бою (docs/design/battle-behavior.md) — подписи шагов по причине: отход стрелка — «Отход!» один раз за бой
+   * (дальше видно и так: пятится лицом к врагу), перехват стража — «Перехват!» каждый раз. Лекарь за танком — просто идёт.
+   */
+  private behaviorMove(v: UnitView, reason: 'kite' | 'follow' | 'intercept' | undefined): void {
+    if (reason === 'kite' && !v.kiteShown) {
+      v.kiteShown = true;
+      this.headline(v, 'Отход!', '#9fe3ff');
+    } else if (reason === 'intercept') this.headline(v, 'Перехват!', '#ffe28a');
+  }
+
   private headline(v: UnitView, value: string, color: string): void {
     if (this.skipping) return;
     const x = v.node.x + v.labelX;

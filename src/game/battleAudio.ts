@@ -115,7 +115,8 @@ function stateOf(result: BattleResult, defs: Record<string, UnitDef>): BattleAud
   if (!s) {
     s = { units: new Map() };
     const files = new Set<string>();
-    for (const u of result.units) {
+    // Свита фаз босса (result.spawned) — тоже: её звуки грузятся заранее, удары и смерть звучат как у всех.
+    for (const u of [...result.units, ...(result.spawned ?? [])]) {
       const def = defs[u.unitId];
       const sounds = monsterSoundsOf(def);
       for (const n of [...(sounds?.attack ?? []), ...(sounds?.death ?? [])]) files.add(monsterSoundFile(n));

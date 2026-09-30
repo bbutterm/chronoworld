@@ -35,9 +35,9 @@ export const BehaviorProfileSchema = z.object({
     .optional(),
   /**
    * Якорь (лекарь): стоит за своим самым крепким ближним (танк по роли, иначе ближний с наибольшим maxHp) на followDist к
-   * своему краю, идёт следом, если отстал больше чем на followSlack; не дальше maxDrift от своего слота.
+   * своему краю, идёт следом, если отстал больше чем на followSlack; не дальше maxDrift вперёд от своего слота; по высоте — на долю yShare от своего слота к якорю (строй не сбивается в одну линию).
    */
-  anchor: z.object({ followDist: z.number().nonnegative(), followSlack: z.number().positive(), maxDrift: z.number().positive() }).optional(),
+  anchor: z.object({ followDist: z.number().nonnegative(), followSlack: z.number().positive(), maxDrift: z.number().positive(), yShare: z.number().min(0).max(1) }).optional(),
   /** Паника: союзник ниже этой доли ОЗ — лечащие активные навыки идут раньше остальных. */
   panicPct: z.number().min(0).max(1).optional(),
   /**
@@ -48,8 +48,8 @@ export const BehaviorProfileSchema = z.object({
   /** Заход сбоку: встаёт у цели под углом angle (градусы от своей стороны, 90 — сбоку); avoidRole — такую цель берёт последней. */
   flank: z.object({ angle: z.number().min(0).max(180), avoidRole: role.optional() }).optional(),
   /**
-   * Перехват (страж): ближний враг, чья цель — наш дальний/задний боец, в пределах radius от неё — ближайший свободный
-   * страж рывком встаёт между ними и сражается с ним. Не чаще cooldown секунд на стража.
+   * Перехват (страж): ближний враг дошёл до нашего дальнего бойца (или прыгнул в тыл) — ближайший свободный страж не дальше
+   * radius от врага рывком встаёт между ними и сражается с ним. Не чаще cooldown секунд на стража.
    */
   intercept: z.object({ radius: z.number().positive(), cooldown: z.number().nonnegative() }).optional(),
   /** Защитник: цель сражения — враг, ближайший к союзнику под своей связью (без связи — к самому раненому союзнику). */

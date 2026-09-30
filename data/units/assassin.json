@@ -19,5 +19,5 @@
     "sprite": "assassin",
     "hitFx": "fx_hit"
   },
-  "behavior": "assassin"
+  "behavior": "leaper"
 }

@@ -98,6 +98,7 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
         const parts: string[] = [];
         for (const [k, v] of Object.entries(st.stats ?? {})) if (v) parts.push(`${signed(v)} ${STAT_RU[k] ?? k}`);
         if (st.stun) parts.push('оглушение');
+        if (st.taunt) parts.push('бьёт только заклинателя');
         if (st.dot) parts.push(`урон ${pct(st.dot.k)} АТК за ход`);
         const dur = `${st.turns} ${plural(st.turns, 'ход', 'хода', 'ходов')}`;
         const sec = o.turnSeconds > 0 ? ` (${Math.round(st.turns * o.turnSeconds * 10) / 10} с)` : '';
@@ -110,6 +111,11 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
       case 'dash':
         out.push('Рывок к цели');
         break;
+      case 'link': {
+        const dur = `${e.turns} ${plural(e.turns, 'ход', 'хода', 'ходов')}`;
+        out.push(`Связь: ${pct(e.pct)} урона по цели — на себя, ${dur} (рвётся ниже ${pct(e.breakAtHpPct)} своих ОЗ)`);
+        break;
+      }
     }
   }
   if (sk.fallback) {

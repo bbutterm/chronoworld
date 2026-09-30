@@ -102,7 +102,7 @@
     "marksman": {
       "name": "Стрелок",
       "focus": {
-        "pick": "lowestHp",
+        "pick": "lowestHpPct",
         "margin": 0.25
       },
       "kite": {
@@ -116,7 +116,7 @@
     "trapper": {
       "name": "Охотник-ловец",
       "focus": {
-        "pick": "lowestHp",
+        "pick": "lowestHpPct",
         "margin": 0.25
       },
       "kite": {
@@ -138,7 +138,8 @@
       "anchor": {
         "followDist": 220,
         "followSlack": 120,
-        "maxDrift": 250
+        "maxDrift": 250,
+        "yShare": 0.3
       },
       "panicPct": 0.35,
       "kite": {
@@ -174,8 +175,7 @@
     "flanker": {
       "name": "Вор",
       "flank": {
-        "angle": 90,
-        "avoidRole": "tank"
+        "angle": 90
       }
     },
     "trader": {
