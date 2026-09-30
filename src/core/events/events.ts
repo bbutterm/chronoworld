@@ -34,6 +34,8 @@ export function validateEventsConfig(cfg: EventsConfig, ctx: GameContext, proble
     check(`mail.letters ${l.id}`, l.rewards);
     if (l.onlyIfCleared && !ctx.content.stages.some((s) => s.id === l.onlyIfCleared))
       problems.push(`data/events.json: mail.letters ${l.id}: onlyIfCleared — этапа ${l.onlyIfCleared} нет в data/campaign`);
+    if (l.afterStage && !ctx.content.stages.some((s) => s.id === l.afterStage))
+      problems.push(`data/events.json: mail.letters ${l.id}: afterStage — этапа ${l.afterStage} нет в data/campaign`);
   });
 }
 

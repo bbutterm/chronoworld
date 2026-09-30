@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob7_boss_dark_chains",
   "name": "Цепи тьмы",
-  "description": "Цепи из-под земли хватают двух врагов тыла: урон и 35% оглушить на ход.",
+  "description": "Цепи из-под земли хватают двух врагов тыла: урон и 35% оглушить на 1 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

@@ -13,6 +13,7 @@ import {
   branchChangeCost,
   branchStatus,
   canAscend,
+  catchUpLevel,
   changeBranch,
   chooseBranch,
   claimHeroPick,
@@ -84,6 +85,25 @@ describe('вознесение: одна дорожка, копии того ж�
     expect(r.save.inventory.items[0].equippedBy).toBeNull();
     expect(r.events).toEqual([{ type: 'ascended', heroId: 'h4', from: 'green', to: 'blue', job: 'swordman', jobChanged: false }]);
     expect(r.consumed.sort()).toEqual(['h5', 'h6']);
+  });
+
+  it('RN-02: догоняющие уровни сюжетного героя (grantedLevel) при отдаче в корм не возвращаются', () => {
+    let s = withCards([['iris', 'green', 12], ['iris', 'green']]);
+    const gift = addHeroCard(s, 'iris', 'green', { level: 8, granted: true });
+    expect(gift.hero).toMatchObject({ level: 8, grantedLevel: 8 });
+    // Дар подкачали до 10 — вернётся только оплаченное 8 → 10.
+    s = { ...gift.save, heroes: gift.save.heroes.map((h) => (h.id === gift.hero.id ? { ...h, level: 10 } : h)) };
+    const r = ascendHero(s, 'h4', ['h5', gift.hero.id], ctx);
+    expect(r.refund).toEqual(levelRangeCost(8, 10, ctx));
+  });
+
+  it('RN-02: catchUpLevel — средний уровень отряда в пределах редкости', () => {
+    const s = newGame(ctx, 0);
+    const lv = (levels: number[]) => ({ ...s, heroes: s.heroes.map((h, i) => ({ ...h, level: levels[i] })) });
+    expect(catchUpLevel(s, 'green', ctx)).toBe(1);
+    expect(catchUpLevel(lv([5, 6, 8]), 'green', ctx)).toBe(6);
+    expect(catchUpLevel(lv([40, 40, 41]), 'green', ctx)).toBe(20);
+    expect(catchUpLevel({ ...s, squad: [null, null, null, null, null] }, 'green', ctx)).toBe(1);
   });
 
   it('сюжетный герой — как все: копия Алана — корм, цель (Алан из отряда) не тратится', () => {

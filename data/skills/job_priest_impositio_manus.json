@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_priest_impositio_manus",
   "name": "Импозицио Манус",
-  "description": "+20% атаки всем союзникам на 4 хода.",
+  "description": "+20% атаки всем союзникам на 4 с.",
   "range": "ranged",
   "target": {
     "side": "ally",

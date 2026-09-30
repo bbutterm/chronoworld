@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_hunter_steel_crow",
   "name": "Стальной сокол",
-  "description": "Иногда в начале хода: сокол бьёт случайного врага.",
+  "description": "Иногда перед своим действием: сокол бьёт случайного врага.",
   "range": "ranged",
   "trigger": "turnStart",
   "chance": 0.25,

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "swordman_endure",
   "name": "Стойкость",
-  "description": "В начале боя: +20% защиты на 3 хода.",
+  "description": "В начале боя: +20% защиты на 3 с.",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {

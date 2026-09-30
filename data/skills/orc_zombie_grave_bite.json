@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "orc_zombie_grave_bite",
   "name": "Могильный укус",
-  "description": "Орк-зомби вгрызается в ближайшего врага: урон и трупный яд на 3 хода.",
+  "description": "Орк-зомби вгрызается в ближайшего врага: урон и трупный яд на 3 с.",
   "range": "melee",
   "target": {
     "side": "enemy",

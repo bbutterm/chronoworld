@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_alchemist_acid_bomb",
   "name": "Кислотный всплеск",
-  "description": "Кислота по всем врагам: урон (×1,0) и −15% защиты на 3 хода.",
+  "description": "Кислота по всем врагам: урон (×1,0) и −15% защиты на 3 с.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

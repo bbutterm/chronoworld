@@ -1084,6 +1084,11 @@
   "png": 34962,
   "webp": 21292
  },
+ "sprites/npcs/1_m_librarymaster.png": {
+  "sha1": "c6bdeffc2051488a676ee63d12f71f9e938ceab2",
+  "png": 28843,
+  "webp": 2554
+ },
  "sprites/npcs/4_f_kafra1.png": {
   "sha1": "54e99e42177f0a2db24044d2efa5fba40914378d",
   "png": 19530,
@@ -1303,6 +1308,11 @@
   "sha1": "0adcfe961f463916e2f394592c4f36174de7ec77",
   "png": 2413,
   "webp": 1388
+ },
+ "sprites/portraits/npc_1_m_librarymaster.png": {
+  "sha1": "e70b799756f038bdf7ee96a0614c6d6437b7eb80",
+  "png": 1772,
+  "webp": 964
  },
  "sprites/portraits/npc_4_f_kafra1.png": {
   "sha1": "47b373539766f046c72cb6a9579530d38d865a82",

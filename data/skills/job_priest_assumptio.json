@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_priest_assumptio",
   "name": "Ассумптио",
-  "description": "Снижает входящий урон: +50% защиты всем союзникам на 3 хода.",
+  "description": "Снижает входящий урон: +50% защиты всем союзникам на 3 с.",
   "icon": "icon_ult_priest",
   "range": "ranged",
   "target": {

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_acolyte_increase_agi",
   "name": "Повышение ловкости",
-  "description": "+20% скорости всем союзникам на 4 хода.",
+  "description": "+20% скорости всем союзникам на 4 с.",
   "range": "ranged",
   "target": {
     "side": "ally",

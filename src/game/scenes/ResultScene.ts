@@ -1,14 +1,14 @@
 import Phaser from 'phaser';
 import { itemCell, oreIcon, roIcon } from '../itemIcons';
 import { GAME } from '../content';
-import { autoNextStage, decimal, defeatAdvice, describeEvents, formatNumber, itemStatsText, keyEventsFirst, levelUpReady, nextOpenStage, stageNo, RARITY_COLORS, type AutoStop } from '../flow';
+import { autoNextStage, decimal, defeatAdvice, describeEvents, equipBestSquad, formatNumber, itemStatsText, keyEventsFirst, levelUpReady, nextOpenStage, stageNo, RARITY_COLORS, type AutoStop } from '../flow';
 import { collectFinding, pendingFinding, stageFinding, type BattleResult, type Side } from '../../core';
 import { GAME_W } from '../layout';
 import { commit, session } from '../session';
 import { findingIcon, findingPage, showPages } from '../storyPage';
 import { randomLine } from '../loreView';
 import { portraitKey } from '../sprites';
-import { button, ellipsize, panel, pressable, progressBar, ScrollArea, text, tutorialHint } from '../ui';
+import { button, ellipsize, panel, pressable, progressBar, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { markHint, pickResultHint } from '../hints';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { C, FS, OUTLINE, SP, TINT, TOUCH } from '../theme';
@@ -111,9 +111,22 @@ export class ResultScene extends Phaser.Scene {
         countUp(this, text(this, GAME_W / 2, y, rewardLine(1000), FS.body, C.gold, BOLD_OUTLINE), 0, 1000, rewardLine, { delay: 250, duration: 700 });
       } else {
         // T1-07: совет по делу (вещи, «Улучшить», вознесение, расстановка, прокачка).
-        const advice = tower ? 'Этаж не взят. Усильте отряд и попробуйте снова.' : `Награды нет. ${defeatAdvice(session.save, GAME).text}`;
+        const tip = tower ? null : defeatAdvice(session.save, GAME);
+        const advice = tip ? `Награды нет. ${tip.text}` : 'Этаж не взят. Усильте отряд и попробуйте снова.';
         text(this, GAME_W / 2, y, advice, FS.small, C.enemy, { ...OUTLINE, wordWrap: { width: 980 } });
         if (!tower) y += 20;
+        // RN-10: вещи получше у отряда — «Надеть лучшее» прямо здесь, всему отряду.
+        if (tip?.action === 'EquipBest') {
+          y += 60;
+          const b = button(this, GAME_W / 2, y, 520, 90, 'ui_btn_primary', 'Надеть лучшее', () => {
+            const r = equipBestSquad(session.save, GAME);
+            commit(r.save);
+            b.setEnabled(false);
+            toast(this, r.equipped ? `Отряд переодет: вещей надето ${r.equipped}` : 'Надевать нечего', C.success, 3000);
+          }, FS.h3);
+          b.container.setName('equipBestSquad');
+          y += 30;
+        }
         // Строка Гаррета вместо сухого «Поражение» (lore-route §5.8, data/lore/lines.json → defeat).
         const said = randomLine('defeat');
         if (said) {

@@ -85,19 +85,36 @@ describe('touchEvents: день входа', () => {
     const upTo = ctx.content.stages.findIndex((st) => st.id === 'ch2_s1') + 1;
     const old = { ...newGame(ctx, 0, D1), campaign: { cleared: ctx.content.stages.slice(0, upTo).map((st) => st.id) } };
     const got = touchEvents(old, D1, ctx);
-    expect(got.mail.letters.map((l) => l.source)).toEqual(['world_changed_1', 'welcome']);
-    expect(got.mail.letters[0].title).toBe('Мир Рун-Мидгарда изменился');
+    // Сюжетные письма глав (afterStage) приходят отдельно — здесь только объявления.
+    const notStory = (l: { source?: string }) => !l.source?.startsWith('story_');
+    expect(got.mail.letters.filter(notStory).map((l) => l.source)).toEqual(['world_changed_1', 'welcome']);
+    expect(got.mail.letters.find((l) => l.source === 'world_changed_1')!.title).toBe('Мир Рун-Мидгарда изменился');
     // Новый игрок: письмо помечено доставленным без показа; позже, пройдя ch2_s1, его не получит.
     const fresh0 = touchEvents(newGame(ctx, 0, D1), D1, ctx);
     const later = touchEvents({ ...fresh0, campaign: old.campaign }, day(3), ctx);
-    expect(later.mail.letters.map((l) => l.source)).toEqual(['welcome']);
+    expect(later.mail.letters.filter(notStory).map((l) => l.source)).toEqual(['welcome']);
   });
 
   it('письмо world_changed_2: дошедшим до главы 10 до появления главы 9 — где её искать (fillClearedGaps засчитал её)', () => {
     expect(ctx.events.mail.letters.find((l) => l.id === 'world_changed_2')!.onlyIfCleared).toBe('ch10_s1');
     const upTo = ctx.content.stages.findIndex((st) => st.id === 'ch10_s1') + 1;
     const old = { ...newGame(ctx, 0, D1), campaign: { cleared: ctx.content.stages.slice(0, upTo).map((st) => st.id) } };
-    expect(touchEvents(old, D1, ctx).mail.letters.map((l) => l.source)).toEqual(['world_changed_2', 'world_changed_1', 'welcome']);
+    const got = touchEvents(old, D1, ctx).mail.letters.map((l) => l.source).filter((x) => !x?.startsWith('story_'));
+    expect(got).toEqual(['world_changed_2', 'world_changed_1', 'welcome']);
+  });
+
+  it('сюжетные письма глав (afterStage): ждут, пока этап не пройден, и приходят один раз после него', () => {
+    const story = ctx.events.mail.letters.filter((l) => l.afterStage);
+    expect(story.length).toBeGreaterThanOrEqual(2);
+    const first = story[0];
+    const s0 = touchEvents(newGame(ctx, 0, D1), D1, ctx);
+    expect(s0.mail.letters.some((l) => l.source === first.id)).toBe(false);
+    expect(s0.mail.delivered).not.toContain(first.id);
+    const upTo = ctx.content.stages.findIndex((st) => st.id === first.afterStage) + 1;
+    const s1 = touchEvents({ ...s0, campaign: { cleared: ctx.content.stages.slice(0, upTo).map((st) => st.id) } }, D1, ctx);
+    expect(s1.mail.letters.filter((l) => l.source === first.id)).toHaveLength(1);
+    const s2 = touchEvents(s1, day(3), ctx);
+    expect(s2.mail.letters.filter((l) => l.source === first.id)).toHaveLength(1);
   });
 
   it('новый день +1; пропуск дней не сбрасывает и не добавляет лишнего; часы назад — не засчитываются', () => {

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob_vocal_song",
   "name": "Оглушающая трель",
-  "description": "Вокал стрекочет на весь луг: урон по всем врагам, 20% оглушить на ход.",
+  "description": "Вокал стрекочет на весь луг: урон по всем врагам, 20% оглушить на 1 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

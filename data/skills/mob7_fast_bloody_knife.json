@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob7_fast_bloody_knife",
   "name": "Кровавый нож",
-  "description": "Рывок к самому слабому врагу тыла: удар ножом и кровотечение на 3 хода.",
+  "description": "Рывок к самому слабому врагу тыла: удар ножом и кровотечение на 3 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

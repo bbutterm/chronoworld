@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_blacksmith_weapon_perfection",
   "name": "Совершенство оружия",
-  "description": "+15% атаки всем союзникам на 4 хода.",
+  "description": "+15% атаки всем союзникам на 4 с.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

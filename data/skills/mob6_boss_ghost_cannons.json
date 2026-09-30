@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob6_boss_ghost_cannons",
   "name": "Залп призрачных пушек",
-  "description": "Призрачный фрегат даёт залп по всем врагам: урон и 20% оглушить на ход.",
+  "description": "Призрачный фрегат даёт залп по всем врагам: урон и 20% оглушить на 1 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

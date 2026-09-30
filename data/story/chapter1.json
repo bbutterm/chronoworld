@@ -8,7 +8,7 @@
     "hero2": { "name": "Бран", "portrait": "hero" },
     "hero3": { "name": "Вика", "portrait": "hero" },
     "greta": { "name": "Грета", "portrait": "novice" },
-    "bruno": { "name": "Трактирщик Бруно", "portrait": "merchant" },
+    "bruno": { "name": "Трактирщик Бруно", "portrait": "npc_bruno" },
     "herald": { "name": "Серый капюшон", "portrait": "unit:mob3_ranged" },
     "mastering": { "name": "Мастеринг", "portrait": "unit:mob_mastering" }
   },

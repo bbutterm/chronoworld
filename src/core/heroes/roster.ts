@@ -12,11 +12,32 @@ export function addHeroCard(
   save: SaveState,
   templateId: string,
   rarity: CardRarity,
-  opts: { level?: number; isNew?: boolean } = {},
+  opts: { level?: number; isNew?: boolean; granted?: boolean } = {},
 ): { save: SaveState; hero: HeroState } {
-  const hero: HeroState = { id: newHeroId(save.heroes), templateId, rarity, level: opts.level ?? 1, ...(opts.isNew ? { isNew: true } : {}) };
+  const level = opts.level ?? 1;
+  const hero: HeroState = {
+    id: newHeroId(save.heroes),
+    templateId,
+    rarity,
+    level,
+    ...(opts.isNew ? { isNew: true } : {}),
+    ...(opts.granted && level > 1 ? { grantedLevel: level } : {}),
+  };
   const discovered = save.summon.discovered.includes(templateId) ? save.summon.discovered : [...save.summon.discovered, templateId];
   return { save: { ...save, heroes: [...save.heroes, hero], summon: { ...save.summon, discovered } }, hero };
+}
+
+/**
+ * RN-02. Догоняющий уровень сюжетного героя (Грета, Дорн), который присоединяется к отряду: средний уровень героев
+ * отряда (вниз до целого), но не выше предела его редкости и не ниже 1. Уровни до него — дар (HeroState.grantedLevel):
+ * в корм они не возвращаются, так что экономика опыта/золота не получает «бесплатных» ресурсов. Пустой отряд — 1.
+ */
+export function catchUpLevel(save: Pick<SaveState, 'heroes' | 'squad'>, rarity: CardRarity, ctx: GameContext): number {
+  const levels = save.squad.map((id) => save.heroes.find((h) => h.id === id)?.level).filter((l): l is number => l !== undefined);
+  if (!levels.length) return 1;
+  const avg = Math.floor(levels.reduce((a, b) => a + b, 0) / levels.length);
+  const cap = ctx.cards.rarities.find((r) => r.id === rarity)?.maxLevel ?? 1;
+  return Math.max(1, Math.min(cap, avg));
 }
 
 /** Передний (танк, ближний бой) или задний (дальний, лекарь) по обычной атаке класса и роли. */

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_merchant_overcharge",
   "name": "Наценка",
-  "description": "После убийства врага: азарт наживы — +20% атаки себе на 3 хода.",
+  "description": "После убийства врага: азарт наживы — +20% атаки себе на 3 с.",
   "range": "ranged",
   "trigger": "kill",
   "target": {

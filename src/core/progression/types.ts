@@ -34,7 +34,7 @@ export type ProgressEvent =
   /** v6. Карта героя (новый экземпляр) из награды: этап, сундук, охота, поручение, событие… */
   | { type: 'heroCard'; heroId: string; templateId: string; rarity: CardRarity; name: string }
   /** Герой присоединился по сюжету; copy — он уже был у игрока (пришла его зелёная копия). */
-  | { type: 'heroJoined'; heroId: string; templateId: string; name: string; copy?: boolean }
+  | { type: 'heroJoined'; heroId: string; templateId: string; name: string; copy?: boolean; level?: number; benched?: boolean }
   /** Открылась Таверна: подарок гемов и свитков. */
   | { type: 'tavernUnlocked'; gems: number; scrolls: number }
   /** «Благословенная руда» с босса (заточка без риска поломки): первая победа над боссом главы, этаж-босс Башни. */

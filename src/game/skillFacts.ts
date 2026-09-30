@@ -13,7 +13,7 @@ export interface SkillFactsOptions {
   power?: number;
   /** Перезарядка по умолчанию (combat.json skills.defaultCooldown). */
   defaultCooldown: number;
-  /** Длина «хода» статуса в секундах (combat.json statusTurnSeconds). */
+  /** Длина шага статуса в секундах (combat.json statusTurnSeconds): длительности показываются в секундах. */
   turnSeconds: number;
   /** Имя навыка по id (для «если целей нет — …»). */
   nameOf?: (id: string) => string | undefined;
@@ -49,7 +49,7 @@ const ALLY_PICK: Record<string, [string, string]> = {
 };
 const TRIGGER: Record<string, string> = {
   battleStart: 'в начале боя',
-  turnStart: 'в начале каждого хода',
+  turnStart: 'перед каждым своим действием',
   hit: 'когда по герою попадают',
   kill: 'при убийстве врага',
   allyDeath: 'при гибели союзника',
@@ -98,10 +98,11 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
         const parts: string[] = [];
         for (const [k, v] of Object.entries(st.stats ?? {})) if (v) parts.push(`${signed(v)} ${STAT_RU[k] ?? k}`);
         if (st.stun) parts.push('оглушение');
-        if (st.dot) parts.push(`урон ${pct(st.dot.k)} АТК за ход`);
-        const dur = `${st.turns} ${plural(st.turns, 'ход', 'хода', 'ходов')}`;
-        const sec = o.turnSeconds > 0 ? ` (${Math.round(st.turns * o.turnSeconds * 10) / 10} с)` : '';
-        out.push(`«${st.name}»: ${parts.join(', ') || 'эффект'} на ${dur}${sec}${e.chance < 1 ? ` · шанс ${pct(e.chance)}` : ''}`);
+        // RN-08: бой идёт по секундам — длительность и тики статуса в секундах (combat.json statusTurnSeconds).
+        const tick = o.turnSeconds > 0 ? o.turnSeconds : 1;
+        const secs = (x: number) => `${Math.round(x * 10) / 10}`.replace('.', ',');
+        if (st.dot) parts.push(`урон ${pct(st.dot.k)} АТК ${tick === 1 ? 'каждую секунду' : `каждые ${secs(tick)} с`}`);
+        out.push(`«${st.name}»: ${parts.join(', ') || 'эффект'} на ${secs(st.turns * tick)} с${e.chance < 1 ? ` · шанс ${pct(e.chance)}` : ''}`);
         break;
       }
       case 'energy':

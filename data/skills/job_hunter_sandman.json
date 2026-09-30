@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_hunter_sandman",
   "name": "Сонная ловушка",
-  "description": "Урон (×0,6) всем врагам фронта и шанс 35% усыпить каждого на 1 ход.",
+  "description": "Урон (×0,6) всем врагам фронта и шанс 35% усыпить каждого на 1 с.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

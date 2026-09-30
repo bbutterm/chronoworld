@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_rogue_strip_armor",
   "name": "Снять доспех",
-  "description": "Удар (×0,6) по врагам фронта и −35% защиты им на 3 хода.",
+  "description": "Удар (×0,6) по врагам фронта и −35% защиты им на 3 с.",
   "icon": "icon_ult_assassin",
   "range": "ranged",
   "target": {

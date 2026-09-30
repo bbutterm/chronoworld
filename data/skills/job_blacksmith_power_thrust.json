@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_blacksmith_power_thrust",
   "name": "Мощный удар",
-  "description": "+30% атаки себе на 4 хода.",
+  "description": "+30% атаки себе на 4 с.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

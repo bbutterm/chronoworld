@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { achievementStatus, ascendAll, ascendAllSummary, heroesWithGearUpgrades, heroPower, levelUpInfo, needsBranch, pendingPicks, squadPower, withGear, type CardRarity, type HeroState } from '../../core';
+import { achievementStatus, ascendAll, ascendAllSummary, chooseBranch, heroCard, jobTitle, heroesWithGearUpgrades, heroPower, levelUpInfo, needsBranch, pendingPicks, squadPower, withGear, type CardRarity, type HeroState } from '../../core';
 import { GAME } from '../content';
 import { ascendReady, claimableAchievements, formatNumber, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
@@ -17,6 +17,8 @@ import { collectionCount, collectionHeroes, groupCopies, heroesUi, inventoryUi, 
 import { pulse } from '../juice';
 import { heroStoryNew, storyDot } from '../heroStoryView';
 import { lockLabel } from '../unlockBanner';
+import { openBranchPicker } from '../branchPicker';
+import { toastOpenedStories } from '../heroStoryView';
 
 const COLS = 3;
 const TILE_W = 300;
@@ -209,10 +211,14 @@ export class HeroesScene extends Phaser.Scene {
       sfx('rarity_up');
       haptic('levelUp');
       const res = ascendAllSummary(r.done);
-      const branch = res.filter((x) => x.branchPending).map((x) => x.name);
-      const msg = `Вознесено: ${res.map((x) => `${x.name} (${RARITY_CARD[x.to]})`).join(', ')}${branch.length ? `. Выберите ветку: ${branch.join(', ')}` : ''}`;
+      const msg = `Вознесено: ${res.map((x) => `${x.name} (${RARITY_CARD[x.to]})`).join(', ')}`;
+      // RN-21: фиолетовые без ветки — сразу окно выбора ветки по очереди (иначе вторую профессию и истории 60+ не увидеть).
+      const pending = res.filter((x) => x.branchPending).map((x) => x.heroId);
       this.scene.restart();
-      this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, msg, C.success, 5000));
+      this.events.once(Phaser.Scenes.Events.CREATE, () => {
+        toast(this, msg, C.success, 4000);
+        if (pending.length) this.time.delayedCall(500, () => pickBranchChain(this, pending));
+      });
     });
   }
 
@@ -264,4 +270,51 @@ export class HeroesScene extends Phaser.Scene {
     b.container.setName(name);
     draw(b.container);
   }
+}
+
+/**
+ * RN-21. Выбор ветки по очереди для фиолетовых без ветки (после «Вознести всех»): окно веток героя за героем.
+ * «Отмена» — остальных не спрашиваем, на плитках остаётся «Выберите ветку!».
+ */
+export function pickBranchChain(sc: Phaser.Scene, heroIds: readonly string[]): void {
+  const [id, ...rest] = heroIds;
+  const hero = session.save.heroes.find((h) => h.id === id);
+  if (!hero) return;
+  if (!needsBranch(hero, GAME)) return pickBranchChain(sc, rest);
+  const c = heroCard(hero, GAME);
+  const left = heroIds.length > 1 ? ` Дальше: ${rest.map((x) => heroCard(session.save.heroes.find((h) => h.id === x) ?? hero, GAME).name).join(', ')}.` : '';
+  openBranchPicker(sc, {
+    templateId: hero.templateId,
+    title: `${c.name}: выберите ветку`,
+    subtitle: `Вторая профессия и новая часть истории героя (ур. 60+). Выбор бесплатный, первая смена — тоже.${left}`,
+    heroId: hero.id,
+    save: session.save,
+    confirmLabel: (job) => (job ? `Выбрать: ${jobTitle(GAME, job, c.gender)}` : 'Выберите ветку'),
+    onConfirm: (job) => {
+      let say = (target: Phaser.Scene) => toast(target, `${c.name} — теперь ${jobTitle(GAME, job, c.gender)}!`, C.success, 2500);
+      try {
+        const before = session.save;
+        const r = chooseBranch(session.save, hero.id, job, GAME);
+        commit(r.save);
+        sfx('job_change');
+        haptic('levelUp');
+        const first = say;
+        say = (target) => {
+          first(target);
+          target.time.delayedCall(1600, () => toastOpenedStories(target, before, r.save, hero.templateId));
+        };
+      } catch (e) {
+        say = (target) => toast(target, e instanceof Error ? e.message : String(e), C.error, 3000);
+      }
+      if (rest.length) {
+        say(sc);
+        sc.time.delayedCall(400, () => pickBranchChain(sc, rest));
+      } else {
+        // Плитки перерисовать (ушла плашка «Выберите ветку!»), тост — уже на новом экземпляре сцены.
+        sc.scene.restart();
+        sc.events.once(Phaser.Scenes.Events.CREATE, () => say(sc));
+      }
+    },
+    onCancel: () => toast(sc, 'Ветку можно выбрать позже: карточка героя → «Выбрать ветку»', C.muted, 3500),
+  });
 }

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_swordman_provoke",
   "name": "Провокация",
-  "description": "Злит врага: −30% защиты цели на 3 хода. Урона не наносит.",
+  "description": "Злит врага: −30% защиты цели на 3 с. Урона не наносит.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

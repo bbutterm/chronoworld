@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_hunter_ankle_snare",
   "name": "Капкан",
-  "description": "Урон и обездвиживание цели на ход.",
+  "description": "Урон и обездвиживание цели на 1 с.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

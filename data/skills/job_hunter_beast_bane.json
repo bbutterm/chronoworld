@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_hunter_beast_bane",
   "name": "Гроза зверей",
-  "description": "В начале боя: +15% атаки себе на 5 ходов.",
+  "description": "В начале боя: +15% атаки себе на 5 с.",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {

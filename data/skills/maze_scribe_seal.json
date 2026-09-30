@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "maze_scribe_seal",
   "name": "Печать по тылу",
-  "description": "Писарь ставит печати на двух врагов в тылу: урон 1 × атака и 35% оглушить на ход.",
+  "description": "Писарь ставит печати на двух врагов в тылу: урон 1 × атака и 35% оглушить на 1 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "sewer_plankton_spit",
   "name": "Кислый плевок",
-  "description": "Плевок сточной кислотой в самого раненого врага: урон и яд на 2 хода.",
+  "description": "Плевок сточной кислотой в самого раненого врага: урон и яд на 2 с.",
   "range": "ranged",
   "target": {
     "side": "enemy",

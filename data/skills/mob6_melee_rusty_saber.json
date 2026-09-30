@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "mob6_melee_rusty_saber",
   "name": "Ржавая сабля",
-  "description": "Удар зазубренной саблей: урон и «Кровотечение» (урон каждый ход) на 3 хода.",
+  "description": "Удар зазубренной саблей: урон и «Кровотечение» (урон каждую секунду) на 3 с.",
   "range": "melee",
   "target": {
     "side": "enemy",
