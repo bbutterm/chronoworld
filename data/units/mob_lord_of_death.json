@@ -30,5 +30,43 @@
     "half": "Хель молчит. Значит, решаю я. Шире шаг, мёртвые!",
     "defeat": "Смена караула… Спите, мои. Я тоже… посплю.",
     "victory": "Ещё одни живые в строю. Солнце будет всем."
-  }
+  },
+  "phases": [
+    {
+      "atHpPct": 0.5,
+      "title": "Марш мёртвых",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "mob7_melee",
+          "count": 2,
+          "hp": 0.1,
+          "atk": 0.4
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.25,
+      "title": "Ярость!",
+      "actions": [
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.25,
+              "spd": 0.15
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": 100
+        }
+      ]
+    }
+  ]
 }

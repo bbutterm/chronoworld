@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_swordman_provoke",
   "name": "Провокация",
-  "description": "Злит врага: −30% защиты цели на 3 хода. Урона не наносит.",
+  "description": "Злит врага: 3 хода он бьёт только того, кто его разозлил, и теряет 30% защиты. Урона не наносит.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {
@@ -20,7 +20,8 @@
         "turns": 3,
         "stats": {
           "def": -0.3
-        }
+        },
+        "taunt": true
       }
     }
   ]
