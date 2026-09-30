@@ -159,8 +159,9 @@ function edgeFill(scene: Phaser.Scene, f: Phaser.Textures.Frame, side: Side): st
       g.drawImage(src, sx, sy, w, h, 0, 0, c.width, c.height);
       return c;
     };
-    const sharp = line(FILL_N);
-    const soft = line(6);
+    // У шва — 12 образцов по кромке (цвет неба/земли по месту, без полос), к краю экрана — 3 (почти ровный тон).
+    const sharp = line(12);
+    const soft = line(3);
     for (let i = 0; i < FILL_DEPTH; i++) {
       // k: 0 — у кромки экрана (мягко), 1 — у шва с картинкой (образец как есть).
       const k = i / (FILL_DEPTH - 1);
@@ -173,13 +174,15 @@ function edgeFill(scene: Phaser.Scene, f: Phaser.Textures.Frame, side: Side): st
     }
     ctx.globalAlpha = 1;
     t.refresh();
+    // Кадры (новый кадр не должен стать кадром по умолчанию): c0/c1 — крайние столбцы для углов, n — ряд у шва
+    // (растушёвка шва внутрь картинки).
+    const first = t.firstFrame;
     if (horiz) {
-      // Кадры крайних столбцов — для углов (новый кадр не должен стать кадром по умолчанию).
-      const first = t.firstFrame;
       t.add('c0', 0, 0, 0, 1, FILL_DEPTH);
       t.add('c1', 0, FILL_N - 1, 0, 1, FILL_DEPTH);
-      t.firstFrame = first;
-    }
+      t.add('n', 0, 0, side === 't' ? FILL_DEPTH - 1 : 0, FILL_N, 1);
+    } else t.add('n', 0, side === 'l' ? FILL_DEPTH - 1 : 0, 0, 1, FILL_N);
+    t.firstFrame = first;
   } catch {
     // Картинка с другого источника (taint) или ещё не декодирована — без заливки.
     scene.textures.remove(key);
@@ -216,10 +219,23 @@ export function bleedImage(scene: Phaser.Scene, img: Phaser.GameObjects.Image): 
   const T = -BLEED_Y / 2;
   const B = GAME_H + BLEED_Y / 2;
   const tint = (s: Phaser.GameObjects.Image) => (img.isTinted ? s.setTint(img.tintTopLeft) : s);
+  /** Растушёвка шва: ряд заливки у шва заходит на картинку на FEATHER, прозрачнея внутрь. */
+  const FEATHER = 90;
   const band = (side: Side, x: number, y: number, dw: number, dh: number) => {
     const key = edgeFill(scene, f, side);
-    if (key) put(tint(scene.add.image(x, y, key).setDisplaySize(dw + 2, dh + 2)), img.alpha);
-    else put(scene.add.rectangle(x, y, dw + 2, dh + 2, 0x07060a), img.alpha);
+    if (!key) {
+      put(scene.add.rectangle(x, y, dw + 2, dh + 2, 0x07060a), img.alpha);
+      return key;
+    }
+    put(tint(scene.add.image(x, y, key).setDisplaySize(dw + 2, dh + 2)), img.alpha);
+    const a = img.alpha;
+    // Растушёвка — только когда поле этой стороны видно (на ровных 9:16 края картинки не трогаем).
+    const shown = side === 't' || side === 'b' ? current.worldY < -8 : current.worldX < -8;
+    if (!shown) return key;
+    if (side === 't') put(tint(scene.add.image(GAME_W / 2, FEATHER / 2, key, 'n').setDisplaySize(GAME_W, FEATHER)), 1).setAlpha(a, a, 0, 0);
+    if (side === 'b') put(tint(scene.add.image(GAME_W / 2, GAME_H - FEATHER / 2, key, 'n').setDisplaySize(GAME_W, FEATHER)), 1).setAlpha(0, 0, a, a);
+    if (side === 'l') put(tint(scene.add.image(FEATHER / 2, GAME_H / 2, key, 'n').setDisplaySize(FEATHER, GAME_H)), 1).setAlpha(a, 0, a, 0);
+    if (side === 'r') put(tint(scene.add.image(GAME_W - FEATHER / 2, GAME_H / 2, key, 'n').setDisplaySize(FEATHER, GAME_H)), 1).setAlpha(0, a, 0, a);
     return key;
   };
   const top = band('t', GAME_W / 2, T, GAME_W, BLEED_Y);

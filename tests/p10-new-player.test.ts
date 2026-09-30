@@ -11,7 +11,7 @@ import {
   newGame,
   type SaveState,
 } from '../src/core';
-import { decimal, defeatAdvice, heroesBadgeCount, keyEventsFirst, levelText } from '../src/game/flow';
+import { decimal, defeatAdvice, equipBestSquad, squadGearUpgrades, heroesBadgeCount, keyEventsFirst, levelText } from '../src/game/flow';
 import { pickHomeHint } from '../src/game/hints';
 import { chapterSummary, isChapterFinale, playTimeText, sceneLabel, seenChapterScenes } from '../src/game/storyView';
 import { loadFullContext } from '../scripts/lib/content-node';
@@ -111,7 +111,14 @@ describe('P10 T1-07: совет после поражения', () => {
 
   it('вещи получше — первым делом; стрелок во фронте — «Отряд»', () => {
     const { save } = addItems(fresh(), ['cotton_shirt']);
-    expect(defeatAdvice(save, ctx)).toMatchObject({ action: 'Heroes' });
+    // RN-10: кнопка «Надеть лучшее» прямо на итогах (всему отряду).
+    expect(defeatAdvice(save, ctx)).toMatchObject({ action: 'EquipBest' });
+    const eq = equipBestSquad(save, ctx);
+    expect(eq.equipped).toBeGreaterThan(0);
+    expect(defeatAdvice(eq.save, ctx).action).not.toBe('EquipBest');
+    // Вещь «получше» только для запасных (не в отряде) — совет её не считает.
+    const bench = { ...save, squad: [null, null, null, null, null] as (string | null)[] };
+    expect(squadGearUpgrades(bench, ctx)).toEqual([]);
     let s = fresh();
     const [a, b] = s.heroes;
     s = { ...s, squad: [b.id, a.id, null, null, null] };

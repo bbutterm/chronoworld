@@ -3,9 +3,9 @@
  * страниц «Кампания» (указатель на кнопку или вкладку) и «Город» (указатель на плитку Таверны / Заданий).
  */
 import type { SaveState } from '../core';
-import { fastRewardsPreview, fastRewardsStatus, heroesWithGearUpgrades, needsBranch, towerStatus } from '../core';
+import { fastRewardsPreview, fastRewardsStatus, needsBranch, towerStatus } from '../core';
 import { GAME } from './content';
-import { ascendReady, levelUpReady } from './flow';
+import { ascendReady, levelUpReady, squadGearUpgrades } from './flow';
 import { hintDone, setHintObsolete, type HintId, type HomeHintInput } from './hints';
 import { session, today } from './session';
 import { isUnlocked } from './unlockBanner';
@@ -18,7 +18,8 @@ export function homeHintInput(save: SaveState, chestHasIncome: boolean): HomeHin
     chestHasIncome,
     levelUpReady: levelUpReady(save, GAME).length > 0,
     towerUnlocked: towerStatus(save, GAME).unlocked,
-    gearUpgrade: heroesWithGearUpgrades(save, GAME).length > 0,
+    // RN-10: только отряд — вещи для запасных в бою не помогут.
+    gearUpgrade: squadGearUpgrades(save, GAME).length > 0,
     tavernReady: isUnlocked('tavern') && !save.summon.firstTenDone,
     ascendReady: ascendReady(save, GAME).length > 0,
     fastRewardsFree: isUnlocked('fast_rewards') && fast.nextCost === 0 && (preview.gold > 0 || preview.jobExp > 0),

@@ -4,6 +4,7 @@
 import {
   ascendRequirement,
   canEquip,
+  actEquipBest,
   heroesWithGearUpgrades,
   groupDigits,
   heroPower,
@@ -244,13 +245,32 @@ export function poolText(save: SaveState): string {
   return `Опыт в запасе: ${formatNumber(save.resources.heroExp)}`;
 }
 
+/** RN-10. Герои отряда, которым в сумке есть вещи лучше надетых. */
+export function squadGearUpgrades(save: SaveState, ctx: GearContext): string[] {
+  return heroesWithGearUpgrades(save, ctx).filter((id) => save.squad.includes(id));
+}
+
+/** RN-10. «Надеть лучшее» всему отряду (по порядку слотов): сколько вещей надето. */
+export function equipBestSquad(save: SaveState, ctx: GearContext): { save: SaveState; equipped: number } {
+  let s = save;
+  let equipped = 0;
+  for (const id of save.squad) {
+    if (!id) continue;
+    const r = actEquipBest(s, id, ctx);
+    s = r.save;
+    equipped += r.equipped.length;
+  }
+  return { save: s, equipped };
+}
+
 /**
  * P10 (T1-07). Совет после поражения на этапе — по делу, по порядку пользы:
  * вещи получше в инвентаре → «Улучшить» (хватает опыта) → вознесение → стрелки во фронте → свободные слоты при
  * запасных героях → прокачка. action — куда ведёт кнопка совета.
  */
-export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): { text: string; action: 'Heroes' | 'Squad' | 'Campaign' } {
-  if (heroesWithGearUpgrades(save, ctx).length) return { text: 'В инвентаре есть вещи получше — «Герои» → «Надеть лучшее».', action: 'Heroes' };
+export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): { text: string; action: 'EquipBest' | 'Heroes' | 'Squad' | 'Campaign' } {
+  // RN-10: только герои отряда (вещи «получше» для запасных ур. 1 в бою не помогут); кнопка «Надеть лучшее» — прямо на итогах.
+  if (squadGearUpgrades(save, ctx).length) return { text: 'В сумке есть вещи получше для отряда — «Надеть лучшее» ниже.', action: 'EquipBest' };
   if (levelUpReady(save, ctx).length) return { text: 'Опыта хватает на новый уровень — «Герои» → герой → «Улучшить».', action: 'Heroes' };
   if (ascendReady(save, ctx).length) return { text: 'Герой готов к вознесению — оно сильно его усилит («Герои»).', action: 'Heroes' };
   if (misplacedInFront(save, ctx).length) return { text: 'Стрелки и лекари стоят во фронте — «Отряд» → «Переставить».', action: 'Squad' };
