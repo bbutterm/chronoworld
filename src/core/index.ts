@@ -31,3 +31,4 @@ export * from './story';
 export * from './unlocks';
 export * from './shop';
 export * from './lore';
+export * from './tavern';

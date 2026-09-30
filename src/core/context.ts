@@ -10,6 +10,7 @@ import { buildItems, parseDrops, withEquipment, type EquipmentContext } from './
 import { parseEventsConfig, validateEventsConfig, type EventsContext } from './events';
 import { parseFeaturesConfig, withFeatures, type FeatureContext } from './features';
 import { parseHeroesConfig, validateHeroesConfig } from './heroes/config';
+import { storyOrder } from './heroes/card';
 import { parseExpeditionEvents, parseMetaConfig, validateExpeditionEvents, validateExpeditions, withMeta, type ExpeditionEventsConfig, type MetaContext } from './meta';
 import { ProgressionConfigSchema } from './progression/schema';
 import type { GameContext } from './progression/types';
@@ -145,7 +146,7 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
   if (meta) validateExpeditions(meta.expeditions, content, equipment?.items, problems);
   const expeditionEvents = raw.expeditionEvents === undefined ? undefined : stage('data/expedition_events.json', () => parseExpeditionEvents(raw.expeditionEvents));
   if (expeditionEvents && meta) validateExpeditionEvents(expeditionEvents, meta.expeditions.locations, base, problems);
-  const story = stage('data/story', () => buildStory(normalize(raw.stories ?? []), content, problems));
+  const story = stage('data/story', () => buildStory(normalize(raw.stories ?? []), content, problems, storyOrder(base)));
   const events = stage('data/events.json', () => parseEventsConfig(raw.events));
   if (events) validateEventsConfig(events, base, problems);
   const hunt = stage('data/hunt.json', () => parseHuntConfig(raw.hunt));
