@@ -9,6 +9,8 @@ import type { GameContext } from '../progression/types';
 import type { SaveState } from '../save/schema';
 import type { Content } from '../types';
 import { StorySchema, type StoryDef, type StorySceneDef } from './schema';
+import { buildTavern } from '../tavern/tavern';
+import type { TavernDef } from '../tavern/schema';
 
 /** Сцена с главой, к которой она относится. */
 export interface StoryScene extends StorySceneDef {
@@ -20,6 +22,8 @@ export interface StoryIndex {
   chapters: Record<string, StoryDef>;
   /** Все сцены всех глав. */
   scenes: StoryScene[];
+  /** Вечера в «Двух колоколах» и близость (data/story/tavern.json, kind: "tavern"); нет файла — нет вечеров. */
+  tavern?: TavernDef;
 }
 
 export interface StoryContext {
@@ -33,12 +37,20 @@ export const EMPTY_STORY: StoryIndex = { chapters: {}, scenes: [] };
  * Разобрать файлы сюжета и проверить ссылки. Проблемы — в problems (с именем файла):
  * глава и этапы существуют, этап принадлежит главе файла, stageId есть у before/afterStage и нет у chapterStart,
  * спикеры объявлены, id сцен уникальны по всем главам, одна сцена на пару (trigger, stageId),
- * bossIntro — только у beforeStage босс-этапа.
+ * bossIntro — только у beforeStage босс-этапа. Файл с kind: "tavern" — вечера в таверне (buildTavern; storyHeroes —
+ * id карточек сюжетных героев для проверки близости).
  */
-export function buildStory(files: readonly RawFile[], content: Content, problems: string[]): StoryIndex {
+export function buildStory(files: readonly RawFile[], content: Content, problems: string[], storyHeroes: readonly string[] = []): StoryIndex {
   const out: StoryIndex = { chapters: {}, scenes: [] };
   const sceneFile = new Map<string, string>();
   for (const f of files) {
+    // Вечера в таверне — свой формат (src/core/tavern), в сцены глав не попадают.
+    if ((f.data as { kind?: unknown } | null)?.kind === 'tavern') {
+      if (out.tavern) problems.push(`${f.file}: вечера в таверне уже объявлены в другом файле`);
+      const t = buildTavern(f, content, problems, storyHeroes);
+      if (t) out.tavern = t;
+      continue;
+    }
     const r = (StorySchema as z.ZodType<StoryDef>).safeParse(f.data);
     if (!r.success) {
       for (const i of r.error.issues) problems.push(`${f.file}: ${i.path.map(String).join('.') || '(корень)'} — ${i.message}`);

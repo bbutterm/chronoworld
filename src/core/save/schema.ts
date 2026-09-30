@@ -367,6 +367,19 @@ export const SaveStateSchema = z.object({
    * Без смены версии: нет поля — ничего не прочитано.
    */
   heroStoryRead: z.record(z.string(), z.array(z.number().int().positive())).optional(),
+  /**
+   * Вечера в «Двух колоколах» и близость (src/core/tavern, docs/design/tavern-evenings.md): seen — показанные вечера и
+   * личные сцены, choices — id выбора → id варианта, bond — id карточки сюжетного героя → близость, quests — выполненные
+   * личные задания. Без смены версии: нет поля — ничего не видено, близость 0.
+   */
+  tavern: z
+    .object({
+      seen: z.array(z.string()).optional(),
+      choices: z.record(z.string(), z.string()).optional(),
+      bond: z.record(z.string(), z.number().int().nonnegative()).optional(),
+      quests: z.array(z.string()).optional(),
+    })
+    .optional(),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;
