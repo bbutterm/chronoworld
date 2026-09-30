@@ -363,19 +363,19 @@
       "enemies": [
         {
           "unit": "maze_stem_worm",
-          "mult": 0.07057
+          "mult": 0.06634
         },
         {
           "unit": "maze_mantis",
-          "mult": 0.07057
+          "mult": 0.06634
         },
         {
           "unit": "maze_scribe",
-          "mult": 0.03387
+          "mult": 0.03184
         },
         {
           "unit": "maze_deviruchi",
-          "mult": 0.04974
+          "mult": 0.04676
         },
         null
       ],
