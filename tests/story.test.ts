@@ -201,6 +201,42 @@ describe('сюжет глав 8, 9 и 10 (перенос старых глав 3
     for (const s of ctx.story.scenes.filter((x) => x.chapter === 'chapter9'))
       for (const l of s.lines) expect(banned9.test(l.text), `${s.id}: ${l.text}`).toBe(false);
   });
+
+  it('Ансгар после раскрытия (8-16) — «Ансгар» со своим лицом, не «Серый капюшон» с портретом моба (BUG-162)', () => {
+    const sp = (ch: string, key: string) => ctx.story.chapters[ch].speakers[key];
+    // До узнавания в главе 8 он не говорит; реплика на галерее — уже от Ансгара.
+    const s16 = ctx.story.scenes.find((s) => s.id === 'ch8_s16_after')!;
+    expect(s16.lines.some((l) => sp('chapter8', l.speaker)?.name === 'Серый капюшон')).toBe(false);
+    expect(s16.lines.find((l) => l.speaker === 'ansgar')?.text).toMatch(/огонёк/);
+    for (const ch of ['chapter8', 'chapter9', 'chapter10']) {
+      for (const s of ctx.story.scenes.filter((x) => x.chapter === ch && before(x.stageId ?? 'ch8_s16') >= before('ch8_s16'))) {
+        for (const l of s.lines) {
+          const who = sp(ch, l.speaker);
+          if (!who || l.speaker.startsWith('hero')) continue;
+          expect(who.name, `${s.id}: ${l.text}`).not.toBe('Серый капюшон');
+          if (who.name === 'Ансгар') expect(who.portrait, s.id).toBe('npc_ansgar');
+        }
+      }
+      // Капитан — свой лист (седой ветеран), не общий лист рыцаря.
+      expect(sp(ch, 'garret').portrait, ch).toBe('npc_garret');
+    }
+    // Хель — не враг своей главы (Банши mob7_ranged).
+    const hel = sp('chapter10', 'hel').portrait;
+    const ch10Units = new Set(ctx.content.stages.filter((s) => s.chapter === 'chapter10').flatMap((s) => s.enemies.filter((e) => !!e).map((e) => e!.unit)));
+    const helSprite = hel.startsWith('unit:') ? ctx.content.units[hel.slice(5)]?.visual.sprite : hel;
+    for (const u of ch10Units) expect(ctx.content.units[u].visual.sprite, u).not.toBe(helSprite);
+    // Мира в финале сезона названа (раньше — только именем в 9-14 и 10-13).
+    expect(ctx.story.scenes.find((s) => s.id === 'ch10_outro')!.lines.some((l) => /Мира/.test(l.text))).toBe(true);
+  });
+
+  it('камео из Таверны может стоять в отряде: с Ирис и Тео не прощаются и не зовут в трактир (story.md §6.4, BUG-163)', () => {
+    const cameo = ['ch8_s3_after', 'ch8_s9_after', 'ch10_s1_after', 'ch10_s3_after'];
+    for (const id of cameo) {
+      for (const l of ctx.story.scenes.find((s) => s.id === id)!.lines) {
+        expect(/Ты одна|Ты один|приходи в «Два колокола»|иди в «Два колокола»|Пойду за вами следом|Скажи, от Греты/.test(l.text), `${id}: ${l.text}`).toBe(false);
+      }
+    }
+  });
 });
 
 describe('сюжет: какую сцену показать', () => {
