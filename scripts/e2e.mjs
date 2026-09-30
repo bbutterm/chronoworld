@@ -652,7 +652,9 @@ async function main() {
     }));
     if (fresh.save.campaign.cleared.length) problems.push(`после «Начать заново» пройдены этапы: ${fresh.save.campaign.cleared}`);
     if (fresh.save.heroes.some((h) => h.rarity !== 'green')) problems.push('после «Начать заново» остались герои из Таверны');
-    const extra = fresh.keys.filter((k) => !['chronoworld.save.v1', 'chronoworld.hints'].includes(k));
+    // Настройки устройства (звук, вибрация, скорость боя, FPS, «меньше движения») «Начать заново» не трогает (BUG-165).
+    const SETTINGS = ['chronoworld.audio', 'chronoworld.haptics', 'chronoworld.battleSpeed', 'chronoworld.fpsCap', 'chronoworld.reduceMotion'];
+    const extra = fresh.keys.filter((k) => !['chronoworld.save.v1', 'chronoworld.hints', ...SETTINGS].includes(k));
     if (extra.length) problems.push(`после «Начать заново» остались ключи: ${extra.join(', ')}`);
     if (fresh.keys.includes('chronoworld.timeShift')) problems.push('после «Начать заново» не сброшен сдвиг часов');
     if (!problems.length) log('«Начать заново»: новая игра, вступление главы 1, ключи очищены');

@@ -38,6 +38,10 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 500
+            },
+            "unlockAfterStage": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]+$"
             }
           },
           "required": [
@@ -46,6 +50,18 @@
             "text"
           ]
         }
+      }
+    },
+    "unlockByLevel": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[0-9]+$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
       }
     }
   }

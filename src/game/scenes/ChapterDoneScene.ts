@@ -126,9 +126,13 @@ export class ChapterDoneScene extends Phaser.Scene {
       text(this, cx, ry + 240, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
     } else {
       card(this, cx, ry, 1000, 300, true);
+      // BUG-159: вместо одной и той же «Отряд готов к новым землям» — цитата главы (episode.quote) и куда дальше.
+      const quote = GAME.content.chapters.find((c) => c.id === data.chapterId)?.episode?.quote;
+      if (quote) text(this, cx, ry - 50, `«${quote}»`, FS.h3, C.ink, { fontStyle: 'italic', align: 'center', wordWrap: { width: 900 } }).setName('chapterQuote');
       // LT-11: после последней главы новых земель пока нет — куда идти дальше.
-      text(this, cx, ry - (sum.next ? 0 : 30), sum.next ? 'Отряд готов к новым землям' : 'Новые главы — скоро', FS.h2, C.ink, { fontStyle: 'bold' });
-      if (!sum.next) text(this, cx, ry + 40, 'А пока — Башня испытаний и Охота в «Приключениях»', FS.body, C.inkMuted, { wordWrap: { width: 900 } });
+      const where = sum.next ? `Дальше — ${sum.next.name}` : 'Новые главы — скоро';
+      text(this, cx, quote ? ry + 60 : ry - (sum.next ? 0 : 30), where, quote ? FS.body : FS.h2, C.ink, { fontStyle: 'bold', align: 'center', wordWrap: { width: 900 } });
+      if (!sum.next) text(this, cx, quote ? ry + 110 : ry + 40, 'А пока — Башня испытаний и Охота в «Приключениях»', FS.body, C.inkMuted, { wordWrap: { width: 900 } });
     }
 
     // --- Кнопки ---

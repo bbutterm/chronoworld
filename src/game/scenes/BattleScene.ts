@@ -492,7 +492,10 @@ export class BattleScene extends Phaser.Scene {
     addThemeBackground(this, 'battle', this.theme);
     this.ambient = new Ambient(this, this.theme);
     panel(this, GAME_W / 2, 130, 760, 200, 'ui_panel');
-    text(this, GAME_W / 2, 85, title, title.length > 20 ? 42 : 52, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
+    const titleText = text(this, GAME_W / 2, 85, title, title.length > 20 ? 42 : 52, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
+    // Длинное название («Этап 7-18. Смотритель часовой башни») — ужать в плашку 760, не залезая под значок динамика (BUG-157).
+    const TITLE_MAX = 700;
+    if (titleText.width > TITLE_MAX) titleText.setScale(TITLE_MAX / titleText.width);
     this.timeText = text(this, GAME_W / 2, 150, '', 40, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
     // Таймер виден сразу, и во время баннера босса (T2-13).
     this.showTime(0);

@@ -115,5 +115,5 @@ describe('рекомендуемая мощь этапа (recommendedPower, stag
     expect(losses.length).toBeGreaterThan(0);
     for (const b of losses) expect(b.squadPower / b.recommended, `${b.target} t=${b.t.toFixed(1)}`).toBeGreaterThanOrEqual(0.85);
     for (const b of stage.filter((x) => x.win)) expect(b.squadPower / b.recommended, b.target).toBeGreaterThanOrEqual(0.85);
-  });
+  }, 30_000); // лимит времени вызова (модель игрока на 5 дней под нагрузкой контейнера), не порог качества
 });
