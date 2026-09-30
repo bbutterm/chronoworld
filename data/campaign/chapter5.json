@@ -377,23 +377,23 @@
       "enemies": [
         {
           "unit": "mob5_tank",
-          "mult": 0.3122
+          "mult": 0.3434
         },
         {
           "unit": "mob5_melee",
-          "mult": 0.3122
+          "mult": 0.3434
         },
         {
           "unit": "mob5_support",
-          "mult": 0.3122
+          "mult": 0.3434
         },
         {
           "unit": "mob5_support",
-          "mult": 0.3122
+          "mult": 0.3434
         },
         {
           "unit": "mob5_ranged",
-          "mult": 0.3122
+          "mult": 0.3434
         }
       ],
       "rewards": {

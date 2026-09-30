@@ -383,23 +383,23 @@
       "enemies": [
         {
           "unit": "mob4_tank",
-          "mult": 0.3157
+          "mult": 0.3631
         },
         {
           "unit": "mob4_melee",
-          "mult": 0.3157
+          "mult": 0.3631
         },
         {
           "unit": "mob4_support",
-          "mult": 0.3157
+          "mult": 0.3631
         },
         {
           "unit": "mob4_support",
-          "mult": 0.3157
+          "mult": 0.3631
         },
         {
           "unit": "mob4_ranged",
-          "mult": 0.3157
+          "mult": 0.3631
         }
       ],
       "rewards": {
