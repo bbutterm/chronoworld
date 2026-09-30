@@ -11,12 +11,16 @@ import {
   progressLevelBand,
   recommendedFactor,
   simulateBattle,
+  ultSkillOf,
   unitLevel,
   type CardRarity,
   towerFloor,
   withGear,
   type BattleEvent,
+  type BattleInput,
   type BattleResult,
+  type PlayerControl,
+  type SkillDef as CoreSkill,
   type HuntOutcome,
   type SaveState,
   type StageOutcomeWithDrops,
@@ -58,7 +62,11 @@ import { skillIcon, statusIcon } from '../skillIcons';
 import type { SkillDef, StatusDef } from '../../core';
 import { battleSound } from '../battleAudio';
 import { huntHud, type HuntHud } from '../huntBattle';
-import { HeroPanel, PANEL_BOTTOM } from '../battlePanel';
+import { HeroPanel, PANEL_BOTTOM, PANEL_Y } from '../battlePanel';
+import { battleMode, chargeHint, nextTick, setBattleAuto, ultHint } from '../battleMode';
+import { elementBadge } from '../battleElements';
+import { attackElement, defenseElement } from '../../core/elements';
+import { autoAdvance } from '../state';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -393,6 +401,23 @@ export class BattleScene extends Phaser.Scene {
   ready = false;
   /** Номер запуска сцены: отложенная сборка старого запуска (сцену уже выключили или перезапустили) не выполняется. */
   private createSeq = 0;
+  /**
+   * Ульта вручную (docs/design/battle-decisions.md §1). rerun — пересчитать бой (и итог этапа) с вводами игрока; null —
+   * режим недоступен (Башня, Охота: всегда авто). manual — текущий режим, startManual — с каким начали (вводы — от него).
+   */
+  private rerun: ((ctl: PlayerControl) => BattleResult) | null = null;
+  private manual = false;
+  private startManual = false;
+  private inputs: BattleInput[] = [];
+  /** Ульта героя стороны A (навык) и когда её применили в последний раз (для полоски готовности). */
+  private readonly ultSkill = new Map<string, CoreSkill>();
+  private readonly ultUsedAt = new Map<string, number>();
+  /** Герои, чью ульту игрок только что нажал: её удар — с затемнением и баннером, как ульта монстра. */
+  private readonly tapped = new Set<string>();
+  /** Когда над целью последний раз писали «Слабость!» / «Стойкость» (секунды боя). */
+  private readonly elemShown = new Map<string, number>();
+  private modeBtn: ReturnType<typeof button> | null = null;
+  private ultHintNode: Phaser.GameObjects.GameObject | null = null;
 
   constructor() {
     super('Battle');
@@ -418,6 +443,18 @@ export class BattleScene extends Phaser.Scene {
     this.namesHidden = false;
     this.ambient = null;
     this.theme = 'meadow';
+    this.rerun = null;
+    this.manual = false;
+    this.startManual = false;
+    this.inputs = [];
+    this.ultSkill.clear();
+    this.ultUsedAt.clear();
+    this.tapped.clear();
+    this.elemShown.clear();
+    this.modeBtn = null;
+    this.ultHintNode = null;
+    // Новый игрок — вручную; «Авто» в бою запоминается; «Авто: следующий этап» — бои без касаний.
+    const wantManual = !battleMode.auto && !autoAdvance.on;
     let title = 'Тестовый бой';
     this.stage = undefined;
     this.tower = undefined;
@@ -428,8 +465,14 @@ export class BattleScene extends Phaser.Scene {
       // Сохраняем, когда бой закончится.
       const save = session.save;
       let outcome: StageOutcomeWithDrops;
+      // Тот же бой с вводами игрока: seed, день и время — как у первого расчёта (итог этапа — по показанному бою).
+      const day = today();
+      const ts = now();
+      const seed = stageSeed(save);
+      const stageId = data.stageId;
+      const run = (ctl: PlayerControl) => actPlayStage(save, day, stageId, seed, { ...GAME, combat: { ...(GAME.combat ?? COMBAT), player: ctl } }, ts);
       try {
-        outcome = actPlayStage(save, today(), data.stageId, stageSeed(save), GAME, now());
+        outcome = run({ manualUlt: wantManual, inputs: [] });
       } catch (e) {
         console.warn(e);
         this.finished = true;
@@ -438,6 +481,12 @@ export class BattleScene extends Phaser.Scene {
       }
       this.result = outcome.result;
       this.stage = { stageId: data.stageId, outcome };
+      this.manual = this.startManual = wantManual;
+      this.rerun = (ctl) => {
+        const o = run(ctl);
+        this.stage = { stageId, outcome: o };
+        return o.result;
+      };
       this.defs = squadDefs(save);
       for (const u of enemySquad(data.stageId, GAME)) if (u) this.defs[u.id] = u;
       const st = getStage(GAME, data.stageId);
@@ -483,7 +532,11 @@ export class BattleScene extends Phaser.Scene {
       title = 'Охота на босса';
       this.theme = 'swamp';
     } else {
-      this.result = simulateBattle(CONTENT, squads.A, squads.B, data.seed);
+      const seed = data.seed;
+      const run = (ctl: PlayerControl) => simulateBattle(CONTENT, squads.A, squads.B, seed, { manualUlt: ctl.manualUlt, inputs: ctl.inputs });
+      this.result = run({ manualUlt: wantManual, inputs: [] });
+      this.manual = this.startManual = wantManual;
+      this.rerun = run;
       this.stage = undefined;
       this.defs = CONTENT.units;
     }
@@ -496,7 +549,7 @@ export class BattleScene extends Phaser.Scene {
     // их вместе с листами юнитов (не дольше FX_WAIT_MS), иначе первые удары шли статичными картинками.
     const unitDefs = [...this.result.units, ...(this.result.spawned ?? [])].map((u) => this.defs[u.unitId]);
     const fxIds = battleFxIds(
-      unitDefs.flatMap((d) => [d.skills.basic, d.skills.ult, ...d.skills.actives, ...d.skills.passives]),
+      unitDefs.flatMap((d) => [d.skills.basic, d.skills.ult, ...d.skills.actives, ...d.skills.passives, d.charge?.skill]),
       unitDefs.flatMap((d) => [d.visual.hitFx, d.visual.projectile]),
     );
     void holdAnimatedFx(this, fxIds);
@@ -541,6 +594,11 @@ export class BattleScene extends Phaser.Scene {
       this.time.timeScale = playback.speed;
     });
     button(this, 900, 360, 280, 110, 'ui_btn_skip', 'Пропустить', () => this.skip());
+    // Ульта вручную / «Авто» (docs/design/battle-decisions.md §1): между скоростью и «Пропустить».
+    if (this.rerun) {
+      this.modeBtn = button(this, 540, 360, 240, 110, 'ui_btn_speed', this.modeLabel(), () => this.toggleAuto(), 34);
+      this.modeBtn.container.setName('ultModeBtn');
+    }
     this.battleSoundButton();
     // Обучение (hints.ts): скорость ×2 открылась (этап 1-2) — указатель на кнопку скорости в первом бою на 1x.
     if (this.stage && playback.speed === 1 && isUnlocked('speed_x2') && !hintDone('battle_speed')) {
@@ -559,6 +617,11 @@ export class BattleScene extends Phaser.Scene {
     this.behaviorFx = new BehaviorFx(this);
     this.tauntIds.clear();
     this.redirectShown.clear();
+    for (const u of this.result.units) {
+      const def = this.defs[u.unitId];
+      const s = u.side === 'A' && def ? ultSkillOf(def, CONTENT.skills, COMBAT) : null;
+      if (s) this.ultSkill.set(u.uid, s);
+    }
     for (const u of this.result.units) this.buildUnit(u);
     this.heroPanel = new HeroPanel(
       this,
@@ -567,11 +630,12 @@ export class BattleScene extends Phaser.Scene {
         .sort((a, b) => a.slot - b.slot)
         .map((u) => {
           const def = this.defs[u.unitId];
-          return { uid: u.uid, name: def?.name ?? u.unitId, sprite: def?.visual.sprite ?? u.unitId, hasUlt: !!def?.skills.ult };
+          return { uid: u.uid, name: def?.name ?? u.unitId, sprite: def?.visual.sprite ?? u.unitId, hasUlt: !!def?.skills.ult, ult: this.ultSkill.has(u.uid) };
         }),
       // RR-05: панель — интерфейс, выше фигур поля (их глубина — y ног, до ~1850): высокий враг заднего ряда не ложится
       // на карточки; затемнение ульты (2900) и эффекты — выше панели.
       PANEL_DEPTH,
+      (uid) => this.tapUlt(uid),
     );
     for (const v of this.viewList) this.redraw(v);
     if (this.stage && getStage(GAME, this.stage.stageId).boss) this.bossIntro();
@@ -737,6 +801,13 @@ export class BattleScene extends Phaser.Scene {
         .setName('enemyLevel');
       bars.push(lv);
       parts.push(lv);
+    }
+    // Стихия (docs/design/battle-decisions.md §3): у врага — защита, у героя — атака; нейтраль без значка.
+    const el = snap.side === 'B' ? defenseElement(def) : attackElement(def, CONTENT.skills);
+    if (el !== 'neutral') {
+      const badge = elementBadge(this, ox + BAR_W / 2 + 18, 14, el, 26);
+      bars.push(badge);
+      parts.push(badge);
     }
     // Перезарядка активных навыков героев (как в AFK Arena): значки с круговой «шторкой» под полоской HP.
     const cdIcons: CdIcon[] = [];
@@ -909,12 +980,83 @@ export class BattleScene extends Phaser.Scene {
     }
     this.clock += (delta / 1000) * playback.speed;
     if (!this.namesHidden && this.clock >= NAME_SHOW_S) this.hideNames();
-    const log = this.result.log;
-    while (this.cursor < log.length && log[this.cursor].t <= this.clock) {
-      this.play(log[this.cursor], true);
+    // Лог берётся заново на каждом шаге: касание ульты посреди кадра подменяет бой (this.result) пересчитанным.
+    while (this.cursor < this.result.log.length && this.result.log[this.cursor].t <= this.clock) {
+      this.play(this.result.log[this.cursor], true);
       this.cursor++;
     }
     this.showTime(Math.min(this.clock, this.result.duration));
+    if (this.heroPanel) for (const uid of this.ultSkill.keys()) this.heroPanel.setCharge(uid, this.ultCharge(uid));
+  }
+
+  // ---------- ульта вручную (docs/design/battle-decisions.md §1) ----------
+
+  private modeLabel(): string {
+    return this.manual ? 'Авто: нет' : 'Авто: да';
+  }
+
+  /** Готовность ульты героя 0…1: энергия (ульта на энергии) или прошедшая доля перезарядки. */
+  private ultCharge(uid: string): number {
+    const v = this.views.get(uid);
+    const s = this.ultSkill.get(uid);
+    if (!v || !s || !v.alive) return 0;
+    if (v.def.skills.ult === s.id) return v.energy / COMBAT.energy.max;
+    const used = this.ultUsedAt.get(uid);
+    if (used === undefined) return 1;
+    const cd = s.cooldown ?? COMBAT.skills?.defaultCooldown ?? 8;
+    return cd > 0 ? Math.min(1, (this.clock - used) / cd) : 1;
+  }
+
+  /** Пересчитать бой с вводами (тот же seed): прошлое лога то же, показ продолжается с текущего места по новому логу. */
+  private applyInputs(): void {
+    if (!this.rerun) return;
+    const res = this.rerun({ manualUlt: this.startManual, inputs: this.inputs });
+    this.result = res;
+    for (const s of res.spawned ?? []) if (!this.defs[s.unitId]) this.defs[s.unitId] = CONTENT.units[s.unitId];
+    if (this.cursor > res.log.length) this.cursor = res.log.length;
+  }
+
+  /** Касание портрета: ульта героя (только вручную и когда светится). */
+  private tapUlt(uid: string): void {
+    if (!this.rerun || !this.manual || this.finished || this.skipping || !this.heroPanel?.isReady(uid)) return;
+    this.inputs.push({ t: nextTick(this.clock, COMBAT.tickSeconds), uid });
+    this.applyInputs();
+    this.heroPanel.setReady(uid, false);
+    this.heroPanel.pressed(uid);
+    this.tapped.add(uid);
+    ultHint.mark();
+    this.ultHintNode?.destroy();
+    this.ultHintNode = null;
+  }
+
+  /** «Авто»: ульты сами / касанием; выбор запоминается. */
+  private toggleAuto(): void {
+    if (!this.rerun || this.finished || this.skipping) return;
+    this.manual = !this.manual;
+    setBattleAuto(!this.manual);
+    this.inputs.push({ t: nextTick(this.clock, COMBAT.tickSeconds), auto: !this.manual });
+    this.applyInputs();
+    if (!this.manual) for (const uid of this.ultSkill.keys()) this.heroPanel?.setReady(uid, false);
+    this.modeBtn?.setLabel(this.modeLabel());
+    toast(this, this.manual ? 'Ульты — касанием портрета героя' : 'Ульты героев — сами', '#f0cf8a', 2200, 'middle');
+  }
+
+  /** Первая готовая ульта — подсказка под карточкой героя (пока игрок не коснётся ни разу). */
+  private showUltHint(uid: string): void {
+    if (this.ultHintNode || ultHint.done || this.skipping) return;
+    const card = this.heroPanel?.cardAt(uid);
+    if (!card) return;
+    const t = text(this, card.x, PANEL_Y + card.h / 2 + 44, '▲ Коснитесь — ульта!', 34, '#ffe070', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 7 }).setDepth(PANEL_DEPTH + 1);
+    if (t.x - t.width / 2 < 20) t.setX(20 + t.width / 2);
+    if (t.x + t.width / 2 > GAME_W - 20) t.setX(GAME_W - 20 - t.width / 2);
+    this.tweens.add({ targets: t, y: t.y + 10, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.ultHintNode = t;
+    this.later.after(9000, () => {
+      if (this.ultHintNode === t) {
+        t.destroy();
+        this.ultHintNode = null;
+      }
+    });
   }
 
   private showTime(s: number): void {
@@ -1053,6 +1195,13 @@ export class BattleScene extends Phaser.Scene {
    */
   private skip(): void {
     if (this.finished || !this.ready) return;
+    // Остаток пропущенного боя — авто (ульты сами), режим игрока не меняется.
+    if (this.rerun && this.manual) {
+      this.inputs.push({ t: nextTick(this.clock, COMBAT.tickSeconds), auto: true });
+      this.applyInputs();
+    }
+    this.ultHintNode?.destroy();
+    this.ultHintNode = null;
     this.skipping = true;
     this.introLeft = 0;
     this.endHitStop();
@@ -1152,6 +1301,12 @@ export class BattleScene extends Phaser.Scene {
       case 'attack': {
         const v = this.views.get(e.unit)!;
         const hadCast = !!v.cast;
+        if (this.ultSkill.get(e.unit)?.id === e.skill) {
+          this.ultUsedAt.set(e.unit, e.t);
+          this.heroPanel?.setReady(e.unit, false);
+          // Ульта по касанию — как ульта монстра: затемнение, подсветка героя, баннер.
+          if (this.tapped.delete(e.unit) && animate && !this.skipping && e.name) this.spotlight(v, e.name, e.skill);
+        }
         v.inUlt = false;
         v.lastSkill = e.skill;
         v.proc = undefined;
@@ -1196,6 +1351,8 @@ export class BattleScene extends Phaser.Scene {
       }
       case 'ult': {
         const v = this.views.get(e.unit)!;
+        this.tapped.delete(e.unit);
+        this.heroPanel?.setReady(e.unit, false);
         if (animate && !v.cast) this.castCue(v, e.skill);
         v.lastSkill = e.skill;
         v.proc = undefined;
@@ -1227,6 +1384,21 @@ export class BattleScene extends Phaser.Scene {
             if (animate) this.headline(v, 'нет цели', '#c8c0b0');
             return;
           }
+          // Свой каст оборван ультой по касанию — молча.
+          if (e.reason === 'ult') {
+            this.endCast(v);
+            return;
+          }
+          // Заряд босса сбит ультой: крупно, с тряской.
+          if (e.reason === 'break') {
+            this.endCast(v);
+            if (animate && v.alive && !this.skipping) {
+              this.behaviorLabel(v, 'Сбито!', '#ffe070');
+              this.sfx.shake(0.008, 220);
+              this.sfx.flash(0xfff0a0, 0.16, 200);
+            }
+            return;
+          }
           this.atImpact(v.lastStatusSrc ?? null, animate, (animate) => {
             this.endCast(v);
             if (animate && v.alive) this.behaviorLabel(v, e.reason === 'dispel' ? 'Сбито!' : 'Каст сорван', e.reason === 'dispel' ? '#b8a0ff' : '#ff9a8a');
@@ -1241,6 +1413,18 @@ export class BattleScene extends Phaser.Scene {
         v.castLabel.setText(e.name).setColor(col.light).setVisible(true);
         v.nameText.setVisible(false);
         cropBar(v.castBar, 0);
+        // Заряд босса: красная полоса и «Заряд!»; в ручном режиме первые разы — подсказка, как ответить.
+        if (e.charge) {
+          v.castBar.setTintFill(0xff4a2a);
+          v.castLabel.setColor('#ffb09a');
+          if (animate && !this.skipping) {
+            this.behaviorLabel(v, 'Заряд!', '#ff6a4a');
+            if (this.manual && chargeHint.count < 3) {
+              chargeHint.mark();
+              toast(this, `${v.def.name} заряжает удар — ульта героя собьёт его!`, '#ffb09a', 3000, 'middle');
+            }
+          }
+        }
         if (!animate) return;
         // Маг бьёт по кругу: круг на земле там, куда упадёт удар, растёт вместе с полосой каста.
         if (e.at && e.radius) this.behaviorFx?.castArea(v, fieldX(e.at[0]), e.at[1], e.radius * FIELD_SQUEEZE, col.main, e.duration * 1000);
@@ -1288,6 +1472,14 @@ export class BattleScene extends Phaser.Scene {
           v.energy = e.energy;
           this.redraw(v, animate);
           if (!animate) return;
+          // Стихия: «Слабость!» / «Стойкость» — не чаще раза в popupSeconds над одной целью.
+          if (e.elem) {
+            const last = this.elemShown.get(e.target) ?? -Infinity;
+            if (e.t - last >= (COMBAT.elements?.popupSeconds ?? 6)) {
+              this.elemShown.set(e.target, e.t);
+              this.headline(v, e.elem === 'weak' ? 'Слабость!' : 'Стойкость', e.elem === 'weak' ? '#ffd84a' : '#a8b8c8');
+            }
+          }
           const hpPart = e.amount - e.absorbed;
           const src = this.views.get(e.source);
           const sk = dmgSkill ? CONTENT.skills[dmgSkill] : undefined;
@@ -1458,6 +1650,14 @@ export class BattleScene extends Phaser.Scene {
         if (v) this.behaviorFx?.aura(v, e.radius * FIELD_SQUEEZE, dancer ? 0xff7fc4 : 0x6fd0ff, dancer);
         return;
       }
+      case 'ready':
+        if (!this.manual) return;
+        this.heroPanel?.setReady(e.unit, !e.lost);
+        if (!e.lost && animate) this.showUltHint(e.unit);
+        return;
+      case 'mode':
+        if (e.auto) for (const uid of this.ultSkill.keys()) this.heroPanel?.setReady(uid, false);
+        return;
       case 'enrage':
         if (animate && !this.skipping) {
           this.sfx.flash(0xff6040, 0.18, 260);
@@ -1692,7 +1892,7 @@ export class BattleScene extends Phaser.Scene {
       v.trailT = 0;
     }
     cropBar(v.energyBar, v.energy / COMBAT.energy.max);
-    this.heroPanel?.set(v.snap.uid, pct, v.energy / COMBAT.energy.max, !v.shownDead && v.hp > 0);
+    this.heroPanel?.set(v.snap.uid, pct, this.ultSkill.has(v.snap.uid) ? this.ultCharge(v.snap.uid) : v.energy / COMBAT.energy.max, !v.shownDead && v.hp > 0);
     v.shieldBar.setVisible(v.alive && v.shield > 0);
     cropBar(v.shieldBar, Math.min(1, v.shield / max));
   }

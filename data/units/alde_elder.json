@@ -18,6 +18,7 @@
     ],
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "elder",
     "hitFx": "fx_hit",

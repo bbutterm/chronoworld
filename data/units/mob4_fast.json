@@ -4,6 +4,7 @@
   "name": "Скорпион",
   "kind": "monster",
   "role": "damage",
+  "element": "fire",
   "stats": {
     "hp": 440,
     "atk": 45,
@@ -16,6 +17,7 @@
     "ult": "mob4_scorpion_sting",
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "scorpion",
     "hitFx": "fx_hit"

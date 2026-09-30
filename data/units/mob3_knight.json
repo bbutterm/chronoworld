@@ -4,6 +4,7 @@
   "name": "Рыцарь бездны",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 1300,
     "atk": 100,

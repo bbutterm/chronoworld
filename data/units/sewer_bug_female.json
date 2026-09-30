@@ -4,6 +4,7 @@
   "name": "Жук-вор самка",
   "kind": "monster",
   "role": "healer",
+  "element": "dark",
   "stats": {
     "hp": 360,
     "atk": 30,
@@ -15,6 +16,7 @@
     "ult": "sewer_bug_female_nurse",
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "thief_bug_female",
     "hitFx": "fx_hit",

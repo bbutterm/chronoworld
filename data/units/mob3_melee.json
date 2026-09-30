@@ -4,6 +4,7 @@
   "name": "Костяной зомби",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 500,
     "atk": 45,
@@ -15,6 +16,7 @@
     "ult": "mob3_melee_rend",
     "passives": []
   },
+  "behavior": "pack",
   "visual": {
     "sprite": "ghoul",
     "hitFx": "fx_hit"

@@ -4,6 +4,7 @@
   "name": "Орк-зомби",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 500,
     "atk": 45,

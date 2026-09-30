@@ -4,6 +4,7 @@
   "name": "Владыка мёртвых",
   "kind": "boss",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 2760,
     "atk": 112,
@@ -68,5 +69,10 @@
         }
       ]
     }
-  ]
+  ],
+  "charge": {
+    "skill": "mob_lord_of_death_final_verdict",
+    "first": 14,
+    "every": 20
+  }
 }

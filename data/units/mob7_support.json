@@ -4,6 +4,7 @@
   "name": "Квив",
   "kind": "monster",
   "role": "healer",
+  "element": "dark",
   "stats": {
     "hp": 520,
     "atk": 30,
@@ -18,6 +19,7 @@
     ],
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "quve",
     "hitFx": "fx_hit",

@@ -4,6 +4,7 @@
   "name": "Марин",
   "kind": "monster",
   "role": "healer",
+  "element": "water",
   "stats": {
     "hp": 360,
     "atk": 30,
@@ -15,6 +16,7 @@
     "ult": "mob_marin_spring",
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "marin",
     "projectile": "fx_magic",

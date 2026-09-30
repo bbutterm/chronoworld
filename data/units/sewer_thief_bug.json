@@ -4,6 +4,7 @@
   "name": "Жук-вор",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 480,
     "atk": 42,

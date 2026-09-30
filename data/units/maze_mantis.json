@@ -4,6 +4,7 @@
   "name": "Богомол",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 540,
     "atk": 50,

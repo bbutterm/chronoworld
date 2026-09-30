@@ -4,6 +4,7 @@
   "name": "Писарь Бафомета",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 1600,
     "atk": 60,

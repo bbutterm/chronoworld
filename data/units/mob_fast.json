@@ -4,6 +4,7 @@
   "name": "Поринг",
   "kind": "monster",
   "role": "damage",
+  "element": "water",
   "stats": {
     "hp": 380,
     "atk": 38,

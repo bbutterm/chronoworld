@@ -4,6 +4,7 @@
   "name": "Верит",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 1200,
     "atk": 62,

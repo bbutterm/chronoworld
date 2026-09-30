@@ -4,6 +4,7 @@
   "name": "Болотный кузнечик",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 390,
     "atk": 39,

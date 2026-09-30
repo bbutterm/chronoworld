@@ -364,6 +364,41 @@
           "actions"
         ]
       }
+    },
+    "element": {
+      "type": "string",
+      "enum": [
+        "neutral",
+        "fire",
+        "water",
+        "earth",
+        "wind",
+        "holy",
+        "dark",
+        "undead"
+      ]
+    },
+    "charge": {
+      "type": "object",
+      "properties": {
+        "skill": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "first": {
+          "type": "number",
+          "minimum": 0
+        },
+        "every": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "skill",
+        "first",
+        "every"
+      ]
     }
   },
   "required": [

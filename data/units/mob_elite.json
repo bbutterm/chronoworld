@@ -4,6 +4,7 @@
   "name": "Золотой жук-вор",
   "kind": "monster",
   "role": "damage",
+  "element": "fire",
   "stats": {
     "hp": 1000,
     "atk": 55,

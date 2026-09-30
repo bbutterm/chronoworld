@@ -4,6 +4,7 @@
   "name": "Фабр",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 330,
     "atk": 28,

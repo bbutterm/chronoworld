@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob4_boss_pharaoh_curse",
+  "name": "Проклятие фараона",
+  "description": "Осирис шепчет проклятие гробницы на весь отряд. Сбейте ультой!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 4.2
+    }
+  ],
+  "element": "dark"
+}

@@ -4,6 +4,7 @@
   "name": "Фамилиар",
   "kind": "monster",
   "role": "damage",
+  "element": "dark",
   "stats": {
     "hp": 390,
     "atk": 39,
@@ -15,6 +16,7 @@
     "ult": "sewer_familiar_bite",
     "passives": []
   },
+  "behavior": "pack",
   "visual": {
     "sprite": "familiar",
     "hitFx": "fx_hit"

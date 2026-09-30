@@ -4,6 +4,7 @@
   "name": "Бродячий волк",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 1250,
     "atk": 60,

@@ -4,6 +4,7 @@
   "name": "Трясинная ива",
   "kind": "monster",
   "role": "tank",
+  "element": "earth",
   "stats": {
     "hp": 880,
     "atk": 30,

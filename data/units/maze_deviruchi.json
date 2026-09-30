@@ -4,6 +4,7 @@
   "name": "Девиручи",
   "kind": "monster",
   "role": "healer",
+  "element": "dark",
   "stats": {
     "hp": 500,
     "atk": 30,
@@ -18,6 +19,7 @@
     ],
     "passives": []
   },
+  "behavior": "medic",
   "visual": {
     "sprite": "deviruchi",
     "hitFx": "fx_hit",

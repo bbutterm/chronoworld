@@ -4,6 +4,7 @@
   "name": "Кукре",
   "kind": "monster",
   "role": "tank",
+  "element": "water",
   "stats": {
     "hp": 1000,
     "atk": 32,

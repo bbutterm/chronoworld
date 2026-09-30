@@ -4,6 +4,7 @@
   "name": "Сворд-фиш",
   "kind": "monster",
   "role": "damage",
+  "element": "water",
   "stats": {
     "hp": 420,
     "atk": 42,
@@ -16,6 +17,7 @@
     "ult": "mob6_fast_pierce",
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "swordfish",
     "hitFx": "fx_hit"

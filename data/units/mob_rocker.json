@@ -4,6 +4,7 @@
   "name": "Рокер",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 560,
     "atk": 48,

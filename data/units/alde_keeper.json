@@ -69,5 +69,10 @@
         }
       ]
     }
-  ]
+  ],
+  "charge": {
+    "skill": "alde_keeper_midnight_strike",
+    "first": 14,
+    "every": 20
+  }
 }

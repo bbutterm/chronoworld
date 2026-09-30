@@ -4,6 +4,7 @@
   "name": "Орчиха",
   "kind": "monster",
   "role": "support",
+  "element": "earth",
   "stats": {
     "hp": 370,
     "atk": 47,

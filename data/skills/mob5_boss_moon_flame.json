@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob5_boss_moon_flame",
+  "name": "Лунное пламя",
+  "description": "Лунный цветок копит лунный огонь для удара по всем. Сбейте ультой!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 3.2
+    }
+  ],
+  "element": "fire"
+}

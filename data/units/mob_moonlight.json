@@ -4,6 +4,7 @@
   "name": "Лунный цветок",
   "kind": "boss",
   "role": "damage",
+  "element": "fire",
   "stats": {
     "hp": 2800,
     "atk": 100,

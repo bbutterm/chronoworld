@@ -4,6 +4,7 @@
   "name": "Марс",
   "kind": "monster",
   "role": "damage",
+  "element": "water",
   "stats": {
     "hp": 380,
     "atk": 48,

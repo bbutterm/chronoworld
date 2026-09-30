@@ -4,6 +4,7 @@
   "name": "Осирис",
   "kind": "boss",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 3800,
     "atk": 100,
@@ -64,5 +65,10 @@
         }
       ]
     }
-  ]
+  ],
+  "charge": {
+    "skill": "mob4_boss_pharaoh_curse",
+    "first": 14,
+    "every": 20
+  }
 }

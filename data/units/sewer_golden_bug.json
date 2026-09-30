@@ -4,6 +4,7 @@
   "name": "Золотой жук-вор",
   "kind": "boss",
   "role": "damage",
+  "element": "fire",
   "stats": {
     "hp": 2800,
     "atk": 100,
@@ -59,5 +60,10 @@
         }
       ]
     }
-  ]
+  ],
+  "charge": {
+    "skill": "sewer_golden_bug_golden_blaze",
+    "first": 14,
+    "every": 20
+  }
 }

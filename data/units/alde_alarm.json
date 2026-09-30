@@ -15,6 +15,7 @@
     "ult": "alde_alarm_ring",
     "passives": []
   },
+  "behavior": "coward",
   "visual": {
     "sprite": "alarm",
     "hitFx": "fx_hit"

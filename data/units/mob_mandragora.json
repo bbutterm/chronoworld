@@ -4,6 +4,7 @@
   "name": "Мандрагора",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 460,
     "atk": 46,

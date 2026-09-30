@@ -4,6 +4,7 @@
   "name": "Смоки",
   "kind": "monster",
   "role": "damage",
+  "element": "earth",
   "stats": {
     "hp": 410,
     "atk": 42,
@@ -16,6 +17,7 @@
     "ult": "mob5_smokie_smoke",
     "passives": []
   },
+  "behavior": "leaper",
   "visual": {
     "sprite": "smokie",
     "hitFx": "fx_hit"

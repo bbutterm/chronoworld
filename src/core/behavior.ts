@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Content, UnitDef } from './types';
 import type { CombatConfig } from './types';
+import { ElementsConfigSchema } from './elements';
 
 /**
  * Профили поведения в бою (docs/design/battle-behavior.md): как боец выбирает цель и где стоит. Профиль не добавляет
@@ -173,10 +174,53 @@ export function lintBehaviors(content: Content, cfg: CombatConfig): { errors: st
   }
   for (const u of Object.values(content.units))
     if (u.kind === 'boss' && u.behavior && (lib[u.behavior]?.coward || lib[u.behavior]?.pack)) warnings.push(`юнит ${u.id}: босс с профилем ${u.behavior} (трус/стая — для рядовых)`);
+  // Стихии и заряд босса (docs/design/battle-decisions.md).
+  if (cfg.elements) {
+    const el = ElementsConfigSchema.safeParse(cfg.elements);
+    if (!el.success) for (const i of el.error.issues) errors.push(`data/combat.json: elements.${i.path.join('.')} — ${i.message}`);
+  }
+  for (const u of Object.values(content.units)) {
+    if (!u.charge) continue;
+    const s = content.skills[u.charge.skill];
+    if (!s) errors.push(`юнит ${u.id}: заряд (charge) — навыка ${u.charge.skill} нет`);
+    else if (s.castTime <= 0 || s.trigger || s.target.side !== 'enemy') errors.push(`юнит ${u.id}: заряд ${s.id} — нужен навык по врагам с кастом (castTime > 0)`);
+    if (u.kind !== 'boss') warnings.push(`юнит ${u.id}: заряд (charge) — у рядового монстра`);
+  }
   for (const j of Object.values(content.jobs)) known(`профессия ${j.id}`, j.behavior);
   for (const t of Object.values(content.heroes)) {
     known(`карточка ${t.id}`, t.behavior);
     t.branches.forEach((b) => known(`карточка ${t.id} ветка ${b.job}`, b.behavior));
   }
   return { errors, warnings };
+}
+
+/**
+ * Особенности врага для разведки перед боем (docs/design/battle-decisions.md §2): короткие слова по данным — навыкам,
+ * профилю поведения, заряду и фазам, — самое важное первым. Ничего не пишется руками для каждого монстра.
+ */
+export function enemyTraits(def: UnitDef, content: Pick<Content, 'skills'>, cfg: CombatConfig): string[] {
+  const out: string[] = [];
+  const add = (s: string) => {
+    if (!out.includes(s)) out.push(s);
+  };
+  const skills = [def.skills.basic, def.skills.ult, ...def.skills.actives, ...def.skills.passives]
+    .map((id) => (id ? content.skills[id] : undefined))
+    .filter((s): s is NonNullable<typeof s> => !!s);
+  const basic = content.skills[def.skills.basic];
+  const { profile } = resolveBehavior(def, basic?.range !== 'melee', cfg);
+  if (def.charge) add('заряд — сбейте ультой');
+  if (skills.some((s) => s.target.side === 'ally' && s.effects.some((e) => e.type === 'heal'))) add('лечит');
+  if (profile.pack) add('стая');
+  if (profile.coward) add('трус');
+  const dash = skills.some((s) => s.effects.some((e) => e.type === 'dash'));
+  if (profile.dive || (dash && skills.some((s) => s.effects.some((e) => e.type === 'dash') && s.target.row === 'back'))) add('прыгает в тыл');
+  const dmg = (s: (typeof skills)[number]) => s.target.side === 'enemy' && s.effects.some((e) => e.type === 'damage');
+  if (skills.some((s) => s.id !== def.skills.basic && dmg(s) && (s.target.pick === 'all' || s.target.count > 1 || !!s.area))) add('бьёт по площади');
+  if (skills.some((s) => dmg(s) && s.castTime >= 1.5)) add('заряжает удар');
+  if (skills.some((s) => s.effects.some((e) => e.type === 'status' && e.status.stun && s.target.side === 'enemy'))) add('оглушает');
+  if (skills.some((s) => s.target.side === 'ally' && s.effects.some((e) => e.type === 'shield'))) add('ставит щиты');
+  if (def.phases?.some((p) => p.actions.some((a) => a.type === 'summon'))) add('зовёт свиту');
+  if (def.phases?.some((p) => p.actions.some((a) => a.type === 'status' && (a.status.stats?.atk ?? 0) > 0))) add('ярость');
+  if (dash) add('рывок');
+  return out;
 }

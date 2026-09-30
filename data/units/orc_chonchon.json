@@ -4,6 +4,7 @@
   "name": "Стальной чончон",
   "kind": "monster",
   "role": "damage",
+  "element": "wind",
   "stats": {
     "hp": 400,
     "atk": 41,

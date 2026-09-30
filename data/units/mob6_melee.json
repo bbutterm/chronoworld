@@ -4,6 +4,7 @@
   "name": "Скелет-пират",
   "kind": "monster",
   "role": "damage",
+  "element": "undead",
   "stats": {
     "hp": 520,
     "atk": 46,
@@ -15,6 +16,7 @@
     "ult": "mob6_melee_rusty_saber",
     "passives": []
   },
+  "behavior": "pack",
   "visual": {
     "sprite": "pirate_skel",
     "hitFx": "fx_hit"
