@@ -387,12 +387,16 @@ export function fightBondQuest(save: SaveState, templateId: string, seed: number
   const result = simulateBattle(ctx.content, withBondLinks(squad, save, ctx), enemies, seed, { combat: ctx.combat });
   const win = result.winner === 'A';
   const mine = save.squad.filter((x): x is string => x !== null);
-  const fallen = mine.filter((id) => result.report[id] && !result.report[id].alive);
+  // Отчёт боя — по uid; id юнита героя = id героя, сторона игрока — A.
+  const sideA = new Set(result.units.filter((u) => u.side === 'A').map((u) => u.uid));
+  const alive = new Map<string, boolean>();
+  for (const r of Object.values(result.report)) if (sideA.has(r.uid) && mine.includes(r.unitId)) alive.set(r.unitId, r.alive);
+  const fallen = mine.filter((id) => alive.get(id) === false);
   const heroIds = save.heroes.filter((h) => h.templateId === templateId && mine.includes(h.id)).map((h) => h.id);
   const cond = q.condition;
   const goal =
     win &&
-    (cond.type === 'alive' ? heroIds.some((id) => result.report[id]?.alive) : cond.type === 'noLoss' ? fallen.length === 0 : result.duration <= cond.seconds);
+    (cond.type === 'alive' ? heroIds.some((id) => alive.get(id) === true) : cond.type === 'noLoss' ? fallen.length === 0 : result.duration <= cond.seconds);
   let next: SaveState = { ...save, battleSeq: save.battleSeq + 1 };
   const firstTime = goal && !v.quest.done;
   if (firstTime) {
