@@ -52,5 +52,6 @@
     "sprite": "bard",
     "hitFx": "fx_hit",
     "projectile": "fx_arrow"
-  }
+  },
+  "behavior": "aura"
 }

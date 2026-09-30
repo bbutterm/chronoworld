@@ -32,6 +32,7 @@
       "skill": "job_merchant_crazy_uproar"
     }
   ],
+  "behavior": "line",
   "branches": [
     {
       "job": "blacksmith",

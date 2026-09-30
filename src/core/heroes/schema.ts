@@ -65,6 +65,8 @@ export const HeroBranchSchema = z.object({
   bio: z.string().max(300).optional(),
   /** Лист спрайта формы (id из assets/sprites/sprites.json, например knight_m); нет листа — лист класса по полу. */
   visual: z.object({ sprite: z.string().optional() }).default({}),
+  /** Профиль поведения формы в бою (id из data/combat.json → behaviors), если отличается от профиля профессии. */
+  behavior: id.optional(),
 });
 
 export const HeroTemplateSchema = z.object({
@@ -87,6 +89,8 @@ export const HeroTemplateSchema = z.object({
   maxRarity: CardRaritySchema,
   statMods: CardStatModsSchema,
   skills: z.array(CardSkillSchema).min(1),
+  /** Профиль поведения первой профессии в бою (id из data/combat.json → behaviors), если отличается от профиля профессии. */
+  behavior: id.optional(),
   /** Две ветки второй профессии: выбор на фиолетовом (hero.branch = job ветки). */
   branches: z.array(HeroBranchSchema).length(2),
   /**

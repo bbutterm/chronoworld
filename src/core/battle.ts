@@ -1,3 +1,4 @@
+import { resolveBehavior } from './behavior';
 import { COMBAT } from './config';
 import { calcDamage, calcHeal } from './formulas';
 import { Rng } from './rng';
@@ -21,6 +22,11 @@ export interface BattleOptions {
   combat?: CombatConfig;
   /** false — не копить лог (для массовых прогонов симулятора). */
   log?: boolean;
+  /**
+   * false — бой «как до профилей поведения» (docs/design/battle-behavior.md): без правил профилей, провокации, связи,
+   * фаз боссов и ярости; от профиля остаётся только «ассасин остаётся в тылу». Для сравнения баланса (sim --behavior off).
+   */
+  behavior?: boolean;
 }
 
 class BattleEnded extends Error {}
@@ -31,7 +37,7 @@ export function slotPosition(side: Side, slot: number, cfg: CombatConfig = COMBA
   return side === 'A' ? { x, y } : { x: cfg.field.width - x, y };
 }
 
-export function createUnits(squad: Squad, side: Side, content: Content, cfg: CombatConfig = COMBAT): Unit[] {
+export function createUnits(squad: Squad, side: Side, content: Content, cfg: CombatConfig = COMBAT, behaviorOn = true): Unit[] {
   const units: Unit[] = [];
   squad.forEach((entry, slot) => {
     if (!entry) return;
@@ -45,6 +51,7 @@ export function createUnits(squad: Squad, side: Side, content: Content, cfg: Com
     };
     const basic = skill(def.skills.basic);
     const { x, y } = slotPosition(side, slot, cfg);
+    const bh = resolveBehavior(def, basic.range !== 'melee', cfg, behaviorOn);
     units.push({
       uid: `${side}${slot}`,
       side,
@@ -72,6 +79,8 @@ export function createUnits(squad: Squad, side: Side, content: Content, cfg: Com
       body: def.bodyRadius ?? cfg.movement.bodyRadius?.[def.kind] ?? 0,
       engage: null,
       moving: null,
+      behavior: bh.id,
+      bh: bh.profile,
     });
   });
   return units;
@@ -108,8 +117,9 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const keepLog = opts.log ?? true;
   const rng = new Rng(seed);
 
-  const a = createUnits(squadA, 'A', content, cfg);
-  const b = createUnits(squadB, 'B', content, cfg);
+  const on = opts.behavior ?? true;
+  const a = createUnits(squadA, 'A', content, cfg, on);
+  const b = createUnits(squadB, 'B', content, cfg, on);
   const all = [...a, ...b];
   const snapshots = all.map((u) => ({ uid: u.uid, side: u.side, slot: u.slot, unitId: u.unitId, maxHp: u.maxHp, x: u.x, y: u.y }));
   const log: BattleEvent[] = [];
@@ -257,7 +267,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         returns.delete(u);
         dived.delete(u);
         if (!inRow(target, 'front', cfg)) {
-          if (prev !== target && !(skill && diveStay.has(skill.id)))
+          if (prev !== target && !u.bh.dive?.stay)
             returns.set(u, { at: round2(t + cfg.movement.dashSeconds + diveReturnSeconds), x: u.x, y: u.y, prev });
           else dived.add(u);
         }
@@ -405,7 +415,6 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
 
   /** Прыгнувшие в тыл, которые вернутся к прежнему противнику. */
   const returns = new Map<Unit, { at: number; x: number; y: number; prev: Unit | null }>();
-  const diveStay = new Set(cfg.movement.diveStay ?? []);
   const diveReturnSeconds = cfg.movement.diveReturnSeconds ?? 0.8;
   const maxPerTarget = cfg.movement.maxMeleePerTarget ?? Infinity;
 

@@ -48,5 +48,6 @@
   "visual": {
     "sprite": "monk",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "assassin"
 }

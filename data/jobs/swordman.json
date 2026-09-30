@@ -48,5 +48,6 @@
   "visual": {
     "sprite": "swordman",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "line"
 }

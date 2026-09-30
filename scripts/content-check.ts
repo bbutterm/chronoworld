@@ -16,13 +16,15 @@
  *      (src/core/equipment/lint.ts).
  *  10. Летопись (data/lore/*.json, файлы необязательны): схема и ссылки на юниты/предметы/героев/профессии/главы/этапы — ✗;
  *      длина текстов сверх LORE_LIMITS, монстр вне кампании, Башни и Охоты — ⚠ (src/core/lore/lore.ts → validateLore).
+ *  12. Профили поведения (data/combat.json → behaviors, поле behavior юнитов/профессий/героев) и фазы боссов (phases):
+ *      неизвестный профиль, навык или юнит фазы — ✗; прыгун без навыка с dash, фазы у рядового монстра — ⚠.
  *  11. Тексты глав (episode, legend, chronicle, stages[].finding) и реплики боссов и мини-боссов (barks): длины — схема (✗), id находок
  *      уникальны по всем главам — ✗, больше 4 находок в главе и юнит с репликами дважды в этапе — ⚠ (src/core/lore/pages.ts).
  * Код выхода 1, если есть ошибки. Предупреждения (например, нет арта — будет плейсхолдер) не мешают.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintItemGates, lintLevelBands, maxLevelOf, parseLore, rarityIndex, validateLore, recommendedPower, simulateBattle, validateHeroes, validatePageTexts } from '../src/core';
+import { BRANCH_RARITY, buildUnit, CARD_RARITIES, collectGameContext, lintBehaviors, lintItemGates, lintLevelBands, maxLevelOf, parseLore, rarityIndex, validateLore, recommendedPower, simulateBattle, validateHeroes, validatePageTexts } from '../src/core';
 import { MonsterSoundsSchema, monsterSoundFiles } from '../src/game/monsterSounds';
 import { portraitSprite } from '../src/game/storyView';
 import { buildRegistry, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
@@ -48,6 +50,10 @@ if (built.ctx) {
   warnings.push(...gates.warnings);
   // Уровни врагов (power.levels): полосы этапов.
   errors.push(...lintLevelBands(built.ctx));
+  // Профили поведения в бою и фазы боссов (docs/design/battle-behavior.md): ссылки — ✗, профиль без смысла — ⚠.
+  const beh = lintBehaviors(built.ctx.content, built.ctx.combat);
+  errors.push(...beh.errors);
+  warnings.push(...beh.warnings);
   // Экспедиции: порог мощи локации выше рекомендуемой мощи самых трудных этапов до её открытия — игрок увидит
   // локацию, но отправить отряд, скорее всего, не сможет.
   const stages = built.ctx.content.stages;

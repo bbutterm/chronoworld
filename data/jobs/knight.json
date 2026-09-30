@@ -47,5 +47,6 @@
   "visual": {
     "sprite": "warrior",
     "hitFx": "fx_hit"
-  }
+  },
+  "behavior": "guard"
 }

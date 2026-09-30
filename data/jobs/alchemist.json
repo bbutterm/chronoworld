@@ -48,5 +48,6 @@
     "sprite": "alchemist",
     "hitFx": "fx_hit",
     "projectile": "fx_magic"
-  }
+  },
+  "behavior": "caster"
 }

@@ -49,5 +49,6 @@
     "sprite": "archer",
     "hitFx": "fx_hit",
     "projectile": "fx_arrow"
-  }
+  },
+  "behavior": "marksman"
 }

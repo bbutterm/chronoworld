@@ -63,6 +63,8 @@ export interface ActiveForm {
   branch?: string;
   /** Строка возвышения ветки. */
   promotion?: string;
+  /** Профиль поведения формы в бою (переопределение профиля профессии). */
+  behavior?: string;
 }
 
 /** Что нужно знать об экземпляре для формы: редкость и выбранная ветка. */
@@ -80,11 +82,20 @@ export function activeBranch(t: HeroTemplate, hero: FormKey): HeroBranch | undef
 }
 
 export function baseForm(t: HeroTemplate): ActiveForm {
-  return { job: t.job, role: t.role, statMods: t.statMods, skills: t.skills, ...(t.visual.sprite ? { sprite: t.visual.sprite } : {}) };
+  return { job: t.job, role: t.role, statMods: t.statMods, skills: t.skills, ...(t.visual.sprite ? { sprite: t.visual.sprite } : {}), ...(t.behavior ? { behavior: t.behavior } : {}) };
 }
 
 export function branchForm(b: HeroBranch): ActiveForm {
-  return { job: b.job, role: b.role, statMods: b.statMods, skills: b.skills, branch: b.job, promotion: b.promotion, ...(b.visual.sprite ? { sprite: b.visual.sprite } : {}) };
+  return {
+    job: b.job,
+    role: b.role,
+    statMods: b.statMods,
+    skills: b.skills,
+    branch: b.job,
+    promotion: b.promotion,
+    ...(b.visual.sprite ? { sprite: b.visual.sprite } : {}),
+    ...(b.behavior ? { behavior: b.behavior } : {}),
+  };
 }
 
 /** Форма экземпляра: ветка (фиолетовый и выше с выбранной веткой) или первая профессия. */
@@ -201,6 +212,8 @@ export function buildUnit(hero: HeroState, ctx: GameContext & GearLookup, gear?:
   const g = gear ?? ctx.heroGear?.[hero.id];
   const stats: Stats = g ? { ...base, hp: base.hp + g.hp, atk: base.atk + g.atk, def: base.def + g.def, spd: base.spd + g.spd } : base;
   const power = rarityDef(ctx, hero.rarity).skillPower;
+  // Профиль поведения в бою: форма (ветка / первая профессия шаблона) → профессия (docs/design/battle-behavior.md §2.1).
+  const behavior = form.behavior ?? job.behavior;
   return {
     id: hero.id,
     name: t.name,
@@ -210,6 +223,7 @@ export function buildUnit(hero: HeroState, ctx: GameContext & GearLookup, gear?:
     skills: { basic: skills.basic, actives: skills.actives, passives: skills.passives },
     visual: job.visual,
     ...(power !== 1 ? { skillPower: power } : {}),
+    ...(behavior ? { behavior } : {}),
   };
 }
 
