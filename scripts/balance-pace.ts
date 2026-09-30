@@ -1,3 +1,10 @@
+/**
+ * Темп глав по модели игрока, seed параллельно (по процессу на seed, scripts/balance-run.ts): час босса каждой главы (медиана
+ * и по seed), стены ≥ 6 ч внутри глав, больше всего побед главы за сессию, мощь отряда по дням; третий аргумент — записать
+ * прогоны в JSON (для balance-stagefit --runs и сводок по 32 seed). docs/content/balance.md, «Общий баланс 10 глав (30.09)».
+ *   npx tsx scripts/balance-pace.ts 1,2,3,4,5,6,7,8 24 /tmp/runs-a.json
+ * Модель хаотична (выдачи Таверны): медиана 8 seed гуляет на ±20–70 ч — решения принимать по 32 seed (4 прогона по 8).
+ */
 import { runModels } from './balance-run';
 import { loadFullContext } from './lib/player-model';
 const argv = process.argv.slice(2);

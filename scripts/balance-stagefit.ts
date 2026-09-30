@@ -127,7 +127,7 @@ const refD = (id: string, mult: number) => M.ref[id] + shift(id, mult);
 const modelD = (id: string, mult: number) => M.model[id] + shift(id, mult);
 
 // --- график ---
-// --runs a.json[,b.json…] — прогоны модели (walls-par / runModels), несколько файлов складываются (больше seed — меньше шума).
+// --runs a.json[,b.json…] — прогоны модели (balance-pace / runModels), несколько файлов складываются (больше seed — меньше шума).
 const runs = flag('runs').at(-1)!.split(',').flatMap((f) => JSON.parse(readFileSync(f, 'utf8')) as ModelRun[]);
 /**
  * --relative: график главы — от факта босса прошлой главы (медиана прогонов), длина главы — по целям. Опоздание прошлой
