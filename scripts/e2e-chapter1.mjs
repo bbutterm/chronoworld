@@ -475,7 +475,8 @@ const afterLoss = async () => {
 
 let ok = false;
 try {
-  await page.goto(URL);
+  // Кнопки тестировщика («+12 ч» после поражения) спрятаны по умолчанию — включаем режим адресом (tester.ts).
+  await page.goto(`${URL}?tester=1`);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   // Игра открывается на странице «Кампания» (вступление главы — там же).

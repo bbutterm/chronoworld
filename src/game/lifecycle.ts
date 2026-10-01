@@ -4,6 +4,8 @@
  * Логика — без Phaser (LoopLike — нужная часть Phaser.Core.TimeStep), чтобы проверять в тестах.
  */
 
+import { onTgEvent } from './telegram';
+
 /** Часть Phaser.Core.TimeStep, которой мы управляем. */
 export interface LoopLike {
   running: boolean;
@@ -64,10 +66,6 @@ export class AppLifecycle {
   }
 }
 
-interface TelegramWebApp {
-  onEvent?: (event: string, cb: () => void) => void;
-}
-
 let current: AppLifecycle | null = null;
 
 /** Слушатели «игру свернули / скрыли» (онлайн: отправить облачное сохранение, online/online.ts). */
@@ -106,12 +104,11 @@ export function installLifecycle(loop: LoopLike, fpsCap: number): AppLifecycle {
   window.addEventListener('blur', () => app.pause('blur'));
   window.addEventListener('focus', () => app.resume('blur'));
   // Telegram Mini App: свёрнут / развёрнут (Bot API 8.0). Страница при этом может оставаться «видимой».
-  const tg = (window as unknown as { Telegram?: { WebApp?: TelegramWebApp } }).Telegram?.WebApp;
-  tg?.onEvent?.('deactivated', () => {
+  onTgEvent('deactivated', () => {
     app.pause('telegram');
     emitHidden();
   });
-  tg?.onEvent?.('activated', () => app.resume('telegram'));
+  onTgEvent('activated', () => app.resume('telegram'));
   if (document.hidden) app.pause('hidden');
   return app;
 }
