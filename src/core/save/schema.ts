@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CardRaritySchema } from '../heroes/schema';
+import { TowerSaveSchema } from '../tower/runSchema';
 
 export const SAVE_VERSION = 7;
 
@@ -317,8 +318,8 @@ export const SaveStateSchema = z.object({
     /** «Благословенная руда» (заточка без риска поломки, падает с боссов). Без смены версии: нет поля — 0. */
     blessedOre: z.number().int().nonnegative().optional(),
   }),
-  /** v2. Резерв под башню испытаний (K4): последний пройденный этаж, 0 — не начата. */
-  tower: z.object({ floor: z.number().int().nonnegative() }),
+  /** v2. Башня (K4): floor — лучший этаж; забег-рогалик и осколки — необязательные поля (tower/runSchema.ts, без смены версии). */
+  tower: TowerSaveSchema,
   /** v2. Резерв под экипировку (K6): экземпляры предметов, equippedBy — id героя или null. */
   inventory: z.object({
     items: z.array(ItemInstanceSchema),

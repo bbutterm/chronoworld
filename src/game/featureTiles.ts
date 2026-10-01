@@ -63,8 +63,9 @@ export function towerTile(scene: Phaser.Scene, x: number, y: number, w: number, 
     title: 'Башня испытаний',
     art: glyph(scene, 'tower'),
     open: ts.unlocked,
-    status: { text: ts.next === null ? 'Вершина взята!' : ts.floor === 0 ? `Впереди этаж ${ts.next}` : `Взят этаж ${ts.floor} · дальше ${ts.next}`, color: C.gold },
-    note: 'Сто этажей врагов — награда за каждый',
+    // Забег-рогалик (docs/design/tower-roguelite.md): идёт забег — его этаж, иначе рекорд.
+    status: { text: save.tower.run ? `Идёт забег: этаж ${save.tower.run.floor + 1}` : ts.floor === 0 ? 'Забег ещё не начат' : `Рекорд: этаж ${ts.floor}`, color: C.gold },
+    note: 'Забег вверх: карты меняют правила боя',
     lockId: 'tower',
     onOpen: () => {
       markHint('tower_open');
