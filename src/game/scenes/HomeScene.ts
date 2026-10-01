@@ -11,9 +11,9 @@ import { motes, ribbon } from '../decor';
 import { fps, motion, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed, setReducedMotion } from '../state';
 import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
-import { audioSettings, setAudioSettings, sfx, takeOwnMusicHint } from '../audio';
+import { audioSettings, setAudioSettings, sfx } from '../audio';
 import { hapticSettings, setHapticsOn } from '../haptics';
-import { battleSfxLabel, nextVolume, OWN_MUSIC_HINT, ownMusicLabel, ownMusicToast, volumeLabel } from '../audioCore';
+import { battleSfxLabel, nextVolume, ownMusicLabel, ownMusicToast, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
 import { shopTile } from '../shopEntry';
 import { achievementsTile, questsTile } from '../featureTiles';
@@ -84,11 +84,9 @@ export class HomeScene extends Phaser.Scene {
     // Открылась новая функция (data/unlocks.json) — баннер «Новая функция!», один раз.
     // Ведущее обучение (tutorial.ts): Таверна ×10, затем задания — указатель на плитку (после баннера).
     showUnlockBanners(this, () => {
-      // Музыка игры уже звучала — один раз подсказать, что можно слушать свою (шестерёнка → «Своя музыка»).
-      if (takeOwnMusicHint()) toast(this, OWN_MUSIC_HINT, undefined, 5000);
       const id = cityHint(session.save);
       // Игрок уже в Городе — текст без «в «Городе»»; лента-заголовок «Город» не закрывается (MT-07, NB-13).
-      if (id === 'tavern_summon') tutorialHint(this, id, xl, y1, 'below', { w, h }, { text: 'Таверна открыта — наймите героев', avoidText: ['Город'] });
+      if (id === 'tavern_summon') tutorialHint(this, id, xl, y1, 'below', { w, h }, { avoidText: ['Город'] });
       if (id === 'quests_open') tutorialHint(this, id, xl, y2, 'above', { w, h }, { avoidText: ['Город'] });
     });
   }
