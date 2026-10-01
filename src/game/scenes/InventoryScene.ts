@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import {
   actEquip,
   actUnequip,
+  cardDef,
+  cardsForItem,
+  insertCard,
   heroName,
   heroSlots,
   lockedText,
@@ -78,6 +81,8 @@ const ROW_BUFFER = 3;
 const CUR_H = 560;
 /** Высота карточки, когда заточка закрыта или на максимуме (одна строка). */
 const CUR_H_SHORT = 290;
+/** Строка слота карты MVP в карточке «Надето сейчас». */
+const CARD_ROW_H = 110;
 
 /** «30%» — шанс поломки. */
 const pct = (p: number) => `${Math.round(p * 100)}%`;
@@ -168,7 +173,9 @@ export class InventoryScene extends Phaser.Scene {
 
     const hasRefine = !!refineConfig(GAME);
     const refineOpen = hasRefine && !!cur && refineUnlocked(save, GAME) && !!refineModeCost(cur.instance, cur.def, GAME);
-    const curH = !hasRefine || !cur ? 200 : refineOpen ? CUR_H : CUR_H_SHORT;
+    // Карты MVP (охота): строка слота карты — когда в вещи карта или в запасе есть подходящая.
+    const cardRow = !!cur && (!!cur.instance.card || cardsForItem(save, cur.def, GAME).length > 0);
+    const curH = (!hasRefine || !cur ? 200 : refineOpen ? CUR_H : CUR_H_SHORT) + (cardRow ? CARD_ROW_H : 0);
     card(this, GAME_W / 2, top + curH / 2, 1040, curH, true);
     text(this, TEXT_X, top + 45, 'Надето сейчас', FS.small, C.inkMuted).setOrigin(0, 0.5);
     if (cur) {
@@ -177,7 +184,8 @@ export class InventoryScene extends Phaser.Scene {
       ellipsize(text(this, TEXT_X, top + 100, refinedName(cur.def, lvl), FS.h2, RARITY_COLORS[cur.def.rarity], { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5).setName('curItemName'), TEXT_W);
       ellipsize(text(this, TEXT_X, top + 155, `${RARITY_NAMES[cur.def.rarity]} · ${itemStatsText(statsOf(cur.def, cur.instance))}`, FS.small, C.ink).setOrigin(0, 0.5), TEXT_W);
       pressable(this, this.add.zone(CELL_X, top + 110, CELL + 20, CELL + 20), CELL + 20, CELL + 20, () => itemModal(this, cur.def, { refine: lvl }));
-      if (hasRefine) this.refineRow(hero, slot, cur.instance, cur.def, top);
+      if (cardRow) this.cardSlotRow(hero, slot, cur.instance, cur.def, top + 205);
+      if (hasRefine) this.refineRow(hero, slot, cur.instance, cur.def, top + (cardRow ? CARD_ROW_H : 0));
       button(this, 880, top + 100, 250, 110, 'k:buttonLong_beige', 'Снять', () => {
         commit(actUnequip(session.save, cur.instance.id));
         this.backToHero(hero.id, `${heroName(hero, GAME)}: снят предмет «${cur.def.name}»`);
@@ -218,6 +226,37 @@ export class InventoryScene extends Phaser.Scene {
    * «Рудой» (100%, тратит руду; нет руды — неактивна); под каждой — шанс поломки цветом риска. Безопасный шаг (0%) —
    * одна кнопка. Риск > 0 — подтверждение. Закрыто — «Откроется на этапе …», максимум — «+10 — максимум».
    */
+  /**
+   * Слот карты MVP (docs/design/mvp-hunt.md): вставленная карта и её бонус или «Вставить» (карта из запаса того же слота,
+   * навсегда — как в RO). y — верх строки.
+   */
+  private cardSlotRow(hero: HeroState, slot: Slot, instance: ItemInstance, def: ItemDef, y: number): void {
+    this.add.rectangle(GAME_W / 2, y, 980, 3, TINT.frame, 0.5);
+    const cy = y + CARD_ROW_H / 2;
+    const inside = instance.card ? cardDef(GAME, instance.card) : undefined;
+    if (inside) {
+      ellipsize(text(this, 50, cy - 20, inside.name, FS.h3, C.gold, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('cardInside'), 960);
+      ellipsize(text(this, 50, cy + 22, inside.text, FS.caption, C.ink).setOrigin(0, 0.5), 960);
+      return;
+    }
+    const fit = cardsForItem(session.save, def, GAME);
+    const first = fit[0];
+    ellipsize(text(this, 50, cy - 20, 'Слот карты пуст', FS.h3, C.ink, { fontStyle: 'bold' }).setOrigin(0, 0.5), 600);
+    ellipsize(text(this, 50, cy + 22, `${first.name}: ${first.text}`, FS.caption, C.inkMuted).setOrigin(0, 0.5).setName('cardOffer'), 680);
+    const b = button(this, 880, cy, 250, 100, 'ui_btn_primary', 'Вставить', () =>
+      confirm(this, `Вставить «${first.name}» в «${def.name}»?\nКарту нельзя вынуть.`, 'Вставить', () => {
+        try {
+          commit(insertCard(session.save, instance.id, first.id, GAME));
+          sfx('refine_success');
+          this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
+        } catch (e) {
+          toast(this, e instanceof Error ? e.message : String(e), C.error);
+        }
+      }),
+    FS.h3);
+    b.container.setName('cardInsert');
+  }
+
   private refineRow(hero: HeroState, slot: Slot, instance: ItemInstance, def: ItemDef, top: number): void {
     this.add.rectangle(GAME_W / 2, top + 205, 980, 3, TINT.frame, 0.5);
     const lvl = refineLevel(instance);

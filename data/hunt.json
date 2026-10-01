@@ -16,7 +16,8 @@
         "Зовёт подданных на 60%",
         "Щит и ярость на 30%"
       ],
-      "card": "card_mastering"
+      "card": "card_mastering",
+      "legacy": "mob_mastering"
     },
     {
       "unit": "mvp_osiris",
@@ -27,7 +28,8 @@
         "Бинты: щит, каст сбивает оглушение",
         "Щит на 70%, стража гробницы на 40%"
       ],
-      "card": "card_osiris"
+      "card": "card_osiris",
+      "legacy": "mob_osiris"
     },
     {
       "unit": "mvp_moonlight",
@@ -38,7 +40,8 @@
         "Прыгает в тыл к самому слабому",
         "Лисья стая на 50%, ярость на 25%"
       ],
-      "card": "card_moonlight"
+      "card": "card_moonlight",
+      "legacy": "mob_moonlight"
     },
     {
       "unit": "mvp_orc_lord",
@@ -87,68 +90,85 @@
   ],
   "mvp": {
     "weaknessAtk": 1,
-    "armorAtk": 0.2,
+    "armorAtk": 0.15,
     "cardChance": 0.12,
     "cardPity": 10,
+    "startRank": 2,
+    "jump": 0.9,
     "ranks": [
       {
-        "hp": 5000,
-        "atk": 0.8,
+        "hp": 2500,
+        "atk": 0.6,
         "def": 0.8
       },
       {
-        "hp": 15000,
-        "atk": 2,
+        "hp": 7000,
+        "atk": 1,
         "def": 0.8
       },
       {
-        "hp": 30000,
-        "atk": 3,
+        "hp": 13500,
+        "atk": 1.5,
         "def": 0.8
       },
       {
-        "hp": 50000,
-        "atk": 5,
+        "hp": 22500,
+        "atk": 2.5,
         "def": 0.8
       },
       {
-        "hp": 80000,
+        "hp": 36000,
+        "atk": 4,
+        "def": 0.8
+      },
+      {
+        "hp": 54000,
+        "atk": 7,
+        "def": 0.8
+      },
+      {
+        "hp": 81000,
         "atk": 11,
         "def": 0.8
       },
       {
-        "hp": 120000,
-        "atk": 17,
+        "hp": 117000,
+        "atk": 18,
         "def": 0.8
       },
       {
-        "hp": 180000,
-        "atk": 25,
+        "hp": 171000,
+        "atk": 26,
         "def": 0.8
       },
       {
-        "hp": 260000,
+        "hp": 247500,
         "atk": 36,
         "def": 0.8
       },
       {
-        "hp": 380000,
-        "atk": 44,
+        "hp": 359000,
+        "atk": 48,
         "def": 0.8
       },
       {
-        "hp": 550000,
-        "atk": 56,
+        "hp": 520500,
+        "atk": 64,
         "def": 0.8
       },
       {
-        "hp": 800000,
-        "atk": 70,
+        "hp": 754500,
+        "atk": 84,
         "def": 0.8
       },
       {
-        "hp": 1150000,
-        "atk": 88,
+        "hp": 1094000,
+        "atk": 110,
+        "def": 0.8
+      },
+      {
+        "hp": 1586500,
+        "atk": 145,
         "def": 0.8
       }
     ]

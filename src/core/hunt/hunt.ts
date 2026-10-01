@@ -108,7 +108,7 @@ export interface HuntStatus {
   attemptsPerDay: number;
   used: number;
   attemptsLeft: number;
-  /** Лучший урон по сегодняшнему боссу (за всё время; 0 — ещё не бились). */
+  /** Лучший результат по сегодняшнему боссу (урон или зачёт победы над MVP; за всё время; 0 — ещё не бились). */
   best: number;
   /** Индекс порога лучшего урона (−1 — ни одного). */
   bestTier: number;
@@ -134,7 +134,10 @@ export interface HuntOutcome {
   /** null — «Зачистка» (боя не было). */
   result: BattleResult | null;
   boss: HuntBossView;
+  /** Урон по боссу за бой (зачистка — лучший результат). */
   damage: number;
+  /** Результат попытки: урон, а за победу над MVP — не меньше урона порога его уровня (huntRankScore). Идёт в рекорд. */
+  score: number;
   /** Индекс достигнутого порога (−1 — ни одного, награды нет). */
   tier: number;
   grant: HuntGrant;
@@ -180,16 +183,71 @@ export function withHunt<C extends GameContext>(ctx: C, huntJson: unknown): C & 
   return { ...ctx, hunt };
 }
 
+/** Описание босса дня в hunt.bosses (без статов): ротация bosses[dayNumber mod длина]. */
+export function huntBossEntry(day: string, ctx: HuntContext): { index: number; entry: HuntConfig['bosses'][number] } {
+  const list = ctx.hunt.bosses;
+  const n = dayNumber(day);
+  const index = ((n % list.length) + list.length) % list.length;
+  return { index, entry: list[index] };
+}
+
+/** Лучший результат по боссу unit: его запись или запись старого босса охоты (bosses[].legacy — сохранения до MVP). */
+export function huntBest(save: Pick<SaveState, 'hunt'>, unit: string, ctx: HuntContext): number {
+  const best = save.hunt?.best ?? {};
+  const legacy = ctx.hunt.bosses.find((b) => b.unit === unit)?.legacy;
+  return Math.max(best[unit] ?? 0, legacy ? (best[legacy] ?? 0) : 0);
+}
+
+/** Сколько уровней пробито результатом best: уровень i (i < числа порогов) — если best ≥ его зачёта (урона порога i). */
+function ranksPassed(best: number, ctx: HuntContext): number {
+  const ranks = ctx.hunt.mvp?.ranks ?? [];
+  return ranks.filter((_, i) => i < ctx.hunt.tiers.length && huntRankScore(i, ctx) <= best).length;
+}
+
 /**
- * Уровень MVP игрока (индекс hunt.mvp.ranks): сколько уровней пробито лучшим уроном по любому боссу (старые сохранения
- * тоже), не выше последнего. Без mvp — 0.
+ * Уровень MVP охотника (индекс hunt.mvp.ranks, один на всех MVP): сохранённый hunt.level, а без него (старые сохранения,
+ * новичок) — сколько уровней пробито лучшим результатом по любому боссу, но не ниже mvp.startRank. Победа на этом уровне —
+ * выше (+1 или прыжок, huntJump), поражение на нём — на уровень ниже: уровень держится у предела отряда, а день со
+ * «своим» MVP (стихия, механики) поднимает его. Не выше последнего. Без mvp — 0.
  */
 export function huntRank(save: Pick<SaveState, 'hunt'>, ctx: HuntContext): number {
-  const ranks = ctx.hunt.mvp?.ranks;
-  if (!ranks) return 0;
-  const best = Math.max(0, ...Object.values(save.hunt?.best ?? {}));
-  const passed = ranks.filter((r) => r.hp <= best).length;
-  return Math.min(ranks.length - 1, passed);
+  const mvp = ctx.hunt.mvp;
+  if (!mvp) return 0;
+  const level = save.hunt?.level ?? Math.max(mvp.startRank, ranksPassed(Math.max(0, ...Object.values(save.hunt?.best ?? {})), ctx));
+  return Math.max(0, Math.min(mvp.ranks.length - 1, level));
+}
+
+/** Результат за победу над уровнем rank: урон порога min(rank, последний) — победа даёт награду порога своего уровня. */
+export function huntRankScore(rank: number, ctx: HuntContext): number {
+  const t = ctx.hunt.tiers;
+  return t[Math.max(0, Math.min(t.length - 1, rank))].damage;
+}
+
+/**
+ * Результат боя с MVP уровня rank (docs/design/mvp-hunt.md): доля снятых ОЗ уровня × зачёт уровня (урон порога rank), победа —
+ * зачёт целиком. ОЗ уровня ниже порога (бой с фазами, свитой и зарядом тяжелее старого «мешка» с ОЗ) — результат в тех же
+ * единицах, что пороги и старые рекорды.
+ */
+export function huntScore(damage: number, killed: boolean, rank: number, ctx: HuntContext): number {
+  const full = huntRankScore(rank, ctx);
+  if (killed) return full;
+  const hp = ctx.hunt.mvp?.ranks[rank]?.hp ?? full;
+  return Math.round(full * Math.min(0.99, damage / hp));
+}
+
+/**
+ * Уровень после победы над уровнем rank за killAt секунд: прогноз урона за весь бой (ОЗ × лимит / время) × mvp.jump —
+ * высший уровень с ОЗ не больше прогноза, но не меньше rank + 1. Так сильный отряд не ползёт по уровню в день.
+ */
+export function huntJump(rank: number, killAt: number, ctx: HuntContext): number {
+  const mvp = ctx.hunt.mvp;
+  if (!mvp) return 0;
+  const projected = (mvp.ranks[rank].hp * ctx.hunt.timeLimitSeconds * mvp.jump) / Math.max(1, killAt);
+  let next = rank + 1;
+  mvp.ranks.forEach((r, i) => {
+    if (i > next && r.hp <= projected) next = i;
+  });
+  return Math.min(mvp.ranks.length - 1, next);
 }
 
 /**
@@ -197,10 +255,7 @@ export function huntRank(save: Pick<SaveState, 'hunt'>, ctx: HuntContext): numbe
  * уровня rank (0 по умолчанию): ОЗ ranks[rank].hp, АТК и ЗАЩ юнита × множители уровня.
  */
 export function huntBoss(day: string, ctx: HuntContext, rank = 0): HuntBossView {
-  const list = ctx.hunt.bosses;
-  const n = dayNumber(day);
-  const index = ((n % list.length) + list.length) % list.length;
-  const b = list[index];
+  const { index, entry: b } = huntBossEntry(day, ctx);
   const base = ctx.content.units[b.unit];
   if (!base) throw new HuntError('invalid_config', `Охота: юнит ${b.unit} не найден`);
   const ranks = ctx.hunt.mvp?.ranks;
@@ -312,7 +367,7 @@ export function huntStatus(save: SaveState, day: string, ctx: HuntContext): Hunt
   const rank = huntRank(save, ctx);
   const boss = huntBoss(day, ctx, rank);
   const { used } = stateOf(save, day);
-  const best = save.hunt?.best[boss.unit] ?? 0;
+  const best = huntBest(save, boss.unit, ctx);
   const attemptsLeft = Math.max(0, ctx.hunt.attemptsPerDay - used);
   const unlocked = featureUnlocked(save, 'hunt', ctx);
   return {
@@ -437,20 +492,28 @@ export function fightHunt(save: SaveState, day: string, ctx: HuntContext, opts: 
     combat: { ...ctx.combat, timeLimitSeconds: ctx.hunt.timeLimitSeconds },
   });
   const damage = huntDamage(result);
-  const record = damage > (save.hunt?.best[boss.unit] ?? 0);
-  const tier = huntTier(damage, ctx.hunt);
+  const killed = !!ctx.hunt.mvp && huntKilled(result);
+  const score = ctx.hunt.mvp ? huntScore(damage, killed, rank, ctx) : damage;
+  const record = score > huntBest(save, boss.unit, ctx);
+  const tier = huntTier(score, ctx.hunt);
   const loot = huntSeed(save, day, 'loot');
   const g = grantOre(save, grant(save, huntTierReward(tier, ctx.hunt), loot, ctx), day, tier, loot, ctx);
-  let next = spend(g.save, day, boss.unit, damage);
-  const killed = !!ctx.hunt.mvp && huntKilled(result);
+  let next = spend(g.save, day, boss.unit, score);
   let card: string | undefined;
   if (killed) {
     const k = mvpKill(next, boss.unit, boss.card?.id, huntSeed(save, day, 'card'), ctx);
     next = k.save;
     card = k.card;
   }
+  // Уровень охотника меняет только бой на нём (ниже — фарм карт): победа — выше (+1, быстрая — прыжок), поражение — ниже.
+  if (ctx.hunt.mvp && rank === top) {
+    const bossUid = result.units.find((u) => u.side === 'B')!.uid;
+    const killAt = result.log.find((e) => e.type === 'death' && e.unit === bossUid)?.t ?? result.duration;
+    const level = killed ? huntJump(rank, killAt, ctx) : Math.max(0, rank - 1);
+    next = { ...next, hunt: { ...next.hunt!, level } };
+  }
   const rankUp = killed && huntRank(next, ctx) > top;
-  return { save: next, result, boss, damage, tier, grant: { ...g.grant, ...(card ? { card } : {}) }, record, sweep: false, killed, rankUp };
+  return { save: next, result, boss, damage, score, tier, grant: { ...g.grant, ...(card ? { card } : {}) }, record, sweep: false, killed, rankUp };
 }
 
 /**
@@ -460,11 +523,11 @@ export function fightHunt(save: SaveState, day: string, ctx: HuntContext, opts: 
 export function sweepHunt(save: SaveState, day: string, ctx: HuntContext): HuntOutcome {
   check(save, day, ctx);
   const boss = huntBoss(day, ctx, huntRank(save, ctx));
-  const best = save.hunt?.best[boss.unit] ?? 0;
+  const best = huntBest(save, boss.unit, ctx);
   if (!ctx.hunt.sweep || best <= 0) throw new HuntError('no_sweep', 'Зачистка откроется после первого боя с этим боссом');
   const tier = huntTier(best, ctx.hunt);
   const loot = huntSeed(save, day, 'loot');
   const g = grantOre(save, grant(save, huntTierReward(tier, ctx.hunt), loot, ctx), day, tier, loot, ctx);
   const next = spend(g.save, day, boss.unit, best);
-  return { save: next, result: null, boss, damage: best, tier, grant: g.grant, record: false, sweep: true, killed: false, rankUp: false };
+  return { save: next, result: null, boss, damage: best, score: best, tier, grant: g.grant, record: false, sweep: true, killed: false, rankUp: false };
 }

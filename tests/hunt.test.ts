@@ -9,6 +9,7 @@ import {
   huntBoss,
   huntDamage,
   huntKilled,
+  huntScore,
   huntStatus,
   huntTier,
   newGame,
@@ -96,11 +97,16 @@ describe('Охота на босса: пороги и босс дня', () => {
     expect(huntBoss(D1, ctx, -3).rank).toBe(0);
   });
 
-  it('BUG-164 → MVP: победа над уровнем i даёт порог i (ОЗ уровня ≥ урона порога), высший порог достижим', () => {
+  it('BUG-164 → MVP: результат — доля ОЗ уровня × урон порога уровня; победа над уровнем i — порог i, высший достижим', () => {
     const { ranks } = ctx.hunt.mvp!;
-    ctx.hunt.tiers.forEach((t, i) => expect(ranks[i]?.hp ?? 0, `уровень ${i + 1}`).toBeGreaterThanOrEqual(t.damage));
-    for (let i = 0; i < ctx.hunt.tiers.length; i++) expect(huntTier(ranks[i].hp, ctx.hunt)).toBe(i);
-    expect(ranks.at(-1)!.hp).toBeGreaterThanOrEqual(ctx.hunt.tiers.at(-1)!.damage);
+    expect(ranks.length).toBeGreaterThanOrEqual(ctx.hunt.tiers.length);
+    ranks.forEach((r, i) => i > 0 && expect(r.hp).toBeGreaterThan(ranks[i - 1].hp));
+    for (let i = 0; i < ctx.hunt.tiers.length; i++) {
+      expect(huntTier(huntScore(0, true, i, ctx), ctx.hunt)).toBe(i);
+      // Половина ОЗ уровня — половина зачёта.
+      expect(huntScore(ranks[i].hp / 2, false, i, ctx)).toBe(Math.round(ctx.hunt.tiers[i].damage / 2));
+    }
+    expect(huntTier(huntScore(0, true, ranks.length - 1, ctx), ctx.hunt)).toBe(ctx.hunt.tiers.length - 1);
   });
 });
 
@@ -121,15 +127,16 @@ describe('Охота на босса: бой', () => {
     expect(out.killed).toBe(huntKilled(r));
     expect(out.damage).toBe(huntDamage(r));
     expect(out.damage).toBeGreaterThan(0);
-    expect(out.tier).toBe(huntTier(out.damage, ctx.hunt));
+    expect(out.score).toBe(huntScore(out.damage, out.killed, out.boss.rank!, ctx));
+    expect(out.tier).toBe(huntTier(out.score, ctx.hunt));
     const reward = out.tier >= 0 ? ctx.hunt.tiers[out.tier].rewards : {};
     expect(out.save.resources.gold - s.resources.gold).toBe(reward.gold ?? 0);
     expect(out.save.currency.gems - s.currency.gems).toBe(reward.gems ?? 0);
-    expect(out.save.hunt).toMatchObject({ day: D1, used: 1, best: { [out.boss.unit]: out.damage } });
+    expect(out.save.hunt).toMatchObject({ day: D1, used: 1, best: { [out.boss.unit]: out.score } });
     expect(out.record).toBe(true);
     const st = huntStatus(out.save, D1, ctx);
     expect(st.attemptsLeft).toBe(ctx.hunt.attemptsPerDay - 1);
-    expect(st.best).toBe(out.damage);
+    expect(st.best).toBe(out.score);
   });
 
   it('детерминирован: то же сохранение и день — тот же лог и урон; другая попытка — другой seed', () => {
@@ -163,7 +170,7 @@ describe('Охота на босса: бой', () => {
     const sw = sweepHunt(fought.save, D1, ctx);
     expect(sw.result).toBeNull();
     expect(sw.sweep).toBe(true);
-    expect(sw.damage).toBe(fought.damage);
+    expect(sw.damage).toBe(fought.score);
     expect(sw.tier).toBe(fought.tier);
     expect(sw.save.resources.gold - fought.save.resources.gold).toBe(fought.save.resources.gold - s.resources.gold);
     expect(sw.save.hunt!.used).toBe(2);

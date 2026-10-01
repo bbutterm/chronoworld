@@ -284,6 +284,8 @@ export const HuntStateSchema = z.object({
   kills: z.record(z.string(), z.number().int().nonnegative()).optional(),
   /** Невставленные карты MVP: id карты → штук. */
   cards: z.record(z.string(), z.number().int().nonnegative()).optional(),
+  /** Уровень MVP охотника (hunt.ts huntRank): победа на нём — выше, поражение — ниже. Нет поля — по лучшему урону. */
+  level: z.number().int().nonnegative().optional(),
   /** Побед подряд без карты (гарантия hunt.mvp.cardPity). */
   dry: z.number().int().nonnegative().optional(),
 });

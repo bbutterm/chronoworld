@@ -11,6 +11,7 @@ import {
   huntBoss,
   huntDamage,
   huntRank,
+  huntScore,
   huntSquad,
   huntStatus,
   insertCard,
@@ -127,7 +128,7 @@ describe('MVP-охота: уровни, победа, карты', () => {
     const old: SaveState = { ...s, hunt: { day: '2026-09-20', used: 2, best: { mob_mastering: 200000, mob_osiris: 90000 } } };
     const back = deserialize(serialize(old));
     expect(back.hunt).toEqual(old.hunt);
-    const expected = ctx.hunt.mvp!.ranks.filter((r) => r.hp <= 200000).length;
+    const expected = ctx.hunt.tiers.filter((t) => t.damage <= 200000).length;
     expect(huntRank(back, ctx)).toBe(expected);
     const st = huntStatus(back, D1, ctx);
     expect(st.rank).toBe(expected);
@@ -146,8 +147,21 @@ describe('MVP-охота: уровни, победа, карты', () => {
     expect(out.rankUp).toBe(true);
     expect(out.damage).toBeGreaterThanOrEqual(EASY.hunt.mvp!.ranks[0].hp);
     expect(out.save.hunt!.kills![out.boss.unit]).toBe(1);
-    expect(huntRank(out.save, EASY)).toBe(1);
+    expect(huntRank(out.save, EASY)).toBeGreaterThan(EASY.hunt.mvp!.startRank);
+    expect(out.save.hunt!.level).toBe(huntRank(out.save, EASY));
+    expect(out.score).toBe(EASY.hunt.tiers[EASY.hunt.mvp!.startRank].damage);
     expect(huntStatus(out.save, D1, EASY).kills).toBe(1);
+  });
+
+  it('поражение на своём уровне — уровень ниже; бой на выбранном ниже уровне уровень не трогает', () => {
+    const hard = withMvp({ ranks: ctx.hunt.mvp!.ranks.map((r) => ({ ...r, hp: r.hp * 1000, atk: r.atk * 100 })) });
+    const s: SaveState = { ...unlocked(), hunt: { day: '2026-09-20', used: 0, best: {}, level: 4 } };
+    const out = fightHunt(s, D1, hard);
+    expect(out.killed).toBe(false);
+    expect(out.save.hunt!.level).toBe(3);
+    expect(out.score).toBe(huntScore(out.damage, false, 4, hard));
+    const low = fightHunt(s, D1, hard, { rank: 1 });
+    expect(low.save.hunt!.level).toBe(4);
   });
 
   it('уровень можно выбрать ниже высшего (выше — не даёт)', () => {

@@ -25,11 +25,14 @@ export const HuntBossSchema = z.object({
   mechanics: z.array(z.string().min(1).max(56)).max(4).optional(),
   /** MVP: карта, которая может выпасть за победу (id из hunt.cards). */
   card: id.optional(),
+  /** Старый босс охоты (до MVP), чей лучший урон в сохранениях засчитывается этому MVP (уровень и «Зачистка»). */
+  legacy: id.optional(),
 });
 
 /**
- * Уровень MVP (docs/design/mvp-hunt.md): ОЗ — абсолютные, АТК и ЗАЩ — множители статов юнита. Уровень i убит → урон ≥ hp,
- * поэтому hp[i] не меньше урона порога i (tiers[i]) — победа над уровнем i даёт награду порога i.
+ * Уровень MVP (docs/design/mvp-hunt.md): ОЗ — абсолютные, АТК и ЗАЩ — множители статов юнита. Победа над уровнем i
+ * засчитывается как урон порога i (tiers[i], для уровней сверх порогов — последнего): ОЗ уровня ниже порога, потому что
+ * бой с фазами, свитой и зарядом тяжелее старого «мешка» с ОЗ.
  */
 export const HuntRankSchema = z.object({
   hp: z.number().int().positive(),
@@ -47,6 +50,13 @@ export const HuntMvpSchema = z.object({
   weaknessAtk: z.number().min(0).max(2),
   /** «Стихийная броня» MVP: остальные герои (не той стихии) теряют эту долю АТК в бою охоты. */
   armorAtk: z.number().min(0).max(0.9).default(0),
+  /** С какого уровня (индекс) начинает новый охотник: проигрыш всё равно даёт награду по урону, а победа — прыжок вверх. */
+  startRank: z.number().int().nonnegative().default(0),
+  /**
+   * Прыжок уровня: победа за t секунд → прогноз урона за бой ОЗ × лимит / t × jump; следующий уровень — высший с ОЗ не больше
+   * прогноза (не меньше +1). 0 — всегда +1.
+   */
+  jump: z.number().min(0).max(1).default(0.8),
   /** Шанс карты MVP за победу. */
   cardChance: z.number().min(0).max(1),
   /** Гарантия: столько побед подряд без карты — следующая победа даёт карту. */
@@ -99,8 +109,6 @@ export const HuntConfigSchema = z
     });
     cfg.mvp?.ranks.forEach((r, i, ranks) => {
       if (i > 0 && r.hp <= ranks[i - 1].hp) c.addIssue({ code: 'custom', path: ['mvp', 'ranks', i, 'hp'], message: 'ОЗ уровней MVP должны строго возрастать' });
-      const t = cfg.tiers[i];
-      if (t && r.hp < t.damage) c.addIssue({ code: 'custom', path: ['mvp', 'ranks', i, 'hp'], message: `ОЗ уровня меньше урона порога ${i + 1} (${t.damage}) — победа не даст его награду` });
     });
     cfg.tiers.forEach((t, i) => {
       if (i === 0) return;
