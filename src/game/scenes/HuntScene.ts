@@ -13,6 +13,7 @@ import { ctaShine, glow, ribbon, slowRays } from '../decor';
 import { SKIN, skinIcon } from '../skin';
 import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
 import { lockedScreen } from '../unlockBanner';
+import { plural } from '../skillFacts';
 import { collect, staggerIn } from '../juice';
 import { firstTip } from '../firstTips';
 
@@ -140,7 +141,7 @@ export class HuntScene extends Phaser.Scene {
       ellipsize(text(this, 60, top + 48, head, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('huntHintHead'), 700);
       const line = !st.heroes.length
         ? 'У вас нет героя этой стихии — MVP будет тяжелее'
-        : [inSquad.length ? `в отряде: ${inSquad.map((h) => h.name).join(', ')}` : '', out.length ? `можно взять: ${out.map((h) => h.name).join(', ')}` : '']
+        : [inSquad.length ? `в отряде: ${uniqNames(inSquad)}` : '', out.length ? `можно взять: ${uniqNames(out.filter((h) => !inSquad.some((x) => x.name === h.name)))}` : '']
             .filter(Boolean)
             .join(' · ');
       const color = !st.heroes.length ? C.danger : inSquad.length ? C.positive : C.warning;
@@ -160,13 +161,17 @@ export class HuntScene extends Phaser.Scene {
       const boss = huntBoss(today(), GAME, rank);
       const left = button(this, 110, y, 110, 90, 'ui_btn_secondary', '◀', () => this.pick(rank - 1, st), FS.h2);
       left.setEnabled(rank > 0);
-      const right = button(this, 970, y, 110, 90, 'ui_btn_secondary', '▶', () => this.pick(rank + 1, st), FS.h2);
-      right.setEnabled(rank < st.rank);
+      // BUG-193: ▶ выше своего уровня не молчит — объясняет, как подняться.
+      const right = button(this, 970, y, 110, 90, 'ui_btn_secondary', '▶', () => {
+        if (rank < st.rank) this.pick(rank + 1, st);
+        else toast(this, `Выше вашего уровня нельзя: победите MVP уровня ${rank + 1} — откроется ${rank + 2}-й`, C.warning);
+      }, FS.h2);
+      if (rank >= st.rank) right.container.setAlpha(0.5);
       text(this, GAME_W / 2, y - 18, `Уровень ${rank + 1} из ${st.ranks}${rank < st.rank ? ' (ниже вашего)' : ''}`, FS.h3, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('huntRank');
       text(this, GAME_W / 2, y + 26, `Здоровье ${formatNumber(boss.def.stats.hp)} · бой ${GAME.hunt.timeLimitSeconds} с`, FS.caption - 2, C.muted, OUTLINE);
       y += 90;
       const tier = Math.min(rank, st.tiers.length - 1);
-      text(this, 60, y, `Победа — порог ${tier + 1}:`, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5);
+      text(this, 60, y, `Победа — порог наград ${tier + 1}/${st.tiers.length}:`, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5);
       const rw = text(this, 60, y + 44, huntRewardText(st.tiers[tier].rewards), FS.caption - 2, SKIN.cream, OUTLINE).setOrigin(0, 0.5).setName('huntReward');
       if (rw.width > 960) rw.setScale(960 / rw.width);
       y += 100;
@@ -175,8 +180,10 @@ export class HuntScene extends Phaser.Scene {
         const pity = Math.max(1, GAME.hunt.mvp.cardPity - (session.save.hunt?.dry ?? 0));
         const chance = `${cardDef.name}: шанс ${Math.round(GAME.hunt.mvp.cardChance * 100)}%, точно — через ${pity} ${pity === 1 ? 'победу' : pity < 5 ? 'победы' : 'побед'}`;
         ellipsize(text(this, 60, y, chance, FS.small, '#d8b4ff', { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5).setName('huntCard'), 960);
-        ellipsize(text(this, 60, y + 42, `${cardDef.text} Вставляется в снаряжение.`, FS.caption - 2, C.muted, OUTLINE).setOrigin(0, 0.5), 960);
-        y += 100;
+        // BUG-193: текст карты — до двух строк, а не «Встав…».
+        const ct = text(this, 60, y + 28, `${cardDef.text} Вставляется в снаряжение.`, FS.caption - 2, C.muted, { ...OUTLINE, wordWrap: { width: 960 }, align: 'left' }).setOrigin(0, 0);
+        ct.setMaxLines(2);
+        y += 50 + ct.height;
       }
     }
     // Шкала порогов: заливка — лучший результат по этому MVP.
@@ -189,7 +196,13 @@ export class HuntScene extends Phaser.Scene {
       const reached = i <= st.bestTier;
       this.add.rectangle(x, by, 4, 30, reached ? 0xffe08a : 0x6a5a40);
     });
-    const best = st.best > 0 ? `Лучший результат: ${formatNumber(st.best)} · порог ${st.bestTier + 1} из ${st.tiers.length}` : 'Ещё не бились — первый бой покажет силу отряда';
+    // BUG-185: у MVP рекорд — в порогах (зачёт уровня — внутренние единицы, рядом с ОЗ MVP он путал).
+    const best =
+      st.best <= 0
+        ? 'Ещё не бились — первый бой покажет силу отряда'
+        : st.mvp
+          ? `Лучший результат: порог наград ${st.bestTier + 1} из ${st.tiers.length}`
+          : `Лучший результат: ${formatNumber(st.best)} · порог ${st.bestTier + 1} из ${st.tiers.length}`;
     text(this, GAME_W / 2, by + 48, best, FS.small, st.best > 0 ? C.gold : C.dim, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setName('huntBest');
   }
 
@@ -244,24 +257,47 @@ export class HuntScene extends Phaser.Scene {
     const shade = this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.72).setInteractive();
     const box = card(this, cx, cy, 900, 960).setInteractive();
     layer.add([shade, box]);
-    const head = out.sweep ? 'Зачистка' : out.killed ? 'MVP!' : 'Охота окончена';
-    layer.add(ribbon(this, cx, cy - 440, head, { size: out.killed ? FS.h1 : FS.h2, minW: 480 }));
+    // BUG-185: MVP — исход называется прямо: «MVP!» или «Поражение», доля снятых ОЗ и уровень «10 → 9».
+    const mvpFight = !out.sweep && out.levelBefore !== undefined;
+    const hp = out.boss.def.stats.hp;
+    const pct = out.killed ? 100 : Math.min(99, Math.floor((out.damage / Math.max(1, hp)) * 100));
+    const head = out.sweep ? 'Зачистка' : out.killed ? 'MVP!' : mvpFight ? 'Поражение' : 'Охота окончена';
+    layer.add(ribbon(this, cx, cy - 440, head, { size: out.killed ? FS.h1 : FS.h2, minW: 480 }).setName('huntOutHead'));
     if (out.killed) {
       layer.add(text(this, cx, cy - 340, `${out.boss.def.name} повержен!`, FS.h2, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setName('huntOutKilled'));
+    } else if (mvpFight) {
+      layer.add(text(this, cx, cy - 340, `${out.boss.def.name} ушёл — снято ОЗ`, FS.body, C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('huntOutLost'));
     } else {
       layer.add(text(this, cx, cy - 340, out.boss.rank !== undefined ? 'Урон по MVP' : 'Урон по боссу', FS.body, C.muted));
     }
-    layer.add(text(this, cx, cy - 255, formatNumber(out.damage), 96, SKIN.goldLight, { fontStyle: 'bold', stroke: '#2a1a08', strokeThickness: 12 }));
-    const tierLine = out.tier >= 0 ? `Порог ${out.tier + 1} из ${GAME.hunt.tiers.length}` : 'Порог не взят — награды нет';
+    const big = mvpFight && !out.killed ? `${pct}%` : formatNumber(out.damage);
+    layer.add(text(this, cx, cy - 255, big, 96, SKIN.goldLight, { fontStyle: 'bold', stroke: '#2a1a08', strokeThickness: 12 }));
+    const tierLine = out.tier >= 0 ? `Порог наград ${out.tier + 1} из ${GAME.hunt.tiers.length}` : 'Порог не взят — награды нет';
     layer.add(text(this, cx, cy - 165, tierLine, FS.h3, out.tier >= 0 ? C.success : C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }));
     let y = cy - 110;
-    if (out.rankUp) {
+    const lb = out.levelBefore;
+    const la = out.levelAfter;
+    if (mvpFight && lb !== undefined && la !== undefined && la !== lb) {
+      const up = la > lb;
+      layer.add(
+        text(this, cx, y, `Уровень MVP ${lb + 1} → ${la + 1}${up ? '' : ' (поражение на своём уровне)'}`, FS.body, up ? C.positive : C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName(
+          up ? 'huntRankUp' : 'huntRankDown',
+        ),
+      );
+      y += 55;
+    } else if (out.rankUp) {
       const lvl = out.save.hunt?.level;
       layer.add(text(this, cx, y, lvl !== undefined ? `Новый уровень MVP: ${lvl + 1}` : 'Новый уровень MVP!', FS.body, C.positive, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('huntRankUp'));
       y += 55;
-    } else if (out.record) {
+    } else if (out.record && !mvpFight) {
       layer.add(text(this, cx, y, 'Новый рекорд!', FS.body, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }));
       y += 55;
+    }
+    // BUG-193: победа без карты — когда карта выпадет точно.
+    if (out.killed && !out.grant.card && out.boss.card && GAME.hunt.mvp) {
+      const pity = Math.max(1, GAME.hunt.mvp.cardPity - (out.save.hunt?.dry ?? 0));
+      layer.add(text(this, cx, y, `${out.boss.card.name} — точно через ${pity} ${plural(pity, 'победу', 'победы', 'побед')}`, FS.small, '#d8b4ff', { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }));
+      y += 50;
     }
     if (out.grant.card) {
       const cd = GAME.hunt.cards.find((c) => c.id === out.grant.card);
@@ -293,6 +329,11 @@ export class HuntScene extends Phaser.Scene {
     layer.add(ok.container);
     popIn(this, layer, shade);
   }
+}
+
+/** Имена без повторов (копии одного героя — один раз). */
+function uniqNames(list: readonly { name: string }[]): string {
+  return [...new Set(list.map((h) => h.name))].join(', ');
 }
 
 /** Положение урона на шкале из равных отрезков между порогами (0…1). */

@@ -188,9 +188,12 @@ describe('MVP-охота: уровни, победа, карты', () => {
     const out = fightHunt(s, D1, hard);
     expect(out.killed).toBe(false);
     expect(out.save.hunt!.level).toBe(3);
+    // BUG-185: итог знает уровень до и после — экран пишет «Уровень 5 → 4».
+    expect([out.rank, out.levelBefore, out.levelAfter]).toEqual([4, 4, 3]);
     expect(out.score).toBe(huntScore(out.damage, false, 4, hard));
     const low = fightHunt(s, D1, hard, { rank: 1 });
     expect(low.save.hunt!.level).toBe(4);
+    expect([low.rank, low.levelBefore, low.levelAfter]).toEqual([1, 4, 4]);
   });
 
   it('уровень можно выбрать ниже высшего (выше — не даёт)', () => {

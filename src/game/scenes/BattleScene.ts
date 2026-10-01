@@ -32,7 +32,7 @@ import {
 } from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
-import { enemyLevelColor, heroSprite, levelLabel, stageLevelsFor, stageNo, stageSeed } from '../flow';
+import { enemyLevelColor, heroSprite, levelLabel, levelLabel as levelLabelOf, stageLevelsFor, stageNo, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
@@ -739,12 +739,15 @@ export class BattleScene extends Phaser.Scene {
     const boss = this.result.units.find((u) => u.side === 'B' && this.defs[u.unitId]?.kind === 'boss');
     if (!boss) return;
     const name = this.defs[boss.unitId].name;
+    // BUG-192: у MVP — уровень охоты («уровень 9»), у босса Башни уровня нет (статы этажа не по шкале героев).
+    const huntRank = this.hunt?.outcome.boss.rank;
     const level = this.enemyLevel(this.defs[boss.unitId]);
+    const levelLabel = (lv: number) => (huntRank !== undefined ? `уровень ${huntRank + 1}` : levelLabelOf(lv));
 
     const barX = GAME_W / 2 - BOSS_BAR_W / 2;
     this.add.image(GAME_W / 2, BOSS_BAR_Y, 'ui_bar_back').setDisplaySize(BOSS_BAR_W + 12, 46);
     const fill = this.add.image(barX, BOSS_BAR_Y, 'ui_bar_hp_enemy').setOrigin(0, 0.5).setDisplaySize(BOSS_BAR_W, 34);
-    text(this, GAME_W / 2, BOSS_BAR_Y, level !== null ? `${name} · ${levelLabel(level)}` : name, 32, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 7 }).setDepth(2);
+    text(this, GAME_W / 2, BOSS_BAR_Y, level !== null || huntRank !== undefined ? `${name} · ${levelLabel(level ?? 0)}` : name, 32, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 7 }).setDepth(2);
     this.bossBar = { uid: boss.uid, fill };
     // Засечки фаз (50%, 25%…) видны с начала боя: игрок знает, когда босс сменит поведение.
     const pcts = (this.defs[boss.unitId].phases ?? []).flatMap((p) => (p.atHpPct !== undefined ? [p.atHpPct] : []));
@@ -761,7 +764,7 @@ export class BattleScene extends Phaser.Scene {
     const inner = this.add.rectangle(0, 0, w - 36, h - 36).setStrokeStyle(2, SKIN_TINT.gold, 0.5);
     const title = text(this, 0, -34, name.toUpperCase(), 104, SKIN.goldLight, { fontStyle: 'bold', stroke: '#2a1a08', strokeThickness: 12 });
     if (title.width > w - 80) title.setScale((w - 80) / title.width);
-    const sub = text(this, 0, 82, level !== null ? `${subtitle} · ${levelLabel(level)}` : subtitle, 44, SKIN.cream, { stroke: '#000000', strokeThickness: 6 });
+    const sub = text(this, 0, 82, level !== null || huntRank !== undefined ? `${subtitle} · ${levelLabel(level ?? 0)}` : subtitle, 44, SKIN.cream, { stroke: '#000000', strokeThickness: 6 });
     // Уровень босса — цветом против среднего уровня отряда (красный — выше больше чем на 5).
     if (level !== null) sub.setColor(enemyLevelColor(level, session.save));
     const lineW = 150;
@@ -971,6 +974,8 @@ export class BattleScene extends Phaser.Scene {
 
   /** Уровень врага в этом бою (null — тестовый бой). */
   private enemyLevel(def: UnitDef): number | null {
+    // BUG-192: в Башне и на охоте статы врагов не по шкале уровней героев («ур. 267», «ур. 300») — уровень не пишем.
+    if (this.towerRun || this.hunt) return null;
     return this.levels ? Math.max(1, unitLevel(def, this.levels.rarity, GAME, this.levels.bossFactor) + (this.levels.shift ?? 0)) : null;
   }
 
