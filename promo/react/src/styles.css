@@ -1,0 +1,596 @@
+/* Промо Chronoworld. Размеры текста — в cqw/cqh сцены (container query): чёткий текст при любом размере экрана. */
+:root {
+  --gold1: #fffbe8;
+  --gold2: #ffe08f;
+  --gold3: #f0a838;
+  --gold4: #b06a16;
+  --ink: #1a0a02;
+  --bg: #0b0705;
+}
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+}
+body {
+  font-family: Rubik, system-ui, sans-serif;
+  color: #fff6e0;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+* {
+  box-sizing: border-box;
+}
+
+.wrap {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1600px;
+  background: var(--bg);
+}
+.wrap.desk {
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(214, 162, 74, 0.18), transparent 60%),
+    radial-gradient(ellipse at 50% 120%, rgba(120, 30, 10, 0.35), transparent 60%),
+    #0b0705;
+}
+.frame {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  transform-style: preserve-3d;
+}
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+  background: #0b0806;
+  touch-action: none;
+  cursor: pointer;
+}
+/* Десктоп: телефон по центру. */
+.desk .frame {
+  width: auto;
+  height: min(94vh, 1180px);
+  aspect-ratio: 9 / 16;
+  padding: 1.1%;
+  border-radius: 6% / 3.4%;
+  background: linear-gradient(145deg, #3a2a1c, #120c08 40%, #2a1e14);
+  box-shadow:
+    0 0 0 2px #5a4028,
+    0 0 0 5px #0c0806,
+    0 40px 90px rgba(0, 0, 0, 0.75),
+    0 0 120px rgba(214, 162, 74, 0.15);
+}
+.desk .stage {
+  inset: 1.6%;
+  border-radius: 5% / 2.9%;
+}
+.render .frame {
+  width: 100vw;
+  height: 100vh;
+}
+.deskhint {
+  position: fixed;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font: 500 13px Rubik;
+  color: rgba(255, 230, 180, 0.45);
+  pointer-events: none;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+}
+.world {
+  will-change: transform;
+}
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+/* Кадр 9:16, покрывающий сцену; --fx/--fy — что остаётся в кадре при обрезке. */
+.cover {
+  position: absolute;
+  width: max(100cqw, 56.25cqh);
+  aspect-ratio: 9 / 16;
+  left: calc((100cqw - max(100cqw, 56.25cqh)) * var(--fx));
+  top: calc((100cqh - max(177.78cqw, 100cqh)) * var(--fy));
+  will-change: transform;
+}
+.cover > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.shade-top,
+.shade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+.shade-top {
+  top: 0;
+  background: linear-gradient(180deg, rgba(8, 4, 1, 0.94) 0%, rgba(8, 4, 1, 0.78) 50%, rgba(8, 4, 1, 0) 100%);
+}
+.shade-bottom {
+  bottom: 0;
+  background: linear-gradient(0deg, rgba(8, 4, 1, 0.94) 0%, rgba(8, 4, 1, 0.7) 50%, rgba(8, 4, 1, 0) 100%);
+}
+.vig {
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.5) 100%);
+  pointer-events: none;
+}
+.redvig {
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 55%, transparent 30%, rgba(200, 20, 0, 0.55) 72%, rgba(90, 0, 0, 0.92) 100%);
+}
+.flash {
+  background: #fff8e8;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.dim {
+  background: #080402;
+  opacity: 0;
+}
+.black {
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- Текст ---- */
+.line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.1;
+  pointer-events: none;
+}
+.letters {
+  display: inline-block;
+}
+.ch {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+.gold,
+.gold-t {
+  font-family: 'Russo One', Rubik, sans-serif;
+  background: linear-gradient(180deg, var(--gold1) 0%, var(--gold2) 35%, var(--gold3) 62%, var(--gold4) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 0.02em #2a1204) drop-shadow(0 0.05em 0 #2a1204) drop-shadow(0 0.1em 0.2em rgba(0, 0, 0, 0.9));
+}
+.gold-t {
+  display: block;
+}
+.red {
+  font-family: 'Russo One', Rubik, sans-serif;
+  background: linear-gradient(180deg, #fff0e0, #ff8a5a 45%, #d8261a 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 0.02em #2a0400) drop-shadow(0 0.05em 0 #2a0400) drop-shadow(0 0 0.25em rgba(255, 60, 20, 0.7));
+}
+.white {
+  font-weight: 800;
+  color: #fff6e0;
+  text-shadow:
+    0 0 0.06em var(--ink),
+    0 0.06em 0 var(--ink),
+    0 0 0.3em rgba(0, 0, 0, 0.95),
+    0 0 0.7em rgba(0, 0, 0, 0.8);
+}
+.sub {
+  font-weight: 600;
+  color: #e8d2a0;
+  text-shadow: 0 0.05em 0 var(--ink), 0 0 0.4em rgba(0, 0, 0, 0.9);
+}
+.pill {
+  font-weight: 800;
+}
+.pill > *,
+.pill {
+  color: #fff3d6;
+}
+.line.pill {
+  left: 50%;
+  right: auto;
+  translate: -50% 0;
+  padding: 0.38em 0.9em 0.42em;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(64, 38, 14, 0.95), rgba(26, 14, 5, 0.95));
+  border: 0.12em solid #d6a24a;
+  box-shadow: 0 0 0 0.08em #1e0e03, 0 0.3em 0.8em rgba(0, 0, 0, 0.7);
+}
+.line.pill.big {
+  font-family: 'Russo One', Rubik, sans-serif;
+  font-weight: 400;
+  color: #ffe08f;
+}
+
+.slam {
+  position: absolute;
+  left: 50%;
+  white-space: nowrap;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.plaque {
+  position: absolute;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 3cqw;
+  padding: 2.2cqw 6cqw 2.4cqw;
+  white-space: nowrap;
+  background: linear-gradient(180deg, rgba(64, 38, 14, 0.96), rgba(26, 14, 5, 0.96));
+  border: 0.8cqw solid #d6a24a;
+  border-radius: 3.4cqw;
+  box-shadow: 0 0 0 0.5cqw #1e0e03, 0 2cqw 5cqw rgba(0, 0, 0, 0.7), inset 0 0 0 0.3cqw rgba(255, 226, 150, 0.25);
+  pointer-events: none;
+}
+.plaque .t1 {
+  font: 600 4.2cqw Rubik;
+  color: #e8d2a0;
+  text-align: center;
+}
+.plaque .t2 {
+  font: 400 7.6cqw 'Russo One';
+  color: #ffe08f;
+  text-shadow: 0 0.05em 0 #2a1204, 0 0 0.3em rgba(255, 180, 60, 0.45);
+}
+
+.logo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+}
+.orn {
+  width: 60cqw;
+  height: 0.55cqw;
+  margin: 2.6cqw auto 0;
+  background: linear-gradient(90deg, transparent, #e8c67e 50%, transparent);
+  position: relative;
+}
+.orn::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2.2cqw;
+  height: 2.2cqw;
+  background: #f0cf8a;
+  transform: translate(-50%, -50%) rotate(45deg);
+  box-shadow: 0 0 0 0.6cqw #120804;
+}
+
+.rays {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  -webkit-mask: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0.6) 30%, transparent 65%);
+  mask: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0.6) 30%, transparent 65%);
+  mix-blend-mode: screen;
+}
+
+.ring {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 0.9cqw solid #fff3c0;
+  box-shadow: 0 0 3cqw rgba(255, 220, 120, 0.9), inset 0 0 3cqw rgba(255, 220, 120, 0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+.finger {
+  position: absolute;
+  width: 13cqw;
+  margin: -2cqw 0 0 -3.5cqw;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 1cqw 1.5cqw rgba(0, 0, 0, 0.6));
+}
+.finger svg {
+  display: block;
+  width: 100%;
+}
+.glow {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.flare {
+  position: absolute;
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(200, 150, 255, 0.7) 30%, rgba(140, 80, 255, 0) 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chips {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 3cqw;
+  pointer-events: none;
+}
+.chip {
+  padding: 1.6cqw 4.4cqw 1.9cqw;
+  border-radius: 999px;
+  font: 700 5.6cqw Rubik;
+  color: #fff3d6;
+  white-space: nowrap;
+  background: linear-gradient(180deg, rgba(64, 38, 14, 0.96), rgba(26, 14, 5, 0.96));
+  border: 0.6cqw solid #d6a24a;
+  box-shadow: 0 1cqw 3cqw rgba(0, 0, 0, 0.7);
+}
+.chip b {
+  font: 400 7.6cqw 'Russo One';
+  color: #ffe08f;
+}
+.chip.boss {
+  border-color: #e0503a;
+  padding: 1.4cqw 3.4cqw 1.6cqw;
+  font: 400 4.6cqw 'Russo One';
+  background: linear-gradient(180deg, rgba(90, 20, 10, 0.96), rgba(30, 6, 3, 0.96));
+}
+
+.rocard {
+  position: absolute;
+  width: 52cqw;
+  aspect-ratio: 3 / 4;
+  border-radius: 2cqw;
+  overflow: hidden;
+  box-shadow: 0 0 0 1cqw #2a1606, 0 0 0 2cqw #d6a24a, 0 0 10cqw rgba(255, 200, 90, 0.7), 0 4cqw 8cqw rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  backface-visibility: visible;
+}
+.rocard img,
+.fancard img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.fan {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+}
+.fancard {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 30cqw;
+  aspect-ratio: 3 / 4;
+  border-radius: 1.6cqw;
+  overflow: hidden;
+  transform-origin: 50% 160%;
+  box-shadow: 0 0 0 0.6cqw #2a1606, 0 0 0 1.3cqw #d6a24a, 0 2cqw 5cqw rgba(0, 0, 0, 0.8);
+  opacity: 0;
+}
+
+.btn {
+  position: absolute;
+  left: 50%;
+  width: 66cqw;
+  height: 17cqw;
+  border-radius: 9cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3cqw;
+  font: 400 9.4cqw 'Russo One';
+  color: #3a1a02;
+  text-decoration: none;
+  text-shadow: 0 0.04em 0 rgba(255, 240, 200, 0.6);
+  background: linear-gradient(180deg, #ffe9a8, #f0b040 45%, #c07018 100%);
+  box-shadow: 0 0 0 0.6cqw #3a1c04, 0 0 0 1.2cqw #e8c67e, 0 2cqw 4cqw rgba(0, 0, 0, 0.7), 0 0 8cqw rgba(255, 190, 80, 0.45);
+  opacity: 0;
+  transform-origin: 50% 50%;
+}
+.btn svg {
+  width: 9cqw;
+  height: 9cqw;
+}
+
+/* ---- Касания ---- */
+.hit {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.slash {
+  position: absolute;
+  left: -18cqw;
+  top: -0.6cqw;
+  width: 36cqw;
+  height: 1.2cqw;
+  border-radius: 50%;
+  background: linear-gradient(90deg, transparent, #fff 40%, #ffe08f 60%, transparent);
+  box-shadow: 0 0 3cqw #ffd070;
+}
+.burst {
+  position: absolute;
+  left: -8cqw;
+  top: -8cqw;
+  width: 16cqw;
+  height: 16cqw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 240, 0.95), rgba(255, 200, 90, 0.5) 40%, transparent 70%);
+}
+.dmg {
+  position: absolute;
+  left: -20cqw;
+  width: 40cqw;
+  top: -6cqw;
+  text-align: center;
+  font: 400 8cqw 'Russo One';
+  color: #fff;
+  text-shadow: 0 0.06em 0 #2a1204, 0 0 0.12em #2a1204, 0 0 0.4em rgba(0, 0, 0, 0.8);
+}
+.dmg.crit {
+  color: #ffd75a;
+}
+.crit-t {
+  display: block;
+  font-size: 0.45em;
+  color: #ff8a5a;
+}
+
+/* ---- Управление ---- */
+.chrome {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  padding: calc(env(safe-area-inset-top, 0px) + 1.6cqw) 2.6cqw 0;
+  pointer-events: none;
+}
+.segs {
+  display: flex;
+  gap: 0.8cqw;
+  pointer-events: auto;
+}
+.seg {
+  flex-basis: 0;
+  height: 2.6cqw;
+  padding: 0.9cqw 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  position: relative;
+}
+.seg::before,
+.seg i {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0.9cqw;
+  height: 0.8cqw;
+  border-radius: 1cqw;
+}
+.seg::before {
+  background: rgba(255, 240, 210, 0.28);
+}
+.seg i {
+  background: #ffe08f;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  box-shadow: 0 0 1cqw rgba(255, 210, 120, 0.7);
+}
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 2cqw;
+  margin-top: 1.2cqw;
+}
+.ico,
+.mini,
+.hint {
+  pointer-events: auto;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.ico {
+  width: 9.5cqw;
+  height: 9.5cqw;
+  border-radius: 50%;
+  padding: 2cqw;
+  background: rgba(20, 10, 4, 0.55);
+  box-shadow: inset 0 0 0 0.35cqw rgba(214, 162, 74, 0.7);
+  color: #ffe9b8;
+  backdrop-filter: blur(4px);
+}
+.ico svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  display: block;
+}
+.sp {
+  flex: 1;
+}
+.mini {
+  display: flex;
+  align-items: center;
+  gap: 1.4cqw;
+  height: 9.5cqw;
+  padding: 0 3.6cqw 0 1.8cqw;
+  border-radius: 999px;
+  font: 400 4.6cqw 'Russo One';
+  color: #3a1a02;
+  text-decoration: none;
+  background: linear-gradient(180deg, #ffe9a8, #f0b040 50%, #c07018);
+  box-shadow: 0 0 0 0.4cqw #3a1c04, 0 1cqw 2.4cqw rgba(0, 0, 0, 0.6);
+}
+.mini svg {
+  width: 6cqw;
+  height: 6cqw;
+}
+.hint {
+  position: fixed;
+  position: absolute;
+  left: 50%;
+  top: calc(100cqh - 16cqw);
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 2cqw;
+  padding: 2.2cqw 4.6cqw;
+  border-radius: 999px;
+  font: 700 4.4cqw Rubik;
+  color: #fff3d6;
+  white-space: nowrap;
+  background: rgba(20, 10, 4, 0.82);
+  box-shadow: inset 0 0 0 0.35cqw #d6a24a, 0 1cqw 3cqw rgba(0, 0, 0, 0.6);
+}
+.hint svg {
+  width: 6cqw;
+  height: 6cqw;
+  fill: currentColor;
+}
+
+/* Живая страница: верхние надписи ниже полоски прогресса и кнопок (в mp4 кнопок нет). */
+.wrap:not(.render) .tcap {
+  margin-top: 9cqw;
+}
+.wrap:not(.render) .shade-top {
+  min-height: 34%;
+}
