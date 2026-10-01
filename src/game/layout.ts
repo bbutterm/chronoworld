@@ -1,5 +1,6 @@
 import { slotPosition } from '../core';
 import type { Side } from '../core';
+import { FAMILY } from './theme';
 
 export const GAME_W = 1080;
 export const GAME_H = 1920;
@@ -22,4 +23,5 @@ export function slotPos(side: Side, slot: number, dy = 0): { x: number; y: numbe
   return { x: p.x, y: p.y + dy };
 }
 
-export const FONT = 'Arial, "Helvetica Neue", sans-serif';
+/** Текстовая гарнитура (Rubik) — для текста вне text() из ui.ts (бой, экран загрузки). Заголовочная — FAMILY.heading (theme.ts). */
+export const FONT = FAMILY.body;

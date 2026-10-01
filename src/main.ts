@@ -34,6 +34,7 @@ import { fps } from './game/state';
 import { installTransitions } from './game/transitions';
 import { installUnlockGates } from './game/unlockBanner';
 import { initialView, installViewport, LANDSCAPE_PHONE, view } from './game/viewport';
+import { FONT_FACES } from './game/theme';
 
 performance.mark('cw:script');
 
@@ -43,6 +44,14 @@ installTransitions();
 // Пакет загрузки выбирается по поддержке WebP (assetUrl.ts): проверка асинхронная и занимает миллисекунды — ждём её,
 // но не дольше 300 мс (иначе — PNG).
 await Promise.race([webpReady, new Promise((r) => window.setTimeout(r, 300))]);
+
+// Шрифты интерфейса (index.html: @font-face и preload — качаются вместе с JS, к этому моменту обычно уже пришли).
+// Phaser.Text рисует текст один раз при создании: без шрифта он запечёт системный. Ждём не дольше FONT_WAIT_MS —
+// на совсем медленной сети экран загрузки будет системным шрифтом, следующие экраны — уже своим.
+const FONT_WAIT_MS = 2000;
+const fontsReady = Promise.all(FONT_FACES.map((f) => document.fonts?.load(f, 'Аа1'))).catch(() => undefined);
+await Promise.race([fontsReady, new Promise((r) => window.setTimeout(r, FONT_WAIT_MS))]);
+performance.mark('cw:fonts');
 
 const startView = initialView();
 const game = new Phaser.Game({
