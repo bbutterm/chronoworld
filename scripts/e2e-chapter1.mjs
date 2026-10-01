@@ -138,6 +138,20 @@ const clickText = async (sceneKey, label, last = false) => {
   if (cover) throw new Error(`В сцене ${sceneKey} «${label}» перекрыт: ${cover} — игрок его не видит`);
   await clickGame(pos[0], pos[1]);
 };
+/** Кликнуть по объекту с именем (setName) — кнопки без подписи, например «‹» в шапке (`backButton`). */
+const clickNamed = async (sceneKey, name) => {
+  const pos = await page.evaluate(
+    ([k, n]) => {
+      const o = window.__game.scene.getScene(k).children.getByName(n);
+      if (!o) return null;
+      const b = o.getBounds();
+      return [b.centerX, b.centerY];
+    },
+    [sceneKey, name],
+  );
+  if (!pos) throw new Error(`В сцене ${sceneKey} нет объекта «${name}»`);
+  await clickGame(pos[0], pos[1]);
+};
 const hasTextPrefix = (sceneKey, prefix) =>
   page.evaluate(
     ([k, p]) => {
@@ -236,7 +250,7 @@ const recordHint = async (sceneKey) => {
  * золота хватает (уровень в сохранении перестал расти — стоп). Возвращает число поднятых уровней.
  */
 const levelUpSquad = async (shotName) => {
-  await clickText('Campaign', 'ГЕРОИ');
+  await clickText('Campaign', 'Герои');
   await waitScene('Heroes');
   await recordHint('Heroes');
   let levels = 0;
@@ -267,7 +281,7 @@ const levelUpSquad = async (shotName) => {
   }
   // Вкладка «Кампания» прямо с карточки героя. Не через список «Герои»: там при длинном ростере (после Таверны)
   // карточка под нижним краем списка (скрыта маской) перехватывает нажатие на вкладки навигации — баг ScrollArea.
-  await clickText('Hero', 'КАМПАНИЯ');
+  await clickText('Hero', 'Кампания');
   await waitScene('Campaign');
   return levels;
 };
@@ -287,7 +301,7 @@ const ascendStep = async () => {
   });
   if (!heroId) throw new Error('указатель «вознести», но вознести некого');
   const before = (await save()).heroes.find((h) => h.id === heroId);
-  await clickText('Campaign', 'ГЕРОИ');
+  await clickText('Campaign', 'Герои');
   await waitScene('Heroes');
   // Тело в фигурных скобках: scene.start возвращает ScenePlugin (циклический граф) — его сериализация вешает evaluate.
   await page.evaluate((id) => {
@@ -318,7 +332,7 @@ const ascendStep = async () => {
     await waitScene('Hero');
   }
   const active = await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key);
-  await clickText(active, 'КАМПАНИЯ');
+  await clickText(active, 'Кампания');
   await waitScene('Campaign');
   await skipDialogues('Campaign');
 };
@@ -342,7 +356,7 @@ const powerLine = (stageId) =>
  */
 const visitTavern = async () => {
   await recordHint('Campaign');
-  await clickText('Campaign', 'ГОРОД');
+  await clickText('Campaign', 'Город');
   await waitScene('Home');
   await skipDialogues('Home');
   await recordHint('Home');
@@ -378,9 +392,9 @@ const visitTavern = async () => {
   const got = s.heroes.slice(before).map((h) => `${h.templateId} ${h.rarity}`);
   log(`Таверна: +${got.length} карт (${got.join(', ')}), свитков ${s.currency.scrolls}, гемов ${s.currency.gems}`);
   if (got.length < 10) throw new Error(`Таверна: после «Свитки ×10» новых карт ${got.length}, ждали не меньше 10`);
-  await clickText('Tavern', '‹ Назад');
+  await clickNamed('Tavern', 'backButton');
   await waitScene('Home');
-  await clickText('Home', 'КАМПАНИЯ');
+  await clickText('Home', 'Кампания');
   await waitScene('Campaign');
   await skipDialogues('Campaign');
 };
@@ -393,7 +407,7 @@ const autoSquad = async (stage, shotName) => {
   await clickText('Stage', 'Авто');
   await sleep(500);
   if (shotName) await shot(shotName);
-  await clickText('Stage', '‹ Назад');
+  await clickNamed('Stage', 'backButton');
   await waitScene('Campaign');
   await skipDialogues('Campaign');
 };
@@ -498,7 +512,7 @@ try {
       if (t > 1) await afterLoss();
       {
         const active = await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.key);
-        if (active !== 'Campaign') await clickText(active, 'КАМПАНИЯ');
+        if (active !== 'Campaign') await clickText(active, 'Кампания');
         await waitScene('Campaign');
         // Вступление главы — при первом входе на карту.
         if (stage === 1) {
@@ -522,7 +536,7 @@ try {
         if ((await recordHint('Campaign')) === 'ascend') await ascendStep();
         // Задания дня — последний шаг: Город → плитка «Задания» → назад.
         if ((await recordHint('Campaign')) === 'quests_open') {
-          await clickText('Campaign', 'ГОРОД');
+          await clickText('Campaign', 'Город');
           await waitScene('Home');
           await skipDialogues('Home');
           if ((await recordHint('Home')) !== 'quests_open') problems.push('в Городе нет указателя на задания');
@@ -530,7 +544,7 @@ try {
           await waitScene('Quests');
           await sleep(400);
           await shot('quests');
-          await clickText('Quests', 'КАМПАНИЯ');
+          await clickText('Quests', 'Кампания');
           await waitScene('Campaign');
           await skipDialogues('Campaign');
           log('обучение: задания открыты');
