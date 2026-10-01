@@ -5,6 +5,7 @@ import { claimableAchievements, claimableCount, expeditionsBadgeCount, towerBadg
 import { markHint } from './hints';
 import { now, session, today } from './session';
 import { skinIcon, type SkinIcon } from './skin';
+import { dot } from './screen';
 import { buildingTile, type BuildingTile } from './tavernEntry';
 import { C } from './theme';
 import { isUnlocked } from './unlockBanner';
@@ -12,7 +13,8 @@ import { isUnlocked } from './unlockBanner';
 /**
  * Плитки-«здания» страниц «Город» (Задания, Достижения — рядом с Таверной и Лавкой) и «Приключения» (Башня,
  * Экспедиции — рядом с Охотой): тот же buildingTile, что у Таверны. Каждая ставится одной строкой; значки — те же
- * счётчики flow.ts, что складываются в красный кружок вкладки (navBadges.ts).
+ * счётчики flow.ts, что зажигают точку вкладки (navBadges.ts). Дисциплина §2.4: число — только у наград к получению
+ * (Задания, Достижения); у Башни и Экспедиций — точка без числа и только по событию (вернулись, ждёт выбор).
  */
 
 const glyph = (scene: Phaser.Scene, icon: SkinIcon) => (size: number, tint: number) => scene.add.image(0, 0, skinIcon(icon)).setDisplaySize(size * 0.5, size * 0.5).setTint(tint);
@@ -54,11 +56,16 @@ export function achievementsTile(scene: Phaser.Scene, x: number, y: number, w: n
   });
 }
 
-/** Башня испытаний: взятый этаж, значок — следующий этаж по силам. Нажатие гасит подсказку «Башня открыта». */
+/** Точка в правом верхнем углу плитки (там же, где число cornerBadge). */
+function tileDot(scene: Phaser.Scene, x: number, y: number, w: number, h: number, on: boolean): void {
+  if (on) dot(scene, x + w / 2 - 18, y - h / 2 + 14).setName('tileDot');
+}
+
+/** Башня испытаний: рекорд / этаж забега; точка — в забеге ждёт выбор. Нажатие гасит подсказку «Башня открыта». */
 export function towerTile(scene: Phaser.Scene, x: number, y: number, w: number, h: number): BuildingTile {
   const save = session.save;
   const ts = towerStatus(save, GAME);
-  return buildingTile(scene, x, y, w, h, {
+  const t = buildingTile(scene, x, y, w, h, {
     name: 'towerTile',
     title: 'Башня испытаний',
     art: glyph(scene, 'tower'),
@@ -71,17 +78,18 @@ export function towerTile(scene: Phaser.Scene, x: number, y: number, w: number, 
       markHint('tower_open');
       scene.scene.start('Tower');
     },
-    badge: ts.unlocked ? towerBadgeCount(save, GAME) : 0,
   });
+  tileDot(scene, x, y, w, h, ts.unlocked && towerBadgeCount(save, GAME) > 0);
+  return t;
 }
 
-/** Экспедиции: вернувшиеся / в пути, значок — вернувшиеся и свободные локации, куда хватает мощи. */
+/** Экспедиции: вернувшиеся / в пути; точка — вернулись (забрать) или в пути ждёт решение. */
 export function expeditionsTile(scene: Phaser.Scene, x: number, y: number, w: number, h: number): BuildingTile {
   const save = session.save;
   const open = isUnlocked('bounties');
   const done = finishedExpeditions(save, now());
   const active = save.bounties.active.length;
-  return buildingTile(scene, x, y, w, h, {
+  const t = buildingTile(scene, x, y, w, h, {
     name: 'expeditionsTile',
     title: 'Экспедиции',
     art: glyph(scene, 'flag'),
@@ -90,6 +98,7 @@ export function expeditionsTile(scene: Phaser.Scene, x: number, y: number, w: nu
     note: 'Отряд уходит сам и приносит добычу',
     lockId: 'bounties',
     onOpen: () => scene.scene.start('Expeditions'),
-    badge: open ? expeditionsBadgeCount(save, now(), GAME) : 0,
   });
+  tileDot(scene, x, y, w, h, open && expeditionsBadgeCount(save, now(), GAME) > 0);
+  return t;
 }

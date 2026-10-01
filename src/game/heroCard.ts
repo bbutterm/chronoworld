@@ -1,11 +1,14 @@
 import Phaser from 'phaser';
 import { activeForm, CARD_RARITIES, rarityIndex, type CardRarity, type HeroState, type HeroTemplate } from '../core';
 import { GAME } from './content';
-import { heroSprite, levelText } from './flow';
+import { markBadgesSeen } from './badgeSeen';
+import { heroAlertKey, heroCardMark, heroSprite, levelText, type HeroCardMark } from './flow';
+
+export { heroCardMark, type HeroCardMark };
 import { juiceOn } from './juice';
 import { heroFace } from './portraitFrame';
 import { unitFigure } from './screen';
-import { skinIcon } from './skin';
+import { skinIcon, type SkinIcon } from './skin';
 import { C, FS } from './theme';
 import { ellipsize, pressable, text } from './ui';
 
@@ -14,7 +17,8 @@ import { ellipsize, pressable, text } from './ui';
  * рамка цвета редкости с орнаментом по редкости (зелёный — простые заклёпки, синий — ромбы, фиолетовый — двойной обод
  * и камень, золотой — филигрань и корона, красный — пламя и крылья), фон-сияние цвета редкости, лицо (бюст RO /
  * портрет листа) или фигура в стойке, значки класса (линии) и роли, имя, уровень, ромбы редкостей «до максимума»,
- * метки «в отряде», «Новый!», замок, стрелки «можно улучшить / вознести», серый вид неполученной карточки.
+ * не больше одного углового значка-повода (heroCardMark: вознести > ветка > улучшить > вещь > история > новый),
+ * тихие метки «в отряде» (галка) и замок, серый вид неполученной карточки.
  *
  * Всё рисуется кодом в canvas (текстуры кэшируются по редкости и размеру), арт не нужен. Анимации (сияние «Новый!»,
  * пульс стрелки) выключаются настройкой «Уменьшить анимацию».
@@ -506,6 +510,16 @@ export function iconBadge(scene: Phaser.Scene, x: number, y: number, name: strin
 
 // ---------- плитка ----------
 
+const MARK_STYLE: Record<HeroCardMark, { name: string; icon: SkinIcon; fill: number; rim: number; tint: number }> = {
+  ascend: { name: 'canAscend', icon: 'star', fill: 0x8a5a10, rim: 0xffe08a, tint: 0xffe08a },
+  branch: { name: 'needsBranch', icon: 'flag', fill: 0x4a1f8a, rim: 0xe2c2ff, tint: 0xf3e6ff },
+  level: { name: 'canLevel', icon: 'star', fill: 0x1f6a28, rim: 0xb6f0a0, tint: 0xd8ffd0 },
+  gear: { name: 'gearUpgrade', icon: 'helmet', fill: 0x173e86, rim: 0xa8d4ff, tint: 0xe0f0ff },
+  story: { name: 'storyNew', icon: 'scroll', fill: 0x3a2a14, rim: 0xd6ae63, tint: 0xf0cf8a },
+  // «Новый» — золотая искра, не красная плашка (§2.4 п. 4).
+  new: { name: 'isNew', icon: 'star', fill: 0x2a1c08, rim: 0xffd84a, tint: 0xffd84a },
+};
+
 export type HeroCardSubject = HeroState | HeroTemplate | string;
 
 export interface HeroCardOptions {
@@ -521,22 +535,27 @@ export interface HeroCardOptions {
   showIcons?: boolean;
   /** Ромбы редкостей от базовой до максимальной (по умолчанию да). */
   showPips?: boolean;
-  /** Метки. */
+  /** Метки: «в отряде» — маленькая зелёная галка слева, замок — там же. */
   inSquad?: boolean;
+  /** Новый герой (ещё не открывали карточку) — золотая искра, самый слабый повод (§2.4 п. 4). */
   isNew?: boolean;
   locked?: boolean;
   /** Можно «Улучшить» (зелёная стрелка) / вознести (золотая двойная стрелка, приоритетнее). */
   canLevel?: boolean;
   canAscend?: boolean;
+  /** Есть вещь получше в инвентаре (шлем в углу). */
+  gearUpgrade?: boolean;
+  /** Открыт непрочитанный кусочек истории (свиток в углу). */
+  storyNew?: boolean;
   /** Ветка второй профессии для показа (шаблон на фиолетовом — форма ветки; превью «после вознесения»). */
   branch?: string;
   /** Сколько экземпляров героя у игрока (коллекция группирует копии) — плашка «×N» в правом верхнем углу (≥ 2). */
   copies?: number;
-  /** Фиолетовый без ветки — плашка «Выберите ветку!». */
+  /** Фиолетовый без ветки — значок-флажок «выберите ветку». */
   needsBranch?: boolean;
   /** Неполученная карточка коллекции: серая, подпись сверху — «Сюжет» / «Таверна» (или своя). */
   greyed?: boolean | string;
-  /** Пульсирующее сияние цвета редкости за карточкой (по умолчанию — у «Новый!» и «можно вознести»). */
+  /** Пульсирующее сияние цвета редкости за карточкой (по умолчанию — только у «можно вознести»). */
   glow?: boolean;
   /** 'portrait' — лицо (по умолчанию), 'sprite' — фигура в стойке (показ призыва, вознесение), 'none' — пусто. */
   figure?: 'portrait' | 'sprite' | 'none';
@@ -591,7 +610,8 @@ export function drawHeroCard(scene: Phaser.Scene, x: number, y: number, subject:
   box.setName(`heroCard_${r?.hero?.id ?? r?.template.id ?? 'unknown'}`).setData({ rarity: r?.rarity, w, h });
 
   // Сияние за карточкой.
-  const wantGlow = !greyed && (opts.glow ?? (!!opts.isNew || !!opts.canAscend));
+  const mark = greyed ? null : heroCardMark(opts);
+  const wantGlow = !greyed && (opts.glow ?? mark === 'ascend');
   if (wantGlow) {
     const glow = scene.add.image(0, 0, glowTexture(scene)).setDisplaySize(w * 1.45, h * 1.35).setTint(pal.glow).setAlpha(0.55).setBlendMode(Phaser.BlendModes.ADD);
     box.add(glow);
@@ -673,17 +693,11 @@ export function drawHeroCard(scene: Phaser.Scene, x: number, y: number, subject:
     });
     box.add(g);
   }
-  // Метки.
+  // Метки. Серая карточка — подпись «Сюжет» / «Таверна»; иначе тихие «в отряде» (галка) и замок слева внизу и не больше
+  // одного значка-повода справа (§2.4: если горит всё — не горит ничего).
   if (typeof opts.greyed === 'string' || greyed) {
     const label = typeof opts.greyed === 'string' ? opts.greyed : r.template.source === 'story' ? 'Сюжет' : 'Таверна';
     box.add(tag(scene, 0, -h / 2 + 90 * s, label, 0x3a3a3a, small, s));
-  } else if (opts.inSquad) {
-    box.add(tag(scene, 0, -h / 2 + 36 * s, 'в отряде', 0x2f7a36, small, s));
-  }
-  if (opts.isNew && !greyed) {
-    const nt = tag(scene, 0, -h / 2 + (opts.inSquad ? 86 : 36) * s, 'Новый!', 0xb8402e, small, s);
-    box.add(nt);
-    if (juiceOn()) scene.tweens.add({ targets: nt, scale: 1.08, duration: 520, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   }
   if (!greyed && (opts.copies ?? 0) >= 2) {
     // NB-11: «+1» — столько запасных копий (как «Копий: 1» на карточке героя), а не всего карт героя.
@@ -694,25 +708,36 @@ export function drawHeroCard(scene: Phaser.Scene, x: number, y: number, subject:
     const bg = scene.add.rectangle(0, 0, Math.max(cw, 56 * s), 40 * s, 0x1a120a, 0.92).setStrokeStyle(3 * s, pal.tint);
     box.add(scene.add.container(cx - Math.max(0, cw - 56 * s) / 2, cy, [bg, ct]).setName('copies'));
   }
-  if (!greyed && opts.needsBranch) {
-    const nb = tag(scene, 0, -h / 2 + (opts.inSquad || opts.isNew ? (opts.inSquad && opts.isNew ? 136 : 86) : 36) * s, 'Выберите ветку!', 0x6a2fb0, Math.max(FS.caption - 4, Math.round(26 * s)), s);
-    nb.setName('needsBranch');
-    box.add(nb);
-    if (juiceOn()) scene.tweens.add({ targets: nb, scale: 1.06, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-  }
   const markY = h / 2 - inset - bandH - 30 * s;
+  let leftY = markY;
   if (opts.locked && !greyed) {
-    box.add(scene.add.circle(-w / 2 + 38 * s, markY, 24 * s, 0x120d08, 0.9).setStrokeStyle(3 * s, 0xd6ae63));
-    box.add(scene.add.image(-w / 2 + 38 * s, markY, skinIcon('lock')).setDisplaySize(34 * s, 34 * s).setTint(0xf0cf8a));
+    box.add(scene.add.circle(-w / 2 + 38 * s, leftY, 24 * s, 0x120d08, 0.9).setStrokeStyle(3 * s, 0xd6ae63));
+    box.add(scene.add.image(-w / 2 + 38 * s, leftY, skinIcon('lock')).setDisplaySize(34 * s, 34 * s).setTint(0xf0cf8a));
+    leftY -= 56 * s;
   }
-  if (!greyed && (opts.canAscend || opts.canLevel)) {
-    const asc = !!opts.canAscend;
-    const mark = scene.add.container(w / 2 - 38 * s, markY, [
-      scene.add.circle(0, 0, 26 * s, asc ? 0x8a5a10 : 0x1f6a28, 1).setStrokeStyle(3 * s, asc ? 0xffe08a : 0xb6f0a0),
-      scene.add.image(0, 0, cardIcon(scene, asc ? 'ascend' : 'up')).setDisplaySize(32 * s, 32 * s).setTint(asc ? 0xffe08a : 0xd8ffd0),
-    ]).setName(asc ? 'canAscend' : 'canLevel');
-    box.add(mark);
-    if (juiceOn()) scene.tweens.add({ targets: mark, y: markY - 8 * s, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+  if (opts.inSquad && !greyed) {
+    box.add(scene.add.container(-w / 2 + 38 * s, leftY, [
+      scene.add.circle(0, 0, 20 * s, 0x1f5a24, 0.95).setStrokeStyle(3 * s, 0xb6f0a0),
+      scene.add.image(0, 0, skinIcon('check')).setDisplaySize(28 * s, 28 * s).setTint(0xeaffe0),
+    ]).setName('inSquad'));
+  }
+  if (mark) {
+    const st = MARK_STYLE[mark];
+    const ico = mark === 'ascend' || mark === 'level' ? cardIcon(scene, mark === 'ascend' ? 'ascend' : 'up') : skinIcon(st.icon);
+    const m = scene.add.container(w / 2 - 38 * s, markY, [
+      scene.add.circle(0, 0, 26 * s, st.fill, 1).setStrokeStyle(3 * s, st.rim),
+      scene.add.image(0, 0, ico).setDisplaySize(32 * s, 32 * s).setTint(st.tint),
+    ]).setName(st.name);
+    box.add(m);
+    // Подпрыгивает только то, что можно сделать сейчас (вознести, ветка, улучшить), а не «новое».
+    if (juiceOn() && (mark === 'ascend' || mark === 'branch' || mark === 'level')) scene.tweens.add({ targets: m, y: markY - 8 * s, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+  }
+  // Игрок увидел повод на карточке — точка вкладки «Герои» за него гаснет (badgeSeen.ts, flow.ts heroAlerts).
+  if (!greyed && r.hero) {
+    const seen: string[] = [];
+    if (opts.canAscend) seen.push(heroAlertKey('ascend', r.hero));
+    if (opts.canLevel) seen.push(heroAlertKey('level', r.hero));
+    if (seen.length) markBadgesSeen(seen);
   }
   if (opts.onTap) pressable(scene, frame, w, h, opts.onTap);
   return box;
