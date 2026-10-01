@@ -58,7 +58,8 @@ export const HeroBranchSchema = z.object({
   skills: z.array(CardSkillSchema).min(1),
   /**
    * Ульта формы (docs/design/battle-decisions.md §1): навык из data/skills, открыт с 1-го уровня, срабатывает на полной
-   * энергии (в бою — skills.ult юнита). Не совпадает с навыками формы. Нет — content:check предупреждает.
+   * энергии (в бою — skills.ult юнита). Не совпадает с навыками формы. Нет — ультой станет навык с самой долгой
+   * перезарядкой (ultSkillOf); у героев data/heroes есть у каждой формы (tests/hero-ults.test.ts).
    */
   ult: id.optional(),
   /** Строка возвышения: экран выбора ветки и вознесения (≤ 160 символов). */
@@ -96,7 +97,8 @@ export const HeroTemplateSchema = z.object({
   skills: z.array(CardSkillSchema).min(1),
   /**
    * Ульта формы (docs/design/battle-decisions.md §1): навык из data/skills, открыт с 1-го уровня, срабатывает на полной
-   * энергии (в бою — skills.ult юнита). Не совпадает с навыками формы. Нет — content:check предупреждает.
+   * энергии (в бою — skills.ult юнита). Не совпадает с навыками формы. Нет — ультой станет навык с самой долгой
+   * перезарядкой (ultSkillOf); у героев data/heroes есть у каждой формы (tests/hero-ults.test.ts).
    */
   ult: id.optional(),
   /** Профиль поведения первой профессии в бою (id из data/combat.json → behaviors), если отличается от профиля профессии. */

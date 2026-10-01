@@ -15,7 +15,7 @@ const GENDER_ONLY: Record<string, 'm' | 'f'> = { bard: 'm', dancer: 'f' };
  * - ветки: две разные вторые профессии (tier 2) своей линии; bard — только у парня, dancer — только у девушки;
  * - навыки 1-го уровня различны у всех героев (первая профессия) и у всех форм веток между собой;
  * - имена уникальны;
- * - ульта формы (ult): существует, не пассивка, не среди навыков формы; нет ульты — ⚠;
+ * - ульта формы (ult): существует, не пассивка, не среди навыков формы; ⚠ одна ульта у двух форм;
  * - ⚠ навык не своей линии; ⚠ у двух героев одного класса (или двух форм одной ветки) общих навыков > 2 или одинаковый
  *   «фирменный» (последний) навык.
  */
@@ -36,7 +36,7 @@ export function validateHeroes(content: Content, problems: string[], warnings: s
     if (job.tier !== 1) problems.push(`${where}: класс героя — первая профессия (${t.job} — tier ${job.tier})`);
     if (rarityIndex(t.maxRarity) < rarityIndex(t.baseRarity)) problems.push(`${where}: maxRarity ${t.maxRarity} ниже baseRarity ${t.baseRarity}`);
     checkSkills(content, where, t.skills, t.maxRarity, line, problems, warnings);
-    checkUlt(content, where, t.ult, t.skills, problems, warnings);
+    checkUlt(content, where, t.ult, t.skills, problems);
     const seenJobs = new Set<string>();
     for (const [i, b] of t.branches.entries()) {
       const bw = `${where}: branches[${i}] (${b.job})`;
@@ -51,7 +51,7 @@ export function validateHeroes(content: Content, problems: string[], warnings: s
       const only = GENDER_ONLY[b.job];
       if (only && only !== t.gender) problems.push(`${bw}: ветка ${b.job} — только для ${only === 'm' ? 'парня' : 'девушки'}`);
       checkSkills(content, bw, b.skills, t.maxRarity, line, problems, warnings);
-      checkUlt(content, bw, b.ult, b.skills, problems, warnings);
+      checkUlt(content, bw, b.ult, b.skills, problems);
     }
   }
   // ✗ Навыки 1-го уровня различны: у героев (первая профессия) и у форм веток.
@@ -100,13 +100,12 @@ export function validateHeroes(content: Content, problems: string[], warnings: s
 
 /**
  * Ульта формы (docs/design/battle-decisions.md §1): навык существует, активный (не пассивка), не среди навыков формы
- * (иначе ульта — тот же навык дважды). Нет ульты — ⚠ (заготовка content:new).
+ * (иначе ульта — тот же навык дважды).
  */
-function checkUlt(content: Content, where: string, ult: string | undefined, skills: CardSkill[], problems: string[], warnings: string[]): void {
-  if (!ult) {
-    warnings.push(`${where}: нет ульты (поле ult) — в бою ультой станет навык с самой долгой перезарядкой`);
-    return;
-  }
+function checkUlt(content: Content, where: string, ult: string | undefined, skills: CardSkill[], problems: string[]): void {
+  // Нет ульты — в бою ультой станет навык с самой долгой перезарядкой (ultSkillOf); у героев data/heroes ульта есть у
+  // каждой формы — тест tests/hero-ults.test.ts (заготовка content:new — без неё).
+  if (!ult) return;
   const sk = content.skills[ult];
   if (!sk) problems.push(`${where}: ульта ${ult} не найдена в data/skills`);
   else if (sk.trigger) problems.push(`${where}: ульта ${ult} — пассивка (trigger), нужна активная`);

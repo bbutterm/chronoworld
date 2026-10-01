@@ -194,6 +194,11 @@ export const UnitSchema = z.object({
   visual: VisualSchema,
   /** «Радиус тела» в единицах поля. Если не задан — из combat.json (movement.bodyRadius по kind). */
   bodyRadius: z.number().nonnegative().optional(),
+  /**
+   * Энергия бойца на ульту (skills.ult): за секунду боя, за ход (обычная атака или навык) и за удар по ОЗ. Нет — общие
+   * числа combat.json → energy (без энергии от времени). Героям карточек кладёт buildUnit из combat.json → energy.hero.
+   */
+  energy: z.object({ perSecond: z.number().nonnegative(), perBasicAction: z.number().nonnegative(), perHitTaken: z.number().nonnegative() }).optional(),
   /** «Сила навыков»: множитель урона, лечения и щита навыков (кроме обычной атаки). Карточки золотой/красной редкости. Нет — 1. */
   skillPower: z.number().positive().optional(),
   /** Боевые реплики (только у боссов — kind boss; у остальных content:check предупредит, в бою не покажутся). */

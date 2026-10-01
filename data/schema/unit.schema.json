@@ -123,6 +123,28 @@
       "type": "number",
       "minimum": 0
     },
+    "energy": {
+      "type": "object",
+      "properties": {
+        "perSecond": {
+          "type": "number",
+          "minimum": 0
+        },
+        "perBasicAction": {
+          "type": "number",
+          "minimum": 0
+        },
+        "perHitTaken": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "perSecond",
+        "perBasicAction",
+        "perHitTaken"
+      ]
+    },
     "skillPower": {
       "type": "number",
       "exclusiveMinimum": 0

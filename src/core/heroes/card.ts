@@ -228,6 +228,8 @@ export function buildUnit(hero: HeroState, ctx: GameContext & GearLookup, gear?:
     visual: job.visual,
     ...(power !== 1 ? { skillPower: power } : {}),
     ...(behavior ? { behavior } : {}),
+    // Энергия на ульту героя (combat.json energy.hero): от времени, ходов и ударов по ОЗ.
+    ...(ctx.combat.energy.hero ? { energy: ctx.combat.energy.hero } : {}),
   };
 }
 

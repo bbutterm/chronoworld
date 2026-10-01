@@ -275,9 +275,13 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const addEnergy = (u: Unit, v: number) => {
     u.energy = Math.max(0, Math.min(cfg.energy.max, u.energy + v));
   };
-  /** Энергия за ход / за удар по ОЗ: у героев свои числа (combat.json energy.hero), у остальных — общие. */
-  const heroEnergy = cfg.energy.hero;
-  const gain = (u: Unit, key: 'perBasicAction' | 'perHitTaken') => (heroEnergy && u.def.kind === 'hero' ? heroEnergy[key] : cfg.energy[key]);
+  /**
+   * Энергия за ход / за удар по ОЗ: свои числа бойца (UnitDef.energy — герои карточек, combat.json energy.hero), иначе
+   * общие. Только с профилями поведения: снимки боёв behavior: false не меняются.
+   */
+  const gain = (u: Unit, key: 'perBasicAction' | 'perHitTaken') => (on && u.def.energy ? u.def.energy[key] : cfg.energy[key]);
+  /** Бойцы с энергией от времени (ульта героя копится ровно, а не только от частоты ходов). */
+  const timeEnergy = on ? all.filter((u) => u.def.energy?.perSecond) : [];
 
   const checkEnd = () => {
     const aAlive = a.some((u) => u.alive);
@@ -2137,8 +2141,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       if (chargers.length > 0) chargeTick();
       if (armed.size > 0) for (const u of a) if (armed.has(u)) fireManual(u);
 
-      // Энергия героев от времени (combat.json energy.hero.perSecond): ульта копится ровно, а не только от частоты ходов.
-      if (heroEnergy?.perSecond) for (const u of all) if (u.alive && u.def.kind === 'hero') u.energy = Math.min(cfg.energy.max, round2(u.energy + heroEnergy.perSecond * cfg.tickSeconds));
+      // Энергия от времени (UnitDef.energy.perSecond): ульта героя копится ровно, а не только от частоты ходов.
+      for (const u of timeEnergy) if (u.alive) u.energy = Math.min(cfg.energy.max, round2(u.energy + u.def.energy!.perSecond * cfg.tickSeconds));
 
       const ready: Unit[] = [];
       for (const u of all) {
