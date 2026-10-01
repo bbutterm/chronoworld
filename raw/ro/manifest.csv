@@ -616,3 +616,230 @@ bgm_optional,BGM/44.mp3,loose,1570816,76bd73a8ec20b19315411162105dc76fca62161876
 bgm_optional,BGM/47.mp3,loose,1689600,03c5813e4759eb5b0fab515477e092f64dd302f9b8247cced637644e50097448,raw/ro/bgm/47.mp3,
 bgm_optional,BGM/52.mp3,loose,1245184,a1e49515b8d0821b8f77218b16cda3414041490cedb9e6f40047cc4b906eeabc,raw/ro/bgm/52.mp3,
 bgm_optional,BGM/61.mp3,loose,1667072,89999d3e59e2bc7fd9e2510e4e49ee672dd6de2f7029fa71c2905f3d1c484a8b,raw/ro/bgm/61.mp3,
+monster_mvp,data\sprite\몬스터\eddga.spr,rdata.grf,234352,c3fb7b114dbdfdb64470d6818fed5d79d33c46469f4b42596a06036fd5de714d,raw/ro/sprite/monster/eddga.spr,
+monster_mvp,data\sprite\몬스터\eddga.act,rdata.grf,78764,70f1a7b427060804aa17a384fe6387f00647ef70565dfaf09abd7842b0c1588c,raw/ro/sprite/monster/eddga.act,
+monster_mvp,data\sprite\몬스터\dracula.spr,rdata.grf,266541,6efa1fc59643d832ced924ad7f1e8ab6bbfb4bd79e16fe256e19d1b4cd85df84,raw/ro/sprite/monster/dracula.spr,
+monster_mvp,data\sprite\몬스터\dracula.act,rdata.grf,62764,925c0b16d7c7e76aca61401d899b434fd72fd173741ca151b10ba5574a8e932f,raw/ro/sprite/monster/dracula.act,
+monster_mvp,data\sprite\몬스터\angeling.spr,rdata.grf,41740,211d965497366fdc12a7bcaf48c5f4d9b6ae9b5d04660d7e50fa3d07710eb174,raw/ro/sprite/monster/angeling.spr,
+monster_mvp,data\sprite\몬스터\angeling.act,rdata.grf,187316,125fb7058b6d3b52e88f83a0a993fee45017c0b491e100034d46d674087bc08b,raw/ro/sprite/monster/angeling.act,
+monster_mvp,data\sprite\몬스터\archangeling.spr,rdata.grf,41739,3901019cc63c45241d23c94c7f74dea3eb9b4f84c4c7df56beda965ac83426c8,raw/ro/sprite/monster/archangeling.spr,
+monster_mvp,data\sprite\몬스터\archangeling.act,rdata.grf,150316,dc4108c698272c0fe9b07d9cbd8194dd9487d21e4677564817554e38c197bb69,raw/ro/sprite/monster/archangeling.act,
+monster_mvp,data\sprite\몬스터\maya.spr,rdata.grf,434784,2b6c2db82ac7dee07efa56c1e749d5aa928e2e79c39d3fba7dbe0ed85ab7f13a,raw/ro/sprite/monster/maya.spr,
+monster_mvp,data\sprite\몬스터\maya.act,rdata.grf,64556,cad13b5e63616336ba0ebc0dfa618b37b7973ec6e1d7cbb76dd37b5c2cdb9fa7,raw/ro/sprite/monster/maya.act,
+monster_mvp,data\sprite\몬스터\turtle_general.spr,rdata.grf,214690,7bb045c5cb8b1079ae6cb9915b838a09dcc21b23e5b58703d4efee165f1de979,raw/ro/sprite/monster/turtle_general.spr,
+monster_mvp,data\sprite\몬스터\turtle_general.act,rdata.grf,79780,71b1b530cd343547c60f8ae85cee25c12902fb8a22e5855d87c8dfebf7e90bd4,raw/ro/sprite/monster/turtle_general.act,
+monster_mvp,data\sprite\몬스터\amon_ra.spr,rdata.grf,295127,ded4cc5f87ec31c2a1fbd67099a9c48db2c5d940ef2b31a7a7e468c51830ee99,raw/ro/sprite/monster/amon_ra.spr,
+monster_mvp,data\sprite\몬스터\amon_ra.act,rdata.grf,91004,e806f6622a453ed9b742d409b9fb09b97284aa404603744429e452c9351aa011,raw/ro/sprite/monster/amon_ra.act,
+monster_mvp,data\sprite\몬스터\doppelganger.spr,rdata.grf,173979,a7afa77adc9a0d283c58209f62ee20f428435958e028cf6617b0385951e687ac,raw/ro/sprite/monster/doppelganger.spr,
+monster_mvp,data\sprite\몬스터\doppelganger.act,rdata.grf,15940,5e6b469a1713181cad30d7b5f5748686ea83a7352e8671d0de61e491647c15ed,raw/ro/sprite/monster/doppelganger.act,
+monster_mvp,data\sprite\몬스터\marine_sphere.spr,rdata.grf,5778,bb614bca0f52e999c9400615460540076549eec1c4d69e84eb050ca4fe17fc6c,raw/ro/sprite/monster/marine_sphere.spr,
+monster_mvp,data\sprite\몬스터\marine_sphere.act,rdata.grf,73884,0849a82dabfae4c50bc9fd37ccea8a830afb6238488fb35dd8eb59f800f99992,raw/ro/sprite/monster/marine_sphere.act,
+monster_sound,data\wav\_swordman_attack.wav,data.grf,12488,bec57134cafdcf88e266b2b474f69e9a1256359002c024131ea2ca11d4f2640c,raw/ro/wav/_swordman_attack.wav,ACT event sound
+monster_sound,data\wav\amon_ra_attack.wav,data.grf,50658,083ab1c131be66044932a43fbbb55629964938fe7f9da8809f7855e33db0f8cc,raw/ro/wav/amon_ra_attack.wav,ACT event sound
+monster_sound,data\wav\amon_ra_die01.wav,data.grf,69412,8a3b9a9fde9308cdf21d1c3972d354d836924b9f608ec1abb8164e54ea43ee60,raw/ro/wav/amon_ra_die01.wav,ACT event sound
+monster_sound,data\wav\amon_ra_die02.wav,data.grf,129668,6ef7816afb24eba56cbedbe34e97f55b692c7a3817884ab2066fc3c07786e60c,raw/ro/wav/amon_ra_die02.wav,ACT event sound
+monster_sound,data\wav\amon_ra_stand.wav,data.grf,115844,e24ef4c5956def710512251a5c2e20600e94b59ab8d54962d328996d16975a6a,raw/ro/wav/amon_ra_stand.wav,ACT event sound
+monster_sound,data\wav\doppleganger_damage.wav,data.grf,31362,726a60f39030663588e74cc149f5f105156191e9775542e92ef72e5c8b634f1e,raw/ro/wav/doppleganger_damage.wav,ACT event sound
+monster_sound,data\wav\doppleganger_die.wav,data.grf,41772,854567e224fd95b4f2d15f9cb618e2ed0e52decafe07b078c9d9a29163ad384e,raw/ro/wav/doppleganger_die.wav,ACT event sound
+monster_sound,data\wav\dracula_attack.wav,data.grf,52228,15d0e7fa4297652e3826ffb400eae4138ed60e327d0257127cd5116a7fa3825e,raw/ro/wav/dracula_attack.wav,ACT event sound
+monster_sound,data\wav\dracula_die.wav,data.grf,82180,70d42789d955ff5559d6739dec2edae93ef778bfd516577fc132b10899a25c4c,raw/ro/wav/dracula_die.wav,ACT event sound
+monster_sound,data\wav\eddga_attack.wav,data.grf,16690,53c262ed9f656d739376fe7df03316a5d0bad024aa5785e4181c3161e1b52831,raw/ro/wav/eddga_attack.wav,ACT event sound
+monster_sound,data\wav\eddga_attack2.wav,data.grf,10316,16439c26bfc13742eb6d5e262eb1752eea5ecd3bb85771dee97fb4b7d046b967,raw/ro/wav/eddga_attack2.wav,ACT event sound
+monster_sound,data\wav\eddga_die.wav,data.grf,51778,2e854021bae8f4c2c97b9baf5402ff99914c4c903c896df6e98b29663d5f1174,raw/ro/wav/eddga_die.wav,ACT event sound
+monster_sound,data\wav\eddga_move.wav,data.grf,13462,e597de58b71b74821714fe46da67d523e22404278830123ac53d1a70bd97f8d4,raw/ro/wav/eddga_move.wav,ACT event sound
+monster_sound,data\wav\marine_sphere_damage.wav,data.grf,25132,7db796765f3fe71377184c62e8acdc8e981d3ed8573e875c962e2c149102304f,raw/ro/wav/marine_sphere_damage.wav,ACT event sound
+monster_sound,data\wav\marine_sphere_die1.wav,data.grf,16684,1344d4dc13698cecf02c13fd0d07c43fc8ec70200eddfb9c11f5ec8630bcebeb,raw/ro/wav/marine_sphere_die1.wav,ACT event sound
+monster_sound,data\wav\marine_sphere_die2.wav,data.grf,13164,5f1bc3ce212b6ff910b03c385a515466b9033cf630c443339ee8d5dfceedad9d,raw/ro/wav/marine_sphere_die2.wav,ACT event sound
+monster_sound,data\wav\maya_attack1.wav,data.grf,8604,7321e9b64353319e146b638aaca92b6eddf2d1f182dbb11437c70b78b7b925a2,raw/ro/wav/maya_attack1.wav,ACT event sound
+monster_sound,data\wav\maya_attack2.wav,data.grf,24188,86966b1980b7d8d02b7b09085f93bab9dd2de2ab51a35e5140761c7e721a53c9,raw/ro/wav/maya_attack2.wav,ACT event sound
+monster_sound,data\wav\maya_die1.wav,data.grf,58364,aa8f7e7d4b79715ee7990f83066a8251e07ed57da8014423f8b7f85134403ad8,raw/ro/wav/maya_die1.wav,ACT event sound
+monster_sound,data\wav\maya_die2.wav,data.grf,30576,f1d648304e7fbf794ab3c75cbc17a1ad4cc6a3168b7e0fbd8b90b440bacedb48,raw/ro/wav/maya_die2.wav,ACT event sound
+monster_sound,data\wav\maya_move.wav,data.grf,17148,a54e0d280d26d5ecd5ee2a7ead76c67bcab98586961a0b3847ab63853b8a5932,raw/ro/wav/maya_move.wav,ACT event sound
+monster_sound,data\wav\minorous_die.wav,data.grf,56582,44c484eef4cd0e87310af3d8e17bfe92783f07f2b48b1dd9c43e1c645fc1c434,raw/ro/wav/minorous_die.wav,ACT event sound
+monster_sound,data\wav\turtle_general_attack.wav,data.grf,19108,e4a2f45afeb32c7f1a215652f515abfed0d806f3a4976a8af82c50d788fdd2fe,raw/ro/wav/turtle_general_attack.wav,ACT event sound
+monster_sound,data\wav\turtle_general_damage.wav,data.grf,36676,66429bcfb922cbf5d620a55327908069df1305d2ba86312c44e95803ad678e9f,raw/ro/wav/turtle_general_damage.wav,ACT event sound
+monster_sound,data\wav\turtle_general_die.wav,data.grf,47364,5e94beec7814ae8faa1cbd04a836afafb8baae699d14f713327586d02449106e,raw/ro/wav/turtle_general_die.wav,ACT event sound
+monster_sound,data\wav\turtle_general_move.wav,data.grf,22444,a280d570fb707ffa5c9c7199e61f7cf5a24e8c146bb71d31db168a9c8baf1f08,raw/ro/wav/turtle_general_move.wav,ACT event sound
+item,data\texture\유저인터페이스\item\크레센트사이더.bmp,data.grf,1654,fa7661d803faae77da5a2afb395d11e061cb7b2a50e88c71e149da8867b3fa17,raw/ro/texture/item/크레센트사이더.bmp,crescent_scythe; item_db 1466 Crescent Scythe
+item,data\texture\유저인터페이스\collection\크레센트사이더.bmp,data.grf,22856,86b99745fcdd984f8f37b33b51e72f5ec71a6b51b472b77e67408c00a1c65331,raw/ro/texture/collection/크레센트사이더.bmp,crescent_scythe; item_db 1466 Crescent Scythe
+item,data\texture\유저인터페이스\item\마제스틱고우트.bmp,data.grf,1654,98c6dae0aab6aba822e5ffbf344895c2506bfeb287a45173de46fa59ffc07928,raw/ro/texture/item/마제스틱고우트.bmp,majestic_goat; item_db 2256 Majestic Goat
+item,data\texture\유저인터페이스\collection\마제스틱고우트.bmp,data.grf,8676,252f23f9a9740e712bf46160b11ba08c61fd344b6c22391f6811abe1869ec70b,raw/ro/texture/collection/마제스틱고우트.bmp,majestic_goat; item_db 2256 Majestic Goat
+item,data\texture\유저인터페이스\item\디아볼루스로브.bmp,data.grf,1654,b21ddb188b507cbfc532dad1691cbea8f45042a3db9b15b8659f2280ac069f88,raw/ro/texture/item/디아볼루스로브.bmp,pact_mantle: Diabolus Robe; item_db 2374 Diablos Robe
+item,data\texture\유저인터페이스\collection\디아볼루스로브.bmp,data.grf,22856,70f8f04f3649b4692839ce9b6a83f2d8aae6f188942426465bffea27502dc269,raw/ro/texture/collection/디아볼루스로브.bmp,pact_mantle: Diabolus Robe; item_db 2374 Diablos Robe
+item,data\texture\유저인터페이스\item\디아볼루스부츠.bmp,data.grf,1654,0ff70fbc96fa6956197ee396461071650eab837df5136ba76f48eeb2359dd36d,raw/ro/texture/item/디아볼루스부츠.bmp,maze_boots: Diabolus Boots; item_db 2433 Diablos Boots
+item,data\texture\유저인터페이스\collection\디아볼루스부츠.bmp,data.grf,22856,bf57fedd3e103ed7c1682d22005c38b7f1d6de8e9abd7ca1b5e1848a6942b06c,raw/ro/texture/collection/디아볼루스부츠.bmp,maze_boots: Diabolus Boots; item_db 2433 Diablos Boots
+item,data\texture\유저인터페이스\item\비다르의부츠.bmp,data.grf,1654,a09a420342723d296ebab7d913eb959ffe77b301db8b8010ec84fdfe81d2fdb7,raw/ro/texture/item/비다르의부츠.bmp,maze_boots alt: Vidar's Boots; item_db 2418 Vidar's Boots
+item,data\texture\유저인터페이스\collection\비다르의부츠.bmp,data.grf,22856,6a482fe1ab7dfe9a947a3553bb726afcc450f7c1ddf17553d5b0c4c3498135e5,raw/ro/texture/collection/비다르의부츠.bmp,maze_boots alt: Vidar's Boots; item_db 2418 Vidar's Boots
+card,data\texture\유저인터페이스\cardbmp\마스터링카드.bmp,data.grf,121076,4115f3751412bc44eb1c4e659cb73e796d9c8b15508b4ea8127d1cc98e792c4a,raw/ro/texture/cardbmp/마스터링카드.bmp,Mastering Card 4197
+card,data\texture\유저인터페이스\cardbmp\오시리스카드.bmp,data.grf,121076,e81e1304214878f41ecb41e43744b4d657fa72aaec61faf89dab76ae48508fd5,raw/ro/texture/cardbmp/오시리스카드.bmp,Osiris Card 4144
+card,data\texture\유저인터페이스\cardbmp\월야화카드.bmp,data.grf,121076,4d3d9976425d25b8b44c240b02f549330cb8d8cde872b950b2947c1ef7eb82f6,raw/ro/texture/cardbmp/월야화카드.bmp,Moonlight Flower Card 4131
+card,data\texture\유저인터페이스\cardbmp\오크로드카드.bmp,data.grf,121076,506733a99aac1f5f23502d54a1ce1c3acc83c93d7b94a6666be24361d53a2f09,raw/ro/texture/cardbmp/오크로드카드.bmp,Orc Lord Card 4135
+card,data\texture\유저인터페이스\cardbmp\미스트레스카드.bmp,data.grf,121076,329b62c07611c3c1b8fbdf4cbcc96714dd440bfc443b76532f8ae34ba80baa46,raw/ro/texture/cardbmp/미스트레스카드.bmp,Mistress Card 4132
+card,data\texture\유저인터페이스\cardbmp\다크로드카드.bmp,data.grf,121076,f01436a354c1c22dabe95a4505dfd64cf635d7f597eacf2a2d721baac962c50e,raw/ro/texture/cardbmp/다크로드카드.bmp,Dark Lord Card 4168
+card,data\texture\유저인터페이스\cardbmp\바포메트카드.bmp,data.grf,121076,ac67556aa32ce3789f9b953f1ebf585789021fc9534bb0c8d7cfc25748067454,raw/ro/texture/cardbmp/바포메트카드.bmp,Baphomet Card 4147
+card,data\texture\유저인터페이스\cardbmp\파라오카드.bmp,data.grf,121076,768ed91041005a0e4a55d666efe898f220e8923fc45f670451b6522030696997,raw/ro/texture/cardbmp/파라오카드.bmp,Pharaoh Card 4148
+card,data\texture\유저인터페이스\cardbmp\포링카드.bmp,data.grf,121076,ff97b80ef1ed4598dd5c4c0dbd8f2506a334292d008dc4c4408b9cda8184cb37,raw/ro/texture/cardbmp/포링카드.bmp,Poring Card 4001
+card,data\texture\유저인터페이스\cardbmp\푸파카드.bmp,data.grf,121076,d63025f4e96d5e6bd6fe58c09156be25fdc1daa37fecb17bc44f5476a3ee4fb0,raw/ro/texture/cardbmp/푸파카드.bmp,Pupa Card 4003
+card,data\texture\유저인터페이스\cardbmp\헌터플라이카드.bmp,data.grf,121080,174c604267a6d7b8101099e8e9827c9f210cb9bc18c8cf1b75addef62815fdca,raw/ro/texture/cardbmp/헌터플라이카드.bmp,Hunter Fly Card 4115
+card,data\texture\유저인터페이스\cardbmp\오크워리어카드.bmp,data.grf,121076,d7eb85a5b2d9bf53bc7e3a914ab0c5ce2beff9e80f7c43c4acd5333a9f5472c8,raw/ro/texture/cardbmp/오크워리어카드.bmp,Orc Warrior Card 4066
+card,data\texture\유저인터페이스\cardbmp\만드라고라카드.bmp,data.grf,121076,0a7f1cb63da1791b826fdd6067da54fbe18fe0d7fb058db6c9fe7569922f19c9,raw/ro/texture/cardbmp/만드라고라카드.bmp,Mandragora Card 4030
+card,data\texture\유저인터페이스\cardbmp\맨티스카드.bmp,data.grf,121076,e5bc6a1ea782d3b51a264c36550509da43b4e882e71fea2b51cb1f1adc4687ed,raw/ro/texture/cardbmp/맨티스카드.bmp,Mantis Card 4079
+card,data\texture\유저인터페이스\cardbmp\파브르카드.bmp,data.grf,121076,94e61da25a591c6a386c5510e1d66e210e7f564fdc5ed55158aec01e909a7726,raw/ro/texture/cardbmp/파브르카드.bmp,Fabre Card 4002
+card,data\texture\유저인터페이스\cardbmp\로커카드.bmp,data.grf,121076,194399eb6a82f4f3fbb053d56c79f3739bd58e78325497d5d469fc2a64e34ed1,raw/ro/texture/cardbmp/로커카드.bmp,Rocker Card 4021
+card,data\texture\유저인터페이스\cardbmp\드롭프스카드.bmp,data.grf,121076,4a9ef9da2b9e887bcff46e4cae851d3bc84b5aad31b4982572f91f7a567a7f2d,raw/ro/texture/cardbmp/드롭프스카드.bmp,Drops Card 4004
+card,data\texture\유저인터페이스\cardbmp\마린카드.bmp,data.grf,121076,19414bb5ce33158938a3580d7a0acd35d00b4113f4ecdefc586ab2f46d73f578,raw/ro/texture/cardbmp/마린카드.bmp,Marin Card 4196
+card,data\texture\유저인터페이스\cardbmp\포포링카드.bmp,data.grf,121076,6bb8d4f88333e2d67418fad10e0e6529cdd65e867cbfe926f360af4c381208b3,raw/ro/texture/cardbmp/포포링카드.bmp,Poporing Card 4033
+card,data\texture\유저인터페이스\cardbmp\도둑벌레카드.bmp,data.grf,121076,a45793b0fbd994cfc381e67d4d5e91ac249a6a0ddbcbb66643e646004ae000bd,raw/ro/texture/cardbmp/도둑벌레카드.bmp,Thief Bug Card 4016
+card,data\texture\유저인터페이스\cardbmp\스틸촌촌카드.bmp,data.grf,121076,28e34439c9d63e4232080ef82329ba355bce66ae07077f8f2a3b77f4be0ea1d0,raw/ro/texture/cardbmp/스틸촌촌카드.bmp,Steel Chonchon Card 4042
+card,data\texture\유저인터페이스\cardbmp\하이오크카드.bmp,data.grf,121076,5d4bb29e718a13f8f55762bfb3fcf6d13f72b028a5fc35f7cd444a3db0f84ded,raw/ro/texture/cardbmp/하이오크카드.bmp,High Orc Card 4322
+card,data\texture\유저인터페이스\cardbmp\엔젤링카드.bmp,data.grf,121076,5b64abadf66d32eb8a7c4642b630358b9fc935ccc6187fd19f69e2dbfba47ae2,raw/ro/texture/cardbmp/엔젤링카드.bmp,Angeling Card 4054
+card,data\texture\유저인터페이스\cardbmp\아크엔젤링카드.bmp,data.grf,121076,89cbe94ff44b7161293896f76faf3cd86803f26ac2c4bbf1dc7fbc058eedda69,raw/ro/texture/cardbmp/아크엔젤링카드.bmp,Archangeling Card 4241
+card,data\texture\유저인터페이스\cardbmp\바포주니어카드.bmp,data.grf,121076,3f2fc38d2fa489af6f1efe05da44c1e94dc160b51d6bde81e2706b65cc3cb21d,raw/ro/texture/cardbmp/바포주니어카드.bmp,Bapho Jr. Card 4129
+card,data\texture\유저인터페이스\cardbmp\데비루치카드.bmp,data.grf,121076,1dafa6c35845aa09790301c56554332e5f35b43eb76f27b18fa7f63e2dd317d6,raw/ro/texture/cardbmp/데비루치카드.bmp,Deviruchi Card 4122
+card,data\texture\유저인터페이스\cardbmp\떠돌이늑대카드.bmp,data.grf,121076,7141737e13cc93aba1141e6bcd88715b2fa06882086e605e4cb53805e8e7e06f,raw/ro/texture/cardbmp/떠돌이늑대카드.bmp,Vagabond Wolf Card 4183
+card,data\texture\유저인터페이스\cardbmp\위스퍼카드.bmp,data.grf,121076,7b65770b82d47e41159f57c178fe55fdbf578546f679710d9d8ad3cd1d339b1f,raw/ro/texture/cardbmp/위스퍼카드.bmp,Whisper Card 4102
+card,data\texture\유저인터페이스\cardbmp\라이드워드카드.bmp,data.grf,121076,103fd2bb86c77f2649553b1afc1e4b35bc25e178939a1315bc87a732960e7e99,raw/ro/texture/cardbmp/라이드워드카드.bmp,Rideword Card 4185
+card,data\texture\유저인터페이스\cardbmp\오크히어로카드.bmp,data.grf,121076,e4ae2931d29e962cc6c0f0c37d9ea5d8519717483ccc7c33603f6a7a078fdfa4,raw/ro/texture/cardbmp/오크히어로카드.bmp,Orc Hero Card 4143
+card,data\texture\유저인터페이스\cardbmp\금도둑벌레카드.bmp,data.grf,121076,8a6c11c11935af410e9deacab4a9a553ea57eb5f625554c6ea60285d1822383f,raw/ro/texture/cardbmp/금도둑벌레카드.bmp,Golden Thief Bug Card 4128
+card,data\texture\유저인터페이스\cardbmp\드레이크카드.bmp,data.grf,121076,b52d47f64dd41a322cff8ad76fd21c750caaa5d4b52da50eaf8afe6d267e8f9e,raw/ro/texture/cardbmp/드레이크카드.bmp,Drake Card 4137
+card,data\texture\유저인터페이스\cardbmp\에드가카드.bmp,data.grf,121076,317a536b69943ab2278c438ad87b6c05b96b3efec2e34981a1eaff71604e3ba3,raw/ro/texture/cardbmp/에드가카드.bmp,Eddga Card 4123
+card,data\texture\유저인터페이스\cardbmp\드라큐라카드.bmp,data.grf,121076,a3bfd72e6efe3b9189ae2c37f1be5c79d61db4348ebb67151e8044deea560db7,raw/ro/texture/cardbmp/드라큐라카드.bmp,Dracula Card 4134
+card,data\texture\유저인터페이스\cardbmp\마야카드.bmp,data.grf,121076,66ad2a38b7b8b28bf507b18da33bb502fcd18de2c0937382f1f32ee74ce75bf6,raw/ro/texture/cardbmp/마야카드.bmp,Maya Card 4146
+card,data\texture\유저인터페이스\cardbmp\터틀제네럴카드.bmp,data.grf,121076,43f3cee074a0beb3047be12347c7fae192bb7408bbef1e0ea629d6ab0ad94397,raw/ro/texture/cardbmp/터틀제네럴카드.bmp,Turtle General Card 4305
+card,data\texture\유저인터페이스\cardbmp\아몬라카드.bmp,data.grf,121076,4e6793e0b4667a6732f8c1c255076a938d58fba3b4312f3be2ed016aa07cdcee,raw/ro/texture/cardbmp/아몬라카드.bmp,Amon Ra Card 4236
+card,data\texture\유저인터페이스\cardbmp\도플갱어카드.bmp,data.grf,121076,2a8725ad56da70c3d377c29907e5dca2089313b04d9b5751e9a29e684904b0b5,raw/ro/texture/cardbmp/도플갱어카드.bmp,Doppelganger Card 4142
+fx,data\texture\effect\ring_white.tga,data.grf,16428,b48dc6a00fceda637a25187c8e7ff8feac4a43e5feaf0219be7c04678ccf5dc4,raw/ro/texture/effect/ring_white.tga,MO_EXTREMITYFIST 510 EF_BEGINASURA11
+fx,data\texture\effect\asura11.tga,data.grf,16428,069b2e5d972044dbc2b36e37b3040bdf29d4fee2e97058ec2c17b4dab859bcf4,raw/ro/texture/effect/asura11.tga,MO_EXTREMITYFIST 510 EF_BEGINASURA11
+fx,data\texture\effect\asura12.tga,data.grf,16428,21c44549205e17fd7cd2cd9f4e36f7505f91732060b1f9dca99a4752cb67177c,raw/ro/texture/effect/asura12.tga,MO_EXTREMITYFIST 510 EF_BEGINASURA11
+fx,data\texture\effect\asura13.tga,data.grf,16428,024d5722eb684afee714d11607bca67c267bfabd6a03c6edf8e65a35f7b20806,raw/ro/texture/effect/asura13.tga,MO_EXTREMITYFIST 510 EF_BEGINASURA11
+fx,data\texture\effect\asura14.tga,data.grf,16428,5239c590eaf53578407eba2fd28ac320947c755ec72dee00412c924c08e7c3d0,raw/ro/texture/effect/asura14.tga,MO_EXTREMITYFIST 510 EF_BEGINASURA11
+fx,data\texture\effect\asura15.tga,data.grf,16428,6b480ed59fa01bc617a5f6f550f2382e90324ea3887f34803558f30353b01506,raw/ro/texture/effect/asura15.tga,MO_EXTREMITYFIST 510 EF_BEGINASURA11
+fx,data\texture\effect\asura16.tga,data.grf,16428,0a740b825a775e990bc4aa32ccf2b78f1799eb0d0a913a4c6159f4d7b0666147,raw/ro/texture/effect/asura16.tga,MO_EXTREMITYFIST 510 EF_BEGINASURA11
+fx,data\texture\effect\asura1.tga,data.grf,16428,2c05babdbaeee81f68e313d46c659c64adc15b27537e1a1ba51bf8fbc9682507,raw/ro/texture/effect/asura1.tga,MO_EXTREMITYFIST 328 EF_BEGINASURA
+fx,data\texture\effect\asura2.tga,data.grf,16428,be0f99d33bf6fd5b75d0a285733d0afd89477fd0359b7cad2a229c944b8ab79a,raw/ro/texture/effect/asura2.tga,MO_EXTREMITYFIST 328 EF_BEGINASURA
+fx,data\texture\effect\asura3.tga,data.grf,16428,a53634fa93e70aa0351ec4c97abbfe59e07d491702195d8a9b97d5fb84eef0e0,raw/ro/texture/effect/asura3.tga,MO_EXTREMITYFIST 328 EF_BEGINASURA
+fx,data\texture\effect\asura4.tga,data.grf,16428,5990276217e3a99df2b1fb13850630d4b4435287ecd7c4ccd718ea68ac9dc0d1,raw/ro/texture/effect/asura4.tga,MO_EXTREMITYFIST 328 EF_BEGINASURA
+fx,data\texture\effect\asura5.tga,data.grf,16428,c4d0932d95d926020d26d11eb79db997f1f83a9b29f6181d28c60a9aededce95,raw/ro/texture/effect/asura5.tga,MO_EXTREMITYFIST 328 EF_BEGINASURA
+fx,data\texture\effect\asura6.tga,data.grf,16428,616052a2a807bb2aa9d1b5af384f126d720d82b91e413be0d1fba7b18f84d288,raw/ro/texture/effect/asura6.tga,MO_EXTREMITYFIST 328 EF_BEGINASURA
+fx,data\wav\effect\mon_아수라 패황권.wav,data.grf,89336,709e5ee087d0f35b3dbc3a035afffc559d898d5427afb7f8afe22f3e668ef0cb,raw/ro/wav/effect/mon_아수라 패황권.wav,MO_EXTREMITYFIST 266 EF_TEIHIT1X
+fx,data\texture\effect\lens1.tga,data.grf,16428,d51df8bc46b67ea556bd2c7f63ebb66aa91c8dcdf075b7f768ff14cdc964d39a,raw/ro/texture/effect/lens1.tga,MO_EXTREMITYFIST 266 EF_TEIHIT1X
+fx,data\texture\effect\ring_yellow.tga,data.grf,16428,6433dd2c7484fccb1de33085d71153601f7db7a07cc0f78404cf10b8129a9e4a,raw/ro/texture/effect/ring_yellow.tga,MO_EXTREMITYFIST 12 EF_BEGINSPELL
+fx,data\texture\effect\lens2.tga,data.grf,16428,515b5170b6e55a25815b25cda6a97ac22b5bf925f38ba6fd793055b71d0c720c,raw/ro/texture/effect/lens2.tga,MO_EXTREMITYFIST Asura hit texture 266/276
+fx,data\texture\effect\lord.str,data.grf,213640,29a88619cad70cbe451323726e8d4a581b82f309de007bc2526f55b720416427,raw/ro/texture/effect/lord.str,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_blast_a.bmp,data.grf,196664,fa631baac0798754b85b80124fd5ec3592223832a23e420471a8628b266a3755,raw/ro/texture/effect/lord_blast_a.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\blast_stick.bmp,data.grf,63544,f1d860191985cb727654bd2b52aa0f170866da58ab9b5bde26ff66ca3d501e1b,raw/ro/texture/effect/blast_stick.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_blast_b.bmp,data.grf,196664,bf462c253ffdb0e84dedac75de1640fda3cce91d6d2abb572b2710850fb7207a,raw/ro/texture/effect/lord_blast_b.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_stick_a.bmp,data.grf,98360,46b4be42032a57c3f5e023a2fb090e39bb5264c639754ceb048e132053aa27b2,raw/ro/texture/effect/lord_stick_a.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_stick_b.bmp,data.grf,98360,ce31f6c9943814b88f3229dd69ebf9962c0ce830f86051f7f947e5cafe14cf53,raw/ro/texture/effect/lord_stick_b.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_stick_c.bmp,data.grf,98360,7f08b5c730c52b27f0a840728e1b0693ac4a350cdcb897e5b1fb0bba12b587e2,raw/ro/texture/effect/lord_stick_c.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_stick_e.bmp,data.grf,98360,d73331d518b952c888aaa661a53977d166ae4f53f1c71e0ba9536591a5eb1d78,raw/ro/texture/effect/lord_stick_e.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_stick_f.bmp,data.grf,98360,c9ce58354ed765618e07544e5b4dc79f7db3113d4efe22eeecb3bf7a7594743e,raw/ro/texture/effect/lord_stick_f.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_stick_g.bmp,data.grf,98360,310950e24ef07ae596c129c513f9e72f2be3de874865fadf08a5f3b9a3bb1e73,raw/ro/texture/effect/lord_stick_g.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_stick_h.bmp,data.grf,98360,ee9786fec1ed06e7f1887a7aba5b7e8871b6498f511f722b9a0e61ff8ec8be80,raw/ro/texture/effect/lord_stick_h.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_stick_plazma_a.bmp,data.grf,98360,972dae3695874135bc00d25d1f00278a3fc9124278b13bcb8929bd437033dfd9,raw/ro/texture/effect/lord_stick_plazma_a.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_stick_plazma_b.bmp,data.grf,98360,6f6a24ea5c831064dfe863b8824ad71d17d48db7cafee02dc4644cc670a94e5a,raw/ro/texture/effect/lord_stick_plazma_b.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_stick_plazma_c.bmp,data.grf,98360,15018b2d020b610c37958bef939ae5465e83bd7cc0a910d3d1e04c17862b4ccd,raw/ro/texture/effect/lord_stick_plazma_c.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\lord_blast_c.bmp,data.grf,196664,510b9e3b9bd3806c42ebb1346a8b20fd92a74efbe2473bfa269ed8a5fc84a541,raw/ro/texture/effect/lord_blast_c.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\explosive_1_128.bmp,data.grf,17462,d562b9a2849bb86bb570c57b2cd4df88badee1ed3a3ad23260392dedbe160800,raw/ro/texture/effect/explosive_1_128.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\freeze_ice_part.bmp,data.grf,57464,8fbf0b3900749f27a23ec3c1022d01ed7cc027705c3c25d10fe46bd00578c618,raw/ro/texture/effect/freeze_ice_part.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\plazma_a.bmp,data.grf,196664,4c98995ab18aed85355292bae1f054f8781cac1b7c491a60959cf23575acba42,raw/ro/texture/effect/plazma_a.bmp,WZ_VERMILION 90 EF_LORD
+fx,data\texture\effect\windhit.str,data.grf,20788,2f763f870263464c3e2176e31a95fc1c0344f629a4f0af3b41b4c30ce8843080,raw/ro/texture/effect/windhit.str,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\thunder_ball_a.bmp,data.grf,12344,3747170ca143dd1ef0fd5a7dff18afc795af757e562325077e779ff71ae62b1e,raw/ro/texture/effect/thunder_ball_a.bmp,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\thunder_ball_b.bmp,data.grf,12344,36e08c82e86f6b7abac26d5be13b2eb1962e72f8e60c1445e9a5eb759275886e,raw/ro/texture/effect/thunder_ball_b.bmp,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\thunder_ball_c.bmp,data.grf,12344,d8ef5f2729a9fa6adb280869c6757ec0b3bff26df500e14ef6b1250386ab9758,raw/ro/texture/effect/thunder_ball_c.bmp,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\thunder_ball_d.bmp,data.grf,12344,b0d6b1edff9756fa5b19cea2fc642e6aa16b402bf1a7f82463ed4757054bbd60,raw/ro/texture/effect/thunder_ball_d.bmp,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\shockwave_c.bmp,data.grf,24632,14142e8bffce698bcf781d129648740694a9750ea9bcf1cc6ca75c741e57055a,raw/ro/texture/effect/shockwave_c.bmp,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\shockwave_d.bmp,data.grf,24632,12d1df473aca24afe5bf3f31843b9764384000ff01323b02717ee6c7692bf5b7,raw/ro/texture/effect/shockwave_d.bmp,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\shockwave_e.bmp,data.grf,24632,566234783e2474942ef34a7a98cc8ce40dfa7b33ac473953a2c4a8b1ca440032,raw/ro/texture/effect/shockwave_e.bmp,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\pokjuk_c.bmp,data.grf,17460,219c71c462063a156b7cf97fe4889a33d3e2fdd000bea464d336da3e7491ec3c,raw/ro/texture/effect/pokjuk_c.bmp,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\windhit1.str,data.grf,20788,2544ae0b17311b8b9a164c399115380549a12b6c5ab722d125c4734e1fcc1fe6,raw/ro/texture/effect/windhit1.str,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\windhit2.str,data.grf,20788,62e5ce1e6ba692a821bce5953d28ec206e3ae6cad0860850d7395481fa63a052,raw/ro/texture/effect/windhit2.str,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\windhit3.str,data.grf,20788,62e5ce1e6ba692a821bce5953d28ec206e3ae6cad0860850d7395481fa63a052,raw/ro/texture/effect/windhit3.str,WZ_VERMILION EF_WINDHIT 52 (file windhit%d)
+fx,data\texture\effect\firewall.str,data.grf,25620,81edea9cb1ac96cb2248d25bd11087593cdf5934b60c74f1f86ae4e0fb7958c8,raw/ro/texture/effect/firewall.str,MG_FIREWALL EF_FIREWALL 25 (file firewall%d)
+fx,data\texture\effect\fire_a.bmp,data.grf,16676,80937775ed58b3b1f807fc98b5d05b9e2b4e1f89b15d42cff0a7d160a2822a6e,raw/ro/texture/effect/fire_a.bmp,MG_FIREWALL EF_FIREWALL 25 (file firewall%d)
+fx,data\texture\effect\fire_b.bmp,data.grf,16816,3cccbd33f41348f44d5b4d3760350fe222964cbae369f6e1f12738a4c29653dc,raw/ro/texture/effect/fire_b.bmp,MG_FIREWALL EF_FIREWALL 25 (file firewall%d)
+fx,data\texture\effect\pika01.bmp,data.grf,1336,ac8ba5c64437a2c17f3a82a6761f9befdc925b55441bfe993cb2650ba32d9879,raw/ro/texture/effect/pika01.bmp,MG_FIREWALL EF_FIREWALL 25 (file firewall%d)
+fx,data\texture\effect\pika03.bmp,data.grf,1144,3f52778c1134ba66d17e2352296219fe5d015fa79593f9056a9dc7ca2f786a37,raw/ro/texture/effect/pika03.bmp,MG_FIREWALL EF_FIREWALL 25 (file firewall%d)
+fx,data\texture\effect\firewall1.str,data.grf,19872,5ef70ab2d5bc177059d732312253271f96f689fcbe3063e15c55f04788e43810,raw/ro/texture/effect/firewall1.str,MG_FIREWALL EF_FIREWALL 25 (file firewall%d)
+fx,data\texture\effect\firewall2.str,data.grf,16788,8aa669c62225ab8eaecc42227212579594ef0bfae1e9e0f1268300299deab9c4,raw/ro/texture/effect/firewall2.str,MG_FIREWALL EF_FIREWALL 25 (file firewall%d)
+fx,data\texture\effect\firehit.str,data.grf,11596,dc4600af1b634a1ba0d4ef7253c310764d149530c33c568760b05fbe44f59f2d,raw/ro/texture/effect/firehit.str,MG_FIREWALL EF_FIREHIT 49 (file firehit%d)
+fx,data\texture\effect\invenom_ring.bmp,data.grf,17460,a01fa17a7f8b5706790ac91fe05e06f5ea10fef6bfe2e71e81f473e41e5c8a40,raw/ro/texture/effect/invenom_ring.bmp,MG_FIREWALL EF_FIREHIT 49 (file firehit%d)
+fx,data\texture\effect\lens_r.bmp,data.grf,12344,d9ef3b915d725e8abd0cae5d610ee0b4ff401a946399995e9213b6c32e7fb8f5,raw/ro/texture/effect/lens_r.bmp,MG_FIREWALL EF_FIREHIT 49 (file firehit%d)
+fx,data\texture\effect\firering.bmp,data.grf,12344,3aa8e9f885c571c7028ebee4058f97d8a2ef60a26677fb23f6ecf7bc682191d9,raw/ro/texture/effect/firering.bmp,MG_FIREWALL EF_FIREHIT 49 (file firehit%d)
+fx,data\texture\effect\firehit1.str,data.grf,10196,25183abcf425a2a012a5134bfbce140b90425ba0ec77772795f7cf363ecd59de,raw/ro/texture/effect/firehit1.str,MG_FIREWALL EF_FIREHIT 49 (file firehit%d)
+fx,data\texture\effect\firehit2.str,data.grf,10196,445ecb01d41f2e096c18b73961d71543526b443098ca5fe775a59ed7a00fa694,raw/ro/texture/effect/firehit2.str,MG_FIREWALL EF_FIREHIT 49 (file firehit%d)
+fx,data\texture\effect\firehit3.str,data.grf,10196,445ecb01d41f2e096c18b73961d71543526b443098ca5fe775a59ed7a00fa694,raw/ro/texture/effect/firehit3.str,MG_FIREWALL EF_FIREHIT 49 (file firehit%d)
+fx,data\texture\effect\brandish.str,data.grf,42060,63150e8ae430ad489cf4eebe52188dfaba0291c93e962ec896bae8633046d021,raw/ro/texture/effect/brandish.str,KN_BRANDISHSPEAR 70 EF_BRANDISHSPEAR
+fx,data\texture\effect\dust_part.bmp,data.grf,20392,a2e14020627f0fe62fc2e2e888101b27ad57c3e4015e1e2b47eb973e66b50426,raw/ro/texture/effect/dust_part.bmp,KN_BRANDISHSPEAR 70 EF_BRANDISHSPEAR
+fx,data\texture\effect\ring_b.bmp,data.grf,17412,d26b343861aaf08fb68783d156eaae72aacd2eeea27213c7d9c67a237a9b1e44,raw/ro/texture/effect/ring_b.bmp,KN_BRANDISHSPEAR 70 EF_BRANDISHSPEAR
+fx,data\texture\effect\fire_smoke_d.bmp,data.grf,49208,ccaba870e16472dc731892a3ace9bf8915f3cb741b73955b11b6d2fb46bc74da,raw/ro/texture/effect/fire_smoke_d.bmp,KN_BRANDISHSPEAR 70 EF_BRANDISHSPEAR
+fx,data\texture\effect\fire_smoke_c.bmp,data.grf,49208,73811975507468ed1c6d59abd9f92e85275eb2dfba9d70ef27195ca6da3d106d,raw/ro/texture/effect/fire_smoke_c.bmp,KN_BRANDISHSPEAR 70 EF_BRANDISHSPEAR
+fx,data\texture\effect\brandish2.str,data.grf,13480,3942f8d478eac7080e143e9f1dd573ed5f5c493628ecc78f137775cfd158379e,raw/ro/texture/effect/brandish2.str,KN_BRANDISHSPEAR 144 EF_BRANDISH2
+fx,data\texture\effect\safeline.bmp,data.grf,196664,702a2bf806fbe87afb78ae34318ec86a37a65e04291eaf9199e78d1a9419f4ab,raw/ro/texture/effect/safeline.bmp,KN_BRANDISHSPEAR 144 EF_BRANDISH2
+fx,data\texture\effect\lens_b.bmp,data.grf,12344,b12d5ea3bfbc51fcb9df32cb921b95466ebaa50ccb3f9c8c3ca8bb381d926c02,raw/ro/texture/effect/lens_b.bmp,KN_BRANDISHSPEAR 144 EF_BRANDISH2
+fx,data\texture\effect\shockwave.str,data.grf,9792,99664c42d52a2a0233d6d4f2fba12319e750a8209ae365800ff77b6f79155e57,raw/ro/texture/effect/shockwave.str,KN_BRANDISHSPEAR 144 EF_BRANDISH2
+fx,data\texture\effect\shockwave_a.bmp,data.grf,49208,2fadb3202892c18d9a766bd62a5b82cc8dd0e3fbc1c9993ccfaa36e6b8658c0e,raw/ro/texture/effect/shockwave_a.bmp,KN_BRANDISHSPEAR 144 EF_BRANDISH2
+fx,data\texture\effect\shockwave_b.bmp,data.grf,49208,a40d91a06b7abba934ebbabede41277665ace7714dc2f284c6ff764b7ec2379f,raw/ro/texture/effect/shockwave_b.bmp,KN_BRANDISHSPEAR 144 EF_BRANDISH2
+fx,data\texture\effect\thunder_ball_e.bmp,data.grf,12344,cb7e0cbec0027147299aad155a2dfe55b2ab8b4f7a98e292440812785194957f,raw/ro/texture/effect/thunder_ball_e.bmp,KN_BRANDISHSPEAR 144 EF_BRANDISH2
+fx,data\texture\effect\thunder_ball_f.bmp,data.grf,12344,a1e844c2daaf7015188937e55f6e3377ddf7503e7a195e8675baf47616afdfb6,raw/ro/texture/effect/thunder_ball_f.bmp,KN_BRANDISHSPEAR 144 EF_BRANDISH2
+fx,data\sprite\이팩트\매.spr,rdata.grf,63829,dce42bfa285251f17b7bd05ad824cb5f9f329ebf62ac1f0eb7f082f2e788dfae,raw/ro/sprite/effect/매.spr,HT_BLITZBEAT falcon sprite (EF_BLITZBEAT 115 is sound only in roBrowser)
+fx,data\sprite\이팩트\매.act,rdata.grf,5908,ac258085c313b566aa004a5a536a73578bd6a32033b7fb99331b2057dd83ad87,raw/ro/sprite/effect/매.act,HT_BLITZBEAT falcon sprite (EF_BLITZBEAT 115 is sound only in roBrowser)
+fx,data\sprite\이팩트\cconfine.spr,rdata.grf,45809,533fde72d72b3694918b99886cc7c224ff4ece3c45edf30e2e84da2ded636028,raw/ro/sprite/effect/cconfine.spr,RG_CLOSECONFINE 604 EF_NPC_STOP2
+fx,data\sprite\이팩트\cconfine.act,rdata.grf,1084,99aa3f24166f0786a4d975f14d3a6053fa93d06908d2aacda5a886598c861c98,raw/ro/sprite/effect/cconfine.act,RG_CLOSECONFINE 604 EF_NPC_STOP2
+fx,data\wav\effect\애로우 발칸.wav,data.grf,55556,d87a57d273d3bc224bac2a3a57b7fa788fc38a5adb6e959cfe35cac6973d5a01,raw/ro/wav/effect/애로우 발칸.wav,CG_ARROWVULCAN 393 EF_TRIPLEATTACK3
+fx,data\wav\effect\당신을 위한 서비스.wav,data.grf,1312392,195bb59bd1e78397e4de31b469aff40151eb533878a8f876c71f906ba540ac0a,raw/ro/wav/effect/당신을 위한 서비스.wav,DC_SERVICEFORYOU 294 EF_BOTTOM_SERVICEFORYOU
+fx,data\texture\effect\melody_a.bmp,data.grf,2102,54e8983bb81288f760c06afe584a356683ee9e61cbbe14405df5180eb535b51f,raw/ro/texture/effect/melody_a.bmp,DC_SERVICEFORYOU song cell textures (Songs.js)
+fx,data\texture\effect\melody_b.bmp,data.grf,2102,d28b72a15d80c705c66d9956e6ca4041aa68184ab3041e28f81ade4afb54a4f7,raw/ro/texture/effect/melody_b.bmp,DC_SERVICEFORYOU song cell textures (Songs.js)
+fx,data\texture\effect\빨간포션.str,data.grf,5112,0f1a0a9dd709f3bc5a5f583689188214a7c05ea227fa059cb886e98c90815db0,raw/ro/texture/effect/빨간포션.str,AM_POTIONPITCHER potion splash STRs (EF_THROWITEM2 299 not in roBrowser)
+fx,data\texture\effect\pokjuk_d.bmp,data.grf,17460,7cfda79f14deb7456d10f8e3862d02ca8e287303ddc3726949a7e892a41c32b8,raw/ro/texture/effect/pokjuk_d.bmp,AM_POTIONPITCHER potion splash STRs (EF_THROWITEM2 299 not in roBrowser)
+fx,data\texture\effect\주홍포션.str,data.grf,5112,7c65d90b3290ef1e338c4ccab5ba1f861670d33caa51323b867a49eda4fc068b,raw/ro/texture/effect/주홍포션.str,AM_POTIONPITCHER potion splash STRs (EF_THROWITEM2 299 not in roBrowser)
+fx,data\texture\effect\노란포션.str,data.grf,5112,f5dfd234f49f99866c392405145fbed8f609587a32f1bd6973fd04c73f1ea6ac,raw/ro/texture/effect/노란포션.str,AM_POTIONPITCHER potion splash STRs (EF_THROWITEM2 299 not in roBrowser)
+fx,data\texture\effect\lens_y.bmp,data.grf,12344,437ef3c900d9649899a02f4ce6ccb306b509ca220024b43e16b3a98b2aab2b06,raw/ro/texture/effect/lens_y.bmp,AM_POTIONPITCHER potion splash STRs (EF_THROWITEM2 299 not in roBrowser)
+fx,data\texture\effect\하얀포션.str,data.grf,5112,f82260e7908e7318e9358c7ec8d2ef584c461eb3f730200ae3044aa02e859093,raw/ro/texture/effect/하얀포션.str,AM_POTIONPITCHER potion splash STRs (EF_THROWITEM2 299 not in roBrowser)
+fx,data\texture\effect\lens_w.bmp,data.grf,12344,472f0294178a3c9d3471053036e95a2b88ab16ed460a293d57be6bec2c927dd6,raw/ro/texture/effect/lens_w.bmp,AM_POTIONPITCHER potion splash STRs (EF_THROWITEM2 299 not in roBrowser)
+fx,data\texture\effect\파란포션.str,data.grf,5112,ccf3b9b309a9d5f8ca44e8a0360dab433e3eb8e91e08a1820f79ae895df87e47,raw/ro/texture/effect/파란포션.str,AM_POTIONPITCHER potion splash STRs (EF_THROWITEM2 299 not in roBrowser)
+fx,data\texture\effect\초록포션.str,data.grf,5112,aead970cde12f7a31a637e0badcbca961e3fcf4583604e92fd706e48747cd5a4,raw/ro/texture/effect/초록포션.str,AM_POTIONPITCHER potion splash STRs (EF_THROWITEM2 299 not in roBrowser)
+fx,data\texture\effect\lens_g.bmp,data.grf,12344,0fb9ec0c20e921e7fe9fbad99b246a6e00ffc6fafee41d28f14e1eaa2ee9ea0f,raw/ro/texture/effect/lens_g.bmp,AM_POTIONPITCHER potion splash STRs (EF_THROWITEM2 299 not in roBrowser)
+fx,data\texture\effect\spell.str,data.grf,31772,724a50975af05ba6bd6ed147966112ff32c10b0fd284d840cdfcf81f121d448e,raw/ro/texture/effect/spell.str,SA_SPELLBREAKER 234 EF_SPELLBREAKER
+fx,data\texture\effect\light_bang_a.bmp,data.grf,29624,c2c73a63fadb1061dbb1b239cf64de9cb8fa4b26cc251c1ae6c8de435708baae,raw/ro/texture/effect/light_bang_a.bmp,SA_SPELLBREAKER 234 EF_SPELLBREAKER
+fx,data\texture\effect\light_bang_b.bmp,data.grf,29624,b8a2ab14db46d6cf8223e97cf376c27db9fefe3c6142451efc14ef8692435803,raw/ro/texture/effect/light_bang_b.bmp,SA_SPELLBREAKER 234 EF_SPELLBREAKER
+fx,data\texture\effect\pika02.bmp,data.grf,5176,06e50bc02ebd8cb3c859639d0dc08a5d4ca5ed98f7d8100c56bcc2ff9294205d,raw/ro/texture/effect/pika02.bmp,SA_SPELLBREAKER 234 EF_SPELLBREAKER
+fx,data\texture\effect\ring_blue.tga,data.grf,16428,4afb6b406b03b119ca39579af295ab2a858123f95d93120f4d9e58f852225f54,raw/ro/texture/effect/ring_blue.tga,SA_DELUGE EF_BOTTOM_DE 240: PropertyGround texture ring_blue
+fx,data\wav\effect\mon_금강불괴.wav,data.grf,116612,99fa15c20b595b6e5727a600ee3583ff49cf61614996d5608653cb0d5405f825,raw/ro/wav/effect/mon_금강불괴.wav,MO_STEELBODY 254 EF_STEELBODY
+fx,data\wav\effect\메테오 어썰트.wav,data.grf,172720,b9a098c5174935eb356b7907dbb36b3a4fc405306a10ea98fcbfd2ed0aa55dc9,raw/ro/wav/effect/메테오 어썰트.wav,ASC_METEORASSAULT 409 EF_SOULBREAKER2
+fx,data\texture\effect\purpleslash.tga,data.grf,65580,a21cb15eb77b5fc6873afa2350effc756ca5120b8372c80a5be46ceed4ad9ac1,raw/ro/texture/effect/purpleslash.tga,ASC_METEORASSAULT 409 EF_SOULBREAKER2
+fx,data\texture\effect\stone.bmp,data.grf,49208,5b7dca8f98e24fdf86fef59e75719eb4bb9e99181fd1195b441c5b6a8d50c8fb,raw/ro/texture/effect/stone.bmp,WZ_HEAVENDRIVE 142 EF_HEAVENDRIVE
+fx,data\texture\effect\earthhit.str,data.grf,10904,0b16e75abad8a0624445dcaf44a39918c2900533a6688fd0329c0156ed593864,raw/ro/texture/effect/earthhit.str,WZ_HEAVENDRIVE 147 EF_EARTHHIT
+fx,data\texture\effect\stone_part.bmp,data.grf,17456,6f4ad5c7800c3b2a175e92968f9b4914ac6e12f87143c195d2b91fc1446b3abc,raw/ro/texture/effect/stone_part.bmp,WZ_HEAVENDRIVE 147 EF_EARTHHIT
+fx,data\texture\effect\pikapika.bmp,data.grf,49208,ddb1aa0373123c77c7f6bd198245565062d82a092743af356c742b660d4b3310,raw/ro/texture/effect/pikapika.bmp,WZ_HEAVENDRIVE 147 EF_EARTHHIT
+fx,data\texture\effect\ring_red.tga,data.grf,16428,cbbcb17ea6fde117d57d43c0eebfcc2054430eb852347bb1243f417dabc47a7b,raw/ro/texture/effect/ring_red.tga,SA_VOLCANO EF_BOTTOM_VO 239: PropertyGround texture ring_red
+fx,data\wav\permeter_attack.wav,data.grf,28644,97545c972f4afea9b91abcebf7ea2be8d5021c25092f150c5b761e8a1e9e8fd4,raw/ro/wav/permeter_attack.wav,LK_SPIRALPIERCE 339 EF_MAGNUM2
+fx,data\wav\effect\석양의 어쌔신.wav,data.grf,1341572,7b9424468612c174ea3368b230e58108b2ec0fa21daddb4f51f85b3231bff405,raw/ro/wav/effect/석양의 어쌔신.wav,BA_ASSASSINCROSS 287 EF_BOTTOM_ASSASSINCROSS
+fx,data\wav\effect\행운의.wav,data.grf,1319044,b7003971fc310cbe070897506a823c74a80efbc9a7433cfcd65e1c9c0e4ec939,raw/ro/wav/effect/행운의.wav,DC_FORTUNEKISS 293 EF_BOTTOM_FORTUNEKISS
+fx,data\texture\effect\sanctuary.str,data.grf,48096,a81221ccd922c66c4b3a6607042d254182fc0658a8aa02554dbd0deaaba00916,raw/ro/texture/effect/sanctuary.str,PR_SANCTUARY 83 EF_SANCTUARY
+fx,data\texture\effect\thunder_center.bmp,data.grf,12344,1fcfc7ad3a49b381b9da39818569ad1212a4ec7caf48fc0f3a9578654deaf904,raw/ro/texture/effect/thunder_center.bmp,PR_SANCTUARY 83 EF_SANCTUARY
+fx,data\texture\effect\lord_blast_b_small.bmp,data.grf,49208,061f7592edf79e04a3bd07c7e7335b2d43e2608d018ddc6ab67c01ebe865d581,raw/ro/texture/effect/lord_blast_b_small.bmp,PR_SANCTUARY 83 EF_SANCTUARY
+fx,data\texture\effect\sanctuaria_angel_wing_up2.bmp,data.grf,49208,5b3192974585a97c64dfd3907790d39b54442f2d806da9004c71f3e40c4008fd,raw/ro/texture/effect/sanctuaria_angel_wing_up2.bmp,PR_SANCTUARY 83 EF_SANCTUARY
+fx,data\texture\effect\sanctuaria_angel_wing_up.bmp,data.grf,49208,2669b4d4e2509bc600446d6e0516096e13f1f411b5e622428554307316d430df,raw/ro/texture/effect/sanctuaria_angel_wing_up.bmp,PR_SANCTUARY 83 EF_SANCTUARY
+fx,data\texture\effect\sanctuaria_angel_wing_body.bmp,data.grf,49208,da5b4c827bdf53b4741f32be5c6f56c4a973845f3e7259444247132c0894664b,raw/ro/texture/effect/sanctuaria_angel_wing_body.bmp,PR_SANCTUARY 83 EF_SANCTUARY
+fx,data\texture\effect\ff.bmp,data.grf,12344,b5ea1054b0c40c9d7e6ede0752c7ddaf78802dbf6d2541d51c87e7feb584f43e,raw/ro/texture/effect/ff.bmp,PR_SANCTUARY 83 EF_SANCTUARY
+fx,data\texture\effect\magic_green.tga,data.grf,16428,c0306cda5d5fd0ad6cc2f647af4d4fd63408523d81e1ce2cac5485dbb52533d7,raw/ro/texture/effect/magic_green.tga,PR_SANCTUARY 319 EF_BOTTOM_SANC
+fx,data\texture\effect\매직로드.str,data.grf,68992,bc32b33ceed3f2bfb7a01c6487ed02a44bad1bdce2828b180c06cc012821fa15,raw/ro/texture/effect/매직로드.str,SA_MAGICROD 244 EF_MAGICROD
+fx,data\texture\effect\thunder_pang.bmp,data.grf,66612,3a4bed03361d5440fab283119c4f39b49823746de6c43cd645cabd6293d85517,raw/ro/texture/effect/thunder_pang.bmp,SA_MAGICROD 244 EF_MAGICROD
+fx,data\texture\effect\round_sphere.bmp,data.grf,5174,7ac0049a7ad6d0094d4d1bef2df46fb005d6483b024f4d67b338ea8c0186be18,raw/ro/texture/effect/round_sphere.bmp,SA_MAGICROD 244 EF_MAGICROD
+fx,data\wav\effect\ef_hit4.wav,data.grf,15666,e6d0c8bc98abcfbdb61cb805203e18e1bf92629b51f1002b72960052a7ac388a,raw/ro/wav/effect/ef_hit4.wav,MO_TRIPLEATTACK 329 EF_TRIPLEATTACK
+fx,data\wav\effect\mon_침투경.wav,data.grf,122756,46e8933dce0392a06dab6dc1b46397e705b38c33fd858b55315882e61bdaef8d,raw/ro/wav/effect/mon_침투경.wav,MO_INVESTIGATE 267 EF_CHIMTO
+fx,data\sprite\이팩트\침투경_.spr,rdata.grf,263180,a041e38cae2cfa120af4c9cdceb9a50caccadd2f7f74190ed7d0fdd4d1f27d39,raw/ro/sprite/effect/침투경_.spr,"MO_INVESTIGATE client sprite 침투경_ (Occult Impaction), not referenced by roBrowser"
+fx,data\sprite\이팩트\침투경_.act,rdata.grf,4276,98f6026da40539b39e3414a9b222916cd5b49c6e52ac8bbe06b6167ee7e4017a,raw/ro/sprite/effect/침투경_.act,"MO_INVESTIGATE client sprite 침투경_ (Occult Impaction), not referenced by roBrowser"
+fx,data\texture\effect\quagmire.str,data.grf,36796,efa3d7aaf9c61c106127e587ec007468e4f6a6b1883e71b80d79f44f96be9117,raw/ro/texture/effect/quagmire.str,WZ_QUAGMIRE 95 EF_QUAGMIRE
+fx,data\texture\effect\bubble_b.bmp,data.grf,12344,26e7cfd22288dba35b0985375535971200018a8c6477cb471cbfb04034707d2e,raw/ro/texture/effect/bubble_b.bmp,WZ_QUAGMIRE 95 EF_QUAGMIRE
+fx,data\texture\effect\bubble_c.bmp,data.grf,12344,93a65f40dd80846a982658f58e35193dbfcedcebe6b9fc6782810eaf7452e169,raw/ro/texture/effect/bubble_c.bmp,WZ_QUAGMIRE 95 EF_QUAGMIRE
+fx,data\texture\effect\bubble_d.bmp,data.grf,12344,0e4de4e0cb3265f7ed30dc818787c53dcc20b53ce41d6b7ebe4f7c757d737882,raw/ro/texture/effect/bubble_d.bmp,WZ_QUAGMIRE 95 EF_QUAGMIRE
+fx,data\wav\effect\wizard_quagmire.wav,data.grf,74366,0155b0ccff8d4f26960c0375733a3a189b28091a23be99b3eb3648ab4ec0e8a1,raw/ro/wav/effect/wizard_quagmire.wav,WZ_QUAGMIRE 95 EF_QUAGMIRE
+fx,data\texture\effect\alpha_down.tga,data.grf,16428,315a4ae73bfe1a9c59692bea35a18169fe1d1907e7077cd82fc7ed21e3b0ad65,raw/ro/texture/effect/alpha_down.tga,HW_MAGICPOWER 16 EF_BASH
+fx,data\texture\effect\alpha_center.tga,data.grf,4140,faa164ba1256cfda6c1c20ef9cb241be6bb5f5cd9759d86801483252c541db51,raw/ro/texture/effect/alpha_center.tga,HW_MAGICPOWER 16 EF_BASH
+fx,data\wav\apocalips_attack.wav,data.grf,50820,72b357458b86634d081923fd59db4dc1c36e15998b354d0dd6da92c5c8ac29bb,raw/ro/wav/apocalips_attack.wav,AM_CP_ARMOR 300 EF_CHEMICALPROTECTION
+fx,data\texture\유저인터페이스\item\염산병.bmp,data.grf,1654,fac99e8fc852caa9083c6c3c392c163ba077f4aa91f95370b118a128c5f86997,raw/ro/texture/item/염산병.bmp,AM_ACIDTERROR 298 EF_THROWITEM
+fx,data\texture\effect\ice.tga,data.grf,65580,8756d0777dfec4722f4012a66552f1663d371b4e4ee481222c017e50bd58577a,raw/ro/texture/effect/ice.tga,hit_51 51 EF_COLDHIT
+fx,data\texture\effect\ring2.bmp,data.grf,4820,2543793b4f21a11c4d85757301667f0ccb2cd8834213cb24f5c98df2a6a412d4,raw/ro/texture/effect/ring2.bmp,hit_121 121 EF_SONICBLOW
+fx,data\wav\effect\ef_stonecurse.wav,data.grf,21150,aca9e93df7407d476806e54d3851aa885b2b90df19c0fb89b265f2bd4989e60b,raw/ro/wav/effect/ef_stonecurse.wav,hit_121 121 EF_SONICBLOW

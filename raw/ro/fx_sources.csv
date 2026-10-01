@@ -1,0 +1,205 @@
+skill,group,effect,source,output
+MO_EXTREMITYFIST,ult,510 EF_BEGINASURA11,data\texture\effect\ring_white.tga,raw/ro/texture/effect/ring_white.tga
+MO_EXTREMITYFIST,ult,510 EF_BEGINASURA11,data\texture\effect\asura11.tga,raw/ro/texture/effect/asura11.tga
+MO_EXTREMITYFIST,ult,510 EF_BEGINASURA11,data\texture\effect\asura12.tga,raw/ro/texture/effect/asura12.tga
+MO_EXTREMITYFIST,ult,510 EF_BEGINASURA11,data\texture\effect\asura13.tga,raw/ro/texture/effect/asura13.tga
+MO_EXTREMITYFIST,ult,510 EF_BEGINASURA11,data\texture\effect\asura14.tga,raw/ro/texture/effect/asura14.tga
+MO_EXTREMITYFIST,ult,510 EF_BEGINASURA11,data\texture\effect\asura15.tga,raw/ro/texture/effect/asura15.tga
+MO_EXTREMITYFIST,ult,510 EF_BEGINASURA11,data\texture\effect\asura16.tga,raw/ro/texture/effect/asura16.tga
+MO_EXTREMITYFIST,ult,328 EF_BEGINASURA,data\texture\effect\ring_white.tga,raw/ro/texture/effect/ring_white.tga
+MO_EXTREMITYFIST,ult,328 EF_BEGINASURA,data\texture\effect\asura1.tga,raw/ro/texture/effect/asura1.tga
+MO_EXTREMITYFIST,ult,328 EF_BEGINASURA,data\texture\effect\asura2.tga,raw/ro/texture/effect/asura2.tga
+MO_EXTREMITYFIST,ult,328 EF_BEGINASURA,data\texture\effect\asura3.tga,raw/ro/texture/effect/asura3.tga
+MO_EXTREMITYFIST,ult,328 EF_BEGINASURA,data\texture\effect\asura4.tga,raw/ro/texture/effect/asura4.tga
+MO_EXTREMITYFIST,ult,328 EF_BEGINASURA,data\texture\effect\asura5.tga,raw/ro/texture/effect/asura5.tga
+MO_EXTREMITYFIST,ult,328 EF_BEGINASURA,data\texture\effect\asura6.tga,raw/ro/texture/effect/asura6.tga
+MO_EXTREMITYFIST,ult,266 EF_TEIHIT1X,data\wav\effect\mon_아수라 패황권.wav,raw/ro/wav/effect/mon_아수라 패황권.wav
+MO_EXTREMITYFIST,ult,266 EF_TEIHIT1X,data\texture\effect\lens1.tga,raw/ro/texture/effect/lens1.tga
+MO_EXTREMITYFIST,ult,12 EF_BEGINSPELL,data\texture\effect\ring_yellow.tga,raw/ro/texture/effect/ring_yellow.tga
+MO_EXTREMITYFIST,ult,12 EF_BEGINSPELL,data\wav\effect\ef_beginspell.wav,raw/ro/wav/effect/ef_beginspell.wav
+MO_EXTREMITYFIST,ult,Asura hit texture 266/276,data\texture\effect\lens1.tga,raw/ro/texture/effect/lens1.tga
+MO_EXTREMITYFIST,ult,Asura hit texture 266/276,data\texture\effect\lens2.tga,raw/ro/texture/effect/lens2.tga
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord.str,raw/ro/texture/effect/lord.str
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_blast_a.bmp,raw/ro/texture/effect/lord_blast_a.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\blast_stick.bmp,raw/ro/texture/effect/blast_stick.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_blast_b.bmp,raw/ro/texture/effect/lord_blast_b.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_stick_a.bmp,raw/ro/texture/effect/lord_stick_a.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_stick_b.bmp,raw/ro/texture/effect/lord_stick_b.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_stick_c.bmp,raw/ro/texture/effect/lord_stick_c.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_stick_e.bmp,raw/ro/texture/effect/lord_stick_e.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_stick_f.bmp,raw/ro/texture/effect/lord_stick_f.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_stick_g.bmp,raw/ro/texture/effect/lord_stick_g.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_stick_h.bmp,raw/ro/texture/effect/lord_stick_h.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_stick_plazma_a.bmp,raw/ro/texture/effect/lord_stick_plazma_a.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_stick_plazma_b.bmp,raw/ro/texture/effect/lord_stick_plazma_b.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_stick_plazma_c.bmp,raw/ro/texture/effect/lord_stick_plazma_c.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\lord_blast_c.bmp,raw/ro/texture/effect/lord_blast_c.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\explosive_1_128.bmp,raw/ro/texture/effect/explosive_1_128.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\freeze_ice_part.bmp,raw/ro/texture/effect/freeze_ice_part.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\texture\effect\plazma_a.bmp,raw/ro/texture/effect/plazma_a.bmp
+WZ_VERMILION,ult,90 EF_LORD,data\wav\effect\wizard_fire_ivy.wav,raw/ro/wav/effect/wizard_fire_ivy.wav
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\windhit.str,raw/ro/texture/effect/windhit.str
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\thunder_ball_a.bmp,raw/ro/texture/effect/thunder_ball_a.bmp
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\thunder_ball_b.bmp,raw/ro/texture/effect/thunder_ball_b.bmp
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\thunder_ball_c.bmp,raw/ro/texture/effect/thunder_ball_c.bmp
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\thunder_ball_d.bmp,raw/ro/texture/effect/thunder_ball_d.bmp
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\shockwave_c.bmp,raw/ro/texture/effect/shockwave_c.bmp
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\shockwave_d.bmp,raw/ro/texture/effect/shockwave_d.bmp
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\shockwave_e.bmp,raw/ro/texture/effect/shockwave_e.bmp
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\pokjuk_c.bmp,raw/ro/texture/effect/pokjuk_c.bmp
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\windhit1.str,raw/ro/texture/effect/windhit1.str
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\windhit2.str,raw/ro/texture/effect/windhit2.str
+WZ_VERMILION,ult,EF_WINDHIT 52 (file windhit%d),data\texture\effect\windhit3.str,raw/ro/texture/effect/windhit3.str
+MG_FIREWALL,ult,49 EF_FIREHIT,data\wav\effect\ef_firehit.wav,raw/ro/wav/effect/ef_firehit.wav
+MG_FIREWALL,ult,25 EF_FIREWALL,data\wav\effect\ef_firewall.wav,raw/ro/wav/effect/ef_firewall.wav
+MG_FIREWALL,ult,EF_FIREWALL 25 (file firewall%d),data\texture\effect\firewall.str,raw/ro/texture/effect/firewall.str
+MG_FIREWALL,ult,EF_FIREWALL 25 (file firewall%d),data\texture\effect\fire_a.bmp,raw/ro/texture/effect/fire_a.bmp
+MG_FIREWALL,ult,EF_FIREWALL 25 (file firewall%d),data\texture\effect\fire_b.bmp,raw/ro/texture/effect/fire_b.bmp
+MG_FIREWALL,ult,EF_FIREWALL 25 (file firewall%d),data\texture\effect\pika01.bmp,raw/ro/texture/effect/pika01.bmp
+MG_FIREWALL,ult,EF_FIREWALL 25 (file firewall%d),data\texture\effect\pika03.bmp,raw/ro/texture/effect/pika03.bmp
+MG_FIREWALL,ult,EF_FIREWALL 25 (file firewall%d),data\texture\effect\firewall1.str,raw/ro/texture/effect/firewall1.str
+MG_FIREWALL,ult,EF_FIREWALL 25 (file firewall%d),data\texture\effect\firewall2.str,raw/ro/texture/effect/firewall2.str
+MG_FIREWALL,ult,EF_FIREHIT 49 (file firehit%d),data\texture\effect\firehit.str,raw/ro/texture/effect/firehit.str
+MG_FIREWALL,ult,EF_FIREHIT 49 (file firehit%d),data\texture\effect\invenom_ring.bmp,raw/ro/texture/effect/invenom_ring.bmp
+MG_FIREWALL,ult,EF_FIREHIT 49 (file firehit%d),data\texture\effect\lens_r.bmp,raw/ro/texture/effect/lens_r.bmp
+MG_FIREWALL,ult,EF_FIREHIT 49 (file firehit%d),data\texture\effect\pokjuk_c.bmp,raw/ro/texture/effect/pokjuk_c.bmp
+MG_FIREWALL,ult,EF_FIREHIT 49 (file firehit%d),data\texture\effect\firering.bmp,raw/ro/texture/effect/firering.bmp
+MG_FIREWALL,ult,EF_FIREHIT 49 (file firehit%d),data\texture\effect\firehit1.str,raw/ro/texture/effect/firehit1.str
+MG_FIREWALL,ult,EF_FIREHIT 49 (file firehit%d),data\texture\effect\firehit2.str,raw/ro/texture/effect/firehit2.str
+MG_FIREWALL,ult,EF_FIREHIT 49 (file firehit%d),data\texture\effect\firehit3.str,raw/ro/texture/effect/firehit3.str
+KN_BRANDISHSPEAR,ult,70 EF_BRANDISHSPEAR,data\texture\effect\brandish.str,raw/ro/texture/effect/brandish.str
+KN_BRANDISHSPEAR,ult,70 EF_BRANDISHSPEAR,data\texture\effect\dust_part.bmp,raw/ro/texture/effect/dust_part.bmp
+KN_BRANDISHSPEAR,ult,70 EF_BRANDISHSPEAR,data\texture\effect\pokjuk_c.bmp,raw/ro/texture/effect/pokjuk_c.bmp
+KN_BRANDISHSPEAR,ult,70 EF_BRANDISHSPEAR,data\texture\effect\ring_b.bmp,raw/ro/texture/effect/ring_b.bmp
+KN_BRANDISHSPEAR,ult,70 EF_BRANDISHSPEAR,data\texture\effect\invenom_ring.bmp,raw/ro/texture/effect/invenom_ring.bmp
+KN_BRANDISHSPEAR,ult,70 EF_BRANDISHSPEAR,data\texture\effect\fire_smoke_d.bmp,raw/ro/texture/effect/fire_smoke_d.bmp
+KN_BRANDISHSPEAR,ult,70 EF_BRANDISHSPEAR,data\texture\effect\fire_smoke_c.bmp,raw/ro/texture/effect/fire_smoke_c.bmp
+KN_BRANDISHSPEAR,ult,70 EF_BRANDISHSPEAR,data\wav\effect\knight_brandish_spear.wav,raw/ro/wav/effect/knight_brandish_spear.wav
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\brandish2.str,raw/ro/texture/effect/brandish2.str
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\ring_b.bmp,raw/ro/texture/effect/ring_b.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\safeline.bmp,raw/ro/texture/effect/safeline.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\freeze_ice_part.bmp,raw/ro/texture/effect/freeze_ice_part.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\lens_b.bmp,raw/ro/texture/effect/lens_b.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\wav\effect\knight_brandish_spear.wav,raw/ro/wav/effect/knight_brandish_spear.wav
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\shockwave.str,raw/ro/texture/effect/shockwave.str
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\shockwave_a.bmp,raw/ro/texture/effect/shockwave_a.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\shockwave_e.bmp,raw/ro/texture/effect/shockwave_e.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\shockwave_b.bmp,raw/ro/texture/effect/shockwave_b.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\shockwave_d.bmp,raw/ro/texture/effect/shockwave_d.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\shockwave_c.bmp,raw/ro/texture/effect/shockwave_c.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\thunder_ball_a.bmp,raw/ro/texture/effect/thunder_ball_a.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\thunder_ball_b.bmp,raw/ro/texture/effect/thunder_ball_b.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\thunder_ball_c.bmp,raw/ro/texture/effect/thunder_ball_c.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\thunder_ball_d.bmp,raw/ro/texture/effect/thunder_ball_d.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\thunder_ball_e.bmp,raw/ro/texture/effect/thunder_ball_e.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\texture\effect\thunder_ball_f.bmp,raw/ro/texture/effect/thunder_ball_f.bmp
+KN_BRANDISHSPEAR,ult,144 EF_BRANDISH2,data\wav\effect\hunter_shockwavetrap.wav,raw/ro/wav/effect/hunter_shockwavetrap.wav
+AC_SHOWER,ult,1 ,data\texture\effect\lens1.tga,raw/ro/texture/effect/lens1.tga
+AC_SHOWER,ult,1 ,data\wav\effect\ef_hit2.wav,raw/ro/wav/effect/ef_hit2.wav
+AC_SHOWER,ult,1 ,data\texture\effect\lens2.tga,raw/ro/texture/effect/lens2.tga
+HT_BLITZBEAT,ult,115 EF_BLITZBEAT,data\wav\effect\hunter_blitzbeat.wav,raw/ro/wav/effect/hunter_blitzbeat.wav
+HT_BLITZBEAT,ult,falcon sprite (EF_BLITZBEAT 115 is sound only in roBrowser),data\sprite\이팩트\매.spr,raw/ro/sprite/effect/매.spr
+HT_BLITZBEAT,ult,falcon sprite (EF_BLITZBEAT 115 is sound only in roBrowser),data\sprite\이팩트\매.act,raw/ro/sprite/effect/매.act
+BA_FROSTJOKER,ult,no SkillEffect entry,,nothing in GRF: code-drawn (FUNC/3D) or not found
+TF_SPRINKLESAND,ult,310,,nothing in GRF: code-drawn (FUNC/3D) or not found
+MO_BALKYOUNG,ult,514,,nothing in GRF: code-drawn (FUNC/3D) or not found
+RG_CLOSECONFINE,ult,604 EF_NPC_STOP2,data\sprite\이팩트\cconfine.spr,raw/ro/sprite/effect/cconfine.spr
+RG_CLOSECONFINE,ult,604 EF_NPC_STOP2,data\sprite\이팩트\cconfine.act,raw/ro/sprite/effect/cconfine.act
+RG_CLOSECONFINE,ult,604 EF_NPC_STOP2,data\wav\effect\ef_hit6.wav,raw/ro/wav/effect/ef_hit6.wav
+CG_ARROWVULCAN,ult,393 EF_TRIPLEATTACK3,data\wav\effect\애로우 발칸.wav,raw/ro/wav/effect/애로우 발칸.wav
+DC_SERVICEFORYOU,ult,294 EF_BOTTOM_SERVICEFORYOU,data\wav\effect\당신을 위한 서비스.wav,raw/ro/wav/effect/당신을 위한 서비스.wav
+DC_SERVICEFORYOU,ult,song cell textures (Songs.js),data\texture\effect\melody_a.bmp,raw/ro/texture/effect/melody_a.bmp
+DC_SERVICEFORYOU,ult,song cell textures (Songs.js),data\texture\effect\melody_b.bmp,raw/ro/texture/effect/melody_b.bmp
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\빨간포션.str,raw/ro/texture/effect/빨간포션.str
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\pokjuk_d.bmp,raw/ro/texture/effect/pokjuk_d.bmp
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\pokjuk_c.bmp,raw/ro/texture/effect/pokjuk_c.bmp
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\lens_r.bmp,raw/ro/texture/effect/lens_r.bmp
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\주홍포션.str,raw/ro/texture/effect/주홍포션.str
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\노란포션.str,raw/ro/texture/effect/노란포션.str
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\lens_y.bmp,raw/ro/texture/effect/lens_y.bmp
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\하얀포션.str,raw/ro/texture/effect/하얀포션.str
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\lens_w.bmp,raw/ro/texture/effect/lens_w.bmp
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\파란포션.str,raw/ro/texture/effect/파란포션.str
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\lens_b.bmp,raw/ro/texture/effect/lens_b.bmp
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\초록포션.str,raw/ro/texture/effect/초록포션.str
+AM_POTIONPITCHER,ult,potion splash STRs (EF_THROWITEM2 299 not in roBrowser),data\texture\effect\lens_g.bmp,raw/ro/texture/effect/lens_g.bmp
+AM_SPHEREMINE,ult,Marine Sphere monster (summoned by the skill),data\sprite\몬스터\marine_sphere.spr,raw/ro/sprite/monster/marine_sphere.spr
+AM_SPHEREMINE,ult,Marine Sphere monster (summoned by the skill),data\sprite\몬스터\marine_sphere.act,raw/ro/sprite/monster/marine_sphere.act
+AM_SPHEREMINE,ult,Marine Sphere monster (summoned by the skill),data\wav\marine_sphere_die1.wav,raw/ro/wav/marine_sphere_die1.wav
+AM_SPHEREMINE,ult,Marine Sphere monster (summoned by the skill),data\wav\marine_sphere_die2.wav,raw/ro/wav/marine_sphere_die2.wav
+AM_SPHEREMINE,ult,Marine Sphere monster (summoned by the skill),data\wav\marine_sphere_damage.wav,raw/ro/wav/marine_sphere_damage.wav
+AM_SPHEREMINE,ult,Marine Sphere monster (summoned by the skill),data\wav\monster_poring.wav,raw/ro/wav/monster_poring.wav
+SA_SPELLBREAKER,ult,234 EF_SPELLBREAKER,data\texture\effect\spell.str,raw/ro/texture/effect/spell.str
+SA_SPELLBREAKER,ult,234 EF_SPELLBREAKER,data\texture\effect\light_bang_a.bmp,raw/ro/texture/effect/light_bang_a.bmp
+SA_SPELLBREAKER,ult,234 EF_SPELLBREAKER,data\texture\effect\light_bang_b.bmp,raw/ro/texture/effect/light_bang_b.bmp
+SA_SPELLBREAKER,ult,234 EF_SPELLBREAKER,data\texture\effect\pika02.bmp,raw/ro/texture/effect/pika02.bmp
+SA_SPELLBREAKER,ult,234 EF_SPELLBREAKER,data\wav\effect\sage_spell breake.wav,raw/ro/wav/effect/sage_spell breake.wav
+SA_DELUGE,ult,EF_BOTTOM_DE 240: PropertyGround texture ring_blue,data\texture\effect\ring_blue.tga,raw/ro/texture/effect/ring_blue.tga
+MO_STEELBODY,first,254 EF_STEELBODY,data\wav\effect\mon_금강불괴.wav,raw/ro/wav/effect/mon_금강불괴.wav
+WS_CARTTERMINATION,first,518,,nothing in GRF: code-drawn (FUNC/3D) or not found
+ASC_METEORASSAULT,first,409 EF_SOULBREAKER2,data\wav\effect\메테오 어썰트.wav,raw/ro/wav/effect/메테오 어썰트.wav
+ASC_METEORASSAULT,first,409 EF_SOULBREAKER2,data\texture\effect\purpleslash.tga,raw/ro/texture/effect/purpleslash.tga
+WZ_HEAVENDRIVE,first,142 EF_HEAVENDRIVE,data\texture\effect\stone.bmp,raw/ro/texture/effect/stone.bmp
+WZ_HEAVENDRIVE,first,142 EF_HEAVENDRIVE,data\wav\effect\wizard_earthspike.wav,raw/ro/wav/effect/wizard_earthspike.wav
+WZ_HEAVENDRIVE,first,147 EF_EARTHHIT,data\texture\effect\earthhit.str,raw/ro/texture/effect/earthhit.str
+WZ_HEAVENDRIVE,first,147 EF_EARTHHIT,data\texture\effect\dust_part.bmp,raw/ro/texture/effect/dust_part.bmp
+WZ_HEAVENDRIVE,first,147 EF_EARTHHIT,data\texture\effect\stone_part.bmp,raw/ro/texture/effect/stone_part.bmp
+WZ_HEAVENDRIVE,first,147 EF_EARTHHIT,data\texture\effect\freeze_ice_part.bmp,raw/ro/texture/effect/freeze_ice_part.bmp
+WZ_HEAVENDRIVE,first,147 EF_EARTHHIT,data\texture\effect\pikapika.bmp,raw/ro/texture/effect/pikapika.bmp
+SA_VOLCANO,first,EF_BOTTOM_VO 239: PropertyGround texture ring_red,data\texture\effect\ring_red.tga,raw/ro/texture/effect/ring_red.tga
+CR_ACIDDEMONSTRATION,first,537,,nothing in GRF: code-drawn (FUNC/3D) or not found
+SN_FALCONASSAULT,first,387 EF_FALCONASSAULT,data\wav\effect\hunter_blitzbeat.wav,raw/ro/wav/effect/hunter_blitzbeat.wav
+SN_FALCONASSAULT,first,falcon sprite (EF_FALCONASSAULT 387),data\sprite\이팩트\매.spr,raw/ro/sprite/effect/매.spr
+SN_FALCONASSAULT,first,falcon sprite (EF_FALCONASSAULT 387),data\sprite\이팩트\매.act,raw/ro/sprite/effect/매.act
+LK_SPIRALPIERCE,first,339 EF_MAGNUM2,data\wav\permeter_attack.wav,raw/ro/wav/permeter_attack.wav
+LK_SPIRALPIERCE,first,339 EF_MAGNUM2,data\wav\effect\ef_magnumbreak.wav,raw/ro/wav/effect/ef_magnumbreak.wav
+BA_ASSASSINCROSS,first,287 EF_BOTTOM_ASSASSINCROSS,data\wav\effect\석양의 어쌔신.wav,raw/ro/wav/effect/석양의 어쌔신.wav
+DC_FORTUNEKISS,first,293 EF_BOTTOM_FORTUNEKISS,data\wav\effect\행운의.wav,raw/ro/wav/effect/행운의.wav
+PR_SANCTUARY,frequent,83 EF_SANCTUARY,data\texture\effect\sanctuary.str,raw/ro/texture/effect/sanctuary.str
+PR_SANCTUARY,frequent,83 EF_SANCTUARY,data\texture\effect\ring_b.bmp,raw/ro/texture/effect/ring_b.bmp
+PR_SANCTUARY,frequent,83 EF_SANCTUARY,data\texture\effect\thunder_center.bmp,raw/ro/texture/effect/thunder_center.bmp
+PR_SANCTUARY,frequent,83 EF_SANCTUARY,data\texture\effect\lord_blast_b_small.bmp,raw/ro/texture/effect/lord_blast_b_small.bmp
+PR_SANCTUARY,frequent,83 EF_SANCTUARY,data\texture\effect\sanctuaria_angel_wing_up2.bmp,raw/ro/texture/effect/sanctuaria_angel_wing_up2.bmp
+PR_SANCTUARY,frequent,83 EF_SANCTUARY,data\texture\effect\sanctuaria_angel_wing_up.bmp,raw/ro/texture/effect/sanctuaria_angel_wing_up.bmp
+PR_SANCTUARY,frequent,83 EF_SANCTUARY,data\texture\effect\sanctuaria_angel_wing_body.bmp,raw/ro/texture/effect/sanctuaria_angel_wing_body.bmp
+PR_SANCTUARY,frequent,83 EF_SANCTUARY,data\texture\effect\ff.bmp,raw/ro/texture/effect/ff.bmp
+PR_SANCTUARY,frequent,83 EF_SANCTUARY,data\wav\effect\priest_sanctuary.wav,raw/ro/wav/effect/priest_sanctuary.wav
+PR_SANCTUARY,frequent,319 EF_BOTTOM_SANC,data\texture\effect\magic_green.tga,raw/ro/texture/effect/magic_green.tga
+SA_MAGICROD,frequent,244 EF_MAGICROD,data\texture\effect\매직로드.str,raw/ro/texture/effect/매직로드.str
+SA_MAGICROD,frequent,244 EF_MAGICROD,data\texture\effect\pokjuk_d.bmp,raw/ro/texture/effect/pokjuk_d.bmp
+SA_MAGICROD,frequent,244 EF_MAGICROD,data\texture\effect\thunder_pang.bmp,raw/ro/texture/effect/thunder_pang.bmp
+SA_MAGICROD,frequent,244 EF_MAGICROD,data\texture\effect\round_sphere.bmp,raw/ro/texture/effect/round_sphere.bmp
+SA_MAGICROD,frequent,244 EF_MAGICROD,data\texture\effect\ring_b.bmp,raw/ro/texture/effect/ring_b.bmp
+SA_MAGICROD,frequent,244 EF_MAGICROD,data\texture\effect\explosive_1_128.bmp,raw/ro/texture/effect/explosive_1_128.bmp
+SA_MAGICROD,frequent,244 EF_MAGICROD,data\texture\effect\pika02.bmp,raw/ro/texture/effect/pika02.bmp
+SA_MAGICROD,frequent,244 EF_MAGICROD,data\wav\effect\sage_magic rod.wav,raw/ro/wav/effect/sage_magic rod.wav
+BS_OVERTHRUST,frequent,128 EF_OVERTHRUST,data\wav\effect\black_overthrust.wav,raw/ro/wav/effect/black_overthrust.wav
+RG_RAID,frequent,276 EF_TEIHIT3,data\texture\effect\lens1.tga,raw/ro/texture/effect/lens1.tga
+RG_BACKSTAP,frequent,275 EF_BACKSTAP,data\wav\effect\rog_back stap.wav,raw/ro/wav/effect/rog_back stap.wav
+MO_TRIPLEATTACK,frequent,329 EF_TRIPLEATTACK,data\wav\effect\ef_hit2.wav,raw/ro/wav/effect/ef_hit2.wav
+MO_TRIPLEATTACK,frequent,329 EF_TRIPLEATTACK,data\wav\effect\ef_hit4.wav,raw/ro/wav/effect/ef_hit4.wav
+MO_INVESTIGATE,frequent,267 EF_CHIMTO,data\wav\effect\mon_침투경.wav,raw/ro/wav/effect/mon_침투경.wav
+MO_INVESTIGATE,frequent,"client sprite 침투경_ (Occult Impaction), not referenced by roBrowser",data\sprite\이팩트\침투경_.spr,raw/ro/sprite/effect/침투경_.spr
+MO_INVESTIGATE,frequent,"client sprite 침투경_ (Occult Impaction), not referenced by roBrowser",data\sprite\이팩트\침투경_.act,raw/ro/sprite/effect/침투경_.act
+WZ_QUAGMIRE,frequent,95 EF_QUAGMIRE,data\texture\effect\quagmire.str,raw/ro/texture/effect/quagmire.str
+WZ_QUAGMIRE,frequent,95 EF_QUAGMIRE,data\texture\effect\bubble_b.bmp,raw/ro/texture/effect/bubble_b.bmp
+WZ_QUAGMIRE,frequent,95 EF_QUAGMIRE,data\texture\effect\bubble_c.bmp,raw/ro/texture/effect/bubble_c.bmp
+WZ_QUAGMIRE,frequent,95 EF_QUAGMIRE,data\texture\effect\bubble_d.bmp,raw/ro/texture/effect/bubble_d.bmp
+WZ_QUAGMIRE,frequent,95 EF_QUAGMIRE,data\wav\effect\wizard_quagmire.wav,raw/ro/wav/effect/wizard_quagmire.wav
+HW_MAGICPOWER,frequent,16 EF_BASH,data\texture\effect\alpha_down.tga,raw/ro/texture/effect/alpha_down.tga
+HW_MAGICPOWER,frequent,16 EF_BASH,data\wav\effect\ef_bash.wav,raw/ro/wav/effect/ef_bash.wav
+HW_MAGICPOWER,frequent,16 EF_BASH,data\texture\effect\alpha_center.tga,raw/ro/texture/effect/alpha_center.tga
+AM_CP_ARMOR,frequent,300 EF_CHEMICALPROTECTION,data\wav\apocalips_attack.wav,raw/ro/wav/apocalips_attack.wav
+AM_ACIDTERROR,frequent,298 EF_THROWITEM,data\texture\유저인터페이스\item\염산병.bmp,raw/ro/texture/item/염산병.bmp
+DC_SCREAM,frequent,296,,nothing in GRF: code-drawn (FUNC/3D) or not found
+hit_51,hit,51 EF_COLDHIT,data\texture\effect\ice.tga,raw/ro/texture/effect/ice.tga
+hit_52,hit,52,,nothing in GRF: code-drawn (FUNC/3D) or not found
+hit_147,hit,147 EF_EARTHHIT,data\texture\effect\earthhit.str,raw/ro/texture/effect/earthhit.str
+hit_147,hit,147 EF_EARTHHIT,data\texture\effect\dust_part.bmp,raw/ro/texture/effect/dust_part.bmp
+hit_147,hit,147 EF_EARTHHIT,data\texture\effect\stone_part.bmp,raw/ro/texture/effect/stone_part.bmp
+hit_147,hit,147 EF_EARTHHIT,data\texture\effect\freeze_ice_part.bmp,raw/ro/texture/effect/freeze_ice_part.bmp
+hit_147,hit,147 EF_EARTHHIT,data\texture\effect\pikapika.bmp,raw/ro/texture/effect/pikapika.bmp
+hit_121,hit,121 EF_SONICBLOW,data\texture\effect\ring2.bmp,raw/ro/texture/effect/ring2.bmp
+hit_121,hit,121 EF_SONICBLOW,data\texture\effect\alpha_center.tga,raw/ro/texture/effect/alpha_center.tga
+hit_121,hit,121 EF_SONICBLOW,data\wav\effect\ef_stonecurse.wav,raw/ro/wav/effect/ef_stonecurse.wav
+hit_122,hit,122 EF_SONICBLOWHIT,data\wav\effect\assasin_sonicblow.wav,raw/ro/wav/effect/assasin_sonicblow.wav
