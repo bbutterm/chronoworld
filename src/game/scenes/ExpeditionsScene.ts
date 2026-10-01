@@ -387,9 +387,8 @@ export class ExpeditionsScene extends Phaser.Scene {
       const lines = [`«${name}»: ${formatNumber(r.rewards.gold)} золота · ${formatNumber(r.rewards.jobExp)} опыта в запас`, ...lootLines(r.rewards), ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       // Строка возвращения (lore-route §5.8, data/lore/lines.json → expeditionReturn) — первой.
       const said = randomLine('expeditionReturn');
-      if (said) lines.unshift(said);
       this.scene.restart({ scroll: this.area.offset });
-      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => this.report(`«${name}»`, [{ location: e.location, story: r.story }], lines)));
+      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => this.report(`«${name}»`, [{ location: e.location, story: r.story }], lines, said)));
     } catch (err) {
       toast(this, err instanceof Error ? err.message : String(err), C.error);
     }
@@ -398,24 +397,29 @@ export class ExpeditionsScene extends Phaser.Scene {
   /**
    * Итог возвращения: был рассказ (события в пути) — окно «рассказ + добыча»; не было — тост, как раньше.
    */
-  private report(title: string, stories: readonly { location: string; story: readonly ExpeditionStoryLine[] }[], lines: readonly string[]): void {
+  private report(title: string, stories: readonly { location: string; story: readonly ExpeditionStoryLine[] }[], lines: readonly string[], said?: string | null): void {
     const told = stories.filter((s) => s.story.length);
     if (!told.length) {
-      toast(this, lines.join('\n'), C.success, 5500);
+      // Строка возвращения (lore-route §5.8, data/lore/lines.json → expeditionReturn) — первой.
+      toast(this, [...(said ? [said] : []), ...lines].join('\n'), C.success, 5500);
       return;
     }
+    // BUG-184: итог добычи — первым и крупно (виден без прокрутки), рассказ — ниже, прокручивается; события, которые
+    // отряд решил сам, — одной строкой.
     const many = told.length > 1;
     const paragraphs: string[] = [];
+    if (said) paragraphs.push(said);
     for (const s of told) {
       const place = GAME.meta.expeditions.locations.find((l) => l.id === s.location)?.name ?? s.location;
+      const part: string[] = [];
       for (const l of s.story) {
-        const head = `${many ? `${place}. ` : ''}${l.title}: «${l.choice}»${l.auto ? ' — отряд решил сам' : ''}`;
         const rew = outcomeRewardText(l);
-        paragraphs.push(`${head}\n${l.text}${rew ? `\n${rew}` : ''}`);
+        if (l.auto) part.push(`• ${l.title} — отряд решил сам: «${l.choice}»${rew ? ` · ${rew}` : ''}`);
+        else part.push(`${l.title}: «${l.choice}»\n${l.text}${rew ? `\n${rew}` : ''}`);
       }
+      paragraphs.push(`${many ? `— ${place} —\n` : ''}${part.join('\n\n')}`);
     }
-    paragraphs.push(lines.join('\n'));
-    noticeModal(this, title, paragraphs);
+    noticeModal(this, title, paragraphs, undefined, lines.join('\n'));
   }
 
   /** «Забрать всё»: все вернувшиеся экспедиции одним нажатием, добыча — одной суммой. */
@@ -435,9 +439,8 @@ export class ExpeditionsScene extends Phaser.Scene {
         ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы')),
       ];
       const said = randomLine('expeditionReturn');
-      if (said) lines.unshift(said);
       this.scene.restart({ scroll: this.area.offset });
-      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => this.report('Экспедиции вернулись', r.stories, lines)));
+      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => this.report('Экспедиции вернулись', r.stories, lines, said)));
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }

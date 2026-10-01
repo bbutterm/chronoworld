@@ -11,6 +11,7 @@ import {
   expeditionEventCount,
   expeditionEventViews,
   fillEventText,
+  noFitLead,
   MetaError,
   newGame,
   parseExpeditionEvents,
@@ -102,6 +103,21 @@ describe('события экспедиций: контент', () => {
   it('подстановки: {hero}, {partner}, род', () => {
     expect(fillEventText('{hero} [нашёл|нашла] ключ, {partner} рядом', hero('zara'), hero('bran'))).toBe('Зара нашла ключ, Бран рядом');
     expect(fillEventText('{hero} [нашёл|нашла]', hero('dorn'))).toBe('Дорн нашёл');
+  });
+
+  it('BUG-186: нужного героя нет — перед исходом пояснение, кто взялся вместо; подходит — без пояснения', () => {
+    const name = (id: string) => ctx.content.heroes[id]?.name ?? id;
+    const iris = hero('iris');
+    expect(noFitLead({ role: ['healer'] }, iris, name)).toBe(`Лекаря в отряде нет — за дело берётся ${iris.name}. `);
+    expect(noFitLead({ line: ['merchant'] }, hero('kai'), name)).toMatch(/^Торговца в отряде нет — за дело берётся Кай\. $/);
+    expect(noFitLead({ hero: ['otto'] }, iris, name)).toBe(`${name('otto')} не в отряде — за дело берётся ${iris.name}. `);
+    expect(noFitLead({ hero: ['iris'] }, iris, name)).toBe('');
+    expect(noFitLead(undefined, iris, name)).toBe('');
+    // В текстах исходов вариантов с требованием нет зашитых имён героев (действует {hero}).
+    const names = Object.values(ctx.content.heroes).map((h) => h.name);
+    for (const e of cfg.events)
+      for (const c of e.choices.filter((x) => x.requires))
+        for (const o of [c.success, c.fail]) for (const n of names) expect(o?.text ?? '', `${e.id}/${c.id}`).not.toMatch(new RegExp(`(^|[^А-Яа-яё])${n}([^А-Яа-яё]|$)`));
   });
 });
 
