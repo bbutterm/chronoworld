@@ -42511,6 +42511,2269 @@
     "death": 27
    },
    "sourceAlphaValues": []
+  },
+  "eddga": {
+   "source": {
+    "job": "eddga",
+    "jobId": 1115,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO eddga.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -35,
+      -95,
+      55,
+      11
+     ],
+     [
+      -34,
+      -97,
+      55,
+      11
+     ],
+     [
+      -34,
+      -98,
+      59,
+      11
+     ],
+     [
+      -34,
+      -93,
+      59,
+      11
+     ]
+    ],
+    "walk": [
+     [
+      -42,
+      -87,
+      47,
+      12
+     ],
+     [
+      -41,
+      -89,
+      46,
+      7
+     ],
+     [
+      -39,
+      -89,
+      48,
+      5
+     ],
+     [
+      -35,
+      -89,
+      54,
+      15
+     ],
+     [
+      -39,
+      -84,
+      47,
+      14
+     ],
+     [
+      -38,
+      -80,
+      45,
+      14
+     ]
+    ],
+    "attack": [
+     [
+      -35,
+      -95,
+      55,
+      11
+     ],
+     [
+      -56,
+      -126,
+      37,
+      11
+     ],
+     [
+      -56,
+      -143,
+      37,
+      11
+     ],
+     [
+      -82,
+      -144,
+      64,
+      17
+     ],
+     [
+      -82,
+      -144,
+      64,
+      17
+     ],
+     [
+      -26,
+      -68,
+      47,
+      16
+     ]
+    ],
+    "hurt": [
+     [
+      -35,
+      -95,
+      55,
+      11
+     ],
+     [
+      -51,
+      -102,
+      35,
+      2
+     ],
+     [
+      -52,
+      -103,
+      34,
+      1
+     ]
+    ],
+    "death": [
+     [
+      -35,
+      -95,
+      55,
+      11
+     ],
+     [
+      -38,
+      -93,
+      49,
+      11
+     ],
+     [
+      -32,
+      -82,
+      59,
+      10
+     ],
+     [
+      -23,
+      -72,
+      74,
+      12
+     ],
+     [
+      -41,
+      -49,
+      77,
+      40
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     5,
+     9,
+     14
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "attack": [
+     0,
+     5,
+     11,
+     16,
+     22,
+     27
+    ],
+    "hurt": [
+     0,
+     4,
+     8
+    ],
+    "death": [
+     0,
+     7,
+     14,
+     21,
+     28
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 15,
+    "walk": 6,
+    "attack": 28,
+    "hurt": 9,
+    "death": 29
+   },
+   "sourceDelayMs": {
+    "idle": 38,
+    "walk": 50,
+    "attack": 25,
+    "hurt": 50,
+    "death": 50
+   },
+   "sourceSounds": {
+    "idle": [],
+    "walk": [
+     "eddga_move.wav"
+    ],
+    "attack": [
+     "eddga_attack.wav",
+     "eddga_attack2.wav"
+    ],
+    "hurt": [
+     "monster_feather.wav"
+    ],
+    "death": [
+     "eddga_die.wav"
+    ]
+   },
+   "units": [
+    "mvp_eddga"
+   ],
+   "hitFrameSource": "ACT \"atk\" event at source frame 17",
+   "sourceAlphaValues": [
+    98,
+    177,
+    203,
+    231
+   ]
+  },
+  "dracula": {
+   "source": {
+    "job": "dracula",
+    "jobId": 1389,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO dracula.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -27,
+      -155,
+      36,
+      -20
+     ],
+     [
+      -31,
+      -157,
+      35,
+      -25
+     ],
+     [
+      -33,
+      -158,
+      39,
+      -33
+     ],
+     [
+      -30,
+      -156,
+      34,
+      -21
+     ]
+    ],
+    "walk": [
+     [
+      -40,
+      -154,
+      35,
+      -53
+     ],
+     [
+      -42,
+      -156,
+      37,
+      -56
+     ],
+     [
+      -41,
+      -153,
+      38,
+      -59
+     ],
+     [
+      -42,
+      -150,
+      39,
+      -58
+     ],
+     [
+      -42,
+      -150,
+      37,
+      -56
+     ],
+     [
+      -45,
+      -151,
+      34,
+      -48
+     ]
+    ],
+    "attack": [
+     [
+      -38,
+      -157,
+      38,
+      -23
+     ],
+     [
+      -63,
+      -148,
+      56,
+      -33
+     ],
+     [
+      -57,
+      -146,
+      61,
+      -33
+     ],
+     [
+      -81,
+      -180,
+      72,
+      -32
+     ],
+     [
+      -84,
+      -183,
+      96,
+      -35
+     ],
+     [
+      -89,
+      -188,
+      64,
+      -39
+     ]
+    ],
+    "hurt": [
+     [
+      -27,
+      -155,
+      36,
+      -20
+     ],
+     [
+      -48,
+      -164,
+      30,
+      -67
+     ],
+     [
+      -50,
+      -165,
+      28,
+      -68
+     ]
+    ],
+    "death": [
+     [
+      -27,
+      -155,
+      36,
+      -20
+     ],
+     [
+      -48,
+      -164,
+      30,
+      -67
+     ],
+     [
+      -62,
+      -202,
+      91,
+      -60
+     ],
+     [
+      -56,
+      -224,
+      107,
+      -48
+     ],
+     [
+      -82,
+      -212,
+      109,
+      -31
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     4,
+     7,
+     11
+    ],
+    "walk": [
+     0,
+     2,
+     4,
+     7,
+     9,
+     11
+    ],
+    "attack": [
+     0,
+     4,
+     7,
+     11,
+     14,
+     18
+    ],
+    "hurt": [
+     0,
+     4,
+     7
+    ],
+    "death": [
+     0,
+     4,
+     8,
+     11,
+     15
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 12,
+    "walk": 12,
+    "attack": 19,
+    "hurt": 8,
+    "death": 19
+   },
+   "sourceDelayMs": {
+    "idle": 62,
+    "walk": 50,
+    "attack": 62,
+    "hurt": 75,
+    "death": 75
+   },
+   "sourceSounds": {
+    "idle": [],
+    "walk": [],
+    "attack": [
+     "dracula_attack.wav"
+    ],
+    "hurt": [],
+    "death": [
+     "dracula_die.wav"
+    ]
+   },
+   "units": [
+    "mvp_dracula"
+   ],
+   "hitFrameSource": "ACT \"atk\" event at source frame 13",
+   "sourceAlphaValues": [
+    30,
+    31,
+    60,
+    119,
+    137,
+    142,
+    156,
+    192,
+    200,
+    218,
+    224
+   ],
+   "samplingExceptions": {
+    "death": {
+     "skipped": [
+      16,
+      17,
+      18
+     ],
+     "reason": "frame exceeds cell at x1"
+    }
+   }
+  },
+  "maya": {
+   "source": {
+    "job": "maya",
+    "jobId": 1147,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO maya.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -79,
+      -138,
+      49,
+      24
+     ],
+     [
+      -73,
+      -136,
+      49,
+      24
+     ],
+     [
+      -75,
+      -135,
+      50,
+      25
+     ],
+     [
+      -79,
+      -133,
+      49,
+      24
+     ]
+    ],
+    "walk": [
+     [
+      -77,
+      -137,
+      50,
+      24
+     ],
+     [
+      -73,
+      -141,
+      46,
+      22
+     ],
+     [
+      -73,
+      -138,
+      41,
+      22
+     ],
+     [
+      -74,
+      -137,
+      39,
+      23
+     ],
+     [
+      -77,
+      -140,
+      47,
+      20
+     ],
+     [
+      -78,
+      -138,
+      48,
+      26
+     ]
+    ],
+    "attack": [
+     [
+      -73,
+      -136,
+      49,
+      24
+     ],
+     [
+      -84,
+      -139,
+      53,
+      24
+     ],
+     [
+      -92,
+      -142,
+      71,
+      24
+     ],
+     [
+      -79,
+      -155,
+      58,
+      24
+     ],
+     [
+      -72,
+      -85,
+      103,
+      48
+     ],
+     [
+      -72,
+      -73,
+      101,
+      27
+     ]
+    ],
+    "hurt": [
+     [
+      -79,
+      -138,
+      49,
+      24
+     ],
+     [
+      -74,
+      -138,
+      51,
+      24
+     ],
+     [
+      -76,
+      -137,
+      49,
+      23
+     ]
+    ],
+    "death": [
+     [
+      -79,
+      -144,
+      49,
+      24
+     ],
+     [
+      -79,
+      -145,
+      49,
+      24
+     ],
+     [
+      -79,
+      -145,
+      49,
+      24
+     ],
+     [
+      -85,
+      -44,
+      84,
+      33
+     ],
+     [
+      -88,
+      -38,
+      88,
+      38
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "attack": [
+     0,
+     3,
+     7,
+     10,
+     14,
+     17
+    ],
+    "hurt": [
+     0,
+     2,
+     4
+    ],
+    "death": [
+     0,
+     4,
+     9,
+     14,
+     18
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 6,
+    "attack": 18,
+    "hurt": 5,
+    "death": 19
+   },
+   "sourceDelayMs": {
+    "idle": 100,
+    "walk": 25,
+    "attack": 50,
+    "hurt": 100,
+    "death": 125
+   },
+   "sourceSounds": {
+    "idle": [],
+    "walk": [
+     "maya_move.wav"
+    ],
+    "attack": [
+     "maya_attack1.wav",
+     "maya_attack2.wav"
+    ],
+    "hurt": [
+     "monster_flesh.wav"
+    ],
+    "death": [
+     "maya_die1.wav",
+     "maya_die2.wav"
+    ]
+   },
+   "units": [
+    "mvp_maya"
+   ],
+   "hitFrameSource": "ACT \"atk\" event at source frame 13",
+   "sourceAlphaValues": [
+    4,
+    44,
+    72,
+    113,
+    128
+   ]
+  },
+  "turtle_general": {
+   "source": {
+    "job": "turtle_general",
+    "jobId": 1312,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO turtle_general.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -41,
+      -82,
+      31,
+      18
+     ],
+     [
+      -41,
+      -88,
+      31,
+      17
+     ],
+     [
+      -49,
+      -78,
+      37,
+      18
+     ],
+     [
+      -43,
+      -82,
+      33,
+      17
+     ]
+    ],
+    "walk": [
+     [
+      -37,
+      -76,
+      32,
+      19
+     ],
+     [
+      -38,
+      -77,
+      31,
+      17
+     ],
+     [
+      -36,
+      -82,
+      31,
+      11
+     ],
+     [
+      -38,
+      -76,
+      34,
+      27
+     ],
+     [
+      -36,
+      -81,
+      32,
+      19
+     ],
+     [
+      -37,
+      -82,
+      29,
+      17
+     ]
+    ],
+    "attack": [
+     [
+      -41,
+      -84,
+      34,
+      18
+     ],
+     [
+      -54,
+      -92,
+      26,
+      18
+     ],
+     [
+      -54,
+      -97,
+      26,
+      19
+     ],
+     [
+      -54,
+      -99,
+      26,
+      19
+     ],
+     [
+      -63,
+      -95,
+      76,
+      47
+     ],
+     [
+      -72,
+      -104,
+      80,
+      56
+     ]
+    ],
+    "hurt": [
+     [
+      -41,
+      -84,
+      34,
+      18
+     ],
+     [
+      -55,
+      -100,
+      32,
+      19
+     ],
+     [
+      -62,
+      -110,
+      34,
+      21
+     ]
+    ],
+    "death": [
+     [
+      -32,
+      -63,
+      50,
+      21
+     ],
+     [
+      -26,
+      -60,
+      50,
+      22
+     ],
+     [
+      -26,
+      -58,
+      49,
+      20
+     ],
+     [
+      -32,
+      -29,
+      102,
+      57
+     ],
+     [
+      -32,
+      -29,
+      110,
+      55
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     8,
+     15,
+     23
+    ],
+    "walk": [
+     0,
+     3,
+     6,
+     9,
+     12,
+     15
+    ],
+    "attack": [
+     0,
+     4,
+     8,
+     11,
+     15,
+     19
+    ],
+    "hurt": [
+     0,
+     2,
+     3
+    ],
+    "death": [
+     0,
+     7,
+     14,
+     20,
+     27
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 24,
+    "walk": 16,
+    "attack": 20,
+    "hurt": 4,
+    "death": 28
+   },
+   "sourceDelayMs": {
+    "idle": 62,
+    "walk": 75,
+    "attack": 50,
+    "hurt": 62,
+    "death": 62
+   },
+   "sourceSounds": {
+    "idle": [],
+    "walk": [
+     "turtle_general_move.wav"
+    ],
+    "attack": [
+     "turtle_general_attack.wav"
+    ],
+    "hurt": [
+     "turtle_general_damage.wav"
+    ],
+    "death": [
+     "minorous_die.wav",
+     "turtle_general_die.wav"
+    ]
+   },
+   "units": [
+    "mvp_turtle_general"
+   ],
+   "hitFrameSource": "ACT \"atk\" event at source frame 13",
+   "sourceAlphaValues": [
+    30,
+    50,
+    60,
+    90,
+    150,
+    212
+   ]
+  },
+  "amon_ra": {
+   "source": {
+    "job": "amon_ra",
+    "jobId": 1511,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO amon_ra.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ]
+    ],
+    "walk": [
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ]
+    ],
+    "attack": [
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -51,
+      -118,
+      49,
+      24
+     ],
+     [
+      -48,
+      -118,
+      49,
+      24
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -46,
+      -118,
+      49,
+      23
+     ]
+    ],
+    "hurt": [
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -52,
+      -122,
+      52,
+      21
+     ],
+     [
+      -52,
+      -122,
+      49,
+      19
+     ]
+    ],
+    "death": [
+     [
+      -46,
+      -118,
+      49,
+      23
+     ],
+     [
+      -47,
+      -117,
+      48,
+      24
+     ],
+     [
+      -44,
+      -116,
+      51,
+      25
+     ],
+     [
+      -113,
+      -78,
+      77,
+      48
+     ],
+     [
+      -107,
+      -64,
+      78,
+      33
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     4,
+     7,
+     11
+    ],
+    "walk": [
+     0,
+     2,
+     4,
+     7,
+     9,
+     11
+    ],
+    "attack": [
+     0,
+     4,
+     8,
+     12,
+     16,
+     20
+    ],
+    "hurt": [
+     0,
+     2,
+     4
+    ],
+    "death": [
+     0,
+     6,
+     12,
+     18,
+     24
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 12,
+    "walk": 12,
+    "attack": 21,
+    "hurt": 5,
+    "death": 25
+   },
+   "sourceDelayMs": {
+    "idle": 75,
+    "walk": 75,
+    "attack": 62,
+    "hurt": 75,
+    "death": 62
+   },
+   "sourceSounds": {
+    "idle": [
+     "amon_ra_stand.wav"
+    ],
+    "walk": [
+     "amon_ra_stand.wav"
+    ],
+    "attack": [
+     "amon_ra_attack.wav"
+    ],
+    "hurt": [
+     "amon_ra_die01.wav"
+    ],
+    "death": [
+     "amon_ra_die01.wav",
+     "amon_ra_die02.wav"
+    ]
+   },
+   "units": [
+    "mvp_amon_ra"
+   ],
+   "hitFrameSource": "ACT \"atk\" event at source frame 12",
+   "sourceAlphaValues": [
+    60,
+    108,
+    116,
+    140,
+    155
+   ]
+  },
+  "doppelganger": {
+   "source": {
+    "job": "doppelganger",
+    "jobId": 1046,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO doppelganger.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -10,
+      -81,
+      23,
+      9
+     ],
+     [
+      -10,
+      -81,
+      23,
+      9
+     ],
+     [
+      -10,
+      -81,
+      23,
+      9
+     ],
+     [
+      -10,
+      -81,
+      23,
+      9
+     ]
+    ],
+    "walk": [
+     [
+      -13,
+      -82,
+      14,
+      9
+     ],
+     [
+      -15,
+      -81,
+      17,
+      9
+     ],
+     [
+      -19,
+      -80,
+      17,
+      9
+     ],
+     [
+      -13,
+      -82,
+      14,
+      7
+     ],
+     [
+      -19,
+      -79,
+      24,
+      9
+     ],
+     [
+      -18,
+      -80,
+      19,
+      9
+     ]
+    ],
+    "attack": [
+     [
+      -38,
+      -85,
+      17,
+      -3
+     ],
+     [
+      -41,
+      -81,
+      25,
+      -2
+     ],
+     [
+      -40,
+      -107,
+      59,
+      4
+     ],
+     [
+      -20,
+      -77,
+      58,
+      5
+     ],
+     [
+      -20,
+      -67,
+      58,
+      5
+     ],
+     [
+      -19,
+      -67,
+      32,
+      4
+     ]
+    ],
+    "hurt": [
+     [
+      -20,
+      -70,
+      13,
+      7
+     ],
+     [
+      -23,
+      -71,
+      11,
+      6
+     ],
+     [
+      -20,
+      -70,
+      13,
+      7
+     ]
+    ],
+    "death": [
+     [
+      -49,
+      -37,
+      24,
+      16
+     ],
+     [
+      -49,
+      -37,
+      24,
+      16
+     ],
+     [
+      -49,
+      -37,
+      24,
+      16
+     ],
+     [
+      -49,
+      -37,
+      24,
+      16
+     ],
+     [
+      -49,
+      -37,
+      24,
+      16
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "walk": [
+     0,
+     1,
+     3,
+     4,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9
+    ],
+    "hurt": [
+     0,
+     2,
+     3
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 1,
+    "walk": 8,
+    "attack": 10,
+    "hurt": 4,
+    "death": 1
+   },
+   "sourceDelayMs": {
+    "idle": 100,
+    "walk": 150,
+    "attack": 50,
+    "hurt": 100,
+    "death": 100
+   },
+   "sourceSounds": {
+    "idle": [],
+    "walk": [],
+    "attack": [
+     "_swordman_attack.wav"
+    ],
+    "hurt": [
+     "_swordman_attack.wav",
+     "monster_clothes.wav"
+    ],
+    "death": [
+     "doppleganger_die.wav"
+    ]
+   },
+   "units": [
+    "mvp_doppelganger"
+   ],
+   "hitFrameSource": "ACT \"atk\" event at source frame 4",
+   "sourceAlphaValues": [
+    150
+   ]
+  },
+  "angeling": {
+   "source": {
+    "job": "angeling",
+    "jobId": 1096,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO angeling.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -36,
+      -38,
+      28,
+      6
+     ],
+     [
+      -33,
+      -33,
+      29,
+      7
+     ],
+     [
+      -37,
+      -38,
+      28,
+      8
+     ],
+     [
+      -34,
+      -32,
+      29,
+      7
+     ]
+    ],
+    "walk": [
+     [
+      -37,
+      -41,
+      27,
+      3
+     ],
+     [
+      -40,
+      -44,
+      32,
+      -1
+     ],
+     [
+      -41,
+      -57,
+      31,
+      -10
+     ],
+     [
+      -37,
+      -47,
+      31,
+      -6
+     ],
+     [
+      -37,
+      -43,
+      31,
+      -2
+     ],
+     [
+      -37,
+      -39,
+      31,
+      2
+     ]
+    ],
+    "attack": [
+     [
+      -38,
+      -41,
+      28,
+      3
+     ],
+     [
+      -34,
+      -36,
+      29,
+      3
+     ],
+     [
+      -17,
+      -44,
+      46,
+      -1
+     ],
+     [
+      -21,
+      -50,
+      45,
+      -4
+     ],
+     [
+      -29,
+      -56,
+      37,
+      -9
+     ],
+     [
+      -31,
+      -43,
+      33,
+      0
+     ]
+    ],
+    "hurt": [
+     [
+      -36,
+      -38,
+      28,
+      6
+     ],
+     [
+      -56,
+      -56,
+      14,
+      -10
+     ],
+     [
+      -44,
+      -43,
+      24,
+      -1
+     ]
+    ],
+    "death": [
+     [
+      -40,
+      -48,
+      29,
+      3
+     ],
+     [
+      -76,
+      -59,
+      65,
+      18
+     ],
+     [
+      -41,
+      -81,
+      44,
+      41
+     ],
+     [
+      -77,
+      -102,
+      79,
+      76
+     ],
+     [
+      -36,
+      -22,
+      89,
+      13
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "walk": [
+     0,
+     4,
+     8,
+     13,
+     17,
+     21
+    ],
+    "attack": [
+     0,
+     5,
+     11,
+     16,
+     22,
+     27
+    ],
+    "hurt": [
+     0,
+     6,
+     13
+    ],
+    "death": [
+     0,
+     2,
+     4,
+     7,
+     16
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 4,
+    "walk": 22,
+    "attack": 28,
+    "hurt": 14,
+    "death": 17
+   },
+   "sourceDelayMs": {
+    "idle": 100,
+    "walk": 25,
+    "attack": 25,
+    "hurt": 50,
+    "death": 25
+   },
+   "sourceSounds": {
+    "idle": [],
+    "walk": [
+     "poring_move.wav"
+    ],
+    "attack": [
+     "poring_attack.wav"
+    ],
+    "hurt": [
+     "monster_poring.wav",
+     "poring_damage.wav"
+    ],
+    "death": [
+     "poring_die.wav"
+    ]
+   },
+   "units": [
+    "mob_angeling"
+   ],
+   "hitFrameSource": "ACT \"atk\" event at source frame 13",
+   "sourceAlphaValues": [
+    81,
+    84,
+    90,
+    100,
+    105,
+    174,
+    217,
+    230,
+    242
+   ],
+   "samplingExceptions": {
+    "death": {
+     "skipped": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "reason": "frame exceeds cell at x1"
+    }
+   }
+  },
+  "archangeling": {
+   "source": {
+    "job": "archangeling",
+    "jobId": 1388,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO archangeling.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -36,
+      -38,
+      28,
+      6
+     ],
+     [
+      -33,
+      -33,
+      29,
+      7
+     ],
+     [
+      -37,
+      -38,
+      28,
+      8
+     ],
+     [
+      -34,
+      -32,
+      29,
+      7
+     ]
+    ],
+    "walk": [
+     [
+      -37,
+      -41,
+      27,
+      3
+     ],
+     [
+      -36,
+      -42,
+      29,
+      2
+     ],
+     [
+      -40,
+      -44,
+      32,
+      -1
+     ],
+     [
+      -36,
+      -50,
+      31,
+      -7
+     ],
+     [
+      -36,
+      -54,
+      31,
+      -7
+     ],
+     [
+      -37,
+      -50,
+      31,
+      -4
+     ]
+    ],
+    "attack": [
+     [
+      -38,
+      -41,
+      28,
+      3
+     ],
+     [
+      -34,
+      -36,
+      29,
+      3
+     ],
+     [
+      -17,
+      -44,
+      46,
+      -1
+     ],
+     [
+      -21,
+      -50,
+      45,
+      -4
+     ],
+     [
+      -29,
+      -56,
+      37,
+      -9
+     ],
+     [
+      -31,
+      -43,
+      33,
+      0
+     ]
+    ],
+    "hurt": [
+     [
+      -36,
+      -38,
+      28,
+      6
+     ],
+     [
+      -47,
+      -43,
+      18,
+      3
+     ],
+     [
+      -47,
+      -43,
+      18,
+      3
+     ]
+    ],
+    "death": [
+     [
+      -40,
+      -48,
+      29,
+      3
+     ],
+     [
+      -76,
+      -59,
+      65,
+      18
+     ],
+     [
+      -41,
+      -81,
+      44,
+      41
+     ],
+     [
+      -77,
+      -102,
+      79,
+      76
+     ],
+     [
+      -36,
+      -22,
+      89,
+      13
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "walk": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9
+    ],
+    "attack": [
+     0,
+     5,
+     11,
+     16,
+     22,
+     27
+    ],
+    "hurt": [
+     0,
+     2,
+     4
+    ],
+    "death": [
+     0,
+     2,
+     4,
+     7,
+     16
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 4,
+    "walk": 10,
+    "attack": 28,
+    "hurt": 5,
+    "death": 17
+   },
+   "sourceDelayMs": {
+    "idle": 100,
+    "walk": 25,
+    "attack": 25,
+    "hurt": 100,
+    "death": 25
+   },
+   "sourceSounds": {
+    "idle": [],
+    "walk": [
+     "poring_move.wav"
+    ],
+    "attack": [
+     "poring_attack.wav"
+    ],
+    "hurt": [
+     "poring_damage.wav"
+    ],
+    "death": [
+     "poring_die.wav"
+    ]
+   },
+   "units": [
+    "mob_archangeling"
+   ],
+   "hitFrameSource": "ACT \"atk\" event at source frame 13",
+   "sourceAlphaValues": [
+    81,
+    84,
+    90,
+    100,
+    105,
+    174,
+    217,
+    230,
+    242
+   ],
+   "samplingExceptions": {
+    "death": {
+     "skipped": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "reason": "frame exceeds cell at x1"
+    }
+   }
+  },
+  "marine_sphere": {
+   "source": {
+    "job": "marine_sphere",
+    "jobId": 1142,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO marine_sphere.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -15,
+      -46,
+      17,
+      -14
+     ],
+     [
+      -11,
+      -46,
+      14,
+      -14
+     ],
+     [
+      -15,
+      -43,
+      17,
+      -18
+     ],
+     [
+      -15,
+      -46,
+      17,
+      -15
+     ]
+    ],
+    "walk": [
+     [
+      -15,
+      -46,
+      17,
+      -14
+     ],
+     [
+      -13,
+      -46,
+      16,
+      -14
+     ],
+     [
+      -12,
+      -46,
+      15,
+      -15
+     ],
+     [
+      -14,
+      -44,
+      17,
+      -17
+     ],
+     [
+      -15,
+      -44,
+      18,
+      -17
+     ],
+     [
+      -15,
+      -46,
+      17,
+      -15
+     ]
+    ],
+    "attack": [
+     [
+      -15,
+      -46,
+      17,
+      -14
+     ],
+     [
+      -28,
+      -60,
+      16,
+      -14
+     ],
+     [
+      -14,
+      -58,
+      46,
+      6
+     ],
+     [
+      -33,
+      -44,
+      17,
+      6
+     ],
+     [
+      -15,
+      -44,
+      18,
+      -17
+     ],
+     [
+      -15,
+      -46,
+      17,
+      -15
+     ]
+    ],
+    "hurt": [
+     [
+      -9,
+      -46,
+      11,
+      -14
+     ],
+     [
+      -14,
+      -43,
+      16,
+      -18
+     ],
+     [
+      -9,
+      -46,
+      11,
+      -14
+     ]
+    ],
+    "death": [
+     [
+      -15,
+      -46,
+      17,
+      -14
+     ],
+     [
+      -58,
+      -84,
+      61,
+      23
+     ],
+     [
+      -10,
+      -43,
+      12,
+      -20
+     ],
+     [
+      -8,
+      -41,
+      10,
+      -22
+     ],
+     [
+      -82,
+      -119,
+      85,
+      57
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     6,
+     11,
+     17
+    ],
+    "walk": [
+     0,
+     3,
+     7,
+     10,
+     14,
+     17
+    ],
+    "attack": [
+     0,
+     3,
+     7,
+     10,
+     14,
+     17
+    ],
+    "hurt": [
+     0,
+     4,
+     7
+    ],
+    "death": [
+     0,
+     9,
+     18,
+     27,
+     36
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 18,
+    "walk": 18,
+    "attack": 18,
+    "hurt": 8,
+    "death": 40
+   },
+   "sourceDelayMs": {
+    "idle": 50,
+    "walk": 50,
+    "attack": 50,
+    "hurt": 50,
+    "death": 25
+   },
+   "sourceSounds": {
+    "idle": [],
+    "walk": [],
+    "attack": [],
+    "hurt": [
+     "marine_sphere_damage.wav",
+     "monster_poring.wav"
+    ],
+    "death": [
+     "marine_sphere_die1.wav",
+     "marine_sphere_die2.wav"
+    ]
+   },
+   "units": [
+    "skill: Морская сфера"
+   ],
+   "hitFrameSource": "ACT \"atk\" event at source frame 5",
+   "sourceAlphaValues": [
+    34,
+    83,
+    93,
+    134
+   ],
+   "samplingExceptions": {
+    "death": {
+     "skipped": [
+      37,
+      38,
+      39
+     ],
+     "reason": "frame exceeds cell at x1"
+    }
+   }
   }
  }
 }

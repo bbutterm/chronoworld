@@ -43,6 +43,8 @@ REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first',
           'baphomet_jr','ghostring','vagabond_wolf','hunter_fly','side_winder','mantis','stem_worm','killer_mantis','deviruchi',
           # MVP hunt Pharaoh, Tower Whisper, chapter 6 Drowned (docs/SPRITES_NEEDED.md, section A)
           'pharaoh','whisper','penomena',
+          # batch 01.10: MVP hunt Eddga..Doppelganger, Tower cards Angeling/Archangeling, Marine Sphere (skill)
+          'eddga','dracula','maya','turtle_general','amon_ra','doppelganger','angeling','archangeling','marine_sphere',
           # story NPC speakers (data/story portrait "npc_<name>")
           'npc_kafra'}
 REQUIRED.update(FIRST_HEROES+STORY_HEROES+CARD_HEROES)
