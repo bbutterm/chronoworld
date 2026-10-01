@@ -24,6 +24,8 @@ export interface SkillDetailOptions {
   power?: number;
   /** Обычная атака (без перезарядки и силы навыков). */
   basic?: boolean;
+  /** Ульта героя: на энергии, без перезарядки. */
+  ult?: boolean;
   /** Глубина слоя (над окном выбора ветки). */
   depth?: number;
   onClose?: () => void;
@@ -40,7 +42,7 @@ export function openSkillDetail(scene: Phaser.Scene, skillId: string, o: SkillDe
   if (!sk) return null;
   (scene.children.getByName(SKILL_DETAIL) as Phaser.GameObjects.Container | null)?.destroy();
   const passive = !!sk.trigger;
-  const kind = o.kind ?? (o.basic ? 'Обычная атака' : passive ? 'Пассивный' : 'Активный');
+  const kind = o.kind ?? (o.basic ? 'Обычная атака' : o.ult ? 'Ульта' : passive ? 'Пассивный' : 'Активный');
   const layer = scene.add.container(0, 0).setDepth(o.depth ?? 9300).setName(SKILL_DETAIL);
   const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x000000, 0.72).setInteractive();
   const left = GAME_W / 2 - W / 2 + PAD;
@@ -61,6 +63,7 @@ export function openSkillDetail(scene: Phaser.Scene, skillId: string, o: SkillDe
   const facts = skillFacts(sk, {
     passive,
     basic: o.basic,
+    ult: o.ult,
     power: o.power,
     defaultCooldown: COMBAT.skills?.defaultCooldown ?? 8,
     turnSeconds: COMBAT.statusTurnSeconds ?? 1,

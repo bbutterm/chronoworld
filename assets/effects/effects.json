@@ -2376,6 +2376,64 @@
     },
     "swordman_endure": {
       "buff": "fx_swordman_endure"
+    },
+    "ult_alan_grand_cross": {
+      "ground": "fx_job_crusader_grand_cross"
+    },
+    "ult_alan_magnum_break": {
+      "cast": "fx_job_swordman_magnum_break"
+    },
+    "ult_bran_claymore": {
+      "hit": "fx_job_hunter_claymore_trap"
+    },
+    "ult_dorn_envenom": {
+      "hit": "fx_job_thief_envenom"
+    },
+    "ult_dorn_venom_splasher": {
+      "hit": "fx_job_assassin_venom_splasher"
+    },
+    "ult_greta_adrenaline_rush": {
+      "buff": "fx_job_blacksmith_adrenaline_rush"
+    },
+    "ult_greta_cart_revolution": {
+      "hit": "fx_job_merchant_cart_revolution"
+    },
+    "ult_iris_bowling_bash": {
+      "cast": "fx_job_knight_bowling_bash"
+    },
+    "ult_iris_defender": {
+      "buff": "fx_job_crusader_defender"
+    },
+    "ult_iris_fatal_bash": {
+      "cast": "fx_swordman_bash"
+    },
+    "ult_lira_frost_nova": {
+      "hit": "fx_job_mage_frost_diver"
+    },
+    "ult_lira_storm_gust": {
+      "ground": "fx_job_wizard_storm_gust"
+    },
+    "ult_otto_hammer_fall": {
+      "ground": "fx_job_blacksmith_hammer_fall"
+    },
+    "ult_otto_loud": {
+      "buff": "fx_job_merchant_crazy_uproar"
+    },
+    "ult_teo_angelus": {
+      "buff": "fx_job_acolyte_angelus"
+    },
+    "ult_teo_kyrie": {
+      "buff": "fx_job_priest_kyrie_eleison"
+    },
+    "ult_vika_magnus": {
+      "ground": "fx_job_priest_magnus_exorcismus",
+      "hit": "fx_job_acolyte_holy_light"
+    },
+    "ult_zara_sonic_blow": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "ult_zara_strip_weapon": {
+      "debuff": "fx_job_rogue_strip_weapon"
     }
   },
   "rejected": {

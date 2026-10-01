@@ -658,6 +658,11 @@ export class HeroScene extends Phaser.Scene {
     }
     this.skillRow({ id: job0?.basic ?? '', kind: 'Обычная атака' }, y + SKILL_ROW_H / 2);
     y += SKILL_ROW_H;
+    // Ульта формы — с 1-го уровня, отдельной строкой: «Ульта: …» и описание.
+    if (c.ult) {
+      this.skillRow({ id: c.ult, kind: 'Ульта · энергия', ult: true }, y + SKILL_ROW_H / 2);
+      y += SKILL_ROW_H;
+    }
     for (const sk of heroSkillList(hero, GAME)) {
       const gate = sk.unlocked ? null : skillRarityGate(sk.level, hero.rarity, GAME);
       this.skillRow(sk.unlocked ? { id: sk.skill, kind: sk.passive ? 'Пассивный' : activeKind(sk.skill) } : { id: sk.skill, kind: '', locked: sk.level, gate: gate?.name }, y + SKILL_ROW_H / 2);
@@ -671,6 +676,10 @@ export class HeroScene extends Phaser.Scene {
       const head = c.branchAt ? `С редкости «${rn}» — ветка ${b.jobName}` : c.branch ? `Другая ветка: ${b.jobName} («Сменить ветку»)` : `Ветка ${b.jobName} — выберите на карточке`;
       a.add(text(this, 60, y + 40, head, FS.body, c.branchAt ? C.title : C.dim, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName(`otherBranch_${b.job}`));
       y += 80;
+      if (b.ult) {
+        this.skillRow({ id: b.ult, kind: '', locked: 1, gate: rn, form: true, ult: true, note: c.branchAt ? 'ульта · после вознесения' : `ульта · ${c.branch ? 'другая ветка' : 'после выбора'}` }, y + SKILL_ROW_H / 2);
+        y += SKILL_ROW_H;
+      }
       for (const s of [...b.skills].sort((p, q) => p.level - q.level)) {
         this.skillRow({ id: s.skill, kind: '', locked: s.level, gate: rn, form: true, note: c.branchAt ? undefined : `ур. ${s.level} · ${c.branch ? 'другая ветка' : 'после выбора'}` }, y + SKILL_ROW_H / 2);
         y += SKILL_ROW_H;
@@ -691,11 +700,11 @@ export class HeroScene extends Phaser.Scene {
       const hit = a.add(this.add.rectangle(GAME_W / 2, y, 1000, h - 6, 0x000000, 0.001).setName(`skillRow_${this.skillRows++}`));
       const hero = this.hero();
       const power = hero ? rarityDef(GAME, hero.rarity).skillPower : 1;
-      const kind = r.kind === 'Обычная атака' ? r.kind : sk.trigger ? 'Пассивный' : 'Активный';
+      const kind = r.kind === 'Обычная атака' ? r.kind : r.ult ? 'Ульта' : sk.trigger ? 'Пассивный' : 'Активный';
       const lockNote = locked ? (r.note ?? (r.form ? `Откроется на ур. ${r.locked} после вознесения` : `Откроется на ур. ${r.locked}${r.gate ? ` · нужен ${r.gate}` : ''}`)) : undefined;
       pressable(this, hit, 1000, h - 6, a.tap(() => {
         a.locked = true;
-        openSkillDetail(this, r.id, { kind, lockNote, power, basic: r.kind === 'Обычная атака', onClose: () => (a.locked = false) });
+        openSkillDetail(this, r.id, { kind, lockNote, power, basic: r.kind === 'Обычная атака', ult: r.ult, onClose: () => (a.locked = false) });
       }));
     }
     const icon = this.add.image(90, y, skillIcon(this, sk)).setDisplaySize(84, 84);
@@ -703,9 +712,10 @@ export class HeroScene extends Phaser.Scene {
     a.add(icon);
     if (locked) a.add(this.add.image(116, y + 26, skinIcon('lock')).setDisplaySize(34, 34).setTint(0xf0cf8a));
     const kind = r.note ?? (locked ? (r.form ? `ур. ${r.locked} · после вознесения` : `откроется на ур. ${r.locked}${r.gate ? ` · нужен ${r.gate}` : ''}`) : r.kind);
-    const kindColor = locked ? (r.gate && !r.form ? C.warning : C.dim) : r.kind.startsWith('КД') ? C.gold : C.success;
+    const kindColor = locked ? (r.gate && !r.form ? C.warning : C.dim) : r.kind.startsWith('КД') || r.ult ? C.gold : C.success;
     const kindText = a.add(text(this, 1010, y - h * 0.24, kind, FS.caption, kindColor).setOrigin(1, 0.5));
-    a.add(ellipsize(text(this, 150, y - h * 0.24, `${sk?.name ?? r.id}`, FS.body, locked ? C.disabled : C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), Math.max(200, 1010 - 150 - kindText.width - 20)));
+    const title = r.ult ? `Ульта: ${sk?.name ?? r.id}` : `${sk?.name ?? r.id}`;
+    a.add(ellipsize(text(this, 150, y - h * 0.24, title, FS.body, locked ? C.disabled : r.ult ? C.gold : C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), Math.max(200, 1010 - 150 - kindText.width - 20)));
     if (sk?.description) {
       a.add(text(this, 150, y + h * 0.18, sk.description, FS.caption, locked ? C.disabled : C.muted, { align: 'left', wordWrap: { width: 860 } }).setOrigin(0, 0.5).setMaxLines(2));
     }
@@ -946,6 +956,8 @@ interface SkillRow {
   form?: boolean;
   /** Своя подпись справа вместо «откроется на ур. N». */
   note?: string;
+  /** Ульта формы (строка «Ульта: …», окно — «на полной энергии» вместо перезарядки). */
+  ult?: boolean;
 }
 
 /** Подпись активного навыка: перезарядка и каст (например «КД 5 с · каст 2 с»). */

@@ -264,6 +264,8 @@ interface UnitView extends SpreadUnit, GaitState {
   hp: number;
   shield: number;
   energy: number;
+  /** Время боя, к которому относится energy (между событиями энергия героя растёт от времени — UnitDef.energy.perSecond). */
+  energyT: number;
   alive: boolean;
   /** Смерть уже показана (die). */
   shownDead: boolean;
@@ -899,6 +901,7 @@ export class BattleScene extends Phaser.Scene {
       hp: snap.hp ?? snap.maxHp,
       shield: 0,
       energy: 0,
+      energyT: 0,
       alive: true,
       shownDead: false,
       pending: 0,
@@ -1017,6 +1020,11 @@ export class BattleScene extends Phaser.Scene {
     }
     this.showTime(Math.min(this.clock, this.result.duration));
     if (this.heroPanel) for (const uid of this.ultSkill.keys()) this.heroPanel.setCharge(uid, this.ultCharge(uid));
+    // Полоска энергии над героем растёт плавно (энергия от времени между событиями лога).
+    for (const uid of this.ultSkill.keys()) {
+      const v = this.views.get(uid);
+      if (v?.alive && v.def.energy?.perSecond) cropBar(v.energyBar, this.shownEnergy(v) / COMBAT.energy.max);
+    }
   }
 
   // ---------- ульта вручную (docs/design/battle-decisions.md §1) ----------
@@ -1025,12 +1033,19 @@ export class BattleScene extends Phaser.Scene {
     return this.manual ? 'Авто: нет' : 'Авто: да';
   }
 
+  /** Энергия бойца сейчас: последняя из лога + рост от времени (герои: UnitDef.energy.perSecond) до часов показа. */
+  private shownEnergy(v: UnitView): number {
+    const rate = v.def.energy?.perSecond ?? 0;
+    if (!rate || !v.alive) return v.energy;
+    return Math.min(COMBAT.energy.max, v.energy + rate * Math.max(0, Math.min(this.clock, this.result.duration) - v.energyT));
+  }
+
   /** Готовность ульты героя 0…1: энергия (ульта на энергии) или прошедшая доля перезарядки. */
   private ultCharge(uid: string): number {
     const v = this.views.get(uid);
     const s = this.ultSkill.get(uid);
     if (!v || !s || !v.alive) return 0;
-    if (v.def.skills.ult === s.id) return v.energy / COMBAT.energy.max;
+    if (v.def.skills.ult === s.id) return this.shownEnergy(v) / COMBAT.energy.max;
     const used = this.ultUsedAt.get(uid);
     if (used === undefined) return 1;
     const cd = s.cooldown ?? COMBAT.skills?.defaultCooldown ?? 8;
@@ -1341,6 +1356,7 @@ export class BattleScene extends Phaser.Scene {
         v.lastSkill = e.skill;
         v.proc = undefined;
         v.energy = e.energy;
+        v.energyT = e.t;
         this.endCast(v);
         // Удар мага по кругу: вспышка на земле (круг рос весь каст).
         this.behaviorFx?.endArea(v, animate);
@@ -1387,6 +1403,7 @@ export class BattleScene extends Phaser.Scene {
         v.lastSkill = e.skill;
         v.proc = undefined;
         v.energy = 0;
+        v.energyT = e.t;
         v.inUlt = true;
         this.redraw(v);
         if (!animate) return;
@@ -1500,6 +1517,7 @@ export class BattleScene extends Phaser.Scene {
           v.hp = e.hp;
           v.shield = e.shield;
           v.energy = e.energy;
+          v.energyT = e.t;
           this.redraw(v, animate);
           if (!animate) return;
           // Стихия: «Слабость!» / «Стойкость» — не чаще раза в popupSeconds над одной целью.
@@ -1645,6 +1663,7 @@ export class BattleScene extends Phaser.Scene {
       case 'energy': {
         const v = this.views.get(e.unit)!;
         v.energy = e.energy;
+        v.energyT = e.t;
         this.redraw(v);
         return;
       }
@@ -1960,7 +1979,7 @@ export class BattleScene extends Phaser.Scene {
       v.trailTo = pct;
       v.trailT = 0;
     }
-    cropBar(v.energyBar, v.energy / COMBAT.energy.max);
+    cropBar(v.energyBar, this.shownEnergy(v) / COMBAT.energy.max);
     this.heroPanel?.set(v.snap.uid, pct, this.ultSkill.has(v.snap.uid) ? this.ultCharge(v.snap.uid) : v.energy / COMBAT.energy.max, !v.shownDead && v.hp > 0);
     v.shieldBar.setVisible(v.alive && v.shield > 0);
     cropBar(v.shieldBar, Math.min(1, v.shield / max));
