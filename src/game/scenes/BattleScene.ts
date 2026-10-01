@@ -1411,6 +1411,17 @@ export class BattleScene extends Phaser.Scene {
     return !!f && uid !== f.uid && this.time.now < f.until;
   }
 
+  /**
+   * Ульта героя началась: остальные бойцы приглушены (уже идущие цифры и эффекты — тоже), плашка ульты монстра убрана.
+   * Сам фокус продлевается в case 'ult' до удара ульты.
+   */
+  private beginFocus(v: UnitView): void {
+    this.focus = { uid: v.snap.uid, until: this.time.now + ULT_FOCUS_MS };
+    this.floats.muteLive();
+    this.sfx.muteLive();
+    this.ult.hideBanner('B');
+  }
+
   /** Действие юнита — ульта героя (событие ult стороны A и удары/лечение/статусы, пока она идёт). */
   private heroUlt(v: UnitView | undefined): boolean {
     return !!v && v.snap.side === 'A' && v.inUlt;
@@ -1444,6 +1455,7 @@ export class BattleScene extends Phaser.Scene {
     const src = 'source' in e ? e.source : 'unit' in e ? e.unit : undefined;
     const v = src ? this.views.get(src) : undefined;
     const ult = e.type === 'ult' ? v?.snap.side === 'A' : e.type !== 'attack' && this.heroUlt(v);
+    if (e.type === 'ult' && ult && v && !this.skipping) this.beginFocus(v);
     this.fxMode(src, ult, () => this.playEvent(e, animate));
   }
 

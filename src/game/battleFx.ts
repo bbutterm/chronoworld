@@ -149,6 +149,16 @@ export class UltPresenter {
     return t;
   }
 
+  /** Убрать плашку стороны (ульта героя началась — плашка ульты монстра не висит поверх неё). */
+  hideBanner(side: 'A' | 'B'): void {
+    const c = this.banners[side];
+    if (!c) return;
+    this.chains[side]?.stop();
+    this.chains[side] = null;
+    this.scene.tweens.add({ targets: c, alpha: 0, duration: 120, onComplete: () => c.setVisible(false) });
+    this.banners[side] = null;
+  }
+
   /** «Пропустить» (T2-12): сразу убрать затемнение, плашки и свечения — поверх итога боя ничего не доигрывается. */
   cancel(): void {
     this.scene.tweens.killTweensOf(this.dim);
@@ -436,6 +446,18 @@ export class FloatLayer {
     if (oldest >= 0) this.finish(oldest);
   }
 
+  /** Началась ульта героя: всё, что уже на экране (цифры, подписи, вспышки), — приглушить до FOCUS_MUTE_ALPHA. */
+  muteLive(): void {
+    for (const r of this.live) {
+      if (r.kind === Kind.Number || r.kind === Kind.Headline) {
+        if (r.s !== 1 || r.kind === Kind.Number) r.m = Math.min(r.m, FOCUS_MUTE_ALPHA);
+      } else if (r.kind === Kind.Fx) {
+        r.a *= FOCUS_MUTE_ALPHA;
+        if (r.effect) r.obj.alpha *= FOCUS_MUTE_ALPHA;
+      }
+    }
+  }
+
   /** «Пропустить» (T2-12): убрать все цифры, подписи, вспышки и снаряды сразу. */
   cancel(): void {
     while (this.live.length) this.finish(this.live.length - 1);
@@ -487,6 +509,13 @@ export class FloatLayer {
       if (effect.scale) {
         img.setScale(effect.scale * (onAlly ? 1 : SKILL_FX_SIZE) * (this.ult ? ULT_FX_BOOST : 1)).setAlpha((effect.alpha ?? 1) * dim);
         if (this.ult && img.displayWidth > ULT_FX_MAX_W) img.setScale(img.scale * ULT_FX_MAX_W / img.displayWidth);
+        // Ульта — целиком в кадре (иероглифы Асуры у края поля не обрезаются).
+        if (this.ult) {
+          const left = img.x - img.displayOriginX * img.scaleX;
+          const w = img.displayWidth;
+          if (left < EDGE) img.x += EDGE - left;
+          else if (left + w > GAME_W - EDGE) img.x -= left + w - (GAME_W - EDGE);
+        }
       } else img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]);
       img.setBlendMode(effect.blend === 'add' ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL).setVisible(effect.delayMs === 0);
     }
