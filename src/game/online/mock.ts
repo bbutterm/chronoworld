@@ -1,18 +1,18 @@
 /**
  * Заглушка сервера cw-api для ручной проверки вне Telegram (?tgmock=1 в dev-сборке, api.ts mockMode): друзья,
- * колокольчики, рекорды недели — в памяти страницы, без сети. ?tgmock=cloud — ещё и «облачное сохранение»
+ * колокольчики, доски рекордов — в памяти страницы, без сети. ?tgmock=cloud — ещё и «облачное сохранение»
  * (окно «Найдено облачное сохранение»). Ответы — в том же виде, что у настоящей функции.
  */
 
 const FRIENDS = [
-  { id: 101, name: 'Вика', chapter: 4, stage: 12, towerBest: 37, giftWaiting: true },
-  { id: 102, name: 'Артём', chapter: 2, stage: 5, towerBest: 12, giftWaiting: true },
-  { id: 103, name: 'Маргарита-Звёздная', chapter: 6, stage: 18, towerBest: 64, giftWaiting: false },
-  { id: 104, name: 'Лёша', chapter: 1, stage: 9, towerBest: 3, giftWaiting: false },
-  { id: 105, name: 'Ника', chapter: 3, stage: 2, towerBest: 21, giftWaiting: true },
+  { id: 101, name: 'Вика', chapter: 4, stage: 12, power: 48_350, towerBest: 37, giftWaiting: true },
+  { id: 102, name: 'Артём', chapter: 2, stage: 5, power: 9_870, towerBest: 12, giftWaiting: true },
+  { id: 103, name: 'Маргарита-Звёздная', chapter: 6, stage: 18, power: 1_254_300, towerBest: 64, giftWaiting: false },
+  { id: 104, name: 'Лёша', chapter: 1, stage: 9, power: 2_140, towerBest: 3, giftWaiting: false },
+  { id: 105, name: 'Ника', chapter: 3, stage: 2, power: 21_600, towerBest: 21, giftWaiting: true },
 ];
 
-const NAMES = ['Кира', 'Тимур', 'Соня', 'Глеб', 'Ульяна', 'Пётр', 'Злата', 'Даня', 'Ева', 'Марк', 'Лиза', 'Олег'];
+const NAMES = ['Кира', 'Тимур', 'Соня', 'Глеб', 'Ульяна', 'Пётр', 'Злата', 'Даня', 'Ева', 'Марк', 'Лиза', 'Олег-Длинноименный'];
 
 const state = {
   sent: new Set<number>(),
@@ -20,18 +20,46 @@ const state = {
   refClaimed: false,
 };
 
-const me = { id: 100, name: 'Алекс' };
+const me = { id: 100, name: 'Алекс', chapter: 3, stage: 7, power: 18_420, towerBest: 18 };
+
+interface Person {
+  name: string;
+  chapter: number;
+  stage: number;
+  power: number;
+  towerBest: number;
+}
+
+const others: Person[] = NAMES.map((name, i) => ({
+  name,
+  chapter: Math.max(1, 10 - i),
+  stage: 18 - ((i * 5) % 17),
+  power: Math.round(3_400_000 * Math.pow(0.62, i)),
+  towerBest: Math.round(70 * (1 - i * 0.07)),
+}));
+
+/** Значение на доске (как на сервере: прогресс — глава·100 + этап). */
+function valueOf(kind: string, p: Person): number {
+  if (kind === 'power') return p.power;
+  if (kind === 'progress') return p.chapter * 100 + p.stage;
+  if (kind === 'mvp') return p.towerBest * 41_000;
+  return p.towerBest;
+}
 
 function board(kind: string, scope: string) {
-  const base = kind === 'mvp' ? 1_800_000 : 70;
-  const people =
-    scope === 'friends'
-      ? [...FRIENDS.map((f) => ({ name: f.name, value: kind === 'mvp' ? f.towerBest * 41_000 : f.towerBest })), { name: me.name, value: kind === 'mvp' ? 640_000 : 18 }]
-      : [...NAMES.map((name, i) => ({ name, value: Math.round(base * (1 - i * 0.07)) })), ...FRIENDS.map((f) => ({ name: f.name, value: kind === 'mvp' ? f.towerBest * 41_000 : f.towerBest })), { name: me.name, value: kind === 'mvp' ? 640_000 : 18 }];
-  people.sort((a, b) => b.value - a.value);
-  const top = people.map((p, i) => ({ place: i + 1, name: p.name, value: p.value, me: p.name === me.name }));
+  const people: Person[] = scope === 'friends' ? [...FRIENDS, me] : [...others, ...FRIENDS, me];
+  const rows = people.map((p) => ({ p, value: valueOf(kind, p) })).sort((a, b) => b.value - a.value || b.p.power - a.p.power);
+  const top = rows.map(({ p, value }, i) => ({ place: i + 1, name: p.name, value, me: p === me, chapter: p.chapter, stage: p.stage, power: p.power }));
   const mine = top.find((r) => r.me);
-  return { ok: true, week: '2026-W40', top, mine: mine ? { place: mine.place, value: mine.value } : null };
+  const weekly = kind === 'tower' || kind === 'mvp';
+  return {
+    ok: true,
+    board: kind,
+    scope,
+    week: weekly ? '2026-W40' : '',
+    top,
+    mine: mine ? { place: mine.place, value: mine.value, chapter: mine.chapter, stage: mine.stage, power: mine.power } : null,
+  };
 }
 
 export async function mockCall(action: string, payload: Record<string, unknown>): Promise<unknown> {

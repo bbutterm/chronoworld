@@ -34,6 +34,8 @@ import {
   REF_WELCOME_GEMS,
   REF_WELCOME_SOURCE,
   shouldOfferCloud,
+  syncDelay,
+  syncPower,
   timersChanged,
   victoryOf,
   type CloudSaveInfo,
@@ -103,6 +105,9 @@ let putTimer: ReturnType<typeof setTimeout> | null = null;
 let syncTimer: ReturnType<typeof setTimeout> | null = null;
 /** Что последним ушло на сервер для уведомлений бота (null — ещё ничего). */
 let sentTimers: NotifyTimers | null = null;
+/** Сила отряда, ушедшая с последним sync (-1 — ещё не было), и когда был sync (Date.now). */
+let sentPower = -1;
+let lastSync = 0;
 
 /**
  * Для уведомлений бота (docs/design/online.md, «Бот и уведомления»): часовой пояс устройства (как getTimezoneOffset —
@@ -126,7 +131,14 @@ export function startOnline(g: Phaser.Game): void {
   onAppHidden(() => {
     flushCloud(true);
     // Забрал сундук или отправил отряд и свернул — пусть бот знает новые сроки.
-    if (onlineState.profile && timersChanged(sentTimers, notifyTimersOf(session.save, now(), GAME))) void doSync(true);
+    // Отложенный sync (сила выросла меньше минуты назад) — тоже сейчас: страницу могут выгрузить.
+    if (!onlineState.profile) return;
+    const pending = syncTimer !== null || syncPower(squadPower(session.save, GAME)) !== sentPower;
+    if (pending || timersChanged(sentTimers, notifyTimersOf(session.save, now(), GAME))) {
+      if (syncTimer) clearTimeout(syncTimer);
+      syncTimer = null;
+      void doSync(true);
+    }
   });
   void login();
 }
@@ -273,8 +285,10 @@ function handleCommit(next: typeof session.save, prev: typeof session.save): voi
   ls.set(KEY_LOCAL_AT, String(Date.now()));
   const v = victoryOf(prev, next);
   if (!v) {
-    // Сундук забран, экспедиция ушла или вернулась — новые сроки для уведомлений (sync пачкой через 2 с).
-    if (onlineState.profile && timersChanged(sentTimers, notifyTimersOf(next, now(), GAME))) scheduleSync();
+    // Улучшили героя или снаряжение (сила отряда изменилась), забрали сундук, отряд ушёл или вернулся — sync,
+    // но не чаще раза в минуту (доска «Сила отряда» и сроки уведомлений бота).
+    if (!onlineState.profile) return;
+    if (syncPower(squadPower(next, GAME)) !== sentPower || timersChanged(sentTimers, notifyTimersOf(next, now(), GAME))) scheduleSync(true);
     return;
   }
   if (v === 'hunt') {
@@ -295,12 +309,15 @@ function readMvp(): WeekBest | null {
   }
 }
 
-function scheduleSync(): void {
+/** sync пачкой: после победы — через 2 с; не по победе (slow) — не раньше минуты после прошлого sync. */
+function scheduleSync(slow = false): void {
+  if (slow && syncTimer) return; // уже ждёт — отправит свежее состояние
   if (syncTimer) clearTimeout(syncTimer);
+  const wait = slow ? syncDelay(Date.now(), lastSync, SYNC_DEBOUNCE_MS) : SYNC_DEBOUNCE_MS;
   syncTimer = setTimeout(() => {
     syncTimer = null;
     void doSync();
-  }, SYNC_DEBOUNCE_MS);
+  }, wait);
 }
 
 async function doSync(keepalive = false): Promise<void> {
@@ -309,10 +326,14 @@ async function doSync(keepalive = false): Promise<void> {
   const p = progressOf(save, GAME);
   const mvp = readMvp();
   const week = isoWeek(new Date(now()));
+  // Та же «Мощь отряда», что на экране героев и на карте кампании (squadPower ядра, с экипировкой).
+  const power = syncPower(squadPower(save, GAME));
+  sentPower = power;
+  lastSync = Date.now();
   const r = await api.sync({
     chapter: p.chapter,
     stage: p.stage,
-    power: Math.round(squadPower(save, GAME)),
+    power,
     towerBest: save.tower.floor,
     mvpWeek: mvp && mvp.week === week ? Math.round(mvp.value) : 0,
     ...notifyFields(),
@@ -393,6 +414,10 @@ export function resetOnlineForTests(): void {
   dirty = false;
   lastPut = 0;
   sentTimers = null;
+  sentPower = -1;
+  lastSync = 0;
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = null;
   onlineState.profile = null;
   onlineState.giftsWaiting = 0;
   onlineState.cloudReady = false;

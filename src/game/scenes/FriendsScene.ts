@@ -6,7 +6,24 @@ import { C, FS, OUTLINE, TOUCH } from '../theme';
 import { haptic } from '../haptics';
 import { api, onlineAvailable, openTgLink } from '../online/api';
 import { appLink } from '../online/entry';
-import { BELL_GEMS, BELLS_PER_DAY, BOT_LINK, groupDigits, REF_INVITER_GEMS, REF_WELCOME_GEMS, shareUrl, type BoardKind, type BoardResp, type BoardScope, type FriendInfo } from '../online/logic';
+import {
+  BELL_GEMS,
+  BELLS_PER_DAY,
+  BOARD_KINDS,
+  boardSubLine,
+  boardValueText,
+  BOT_LINK,
+  friendStats,
+  myPlaceText,
+  REF_INVITER_GEMS,
+  REF_WELCOME_GEMS,
+  shareUrl,
+  whereText,
+  type BoardKind,
+  type BoardResp,
+  type BoardScope,
+  type FriendInfo,
+} from '../online/logic';
 import { claimBells, onlineState, setGiftsWaiting } from '../online/online';
 
 export type FriendsTab = 'friends' | 'records';
@@ -25,15 +42,19 @@ const cache = {
 };
 const fresh = (at: number) => Date.now() - at < CACHE_MS;
 
-let last: Required<FriendsData> = { tab: 'friends', board: 'tower', scope: 'all' };
+let last: Required<FriendsData> = { tab: 'friends', board: 'power', scope: 'all' };
 
 const LEFT = 60;
-const CARD_H = 190;
-const ROW_H = 104;
+const CARD_H = 220;
+const ROW_H = 120;
+/** Подписи переключателя досок (недельные — с пометкой). */
+const BOARD_LABEL: Record<BoardKind, string> = { power: 'Сила отряда', progress: 'Прогресс (глава)', tower: 'Башня (неделя)', mvp: 'MVP (неделя)' };
 
 /**
  * «Друзья и рекорды» (онлайн фаза 1, docs/design/online.md): вкладки «Друзья» (колокольчики, «Позвать друга», список
- * друзей с кнопкой «Колокольчик» раз в день) и «Рекорды недели» (Башня / MVP, все / друзья, моё место). Вход — кнопка
+ * друзей: глава и этап, сила отряда, Башня, кнопка «Колокольчик» раз в день) и «Рекорды» (доски «Сила отряда»,
+ * «Прогресс (глава)», «Башня (неделя)», «MVP (неделя)»; все / друзья; в строке — место, имя, значение, мелко глава и сила;
+ * своя строка подсвечена, внизу «Ваше место»). Вход — кнопка
  * «Друзья» на странице «Город», только в Telegram (online/entry.ts). Нет сети — спокойное «Нет связи» и «Повторить».
  */
 export class FriendsScene extends Phaser.Scene {
@@ -59,7 +80,7 @@ export class FriendsScene extends Phaser.Scene {
     }
     const tabs: { id: FriendsTab; label: string }[] = [
       { id: 'friends', label: 'Друзья' },
-      { id: 'records', label: 'Рекорды недели' },
+      { id: 'records', label: 'Рекорды' },
     ];
     const w = 1040 / tabs.length;
     const ty = CONTENT_TOP + 50;
@@ -180,15 +201,16 @@ export class FriendsScene extends Phaser.Scene {
       a.setContentHeight(320);
       return;
     }
-    const sorted = [...list].sort((x, y) => Number(y.giftWaiting) - Number(x.giftWaiting) || y.chapter - x.chapter || y.stage - x.stage);
+    const sorted = [...list].sort((x, y) => Number(y.giftWaiting) - Number(x.giftWaiting) || y.chapter - x.chapter || y.stage - x.stage || y.power - x.power);
     let top = 0;
     for (const f of sorted) {
       const cy = top + CARD_H / 2;
       a.add(card(this, GAME_W / 2, cy, 1040, CARD_H));
-      a.add(ellipsize(text(this, LEFT, cy - 50, f.name, FS.h3, C.text, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5), 560));
-      const where = f.chapter > 0 ? `Глава ${f.chapter} · этап ${Math.max(1, f.stage)}` : 'Только начинает';
-      a.add(text(this, LEFT, cy + 2, `${where} · Башня: ${f.towerBest}`, FS.small, C.muted, OUTLINE).setOrigin(0, 0.5));
-      if (f.giftWaiting) a.add(text(this, LEFT, cy + 52, 'Прислал вам колокольчик', FS.small, C.gold, OUTLINE).setOrigin(0, 0.5).setName('friendBellMark'));
+      a.add(ellipsize(text(this, LEFT, cy - 70, f.name, FS.h3, C.text, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5), 600));
+      // «Глава 4, этап 12» / «Сила 12 345 · Башня: 37» — две строки: в одну на 360 px не влезает рядом с кнопкой.
+      a.add(ellipsize(text(this, LEFT, cy - 22, whereText(f.chapter, f.stage), FS.small, C.text, OUTLINE).setOrigin(0, 0.5).setName(`friendWhere_${f.id}`), 620));
+      a.add(ellipsize(text(this, LEFT, cy + 20, friendStats(f), FS.small, C.muted, OUTLINE).setOrigin(0, 0.5).setName(`friendStats_${f.id}`), 620));
+      if (f.giftWaiting) a.add(text(this, LEFT, cy + 64, 'Прислал вам колокольчик', FS.small, C.gold, OUTLINE).setOrigin(0, 0.5).setName('friendBellMark'));
       const b = button(this, 860, cy, 300, 110, f.giftSent ? 'k:buttonLong_grey' : 'ui_btn_secondary', f.giftSent ? 'Отправлен' : 'Колокольчик', a.tap(() => void this.ring(f, b)), FS.h3);
       if (f.giftSent) b.setEnabled(false);
       b.container.setName(`ring_${f.id}`);
@@ -241,26 +263,33 @@ export class FriendsScene extends Phaser.Scene {
     );
   }
 
-  // ---------- Рекорды недели ----------
+  // ---------- Рекорды ----------
 
   private recordsTab(): void {
     const { board, scope } = this.opts;
-    const y = CONTENT_TOP + 160;
-    const seg = (x: number, label: string, on: boolean, name: string, go: FriendsData) => {
-      const b = button(this, x, y, 250, TOUCH, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', label, () => {
+    const top = CONTENT_TOP + 120;
+    const seg = (x: number, y: number, w: number, label: string, on: boolean, name: string, go: FriendsData) => {
+      const b = button(this, x, y, w, 88, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', label, () => {
         if (!on) this.scene.restart(go);
       }, FS.small, { sound: 'ui_tab' });
       b.container.setName(name);
     };
-    seg(150, 'Башня', board === 'tower', 'boardTower', { board: 'tower' });
-    seg(406, 'MVP', board === 'mvp', 'boardMvp', { board: 'mvp' });
-    seg(674, 'Все', scope === 'all', 'scopeAll', { scope: 'all' });
-    seg(930, 'Друзья', scope === 'friends', 'scopeFriends', { scope: 'friends' });
-    text(this, GAME_W / 2, y + 90, board === 'tower' ? 'Лучший этаж Башни за неделю' : 'Лучший зачёт охоты на MVP за неделю', FS.small, C.muted, OUTLINE);
+    // Доски — сеткой 2×2 (подписи целиком на 360 px), под ними — «Все» / «Друзья».
+    BOARD_KINDS.forEach((k, i) => {
+      const x = 20 + 260 + (i % 2) * 520;
+      const y = top + 44 + Math.floor(i / 2) * 98;
+      seg(x, y, 508, BOARD_LABEL[k.id], board === k.id, `board_${k.id}`, { board: k.id });
+    });
+    const sy = top + 44 + 2 * 98 + 6;
+    seg(20 + 260, sy, 508, 'Все игроки', scope === 'all', 'scopeAll', { scope: 'all' });
+    seg(20 + 780, sy, 508, 'Друзья', scope === 'friends', 'scopeFriends', { scope: 'friends' });
+    const hint = BOARD_KINDS.find((k) => k.id === board)?.hint ?? '';
+    text(this, GAME_W / 2, sy + 82, hint, FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 1000 } }).setName('boardHint');
     // Внизу — моё место (плашка), над ней — список.
     const bottom = contentBottom();
     const mineY = bottom - 60;
-    this.area = new ScrollArea(this, y + 140, mineY - 80);
+    const listTop = sy + 130;
+    this.area = new ScrollArea(this, listTop, mineY - 70);
     const gen = this.gen;
     const key = `${board}:${scope}`;
     const draw = (d: BoardResp) => {
@@ -269,12 +298,13 @@ export class FriendsScene extends Phaser.Scene {
       this.area.clear();
       this.drawBoard(d, mineY);
     };
+    const statusY = Math.round((listTop + mineY) / 2) - 60;
     const load = async () => {
-      this.showStatus(y + 400, 'Загружаем рекорды…');
+      this.showStatus(statusY, 'Загружаем рекорды…');
       const d = await api.board(board, scope);
       if (!this.alive(gen)) return;
       if (!d) {
-        this.showStatus(y + 400, 'Нет связи с сервером. Рекорды подождут — игра работает как обычно.', () => void load());
+        this.showStatus(statusY, 'Нет связи с сервером. Рекорды подождут — игра работает как обычно.', () => void load());
         return;
       }
       cache.boards.set(key, { at: Date.now(), data: d });
@@ -285,35 +315,36 @@ export class FriendsScene extends Phaser.Scene {
     else void load();
   }
 
-  private value(v: number): string {
-    return this.opts.board === 'tower' ? `этаж ${v}` : groupDigits(v);
-  }
-
   private drawBoard(d: BoardResp, mineY: number): void {
     const a = this.area;
+    const kind = this.opts.board;
     if (!d.top.length) {
-      a.add(emptyState(this, GAME_W / 2, 140, this.opts.scope === 'friends' ? 'У друзей пока нет рекордов на этой неделе. Будьте первым!' : 'На этой неделе рекордов ещё нет. Будьте первым!'));
+      const weekly = kind === 'tower' || kind === 'mvp';
+      const msg = this.opts.scope === 'friends'
+        ? weekly ? 'У друзей пока нет рекордов на этой неделе. Будьте первым!' : 'Друзья пока не на доске. Позовите их в игру!'
+        : weekly ? 'На этой неделе рекордов ещё нет. Будьте первым!' : 'На доске пока никого. Будьте первым!';
+      a.add(emptyState(this, GAME_W / 2, 140, msg));
       a.setContentHeight(280);
     } else {
       d.top.forEach((r, i) => {
         const cy = i * ROW_H + ROW_H / 2;
-        if (r.me) a.add(this.add.rectangle(GAME_W / 2, cy, 1040, ROW_H - 8, 0xf0cf8a, 0.22).setStrokeStyle(3, 0xf0cf8a));
+        if (r.me) a.add(this.add.rectangle(GAME_W / 2, cy, 1040, ROW_H - 8, 0xf0cf8a, 0.22).setStrokeStyle(3, 0xf0cf8a).setName('boardMeRow'));
         else if (i % 2 === 0) a.add(this.add.rectangle(GAME_W / 2, cy, 1040, ROW_H - 8, 0x000000, 0.35));
         const medal = r.place <= 3 ? C.gold : C.text;
         a.add(text(this, LEFT + 40, cy, String(r.place), FS.h3, medal, { fontStyle: 'bold', ...OUTLINE }));
-        a.add(ellipsize(text(this, LEFT + 110, cy, r.me ? `${r.name} (вы)` : r.name, FS.body, r.me ? C.title : C.text, OUTLINE).setOrigin(0, 0.5), 520));
-        a.add(text(this, GAME_W - LEFT, cy, this.value(r.value), FS.body, C.title, OUTLINE).setOrigin(1, 0.5));
+        const value = text(this, GAME_W - LEFT, cy, boardValueText(kind, r), FS.body, C.title, { fontStyle: 'bold', ...OUTLINE }).setOrigin(1, 0.5);
+        a.add(value);
+        // Имя и мелко — глава и сила; ширина — до значения справа.
+        const room = GAME_W - LEFT - value.width - 30 - (LEFT + 110);
+        const sub = boardSubLine(kind, r);
+        const nameY = sub ? cy - 21 : cy;
+        a.add(ellipsize(text(this, LEFT + 110, nameY, r.me ? `${r.name} (вы)` : r.name, FS.body, r.me ? C.title : C.text, OUTLINE).setOrigin(0, 0.5), Math.min(560, room)));
+        if (sub) a.add(ellipsize(text(this, LEFT + 110, cy + 25, sub, FS.caption, C.muted, OUTLINE).setOrigin(0, 0.5), room));
       });
       a.setContentHeight(d.top.length * ROW_H + 20);
     }
     // Моё место — всегда видно внизу.
     card(this, GAME_W / 2, mineY, 1040, 120).setName('myPlace');
-    const mine = d.mine;
-    const msg = mine
-      ? `Ваше место: ${mine.place} · ${this.value(mine.value)}`
-      : this.opts.board === 'tower'
-        ? 'Вас пока нет в рекордах — поднимитесь в Башне'
-        : 'Вас пока нет в рекордах — сразитесь с MVP';
-    text(this, GAME_W / 2, mineY, msg, FS.body, mine ? C.title : C.muted, { ...OUTLINE, wordWrap: { width: 980 } }).setName('myPlaceText');
+    text(this, GAME_W / 2, mineY, myPlaceText(kind, d.mine), FS.body, d.mine ? C.title : C.muted, { ...OUTLINE, wordWrap: { width: 980 } }).setName('myPlaceText');
   }
 }
