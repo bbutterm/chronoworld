@@ -26,15 +26,15 @@
       "enemies": [
         {
           "unit": "orc_warrior",
-          "mult": 0.8237
+          "mult": 0.9441
         },
         {
           "unit": "orc_high",
-          "mult": 0.8237
+          "mult": 0.9441
         },
         {
           "unit": "orc_archer",
-          "mult": 0.8237
+          "mult": 0.9441
         },
         null,
         null
@@ -56,19 +56,19 @@
       "enemies": [
         {
           "unit": "orc_warrior",
-          "mult": 0.743
+          "mult": 0.8516
         },
         {
           "unit": "orc_high",
-          "mult": 0.743
+          "mult": 0.8516
         },
         {
           "unit": "orc_warrior",
-          "mult": 0.743
+          "mult": 0.8516
         },
         {
           "unit": "orc_archer",
-          "mult": 0.743
+          "mult": 0.8516
         },
         null
       ],
@@ -88,19 +88,19 @@
       "enemies": [
         {
           "unit": "orc_high",
-          "mult": 0.841
+          "mult": 0.9639
         },
         {
           "unit": "orc_warrior",
-          "mult": 0.841
+          "mult": 0.9639
         },
         {
           "unit": "orc_archer",
-          "mult": 0.841
+          "mult": 0.9639
         },
         {
           "unit": "orc_archer",
-          "mult": 0.841
+          "mult": 0.9639
         },
         null
       ],
@@ -121,23 +121,23 @@
       "enemies": [
         {
           "unit": "orc_high",
-          "mult": 0.7181
+          "mult": 0.8231
         },
         {
           "unit": "orc_warrior",
-          "mult": 0.7181
+          "mult": 0.8231
         },
         {
           "unit": "orc_warrior",
-          "mult": 0.7181
+          "mult": 0.8231
         },
         {
           "unit": "orc_archer",
-          "mult": 0.7181
+          "mult": 0.8231
         },
         {
           "unit": "orc_archer",
-          "mult": 0.7181
+          "mult": 0.8231
         }
       ],
       "rewards": {
@@ -166,23 +166,23 @@
       "enemies": [
         {
           "unit": "orc_chonchon",
-          "mult": 0.9379
+          "mult": 1.075
         },
         {
           "unit": "orc_high",
-          "mult": 0.3427
+          "mult": 0.3928
         },
         {
           "unit": "orc_lady",
-          "mult": 0.9379
+          "mult": 1.075
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.9379
+          "mult": 1.075
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.9379
+          "mult": 1.075
         }
       ],
       "rewards": {
@@ -202,23 +202,23 @@
       "enemies": [
         {
           "unit": "orc_chonchon",
-          "mult": 0.9216
+          "mult": 1.0563
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.9216
+          "mult": 1.0563
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.9216
+          "mult": 1.0563
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.9216
+          "mult": 1.0563
         },
         {
           "unit": "orc_archer",
-          "mult": 0.9216
+          "mult": 1.0563
         }
       ],
       "rewards": {
@@ -237,23 +237,23 @@
       "enemies": [
         {
           "unit": "orc_warrior",
-          "mult": 0.4896
+          "mult": 0.5612
         },
         {
           "unit": "orc_high",
-          "mult": 0.4896
+          "mult": 0.5612
         },
         {
           "unit": "orc_archer",
-          "mult": 1.02
+          "mult": 1.1691
         },
         {
           "unit": "orc_archer",
-          "mult": 1.02
+          "mult": 1.1691
         },
         {
           "unit": "orc_archer",
-          "mult": 1.02
+          "mult": 1.1691
         }
       ],
       "rewards": {
@@ -273,23 +273,23 @@
       "enemies": [
         {
           "unit": "orc_warrior",
-          "mult": 0.8237
+          "mult": 0.9441
         },
         {
           "unit": "orc_warrior",
-          "mult": 0.8237
+          "mult": 0.9441
         },
         {
           "unit": "orc_warrior",
-          "mult": 0.8237
+          "mult": 0.9441
         },
         {
           "unit": "orc_lady",
-          "mult": 0.816
+          "mult": 0.9353
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.816
+          "mult": 0.9353
         }
       ],
       "rewards": {
@@ -318,23 +318,23 @@
       "enemies": [
         {
           "unit": "orc_skeleton",
-          "mult": 0.72
+          "mult": 0.8252
         },
         {
           "unit": "orc_warrior",
-          "mult": 0.72
+          "mult": 0.8252
         },
         {
           "unit": "orc_archer",
-          "mult": 0.72
+          "mult": 0.8252
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.72
+          "mult": 0.8252
         },
         {
           "unit": "orc_archer",
-          "mult": 0.72
+          "mult": 0.8252
         }
       ],
       "rewards": {
@@ -354,23 +354,23 @@
       "enemies": [
         {
           "unit": "orc_warrior",
-          "mult": 0.4032
+          "mult": 0.4621
         },
         {
           "unit": "orc_hero",
-          "mult": 1.056
+          "mult": 1.2103
         },
         {
           "unit": "orc_warrior",
-          "mult": 0.4032
+          "mult": 0.4621
         },
         {
           "unit": "orc_archer",
-          "mult": 0.432
+          "mult": 0.4951
         },
         {
           "unit": "orc_archer",
-          "mult": 0.432
+          "mult": 0.4951
         }
       ],
       "rewards": {
@@ -389,23 +389,23 @@
       "enemies": [
         {
           "unit": "orc_high",
-          "mult": 0.3744
+          "mult": 0.4291
         },
         {
           "unit": "orc_high",
-          "mult": 0.3744
+          "mult": 0.4291
         },
         {
           "unit": "orc_archer",
-          "mult": 1.142
+          "mult": 1.3089
         },
         {
           "unit": "orc_chonchon",
-          "mult": 1.142
+          "mult": 1.3089
         },
         {
           "unit": "orc_archer",
-          "mult": 1.142
+          "mult": 1.3089
         }
       ],
       "rewards": {
@@ -425,23 +425,23 @@
       "enemies": [
         {
           "unit": "orc_zombie",
-          "mult": 0.864
+          "mult": 0.9903
         },
         {
           "unit": "orc_high",
-          "mult": 0.6816
+          "mult": 0.7812
         },
         {
           "unit": "orc_zombie",
-          "mult": 0.864
+          "mult": 0.9903
         },
         {
           "unit": "orc_archer",
-          "mult": 0.864
+          "mult": 0.9903
         },
         {
           "unit": "orc_archer",
-          "mult": 0.864
+          "mult": 0.9903
         }
       ],
       "rewards": {
@@ -470,23 +470,23 @@
       "enemies": [
         {
           "unit": "orc_skeleton",
-          "mult": 0.7392
+          "mult": 0.8472
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.7392
+          "mult": 0.8472
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.7392
+          "mult": 0.8472
         },
         {
           "unit": "orc_archer",
-          "mult": 0.7392
+          "mult": 0.8472
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.7392
+          "mult": 0.8472
         }
       ],
       "rewards": {
@@ -506,23 +506,23 @@
       "enemies": [
         {
           "unit": "orc_skeleton",
-          "mult": 0.7488
+          "mult": 0.8582
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.7488
+          "mult": 0.8582
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.7488
+          "mult": 0.8582
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.7488
+          "mult": 0.8582
         },
         {
           "unit": "orc_archer",
-          "mult": 0.7488
+          "mult": 0.8582
         }
       ],
       "rewards": {
@@ -541,23 +541,23 @@
       "enemies": [
         {
           "unit": "orc_skeleton",
-          "mult": 0.4982
+          "mult": 0.571
         },
         {
           "unit": "orc_skeleton",
-          "mult": 0.4982
+          "mult": 0.571
         },
         {
           "unit": "orc_archer",
-          "mult": 0.767
+          "mult": 0.8791
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.767
+          "mult": 0.8791
         },
         {
           "unit": "orc_archer",
-          "mult": 0.767
+          "mult": 0.8791
         }
       ],
       "rewards": {
@@ -577,23 +577,23 @@
       "enemies": [
         {
           "unit": "orc_skeleton",
-          "mult": 0.7267
+          "mult": 0.8329
         },
         {
           "unit": "orc_zombie",
-          "mult": 0.6854
+          "mult": 0.7856
         },
         {
           "unit": "orc_zombie",
-          "mult": 0.6854
+          "mult": 0.7856
         },
         {
           "unit": "orc_archer",
-          "mult": 0.6854
+          "mult": 0.7856
         },
         {
           "unit": "orc_archer",
-          "mult": 0.6854
+          "mult": 0.7856
         }
       ],
       "rewards": {
@@ -622,23 +622,23 @@
       "enemies": [
         {
           "unit": "orc_skeleton",
-          "mult": 0.4166
+          "mult": 0.4775
         },
         {
           "unit": "orc_high",
-          "mult": 0.4166
+          "mult": 0.4775
         },
         {
           "unit": "orc_archer",
-          "mult": 0.8899
+          "mult": 1.02
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.8899
+          "mult": 1.02
         },
         {
           "unit": "orc_archer",
-          "mult": 0.8899
+          "mult": 1.02
         }
       ],
       "rewards": {
@@ -657,23 +657,23 @@
       "enemies": [
         {
           "unit": "orc_high",
-          "mult": 0.288
+          "mult": 0.3301
         },
         {
           "unit": "orc_skeleton",
-          "mult": 0.3744
+          "mult": 0.4291
         },
         {
           "unit": "orc_lord",
-          "mult": 0.3456
+          "mult": 0.3961
         },
         {
           "unit": "orc_archer",
-          "mult": 0.9696
+          "mult": 1.1113
         },
         {
           "unit": "orc_chonchon",
-          "mult": 0.9696
+          "mult": 1.1113
         }
       ],
       "rewards": {

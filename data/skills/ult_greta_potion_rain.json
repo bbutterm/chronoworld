@@ -2,13 +2,14 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_greta_potion_rain",
   "name": "Дождь зелий",
-  "description": "Град целебных зелий: сильно лечит всех союзников.",
+  "description": "Град целебных зелий: сильно лечит всех раненых союзников.",
   "icon": "icon_ult_priest",
   "range": "ranged",
   "target": {
     "side": "ally",
     "pick": "all",
-    "includeSelf": true
+    "includeSelf": true,
+    "onlyWounded": true
   },
   "effects": [
     {

@@ -177,7 +177,7 @@ describe('заряд босса', () => {
     expect(broke, 'сбито').toBeTruthy();
     expect(broke!.t).toBeCloseTo(tin, 5);
     expect(r1.log.some((e) => e.type === 'status' && e.target === boss && e.status === 'charge_broken' && e.action === 'apply')).toBe(true);
-    expect(r1.log.some((e) => e.type === 'attack' && e.unit === boss && e.skill === skill && e.t < tin + 3)).toBe(false);
+    expect(r1.log.some((e) => e.type === 'attack' && e.unit === boss && e.skill === skill && e.t >= start!.t && e.t < tin + 3)).toBe(false);
   });
 });
 

@@ -27,11 +27,11 @@
       "enemies": [
         {
           "unit": "mob_fabre",
-          "mult": 0.7287
+          "mult": 0.8085
         },
         {
           "unit": "mob_fabre",
-          "mult": 0.7287
+          "mult": 0.8085
         },
         null,
         null,
@@ -63,15 +63,15 @@
       "enemies": [
         {
           "unit": "mob_lunatic",
-          "mult": 0.7287
+          "mult": 0.8085
         },
         {
           "unit": "mob_lunatic",
-          "mult": 0.7287
+          "mult": 0.8085
         },
         {
           "unit": "mob_fast",
-          "mult": 0.7287
+          "mult": 0.8085
         },
         null,
         null
@@ -93,15 +93,15 @@
       "enemies": [
         {
           "unit": "mob_pupa",
-          "mult": 0.8328
+          "mult": 0.924
         },
         {
           "unit": "mob_fabre",
-          "mult": 0.8328
+          "mult": 0.924
         },
         {
           "unit": "mob_fabre",
-          "mult": 0.8328
+          "mult": 0.924
         },
         null,
         null
@@ -132,15 +132,15 @@
       "enemies": [
         {
           "unit": "mob_fast",
-          "mult": 0.8328
+          "mult": 0.924
         },
         {
           "unit": "mob_drops",
-          "mult": 0.8328
+          "mult": 0.924
         },
         {
           "unit": "mob_fabre",
-          "mult": 0.9369
+          "mult": 1.0395
         },
         null,
         null
@@ -161,20 +161,20 @@
       "enemies": [
         {
           "unit": "mob_drops",
-          "mult": 0.8849
+          "mult": 0.9818
         },
         {
           "unit": "mob_lunatic",
-          "mult": 0.8849
+          "mult": 0.9818
         },
         {
           "unit": "mob_poporing",
-          "mult": 0.8849
+          "mult": 0.9818
         },
         null,
         {
           "unit": "mob_fast",
-          "mult": 0.8849
+          "mult": 0.9818
         }
       ],
       "rewards": {
@@ -193,19 +193,19 @@
       "enemies": [
         {
           "unit": "mob_tank",
-          "mult": 0.7807
+          "mult": 0.8662
         },
         {
           "unit": "mob_rocker",
-          "mult": 0.8849
+          "mult": 0.9818
         },
         {
           "unit": "mob_lunatic",
-          "mult": 0.7807
+          "mult": 0.8662
         },
         {
           "unit": "mob_mandragora",
-          "mult": 0.8849
+          "mult": 0.9818
         },
         null
       ],
@@ -226,20 +226,20 @@
       "enemies": [
         {
           "unit": "mob_fast",
-          "mult": 2.3006
+          "mult": 2.5526
         },
         {
           "unit": "mob_drops",
-          "mult": 2.3006
+          "mult": 2.5526
         },
         null,
         {
           "unit": "mob_marin",
-          "mult": 2.3006
+          "mult": 2.5526
         },
         {
           "unit": "mob_lunatic",
-          "mult": 2.3006
+          "mult": 2.5526
         }
       ],
       "rewards": {
@@ -258,20 +258,20 @@
       "enemies": [
         {
           "unit": "mob_tank",
-          "mult": 1.5303
+          "mult": 1.6979
         },
         {
           "unit": "mob_poporing",
-          "mult": 1.7281
+          "mult": 1.9174
         },
         {
           "unit": "mob_mandragora",
-          "mult": 1.6344
+          "mult": 1.8134
         },
         null,
         {
           "unit": "mob_lunatic",
-          "mult": 1.6344
+          "mult": 1.8134
         }
       ],
       "rewards": {
@@ -291,19 +291,19 @@
       "enemies": [
         {
           "unit": "mob_pupa",
-          "mult": 2.0716
+          "mult": 2.2985
         },
         {
           "unit": "mob_rocker",
-          "mult": 2.0716
+          "mult": 2.2985
         },
         {
           "unit": "mob_mandragora",
-          "mult": 2.0716
+          "mult": 2.2985
         },
         {
           "unit": "mob_marin",
-          "mult": 2.0716
+          "mult": 2.2985
         },
         null
       ],
@@ -333,20 +333,20 @@
       "enemies": [
         {
           "unit": "mob_poporing",
-          "mult": 1.8009
+          "mult": 1.9982
         },
         {
           "unit": "mob_tank",
-          "mult": 1.4678
+          "mult": 1.6286
         },
         {
           "unit": "mob_drops",
-          "mult": 1.8009
+          "mult": 1.9982
         },
         null,
         {
           "unit": "mob_mandragora",
-          "mult": 1.6864
+          "mult": 1.8711
         }
       ],
       "rewards": {
@@ -366,20 +366,20 @@
       "enemies": [
         {
           "unit": "mob_poporing",
-          "mult": 2.1549
+          "mult": 2.3909
         },
         {
           "unit": "mob_poporing",
-          "mult": 2.1549
+          "mult": 2.3909
         },
         {
           "unit": "mob_marin",
-          "mult": 2.1549
+          "mult": 2.3909
         },
         null,
         {
           "unit": "mob_poporing",
-          "mult": 2.1549
+          "mult": 2.3909
         }
       ],
       "rewards": {
@@ -398,20 +398,20 @@
       "enemies": [
         {
           "unit": "mob_rocker",
-          "mult": 1.6656
+          "mult": 1.848
         },
         {
           "unit": "mob_rocker",
-          "mult": 1.6656
+          "mult": 1.848
         },
         {
           "unit": "mob_lunatic",
-          "mult": 1.5719
+          "mult": 1.7441
         },
         null,
         {
           "unit": "mob_mandragora",
-          "mult": 1.6656
+          "mult": 1.848
         }
       ],
       "rewards": {
@@ -431,23 +431,23 @@
       "enemies": [
         {
           "unit": "mob_tank",
-          "mult": 1.3949
+          "mult": 1.5477
         },
         {
           "unit": "mob_rocker",
-          "mult": 1.3949
+          "mult": 1.5477
         },
         {
           "unit": "mob_marin",
-          "mult": 1.3949
+          "mult": 1.5477
         },
         {
           "unit": "mob_mandragora",
-          "mult": 1.3949
+          "mult": 1.5477
         },
         {
           "unit": "mob_drops",
-          "mult": 1.3949
+          "mult": 1.5477
         }
       ],
       "rewards": {
@@ -466,23 +466,23 @@
       "enemies": [
         {
           "unit": "mob_rocker",
-          "mult": 1.2908
+          "mult": 1.4322
         },
         {
           "unit": "mob_tank",
-          "mult": 1.2596
+          "mult": 1.3976
         },
         {
           "unit": "mob_poporing",
-          "mult": 1.2908
+          "mult": 1.4322
         },
         {
           "unit": "mob_mandragora",
-          "mult": 1.2908
+          "mult": 1.4322
         },
         {
           "unit": "mob_drops",
-          "mult": 1.2908
+          "mult": 1.4322
         }
       ],
       "rewards": {
@@ -502,23 +502,23 @@
       "enemies": [
         {
           "unit": "mob_lunatic",
-          "mult": 1.5511
+          "mult": 1.721
         },
         {
           "unit": "mob_lunatic",
-          "mult": 1.5511
+          "mult": 1.721
         },
         {
           "unit": "mob_marin",
-          "mult": 1.5511
+          "mult": 1.721
         },
         {
           "unit": "mob_mandragora",
-          "mult": 1.5511
+          "mult": 1.721
         },
         {
           "unit": "mob_lunatic",
-          "mult": 1.5511
+          "mult": 1.721
         }
       ],
       "rewards": {
@@ -548,23 +548,23 @@
       "enemies": [
         {
           "unit": "mob_poporing",
-          "mult": 1.3949
+          "mult": 1.5477
         },
         {
           "unit": "mob_tank",
-          "mult": 1.3949
+          "mult": 1.5477
         },
         {
           "unit": "mob_marin",
-          "mult": 1.3949
+          "mult": 1.5477
         },
         {
           "unit": "mob_mandragora",
-          "mult": 1.3949
+          "mult": 1.5477
         },
         {
           "unit": "mob_rocker",
-          "mult": 1.3949
+          "mult": 1.5477
         }
       ],
       "rewards": {
@@ -584,23 +584,23 @@
       "enemies": [
         {
           "unit": "mob_pupa",
-          "mult": 1.624
+          "mult": 1.8019
         },
         {
           "unit": "mob_drops",
-          "mult": 1.624
+          "mult": 1.8019
         },
         {
           "unit": "mob_marin",
-          "mult": 1.624
+          "mult": 1.8019
         },
         {
           "unit": "mob_poporing",
-          "mult": 1.624
+          "mult": 1.8019
         },
         {
           "unit": "mob_fast",
-          "mult": 1.624
+          "mult": 1.8019
         }
       ],
       "rewards": {
@@ -619,19 +619,19 @@
       "enemies": [
         {
           "unit": "mob_fast",
-          "mult": 1.0881
+          "mult": 1.2073
         },
         {
           "unit": "mob_mastering",
-          "mult": 1.0781
+          "mult": 1.1962
         },
         {
           "unit": "mob_drops",
-          "mult": 1.0881
+          "mult": 1.2073
         },
         {
           "unit": "mob_poporing",
-          "mult": 1.0881
+          "mult": 1.2073
         },
         null
       ],

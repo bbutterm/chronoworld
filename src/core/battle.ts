@@ -1732,7 +1732,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       if (u.alive) emit({ t, type: 'skip', unit: u.uid, reason: 'stun' });
       return true;
     }
-    const useUlt = !!u.ult && u.energy >= cfg.energy.max && skillReady(u, u.ult) && !manualOn(u);
+    const useUlt = !!u.ult && u.energy >= cfg.energy.max && skillReady(u, u.ult) && !manualOn(u) && ultUseful(u, u.ult);
     // Готовый навык дальнего действия можно применить и не дойдя до цели. Навык без целей (лечение при полном HP)
     // не готов: ход на него не тратится (T2-01).
     const active = useUlt || u.moving ? null : pickActive(u);
@@ -1751,6 +1751,10 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     }
     return true;
   };
+
+  /** Ульта-лечение раненых (onlyWounded) при целом отряде ждёт: энергия не сгорает впустую. */
+  const ultUseful = (u: Unit, s: SkillDef) =>
+    !(s.target.side === 'ally' && s.target.onlyWounded) || allies(u).some((x) => x.alive && x.hp < x.maxHp && (x !== u || s.target.includeSelf || s.target.pick === 'self'));
 
   /** Ульта на энергии (skills.ult): энергия в ноль, событие ult, заряд врага в целях — сбит. */
   const fireUlt = (u: Unit, ult: SkillDef) => {
@@ -1792,7 +1796,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     // Дальняя ульта — и на ходу; ближняя — когда дошёл до цели.
     const can = s.range === 'ranged' || skillReady(u, s);
     if (!can) return;
-    if (u.ult === s ? u.energy < cfg.energy.max : (u.readyAt[s.id] ?? 0) > t + 1e-9) return;
+    if (u.ult === s ? u.energy < cfg.energy.max || !ultUseful(u, s) : (u.readyAt[s.id] ?? 0) > t + 1e-9) return;
     const targets = u.ult === s ? [] : activeTargets(u, s);
     if (u.ult !== s && targets.length === 0) return;
     // Касание важнее своего каста: каст обрывается (без перезарядки), ульта — сейчас.
