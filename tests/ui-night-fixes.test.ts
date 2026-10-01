@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addItems, newGame, stageLabel, type SaveState } from '../src/core';
+import { newGame, stageLabel, type SaveState } from '../src/core';
 import { heroesBadgeCount, stageNo } from '../src/game/flow';
 import { copyCounter } from '../src/game/heroesView';
 import { sceneLabel } from '../src/game/storyView';
@@ -30,15 +30,14 @@ describe('ночной QA: интерфейс', () => {
 
   it('MT-06: значок «Герои» считает героев, а не карты-копии', () => {
     let save: SaveState = newGame(ctx, 1_700_000_000_000);
-    const weapons = Object.values(ctx.equipment.items).filter((d) => d.slot === 'weapon').map((d) => d.id);
-    save = addItems(save, weapons).save;
-    save = { ...save, resources: { ...save.resources, gold: 0 } };
+    save = { ...save, resources: { ...save.resources, gold: 1_000_000, heroExp: 1_000_000 } };
     const base = heroesBadgeCount(save, ctx);
-    expect(base).toBeGreaterThan(0);
+    // §2.4: повод — только у героев отряда, по одному на героя (здесь — «Улучшить»).
+    expect(base).toBe(save.squad.filter((id) => id !== null).length);
     const lead = save.heroes.find((h) => save.squad.includes(h.id))!;
     const copies = Array.from({ length: 6 }, (_, i) => ({ ...lead, id: `h${900 + i}`, rarity: 'blue' as const, level: 1, isNew: false, locked: false }));
     const more = { ...save, heroes: [...save.heroes, ...copies] };
-    // Шесть копий героя из отряда — тот же один герой в счёте (раньше каждая копия с «вещью получше» давала +1).
+    // Шесть копий героя из отряда — счёт тот же: копии вне отряда не в счёте, у героя отряда — один повод.
     expect(heroesBadgeCount(more, ctx)).toBe(base);
     // На карточке — «копии» одним словом: запасные карты героя.
     expect(copyCounter(more, lead.id, ctx).text).toMatch(/^Копий: 6/);

@@ -68,16 +68,20 @@ describe('«Забрать всё» заданий и достижений', () 
   });
 });
 
-describe('красные кружки плиток главной', () => {
-  it('башня (рогалик): кружок, пока добыча дня не взята или в забеге ждёт выбор', () => {
+describe('красные точки плиток (§2.4)', () => {
+  it('башня (рогалик): точка только когда в забеге ждёт выбор (§2.4 — «добыча дня не взята» не повод)', () => {
     const s = newGame(ctx, 0, D1);
     // Башня закрыта в новой игре.
     expect(towerBadgeCount(s, ctx, D1)).toBe(0);
     const open = { ...s, campaign: { ...s.campaign, cleared: [...new Set([...s.campaign.cleared, ctx.tower.unlockAfterStage!])] } };
-    expect(towerBadgeCount(open, ctx, D1)).toBe(1);
-    // Забег сегодня уже был — добыча взята.
+    // Открыта, забега нет, добыча дня не взята — постоянное состояние, точки нет (раньше — вечная «1» на «Приключениях»).
+    expect(towerBadgeCount(open, ctx, D1)).toBe(0);
     const done = { ...open, tower: { ...open.tower, lootDay: D1, lootFloor: 5 } };
-    expect(towerBadgeCount(done, ctx, D1)).toBe(0);
-    expect(towerBadgeCount(done, ctx, '2026-09-27')).toBe(1);
+    expect(towerBadgeCount(done, ctx, '2026-09-27')).toBe(0);
+    // В забеге ждёт выбор (карта или событие) — точка.
+    const choosing = { ...open, tower: { ...open.tower, run: { floor: 3, pending: { kind: 'blessing', options: [], source: 'start', rolls: 0 } } } } as unknown as typeof open;
+    expect(towerBadgeCount(choosing, ctx, D1)).toBe(1);
+    const walking = { ...open, tower: { ...open.tower, run: { floor: 3 } } } as unknown as typeof open;
+    expect(towerBadgeCount(walking, ctx, D1)).toBe(0);
   });
 });

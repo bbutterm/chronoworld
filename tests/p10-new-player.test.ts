@@ -63,9 +63,10 @@ describe('P10 T1-08: «Надеть лучшее»', () => {
     expect(gearUpgrades(save, save.heroes[1].id, ctx).map((u) => u.itemId)).toEqual(['bow']);
   });
 
-  it('значок «Герои» считает героя один раз; подсказка «Наденьте трофеи» на главной', () => {
+  it('«вещь получше» не зажигает точку «Герои» (§2.4 — это метка карточки); подсказка «Наденьте трофеи» на главной', () => {
     const { save } = addItems(fresh(), ['cotton_shirt']);
-    expect(heroesBadgeCount(save, ctx)).toBe(save.heroes.length);
+    const broke = { ...save, resources: { ...save.resources, heroExp: 0, gold: 0 } };
+    expect(heroesBadgeCount(broke, ctx)).toBe(0);
     const none = () => false;
     const base = { cleared: 3, chestHasIncome: false, levelUpReady: false, towerUnlocked: false };
     expect(pickHomeHint({ ...base, gearUpgrade: true }, none)).toBe('equip_gear');

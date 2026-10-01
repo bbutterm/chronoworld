@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newGame, recommendedPower as coreRecommendedPower, squadPower, type SaveState } from '../src/core';
-import { CAMP_EXP, campLevel, campLevelCost, heroesNavBadge, leadHero, POWER_VERDICT, powerCheck, powerTone, recommendedPower } from '../src/game/flow';
+import { CAMP_EXP, campLevel, campLevelCost, heroAlerts, heroesNavBadge, leadHero, POWER_VERDICT, powerCheck, powerTone, recommendedPower } from '../src/game/flow';
 import { computeView } from '../src/game/viewLayout';
 import { loadFullContext } from '../scripts/lib/content-node';
 
@@ -68,16 +68,32 @@ describe('Плашка игрока: уровень лагеря из прогр
   });
 });
 
-describe('Значок вкладки «Герои»', () => {
-  it('число (вознести / вещь получше) важнее зелёной стрелки «Улучшить»', () => {
+describe('Значок вкладки «Герои» (§2.4: всегда точка, только отряд, «уже видел»)', () => {
+  it('«Улучшить» и «вознести» у отряда — точка; увиденный повод гаснет до смены уровня', () => {
     const save = fresh();
+    const none = () => false;
     const poor: SaveState = { ...save, resources: { ...save.resources, heroExp: 0, gold: 0 } };
-    expect(heroesNavBadge(poor, ctx)).toBeNull();
+    expect(heroesNavBadge(poor, ctx, none)).toBeNull();
     const rich: SaveState = { ...save, resources: { ...save.resources, heroExp: 100000, gold: 100000 } };
-    expect(heroesNavBadge(rich, ctx)).toEqual({ kind: 'levelUp' });
+    // Зелёной стрелки больше нет: «Улучшить» — та же точка (kind 'count' screen.ts рисует точкой, без числа).
+    expect(heroesNavBadge(rich, ctx, none)?.kind).toBe('count');
+    // Игрок открыл «Героев» и видел стрелки на карточках — точка гаснет.
+    const keys = new Set(heroAlerts(rich, ctx).map((a) => a.key));
+    expect(heroesNavBadge(rich, ctx, (k) => keys.has(k))).toBeNull();
+    // Поднял уровень одному — у него новый повод (другой уровень), точка снова горит.
+    const lead = rich.squad.find((id) => id !== null)!;
+    const leveled: SaveState = { ...rich, heroes: rich.heroes.map((h) => (h.id === lead ? { ...h, level: h.level + 1 } : h)) };
+    expect(heroesNavBadge(leveled, ctx, (k) => keys.has(k))?.kind).toBe('count');
     // Две зелёные копии Алана — можно вознести (герои v2: копиями, осколков больше нет).
     const ascend: SaveState = { ...rich, heroes: [...rich.heroes, { id: 'h90', templateId: 'alan', rarity: 'green', level: 1 }, { id: 'h91', templateId: 'alan', rarity: 'green', level: 1 }] };
-    expect(heroesNavBadge(ascend, ctx)?.kind).toBe('count');
+    expect(heroAlerts(ascend, ctx).some((a) => a.kind === 'ascend')).toBe(true);
+    expect(heroesNavBadge(ascend, ctx, none)?.kind).toBe('count');
+  });
+
+  it('герой вне отряда точку не зажигает (раньше «Герои 56/61» за всю коллекцию)', () => {
+    const save = fresh();
+    const rich: SaveState = { ...save, squad: save.squad.map(() => null), resources: { ...save.resources, heroExp: 100000, gold: 100000 } };
+    expect(heroesNavBadge(rich, ctx, () => false)).toBeNull();
   });
 });
 

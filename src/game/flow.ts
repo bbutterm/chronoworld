@@ -24,7 +24,6 @@ import {
   squadPower,
   finishedExpeditions,
   pendingExpeditionEvents,
-  idleExpeditions,
   type ExpeditionContext,
   type ExpectedLoot,
   towerStatus,
@@ -62,6 +61,7 @@ import {
   type TowerEvent,
 } from '../core';
 import { genderedSpriteId } from '../pipeline/sprites';
+import { badgeSeen } from './badgeSeen';
 import { hasSprite } from './spriteRegistry';
 import { plural } from './skillFacts';
 import { C } from './theme';
@@ -136,40 +136,67 @@ export function ascendReady(save: SaveState, ctx: GameContext): HeroState[] {
 }
 
 /**
- * P10 (T1-08). Значок вкладки «Герои»: сколько героев ждут внимания — можно вознести или могут надеть вещь получше
- * из инвентаря (каждый герой считается один раз). «Улучшить» не считается — оно доступно почти всегда.
+ * Повод для красной точки «Герои» (§2.4 docs/design/ui-polish-research.md): только «можно сделать выгодное сейчас» и
+ * только про отряд — вознести, выбрать ветку (бесплатно), поднять уровень за опыт из запаса; плюс «Контракт героя»
+ * (герой на выбор — забрать). «Вещь получше» и «новая история» точку вкладки не зажигают — это метки на карточке.
+ * key — для «уже видел» (badgeSeen.ts): ту же строку ставит карточка героя (heroCard.ts), когда рисует метку.
  */
-export function heroesBadgeCount(save: SaveState, ctx: GearContext & GameContext): number {
-  // MT-06 / NB-11: считаем героев (как плитки в «Героях» — копии одной плиткой), а не карты: копия-корм с «вещью
-  // получше» не повод для значка. Герой в счёте, если его можно вознести или ему нужна ветка (любая его карта), или
-  // его основной карте (в отряде, иначе самой сильной) есть что надеть получше.
-  const gear = new Set(heroesWithGearUpgrades(save, ctx));
+export interface HeroAlert {
+  kind: 'pick' | 'ascend' | 'branch' | 'level';
+  heroId?: string;
+  key: string;
+}
+
+/** Ключ «уже видел» повода героя: смена уровня или редкости — новый повод. */
+export function heroAlertKey(kind: 'ascend' | 'level', hero: Pick<HeroState, 'id' | 'level' | 'rarity'>): string {
+  return kind === 'ascend' ? `asc:${hero.id}:${hero.rarity}` : `lvl:${hero.id}:${hero.level}`;
+}
+
+/** Все поводы «Героев» сейчас (без учёта «уже видел»): по одному на героя отряда — самый важный. */
+export function heroAlerts(save: SaveState, ctx: GameContext): HeroAlert[] {
+  const out: HeroAlert[] = pendingPicks(save).map((p, i) => ({ kind: 'pick' as const, key: `pick:${i}:${p.rarity}` }));
+  const squad = save.heroes.filter((h) => save.squad.includes(h.id) && ctx.content.heroes[h.templateId]);
+  if (!squad.length) return out;
   const ready = new Set(ascendReady(save, ctx).map((h) => h.id));
-  const byTemplate = new Map<string, HeroState[]>();
-  for (const h of save.heroes) {
-    if (!ctx.content.heroes[h.templateId]) continue;
-    const list = byTemplate.get(h.templateId);
-    if (list) list.push(h);
-    else byTemplate.set(h.templateId, [h]);
+  for (const h of squad) {
+    if (ready.has(h.id)) out.push({ kind: 'ascend', heroId: h.id, key: heroAlertKey('ascend', h) });
+    else if (needsBranch(h, ctx)) out.push({ kind: 'branch', heroId: h.id, key: `branch:${h.id}` });
+    else if (levelUpInfo(save, h.id, ctx).canLevel) out.push({ kind: 'level', heroId: h.id, key: heroAlertKey('level', h) });
   }
-  let n = 0;
-  for (const list of byTemplate.values()) {
-    const main = list.find((h) => save.squad.includes(h.id)) ?? [...list].sort((a, b) => heroPower(b, ctx, save) - heroPower(a, ctx, save))[0];
-    if (gear.has(main.id) || list.some((h) => ready.has(h.id) || needsBranch(h, ctx))) n++;
-  }
-  return n + pendingPicks(save).length;
+  return out;
 }
 
 /**
- * Значок вкладки «Герои»: красный кружок с числом (heroesBadgeCount — вознести, вещь получше) важнее; иначе, если
- * кто-то из отряда может «Улучшить» за опыт из запаса, — зелёная стрелка «можно поднять уровень» (крючок AFK).
+ * Сколько поводов «Героев» игрок ещё не видел. Контракт и ветка гаснут только делом (забрать / выбрать); вознести и
+ * «Улучшить» — ещё и когда игрок посмотрел на карточку с меткой (seen), пока не сменятся уровень или редкость.
+ */
+export function heroesBadgeCount(save: SaveState, ctx: GearContext & GameContext, seen: (key: string) => boolean = () => false): number {
+  return heroAlerts(save, ctx).filter((a) => a.kind === 'pick' || a.kind === 'branch' || !seen(a.key)).length;
+}
+
+/**
+ * Значок вкладки «Герои» — всегда точка (вкладка числа не показывает, §2.4). Тип { kind: 'count' } оставлен для
+ * screen.ts (рисует dot); зелёная стрелка «levelUp» больше не возвращается — «Улучшить» тоже точка, одна на вкладку.
  */
 export type HeroesNavBadge = { kind: 'count'; count: number } | { kind: 'levelUp' } | null;
 
-export function heroesNavBadge(save: SaveState, ctx: GearContext & GameContext): HeroesNavBadge {
-  const count = heroesBadgeCount(save, ctx);
-  if (count > 0) return { kind: 'count', count };
-  return levelUpReady(save, ctx).length > 0 ? { kind: 'levelUp' } : null;
+export function heroesNavBadge(save: SaveState, ctx: GearContext & GameContext, seen: (key: string) => boolean = badgeSeen): HeroesNavBadge {
+  const count = heroesBadgeCount(save, ctx, seen);
+  return count > 0 ? { kind: 'count', count } : null;
+}
+
+/** Значок-повод на карточке героя (heroCard.ts): один, по приоритету (§2.4 п. 5). */
+export type HeroCardMark = 'ascend' | 'branch' | 'level' | 'gear' | 'story' | 'new';
+
+/** Какой единственный значок-повод показать: вознести > ветка > улучшить > вещь получше > новая история > новый. */
+export function heroCardMark(o: { canAscend?: boolean; needsBranch?: boolean; canLevel?: boolean; gearUpgrade?: boolean; storyNew?: boolean; isNew?: boolean }): HeroCardMark | null {
+  if (o.canAscend) return 'ascend';
+  if (o.needsBranch) return 'branch';
+  if (o.canLevel) return 'level';
+  if (o.gearUpgrade) return 'gear';
+  if (o.storyNew) return 'story';
+  if (o.isNew) return 'new';
+  return null;
 }
 
 /** Этап, на который стоит вести игрока: первый не пройденный открытый, иначе последний. */
@@ -684,11 +711,11 @@ export function expectedLootText(e: ExpectedLoot): { base: string; finds: string
 }
 
 /**
- * Красный кружок плитки «Экспедиции» (главная): вернувшиеся (забрать) + открытые свободные локации, куда хватает мощи
- * отправить отряд (простаивают). Как в AFK: кружок, пока экспедиции не «работают» целиком.
+ * Точка плитки «Экспедиции»: вернувшиеся (забрать добычу) и события в пути, ждущие решения. Свободные локации — не
+ * повод (§2.4 п. 6: «можно отправить» — постоянное состояние, а не событие; раньше давало вечные «3» на «Приключениях»).
  */
-export function expeditionsBadgeCount(save: SaveState, now: number, ctx: ExpeditionContext): number {
-  return finishedExpeditions(save, now) + idleExpeditions(save, ctx) + pendingExpeditionEvents(save, now);
+export function expeditionsBadgeCount(save: SaveState, now: number, _ctx?: ExpeditionContext): number {
+  return finishedExpeditions(save, now) + pendingExpeditionEvents(save, now);
 }
 
 // ---------- K10. Достижения ----------
@@ -710,13 +737,11 @@ export function sortAchievements(views: readonly AchievementView[]): Achievement
 // ---------- K4. Башня ----------
 
 /**
- * Красный кружок плитки «Башня» (забег-рогалик, docs/design/tower-roguelite.md): башня открыта и либо в забеге ждёт выбор
- * (карта или событие), либо забега нет, а добыча дня ещё не взята (lootDay не сегодня). day — день игрока (по умолчанию —
- * день суточных счётчиков сохранения). 1 или 0.
+ * Точка плитки «Башня» (забег-рогалик, docs/design/tower-roguelite.md): только когда в начатом забеге ждёт выбор (карта
+ * или событие). «Добыча дня не взята» / «этаж по силам» — постоянное состояние, не повод (§2.4 п. 6). day оставлен для
+ * совместимости вызовов. 1 или 0.
  */
-export function towerBadgeCount(save: SaveState, ctx: TowerContext & FeatureContext & Partial<Pick<EquipmentContext, 'equipment'>>, day: string = save.daily.day): number {
+export function towerBadgeCount(save: SaveState, ctx: TowerContext & FeatureContext & Partial<Pick<EquipmentContext, 'equipment'>>, _day: string = save.daily.day): number {
   if (!towerStatus(save, ctx).unlocked) return 0;
-  const run = save.tower.run;
-  if (run) return run.pending ? 1 : 0;
-  return save.tower.lootDay === day ? 0 : 1;
+  return save.tower.run?.pending ? 1 : 0;
 }
