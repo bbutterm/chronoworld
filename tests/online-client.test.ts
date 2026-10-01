@@ -89,11 +89,14 @@ describe('онлайн-клиент: разбор ответов', () => {
 
   it('друзья, доска, облачное сохранение — мусор отбрасывается', () => {
     const f = parseFriends({ ok: true, friends: [{ id: 7, name: 'Артём', chapter: 2, stage: 5, towerBest: 12, giftSent: true, giftWaiting: false }, { id: 'x' }, null] });
-    expect(f).toEqual([{ id: 7, name: 'Артём', chapter: 2, stage: 5, towerBest: 12, giftSent: true, giftWaiting: false }]);
+    // Старый сервер не присылает силу — 0 (строка друга тогда без «Сила»).
+    expect(f).toEqual([{ id: 7, name: 'Артём', chapter: 2, stage: 5, power: 0, towerBest: 12, giftSent: true, giftWaiting: false }]);
     expect(parseFriends({ ok: true })).toBeNull();
     const b = parseBoard({ ok: true, week: '2026-W40', top: [{ place: 1, name: 'А', value: 50, me: false }, { place: 2, name: 'Б', value: 40, me: true }], mine: { place: 2, value: 40 } });
     expect(b?.top[1].me).toBe(true);
-    expect(b?.mine).toEqual({ place: 2, value: 40 });
+    // Старый сервер: без главы и силы в строках — нули.
+    expect(b?.mine).toEqual({ place: 2, value: 40, chapter: 0, stage: 0, power: 0 });
+    expect(b?.top[0]).toEqual({ place: 1, name: 'А', value: 50, me: false, chapter: 0, stage: 0, power: 0 });
     expect(parseBoard({ ok: true, top: [], mine: null })?.mine).toBeNull();
     expect(parseSaveGet({ ok: true, save: null })).toBeNull();
     expect(parseSaveGet({ ok: true, save: { data: { version: 7 }, save_version: 7, chapter: 2, updated_at: '2026-10-01T10:00:00Z' } })?.chapter).toBe(2);

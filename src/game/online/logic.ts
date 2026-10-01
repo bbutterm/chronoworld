@@ -28,6 +28,8 @@ export interface FriendInfo {
   name: string;
   chapter: number;
   stage: number;
+  /** Сила отряда (как «Мощь отряда» в игре); 0 — старый сервер или друг ещё не присылал. */
+  power: number;
   towerBest: number;
   /** Мне сегодня уже отправлен колокольчик этому другу. */
   giftSent: boolean;
@@ -35,20 +37,42 @@ export interface FriendInfo {
   giftWaiting: boolean;
 }
 
-export type BoardKind = 'tower' | 'mvp';
+/** Доски: сила отряда и прогресс — постоянные (cw_player), Башня и MVP — недельные (cw_score). */
+export type BoardKind = 'power' | 'progress' | 'tower' | 'mvp';
 export type BoardScope = 'all' | 'friends';
+
+/** Порядок переключателя досок на экране «Рекорды». */
+export const BOARD_KINDS: { id: BoardKind; label: string; hint: string }[] = [
+  { id: 'power', label: 'Сила отряда', hint: 'Сила отряда — как «Мощь отряда» на экране героев' },
+  { id: 'progress', label: 'Прогресс', hint: 'Дальше всех по кампании: глава, затем этап' },
+  { id: 'tower', label: 'Башня', hint: 'Лучший этаж Башни за неделю' },
+  { id: 'mvp', label: 'MVP', hint: 'Лучший зачёт охоты на MVP за неделю' },
+];
 
 export interface BoardRow {
   place: number;
   name: string;
   value: number;
   me: boolean;
+  /** Глава, этап, сила игрока (0 — старый сервер не прислал). */
+  chapter: number;
+  stage: number;
+  power: number;
+}
+
+export interface BoardMine {
+  place: number;
+  value: number;
+  chapter: number;
+  stage: number;
+  power: number;
 }
 
 export interface BoardResp {
+  /** Неделя «2026-W40» у недельных досок, '' — у постоянных. */
   week: string;
   top: BoardRow[];
-  mine: { place: number; value: number } | null;
+  mine: BoardMine | null;
 }
 
 export interface CloudSaveData {
@@ -102,6 +126,7 @@ export function parseFriends(v: unknown): FriendInfo[] | null {
     name: str(f.name) || 'Друг',
     chapter: int(f.chapter),
     stage: int(f.stage),
+    power: int(f.power),
     towerBest: int(f.towerBest),
     giftSent: f.giftSent === true,
     giftWaiting: f.giftWaiting === true,
@@ -111,12 +136,78 @@ export function parseFriends(v: unknown): FriendInfo[] | null {
 export function parseBoard(v: unknown): BoardResp | null {
   const o = okObj(v);
   if (!o || !Array.isArray(o.top)) return null;
-  const mine = isObj(o.mine) && int(o.mine.place) > 0 ? { place: int(o.mine.place), value: int(o.mine.value) } : null;
+  const m = isObj(o.mine) && int(o.mine.place) > 0 ? o.mine : null;
+  const mine = m ? { place: int(m.place), value: int(m.value), chapter: int(m.chapter), stage: int(m.stage), power: int(m.power) } : null;
   return {
     week: str(o.week, 16),
-    top: o.top.filter(isObj).map((r, i) => ({ place: int(r.place) || i + 1, name: str(r.name) || '…', value: int(r.value), me: r.me === true })),
+    top: o.top.filter(isObj).map((r, i) => ({
+      place: int(r.place) || i + 1,
+      name: str(r.name) || '…',
+      value: int(r.value),
+      me: r.me === true,
+      chapter: int(r.chapter),
+      stage: int(r.stage),
+      power: int(r.power),
+    })),
     mine,
   };
+}
+
+// ---------- тексты друзей и досок ----------
+
+/** «Глава 4, этап 12» / «Только начинает» (глава 0 — ещё не присылал прогресс). */
+export function whereText(chapter: number, stage: number): string {
+  return chapter > 0 ? `Глава ${chapter}, этап ${Math.max(1, stage)}` : 'Только начинает';
+}
+
+/** Сила и Башня друга: «Сила 12 345 · Башня: 37» (силы нет — старый сервер — только Башня). */
+export function friendStats(f: Pick<FriendInfo, 'power' | 'towerBest'>): string {
+  return [...(f.power > 0 ? [`Сила ${groupDigits(f.power)}`] : []), `Башня: ${f.towerBest}`].join(' · ');
+}
+
+/** Строка друга целиком: «Глава 4, этап 12 · Сила 12 345 · Башня: 37» (на экране — в две строки). */
+export function friendLine(f: Pick<FriendInfo, 'chapter' | 'stage' | 'power' | 'towerBest'>): string {
+  return `${whereText(f.chapter, f.stage)} · ${friendStats(f)}`;
+}
+
+/** Значение в строке доски: сила числом, прогресс — «гл. 4-12», Башня — «этаж N», MVP — число. */
+export function boardValueText(kind: BoardKind, r: Pick<BoardRow, 'value' | 'chapter' | 'stage'>): string {
+  switch (kind) {
+    case 'power':
+      return groupDigits(r.value);
+    case 'progress': {
+      // Сервер: value = глава·100 + этап; глава/этап в строке точнее (если пришли).
+      const ch = r.chapter || Math.floor(r.value / 100);
+      const st = r.chapter ? r.stage : r.value % 100;
+      return ch > 0 ? `гл. ${ch}-${Math.max(1, st)}` : '—';
+    }
+    case 'tower':
+      return `этаж ${r.value}`;
+    default:
+      return groupDigits(r.value);
+  }
+}
+
+/** Мелкая строка под именем: глава и сила («Глава 4, этап 12 · Сила 12 345»); то, что уже в значении, — не повторяем. */
+export function boardSubLine(kind: BoardKind, r: Pick<BoardRow, 'chapter' | 'stage' | 'power'>): string {
+  const parts: string[] = [];
+  if (kind !== 'progress' && r.chapter > 0) parts.push(whereText(r.chapter, r.stage));
+  if (kind !== 'power' && r.power > 0) parts.push(`Сила ${groupDigits(r.power)}`);
+  return parts.join(' · ');
+}
+
+/** «Ваше место: 7 · 12 345» или подсказка, как попасть на доску. */
+export function myPlaceText(kind: BoardKind, mine: BoardMine | null): string {
+  if (mine) return `Ваше место: ${mine.place} · ${boardValueText(kind, mine)}`;
+  switch (kind) {
+    case 'power':
+    case 'progress':
+      return 'Вас пока нет на доске — пройдите этап, и вы появитесь';
+    case 'tower':
+      return 'Вас пока нет в рекордах — поднимитесь в Башне';
+    default:
+      return 'Вас пока нет в рекордах — сразитесь с MVP';
+  }
 }
 
 /** `{ ok, claimed }` (gift_claim, ref_claim) → claimed; ошибка — null. */
@@ -284,6 +375,21 @@ export function cloudSaveDelay(now: number, lastPut: number, gap = CLOUD_SAVE_GA
   if (!lastPut) return 0;
   return Math.max(0, lastPut + gap - now);
 }
+
+// ---------- sync после улучшений: не чаще раза в минуту ----------
+
+/** sync не по победе (сила выросла, сроки уведомлений) — не чаще раза в столько. */
+export const SYNC_GAP_MS = 60_000;
+
+/**
+ * Сколько ждать до sync не по победе: не раньше debounce и не раньше минуты после прошлого sync (lastSync 0 — не было).
+ */
+export function syncDelay(now: number, lastSync: number, debounce: number, gap = SYNC_GAP_MS): number {
+  return Math.max(debounce, lastSync ? lastSync + gap - now : 0);
+}
+
+/** Сила отряда для сервера — то же число, что «Мощь отряда» в игре (formatNumber округляет так же). */
+export const syncPower = (power: number): number => Math.max(0, Math.round(power));
 
 // ---------- уведомления в боте ----------
 

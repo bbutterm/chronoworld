@@ -3,6 +3,23 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { isoWeek, refFromStartParam, verifyInitData } from './tg.ts';
 import { clientNotifyFields } from '../_shared/bot.ts';
+import {
+  BOARD_TOP,
+  betterFilter,
+  boardKind,
+  boardMine,
+  boardRows,
+  boardScope,
+  FRIENDS_MAX,
+  isWeekly,
+  PLAYER_COLS,
+  playerEntry,
+  rankBoard,
+  rankTop,
+  type Entry,
+  type PlayerRow,
+  type Ranked,
+} from './boards.ts';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -142,22 +159,60 @@ Deno.serve(async (req) => {
       }
 
       case 'board': {
-        const board = body.board === 'mvp' ? 'mvp' : 'tower';
+        // Доски (boards.ts): недельные tower/mvp — cw_score; постоянные power/progress — cw_player. Топ-50 + моё место;
+        // в строках — имя, значение, глава, этап, сила (старый клиент читает place/name/value/me).
+        const board = boardKind(body.board);
+        const scope = boardScope(body.scope);
         const week = isoWeek(new Date());
-        let q = db.from('cw_score').select('tg_id, value').eq('week', week).eq('board', board).order('value', { ascending: false }).limit(50);
-        if (body.scope === 'friends') q = q.in('tg_id', [me, ...(await friendIds(me))]);
-        const { data: rows } = await q;
-        const ids = (rows ?? []).map((r) => Number(r.tg_id));
-        const { data: names } = ids.length ? await db.from('cw_player').select('tg_id, first_name').in('tg_id', ids) : { data: [] };
-        const nameOf = new Map((names ?? []).map((n) => [Number(n.tg_id), n.first_name]));
-        const top = (rows ?? []).map((r, i) => ({ place: i + 1, name: nameOf.get(Number(r.tg_id)) ?? '…', value: Number(r.value), me: Number(r.tg_id) === me }));
-        let mine: { place: number; value: number } | null = null;
-        const { data: my } = await db.from('cw_score').select('value').match({ week, board, tg_id: me }).maybeSingle();
-        if (my) {
-          const { count } = await db.from('cw_score').select('*', { count: 'exact', head: true }).eq('week', week).eq('board', board).gt('value', my.value);
-          mine = { place: (count ?? 0) + 1, value: Number(my.value) };
+        const ids = scope === 'friends' ? [me, ...(await friendIds(me)).slice(0, FRIENDS_MAX)] : null;
+        let ranked: { top: Ranked[]; mine: Ranked | null };
+        let players: PlayerRow[] = [];
+        if (isWeekly(board)) {
+          const scores = () => db.from('cw_score').select('tg_id, value').eq('week', week).eq('board', board);
+          const toEntry = (r: { tg_id: unknown; value: unknown }): Entry => ({ id: Number(r.tg_id), value: Number(r.value) });
+          if (ids) {
+            const { data } = await scores().in('tg_id', ids);
+            ranked = rankBoard((data ?? []).map(toEntry), me);
+          } else {
+            const { data } = await scores().order('value', { ascending: false }).order('tg_id', { ascending: true }).limit(BOARD_TOP);
+            const { data: my } = await db.from('cw_score').select('tg_id, value').match({ week, board, tg_id: me }).maybeSingle();
+            let better: number | null = null;
+            if (my) {
+              const { count } = await db.from('cw_score').select('*', { count: 'exact', head: true }).eq('week', week).eq('board', board).gt('value', my.value);
+              better = count ?? 0;
+            }
+            ranked = rankTop((data ?? []).map(toEntry), me, my ? toEntry(my) : null, better);
+          }
+          const need = [...new Set([me, ...ranked.top.map((r) => r.id)])];
+          const { data: ps } = await db.from('cw_player').select(PLAYER_COLS).in('tg_id', need);
+          players = (ps ?? []) as PlayerRow[];
+        } else {
+          const kind = board as 'power' | 'progress';
+          const entries = (rows: PlayerRow[]) => rows.map((p) => playerEntry(kind, p)).filter((e): e is Entry => e !== null);
+          if (ids) {
+            const { data } = await db.from('cw_player').select(PLAYER_COLS).in('tg_id', ids);
+            players = (data ?? []) as PlayerRow[];
+            ranked = rankBoard(entries(players), me);
+          } else {
+            let q = db.from('cw_player').select(PLAYER_COLS);
+            q = kind === 'power'
+              ? q.gt('power', 0).order('power', { ascending: false })
+              : q.gt('chapter', 0).order('chapter', { ascending: false }).order('stage', { ascending: false }).order('power', { ascending: false });
+            const { data } = await q.order('tg_id', { ascending: true }).limit(BOARD_TOP);
+            const { data: myRow } = await db.from('cw_player').select(PLAYER_COLS).eq('tg_id', me).maybeSingle();
+            const myEntry = myRow ? playerEntry(kind, myRow as PlayerRow) : null;
+            let better: number | null = null;
+            if (myEntry) {
+              const { count } = await db.from('cw_player').select('*', { count: 'exact', head: true }).or(betterFilter(kind, myRow as PlayerRow));
+              better = count ?? 0;
+            }
+            players = [...((data ?? []) as PlayerRow[]), ...(myRow ? [myRow as PlayerRow] : [])];
+            ranked = rankTop(entries((data ?? []) as PlayerRow[]), me, myEntry, better);
+          }
         }
-        return json({ ok: true, week, top, mine });
+        const top = boardRows(ranked.top, players, me);
+        const mine = boardMine(ranked.mine, players.find((p) => Number(p.tg_id) === me));
+        return json({ ok: true, board, scope, week: isWeekly(board) ? week : '', top, mine });
       }
 
       case 'friends': {
@@ -165,14 +220,14 @@ Deno.serve(async (req) => {
         if (!ids.length) return json({ ok: true, friends: [] });
         const day = today();
         const [{ data: ps }, { data: sent }, { data: got }] = await Promise.all([
-          db.from('cw_player').select('tg_id, first_name, chapter, stage, tower_best, last_seen').in('tg_id', ids),
+          db.from('cw_player').select(`${PLAYER_COLS}, last_seen`).in('tg_id', ids),
           db.from('cw_gift').select('to_id').eq('day', day).eq('from_id', me),
           db.from('cw_gift').select('from_id').eq('to_id', me).eq('claimed', false),
         ]);
         const sentSet = new Set((sent ?? []).map((g) => Number(g.to_id)));
         const gotSet = new Set((got ?? []).map((g) => Number(g.from_id)));
         const friends = (ps ?? []).map((p) => ({
-          id: Number(p.tg_id), name: p.first_name, chapter: p.chapter, stage: p.stage, towerBest: p.tower_best, lastSeen: p.last_seen,
+          id: Number(p.tg_id), name: p.first_name, chapter: p.chapter, stage: p.stage, power: Number(p.power) || 0, towerBest: p.tower_best, lastSeen: p.last_seen,
           giftSent: sentSet.has(Number(p.tg_id)), giftWaiting: gotSet.has(Number(p.tg_id)),
         }));
         return json({ ok: true, friends });
