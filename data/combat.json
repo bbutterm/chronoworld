@@ -299,6 +299,6 @@
     "minCooldown": 10
   },
   "charge": {
-    "stunTurns": 3
+    "stunTurns": 6
   }
 }
