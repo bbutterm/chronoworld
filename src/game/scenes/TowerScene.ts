@@ -51,8 +51,8 @@ export interface TowerSceneData {
   upgrades?: boolean;
 }
 
-/** Подсказка первого входа: верхний край (лобби — над описанием забега). */
-const TIP_Y = CONTENT_TOP + 20;
+/** Подсказка первого входа: верхний край (лобби — между строкой добычи и кнопками, ничего не закрывает). */
+const TIP_Y = 1320;
 const RARITY_COLOR: Record<Blessing['rarity'], number> = { common: 0xc8b89a, rare: 0x4aa8ff, legendary: 0xffb830 };
 const RARITY_TEXT: Record<Blessing['rarity'], string> = { common: '#e0d4bc', rare: '#8ec8ff', legendary: '#ffcf60' };
 const RARITY_NAME: Record<Blessing['rarity'], string> = { common: 'обычная', rare: 'редкая', legendary: 'легендарная' };

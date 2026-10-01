@@ -16,7 +16,7 @@ import { text } from './ui';
  * сюжета (Гаррет, Грета, Бруно) в плашке с портретом, 2–3 строки.
  *
  * - Показывается один раз: запоминается в том же списке, что подсказки обучения (hints.ts, localStorage
- *   `chronoworld.hints`; «Сбросить подсказки» покажет снова). Отметка — сразу при показе.
+ *   `chronoworld.hints`; «Сбросить подсказки» покажет снова). Отметка — когда плашка нарисована.
  * - Не мешает: плашка не ловит касания (кнопки под ней нажимаются), первое касание где угодно или TIP_MS её убирают.
  * - Ждёт, пока закроются сюжетный диалог и баннер «Новая функция!» (как hintPointer).
  * Слой — `firstTip` (e2e его не считает помехой: касание проходит сквозь).
@@ -77,7 +77,6 @@ function speakerOf(key: TipDef['speaker']) {
  */
 export function firstTip(scene: Phaser.Scene, id: TipId, y: number, depth = DEPTH): Phaser.GameObjects.Container | null {
   if (tipDone(id)) return null;
-  markHint(id as HintId);
   const def = TIPS[id];
   const layer = scene.add.container(0, 0).setDepth(depth).setName(TIP_NAME).setData('tipId', id);
   const build = () => {
@@ -86,6 +85,12 @@ export function firstTip(scene: Phaser.Scene, id: TipId, y: number, depth = DEPT
       scene.events.once(Phaser.Scenes.Events.POST_UPDATE, build);
       return;
     }
+    // Отметка — когда плашка правда нарисована (экран мог смениться раньше — тогда покажется в следующий раз).
+    if (tipDone(id)) {
+      layer.destroy();
+      return;
+    }
+    markHint(id as HintId);
     draw(scene, layer, def, y);
   };
   scene.events.once(Phaser.Scenes.Events.POST_UPDATE, build);
@@ -100,7 +105,7 @@ function draw(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, def: Tip
   const name = text(scene, tx, top + 36, who.name, FS.small, C.gold, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 }).setOrigin(0, 0.5);
   const body = text(scene, tx, top + 62, def.text, FS.body, C.text, { align: 'left', wordWrap: { width: tw, useAdvancedWrap: true }, lineSpacing: 4 }).setOrigin(0, 0);
   const h = Math.max(PORTRAIT + 40, 62 + body.height + 28);
-  const bg = scene.add.rectangle(GAME_W / 2, top + h / 2, W, h, 0x120c07, 0.94).setStrokeStyle(5, 0xc9a45c, 1);
+  const bg = scene.add.rectangle(GAME_W / 2, top + h / 2, W, h, 0x120c07, 0.97).setStrokeStyle(5, 0xc9a45c, 1);
   const face = framedPortrait(scene, left + 20 + PORTRAIT / 2, top + h / 2, who.sprite, PORTRAIT, who.gender);
   layer.add([bg, face, name, body]);
   layer.setData('tipBox', { x: left, y: top, w: W, h });
