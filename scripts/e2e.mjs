@@ -643,9 +643,11 @@ async function main() {
     // 6а. Башня (BUG-182): вернулись из боя этажа (данные сцены { fight }) — касание второго пути развилки переключает
     // выбор и превью, итог боя («Этаж 1 пройден!») не повторяется. Забег — в сохранении (этаж 1, развилка «бой / событие»).
     await page.evaluate(
-      ([cleared]) => {
+      ([cleared, features]) => {
         const s = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
         s.campaign.cleared = [...new Set([...s.campaign.cleared, ...cleared])];
+        // Баннеры «Новая функция!» за этапы, пройденные «вручную», — уже увидены (не закрывают следующие шаги).
+        s.seenUnlocks = [...new Set([...(s.seenUnlocks ?? []), ...features])];
         s.tower.run = {
           seed: 1,
           tier: 1,
@@ -666,12 +668,22 @@ async function main() {
         localStorage.setItem('chronoworld.save.v1', JSON.stringify(s));
         localStorage.setItem('chronoworld.hints', JSON.stringify([...JSON.parse(localStorage.getItem('chronoworld.hints') ?? '[]'), 'tip_tower']));
       },
-      [ch1Upto(unlockOf('tower').stage)],
+      [ch1Upto(unlockOf('tower').stage), UNLOCKS.filter((f) => ch1Upto(unlockOf('tower').stage).includes(f.stage)).map((f) => f.id)],
     );
     await page.reload();
     await page.waitForFunction(() => window.__game?.scene?.getScenes(true).length > 0, null, { timeout: 30000 });
     await sleep(1500);
-    await page.evaluate(() => window.__game.scene.getScenes(true)[0].scene.start('Tower', { fight: { floor: 1, win: true, events: [] } }));
+    // Только Башня: всё, что поднялось после перезагрузки, — остановить (иначе следующие шаги видят несколько сцен).
+    const only = (key, data) =>
+      page.evaluate(
+        ([k, d]) => {
+          const g = window.__game;
+          for (const sc of g.scene.getScenes(true)) if (sc.scene.key !== k) g.scene.stop(sc.scene.key);
+          g.scene.start(k, d);
+        },
+        [key, data],
+      );
+    await only('Tower', { fight: { floor: 1, win: true, events: [] } });
     await waitScene('Tower');
     const towerToasts = () =>
       page.evaluate(() => {
@@ -689,6 +701,8 @@ async function main() {
     await sleep(700);
     if (!(await hasText('Tower', 'Бой · этаж 2'))) problems.push('Башня: обратно на первый путь — нет превью «Бой · этаж 2»');
     if (!problems.length) log('Башня: развилка после боя переключается, итог боя не повторяется');
+    await only('Tavern');
+    await waitScene('Tavern');
 
     // 7. «Начать заново» (настройки): два подтверждения → перезагрузка → экран нового игрока (Эпизод 1, вступление главы,
     // «В бой · этап 1-1»), часы тестировщика без сдвига, ключей игры кроме сохранения нет.
