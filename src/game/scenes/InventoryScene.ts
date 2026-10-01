@@ -32,6 +32,7 @@ import { GAME } from '../content';
 import { diffText, equipBlocker, formatNumber, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS, statDiff, type InventoryRow } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, emptyCard, popIn, screen } from '../screen';
+import { cardArtId, showCardArt } from '../cardArt';
 import { commit, session } from '../session';
 import { button, ellipsize, panel, pressable, ScrollArea, text, toast } from '../ui';
 import { randomLine } from '../loreView';
@@ -235,14 +236,21 @@ export class InventoryScene extends Phaser.Scene {
     const cy = y + CARD_ROW_H / 2;
     const inside = instance.card ? cardDef(GAME, instance.card) : undefined;
     if (inside) {
-      ellipsize(text(this, 50, cy - 20, inside.name, FS.h3, C.gold, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('cardInside'), 960);
-      ellipsize(text(this, 50, cy + 22, inside.text, FS.caption, C.ink).setOrigin(0, 0.5), 960);
+      // Рисунок карты RO справа (по требованию).
+      const art = !!cardArtId(inside.id);
+      const name = text(this, 50, cy - 20, inside.name, FS.h3, C.gold, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('cardInside');
+      ellipsize(name, art ? 860 : 960);
+      ellipsize(text(this, 50, cy + 22, inside.text, FS.caption, C.ink).setOrigin(0, 0.5), art ? 860 : 960);
+      if (art) showCardArt(this, inside.id, 990, cy, 96, undefined, name);
       return;
     }
     const fit = cardsForItem(session.save, def, GAME);
     const first = fit[0];
+    const art = !!cardArtId(first.id);
     ellipsize(text(this, 50, cy - 20, 'Слот карты пуст', FS.h3, C.ink, { fontStyle: 'bold' }).setOrigin(0, 0.5), 600);
-    ellipsize(text(this, 50, cy + 22, `${first.name}: ${first.text}`, FS.caption, C.inkMuted).setOrigin(0, 0.5).setName('cardOffer'), 680);
+    const offer = text(this, 50, cy + 22, `${first.name}: ${first.text}`, FS.caption, C.inkMuted).setOrigin(0, 0.5).setName('cardOffer');
+    ellipsize(offer, art ? 600 : 680);
+    if (art) showCardArt(this, first.id, 700, cy, 96, undefined, offer);
     const b = button(this, 880, cy, 250, 100, 'ui_btn_primary', 'Вставить', () =>
       confirm(this, `Вставить «${first.name}» в «${def.name}»?\nКарту нельзя вынуть.`, 'Вставить', () => {
         try {

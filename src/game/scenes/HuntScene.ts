@@ -7,6 +7,7 @@ import { GAME } from '../content';
 import { formatNumber, RARITY_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, CONTENT_TOP, gemIcon, popIn, screen, unitFigure, unitTint } from '../screen';
+import { cardArtId, showCardArt } from '../cardArt';
 import { commit, session, today } from '../session';
 import { button, ellipsize, progressBar, text, toast } from '../ui';
 import { ctaShine, glow, ribbon, slowRays } from '../decor';
@@ -174,8 +175,15 @@ export class HuntScene extends Phaser.Scene {
       if (cardDef && GAME.hunt.mvp) {
         const pity = Math.max(1, GAME.hunt.mvp.cardPity - (session.save.hunt?.dry ?? 0));
         const chance = `${cardDef.name}: шанс ${Math.round(GAME.hunt.mvp.cardChance * 100)}%, точно — через ${pity} ${pity === 1 ? 'победу' : pity < 5 ? 'победы' : 'побед'}`;
-        ellipsize(text(this, 60, y, chance, FS.small, '#d8b4ff', { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5).setName('huntCard'), 960);
-        ellipsize(text(this, 60, y + 42, `${cardDef.text} Вставляется в снаряжение.`, FS.caption - 2, C.muted, OUTLINE).setOrigin(0, 0.5), 960);
+        // Рисунок карты RO справа (по требованию), текст уже на его ширину.
+        const tw = cardArtId(cardDef.id) ? 860 : 960;
+        const line = text(this, 60, y, chance, FS.small, '#d8b4ff', { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5).setName('huntCard');
+        ellipsize(line, tw);
+        ellipsize(text(this, 60, y + 42, `${cardDef.text} Вставляется в снаряжение.`, FS.caption - 2, C.muted, OUTLINE).setOrigin(0, 0.5), tw);
+        if (tw < 960) {
+          this.add.rectangle(990, y + 20, 80, 104, 0x120c07).setStrokeStyle(3, 0xb07ae0);
+          showCardArt(this, cardDef.id, 990, y + 20, 96, undefined, line);
+        }
         y += 100;
       }
     }
