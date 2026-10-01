@@ -3,7 +3,10 @@ import { animatedFrameAt, animatedFxDuration, animatedFxKey, selectedAnimatedEff
 import { FONT, GAME_H, GAME_W } from './layout';
 import { coversNumber, coversRoDigits, numberFont, numberFrameWidth, numberOrigin, RO_DIGIT_H, roDamageFont } from './numberFont';
 import { clamp01, ease, Pool, TextStyleCache } from './perf';
+import { FOCUS_MUTE_ALPHA, ULT_FX_BOOST } from './skillFx';
 import { text } from './ui';
+
+export { FOCUS_MUTE_ALPHA, ULT_FX_BOOST };
 
 /** Общий множитель размера атласов навыков RO в бою (владелец 30.09: «со всеми спеллами покрупнее»). */
 export const SKILL_FX_SIZE = 1.35;
@@ -12,6 +15,13 @@ export const SKILL_FX_SIZE = 1.35;
  * полупрозрачные: в поздних главах эффекты закрывали фигуры отряда 92–100 % времени.
  */
 export const ALLY_FX_ALPHA = 0.55;
+/**
+ * Ульта героя (владелец 01.10: «где Асура должна быть видна»): её атласы — без правила RR-15 (полная яркость и на своих
+ * героях) и крупнее обычного навыка в ULT_FX_BOOST раз, но не шире экрана.
+ */
+const ULT_FX_MAX_W = GAME_W * 0.95;
+/** Бафф ульты на своих героях — такая прозрачность (не RR-15 0.55, но фигуры отряда видны сквозь лист). */
+const ULT_ALLY_ALPHA = 0.8;
 /** RR-15: крупных эффектов одновременно — не больше; сверх — новые бледнее, а эффекты на героях не рисуются. */
 export const MAX_BIG_FX = 5;
 /** «Крупный» эффект — шире этого (px поля). */
@@ -141,6 +151,16 @@ export class UltPresenter {
     return t;
   }
 
+  /** Убрать плашку стороны (ульта героя началась — плашка ульты монстра не висит поверх неё). */
+  hideBanner(side: 'A' | 'B'): void {
+    const c = this.banners[side];
+    if (!c) return;
+    this.chains[side]?.stop();
+    this.chains[side] = null;
+    this.scene.tweens.add({ targets: c, alpha: 0, duration: 120, onComplete: () => c.setVisible(false) });
+    this.banners[side] = null;
+  }
+
   /** «Пропустить» (T2-12): сразу убрать затемнение, плашки и свечения — поверх итога боя ничего не доигрывается. */
   cancel(): void {
     this.scene.tweens.killTweensOf(this.dim);
@@ -225,6 +245,8 @@ interface Transient {
   mode: number;
   /** Подпись идёт за юнитом (RR-13: «Перехват!» — за стражем, а не на старой точке); x1 — сдвиг от него. */
   follow?: { x: number };
+  /** Множитель прозрачности цифры/подписи (FOCUS_MUTE_ALPHA — появилась во время чужой ульты). */
+  m: number;
 }
 
 /** Кривые твинов, которые раньше делали то же самое (время — мс на 1x). */
@@ -285,6 +307,10 @@ export class FloatLayer {
   /** Служебный Text, которым рисуются глифы растровых шрифтов (невидимый, один на сцену). */
   private probe: Phaser.GameObjects.Text | null = null;
   private seq = 0;
+  /** Ульта героя (BattleScene.fxMode): вспышки — полная яркость и на своих (без RR-15), крупнее ×ULT_FX_BOOST. */
+  ult = false;
+  /** Фокус на ульте героя: новые цифры, подписи и вспышки других бойцов — × FOCUS_MUTE_ALPHA. */
+  mute = false;
 
   constructor(private readonly scene: Phaser.Scene) {
     this.texts = new Pool(() => scene.add.text(0, 0, '', { fontFamily: FONT, align: 'center' }).setOrigin(0.5));
@@ -422,6 +448,18 @@ export class FloatLayer {
     if (oldest >= 0) this.finish(oldest);
   }
 
+  /** Началась ульта героя: всё, что уже на экране (цифры, подписи, вспышки), — приглушить до FOCUS_MUTE_ALPHA. */
+  muteLive(): void {
+    for (const r of this.live) {
+      if (r.kind === Kind.Number || r.kind === Kind.Headline) {
+        if (r.s !== 1 || r.kind === Kind.Number) r.m = Math.min(r.m, FOCUS_MUTE_ALPHA);
+      } else if (r.kind === Kind.Fx) {
+        r.a *= FOCUS_MUTE_ALPHA;
+        if (r.effect) r.obj.alpha *= FOCUS_MUTE_ALPHA;
+      }
+    }
+  }
+
   /** «Пропустить» (T2-12): убрать все цифры, подписи, вспышки и снаряды сразу. */
   cancel(): void {
     while (this.live.length) this.finish(this.live.length - 1);
@@ -455,10 +493,16 @@ export class FloatLayer {
   flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y, key?: string, fromX?: number, onAlly = false): void {
     const effect = selectedAnimatedEffect(texId, 'flash', this.scene.textures.exists(animatedFxKey(texId)));
     // RR-15: на своих героях — меньше и прозрачнее; при толпе крупных эффектов — бледнее, а на героях не рисуем вовсе.
-    const crowded = this.bigFx() >= MAX_BIG_FX;
+    // Ульта героя — всегда видна целиком: не прозрачнее на своих, не бледнее в толпе, крупнее. Её бафф на своих
+    // (Защита строя, Адреналин) — без укрупнения и чуть прозрачнее: белый лист во весь рост закрывал отряд целиком.
+    const allyUlt = this.ult && onAlly;
+    if (this.ult) onAlly = false;
+    const crowded = !this.ult && this.bigFx() >= MAX_BIG_FX;
     if (crowded && onAlly) return;
-    const dim = (onAlly ? ALLY_FX_ALPHA : 1) * (crowded ? 0.5 : 1);
+    const dim = (onAlly ? ALLY_FX_ALPHA : allyUlt ? ULT_ALLY_ALPHA : 1) * (crowded ? 0.5 : 1) * (this.mute && !this.ult ? FOCUS_MUTE_ALPHA : 1);
+    const boost = this.ult && !allyUlt ? ULT_FX_BOOST : 1;
     if (onAlly) size /= SKILL_FX_SIZE;
+    size *= boost;
     alpha *= dim;
     const img = this.image(x, effect ? feetY : y, effect ? animatedFxKey(texId) : texId, size, depth).setAlpha(alpha);
     if (effect) {
@@ -467,8 +511,17 @@ export class FloatLayer {
       img.setFrame(0).setOrigin(flip ? 1 - ox : ox, effect.anchor[1] / effect.cell[1]).setFlipX(flip);
       // Атлас навыка со своим масштабом (effects.json → scale): размер кадра RO, непрозрачный — роль не сжимает
       // крупный лист до точки и не делает его полупрозрачным.
-      if (effect.scale) img.setScale(effect.scale * (onAlly ? 1 : SKILL_FX_SIZE)).setAlpha((effect.alpha ?? 1) * dim);
-      else img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]);
+      if (effect.scale) {
+        img.setScale(effect.scale * (onAlly ? 1 : SKILL_FX_SIZE) * boost).setAlpha((effect.alpha ?? 1) * dim);
+        if (this.ult && img.displayWidth > ULT_FX_MAX_W) img.setScale(img.scale * ULT_FX_MAX_W / img.displayWidth);
+        // Ульта — целиком в кадре (иероглифы Асуры у края поля не обрезаются).
+        if (this.ult) {
+          const left = img.x - img.displayOriginX * img.scaleX;
+          const w = img.displayWidth;
+          if (left < EDGE) img.x += EDGE - left;
+          else if (left + w > GAME_W - EDGE) img.x -= left + w - (GAME_W - EDGE);
+        }
+      } else img.setDisplaySize(size, size * effect.cell[1] / effect.cell[0]);
       img.setBlendMode(effect.blend === 'add' ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL).setVisible(effect.delayMs === 0);
     }
     const r = this.start(Kind.Fx, img, effect ? animatedFxDuration(effect) : duration);
@@ -500,7 +553,7 @@ export class FloatLayer {
         case Kind.Number: {
           if (r.mode) {
             const p = clamp01(r.t / r.dur);
-            o.alpha = p <= RO_FADE_AT ? 1 : 1 - (p - RO_FADE_AT) / (1 - RO_FADE_AT);
+            o.alpha = r.m * (p <= RO_FADE_AT ? 1 : 1 - (p - RO_FADE_AT) / (1 - RO_FADE_AT));
             if (r.mode === RO_HIT) {
               // Дуга RO: вверх до пика на трети пути, затем вниз ниже старта; снос в сторону и уменьшение — равномерно.
               o.x = r.x0 + r.x1 * p;
@@ -510,7 +563,7 @@ export class FloatLayer {
             break;
           }
           o.y = r.y0 + (r.y1 - r.y0) * ease.quadOut(clamp01(r.t / NUM_RISE_MS));
-          o.alpha = r.t <= r.a ? 1 : 1 - clamp01((r.t - r.a) / NUM_FADE_MS);
+          o.alpha = r.m * (r.t <= r.a ? 1 : 1 - clamp01((r.t - r.a) / NUM_FADE_MS));
           if (r.s) o.setScale(1.6 - 0.6 * ease.backOut(clamp01(r.t / NUM_POP_MS)));
           break;
         }
@@ -518,7 +571,7 @@ export class FloatLayer {
           const q = clamp01(r.t / r.dur);
           o.y = r.y0 - HEADLINE_RISE * ease.quadOut(q);
           if (r.follow) o.x = clampX(r.follow.x + r.x1, (o as Phaser.GameObjects.Text).width);
-          o.alpha = q <= HEADLINE_HOLD ? 1 : 1 - (q - HEADLINE_HOLD) / (1 - HEADLINE_HOLD);
+          o.alpha = r.m * (q <= HEADLINE_HOLD ? 1 : 1 - (q - HEADLINE_HOLD) / (1 - HEADLINE_HOLD));
           break;
         }
         case Kind.Fx: {
@@ -587,7 +640,7 @@ export class FloatLayer {
   }
 
   private start(kind: Kind, obj: Transient['obj'], dur: number): Transient {
-    const r = this.spare.pop() ?? { kind, obj, seq: 0, t: 0, dur, x0: 0, y0: 0, x1: 0, y1: 0, a: 0, s: 0, mode: 0 };
+    const r = this.spare.pop() ?? { kind, obj, seq: 0, t: 0, dur, x0: 0, y0: 0, x1: 0, y1: 0, a: 0, s: 0, mode: 0, m: 1 };
     r.kind = kind;
     r.seq = this.seq++;
     r.obj = obj;
@@ -599,6 +652,9 @@ export class FloatLayer {
     r.key = undefined;
     r.mode = 0;
     r.follow = undefined;
+    // Вспышки (Kind.Fx) приглушает flash() сам; цифры и подписи — множителем в step.
+    r.m = this.mute && !this.ult && kind !== Kind.Fx ? FOCUS_MUTE_ALPHA : 1;
+    if (r.m < 1) obj.setAlpha(r.m);
     this.live.push(r);
     return r;
   }

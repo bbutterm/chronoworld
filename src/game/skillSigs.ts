@@ -135,7 +135,7 @@ export function flyAtlas(fx: SkillFx, id: string, from: { x: number; y: number; 
     groundRun(fx, id, eff, from, to, dur, delay, onLand, tint);
     return true;
   }
-  const w = (look.w ?? eff.cell[0] * (eff.scale ?? 1.6)) * SKILL_FX_SIZE;
+  const w = (look.w ?? eff.cell[0] * (eff.scale ?? 1.6)) * SKILL_FX_SIZE * fx.boost;
   const o = fx.img(animatedFxKey(id), from.x, from.y, tint, SFX_DEPTH + 3, eff.blend === 'add' ? ADD : NORMAL);
   o.setFrame(0).setOrigin(0.5).setDisplaySize(w, (w * eff.cell[1]) / eff.cell[0]);
   const dx = to.x - from.x;
@@ -1064,24 +1064,26 @@ const SIGS: Record<Signature, SigDef> = {
     },
   },
   asura: {
-    // Удар Асуры: сферы собираются в кулак — огромный золотой взрыв, вспышка, тряска.
+    // Удар Асуры (самая главная ульта, владелец 01.10): сферы собираются в кулак — огромный золотой взрыв, белая
+    // вспышка экрана ~100 мс и короткая тряска («Меньше движения» — без вспышки и тряски, SkillFx.flash/shake).
+    // Иероглифы 阿修羅覇凰拳 над кастером — атлас cast (castCue), лучи удара RO — атлас hit на цели (fx_job_monk_asura_hit).
     hit: at(220),
     draw: (fx, k) => {
-      converge(fx, k.c.x, k.c.y, 0xffe070, 10, 160, 200);
+      converge(fx, k.c.x, k.c.y, 0xffe070, 12, 160, 200);
       const p = k.uniq[0];
       if (!p) return;
       fx.later(220, () => {
         fx.glow(p.x, p.y, 0xffd84a, 1.2, 7, 520, 0, 1);
-        fx.glow(p.x, p.y, 0xffffff, 0.8, 3.6, 260, 0, 1);
+        fx.glow(p.x, p.y, 0xffffff, 0.9, 4, 260, 0, 1);
         fx.glow(p.x, p.y, 0x9fd8ff, 0.5, 5, 560, 60, 0.9, T.ring);
         groundRing(fx, p, 0xffd84a, 0.5, 8, 640);
         for (let i = 0; i < 8; i++) {
           const a = (i / 8) * Math.PI * 2;
           fx.streakAt(p.x + Math.cos(a) * 170, p.y + Math.sin(a) * 120, 1, 0xfff0a0, 1.8, 360, 0, a);
         }
-        fx.burst(p.x, p.y, 0xffe890, 26);
-        fx.flash(0xfff4c0, 0.22, 280);
-        fx.shake(0.012, 320);
+        fx.burst(p.x, p.y, 0xffe890, 30);
+        fx.flash(0xffffff, 0.6, 110);
+        fx.shake(0.014, 260);
       });
     },
   },

@@ -26,6 +26,18 @@ describe('свой вид навыков героев в бою (skillVisuals.ts
     }
   });
 
+  it('подготовка ульты (windup) — только у ульт форм героев и не дольше 0,6 с (иначе ульта «тормозит» бой)', () => {
+    const ults = new Set(Object.values(ctx.content.heroes).flatMap((h) => [h, ...h.branches].map((f) => f.ult).filter(Boolean)));
+    for (const [id, v] of Object.entries(SKILL_VISUALS)) {
+      if (v.windup === undefined) continue;
+      expect(ults.has(id), `windup у не-ульты ${id}`).toBe(true);
+      expect(v.windup, id).toBeGreaterThan(0);
+      expect(v.windup, id).toBeLessThanOrEqual(600);
+    }
+    // Удар Асуры — самая главная ульта: иероглифы над кастером успевают прочитаться до удара.
+    expect(SKILL_VISUALS.ult_vika_asura.windup).toBeGreaterThanOrEqual(300);
+  });
+
   it('два разных навыка героев не выглядят одинаково', () => {
     const seen = new Map<string, string>();
     for (const id of heroSkills) {
