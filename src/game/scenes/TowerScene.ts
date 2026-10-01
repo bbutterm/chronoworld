@@ -40,6 +40,7 @@ import { ctaShine, glow, medallion } from '../decor';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 import { C, FS } from '../theme';
 import { sfx } from '../audio';
+import { firstTip } from '../firstTips';
 import { haptic } from '../haptics';
 import { motion } from '../state';
 
@@ -50,6 +51,8 @@ export interface TowerSceneData {
   upgrades?: boolean;
 }
 
+/** Подсказка первого входа: верхний край (лобби — над описанием забега). */
+const TIP_Y = CONTENT_TOP + 20;
 const RARITY_COLOR: Record<Blessing['rarity'], number> = { common: 0xc8b89a, rare: 0x4aa8ff, legendary: 0xffb830 };
 const RARITY_TEXT: Record<Blessing['rarity'], string> = { common: '#e0d4bc', rare: '#8ec8ff', legendary: '#ffcf60' };
 const RARITY_NAME: Record<Blessing['rarity'], string> = { common: 'обычная', rare: 'редкая', legendary: 'легендарная' };
@@ -87,6 +90,8 @@ export class TowerScene extends Phaser.Scene {
       this.lobby();
       if (data.upgrades) this.upgradesOverlay();
       else if (st.last && !st.last.seen) this.summary();
+      // Первый вход в Башню-рогалик: Гаррет — о тропах, картах и павших (firstTips.ts, один раз).
+      else firstTip(this, 'tip_tower', TIP_Y);
       return;
     }
     if (run.node) this.sel = Math.max(0, run.paths.indexOf(run.node));

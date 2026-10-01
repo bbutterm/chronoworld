@@ -65,6 +65,7 @@ import type { SkillDef, StatusDef } from '../../core';
 import { battleSound } from '../battleAudio';
 import { haptic } from '../haptics';
 import { ultBreaksCharge } from '../ultBadge';
+import { firstTip, tipDone } from '../firstTips';
 import { huntHud, type HuntHud } from '../huntBattle';
 import { HeroPanel, PANEL_BOTTOM, PANEL_Y } from '../battlePanel';
 import { battleMode, chargeHint, nextTick, setBattleAuto, ultHint } from '../battleMode';
@@ -103,6 +104,8 @@ const OPENING_QUIET_S = 1;
 const PANEL_DEPTH = 2800;
 /** «Сбито!» над боссом — вдвое крупнее подписей поведения (их 36): главный момент боя с решениями. */
 const CHARGE_BREAK_SIZE = 76;
+/** Подсказка первого заряда босса: под панелью героев, над полем. */
+const CHARGE_TIP_Y = 720;
 const BOSS_HURT_TINT = 0xffb4a8;
 /** Бело-зелёный отсвет на юните, которого вылечили, мс на 1x. */
 const HEAL_TINT_MS = 220;
@@ -1468,7 +1471,11 @@ export class BattleScene extends Phaser.Scene {
           v.castLabel.setColor('#ffb09a');
           if (animate && !this.skipping) {
             this.behaviorLabel(v, 'Заряд!', '#ff6a4a');
-            if (this.manual && chargeHint.count < 3) {
+            // Первый заряд босса — реплика Гаррета (firstTips.ts, один раз); тост-подсказка — в следующие разы.
+            if (!tipDone('tip_boss_charge')) {
+              firstTip(this, 'tip_boss_charge', CHARGE_TIP_Y, PANEL_DEPTH + 5);
+              chargeHint.mark();
+            } else if (this.manual && chargeHint.count < 3) {
               chargeHint.mark();
               toast(this, `${v.def.name} заряжает удар — ульта героя собьёт его!`, '#ffb09a', 3000, 'middle');
             }

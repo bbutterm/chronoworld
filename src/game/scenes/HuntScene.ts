@@ -14,6 +14,7 @@ import { SKIN, skinIcon } from '../skin';
 import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
 import { lockedScreen } from '../unlockBanner';
 import { collect, staggerIn } from '../juice';
+import { firstTip } from '../firstTips';
 
 /** Данные экрана: после боя (BattleScene) или «Зачистки» — итог попытки поверх экрана. */
 export interface HuntSceneData {
@@ -46,6 +47,8 @@ const FOOTER_Y = GAME_H - 170 - 120;
 const MVP_H = 610;
 const HINT_H = 150;
 const GAP = 20;
+/** Подсказка первого входа — на нижней части карточки MVP (над механиками), не на кнопках. */
+const TIP_Y = CONTENT_TOP + MVP_H - 250;
 
 /** Выбранный уровень MVP (между заходами на экран; выше доступного — сбрасывается). */
 let pickedRank: number | null = null;
@@ -77,6 +80,8 @@ export class HuntScene extends Phaser.Scene {
     groups.push(collect(this.children, () => this.footer(st)));
     staggerIn(this, 'Hunt', groups);
     if (data.outcome) this.showOutcome(data.outcome);
+    // Первый вход: Гаррет о MVP дня (firstTips.ts, один раз).
+    else firstTip(this, 'tip_hunt', TIP_Y);
   }
 
   /** MVP дня: фигура в ореоле, имя, подпись, стихия и слабость, легенда, механики. */

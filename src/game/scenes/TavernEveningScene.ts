@@ -39,6 +39,7 @@ import { screenBackground } from '../backdrops';
 import { motion } from '../state';
 import { button, ellipsize, panel, ScrollArea, text, toast } from '../ui';
 import { C, FS, OUTLINE, TINT, TOUCH } from '../theme';
+import { firstTip } from '../firstTips';
 
 export const TAVERN_EVENING = 'TavernEvening';
 /** Имя слоя плашки вечера (e2e и скриншоты). Не 'dialogue' — дымовые прогоны листают только сюжетные сцены. */
@@ -89,6 +90,8 @@ const chapterNo = (e: EveningDef) => GAME.content.chapters.find((c) => c.id === 
 /** Панель реплик (как в сюжетных сценах: dialogue.ts). */
 const PANEL_W = 1040;
 const PANEL_H = 460;
+/** Подсказка первого вечера: верх экрана (над заставкой и столом). */
+const TIP_Y = 40;
 const PANEL_Y = GAME_H - 30 - PANEL_H / 2;
 const PORTRAIT = 250;
 const BODY_FS = 42;
@@ -225,6 +228,8 @@ export class TavernEveningScene extends Phaser.Scene {
     };
     introShade.on('pointerup', start);
     this.time.delayedCall(1800, start);
+    // Первый вечер: Бруно — зачем слушать и что даёт выбор (firstTips.ts, один раз). Над столом, не на плашке реплик.
+    if (head.kicker.startsWith('Вечер')) firstTip(this, 'tip_evening', TIP_Y, 130);
 
     // Очередь: шаги по порядку; ответы на выбор встают перед следующим шагом.
     let stepIdx = 0;
