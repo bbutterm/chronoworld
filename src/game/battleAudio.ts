@@ -16,6 +16,7 @@ import { haptic } from './haptics';
 import { CONTENT } from './content';
 import { MonsterSoundsSchema, monsterSoundFile, type MonsterSound, type MonsterSoundKind, type MonsterSounds } from './monsterSounds';
 import { elementOf, type Element } from './skillLook';
+import { SKILL_SOUNDS } from './skillVisuals';
 import { playback } from './state';
 
 /** Замах до кадра удара, мс (при скорости 1x). */
@@ -79,6 +80,9 @@ function monsterSound(u: UnitAudio, kind: MonsterSoundKind, delay: number): bool
   return sfxFile(monsterSoundFile(name), rule, { delay, gain: rule.gain });
 }
 
+/** Свой звук навыка RO (skillVisuals.ts → SKILL_SOUNDS): как звук стихии (skill, −3 дБ), не чаще раза в 150 мс. */
+const SKILL_SOUND_RULE: SoundRule & { gain: number } = { gap: 150, voices: 1, gain: 0.4, tier: 'skill' };
+
 const CAST: Record<Element, SfxId> = {
   fire: 'cast_fire',
   ice: 'cast_ice',
@@ -127,6 +131,8 @@ function stateOf(result: BattleResult, defs: Record<string, UnitDef>): BattleAud
       s.units.set(u.uid, { def, side: u.side, maxHp: u.maxHp, impact: WINDUP_MS / 1000, hit: weaponOf(def), inUlt: false, sounds, turn: 0, readyT: -Infinity });
     }
     states.set(result, s);
+    // Свои звуки навыков RO (skl_*, их немного) — тоже заранее.
+    for (const f of Object.values(SKILL_SOUNDS)) files.add(f);
     // Звуки монстров этого боя — заранее (первое событие лога приходит до первого удара).
     preloadSoundFiles([...files]);
   }
@@ -152,6 +158,9 @@ export function battleSound(e: BattleEvent, animate: boolean, result: BattleResu
       u.inUlt = false;
       u.impact = (WINDUP_MS + (e.kind === 'melee' ? 0 : FLIGHT_MS)) / 1000;
       u.hit = magic ? 'hit_magic' : e.kind === 'melee' ? weaponOf(u.def) : weaponOf(u.def) === 'hit_magic' ? 'hit_magic' : 'hit_arrow';
+      // Навык со своим звуком RO (Удар Асуры, Владыка Вермилиона, сокол…) — он вместо общего звука стихии.
+      const own = e.name ? SKILL_SOUNDS[e.skill] : undefined;
+      if (own && sfxFile(own, SKILL_SOUND_RULE, { delay: scaled(0.08), gain: SKILL_SOUND_RULE.gain })) return;
       if (e.kind === 'heal') return;
       // Активный навык — звук стихии; обычная атака — свой звук монстра RO, иначе выстрел лука. Взмах перед ударом
       // ближнего боя больше не звучит: удар и взмах на каждую атаку удваивали кашу (docs/design/audio.md, «Плотность»).

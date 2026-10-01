@@ -54,6 +54,16 @@
   "png": 40278,
   "webp": 26032
  },
+ "effects/fx_job_alchemist_marine_sphere.png": {
+  "sha1": "70a782393655c71710942358ac6f4bc1c2fde310",
+  "png": 28096,
+  "webp": 8396
+ },
+ "effects/fx_job_alchemist_potion_red.png": {
+  "sha1": "7bb474437a1e831366b80543e71eda2993a34390",
+  "png": 246152,
+  "webp": 179484
+ },
  "effects/fx_job_archer_arrow_shower_source.png": {
   "sha1": "c30f69dccfb7771086c23caab3aa191e0c2f7919",
   "png": 8074,
@@ -68,6 +78,11 @@
   "sha1": "b170d9b2367642550bbf5d235aa5610b845f72cd",
   "png": 36023,
   "webp": 16760
+ },
+ "effects/fx_job_assassin_meteor_assault.png": {
+  "sha1": "3dc74e07fd94c833f5861c4560c3db86697d4064",
+  "png": 423210,
+  "webp": 316932
  },
  "effects/fx_job_assassin_sonic_blow.png": {
   "sha1": "cb5bf0e754e5cbff415f4ccd3b7783981d818552",
@@ -119,6 +134,11 @@
   "png": 81403,
   "webp": 62946
  },
+ "effects/fx_job_dancer_service_for_you.png": {
+  "sha1": "2919f21a5dcba6938db35b17bedef21c731a810a",
+  "png": 42885,
+  "webp": 23152
+ },
  "effects/fx_job_hunter_ankle_snare.png": {
   "sha1": "be8ab8a75ce734571ee83fbe20183ed02148d2ae",
   "png": 2481,
@@ -128,6 +148,11 @@
   "sha1": "8d41355537231de15a085edb700fc2633dc66a8b",
   "png": 334036,
   "webp": 248556
+ },
+ "effects/fx_job_hunter_falcon.png": {
+  "sha1": "6c1555ff4f94159c72129b7cc5ca334cdc3278a9",
+  "png": 29453,
+  "webp": 7382
  },
  "effects/fx_job_hunter_sandman.png": {
   "sha1": "bb77068916658730b4eae3a28282c406ae69debb",
@@ -143,6 +168,16 @@
   "sha1": "f04c76c264695ebfcdcb6543e33a7a4d6e754b5e",
   "png": 103830,
   "webp": 73638
+ },
+ "effects/fx_job_knight_brandish_spear.png": {
+  "sha1": "5188310c1f79d0e104a6c512473c67f54ffcaaf0",
+  "png": 579024,
+  "webp": 426668
+ },
+ "effects/fx_job_knight_brandish_spear_cast.png": {
+  "sha1": "8bc81f43da2ac356db5315c8886626c6b4ffe45a",
+  "png": 499756,
+  "webp": 361266
  },
  "effects/fx_job_knight_parrying.png": {
   "sha1": "412dc18b159da1fffd601e6408f146e1ebe80bc3",
@@ -168,6 +203,11 @@
   "sha1": "b5ff06382d9a11113db2232fa1cf49234d4948e5",
   "png": 156885,
   "webp": 121752
+ },
+ "effects/fx_job_mage_fire_wall.png": {
+  "sha1": "9830c335f139855b641f9162066a187c3af15fe2",
+  "png": 564148,
+  "webp": 402014
  },
  "effects/fx_job_mage_frost_diver.png": {
   "sha1": "387925013b2415fb79d854755310d33aa4c3ed7b",
@@ -204,6 +244,21 @@
   "png": 305960,
   "webp": 238212
  },
+ "effects/fx_job_monk_asura_cast.png": {
+  "sha1": "344b978774155a971b176ef3bdcf6058adbf3914",
+  "png": 262834,
+  "webp": 173196
+ },
+ "effects/fx_job_monk_asura_hit.png": {
+  "sha1": "8d457f1a13407475a5be58eecf05344804f60572",
+  "png": 193931,
+  "webp": 134048
+ },
+ "effects/fx_job_monk_occult_impaction.png": {
+  "sha1": "61bd4e7a6699a60bb4fe5757bc6461e8a9def2b6",
+  "png": 20196,
+  "webp": 9198
+ },
  "effects/fx_job_priest_assumptio.png": {
   "sha1": "11bf5bff0ee04287af8e6d5f5025fd13c1b5b325",
   "png": 302261,
@@ -234,6 +289,16 @@
   "png": 633757,
   "webp": 484422
  },
+ "effects/fx_job_priest_sanctuary.png": {
+  "sha1": "abbdfcdf01b5d9463c11eaba9a9394bf3c1cd551",
+  "png": 725894,
+  "webp": 525900
+ },
+ "effects/fx_job_rogue_close_confine.png": {
+  "sha1": "927f6b82ab659decdd3a7cfad9afdfbb1c805307",
+  "png": 6231,
+  "webp": 2728
+ },
  "effects/fx_job_rogue_strip_armor.png": {
   "sha1": "827f298e898dc00db07f2e558479c12e739f8fbf",
   "png": 27188,
@@ -243,6 +308,11 @@
   "sha1": "6c0e3378029f993cc8a53da45b25155123b434ed",
   "png": 15181,
   "webp": 11406
+ },
+ "effects/fx_job_sage_deluge.png": {
+  "sha1": "f25d8efd028743a43bcdee9f89be3ec084c33802",
+  "png": 161006,
+  "webp": 115838
  },
  "effects/fx_job_sage_dispell.png": {
   "sha1": "b99d19e059335dcacff665217c26b9c120ef9fa1",
@@ -258,6 +328,16 @@
   "sha1": "e0c41b9a848dcb3cff2bc60c17f0142e2ea40852",
   "png": 635854,
   "webp": 482848
+ },
+ "effects/fx_job_sage_magic_rod.png": {
+  "sha1": "a86e8a306f7685aff0dae2cc3e3509bd0ccd1eeb",
+  "png": 516163,
+  "webp": 342548
+ },
+ "effects/fx_job_sage_spell_breaker.png": {
+  "sha1": "ed50897639bc96ae55709603bdd53458ee360d2e",
+  "png": 415953,
+  "webp": 286472
  },
  "effects/fx_job_sage_volcano_ground.png": {
   "sha1": "576b301def6fd2997673043f469e3675b1f11e51",
@@ -289,6 +369,11 @@
   "png": 2775,
   "webp": 2242
  },
+ "effects/fx_job_wizard_earth_hit.png": {
+  "sha1": "300cf1b903f3b60b46f8dbbd6c9ddcabbe5dfc1d",
+  "png": 440422,
+  "webp": 322342
+ },
  "effects/fx_job_wizard_jupitel_thunder_projectile.png": {
   "sha1": "76ff0518f510c17fd81022aa9f6873e8bb6cbe56",
   "png": 23699,
@@ -299,10 +384,20 @@
   "png": 10123,
   "webp": 8418
  },
+ "effects/fx_job_wizard_lord_of_vermilion.png": {
+  "sha1": "ec1761cbd188fd14c61bfb679b86b3f4e760e520",
+  "png": 1477208,
+  "webp": 1124590
+ },
  "effects/fx_job_wizard_meteor_storm.png": {
   "sha1": "ec0bcc0e350f686b4cc61b524d5d23bf6c701221",
   "png": 742878,
   "webp": 547318
+ },
+ "effects/fx_job_wizard_quagmire.png": {
+  "sha1": "abe0d645ab4c82a420b9aff836c2e2cf04a9b1fd",
+  "png": 679516,
+  "webp": 559258
  },
  "effects/fx_job_wizard_soul_drain.png": {
   "sha1": "182702252c587384bddd4a93c9023dcf9cc88193",
@@ -313,6 +408,11 @@
   "sha1": "ff853b04162b2365e83881f0bd960716758c0d88",
   "png": 2076575,
   "webp": 1676642
+ },
+ "effects/fx_job_wizard_wind_hit.png": {
+  "sha1": "cf8413a266fa4f1ac565ee21164e9ab6d1100b9c",
+  "png": 330497,
+  "webp": 244488
  },
  "effects/fx_magic.png": {
   "sha1": "47203f031fa5917623d1e5f1996e162b2326fbe3",

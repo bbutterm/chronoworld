@@ -3,10 +3,10 @@ import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, loo
 import catalogJson from '../assets/effects/effects.json';
 
 describe('RO animated effects', () => {
-  it('queues all 73 captured atlases with catalog cell sizes', () => {
+  it('queues all 93 captured atlases with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(73);
+    expect(queued).toHaveLength(93);
     expect(queued).toContainEqual(['anim_fx_job_sage_volcano_ground', 'effects/fx_job_sage_volcano_ground.png', 122, 98]);
     expect(queued).toContainEqual(['anim_fx_job_thief_venom_knife_projectile', 'effects/fx_job_thief_venom_knife_projectile.png', 42, 38]);
     expect(queued).toContainEqual(['anim_fx_job_thief_steal', 'effects/fx_job_thief_steal.png', 188, 176]);

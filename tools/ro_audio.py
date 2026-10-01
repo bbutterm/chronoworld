@@ -91,6 +91,29 @@ SFX: dict[str, list[tuple[str, float | None]]] = {
     'boss_death': [(E + 'st_mvp', None)],
 }
 
+# Свои звуки навыков RO (поле wav EffectTable клиента, raw/ro/fx_sources.csv): файл skl_<имя> → исходник. Какой навык
+# что играет — src/game/skillVisuals.ts → SKILL_SOUNDS (вместо общего звука стихии, battleAudio.ts).
+SKILL_SFX: dict[str, tuple[str, float | None]] = {
+    'skl_asura': (E + 'mon_아수라 패황권', 2.2),            # MO_EXTREMITYFIST, EF_TEIHIT1X 266
+    'skl_lord_of_vermilion': (E + 'wizard_fire_ivy', 2.4),   # WZ_VERMILION, EF_LORD 90
+    'skl_fire_wall': (E + 'ef_firewall', 1.6),               # MG_FIREWALL, 25
+    'skl_brandish': (E + 'knight_brandish_spear', None),     # KN_BRANDISHSPEAR, 70 / 144
+    'skl_blitz_beat': (E + 'hunter_blitzbeat', None),        # HT_BLITZBEAT 115, SN_FALCONASSAULT 387
+    'skl_close_confine': (E + 'ef_hit6', None),              # RG_CLOSECONFINE, EF_NPC_STOP2 604
+    'skl_arrow_vulcan': (E + '애로우 발칸', 2.0),            # CG_ARROWVULCAN, 393
+    'skl_service_for_you': (E + '당신을 위한 서비스', 2.0),  # DC_SERVICEFORYOU, 294
+    'skl_sanctuary': (E + 'priest_sanctuary', 2.0),          # PR_SANCTUARY, 83
+    'skl_magic_rod': (E + 'sage_magic rod', None),           # SA_MAGICROD, 244
+    'skl_quagmire': (E + 'wizard_quagmire', 1.6),            # WZ_QUAGMIRE, 95
+    'skl_occult_impaction': (E + 'mon_침투경', 1.4),         # MO_INVESTIGATE, 267
+    'skl_meteor_assault': (E + '메테오 어썰트', 1.6),        # ASC_METEORASSAULT, 409
+    'skl_steel_body': (E + 'mon_금강불괴', 2.0),              # MO_STEELBODY, 254
+    'skl_overthrust': (E + 'black_overthrust', None),        # BS_OVERTHRUST, 128
+    'skl_spiral_pierce': ('permeter_attack', None),          # LK_SPIRALPIERCE, 339
+    'skl_assassin_cross': (E + '석양의 어쌔신', 2.0),         # BA_ASSASSINCROSS, 287
+    'skl_fortune_kiss': (E + '행운의', 2.0),                  # DC_FORTUNEKISS, 293
+}
+
 PEAK_DB = -1.0
 SILENCE = 10 ** (-48 / 20)  # порог тишины по краям
 
@@ -162,6 +185,7 @@ def jobs() -> dict[str, tuple[str, float | None]]:
             out[sid if i == 0 else f'{sid}_v{i + 1}'] = (src, max_s)
     with open(MONSTERS, encoding='utf8') as f:
         table = json.load(f)['sprites']
+    out.update(SKILL_SFX)
     for entry in table.values():
         for name in entry.get('attack', []) + entry.get('death', []):
             out[f'mon_{name}'] = (name, 1.8)
@@ -171,7 +195,7 @@ def jobs() -> dict[str, tuple[str, float | None]]:
 def managed(name: str) -> bool:
     """Файл, который создаёт этот скрипт (лишние такие — удалить); музыку и фоны владельца не трогаем."""
     base = name.rsplit('.', 1)[0]
-    if base.startswith('mon_'):
+    if base.startswith('mon_') or base.startswith('skl_'):
         return True
     root = base.rsplit('_v', 1)[0] if '_v' in base and base.rsplit('_v', 1)[1].isdigit() else base
     return root in SFX

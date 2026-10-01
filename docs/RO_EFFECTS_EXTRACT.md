@@ -30,7 +30,7 @@ MC_MAMMONITE (skill_db 42): `effectId: 10` → EF_COIN: STR `data\texture\effect
 
 Ульты форм героев (`data/heroes → ult`, `docs/design/battle-decisions.md` §1) — усиленные формы навыков RO. Атлас — только
 эффект того же навыка RO (белый список `tests/effects-ro-origin.test.ts`). Есть (20 из 36 — `effects.json → skills.ult_*`,
-плюс лечение — общий `fx_heal` EF_HEAL 312 на каждом лечении): Магнум Брейк (17), Великий крест (226), Смертельный Баш (16),
+плюс лечение — общий `fx_heal` EF_HEAL 312 на каждом лечении; 01.10 ещё 11 — раздел «Сделано 01.10» ниже): Магнум Брейк (17), Великий крест (226), Смертельный Баш (16),
 Двойной Боулинг Баш (149), Защита строя (222), Поле клейморов (107), Смертельный яд (20), Ядовитый взрыв (129), Звуковой удар
 (143), Всеобщее разоружение (269), Карусель тележки (170), Адреналин для всех (str_adrenaline), Ярмарочный клич (311), Молот
 земли (102), Ледяное кольцо (28), Великая снежная буря (89), Великий Ангелус (41), Кирие для всех (112), Великий Магнус (113 +
@@ -55,6 +55,51 @@ MC_MAMMONITE (skill_db 42): `effectId: 10` → EF_COIN: STR `data\texture\effect
 14. Морская сфера (Отто, алхимик) — AM_SPHEREMINE 243: призыв и взрыв сферы (проверить).
 15. Разрыв чар (Кай, мудрец) — SA_SPELLBREAKER 277 (проверить).
 16. Потоп (Лира, мудрец) — SA_DELUGE 286: вода на земле (как Вулкан — 239; проверить).
+
+### Сделано 01.10 (вторая партия сырья, `raw/ro/BATCH_2026-10-01.md`, `raw/ro/fx_sources.csv`)
+
+EffectViewer в контейнере агента недоступен (нет roBrowser/Electron/GRF) — кадры сняты прямым рендером тех же файлов клиента:
+`raw/ro-build/tools/fx/build_ro_fx.py` (STR — `ro_str.py`, перенос `StrEffect.js` roBrowser: ключи, морфинг, смешивание D3D,
+1 пиксель STR = 1 пиксель спрайта, точка (320, 320) = ноги; SPR+ACT — `ro_spr_act.py`, как `build_spr_fx.py`; «3D»-эффекты
+roBrowser (буквы Асуры, лучи попадания, серпы Метеоритного удара, PropertyGround Потопа, ноты песни) — по параметрам
+`EffectTable.js` с постоянной камерой). Перезапуск: `python3 raw/ro-build/tools/fx/build_ro_fx.py [id…] --preview <папка>`
+(отображение `scale`/`alpha` в effects.json при пересборке сохраняется).
+
+Подключено (атлас — эффект того же навыка RO, белый список `tests/effects-ro-origin.test.ts`):
+1. Удар Асуры (Вика-монахиня, ульта; и Удар Асуры монаха) — cast `fx_job_monk_asura_cast` (328 EF_BEGINASURA: буквы 阿修羅覇凰拳
+   asura1–6, тёмная тушь, normal), hit `fx_job_monk_asura_hit` (266 EF_TEIHIT1X: 24 луча lens1). Цилиндры ring_white (аура каста) не
+   сняты — у нас своя аура подготовки ульты.
+2. Владыка Вермилиона — ground `fx_job_wizard_lord_of_vermilion` (90 `lord.str`, 4 с → 28 кадров, ×0.6), hit `fx_job_wizard_wind_hit`
+   (52 `windhit1.str`).
+3. Стена огня — ground `fx_job_mage_fire_wall` (25 `firewall1/2.str` на пяти клетках стены, со сдвигом старта), hit — прежний
+   `fx_job_mage_fire_bolt` (49 EF_FIREHIT).
+4. Брандиш — cast `fx_job_knight_brandish_spear_cast` (144 `brandish2.str` на рыцаре), hit `fx_job_knight_brandish_spear` (70 `brandish.str`).
+5. Удар сокола (ульта Мэйлин и навык охотника) и Атака сокола — hit `fx_job_hunter_falcon`: спрайт сокола `data/sprite/이팩트/매`
+   (roBrowser для 115/387 играет только звук), пикирует на цель; путь пике — наш, кадры и направления — ACT клиента.
+6. Мёртвая хватка — debuff `fx_job_rogue_close_confine` (604 EF_NPC_STOP2, спрайт `cconfine`).
+7. Служу тебе — buff `fx_job_dancer_service_for_you` (`294_ground`, ноты melody_a/b над каждым союзником, как HoveringTexture песен).
+8. Дождь зелий — ground `fx_job_alchemist_potion_red` (брызги `빨간포션.str`; 299 EF_THROWITEM2 в roBrowser нет, STR зелий — из клиента).
+   Метание зелья (обычный навык) не подключено: одиночное лечение не вызывает атлас роли (лечение рисует общий `fx_heal`).
+9. Морская сфера — ground `fx_job_alchemist_marine_sphere` (спрайт монстра Marine Sphere: вращение и смерть-взрыв).
+10. Разрыв чар — hit `fx_job_sage_spell_breaker` (234 `spell.str`).
+11. Потоп — ground `fx_job_sage_deluge` (240 PropertyGround ring_blue: конус-корона, альфа ×2 к клиенту — 0.42 читалась бледно).
+Частые: Метеоритный удар — cast `fx_job_assassin_meteor_assault` (409, восемь серпов purpleslash); Небесный удар — hit
+`fx_job_wizard_earth_hit` (147 `earthhit.str`; QuadHorn 142 по-прежнему не снят); Святилище — ground `fx_job_priest_sanctuary` (83
+`sanctuary.str`: ангел и круг); Магический жезл — buff `fx_job_sage_magic_rod` (244 `매직로드.str`); Трясина — ground
+`fx_job_wizard_quagmire` (95 `quagmire.str` на 15 клетках, яркость ×1.6); Проникающий удар — hit `fx_job_monk_occult_impaction` (спрайт
+`침투경_`, roBrowser — только звук 267).
+
+Звуки (поле wav EffectTable): `assets/audio/skl_*` (`tools/ro_audio.py → SKILL_SFX`), навык → файл — `skillVisuals.ts →
+SKILL_SOUNDS`, играет вместо общего звука стихии: Асура, Вермилион, Стена огня, Брандиш, сокол, Хватка, Вулкан стрел, Служу
+тебе, Святилище, Магический жезл, Трясина, Проникающий удар, Метеоритный удар, Стальное тело, Мощный удар, Спиральный
+пронзатель, Закат ассасина, Поцелуй удачи. Разрыв чар уже звучит `charge_break` (тот же `sage_spell breake`).
+
+В клиенте нет (рисуется кодом клиента или эффекта нет — остаётся процедурный вид без чужих атласов): Морозная шутка
+(BA_FROSTJOKER — только фраза в чат 295), Песчаная завеса (TF_SPRINKLESAND 310), Взрыв ки (MO_BALKYOUNG 514), Вулкан
+стрел (CG_ARROWVULCAN 393 — только звук, подключён), Ливень стрел (попадание — общий EF_HIT2 1, снаряд — прежний 1 кадр),
+Удар тележкой мастера (518), Кислотный всплеск (537 — только тряска), Крик (296 — фраза), Стальное тело и Мощный удар
+(картинки нет, только звук — подключён). Вулкан (239 ring_red) не перерисован: прежний захват отклонён, та же корона, что
+у Потопа, — можно собрать тем же `property_ground_frames('ring_red.tga')`, если владелец захочет.
 
 Иконки RO у всех 36 ульт есть (`assets/ui/icons/ro-skills.json`; 10 новых: kn_brandishspear, cg_arrowvulcan, dc_serviceforyou,
 rg_closeconfine, am_spheremine, mg_firewall, wz_vermilion, sa_spellbreaker, sa_deluge, mo_balkyoung — их стоит добавить и в
