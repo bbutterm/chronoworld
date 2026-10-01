@@ -1,28 +1,38 @@
 import Phaser from 'phaser';
-import { arrangeSquad, COMBAT, duplicateCardsInSquad, formationRank, heroCard, heroName, heroPower, misplacedInFront, squadPower, withGear, type HeroState, type RecommendedLevel, type UnitDef } from '../core';
+import { arrangeSquad, COMBAT, duplicateCardsInSquad, formationRank, heroName, misplacedInFront, squadPower, withGear, heroPower, type HeroState, type RecommendedLevel, type UnitDef } from '../core';
+import { sfx } from './audio';
 import { GAME } from './content';
-import { enemyLevelColor, formatNumber, heroSprite, levelLabel, POWER_COLORS, POWER_VERDICT, powerTone, recommendText, type PowerTone } from './flow';
+import { enemyLevelColor, heroSprite, powerTone, recommendText } from './flow';
+import { haptic } from './haptics';
+import { backTexture, frameTexture, rarityColor } from './heroCard';
 import { bump, countUp, juiceOn } from './juice';
 import { GAME_W } from './layout';
-import { classifyGesture, dropHero, fieldSlots, hitSlot, removeAt, rosterOrder, swapSlots, tapHero, type Point, type SquadMove } from './prepLayout';
-import { card, portrait, powerChip, setPowerChip, unitFigure, unitTint } from './screen';
+import { numberFont, type NumberFont } from './numberFont';
+import type { CachedTextStyle } from './perf';
+import { classifyGesture, dropHero, fieldSlots, hitSlot, PREP, removeAt, rosterCardW, rosterOrder, slotBand, swapSlots, tapHero, type Point, type SquadMove } from './prepLayout';
+import { portrait, powerCompare, unitFigure, unitTint, updatePowerCompare } from './screen';
 import { commit, session } from './session';
-import { SKIN_TINT, skinIcon } from './skin';
+import { skinIcon } from './skin';
 import { portraitKey } from './sprites';
-import { button, ellipsize, panel, text, toast } from './ui';
+import { button, ellipsize, plate, SURFACE, text, toast } from './ui';
 import { worldPoint } from './viewport';
-import { C, FS, TINT } from './theme';
+import { C, COLOR, COLOR_N, E, FAMILY, M, R, S, T } from './theme';
 
 /**
  * Подготовка к бою (экран этапа и «Отряд»), в духе AFK Arena:
  * - сверху — поле «как в бою»: 2 слота фронта ближе к противнику, 3 слота тыла дальше (combat.json field.slotsA);
- *   в слоте — герой в стойке (анимация idle), имя, значок роли, уровень и мощь; пустой слот — «+»;
- *   на экране этапа справа — противник (зеркально, как в бою);
- * - снизу — прокручиваемый список всех героев карточками (портрет, профессия, уровень, мощь, роль, «в отряде»).
+ *   в слоте — герой в стойке (анимация idle) в рамке цвета редкости и маленький значок уровня; пустой слот —
+ *   утопленная плашка с «+» (один раз мягко пульсирует, opts.hintEmpty); ряды различаются полосой фона (фронт светлее),
+ *   без подписей; на экране этапа справа — противник (зеркально, как в бою);
+ * - мощь — один ряд powerCompare (screen.ts): своя мощь и «Не хватает N» только при нехватке (§3 правило 11);
+ * - снизу — прокручиваемая сетка всех героев компактными плитками (портрет, уровень, значок роли, рамка редкости);
+ *   кто в отряде — приглушён, с галкой в углу (без плашек и подписей). Число уровня — растровым шрифтом (BitmapText:
+ *   один атлас на все цифры экрана, §7), а не отдельным Text на каждую плитку.
  * Нажатие на карточку — герой встаёт в лучший свободный слот (танки и ближний бой — во фронт, стрелки и лекари —
- * в тыл) или убирается; нажатие на героя в слоте — убрать; на пустой слот — выбрать его для следующего героя.
- * Героя можно перетащить из списка в слот и между слотами (обмен), из слота в список — убрать; работает касанием.
- * Каждое изменение сразу пишется в сохранение (commit). «Уменьшить анимацию» — без стойки, прыжков и подлётов.
+ * в тыл) или убирается; нажатие на героя в слоте — убрать; на пустой слот — выбрать его для следующего героя
+ * (слот и сетка подсвечиваются). Героя можно перетащить из списка в слот и между слотами (обмен), из слота в список —
+ * убрать; работает касанием. Каждое изменение сразу пишется в сохранение (commit), с лёгкой вибрацией.
+ * «Уменьшить анимацию» — без стойки, прыжков, пульса и подлётов.
  */
 
 export interface FormationOpts {
@@ -30,31 +40,56 @@ export interface FormationOpts {
   field: { top: number; bottom: number };
   /** Противник этапа (слоты 0–4, как enemySquad) — рисуется справа; нет — поле только своего отряда. */
   enemies?: (UnitDef | null)[];
-  /** Рекомендуемая мощь этапа (flow.ts recommendedPower): «Нужно N», цвет мощи отряда и вердикт (ahead/close/behind). */
+  /** Рекомендуемая мощь этапа (flow.ts recommendedPower): powerCompare «своя мощь · Не хватает N». */
   enemyPower?: number;
-  /** Уровни врагов по слотам enemies (core stageLevels): «ур. N» у каждого, цвет — против среднего уровня отряда. */
+  /** Уровни врагов по слотам enemies (core stageLevels): число у каждого, цвет — против среднего уровня отряда. */
   enemyLevels?: (number | null)[];
-  /** Рекомендуемый уровень этапа (core recommendedHeroLevel): «герои ур. N (синие)» под «Нужно N». */
+  /** Рекомендуемый уровень этапа (core recommendedHeroLevel): «Героям нужен ур. N» строкой под полем — только при нехватке сил. */
   recommend?: RecommendedLevel;
   /** Полоса прокрутки списка героев. */
   roster: { top: number; bottom: number };
   /** После каждой перерисовки (кнопки сцены, доступность «В бой»). */
   onChange?: () => void;
+  /**
+   * Итерация 4 (необязательно). Пустые слоты один раз мягко пульсируют при открытии экрана — вместо строки
+   * «Нажмите на героя…». По умолчанию true (если есть кого поставить); false — без пульса.
+   */
+  hintEmpty?: boolean;
+  /**
+   * Итерация 4 (необязательно). Мощь на поле: true (по умолчанию) — редактор сам рисует ряд мощи над своим отрядом
+   * (с enemyPower — powerCompare «⚔ своя · Не хватает N», без него — «⚔ своя»). false — не рисует: сцена показывает
+   * мощь сама (например, свой powerCompare в шапке) и обновляет её в onChange.
+   */
+  showPower?: boolean;
+  /**
+   * Итерация 4 (необязательно). false — редактор не рисует своё «оформление» поля: ряд мощи (как showPower: false)
+   * и строку «Героям нужен ур. N» под полем — их показывает сцена (StageScene: свой powerCompare). Подписей
+   * «фронт/тыл», «Нужно N», плашки-вердикта и мечей в центре поля больше нет вовсе. По умолчанию true.
+   */
+  chrome?: boolean;
+  /**
+   * Итерация 4 (необязательно). Заголовок сетки героев строкой y: «Герои» слева и справа кнопки-иконки с короткой
+   * подписью — «Авто» (волшебная палочка, onAuto) и «Пресеты» (закладка, onPresets); кнопка без обработчика не рисуется.
+   * Не задан — заголовок рисует сцена.
+   */
+  rosterHead?: { y: number; title?: string; onAuto?: () => void; onPresets?: () => void };
 }
 
 /** Сколько держится заметка в строке подсказки (RR-17), мс. */
 const NOTE_MS = 3000;
-const SLOT_H = 200;
-const ENEMY_W = 196;
-const CARD_W = 246;
-const CARD_H = 250;
-const CARD_GAP = 12;
-const COLS = 4;
+const SLOT_H = PREP.slotH;
+/** Плитки сетки героев: 5 колонок на ширину контента 1080 − 2·S.l (prepLayout.ts PREP). */
+const COLS = PREP.cols;
+const CARD_GAP = PREP.gap;
+const CARD_W = rosterCardW(GAME_W);
+const CARD_H = PREP.cardH;
 /** «Прилипание» при перетаскивании: палец чуть мимо слота — всё равно в слот. */
 const SNAP = 36;
 /** Призрак героя при перетаскивании — над пальцем, чтобы палец его не закрывал. */
 const GHOST_LIFT = 70;
 const GHOST_SIZE = 150;
+/** Высота ряда мощи над слотами. */
+const HEAD_H = PREP.headH;
 
 /** Значок роли: 0 — танк (щит), 1 — ближний бой (меч), 2 — дальний бой (лук), 3 — лекарь (крест). */
 const RANK_ICON = ['tank', 'melee', 'ranged', 'healer'] as const;
@@ -82,15 +117,18 @@ export class FormationEditor {
   private readonly rosterContent: Phaser.GameObjects.Container;
   private readonly thumb: Phaser.GameObjects.Rectangle;
   private readonly dragLayer: Phaser.GameObjects.Container;
-  private readonly powerText: Phaser.GameObjects.Text;
-  /** Подписи «ур. N» врагов и строка «герои ур. N (…)» — перекрашиваются при смене отряда (refreshInfo). */
-  private readonly levelTexts: { t: Phaser.GameObjects.Text; level: number }[] = [];
-  /** Вердикт «сил хватает / чуть не хватает / слабее» (только у этапа). */
-  private verdict: Phaser.GameObjects.Container | null = null;
+  /** Мощь: powerCompare (этап) или «⚔ число» (отряд); null — мощь рисует сцена (showPower: false). */
+  private readonly powerBox: Phaser.GameObjects.Container | null = null;
+  private readonly powerText: Phaser.GameObjects.Text | null = null;
+  /** Числа уровней врагов — перекрашиваются при смене отряда (refreshInfo). */
+  private readonly levelTexts: { t: Phaser.GameObjects.BitmapText; level: number }[] = [];
   private readonly tip: Phaser.GameObjects.Text;
   /** RR-17: короткая заметка в строке подсказки («Отряд расставлен автоматически») и когда она отживёт. */
   private note: { text: string; until: number } | null = null;
   private readonly fixBtn: ReturnType<typeof button>;
+  private readonly font: NumberFont;
+  /** Подсветка сетки, пока выбран пустой слот (вместо строки «Слот выбран — нажмите на героя»). */
+  private readonly selFrame: Phaser.GameObjects.Graphics;
   private slotViews: Phaser.GameObjects.Container[] = [];
   private cardViews = new Map<string, Phaser.GameObjects.Container>();
   private rosterH = 0;
@@ -103,81 +141,81 @@ export class FormationEditor {
   private highlight: Phaser.GameObjects.Graphics;
   private hover = -1;
   private pop: number | null = null;
+  private popAll = false;
+  private hinted = false;
   private shownPower: number | null = null;
-  /** Открыто окно поверх (подтверждение, диалог) — жесты выключены. */
+  /** Открыто окно поверх (подтверждение, диалог, лист) — жесты выключены. */
   locked = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly opts: FormationOpts,
   ) {
-    ensureRoleIcons(scene);
+    ensurePrepTextures(scene);
+    this.font = levelFont(scene);
     const { field } = opts;
     const vs = !!opts.enemies;
-    this.slotW = vs ? 222 : 250;
-    const xs = vs ? { back: 150, front: 386 } : { back: 300, front: 640 };
-    const band = { top: field.top + 96, bottom: field.bottom - 12 };
+    this.slotW = vs ? 200 : 220;
+    const xs = vs ? { back: 150, front: 386 } : { back: 330, front: 690 };
+    const band = slotBand(field);
     this.slots = fieldSlots(COMBAT.field.slotsA, band, xs, SLOT_H);
     if (vs) this.enemySlots = this.slots.map((p) => ({ x: p.x === xs.front ? 694 : 930, y: p.y }));
 
-    // --- Поле: подложка, половины, линии, подписи колонок ---
-    card(scene, GAME_W / 2, (field.top + field.bottom) / 2, 1050, field.bottom - field.top);
+    // --- Поле: поверхность без рамки; своя половина и половина противника — оттенком, фронт — светлой полосой ---
+    const fh = field.bottom - field.top;
+    const fieldX = S.l / 2;
+    const fieldW = GAME_W - S.l;
+    plate(scene, GAME_W / 2, field.top + fh / 2, fieldW, fh, { ...SURFACE.surface, r: R.l });
     const g = scene.add.graphics();
-    const midY = (band.top + band.bottom) / 2;
-    const fh = field.bottom - field.top - 20;
-    g.fillStyle(0x1f3d26, 0.28).fillRoundedRect(28, field.top + 10, (vs ? 512 : 1024) - 28, fh, 18);
-    if (vs) g.fillStyle(0x3d1f1a, 0.3).fillRoundedRect(540, field.top + 10, 512, fh, 18);
-    // Тени под местами: видно, где будут стоять герои.
+    const half = vs ? GAME_W / 2 - fieldX : fieldW;
+    g.fillStyle(0x3f7a4a, 0.1).fillRoundedRect(fieldX, field.top, half, fh, R.l);
+    if (vs) {
+      g.fillStyle(0x7a3a2f, 0.12).fillRoundedRect(GAME_W / 2, field.top, half, fh, R.l);
+      g.lineStyle(2, COLOR_N.border, 0.7).lineBetween(GAME_W / 2, field.top + HEAD_H - S.xs, GAME_W / 2, field.bottom - S.m);
+    }
+    // Ряды различаются фоном: светлая полоса за фронтом (ближе к врагу), без подписей «фронт / тыл».
+    const colTop = band.top - S.xs;
+    g.fillStyle(0xfff0d0, 0.05).fillRoundedRect(xs.front - this.slotW / 2 - S.xs, colTop, this.slotW + 2 * S.xs, field.bottom - S.xs - colTop, R.m);
     (opts.enemies ?? []).forEach((u, i) => u && this.enemySlots[i] && g.fillStyle(0x000000, 0.3).fillEllipse(this.enemySlots[i].x, this.enemySlots[i].y + 34, 140, 30));
-    const labelY = field.top + 76;
-    const colLabel = (x: number, s: string) => text(scene, x, labelY, s, FS.caption, C.dim, { stroke: C.stroke, strokeThickness: 3 });
-    colLabel(xs.back, 'тыл');
-    colLabel(xs.front, 'фронт');
-    if (vs) {
-      g.lineStyle(3, SKIN_TINT.bronze, 0.9).lineBetween(540, field.top + 20, 540, field.bottom - 20);
-      scene.add.image(540, midY, skinIcon('swords')).setDisplaySize(64, 64).setTint(SKIN_TINT.gold);
-      if (opts.recommend) {
-        // Под «Нужно N» — какие герои нужны (вместо подписей колонок противника: его расстановку игрок не меняет).
-        const t = text(scene, 796, labelY, recommendText(opts.recommend), FS.caption, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('stageRecommend');
-        if (t.width > 500) t.setScale(500 / t.width);
-        this.levelTexts.push({ t, level: opts.recommend.level });
-      } else {
-        colLabel(694, 'фронт');
-        colLabel(930, 'тыл');
-      }
-    } else {
-      text(scene, 900, midY, 'к противнику\n→', FS.caption, C.dim, { stroke: C.stroke, strokeThickness: 3, lineSpacing: 4 });
-    }
 
-    // Мощь: над своим отрядом; у этапа справа — мощь противника.
-    this.powerText = text(scene, vs ? 268 : GAME_W / 2, field.top + 36, '', FS.h3, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
-    if (vs) {
-      text(scene, 812, field.top + 36, `Нужно ${formatNumber(opts.enemyPower ?? 0)}`, FS.h3, C.enemy, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
-      // «Почти готово»: вердикт на разделителе — зелёный / жёлтый «чуть не хватает» / красный (обновляется в refreshInfo).
+    // Мощь: у этапа — powerCompare по центру над полем (своя · «Не хватает N» при нехватке: сравнение двух сторон),
+    // у «Отряда» — «⚔ мощь» над своим отрядом.
+    const headY = field.top + S.l;
+    if (opts.showPower !== false && opts.chrome !== false) {
       if (opts.enemyPower !== undefined) {
-        const pc = { squad: 0, recommended: opts.enemyPower, tone: 'ahead' as const, verdict: POWER_VERDICT.ahead };
-        this.verdict = powerChip(scene, 540, field.top + 36, pc, { label: pc.verdict }).setDepth(2);
+        this.powerBox = powerCompare(scene, GAME_W / 2, headY, 0, opts.enemyPower, { align: 'center' }).setDepth(2);
+      } else {
+        const ico = scene.add.image(0, 0, skinIcon('swords')).setDisplaySize(48, 48).setTint(COLOR_N.title);
+        this.powerText = text(scene, 0, 0, '', T.heading, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+        this.powerBox = scene.add.container(fieldX + S.m, headY, [ico, this.powerText]).setName('squadPower');
+        ico.setX(24);
+        this.powerText.setX(48 + S.xxs);
       }
-      this.drawEnemies(opts.enemies ?? []);
     }
+    if (vs) this.drawEnemies(opts.enemies ?? []);
 
     this.fieldLayer = scene.add.container(0, 0);
 
-    // Строка под полем: подсказка или предупреждение «стрелки во фронте» + «Переставить».
+    // Строка под полем — только когда есть что сказать: предупреждение «стрелки во фронте» + «Переставить», пустой
+    // отряд или короткая заметка (Авто). Постоянной инструкции нет.
     const tipY = field.bottom + 40;
-    this.tip = text(scene, GAME_W / 2, tipY, '', FS.caption, C.muted);
-    this.fixBtn = button(scene, GAME_W - 170, tipY, 300, 84, 'ui_btn_secondary', 'Переставить', () => this.rearrange(), FS.small);
+    this.tip = text(scene, GAME_W / 2, tipY, '', T.caption, COLOR.textSecondary);
+    this.fixBtn = button(scene, GAME_W - S.l - 150, tipY, 300, 84, '', 'Переставить', () => this.rearrange(), T.caption, { variant: 'secondary' });
     this.fixBtn.container.setName('rearrangeBtn');
 
-    // --- Список героев с прокруткой ---
+    // --- Заголовок сетки (необязательно) ---
+    if (opts.rosterHead) this.drawRosterHead(opts.rosterHead);
+
+    // --- Сетка героев с прокруткой ---
     const { roster } = opts;
+    this.selFrame = scene.add.graphics();
     this.rosterContent = scene.add.container(0, roster.top);
     const mg = scene.make.graphics({}, false);
     mg.fillStyle(0xffffff).fillRect(0, roster.top, GAME_W, roster.bottom - roster.top);
     this.rosterContent.setMask(mg.createGeometryMask());
     // Видимая полоса списка (e2e: вне полосы содержимое скрыто маской и ничего не перекрывает).
     this.rosterContent.setData('clip', [roster.top, roster.bottom]);
-    this.thumb = scene.add.rectangle(GAME_W - 8, roster.top, 8, 40, TINT.frame, 0.8).setOrigin(0.5, 0).setVisible(false);
+    this.thumb = scene.add.rectangle(GAME_W - S.xs, roster.top, 6, 40, COLOR_N.border, 0.9).setOrigin(0.5, 0).setVisible(false);
 
     this.highlight = scene.add.graphics().setDepth(4000);
     this.dragLayer = scene.add.container(0, 0).setDepth(5000);
@@ -219,13 +257,35 @@ export class FormationEditor {
     this.opts.onChange?.();
   }
 
+  /** «Герои» и кнопки-иконки «Авто» / «Пресеты» справа (opts.rosterHead). */
+  private drawRosterHead(head: NonNullable<FormationOpts['rosterHead']>): void {
+    const scene = this.scene;
+    text(scene, S.l, head.y, head.title ?? 'Герои', T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5).setName('rosterTitle');
+    let right = GAME_W - S.l;
+    const add = (label: string, icon: string, name: string, onTap: () => void) => {
+      const w = 210;
+      const b = button(scene, right - w / 2, head.y, w, 88, '', label, onTap, T.caption, { variant: 'secondary' });
+      const ico = scene.add.image(0, -2, icon).setDisplaySize(44, 44).setTint(COLOR_N.title);
+      b.container.add(ico);
+      // Иконка и подпись — одной группой по центру кнопки.
+      const both = 44 + S.xxs + b.label.width;
+      ico.setX(-both / 2 + 22);
+      b.label.setX(-both / 2 + 44 + S.xxs + b.label.width / 2);
+      b.container.setName(name);
+      right -= w + S.xs;
+    };
+    // Справа налево: «Пресеты» у края, «Авто» левее.
+    if (head.onPresets) add('Пресеты', 'prep_ico_presets', 'presetsBtn', head.onPresets);
+    if (head.onAuto) add('Авто', 'prep_ico_auto', 'autoBtn', head.onAuto);
+  }
+
   private drawEnemies(enemies: (UnitDef | null)[]): void {
     const scene = this.scene;
     enemies.forEach((u, i) => {
       const p = this.enemySlots[i];
       if (!u || !p) return;
       const boss = u.kind === 'boss';
-      // Фигура в стойке, лицом к отряду (зеркально, как в бою).
+      // Фигура в стойке, лицом к отряду (зеркально, как в бою). Имя и подробности — по касанию (экран этапа).
       unitFigure(scene, u.visual.sprite, p.x, p.y + 36, boss ? 130 : 110, {
         onReady: (o) => {
           o.setTint(unitTint(u.visual));
@@ -235,23 +295,18 @@ export class FormationEditor {
           }
         },
       });
-      // Имя целиком (T1-22): перенос по пробелу/дефису, не влезает — мельче.
-      fitName(text(scene, p.x, p.y + 74, u.name, FS.caption, boss ? C.danger : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5, lineSpacing: -6 }), ENEMY_W);
-      // Уровень — плашкой справа от фигуры, на уровне груди, поверх фигуры (над ним — имя соседа сверху, под ним — своё).
+      // Уровень — числом справа от фигуры, на уровне груди, поверх фигуры; цвет — против уровня отряда.
       const level = this.opts.enemyLevels?.[i];
       if (level != null) {
-        const t = text(scene, p.x + (boss ? 66 : 58), p.y - 8, levelLabel(level), FS.caption, C.text, {
-          fontStyle: 'bold',
-          stroke: C.stroke,
-          strokeThickness: 4,
-          backgroundColor: 'rgba(20,12,8,0.72)',
-          padding: { x: 8, y: 1 },
-        })
-          .setName(`enemyLevel${i}`)
-          .setDepth(3);
+        const t = this.levelLabel(p.x + (boss ? 66 : 58), p.y - 8, level).setName(`enemyLevel${i}`).setDepth(3);
         this.levelTexts.push({ t, level });
       }
     });
+  }
+
+  /** Число уровня растровым шрифтом (белые глифы с тёмной обводкой; цвет — tint). */
+  private levelLabel(x: number, y: number, level: number): Phaser.GameObjects.BitmapText {
+    return this.scene.add.bitmapText(x, y, this.font.key, String(level), this.font.size).setOrigin(0.5);
   }
 
   private drawSlots(): void {
@@ -260,27 +315,31 @@ export class FormationEditor {
     this.fieldLayer.removeAll(true);
     this.slotViews = [];
     const save = session.save;
-    const gctx = withGear(GAME, save);
     const w = this.slotW;
     const h = SLOT_H;
+    // Пустые слоты один раз мягко пульсируют при открытии — если есть кого поставить.
+    const pulse = !this.hinted && this.opts.hintEmpty !== false && juiceOn() && save.heroes.some((x) => !save.squad.includes(x.id));
+    this.hinted = true;
+    let popIndex = 0;
     save.squad.forEach((heroId, i) => {
       const p = this.slots[i];
       const hero = heroId ? save.heroes.find((x) => x.id === heroId) : undefined;
-      const c = scene.add.container(p.x, p.y);
+      const c = scene.add.container(p.x, p.y).setName(`slot${i}`);
       this.fieldLayer.add(c);
       this.slotViews.push(c);
       const sel = this.selected === i;
-      const bg = panel(scene, 0, 0, w, h, sel ? 'ui_slot_selected' : hero ? 'ui_slot_filled' : 'ui_slot_empty');
-      bg.setAlpha(hero || sel ? 0.92 : 0.75);
+      const bg = hero
+        ? plate(scene, 0, 0, w, h, { fill: COLOR.surfaceRaised, alpha: 0.92, border: rarityColor(hero.rarity), borderW: 4, r: R.m, hl: 0.1 })
+        : plate(scene, 0, 0, w, h, { ...SURFACE.sunken, ...(sel ? { border: COLOR.accent, borderW: 4 } : {}), r: R.m });
       c.add(bg);
       this.tag(bg, { slot: i });
       if (!hero) {
-        c.add(text(scene, 0, -16, '+', 96, sel ? C.gold : C.placeholder, { fontStyle: 'bold' }));
-        c.add(text(scene, 0, 62, sel ? 'выбран' : i < 2 ? 'фронт' : 'тыл', FS.caption, sel ? C.gold : C.placeholder));
+        const plus = scene.add.image(0, 0, 'prep_plus').setDisplaySize(64, 64).setTint(sel ? COLOR_N.accent : COLOR_N.textTertiary).setAlpha(sel ? 1 : 0.7);
+        c.add(plus);
+        if (pulse) scene.tweens.add({ targets: c, scale: 1.05, duration: M.slow, delay: M.base + i * 60, yoyo: true, repeat: 1, ease: E.inOut });
         return;
       }
-      const rank = formationRank(hero, GAME);
-      unitFigure(scene, heroSprite(hero, GAME), 0, 24, 104, {
+      unitFigure(scene, heroSprite(hero, GAME), 0, h / 2 - 24, 128, {
         onReady: (o) => {
           if (gen !== this.gen || !c.scene) {
             o.destroy();
@@ -290,16 +349,15 @@ export class FormationEditor {
           if (o instanceof Phaser.GameObjects.Sprite && !juiceOn()) o.anims.pause();
         },
       });
-      c.add(text(scene, -w / 2 + 12, -h / 2 + 8, `ур. ${hero.level}`, FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0));
-      c.add(scene.add.image(w / 2 - 30, -h / 2 + 30, roleIconKey(rank)).setDisplaySize(46, 46));
-      c.add(ellipsize(text(scene, 0, 46, heroName(hero, GAME), FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), w - 20));
-      c.add(text(scene, 0, 78, formatNumber(heroPower(hero, gctx)), FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }));
-      if (this.pop === i && juiceOn()) {
+      // Уровень — маленьким числом в левом верхнем углу (цвет редкости — у рамки).
+      c.add(this.levelLabel(-w / 2 + S.m, -h / 2 + S.s + 2, hero.level).setName('slotLevel'));
+      if ((this.pop === i || this.popAll) && juiceOn()) {
         c.setScale(0.86);
-        scene.tweens.add({ targets: c, scale: 1, duration: 220, ease: 'Back.easeOut' });
+        scene.tweens.add({ targets: c, scale: 1, duration: M.base, delay: this.popAll ? popIndex++ * 40 : 0, ease: E.pop });
       }
     });
     this.pop = null;
+    this.popAll = false;
   }
 
   private drawRoster(): void {
@@ -311,58 +369,52 @@ export class FormationEditor {
     const power = (hero: HeroState) => heroPower(hero, gctx);
     const heroes = rosterOrder(save.heroes, power);
     const x0 = GAME_W / 2 - ((COLS - 1) * (CARD_W + CARD_GAP)) / 2;
+    const inset = 6;
     heroes.forEach((hero, i) => {
       const x = x0 + (i % COLS) * (CARD_W + CARD_GAP);
-      const y = 6 + CARD_H / 2 + Math.floor(i / COLS) * (CARD_H + CARD_GAP);
+      const y = S.xs + CARD_H / 2 + Math.floor(i / COLS) * (CARD_H + CARD_GAP);
       const inSquad = save.squad.includes(hero.id);
-      const c = scene.add.container(x, y);
+      // Плитка: фон и рамка редкости, портрет, значок роли, уровень; в отряде — приглушена, с галкой.
+      const back = scene.add.image(0, 0, backTexture(scene, hero.rarity)).setDisplaySize(CARD_W - 2 * inset, CARD_H - 2 * inset);
+      this.tag(back, { hero: hero.id });
+      const face = portrait(scene, 0, -12, portraitKey(heroSprite(hero, GAME)), CARD_W - 30);
+      const frame = scene.add.image(0, 0, frameTexture(scene, hero.rarity, CARD_W, CARD_H));
+      const role = scene.add.image(-CARD_W / 2 + 30, -CARD_H / 2 + 30, roleIconKey(formationRank(hero, GAME))).setDisplaySize(40, 40);
+      const lvl = this.levelLabel(0, CARD_H / 2 - 30, hero.level);
+      const parts: Phaser.GameObjects.GameObject[] = [back, face, frame, role, lvl];
+      if (inSquad) {
+        back.setTint(0x6a6a6a);
+        face.setAlpha(0.4);
+        role.setAlpha(0.5);
+        parts.push(scene.add.image(CARD_W / 2 - 30, -CARD_H / 2 + 30, 'prep_check').setDisplaySize(44, 44).setName('inSquad'));
+      }
+      const c = scene.add.container(x, y, parts).setName(`rosterCard_${hero.id}`);
       this.rosterContent.add(c);
       this.cardViews.set(hero.id, c);
-      const bg = panel(scene, 0, 0, CARD_W, CARD_H, inSquad ? 'ui_slot_filled' : 'ui_slot_selected');
-      c.add(bg);
-      this.tag(bg, { hero: hero.id });
-      const rank = formationRank(hero, GAME);
-      const face = portrait(scene, 0, -44, portraitKey(heroSprite(hero, GAME)), 118);
-      c.add(face);
-      const card0 = heroCard(hero, GAME);
-      c.add(text(scene, -CARD_W / 2 + 12, -CARD_H / 2 + 8, `ур. ${hero.level}`, FS.caption, card0.rarity.color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0));
-      c.add(scene.add.image(CARD_W / 2 - 30, -CARD_H / 2 + 30, roleIconKey(rank)).setDisplaySize(46, 46));
-      c.add(ellipsize(text(scene, 0, 34, card0.name, FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }), CARD_W - 20));
-      c.add(ellipsize(text(scene, 0, 66, card0.jobName, FS.caption, C.title, { stroke: C.stroke, strokeThickness: 4 }), CARD_W - 24));
-      c.add(text(scene, 0, 100, formatNumber(power(hero)), FS.caption, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }));
-      if (inSquad) {
-        // «В отряде»: портрет приглушён, поверх — зелёная плашка с галочкой.
-        face.setAlpha(0.5);
-        c.add(scene.add.rectangle(0, -8, CARD_W - 24, 40, 0x10301a, 0.85).setStrokeStyle(2, 0x6fd06f, 0.8));
-        c.add(scene.add.image(-72, -8, skinIcon('check')).setDisplaySize(30, 30).setTint(0x9fe0a6));
-        c.add(text(scene, 14, -8, 'в отряде', FS.caption, C.success, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 3 }));
-      }
     });
     const rows = Math.ceil(heroes.length / COLS);
-    this.rosterH = rows ? 12 + rows * CARD_H + (rows - 1) * CARD_GAP : 0;
+    this.rosterH = rows ? 2 * S.xs + rows * CARD_H + (rows - 1) * CARD_GAP : 0;
     this.scrollTo(this.scrollY);
+    // Выбран пустой слот — сетка подсвечена рамкой акцента: следующий герой встанет туда.
+    const r = this.opts.roster;
+    this.selFrame.clear();
+    if (this.selected !== null) this.selFrame.lineStyle(4, COLOR_N.accent, 0.7).strokeRoundedRect(S.xs, r.top - S.xxs, GAME_W - 2 * S.xs, r.bottom - r.top + 2 * S.xxs, R.l);
   }
 
-  /** Мощь (отсчёт от прежней), подсказка или предупреждение «дальний бой во фронте». */
+  /** Мощь (отсчёт от прежней), «нужен уровень» при нехватке, предупреждение «дальний бой во фронте». */
   private refreshInfo(): void {
     const save = session.save;
     const mine = squadPower(save, GAME);
     const prev = this.shownPower;
     this.shownPower = mine;
-    for (const { t, level } of this.levelTexts) t.setColor(enemyLevelColor(level, save));
+    for (const { t, level } of this.levelTexts) t.setTint(Phaser.Display.Color.HexStringToColor(enemyLevelColor(level, save)).color);
     const enemy = this.opts.enemyPower;
-    if (enemy !== undefined) {
-      const tone = powerTone(mine, enemy);
-      this.powerText.setColor(POWER_COLORS[tone]);
-      if (this.verdict) {
-        const was = this.verdict.getData('tone') as PowerTone;
-        setPowerChip(this.verdict, { squad: mine, recommended: enemy, tone, verdict: POWER_VERDICT[tone] }, POWER_VERDICT[tone]);
-        if (prev !== null && was !== tone) bump(this.scene, this.verdict, 1.15);
-      }
+    if (this.powerBox && enemy !== undefined) {
+      updatePowerCompare(this.powerBox, mine, enemy);
+    } else if (this.powerText) {
+      countUp(this.scene, this.powerText, prev ?? mine, mine, (n) => groupDigits(n), { duration: 400 });
     }
-    const fmt = (n: number) => (enemy !== undefined ? `Мощь ${formatNumber(n)}` : `Мощь отряда: ${formatNumber(n)}`);
-    countUp(this.scene, this.powerText, prev ?? mine, mine, fmt, { duration: 400 });
-    if (prev !== null && prev !== mine) bump(this.scene, this.powerText, 1.08);
+    if (this.powerBox && prev !== null && prev !== mine) bump(this.scene, this.powerBox, 1.06);
 
     const misplaced = misplacedInFront(save, GAME);
     this.fixBtn.container.setVisible(misplaced.length > 0);
@@ -371,24 +423,18 @@ export class FormationEditor {
         const h = save.heroes.find((x) => x.id === id);
         return h ? heroName(h, GAME) : id;
       });
-      this.tip.setText(`${names.join(', ')} во фронте — дальнему бою место в тылу`).setColor(C.warning).setX(40).setOrigin(0, 0.5);
-      ellipsize(this.tip, GAME_W - 400);
-    } else {
-      // RR-17: «Отряд расставлен автоматически» — строкой подсказки над списком, а не тостом на названии этапа.
-      const note = this.note && this.scene.time.now < this.note.until ? this.note.text : null;
-      if (note) {
-        this.tip.setText(note).setColor(C.success).setX(GAME_W / 2).setOrigin(0.5);
-        ellipsize(this.tip, 1000);
-        return;
-      }
-      const msg = !save.squad.some(Boolean)
-        ? 'Поставьте в отряд хотя бы одного героя'
-        : this.selected !== null
-          ? 'Слот выбран — нажмите на героя в списке'
-          : 'Нажмите на героя или перетащите его на место';
-      this.tip.setText(msg).setColor(save.squad.some(Boolean) ? C.muted : C.warning).setX(GAME_W / 2).setOrigin(0.5);
-      ellipsize(this.tip, 1000);
+      this.tip.setText(`${names.join(', ')} во фронте — дальнему бою место в тылу`).setColor(C.warning).setX(S.l).setOrigin(0, 0.5);
+      ellipsize(this.tip, GAME_W - 2 * S.l - 300 - S.s);
+      return;
     }
+    // RR-17: «Отряд расставлен автоматически» — строкой под полем на пару секунд, а не тостом на названии этапа.
+    const note = this.note && this.scene.time.now < this.note.until ? this.note.text : null;
+    const empty = !save.squad.some(Boolean);
+    // Сил не хватает — какие нужны герои (§3 правило 11: требование — только при нехватке).
+    const rec = this.opts.chrome !== false && this.opts.recommend && enemy !== undefined && powerTone(mine, enemy) !== 'ahead' ? recommendText(this.opts.recommend) : '';
+    const msg = note ?? (empty ? 'Поставьте в отряд хотя бы одного героя' : rec);
+    this.tip.setText(msg).setColor(note ? COLOR.positive : COLOR.warning).setX(GAME_W / 2).setOrigin(0.5).setName(rec && msg === rec ? 'stageRecommend' : '');
+    ellipsize(this.tip, GAME_W - 2 * S.l);
   }
 
   // ---------- прокрутка ----------
@@ -409,7 +455,7 @@ export class FormationEditor {
     if (!this.scrollable) return;
     const view = this.rosterView;
     const th = Math.max(60, (view * view) / this.rosterH);
-    this.thumb.setSize(8, th).setY(this.opts.roster.top + (view - th) * (this.scrollY / max));
+    this.thumb.setSize(6, th).setY(this.opts.roster.top + (view - th) * (this.scrollY / max));
   }
 
   private inRoster(y: number): boolean {
@@ -418,7 +464,7 @@ export class FormationEditor {
 
   // ---------- жесты: нажатие, перетаскивание, прокрутка ----------
 
-  private tag(o: Phaser.GameObjects.NineSlice, tag: Tag): void {
+  private tag(o: Phaser.GameObjects.NineSlice | Phaser.GameObjects.Image, tag: Tag): void {
     o.setInteractive({ useHandCursor: true });
     o.setData('prep', tag);
   }
@@ -514,19 +560,19 @@ export class FormationEditor {
     g.holdTimer?.remove();
     this.release(g);
     this.selected = null;
+    this.selFrame.clear();
     const scene = this.scene;
     // Источник приглушаем: видно, откуда взят герой.
     g.press?.setAlpha(0.4);
-    const ring = scene.add.circle(0, 0, GHOST_SIZE / 2 + 6, 0x14110c, 0.92).setStrokeStyle(6, TINT.gold);
+    const ring = scene.add.circle(0, 0, GHOST_SIZE / 2 + 6, COLOR_N.surfaceSunken, 0.92).setStrokeStyle(6, Phaser.Display.Color.HexStringToColor(rarityColor(hero.rarity)).color);
     const face = portrait(scene, 0, 0, portraitKey(heroSprite(hero, GAME)), GHOST_SIZE);
-    const name = text(scene, 0, GHOST_SIZE / 2 + 26, heroName(hero, GAME), FS.small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
-    this.ghost = scene.add.container(0, 0, [ring, face, name]);
+    this.ghost = scene.add.container(0, 0, [ring, face]);
     this.dragLayer.add(this.ghost);
     const w = worldPoint(scene, p);
     this.ghost.setPosition(w.x, w.y - GHOST_LIFT);
     if (juiceOn()) {
       this.ghost.setScale(0.7);
-      scene.tweens.add({ targets: this.ghost, scale: 1, duration: 140, ease: 'Back.easeOut' });
+      scene.tweens.add({ targets: this.ghost, scale: 1, duration: M.fast, ease: E.pop });
     }
     this.moveGhost(w);
   }
@@ -547,17 +593,18 @@ export class FormationEditor {
       if (i === g.slot) return;
       const on = i === hover;
       const bad = on && i < 2 && rank >= 2;
-      const col = bad ? 0xff9a4a : TINT.gold;
-      if (on) hl.fillStyle(col, 0.18).fillRoundedRect(s.x - sw / 2, s.y - SLOT_H / 2, sw, SLOT_H, 20);
-      hl.lineStyle(on ? 8 : 3, col, on ? 1 : 0.45).strokeRoundedRect(s.x - sw / 2, s.y - SLOT_H / 2, sw, SLOT_H, 20);
+      const col = bad ? COLOR_N.warning : COLOR_N.accent;
+      if (on) hl.fillStyle(col, 0.18).fillRoundedRect(s.x - sw / 2, s.y - SLOT_H / 2, sw, SLOT_H, R.m);
+      hl.lineStyle(on ? 6 : 3, col, on ? 1 : 0.45).strokeRoundedRect(s.x - sw / 2, s.y - SLOT_H / 2, sw, SLOT_H, R.m);
     });
     // Из слота — в список: «убрать».
     if (g.kind === 'slot') {
       const r = this.opts.roster;
-      hl.fillStyle(0x000000, 0.35).fillRoundedRect(20, r.top, GAME_W - 40, r.bottom - r.top, 20);
-      hl.lineStyle(4, TINT.danger, 0.8).strokeRoundedRect(20, r.top, GAME_W - 40, r.bottom - r.top, 20);
+      hl.fillStyle(0x000000, 0.35).fillRoundedRect(S.xs, r.top, GAME_W - 2 * S.xs, r.bottom - r.top, R.l);
+      hl.lineStyle(4, COLOR_N.negative, 0.8).strokeRoundedRect(S.xs, r.top, GAME_W - 2 * S.xs, r.bottom - r.top, R.l);
       if (!this.dropHint) {
-        this.dropHint = text(this.scene, GAME_W / 2, (r.top + r.bottom) / 2, 'Отпустите здесь — убрать из отряда', FS.h3, C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 });
+        this.dropHint = text(this.scene, GAME_W / 2, (r.top + r.bottom) / 2, 'Убрать из отряда', T.heading, COLOR.negative, { fontStyle: 'bold' });
+        this.dropHint.setShadow(0, 2, 'rgba(0,0,0,0.8)', 4, false, true);
         this.dragLayer.addAt(this.dropHint, 0);
       }
     }
@@ -587,6 +634,8 @@ export class FormationEditor {
     }
     // Пустой слот: выбрать (следующий герой из списка встанет сюда); повторно — снять выбор.
     this.selected = this.selected === i ? null : i;
+    sfx('ui_toggle');
+    haptic('tap');
     this.draw();
   }
 
@@ -605,16 +654,21 @@ export class FormationEditor {
     if (!r.squad) {
       if (r.reason === 'last') toast(this.scene, 'В отряде должен остаться хотя бы один герой');
       else if (r.reason === 'full') toast(this.scene, 'Отряд полон: перетащите героя на занятое место или уберите кого-нибудь');
+      if (r.reason === 'last' || r.reason === 'full') haptic('error');
       this.draw();
       return;
     }
     // Одна копия каждой карточки в отряде (ядро: duplicate_card).
     if (duplicateCardsInSquad(session.save, r.squad).length) {
       toast(this.scene, 'Эта карточка уже в отряде — можно взять только одну копию');
+      haptic('error');
       this.draw();
       return;
     }
     commit({ ...session.save, squad: r.squad });
+    // Рутина — тихо (§3 правило 10): щелчок, лёгкая вибрация и подскок слота.
+    sfx('ui_toggle');
+    haptic('tap');
     this.pop = popSlot;
     this.draw();
   }
@@ -623,86 +677,182 @@ export class FormationEditor {
   rearrange(): void {
     commit({ ...session.save, squad: arrangeSquad(session.save, GAME) });
     this.selected = null;
+    this.popAll = true;
+    haptic('tap');
     this.draw();
     toast(this.scene, 'Отряд переставлен: дальний бой и лекари — в тылу');
   }
 
-  /** Отряд целиком заменён снаружи (авто, пресет) — перерисовать. */
+  /** Отряд целиком заменён снаружи (авто, пресет) — перерисовать; герои «запрыгивают» в слоты. */
   replaced(note?: string): void {
     this.selected = null;
+    this.popAll = true;
+    haptic('tap');
     if (note) {
       const until = this.scene.time.now + NOTE_MS;
       this.note = { text: note, until };
       // Подсказка вернётся к обычной, когда заметка отжила (если за это время ничего не менялось).
       this.scene.time.delayedCall(NOTE_MS + 20, () => {
-        if (this.note?.until === until && this.tip.scene) this.draw();
+        if (this.note?.until === until && this.tip.scene) this.refreshInfo();
       });
     }
     this.draw();
   }
 }
 
-// ---------- значки ролей ----------
+/** Мощь «34 617» (пробелы по разрядам). */
+function groupDigits(n: number): string {
+  return Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
+/** Растровый шрифт чисел уровня (numberFont.ts): белый жирный T.caption с тёмной обводкой; цвет — tint. */
+function levelFont(scene: Phaser.Scene): NumberFont {
+  const style: CachedTextStyle = { fontFamily: FAMILY.body, fontSize: `${T.caption}px`, color: '#ffffff', align: 'center', stroke: '#000000', strokeThickness: 6, fontStyle: 'bold' };
+  const probe = scene.add.text(0, 0, '', { fontFamily: FAMILY.body, align: 'center' }).setVisible(false).setActive(false);
+  const font = numberFont(scene, style, probe);
+  probe.destroy();
+  return font;
+}
+
+// ---------- значки ----------
 
 const roleIconKey = (rank: number) => `prep_role_${RANK_ICON[Math.max(0, Math.min(3, rank))]}`;
 
-/** Значки ролей рисуются кодом один раз на игру: кружок с бронзовой рамкой и символом. */
-function ensureRoleIcons(scene: Phaser.Scene): void {
-  const S = 64;
+type Ctx2D = CanvasRenderingContext2D;
+
+function canvasIcon(scene: Phaser.Scene, key: string, size: number, draw: (c: Ctx2D) => void): void {
+  if (scene.textures.exists(key)) return;
+  const tex = scene.textures.createCanvas(key, size, size);
+  if (!tex) return;
+  const c = tex.getContext();
+  c.lineCap = 'round';
+  c.lineJoin = 'round';
+  draw(c);
+  tex.refresh();
+}
+
+/** Щит / меч / лук / крест — символы ролей в квадрате 64 (цвет и толщина — снаружи). */
+function roleGlyph(c: Ctx2D, kind: (typeof RANK_ICON)[number]): void {
+  c.beginPath();
+  if (kind === 'tank') {
+    c.moveTo(18, 17);
+    c.lineTo(46, 17);
+    c.lineTo(46, 32);
+    c.quadraticCurveTo(46, 44, 32, 50);
+    c.quadraticCurveTo(18, 44, 18, 32);
+    c.closePath();
+    c.fill();
+  } else if (kind === 'melee') {
+    c.moveTo(20, 44);
+    c.lineTo(44, 18);
+    c.moveTo(22, 34);
+    c.lineTo(30, 42);
+    c.moveTo(17, 47);
+    c.lineTo(21, 43);
+    c.stroke();
+  } else if (kind === 'ranged') {
+    c.arc(26, 32, 17, -Math.PI / 2.4, Math.PI / 2.4);
+    c.moveTo(26 + 17 * Math.cos(-Math.PI / 2.4), 32 + 17 * Math.sin(-Math.PI / 2.4));
+    c.lineTo(26 + 17 * Math.cos(Math.PI / 2.4), 32 + 17 * Math.sin(Math.PI / 2.4));
+    c.moveTo(20, 32);
+    c.lineTo(48, 32);
+    c.stroke();
+    c.beginPath();
+    c.moveTo(50, 32);
+    c.lineTo(43, 27);
+    c.lineTo(43, 37);
+    c.closePath();
+    c.fill();
+  } else {
+    c.fillRect(27, 16, 10, 32);
+    c.fillRect(16, 27, 32, 10);
+  }
+}
+
+/**
+ * Текстуры подготовки рисуются кодом один раз на игру: значки ролей (кружок с бронзовой рамкой и символом),
+ * «+» пустого слота, галка «в отряде»,
+ * иконки кнопок «Авто» (палочка) и «Пресеты» (закладка).
+ */
+function ensurePrepTextures(scene: Phaser.Scene): void {
+  const S64 = 64;
   const colors: Record<(typeof RANK_ICON)[number], string> = { tank: '#7fb2ff', melee: '#ff8f6a', ranged: '#9fe07a', healer: '#fff2a8' };
   for (const kind of RANK_ICON) {
-    const key = `prep_role_${kind}`;
-    if (scene.textures.exists(key)) continue;
-    const tex = scene.textures.createCanvas(key, S, S);
-    if (!tex) continue;
-    const c = tex.getContext();
-    c.fillStyle = '#1a1510';
-    c.strokeStyle = '#d6ae63';
+    canvasIcon(scene, `prep_role_${kind}`, S64, (c) => {
+      c.fillStyle = '#1a1510';
+      c.strokeStyle = '#d6ae63';
+      c.lineWidth = 4;
+      c.beginPath();
+      c.arc(S64 / 2, S64 / 2, S64 / 2 - 3, 0, Math.PI * 2);
+      c.fill();
+      c.stroke();
+      c.fillStyle = colors[kind];
+      c.strokeStyle = colors[kind];
+      c.lineWidth = 5;
+      roleGlyph(c, kind);
+    });
+  }
+  canvasIcon(scene, 'prep_plus', S64, (c) => {
+    c.strokeStyle = '#ffffff';
+    c.lineWidth = 7;
+    c.beginPath();
+    c.moveTo(32, 14);
+    c.lineTo(32, 50);
+    c.moveTo(14, 32);
+    c.lineTo(50, 32);
+    c.stroke();
+  });
+  canvasIcon(scene, 'prep_check', S64, (c) => {
+    c.fillStyle = '#1f5a24';
+    c.strokeStyle = '#b6f0a0';
     c.lineWidth = 4;
     c.beginPath();
-    c.arc(S / 2, S / 2, S / 2 - 3, 0, Math.PI * 2);
+    c.arc(32, 32, 28, 0, Math.PI * 2);
     c.fill();
     c.stroke();
-    c.fillStyle = colors[kind];
-    c.strokeStyle = colors[kind];
-    c.lineWidth = 5;
-    c.lineCap = 'round';
+    c.strokeStyle = '#eaffe0';
+    c.lineWidth = 7;
     c.beginPath();
-    if (kind === 'tank') {
-      c.moveTo(18, 17);
-      c.lineTo(46, 17);
-      c.lineTo(46, 32);
-      c.quadraticCurveTo(46, 44, 32, 50);
-      c.quadraticCurveTo(18, 44, 18, 32);
-      c.closePath();
-      c.fill();
-    } else if (kind === 'melee') {
-      c.moveTo(20, 44);
-      c.lineTo(44, 18);
-      c.moveTo(22, 34);
-      c.lineTo(30, 42);
-      c.moveTo(17, 47);
-      c.lineTo(21, 43);
-      c.stroke();
-    } else if (kind === 'ranged') {
-      c.arc(26, 32, 17, -Math.PI / 2.4, Math.PI / 2.4);
-      c.moveTo(26 + 17 * Math.cos(-Math.PI / 2.4), 32 + 17 * Math.sin(-Math.PI / 2.4));
-      c.lineTo(26 + 17 * Math.cos(Math.PI / 2.4), 32 + 17 * Math.sin(Math.PI / 2.4));
-      c.moveTo(20, 32);
-      c.lineTo(48, 32);
-      c.stroke();
+    c.moveTo(19, 33);
+    c.lineTo(28, 42);
+    c.lineTo(45, 23);
+    c.stroke();
+  });
+  // Палочка со звёздочкой («Авто»).
+  canvasIcon(scene, 'prep_ico_auto', S64, (c) => {
+    c.strokeStyle = '#ffffff';
+    c.fillStyle = '#ffffff';
+    c.lineWidth = 6;
+    c.beginPath();
+    c.moveTo(12, 52);
+    c.lineTo(38, 26);
+    c.stroke();
+    const star = (x: number, y: number, r: number) => {
       c.beginPath();
-      c.moveTo(50, 32);
-      c.lineTo(43, 27);
-      c.lineTo(43, 37);
+      for (let i = 0; i < 8; i++) {
+        const a = (i * Math.PI) / 4 - Math.PI / 2;
+        const rr = i % 2 ? r * 0.38 : r;
+        c.lineTo(x + rr * Math.cos(a), y + rr * Math.sin(a));
+      }
       c.closePath();
       c.fill();
-    } else {
-      c.fillRect(27, 16, 10, 32);
-      c.fillRect(16, 27, 32, 10);
-    }
-    tex.refresh();
-  }
+    };
+    star(46, 18, 13);
+    star(22, 16, 6);
+    star(52, 42, 6);
+  });
+  // Закладка («Пресеты»).
+  canvasIcon(scene, 'prep_ico_presets', S64, (c) => {
+    c.fillStyle = '#ffffff';
+    c.beginPath();
+    c.moveTo(18, 8);
+    c.lineTo(46, 8);
+    c.lineTo(46, 56);
+    c.lineTo(32, 44);
+    c.lineTo(18, 56);
+    c.closePath();
+    c.fill();
+  });
 }
 
 /**
@@ -722,3 +872,6 @@ export function fitName(t: Phaser.GameObjects.Text, maxW: number): Phaser.GameOb
   if (t.width > maxW) t.setScale(maxW / t.width);
   return t;
 }
+
+/** Размеры сетки героев (для раскладки сцен): ширина и высота плитки, зазор, колонок. */
+export const ROSTER_GRID = { cols: COLS, cardW: CARD_W, cardH: CARD_H, gap: CARD_GAP } as const;
