@@ -55,10 +55,10 @@ export function powerShortfall(own: number, need: number): { short: number; labe
   return { short, label: short > 0 ? `Не хватает ${groupDigits(short)}` : null };
 }
 
-/** Подпись числового значка: больше 99 — «99+». */
+/** Подпись числового значка: больше 9 — «9+» (ui-polish-research §2.4). */
 export function badgeLabel(count: number): string | null {
   if (count <= 0) return null;
-  return count > 99 ? '99+' : String(Math.floor(count));
+  return count > 9 ? '9+' : String(Math.floor(count));
 }
 
 /** Ширина вкладки нижней навигации и её центр. */

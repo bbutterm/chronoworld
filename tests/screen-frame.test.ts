@@ -40,12 +40,14 @@ describe('каркас экрана: числа (frame.ts)', () => {
     expect(powerShortfall(500, 0).label).toBeNull();
   });
 
-  it('значки: точка 24, число 44; «99+»', () => {
+  it('значки: точка 24, число 44; «9+» (больше 9 числом не показываем)', () => {
     expect(BADGE).toEqual({ dot: 24, num: 44 });
     expect(badgeLabel(0)).toBeNull();
     expect(badgeLabel(-3)).toBeNull();
     expect(badgeLabel(7)).toBe('7');
-    expect(badgeLabel(100)).toBe('99+');
+    expect(badgeLabel(9)).toBe('9');
+    expect(badgeLabel(10)).toBe('9+');
+    expect(badgeLabel(100)).toBe('9+');
   });
 
   it('шапка: «‹» и шестерёнка — цель не меньше TOUCH и в высоту шапки; название правее «‹»', () => {
