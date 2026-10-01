@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_amon_ra_judgment",
+  "name": "Суд Ра",
+  "description": "Амон Ра поднимает солнце над пирамидой: удар по всем и слепота песков (−20% атаки на 3 с). Сбейте ультой или оглушением!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "element": "earth",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 4.3
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "sand_blind",
+        "name": "Слепота песков",
+        "turns": 3,
+        "stats": {
+          "atk": -0.2
+        }
+      }
+    }
+  ]
+}

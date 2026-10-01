@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_dracula_night",
+  "name": "Ночь вампира",
+  "description": "Дракула гасит свет и пьёт силы отряда: тёмный урон по всем и кровопотеря на 3 с. Сбейте ультой или оглушением!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "element": "dark",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 4.2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "blood_loss",
+        "name": "Кровопотеря",
+        "turns": 3,
+        "dot": {
+          "k": 0.12
+        }
+      }
+    }
+  ]
+}

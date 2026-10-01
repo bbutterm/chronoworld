@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_turtle_crush",
+  "name": "Удар генерала",
+  "description": "Генерал заносит молот над всем отрядом: земляной удар и 50% оглушить. Сбейте ультой или оглушением!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "element": "earth",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 4.4
+    },
+    {
+      "type": "status",
+      "chance": 0.5,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

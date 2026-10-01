@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_amon_ra_pillar",
+  "name": "Огненный столп",
+  "description": "Под двумя врагами вспыхивает огненный столп: урон 1.3 × атака и ожог.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random",
+    "count": 2
+  },
+  "cooldown": 9,
+  "priority": 3,
+  "element": "fire",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.3
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "burn",
+        "name": "Ожог",
+        "turns": 2,
+        "dot": {
+          "k": 0.15
+        }
+      }
+    }
+  ]
+}

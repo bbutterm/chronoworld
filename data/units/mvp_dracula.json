@@ -1,0 +1,79 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mvp_dracula",
+  "name": "Дракула",
+  "kind": "boss",
+  "role": "damage",
+  "element": "dark",
+  "stats": {
+    "hp": 10000,
+    "atk": 100,
+    "def": 20,
+    "spd": 105
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mvp_dracula_bats",
+    "actives": [
+      "mvp_dracula_drain",
+      "mvp_dracula_bite"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "dracula",
+    "hitFx": "fx_hit",
+    "scale": 1.0
+  },
+  "barks": {
+    "start": "Гости в подземелье Гефена? Как любезно — я как раз голоден.",
+    "half": "Дети ночи, к хозяину!",
+    "rage": "Кровавая луна взошла!",
+    "defeat": "Рассвет… всё-таки… пришёл…",
+    "victory": "Сытая ночь. Приходите ещё."
+  },
+  "phases": [
+    {
+      "atHpPct": 0.7,
+      "title": "Дети ночи",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "sewer_familiar",
+          "count": 3,
+          "hp": 0.03,
+          "atk": 0.35
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.4,
+      "title": "Кровавая луна",
+      "bark": "rage",
+      "actions": [
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.25,
+              "spd": 0.2
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": 100
+        }
+      ]
+    }
+  ],
+  "charge": {
+    "skill": "mvp_dracula_night",
+    "first": 12,
+    "every": 18
+  }
+}

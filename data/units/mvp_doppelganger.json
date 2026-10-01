@@ -1,0 +1,80 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mvp_doppelganger",
+  "name": "Доппельгангер",
+  "kind": "boss",
+  "role": "damage",
+  "element": "dark",
+  "stats": {
+    "hp": 10000,
+    "atk": 100,
+    "def": 20,
+    "spd": 125,
+    "moveSpeed": 300
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mvp_doppel_mirror_blade",
+    "actives": [
+      "mvp_doppel_quicken",
+      "mvp_doppel_strike"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "doppelganger",
+    "hitFx": "fx_hit",
+    "scale": 1.4
+  },
+  "barks": {
+    "start": "Узнаёшь лицо? Это твоё. Только сильнее.",
+    "half": "Девиручи, сюда — повеселимся!",
+    "rage": "Я — это вы. Вы — ничто!",
+    "defeat": "Зеркало… разбито…",
+    "victory": "Отражение пережило оригинал."
+  },
+  "phases": [
+    {
+      "atHpPct": 0.6,
+      "title": "Бесы Гефена",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "maze_deviruchi",
+          "count": 2,
+          "hp": 0.04,
+          "atk": 0.35
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.3,
+      "title": "Ярость!",
+      "bark": "rage",
+      "actions": [
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.25,
+              "spd": 0.25
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": 100
+        }
+      ]
+    }
+  ],
+  "charge": {
+    "skill": "mvp_doppel_nightmare",
+    "first": 11,
+    "every": 17
+  }
+}

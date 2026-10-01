@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_angeling_heal",
+  "name": "Святое исцеление",
+  "description": "Крылатый поринг светится и лечит самого раненого союзника — как Хил в RO. Бейте его первым.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true,
+    "onlyWounded": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.8
+    }
+  ]
+}

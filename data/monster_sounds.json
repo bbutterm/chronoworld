@@ -60,6 +60,15 @@
     "hylozoist": {"ro": "hylozoist", "attack": ["hylozoist_attack"], "death": ["hylozoist_die"]},
     "toad": {"ro": "toad", "death": ["roda_frog_damage"]},
     "thara_frog": {"ro": "thara_frog", "attack": ["roda_frog_attack1", "roda_frog_attack2"], "death": ["roda_frog_die"]},
-    "roda_frog": {"ro": "roda_frog", "attack": ["roda_frog_attack1", "roda_frog_attack2"], "death": ["roda_frog_die"]}
+    "roda_frog": {"ro": "roda_frog", "attack": ["roda_frog_attack1", "roda_frog_attack2"], "death": ["roda_frog_die"]},
+    "eddga": {"ro": "eddga", "attack": ["eddga_attack", "eddga_attack2"], "death": ["eddga_die"]},
+    "dracula": {"ro": "dracula", "attack": ["dracula_attack"], "death": ["dracula_die"]},
+    "maya": {"ro": "maya", "attack": ["maya_attack1", "maya_attack2"], "death": ["maya_die1", "maya_die2"]},
+    "turtle_general": {"ro": "turtle_general", "attack": ["turtle_general_attack"], "death": ["turtle_general_die"]},
+    "amon_ra": {"ro": "amon_ra", "attack": ["amon_ra_attack"], "death": ["amon_ra_die01", "amon_ra_die02"]},
+    "doppelganger": {"ro": "doppelganger", "attack": ["_swordman_attack"], "death": ["doppleganger_die"]},
+    "angeling": {"ro": "angeling", "attack": ["poring_attack"], "death": ["poring_die"]},
+    "archangeling": {"ro": "archangeling", "attack": ["poring_attack"], "death": ["poring_die"]},
+    "marine_sphere": {"ro": "marine_sphere", "death": ["marine_sphere_die1", "marine_sphere_die2"]}
   }
 }

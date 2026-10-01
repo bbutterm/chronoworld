@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_dracula_drain",
+  "name": "Кровавая жатва",
+  "description": "Долгий каст: Дракула пьёт кровь павших и лечится на 5 × атака. Оглушение сбивает каст.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 13,
+  "castTime": 2,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "heal",
+      "k": 5
+    }
+  ]
+}
