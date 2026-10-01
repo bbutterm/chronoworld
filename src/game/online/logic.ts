@@ -3,7 +3,7 @@
  * cw-api, «какое сохранение новее», реферальная ссылка, данные для `sync`, недельный зачёт MVP, «N ч назад».
  * Проверяются в tests/online-client.test.ts. Сеть — api.ts, связка с игрой — online.ts, экран — FriendsScene.
  */
-import { stageStatus, type GameContext, type SaveState } from '../../core';
+import { offlineFullInMs, stageStatus, type GameContext, type SaveState } from '../../core';
 
 // ---------- ответы сервера ----------
 
@@ -284,6 +284,35 @@ export function cloudSaveDelay(now: number, lastPut: number, gap = CLOUD_SAVE_GA
   if (!lastPut) return 0;
   return Math.max(0, lastPut + gap - now);
 }
+
+// ---------- уведомления в боте ----------
+
+export interface NotifyTimers {
+  /** Когда сундук трофеев заполнится, мс; null — уже полон (игрок в игре и видит) или не копится. */
+  chestFullAt: number | null;
+  /** Когда вернётся ближайшая экспедиция, мс; null — в пути никого. */
+  expeditionsDoneAt: number | null;
+}
+
+/**
+ * Моменты для уведомлений бота (сервер шлёт «Сундук полон» и «Отряд вернулся», когда они наступят, если игрок не в
+ * игре). Сундук — offlineFullInMs ядра; экспедиции — ближайший endsAt из ещё не вернувшихся.
+ */
+export function notifyTimersOf(save: SaveState, now: number, ctx: GameContext): NotifyTimers {
+  const full = offlineFullInMs(save, now, ctx);
+  const ends = (save.bounties?.active ?? []).map((e) => e.endsAt).filter((t) => Number.isFinite(t) && t > now);
+  return { chestFullAt: full !== null && full > 0 ? now + full : null, expeditionsDoneAt: ends.length ? Math.min(...ends) : null };
+}
+
+/** Моменты заметно изменились (больше минуты или появились/пропали) — стоит сообщить серверу. */
+export function timersChanged(a: NotifyTimers | null, b: NotifyTimers): boolean {
+  if (!a) return true;
+  const diff = (x: number | null, y: number | null) => (x === null) !== (y === null) || (x !== null && y !== null && Math.abs(x - y) > 60_000);
+  return diff(a.chestFullAt, b.chestFullAt) || diff(a.expeditionsDoneAt, b.expeditionsDoneAt);
+}
+
+/** Бот игры: уведомления и команды. */
+export const BOT_LINK = 'https://t.me/Chronoworldbot';
 
 // ---------- награды ----------
 

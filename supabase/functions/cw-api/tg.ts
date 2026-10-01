@@ -9,6 +9,8 @@ export interface TgUser {
   first_name?: string;
   username?: string;
   language_code?: string;
+  /** Пользователь разрешил боту писать ему (бот может слать уведомления). */
+  allows_write_to_pm?: boolean;
 }
 
 export interface TgInit {

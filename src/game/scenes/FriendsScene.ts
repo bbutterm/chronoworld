@@ -6,7 +6,7 @@ import { C, FS, OUTLINE, TOUCH } from '../theme';
 import { haptic } from '../haptics';
 import { api, onlineAvailable, openTgLink } from '../online/api';
 import { appLink } from '../online/entry';
-import { BELL_GEMS, BELLS_PER_DAY, groupDigits, REF_INVITER_GEMS, REF_WELCOME_GEMS, shareUrl, type BoardKind, type BoardResp, type BoardScope, type FriendInfo } from '../online/logic';
+import { BELL_GEMS, BELLS_PER_DAY, BOT_LINK, groupDigits, REF_INVITER_GEMS, REF_WELCOME_GEMS, shareUrl, type BoardKind, type BoardResp, type BoardScope, type FriendInfo } from '../online/logic';
 import { claimBells, onlineState, setGiftsWaiting } from '../online/online';
 
 export type FriendsTab = 'friends' | 'records';
@@ -114,7 +114,7 @@ export class FriendsScene extends Phaser.Scene {
       badge(this, 870 + 140 - 16, y + bellH / 2 - 55 - 4, n);
     }
     y += bellH + 24;
-    // «Позвать друга»: share-ссылка с startapp=ref_<id>. Ссылки на приложение нет (VITE_TG_APP_LINK) — без кнопки.
+    // «Позвать друга»: share-ссылка с startapp=ref_<id> (VITE_TG_APP_LINK, по умолчанию — главное приложение бота).
     const link = appLink();
     if (link) {
       const inv = button(this, GAME_W / 2, y + 60, 1040, 120, 'ui_btn_primary', 'Позвать друга', () => {
@@ -130,6 +130,11 @@ export class FriendsScene extends Phaser.Scene {
       text(this, GAME_W / 2, y + 40, `Друг пройдёт главу 1 — вам ${REF_INVITER_GEMS} гемов, ему ${REF_WELCOME_GEMS}`, FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 1000 } });
       y += 90;
     }
+    // Бот: уведомления (сундук, экспедиция, колокольчик) — маленькая строка с «Открыть бота».
+    text(this, LEFT, y + 45, 'Уведомления в боте: @Chronoworldbot', FS.small, C.muted, OUTLINE).setOrigin(0, 0.5).setName('botHint');
+    const bot = button(this, 900, y + 45, 240, 80, 'k:buttonLong_beige', 'Открыть бота', () => openTgLink(BOT_LINK), FS.small);
+    bot.container.setName('openBot');
+    y += 100;
     this.area = new ScrollArea(this, y, contentBottom() + 10);
     const gen = this.gen;
     const draw = (list: FriendInfo[]) => {

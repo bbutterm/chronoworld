@@ -107,12 +107,16 @@ export async function call(action: string, payload: Record<string, unknown> = {}
 }
 
 export const api = {
-  hello: async (): Promise<HelloResp | null> => parseHello(await call('hello')),
+  /** extra — для уведомлений бота: tzOffset, chestFullAt, expeditionsDoneAt. */
+  hello: async (extra: Record<string, unknown> = {}): Promise<HelloResp | null> => parseHello(await call('hello', extra)),
   saveGet: async (): Promise<CloudSaveData | null> => parseSaveGet(await call('save_get')),
   /** data — объект сохранения (как в localStorage, JSON.parse(serialize(save))). true — записано. */
   savePut: async (data: unknown, saveVersion: number, chapter: number, keepalive = false): Promise<boolean> =>
     (await call('save_put', { data, saveVersion, chapter }, { keepalive })) !== null,
-  sync: async (p: { chapter: number; stage: number; power: number; towerBest: number; mvpWeek: number }) => parseSync(await call('sync', p)),
+  sync: async (
+    p: { chapter: number; stage: number; power: number; towerBest: number; mvpWeek: number; tzOffset?: number; chestFullAt?: number | null; expeditionsDoneAt?: number | null },
+    keepalive = false,
+  ) => parseSync(await call('sync', p, { keepalive })),
   board: async (board: BoardKind, scope: BoardScope): Promise<BoardResp | null> => parseBoard(await call('board', { board, scope })),
   friends: async (): Promise<FriendInfo[] | null> => parseFriends(await call('friends')),
   giftSend: async (to: number): Promise<boolean> => (await call('gift_send', { to })) !== null,

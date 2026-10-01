@@ -2,6 +2,7 @@
 // Игрок — по подписи initData (секрет CHRONOWORLD_BOT_TOKEN). Таблицы cw_* закрыты RLS — пишем service role.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { isoWeek, refFromStartParam, verifyInitData } from './tg.ts';
+import { clientNotifyFields } from '../_shared/bot.ts';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -57,12 +58,21 @@ Deno.serve(async (req) => {
           username: init.user.username?.slice(0, 64) ?? null,
           lang: init.user.language_code?.slice(0, 8) ?? null,
           last_seen: new Date().toISOString(),
+          // Бот и уведомления (_shared/bot.ts): часовой пояс, когда сундук полон и отряд вернётся; игрок в игре —
+          // «возвращайся» начинается заново, колокольчики он видит сам.
+          ...clientNotifyFields(body, Date.now()),
+          comeback_stage: 0,
+          gift_at: null,
+          // Разрешил боту писать (initData user.allows_write_to_pm) — уведомления можно слать.
+          ...(init.user.allows_write_to_pm ? { bot_started: true } : {}),
         };
         let fresh = false;
         if (!existing) {
           const ref = refFromStartParam(init.startParam, me);
           const { data: inviter } = ref ? await db.from('cw_player').select('tg_id').eq('tg_id', ref).maybeSingle() : { data: null };
-          await db.from('cw_player').insert({ ...profile, ref_by: inviter ? ref : null });
+          // Нажал Start в боте раньше, чем открыл игру (cw_bot_start пишет cw-bot).
+          const { data: started } = await db.from('cw_bot_start').select('tg_id').eq('tg_id', me).maybeSingle();
+          await db.from('cw_player').insert({ ...profile, ...(started ? { bot_started: true } : {}), ref_by: inviter ? ref : null });
           if (inviter && ref) await addFriends(me, ref);
           fresh = true;
         } else {
@@ -112,6 +122,8 @@ Deno.serve(async (req) => {
           power: Math.max(p.power, power),
           tower_best: Math.max(p.tower_best, tower),
           last_seen: new Date().toISOString(),
+          ...clientNotifyFields(body, Date.now()),
+          comeback_stage: 0,
         };
         // Приглашённый прошёл главу 1 — награда пригласившему (забирает при следующем hello/ref_claim).
         if (p.ref_by && !p.ref_rewarded && (upd.chapter as number) >= 2) {
@@ -170,6 +182,8 @@ Deno.serve(async (req) => {
         const to = Number(body.to);
         if (!(await friendIds(me)).includes(to)) return json({ error: 'not_friend' }, 400);
         await db.from('cw_gift').upsert({ day: today(), from_id: me, to_id: to }, { onConflict: 'day,from_id,to_id', ignoreDuplicates: true });
+        // Уведомление получателю (cw-cron: не чаще раза в день, не ночью). Отметка — время первого незамеченного.
+        await db.from('cw_player').update({ gift_at: new Date().toISOString() }).eq('tg_id', to).is('gift_at', null);
         return json({ ok: true });
       }
 

@@ -68,9 +68,80 @@
 ### Переменные сборки (Vercel → Settings → Environment Variables, см. `.env.example`)
 
 - `VITE_TG_APP_LINK` — ссылка на Mini App для приглашений, `https://t.me/<бот>/<app>` (Direct Link из BotFather,
-  `/newapp`) или `https://t.me/<бот>` (главное приложение бота). Не задана — «Позвать друга» скрыта (друзья по ссылке не
-  появятся, остальное работает).
+  `/newapp`) или `https://t.me/<бот>` (главное приложение бота). Не задана — `https://t.me/Chronoworldbot` (main Mini App
+  бота); задана, но не t.me — «Позвать друга» скрыта.
 - `VITE_CW_API` — адрес функции; по умолчанию `https://ajltzwomvyvntvtjnrrf.supabase.co/functions/v1/cw-api`.
+
+## Бот и уведомления (01.10.2026)
+
+Бот @Chronoworldbot: main Mini App (кнопка меню «Play» → https://chronoworld-ecru.vercel.app/), ссылка с параметром —
+`https://t.me/Chronoworldbot?startapp=<param>`. Голос бота — трактирщик Бруно из «Двух колоколов» (и Грета, Гаррет).
+Ненавязчиво: короткие ответы, в каждом — кнопка «Играть».
+
+Код: `supabase/functions/_shared/bot.ts` — вся чистая логика без Deno API (секреты, разбор команд, ответы, выбор и тексты
+уведомлений, разбор полей от клиента; тесты `tests/online-bot.test.ts`), `_shared/telegram.ts` — вызов Bot API,
+`cw-bot/index.ts` — вебхук, `cw-cron/index.ts` — уведомления, SQL — `supabase/migrations/20261001120000_cw_bot.sql`.
+
+### Команды (cw-bot)
+
+- `/start [payload]` — приветствие Бруно и «Играть»; payload `ref_<id>` уходит в `startapp` (реферал срабатывает при
+  первом входе в игру). Игрок уже есть в `cw_player` — «С возвращением». Любое сообщение боту отмечает «можно писать»:
+  `cw_bot_start` (если игрока ещё нет) и `cw_player.bot_started`.
+- `/play` — «Играть» (кнопка web_app). `/help` — список команд.
+- `/friends` — сколько друзей и «Позвать друга» (`t.me/share/url?url=https://t.me/Chronoworldbot?startapp=ref_<id>`).
+- `/top` — рекорды недели: топ-5 Башни (имена), место игрока в Башне и в охоте на MVP (как `board` в cw-api).
+- `/me` — глава и этап, рекорд Башни, друзья, ждущие колокольчики, включены ли уведомления.
+- `/notify` — включить/выключить (inline-кнопки «Включить»/«Выключить», callback `notify_on`/`notify_off`).
+- Неизвестная команда или просто текст — «такого заказа в меню нет» и список команд. Только личные чаты.
+
+Защита: Telegram шлёт заголовок `X-Telegram-Bot-Api-Secret-Token` = `hex(HMAC_SHA256(токен, 'cw-webhook')).slice(0,48)`;
+служебный вызов — заголовок `X-CW-Admin` = `hex(HMAC_SHA256(токен, 'cw-admin')).slice(0,48)` (`webhookSecret`/`adminKey`).
+Оба выводятся из `CHRONOWORLD_BOT_TOKEN`, отдельных секретов хранить не нужно.
+
+### Уведомления (cw-cron)
+
+Кому: `notify = true` (по умолчанию) и `bot_started = true` — Telegram даёт писать только тем, кто нажал Start (или
+разрешил боту писать: `allows_write_to_pm` в initData — hello ставит `bot_started`). Ответ 403 (заблокировал) —
+`notify = false`, `bot_started = false`, `blocked_at`; новый /start после блокировки снова включает уведомления.
+«chat not found» — `bot_started = false`.
+
+Лимиты (`planNotice`): одно за проход cron (каждые 15 мин), не больше 2 в сутки (местный день), не чаще раза в 3 ч,
+не в тихие часы 22:00–09:00 местного времени (клиент шлёт `tzOffset` = `getTimezoneOffset()`; нет — Москва), не пока
+игрок в игре (hello/sync меньше 15 мин назад). Порядок важности:
+
+1. Колокольчик — `gift_send` в cw-api ставит получателю `gift_at`; не чаще раза в день (`gift_notified_day`); вход в
+   игру (hello) снимает отметку.
+2. Отряд вернулся — `exp_done_at` (клиент: ближайший `endsAt` из `bounties.active`). Один раз; потом снимается.
+3. Сундук полон — `chest_full_at` (клиент: `now + offlineFullInMs`; уже полон — null: игрок в игре и видит). Раз на заполнение.
+   Сундук и экспедиция, наступившие до последнего входа или больше 2 суток назад, снимаются молча.
+4. Новая неделя рекордов — в первые двое суток ISO-недели (UTC), если игрок был в доске Башни прошлой недели: «ты был
+   N-м» (`week_notified`).
+5. «Возвращайся» — 3 дня без входа, второй раз через 7 дней после первого, дальше тишина (`comeback_stage` 0→1→2;
+   hello/sync сбрасывают в 0).
+
+Клиент (`online.ts`): hello и sync шлют `tzOffset`, `chestFullAt`, `expeditionsDoneAt` (мс или null; `notifyTimersOf` в
+`logic.ts`). После записи игры без победы (забрал сундук, отправил/забрал отряд) — sync, если сроки сдвинулись больше
+чем на минуту (`timersChanged`); при сворачивании — тоже (keepalive). Сервер (`clientNotifyFields`): `tzOffset` в
+[−840, 720], моменты — в будущем не дальше 7 суток (прошлое — null), мусор и отсутствующие поля колонку не трогают
+(старый клиент работает как раньше). На экране «Друзья» — строка «Уведомления в боте: @Chronoworldbot» и «Открыть бота».
+
+### Как развернуть
+
+1. Миграция `supabase/migrations/20261001120000_cw_bot.sql` (колонки `cw_player`, таблицы `cw_bot_start`, `cw_config`
+   с RLS без политик, задача pg_cron `cw-cron` каждые 15 мин → `net.http_post` на cw-cron с заголовком `X-CW-Cron`).
+   Применять ДО новой cw-api — она пишет новые колонки.
+2. Ключ cron (в репозиторий не кладём): `insert into public.cw_config (key, value) values ('cron_key',
+   replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')) on conflict (key) do update set value = excluded.value;` Без ключа cron молчит.
+3. Функции (все с verify_jwt = false): `cw-api` (`cw-api/index.ts`, `cw-api/tg.ts`, `_shared/bot.ts`), `cw-bot`
+   (`cw-bot/index.ts`, `_shared/bot.ts`, `_shared/telegram.ts`, `cw-api/tg.ts`), `cw-cron` (`cw-cron/index.ts`,
+   `_shared/bot.ts`, `_shared/telegram.ts`, `cw-api/tg.ts`). Секрет — тот же `CHRONOWORLD_BOT_TOKEN`.
+4. Настройка бота: `POST https://ajltzwomvyvntvtjnrrf.supabase.co/functions/v1/cw-bot` с заголовком `X-CW-Admin: <adminKey>`
+   и телом `{"action":"setup"}` — setWebhook (url функции, secret_token, allowed_updates message/callback_query),
+   setMyCommands (по умолчанию и `ru`), в ответе getWebhookInfo. `{"action":"info"}` — только getWebhookInfo.
+   adminKey: `node -e "console.log(require('crypto').createHmac('sha256', process.env.T).update('cw-admin').digest('hex').slice(0,48))"`
+   с токеном в переменной `T`.
+5. Проверка: `select net.http_post(...)` вручную или подождать 15 мин — ответ cw-cron `{ ok, players, sent, failed, cleared }`
+   виден в `net._http_response`.
 
 ## Фаза 2 (дальше)
 
