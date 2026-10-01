@@ -245,7 +245,7 @@ async function main() {
     if (!(await skipDialogues('Campaign'))) problems.push('нет вступления главы на карте кампании');
     await shot('campaign');
     // Навигация — 4 вкладки; на «Кампании» — «В бой · этап 1», сундук офлайн-наград и быстрые награды (закрыты до своего этапа, data/unlocks.json).
-    for (const t of ['КАМПАНИЯ', 'ГЕРОИ', 'ГОРОД', 'ПРИКЛЮЧЕНИЯ', 'В бой · этап 1-1', 'Сундук офлайн-наград', 'Быстрые', 'Закрыто']) {
+    for (const t of ['Кампания', 'Герои', 'Город', 'Приключения', 'В бой · этап 1-1', 'Сундук офлайн-наград', 'Быстрые', 'Закрыто']) {
       if (!(await hasText('Campaign', t))) problems.push(`кампания новичка: нет «${t}»`);
     }
     // Письмо «Добро пожаловать» и вход дня — красный кружок на вкладке «Город».
@@ -255,7 +255,7 @@ async function main() {
     if (!(await hasText('Campaign', 'Первый этап ждёт'))) problems.push('нет подсказки новичку на кампании');
 
     // События новичка: вкладка «Город» → иконка «События» в шапке → «Вход 7 дней» → забрать день 1 нажатием.
-    await clickText('Campaign', 'ГОРОД');
+    await clickText('Campaign', 'Город');
     await waitScene('Home');
     await shot('city');
     for (const t of ['Таверна', 'Лавка', 'Задания', 'Достижения', `Откроется на этапе ${ch1Label(unlockOf('tavern').stage)}`]) if (!(await hasText('Home', t))) problems.push(`город новичка: нет «${t}»`);
@@ -276,18 +276,18 @@ async function main() {
       else if (s1.currency.scrolls <= s0.currency.scrolls) problems.push('вход 7 дней: награда дня 1 не пришла');
       else log('вход 7 дней: день 1 получен');
       await shot('events-login-claimed');
-      await clickText('Events', 'ГОРОД');
+      await clickText('Events', 'Город');
       await waitScene('Home');
     }
 
     // «Приключения»: Башня, экспедиции и охота — пока под замками.
-    await clickText('Home', 'ПРИКЛЮЧЕНИЯ');
+    await clickText('Home', 'Приключения');
     await waitScene('Adventure');
     await shot('adventure');
     for (const t of ['Башня испытаний', 'Экспедиции', 'Охота на босса', `Откроется на этапе ${ch1Label(unlockOf('tower').stage)}`]) if (!(await hasText('Adventure', t))) problems.push(`приключения новичка: нет «${t}»`);
 
     // 2. Кампания → этап 1 → В бой.
-    await clickText('Adventure', 'КАМПАНИЯ');
+    await clickText('Adventure', 'Кампания');
     await waitScene('Campaign');
     if (await skipDialogues('Campaign')) problems.push('вступление главы показано второй раз');
     await clickText('Campaign', '1-1');
@@ -399,7 +399,7 @@ async function main() {
       if (!(await hasText('Campaign', 'Собрать'))) problems.push('кампания после этапа 2: нет «Собрать» у сундука');
       await shot('campaign-chest');
     }
-    await clickText('Campaign', 'ГЕРОИ');
+    await clickText('Campaign', 'Герои');
     await waitScene('Heroes');
     // H4: коллекция — сетка карточек, фильтры, сортировка, «Коллекция N/M».
     await shot('heroes');
@@ -458,13 +458,13 @@ async function main() {
     await waitScene('Ascend');
     for (const t of ['Где взять копии', 'Предел уровня', 'Вознести']) if (!(await hasText('Ascend', t))) problems.push(`вознесение: нет «${t}»`);
     await shot('ascend');
-    await clickText('Ascend', '‹ Назад');
+    await clickNamed('Ascend', 'backButton');
     await waitScene('Hero');
-    await clickText('Hero', '‹ Назад');
+    await clickNamed('Hero', 'backButton');
     await waitScene('Heroes');
 
     // 5. Настройки (S): шестерёнка в шапке «Города» → окно → «Тестовый бой» → экран отряда.
-    await clickText('Heroes', 'ГОРОД');
+    await clickText('Heroes', 'Город');
     await waitScene('Home');
     await clickNamed('Home', 'settings');
     await sleep(200);
@@ -559,12 +559,12 @@ async function main() {
     for (const t of opened) if (!wantBanners.includes(t)) problems.push(`кампания после ${tavernStage}: лишний баннер «${t}» (ждали ${JSON.stringify(wantBanners)})`);
     if (opened.at(-1) === 'Таверна') {
       await waitScene('Tavern');
-      await clickText('Tavern', '‹ Назад');
+      await clickNamed('Tavern', 'backButton');
       await waitScene('Home');
       log('баннер «Таверна» → «Перейти» → Таверна → «Назад» → Город');
     } else {
       problems.push('баннер «Таверна» не последний — «Перейти» не проверен');
-      await clickText('Campaign', 'ГОРОД');
+      await clickText('Campaign', 'Город');
       await waitScene('Home');
     }
     // Скорость ×2 открыта: в настройках 1x → 2x, выбор запоминается.
