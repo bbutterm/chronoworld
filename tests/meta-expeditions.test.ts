@@ -13,6 +13,7 @@ import {
   finishedExpeditions,
   heroPower,
   idleExpeditions,
+  pendingExpeditionEvents,
   lootHours,
   MetaError,
   migrateBountiesToExpeditions,
@@ -273,7 +274,8 @@ describe('K9 экспедиции: добыча и получение', () => {
   it('«Забрать всё»: только вернувшиеся, сумма как по одной; нечего — тот же save; статус и значок главной', () => {
     let s = clearedTo('ch2_s6', withBench(newGame(ctx, T0, D1), [['iris/knight', 'purple', 30], ['kai/wizard', 'purple', 30], ['teo/monk', 'purple', 30]]));
     expect(idleExpeditions(s, ctx)).toBeGreaterThanOrEqual(2);
-    expect(expeditionsBadgeCount(s, T0, ctx)).toBe(idleExpeditions(s, ctx));
+    // §2.4: свободные локации — не повод для точки (раньше считались — вечные «3» на «Приключениях»).
+    expect(expeditionsBadgeCount(s, T0, ctx)).toBe(0);
     s = startExpedition(s, 'ant_hell', 1, T0, ctx);
     s = startExpedition(s, 'payon_cave', 8, T0, ctx);
     const view = expeditionStatus(s, T0 + H, ctx);
@@ -282,10 +284,13 @@ describe('K9 экспедиции: добыча и получение', () => {
     expect(view[1].active!.remainingMs).toBe(7 * H);
     expect(view[3]).toMatchObject({ unlocked: false, lockedText: 'Откроется на этапе 3-1', active: null, party: null });
     expect(finishedExpeditions(s, T0 + H)).toBe(1);
+    // Вернулась — есть что забрать: точка горит (плюс события в пути, ждущие решения).
+    expect(expeditionsBadgeCount(s, T0 + H, ctx)).toBe(1 + pendingExpeditionEvents(s, T0 + H));
     const r = claimAllExpeditions(s, T0 + H, ctx);
     expect(r.claimed).toEqual(['ant_hell']);
     expect(r.rewards).toEqual(claimExpedition(s, 'ant_hell', T0 + H, ctx).rewards);
     expect(r.save.bounties.active.map((e) => e.location)).toEqual(['payon_cave']);
+    expect(expeditionsBadgeCount(r.save, T0 + H, ctx)).toBe(pendingExpeditionEvents(r.save, T0 + H));
     expect(claimAllExpeditions(r.save, T0 + H, ctx).save).toBe(r.save);
     expect(actClaimAllExpeditions(r.save, D1, T0 + H, ctx).claimed).toEqual([]);
     const both = claimAllExpeditions(s, T0 + 8 * H, ctx);

@@ -59,8 +59,10 @@ export const HAPTICS = {
   heroHurt: imp('heavy', 'по герою прошёл сильный удар (≥ 30 % здоровья) — редко', 2500),
   heroDown: imp('heavy', 'герой пал', 1200),
   bossDown: { steps: [{ notify: 'success' }, { impact: 'heavy' }], gap: 1500, desc: 'босс / MVP побеждён' },
+  // ---------- моменты (juice.ts → moment(); §3 п. 10: дорого в моменты, тихо в рутине) ----------
+  moment: { steps: [{ notify: 'success' }, { impact: 'heavy' }], gap: 1500, desc: 'момент: вознесение, новая глава, первая победа на этапе' },
   // ---------- итоги ----------
-  victory: note('success', 'победа', 800),
+  victory: { steps: [{ notify: 'success' }, { impact: 'heavy' }], gap: 800, desc: 'победа (момент juice.ts: «успех» + тяжёлый удар под «ПОБЕДА»)' },
   defeat: note('error', 'поражение', 800),
 } as const satisfies Record<string, HapticDef>;
 

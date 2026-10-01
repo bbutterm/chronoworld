@@ -4,14 +4,12 @@ import {
   fastRewardsPreview,
   fastRewardsStatus,
   featureUnlocked,
-  huntStatus,
   letterClaimable,
   mailStatus,
   offlineFullInMs,
   pendingPicks,
   questStatus,
   summonStatus,
-  tavernNewCount,
   type SaveState,
 } from '../core';
 import { GAME } from './content';
@@ -19,8 +17,10 @@ import { claimableAchievements, claimableCount, expeditionsBadgeCount, towerBadg
 import { tavernBadge } from './tavern';
 
 /**
- * Красные кружки на вкладках нижней навигации — сумма значков плиток и иконок своей страницы (как в AFK Arena):
- * игрок видит «там что-то есть», не заходя на страницу. Без Phaser; экран (screen.ts) передаёт now и day.
+ * Красные точки на вкладках нижней навигации (дисциплина §2.4 docs/design/ui-polish-research.md): вкладка — точка без
+ * числа, если внутри есть повод «можно сделать выгодное сейчас» (забрать, бесплатно, решить). Постоянные состояния
+ * («можно отправить экспедицию», «осталась попытка охоты», «этаж по силам», «есть новая запись Летописи») — не повод.
+ * Функции возвращают число поводов (> 0 — точка); экран (screen.ts) передаёт now и day. Без Phaser.
  */
 
 /** «Кампания»: сундук полон, бесплатные быстрые награды не взяты. */
@@ -35,7 +35,10 @@ export function campaignBadge(save: SaveState, now: number, day: string): number
   return n;
 }
 
-/** «Город»: Таверна (бесплатный призыв, подарок), задания, достижения, события, почта, контракт героя, новые вечера. */
+/**
+ * «Город»: Таверна (бесплатный призыв, подарок), награды заданий и достижений, награды событий, письма, контракт героя.
+ * Новые вечера «Двух колоколов» / записи Летописи — не повод для красной точки (это «есть что почитать», не награда).
+ */
 export function cityBadge(save: SaveState, day: string): number {
   const st = summonStatus(save, day, GAME);
   let n = st.unlocked ? tavernBadge(st, save.summon.welcomeGiven) : 0;
@@ -45,8 +48,6 @@ export function cityBadge(save: SaveState, day: string): number {
   n += ev.login + ev.newbie;
   n += mailCount(save);
   n += pendingPicks(save).length;
-  // Новый вечер в «Двух колоколах» (и открытая личная сцена) — кнопка «Летопись» на странице «Город».
-  n += tavernNewCount(save, GAME);
   return n;
 }
 
@@ -55,12 +56,13 @@ export function mailCount(save: SaveState): number {
   return mailStatus(save).letters.filter((l) => !l.read || letterClaimable(l)).length;
 }
 
-/** «Приключения»: экспедиции (вернулись / можно отправить), Башня (этаж по силам), попытки охоты на босса. */
-export function adventureBadge(save: SaveState, now: number, day: string): number {
+/**
+ * «Приключения»: экспедиции вернулись или ждут решения в пути, в забеге Башни ждёт выбор. Свободные локации, добыча
+ * Башни дня и попытки охоты — постоянное состояние (§2.4 п. 6), точку не зажигают. day — для совместимости вызова.
+ */
+export function adventureBadge(save: SaveState, now: number, _day?: string): number {
   let n = 0;
   if (featureUnlocked(save, 'bounties', GAME)) n += expeditionsBadgeCount(save, now, GAME);
   if (featureUnlocked(save, 'tower', GAME)) n += towerBadgeCount(save, GAME);
-  const hunt = huntStatus(save, day, GAME);
-  if (hunt.unlocked) n += hunt.attemptsLeft;
   return n;
 }

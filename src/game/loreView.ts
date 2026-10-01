@@ -4,7 +4,7 @@ import { GAME, LORE } from './content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, ROLE_NAMES, SLOT_NAMES } from './flow';
 import { hasCollectionArt, itemCell, itemIconKey, loadCollectionArt, refineBadge, roIconImage } from './itemIcons';
 import { GAME_H, GAME_W } from './layout';
-import { badge, popIn, unitFigure, unitTint } from './screen';
+import { popIn, unitFigure, unitTint } from './screen';
 import { session } from './session';
 import { SKIN_TINT } from './skin';
 import { button, panel, ScrollArea, text } from './ui';
@@ -97,8 +97,8 @@ export function chronicleButton(scene: Phaser.Scene, x: number, y: number, w = 2
   b.container.setName('chronicleBtn');
   // Плюс новые вечера в «Двух колоколах» и открытые личные сцены (вход в «Вечера» — «Летопись» → «Мир»).
   const n = loreUnseen().total + tavernNewCount(session.save, GAME);
-  // Кружок — на верхней кромке кнопки, выше строки текста: широкий «99+» не закрывает «Летопись».
-  if (n > 0) badge(scene, x + w / 2 - 16, y - h / 2 - 6, n)?.setName('chronicleBadge');
+  // Новое для чтения — тихая золотая точка без числа (красные значки — только «можно забрать», ui-polish-research §2.4).
+  if (n > 0) scene.add.circle(x + w / 2 - 18, y - h / 2 + 4, 12, 0xe8b85a).setStrokeStyle(3, 0x2a1c08).setName('chronicleBadge');
   return b.container;
 }
 

@@ -21,6 +21,7 @@ export function huntTile(scene: Phaser.Scene, x: number, y: number, w: number, h
     note: 'MVP дня из RO: стихия, фазы, карты MVP',
     lockId: 'hunt',
     onOpen: () => scene.scene.start('Hunt'),
-    badge: st.unlocked ? st.attemptsLeft : 0,
+    // Попытки дня — постоянное состояние, не повод для значка (ui-polish-research §2.4).
+    badge: 0,
   });
 }

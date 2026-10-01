@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { newGame, type SaveState } from '../src/core';
 import { autoNextStage, heroesBadgeCount } from '../src/game/flow';
-import { HINT_KEY, HINT_TEXT, hintDone, hintShown, markHint, markHintShown, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, setHintObsolete, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
+import { HINT_KEY, HINT_MAX, HINT_TEXT, hintDone, hintShown, markHint, markHintShown, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, setHintObsolete, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
 import { loadFullContext, loadGameContext } from '../scripts/lib/content-node';
 import { placeCallout } from '../src/game/hintLayout';
 
@@ -20,6 +20,16 @@ describe('R: подсказки первой сессии', () => {
     expect(pickHomeHint({ ...base, cleared: 1, chestHasIncome: true }, none)).toBe('chest_claim');
     expect(pickHomeHint({ ...base, cleared: 3, levelUpReady: true }, none)).toBe('level_up');
     expect(pickHomeHint({ ...base, cleared: 9, towerUnlocked: true }, none)).toBe('tower_open');
+  });
+
+  it('тексты подсказок: одна строка ≤ HINT_MAX знаков, голосом игры — без «нажмите», «коснитесь», «чтобы»', () => {
+    expect(HINT_MAX).toBeLessThanOrEqual(40);
+    for (const [id, t] of Object.entries(HINT_TEXT)) {
+      expect(t.length, id).toBeLessThanOrEqual(HINT_MAX);
+      expect(t, id).not.toMatch(/нажм|коснит|чтобы|\n/i);
+    }
+    // «Башня открыта!» CampaignScene дополняет указанием на вкладку — вместе тоже одна строка.
+    expect(`${HINT_TEXT.tower_open} Загляните в «Приключения»`.length).toBeLessThanOrEqual(HINT_MAX);
   });
 
   it('ведущее обучение главы 1: цепочка по порядку, у каждого шага — русский текст, шаги не повторяются', () => {
