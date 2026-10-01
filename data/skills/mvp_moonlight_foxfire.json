@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_moonlight_foxfire",
+  "name": "Лисий огонь",
+  "description": "Лунный цветок копит лисий огонь для удара по всем. Сбейте ультой или оглушением!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "element": "fire",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 4
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "burn",
+        "name": "Ожог",
+        "turns": 2,
+        "dot": {
+          "k": 0.15
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_baphomet_dark_blow",
+  "name": "Тёмный удар",
+  "description": "Бафомет заносит косу, и тьма собирается над отрядом: удар по всем. Сбейте ультой или оглушением!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "element": "dark",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 5
+    }
+  ]
+}

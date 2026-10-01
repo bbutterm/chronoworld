@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { RaritySchema } from '../equipment/schema';
+import { CardDefSchema, RaritySchema } from '../equipment/schema';
 import { HeroCardDropSchema } from '../heroes/schema';
 
 const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в нижнем регистре, цифры и _');
@@ -11,13 +11,57 @@ const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в ниж
  */
 export const HuntBossSchema = z.object({
   unit: id,
-  hpMult: z.number().positive(),
+  /** Множитель ОЗ (старая охота; у MVP ОЗ — из уровня hunt.mvp.ranks). */
+  hpMult: z.number().positive().default(1),
   atkMult: z.number().positive().default(1),
   defMult: z.number().positive().default(1),
   /** Масштаб фигуры в бою (visual.scale юнита; только вид, на бой не влияет). Нет поля — как у юнита. */
   scale: z.number().positive().max(4).optional(),
   /** Подпись под именем босса на экране охоты (необязательно). */
   title: z.string().min(1).max(60).optional(),
+  /** MVP: легенда в 1–2 строки (экран охоты). */
+  legend: z.string().min(1).max(140).optional(),
+  /** MVP: механики — по строке на каждую («Заряжает Тёмный удар — сбейте ультой»), до 4. */
+  mechanics: z.array(z.string().min(1).max(56)).max(4).optional(),
+  /** MVP: карта, которая может выпасть за победу (id из hunt.cards). */
+  card: id.optional(),
+  /** Старый босс охоты (до MVP), чей лучший урон в сохранениях засчитывается этому MVP (уровень и «Зачистка»). */
+  legacy: id.optional(),
+});
+
+/**
+ * Уровень MVP (docs/design/mvp-hunt.md): ОЗ — абсолютные, АТК и ЗАЩ — множители статов юнита. Победа над уровнем i
+ * засчитывается как урон порога i (tiers[i], для уровней сверх порогов — последнего): ОЗ уровня ниже порога, потому что
+ * бой с фазами, свитой и зарядом тяжелее старого «мешка» с ОЗ.
+ */
+export const HuntRankSchema = z.object({
+  hp: z.number().int().positive(),
+  atk: z.number().positive(),
+  def: z.number().positive(),
+});
+
+/**
+ * MVP-охота: босс умирает за бой. Уровень охоты — сколько уровней по ОЗ уже пробито (по лучшему урону), новичок начинает с 0.
+ * Слабость: герои, чья стихия атаки бьёт стихию MVP (×1.5 по таблице), получают +weaknessAtk АТК в этом бою, остальные
+ * теряют armorAtk («стихийная броня»).
+ */
+export const HuntMvpSchema = z.object({
+  /** +доля АТК героям стихии, к которой MVP уязвим (только в бою охоты). */
+  weaknessAtk: z.number().min(0).max(2),
+  /** «Стихийная броня» MVP: остальные герои (не той стихии) теряют эту долю АТК в бою охоты. */
+  armorAtk: z.number().min(0).max(0.9).default(0),
+  /** С какого уровня (индекс) начинает новый охотник: проигрыш всё равно даёт награду по урону, а победа — прыжок вверх. */
+  startRank: z.number().int().nonnegative().default(0),
+  /**
+   * Прыжок уровня: победа за t секунд → прогноз урона за бой ОЗ × лимит / t × jump; следующий уровень — высший с ОЗ не больше
+   * прогноза (не меньше +1). 0 — всегда +1.
+   */
+  jump: z.number().min(0).max(1).default(0.8),
+  /** Шанс карты MVP за победу. */
+  cardChance: z.number().min(0).max(1),
+  /** Гарантия: столько побед подряд без карты — следующая победа даёт карту. */
+  cardPity: z.number().int().positive(),
+  ranks: z.array(HuntRankSchema).min(1),
 });
 
 /** Награда порога. Нет поля — 0. item — редкость предмета экипировки (случайный предмет этой редкости из data/items). */
@@ -52,8 +96,20 @@ export const HuntConfigSchema = z
     slot: z.number().int().min(0).max(4).default(0),
     bosses: z.array(HuntBossSchema).min(1),
     tiers: z.array(HuntTierSchema).min(1),
+    /** MVP-охота (нет поля — старая охота: босс не падает, награда по урону). */
+    mvp: HuntMvpSchema.optional(),
+    /** Карты MVP (вставляются в снаряжение: equipment/cards.ts). */
+    cards: z.array(CardDefSchema).default([]),
   })
   .superRefine((cfg, c) => {
+    const cardIds = new Set(cfg.cards.map((k) => k.id));
+    if (cardIds.size !== cfg.cards.length) c.addIssue({ code: 'custom', path: ['cards'], message: 'повтор id карты' });
+    cfg.bosses.forEach((b, i) => {
+      if (b.card && !cardIds.has(b.card)) c.addIssue({ code: 'custom', path: ['bosses', i, 'card'], message: `карта ${b.card} не описана в cards` });
+    });
+    cfg.mvp?.ranks.forEach((r, i, ranks) => {
+      if (i > 0 && r.hp <= ranks[i - 1].hp) c.addIssue({ code: 'custom', path: ['mvp', 'ranks', i, 'hp'], message: 'ОЗ уровней MVP должны строго возрастать' });
+    });
     cfg.tiers.forEach((t, i) => {
       if (i === 0) return;
       if (t.damage <= cfg.tiers[i - 1].damage) {
@@ -73,3 +129,5 @@ export type HuntBoss = z.infer<typeof HuntBossSchema>;
 export type HuntReward = z.infer<typeof HuntRewardSchema>;
 export type HuntTier = z.infer<typeof HuntTierSchema>;
 export type HuntConfig = z.infer<typeof HuntConfigSchema>;
+export type HuntRank = z.infer<typeof HuntRankSchema>;
+export type HuntMvp = z.infer<typeof HuntMvpSchema>;

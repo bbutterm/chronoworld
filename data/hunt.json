@@ -1,25 +1,356 @@
 {
   "$schema": "schema/hunt.schema.json",
-  "$comment": "Охота на босса (аналог гильдейской охоты AFK Arena, одиночная). Этап открытия — data/unlocks.json (hunt). Босс дня — bosses[номер дня mod длина]; hp огромный, босс падать не должен. Награда — высший порог tiers, которого достиг урон за бой. Рецепт — docs/CONTENT_RECIPES.md «Босс охоты», числа — docs/content/balance.md. hpMult ×4 (BUG-164, 30.09): 10-й порог (550 000) был выше ОЗ всех боссов (504–540 тыс.) — лучшая награда не выпадала, босс падал; теперь ОЗ 2–2.1 млн.",
+  "$comment": "MVP-охота (docs/design/mvp-hunt.md): босс дня — MVP из RO (bosses[номер дня mod 7], у всех игроков один), у каждого стихия, фазы и заряд. MVP умирает за бой: ОЗ и сила — уровень mvp.ranks (пробит, когда лучший урон ≥ ОЗ; старые сохранения встают на уровень по своему лучшему урону). Награда — высший порог tiers, которого достиг урон; победа («MVP!») — ещё шанс карты MVP (cards, гарантия cardPity) и следующий уровень. Герои стихии, к которой MVP уязвим, получают +weaknessAtk АТК. Старые боссы охоты (mob_mastering, mob_osiris, mob_moonlight) остались в сохранениях (best) — по ним считается уровень. Числа — docs/content/balance.md «MVP-охота», скрипт scripts/balance-hunt.ts.",
   "attemptsPerDay": 2,
   "timeLimitSeconds": 45,
   "sweep": true,
   "slot": 0,
   "bosses": [
-    { "unit": "mob_mastering", "hpMult": 800, "atkMult": 1.5, "defMult": 1, "scale": 1.8, "title": "Король порингов вернулся" },
-    { "unit": "mob_osiris", "hpMult": 720, "atkMult": 1.5, "defMult": 1, "scale": 1.6, "title": "Владыка пирамид" },
-    { "unit": "mob_moonlight", "hpMult": 720, "atkMult": 1, "defMult": 1, "scale": 1.6, "title": "Лиса из лунного сада" }
+    {
+      "unit": "mvp_mastering",
+      "title": "Король порингов",
+      "legend": "Король порингов в короне набекрень. Скачет по полям Пронтеры и зовёт подданных на помощь.",
+      "mechanics": [
+        "Заряжает Королевский плюх — сбейте ультой",
+        "Скачет по переднему ряду, оглушает",
+        "Зовёт подданных на 60%",
+        "Щит и ярость на 30%"
+      ],
+      "card": "card_mastering",
+      "legacy": "mob_mastering"
+    },
+    {
+      "unit": "mvp_osiris",
+      "title": "Фараон пирамид Морроку",
+      "legend": "Фараон, проснувшийся в пирамиде Морроку. Бинты держат его тело, проклятие стережёт гробницу.",
+      "mechanics": [
+        "Заряжает Проклятие пирамид — сбейте ультой",
+        "Бинты: щит, каст сбивает оглушение",
+        "Щит на 70%, стража гробницы на 40%"
+      ],
+      "card": "card_osiris",
+      "legacy": "mob_osiris"
+    },
+    {
+      "unit": "mvp_moonlight",
+      "title": "Лиса из пещеры Пайона",
+      "legend": "Девятихвостая лиса из пещеры Пайона. Играет с охотниками и прыгает к тем, кто слабее.",
+      "mechanics": [
+        "Заряжает Лисий огонь — сбейте ультой",
+        "Прыгает в тыл к самому слабому",
+        "Лисья стая на 50%, ярость на 25%"
+      ],
+      "card": "card_moonlight",
+      "legacy": "mob_moonlight"
+    },
+    {
+      "unit": "mvp_orc_lord",
+      "title": "Вождь деревни орков",
+      "legend": "Вождь деревни орков под Гефеном. Молот предков раскалывает землю, племя идёт за ним.",
+      "mechanics": [
+        "Заряжает Сокрушение земли — сбейте ультой",
+        "Зовёт племя на 60%",
+        "Ярость и ульта сразу на 30%"
+      ],
+      "card": "card_orc_lord"
+    },
+    {
+      "unit": "mvp_mistress",
+      "title": "Королева улья Мьёльнира",
+      "legend": "Королева улья из пещер Мьёльнира. Гроза в крыльях и рой за спиной.",
+      "mechanics": [
+        "Заряжает Юпитель-гром — сбейте ультой",
+        "Пневма: щит, каст сбивает оглушение",
+        "Жалит тыл; рой на 60%, ярость на 25%"
+      ],
+      "card": "card_mistress"
+    },
+    {
+      "unit": "mvp_dark_lord",
+      "title": "Хозяин Гласт Хейма",
+      "legend": "Хозяин Гласт Хейма. Метеоры с чёрного неба и мертвецы, что встают по его зову.",
+      "mechanics": [
+        "Заряжает Врата ада — сбейте ультой",
+        "Цепи тьмы оглушают тыл",
+        "Мертвецы на 60%, ярость и ульта на 30%"
+      ],
+      "card": "card_dark_lord"
+    },
+    {
+      "unit": "mvp_baphomet",
+      "title": "Хозяин Лабиринта",
+      "legend": "Козлоголовый демон, хозяин Лабиринта. Тёмная коса и дети, что прибегают на зов отца.",
+      "mechanics": [
+        "Заряжает Тёмный удар — сбейте ультой",
+        "Коса бьёт весь передний ряд",
+        "Дети на 60%, ярость на 30%"
+      ],
+      "card": "card_baphomet"
+    }
+  ],
+  "mvp": {
+    "weaknessAtk": 1,
+    "armorAtk": 0.15,
+    "cardChance": 0.12,
+    "cardPity": 10,
+    "startRank": 2,
+    "jump": 0.9,
+    "ranks": [
+      {
+        "hp": 2500,
+        "atk": 0.6,
+        "def": 0.8
+      },
+      {
+        "hp": 7000,
+        "atk": 1,
+        "def": 0.8
+      },
+      {
+        "hp": 13500,
+        "atk": 1.5,
+        "def": 0.8
+      },
+      {
+        "hp": 22500,
+        "atk": 2.5,
+        "def": 0.8
+      },
+      {
+        "hp": 36000,
+        "atk": 4,
+        "def": 0.8
+      },
+      {
+        "hp": 54000,
+        "atk": 7,
+        "def": 0.8
+      },
+      {
+        "hp": 81000,
+        "atk": 11,
+        "def": 0.8
+      },
+      {
+        "hp": 117000,
+        "atk": 18,
+        "def": 0.8
+      },
+      {
+        "hp": 171000,
+        "atk": 26,
+        "def": 0.8
+      },
+      {
+        "hp": 247500,
+        "atk": 36,
+        "def": 0.8
+      },
+      {
+        "hp": 359000,
+        "atk": 48,
+        "def": 0.8
+      },
+      {
+        "hp": 520500,
+        "atk": 64,
+        "def": 0.8
+      },
+      {
+        "hp": 754500,
+        "atk": 84,
+        "def": 0.8
+      },
+      {
+        "hp": 1094000,
+        "atk": 110,
+        "def": 0.8
+      },
+      {
+        "hp": 1586500,
+        "atk": 145,
+        "def": 0.8
+      }
+    ]
+  },
+  "cards": [
+    {
+      "id": "card_mastering",
+      "name": "Карта Мастеринга",
+      "slot": "helmet",
+      "bonus": {
+        "hp": 0.08,
+        "atk": 0.08,
+        "def": 0.08,
+        "spd": 0.05
+      },
+      "text": "Корона короля порингов: понемногу всего."
+    },
+    {
+      "id": "card_osiris",
+      "name": "Карта Осириса",
+      "slot": "armor",
+      "bonus": {
+        "hp": 0.25
+      },
+      "text": "Бинты фараона: +25% здоровья."
+    },
+    {
+      "id": "card_moonlight",
+      "name": "Карта Лунного цветка",
+      "slot": "boots",
+      "bonus": {
+        "spd": 0.15,
+        "atk": 0.05
+      },
+      "text": "Лисья прыть: +15% скорости, +5% атаки."
+    },
+    {
+      "id": "card_orc_lord",
+      "name": "Карта Орк-лорда",
+      "slot": "armor",
+      "bonus": {
+        "def": 0.3,
+        "hp": 0.1
+      },
+      "text": "Шкура вождя: +30% защиты, +10% здоровья."
+    },
+    {
+      "id": "card_mistress",
+      "name": "Карта Мистресс",
+      "slot": "helmet",
+      "bonus": {
+        "atk": 0.12,
+        "spd": 0.1
+      },
+      "text": "Жало королевы: +12% атаки, +10% скорости."
+    },
+    {
+      "id": "card_dark_lord",
+      "name": "Карта Тёмного лорда",
+      "slot": "weapon",
+      "bonus": {
+        "atk": 0.3,
+        "hp": -0.1
+      },
+      "text": "Сила тьмы: +30% атаки, но −10% здоровья."
+    },
+    {
+      "id": "card_baphomet",
+      "name": "Карта Бафомета",
+      "slot": "weapon",
+      "bonus": {
+        "atk": 0.25,
+        "spd": 0.05
+      },
+      "text": "Коса Бафомета: +25% атаки и +5% скорости."
+    }
   ],
   "tiers": [
-    { "damage": 5000, "rewards": { "gold": 1200, "jobExp": 1700 } },
-    { "damage": 15000, "rewards": { "gold": 2000, "jobExp": 2800, "gems": 2 } },
-    { "damage": 30000, "rewards": { "gold": 3200, "jobExp": 4500, "gems": 3 } },
-    { "damage": 50000, "rewards": { "gold": 4800, "jobExp": 6700, "gems": 4 } },
-    { "damage": 80000, "rewards": { "gold": 7000, "jobExp": 9800, "gems": 5, "heroCards": { "blue": 0.03 } } },
-    { "damage": 120000, "rewards": { "gold": 10000, "jobExp": 14000, "gems": 6, "heroCards": { "blue": 0.03 }, "item": "common" } },
-    { "damage": 180000, "rewards": { "gold": 15000, "jobExp": 21000, "gems": 8, "heroCards": { "blue": 0.07 }, "item": "rare" } },
-    { "damage": 260000, "rewards": { "gold": 22000, "jobExp": 31000, "gems": 10, "heroCards": { "blue": 0.07, "purple": 0.01 }, "item": "epic" } },
-    { "damage": 380000, "rewards": { "gold": 32000, "jobExp": 45000, "gems": 10, "heroCards": { "blue": 0.1, "purple": 0.015 }, "item": "epic" } },
-    { "damage": 550000, "rewards": { "gold": 45000, "jobExp": 63000, "gems": 10, "heroCards": { "blue": 0.12, "purple": 0.02 }, "item": "epic" } }
+    {
+      "damage": 5000,
+      "rewards": {
+        "gold": 1200,
+        "jobExp": 1700
+      }
+    },
+    {
+      "damage": 15000,
+      "rewards": {
+        "gold": 2000,
+        "jobExp": 2800,
+        "gems": 2
+      }
+    },
+    {
+      "damage": 30000,
+      "rewards": {
+        "gold": 3200,
+        "jobExp": 4500,
+        "gems": 3
+      }
+    },
+    {
+      "damage": 50000,
+      "rewards": {
+        "gold": 4800,
+        "jobExp": 6700,
+        "gems": 4
+      }
+    },
+    {
+      "damage": 80000,
+      "rewards": {
+        "gold": 7000,
+        "jobExp": 9800,
+        "gems": 5,
+        "heroCards": {
+          "blue": 0.03
+        }
+      }
+    },
+    {
+      "damage": 120000,
+      "rewards": {
+        "gold": 10000,
+        "jobExp": 14000,
+        "gems": 6,
+        "heroCards": {
+          "blue": 0.03
+        },
+        "item": "common"
+      }
+    },
+    {
+      "damage": 180000,
+      "rewards": {
+        "gold": 15000,
+        "jobExp": 21000,
+        "gems": 8,
+        "heroCards": {
+          "blue": 0.07
+        },
+        "item": "rare"
+      }
+    },
+    {
+      "damage": 260000,
+      "rewards": {
+        "gold": 22000,
+        "jobExp": 31000,
+        "gems": 10,
+        "heroCards": {
+          "blue": 0.07,
+          "purple": 0.01
+        },
+        "item": "epic"
+      }
+    },
+    {
+      "damage": 380000,
+      "rewards": {
+        "gold": 32000,
+        "jobExp": 45000,
+        "gems": 10,
+        "heroCards": {
+          "blue": 0.1,
+          "purple": 0.015
+        },
+        "item": "epic"
+      }
+    },
+    {
+      "damage": 550000,
+      "rewards": {
+        "gold": 45000,
+        "jobExp": 63000,
+        "gems": 10,
+        "heroCards": {
+          "blue": 0.12,
+          "purple": 0.02
+        },
+        "item": "epic"
+      }
+    }
   ]
 }

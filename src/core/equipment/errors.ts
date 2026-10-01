@@ -14,7 +14,11 @@ export type EquipmentErrorCode =
   | 'refine_max'
   | 'not_enough_gold'
   /** Заточка рудой: руды нет. */
-  | 'not_enough_ore';
+  | 'not_enough_ore'
+  /** Карты MVP (cards.ts): нет в запасе / другой слот / слот занят. */
+  | 'card_unknown'
+  | 'card_slot'
+  | 'card_taken';
 
 /** Нарушение правил экипировки. message — русский текст для игрока. */
 export class EquipmentError extends Error {
