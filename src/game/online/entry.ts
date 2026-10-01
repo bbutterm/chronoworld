@@ -8,13 +8,16 @@ import { SKIN_TINT } from '../skin';
 import { FS } from '../theme';
 import { button } from '../ui';
 import { onlineAvailable } from './api';
-import { normalizeAppLink } from './logic';
+import { BOT_LINK, normalizeAppLink } from './logic';
 import { onlineState, onOnlineChange } from './online';
 
 const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {};
 
-/** Ссылка на Mini App для приглашений (VITE_TG_APP_LINK, https://t.me/<бот>/<app>) или null — «Позвать друга» скрыта. */
-export const appLink = (): string | null => normalizeAppLink(env.VITE_TG_APP_LINK);
+/**
+ * Ссылка на Mini App для приглашений: VITE_TG_APP_LINK (https://t.me/<бот>/<app> или https://t.me/<бот>), по умолчанию —
+ * главное приложение бота @Chronoworldbot. Задана, но кривая — null («Позвать друга» скрыта).
+ */
+export const appLink = (): string | null => normalizeAppLink(env.VITE_TG_APP_LINK || BOT_LINK);
 
 /** Колокольчик (своей иконки в скине нет). */
 export function bellIcon(scene: Phaser.Scene, x: number, y: number, size: number, color: number = SKIN_TINT.gold): Phaser.GameObjects.Graphics {

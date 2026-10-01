@@ -28,14 +28,17 @@ import {
   isFreshSave,
   isoWeek,
   nextMvpWeek,
+  notifyTimersOf,
   progressOf,
   REF_INVITER_GEMS,
   REF_WELCOME_GEMS,
   REF_WELCOME_SOURCE,
   shouldOfferCloud,
+  timersChanged,
   victoryOf,
   type CloudSaveInfo,
   type HelloResp,
+  type NotifyTimers,
   type WeekBest,
 } from './logic';
 
@@ -98,6 +101,21 @@ let dirty = false;
 let lastPut = 0;
 let putTimer: ReturnType<typeof setTimeout> | null = null;
 let syncTimer: ReturnType<typeof setTimeout> | null = null;
+/** Что последним ушло на сервер для уведомлений бота (null — ещё ничего). */
+let sentTimers: NotifyTimers | null = null;
+
+/**
+ * Для уведомлений бота (docs/design/online.md, «Бот и уведомления»): часовой пояс устройства (как getTimezoneOffset —
+ * в слое игры, не в ядре), когда сундук полон и когда вернётся ближайшая экспедиция.
+ */
+function notifyFields(): { tzOffset: number; chestFullAt: number | null; expeditionsDoneAt: number | null } {
+  const t = notifyTimersOf(session.save, now(), GAME);
+  sentTimers = t;
+  // Часы игры (now()) могут быть сдвинуты (режим тестировщика «+12 ч») — серверу нужно настоящее время.
+  const shift = Date.now() - now();
+  const real = (x: number | null) => (x === null ? null : x + shift);
+  return { tzOffset: new Date().getTimezoneOffset(), chestFullAt: real(t.chestFullAt), expeditionsDoneAt: real(t.expeditionsDoneAt) };
+}
 
 /** Запустить онлайн (один раз, из main.ts). Вне Telegram — ничего. */
 export function startOnline(g: Phaser.Game): void {
@@ -105,7 +123,11 @@ export function startOnline(g: Phaser.Game): void {
   started = true;
   game = g;
   onCommit(handleCommit);
-  onAppHidden(() => flushCloud(true));
+  onAppHidden(() => {
+    flushCloud(true);
+    // Забрал сундук или отправил отряд и свернул — пусть бот знает новые сроки.
+    if (onlineState.profile && timersChanged(sentTimers, notifyTimersOf(session.save, now(), GAME))) void doSync(true);
+  });
   void login();
 }
 
@@ -115,7 +137,7 @@ export function startOnline(g: Phaser.Game): void {
 function login(): Promise<HelloResp | null> {
   if (onlineState.profile) return Promise.resolve(onlineState.profile);
   helloing ??= (async () => {
-    const h = await api.hello();
+    const h = await api.hello(notifyFields());
     helloing = null;
     if (!h) return null;
     onlineState.profile = h;
@@ -250,7 +272,11 @@ function handleCommit(next: typeof session.save, prev: typeof session.save): voi
   dirty = true;
   ls.set(KEY_LOCAL_AT, String(Date.now()));
   const v = victoryOf(prev, next);
-  if (!v) return;
+  if (!v) {
+    // Сундук забран, экспедиция ушла или вернулась — новые сроки для уведомлений (sync пачкой через 2 с).
+    if (onlineState.profile && timersChanged(sentTimers, notifyTimersOf(next, now(), GAME))) scheduleSync();
+    return;
+  }
   if (v === 'hunt') {
     const cur = readMvp();
     const upd = nextMvpWeek(cur, isoWeek(new Date(now())), prev, next);
@@ -277,7 +303,7 @@ function scheduleSync(): void {
   }, SYNC_DEBOUNCE_MS);
 }
 
-async function doSync(): Promise<void> {
+async function doSync(keepalive = false): Promise<void> {
   if (!(await login())) return;
   const save = session.save;
   const p = progressOf(save, GAME);
@@ -289,7 +315,8 @@ async function doSync(): Promise<void> {
     power: Math.round(squadPower(save, GAME)),
     towerBest: save.tower.floor,
     mvpWeek: mvp && mvp.week === week ? Math.round(mvp.value) : 0,
-  });
+    ...notifyFields(),
+  }, keepalive);
   if (r?.refRewarded) grantWelcome();
 }
 
@@ -365,6 +392,7 @@ export function resetOnlineForTests(): void {
   helloing = null;
   dirty = false;
   lastPut = 0;
+  sentTimers = null;
   onlineState.profile = null;
   onlineState.giftsWaiting = 0;
   onlineState.cloudReady = false;
