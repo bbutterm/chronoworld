@@ -70,6 +70,24 @@ interface TelegramWebApp {
 
 let current: AppLifecycle | null = null;
 
+/** Слушатели «игру свернули / скрыли» (онлайн: отправить облачное сохранение, online/online.ts). */
+const hiddenListeners: (() => void)[] = [];
+
+/** Подписаться на сворачивание (вкладка скрыта, Mini App свёрнут). Ошибки слушателя игру не ломают. */
+export function onAppHidden(fn: () => void): void {
+  hiddenListeners.push(fn);
+}
+
+const emitHidden = () => {
+  for (const fn of hiddenListeners) {
+    try {
+      fn();
+    } catch {
+      /* не мешаем паузе */
+    }
+  }
+};
+
 /** Жизненный цикл игры (null — ещё не установлен, например в тестах). */
 export const lifecycle = () => current;
 
@@ -79,12 +97,20 @@ export function installLifecycle(loop: LoopLike, fpsCap: number): AppLifecycle {
   current = app;
   app.setFpsCap(fpsCap);
   if (typeof document === 'undefined') return app;
-  document.addEventListener('visibilitychange', () => (document.hidden ? app.pause('hidden') : app.resume('hidden')));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      app.pause('hidden');
+      emitHidden();
+    } else app.resume('hidden');
+  });
   window.addEventListener('blur', () => app.pause('blur'));
   window.addEventListener('focus', () => app.resume('blur'));
   // Telegram Mini App: свёрнут / развёрнут (Bot API 8.0). Страница при этом может оставаться «видимой».
   const tg = (window as unknown as { Telegram?: { WebApp?: TelegramWebApp } }).Telegram?.WebApp;
-  tg?.onEvent?.('deactivated', () => app.pause('telegram'));
+  tg?.onEvent?.('deactivated', () => {
+    app.pause('telegram');
+    emitHidden();
+  });
   tg?.onEvent?.('activated', () => app.resume('telegram'));
   if (document.hidden) app.pause('hidden');
   return app;

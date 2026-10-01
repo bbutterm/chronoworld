@@ -20,6 +20,7 @@ import { achievementsTile, questsTile } from '../featureTiles';
 import { showUnlockBanners } from '../unlockBanner';
 import { homeEventIcons, touchToday } from '../homeEvents';
 import { chronicleButton } from '../loreView';
+import { friendsButton } from '../online/entry';
 
 /**
  * Страница «Город» (вкладка нижней навигации, сцена Home): четыре крупных «здания» 2×2 — Таверна, Лавка, Задания,
@@ -57,6 +58,8 @@ export class HomeScene extends Phaser.Scene {
     ribbon(this, GAME_W / 2, L.ribbonY, 'Город', { size: FS.h2, minW: 420 });
     // «Летопись» (лор мира, data/lore) — справа от ленты «Город», с красным кружком новых записей.
     chronicleButton(this, GAME_W - 165, L.ribbonY, 260, 96);
+    // «Друзья и рекорды» (онлайн, только в Telegram) — слева от ленты, с кружком ждущих колокольчиков.
+    friendsButton(this, 165, L.ribbonY, 260, 96);
     const { tileW: w, tileH: h, tileXL: xl, tileXR: xr, tileY1: y1, tileY2: y2 } = L;
     const rows = [
       collect(this.children, () => {
