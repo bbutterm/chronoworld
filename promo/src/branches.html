@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Ветки героев</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="promo.css">
+<style>
+  html, body { margin: 0; background: #0b0806; }
+  #root { width: 1080px; height: 1920px; position: relative; overflow: hidden; }
+  .bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: brightness(0.38) saturate(0.9) blur(2px); transform: scale(1.04); }
+  .vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 30%, rgba(5, 3, 1, 0.85) 100%); }
+  /* Слайд одного героя */
+  .hero-title { position: absolute; top: 120px; width: 100%; text-align: center; }
+  .hero-title h1 { font: 400 150px/1 'Russo One'; margin: 0; }
+  .hero-title .bio { font: 500 38px/1.3 Rubik; color: #eadfc6; margin: 26px 90px 0; text-shadow: 0 3px 8px #000; }
+  .tree { position: absolute; left: 0; right: 0; top: 520px; height: 1200px; }
+  .form { position: absolute; width: 470px; text-align: center; }
+  .form .frame { width: 400px; height: 400px; margin: 0 auto; }
+  .form .frame canvas { width: 100%; height: 100%; }
+  .form .fig { height: 300px; margin-top: -40px; position: relative; }
+  .form .fig canvas { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); }
+  .form .job { font: 400 56px/1.1 'Russo One'; margin-top: 18px; }
+  .form .ult { font: 600 31px/1.25 Rubik; color: #ffd98a; margin-top: 8px; text-shadow: 0 2px 6px #000; }
+  .form .ult small { display: block; font-size: 24px; color: #c8b48a; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; }
+  .tag { display: inline-block; font: 700 26px Rubik; color: #1a0e02; background: linear-gradient(#ffe3a0, #d39a3a); border-radius: 30px; padding: 6px 22px; margin-top: 10px; letter-spacing: 1px; }
+  .tag.purple { background: linear-gradient(#e2c8ff, #9a5cff); color: #1a0830; }
+  svg.links { position: absolute; inset: 0; }
+  .foot { position: absolute; bottom: 70px; width: 100%; text-align: center; font: 400 44px 'Russo One'; color: #f0cf8a; letter-spacing: 4px; text-shadow: 0 0 20px rgba(255, 180, 60, 0.6); }
+  /* Сетка 12 героев */
+  .grid-title { position: absolute; top: 60px; width: 100%; text-align: center; }
+  .grid-title h1 { font: 400 96px/1 'Russo One'; margin: 0; }
+  .grid-title p { font: 600 36px Rubik; color: #eadfc6; margin: 14px 0 0; }
+  .grid { position: absolute; top: 250px; left: 24px; right: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 22px 18px; }
+  .cell { background: linear-gradient(180deg, rgba(58, 36, 14, 0.92), rgba(24, 14, 6, 0.92)); border: 3px solid #b8863a; border-radius: 18px; padding: 10px 8px 8px; box-shadow: inset 0 0 0 2px rgba(255, 220, 140, 0.18), 0 6px 18px rgba(0, 0, 0, 0.6); }
+  .cell .nm { font: 400 38px/1 'Russo One'; color: #ffe3a0; text-align: center; text-shadow: 0 2px 4px #000; }
+  .cell .row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 2px; }
+  .cell .f { width: 33%; text-align: center; }
+  .cell .f canvas { display: block; margin: 0 auto; }
+  .cell .f div { font: 600 21px/1.1 Rubik; color: #eadfc6; margin-top: 2px; white-space: nowrap; }
+  .cell .f.base div { color: #c8b48a; }
+  .cell .arrow { color: #d6a24a; font: 700 26px Rubik; align-self: center; margin-bottom: 30px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+/**
+ * Слайды веток героев 1080×1920: ?hero=<id> — герой: первая профессия → две ветки (портреты RO и фигуры из листов
+ * assets/sprites/heroes, ульта формы); ?grid=1 — все 12 героев × 3 формы. Данные — data/heroes, data/jobs, data/skills.
+ * Открывать через vite из корня репозитория (http://localhost:<порт>/promo/src/branches.html?hero=alan).
+ */
+const q = new URLSearchParams(location.search);
+const root = document.getElementById('root');
+const J = async (p) => (await fetch(p)).json();
+const IDS = ['alan', 'iris', 'bran', 'meilin', 'kai', 'lira', 'dorn', 'zara', 'vika', 'teo', 'greta', 'otto'];
+const jobs = {};
+const has = async (p) => (await fetch(p, { method: 'HEAD' })).ok && (await fetch(p)).headers.get('content-type')?.includes('image');
+const img = (src) => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+
+async function job(id) { return (jobs[id] ??= await J(`/data/jobs/${id}.json`)); }
+async function baseSprite(h) {
+  if (h.visual?.sprite) return h.visual.sprite;
+  const base = (await job(h.job)).visual.sprite;
+  for (const v of [`${base}_${h.gender}`, `${base.replace(/_first$/, '')}_${h.gender}`]) if (await has(`/assets/sprites/heroes/${v}.png`)) return v;
+  return base;
+}
+async function forms(h) {
+  const out = [];
+  const jn = async (id) => { const j = await job(id); return h.gender === 'f' ? j.nameF ?? j.name : j.name; };
+  const ultName = async (id) => (id ? (await J(`/data/skills/${id}.json`)).name : '');
+  out.push({ sprite: await baseSprite(h), job: await jn(h.job), ult: await ultName(h.ult), base: true });
+  for (const b of h.branches) out.push({ sprite: b.visual?.sprite ?? `${(await job(b.job)).visual.sprite}_${h.gender}`, job: await jn(b.job), ult: await ultName(b.ult) });
+  return out;
+}
+/** Портрет 256×256 (пиксель-арт) — в canvas size×size без сглаживания. */
+async function portrait(sprite, size) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  const im = await img(`/assets/sprites/portraits/${sprite}.png`);
+  g.drawImage(im, 0, 0, size, size);
+  return c;
+}
+/** Фигура: кадр 0 строки idle листа 8×6 (ячейка 224×192), обрезка по непрозрачным пикселям, увеличение scale. */
+async function figure(sprite, scale) {
+  const im = await img(`/assets/sprites/heroes/${sprite}.png`);
+  const cw = im.width / 8, ch = im.height / 6;
+  const t = document.createElement('canvas');
+  t.width = cw; t.height = ch;
+  const tg = t.getContext('2d');
+  tg.drawImage(im, 0, 0, cw, ch, 0, 0, cw, ch);
+  const d = tg.getImageData(0, 0, cw, ch).data;
+  let x0 = cw, y0 = ch, x1 = 0, y1 = 0;
+  for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if (d[(y * cw + x) * 4 + 3] > 20) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  const w = x1 - x0 + 1, hh = y1 - y0 + 1;
+  const c = document.createElement('canvas');
+  c.width = w * scale; c.height = hh * scale;
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  g.shadowColor = 'rgba(0,0,0,0)';
+  g.drawImage(t, x0, y0, w, hh, 0, 0, w * scale, hh * scale);
+  return c;
+}
+function framed(canvas, size) {
+  const f = document.createElement('div');
+  f.className = 'frame gold-frame';
+  f.style.width = f.style.height = `${size}px`;
+  f.appendChild(canvas);
+  return f;
+}
+
+async function heroSlide(id) {
+  const h = await J(`/data/heroes/${id}.json`);
+  const fs = await forms(h);
+  root.innerHTML = `<div class="bg" style="background-image:url(/assets/backgrounds/${q.get('bg') ?? 'bg_battle_ch1'}.jpg)"></div><div class="vignette"></div>
+    <div class="hero-title"><h1 class="gold-text">${h.name}</h1><div class="bio">${h.bio}</div></div>
+    <div class="tree"><svg class="links" viewBox="0 0 1080 1200"></svg></div>
+    <div class="foot">ДВЕ ВЕТКИ — ВЫБОР ЗА ТОБОЙ</div>`;
+  const tree = root.querySelector('.tree');
+  const pos = [[540, 0], [270, 640], [810, 640]];
+  const sizes = [330, 300, 300];
+  for (const [i, f] of fs.entries()) {
+    const el = document.createElement('div');
+    el.className = 'form';
+    el.style.left = `${pos[i][0] - 235}px`;
+    el.style.top = `${pos[i][1]}px`;
+    el.appendChild(framed(await portrait(f.sprite, sizes[i] - 24), sizes[i]));
+    el.insertAdjacentHTML('beforeend', `<div class="job gold-text">${f.job}</div>${f.base ? '<div class="tag">первая профессия</div>' : '<div class="tag purple">вторая профессия</div>'}<div class="ult"><small>ульта</small>${f.ult}</div>`);
+    tree.appendChild(el);
+  }
+  // Фигура героя рядом с портретом первой профессии.
+  const fig = await figure(fs[0].sprite, 4);
+  fig.style.cssText = 'position:absolute;left:820px;top:40px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.8))';
+  tree.appendChild(fig);
+  for (const i of [1, 2]) {
+    const ff = await figure(fs[i].sprite, 3);
+    ff.style.cssText = `position:absolute;left:${i === 1 ? 20 : 1060 - ff.width}px;top:${i === 1 ? 470 : 470}px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.8))`;
+    tree.appendChild(ff);
+  }
+  tree.querySelector('svg').innerHTML = `<defs><linearGradient id="gl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe3a0"/><stop offset="1" stop-color="#b8863a"/></linearGradient></defs>
+    <path d="M540 360 C540 470 270 470 270 630" stroke="url(#gl)" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M540 360 C540 470 810 470 810 630" stroke="url(#gl)" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <circle cx="540" cy="470" r="18" fill="#ffd98a"/>`;
+  // Портрет первой профессии ниже рамки фигуры: подогнать высоту под рамку.
+  tree.children[1].querySelector('.frame').style.marginBottom = '0';
+}
+
+async function gridSlide() {
+  root.innerHTML = `<div class="bg" style="background-image:url(/assets/backgrounds/bg_map_ch1.jpg)"></div><div class="vignette"></div>
+    <div class="grid-title"><h1 class="gold-text">12 героев · 24 ветки</h1><p>первая профессия → выбор второй на фиолетовом</p></div><div class="grid"></div>`;
+  const grid = root.querySelector('.grid');
+  for (const id of IDS) {
+    const h = await J(`/data/heroes/${id}.json`);
+    const fs = await forms(h);
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.innerHTML = `<div class="nm">${h.name}</div><div class="row"></div>`;
+    const row = cell.querySelector('.row');
+    for (const [i, f] of fs.entries()) {
+      const d = document.createElement('div');
+      d.className = `f${f.base ? ' base' : ''}`;
+      d.appendChild(await portrait(f.sprite, 158));
+      d.insertAdjacentHTML('beforeend', `<div>${f.job}</div>`);
+      row.appendChild(d);
+      if (i === 0) row.insertAdjacentHTML('beforeend', '<span class="arrow">➜</span>');
+    }
+    grid.appendChild(cell);
+  }
+}
+
+await document.fonts.ready;
+if (q.get('grid')) await gridSlide();
+else await heroSlide(q.get('hero') ?? 'alan');
+await document.fonts.ready;
+window.__ready = true;
+</script>
+</body>
+</html>
