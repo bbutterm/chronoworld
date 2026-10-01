@@ -1,15 +1,16 @@
 import Phaser from 'phaser';
 import { featureUnlocked, lockedText, markUnlocksSeen, pendingUnlocks, unlockDef, type FeatureId, type FeatureView } from '../core';
 import { GAME } from './content';
-import { glow, medallion, ribbon, slowRays } from './decor';
+import { glow, medallion, slowRays } from './decor';
 import { GAME_H, GAME_W } from './layout';
 import { card, CONTENT_TOP, popIn } from './screen';
 import { commit, session } from './session';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { speedGate } from './state';
 import { mugIcon } from './tavernEntry';
-import { C, FS, OUTLINE, TITLE_STYLE } from './theme';
-import { button, pressable, text, toast } from './ui';
+import { C, COLOR, FS, leading, OUTLINE, R, S, T, TITLE_STYLE } from './theme';
+import { unlockTagline } from './tipTexts';
+import { BTN, button, clampLines, plate, pressable, SURFACE, text, toast } from './ui';
 import { haptic } from './haptics';
 
 /**
@@ -113,12 +114,6 @@ export function showUnlockBanners(scene: Phaser.Scene, onDone: () => void = () =
   return true;
 }
 
-/** Имя говорящего для реплики line (спикер garret из data/story). */
-function garretName(): string {
-  for (const ch of Object.values(GAME.story.chapters)) if (ch.speakers.garret) return ch.speakers.garret.name;
-  return 'Капитан Гаррет';
-}
-
 /**
  * Иконка функции на баннере: медальон скина и свой знак у каждой функции (не общая «стрелка»):
  * быстрые награды — сундук, задания — свиток, скорость — надпись «2x», достижения — кубок, Таверна — кружка,
@@ -162,62 +157,80 @@ export function featureIcon(scene: Phaser.Scene, f: Pick<FeatureView, 'id' | 'ic
   return c;
 }
 
-const BOX_W = 940;
-const ICON = 240;
+const BOX_W = 860;
+const ICON = 220;
+/** Касание мимо окна в первые мс после показа не закрывает баннер (хвост тапа, который открыл экран). */
+const SHADE_GUARD_MS = 500;
 
+/**
+ * Баннер «Новая функция!» — «момент» (§3 п. 10): лучи и медальон функции, название, одна строка, одна главная кнопка
+ * «Перейти» и тихая «Позже». Без пересказа правил, номера этапа и реплик (подробности — на экране функции).
+ * Касание мимо окна — то же «Позже»: баннер никогда не запирает экран под ним (итоги боя и их «Дальше»).
+ */
 function banner(scene: Phaser.Scene, f: FeatureView, more: number, close: (go: boolean) => void): void {
   const cx = GAME_W / 2;
   // data: id и заголовок функции — для e2e (popIn переносит содержимое во вложенный контейнер).
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName(UNLOCK_BANNER_NAME).setData({ id: f.id, title: f.title });
-  // Шторка ловит все касания: под баннером ничего не нажимается.
-  const shade = scene.add.rectangle(cx, GAME_H / 2, GAME_W * 2, GAME_H * 2, 0x000000, 0.82).setInteractive();
+  // Шторка ловит касания: под баннером ничего не нажимается, а касание мимо окна — «Позже».
+  const shade = scene.add.rectangle(cx, GAME_H / 2, GAME_W * 2, GAME_H * 2, 0x000000, 0.8).setInteractive();
   layer.add(shade);
 
-  // Тексты создаются сразу (нужна их высота), окно — по содержимому: без пустого провала над кнопками.
-  const title = text(scene, cx, 0, f.title, FS.hero, C.title, TITLE_STYLE);
-  const stage = text(scene, cx, 0, `Открыто за этап ${f.stageLabel}`, FS.small, C.gold, OUTLINE);
-  const desc = text(scene, cx, 0, f.description, FS.body, C.text, { ...OUTLINE, wordWrap: { width: 820 }, align: 'center', lineSpacing: 6 }).setOrigin(0.5, 0);
-  const who = f.line ? text(scene, cx, 0, garretName(), FS.small, C.gold, { ...OUTLINE, fontStyle: 'bold' }) : null;
-  const line = f.line
-    ? text(scene, cx, 0, `«${f.line}»`, FS.small, C.muted, { ...OUTLINE, fontStyle: 'italic', wordWrap: { width: 800 }, align: 'center' }).setOrigin(0.5, 0)
-    : null;
+  const kicker = text(scene, cx, 0, 'Новая функция', T.caption, COLOR.accent, { fontStyle: 'bold' }).setOrigin(0.5, 0);
+  const title = text(scene, cx, 0, f.title, T.title, COLOR.title, { fontStyle: 'bold' }).setOrigin(0.5, 0);
+  const line = clampLines(
+    text(scene, cx, 0, unlockTagline(f.description), T.body, COLOR.textSecondary, {
+      wordWrap: { width: BOX_W - 2 * S.xl, useAdvancedWrap: true },
+      align: 'center',
+      lineSpacing: leading(T.body),
+    }).setOrigin(0.5, 0),
+    2,
+  );
   // Медальон наполовину заходит на верх окна (как в AFK): текст начинается под ним.
-  const PAD_TOP = ICON / 2 + 50;
-  const BTN_H = 120;
-  const lineH = who && line ? 36 + 26 + line.height : 0;
-  const boxH = PAD_TOP + 128 + desc.height + lineH + 48 + BTN_H + 50;
-  // Всё вместе (лента над медальоном, окно, «Ещё новых функций») — по центру экрана.
-  const above = ICON / 2 + 150;
-  const below = more > 0 ? 70 : 0;
-  const boxTop = Math.round((GAME_H - (above + boxH + below)) / 2 + above - 20);
+  const PAD_TOP = ICON / 2 + S.m;
+  const CTA_W = 560;
+  const LATER_H = BTN.m;
+  const boxH = PAD_TOP + kicker.height + S.xxs + title.height + S.s + line.height + S.xl + BTN.cta + S.xs + LATER_H + S.s;
+  const below = more > 0 ? 80 : 0;
+  const boxTop = Math.round((GAME_H - (ICON / 2 + boxH + below)) / 2 + ICON / 2);
   const iconY = boxTop;
 
-  layer.add(slowRays(scene, cx, iconY, 900, 0.5));
-  layer.add(glow(scene, cx, iconY, 520, 0xffd27a, 0.55, true));
-  layer.add(card(scene, cx, boxTop + boxH / 2, BOX_W, boxH));
-  layer.add(ribbon(scene, cx, iconY - ICON / 2 - 60, 'Новая функция!', { size: FS.h1, minW: 560 }));
+  layer.add(slowRays(scene, cx, iconY, 820, 0.45));
+  layer.add(glow(scene, cx, iconY, 480, 0xffd27a, 0.5, true));
+  // Окно ловит касания само: касание по окну мимо кнопок — не «Позже».
+  const box = plate(scene, cx, boxTop + boxH / 2, BOX_W, boxH, { ...SURFACE.raised, r: R.xl }).setInteractive();
+  layer.add(box);
   layer.add(featureIcon(scene, f, cx, iconY, ICON));
 
-  let y = boxTop + PAD_TOP + 30;
+  let y = boxTop + PAD_TOP;
+  layer.add(kicker.setY(y));
+  y += kicker.height + S.xxs;
   layer.add(title.setY(y));
-  y += 64;
-  layer.add(stage.setY(y));
-  y += 34;
-  layer.add(desc.setY(y));
-  y += desc.height;
-  if (who && line) {
-    y += 36;
-    layer.add([who.setY(y), line.setY(y + 26)]);
-    y += 26 + line.height;
-  }
-  const by = boxTop + boxH - 50 - BTN_H / 2;
+  y += title.height + S.s;
+  layer.add(line.setY(y));
+
+  let closed = false;
   const done = (go: boolean) => {
+    if (closed) return;
+    closed = true;
     layer.destroy();
     close(go);
   };
-  layer.add(button(scene, cx - 215, by, 380, BTN_H, 'k:buttonLong_beige', 'Позже', () => done(false), FS.h2).container);
-  layer.add(button(scene, cx + 215, by, 380, BTN_H, 'ui_btn_primary', 'Перейти', () => done(true), FS.h2).container);
-  if (more > 0) layer.add(text(scene, cx, boxTop + boxH + 44, `Ещё новых функций: ${more}`, FS.small, C.muted, OUTLINE));
+  const ctaY = boxTop + boxH - S.s - LATER_H - S.xs - BTN.cta / 2;
+  layer.add(button(scene, cx, ctaY, CTA_W, BTN.cta, 'ui_btn_primary', 'Перейти', () => done(true), T.heading, { variant: 'primary' }).container);
+  layer.add(button(scene, cx, boxTop + boxH - S.s - LATER_H / 2, 360, LATER_H, '', 'Позже', () => done(false), T.body, { variant: 'ghost' }).container);
+  if (more > 0) layer.add(text(scene, cx, boxTop + boxH + 48, `Ещё ${more}`, T.caption, COLOR.textTertiary));
+
+  // Касание мимо окна — «Позже» (только касание, которое и началось на шторке после короткой паузы).
+  const shownAt = scene.time.now;
+  let armed = false;
+  shade.on('pointerdown', () => {
+    armed = scene.time.now - shownAt >= SHADE_GUARD_MS;
+  });
+  shade.on('pointerup', () => {
+    const ok = armed;
+    armed = false;
+    if (ok) done(false);
+  });
   haptic('unlock');
   popIn(scene, layer, shade);
 }
