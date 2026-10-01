@@ -20,10 +20,10 @@ describe('O: used assets (что попадает в dist)', () => {
     }
   });
 
-  it('включает все 73 анимированных FX (у каждого свой лист; 30.09 — +31 оригинальный атлас RO из клиента scRO) в сборку при наличии статических fallback в манифесте', () => {
+  it('включает все 93 анимированных FX (у каждого свой лист; 30.09 — +31 оригинальный атлас RO из клиента scRO; 01.10 — +20 ульт и частых навыков, build_ro_fx.py) в сборку при наличии статических fallback в манифесте', () => {
     const catalog = json('assets/effects/effects.json') as { effects: { id: string; file: string }[] };
     expect(catalog.effects.map((effect) => effect.id).sort()).toEqual([
-      'fx_arrow', 'fx_death', 'fx_heal', 'fx_hit', 'fx_job_acolyte_angelus', 'fx_job_acolyte_blessing',
+      'fx_am_marine_sphere', 'fx_am_potion_red', 'fx_arrow', 'fx_asc_meteor_assault', 'fx_dc_service_for_you', 'fx_death', 'fx_heal', 'fx_hit', 'fx_ht_falcon', 'fx_job_acolyte_angelus', 'fx_job_acolyte_blessing',
       'fx_job_acolyte_holy_light', 'fx_job_acolyte_increase_agi', 'fx_job_acolyte_signum_crucis',
       'fx_job_alchemist_acid_terror_projectile', 'fx_job_alchemist_demonstration',
       'fx_job_archer_arrow_shower_source', 'fx_job_archer_improve_concentration', 'fx_job_assassin_grimtooth',
@@ -42,8 +42,11 @@ describe('O: used assets (что попадает в dist)', () => {
       'fx_job_swordman_magnum_break', 'fx_job_swordman_provoke', 'fx_job_thief_envenom', 'fx_job_thief_steal',
       'fx_job_thief_venom_knife_projectile', 'fx_job_wizard_jupitel_thunder_projectile',
       'fx_job_wizard_jupitel_thunder_target', 'fx_job_wizard_meteor_storm', 'fx_job_wizard_soul_drain',
-      'fx_job_wizard_storm_gust', 'fx_magic', 'fx_npc_dark_strike', 'fx_npc_defender', 'fx_npc_earthquake',
-      'fx_npc_keeping', 'fx_npc_poison', 'fx_npc_stun_attack', 'fx_shield', 'fx_swordman_bash', 'fx_swordman_endure',
+      'fx_job_wizard_storm_gust', 'fx_kn_brandish', 'fx_kn_brandish_cast', 'fx_magic', 'fx_mg_fire_wall',
+      'fx_mo_asura_cast', 'fx_mo_asura_hit', 'fx_mo_occult_impaction', 'fx_npc_dark_strike', 'fx_npc_defender', 'fx_npc_earthquake',
+      'fx_npc_keeping', 'fx_npc_poison', 'fx_npc_stun_attack', 'fx_pr_sanctuary', 'fx_rg_close_confine', 'fx_sa_deluge',
+      'fx_sa_magic_rod', 'fx_sa_spell_breaker', 'fx_shield', 'fx_swordman_bash', 'fx_swordman_endure', 'fx_wz_earth_hit',
+      'fx_wz_lord_of_vermilion', 'fx_wz_quagmire', 'fx_wz_wind_hit',
     ]);
     for (const effect of catalog.effects) expect(files).toContain(effect.file);
   });

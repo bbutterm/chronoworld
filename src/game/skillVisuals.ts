@@ -394,6 +394,34 @@ export const SKILL_VISUALS: Record<string, SkillVisual> = {
 export const visualOf = (id: string | undefined): SkillVisual | undefined => (id ? SKILL_VISUALS[id] : undefined);
 
 /**
+ * Свой звук навыка RO (поле wav EffectTable клиента): файл assets/audio/skl_*.ogg|m4a (tools/ro_audio.py → SKILL_SFX).
+ * Играет при применении навыка вместо общего звука стихии (battleAudio.ts).
+ */
+export const SKILL_SOUNDS: Record<string, string> = {
+  ult_vika_asura: 'skl_asura',
+  job_monk_asura_strike: 'skl_asura',
+  ult_kai_lord_of_vermillion: 'skl_lord_of_vermilion',
+  ult_kai_fire_wall: 'skl_fire_wall',
+  ult_alan_brandish_spear: 'skl_brandish',
+  ult_meilin_blitz_beat: 'skl_blitz_beat',
+  job_hunter_blitz_beat: 'skl_blitz_beat',
+  job_hunter_falcon_assault: 'skl_blitz_beat',
+  ult_dorn_close_confine: 'skl_close_confine',
+  ult_meilin_arrow_vulcan: 'skl_arrow_vulcan',
+  ult_meilin_service_for_you: 'skl_service_for_you',
+  job_priest_sanctuary: 'skl_sanctuary',
+  job_sage_magic_rod: 'skl_magic_rod',
+  job_wizard_quagmire: 'skl_quagmire',
+  job_monk_investigate: 'skl_occult_impaction',
+  job_assassin_meteor_assault: 'skl_meteor_assault',
+  job_monk_steel_body: 'skl_steel_body',
+  job_blacksmith_power_thrust: 'skl_overthrust',
+  job_knight_spiral_pierce: 'skl_spiral_pierce',
+  job_bard_assassin_cross: 'skl_assassin_cross',
+  job_dancer_fortune_kiss: 'skl_fortune_kiss',
+};
+
+/**
  * Навыки, которые рисуются «своим» снарядом/площадью из skillLook (FX_OVERRIDE) или огненной стрелой — у них в таблице
  * только цвет; для аудита и тестов считаются своим видом.
  */

@@ -105,6 +105,31 @@ const RO_ORIGIN: Record<string, { ro: string; fx: string[] }> = {
   ult_teo_angelus: { ro: 'AL_ANGELUS', fx: ['41'] },
   ult_teo_kyrie: { ro: 'PR_KYRIE', fx: ['112'] },
   ult_vika_magnus: { ro: 'PR_MAGNUS', fx: ['113', '152', '318'] },
+  // 01.10, вторая партия сырья (raw/ro/BATCH_2026-10-01.md, raw/ro-build/tools/fx/build_ro_fx.py — рендер STR/SPR/3D без EffectViewer).
+  ult_vika_asura: { ro: 'MO_EXTREMITYFIST', fx: ['328', '266'] },
+  ult_kai_lord_of_vermillion: { ro: 'WZ_VERMILION', fx: ['90', '52'] },
+  ult_kai_fire_wall: { ro: 'MG_FIREWALL', fx: ['25', '49'] },
+  ult_alan_brandish_spear: { ro: 'KN_BRANDISHSPEAR', fx: ['70', '144'] },
+  // Удар сокола / Атака сокола: roBrowser играет только звук (115 / 387), в клиенте — спрайт сокола data/sprite/이팩트/매.
+  ult_meilin_blitz_beat: { ro: 'HT_BLITZBEAT', fx: ['sprite 매'] },
+  ult_dorn_close_confine: { ro: 'RG_CLOSECONFINE', fx: ['604'] },
+  ult_meilin_service_for_you: { ro: 'DC_SERVICEFORYOU', fx: ['294_ground'] },
+  // Метание зелья: EF_THROWITEM2 299 в roBrowser нет — STR брызг зелья из клиента (빨간포션.str).
+  ult_greta_potion_rain: { ro: 'AM_POTIONPITCHER', fx: ['str_빨간포션'] },
+  // Морская сфера: навык призывает монстра Marine Sphere — его спрайт (вращение и смерть-взрыв).
+  ult_otto_sphere_mine: { ro: 'AM_SPHEREMINE', fx: ['sprite marine_sphere'] },
+  ult_kai_spell_breaker: { ro: 'SA_SPELLBREAKER', fx: ['234'] },
+  ult_lira_deluge: { ro: 'SA_DELUGE', fx: ['240'] },
+  job_monk_asura_strike: { ro: 'MO_EXTREMITYFIST', fx: ['328', '266'] },
+  job_hunter_blitz_beat: { ro: 'HT_BLITZBEAT', fx: ['sprite 매'] },
+  job_hunter_falcon_assault: { ro: 'SN_FALCONASSAULT', fx: ['sprite 매'] },
+  job_assassin_meteor_assault: { ro: 'ASC_METEORASSAULT', fx: ['409'] },
+  job_sage_heavens_drive: { ro: 'WZ_HEAVENDRIVE', fx: ['142', '147'] },
+  job_priest_sanctuary: { ro: 'PR_SANCTUARY', fx: ['83', '319'] },
+  job_sage_magic_rod: { ro: 'SA_MAGICROD', fx: ['244'] },
+  job_wizard_quagmire: { ro: 'WZ_QUAGMIRE', fx: ['95'] },
+  // Проникающий удар: roBrowser играет только звук 267, в клиенте — спрайт data/sprite/이팩트/침투경_.
+  job_monk_investigate: { ro: 'MO_INVESTIGATE', fx: ['sprite 침투경_'] },
 
   // Монстры: эффекты монстровых навыков клиента (NPC_*) по смыслу.
   mob2_boss_rot_spores: { ro: 'NPC_POISON', fx: ['192'] },
@@ -185,8 +210,11 @@ describe('эффекты навыков — только оригинальны�
     expect(catalog.skills.job_merchant_mammonite).toEqual({ hit: 'fx_job_merchant_mammonite' });
     expect(roOf.get('fx_job_merchant_mammonite')).toBe('10');
     // Своего эффекта у нас пока нет — процедурный эффект, а не чужая картинка.
-    for (const id of ['job_monk_asura_strike', 'job_monk_steel_body', 'job_blacksmith_power_thrust', 'job_assassin_meteor_assault',
-      'job_blacksmith_cart_termination', 'job_sage_heavens_drive', 'sewer_golden_bug_coin_rain', 'mob6_boss_ghost_cannons']) {
+    // Удар Асуры, Метеоритный удар и Небесный удар с 01.10 — свои эффекты RO (328/266, 409, 147); Стальное тело, Мощный
+    // удар и Удар тележкой в клиенте картинки не имеют (только звук / код клиента) — процедурный вид.
+    for (const id of ['job_monk_steel_body', 'job_blacksmith_power_thrust', 'ult_zara_sand_attack', 'ult_bran_frost_joker',
+      'ult_teo_ki_explosion', 'ult_meilin_arrow_vulcan', 'job_blacksmith_cart_termination', 'sewer_golden_bug_coin_rain',
+      'mob6_boss_ghost_cannons']) {
       expect(catalog.skills[id], id).toBeUndefined();
     }
     expect(catalog.skills.job_mage_cold_bolt).toEqual({ hit: 'fx_job_mage_cold_bolt' });

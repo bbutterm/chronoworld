@@ -2038,6 +2038,527 @@
         "seed": 1,
         "note": "NPC_EARTHQUAKE 666: sprite data/sprite/이팩트/어스퀘이크 (ground cracks)"
       }
+    },
+    {
+      "id": "fx_rg_close_confine",
+      "file": "effects/fx_rg_close_confine.png",
+      "cell": [
+        74,
+        90
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 50,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        39.0,
+        78.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "604",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (spr)",
+        "scale": 1.0,
+        "note": "EF_NPC_STOP2 604: sprite data/sprite/이팩트/cconfine (RG_CLOSECONFINE groundEffectId), action 0, native ACT timing"
+      },
+      "scale": 3.0
+    },
+    {
+      "id": "fx_mo_asura_hit",
+      "file": "effects/fx_mo_asura_hit.png",
+      "cell": [
+        146,
+        124
+      ],
+      "columns": 8,
+      "frames": 14,
+      "ms": 40,
+      "loop": false,
+      "delayMs": 120,
+      "blend": "add",
+      "anchor": [
+        69.0,
+        102.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "266",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (lens)",
+        "scale": 1.0,
+        "note": "EF_TEIHIT1X 266 (Asura Strike hit): 24 lens1.tga streaks, ThreeDEffect parameters"
+      },
+      "scale": 1.8
+    },
+    {
+      "id": "fx_asc_meteor_assault",
+      "file": "effects/fx_asc_meteor_assault.png",
+      "cell": [
+        278,
+        206
+      ],
+      "columns": 7,
+      "frames": 13,
+      "ms": 40,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "anchor": [
+        139.0,
+        119.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "409",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (slash)",
+        "scale": 1.0,
+        "note": "EF_SOULBREAKER2 409 (ASC_METEORASSAULT effectIdOnCaster): eight purpleslash.tga crescents, ThreeDEffect parameters"
+      },
+      "scale": 1.6
+    },
+    {
+      "id": "fx_mo_occult_impaction",
+      "file": "effects/fx_mo_occult_impaction.png",
+      "cell": [
+        122,
+        90
+      ],
+      "columns": 8,
+      "frames": 12,
+      "ms": 40,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "anchor": [
+        8.0,
+        80.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "sprite 침투경_",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (spr)",
+        "scale": 1.0,
+        "note": "MO_INVESTIGATE 267: client sprite data/sprite/이팩트/침투경_ (Occult Impaction burst; roBrowser plays only the sound)"
+      },
+      "scale": 2.4
+    },
+    {
+      "id": "fx_sa_deluge",
+      "file": "effects/fx_sa_deluge.png",
+      "cell": [
+        132,
+        114
+      ],
+      "columns": 8,
+      "frames": 29,
+      "ms": 60,
+      "loop": false,
+      "delayMs": 60,
+      "blend": "add",
+      "anchor": [
+        66.0,
+        90.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "240",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (ground)",
+        "scale": 1.0,
+        "note": "EF_BOTTOM_DE 240: PropertyGround cone with ring_blue.tga (SA_DELUGE groundEffectId), alpha x2"
+      },
+      "scale": 2.2
+    },
+    {
+      "id": "fx_mo_asura_cast",
+      "file": "effects/fx_mo_asura_cast.png",
+      "cell": [
+        186,
+        54
+      ],
+      "columns": 8,
+      "frames": 31,
+      "ms": 50,
+      "loop": false,
+      "delayMs": 50,
+      "blend": "normal",
+      "anchor": [
+        90.0,
+        88.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "328",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (asura)",
+        "scale": 1.0,
+        "note": "EF_BEGINASURA 328 (MO_EXTREMITYFIST effectId): glyphs 阿修羅覇凰拳 asura1-6.tga, ThreeDEffect parameters"
+      },
+      "scale": 2.4
+    },
+    {
+      "id": "fx_dc_service_for_you",
+      "file": "effects/fx_dc_service_for_you.png",
+      "cell": [
+        78,
+        48
+      ],
+      "columns": 8,
+      "frames": 29,
+      "ms": 60,
+      "loop": false,
+      "delayMs": 60,
+      "blend": "normal",
+      "anchor": [
+        41.0,
+        116.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "294_ground",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (notes)",
+        "scale": 1.0,
+        "note": "'294_ground' (DC_SERVICEFORYOU groundEffectId): Songs.js HoveringTexture melody_a/b.bmp over the song cells"
+      },
+      "scale": 2.4
+    },
+    {
+      "id": "fx_ht_falcon",
+      "file": "effects/fx_ht_falcon.png",
+      "cell": [
+        260,
+        208
+      ],
+      "columns": 7,
+      "frames": 13,
+      "ms": 60,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        112.0,
+        224.0
+      ],
+      "attach": "target",
+      "from": "left",
+      "source": {
+        "roEffectId": "sprite 매",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (spr)",
+        "scale": 1.0,
+        "note": "Falcon sprite data/sprite/이팩트/매 (HT_BLITZBEAT 115 / SN_FALCONASSAULT 387 — roBrowser plays only the sound): flight actions 7/6/5, the dive path is ours"
+      },
+      "scale": 2.6
+    },
+    {
+      "id": "fx_am_marine_sphere",
+      "file": "effects/fx_am_marine_sphere.png",
+      "cell": [
+        208,
+        220
+      ],
+      "columns": 8,
+      "frames": 25,
+      "ms": 60,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        104.0,
+        141.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "sprite marine_sphere",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (spr)",
+        "scale": 1.0,
+        "note": "AM_SPHEREMINE summons the Marine Sphere monster (data/sprite/몬스터/marine_sphere): idle spin, then its death action"
+      },
+      "scale": 2.8
+    },
+    {
+      "id": "fx_wz_lord_of_vermilion",
+      "file": "effects/fx_wz_lord_of_vermilion.png",
+      "cell": [
+        240,
+        294
+      ],
+      "columns": 8,
+      "frames": 28,
+      "ms": 133.33,
+      "loop": false,
+      "delayMs": 267,
+      "blend": "add",
+      "anchor": [
+        120.0,
+        228.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "90",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.6667,
+        "note": "EF_LORD 90: lord.str (WZ_VERMILION effectId); 240 keys at 60 fps, every 6th; faint halo cut at 26"
+      },
+      "scale": 2.2
+    },
+    {
+      "id": "fx_wz_wind_hit",
+      "file": "effects/fx_wz_wind_hit.png",
+      "cell": [
+        268,
+        238
+      ],
+      "columns": 7,
+      "frames": 17,
+      "ms": 33.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "anchor": [
+        130.0,
+        155.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "52",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.0,
+        "note": "EF_WINDHIT 52: windhit1.str (hitEffectId of WZ_VERMILION and MG_THUNDERSTORM)"
+      },
+      "scale": 1.3
+    },
+    {
+      "id": "fx_mg_fire_wall",
+      "file": "effects/fx_mg_fire_wall.png",
+      "cell": [
+        206,
+        260
+      ],
+      "columns": 8,
+      "frames": 21,
+      "ms": 50.0,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "anchor": [
+        101.0,
+        190.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "25",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.25,
+        "note": "EF_FIREWALL 25: firewall1/2.str (file firewall%d, rand 1..2) played on five cells of the wall, staggered starts"
+      },
+      "scale": 1.9
+    },
+    {
+      "id": "fx_kn_brandish",
+      "file": "effects/fx_kn_brandish.png",
+      "cell": [
+        286,
+        298
+      ],
+      "columns": 7,
+      "frames": 17,
+      "ms": 50.0,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "anchor": [
+        140.5,
+        203.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "70",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.3333,
+        "note": "EF_BRANDISHSPEAR 70: brandish.str (KN_BRANDISHSPEAR effectId)"
+      },
+      "scale": 1.75
+    },
+    {
+      "id": "fx_kn_brandish_cast",
+      "file": "effects/fx_kn_brandish_cast.png",
+      "cell": [
+        212,
+        320
+      ],
+      "columns": 8,
+      "frames": 18,
+      "ms": 33.33,
+      "loop": false,
+      "delayMs": 33,
+      "blend": "add",
+      "anchor": [
+        105.0,
+        251.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "144",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.3333,
+        "note": "EF_BRANDISH2 144: brandish2.str (KN_BRANDISHSPEAR effectIdOnCaster)"
+      },
+      "scale": 1.75
+    },
+    {
+      "id": "fx_sa_spell_breaker",
+      "file": "effects/fx_sa_spell_breaker.png",
+      "cell": [
+        240,
+        288
+      ],
+      "columns": 8,
+      "frames": 23,
+      "ms": 33.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "anchor": [
+        115.5,
+        257.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "234",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.3333,
+        "note": "EF_SPELLBREAKER 234: spell.str (SA_SPELLBREAKER successEffectId)"
+      },
+      "scale": 1.75
+    },
+    {
+      "id": "fx_am_potion_red",
+      "file": "effects/fx_am_potion_red.png",
+      "cell": [
+        232,
+        238
+      ],
+      "columns": 8,
+      "frames": 27,
+      "ms": 16.67,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "anchor": [
+        102.0,
+        190.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "str_빨간포션",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.0,
+        "note": "AM_POTIONPITCHER: red potion splash 빨간포션.str (EF_THROWITEM2 299 file, not in roBrowser)"
+      },
+      "scale": 1.4
+    },
+    {
+      "id": "fx_wz_earth_hit",
+      "file": "effects/fx_wz_earth_hit.png",
+      "cell": [
+        264,
+        228
+      ],
+      "columns": 7,
+      "frames": 16,
+      "ms": 16.67,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "anchor": [
+        124.0,
+        116.0
+      ],
+      "attach": "target",
+      "source": {
+        "roEffectId": "147",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.0,
+        "note": "EF_EARTHHIT 147: earthhit.str (WZ_HEAVENDRIVE / WZ_EARTHSPIKE hitEffectId)"
+      },
+      "scale": 1.6
+    },
+    {
+      "id": "fx_pr_sanctuary",
+      "file": "effects/fx_pr_sanctuary.png",
+      "cell": [
+        280,
+        242
+      ],
+      "columns": 7,
+      "frames": 25,
+      "ms": 66.67,
+      "loop": false,
+      "delayMs": 67,
+      "blend": "add",
+      "anchor": [
+        140.0,
+        178.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "83",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.4286,
+        "note": "EF_SANCTUARY 83: sanctuary.str (PR_SANCTUARY effectId)"
+      },
+      "scale": 1.85
+    },
+    {
+      "id": "fx_sa_magic_rod",
+      "file": "effects/fx_sa_magic_rod.png",
+      "cell": [
+        322,
+        280
+      ],
+      "columns": 6,
+      "frames": 22,
+      "ms": 33.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "anchor": [
+        161.0,
+        238.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "244",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.4286,
+        "note": "EF_MAGICROD 244: 매직로드.str (SA_MAGICROD successEffectId)"
+      },
+      "scale": 1.85
+    },
+    {
+      "id": "fx_wz_quagmire",
+      "file": "effects/fx_wz_quagmire.png",
+      "cell": [
+        164,
+        174
+      ],
+      "columns": 8,
+      "frames": 28,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "add",
+      "anchor": [
+        82.0,
+        139.0
+      ],
+      "attach": "ground",
+      "source": {
+        "roEffectId": "95",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (str)",
+        "scale": 1.25,
+        "note": "EF_QUAGMIRE 95: quagmire.str (WZ_QUAGMIRE groundEffectId) on 15 cells of the swamp, staggered; x1.6 gain (too faint 1:1)"
+      },
+      "scale": 2.0
     }
   ],
   "skills": {
@@ -2086,6 +2607,9 @@
     "job_assassin_grimtooth": {
       "hit": "fx_job_assassin_grimtooth"
     },
+    "job_assassin_meteor_assault": {
+      "cast": "fx_asc_meteor_assault"
+    },
     "job_assassin_sonic_blow": {
       "hit": "fx_job_assassin_sonic_blow"
     },
@@ -2122,8 +2646,14 @@
     "job_hunter_ankle_snare": {
       "ground": "fx_job_hunter_ankle_snare"
     },
+    "job_hunter_blitz_beat": {
+      "hit": "fx_ht_falcon"
+    },
     "job_hunter_claymore_trap": {
       "hit": "fx_job_hunter_claymore_trap"
+    },
+    "job_hunter_falcon_assault": {
+      "hit": "fx_ht_falcon"
     },
     "job_hunter_sandman": {
       "debuff": "fx_job_hunter_sandman"
@@ -2172,6 +2702,13 @@
     "job_merchant_mammonite": {
       "hit": "fx_job_merchant_mammonite"
     },
+    "job_monk_asura_strike": {
+      "cast": "fx_mo_asura_cast",
+      "hit": "fx_mo_asura_hit"
+    },
+    "job_monk_investigate": {
+      "hit": "fx_mo_occult_impaction"
+    },
     "job_priest_assumptio": {
       "buff": "fx_job_priest_assumptio"
     },
@@ -2191,6 +2728,9 @@
       "ground": "fx_job_priest_magnus_exorcismus",
       "hit": "fx_job_acolyte_holy_light"
     },
+    "job_priest_sanctuary": {
+      "ground": "fx_pr_sanctuary"
+    },
     "job_rogue_gank": {
       "hit": "fx_job_thief_steal"
     },
@@ -2205,6 +2745,12 @@
     },
     "job_sage_earth_spike": {
       "hit": "fx_job_sage_earth_spike"
+    },
+    "job_sage_heavens_drive": {
+      "hit": "fx_wz_earth_hit"
+    },
+    "job_sage_magic_rod": {
+      "buff": "fx_sa_magic_rod"
     },
     "job_swordman_magnum_break": {
       "cast": "fx_job_swordman_magnum_break"
@@ -2231,6 +2777,9 @@
     "job_wizard_meteor_storm": {
       "ground": "fx_job_wizard_meteor_storm",
       "hit": "fx_job_mage_fire_bolt"
+    },
+    "job_wizard_quagmire": {
+      "ground": "fx_wz_quagmire"
     },
     "job_wizard_soul_drain": {
       "cast": "fx_job_wizard_soul_drain"
@@ -2377,6 +2926,10 @@
     "swordman_endure": {
       "buff": "fx_swordman_endure"
     },
+    "ult_alan_brandish_spear": {
+      "cast": "fx_kn_brandish_cast",
+      "hit": "fx_kn_brandish"
+    },
     "ult_alan_grand_cross": {
       "ground": "fx_job_crusader_grand_cross"
     },
@@ -2385,6 +2938,9 @@
     },
     "ult_bran_claymore": {
       "hit": "fx_job_hunter_claymore_trap"
+    },
+    "ult_dorn_close_confine": {
+      "debuff": "fx_rg_close_confine"
     },
     "ult_dorn_envenom": {
       "hit": "fx_job_thief_envenom"
@@ -2398,6 +2954,9 @@
     "ult_greta_cart_revolution": {
       "hit": "fx_job_merchant_cart_revolution"
     },
+    "ult_greta_potion_rain": {
+      "ground": "fx_am_potion_red"
+    },
     "ult_iris_bowling_bash": {
       "cast": "fx_job_knight_bowling_bash"
     },
@@ -2407,11 +2966,31 @@
     "ult_iris_fatal_bash": {
       "cast": "fx_swordman_bash"
     },
+    "ult_kai_fire_wall": {
+      "ground": "fx_mg_fire_wall",
+      "hit": "fx_job_mage_fire_bolt"
+    },
+    "ult_kai_lord_of_vermillion": {
+      "ground": "fx_wz_lord_of_vermilion",
+      "hit": "fx_wz_wind_hit"
+    },
+    "ult_kai_spell_breaker": {
+      "hit": "fx_sa_spell_breaker"
+    },
+    "ult_lira_deluge": {
+      "ground": "fx_sa_deluge"
+    },
     "ult_lira_frost_nova": {
       "hit": "fx_job_mage_frost_diver"
     },
     "ult_lira_storm_gust": {
       "ground": "fx_job_wizard_storm_gust"
+    },
+    "ult_meilin_blitz_beat": {
+      "hit": "fx_ht_falcon"
+    },
+    "ult_meilin_service_for_you": {
+      "buff": "fx_dc_service_for_you"
     },
     "ult_otto_hammer_fall": {
       "ground": "fx_job_blacksmith_hammer_fall"
@@ -2419,11 +2998,18 @@
     "ult_otto_loud": {
       "buff": "fx_job_merchant_crazy_uproar"
     },
+    "ult_otto_sphere_mine": {
+      "ground": "fx_am_marine_sphere"
+    },
     "ult_teo_angelus": {
       "buff": "fx_job_acolyte_angelus"
     },
     "ult_teo_kyrie": {
       "buff": "fx_job_priest_kyrie_eleison"
+    },
+    "ult_vika_asura": {
+      "cast": "fx_mo_asura_cast",
+      "hit": "fx_mo_asura_hit"
     },
     "ult_vika_magnus": {
       "ground": "fx_job_priest_magnus_exorcismus",
