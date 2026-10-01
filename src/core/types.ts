@@ -34,7 +34,16 @@ export interface CombatConfig {
   tickSeconds: number;
   timeLimitSeconds: number;
   damage: { defScale: number; varianceMin: number; varianceMax: number; minDamage: number };
-  energy: { max: number; perBasicAction: number; perHitTaken: number };
+  energy: {
+    max: number;
+    perBasicAction: number;
+    perHitTaken: number;
+    /**
+     * Энергия героев (ульта героя — docs/design/battle-decisions.md §1): за секунду боя (живой герой), за ход и за удар
+     * по ОЗ. Нет — общие числа (без энергии от времени).
+     */
+    hero?: { perSecond: number; perBasicAction: number; perHitTaken: number };
+  };
   /** Активные навыки: перезарядка по умолчанию (с), если у навыка не задана. */
   skills?: { defaultCooldown: number };
   movement: {

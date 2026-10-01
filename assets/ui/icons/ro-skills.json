@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "purpose": "RO skill icons of first and second jobs; native 24x24 source pixels",
+  "purpose": "RO skill icons of first and second jobs (and hero ultimates); native 24x24 source pixels",
   "icons": [
     {
       "id": "nv_firstaid",
@@ -1792,6 +1792,156 @@
       "file": "assets/ui/icons/skill_mo_steelbody.png",
       "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mo_steelbody.bmp",
       "source_sha256": "5fda04ae3dca1ca7aa3e822c50b1612aafad0fd12b71d52fbd1239872b667cd8",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "padding": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "kn_brandishspear",
+      "file": "assets/ui/icons/skill_kn_brandishspear.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/kn_brandishspear.bmp",
+      "source_sha256": "4efdb9f35c082faef503fbe9b9dd9a0367fa15fa1ef7cacae9d7df0ef698cc83",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "padding": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "cg_arrowvulcan",
+      "file": "assets/ui/icons/skill_cg_arrowvulcan.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/cg_arrowvulcan.bmp",
+      "source_sha256": "483ddaeebd577da309036c98f5d641b7816e023e80ec34003f3717c20cbf0980",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "padding": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "dc_serviceforyou",
+      "file": "assets/ui/icons/skill_dc_serviceforyou.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/dc_serviceforyou.bmp",
+      "source_sha256": "0d7429e5c93563b62019ee6828b7fa32e3eb5d70c6f0d58effa1050df0e9d37c",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "padding": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "rg_closeconfine",
+      "file": "assets/ui/icons/skill_rg_closeconfine.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/rg_closeconfine.bmp",
+      "source_sha256": "b51f3ea7a3d26ad076879af62ac2ae508db2c7d0da0dbdf7682faa6791a2e686",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "padding": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "am_spheremine",
+      "file": "assets/ui/icons/skill_am_spheremine.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/am_spheremine.bmp",
+      "source_sha256": "da74bc5e40f0cf4c0ffd2fd5b19bb2de4a17132d6247938e18c26016eb2fc4b2",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "padding": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "mg_firewall",
+      "file": "assets/ui/icons/skill_mg_firewall.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mg_firewall.bmp",
+      "source_sha256": "7bd5d9017bdef739f45443703928c1c2dedad4836f792db2f156dbfdd314710b",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "padding": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "wz_vermilion",
+      "file": "assets/ui/icons/skill_wz_vermilion.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/wz_vermilion.bmp",
+      "source_sha256": "10b64acd9301b6d73dc9a70e039715f6306afb38b7642915f4916b10db59a235",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "padding": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "sa_spellbreaker",
+      "file": "assets/ui/icons/skill_sa_spellbreaker.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/sa_spellbreaker.bmp",
+      "source_sha256": "28f935db05861fa7ef0aee51f9d2212edb601412cb84fd18c24352b0a980a76f",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "padding": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "sa_deluge",
+      "file": "assets/ui/icons/skill_sa_deluge.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/sa_deluge.bmp",
+      "source_sha256": "0a49438d0384d4237f72f2a24b8ae52c5adfdbb4ee5f1ec5df4aef0241712b78",
+      "source_pixels": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "padding": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "mo_balkyoung",
+      "file": "assets/ui/icons/skill_mo_balkyoung.png",
+      "source": "https://grf.robrowser.com/data/texture/%C3%80%C2%AF%C3%80%C3%BA%C3%80%C3%8E%C3%85%C3%8D%C3%86%C3%A4%C3%80%C3%8C%C2%BD%C2%BA/item/mo_balkyoung.bmp",
+      "source_sha256": "d7e4cd517acc97e7329ff2932752aba73c836fe9343bc2558e8835e6e1d023b4",
       "source_pixels": [
         24,
         24

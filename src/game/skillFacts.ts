@@ -9,6 +9,8 @@ export interface SkillFactsOptions {
   passive?: boolean;
   /** Обычная атака: без перезарядки и без «силы навыков». */
   basic?: boolean;
+  /** Ульта героя (skills.ult): вместо перезарядки — полная энергия. */
+  ult?: boolean;
   /** «Сила навыков» редкости (множитель урона/лечения/щита, кроме обычной атаки). */
   power?: number;
   /** Перезарядка по умолчанию (combat.json skills.defaultCooldown). */
@@ -75,6 +77,8 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
   if (o.passive) {
     const when = sk.trigger ? TRIGGER[sk.trigger] ?? sk.trigger : 'всегда';
     out.push(`Срабатывает: ${when}${sk.chance < 1 ? ` · шанс ${pct(sk.chance)}` : ''}`);
+  } else if (o.ult) {
+    out.push('Ульта: срабатывает на полной энергии (копится в бою ≈ 10–12 с); вручную — касанием портрета');
   } else if (!o.basic) {
     const cd = sk.cooldown ?? o.defaultCooldown;
     out.push(cd > 0 ? `Перезарядка: ${cd} с` : 'Без перезарядки');

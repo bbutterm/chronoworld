@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_dorn_envenom",
+  "name": "Смертельный яд",
+  "description": "Удар отравленным клинком: ×2,6 и яд (×0,3 в секунду, 5 с).",
+  "icon": "icon_ult_assassin",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.6
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "deadly_poison",
+        "name": "Смертельный яд",
+        "turns": 5,
+        "dot": {
+          "k": 0.3
+        }
+      }
+    }
+  ]
+}

@@ -134,6 +134,14 @@ export function ultSkillOf(def: UnitDef, skills: Record<string, SkillDef>, cfg: 
   return best;
 }
 
+/**
+ * Ульта сбивает заряд босса (docs/design/battle-decisions.md §4): только контроль — оглушение (stun) или срыв каста
+ * (interrupt) в эффектах навыка. Урон без контроля заряд не сбивает: решение «кем сбить» — у героев с такой ультой.
+ */
+export function breaksCharge(skill: SkillDef): boolean {
+  return skill.effects.some((e) => e.type === 'status' && (!!e.status.stun || !!e.status.interrupt));
+}
+
 /** Порядок активных навыков: больший priority раньше, при равенстве — открытый позже (стоит дальше в списке). */
 export function orderActives(skills: SkillDef[]): SkillDef[] {
   return skills
@@ -267,6 +275,13 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const addEnergy = (u: Unit, v: number) => {
     u.energy = Math.max(0, Math.min(cfg.energy.max, u.energy + v));
   };
+  /**
+   * Энергия за ход / за удар по ОЗ: свои числа бойца (UnitDef.energy — герои карточек, combat.json energy.hero), иначе
+   * общие. Только с профилями поведения: снимки боёв behavior: false не меняются.
+   */
+  const gain = (u: Unit, key: 'perBasicAction' | 'perHitTaken') => (on && u.def.energy ? u.def.energy[key] : cfg.energy[key]);
+  /** Бойцы с энергией от времени (ульта героя копится ровно, а не только от частоты ходов). */
+  const timeEnergy = on ? all.filter((u) => u.def.energy?.perSecond) : [];
 
   const checkEnd = () => {
     const aAlive = a.some((u) => u.alive);
@@ -316,7 +331,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     report[target.uid].damageTaken += absorbed + hpLoss;
     // Энергия за полученный удар — только за урон по ОЗ (как в AFK: энергия от потерянного здоровья). Удар, целиком
     // принятый щитом, ульту не заряжает — иначе щит-ульта («Песчаная стена») перезаряжала сама себя (LT-01).
-    if (target.hp > 0 && !dot && hpLoss > 0) addEnergy(target, cfg.energy.perHitTaken);
+    if (target.hp > 0 && !dot && hpLoss > 0) addEnergy(target, gain(target, 'perHitTaken'));
     emit({
       t,
       type: 'damage',
@@ -1717,7 +1732,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       if (u.alive) emit({ t, type: 'skip', unit: u.uid, reason: 'stun' });
       return true;
     }
-    const useUlt = !!u.ult && u.energy >= cfg.energy.max && skillReady(u, u.ult) && !manualOn(u);
+    const useUlt = !!u.ult && u.energy >= cfg.energy.max && skillReady(u, u.ult) && !manualOn(u) && ultUseful(u, u.ult);
     // Готовый навык дальнего действия можно применить и не дойдя до цели. Навык без целей (лечение при полном HP)
     // не готов: ход на него не тратится (T2-01).
     const active = useUlt || u.moving ? null : pickActive(u);
@@ -1736,6 +1751,10 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     }
     return true;
   };
+
+  /** Ульта-лечение раненых (onlyWounded) при целом отряде ждёт: энергия не сгорает впустую. */
+  const ultUseful = (u: Unit, s: SkillDef) =>
+    !(s.target.side === 'ally' && s.target.onlyWounded) || allies(u).some((x) => x.alive && x.hp < x.maxHp && (x !== u || s.target.includeSelf || s.target.pick === 'self'));
 
   /** Ульта на энергии (skills.ult): энергия в ноль, событие ult, заряд врага в целях — сбит. */
   const fireUlt = (u: Unit, ult: SkillDef) => {
@@ -1777,7 +1796,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     // Дальняя ульта — и на ходу; ближняя — когда дошёл до цели.
     const can = s.range === 'ranged' || skillReady(u, s);
     if (!can) return;
-    if (u.ult === s ? u.energy < cfg.energy.max : (u.readyAt[s.id] ?? 0) > t + 1e-9) return;
+    if (u.ult === s ? u.energy < cfg.energy.max || !ultUseful(u, s) : (u.readyAt[s.id] ?? 0) > t + 1e-9) return;
     const targets = u.ult === s ? [] : activeTargets(u, s);
     if (u.ult !== s && targets.length === 0) return;
     // Касание важнее своего каста: каст обрывается (без перезарядки), ульта — сейчас.
@@ -1873,7 +1892,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
    * пять авто-ульт сбивали почти каждый заряд и босс брался «ожиданием»); оглушение любым навыком сбивает всегда.
    */
   const breakCharges = (u: Unit, skill: SkillDef, targets: readonly Unit[]) => {
-    if (!manualFiring || ultOf.get(u) !== skill) return;
+    if (!manualFiring || ultOf.get(u) !== skill || !breaksCharge(skill)) return;
     for (const x of targets) {
       if (!x.alive || !x.casting?.charge) continue;
       const c = x.casting.skill;
@@ -1919,7 +1938,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     u.readyAt[skill.id] = round2(t + cd);
     if (u.bh.counter) holdSince.delete(u);
     report[u.uid].skills++;
-    addEnergy(u, cfg.energy.perBasicAction);
+    addEnergy(u, gain(u, 'perBasicAction'));
     const kind = skill.effects.some((e) => e.type === 'heal') ? 'heal' : skill.range === 'melee' ? 'melee' : 'ranged';
     emit({
       t,
@@ -2024,7 +2043,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       return basicAction(u, fb);
     }
     if (targets.length === 0) return;
-    addEnergy(u, cfg.energy.perBasicAction);
+    addEnergy(u, gain(u, 'perBasicAction'));
     const kind = skill.effects.some((e) => e.type === 'heal') ? 'heal' : skill.range === 'melee' ? 'melee' : 'ranged';
     emit({
       t,
@@ -2125,6 +2144,9 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       for (const u of all) if (u.alive && u.casting) finishCast(u);
       if (chargers.length > 0) chargeTick();
       if (armed.size > 0) for (const u of a) if (armed.has(u)) fireManual(u);
+
+      // Энергия от времени (UnitDef.energy.perSecond): ульта героя копится ровно, а не только от частоты ходов.
+      for (const u of timeEnergy) if (u.alive) u.energy = Math.min(cfg.energy.max, round2(u.energy + u.def.energy!.perSecond * cfg.tickSeconds));
 
       const ready: Unit[] = [];
       for (const u of all) {

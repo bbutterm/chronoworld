@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_iris_defender",
+  "name": "Защита строя",
+  "description": "Щит ордена всем союзникам: щит 18% ОЗ и +25% защиты на 6 с.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.18
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "defender_line",
+        "name": "Защита строя",
+        "turns": 6,
+        "stats": {
+          "def": 0.25
+        }
+      }
+    }
+  ]
+}

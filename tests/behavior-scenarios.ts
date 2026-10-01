@@ -62,10 +62,18 @@ export const MIRRORS: [string, string][] = [
   ['warrior,guard,assassin,archer,mage', 'guard,warrior,archer,priest,mage'],
 ];
 
+/** Герой без ульты формы (skills.ult) — как до ульт героев. */
+export function withoutUlt(u: UnitDef): UnitDef {
+  const { ult: _ult, ...skills } = u.skills;
+  return { ...u, skills };
+}
+
 /** Хэши логов всех сценариев: имя → хэш (seed'ы 1…seeds). */
 export function scenarioHashes(ctx: FullContext, seeds: number, opts: BattleOptions = {}): Record<string, string> {
   const out: Record<string, string> = {};
-  const squads = smoothSquads(ctx, 45, SMOOTH_SQUADS);
+  // Ульты героев (01.10, поле ult формы) — правка контента героев: сценарии замораживают отряды без них, как
+  // множители и FROZEN_STATS (снимок сравнивает логи с кодом до профилей).
+  const squads = smoothSquads(ctx, 45, SMOOTH_SQUADS).map((sq) => sq.map(withoutUlt));
   const run = (key: string, a: Squad, b: Squad) => {
     for (let seed = 1; seed <= seeds; seed++) {
       const r = simulateBattle(ctx.content, a, b, seed, { combat: ctx.combat, ...opts });

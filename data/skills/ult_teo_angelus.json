@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_teo_angelus",
+  "name": "Великий Ангелус",
+  "description": "Ангелы над отрядом: союзникам +35% защиты на 6 с и щит 12% ОЗ.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "angelus_great",
+        "name": "Великий Ангелус",
+        "turns": 6,
+        "stats": {
+          "def": 0.35
+        }
+      }
+    },
+    {
+      "type": "shield",
+      "pctMaxHp": 0.12
+    }
+  ]
+}

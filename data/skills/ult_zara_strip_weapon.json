@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_zara_strip_weapon",
+  "name": "Всеобщее разоружение",
+  "description": "Выбивает оружие у всех врагов: ×0,8 и −30% атаки на 6 с.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "strip_all",
+        "name": "Без оружия",
+        "turns": 6,
+        "stats": {
+          "atk": -0.3
+        }
+      }
+    }
+  ]
+}

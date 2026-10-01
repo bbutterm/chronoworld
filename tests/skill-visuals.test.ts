@@ -5,8 +5,10 @@ import { OWN_BY_LOOK, SKILL_VISUALS } from '../src/game/skillVisuals';
 
 const ctx = loadFullContext();
 const skills = ctx.content.skills;
-/** Все навыки героев: базовые формы и обе ветки. */
-const heroSkills = [...new Set(Object.values(ctx.content.heroes).flatMap((h) => [h, ...h.branches].flatMap((f) => f.skills.map((s) => s.skill))))];
+/** Все навыки героев: базовые формы и обе ветки, с ультами форм. */
+const heroSkills = [
+  ...new Set(Object.values(ctx.content.heroes).flatMap((h) => [h, ...h.branches].flatMap((f) => [...f.skills.map((s) => s.skill), ...(f.ult ? [f.ult] : [])]))),
+];
 
 describe('свой вид навыков героев в бою (skillVisuals.ts, docs/content/skills-vfx.md)', () => {
   it('в таблице только существующие навыки', () => {

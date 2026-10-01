@@ -41,7 +41,12 @@ describe('строй боя (T2-05)', () => {
       // противнику: пока фронт героев стоит, это x ≥ линии фронта; когда фронт пал (LT-01: бой после потолка щита
       // идёт иначе), прежний противник может стоять и глубже — поэтому считаем по времени, а не по x.
       const returnAt = ctx.combat.movement.dashSeconds + (ctx.combat.movement.diveReturnSeconds ?? 0.8);
-      const into = dashes.filter((e) => e.type === 'move' && e.to[0] < frontX);
+      // Прыжок, когда фронт героев уже пал целиком, возвращаться некуда (прежний противник погиб) — такой не считаем
+      // (01.10, ульты героев: босс главы 1 стал крепче ×1.11, отряд ур. 1 теряет фронт к 16 с и босс прыгает по тылу).
+      const frontUids = r.units.filter((u) => u.side === 'A' && ctx.combat.slots.front.includes(u.slot)).map((u) => u.uid);
+      const deaths = frontUids.map((uid) => r.log.find((e) => e.type === 'death' && e.unit === uid)?.t ?? Infinity);
+      const frontFell = frontUids.length ? Math.max(...deaths) : Infinity;
+      const into = dashes.filter((e) => e.type === 'move' && e.to[0] < frontX && e.t < frontFell - 1e-9);
       const back = into.filter((d) => dashes.some((e) => e !== d && Math.abs(e.t - d.t - returnAt) <= ctx.combat.tickSeconds + 1e-9));
       // Последний прыжок может остаться без возврата, если бой кончился раньше: босс погиб или отряд героев пал
       // (баланс 27.09: босс главы 1 рассчитан на отряд с Таверной, отряд ур. 1 здесь проигрывает).

@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_teo_ki_explosion",
+  "name": "Взрыв ки",
+  "description": "Волна ки от удара: ×1,6 по фронту врага и оглушение 2 с. Сбивает заряд босса.",
+  "icon": "icon_ult_warrior",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.6
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 2,
+        "stun": true
+      }
+    }
+  ]
+}

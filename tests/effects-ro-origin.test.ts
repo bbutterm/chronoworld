@@ -85,6 +85,27 @@ const RO_ORIGIN: Record<string, { ro: string; fx: string[] }> = {
   job_blacksmith_adrenaline_rush: { ro: 'BS_ADRENALINE', fx: ['98', 'str_adrenaline'] },
   job_alchemist_demonstration: { ro: 'AM_DEMONSTRATION', fx: ['302', 'sprite 데몬스트레이션'] },
 
+  // Ульты героев (01.10, docs/design/battle-decisions.md §1): усиленные формы навыков RO — эффект того же навыка RO.
+  ult_alan_magnum_break: { ro: 'SM_MAGNUM', fx: ['17'] },
+  ult_alan_grand_cross: { ro: 'CR_GRANDCROSS', fx: ['226'] },
+  ult_iris_fatal_bash: { ro: 'SM_BASH (Fatal Blow)', fx: ['16', '1'] },
+  ult_iris_bowling_bash: { ro: 'KN_BOWLINGBASH', fx: ['149', '1'] },
+  ult_iris_defender: { ro: 'CR_DEFENDER', fx: ['222'] },
+  ult_bran_claymore: { ro: 'HT_CLAYMORETRAP', fx: ['107'] },
+  ult_dorn_envenom: { ro: 'TF_POISON', fx: ['20'] },
+  ult_dorn_venom_splasher: { ro: 'AS_SPLASHER', fx: ['129'] },
+  ult_zara_sonic_blow: { ro: 'AS_SONICBLOW', fx: ['121', '143', '122'] },
+  ult_zara_strip_weapon: { ro: 'RG_STRIPWEAPON', fx: ['269'] },
+  ult_greta_cart_revolution: { ro: 'MC_CARTREVOLUTION', fx: ['170'] },
+  ult_greta_adrenaline_rush: { ro: 'BS_ADRENALINE', fx: ['98', 'str_adrenaline'] },
+  ult_otto_loud: { ro: 'MC_LOUD', fx: ['311'] },
+  ult_otto_hammer_fall: { ro: 'BS_HAMMERFALL', fx: ['102'] },
+  ult_lira_frost_nova: { ro: 'WZ_FROSTNOVA', fx: ['28', '51'] },
+  ult_lira_storm_gust: { ro: 'WZ_STORMGUST', fx: ['89', '51'] },
+  ult_teo_angelus: { ro: 'AL_ANGELUS', fx: ['41'] },
+  ult_teo_kyrie: { ro: 'PR_KYRIE', fx: ['112'] },
+  ult_vika_magnus: { ro: 'PR_MAGNUS', fx: ['113', '152', '318'] },
+
   // Монстры: эффекты монстровых навыков клиента (NPC_*) по смыслу.
   mob2_boss_rot_spores: { ro: 'NPC_POISON', fx: ['192'] },
   mob2_melee_bite: { ro: 'NPC_POISON', fx: ['192'] },

@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_greta_cart_revolution",
+  "name": "Карусель тележки",
+  "description": "Тележка по кругу: ×2 всему фронту врага.",
+  "icon": "icon_ult_warrior",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_bran_frost_joker",
+  "name": "Морозная шутка",
+  "description": "Ледяная шутка замораживает всех врагов на 2 с (−20% защиты). Сбивает заряд босса.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "frozen",
+        "name": "Заморозка",
+        "turns": 2,
+        "stun": true,
+        "stats": {
+          "def": -0.2
+        }
+      }
+    }
+  ]
+}

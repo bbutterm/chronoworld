@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_vika_heal_all",
+  "name": "Святое исцеление",
+  "description": "Свет исцеления на весь отряд: сильно лечит всех раненых союзников.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true,
+    "onlyWounded": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 2.6
+    }
+  ]
+}

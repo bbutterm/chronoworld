@@ -3,7 +3,7 @@
  * заряд босса, который сбивает ульта.
  */
 import { describe, expect, it } from 'vitest';
-import { buildUnit, enemySquad, simulateBattle, ultSkillOf, type BattleEvent, type BattleInput, type Squad, type UnitDef } from '../src/core';
+import { breaksCharge, buildUnit, enemySquad, simulateBattle, ultSkillOf, type BattleEvent, type BattleInput, type Squad, type UnitDef } from '../src/core';
 import { elementMult, type ElementsConfig } from '../src/core/elements';
 import { enemyTraits } from '../src/core/behavior';
 import { loadFullContext } from '../scripts/lib/content-node';
@@ -17,8 +17,11 @@ const heroes = (ids: string[], level = 60): UnitDef[] =>
     return buildUnit({ id: `h${i}`, templateId, rarity: 'purple', level, ...(branch ? { branch } : {}) }, ctx);
   });
 
+// Ульты форм: Брандиш (контроль), Взрыв ки (контроль), Владыка Вермилиона (урон), Великий Магнус (урон), Ледяное кольцо
+// (Лира-маг, контроль; ветки «hunter» у Лиры нет — первая профессия).
 const SQUAD: Squad = heroes(['alan/knight', 'teo/monk', 'kai/wizard', 'vika/priest', 'lira/hunter']);
-const STAGE = 'ch3_s5';
+// Бой подлиннее (≈ 50 с): ульта на энергии готова к ≈ 11–15 с.
+const STAGE = 'ch4_s10';
 
 const ultIds = (squad: Squad) => {
   const m = new Map<string, string>();
@@ -29,17 +32,25 @@ const ultIds = (squad: Squad) => {
   return m;
 };
 const usedUlt = (log: BattleEvent[], uid: string, skill: string) =>
-  log.filter((e) => (e.type === 'attack' || (e.type === 'cast' && e.action === 'start')) && e.unit === uid && e.skill === skill);
+  log.filter((e) => (e.type === 'ult' || e.type === 'attack' || (e.type === 'cast' && e.action === 'start')) && e.unit === uid && e.skill === skill);
 
 describe('ульта вручную', () => {
   const enemies = enemySquad(STAGE, ctx);
   const ults = ultIds(SQUAD);
 
-  it('у каждого героя отряда есть ульта — навык с самой долгой перезарядкой', () => {
+  it('у каждого героя отряда есть ульта — ульта формы (skills.ult, на энергии), не активный навык', () => {
     expect(ults.size).toBe(5);
+    (SQUAD as UnitDef[]).forEach((u, i) => {
+      expect(u.skills.ult, u.id).toBeTruthy();
+      expect(ults.get(`A${i}`)).toBe(u.skills.ult);
+      expect(u.skills.actives).not.toContain(u.skills.ult);
+    });
+    expect(ults.get('A2')).toBe(ctx.content.heroes.kai.branches.find((b) => b.job === 'wizard')!.ult);
+    // Юнит без ульты (монстр-«герой» из старого кода) — по-прежнему активный навык с самой долгой перезарядкой.
     const kai = SQUAD[2] as UnitDef;
+    const noUlt: UnitDef = { ...kai, skills: { ...kai.skills, ult: undefined } };
     const cds = kai.skills.actives.map((id) => ctx.content.skills[id].cooldown ?? 8);
-    expect(ctx.content.skills[ults.get('A2')!].cooldown).toBe(Math.max(...cds));
+    expect(ultSkillOf(noUlt, ctx.content.skills, ctx.combat)?.cooldown).toBe(Math.max(...cds));
   });
 
   it('авто (по умолчанию) = бой без ввода: ручной режим выключен — лог как раньше', () => {
@@ -82,9 +93,9 @@ describe('ульта вручную', () => {
   it('касание неготовой ульты пропадает; «Авто» вводом включает ульты с этого момента', () => {
     const r0 = simulateBattle(ctx.content, SQUAD, enemies, 5, { ...OPTS, manualUlt: true });
     const early = simulateBattle(ctx.content, SQUAD, enemies, 5, { ...OPTS, manualUlt: true, inputs: [{ t: 0.05, uid: 'A2' }, { t: 0.1, uid: 'A9' }] });
-    // В самом начале ульта уже готова (перезарядка с нуля) — значит, срабатывает; A9 нет — ввод пропал без ошибок.
-    expect(usedUlt(early.log, 'A2', ults.get('A2')!).length).toBeGreaterThan(0);
-    expect(early.log.filter((e) => e.t < 0.1 - 1e-9)).toEqual(r0.log.filter((e) => e.t < 0.1 - 1e-9));
+    // В начале боя энергии нет — касание пропадает (ульта не взводится впрок); A9 нет — ввод пропал без ошибок.
+    expect(usedUlt(early.log, 'A2', ults.get('A2')!)).toHaveLength(0);
+    expect(early.log).toEqual(r0.log);
     const auto = simulateBattle(ctx.content, SQUAD, enemies, 5, { ...OPTS, manualUlt: true, inputs: [{ t: 6, auto: true }] });
     expect(auto.log.some((e) => e.type === 'mode' && e.auto && Math.abs(e.t - 6) < 1e-9)).toBe(true);
     const after = [...ults].filter(([uid, s]) => usedUlt(auto.log, uid, s).some((e) => e.t >= 6)).length;
@@ -133,6 +144,7 @@ describe('заряд босса', () => {
   const bossStage = 'ch4_s10';
   const enemies = enemySquad(bossStage, ctx);
   const boss = `B${enemies.findIndex((u) => u?.kind === 'boss')}`;
+  const ults = ultIds(SQUAD);
 
   it('у всех 10 боссов глав есть заряд', () => {
     for (const st of ctx.content.stages.filter((s) => s.boss)) {
@@ -141,22 +153,31 @@ describe('заряд босса', () => {
     }
   });
 
-  it('не сбили — тяжёлый удар по отряду; ульта в заряд — «Сбито!» и оглушение', () => {
+  it('не сбили — тяжёлый удар по отряду; контрольная ульта в заряд — «Сбито!» и оглушение, ульта только с уроном — нет', () => {
     const r0 = simulateBattle(ctx.content, SQUAD, enemies, 2, { ...OPTS, manualUlt: true });
-    const start = r0.log.find((e) => e.type === 'cast' && e.unit === boss && e.charge && e.action === 'start');
+    // Второй заряд (≈ 34 с): к первому (14 с) энергия на ульту есть не у всех.
+    const start = r0.log.filter((e) => e.type === 'cast' && e.unit === boss && e.charge && e.action === 'start')[1];
     expect(start, 'заряд начался').toBeTruthy();
     const skill = (start as Extract<BattleEvent, { type: 'cast' }>).skill;
     // Без ответа: навык заряда бьёт весь отряд.
     const hit = r0.log.find((e) => e.type === 'attack' && e.unit === boss && e.skill === skill);
     expect(hit, 'удар заряда').toBeTruthy();
-    // Ульта мага (дальняя) через 0.5 с после начала заряда — сбивает.
     const tin = Math.round((start!.t + 0.5) * 10) / 10;
-    const r1 = simulateBattle(ctx.content, SQUAD, enemies, 2, { ...OPTS, manualUlt: true, inputs: [{ t: tin, uid: 'A2' }] });
+    // Ульта только с уроном (Владыка Вермилиона) заряд не сбивает: удар заряда проходит.
+    const ready = (uid: string) => r0.log.some((e) => e.type === 'ready' && e.unit === uid && !e.lost && e.t <= tin);
+    expect(ready('A2') && ready('A4'), 'ульты готовы к заряду').toBe(true);
+    const dmgOnly = simulateBattle(ctx.content, SQUAD, enemies, 2, { ...OPTS, manualUlt: true, inputs: [{ t: tin, uid: 'A2' }] });
+    expect(usedUlt(dmgOnly.log, 'A2', ults.get('A2')!).length).toBeGreaterThan(0);
+    expect(dmgOnly.log.some((e) => e.type === 'cast' && e.unit === boss && e.reason === 'break')).toBe(false);
+    expect(breaksCharge(ctx.content.skills[ults.get('A2')!])).toBe(false);
+    // Контрольная ульта (Ледяное кольцо Лиры, дальняя) через 0.5 с после начала заряда — сбивает.
+    expect(breaksCharge(ctx.content.skills[ults.get('A4')!])).toBe(true);
+    const r1 = simulateBattle(ctx.content, SQUAD, enemies, 2, { ...OPTS, manualUlt: true, inputs: [{ t: tin, uid: 'A4' }] });
     const broke = r1.log.find((e) => e.type === 'cast' && e.unit === boss && e.reason === 'break');
     expect(broke, 'сбито').toBeTruthy();
     expect(broke!.t).toBeCloseTo(tin, 5);
     expect(r1.log.some((e) => e.type === 'status' && e.target === boss && e.status === 'charge_broken' && e.action === 'apply')).toBe(true);
-    expect(r1.log.some((e) => e.type === 'attack' && e.unit === boss && e.skill === skill && e.t < tin + 3)).toBe(false);
+    expect(r1.log.some((e) => e.type === 'attack' && e.unit === boss && e.skill === skill && e.t >= start!.t && e.t < tin + 3)).toBe(false);
   });
 });
 

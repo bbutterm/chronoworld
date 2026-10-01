@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_otto_sphere_mine",
+  "name": "Морская сфера",
+  "description": "Морская сфера взрывается среди врагов: ×1,8 огнём всем.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.8
+    }
+  ],
+  "element": "fire"
+}

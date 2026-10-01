@@ -194,7 +194,9 @@ describe('уровни врагов на экранах (flow.ts)', () => {
 describe('RN-11: уровни врагов в единицах редкости отряда', () => {
   it('зелёный отряд на синей полосе видит врагов выше, чем «синие» уровни (сравнимо со своими)', () => {
     const ctx = loadFullContext();
-    const stage = ctx.content.stages.find((s) => s.chapter === ctx.content.chapters[1].id)!;
+    // Второй этап главы 2: на первом зелёные ур. 6 с ультами (мощь +perActive за ульту) уже набирают рекомендуемую мощь на
+    // ур. 1 — «свой» уровень и уровень полосы оба упираются в 1, сравнивать нечего.
+    const stage = ctx.content.stages.filter((s) => s.chapter === ctx.content.chapters[1].id)[1]!;
     const heroes = ['alan', 'bran', 'vika'].map((t, i) => ({ id: `h${i + 1}`, templateId: t, rarity: 'green' as const, level: 6 }));
     const save = { heroes, squad: ['h1', 'h2', 'h3', null, null] };
     expect(squadRarity(save)).toBe('green');

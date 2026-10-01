@@ -14,7 +14,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { enemySquad, simulateBattle, ultSkillOf, type BattleEvent, type BattleInput, type BattleResult, type UnitDef } from '../src/core';
+import { breaksCharge, enemySquad, simulateBattle, ultSkillOf, type BattleEvent, type BattleInput, type BattleResult, type UnitDef } from '../src/core';
 import { bandSquads } from './balance-behavior';
 import { ROOT } from './lib/content-node';
 import { loadFullContext, scaledEnemies, stageThreshold, type FullContext } from './lib/player-model';
@@ -42,7 +42,7 @@ const geo = (xs: number[]) => Math.exp(xs.reduce((a, b) => a + Math.log(b), 0) /
 const tick = (t: number, dt: number) => Math.round((Math.floor(t / dt + 1e-6) + 1) * dt * 1000) / 1000;
 
 /**
- * «Игрок» с ручной ультой: ульты — сразу, как готовы; ульту «сбивающего» (первый герой с ультой по врагам) держит на заряд
+ * «Игрок» с ручной ультой: ульты — сразу, как готовы; ульту «сбивающего» (первый герой с контрольной ультой — breaksCharge) держит на заряд
  * босса и жмёт через 0.3 с после его начала. Бой пересчитывается после каждого ввода (как сцена).
  */
 export function manualBattle(ctx: FullContext, squad: readonly (UnitDef | null)[], enemies: readonly (UnitDef | null)[], seed: number): BattleResult {
@@ -57,7 +57,7 @@ export function manualBattle(ctx: FullContext, squad: readonly (UnitDef | null)[
   if (charger)
     for (const [uid, sid] of ults) {
       const s = ctx.content.skills[sid];
-      if (s.target.side === 'enemy' && s.effects.some((e) => e.type === 'damage')) {
+      if (s.target.side === 'enemy' && breaksCharge(s)) {
         breaker = uid;
         break;
       }
@@ -71,7 +71,7 @@ export function manualBattle(ctx: FullContext, squad: readonly (UnitDef | null)[
     let at = Infinity;
     for (const e of r.log as BattleEvent[]) {
       if (e.type === 'ready' && e.unit === breaker) breakerReady = !e.lost;
-      if (e.type === 'attack' && e.unit === breaker && e.skill === ults.get(breaker!)) breakerReady = false;
+      if ((e.type === 'attack' || e.type === 'ult') && e.unit === breaker && e.skill === ults.get(breaker!)) breakerReady = false;
       if (e.t <= done + 1e-9) continue;
       if (e.type === 'ready' && !e.lost && e.unit !== breaker) {
         next = { t: tick(e.t, dt), uid: e.unit };

@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_otto_loud",
+  "name": "Ярмарочный клич",
+  "description": "Громкий голос на всю площадь: союзникам +25% атаки на 6 с и щит 10% ОЗ.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "loud_all",
+        "name": "Ярмарочный клич",
+        "turns": 6,
+        "stats": {
+          "atk": 0.25
+        }
+      }
+    },
+    {
+      "type": "shield",
+      "pctMaxHp": 0.1
+    }
+  ]
+}

@@ -112,6 +112,10 @@
         ]
       }
     },
+    "ult": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
     "behavior": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9_]*$"
@@ -179,6 +183,10 @@
                 "skill"
               ]
             }
+          },
+          "ult": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
           },
           "promotion": {
             "type": "string",
