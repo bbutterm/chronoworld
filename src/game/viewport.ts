@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
+import { inTelegram, installTelegram, onTgEvent, tgInsets } from './telegram';
 import { computeView, MAX_DPR, type Insets, type View } from './viewLayout';
 
 export { computeView, MAX_DPR, type View };
@@ -22,14 +23,6 @@ export { computeView, MAX_DPR, type View };
 /** Телефон в альбомной ориентации — показываем «Поверните телефон» (то же условие, что в CSS index.html). */
 export const LANDSCAPE_PHONE = '(orientation: landscape) and (max-height: 540px)';
 
-type TgInsets = { top?: number; bottom?: number; left?: number; right?: number };
-interface TgWebApp {
-  safeAreaInset?: TgInsets;
-  contentSafeAreaInset?: TgInsets;
-  onEvent?: (event: string, cb: () => void) => void;
-}
-const telegram = (): TgWebApp | undefined => (window as unknown as { Telegram?: { WebApp?: TgWebApp } }).Telegram?.WebApp;
-
 /**
  * Безопасные отступы экрана в CSS px: env(safe-area-inset-*) и, в Telegram Mini App на весь экран, поверх них —
  * отступы Telegram (safeAreaInset + contentSafeAreaInset: строка кнопок «Закрыть» / «⌄ …» сверху закрывала валюту).
@@ -39,10 +32,9 @@ function readInsets(): Insets {
   const st = probe ? getComputedStyle(probe) : undefined;
   const px = (v: string | undefined) => parseFloat(v ?? '') || 0;
   const css = { top: px(st?.paddingTop), right: px(st?.paddingRight), bottom: px(st?.paddingBottom), left: px(st?.paddingLeft) };
-  const tg = telegram();
-  if (!tg) return css;
-  const sum = (k: keyof TgInsets) => (tg.safeAreaInset?.[k] ?? 0) + (tg.contentSafeAreaInset?.[k] ?? 0);
-  return { top: Math.max(css.top, sum('top')), right: Math.max(css.right, sum('right')), bottom: Math.max(css.bottom, sum('bottom')), left: Math.max(css.left, sum('left')) };
+  if (!inTelegram()) return css;
+  const tg = tgInsets();
+  return { top: Math.max(css.top, tg.top), right: Math.max(css.right, tg.right), bottom: Math.max(css.bottom, tg.bottom), left: Math.max(css.left, tg.left) };
 }
 
 /** Предел плотности: ?dpr=N в адресе (для замеров), иначе MAX_DPR. */
@@ -58,8 +50,21 @@ export function view(): View {
   return current;
 }
 
-/** Начальный размер холста для конфига игры. */
+/** Цвет фона игры (index.html, конфиг Phaser в main.ts) — им же красим шапку, фон и нижнюю полосу Telegram. */
+export const APP_BG = '#0a0907';
+
+/**
+ * Начальный размер холста для конфига игры. Заодно (один раз, до создания игры) — настройка Telegram Mini App
+ * (telegram.ts): ready, expand, без сворачивания свайпом, цвета, полный экран на телефоне (?fullscreen=0 — без него).
+ */
 export function initialView(): View {
+  let fullscreen = true;
+  try {
+    fullscreen = new URLSearchParams(location.search).get('fullscreen') !== '0';
+  } catch {
+    /* по умолчанию — полный экран */
+  }
+  installTelegram({ color: APP_BG, fullscreen });
   current = computeView(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1, readInsets(), maxDprSetting());
   return current;
 }
@@ -339,7 +344,13 @@ export function installViewport(game: Phaser.Game): void {
   window.addEventListener('orientationchange', schedule);
   window.visualViewport?.addEventListener('resize', schedule);
   // Telegram сообщает отступы асинхронно и меняет их при переходе в полноэкранный режим.
-  for (const ev of ['safeAreaChanged', 'contentSafeAreaChanged', 'fullscreenChanged', 'viewportChanged']) telegram()?.onEvent?.(ev, schedule);
+  for (const ev of ['safeAreaChanged', 'contentSafeAreaChanged', 'fullscreenChanged']) onTgEvent(ev, schedule);
+  // Высота окна Telegram: пока шторка ещё едет (isStateStable: false), холст не пересобираем на каждое событие —
+  // пересчёт по устойчивой высоте, когда движение закончилось.
+  onTgEvent<{ isStateStable?: boolean }>('viewportChanged', (e) => {
+    if (e && e.isStateStable === false) return;
+    schedule();
+  });
 
   apply();
 }
