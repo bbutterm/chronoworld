@@ -43,8 +43,10 @@ export function huntHud(scene: Phaser.Scene, bossUid: string, maxHp: number, ran
     const tier = huntTier(score, GAME.hunt);
     num.setText(formatNumber(total));
     if (mvp) {
-      const left = Math.max(0, maxHp - total);
-      tierText.setText(`Урон ${formatNumber(total)} · ${tier >= 0 ? `порог ${tier + 1}` : 'порог не взят'}${killed ? ' · MVP повержен!' : ` · до победы ${formatNumber(left)}`}`);
+      // BUG-185: «Урон» здесь был зачётом (доля ОЗ × зачёт уровня) и обгонял ОЗ MVP — теперь доля снятых ОЗ и порог наград.
+      const pct = killed ? 100 : Math.min(99, Math.floor((total / Math.max(1, maxHp)) * 100));
+      const tierPart = tier >= 0 ? `порог наград ${tier + 1}` : 'порог не взят';
+      tierText.setText(killed ? `MVP повержен! · ${tierPart}` : `Снято ${pct}% ОЗ MVP · ${tierPart}`);
     } else {
       const next = tiers[tier + 1];
       tierText.setText(`${tier >= 0 ? `Порог ${tier + 1}` : 'Порог не взят'}${next ? ` · до ${tier + 2}-го ${formatNumber(next.damage - total)}` : ' · высший!'}`);

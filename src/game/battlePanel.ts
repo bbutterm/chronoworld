@@ -29,8 +29,8 @@ interface Entry {
   energy: Phaser.GameObjects.Rectangle | null;
   face: Phaser.GameObjects.Image;
   dead: boolean;
-  /** Свечение готовой ульты (рамка + ореол) и его пульс. */
-  glow: Phaser.GameObjects.Container | null;
+  /** Свечение готовой ульты: ореол под портретом, рамка и ярлык «УЛЬТА» над ним (BUG-190); пульс — общий. */
+  glow: Phaser.GameObjects.Container[] | null;
   pulse: Phaser.Tweens.Tween | null;
   ready: boolean;
 }
@@ -73,14 +73,18 @@ export class HeroPanel {
         energy = scene.add.rectangle(-BAR_W / 2, 84, 0, 6, 0x6fc8ff).setOrigin(0, 0.5);
         parts.push(enBack, energy);
       }
-      // Готовая ульта: золотая рамка и ореол за портретом (под ним), пульс — пока не нажали.
-      let glow: Phaser.GameObjects.Container | null = null;
+      // Готовая ульта: ореол за портретом (под ним), рамка и ярлык «УЛЬТА» — над ним (BUG-190: голова спрайта не
+      // закрывает ярлык); пульс — пока не нажали.
+      let glow: Phaser.GameObjects.Container[] | null = null;
       if (u.ult) {
         const halo = scene.add.rectangle(0, -30, FACE + 26, FACE + 26, 0xffd84a, 0.35);
         const frame = scene.add.rectangle(0, 0, CARD_W + 8, CARD_H + 8).setStrokeStyle(8, 0xffe070, 1);
         const tag = text(scene, 0, -CARD_H / 2 + 16, 'УЛЬТА', 24, '#3a2408', { fontStyle: 'bold', backgroundColor: '#ffd84a', padding: { x: 8, y: 0 } });
-        glow = scene.add.container(0, 0, [halo, frame, tag]).setVisible(false);
-        parts.splice(1, 0, glow);
+        const under = scene.add.container(0, 0, [halo]).setVisible(false);
+        const over = scene.add.container(0, 0, [frame, tag]).setVisible(false);
+        glow = [under, over];
+        parts.splice(1, 0, under);
+        parts.push(over);
       }
       const node = scene.add.container(x, PANEL_Y, parts).setDepth(depth).setName(`heroPanel_${i}`);
       if (u.ult && onTap) {
@@ -96,12 +100,12 @@ export class HeroPanel {
     const e = this.entries.get(uid);
     if (!e?.glow || e.ready === on || (on && e.dead)) return;
     e.ready = on;
-    e.glow.setVisible(on);
+    for (const g of e.glow) g.setVisible(on);
     e.pulse?.stop();
     e.pulse = null;
     e.node.setScale(1);
     if (on) {
-      e.glow.setAlpha(1);
+      for (const g of e.glow) g.setAlpha(1);
       e.pulse = this.scene.tweens.add({ targets: e.glow, alpha: 0.45, duration: 480, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
       this.scene.tweens.add({ targets: e.node, scale: 1.06, duration: 160, yoyo: true, ease: 'Quad.easeOut' });
     }

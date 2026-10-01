@@ -413,7 +413,7 @@ export function valuableFodder(save: SaveState, chosen: readonly string[]): Hero
 export const RARITY_ORDER: readonly CardRarity[] = CARD_RARITIES;
 
 /** Инвентарь → «Карты героев»: вкладка и фильтр редкости на сессию. */
-export const inventoryUi: { tab: 'gear' | 'cards'; view: 'table' | 'grid'; rarity: CardRarity | null; template: string | null } = {
+export const inventoryUi: { tab: 'gear' | 'cards' | 'mvp'; view: 'table' | 'grid'; rarity: CardRarity | null; template: string | null } = {
   tab: 'gear',
   view: 'table',
   rarity: null,

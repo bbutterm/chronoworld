@@ -111,6 +111,23 @@ export function choiceExpectation(choice: ExpeditionChoice, party: readonly Even
   return chance * cfg.tiers[choice.success.reward] + (1 - chance) * fail;
 }
 
+/** Кого нет в отряде (родительный падеж) — для пояснения «Лекаря в отряде нет — за дело берётся Ирис». */
+const LINE_GEN: Record<string, string> = { swordman: 'мечника', archer: 'лучника', thief: 'вора', merchant: 'торговца', mage: 'мага', acolyte: 'послушника' };
+const ROLE_GEN: Record<string, string> = { tank: 'танка', damage: 'бойца', healer: 'лекаря', support: 'помощника' };
+
+/**
+ * BUG-186: вариант с требованием, а нужного героя в отряде нет — действовал кто-то другой; текст исхода написан под
+ * профессию, поэтому перед ним — пояснение, кто взялся вместо («Лекаря в отряде нет — за дело берётся Ирис.»).
+ * Пустая строка — герой подходит или требования нет.
+ */
+export function noFitLead(r: ExpeditionRequires | undefined, actor: EventHero | undefined, heroName: (templateId: string) => string): string {
+  if (!r || !actor || meetsRequirement(actor, r)) return '';
+  const who = r.hero?.length
+    ? `${r.hero.map(heroName).join(' и ')} не в отряде`
+    : `${[...(r.line ?? []).map((l) => LINE_GEN[l] ?? l), ...(r.role ?? []).map((x) => ROLE_GEN[x] ?? x)].join(' или ').replace(/^./, (c) => c.toUpperCase())} в отряде нет`;
+  return `${who} — за дело берётся ${actor.name}. `;
+}
+
 /** Подстановки: {hero}, {partner}, [мужской|женский] — по роду того, кто действовал. */
 export function fillEventText(text: string, actor?: Pick<EventHero, 'name' | 'gender'>, partner?: Pick<EventHero, 'name'>): string {
   return text
@@ -253,7 +270,7 @@ export function eventOutcome(
     choice: choice.label,
     auto: !!ev.auto,
     ok: !!ev.ok,
-    text: fillEventText(out.text, actor, partner),
+    text: noFitLead(choice.requires, actor, (id) => ctx.content.heroes[id]?.name ?? id) + fillEventText(out.text, actor, partner),
     gold: Math.round((e.rewards.gold / n) * tier),
     jobExp: Math.round((e.rewards.jobExp / n) * tier),
     gems: out.gems,

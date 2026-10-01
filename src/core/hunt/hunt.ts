@@ -148,6 +148,11 @@ export interface HuntOutcome {
   killed: boolean;
   /** MVP: победа открыла следующий уровень. */
   rankUp: boolean;
+  /** MVP: уровень, на котором бились (индекс; без mvp и в зачистке — 0). */
+  rank?: number;
+  /** MVP: уровень охотника до и после попытки (индексы) — итог показывает «Уровень 10 → 9» (BUG-185). */
+  levelBefore?: number;
+  levelAfter?: number;
 }
 
 function describe(error: z.ZodError): string {
@@ -512,8 +517,22 @@ export function fightHunt(save: SaveState, day: string, ctx: HuntContext, opts: 
     const level = killed ? huntJump(rank, killAt, ctx) : Math.max(0, rank - 1);
     next = { ...next, hunt: { ...next.hunt!, level } };
   }
-  const rankUp = killed && huntRank(next, ctx) > top;
-  return { save: next, result, boss, damage, score, tier, grant: { ...g.grant, ...(card ? { card } : {}) }, record, sweep: false, killed, rankUp };
+  const after = huntRank(next, ctx);
+  const rankUp = killed && after > top;
+  return {
+    save: next,
+    result,
+    boss,
+    damage,
+    score,
+    tier,
+    grant: { ...g.grant, ...(card ? { card } : {}) },
+    record,
+    sweep: false,
+    killed,
+    rankUp,
+    ...(ctx.hunt.mvp ? { rank, levelBefore: top, levelAfter: after } : {}),
+  };
 }
 
 /**

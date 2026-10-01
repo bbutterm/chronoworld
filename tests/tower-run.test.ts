@@ -306,6 +306,45 @@ describe('Башня-рогалик: ход забега', () => {
   });
 });
 
+describe('Башня-рогалик: QA 01.10', () => {
+  it('BUG-197: событие не повторяется в забеге; Писарь (обмен карты) — только при картах', () => {
+    const s0 = fightNext(startTowerRun(player(), player().squad, easy), easy).save;
+    const base = run(s0);
+    const scribe = cfg.events.filter((e) => e.options.some((o) => o.requires?.cards)).map((e) => e.id);
+    expect(scribe.length).toBeGreaterThan(0);
+    for (let floor = 1; floor <= 40; floor++) {
+      // Без карт: события по очереди, без повторов, пока есть новые; Писаря нет.
+      let s: SaveState = { ...s0, tower: { ...s0.tower, run: { ...base, floor, cards: [], pending: undefined, node: undefined, paths: ['event'], seenEvents: [] } } };
+      const got: string[] = [];
+      const fits = cfg.events.length - scribe.length;
+      for (let k = 0; k < fits; k++) {
+        s = chooseTowerPath(s, 0, easy);
+        const ev = run(s).pending;
+        expect(ev?.kind).toBe('event');
+        const id = ev?.kind === 'event' ? ev.event : '';
+        expect(scribe).not.toContain(id);
+        expect(got).not.toContain(id);
+        got.push(id);
+        s = { ...s, tower: { ...s.tower, run: { ...run(s), pending: undefined, paths: ['event'] } } };
+      }
+    }
+  });
+
+  it('BUG-196: забег кончился на событии выше рекорда — рекорд и итог в одних единицах, причина конца записана', () => {
+    const s0 = fightNext(startTowerRun(player(), player().squad, easy), easy).save;
+    const r = run(s0);
+    const best = s0.tower.floor;
+    const s = { ...s0, tower: { ...s0.tower, run: { ...r, floor: best + 2, pending: undefined } } };
+    const out = abandonTowerRun(s, DAY, easy);
+    expect(out.summary.record).toBe(true);
+    expect(out.summary.end).toBe('surrender');
+    expect(out.save.tower.floor).toBe(best + 2);
+    expect(towerRunStatus(out.save, easy, DAY).best).toBe(out.summary.floor);
+    const lost = fightTowerFloor(chooseTowerPath(startTowerRun(player(), player().squad, hard), 0, hard), DAY, hard);
+    if (lost.ended) expect(lost.ended.end).toBe('defeat');
+  });
+});
+
 describe('Башня-рогалик: постоянный прогресс и сохранения', () => {
   it('улучшения: цена, нехватка осколков, максимум; «Дар Башни» и «Широкий выбор»', () => {
     const s = { ...player(), tower: { ...player().tower, shards: 100 } };

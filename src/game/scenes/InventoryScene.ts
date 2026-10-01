@@ -5,6 +5,8 @@ import {
   cardDef,
   cardsForItem,
   insertCard,
+  ownedCards,
+  RARITIES,
   heroName,
   heroSlots,
   lockedText,
@@ -138,7 +140,7 @@ export function stackRows(rows: InventoryRow[]): StackRow[] {
       out.push({ ...r, count: 1 });
       continue;
     }
-    const key = `${r.instance.itemId}+${r.instance.refine ?? 0}`;
+    const key = `${r.instance.itemId}+${r.instance.refine ?? 0}+${r.instance.card ?? ''}`;
     const same = free.get(key);
     if (same) same.count++;
     else {
@@ -396,20 +398,28 @@ export class InventoryScene extends Phaser.Scene {
     screen(this, 'Инвентарь', 'Heroes', { to: 'Heroes' });
     const top = CONTENT_TOP;
     // Вкладки экрана: снаряжение и карты героев (запоминается на сессию).
-    const main: { id: 'gear' | 'cards'; label: string }[] = [
+    // BUG-187: третья вкладка — карты MVP из охоты (запас и вставка в предмет).
+    const mvpOwned = Object.values(ownedCards(session.save)).reduce((a, b) => a + b, 0);
+    const main: { id: 'gear' | 'cards' | 'mvp'; label: string }[] = [
       { id: 'gear', label: 'Снаряжение' },
-      { id: 'cards', label: `Карты героев (${heroCardsList(session.save, GAME).length})` },
+      { id: 'cards', label: `Герои (${heroCardsList(session.save, GAME).length})` },
+      { id: 'mvp', label: `Карты MVP (${mvpOwned})` },
     ];
+    const tw = 1040 / main.length;
     main.forEach((t, i) => {
       const on = inventoryUi.tab === t.id;
-      button(this, 20 + 520 * (i + 0.5), top + 50, 508, TOUCH, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label, () => {
+      button(this, 20 + tw * (i + 0.5), top + 50, tw - 12, TOUCH, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', t.label, () => {
         if (on) return;
         inventoryUi.tab = t.id;
         this.scene.restart({});
-      }, FS.h3, { sound: 'ui_toggle' }).container.setName(`invTab_${t.id}`);
+      }, FS.body, { sound: 'ui_toggle' }).container.setName(`invTab_${t.id}`);
     });
     if (inventoryUi.tab === 'cards') {
       this.cards(top + 110);
+      return;
+    }
+    if (inventoryUi.tab === 'mvp') {
+      this.mvpCards(top + 110);
       return;
     }
     this.gear(filter, top + 105);
@@ -504,6 +514,106 @@ export class InventoryScene extends Phaser.Scene {
       if (blocker) b.setEnabled(false);
       b.container.add(ellipsize(text(this, -390, -20, `${heroName(hero, GAME)}${save.squad.includes(hero.id) ? ' · в отряде' : ''} · ур. ${hero.level}`, FS.h3, C.ink, { fontStyle: 'bold' }).setOrigin(0, 0.5), 780));
       b.container.add(ellipsize(text(this, -390, 22, note, FS.caption, blocker ? C.danger : sum > 0 ? C.positive : sum < 0 ? C.danger : C.inkMuted, { fontStyle: 'bold' }).setOrigin(0, 0.5), 780));
+      layer.add(b.container);
+    });
+    layer.add(button(this, GAME_W / 2, top + h - 80, 400, 110, 'ui_btn_primary', 'Отмена', close, FS.h3).container);
+    popIn(this, layer, shade);
+  }
+
+  // ---------- карты MVP (BUG-187) ----------
+
+  /**
+   * Карты MVP в запасе (data/hunt.json → cards): имя, слот, бонус, «×N», кнопка «Вставить…» — выбор предмета того же
+   * слота без карты (надетые — первыми). Карты нет — подсказка, где их взять.
+   */
+  private mvpCards(top: number): void {
+    const own = ownedCards(session.save);
+    const defs = GAME.hunt.cards.filter((c) => (own[c.id] ?? 0) > 0);
+    const inserted = session.save.inventory.items.filter((i) => i.card).length;
+    text(this, GAME_W / 2, top + 30, `В запасе: ${defs.reduce((n, c) => n + own[c.id], 0)} · вставлено: ${inserted} · карта — в предмет своего слота навсегда`, FS.small, C.muted, {
+      wordWrap: { width: 1000 },
+      align: 'center',
+    });
+    if (!defs.length) {
+      emptyCard(this, top + 420, 'Карт MVP пока нет.\nОни выпадают с MVP на охоте (Приключения → Охота на босса)\nи вставляются в предмет своего слота.', 'bag', {
+        label: 'На охоту',
+        onClick: () => this.scene.start('Hunt'),
+      });
+      return;
+    }
+    const area = (this.area = new ScrollArea(this, top + 80, CONTENT_BOTTOM + 10));
+    const rowH = 190;
+    defs.forEach((c, i) => {
+      const y = rowH * (i + 0.5);
+      area.add(card(this, GAME_W / 2, y, 1040, rowH - 14));
+      area.add(ellipsize(text(this, 50, y - 50, `${c.name}${own[c.id] > 1 ? ` ×${own[c.id]}` : ''}`, FS.h3, '#d8b4ff', { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5), 640));
+      area.add(text(this, 50, y - 4, `Слот: ${SLOT_NAMES[c.slot]}`, FS.small, C.text, OUTLINE).setOrigin(0, 0.5));
+      const t = text(this, 50, y + 24, c.text, FS.caption, C.muted, { ...OUTLINE, wordWrap: { width: 640 }, align: 'left' }).setOrigin(0, 0);
+      t.setMaxLines(2);
+      area.add(t);
+      const free = this.cardTargets(c.slot);
+      const b = button(this, 880, y, 250, 100, free.length ? 'ui_btn_primary' : 'k:buttonLong_grey', 'Вставить…', area.tap(() => this.cardTargetPicker(c.id)), FS.body);
+      if (!free.length) {
+        b.setEnabled(false);
+        area.add(text(this, 880, y + 64, `нет предмета: ${SLOT_NAMES[c.slot].toLowerCase()}`, FS.caption, C.dim).setOrigin(0.5, 0.5));
+      }
+      b.container.setName(`mvpCardInsert_${c.id}`);
+      area.add(b.container);
+    });
+    area.setContentHeight(rowH * defs.length + 10);
+  }
+
+  /** Предметы слота без карты: надетые — первыми, затем по редкости. */
+  private cardTargets(slot: Slot): { instance: ItemInstance; def: ItemDef; wornBy: string | null }[] {
+    const save = session.save;
+    const order: readonly string[] = RARITIES;
+    return save.inventory.items
+      .filter((i) => !i.card && GAME.equipment.items[i.itemId]?.slot === slot)
+      .map((instance) => {
+        const hero = instance.equippedBy ? save.heroes.find((h) => h.id === instance.equippedBy) : undefined;
+        return { instance, def: GAME.equipment.items[instance.itemId], wornBy: hero ? heroName(hero, GAME) : null };
+      })
+      .sort((a, b) => Number(!!b.wornBy) - Number(!!a.wornBy) || order.indexOf(b.def.rarity) - order.indexOf(a.def.rarity) || refineLevel(b.instance) - refineLevel(a.instance));
+  }
+
+  /** Окно «Куда вставить?»: до 6 предметов слота без карты, подтверждение — карту не вынуть. */
+  private cardTargetPicker(cardId: string): void {
+    const c = GAME.hunt.cards.find((x) => x.id === cardId);
+    if (!c || this.children.getByName('cardTargetPicker')) return;
+    const items = this.cardTargets(c.slot).slice(0, 6);
+    const layer = this.add.container(0, 0).setDepth(9000).setName('cardTargetPicker');
+    const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
+    const rowH = 130;
+    const h = 330 + items.length * rowH;
+    const top = GAME_H / 2 - h / 2;
+    const box = panel(this, GAME_W / 2, GAME_H / 2, 940, h, 'ui_panel').setInteractive();
+    const head = ellipsize(text(this, GAME_W / 2, top + 80, `Куда вставить «${c.name}»?`, FS.h2, C.title, { fontStyle: 'bold', ...OUTLINE }), 860);
+    if (this.area) this.area.locked = true;
+    const close = () => {
+      if (this.area) this.area.locked = false;
+      layer.destroy();
+    };
+    shade.on('pointerup', close);
+    layer.add([shade, box, head]);
+    items.forEach((it, i) => {
+      const y = top + 190 + i * rowH;
+      const lvl = refineLevel(it.instance);
+      const b = button(this, GAME_W / 2, y, 840, 112, 'k:buttonLong_beige', '', () => {
+        close();
+        confirm(this, `Вставить «${c.name}» в «${refinedName(it.def, lvl)}»?\nКарту нельзя вынуть.`, 'Вставить', () => {
+          try {
+            commit(insertCard(session.save, it.instance.id, c.id, GAME));
+            sfx('refine_success');
+            haptic('refineOk');
+            this.scene.restart({});
+            this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, `${c.name} — в «${refinedName(it.def, lvl)}»`, C.success));
+          } catch (e) {
+            toast(this, e instanceof Error ? e.message : String(e), C.error);
+          }
+        });
+      }, FS.h3);
+      b.container.add(ellipsize(text(this, -390, -20, refinedName(it.def, lvl), FS.h3, RARITY_COLORS[it.def.rarity], { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), 780));
+      b.container.add(ellipsize(text(this, -390, 22, it.wornBy ? `надет: ${it.wornBy}` : 'свободен', FS.caption, it.wornBy ? C.success : C.inkMuted, { fontStyle: 'bold' }).setOrigin(0, 0.5), 780));
       layer.add(b.container);
     });
     layer.add(button(this, GAME_W / 2, top + h - 80, 400, 110, 'ui_btn_primary', 'Отмена', close, FS.h3).container);
@@ -744,12 +854,13 @@ export class InventoryScene extends Phaser.Scene {
         textW,
       ),
     );
-    a.add(ellipsize(text(this, TEXT_X, y + 44, note, FS.small, noteColor, { stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), textW));
+    const inside = row.instance.card ? cardDef(GAME, row.instance.card) : undefined;
+    a.add(ellipsize(text(this, TEXT_X, y + 44, inside ? `${note} · ${inside.name}` : note, FS.small, noteColor, { stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), textW));
     // Нажатие на иконку и название — окно предмета: статы, кому подходит, легенда из Летописи (data/lore/items.json).
     if (def) {
       const zw = TEXT_X + textW - 30;
       const zone = a.add(this.add.zone(30 + zw / 2, y, zw, ROW_H - 12));
-      pressable(this, zone, zw, ROW_H - 12, a.tap(() => itemModal(this, def, { refine: lvl, lock: a })));
+      pressable(this, zone, zw, ROW_H - 12, a.tap(() => itemModal(this, def, { refine: lvl, lock: a, card: row.instance.card ?? null })));
     }
   }
 }
