@@ -24,23 +24,25 @@ mkdirSync(FRAMES, { recursive: true });
 mkdirSync('promo/video', { recursive: true });
 const root = execSync('npm root -g', { encoding: 'utf8' }).trim();
 const { chromium } = await import(pathToFileURL(join(root, 'playwright', 'index.mjs')).href);
-// Статика из корня репозитория (страница берёт ../../assets, ../shots) — vite как простой сервер.
-const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
+// Статика из корня репозитория (страница берёт ../../assets, ../shots): простой сервер python (vite отдавал 500).
+const vite = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 300; i++) {
   try {
-    if ((await fetch(`http://localhost:${PORT}/`)).ok) break;
+    if ((await fetch(`http://127.0.0.1:${PORT}/`)).ok) break;
   } catch {
     /* ждём */
   }
   await sleep(200);
 }
 const browser = await chromium.launch({ headless: true });
+let CUTS = [];
 try {
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
   page.setDefaultTimeout(300000);
   page.on('console', (m) => m.type() !== 'log' && console.log('[page]', m.text()));
-  await page.goto(`http://localhost:${PORT}/promo/src/video.html`);
+  await page.goto(`http://127.0.0.1:${PORT}/promo/src/video.html`);
   await page.waitForFunction(() => window.__ready === true, null, { timeout: 120000 });
+  CUTS = await page.evaluate(() => window.CUTS ?? []);
   if (LIST) {
     mkdirSync('promo/.work/preview', { recursive: true });
     for (const t of LIST) {
@@ -65,26 +67,38 @@ try {
 }
 if (partial) process.exit(0);
 
-// Звук: «Risk Your Life» (бой с боссом) с 7.4 с трека — вступление ложится на удар логотипа; удар на «Сбито!» (11 с)
-// и на логотип (0.6 с); затухание с 27.5 с.
+// Звук (01.10): «Backattack!!» (music_battle_desert — бой в пирамидах, самый быстрый и плотный трек игры по огибающей
+// громкости и частоте атак) с 5.19 с — вступление идёт под логотип, удар барабанов ложится на касание ульты (3.0 с), с ~17 с
+// трек ещё плотнее. Звуки RO на сменах сцен: свуш на каждом стыке (CUTS из video.html), удар на логотипе, звук Асуры и
+// тяжёлый удар на 4.4 с, гром Вермилиона, удары на боссах, призыв в таверне, касание кнопки «Играть».
+// Громкость выровнена (loudnorm −14 LUFS), затухание с 28 с.
 const ff = execFileSync('python3', ['-c', 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())'], { encoding: 'utf8' }).trim();
+const sfx = [
+  ['crit', 0.6, 0.9],
+  ['skl_asura', 3.05, 0.8],
+  ['charge_break', 4.4, 1.1],
+  ['skl_lord_of_vermilion', 6.4, 0.8],
+  ['hit_blunt', 8.6, 0.8], ['hit_blunt', 9.8, 0.8], ['hit_blunt', 11.0, 0.8],
+  ['crit_v2', 12.2, 0.8],
+  ['summon_epic', 17.0, 0.6],
+  ['level_up', 25.45, 0.6],
+  ['ui_tap', 28.2, 0.9],
+  ...CUTS.filter((c) => c > 1 && ![4.4, 8.6, 12.2].includes(c)).map((c) => ['swing', Math.max(0, c - 0.08), 0.55]),
+];
+const inputs = ['-framerate', String(FPS), '-i', join(FRAMES, 'f%04d.jpg'), '-ss', '5.19', '-t', String(DUR), '-i', 'assets/audio/music_battle_desert.ogg'];
+const chains = ['[1:a]volume=0.9,afade=t=in:st=0:d=0.2[m]'];
+sfx.forEach(([name, at, vol], i) => {
+  inputs.push('-i', `assets/audio/${name}.ogg`);
+  const ms = Math.round(at * 1000);
+  chains.push(`[${i + 2}:a]aformat=channel_layouts=stereo,adelay=${ms}|${ms},volume=${vol}[s${i}]`);
+});
+chains.push(`[m]${sfx.map((_, i) => `[s${i}]`).join('')}amix=inputs=${sfx.length + 1}:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=9,afade=t=out:st=28:d=2,alimiter=limit=0.95[a]`);
 const args = [
   '-y', '-hide_banner', '-loglevel', 'error',
-  '-framerate', String(FPS), '-i', join(FRAMES, 'f%04d.jpg'),
-  '-ss', '7.4', '-t', String(DUR), '-i', 'assets/audio/music_boss.ogg',
-  '-i', 'assets/audio/charge_break.ogg',
-  '-i', 'assets/audio/crit.ogg',
-  '-filter_complex',
-  [
-    `[1:a]volume=0.85,afade=t=in:st=0:d=0.3,afade=t=out:st=27.5:d=2.5[m]`,
-    `[2:a]adelay=11000|11000,volume=1.4[b]`,
-    `[3:a]asplit=2[c1][c2]`,
-    `[c1]adelay=600|600,volume=0.9[s1]`,
-    `[c2]adelay=25600|25600,volume=0.7[s2]`,
-    `[m][b][s1][s2]amix=inputs=4:duration=first:normalize=0,alimiter=limit=0.95[a]`,
-  ].join(';'),
+  ...inputs,
+  '-filter_complex', chains.join(';'),
   '-map', '0:v', '-map', '[a]',
-  '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-maxrate', '5M', '-bufsize', '10M', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-level', '4.1',
+  '-c:v', 'libx264', '-preset', 'slow', '-crf', '21', '-maxrate', '4.5M', '-bufsize', '9M', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-level', '4.1',
   '-r', String(FPS),
   '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-ac', '2',
   '-t', String(DUR), '-movflags', '+faststart',

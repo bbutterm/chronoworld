@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Chronoworld — предпросмотр Mini App</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* Картинки предпросмотра Mini App (BotFather → Configure Mini App → Preview media): 1080×1920, кадр игры во весь экран,
+     подпись сверху в стиле ролика. preview.mjs снимает ?n=1…8 в promo/preview/. */
+  html, body { margin: 0; background: #000; overflow: hidden; }
+  #stage { width: 1080px; height: 1920px; position: relative; overflow: hidden; background: #0b0806; }
+  #bg { position: absolute; inset: 0; width: 1080px; height: 1920px; object-fit: cover; }
+  #top { position: absolute; left: 0; right: 0; top: 0; height: 560px; background: linear-gradient(180deg, rgba(8,4,1,.7) 0%, rgba(8,4,1,.45) 55%, rgba(8,4,1,0) 100%); }
+  #bot { position: absolute; left: 0; right: 0; bottom: 0; height: 420px; background: linear-gradient(0deg, rgba(8,4,1,.55) 0%, rgba(8,4,1,0) 100%); }
+  .cap { position: absolute; left: 0; right: 0; text-align: center; white-space: nowrap; }
+  .gold { font-family: 'Russo One'; color: #ffe3a0;
+    background: linear-gradient(180deg, #fffbe8 0%, #ffe08f 35%, #f0a838 62%, #b06a16 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 2px #2a1204) drop-shadow(0 5px 0 #2a1204) drop-shadow(0 0 3px #2a1204) drop-shadow(0 12px 24px rgba(0,0,0,.9)); }
+  .white { font-family: Rubik; font-weight: 800; color: #fff6e0; text-shadow: 0 0 3px #1a0a02, 0 3px 0 #1a0a02, 0 0 14px rgba(0,0,0,.95), 0 0 30px rgba(0,0,0,.8); }
+  .ribbon { position: absolute; left: 50%; width: 1000px; height: 250px; transform: translateX(-50%);
+    background: linear-gradient(#e8c67e, #8a6a32); clip-path: polygon(0 0, 100% 0, 94% 50%, 100% 100%, 0 100%, 6% 50%); }
+  .ribbon::before { content: ""; position: absolute; inset: 0; background: linear-gradient(#8a3020, #5a1a12 50%, #2e0a06);
+    clip-path: polygon(10px 10px, calc(100% - 10px) 10px, calc(94% - 5px) 50%, calc(100% - 10px) calc(100% - 10px), 10px calc(100% - 10px), calc(6% + 5px) 50%); }
+  .card { position: absolute; width: 330px; height: 440px; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 0 0 5px #2a1606, 0 0 0 11px #d6a24a, 0 24px 40px rgba(0,0,0,.8); }
+  .card img { width: 100%; height: 100%; object-fit: cover; }
+  .btn { position: absolute; left: 190px; width: 700px; height: 190px; border-radius: 95px;
+    background: linear-gradient(180deg, #ffe9a8, #f0b040 45%, #c07018 100%); box-shadow: 0 0 0 6px #3a1c04, 0 0 0 12px #e8c67e, 0 0 60px rgba(255,200,80,.9), 0 20px 40px rgba(0,0,0,.7);
+    display: flex; align-items: center; justify-content: center; gap: 30px; font: 400 100px 'Russo One'; color: #3a1a02; }
+  .btn svg { width: 96px; height: 96px; }
+  .face { position: absolute; width: 170px; height: 170px; border-radius: 16px; border: 4px solid #f0c060; background: #2a160a; image-rendering: pixelated;
+    box-shadow: 0 0 0 4px #1e0e03, 0 12px 24px rgba(0,0,0,.7); }
+</style>
+</head>
+<body>
+<div id="stage"><img id="bg"><div id="top"></div><div id="bot"></div><div id="ui"></div></div>
+<script type="module">
+const A = '../../assets';
+const S = (n) => `../shots/${n}.jpg`;
+const plane = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#2a9fe0"/><path d="M5.4 11.6l11.4-4.4c.5-.2 1 .1.8.9l-1.9 9.1c-.1.6-.5.8-1 .5l-2.9-2.1-1.4 1.4c-.2.2-.3.3-.6.3l.2-3 5.4-4.9c.2-.2 0-.3-.4-.1l-6.7 4.2-2.9-.9c-.6-.2-.6-.6.1-.9z" fill="#fff"/></svg>`;
+/** Слайды: картинка (во весь кадр, object-position — важная область), подпись, строка под ней, доп. разметка. */
+const SLIDES = [
+  { id: '01_ult', img: S('ult_asura_hit'), pos: '50% 55%', t: 'УЛЬТА ПО КАСАНИЮ', s: 'Удар Асуры — ты решаешь, когда бить' },
+  { id: '02_boss', img: S('battle_break'), pos: '50% 50%', t: 'БОССЫ ГЛАВ', s: 'сбей заряд босса ультой — «Сбито!»' },
+  { id: '03_heroes', img: '../branches/all_heroes.jpg', pos: '50% 50%', t: '12 ГЕРОЕВ · 24 ВЕТКИ', s: 'у каждой формы — своя ульта', top: 40 },
+  { id: '04_mvp', img: S('mvp_dracula'), pos: '50% 50%', t: 'MVP-ОХОТА', s: 'Дракула, Фараон, Бафомет — и их карты',
+    extra: `<div class="card" style="left:640px;top:1330px;transform:rotate(8deg)"><img src="${A}/ui/cards/card_dracula.webp"></div><div class="card" style="left:110px;top:1360px;transform:rotate(-8deg)"><img src="${A}/ui/cards/card_pharaoh.webp"></div>` },
+  { id: '05_tower', img: S('tower_cards'), pos: '50% 50%', t: 'БАШНЯ-РОГАЛИК', s: 'карты RO меняют правила боя' },
+  { id: '06_story', img: S('story_evening'), pos: '50% 60%', t: 'СЮЖЕТ И ТАВЕРНА', s: '10 глав истории и вечера с героями' },
+  { id: '07_home', img: S('ui_home'), pos: '50% 50%', t: 'ТВОЙ ЛАГЕРЬ', s: 'бои и награды идут, даже когда ты офлайн' },
+  { id: '08_play', img: `${A}/backgrounds/bg_map_ch1.jpg`, pos: '50% 50%', dim: 0.45, t: '', s: '',
+    extra: `<div class="cap" style="top:560px"><div class="ribbon" style="top:-40px"></div><div class="gold" style="position:relative;padding-top:12px;font-size:132px">CHRONOWORLD</div></div>
+      <div class="cap white" style="top:900px;font-size:84px">Играй в <span style="color:#7cc8ff">Telegram</span></div>
+      <div class="cap white" style="top:1020px;font-size:60px;color:#ffe08f">бесплатно</div>
+      <div class="btn" style="top:1230px">${plane}ИГРАТЬ</div>
+      ${['monk_f', 'wizard_f', 'knight_m', 'hunter_m', 'assassin_f'].map((f, i) => `<img class="face" style="left:${540 - 85 + (i - 2) * 200}px;top:${1540 + (i % 2) * 40}px;transform:rotate(${(i - 2) * 3}deg)" src="${A}/sprites/portraits/${f}.png">`).join('')}` },
+];
+window.SLIDES = SLIDES.map((s) => s.id);
+const q = new URLSearchParams(location.search);
+const sl = SLIDES[Math.max(0, Number(q.get('n') ?? 1) - 1)];
+const bg = document.getElementById('bg');
+bg.src = sl.img;
+bg.style.objectPosition = sl.pos;
+if (sl.dim) bg.style.filter = `brightness(${sl.dim})`;
+const ui = document.getElementById('ui');
+if (!sl.t) document.getElementById('top').style.display = 'none';
+ui.innerHTML = (sl.t ? `<div class="cap gold" style="top:${sl.top ?? 70}px;font-size:112px">${sl.t}</div><div class="cap white" style="top:${(sl.top ?? 70) + 150}px;font-size:56px">${sl.s}</div>` : '') + (sl.extra ?? '');
+await document.fonts.ready;
+const textW = (n) => { const r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().width; };
+for (const n of document.querySelectorAll('.cap')) {
+  let fs = parseFloat(getComputedStyle(n).fontSize);
+  while (textW(n) > 1000 && fs > 20) { fs -= 2; n.style.fontSize = `${fs}px`; }
+}
+await Promise.all([...document.images].map((i) => i.decode().catch(() => console.warn('нет картинки', i.src))));
+window.__ready = true;
+</script>
+</body>
+</html>

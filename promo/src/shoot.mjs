@@ -5,7 +5,9 @@
 // «Заряд!» и «Сбито!». Кнопки тестировщика спрятаны (?tester=0). Playwright — глобальный (npm root -g).
 //   node promo/src/shoot.mjs [battle|hunt|tower|screens …]   → promo/.work/raw/*.png
 import { execSync, spawn } from 'node:child_process';
-import { mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, statSync } from 'node:fs';
+
+const window_black = (f) => statSync(f).size < 40_000;
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -83,7 +85,7 @@ async function open(save, { shiftDays = 0, scene = null } = {}) {
     sessionStorage.setItem('promo-init', '1');
   }, [save, shiftDays * 86_400_000 + 3_600_000, HINTS]);
   await page.goto(URL, { timeout: 180000 });
-  await page.waitForFunction(() => window.__game?.scene?.getScenes(true).some((s) => !['Boot', 'Preload'].includes(s.scene.key)), null, { timeout: 90000, polling: 200 });
+  await page.waitForFunction(() => window.__game?.scene?.getScenes(true).some((s) => !['Boot', 'Preload'].includes(s.scene.key)), null, { timeout: 400000, polling: 500 });
   await sleep(1500);
   if (scene) await go(page, scene.key, scene.data);
   return page;
@@ -103,7 +105,28 @@ async function shot(page, name) {
   const t0 = Date.now();
   await page.evaluate(() => 1);
   const t1 = Date.now();
-  await page.screenshot({ path: f, timeout: 180000 });
+  // Программный WebGL иногда не отдаёт кадр с первого раза («Unable to capture screenshot») — повторить.
+  for (let i = 0; ; i++) {
+    try {
+      // Кадр боя перерисовать прямо перед снимком (цикл Phaser спит — буфер холста мог быть уже очищен).
+      await page.evaluate(() => {
+        const g = window.__game;
+        if (window.__cap && g.scene.isActive('Battle')) g.step(window.__cap.t, 0.001);
+      }).catch(() => {});
+      await page.screenshot({ path: f, timeout: 180000 });
+      // Чёрный кадр (пустой буфер WebGL) сжимается в PNG до десятков КБ — снять заново.
+      if (window_black(f) && i < 4) {
+        log('чёрный кадр, повтор', name);
+        await sleep(1500);
+        continue;
+      }
+      break;
+    } catch (e) {
+      if (i >= 4) throw e;
+      log('повтор снимка', name, String(e).slice(0, 80));
+      await sleep(3000);
+    }
+  }
   if (Date.now() - t0 > 3000) log("slow shot", t1 - t0, Date.now() - t1);
   log(f);
 }
@@ -120,12 +143,13 @@ async function battle(page, tag, startData, { maxShots = 60, holdBreakers = true
     g.scene.start('Battle', d);
   }, startData);
   await page.waitForFunction(() => window.__game.scene.getScene('Battle')?.ready === true, null, { timeout: 60000, polling: 100 });
-  await page.evaluate((hold) => {
+  await page.evaluate((o) => {
+    const hold = o.hold;
     const g = window.__game;
     g.loop.sleep();
     const sc = g.scene.getScene('Battle');
-    window.__cap = { t: performance.now(), last: 0, queue: [{ at: sc.time.now + 1500, name: 'intro' }], sc, hold, seenUlt: {}, readySince: {} };
-  }, holdBreakers);
+    window.__cap = { t: performance.now(), last: 0, queue: [{ at: sc.time.now + o.introAt, name: 'intro' }], sc, hold, seenUlt: {}, readySince: {}, ultK: o.k, ultOffs: o.offs, only: o.only, noCharge: o.noCharge, tapOnly: o.tapOnly };
+  }, { hold: holdBreakers, k: Number(process.env.PROMO_ULT_K ?? 2), offs: (process.env.PROMO_ULT_OFFS ?? '250,600').split(',').map(Number), only: process.env.PROMO_ULT_ONLY ?? '', noCharge: !!process.env.PROMO_NO_CHARGE, introAt: Number(process.env.PROMO_INTRO_AT ?? 1500), tapOnly: process.env.PROMO_TAP_ONLY ?? '' });
   let n = 0;
   for (let guard = 0; guard < 4000 && n < maxShots; guard++) {
     const due = await page.evaluate(() => {
@@ -144,9 +168,9 @@ async function battle(page, tag, startData, { maxShots = 60, holdBreakers = true
           const v = sc.views.get(e.unit);
           if (e.type === 'ult' && v?.snap.side === 'A') {
             const k = (c.seenUlt[e.skill] = (c.seenUlt[e.skill] ?? 0) + 1);
-            if (k <= 2) for (const o of [250, 600]) c.queue.push({ at: sc.time.now + o, name: `ult_${e.skill}_${k}_${o}` });
+            if (k <= c.ultK && (!c.only || new RegExp(c.only).test(e.skill))) for (const o of c.ultOffs) c.queue.push({ at: sc.time.now + o, name: `ult_${e.skill}_${k}_${o}` });
           }
-          if (e.type === 'cast' && e.charge && e.action !== 'interrupt') {
+          if (e.type === 'cast' && e.charge && e.action !== 'interrupt' && !c.noCharge) {
             c.chargeAt = sc.time.now;
             for (const o of [120]) c.queue.push({ at: sc.time.now + o, name: `charge_${Math.round(e.t)}_${o}` });
             for (const o of [500, 1000]) c.queue.push({ at: sc.time.now + o, name: `charge_${Math.round(e.t)}_${o}` });
@@ -166,6 +190,7 @@ async function battle(page, tag, startData, { maxShots = 60, holdBreakers = true
             const soon = nextCharge && nextCharge.t - sc.clock < 8;
             const charging = c.chargeAt !== undefined && sc.time.now - c.chargeAt < 2500;
             if (c.hold && (brk || breaker) && ((soon && !charging) || (charging && sc.time.now - c.chargeAt < 1300))) continue;
+            if (c.tapOnly && !new RegExp(c.tapOnly).test(sk.id)) continue;
             sc.tapUlt(uid);
           }
         }
@@ -224,11 +249,98 @@ try {
     await shot(p, 'evening_hub');
     await p.context().close();
   }
+  if (want('ui')) {
+    // Интерфейс, боссы глав, MVP и сюжет — кадры для ролика (PROMO_VIEW=405x720: ровно 1080×1920, без обрезки).
+    // Каждая часть — в своей вкладке (программный WebGL терял контекст после нескольких сцен подряд).
+    // PROMO_UI=base,evening,story,hero,hunt — какие части снимать.
+    const part = (k) => !process.env.PROMO_UI || process.env.PROMO_UI.split(',').includes(k);
+    if (part('base')) {
+      const p = await open(saves.storm);
+      const ids = await p.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')).heroes.map((h) => [h.id, h.templateId]));
+      const hid = (t) => ids.find((x) => x[1] === t)[0];
+      await go(p, 'Home');
+      await shot(p, 'ui_home');
+      await go(p, 'Inventory', { heroId: hid('alan'), slot: 'weapon' });
+      await shot(p, 'ui_inventory_weapon');
+      await go(p, 'Inventory', { heroId: hid('alan'), slot: 'armor' });
+      await shot(p, 'ui_inventory_armor');
+      await go(p, 'Tavern');
+      await shot(p, 'ui_tavern');
+      for (const ch of [0, 2, 8, 9]) {
+        await go(p, 'Campaign', { chapter: ch });
+        await shot(p, `ui_campaign_${ch + 1}`);
+      }
+      for (const st of ['ch3_s10', 'ch8_s18', 'ch9_s18', 'ch10_s18']) {
+        await go(p, 'Stage', { stageId: st });
+        await shot(p, `ui_stage_${st}`);
+      }
+      await go(p, 'Chronicle');
+      await shot(p, 'ui_chronicle');
+      await p.context().close();
+    }
+    if (part('evening')) {
+      for (const id of ['tav_ch1', 'tav_ch5']) {
+        const p = await open(saves.storm);
+        await p.evaluate(async (id) => {
+          const g = window.__game;
+          const m = await import('/src/game/scenes/TavernEveningScene.ts');
+          m.startTavernEvening(g.scene.getScenes(true)[0], { mode: 'evening', id, back: { to: 'Home' } });
+        }, id);
+        await sleep(2500);
+        for (let k = 1; k <= 3; k++) {
+          await shot(p, `ui_evening_${id}_${k}`);
+          await p.mouse.click(200, 400);
+          await sleep(1400);
+        }
+        await p.context().close();
+      }
+    }
+    if (part('story')) {
+      for (const id of (process.env.PROMO_STORY ?? 'ch1_s1_before,ch9_intro,ch10_intro').split(',')) {
+        const p = await open(saves.storm);
+        await go(p, 'Home');
+        await p.evaluate(async (id) => {
+          const g = window.__game;
+          const { GAME } = await import('/src/game/content.ts');
+          const m = await import('/src/game/dialogue.ts');
+          const sc = GAME.story.scenes.find((x) => x.id === id);
+          m.playScenes(g.scene.getScene('Home'), [sc], () => {});
+        }, id);
+        await sleep(4500);
+        await shot(p, `ui_story_${id}_1`);
+        await p.mouse.click(200, 600);
+        await sleep(600);
+        await p.mouse.click(200, 600);
+        await sleep(4500);
+        await shot(p, `ui_story_${id}_2`);
+        await p.context().close();
+      }
+    }
+    if (part('hero')) {
+      const a = await open(saves.asura);
+      const aids = await a.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')).heroes.map((h) => [h.id, h.templateId]));
+      for (const t of ['vika', 'iris']) {
+        const h = aids.find((x) => x[1] === t);
+        if (!h) continue;
+        await go(a, 'Hero', { heroId: h[0] });
+        await shot(a, `ui_hero_${t}`);
+      }
+      await a.context().close();
+    }
+    if (part('hunt')) {
+      for (const mvp of ['mvp_dracula', 'mvp_pharaoh']) {
+        const m = await open(saves.storm, { shiftDays: shiftForMvp(mvp) });
+        await go(m, 'Hunt');
+        await shot(m, `ui_hunt_${mvp}`);
+        await m.context().close();
+      }
+    }
+  }
   if (want('battle')) {
     for (const name of (process.env.PROMO_SQUADS ?? Object.keys(saves).join(',')).split(',')) {
       const save = saves[name];
       const p = await open(save);
-      log(name, 'кадров', await battle(p, `battle_${name}`, { mode: 'stage', stageId: process.env.PROMO_STAGE ?? 'ch9_s18' }));
+      log(name, 'кадров', await battle(p, `battle_${name}${process.env.PROMO_TAG ?? ''}`, { mode: 'stage', stageId: process.env.PROMO_STAGE ?? 'ch9_s18' }));
       await p.context().close();
     }
   }
