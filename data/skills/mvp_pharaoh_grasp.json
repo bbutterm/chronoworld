@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_pharaoh_grasp",
+  "name": "Длань гробницы",
+  "description": "Из-под бинтов вырастает огромная рука и хватает самого раненого врага: урон 1.5 × атака и 50% оглушить на 1 с.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHpPct"
+  },
+  "cooldown": 9,
+  "priority": 3,
+  "element": "dark",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.5
+    },
+    {
+      "type": "status",
+      "chance": 0.5,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

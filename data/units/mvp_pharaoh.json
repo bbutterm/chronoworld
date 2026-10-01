@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mvp_pharaoh",
+  "name": "Фараон",
+  "kind": "boss",
+  "role": "damage",
+  "element": "dark",
+  "stats": {
+    "hp": 10000,
+    "atk": 100,
+    "def": 20,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mvp_pharaoh_sandstorm",
+    "actives": [
+      "mvp_pharaoh_grasp"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "pharaoh",
+    "hitFx": "fx_hit",
+    "scale": 1.1
+  },
+  "barks": {
+    "start": "На колени перед владыкой Сфинкса. Пески помнят ваши имена.",
+    "half": "Жрицы Изиды, к трону!",
+    "rage": "Гробница голодна — и я тоже!",
+    "defeat": "Сфинкс… закроет… глаза…",
+    "victory": "Ещё несколько имён в песок."
+  },
+  "phases": [
+    {
+      "atHpPct": 0.7,
+      "title": "Саркофаг",
+      "actions": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.1
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.5,
+      "title": "Жрицы Изиды",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "mob4_support",
+          "count": 2,
+          "hp": 0.04,
+          "atk": 0.25
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.25,
+      "title": "Гнев фараона",
+      "bark": "rage",
+      "actions": [
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.3,
+              "spd": 0.15
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": 100
+        }
+      ]
+    }
+  ],
+  "charge": {
+    "skill": "mvp_pharaoh_dark_breath",
+    "first": 11,
+    "every": 17
+  }
+}

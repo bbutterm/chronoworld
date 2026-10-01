@@ -17,7 +17,7 @@
     "passives": []
   },
   "visual": {
-    "sprite": "ghoul",
+    "sprite": "penomena",
     "hitFx": "fx_hit"
   }
 }

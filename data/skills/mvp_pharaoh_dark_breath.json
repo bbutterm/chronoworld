@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_pharaoh_dark_breath",
+  "name": "Тёмное дыхание",
+  "description": "Фараон вдыхает тьму гробницы и выдыхает её на весь отряд: урон и «Тяжесть песков» (−25% скорости на 3 с). Сбейте ультой или оглушением!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "element": "dark",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 4.5
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "sand_weight",
+        "name": "Тяжесть песков",
+        "turns": 3,
+        "stats": {
+          "spd": -0.25
+        }
+      }
+    }
+  ]
+}

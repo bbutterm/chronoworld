@@ -41,6 +41,8 @@ REQUIRED={'novice','merchant','swordman','swordman_m','magician','archer_first',
           'lord_of_death','bloody_knight','owl_baron','alarm','abysmal_knight','clock_tower_manager',
           # chapter 9 (Labyrinth Forest): registered ahead of its units
           'baphomet_jr','ghostring','vagabond_wolf','hunter_fly','side_winder','mantis','stem_worm','killer_mantis','deviruchi',
+          # MVP hunt Pharaoh, Tower Whisper, chapter 6 Drowned (docs/SPRITES_NEEDED.md, section A)
+          'pharaoh','whisper','penomena',
           # story NPC speakers (data/story portrait "npc_<name>")
           'npc_kafra'}
 REQUIRED.update(FIRST_HEROES+STORY_HEROES+CARD_HEROES)

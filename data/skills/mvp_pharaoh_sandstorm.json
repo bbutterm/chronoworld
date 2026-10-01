@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_pharaoh_sandstorm",
+  "name": "Буря Сфинкса",
+  "description": "Фараон поднимает пески Сфинкса: урон по всем врагам 0.8 × атака и «Тяжесть песков» (−20% скорости на 2 с).",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "element": "dark",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "sand_weight",
+        "name": "Тяжесть песков",
+        "turns": 2,
+        "stats": {
+          "spd": -0.2
+        }
+      }
+    }
+  ]
+}

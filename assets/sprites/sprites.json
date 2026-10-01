@@ -188,6 +188,9 @@
   {"id":"clock_tower_manager","class":"boss_xxl","file":"sprites/bosses_xl/clock_tower_manager.png","hitFrames":{"attack":3},"bbox":{"idle":[122,111,225,290],"walk":[122,144,225,275],"attack":[70,141,308,330],"hurt":[103,142,225,272],"death":[118,54,225,310]}},
   {"id":"npc_kafra","class":"npc","file":"sprites/npcs/4_f_kafra1.png","portrait":"sprites/portraits/npc_4_f_kafra1.png","bbox":{"idle":[77,37,119,130],"idle_e":[81,37,123,130],"walk_s":[77,37,119,130],"walk":[81,37,123,130]}},
   {"id":"npc_ansgar","class":"npc","file":"sprites/npcs/4_m_darkpriest.png","portrait":"sprites/portraits/npc_4_m_darkpriest.png","bbox":{"idle":[78,32,124,133],"idle_e":[78,32,123,133],"walk_s":[80,32,122,134],"walk":[78,32,120,134]}},
-  {"id":"npc_bruno","class":"npc","file":"sprites/npcs/1_m_librarymaster.png","portrait":"sprites/portraits/npc_1_m_librarymaster.png","bbox":{"idle":[81,40,118,134],"idle_e":[81,40,118,134],"walk_s":[81,40,118,134],"walk":[81,40,118,134]}}
+  {"id":"npc_bruno","class":"npc","file":"sprites/npcs/1_m_librarymaster.png","portrait":"sprites/portraits/npc_1_m_librarymaster.png","bbox":{"idle":[81,40,118,134],"idle_e":[81,40,118,134],"walk_s":[81,40,118,134],"walk":[81,40,118,134]}},
+  {"id":"pharaoh","class":"monster_xl","file":"sprites/monsters_xl/pharaoh.png","hitFrames":{"attack":5},"bbox":{"idle":[149,148,184,290],"walk":[145,152,192,296],"attack":[148,142,252,304],"hurt":[137,148,189,292],"death":[30,134,185,290]}},
+  {"id":"whisper","class":"monster","file":"sprites/monsters/whisper.png","hitFrames":{"attack":4},"bbox":{"idle":[84,64,117,110],"walk":[84,63,117,110],"attack":[75,68,128,118],"hurt":[83,65,118,110],"death":[11,26,182,145]}},
+  {"id":"penomena","class":"monster","file":"sprites/monsters/penomena.png","hitFrames":{"attack":4},"bbox":{"idle":[67,60,136,132],"walk":[64,46,136,131],"attack":[64,41,129,137],"hurt":[73,54,131,130],"death":[72,54,185,131]}}
  ]
 }
