@@ -1,0 +1,81 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mvp_dark_lord",
+  "name": "Тёмный лорд",
+  "kind": "boss",
+  "role": "damage",
+  "element": "undead",
+  "stats": {
+    "hp": 10000,
+    "atk": 100,
+    "def": 20,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob7_boss_meteor_storm",
+    "actives": [
+      "mob7_boss_dark_chains",
+      "mob7_boss_bell_ward"
+    ],
+    "passives": [
+      "mob7_boss_black_toll"
+    ]
+  },
+  "visual": {
+    "sprite": "dark_lord",
+    "hitFx": "fx_hit",
+    "scale": 1
+  },
+  "barks": {
+    "start": "Гласт Хейм помнит всех, кто сюда входил. И никого — кто вышел.",
+    "half": "Мертвецы, поднимайтесь!",
+    "rage": "Ночь без конца — для вас!",
+    "defeat": "Тьма… не умирает…",
+    "victory": "Ещё души в колокол Гласт Хейма."
+  },
+  "phases": [
+    {
+      "atHpPct": 0.6,
+      "title": "Мёртвые встают",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "mob3_melee",
+          "count": 3,
+          "hp": 0.04,
+          "atk": 0.35
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.3,
+      "title": "Ярость!",
+      "bark": "rage",
+      "actions": [
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.3,
+              "spd": 0.2
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": 100
+        }
+      ]
+    }
+  ],
+  "charge": {
+    "skill": "mvp_dark_lord_hell_gate",
+    "first": 12,
+    "every": 16
+  }
+}

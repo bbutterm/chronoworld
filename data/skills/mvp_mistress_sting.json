@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_mistress_sting",
+  "name": "Жало королевы",
+  "description": "Мистресс пикирует на двух врагов тыла: урон 1.2 × атака и 30% оглушить на 1 с.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random",
+    "row": "back",
+    "count": 2
+  },
+  "cooldown": 8,
+  "priority": 3,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.2
+    },
+    {
+      "type": "status",
+      "chance": 0.3,
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ]
+}

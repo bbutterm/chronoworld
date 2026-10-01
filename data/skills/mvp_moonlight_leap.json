@@ -1,0 +1,34 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_moonlight_leap",
+  "name": "Лунный прыжок",
+  "description": "Лунный цветок прыгает в тыл к самому слабому врагу: урон 1.6 × атака и очарование (−25% атаки) на 2 с.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHpPct",
+    "row": "back"
+  },
+  "cooldown": 9,
+  "priority": 4,
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.6
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "moon_charm",
+        "name": "Лунное очарование",
+        "turns": 2,
+        "stats": {
+          "atk": -0.25
+        }
+      }
+    }
+  ]
+}

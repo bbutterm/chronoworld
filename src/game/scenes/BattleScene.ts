@@ -318,7 +318,7 @@ interface UnitView extends SpreadUnit, GaitState {
 }
 
 /** Тестовый бой (отряды экрана подготовки), этап кампании или этаж башни (отряд из сохранения). */
-export type BattleData = { mode?: 'test'; seed: number } | { mode: 'stage'; stageId: string } | { mode: 'tower' } | { mode: 'hunt' };
+export type BattleData = { mode?: 'test'; seed: number } | { mode: 'stage'; stageId: string } | { mode: 'tower' } | { mode: 'hunt'; rank?: number };
 
 /** Что получает экран итогов. */
 export interface ResultData {
@@ -533,10 +533,14 @@ export class BattleScene extends Phaser.Scene {
       title = `Башня · этаж ${outcome.floor}${kindName}`;
       this.theme = themeOfBattle({ towerFloor: outcome.floor });
     } else if (data.mode === 'hunt') {
+      // MVP-охота (docs/design/mvp-hunt.md): ульта вручную, как в кампании — бой пересчитывается с вводами игрока.
       const save = session.save;
+      const day = today();
+      const rank = data.rank;
+      const run = (ctl: PlayerControl) => fightHunt(save, day, { ...GAME, combat: { ...(GAME.combat ?? COMBAT), player: ctl } }, { rank });
       let outcome: HuntOutcome;
       try {
-        outcome = fightHunt(save, today(), GAME);
+        outcome = run({ manualUlt: wantManual, inputs: [] });
       } catch (e) {
         console.warn(e);
         this.finished = true;
@@ -545,10 +549,16 @@ export class BattleScene extends Phaser.Scene {
       }
       this.result = outcome.result!;
       this.hunt = { outcome };
+      this.manual = this.startManual = wantManual;
+      this.rerun = (ctl) => {
+        const o = run(ctl);
+        this.hunt = { outcome: o, hud: this.hunt?.hud };
+        return o.result!;
+      };
       this.defs = squadDefs(save);
       this.defs[outcome.boss.def.id] = outcome.boss.def;
       this.levels = { rarity: progressLevelBand(save, GAME).rarity, bossFactor: 1 };
-      title = 'Охота на босса';
+      title = outcome.boss.rank !== undefined ? `Охота на MVP · ур. ${outcome.boss.rank + 1}` : 'Охота на босса';
       this.theme = 'swamp';
     } else {
       const seed = data.seed;
@@ -661,8 +671,8 @@ export class BattleScene extends Phaser.Scene {
     if (this.stage && getStage(GAME, this.stage.stageId).boss) this.bossIntro();
     if (this.hunt) {
       const boss = this.result.units.find((u) => u.side === 'B')!;
-      this.hunt.hud = huntHud(this, this.hunt.outcome, boss.uid, boss.maxHp);
-      this.bossIntro('Босс охоты');
+      this.hunt.hud = huntHud(this, boss.uid, boss.maxHp, this.hunt.outcome.boss.rank);
+      this.bossIntro(this.hunt.outcome.boss.rank !== undefined ? 'MVP появился!' : 'Босс охоты');
     }
     // Реплика босса на старте — когда ушёл баннер (или сразу, если баннера нет: этаж Башни).
     const startBark = () => {
@@ -1699,7 +1709,7 @@ export class BattleScene extends Phaser.Scene {
         if (animate && this.result.winner === 'B') for (const v of this.viewList) if (v.alive) this.bossBark(v, 'victory');
         this.showTime(this.result.duration);
         this.commitStage();
-        this.hunt?.hud?.finish();
+        if (this.hunt) this.hunt.hud?.finish(this.hunt.outcome);
         this.time.delayedCall(animate ? 1200 : 150, () =>
           this.hunt
             ? this.scene.start('Hunt', { outcome: this.hunt.outcome })

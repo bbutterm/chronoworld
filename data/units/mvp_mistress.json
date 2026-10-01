@@ -1,0 +1,79 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mvp_mistress",
+  "name": "Мистресс",
+  "kind": "boss",
+  "role": "damage",
+  "element": "wind",
+  "stats": {
+    "hp": 10000,
+    "atk": 100,
+    "def": 20,
+    "spd": 110
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob_boss1_quake",
+    "actives": [
+      "mvp_mistress_pneuma",
+      "mvp_mistress_sting"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "mistress",
+    "hitFx": "fx_hit",
+    "scale": 1.5
+  },
+  "barks": {
+    "start": "Жжжж… Королева улья не принимает гостей.",
+    "half": "Рой! Защитите королеву!",
+    "rage": "Жало в сердце каждому!",
+    "defeat": "Улей… осиротел…",
+    "victory": "Рой сыт. Можно спать."
+  },
+  "phases": [
+    {
+      "atHpPct": 0.6,
+      "title": "Рой",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "maze_hunter_fly",
+          "count": 3,
+          "hp": 0.03,
+          "atk": 0.35
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.25,
+      "title": "Ярость!",
+      "bark": "rage",
+      "actions": [
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.25,
+              "spd": 0.2
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": 100
+        }
+      ]
+    }
+  ],
+  "charge": {
+    "skill": "mvp_mistress_jupitel",
+    "first": 12,
+    "every": 18
+  }
+}

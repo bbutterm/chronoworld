@@ -214,6 +214,11 @@ skills [{jobLevel, skill}], visual`. **С v4 профессия — класс �
 
 ### Башня `data/tower.json` (`TowerConfigSchema`)
 
+**С 01.10 — рогалик** (`docs/design/tower-roguelite.md`, API — `docs/content/meta.md`): забег фиксированным отрядом
+(`src/core/tower/run.ts`), карты-благословения `run.blessings` (эффекты → хуки боя `src/core/tower/blessings.ts`,
+`BattleOptions.hooks`; без карт лог боя прежний), события, осколки и улучшения; `save.tower.floor` — рекорд. Старая
+лестница ниже (`climbTower`) осталась только для `scripts/lib/player-model.ts`.
+
 `maxFloor` 100, `bossEvery` 5, `baseMult`, `statGrowthPerFloor`, `bands[]` (полосы с `fromFloor`,
 `name`, `layouts[]`, `bossLayouts[]` — составы по 5 слотов), `rewards`. Полосы: 1 «Лесной ярус», 20 «Болотный», 40 «Костяной».
 Тема фона этажа — по номеру полосы. См. `docs/content/tower.md`. Этап открытия — `data/unlocks.json` (`tower`, сейчас `ch1_s10`);
@@ -546,6 +551,13 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 ---
 
 ## 4. Бой (`src/core/battle.ts`)
+
+**С 01.10** (`docs/design/battle-decisions.md`): ручная ульта — `BattleOptions.manualUlt` + `inputs` (сцена пересчитывает бой
+тем же seed с вводами, префикс лога неизменен; авто/idle/баланс — без вводов, лог прежний); ульта героя-профессии — активный
+навык с самой долгой перезарядкой ≥ порога `combat.json → manual`; стихии RO — `src/core/elements.ts`, таблица
+`combat.json → elements`, поле `element` у юнита и навыка; заряд боссов — `charge` в юните (сбивает ручная ульта или оглушение);
+разведка врагов — `enemyTraits` (`src/core/behavior.ts`). Связки близости (вечера в таверне, `src/core/tavern`) добавляются
+к статам в `squadUnits`. Экспедиции с событиями — `docs/design/expedition-adventures.md`.
 
 - **Тики** по `tickSeconds` (0.1 с) до `timeLimitSeconds` (90 с; не успели — победа B, `reason: timeout`). Порядок тика: снаряды →
   статусы → движение → возвраты после прыжка → выбор цели ближними (`pickEngage`) → застревание → план движения → конец кастов →

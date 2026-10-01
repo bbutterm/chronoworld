@@ -113,6 +113,24 @@ export const ChestDropsSchema = z.object({
   rules: z.array(ChestRuleSchema).min(1),
 });
 
+/**
+ * Карта MVP (RO): вставляется в предмет своего слота (у каждого предмета один слот карты, equipment/cards.ts), навсегда.
+ * Бонус — доли базовых статов героя (без снаряжения): 0.25 = +25% атаки; бывает и минус («цена» карты). Работает, пока
+ * предмет надет. Описания — data/hunt.json → cards (выпадают с MVP охоты).
+ */
+export const CardDefSchema = z.object({
+  id,
+  /** «Карта Бафомета». */
+  name: z.string().min(1).max(40),
+  slot: SlotSchema,
+  bonus: z
+    .object({ hp: z.number().min(-0.5).max(1), atk: z.number().min(-0.5).max(1), def: z.number().min(-0.5).max(1), spd: z.number().min(-0.5).max(1) })
+    .partial()
+    .refine((b) => Object.values(b).some((v) => (v ?? 0) > 0), 'карта должна что-то давать'),
+  /** Короткое описание с характером (экран предмета, итоги охоты). */
+  text: z.string().min(1).max(90),
+});
+
 /** Жёсткий предел заточки (схема сохранения): maxLevel в конфиге — не больше. */
 export const REFINE_HARD_MAX = 20;
 
@@ -188,3 +206,4 @@ export type ChestRoll = z.infer<typeof ChestRollSchema>;
 export type ChestRule = z.infer<typeof ChestRuleSchema>;
 export type ChestDrops = z.infer<typeof ChestDropsSchema>;
 export type RefineConfig = z.infer<typeof RefineConfigSchema>;
+export type CardDef = z.infer<typeof CardDefSchema>;

@@ -8,6 +8,8 @@ import {
   HuntError,
   huntBoss,
   huntDamage,
+  huntKilled,
+  huntScore,
   huntStatus,
   huntTier,
   newGame,
@@ -75,19 +77,36 @@ describe('Охота на босса: пороги и босс дня', () => {
     expect(huntTier(Number.MAX_SAFE_INTEGER, ctx.hunt)).toBe(t.length - 1);
   });
 
-  it('босс сменяется по дням и одинаков для одного дня; hp × hpMult', () => {
+  it('босс сменяется по дням и одинаков для одного дня; MVP — статы уровня (ОЗ уровня, АТК и ЗАЩ × множители)', () => {
     const a = huntBoss(D1, ctx);
     const b = huntBoss(D2, ctx);
     expect(huntBoss(D1, ctx)).toEqual(a);
     if (ctx.hunt.bosses.length > 1) expect(b.index).toBe((a.index + 1) % ctx.hunt.bosses.length);
     const cfg = ctx.hunt.bosses[a.index];
+    const base = ctx.content.units[cfg.unit];
     expect(a.def.id).toBe(HUNT_BOSS_ID);
-    expect(a.def.stats.hp).toBe(Math.round(ctx.content.units[cfg.unit].stats.hp * cfg.hpMult));
+    const ranks = ctx.hunt.mvp!.ranks;
+    const r = ranks.length - 1;
+    const top = huntBoss(D1, ctx, r);
+    expect(top.rank).toBe(r);
+    expect(top.def.stats.hp).toBe(ranks[r].hp);
+    expect(top.def.stats.atk).toBe(Math.round(base.stats.atk * ranks[r].atk));
+    expect(top.def.stats.def).toBe(Math.round(base.stats.def * ranks[r].def));
+    // Уровень вне диапазона — ближайший допустимый.
+    expect(huntBoss(D1, ctx, 999).rank).toBe(r);
+    expect(huntBoss(D1, ctx, -3).rank).toBe(0);
   });
 
-  it('BUG-164: высший порог достижим, а босс не падает — ОЗ каждого босса ≥ 2 × урона 10-го порога', () => {
-    const top = ctx.hunt.tiers.at(-1)!.damage;
-    for (const b of ctx.hunt.bosses) expect(ctx.content.units[b.unit].stats.hp * b.hpMult, b.unit).toBeGreaterThanOrEqual(2 * top);
+  it('BUG-164 → MVP: результат — доля ОЗ уровня × урон порога уровня; победа над уровнем i — порог i, высший достижим', () => {
+    const { ranks } = ctx.hunt.mvp!;
+    expect(ranks.length).toBeGreaterThanOrEqual(ctx.hunt.tiers.length);
+    ranks.forEach((r, i) => i > 0 && expect(r.hp).toBeGreaterThan(ranks[i - 1].hp));
+    for (let i = 0; i < ctx.hunt.tiers.length; i++) {
+      expect(huntTier(huntScore(0, true, i, ctx), ctx.hunt)).toBe(i);
+      // Половина ОЗ уровня — половина зачёта.
+      expect(huntScore(ranks[i].hp / 2, false, i, ctx)).toBe(Math.round(ctx.hunt.tiers[i].damage / 2));
+    }
+    expect(huntTier(huntScore(0, true, ranks.length - 1, ctx), ctx.hunt)).toBe(ctx.hunt.tiers.length - 1);
   });
 });
 
@@ -104,19 +123,20 @@ describe('Охота на босса: бой', () => {
     expect(out.result).not.toBeNull();
     const r = out.result!;
     expect(r.duration).toBeLessThanOrEqual(ctx.hunt.timeLimitSeconds);
-    // Босс не падает: при огромном hp бой кончается по времени или гибелью отряда.
-    expect(r.winner).toBe('B');
+    // MVP падает за бой («MVP!») или бой кончается по времени / гибелью отряда.
+    expect(out.killed).toBe(huntKilled(r));
     expect(out.damage).toBe(huntDamage(r));
     expect(out.damage).toBeGreaterThan(0);
-    expect(out.tier).toBe(huntTier(out.damage, ctx.hunt));
+    expect(out.score).toBe(huntScore(out.damage, out.killed, out.boss.rank!, ctx));
+    expect(out.tier).toBe(huntTier(out.score, ctx.hunt));
     const reward = out.tier >= 0 ? ctx.hunt.tiers[out.tier].rewards : {};
     expect(out.save.resources.gold - s.resources.gold).toBe(reward.gold ?? 0);
     expect(out.save.currency.gems - s.currency.gems).toBe(reward.gems ?? 0);
-    expect(out.save.hunt).toEqual({ day: D1, used: 1, best: { [out.boss.unit]: out.damage } });
+    expect(out.save.hunt).toMatchObject({ day: D1, used: 1, best: { [out.boss.unit]: out.score } });
     expect(out.record).toBe(true);
     const st = huntStatus(out.save, D1, ctx);
     expect(st.attemptsLeft).toBe(ctx.hunt.attemptsPerDay - 1);
-    expect(st.best).toBe(out.damage);
+    expect(st.best).toBe(out.score);
   });
 
   it('детерминирован: то же сохранение и день — тот же лог и урон; другая попытка — другой seed', () => {
@@ -150,7 +170,7 @@ describe('Охота на босса: бой', () => {
     const sw = sweepHunt(fought.save, D1, ctx);
     expect(sw.result).toBeNull();
     expect(sw.sweep).toBe(true);
-    expect(sw.damage).toBe(fought.damage);
+    expect(sw.damage).toBe(fought.score);
     expect(sw.tier).toBe(fought.tier);
     expect(sw.save.resources.gold - fought.save.resources.gold).toBe(fought.save.resources.gold - s.resources.gold);
     expect(sw.save.hunt!.used).toBe(2);

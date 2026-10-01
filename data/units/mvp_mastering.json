@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mvp_mastering",
+  "name": "Мастеринг",
+  "kind": "boss",
+  "role": "tank",
+  "element": "water",
+  "stats": {
+    "hp": 10000,
+    "atk": 100,
+    "def": 20,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob_mastering_royal_bounce",
+    "actives": [
+      "mob_mastering_jelly_armor",
+      "mvp_mastering_bounce"
+    ],
+    "passives": [
+      "mob_mastering_kings_wrath"
+    ]
+  },
+  "visual": {
+    "sprite": "mastering",
+    "hitFx": "fx_hit",
+    "scale": 1.9
+  },
+  "barks": {
+    "start": "Бульк! Кто тут обижал моих порингов?",
+    "half": "Подданные! Все на защиту короны!",
+    "rage": "Королевский гнев! Бульк-бульк!",
+    "defeat": "Корона… укатилась…",
+    "victory": "Бульк! Королевство спасено!"
+  },
+  "phases": [
+    {
+      "atHpPct": 0.6,
+      "title": "Подданные",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "mob_poporing",
+          "count": 2,
+          "hp": 0.04,
+          "atk": 0.35
+        },
+        {
+          "type": "summon",
+          "unit": "mob_drops",
+          "count": 1,
+          "hp": 0.04,
+          "atk": 0.35
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.3,
+      "title": "Королевский гнев",
+      "bark": "rage",
+      "actions": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.12
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.25,
+              "spd": 0.15
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "charge": {
+    "skill": "mob_mastering_royal_splash",
+    "first": 10,
+    "every": 16
+  }
+}

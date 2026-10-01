@@ -1,0 +1,67 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mvp_osiris",
+  "name": "Осирис",
+  "kind": "boss",
+  "role": "tank",
+  "element": "undead",
+  "stats": {
+    "hp": 10000,
+    "atk": 100,
+    "def": 20,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mob4_boss_ult",
+    "actives": [
+      "mvp_osiris_bandages"
+    ],
+    "passives": [
+      "mob4_boss_tomb_call"
+    ]
+  },
+  "visual": {
+    "sprite": "osiris",
+    "hitFx": "fx_hit",
+    "scale": 1.6
+  },
+  "barks": {
+    "start": "Кто потревожил сон фараона? Пески примут и вас.",
+    "half": "Стража гробницы, встаньте!",
+    "rage": "Проклятие пирамид — на ваши головы!",
+    "defeat": "Я… вернусь… в следующую луну…",
+    "victory": "Ещё немного песка в гробницу."
+  },
+  "phases": [
+    {
+      "atHpPct": 0.7,
+      "title": "Бинты вечности",
+      "actions": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.1
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.4,
+      "title": "Стража гробницы",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "mob4_melee",
+          "count": 3,
+          "hp": 0.04,
+          "atk": 0.35
+        }
+      ]
+    }
+  ],
+  "charge": {
+    "skill": "mvp_osiris_curse",
+    "first": 12,
+    "every": 18
+  }
+}

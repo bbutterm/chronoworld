@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_orc_lord_war_cry",
+  "name": "Боевой клич",
+  "description": "Орк-лорд ревёт: урон по всем врагам 0.8 × атака и страх (−20% защиты) на 2 с.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "orc_fear",
+        "name": "Страх",
+        "turns": 2,
+        "stats": {
+          "def": -0.2
+        }
+      }
+    }
+  ]
+}
