@@ -17,7 +17,7 @@ LIMIT = 400 * 1024
 # Великая снежная буря), боссы глав (экран этапа), MVP (экран охоты), интерфейс и сюжет.
 PICK = {
     'ult_asura_cast': ['battle_asura_ult_ult_vika_asura_1_950'],
-    'ult_asura_hit': ['battle_asura_ult_ult_vika_asura_1_1250', 'battle_asura_ult_ult_vika_asura_1_1150'],
+    'ult_asura_hit': ['battle_asura_ult_ult_vika_asura_1_1400', 'battle_asura_ult_ult_vika_asura_1_1250'],
     'ult_storm_gust': ['battle_storm_sg_ult_ult_lira_storm_gust_1_800', 'battle_storm_sg_ult_ult_lira_storm_gust_1_600'],
     'ult_lord_of_vermillion': ['battle_storm_lov_ult_ult_kai_lord_of_vermillion_1_1100', 'battle_storm_lov_ult_ult_kai_lord_of_vermillion_1_800'],
     'boss_orc_lord': ['battle_storm_ch3_s10_1400_intro', 'battle_storm_ch3_s10_900_intro', 'ui_stage_ch3_s10'],

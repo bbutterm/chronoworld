@@ -20,6 +20,8 @@ export const ALLY_FX_ALPHA = 0.55;
  * героях) и крупнее обычного навыка в ULT_FX_BOOST раз, но не шире экрана.
  */
 const ULT_FX_MAX_W = GAME_W * 0.95;
+/** Бафф ульты на своих героях — такая прозрачность (не RR-15 0.55, но фигуры отряда видны сквозь лист). */
+const ULT_ALLY_ALPHA = 0.8;
 /** RR-15: крупных эффектов одновременно — не больше; сверх — новые бледнее, а эффекты на героях не рисуются. */
 export const MAX_BIG_FX = 5;
 /** «Крупный» эффект — шире этого (px поля). */
@@ -491,13 +493,16 @@ export class FloatLayer {
   flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y, key?: string, fromX?: number, onAlly = false): void {
     const effect = selectedAnimatedEffect(texId, 'flash', this.scene.textures.exists(animatedFxKey(texId)));
     // RR-15: на своих героях — меньше и прозрачнее; при толпе крупных эффектов — бледнее, а на героях не рисуем вовсе.
-    // Ульта героя — всегда видна целиком: не прозрачнее на своих, не бледнее в толпе, крупнее.
+    // Ульта героя — всегда видна целиком: не прозрачнее на своих, не бледнее в толпе, крупнее. Её бафф на своих
+    // (Защита строя, Адреналин) — без укрупнения и чуть прозрачнее: белый лист во весь рост закрывал отряд целиком.
+    const allyUlt = this.ult && onAlly;
     if (this.ult) onAlly = false;
     const crowded = !this.ult && this.bigFx() >= MAX_BIG_FX;
     if (crowded && onAlly) return;
-    const dim = (onAlly ? ALLY_FX_ALPHA : 1) * (crowded ? 0.5 : 1) * (this.mute && !this.ult ? FOCUS_MUTE_ALPHA : 1);
+    const dim = (onAlly ? ALLY_FX_ALPHA : allyUlt ? ULT_ALLY_ALPHA : 1) * (crowded ? 0.5 : 1) * (this.mute && !this.ult ? FOCUS_MUTE_ALPHA : 1);
+    const boost = this.ult && !allyUlt ? ULT_FX_BOOST : 1;
     if (onAlly) size /= SKILL_FX_SIZE;
-    if (this.ult) size *= ULT_FX_BOOST;
+    size *= boost;
     alpha *= dim;
     const img = this.image(x, effect ? feetY : y, effect ? animatedFxKey(texId) : texId, size, depth).setAlpha(alpha);
     if (effect) {
@@ -507,7 +512,7 @@ export class FloatLayer {
       // Атлас навыка со своим масштабом (effects.json → scale): размер кадра RO, непрозрачный — роль не сжимает
       // крупный лист до точки и не делает его полупрозрачным.
       if (effect.scale) {
-        img.setScale(effect.scale * (onAlly ? 1 : SKILL_FX_SIZE) * (this.ult ? ULT_FX_BOOST : 1)).setAlpha((effect.alpha ?? 1) * dim);
+        img.setScale(effect.scale * (onAlly ? 1 : SKILL_FX_SIZE) * boost).setAlpha((effect.alpha ?? 1) * dim);
         if (this.ult && img.displayWidth > ULT_FX_MAX_W) img.setScale(img.scale * ULT_FX_MAX_W / img.displayWidth);
         // Ульта — целиком в кадре (иероглифы Асуры у края поля не обрезаются).
         if (this.ult) {

@@ -564,8 +564,8 @@
       "loop": false,
       "delayMs": 83,
       "blend": "add",
-      "scale": 1.6,
-      "alpha": 0.65,
+      "scale": 1.9,
+      "alpha": 0.95,
       "anchor": [
         166.4,
         172.8

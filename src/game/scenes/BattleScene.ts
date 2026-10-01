@@ -1382,7 +1382,7 @@ export class BattleScene extends Phaser.Scene {
     const src = sourceUid ? this.views.get(sourceUid) : undefined;
     // Удар ульты героя — в полную яркость; чужие удары, попавшие на время ульты, — приглушённо (fxMode, в момент удара).
     const ult = this.heroUlt(src);
-    const fn = (a: boolean) => (a ? this.fxMode(sourceUid ?? undefined, ult, () => draw(a)) : draw(a));
+    const fn = (a: boolean) => (a ? this.fxMode(sourceUid ?? undefined, ult, () => draw(a), opts.on?.snap.side === 'A') : draw(a));
     const planned = opts.plan ? src?.hitPlan.get(opts.plan)?.shift() : undefined;
     const live = animate && !this.skipping;
     const wait = live && src ? (planned ?? src.impactAt) - this.time.now : 0;
@@ -1431,14 +1431,15 @@ export class BattleScene extends Phaser.Scene {
    * Рисовать fn в режиме эффектов: ult — эффекты ульты героя в полную яркость и крупнее (RR-15 не действует),
    * иначе во время чужой ульты героя — приглушённо. Режим запоминают отложенные продолжения эффектов (SkillFx).
    */
-  private fxMode(src: string | undefined, ult: boolean, fn: () => void): void {
+  private fxMode(src: string | undefined, ult: boolean, fn: () => void, onAlly = false): void {
     const f = this.floats;
     const s = this.sfx;
     const was = [f.ult, f.mute, s.boost, s.mute] as const;
     const mute = !ult && this.muted(src);
     f.ult = ult;
     f.mute = mute;
-    s.boost = ult ? ULT_FX_BOOST : 1;
+    // Лечение и баффы ульты на своих — в полную яркость, но не крупнее (иначе лист закрывает фигуры отряда).
+    s.boost = ult && !onAlly ? ULT_FX_BOOST : 1;
     s.mute = mute;
     try {
       fn();
