@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TowerRunConfigSchema } from './runSchema';
 
 const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в нижнем регистре, цифры и _');
 
@@ -38,6 +39,8 @@ export const TowerConfigSchema = z
     baseMult: z.number().positive().default(1),
     statGrowthPerFloor: z.number().nonnegative(),
     bands: z.array(TowerBandSchema).min(1),
+    /** Забег-рогалик (docs/design/tower-roguelite.md): карты, события, улучшения, сила врагов. */
+    run: TowerRunConfigSchema.optional(),
     rewards: z.object({
       gold: Linear,
       jobExp: Linear,

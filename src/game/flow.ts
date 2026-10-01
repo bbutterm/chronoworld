@@ -27,9 +27,7 @@ import {
   idleExpeditions,
   type ExpeditionContext,
   type ExpectedLoot,
-  towerFloor,
   towerStatus,
-  unitPower,
   type TowerContext,
   recommendedPower as coreRecommendedPower,
   levelTone,
@@ -712,13 +710,13 @@ export function sortAchievements(views: readonly AchievementView[]): Achievement
 // ---------- K4. Башня ----------
 
 /**
- * Красный кружок плитки «Башня»: башня открыта, следующий этаж есть и мощь отряда не ниже мощи этажа
- * (тот же расчёт, что на экране башни: squadPower против суммы unitPower врагов) — «можно брать этаж».
- * Отряд вырос (уровни, вещи, новые герои) — кружок появляется снова. 1 или 0.
+ * Красный кружок плитки «Башня» (забег-рогалик, docs/design/tower-roguelite.md): башня открыта и либо в забеге ждёт выбор
+ * (карта или событие), либо забега нет, а добыча дня ещё не взята (lootDay не сегодня). day — день игрока (по умолчанию —
+ * день суточных счётчиков сохранения). 1 или 0.
  */
-export function towerBadgeCount(save: SaveState, ctx: TowerContext & FeatureContext & Partial<Pick<EquipmentContext, 'equipment'>>): number {
-  const ts = towerStatus(save, ctx);
-  if (!ts.unlocked || ts.next === null) return 0;
-  const enemy = towerFloor(ts.next, ctx).enemies.reduce((s, u) => s + (u ? unitPower(u, ctx) : 0), 0);
-  return squadPower(save, ctx) >= enemy ? 1 : 0;
+export function towerBadgeCount(save: SaveState, ctx: TowerContext & FeatureContext & Partial<Pick<EquipmentContext, 'equipment'>>, day: string = save.daily.day): number {
+  if (!towerStatus(save, ctx).unlocked) return 0;
+  const run = save.tower.run;
+  if (run) return run.pending ? 1 : 0;
+  return save.tower.lootDay === day ? 0 : 1;
 }

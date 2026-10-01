@@ -17,6 +17,898 @@
     "bossMultiplier": 2,
     "bossGems": 10
   },
+  "run": {
+    "$comment": "Забег-рогалик (docs/design/tower-roguelite.md). tierMult — сила врагов по ступени игрока (глава последнего пройденного этапа), подбирается scripts/balance-tower.ts.",
+    "tierMult": [
+      1.393,
+      1.622,
+      2.708,
+      6.869,
+      7.968,
+      15.278,
+      16.071,
+      26.121,
+      27.756,
+      30.198
+    ],
+    "growthPerFloor": 0.06,
+    "eliteMult": 1.3,
+    "bossMult": 1.15,
+    "bossEvery": 10,
+    "blessingEvery": 3,
+    "choices": 3,
+    "afterBattleHeal": 0.3,
+    "restHeal": 0.5,
+    "rarity": {
+      "floor": {
+        "common": 62,
+        "rare": 30,
+        "legendary": 8
+      },
+      "elite": {
+        "rare": 70,
+        "legendary": 30
+      },
+      "boss": {
+        "rare": 40,
+        "legendary": 60
+      },
+      "event": {
+        "common": 55,
+        "rare": 35,
+        "legendary": 10
+      },
+      "start": {
+        "common": 60,
+        "rare": 35,
+        "legendary": 5
+      }
+    },
+    "paths": {
+      "weights": {
+        "battle": 46,
+        "elite": 18,
+        "event": 20,
+        "rest": 16
+      },
+      "minFloor": {
+        "elite": 3,
+        "event": 2,
+        "rest": 3
+      }
+    },
+    "shards": {
+      "floor": 1,
+      "elite": 2,
+      "boss": 5
+    },
+    "lootPerFloor": 0.12,
+    "record": {
+      "gemsPerFloor": 3,
+      "bossGems": 15
+    },
+    "families": [
+      {
+        "id": "guard",
+        "name": "Стальные",
+        "color": "#6fa8dc",
+        "need": 2,
+        "bonusText": "2 стальные карты: щит 10% ОЗ в начале боя",
+        "bonus": [
+          {
+            "kind": "startShield",
+            "pct": 0.1
+          }
+        ]
+      },
+      {
+        "id": "blood",
+        "name": "Кровь",
+        "color": "#d64545",
+        "need": 2,
+        "bonusText": "2 карты крови: убийство лечит отряд на 4% ОЗ",
+        "bonus": [
+          {
+            "kind": "killHeal",
+            "pct": 0.04
+          }
+        ]
+      },
+      {
+        "id": "wild",
+        "name": "Дикие",
+        "color": "#e0a040",
+        "need": 2,
+        "bonusText": "2 дикие карты: 15% обычных атак бьют дважды",
+        "bonus": [
+          {
+            "kind": "doubleHit",
+            "chance": 0.15
+          }
+        ]
+      },
+      {
+        "id": "fire",
+        "name": "Пламя",
+        "color": "#ff7a30",
+        "need": 2,
+        "bonusText": "2 карты пламени: огненные навыки задевают соседей (25%)",
+        "bonus": [
+          {
+            "kind": "splash",
+            "pct": 0.25,
+            "radius": 250,
+            "on": "skill",
+            "element": "fire"
+          }
+        ]
+      },
+      {
+        "id": "life",
+        "name": "Жизнь",
+        "color": "#8fdc7a",
+        "need": 2,
+        "bonusText": "2 карты жизни: каждые 5 с отряд лечится на 2% ОЗ",
+        "bonus": [
+          {
+            "kind": "regen",
+            "pct": 0.02,
+            "every": 5
+          }
+        ]
+      },
+      {
+        "id": "shadow",
+        "name": "Тень",
+        "color": "#9a6ad0",
+        "need": 2,
+        "bonusText": "2 карты тени: обычные атаки с шансом 20% отравляют",
+        "bonus": [
+          {
+            "kind": "poison",
+            "chance": 0.2,
+            "k": 0.3,
+            "turns": 3
+          }
+        ]
+      }
+    ],
+    "blessings": [
+      {
+        "id": "poring",
+        "name": "Карта Поринга",
+        "rarity": "common",
+        "family": "wild",
+        "monster": "mob_fast",
+        "text": "Первый удар отряда по каждому врагу — критический (×2).",
+        "effects": [
+          {
+            "kind": "firstStrike",
+            "mult": 2
+          }
+        ]
+      },
+      {
+        "id": "pupa",
+        "name": "Карта Пупы",
+        "rarity": "common",
+        "family": "guard",
+        "monster": "mob_pupa",
+        "text": "Кокон: в начале боя каждый герой получает щит 15% ОЗ.",
+        "effects": [
+          {
+            "kind": "startShield",
+            "pct": 0.15
+          }
+        ]
+      },
+      {
+        "id": "hunter_fly",
+        "name": "Карта Мухи-охотника",
+        "rarity": "common",
+        "family": "blood",
+        "monster": "maze_hunter_fly",
+        "text": "Кровопийца: каждое убийство лечит весь отряд на 6% ОЗ.",
+        "effects": [
+          {
+            "kind": "killHeal",
+            "pct": 0.06
+          }
+        ]
+      },
+      {
+        "id": "orc_warrior",
+        "name": "Карта Орка-воина",
+        "rarity": "common",
+        "family": "blood",
+        "monster": "orc_warrior",
+        "text": "Месть: павший союзник даёт остальным +40% атаки до конца боя.",
+        "effects": [
+          {
+            "kind": "allyDeathRage",
+            "atkPct": 0.4
+          }
+        ]
+      },
+      {
+        "id": "mandragora",
+        "name": "Карта Мандрагоры",
+        "rarity": "common",
+        "family": "life",
+        "monster": "mob_mandragora",
+        "text": "Корни: после каждого боя отряд лечится ещё на 20% ОЗ.",
+        "effects": [
+          {
+            "kind": "afterHeal",
+            "pct": 0.2
+          }
+        ]
+      },
+      {
+        "id": "mantis",
+        "name": "Карта Богомола",
+        "rarity": "common",
+        "family": "wild",
+        "monster": "maze_mantis",
+        "text": "Добивание: враг (не босс) ниже 15% ОЗ падает от любого удара.",
+        "effects": [
+          {
+            "kind": "execute",
+            "pct": 0.15
+          }
+        ]
+      },
+      {
+        "id": "fabre",
+        "name": "Карта Фабра",
+        "rarity": "common",
+        "family": "life",
+        "monster": "mob_fabre",
+        "text": "Линька: каждые 5 с живые герои восстанавливают 4% ОЗ.",
+        "effects": [
+          {
+            "kind": "regen",
+            "pct": 0.04,
+            "every": 5
+          }
+        ]
+      },
+      {
+        "id": "rocker",
+        "name": "Карта Рокера",
+        "rarity": "common",
+        "family": "wild",
+        "monster": "mob_rocker",
+        "text": "Первый аккорд: в начале боя все герои сразу получают ход.",
+        "effects": [
+          {
+            "kind": "swiftStart"
+          }
+        ]
+      },
+      {
+        "id": "drops",
+        "name": "Карта Дропса",
+        "rarity": "common",
+        "family": "fire",
+        "monster": "mob_drops",
+        "text": "Вспыльчивость: враги-трусы не бегут, а взрываются — 30% их ОЗ соседям.",
+        "effects": [
+          {
+            "kind": "cowardBomb",
+            "pct": 0.3,
+            "radius": 260
+          }
+        ]
+      },
+      {
+        "id": "marin",
+        "name": "Карта Марин",
+        "rarity": "common",
+        "family": "guard",
+        "monster": "mob_marin",
+        "text": "Холодная кожа: передний ряд героев получает на 25% меньше урона.",
+        "effects": [
+          {
+            "kind": "rowGuard",
+            "row": "front",
+            "pct": 0.25
+          }
+        ]
+      },
+      {
+        "id": "poporing",
+        "name": "Карта Попоринга",
+        "rarity": "common",
+        "family": "shadow",
+        "monster": "mob_poporing",
+        "text": "Яд: обычные атаки героев с шансом 35% отравляют цель на 4 с.",
+        "effects": [
+          {
+            "kind": "poison",
+            "chance": 0.35,
+            "k": 0.35,
+            "turns": 4
+          }
+        ]
+      },
+      {
+        "id": "thief_bug",
+        "name": "Карта Жука-вора",
+        "rarity": "common",
+        "family": "shadow",
+        "monster": "sewer_thief_bug",
+        "text": "Жадность: осколков башни в 1,5 раза больше, но враги сильнее на 12%.",
+        "cost": true,
+        "effects": [
+          {
+            "kind": "greed",
+            "shards": 0.5,
+            "enemies": 0.12
+          }
+        ]
+      },
+      {
+        "id": "chonchon",
+        "name": "Карта Стального чончона",
+        "rarity": "rare",
+        "family": "wild",
+        "monster": "orc_chonchon",
+        "text": "Цепная молния: навык героя перескакивает на ещё одного врага (50% урона).",
+        "effects": [
+          {
+            "kind": "echo",
+            "pct": 0.5
+          }
+        ]
+      },
+      {
+        "id": "high_orc",
+        "name": "Карта Высшего орка",
+        "rarity": "rare",
+        "family": "fire",
+        "monster": "orc_high",
+        "text": "Пожар: огненные навыки задевают соседей цели на 40% урона.",
+        "effects": [
+          {
+            "kind": "splash",
+            "pct": 0.4,
+            "radius": 250,
+            "on": "skill",
+            "element": "fire"
+          }
+        ]
+      },
+      {
+        "id": "angeling",
+        "name": "Карта Ангелинга",
+        "rarity": "rare",
+        "family": "life",
+        "icon": "star",
+        "text": "Лекарь раз за бой поднимает павшего союзника с 40% ОЗ.",
+        "effects": [
+          {
+            "kind": "reviveOnce",
+            "hpPct": 0.4,
+            "healer": true
+          }
+        ]
+      },
+      {
+        "id": "archangeling",
+        "name": "Карта Архангелинга",
+        "rarity": "rare",
+        "family": "life",
+        "icon": "star",
+        "text": "Святое оружие: обычные удары героев — святой стихии (×1,5 по нежити и тьме).",
+        "effects": [
+          {
+            "kind": "element",
+            "element": "holy"
+          }
+        ]
+      },
+      {
+        "id": "baphomet_jr",
+        "name": "Карта Бафомета-младшего",
+        "rarity": "rare",
+        "family": "blood",
+        "monster": "maze_baphomet_jr",
+        "text": "Ярость: герои бьют на 40% сильнее, но лечение и щиты слабее на 40%.",
+        "cost": true,
+        "effects": [
+          {
+            "kind": "atk",
+            "pct": 0.4
+          },
+          {
+            "kind": "healTaken",
+            "pct": -0.4
+          }
+        ]
+      },
+      {
+        "id": "deviruchi",
+        "name": "Карта Девиручи",
+        "rarity": "rare",
+        "family": "blood",
+        "monster": "maze_deviruchi",
+        "text": "Сделка: в начале боя герои теряют 15% ОЗ, но бьют на 60% сильнее.",
+        "cost": true,
+        "effects": [
+          {
+            "kind": "startHpLoss",
+            "pct": 0.15
+          },
+          {
+            "kind": "atk",
+            "pct": 0.6
+          }
+        ]
+      },
+      {
+        "id": "wolf",
+        "name": "Карта Бродячего волка",
+        "rarity": "rare",
+        "family": "wild",
+        "monster": "maze_vagabond_wolf",
+        "text": "Стая: в свободный слот отряда встаёт сильнейший герой из запаса.",
+        "requires": "slot",
+        "effects": [
+          {
+            "kind": "recruit"
+          }
+        ]
+      },
+      {
+        "id": "whisper",
+        "name": "Карта Шёпота",
+        "rarity": "rare",
+        "family": "shadow",
+        "monster": "maze_whisper",
+        "text": "Призрачный шаг: первый удар по каждому герою в бою — промах.",
+        "effects": [
+          {
+            "kind": "dodgeFirst"
+          }
+        ]
+      },
+      {
+        "id": "moonlight",
+        "name": "Карта Лунного цветка",
+        "rarity": "rare",
+        "family": "fire",
+        "monster": "mob_moonlight",
+        "text": "Лунный вихрь: после ульты героя остальные получают полшкалы хода.",
+        "effects": [
+          {
+            "kind": "ultHaste",
+            "pct": 0.5
+          }
+        ]
+      },
+      {
+        "id": "rideword",
+        "name": "Карта Райдворда",
+        "rarity": "rare",
+        "family": "guard",
+        "monster": "alde_rideword",
+        "text": "Тяжёлый переплёт: обычные атаки с шансом 12% оглушают (сбивают заряд босса).",
+        "effects": [
+          {
+            "kind": "stun",
+            "chance": 0.12,
+            "turns": 1
+          }
+        ]
+      },
+      {
+        "id": "osiris",
+        "name": "Карта Осириса",
+        "rarity": "legendary",
+        "family": "life",
+        "monster": "mob_osiris",
+        "text": "Воскрешение: павшие в забеге встают с 50% ОЗ; раз за бой павший встаёт с 30%.",
+        "effects": [
+          {
+            "kind": "reviveRun",
+            "hpPct": 0.5
+          },
+          {
+            "kind": "reviveOnce",
+            "hpPct": 0.3,
+            "healer": false
+          }
+        ]
+      },
+      {
+        "id": "baphomet",
+        "name": "Карта Бафомета",
+        "rarity": "legendary",
+        "family": "shadow",
+        "monster": "maze_baphomet",
+        "text": "Коса: обычные атаки задевают всех врагов рядом с целью (60% урона).",
+        "effects": [
+          {
+            "kind": "splash",
+            "pct": 0.6,
+            "radius": 260,
+            "on": "basic"
+          }
+        ]
+      },
+      {
+        "id": "mistress",
+        "name": "Карта Мистресс",
+        "rarity": "legendary",
+        "family": "shadow",
+        "monster": "mob_mistress",
+        "text": "Без самоцветов: первая ульта каждого героя сразу готова снова.",
+        "effects": [
+          {
+            "kind": "ultReset"
+          }
+        ]
+      },
+      {
+        "id": "dark_lord",
+        "name": "Карта Тёмного лорда",
+        "rarity": "legendary",
+        "family": "fire",
+        "monster": "mob_dark_lord",
+        "text": "Метеоритный дождь: удар по герою с шансом 8% обрушивает метеоры на всех врагов.",
+        "effects": [
+          {
+            "kind": "meteor",
+            "chance": 0.08,
+            "k": 1.6
+          }
+        ]
+      },
+      {
+        "id": "orc_hero",
+        "name": "Карта Героя орков",
+        "rarity": "legendary",
+        "family": "guard",
+        "monster": "orc_hero",
+        "text": "Последний герой: последний живой бьёт вдвое сильнее и получает щит 50% ОЗ.",
+        "effects": [
+          {
+            "kind": "lastStand",
+            "atkPct": 1,
+            "shieldPct": 0.5
+          }
+        ]
+      },
+      {
+        "id": "golden_bug",
+        "name": "Карта Золотого жука",
+        "rarity": "legendary",
+        "family": "guard",
+        "monster": "sewer_golden_bug",
+        "text": "Золотой панцирь: урон от навыков врагов меньше вдвое (обычные атаки — как были).",
+        "effects": [
+          {
+            "kind": "skillShield",
+            "pct": 0.5
+          }
+        ]
+      },
+      {
+        "id": "drake",
+        "name": "Карта Дрейка",
+        "rarity": "legendary",
+        "family": "blood",
+        "monster": "mob_drake",
+        "text": "Абордаж: убийца врага сразу получает ещё один ход.",
+        "effects": [
+          {
+            "kind": "killHaste"
+          }
+        ]
+      }
+    ],
+    "events": [
+      {
+        "id": "altar",
+        "title": "Алтарь Одина",
+        "icon": "star",
+        "text": "Каменный алтарь в нише этажа. На нём засохшая кровь и надпись: «Сила — за плату».",
+        "options": [
+          {
+            "label": "Отдать кровь",
+            "hint": "−20% ОЗ отряду → редкая карта",
+            "result": "Алтарь вспыхнул. Раны ноют, но в руке — карта.",
+            "outcomes": [
+              {
+                "kind": "hp",
+                "pct": -0.2
+              },
+              {
+                "kind": "card",
+                "rarity": "rare"
+              }
+            ]
+          },
+          {
+            "label": "Помолиться",
+            "hint": "+25% ОЗ отряду",
+            "result": "Тёплый свет затянул раны.",
+            "outcomes": [
+              {
+                "kind": "hp",
+                "pct": 0.25
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "merchant",
+        "title": "Торговка Кафры",
+        "icon": "bag",
+        "text": "Девушка в форме Кафры раскладывает карты на плаще. «Меняю на осколки, без обмана!»",
+        "options": [
+          {
+            "label": "Купить карту",
+            "hint": "−4 осколка → карта",
+            "result": "Сделка честная: карта ваша.",
+            "requires": {
+              "shards": 4
+            },
+            "outcomes": [
+              {
+                "kind": "shards",
+                "n": -4
+              },
+              {
+                "kind": "card",
+                "rarity": "common"
+              }
+            ]
+          },
+          {
+            "label": "Купить зелья",
+            "hint": "−2 осколка → +35% ОЗ",
+            "result": "Белые зелья, как новые.",
+            "requires": {
+              "shards": 2
+            },
+            "outcomes": [
+              {
+                "kind": "shards",
+                "n": -2
+              },
+              {
+                "kind": "hp",
+                "pct": 0.35
+              }
+            ]
+          },
+          {
+            "label": "Уйти",
+            "hint": "",
+            "result": "Кафра пожимает плечами: «Заходите ещё».",
+            "outcomes": []
+          }
+        ]
+      },
+      {
+        "id": "traveler",
+        "title": "Раненый путник",
+        "icon": "helmet",
+        "text": "У стены сидит послушник с перевязанной ногой. «Помогите… я отплачу молитвой».",
+        "options": [
+          {
+            "label": "Перевязать",
+            "hint": "−10% ОЗ отряду → карта",
+            "result": "Послушник шепчет благословение — и в кармане карта.",
+            "outcomes": [
+              {
+                "kind": "hp",
+                "pct": -0.1
+              },
+              {
+                "kind": "card",
+                "rarity": "common"
+              }
+            ]
+          },
+          {
+            "label": "Обыскать",
+            "hint": "+3 осколка",
+            "result": "Нехорошо, но осколки пригодятся.",
+            "outcomes": [
+              {
+                "kind": "shards",
+                "n": 3
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "fountain",
+        "title": "Источник Мимира",
+        "icon": "gift",
+        "text": "Из трещины бьёт ключ. Вода светится голубым, и в ней видно чужие лица.",
+        "options": [
+          {
+            "label": "Испить",
+            "hint": "+40% ОЗ отряду",
+            "result": "Холодная вода — и усталость отступает.",
+            "outcomes": [
+              {
+                "kind": "hp",
+                "pct": 0.4
+              }
+            ]
+          },
+          {
+            "label": "Позвать павшего",
+            "hint": "павший встаёт с 40% ОЗ",
+            "result": "Из воды выходит ваш товарищ — живой.",
+            "requires": {
+              "fallen": true
+            },
+            "outcomes": [
+              {
+                "kind": "revive",
+                "hpPct": 0.4
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mimic",
+        "title": "Сундук в углу",
+        "monster": "alde_mimic",
+        "text": "Окованный сундук. Слишком красивый для этого этажа. Кажется, он дышит.",
+        "options": [
+          {
+            "label": "Открыть",
+            "hint": "50%: легендарная карта, иначе −30% ОЗ",
+            "result": "Внутри — сияющая карта!",
+            "resultLose": "Мимик кусается! Отряд едва отбился.",
+            "outcomes": [
+              {
+                "kind": "gamble",
+                "chance": 0.5,
+                "win": [
+                  {
+                    "kind": "card",
+                    "rarity": "legendary"
+                  }
+                ],
+                "lose": [
+                  {
+                    "kind": "hp",
+                    "pct": -0.3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Пнуть и уйти",
+            "hint": "+1 осколок",
+            "result": "Сундук обиженно щёлкнул крышкой.",
+            "outcomes": [
+              {
+                "kind": "shards",
+                "n": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "scribe",
+        "title": "Писарь Бафомета",
+        "monster": "maze_scribe",
+        "text": "Бес с пером и свитком. «Отдай мне свою последнюю карту — дам лучше. Честное бесовское».",
+        "options": [
+          {
+            "label": "Обменять карту",
+            "hint": "последняя карта → выбор на ступень выше",
+            "result": "Бес хихикает и протягивает новые карты.",
+            "requires": {
+              "cards": true
+            },
+            "outcomes": [
+              {
+                "kind": "upgradeCard"
+              }
+            ]
+          },
+          {
+            "label": "Прогнать",
+            "hint": "",
+            "result": "Бес исчезает в облаке серы.",
+            "outcomes": []
+          }
+        ]
+      }
+    ],
+    "upgrades": [
+      {
+        "id": "start_card",
+        "name": "Дар Башни",
+        "text": "Забег начинается с выбора карты (2-й уровень — редкой и выше).",
+        "effect": "startBlessing",
+        "value": 1,
+        "costs": [
+          8,
+          30
+        ]
+      },
+      {
+        "id": "wide_choice",
+        "name": "Широкий выбор",
+        "text": "+1 карта в каждом выборе.",
+        "effect": "extraChoice",
+        "value": 1,
+        "costs": [
+          25
+        ]
+      },
+      {
+        "id": "hearth",
+        "name": "Тёплый очаг",
+        "text": "Отдых лечит на 15% больше за уровень.",
+        "effect": "restHeal",
+        "value": 0.15,
+        "costs": [
+          6,
+          18
+        ]
+      },
+      {
+        "id": "bandage",
+        "name": "Перевязка",
+        "text": "После боя отряд лечится на 8% больше за уровень.",
+        "effect": "afterHeal",
+        "value": 0.08,
+        "costs": [
+          10,
+          25
+        ]
+      },
+      {
+        "id": "shuffle",
+        "name": "Перетасовка",
+        "text": "Перетасовать выбор карт: +1 раз за забег за уровень.",
+        "effect": "reroll",
+        "value": 1,
+        "costs": [
+          12,
+          30
+        ]
+      },
+      {
+        "id": "greed",
+        "name": "Копилка",
+        "text": "+20% осколков за забег за уровень.",
+        "effect": "shards",
+        "value": 0.2,
+        "costs": [
+          15,
+          35
+        ]
+      },
+      {
+        "id": "second_wind",
+        "name": "Второе дыхание",
+        "text": "Раз за забег павший герой встаёт после боя с 30% ОЗ.",
+        "effect": "secondWind",
+        "value": 1,
+        "costs": [
+          40
+        ]
+      }
+    ]
+  },
   "bands": [
     {
       "fromFloor": 1,

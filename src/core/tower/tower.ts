@@ -13,7 +13,16 @@ import type { BattleResult, Content } from '../types';
 import { TowerConfigSchema, type TowerBand, type TowerConfig } from './schema';
 
 /** Коды ошибок башни (отдельный класс, чтобы не трогать общие GameRuleError/FeatureError). */
-export type TowerErrorCode = 'invalid_config' | 'invalid_floor' | 'tower_locked' | 'tower_completed';
+export type TowerErrorCode =
+  | 'invalid_config'
+  | 'invalid_floor'
+  | 'tower_locked'
+  | 'tower_completed'
+  | 'no_run'
+  | 'run_active'
+  | 'bad_choice'
+  | 'not_enough_shards'
+  | 'max_level';
 
 /** Нарушение правил башни. message — русский текст для игрока. */
 export class TowerError extends Error {
@@ -93,6 +102,20 @@ export function validateTower(cfg: TowerConfig, content: Content, problems: stri
     check(b.layouts, 'layouts', false);
     check(b.bossLayouts, 'bossLayouts', true);
   });
+  const run = cfg.run;
+  if (!run) return;
+  const dup = (what: string, ids: string[]) => ids.forEach((x, i) => ids.indexOf(x) !== i && problems.push(`башня, run.${what}: повтор id ${x}`));
+  dup('blessings', run.blessings.map((b) => b.id));
+  dup('families', run.families.map((f) => f.id));
+  dup('events', run.events.map((e) => e.id));
+  dup('upgrades', run.upgrades.map((u) => u.id));
+  for (const b of run.blessings) {
+    if (!run.families.some((f) => f.id === b.family)) problems.push(`башня, карта ${b.id}: нет вида ${b.family} в run.families`);
+    if (b.monster && !content.units[b.monster]) problems.push(`башня, карта ${b.id}: монстр ${b.monster} не найден в data/units`);
+    if (!b.monster && !b.icon) problems.push(`башня, карта ${b.id}: нужен monster или icon`);
+  }
+  for (const e of run.events) if (e.monster && !content.units[e.monster]) problems.push(`башня, событие ${e.id}: монстр ${e.monster} не найден`);
+  for (const r of ['common', 'rare', 'legendary'] as const) if (!run.blessings.some((b) => b.rarity === r)) problems.push(`башня: нет карт редкости ${r}`);
 }
 
 function describe(error: z.ZodError): string {
@@ -196,6 +219,9 @@ export function towerStatus(save: SaveState, ctx: TowerContext): TowerStatus {
 }
 
 /**
+ * Старая лестница (до забега-рогалика, docs/design/tower-roguelite.md): экран её больше не зовёт — осталась для модели
+ * баланса scripts/lib/player-model.ts и её тестов. Игра — run.ts (startTowerRun / fightTowerFloor).
+ *
  * K4. Штурм следующего этажа (save.tower.floor + 1) отрядом save.squad. Чистая функция.
  * - TowerError('tower_locked') — не пройден unlockAfterStage; ('tower_completed') — пройден maxFloor;
  * - GameRuleError('unknown_hero') / ('empty_squad') / ('duplicate_card') — как у playStage;
