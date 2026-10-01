@@ -435,6 +435,14 @@ const SIGS: Record<Signature, SigDef> = {
     // Удар сокола: сокол пикирует на каждую цель по очереди — когти и перья.
     hit: (_k, i) => 260 + i * 170,
     draw: (fx, k) => {
+      // Сокол RO (effects.json → skills.<id>.hit, спрайт 매) пикирует сам — свою птицу не рисуем, только когти и перья.
+      if (k.atlas?.hit) {
+        k.hits.forEach((p, i) => fx.later(260 + i * 170, () => {
+          fx.claw(p.x, p.y - 10, k.dir, 0xfff0d0, 1.1);
+          fx.feathers(p.x, p.y - 30, 0xe8d4b0, 3);
+        }));
+        return;
+      }
       k.hits.forEach((p, i) => {
         const x0 = k.c.x - k.dir * 40;
         const y0 = k.c.y - 280;
@@ -452,7 +460,9 @@ const SIGS: Record<Signature, SigDef> = {
     draw: (fx, k) => {
       const p = k.uniq[0];
       if (!p) return;
-      fly(fx, T.bird, p.x - k.dir * 320, p.y - 720, p.x, p.y - 10, 0xffffff, 1.9, 420, 0, 0xffd060, () => {
+      // Сокол RO (атлас hit) пикирует сам; процедурная птица — только без атласа.
+      const own = !k.atlas?.hit;
+      fly(fx, own ? T.bird : T.spark, p.x - k.dir * 320, p.y - 720, p.x, p.y - 10, 0xffffff, own ? 1.9 : 0.01, 420, 0, 0xffd060, () => {
         fx.glow(p.x, p.y, 0xffd060, 1, 4.4, 420, 0, 1);
         fx.glow(p.x, p.y, 0xffffff, 0.5, 2.2, 200, 0, 1);
         groundRing(fx, p, 0xffd060, 0.4, 3.2, 520);
