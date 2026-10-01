@@ -39,6 +39,9 @@ import { button, panel, pressable, text, toast } from '../ui';
 import { ctaShine, glow, medallion } from '../decor';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 import { C, FS } from '../theme';
+import { sfx } from '../audio';
+import { haptic } from '../haptics';
+import { motion } from '../state';
 
 /** Что вернул бой этажа (BattleScene → Tower). */
 export interface TowerSceneData {
@@ -62,6 +65,8 @@ const OVERLAY_DEPTH = 5000;
 export class TowerScene extends Phaser.Scene {
   /** Выбранный путь развилки (индекс в run.paths). */
   private sel = 0;
+  /** Карта-благословение уже выбрана (идёт вспышка) — повторные касания не считаются. */
+  private picking = false;
 
   constructor() {
     super('Tower');
@@ -70,6 +75,7 @@ export class TowerScene extends Phaser.Scene {
   create(data: TowerSceneData = {}): void {
     screen(this, 'Башня испытаний', 'Adventure', { to: 'Adventure' });
     markHint('tower_open');
+    this.picking = false;
     const st = towerRunStatus(session.save, GAME, today());
     if (!st.unlocked) return this.locked(st.unlockAfterStage);
     if (data.fight) {
@@ -452,6 +458,7 @@ export class TowerScene extends Phaser.Scene {
       const now = familyStates(run.cards, cfg).find((f) => f.family.id === fam.id)!;
       if (!now.active && now.count + 1 >= fam.need) add(text(this, tx, y + h / 2 - 32, `Бонус вида: ${fam.bonusText.replace(/^\d+ [^:]+: /, '')}`, 24, famColor, { fontStyle: 'bold', wordWrap: { width: 720 }, align: 'left' }).setOrigin(0, 0.5));
       pressable(this, box, w, h, () => {
+        if (this.picking) return;
         let events: TowerRunEvent[] = [];
         if (!this.act(() => {
           const out = pickTowerBlessing(session.save, id, GAME);
@@ -459,7 +466,12 @@ export class TowerScene extends Phaser.Scene {
           commit(out.save);
         }))
           return;
-        this.scene.restart({ fight: { floor: 0, win: false, events } } satisfies TowerSceneData);
+        // Выбор принят: звон Blessing, лёгкий толчок и вспышка рамки карты — потом экран забега.
+        this.picking = true;
+        sfx('bless_pick');
+        haptic('blessPick');
+        const ms = this.flashCard(layer, box, RARITY_COLOR[b.rarity]);
+        this.time.delayedCall(ms, () => this.scene.restart({ fight: { floor: 0, win: false, events } } satisfies TowerSceneData));
       }).setName(`towerCard${i}`);
     });
     if (run.rerolls > 0) {
@@ -469,6 +481,20 @@ export class TowerScene extends Phaser.Scene {
       }, FS.body);
       layer.add(b.container);
     }
+  }
+
+  /**
+   * Вспышка рамки выбранной карты: белая рамка поверх и светлый отблеск, гаснут за ~0.3 с. «Меньше движения» — только
+   * рамка, без анимации. Возвращает, сколько мс ждать перед переходом.
+   */
+  private flashCard(layer: Phaser.GameObjects.Container, box: Phaser.GameObjects.Rectangle, tint: number): number {
+    const frame = this.add.rectangle(box.x, box.y, box.width + 16, box.height + 16).setStrokeStyle(14, 0xffffff, 1);
+    const shine = this.add.rectangle(box.x, box.y, box.width, box.height, tint, 0.35);
+    layer.add([shine, frame]);
+    if (motion.reduced) return 200;
+    this.tweens.add({ targets: frame, scaleX: 1.03, scaleY: 1.06, alpha: 0, duration: 340, ease: 'Quad.easeOut' });
+    this.tweens.add({ targets: shine, alpha: 0, duration: 340, ease: 'Quad.easeOut' });
+    return 340;
   }
 
   /** Событие этажа: текст и 1–3 варианта. */

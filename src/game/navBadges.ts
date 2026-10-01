@@ -11,6 +11,7 @@ import {
   pendingPicks,
   questStatus,
   summonStatus,
+  tavernNewCount,
   type SaveState,
 } from '../core';
 import { GAME } from './content';
@@ -34,7 +35,7 @@ export function campaignBadge(save: SaveState, now: number, day: string): number
   return n;
 }
 
-/** «Город»: Таверна (бесплатный призыв, подарок), задания, достижения, события, почта, контракт героя. */
+/** «Город»: Таверна (бесплатный призыв, подарок), задания, достижения, события, почта, контракт героя, новые вечера. */
 export function cityBadge(save: SaveState, day: string): number {
   const st = summonStatus(save, day, GAME);
   let n = st.unlocked ? tavernBadge(st, save.summon.welcomeGiven) : 0;
@@ -44,6 +45,8 @@ export function cityBadge(save: SaveState, day: string): number {
   n += ev.login + ev.newbie;
   n += mailCount(save);
   n += pendingPicks(save).length;
+  // Новый вечер в «Двух колоколах» (и открытая личная сцена) — кнопка «Летопись» на странице «Город».
+  n += tavernNewCount(save, GAME);
   return n;
 }
 
