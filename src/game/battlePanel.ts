@@ -3,6 +3,7 @@ import { GAME_W } from './layout';
 import { portrait } from './screen';
 import { portraitKey } from './sprites';
 import { text } from './ui';
+import { chargeBreakBadge } from './ultBadge';
 
 /**
  * BUG-061 (T3-25). Панель героев в бою — как в AFK Arena: над ареной (там было пустое небо) по карточке на героя
@@ -18,6 +19,8 @@ export interface PanelUnit {
   hasUlt: boolean;
   /** Ульта героя (docs/design/battle-decisions.md §1): полоска готовности вместо энергии, касание портрета — ульта. */
   ult?: boolean;
+  /** Ульта оглушает / срывает каст — ею сбивают заряд босса: значок-молния в углу портрета (ultBadge.ts). */
+  breaks?: boolean;
 }
 
 interface Entry {
@@ -62,6 +65,8 @@ export class HeroPanel {
       const hpBack = scene.add.rectangle(0, 68, BAR_W + 4, 16, 0x2a2420, 0.95).setStrokeStyle(2, 0x000000, 0.8);
       const hp = scene.add.rectangle(-BAR_W / 2, 68, BAR_W, 12, 0x5fd35f).setOrigin(0, 0.5);
       const parts: Phaser.GameObjects.GameObject[] = [back, face, name, hpBack, hp];
+      // Молния у правого края портрета, ниже ярлыка «УЛЬТА» (он по центру сверху).
+      if (u.breaks) parts.push(chargeBreakBadge(scene, CARD_W / 2 - 26, -46, 42));
       let energy: Phaser.GameObjects.Rectangle | null = null;
       if (u.hasUlt || u.ult) {
         const enBack = scene.add.rectangle(0, 84, BAR_W + 4, 10, 0x2a2420, 0.95).setStrokeStyle(2, 0x000000, 0.8);

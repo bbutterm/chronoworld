@@ -53,6 +53,7 @@ import { openBranchPicker } from '../branchPicker';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
 import { roIconImage } from '../itemIcons';
+import { BREAK_LABEL, chargeBreakBadge, ultBreaksCharge } from '../ultBadge';
 import { linkText, startTavernEvening } from './TavernEveningScene';
 import { hasHeroStory, heroStoryNew, heroStoryProgress, openHeroStory, storyDot, toastOpenedStories } from '../heroStoryView';
 
@@ -711,9 +712,16 @@ export class HeroScene extends Phaser.Scene {
     if (locked) icon.setAlpha(0.45).setTint(0x8a8a8a);
     a.add(icon);
     if (locked) a.add(this.add.image(116, y + 26, skinIcon('lock')).setDisplaySize(34, 34).setTint(0xf0cf8a));
-    const kind = r.note ?? (locked ? (r.form ? `ур. ${r.locked} · после вознесения` : `откроется на ур. ${r.locked}${r.gate ? ` · нужен ${r.gate}` : ''}`) : r.kind);
+    const breaks = !!r.ult && ultBreaksCharge(r.id);
+    const kind = r.note ?? (locked ? (r.form ? `ур. ${r.locked} · после вознесения` : `откроется на ур. ${r.locked}${r.gate ? ` · нужен ${r.gate}` : ''}`) : breaks ? `Ульта · ${BREAK_LABEL}` : r.kind);
     const kindColor = locked ? (r.gate && !r.form ? C.warning : C.dim) : r.kind.startsWith('КД') || r.ult ? C.gold : C.success;
     const kindText = a.add(text(this, 1010, y - h * 0.24, kind, FS.caption, kindColor).setOrigin(1, 0.5));
+    // Ульта оглушает / срывает каст — молния на иконке и «сбивает заряд» под ярлыком: кем сбивать заряд босса.
+    if (breaks) {
+      const badge = chargeBreakBadge(this, 90 + 30, y - 30, 44);
+      if (locked) badge.setAlpha(0.6);
+      a.add(badge);
+    }
     const title = r.ult ? `Ульта: ${sk?.name ?? r.id}` : `${sk?.name ?? r.id}`;
     a.add(ellipsize(text(this, 150, y - h * 0.24, title, FS.body, locked ? C.disabled : r.ult ? C.gold : C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), Math.max(200, 1010 - 150 - kindText.width - 20)));
     if (sk?.description) {

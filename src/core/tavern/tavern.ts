@@ -193,6 +193,18 @@ export function newEvenings(save: SaveState, ctx: Ctx): EveningDef[] {
   return (tavernOfCtx(ctx)?.evenings ?? []).filter((e) => eveningStatus(save, e, ctx) === 'new');
 }
 
+/**
+ * Сколько нового ждёт в «Вечерах» (красная точка на главной): открытые, но не увиденные вечера плюс личные сцены, которые
+ * открылись по близости и ещё не показаны. Нет вечеров в данных — 0.
+ */
+export function tavernNewCount(save: SaveState, ctx: Ctx): number {
+  const t = tavernOfCtx(ctx);
+  if (!t) return 0;
+  const st = tavernOf(save);
+  const scenes = Object.entries(t.heroes).filter(([id, h]) => (st.bond[id] ?? 0) >= t.bond.sceneAt && !st.seen.includes(h.scene.id)).length;
+  return newEvenings(save, ctx).length + scenes;
+}
+
 /** Показать ли реплику: нет условия — да; when — в выборе выбран этот вариант ('none' — выбора не было). */
 export function lineVisible(line: TavernLine, save: Pick<SaveState, 'tavern'>): boolean {
   if (!line.when) return true;

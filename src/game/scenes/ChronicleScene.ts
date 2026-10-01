@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { bestiary, chapterChronicle, chapterCleared, eveningStatus, newEvenings, findingEntries, FINDING_KIND_NAMES, firstSentence, heroEntries, heroTemplate, introPages, itemEntries, jobTitle, keeperIds, worldEntries, type BestiaryEntry, type ChronicleTab, type FindingEntry, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
+import { tavernNewCount, bestiary, chapterChronicle, chapterCleared, eveningStatus, newEvenings, findingEntries, FINDING_KIND_NAMES, firstSentence, heroEntries, heroTemplate, introPages, itemEntries, jobTitle, keeperIds, worldEntries, type BestiaryEntry, type ChronicleTab, type FindingEntry, type HeroEntry, type ItemEntry, type WorldItem } from '../../core';
 import { hasHeroStory, heroStoryNew, heroStoryProgress, openHeroStory, storyDot } from '../heroStoryView';
 import { chroniclePage, findingIcon, findingPage, introPages as introPageList, showPages, type StoryPage } from '../storyPage';
 import { seenChapterScenes } from '../storyView';
@@ -75,7 +75,9 @@ export class ChronicleScene extends Phaser.Scene {
       }, FS.small, { sound: 'ui_tab' });
       b.container.setName(`chronicleTab_${t.id}`);
       // Кружок — на верхней кромке вкладки, над подписью (в углу он закрывал «Бестиарий», «Предметы»).
-      if (!on) badge(this, x + (w - 12) / 2 - 20, ty - TOUCH / 2 - 4, unseen[t.id]);
+      // «Мир» — ещё и новые вечера в «Двух колоколах» (их карточка — первая на вкладке).
+      const n = unseen[t.id] + (t.id === 'world' ? tavernNewCount(session.save, GAME) : 0);
+      if (!on) badge(this, x + (w - 12) / 2 - 20, ty - TOUCH / 2 - 4, n);
     });
     const keys = loreKeys()[this.tab];
     this.readable = new Set(keys);

@@ -1,4 +1,4 @@
-import type { SkillDef } from '../core';
+import { breaksCharge, type SkillDef } from '../core';
 
 /**
  * Цифры навыка для окна подробностей (skillDetail.ts): цель, урон/лечение/щит в % АТК, статусы, перезарядка, каст,
@@ -79,6 +79,7 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
     out.push(`Срабатывает: ${when}${sk.chance < 1 ? ` · шанс ${pct(sk.chance)}` : ''}`);
   } else if (o.ult) {
     out.push('Ульта: срабатывает на полной энергии (копится в бою ≈ 10–12 с); вручную — касанием портрета');
+    if (breaksCharge(sk)) out.push('Сбивает заряд босса: оглушает или срывает каст (ульта вручную)');
   } else if (!o.basic) {
     const cd = sk.cooldown ?? o.defaultCooldown;
     out.push(cd > 0 ? `Перезарядка: ${cd} с` : 'Без перезарядки');

@@ -63,6 +63,9 @@ import { Ambient, SHADOW_TEX } from '../ambient';
 import { skillIcon, statusIcon } from '../skillIcons';
 import type { SkillDef, StatusDef } from '../../core';
 import { battleSound } from '../battleAudio';
+import { haptic } from '../haptics';
+import { ultBreaksCharge } from '../ultBadge';
+import { firstTip, tipDone } from '../firstTips';
 import { huntHud, type HuntHud } from '../huntBattle';
 import { HeroPanel, PANEL_BOTTOM, PANEL_Y } from '../battlePanel';
 import { battleMode, chargeHint, nextTick, setBattleAuto, ultHint } from '../battleMode';
@@ -99,6 +102,10 @@ const HIT_FLASH_EVERY = 400;
 const OPENING_QUIET_S = 1;
 /** Глубина панели героев (RR-05): выше фигур поля, ниже затемнения ульты (DEPTH.dim). */
 const PANEL_DEPTH = 2800;
+/** «Сбито!» над боссом — вдвое крупнее подписей поведения (их 36): главный момент боя с решениями. */
+const CHARGE_BREAK_SIZE = 76;
+/** Подсказка первого заряда босса: поверх плашки с названием этапа (кнопки и полоса босса ниже — не закрывает). */
+const CHARGE_TIP_Y = 24;
 const BOSS_HURT_TINT = 0xffb4a8;
 /** Бело-зелёный отсвет на юните, которого вылечили, мс на 1x. */
 const HEAL_TINT_MS = 220;
@@ -662,7 +669,7 @@ export class BattleScene extends Phaser.Scene {
         .sort((a, b) => a.slot - b.slot)
         .map((u) => {
           const def = this.defs[u.unitId];
-          return { uid: u.uid, name: def?.name ?? u.unitId, sprite: def?.visual.sprite ?? u.unitId, hasUlt: !!def?.skills.ult, ult: this.ultSkill.has(u.uid) };
+          return { uid: u.uid, name: def?.name ?? u.unitId, sprite: def?.visual.sprite ?? u.unitId, hasUlt: !!def?.skills.ult, ult: this.ultSkill.has(u.uid), breaks: ultBreaksCharge(this.ultSkill.get(u.uid)?.id) };
         }),
       // RR-05: панель — интерфейс, выше фигур поля (их глубина — y ног, до ~1850): высокий враг заднего ряда не ложится
       // на карточки; затемнение ульты (2900) и эффекты — выше панели.
@@ -1068,6 +1075,8 @@ export class BattleScene extends Phaser.Scene {
     this.applyInputs();
     this.heroPanel.setReady(uid, false);
     this.heroPanel.pressed(uid);
+    // Ульта запущена касанием — тяжёлый толчок (звук всплеска — по событию ult, battleAudio.ts).
+    haptic('ultCast');
     this.tapped.add(uid);
     ultHint.mark();
     this.ultHintNode?.destroy();
@@ -1439,11 +1448,7 @@ export class BattleScene extends Phaser.Scene {
           // Заряд босса сбит ультой: крупно, с тряской.
           if (e.reason === 'break') {
             this.endCast(v);
-            if (animate && v.alive && !this.skipping) {
-              this.behaviorLabel(v, 'Сбито!', '#ffe070');
-              this.sfx.shake(0.008, 220);
-              this.sfx.flash(0xfff0a0, 0.16, 200);
-            }
+            if (animate && v.alive && !this.skipping) this.chargeBroken(v);
             return;
           }
           this.atImpact(v.lastStatusSrc ?? null, animate, (animate) => {
@@ -1466,7 +1471,11 @@ export class BattleScene extends Phaser.Scene {
           v.castLabel.setColor('#ffb09a');
           if (animate && !this.skipping) {
             this.behaviorLabel(v, 'Заряд!', '#ff6a4a');
-            if (this.manual && chargeHint.count < 3) {
+            // Первый заряд босса — реплика Гаррета (firstTips.ts, один раз); тост-подсказка — в следующие разы.
+            if (!tipDone('tip_boss_charge')) {
+              firstTip(this, 'tip_boss_charge', CHARGE_TIP_Y, PANEL_DEPTH + 5);
+              chargeHint.mark();
+            } else if (this.manual && chargeHint.count < 3) {
               chargeHint.mark();
               toast(this, `${v.def.name} заряжает удар — ульта героя собьёт его!`, '#ffb09a', 3000, 'middle');
             }
@@ -2060,6 +2069,31 @@ export class BattleScene extends Phaser.Scene {
   }
 
   /** RR-13: подпись поведения — крупная, над цифрами урона и идёт за юнитом (страж бежит к цели — «Перехват!» с ним). */
+  /**
+   * «Сбито!» (docs/design/battle-decisions.md §4): заряд босса сорван ультой — крупная золотая надпись над боссом с
+   * «хлопком», вспышка ореола, короткая тряска и вспышка экрана. «Меньше движения» — без тряски, вспышек и хлопка
+   * (надпись просто появляется и гаснет). Звук и вибрация — в battleAudio.ts.
+   */
+  private chargeBroken(v: UnitView): void {
+    const x = clampX(v.node.x + v.labelX, 360);
+    const y = Math.max(PANEL_BOTTOM + 70, v.node.y - v.look.height * 0.72 - 60);
+    const label = text(this, x, y, 'Сбито!', CHARGE_BREAK_SIZE, '#ffe070', { fontStyle: 'bold', stroke: '#3a1a00', strokeThickness: 12 })
+      .setDepth(BEHAVIOR_LABEL_DEPTH + 1)
+      .setName('chargeBroken');
+    label.setShadow(0, 6, 'rgba(0,0,0,0.65)', 6, true, false);
+    if (motion.reduced) {
+      this.tweens.add({ targets: label, alpha: 0, delay: 1100, duration: 400, onComplete: () => label.destroy() });
+      return;
+    }
+    label.setScale(0.4);
+    this.tweens.add({ targets: label, scale: 1.12, duration: 160, ease: 'Back.easeOut', yoyo: false });
+    this.tweens.add({ targets: label, scale: 1, delay: 160, duration: 140, ease: 'Quad.easeOut' });
+    this.tweens.add({ targets: label, y: y - 50, alpha: 0, delay: 900, duration: 450, ease: 'Quad.easeIn', onComplete: () => label.destroy() });
+    this.sfx.glow(v.node.x, bodyY(v), 0xffe070, 0.5, 2.6, 420);
+    this.sfx.shake(0.012, 240);
+    this.sfx.flash(0xfff0a0, 0.26, 220);
+  }
+
   private behaviorLabel(v: UnitView, value: string, color: string): void {
     if (this.skipping) return;
     const y = v.node.y - v.look.height * 0.72 - 30;

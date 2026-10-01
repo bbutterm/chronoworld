@@ -49,6 +49,10 @@ export function cityHint(save: SaveState, isDone: (id: HintId) => boolean = hint
  */
 export function hintObsoleteFor(save: SaveState, id: HintId): boolean {
   if (id === 'equip_gear' || id === 'branch_pick') return false;
+  // Подсказки первого входа (firstTips.ts) — для режимов после главы 1: не устаревают вместе с обучением новичка.
+  if (id === 'tip_tower') return (save.tower.runs ?? 0) > 0 || !!save.tower.run;
+  if (id === 'tip_evening') return (save.tavern?.seen?.length ?? 0) > 0;
+  if (id.startsWith('tip_')) return false;
   if (id === 'tower_open') return save.tower.floor > 0;
   if (id === 'tavern_summon' && save.summon.firstTenDone) return true;
   const first = GAME.content.chapters[0]?.id;

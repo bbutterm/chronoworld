@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { chronicleKeys, firstSentence, heroStoryUnreadTotal, jobTitle, refinedStats, unseenCount, type ChronicleTab, type ItemDef, type LineKind, type UnitDef } from '../core';
+import { tavernNewCount, chronicleKeys, firstSentence, heroStoryUnreadTotal, jobTitle, refinedStats, unseenCount, type ChronicleTab, type ItemDef, type LineKind, type UnitDef } from '../core';
 import { GAME, LORE } from './content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, ROLE_NAMES, SLOT_NAMES } from './flow';
 import { hasCollectionArt, itemCell, itemIconKey, loadCollectionArt, refineBadge, roIconImage } from './itemIcons';
@@ -95,7 +95,8 @@ export function chronicleButton(scene: Phaser.Scene, x: number, y: number, w = 2
   b.label.setX(28);
   b.container.add(bookIcon(scene, 28 - b.label.width / 2 - 34, -4, 50));
   b.container.setName('chronicleBtn');
-  const n = loreUnseen().total;
+  // Плюс новые вечера в «Двух колоколах» и открытые личные сцены (вход в «Вечера» — «Летопись» → «Мир»).
+  const n = loreUnseen().total + tavernNewCount(session.save, GAME);
   // Кружок — на верхней кромке кнопки, выше строки текста: широкий «99+» не закрывает «Летопись».
   if (n > 0) badge(scene, x + w / 2 - 16, y - h / 2 - 6, n)?.setName('chronicleBadge');
   return b.container;
