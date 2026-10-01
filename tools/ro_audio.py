@@ -51,6 +51,8 @@ SFX: dict[str, list[tuple[str, float | None]]] = {
     'rarity_up': [(E + 'drop_pink', 2.2)],
     'refine_success': [(E + 'bs_refinesuccess', None)],
     'refine_fail': [(E + 'bs_refinefailed', None)],
+    # Башня: выбрана карта-благословение (Blessing послушника)
+    'bless_pick': [(E + 'ef_blessing', None)],
     # таверна: открытие карты по цвету редкости (звуки выпадения вещей RO)
     'summon_common': [(E + 'drop_green', 1.2)],
     'summon_rare': [(E + 'drop_blue', 2.0)],
@@ -79,6 +81,9 @@ SFX: dict[str, list[tuple[str, float | None]]] = {
     'cast_poison': [(E + 'thief_invenom', None), (E + 'ef_poisonattack', 1.4)],
     'cast_neutral': [(E + 'ef_napalmbeat', None), (E + 'ef_soulstrike', None)],
     'ult': [(E + 'ef_magnumbreak', None)],
+    # ульта готова (тихий «портал готов»), заряд босса сбит (Spell Breaker мудреца)
+    'ult_ready': [(E + 'ef_readyportal', None)],
+    'charge_break': [(E + 'sage_spell breake', 1.0)],
     'heal': [('_heal_effect', None)],
     'buff': [(E + 'ef_blessing', None), (E + 'ef_incagility', None), (E + 'ef_angelus', 2.0)],
     'debuff': [(E + 'ef_decagility', None), (E + 'priest_lexaeterna', None)],
