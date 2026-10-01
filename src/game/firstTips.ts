@@ -84,14 +84,22 @@ function draw(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, def: Tip
   const close = () => {
     if (gone || !layer.active) return;
     gone = true;
-    scene.input.off('pointerdown', close);
+    scene.input.off('pointerdown', onDown);
     if (motion.reduced) layer.destroy();
     else scene.tweens.add({ targets: layer, alpha: 0, duration: 220, onComplete: () => layer.destroy() });
   };
-  // Касание где угодно (и сама кнопка под плашкой) — плашка уходит; сама она касаний не ловит.
-  scene.time.delayedCall(400, () => scene.input.once('pointerdown', close));
+  // Касание где угодно (и сама кнопка под плашкой) — плашка уходит; сама она касаний не ловит. Касание, начатое до
+  // показа (то, что открыло экран или окно, — на медленном кадре оно доходит позже), не считается.
+  let armedAt = Infinity;
+  const onDown = (p: Phaser.Input.Pointer) => {
+    if (p.downTime >= armedAt) close();
+  };
+  scene.time.delayedCall(400, () => {
+    armedAt = scene.game.loop.time;
+    scene.input.on('pointerdown', onDown);
+  });
   scene.time.delayedCall(TIP_MS, close);
-  layer.once(Phaser.GameObjects.Events.DESTROY, () => scene.input.off('pointerdown', close));
+  layer.once(Phaser.GameObjects.Events.DESTROY, () => scene.input.off('pointerdown', onDown));
   if (!motion.reduced) {
     layer.setAlpha(0);
     layer.y = -16;
