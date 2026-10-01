@@ -259,13 +259,18 @@ export function huntHeroHints(save: SaveState, boss: Pick<HuntBossView, 'weakTo'
 }
 
 /**
- * Отряд для боя с MVP: героям стихии, к которой MVP уязвим, +weaknessAtk АТК. В RO стихия оружия меняет и обычные атаки —
- * здесь это приближено прибавкой АТК; навыки этой стихии вдобавок ×1.5 по таблице боя (combat.json → elements).
+ * Отряд для боя с MVP: героям стихии, к которой MVP уязвим, +weaknessAtk АТК, остальным −armorAtk («стихийная броня»).
+ * В RO стихия оружия меняет и обычные атаки — здесь это приближено множителем АТК; навыки этой стихии вдобавок ×1.5 по
+ * таблице боя (combat.json → elements).
  */
 export function huntSquad(squad: readonly (UnitDef | null)[], boss: Pick<HuntBossView, 'weakTo'>, ctx: HuntContext): (UnitDef | null)[] {
-  const bonus = ctx.hunt.mvp?.weaknessAtk ?? 0;
-  if (!bonus || !boss.weakTo.length) return [...squad];
-  return squad.map((d) => (d && boss.weakTo.includes(heroElement(d, ctx)) ? { ...d, stats: { ...d.stats, atk: Math.round(d.stats.atk * (1 + bonus)) } } : d));
+  const mvp = ctx.hunt.mvp;
+  if (!mvp || !boss.weakTo.length) return [...squad];
+  return squad.map((d) => {
+    if (!d) return d;
+    const k = boss.weakTo.includes(heroElement(d, ctx)) ? 1 + mvp.weaknessAtk : 1 - mvp.armorAtk;
+    return k === 1 ? d : { ...d, stats: { ...d.stats, atk: Math.round(d.stats.atk * k) } };
+  });
 }
 
 /** Индекс высшего порога, которого достиг урон damage (−1 — ни одного). */

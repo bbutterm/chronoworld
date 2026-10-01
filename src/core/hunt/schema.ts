@@ -11,7 +11,8 @@ const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в ниж
  */
 export const HuntBossSchema = z.object({
   unit: id,
-  hpMult: z.number().positive(),
+  /** Множитель ОЗ (старая охота; у MVP ОЗ — из уровня hunt.mvp.ranks). */
+  hpMult: z.number().positive().default(1),
   atkMult: z.number().positive().default(1),
   defMult: z.number().positive().default(1),
   /** Масштаб фигуры в бою (visual.scale юнита; только вид, на бой не влияет). Нет поля — как у юнита. */
@@ -38,11 +39,14 @@ export const HuntRankSchema = z.object({
 
 /**
  * MVP-охота: босс умирает за бой. Уровень охоты — сколько уровней по ОЗ уже пробито (по лучшему урону), новичок начинает с 0.
- * Слабость: герои, чья стихия атаки бьёт стихию MVP (×1.5 по таблице), получают +weaknessAtk АТК в этом бою.
+ * Слабость: герои, чья стихия атаки бьёт стихию MVP (×1.5 по таблице), получают +weaknessAtk АТК в этом бою, остальные
+ * теряют armorAtk («стихийная броня»).
  */
 export const HuntMvpSchema = z.object({
   /** +доля АТК героям стихии, к которой MVP уязвим (только в бою охоты). */
   weaknessAtk: z.number().min(0).max(2),
+  /** «Стихийная броня» MVP: остальные герои (не той стихии) теряют эту долю АТК в бою охоты. */
+  armorAtk: z.number().min(0).max(0.9).default(0),
   /** Шанс карты MVP за победу. */
   cardChance: z.number().min(0).max(1),
   /** Гарантия: столько побед подряд без карты — следующая победа даёт карту. */
