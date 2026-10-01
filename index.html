@@ -5,7 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0907" />
     <title>Chronoworld</title>
+    <!--
+      Шрифты интерфейса (OFL, assets/fonts, подмножество латиница + кириллица): качаются сразу, параллельно с JS;
+      main.ts ждёт их до первой сцены (иначе Phaser.Text запечёт системный шрифт). Список — FONT_FILES в src/game/theme.ts.
+    -->
+    <link rel="preload" href="fonts/rubik-500.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/rubik-700.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/philosopher-700.woff2" as="font" type="font/woff2" crossorigin />
     <style>
+      @font-face { font-family: 'Rubik'; font-weight: 300 600; font-display: swap; src: url('fonts/rubik-500.woff2') format('woff2'); }
+      @font-face { font-family: 'Rubik'; font-weight: 700 900; font-display: swap; src: url('fonts/rubik-700.woff2') format('woff2'); }
+      @font-face { font-family: 'Philosopher'; font-weight: 400 900; font-display: swap; src: url('fonts/philosopher-700.woff2') format('woff2'); }
       html, body { margin: 0; padding: 0; height: 100%; background: #0a0907; overflow: hidden; touch-action: none; }
       #game { position: relative; width: 100%; height: 100%; overflow: hidden; }
       /* Безопасные отступы (вырез, «чёлка», полоска жестов) — читает src/game/viewport.ts. */
@@ -16,7 +26,7 @@
       /* P8: телефон в альбомной ориентации — игра портретная, просим повернуть (T3-01). */
       #rotate {
         display: none; position: fixed; inset: 0; z-index: 10;
-        background: #0a0907; color: #f0cf8a; font: bold 22px Arial, "Helvetica Neue", sans-serif;
+        background: #0a0907; color: #f0cf8a; font: bold 22px Rubik, Arial, "Helvetica Neue", sans-serif;
         flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; padding: 24px; box-sizing: border-box;
       }
       #rotate small { color: #b8bcc8; font-weight: normal; font-size: 16px; }
@@ -29,7 +39,7 @@
        * Заставка до первого кадра игры: видна, пока качается и запускается JS (на 3G — секунды). Повторяет экран
        * загрузки BootScene (src/game/bootLook.ts, BOOT и BOOT_COLORS — те же числа и цвета): тёплый полумрак, лента
        * с названием, орнамент, полоса с фаской — в тех же пропорциях мира 1080×1920, по центру безопасной области
-       * (как поле игры, viewport.ts). main.ts убирает её на первом кадре BootScene. Без картинок и шрифтов.
+       * (как поле игры, viewport.ts). main.ts убирает её на первом кадре BootScene. Без картинок; шрифты — свои, если уже пришли (font-display: swap).
        */
       #splash {
         --sl: env(safe-area-inset-left, 0px); --sr: env(safe-area-inset-right, 0px);
@@ -39,7 +49,7 @@
         --cy: calc(var(--st) + (100vh - var(--st) - var(--sb)) / 2);
         position: fixed; inset: 0; z-index: 5; pointer-events: none;
         background: radial-gradient(circle calc(1300 * var(--u)) at var(--cx) calc(var(--cy) - 100 * var(--u)), #2b2218 0%, #16130e 45%, #0a0907 100%);
-        font-family: Arial, "Helvetica Neue", sans-serif; transition: opacity 0.2s;
+        font-family: Rubik, Arial, "Helvetica Neue", sans-serif; transition: opacity 0.2s;
       }
       #splash.gone { opacity: 0; }
       #splash > * { position: absolute; left: var(--cx); transform: translate(-50%, -50%); margin: 0; }

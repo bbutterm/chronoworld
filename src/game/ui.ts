@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { skinKey, sliceOf, tex } from './assets';
 import { SKIN, SKIN_DARK_LABEL } from './skin';
-import { FONT, GAME_H, GAME_W, HEADER_H } from './layout';
+import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { worldPoint } from './viewport';
-import { C, FS, TINT, TOUCH } from './theme';
+import { C, familyFor, FS, TINT, TOUCH } from './theme';
 import { arrowRect, HINT_GEOM, overlapArea, placeCallout, type CalloutPlan, type HintSide, type Rect } from './hintLayout';
 import { HINT_TEXT, markHint, type HintId } from './hints';
 import { barFrom, juiceOn } from './juice';
@@ -63,7 +63,7 @@ export function text(
   style: Phaser.Types.GameObjects.Text.TextStyle = {},
 ): Phaser.GameObjects.Text {
   return scene.add
-    .text(x, y, value, { fontFamily: FONT, fontSize: `${size}px`, color, align: 'center', ...style })
+    .text(x, y, value, { fontFamily: familyFor(size, style), fontSize: `${size}px`, color, align: 'center', ...style })
     .setOrigin(0.5);
 }
 

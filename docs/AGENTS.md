@@ -786,3 +786,28 @@ Vercel собирает `main` (`vercel.json`: `npm ci`, `npm run build`, `dist`
 | K1…K10, P1…P12, T1-xx…T5-xx, BUG-xxx | функции из GDD, пакеты FIXLIST, номера багов тестировщиков, сводный баг-лог |
 | Герои: Алан м, Бран м, Вика ж (старт), Грета ж, Дорн м (рекруты) | сюжетные карточки `data/heroes/{alan,bran,vika,greta,dorn}.json`, `progression.json → heroes.start / recruits` |
 | герой, шаблон, экземпляр, копия, ветка, редкость (зелёный…красный), вознесение, корм, карта героя, «Контракт героя», Таверна, пул опыта, «Улучшить» | hero, template, instance, copy, branch, rarity, ascend/merge, fodder, hero card drop, hero pick, summon (tavern), `resources.heroExp`, level up |
+
+---
+
+## 13. Атлас экранов (`npm run ui:atlas`)
+
+Снимки всех экранов игры разом — для проходов полировки UI (сравнить «до/после», найти наезды и обрезки).
+
+    npm run ui:atlas -- [--out ui-atlas] [--sizes 390x844,360x640] [--saves new,mid,late] [--only Home,Stage] [--parallel 3] [--dpr 1] [--png]
+
+- Сохранения — `scripts/ui-atlas-save.ts` (детерминированные, часы сдвигаются на «сейчас»): `new` — новичок после обучения
+  (стартовые герои + двое из Таверны, ур. 8, этап 1-8), `mid` — модель игрока за 2 дня, откат до 4-6 (фиолетовые ур. ~24,
+  снаряжение), `late` — как `qa-save-late.ts` по умолчанию (модель за 9 дней, начало главы 6). Подсказки обучения и баннеры
+  «Новая функция!» отмечены показанными, ульты — «Авто».
+- Скрипт сам поднимает vite на `ATLAS_PORT` (5195), кладёт сохранение в `localStorage` и открывает экраны напрямую
+  (`window.__game.scene.start`, только dev). Сюжетные диалоги закрываются «Пропустить». Экраны: Home, Campaign, Adventure,
+  Stage, Squad, Prep, Heroes, Hero (+HeroGear), Ascend, HeroPick (контракт подкладывается на время снимка), Tavern,
+  TavernEvening, Shop, Quests, Events, Mail, Friends (вне Telegram — заглушка), Tower, Hunt, Expeditions, Inventory,
+  Achievements, Chronicle, ChapterDone (+ChapterDonePage — страница летописи), UnlockBanner (последнее открытие снова
+  «не показано»), Battle (3-я секунда), BattleUlt (первая ульта после неё), Result. Бой проигрывается по кадрам вручную
+  (как `behavior-shots.mjs`) и идёт последним — он меняет сохранение.
+- Выход (папка в .gitignore): `<save>_<WxH>_<Экран>.jpg` (JPEG q85; `--png` — PNG), `index.html` — лист по экранам,
+  `errors.txt` — ошибки консоли и страницы с привязкой к экрану. Что не открылось — «пропущен» в сводке и в index.html;
+  экран, который сам ушёл на другую сцену, помечен «открылся …».
+- Полный прогон (3 сохранения × 2 размера, ≈180 снимков, ≈12 МБ) — около 3,5 минут здесь; `--only` и `--saves` для
+  быстрых точечных прогонов. Новый экран — строка в `SCREENS` в `scripts/ui-atlas.mjs` (сцена, данные `create()`).
