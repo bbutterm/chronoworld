@@ -106,7 +106,7 @@ const RO_ORIGIN: Record<string, { ro: string; fx: string[] }> = {
   ult_teo_kyrie: { ro: 'PR_KYRIE', fx: ['112'] },
   ult_vika_magnus: { ro: 'PR_MAGNUS', fx: ['113', '152', '318'] },
   // 01.10, вторая партия сырья (raw/ro/BATCH_2026-10-01.md, raw/ro-build/tools/fx/build_ro_fx.py — рендер STR/SPR/3D без EffectViewer).
-  ult_vika_asura: { ro: 'MO_EXTREMITYFIST', fx: ['328', '266'] },
+  ult_vika_asura: { ro: 'MO_EXTREMITYFIST', fx: ['328', '510', '266'] },
   ult_kai_lord_of_vermillion: { ro: 'WZ_VERMILION', fx: ['90', '52'] },
   ult_kai_fire_wall: { ro: 'MG_FIREWALL', fx: ['25', '49'] },
   ult_alan_brandish_spear: { ro: 'KN_BRANDISHSPEAR', fx: ['70', '144'] },
@@ -120,7 +120,7 @@ const RO_ORIGIN: Record<string, { ro: string; fx: string[] }> = {
   ult_otto_sphere_mine: { ro: 'AM_SPHEREMINE', fx: ['sprite marine_sphere'] },
   ult_kai_spell_breaker: { ro: 'SA_SPELLBREAKER', fx: ['234'] },
   ult_lira_deluge: { ro: 'SA_DELUGE', fx: ['240'] },
-  job_monk_asura_strike: { ro: 'MO_EXTREMITYFIST', fx: ['328', '266'] },
+  job_monk_asura_strike: { ro: 'MO_EXTREMITYFIST', fx: ['328', '510', '266'] },
   job_hunter_blitz_beat: { ro: 'HT_BLITZBEAT', fx: ['sprite 매'] },
   job_hunter_falcon_assault: { ro: 'SN_FALCONASSAULT', fx: ['sprite 매'] },
   job_assassin_meteor_assault: { ro: 'ASC_METEORASSAULT', fx: ['409'] },

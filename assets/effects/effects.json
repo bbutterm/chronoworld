@@ -2040,8 +2040,8 @@
       }
     },
     {
-      "id": "fx_rg_close_confine",
-      "file": "effects/fx_rg_close_confine.png",
+      "id": "fx_job_rogue_close_confine",
+      "file": "effects/fx_job_rogue_close_confine.png",
       "cell": [
         74,
         90
@@ -2066,8 +2066,8 @@
       "scale": 3.0
     },
     {
-      "id": "fx_mo_asura_hit",
-      "file": "effects/fx_mo_asura_hit.png",
+      "id": "fx_job_monk_asura_hit",
+      "file": "effects/fx_job_monk_asura_hit.png",
       "cell": [
         146,
         124
@@ -2092,8 +2092,8 @@
       "scale": 1.8
     },
     {
-      "id": "fx_asc_meteor_assault",
-      "file": "effects/fx_asc_meteor_assault.png",
+      "id": "fx_job_assassin_meteor_assault",
+      "file": "effects/fx_job_assassin_meteor_assault.png",
       "cell": [
         278,
         206
@@ -2118,8 +2118,8 @@
       "scale": 1.6
     },
     {
-      "id": "fx_mo_occult_impaction",
-      "file": "effects/fx_mo_occult_impaction.png",
+      "id": "fx_job_monk_occult_impaction",
+      "file": "effects/fx_job_monk_occult_impaction.png",
       "cell": [
         122,
         90
@@ -2141,11 +2141,12 @@
         "scale": 1.0,
         "note": "MO_INVESTIGATE 267: client sprite data/sprite/이팩트/침투경_ (Occult Impaction burst; roBrowser plays only the sound)"
       },
-      "scale": 2.4
+      "scale": 2.4,
+      "from": "left"
     },
     {
-      "id": "fx_sa_deluge",
-      "file": "effects/fx_sa_deluge.png",
+      "id": "fx_job_sage_deluge",
+      "file": "effects/fx_job_sage_deluge.png",
       "cell": [
         132,
         114
@@ -2170,34 +2171,8 @@
       "scale": 2.2
     },
     {
-      "id": "fx_mo_asura_cast",
-      "file": "effects/fx_mo_asura_cast.png",
-      "cell": [
-        186,
-        54
-      ],
-      "columns": 8,
-      "frames": 31,
-      "ms": 50,
-      "loop": false,
-      "delayMs": 50,
-      "blend": "normal",
-      "anchor": [
-        90.0,
-        88.0
-      ],
-      "attach": "caster",
-      "source": {
-        "roEffectId": "328",
-        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (asura)",
-        "scale": 1.0,
-        "note": "EF_BEGINASURA 328 (MO_EXTREMITYFIST effectId): glyphs 阿修羅覇凰拳 asura1-6.tga, ThreeDEffect parameters"
-      },
-      "scale": 2.4
-    },
-    {
-      "id": "fx_dc_service_for_you",
-      "file": "effects/fx_dc_service_for_you.png",
+      "id": "fx_job_dancer_service_for_you",
+      "file": "effects/fx_job_dancer_service_for_you.png",
       "cell": [
         78,
         48
@@ -2222,8 +2197,8 @@
       "scale": 2.4
     },
     {
-      "id": "fx_ht_falcon",
-      "file": "effects/fx_ht_falcon.png",
+      "id": "fx_job_hunter_falcon",
+      "file": "effects/fx_job_hunter_falcon.png",
       "cell": [
         260,
         208
@@ -2249,8 +2224,8 @@
       "scale": 2.6
     },
     {
-      "id": "fx_am_marine_sphere",
-      "file": "effects/fx_am_marine_sphere.png",
+      "id": "fx_job_alchemist_marine_sphere",
+      "file": "effects/fx_job_alchemist_marine_sphere.png",
       "cell": [
         208,
         220
@@ -2272,11 +2247,11 @@
         "scale": 1.0,
         "note": "AM_SPHEREMINE summons the Marine Sphere monster (data/sprite/몬스터/marine_sphere): idle spin, then its death action"
       },
-      "scale": 2.8
+      "scale": 3.6
     },
     {
-      "id": "fx_wz_lord_of_vermilion",
-      "file": "effects/fx_wz_lord_of_vermilion.png",
+      "id": "fx_job_wizard_lord_of_vermilion",
+      "file": "effects/fx_job_wizard_lord_of_vermilion.png",
       "cell": [
         240,
         294
@@ -2298,11 +2273,12 @@
         "scale": 1.6667,
         "note": "EF_LORD 90: lord.str (WZ_VERMILION effectId); 240 keys at 60 fps, every 6th; faint halo cut at 26"
       },
-      "scale": 2.2
+      "scale": 2.2,
+      "alpha": 0.85
     },
     {
-      "id": "fx_wz_wind_hit",
-      "file": "effects/fx_wz_wind_hit.png",
+      "id": "fx_job_wizard_wind_hit",
+      "file": "effects/fx_job_wizard_wind_hit.png",
       "cell": [
         268,
         238
@@ -2327,8 +2303,8 @@
       "scale": 1.3
     },
     {
-      "id": "fx_mg_fire_wall",
-      "file": "effects/fx_mg_fire_wall.png",
+      "id": "fx_job_mage_fire_wall",
+      "file": "effects/fx_job_mage_fire_wall.png",
       "cell": [
         206,
         260
@@ -2353,8 +2329,8 @@
       "scale": 1.9
     },
     {
-      "id": "fx_kn_brandish",
-      "file": "effects/fx_kn_brandish.png",
+      "id": "fx_job_knight_brandish_spear",
+      "file": "effects/fx_job_knight_brandish_spear.png",
       "cell": [
         286,
         298
@@ -2379,8 +2355,8 @@
       "scale": 1.75
     },
     {
-      "id": "fx_kn_brandish_cast",
-      "file": "effects/fx_kn_brandish_cast.png",
+      "id": "fx_job_knight_brandish_spear_cast",
+      "file": "effects/fx_job_knight_brandish_spear_cast.png",
       "cell": [
         212,
         320
@@ -2405,8 +2381,8 @@
       "scale": 1.75
     },
     {
-      "id": "fx_sa_spell_breaker",
-      "file": "effects/fx_sa_spell_breaker.png",
+      "id": "fx_job_sage_spell_breaker",
+      "file": "effects/fx_job_sage_spell_breaker.png",
       "cell": [
         240,
         288
@@ -2431,8 +2407,8 @@
       "scale": 1.75
     },
     {
-      "id": "fx_am_potion_red",
-      "file": "effects/fx_am_potion_red.png",
+      "id": "fx_job_alchemist_potion_red",
+      "file": "effects/fx_job_alchemist_potion_red.png",
       "cell": [
         232,
         238
@@ -2454,11 +2430,11 @@
         "scale": 1.0,
         "note": "AM_POTIONPITCHER: red potion splash 빨간포션.str (EF_THROWITEM2 299 file, not in roBrowser)"
       },
-      "scale": 1.4
+      "scale": 2.0
     },
     {
-      "id": "fx_wz_earth_hit",
-      "file": "effects/fx_wz_earth_hit.png",
+      "id": "fx_job_wizard_earth_hit",
+      "file": "effects/fx_job_wizard_earth_hit.png",
       "cell": [
         264,
         228
@@ -2483,8 +2459,8 @@
       "scale": 1.6
     },
     {
-      "id": "fx_pr_sanctuary",
-      "file": "effects/fx_pr_sanctuary.png",
+      "id": "fx_job_priest_sanctuary",
+      "file": "effects/fx_job_priest_sanctuary.png",
       "cell": [
         280,
         242
@@ -2509,8 +2485,8 @@
       "scale": 1.85
     },
     {
-      "id": "fx_sa_magic_rod",
-      "file": "effects/fx_sa_magic_rod.png",
+      "id": "fx_job_sage_magic_rod",
+      "file": "effects/fx_job_sage_magic_rod.png",
       "cell": [
         322,
         280
@@ -2535,8 +2511,8 @@
       "scale": 1.85
     },
     {
-      "id": "fx_wz_quagmire",
-      "file": "effects/fx_wz_quagmire.png",
+      "id": "fx_job_wizard_quagmire",
+      "file": "effects/fx_job_wizard_quagmire.png",
       "cell": [
         164,
         174
@@ -2559,6 +2535,32 @@
         "note": "EF_QUAGMIRE 95: quagmire.str (WZ_QUAGMIRE groundEffectId) on 15 cells of the swamp, staggered; x1.6 gain (too faint 1:1)"
       },
       "scale": 2.0
+    },
+    {
+      "id": "fx_job_monk_asura_cast",
+      "file": "effects/fx_job_monk_asura_cast.png",
+      "cell": [
+        200,
+        62
+      ],
+      "columns": 8,
+      "frames": 31,
+      "ms": 50,
+      "loop": false,
+      "delayMs": 50,
+      "blend": "normal",
+      "anchor": [
+        100.0,
+        93.0
+      ],
+      "attach": "caster",
+      "scale": 2.4,
+      "source": {
+        "roEffectId": "510",
+        "renderer": "raw/ro-build/tools/fx/build_ro_fx.py (asura)",
+        "scale": 1.0,
+        "note": "EF_BEGINASURA11 510 / 328 (MO_EXTREMITYFIST effectId): glyphs 阿修羅覇凰拳 asura11-16.tga, ThreeDEffect parameters"
+      }
     }
   ],
   "skills": {
@@ -2608,7 +2610,7 @@
       "hit": "fx_job_assassin_grimtooth"
     },
     "job_assassin_meteor_assault": {
-      "cast": "fx_asc_meteor_assault"
+      "cast": "fx_job_assassin_meteor_assault"
     },
     "job_assassin_sonic_blow": {
       "hit": "fx_job_assassin_sonic_blow"
@@ -2647,13 +2649,13 @@
       "ground": "fx_job_hunter_ankle_snare"
     },
     "job_hunter_blitz_beat": {
-      "hit": "fx_ht_falcon"
+      "hit": "fx_job_hunter_falcon"
     },
     "job_hunter_claymore_trap": {
       "hit": "fx_job_hunter_claymore_trap"
     },
     "job_hunter_falcon_assault": {
-      "hit": "fx_ht_falcon"
+      "hit": "fx_job_hunter_falcon"
     },
     "job_hunter_sandman": {
       "debuff": "fx_job_hunter_sandman"
@@ -2703,11 +2705,11 @@
       "hit": "fx_job_merchant_mammonite"
     },
     "job_monk_asura_strike": {
-      "cast": "fx_mo_asura_cast",
-      "hit": "fx_mo_asura_hit"
+      "cast": "fx_job_monk_asura_cast",
+      "hit": "fx_job_monk_asura_hit"
     },
     "job_monk_investigate": {
-      "hit": "fx_mo_occult_impaction"
+      "hit": "fx_job_monk_occult_impaction"
     },
     "job_priest_assumptio": {
       "buff": "fx_job_priest_assumptio"
@@ -2729,7 +2731,7 @@
       "hit": "fx_job_acolyte_holy_light"
     },
     "job_priest_sanctuary": {
-      "ground": "fx_pr_sanctuary"
+      "ground": "fx_job_priest_sanctuary"
     },
     "job_rogue_gank": {
       "hit": "fx_job_thief_steal"
@@ -2747,10 +2749,10 @@
       "hit": "fx_job_sage_earth_spike"
     },
     "job_sage_heavens_drive": {
-      "hit": "fx_wz_earth_hit"
+      "hit": "fx_job_wizard_earth_hit"
     },
     "job_sage_magic_rod": {
-      "buff": "fx_sa_magic_rod"
+      "buff": "fx_job_sage_magic_rod"
     },
     "job_swordman_magnum_break": {
       "cast": "fx_job_swordman_magnum_break"
@@ -2779,7 +2781,7 @@
       "hit": "fx_job_mage_fire_bolt"
     },
     "job_wizard_quagmire": {
-      "ground": "fx_wz_quagmire"
+      "ground": "fx_job_wizard_quagmire"
     },
     "job_wizard_soul_drain": {
       "cast": "fx_job_wizard_soul_drain"
@@ -2927,8 +2929,8 @@
       "buff": "fx_swordman_endure"
     },
     "ult_alan_brandish_spear": {
-      "cast": "fx_kn_brandish_cast",
-      "hit": "fx_kn_brandish"
+      "cast": "fx_job_knight_brandish_spear_cast",
+      "hit": "fx_job_knight_brandish_spear"
     },
     "ult_alan_grand_cross": {
       "ground": "fx_job_crusader_grand_cross"
@@ -2940,7 +2942,7 @@
       "hit": "fx_job_hunter_claymore_trap"
     },
     "ult_dorn_close_confine": {
-      "debuff": "fx_rg_close_confine"
+      "debuff": "fx_job_rogue_close_confine"
     },
     "ult_dorn_envenom": {
       "hit": "fx_job_thief_envenom"
@@ -2955,7 +2957,7 @@
       "hit": "fx_job_merchant_cart_revolution"
     },
     "ult_greta_potion_rain": {
-      "ground": "fx_am_potion_red"
+      "ground": "fx_job_alchemist_potion_red"
     },
     "ult_iris_bowling_bash": {
       "cast": "fx_job_knight_bowling_bash"
@@ -2967,18 +2969,18 @@
       "cast": "fx_swordman_bash"
     },
     "ult_kai_fire_wall": {
-      "ground": "fx_mg_fire_wall",
+      "ground": "fx_job_mage_fire_wall",
       "hit": "fx_job_mage_fire_bolt"
     },
     "ult_kai_lord_of_vermillion": {
-      "ground": "fx_wz_lord_of_vermilion",
-      "hit": "fx_wz_wind_hit"
+      "ground": "fx_job_wizard_lord_of_vermilion",
+      "hit": "fx_job_wizard_wind_hit"
     },
     "ult_kai_spell_breaker": {
-      "hit": "fx_sa_spell_breaker"
+      "hit": "fx_job_sage_spell_breaker"
     },
     "ult_lira_deluge": {
-      "ground": "fx_sa_deluge"
+      "ground": "fx_job_sage_deluge"
     },
     "ult_lira_frost_nova": {
       "hit": "fx_job_mage_frost_diver"
@@ -2987,10 +2989,10 @@
       "ground": "fx_job_wizard_storm_gust"
     },
     "ult_meilin_blitz_beat": {
-      "hit": "fx_ht_falcon"
+      "hit": "fx_job_hunter_falcon"
     },
     "ult_meilin_service_for_you": {
-      "buff": "fx_dc_service_for_you"
+      "buff": "fx_job_dancer_service_for_you"
     },
     "ult_otto_hammer_fall": {
       "ground": "fx_job_blacksmith_hammer_fall"
@@ -2999,7 +3001,7 @@
       "buff": "fx_job_merchant_crazy_uproar"
     },
     "ult_otto_sphere_mine": {
-      "ground": "fx_am_marine_sphere"
+      "ground": "fx_job_alchemist_marine_sphere"
     },
     "ult_teo_angelus": {
       "buff": "fx_job_acolyte_angelus"
@@ -3008,8 +3010,8 @@
       "buff": "fx_job_priest_kyrie_eleison"
     },
     "ult_vika_asura": {
-      "cast": "fx_mo_asura_cast",
-      "hit": "fx_mo_asura_hit"
+      "cast": "fx_job_monk_asura_cast",
+      "hit": "fx_job_monk_asura_hit"
     },
     "ult_vika_magnus": {
       "ground": "fx_job_priest_magnus_exorcismus",

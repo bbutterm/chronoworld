@@ -128,7 +128,9 @@ def alpha_of(t, amax, fade_in, fade_out):
 def asura_frames(size, origin, step_ms=50):
     """EF_BEGINASURA 328 (EffectTable.js): letters 阿修羅覇凰拳 (asura1-6) at height 4 cells in a row, three ghost copies
     shrinking 250 -> 120 px over 1200 ms (fade-in), then 120 -> 200 px with fade-out over 400 ms. Overlay, normal blend;
-    red/green/blue 0.1 tint from the table renders the dark ink of the glyph texture."""
+    red/green/blue 0.1 tint from the table renders the dark ink of the glyph texture.
+    Used: the champion set EF_BEGINASURA11 510 (same MO_EXTREMITYFIST, glyphs asura11-16 on a soft grey disc, same timing),
+    untinted — dark ink alone vanished on our night battle backgrounds; the disc keeps the glyph readable everywhere."""
     posx = {1: -6.0, 2: -3.6, 3: -1.2, 4: 1.2, 5: 3.6, 6: 6.0}
     # our battle field is narrow: the row is compressed to keep the six glyphs over the caster (x0.33)
     xs = {i: v * 0.33 for i, v in posx.items()}
@@ -138,7 +140,7 @@ def asura_frames(size, origin, step_ms=50):
         c = np.zeros((size[1], size[0], 3), np.float32)
         a = np.zeros((size[1], size[0]), np.float32)
         for i in range(1, 7):
-            tex = load_texture(f'asura{i}.tga')
+            tex = load_texture(f'asura{10 + i}.tga')
             for dup in range(3):
                 st = dup * 150
                 tt = t_ms - st
@@ -154,7 +156,7 @@ def asura_frames(size, origin, step_ms=50):
                     continue
                 sx, sy = project(origin, xs[i], 0, 4 * 0.55)
                 sz = size_px * 0.32
-                billboard(c, a, tex, (sx, sy), sz, sz, 0, (0.1, 0.1, 0.1, al), dst=6)
+                billboard(c, a, tex, (sx, sy), sz, sz, 0, (1, 1, 1, al), dst=6)
         frames.append(to_u8(c / np.maximum(a[..., None], 1e-6)))
         alphas.append(to_u8(a))
     return frames, alphas
@@ -286,59 +288,59 @@ def jobs():
         J[fid] = kw
 
     # ---- ults
-    add('fx_wz_lord_of_vermilion', kind='str', inst=[('lord.str', 0, 0, 0)], keys=range(0, 240, 8), size=(1000, 1100),
+    add('fx_job_wizard_lord_of_vermilion', kind='str', inst=[('lord.str', 0, 0, 0)], keys=range(0, 240, 8), size=(1000, 1100),
         origin=(500, 760), ro='90', attach='ground', threshold=10, feather=28, downscale=0.6, gain=1.0, clip=(200, 380, 200, 110),
         note='EF_LORD 90: lord.str (WZ_VERMILION effectId); 240 keys at 60 fps, every 6th; faint halo cut at 26')
-    add('fx_wz_wind_hit', kind='str', inst=[('windhit1.str', 0, 0, 0)], keys=range(0, 33, 2), size=(400, 400),
+    add('fx_job_wizard_wind_hit', kind='str', inst=[('windhit1.str', 0, 0, 0)], keys=range(0, 33, 2), size=(400, 400),
         origin=(200, 220), ro='52', attach='target', threshold=8, gain=1.4,
         note='EF_WINDHIT 52: windhit1.str (hitEffectId of WZ_VERMILION and MG_THUNDERSTORM)')
-    add('fx_mg_fire_wall', kind='str', inst=[('firewall1.str', -80, 6, 0), ('firewall2.str', -40, -4, 9), ('firewall1.str', 0, 4, 4),
+    add('fx_job_mage_fire_wall', kind='str', inst=[('firewall1.str', -80, 6, 0), ('firewall2.str', -40, -4, 9), ('firewall1.str', 0, 4, 4),
         ('firewall2.str', 40, -6, 13), ('firewall1.str', 80, 2, 7)], keys=range(0, 66, 3), size=(500, 500), origin=(250, 360),
         ro='25', attach='ground', threshold=10, gain=1.0, downscale=0.8,
         note='EF_FIREWALL 25: firewall1/2.str (file firewall%d, rand 1..2) played on five cells of the wall, staggered starts')
-    add('fx_kn_brandish', kind='str', inst=[('brandish.str', 0, 0, 0)], keys=range(0, 51, 3), size=(500, 500), origin=(250, 300),
+    add('fx_job_knight_brandish_spear', kind='str', inst=[('brandish.str', 0, 0, 0)], keys=range(0, 51, 3), size=(500, 500), origin=(250, 300),
         ro='70', attach='target', threshold=10, gain=1.0, downscale=0.75, note='EF_BRANDISHSPEAR 70: brandish.str (KN_BRANDISHSPEAR effectId)')
-    add('fx_kn_brandish_cast', kind='str', inst=[('brandish2.str', 0, 0, 0)], keys=range(0, 38, 2), size=(400, 500),
+    add('fx_job_knight_brandish_spear_cast', kind='str', inst=[('brandish2.str', 0, 0, 0)], keys=range(0, 38, 2), size=(400, 500),
         origin=(200, 360), ro='144', attach='caster', threshold=10, gain=1.1, downscale=0.75,
         note='EF_BRANDISH2 144: brandish2.str (KN_BRANDISHSPEAR effectIdOnCaster)')
-    add('fx_sa_spell_breaker', kind='str', inst=[('spell.str', 0, 0, 0)], keys=range(0, 48, 2), size=(500, 600), origin=(250, 470),
+    add('fx_job_sage_spell_breaker', kind='str', inst=[('spell.str', 0, 0, 0)], keys=range(0, 48, 2), size=(500, 600), origin=(250, 470),
         ro='234', attach='target', threshold=10, gain=1.2, clip=(190, 360, 190, 40), downscale=0.75, note='EF_SPELLBREAKER 234: spell.str (SA_SPELLBREAKER successEffectId)')
-    add('fx_am_potion_red', kind='str', inst=[('빨간포션.str', 0, 0, 0)], keys=range(0, 27, 1), size=(300, 300), origin=(150, 200),
+    add('fx_job_alchemist_potion_red', kind='str', inst=[('빨간포션.str', 0, 0, 0)], keys=range(0, 27, 1), size=(300, 300), origin=(150, 200),
         ro='str_빨간포션', attach='target', threshold=8, gain=1.3,
         note='AM_POTIONPITCHER: red potion splash 빨간포션.str (EF_THROWITEM2 299 file, not in roBrowser)')
-    add('fx_rg_close_confine', kind='spr', spr=('effect', 'cconfine'), plan=[(0, i, 0, 0) for i in range(12)], size=(300, 300),
+    add('fx_job_rogue_close_confine', kind='spr', spr=('effect', 'cconfine'), plan=[(0, i, 0, 0) for i in range(12)], size=(300, 300),
         origin=(150, 200), ro='604', attach='target', mode='alpha', ms=50,
         note='EF_NPC_STOP2 604: sprite data/sprite/이팩트/cconfine (RG_CLOSECONFINE groundEffectId), action 0, native ACT timing')
-    add('fx_ht_falcon', kind='spr', spr=('effect', '매'), plan=falcon_plan(), size=(420, 360), origin=(210, 250), ro='sprite 매',
+    add('fx_job_hunter_falcon', kind='spr', spr=('effect', '매'), plan=falcon_plan(), size=(420, 360), origin=(210, 250), ro='sprite 매',
         attach='target', mode='alpha', ms=60, from_='left',
         note='Falcon sprite data/sprite/이팩트/매 (HT_BLITZBEAT 115 / SN_FALCONASSAULT 387 — roBrowser plays only the sound): '
              'flight actions 7/6/5, the dive path is ours')
-    add('fx_am_marine_sphere', kind='spr', spr=('monster', 'marine_sphere'), plan='sphere', size=(300, 300), origin=(150, 220),
+    add('fx_job_alchemist_marine_sphere', kind='spr', spr=('monster', 'marine_sphere'), plan='sphere', size=(300, 300), origin=(150, 220),
         ro='sprite marine_sphere', attach='ground', mode='alpha', ms=60,
         note='AM_SPHEREMINE summons the Marine Sphere monster (data/sprite/몬스터/marine_sphere): idle spin, then its death action')
-    add('fx_mo_asura_cast', kind='asura', size=(560, 460), origin=(280, 400), ro='328', attach='caster', mode='alpha', ms=50,
-        note='EF_BEGINASURA 328 (MO_EXTREMITYFIST effectId): glyphs 阿修羅覇凰拳 asura1-6.tga, ThreeDEffect parameters')
-    add('fx_mo_asura_hit', kind='lens', size=(300, 300), origin=(150, 200), ro='266', attach='target', mode='add', ms=40,
+    add('fx_job_monk_asura_cast', kind='asura', size=(560, 460), origin=(280, 400), ro='510', attach='caster', mode='alpha', ms=50,
+        note='EF_BEGINASURA11 510 / 328 (MO_EXTREMITYFIST effectId): glyphs 阿修羅覇凰拳 asura11-16.tga, ThreeDEffect parameters')
+    add('fx_job_monk_asura_hit', kind='lens', size=(300, 300), origin=(150, 200), ro='266', attach='target', mode='add', ms=40,
         note='EF_TEIHIT1X 266 (Asura Strike hit): 24 lens1.tga streaks, ThreeDEffect parameters')
-    add('fx_sa_deluge', kind='ground', tex='ring_blue.tga', size=(400, 340), origin=(200, 220), ro='240', attach='ground',
+    add('fx_job_sage_deluge', kind='ground', tex='ring_blue.tga', size=(400, 340), origin=(200, 220), ro='240', attach='ground',
         mode='add', ms=60, note='EF_BOTTOM_DE 240: PropertyGround cone with ring_blue.tga (SA_DELUGE groundEffectId), alpha x2')
-    add('fx_dc_service_for_you', kind='notes', size=(300, 300), origin=(150, 240), ro='294_ground', attach='target', mode='alpha',
+    add('fx_job_dancer_service_for_you', kind='notes', size=(300, 300), origin=(150, 240), ro='294_ground', attach='target', mode='alpha',
         ms=60, note="'294_ground' (DC_SERVICEFORYOU groundEffectId): Songs.js HoveringTexture melody_a/b.bmp over the song cells")
     # ---- frequent skills
-    add('fx_asc_meteor_assault', kind='slash', size=(500, 360), origin=(250, 200), ro='409', attach='caster', mode='add', ms=40,
+    add('fx_job_assassin_meteor_assault', kind='slash', size=(500, 360), origin=(250, 200), ro='409', attach='caster', mode='add', ms=40,
         note='EF_SOULBREAKER2 409 (ASC_METEORASSAULT effectIdOnCaster): eight purpleslash.tga crescents, ThreeDEffect parameters')
-    add('fx_wz_earth_hit', kind='str', inst=[('earthhit.str', 0, 0, 0)], keys=range(0, 17, 1), size=(300, 300), origin=(150, 180),
+    add('fx_job_wizard_earth_hit', kind='str', inst=[('earthhit.str', 0, 0, 0)], keys=range(0, 17, 1), size=(300, 300), origin=(150, 180),
         ro='147', attach='target', threshold=16, gain=1.6, note='EF_EARTHHIT 147: earthhit.str (WZ_HEAVENDRIVE / WZ_EARTHSPIKE hitEffectId)')
-    add('fx_pr_sanctuary', kind='str', inst=[('sanctuary.str', 0, 0, 0)], keys=range(0, 105, 4), size=(500, 500), origin=(250, 330),
+    add('fx_job_priest_sanctuary', kind='str', inst=[('sanctuary.str', 0, 0, 0)], keys=range(0, 105, 4), size=(500, 500), origin=(250, 330),
         ro='83', attach='ground', threshold=10, gain=1.0, clip=(200, 260, 200, 90), downscale=0.7, note='EF_SANCTUARY 83: sanctuary.str (PR_SANCTUARY effectId)')
-    add('fx_sa_magic_rod', kind='str', inst=[('매직로드.str', 0, 0, 0)], keys=range(0, 44, 2), size=(600, 600), origin=(300, 420),
+    add('fx_job_sage_magic_rod', kind='str', inst=[('매직로드.str', 0, 0, 0)], keys=range(0, 44, 2), size=(600, 600), origin=(300, 420),
         ro='244', attach='caster', threshold=10, gain=1.2, clip=(230, 340, 230, 60), downscale=0.7, note='EF_MAGICROD 244: 매직로드.str (SA_MAGICROD successEffectId)')
-    add('fx_wz_quagmire', kind='str', inst=[('quagmire.str', x * 30 + y * 12, y * 18, (abs(x) * 7 + abs(y) * 11) % 20)
+    add('fx_job_wizard_quagmire', kind='str', inst=[('quagmire.str', x * 30 + y * 12, y * 18, (abs(x) * 7 + abs(y) * 11) % 20)
                                              for x in (-2, -1, 0, 1, 2) for y in (-1, 0, 1)],
         keys=range(0, 140, 5), size=(500, 400), origin=(250, 250), ro='95', attach='ground', threshold=10, gain=1.6,
         downscale=0.8,
         note='EF_QUAGMIRE 95: quagmire.str (WZ_QUAGMIRE groundEffectId) on 15 cells of the swamp, staggered; x1.6 gain (too faint 1:1)')
-    add('fx_mo_occult_impaction', kind='spr', spr=('effect', '침투경_'), plan=[(0, i, 0, 0) for i in range(12)], size=(300, 300),
+    add('fx_job_monk_occult_impaction', kind='spr', spr=('effect', '침투경_'), plan=[(0, i, 0, 0) for i in range(12)], size=(300, 300),
         origin=(150, 200), ro='sprite 침투경_', attach='target', mode='add', ms=40,
         note='MO_INVESTIGATE 267: client sprite data/sprite/이팩트/침투경_ (Occult Impaction burst; roBrowser plays only the sound)')
     return J
