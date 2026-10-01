@@ -184,7 +184,7 @@ function loadingOverlay(scene: Phaser.Scene): () => void {
  * с бюджетом SHEET_BUDGET_BYTES, самые давние выгружаются). Всё уже в памяти — ready вызывается сразу
  * (в том же кадре, без мигания); иначе — после загрузки, если сцена ещё та же. Дольше 150 мс — «Загрузка…».
  */
-export function whenSprites(scene: Phaser.Scene, ids: string[], ready: () => void): void {
+export function whenSprites(scene: Phaser.Scene, ids: string[], ready: () => void, opts: { quiet?: boolean } = {}): void {
   const game = scene.game;
   const want = [...new Set(ids)].filter((id) => SPRITES[id]);
   holdFor(scene, want);
@@ -195,7 +195,8 @@ export function whenSprites(scene: Phaser.Scene, ids: string[], ready: () => voi
     return;
   }
   const gen = genOf(scene);
-  const done = loadingOverlay(scene);
+  // quiet — украшение (диорама «idle-бой» на главной): грузится в фоне, без шторки «Загрузка…» поверх экрана.
+  const done = opts.quiet ? () => undefined : loadingOverlay(scene);
   void Promise.all(missing.map((id) => loadSheet(game, id))).then(() => {
     done();
     trim(game);
