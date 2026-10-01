@@ -57,6 +57,8 @@ export interface ActiveForm {
   role: HeroTemplate['role'];
   statMods: CardStatMods;
   skills: CardSkill[];
+  /** Ульта формы (на энергии, с 1-го уровня; docs/design/battle-decisions.md §1). */
+  ult?: string;
   /** Свой лист спрайта формы (или первой профессии шаблона). */
   sprite?: string;
   /** Ветка второй профессии (id профессии), если форма — ветка. */
@@ -82,7 +84,7 @@ export function activeBranch(t: HeroTemplate, hero: FormKey): HeroBranch | undef
 }
 
 export function baseForm(t: HeroTemplate): ActiveForm {
-  return { job: t.job, role: t.role, statMods: t.statMods, skills: t.skills, ...(t.visual.sprite ? { sprite: t.visual.sprite } : {}), ...(t.behavior ? { behavior: t.behavior } : {}) };
+  return { job: t.job, role: t.role, statMods: t.statMods, skills: t.skills, ...(t.ult ? { ult: t.ult } : {}), ...(t.visual.sprite ? { sprite: t.visual.sprite } : {}), ...(t.behavior ? { behavior: t.behavior } : {}) };
 }
 
 export function branchForm(b: HeroBranch): ActiveForm {
@@ -91,6 +93,7 @@ export function branchForm(b: HeroBranch): ActiveForm {
     role: b.role,
     statMods: b.statMods,
     skills: b.skills,
+    ...(b.ult ? { ult: b.ult } : {}),
     branch: b.job,
     promotion: b.promotion,
     ...(b.visual.sprite ? { sprite: b.visual.sprite } : {}),
@@ -220,7 +223,8 @@ export function buildUnit(hero: HeroState, ctx: GameContext & GearLookup, gear?:
     kind: 'hero',
     role: form.role,
     stats,
-    skills: { basic: skills.basic, actives: skills.actives, passives: skills.passives },
+    // Ульта формы — с 1-го уровня, на энергии (battle.ts fireUlt; ручной режим держит её до касания).
+    skills: { basic: skills.basic, actives: skills.actives, passives: skills.passives, ...(form.ult ? { ult: form.ult } : {}) },
     visual: job.visual,
     ...(power !== 1 ? { skillPower: power } : {}),
     ...(behavior ? { behavior } : {}),
@@ -233,6 +237,8 @@ export interface BranchView {
   jobName: string;
   role: HeroTemplate['role'];
   skills: CardSkill[];
+  /** Ульта ветки. */
+  ult?: string;
   promotion: string;
   /** История формы после возвышения (может не быть). */
   bio?: string;
@@ -245,6 +251,7 @@ export function branchView(b: HeroBranch, ctx: GameContext, gender: Gender = 'm'
     jobName: jobTitle(ctx, b.job, gender),
     role: b.role,
     skills: b.skills,
+    ...(b.ult ? { ult: b.ult } : {}),
     promotion: b.promotion,
     ...(b.bio ? { bio: b.bio } : {}),
     ...(b.visual.sprite ? { sprite: b.visual.sprite } : {}),
@@ -275,6 +282,8 @@ export interface HeroCard {
   maxLevel: number;
   stats: Stats;
   skills: CardSkillView[];
+  /** Ульта текущей формы (id навыка): открыта с 1-го уровня, срабатывает на полной энергии. */
+  ult?: string;
   /** Выбранная ветка (действует с фиолетового): id профессии. */
   branch?: string;
   /** Фиолетовый и выше без ветки — «Выберите ветку!». */
@@ -309,6 +318,7 @@ export function heroCard(hero: HeroState, ctx: GameContext): HeroCard {
     maxLevel: maxLevelOf(ctx, hero.rarity),
     stats: heroStats(hero, ctx),
     skills: heroSkillList(hero, ctx),
+    ...(form.ult ? { ult: form.ult } : {}),
     ...(form.branch ? { branch: form.branch } : {}),
     needsBranch: needsBranch(hero, ctx),
     branches: t.branches.map((b) => branchView(b, ctx, t.gender)),

@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_bran_arrow_shower",
+  "name": "Ливень стрел",
+  "description": "Стрелы на всё поле: ×1,5 всем врагам.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.5
+    }
+  ]
+}

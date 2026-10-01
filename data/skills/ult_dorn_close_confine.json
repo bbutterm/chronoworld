@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_dorn_close_confine",
+  "name": "Мёртвая хватка",
+  "description": "Хватает врага и не отпускает: ×1,2 и оглушение 3 с. Сбивает заряд босса.",
+  "icon": "icon_ult_assassin",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "confine",
+        "name": "Хватка",
+        "turns": 3,
+        "stun": true
+      }
+    }
+  ]
+}

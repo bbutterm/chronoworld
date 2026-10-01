@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_teo_kyrie",
+  "name": "Кирие для всех",
+  "description": "Святой щит каждому союзнику: щит 25% ОЗ.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.25
+    }
+  ]
+}

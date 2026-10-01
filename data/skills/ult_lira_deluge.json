@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_lira_deluge",
+  "name": "Потоп",
+  "description": "Целебная вода под отрядом: лечит всех союзников и +20% защиты на 6 с.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.6
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "deluge",
+        "name": "Потоп",
+        "turns": 6,
+        "stats": {
+          "def": 0.2
+        }
+      }
+    }
+  ]
+}

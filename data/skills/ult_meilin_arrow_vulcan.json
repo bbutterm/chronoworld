@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_meilin_arrow_vulcan",
+  "name": "Вулкан стрел",
+  "description": "Девять стрел в одну цель: 9 × ×0,45.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHpPct"
+  },
+  "hits": 9,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.45
+    }
+  ]
+}

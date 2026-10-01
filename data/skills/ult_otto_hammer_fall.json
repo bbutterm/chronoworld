@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_otto_hammer_fall",
+  "name": "Молот земли",
+  "description": "Удар молота сотрясает землю: ×1 всем врагам и оглушение 2 с. Сбивает заряд босса.",
+  "icon": "icon_ult_guard",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 2,
+        "stun": true
+      }
+    }
+  ]
+}

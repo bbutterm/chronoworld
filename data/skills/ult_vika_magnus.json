@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_vika_magnus",
+  "name": "Великий Магнус",
+  "description": "Святые кресты по всему полю: ×1,7 святостью всем врагам.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.7
+    }
+  ],
+  "element": "holy"
+}

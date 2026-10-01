@@ -56,6 +56,11 @@ export const HeroBranchSchema = z.object({
   role: UnitSchema.shape.role,
   statMods: CardStatModsSchema,
   skills: z.array(CardSkillSchema).min(1),
+  /**
+   * Ульта формы (docs/design/battle-decisions.md §1): навык из data/skills, открыт с 1-го уровня, срабатывает на полной
+   * энергии (в бою — skills.ult юнита). Не совпадает с навыками формы. Нет — content:check предупреждает.
+   */
+  ult: id.optional(),
   /** Строка возвышения: экран выбора ветки и вознесения (≤ 160 символов). */
   promotion: z.string().max(160),
   /**
@@ -89,6 +94,11 @@ export const HeroTemplateSchema = z.object({
   maxRarity: CardRaritySchema,
   statMods: CardStatModsSchema,
   skills: z.array(CardSkillSchema).min(1),
+  /**
+   * Ульта формы (docs/design/battle-decisions.md §1): навык из data/skills, открыт с 1-го уровня, срабатывает на полной
+   * энергии (в бою — skills.ult юнита). Не совпадает с навыками формы. Нет — content:check предупреждает.
+   */
+  ult: id.optional(),
   /** Профиль поведения первой профессии в бою (id из data/combat.json → behaviors), если отличается от профиля профессии. */
   behavior: id.optional(),
   /** Две ветки второй профессии: выбор на фиолетовом (hero.branch = job ветки). */

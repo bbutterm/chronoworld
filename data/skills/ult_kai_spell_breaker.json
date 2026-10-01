@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_kai_spell_breaker",
+  "name": "Разрыв чар",
+  "description": "Рвёт чары цели: ×2,8 и срывает каст. Сбивает заряд босса.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "spell_broken",
+        "name": "Чары разорваны",
+        "turns": 1,
+        "interrupt": true
+      }
+    }
+  ]
+}

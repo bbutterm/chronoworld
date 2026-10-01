@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_alan_brandish_spear",
+  "name": "Брандиш",
+  "description": "Размах копьём по фронту врага: ×2,2 и оглушение 2 с. Сбивает заряд босса.",
+  "icon": "icon_ult_warrior",
+  "range": "melee",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 2,
+        "stun": true
+      }
+    }
+  ]
+}

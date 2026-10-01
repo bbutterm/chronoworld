@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_kai_lord_of_vermillion",
+  "name": "Владыка Вермилиона",
+  "description": "Небо обрушивает молнии: ×2 ветром всем врагам.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2
+    }
+  ],
+  "element": "wind"
+}

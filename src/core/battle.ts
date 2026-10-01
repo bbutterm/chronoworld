@@ -134,6 +134,14 @@ export function ultSkillOf(def: UnitDef, skills: Record<string, SkillDef>, cfg: 
   return best;
 }
 
+/**
+ * Ульта сбивает заряд босса (docs/design/battle-decisions.md §4): только контроль — оглушение (stun) или срыв каста
+ * (interrupt) в эффектах навыка. Урон без контроля заряд не сбивает: решение «кем сбить» — у героев с такой ультой.
+ */
+export function breaksCharge(skill: SkillDef): boolean {
+  return skill.effects.some((e) => e.type === 'status' && (!!e.status.stun || !!e.status.interrupt));
+}
+
 /** Порядок активных навыков: больший priority раньше, при равенстве — открытый позже (стоит дальше в списке). */
 export function orderActives(skills: SkillDef[]): SkillDef[] {
   return skills
@@ -267,6 +275,9 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const addEnergy = (u: Unit, v: number) => {
     u.energy = Math.max(0, Math.min(cfg.energy.max, u.energy + v));
   };
+  /** Энергия за ход / за удар по ОЗ: у героев свои числа (combat.json energy.hero), у остальных — общие. */
+  const heroEnergy = cfg.energy.hero;
+  const gain = (u: Unit, key: 'perBasicAction' | 'perHitTaken') => (heroEnergy && u.def.kind === 'hero' ? heroEnergy[key] : cfg.energy[key]);
 
   const checkEnd = () => {
     const aAlive = a.some((u) => u.alive);
@@ -316,7 +327,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     report[target.uid].damageTaken += absorbed + hpLoss;
     // Энергия за полученный удар — только за урон по ОЗ (как в AFK: энергия от потерянного здоровья). Удар, целиком
     // принятый щитом, ульту не заряжает — иначе щит-ульта («Песчаная стена») перезаряжала сама себя (LT-01).
-    if (target.hp > 0 && !dot && hpLoss > 0) addEnergy(target, cfg.energy.perHitTaken);
+    if (target.hp > 0 && !dot && hpLoss > 0) addEnergy(target, gain(target, 'perHitTaken'));
     emit({
       t,
       type: 'damage',
@@ -1873,7 +1884,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
    * пять авто-ульт сбивали почти каждый заряд и босс брался «ожиданием»); оглушение любым навыком сбивает всегда.
    */
   const breakCharges = (u: Unit, skill: SkillDef, targets: readonly Unit[]) => {
-    if (!manualFiring || ultOf.get(u) !== skill) return;
+    if (!manualFiring || ultOf.get(u) !== skill || !breaksCharge(skill)) return;
     for (const x of targets) {
       if (!x.alive || !x.casting?.charge) continue;
       const c = x.casting.skill;
@@ -1919,7 +1930,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     u.readyAt[skill.id] = round2(t + cd);
     if (u.bh.counter) holdSince.delete(u);
     report[u.uid].skills++;
-    addEnergy(u, cfg.energy.perBasicAction);
+    addEnergy(u, gain(u, 'perBasicAction'));
     const kind = skill.effects.some((e) => e.type === 'heal') ? 'heal' : skill.range === 'melee' ? 'melee' : 'ranged';
     emit({
       t,
@@ -2024,7 +2035,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       return basicAction(u, fb);
     }
     if (targets.length === 0) return;
-    addEnergy(u, cfg.energy.perBasicAction);
+    addEnergy(u, gain(u, 'perBasicAction'));
     const kind = skill.effects.some((e) => e.type === 'heal') ? 'heal' : skill.range === 'melee' ? 'melee' : 'ranged';
     emit({
       t,
@@ -2125,6 +2136,9 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       for (const u of all) if (u.alive && u.casting) finishCast(u);
       if (chargers.length > 0) chargeTick();
       if (armed.size > 0) for (const u of a) if (armed.has(u)) fireManual(u);
+
+      // Энергия героев от времени (combat.json energy.hero.perSecond): ульта копится ровно, а не только от частоты ходов.
+      if (heroEnergy?.perSecond) for (const u of all) if (u.alive && u.def.kind === 'hero') u.energy = Math.min(cfg.energy.max, round2(u.energy + heroEnergy.perSecond * cfg.tickSeconds));
 
       const ready: Unit[] = [];
       for (const u of all) {

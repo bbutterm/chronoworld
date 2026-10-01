@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_meilin_blitz_beat",
+  "name": "Соколиный шквал",
+  "description": "Сокол пикирует пять раз по случайным врагам: 5 × ×0,85.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random"
+  },
+  "hits": 5,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.85
+    }
+  ]
+}

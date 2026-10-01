@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_kai_fire_wall",
+  "name": "Стена огня",
+  "description": "Стена огня перед фронтом врага: 3 × ×0,7 огнём.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "hits": 3,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.7
+    }
+  ],
+  "element": "fire"
+}

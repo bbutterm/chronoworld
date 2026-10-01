@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_lira_storm_gust",
+  "name": "Великая снежная буря",
+  "description": "Снежная буря на всё поле: 2 × ×0,9 водой и заморозка 2 с. Сбивает заряд босса.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "hits": 2,
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "frozen",
+        "name": "Заморозка",
+        "turns": 2,
+        "stun": true
+      }
+    }
+  ],
+  "element": "water"
+}

@@ -11,7 +11,13 @@
   "energy": {
     "max": 100,
     "perBasicAction": 25,
-    "perHitTaken": 10
+    "perHitTaken": 10,
+    "hero": {
+      "$comment": "Ульта героя (docs/design/battle-decisions.md §1): энергия за секунду боя, за ход (обычная атака или навык) и за удар по ОЗ: ульта копится ровно (≈ 10–14 с), а не от частоты ходов, — первая примерно к середине обычного боя кампании.",
+      "perSecond": 5,
+      "perBasicAction": 3,
+      "perHitTaken": 2
+    }
   },
   "skills": {
     "defaultCooldown": 8
