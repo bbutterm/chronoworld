@@ -2,24 +2,30 @@ import Phaser from 'phaser';
 import type { StoryDef } from '../core';
 import { GAME } from './content';
 import { hintDone, markHint, type HintId } from './hints';
-import { GAME_W } from './layout';
+import { placeBand, type Rect } from './hintLayout';
+import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { framedPortrait } from './portraitFrame';
+import { NAV_H, navY } from './screen';
 import { session } from './session';
 import { motion } from './state';
 import { speakerView } from './storyView';
-import { C, FS } from './theme';
-import { text } from './ui';
+import { COLOR, E, M, R, S, T, leading } from './theme';
+import { plate, text } from './ui';
 import { TIPS, type TipDef, type TipId } from './tipTexts';
 
 /**
- * Подсказки первого входа (как в AFK — пара реплик наставника, когда игрок впервые видит новый режим): Башня-рогалик,
- * MVP-охота, первый вечер в таверне, первое событие экспедиции, первый заряд босса. Реплика живым голосом персонажа
- * сюжета (Гаррет, Грета, Бруно) в плашке с портретом, 2–3 строки.
+ * Реплики первого входа (как в AFK — пара слов наставника, когда игрок впервые видит режим): Башня-рогалик, MVP-охота,
+ * первый вечер в таверне, первое событие экспедиции, первый заряд босса. Голос персонажа сюжета (Гаррет, Грета, Бруно)
+ * в компактной плашке с портретом: имя и одна-две строки (tipTexts.ts, ≤ TIP_MAX знаков).
  *
- * - Показывается один раз: запоминается в том же списке, что подсказки обучения (hints.ts, localStorage
- *   `chronoworld.hints`; «Сбросить подсказки» покажет снова). Отметка — когда плашка нарисована.
- * - Не мешает: плашка не ловит касания (кнопки под ней нажимаются), первое касание где угодно или TIP_MS её убирают.
- * - Ждёт, пока закроются сюжетный диалог и баннер «Новая функция!» (как hintPointer).
+ * Правила (ui-polish-research §2, §3 п. 3/10, P0 «реплика Гаррета закрывает панель охоты»):
+ * - один раз: запоминается в общем списке подсказок обучения (hints.ts, localStorage `chronoworld.hints`; «Сбросить
+ *   подсказки» покажет снова). Отметка — когда плашка правда нарисована;
+ * - одна подсказка за визит: под диалогом и баннером «Новая функция!» ждёт их закрытия; если на экране уже указатель
+ *   обучения (слой `hint`), реплика в этот раз не показывается (и не отмечается — будет в следующий вход);
+ * - не поверх данных: экран передаёт желаемый верх, а плашка встаёт в ближайшую полосу, где не закрывает подписи,
+ *   числа и кнопки (placeBand, hintLayout.ts);
+ * - не мешает: касаний не ловит (кнопки под ней жмутся), первое касание где угодно или TIP_MS её убирают.
  * Слой — `firstTip` (e2e его не считает помехой: касание проходит сквозь).
  */
 
@@ -32,9 +38,9 @@ export const tipDone = (id: TipId): boolean => hintDone(id as HintId);
 export const TIP_NAME = 'firstTip';
 const DEPTH = 8800;
 /** Сколько висит, если игрок ничего не трогает (мс времени сцены). */
-const TIP_MS = 12000;
+const TIP_MS = 10000;
 const W = 1000;
-const PORTRAIT = 150;
+const PORTRAIT = 96;
 
 function speakerOf(key: TipDef['speaker']) {
   const chapters: StoryDef[] = Object.values(GAME.story.chapters);
@@ -43,8 +49,8 @@ function speakerOf(key: TipDef['speaker']) {
 }
 
 /**
- * Показать подсказку первого входа id с верхним краем на y (единицы игры 1080×1920). Уже показана — null.
- * Возвращает контейнер (его можно убрать раньше: destroy()).
+ * Показать реплику первого входа id; y — где экран хотел бы видеть верх плашки (единицы игры 1080×1920), итоговое
+ * место выбирает placeBand. Уже показана — null. Возвращает контейнер (его можно убрать раньше: destroy()).
  */
 export function firstTip(scene: Phaser.Scene, id: TipId, y: number, depth = DEPTH): Phaser.GameObjects.Container | null {
   if (tipDone(id)) return null;
@@ -56,8 +62,8 @@ export function firstTip(scene: Phaser.Scene, id: TipId, y: number, depth = DEPT
       scene.events.once(Phaser.Scenes.Events.POST_UPDATE, build);
       return;
     }
-    // Отметка — когда плашка правда нарисована (экран мог смениться раньше — тогда покажется в следующий раз).
-    if (tipDone(id)) {
+    // Одна подсказка за визит: указатель обучения уже ведёт игрока — реплика подождёт следующего входа.
+    if (tipDone(id) || scene.children.list.some((o) => o.name === 'hint' && o.active)) {
       layer.destroy();
       return;
     }
@@ -68,25 +74,56 @@ export function firstTip(scene: Phaser.Scene, id: TipId, y: number, depth = DEPT
   return layer;
 }
 
-function draw(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, def: TipDef, top: number): void {
+/** Видимые подписи и интерактивные объекты сцены (что реплика не должна закрывать), кроме слоя самой реплики. */
+export function obstacleRects(scene: Phaser.Scene, skip: Phaser.GameObjects.GameObject): Rect[] {
+  const out: Rect[] = [];
+  const big = GAME_W * GAME_H * 0.5;
+  const walk = (list: Phaser.GameObjects.GameObject[]) => {
+    for (const o of list) {
+      if (o === skip || o.name === 'hint' || o.name === TIP_NAME) continue;
+      const v = o as Phaser.GameObjects.GameObject & { visible?: boolean; list?: Phaser.GameObjects.GameObject[]; text?: string };
+      if (v.visible === false) continue;
+      const getBounds = (o as unknown as { getBounds?: () => Phaser.Geom.Rectangle }).getBounds;
+      const isText = o.type === 'Text' && !!v.text?.trim();
+      const isControl = !!o.input?.enabled;
+      if ((isText || isControl) && getBounds) {
+        const b = getBounds.call(o);
+        const r = { x: b.x, y: b.y, w: b.width, h: b.height };
+        // Затемнения и подложки во весь экран — не помеха (одинаково закрыты при любом месте).
+        if (r.w > 0 && r.h > 0 && r.w * r.h < big) out.push(r);
+      }
+      if (v.list && !isControl) walk(v.list);
+    }
+  };
+  walk(scene.children.list);
+  return out;
+}
+
+function draw(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, def: TipDef, prefer: number): void {
   const who = speakerOf(def.speaker);
   const left = GAME_W / 2 - W / 2;
-  const tx = left + PORTRAIT + 50;
-  const tw = W - PORTRAIT - 80;
-  const name = text(scene, tx, top + 36, who.name, FS.small, C.gold, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 }).setOrigin(0, 0.5);
-  const body = text(scene, tx, top + 62, def.text, FS.body, C.text, { align: 'left', wordWrap: { width: tw, useAdvancedWrap: true }, lineSpacing: 4 }).setOrigin(0, 0);
-  const h = Math.max(PORTRAIT + 40, 62 + body.height + 28);
-  const bg = scene.add.rectangle(GAME_W / 2, top + h / 2, W, h, 0x120c07, 0.97).setStrokeStyle(5, 0xc9a45c, 1);
-  const face = framedPortrait(scene, left + 20 + PORTRAIT / 2, top + h / 2, who.sprite, PORTRAIT, who.gender);
+  const tx = left + S.s + PORTRAIT + S.s;
+  const tw = W - (tx - left) - S.m;
+  const name = text(scene, tx, 0, who.name, T.caption, COLOR.title, { fontStyle: 'bold' }).setOrigin(0, 0);
+  const body = text(scene, tx, 0, def.text, T.body, COLOR.textPrimary, { align: 'left', wordWrap: { width: tw, useAdvancedWrap: true }, lineSpacing: leading(T.body) }).setOrigin(0, 0);
+  const inner = name.height + S.xxs + body.height;
+  const h = Math.max(PORTRAIT + 2 * S.s, inner + 2 * S.s);
+  const band = placeBand(h, { prefer, avoid: obstacleRects(scene, layer), top: Math.min(prefer, HEADER_H), bottom: Math.max(prefer + h, navY() - NAV_H / 2 - S.xs), x: left, w: W });
+  const top = band.y;
+  const ty = top + (h - inner) / 2;
+  name.setY(ty);
+  body.setY(ty + name.height + S.xxs);
+  const bg = plate(scene, GAME_W / 2, top + h / 2, W, h, { fill: COLOR.surfaceSunken, alpha: 0.96, border: COLOR.accent, borderW: 3, r: R.l });
+  const face = framedPortrait(scene, left + S.s + PORTRAIT / 2, top + h / 2, who.sprite, PORTRAIT, who.gender);
   layer.add([bg, face, name, body]);
-  layer.setData('tipBox', { x: left, y: top, w: W, h });
+  layer.setData('tipBox', { x: left, y: top, w: W, h }).setData('tipOverlap', band.overlap);
   let gone = false;
   const close = () => {
     if (gone || !layer.active) return;
     gone = true;
     scene.input.off('pointerdown', onDown);
     if (motion.reduced) layer.destroy();
-    else scene.tweens.add({ targets: layer, alpha: 0, duration: 220, onComplete: () => layer.destroy() });
+    else scene.tweens.add({ targets: layer, alpha: 0, duration: M.fast, ease: E.in, onComplete: () => layer.destroy() });
   };
   // Касание где угодно (и сама кнопка под плашкой) — плашка уходит; сама она касаний не ловит. Касание, начатое до
   // показа (то, что открыло экран или окно, — на медленном кадре оно доходит позже), не считается.
@@ -102,7 +139,7 @@ function draw(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, def: Tip
   layer.once(Phaser.GameObjects.Events.DESTROY, () => scene.input.off('pointerdown', onDown));
   if (!motion.reduced) {
     layer.setAlpha(0);
-    layer.y = -16;
-    scene.tweens.add({ targets: layer, alpha: 1, y: 0, duration: 260, ease: 'Quad.easeOut' });
+    layer.y = 16;
+    scene.tweens.add({ targets: layer, alpha: 1, y: 0, duration: M.base, ease: E.out });
   }
 }

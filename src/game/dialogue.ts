@@ -53,6 +53,12 @@ export interface DialogueOptions {
   auto?: boolean;
 }
 
+/** Подпись в углу плашки: «2/5 ›» (дальше есть реплики) или «5/5» (последняя); одна реплика — без счётчика. */
+export function dialogueCounter(line: number, total: number): string {
+  if (total <= 1) return '';
+  return line < total - 1 ? `${line + 1}/${total}  ›` : `${line + 1}/${total}`;
+}
+
 /** Открыт ли диалог на сцене. */
 export const dialogueOpen = (scene: Phaser.Scene) => !!scene.children.getByName(DIALOGUE_NAME);
 
@@ -167,7 +173,8 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     typer = null;
     shown = full.length;
     body.setText(full);
-    more.setText(line < s.lines.length - 1 ? `${line + 1}/${s.lines.length}  · коснитесь ›` : `${line + 1}/${s.lines.length}  · коснитесь — закрыть`);
+    // Счётчик реплик и «›» — без инструкции «коснитесь…» (§3 п. 3): листание касанием — привычный жест.
+    more.setText(dialogueCounter(line, s.lines.length));
     if (auto) autoNext = scene.time.delayedCall(AUTO_LINE_MS + full.length * AUTO_CHAR_MS, advance);
   };
   let faceOf: string | null | undefined;

@@ -100,3 +100,46 @@ export function placeCallout(target: { x: number; y: number; w: number; h: numbe
   const b = best!;
   return { side: b.side, arrowY: b.arrowY, box: b.box, overlap: b.overlap };
 }
+
+export interface BandOptions {
+  /** Где полосу хотел поставить экран (верхний край). */
+  prefer: number;
+  /** Что нельзя закрывать: кнопки, подписи, числа (данные). */
+  avoid: Rect[];
+  /** Полоса экрана, в которой можно встать (верх и низ), и ширина экрана. */
+  top: number;
+  bottom: number;
+  /** Горизонталь полосы (x и ширина). */
+  x: number;
+  w: number;
+  /** Шаг перебора, ед. */
+  step?: number;
+}
+
+/**
+ * Куда поставить плашку высотой h на всю ширину (реплика персонажа firstTips.ts): верхний край, при котором плашка
+ * закрывает меньше всего данных и кнопок, а из равных — ближайший к prefer (место экрана хорошее по умолчанию: двигаем,
+ * только если оно правда что-то закрывает). Закрыть данные хуже любого сдвига. Возвращает верхний край и площадь.
+ */
+export function placeBand(h: number, o: BandOptions): { y: number; overlap: number } {
+  const step = o.step ?? 20;
+  const lo = o.top;
+  const hi = Math.max(lo, o.bottom - h);
+  const clamp = (v: number) => Math.min(Math.max(v, lo), hi);
+  const cands = new Set<number>([clamp(o.prefer)]);
+  for (let y = lo; y <= hi; y += step) cands.add(y);
+  cands.add(hi);
+  // Вплотную к каждой помехе — сверху и снизу (так находятся щели уже шага).
+  for (const r of o.avoid) {
+    cands.add(clamp(r.y - h - 8));
+    cands.add(clamp(r.y + r.h + 8));
+  }
+  let best = { y: clamp(o.prefer), overlap: Infinity, dist: Infinity };
+  for (const y of cands) {
+    const rect: Rect = { x: o.x, y, w: o.w, h };
+    const overlap = o.avoid.reduce((s, r) => s + overlapArea(rect, r), 0);
+    const dist = Math.abs(y - o.prefer);
+    if (overlap < best.overlap || (overlap === best.overlap && dist < best.dist)) best = { y, overlap, dist };
+  }
+  return { y: best.y, overlap: best.overlap };
+}

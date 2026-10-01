@@ -252,7 +252,7 @@ async function main() {
     if (!(await page.evaluate(() => !!window.__game.scene.getScene('Campaign').children.getByName('navBadge_Home')))) problems.push('нет значка на вкладке «Город» (письмо, вход дня)');
     // R: новичку показана подсказка на «В бой»; она не закрывает другие кнопки.
     await checkHint('Campaign', 'кампания');
-    if (!(await hasText('Campaign', 'Первый этап ждёт'))) problems.push('нет подсказки новичку на кампании');
+    if (!(await hasText('Campaign', 'Вперёд, в первый бой'))) problems.push('нет подсказки новичку на кампании');
 
     // События новичка: вкладка «Город» → иконка «События» в шапке → «Вход 7 дней» → забрать день 1 нажатием.
     await clickText('Campaign', 'Город');
