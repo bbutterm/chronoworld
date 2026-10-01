@@ -20,9 +20,9 @@ export const FAMILY = {
 } as const;
 
 /** Файлы шрифтов (пути внутри assets/, в dist — те же; index.html объявляет @font-face и preload с ними). */
-export const FONT_FILES = ['fonts/philosopher-700.woff2', 'fonts/rubik-500.woff2', 'fonts/rubik-700.woff2'] as const;
+export const FONT_FILES = ['fonts/philosopher-700.woff2', 'fonts/rubik-400.woff2', 'fonts/rubik-700.woff2'] as const;
 /** Начертания, которые main.ts дожидается до первой сцены (document.fonts.load). */
-export const FONT_FACES = ['700 60px Philosopher', '500 40px Rubik', '700 40px Rubik'] as const;
+export const FONT_FACES = ['700 60px Philosopher', '400 40px Rubik', '700 40px Rubik'] as const;
 
 /**
  * Шкала шрифта: пять размеров с шагом ~1.25. На 390 px: 31.8 / 21.7 / 17.3 / 14.4 / 12.3 px.
