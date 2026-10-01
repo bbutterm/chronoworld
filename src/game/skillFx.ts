@@ -616,6 +616,10 @@ function drawMagicCircle(c: Ctx): void {
 /** Одна живая анимация: fn(p) каждый кадр (p 0..1), после — картинка возвращается в пул. */
 /** RR-15: прозрачность эффектов навыков врага по отряду. */
 const SOFT_ALPHA = 0.55;
+/** Фокус на ульте героя (владелец 01.10): эффекты остальных бойцов, запущенные во время ульты, — бледнее. */
+export const FOCUS_MUTE_ALPHA = 0.35;
+/** Ульта героя: процедурные свечения и атласы её рецепта — крупнее обычного навыка (×1.3–1.6). */
+export const ULT_FX_BOOST = 1.4;
 
 interface Live {
   t: number;
@@ -627,6 +631,10 @@ interface Live {
   started: boolean;
   /** RR-15: эффект навыка врага по отряду — прозрачнее (SkillFx.soft на момент запуска). */
   soft: boolean;
+  /** Ульта героя: масштаб свечений (SkillFx.boost на момент запуска). */
+  boost: number;
+  /** Чужой эффект во время ульты героя — бледнее (SkillFx.mute на момент запуска). */
+  mute: boolean;
 }
 
 /** Точка для эффекта: x, центр тела и ноги. */
@@ -651,6 +659,13 @@ export class SkillFx {
    * отложенные продолжения тоже (флаг запоминается в записи). Ставит BattleScene вокруг playSignature/flyAtlas.
    */
   soft = false;
+  /**
+   * Ульта героя (BattleScene.fxMode): свечения и атласы рецепта крупнее (×ULT_FX_BOOST), правило RR-15 не действует —
+   * эффект в полную яркость даже на своих героях. Запоминается в записи, как soft.
+   */
+  boost = 1;
+  /** Фокус на ульте героя: эффект другого бойца, запущенный во время ульты, — × FOCUS_MUTE_ALPHA. */
+  mute = false;
   private readonly images: Pool<Phaser.GameObjects.Image>;
   private readonly live: Live[] = [];
   private readonly sparks: Phaser.GameObjects.Particles.ParticleEmitter;
@@ -740,9 +755,14 @@ export class SkillFx {
       }
       const p = clamp01((r.t - r.delay) / r.dur);
       const was = this.soft;
+      const wasBoost = this.boost;
+      const wasMute = this.mute;
       this.soft = r.soft;
+      this.boost = r.boost;
+      this.mute = r.mute;
       r.fn(p, r.obj);
       if (r.soft && r.obj) r.obj.alpha *= SOFT_ALPHA;
+      if (r.mute && r.obj) r.obj.alpha *= FOCUS_MUTE_ALPHA;
       if (p >= 1) {
         const last = this.live.pop()!;
         if (last !== r) this.live[i] = last;
@@ -750,6 +770,8 @@ export class SkillFx {
         r.done?.();
       }
       this.soft = was;
+      this.boost = wasBoost;
+      this.mute = wasMute;
     }
   }
 
@@ -770,7 +792,7 @@ export class SkillFx {
       r.done?.();
     }
     if (obj && delay > 0) obj.setVisible(false);
-    this.live.push({ t: 0, delay, dur: Math.max(1, dur), obj, fn, done, started: false, soft: this.soft });
+    this.live.push({ t: 0, delay, dur: Math.max(1, dur), obj, fn, done, started: false, soft: this.soft && this.boost === 1, boost: this.boost, mute: this.mute });
   }
 
   /** Отложенный вызов по времени боя (без картинки). */
@@ -780,6 +802,8 @@ export class SkillFx {
 
   /** Вспышка-свечение: растёт от s0 до s1 и гаснет. */
   glow(x: number, y: number, tint: number, s0: number, s1: number, dur: number, delay = 0, alpha = 1, tex: string = TEX.glow, sy = 1): void {
+    s0 *= this.boost;
+    s1 *= this.boost;
     const o = this.img(tex, x, y, tint);
     o.setScale(s0, s0 * sy).setAlpha(alpha);
     this.run(o, dur, (p, im) => {
@@ -882,6 +906,7 @@ export class SkillFx {
     const eff = animatedEffect(id);
     const key = animatedFxKey(id);
     if (!eff || !this.scene.textures.exists(key)) return false;
+    width = Math.min(width * this.boost, GAME_W * 0.95);
     const o = this.img(key, x, y, tint, depth);
     o.setFrame(0).setOrigin(eff.anchor[0] / eff.cell[0], eff.anchor[1] / eff.cell[1]);
     o.setDisplaySize(width, (width * eff.cell[1]) / eff.cell[0]).setAlpha(alpha);

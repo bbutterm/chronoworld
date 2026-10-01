@@ -173,6 +173,11 @@ export interface SkillVisual {
    * лёгкая встряска и вспышка в момент удара (BattleScene, skillSigs playCharge/playBigImpact). По одному на форму.
    */
   big?: boolean;
+  /**
+   * Ульта героя: сколько мс подготовки до удара сверх кадра каста — атлас каста успевает прочитаться (Удар Асуры:
+   * иероглифы 阿修羅覇凰拳 над кастером ~0,6 с, затем удар).
+   */
+  windup?: number;
 }
 
 export const SKILL_VISUALS: Record<string, SkillVisual> = {
@@ -350,7 +355,7 @@ export const SKILL_VISUALS: Record<string, SkillVisual> = {
   ult_teo_ki_explosion: { hit: 'knock', tint: 0xffc040, big: true },
   ult_vika_heal_all: { aura: 'divine', tint: 0xb0ffb8, big: true },
   ult_vika_magnus: { sig: 'magnus', tint: 0xfff0ff, big: true },
-  ult_vika_asura: { sig: 'asura', tint: 0xffe070, big: true },
+  ult_vika_asura: { sig: 'asura', tint: 0xffe070, big: true, windup: 420 },
   // ---------- монстры ----------
   mob_rocker_kick: { hit: 'kick' },
   mob_elite_smash: { hit: 'smash' },

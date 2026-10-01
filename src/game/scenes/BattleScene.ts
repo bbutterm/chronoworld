@@ -43,7 +43,7 @@ import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 import { anim, hitDelay, lazyPortrait, portraitKey, spriteView, whenSprites, type SpriteView } from '../sprites';
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
-import { BarkLayer, BEHAVIOR_LABEL_DEPTH, BEHAVIOR_LABEL_SIZE, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, UltPresenter } from '../battleFx';
+import { BarkLayer, BEHAVIOR_LABEL_DEPTH, BEHAVIOR_LABEL_SIZE, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, ULT_FX_BOOST, UltPresenter } from '../battleFx';
 import { RO_DIGIT_H } from '../numberFont';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
@@ -104,6 +104,10 @@ const HIT_FLASH_MS = 45;
 const HIT_FLASH_EVERY = 400;
 /** RR-14: первые секунды боя (ауры, пассивки «на начало боя») — без подписей пассивок и статусов. */
 const OPENING_QUIET_S = 1;
+/** Фокус на ульте героя (мс сцены): столько остальные бойцы приглушены после начала ульты… */
+const ULT_FOCUS_MS = 1000;
+/** …и не меньше, чем до удара ульты плюс столько (вспышка и цифры удара успевают прочитаться). */
+const ULT_FOCUS_TAIL_MS = 500;
 /** Глубина панели героев (RR-05): выше фигур поля, ниже затемнения ульты (DEPTH.dim). */
 const PANEL_DEPTH = 2800;
 /** «Сбито!» над боссом — вдвое крупнее подписей поведения (их 36): главный момент боя с решениями. */
@@ -437,6 +441,11 @@ export class BattleScene extends Phaser.Scene {
   /** Ульта героя стороны A (навык) и когда её применили в последний раз (для полоски готовности). */
   private readonly ultSkill = new Map<string, CoreSkill>();
   private readonly ultUsedAt = new Map<string, number>();
+  /**
+   * Фокус на ульте героя (владелец 01.10): до until (время сцены) цифры, подписи и эффекты остальных бойцов
+   * приглушены (FOCUS_MUTE_ALPHA), плашки и затемнение ульт монстров не показываются поверх.
+   */
+  private focus: { uid: string; until: number } | null = null;
   /** Герои, чью ульту игрок только что нажал: её удар — с затемнением и баннером, как ульта монстра. */
   private readonly tapped = new Set<string>();
   /** Когда над целью последний раз писали «Слабость!» / «Стойкость» (секунды боя). */
@@ -476,6 +485,7 @@ export class BattleScene extends Phaser.Scene {
     this.inputs = [];
     this.ultSkill.clear();
     this.ultUsedAt.clear();
+    this.focus = null;
     this.tapped.clear();
     this.elemShown.clear();
     this.modeBtn = null;
@@ -1368,8 +1378,11 @@ export class BattleScene extends Phaser.Scene {
    * Отложить до момента удара источника (кадр удара анимации, полёт снаряда, рывок). target — если у навыка
    * свой план попаданий (залп снарядов), удар по этой цели ждёт свой снаряд.
    */
-  private atImpact(sourceUid: string | null, animate: boolean, fn: (animate: boolean) => void, opts: { plan?: string; on?: UnitView } = {}): void {
+  private atImpact(sourceUid: string | null, animate: boolean, draw: (animate: boolean) => void, opts: { plan?: string; on?: UnitView } = {}): void {
     const src = sourceUid ? this.views.get(sourceUid) : undefined;
+    // Удар ульты героя — в полную яркость; чужие удары, попавшие на время ульты, — приглушённо (fxMode, в момент удара).
+    const ult = this.heroUlt(src);
+    const fn = (a: boolean) => (a ? this.fxMode(sourceUid ?? undefined, ult, () => draw(a)) : draw(a));
     const planned = opts.plan ? src?.hitPlan.get(opts.plan)?.shift() : undefined;
     const live = animate && !this.skipping;
     const wait = live && src ? (planned ?? src.impactAt) - this.time.now : 0;
@@ -1392,7 +1405,49 @@ export class BattleScene extends Phaser.Scene {
     });
   }
 
+  /** Идёт ульта героя, и источник — не её кастер: его цифры и эффекты приглушить. */
+  private muted(uid: string | undefined): boolean {
+    const f = this.focus;
+    return !!f && uid !== f.uid && this.time.now < f.until;
+  }
+
+  /** Действие юнита — ульта героя (событие ult стороны A и удары/лечение/статусы, пока она идёт). */
+  private heroUlt(v: UnitView | undefined): boolean {
+    return !!v && v.snap.side === 'A' && v.inUlt;
+  }
+
+  /**
+   * Рисовать fn в режиме эффектов: ult — эффекты ульты героя в полную яркость и крупнее (RR-15 не действует),
+   * иначе во время чужой ульты героя — приглушённо. Режим запоминают отложенные продолжения эффектов (SkillFx).
+   */
+  private fxMode(src: string | undefined, ult: boolean, fn: () => void): void {
+    const f = this.floats;
+    const s = this.sfx;
+    const was = [f.ult, f.mute, s.boost, s.mute] as const;
+    const mute = !ult && this.muted(src);
+    f.ult = ult;
+    f.mute = mute;
+    s.boost = ult ? ULT_FX_BOOST : 1;
+    s.mute = mute;
+    try {
+      fn();
+    } finally {
+      [f.ult, f.mute, s.boost, s.mute] = was;
+    }
+  }
+
   private play(e: BattleEvent, animate: boolean): void {
+    if (!animate) {
+      this.playEvent(e, animate);
+      return;
+    }
+    const src = 'source' in e ? e.source : 'unit' in e ? e.unit : undefined;
+    const v = src ? this.views.get(src) : undefined;
+    const ult = e.type === 'ult' ? v?.snap.side === 'A' : e.type !== 'attack' && this.heroUlt(v);
+    this.fxMode(src, ult, () => this.playEvent(e, animate));
+  }
+
+  private playEvent(e: BattleEvent, animate: boolean): void {
     battleSound(e, animate && !this.skipping, this.result, this.defs);
     switch (e.type) {
       case 'turn':
@@ -1481,7 +1536,8 @@ export class BattleScene extends Phaser.Scene {
         this.redraw(v);
         if (!animate) return;
         v.hitPlan.clear();
-        const impact = this.once(v, 'cast');
+        // Ульта героя с подготовкой (SkillVisual.windup, Удар Асуры): удар — позже кадра каста, атлас каста успевает прочитаться.
+        const impact = this.once(v, 'cast') + (v.snap.side === 'A' ? visualOf(e.skill)?.windup ?? 0 : 0);
         v.impactAt = this.time.now + impact;
         this.spotlight(v, e.name, e.skill);
         const skill = CONTENT.skills[e.skill];
@@ -1489,6 +1545,8 @@ export class BattleScene extends Phaser.Scene {
           this.bigCue(v, skill, e.t);
           this.skillVisual(v, skill, impact);
         }
+        // Фокус на ульте героя — до конца её удара (и не меньше ULT_FOCUS_MS).
+        if (v.snap.side === 'A') this.focus = { uid: v.snap.uid, until: Math.max(this.time.now + ULT_FOCUS_MS, v.impactAt + ULT_FOCUS_TAIL_MS) };
         // Ульта босса — экран вздрагивает в момент удара.
         if (v.def.kind === 'boss') this.sfx.later(Math.max(0, v.impactAt - this.time.now), () => this.sfx.shake(0.009, 280));
         return;
@@ -2187,6 +2245,12 @@ export class BattleScene extends Phaser.Scene {
 
   /** Ульта: экран темнеет, кастер подсвечен поверх затемнения, сверху — баннер с названием. */
   private spotlight(v: UnitView, skillName: string, skillId: string): void {
+    // Идёт ульта героя — ульта монстра не перебивает её затемнением и плашкой (только свечение под кастером).
+    if (v.snap.side === 'B' && this.muted(v.snap.uid)) {
+      this.ult.glow(v.node.x, v.node.y);
+      return;
+    }
+    if (v.snap.side === 'A') this.focus = { uid: v.snap.uid, until: this.time.now + ULT_FOCUS_MS };
     this.ult.flashDim();
     this.ult.showBanner(v.def.name, skillName, v.snap.side === 'A', skillIcon(this, CONTENT.skills[skillId]));
     this.ult.glow(v.node.x, v.node.y);
