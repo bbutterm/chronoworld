@@ -56,8 +56,17 @@ export const session = {
   save: boot(),
 };
 
+/** Слушатели записи (онлайн: sync после побед и облачное сохранение, online/online.ts). */
+const commitListeners: ((next: SaveState, prev: SaveState) => void)[] = [];
+
+/** Подписаться на каждую принятую запись commit (next — записанное, prev — что было). Ошибки слушателя игру не ломают. */
+export function onCommit(fn: (next: SaveState, prev: SaveState) => void): void {
+  commitListeners.push(fn);
+}
+
 /** Сохранить новое состояние игры. */
 export function commit(save: SaveState): void {
+  const prev = session.save;
   const wasWritable = slot.storage.writable;
   const w = slot.write(save);
   if (!w.ok) {
@@ -67,6 +76,13 @@ export function commit(save: SaveState): void {
     return;
   }
   session.save = w.save;
+  for (const fn of commitListeners) {
+    try {
+      fn(w.save, prev);
+    } catch {
+      /* онлайн — надстройка: её ошибки не мешают записи */
+    }
+  }
   if (wasWritable && !slot.storage.writable) {
     warnings.push(
       slot.storage.quotaExceeded

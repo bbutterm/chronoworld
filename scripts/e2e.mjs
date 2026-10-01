@@ -259,6 +259,8 @@ async function main() {
     await waitScene('Home');
     await shot('city');
     for (const t of ['Таверна', 'Лавка', 'Задания', 'Достижения', `Откроется на этапе ${ch1Label(unlockOf('tavern').stage)}`]) if (!(await hasText('Home', t))) problems.push(`город новичка: нет «${t}»`);
+    // Онлайн (друзья, рекорды) — только в Telegram: вне его кнопки «Друзья» нет и сеть не трогается.
+    if (await page.evaluate(() => !!window.__game.scene.getScene('Home').children.getByName('friendsBtn'))) problems.push('вне Telegram видна кнопка «Друзья»');
     {
       const saveNow = () => page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')));
       const s0 = await saveNow();
