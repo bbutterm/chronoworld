@@ -1,6 +1,8 @@
 /**
  * Режим ульт в бою (docs/design/battle-decisions.md §1): «Авто» — ульты героев сами, иначе — касанием портрета.
- * Настройка, не прогресс — живёт в localStorage (как скорость боя). Новый игрок начинает вручную.
+ * Настройка, не прогресс — живёт в localStorage (как скорость боя). По умолчанию — «Авто»: «Сил хватает» на экране этапа
+ * считается с ультами, а новичок, не знающий про касание портретов, проигрывал без них (отзыв владельца, этап 4-6:
+ * тот же отряд — 40/40 в авто и 2/40 без ульт). Ручной режим — кнопкой «Авто» в бою, выбор запоминается.
  */
 const AUTO_KEY = 'chronoworld.battleAutoUlt';
 const HINT_KEY = 'chronoworld.hint.manualUlt';
@@ -22,7 +24,7 @@ function store(key: string, v: string): void {
   }
 }
 
-export const battleMode = { auto: load(AUTO_KEY) === '1' };
+export const battleMode = { auto: load(AUTO_KEY) !== '0' };
 
 export function setBattleAuto(on: boolean): void {
   battleMode.auto = on;
