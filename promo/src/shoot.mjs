@@ -148,8 +148,8 @@ async function battle(page, tag, startData, { maxShots = 60, holdBreakers = true
     const g = window.__game;
     g.loop.sleep();
     const sc = g.scene.getScene('Battle');
-    window.__cap = { t: performance.now(), last: 0, queue: [{ at: sc.time.now + 1500, name: 'intro' }], sc, hold, seenUlt: {}, readySince: {}, ultK: o.k, ultOffs: o.offs, only: o.only, noCharge: o.noCharge };
-  }, { hold: holdBreakers, k: Number(process.env.PROMO_ULT_K ?? 2), offs: (process.env.PROMO_ULT_OFFS ?? '250,600').split(',').map(Number), only: process.env.PROMO_ULT_ONLY ?? '', noCharge: !!process.env.PROMO_NO_CHARGE });
+    window.__cap = { t: performance.now(), last: 0, queue: [{ at: sc.time.now + o.introAt, name: 'intro' }], sc, hold, seenUlt: {}, readySince: {}, ultK: o.k, ultOffs: o.offs, only: o.only, noCharge: o.noCharge, tapOnly: o.tapOnly };
+  }, { hold: holdBreakers, k: Number(process.env.PROMO_ULT_K ?? 2), offs: (process.env.PROMO_ULT_OFFS ?? '250,600').split(',').map(Number), only: process.env.PROMO_ULT_ONLY ?? '', noCharge: !!process.env.PROMO_NO_CHARGE, introAt: Number(process.env.PROMO_INTRO_AT ?? 1500), tapOnly: process.env.PROMO_TAP_ONLY ?? '' });
   let n = 0;
   for (let guard = 0; guard < 4000 && n < maxShots; guard++) {
     const due = await page.evaluate(() => {
@@ -190,6 +190,7 @@ async function battle(page, tag, startData, { maxShots = 60, holdBreakers = true
             const soon = nextCharge && nextCharge.t - sc.clock < 8;
             const charging = c.chargeAt !== undefined && sc.time.now - c.chargeAt < 2500;
             if (c.hold && (brk || breaker) && ((soon && !charging) || (charging && sc.time.now - c.chargeAt < 1300))) continue;
+            if (c.tapOnly && !new RegExp(c.tapOnly).test(sk.id)) continue;
             sc.tapUlt(uid);
           }
         }
@@ -339,7 +340,7 @@ try {
     for (const name of (process.env.PROMO_SQUADS ?? Object.keys(saves).join(',')).split(',')) {
       const save = saves[name];
       const p = await open(save);
-      log(name, 'кадров', await battle(p, `battle_${name}`, { mode: 'stage', stageId: process.env.PROMO_STAGE ?? 'ch9_s18' }));
+      log(name, 'кадров', await battle(p, `battle_${name}${process.env.PROMO_TAG ?? ''}`, { mode: 'stage', stageId: process.env.PROMO_STAGE ?? 'ch9_s18' }));
       await p.context().close();
     }
   }

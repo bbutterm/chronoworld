@@ -16,12 +16,13 @@ LIMIT = 400 * 1024
 # имя в promo/shots ← кадр в raw (первый существующий из списка). Ролик 01.10: две боевые сцены (Удар Асуры — каст и удар,
 # Великая снежная буря), боссы глав (экран этапа), MVP (экран охоты), интерфейс и сюжет.
 PICK = {
-    'ult_asura_cast': ['battle_asura_ult_ult_vika_asura_1_950', 'battle_asura_ult_ult_vika_asura_1_850'],
+    'ult_asura_cast': ['battle_asura_ult_ult_vika_asura_1_950'],
     'ult_asura_hit': ['battle_asura_ult_ult_vika_asura_1_1250', 'battle_asura_ult_ult_vika_asura_1_1150'],
-    'ult_storm_gust': ['battle_storm_ult_ult_lira_storm_gust_1_700', 'battle_storm_ult_ult_lira_storm_gust_1_500'],
-    'boss_orc_lord': ['ui_stage_ch3_s10'],
-    'boss_lord_of_death': ['ui_stage_ch10_s18'],
-    'boss_baphomet': ['ui_stage_ch9_s18'],
+    'ult_storm_gust': ['battle_storm_sg_ult_ult_lira_storm_gust_1_800', 'battle_storm_sg_ult_ult_lira_storm_gust_1_600'],
+    'ult_lord_of_vermillion': ['battle_storm_lov_ult_ult_kai_lord_of_vermillion_1_1100', 'battle_storm_lov_ult_ult_kai_lord_of_vermillion_1_800'],
+    'boss_orc_lord': ['battle_storm_ch3_s10_1400_intro', 'battle_storm_ch3_s10_900_intro', 'ui_stage_ch3_s10'],
+    'boss_baphomet': ['battle_storm_ch9_s18_1400_intro', 'battle_storm_ch9_s18_900_intro', 'ui_stage_ch9_s18'],
+    'boss_lord_of_death': ['battle_storm_ch10_s18_1400_intro', 'battle_storm_ch10_s18_900_intro', 'ui_stage_ch10_s18'],
     'mvp_dracula': ['ui_hunt_mvp_dracula'],
     'mvp_pharaoh': ['ui_hunt_mvp_pharaoh'],
     'ui_home': ['ui_home'],
