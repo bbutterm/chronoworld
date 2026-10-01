@@ -90,15 +90,18 @@ describe('MVP-охота: ротация и данные', () => {
 describe('MVP-охота: слабость стихии', () => {
   const kai = buildUnit({ id: 'k', templateId: 'kai', rarity: 'blue', level: 35 }, ctx);
   const alan = buildUnit({ id: 'a', templateId: 'alan', rarity: 'blue', level: 35 }, ctx);
+  // Нейтральный боец: у Алана с 01.10 ульта «Магнум Брейк» — огонь (стихия атаки героя считает и ульту).
+  const dorn = buildUnit({ id: 'd', templateId: 'dorn', rarity: 'blue', level: 35 }, ctx);
 
   it('герой стихии слабости получает +weaknessAtk АТК, остальные теряют armorAtk', () => {
     const mvp = ctx.hunt.mvp!;
     expect(attackElement(kai, ctx.content.skills)).toBe('fire');
     const boss = { weakTo: weakTo(ctx.combat.elements, 'undead') };
     expect(boss.weakTo).toContain('fire');
-    const [k, a] = huntSquad([kai, alan], boss, ctx) as UnitDef[];
+    expect(attackElement(dorn, ctx.content.skills)).toBe('neutral');
+    const [k, a] = huntSquad([kai, dorn], boss, ctx) as UnitDef[];
     expect(k.stats.atk).toBe(Math.round(kai.stats.atk * (1 + mvp.weaknessAtk)));
-    expect(a.stats.atk).toBe(Math.round(alan.stats.atk * (1 - mvp.armorAtk)));
+    expect(a.stats.atk).toBe(Math.round(dorn.stats.atk * (1 - mvp.armorAtk)));
     // Таблица боя: огонь по нежити ×1.5.
     expect(elementMult(ctx.combat.elements, 'fire', 'undead')).toBe(1.5);
   });

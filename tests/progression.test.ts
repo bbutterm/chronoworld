@@ -29,10 +29,11 @@ describe('статы и навыки карточки героя', () => {
     expect(heroSkills({ ...alan(), level: 10 }, ctx)).toEqual({ basic: 'basic_melee', actives: ['swordman_bash'], passives: ['swordman_endure'] });
   });
 
-  it('buildUnit: активные навыки — в actives (без ульты), пассивки отдельно; бой детерминирован', () => {
+  it('buildUnit: активные навыки — в actives, ульта формы — в ult (с 1-го уровня), пассивки отдельно; бой детерминирован', () => {
     const u = buildUnit({ ...alan(), level: 10 }, ctx);
     expect(u).toMatchObject({ id: 'h1', name: 'Алан', kind: 'hero', role: 'tank' });
-    expect(u.skills).toEqual({ basic: 'basic_melee', actives: ['swordman_bash'], passives: ['swordman_endure'] });
+    expect(u.skills).toEqual({ basic: 'basic_melee', actives: ['swordman_bash'], passives: ['swordman_endure'], ult: 'ult_alan_magnum_break' });
+    expect(u.energy).toEqual(ctx.combat.energy.hero);
     expect(u.skillPower).toBeUndefined();
     const squad = [u, null, null, null, null];
     expect(simulateBattle(ctx.content, squad, ['warrior'], 3).log).toEqual(simulateBattle(ctx.content, squad, ['warrior'], 3).log);
