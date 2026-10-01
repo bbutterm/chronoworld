@@ -21,21 +21,26 @@ import { showUnlockBanners } from '../unlockBanner';
 import { homeEventIcons, touchToday } from '../homeEvents';
 import { chronicleButton } from '../loreView';
 import { friendsButton } from '../online/entry';
+import { idleDiorama } from '../idleDiorama';
 
 /**
- * Страница «Город» (вкладка нижней навигации, сцена Home): четыре крупных «здания» 2×2 — Таверна, Лавка, Задания,
+ * Страница «Город» (вкладка нижней навигации, сцена Home): под лентой «Город» — диорама «Отряд в походе» (idle-бой отряда
+ * с монстрами текущего этапа, монетки летят в сундук; касание — «Кампания», idleDiorama.ts), ниже четыре «здания» 2×2 — Таверна, Лавка, Задания,
  * Достижения (buildingTile в tavernEntry.ts: медальон, название, состояние, пояснение, значок или зелёная точка, замок
  * «Откроется на этапе …»). В шапке — плашка игрока, иконки событий, почты и контракта (homeEvents.ts) и шестерёнка
  * настроек. Сундук, быстрые награды и «В бой» — на странице «Кампания», Башня, экспедиции и охота — «Приключения».
  */
 const L = {
   ribbonY: 238,
+  /** Диорама «Отряд в походе» (idleDiorama.ts): полоса 1040×360 под лентой «Город». */
+  dioramaX: 20,
+  dioramaY: 298,
   tileW: 490,
-  tileH: 640,
+  tileH: 490,
   tileXL: 286,
   tileXR: 794,
-  tileY1: 628,
-  tileY2: 1298,
+  tileY1: 923,
+  tileY2: 1433,
 } as const;
 
 /** Инструменты разработчика (тестовый бой): dev-сборка или ?dev=1 в адресе. */
@@ -55,6 +60,8 @@ export class HomeScene extends Phaser.Scene {
     screen(this, 'Лагерь героев', 'Home', undefined, { settings: () => this.openSettings(), player: true });
     // События новичка, почта и контракт героя — иконки в шапке слева от шестерёнки (homeEvents.ts).
     homeEventIcons(this);
+    // Отряд в походе: idle-бой с волнами монстров текущего этапа (украшение; касание — к сундуку на «Кампании»).
+    idleDiorama(this, L.dioramaX, L.dioramaY, { onTap: () => this.scene.start('Campaign') });
     ribbon(this, GAME_W / 2, L.ribbonY, 'Город', { size: FS.h2, minW: 420 });
     // «Летопись» (лор мира, data/lore) — справа от ленты «Город», с красным кружком новых записей.
     chronicleButton(this, GAME_W - 165, L.ribbonY, 260, 96);
