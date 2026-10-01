@@ -11,6 +11,7 @@ import {
   expeditionEventCount,
   expeditionEventViews,
   fillEventText,
+  noFitLead,
   MetaError,
   newGame,
   parseExpeditionEvents,
@@ -103,6 +104,21 @@ describe('события экспедиций: контент', () => {
     expect(fillEventText('{hero} [нашёл|нашла] ключ, {partner} рядом', hero('zara'), hero('bran'))).toBe('Зара нашла ключ, Бран рядом');
     expect(fillEventText('{hero} [нашёл|нашла]', hero('dorn'))).toBe('Дорн нашёл');
   });
+
+  it('BUG-186: нужного героя нет — перед исходом пояснение, кто взялся вместо; подходит — без пояснения', () => {
+    const name = (id: string) => ctx.content.heroes[id]?.name ?? id;
+    const iris = hero('iris');
+    expect(noFitLead({ role: ['healer'] }, iris, name)).toBe(`Лекаря в отряде нет — за дело берётся ${iris.name}. `);
+    expect(noFitLead({ line: ['merchant'] }, hero('kai'), name)).toMatch(/^Торговца в отряде нет — за дело берётся Кай\. $/);
+    expect(noFitLead({ hero: ['otto'] }, iris, name)).toBe(`${name('otto')} не в отряде — за дело берётся ${iris.name}. `);
+    expect(noFitLead({ hero: ['iris'] }, iris, name)).toBe('');
+    expect(noFitLead(undefined, iris, name)).toBe('');
+    // В текстах исходов вариантов с требованием нет зашитых имён героев (действует {hero}).
+    const names = Object.values(ctx.content.heroes).map((h) => h.name);
+    for (const e of cfg.events)
+      for (const c of e.choices.filter((x) => x.requires))
+        for (const o of [c.success, c.fail]) for (const n of names) expect(o?.text ?? '', `${e.id}/${c.id}`).not.toMatch(new RegExp(`(^|[^А-Яа-яё])${n}([^А-Яа-яё]|$)`));
+  });
 });
 
 describe('события экспедиций: отправка и решения', () => {
@@ -181,6 +197,11 @@ describe('события экспедиций: отправка и решени�
     s2 = withEvents(s2, 'ant_hell', [{ id: 'ant_caravan_crate', at: T0 + 1000 }]);
     const pv2 = expeditionEventViews(s2, 'ant_hell', T0 + 1000, ctx)[0].choices.find((c) => c.id === 'pick')!;
     expect(pv2).toMatchObject({ chance: pick.chance, missing: true, hero: null });
+    // BUG-186: без вора действует другой герой — исход начинается с пояснения, кто взялся вместо.
+    const out2 = expeditionEventViews(chooseExpeditionEvent(s2, 'ant_hell', 0, 'pick', T0 + 1000, ctx), 'ant_hell', T0 + 1000, ctx)[0].outcome!;
+    expect(out2.text).toMatch(/^Вора в отряде нет — за дело берётся \S+\. /);
+    const out1 = expeditionEventViews(chooseExpeditionEvent(s, 'ant_hell', 0, 'pick', T0 + 1000, ctx), 'ant_hell', T0 + 1000, ctx)[0].outcome!;
+    expect(out1.text).not.toMatch(/в отряде нет/);
   });
 
   it('шанс детерминирован: доля успехов по многим отправкам ≈ chance', () => {

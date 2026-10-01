@@ -9,6 +9,9 @@ import {
   COMBAT,
   enemySquad,
   fightHunt,
+  bondView,
+  fightBondQuest,
+  type BondQuestOutcome,
   getStage,
   orderActives,
   progressLevelBand,
@@ -32,7 +35,8 @@ import {
 } from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
-import { enemyLevelColor, heroSprite, levelLabel, stageLevelsFor, stageNo, stageSeed } from '../flow';
+import { startTavernEvening, type TavernEveningData } from './TavernEveningScene';
+import { enemyLevelColor, heroSprite, levelLabel, levelLabel as levelLabelOf, stageLevelsFor, stageNo, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
@@ -327,7 +331,13 @@ interface UnitView extends SpreadUnit, GaitState {
 }
 
 /** Тестовый бой (отряды экрана подготовки), этап кампании или этаж башни (отряд из сохранения). */
-export type BattleData = { mode?: 'test'; seed: number } | { mode: 'stage'; stageId: string } | { mode: 'tower' } | { mode: 'hunt'; rank?: number };
+export type BattleData =
+  | { mode?: 'test'; seed: number }
+  | { mode: 'stage'; stageId: string }
+  | { mode: 'tower' }
+  | { mode: 'hunt'; rank?: number }
+  /** Личное задание героя (вечера, BUG-188): бой ядра fightBondQuest, после — «Вечера» с итогом. back — куда вела «Назад» вечеров. */
+  | { mode: 'bond'; templateId: string; back?: TavernEveningData['back'] };
 
 /** Что получает экран итогов. */
 export interface ResultData {
@@ -362,6 +372,8 @@ export class BattleScene extends Phaser.Scene {
   private towerRun?: { outcome: TowerFightOutcome };
   /** Охота на босса: итог ядра и счётчик урона (huntBattle.ts); после боя — экран охоты, а не итоги. */
   private hunt?: { outcome: HuntOutcome; hud?: HuntHud };
+  /** Личное задание (режим bond): итог ядра и куда вернуться. */
+  private bond?: { templateId: string; outcome: BondQuestOutcome; back?: TavernEveningData['back'] };
   private committed = false;
   private views = new Map<string, UnitView>();
   /** Те же юниты массивом — обход в update() каждый кадр без итератора Map. */
@@ -431,6 +443,8 @@ export class BattleScene extends Phaser.Scene {
   private readonly elemShown = new Map<string, number>();
   private modeBtn: ReturnType<typeof button> | null = null;
   private ultHintNode: Phaser.GameObjects.GameObject | null = null;
+  /** Указатель «Скорость ×2» (обучение), пока висит. */
+  private speedHint: Phaser.GameObjects.Container | null = null;
 
   constructor() {
     super('Battle');
@@ -466,6 +480,7 @@ export class BattleScene extends Phaser.Scene {
     this.elemShown.clear();
     this.modeBtn = null;
     this.ultHintNode = null;
+    this.speedHint = null;
     // Новый игрок — вручную; «Авто» в бою запоминается; «Авто: следующий этап» — бои без касаний.
     const wantManual = !battleMode.auto && !autoAdvance.on;
     let title = 'Тестовый бой';
@@ -473,6 +488,7 @@ export class BattleScene extends Phaser.Scene {
     this.tower = undefined;
     this.towerRun = undefined;
     this.hunt = undefined;
+    this.bond = undefined;
     this.levels = null;
     if (data.mode === 'stage') {
       // Бой считает ядро (actPlayStage: экипировка, выпадение, задания); сцена только проигрывает лог.
@@ -569,6 +585,35 @@ export class BattleScene extends Phaser.Scene {
       this.levels = { rarity: progressLevelBand(save, GAME).rarity, bossFactor: 1 };
       title = outcome.boss.rank !== undefined ? `Охота на MVP · ур. ${outcome.boss.rank + 1}` : 'Охота на босса';
       this.theme = 'swamp';
+    } else if (data.mode === 'bond') {
+      // Личное задание (tavern-evenings.md «Что осталось» п. 2): бой ядра с ульта вручную, как в кампании.
+      const save = session.save;
+      const templateId = data.templateId;
+      const view = bondView(save, templateId, GAME);
+      const seed = stageSeed(save);
+      const run = (ctl: PlayerControl) => fightBondQuest(save, templateId, seed, { ...GAME, combat: { ...(GAME.combat ?? COMBAT), player: ctl } });
+      let outcome: BondQuestOutcome;
+      try {
+        if (!view) throw new Error(`Нет задания героя ${templateId}`);
+        outcome = run({ manualUlt: wantManual, inputs: [] });
+      } catch (e) {
+        console.warn(e);
+        this.finished = true;
+        startTavernEvening(this, { mode: 'hub', back: data.back });
+        return;
+      }
+      this.result = outcome.result;
+      this.bond = { templateId, outcome, back: data.back };
+      this.manual = this.startManual = wantManual;
+      this.rerun = (ctl) => {
+        const o = run(ctl);
+        this.bond = { templateId, outcome: o, back: data.back };
+        return o.result;
+      };
+      this.defs = squadDefs(save);
+      for (const u of enemySquad(view.quest.stage, GAME)) if (u) this.defs[u.id] = u;
+      title = `Задание · ${view.quest.title}`;
+      this.theme = themeOfBattle({ stageId: view.quest.stage });
     } else {
       const seed = data.seed;
       const run = (ctl: PlayerControl) => simulateBattle(CONTENT, squads.A, squads.B, seed, { manualUlt: ctl.manualUlt, inputs: ctl.inputs });
@@ -616,14 +661,13 @@ export class BattleScene extends Phaser.Scene {
     this.showTime(0);
     if (DEBUG) text(this, GAME_W / 2, 195, `seed ${this.result.seed}`, 22, '#e0cfb0');
 
-    let speedHint: Phaser.GameObjects.Container | null = null;
     const speedBtn = button(this, 180, 360, 280, 110, 'ui_btn_speed', `${playback.speed}x`, () => {
       // Выбор скорости запоминается (localStorage) и действует в следующих боях.
       setPlaybackSpeed(nextPlaybackSpeed());
       if (playback.speed > 1) {
         markHint('battle_speed');
-        speedHint?.destroy();
-        speedHint = null;
+        this.speedHint?.destroy();
+        this.speedHint = null;
       }
       speedBtn.setLabel(`${playback.speed}x`);
       for (const v of this.views.values()) v.sprite.anims.timeScale = playback.speed;
@@ -641,7 +685,7 @@ export class BattleScene extends Phaser.Scene {
     if (this.towerRun) this.towerCards();
     // Обучение (hints.ts): скорость ×2 открылась (этап 1-2) — указатель на кнопку скорости в первом бою на 1x.
     if (this.stage && playback.speed === 1 && isUnlocked('speed_x2') && !hintDone('battle_speed')) {
-      speedHint = tutorialHint(this, 'battle_speed', 180, 360, 'below', { w: 280, h: 110 });
+      this.speedHint = tutorialHint(this, 'battle_speed', 180, 360, 'below', { w: 280, h: 110 });
     }
     // Вся анимация (твины, задержки) идёт в темпе выбранной скорости.
     this.tweens.timeScale = playback.speed;
@@ -737,12 +781,15 @@ export class BattleScene extends Phaser.Scene {
     const boss = this.result.units.find((u) => u.side === 'B' && this.defs[u.unitId]?.kind === 'boss');
     if (!boss) return;
     const name = this.defs[boss.unitId].name;
+    // BUG-192: у MVP — уровень охоты («уровень 9»), у босса Башни уровня нет (статы этажа не по шкале героев).
+    const huntRank = this.hunt?.outcome.boss.rank;
     const level = this.enemyLevel(this.defs[boss.unitId]);
+    const levelLabel = (lv: number) => (huntRank !== undefined ? `уровень ${huntRank + 1}` : levelLabelOf(lv));
 
     const barX = GAME_W / 2 - BOSS_BAR_W / 2;
     this.add.image(GAME_W / 2, BOSS_BAR_Y, 'ui_bar_back').setDisplaySize(BOSS_BAR_W + 12, 46);
     const fill = this.add.image(barX, BOSS_BAR_Y, 'ui_bar_hp_enemy').setOrigin(0, 0.5).setDisplaySize(BOSS_BAR_W, 34);
-    text(this, GAME_W / 2, BOSS_BAR_Y, level !== null ? `${name} · ${levelLabel(level)}` : name, 32, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 7 }).setDepth(2);
+    text(this, GAME_W / 2, BOSS_BAR_Y, level !== null || huntRank !== undefined ? `${name} · ${levelLabel(level ?? 0)}` : name, 32, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 7 }).setDepth(2);
     this.bossBar = { uid: boss.uid, fill };
     // Засечки фаз (50%, 25%…) видны с начала боя: игрок знает, когда босс сменит поведение.
     const pcts = (this.defs[boss.unitId].phases ?? []).flatMap((p) => (p.atHpPct !== undefined ? [p.atHpPct] : []));
@@ -759,7 +806,7 @@ export class BattleScene extends Phaser.Scene {
     const inner = this.add.rectangle(0, 0, w - 36, h - 36).setStrokeStyle(2, SKIN_TINT.gold, 0.5);
     const title = text(this, 0, -34, name.toUpperCase(), 104, SKIN.goldLight, { fontStyle: 'bold', stroke: '#2a1a08', strokeThickness: 12 });
     if (title.width > w - 80) title.setScale((w - 80) / title.width);
-    const sub = text(this, 0, 82, level !== null ? `${subtitle} · ${levelLabel(level)}` : subtitle, 44, SKIN.cream, { stroke: '#000000', strokeThickness: 6 });
+    const sub = text(this, 0, 82, level !== null || huntRank !== undefined ? `${subtitle} · ${levelLabel(level ?? 0)}` : subtitle, 44, SKIN.cream, { stroke: '#000000', strokeThickness: 6 });
     // Уровень босса — цветом против среднего уровня отряда (красный — выше больше чем на 5).
     if (level !== null) sub.setColor(enemyLevelColor(level, session.save));
     const lineW = 150;
@@ -969,6 +1016,8 @@ export class BattleScene extends Phaser.Scene {
 
   /** Уровень врага в этом бою (null — тестовый бой). */
   private enemyLevel(def: UnitDef): number | null {
+    // BUG-192: в Башне и на охоте статы врагов не по шкале уровней героев («ур. 267», «ур. 300») — уровень не пишем.
+    if (this.towerRun || this.hunt) return null;
     return this.levels ? Math.max(1, unitLevel(def, this.levels.rarity, GAME, this.levels.bossFactor) + (this.levels.shift ?? 0)) : null;
   }
 
@@ -1092,7 +1141,19 @@ export class BattleScene extends Phaser.Scene {
     this.applyInputs();
     if (!this.manual) for (const uid of this.ultSkill.keys()) this.heroPanel?.setReady(uid, false);
     this.modeBtn?.setLabel(this.modeLabel());
-    toast(this, this.manual ? 'Ульты — касанием портрета героя' : 'Ульты героев — сами', '#f0cf8a', 2200, 'middle');
+    toast(this, this.manual ? 'Ульты — касанием портрета героя' : 'Ульты героев — сами', '#f0cf8a', 2200, 'battle');
+  }
+
+  /**
+   * BUG-183: подсказка заряда — честно, кто собьёт: только ульты с молнией (оглушение / срыв каста, ultBadge.ts) у живых героев.
+   */
+  private chargeToast(boss: string): string {
+    const names = [...this.views.values()]
+      .filter((v) => v.snap.side === 'A' && v.alive && ultBreaksCharge(this.ultSkill.get(v.snap.uid)?.id))
+      .map((v) => v.def.name);
+    const uniq = [...new Set(names)];
+    if (!uniq.length) return `${boss} заряжает удар! Сбить нечем — в отряде нет ульты с молнией`;
+    return `${boss} заряжает удар — собьёт ульта с молнией: ${uniq.join(', ')}`;
   }
 
   /** Первая готовая ульта — подсказка под карточкой героя (пока игрок не коснётся ни разу). */
@@ -1100,6 +1161,9 @@ export class BattleScene extends Phaser.Scene {
     if (this.ultHintNode || ultHint.done || this.skipping) return;
     const card = this.heroPanel?.cardAt(uid);
     if (!card) return;
+    // BUG-191: две подсказки обучения разом не показываем — указатель «Скорость ×2» уступает ульте (вернётся в другом бою).
+    this.speedHint?.destroy();
+    this.speedHint = null;
     const t = text(this, card.x, PANEL_Y + card.h / 2 + 44, '▲ Коснитесь — ульта!', 34, '#ffe070', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 7 }).setDepth(PANEL_DEPTH + 1);
     if (t.x - t.width / 2 < 20) t.setX(20 + t.width / 2);
     if (t.x + t.width / 2 > GAME_W - 20) t.setX(GAME_W - 20 - t.width / 2);
@@ -1477,7 +1541,7 @@ export class BattleScene extends Phaser.Scene {
               chargeHint.mark();
             } else if (this.manual && chargeHint.count < 3) {
               chargeHint.mark();
-              toast(this, `${v.def.name} заряжает удар — ульта героя собьёт его!`, '#ffb09a', 3000, 'middle');
+              toast(this, this.chargeToast(v.def.name), '#ffb09a', 3000, 'battle');
             }
           }
         }
@@ -1739,7 +1803,20 @@ export class BattleScene extends Phaser.Scene {
         this.commitStage();
         if (this.hunt) this.hunt.hud?.finish(this.hunt.outcome);
         this.time.delayedCall(animate ? 1200 : 150, () =>
-          this.hunt
+          this.bond
+            ? startTavernEvening(this, {
+                mode: 'hub',
+                back: this.bond.back,
+                quest: {
+                  templateId: this.bond.templateId,
+                  win: this.bond.outcome.win,
+                  goal: this.bond.outcome.goal,
+                  firstTime: this.bond.outcome.firstTime,
+                  fallen: this.bond.outcome.fallen,
+                  duration: this.result.duration,
+                },
+              })
+            : this.hunt
             ? this.scene.start('Hunt', { outcome: this.hunt.outcome })
             : this.towerRun
               ? this.scene.start('Tower', { fight: { floor: this.towerRun.outcome.floor, win: this.result.winner === 'A', events: this.towerRun.outcome.events } })
@@ -1825,7 +1902,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private commitStage(): void {
-    const out = this.stage?.outcome ?? this.tower?.outcome ?? this.towerRun?.outcome ?? this.hunt?.outcome;
+    const out = this.stage?.outcome ?? this.tower?.outcome ?? this.towerRun?.outcome ?? this.hunt?.outcome ?? this.bond?.outcome;
     if (!out || this.committed) return;
     this.committed = true;
     commit(out.save);

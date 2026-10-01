@@ -8,7 +8,7 @@ import { campLevel, formatNumber, heroesNavBadge, heroSprite, leadHero, POWER_CO
 import { framedPortrait } from './portraitFrame';
 import { view } from './viewport';
 import { heroGender } from '../core';
-import { button, ellipsize, emptyState, icon, panel, shieldTaps, text, toast } from './ui';
+import { button, ellipsize, emptyState, icon, panel, ScrollArea, shieldTaps, text, toast } from './ui';
 import { hasArt } from './assets';
 import { RO_ICON_TINT, roIcon } from './itemIcons';
 import { C, FS, SP, TINT } from './theme';
@@ -149,29 +149,67 @@ export function isHeroesNotice(w: string): boolean {
   return w.startsWith('Герои обновлены') || w.startsWith('Осколки героев стали');
 }
 
-/** Окно-сообщение: заголовок, абзацы, «Понятно» (и кнопка перехода). Возвращает слой (name `noticeModal`). */
-export function noticeModal(scene: Phaser.Scene, title: string, paragraphs: readonly string[], go?: { label: string; to: string; data?: object }): Phaser.GameObjects.Container {
+/**
+ * Окно-сообщение: заголовок, абзацы, «Понятно» (и кнопка перехода). Возвращает слой (name `noticeModal`).
+ * lead — итог крупно над абзацами (виден всегда). Длинный текст не обрезается: абзацы прокручиваются пальцем
+ * и колёсиком в своей полосе (BUG-184: рассказ «Забрать всё» на 12 событий), справа — полоса прокрутки.
+ */
+export function noticeModal(
+  scene: Phaser.Scene,
+  title: string,
+  paragraphs: readonly string[],
+  go?: { label: string; to: string; data?: object },
+  lead?: string,
+): Phaser.GameObjects.Container {
   const layer = scene.add.container(0, 0).setDepth(9100).setName('noticeModal');
   const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x000000, 0.75).setInteractive();
   const w = 940;
+  const leadText = lead
+    ? text(scene, 0, 0, lead, FS.h3, C.gold, { align: 'center', wordWrap: { width: w - 120 }, lineSpacing: 6, fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0.5, 0)
+    : null;
+  const leadH = leadText ? leadText.height + 30 : 0;
   const body = text(scene, 0, 0, paragraphs.join('\n\n'), FS.body, C.text, { align: 'left', wordWrap: { width: w - 120 }, lineSpacing: 8, stroke: C.stroke, strokeThickness: 4 }).setOrigin(0.5, 0);
-  const maxBody = GAME_H - 700;
-  if (body.height > maxBody) body.setFontSize(FS.small).setMaxLines(Math.floor(maxBody / 40));
-  const h = Math.min(GAME_H - 300, body.height + 360);
+  const maxBody = GAME_H - 700 - leadH;
+  const scroll = body.height > maxBody;
+  if (scroll) body.setFontSize(FS.small);
+  const bodyH = Math.min(body.height, maxBody);
+  const h = Math.min(GAME_H - 300, bodyH + leadH + 360);
   const top = GAME_H / 2 - h / 2;
   const box = panel(scene, GAME_W / 2, GAME_H / 2, w, h, 'ui_panel').setInteractive();
   const head = text(scene, GAME_W / 2, top + 80, title, FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 8 });
-  body.setPosition(GAME_W / 2, top + 150);
+  layer.add([shade, box, head]);
+  if (leadText) {
+    leadText.setPosition(GAME_W / 2, top + 140);
+    layer.add(leadText);
+  }
+  const bodyTop = top + 150 + leadH;
+  let area: ScrollArea | null = null;
+  if (scroll) {
+    area = new ScrollArea(scene, bodyTop, bodyTop + bodyH);
+    body.setPosition(GAME_W / 2, 0);
+    area.add(body);
+    area.setContentHeight(body.height + 24);
+    layer.add(text(scene, GAME_W / 2, bodyTop + bodyH + 22, 'листайте ↕', FS.caption, C.muted));
+  } else {
+    body.setPosition(GAME_W / 2, bodyTop);
+    layer.add(body);
+  }
   const close = () => layer.destroy();
   const by = top + h - 100;
   const ok = button(scene, GAME_W / 2 + (go ? 210 : 0), by, 380, 120, 'ui_btn_primary', 'Понятно', close, FS.h2);
   ok.container.setName('noticeOk');
-  layer.add([shade, box, head, body, ok.container]);
+  layer.add(ok.container);
   if (go) layer.add(button(scene, GAME_W / 2 - 210, by, 380, 120, 'ui_btn_secondary', go.label, () => {
     close();
     scene.scene.start(go.to, go.data);
   }, FS.h2).container);
   popIn(scene, layer, shade);
+  // Прокрутка живёт в координатах мира (маска и границы — от top): в слой — после popIn, который переносит детей в
+  // контейнер с началом в центре экрана (иначе список уезжал вниз на полэкрана при первой прокрутке).
+  if (area) {
+    layer.add(area.parts);
+    scene.tweens.add({ targets: area.content, alpha: { from: 0, to: 1 }, duration: 160 });
+  }
   return layer;
 }
 
