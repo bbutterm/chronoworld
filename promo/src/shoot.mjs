@@ -7,7 +7,7 @@
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, statSync } from 'node:fs';
 
-const window_black = (f) => statSync(f).size < 150_000;
+const window_black = (f) => statSync(f).size < 40_000;
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -148,8 +148,8 @@ async function battle(page, tag, startData, { maxShots = 60, holdBreakers = true
     const g = window.__game;
     g.loop.sleep();
     const sc = g.scene.getScene('Battle');
-    window.__cap = { t: performance.now(), last: 0, queue: [{ at: sc.time.now + 1500, name: 'intro' }], sc, hold, seenUlt: {}, readySince: {}, ultK: o.k, ultOffs: o.offs, only: o.only };
-  }, { hold: holdBreakers, k: Number(process.env.PROMO_ULT_K ?? 2), offs: (process.env.PROMO_ULT_OFFS ?? '250,600').split(',').map(Number), only: process.env.PROMO_ULT_ONLY ?? '' });
+    window.__cap = { t: performance.now(), last: 0, queue: [{ at: sc.time.now + 1500, name: 'intro' }], sc, hold, seenUlt: {}, readySince: {}, ultK: o.k, ultOffs: o.offs, only: o.only, noCharge: o.noCharge };
+  }, { hold: holdBreakers, k: Number(process.env.PROMO_ULT_K ?? 2), offs: (process.env.PROMO_ULT_OFFS ?? '250,600').split(',').map(Number), only: process.env.PROMO_ULT_ONLY ?? '', noCharge: !!process.env.PROMO_NO_CHARGE });
   let n = 0;
   for (let guard = 0; guard < 4000 && n < maxShots; guard++) {
     const due = await page.evaluate(() => {
@@ -170,7 +170,7 @@ async function battle(page, tag, startData, { maxShots = 60, holdBreakers = true
             const k = (c.seenUlt[e.skill] = (c.seenUlt[e.skill] ?? 0) + 1);
             if (k <= c.ultK && (!c.only || new RegExp(c.only).test(e.skill))) for (const o of c.ultOffs) c.queue.push({ at: sc.time.now + o, name: `ult_${e.skill}_${k}_${o}` });
           }
-          if (e.type === 'cast' && e.charge && e.action !== 'interrupt') {
+          if (e.type === 'cast' && e.charge && e.action !== 'interrupt' && !c.noCharge) {
             c.chargeAt = sc.time.now;
             for (const o of [120]) c.queue.push({ at: sc.time.now + o, name: `charge_${Math.round(e.t)}_${o}` });
             for (const o of [500, 1000]) c.queue.push({ at: sc.time.now + o, name: `charge_${Math.round(e.t)}_${o}` });
@@ -250,59 +250,89 @@ try {
   }
   if (want('ui')) {
     // Интерфейс, боссы глав, MVP и сюжет — кадры для ролика (PROMO_VIEW=405x720: ровно 1080×1920, без обрезки).
-    const p = await open(saves.storm);
-    const ids = await p.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')).heroes.map((h) => [h.id, h.templateId]));
-    const hid = (t) => ids.find((x) => x[1] === t)[0];
-    await go(p, 'Home');
-    await shot(p, 'ui_home');
-    await go(p, 'Inventory', { heroId: hid('alan'), slot: 'weapon' });
-    await shot(p, 'ui_inventory_weapon');
-    await go(p, 'Inventory', { heroId: hid('alan'), slot: 'armor' });
-    await shot(p, 'ui_inventory_armor');
-    await go(p, 'Tavern');
-    await shot(p, 'ui_tavern');
-    for (const ch of [0, 2, 8, 9]) {
-      await go(p, 'Campaign', { chapter: ch });
-      await shot(p, `ui_campaign_${ch + 1}`);
-    }
-    for (const st of ['ch3_s10', 'ch8_s18', 'ch9_s18', 'ch10_s18']) {
-      await go(p, 'Stage', { stageId: st });
-      await shot(p, `ui_stage_${st}`);
-    }
-    await go(p, 'Chronicle');
-    await shot(p, 'ui_chronicle');
-    for (const id of (process.env.PROMO_STORY ?? 'ch1_s1_before,ch9_intro,ch10_intro').split(',')) {
+    // Каждая часть — в своей вкладке (программный WebGL терял контекст после нескольких сцен подряд).
+    // PROMO_UI=base,evening,story,hero,hunt — какие части снимать.
+    const part = (k) => !process.env.PROMO_UI || process.env.PROMO_UI.split(',').includes(k);
+    if (part('base')) {
+      const p = await open(saves.storm);
+      const ids = await p.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')).heroes.map((h) => [h.id, h.templateId]));
+      const hid = (t) => ids.find((x) => x[1] === t)[0];
       await go(p, 'Home');
-      await p.evaluate(async (id) => {
-        const g = window.__game;
-        const { GAME } = await import('/src/game/content.ts');
-        const m = await import('/src/game/dialogue.ts');
-        const sc = GAME.story.scenes.find((x) => x.id === id);
-        m.playScenes(g.scene.getScene('Home'), [sc], () => {});
-      }, id);
-      await sleep(4500);
-      await shot(p, `ui_story_${id}_1`);
-      await p.mouse.click(200, 600);
-      await sleep(600);
-      await p.mouse.click(200, 600);
-      await sleep(4500);
-      await shot(p, `ui_story_${id}_2`);
+      await shot(p, 'ui_home');
+      await go(p, 'Inventory', { heroId: hid('alan'), slot: 'weapon' });
+      await shot(p, 'ui_inventory_weapon');
+      await go(p, 'Inventory', { heroId: hid('alan'), slot: 'armor' });
+      await shot(p, 'ui_inventory_armor');
+      await go(p, 'Tavern');
+      await shot(p, 'ui_tavern');
+      for (const ch of [0, 2, 8, 9]) {
+        await go(p, 'Campaign', { chapter: ch });
+        await shot(p, `ui_campaign_${ch + 1}`);
+      }
+      for (const st of ['ch3_s10', 'ch8_s18', 'ch9_s18', 'ch10_s18']) {
+        await go(p, 'Stage', { stageId: st });
+        await shot(p, `ui_stage_${st}`);
+      }
+      await go(p, 'Chronicle');
+      await shot(p, 'ui_chronicle');
+      await p.context().close();
     }
-    await p.context().close();
-    const a = await open(saves.asura);
-    const aids = await a.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')).heroes.map((h) => [h.id, h.templateId]));
-    for (const t of ['vika', 'lira', 'kai']) {
-      const h = aids.find((x) => x[1] === t);
-      if (!h) continue;
-      await go(a, 'Hero', { heroId: h[0] });
-      await shot(a, `ui_hero_${t}`);
+    if (part('evening')) {
+      for (const id of ['tav_ch1', 'tav_ch5']) {
+        const p = await open(saves.storm);
+        await p.evaluate(async (id) => {
+          const g = window.__game;
+          const m = await import('/src/game/scenes/TavernEveningScene.ts');
+          m.startTavernEvening(g.scene.getScenes(true)[0], { mode: 'evening', id, back: { to: 'Home' } });
+        }, id);
+        await sleep(2500);
+        for (let k = 1; k <= 3; k++) {
+          await shot(p, `ui_evening_${id}_${k}`);
+          await p.mouse.click(200, 400);
+          await sleep(1400);
+        }
+        await p.context().close();
+      }
     }
-    await a.context().close();
-    for (const mvp of ['mvp_dracula', 'mvp_pharaoh']) {
-      const m = await open(saves.storm, { shiftDays: shiftForMvp(mvp) });
-      await go(m, 'Hunt');
-      await shot(m, `ui_hunt_${mvp}`);
-      await m.context().close();
+    if (part('story')) {
+      for (const id of (process.env.PROMO_STORY ?? 'ch1_s1_before,ch9_intro,ch10_intro').split(',')) {
+        const p = await open(saves.storm);
+        await go(p, 'Home');
+        await p.evaluate(async (id) => {
+          const g = window.__game;
+          const { GAME } = await import('/src/game/content.ts');
+          const m = await import('/src/game/dialogue.ts');
+          const sc = GAME.story.scenes.find((x) => x.id === id);
+          m.playScenes(g.scene.getScene('Home'), [sc], () => {});
+        }, id);
+        await sleep(4500);
+        await shot(p, `ui_story_${id}_1`);
+        await p.mouse.click(200, 600);
+        await sleep(600);
+        await p.mouse.click(200, 600);
+        await sleep(4500);
+        await shot(p, `ui_story_${id}_2`);
+        await p.context().close();
+      }
+    }
+    if (part('hero')) {
+      const a = await open(saves.asura);
+      const aids = await a.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')).heroes.map((h) => [h.id, h.templateId]));
+      for (const t of ['vika', 'iris']) {
+        const h = aids.find((x) => x[1] === t);
+        if (!h) continue;
+        await go(a, 'Hero', { heroId: h[0] });
+        await shot(a, `ui_hero_${t}`);
+      }
+      await a.context().close();
+    }
+    if (part('hunt')) {
+      for (const mvp of ['mvp_dracula', 'mvp_pharaoh']) {
+        const m = await open(saves.storm, { shiftDays: shiftForMvp(mvp) });
+        await go(m, 'Hunt');
+        await shot(m, `ui_hunt_${mvp}`);
+        await m.context().close();
+      }
     }
   }
   if (want('battle')) {
