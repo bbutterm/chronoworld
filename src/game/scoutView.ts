@@ -4,14 +4,17 @@ import { enemyTraits } from '../core/behavior';
 import { attackElement, defenseElement, ELEMENT_NAMES, weakTo, type Element } from '../core/elements';
 import { elementBadge, elementTitle } from './battleElements';
 import { CONTENT, GAME } from './content';
-import { GAME_H, GAME_W } from './layout';
-import { pressable, text } from './ui';
-import { C, FS } from './theme';
+import { formatNumber, type StageNeeds } from './flow';
+import { GAME_W } from './layout';
+import { bottomSheet } from './screen';
+import { chip, pressable, stat, tag, text, type Tone } from './ui';
+import { C, COLOR, FS, S, T } from './theme';
 
 /**
- * Разведка врагов (docs/design/battle-decisions.md §2) — строка под полем и окно по касанию; общая для экрана этапа и
- * превью этажа Башни (BUG-189, BUG-198). Враги группируются по виду («Фабр ×2»), а не по слотам; одно слово —
- * «слабость»; у босса особенности — в две строки; в окне — кто из отряда бьёт нужной стихией.
+ * Разведка врагов (docs/design/battle-decisions.md §2): лист снизу по кнопке «i» на экране этапа и по строке на превью
+ * этажа Башни (BUG-189, BUG-198). Враги группируются по виду («Фабр ×2»), а не по слотам; особенности — тегами,
+ * слабости — чипами стихий, под ними — кто из отряда бьёт нужной стихией. На самом экране этапа постоянного текста
+ * разведки нет (§3 правило 3 исследования ui-polish-research.md): только «i».
  */
 
 export interface ScoutGroup {
@@ -32,6 +35,14 @@ export function scoutGroups(enemies: readonly (UnitDef | null | undefined)[]): S
   return [...map.values()];
 }
 
+/** Две самые частые слабости врагов (стихии, которыми их выгодно бить). */
+export function scoutWeakness(enemies: readonly (UnitDef | null | undefined)[]): Element[] {
+  const cfg = GAME.combat ?? COMBAT_CFG;
+  const weak = new Map<Element, number>();
+  for (const u of enemies) if (u) for (const el of weakTo(cfg.elements, defenseElement(u))) weak.set(el, (weak.get(el) ?? 0) + 1);
+  return [...weak.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([el]) => el);
+}
+
 /** Короткая строка: главные особенности и две самые частые слабости. Пусто — «обычные враги». */
 export function scoutSummary(enemies: readonly (UnitDef | null | undefined)[]): string {
   const cfg = GAME.combat ?? COMBAT_CFG;
@@ -40,14 +51,19 @@ export function scoutSummary(enemies: readonly (UnitDef | null | undefined)[]): 
     const t = enemyTraits(def, CONTENT, cfg)[0];
     if (t && !traits.includes(t)) traits.push(t);
   }
-  const weak = new Map<Element, number>();
-  for (const u of enemies) if (u) for (const el of weakTo(cfg.elements, defenseElement(u))) weak.set(el, (weak.get(el) ?? 0) + 1);
-  const best = [...weak.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([el]) => ELEMENT_NAMES[el]);
+  const best = scoutWeakness(enemies).map((el) => ELEMENT_NAMES[el]);
   const parts = [traits.slice(0, 3).join(', '), best.length ? `слабость: ${best.join(', ')}` : ''].filter(Boolean);
   return parts.join(' · ') || 'обычные враги';
 }
 
-/** Строка «Разведка: … ›» в (x, y) шириной не больше maxW; касание — окно разведки. */
+/** Тон тега особенности: опасное для отряда — предупреждение, помощь врагам друг другу — инфо. */
+export function traitTone(trait: string): Tone {
+  if (/заряд|тыл|оглуш|ярость|площади|свиту/.test(trait)) return 'warning';
+  if (/лечит|щиты/.test(trait)) return 'info';
+  return 'neutral';
+}
+
+/** Строка «Разведка: … ›» в (x, y) шириной не больше maxW; касание — лист разведки (превью этажа Башни). */
 export function scoutLine(
   scene: Phaser.Scene,
   y: number,
@@ -61,63 +77,98 @@ export function scoutLine(
   const line = text(scene, GAME_W / 2, y, `Разведка: ${scoutSummary(enemies)}  ›`, FS.caption, color, { stroke: C.stroke, strokeThickness: 4 }).setName('stageScout').setDepth(depth);
   if (line.width > maxW) line.setScale(maxW / line.width);
   const zone = scene.add.zone(GAME_W / 2, y, maxW + 20, 48).setName('stageScoutZone').setDepth(depth);
-  pressable(scene, zone, maxW + 20, 48, () => scoutPanel(scene, enemies, squad));
+  pressable(scene, zone, maxW + 20, 48, () => scoutSheet(scene, enemies, squad));
   return line;
 }
 
-/** Окно разведки: по строке на вид врага (значок стихии, «имя ×N», особенности, слабость и кто из отряда ею бьёт). */
-export function scoutPanel(scene: Phaser.Scene, enemies: readonly (UnitDef | null | undefined)[], squad: readonly UnitDef[]): void {
+/** Что этап требует от отряда (flow.ts stageNeeds); в листе — без own. */
+export type ScoutNeeds = Omit<StageNeeds, 'own'>;
+
+/**
+ * Лист «Разведка»: сверху (если есть needs) — нужная мощь и уровень врагов; ниже по виду врага — значок стихии,
+ * «имя ×N», «БОСС», особенности тегами, слабости чипами стихий и кто из отряда ими бьёт.
+ */
+export function scoutSheet(
+  scene: Phaser.Scene,
+  enemies: readonly (UnitDef | null | undefined)[],
+  squad: readonly UnitDef[],
+  needs?: ScoutNeeds,
+): void {
   const cfg = GAME.combat ?? COMBAT_CFG;
   const groups = scoutGroups(enemies);
-  const W = 980;
-  const textW = W - 150;
-  const D = 5050;
-  const block = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W * 2, GAME_H * 2, 0x000000, 0.6).setDepth(D).setInteractive();
-  const nodes: Phaser.GameObjects.GameObject[] = [block];
-  const body: { node: Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform; dy: number }[] = [];
-  let y = 0;
   const heroEls = squad.map((d) => ({ name: d.name, el: attackElement(d, CONTENT.skills) }));
-  for (const g of groups) {
-    const u = g.def;
-    const el = defenseElement(u);
-    const rowTop = y;
-    const name = text(scene, 0, 0, `${u.name}${g.count > 1 ? ` ×${g.count}` : ''}${u.kind === 'boss' ? ' · босс' : ''}${el !== 'neutral' ? ` · ${elementTitle(el)}` : ''}`, FS.small, u.kind === 'boss' ? C.danger : C.text, {
-      fontStyle: 'bold',
-      stroke: C.stroke,
-      strokeThickness: 4,
-    })
-      .setOrigin(0, 0)
-      .setDepth(D + 1);
-    if (name.width > textW) name.setScale(textW / name.width);
-    body.push({ node: name, dy: rowTop });
-    y += name.displayHeight + 6;
-    const tr = enemyTraits(u, CONTENT, cfg);
-    const weakEls = weakTo(cfg.elements, el);
-    const weak = weakEls.map((x) => ELEMENT_NAMES[x]);
-    const hitters = [...new Set(heroEls.filter((h) => weakEls.includes(h.el)).map((h) => h.name))];
-    const lines = [
-      tr.length ? (u.kind === 'boss' ? tr.join(', ') : tr.slice(0, 3).join(', ')) : 'без особенностей',
-      weak.length ? `слабость: ${weak.join(', ')}${hitters.length ? ` — бьёт: ${hitters.join(', ')}` : ' — в отряде таких нет'}` : '',
-    ].filter(Boolean);
-    const d = text(scene, 0, 0, lines.join('\n'), FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3, wordWrap: { width: textW }, lineSpacing: 4, align: 'left' })
-      .setOrigin(0, 0)
-      .setDepth(D + 1);
-    body.push({ node: d, dy: y });
-    y += d.height + 22;
-    const badge = elementBadge(scene, 0, 0, el, 44).setDepth(D + 1);
-    body.push({ node: badge, dy: rowTop + 22 });
-    if (el === 'neutral') badge.setVisible(false);
-  }
-  const h = Math.min(GAME_H - 200, y + 190);
-  const top = GAME_H / 2 - h / 2;
-  const box = scene.add.rectangle(GAME_W / 2, GAME_H / 2, W, h, 0x1d1510, 0.97).setStrokeStyle(4, 0xc9a45c, 0.9).setDepth(D);
-  nodes.push(box);
-  nodes.push(text(scene, GAME_W / 2, top + 50, 'Разведка', FS.h2, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setDepth(D + 1));
-  for (const b of body) {
-    const isBadge = b.node.name.startsWith('element_');
-    b.node.setPosition(isBadge ? GAME_W / 2 - W / 2 + 60 : GAME_W / 2 - W / 2 + 110, top + 100 + b.dy);
-    nodes.push(b.node);
-  }
-  nodes.push(text(scene, GAME_W / 2, top + h - 34, 'Коснитесь, чтобы закрыть', FS.caption, C.dim).setDepth(D + 1));
-  block.once('pointerup', () => nodes.forEach((n) => n.destroy()));
+  bottomSheet(scene, 'Разведка', (c, width) => {
+    let y = 0;
+    if (needs) {
+      const rows: [string, string, Tone?][] = [['Нужная мощь', formatNumber(needs.power)]];
+      // Без пределов редкостей типичный враг = нужный уровень героев (flow.ts stageLevelsFor) — одно число, не два.
+      if (needs.short && !needs.short.capped) rows.push(['Героям нужен', `ур. ${needs.short.level}`, 'negative']);
+      else rows.push(['Уровень врагов', `≈ ${needs.enemyLevel}`]);
+      for (const [label, value, tone] of rows) {
+        c.add(stat(scene, width / 2, y + 28, label, value, { w: width, tone }));
+        y += 64;
+      }
+      if (needs.short?.capped) {
+        const t = text(scene, 0, y + 8, 'Уровней не хватит — нужны копии героев и «Вознести»', T.caption, COLOR.warning, { wordWrap: { width }, align: 'left' }).setOrigin(0, 0);
+        c.add(t);
+        y += t.height + S.xs;
+      }
+      y += S.m;
+    }
+    groups.forEach((g, gi) => {
+      const u = g.def;
+      const el = defenseElement(u);
+      if (gi > 0) {
+        c.add(scene.add.rectangle(width / 2, y, width, 2, 0x5c4b31, 0.6));
+        y += S.m;
+      }
+      // Шапка вида: значок стихии, имя ×N, «БОСС».
+      let x = 0;
+      if (el !== 'neutral') {
+        c.add(elementBadge(scene, 28, y + 28, el, 52));
+        x = 56 + S.xs;
+      }
+      const name = text(scene, x, y + 28, `${u.name}${g.count > 1 ? ` ×${g.count}` : ''}`, T.body, u.kind === 'boss' ? COLOR.negative : COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+      c.add(name);
+      if (u.kind === 'boss') c.add(tag(scene, x + name.width + S.xs, y + 28, 'БОСС', 'negative', { solid: true, align: 'left' }));
+      y += 56 + S.xs;
+      // Особенности — теги в строку с переносом.
+      const traits = enemyTraits(u, CONTENT, cfg);
+      const shown = u.kind === 'boss' ? traits : traits.slice(0, 3);
+      x = 0;
+      for (const tr of shown) {
+        const t = tag(scene, 0, 0, tr, traitTone(tr), { align: 'left' });
+        if (x > 0 && x + t.width > width) {
+          x = 0;
+          y += 52 + S.xxs;
+        }
+        t.setPosition(x + t.width / 2, y + 26);
+        c.add(t);
+        x += t.width + S.xxs;
+      }
+      if (shown.length) y += 52 + S.xs;
+      // Слабость — чипы стихий; ниже — кто из отряда ею бьёт.
+      const weakEls = weakTo(cfg.elements, el);
+      if (weakEls.length) {
+        const lab = text(scene, 0, y + 28, 'Слабость', T.caption, COLOR.textSecondary).setOrigin(0, 0.5);
+        c.add(lab);
+        x = lab.width + S.xs;
+        for (const w of weakEls) {
+          const ch = chip(scene, x, y + 28, (s, cx, cy, size) => elementBadge(s, cx, cy, w, size), elementTitle(w), 'neutral', { size: 's', align: 'left' });
+          c.add(ch);
+          x += ch.width + S.xxs;
+        }
+        y += 56 + S.xxs;
+        const hitters = [...new Set(heroEls.filter((h) => weakEls.includes(h.el)).map((h) => h.name))];
+        const who = text(scene, 0, y + 4, hitters.length ? `Бьёт этим: ${hitters.join(', ')}` : 'В отряде так никто не бьёт', T.caption, hitters.length ? COLOR.positive : COLOR.textTertiary, {
+          wordWrap: { width },
+          align: 'left',
+        }).setOrigin(0, 0);
+        c.add(who);
+        y += who.height + S.xs;
+      }
+      y += S.xs;
+    });
+    return y;
+  });
 }
