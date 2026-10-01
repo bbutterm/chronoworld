@@ -24,7 +24,7 @@ import {
   type UnitDef,
 } from '../src/core';
 import { loadFullContext, referenceLevel } from '../scripts/lib/player-model';
-import { enemyLevelColor, LEVEL_COLORS, levelLabel, recommendText, squadRarity, stageLevelsFor } from '../src/game/flow';
+import { enemyLevelColor, LEVEL_COLORS, levelLabel, recommendText, shortfallHint, squadRarity, stageLevelsFor, stageNeeds } from '../src/game/flow';
 
 const CTX = loadFullContext();
 const STAGES = CTX.content.stages;
@@ -230,5 +230,26 @@ describe('RN-11: уровни врагов в единицах редкости 
     expect(capped.recommended.capped).toBe(true);
     expect(recommendText(capped.recommended)).toMatch(/копии/);
     expect(capped.shift).toBe(0);
+  });
+
+  it('экран этапа: одно число уровня врагов, нехватка — только когда мощи мало (stageNeeds, shortfallHint)', () => {
+    const ctx = loadFullContext();
+    const id = 'ch3_s9';
+    const mk = (level: number) => {
+      const base = newGame(ctx, 0);
+      const heroes = ['alan', 'bran', 'vika', 'dorn', 'zara'].map((t, i) => ({ id: `h${i + 1}`, templateId: t, rarity: 'blue' as const, level }));
+      return { ...base, heroes, squad: heroes.map((h) => h.id) };
+    };
+    const weak = stageNeeds(mk(1), id, ctx);
+    const n = stageLevelsFor(mk(1), id, ctx).recommended.level;
+    expect(weak.power).toBe(recommendedPower(id, ctx));
+    expect(weak.own).toBeLessThan(weak.power);
+    expect(weak.short).toEqual({ level: n });
+    expect(weak.enemyLevel).toBe(n);
+    expect(shortfallHint(weak.short!)).toBe(`Героям нужен ур. ${n}`);
+    const strong = stageNeeds(mk(n), id, ctx);
+    expect(strong.own).toBeGreaterThanOrEqual(strong.power);
+    expect(strong.short).toBeUndefined();
+    expect(shortfallHint({ level: 99, capped: true })).toMatch(/копии/);
   });
 });
