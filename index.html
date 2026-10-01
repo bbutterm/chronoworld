@@ -8,12 +8,13 @@
     <!--
       Шрифты интерфейса (OFL, assets/fonts, подмножество латиница + кириллица): качаются сразу, параллельно с JS;
       main.ts ждёт их до первой сцены (иначе Phaser.Text запечёт системный шрифт). Список — FONT_FILES в src/game/theme.ts.
+      Обычный текст — Rubik 400 (500 рядом с жирным 700 читался тяжёлым): диапазон 300–600 отдан файлу 400.
     -->
-    <link rel="preload" href="fonts/rubik-500.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/rubik-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="fonts/rubik-700.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="fonts/philosopher-700.woff2" as="font" type="font/woff2" crossorigin />
     <style>
-      @font-face { font-family: 'Rubik'; font-weight: 300 600; font-display: swap; src: url('fonts/rubik-500.woff2') format('woff2'); }
+      @font-face { font-family: 'Rubik'; font-weight: 300 600; font-display: swap; src: url('fonts/rubik-400.woff2') format('woff2'); }
       @font-face { font-family: 'Rubik'; font-weight: 700 900; font-display: swap; src: url('fonts/rubik-700.woff2') format('woff2'); }
       @font-face { font-family: 'Philosopher'; font-weight: 400 900; font-display: swap; src: url('fonts/philosopher-700.woff2') format('woff2'); }
       html, body { margin: 0; padding: 0; height: 100%; background: #0a0907; overflow: hidden; touch-action: none; }

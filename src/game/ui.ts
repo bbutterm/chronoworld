@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { skinKey, sliceOf, tex } from './assets';
-import { SKIN, SKIN_DARK_LABEL } from './skin';
+import { SKIN_DARK_LABEL } from './skin';
 import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { worldPoint } from './viewport';
-import { C, familyFor, FS, TINT, TOUCH } from './theme';
+import { C, COLOR, E, FAMILY, familyFor, FS, leading, M, R, S, T, TINT, TOUCH } from './theme';
 import { arrowRect, HINT_GEOM, overlapArea, placeCallout, type CalloutPlan, type HintSide, type Rect } from './hintLayout';
 import { HINT_TEXT, markHint, type HintId } from './hints';
 import { barFrom, juiceOn } from './juice';
+import { roIconImage } from './itemIcons';
 import { sfx } from './audio';
 import { haptic } from './haptics';
 import type { SfxId } from './audioCatalog';
@@ -53,6 +54,16 @@ export function shieldTaps(game: Phaser.Game | undefined, ms = SHIELD_MS): void 
 /** Kenney UI нарисован мелко: 9-slice строим в меньшем размере и увеличиваем, чтобы рамки были заметны. */
 const UI_SCALE = 2.5;
 
+/** Мягкая тень текста поверх арта (вместо обводки): 0/2 ед., размытие 4, 55 % — §4.1 исследования. */
+export const TEXT_SHADOW = { x: 0, y: 2, color: 'rgba(0,0,0,0.55)', blur: 4 } as const;
+
+/**
+ * Текст по центру (x, y). Правила токенов (docs/design/ui-polish-research.md, §4.1):
+ * - многострочный (wordWrap) без явного lineSpacing получает межстрочный по шкале T (leading());
+ * - тонкая обводка C.stroke / C.titleStroke (OUTLINE, TITLE_STYLE, до 4 ед.) превращается в мягкую тень: на тёмной
+ *   поверхности её не видно, на арте она отделяет буквы от фона, а буквы не «толстеют». Толстая явная обводка
+ *   (5+ ед., «наклейки» на арте) остаётся как есть. Явный shadow в стиле главнее.
+ */
 export function text(
   scene: Phaser.Scene,
   x: number,
@@ -62,9 +73,16 @@ export function text(
   color: string = C.text,
   style: Phaser.Types.GameObjects.Text.TextStyle = {},
 ): Phaser.GameObjects.Text {
-  return scene.add
-    .text(x, y, value, { fontFamily: familyFor(size, style), fontSize: `${size}px`, color, align: 'center', ...style })
-    .setOrigin(0.5);
+  const s: Phaser.Types.GameObjects.Text.TextStyle = { fontFamily: familyFor(size, style), fontSize: `${size}px`, color, align: 'center', ...style };
+  if (style.wordWrap && style.lineSpacing === undefined) s.lineSpacing = leading(size);
+  const soft = (style.stroke === C.stroke || style.stroke === C.titleStroke) && (style.strokeThickness ?? 0) <= 4;
+  if (soft) {
+    delete s.stroke;
+    s.strokeThickness = 0;
+  }
+  const t = scene.add.text(x, y, value, s).setOrigin(0.5);
+  if (soft && !style.shadow) t.setShadow(TEXT_SHADOW.x, TEXT_SHADOW.y, TEXT_SHADOW.color, TEXT_SHADOW.blur, false, true);
+  return t;
 }
 
 /** 9-slice панель из манифеста (кадр атласа или картинка). */
@@ -79,8 +97,89 @@ export function panel(scene: Phaser.Scene, x: number, y: number, w: number, h: n
   return scene.add.nineslice(x, y, t.key, t.frame, w / scale, h / scale, l, r, tp, b).setScale(scale);
 }
 
-/** На сколько опускается подпись нажатой кнопки. */
-const PRESS_DY = 6;
+// ———————————————————————————————————————— Кнопки ————————————————————————————————————————
+
+/**
+ * Высоты и поля кнопок (TODO(theme.ts): перенести в токены). l — обычная кнопка экрана/модалки (цель ≥ 122 ед. по §1.2
+ * исследования — 120 + отступ), m — кнопка в строке списка и иконка, cta — главная кнопка экрана. padX — поле подписи.
+ */
+export const BTN = { cta: 144, l: 120, m: 96, padX: S.l, icon: 96 } as const;
+
+/**
+ * Вид кнопки (§4.7): primary — золото, одна на экран; secondary — тёмная плитка с рамкой; ghost — подпись цветом
+ * акцента без плитки (третичное действие); icon — квадратная тёмная плитка с глифом/иконкой; danger — тёмная плитка
+ * с красной подписью (сброс, удаление: не выделяется как главная, T3-23).
+ */
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'icon' | 'danger';
+
+/** Текстура скина по виду (явный variant главнее textureId). */
+const VARIANT_TEXTURE: Record<Exclude<ButtonVariant, 'ghost'>, string> = {
+  primary: 'ui_btn_primary',
+  secondary: 'ui_btn_secondary',
+  icon: 'ui_btn_secondary',
+  danger: 'ui_btn_secondary',
+};
+
+/** Вид кнопки по текстуре (старые вызовы без variant): золото — primary, остальное — secondary. */
+export function variantOf(textureId: string): ButtonVariant {
+  return textureId === 'ui_btn_primary' ? 'primary' : 'secondary';
+}
+
+/** Насколько сжимается нажатая кнопка (§4.6): 1 → 0.96 за M.press, обратно с «пружиной» E.pop за M.release. */
+export const PRESS_SCALE = 0.96;
+
+/**
+ * Отклик нажатия: масштаб объекта к PRESS_SCALE и обратно. Свои твины масштаба объекта (пульс «можно забрать»)
+ * на время нажатия ставятся на паузу и продолжаются после отпускания — без рывка и без двойного эффекта.
+ * Без анимации (juiceOn() = false) — масштаб сразу.
+ */
+export function pressFeedback(scene: Phaser.Scene, obj: Phaser.GameObjects.Container | Phaser.GameObjects.Image, down: boolean): void {
+  if (!obj.scene) return;
+  const prev = obj.getData('pressTween') as Phaser.Tweens.Tween | undefined;
+  if (prev) prev.stop();
+  let base = obj.getData('pressBase') as number | undefined;
+  if (down) {
+    if (base === undefined) {
+      base = obj.scaleX;
+      obj.setData('pressBase', base);
+    }
+    const paused = (obj.getData('pressPaused') as Phaser.Tweens.Tween[] | undefined) ?? [];
+    for (const tw of scene.tweens.getTweensOf(obj)) {
+      if (tw !== prev && tw.isPlaying()) {
+        tw.pause();
+        paused.push(tw);
+      }
+    }
+    obj.setData('pressPaused', paused);
+  }
+  if (base === undefined) return;
+  const to = down ? base * PRESS_SCALE : base;
+  const done = () => {
+    if (down || !obj.scene) return;
+    obj.setData('pressBase', undefined).setData('pressTween', undefined);
+    const paused = (obj.getData('pressPaused') as Phaser.Tweens.Tween[] | undefined) ?? [];
+    obj.setData('pressPaused', undefined);
+    for (const tw of paused) if (!tw.isDestroyed()) tw.resume();
+  };
+  if (!juiceOn()) {
+    obj.setScale(to);
+    done();
+    return;
+  }
+  obj.setData(
+    'pressTween',
+    scene.tweens.add({ targets: obj, scale: to, duration: down ? M.press : M.release, ease: down ? E.out : E.pop, onComplete: done }),
+  );
+}
+
+/** Подписи на плитках: тиснение. На золоте — светлый отблеск снизу, на тёмных — мягкая тень. */
+function labelShadow(t: Phaser.GameObjects.Text, onGold: boolean): void {
+  if (onGold) t.setShadow(0, 2, 'rgba(255,244,210,0.55)', 0, false, true);
+  else t.setShadow(0, 2, 'rgba(0,0,0,0.75)', 3, false, true);
+}
+
+/** Подпись недоступной кнопки на сером «камне»: приглушённая, но читаемая (≈ 4.5:1). TODO(theme.ts): токен. */
+export const DISABLED_LABEL = '#aea89b';
 
 const DARK_TEXT = new Set(['ui_btn_speed', 'ui_btn_skip', 'k:buttonLong_beige', 'k:buttonLong_grey', 'k:buttonSquare_beige', 'k:buttonSquare_grey']);
 
@@ -95,13 +194,29 @@ export interface ButtonView {
    * (экран объясняет тостом, почему нельзя); кому нажатие не нужно — disableInteractive() сам.
    */
   setEnabled: (on: boolean) => ButtonView;
+  /** Вид кнопки (явный или по текстуре). */
+  variant: ButtonVariant;
 }
 
 /** Текстура недоступной кнопки (skin.ts); нет скина — серый tint. */
 export const DISABLED_BTN = 'skin_btn_disabled';
 const DISABLED_TINT = 0x8a8a8a;
 
-/** Кнопка из 9-slice текстуры (или плейсхолдера) с подписью. */
+/** Параметры кнопки. */
+export interface ButtonOpts {
+  /** Переключатель по кругу (скорость, FPS): быстрые повторные нажатия не глушим. */
+  repeat?: boolean;
+  /** Звук нажатия (по умолчанию «тап»; null — без звука, например кнопка сама открывает окно со звуком). */
+  sound?: SfxId | null;
+  /** Вид (§4.7). Не задан — по textureId: золото → primary, остальное → secondary. Задан — главнее textureId. */
+  variant?: ButtonVariant;
+}
+
+/**
+ * Кнопка из 9-slice текстуры (или плейсхолдера) с подписью. Новый код задаёт opts.variant (textureId тогда не важен,
+ * можно передать ''), высоту — из BTN. Нажатие: масштаб 0.96 (pressFeedback) и «вдавленная» текстура скина; подпись
+ * отдельно не сдвигается.
+ */
 export function button(
   scene: Phaser.Scene,
   x: number,
@@ -112,24 +227,28 @@ export function button(
   label: string,
   onClick: () => void,
   fontSize: number = FS.h2,
-  /**
-   * repeat — переключатель по кругу (скорость, FPS): быстрые повторные нажатия не глушим.
-   * sound — звук нажатия (по умолчанию «тап»; null — без звука, например кнопка сама открывает окно со звуком).
-   */
-  opts: { repeat?: boolean; sound?: SfxId | null } = {},
+  opts: ButtonOpts = {},
 ): ButtonView {
-  const bg = panel(scene, 0, 0, w, h, textureId);
-  const skin = skinKey(scene, textureId);
-  // Скин: на золотой кнопке тёмная подпись, на тёмных плитках — кремовая (активная — золотая).
-  const dark = skin ? SKIN_DARK_LABEL.has(skin) : DARK_TEXT.has(textureId);
-  const color = skin ? (dark ? '#2a1c08' : skin === 'skin_btn_active' ? SKIN.goldLight : SKIN.cream) : dark ? C.ink : C.text;
-  const t = text(scene, 0, -4, label, fontSize, color, {
+  const variant = opts.variant ?? variantOf(textureId);
+  const texId = opts.variant && opts.variant !== 'ghost' ? VARIANT_TEXTURE[opts.variant] : textureId || 'ui_btn_secondary';
+  const ghost = variant === 'ghost';
+  const bg = panel(scene, 0, 0, w, h, texId);
+  if (ghost) bg.setAlpha(0);
+  const skin = skinKey(scene, texId);
+  // Скин: на золотой кнопке тёмная подпись, на тёмных плитках — светлая (активная — золотая), danger — красная, ghost — акцент.
+  const dark = !ghost && (skin ? SKIN_DARK_LABEL.has(skin) : DARK_TEXT.has(texId));
+  let color: string;
+  if (ghost) color = COLOR.accent;
+  else if (variant === 'danger') color = COLOR.negative;
+  else if (skin) color = dark ? COLOR.onAccent : skin === 'skin_btn_active' ? COLOR.title : COLOR.textPrimary;
+  else color = dark ? C.ink : C.text;
+  const plain = dark || skin !== null || ghost;
+  const t = text(scene, 0, ghost ? 0 : -3, label, fontSize, color, {
     fontStyle: 'bold',
-    stroke: dark || skin ? C.none : C.titleStroke,
-    strokeThickness: dark || skin ? 0 : 5,
+    stroke: plain ? C.none : C.titleStroke,
+    strokeThickness: plain ? 0 : 5,
   });
-  // Скин: подпись тиснёная — на золоте светлый отблеск снизу, на тёмных плитках — тень.
-  if (skin) t.setShadow(0, dark ? 2 : 3, dark ? 'rgba(255,244,210,0.55)' : 'rgba(0,0,0,0.85)', dark ? 0 : 3, false, true);
+  if (skin || ghost) labelShadow(t, dark);
   const container = scene.add.container(x, y, [bg, t]);
   // Цель нажатия не ниже TOUCH, даже если кнопка нарисована ниже.
   const hitH = Math.max(h, TOUCH);
@@ -140,24 +259,17 @@ export function button(
   });
   // armed: палец опустился именно на эту кнопку; отпускание без него (или после протяжки списка) — не клик.
   let armed = false;
-  // Подпись «проседает» на PRESS_DY относительно своего места, а не ставится в абсолютный y: вызывающий
-  // мог сдвинуть её (подпись вкладки навигации под иконкой, T1-04) — после нажатия она должна вернуться туда же.
-  let sunk = false;
   const ready = debounce();
   let enabled = true;
   const setPressed = (p: boolean) => {
     armed = p;
     if (!bg.scene) return;
-    if (enabled) {
-      const f = tex(scene, textureId, p);
+    if (enabled && !ghost) {
+      const f = tex(scene, texId, p);
       bg.setTexture(f.key, f.frame);
     }
-    if (p !== sunk) {
-      t.y += p ? PRESS_DY : -PRESS_DY;
-      sunk = p;
-    }
-    // Нажатая кнопка чуть «проседает» — видно, что касание принято.
-    container.setScale(p ? 0.97 : 1);
+    if (ghost && enabled) t.setAlpha(p ? 0.7 : 1);
+    pressFeedback(scene, container, p);
   };
   const release = () => {
     if (armed) setPressed(false);
@@ -183,20 +295,24 @@ export function button(
   const labelColor = color;
   const view: ButtonView = {
     container,
+    variant,
     setLabel: (s) => t.setText(s),
     label: t,
     setEnabled: (on) => {
       if (on === enabled || !bg.scene) return view;
       enabled = on;
-      const grey = scene.textures.exists(DISABLED_BTN) && skin !== null;
-      if (on) {
-        const f = tex(scene, textureId, false);
-        bg.setTexture(f.key, f.frame);
-        bg.clearTint();
-      } else if (grey) bg.setTexture(DISABLED_BTN);
-      else bg.setTint(DISABLED_TINT);
-      t.setColor(on ? labelColor : C.disabled);
-      if (skin) t.setShadow(0, on && dark ? 2 : 3, on && dark ? 'rgba(255,244,210,0.55)' : 'rgba(0,0,0,0.85)', on && dark ? 0 : 3, false, true);
+      if (ghost) t.setAlpha(on ? 1 : 0.45);
+      else {
+        const grey = scene.textures.exists(DISABLED_BTN) && skin !== null;
+        if (on) {
+          const f = tex(scene, texId, false);
+          bg.setTexture(f.key, f.frame);
+          bg.clearTint();
+        } else if (grey) bg.setTexture(DISABLED_BTN);
+        else bg.setTint(DISABLED_TINT);
+        t.setColor(on ? labelColor : DISABLED_LABEL);
+        if (skin) labelShadow(t, on && dark);
+      }
       // Иконки и украшения внутри кнопки: иконки приглушены, свечение и блик (ADD) спрятаны.
       for (const o of container.list) {
         if (o === bg || o === t) continue;
@@ -213,7 +329,7 @@ export function button(
   return view;
 }
 
-/** Опасное действие (сброс и т. п.): обычная тёмная плитка с красной подписью — не выделяется как активная и не спутать с основной (T3-23). */
+/** Опасное действие (сброс, удаление): button() вида danger — тёмная плитка с красной подписью (T3-23, MT-19). */
 export function dangerButton(
   scene: Phaser.Scene,
   x: number,
@@ -223,17 +339,8 @@ export function dangerButton(
   label: string,
   onClick: () => void,
   fontSize: number = FS.h3,
-): ReturnType<typeof button> {
-  const b = button(scene, x, y, w, h, 'k:buttonLong_beige', label, onClick, fontSize);
-  b.label.setColor('#ff8a7a').setStroke('#2a0804', 6);
-  // MT-19: выключенная — серая, без красной подписи («Удалить прочитанные» при пустой почте выглядела активной).
-  const setEnabled = b.setEnabled;
-  b.setEnabled = (on) => {
-    setEnabled(on);
-    if (b.label.scene) b.label.setColor(on ? '#ff8a7a' : C.disabled).setStroke(on ? '#2a0804' : '#000000', on ? 6 : 0);
-    return b;
-  };
-  return b;
+): ButtonView {
+  return button(scene, x, y, w, h, '', label, onClick, fontSize, { variant: 'danger' });
 }
 
 /** Проверки попадания, уже обёрнутые ScrollArea (полоса списка). */
@@ -510,6 +617,510 @@ export function progressBar(
   return scene.add.container(x, y, [back, fill, glass]);
 }
 
+// ———————————————————————————————————————— Плашки и мелкие компоненты (§4.7) ————————————————————————————————————————
+
+/**
+ * Тон компонента (чип, тег, тост, дельта стата) → цвет роли COLOR. neutral — вторичный текст, без акцента.
+ * rarity-цвета — у рамок героев/предметов (RARITY), не здесь.
+ */
+export type Tone = 'neutral' | 'accent' | 'positive' | 'negative' | 'warning' | 'info' | 'gold' | 'gem';
+export const TONE_COLOR: Readonly<Record<Tone, string>> = {
+  neutral: COLOR.textSecondary,
+  accent: COLOR.accent,
+  positive: COLOR.positive,
+  negative: COLOR.negative,
+  warning: COLOR.warning,
+  info: COLOR.info,
+  gold: COLOR.gold,
+  gem: COLOR.gem,
+};
+
+/** Смесь двух цветов #rrggbb (t = 0 — a, 1 — b): тонированные подложки без полупрозрачности (не просвечивает арт). */
+export function mixHex(a: string, b: string, t: number): string {
+  const pa = parseInt(a.slice(1, 7), 16);
+  const pb = parseInt(b.slice(1, 7), 16);
+  const ch = (sh: number) => Math.round(((pa >> sh) & 255) * (1 - t) + ((pb >> sh) & 255) * t);
+  return `#${((ch(16) << 16) | (ch(8) << 8) | ch(0)).toString(16).padStart(6, '0')}`;
+}
+
+/** Плоская скруглённая плашка: заливка, необязательная рамка и блик по верхней кромке. */
+export interface PlateSpec {
+  fill: string;
+  /** Прозрачность заливки (поверхность «без рамки» — 0.85). */
+  alpha?: number;
+  border?: string;
+  borderW?: number;
+  /** Радиус (R.*); больше половины высоты не бывает — так получается «таблетка». */
+  r: number;
+  /** Светлая линия по верхней кромке (0…1) — «поднятая» поверхность. */
+  hl?: number;
+}
+
+/** Радиус плашки w×h: не больше половины меньшей стороны (с запасом под 9-slice). */
+export function plateRadius(w: number, h: number, r: number): number {
+  return Math.max(2, Math.min(r, Math.floor(Math.min(w, h) / 2) - 2));
+}
+
+/** Ключ кэша текстуры плашки (одна canvas-текстура на сочетание — для всех сцен). */
+export function plateKey(spec: PlateSpec): string {
+  return `ui_plate_${spec.fill}_${spec.alpha ?? 1}_${spec.border ?? '-'}_${spec.border ? (spec.borderW ?? 3) : 0}_${spec.r}_${spec.hl ?? 0}`;
+}
+
+function plateTexture(scene: Phaser.Scene, spec: PlateSpec): { key: string; k: number } {
+  const key = plateKey(spec);
+  const k = spec.r + 2;
+  if (scene.textures.exists(key)) return { key, k };
+  const size = 2 * k + 2;
+  const ct = scene.textures.createCanvas(key, size, size);
+  if (!ct) return { key, k };
+  const ctx = ct.getContext();
+  const path = (inset: number, r: number) => {
+    const x = 1 + inset;
+    const s = size - 2 - inset * 2;
+    ctx.beginPath();
+    ctx.moveTo(x + r, x);
+    ctx.arcTo(x + s, x, x + s, x + s, r);
+    ctx.arcTo(x + s, x + s, x, x + s, r);
+    ctx.arcTo(x, x + s, x, x, r);
+    ctx.arcTo(x, x, x + s, x, r);
+    ctx.closePath();
+  };
+  ctx.globalAlpha = spec.alpha ?? 1;
+  path(0, spec.r);
+  ctx.fillStyle = spec.fill;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  const bw = spec.border ? (spec.borderW ?? 3) : 0;
+  if (bw) {
+    path(bw / 2, Math.max(1, spec.r - bw / 2));
+    ctx.lineWidth = bw;
+    ctx.strokeStyle = spec.border as string;
+    ctx.stroke();
+  }
+  if (spec.hl) {
+    ctx.strokeStyle = `rgba(255,240,210,${spec.hl})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(1 + spec.r, 1 + bw + 1);
+    ctx.lineTo(size - 1 - spec.r, 1 + bw + 1);
+    ctx.stroke();
+  }
+  ct.refresh();
+  return { key, k };
+}
+
+/** Плашка w×h с центром (x, y) — 9-slice из кэшированной canvas-текстуры (один объект, батчится). */
+export function plate(scene: Phaser.Scene, x: number, y: number, w: number, h: number, spec: PlateSpec): Phaser.GameObjects.NineSlice {
+  const r = plateRadius(w, h, spec.r);
+  const { key, k } = plateTexture(scene, { ...spec, r });
+  return scene.add.nineslice(x, y, key, undefined, w, h, k, k, k, k);
+}
+
+/**
+ * Поверхности (§3 п. 5): surface — без рамки (заливка 85 %), raised — поднятая карточка (рамка бронзой, блик),
+ * sunken — поле/пустой слот. TODO(skin.ts, агент C): заменить текстурами скина трёх поверхностей, когда появятся.
+ */
+export const SURFACE: Readonly<Record<'surface' | 'raised' | 'sunken', Omit<PlateSpec, 'r'>>> = {
+  surface: { fill: COLOR.surface, alpha: 0.88 },
+  raised: { fill: COLOR.surfaceRaised, alpha: 0.96, border: COLOR.border, borderW: 3, hl: 0.12 },
+  sunken: { fill: COLOR.surfaceSunken, alpha: 0.92, border: '#2e2a24', borderW: 2 },
+};
+
+/** Иконка компонента: id иконки RO ('gold', 'gems', 'scrolls', предмет), имя контурной иконки скина ('star'), ключ текстуры, 'k:<кадр Kenney>' или своя фабрика. */
+export type IconSpec = string | ((scene: Phaser.Scene, x: number, y: number, size: number) => Phaser.GameObjects.GameObject) | null | undefined;
+
+type Placed = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform;
+
+/** Иконка по IconSpec размером ≈ size (контурные иконки скина красятся tint). null — нечего показать. */
+export function iconOf(scene: Phaser.Scene, x: number, y: number, spec: IconSpec, size: number, tint?: string): Placed | null {
+  if (!spec) return null;
+  if (typeof spec === 'function') return spec(scene, x, y, size) as Placed;
+  const ro = roIconImage(scene, x, y, spec, size);
+  if (ro) return ro;
+  const skin = `skin_ico_${spec}`;
+  if (scene.textures.exists(skin)) {
+    const img = scene.add.image(x, y, skin).setDisplaySize(size, size);
+    return tint ? img.setTint(parseInt(tint.slice(1, 7), 16)) : img;
+  }
+  if (spec.startsWith('k:')) return icon(scene, x, y, spec.slice(2), size);
+  if (scene.textures.exists(spec)) {
+    const img = scene.add.image(x, y, spec);
+    return img.setScale(size / Math.max(img.width, img.height));
+  }
+  return null;
+}
+
+/** Число с пробелами по разрядам (неразрывными): 34617 → «34 617». */
+export function groupNum(n: number): string {
+  const s = Math.round(Math.abs(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return n < 0 ? `−${s}` : s;
+}
+
+/** Подпись разницы: +12 зелёным, −5 красным; 0 и пустая строка — null (разницы не показываем). */
+export function formatDelta(d: number | string | undefined | null): { text: string; tone: Tone } | null {
+  if (d === undefined || d === null || d === '' || d === 0) return null;
+  if (typeof d === 'number') return { text: d > 0 ? `+${groupNum(d)}` : groupNum(d), tone: d > 0 ? 'positive' : 'negative' };
+  const neg = /^[-−]/.test(d);
+  return { text: neg ? d.replace(/^-/, '−') : d.startsWith('+') ? d : `+${d}`, tone: neg ? 'negative' : 'positive' };
+}
+
+/** Размеры чипа: m — награды, цены; s — плотные строки. */
+const CHIP = { m: { h: 72, icon: 48, font: T.body, pad: 20 }, s: { h: 56, icon: 40, font: T.caption, pad: 16 } } as const;
+
+/** Описание чипа (для rewardRow). */
+export interface ChipSpec {
+  icon?: IconSpec;
+  value: string | number;
+  tone?: Tone;
+}
+
+/**
+ * Чип «иконка + число» (награда, цена, мощь): тёмная «таблетка», число жирным цветом тона (neutral — основной текст).
+ * Контейнер с центром (x, y); ширина — container.width. opts.bg = false — без подложки (внутри своей плашки);
+ * opts.align — x — левый/правый край вместо центра.
+ */
+export function chip(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  iconSpec: IconSpec,
+  value: string | number,
+  tone: Tone = 'neutral',
+  opts: { size?: 's' | 'm'; bg?: boolean; align?: 'center' | 'left' | 'right' } = {},
+): Phaser.GameObjects.Container {
+  const m = CHIP[opts.size ?? 'm'];
+  const color = tone === 'neutral' ? COLOR.textPrimary : TONE_COLOR[tone];
+  const label = text(scene, 0, 0, typeof value === 'number' ? groupNum(value) : value, m.font, color, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+  const ic = iconOf(scene, 0, 0, iconSpec, m.icon, color);
+  const bg = opts.bg !== false;
+  const pad = bg ? m.pad : 0;
+  const iconW = ic ? m.icon + S.xxs : 0;
+  const w = Math.round(pad + iconW + label.width + pad + (ic && bg ? -4 : 0));
+  const left = -w / 2 + pad;
+  if (ic) ic.setPosition(left + m.icon / 2 - (bg ? 4 : 0), 0);
+  label.setX(left + iconW - (ic && bg ? 4 : 0));
+  const parts: Phaser.GameObjects.GameObject[] = [];
+  if (bg) parts.push(plate(scene, 0, 0, w, m.h, { ...SURFACE.sunken, border: mixHex(COLOR.surfaceSunken, tone === 'neutral' ? COLOR.border : TONE_COLOR[tone], 0.45), r: R.pill }));
+  if (ic) parts.push(ic);
+  parts.push(label);
+  const cx = opts.align === 'left' ? x + w / 2 : opts.align === 'right' ? x - w / 2 : x;
+  return scene.add.container(cx, y, parts).setSize(w, m.h);
+}
+
+/**
+ * Ряд наград-чипов по центру x (§3 п. 4: иконка + число вместо фразы). Не влезает в maxW — чипы мельче (s), потом
+ * перенос на следующую строку. Контейнер; размер — container.width/height, y — центр первой строки.
+ */
+export function rewardRow(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  items: ChipSpec[],
+  opts: { maxW?: number; size?: 's' | 'm'; gap?: number; bg?: boolean } = {},
+): Phaser.GameObjects.Container {
+  const maxW = opts.maxW ?? 1080 - 2 * S.l;
+  const gap = opts.gap ?? S.xs;
+  const row = scene.add.container(x, y);
+  const build = (size: 's' | 'm') => {
+    row.removeAll(true);
+    return items.map((it) => chip(scene, 0, 0, it.icon, it.value, it.tone ?? 'neutral', { size, bg: opts.bg }));
+  };
+  let size: 's' | 'm' = opts.size ?? 'm';
+  let chips = build(size);
+  const total = (cs: Phaser.GameObjects.Container[]) => cs.reduce((n, c) => n + c.width, 0) + gap * Math.max(0, cs.length - 1);
+  if (total(chips) > maxW && size === 'm' && !opts.size) {
+    chips.forEach((c) => c.destroy());
+    size = 's';
+    chips = build(size);
+  }
+  // Раскладка по строкам (жадно), каждая строка — по центру.
+  const lines: Phaser.GameObjects.Container[][] = [[]];
+  let lw = 0;
+  for (const c of chips) {
+    const add = (lines[lines.length - 1].length ? gap : 0) + c.width;
+    if (lw + add > maxW && lines[lines.length - 1].length) {
+      lines.push([]);
+      lw = 0;
+    }
+    lines[lines.length - 1].push(c);
+    lw += (lines[lines.length - 1].length > 1 ? gap : 0) + c.width;
+  }
+  const h = CHIP[size].h;
+  let width = 0;
+  lines.forEach((line, i) => {
+    const lwid = total(line);
+    width = Math.max(width, lwid);
+    let cx = -lwid / 2;
+    for (const c of line) {
+      c.setPosition(cx + c.width / 2, i * (h + S.xs));
+      cx += c.width + gap;
+    }
+    row.add(line);
+  });
+  return row.setSize(width, lines.length * h + (lines.length - 1) * S.xs);
+}
+
+/**
+ * Тег — маленькая плашка-статус («БОСС», «Новый», «×2»): T.caption жирным цветом тона на тонированной подложке.
+ * opts.solid — заливка цветом тона и тёмная подпись (самое заметное: «БОСС»). Центр (x, y); ширина — container.width.
+ */
+export function tag(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  label: string,
+  tone: Tone = 'neutral',
+  opts: { solid?: boolean; align?: 'center' | 'left' | 'right' } = {},
+): Phaser.GameObjects.Container {
+  const c = TONE_COLOR[tone];
+  const t = text(scene, 0, 0, label, T.caption, opts.solid ? COLOR.onAccent : c, { fontStyle: 'bold' });
+  const h = 52;
+  const w = Math.max(h, Math.round(t.width + 2 * S.xs));
+  const bg = opts.solid
+    ? plate(scene, 0, 0, w, h, { fill: c, r: R.s, hl: 0.25 })
+    : plate(scene, 0, 0, w, h, { fill: mixHex(COLOR.surfaceSunken, c, 0.18), alpha: 0.95, border: mixHex(COLOR.surfaceSunken, c, 0.55), borderW: 2, r: R.s });
+  const cx = opts.align === 'left' ? x + w / 2 : opts.align === 'right' ? x - w / 2 : x;
+  return scene.add.container(cx, y, [bg, t]).setSize(w, h);
+}
+
+/**
+ * Стат: подпись (T.caption, вторичный) и значение (жирное) с необязательной разницей (+12 зелёным, −5 красным).
+ * С opts.w — строка шириной w: подпись слева, значение справа (центр строки — x). Без w — столбик: значение
+ * (T.heading) над подписью; opts.align — по центру x или от левого края x.
+ */
+export function stat(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  label: string,
+  value: string | number,
+  opts: { delta?: number | string | null; w?: number; align?: 'center' | 'left'; tone?: Tone } = {},
+): Phaser.GameObjects.Container {
+  const val = typeof value === 'number' ? groupNum(value) : value;
+  const vColor = opts.tone && opts.tone !== 'neutral' ? TONE_COLOR[opts.tone] : COLOR.textPrimary;
+  const d = formatDelta(opts.delta);
+  const c = scene.add.container(x, y);
+  if (opts.w) {
+    const w = opts.w;
+    const l = text(scene, -w / 2, 0, label, T.caption, COLOR.textSecondary).setOrigin(0, 0.5);
+    let right = w / 2;
+    const parts: Phaser.GameObjects.GameObject[] = [l];
+    if (d) {
+      const dt = text(scene, right, 0, d.text, T.caption, TONE_COLOR[d.tone], { fontStyle: 'bold' }).setOrigin(1, 0.5);
+      right -= dt.width + S.xxs;
+      parts.push(dt);
+    }
+    const v = text(scene, right, 0, val, T.body, vColor, { fontStyle: 'bold' }).setOrigin(1, 0.5);
+    parts.push(v);
+    ellipsize(l, Math.max(40, right - v.width - S.xs + w / 2));
+    return c.add(parts).setSize(w, T.body * 1.3);
+  }
+  const left = opts.align === 'left';
+  const v = text(scene, 0, -T.caption * 0.55, val, T.heading, vColor, { fontStyle: 'bold' }).setOrigin(left ? 0 : 0.5, 0.5);
+  const l = text(scene, 0, T.heading * 0.6, label, T.caption, COLOR.textSecondary).setOrigin(left ? 0 : 0.5, 0.5);
+  c.add([v, l]);
+  if (d) {
+    const dt = text(scene, 0, v.y, d.text, T.caption, TONE_COLOR[d.tone], { fontStyle: 'bold' }).setOrigin(0, 0.5);
+    if (left) dt.setX(v.width + S.xxs);
+    else {
+      // Пара «значение разница» по центру x.
+      const both = v.width + S.xxs + dt.width;
+      v.setX(-both / 2 + v.width / 2);
+      dt.setX(-both / 2 + v.width + S.xxs);
+    }
+    c.add(dt);
+  }
+  return c.setSize(Math.max(v.width, l.width), T.heading + T.caption + S.xxs);
+}
+
+/** Описание строки списка. */
+export interface ListRowSpec {
+  /** Иконка слева в утопленном квадрате (IconSpec или готовый объект). */
+  icon?: IconSpec | Placed;
+  title: string;
+  /** Вторая строка (вторичный текст, одна строка, многоточие). */
+  subtitle?: string;
+  /** Справа: строка (жирная, цвет trailingTone) или объект (кнопка, чип, тег — по его width). */
+  trailing?: string | Placed;
+  trailingTone?: Tone;
+  /** Высота строки; по умолчанию 112 (без подзаголовка) / 136. */
+  h?: number;
+  /** Поднятая карточка (рамка) вместо плоской поверхности. По умолчанию — поверхность без рамки (§3 п. 5). */
+  raised?: boolean;
+  /** Нажатие по строке (в ScrollArea — обернуть в area.tap(fn)). */
+  onTap?: () => void;
+  /** Приглушить (получено, закрыто): иконка и заголовок бледнее. */
+  dim?: boolean;
+}
+
+/**
+ * Строка списка (Почта, Задания, Достижения, Инвентарь): иконка, заголовок и подзаголовок по левому краю, справа —
+ * действие или значение. Контейнер с центром (x, y) шириной w; высота — container.height.
+ * Нажатие — pressable() по подложке (затемнение), если задан onTap.
+ */
+export function listRow(scene: Phaser.Scene, x: number, y: number, w: number, spec: ListRowSpec): Phaser.GameObjects.Container {
+  const h = spec.h ?? (spec.subtitle ? 136 : 112);
+  const c = scene.add.container(x, y).setSize(w, h);
+  const bg = plate(scene, 0, 0, w, h, { ...(spec.raised ? SURFACE.raised : SURFACE.surface), r: R.m });
+  c.add(bg);
+  let left = -w / 2 + S.s;
+  const box = Math.min(h - 2 * S.xs, 104);
+  if (spec.icon) {
+    const ix = left + box / 2;
+    c.add(plate(scene, ix, 0, box, box, { ...SURFACE.sunken, r: R.s }));
+    const ic =
+      typeof spec.icon === 'object' && spec.icon !== null
+        ? (spec.icon as Placed).setPosition(ix, 0)
+        : iconOf(scene, ix, 0, spec.icon as IconSpec, Math.round(box * 0.7), COLOR.textSecondary);
+    if (ic) {
+      if (spec.dim && 'setAlpha' in ic) (ic as unknown as Phaser.GameObjects.Image).setAlpha(0.5);
+      c.add(ic);
+    }
+    left += box + S.s;
+  }
+  let right = w / 2 - S.m;
+  if (spec.trailing !== undefined) {
+    if (typeof spec.trailing === 'string') {
+      const tone = spec.trailingTone ?? 'neutral';
+      const tt = text(scene, right, 0, spec.trailing, T.body, tone === 'neutral' ? COLOR.textPrimary : TONE_COLOR[tone], { fontStyle: 'bold' }).setOrigin(1, 0.5);
+      c.add(tt);
+      right -= tt.width + S.s;
+    } else {
+      const o = spec.trailing;
+      const ow = ((o as unknown as { width?: number }).width ?? 0) * Math.abs(o.scaleX || 1);
+      o.setPosition(right - ow / 2, 0);
+      c.add(o);
+      right -= ow + S.s;
+    }
+  }
+  const maxW = Math.max(60, right - left);
+  const title = text(scene, left, spec.subtitle ? -T.caption * 0.62 : 0, spec.title, T.body, spec.dim ? COLOR.textTertiary : COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+  ellipsize(title, maxW);
+  c.add(title);
+  if (spec.subtitle) {
+    const sub = text(scene, left, T.body * 0.62, spec.subtitle, T.caption, spec.dim ? COLOR.textTertiary : COLOR.textSecondary).setOrigin(0, 0.5);
+    ellipsize(sub, maxW);
+    c.add(sub);
+  }
+  if (spec.onTap) pressable(scene, bg, w, h, spec.onTap);
+  return c;
+}
+
+/** Переключатель вкладок внутри экрана. */
+export interface SegmentedView {
+  container: Phaser.GameObjects.Container;
+  /** Выбранная вкладка. */
+  readonly index: number;
+  /** Выбрать вкладку (emit — вызвать onChange, как при нажатии). */
+  select: (i: number, emit?: boolean) => void;
+}
+
+/**
+ * Вкладки внутри экрана одного вида (§4.7, вместо четырёх разных): утопленная дорожка, выбранная вкладка —
+ * поднятая плашка с золотой подписью, которая переезжает за M.base. Центр (x, y), ширина w. Цель нажатия ≥ TOUCH.
+ * onChange — только при смене вкладки (повторное нажатие на выбранную ничего не делает).
+ */
+export function segmented(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  w: number,
+  options: string[],
+  selected: number,
+  onChange: (i: number) => void,
+  opts: { h?: number } = {},
+): SegmentedView {
+  const h = opts.h ?? 88;
+  const inset = 6;
+  const n = Math.max(1, options.length);
+  const segW = (w - 2 * inset) / n;
+  const c = scene.add.container(x, y).setSize(w, Math.max(h, TOUCH));
+  c.add(plate(scene, 0, 0, w, h, { ...SURFACE.sunken, r: R.m }));
+  const xs = options.map((_, i) => -w / 2 + inset + segW * (i + 0.5));
+  let index = Phaser.Math.Clamp(selected, 0, n - 1);
+  const ind = plate(scene, xs[index], 0, segW, h - 2 * inset, { fill: COLOR.surfaceRaised, border: mixHex(COLOR.border, COLOR.accent, 0.45), borderW: 2, r: R.m - 4, hl: 0.14 });
+  c.add(ind);
+  const labels = options.map((o, i) => {
+    const t = text(scene, xs[i], 0, o, T.caption, i === index ? COLOR.title : COLOR.textSecondary, { fontStyle: 'bold' });
+    ellipsize(t, segW - S.xs);
+    c.add(t);
+    return t;
+  });
+  const view: SegmentedView = {
+    container: c,
+    get index() {
+      return index;
+    },
+    select: (i, emit = false) => {
+      if (i === index || i < 0 || i >= n || !c.scene) return;
+      index = i;
+      labels.forEach((t, k) => t.setColor(k === i ? COLOR.title : COLOR.textSecondary));
+      scene.tweens.killTweensOf(ind);
+      if (juiceOn()) scene.tweens.add({ targets: ind, x: xs[i], duration: M.base, ease: E.out });
+      else ind.setX(xs[i]);
+      if (emit) onChange(i);
+    },
+  };
+  const ready = debounce();
+  options.forEach((_, i) => {
+    const zone = scene.add.zone(xs[i], 0, segW, Math.max(h, TOUCH)).setInteractive({ useHandCursor: true });
+    let armed = false;
+    const release = () => (armed = false);
+    zone.on('pointerdown', () => (armed = true));
+    zone.on('pointerout', release);
+    zone.on('pointerup', () => {
+      if (!armed) return;
+      armed = false;
+      if (i === index || !ready()) return;
+      sfx('ui_tab');
+      haptic('tab');
+      view.select(i, true);
+    });
+    scene.input.on(CANCEL_PRESS, release);
+    zone.once(Phaser.GameObjects.Events.DESTROY, () => scene.input.off(CANCEL_PRESS, release));
+    c.add(zone);
+  });
+  return view;
+}
+
+/**
+ * Кнопка «i» (§4.7): правила и подробности — за ней, а не постоянным текстом на экране. Кружок size (64) с
+ * бронзовой рамкой, цель нажатия TOUCH. Контейнер с центром (x, y).
+ */
+export function infoButton(scene: Phaser.Scene, x: number, y: number, onTap: () => void, opts: { size?: number } = {}): Phaser.GameObjects.Container {
+  const size = opts.size ?? 64;
+  const bg = plate(scene, 0, 0, size, size, { fill: COLOR.surfaceRaised, border: mixHex(COLOR.border, COLOR.accent, 0.35), borderW: 3, r: R.pill, hl: 0.12 });
+  const t = text(scene, 0, 1, 'i', Math.round(size * 0.66), COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
+  const c = scene.add.container(x, y, [bg, t]).setSize(TOUCH, TOUCH).setName('infoButton');
+  c.setInteractive({ useHandCursor: true, hitArea: new Phaser.Geom.Rectangle(0, 0, TOUCH, TOUCH), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
+  let armed = false;
+  const ready = debounce();
+  const set = (p: boolean) => {
+    armed = p;
+    pressFeedback(scene, c, p);
+  };
+  const release = () => {
+    if (armed) set(false);
+  };
+  c.on('pointerdown', () => set(true));
+  c.on('pointerout', release);
+  c.on('pointerup', () => {
+    if (!armed) return;
+    set(false);
+    if (!ready()) return;
+    sfx('ui_tap');
+    haptic('tap');
+    onTap();
+  });
+  scene.input.on('pointerup', release);
+  scene.input.on(CANCEL_PRESS, release);
+  c.once(Phaser.GameObjects.Events.DESTROY, () => {
+    scene.input.off('pointerup', release);
+    scene.input.off(CANCEL_PRESS, release);
+  });
+  return c;
+}
+
 /**
  * R/S. Указатель подсказки на цель (x, y): пульсирующее кольцо, прыгающая стрелка и плашка с одной строкой.
  * side — предпочтительная сторона плашки ('auto' — без предпочтения). Сторону и сдвиг вбок выбирает placeCallout
@@ -621,7 +1232,7 @@ function drawHint(
   }
   arrowAt(plan.side);
   const b = plan.box;
-  const bg = scene.add.rectangle(b.x + b.w / 2, b.y + b.h / 2, b.w, b.h, 0x000000, 0.85).setStrokeStyle(4, TINT.gold);
+  const bg = plate(scene, b.x + b.w / 2, b.y + b.h / 2, b.w, b.h, { fill: '#14120f', alpha: 0.94, border: COLOR.accent, borderW: 4, r: R.l });
   t.setPosition(b.x + b.w / 2 - closeW / 2, b.y + b.h / 2);
   c.add([bg, t]);
   if (opts.skip) {
@@ -693,9 +1304,18 @@ function controlRects(scene: Phaser.Scene, x: number, y: number): Rect[] {
   return out;
 }
 
+// ———————————————————————————————————————— Тосты ————————————————————————————————————————
+
 /** Одновременно видно не больше стольких тостов в одной стопке; более старые уходят раньше срока. */
 const TOAST_MAX = 3;
-const TOAST_GAP = 14;
+const TOAST_GAP = S.xs;
+/**
+ * Время показа тоста по умолчанию (§4.6; TODO(theme.ts): токены): обычный — 2000 мс + 30 мс на символ (длинное
+ * сообщение успевают прочитать), ошибка — от 3000; не дольше max. Явный ms вызывающего главнее.
+ */
+export const TOAST_MS = { show: 2000, error: 3000, perChar: 30, max: 4500 } as const;
+/** Тост выше всего, включая плашку онлайна (9500, online.ts) — поэтому выше Z.toast. */
+const TOAST_DEPTH = 10000;
 
 interface ToastEntry {
   c: Phaser.GameObjects.Container;
@@ -713,62 +1333,91 @@ const toastStacks = new WeakMap<Phaser.Scene, Record<ToastAt, ToastEntry[]>>();
 export type ToastAt = 'top' | 'middle' | 'battle';
 const BATTLE_TOAST_Y = 862;
 
+/** Тон тоста по цвету, который передал вызывающий (старый API: цвет текста). */
+export function toastTone(color: string): Tone {
+  if (color === C.error || color === COLOR.negative) return 'negative';
+  if (color === C.success || color === COLOR.positive) return 'positive';
+  if (color === C.warning) return 'warning';
+  if (color === C.info || color === C.gem) return 'info';
+  return 'accent';
+}
+
+/** Сколько показывать тост без явного ms. */
+export function toastDuration(message: string, error: boolean): number {
+  return Math.min(TOAST_MS.max, (error ? TOAST_MS.error : TOAST_MS.show) + TOAST_MS.perChar * Math.max(0, message.length - 30));
+}
+
 /**
- * Всплывающее сообщение под шапкой экрана (не закрывает название и валюту), исчезает само.
+ * Всплывающее сообщение — «таблетка» под шапкой (не закрывает название и валюту), исчезает само.
+ * Политика (§2, §3 п. 10): тост — только ошибка («нельзя: не хватает…») или результат, которого не видно на экране
+ * (письмо ушло, награда попала в запас). Успех, видимый на месте (купили, надели, улучшили), — анимацией там же, без тоста.
+ * Вид: тёмная плашка с цветной точкой и рамкой тона (ошибка — красная, успех — зелёная, остальное — золото), текст
+ * основным цветом; вход M.fast сверху, выход M.base.
  * T4-13: несколько тостов подряд встают стопкой друг под другом; такое же сообщение, пока оно на экране,
  * не дублируется — у него появляется «×N» и продлевается показ.
  * at: 'middle' — посреди экрана: сверху и снизу у экрана главные кнопки, их тост не закрывает.
  */
-export function toast(scene: Phaser.Scene, message: string, color: string = C.title, ms = 3500, at: ToastAt = 'top'): void {
+export function toast(scene: Phaser.Scene, message: string, color: string = C.title, ms?: number, at: ToastAt = 'top'): void {
   let stacks = toastStacks.get(scene);
   if (!stacks) {
     stacks = { top: [], middle: [], battle: [] };
     toastStacks.set(scene, stacks);
   }
   const stack = (stacks[at] = stacks[at].filter((e) => !e.gone && e.c.scene));
+  const tone = toastTone(color);
+  const showMs = ms ?? toastDuration(message, tone === 'negative');
   const dismiss = (e: ToastEntry) => {
     if (e.gone) return;
     e.gone = true;
     e.hide.remove();
     const i = stack.indexOf(e);
     if (i >= 0) stack.splice(i, 1);
-    if (e.c.scene) scene.tweens.add({ targets: e.c, alpha: 0, duration: 300, onComplete: () => e.c.destroy() });
+    if (e.c.scene) scene.tweens.add({ targets: e.c, alpha: 0, y: e.c.y - S.xs, duration: M.base, ease: E.in, onComplete: () => e.c.destroy() });
     layout();
   };
-  const top = at === 'middle' ? GAME_H * 0.46 : at === 'battle' ? BATTLE_TOAST_Y : HEADER_H + 24;
+  const top = at === 'middle' ? GAME_H * 0.46 : at === 'battle' ? BATTLE_TOAST_Y : HEADER_H + S.xs;
   const layout = () => {
     // Сверху — от шапки вниз; посреди экрана — стопка по центру вокруг 46 % высоты.
     const total = stack.reduce((n, e) => n + e.h, 0) + TOAST_GAP * Math.max(0, stack.length - 1);
     let y = at === 'middle' ? top - total / 2 : top;
     for (const e of stack) {
       const cy = y + e.h / 2;
-      if (e.c.scene) scene.tweens.add({ targets: e.c, y: cy, duration: 180, ease: 'Sine.easeOut' });
+      if (e.c.scene) scene.tweens.add({ targets: e.c, y: cy, duration: M.base, ease: E.out });
       y += e.h + TOAST_GAP;
     }
   };
   // Ошибка — «нельзя», успех — мягкий колокольчик (награды звенят своими звуками, juice.ts).
-  if (color === C.error) {
+  if (tone === 'negative') {
     sfx('ui_error');
     haptic('error');
-  } else if (color === C.success) sfx('ui_notify');
+  } else if (tone === 'positive') sfx('ui_notify');
   const same = stack.find((e) => e.message === message);
   if (same) {
     same.count++;
     same.label.setText(`${message} ×${same.count}`);
-    same.hide.reset({ delay: ms, callback: () => dismiss(same) });
+    same.hide.reset({ delay: showMs, callback: () => dismiss(same) });
+    if (juiceOn() && same.c.scene) scene.tweens.add({ targets: same.c, scale: 1.04, duration: M.press, yoyo: true, ease: E.out });
     return;
   }
   const w = GAME_W;
-  const t = text(scene, 0, 0, message, FS.h3, color, { wordWrap: { width: w - 160 }, lineSpacing: 6 });
-  const bgH = t.height + 50;
+  const toneColor = TONE_COLOR[tone];
+  const dot = 16;
+  const t = text(scene, 0, 0, message, T.body, COLOR.textPrimary, { wordWrap: { width: w - 2 * S.xxl - 2 * S.m - dot - S.xs } }).setOrigin(0, 0.5);
+  const bgH = Math.round(t.height + 2 * S.xs + 4);
   // MT-17: плашка по ширине текста, а не во весь экран — меньше закрывает кнопки шапки и строку под ней
   // (касания она не ловит: кнопка под тостом нажимается).
-  const bg = scene.add.rectangle(0, 0, Math.min(w - 100, Math.max(420, t.width + 80)), bgH, 0x000000, 0.88).setStrokeStyle(3, 0xc8a060);
+  const bgW = Math.round(Math.min(w - 2 * S.xxl, t.width + 2 * S.m + dot + S.xs));
+  const oneLine = t.height < T.body * 1.6;
+  const bg = plate(scene, 0, 0, bgW, bgH, { fill: '#14120f', alpha: 0.95, border: mixHex('#14120f', toneColor, 0.6), borderW: 2, r: oneLine ? R.pill : R.l });
+  const left = -bgW / 2 + S.m;
+  const mark = scene.add.circle(left + dot / 2, oneLine ? 0 : -t.height / 2 + T.body * 0.65, dot / 2, parseInt(toneColor.slice(1, 7), 16));
+  t.setX(left + dot + S.xs);
   const prevBottom = stack.reduce((n, e) => n + e.h + TOAST_GAP, 0);
-  const c = scene.add.container(w / 2, (at === 'middle' ? top : top + prevBottom) + bgH / 2, [bg, t]).setDepth(10000).setAlpha(0);
-  scene.tweens.add({ targets: c, alpha: 1, duration: 200 });
+  const y0 = (at === 'middle' ? top : top + prevBottom) + bgH / 2;
+  const c = scene.add.container(w / 2, y0 - S.xs, [bg, mark, t]).setDepth(TOAST_DEPTH).setAlpha(0).setName('toast');
+  scene.tweens.add({ targets: c, alpha: 1, y: y0, duration: M.fast, ease: E.out });
   const entry: ToastEntry = { c, h: bgH, message, count: 1, label: t, gone: false, hide: undefined as unknown as Phaser.Time.TimerEvent };
-  entry.hide = scene.time.delayedCall(ms, () => dismiss(entry));
+  entry.hide = scene.time.delayedCall(showMs, () => dismiss(entry));
   stack.push(entry);
   while (stack.length > TOAST_MAX) dismiss(stack[0]);
   layout();
