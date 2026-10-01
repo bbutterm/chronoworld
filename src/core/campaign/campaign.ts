@@ -13,6 +13,7 @@ import { withGear } from '../equipment/equipment';
 import type { EquipmentConfig } from '../equipment/load';
 import { grantBlessedOre } from '../equipment/refine';
 import { bankOffline, lastClearedStage } from './offline';
+import { withBondLinks } from '../tavern/tavern';
 
 export type StageStatus = 'locked' | 'open' | 'cleared';
 
@@ -96,7 +97,8 @@ export function squadUnits(save: SaveState, ctx: GameContext): { squad: (UnitDef
   });
   if (heroIds.length === 0) throw new GameRuleError('empty_squad', 'В отряде нет героев');
   if (duplicateCardsInSquad(save, save.squad).length) throw new GameRuleError('duplicate_card', 'В отряде может быть только одна копия каждой карточки');
-  return { squad, heroIds };
+  // Связки близости (вечера в таверне): +% к стату обоим героям пары в отряде.
+  return { squad: withBondLinks(squad, save, ctx), heroIds };
 }
 
 /**

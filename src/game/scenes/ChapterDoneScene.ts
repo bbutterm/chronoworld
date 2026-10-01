@@ -7,8 +7,9 @@ import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, popIn, unitFigure } from '../screen';
-import { arrangeSquad, chapterChronicle, chroniclePageId, clearChapterDone, findingEntries, heroCard, heroName, heroPower, markPageSeen, pendingChronicle, type SaveState } from '../../core';
+import { arrangeSquad, pendingEvening, chapterChronicle, chroniclePageId, clearChapterDone, findingEntries, heroCard, heroName, heroPower, markPageSeen, pendingChronicle, type SaveState } from '../../core';
 import { chroniclePage, showPages } from '../storyPage';
+import { startTavernEvening } from './TavernEveningScene';
 import { commit, now, session } from '../session';
 import { SKIN } from '../skin';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
@@ -166,9 +167,28 @@ export class ChapterDoneScene extends Phaser.Scene {
     const history = seenChapterScenes(save, data.chapterId, GAME);
     const chronicle = chapterChronicle(data.chapterId, GAME.content);
     // «Летопись отряда» главы (lore-route §5.3) — рядом с «Историей»; в первый раз открывается сама, когда улёгся заголовок.
-    const hx = chronicle ? cx - 270 : cx;
-    const hb = button(this, hx, 1480, chronicle ? 500 : 560, 120, 'ui_btn_secondary', 'История', () => openStoryHistory(this, data.chapterId), FS.h2);
+    // Вечер в «Двух колоколах» (docs/design/tavern-evenings.md) — третья кнопка ряда; новый — с отметкой и приглашением.
+    const evening = GAME.story.tavern?.evenings.find((e) => e.after === data.chapterId);
+    const btnRow = 1 + (chronicle ? 1 : 0) + (evening ? 1 : 0);
+    const rowW = btnRow === 3 ? 320 : btnRow === 2 ? 500 : 560;
+    const rowX = (i: number) => cx + (i - (btnRow - 1) / 2) * (btnRow === 3 ? 340 : 540);
+    const hx = rowX(0);
+    const hb = button(this, hx, 1480, rowW, 120, 'ui_btn_secondary', 'История', () => openStoryHistory(this, data.chapterId), FS.h2);
     if (!history.length) hb.setEnabled(false).container.disableInteractive();
+    if (evening) {
+      const fresh = !!pendingEvening(save, data.chapterId, GAME);
+      const ex = rowX(btnRow - 1);
+      const eb = button(this, ex, 1480, rowW, 120, fresh ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вечер', () => {
+        startTavernEvening(this, { mode: 'evening', id: evening.id, back: { to: CHAPTER_DONE, data } });
+      }, FS.h2);
+      eb.container.setName('tavernEveningBtn');
+      if (fresh) {
+        this.add.circle(ex + rowW / 2 - 16, 1480 - 52, 16, TINT.badge).setStrokeStyle(4, 0xffffff);
+        const invite = text(this, cx, 1392, 'Вечером в «Двух колоколах» ждут вас', FS.small, SKIN.goldLight, { fontStyle: 'italic', ...OUTLINE });
+        this.tweens.add({ targets: invite, alpha: { from: 1, to: 0.55 }, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        this.tweens.add({ targets: eb.container, scale: { from: 1, to: 1.05 }, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      }
+    }
     if (chronicle) {
       const open = () => {
         const found = findingEntries(session.save, GAME.content).filter((f) => f.chapterId === data.chapterId);
@@ -176,7 +196,7 @@ export class ChapterDoneScene extends Phaser.Scene {
           commit(markPageSeen(session.save, chroniclePageId(data.chapterId))),
         );
       };
-      button(this, cx + 270, 1480, 500, 120, 'ui_btn_secondary', 'Летопись', open, FS.h2).container.setName('chronicleChapterBtn');
+      button(this, rowX(1), 1480, rowW, 120, 'ui_btn_secondary', 'Летопись', open, FS.h2).container.setName('chronicleChapterBtn');
       if (pendingChronicle(save, data.chapterId, GAME.content)) this.time.delayedCall(1400, () => this.scene.isActive() && open());
     }
     const next = sum.next;

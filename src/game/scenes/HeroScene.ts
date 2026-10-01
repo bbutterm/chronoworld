@@ -33,6 +33,7 @@ import {
   type HeroState,
   type Slot,
   type Stats,
+  bondView,
 } from '../../core';
 import { CONTENT, GAME, LORE } from '../content';
 import { ascendReady, formatNumber, heroSprite, itemStatsText, levelText, RARITY_COLORS, ROLE_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
@@ -52,6 +53,7 @@ import { openBranchPicker } from '../branchPicker';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
 import { roIconImage } from '../itemIcons';
+import { linkText, startTavernEvening } from './TavernEveningScene';
 import { hasHeroStory, heroStoryNew, heroStoryProgress, openHeroStory, storyDot, toastOpenedStories } from '../heroStoryView';
 
 const SKILL_ROW_H = 118;
@@ -866,6 +868,28 @@ export class HeroScene extends Phaser.Scene {
       const t = a.add(text(this, 60, y, s, FS.h3, color, { align: 'left', fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5, wordWrap: { width: 950 } }).setOrigin(0, 0));
       y += t.height + 14;
     };
+    // Близость (сюжетные герои, docs/design/tavern-evenings.md): шкала, что открыто, связка; вход в «Вечера».
+    const bond = bondView(session.save, hero.templateId, GAME);
+    if (bond) {
+      head(`Близость · ${bond.points} из ${bond.max}`);
+      for (let i = 0; i < bond.max; i++) a.add(this.add.circle(82 + i * 74, y + 20, 22, i < bond.points ? 0xe0443a : 0x2a2018, 1).setStrokeStyle(3, 0x6a5438));
+      y += 64;
+      para(
+        [
+          bond.scene.open ? `Личная сцена «${bond.scene.title}»${bond.scene.seen ? '' : ' — открыта'}` : `Личная сцена — на близости ${bond.scene.at}`,
+          bond.quest.done ? `Задание «${bond.quest.title}» выполнено` : bond.quest.open ? `Задание «${bond.quest.title}»: ${bond.quest.goal}` : `Личное задание — на близости ${bond.quest.at}`,
+          bond.link.open ? linkText(bond) : `Связка «${bond.link.name}» откроется после задания`,
+        ].join('\n'),
+        C.muted,
+        FS.small,
+      );
+      const tb = button(this, GAME_W / 2, y + 50, 760, 100, 'ui_btn_secondary', 'Вечера в таверне', () => {
+        startTavernEvening(this, { mode: 'hub', back: { to: 'Hero', data: { heroId: hero.id, tab: 'story', back: this.back } } });
+      }, FS.h3);
+      tb.container.setName('heroBondBtn');
+      a.add(tb.container);
+      y += 130;
+    }
     // Начало пути (первая профессия), затем — форма после возвышения: выбранная ветка целиком, другая — превью серым.
     const firstJob = jobTitle(GAME, heroTemplate(GAME, hero.templateId).job, c.gender);
     if (c.branch && firstJob) head(`Начало пути: ${firstJob}`);

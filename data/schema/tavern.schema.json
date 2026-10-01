@@ -1,0 +1,629 @@
+{
+  "title": "Вечера в «Двух колоколах» и близость с героями",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "const": "tavern"
+    },
+    "speakers": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "portrait": {
+            "type": "string",
+            "minLength": 1
+          },
+          "illust": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "required": [
+          "name",
+          "portrait"
+        ]
+      }
+    },
+    "bond": {
+      "type": "object",
+      "properties": {
+        "max": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "squadGain": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "sceneAt": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "questAt": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "max",
+        "squadGain",
+        "sceneAt",
+        "questAt"
+      ]
+    },
+    "evenings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "after": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "subtitle": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "steps": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "speaker": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "when": {
+                      "type": "object",
+                      "properties": {
+                        "choice": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "is": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "choice",
+                        "is"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "speaker",
+                    "text"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "choice": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "prompt": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120
+                        },
+                        "options": {
+                          "minItems": 2,
+                          "maxItems": 3,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*$"
+                              },
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 60
+                              },
+                              "bond": {
+                                "default": {},
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 2
+                                }
+                              },
+                              "reply": {
+                                "minItems": 1,
+                                "maxItems": 4,
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "speaker": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "text": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 120
+                                    },
+                                    "when": {
+                                      "type": "object",
+                                      "properties": {
+                                        "choice": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_]*$"
+                                        },
+                                        "is": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        }
+                                      },
+                                      "required": [
+                                        "choice",
+                                        "is"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "speaker",
+                                    "text"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "text",
+                              "reply"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "prompt",
+                        "options"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "choice"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "after",
+          "title",
+          "steps"
+        ]
+      }
+    },
+    "heroes": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "scene": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "steps": {
+                "minItems": 1,
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120
+                        },
+                        "when": {
+                          "type": "object",
+                          "properties": {
+                            "choice": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            },
+                            "is": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "choice",
+                            "is"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "speaker",
+                        "text"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "choice": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            },
+                            "prompt": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 120
+                            },
+                            "options": {
+                              "minItems": 2,
+                              "maxItems": 3,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 60
+                                  },
+                                  "bond": {
+                                    "default": {},
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 2
+                                    }
+                                  },
+                                  "reply": {
+                                    "minItems": 1,
+                                    "maxItems": 4,
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "speaker": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "text": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 120
+                                        },
+                                        "when": {
+                                          "type": "object",
+                                          "properties": {
+                                            "choice": {
+                                              "type": "string",
+                                              "pattern": "^[a-z][a-z0-9_]*$"
+                                            },
+                                            "is": {
+                                              "type": "string",
+                                              "minLength": 1
+                                            }
+                                          },
+                                          "required": [
+                                            "choice",
+                                            "is"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "speaker",
+                                        "text"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "text",
+                                  "reply"
+                                ]
+                              }
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "prompt",
+                            "options"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "choice"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "steps"
+            ]
+          },
+          "quest": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240
+              },
+              "stage": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "mult": {
+                "default": 1,
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 5
+              },
+              "condition": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "alive"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "noLoss"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "fast"
+                      },
+                      "seconds": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "seconds"
+                    ]
+                  }
+                ]
+              },
+              "goal": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "reward": {
+                "type": "object",
+                "properties": {
+                  "gold": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "gems": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "scrolls": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                }
+              },
+              "after": {
+                "type": "object",
+                "properties": {
+                  "speaker": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "when": {
+                    "type": "object",
+                    "properties": {
+                      "choice": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "is": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "choice",
+                      "is"
+                    ]
+                  }
+                },
+                "required": [
+                  "speaker",
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "text",
+              "stage",
+              "condition",
+              "goal",
+              "reward"
+            ]
+          },
+          "link": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "partner": {
+                "type": "string",
+                "minLength": 1
+              },
+              "stat": {
+                "type": "string",
+                "enum": [
+                  "atk",
+                  "hp",
+                  "def"
+                ]
+              },
+              "pct": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "partner",
+              "stat",
+              "pct",
+              "text"
+            ]
+          }
+        },
+        "required": [
+          "scene",
+          "quest",
+          "link"
+        ]
+      }
+    }
+  },
+  "required": [
+    "kind",
+    "speakers",
+    "bond",
+    "evenings",
+    "heroes"
+  ]
+}
