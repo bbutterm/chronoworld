@@ -237,3 +237,18 @@ startedAt, endsAt, rewards: { gold, jobExp, gems, shards, scrolls, items } }`.
 
 Функции ядра (`playStage`, `climbTower`, `equip`…) о достижениях не знают — считают только обёртки `act*`,
 поэтому UI должен вызывать именно их.
+
+## Охота на MVP (`data/hunt.json`, `src/core/hunt`)
+
+Дизайн и числа — `docs/design/mvp-hunt.md`. Коротко: MVP дня из RO (7 в недельной ротации, `bosses[номер дня mod 7]`),
+у каждого стихия, слабость, фазы, свита и заряд; 2 попытки в день, бой 45 с с ручной ультой. MVP падает за бой: уровень
+охотника (`mvp.ranks`, 15) — победа выше (быстрая — прыжок), поражение ниже; можно биться ниже своего уровня. Результат —
+доля снятых ОЗ уровня × урон порога уровня; награда — высший порог `tiers` (как раньше). Герои стихии слабости — АТК ×2,
+прочие — ×0.85. Победа («MVP!») — шанс карты MVP 12% с гарантией на 10-й победе; карта вставляется в предмет своего слота
+(InventoryScene) навсегда, бонус — доли базовых статов героя.
+
+API (`src/core/hunt/hunt.ts`): `huntStatus(save, day, ctx)` (MVP, уровень, подсказка героев стихии, лучший результат),
+`fightHunt(save, day, ctx, { rank? })` (ctx.combat.player — ручная ульта сцены), `sweepHunt`, `huntBoss(day, ctx, rank)`,
+`huntRank`, `huntScore`, `huntSquad` (множители стихии); карты — `src/core/equipment/cards.ts`: `insertCard`,
+`cardsForItem`, `ownedCards`, `heroCardStats`. Сохранение без смены версии: `hunt.level`, `hunt.kills`, `hunt.cards`,
+`hunt.dry`, у предмета `card` — всё необязательное; старые рекорды (`best`, в том числе старые id боссов) задают уровень.
