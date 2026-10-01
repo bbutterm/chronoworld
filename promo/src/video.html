@@ -31,7 +31,12 @@
   #redvig { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at 50% 55%, transparent 35%, rgba(200,20,0,.55) 75%, rgba(90,0,0,.9) 100%); }
   #vig { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0,0,0,.55) 100%); pointer-events: none; }
   #fx { position: absolute; inset: 0; }
-  #shade { position: absolute; left: 0; right: 0; top: 0; height: 720px; opacity: 0; background: linear-gradient(180deg, rgba(8,4,1,.92) 0%, rgba(8,4,1,.75) 45%, rgba(8,4,1,0) 100%); }
+  #shade { position: absolute; left: 0; right: 0; top: 0; height: 640px; opacity: 0; background: linear-gradient(180deg, rgba(8,4,1,.62) 0%, rgba(8,4,1,.42) 50%, rgba(8,4,1,0) 100%); }
+  #shadeB { position: absolute; left: 0; right: 0; bottom: 0; height: 560px; opacity: 0; background: linear-gradient(0deg, rgba(8,4,1,.6) 0%, rgba(8,4,1,.35) 50%, rgba(8,4,1,0) 100%); }
+  .chip { position: absolute; left: 50%; padding: 14px 44px; opacity: 0; white-space: nowrap; font: 400 64px 'Russo One'; color: #ffe08f;
+    background: linear-gradient(180deg, rgba(64,38,14,.95), rgba(26,14,5,.95)); border: 4px solid #d6a24a; border-radius: 22px;
+    box-shadow: 0 0 0 3px #1e0e03, 0 14px 30px rgba(0,0,0,.7); text-shadow: 0 3px 0 #2a1204; }
+  .chip.red { color: #ffb8a0; border-color: #e0503a; }
   .ribbon { position: absolute; left: 50%; width: 1000px; height: 250px; transform: translateX(-50%);
     background: linear-gradient(#e8c67e, #8a6a32); clip-path: polygon(0 0, 100% 0, 94% 50%, 100% 100%, 0 100%, 6% 50%); }
   .ribbon::before { content: ""; position: absolute; inset: 0; background: linear-gradient(#8a3020, #5a1a12 50%, #2e0a06);
@@ -54,19 +59,20 @@
 </style>
 </head>
 <body>
-<div id="stage"><div id="world"></div><canvas id="fx" width="1080" height="1920"></canvas><div id="redvig"></div><div id="vig"></div><div id="shade"></div><div id="ui"></div><div id="flash"></div><div id="fade"></div></div>
+<div id="stage"><div id="world"></div><canvas id="fx" width="1080" height="1920"></canvas><div id="redvig"></div><div id="vig"></div><div id="shade"></div><div id="shadeB"></div><div id="ui"></div><div id="flash"></div><div id="fade"></div></div>
 <script type="module">
 /**
- * Промо-ролик 30 с, 1080×1920. Всё — функция времени: window.seek(t) расставляет кадр (детерминированно, без CSS-анимаций
- * и таймеров), render.mjs снимает 900 кадров (30 fps). Просмотр в браузере: video.html?play=1 (requestAnimationFrame),
- * ?t=11.2 — один кадр. Картинки — promo/shots, promo/branches (собраны shoot.mjs / branches.mjs) и ассеты игры.
+ * Промо-ролик 30 с, 1080×1920 (вторая версия, 01.10). Всё — функция времени: window.seek(t) расставляет кадр
+ * (детерминированно, без CSS-анимаций и таймеров), render.mjs снимает 900 кадров (30 fps). Просмотр: video.html?play=1,
+ * один кадр — ?t=11.2. Картинки — promo/shots (кадры 1080×1920, shoot.mjs + select.py) и ассеты игры.
+ * Сценарий по секундам — promo/README.md. Все кадры — во весь экран: kb() не даёт картинке отойти от края (без полос).
+ * Ритм — под «Backattack!!» (music_battle_desert): трек с 5.19 с, удар барабанов — на 3.0 с ролика.
  */
 const $ = (sel, root = document) => root.querySelector(sel);
-const world = $('#world'), ui = $('#ui'), stage = $('#stage');
+const world = $('#world'), ui = $('#ui');
 const fx = $('#fx').getContext('2d');
 const A = '../../assets';
 const S = (n) => `../shots/${n}.jpg`;
-const B = (n) => `../branches/${n}.jpg`;
 
 // ── математика ────────────────────────────────────────────────────────────────
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
@@ -87,7 +93,6 @@ function rng(seed) {
     return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
   };
 }
-/** Тряска: затухающая, детерминированная от t. */
 function shake(t, t0, dur, amp) {
   if (t < t0 || t > t0 + dur) return [0, 0];
   const k = 1 - (t - t0) / dur;
@@ -102,81 +107,103 @@ function shot(src, parent = world) {
   imgs.push(n.firstChild);
   return n;
 }
-/** Кен Бёрнс: масштаб s, сдвиг (x, y) в px, точка опоры (ox, oy) в долях. */
-function kb(node, op, s, x = 0, y = 0, ox = 0.5, oy = 0.5, rot = 0) {
+/**
+ * Кен Бёрнс во весь кадр: масштаб s ≥ 1, сдвиг (x, y) px, точка опоры (ox, oy) в долях. Сдвиг ограничен так, что картинка
+ * всегда закрывает кадр 1080×1920 целиком — ни полос, ни пустых краёв (тряска мира — внутри запаса масштаба: s ≥ 1.04).
+ */
+function kb(node, op, s, x = 0, y = 0, ox = 0.5, oy = 0.5) {
   node.style.opacity = op;
   if (op <= 0) return;
+  s = Math.max(s, 1.04);
+  const lx = ox * 1080 * (1 - s), ly = oy * 1920 * (1 - s);
+  x = clamp(x, 1080 - 1080 * s - lx + 30, -lx - 30);
+  y = clamp(y, 1920 - 1920 * s - ly + 30, -ly - 30);
   const im = node.firstChild;
   im.style.transformOrigin = `${ox * 100}% ${oy * 100}%`;
-  im.style.transform = `translate(${x}px, ${y}px) scale(${s}) rotate(${rot}deg)`;
+  im.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
 }
 function put(node, op, x, y, s = 1, rot = 0, extra = '') {
   node.style.opacity = op;
   if (op <= 0) return;
   node.style.transform = `translate(${x}px, ${y}px) scale(${s}) rotate(${rot}deg) ${extra}`;
 }
+const cap = (cls, top, size, html) => el(`<div class="cap ${cls}" style="top:${top}px;font-size:${size}px">${html}</div>`);
+const chip = (top, text, red = false) => el(`<div class="chip${red ? ' red' : ''}" style="top:${top}px">${text}</div>`);
+const plaque = (top, face, t1, t2) => el(`<div class="plaque" style="top:${top}px"><img class="face" src="${A}/sprites/portraits/${face}.png"><div><div class="t1">${t1}</div><div class="t2">${t2}</div></div></div>`);
 
-// Сцена 1 — хук
-const s1bg = shot(S('battle_intro'));
+// 1. Хук
+const s1bg = shot(S('boss_baphomet'));
 const logo = el(`<div class="logo" style="top:640px"><div class="ribbon" style="top:-40px"></div><div class="name gold" style="position:relative;padding-top:12px">CHRONOWORLD</div></div>`);
-const sub1 = el(`<div class="cap white" style="top:930px;font-size:86px">Мир <span style="color:#ffd070">Ragnarok</span> оживает</div>`);
-const sub1b = el(`<div class="cap white" style="top:1060px;font-size:52px;font-weight:600;color:#f0dcae">idle-RPG прямо в Telegram</div>`);
-// Сцена 2 — ульты
-const ultShots = [
-  // tap — портрет героя на панели (координаты кадра 1080×1920)
-  { n: shot(S('battle_ult_lord_of_vermillion')), hero: 'Кай', ult: 'Владыка Вермилиона', face: 'wizard_m', tap: [540, 590] },
-  { n: shot(S('battle_ult_magnus')), hero: 'Вика', ult: 'Великий Магнус', face: 'priest_f', tap: [735, 590] },
-  { n: shot(S('battle_ult_asura')), hero: 'Вика', ult: 'Удар Асуры', face: 'monk_f', tap: [175, 590] },
+const sub1 = cap('white', 930, 86, 'Мир <span style="color:#ffd070">Ragnarok</span> оживает');
+const sub1b = cap('white', 1060, 52, 'idle-RPG прямо в Telegram');
+sub1b.style.color = '#f0dcae';
+// 2. Удар Асуры
+const asuraCast = shot(S('ult_asura_cast'));
+const asuraHit = shot(S('ult_asura_hit'));
+const cap2a = cap('gold', 120, 112, 'УЛЬТА ПО КАСАНИЮ');
+const plAsura = plaque(1600, 'monk_f', 'Вика · ульта', 'Удар Асуры');
+const tap2 = el(`<div class="ripple"></div>`, world);
+// 3. Снежная буря
+const storm = shot(S('ult_storm_gust'));
+const cap3a = cap('red', 120, 120, 'РЕШАЙ САМ!');
+const plStorm = plaque(1600, 'wizard_f', 'Лира · ульта', 'Великая снежная буря');
+// 4. Боссы глав
+const bosses = [
+  { n: shot(S('boss_orc_lord')), name: 'Орк-лорд', ch: 'глава 3' },
+  { n: shot(S('boss_baphomet')), name: 'Бафомет', ch: 'глава 9' },
+  { n: shot(S('boss_lord_of_death')), name: 'Владыка мёртвых', ch: 'глава 10' },
 ];
-const ultRipple = el(`<div class="ripple"></div>`, world);
-const cap2a = el(`<div class="cap gold" style="top:150px;font-size:112px">УЛЬТА ПО КАСАНИЮ</div>`);
-const cap2b = el(`<div class="cap red" style="top:285px;font-size:120px">РЕШАЙ САМ!</div>`);
-const plaques = ultShots.map((u) => el(`<div class="plaque" style="top:1560px"><img class="face" src="${A}/sprites/portraits/${u.face}.png"><div><div class="t1">${u.hero} · ульта</div><div class="t2">${u.ult}</div></div></div>`));
-// Сцена 3 — заряд и «Сбито!»
-const chargeShot = shot(S('battle_charge'));
-const breakShot = shot(S('battle_break'));
-const cap3a = el(`<div class="cap red" style="top:170px;font-size:104px">БОСС ЗАРЯЖАЕТ УДАР!</div>`);
-const cap3b = el(`<div class="cap white" style="top:310px;font-size:64px">успей сбить его ультой</div>`);
-const bigBreak = el(`<div class="cap gold" style="top:760px;font-size:250px">СБИТО!</div>`);
-const cap3c = el(`<div class="cap white" style="top:1580px;font-size:64px">Ульта вовремя — и босс в нокауте</div>`);
-// Сцена 4 — герои и ветки
-const gridShot = shot(B('all_heroes'));
-const branchShots = ['alan', 'vika', 'kai'].map((h) => shot(B(h)));
-const cap4 = el(`<div class="cap gold" style="top:1700px;font-size:84px">24 ВЕТКИ ПРОФЕССИЙ</div>`);
-// Сцена 5 — MVP и Башня
+const cap4 = cap('red', 110, 124, 'БОССЫ ГЛАВ');
+const bossChips = bosses.map((b) => chip(1640, `${b.name} · <span style="color:#e8d2a0;font-size:44px">${b.ch}</span>`, true));
+// 5. MVP
 const mvpTop = shot(S('mvp_dracula'));
-const mvpBot = shot(S('mvp_baphomet'));
-const cap5a = el(`<div class="cap gold" style="top:820px;font-size:150px">MVP-ОХОТА</div>`);
-const cap5b = el(`<div class="cap tick" style="top:1000px">Дракула · Бафомет · Фараон · Осирис</div>`);
-const cap5c = el(`<div class="cap white" style="top:1075px;font-size:46px;font-weight:600">14 MVP из Ragnarok Online</div>`);
-const towerShot = shot(S('tower_cards'));
-const cards = ['card_baphomet', 'poring', 'deviruchi'].map((c) => el(`<div class="card" style="top:900px"><img src="${A}/ui/cards/${c}.webp"></div>`));
-const cap5d = el(`<div class="cap gold" style="top:150px;font-size:120px">БАШНЯ-РОГАЛИК</div>`);
-const cap5e = el(`<div class="cap white" style="top:300px;font-size:60px">карты RO меняют правила боя</div>`);
-// Сцена 6 — сюжет и таверна
-const tav = [shot(S('tavern_evening_1')), shot(S('tavern_evening_2'))];
-const cap6a = el(`<div class="cap gold" style="top:200px;font-size:96px">ГЕРОИ, ЗА КОТОРЫХ</div>`);
-const cap6b = el(`<div class="cap gold" style="top:320px;font-size:96px">ПЕРЕЖИВАЕШЬ</div>`);
-const cap6c = el(`<div class="cap white" style="top:450px;font-size:54px;font-weight:600">10 глав сюжета · вечера в таверне</div>`);
-// Сцена 7 — призыв
+const mvpBot = shot(S('mvp_pharaoh'));
+const cap5a = cap('gold', 830, 150, 'MVP-ОХОТА');
+const cap5b = cap('white', 1010, 58, 'Дракула · Фараон · Бафомет');
+// 6. Интерфейс
+const uiSlides = [
+  { n: shot(S('ui_home')), t: 'ТВОЙ ЛАГЕРЬ', s: 'отряд, экспедиции, награды офлайн', oy: 0.5 },
+  { n: shot(S('ui_hero')), t: '12 ГЕРОЕВ · 24 ВЕТКИ', s: 'у каждой формы — своя ульта', oy: 0.45 },
+  { n: shot(S('ui_tavern')), t: 'ПРИЗЫВ В ТАВЕРНЕ', s: 'собери три карты — редкость выше', oy: 0.5 },
+  { n: shot(S('ui_inventory')), t: 'КАРТЫ MVP', s: 'заточка до +10 и карты в снаряжение', oy: 0.4 },
+  { n: shot(S('ui_campaign')), t: '10 ГЛАВ ПО МИРУ RO', s: 'Пронтера, Пайон, Гласт Хейм, Нифльхейм', oy: 0.5 },
+];
+const uiCaps = uiSlides.map((u) => cap('gold', 70, 96, u.t));
+const uiSubs = uiSlides.map((u) => cap('white', 1720, 52, u.s));
+// 7. История
+const story = [
+  { n: shot(S('story_dialogue')), t: 'СЮЖЕТ НА 10 ГЛАВ', s: 'герои спорят, шутят и взрослеют' },
+  { n: shot(S('story_evening')), t: 'ВЕЧЕРА В ТАВЕРНЕ', s: 'узнай каждого героя ближе' },
+  { n: shot(S('story_chronicle')), t: 'ЛЕТОПИСЬ', s: 'вся история мира — под рукой' },
+];
+const stCaps = story.map((u) => cap('gold', 70, 100, u.t));
+const stSubs = story.map((u) => cap('white', 1720, 52, u.s));
+// 8. Призыв
 const endBg = shot(`${A}/backgrounds/bg_map_ch1.jpg`);
-const faces = ['knight_m', 'wizard_f', 'priest_f', 'hunter_m', 'assassin_f'].map((f) => el(`<div style="position:absolute;left:0;top:0;opacity:0"><div class="plaque" style="position:static;padding:10px;opacity:1"><img class="face" style="width:170px;height:170px" src="${A}/sprites/portraits/${f}.png"></div></div>`));
+const faces = ['monk_f', 'wizard_f', 'knight_m', 'hunter_m', 'assassin_f'].map((f) => el(`<div style="position:absolute;left:0;top:0;opacity:0"><div class="plaque" style="position:static;padding:10px;opacity:1"><img class="face" style="width:170px;height:170px" src="${A}/sprites/portraits/${f}.png"></div></div>`));
 const logo2 = el(`<div class="logo" style="top:520px"><div class="ribbon" style="top:-40px"></div><div class="name gold" style="position:relative;padding-top:12px">CHRONOWORLD</div></div>`);
-const cap7a = el(`<div class="cap white" style="top:860px;font-size:80px">Играй в <span style="color:#7cc8ff">Telegram</span></div>`);
-const cap7b = el(`<div class="cap white" style="top:975px;font-size:50px;font-weight:600;color:#f0dcae">бесплатно · бои идут, даже когда ты офлайн</div>`);
+const cap8a = cap('white', 860, 80, 'Играй в <span style="color:#7cc8ff">Telegram</span>');
+const cap8b = cap('white', 975, 50, 'бесплатно · бои идут, даже когда ты офлайн');
+cap8b.style.color = '#f0dcae';
 const plane = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#2a9fe0"/><path d="M5.4 11.6l11.4-4.4c.5-.2 1 .1.8.9l-1.9 9.1c-.1.6-.5.8-1 .5l-2.9-2.1-1.4 1.4c-.2.2-.3.3-.6.3l.2-3 5.4-4.9c.2-.2 0-.3-.4-.1l-6.7 4.2-2.9-.9c-.6-.2-.6-.6.1-.9z" fill="#fff"/></svg>`;
 const btn = el(`<div class="btn" style="top:1250px;margin-left:-350px">${plane}ИГРАТЬ</div>`);
 const tapEnd = el(`<div class="ripple"></div>`);
 
-// ── частицы (искры/угли) ──────────────────────────────────────────────────────
+// ── тайминг ───────────────────────────────────────────────────────────────────
+// Смены сцен (с) — вспышка, тряска и звук «свуш/удар» в render.mjs (CUTS).
+const T = { hook: 0, cast: 3.0, hit: 4.4, storm: 6.4, boss: 8.6, mvp: 12.2, ui: 14.2, story: 21.2, end: 25.4, len: 30 };
+const UI_STEP = 1.4, ST_STEP = 1.4, BOSS_STEP = 1.2;
+window.CUTS = [T.cast, T.hit, T.storm, T.boss, T.boss + BOSS_STEP, T.boss + 2 * BOSS_STEP, T.mvp, ...uiSlides.map((_, i) => T.ui + i * UI_STEP), ...story.map((_, i) => T.story + i * ST_STEP), T.end];
+
+// ── частицы ───────────────────────────────────────────────────────────────────
 const R = rng(7);
 const embers = Array.from({ length: 90 }, () => ({ x: R() * 1080, y: R() * 1920, v: 60 + R() * 160, r: 2 + R() * 5, ph: R() * 6.28, w: 20 + R() * 50 }));
 const burstR = rng(11);
 const burst = Array.from({ length: 70 }, () => ({ a: burstR() * 6.283, v: 600 + burstR() * 1500, r: 3 + burstR() * 8 }));
+const BURSTS = [[0.62, 540, 700, '255,230,150'], [T.hit, 560, 1150, '255,230,120'], [T.mvp + 0.2, 540, 900, '255,120,80'], [25.8, 540, 640, '255,230,150']];
 function drawFx(t) {
   fx.clearRect(0, 0, 1080, 1920);
-  // Угли: сцены 1, 7 и таверна — тёплые, поднимаются.
-  const amt = Math.max(win(t, 0, 3.05, 0.1, 0.2), win(t, 21, 25.1, 0.3, 0.2) * 0.6, win(t, 25, 30, 0.3, 0.6));
+  const amt = Math.max(win(t, 0, 3.05, 0.1, 0.2), win(t, T.story, T.end + 0.1, 0.3, 0.2) * 0.5, win(t, T.end, 30, 0.3, 0.6));
   if (amt > 0) {
     for (const e of embers) {
       const y = ((e.y - e.v * t) % 1920 + 1920) % 1920;
@@ -190,8 +217,7 @@ function drawFx(t) {
       fx.beginPath(); fx.arc(x, y, e.r * 4, 0, 6.283); fx.fill();
     }
   }
-  // Взрыв искр на ударах.
-  for (const [t0, cx, cy, col] of [[0.62, 540, 700, '255,230,150'], [11.0, 540, 900, '255,220,90'], [17.25, 540, 880, '255,200,120'], [25.6, 540, 640, '255,230,150']]) {
+  for (const [t0, cx, cy, col] of BURSTS) {
     const k = (t - t0) / 0.9;
     if (k < 0 || k > 1) continue;
     for (const p of burst) {
@@ -205,157 +231,121 @@ function drawFx(t) {
 
 // ── кадр ──────────────────────────────────────────────────────────────────────
 function seek(t) {
-  // Тряска мира и интерфейса.
-  const shakes = [[0.6, 0.35, 22], [3.0, 0.25, 16], [5.0, 0.25, 16], [7.0, 0.25, 16], [11.0, 0.6, 46], [17.2, 0.3, 24], [25.6, 0.3, 18]];
+  const shakes = [[0.6, 0.35, 22], [T.cast, 0.2, 12], [T.hit, 0.5, 40], [T.storm, 0.25, 16], [T.boss, 0.3, 22], [T.boss + 1.2, 0.3, 22], [T.boss + 2.4, 0.3, 22], [T.mvp, 0.35, 26], [T.end + 0.4, 0.3, 18]];
   let sx = 0, sy = 0;
   for (const [a, d, m] of shakes) { const [x, y] = shake(t, a, d, m); sx += x; sy += y; }
   world.style.transform = `translate(${sx}px, ${sy}px)`;
   ui.style.transform = `translate(${sx * 0.6}px, ${sy * 0.6}px)`;
 
-  // Вспышки на сменах.
+  // Вспышки на сменах; самая яркая — удар Асуры.
   let fl = 0;
-  for (const [a, d, m] of [[0.6, 0.35, 0.9], [2.92, 0.3, 1], [5.0, 0.2, 0.7], [7.0, 0.2, 0.7], [8.95, 0.25, 0.8], [11.0, 0.45, 1], [13.0, 0.25, 0.8], [15.0, 0.18, 0.6], [16.0, 0.18, 0.6], [17.0, 0.3, 0.9], [19.0, 0.25, 0.8], [21.0, 0.3, 0.6], [25.0, 0.35, 0.9], [25.6, 0.3, 0.7]]) {
-    if (t >= a && t < a + d) fl = Math.max(fl, m * (1 - (t - a) / d));
-  }
+  const flashes = [[0.6, 0.35, 0.9], [T.hit, 0.4, 1]].concat(window.CUTS.filter((c) => c !== T.hit).map((c) => [c, 0.18, 0.55]));
+  for (const [a, d, m] of flashes) if (t >= a && t < a + d) fl = Math.max(fl, m * (1 - (t - a) / d));
   $('#flash').style.opacity = fl;
-  $('#shade').style.opacity = Math.max(win(t, 3.05, 9, 0.15, 0.05), win(t, 9.05, 11, 0.1, 0.02), win(t, 19.1, 21, 0.15, 0.05), win(t, 21.1, 25, 0.3, 0.1));
+  $('#shade').style.opacity = t > T.cast && t < T.end ? 1 : 0;
+  $('#shadeB').style.opacity = t > T.cast && t < T.end ? 1 : 0;
   $('#fade').style.opacity = Math.max(1 - seg(t, 0, 0.25), seg(t, 29.3, 30));
 
   // 1. Хук (0–3)
-  kb(s1bg, win(t, 0, 3.0, 0.01, 0.05), lerp(1.35, 1.12, eOut(seg(t, 0, 3))), 0, 0, 0.55, 0.62);
-  s1bg.firstChild.style.filter = `blur(${lerp(10, 3, seg(t, 0, 2.5))}px) brightness(${lerp(0.25, 0.5, seg(t, 0, 1))})`;
+  kb(s1bg, win(t, 0, T.cast, 0.01, 0.05), lerp(1.35, 1.12, eOut(seg(t, 0, 3))), 0, 0, 0.5, 0.55);
+  s1bg.firstChild.style.filter = `blur(${lerp(10, 3, seg(t, 0, 2.5))}px) brightness(${lerp(0.3, 0.55, seg(t, 0, 1))})`;
   {
     const k = seg(t, 0.2, 0.62);
     put(logo, win(t, 0.2, 2.95, 0.12, 0.15), 0, lerp(-80, 0, eOut(k)), lerp(2.6, 1, eIn(k)) * (t > 0.62 ? 1 + 0.06 * Math.exp(-(t - 0.62) * 6) * Math.sin((t - 0.62) * 30) : 1));
     logo.style.filter = `drop-shadow(0 0 ${20 + 30 * Math.max(0, 1 - (t - 0.62) * 2)}px rgba(255,190,80,.8))`;
     const k2 = seg(t, 1.15, 1.55);
     put(sub1, win(t, 1.15, 2.95, 0.15, 0.15), 0, lerp(70, 0, eBack(k2)), lerp(0.6, 1, eBack(k2)));
-    const k3 = seg(t, 1.7, 2.0);
-    put(sub1b, win(t, 1.7, 2.95, 0.2, 0.15), lerp(-300, 0, eOut(k3)), 0);
+    put(sub1b, win(t, 1.7, 2.95, 0.2, 0.15), lerp(-300, 0, eOut(seg(t, 1.7, 2.0))), 0);
   }
 
-  // 2. Ульты (3–9)
-  ultShots.forEach((u, i) => {
-    const a = 3 + i * 2, b = a + 2;
-    const k = seg(t, a, b);
-    const punch = 1 + 0.18 * Math.exp(-(t - a) * 9) * (t >= a ? 1 : 0);
-    kb(u.n, win(t, a, b, 0.01, 0.01), lerp(1.08, 1.24, eInOut(k)) * punch, lerp(i % 2 ? -30 : 30, i % 2 ? 30 : -30, k), lerp(20, -10, k), 0.5, 0.62);
-    const pk = seg(t, a + 0.15, a + 0.5);
-    put(plaques[i], win(t, a + 0.15, b - 0.02, 0.1, 0.12), lerp(-1100, 0, eBack(pk, 1.4)) - 0, 0, 1, 0, 'translateX(-50%)');
+  // 2. Удар Асуры (3.0–6.4): касание портрета → иероглифы над Викой (наезд) → удар (вспышка, тряска).
+  {
+    const k = seg(t, T.cast, T.hit);
+    kb(asuraCast, win(t, T.cast, T.hit, 0.01, 0.01), lerp(1.1, 1.45, eInOut(k)), 0, 0, 0.3, 0.42);
+    const kh = seg(t, T.hit, T.storm);
+    const punch = 1 + 0.22 * Math.exp(-(t - T.hit) * 8) * (t >= T.hit ? 1 : 0);
+    kb(asuraHit, win(t, T.hit, T.storm, 0.01, 0.01), lerp(1.3, 1.12, eOut(kh)) * punch, 0, 0, 0.5, 0.5);
+    const kt = seg(t, T.cast - 0.02, T.cast + 0.5);
+    put(tap2, kt > 0 && kt < 1 ? 1 - kt : 0, 160, 720, lerp(0.4, 1.8, eOut(kt)));
+    put(cap2a, win(t, T.cast + 0.08, T.storm - 0.02, 0.08, 0.1), 0, lerp(-260, 0, eBack(seg(t, T.cast + 0.08, T.cast + 0.4))));
+    const pk = seg(t, T.cast + 0.3, T.cast + 0.65);
+    put(plAsura, win(t, T.cast + 0.3, T.storm - 0.02, 0.1, 0.12), lerp(-1100, 0, eBack(pk, 1.4)), 0, t > T.hit ? 1 + 0.08 * Math.exp(-(t - T.hit) * 6) : 1, 0, 'translateX(-50%)');
+  }
+
+  // 3. Великая снежная буря (6.4–8.6)
+  {
+    const k = seg(t, T.storm, T.boss);
+    kb(storm, win(t, T.storm, T.boss, 0.01, 0.01), lerp(1.3, 1.12, eOut(k)) * (1 + 0.15 * Math.exp(-(t - T.storm) * 9) * (t >= T.storm ? 1 : 0)), lerp(30, -30, k), 0, 0.6, 0.5);
+    const pulse = 1 + 0.05 * Math.sin(t * 9) * (t > T.storm + 0.3 ? 1 : 0);
+    const [jx, jy] = shake(t, T.storm + 0.3, 0.35, 14);
+    put(cap3a, win(t, T.storm + 0.05, T.boss - 0.02, 0.06, 0.1), jx, jy, lerp(3, 1, eIn(seg(t, T.storm + 0.05, T.storm + 0.3))) * pulse);
+    put(plStorm, win(t, T.storm + 0.2, T.boss - 0.02, 0.1, 0.12), lerp(1100, 0, eBack(seg(t, T.storm + 0.2, T.storm + 0.55), 1.4)), 0, 1, 0, 'translateX(-50%)');
+  }
+
+  // 4. Боссы глав (8.6–12.2)
+  bosses.forEach((b, i) => {
+    const a = T.boss + i * BOSS_STEP, e = a + BOSS_STEP;
+    const k = seg(t, a, e);
+    kb(b.n, win(t, a, e, 0.01, 0.01), lerp(1.32, 1.1, eOut(k)), 0, lerp(-40, 20, k), 0.5, 0.48);
+    put(bossChips[i], win(t, a + 0.1, e - 0.02, 0.08, 0.08), lerp(i % 2 ? 900 : -900, 0, eBack(seg(t, a + 0.1, a + 0.4), 1.3)), 0, 1, 0, 'translateX(-50%)');
   });
-  // Касание портрета перед ультой (кольцо) — в координатах кадра с тем же наездом.
   {
-    let op = 0, sc = 1, x = 540, y = 600;
-    ultShots.forEach((u, i) => {
-      const a = 3 + i * 2;
-      const k = seg(t, a - 0.02, a + 0.5);
-      if (k <= 0 || k >= 1) return;
-      const z = 1.08 * (1 + 0.18 * Math.exp(-(t - a) * 9));
-      op = 1 - k; sc = lerp(0.4, 1.6, eOut(k));
-      x = 540 + (u.tap[0] - 540) * z; y = 1190 + (u.tap[1] - 1190) * z;
-    });
-    put(ultRipple, op, x, y, sc);
-  }
-  {
-    const k = seg(t, 3.12, 3.45);
-    put(cap2a, win(t, 3.12, 8.95, 0.08, 0.1), 0, lerp(-260, 0, eBack(k)), 1);
-    const k2 = seg(t, 3.7, 3.95);
-    const pulse = 1 + 0.05 * Math.sin(t * 9) * (t > 3.95 ? 1 : 0);
-    const [jx, jy] = shake(t, 3.95, 0.35, 14);
-    put(cap2b, win(t, 3.7, 8.95, 0.06, 0.1), jx, jy, lerp(3, 1, eIn(k2)) * pulse);
+    const k = seg(t, T.boss + 0.05, T.boss + 0.3);
+    const [jx, jy] = shake(t, T.boss + 0.3, 3, 5);
+    put(cap4, win(t, T.boss + 0.05, T.mvp - 0.02, 0.06, 0.1), jx, jy, lerp(3.2, 1, eIn(k)));
+    cap4.style.filter = `drop-shadow(0 0 2px #2a0400) drop-shadow(0 5px 0 #2a0400) drop-shadow(0 0 ${22 + 12 * Math.sin(t * 10)}px rgba(255,60,20,.8))`;
   }
 
-  // 3. Заряд → «Сбито!» (9–13)
+  // 5. MVP-охота (12.2–14.2): Дракула сверху, Фараон снизу, диагональный разрез.
   {
-    const k = seg(t, 9, 11);
-    kb(chargeShot, win(t, 9, 11, 0.01, 0.01), lerp(1.1, 1.42, eIn(k)), 0, lerp(0, 60, k), 0.6, 0.58);
-    const pulse = 0.5 + 0.5 * Math.sin((t - 9) * 12);
-    $('#redvig').style.opacity = win(t, 9, 11, 0.2, 0.02) * (0.45 + 0.55 * pulse);
-    const k1 = seg(t, 9.1, 9.4);
-    const [jx, jy] = shake(t, 9.1, 1.9, 8);
-    put(cap3a, win(t, 9.1, 10.98, 0.08, 0.02), jx, lerp(-200, 0, eBack(k1)) + jy, 1 + 0.04 * pulse);
-    put(cap3b, win(t, 9.7, 10.98, 0.2, 0.02), 0, lerp(40, 0, eOut(seg(t, 9.7, 10))));
-    const kb2 = seg(t, 11, 13);
-    kb(breakShot, win(t, 11, 13, 0.01, 0.01), lerp(1.4, 1.12, eOut(seg(t, 11, 11.5))) + 0.06 * kb2, 0, 0, 0.6, 0.58);
-    const kk = seg(t, 11.02, 11.3);
-    const glow = 30 + 40 * Math.exp(-(t - 11.02) * 3);
-    put(bigBreak, win(t, 11.02, 12.95, 0.04, 0.15), 0, 0, lerp(4.2, 1, eIn(kk)) * (t > 11.3 ? 1 + 0.08 * Math.exp(-(t - 11.3) * 5) * Math.sin((t - 11.3) * 28) : 1), lerp(-8, -4, kk));
-    bigBreak.style.filter = `drop-shadow(0 0 2px #2a1204) drop-shadow(0 8px 0 #2a1204) drop-shadow(0 0 ${glow}px rgba(255,200,60,.95))`;
-    put(cap3c, win(t, 11.6, 12.95, 0.2, 0.15), 0, lerp(80, 0, eOut(seg(t, 11.6, 11.9))));
-  }
-
-  // 4. Герои и ветки (13–17)
-  {
-    const k = seg(t, 13, 15);
-    kb(gridShot, win(t, 13, 15.02, 0.01, 0.02), lerp(1.55, 1.0, eInOut(k)), lerp(260, 0, eInOut(k)), lerp(420, 0, eInOut(k)), 0.5, 0.5);
-    branchShots.forEach((n, i) => {
-      const a = 15 + i * 0.67, b = a + 0.67;
-      const k2 = seg(t, a, a + 0.18);
-      kb(n, win(t, a, i === 2 ? 17.02 : b + 0.02, 0.01, 0.01), lerp(1.06, 1.12, seg(t, a, b)), lerp(i % 2 ? -1080 : 1080, 0, eOut(k2)), 0, 0.5, 0.45);
-    });
-    const kc = seg(t, 15.05, 15.35);
-    put(cap4, win(t, 15.05, 17, 0.08, 0.1), 0, 0, lerp(2.2, 1, eBack(kc)));
-  }
-
-  // 5. MVP (17–19) и Башня (19–21)
-  {
-    const k = seg(t, 17, 17.35);
-    // Две половины: сверху Дракула (слева), снизу Бафомет (справа), диагональный разрез.
-    kb(mvpTop, win(t, 17, 19, 0.01, 0.01), lerp(1.25, 1.35, seg(t, 17, 19)), lerp(-1100, 0, eOut(k)), -360, 0.5, 0.62);
-    mvpTop.style.clipPath = 'polygon(0 0, 100% 0, 100% 44%, 0 52%)';
-    kb(mvpBot, win(t, 17, 19, 0.01, 0.01), lerp(1.25, 1.35, seg(t, 17, 19)), lerp(1100, 0, eOut(k)), 330, 0.5, 0.62);
-    mvpBot.style.clipPath = 'polygon(0 52%, 100% 44%, 100% 100%, 0 100%)';
-    const k2 = seg(t, 17.2, 17.45);
-    put(cap5a, win(t, 17.2, 18.98, 0.05, 0.1), 0, 0, lerp(3.5, 1, eIn(k2)) * (t > 17.45 ? 1 + 0.03 * Math.sin(t * 10) : 1), -3);
+    const k = seg(t, T.mvp, T.mvp + 0.35);
+    const sMvp = lerp(1.15, 1.25, seg(t, T.mvp, T.ui));
+    kb(mvpTop, win(t, T.mvp, T.ui, 0.01, 0.01), sMvp, 0, 0, 0.5, 0.3);
+    mvpTop.style.clipPath = `polygon(0 0, 100% 0, 100% ${lerp(0, 44, eOut(k))}%, 0 ${lerp(0, 52, eOut(k))}%)`;
+    kb(mvpBot, win(t, T.mvp, T.ui, 0.01, 0.01), sMvp, 0, 0, 0.5, 0.7);
+    mvpBot.style.clipPath = `polygon(0 ${lerp(100, 52, eOut(k))}%, 100% ${lerp(100, 44, eOut(k))}%, 100% 100%, 0 100%)`;
+    const k2 = seg(t, T.mvp + 0.2, T.mvp + 0.45);
+    put(cap5a, win(t, T.mvp + 0.2, T.ui - 0.02, 0.05, 0.1), 0, 0, lerp(3.5, 1, eIn(k2)) * (t > T.mvp + 0.45 ? 1 + 0.03 * Math.sin(t * 10) : 1), -3);
     cap5a.style.filter = `drop-shadow(0 0 2px #2a1204) drop-shadow(0 6px 0 #2a1204) drop-shadow(0 0 ${26 + 14 * Math.sin(t * 10)}px rgba(255,80,40,.9))`;
-    const names = ['Дракула', 'Бафомет', 'Фараон', 'Осирис'];
-    const shown = Math.floor(seg(t, 17.5, 18.3) * 4 + 0.001);
-    cap5b.textContent = names.slice(0, Math.max(1, shown)).join(' · ');
-    put(cap5b, win(t, 17.5, 18.98, 0.1, 0.1), 0, 0);
-    put(cap5c, win(t, 17.9, 18.98, 0.15, 0.1), 0, lerp(30, 0, eOut(seg(t, 17.9, 18.2))));
-
-    const kt = seg(t, 19, 21);
-    kb(towerShot, win(t, 19, 21, 0.01, 0.01), lerp(1.05, 1.18, eOut(kt)), 0, lerp(30, -30, kt), 0.5, 0.45);
-    towerShot.firstChild.style.filter = `brightness(${lerp(1, 0.55, seg(t, 19.3, 19.7))})`;
-    cards.forEach((c, i) => {
-      const a = 19.35 + i * 0.16;
-      const kc = seg(t, a, a + 0.45);
-      const rot = [-16, 0, 16][i];
-      const x = [-300, 0, 300][i];
-      const fly = eBack(kc, 1.3);
-      put(c, win(t, a, 21, 0.05, 0.1), lerp(0, x, fly), lerp(900, i === 1 ? -40 : 30, fly) + Math.sin(t * 2 + i) * 8, i === 1 ? 1.12 : 1, lerp(rot * 3, rot, fly));
-      c.style.zIndex = i === 1 ? 3 : 2;
-    });
-    put(cap5d, win(t, 19.15, 20.98, 0.08, 0.1), 0, lerp(-240, 0, eBack(seg(t, 19.15, 19.45))));
-    put(cap5e, win(t, 19.55, 20.98, 0.2, 0.1), 0, lerp(40, 0, eOut(seg(t, 19.55, 19.85))));
+    put(cap5b, win(t, T.mvp + 0.5, T.ui - 0.02, 0.1, 0.1), 0, lerp(30, 0, eOut(seg(t, T.mvp + 0.5, T.mvp + 0.8))));
   }
 
-  // 6. Сюжет и таверна (21–25)
-  {
-    kb(tav[0], win(t, 21, 23.3, 0.01, 0.4), lerp(1.18, 1.05, seg(t, 21, 23.3)), 0, lerp(-40, 20, seg(t, 21, 23.3)), 0.5, 0.7);
-    kb(tav[1], win(t, 22.9, 25, 0.4, 0.01), lerp(1.05, 1.16, seg(t, 22.9, 25)), 0, 0, 0.5, 0.75);
-    const warm = 0.18 + 0.06 * Math.sin(t * 5);
-    for (const n of tav) n.firstChild.style.filter = `sepia(${warm}) brightness(1.02)`;
-    put(cap6a, win(t, 21.15, 24.95, 0.3, 0.15), 0, lerp(-50, 0, eOut(seg(t, 21.15, 21.6))));
-    put(cap6b, win(t, 21.45, 24.95, 0.3, 0.15), 0, 0, lerp(1.6, 1, eBack(seg(t, 21.45, 21.8))));
-    put(cap6c, win(t, 22.1, 24.95, 0.3, 0.15), 0, lerp(40, 0, eOut(seg(t, 22.1, 22.5))));
-  }
+  // 6. Интерфейс (14.2–21.2): пять экранов, у каждого крупная подпись сверху и строка снизу.
+  uiSlides.forEach((u, i) => {
+    const a = T.ui + i * UI_STEP, e = a + UI_STEP;
+    const k = seg(t, a, e);
+    const from = i % 2 ? -1 : 1;
+    const kin = eOut(seg(t, a, a + 0.22));
+    kb(u.n, win(t, a, e + 0.02, 0.01, 0.01), lerp(1.16, 1.06, k), lerp(from * 600, 0, kin), 0, 0.5, u.oy);
+    put(uiCaps[i], win(t, a + 0.08, e, 0.08, 0.08), 0, 0, lerp(1.9, 1, eBack(seg(t, a + 0.08, a + 0.32))));
+    put(uiSubs[i], win(t, a + 0.25, e, 0.12, 0.08), 0, lerp(40, 0, eOut(seg(t, a + 0.25, a + 0.5))));
+  });
 
-  // 7. Призыв (25–30)
+  // 7. История (21.2–25.4)
+  story.forEach((u, i) => {
+    const a = T.story + i * ST_STEP, e = a + ST_STEP;
+    const k = seg(t, a, e);
+    kb(u.n, win(t, a, e + 0.02, i ? 0.25 : 0.01, 0.01), lerp(1.06, 1.16, k), 0, lerp(10, -20, k), 0.5, 0.6);
+    u.n.firstChild.style.filter = `sepia(${0.12 + 0.05 * Math.sin(t * 5)}) brightness(1.03)`;
+    put(stCaps[i], win(t, a + 0.1, e, 0.15, 0.1), 0, lerp(-40, 0, eOut(seg(t, a + 0.1, a + 0.4))));
+    put(stSubs[i], win(t, a + 0.3, e, 0.15, 0.1), 0, lerp(40, 0, eOut(seg(t, a + 0.3, a + 0.6))));
+  });
+
+  // 8. Призыв (25.4–30)
   {
-    kb(endBg, win(t, 25, 30, 0.01, 0.01), lerp(1.25, 1.1, seg(t, 25, 30)), 0, 0, 0.5, 0.5);
+    kb(endBg, win(t, T.end, 30, 0.01, 0.01), lerp(1.25, 1.1, seg(t, T.end, 30)), 0, 0, 0.5, 0.5);
     endBg.firstChild.style.filter = 'brightness(0.42) saturate(1.1)';
     faces.forEach((f, i) => {
-      const a = 25.9 + i * 0.1;
+      const a = T.end + 0.6 + i * 0.1;
       const k = seg(t, a, a + 0.4);
       const x = 540 - 100 + (i - 2) * 205, y = 1530 + (i % 2) * 40;
       put(f, win(t, a, 30, 0.05, 0.1), x, lerp(y + 600, y, eBack(k, 1.5)) + Math.sin(t * 2.4 + i) * 8, 1, (i - 2) * 3);
     });
-    const k = seg(t, 25.2, 25.6);
-    put(logo2, win(t, 25.2, 30, 0.1, 0.1), 0, 0, lerp(2.6, 1, eIn(k)) * (t > 25.6 ? 1 + 0.05 * Math.exp(-(t - 25.6) * 6) * Math.sin((t - 25.6) * 30) : 1));
+    const k = seg(t, T.end + 0.05, T.end + 0.4);
+    put(logo2, win(t, T.end + 0.05, 30, 0.1, 0.1), 0, 0, lerp(2.6, 1, eIn(k)) * (t > T.end + 0.4 ? 1 + 0.05 * Math.exp(-(t - T.end - 0.4) * 6) * Math.sin((t - T.end - 0.4) * 30) : 1));
     logo2.style.filter = `drop-shadow(0 0 ${24 + 10 * Math.sin(t * 3)}px rgba(255,190,80,.7))`;
-    put(cap7a, win(t, 26.0, 30, 0.2, 0.1), 0, lerp(60, 0, eBack(seg(t, 26.0, 26.35))));
-    put(cap7b, win(t, 26.4, 30, 0.25, 0.1), 0, lerp(40, 0, eOut(seg(t, 26.4, 26.7))));
+    put(cap8a, win(t, 26.0, 30, 0.2, 0.1), 0, lerp(60, 0, eBack(seg(t, 26.0, 26.35))));
+    put(cap8b, win(t, 26.4, 30, 0.25, 0.1), 0, lerp(40, 0, eOut(seg(t, 26.4, 26.7))));
     const kb2 = seg(t, 26.7, 27.1);
     const press = t > 28.2 && t < 28.45 ? 0.92 : 1;
     put(btn, win(t, 26.7, 30, 0.1, 0.1), 0, 0, eElastic(kb2) * (1 + 0.045 * Math.sin((t - 26.7) * 6)) * press);
@@ -369,13 +359,13 @@ function seek(t) {
 window.seek = seek;
 window.DURATION = 30;
 await document.fonts.ready;
-// Надписи — не шире 1000 px: уменьшаем шрифт по замеру.
 const textW = (n) => { const r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().width; };
-for (const n of document.querySelectorAll('.cap, .logo .name, .plaque .t2')) {
+for (const n of document.querySelectorAll('.cap, .logo .name, .plaque .t2, .chip')) {
   const max = n.classList.contains('t2') ? 760 : n.classList.contains('name') ? 860 : 1000;
   let fs = parseFloat(getComputedStyle(n).fontSize);
   while (textW(n) > max && fs > 20) { fs -= 2; n.style.fontSize = `${fs}px`; }
 }
+for (const n of document.querySelectorAll('.chip')) n.style.marginLeft = '0';
 await Promise.all(imgs.concat([...document.images]).map((i) => i.decode().catch(() => console.warn('нет картинки', i.src))));
 const q = new URLSearchParams(location.search);
 if (q.get('play')) {

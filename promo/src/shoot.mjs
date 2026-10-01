@@ -85,7 +85,7 @@ async function open(save, { shiftDays = 0, scene = null } = {}) {
     sessionStorage.setItem('promo-init', '1');
   }, [save, shiftDays * 86_400_000 + 3_600_000, HINTS]);
   await page.goto(URL, { timeout: 180000 });
-  await page.waitForFunction(() => window.__game?.scene?.getScenes(true).some((s) => !['Boot', 'Preload'].includes(s.scene.key)), null, { timeout: 90000, polling: 200 });
+  await page.waitForFunction(() => window.__game?.scene?.getScenes(true).some((s) => !['Boot', 'Preload'].includes(s.scene.key)), null, { timeout: 400000, polling: 500 });
   await sleep(1500);
   if (scene) await go(page, scene.key, scene.data);
   return page;
