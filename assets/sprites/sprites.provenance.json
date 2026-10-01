@@ -41826,6 +41826,12 @@
     50
    ]
   },
+  "npc_kafra": {
+   "source": {
+    "job": "4_f_kafra1",
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO npc/4_f_kafra1.spr/.act; rows idle south, idle east, walk south, walk east; 8 of 99 frames; shadow=false; native x1"
+   }
+  },
   "npc_bruno": {
    "source": {
     "job": "1_m_librarymaster",
@@ -41833,11 +41839,678 @@
     "renderer": "raw/ro-build/assets/sprites/npcs/1_m_librarymaster.png (scRO npc/1_m_librarymaster, 1 frame); rows idle south, idle east, repeated as walk south, walk east; 8 columns = same frame; RN-07: portrait of innkeeper Bruno"
    }
   },
-  "npc_kafra": {
+  "pharaoh": {
    "source": {
-    "job": "4_f_kafra1",
-    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO npc/4_f_kafra1.spr/.act; rows idle south, idle east, walk south, walk east; 8 of 99 frames; shadow=false; native x1"
+    "job": "pharaoh",
+    "jobId": 1157,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO pharaoh.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -18,
+      -132,
+      16,
+      10
+     ],
+     [
+      -18,
+      -131,
+      17,
+      10
+     ],
+     [
+      -18,
+      -132,
+      17,
+      10
+     ],
+     [
+      -16,
+      -132,
+      16,
+      10
+     ]
+    ],
+    "walk": [
+     [
+      -22,
+      -125,
+      23,
+      9
+     ],
+     [
+      -16,
+      -127,
+      25,
+      8
+     ],
+     [
+      -13,
+      -127,
+      22,
+      16
+     ],
+     [
+      -12,
+      -125,
+      21,
+      15
+     ],
+     [
+      -19,
+      -128,
+      20,
+      10
+     ],
+     [
+      -22,
+      -127,
+      25,
+      9
+     ]
+    ],
+    "attack": [
+     [
+      -17,
+      -132,
+      61,
+      13
+     ],
+     [
+      -17,
+      -132,
+      85,
+      15
+     ],
+     [
+      -18,
+      -133,
+      63,
+      24
+     ],
+     [
+      -17,
+      -134,
+      62,
+      23
+     ],
+     [
+      -17,
+      -137,
+      60,
+      21
+     ],
+     [
+      -19,
+      -138,
+      59,
+      21
+     ]
+    ],
+    "hurt": [
+     [
+      -18,
+      -132,
+      16,
+      10
+     ],
+     [
+      -30,
+      -132,
+      22,
+      12
+     ],
+     [
+      -25,
+      -124,
+      18,
+      7
+     ]
+    ],
+    "death": [
+     [
+      -18,
+      -132,
+      16,
+      10
+     ],
+     [
+      -137,
+      -146,
+      18,
+      7
+     ],
+     [
+      -137,
+      -146,
+      3,
+      6
+     ],
+     [
+      -102,
+      -145,
+      -57,
+      -10
+     ],
+     [
+      -99,
+      -37,
+      -60,
+      -4
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     6,
+     11,
+     17
+    ],
+    "walk": [
+     0,
+     3,
+     6,
+     9,
+     12,
+     15
+    ],
+    "attack": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9
+    ],
+    "hurt": [
+     0,
+     2,
+     5
+    ],
+    "death": [
+     0,
+     14,
+     28,
+     41,
+     55
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 18,
+    "walk": 16,
+    "attack": 16,
+    "hurt": 6,
+    "death": 64
+   },
+   "sourceAlphaValues": [
+    100
+   ],
+   "samplingExceptions": {
+    "attack": {
+     "skipped": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "reason": "frame exceeds cell at x1"
+    },
+    "death": {
+     "skipped": [
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+     ],
+     "reason": "frame exceeds cell at x1"
+    }
    }
+  },
+  "whisper": {
+   "source": {
+    "job": "whisper",
+    "jobId": 1179,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO whisper.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -16,
+      -52,
+      17,
+      -12
+     ],
+     [
+      -16,
+      -56,
+      16,
+      -16
+     ],
+     [
+      -16,
+      -55,
+      16,
+      -14
+     ],
+     [
+      -14,
+      -51,
+      17,
+      -10
+     ]
+    ],
+    "walk": [
+     [
+      -14,
+      -52,
+      17,
+      -12
+     ],
+     [
+      -16,
+      -55,
+      16,
+      -14
+     ],
+     [
+      -16,
+      -57,
+      17,
+      -17
+     ],
+     [
+      -14,
+      -54,
+      17,
+      -13
+     ],
+     [
+      -14,
+      -52,
+      17,
+      -12
+     ],
+     [
+      -16,
+      -51,
+      16,
+      -10
+     ]
+    ],
+    "attack": [
+     [
+      -14,
+      -52,
+      17,
+      -12
+     ],
+     [
+      -18,
+      -52,
+      17,
+      -12
+     ],
+     [
+      -23,
+      -52,
+      13,
+      -12
+     ],
+     [
+      -25,
+      -51,
+      12,
+      -11
+     ],
+     [
+      -25,
+      -52,
+      28,
+      -2
+     ],
+     [
+      -10,
+      -52,
+      28,
+      -13
+     ]
+    ],
+    "hurt": [
+     [
+      -14,
+      -52,
+      17,
+      -12
+     ],
+     [
+      -16,
+      -53,
+      18,
+      -10
+     ],
+     [
+      -17,
+      -55,
+      18,
+      -10
+     ]
+    ],
+    "death": [
+     [
+      -14,
+      -52,
+      17,
+      -12
+     ],
+     [
+      -22,
+      -37,
+      23,
+      10
+     ],
+     [
+      -27,
+      -66,
+      29,
+      18
+     ],
+     [
+      -89,
+      -94,
+      82,
+      25
+     ],
+     [
+      -27,
+      -18,
+      29,
+      18
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     4,
+     9,
+     13
+    ],
+    "walk": [
+     0,
+     3,
+     5,
+     8,
+     10,
+     13
+    ],
+    "attack": [
+     0,
+     3,
+     6,
+     9,
+     12,
+     15
+    ],
+    "hurt": [
+     0,
+     3,
+     6
+    ],
+    "death": [
+     0,
+     5,
+     10,
+     14,
+     19
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 14,
+    "walk": 14,
+    "attack": 16,
+    "hurt": 7,
+    "death": 20
+   },
+   "sourceAlphaValues": [
+    9,
+    135,
+    139,
+    159,
+    205
+   ]
+  },
+  "penomena": {
+   "source": {
+    "job": "penomena",
+    "jobId": 1216,
+    "gender": "none",
+    "head": 0,
+    "weaponView": 0,
+    "shieldView": 0,
+    "itemId": 0,
+    "shieldItemId": 0,
+    "renderer": "ro-client-extraction tools/ro_spr_act.py; scRO penomena.spr/.act; ACT direction 6; shadow=false; native x1"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -29,
+      -55,
+      29,
+      10
+     ],
+     [
+      -26,
+      -60,
+      26,
+      12
+     ],
+     [
+      -33,
+      -55,
+      36,
+      10
+     ],
+     [
+      -33,
+      -55,
+      36,
+      10
+     ]
+    ],
+    "walk": [
+     [
+      -29,
+      -55,
+      29,
+      10
+     ],
+     [
+      -29,
+      -55,
+      29,
+      10
+     ],
+     [
+      -23,
+      -74,
+      25,
+      11
+     ],
+     [
+      -36,
+      -54,
+      32,
+      10
+     ],
+     [
+      -36,
+      -54,
+      32,
+      10
+     ],
+     [
+      -33,
+      -55,
+      36,
+      10
+     ]
+    ],
+    "attack": [
+     [
+      -29,
+      -55,
+      29,
+      10
+     ],
+     [
+      -24,
+      -64,
+      25,
+      11
+     ],
+     [
+      -15,
+      -79,
+      14,
+      10
+     ],
+     [
+      -20,
+      -66,
+      18,
+      10
+     ],
+     [
+      -36,
+      -31,
+      27,
+      16
+     ],
+     [
+      -32,
+      -35,
+      25,
+      17
+     ]
+    ],
+    "hurt": [
+     [
+      -18,
+      -66,
+      22,
+      10
+     ],
+     [
+      -27,
+      -34,
+      31,
+      9
+     ],
+     [
+      -18,
+      -66,
+      22,
+      10
+     ]
+    ],
+    "death": [
+     [
+      -18,
+      -66,
+      22,
+      10
+     ],
+     [
+      -28,
+      -29,
+      33,
+      9
+     ],
+     [
+      -7,
+      -53,
+      52,
+      1
+     ],
+     [
+      1,
+      -21,
+      80,
+      11
+     ],
+     [
+      6,
+      -22,
+      85,
+      10
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     12,
+     23,
+     35
+    ],
+    "walk": [
+     0,
+     7,
+     14,
+     21,
+     28,
+     35
+    ],
+    "attack": [
+     0,
+     3,
+     7,
+     10,
+     14,
+     17
+    ],
+    "hurt": [
+     0,
+     12,
+     24
+    ],
+    "death": [
+     0,
+     6,
+     13,
+     20,
+     26
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 36,
+    "walk": 36,
+    "attack": 18,
+    "hurt": 25,
+    "death": 27
+   },
+   "sourceAlphaValues": []
   }
  }
 }

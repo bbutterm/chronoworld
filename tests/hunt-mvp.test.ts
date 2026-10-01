@@ -61,7 +61,7 @@ function codeOf(fn: () => unknown): string | undefined {
 }
 
 describe('MVP-охота: ротация и данные', () => {
-  it('ротация детерминирована: неделя — все MVP по разу, через 7 дней тот же; от сохранения не зависит', () => {
+  it('ротация детерминирована: круг — все MVP по разу, через длину круга тот же; от сохранения не зависит', () => {
     const n = ctx.hunt.bosses.length;
     expect(n).toBeGreaterThanOrEqual(6);
     const week = Array.from({ length: n }, (_, i) => huntBoss(dayAfter(D1, i), ctx).unit);
@@ -105,7 +105,7 @@ describe('MVP-охота: слабость стихии', () => {
 
   it('в бою: огненный маг бьёт MVP-нежить заметно сильнее, чем MVP с «чужой» стихией', () => {
     const osiris = (() => {
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < ctx.hunt.bosses.length; i++) {
         const b = huntBoss(dayAfter(D1, i), ctx, 3);
         if (b.unit === 'mvp_osiris') return b;
       }
@@ -138,6 +138,32 @@ describe('MVP-охота: уровни, победа, карты', () => {
     const out = fightHunt(back, D1, ctx);
     expect(out.save.hunt!.best.mob_mastering).toBe(200000);
     expect(out.save.hunt!.best.mob_osiris).toBe(90000);
+  });
+
+  it('8-й MVP (Фараон): круг стал длиннее, рекорды, победы и уровень сохранения с 7 MVP не теряются', () => {
+    expect(ctx.hunt.bosses.map((b) => b.unit)).toContain('mvp_pharaoh');
+    const pharaoh = ctx.hunt.bosses.findIndex((b) => b.unit === 'mvp_pharaoh');
+    const day = Array.from({ length: ctx.hunt.bosses.length }, (_, i) => dayAfter(D1, i)).find((d) => huntBoss(d, ctx).index === pharaoh)!;
+    const b = huntBoss(day, ctx);
+    expect(b.element).toBe('dark');
+    expect(b.weakTo).toContain('holy');
+    expect(b.card!.id).toBe('card_pharaoh');
+    // Сохранение времён 7 MVP: рекорды и победы по id боссов, уровень охотника — общий.
+    const seven = ['mvp_mastering', 'mvp_osiris', 'mvp_moonlight', 'mvp_orc_lord', 'mvp_mistress', 'mvp_dark_lord', 'mvp_baphomet'];
+    const best = Object.fromEntries(seven.map((u, i) => [u, 10000 * (i + 1)]));
+    const kills = Object.fromEntries(seven.map((u) => [u, 1]));
+    const old: SaveState = { ...unlocked(), hunt: { day: '2026-09-20', used: 0, best, level: 4, kills } };
+    const back = deserialize(serialize(old));
+    expect(back.hunt).toEqual(old.hunt);
+    const st = huntStatus(back, day, ctx);
+    expect(st.boss.unit).toBe('mvp_pharaoh');
+    expect(st.rank).toBe(4);
+    const out = fightHunt(back, day, ctx);
+    for (const u of seven) {
+      expect(out.save.hunt!.best[u], u).toBe(best[u]);
+      expect(out.save.hunt!.kills![u], u).toBe(1);
+    }
+    expect(out.save.hunt!.best.mvp_pharaoh).toBeGreaterThan(0);
   });
 
   it('победа над MVP: «MVP!», победа засчитана, следующий уровень, урон = ОЗ уровня (награда его порога)', () => {

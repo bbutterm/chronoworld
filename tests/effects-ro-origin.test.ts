@@ -128,6 +128,7 @@ const RO_ORIGIN: Record<string, { ro: string; fx: string[] }> = {
   mob_elite_smash: { ro: 'NPC_STUNATTACK', fx: ['194'] },
   maze_scribe_seal: { ro: 'NPC_STUNATTACK', fx: ['194'] },
   mob7_boss_dark_chains: { ro: 'NPC_STUNATTACK', fx: ['194'] },
+  mvp_pharaoh_grasp: { ro: 'NPC_STUNATTACK', fx: ['194'] },
   mob3_boss_nova: { ro: 'NPC_DARKSTRIKE', fx: ['451'] },
   mob_boss1_quake: { ro: 'NPC_EARTHQUAKE', fx: ['666', 'sprite 어스퀘이크'] },
   mage_firestorm: { ro: 'NPC_FIREATTACK', fx: ['49'] },

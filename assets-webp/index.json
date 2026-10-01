@@ -1109,6 +1109,11 @@
   "png": 118065,
   "webp": 39690
  },
+ "sprites/monsters/penomena.png": {
+  "sha1": "51d6fd628fcf0986ea07f93dc5ee74f9d394580c",
+  "png": 20335,
+  "webp": 11606
+ },
  "sprites/monsters/pirate_skel.png": {
   "sha1": "db8b016602a19ff0aa64af4047a1a1032b98d6ad",
   "png": 17690,
@@ -1214,6 +1219,11 @@
   "png": 19379,
   "webp": 13006
  },
+ "sprites/monsters/whisper.png": {
+  "sha1": "1fdb4a7b73323ae39fbac733ffe64c73207efe0a",
+  "png": 11879,
+  "webp": 7308
+ },
  "sprites/monsters_xl/ancient_mummy.png": {
   "sha1": "b11861e536c78ea581023c94902aff90d07d303d",
   "png": 28807,
@@ -1238,6 +1248,11 @@
   "sha1": "c3738e523ffaa30c02c46ed0521c92a9b401832c",
   "png": 34962,
   "webp": 21292
+ },
+ "sprites/monsters_xl/pharaoh.png": {
+  "sha1": "6d6089cc1271cad92fd31fed013a99eb24ebb2f0",
+  "png": 97799,
+  "webp": 29228
  },
  "sprites/npcs/1_m_librarymaster.png": {
   "sha1": "c6bdeffc2051488a676ee63d12f71f9e938ceab2",

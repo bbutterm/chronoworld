@@ -2353,6 +2353,9 @@
     "mob_tank_guard": {
       "buff": "fx_npc_defender"
     },
+    "mvp_pharaoh_grasp": {
+      "hit": "fx_npc_stun_attack"
+    },
     "orc_high_war_hide": {
       "buff": "fx_npc_defender"
     },
