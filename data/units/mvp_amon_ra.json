@@ -1,0 +1,86 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mvp_amon_ra",
+  "name": "Амон Ра",
+  "kind": "boss",
+  "role": "damage",
+  "element": "earth",
+  "stats": {
+    "hp": 10000,
+    "atk": 100,
+    "def": 22,
+    "spd": 100
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mvp_amon_ra_sandstorm",
+    "actives": [
+      "mvp_amon_ra_kyrie",
+      "mvp_amon_ra_pillar"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "amon_ra",
+    "hitFx": "fx_hit",
+    "scale": 1.0
+  },
+  "barks": {
+    "start": "Вы на дне пирамиды Морроку. Здесь судит солнце.",
+    "half": "Стражи пирамиды, восстаньте!",
+    "rage": "Свет Ра испепелит вас!",
+    "defeat": "Солнце… садится…",
+    "victory": "Песок примет и вас."
+  },
+  "phases": [
+    {
+      "atHpPct": 0.6,
+      "title": "Стражи пирамиды",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "mob4_melee",
+          "count": 2,
+          "hp": 0.05,
+          "atk": 0.35
+        },
+        {
+          "type": "summon",
+          "unit": "mob4_elite",
+          "count": 1,
+          "hp": 0.04,
+          "atk": 0.35
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.3,
+      "title": "Гнев солнца",
+      "bark": "rage",
+      "actions": [
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.3,
+              "spd": 0.15
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": 100
+        }
+      ]
+    }
+  ],
+  "charge": {
+    "skill": "mvp_amon_ra_judgment",
+    "first": 12,
+    "every": 18
+  }
+}

@@ -384,7 +384,7 @@
         "name": "Карта Ангелинга",
         "rarity": "rare",
         "family": "life",
-        "icon": "star",
+        "monster": "mob_angeling",
         "text": "Лекарь раз за бой поднимает павшего союзника с 40% ОЗ.",
         "effects": [
           {
@@ -399,7 +399,7 @@
         "name": "Карта Архангелинга",
         "rarity": "rare",
         "family": "life",
-        "icon": "star",
+        "monster": "mob_archangeling",
         "text": "Святое оружие: обычные удары героев — святой стихии (×1,5 по нежити и тьме).",
         "effects": [
           {

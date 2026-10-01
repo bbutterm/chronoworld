@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_maya_heavens_drive",
+  "name": "Небесный удар",
+  "description": "Из-под земли бьют каменные шипы: урон по всем врагам 0.8 × атака, земля.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "element": "earth",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    }
+  ]
+}

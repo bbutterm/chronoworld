@@ -169,6 +169,44 @@ describe('MVP-охота: уровни, победа, карты', () => {
     expect(out.save.hunt!.best.mvp_pharaoh).toBeGreaterThan(0);
   });
 
+  it('14 MVP (партия 01.10): стихии и слабости по RO, свои карты; сохранение с 8 MVP не теряет рекорды и победы', () => {
+    const canon: Record<string, [string, string]> = {
+      mvp_eddga: ['fire', 'water'],
+      mvp_dracula: ['dark', 'holy'],
+      mvp_maya: ['earth', 'fire'],
+      mvp_turtle_general: ['earth', 'fire'],
+      mvp_amon_ra: ['earth', 'fire'],
+      mvp_doppelganger: ['dark', 'holy'],
+    };
+    expect(ctx.hunt.bosses.length).toBe(14);
+    const days = Array.from({ length: ctx.hunt.bosses.length }, (_, i) => dayAfter(D1, i));
+    for (const [unit, [element, weak]] of Object.entries(canon)) {
+      const day = days.find((d) => huntBoss(d, ctx).unit === unit)!;
+      expect(day, unit).toBeTruthy();
+      const b = huntBoss(day, ctx);
+      expect(b.element, unit).toBe(element);
+      expect(b.weakTo, unit).toContain(weak);
+      expect(b.card!.id, unit).toBe(`card_${unit.slice(4)}`);
+      // Свита — уже существующие монстры, без своих фаз.
+      for (const p of b.def.phases ?? [])
+        for (const a of p.actions) if (a.type === 'summon') expect(ctx.content.units[a.unit].phases, `${unit} → ${a.unit}`).toBeUndefined();
+    }
+    const eight = ['mvp_mastering', 'mvp_osiris', 'mvp_moonlight', 'mvp_orc_lord', 'mvp_mistress', 'mvp_dark_lord', 'mvp_baphomet', 'mvp_pharaoh'];
+    const best = Object.fromEntries(eight.map((u, i) => [u, 5000 * (i + 1)]));
+    const kills = Object.fromEntries(eight.map((u) => [u, 2]));
+    const old: SaveState = { ...unlocked(), hunt: { day: '2026-09-30', used: 0, best, level: 5, kills } };
+    const back = deserialize(serialize(old));
+    expect(back.hunt).toEqual(old.hunt);
+    const day = days.find((d) => huntBoss(d, ctx).unit === 'mvp_doppelganger')!;
+    expect(huntStatus(back, day, ctx).rank).toBe(5);
+    const out = fightHunt(back, day, ctx);
+    for (const u of eight) {
+      expect(out.save.hunt!.best[u], u).toBe(best[u]);
+      expect(out.save.hunt!.kills![u], u).toBe(2);
+    }
+    expect(out.save.hunt!.best.mvp_doppelganger).toBeGreaterThan(0);
+  });
+
   it('победа над MVP: «MVP!», победа засчитана, следующий уровень, урон = ОЗ уровня (награда его порога)', () => {
     const s = unlocked();
     const out = fightHunt(s, D1, EASY);

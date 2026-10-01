@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_doppel_nightmare",
+  "name": "Кошмар двойника",
+  "description": "Доппельгангер показывает каждому его худший страх: тёмный удар по всем и страх (−20% атаки на 2 с). Сбейте ультой или оглушением!",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "castTime": 3,
+  "element": "dark",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 4.2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "doppel_fear",
+        "name": "Страх",
+        "turns": 2,
+        "stats": {
+          "atk": -0.2
+        }
+      }
+    }
+  ]
+}

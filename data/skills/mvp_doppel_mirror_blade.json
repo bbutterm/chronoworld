@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_doppel_mirror_blade",
+  "name": "Зеркальный клинок",
+  "description": "Четыре отражения бьют случайных врагов: каждое — урон 0.7 × атака, тьма.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random"
+  },
+  "hits": 4,
+  "element": "dark",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.7
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_eddga_roar",
+  "name": "Тигриный рёв",
+  "description": "Рёв хозяина леса Пайона: урон по всем врагам 0.7 × атака и испуг (−25% атаки) на 2 с.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "element": "fire",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.7
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "tiger_fear",
+        "name": "Испуг",
+        "turns": 2,
+        "stats": {
+          "atk": -0.25
+        }
+      }
+    }
+  ]
+}

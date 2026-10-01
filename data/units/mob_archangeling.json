@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_archangeling",
+  "name": "Архангелинг",
+  "kind": "monster",
+  "role": "damage",
+  "element": "holy",
+  "stats": {
+    "hp": 620,
+    "atk": 46,
+    "def": 10,
+    "spd": 110
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob_archangeling_light",
+    "passives": []
+  },
+  "visual": {
+    "sprite": "archangeling",
+    "projectile": "fx_magic",
+    "hitFx": "fx_hit"
+  }
+}
