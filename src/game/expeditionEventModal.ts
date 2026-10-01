@@ -13,6 +13,7 @@ import { commit, now, session } from './session';
 import { portraitKey } from './sprites';
 import { C, FS } from './theme';
 import { button, clampLines, ellipsize, panel, text, toast } from './ui';
+import { firstTip } from './firstTips';
 
 export const EVENT_MODAL = 'expEventModal';
 const W = 980;
@@ -79,6 +80,8 @@ export function openExpeditionEvent(scene: Phaser.Scene, locationId: string, onC
   layer.add(inner);
   drawEvent(scene, layer, inner, view, onClose);
   popIn(scene, layer, shade);
+  // Первое событие экспедиции — пара слов от Греты над окном (firstTips.ts, один раз).
+  firstTip(scene, 'tip_expedition', 24, 9100);
   return true;
 }
 

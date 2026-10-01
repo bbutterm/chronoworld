@@ -24,6 +24,8 @@ const WINDUP_MS = 260;
 const FLIGHT_MS = 300;
 /** «Сильный удар» по герою для вибрации — не меньше этой доли его здоровья. */
 const HURT_SHARE = 0.3;
+/** Звук готовности ульты у одного героя — не чаще, с времени боя. */
+export const READY_GAP_S = 4;
 
 type Weapon = 'hit_sword' | 'hit_dagger' | 'hit_blunt' | 'hit_arrow' | 'hit_claw' | 'hit_magic';
 
@@ -102,6 +104,8 @@ interface UnitAudio {
   sounds: MonsterSound | undefined;
   /** Счётчик для чередования своих звуков. */
   turn: number;
+  /** Когда (время боя, с) звучала готовность ульты. */
+  readyT: number;
 }
 
 interface BattleAudioState {
@@ -120,7 +124,7 @@ function stateOf(result: BattleResult, defs: Record<string, UnitDef>): BattleAud
       const def = defs[u.unitId];
       const sounds = monsterSoundsOf(def);
       for (const n of [...(sounds?.attack ?? []), ...(sounds?.death ?? [])]) files.add(monsterSoundFile(n));
-      s.units.set(u.uid, { def, side: u.side, maxHp: u.maxHp, impact: WINDUP_MS / 1000, hit: weaponOf(def), inUlt: false, sounds, turn: 0 });
+      s.units.set(u.uid, { def, side: u.side, maxHp: u.maxHp, impact: WINDUP_MS / 1000, hit: weaponOf(def), inUlt: false, sounds, turn: 0, readyT: -Infinity });
     }
     states.set(result, s);
     // Звуки монстров этого боя — заранее (первое событие лога приходит до первого удара).
@@ -158,7 +162,21 @@ export function battleSound(e: BattleEvent, animate: boolean, result: BattleResu
     }
     case 'cast':
       if (e.action === 'start') sfx('cast_start');
+      // «Сбито!»: заряд босса сорван ультой — звонкий срыв каста и вибрация «успех» (docs/design/battle-decisions.md §4).
+      else if (e.action === 'interrupt' && e.reason === 'break') {
+        sfx('charge_break');
+        haptic('chargeBreak');
+      }
       return;
+    case 'ready': {
+      // Ручной режим: ульта героя готова — тихий звон и лёгкий толчок; раз на готовность и не чаще READY_GAP_S на героя.
+      const u = s.units.get(e.unit);
+      if (e.lost || !u || u.side !== 'A' || e.t - u.readyT < READY_GAP_S) return;
+      u.readyT = e.t;
+      sfx('ult_ready');
+      haptic('ultReady');
+      return;
+    }
     case 'ult': {
       const u = s.units.get(e.unit);
       if (u) {

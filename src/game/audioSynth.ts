@@ -589,6 +589,15 @@ const RECIPES: Record<SfxId, () => Float32Array> = {
   swing_blunt: () => layer([RECIPES.swing(), 0]),
   refine_success: () => layer([RECIPES.equip(), 0], [RECIPES.coin(), 0.06]),
   refine_fail: () => layer([RECIPES.hit_blunt(), 0], [RECIPES.ui_error(), 0.12]),
+  bless_pick: () => RECIPES.buff(),
+  ult_ready: () => {
+    const b = make(0.35);
+    // Ульта готова: короткое светлое «дзинь» вверх (тише и легче всплеска самой ульты).
+    tone(b, SFX_RATE, { f: midi(84), dur: 0.18, decay: 0.07, harm: BELL, gain: 0.5 });
+    tone(b, SFX_RATE, { at: 0.08, f: midi(91), dur: 0.25, decay: 0.1, harm: BELL, gain: 0.45 });
+    return finish(b, 0.7);
+  },
+  charge_break: () => layer([RECIPES.crit(), 0], [RECIPES.stun(), 0.05]),
 };
 
 /** Сложить готовые звуки со сдвигом (с) и привести к пику 0.8. */

@@ -339,6 +339,7 @@ API (Safari / WKWebView, iOS 16.4+): `navigator.audioSession.type = 'ambient'` �
 | `level_up`, `job_change` | повышение уровня; смена профессии, вознесение со сменой профессии | `wav/levelup.wav` (в RO у смены профессии свой звук не найден) |
 | `rarity_up` | вознесение, слияние, «3 одинаковые = следующая редкость» | `effect/drop_pink.wav` |
 | `refine_success`, `refine_fail` (новые) | заточка удалась / вещь сломалась | `effect/bs_refinesuccess.wav`, `effect/bs_refinefailed.wav` |
+| `bless_pick` (новый) | Башня: выбрана карта-благословение (+ вспышка рамки и вибрация `blessPick`) | `effect/ef_blessing.wav` |
 | `summon_common` / `summon_rare` / `summon_epic` / `summon_legendary` | открытие карты в Таверне по редкости (зелёная / синяя / фиолетовая / золотая и красная) | `effect/drop_green` / `drop_blue` / `drop_purple` / `drop_yellow.wav` — звуки выпадения вещей по цвету |
 | `swing` | взмах мечом (мечник, рыцарь, крестоносец) | `wav/attack_sword.wav`, `attack_twohand_sword.wav` |
 | `swing_dagger` (новый) | взмах кинжалом / катаром (вор, ассасин) | `wav/attack_short_sword.wav`, `attack_katar.wav` |
@@ -358,6 +359,8 @@ API (Safari / WKWebView, iOS 16.4+): `navigator.audioSession.type = 'ambient'` �
 | `cast_neutral` | Soul Strike, Napalm Beat | `effect/ef_napalmbeat.wav`, `ef_soulstrike.wav` |
 | `cast_poison` | яд | `effect/thief_invenom.wav`, `ef_poisonattack.wav` (укорочен) |
 | `ult` | всплеск перед ультой | `effect/ef_magnumbreak.wav` |
+| `ult_ready` (новый) | ульта героя готова (ручной режим; тихо, раз на готовность, не чаще 4 с на героя — `battleAudio.ts`, событие `ready`) + вибрация `ultReady` (лёгкая); касание портрета — вибрация `ultCast` (тяжёлая) | `effect/ef_readyportal.wav` |
+| `charge_break` (новый) | «Сбито!» — заряд босса сорван ультой (major) + вибрация `chargeBreak` («успех») | `effect/sage_spell breake.wav` (Spell Breaker, укорочен до 1 с) |
 | `heal` | лечение | `wav/_heal_effect.wav` |
 | `buff` | Blessing, Increase AGI, Angelus | `effect/ef_blessing.wav`, `ef_incagility.wav`, `ef_angelus.wav` (укорочен до 2 с) |
 | `debuff` | Decrease AGI, Lex Aeterna | `effect/ef_decagility.wav`, `priest_lexaeterna.wav` |
