@@ -95,14 +95,14 @@ export class StageScene extends Phaser.Scene {
     // --- Поле (отряд против противника) и список героев ---
     // Уровни врагов поштучно не показываем (см. flow.ts stageNeeds): одно число — в листе разведки.
     const enemies = enemySquad(this.stageId, GAME);
-    const before = new Set(this.children.list);
     this.editor = new FormationEditor(this, {
+      // Ряд мощи и «Героям нужен ур. N» рисует сцена (powerCompare и строка нехватки).
+      chrome: false,
       field: L.field,
       enemies,
       roster: L.roster,
       onChange: () => this.onSquadChange(),
     });
-    this.dropEditorChrome(before);
 
     // Полоса над полем: мощь (обновляется в onSquadChange), «БОСС» и «i» разведки.
     const needs = stageNeeds(session.save, this.stageId, GAME);
@@ -142,21 +142,6 @@ export class StageScene extends Phaser.Scene {
     const hint = pickPrepHint({ first, benchStronger, summoned: session.save.summon.firstTenDone });
     if (hint === 'prep_auto') this.autoHint = tutorialHint(this, hint, autoX, L.rosterHeadY, 'above', { w: 220, h: BTN.m });
     else if (hint === 'stage_fight') tutorialHint(this, hint, GAME_W / 2, L.fightY, 'above', { w: 640, h: 140 });
-  }
-
-  /**
-   * Поле рисует FormationEditor (агент B, squadEditor.ts). Для экрана этапа его подписи колонок «тыл/фронт», «Нужно N»
-   * и «Мощь N» лишние: мощь показывает powerCompare сцены, ряды и так видны по местам. Убираем то, что редактор
-   * создал верхним уровнем сцены с такими подписями; если редактор их уже не рисует — ничего не происходит.
-   * TODO(squadEditor): опция «без шапки поля» — тогда этот обход не нужен.
-   */
-  private dropEditorChrome(before: Set<Phaser.GameObjects.GameObject>): void {
-    for (const o of [...this.children.list]) {
-      if (before.has(o) || !(o instanceof Phaser.GameObjects.Text)) continue;
-      if (o.text === 'тыл' || o.text === 'фронт' || o.text.startsWith('Нужно ')) o.destroy();
-    }
-    const own = (this.editor as unknown as { powerText?: Phaser.GameObjects.Text }).powerText;
-    own?.setVisible(false);
   }
 
   /** Лист разведки: нужная мощь, уровень врагов (и нужный уровень героев при нехватке), враги по видам. */
