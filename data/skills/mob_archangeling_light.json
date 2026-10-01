@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mob_archangeling_light",
+  "name": "Святой свет",
+  "description": "Архангелинг бьёт святым светом ближайшего врага: урон 1.6 × атака, святость.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "element": "holy",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.6
+    }
+  ]
+}

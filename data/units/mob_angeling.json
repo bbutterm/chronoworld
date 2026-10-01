@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mob_angeling",
+  "name": "Ангелинг",
+  "kind": "monster",
+  "role": "healer",
+  "element": "holy",
+  "stats": {
+    "hp": 520,
+    "atk": 34,
+    "def": 8,
+    "spd": 110
+  },
+  "skills": {
+    "basic": "basic_ranged",
+    "ult": "mob_angeling_heal",
+    "passives": []
+  },
+  "behavior": "medic",
+  "visual": {
+    "sprite": "angeling",
+    "projectile": "fx_magic",
+    "hitFx": "fx_hit"
+  }
+}

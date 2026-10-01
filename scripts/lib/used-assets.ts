@@ -121,7 +121,7 @@ export function collectUsedAssets(root: string): UsedAssets {
     v2: readJson(join(assets, 'sprites/sprites.json')),
     spriteIds: contentSpriteIds(root),
     skillIcons: skillIconFiles(root),
-    extra: [...bustFiles(root), ...illustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root), ...roItemFiles(root), ...damageDigitFiles(root)],
+    extra: [...bustFiles(root), ...illustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root), ...roItemFiles(root), ...cardArtFiles(root), ...damageDigitFiles(root)],
   });
 }
 
@@ -195,6 +195,19 @@ export function roItemFiles(root: string, dirs: readonly string[] = ['ui/icons',
     for (const n of readdirSync(dir).filter((n) => /^item_[a-z0-9_]+\.png$/.test(n)).sort()) out.push(`${d}/${n}`);
   }
   return out;
+}
+
+/**
+ * Рисунки карт RO (src/game/cardArt.ts, tools/ro_cards.py): assets/ui/cards/<id>.webp — карты Башни и MVP охоты,
+ * грузятся по требованию (окно выбора карты, список карт забега, охота, инвентарь).
+ */
+export function cardArtFiles(root: string): string[] {
+  const dir = join(root, ASSETS_DIR, 'ui/cards');
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((n) => /^[a-z0-9_]+\.webp$/.test(n))
+    .sort()
+    .map((n) => `ui/cards/${n}`);
 }
 
 /** Атлас цифр урона RO (src/game/numberFont.ts): PNG грузит экран загрузки, рамки кадров — JSON в бандле. */

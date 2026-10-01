@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_turtle_shell",
+  "name": "Панцирь генерала",
+  "description": "Каст: генерал прячется в панцирь — +50% защиты на 4 с. Оглушение сбивает каст.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 14,
+  "castTime": 1.5,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "turtle_shell",
+        "name": "Панцирь",
+        "turns": 4,
+        "stats": {
+          "def": 0.5
+        }
+      }
+    }
+  ]
+}

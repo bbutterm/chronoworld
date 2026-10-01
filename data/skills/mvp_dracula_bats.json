@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_dracula_bats",
+  "name": "Рой летучих мышей",
+  "description": "Дракула выпускает рой: урон по всем врагам 0.8 × атака, тьма.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "element": "dark",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    }
+  ]
+}

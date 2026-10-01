@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_maya_carapace",
+  "name": "Хитиновый панцирь",
+  "description": "Долгий каст: Майя твердеет — щит на 10% макс. ОЗ. Оглушение сбивает каст.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 15,
+  "castTime": 2,
+  "priority": 5,
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.1
+    }
+  ]
+}

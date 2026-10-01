@@ -1,0 +1,34 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_dracula_bite",
+  "name": "Укус вампира",
+  "description": "Дракула туманом переносится к самому раненому: урон 1.5 × атака и −20% скорости на 2 с.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHpPct"
+  },
+  "cooldown": 9,
+  "priority": 3,
+  "element": "dark",
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.5
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "vampire_chill",
+        "name": "Холод вампира",
+        "turns": 2,
+        "stats": {
+          "spd": -0.2
+        }
+      }
+    }
+  ]
+}

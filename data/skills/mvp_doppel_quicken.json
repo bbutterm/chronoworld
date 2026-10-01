@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_doppel_quicken",
+  "name": "Двуручная спешка",
+  "description": "Доппельгангер ускоряет клинок: +40% скорости на 3 с.",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "cooldown": 12,
+  "priority": 4,
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "two_hand_quicken",
+        "name": "Двуручная спешка",
+        "turns": 3,
+        "stats": {
+          "spd": 0.4
+        }
+      }
+    }
+  ]
+}

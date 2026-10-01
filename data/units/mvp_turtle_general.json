@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/unit.schema.json",
+  "id": "mvp_turtle_general",
+  "name": "Генерал-черепаха",
+  "kind": "boss",
+  "role": "tank",
+  "element": "earth",
+  "stats": {
+    "hp": 10000,
+    "atk": 100,
+    "def": 30,
+    "spd": 90
+  },
+  "skills": {
+    "basic": "basic_melee",
+    "ult": "mvp_turtle_magnum",
+    "actives": [
+      "mvp_turtle_shell"
+    ],
+    "passives": []
+  },
+  "visual": {
+    "sprite": "turtle_general",
+    "hitFx": "fx_hit",
+    "scale": 1.3
+  },
+  "barks": {
+    "start": "Остров черепах под моей охраной. Строй — держать!",
+    "half": "Стража острова, ко мне!",
+    "rage": "Генерал не отступает!",
+    "defeat": "Панцирь… треснул…",
+    "victory": "Остров устоял. Как всегда."
+  },
+  "phases": [
+    {
+      "atHpPct": 0.7,
+      "title": "Панцирь острова",
+      "actions": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.12
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.5,
+      "title": "Стража острова",
+      "bark": "half",
+      "actions": [
+        {
+          "type": "summon",
+          "unit": "mob6_tank",
+          "count": 2,
+          "hp": 0.05,
+          "atk": 0.35
+        }
+      ]
+    },
+    {
+      "atHpPct": 0.25,
+      "title": "Ярость!",
+      "bark": "rage",
+      "actions": [
+        {
+          "type": "status",
+          "status": {
+            "id": "boss_rage",
+            "name": "Ярость",
+            "turns": 99,
+            "stats": {
+              "atk": 0.3,
+              "spd": 0.2
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": 100
+        }
+      ]
+    }
+  ],
+  "charge": {
+    "skill": "mvp_turtle_crush",
+    "first": 13,
+    "every": 18
+  }
+}

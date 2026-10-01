@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_turtle_magnum",
+  "name": "Магнум-брейк",
+  "description": "Взрыв огня вокруг генерала: урон по всем врагам 0.9 × атака, огонь.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "element": "fire",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    }
+  ]
+}

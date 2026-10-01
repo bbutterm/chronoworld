@@ -33,6 +33,7 @@ import { GAME } from '../content';
 import { formatNumber, heroSprite, POWER_COLORS, powerTone, stageNo } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { card, confirm, CONTENT_TOP, portrait, screen, unitTint } from '../screen';
+import { showCardArt } from '../cardArt';
 import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
 import { button, panel, pressable, text, toast } from '../ui';
@@ -372,8 +373,8 @@ export class TowerScene extends Phaser.Scene {
     pressable(this, this.add.rectangle(GAME_W / 2, y, 1040, 100, 0, 0.001), 1040, 100, () => this.cardsOverlay(run)).setName('towerCards');
   }
 
-  /** Значок карты: рамка по редкости, портрет монстра (или значок). */
-  private cardIcon(b: Blessing, x: number, y: number, size: number, depth = 0): void {
+  /** Значок карты: рамка по редкости, портрет монстра (или значок); в окне (owner) — поверх рисунок карты RO. */
+  private cardIcon(b: Blessing, x: number, y: number, size: number, depth = 0, owner?: Phaser.GameObjects.Container): void {
     const fam = runConfig(GAME).families.find((f) => f.id === b.family);
     this.add.rectangle(x, y, size, size, 0x1c140c, 0.95).setStrokeStyle(Math.max(3, size / 16), RARITY_COLOR[b.rarity]).setDepth(depth);
     if (fam) this.add.rectangle(x, y + size / 2 - size * 0.07, size - 8, size * 0.1, Phaser.Display.Color.HexStringToColor(fam.color).color).setDepth(depth);
@@ -385,6 +386,7 @@ export class TowerScene extends Phaser.Scene {
         .setDisplaySize(size * 0.6, size * 0.6)
         .setTint(0xffe08a)
         .setDepth(depth);
+    if (owner) showCardArt(this, b.id, x, y - size * 0.05, size * 0.8, (img) => img.setDepth(depth), owner);
   }
 
   private go(): void {
@@ -446,9 +448,11 @@ export class TowerScene extends Phaser.Scene {
       const box = add(this.add.rectangle(GAME_W / 2, y, w, h, 0x21170d, 1).setStrokeStyle(8, RARITY_COLOR[b.rarity]));
       // Иллюстрация.
       const ix = GAME_W / 2 - w / 2 + 120;
-      add(this.add.rectangle(ix, y, 190, h - 40, 0x120c07).setStrokeStyle(3, RARITY_COLOR[b.rarity]));
+      const frame = add(this.add.rectangle(ix, y, 190, h - 40, 0x120c07).setStrokeStyle(3, RARITY_COLOR[b.rarity]));
+      // Рисунок карты RO (по требованию) под маленьким портретом монстра; без рисунка — крупный портрет.
+      const art = showCardArt(this, b.id, ix, y - 21, Math.min(240, h - 96), (img) => layer.addAt(img, layer.getIndex(frame) + 1), layer);
       const u = b.monster ? GAME.content.units[b.monster] : undefined;
-      if (u) add(portrait(this, ix, y - 10, portraitKey(u.visual.sprite), 170).setTint(unitTint(u.visual)));
+      if (u) add(portrait(this, art ? ix + 56 : ix, art ? y + h / 2 - 108 : y - 10, portraitKey(u.visual.sprite), art ? 72 : 170).setTint(unitTint(u.visual)));
       else add(this.add.image(ix, y - 10, skinIcon((b.icon ?? 'star') as SkinIcon)).setDisplaySize(120, 120).setTint(0xffe08a));
       const fam = cfg.families.find((f) => f.id === b.family)!;
       const famColor = fam.color;
@@ -554,7 +558,7 @@ export class TowerScene extends Phaser.Scene {
       const b = cfg.blessings.find((x) => x.id === id);
       if (!b) return;
       const y = 320 + i * 118;
-      this.cardIcon(b, 110, y, 96, OVERLAY_DEPTH + 1);
+      this.cardIcon(b, 110, y, 96, OVERLAY_DEPTH + 1, layer);
       add(text(this, 180, y - 28, b.name, FS.body, RARITY_TEXT[b.rarity], { fontStyle: 'bold' }).setOrigin(0, 0.5));
       add(text(this, 180, y + 14, b.text, 24, C.text, { wordWrap: { width: 840 }, align: 'left' }).setOrigin(0, 0.3));
     });

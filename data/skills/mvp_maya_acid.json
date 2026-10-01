@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_maya_acid",
+  "name": "Кислота матки",
+  "description": "Майя плюёт кислотой в двух врагов: урон 1.2 × атака и −25% защиты на 3 с.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "random",
+    "count": 2
+  },
+  "cooldown": 8,
+  "priority": 3,
+  "element": "earth",
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "maya_acid",
+        "name": "Кислота",
+        "turns": 3,
+        "stats": {
+          "def": -0.25
+        }
+      }
+    }
+  ]
+}

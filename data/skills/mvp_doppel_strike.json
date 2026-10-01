@@ -1,0 +1,24 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "mvp_doppel_strike",
+  "name": "Удар отражения",
+  "description": "Двойник возникает за спиной самого слабого: урон 1.6 × атака, тьма.",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHpPct",
+    "row": "back"
+  },
+  "cooldown": 9,
+  "priority": 3,
+  "element": "dark",
+  "effects": [
+    {
+      "type": "dash"
+    },
+    {
+      "type": "damage",
+      "k": 1.6
+    }
+  ]
+}

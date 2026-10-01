@@ -639,6 +639,11 @@
   "png": 71039,
   "webp": 44846
  },
+ "sprites/bosses_xl/dracula.png": {
+  "sha1": "71270f6a851825100a0cbabbb41eada430720ea4",
+  "png": 159062,
+  "webp": 41294
+ },
  "sprites/bosses_xl/lord_of_death.png": {
   "sha1": "431c98315535ce288c2c8060315970d21424db6f",
   "png": 482147,
@@ -954,6 +959,16 @@
   "png": 21930,
   "webp": 18074
  },
+ "sprites/monsters/angeling.png": {
+  "sha1": "488912749e4ddc1ff84997a57d7443c4bdf641cd",
+  "png": 18359,
+  "webp": 11034
+ },
+ "sprites/monsters/archangeling.png": {
+  "sha1": "6a2dd02f3c10336a10093ab6362988c882a080be",
+  "png": 18128,
+  "webp": 11236
+ },
  "sprites/monsters/baphomet_jr.png": {
   "sha1": "61c5c1324911268308658830e8237004c970c5f2",
   "png": 11713,
@@ -973,6 +988,11 @@
   "sha1": "ada533b3196805a6f9d43c99727d63dc5ea6f512",
   "png": 28997,
   "webp": 17612
+ },
+ "sprites/monsters/doppelganger.png": {
+  "sha1": "ea5f8c58d04789a7902560cd731304c356b558ee",
+  "png": 19577,
+  "webp": 13534
  },
  "sprites/monsters/drops.png": {
   "sha1": "a92d560a789b8292d22dc26779fe6527fb4aaec2",
@@ -1214,6 +1234,11 @@
   "png": 10110,
   "webp": 5194
  },
+ "sprites/monsters/turtle_general.png": {
+  "sha1": "ea9a012b4e57dd21dc6c48a4a4ceb20e8f4222db",
+  "png": 175682,
+  "webp": 54014
+ },
  "sprites/monsters/verit.png": {
   "sha1": "5efff27b2d74bb1a753d4b046b4dcbb9122ef234",
   "png": 19379,
@@ -1223,6 +1248,11 @@
   "sha1": "1fdb4a7b73323ae39fbac733ffe64c73207efe0a",
   "png": 11879,
   "webp": 7308
+ },
+ "sprites/monsters_xl/amon_ra.png": {
+  "sha1": "87d7eff3ffe8c73afa3ed52c3e9b60ee124d2ab0",
+  "png": 230122,
+  "webp": 65852
  },
  "sprites/monsters_xl/ancient_mummy.png": {
   "sha1": "b11861e536c78ea581023c94902aff90d07d303d",
@@ -1234,6 +1264,11 @@
   "png": 312825,
   "webp": 144564
  },
+ "sprites/monsters_xl/eddga.png": {
+  "sha1": "7aec0a0041d870449948cd9b6ff72a0c7ff94964",
+  "png": 158827,
+  "webp": 42480
+ },
  "sprites/monsters_xl/elder_willow.png": {
   "sha1": "f9e63b5872de374692513ffdce4ff12750553b58",
   "png": 25456,
@@ -1243,6 +1278,11 @@
   "sha1": "010d1a678f07d13a134869579efae2e383a5d028",
   "png": 208196,
   "webp": 58366
+ },
+ "sprites/monsters_xl/maya.png": {
+  "sha1": "e55a945ac882adfc1d6125e9b5b6665f53e15339",
+  "png": 201856,
+  "webp": 48738
  },
  "sprites/monsters_xl/owl_duke.png": {
   "sha1": "c3738e523ffaa30c02c46ed0521c92a9b401832c",
@@ -1710,9 +1750,9 @@
   "webp": 7136
  },
  "ui/collection/item_crescent_scythe.png": {
-  "sha1": "696bfafa1ca09d23e6d98d15f89f9c12db82db63",
-  "png": 2133,
-  "webp": 1288
+  "sha1": "b4e8a666938d2877a0a3d7b2aa9da33f19fbef3e",
+  "png": 5863,
+  "webp": 4184
  },
  "ui/collection/item_crown.png": {
   "sha1": "c68575459656db7085b4438bfb8fb7e8cec17a1f",
@@ -1830,14 +1870,14 @@
   "webp": 4464
  },
  "ui/collection/item_majestic_goat.png": {
-  "sha1": "c68575459656db7085b4438bfb8fb7e8cec17a1f",
-  "png": 5647,
-  "webp": 4446
+  "sha1": "8e8c1b96204287a2a7c621f04d9ac7a943df2eb4",
+  "png": 5464,
+  "webp": 4058
  },
  "ui/collection/item_maze_boots.png": {
-  "sha1": "9af141ff50ecf29d05b73b298859812321f4b998",
-  "png": 10280,
-  "webp": 6970
+  "sha1": "55f5d9d0dc438af44925e6453436654b4a3d6b3a",
+  "png": 8903,
+  "webp": 4974
  },
  "ui/collection/item_moonlight_dagger.png": {
   "sha1": "20e9b8b51af712a6f0697802064cc86e31c387be",
@@ -1860,9 +1900,9 @@
   "webp": 6970
  },
  "ui/collection/item_pact_robe.png": {
-  "sha1": "d776af6e383e4110b4adf73eb742ec9fef14b5f8",
-  "png": 11273,
-  "webp": 7404
+  "sha1": "91c98c267a5d99c62953b504994c89faeaef1aa6",
+  "png": 6986,
+  "webp": 5110
  },
  "ui/collection/item_pharaoh_headdress.png": {
   "sha1": "810d5f5989e0e7752f639010c706c63c80f4226d",
@@ -2065,8 +2105,8 @@
   "webp": 236
  },
  "ui/icons/item_crescent_scythe.png": {
-  "sha1": "bfbb4b22b386cb3629c0f6f02bd325a5eb961ff6",
-  "png": 981,
+  "sha1": "f755b629c996ace83492702184192110eff5020a",
+  "png": 992,
   "webp": 202
  },
  "ui/icons/item_crown.png": {
@@ -2185,14 +2225,14 @@
   "webp": 202
  },
  "ui/icons/item_majestic_goat.png": {
-  "sha1": "1a80772797b6c47e0aaa21ed22b6606b2ca7d6ca",
-  "png": 1025,
-  "webp": 234
+  "sha1": "6e7ce04d0dd93602e307156fca1d05ab0e19ec16",
+  "png": 1022,
+  "webp": 256
  },
  "ui/icons/item_maze_boots.png": {
-  "sha1": "c6c97dc3c81dcc65c945117dd849cc2f2b92647a",
-  "png": 1149,
-  "webp": 406
+  "sha1": "855bfb49efc2253fc781eb00c899b82f7482431f",
+  "png": 1084,
+  "webp": 294
  },
  "ui/icons/item_moonlight_dagger.png": {
   "sha1": "d20ff9c790927c21f9a384853221e18df516991e",
@@ -2215,9 +2255,9 @@
   "webp": 406
  },
  "ui/icons/item_pact_robe.png": {
-  "sha1": "c720aea042b859b92b2568c221fa2382b45349be",
-  "png": 1099,
-  "webp": 328
+  "sha1": "2c873eba58b198a6552c8882000c3286dc0290aa",
+  "png": 1059,
+  "webp": 282
  },
  "ui/icons/item_pharaoh_headdress.png": {
   "sha1": "e210fe99a88d2389b8b36bed2bef1e7938fc99a4",
