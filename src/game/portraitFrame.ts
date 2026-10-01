@@ -4,6 +4,8 @@ import { CONTENT } from './content';
 import { portrait } from './screen';
 import { SKIN, SKIN_TINT, skinIcon } from './skin';
 import { portraitKey, SPRITES } from './sprites';
+import { RARITY } from './theme';
+import type { CardRarity } from '../core';
 
 /**
  * Портрет в рамке (визуальная полировка): диалоги сюжета, шапка смены профессии, карточка героя.
@@ -11,7 +13,8 @@ import { portraitKey, SPRITES } from './sprites';
  * Лицо — бюст RO (assets/ro/portraits/hero_<класс>_portrait.png, 256×256: верхняя половина фигуры ×4) для тех
  * профессий, у которых он есть; бюсты грузятся по требованию (≈ 0.25 МБ видеопамяти каждый) и остаются в кэше.
  * Нет бюста или ещё грузится — портрет спрайта (portrait_<id>, 64×64 v2 или вырезанный из листа). Нет и его —
- * значок скина. Всё рисуется на тёплой подложке в золотой рамке скина.
+ * значок скина. Всё рисуется на тёплой подложке в спокойной золотой рамке скина; с rarity — в рамке цвета редкости
+ * (обод и один камень сверху, цвета — theme RARITY).
  */
 
 const FRAME = 'skin_portrait_frame';
@@ -114,58 +117,71 @@ export function ensurePortraitTextures(scene: Phaser.Scene): void {
       t.refresh();
     }
   }
-  if (!tm.exists(FRAME)) {
-    const S = 256;
-    const t = tm.createCanvas(FRAME, S, S);
-    if (t) {
-      const c = t.getContext();
-      // Тёмный кант, золотой обод с градиентом, тонкая бронзовая линия внутри.
-      rr(c, 7, 7, S - 14, S - 14, 30);
-      c.lineWidth = 14;
-      c.strokeStyle = '#120d07';
-      c.stroke();
-      const g = c.createLinearGradient(0, 0, 0, S);
-      g.addColorStop(0, SKIN.goldLight);
-      g.addColorStop(0.5, SKIN.gold);
-      g.addColorStop(1, SKIN.goldDark);
-      c.lineWidth = 7;
-      c.strokeStyle = g;
-      c.stroke();
-      rr(c, 17, 17, S - 34, S - 34, 22);
-      c.lineWidth = 2;
-      c.strokeStyle = 'rgba(122,100,66,0.9)';
-      c.stroke();
-      // Блик на верхней кромке.
+  if (!tm.exists(FRAME)) frameCanvas(scene, FRAME, [SKIN.goldLight, SKIN.gold, SKIN.goldDark]);
+}
+
+/** Смешать цвет #rrggbb с белым (k > 0) или чёрным (k < 0). */
+export function shade(hex: string, k: number): string {
+  const n = parseInt(hex.slice(1, 7), 16);
+  const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => Math.round(k >= 0 ? v + (255 - v) * k : v * (1 + k)));
+  return `#${ch.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
+/** Обод рамки редкости: светлый верх, основной цвет, тёмный низ — из единого источника цветов (theme RARITY). */
+export function rarityRing(rarity: CardRarity): [string, string, string] {
+  const main = RARITY[rarity];
+  return [shade(main, 0.45), main, shade(main, -0.45)];
+}
+
+/** Ключ текстуры рамки портрета редкости (создаётся по требованию). */
+export const rarityFrameKey = (rarity: CardRarity) => `${FRAME}_${rarity}`;
+
+/**
+ * Рамка портрета 256×256: тёмный кант, один обод с вертикальным градиентом и тонкая тёмная линия внутри — без заклёпок
+ * и бликов. gem — маленький камень сверху по центру (рамка редкости: цвет редкости — единственный акцент).
+ */
+function frameCanvas(scene: Phaser.Scene, key: string, ring: [string, string, string], gem?: string): void {
+  const S = 256;
+  const t = scene.textures.createCanvas(key, S, S);
+  if (!t) return;
+  const c = t.getContext();
+  rr(c, 6, 6, S - 12, S - 12, 28);
+  c.lineWidth = 12;
+  c.strokeStyle = '#100c08';
+  c.stroke();
+  const g = c.createLinearGradient(0, 0, 0, S);
+  g.addColorStop(0, ring[0]);
+  g.addColorStop(0.45, ring[1]);
+  g.addColorStop(1, ring[2]);
+  c.lineWidth = 6;
+  c.strokeStyle = g;
+  c.stroke();
+  rr(c, 14, 14, S - 28, S - 28, 21);
+  c.lineWidth = 2;
+  c.strokeStyle = 'rgba(0,0,0,0.55)';
+  c.stroke();
+  if (gem) {
+    const dia = (r: number, fill: string | CanvasGradient) => {
       c.beginPath();
-      c.moveTo(40, 8);
-      c.lineTo(S - 40, 8);
-      c.lineWidth = 2;
-      c.strokeStyle = 'rgba(255,245,215,0.7)';
-      c.stroke();
-      // Ромбы-заклёпки в углах и сверху по центру.
-      const gem = (x: number, y: number, r: number, face: string) => {
-        c.beginPath();
-        c.moveTo(x, y - r);
-        c.lineTo(x + r, y);
-        c.lineTo(x, y + r);
-        c.lineTo(x - r, y);
-        c.closePath();
-        c.fillStyle = '#120d07';
-        c.fill();
-        c.beginPath();
-        c.moveTo(x, y - r + 3);
-        c.lineTo(x + r - 3, y);
-        c.lineTo(x, y + r - 3);
-        c.lineTo(x - r + 3, y);
-        c.closePath();
-        c.fillStyle = face;
-        c.fill();
-      };
-      for (const [x, y] of [[16, 16], [S - 16, 16], [16, S - 16], [S - 16, S - 16]]) gem(x, y, 13, SKIN.gold);
-      gem(S / 2, 8, 12, '#b8402e');
-      t.refresh();
-    }
+      c.moveTo(S / 2, 7 - r); c.lineTo(S / 2 + r, 7); c.lineTo(S / 2, 7 + r); c.lineTo(S / 2 - r, 7);
+      c.closePath();
+      c.fillStyle = fill;
+      c.fill();
+    };
+    dia(13, '#100c08');
+    const gg = c.createLinearGradient(0, -4, 0, 18);
+    gg.addColorStop(0, shade(gem, 0.55));
+    gg.addColorStop(1, shade(gem, -0.2));
+    dia(9, gg);
   }
+  t.refresh();
+}
+
+/** Рамка редкости (обод и камень цвета редкости) — один раз на редкость. */
+function ensureRarityFrame(scene: Phaser.Scene, rarity: CardRarity): string {
+  const key = rarityFrameKey(rarity);
+  if (!scene.textures.exists(key)) frameCanvas(scene, key, rarityRing(rarity), RARITY[rarity]);
+  return key;
 }
 
 /** Спрайт — профессия героя (а не монстр/босс): у врагов подложка холоднее и краснее. */
@@ -175,7 +191,7 @@ const isHeroSprite = (id: string) => (heroSet ??= heroSprites()).has(baseSprite(
 
 /**
  * Портрет в рамке: size — внешний размер рамки. sprite — id спрайта (null — значок скина); gender — пол героя
- * (бюст `<база>_<m|f>`, если есть, см. bustFor). Возвращает контейнер (подложка, лицо, рамка); лицо само подменится
+ * (бюст `<база>_<m|f>`, если есть, см. bustFor); rarity — рамка цвета редкости вместо золотой. Возвращает контейнер (подложка, лицо, рамка); лицо само подменится
  * бюстом, когда тот загрузится.
  */
 export function framedPortrait(
@@ -185,6 +201,7 @@ export function framedPortrait(
   sprite: string | null,
   size: number,
   gender?: 'm' | 'f',
+  rarity?: CardRarity,
 ): Phaser.GameObjects.Container {
   ensurePortraitTextures(scene);
   const inner = size * 0.86;
@@ -192,7 +209,7 @@ export function framedPortrait(
   const back = scene.add.image(0, 0, BACK).setDisplaySize(inner + 6, inner + 6);
   if (sprite && !isHeroSprite(sprite)) back.setTint(0xe0a0a0);
   const face = heroFace(scene, sprite, inner, gender);
-  const frame = scene.add.image(0, 0, FRAME).setDisplaySize(size, size);
+  const frame = scene.add.image(0, 0, rarity ? ensureRarityFrame(scene, rarity) : FRAME).setDisplaySize(size, size);
   box.add([back, face, frame]);
   return box;
 }
@@ -253,10 +270,10 @@ function headCrop(scene: Phaser.Scene, key: string, inner: number): Phaser.GameO
  * Рамка для фигуры в полный рост (карточка героя): подложка, тень под ногами и золотая рамка скина.
  * Фигуру кладут поверх (unitFigure) — ноги в feetY.
  */
-export function figureFrame(scene: Phaser.Scene, x: number, y: number, size: number, feetY: number): void {
+export function figureFrame(scene: Phaser.Scene, x: number, y: number, size: number, feetY: number, rarity?: CardRarity): void {
   ensurePortraitTextures(scene);
   ensureAmbientTextures(scene);
   scene.add.image(x, y, BACK).setDisplaySize(size * 0.9, size * 0.9);
   scene.add.image(x, feetY + 4, SHADOW_TEX).setDisplaySize(size * 0.55, size * 0.14);
-  scene.add.image(x, y, FRAME).setDisplaySize(size, size);
+  scene.add.image(x, y, rarity ? ensureRarityFrame(scene, rarity) : FRAME).setDisplaySize(size, size);
 }
