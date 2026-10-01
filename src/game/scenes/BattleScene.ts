@@ -407,7 +407,7 @@ export class BattleScene extends Phaser.Scene {
   private createSeq = 0;
   /**
    * Ульта вручную (docs/design/battle-decisions.md §1). rerun — пересчитать бой (и итог этапа) с вводами игрока; null —
-   * режим недоступен (Башня, Охота: всегда авто). manual — текущий режим, startManual — с каким начали (вводы — от него).
+   * режим недоступен (Охота: всегда авто). manual — текущий режим, startManual — с каким начали (вводы — от него).
    */
   private rerun: ((ctl: PlayerControl) => BattleResult) | null = null;
   private manual = false;

@@ -219,6 +219,9 @@ export function towerStatus(save: SaveState, ctx: TowerContext): TowerStatus {
 }
 
 /**
+ * Старая лестница (до забега-рогалика, docs/design/tower-roguelite.md): экран её больше не зовёт — осталась для модели
+ * баланса scripts/lib/player-model.ts и её тестов. Игра — run.ts (startTowerRun / fightTowerFloor).
+ *
  * K4. Штурм следующего этажа (save.tower.floor + 1) отрядом save.squad. Чистая функция.
  * - TowerError('tower_locked') — не пройден unlockAfterStage; ('tower_completed') — пройден maxFloor;
  * - GameRuleError('unknown_hero') / ('empty_squad') / ('duplicate_card') — как у playStage;

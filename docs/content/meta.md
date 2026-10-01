@@ -237,3 +237,16 @@ startedAt, endsAt, rewards: { gold, jobExp, gems, shards, scrolls, items } }`.
 
 Функции ядра (`playStage`, `climbTower`, `equip`…) о достижениях не знают — считают только обёртки `act*`,
 поэтому UI должен вызывать именно их.
+
+## Башня — забег-рогалик (задача 3 плана 01.10)
+
+Дизайн и числа — `docs/design/tower-roguelite.md`; данные — `data/tower.json → run` (карты, виды, события, улучшения,
+`tierMult`); ядро — `src/core/tower/run.ts` (забег), `blessings.ts` (карты → хуки боя), `runSchema.ts` (схемы и
+`save.tower`). Достижения `tower_5` / `tower_20` (счётчик `tower_floor`) считают рекорд забега (`save.tower.floor`).
+
+API для экрана: `towerRunStatus(save, ctx, day)` (рекорд, осколки, забег, раны, карты, виды), `startTowerRun(save, squad,
+ctx)`, `chooseTowerPath(save, i, ctx)`, `towerPathPreview` (враги пути), `actTowerFight(save, day, ctx, control)` (бой
+этажа; control — ручная ульта), `pickTowerBlessing`, `rerollTowerBlessing`, `towerEventDef` + `resolveTowerEvent`,
+`abandonTowerRun(save, day, ctx)` («Сдаться»), `buyTowerUpgrade`, `markTowerSummarySeen`. Ошибки — `TowerError`
+(`no_run`, `run_active`, `bad_choice`, `not_enough_shards`, `max_level`, `tower_locked`).
+Баланс — `npx tsx scripts/balance-tower.ts` (`--fit` подбирает `tierMult`).
