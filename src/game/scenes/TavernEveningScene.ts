@@ -87,11 +87,23 @@ const withName = (templateId: string) => {
 };
 const STAT_NAMES: Record<string, string> = { atk: 'к атаке (урон и лечение)', hp: 'к здоровью', def: 'к защите' };
 
-/** Подпись связки для карточки героя и «Вечеров». */
-export function linkText(v: BondView): string {
+/** Название в «ёлочках»; кавычки внутри — „лапки“ (BUG-195: «Сын „Заднего“», а не «Сын «Заднего»»). */
+export const quoted = (s: string): string => `«${s.replace(/«/g, '„').replace(/»/g, '“')}»`;
+
+/**
+ * Подпись связки для карточки героя и «Вечеров»: «когда обе/оба» по роду пары, и сейчас ли она действует (BUG-195).
+ */
+export function linkText(v: BondView, save = session.save): string {
   const l = v.link;
-  return `Связка «${l.name}»: +${l.pct}% ${STAT_NAMES[l.stat] ?? l.stat} — ${heroName(v.templateId)} и ${heroName(l.partner)}, когда оба в отряде`;
+  const female = (id: string) => GAME.content.heroes[id]?.gender === 'f';
+  const both = female(v.templateId) && female(l.partner) ? 'обе' : 'оба';
+  const inSquad = storyHeroesInSquad(save, GAME);
+  const now = inSquad.includes(v.templateId) && inSquad.includes(l.partner) ? 'сейчас действует' : `${[v.templateId, l.partner].filter((h) => !inSquad.includes(h)).map(heroName).join(' и ')} не в отряде`;
+  return `Связка ${quoted(l.name)}: +${l.pct}% ${STAT_NAMES[l.stat] ?? l.stat} — ${heroName(v.templateId)} и ${heroName(l.partner)}, когда ${both} в отряде · ${now}`;
 }
+
+/** «1 свиток», «3 свитка», «5 свитков». */
+const scrollsText = (n: number) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'свиток' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'свитка' : 'свитков'}`;
 
 /** Номер главы вечера (order), для подписей. */
 const chapterNo = (e: EveningDef) => GAME.content.chapters.find((c) => c.id === e.after)?.order ?? 0;
@@ -178,7 +190,7 @@ export class TavernEveningScene extends Phaser.Scene {
       const r = finishEvening(session.save, e.id, GAME);
       commit(r.save);
       for (const [h, d] of Object.entries(r.gains)) gains[h] = (gains[h] ?? 0) + d;
-      this.summary(replay ? 'Вечер пересмотрен' : 'Вечер окончен', gains, before);
+      this.summary(replay ? 'Вечер пересмотрен' : 'Вечер окончен', gains, before, r.gains);
     });
   }
 
@@ -219,7 +231,8 @@ export class TavernEveningScene extends Phaser.Scene {
     const trim = this.add.image(px + PORTRAIT / 2 + 40, top + 92, 'skin_trim').setOrigin(0, 0.5).setDisplaySize(PANEL_W - PORTRAIT - 150, 10);
     const body = text(this, left + 50, top + 140, '', BODY_FS, SKIN.cream, { wordWrap: { width: PANEL_W - 100, useAdvancedWrap: true }, lineSpacing: 12, align: 'left' }).setOrigin(0, 0);
     const more = text(this, GAME_W / 2 + PANEL_W / 2 - 40, PANEL_Y + PANEL_H / 2 - 36, '', FS.caption, SKIN.creamDim, OUTLINE).setOrigin(1, 0.5);
-    const skip = button(this, GAME_W / 2 + PANEL_W / 2 - 150, top - 70, 280, TOUCH, 'k:buttonLong_beige', 'Пропустить', () => end(), FS.h3);
+    // BUG-194: «Пропустить» — в правом верхнем углу: над плашкой он касался третьего ответа выбора (360×640).
+    const skip = button(this, GAME_W - 170, 130, 280, TOUCH, 'k:buttonLong_beige', 'Пропустить', () => end(), FS.h3);
     skip.container.setName('eveningSkip');
     const choiceLayer = this.add.container(0, 0);
     layer.add([shade, box, face, nameText, trim, body, more, skip.container, choiceLayer]);
@@ -259,7 +272,12 @@ export class TavernEveningScene extends Phaser.Scene {
     let choosing = false;
     let faceOf: string | null | undefined;
     let count = 0;
-    const total = steps.filter((s) => !isChoice(s) && lineVisible(s, session.save)).length;
+    // BUG-194: в счётчик входят и ответы на выбор: сделанный выбор добавляет свои реплики (раньше — «13/13» на ходу).
+    let total = steps.reduce((n, s) => {
+      if (!isChoice(s)) return n + (lineVisible(s, session.save) ? 1 : 0);
+      const got = chosenOption(session.save, s.choice.id);
+      return n + (s.choice.options.find((o) => o.id === got)?.reply.length ?? 0);
+    }, 0);
 
     /** Имя и кромка: с портретом — правее рамки, без него (выбор) — от левого края плашки. */
     const placeName = (withFace: boolean) => {
@@ -367,6 +385,7 @@ export class TavernEveningScene extends Phaser.Scene {
             toast(this, `${heroName(h)}: близость +${d}`, C.success, 2200);
           }
           choiceLayer.removeAll(true);
+          total += o.reply.length;
           queue.push(...o.reply);
           next();
         });
@@ -414,16 +433,19 @@ export class TavernEveningScene extends Phaser.Scene {
   }
 
   /** Итог: кому и насколько выросла близость, что открылось; «Дальше» — туда, откуда пришли. */
-  private summary(title: string, gains: Record<string, number>, before: Record<string, number>): void {
+  private summary(title: string, gains: Record<string, number>, before: Record<string, number>, squad: Record<string, number> = {}): void {
     const layer = this.add.container(0, 0).setDepth(200).setName('eveningSummary');
     const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.6).setInteractive();
     const rows: { s: string; color: string }[] = [];
     for (const [h, d] of Object.entries(gains)) {
       const v = bondView(session.save, h, GAME);
-      rows.push({ s: `${heroName(h)}: близость +${d} (${v?.points ?? '?'} из ${v?.max ?? '?'})`, color: C.success });
+      // BUG-194: откуда близость — ответ в вечере и/или «прошли главу вместе в отряде».
+      const fromSquad = squad[h] ?? 0;
+      const why = [d - fromSquad > 0 ? `ответ +${d - fromSquad}` : '', fromSquad > 0 ? `в отряде +${fromSquad}` : ''].filter(Boolean).join(', ');
+      rows.push({ s: `${heroName(h)}: близость +${d}${why ? ` (${why})` : ''} · ${v?.points ?? '?'} из ${v?.max ?? '?'}`, color: C.success });
       for (const u of bondUnlocks(before[h] ?? 0, v?.points ?? 0, GAME)) {
         if (!v) continue;
-        rows.push({ s: u === 'scene' ? `Открыта личная сцена «${v.scene.title}»` : `Открыто личное задание «${v.quest.title}»`, color: C.title });
+        rows.push({ s: u === 'scene' ? `Открыта личная сцена ${quoted(v.scene.title)}` : `Открыто личное задание ${quoted(v.quest.title)}`, color: C.title });
       }
     }
     if (!rows.length) rows.push({ s: 'Близость не изменилась — но вечер запомнится', color: C.muted });
@@ -488,7 +510,9 @@ export class TavernEveningScene extends Phaser.Scene {
     const hero = storyHero(session.save, v.templateId);
     const objs: Phaser.GameObjects.GameObject[] = [];
     const L = 250;
-    const name = text(this, L, top + 50, heroName(v.templateId), FS.h2, hero ? C.title : C.disabled, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
+    // BUG-194: герой, которого отряд ещё не встретил, — «???» (без имени, сцены и связки: не спойлерить кампанию).
+    const met = (id: string) => !!storyHero(session.save, id);
+    const name = text(this, L, top + 50, hero ? heroName(v.templateId) : '???', FS.h2, hero ? C.title : C.disabled, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
     const pts = text(this, 1010, top + 50, `${v.points} / ${v.max}`, FS.h3, C.gold, { fontStyle: 'bold', ...OUTLINE }).setOrigin(1, 0.5);
     objs.push(name, pts);
     // Шкала: точки близости; пороги сцены и задания — золотая кромка.
@@ -505,13 +529,16 @@ export class TavernEveningScene extends Phaser.Scene {
       objs.push(tx);
       y += tx.height + 10;
     };
-    if (!hero) line(`${heroName(v.templateId)} ещё не с отрядом — близость будет расти, когда присоединится.`, C.dim);
-    line(v.scene.open ? `Личная сцена «${v.scene.title}»${v.scene.seen ? ' — прочитана' : ' — открыта!'}` : `Личная сцена — на близости ${v.scene.at}`, v.scene.open ? C.text : C.dim);
+    if (!hero) line('Этого героя отряд ещё не встретил — он присоединится по ходу кампании.', C.dim);
+    line(v.scene.open ? `Личная сцена ${quoted(v.scene.title)}${v.scene.seen ? ' — прочитана' : ' — открыта!'}` : `Личная сцена — на близости ${v.scene.at}`, v.scene.open ? C.text : C.dim);
     line(
-      v.quest.done ? `Задание «${v.quest.title}» выполнено` : v.quest.open ? `Задание «${v.quest.title}»: ${v.quest.goal}` : `Личное задание — на близости ${v.quest.at}`,
+      v.quest.done ? `Задание ${quoted(v.quest.title)} выполнено` : v.quest.open ? `Задание ${quoted(v.quest.title)}: ${v.quest.goal}` : `Личное задание — на близости ${v.quest.at}`,
       v.quest.done ? C.success : v.quest.open ? C.text : C.dim,
     );
-    line(v.link.open ? linkText(v) : `Связка с ${withName(v.link.partner)} откроется после задания`, v.link.open ? C.success : C.dim);
+    line(
+      v.link.open ? linkText(v) : met(v.link.partner) && hero ? `Связка с ${withName(v.link.partner)} откроется после задания` : 'Связка в бою откроется после задания',
+      v.link.open ? C.success : C.dim,
+    );
     const BTN = 100;
     y += 10;
     const by = y + BTN / 2;
@@ -541,7 +568,8 @@ export class TavernEveningScene extends Phaser.Scene {
     const h = 140;
     const bg = area.add(card(this, GAME_W / 2, top + h / 2, 1040, h));
     if (st === 'locked') bg.setAlpha(0.6);
-    area.add(text(this, 60, top + 42, `Глава ${chapterNo(e)}${e.subtitle ? ` · ${e.subtitle}` : ''}`, FS.small, C.muted, OUTLINE).setOrigin(0, 0.5));
+    // BUG-194: закрытый вечер — без подзаголовка («После капитана Дрейка» — спойлер босса).
+    area.add(text(this, 60, top + 42, `Глава ${chapterNo(e)}${e.subtitle && st !== 'locked' ? ` · ${e.subtitle}` : ''}`, FS.small, C.muted, OUTLINE).setOrigin(0, 0.5));
     area.add(ellipsize(text(this, 60, top + 94, st === 'locked' ? '???' : e.title, FS.h3, st === 'locked' ? C.disabled : C.title, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5), 620));
     if (st === 'locked') {
       area.add(text(this, 1010, top + h / 2, `после главы ${chapterNo(e)}`, FS.small, C.dim, OUTLINE).setOrigin(1, 0.5));
@@ -582,8 +610,8 @@ export class TavernEveningScene extends Phaser.Scene {
     add(q.text, FS.body, C.text);
     add(`Цель: ${q.goal}`, FS.h3, C.gold, { fontStyle: 'bold' });
     const r = q.reward;
-    const reward = [r.gold ? `${r.gold} золота` : '', r.gems ? `${r.gems} гемов` : '', r.scrolls ? `свитков: ${r.scrolls}` : ''].filter(Boolean).join(', ');
-    add(q.done ? 'Награда уже получена. Можно сыграть ещё раз.' : `Награда: ${reward} и связка «${v.link.name}»`, FS.small, q.done ? C.muted : C.success);
+    const reward = [r.gold ? `${r.gold} золота` : '', r.gems ? `${r.gems} гемов` : '', r.scrolls ? scrollsText(r.scrolls) : ''].filter(Boolean).join(', ');
+    add(q.done ? 'Награда уже получена. Можно сыграть ещё раз.' : `Награда: ${reward} и связка ${quoted(v.link.name)}`, FS.small, q.done ? C.muted : C.success);
     add(`${heroName(v.templateId)} должен быть в отряде. Враги — с этапа кампании, сильнее обычного.`.replace('должен', GAME.content.heroes[v.templateId]?.gender === 'f' ? 'должна' : 'должен'), FS.small, C.muted);
     const H = y + 190;
     const top = GAME_H / 2 - H / 2;
@@ -630,7 +658,7 @@ export class TavernEveningScene extends Phaser.Scene {
     });
     add(goal ? 'Задание выполнено!' : win ? 'Победа, но цель не достигнута' : 'Поражение', FS.hero, goal ? C.success : win ? C.gold : C.danger, { fontStyle: 'bold' });
     add(`Бой длился ${Math.round(duration)} с${names.length ? ` · пали: ${names.join(', ')}` : ' · все устояли'}`, FS.small, C.muted);
-    if (goal && firstTime) add(`Награда получена. Открыта связка «${v.link.name}».`, FS.body, C.success);
+    if (goal && firstTime) add(`Награда получена. Открыта связка ${quoted(v.link.name)}.`, FS.body, C.success);
     if (goal && v.quest.after) {
       const who = speakerView(pseudoStory(), v.quest.after.speaker, session.save, GAME);
       add(`${who.name}: «${v.quest.after.text}»`, FS.body, C.title, { fontStyle: 'italic' });
