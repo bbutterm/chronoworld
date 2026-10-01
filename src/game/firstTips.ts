@@ -9,6 +9,7 @@ import { motion } from './state';
 import { speakerView } from './storyView';
 import { C, FS } from './theme';
 import { text } from './ui';
+import { TIPS, type TipDef, type TipId } from './tipTexts';
 
 /**
  * Подсказки первого входа (как в AFK — пара реплик наставника, когда игрок впервые видит новый режим): Башня-рогалик,
@@ -22,37 +23,7 @@ import { text } from './ui';
  * Слой — `firstTip` (e2e его не считает помехой: касание проходит сквозь).
  */
 
-export type TipId = 'tip_tower' | 'tip_hunt' | 'tip_evening' | 'tip_expedition' | 'tip_boss_charge';
-
-interface TipDef {
-  /** Ключ спикера из data/story (имя и портрет — как в сюжете). */
-  speaker: 'garret' | 'greta' | 'bruno';
-  text: string;
-}
-
-/** Тексты: 2–3 короткие строки на 390 px, голосом персонажа, без «нажмите кнопку». */
-export const TIPS: Record<TipId, TipDef> = {
-  tip_tower: {
-    speaker: 'garret',
-    text: 'Башня каждый раз другая: сам выбираешь тропу, а за этажи дают карты-благословения. Павшие не встают до конца забега — береги людей.',
-  },
-  tip_hunt: {
-    speaker: 'garret',
-    text: 'MVP дня — один на всех. Бери героев его слабой стихии: их удары бьют вдвое больнее. Две попытки в день — не трать зря.',
-  },
-  tip_evening: {
-    speaker: 'bruno',
-    text: 'После боя у меня говорят не о монстрах, а о себе. Слушай внимательно: ответишь по душе — герой станет ближе.',
-  },
-  tip_expedition: {
-    speaker: 'greta',
-    text: 'Ой, в пути с ребятами что-то стряслось! Решай, как быть: герой нужного класса справится наверняка. Не решишь — пойдут осторожно.',
-  },
-  tip_boss_charge: {
-    speaker: 'garret',
-    text: 'Красная полоса — босс копит удар по всему отряду! Ульта героя с молнией на портрете его собьёт, если ульты — вручную.',
-  },
-};
+export { TIPS, type TipId } from './tipTexts';
 
 /** Уже показана (на этом устройстве или устарела по сохранению — tutorial.ts). */
 export const tipDone = (id: TipId): boolean => hintDone(id as HintId);
