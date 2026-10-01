@@ -262,11 +262,25 @@ export function shortList(list: readonly string[], max = 6): string {
 export const itemLegend = (itemId: string): string | undefined => LORE.items[itemId];
 
 /** Окно предмета: иконка, редкость и слот, статы (с заточкой), кому подходит, легенда курсивом. */
-export function itemModal(scene: Phaser.Scene, def: ItemDef, opts: { refine?: number; lock?: ScrollArea } = {}): void {
+export function itemModal(scene: Phaser.Scene, def: ItemDef, opts: { refine?: number; lock?: ScrollArea; card?: string | null } = {}): void {
   const refine = opts.refine ?? 0;
   const stats = refine ? refinedStats(def, refine, GAME) : def.stats;
   const blocks: LoreBlock[] = [{ text: itemStatsText(stats), color: C.text, bold: true, size: FS.h3 }];
   if (def.jobs?.length) blocks.push({ text: `Кому: ${def.jobs.map((j) => jobTitle(GAME, j)).join(', ')} и их ветки`, color: C.muted, size: FS.small });
+  // BUG-187: слот карты MVP — что вставлено или что можно вставить (Инвентарь → «Карты MVP»).
+  if (opts.card !== undefined) {
+    const inside = opts.card ? GAME.hunt.cards.find((c) => c.id === opts.card) : undefined;
+    if (inside) blocks.push({ text: `${inside.name}: ${inside.text}`, color: '#d8b4ff', bold: true, size: FS.small });
+    else {
+      const own = session.save.hunt?.cards ?? {};
+      const fit = GAME.hunt.cards.filter((c) => c.slot === def.slot && (own[c.id] ?? 0) > 0);
+      blocks.push({
+        text: fit.length ? `Слот карты пуст · есть «${fit[0].name}» — Инвентарь → Карты MVP → Вставить` : 'Слот карты пуст · карты MVP выпадают на охоте',
+        color: fit.length ? '#d8b4ff' : C.muted,
+        size: FS.small,
+      });
+    }
+  }
   const legend = itemLegend(def.id);
   if (legend) blocks.push({ text: legend, italic: true, color: C.title });
   loreModal(scene, {

@@ -302,7 +302,7 @@ export class HuntScene extends Phaser.Scene {
     if (out.grant.card) {
       const cd = GAME.hunt.cards.find((c) => c.id === out.grant.card);
       layer.add(text(this, cx, y + 10, `${cd?.name ?? out.grant.card}!`, FS.h2, '#d8b4ff', { fontStyle: 'bold', stroke: '#2a0a3a', strokeThickness: 7 }).setName('huntOutCard'));
-      if (cd) layer.add(text(this, cx, y + 62, `${cd.text} Вставьте в снаряжение: Герои → вещь.`, FS.caption - 2, SKIN.cream, { ...OUTLINE, wordWrap: { width: 820 } }));
+      if (cd) layer.add(text(this, cx, y + 62, `${cd.text} Вставить: Герои → Инвентарь → «Карты MVP».`, FS.caption - 2, SKIN.cream, { ...OUTLINE, wordWrap: { width: 820 } }));
       y += 130;
     }
     const g = out.grant;
