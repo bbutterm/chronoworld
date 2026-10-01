@@ -248,6 +248,8 @@ export const TowerRunSchema = z.object({
   /** Рекорд (save.tower.floor) на старте забега и гемы за новые рекорды в этом забеге. */
   best: z.number().int().nonnegative(),
   gems: z.number().int().nonnegative(),
+  /** События, уже выпавшие в этом забеге (BUG-197: без повторов). Старые забеги — без поля. */
+  seenEvents: z.array(z.string()).optional(),
 });
 export type TowerRun = z.infer<typeof TowerRunSchema>;
 
@@ -261,6 +263,8 @@ export const TowerRunSummarySchema = z.object({
   record: z.boolean(),
   won: z.boolean(),
   seen: z.boolean(),
+  /** Чем кончился забег (BUG-196): поражение на этаже floor + 1, «Сдаться», вершина. Старые сохранения — без поля. */
+  end: z.enum(['defeat', 'surrender', 'top']).optional(),
 });
 export type TowerRunSummary = z.infer<typeof TowerRunSummarySchema>;
 

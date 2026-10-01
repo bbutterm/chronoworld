@@ -19,6 +19,7 @@ import {
   towerEventDef,
   towerPathPreview,
   towerRunStatus,
+  towerRunSquad,
   TowerError,
   unitPower,
   upgradeLevel,
@@ -28,7 +29,10 @@ import {
   type TowerNodeKind,
   type TowerRun,
   type TowerRunEvent,
+  type UnitDef,
 } from '../../core';
+import { scoutLine } from '../scoutView';
+import { plural } from '../skillFacts';
 import { GAME } from '../content';
 import { formatNumber, heroSprite, POWER_COLORS, powerTone, stageNo } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
@@ -154,7 +158,7 @@ export class TowerScene extends Phaser.Scene {
 
     // Правила — коротко.
     const rules = [
-      'Отряд идёт вверх без передышки: раны остаются, павший выбывает до конца забега.',
+      'Раны между этажами не заживают — лечит только костёр отдыха; павший выбывает до конца забега.',
       'Каждые 3 этажа и после элиты — карта-благословение: она меняет правила боя.',
       'Поражение или «Сдаться» — конец забега. Осколки — за каждый забег, добыча — раз в день за новые этажи.',
     ];
@@ -250,11 +254,14 @@ export class TowerScene extends Phaser.Scene {
       });
       const mine = this.runPower(run);
       const tone = powerTone(mine, enemy);
-      text(this, GAME_W / 2, py + 95, `Мощь: отряд ${formatNumber(mine)} · враги ${formatNumber(enemy)}`, FS.small, POWER_COLORS[tone], {
+      text(this, GAME_W / 2, py + 72, `Мощь: отряд ${formatNumber(mine)} · враги ${formatNumber(enemy)}`, FS.small, POWER_COLORS[tone], {
         fontStyle: 'bold',
         stroke: C.stroke,
         strokeThickness: 4,
       });
+      // BUG-198: разведка этажа, как на экране этапа: особенности, слабость, кто из отряда ею бьёт.
+      const mineDefs = towerRunSquad(save, GAME).squad.filter((u): u is UnitDef => !!u && run.squad.includes(u.id));
+      scoutLine(this, py + 114, pv.enemies!, mineDefs, 980);
     } else {
       const heal = Math.round((cfg.restHeal + upgradeValue(save, cfg, 'restHeal')) * 100);
       const title = kind === 'rest' ? 'Отдых у костра' : 'Событие';
@@ -370,7 +377,7 @@ export class TowerScene extends Phaser.Scene {
       if (b) this.cardIcon(b, x0 + i * (size + 10), y, size);
     });
     const active = familyStates(run.cards, cfg).filter((f) => f.active).length;
-    const label = `${run.cards.length} карт${active ? ` · бонусов: ${active}` : ''} ›`;
+    const label = `${run.cards.length} ${plural(run.cards.length, 'карта', 'карты', 'карт')}${active ? ` · бонусов: ${active}` : ''} ›`;
     text(this, GAME_W - 50, y, run.cards.length > max ? `+${run.cards.length - max} ›` : label, FS.small, C.gold, { fontStyle: 'bold' }).setOrigin(1, 0.5);
     pressable(this, this.add.rectangle(GAME_W / 2, y, 1040, 100, 0, 0.001), 1040, 100, () => this.cardsOverlay(run)).setName('towerCards');
   }
@@ -428,6 +435,14 @@ export class TowerScene extends Phaser.Scene {
     return layer;
   }
 
+  /** В живом отряде забега есть лекарь (роль healer). */
+  private hasHealer(run: TowerRun): boolean {
+    return run.squad.some((id) => {
+      const h = id ? session.save.heroes.find((x) => x.id === id) : undefined;
+      return !!h && buildUnit(h, GAME).role === 'healer';
+    });
+  }
+
   /** Выбор 1 из 3 (4) карт-благословений. */
   private blessingOverlay(run: TowerRun): void {
     const cfg = runConfig(GAME);
@@ -460,6 +475,9 @@ export class TowerScene extends Phaser.Scene {
       // Текст.
       const tx = ix + 125;
       add(text(this, tx, y - h / 2 + 45, b.name, FS.h3, RARITY_TEXT[b.rarity], { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5));
+      // BUG-197: карта с условием «лекарь» — честно, если лекаря в отряде нет.
+      if (b.effects.some((e) => e.kind === 'reviveOnce' && e.healer) && !this.hasHealer(run))
+        add(text(this, GAME_W / 2 + w / 2 - 30, y - h / 2 + 45, 'нет лекаря', FS.small, C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(1, 0.5).setName('towerNoHealer'));
       add(text(this, tx, y - h / 2 + 92, `${RARITY_NAME[b.rarity]}${b.cost ? ' · с ценой' : ''}`, FS.caption, b.cost ? C.danger : C.dim).setOrigin(0, 0.5));
       add(text(this, tx, y - h / 2 + 125, b.text, FS.small, C.text, { wordWrap: { width: 720 }, lineSpacing: 2, align: 'left' }).setOrigin(0, 0));
       // Станет ли активен бонус вида.
@@ -577,6 +595,9 @@ export class TowerScene extends Phaser.Scene {
     const save = session.save;
     const layer = this.overlay().setName('towerUpgrades');
     const add = <T extends Phaser.GameObjects.GameObject>(o: T) => (layer.add(o), o);
+    // BUG-197: под строками — сплошная подложка: лобби не просвечивает между ними.
+    const bottom = 400 + cfg.upgrades.length * 175 + 110;
+    add(this.add.rectangle(GAME_W / 2, (130 + bottom) / 2, 1060, bottom - 130, 0x140e09, 1).setStrokeStyle(4, 0xc9a45c, 0.8));
     add(text(this, GAME_W / 2, 200, 'Улучшения Башни', FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }));
     add(text(this, GAME_W / 2, 270, `Осколки башни: ${save.tower.shards ?? 0}`, FS.h3, C.gem, { fontStyle: 'bold' }));
     cfg.upgrades.forEach((u, i) => {
@@ -586,7 +607,9 @@ export class TowerScene extends Phaser.Scene {
       add(panel(this, GAME_W / 2, y, 1020, 160, 'ui_panel'));
       add(text(this, 50, y - 45, `${u.name}  ${lvl}/${u.costs.length}`, FS.h3, max ? C.success : C.title, { fontStyle: 'bold' }).setOrigin(0, 0.5));
       add(text(this, 50, y + 20, u.text, 26, C.muted, { wordWrap: { width: 660 }, align: 'left' }).setOrigin(0, 0.5));
-      const b = button(this, 880, y, 250, 110, max ? 'skin_btn_disabled' : 'ui_btn_primary', max ? 'Макс.' : `${u.costs[lvl]} оск.`, () => {
+      // Осколков не хватает — серая цена (касание объяснит тостом ядра).
+      const short = !max && (save.tower.shards ?? 0) < u.costs[lvl];
+      const b = button(this, 880, y, 250, 110, max ? 'skin_btn_disabled' : short ? 'k:buttonLong_grey' : 'ui_btn_primary', max ? 'Макс.' : `${u.costs[lvl]} оск.`, () => {
         if (max) return;
         if (this.act(() => commit(buyTowerUpgrade(session.save, u.id, GAME)))) {
           this.scene.restart({ upgrades: true } satisfies TowerSceneData);
@@ -607,8 +630,11 @@ export class TowerScene extends Phaser.Scene {
     const cy = GAME_H / 2;
     add(panel(this, GAME_W / 2, cy, 960, 900, 'ui_panel'));
     add(text(this, GAME_W / 2, cy - 360, l.won ? 'Вершина взята!' : 'Забег окончен', FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 7 }));
-    add(text(this, GAME_W / 2, cy - 250, `Этаж ${l.floor}`, 100, l.record ? C.gold : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 8 }));
-    if (l.record) add(text(this, GAME_W / 2, cy - 160, 'Новый рекорд!', FS.h2, C.gold, { fontStyle: 'bold' }));
+    // BUG-196: чем кончился забег и сколько пройдено — «пройдено этажей: 3», рекорд — в тех же единицах, что «Лучший этаж».
+    const why = l.end === 'defeat' ? `Поражение на этаже ${l.floor + 1}` : l.end === 'surrender' ? `Вы сдались на этаже ${l.floor + 1}` : l.won ? 'Все этажи пройдены' : '';
+    if (why) add(text(this, GAME_W / 2, cy - 290, why, FS.h3, l.end === 'defeat' ? C.danger : C.muted, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('towerSummaryWhy'));
+    add(text(this, GAME_W / 2, cy - 205, `Пройдено этажей: ${l.floor}`, 64, l.record ? C.gold : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 8 }));
+    if (l.record) add(text(this, GAME_W / 2, cy - 135, 'Новый рекорд!', FS.h2, C.gold, { fontStyle: 'bold' }));
     const lines = [`Осколки башни +${l.shards}`];
     if (l.gold || l.jobExp) lines.push(`Золото +${formatNumber(l.gold)} · опыт +${formatNumber(l.jobExp)} в запас`);
     else lines.push('Добыча за эти этажи сегодня уже получена');

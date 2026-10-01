@@ -407,8 +407,13 @@ export function chooseTowerPath(save: SaveState, index: number, ctx: TowerContex
     const healed = healRun(run, cfg.restHeal + upgradeValue(save, cfg, 'restHeal'));
     return withRun(save, advance(save, { ...healed, note: 'Привал у костра: отряд перевязал раны.' }, 'rest', cfg));
   }
-  const ev = cfg.events[rngOf(run, run.floor + 1, 'event').int(cfg.events.length)];
-  return withRun(save, { ...run, node: undefined, note: undefined, pending: { kind: 'event', event: ev.id } });
+  // BUG-197: событие не повторяется в забеге; «обмен карты» (Писарь) — только когда карты есть.
+  const seen = run.seenEvents ?? [];
+  const fits = cfg.events.filter((e) => !e.options.some((o) => o.requires?.cards) || run.cards.length > 0);
+  const fresh = fits.filter((e) => !seen.includes(e.id));
+  const pool = fresh.length ? fresh : fits.length ? fits : cfg.events;
+  const ev = pool[rngOf(run, run.floor + 1, 'event').int(pool.length)];
+  return withRun(save, { ...run, node: undefined, note: undefined, pending: { kind: 'event', event: ev.id }, seenEvents: [...seen, ev.id] });
 }
 
 /** Можно ли выбрать вариант события (требования). */
@@ -556,7 +561,7 @@ export interface TowerFightOutcome {
 }
 
 /** Закончить забег: осколки в копилку, добыча дня за новые этажи, итог в save.tower.last. */
-function finishRun(save: SaveState, day: string, won: boolean, ctx: TowerContext): { save: SaveState; summary: TowerRunSummary } {
+function finishRun(save: SaveState, day: string, won: boolean, ctx: TowerContext, end: NonNullable<TowerRunSummary['end']>): { save: SaveState; summary: TowerRunSummary } {
   const cfg = runConfig(ctx);
   const run = need(save);
   const greedShards = runEffects(run.cards, cfg).reduce((s, x) => s + (x.effect.kind === 'greed' ? x.effect.shards : 0), 0);
@@ -565,8 +570,11 @@ function finishRun(save: SaveState, day: string, won: boolean, ctx: TowerContext
   const floors = Math.max(0, run.floor - paid);
   const gold = floors * run.loot.gold;
   const jobExp = floors * run.loot.jobExp;
-  const summary: TowerRunSummary = { floor: run.floor, shards, gold, jobExp, gems: run.gems, record: run.floor > run.best, won, seen: false };
+  const summary: TowerRunSummary = { floor: run.floor, shards, gold, jobExp, gems: run.gems, record: run.floor > run.best, won, seen: false, end };
+  // BUG-196: рекорд — пройденный этаж забега, и событие/отдых тоже (иначе итог «Этаж 3 · Новый рекорд!» при «Лучший этаж 2»).
+  // Гемы за рекорд дают только бои (fightTowerFloor), здесь — только сам рекорд.
   let next = withRun(save, undefined, {
+    ...(run.floor > save.tower.floor ? { floor: run.floor } : {}),
     shards: (save.tower.shards ?? 0) + shards,
     lootDay: day,
     lootFloor: Math.max(paid, run.floor),
@@ -580,7 +588,7 @@ function finishRun(save: SaveState, day: string, won: boolean, ctx: TowerContext
 /** «Сдаться»: забег окончен, награда за пройденные этажи. */
 export function abandonTowerRun(save: SaveState, day: string, ctx: TowerContext): { save: SaveState; summary: TowerRunSummary } {
   need(save);
-  return finishRun(save, day, false, ctx);
+  return finishRun(save, day, false, ctx, 'surrender');
 }
 
 /** Итог прошлого забега показан. */
@@ -618,7 +626,7 @@ export function fightTowerFloor(save: SaveState, day: string, ctx: TowerContext,
   run = { ...run, battles: run.battles + 1 };
   const events: TowerRunEvent[] = [];
   if (result.winner !== 'A') {
-    const out = finishRun(withRun(next, run), day, false, ctx);
+    const out = finishRun(withRun(next, run), day, false, ctx, 'defeat');
     events.push({ type: 'towerRunEnded', summary: out.summary });
     return { save: out.save, floor: n, kind, result, enemies, events, ended: out.summary };
   }
@@ -661,7 +669,7 @@ export function fightTowerFloor(save: SaveState, day: string, ctx: TowerContext,
     }
   } else next = withRun(next, run);
   if (run.floor >= ctx.tower.maxFloor) {
-    const out = finishRun(next, day, true, ctx);
+    const out = finishRun(next, day, true, ctx, 'top');
     events.push({ type: 'towerRunEnded', summary: out.summary });
     return { save: out.save, floor: n, kind, result, enemies, events, ended: out.summary };
   }
