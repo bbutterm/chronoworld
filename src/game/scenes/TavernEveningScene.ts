@@ -4,11 +4,9 @@ import {
   bondOf,
   bondUnlocks,
   bondView,
-  BondQuestError,
   chooseOption,
   chosenOption,
   eveningStatus,
-  fightBondQuest,
   findEvening,
   finishEvening,
   finishPersonalScene,
@@ -16,6 +14,7 @@ import {
   isChoice,
   lineVisible,
   storyHero,
+  storyHeroesInSquad,
   type BondView,
   type ChoiceDef,
   type EveningDef,
@@ -27,7 +26,7 @@ import {
 import { applySceneSound, sfx } from '../audio';
 import { lineChimes } from '../audioCore';
 import { GAME } from '../content';
-import { heroSprite, stageSeed } from '../flow';
+import { heroSprite } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { framedPortrait } from '../portraitFrame';
 import { CONTENT_TOP, card, contentBottom, popIn, screen } from '../screen';
@@ -52,11 +51,21 @@ interface Back {
 
 export type TavernEveningData =
   /** «Вечера»: близость, личные сцены и задания, список вечеров. */
-  | { mode?: 'hub'; back?: Back }
+  | { mode?: 'hub'; back?: Back; quest?: BondQuestDone }
   /** Вечер по id (новый или пересмотр). */
   | { mode: 'evening'; id: string; back?: Back }
   /** Личная сцена героя (id карточки). */
   | { mode: 'scene'; hero: string; back?: Back };
+
+/** Итог личного задания, сыгранного в BattleScene (режим bond, BUG-188): окно итога поверх «Вечеров». */
+export interface BondQuestDone {
+  templateId: string;
+  win: boolean;
+  goal: boolean;
+  firstTime: boolean;
+  fallen: string[];
+  duration: number;
+}
 
 /** Открыть вечер / «Вечера». Сцена регистрируется при первом показе (как «Глава пройдена») — main.ts не трогаем. */
 export function startTavernEvening(from: Phaser.Scene, data: TavernEveningData): void {
@@ -125,6 +134,13 @@ export class TavernEveningScene extends Phaser.Scene {
       if (v) return this.playPersonal(v);
     }
     this.hub();
+    // BUG-188: вернулись из боя задания — итог здесь же; данные сцены одноразовые (restart без данных их не повторит).
+    const q = data.mode === undefined || data.mode === 'hub' ? data.quest : undefined;
+    this.sys.settings.data = {};
+    if (q) {
+      const v = bondView(session.save, q.templateId, GAME);
+      if (v) this.questResult(v, q.win, q.goal, q.firstTime, q.fallen, q.duration);
+    }
   }
 
   // ---------- Зал ----------
@@ -573,15 +589,22 @@ export class TavernEveningScene extends Phaser.Scene {
     const top = GAME_H / 2 - H / 2;
     body.setY(top);
     layer.add([panel(this, GAME_W / 2, GAME_H / 2, W, H, 'ui_panel'), body]);
+    // BUG-188: «В бой» — настоящий бой в BattleScene (режим bond: тот же расчёт ядра fightBondQuest, ульта вручную),
+    // итог — окном здесь же после боя. Условия проверяются сразу, без расчёта боя (касание отвечает мгновенно).
     const go = button(this, GAME_W / 2 + 200, top + H - 100, 360, 120, 'ui_btn_primary', 'В бой', () => {
-      try {
-        const out = fightBondQuest(session.save, v.templateId, stageSeed(session.save), GAME);
-        commit(out.save);
-        close();
-        this.questResult(v, out.win, out.goal, out.firstTime, out.fallen, out.result.duration);
-      } catch (e) {
-        toast(this, e instanceof BondQuestError || e instanceof Error ? e.message : String(e), C.error);
+      const why = !q.open
+        ? `Задание откроется на близости ${q.at}`
+        : !q.stageCleared
+          ? 'Сначала пройдите этот этап кампании'
+          : !storyHeroesInSquad(session.save, GAME).includes(v.templateId)
+            ? 'Герой задания должен быть в отряде'
+            : null;
+      if (why) {
+        toast(this, why, C.error);
+        return;
       }
+      close();
+      this.scene.start('Battle', { mode: 'bond', templateId: v.templateId, back: this.back });
     }, FS.h2);
     go.container.setName('bondQuestGo');
     const cancel = button(this, GAME_W / 2 - 200, top + H - 100, 320, 120, 'k:buttonLong_beige', 'Назад', close, FS.h3);

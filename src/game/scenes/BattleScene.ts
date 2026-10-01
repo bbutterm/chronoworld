@@ -9,6 +9,9 @@ import {
   COMBAT,
   enemySquad,
   fightHunt,
+  bondView,
+  fightBondQuest,
+  type BondQuestOutcome,
   getStage,
   orderActives,
   progressLevelBand,
@@ -32,6 +35,7 @@ import {
 } from '../../core';
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
+import { startTavernEvening, type TavernEveningData } from './TavernEveningScene';
 import { enemyLevelColor, heroSprite, levelLabel, levelLabel as levelLabelOf, stageLevelsFor, stageNo, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
 import { GAME_W } from '../layout';
@@ -327,7 +331,13 @@ interface UnitView extends SpreadUnit, GaitState {
 }
 
 /** Тестовый бой (отряды экрана подготовки), этап кампании или этаж башни (отряд из сохранения). */
-export type BattleData = { mode?: 'test'; seed: number } | { mode: 'stage'; stageId: string } | { mode: 'tower' } | { mode: 'hunt'; rank?: number };
+export type BattleData =
+  | { mode?: 'test'; seed: number }
+  | { mode: 'stage'; stageId: string }
+  | { mode: 'tower' }
+  | { mode: 'hunt'; rank?: number }
+  /** Личное задание героя (вечера, BUG-188): бой ядра fightBondQuest, после — «Вечера» с итогом. back — куда вела «Назад» вечеров. */
+  | { mode: 'bond'; templateId: string; back?: TavernEveningData['back'] };
 
 /** Что получает экран итогов. */
 export interface ResultData {
@@ -362,6 +372,8 @@ export class BattleScene extends Phaser.Scene {
   private towerRun?: { outcome: TowerFightOutcome };
   /** Охота на босса: итог ядра и счётчик урона (huntBattle.ts); после боя — экран охоты, а не итоги. */
   private hunt?: { outcome: HuntOutcome; hud?: HuntHud };
+  /** Личное задание (режим bond): итог ядра и куда вернуться. */
+  private bond?: { templateId: string; outcome: BondQuestOutcome; back?: TavernEveningData['back'] };
   private committed = false;
   private views = new Map<string, UnitView>();
   /** Те же юниты массивом — обход в update() каждый кадр без итератора Map. */
@@ -476,6 +488,7 @@ export class BattleScene extends Phaser.Scene {
     this.tower = undefined;
     this.towerRun = undefined;
     this.hunt = undefined;
+    this.bond = undefined;
     this.levels = null;
     if (data.mode === 'stage') {
       // Бой считает ядро (actPlayStage: экипировка, выпадение, задания); сцена только проигрывает лог.
@@ -572,6 +585,35 @@ export class BattleScene extends Phaser.Scene {
       this.levels = { rarity: progressLevelBand(save, GAME).rarity, bossFactor: 1 };
       title = outcome.boss.rank !== undefined ? `Охота на MVP · ур. ${outcome.boss.rank + 1}` : 'Охота на босса';
       this.theme = 'swamp';
+    } else if (data.mode === 'bond') {
+      // Личное задание (tavern-evenings.md «Что осталось» п. 2): бой ядра с ульта вручную, как в кампании.
+      const save = session.save;
+      const templateId = data.templateId;
+      const view = bondView(save, templateId, GAME);
+      const seed = stageSeed(save);
+      const run = (ctl: PlayerControl) => fightBondQuest(save, templateId, seed, { ...GAME, combat: { ...(GAME.combat ?? COMBAT), player: ctl } });
+      let outcome: BondQuestOutcome;
+      try {
+        if (!view) throw new Error(`Нет задания героя ${templateId}`);
+        outcome = run({ manualUlt: wantManual, inputs: [] });
+      } catch (e) {
+        console.warn(e);
+        this.finished = true;
+        startTavernEvening(this, { mode: 'hub', back: data.back });
+        return;
+      }
+      this.result = outcome.result;
+      this.bond = { templateId, outcome, back: data.back };
+      this.manual = this.startManual = wantManual;
+      this.rerun = (ctl) => {
+        const o = run(ctl);
+        this.bond = { templateId, outcome: o, back: data.back };
+        return o.result;
+      };
+      this.defs = squadDefs(save);
+      for (const u of enemySquad(view.quest.stage, GAME)) if (u) this.defs[u.id] = u;
+      title = `Задание · ${view.quest.title}`;
+      this.theme = themeOfBattle({ stageId: view.quest.stage });
     } else {
       const seed = data.seed;
       const run = (ctl: PlayerControl) => simulateBattle(CONTENT, squads.A, squads.B, seed, { manualUlt: ctl.manualUlt, inputs: ctl.inputs });
@@ -1761,7 +1803,20 @@ export class BattleScene extends Phaser.Scene {
         this.commitStage();
         if (this.hunt) this.hunt.hud?.finish(this.hunt.outcome);
         this.time.delayedCall(animate ? 1200 : 150, () =>
-          this.hunt
+          this.bond
+            ? startTavernEvening(this, {
+                mode: 'hub',
+                back: this.bond.back,
+                quest: {
+                  templateId: this.bond.templateId,
+                  win: this.bond.outcome.win,
+                  goal: this.bond.outcome.goal,
+                  firstTime: this.bond.outcome.firstTime,
+                  fallen: this.bond.outcome.fallen,
+                  duration: this.result.duration,
+                },
+              })
+            : this.hunt
             ? this.scene.start('Hunt', { outcome: this.hunt.outcome })
             : this.towerRun
               ? this.scene.start('Tower', { fight: { floor: this.towerRun.outcome.floor, win: this.result.winner === 'A', events: this.towerRun.outcome.events } })
@@ -1847,7 +1902,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private commitStage(): void {
-    const out = this.stage?.outcome ?? this.tower?.outcome ?? this.towerRun?.outcome ?? this.hunt?.outcome;
+    const out = this.stage?.outcome ?? this.tower?.outcome ?? this.towerRun?.outcome ?? this.hunt?.outcome ?? this.bond?.outcome;
     if (!out || this.committed) return;
     this.committed = true;
     commit(out.save);
