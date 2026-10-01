@@ -121,8 +121,18 @@ export function collectUsedAssets(root: string): UsedAssets {
     v2: readJson(join(assets, 'sprites/sprites.json')),
     spriteIds: contentSpriteIds(root),
     skillIcons: skillIconFiles(root),
-    extra: [...bustFiles(root), ...illustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root), ...roItemFiles(root), ...cardArtFiles(root), ...damageDigitFiles(root)],
+    extra: [...bustFiles(root), ...illustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root), ...roItemFiles(root), ...cardArtFiles(root), ...damageDigitFiles(root), ...fontFiles(root)],
   });
+}
+
+/** Шрифты интерфейса (index.html, @font-face; src/game/theme.ts, FONT_FILES): assets/fonts/*.woff2 и их лицензия OFL.txt. */
+export function fontFiles(root: string): string[] {
+  const dir = join(root, ASSETS_DIR, 'fonts');
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((n) => /^[a-z0-9_-]+\.woff2$/.test(n) || n === 'OFL.txt')
+    .sort()
+    .map((n) => `fonts/${n}`);
 }
 
 /** Иллюстрации NPC для диалогов (src/game/illust.ts): assets/ui/illust/<id>.png. */
