@@ -70,7 +70,7 @@ export class FriendsScene extends Phaser.Scene {
         if (!on) this.scene.restart({ tab: t.id } satisfies FriendsData);
       }, FS.h3, { sound: 'ui_tab' });
       b.container.setName(`friendsTab_${t.id}`);
-      if (t.id === 'friends' && !on && onlineState.giftsWaiting > 0) badge(this, x + (w - 12) / 2 - 20, ty - TOUCH / 2 - 4, onlineState.giftsWaiting);
+      if (t.id === 'friends' && !on && onlineState.giftsWaiting > 0) badge(this, x + (w - 12) / 2 - 34, ty, onlineState.giftsWaiting);
     });
     if (this.opts.tab === 'friends') this.friendsTab();
     else this.recordsTab();

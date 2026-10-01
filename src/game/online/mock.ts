@@ -20,7 +20,7 @@ const state = {
   refClaimed: false,
 };
 
-const me = { id: 100, name: 'Вы' };
+const me = { id: 100, name: 'Алекс' };
 
 function board(kind: string, scope: string) {
   const base = kind === 'mvp' ? 1_800_000 : 70;
