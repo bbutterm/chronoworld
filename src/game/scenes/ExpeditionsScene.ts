@@ -411,13 +411,16 @@ export class ExpeditionsScene extends Phaser.Scene {
     if (said) paragraphs.push(said);
     for (const s of told) {
       const place = GAME.meta.expeditions.locations.find((l) => l.id === s.location)?.name ?? s.location;
-      const part: string[] = [];
+      // Решённые сами — строками подряд, рассказанные — абзацами.
+      let part = '';
+      let prevAuto = false;
       for (const l of s.story) {
         const rew = outcomeRewardText(l);
-        if (l.auto) part.push(`• ${l.title} — отряд решил сам: «${l.choice}»${rew ? ` · ${rew}` : ''}`);
-        else part.push(`${l.title}: «${l.choice}»\n${l.text}${rew ? `\n${rew}` : ''}`);
+        const piece = l.auto ? `• ${l.title} — отряд решил сам: «${l.choice}»${rew ? ` · ${rew}` : ''}` : `${l.title}: «${l.choice}»\n${l.text}${rew ? `\n${rew}` : ''}`;
+        part += part ? (l.auto && prevAuto ? '\n' : '\n\n') + piece : piece;
+        prevAuto = l.auto;
       }
-      paragraphs.push(`${many ? `— ${place} —\n` : ''}${part.join('\n\n')}`);
+      paragraphs.push(`${many ? `— ${place} —\n` : ''}${part}`);
     }
     noticeModal(this, title, paragraphs, undefined, lines.join('\n'));
   }

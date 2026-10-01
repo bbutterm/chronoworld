@@ -254,14 +254,14 @@ export class TowerScene extends Phaser.Scene {
       });
       const mine = this.runPower(run);
       const tone = powerTone(mine, enemy);
-      text(this, GAME_W / 2, py + 72, `Мощь: отряд ${formatNumber(mine)} · враги ${formatNumber(enemy)}`, FS.small, POWER_COLORS[tone], {
+      text(this, GAME_W / 2, py + 64, `Мощь: отряд ${formatNumber(mine)} · враги ${formatNumber(enemy)}`, FS.small, POWER_COLORS[tone], {
         fontStyle: 'bold',
         stroke: C.stroke,
         strokeThickness: 4,
       });
       // BUG-198: разведка этажа, как на экране этапа: особенности, слабость, кто из отряда ею бьёт.
       const mineDefs = towerRunSquad(save, GAME).squad.filter((u): u is UnitDef => !!u && run.squad.includes(u.id));
-      scoutLine(this, py + 114, pv.enemies!, mineDefs, 980);
+      scoutLine(this, py + 102, pv.enemies!, mineDefs, 980);
     } else {
       const heal = Math.round((cfg.restHeal + upgradeValue(save, cfg, 'restHeal')) * 100);
       const title = kind === 'rest' ? 'Отдых у костра' : 'Событие';

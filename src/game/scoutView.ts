@@ -99,7 +99,7 @@ export function scoutPanel(scene: Phaser.Scene, enemies: readonly (UnitDef | nul
       tr.length ? (u.kind === 'boss' ? tr.join(', ') : tr.slice(0, 3).join(', ')) : 'без особенностей',
       weak.length ? `слабость: ${weak.join(', ')}${hitters.length ? ` — бьёт: ${hitters.join(', ')}` : ' — в отряде таких нет'}` : '',
     ].filter(Boolean);
-    const d = text(scene, 0, 0, lines.join('\n'), FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3, wordWrap: { width: textW }, lineSpacing: 4 })
+    const d = text(scene, 0, 0, lines.join('\n'), FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3, wordWrap: { width: textW }, lineSpacing: 4, align: 'left' })
       .setOrigin(0, 0)
       .setDepth(D + 1);
     body.push({ node: d, dy: y });

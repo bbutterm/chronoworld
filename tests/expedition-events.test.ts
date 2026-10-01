@@ -197,6 +197,11 @@ describe('события экспедиций: отправка и решени�
     s2 = withEvents(s2, 'ant_hell', [{ id: 'ant_caravan_crate', at: T0 + 1000 }]);
     const pv2 = expeditionEventViews(s2, 'ant_hell', T0 + 1000, ctx)[0].choices.find((c) => c.id === 'pick')!;
     expect(pv2).toMatchObject({ chance: pick.chance, missing: true, hero: null });
+    // BUG-186: без вора действует другой герой — исход начинается с пояснения, кто взялся вместо.
+    const out2 = expeditionEventViews(chooseExpeditionEvent(s2, 'ant_hell', 0, 'pick', T0 + 1000, ctx), 'ant_hell', T0 + 1000, ctx)[0].outcome!;
+    expect(out2.text).toMatch(/^Вора в отряде нет — за дело берётся \S+\. /);
+    const out1 = expeditionEventViews(chooseExpeditionEvent(s, 'ant_hell', 0, 'pick', T0 + 1000, ctx), 'ant_hell', T0 + 1000, ctx)[0].outcome!;
+    expect(out1.text).not.toMatch(/в отряде нет/);
   });
 
   it('шанс детерминирован: доля успехов по многим отправкам ≈ chance', () => {

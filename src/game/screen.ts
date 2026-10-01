@@ -183,12 +183,12 @@ export function noticeModal(
     layer.add(leadText);
   }
   const bodyTop = top + 150 + leadH;
+  let area: ScrollArea | null = null;
   if (scroll) {
-    const area = new ScrollArea(scene, bodyTop, bodyTop + bodyH);
+    area = new ScrollArea(scene, bodyTop, bodyTop + bodyH);
     body.setPosition(GAME_W / 2, 0);
     area.add(body);
     area.setContentHeight(body.height + 24);
-    layer.add(area.parts);
     layer.add(text(scene, GAME_W / 2, bodyTop + bodyH + 22, 'листайте ↕', FS.caption, C.muted));
   } else {
     body.setPosition(GAME_W / 2, bodyTop);
@@ -204,6 +204,12 @@ export function noticeModal(
     scene.scene.start(go.to, go.data);
   }, FS.h2).container);
   popIn(scene, layer, shade);
+  // Прокрутка живёт в координатах мира (маска и границы — от top): в слой — после popIn, который переносит детей в
+  // контейнер с началом в центре экрана (иначе список уезжал вниз на полэкрана при первой прокрутке).
+  if (area) {
+    layer.add(area.parts);
+    scene.tweens.add({ targets: area.content, alpha: { from: 0, to: 1 }, duration: 160 });
+  }
   return layer;
 }
 
