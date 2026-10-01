@@ -1,4 +1,4 @@
-# Сборка шрифтов игры (assets/fonts): Rubik 500/700 из вариативного, Philosopher Bold — подмножество латиница+кириллица, woff2.
+# Сборка шрифтов игры (assets/fonts): Rubik 400/500/700 (обычный текст — 400, см. index.html) из вариативного, Philosopher Bold — подмножество латиница+кириллица, woff2.
 # Исходники TTF — github.com/google/fonts (OFL). Нужен fontTools: pip install fonttools brotli. Итог — tools/out/*.woff2.
 import os
 import sys
@@ -27,7 +27,7 @@ def sub(font, out):
     font.save(os.path.join(OUT, out))
 
 
-for w in (500, 700):
+for w in (400, 500, 700):
     vf = TTFont(os.path.join(HERE, 'Rubik.ttf'))
     f = instancer.instantiateVariableFont(vf, {'wght': w}, updateFontNames=False)
     sub(f, f'rubik-{w}.woff2')
