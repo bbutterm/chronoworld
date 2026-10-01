@@ -152,7 +152,10 @@ Deno.serve(async (req) => {
   if (!TOKEN) return json({ error: 'no_token' }, 500);
   const admin = req.headers.get('x-cw-admin');
   if (admin !== null) {
-    if (!safeEqual(admin, await adminKey(TOKEN))) return json({ error: 'unauthorized' }, 401);
+    // Ключ — производный от токена или служебный cw_config.admin_key (у оркестратора нет токена).
+    const { data: cfg } = await db.from('cw_config').select('value').eq('key', 'admin_key').maybeSingle();
+    const ok = safeEqual(admin, await adminKey(TOKEN)) || (!!cfg?.value && cfg.value.length >= 32 && safeEqual(admin, cfg.value));
+    if (!ok) return json({ error: 'unauthorized' }, 401);
     const body = await req.json().catch(() => ({}));
     if (body?.action === 'info') return json({ ok: true, webhookInfo: await tgCall(TOKEN, 'getWebhookInfo') });
     return json({ ok: true, ...(await setup()) });
