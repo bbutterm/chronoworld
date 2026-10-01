@@ -339,23 +339,23 @@
       "enemies": [
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1681
+          "mult": 0.1587
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1681
+          "mult": 0.1587
         },
         {
           "unit": "alde_punk",
-          "mult": 0.1681
+          "mult": 0.1587
         },
         {
           "unit": "alde_punk",
-          "mult": 0.1681
+          "mult": 0.1587
         },
         {
           "unit": "alde_elder",
-          "mult": 0.1681
+          "mult": 0.1587
         }
       ],
       "rewards": {
@@ -456,23 +456,23 @@
       "enemies": [
         {
           "unit": "alde_clock",
-          "mult": 0.1792
+          "mult": 0.1872
         },
         {
           "unit": "alde_clock",
-          "mult": 0.1792
+          "mult": 0.1872
         },
         {
           "unit": "alde_owl_duke",
-          "mult": 0.1792
+          "mult": 0.1872
         },
         {
           "unit": "alde_rideword",
-          "mult": 0.1792
+          "mult": 0.1872
         },
         {
           "unit": "alde_elder",
-          "mult": 0.1792
+          "mult": 0.1872
         }
       ],
       "rewards": {

@@ -318,23 +318,23 @@
       "enemies": [
         {
           "unit": "maze_baphomet_jr",
-          "mult": 0.0877
+          "mult": 0.0806
         },
         {
           "unit": "maze_side_winder",
-          "mult": 0.0877
+          "mult": 0.0806
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.0877
+          "mult": 0.0806
         },
         {
           "unit": "maze_deviruchi",
-          "mult": 0.0877
+          "mult": 0.0806
         },
         {
           "unit": "maze_hunter_fly",
-          "mult": 0.0877
+          "mult": 0.0806
         }
       ],
       "rewards": {
@@ -363,19 +363,19 @@
       "enemies": [
         {
           "unit": "maze_stem_worm",
-          "mult": 0.1007
+          "mult": 0.1061
         },
         {
           "unit": "maze_mantis",
-          "mult": 0.1007
+          "mult": 0.1061
         },
         {
           "unit": "maze_scribe",
-          "mult": 0.0484
+          "mult": 0.051
         },
         {
           "unit": "maze_deviruchi",
-          "mult": 0.0711
+          "mult": 0.0749
         },
         null
       ],
