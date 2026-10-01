@@ -1793,10 +1793,21 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     }
     if (stunned(u) || (fleeing.size > 0 && fleeing.has(u))) return;
     const s = ultOf.get(u)!;
+    if (u.ult === s ? u.energy < cfg.energy.max || !ultUseful(u, s) : (u.readyAt[s.id] ?? 0) > t + 1e-9) return;
+    // BUG-183: ближняя контрольная ульта по касанию во время заряда — сразу в заряжающего: далеко — рывком к нему
+    // (как прыжок; из тыла врага вернётся), рядом — он становится целью сражения (площадь — вокруг него, не фронта).
+    if (s.range === 'melee' && s.target.side === 'enemy' && breaksCharge(s)) {
+      const ch = chargingFoe(u);
+      if (ch) {
+        if (dist(u, ch) > reach(u, ch) + 0.5) applyEffect(u, { type: 'dash' }, ch, s);
+        setEngage(u, ch);
+        u.moving = null;
+        landsAt.delete(u);
+      }
+    }
     // Дальняя ульта — и на ходу; ближняя — когда дошёл до цели.
     const can = s.range === 'ranged' || skillReady(u, s);
     if (!can) return;
-    if (u.ult === s ? u.energy < cfg.energy.max || !ultUseful(u, s) : (u.readyAt[s.id] ?? 0) > t + 1e-9) return;
     const targets = u.ult === s ? [] : activeTargets(u, s);
     if (u.ult !== s && targets.length === 0) return;
     // Касание важнее своего каста: каст обрывается (без перезарядки), ульта — сейчас.

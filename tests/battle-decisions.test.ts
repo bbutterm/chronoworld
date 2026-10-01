@@ -179,6 +179,34 @@ describe('заряд босса', () => {
     expect(r1.log.some((e) => e.type === 'status' && e.target === boss && e.status === 'charge_broken' && e.action === 'apply')).toBe(true);
     expect(r1.log.some((e) => e.type === 'attack' && e.unit === boss && e.skill === skill && e.t >= start!.t && e.t < tin + 3)).toBe(false);
   });
+
+  it('BUG-183: ближняя контрольная ульта (Брандиш) по касанию в заряд — сразу, рывком к заряжающему, «Сбито!»', () => {
+    // 6-18: босс в тылу, рыцарь занят фронтом — раньше Брандиш ждал, пока рыцарь дойдёт (16–17 с), и опаздывал.
+    const st = 'ch6_s10';
+    const foes = enemySquad(st, ctx);
+    const bossUid = `B${foes.findIndex((u) => u?.kind === 'boss')}`;
+    const squad = heroes(['alan/knight', 'teo/monk', 'kai/wizard', 'vika/priest', 'iris/knight']);
+    const brandish = ultIds(squad).get('A0')!;
+    expect(breaksCharge(ctx.content.skills[brandish])).toBe(true);
+    expect(ctx.content.skills[brandish].range).toBe('melee');
+    let checked = 0;
+    for (const seed of [1, 2, 3]) {
+      const r0 = simulateBattle(ctx.content, squad, foes, seed, { ...OPTS, manualUlt: true });
+      const start = r0.log.find((e) => e.type === 'cast' && e.unit === bossUid && e.charge && e.action === 'start');
+      if (!start) continue;
+      const tin = Math.round((start.t + 0.5) * 10) / 10;
+      if (!r0.log.some((e) => e.type === 'ready' && e.unit === 'A0' && !e.lost && e.t <= tin)) continue;
+      // Касание не меняет бой до себя (детерминизм, префикс лога).
+      const r1 = simulateBattle(ctx.content, squad, foes, seed, { ...OPTS, manualUlt: true, inputs: [{ t: tin, uid: 'A0' }] });
+      expect(r1.log.filter((e) => e.t < tin - 1e-9)).toEqual(r0.log.filter((e) => e.t < tin - 1e-9));
+      const used = usedUlt(r1.log, 'A0', brandish)[0];
+      expect(used?.t, `seed ${seed}: ульта сразу`).toBeCloseTo(tin, 5);
+      const broke = r1.log.find((e) => e.type === 'cast' && e.unit === bossUid && e.reason === 'break');
+      expect(broke?.t, `seed ${seed}: сбито`).toBeCloseTo(tin, 5);
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(1);
+  });
 });
 
 describe('разведка', () => {

@@ -708,7 +708,10 @@ interface ToastEntry {
 }
 
 /** Стопки тостов сцены (сверху и посреди экрана). Сцена перезапустилась — стопки новые (объекты уничтожены). */
-const toastStacks = new WeakMap<Phaser.Scene, Record<'top' | 'middle', ToastEntry[]>>();
+const toastStacks = new WeakMap<Phaser.Scene, Record<ToastAt, ToastEntry[]>>();
+/** Где стопка тостов: под шапкой, посреди экрана или в бою — под плашками ульт (их низ ≈ 844), над полем (BUG-191). */
+export type ToastAt = 'top' | 'middle' | 'battle';
+const BATTLE_TOAST_Y = 862;
 
 /**
  * Всплывающее сообщение под шапкой экрана (не закрывает название и валюту), исчезает само.
@@ -716,10 +719,10 @@ const toastStacks = new WeakMap<Phaser.Scene, Record<'top' | 'middle', ToastEntr
  * не дублируется — у него появляется «×N» и продлевается показ.
  * at: 'middle' — посреди экрана: сверху и снизу у экрана главные кнопки, их тост не закрывает.
  */
-export function toast(scene: Phaser.Scene, message: string, color: string = C.title, ms = 3500, at: 'top' | 'middle' = 'top'): void {
+export function toast(scene: Phaser.Scene, message: string, color: string = C.title, ms = 3500, at: ToastAt = 'top'): void {
   let stacks = toastStacks.get(scene);
   if (!stacks) {
-    stacks = { top: [], middle: [] };
+    stacks = { top: [], middle: [], battle: [] };
     toastStacks.set(scene, stacks);
   }
   const stack = (stacks[at] = stacks[at].filter((e) => !e.gone && e.c.scene));
@@ -732,7 +735,7 @@ export function toast(scene: Phaser.Scene, message: string, color: string = C.ti
     if (e.c.scene) scene.tweens.add({ targets: e.c, alpha: 0, duration: 300, onComplete: () => e.c.destroy() });
     layout();
   };
-  const top = at === 'middle' ? GAME_H * 0.46 : HEADER_H + 24;
+  const top = at === 'middle' ? GAME_H * 0.46 : at === 'battle' ? BATTLE_TOAST_Y : HEADER_H + 24;
   const layout = () => {
     // Сверху — от шапки вниз; посреди экрана — стопка по центру вокруг 46 % высоты.
     const total = stack.reduce((n, e) => n + e.h, 0) + TOAST_GAP * Math.max(0, stack.length - 1);

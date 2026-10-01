@@ -76,6 +76,9 @@ export class TowerScene extends Phaser.Scene {
   }
 
   create(data: TowerSceneData = {}): void {
+    // BUG-182: Phaser при restart()/start('Tower') без данных берёт прежние settings.data — итог боя этажа повторялся бы
+    // (тосты «Этаж N пройден!», выбор пути сбрасывался на первый). Данные сцены — одноразовые.
+    this.sys.settings.data = {};
     screen(this, 'Башня испытаний', 'Adventure', { to: 'Adventure' });
     markHint('tower_open');
     this.picking = false;

@@ -431,6 +431,8 @@ export class BattleScene extends Phaser.Scene {
   private readonly elemShown = new Map<string, number>();
   private modeBtn: ReturnType<typeof button> | null = null;
   private ultHintNode: Phaser.GameObjects.GameObject | null = null;
+  /** Указатель «Скорость ×2» (обучение), пока висит. */
+  private speedHint: Phaser.GameObjects.Container | null = null;
 
   constructor() {
     super('Battle');
@@ -466,6 +468,7 @@ export class BattleScene extends Phaser.Scene {
     this.elemShown.clear();
     this.modeBtn = null;
     this.ultHintNode = null;
+    this.speedHint = null;
     // Новый игрок — вручную; «Авто» в бою запоминается; «Авто: следующий этап» — бои без касаний.
     const wantManual = !battleMode.auto && !autoAdvance.on;
     let title = 'Тестовый бой';
@@ -616,14 +619,13 @@ export class BattleScene extends Phaser.Scene {
     this.showTime(0);
     if (DEBUG) text(this, GAME_W / 2, 195, `seed ${this.result.seed}`, 22, '#e0cfb0');
 
-    let speedHint: Phaser.GameObjects.Container | null = null;
     const speedBtn = button(this, 180, 360, 280, 110, 'ui_btn_speed', `${playback.speed}x`, () => {
       // Выбор скорости запоминается (localStorage) и действует в следующих боях.
       setPlaybackSpeed(nextPlaybackSpeed());
       if (playback.speed > 1) {
         markHint('battle_speed');
-        speedHint?.destroy();
-        speedHint = null;
+        this.speedHint?.destroy();
+        this.speedHint = null;
       }
       speedBtn.setLabel(`${playback.speed}x`);
       for (const v of this.views.values()) v.sprite.anims.timeScale = playback.speed;
@@ -641,7 +643,7 @@ export class BattleScene extends Phaser.Scene {
     if (this.towerRun) this.towerCards();
     // Обучение (hints.ts): скорость ×2 открылась (этап 1-2) — указатель на кнопку скорости в первом бою на 1x.
     if (this.stage && playback.speed === 1 && isUnlocked('speed_x2') && !hintDone('battle_speed')) {
-      speedHint = tutorialHint(this, 'battle_speed', 180, 360, 'below', { w: 280, h: 110 });
+      this.speedHint = tutorialHint(this, 'battle_speed', 180, 360, 'below', { w: 280, h: 110 });
     }
     // Вся анимация (твины, задержки) идёт в темпе выбранной скорости.
     this.tweens.timeScale = playback.speed;
@@ -1092,7 +1094,19 @@ export class BattleScene extends Phaser.Scene {
     this.applyInputs();
     if (!this.manual) for (const uid of this.ultSkill.keys()) this.heroPanel?.setReady(uid, false);
     this.modeBtn?.setLabel(this.modeLabel());
-    toast(this, this.manual ? 'Ульты — касанием портрета героя' : 'Ульты героев — сами', '#f0cf8a', 2200, 'middle');
+    toast(this, this.manual ? 'Ульты — касанием портрета героя' : 'Ульты героев — сами', '#f0cf8a', 2200, 'battle');
+  }
+
+  /**
+   * BUG-183: подсказка заряда — честно, кто собьёт: только ульты с молнией (оглушение / срыв каста, ultBadge.ts) у живых героев.
+   */
+  private chargeToast(boss: string): string {
+    const names = [...this.views.values()]
+      .filter((v) => v.snap.side === 'A' && v.alive && ultBreaksCharge(this.ultSkill.get(v.snap.uid)?.id))
+      .map((v) => v.def.name);
+    const uniq = [...new Set(names)];
+    if (!uniq.length) return `${boss} заряжает удар! Сбить нечем — в отряде нет ульты с молнией`;
+    return `${boss} заряжает удар — собьёт ульта с молнией: ${uniq.join(', ')}`;
   }
 
   /** Первая готовая ульта — подсказка под карточкой героя (пока игрок не коснётся ни разу). */
@@ -1100,6 +1114,9 @@ export class BattleScene extends Phaser.Scene {
     if (this.ultHintNode || ultHint.done || this.skipping) return;
     const card = this.heroPanel?.cardAt(uid);
     if (!card) return;
+    // BUG-191: две подсказки обучения разом не показываем — указатель «Скорость ×2» уступает ульте (вернётся в другом бою).
+    this.speedHint?.destroy();
+    this.speedHint = null;
     const t = text(this, card.x, PANEL_Y + card.h / 2 + 44, '▲ Коснитесь — ульта!', 34, '#ffe070', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 7 }).setDepth(PANEL_DEPTH + 1);
     if (t.x - t.width / 2 < 20) t.setX(20 + t.width / 2);
     if (t.x + t.width / 2 > GAME_W - 20) t.setX(GAME_W - 20 - t.width / 2);
@@ -1477,7 +1494,7 @@ export class BattleScene extends Phaser.Scene {
               chargeHint.mark();
             } else if (this.manual && chargeHint.count < 3) {
               chargeHint.mark();
-              toast(this, `${v.def.name} заряжает удар — ульта героя собьёт его!`, '#ffb09a', 3000, 'middle');
+              toast(this, this.chargeToast(v.def.name), '#ffb09a', 3000, 'battle');
             }
           }
         }
