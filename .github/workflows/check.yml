@@ -2,7 +2,15 @@ name: check
 
 on:
   push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**']
   pull_request:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**']
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
