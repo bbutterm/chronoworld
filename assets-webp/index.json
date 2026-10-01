@@ -2409,6 +2409,11 @@
   "png": 678,
   "webp": 272
  },
+ "ui/icons/skill_am_spheremine.png": {
+  "sha1": "e0877f6aac957dd91fa831b3240f181335c80437",
+  "png": 618,
+  "webp": 234
+ },
  "ui/icons/skill_as_enchantpoison.png": {
   "sha1": "d44165d3c9030094a0aa289655d54a183e1e76e5",
   "png": 746,
@@ -2499,6 +2504,11 @@
   "png": 564,
   "webp": 224
  },
+ "ui/icons/skill_cg_arrowvulcan.png": {
+  "sha1": "472b2f6298aa38a1017b314256d4a5b01f144faa",
+  "png": 593,
+  "webp": 230
+ },
  "ui/icons/skill_cr_aciddemonstration.png": {
   "sha1": "ee0133fd650a3c658b05b96fb55a7bd688ef188b",
   "png": 902,
@@ -2559,6 +2569,11 @@
   "png": 539,
   "webp": 228
  },
+ "ui/icons/skill_dc_serviceforyou.png": {
+  "sha1": "eac8d01d6fb846672790e8f26cd71bf0c906608f",
+  "png": 650,
+  "webp": 240
+ },
  "ui/icons/skill_dc_throwarrow.png": {
   "sha1": "6e06dba1dec62e67f1ff046fe3709e791d0ea024",
   "png": 596,
@@ -2618,6 +2633,11 @@
   "sha1": "a3247d950945b9fb103e8516ad05065fd62657f3",
   "png": 752,
   "webp": 308
+ },
+ "ui/icons/skill_kn_brandishspear.png": {
+  "sha1": "bdf870582bb480bcbf1b035711b057c19c1cc649",
+  "png": 872,
+  "webp": 316
  },
  "ui/icons/skill_kn_chargeatk.png": {
   "sha1": "c0855f6f70797744081ede1a2a1ba9864533680c",
@@ -2689,6 +2709,11 @@
   "png": 549,
   "webp": 208
  },
+ "ui/icons/skill_mg_firewall.png": {
+  "sha1": "68b68753b05fc9ff996b4b896af455929076334d",
+  "png": 568,
+  "webp": 218
+ },
  "ui/icons/skill_mg_frostdiver.png": {
   "sha1": "379e1cd1ac221e22aeb87a6cbcb16f66701ece64",
   "png": 493,
@@ -2708,6 +2733,11 @@
   "sha1": "8d1874beafdb172156de5a57be36a8fc49ea898c",
   "png": 652,
   "webp": 236
+ },
+ "ui/icons/skill_mo_balkyoung.png": {
+  "sha1": "f02ff9d2bbf9f95ac958916a75f866ad878eeacf",
+  "png": 660,
+  "webp": 284
  },
  "ui/icons/skill_mo_bladestop.png": {
   "sha1": "e0846373c45446f0864b951d2232ab8e40540203",
@@ -2784,6 +2814,11 @@
   "png": 586,
   "webp": 236
  },
+ "ui/icons/skill_rg_closeconfine.png": {
+  "sha1": "821452f970383a64dae66e393093d87cbf8fb9e9",
+  "png": 696,
+  "webp": 284
+ },
  "ui/icons/skill_rg_plagiarism.png": {
   "sha1": "fd293b5283c76642ff978754b137bd51b5f2be0d",
   "png": 663,
@@ -2809,6 +2844,11 @@
   "png": 624,
   "webp": 256
  },
+ "ui/icons/skill_sa_deluge.png": {
+  "sha1": "0f803790d592975c46d768e6d8dff866165bad66",
+  "png": 530,
+  "webp": 230
+ },
  "ui/icons/skill_sa_dispell.png": {
   "sha1": "e8277ee46377971d8b5386e1973f9f69ac46c3bb",
   "png": 650,
@@ -2823,6 +2863,11 @@
   "sha1": "4269292f403ef897e5b70badcfb62ff135bad5b0",
   "png": 587,
   "webp": 234
+ },
+ "ui/icons/skill_sa_spellbreaker.png": {
+  "sha1": "d98a70e7e6ca21cf4927a2525418e2bdee6e749c",
+  "png": 681,
+  "webp": 250
  },
  "ui/icons/skill_sa_volcano.png": {
   "sha1": "3e4144dfe495613e2fe0ef78f7f15965bac1e382",
@@ -2933,6 +2978,11 @@
   "sha1": "f13f5b78bd04aedca005ea3b191b835f5853f0b3",
   "png": 519,
   "webp": 192
+ },
+ "ui/icons/skill_wz_vermilion.png": {
+  "sha1": "2ada95c0c44db7bd92beb97a0f68e01839ee3405",
+  "png": 660,
+  "webp": 250
  },
  "ui/illust/kafra_01.png": {
   "sha1": "0be3a5c9391287b1f1342cddd525b735f52b8c35",
