@@ -1,43 +1,36 @@
 import Phaser from 'phaser';
-import { applyPreset, autoFormation, deletePreset, savePreset, squadPower, type Preset } from '../../core';
+import { autoFormation } from '../../core';
 import { GAME } from '../content';
-import { formatNumber, heroSprite, nextPresetName, presetMatches } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
-import { card, confirm, portrait, screen } from '../screen';
+import { cta, screen } from '../screen';
 import { commit, session } from '../session';
-import { portraitKey } from '../sprites';
 import { FormationEditor } from '../squadEditor';
-import { button, dangerButton, emptyState, panel, ScrollArea, text, toast } from '../ui';
-import { C, FS, TOUCH } from '../theme';
+import { openPresetsSheet } from '../squadPresets';
 
 export interface SquadData {
   /** Куда вернуться («Готово» и «Назад»): экран этапа, башня… */
   back?: { to: string; data?: object };
+  /** Итерация 4: сразу открыть лист пресетов (кнопка «Пресеты» на экране этапа). */
+  presets?: boolean;
 }
 
-const ROW_H = 118;
-
-/** Геометрия экрана «Отряд» (игровые единицы 1080×1920). */
+/** Геометрия экрана «Отряд» (игровые единицы 1080×1920): поле, заголовок сетки, сетка героев, «Готово». */
 const L = {
-  field: { top: 168, bottom: 920 },
-  rosterHeadY: 1040,
-  roster: { top: 1090, bottom: 1362 },
-  presetsHeadY: 1428,
-  presets: { top: 1478, bottom: 1745 },
-  doneY: GAME_H - 90,
+  field: { top: 168, bottom: 870 },
+  rosterHeadY: 990,
+  roster: { top: 1046, bottom: 1712 },
+  doneY: GAME_H - 110,
 } as const;
 
 /**
- * K8. Отряд: поле (как встанут в бою) и все герои карточками — общий редактор с экраном этапа
- * (нажать — в отряд, перетащить — на место, между слотами — обмен), «Авто» (авто-расстановка) и пресеты —
- * сохранить текущий, поставить, удалить. Открывается с экрана этапа и из башни, изменения сразу в сохранении
- * (башня и кампания используют один отряд).
+ * K8. Отряд: поле (как встанут в бою) и все герои плитками — общий редактор с экраном этапа
+ * (нажать — в отряд, перетащить — на место, между слотами — обмен). В заголовке сетки — кнопки-иконки «Авто»
+ * (авто-расстановка) и «Пресеты» (лист снизу: сохранить текущий, поставить, удалить). Открывается с экрана этапа
+ * и из башни, изменения сразу в сохранении (башня и кампания используют один отряд).
  */
 export class SquadScene extends Phaser.Scene {
   private back: { to: string; data?: object } = { to: 'Home' };
   private editor!: FormationEditor;
-  private presetHead!: Phaser.GameObjects.Container;
-  private presetList!: ScrollArea;
 
   constructor() {
     super('Squad');
@@ -47,62 +40,15 @@ export class SquadScene extends Phaser.Scene {
     this.back = data.back ?? { to: 'Home' };
     screen(this, 'Отряд', null, { to: this.back.to, data: this.back.data });
 
-    this.editor = new FormationEditor(this, { field: L.field, roster: L.roster, onChange: () => this.drawPresets() });
-    text(this, 50, L.rosterHeadY, `Герои · ${session.save.heroes.length}`, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
-    text(this, 560, L.rosterHeadY, 'сильнейшие, по ролям', FS.caption, C.muted, { stroke: C.stroke, strokeThickness: 3 });
-    button(this, 890, L.rosterHeadY, 300, 90, 'ui_btn_secondary', 'Авто', () => this.auto(), FS.h3);
-
-    card(this, GAME_W / 2, (L.presetsHeadY - 45 + L.presets.bottom + 10) / 2, 1050, L.presets.bottom + 10 - (L.presetsHeadY - 45));
-    this.presetHead = this.add.container(0, 0);
-    this.presetList = new ScrollArea(this, L.presets.top, L.presets.bottom);
+    this.editor = new FormationEditor(this, {
+      field: L.field,
+      roster: L.roster,
+      rosterHead: { y: L.rosterHeadY, onAuto: () => this.auto(), onPresets: () => this.presets() },
+    });
     this.editor.draw();
 
-    button(this, GAME_W / 2, L.doneY, 640, 120, 'ui_btn_primary', 'Готово', () => this.scene.start(this.back.to, this.back.data), FS.h1);
-  }
-
-  private drawPresets(): void {
-    this.presetHead.removeAll(true);
-    const offset = this.presetList.offset;
-    this.presetList.clear();
-    const save = session.save;
-    const max = GAME.meta.expeditions.presets.max;
-    this.presetHead.add(text(this, 50, L.presetsHeadY, `Пресеты · ${save.presets.length} / ${max}`, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5));
-    const full = save.presets.length >= max;
-    const saveBtn = button(this, 810, L.presetsHeadY, 400, 90, full ? 'k:buttonLong_grey' : 'ui_btn_secondary', 'Сохранить текущий', () => this.savePreset(), FS.body);
-    this.presetHead.add(saveBtn.container);
-    if (full) saveBtn.setEnabled(false);
-
-    const list = this.presetList;
-    const add = <T extends Phaser.GameObjects.GameObject>(o: T) => list.add(o);
-    if (!save.presets.length) {
-      add(emptyState(this, GAME_W / 2, (L.presets.bottom - L.presets.top) / 2, 'Пресетов пока нет. Соберите отряд и нажмите\n«Сохранить текущий» — потом его можно поставить одним нажатием.', 980));
-      return;
-    }
-    save.presets.forEach((p, i) => this.presetRow(p, ROW_H * (i + 0.5), add));
-    list.setContentHeight(ROW_H * save.presets.length);
-    list.offset = offset;
-  }
-
-  private presetRow(p: Preset, y: number, add: <T extends Phaser.GameObjects.GameObject>(o: T) => T): void {
-    const save = session.save;
-    const current = presetMatches(p, save.squad);
-    add(panel(this, GAME_W / 2, y, 1000, ROW_H - 10, current ? 'ui_panel_light' : 'ui_panel'));
-    const dark = current;
-    add(text(this, 70, y - 22, p.name, FS.body, dark ? C.ink : C.text, { fontStyle: 'bold', stroke: dark ? C.none : C.stroke, strokeThickness: dark ? 0 : 4 }).setOrigin(0, 0.5));
-    const power = squadPower(applyPreset(save, p.id), GAME);
-    add(text(this, 70, y + 24, `Мощь ${formatNumber(power)}`, FS.caption, dark ? C.inkMuted : C.gold, { fontStyle: 'bold' }).setOrigin(0, 0.5));
-    p.squad.forEach((id, i) => {
-      const x = 360 + i * 62;
-      const hero = id ? save.heroes.find((h) => h.id === id) : undefined;
-      add(this.add.rectangle(x, y, 56, 56, 0x1a120a, 0.6).setStrokeStyle(2, 0x000000, 0.5));
-      if (hero) add(portrait(this, x, y, portraitKey(heroSprite(hero, GAME)), 52));
-    });
-    if (current) {
-      add(text(this, 800, y, 'Текущий', FS.body, C.inkSuccess, { fontStyle: 'bold' }));
-    } else {
-      add(button(this, 800, y, 230, TOUCH, 'ui_btn_secondary', 'Поставить', this.presetList.tap(() => this.apply(p)), FS.body).container);
-    }
-    add(dangerButton(this, 975, y, 110, TOUCH, '✕', this.presetList.tap(() => this.remove(p)), FS.h2).container);
+    cta(this, GAME_W / 2, L.doneY, 'Готово', () => this.scene.start(this.back.to, this.back.data));
+    if (data.presets) this.presets();
   }
 
   private auto(): void {
@@ -110,42 +56,10 @@ export class SquadScene extends Phaser.Scene {
     this.editor.replaced('Отряд расставлен автоматически');
   }
 
-  private savePreset(): void {
-    // MT-03: тот же отряд уже сохранён (в т. ч. быстрый повторный тап — кнопка пересоздаётся) — второй пресет не нужен.
-    const same = session.save.presets.find((p) => presetMatches(p, session.save.squad));
-    if (same) {
-      toast(this, `Такой пресет уже есть: «${same.name}»`);
-      return;
-    }
-    try {
-      const name = nextPresetName(session.save.presets);
-      const r = savePreset(session.save, name, GAME);
-      commit(r.save);
-      this.drawPresets();
-      toast(this, `Сохранён пресет «${r.preset.name}»`, C.success);
-    } catch (e) {
-      toast(this, e instanceof Error ? e.message : String(e), C.error);
-    }
-  }
-
-  private apply(p: Preset): void {
-    try {
-      commit(applyPreset(session.save, p.id));
-      this.editor.replaced();
-      toast(this, `Поставлен отряд «${p.name}»`, C.success);
-    } catch (e) {
-      toast(this, e instanceof Error ? e.message : String(e), C.error);
-    }
-  }
-
-  private remove(p: Preset): void {
-    confirm(this, `Удалить пресет «${p.name}»?\nТекущий отряд не изменится.`, 'Удалить', () => {
-      try {
-        commit(deletePreset(session.save, p.id));
-        this.drawPresets();
-      } catch (e) {
-        toast(this, e instanceof Error ? e.message : String(e), C.error);
-      }
-    }, { danger: true });
+  private presets(): void {
+    openPresetsSheet(this, {
+      onApplied: () => this.editor.replaced(),
+      onLock: (on) => (this.editor.locked = on),
+    });
   }
 }

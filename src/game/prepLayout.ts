@@ -127,3 +127,31 @@ export function classifyGesture(
   if (!opts.scrollable || opts.leftList) return 'drag';
   return Math.abs(d.dx) > Math.abs(d.dy) ? 'drag' : 'scroll';
 }
+
+/**
+ * Итерация 4: размеры редактора отряда (squadEditor.ts). slotH — высота слота поля; headH — ряд мощи над слотами;
+ * cols/gap/margin — сетка героев (5 плиток в ряд на ширину поля 1080 с полями margin), cardH — высота плитки.
+ */
+export const PREP = { slotH: 184, headH: 100, cols: 5, gap: 16, margin: 48, cardH: 212 } as const;
+
+/** Ширина плитки сетки героев: cols плиток с зазором gap на ширину width − 2·margin. */
+export function rosterCardW(width: number, cols: number = PREP.cols, gap: number = PREP.gap, margin: number = PREP.margin): number {
+  return Math.floor((width - 2 * margin - (cols - 1) * gap) / cols);
+}
+
+/** Полоса слотов на поле [top, bottom]: под рядом мощи, с отступом снизу. */
+export function slotBand(field: { top: number; bottom: number }, headH: number = PREP.headH): { top: number; bottom: number } {
+  return { top: field.top + headH, bottom: field.bottom - 14 };
+}
+
+/** Наименьший зазор по вертикали между слотами одной колонки (отрицательный — слоты налезают друг на друга). */
+export function minSlotGap(slots: readonly Point[], slotH: number): number {
+  let gap = Infinity;
+  slots.forEach((a, i) =>
+    slots.forEach((b, j) => {
+      if (j <= i || Math.abs(a.x - b.x) > 1) return;
+      gap = Math.min(gap, Math.abs(a.y - b.y) - slotH);
+    }),
+  );
+  return gap;
+}

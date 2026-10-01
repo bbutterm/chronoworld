@@ -8,10 +8,10 @@ import { ROLE_NAMES } from '../flow';
 import { drawHeroCard, glowTexture, heroCardSize, raysTexture, rarityColor, rarityName, rarityPalette } from '../heroCard';
 import { burst, juiceOn, staggerIn } from '../juice';
 import { GAME_H, GAME_W } from '../layout';
-import { card, CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
+import { CONTENT_BOTTOM, CONTENT_TOP, screen } from '../screen';
 import { commit, session } from '../session';
-import { C, FS, OUTLINE } from '../theme';
-import { button, emptyState, text, toast } from '../ui';
+import { C, COLOR, FAMILY, FS, OUTLINE, S, T } from '../theme';
+import { button, emptyState, tag, text, toast } from '../ui';
 
 export interface HeroPickData {
   /** Какой контракт (индекс в save.pendingPicks), по умолчанию первый. */
@@ -52,22 +52,21 @@ export class HeroPickScene extends Phaser.Scene {
     }
     this.head(pick, picks.length);
     this.grid(pick, index);
-    const later = button(this, GAME_W / 2, CONTENT_BOTTOM - 60, 460, 110, 'k:buttonLong_beige', 'Выбрать позже', () => this.scene.start(this.back.to, this.back.data), FS.h3, { sound: 'ui_back' });
+    const later = button(this, GAME_W / 2, CONTENT_BOTTOM - 60, 460, 110, '', 'Выбрать позже', () => this.scene.start(this.back.to, this.back.data), T.body, { sound: 'ui_back', variant: 'secondary' });
     later.container.setName('pickLater');
   }
 
+  /** Заголовок: «Фиолетовый герой на выбор» и число контрактов; как выбрать — видно по самой сетке (без инструкции). */
   private head(pick: HeroPick, count: number): void {
-    const y = CONTENT_TOP + 70;
-    card(this, GAME_W / 2, y, 1040, 150, true);
-    const withBranch = rarityIndex(pick.rarity) >= rarityIndex(BRANCH_RARITY);
-    text(this, GAME_W / 2, y - 32, `${rarityName(pick.rarity)} герой на выбор${count > 1 ? ` · контрактов: ${count}` : ''}`, FS.h3, C.ink, { fontStyle: 'bold' }).setName('pickTitle');
-    text(this, GAME_W / 2, y + 28, withBranch ? 'Выберите героя, затем ветку второй профессии' : 'Выберите героя — он придёт новой карточкой', FS.small, C.inkMuted);
+    const y = CONTENT_TOP + 40;
+    const t = text(this, GAME_W / 2, y, `${rarityName(pick.rarity)} герой на выбор`, T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setName('pickTitle');
+    if (count > 1) tag(this, t.x + t.width / 2 + S.s, y, `×${count}`, 'accent', { align: 'left' });
   }
 
   private grid(pick: HeroPick, index: number): void {
     const ids = pickOptions(pick, GAME);
     const { h } = heroCardSize(TILE_W);
-    const top = CONTENT_TOP + 180;
+    const top = CONTENT_TOP + 110;
     const x0 = GAME_W / 2 - ((COLS - 1) * (TILE_W + GAP_X)) / 2;
     const owned = (tid: string) => session.save.heroes.filter((x) => x.templateId === tid).length;
     const tiles: Phaser.GameObjects.GameObject[][] = [];
@@ -77,9 +76,10 @@ export class HeroPickScene extends Phaser.Scene {
       const n = owned(tid);
       const tile = drawHeroCard(this, x, y, tid, { w: TILE_W, rarity: pick.rarity, level: null, onTap: () => this.choose(pick, index, tid) });
       tile.setName(`pick_${tid}`);
-      const t = GAME.content.heroes[tid];
-      const sub = text(this, x, y + h / 2 + 20, `${ROLE_NAMES[t.role] ?? ''}${n ? ` · есть ${n}` : ''}`, FS.caption, n ? C.muted : C.positive, { stroke: C.stroke, strokeThickness: 4 });
-      tiles.push([tile, sub]);
+      // Роль уже значком на плитке; подпись — только «есть N» (сколько копий уже у игрока: пойдут на вознесение).
+      const group: Phaser.GameObjects.GameObject[] = [tile];
+      if (n) group.push(text(this, x, y + h / 2 + 22, `есть ${n}`, T.caption, COLOR.textSecondary));
+      tiles.push(group);
     });
     staggerIn(this, 'HeroPick', tiles);
   }
