@@ -631,8 +631,13 @@ export class TavernEveningScene extends Phaser.Scene {
         toast(this, why, C.error);
         return;
       }
-      close();
-      this.scene.start('Battle', { mode: 'bond', templateId: v.templateId, back: this.back });
+      // Отклик сразу: кнопка гаснет и пишет «Бой…», пока строится сцена боя.
+      go.setLabel('Бой…');
+      go.setEnabled(false);
+      this.time.delayedCall(30, () => {
+        close();
+        this.scene.start('Battle', { mode: 'bond', templateId: v.templateId, back: this.back });
+      });
     }, FS.h2);
     go.container.setName('bondQuestGo');
     const cancel = button(this, GAME_W / 2 - 200, top + H - 100, 320, 120, 'k:buttonLong_beige', 'Назад', close, FS.h3);
