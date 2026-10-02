@@ -312,6 +312,15 @@ const ascendStep = async () => {
   await waitScene('Ascend');
   await clickText('Ascend', 'Авто');
   await sleep(500);
+  // Синий → фиолетовый: сначала ветка второй профессии (плитки branchTile_<job>), без неё «Вознести» неактивна.
+  const branchTile = await page.evaluate(() =>
+    window.__game.scene.getScene('Ascend').children.list.find((o) => o.name?.startsWith('branchTile_'))?.name ?? null,
+  );
+  if (branchTile) {
+    await clickNamed('Ascend', branchTile);
+    await sleep(500);
+    log(`вознесение: выбрана ветка ${branchTile.slice('branchTile_'.length)}`);
+  }
   await shot('ascend');
   // Кнопка — «Вознести · N золота» (цена в подписи).
   const ascLabel = await page.evaluate(() => {

@@ -4,6 +4,8 @@ import { FONT, GAME_H, GAME_W } from './layout';
 import { coversNumber, coversRoDigits, numberFont, numberFrameWidth, numberOrigin, RO_DIGIT_H, roDamageFont } from './numberFont';
 import { clamp01, ease, Pool, TextStyleCache } from './perf';
 import { FOCUS_MUTE_ALPHA, ULT_FX_BOOST } from './skillFx';
+import { motion } from './state';
+import { COLOR, E, FAMILY, M, T } from './theme';
 import { text } from './ui';
 
 export { FOCUS_MUTE_ALPHA, ULT_FX_BOOST };
@@ -44,6 +46,41 @@ export const DEPTH = {
 const BANNER_Y = 792;
 /** Ширина плашки: две (своя слева, чужая справа) помещаются в ряд. */
 const BANNER_W = 510;
+/** Высота плашки ульты: имя героя (T.caption) над названием навыка (T.heading). */
+const BANNER_H = 116;
+
+/**
+ * Фон плашки ульты (итерация 5): тёмная полоса, плотная у края своей стороны и тающая к дальнему, тонкие линии цвета
+ * стороны сверху и снизу и короткий акцент у края — как баннеры навыков AFK, без коробки с толстой рамкой.
+ * Рисуется один раз на сторону в canvas-текстуру.
+ */
+function bannerTexture(scene: Phaser.Scene, ally: boolean): string {
+  const key = `ultBanner_${ally ? 'A' : 'B'}`;
+  if (scene.textures.exists(key)) return key;
+  const w = BANNER_W;
+  const h = BANNER_H;
+  const tex = scene.textures.createCanvas(key, w, h);
+  if (!tex) return '__DEFAULT';
+  const c = tex.getContext();
+  const edge = ally ? COLOR.title : '#ff7a64';
+  const grad = c.createLinearGradient(ally ? 0 : w, 0, ally ? w : 0, 0);
+  grad.addColorStop(0, 'rgba(18,12,6,0.94)');
+  grad.addColorStop(0.62, 'rgba(18,12,6,0.82)');
+  grad.addColorStop(1, 'rgba(18,12,6,0)');
+  c.fillStyle = grad;
+  c.fillRect(0, 3, w, h - 6);
+  const line = c.createLinearGradient(ally ? 0 : w, 0, ally ? w : 0, 0);
+  line.addColorStop(0, edge);
+  line.addColorStop(0.7, edge + '99');
+  line.addColorStop(1, edge + '00');
+  c.fillStyle = line;
+  c.fillRect(0, 0, w, 3);
+  c.fillRect(0, h - 3, w, 3);
+  c.fillStyle = edge;
+  c.fillRect(ally ? 0 : w - 8, 3, 8, h - 6);
+  tex.refresh();
+  return key;
+}
 
 /**
  * Затемнение экрана и баннер с названием ульты (как в AFK Arena): экран на миг темнеет,
@@ -91,7 +128,7 @@ export class UltPresenter {
     let tx = 0;
     if (iconKey && this.scene.textures.exists(iconKey)) {
       b.icon.setTexture(iconKey).setScale(1).setDisplaySize(72, 72).setVisible(true);
-      tx = 45;
+      tx = ally ? 45 : -45;
     } else b.icon.setVisible(false);
     const maxW = w - (tx ? 150 : 50);
     // Надписи кэшируются по имени героя и названию навыка (в бою их ≤ 10 на сторону): повторная ульта
@@ -112,9 +149,9 @@ export class UltPresenter {
     this.chains[side] = this.scene.tweens.chain({
       targets: c,
       tweens: [
-        { x, alpha: 1, duration: 160, ease: 'Quad.easeOut' },
+        { x, alpha: 1, duration: M.fast, ease: E.out },
         { alpha: 1, duration: 1100 },
-        { alpha: 0, duration: 260 },
+        { alpha: 0, duration: M.base, ease: E.in },
       ],
       onComplete: () => {
         c.setVisible(false);
@@ -126,12 +163,11 @@ export class UltPresenter {
 
   private buildBanner(ally: boolean): BannerParts {
     const w = BANNER_W;
-    const h = 104;
-    const edge = ally ? 0xffd84a : 0xff6a5a;
-    const bg = this.scene.add.rectangle(0, 0, w, h, 0x120c06, 0.9).setStrokeStyle(5, edge);
-    const stripe = this.scene.add.rectangle(ally ? -w / 2 + 8 : w / 2 - 8, 0, 10, h - 10, edge);
-    const icon = this.scene.add.image(-w / 2 + 62, 0, '__DEFAULT').setVisible(false);
-    const node = this.scene.add.container(0, BANNER_Y, [bg, stripe, icon]).setDepth(DEPTH.banner).setAlpha(0).setVisible(false);
+    // Значок навыка — у края своей стороны (там полоса плотнее всего).
+    const icon = this.scene.add.image(ally ? -w / 2 + 62 : w / 2 - 62, 0, '__DEFAULT').setVisible(false);
+    // Фон — одна картинка (полоса с градиентом к дальнему краю и тонкими линиями цвета стороны), без рамки-коробки.
+    const bg = this.scene.add.image(0, 0, bannerTexture(this.scene, ally));
+    const node = this.scene.add.container(0, BANNER_Y, [bg, icon]).setDepth(DEPTH.banner).setAlpha(0).setVisible(false);
     return { node, icon, ally, who: null, what: null, whos: new Map(), whats: new Map() };
   }
 
@@ -140,12 +176,13 @@ export class UltPresenter {
     let t = cache.get(value);
     if (t) return t;
     if (skill) {
-      t = text(this.scene, 0, 14, value, 42, b.ally ? '#ffd84a' : '#ff9a8a', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 });
+      // Название ульты — заголовочной гарнитурой, тонкий контур и тень вместо толстой обводки.
+      t = text(this.scene, 0, 12, value, T.heading, b.ally ? COLOR.title : '#ffb4a6', { fontFamily: FAMILY.heading, fontStyle: 'bold', stroke: '#1a0e04', strokeThickness: 3 });
+      t.setShadow(0, 3, 'rgba(0,0,0,0.7)', 4, true, true);
       b.node.add(t);
     } else {
-      t = text(this.scene, 0, -26, value, 26, b.ally ? '#e0cfb0' : '#f0b0a8');
-      // Имена — под названиями навыков (как раньше: имя, затем навык поверх).
-      b.node.addAt(t, 3);
+      t = text(this.scene, 0, -32, value, T.caption, b.ally ? COLOR.textSecondary : '#e0b0a8', { fontFamily: FAMILY.body });
+      b.node.addAt(t, 2);
     }
     cache.set(value, t);
     return t;
@@ -217,7 +254,7 @@ interface BannerParts {
 /** Сколько всплывающих надписей (цифры, подписи статусов) может быть на экране одновременно — старые уходят первыми. */
 export const MAX_FLOATS = 24;
 
-const Kind = { Number: 0, Headline: 1, Fx: 2, Projectile: 3 } as const;
+const Kind = { Number: 0, Headline: 1, Fx: 2, Projectile: 3, Icon: 4 } as const;
 type Kind = (typeof Kind)[keyof typeof Kind];
 
 /** Одна живая анимация слоя. Записи тоже переиспользуются — в бою ничего не создаётся заново. */
@@ -247,6 +284,16 @@ interface Transient {
   follow?: { x: number };
   /** Множитель прозрачности цифры/подписи (FOCUS_MUTE_ALPHA — появилась во время чужой ульты). */
   m: number;
+  /** Цифра: смысл (вид и приоритет) и стихия — сливаются только одинаковые. */
+  nk?: NumberKind;
+  elem?: NumberElem;
+  /** Цифра: сумма слитых ударов. */
+  v: number;
+  /** «Хлопок» появления: начальный множитель масштаба и его длительность (мс боя). */
+  pop: number;
+  popMs: number;
+  /** Вытеснена (лимит цифр, новый значок статуса): с этого t быстро гаснет за EVICT_MS. −1 — живёт свой срок. */
+  die: number;
 }
 
 /** Кривые твинов, которые раньше делали то же самое (время — мс на 1x). */
@@ -289,6 +336,89 @@ const RO_RISE_H = 110;
 const RO_END_SCALE = 0.5;
 /** Доля жизни цифры RO, после которой она гаснет. */
 const RO_FADE_AT = 0.55;
+
+/**
+ * Итерация 5 (ui-polish-research §5 «Бой»): цифры по смыслу, иерархия как в AFK — обычный урон мелкий белый, урон по
+ * героям красный (цвета RO), удар ульты («крит») крупный золотой с «хлопком» и зависает над целью, лечение зелёное и
+ * щит голубой поднимаются вверх, урон со временем (яд, огонь) и ушедший в щит — мельче всех.
+ */
+export type NumberKind = 'hit' | 'hurt' | 'dot' | 'absorb' | 'crit' | 'ouch' | 'heal' | 'shield';
+/** Стихия удара (событие damage → elem): по слабости — оранжевее и крупнее, по стойкости — серее и мельче. */
+export type NumberElem = 'weak' | 'resist';
+
+interface NumberLook {
+  /** Цвет (tint белых цифр RO). */
+  tint: number;
+  /** Размер: 1 = RO_DIGIT_H (42 ед. ≈ 15 px на 390). */
+  scale: number;
+  /** «Хлопок»: появляется в pop раз крупнее и за popMs садится в размер. */
+  pop: number;
+  popMs: number;
+  /** Кого вытеснять первым при лимите MAX_NUMBERS: меньше — раньше. */
+  prio: number;
+  /** Цвет прежней цифры шрифтом (если атлас RO не загрузился). */
+  color: string;
+}
+
+export const NUMBER_LOOK: Record<NumberKind, NumberLook> = {
+  hit: { tint: 0xffffff, scale: 1, pop: 1.35, popMs: M.fast, prio: 1, color: '#ffffff' },
+  hurt: { tint: 0xff4a3a, scale: 0.95, pop: 1.35, popMs: M.fast, prio: 2, color: '#ff8a73' },
+  dot: { tint: 0xc3e88a, scale: 0.75, pop: 1.15, popMs: M.fast, prio: 0, color: '#9be36b' },
+  absorb: { tint: 0x8cc8ff, scale: 0.8, pop: 1.2, popMs: M.fast, prio: 0, color: '#bcd6ff' },
+  crit: { tint: 0xffd23a, scale: 1.6, pop: 2.2, popMs: M.base, prio: 4, color: '#ffd84a' },
+  /** Удар ульты врага по герою: крупно, но красным — золото только у своих ульт. */
+  ouch: { tint: 0xff4a3a, scale: 1.3, pop: 1.8, popMs: M.base, prio: 3, color: '#ff8a73' },
+  heal: { tint: 0x5cff6a, scale: 1.05, pop: 1.3, popMs: M.fast, prio: 3, color: '#8fd694' },
+  shield: { tint: 0x8cc8ff, scale: 0.9, pop: 1.3, popMs: M.fast, prio: 2, color: '#7cc4ff' },
+};
+
+/** Стихия: цвет заменяет цвет вида (кроме ульты, лечения и щита), размер умножается. */
+export const ELEM_LOOK: Record<NumberElem, { tint: number; scale: number }> = {
+  weak: { tint: 0xffa040, scale: 1.15 },
+  resist: { tint: 0xa3acb5, scale: 0.85 },
+};
+
+/** Удары по одной цели одного вида в пределах этого окна (мс боя) складываются в одну цифру. */
+export const MERGE_MS = 150;
+/** Цифр на экране одновременно (§5: «не больше 6», с запасом на крупные бои): сверх — самая неважная и старая гаснет. */
+export const MAX_NUMBERS = 8;
+/** За сколько гаснет вытесненная цифра или сменённый значок статуса. */
+const EVICT_MS = M.fast;
+/** Удар ульты: подъём над точкой появления и время жизни (висит дольше обычной). */
+const RO_CRIT = 3;
+const CRIT_RISE = 72;
+const CRIT_MS = 1300;
+/** Значок статуса над юнитом: размер, жизнь, подъём. */
+export const STATUS_POP_SIZE = 64;
+const STATUS_POP_MS = 1000;
+const STATUS_POP_RISE = 40;
+
+/** Cubic.easeOut (E.out) — посадка «хлопка» и подъёмы без перелёта. */
+const cubicOut = (v: number): number => 1 - (1 - v) ** 3;
+
+/** Прежние цвета RO из BattleScene (popRo: tint + масштаб + движение) → вид цифры. */
+const LEGACY_TINT = { hero: 0xff4a3a, ult: 0xffd23a, heal: 0x5cff6a, shield: 0x8cc8ff } as const;
+
+/**
+ * Вид цифры по прежним параметрам popRo (tint, движение, масштаб, сторона цели dir: −1 — герой): цифры сцены получают
+ * иерархию без её правки.
+ */
+export function numberKindOf(tint: number, mode: number, scale: number, dir = 1): NumberKind {
+  if (mode === RO_RISE) return tint === LEGACY_TINT.heal ? 'heal' : 'shield';
+  if (tint === LEGACY_TINT.ult) return dir < 0 ? 'ouch' : 'crit';
+  if (tint === LEGACY_TINT.shield) return 'absorb';
+  // Урон со временем сцена рисует цифрой ×0.9 (обычный удар — ×1.15).
+  if (scale < 1) return 'dot';
+  return tint === LEGACY_TINT.hero ? 'hurt' : 'hit';
+}
+
+/** Итоговый цвет и размер цифры вида kind со стихией elem. */
+export function numberLook(kind: NumberKind, elem?: NumberElem): { tint: number; scale: number } {
+  const look = NUMBER_LOOK[kind];
+  if (!elem || kind === 'heal' || kind === 'shield' || kind === 'absorb') return { tint: look.tint, scale: look.scale };
+  const el = ELEM_LOOK[elem];
+  return { tint: kind === 'crit' ? look.tint : el.tint, scale: look.scale * el.scale };
+}
 
 /**
  * Короткоживущие объекты боя — цифры урона, подписи статусов, вспышки попаданий и снаряды — из пулов,
@@ -334,6 +464,7 @@ export class FloatLayer {
    */
   number(x: number, y: number, value: string, size: number, color: string, stroke: string, thick: number, depth: number, rise: number, fadeDelay: number, big: boolean, key?: string): Phaser.GameObjects.Text | Phaser.GameObjects.BitmapText {
     if (key) this.limit(Kind.Number, key, NUMBERS_PER_UNIT - 1);
+    this.capNumbers();
     let t: Phaser.GameObjects.Text | Phaser.GameObjects.BitmapText;
     if (coversNumber(value)) t = this.digit(x, y, value, size, color, stroke, thick, depth);
     else {
@@ -352,33 +483,126 @@ export class FloatLayer {
   }
 
   /**
-   * Цифра урона RO (только 0–9, атлас numbers): tint — цвет (белый — по монстру, красный — по герою, зелёный — лечение,
-   * жёлтый — ульта), scale — начальный размер (1 = 42 единицы), mode — RO_HIT (дуга в сторону dir) или RO_RISE (вверх).
+   * Цифра урона RO (только 0–9, атлас numbers). tint/scale/mode — прежние параметры сцены: по ним выбирается вид цифры
+   * (numberKindOf → NUMBER_LOOK), так что цвет и размер задаёт этот слой. mode — RO_HIT (дуга в сторону dir) или
+   * RO_RISE (вверх); удар ульты висит над целью. elem — стихия удара (слабость/стойкость).
+   * Удары по той же цели того же вида в пределах MERGE_MS складываются в одну цифру; на экране не больше MAX_NUMBERS.
    * false — атлас не загрузился или в строке не только цифры: вызывающий рисует прежней цифрой (number).
    */
-  roNumber(x: number, y: number, value: string, tint: number, scale: number, depth: number, mode: number, dir: number, key?: string): boolean {
+  roNumber(x: number, y: number, value: string, tint: number, scale: number, depth: number, mode: number, dir: number, key?: string, elem?: NumberElem): boolean {
     const font = coversRoDigits(value) ? roDamageFont(this.scene) : null;
     if (!font) return false;
+    const kind = numberKindOf(tint, mode, scale, dir);
+    const amount = Number(value);
+    if (key && this.merge(key, kind, elem, amount)) return true;
     if (key) this.limit(Kind.Number, key, NUMBERS_PER_UNIT - 1);
+    this.capNumbers();
     this.room();
+    const look = numberLook(kind, elem);
     const t = this.digits.acquire();
     if (t.font !== font) t.setFont(font, RO_DIGIT_H);
-    t.setScale(scale).setText(value).setOrigin(0.5, 0.5).setTint(tint).setAlpha(1).setDepth(depth);
-    const w = t.getTextBounds(true).local.width * scale;
+    t.setScale(look.scale).setText(value).setOrigin(0.5, 0.5).setTint(look.tint).setAlpha(1).setDepth(depth);
+    const w = t.getTextBounds(true).local.width * look.scale;
     const x0 = clampX(x, w);
     // Снос в сторону — туда, где хватает места до края экрана.
     let drift = mode === RO_HIT ? dir * RO_DRIFT : 0;
     if (clampX(x0 + drift, w) !== x0 + drift) drift = -drift;
     t.setPosition(x0, y);
     this.scene.children.bringToTop(t);
-    const r = this.start(Kind.Number, t, mode === RO_HIT ? RO_HIT_MS : RO_RISE_MS);
+    const crit = kind === 'crit' || kind === 'ouch';
+    // Прежние крупные цифры той же цели уходят вверх на высоту новой: удары ульты подряд не ложатся друг на друга.
+    if (crit && key) {
+      const lift = RO_DIGIT_H * look.scale * 0.95;
+      for (const o of this.live) if (o.kind === Kind.Number && o.key === key && o.mode === RO_CRIT && o.die < 0) o.y0 -= lift;
+    }
+    const r = this.start(Kind.Number, t, crit ? CRIT_MS : mode === RO_HIT ? RO_HIT_MS : RO_RISE_MS);
     r.key = key;
-    r.mode = mode;
+    r.mode = crit ? RO_CRIT : mode;
     r.x0 = x0;
     r.y0 = y;
     r.x1 = drift;
-    r.s = scale;
+    r.s = look.scale;
+    r.nk = kind;
+    r.elem = elem;
+    r.v = amount;
+    this.popIn(r, NUMBER_LOOK[kind].pop, NUMBER_LOOK[kind].popMs);
+    t.setScale(look.scale * r.pop);
     return true;
+  }
+
+  /** Тот же удар по той же цели только что был: прибавить к его цифре и «хлопнуть» её заново (MERGE_MS). */
+  private merge(key: string, kind: NumberKind, elem: NumberElem | undefined, amount: number): boolean {
+    for (const r of this.live) {
+      if (r.kind !== Kind.Number || r.key !== key || r.nk !== kind || r.elem !== elem || r.die >= 0 || r.t > MERGE_MS) continue;
+      const t = r.obj as Phaser.GameObjects.BitmapText;
+      r.v += amount;
+      t.setText(String(Math.round(r.v)));
+      r.x0 = clampX(r.x0, t.getTextBounds(true).local.width * r.s);
+      // Движение начинается заново с того же места; хлопок — чуть слабее первого.
+      r.t = 0;
+      this.popIn(r, 1 + (NUMBER_LOOK[kind].pop - 1) * 0.7, NUMBER_LOOK[kind].popMs);
+      return true;
+    }
+    return false;
+  }
+
+  /** «Хлопок» появления (без него при «Меньше движения»). */
+  private popIn(r: Transient, pop: number, ms: number): void {
+    r.pop = motion.reduced ? 1 : pop;
+    r.popMs = ms;
+  }
+
+  /**
+   * Не больше MAX_NUMBERS цифр: самая неважная (NUMBER_LOOK.prio), из равных — самая старая, быстро гаснет за EVICT_MS
+   * (не пропадает рывком).
+   */
+  private capNumbers(): void {
+    let alive = 0;
+    let victim: Transient | null = null;
+    let vp = 0;
+    for (const r of this.live) {
+      if (r.kind !== Kind.Number || r.die >= 0) continue;
+      alive++;
+      const p = r.nk ? NUMBER_LOOK[r.nk].prio : 1;
+      if (!victim || p < vp || (p === vp && r.seq < victim.seq)) {
+        victim = r;
+        vp = p;
+      }
+    }
+    if (alive >= MAX_NUMBERS && victim) victim.die = victim.t;
+  }
+
+  /** Сколько цифр сейчас на экране (без гаснущих вытесненных) — для проверок. */
+  get liveNumbers(): number {
+    let n = 0;
+    for (const r of this.live) if (r.kind === Kind.Number && r.die < 0) n++;
+    return n;
+  }
+
+  /**
+   * Значок статуса над юнитом (вместо слова «Оглушение», «Яд», «Слабость!»…): появляется с «хлопком», поднимается и
+   * гаснет за STATUS_POP_MS — дальше статус виден маленьким значком у полосы ОЗ. У юнита один такой значок: новый
+   * сменяет прежний (тот быстро гаснет); тот же значок, пока он на экране, не повторяется.
+   */
+  statusPop(x: number, y: number, texKey: string, key?: string): Phaser.GameObjects.Image | null {
+    if (!this.scene.textures.exists(texKey)) return null;
+    if (key) {
+      for (const r of this.live) {
+        if (r.kind !== Kind.Icon || r.key !== key || r.die >= 0) continue;
+        if ((r.obj as Phaser.GameObjects.Image).texture.key === texKey) return r.obj as Phaser.GameObjects.Image;
+        r.die = r.t;
+      }
+    }
+    // Под цифрами: значок не закрывает число урона.
+    const img = this.image(clampX(x, STATUS_POP_SIZE), y, texKey, STATUS_POP_SIZE, DEPTH.numbers - 10);
+    const r = this.start(Kind.Icon, img, STATUS_POP_MS);
+    r.key = key;
+    r.x0 = img.x;
+    r.y0 = y;
+    r.s = img.scale;
+    this.popIn(r, 1.6, M.base);
+    img.setScale(r.s * r.pop);
+    return img;
   }
 
   /** Цифра растровым шрифтом стиля: рамка, центр и шаг символов — как у Text той же строки. */
@@ -432,8 +656,13 @@ export class FloatLayer {
 
   /** Оставить у юнита key не больше keep надписей вида kind (самые старые снимаются). */
   private limit(kind: Kind, key: string, keep: number): void {
-    const mine = this.live.filter((r) => r.kind === kind && r.key === key).sort((a, b) => b.t - a.t);
-    for (let n = mine.length; n > keep; n--) this.finish(this.live.indexOf(mine[mine.length - n]));
+    const mine = this.live.filter((r) => r.kind === kind && r.key === key && r.die < 0).sort((a, b) => b.t - a.t);
+    for (let n = mine.length; n > keep; n--) {
+      const r = mine[mine.length - n];
+      // Цифра не пропадает рывком — быстро гаснет; подпись снимается сразу (её место занимает новая).
+      if (kind === Kind.Number) r.die = r.t;
+      else this.finish(this.live.indexOf(r));
+    }
   }
 
   /** Не больше MAX_FLOATS надписей на экране: при переполнении уходит самая старая (цифра или подпись). */
@@ -451,7 +680,7 @@ export class FloatLayer {
   /** Началась ульта героя: всё, что уже на экране (цифры, подписи, вспышки), — приглушить до FOCUS_MUTE_ALPHA. */
   muteLive(): void {
     for (const r of this.live) {
-      if (r.kind === Kind.Number || r.kind === Kind.Headline) {
+      if (r.kind === Kind.Number || r.kind === Kind.Headline || r.kind === Kind.Icon) {
         if (r.s !== 1 || r.kind === Kind.Number) r.m = Math.min(r.m, FOCUS_MUTE_ALPHA);
       } else if (r.kind === Kind.Fx) {
         r.a *= FOCUS_MUTE_ALPHA;
@@ -551,20 +780,42 @@ export class FloatLayer {
       const o = r.obj;
       switch (r.kind) {
         case Kind.Number: {
+          // «Хлопок» появления: k садится от pop к 1 (у крупной — с перелётом, Back), дальше движение вида.
+          const k = r.pop > 1 && r.t < r.popMs ? 1 + (r.pop - 1) * (1 - (r.nk === 'crit' || r.nk === 'ouch' ? ease.backOut : cubicOut)(r.t / r.popMs)) : 1;
+          const gone = r.die >= 0 ? 1 - clamp01((r.t - r.die) / EVICT_MS) : 1;
           if (r.mode) {
             const p = clamp01(r.t / r.dur);
-            o.alpha = r.m * (p <= RO_FADE_AT ? 1 : 1 - (p - RO_FADE_AT) / (1 - RO_FADE_AT));
+            o.alpha = gone * r.m * (p <= RO_FADE_AT ? 1 : 1 - (p - RO_FADE_AT) / (1 - RO_FADE_AT));
             if (r.mode === RO_HIT) {
               // Дуга RO: вверх до пика на трети пути, затем вниз ниже старта; снос в сторону и уменьшение — равномерно.
               o.x = r.x0 + r.x1 * p;
               o.y = r.y0 - RO_ARC * Math.sin(1.5 * Math.PI * p);
-              o.setScale(r.s * (1 - (1 - RO_END_SCALE) * p));
-            } else o.y = r.y0 - RO_RISE_H * ease.quadOut(p);
+              o.setScale(k * r.s * (1 - (1 - RO_END_SCALE) * p));
+            } else if (r.mode === RO_CRIT) {
+              // Удар ульты: короткий подъём и висит над целью, к концу чуть уменьшается.
+              const q = cubicOut(clamp01(p * 2.5));
+              o.y = r.y0 - CRIT_RISE * q;
+              // Чуть в сторону тыла цели (как дуга обычной): соседние цели не сливают крупные цифры в одну строку.
+              o.x = r.x0 + r.x1 * 0.35 * q;
+              o.setScale(k * r.s * (p <= RO_FADE_AT ? 1 : 1 - 0.25 * (p - RO_FADE_AT) / (1 - RO_FADE_AT)));
+            } else {
+              o.y = r.y0 - RO_RISE_H * ease.quadOut(p);
+              o.setScale(k * r.s);
+            }
             break;
           }
           o.y = r.y0 + (r.y1 - r.y0) * ease.quadOut(clamp01(r.t / NUM_RISE_MS));
-          o.alpha = r.m * (r.t <= r.a ? 1 : 1 - clamp01((r.t - r.a) / NUM_FADE_MS));
+          o.alpha = gone * r.m * (r.t <= r.a ? 1 : 1 - clamp01((r.t - r.a) / NUM_FADE_MS));
           if (r.s) o.setScale(1.6 - 0.6 * ease.backOut(clamp01(r.t / NUM_POP_MS)));
+          break;
+        }
+        case Kind.Icon: {
+          const p = clamp01(r.t / r.dur);
+          const k = r.pop > 1 && r.t < r.popMs ? 1 + (r.pop - 1) * (1 - ease.backOut(r.t / r.popMs)) : 1;
+          const gone = r.die >= 0 ? 1 - clamp01((r.t - r.die) / EVICT_MS) : 1;
+          o.setScale(r.s * k);
+          o.y = r.y0 - STATUS_POP_RISE * cubicOut(p);
+          o.alpha = gone * r.m * (p <= 0.6 ? 1 : 1 - (p - 0.6) / 0.4);
           break;
         }
         case Kind.Headline: {
@@ -599,7 +850,7 @@ export class FloatLayer {
           break;
         }
       }
-      if (r.t >= r.dur) this.finish(i);
+      if (r.t >= r.dur || (r.die >= 0 && r.t - r.die >= EVICT_MS)) this.finish(i);
     }
   }
 
@@ -640,7 +891,7 @@ export class FloatLayer {
   }
 
   private start(kind: Kind, obj: Transient['obj'], dur: number): Transient {
-    const r = this.spare.pop() ?? { kind, obj, seq: 0, t: 0, dur, x0: 0, y0: 0, x1: 0, y1: 0, a: 0, s: 0, mode: 0, m: 1 };
+    const r = this.spare.pop() ?? { kind, obj, seq: 0, t: 0, dur, x0: 0, y0: 0, x1: 0, y1: 0, a: 0, s: 0, mode: 0, m: 1, v: 0, pop: 1, popMs: 0, die: -1 };
     r.kind = kind;
     r.seq = this.seq++;
     r.obj = obj;
@@ -652,6 +903,12 @@ export class FloatLayer {
     r.key = undefined;
     r.mode = 0;
     r.follow = undefined;
+    r.nk = undefined;
+    r.elem = undefined;
+    r.v = 0;
+    r.pop = 1;
+    r.popMs = 0;
+    r.die = -1;
     // Вспышки (Kind.Fx) приглушает flash() сам; цифры и подписи — множителем в step.
     r.m = this.mute && !this.ult && kind !== Kind.Fx ? FOCUS_MUTE_ALPHA : 1;
     if (r.m < 1) obj.setAlpha(r.m);
