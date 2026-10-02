@@ -46,7 +46,7 @@ export class PrepScene extends Phaser.Scene {
     this.buildPicker();
 
     panel(this, GAME_W / 2, 490, 1050, 160, 'ui_panel_light');
-    this.info = text(this, GAME_W / 2, 490, 'Нажмите на героя, чтобы увидеть его статы', FS.small, C.ink, {
+    this.info = text(this, GAME_W / 2, 490, 'Статы героя', FS.small, C.ink, {
       lineSpacing: 8,
       wordWrap: { width: 1000 },
     });

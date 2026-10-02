@@ -1,7 +1,7 @@
 {
   "note": "Базовая линия scripts/ui-lint.ts: счётчики по файлам могут только уменьшаться. Опустить — npm run ui:lint -- --update. Руками не повышать.",
   "totals": {
-    "instr": 4,
+    "instr": 1,
     "color": 1708,
     "fontSize": 8,
     "primary": 55,
@@ -184,7 +184,6 @@
       "toast": 2
     },
     "src/game/scenes/PrepScene.ts": {
-      "instr": 1,
       "color": 1,
       "primary": 1
     },
@@ -205,7 +204,6 @@
       "primary": 1
     },
     "src/game/scenes/StageScene.ts": {
-      "instr": 2,
       "primary": 2,
       "toast": 4
     },
