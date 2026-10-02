@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { plural, skillFacts, targetText } from '../src/game/skillFacts';
+import { factRows, plural, skillFacts, targetText } from '../src/game/skillFacts';
 import { loadGameContext } from '../scripts/lib/content-node';
 
 const ctx = loadGameContext();
@@ -29,6 +29,15 @@ describe('цифры навыка для окна подробностей', () 
     expect(targetText(ctx.content.skills.basic_heal)).toContain('союзник с наименьшим % ОЗ');
     expect(f).toContain('Лечение: 100% АТК');
     expect(f.some((l) => l.startsWith('Если целей нет — «'))).toBe(true);
+  });
+
+  it('строки листа: подпись и значение по первому «: », статус — без кавычек, длинное — целиком', () => {
+    expect(factRows(['Урон: 105% АТК × 3 удара'])).toEqual([{ label: 'Урон', value: '105% АТК × 3 удара' }]);
+    expect(factRows(['«Оглушение»: оглушение на 2 с'])).toEqual([{ label: 'Оглушение', value: 'оглушение на 2 с' }]);
+    expect(factRows(['Рывок к цели'])).toEqual([{ label: '', value: 'Рывок к цели' }]);
+    const long = 'Ульта: срабатывает на полной энергии';
+    expect(factRows([long])[0].label).toBe('Ульта');
+    expect(factRows(['Сбивает заряд босса и ещё очень длинная фраза: нет'])[0].label).toBe('');
   });
 
   it('у каждого навыка героев — строки с цифрами, без «undefined»; у пассивки первая строка — условие', () => {

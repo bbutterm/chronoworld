@@ -8,8 +8,8 @@ import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
 import { card, popIn, unitFigure } from './screen';
 import { openSkillDetail } from './skillDetail';
 import { skillIcon } from './skillIcons';
-import { C, FS, OUTLINE, TITLE_STYLE } from './theme';
-import { button, ellipsize, pressable, text } from './ui';
+import { BTN, button, ellipsize, pressable, tag, text } from './ui';
+import { C, COLOR, COLOR_N, FAMILY, FS, OUTLINE, S, T } from './theme';
 
 /**
  * Выбор ветки второй профессии (docs/design/heroes-v2.md, разделы 3 и 5) — общий компонент вознесения синий →
@@ -47,8 +47,8 @@ export interface BranchPickerOptions {
 const DEPTH = 9200;
 const PANEL_W = 504;
 const PANEL_GAP = 24;
-const TOP = 380;
-const PANEL_H = 1290;
+const TOP = 340;
+const PANEL_H = 1330;
 const BTN_Y = GAME_H - 120;
 
 /** Роль в родительном падеже — «не останется лекаря». */
@@ -88,20 +88,18 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
     opts.onCancel?.();
   };
   const t = GAME.content.heroes[opts.templateId];
-  layer.add(text(scene, GAME_W / 2, 200, opts.title, FS.h1, C.title, TITLE_STYLE).setName('branchTitle'));
-  if (opts.subtitle) layer.add(text(scene, GAME_W / 2, 272, opts.subtitle, FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 1000 } }).setMaxLines(2));
-  // MT-09: описания в панелях короткие — полное по касанию навыка.
-  layer.add(text(scene, GAME_W / 2, 346, 'Коснитесь навыка — полное описание', FS.caption, C.info, OUTLINE));
+  layer.add(text(scene, GAME_W / 2, 200, opts.title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setName('branchTitle'));
+  if (opts.subtitle) layer.add(text(scene, GAME_W / 2, 272, opts.subtitle, T.caption, COLOR.textSecondary, { wordWrap: { width: GAME_W - 2 * S.l } }).setMaxLines(2));
 
   let selected: string | null = opts.selected && opts.selected !== opts.current ? opts.selected : null;
   const highlights: { job: string; frame: Phaser.GameObjects.Rectangle; glow: Phaser.GameObjects.Image; mark: Phaser.GameObjects.Container }[] = [];
-  const warn = text(scene, GAME_W / 2, BTN_Y - 110, '', FS.small, C.warning, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: 1000 } }).setName('branchWarning');
+  const warn = text(scene, GAME_W / 2, BTN_Y - 110, '', T.caption, COLOR.warning, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: GAME_W - 2 * S.l } }).setName('branchWarning');
   layer.add(warn);
   let confirmBtn: ReturnType<typeof button> | null = null;
   const refresh = () => {
     for (const h of highlights) {
       const on = h.job === selected;
-      h.frame.setStrokeStyle(on ? 8 : 3, on ? 0xffd84a : 0x5a4a30, on ? 1 : 0.8);
+      h.frame.setStrokeStyle(on ? 8 : 3, on ? COLOR_N.gold : COLOR_N.border, on ? 1 : 0.8);
       h.glow.setAlpha(on ? 0.5 : 0);
       h.mark.setVisible(on);
     }
@@ -138,15 +136,15 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
   });
 
   if (opts.viewOnly) {
-    layer.add(button(scene, GAME_W / 2, BTN_Y, 460, 130, 'ui_btn_primary', 'Закрыть', close, FS.h2, { sound: 'ui_back' }).container.setName('branchClose'));
+    layer.add(button(scene, GAME_W / 2, BTN_Y, 460, BTN.l, '', 'Закрыть', close, T.heading, { sound: 'ui_back', variant: 'secondary' }).container.setName('branchClose'));
   } else {
-    layer.add(button(scene, 230, BTN_Y, 380, 130, 'k:buttonLong_beige', 'Отмена', close, FS.h2, { sound: 'ui_back' }).container.setName('branchCancel'));
-    confirmBtn = button(scene, 720, BTN_Y, 560, 130, 'ui_btn_primary', 'Выбрать', () => {
+    layer.add(button(scene, S.l + 170, BTN_Y, 340, BTN.l, '', 'Отмена', close, T.heading, { sound: 'ui_back', variant: 'secondary' }).container.setName('branchCancel'));
+    confirmBtn = button(scene, GAME_W - S.l - 300, BTN_Y, 600, BTN.cta, '', 'Выбрать', () => {
       if (!selected || opts.blocked?.(selected)) return;
       const job = selected;
       layer.destroy();
       opts.onConfirm?.(job);
-    }, FS.h2);
+    }, T.heading, { variant: 'primary' });
     confirmBtn.container.setName('branchConfirm');
     layer.add(confirmBtn.container);
     if (!selected || !opts.blocked?.(selected)) pulse(scene, confirmBtn.container, 1.03);
@@ -190,7 +188,9 @@ function branchPanel(
         o.destroy();
         return;
       }
+      // Фигура грузится позже — встаёт под отметки «Сейчас»/«Выбрано» (иначе закрывает их).
       layer.add(o);
+      for (const m of layer.list.filter((x) => x.name === 'branchMark')) layer.bringToTop(m);
     },
   });
   void gender;
@@ -230,12 +230,12 @@ function branchPanel(
     rows.push({ skill: s.skill, y: y + rowH / 2, level: s.level });
     const sk = CONTENT.skills[s.skill];
     const iy = y + 38;
-    layer.add(scene.add.image(left + 34, iy, skillIcon(scene, sk)).setDisplaySize(68, 68));
-    layer.add(text(scene, left + 34, iy + 54, `ур. ${s.level}`, FS.caption, C.dim));
-    layer.add(ellipsize(text(scene, left + 80, iy - 18, sk?.name ?? s.skill, FS.small, C.text, { fontStyle: 'bold' }).setOrigin(0, 0.5), PANEL_W - 110));
+    layer.add(scene.add.image(left + 38, iy, skillIcon(scene, sk)).setDisplaySize(68, 68));
+    layer.add(text(scene, left + 38, iy + 54, `ур. ${s.level}`, T.caption, COLOR.textSecondary));
+    layer.add(ellipsize(text(scene, left + 96, iy - 18, sk?.name ?? s.skill, T.caption, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5), PANEL_W - 126));
     if (sk?.description) {
       const lines = Math.max(1, Math.floor((rowH - 46) / 37));
-      layer.add(text(scene, left + 80, iy + 4, fitLines(scene, sk.description, FS.caption, PANEL_W - 120, lines, 'normal', ' ›'), FS.caption, C.muted, { align: 'left', lineSpacing: 0 }).setOrigin(0, 0));
+      layer.add(text(scene, left + 96, iy + 4, fitLines(scene, sk.description, FS.caption, PANEL_W - 136, lines, 'normal', ' ›'), FS.caption, C.muted, { align: 'left', lineSpacing: 0 }).setOrigin(0, 0));
     }
     y += rowH;
   }
@@ -248,17 +248,9 @@ function branchPanel(
     layer.add(hit);
     return { skill: r.skill, hit, level: r.level };
   });
-  const mark = scene.add.container(x, TOP + 30, [
-    scene.add.rectangle(0, 0, 220, 52, 0xb8860b, 0.95).setStrokeStyle(3, 0xfff0b0),
-    text(scene, 0, -2, '✓ Выбрано', FS.small, '#2a1c08', { fontStyle: 'bold' }),
-  ]).setVisible(false);
+  const mark = tag(scene, x, TOP + 30, 'Выбрано', 'accent', { solid: true }).setVisible(false).setName('branchMark');
   layer.add(mark);
-  if (isCurrent) {
-    layer.add(scene.add.container(x, TOP + 30, [
-      scene.add.rectangle(0, 0, 200, 52, 0x2f7a36, 0.95).setStrokeStyle(3, 0xf0e6cf),
-      text(scene, 0, -2, 'Сейчас', FS.small, C.text, { fontStyle: 'bold' }),
-    ]));
-  }
+  if (isCurrent) layer.add(tag(scene, x, TOP + 30, 'Сейчас', 'positive', { solid: true }).setName('branchMark'));
   return { frame, glow, mark, skillHits };
 }
 

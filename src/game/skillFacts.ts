@@ -131,3 +131,21 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
   if (power !== 1) out.push(`Сила навыков ×${power} редкости уже учтена в цифрах`);
   return out;
 }
+
+/** Строка цифр для листа навыка: подпись слева и значение справа; без подписи — строка целиком (label = ''). */
+export interface FactRow {
+  label: string;
+  value: string;
+}
+
+/**
+ * Цифры навыка строками «подпись — значение» (лист подробностей): «Урон: 105% АТК» → «Урон» / «105% АТК»;
+ * статус «„Оглушение“: …» → «Оглушение» / …; строка без двоеточия (или с длинной «подписью») — целиком в value.
+ */
+export function factRows(facts: readonly string[]): FactRow[] {
+  return facts.map((f) => {
+    const i = f.indexOf(': ');
+    if (i <= 0 || i > 24) return { label: '', value: f };
+    return { label: f.slice(0, i).replace(/^«(.*)»$/, '$1'), value: f.slice(i + 2) };
+  });
+}
