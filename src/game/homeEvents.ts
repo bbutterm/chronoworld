@@ -6,13 +6,14 @@ import { pulse } from './juice';
 import { badge, HEADER_H } from './screen';
 import { commit, session, today } from './session';
 import { SKIN_TINT, skinIcon } from './skin';
-import { button } from './ui';
 import { heroCardIcon } from './heroCard';
+import { roundIcon, ROUND_ICON } from './homeBuildings';
+import { S } from './theme';
 
 /**
- * Вход в события новичка и почту с главной: две иконки в шапке слева от шестерёнки (как значки событий AFK Arena).
- * HomeScene зовёт одной строкой (homeEventIcons) — раскладка главной живёт в самой сцене, эти иконки её не трогают.
- * Красный кружок: сколько наград событий можно забрать / сколько писем не прочитано или с вложением.
+ * Вход в события новичка, почту и контракт героя с главной: круглые иконки в шапке слева от шестерёнки (как значки
+ * событий AFK Arena). HomeScene зовёт одной строкой (homeEventIcons) и ставит плашку игрока левее.
+ * Красное число: сколько наград событий можно забрать / сколько писем не прочитано или с вложением.
  */
 
 /** Засчитать сегодняшний вход (touchEvents) и доставить системные письма; изменилось — записать. */
@@ -41,47 +42,48 @@ export function envelopeIcon(scene: Phaser.Scene, x: number, y: number, size: nu
   return g;
 }
 
-/** Размер иконки в шапке (цель нажатия — не меньше TOUCH − 8). */
-const SIZE = 92;
-const GAP = 14;
+/** Шаг иконок в шапке (цель нажатия ROUND_ICON.hit) и сдвиг значка к правому верхнему краю круга. */
+const STEP = ROUND_ICON.hit;
+const BADGE_D = ROUND_ICON.size / 2 - 8;
 
 /**
- * Иконки «События» и «Почта» в шапке главной: справа налево от шестерёнки настроек (объект `settings`), по центру
- * шапки по высоте. Шестерёнки нет — у правого края. События закончились и всё забрано — иконки «События» нет.
+ * Иконки «Почта», «Контракт героя» и «События» в шапке главной: круглые, как шестерёнка, справа налево от неё
+ * (объект `settings`), по центру шапки по высоте; без шестерёнки — от правого края. Значки — дисциплина §2.4:
+ * красное число — только письма и награды, которые можно забрать. События закончились и всё забрано — иконки нет.
+ * Возвращает левый край занятого места (плашка игрока не заходит за него).
  */
-export function homeEventIcons(scene: Phaser.Scene): void {
+export function homeEventIcons(scene: Phaser.Scene): number {
   touchToday();
   const day = today();
   const gear = scene.children.getByName('settings') as Phaser.GameObjects.Container | null;
-  let x = (gear ? gear.x - 50 : 900) - GAP - SIZE / 2;
+  let x = (gear ? gear.x - 56 - S.xxs : 960) - STEP / 2;
   const y = HEADER_H / 2;
+  const mark = (cx: number, n: number) => badge(scene, cx + BADGE_D, y - BADGE_D, n);
 
-  const mail = button(scene, x, y, SIZE, SIZE, 'k:buttonSquare_beige', '', () => scene.scene.start('Mail'), 30);
-  mail.container.add(envelopeIcon(scene, 0, 2, 54));
-  mail.container.setName('mailIcon');
-  const m = mailBadge();
-  if (m > 0) badge(scene, x + SIZE / 2 - 12, y - SIZE / 2 + 12, m);
+  roundIcon(scene, x, y, 'mailIcon', (s) => envelopeIcon(scene, 0, 2, s), () => scene.scene.start('Mail'));
+  mark(x, mailBadge());
 
-  const b = eventsBadges(session.save, day, GAME);
-  // «Контракт героя» ждёт выбора — иконка карты с красным кружком (слева от почты).
+  // «Контракт героя» ждёт выбора — карта героя с числом (слева от почты).
   const picks = pendingPicks(session.save);
   if (picks.length) {
-    x -= SIZE + GAP;
-    const px = x;
-    const pk = button(scene, px, y, SIZE, SIZE, 'k:buttonSquare_beige', '', () => scene.scene.start('HeroPick', { back: { to: 'Home' } }), 30);
-    pk.container.add(heroCardIcon(scene, 0, 0, 70, picks[0].rarity, undefined, { pick: true }));
-    pk.container.setName('contractIcon');
-    badge(scene, px + SIZE / 2 - 12, y - SIZE / 2 + 12, picks.length);
-    pulse(scene, pk.container, 1.06, 700);
+    x -= STEP;
+    const pk = roundIcon(scene, x, y, 'contractIcon', (s) => heroCardIcon(scene, 0, 0, s * 1.1, picks[0].rarity, undefined, { pick: true }), () =>
+      scene.scene.start('HeroPick', { back: { to: 'Home' } }),
+    );
+    mark(x, picks.length);
+    pulse(scene, pk, 1.06, 700);
   }
-  if (!b.loginVisible && !b.newbieVisible) return;
-  x -= SIZE + GAP;
-  const ev = button(scene, x, y, SIZE, SIZE, 'k:buttonSquare_beige', '', () => scene.scene.start('Events', { tab: b.login > 0 || !b.newbieVisible ? 'login' : 'newbie' }), 30);
-  ev.container.add(scene.add.image(0, 0, skinIcon('gift')).setDisplaySize(58, 58).setTint(SKIN_TINT.gold));
-  ev.container.setName('eventsIcon');
-  const n = b.login + b.newbie;
-  if (n > 0) {
-    badge(scene, x + SIZE / 2 - 12, y - SIZE / 2 + 12, n);
-    pulse(scene, ev.container, 1.06, 700);
+  const b = eventsBadges(session.save, day, GAME);
+  if (b.loginVisible || b.newbieVisible) {
+    x -= STEP;
+    const ev = roundIcon(scene, x, y, 'eventsIcon', (s) => scene.add.image(0, 0, skinIcon('gift')).setDisplaySize(s, s).setTint(SKIN_TINT.gold), () =>
+      scene.scene.start('Events', { tab: b.login > 0 || !b.newbieVisible ? 'login' : 'newbie' }),
+    );
+    const n = b.login + b.newbie;
+    if (n > 0) {
+      mark(x, n);
+      pulse(scene, ev, 1.06, 700);
+    }
   }
+  return x - STEP / 2;
 }
