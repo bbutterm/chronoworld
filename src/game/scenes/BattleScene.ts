@@ -36,9 +36,9 @@ import {
 import type { AnimName } from '../../pipeline/sprites';
 import { CONTENT, GAME } from '../content';
 import { startTavernEvening, type TavernEveningData } from './TavernEveningScene';
-import { enemyLevelColor, heroSprite, levelLabel, levelLabel as levelLabelOf, stageLevelsFor, stageNo, stageSeed } from '../flow';
+import { enemyLevelColor, heroSprite, levelLabel as levelLabelOf, stageLevelsFor, stageNo, stageSeed } from '../flow';
 import { commit, now, session, today } from '../session';
-import { GAME_W } from '../layout';
+import { BLEED_X, BLEED_Y, GAME_W } from '../layout';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
 import { anim, hitDelay, lazyPortrait, portraitKey, spriteView, whenSprites, type SpriteView } from '../sprites';
 import { clampDelta } from '../lifecycle';
@@ -47,14 +47,13 @@ import { BarkLayer, BEHAVIOR_LABEL_DEPTH, BEHAVIOR_LABEL_SIZE, clampX, DEPTH, Fl
 import { RO_DIGIT_H } from '../numberFont';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
-import { BehaviorFx, phaseNotches } from '../battleBehaviorFx';
-import { button, panel, text, toast, tutorialHint } from '../ui';
+import { BehaviorFx } from '../battleBehaviorFx';
+import { button, ellipsize, panel, text, toast, tutorialHint, type ButtonView } from '../ui';
 import { audioSettings, setAudioSettings } from '../audio';
-import { battleSfxToast } from '../audioCore';
 import { hintDone, markHint } from '../hints';
 import { isUnlocked } from '../unlockBanner';
 import { ease, Scheduler } from '../perf';
-import { unitTint } from '../screen';
+import { navShift, topBand, unitTint } from '../screen';
 import { animatedFxKey, battleFxIds, skillFx, type SkillFx as AtlasRoles } from '../animatedFx';
 import { holdAnimatedFx } from '../assets';
 import { FIRE_BOLT_MS, FIRE_BOLT_STEP, SkillFx, STAR_TEX, type CastRig, type FxPoint, type HitStyle } from '../skillFx';
@@ -68,17 +67,23 @@ import { skillIcon, statusIcon } from '../skillIcons';
 import type { SkillDef, StatusDef } from '../../core';
 import { battleSound } from '../battleAudio';
 import { haptic } from '../haptics';
-import { ultBreaksCharge } from '../ultBadge';
+import { chargeBreakBadge, ultBreaksCharge } from '../ultBadge';
 import { firstTip, tipDone } from '../firstTips';
 import { huntHud, type HuntHud } from '../huntBattle';
-import { HeroPanel, PANEL_BOTTOM, PANEL_Y } from '../battlePanel';
-import { battleMode, chargeHint, nextTick, setBattleAuto, ultHint } from '../battleMode';
+import { HeroPanel, PANEL_TOP, shadeBand } from '../battlePanel';
+import { COLOR, COLOR_N, E, M, T } from '../theme';
+import { decorTween } from '../juice';
+import { battleMode, nextTick, setBattleAuto, ultHint } from '../battleMode';
 import { elementBadge } from '../battleElements';
 import { attackElement, defenseElement } from '../../core/elements';
 import { autoAdvance } from '../state';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
+/** Полоски под ногами: HP (центр y, толщина) и энергия врага под ней. */
+const HP_BAR_Y = 12;
+const HP_BAR_H = 10;
+const EN_BAR_Y = 25;
 /** Полоски и имя сдвинуты к «своему тылу» (A — влево, B — вправо), чтобы у пары в ближнем бою не наезжали. */
 const UI_SHIFT = 18;
 /** Цифры урона: не больше стольких в столбике над одним юнитом, шаг столбика, подъём. */
@@ -148,8 +153,6 @@ const STATUS_GAP = 3;
 /** Имена над юнитами (T2-15, T3-02): мелко, видны первые секунды боя, потом гаснут; касание юнита — показать снова. */
 /** NB-19: 20 → 26 (≈ 9 css px на 360×640 — не читалось). */
 const NAME_SIZE = 26;
-/** Подпись уровня врага слева от полоски HP. */
-const LEVEL_SIZE = 20;
 const NAME_SHOW_S = 3;
 const NAME_FADE_MS = 500;
 const NAME_TAP_MS = 1800;
@@ -201,9 +204,27 @@ const BOSS_HOLD_MS = 1100;
 const BOSS_OUT_MS = 400;
 /** Баннер босса — полосой через центр поля: кнопки скорости и «Пропустить» (y≈360) не закрывает. */
 const BOSS_BANNER_Y = 780;
-/** Полоска HP босса под верхней панелью (над кнопками). */
-const BOSS_BAR_Y = 282;
-const BOSS_BAR_W = 700;
+/**
+ * Верхняя полоса боя (итерация 5): одна строка ~110 ед. — слева таймер (обратный отсчёт) и мелко название этапа,
+ * справа значки звука, скорости, «Авто» и «Пропустить» без плитки. HUD_Y — её центр на поле 9:16; на вытянутом
+ * экране полоса поднимается к верху безопасной области (topBand).
+ */
+const HUD_Y = 72;
+/** Полоска HP босса — под верхней полосой: имя и уровень над ней, засечки фаз — ромбами на ней. */
+const BOSS_BAR_DY = 170;
+const BOSS_BAR_W = 760;
+const BOSS_BAR_H = 22;
+/** Полоса заряда босса под его полоской HP. */
+const BOSS_CHARGE_W = 320;
+/** Верхняя полоса: поле от края, высота значков, ширины кнопок и зазор между ними. */
+const TOP_MARGIN = 40;
+const TOP_BTN_H = 96;
+const SPEED_W = 104;
+const AUTO_W = 132;
+const SKIP_W = 228;
+const TOP_GAP = 12;
+/** Низ подписей под ногами (полоска, значки перезарядки) от точки ног — медальоны героев ниже с зазором. */
+const UNDER_FEET = 66;
 /** Куда можно сдвинуть фигуру при расталкивании (поле 1080×1920; как bounds в combat.json). */
 const SPREAD_BOUNDS = COMBAT.field.bounds ?? { minX: 70, maxX: COMBAT.field.width - 70, minY: 900, maxY: 1840 };
 /**
@@ -256,6 +277,9 @@ interface UnitView extends SpreadUnit, GaitState {
   nameText: Phaser.GameObjects.Text;
   /** Круг каста и аура (создаются при первом касте). */
   castRig?: CastRig;
+  /** Идёт заряд (каст с charge): молния у полосы каста; создаётся при первом заряде. */
+  charging: boolean;
+  castBolt?: Phaser.GameObjects.Image;
   /** Попадания текущего навыка по целям: время сцены (мс) каждого удара — цифры встают под свой снаряд. */
   hitPlan: Map<string, number[]>;
   /** Значки статусов над HP (id статуса → картинка). */
@@ -454,6 +478,19 @@ export class BattleScene extends Phaser.Scene {
   private ultHintNode: Phaser.GameObjects.GameObject | null = null;
   /** Указатель «Скорость ×2» (обучение), пока висит. */
   private speedHint: Phaser.GameObjects.Container | null = null;
+  /**
+   * Раскладка экрана (считается в build по видимой области): центр верхней полосы, полоски босса, сдвиг панели
+   * героев вниз и подъём поля. Поле ядра (ноги y 900…1840) поднято на dy — внизу медальоны героев (battlePanel.ts);
+   * на вытянутом экране панель опущена к низу безопасной области, и поле поднимается меньше (или не поднимается).
+   */
+  private hudY = HUD_Y;
+  private bossBarY = HUD_Y + BOSS_BAR_DY;
+  private panelShift = 0;
+  private dy = 0;
+  private speedBtn: ButtonView | null = null;
+  /** Полоска HP босса: засечки фаз (доля HP) и полоса заряда под ней. */
+  private bossPips: { pct: number; pip: Phaser.GameObjects.Rectangle }[] = [];
+  private bossCharge: { node: Phaser.GameObjects.Container; fill: Phaser.GameObjects.Rectangle } | null = null;
 
   constructor() {
     super('Battle');
@@ -533,7 +570,7 @@ export class BattleScene extends Phaser.Scene {
       // RR-16: та же шкала, что на экране этапа (редкость отряда, типичный враг = рекомендуемый уровень).
       const lv = stageLevelsFor(save, data.stageId, GAME);
       this.levels = { rarity: lv.rarity, bossFactor: recommendedFactor(data.stageId, GAME), shift: lv.shift };
-      title = `Этап ${stageNo(st, GAME)}. ${st.name}`;
+      title = `${stageNo(st, GAME)} · ${st.name}`;
       this.theme = themeOfBattle({ stageId: data.stageId });
     } else if (data.mode === 'tower') {
       // Забег Башни (docs/design/tower-roguelite.md): бой этажа с ранами и картами; ручная ульта — как в кампании.
@@ -658,44 +695,22 @@ export class BattleScene extends Phaser.Scene {
 
   private build(title: string): void {
     this.ready = true;
+    // Раскладка по видимой области: полоса — к верху безопасной области, медальоны — к низу, поле — между ними.
+    this.hudY = HUD_Y - topBand();
+    this.bossBarY = this.hudY + BOSS_BAR_DY;
+    this.panelShift = navShift();
+    this.dy = Math.max(0, SPREAD_BOUNDS.maxY + UNDER_FEET - (PANEL_TOP + this.panelShift));
+    this.bossPips = [];
+    this.bossCharge = null;
     // Фон по главе/ярусу (луг, топь, склеп) и частицы под юнитами (светлячки, туман, пыль).
     addThemeBackground(this, 'battle', this.theme);
     this.ambient = new Ambient(this, this.theme);
-    panel(this, GAME_W / 2, 130, 760, 200, 'ui_panel');
-    const titleText = text(this, GAME_W / 2, 85, title, title.length > 20 ? 42 : 52, '#ffe9a8', { fontStyle: 'bold', stroke: '#3a2412', strokeThickness: 8 });
-    // Длинное название («Этап 7-18. Смотритель часовой башни») — ужать в плашку 760, не залезая под значок динамика (BUG-157).
-    const TITLE_MAX = 700;
-    if (titleText.width > TITLE_MAX) titleText.setScale(TITLE_MAX / titleText.width);
-    this.timeText = text(this, GAME_W / 2, 150, '', 40, '#ffffff', { stroke: '#000000', strokeThickness: 5 });
-    // Таймер виден сразу, и во время баннера босса (T2-13).
-    this.showTime(0);
-    if (DEBUG) text(this, GAME_W / 2, 195, `seed ${this.result.seed}`, 22, '#e0cfb0');
-
-    const speedBtn = button(this, 180, 360, 280, 110, 'ui_btn_speed', `${playback.speed}x`, () => {
-      // Выбор скорости запоминается (localStorage) и действует в следующих боях.
-      setPlaybackSpeed(nextPlaybackSpeed());
-      if (playback.speed > 1) {
-        markHint('battle_speed');
-        this.speedHint?.destroy();
-        this.speedHint = null;
-      }
-      speedBtn.setLabel(`${playback.speed}x`);
-      for (const v of this.views.values()) v.sprite.anims.timeScale = playback.speed;
-      this.sfx.setSpeed(playback.speed);
-      this.tweens.timeScale = playback.speed;
-      this.time.timeScale = playback.speed;
-    });
-    button(this, 900, 360, 280, 110, 'ui_btn_skip', 'Пропустить', () => this.skip());
-    // Ульта вручную / «Авто» (docs/design/battle-decisions.md §1): между скоростью и «Пропустить».
-    if (this.rerun) {
-      this.modeBtn = button(this, 540, 360, 240, 110, 'ui_btn_speed', this.modeLabel(), () => this.toggleAuto(), 34);
-      this.modeBtn.container.setName('ultModeBtn');
-    }
-    this.battleSoundButton();
+    this.topBar(title);
     if (this.towerRun) this.towerCards();
     // Обучение (hints.ts): скорость ×2 открылась (этап 1-2) — указатель на кнопку скорости в первом бою на 1x.
-    if (this.stage && playback.speed === 1 && isUnlocked('speed_x2') && !hintDone('battle_speed')) {
-      this.speedHint = tutorialHint(this, 'battle_speed', 180, 360, 'below', { w: 280, h: 110 });
+    if (this.stage && this.speedBtn && playback.speed === 1 && isUnlocked('speed_x2') && !hintDone('battle_speed')) {
+      const c = this.speedBtn.container;
+      this.speedHint = tutorialHint(this, 'battle_speed', c.x, c.y, 'below', { w: SPEED_W, h: TOP_BTN_H });
     }
     // Вся анимация (твины, задержки) идёт в темпе выбранной скорости.
     this.tweens.timeScale = playback.speed;
@@ -705,7 +720,8 @@ export class BattleScene extends Phaser.Scene {
     this.floats = new FloatLayer(this);
     this.sfx = new SkillFx(this);
     this.sfx.setSpeed(playback.speed);
-    this.barks = new BarkLayer(this, PANEL_BOTTOM);
+    // Реплики боссов — не выше полоски босса (и верхней полосы).
+    this.barks = new BarkLayer(this, this.bossBarY + 40);
     this.barked.clear();
     this.behaviorFx = new BehaviorFx(this);
     this.tauntIds.clear();
@@ -716,6 +732,8 @@ export class BattleScene extends Phaser.Scene {
       if (s) this.ultSkill.set(u.uid, s);
     }
     for (const u of this.result.units) this.buildUnit(u);
+    const fromSave = !!(this.stage || this.towerRun || this.hunt || this.bond);
+    const rarityOf = (unitId: string): CardRarity | undefined => (fromSave ? session.save.heroes.find((h) => h.id === unitId)?.rarity : undefined);
     this.heroPanel = new HeroPanel(
       this,
       this.result.units
@@ -723,12 +741,20 @@ export class BattleScene extends Phaser.Scene {
         .sort((a, b) => a.slot - b.slot)
         .map((u) => {
           const def = this.defs[u.unitId];
-          return { uid: u.uid, name: def?.name ?? u.unitId, sprite: def?.visual.sprite ?? u.unitId, hasUlt: !!def?.skills.ult, ult: this.ultSkill.has(u.uid), breaks: ultBreaksCharge(this.ultSkill.get(u.uid)?.id) };
+          return {
+            uid: u.uid,
+            name: def?.name ?? u.unitId,
+            sprite: def?.visual.sprite ?? u.unitId,
+            hasUlt: !!def?.skills.ult,
+            ult: this.ultSkill.has(u.uid),
+            breaks: ultBreaksCharge(this.ultSkill.get(u.uid)?.id),
+            rarity: rarityOf(u.unitId),
+          };
         }),
-      // RR-05: панель — интерфейс, выше фигур поля (их глубина — y ног, до ~1850): высокий враг заднего ряда не ложится
-      // на карточки; затемнение ульты (2900) и эффекты — выше панели.
+      // RR-05: панель — интерфейс, выше фигур поля (их глубина — y ног); затемнение ульты (2900) и эффекты — выше панели.
       PANEL_DEPTH,
       (uid) => this.tapUlt(uid),
+      this.panelShift,
     );
     for (const v of this.viewList) this.redraw(v);
     if (this.stage && getStage(GAME, this.stage.stageId).boss) this.bossIntro();
@@ -746,40 +772,101 @@ export class BattleScene extends Phaser.Scene {
   }
 
   /**
-   * Значок динамика в правом верхнем углу (справа от панели с названием этапа, не над «1x» / «Пропустить»): звуки боя
-   * вкл/выкл — та же настройка, что строка «Звуки боя» в Настройках (audioSettings.battleSfx, запоминается). Музыку боя
-   * и интерфейс не трогает. Касание 130×130 (≈47 CSS px на 390 px ширины).
+   * Верхняя полоса (итерация 5, §5 «Бой»): слева — обратный отсчёт и мелко название этапа, справа — значки звука,
+   * скорости и «Авто» и «Пропустить» без плитки. Подписи «1x»/«2x», «Авто», «Пропустить» — e2e жмёт по тексту.
    */
-  private battleSoundButton(): void {
+  private topBar(title: string): void {
+    const y = this.hudY;
+    // Верх экрана темнеет к полосе: цифры и значки читаются на любом фоне (небо, листва, палуба).
+    shadeBand(this, y - 110, y + 130, PANEL_DEPTH - 1, true);
+    this.add.rectangle(GAME_W / 2, y - 110, GAME_W + 2 * BLEED_X, 2 * BLEED_Y, 0x0a0907, 0.85).setOrigin(0.5, 1).setDepth(PANEL_DEPTH - 1);
+    this.timeText = text(this, TOP_MARGIN, y - 18, '', T.heading, COLOR.textPrimary, { fontStyle: 'bold', stroke: '#000000a0', strokeThickness: 3 }).setOrigin(0, 0.5);
+    this.timeText.setDepth(PANEL_DEPTH);
+    // Таймер виден сразу, и во время баннера босса (T2-13).
+    this.showTime(0);
+    const xSkip = GAME_W - TOP_MARGIN - SKIP_W / 2;
+    const xAuto = xSkip - SKIP_W / 2 - TOP_GAP - AUTO_W / 2;
+    const xSpeed = (this.rerun ? xAuto - AUTO_W / 2 : xSkip - SKIP_W / 2) - TOP_GAP - SPEED_W / 2;
+    const xSound = xSpeed - SPEED_W / 2 - TOP_GAP - TOP_BTN_H / 2;
+    const name = text(this, TOP_MARGIN, y + 26, title, T.caption, COLOR.textSecondary, { stroke: '#000000a0', strokeThickness: 3 }).setOrigin(0, 0.5).setDepth(PANEL_DEPTH);
+    ellipsize(name, xSound - TOP_BTN_H / 2 - TOP_GAP - TOP_MARGIN);
+    if (DEBUG) text(this, TOP_MARGIN, y + 60, `seed ${this.result.seed}`, 22, '#e0cfb0').setOrigin(0, 0.5).setDepth(PANEL_DEPTH);
+
+    const speedBtn = button(this, xSpeed, y, SPEED_W, TOP_BTN_H, '', `${playback.speed}x`, () => {
+      // Выбор скорости запоминается (localStorage) и действует в следующих боях.
+      setPlaybackSpeed(nextPlaybackSpeed());
+      if (playback.speed > 1) {
+        markHint('battle_speed');
+        this.speedHint?.destroy();
+        this.speedHint = null;
+      }
+      speedBtn.setLabel(`${playback.speed}x`);
+      this.paintSpeed();
+      for (const v of this.views.values()) v.sprite.anims.timeScale = playback.speed;
+      this.sfx.setSpeed(playback.speed);
+      this.tweens.timeScale = playback.speed;
+      this.time.timeScale = playback.speed;
+    }, T.body, { variant: 'icon', repeat: true });
+    this.speedBtn = speedBtn;
+    this.paintSpeed();
+    speedBtn.container.setDepth(PANEL_DEPTH).setName('speedBtn');
+    const skip = button(this, xSkip, y, SKIP_W, TOP_BTN_H, '', 'Пропустить', () => this.skip(), T.body, { variant: 'ghost' });
+    skip.container.setDepth(PANEL_DEPTH).setName('skipBtn');
+    // Ульты сами / касанием (docs/design/battle-decisions.md §1): «Авто» горит золотом, выключено — тусклое.
+    if (this.rerun) {
+      this.modeBtn = button(this, xAuto, y, AUTO_W, TOP_BTN_H, '', 'Авто', () => this.toggleAuto(), T.caption, { variant: 'icon', repeat: true });
+      this.modeBtn.container.setName('ultModeBtn').setDepth(PANEL_DEPTH);
+      this.paintMode();
+    }
+    this.battleSoundButton(xSound, y);
+  }
+
+  /** Скорость выше 1x — подпись золотом (включённый режим), 1x — обычная. */
+  private paintSpeed(): void {
+    this.speedBtn?.label.setColor(playback.speed > 1 ? COLOR.gold : COLOR.textPrimary);
+  }
+
+  /** «Авто» включено — золотая подпись и плитка; выключено (ульты касанием) — тусклые. */
+  private paintMode(): void {
+    const b = this.modeBtn;
+    if (!b) return;
+    b.label.setColor(this.manual ? COLOR.textTertiary : COLOR.gold);
+    (b.container.list[0] as Phaser.GameObjects.NineSlice).setAlpha(this.manual ? 0.55 : 1);
+  }
+
+  /**
+   * Значок динамика в верхней полосе: звуки боя вкл/выкл — та же настройка, что строка «Звуки боя» в Настройках
+   * (audioSettings.battleSfx, запоминается). Музыку боя и интерфейс не трогает. Состояние видно по значку — без тоста.
+   */
+  private battleSoundButton(x: number, y: number): void {
     const icon = this.add.graphics();
     const draw = () => {
       const on = audioSettings.battleSfx;
       icon.clear();
-      icon.fillStyle(0xf3e6c4, on ? 1 : 0.6);
+      icon.fillStyle(COLOR_N.textPrimary, on ? 1 : 0.6);
       // Динамик: корпус и раструб.
-      icon.fillRect(-34, -12, 16, 24);
-      icon.fillTriangle(-18, -12, 4, -30, 4, 30);
-      icon.fillTriangle(-18, -12, -18, 12, 4, 30);
-      icon.lineStyle(6, on ? 0xf3e6c4 : 0xe0564a, 1);
+      icon.fillRect(-26, -9, 12, 18);
+      icon.fillTriangle(-14, -9, 3, -23, 3, 23);
+      icon.fillTriangle(-14, -9, -14, 9, 3, 23);
+      icon.lineStyle(5, on ? COLOR_N.textPrimary : COLOR_N.negative, 1);
       if (on) {
         icon.beginPath();
-        icon.arc(8, 0, 14, -0.9, 0.9);
+        icon.arc(6, 0, 11, -0.9, 0.9);
         icon.strokePath();
         icon.beginPath();
-        icon.arc(8, 0, 28, -0.9, 0.9);
+        icon.arc(6, 0, 21, -0.9, 0.9);
         icon.strokePath();
       } else {
-        icon.lineBetween(14, -14, 38, 14);
-        icon.lineBetween(14, 14, 38, -14);
+        icon.lineBetween(11, -11, 29, 11);
+        icon.lineBetween(11, 11, 29, -11);
       }
     };
-    const btn = button(this, GAME_W - 80, 130, 130, 130, 'ui_btn_speed', '', () => {
+    const btn = button(this, x, y, TOP_BTN_H, TOP_BTN_H, '', '', () => {
       setAudioSettings({ battleSfx: !audioSettings.battleSfx });
       draw();
-      toast(this, battleSfxToast(audioSettings), undefined, 1600);
-    }, undefined, { repeat: true });
+    }, undefined, { repeat: true, variant: 'icon' });
     btn.container.add(icon);
-    btn.container.setName('battleSound');
+    btn.container.setName('battleSound').setDepth(PANEL_DEPTH);
     draw();
   }
 
@@ -796,14 +883,41 @@ export class BattleScene extends Phaser.Scene {
     const level = this.enemyLevel(this.defs[boss.unitId]);
     const levelLabel = (lv: number) => (huntRank !== undefined ? `уровень ${huntRank + 1}` : levelLabelOf(lv));
 
+    // Полоска босса под верхней полосой: имя и уровень над ней, засечки фаз — ромбами на ней, заряд — под ней.
+    const y = this.bossBarY;
     const barX = GAME_W / 2 - BOSS_BAR_W / 2;
-    this.add.image(GAME_W / 2, BOSS_BAR_Y, 'ui_bar_back').setDisplaySize(BOSS_BAR_W + 12, 46);
-    const fill = this.add.image(barX, BOSS_BAR_Y, 'ui_bar_hp_enemy').setOrigin(0, 0.5).setDisplaySize(BOSS_BAR_W, 34);
-    text(this, GAME_W / 2, BOSS_BAR_Y, level !== null || huntRank !== undefined ? `${name} · ${levelLabel(level ?? 0)}` : name, 32, SKIN.goldLight, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 7 }).setDepth(2);
+    const parts: Phaser.GameObjects.GameObject[] = [];
+    parts.push(this.add.rectangle(GAME_W / 2, y, BOSS_BAR_W + 8, BOSS_BAR_H + 8, 0x000000, 0.7).setStrokeStyle(2, COLOR_N.border, 1));
+    const fill = this.add.image(barX, y, 'ui_bar_hp_enemy').setOrigin(0, 0.5).setDisplaySize(BOSS_BAR_W, BOSS_BAR_H);
+    parts.push(fill);
+    const nameText = text(this, GAME_W / 2, y - BOSS_BAR_H / 2 - 30, name, T.caption, COLOR.title, { fontStyle: 'bold', stroke: '#000000a0', strokeThickness: 3 });
+    parts.push(nameText);
+    if (level !== null || huntRank !== undefined) {
+      const lv = text(this, 0, nameText.y, levelLabel(level ?? 0), T.caption, level !== null && huntRank === undefined ? enemyLevelColor(level, session.save) : COLOR.textSecondary, { fontStyle: 'bold', stroke: '#000000a0', strokeThickness: 3 }).setOrigin(0, 0.5);
+      const gap = 16;
+      const total = nameText.width + gap + lv.width;
+      nameText.setX(GAME_W / 2 - total / 2 + nameText.width / 2);
+      lv.setX(GAME_W / 2 - total / 2 + nameText.width + gap);
+      parts.push(lv);
+    }
     this.bossBar = { uid: boss.uid, fill };
-    // Засечки фаз (50%, 25%…) видны с начала боя: игрок знает, когда босс сменит поведение.
-    const pcts = (this.defs[boss.unitId].phases ?? []).flatMap((p) => (p.atHpPct !== undefined ? [p.atHpPct] : []));
-    if (pcts.length) phaseNotches(this, barX, BOSS_BAR_W, BOSS_BAR_Y, pcts);
+    // Засечки фаз (50%, 25%…) видны с начала боя: игрок знает, когда босс сменит поведение; пройденная — гаснет.
+    for (const p of this.defs[boss.unitId].phases ?? []) {
+      if (p.atHpPct === undefined) continue;
+      const pip = this.add.rectangle(barX + BOSS_BAR_W * p.atHpPct, y, 18, 18, COLOR_N.gold).setAngle(45).setStrokeStyle(3, 0x1a0f04, 1);
+      this.bossPips.push({ pct: p.atHpPct, pip });
+      parts.push(pip);
+    }
+    // Заряд босса: молния и красная полоса под полоской HP (вместо абзаца-подсказки).
+    const cy = y + BOSS_BAR_H / 2 + 26;
+    const cw = BOSS_CHARGE_W;
+    const chBack = this.add.rectangle(GAME_W / 2 + 22, cy, cw + 6, 14, 0x000000, 0.7);
+    const chFill = this.add.rectangle(GAME_W / 2 + 22 - cw / 2, cy, 0, 8, 0xff4a2a).setOrigin(0, 0.5);
+    const chBolt = chargeBreakBadge(this, GAME_W / 2 + 22 - cw / 2 - 30, cy, 40);
+    const chNode = this.add.container(0, 0, [chBack, chFill, chBolt]).setVisible(false).setName('bossCharge');
+    this.bossCharge = { node: chNode, fill: chFill };
+    parts.push(chNode);
+    for (const o of parts) (o as Phaser.GameObjects.Components.Depth & Phaser.GameObjects.GameObject).setDepth(PANEL_DEPTH);
     const v = this.views.get(boss.uid);
     if (v) this.redraw(v);
 
@@ -863,14 +977,15 @@ export class BattleScene extends Phaser.Scene {
     const ox = snap.side === 'A' ? -UI_SHIFT : UI_SHIFT;
     const bar = (y: number, texId: string, h: number) => this.add.image(ox - BAR_W / 2, y, texId).setOrigin(0, 0.5).setDisplaySize(BAR_W, h);
     const hpTex = snap.side === 'A' ? 'ui_bar_hp_ally' : 'ui_bar_hp_enemy';
-    const barBack = this.add.image(ox, 14, 'ui_bar_back').setDisplaySize(BAR_W + 6, 20);
-    const trailBar = bar(14, hpTex, 14).setTintFill(0xffffff);
-    const hpBar = bar(14, hpTex, 14);
-    const shieldBar = bar(8, 'ui_bar_shield', 5).setVisible(false);
-    const energyBack = this.add.image(ox, 32, 'ui_bar_back').setDisplaySize(BAR_W + 6, 12);
-    const energyBar = bar(32, 'ui_bar_energy', 8);
-    // Энергия нужна только тем, у кого есть ульта (монстры, боссы); герои применяют навыки по перезарядке.
-    const hasUlt = !!def.skills.ult;
+    // Итерация 5: полоски тоньше (HP 10, энергия 5), цвет — по стороне (свои зелёные, враги красные).
+    const barBack = this.add.image(ox, HP_BAR_Y, 'ui_bar_back').setDisplaySize(BAR_W + 4, HP_BAR_H + 4);
+    const trailBar = bar(HP_BAR_Y, hpTex, HP_BAR_H).setTintFill(0xffffff);
+    const hpBar = bar(HP_BAR_Y, hpTex, HP_BAR_H);
+    const shieldBar = bar(HP_BAR_Y - HP_BAR_H / 2 + 1, 'ui_bar_shield', 4).setVisible(false);
+    const energyBack = this.add.image(ox, EN_BAR_Y, 'ui_bar_back').setDisplaySize(BAR_W + 4, 9);
+    const energyBar = bar(EN_BAR_Y, 'ui_bar_energy', 5);
+    // Энергия над фигурой — только у врагов с ультой (монстры, боссы); готовность ульт героев — кольцом на медальоне внизу.
+    const hasUlt = !!def.skills.ult && snap.side === 'B';
     energyBack.setVisible(hasUlt);
     energyBar.setVisible(hasUlt);
     // Подпись — сразу над макушкой (высота фигуры в стойке из bbox листа), со сдвигом к своему тылу.
@@ -885,23 +1000,19 @@ export class BattleScene extends Phaser.Scene {
     // сверху, и подпись читалась как чужая.
     // У героев под полоской — значки перезарядки навыков: имя ниже них.
     const cdRow = snap.side === 'A' && def.skills.actives.length > 0 ? CD_ICON + 2 : 0;
-    const nameUnder = (hasUlt ? 38 : 24) + 4 + cdRow + NAME_SIZE / 2;
+    const belowBars = hasUlt ? EN_BAR_Y + 5 : HP_BAR_Y + HP_BAR_H / 2 + 2;
+    const nameUnder = belowBars + 4 + cdRow + NAME_SIZE / 2;
     const name = text(this, ox, nameUnder, def.name, NAME_SIZE, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 });
+    // §5 «Бой»: имена своих не пишем (их видно по медальонам внизу), касание фигуры — показать на миг.
+    if (snap.side === 'A') name.setAlpha(0);
     const bars: Phaser.GameObjects.Components.Visible[] = [barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
-    const parts: Phaser.GameObjects.GameObject[] = [shadow, sprite, barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
-    // Уровень врага (как в AFK) — слева от полоски HP, цветом против среднего уровня отряда; виден весь бой.
-    const level = snap.side === 'B' ? this.enemyLevel(def) : null;
-    if (level !== null) {
-      const lv = text(this, ox - BAR_W / 2 - 6, 14, levelLabel(level), LEVEL_SIZE, enemyLevelColor(level, session.save), { fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 })
-        .setOrigin(1, 0.5)
-        .setName('enemyLevel');
-      bars.push(lv);
-      parts.push(lv);
-    }
+    const parts: Phaser.GameObjects.GameObject[] = [shadow, sprite, barBack, trailBar, hpBar, shieldBar, energyBack, energyBar, name];
+    // Уровни рядовых врагов не пишем: на шкале отряда слабые упирались в «ур. 1» рядом с «ур. 16» — путало.
+    // Уровень босса — в его полоске наверху (bossIntro).
     // Стихия (docs/design/battle-decisions.md §3): у врага — защита, у героя — атака; нейтраль без значка.
     const el = snap.side === 'B' ? defenseElement(def) : attackElement(def, CONTENT.skills);
     if (el !== 'neutral') {
-      const badge = elementBadge(this, ox + BAR_W / 2 + 18, 14, el, 26);
+      const badge = elementBadge(this, ox + BAR_W / 2 + 18, HP_BAR_Y, el, 26);
       bars.push(badge);
       parts.push(badge);
     }
@@ -915,7 +1026,7 @@ export class BattleScene extends Phaser.Scene {
         cdSkills.push({ skill, readyAt: 0, cd: 0, order });
       });
       // Сразу под полоской HP (или энергии) с зазором 4 — в ряд от левого края полоски.
-      const cy = (hasUlt ? 38 : 24) + 4 + CD_ICON / 2;
+      const cy = belowBars + 4 + CD_ICON / 2;
       for (let i = 0; i < Math.min(CD_SLOTS, cdSkills.length); i++) {
         const x = ox - BAR_W / 2 + CD_ICON / 2 + i * (CD_ICON + CD_GAP);
         const icon = this.add.image(x, cy, '__DEFAULT').setDisplaySize(CD_ICON, CD_ICON);
@@ -925,7 +1036,7 @@ export class BattleScene extends Phaser.Scene {
         parts.push(icon, sweep);
       }
     }
-    const node = this.add.container(fieldX(snap.x), snap.y, [...parts, castBack, castBar, castLabel]).setDepth(snap.y);
+    const node = this.add.container(fieldX(snap.x), snap.y - this.dy, [...parts, castBack, castBar, castLabel]).setDepth(snap.y - this.dy);
 
     const v: UnitView = {
       snap,
@@ -951,11 +1062,12 @@ export class BattleScene extends Phaser.Scene {
       castBack,
       cast: null,
       castLabel,
+      charging: false,
       nameText: name,
       hitPlan: new Map(),
       statusIcons: new Map(),
       // Над подложкой полоски HP (её верх — y 4) с зазором 2.
-      statusY: 4 - 2 - STATUS_ICON / 2,
+      statusY: HP_BAR_Y - HP_BAR_H / 2 - 2 - 2 - STATUS_ICON / 2,
       statusX0: ox - BAR_W / 2 + STATUS_ICON / 2,
       cdSkills,
       cdIcons,
@@ -983,7 +1095,7 @@ export class BattleScene extends Phaser.Scene {
       spot: false,
       moveKind: null,
       lastX: fieldX(snap.x),
-      lastY: snap.y,
+      lastY: snap.y - this.dy,
       vx: 0,
       vy: 0,
       walking: false,
@@ -1095,10 +1207,6 @@ export class BattleScene extends Phaser.Scene {
 
   // ---------- ульта вручную (docs/design/battle-decisions.md §1) ----------
 
-  private modeLabel(): string {
-    return this.manual ? 'Авто: нет' : 'Авто: да';
-  }
-
   /** Энергия бойца сейчас: последняя из лога + рост от времени (герои: UnitDef.energy.perSecond) до часов показа. */
   private shownEnergy(v: UnitView): number {
     const rate = v.def.energy?.perSecond ?? 0;
@@ -1150,34 +1258,31 @@ export class BattleScene extends Phaser.Scene {
     this.inputs.push({ t: nextTick(this.clock, COMBAT.tickSeconds), auto: !this.manual });
     this.applyInputs();
     if (!this.manual) for (const uid of this.ultSkill.keys()) this.heroPanel?.setReady(uid, false);
-    this.modeBtn?.setLabel(this.modeLabel());
-    toast(this, this.manual ? 'Ульты — касанием портрета героя' : 'Ульты героев — сами', '#f0cf8a', 2200, 'battle');
+    this.paintMode();
+    // Режим виден по кнопке; объяснение — только пока игрок ни разу не применял ульту касанием.
+    if (this.manual && !ultHint.done) toast(this, 'Ульты — касанием портрета', COLOR.title, 1800, 'battle');
   }
 
-  /**
-   * BUG-183: подсказка заряда — честно, кто собьёт: только ульты с молнией (оглушение / срыв каста, ultBadge.ts) у живых героев.
-   */
-  private chargeToast(boss: string): string {
-    const names = [...this.views.values()]
-      .filter((v) => v.snap.side === 'A' && v.alive && ultBreaksCharge(this.ultSkill.get(v.snap.uid)?.id))
-      .map((v) => v.def.name);
-    const uniq = [...new Set(names)];
-    if (!uniq.length) return `${boss} заряжает удар! Сбить нечем — в отряде нет ульты с молнией`;
-    return `${boss} заряжает удар — собьёт ульта с молнией: ${uniq.join(', ')}`;
+  /** Молния у полосы каста бойца: идёт заряд, его сбивает ульта с молнией (ultBadge.ts). */
+  private castBolt(v: UnitView): Phaser.GameObjects.Image {
+    const bolt = chargeBreakBadge(this, v.castBar.x - 22, v.castBar.y, 36);
+    v.node.add(bolt);
+    return bolt;
   }
 
   /** Первая готовая ульта — подсказка под карточкой героя (пока игрок не коснётся ни разу). */
   private showUltHint(uid: string): void {
-    if (this.ultHintNode || ultHint.done || this.skipping) return;
+    if (this.ultHintNode || ultHint.done || this.skipping || !this.manual) return;
     const card = this.heroPanel?.cardAt(uid);
     if (!card) return;
     // BUG-191: две подсказки обучения разом не показываем — указатель «Скорость ×2» уступает ульте (вернётся в другом бою).
     this.speedHint?.destroy();
     this.speedHint = null;
-    const t = text(this, card.x, PANEL_Y + card.h / 2 + 44, '▲ Коснитесь — ульта!', 34, '#ffe070', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 7 }).setDepth(PANEL_DEPTH + 1);
-    if (t.x - t.width / 2 < 20) t.setX(20 + t.width / 2);
-    if (t.x + t.width / 2 > GAME_W - 20) t.setX(GAME_W - 20 - t.width / 2);
-    this.tweens.add({ targets: t, y: t.y + 10, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    // Над медальоном (панель — у нижнего края), стрелкой вниз; один раз, пока игрок не коснётся.
+    const t = text(this, card.x, card.y - card.h / 2 - 34, '▼ Коснитесь', T.caption, COLOR.gold, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setDepth(PANEL_DEPTH + 1);
+    if (t.x - t.width / 2 < TOP_MARGIN) t.setX(TOP_MARGIN + t.width / 2);
+    if (t.x + t.width / 2 > GAME_W - TOP_MARGIN) t.setX(GAME_W - TOP_MARGIN - t.width / 2);
+    decorTween(this, { targets: t, y: t.y - 10, duration: M.slow, yoyo: true, repeat: -1, ease: E.inOut });
     this.ultHintNode = t;
     this.later.after(9000, () => {
       if (this.ultHintNode === t) {
@@ -1191,7 +1296,11 @@ export class BattleScene extends Phaser.Scene {
     const sec = Math.floor(s);
     if (sec === this.shownSec) return;
     this.shownSec = sec;
-    this.timeText.setText(`${fmt(sec)} / ${fmt(this.hunt ? GAME.hunt.timeLimitSeconds : COMBAT.timeLimitSeconds)}`);
+    // Обратный отсчёт (как в AFK Arena): последние 15 с — красным.
+    const left = Math.max(0, (this.hunt ? GAME.hunt.timeLimitSeconds : COMBAT.timeLimitSeconds) - sec);
+    this.timeText.setText(fmt(left));
+    const color = left <= 15 ? COLOR.negative : COLOR.textPrimary;
+    if (this.timeText.style.color !== color) this.timeText.setColor(color);
   }
 
   /**
@@ -1261,7 +1370,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private placeUnit(v: UnitView): void {
-    v.node.setPosition(fieldX(v.pos.x + v.offX), v.pos.y + v.offY);
+    v.node.setPosition(fieldX(v.pos.x + v.offX), v.pos.y + v.offY - this.dy);
     if (!v.shownDead && !v.spot) v.node.setDepth(v.node.y);
   }
 
@@ -1272,6 +1381,7 @@ export class BattleScene extends Phaser.Scene {
       const p = Phaser.Math.Clamp((this.clock - v.cast.start) / v.cast.dur, 0, 1);
       cropBar(v.castBar, p);
       v.castRig?.step(dt, p);
+      if (v.charging && this.bossCharge && this.bossBar?.uid === v.snap.uid) this.bossCharge.fill.width = BOSS_CHARGE_W * p;
     }
     for (const c of v.cdIcons) this.drawCooldown(c);
     if (v.tintLeft > 0) {
@@ -1513,9 +1623,8 @@ export class BattleScene extends Phaser.Scene {
         const skill = CONTENT.skills[e.skill];
         // Bash has no castTime in this game: its RO beginCast cue belongs to the attack start.
         if (!hadCast) this.castCue(v, e.skill);
-        // Активный навык — его название над головой (обычная атака без подписи). У навыка с кастом название
-        // уже висело над полосой каста — второй раз не пишем.
-        if (e.name && !skill?.castTime) this.headline(v, e.name, v.snap.side === 'A' ? '#ffe28a' : '#ffb0a0');
+        // §5 «Бой» (P0 «каша подписей»): названия обычных и активных навыков над головами не пишем — навык виден по
+        // эффекту; название — только у ульты (баннер) и у каста босса/заряда (над полосой каста).
         const target = this.views.get(e.targets[0]);
         // Бьёт — лицом к цели (свою цель — лечение, бафф — не разворачивает).
         if (target && target.side !== v.side) {
@@ -1597,28 +1706,31 @@ export class BattleScene extends Phaser.Scene {
         const col = ELEMENT_COLORS[sk ? lookOf(sk).element : 'neutral'];
         v.castBack.setVisible(true);
         v.castBar.setVisible(true).setTintFill(col.main);
-        v.castLabel.setText(e.name).setColor(col.light).setVisible(true);
+        // Название каста — только у босса и у заряда (§5 «Бой»: у обычных навыков подписи нет, хватает полосы).
+        const named = !!e.charge || v.def.kind === 'boss';
+        v.castLabel.setText(e.name).setColor(col.light).setVisible(named);
         v.nameText.setVisible(false);
         cropBar(v.castBar, 0);
-        // Заряд босса: красная полоса и «Заряд!»; в ручном режиме первые разы — подсказка, как ответить.
+        // Заряд босса: красная полоса с молнией над бойцом (и под полоской босса); у героев, чья ульта собьёт заряд,
+        // пульсируют молнии на медальонах — кто ответит, видно без текста.
         if (e.charge) {
           v.castBar.setTintFill(0xff4a2a);
           v.castLabel.setColor('#ffb09a');
+          v.charging = true;
+          (v.castBolt ??= this.castBolt(v)).setVisible(true);
+          if (this.bossBar?.uid === v.snap.uid) this.bossCharge?.node.setVisible(true);
+          this.heroPanel?.alertBreakers(true);
           if (animate && !this.skipping) {
             this.behaviorLabel(v, 'Заряд!', '#ff6a4a');
-            // Первый заряд босса — реплика Гаррета (firstTips.ts, один раз); тост-подсказка — в следующие разы.
+            // Первый заряд босса — реплика Гаррета (firstTips.ts, один раз).
             if (!tipDone('tip_boss_charge')) {
               firstTip(this, 'tip_boss_charge', CHARGE_TIP_Y, PANEL_DEPTH + 5);
-              chargeHint.mark();
-            } else if (this.manual && chargeHint.count < 3) {
-              chargeHint.mark();
-              toast(this, this.chargeToast(v.def.name), '#ffb09a', 3000, 'battle');
             }
           }
         }
         if (!animate) return;
         // Маг бьёт по кругу: круг на земле там, куда упадёт удар, растёт вместе с полосой каста.
-        if (e.at && e.radius) this.behaviorFx?.castArea(v, fieldX(e.at[0]), e.at[1], e.radius * FIELD_SQUEEZE, col.main, e.duration * 1000);
+        if (e.at && e.radius) this.behaviorFx?.castArea(v, fieldX(e.at[0]), e.at[1] - this.dy, e.radius * FIELD_SQUEEZE, col.main, e.duration * 1000);
         // Круг под ногами, аура и анимация каста — пока идёт каст.
         (v.castRig ??= this.sfx.castRig(v.node, v.look.height)).show(col.main);
         this.castCue(v, e.skill);
@@ -1864,7 +1976,7 @@ export class BattleScene extends Phaser.Scene {
       case 'enrage':
         if (animate && !this.skipping) {
           this.sfx.flash(0xff6040, 0.18, 260);
-          this.floats.headline(GAME_W / 2, BOSS_BAR_Y + 70, 'Ярость! Урон растёт, лечение слабеет', 34, '#ff8a6a', DEPTH.numbers, 'enrage');
+          this.floats.headline(GAME_W / 2, this.bossBarY + 90, 'Ярость!', T.heading, '#ff8a6a', DEPTH.numbers, 'enrage');
         }
         return;
       case 'end':
@@ -1916,7 +2028,7 @@ export class BattleScene extends Phaser.Scene {
     this.sfx.shake(0.008, 260);
     this.sfx.glow(v.node.x, bodyY(v), tint, 0.6, 2.4, 520);
     this.sfx.rise(v.node.x, v.node.y, tint, 14, 70);
-    if (this.bossBar?.uid === v.snap.uid) this.floats.headline(GAME_W / 2, BOSS_BAR_Y + 64, e.title, 38, rage ? '#ff8a6a' : '#ffe28a', DEPTH.banner, `phase:${v.snap.uid}`);
+    if (this.bossBar?.uid === v.snap.uid) this.floats.headline(GAME_W / 2, this.bossBarY + 90, e.title, T.heading, rage ? '#ff8a6a' : '#ffe28a', DEPTH.banner, `phase:${v.snap.uid}`);
     else this.headline(v, e.title, rage ? '#ff8a6a' : '#ffe28a');
   }
 
@@ -1929,7 +2041,7 @@ export class BattleScene extends Phaser.Scene {
     const v = this.views.get(e.unit)!;
     if (this.namesHidden) v.nameText.setAlpha(0);
     if (!animate || this.skipping) return;
-    this.sfx.puffCloud(fieldX(e.x), e.y - 40, 0xcfc6b8, 10, 90, 620, 0.9);
+    this.sfx.puffCloud(fieldX(e.x), e.y - this.dy - 40, 0xcfc6b8, 10, 90, 620, 0.9);
     v.node.setAlpha(0);
     this.tweens.add({ targets: v.node, alpha: 1, duration: 360, ease: 'Sine.easeOut' });
   }
@@ -1991,6 +2103,12 @@ export class BattleScene extends Phaser.Scene {
     v.castLabel.setVisible(false);
     v.nameText.setVisible(v.alive);
     v.castRig?.hide();
+    if (v.charging) {
+      v.charging = false;
+      v.castBolt?.setVisible(false);
+      if (this.bossBar?.uid === v.snap.uid) this.bossCharge?.node.setVisible(false);
+      if (!this.viewList.some((o) => o.charging)) this.heroPanel?.alertBreakers(false);
+    }
     if (v.alive && this.time.now >= v.busyUntil) this.loop(v, this.stance(v));
   }
 
@@ -2224,7 +2342,7 @@ export class BattleScene extends Phaser.Scene {
    */
   private chargeBroken(v: UnitView): void {
     const x = clampX(v.node.x + v.labelX, 360);
-    const y = Math.max(PANEL_BOTTOM + 70, v.node.y - v.look.height * 0.72 - 60);
+    const y = Math.max(this.bossBarY + 110, v.node.y - v.look.height * 0.72 - 60);
     const label = text(this, x, y, 'Сбито!', CHARGE_BREAK_SIZE, '#ffe070', { fontStyle: 'bold', stroke: '#3a1a00', strokeThickness: 12 })
       .setDepth(BEHAVIOR_LABEL_DEPTH + 1)
       .setName('chargeBroken');
