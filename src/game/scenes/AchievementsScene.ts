@@ -1,29 +1,46 @@
 import Phaser from 'phaser';
-import { achievementStatus, actClaimAchievement, actClaimAllAchievements, type AchievementView } from '../../core';
+import { achievementStatus, actClaimAchievement, actClaimAllAchievements, type AchievementCounter, type AchievementView } from '../../core';
 import { GAME } from '../content';
-import { claimableAchievements, describeEvents, formatNumber, metaRewardsText, sortAchievements } from '../flow';
+import { describeEvents } from '../flow';
 import { GAME_W } from '../layout';
-import { CONTENT_TOP, contentBottom, screen, type NavTab } from '../screen';
+import { CONTENT_TOP, screen, type NavTab } from '../screen';
 import { commit, session, today } from '../session';
-import { button, ellipsize, emptyState, panel, progressBar, ScrollArea, text, toast } from '../ui';
-import { medallion } from '../decor';
-import { skinIcon } from '../skin';
-import { C, FS, TINT } from '../theme';
-import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
+import { emptyState, ScrollArea, toast } from '../ui';
+import { type SkinIcon } from '../skin';
+import { C, S } from '../theme';
+import { collect, queueRewardFly, staggerIn, type Point } from '../juice';
 import { isUnlocked, lockedScreen } from '../unlockBanner';
-
-const ROW_H = 190;
+import { claimState, groupRows } from '../inboxOrder';
+import { checkMark, claimAllButton, claimAllY, claimButton, FOLD_H, foldRow, glyph, glyphColor, inboxRow, listBottom, metaChips, playClaimFx, queueClaimFx, ROW_STEP } from '../inboxRows';
 
 export interface AchievementsData {
   /** Откуда пришли: «Главная» или «Герои» — туда ведёт «Назад» и подсвечивается вкладка. */
   from?: Extract<NavTab, 'Home' | 'Heroes'>;
   scroll?: number;
+  /** Свёртка «Получено» раскрыта. */
+  open?: boolean;
 }
 
-/** K10. Достижения: готовые к получению сверху, в процессе — с полосой прогресса, полученные — серые внизу. */
+/** Иконка достижения по счётчику. */
+const COUNTER_ICON: Record<AchievementCounter, SkinIcon> = {
+  stages_cleared: 'map',
+  tower_floor: 'tower',
+  items_equipped: 'helmet',
+  bounties_done: 'compass',
+  battles_won: 'swords',
+  hero_max_level: 'star',
+  summons: 'scroll',
+  ascensions: 'trophy',
+};
+
+/**
+ * K10. Достижения: готовые к получению сверху (золотая кромка, «Забрать»), в процессе — с полосой и наградой справа
+ * (ближе к цели — выше), полученные — свёрнуты в «Получено · N». «Забрать всё» — внизу, только когда есть что забрать.
+ */
 export class AchievementsScene extends Phaser.Scene {
   private area!: ScrollArea;
   private from: 'Home' | 'Heroes' = 'Home';
+  private open = false;
 
   constructor() {
     super('Achievements');
@@ -38,68 +55,58 @@ export class AchievementsScene extends Phaser.Scene {
       return;
     }
     const views = achievementStatus(session.save, GAME);
-    const got = views.filter((a) => a.claimed).length;
-    const ready = claimableAchievements(views);
-    text(this, 50, CONTENT_TOP + 40, `Получено ${got} / ${views.length}`, FS.h3, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
-    if (ready > 1) {
-      // «Забрать всё» (как в AFK): все выполненные достижения одним нажатием.
-      const all = button(this, GAME_W - 240, CONTENT_TOP + 42, 400, 80, 'ui_btn_primary', `Забрать всё (${ready})`, () => this.claimAll({ x: GAME_W - 240, y: CONTENT_TOP + 42 }), FS.body);
-      pulse(this, all.container, 1.04, 700);
-    } else if (ready) text(this, GAME_W - 50, CONTENT_TOP + 40, `Можно забрать: ${ready}`, FS.body, C.success, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(1, 0.5);
-    // Пустое состояние «забрать нечего» — подсказка, что делать дальше.
-    else if (views.length && got < views.length) text(this, GAME_W - 50, CONTENT_TOP + 40, 'Забрать пока нечего — играйте дальше', FS.small, C.muted).setOrigin(1, 0.5);
+    const g = groupRows(views, claimState, (a) => a.progress / a.target);
+    // Всё уже получено — список не прячем за свёрткой.
+    this.open = data.open ?? (!g.ready.length && !g.active.length);
+    if (g.ready.length) claimAllButton(this, () => this.claimAll(), 'achievementsClaimAll');
 
-    this.area = new ScrollArea(this, CONTENT_TOP + 90, contentBottom() + 10);
-    if (!views.length) emptyState(this, GAME_W / 2, CONTENT_TOP + 300, 'Достижений пока нет.');
-    const list = sortAchievements(views);
-    const rows = list.map((a, i) => collect(this.area.content, () => this.row(a, ROW_H * (i + 0.5))));
-    this.area.setContentHeight(ROW_H * list.length + 20);
+    this.area = new ScrollArea(this, CONTENT_TOP + S.xs, listBottom(g.ready.length > 0));
+    if (!views.length) this.area.add(emptyState(this, GAME_W / 2, 160, 'Достижений пока нет'));
+    const rows: Phaser.GameObjects.GameObject[][] = [];
+    let y = 0;
+    const put = (h: number, build: (cy: number) => void) => {
+      const cy = y + h / 2;
+      rows.push(collect(this.area.content, () => build(cy)));
+      y += h + S.xs;
+    };
+    for (const a of [...g.ready, ...g.active]) put(ROW_STEP - S.xs, (cy) => this.area.add(this.row(a, cy)));
+    if (g.done.length) {
+      put(FOLD_H, (cy) => this.area.add(foldRow(this, GAME_W / 2, cy, 'Получено', g.done.length, this.open, this.area.tap(() => this.restartKeep({ open: !this.open })))));
+      if (this.open) for (const a of g.done) put(FOLD_H, (cy) => this.area.add(this.row(a, cy)));
+    }
+    this.area.setContentHeight(y);
     if (data.scroll) this.area.offset = data.scroll;
     staggerIn(this, 'Achievements', rows);
+    playClaimFx(this);
   }
 
-  private row(a: AchievementView, y: number): void {
-    const s = this.area;
-    const grey = a.claimed;
-    const bg = s.add(panel(this, GAME_W / 2, y, 1020, ROW_H - 16, a.done && !a.claimed ? 'ui_panel_light' : 'ui_panel'));
-    if (grey) bg.setAlpha(0.5);
-    const dark = a.done && !a.claimed;
-    const main = grey ? C.disabled : dark ? C.ink : C.text;
-    const stroke = { stroke: dark || grey ? C.none : C.stroke, strokeThickness: dark || grey ? 0 : 4 };
-    s.add(ellipsize(text(this, 70, y - 55, a.name, FS.h3, main, { fontStyle: 'bold', ...stroke }).setOrigin(0, 0.5), 700));
-    s.add(text(this, 70, y - 10, a.description, FS.small, grey ? C.disabled : dark ? C.inkMuted : C.muted, { align: 'left', wordWrap: { width: 680 } }).setOrigin(0, 0.5));
-    s.add(progressBar(this, 70, y + 45, 440, 30, a.progress / a.target, grey ? 0x6a6a70 : a.done ? TINT.gold : TINT.success, { key: `ach:${a.id}` }));
-    // На жёлтой (выполнено) полосе — тёмная подпись без обводки, на зелёной/серой — белая с обводкой.
-    const onGold = a.done && !a.claimed;
-    s.add(text(this, 290, y + 45, `${formatNumber(a.progress)} / ${formatNumber(a.target)}`, FS.caption, onGold ? C.titleStroke : C.text, { fontStyle: 'bold', stroke: onGold ? C.none : C.stroke, strokeThickness: onGold ? 0 : 4 }));
-    const rw = text(this, 540, y + 45, metaRewardsText(a.rewards, ' в запас'), FS.small, grey ? C.disabled : dark ? C.inkGold : C.gold, { fontStyle: 'bold', align: 'left', wordWrap: { width: 320 }, lineSpacing: -4 }).setOrigin(0, 0.5);
-    // Две строки награды — выше, чтобы не упираться в нижнюю кромку карточки.
-    if (rw.height > 50) rw.setY(y + 28);
-    s.add(rw);
-
-    const bx = 900;
-    if (a.claimed) {
-      const got = s.add(text(this, bx + 25, y - 40, 'Получено', FS.small, C.disabled, { fontStyle: 'bold' }));
-      s.add(this.add.image(got.x - got.width / 2 - 30, y - 40, skinIcon('check')).setDisplaySize(44, 44).setTint(0x9fe0a6).setAlpha(0.7));
-    } else if (!a.done) {
-      // В работе — справа тусклый медальон с кубком (строка не пустует, видно «за что»).
-      s.add(medallion(this, bx + 20, y - 8, 116, 'trophy', 0xa89d86).setAlpha(0.75));
-    } else if (a.done) {
-      const b = button(this, bx, y - 30, 230, 100, 'ui_btn_primary', 'Забрать', s.tap(() => this.claim(a, { x: bx, y: this.area.content.y + y - 30 })), FS.h3);
-      s.add(b.container);
-      pulse(this, b.container);
+  private row(a: AchievementView, cy: number): Phaser.GameObjects.Container {
+    const state = claimState(a);
+    const icon = glyph(COUNTER_ICON[a.counter] ?? 'trophy', glyphColor(state));
+    const chips = metaChips(a.rewards);
+    if (state === 'ready') {
+      const claim = this.area.tap(() => this.claim(a, { x: GAME_W - S.l - 140, y: this.area.content.y + cy }));
+      return inboxRow(this, GAME_W / 2, cy, { state, icon, title: a.description, line: { chips }, trailing: claimButton(this, claim), onTap: claim }).setName(`ach_${a.id}`);
     }
+    if (state === 'active') {
+      return inboxRow(this, GAME_W / 2, cy, { state, icon, title: a.description, line: { progress: a.progress, target: a.target, key: `ach:${a.id}`, chips } }).setName(`ach_${a.id}`);
+    }
+    return inboxRow(this, GAME_W / 2, cy, { state, icon, title: a.description, trailing: checkMark(this), h: FOLD_H }).setName(`ach_${a.id}`);
   }
 
-  private claimAll(at: Point): void {
+  private restartKeep(d: AchievementsData = {}): void {
+    this.scene.restart({ from: this.from, scroll: this.area.offset, open: this.open, ...d } satisfies AchievementsData);
+  }
+
+  private claimAll(): void {
     try {
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = actClaimAllAchievements(session.save, today(), GAME);
       commit(r.save);
-      queueRewardFly('Achievements', at, before);
-      const lines = [`Достижений: ${r.claimed.length} · ${metaRewardsText(r.rewards, ' в запас')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
-      this.scene.restart({ from: this.from } satisfies AchievementsData);
-      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4000)));
+      const at = { x: GAME_W / 2, y: claimAllY() };
+      queueRewardFly('Achievements', at, before, { burst: true });
+      queueClaimFx('Achievements', at, metaChips(r.rewards), this.eventLines(r.events));
+      this.restartKeep({ scroll: 0 });
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
@@ -111,11 +118,15 @@ export class AchievementsScene extends Phaser.Scene {
       const r = actClaimAchievement(session.save, today(), a.id, GAME);
       commit(r.save);
       queueRewardFly('Achievements', at, before);
-      const lines = [`«${a.name}»: ${metaRewardsText(r.rewards, ' в запас')}`, ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
-      this.scene.restart({ from: this.from, scroll: this.area.offset } satisfies AchievementsData);
-      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, lines.join('\n'), C.success, 4000)));
+      queueClaimFx('Achievements', at, metaChips(r.rewards), this.eventLines(r.events));
+      this.restartKeep();
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
+  }
+
+  /** Строки событий, которых не видно на экране (какая карта героя выпала); гемы и золото долетают до шапки. */
+  private eventLines(events: Parameters<typeof describeEvents>[0]): string[] {
+    return describeEvents(events, session.save, GAME).filter((l) => !l.startsWith('Гемы'));
   }
 }
