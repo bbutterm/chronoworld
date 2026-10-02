@@ -73,6 +73,44 @@ function paintShop(c: CanvasRenderingContext2D, W: number, H: number): void {
   c.fillRect(0, top, W, 3);
 }
 
+/** Поставить продавщицу (Кафру) в контейнер-картинку w×h: x — центр фигуры от центра карточки, обрезка по прилавку. */
+function placeKeeper(scene: Phaser.Scene, root: Phaser.GameObjects.Container, x: number, h: number, dim: boolean, scale = 0.9): void {
+  if (!hasIllust(KEEPER)) return;
+  const place = () => {
+    if (!root.scene || !scene.textures.exists(illustKey(KEEPER))) return;
+    const img = scene.add.image(x, -h / 2 + h * KEEPER_TOP, illustKey(KEEPER)).setOrigin(0.5, 0).setName('shopKeeper');
+    const k = (h * scale) / img.height;
+    img.setScale(k);
+    img.setCrop(0, 0, img.width, Math.min(img.height, (h * (DESK - KEEPER_TOP)) / k));
+    if (dim) img.setTint(0x6c665e);
+    // Сразу над картинкой карточки — под названием, замком и тегами.
+    root.addAt(img, 1);
+  };
+  if (scene.textures.exists(illustKey(KEEPER))) place();
+  else void loadIllust(scene.game, KEEPER).then(place);
+}
+
+/**
+ * Шапка экрана Лавки: та же нарисованная лавка, Кафра за прилавком справа (как витрина в Городе, только шире).
+ * Контейнер `shopBanner` с центром (x, y); надписи и кнопки ShopScene кладёт поверх сама.
+ */
+export function shopBanner(scene: Phaser.Scene, x: number, y: number, w: number, h: number): Phaser.GameObjects.Container {
+  const root = scene.add.container(x, y).setName('shopBanner').setSize(w, h);
+  // Слева — тёмная дымка под надписи и кнопку (полки с банками пестрят), справа — Кафра.
+  const paint = (c: CanvasRenderingContext2D, W: number, H: number) => {
+    paintShop(c, W, H);
+    const g = c.createLinearGradient(0, 0, W * 0.62, 0);
+    g.addColorStop(0, 'rgba(14,10,6,0.82)');
+    g.addColorStop(0.55, 'rgba(14,10,6,0.55)');
+    g.addColorStop(1, 'rgba(14,10,6,0)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, W, H);
+  };
+  root.add(scene.add.image(0, 0, artCardTexture(scene, 'shopBanner', w, h, paint)).setDisplaySize(w, h));
+  placeKeeper(scene, root, w * 0.27, h, false, 0.95);
+  return root;
+}
+
 /** Витрина Лавки. Закрыта — приглушённая с замком, касание — «откроется на этапе 2-1»; открыта — переход в Лавку. */
 export function shopTile(scene: Phaser.Scene, x: number, y: number, w: number, h: number): EntryView | null {
   if (!GAME.shop) return null;
@@ -87,20 +125,6 @@ export function shopTile(scene: Phaser.Scene, x: number, y: number, w: number, h
     onOpen: () => scene.scene.start('Shop'),
     goldDot: free,
     // Продавщица за прилавком: низ фигуры уходит за прилавок (обрезка по его линии).
-    extra: (root) => {
-      if (!hasIllust(KEEPER)) return;
-      const place = () => {
-        if (!root.scene || !scene.textures.exists(illustKey(KEEPER))) return;
-        const img = scene.add.image(w * 0.08, -h / 2 + h * KEEPER_TOP, illustKey(KEEPER)).setOrigin(0.5, 0);
-        const k = (h * 0.9) / img.height;
-        img.setScale(k);
-        img.setCrop(0, 0, img.width, Math.min(img.height, (h * (DESK - KEEPER_TOP)) / k));
-        if (!open) img.setTint(0x6c665e);
-        // Сразу над картинкой карточки — под названием, замком и тегами.
-        root.addAt(img, 1);
-      };
-      if (scene.textures.exists(illustKey(KEEPER))) place();
-      else void loadIllust(scene.game, KEEPER).then(place);
-    },
+    extra: (root) => placeKeeper(scene, root, w * 0.08, h, !open),
   });
 }

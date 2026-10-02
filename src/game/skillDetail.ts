@@ -1,17 +1,18 @@
 import Phaser from 'phaser';
 import { COMBAT } from '../core';
 import { CONTENT } from './content';
-import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
-import { popIn } from './screen';
-import { skillFacts } from './skillFacts';
+import { bottomSheet } from './screen';
+import { factRows, skillFacts } from './skillFacts';
 import { skillIcon } from './skillIcons';
-import { C, FS, OUTLINE, TINT, TITLE_STYLE } from './theme';
-import { panel, text } from './ui';
+import { skinIcon } from './skin';
+import { COLOR, COLOR_N, R, S, T, Z } from './theme';
+import { plate, SURFACE, tag, text, type Tone } from './ui';
 
 /**
- * Окно подробностей навыка (касание по навыку на карточке героя, в выборе ветки): иконка, название, вид
- * («Активный» / «Пассивный» / «Обычная атака»), перезарядка или условие открытия, полное описание (с переносом, FS.body)
- * и цифры (skillFacts). Поверх всего (своя глубина), закрывается касанием мимо окна или по «×».
+ * Подробности навыка (касание плитки на карточке героя, навыка в выборе ветки, на вознесении) — лист снизу
+ * (screen.ts bottomSheet): заголовок — название; иконка, вид тегом («Активный» / «Пассивный» / «Ульта» /
+ * «Обычная атака»), условие открытия; полное описание; цифры строками «подпись — значение» (skillFacts → factRows).
+ * Закрывается «×», касанием мимо листа и «назад».
  */
 export interface SkillDetailOptions {
   /** Вид: «Обычная атака», «Активный», «Пассивный» (по умолчанию — по навыку). */
@@ -31,75 +32,75 @@ export interface SkillDetailOptions {
   onClose?: () => void;
 }
 
+/** Метка листа навыка (data у слоя bottomSheet) — открытый лист закрывается перед новым. */
 export const SKILL_DETAIL = 'skillDetail';
-const W = 960;
-const PAD = 56;
-const ICON = 132;
+const ICON = 136;
+const LABEL_W = 250;
 
-/** Открыть окно навыка (закрывает уже открытое). Возвращает слой (name `skillDetail`). */
+/** Тон тега вида навыка. */
+function kindTone(kind: string, passive: boolean): Tone {
+  if (kind === 'Ульта') return 'gold';
+  if (kind === 'Обычная атака') return 'neutral';
+  return passive ? 'positive' : 'accent';
+}
+
+/** Открыть лист навыка (закрывает уже открытый). Возвращает слой листа (name `bottomSheet`, data `skillDetail`). */
 export function openSkillDetail(scene: Phaser.Scene, skillId: string, o: SkillDetailOptions = {}): Phaser.GameObjects.Container | null {
   const sk = CONTENT.skills[skillId];
   if (!sk) return null;
-  (scene.children.getByName(SKILL_DETAIL) as Phaser.GameObjects.Container | null)?.destroy();
+  for (const c of scene.children.list) {
+    if (c.getData?.(SKILL_DETAIL)) (c.getData('close') as (() => void) | undefined)?.();
+  }
   const passive = !!sk.trigger;
   const kind = o.kind ?? (o.basic ? 'Обычная атака' : o.ult ? 'Ульта' : passive ? 'Пассивный' : 'Активный');
-  const layer = scene.add.container(0, 0).setDepth(o.depth ?? 9300).setName(SKILL_DETAIL);
-  const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x000000, 0.72).setInteractive();
-  const left = GAME_W / 2 - W / 2 + PAD;
-  const inner = W - 2 * PAD;
-
-  // Шапка: иконка, название, вид и перезарядка/условие открытия.
-  const textX = left + ICON + 32;
-  const name = text(scene, textX, 0, sk.name, FS.h2, C.title, { ...TITLE_STYLE, wordWrap: { width: inner - ICON - 32 - 50 } }).setOrigin(0, 0);
-  const kindColor = passive ? C.success : o.basic ? C.muted : C.gold;
-  const kindT = text(scene, textX, 0, kind, FS.small, kindColor, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0);
-  const sub = o.lockNote ?? o.note;
-  const lock = sub ? text(scene, textX, 0, sub, FS.small, o.lockNote ? C.warning : C.muted, { ...OUTLINE, wordWrap: { width: inner - ICON - 32 } }).setOrigin(0, 0) : null;
-  const headH = Math.max(ICON, name.height + 8 + kindT.height + (lock ? 6 + lock.height : 0));
-  // Описание и цифры.
-  const desc = sk.description
-    ? text(scene, left, 0, sk.description, FS.body, C.text, { align: 'left', wordWrap: { width: inner }, lineSpacing: 8, ...OUTLINE }).setOrigin(0, 0)
-    : null;
-  const facts = skillFacts(sk, {
-    passive,
-    basic: o.basic,
-    ult: o.ult,
-    power: o.power,
-    defaultCooldown: COMBAT.skills?.defaultCooldown ?? 8,
-    turnSeconds: COMBAT.statusTurnSeconds ?? 1,
-    nameOf: (id) => CONTENT.skills[id]?.name,
-  });
-  const factsT = text(scene, left, 0, facts.map((f) => `• ${f}`).join('\n'), FS.small, C.muted, { align: 'left', wordWrap: { width: inner }, lineSpacing: 10, ...OUTLINE }).setOrigin(0, 0);
-
-  const gap = 30;
-  const h = PAD + headH + gap + 4 + gap + (desc ? desc.height + gap : 0) + factsT.height + PAD;
-  const top = Math.max(120, GAME_H / 2 - h / 2);
-  const box = panel(scene, GAME_W / 2, top + h / 2, W, h, 'ui_panel').setInteractive();
-  let y = top + PAD;
-  const icon = scene.add.image(left + ICON / 2, y + ICON / 2, skillIcon(scene, sk)).setDisplaySize(ICON, ICON);
-  const iconFrame = scene.add.rectangle(left + ICON / 2, y + ICON / 2, ICON + 6, ICON + 6).setStrokeStyle(4, TINT.gold, 0.9);
-  if (o.lockNote) icon.setTint(0x9a9a9a);
-  name.setY(y);
-  kindT.setY(y + name.height + 8);
-  lock?.setY(kindT.y + kindT.height + 6);
-  y += headH + gap;
-  const line = scene.add.rectangle(GAME_W / 2, y, inner, 3, TINT.gold, 0.5);
-  y += 4 + gap;
-  if (desc) {
-    desc.setY(y);
-    y += desc.height + gap;
-  }
-  factsT.setY(y);
-  // «×» в углу — для тех, кто не догадается коснуться мимо окна.
-  const cross = text(scene, GAME_W / 2 + W / 2 - 50, top + 46, '×', FS.h1, C.muted, { fontStyle: 'bold' }).setName('skillDetailClose');
-  const close = () => {
-    if (!layer.scene) return;
-    layer.destroy();
-    o.onClose?.();
-  };
-  cross.setInteractive({ useHandCursor: true }).on('pointerup', close);
-  shade.on('pointerup', close);
-  layer.add([shade, box, iconFrame, icon, name, kindT, ...(lock ? [lock] : []), line, ...(desc ? [desc] : []), factsT, cross]);
-  popIn(scene, layer, shade);
-  return layer;
+  const sheet = bottomSheet(
+    scene,
+    sk.name,
+    (box, width) => {
+      // Иконка и теги: вид, условие открытия (или нейтральная подпись).
+      box.add(plate(scene, ICON / 2, ICON / 2, ICON, ICON, { ...SURFACE.sunken, border: o.ult ? COLOR.accent : COLOR.border, borderW: o.ult ? 4 : 2, r: R.m }));
+      const icon = scene.add.image(ICON / 2, ICON / 2, skillIcon(scene, sk)).setDisplaySize(ICON - 24, ICON - 24);
+      if (o.lockNote) icon.setTint(0x9a9a9a);
+      box.add(icon);
+      const tx = ICON + S.m;
+      box.add(tag(scene, tx, 30, kind, kindTone(kind, passive), { align: 'left' }));
+      const sub = o.lockNote ?? o.note;
+      if (sub) {
+        if (o.lockNote) box.add(scene.add.image(tx + 18, 96, skinIcon('lock')).setDisplaySize(32, 32).setTint(COLOR_N.warning));
+        const st = text(scene, tx + (o.lockNote ? 46 : 0), 96, sub, T.caption, o.lockNote ? COLOR.warning : COLOR.textSecondary, { align: 'left', wordWrap: { width: width - tx - 46 } }).setOrigin(0, 0.5);
+        st.setMaxLines(2);
+        box.add(st);
+      }
+      let y = ICON + S.m;
+      if (sk.description) {
+        const desc = text(scene, 0, y, sk.description, T.body, COLOR.textPrimary, { align: 'left', wordWrap: { width } }).setOrigin(0, 0);
+        box.add(desc);
+        y += desc.height + S.m;
+      }
+      const facts = factRows(
+        skillFacts(sk, {
+          passive,
+          basic: o.basic,
+          ult: o.ult,
+          power: o.power,
+          defaultCooldown: COMBAT.skills?.defaultCooldown ?? 8,
+          turnSeconds: COMBAT.statusTurnSeconds ?? 1,
+          nameOf: (id) => CONTENT.skills[id]?.name,
+        }),
+      );
+      // Цифры: тонкая линия сверху, строки «подпись — значение» на утопленной поверхности.
+      box.add(scene.add.rectangle(width / 2, y, width, 2, COLOR_N.border, 0.8));
+      y += S.s;
+      for (const f of facts) {
+        const v = text(scene, f.label ? LABEL_W : 0, y, f.value, T.caption, COLOR.textPrimary, { align: 'left', wordWrap: { width: f.label ? width - LABEL_W : width } }).setOrigin(0, 0);
+        if (f.label) box.add(text(scene, 0, y, f.label, T.caption, COLOR.textSecondary, { align: 'left', wordWrap: { width: LABEL_W - S.xs } }).setOrigin(0, 0));
+        box.add(v);
+        y += v.height + S.xs;
+      }
+      return y;
+    },
+    { onClose: o.onClose },
+  );
+  sheet.layer.setDepth(o.depth ?? Z.modal).setData(SKILL_DETAIL, skillId);
+  return sheet.layer;
 }

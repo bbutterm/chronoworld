@@ -5,24 +5,28 @@ import {
   claimNewbieTask,
   loginStatus,
   newbieStatus,
+  type CardRarity,
   type LoginDayView,
+  type LoginStatus,
   type NewbieMilestoneView,
   type NewbieStatus,
   type NewbieTaskView,
+  type RewardBundle,
 } from '../../core';
+import { slowRays } from '../decor';
 import { GAME } from '../content';
-import { ribbon, slowRays, glow } from '../decor';
-import { daysText, formatNumber, pointsText } from '../flow';
-import { drawHeroCard, heroCardIcon, heroCardSize } from '../heroCard';
+import { daysText } from '../flow';
+import { heroCardIcon } from '../heroCard';
+import { artCardTexture } from '../homeBuildings';
 import { touchToday } from '../homeEvents';
 import { afterRewardFly, collect, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 import { GAME_W } from '../layout';
-import { rewardColumn, rewardRow, rewardText, rewardToast } from '../rewardsView';
-import { badge, card, CONTENT_TOP, contentBottom, cornerBadge, screen } from '../screen';
+import { rewardIcon, rewardItems, rewardText, rewardToast, type RewardItem } from '../rewardsView';
+import { CONTENT_TOP, contentBottom, dot, screen } from '../screen';
 import { commit, restartOnNewDay, session, today } from '../session';
-import { SKIN, SKIN_TINT, skinIcon } from '../skin';
-import { C, FS, OUTLINE, TINT, TITLE_STYLE } from '../theme';
-import { button, pressable, progressBar, ScrollArea, text, toast } from '../ui';
+import { skinIcon, type SkinIcon } from '../skin';
+import { C, COLOR, COLOR_N, FAMILY, R, S, T } from '../theme';
+import { chip, listRow, mixHex, plate, pressable, progressBar, ScrollArea, segmented, SURFACE, tag, text, toast, type ChipSpec, type Tone } from '../ui';
 
 export type EventsTab = 'login' | 'newbie';
 
@@ -32,21 +36,130 @@ export interface EventsData {
   day?: number;
 }
 
-const TAB_Y = CONTENT_TOP + 60;
-const TAB_W = 440;
-const TAB_H = 110;
+/** Раскладка (поле 1080): баннер события, вкладки (если событий два), содержимое вкладки. */
+export const EV_L = {
+  w: GAME_W - 2 * S.l,
+  top: CONTENT_TOP + S.xs,
+  bannerH: 360,
+  segH: 88,
+  /** Вход: плитки дней 4 в ряд, день 7 — на две колонки. */
+  cols: 4,
+  tileH: 300,
+  /** Новичок: узел вехи на дорожке, строка задания. */
+  node: 104,
+  rowH: 136,
+} as const;
+const TILE_W = (EV_L.w - (EV_L.cols - 1) * S.s) / EV_L.cols;
 const CHECK_TINT = 0x9fe0a6;
 
-/** Плитки дней входа 1–6: 3 × 2, день 7 — широкая плитка с карточкой героя. */
-const LOGIN = { top: CONTENT_TOP + 330, tileW: 320, tileH: 290, gapY: 20, xs: [200, 540, 880], day7Y: 0, day7H: 430 } as const;
+/** Центр плитки дня входа (день 1…7) и её ширина: 1–4 — первый ряд, 5–6 — второй, 7 — две колонки справа. */
+export function loginTilePos(day: number, top: number): { x: number; y: number; w: number } {
+  const i = day - 1;
+  const col = i % EV_L.cols;
+  const row = Math.floor(i / EV_L.cols);
+  const y = top + EV_L.tileH / 2 + row * (EV_L.tileH + S.s);
+  const x = S.l + TILE_W / 2 + col * (TILE_W + S.s);
+  if (day === 7) return { x: x + (TILE_W + S.s) / 2, y, w: 2 * TILE_W + S.s };
+  return { x, y, w: TILE_W };
+}
 
-/** «7 дней новичка»: полоса очков с сундуками, выбор дня, список заданий. */
-const NB = { barX: 90, barW: 700, barY: CONTENT_TOP + 400, dayY: CONTENT_TOP + 540, listTop: CONTENT_TOP + 610, rowH: 180 } as const;
+/** Порядок заданий: «можно забрать» сверху, затем в процессе, внизу — полученные и закрытые. */
+export function sortTasks<T extends Pick<NewbieTaskView, 'ready' | 'claimed' | 'locked'>>(tasks: readonly T[]): T[] {
+  const rank = (t: T) => (t.ready ? 0 : t.claimed || t.locked ? 2 : 1);
+  return tasks.map((t, i) => ({ t, i })).sort((a, b) => rank(a.t) - rank(b.t) || a.i - b.i).map((x) => x.t);
+}
+
+/** Иконка задания по счётчику достижений. */
+function taskIcon(counter: string): SkinIcon {
+  switch (counter) {
+    case 'stages_cleared':
+    case 'battles_won':
+      return 'swords';
+    case 'tower_floor':
+      return 'tower';
+    case 'summons':
+      return 'scroll';
+    case 'bounties_done':
+      return 'flag';
+    case 'items_equipped':
+      return 'helmet';
+    default:
+      return 'star';
+  }
+}
+
+/** Награда чипом: иконка вида (мини-карта у героя/контракта) и короткое число, цвет — по валюте. */
+function rewardChip(it: RewardItem, dim = false): ChipSpec {
+  const tone: Tone = dim ? 'neutral' : it.kind === 'gold' ? 'gold' : it.kind === 'gems' ? 'gem' : 'neutral';
+  return { icon: (s, x, y, size) => rewardIcon(s, x, y, it.kind, size, dim, it), value: it.short, tone };
+}
+
+/** Главный приз события (последний день входа / последняя веха новичка): контракт или карточка героя. */
+function mainPrize(r: RewardBundle | undefined): { rarity: CardRarity; hero?: string; pick: boolean } | null {
+  const pick = r?.heroPicks?.[0];
+  if (pick) return { rarity: pick.rarity, pick: true };
+  const hero = r?.heroes?.[0];
+  if (hero) return { rarity: GAME.content.heroes[hero]?.baseRarity ?? 'purple', hero, pick: false };
+  return null;
+}
+
+/** Нарисованный баннер события: ночное небо фиолетовым, гирлянда флажков, тёплый свет справа под главный приз. */
+function paintBanner(c: CanvasRenderingContext2D, W: number, H: number): void {
+  const sky = c.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#2a1840');
+  sky.addColorStop(0.6, '#3b2350');
+  sky.addColorStop(1, '#1a1020');
+  c.fillStyle = sky;
+  c.fillRect(0, 0, W, H);
+  const light = c.createRadialGradient(W * 0.8, H * 0.5, 8, W * 0.8, H * 0.5, H * 0.95);
+  light.addColorStop(0, 'rgba(255,214,140,0.55)');
+  light.addColorStop(0.5, 'rgba(216,144,255,0.18)');
+  light.addColorStop(1, 'rgba(216,144,255,0)');
+  c.fillStyle = light;
+  c.fillRect(0, 0, W, H);
+  // Звёзды-искры (детерминированно).
+  for (let i = 0; i < 40; i++) {
+    const x = (i * 97) % W;
+    const y = ((i * 53) % (H * 0.7)) + 8;
+    c.fillStyle = `rgba(255,240,200,${0.25 + ((i * 7) % 5) * 0.1})`;
+    c.fillRect(x, y, 2 + (i % 2), 2 + (i % 2));
+  }
+  // Гирлянда флажков провисает дугой по верху.
+  const colors = ['#e0392b', '#e8b85a', '#4a90e2', '#5fbf5a', '#a35fe0'];
+  const sag = (x: number) => 18 + Math.sin((x / W) * Math.PI) * H * 0.12;
+  c.strokeStyle = 'rgba(40,24,12,0.9)';
+  c.lineWidth = 2;
+  c.beginPath();
+  for (let x = 0; x <= W; x += 8) (x ? c.lineTo(x, sag(x)) : c.moveTo(x, sag(x)));
+  c.stroke();
+  for (let x = 14, n = 0; x < W - 10; x += 34, n++) {
+    const y = sag(x);
+    c.fillStyle = colors[n % colors.length];
+    c.globalAlpha = 0.85;
+    c.beginPath();
+    c.moveTo(x - 11, y);
+    c.lineTo(x + 11, y);
+    c.lineTo(x, y + 24);
+    c.closePath();
+    c.fill();
+    c.globalAlpha = 1;
+  }
+  // Земля: тёмная полоса с огоньками фонарей.
+  c.fillStyle = 'rgba(12,8,14,0.85)';
+  c.fillRect(0, H * 0.82, W, H * 0.18);
+  for (let x = 40; x < W; x += 150) {
+    const g = c.createRadialGradient(x, H * 0.8, 1, x, H * 0.8, 26);
+    g.addColorStop(0, 'rgba(255,200,110,0.8)');
+    g.addColorStop(1, 'rgba(255,200,110,0)');
+    c.fillStyle = g;
+    c.fillRect(x - 26, H * 0.8 - 26, 52, 52);
+  }
+}
 
 /**
- * События новичка (как в AFK Arena): вкладка «Вход» — календарь 7 дней входа (пропуски не сбрасывают), день 7 —
- * фиолетовый герой; вкладка «Новичок» — задания по дням, очки → сундуки, последний сундук — фиолетовый герой.
- * Награду забирают нажатием. Ядро — src/core/events (touchEvents, loginStatus, claimLogin, newbieStatus…).
+ * События новичка (как в AFK Arena): баннер события с главным призом и таймером; «Вход» — 7 плиток дней (готовая —
+ * золотая с точкой, полученная — тусклая с галкой), «Новичок» — дорожка очков с вехами-наградами, дни заданий и задания
+ * строками списка. Награду забирают касанием. Ядро — src/core/events (touchEvents, loginStatus, claimLogin, newbieStatus…).
  */
 export class EventsScene extends Phaser.Scene {
   private tab: EventsTab = 'login';
@@ -73,129 +186,107 @@ export class EventsScene extends Phaser.Scene {
     this.day = Phaser.Math.Clamp(data.day ?? Math.min(nb.eventDay, nb.days.length), 1, nb.days.length);
 
     screen(this, 'События', 'Home', { to: 'Home' });
-    this.tabs(tabs, login.claimable, nb.open ? nb.claimable : 0);
-    if (this.tab === 'login') this.loginTab();
-    else this.newbieTab(nb);
+    let y = EV_L.top;
+    if (this.tab === 'login') this.banner(login.name, login.days[login.days.length - 1], { label: `День ${login.loginDays} из ${login.days.length}`, tone: 'neutral' }, y);
+    else {
+      const final = nb.milestones[nb.milestones.length - 1];
+      const when = !nb.active ? { label: 'Последний шанс', tone: 'warning' as Tone } : { label: nb.daysLeft === 0 ? 'Последний день' : daysText(nb.daysLeft), tone: 'neutral' as Tone };
+      this.banner(nb.name, final ? { claimed: final.claimed, rewards: final.rewards } : undefined, when, y, true);
+    }
+    y += EV_L.bannerH + S.m;
+    if (tabs.length > 1) {
+      this.tabs(tabs, y + EV_L.segH / 2, { login: login.claimable > 0, newbie: nb.open && nb.claimable > 0 });
+      y += EV_L.segH + S.m;
+    }
+    if (this.tab === 'login') this.loginTab(login, y);
+    else this.newbieTab(nb, y);
   }
 
-  private tabs(tabs: EventsTab[], loginBadge: number, newbieBadge: number): void {
+  /** Баннер: картинка, название и чип срока слева, главный приз справа (с лучами, пока не получен). */
+  private banner(name: string, prize: Pick<LoginDayView, 'claimed' | 'rewards'> | undefined, when: { label: string; tone: Tone }, top: number, clock = false): void {
+    const { w, bannerH: h } = EV_L;
+    const cy = top + h / 2;
+    this.add.image(GAME_W / 2, cy, artCardTexture(this, 'eventsBanner', w, h, paintBanner)).setDisplaySize(w, h).setName('eventsBanner');
+    const left = S.l + S.m;
+    const title = text(this, left, cy + h / 2 - S.m - 72 - S.xs - T.title / 2, name, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
+    title.setShadow(0, 3, 'rgba(0,0,0,0.85)', 6, false, true);
+    chip(this, left, cy + h / 2 - S.m - 28, clock ? 'hourglass' : null, when.label, when.tone, { size: 's', align: 'left' }).setName('eventsWhen');
+    const p = mainPrize(prize?.rewards);
+    if (!p) return;
+    const px = GAME_W - S.l - 170;
+    if (!prize?.claimed) slowRays(this, px, cy, 380, 0.35, 0xd890ff);
+    heroCardIcon(this, px, cy + S.xxs, h - 2 * S.l, p.rarity, p.hero, { pick: p.pick, dim: prize?.claimed }).setName('eventsPrize');
+  }
+
+  /** Вкладки «Вход / Новичок» одного вида (segmented); есть что забрать — красная точка в углу вкладки. */
+  private tabs(tabs: EventsTab[], y: number, ready: Record<EventsTab, boolean>): void {
     const names: Record<EventsTab, string> = { login: 'Вход', newbie: 'Новичок' };
-    const step = TAB_W + 30;
+    const seg = segmented(this, GAME_W / 2, y, EV_L.w, tabs.map((t) => names[t]), tabs.indexOf(this.tab), (i) => {
+      this.scene.restart({ tab: tabs[i], day: this.day });
+    });
+    seg.container.setName('eventsTabs');
+    const segW = EV_L.w / tabs.length;
     tabs.forEach((t, i) => {
-      const x = GAME_W / 2 + (i - (tabs.length - 1) / 2) * step;
-      const on = t === this.tab;
-      const b = button(this, x, TAB_Y, TAB_W, TAB_H, on ? 'skin_tab_active' : 'skin_tab', names[t], () => {
-        if (!on) this.scene.restart({ tab: t, day: this.day });
-      }, FS.h3, { sound: 'ui_tab' });
-      b.label.setColor(on ? SKIN.goldLight : SKIN.creamDim);
-      b.container.setName(`tab_${t}`);
-      cornerBadge(this, x, TAB_Y, TAB_W, TAB_H, t === 'login' ? loginBadge : newbieBadge);
+      if (ready[t] && t !== this.tab) dot(this, S.l + segW * (i + 1) - S.s, y - EV_L.segH / 2 + 10).setName(`tabDot_${t}`);
     });
   }
 
   // ---------- «Вход 7 дней» ----------
 
-  private loginTab(): void {
-    const st = loginStatus(session.save, today(), GAME);
-    const top = TAB_Y + TAB_H / 2 + 20;
-    ribbon(this, GAME_W / 2, top + 50, st.name, { size: FS.h2, minW: 560 });
-    text(this, GAME_W / 2, top + 130, `Дней входа: ${st.loginDays} из ${st.days.length}. Пропуски не сбрасывают счёт —\nзаходите каждый день и забирайте награду нажатием.`, FS.small, C.muted, { align: 'center', lineSpacing: 6, ...OUTLINE });
-
-    const rows: Phaser.GameObjects.GameObject[][] = [];
-    const small = st.days.slice(0, Math.min(6, st.days.length - 1));
-    const big = st.days[st.days.length - 1];
-    small.forEach((d, i) => {
-      const x = LOGIN.xs[i % 3];
-      const y = LOGIN.top + LOGIN.tileH / 2 + Math.floor(i / 3) * (LOGIN.tileH + LOGIN.gapY);
-      const objs = collect(this.children, () => this.dayTile(d, x, y));
-      if (i % 3 === 0) rows.push(objs);
-      else rows[rows.length - 1].push(...objs);
-    });
-    const bigY = LOGIN.top + 2 * (LOGIN.tileH + LOGIN.gapY) + LOGIN.day7H / 2;
-    if (big) rows.push(collect(this.children, () => this.bigDayTile(big, bigY)));
+  private loginTab(st: LoginStatus, top: number): void {
+    const rows: Phaser.GameObjects.GameObject[][] = [[], []];
+    for (const d of st.days) {
+      const pos = loginTilePos(d.day, top);
+      rows[d.day <= EV_L.cols ? 0 : 1].push(...collect(this.children, () => this.dayTile(d, st, pos.x, pos.y, pos.w)));
+    }
     staggerIn(this, 'Events:login', rows);
   }
 
-  /** Состояние плитки: подложка, подпись дня, галочка/замок, пульс готовой. Возвращает фон плитки. */
-  private tileFrame(d: LoginDayView, x: number, y: number, w: number, h: number): Phaser.GameObjects.NineSlice {
-    if (d.ready) {
-      const g = glow(this, x, y, Math.max(w, h) * 1.25, 0xffd27a, 0.45, true);
-      g.setScale((w * 1.3) / 128, (h * 1.3) / 128);
+  /** Плитка дня: «День N», награды чипами (день 7 — контракт), низ — «Забрать» / «Завтра» / галка. */
+  private dayTile(d: LoginDayView, st: LoginStatus, x: number, y: number, w: number): void {
+    const h = EV_L.tileH;
+    if (d.ready) slowRays(this, x, y, Math.max(w, h) * 1.1, 0.25, 0xffd27a);
+    const bg = d.ready
+      ? plate(this, x, y, w, h, { fill: mixHex(COLOR.surfaceRaised, COLOR.accent, 0.18), border: COLOR.accent, borderW: 4, r: R.l, hl: 0.2 })
+      : plate(this, x, y, w, h, { ...(d.claimed ? SURFACE.surface : SURFACE.raised), r: R.l });
+    bg.setName(d.ready ? `loginClaim_${d.day}` : `loginDay_${d.day}`);
+    const objs: Phaser.GameObjects.GameObject[] = [];
+    objs.push(text(this, x, y - h / 2 + S.s + T.caption / 2, `День ${d.day}`, T.caption, d.ready ? COLOR.title : COLOR.textSecondary, { fontStyle: 'bold' }));
+    const items = rewardItems(d.rewards);
+    const prize = mainPrize(d.rewards);
+    if (prize) {
+      // День 7: контракт крупно слева, подпись справа.
+      const cx = x - w / 2 + S.l + 70;
+      objs.push(heroCardIcon(this, cx, y + 10, 180, prize.rarity, prize.hero, { pick: prize.pick, dim: d.claimed }));
+      const lbl = text(this, cx + 70 + S.s, y + 10, d.label ?? 'Главная награда', T.body, d.claimed ? COLOR.textTertiary : COLOR.textPrimary, {
+        fontStyle: 'bold',
+        wordWrap: { width: w - 140 - S.l - 2 * S.s },
+      }).setOrigin(0, 0.5);
+      objs.push(lbl);
+    } else {
+      const step = 64;
+      const y0 = y + 6 - ((items.length - 1) * step) / 2;
+      items.forEach((it, i) => objs.push(chip(this, x, y0 + i * step, rewardChip(it, d.claimed).icon, it.short, rewardChip(it, d.claimed).tone, { bg: false })));
     }
-    const bg = card(this, x, y, w, h, d.ready);
-    if (d.claimed) bg.setAlpha(0.55);
-    bg.setName(`loginDay_${d.day}`);
-    text(this, x, y - h / 2 + 36, `День ${d.day}`, FS.h3, d.ready ? C.ink : d.claimed ? C.disabled : C.title, d.ready ? { fontStyle: 'bold' } : TITLE_STYLE);
+    const by = y + h / 2 - S.s - 26;
+    if (d.ready) {
+      const t = tag(this, x, by, 'Забрать', 'accent', { solid: true });
+      pulse(this, t, 1.06, 700);
+      dot(this, x + w / 2 - 18, y - h / 2 + 18);
+    } else if (d.claimed) {
+      objs.forEach((o) => (o as unknown as Phaser.GameObjects.Components.Alpha).setAlpha?.(0.45));
+      this.add.image(x, by, skinIcon('check')).setDisplaySize(52, 52).setTint(CHECK_TINT);
+    } else if (d.day === st.loginDays + 1) {
+      text(this, x, by, 'Завтра', T.caption, COLOR.textTertiary);
+    }
     pressable(this, bg, w, h, () => this.claimDay(d, { x, y }));
-    return bg;
-  }
-
-  private dayTile(d: LoginDayView, x: number, y: number): void {
-    const { tileW: w, tileH: h } = LOGIN;
-    this.tileFrame(d, x, y, w, h);
-    rewardColumn(this, x, y - 20 + (Object.keys(d.rewards).length > 1 ? -18 : 18), d.rewards, { size: 52, step: 70, font: FS.h3, dim: d.claimed });
-    this.dayState(d, x, y + h / 2 - 40);
-    if (d.ready) {
-      // Готовая плитка: золотая кнопка внизу (нажатие по всей плитке тоже забирает).
-      const b = button(this, x, y + h / 2 - 44, w - 70, 70, 'ui_btn_primary', 'Забрать', () => this.claimDay(d, { x, y }), FS.small);
-      b.container.setName(`loginClaim_${d.day}`);
-      pulse(this, b.container, 1.04, 700);
-      cornerBadge(this, x, y, w, h, 1);
-    }
-  }
-
-  /** Низ плитки: «Получено» с галочкой, «Завтра» / «Через N дн.» или ничего (готова — подпись сверху). */
-  private dayState(d: LoginDayView, x: number, y: number): void {
-    if (d.claimed) {
-      const t = text(this, x + 22, y, 'Получено', FS.small, C.success, { fontStyle: 'bold', ...OUTLINE });
-      this.add.image(t.x - t.width / 2 - 26, y, skinIcon('check')).setDisplaySize(40, 40).setTint(CHECK_TINT);
-    } else if (!d.reached) {
-      const st = loginStatus(session.save, today(), GAME);
-      const n = d.day - st.loginDays;
-      const t = text(this, x + 20, y, n === 1 ? 'Завтра' : `Через ${daysText(n)}`, FS.small, C.dim, OUTLINE);
-      this.add.image(t.x - t.width / 2 - 24, y, skinIcon('lock')).setDisplaySize(34, 34).setTint(SKIN_TINT.creamDim);
-    }
-  }
-
-  /** День 7: широкая плитка — карточка героя слева, подпись и остальные награды справа. */
-  private bigDayTile(d: LoginDayView, y: number): void {
-    const w = 1000;
-    const h = LOGIN.day7H;
-    const x = GAME_W / 2;
-    this.tileFrame(d, x, y, w, h);
-    const hero = d.rewards.heroes?.[0];
-    const pick = d.rewards.heroPicks?.[0];
-    const cx = x - w / 2 + 190;
-    if (hero) {
-      if (!d.claimed) slowRays(this, cx, y + 20, 360, 0.35, 0xd890ff);
-      drawHeroCard(this, cx, y + 26, hero, { w: 210, glow: !d.claimed, level: null }).setAlpha(d.claimed ? 0.6 : 1);
-    } else if (pick) {
-      // «Контракт героя»: рубашка цвета редкости с пером-звездой — герой и ветка на выбор.
-      if (!d.claimed) slowRays(this, cx, y + 20, 360, 0.35, 0xd890ff);
-      heroCardIcon(this, cx, y + 26, 290, pick.rarity, undefined, { pick: true, dim: d.claimed });
-    }
-    const tx = x - w / 2 + 360;
-    const name = hero ? (GAME.content.heroes[hero]?.name ?? hero) : pick ? 'Герой и ветка — на выбор' : '';
-    text(this, tx, y - 90, d.label ?? 'Главная награда', FS.h2, d.ready ? C.ink : d.claimed ? C.disabled : C.title, d.ready ? { fontStyle: 'bold' } : TITLE_STYLE).setOrigin(0, 0.5);
-    if (name) text(this, tx, y - 30, name, FS.h3, d.ready ? C.inkMuted : C.text, d.ready ? {} : OUTLINE).setOrigin(0, 0.5);
-    const rest = { ...d.rewards, heroes: [], heroPicks: [] };
-    rewardRow(this, tx, y + 30, rest, { dim: d.claimed });
-    this.dayState(d, x + 150, y + h / 2 - 50);
-    if (d.ready) {
-      const b = button(this, x + w / 2 - 170, y + 110, 260, 100, 'ui_btn_primary', 'Забрать', () => this.claimDay(d, { x: cx, y }), FS.h3);
-      b.container.setName(`loginClaim_${d.day}`);
-      pulse(this, b.container);
-      cornerBadge(this, x, y, w, h, 1);
-    } else if (!d.claimed) {
-      text(this, tx, y + 100, 'Заходите в игру 7 разных дней', FS.small, C.muted, OUTLINE).setOrigin(0, 0.5);
-    }
   }
 
   private claimDay(d: LoginDayView, at: Point): void {
     if (d.claimed) return toast(this, 'Эта награда уже получена');
     if (!d.reached) {
       const n = d.day - loginStatus(session.save, today(), GAME).loginDays;
-      return toast(this, n === 1 ? 'Награда откроется завтра — заходите!' : `Награда откроется через ${daysText(n)} входа`);
+      return toast(this, n === 1 ? 'Награда откроется завтра' : `Награда откроется через ${daysText(n)} входа`);
     }
     try {
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
@@ -211,117 +302,112 @@ export class EventsScene extends Phaser.Scene {
 
   // ---------- «7 дней новичка» ----------
 
-  private newbieTab(st: NewbieStatus): void {
-    const top = TAB_Y + TAB_H / 2 + 20;
-    ribbon(this, GAME_W / 2, top + 50, st.name, { size: FS.h2, minW: 560 });
-    const when = st.active
-      ? st.daysLeft === 0
-        ? `День ${st.eventDay} из ${st.durationDays} — последний день заданий`
-        : `День ${st.eventDay} из ${st.durationDays} · до конца ${daysText(st.daysLeft)}`
-      : 'Задания закончились — заберите награды сегодня';
-    text(this, 60, top + 125, when, FS.small, st.active ? C.muted : C.gold, OUTLINE).setOrigin(0, 0.5);
-    text(this, 60, top + 175, `Очки: ${st.points} / ${st.maxPoints}`, FS.h3, C.title, TITLE_STYLE).setOrigin(0, 0.5);
-
-    // Главная награда — последний сундук: карточка героя справа.
+  private newbieTab(st: NewbieStatus, top: number): void {
+    // Дорожка очков: слева — очки, вехи — узлы на полосе, под каждым — главная награда чипом.
     const final = st.milestones[st.milestones.length - 1];
-    const hero = final?.rewards.heroes?.[0];
-    const finalPick = final?.rewards.heroPicks?.[0];
-    if (!hero && finalPick) {
-      const ch = 204;
-      const cx = GAME_W - 60 - 75;
-      const cy = top + 105 + ch / 2;
-      if (!final.claimed) slowRays(this, cx, cy, 260, 0.3, 0xd890ff);
-      heroCardIcon(this, cx, cy, ch, finalPick.rarity, undefined, { pick: true, dim: final.claimed });
-      text(this, cx, cy + ch / 2 + 22, `за ${pointsText(final.points)}`, FS.caption, C.gold, OUTLINE);
-    }
-    if (hero) {
-      const cw = 150;
-      const { h } = heroCardSize(cw);
-      const cx = GAME_W - 60 - cw / 2;
-      const cy = top + 105 + h / 2;
-      if (!final.claimed) slowRays(this, cx, cy, 260, 0.3, 0xd890ff);
-      drawHeroCard(this, cx, cy, hero, { w: cw, glow: final.ready, level: null, showPips: false }).setAlpha(final.claimed ? 0.6 : 1);
-      text(this, cx, cy + h / 2 + 22, `за ${pointsText(final.points)}`, FS.caption, C.gold, OUTLINE);
-    }
-
-    const barY = NB.barY;
-    progressBar(this, NB.barX, barY, NB.barW, 34, st.maxPoints ? st.points / Math.max(1, final?.points ?? st.maxPoints) : 0, TINT.success, { key: 'events:newbie' });
     const span = Math.max(1, final?.points ?? st.maxPoints);
-    for (const m of st.milestones) this.chest(m, NB.barX + (NB.barW * m.points) / span, barY);
+    const rowY = top + 28;
+    chip(this, S.l, rowY, 'star', `${st.points} / ${span}`, 'accent', { size: 's', align: 'left' }).setName('nbPoints');
+    const barY = rowY + 28 + S.s + EV_L.node / 2;
+    const x0 = S.l + 24;
+    const x1 = GAME_W - S.l - 70;
+    progressBar(this, x0, barY, x1 - x0, 22, Math.min(1, st.points / span), COLOR_N.accent, { key: 'events:newbie' });
+    for (const m of st.milestones) this.node(m, x0 + ((x1 - x0) * m.points) / span, barY);
 
-    // Дни: 1…7, закрытые — замок, со значком — есть что забрать.
+    // Дни заданий: вкладки 1…7; в дне есть что забрать — точка.
+    const segY = barY + EV_L.node / 2 + S.s + 56 + S.m + EV_L.segH / 2;
     const n = st.days.length;
-    const dw = Math.min(140, (GAME_W - 80) / n - 10);
+    const seg = segmented(this, GAME_W / 2, segY, EV_L.w, st.days.map((d) => `${d.day}`), this.day - 1, (i) => this.scene.restart({ tab: 'newbie', day: i + 1 }));
+    seg.container.setName('nbDays');
+    const segW = EV_L.w / n;
     st.days.forEach((d, i) => {
-      const x = GAME_W / 2 + (i - (n - 1) / 2) * (dw + 10);
-      const on = d.day === this.day;
-      const b = button(this, x, NB.dayY, dw, 96, on ? 'skin_tab_active' : 'skin_tab', `${d.day}`, () => {
-        if (!on) this.scene.restart({ tab: 'newbie', day: d.day });
-      }, FS.h2, { sound: 'ui_tab' });
-      b.label.setColor(on ? SKIN.goldLight : d.locked ? C.disabled : SKIN.cream);
-      b.container.setName(`nbDay_${d.day}`);
-      if (d.locked) b.container.add(this.add.image(dw / 2 - 22, -28, skinIcon('lock')).setDisplaySize(28, 28).setTint(SKIN_TINT.creamDim));
-      const ready = d.tasks.filter((t) => t.ready).length;
-      if (ready) badge(this, x + dw / 2 - 10, NB.dayY - 40, ready);
+      if (d.tasks.some((t) => t.ready) && d.day !== this.day) dot(this, S.l + segW * (i + 1) - 16, segY - EV_L.segH / 2 + 10);
+      if (d.locked) this.add.image(S.l + segW * (i + 1) - 22, segY - EV_L.segH / 2 + 22, skinIcon('lock')).setDisplaySize(22, 22).setTint(COLOR_N.textTertiary);
     });
 
     const day = st.days[this.day - 1];
-    this.area = new ScrollArea(this, NB.listTop, contentBottom() + 10);
+    const listTop = segY + EV_L.segH / 2 + S.m;
+    this.area = new ScrollArea(this, listTop, contentBottom() + 10);
+    let ly = 0;
     if (day.locked) {
       const left = this.day - st.eventDay;
-      this.area.add(text(this, GAME_W / 2, 60, left === 1 ? `Задания дня ${this.day} откроются завтра` : `Задания дня ${this.day} откроются через ${daysText(left)}`, FS.body, C.muted, OUTLINE));
+      this.area.add(text(this, GAME_W / 2, T.body / 2, left === 1 ? 'Откроется завтра' : `Откроется через ${daysText(left)}`, T.body, COLOR.textSecondary));
+      ly += T.body + S.s;
     }
-    const rows = day.tasks.map((t, i) => collect(this.area!.content, () => this.taskRow(t, (day.locked ? 120 : 0) + NB.rowH * (i + 0.5), NB.rowH - 14, st.open)));
-    this.area.setContentHeight((day.locked ? 120 : 0) + NB.rowH * day.tasks.length + 10);
+    const rows = sortTasks(day.tasks).map((t) => {
+      const objs = collect(this.area!.content, () => this.taskRow(t, ly + EV_L.rowH / 2, st.open));
+      ly += EV_L.rowH + S.xs;
+      return objs;
+    });
+    this.area.setContentHeight(ly + S.xs);
     staggerIn(this, 'Events:newbie', rows);
   }
 
-  private chest(m: NewbieMilestoneView, x: number, y: number): void {
-    const x0 = Math.min(x, NB.barX + NB.barW - 10);
-    if (m.ready) {
-      const g = this.add.rectangle(x0, y, 116, 116, 0xffd84a, 0.35).setStrokeStyle(6, 0xffd84a);
-      if (juiceOn()) this.tweens.add({ targets: g, alpha: 0.35, yoyo: true, repeat: -1, duration: 600 });
+  /** Веха на дорожке: узел (очки), под ним — главная награда; готова — золотой с точкой, получена — тусклый с галкой. */
+  private node(m: NewbieMilestoneView, x: number, y: number): void {
+    const s = EV_L.node;
+    const items = rewardItems(m.rewards);
+    const hero = mainPrize(m.rewards);
+    if (m.ready) slowRays(this, x, y, s * 2, 0.35, 0xffd27a);
+    const bg = m.ready
+      ? plate(this, x, y, s, s, { fill: mixHex(COLOR.surfaceRaised, COLOR.accent, 0.25), border: COLOR.accent, borderW: 4, r: R.pill, hl: 0.2 })
+      : plate(this, x, y, s, s, { ...(m.claimed ? SURFACE.sunken : SURFACE.raised), r: R.pill });
+    bg.setName(`nbChest_${m.points}`);
+    const parts: Phaser.GameObjects.GameObject[] = [];
+    if (hero) parts.push(heroCardIcon(this, x, y, s - 24, hero.rarity, hero.hero, { pick: hero.pick, dim: m.claimed }));
+    else parts.push(this.add.image(x, y - 12, skinIcon('chest')).setDisplaySize(48, 48).setTint(m.ready ? COLOR_N.accent : COLOR_N.textSecondary));
+    if (!hero) parts.push(text(this, x, y + 26, `${m.points}`, T.caption, m.ready ? COLOR.title : COLOR.textPrimary, { fontStyle: 'bold' }));
+    // Под узлом — главная награда вехи (первая в списке; у последней вехи — её очки).
+    const first = items[0];
+    const under = y + s / 2 + S.xs + 28;
+    if (hero) parts.push(text(this, x, under, `${m.points}`, T.caption, m.ready ? COLOR.title : COLOR.textPrimary, { fontStyle: 'bold' }));
+    else if (first) parts.push(chip(this, x, under, rewardChip(first, m.claimed).icon, first.short, rewardChip(first, m.claimed).tone, { size: 's', bg: false }));
+    if (m.claimed) {
+      parts.forEach((o) => (o as unknown as Phaser.GameObjects.Components.Alpha).setAlpha?.(0.5));
+      this.add.image(x + s / 2 - 12, y - s / 2 + 12, skinIcon('check')).setDisplaySize(40, 40).setTint(CHECK_TINT);
     }
-    const frame = m.claimed ? 'k:buttonSquare_grey' : m.ready ? 'k:buttonSquare_beige' : 'k:buttonSquare_brown';
-    const b = button(this, x0, y, 96, 96, frame, String(m.points), () => this.claimChest(m, { x: x0, y }), FS.caption);
-    b.label.setY(28).setColor(m.claimed ? C.disabled : m.ready ? SKIN.goldLight : SKIN.cream).setStroke('#000000', 5);
-    const hero = !!m.rewards.heroes?.length || !!m.rewards.heroPicks?.length;
-    b.container.addAt(this.add.image(0, -12, skinIcon(hero ? 'star' : 'chest')).setDisplaySize(52, 52).setTint(m.claimed ? 0x6a6a70 : hero ? 0xd890ff : m.ready ? SKIN_TINT.gold : SKIN_TINT.creamDim), 1);
-    b.container.setName(`nbChest_${m.points}`);
-    if (m.claimed) this.add.image(x0 + 34, y - 34, skinIcon('check')).setDisplaySize(40, 40).setTint(CHECK_TINT);
     if (m.ready) {
-      cornerBadge(this, x0, y, 96, 96, 1);
-      pulse(this, b.container, 1.08, 600);
+      dot(this, x + s / 2 - 10, y - s / 2 + 10);
+      if (juiceOn()) pulse(this, bg, 1.06, 700);
     }
+    pressable(this, bg, s, s, () => this.claimChest(m, { x, y }));
   }
 
-  private taskRow(t: NewbieTaskView, y: number, h: number, open: boolean): void {
+  /** Задание строкой списка: иконка по счётчику, название, прогресс и очки; справа — «Забрать», «Перейти», галка или замок. */
+  private taskRow(t: NewbieTaskView, y: number, open: boolean): void {
     const a = this.area!;
-    const grey = t.claimed || t.locked;
-    const bg = a.add(card(this, GAME_W / 2, y, 1020, h, t.ready));
-    if (grey) bg.setAlpha(0.55);
-    const dark = t.ready;
-    a.add(text(this, 60, y - h * 0.22, t.name, FS.body, dark ? C.ink : grey ? C.disabled : C.text, {
-      fontStyle: 'bold',
-      ...(dark ? {} : OUTLINE),
-      align: 'left',
-      wordWrap: { width: 620 },
-    }).setOrigin(0, 0.5));
-    a.add(progressBar(this, 60, y + h * 0.22, 420, 30, t.progress / t.target, t.done ? TINT.gold : TINT.success, { key: `nb:${t.id}` }));
-    a.add(text(this, 270, y + h * 0.22, `${formatNumber(t.progress)} / ${formatNumber(t.target)}`, FS.caption, t.done ? C.titleStroke : C.text, t.done ? { fontStyle: 'bold' } : { fontStyle: 'bold', ...OUTLINE }));
-    a.add(text(this, 560, y + h * 0.22, `+${pointsText(t.points)}`, FS.body, dark ? C.inkMuted : grey ? C.disabled : C.success, { fontStyle: 'bold' }));
-    const bx = 880;
-    if (t.claimed) {
-      const done = a.add(text(this, bx + 24, y, 'Готово', FS.body, C.success, { fontStyle: 'bold' }));
-      a.add(this.add.image(done.x - done.width / 2 - 34, y, skinIcon('check')).setDisplaySize(46, 46).setTint(CHECK_TINT));
+    const scene = this;
+    const progress = `${Math.min(t.progress, t.target).toLocaleString('ru-RU')} / ${t.target.toLocaleString('ru-RU')}  ·  +${t.points} очков`;
+    let trailing: Phaser.GameObjects.Container | Phaser.GameObjects.Image | string | undefined;
+    let onTap: (() => void) | undefined;
+    if (t.ready) {
+      trailing = tag(scene, 0, 0, 'Забрать', 'accent', { solid: true });
+      onTap = a.tap(() => this.claimTask(t));
+    } else if (t.claimed) {
+      trailing = scene.add.image(0, 0, skinIcon('check')).setDisplaySize(52, 52).setTint(CHECK_TINT);
     } else if (t.locked) {
-      a.add(this.add.image(bx, y, skinIcon('lock')).setDisplaySize(56, 56).setTint(SKIN_TINT.creamDim));
-    } else if (t.ready) {
-      const b = button(this, bx, y, 240, 100, 'ui_btn_primary', 'Забрать', a.tap(() => this.claimTask(t)), FS.h3);
-      a.add(b.container);
-      pulse(this, b.container);
+      trailing = scene.add.image(0, 0, skinIcon('lock')).setDisplaySize(44, 44).setTint(COLOR_N.textTertiary);
     } else if (open) {
-      a.add(button(this, bx, y, 240, 100, 'ui_btn_secondary', 'Перейти', a.tap(() => this.scene.start(taskDestination(t.counter))), FS.h3).container);
+      // «Перейти» — вся строка; справа — шеврон цвета акцента.
+      trailing = scene.add.image(0, 0, skinIcon('next')).setDisplaySize(44, 44).setTint(COLOR_N.accent);
+      const to = taskDestination(t.counter);
+      onTap = a.tap(() => this.scene.start(to));
+    }
+    const row = listRow(scene, GAME_W / 2, y, EV_L.w, {
+      icon: taskIcon(t.counter),
+      title: t.name,
+      subtitle: progress,
+      trailing,
+      raised: t.ready,
+      dim: t.claimed || t.locked,
+      h: EV_L.rowH,
+      onTap,
+    });
+    row.setName(`nbTask_${t.id}`);
+    a.add(row);
+    // Тонкая полоса прогресса по низу строки (в процессе).
+    if (!t.claimed && !t.locked && !t.ready && t.progress > 0) {
+      a.add(progressBar(scene, S.l + S.s + 104 + S.s, y + EV_L.rowH / 2 - 14, 360, 10, t.progress / t.target, COLOR_N.positive, { key: `nb:${t.id}` }));
     }
   }
 
@@ -329,7 +415,7 @@ export class EventsScene extends Phaser.Scene {
     try {
       const r = claimNewbieTask(session.save, today(), t.id, GAME);
       commit(r.save);
-      this.restartWithToast(`«${t.name}»: +${r.points} очков`, { tab: 'newbie', day: this.day }, false);
+      this.restartWithToast(`+${r.points} очков`, { tab: 'newbie', day: this.day }, false);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
@@ -337,14 +423,14 @@ export class EventsScene extends Phaser.Scene {
 
   private claimChest(m: NewbieMilestoneView, at: Point): void {
     if (m.claimed) return toast(this, 'Эта награда уже получена');
-    if (!m.reached) return toast(this, `Нужно ${m.points} очков. В сундуке: ${rewardText(m.rewards)}.`);
+    if (!m.reached) return toast(this, `${m.points} очков: ${rewardText(m.rewards)}`);
     try {
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = claimNewbieMilestone(session.save, today(), m.points, GAME);
       commit(r.save);
-      queueRewardFly('Events', at, before);
-      if (this.toContract(rewardToast(`Сундук за ${m.points} очков`, r.rewards, r.events), r.events, { tab: 'newbie', day: this.day })) return;
-      this.restartWithToast(rewardToast(`Сундук за ${m.points} очков`, r.rewards, r.events), { tab: 'newbie', day: this.day });
+      queueRewardFly('Events', at, before, { burst: true });
+      if (this.toContract(rewardToast(`${m.points} очков`, r.rewards, r.events), r.events, { tab: 'newbie', day: this.day })) return;
+      this.restartWithToast(rewardToast(`${m.points} очков`, r.rewards, r.events), { tab: 'newbie', day: this.day });
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
@@ -361,7 +447,7 @@ export class EventsScene extends Phaser.Scene {
 
   private restartWithToast(message: string, data: EventsData, fly = true): void {
     this.scene.restart(data);
-    this.events.once(Phaser.Scenes.Events.CREATE, () => (fly ? afterRewardFly(this, () => toast(this, message, C.success, 4500)) : toast(this, message, C.success, 3500)));
+    this.events.once(Phaser.Scenes.Events.CREATE, () => (fly ? afterRewardFly(this, () => toast(this, message, C.success, 4500)) : toast(this, message, C.success, 2500)));
   }
 }
 

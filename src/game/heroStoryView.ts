@@ -6,10 +6,10 @@ import { GAME, LORE } from './content';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
 import { view } from './viewport';
 import { commit, session } from './session';
-import { SKIN, SKIN_TINT } from './skin';
+import { SKIN } from './skin';
 import { divider } from './storyPage';
-import { button, ScrollArea, text, toast } from './ui';
-import { C, FS, OUTLINE, TINT, TOUCH } from './theme';
+import { BTN, button, ScrollArea, tag, text, toast } from './ui';
+import { C, COLOR, FAMILY, M, S, T } from './theme';
 
 /**
  * История героя кусочками (data/lore/hero_stories.json, ядро — src/core/lore/heroStories.ts): страница во весь экран.
@@ -30,8 +30,9 @@ const LEFT = (GAME_W - TEXT_W) / 2;
 /** Раскладка для поля 1080×1920; на вытянутых экранах (390×844) шапка поднимается, а список и кнопка опускаются в поля. */
 const LIST_BOTTOM = 1690;
 const BTN_Y = 1822;
-/** Шрифт текста кусочка: крупнее основного (на 390×844 ≈ 15 px). */
-const BODY_FS = 40;
+/** Шрифт текста кусочка — T.body, межстрочный 1.4 (как страницы эпизода, storyPage.ts). */
+const BODY_FS = T.body;
+const BODY_LEADING = Math.round(T.body * 0.4);
 /** Фон страницы (и затухание краёв списка). */
 const BG = 0x07060a;
 
@@ -61,23 +62,6 @@ export function toastOpenedStories(scene: Phaser.Scene, before: SaveState, after
   if (!fresh.length) return false;
   toast(scene, `Открыта история: «${fresh.map((p) => p.title).join('», «')}»`, C.gold, 3500);
   return true;
-}
-
-/** Красная точка «новое» с книжкой (кусочек истории открыт и не прочитан). */
-export function storyDot(scene: Phaser.Scene, x: number, y: number, r = 20): Phaser.GameObjects.Container {
-  const c = scene.add.container(x, y).setName('storyDot');
-  const disc = scene.add.circle(0, 0, r, TINT.badge).setStrokeStyle(Math.max(2, r / 6), 0xffffff);
-  const g = scene.add.graphics();
-  // Раскрытая книжка: две страницы с приподнятыми внешними краями и корешок.
-  const w = r * 0.62;
-  const h = r * 0.6;
-  const lift = r * 0.16;
-  const V = Phaser.Math.Vector2;
-  g.fillStyle(0xffffff, 1);
-  g.fillPoints([new V(-1, -h / 2 + lift), new V(-w, -h / 2), new V(-w, h / 2 - lift), new V(-1, h / 2)], true);
-  g.fillPoints([new V(1, -h / 2 + lift), new V(w, -h / 2), new V(w, h / 2 - lift), new V(1, h / 2)], true);
-  c.add([disc, g]);
-  return c;
 }
 
 export interface HeroStoryOptions {
@@ -117,21 +101,20 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
 
   const progress = heroStoryProgress(templateId);
   let y = 160 + dt;
-  const kicker = text(scene, cx, y, 'ИСТОРИЯ ГЕРОЯ', FS.h3, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE });
+  const kicker = text(scene, cx, y, 'ИСТОРИЯ ГЕРОЯ', T.caption, SKIN.goldLight, { fontStyle: 'bold' });
   kicker.setLetterSpacing?.(6);
   layer.add(kicker);
-  y += 66;
-  const title = text(scene, cx, y, t.name, FS.hero + 12, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 }).setOrigin(0.5, 0).setName('heroStoryTitle');
+  y += 50;
+  const title = text(scene, cx, y, t.name, T.display, C.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0.5, 0).setName('heroStoryTitle');
+  title.setShadow(0, 4, 'rgba(0,0,0,0.8)', 8, false, true);
   layer.add(title);
-  y += title.height + 6;
-  const sub = text(scene, cx, y, pieces.length ? `Открыто ${progress.open} из ${progress.total} · новая часть — каждые 10 уровней` : 'Летописец ещё не записал эту историю', FS.body, SKIN.cream, {
-    fontStyle: 'italic',
-    ...OUTLINE,
+  y += title.height + S.xxs;
+  const sub = text(scene, cx, y, pieces.length ? `Открыто ${progress.open} из ${progress.total} · новая часть — каждые 10 уровней` : 'Летописец ещё не записал эту историю', T.caption, COLOR.textSecondary, {
     wordWrap: { width: TEXT_W },
     align: 'center',
   }).setOrigin(0.5, 0);
   layer.add(sub);
-  y += sub.height + 30;
+  y += sub.height + S.m;
   layer.add(divider(scene, cx, y));
 
   // Список: общие кусочки, затем разделы веток (своя — первой). Открытые — уровень, заголовок, текст; закрытые своей
@@ -146,27 +129,18 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
   const hasBranch = heroStoryBranches(session.save, templateId).length > 0;
 
   const openPiece = (p: HeroStoryEntry) => {
-    const head = text(scene, LEFT, ly, `Ур. ${p.level}`, FS.body, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0);
+    const head = text(scene, LEFT, ly, `Ур. ${p.level}`, T.caption, SKIN.goldLight, { fontStyle: 'bold' }).setOrigin(0, 0);
     area.add(head);
-    if (fresh.has(p.key)) {
-      const tagText = text(scene, 0, 0, 'новое', FS.caption - 4, C.text, { fontStyle: 'bold' });
-      const tag = scene.add.container(LEFT + head.width + 24 + (tagText.width + 28) / 2, ly + head.height / 2, [
-        scene.add.rectangle(0, 0, tagText.width + 28, 40, TINT.badge).setStrokeStyle(3, 0xffffff),
-        tagText,
-      ]).setName(`heroStoryNew_${p.key}`);
-      area.add(tag);
-    }
-    ly += head.height + 4;
-    const tt = text(scene, LEFT, ly, p.title, FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 8, wordWrap: { width: TEXT_W } }).setOrigin(0, 0);
+    if (fresh.has(p.key)) area.add(tag(scene, LEFT + head.width + S.xs, ly + head.height / 2, 'новое', 'accent', { solid: true, align: 'left' }).setName(`heroStoryNew_${p.key}`));
+    ly += head.height + S.xxs;
+    const tt = text(scene, LEFT, ly, p.title, T.title, C.title, { fontFamily: FAMILY.heading, fontStyle: 'bold', wordWrap: { width: TEXT_W } }).setOrigin(0, 0);
     area.add(tt);
-    ly += tt.height + 14;
-    const body = text(scene, LEFT, ly, p.text, BODY_FS, SKIN.cream, { align: 'left', wordWrap: { width: TEXT_W, useAdvancedWrap: true }, lineSpacing: 14 })
+    ly += tt.height + S.xs;
+    const body = text(scene, LEFT, ly, p.text, BODY_FS, SKIN.cream, { align: 'left', wordWrap: { width: TEXT_W, useAdvancedWrap: true }, lineSpacing: BODY_LEADING })
       .setOrigin(0, 0)
       .setName(`heroStoryText_${p.key}`);
     area.add(body);
-    ly += body.height + 36;
-    area.add(scene.add.rectangle(cx, ly, TEXT_W * 0.6, 3, SKIN_TINT.gold, 0.35));
-    ly += 40;
+    ly += body.height + S.l;
   };
   const lockedLine = (p: HeroStoryEntry) => {
     const peak = heroPeakLevel(session.save, templateId, p.branch);
@@ -174,21 +148,21 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
     // Два условия (BUG-167): уровень копии и место в кампании. Уровень есть — только «после главы N».
     const gate = !p.stageReached && p.unlockAfterStage ? heroStoryGateLabel(p.unlockAfterStage, GAME.content) : '';
     const how = p.levelReached ? `откроется ${gate}` : `откроется на ур. ${p.level}${left ? ` (ещё ${left} ур.)` : ''}${gate ? ` и ${gate}` : ''}`;
-    const lock = text(scene, LEFT, ly, `Ур. ${p.level} · ${how}`, FS.h3, C.dim, { ...OUTLINE, wordWrap: { width: TEXT_W } })
+    const lock = text(scene, LEFT, ly, `Ур. ${p.level} · ${how}`, T.body, COLOR.textTertiary, { wordWrap: { width: TEXT_W } })
       .setOrigin(0, 0)
       .setName(`heroStoryLocked_${p.key}`);
     area.add(lock);
-    ly += lock.height + 34;
+    ly += lock.height + S.m;
   };
   const section = (title: string, note: string, name: string) => {
     ly += 16;
-    const head = text(scene, cx, ly, title, FS.h2, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE, align: 'center', wordWrap: { width: TEXT_W } })
+    const head = text(scene, cx, ly, title, T.heading, SKIN.goldLight, { fontFamily: FAMILY.heading, fontStyle: 'bold', align: 'center', wordWrap: { width: TEXT_W } })
       .setOrigin(0.5, 0)
       .setName(name);
     area.add(head);
     ly += head.height + 6;
     if (note) {
-      const n = text(scene, cx, ly, note, FS.small, SKIN.creamDim, { fontStyle: 'italic', ...OUTLINE, align: 'center', wordWrap: { width: TEXT_W } }).setOrigin(0.5, 0);
+      const n = text(scene, cx, ly, note, T.caption, COLOR.textSecondary, { align: 'center', wordWrap: { width: TEXT_W } }).setOrigin(0.5, 0);
       area.add(n);
       ly += n.height;
     }
@@ -217,11 +191,11 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
     const how = hasBranch
       ? `откроются на ветке «${branchName(b)}»`
       : `путь «${branchName(b)}»: откроется, когда герой выберет эту ветку (фиолетовая редкость)`;
-    const line = text(scene, LEFT, ly, `${what} · ${how}`, FS.h3, C.dim, { ...OUTLINE, wordWrap: { width: TEXT_W } })
+    const line = text(scene, LEFT, ly, `${what} · ${how}`, T.body, COLOR.textTertiary, { wordWrap: { width: TEXT_W } })
       .setOrigin(0, 0)
       .setName(`heroStoryOther_${b}`);
     area.add(line);
-    ly += line.height + 34;
+    ly += line.height + S.m;
   }
   area.setContentHeight(ly + 10);
   layer.add(area.parts);
@@ -231,20 +205,19 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
   const fade = scene.add.graphics();
   fade.fillGradientStyle(BG, BG, BG, BG, 0, 0, 1, 1).fillRect(-BLEED_X, listBottom - FADE, GAME_W + 2 * BLEED_X, FADE);
   layer.add(fade);
-  if (ly > listBottom - listTop) layer.add(text(scene, cx, listBottom + 22, '⇅ листайте', FS.caption, SKIN.creamDim, OUTLINE));
   // Первый непрочитанный кусочек — сразу на экране.
   const firstFresh = [...fresh][0];
   if (firstFresh !== undefined) {
     const o = area.content.getByName(`heroStoryNew_${firstFresh}`) as Phaser.GameObjects.Container | null;
     if (o) area.offset = Math.max(0, o.y - 60);
   }
-  const closeBtn = button(scene, cx, btnY, 520, 140, 'ui_btn_primary', 'Закрыть', close, FS.h2);
+  const closeBtn = button(scene, cx, btnY, 520, BTN.cta, '', 'Закрыть', close, T.heading, { variant: 'secondary' });
   closeBtn.container.setName('heroStoryClose');
-  const backBtn = button(scene, 170, 70 + dt, 280, TOUCH, 'k:buttonLong_beige', '‹ Назад', close, FS.h3);
+  const backBtn = button(scene, S.l + BTN.icon / 2, 70 + dt, BTN.icon, BTN.icon, '', '‹', close, T.title, { variant: 'icon' });
   backBtn.container.setName('heroStoryBack');
   layer.add([closeBtn.container, backBtn.container]);
   layer.setAlpha(0);
-  scene.tweens.add({ targets: layer, alpha: 1, duration: 220 });
+  scene.tweens.add({ targets: layer, alpha: 1, duration: M.base });
   sfx('ui_open');
   haptic('soft');
   return layer;

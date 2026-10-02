@@ -1,23 +1,23 @@
 import Phaser from 'phaser';
-import { claimAllMail, claimMail, deleteReadMail, isEmptyRewards, letterClaimable, mailStatus, readMail, type Letter } from '../../core';
+import { claimAllMail, claimMail, deleteReadMail, isEmptyRewards, letterClaimable, mailStatus, readMail, type Letter, type StoryDef } from '../../core';
 import { GAME } from '../content';
-import { ribbon } from '../decor';
 import { envelopeIcon, touchToday } from '../homeEvents';
-import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn } from '../juice';
-import { GAME_H, GAME_W } from '../layout';
-import { rewardRow, rewardToast } from '../rewardsView';
-import { badge, card, CONTENT_BOTTOM, CONTENT_TOP, confirm, popIn, screen } from '../screen';
+import { collect, queueRewardFly, staggerIn, type Point } from '../juice';
+import { GAME_W } from '../layout';
+import { rewardToast } from '../rewardsView';
+import { bottomSheet, confirm, CONTENT_TOP, cta, screen } from '../screen';
 import { commit, session } from '../session';
-import { SKIN_TINT } from '../skin';
-import { C, FS, OUTLINE, TITLE_STYLE, TOUCH } from '../theme';
-import { button, dangerButton, ellipsize, emptyState, panel, pressable, ScrollArea, text, toast } from '../ui';
-
-const ROW_H = 190;
-const BOTTOM_Y = CONTENT_BOTTOM - 60;
+import { framedPortrait } from '../portraitFrame';
+import { speakerView } from '../storyView';
+import { C, COLOR, COLOR_N, leading, S, T } from '../theme';
+import { button, emptyState, rewardRow, ScrollArea, text, toast } from '../ui';
+import { groupRows, letterState, type RowState } from '../inboxOrder';
+import { bundleChips, claimAllButton, claimAllY, inboxRow, listBottom, playClaimFx, queueClaimFx, ROW_STEP } from '../inboxRows';
 
 export interface MailData {
   /** Открыть письмо сразу (id). */
   open?: string;
+  scroll?: number;
 }
 
 /** 'YYYY-MM-DD' → «27.09». */
@@ -25,12 +25,23 @@ function shortDate(day: string): string {
   return `${day.slice(8, 10)}.${day.slice(5, 7)}`;
 }
 
+/** Подпись письма «Гаррет» — спикер сюжета «Капитан Гаррет». */
+function isSender(name: string | undefined, from: string): boolean {
+  return !!name && (name === from || name.endsWith(` ${from}`));
+}
+
+/** Размер аватара отправителя в строке. */
+const AVATAR = 96;
+
 /**
- * Почта: письма (новые сверху) — от кого, тема, вложение. Нажатие — письмо целиком и «Забрать»;
- * внизу «Забрать всё» и «Удалить прочитанные». Ядро — src/core/events/mail.ts.
+ * Почта: письма строками — аватар отправителя (или конверт), точка «не прочитано», тема, «от кого · дата», вложение
+ * чипами справа. С вложением — сверху с золотой кромкой; прочитанные — приглушены внизу. Нажатие — лист снизу
+ * с текстом и «Забрать». «Забрать всё» — внизу, только когда есть вложения. Ядро — src/core/events/mail.ts.
  */
 export class MailScene extends Phaser.Scene {
   private area!: ScrollArea;
+  /** Отправитель → ключ сюжетного спикера (портрет). */
+  private speakers = new Map<string, { story: StoryDef | undefined; key: string } | null>();
 
   constructor() {
     super('Mail');
@@ -40,112 +51,125 @@ export class MailScene extends Phaser.Scene {
     touchToday();
     screen(this, 'Почта', 'Home', { to: 'Home' });
     const st = mailStatus(session.save);
-    text(this, 50, CONTENT_TOP + 40, `Писем: ${st.letters.length}`, FS.h3, C.title, TITLE_STYLE).setOrigin(0, 0.5);
-    if (st.unread) text(this, GAME_W - 50, CONTENT_TOP + 40, `Непрочитанных: ${st.unread}`, FS.body, C.success, { fontStyle: 'bold', ...OUTLINE }).setOrigin(1, 0.5);
+    if (st.claimable) claimAllButton(this, () => this.claimAll(), 'mailClaimAll');
 
-    this.area = new ScrollArea(this, CONTENT_TOP + 90, BOTTOM_Y - 80);
-    if (!st.letters.length) this.area.add(emptyState(this, GAME_W / 2, 200, 'Писем нет.\nПодарки и новости придут сюда.'));
-    const rows = st.letters.map((l, i) => collect(this.area.content, () => this.row(l, ROW_H * (i + 0.5))));
-    this.area.setContentHeight(ROW_H * st.letters.length + 10);
-    staggerIn(this, 'Mail', rows);
-
-    const all = button(this, GAME_W / 2 + 250, BOTTOM_Y, 460, TOUCH + 14, st.claimable ? 'ui_btn_primary' : 'ui_btn_secondary', 'Забрать всё', () => this.claimAll(), FS.h3);
-    all.setEnabled(st.claimable > 0);
-    all.container.setName('mailClaimAll');
-    if (st.claimable) {
-      pulse(this, all.container);
-      badge(this, GAME_W / 2 + 250 + 230 - 22, BOTTOM_Y - (TOUCH + 14) / 2 + 16, st.claimable);
+    this.area = new ScrollArea(this, CONTENT_TOP + S.xs, listBottom(st.claimable > 0));
+    if (!st.letters.length) this.area.add(emptyState(this, GAME_W / 2, 200, 'Писем нет'));
+    const g = groupRows(st.letters, (l) => letterState(l, letterClaimable(l)));
+    const rows: Phaser.GameObjects.GameObject[][] = [];
+    let y = 0;
+    const list = [...g.ready.map((l) => [l, 'ready'] as const), ...g.active.map((l) => [l, 'active'] as const), ...g.done.map((l) => [l, 'done'] as const)];
+    for (const [l, state] of list) {
+      const cy = y + (ROW_STEP - S.xs) / 2;
+      rows.push(collect(this.area.content, () => this.area.add(this.row(l, state, cy))));
+      y += ROW_STEP;
     }
+    // Прочитанные без вложений — удалить разом (тёмная кнопка с красной подписью в конце списка).
     const removable = st.letters.filter((l) => l.read && !letterClaimable(l)).length;
-    const del = dangerButton(this, GAME_W / 2 - 250, BOTTOM_Y, 460, TOUCH + 14, 'Удалить прочитанные', () => this.deleteRead(), FS.h3);
-    del.setEnabled(removable > 0);
+    if (removable) {
+      const del = button(this, GAME_W / 2, y + 60, 520, 96, '', 'Удалить прочитанные', this.area.tap(() => this.deleteRead(removable)), T.body, { variant: 'danger' });
+      del.container.setName('mailDelete');
+      this.area.add(del.container);
+      y += 120 + S.xs;
+    }
+    this.area.setContentHeight(y);
+    if (data.scroll) this.area.offset = data.scroll;
+    staggerIn(this, 'Mail', rows);
+    playClaimFx(this);
 
     const open = data.open && st.letters.find((l) => l.id === data.open);
     if (open) this.openLetter(open);
   }
 
-  private row(l: Letter, y: number): void {
-    const a = this.area;
-    const claimable = letterClaimable(l);
-    const fresh = !l.read;
-    const bg = a.add(card(this, GAME_W / 2, y, 1020, ROW_H - 16, claimable || fresh));
-    pressable(this, bg, 1020, ROW_H - 16, a.tap(() => this.openLetter(l)));
-    bg.setName(`letter_${l.id}`);
-    const dark = claimable || fresh;
-    const main = dark ? C.ink : C.disabled;
-    // Конверт: новое письмо — золотой, прочитанное — тусклый.
-    a.add(this.add.image(110, y, 'skin_medallion').setDisplaySize(118, 118).setAlpha(dark ? 1 : 0.6));
-    a.add(envelopeIcon(this, 110, y + 2, 58, dark ? SKIN_TINT.gold : SKIN_TINT.creamDim));
-    a.add(ellipsize(text(this, 190, y - 50, l.title, FS.h3, main, { fontStyle: 'bold' }).setOrigin(0, 0.5), 620));
-    a.add(text(this, 190, y - 5, `${l.from} · ${shortDate(l.day)}`, FS.small, dark ? C.inkMuted : C.disabled).setOrigin(0, 0.5));
-    if (!isEmptyRewards(l.rewards)) {
-      const r = rewardRow(this, 190, y + 45, l.rewards, { size: 36, font: FS.small, dim: !claimable });
-      for (const o of r.objects) a.add(o);
-    }
-    const bx = 900;
-    if (claimable) {
-      const b = button(this, bx, y, 200, 96, 'ui_btn_primary', 'Забрать', a.tap(() => this.claim(l, { x: bx, y: this.area.content.y + y })), FS.h3);
-      a.add(b.container);
-      pulse(this, b.container);
-    } else if (fresh) a.add(text(this, bx, y, 'Новое', FS.body, C.success, { fontStyle: 'bold' }));
-    else if (l.claimed) a.add(text(this, bx, y, 'Получено', FS.small, C.disabled, { fontStyle: 'bold' }));
-  }
-
-  /** Письмо целиком: тема, от кого, текст, вложение и «Забрать» / «Закрыть». Открытие отмечает прочитанным. */
-  private openLetter(l: Letter): void {
-    if (!l.read) commit(readMail(session.save, l.id));
-    const cx = GAME_W / 2;
-    const cy = GAME_H / 2 - 40;
-    const w = 940;
-    const h = 1040;
-    const layer = this.add.container(0, 0).setDepth(8500).setName('letterModal');
-    this.area.locked = true;
-    const close = () => {
-      layer.destroy();
-      this.scene.restart();
-    };
-    const shade = this.add.rectangle(cx, GAME_H / 2, GAME_W * 3, GAME_H * 3, 0x000000, 0.7).setInteractive();
-    shade.on('pointerup', close);
-    const box = panel(this, cx, cy, w, h, 'ui_panel').setInteractive();
-    layer.add([shade, box]);
-    layer.add(ribbon(this, cx, cy - h / 2 + 20, l.title, { size: FS.h2, minW: 520, maxW: 900 }));
-    layer.add(text(this, cx, cy - h / 2 + 110, `От: ${l.from} · ${shortDate(l.day)}`, FS.small, C.muted, OUTLINE));
-    layer.add(
-      text(this, cx - w / 2 + 70, cy - h / 2 + 170, l.body || '(без текста)', FS.body, C.text, { ...OUTLINE, wordWrap: { width: w - 140 }, lineSpacing: 8, align: 'left' }).setOrigin(0, 0),
-    );
-    const claimable = letterClaimable(l);
-    if (!isEmptyRewards(l.rewards)) {
-      const ay = cy + h / 2 - 280;
-      layer.add(text(this, cx, ay - 60, claimable ? 'Вложение' : 'Вложение получено', FS.h3, claimable ? C.title : C.disabled, TITLE_STYLE));
-      const r = rewardRow(this, 0, ay + 10, l.rewards, { size: 48, font: FS.h3, dim: !claimable });
-      const shift = cx - r.width / 2;
-      for (const o of r.objects) {
-        (o as unknown as Phaser.GameObjects.Components.Transform).x += shift;
-        layer.add(o);
+  /** Портрет отправителя, если это персонаж сюжета (Гаррет); иначе конверт. */
+  private avatar(from: string, state: RowState): Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform {
+    if (!this.speakers.has(from)) {
+      const stories: StoryDef[] = Object.values(GAME.story.chapters);
+      let found: { story: StoryDef; key: string } | null = null;
+      for (const story of stories) {
+        const key = Object.keys(story.speakers ?? {}).find((k) => isSender(story.speakers[k]?.name, from));
+        if (key) {
+          found = { story, key };
+          break;
+        }
       }
+      this.speakers.set(from, found);
     }
-    const by = cy + h / 2 - 110;
-    if (claimable) {
-      const b = button(this, cx + 190, by, 340, TOUCH + 10, 'ui_btn_primary', 'Забрать', () => {
-        layer.destroy();
-        this.claim(l, { x: cx, y: by });
-      }, FS.h2);
-      b.container.setName('letterClaim');
-      layer.add(b.container);
-      layer.add(button(this, cx - 190, by, 340, TOUCH + 10, 'ui_btn_secondary', 'Закрыть', close, FS.h2).container);
-    } else {
-      layer.add(button(this, cx, by, 400, TOUCH + 10, 'ui_btn_secondary', 'Закрыть', close, FS.h2).container);
+    const sp = this.speakers.get(from);
+    const who = sp ? speakerView(sp.story, sp.key, session.save, GAME) : null;
+    if (who?.sprite) {
+      const face = framedPortrait(this, 0, 0, who.sprite, AVATAR, who.gender);
+      if (state === 'done') face.setAlpha(0.55);
+      return face;
     }
-    popIn(this, layer, shade);
+    return envelopeIcon(this, 0, 0, 60, state === 'done' ? COLOR_N.textTertiary : state === 'ready' ? COLOR_N.accent : COLOR_N.textSecondary);
   }
 
-  private claim(l: Letter, at: { x: number; y: number }): void {
+  private row(l: Letter, state: RowState, cy: number): Phaser.GameObjects.Container {
+    // Вложение — чипами второй строкой (отправителя видно по аватару); без вложения — «от кого · дата».
+    const line = isEmptyRewards(l.rewards) ? { text: `${l.from} · ${shortDate(l.day)}` } : { chips: bundleChips(l.rewards) };
+    const row = inboxRow(this, GAME_W / 2, cy, {
+      state,
+      icon: this.avatar(l.from, state),
+      title: l.title,
+      line,
+      onTap: this.area.tap(() => this.openLetter(l)),
+    }).setName(`letter_${l.id}`);
+    if (!l.read) {
+      // Не прочитано — красная точка в углу аватара.
+      const ix = -row.width / 2 + S.s + 52;
+      row.add(this.add.circle(ix + 44, -44, 12, COLOR_N.badge).setStrokeStyle(3, COLOR_N.bg, 0.9).setName('unread'));
+    }
+    return row;
+  }
+
+  /** Письмо в листе снизу: от кого, текст, вложение и «Забрать». Открытие отмечает прочитанным. */
+  private openLetter(l: Letter): void {
+    const fresh = !l.read;
+    if (fresh) commit(readMail(session.save, l.id));
+    const claimable = letterClaimable(l);
+    let claiming = false;
+    bottomSheet(
+      this,
+      l.title,
+      (c, width, close) => {
+        let y = 0;
+        c.add(text(this, 0, y, `${l.from} · ${shortDate(l.day)}`, T.caption, COLOR.textSecondary).setOrigin(0, 0));
+        y += T.caption + S.s;
+        const body = text(this, 0, y, l.body || '…', T.body, COLOR.textPrimary, { align: 'left', wordWrap: { width, useAdvancedWrap: true }, lineSpacing: leading(T.body) }).setOrigin(0, 0);
+        c.add(body);
+        y += body.height + S.l;
+        if (!isEmptyRewards(l.rewards)) {
+          const r = rewardRow(this, 0, 0, bundleChips(l.rewards), { maxW: width });
+          r.setPosition(r.width / 2, y + 36);
+          if (!claimable) r.setAlpha(0.45);
+          c.add(r);
+          y += r.height + S.l;
+        }
+        if (claimable) {
+          const b = cta(this, width / 2, y + 61, 'Забрать', () => {
+            claiming = true;
+            close();
+            this.claim(l, { x: GAME_W / 2, y: claimAllY() - 200 });
+          }, { w: 600, h: 122 });
+          b.container.setName('letterClaim');
+          c.add(b.container);
+          y += 122;
+        }
+        return y;
+      },
+      // Прочитанное письмо уходит вниз списка — перестроить (кроме «Забрать»: тот перезапускает экран сам).
+      { onClose: () => !claiming && fresh && this.scene.restart({ scroll: this.area.offset } satisfies MailData) },
+    );
+  }
+
+  private claim(l: Letter, at: Point): void {
     try {
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = claimMail(session.save, l.id, GAME);
       commit(r.save);
       queueRewardFly('Mail', at, before);
-      this.restartWithToast(rewardToast('Получено', r.rewards, r.events), r.events);
+      this.after(r.events, rewardToast('Получено', r.rewards, r.events), at, bundleChips(r.rewards));
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
@@ -154,32 +178,33 @@ export class MailScene extends Phaser.Scene {
   private claimAll(): void {
     const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
     const r = claimAllMail(session.save, GAME);
-    if (!r.count) return toast(this, 'Забирать нечего');
+    if (!r.count) return;
     commit(r.save);
-    queueRewardFly('Mail', { x: GAME_W / 2 + 250, y: BOTTOM_Y }, before, { burst: true });
-    this.restartWithToast(rewardToast(`Писем: ${r.count}`, r.rewards, r.events), r.events);
+    const at = { x: GAME_W / 2, y: claimAllY() };
+    queueRewardFly('Mail', at, before, { burst: true });
+    this.after(r.events, rewardToast(`Писем: ${r.count}`, r.rewards, r.events), at, bundleChips(r.rewards));
   }
 
-  private deleteRead(): void {
-    const n = mailStatus(session.save).letters.filter((l) => l.read && !letterClaimable(l)).length;
-    if (!n) return toast(this, 'Удалять нечего: прочитанных писем без вложений нет');
-    confirm(this, `Удалить прочитанные письма (${n})? Письма с незабранным вложением останутся.`, 'Удалить', () => {
-      const r = deleteReadMail(session.save);
-      commit(r.save);
+  private deleteRead(n: number): void {
+    confirm(this, `Удалить прочитанные письма (${n})? Письма с вложением останутся.`, 'Удалить', () => {
+      commit(deleteReadMail(session.save).save);
       this.scene.restart();
-      this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, `Удалено писем: ${r.removed}`));
     }, { danger: true });
   }
 
-  /** Вложение с «Контрактом героя» — сразу экран выбора героя (назад — в почту). */
-  private restartWithToast(message: string, events: readonly { type: string }[] = []): void {
+  /**
+   * После получения: «Контракт героя» — сразу выбор героя (назад — в почту), с пояснением тостом; иначе экран
+   * перестраивается, монеты летят в шапку, опыт и карты всплывают чипами, выпавшие карты героев — тостом.
+   */
+  private after(events: readonly { type: string; name?: string }[], message: string, at: Point, chips: ReturnType<typeof bundleChips>): void {
     if (events.some((e) => e.type === 'heroPick')) {
       this.scene.start('HeroPick', { back: { to: 'Mail' } });
       const sc = this.scene.get('HeroPick');
       sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, message, C.success, 4000));
       return;
     }
-    this.scene.restart();
-    this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => toast(this, message, C.success, 4500)));
+    const cards = message.split('\n').filter((s) => s.startsWith('Карта героя'));
+    queueClaimFx('Mail', at, chips, cards);
+    this.scene.restart({ scroll: this.area.offset } satisfies MailData);
   }
 }

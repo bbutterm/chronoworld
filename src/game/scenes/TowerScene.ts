@@ -7,6 +7,7 @@ import {
   chooseTowerPath,
   eventOptionAllowed,
   familyStates,
+  heroGender,
   heroPower,
   isBattleNode,
   markTowerSummarySeen,
@@ -26,6 +27,7 @@ import {
   upgradeValue,
   withGear,
   type Blessing,
+  type HeroState,
   type TowerNodeKind,
   type TowerRun,
   type TowerRunEvent,
@@ -34,16 +36,18 @@ import {
 import { scoutLine } from '../scoutView';
 import { plural } from '../skillFacts';
 import { GAME } from '../content';
-import { formatNumber, heroSprite, POWER_COLORS, powerTone, stageNo } from '../flow';
+import { formatNumber, heroSprite, stageNo } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
-import { card, confirm, CONTENT_TOP, portrait, screen, unitTint } from '../screen';
+import { bottomSheet, confirm, cta, CONTENT_TOP, NAV_H, popIn, portrait, powerCompare, screen, unitTint } from '../screen';
+import { screenBackground, setThemeBackground, themeOfTowerFloor } from '../backdrops';
 import { showCardArt } from '../cardArt';
+import { framedPortrait } from '../portraitFrame';
 import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
-import { button, panel, pressable, text, toast } from '../ui';
-import { ctaShine, glow, medallion } from '../decor';
-import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from '../skin';
-import { C, FS } from '../theme';
+import { BTN, button, chip, clampLines, ellipsize, iconOf, infoButton, plate, pressable, rewardRow, SURFACE, tag, text, toast, type ButtonView, type ChipSpec, type Tone } from '../ui';
+import { ctaShine, glow } from '../decor';
+import { skinIcon, type SkinIcon } from '../skin';
+import { C, COLOR, COLOR_N, FAMILY, hexNum, R, RARITY, S, T, TOUCH, Z } from '../theme';
 import { sfx } from '../audio';
 import { firstTip } from '../firstTips';
 import { haptic } from '../haptics';
@@ -52,23 +56,60 @@ import { motion } from '../state';
 /** Что вернул бой этажа (BattleScene → Tower). */
 export interface TowerSceneData {
   fight?: { floor: number; win: boolean; events: TowerRunEvent[] };
-  /** Открыть окно улучшений (после покупки). */
+  /** Открыть лист улучшений (после покупки). */
   upgrades?: boolean;
 }
 
-/** Подсказка первого входа: верхний край (лобби — между строкой добычи и кнопками, ничего не закрывает). */
-const TIP_Y = 1320;
-const RARITY_COLOR: Record<Blessing['rarity'], number> = { common: 0xc8b89a, rare: 0x4aa8ff, legendary: 0xffb830 };
-const RARITY_TEXT: Record<Blessing['rarity'], string> = { common: '#e0d4bc', rare: '#8ec8ff', legendary: '#ffcf60' };
-const RARITY_NAME: Record<Blessing['rarity'], string> = { common: 'обычная', rare: 'редкая', legendary: 'легендарная' };
+/**
+ * Раскладка поля 1080×1920 (§4.2: поля S.l, сетка 8). Лобби и забег делят полосу состояния, лестницу этажей и главную
+ * кнопку; ниже лестницы — у лобби отряд и добыча дня, у забега — превью выбранного пути и раны отряда.
+ */
+const L = {
+  /** Полоса чипов состояния и «i». */
+  barY: CONTENT_TOP + 56,
+  /** Лестница: два этажа впереди (дальний — бледнее). */
+  far: 350,
+  near: 500,
+  /** Лобби: рекорд — крупный круг. */
+  bestY: 730,
+  bestR: 132,
+  /** Забег: развилка (крупный номер этажа между путями) и пройденный этаж. */
+  forkY: 690,
+  passedY: 930,
+  /** Лобби: прошлый забег, отряд, добыча. */
+  lastY: 950,
+  squadHeadY: 1100,
+  squadY: 1220,
+  lootY: 1390,
+  /** Забег: превью пути и отряд с ранами. */
+  previewY: 1150,
+  runSquadY: 1420,
+  ctaY: GAME_H - NAV_H - 110,
+} as const;
+
+/** Первая реплика Гаррета — на месте «прошлого забега», которого при первом входе ещё нет. */
+const TIP_Y = L.lastY;
+/** Рамка карты по редкости (§4.4: редкость — только у рамок). */
+const RARITY_COLOR: Record<Blessing['rarity'], string> = { common: RARITY.green, rare: RARITY.blue, legendary: RARITY.gold };
 const NODE_ICON: Record<TowerNodeKind, SkinIcon> = { battle: 'swords', elite: 'swords', event: 'scroll', rest: 'home', boss: 'trophy' };
-const NODE_TINT: Record<TowerNodeKind, number> = { battle: 0xf0cf8a, elite: 0xff8a6a, event: 0x9fd0ff, rest: 0x9fe0a6, boss: 0xff5a4a };
-const SLOT_X = (i: number, w = 200) => GAME_W / 2 + (i - 2) * w;
-const OVERLAY_DEPTH = 5000;
+const NODE_TONE: Record<TowerNodeKind, string> = { battle: COLOR.title, elite: COLOR.negative, event: COLOR.info, rest: COLOR.positive, boss: COLOR.negative };
+const SOURCE: Record<string, string> = {
+  floor: 'Этажи позади',
+  elite: 'Элита повержена — редкая карта',
+  boss: 'Босс повержен — лучшие карты',
+  event: 'Награда встречи',
+  start: 'Дар Башни',
+  upgrade: 'Дар Башни',
+};
+const W = GAME_W - 2 * S.l;
+const OVERLAY_DEPTH = Z.modal;
 
 /**
- * Башня испытаний — забег-рогалик (docs/design/tower-roguelite.md): лобби (рекорд, осколки, улучшения, отряд, «Начать
- * забег») и экран забега (карта этажей с развилкой, превью боя, раны отряда, карты), окна выбора карты и события.
+ * Башня испытаний — забег-рогалик (docs/design/tower-roguelite.md) в духе «Башни королей» AFK: фон этажа, лестница
+ * этажей (текущий — крупно, следующие — узлами выше), чипы состояния и одна главная кнопка. Правила — «i» (лист снизу).
+ * Лобби: рекорд, отряд забега рядом портретов (касание — правка), добыча дня чипами, «Улучшения», «Начать забег».
+ * Забег: развилка из двух путей, превью боя/отдыха/события, раны отряда; окна выбора карты и события; листы карт и
+ * улучшений.
  */
 export class TowerScene extends Phaser.Scene {
   /** Выбранный путь развилки (индекс в run.paths). */
@@ -88,6 +129,7 @@ export class TowerScene extends Phaser.Scene {
     markHint('tower_open');
     this.picking = false;
     const st = towerRunStatus(session.save, GAME, today());
+    this.backdrop(st.run ? st.run.floor + 1 : Math.max(1, st.best));
     if (!st.unlocked) return this.locked(st.unlockAfterStage);
     if (data.fight) {
       this.sel = 0;
@@ -96,9 +138,9 @@ export class TowerScene extends Phaser.Scene {
     const run = st.run;
     if (!run) {
       this.lobby();
-      if (data.upgrades) this.upgradesOverlay();
+      if (data.upgrades) this.upgradesSheet();
       else if (st.last && !st.last.seen) this.summary();
-      // Первый вход в Башню-рогалик: Гаррет — о тропах, картах и павших (firstTips.ts, один раз).
+      // Первый вход в Башню-рогалик: Гаррет — о тропах и павших (firstTips.ts, один раз).
       else firstTip(this, 'tip_tower', TIP_Y);
       return;
     }
@@ -109,16 +151,29 @@ export class TowerScene extends Phaser.Scene {
     else if (run.pending?.kind === 'event') this.eventOverlay(run);
   }
 
+  /** Фон — поле боя этажа (тема полосы этажей, как в бою), притушенный: узлы и чипы читаются поверх. */
+  private backdrop(floor: number): void {
+    const bg = screenBackground(this);
+    if (!bg) return;
+    setThemeBackground(bg, 'battle', themeOfTowerFloor(floor));
+    const dim = this.add.graphics();
+    dim.fillStyle(COLOR_N.bg, 0.45).fillRect(-GAME_W, -GAME_H, GAME_W * 3, GAME_H * 3);
+    dim.fillGradientStyle(COLOR_N.bg, COLOR_N.bg, COLOR_N.bg, COLOR_N.bg, 0, 0, 0.75, 0.75).fillRect(-GAME_W, L.previewY - 300, GAME_W * 3, GAME_H - L.previewY + 300);
+    dim.fillStyle(COLOR_N.bg, 0.75).fillRect(-GAME_W, GAME_H, GAME_W * 3, GAME_H);
+    this.children.moveAbove(dim as unknown as Phaser.GameObjects.GameObject, bg as unknown as Phaser.GameObjects.GameObject);
+  }
+
   private locked(stageId: string | null): void {
-    const top = CONTENT_TOP;
     const stage = GAME.content.stages.find((s) => s.id === stageId);
-    card(this, GAME_W / 2, top + 300, 1000, 500);
-    this.add.image(GAME_W / 2, top + 160, skinIcon('lock')).setDisplaySize(120, 120).setTint(SKIN_TINT.gold);
-    text(this, GAME_W / 2, top + 300, 'Башня пока закрыта', FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 });
-    text(this, GAME_W / 2, top + 380, stage ? `Пройдите этап ${stageNo(stage, GAME)} «${stage.name}» кампании` : 'Пройдите кампанию дальше', FS.h3, C.text, {
-      wordWrap: { width: 880 },
+    const cy = CONTENT_TOP + 420;
+    plate(this, GAME_W / 2, cy, W, 520, { ...SURFACE.raised, r: R.l });
+    this.add.image(GAME_W / 2, cy - 140, skinIcon('lock')).setDisplaySize(120, 120).setTint(COLOR_N.title);
+    text(this, GAME_W / 2, cy, 'Башня пока закрыта', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
+    text(this, GAME_W / 2, cy + 100, stage ? `Откроется после этапа ${stageNo(stage, GAME)} «${stage.name}»` : 'Откроется дальше по кампании', T.body, COLOR.textSecondary, {
+      wordWrap: { width: W - 2 * S.m },
+      align: 'center',
     });
-    button(this, GAME_W / 2, top + 650, 640, 140, 'ui_btn_primary', 'В кампанию', () => this.scene.start('Campaign'), FS.h1);
+    cta(this, GAME_W / 2, L.ctaY, 'В кампанию', () => this.scene.start('Campaign'));
   }
 
   /** Сообщения после боя этажа: этаж, павшие, рекорд, руда. Итог забега — окно summary. */
@@ -133,71 +188,147 @@ export class TowerScene extends Phaser.Scene {
     }
   }
 
+  // ---------- общие части ----------
+
+  /** Полоса состояния: чипы слева, «i» (правила) справа. Возвращает x левого края «i». */
+  private statusBar(chips: (ChipSpec & { name?: string; onTap?: () => void })[]): number {
+    let x = S.l;
+    for (const c of chips) {
+      const box = chip(this, x, L.barY, c.icon, c.value, c.tone ?? 'neutral', { align: 'left' });
+      if (c.name) box.setName(c.name);
+      if (c.onTap) pressable(this, box, box.width, Math.max(box.height, TOUCH), c.onTap);
+      x += box.width + S.xs;
+    }
+    const ix = GAME_W - S.l - 32;
+    infoButton(this, ix, L.barY, () => this.rulesSheet()).setName('towerInfo');
+    return ix - 32;
+  }
+
+  /** Узел лестницы: диск с номером этажа (босс — кубок), обводка тона. */
+  private node(x: number, y: number, r: number, floor: number, opts: { tone?: string; alpha?: number } = {}): void {
+    const cfg = runConfig(GAME);
+    const boss = floor % cfg.bossEvery === 0;
+    const tone = opts.tone ?? (boss ? COLOR.negative : COLOR.border);
+    const a = opts.alpha ?? 1;
+    this.add.circle(x, y, r, COLOR_N.surfaceSunken, 0.92 * a).setStrokeStyle(Math.max(4, r / 10), hexNum(tone), a);
+    if (boss) this.add.image(x, y, skinIcon('trophy')).setDisplaySize(r * 1.1, r * 1.1).setTint(COLOR_N.negative).setAlpha(a);
+    else text(this, x, y, String(floor), r > 52 ? T.heading : T.body, COLOR.textSecondary, { fontStyle: 'bold' }).setAlpha(a);
+  }
+
+  /** Два этажа впереди и «хвост» лестницы вверх; нижний конец линии — fromY. Вершина — тег вместо узлов. */
+  private floorsAhead(first: number, fromY: number): void {
+    const max = GAME.tower.maxFloor;
+    const g = this.add.graphics();
+    g.lineStyle(8, COLOR_N.border, 0.9);
+    if (first > max) {
+      tag(this, GAME_W / 2, L.near, 'Вершина взята', 'gold', { solid: true });
+      return;
+    }
+    g.lineBetween(GAME_W / 2, fromY, GAME_W / 2, L.near);
+    if (first + 1 <= max) {
+      g.lineBetween(GAME_W / 2, L.near, GAME_W / 2, L.far);
+      g.lineStyle(8, COLOR_N.border, 0.35).lineBetween(GAME_W / 2, L.far, GAME_W / 2, L.far - 110);
+      this.node(GAME_W / 2, L.far, 46, first + 1, { alpha: 0.6 });
+    }
+    this.node(GAME_W / 2, L.near, 60, first);
+  }
+
+  /** Подсказки на лестнице справа: ближайший босс и рекорд — тегами (без фраз). */
+  private ladderTags(next: number, best: number): void {
+    const cfg = runConfig(GAME);
+    const bossAt = Math.ceil(next / cfg.bossEvery) * cfg.bossEvery;
+    const x = GAME_W - S.l;
+    if (bossAt > next + 1 && bossAt <= GAME.tower.maxFloor) chip(this, x, L.far, 'trophy', `Босс · ${bossAt}`, 'negative', { size: 's', align: 'right' }).setName('towerBossAt');
+    if (best > 0) chip(this, x, L.near, 'flag', `Рекорд ${best}`, best >= next ? 'neutral' : 'gold', { size: 's', align: 'right' }).setName('towerBest');
+  }
+
+  /** Портрет героя в рамке редкости. */
+  private heroPortrait(hero: HeroState, x: number, y: number, size: number): Phaser.GameObjects.Container {
+    return framedPortrait(this, x, y, heroSprite(hero, GAME), size, heroGender(hero, GAME), hero.rarity);
+  }
+
   // ---------- лобби ----------
 
   private lobby(): void {
     const save = session.save;
     const st = towerRunStatus(save, GAME, today());
-    const top = CONTENT_TOP;
-    card(this, GAME_W / 2, top + 170, 1040, 330);
-    text(this, 70, top + 55, 'Лучший этаж', FS.body, C.muted).setOrigin(0, 0.5);
-    text(this, 70, top + 140, `${st.best}`, 110, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 }).setOrigin(0, 0.5);
-    text(this, 70, top + 235, `Осколки башни: ${st.shards}`, FS.h3, C.gem, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5);
-    text(this, 70, top + 290, `Забегов: ${st.runs}`, FS.small, C.muted).setOrigin(0, 0.5);
-    glow(this, 820, top + 160, 300, 0xffc860, 0.35, true);
-    medallion(this, 820, top + 160, 200, 'tower');
+    this.statusBar([
+      { icon: 'tower', value: st.shards, tone: 'gem', name: 'towerShards', onTap: () => this.upgradesSheet() },
+      { icon: 'flag', value: `${st.runs} ${plural(st.runs, 'забег', 'забега', 'забегов')}`, name: 'towerRuns' },
+    ]);
 
-    // Прошлый забег.
-    let y = top + 370;
+    // Лестница: рекорд — крупно, выше — этажи, которые ждут.
+    this.floorsAhead(st.best + 1, L.bestY - L.bestR);
+    glow(this, GAME_W / 2, L.bestY, L.bestR * 3, COLOR_N.accent, 0.3, true);
+    this.add.circle(GAME_W / 2, L.bestY, L.bestR, COLOR_N.surfaceSunken, 0.95).setStrokeStyle(8, COLOR_N.accent);
+    text(this, GAME_W / 2, L.bestY - 66, 'Рекорд', T.caption, COLOR.textSecondary);
+    text(this, GAME_W / 2, L.bestY + 18, st.best ? String(st.best) : '—', T.display, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' })
+      .setShadow(0, 3, 'rgba(0,0,0,0.7)', 6, false, true)
+      .setName('towerBestFloor');
+    this.ladderTags(st.best + 1, 0);
+
+    // Прошлый забег — одной строкой чипов.
     if (st.last) {
       const l = st.last;
-      const parts = [`этаж ${l.floor}${l.record ? ' — рекорд!' : ''}`, `осколки +${l.shards}`];
-      if (l.gold) parts.push(`золото +${formatNumber(l.gold)}`);
-      text(this, GAME_W / 2, y, `Прошлый забег: ${parts.join(' · ')}`, FS.small, l.record ? C.gold : C.muted, { wordWrap: { width: 980 }, align: 'center' });
-      y += 50;
+      const items: ChipSpec[] = [{ icon: 'flag', value: `Этаж ${l.floor}`, tone: l.record ? 'gold' : 'neutral' }, { icon: 'tower', value: `+${l.shards}`, tone: 'gem' }];
+      if (l.gold) items.push({ icon: 'gold', value: `+${formatNumber(l.gold)}`, tone: 'gold' });
+      text(this, S.l, L.lastY, 'Прошлый забег', T.caption, COLOR.textSecondary).setOrigin(0, 0.5);
+      const row = rewardRow(this, 0, L.lastY, items, { size: 's', maxW: W - 300 });
+      row.setX(GAME_W - S.l - row.width / 2).setName('towerLast');
     }
 
-    // Правила — коротко.
-    const rules = [
-      'Раны между этажами не заживают — лечит только костёр отдыха; павший выбывает до конца забега.',
-      'Каждые 3 этажа и после элиты — карта-благословение: она меняет правила боя.',
-      'Поражение или «Сдаться» — конец забега. Осколки — за каждый забег, добыча — раз в день за новые этажи.',
-    ];
-    card(this, GAME_W / 2, y + 200, 1040, 380, true);
-    text(this, GAME_W / 2, y + 45, 'Как устроен забег', FS.h3, C.inkGold, { fontStyle: 'bold' });
-    rules.forEach((r, i) => text(this, 80, y + 110 + i * 95, `• ${r}`, FS.small, C.ink, { wordWrap: { width: 920 }, lineSpacing: 2, align: 'left' }).setOrigin(0, 0.5));
-    y += 410;
+    this.squadRow();
+    this.lootRow(st.lootFloorToday);
 
-    // Отряд забега.
-    this.squadCard(y);
-    y += 290;
-    const loot = st.lootFloorToday;
-    text(this, GAME_W / 2, y, loot > 0 ? `Добыча сегодня уже получена за этажи 1–${loot}; выше — с добычей` : 'Сегодня забег принесёт добычу за каждый этаж', FS.small, C.muted, {
-      wordWrap: { width: 980 },
-      align: 'center',
-    });
-
-    button(this, 260, 1650, 420, 140, 'ui_btn_secondary', 'Улучшения', () => this.upgradesOverlay(), FS.h3);
-    const go = button(this, 760, 1650, 520, 140, 'ui_btn_primary', 'Начать забег', () => this.start(), FS.h2);
+    const upW = 340;
+    button(this, S.l + upW / 2, L.ctaY, upW, BTN.cta, '', 'Улучшения', () => this.upgradesSheet(), T.heading, { variant: 'secondary' }).container.setName('towerUpgradesBtn');
+    const goW = W - upW - S.s;
+    const go = cta(this, GAME_W - S.l - goW / 2, L.ctaY, 'Начать забег', () => this.start(), { w: goW });
     go.container.setName('towerStart');
-    ctaShine(this, go.container, 520, 140);
+    ctaShine(this, go.container, goW, 140);
   }
 
-  private squadCard(y: number): void {
+  /** Отряд забега: заголовок с мощью и ряд портретов с карандашом; касание — правка отряда. */
+  private squadRow(): void {
     const save = session.save;
     const gctx = withGear(GAME, save);
-    pressable(this, card(this, GAME_W / 2, y + 125, 1040, 260, true), 1040, 260, () => this.editSquad());
-    text(this, GAME_W / 2, y + 25, 'Отряд забега — нажмите, чтобы изменить', FS.small, C.ink, { fontStyle: 'bold' });
-    save.squad.forEach((id, i) => {
-      const x = SLOT_X(i);
-      const hero = id ? save.heroes.find((h) => h.id === id) : undefined;
-      if (!hero) {
-        text(this, x, y + 130, 'пусто', FS.small, C.placeholder);
-        return;
-      }
-      portrait(this, x, y + 115, portraitKey(heroSprite(hero, GAME)), 120);
-      text(this, x, y + 205, formatNumber(heroPower(hero, gctx)), FS.small, C.ink, { fontStyle: 'bold' });
+    const heroes = save.squad.map((id) => (id ? save.heroes.find((h) => h.id === id) : undefined));
+    const power = heroes.reduce((n, h) => n + (h ? heroPower(h, gctx) : 0), 0);
+    text(this, S.l, L.squadHeadY, 'Отряд', T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
+    chip(this, GAME_W - S.l, L.squadHeadY, 'swords', formatNumber(power), 'neutral', { size: 's', align: 'right', bg: false });
+    const h = 172;
+    const box = plate(this, GAME_W / 2, L.squadY, W, h, { ...SURFACE.surface, r: R.l }).setName('towerSquad');
+    const size = 132;
+    const step = 150;
+    const x0 = S.l + S.m + size / 2;
+    heroes.forEach((hero, i) => {
+      const x = x0 + i * step;
+      if (hero) this.heroPortrait(hero, x, L.squadY, size);
+      else plate(this, x, L.squadY, size - 12, size - 12, { ...SURFACE.sunken, r: R.m });
     });
+    // Карандаш: правка отряда (без надписи — §3 п. 3).
+    const px = GAME_W - S.l - S.m - 48;
+    this.add.circle(px, L.squadY, 44, COLOR_N.surfaceRaised).setStrokeStyle(3, COLOR_N.border);
+    pencil(this, px, L.squadY, 44);
+    pressable(this, box, W, h, () => this.editSquad());
+  }
+
+  /** Добыча дня за этаж (золото и опыт в запас) чипами; оплаченные сегодня этажи — тегом. */
+  private lootRow(paid: number): void {
+    const cfg = runConfig(GAME);
+    const save = session.save;
+    let last: (typeof GAME.content.stages)[number] | null = null;
+    for (const s of GAME.content.stages) if (save.campaign.cleared.includes(s.id)) last = s;
+    const gold = Math.floor((last?.rewards.gold ?? 0) * cfg.lootPerFloor);
+    const exp = Math.floor((last?.rewards.jobExp ?? 0) * cfg.lootPerFloor);
+    if (!gold && !exp) return;
+    text(this, S.l, L.lootY, 'Добыча за этаж', T.body, COLOR.textSecondary).setOrigin(0, 0.5);
+    const items: ChipSpec[] = [];
+    if (gold) items.push({ icon: 'gold', value: gold, tone: 'gold' });
+    if (exp) items.push({ icon: 'hero_exp', value: exp });
+    const row = rewardRow(this, 0, L.lootY, items, { size: 's' });
+    row.setX(GAME_W - S.l - row.width / 2).setName('towerLoot');
+    if (paid > 0) tag(this, GAME_W - S.l, L.lootY + 64, `сегодня — выше ${paid} этажа`, 'neutral', { align: 'right' }).setName('towerLootPaid');
   }
 
   private editSquad(): void {
@@ -227,57 +358,115 @@ export class TowerScene extends Phaser.Scene {
 
   private runView(run: TowerRun): void {
     const save = session.save;
-    const top = CONTENT_TOP;
-    const cfg = runConfig(GAME);
     const next = run.floor + 1;
-    // Шапка: этаж, рекорд, осколки, «Сдаться».
-    card(this, GAME_W / 2, top + 75, 1040, 150);
-    text(this, 60, top + 50, `Этаж ${next}`, FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5);
-    text(this, 60, top + 110, `Рекорд ${save.tower.floor} · осколки +${run.shards}`, FS.small, C.muted).setOrigin(0, 0.5);
-    button(this, 900, top + 75, 230, 100, 'ui_btn_secondary', 'Сдаться', () => this.surrender(), FS.body).container.setName('towerGiveUp');
+    const alive = run.squad.filter((x): x is string => !!x);
+    const hp = alive.length ? alive.reduce((n, id) => n + (run.hp[id] ?? 1000), 0) / alive.length / 1000 : 0;
+    const hpTone: Tone = hp > 0.6 ? 'positive' : hp > 0.3 ? 'warning' : 'negative';
+    const active = familyStates(run.cards, runConfig(GAME)).filter((f) => f.active).length;
+    const right = this.statusBar([
+      { icon: 'red_potion', value: `${Math.round(hp * 100)}%`, tone: hpTone, name: 'towerHp' },
+      { icon: 'hero_card', value: active ? `${run.cards.length} · ${active}★` : run.cards.length, tone: run.cards.length ? 'info' : 'neutral', name: 'towerCards', onTap: () => this.cardsSheet(run) },
+      { icon: 'tower', value: `+${run.shards}`, tone: 'gem', name: 'towerRunShards' },
+    ]);
+    const giveW = 200;
+    button(this, right - S.xs - giveW / 2, L.barY, giveW, BTN.m, '', 'Сдаться', () => this.surrender(), T.body, { variant: 'secondary' }).container.setName('towerGiveUp');
 
     this.runMap(run);
-
-    // Превью выбранного пути.
+    this.ladderTags(next + 1, save.tower.floor);
     const kind = run.paths[this.sel];
-    const py = 1070;
-    card(this, GAME_W / 2, py, 1040, 260, true);
+    this.preview(run, kind);
+    this.runSquad(run);
+
+    const label = isBattleNode(kind) ? `${NODE_NAMES[kind]} · этаж ${next}` : kind === 'rest' ? 'Отдохнуть' : 'Войти';
+    const go = cta(this, GAME_W / 2, L.ctaY, label, () => this.go(), { w: 640 });
+    go.container.setName('towerGo');
+    ctaShine(this, go.container, 640, 140);
+  }
+
+  /** Лестница забега: пройденный этаж внизу, развилка этажа N (номер — крупно между путями), выше — следующие. */
+  private runMap(run: TowerRun): void {
+    const n = run.floor + 1;
+    const xs = run.paths.length === 1 ? [GAME_W / 2] : [270, GAME_W - 270];
+    const g = this.add.graphics();
+    g.lineStyle(8, COLOR_N.border, 0.9);
+    for (const x of xs) {
+      g.lineBetween(GAME_W / 2, L.passedY, x, L.forkY);
+      g.lineBetween(x, L.forkY, GAME_W / 2, L.near);
+    }
+    this.floorsAhead(n + 1, L.near);
+    // Номер этажа — крупно (между путями; один путь — левее).
+    const lx = xs.length > 1 ? GAME_W / 2 : GAME_W / 2 - 250;
+    text(this, lx, L.forkY - 58, 'Этаж', T.caption, COLOR.textSecondary).setShadow(0, 2, 'rgba(0,0,0,0.8)', 4, false, true);
+    text(this, lx, L.forkY + 14, String(n), T.display, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' })
+      .setShadow(0, 3, 'rgba(0,0,0,0.8)', 6, false, true)
+      .setName('towerFloor');
+    run.paths.forEach((k, i) => {
+      const x = xs[i];
+      const on = i === this.sel;
+      const locked = !!run.node && run.node !== k;
+      const a = locked ? 0.4 : 1;
+      const r = on ? 104 : 88;
+      if (on) glow(this, x, L.forkY, r * 3.2, hexNum(NODE_TONE[k]), 0.35, true);
+      this.add
+        .circle(x, L.forkY, r, on ? COLOR_N.surfaceRaised : COLOR_N.surfaceSunken, 0.95 * a)
+        .setStrokeStyle(on ? 10 : 5, on ? COLOR_N.accent : hexNum(NODE_TONE[k]), a);
+      this.add
+        .image(x, L.forkY, skinIcon(NODE_ICON[k]))
+        .setDisplaySize(r * 0.9, r * 0.9)
+        .setTint(hexNum(NODE_TONE[k]))
+        .setAlpha(a);
+      const name = text(this, x, L.forkY + r + 36, NODE_NAMES[k], T.body, on ? COLOR.title : COLOR.textSecondary, { fontStyle: 'bold' }).setAlpha(a);
+      name.setShadow(0, 2, 'rgba(0,0,0,0.9)', 4, false, true);
+      if (!locked && !run.node)
+        pressable(this, this.add.zone(x, L.forkY + 20, 280, 300), 280, 300, () => {
+          if (this.sel === i) return;
+          this.sel = i;
+          this.scene.restart();
+        }).setName(`towerPath${i}`);
+    });
+    // Пройденный этаж.
+    this.add.circle(GAME_W / 2, L.passedY, 40, COLOR_N.surfaceSunken, 0.95).setStrokeStyle(5, COLOR_N.positive);
+    this.add.image(GAME_W / 2, L.passedY, skinIcon('check')).setDisplaySize(40, 40).setTint(COLOR_N.positive);
+  }
+
+  /** Превью выбранного пути: враги и мощь (с разведкой) / отдых / событие — одна карточка. */
+  private preview(run: TowerRun, kind: TowerNodeKind): void {
+    const save = session.save;
+    const y = L.previewY;
     if (isBattleNode(kind)) {
+      const h = 300;
+      plate(this, GAME_W / 2, y, W, h, { ...SURFACE.raised, r: R.l, ...(kind !== 'battle' ? { border: COLOR.negative } : {}) });
       const pv = towerPathPreview(save, this.sel, GAME);
-      text(this, GAME_W / 2, py - 105, `${NODE_NAMES[kind]} · этаж ${pv.floor}`, FS.h3, kind === 'battle' ? C.inkGold : C.danger, { fontStyle: 'bold' });
       let enemy = 0;
+      const size = 116;
       pv.enemies!.forEach((u, i) => {
         if (!u) return;
         enemy += unitPower(u, GAME);
-        const x = SLOT_X(i);
-        portrait(this, x, py - 5, portraitKey(u.visual.sprite), 110).setTint(unitTint(u.visual));
-        if (u.kind === 'boss') this.add.rectangle(x, py - 5, 120, 120).setStrokeStyle(5, 0xd64545);
+        const x = GAME_W / 2 + (i - 2) * 150;
+        plate(this, x, y - 70, size + 12, size + 12, { ...SURFACE.sunken, r: R.m, ...(u.kind === 'boss' ? { border: COLOR.negative, borderW: 4 } : {}) });
+        portrait(this, x, y - 70, portraitKey(u.visual.sprite), size).setTint(unitTint(u.visual));
       });
-      const mine = this.runPower(run);
-      const tone = powerTone(mine, enemy);
-      text(this, GAME_W / 2, py + 64, `Мощь: отряд ${formatNumber(mine)} · враги ${formatNumber(enemy)}`, FS.small, POWER_COLORS[tone], {
-        fontStyle: 'bold',
-        stroke: C.stroke,
-        strokeThickness: 4,
-      });
-      // BUG-198: разведка этажа, как на экране этапа: особенности, слабость, кто из отряда ею бьёт.
+      powerCompare(this, GAME_W / 2, y + 48, this.runPower(run), enemy, { align: 'center' });
+      // BUG-198: разведка этажа, как на экране этапа: особенности, слабость, кто из отряда ею бьёт (касание — лист).
       const mineDefs = towerRunSquad(save, GAME).squad.filter((u): u is UnitDef => !!u && run.squad.includes(u.id));
-      scoutLine(this, py + 102, pv.enemies!, mineDefs, 980);
-    } else {
-      const heal = Math.round((cfg.restHeal + upgradeValue(save, cfg, 'restHeal')) * 100);
-      const title = kind === 'rest' ? 'Отдых у костра' : 'Событие';
-      const body = kind === 'rest' ? `Отряд лечится на ${heal}% ОЗ. Этаж засчитан.` : 'Неизвестная встреча: алтарь, торговка, сундук… Решать вам.';
-      text(this, GAME_W / 2, py - 70, title, FS.h3, C.inkGold, { fontStyle: 'bold' });
-      text(this, GAME_W / 2, py + 10, body, FS.small, C.ink, { wordWrap: { width: 920 }, align: 'center' });
+      scoutLine(this, y + 112, pv.enemies!, mineDefs, W - 2 * S.m, 0, COLOR.info);
+      return;
     }
-    this.runSquad(run, 1325);
-    this.cardsRow(run, 1485);
-
-    const label = isBattleNode(kind) ? 'В бой' : kind === 'rest' ? 'Отдохнуть' : 'Войти';
-    glow(this, GAME_W / 2, 1650, 128, 0xffc860, 0.2, true).setScale(700 / 128, 280 / 128);
-    const go = button(this, GAME_W / 2, 1650, 600, 140, 'ui_btn_primary', label, () => this.go(), FS.hero);
-    go.container.setName('towerGo');
-    ctaShine(this, go.container, 600, 140);
+    const h = 200;
+    plate(this, GAME_W / 2, y, W, h, { ...SURFACE.raised, r: R.l });
+    const ix = S.l + S.m + 60;
+    this.add.circle(ix, y, 60, COLOR_N.surfaceSunken).setStrokeStyle(4, hexNum(NODE_TONE[kind]));
+    this.add.image(ix, y, skinIcon(NODE_ICON[kind])).setDisplaySize(72, 72).setTint(hexNum(NODE_TONE[kind]));
+    const tx = ix + 60 + S.m;
+    if (kind === 'rest') {
+      const cfg = runConfig(GAME);
+      const heal = Math.round((cfg.restHeal + upgradeValue(save, cfg, 'restHeal')) * 100);
+      text(this, tx, y - 34, 'Отдых у костра', T.heading, COLOR.title, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+      chip(this, tx, y + 40, 'red_potion', `+${heal}%`, 'positive', { size: 's', align: 'left' });
+    } else {
+      text(this, tx, y - 34, 'Неизвестная встреча', T.heading, COLOR.title, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+      text(this, tx, y + 36, 'Алтарь, торговка, сундук…', T.body, COLOR.textSecondary).setOrigin(0, 0.5);
+    }
   }
 
   /** Мощь живого отряда забега с учётом ран (ОЗ-часть мощи — пропорционально). */
@@ -295,108 +484,31 @@ export class TowerScene extends Phaser.Scene {
     return sum;
   }
 
-  /** Карта забега: пройденный этаж внизу, развилка, следующий этаж «?» и ближайший босс. */
-  private runMap(run: TowerRun): void {
-    const cfg = runConfig(GAME);
-    const n = run.floor + 1;
-    const yCur = 875;
-    const yFork = 640;
-    const yNext = 440;
-    const g = this.add.graphics();
-    const xs = run.paths.length === 1 ? [GAME_W / 2 + 1] : [330, 750];
-    // Линии: текущий → развилка → следующий.
-    g.lineStyle(10, 0x6a5030, 1);
-    for (const x of xs) {
-      g.lineBetween(GAME_W / 2, yCur - 50, x, yFork + 80);
-      g.lineBetween(x, yFork - 80, GAME_W / 2, yNext + 50);
-    }
-    // Ближайший босс и карта.
-    const bossAt = Math.ceil(n / cfg.bossEvery) * cfg.bossEvery;
-    const blessIn = cfg.blessingEvery - (run.floor % cfg.blessingEvery);
-    text(this, GAME_W / 2, 360, `Босс — этаж ${bossAt} · карта через ${blessIn} эт.`, FS.small, C.muted, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 });
-    // Следующий-следующий этаж — неизвестен.
-    this.add.circle(GAME_W / 2, yNext, 55, 0x241a10).setStrokeStyle(5, 0x6a5030);
-    text(this, GAME_W / 2, yNext, (n + 1) % cfg.bossEvery === 0 ? 'Б' : '?', FS.h2, C.dim, { fontStyle: 'bold' });
-    text(this, GAME_W / 2 + 80, yNext, `этаж ${n + 1}`, FS.caption, C.dim).setOrigin(0, 0.5);
-    // Развилка.
-    run.paths.forEach((k, i) => {
-      const x = xs[i];
-      const on = i === this.sel;
-      const locked = !!run.node && run.node !== k;
-      const disc = this.add.circle(x, yFork, 95, on ? 0x4a3418 : 0x241a10).setStrokeStyle(on ? 10 : 6, on ? 0xffd84a : NODE_TINT[k]);
-      if (locked) disc.setAlpha(0.4);
-      this.add.image(x, yFork - 12, skinIcon(NODE_ICON[k])).setDisplaySize(84, 84).setTint(NODE_TINT[k]).setAlpha(locked ? 0.4 : 1);
-      text(this, x + (x < GAME_W / 2 ? -120 : 120), yFork, NODE_NAMES[k], FS.h3, on ? SKIN.goldLight : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(
-        x < GAME_W / 2 ? 1 : 0,
-        0.5,
-      );
-      if (!locked && !run.node)
-        pressable(this, this.add.rectangle(x, yFork + 20, 260, 280, 0, 0.001), 260, 280, () => {
-          this.sel = i;
-          this.scene.restart();
-        }).setName(`towerPath${i}`);
-    });
-    // Пройденный этаж.
-    this.add.circle(GAME_W / 2, yCur, 50, 0x2e4a2a).setStrokeStyle(6, 0x9fe0a6);
-    this.add.image(GAME_W / 2, yCur, skinIcon('check')).setDisplaySize(48, 48).setTint(0x9fe0a6);
-    text(this, GAME_W / 2 + 75, yCur, run.floor ? `пройдено ${run.floor}` : 'вход', FS.caption, C.success, { stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5);
-  }
-
-  /** Отряд забега: портреты, полоса ОЗ, павшие — серые. */
-  private runSquad(run: TowerRun, y: number): void {
+  /** Отряд забега: портреты в ряд, под каждым — полоса ОЗ; павшие — бледные, с крестом. */
+  private runSquad(run: TowerRun): void {
     const save = session.save;
-    card(this, GAME_W / 2, y, 1040, 200, true);
+    const y = L.runSquadY;
     const heroes = [...run.squad.filter((x): x is string => !!x).map((id) => ({ id, dead: false })), ...run.fallen.map((id) => ({ id, dead: true }))].slice(0, 5);
+    const size = 128;
+    const step = 176;
     heroes.forEach(({ id, dead }, i) => {
       const hero = save.heroes.find((h) => h.id === id);
       if (!hero) return;
-      const x = SLOT_X(i);
-      const img = portrait(this, x, y - 20, portraitKey(heroSprite(hero, GAME)), 110);
-      const hp = dead ? 0 : (run.hp[id] ?? 1000) / 1000;
-      this.add.rectangle(x, y + 60, 150, 16, 0x1a120a).setStrokeStyle(2, 0x000000);
-      if (hp > 0) this.add.rectangle(x - 75 + (150 * hp) / 2, y + 60, 150 * hp, 12, hp > 0.5 ? 0x5ed36a : hp > 0.25 ? 0xf0c040 : 0xe05040);
+      const x = GAME_W / 2 + (i - (heroes.length - 1) / 2) * step;
+      const face = this.heroPortrait(hero, x, y, size);
+      const bw = size - 8;
+      const by = y + size / 2 + 22;
+      this.add.rectangle(x, by, bw + 6, 18, COLOR_N.surfaceSunken).setStrokeStyle(2, COLOR_N.border);
       if (dead) {
-        img.setTint(0x555555).setAlpha(0.6);
-        text(this, x, y - 20, 'пал', FS.h3, C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
-      } else text(this, x, y + 88, `${Math.round(hp * 100)}%`, FS.caption, C.ink);
+        face.setAlpha(0.4);
+        const g = this.add.graphics().lineStyle(10, COLOR_N.negative, 0.9);
+        g.lineBetween(x - 34, y - 34, x + 34, y + 34).lineBetween(x - 34, y + 34, x + 34, y - 34);
+        return;
+      }
+      const hp = Phaser.Math.Clamp((run.hp[id] ?? 1000) / 1000, 0, 1);
+      const col = hp > 0.5 ? COLOR_N.positive : hp > 0.25 ? COLOR_N.warning : COLOR_N.negative;
+      if (hp > 0) this.add.rectangle(x - bw / 2, by, bw * hp, 12, col).setOrigin(0, 0.5);
     });
-  }
-
-  /** Карты забега — ряд значков; касание — список карт и бонусов видов. */
-  private cardsRow(run: TowerRun, y: number): void {
-    const cfg = runConfig(GAME);
-    if (!run.cards.length) {
-      text(this, GAME_W / 2, y, 'Карт пока нет — первая после 3-го этажа', FS.small, C.muted);
-      return;
-    }
-    const size = 76;
-    const max = 9;
-    const shown = run.cards.slice(0, max);
-    const x0 = 80;
-    shown.forEach((id, i) => {
-      const b = cfg.blessings.find((x) => x.id === id);
-      if (b) this.cardIcon(b, x0 + i * (size + 10), y, size);
-    });
-    const active = familyStates(run.cards, cfg).filter((f) => f.active).length;
-    const label = `${run.cards.length} ${plural(run.cards.length, 'карта', 'карты', 'карт')}${active ? ` · бонусов: ${active}` : ''} ›`;
-    text(this, GAME_W - 50, y, run.cards.length > max ? `+${run.cards.length - max} ›` : label, FS.small, C.gold, { fontStyle: 'bold' }).setOrigin(1, 0.5);
-    pressable(this, this.add.rectangle(GAME_W / 2, y, 1040, 100, 0, 0.001), 1040, 100, () => this.cardsOverlay(run)).setName('towerCards');
-  }
-
-  /** Значок карты: рамка по редкости, портрет монстра (или значок); в окне (owner) — поверх рисунок карты RO. */
-  private cardIcon(b: Blessing, x: number, y: number, size: number, depth = 0, owner?: Phaser.GameObjects.Container): void {
-    const fam = runConfig(GAME).families.find((f) => f.id === b.family);
-    this.add.rectangle(x, y, size, size, 0x1c140c, 0.95).setStrokeStyle(Math.max(3, size / 16), RARITY_COLOR[b.rarity]).setDepth(depth);
-    if (fam) this.add.rectangle(x, y + size / 2 - size * 0.07, size - 8, size * 0.1, Phaser.Display.Color.HexStringToColor(fam.color).color).setDepth(depth);
-    const u = b.monster ? GAME.content.units[b.monster] : undefined;
-    if (u) portrait(this, x, y - size * 0.05, portraitKey(u.visual.sprite), size * 0.78).setTint(unitTint(u.visual)).setDepth(depth);
-    else
-      this.add
-        .image(x, y - size * 0.05, skinIcon((b.icon ?? 'star') as SkinIcon))
-        .setDisplaySize(size * 0.6, size * 0.6)
-        .setTint(0xffe08a)
-        .setDepth(depth);
-    if (owner) showCardArt(this, b.id, x, y - size * 0.05, size * 0.8, (img) => img.setDepth(depth), owner);
   }
 
   private go(): void {
@@ -428,12 +540,132 @@ export class TowerScene extends Phaser.Scene {
     );
   }
 
+  // ---------- листы снизу ----------
+
+  /** «i»: как устроен забег — пять строк с иконками (вместо постоянного блока правил). */
+  private rulesSheet(): void {
+    const cfg = runConfig(GAME);
+    const rules: [string, string][] = [
+      ['red_potion', 'Раны между этажами не заживают — лечит только костёр. Павший выбывает до конца забега.'],
+      ['hero_card', `Каждые ${cfg.blessingEvery} этажа и после элиты — карта на выбор: она меняет правила боя.`],
+      ['trophy', `Каждый ${cfg.bossEvery}-й этаж — босс. Рекордные этажи приносят гемы.`],
+      ['flag', 'Поражение или «Сдаться» — конец забега.'],
+      ['tower', 'Осколки — за каждый забег, на улучшения. Добыча — раз в день за новые этажи.'],
+    ];
+    bottomSheet(this, 'Как устроен забег', (c, width) => {
+      let y = 0;
+      for (const [icon, line] of rules) {
+        const t = text(this, 96 + S.s, y, line, T.body, COLOR.textPrimary, { wordWrap: { width: width - 96 - S.s }, align: 'left', lineSpacing: 10 }).setOrigin(0, 0);
+        const ic = plate(this, 48, y + 48, 96, 96, { ...SURFACE.sunken, r: R.m });
+        c.add([ic, t]);
+        const g = iconOf(this, 48, y + 48, icon, 60, icon === 'tower' ? COLOR.gem : COLOR.title);
+        if (g) c.add(g);
+        y += Math.max(96, t.height) + S.m;
+      }
+      c.setName('towerRules');
+      return y - S.m;
+    });
+  }
+
+  /** Карты забега и бонусы видов — лист снизу. */
+  private cardsSheet(run: TowerRun): void {
+    const cfg = runConfig(GAME);
+    if (!run.cards.length) {
+      toast(this, `Первая карта — после ${cfg.blessingEvery}-го этажа`, C.muted);
+      return;
+    }
+    bottomSheet(this, 'Карты забега', (c, width) => {
+      c.setName('towerCardsList');
+      let y = 0;
+      for (const id of run.cards) {
+        const b = cfg.blessings.find((x) => x.id === id);
+        if (!b) continue;
+        const thumb = this.cardThumb(b, 56, y + 56, 112, c);
+        c.add(thumb);
+        const name = text(this, 112 + S.s, y + 10, b.name, T.body, RARITY_COLOR[b.rarity], { fontStyle: 'bold' }).setOrigin(0, 0);
+        const body = text(this, 112 + S.s, y + 10 + name.height + 4, b.text, T.caption, COLOR.textSecondary, { wordWrap: { width: width - 112 - S.s }, align: 'left' }).setOrigin(0, 0);
+        c.add([name, body]);
+        y += Math.max(112, name.height + body.height + 14) + S.s;
+      }
+      const fams = familyStates(run.cards, cfg).filter((f) => f.count);
+      if (fams.length) {
+        y += S.xs;
+        c.add(text(this, 0, y, 'Виды', T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0));
+        y += 72;
+        for (const f of fams) {
+          const head = `${f.family.name} ${f.count}/${f.family.need}`;
+          const ht = text(this, 0, y, head, T.body, f.active ? f.family.color : COLOR.textTertiary, { fontStyle: 'bold' }).setOrigin(0, 0);
+          const bt = text(this, 0, y + ht.height + 2, f.family.bonusText.replace(/^\d+ [^:]+: /, ''), T.caption, f.active ? COLOR.textPrimary : COLOR.textTertiary, {
+            wordWrap: { width },
+            align: 'left',
+          }).setOrigin(0, 0);
+          c.add([ht, bt]);
+          y += ht.height + bt.height + S.s;
+        }
+      }
+      return y;
+    });
+  }
+
+  /** Постоянные улучшения за осколки: строки с уровнем и ценой; покупка — на месте, экран обновится при закрытии. */
+  private upgradesSheet(): void {
+    const cfg = runConfig(GAME);
+    let bought = false;
+    const rows: { refresh: () => void }[] = [];
+    let shardsChip: Phaser.GameObjects.Container | null = null;
+    bottomSheet(
+      this,
+      'Улучшения Башни',
+      (c, width) => {
+        c.setName('towerUpgrades');
+        const shards = () => session.save.tower.shards ?? 0;
+        const head = () => {
+          shardsChip?.destroy();
+          shardsChip = chip(this, 0, 36, 'tower', shards(), 'gem', { align: 'left' });
+          c.add(shardsChip);
+        };
+        head();
+        const rowH = 160;
+        const btnW = 230;
+        cfg.upgrades.forEach((u, i) => {
+          const y = 104 + i * (rowH + S.xxs) + rowH / 2;
+          c.add(plate(this, width / 2, y, width, rowH, { ...SURFACE.surface, r: R.m }));
+          const name = text(this, S.s, y - rowH / 2 + 36, u.name, T.body, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+          const lvl = text(this, 0, name.y, '', T.caption, COLOR.textSecondary, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+          const desc = text(this, S.s, name.y + 30, u.text, T.caption, COLOR.textSecondary, { wordWrap: { width: width - btnW - 3 * S.s }, align: 'left' }).setOrigin(0, 0);
+          clampLines(desc, 2);
+          const b: ButtonView = button(this, width - S.s - btnW / 2, y, btnW, BTN.m, '', '', () => {
+            if (upgradeLevel(session.save, u.id) >= u.costs.length) return;
+            if (!this.act(() => commit(buyTowerUpgrade(session.save, u.id, GAME)))) return;
+            bought = true;
+            sfx('level_up');
+            head();
+            for (const r of rows) r.refresh();
+          }, T.body, { variant: 'secondary' });
+          b.container.setName(`towerUpgrade${i}`);
+          c.add([name, lvl, desc, b.container]);
+          const refresh = () => {
+            const lv = upgradeLevel(session.save, u.id);
+            const max = lv >= u.costs.length;
+            lvl.setText(`${lv}/${u.costs.length}`).setX(S.s + name.width + S.xs).setColor(max ? COLOR.positive : COLOR.textSecondary);
+            b.setLabel(max ? 'Макс.' : `${u.costs[lv]} оск.`);
+            b.setEnabled(!max && shards() >= u.costs[lv]);
+          };
+          refresh();
+          rows.push({ refresh });
+        });
+        return 104 + cfg.upgrades.length * (rowH + S.xxs) - S.xxs;
+      },
+      { onClose: () => bought && this.scene.restart() },
+    );
+  }
+
   // ---------- окна ----------
 
   /** Затемнение и слой окна поверх экрана. */
   private overlay(): Phaser.GameObjects.Container {
     const layer = this.add.container(0, 0).setDepth(OVERLAY_DEPTH);
-    layer.add(this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W * 2, GAME_H * 2, 0x000000, 0.78).setInteractive());
+    layer.add(this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W * 3, GAME_H * 3, COLOR_N.bg, 0.82).setInteractive());
     return layer;
   }
 
@@ -445,211 +677,231 @@ export class TowerScene extends Phaser.Scene {
     });
   }
 
-  /** Выбор 1 из 3 (4) карт-благословений. */
+  /** Миниатюра карты: рамка редкости, портрет монстра (или значок), рисунок карты RO — когда загрузится. */
+  private cardThumb(b: Blessing, x: number, y: number, size: number, owner: Phaser.GameObjects.Container): Phaser.GameObjects.Container {
+    const box = this.add.container(x, y);
+    box.add(plate(this, 0, 0, size, size, { fill: COLOR.surfaceSunken, border: RARITY_COLOR[b.rarity], borderW: 4, r: R.s }));
+    const u = b.monster ? GAME.content.units[b.monster] : undefined;
+    if (u) box.add(portrait(this, 0, 0, portraitKey(u.visual.sprite), size * 0.8).setTint(unitTint(u.visual)));
+    else box.add(this.add.image(0, 0, skinIcon((b.icon ?? 'star') as SkinIcon)).setDisplaySize(size * 0.6, size * 0.6).setTint(COLOR_N.title));
+    showCardArt(this, b.id, 0, 0, size - 10, (img) => box.add(img), owner);
+    return box;
+  }
+
+  /** Выбор 1 из 3 (4) карт-благословений: чистые карточки — рамка редкости, рисунок, имя, одна строка эффекта. */
   private blessingOverlay(run: TowerRun): void {
     const cfg = runConfig(GAME);
     const p = run.pending;
     if (p?.kind !== 'blessing') return;
     const layer = this.overlay().setName('towerBlessing');
-    const add = <T extends Phaser.GameObjects.GameObject>(o: T) => (layer.add(o), o);
-    const src = { floor: 'Этажи позади — выберите благословение', elite: 'Элита повержена — редкая карта', boss: 'Босс повержен — лучшие карты', event: 'Награда встречи', start: 'Дар Башни', upgrade: 'Дар Башни' }[p.source];
-    add(text(this, GAME_W / 2, 230, 'Выберите карту', FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 7 }));
-    add(text(this, GAME_W / 2, 300, src, FS.body, C.muted));
+    const add = <O extends Phaser.GameObjects.GameObject>(o: O) => (layer.add(o), o);
+    add(text(this, GAME_W / 2, 250, 'Выберите карту', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' })).setShadow(0, 3, 'rgba(0,0,0,0.8)', 6, false, true);
+    add(text(this, GAME_W / 2, 320, SOURCE[p.source] ?? '', T.body, COLOR.textSecondary));
     const n = p.options.length;
     const h = n > 3 ? 290 : 350;
-    const gap = 24;
-    const y0 = 360 + h / 2;
+    const gap = S.s;
+    const y0 = 380 + h / 2;
     p.options.forEach((id, i) => {
       const b = cfg.blessings.find((x) => x.id === id)!;
       const y = y0 + i * (h + gap);
-      const w = 1000;
-      const box = add(this.add.rectangle(GAME_W / 2, y, w, h, 0x21170d, 1).setStrokeStyle(8, RARITY_COLOR[b.rarity]));
-      // Иллюстрация.
-      const ix = GAME_W / 2 - w / 2 + 120;
-      const frame = add(this.add.rectangle(ix, y, 190, h - 40, 0x120c07).setStrokeStyle(3, RARITY_COLOR[b.rarity]));
-      // Рисунок карты RO (по требованию) под маленьким портретом монстра; без рисунка — крупный портрет.
-      const art = showCardArt(this, b.id, ix, y - 21, Math.min(240, h - 96), (img) => layer.addAt(img, layer.getIndex(frame) + 1), layer);
+      const rc = RARITY_COLOR[b.rarity];
+      const box = add(plate(this, GAME_W / 2, y, W, h, { fill: COLOR.surfaceRaised, border: rc, borderW: 6, r: R.l, hl: 0.15 }));
+      if (b.rarity === 'legendary') add(glow(this, GAME_W / 2, y, 128, hexNum(rc), 0.18).setDisplaySize(W + 80, h + 60));
+      // Рисунок: рисунок карты RO (по требованию) или портрет монстра; полоска вида внизу.
+      const aw = 200;
+      const ah = h - 2 * S.s;
+      const ax = S.l + S.s + aw / 2;
+      const frame = add(plate(this, ax, y, aw, ah, { fill: COLOR.surfaceSunken, border: rc, borderW: 3, r: R.m }));
+      const art = showCardArt(this, b.id, ax, y - 20, Math.min(240, ah - 60), (img) => {
+        // Окно уже «влетело» (popIn перенёс всё во внутренний контейнер) — рисунок ложится туда же, над подложкой.
+        const into = frame.parentContainer ?? layer;
+        img.setPosition(img.x - into.x, img.y - into.y);
+        into.addAt(img, into.getIndex(frame) + 1);
+      }, layer);
       const u = b.monster ? GAME.content.units[b.monster] : undefined;
-      if (u) add(portrait(this, art ? ix + 56 : ix, art ? y + h / 2 - 108 : y - 10, portraitKey(u.visual.sprite), art ? 72 : 170).setTint(unitTint(u.visual)));
-      else add(this.add.image(ix, y - 10, skinIcon((b.icon ?? 'star') as SkinIcon)).setDisplaySize(120, 120).setTint(0xffe08a));
+      if (u) add(portrait(this, art ? ax + 60 : ax, art ? y + ah / 2 - 90 : y - 16, portraitKey(u.visual.sprite), art ? 72 : 160).setTint(unitTint(u.visual)));
+      else add(this.add.image(ax, y - 16, skinIcon((b.icon ?? 'star') as SkinIcon)).setDisplaySize(110, 110).setTint(COLOR_N.title));
       const fam = cfg.families.find((f) => f.id === b.family)!;
-      const famColor = fam.color;
-      add(this.add.rectangle(ix, y + h / 2 - 45, 170, 34, Phaser.Display.Color.HexStringToColor(famColor).color, 0.9));
-      add(text(this, ix, y + h / 2 - 45, fam.name, 24, '#1a1008', { fontStyle: 'bold' }));
-      // Текст.
-      const tx = ix + 125;
-      add(text(this, tx, y - h / 2 + 45, b.name, FS.h3, RARITY_TEXT[b.rarity], { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5));
+      add(plate(this, ax, y + ah / 2 - 26, aw - 16, 40, { fill: fam.color, alpha: 0.92, r: R.s }));
+      add(text(this, ax, y + ah / 2 - 26, fam.name, T.caption, COLOR.onAccent, { fontStyle: 'bold' }));
+      // Текст: имя, теги (цена, нет лекаря), эффект, бонус вида.
+      const tx = ax + aw / 2 + S.m;
+      const tw = GAME_W - S.l - S.m - tx;
+      const top = y - h / 2;
+      const name = add(text(this, tx, top + 52, b.name, T.heading, rc, { fontStyle: 'bold' }).setOrigin(0, 0.5));
+      ellipsize(name, tw);
+      const body = add(text(this, tx, top + 98, b.text, T.body, COLOR.textPrimary, { wordWrap: { width: tw }, align: 'left', lineSpacing: 8 }).setOrigin(0, 0));
+      clampLines(body, n > 3 ? 2 : 3);
+      // Низ карточки: теги (цена, нет лекаря) справа, бонус вида — слева, если карта его включит.
+      const footY = top + h - 44;
+      let tagX = GAME_W - S.l - S.s;
+      const tags: Phaser.GameObjects.Container[] = [];
       // BUG-197: карта с условием «лекарь» — честно, если лекаря в отряде нет.
-      if (b.effects.some((e) => e.kind === 'reviveOnce' && e.healer) && !this.hasHealer(run))
-        add(text(this, GAME_W / 2 + w / 2 - 30, y - h / 2 + 45, 'нет лекаря', FS.small, C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(1, 0.5).setName('towerNoHealer'));
-      add(text(this, tx, y - h / 2 + 92, `${RARITY_NAME[b.rarity]}${b.cost ? ' · с ценой' : ''}`, FS.caption, b.cost ? C.danger : C.dim).setOrigin(0, 0.5));
-      add(text(this, tx, y - h / 2 + 125, b.text, FS.small, C.text, { wordWrap: { width: 720 }, lineSpacing: 2, align: 'left' }).setOrigin(0, 0));
-      // Станет ли активен бонус вида.
+      if (b.effects.some((e) => e.kind === 'reviveOnce' && e.healer) && !this.hasHealer(run)) tags.push(tag(this, tagX, footY, 'нет лекаря', 'negative').setName('towerNoHealer'));
+      if (b.cost) tags.push(tag(this, tagX, footY, 'с ценой', 'negative'));
+      for (const t of tags) {
+        t.setX(tagX - t.width / 2);
+        tagX -= t.width + S.xxs;
+        add(t);
+      }
       const now = familyStates(run.cards, cfg).find((f) => f.family.id === fam.id)!;
-      if (!now.active && now.count + 1 >= fam.need) add(text(this, tx, y + h / 2 - 32, `Бонус вида: ${fam.bonusText.replace(/^\d+ [^:]+: /, '')}`, 24, famColor, { fontStyle: 'bold', wordWrap: { width: 720 }, align: 'left' }).setOrigin(0, 0.5));
-      pressable(this, box, w, h, () => {
+      if (!now.active && now.count + 1 >= fam.need) {
+        const bt = add(text(this, tx, footY, `Бонус вида: ${fam.bonusText.replace(/^\d+ [^:]+: /, '')}`, T.caption, fam.color, { fontStyle: 'bold' }).setOrigin(0, 0.5));
+        ellipsize(bt, tagX - tx - S.xs);
+      }
+      pressable(this, box, W, h, () => {
         if (this.picking) return;
         let events: TowerRunEvent[] = [];
-        if (!this.act(() => {
-          const out = pickTowerBlessing(session.save, id, GAME);
-          events = out.events;
-          commit(out.save);
-        }))
+        if (
+          !this.act(() => {
+            const out = pickTowerBlessing(session.save, id, GAME);
+            events = out.events;
+            commit(out.save);
+          })
+        )
           return;
         // Выбор принят: звон Blessing, лёгкий толчок и вспышка рамки карты — потом экран забега.
         this.picking = true;
         sfx('bless_pick');
         haptic('blessPick');
-        const ms = this.flashCard(layer, box, RARITY_COLOR[b.rarity]);
+        const ms = this.flashCard(layer, box, hexNum(rc));
         this.time.delayedCall(ms, () => this.scene.restart({ fight: { floor: 0, win: false, events } } satisfies TowerSceneData));
       }).setName(`towerCard${i}`);
     });
     if (run.rerolls > 0) {
-      const b = button(this, GAME_W / 2, y0 + n * (h + gap) + 40, 520, 110, 'ui_btn_secondary', `Перетасовать (${run.rerolls})`, () => {
+      const b = button(this, GAME_W / 2, y0 + (n - 1) * (h + gap) + h / 2 + S.l + BTN.l / 2, 520, BTN.l, '', `Перетасовать (${run.rerolls})`, () => {
         this.act(() => commit(rerollTowerBlessing(session.save, GAME)));
         this.scene.restart();
-      }, FS.body);
+      }, T.body, { variant: 'secondary' });
+      b.container.setName('towerReroll');
       layer.add(b.container);
     }
+    popIn(this, layer, layer.list[0]);
   }
 
   /**
    * Вспышка рамки выбранной карты: белая рамка поверх и светлый отблеск, гаснут за ~0.3 с. «Меньше движения» — только
    * рамка, без анимации. Возвращает, сколько мс ждать перед переходом.
    */
-  private flashCard(layer: Phaser.GameObjects.Container, box: Phaser.GameObjects.Rectangle, tint: number): number {
+  private flashCard(layer: Phaser.GameObjects.Container, box: Phaser.GameObjects.NineSlice, tint: number): number {
     const frame = this.add.rectangle(box.x, box.y, box.width + 16, box.height + 16).setStrokeStyle(14, 0xffffff, 1);
     const shine = this.add.rectangle(box.x, box.y, box.width, box.height, tint, 0.35);
-    layer.add([shine, frame]);
+    (box.parentContainer ?? layer).add([shine, frame]);
     if (motion.reduced) return 200;
     this.tweens.add({ targets: frame, scaleX: 1.03, scaleY: 1.06, alpha: 0, duration: 340, ease: 'Quad.easeOut' });
     this.tweens.add({ targets: shine, alpha: 0, duration: 340, ease: 'Quad.easeOut' });
     return 340;
   }
 
-  /** Событие этажа: текст и 1–3 варианта. */
+  /** Событие этажа: одна карточка — рисунок, название, текст; варианты — кнопки (условие — подписью под кнопкой). */
   private eventOverlay(run: TowerRun): void {
     const ev = towerEventDef(session.save, GAME);
     if (!ev) return;
     const layer = this.overlay().setName('towerEvent');
-    const add = <T extends Phaser.GameObjects.GameObject>(o: T) => (layer.add(o), o);
-    const h = 560 + ev.options.length * 190;
-    const cy = GAME_H / 2;
-    add(panel(this, GAME_W / 2, cy, 1000, h, 'ui_panel'));
-    const top = cy - h / 2;
-    add(text(this, GAME_W / 2, top + 70, ev.title, FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }));
+    const parts: Phaser.GameObjects.GameObject[] = [];
+    const add = <O extends Phaser.GameObjects.GameObject>(o: O) => (parts.push(o), o);
+    const inner = W - 2 * S.l;
+    const body = add(text(this, GAME_W / 2, 0, ev.text, T.body, COLOR.textPrimary, { wordWrap: { width: inner }, align: 'center', lineSpacing: 10 }));
+    const optH = BTN.l;
+    const optGap = S.s;
+    const hints = ev.options.map((o) => (o.hint ? 44 : 0));
+    const optsH = ev.options.reduce((n, _o, i) => n + optH + hints[i] + optGap, 0) - optGap;
+    const artH = 200;
+    const h = S.l + artH + S.s + 70 + S.s + body.height + S.l + optsH + S.l;
+    const top = GAME_H / 2 - h / 2;
+    const card = plate(this, GAME_W / 2, GAME_H / 2, W, h, { fill: COLOR.surfaceRaised, border: COLOR.accent, borderW: 4, r: R.xl, hl: 0.15 });
+    card.setInteractive();
+    parts.unshift(card);
+    let y = top + S.l + artH / 2;
     const u = ev.monster ? GAME.content.units[ev.monster] : undefined;
-    if (u) add(portrait(this, GAME_W / 2, top + 210, portraitKey(u.visual.sprite), 180).setTint(unitTint(u.visual)));
-    else add(this.add.image(GAME_W / 2, top + 210, skinIcon((ev.icon ?? 'scroll') as SkinIcon)).setDisplaySize(140, 140).setTint(0xffe08a));
-    add(text(this, GAME_W / 2, top + 390, ev.text, FS.body, C.text, { wordWrap: { width: 880 }, align: 'center', lineSpacing: 4 }));
+    add(glow(this, GAME_W / 2, y, artH * 1.8, COLOR_N.accent, 0.25));
+    if (u) add(portrait(this, GAME_W / 2, y, portraitKey(u.visual.sprite), artH).setTint(unitTint(u.visual)));
+    else add(this.add.image(GAME_W / 2, y, skinIcon((ev.icon ?? 'scroll') as SkinIcon)).setDisplaySize(150, 150).setTint(COLOR_N.title));
+    y += artH / 2 + S.s + 35;
+    add(text(this, GAME_W / 2, y, ev.title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }));
+    y += 35 + S.s;
+    body.setY(y + body.height / 2);
+    y += body.height + S.l;
     ev.options.forEach((o, i) => {
-      const y = top + 560 + i * 190;
       const ok = eventOptionAllowed(run, o);
-      const b = button(this, GAME_W / 2, y, 880, 120, ok ? 'ui_btn_primary' : 'skin_btn_disabled', o.label, () => {
+      const by = y + optH / 2;
+      const b = button(this, GAME_W / 2, by, inner, optH, '', o.label, () => {
         if (!ok) {
           toast(this, 'Не хватает условий для этого варианта', C.warning);
           return;
         }
         let msg = '';
         let events: TowerRunEvent[] = [];
-        if (!this.act(() => {
-          const out = resolveTowerEvent(session.save, i, GAME);
-          msg = out.text;
-          events = out.events;
-          commit(out.save);
-        }))
+        if (
+          !this.act(() => {
+            const out = resolveTowerEvent(session.save, i, GAME);
+            msg = out.text;
+            events = out.events;
+            commit(out.save);
+          })
+        )
           return;
         toast(this, msg, C.success, 3500);
         this.scene.restart({ fight: { floor: 0, win: false, events } } satisfies TowerSceneData);
-      }, FS.h3);
+      }, T.heading, { variant: i === 0 && ok ? 'primary' : 'secondary' });
+      if (!ok) b.setEnabled(false);
+      ellipsize(b.label, inner - 2 * S.m);
       b.container.setName(`towerEventOpt${i}`);
-      layer.add(b.container);
-      if (o.hint) add(text(this, GAME_W / 2, y + 80, o.hint, FS.caption, ok ? C.muted : C.disabled));
+      add(b.container);
+      y += optH;
+      if (o.hint) {
+        add(text(this, GAME_W / 2, y + 26, o.hint, T.caption, ok ? COLOR.textSecondary : COLOR.textTertiary));
+        y += hints[i];
+      }
+      y += optGap;
     });
+    layer.add(parts);
+    popIn(this, layer, layer.list[0]);
   }
 
-  /** Список карт забега и бонусов видов. */
-  private cardsOverlay(run: TowerRun): void {
-    const cfg = runConfig(GAME);
-    const layer = this.overlay().setName('towerCardsList');
-    const add = <T extends Phaser.GameObjects.GameObject>(o: T) => (layer.add(o), o);
-    add(text(this, GAME_W / 2, 200, 'Карты забега', FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }));
-    const rows = run.cards.slice(0, 10);
-    rows.forEach((id, i) => {
-      const b = cfg.blessings.find((x) => x.id === id);
-      if (!b) return;
-      const y = 320 + i * 118;
-      this.cardIcon(b, 110, y, 96, OVERLAY_DEPTH + 1, layer);
-      add(text(this, 180, y - 28, b.name, FS.body, RARITY_TEXT[b.rarity], { fontStyle: 'bold' }).setOrigin(0, 0.5));
-      add(text(this, 180, y + 14, b.text, 24, C.text, { wordWrap: { width: 840 }, align: 'left' }).setOrigin(0, 0.3));
-    });
-    let y = 320 + rows.length * 118 + 20;
-    for (const f of familyStates(run.cards, cfg)) {
-      if (!f.count) continue;
-      add(text(this, 80, y, `${f.family.name}: ${f.count}/${f.family.need}${f.active ? ' ✓' : ''} — ${f.family.bonusText}`, 26, f.active ? f.family.color : C.dim, { wordWrap: { width: 920 }, align: 'left' }).setOrigin(0, 0.5));
-      y += 50;
-    }
-    const b = button(this, GAME_W / 2, Math.min(1700, y + 90), 420, 120, 'ui_btn_primary', 'Закрыть', () => this.scene.restart(), FS.h3);
-    layer.add(b.container);
-  }
-
-  /** Постоянные улучшения за осколки башни. */
-  private upgradesOverlay(): void {
-    const cfg = runConfig(GAME);
-    const save = session.save;
-    const layer = this.overlay().setName('towerUpgrades');
-    const add = <T extends Phaser.GameObjects.GameObject>(o: T) => (layer.add(o), o);
-    // BUG-197: под строками — сплошная подложка: лобби не просвечивает между ними.
-    const bottom = 400 + cfg.upgrades.length * 175 + 110;
-    add(this.add.rectangle(GAME_W / 2, (130 + bottom) / 2, 1060, bottom - 130, 0x140e09, 1).setStrokeStyle(4, 0xc9a45c, 0.8));
-    add(text(this, GAME_W / 2, 200, 'Улучшения Башни', FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }));
-    add(text(this, GAME_W / 2, 270, `Осколки башни: ${save.tower.shards ?? 0}`, FS.h3, C.gem, { fontStyle: 'bold' }));
-    cfg.upgrades.forEach((u, i) => {
-      const y = 400 + i * 175;
-      const lvl = upgradeLevel(save, u.id);
-      const max = lvl >= u.costs.length;
-      add(panel(this, GAME_W / 2, y, 1020, 160, 'ui_panel'));
-      add(text(this, 50, y - 45, `${u.name}  ${lvl}/${u.costs.length}`, FS.h3, max ? C.success : C.title, { fontStyle: 'bold' }).setOrigin(0, 0.5));
-      add(text(this, 50, y + 20, u.text, 26, C.muted, { wordWrap: { width: 660 }, align: 'left' }).setOrigin(0, 0.5));
-      // Осколков не хватает — серая цена (касание объяснит тостом ядра).
-      const short = !max && (save.tower.shards ?? 0) < u.costs[lvl];
-      const b = button(this, 880, y, 250, 110, max ? 'skin_btn_disabled' : short ? 'k:buttonLong_grey' : 'ui_btn_primary', max ? 'Макс.' : `${u.costs[lvl]} оск.`, () => {
-        if (max) return;
-        if (this.act(() => commit(buyTowerUpgrade(session.save, u.id, GAME)))) {
-          this.scene.restart({ upgrades: true } satisfies TowerSceneData);
-        }
-      }, FS.body);
-      b.container.setName(`towerUpgrade${i}`);
-      layer.add(b.container);
-    });
-    const close = button(this, GAME_W / 2, 400 + cfg.upgrades.length * 175 + 30, 420, 120, 'ui_btn_secondary', 'Закрыть', () => this.scene.restart(), FS.h3);
-    layer.add(close.container);
-  }
-
-  /** Итог забега: этаж, осколки, добыча. */
+  /** Итог забега: этаж крупно, рекорд, награды чипами, «Дальше». */
   private summary(): void {
     const l = session.save.tower.last!;
     const layer = this.overlay().setName('towerSummary');
-    const add = <T extends Phaser.GameObjects.GameObject>(o: T) => (layer.add(o), o);
+    const shade = layer.list[0];
+    const add = <O extends Phaser.GameObjects.GameObject>(o: O) => (layer.add(o), o);
     const cy = GAME_H / 2;
-    add(panel(this, GAME_W / 2, cy, 960, 900, 'ui_panel'));
-    add(text(this, GAME_W / 2, cy - 360, l.won ? 'Вершина взята!' : 'Забег окончен', FS.h1, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 7 }));
+    const items: ChipSpec[] = [{ icon: 'tower', value: `+${l.shards}`, tone: 'gem' }];
+    if (l.gold) items.push({ icon: 'gold', value: `+${formatNumber(l.gold)}`, tone: 'gold' });
+    if (l.jobExp) items.push({ icon: 'hero_exp', value: `+${formatNumber(l.jobExp)}` });
+    if (l.gems) items.push({ icon: 'gems', value: `+${l.gems}`, tone: 'gem' });
+    const noLoot = !l.gold && !l.jobExp;
+    const chipsY = l.record ? 500 : 440;
+    const h = chipsY + (noLoot ? 80 : 0) + 250;
+    const top = cy - h / 2;
+    add(plate(this, GAME_W / 2, cy, W - 40, h, { fill: COLOR.surfaceRaised, border: l.record ? COLOR.accent : COLOR.border, borderW: 4, r: R.xl, hl: 0.15 }).setInteractive());
+    add(text(this, GAME_W / 2, top + 90, l.won ? 'Вершина взята!' : 'Забег окончен', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }));
     // BUG-196: чем кончился забег и сколько пройдено — «пройдено этажей: 3», рекорд — в тех же единицах, что «Лучший этаж».
     const why = l.end === 'defeat' ? `Поражение на этаже ${l.floor + 1}` : l.end === 'surrender' ? `Вы сдались на этаже ${l.floor + 1}` : l.won ? 'Все этажи пройдены' : '';
-    if (why) add(text(this, GAME_W / 2, cy - 290, why, FS.h3, l.end === 'defeat' ? C.danger : C.muted, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setName('towerSummaryWhy'));
-    add(text(this, GAME_W / 2, cy - 205, `Пройдено этажей: ${l.floor}`, 64, l.record ? C.gold : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 8 }));
-    if (l.record) add(text(this, GAME_W / 2, cy - 135, 'Новый рекорд!', FS.h2, C.gold, { fontStyle: 'bold' }));
-    const lines = [`Осколки башни +${l.shards}`];
-    if (l.gold || l.jobExp) lines.push(`Золото +${formatNumber(l.gold)} · опыт +${formatNumber(l.jobExp)} в запас`);
-    else lines.push('Добыча за эти этажи сегодня уже получена');
-    if (l.gems) lines.push(`Гемы за рекорды +${l.gems}`);
-    lines.forEach((s, i) => add(text(this, GAME_W / 2, cy - 50 + i * 75, s, FS.body, i === 0 ? C.gem : C.text, { wordWrap: { width: 860 }, align: 'center' })));
-    add(text(this, GAME_W / 2, cy + 200, 'Осколки тратятся на улучшения Башни.', FS.small, C.muted));
-    const b = button(this, GAME_W / 2, cy + 330, 480, 130, 'ui_btn_primary', 'Дальше', () => {
+    if (why) add(text(this, GAME_W / 2, top + 160, why, T.body, l.end === 'defeat' ? COLOR.negative : COLOR.textSecondary, { fontStyle: 'bold' }).setName('towerSummaryWhy'));
+    if (l.record) add(glow(this, GAME_W / 2, top + 315, 420, COLOR_N.accent, 0.35, true));
+    add(text(this, GAME_W / 2, top + 240, 'Пройдено этажей', T.caption, COLOR.textSecondary));
+    add(text(this, GAME_W / 2, top + 315, String(l.floor), T.display, l.record ? COLOR.gold : COLOR.textPrimary, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setName('towerSummaryFloor'));
+    if (l.record) add(tag(this, GAME_W / 2, top + 400, 'Новый рекорд!', 'gold', { solid: true }));
+    add(rewardRow(this, GAME_W / 2, top + chipsY, items, { maxW: W - 120 }).setName('towerSummaryRewards'));
+    if (noLoot) add(text(this, GAME_W / 2, top + chipsY + 80, 'Добыча за эти этажи сегодня уже получена', T.caption, COLOR.textTertiary));
+    const b = cta(this, GAME_W / 2, top + h - 110, 'Дальше', () => {
       commit(markTowerSummarySeen(session.save));
       this.scene.restart();
-    }, FS.h2);
+    }, { w: 520 });
     b.container.setName('towerSummaryOk');
     layer.add(b.container);
+    popIn(this, layer, shade);
   }
+}
+
+/** Карандаш (правка): наклонный стержень с грифелем — графикой, своей иконки в скине нет. */
+function pencil(scene: Phaser.Scene, x: number, y: number, r: number): Phaser.GameObjects.Graphics {
+  const g = scene.add.graphics({ x, y });
+  const s = r / 44;
+  g.fillStyle(COLOR_N.title, 1);
+  g.fillPoints([new Phaser.Geom.Point(-18 * s, 10 * s), new Phaser.Geom.Point(10 * s, -18 * s), new Phaser.Geom.Point(18 * s, -10 * s), new Phaser.Geom.Point(-10 * s, 18 * s)], true);
+  g.fillTriangle(-18 * s, 10 * s, -10 * s, 18 * s, -22 * s, 22 * s);
+  g.fillStyle(COLOR_N.surfaceSunken, 1).fillCircle(-21 * s, 21 * s, 2.5 * s);
+  return g;
 }
