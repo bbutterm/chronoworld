@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import type { SfxId } from './audioCatalog';
+import { MOMENT_SFX, type SfxId } from './audioCatalog';
 import { sfx } from './audio';
 import { formatNumber } from './flow';
 import { haptic, type HapticId } from './haptics';
@@ -35,6 +35,8 @@ import { COLOR, COLOR_N, E, FAMILY, M, RARITY, S, T, Z } from './theme';
  *   Затемнение (M.base) → заголовок 1.4 → 1 (M.slow, E.pop) + лучи и искры, вибрация heavy → пауза → уход (M.base).
  *   opts.keep — не уходить (экран сам строит награды поверх и зовёт close()); onSettled — заголовок встал
  *   (пора показывать награды по одной, M.fast шаг); onDone — момент закончен (кнопки экрана — после него).
+ *   opts.depth — глубина слоёв (экран с keep передаёт низкую и строит всё своё поверх); opts.dimAfter — keep:
+ *   затемнение после «встал» отступает. «Встал» и уход — по настоящему времени (realLater), не по часам сцены.
  *   Звук и вибрация по виду — MOMENTS (sound: false, если экран уже сыграл стингер сам).
  * - momentTimeline(kind, hold?) — расписание момента (чистая функция, для экранов и тестов).
  *
@@ -508,15 +510,15 @@ export interface MomentDef {
 }
 
 /**
- * Моменты (§3 п. 10): звук и вибрация — здесь, в одном месте. Своих звуков для «новой главы» и «первой победы»
- * пока нет — берутся unlock и quest_done (нужны moment_chapter / moment_first_clear в audioCatalog.ts).
+ * Моменты (§3 п. 10): звук и вибрация — здесь, в одном месте. Звуки «новой главы» и «первой победы» — MOMENT_SFX
+ * (audioCatalog.ts: пока готовые звуки каталога, свои файлы — заменой там).
  */
 export const MOMENTS: Record<MomentKind, MomentDef> = {
   victory: { title: 'ПОБЕДА', sfx: 'victory', haptic: 'victory', color: COLOR.title },
   summonRare: { title: 'Редкий герой!', sfx: 'summon_epic', haptic: 'cardRare', color: RARITY.purple },
   ascend: { title: 'Вознесение!', sfx: 'rarity_up', haptic: 'moment', color: COLOR.title },
-  newChapter: { title: 'Новая глава', sfx: 'unlock', haptic: 'moment', color: COLOR.title },
-  firstClear: { title: 'Первая победа!', sfx: 'quest_done', haptic: 'moment', color: COLOR.positive },
+  newChapter: { title: 'Новая глава', sfx: MOMENT_SFX.moment_chapter, haptic: 'moment', color: COLOR.title },
+  firstClear: { title: 'Первая победа!', sfx: MOMENT_SFX.moment_first_clear, haptic: 'moment', color: COLOR.positive },
 };
 
 /** Расписание момента, мс от старта. */
@@ -570,8 +572,14 @@ export interface MomentOpts {
   at?: Point;
   /** Держать вставший заголовок, мс (по умолчанию M.count); не действует при keep. */
   hold?: number;
-  /** Не уходить самому: экран строит награды поверх (глубина > MOMENT_DEPTH) и сам зовёт close(). */
+  /** Не уходить самому: экран строит награды поверх (глубина > depth + 2) и сам зовёт close(). При «Уменьшить
+   *  анимацию» keep рисует конечное состояние (затемнение, заголовок) без движения — экрану не нужен свой запасной. */
   keep?: boolean;
+  /** Глубина нижнего слоя (затемнение; лучи +1, заголовок +2). По умолчанию MOMENT_DEPTH — над окнами и листами.
+   *  Экран с keep, который строит своё содержимое поверх, передаёт низкую (1): окна, сюжет, подсказки — над моментом. */
+  depth?: number;
+  /** keep: после того как заголовок встал, затемнение отступает до этой яркости (M.slow) — проступает арт экрана. */
+  dimAfter?: number;
   /** false — без стингера (экран уже сыграл свой). Вибрация — всегда (её повтор гасит зазор haptics.ts). */
   sound?: boolean;
   /** Заголовок встал (или пропуск тапом): пора показывать награды по одной. */
@@ -589,10 +597,38 @@ export interface MomentHandle {
   readonly closed: boolean;
 }
 
+
+/** Часы моментов: настоящее время (не часы сцены — на медленных кадрах Phaser урезает шаг, и «встал» отставал до 4 с). */
+export const realNow = (): number => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+
+/**
+ * Отложенный вызов по настоящему времени: проверяется на каждом кадре сцены (postupdate), так что колбэк не
+ * переживёт сцену. remove() — отменить.
+ */
+export function realLater(scene: Phaser.Scene, ms: number, fn: () => void): { remove(): void } {
+  const due = realNow() + ms;
+  let done = false;
+  const off = () => {
+    if (done) return;
+    done = true;
+    scene.events.off('postupdate', tick);
+    scene.events.off('shutdown', off);
+  };
+  function tick(): void {
+    if (realNow() < due) return;
+    off();
+    fn();
+  }
+  scene.events.on('postupdate', tick);
+  scene.events.once('shutdown', off);
+  return { remove: off };
+}
+
 /**
  * Полноэкранный момент: затемнение → заголовок 1.4 → 1 (E.pop) → лучи и искры → вибрация → пауза → уход.
  * Тап по затемнению — пропуск (ввод под ним закрыт, пока момент виден, — случайно нажать кнопку нельзя).
- * Без анимации — только звук и вибрация, колбэки сразу.
+ * Без анимации — только звук и вибрация, колбэки сразу (keep — ещё и неподвижное конечное состояние).
+ * «Встал» и «уход» — по настоящему времени (realLater): твины, отставшие на медленных кадрах, доводятся сразу.
  */
 export function moment(scene: Phaser.Scene, kind: MomentKind, opts: MomentOpts = {}): MomentHandle {
   const def = MOMENTS[kind];
@@ -612,35 +648,39 @@ export function moment(scene: Phaser.Scene, kind: MomentKind, opts: MomentOpts =
     opts.onDone?.();
   };
   const state = { settled: false, closed: false };
+  const handle = (skip: () => void, close: () => void): MomentHandle => ({
+    skip,
+    close,
+    get settled() {
+      return state.settled;
+    },
+    get closed() {
+      return state.closed;
+    },
+  });
 
-  if (!juiceOn()) {
+  const animate = juiceOn();
+  if (!animate && !keep) {
     haptic(def.haptic);
     state.settled = true;
-    state.closed = !keep;
+    state.closed = true;
     fireSettled();
     fireDone();
-    return {
-      skip: () => undefined,
-      close: () => {
-        state.closed = true;
-      },
-      get settled() {
-        return state.settled;
-      },
-      get closed() {
-        return state.closed;
-      },
-    };
+    return handle(
+      () => undefined,
+      () => undefined,
+    );
   }
 
   const at = opts.at ?? { x: GAME_W / 2, y: GAME_H * 0.36 };
   const color = opts.color ?? def.color;
   const tint = parseInt(color.slice(1, 7), 16);
-  const D = MOMENT_DEPTH;
+  const D = opts.depth ?? MOMENT_DEPTH;
   const dim = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, COLOR_N.bg, 1).setAlpha(0).setDepth(D).setInteractive();
-  const rays: Phaser.GameObjects.Image | null = scene.textures.exists('skin_rays')
-    ? scene.add.image(at.x, at.y, 'skin_rays').setDisplaySize(GAME_W, GAME_W).setTint(tint).setBlendMode('ADD').setAlpha(0).setDepth(D + 1)
-    : null;
+  const rays: Phaser.GameObjects.Image | null =
+    animate && scene.textures.exists('skin_rays')
+      ? scene.add.image(at.x, at.y, 'skin_rays').setDisplaySize(GAME_W, GAME_W).setTint(tint).setBlendMode('ADD').setAlpha(0).setDepth(D + 1)
+      : null;
   const raysScale = rays?.scaleX ?? 1;
   const isImage = !!opts.image && scene.textures.exists(opts.image);
   const title: Phaser.GameObjects.Image | Phaser.GameObjects.Text =
@@ -661,9 +701,11 @@ export function moment(scene: Phaser.Scene, kind: MomentKind, opts: MomentOpts =
   if (isImage && opts.imageWidth) {
     const img = title as Phaser.GameObjects.Image;
     img.setDisplaySize(opts.imageWidth, (opts.imageWidth * img.height) / Math.max(1, img.width));
+  } else if (!isImage && title.width > GAME_W - 2 * S.l) {
+    // Длинный заголовок («Глава 10 пройдена!») — ужать по ширине поля, не обрезать.
+    title.setScale((GAME_W - 2 * S.l) / title.width);
   }
   const titleScale = title.scaleX;
-  title.setScale(titleScale * MOMENT_TITLE_FROM).setAlpha(0);
   const sub = opts.subtitle
     ? scene.add
         .text(at.x, at.y + T.display * 0.5 + S.m, opts.subtitle, { fontFamily: FAMILY.body, fontSize: `${T.heading}px`, color: COLOR.textPrimary, align: 'center' })
@@ -675,9 +717,50 @@ export function moment(scene: Phaser.Scene, kind: MomentKind, opts: MomentOpts =
   const layers: Phaser.GameObjects.GameObject[] = [dim, title];
   if (rays) layers.push(rays);
   if (sub) layers.push(sub);
-  const timers: Phaser.Time.TimerEvent[] = [];
-  const later = (ms: number, fn: () => void) => timers.push(scene.time.delayedCall(ms, () => dim.scene && fn()));
+  const timers: { remove(): void }[] = [];
+  const later = (ms: number, fn: () => void) => timers.push(realLater(scene, ms, () => dim.scene && fn()));
+  /** Затемнение, на котором keep остаётся (dimAfter — отступает, проступает арт экрана). */
+  const restDim = keep && opts.dimAfter !== undefined ? opts.dimAfter : MOMENT_DIM;
 
+  function close(): void {
+    if (state.closed) return;
+    state.closed = true;
+    for (const t of timers) t.remove();
+    if (!dim.scene) {
+      fireSettled();
+      fireDone();
+      return;
+    }
+    dim.disableInteractive();
+    scene.tweens.killTweensOf(layers);
+    if (animate) {
+      scene.tweens.add({
+        targets: layers,
+        alpha: 0,
+        duration: state.settled ? tl.out : M.fast,
+        ease: E.in,
+        onComplete: () => {
+          for (const o of layers) o.destroy();
+        },
+      });
+    } else for (const o of layers) o.destroy();
+    fireSettled();
+    fireDone();
+  }
+
+  if (!animate) {
+    // keep без анимации: сразу конечное состояние, ввод — экрану.
+    dim.setAlpha(restDim).disableInteractive();
+    title.setAlpha(1);
+    sub?.setAlpha(1);
+    haptic(def.haptic);
+    state.settled = true;
+    fireSettled();
+    fireDone();
+    return handle(() => undefined, close);
+  }
+
+  title.setScale(titleScale * MOMENT_TITLE_FROM).setAlpha(0);
   let hapticDone = false;
   const pop = () => {
     if (!hapticDone) {
@@ -688,55 +771,33 @@ export function moment(scene: Phaser.Scene, kind: MomentKind, opts: MomentOpts =
   const spinRays = () => {
     if (rays) scene.tweens.add({ targets: rays, angle: 360, duration: RAY_TURN_MS, repeat: -1 });
   };
-  /** Конечное состояние «встал». */
-  const finalState = () => {
-    scene.tweens.killTweensOf(layers);
-    dim.setAlpha(MOMENT_DIM);
-    title.setScale(titleScale).setAlpha(1);
-    sub?.setAlpha(1);
-    rays?.setScale(raysScale).setAlpha(MOMENT_RAYS);
-    spinRays();
-  };
   const settle = () => {
     if (state.settled || state.closed) return;
     state.settled = true;
+    // Часы сцены могли отстать от настоящего времени — довести затемнение и заголовок (лучи докрутятся сами).
+    scene.tweens.killTweensOf(sub ? [dim, title, sub] : [dim, title]);
+    dim.setAlpha(MOMENT_DIM);
+    title.setScale(titleScale).setAlpha(1);
+    sub?.setAlpha(1);
     pop();
     fireSettled();
     if (keep) {
       // Остаётся фоном: ввод — экрану (награды и кнопки поверх).
       dim.disableInteractive();
+      if (restDim !== MOMENT_DIM) scene.tweens.add({ targets: dim, alpha: restDim, duration: M.slow, ease: E.out });
       fireDone();
     } else later(tl.closeAt - tl.settled, close);
   };
-  function close(): void {
-    if (state.closed) return;
-    state.closed = true;
-    for (const t of timers) t.remove(false);
-    if (!dim.scene) {
-      fireSettled();
-      fireDone();
-      return;
-    }
-    dim.disableInteractive();
-    scene.tweens.killTweensOf(layers);
-    scene.tweens.add({
-      targets: layers,
-      alpha: 0,
-      duration: state.settled ? tl.out : M.fast,
-      ease: E.in,
-      onComplete: () => {
-        for (const o of layers) o.destroy();
-      },
-    });
-    fireSettled();
-    fireDone();
-  }
   const skip = () => {
     if (state.closed) return;
     if (!state.settled) {
-      for (const t of timers) t.remove(false);
+      for (const t of timers) t.remove();
       timers.length = 0;
-      finalState();
+      if (rays) {
+        scene.tweens.killTweensOf(rays);
+        rays.setScale(raysScale).setAlpha(MOMENT_RAYS);
+        spinRays();
+      }
       settle();
       if (!keep) close();
     } else if (!keep) close();
@@ -758,14 +819,5 @@ export function moment(scene: Phaser.Scene, kind: MomentKind, opts: MomentOpts =
   });
   later(tl.settled, settle);
 
-  return {
-    skip,
-    close,
-    get settled() {
-      return state.settled;
-    },
-    get closed() {
-      return state.closed;
-    },
-  };
+  return handle(skip, close);
 }

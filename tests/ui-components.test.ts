@@ -174,3 +174,23 @@ describe('ui: тосты', () => {
   });
 
 });
+
+describe('ui: указатель подсказки и вкладки (итерация 10)', () => {
+  const read = async (f: string) => (await import('node:fs')).readFileSync(f, 'utf8');
+
+  it('указатель: один пульс (без бесконечных твинов), без тоста посреди экрана, обходит и данные', async () => {
+    const src = await read('src/game/ui.ts');
+    const hint = src.slice(src.indexOf('export function hintPointer('), src.indexOf('export function tutorialHint('));
+    expect(hint).not.toMatch(/repeat:\s*-1/);
+    expect(hint).not.toMatch(/toast\(/);
+    expect(hint).toMatch(/sceneObstacles\(/);
+  });
+
+  it('segmented: вкладка — строка или { label, icon, dot, lock }; обходов в сценах нет', async () => {
+    const friends = await read('src/game/scenes/FriendsScene.ts');
+    const events = await read('src/game/scenes/EventsScene.ts');
+    expect(friends).not.toMatch(/segIcons|friendsTabDot/);
+    expect(events).not.toMatch(/tabDot_/);
+    expect(events).toMatch(/lock: d\.locked/);
+  });
+});

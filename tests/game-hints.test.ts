@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { newGame, type SaveState } from '../src/core';
 import { autoNextStage, heroesBadgeCount } from '../src/game/flow';
-import { HINT_KEY, HINT_MAX, HINT_TEXT, hintDone, hintShown, markHint, markHintShown, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, setHintObsolete, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
+import { HINT_KEY, HINT_MAX, HINT_TEXT, hintDone, hintNagged, hintShown, markHint, markHintShown, NAG_LIMIT, noteHintVisit, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, setHintObsolete, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
 import { loadFullContext, loadGameContext } from '../scripts/lib/content-node';
-import { placeCallout } from '../src/game/hintLayout';
+import { placeCallout, sceneObstacles, type SceneNode } from '../src/game/hintLayout';
 
 const ctx = loadGameContext();
 const stages = ctx.content.stages;
@@ -252,5 +252,49 @@ describe('S: плашка подсказки не закрывает други�
       vi.unstubAllGlobals();
       reloadHints();
     }
+  });
+
+  it('повторяющийся указатель (вкладка «Герои»: трофеи, опыт) — не больше NAG_LIMIT заходов, пока держится состояние', () => {
+    resetHints();
+    const none = () => false;
+    const st = { cleared: 6, chestHasIncome: false, levelUpReady: false, towerUnlocked: false, gearUpgrade: true };
+    expect(NAG_LIMIT).toBeLessThanOrEqual(3);
+    for (let i = 0; i < NAG_LIMIT; i++) {
+      expect(pickHomeHint(st, none)).toBe('equip_gear');
+      noteHintVisit('equip_gear', 'Campaign');
+    }
+    // Заходы исчерпаны — молчит (цепочка идёт дальше: Башня открылась — её шаг).
+    expect(pickHomeHint(st, none)).toBeNull();
+    expect(pickHomeHint({ ...st, towerUnlocked: true }, none)).toBe('tower_open');
+    // На другом экране — свой счёт; не повторяющиеся шаги не считаются.
+    expect(hintNagged('equip_gear', 'Heroes')).toBe(false);
+    noteHintVisit('home_campaign', 'Campaign');
+    expect(hintNagged('home_campaign', 'Campaign')).toBe(false);
+    // Состояние сменилось (трофеи надеты) — и снова появилось: опять NAG_LIMIT заходов.
+    expect(pickHomeHint({ ...st, gearUpgrade: false }, none)).toBeNull();
+    expect(pickHomeHint(st, none)).toBe('equip_gear');
+    resetHints();
+  });
+});
+
+describe('S: помехи плашки — кнопки и данные', () => {
+  const box = (x: number, y: number, w: number, h: number) => () => ({ x, y, width: w, height: h });
+  it('кнопки и подписи — отдельно; цель, подписи на ней, подписи внутри кнопок и затемнения — не помеха', () => {
+    const nodes: SceneNode[] = [
+      { type: 'Rectangle', input: { enabled: true }, getBounds: box(0, 0, 1080, 1920) },
+      { type: 'Text', text: 'Мощь 12 000', getBounds: box(40, 300, 300, 50) },
+      { type: 'Text', text: '   ', getBounds: box(40, 400, 300, 50) },
+      { type: 'Text', text: 'Скрыто', visible: false, getBounds: box(40, 500, 300, 50) },
+      // Цель (кнопка под точкой) и подпись на ней.
+      { type: 'Container', input: { enabled: true }, getBounds: box(400, 900, 280, 120), list: [{ type: 'Text', text: 'В бой', getBounds: box(480, 940, 120, 40) }] },
+      { type: 'Text', text: 'В бой', getBounds: box(480, 940, 120, 40) },
+      // Другая кнопка с подписью внутри.
+      { type: 'Container', input: { enabled: true }, getBounds: box(40, 1200, 200, 100), list: [{ type: 'Text', text: 'Авто', getBounds: box(60, 1230, 100, 40) }] },
+      { type: 'Container', name: 'hint', list: [{ type: 'Text', text: 'Подсказка', getBounds: box(0, 600, 500, 60) }] },
+      { type: 'Container', visible: false, list: [{ type: 'Text', text: 'Невидимо', getBounds: box(0, 700, 500, 60) }] },
+    ];
+    const o = sceneObstacles(nodes, { x: 540, y: 960, w: 280, h: 120 }, { w: 1080, h: 1920 });
+    expect(o.controls).toEqual([{ x: 40, y: 1200, w: 200, h: 100 }]);
+    expect(o.texts).toEqual([{ x: 40, y: 300, w: 300, h: 50 }]);
   });
 });

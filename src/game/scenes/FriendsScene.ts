@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { compactNumber } from '../frame';
 import { GAME_W } from '../layout';
-import { contentBottom, CONTENT_TOP, dot, screen } from '../screen';
+import { contentBottom, CONTENT_TOP, screen } from '../screen';
 import { button, BTN, chip, ellipsize, listRow, mixHex, plate, ScrollArea, segmented, SURFACE, text, toast, type ButtonView } from '../ui';
 import { COLOR, COLOR_N, FAMILY, R, S, T } from '../theme';
 import { haptic } from '../haptics';
@@ -108,10 +108,10 @@ export class FriendsScene extends Phaser.Scene {
     }
     const ty = CONTENT_TOP + S.s + 44;
     const index = Math.max(0, TABS.findIndex((t) => t.id === this.opts.tab));
-    const seg = segmented(this, GAME_W / 2, ty, CW, TABS.map((t) => t.label), index, (i) => this.scene.restart({ tab: TABS[i].id } satisfies FriendsData));
-    seg.container.setName('friendsTabs');
     // Колокольчики ждут, а открыты «Рекорды» — точка на вкладке «Друзья» (число — на самой карточке колокольчиков).
-    if (this.opts.tab !== 'friends' && onlineState.giftsWaiting > 0) dot(this, GAME_W / 2 - CW / 2 + CW / 4 + 90, ty - 30).setName('friendsTabDot');
+    const gifts = onlineState.giftsWaiting > 0;
+    const seg = segmented(this, GAME_W / 2, ty, CW, TABS.map((t) => ({ label: t.label, dot: t.id === 'friends' && gifts })), index, (i) => this.scene.restart({ tab: TABS[i].id } satisfies FriendsData));
+    seg.container.setName('friendsTabs');
     this.top = ty + 44 + S.s;
     if (this.opts.tab === 'friends') this.friendsTab();
     else this.recordsTab();
@@ -367,9 +367,8 @@ export class FriendsScene extends Phaser.Scene {
     // Доски — один сегмент со значками; под ним — «Все игроки / Друзья» и неделя (у недельных досок).
     const kinds = BOARD_KINDS.map((k) => k.id);
     const bi = Math.max(0, kinds.indexOf(board));
-    const bseg = segmented(this, GAME_W / 2, y + 44, CW, kinds.map((k) => BOARD_SHORT[k]), bi, (i) => this.scene.restart({ board: kinds[i] } satisfies FriendsData));
+    const bseg = segmented(this, GAME_W / 2, y + 44, CW, kinds.map((k) => ({ label: BOARD_SHORT[k], icon: BOARD_ICON[k] })), bi, (i) => this.scene.restart({ board: kinds[i] } satisfies FriendsData));
     bseg.container.setName('boardTabs');
-    segIcons(this, bseg.container, kinds.map((k) => BOARD_ICON[k]), bi);
     y += 88 + S.xs;
     const si = Math.max(0, SCOPES.findIndex((s) => s.id === scope));
     const sseg = segmented(this, S.l + 260, y + 40, 520, SCOPES.map((s) => s.label), si, (i) => this.scene.restart({ scope: SCOPES[i].id } satisfies FriendsData), { h: 80 });
@@ -485,20 +484,6 @@ function chipRow(scene: Phaser.Scene, x: number, y: number, chips: Phaser.GameOb
     cx += c.width + S.xs;
   }
   return scene.add.container(x, y, chips).setSize(w, 56);
-}
-
-/** Значки скина слева от подписей сегмента (segmented рисует только текст): выбранный — золотой, остальные — вторичные. */
-function segIcons(scene: Phaser.Scene, box: Phaser.GameObjects.Container, icons: string[], selected: number): void {
-  const labels = box.list.filter((o): o is Phaser.GameObjects.Text => o instanceof Phaser.GameObjects.Text);
-  labels.forEach((t, i) => {
-    const key = `skin_ico_${icons[i]}`;
-    if (!scene.textures.exists(key)) return;
-    const size = 40;
-    const w = size + S.xxs + t.width;
-    const ix = t.x - w / 2 + size / 2;
-    t.setX(t.x + (size + S.xxs) / 2);
-    box.add(scene.add.image(ix, 0, key).setDisplaySize(size, size).setTint(i === selected ? COLOR_N.title : COLOR_N.textSecondary));
-  });
 }
 
 /** Значок кубка для пустой доски. */
