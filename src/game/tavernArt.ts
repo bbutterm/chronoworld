@@ -15,6 +15,8 @@ export const CIRCLE = 'tavern_circle';
 export const BEAM = 'tavern_beam';
 export const CARD_BACK = 'tavern_card_back';
 export const SPARK = 'tavern_spark';
+/** Тень пола: прозрачно сверху → тёмно снизу (под гарантами и кнопками призыва — читаемость поверх арта). */
+export const FLOOR_SHADE = 'tavern_floor_shade';
 
 const BG_W = 720;
 const BG_H = 1280;
@@ -73,6 +75,14 @@ export function ensureTavernTextures(scene: Phaser.Scene): void {
     v.addColorStop(1, 'rgba(0,0,0,0)');
     c.fillStyle = v;
     c.fillRect(0, 0, 128, 512);
+  });
+  canvasTexture(scene, FLOOR_SHADE, 4, 256, (c) => {
+    const g = c.createLinearGradient(0, 0, 0, 256);
+    g.addColorStop(0, 'rgba(10,6,4,0)');
+    g.addColorStop(0.45, 'rgba(10,6,4,0.62)');
+    g.addColorStop(1, 'rgba(10,6,4,0.9)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, 4, 256);
   });
   canvasTexture(scene, CIRCLE, 512, 512, drawCircle);
   canvasTexture(scene, CARD_BACK, 368, 524, drawCardBack);

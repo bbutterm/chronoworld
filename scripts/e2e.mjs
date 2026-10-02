@@ -530,8 +530,8 @@ async function main() {
 
     // 6. H5 Таверна: после ch1_s5 (сохранение с пройденными этапами главы до ch1_s5 по порядку data/campaign — s1, s2, s11,
     // s3, s4, s5; подарок не забран) — баннер «Таверна» →
-    // «Перейти» → Таверна → «‹ Назад» в «Город» → плитка Таверны → «Забрать подарок» → «Призыв ×10» → карта,
-    // «Открыть все» → (фиолетовая — крупный показ) → итог.
+    // «Перейти» → Таверна → «‹ Назад» в «Город» → плитка Таверны → «Забрать» (подарок) → «Призыв ×10» (свитки подарка) →
+    // касание карты → без фиолетовой — «Пропустить», с фиолетовой — момент (касание закрывает) → итог.
     // Герои v2: первый ×10 гарантирует синюю (пакет V3 — одну; фиолетовая — 2%, не гарантирована).
     const tavernStage = unlockOf('tavern').stage;
     const seenBefore = await page.evaluate((ids) => {
@@ -586,13 +586,15 @@ async function main() {
     await waitScene('Tavern');
     await sleep(400);
     await shot('tavern');
-    for (const t of ['До синей: 10', 'До фиолетовой: 50', 'Первый призыв ×10', 'Бесплатно']) if (!(await hasText('Tavern', t))) problems.push(`Таверна: нет «${t}»`);
-    await clickText('Tavern', 'Забрать подарок');
+    for (const t of ['До синей: 10', 'До фиолетовой: 50', 'Бесплатно']) if (!(await hasText('Tavern', t))) problems.push(`Таверна: нет «${t}»`);
+    if (!(await page.evaluate(() => !!window.__game.scene.getScene('Tavern').children.getByName('firstTenNote')))) problems.push('Таверна: нет метки гаранта первого ×10');
+    await clickText('Tavern', 'Забрать');
     await waitScene('Tavern');
     await sleep(300);
     const gemsAfterGift = await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')).currency.gems);
+    const scrollsAfterGift = await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')).currency.scrolls);
     if (gemsAfterGift !== 270) problems.push(`Таверна: после подарка гемов ${gemsAfterGift}, ждали 270`);
-    await clickText('Tavern', 'Призыв ×10 (270)');
+    await clickText('Tavern', 'Призыв ×10');
     await page.waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'pick', null, { timeout: 20000 });
     const reveal = await page.evaluate(() => {
       const r = window.__game.scene.getScene('Tavern').reveal;
@@ -611,7 +613,8 @@ async function main() {
     await sleep(400);
     await shot('tavern-reveal-mid');
     if (!flipped) problems.push('Таверна: нажатие не перевернуло карту');
-    await clickText('Tavern', 'Открыть все');
+    // Без фиолетовой — пропуск (все карты сразу); с фиолетовой — карты открываются сами до момента.
+    if (!hasPurple && (await page.evaluate(() => window.__game.scene.getScene('Tavern').reveal?.phase)) === 'pick') await clickText('Tavern', 'Пропустить');
     const showcase = hasPurple
       ? await page
           .waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'showcase', null, { timeout: 60000, polling: 50 })
@@ -636,16 +639,16 @@ async function main() {
       const phase = await page.evaluate(() => window.__game.scene.getScene('Tavern').reveal?.phase);
       if (i === 3) throw new Error(`Таверна: итог не наступил, фаза ${phase}`);
       if (phase === 'showcase') await clickGame(540, 1420);
-      else await clickText('Tavern', 'Открыть все');
     }
     await sleep(500);
     await shot('tavern-results');
-    for (const t of ['Итог призыва', 'К героям', 'Ещё ×10']) if (!(await hasText('Tavern', t))) problems.push(`Таверна, итог: нет «${t}»`);
+    for (const t of ['Готово', 'Ещё ×10']) if (!(await hasText('Tavern', t))) problems.push(`Таверна, итог: нет «${t}»`);
     const saved = await page.evaluate(() => {
       const s = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
-      return { rare: s.heroes.filter((h) => h.rarity !== 'green').length, firstTenDone: s.summon.firstTenDone, gems: s.currency.gems };
+      return { rare: s.heroes.filter((h) => h.rarity !== 'green').length, firstTenDone: s.summon.firstTenDone, gems: s.currency.gems, scrolls: s.currency.scrolls };
     });
-    if (saved.rare < 1 || !saved.firstTenDone || saved.gems !== 0) problems.push(`Таверна: сохранение после ×10 ${JSON.stringify(saved)}`);
+    // ×10 платится свитками подарка (их хватает), гемы целы.
+    if (saved.rare < 1 || !saved.firstTenDone || saved.scrolls !== scrollsAfterGift - 10 || saved.gems !== 270) problems.push(`Таверна: сохранение после ×10 ${JSON.stringify(saved)}`);
     else log('Таверна: подарок, ×10 с гарантированной синей, итог — ок');
 
     // 6а. Башня (BUG-182): вернулись из боя этажа (данные сцены { fight }) — касание второго пути развилки переключает
