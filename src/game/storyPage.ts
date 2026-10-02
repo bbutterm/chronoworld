@@ -6,8 +6,8 @@ import { setThemeBackground, themeOfChapter } from './backdrops';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
 import { bleedImage } from './viewport';
 import { SKIN, SKIN_TINT } from './skin';
-import { button, panel, ScrollArea, text } from './ui';
-import { C, FS, OUTLINE, TINT, TOUCH } from './theme';
+import { BTN, button, mixHex, plate, ScrollArea, SURFACE, text, type PlateSpec } from './ui';
+import { C, COLOR, FAMILY, M, R, S, T, TINT } from './theme';
 
 /**
  * Страницы «между этапами» (docs/design/lore-route.md §5): «Эпизод N» и легенда перед главой, летопись главы после
@@ -46,11 +46,22 @@ export interface PagesOptions {
 /** Имя и глубина слоя — как у диалога сюжета (dialogue.ts: DIALOGUE_NAME, DEPTH). */
 const DIALOGUE_NAME = 'dialogue';
 const DEPTH = 9500;
+/** Поверхность панели текста по виду страницы: свиток светлее, книга — с золотой кромкой. */
+const PAGE_SURFACE: Record<NonNullable<StoryPage['look']>, PlateSpec> = {
+  episode: { fill: COLOR.surface, alpha: 0.86, r: R.xl },
+  finding: { fill: COLOR.surface, alpha: 0.86, r: R.xl },
+  scroll: { fill: '#3a3226', alpha: 0.9, border: '#6b5a3c', borderW: 2, r: R.xl, hl: 0.12 },
+  book: { ...SURFACE.raised, alpha: 0.92, border: mixHex(COLOR.border, COLOR.accent, 0.45), r: R.xl },
+};
+const COLOR_N_ACCENT = parseInt(COLOR.accent.slice(1), 16);
+const COLOR_N_DIM = parseInt(COLOR.textTertiary.slice(1), 16);
 /** Касание раньше этого (мс) после показа страницы не листает — хвост прошлого нажатия. */
 const GUARD_MS = 350;
 /** Ширина текста и его шрифт: страница во весь экран 9:16, текст крупнее основного (на 390×844 ≈ 15 px). */
 const TEXT_W = 900;
-const BODY_FS = 42;
+/** Текст страницы — T.body, межстрочный 1.4 (≈ 34 знака в строке на 390 px). */
+const BODY_FS = T.body;
+const BODY_LEADING = Math.round(T.body * 0.4);
 const BODY_TOP_MIN = 520;
 const BODY_BOTTOM = 1690;
 const BTN_Y = 1805;
@@ -95,10 +106,13 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
     if (index + 1 < pages.length) show(index + 1);
     else close();
   };
-  const skip = button(scene, GAME_W - 170, 90, 280, TOUCH, 'k:buttonLong_beige', 'Пропустить', close, FS.h3);
+  // «Пропустить» — тихая (ghost) в углу; главное действие — «Далее ›» внизу.
+  const skip = button(scene, GAME_W - S.l - 130, 90, 260, BTN.m, '', 'Пропустить', close, T.body, { variant: 'ghost' });
   skip.container.setName('pagesSkip');
-  const dots = text(scene, cx, BTN_Y - 110, '', FS.caption, SKIN.creamDim, OUTLINE);
-  const nextBtn = button(scene, cx, BTN_Y, 520, 140, 'ui_btn_primary', 'Далее ›', () => next(), FS.h2, { sound: null });
+  // Счётчик страниц — точки (не текст): текущая золотая, остальные приглушённые.
+  const dots = scene.add.container(cx, BTN_Y - 110);
+  const nextBtn = button(scene, cx, BTN_Y, 520, BTN.cta, 'ui_btn_primary', 'Далее ›', () => next(), T.title, { sound: null });
+  nextBtn.label.setFontFamily(FAMILY.heading);
   nextBtn.container.setName('pagesNext');
   layer.add([skip.container, dots, nextBtn.container]);
   back.on('pointerup', () => (area ? area.tap(next)() : next()));
@@ -129,9 +143,11 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
     buildPage(scene, page, p, (a) => (area = a));
     const last = i === pages.length - 1;
     nextBtn.label.setText(last ? (opts.doneLabel ?? 'Закрыть') : 'Далее ›');
-    dots.setText(pages.length > 1 ? pages.map((_, k) => (k === i ? '●' : '○')).join('  ') : '');
+    dots.removeAll(true);
+    if (pages.length > 1)
+      pages.forEach((_, k) => dots.add(scene.add.circle((k - (pages.length - 1) / 2) * 36, 0, k === i ? 9 : 7, k === i ? COLOR_N_ACCENT : COLOR_N_DIM, k === i ? 1 : 0.6)));
     page.setAlpha(0);
-    scene.tweens.add({ targets: page, alpha: 1, duration: 260 });
+    scene.tweens.add({ targets: page, alpha: 1, duration: M.base });
     sfx(i === 0 ? 'ui_open' : 'ui_tab');
     if (i === 0) haptic('soft');
   };
@@ -146,39 +162,44 @@ function buildPage(scene: Phaser.Scene, root: Phaser.GameObjects.Container, p: S
     root.add(findingIcon(scene, cx, y + 20, 120, p.finding));
     y += 130;
   }
-  const kicker = text(scene, cx, y, p.kicker.toUpperCase(), FS.h3, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE }).setName('pageKicker');
+  const kicker = text(scene, cx, y, p.kicker.toUpperCase(), T.caption, SKIN.goldLight, { fontStyle: 'bold' }).setName('pageKicker');
   kicker.setLetterSpacing?.(6);
+  kicker.setShadow(0, 2, 'rgba(0,0,0,0.85)', 4, false, true);
   root.add(kicker);
-  y += 70;
-  const title = text(scene, cx, y, p.title, FS.hero + 12, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10, wordWrap: { width: 980 }, align: 'center' }).setOrigin(0.5, 0).setName('pageTitle');
+  y += 50;
+  // Заголовок — заголовочная гарнитура T.display с мягкой тенью (без толстой обводки).
+  const title = text(scene, cx, y, p.title, T.display, C.title, { fontFamily: FAMILY.heading, fontStyle: 'bold', wordWrap: { width: 980 }, align: 'center' }).setOrigin(0.5, 0).setName('pageTitle');
+  title.setShadow(0, 4, 'rgba(0,0,0,0.85)', 10, false, true);
   root.add(title);
-  y += title.height + 10;
+  y += title.height + S.xxs;
   if (p.subtitle) {
-    const sub = text(scene, cx, y, p.subtitle, FS.h3, SKIN.cream, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 960 } }).setOrigin(0.5, 0);
+    const sub = text(scene, cx, y, p.subtitle, T.body, SKIN.cream, { fontStyle: 'italic', wordWrap: { width: 960 } }).setOrigin(0.5, 0);
+    sub.setShadow(0, 2, 'rgba(0,0,0,0.85)', 4, false, true);
     root.add(sub);
-    y += sub.height + 8;
+    y += sub.height + S.xxs;
   }
   // Золотая черта с ромбом.
   y += 24;
   root.add(divider(scene, cx, y));
   y += 40;
   if (p.quote) {
-    const q = text(scene, cx, y, `«${p.quote}»`, FS.h3, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 960 }, align: 'center', lineSpacing: 6 }).setOrigin(0.5, 0);
+    const q = text(scene, cx, y, `«${p.quote}»`, T.body, C.title, { fontStyle: 'italic', wordWrap: { width: 900 }, align: 'center', lineSpacing: 10 }).setOrigin(0.5, 0);
+    q.setShadow(0, 2, 'rgba(0,0,0,0.85)', 4, false, true);
     root.add(q);
     y += q.height + 30;
   }
 
   // Текст на панели: ширина TEXT_W, по высоте — сколько есть места; не влезает — прокрутка пальцем.
-  const body = text(scene, 0, 0, p.text, BODY_FS, SKIN.cream, { align: 'left', wordWrap: { width: TEXT_W, useAdvancedWrap: true }, lineSpacing: 14 }).setOrigin(0, 0).setName('pageText');
+  const body = text(scene, 0, 0, p.text, BODY_FS, SKIN.cream, { align: 'left', wordWrap: { width: TEXT_W, useAdvancedWrap: true }, lineSpacing: BODY_LEADING }).setOrigin(0, 0).setName('pageText');
   const extras: Phaser.GameObjects.Text[] = [];
-  if (p.source) extras.push(text(scene, 0, 0, `— ${p.source}`, FS.body, SKIN.creamDim, { fontStyle: 'italic', align: 'right', wordWrap: { width: TEXT_W } }).setOrigin(1, 0));
-  if (p.comment) extras.push(text(scene, 0, 0, `${p.comment.speaker}: «${p.comment.text}»`, FS.h3, C.inkInfo, { fontStyle: 'italic', align: 'left', wordWrap: { width: TEXT_W } }).setOrigin(0, 0).setName('pageComment'));
+  if (p.source) extras.push(text(scene, 0, 0, `— ${p.source}`, T.caption, COLOR.textSecondary, { fontStyle: 'italic', align: 'right', wordWrap: { width: TEXT_W } }).setOrigin(1, 0));
+  if (p.comment) extras.push(text(scene, 0, 0, `${p.comment.speaker}: «${p.comment.text}»`, T.body, COLOR.info, { fontStyle: 'italic', align: 'left', wordWrap: { width: TEXT_W }, lineSpacing: 10 }).setOrigin(0, 0).setName('pageComment'));
   const GAP = 28;
   const contentH = body.height + extras.reduce((s, t) => s + GAP + t.height, 0);
   const PAD = 48;
   const top = Math.max(y, BODY_TOP_MIN - 60);
   const fullRoom = BODY_BOTTOM - top - 2 * PAD;
-  // Не влезает — прокрутка: место под подсказку «листайте» ПОД панелью (не на рамке), а окно — по целым строкам
+  // Не влезает — прокрутка: место под стрелку-подсказку ПОД панелью (не на рамке), а окно — по целым строкам
   // основного текста, чтобы нижняя строка не резалась маской пополам (BUG-159).
   const scrolls = contentH > fullRoom;
   const HINT_ROOM = 70;
@@ -190,11 +211,11 @@ function buildPage(scene: Phaser.Scene, root: Phaser.GameObjects.Container, p: S
   const panelH = viewH + 2 * PAD;
   const panelTop = !scrolls && contentH < room ? top + Math.min(60, (room - contentH) / 3) : top;
   const look = p.look ?? 'episode';
-  const pn = panel(scene, cx, panelTop + panelH / 2, TEXT_W + 2 * PAD + 20, panelH, look === 'scroll' ? 'ui_panel_light' : 'ui_panel');
+  const pn = plate(scene, cx, panelTop + panelH / 2, TEXT_W + 2 * PAD + 20, panelH, PAGE_SURFACE[look]);
   root.add(pn);
   if (look === 'book') {
-    const frame = scene.add.rectangle(cx, panelTop + panelH / 2, TEXT_W + 2 * PAD - 10, panelH - 30).setStrokeStyle(3, SKIN_TINT.gold, 0.6);
-    root.add(frame);
+    // Книга: вторая тонкая золотая рамка внутри.
+    root.add(plate(scene, cx, panelTop + panelH / 2, TEXT_W + 2 * PAD - 10, panelH - 30, { fill: '#000000', alpha: 0, border: mixHex(COLOR.border, COLOR.accent, 0.6), borderW: 2, r: R.m }));
   }
   const left = cx - TEXT_W / 2;
   const place = (o: Phaser.GameObjects.Text, oy: number) => o.setPosition(o.originX === 1 ? left + TEXT_W : left, oy);
@@ -218,7 +239,8 @@ function buildPage(scene: Phaser.Scene, root: Phaser.GameObjects.Container, p: S
   for (const t of [body, ...extras]) a.add(t);
   a.setContentHeight(contentH + 10);
   root.add(a.parts);
-  const hint = text(scene, cx, panelTop + panelH + 30, '⇅ листайте текст', FS.caption, SKIN.creamDim, OUTLINE).setName('pageScrollHint');
+  // Текст длиннее окна — тихая стрелка под панелью (без слов).
+  const hint = text(scene, cx, panelTop + panelH + 30, '⌄', T.title, COLOR.textTertiary).setName('pageScrollHint');
   root.add(hint);
   onArea(a);
 }

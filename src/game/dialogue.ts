@@ -10,8 +10,8 @@ import { commit, session } from './session';
 import { SKIN } from './skin';
 import { isChapterFinale, speakerView } from './storyView';
 import { introPages, showPages } from './storyPage';
-import { button, panel, text } from './ui';
-import { FS, OUTLINE, TOUCH } from './theme';
+import { BTN, button, mixHex, plate, SURFACE, text } from './ui';
+import { COLOR, E, FAMILY, M, R, S, T } from './theme';
 
 /** Имя слоя диалога (e2e ищет его, чтобы пролистать сцену). */
 export const DIALOGUE_NAME = 'dialogue';
@@ -39,8 +39,10 @@ const PANEL_W = 1040;
 const PANEL_H = 460;
 const PANEL_Y = GAME_H - 30 - PANEL_H / 2;
 const PORTRAIT = 250;
+/** Текст реплики — чуть крупнее T.body (читается с вытянутой руки), межстрочный 1.4. */
 const BODY_FS = 42;
-const BODY_Y = 140;
+const BODY_LEADING = Math.round(BODY_FS * 0.4);
+const BODY_Y = 132;
 /**
  * Иллюстрация NPC (спикер с `illust`, например Кафра): в полный рост слева над плашкой, нижняя часть уходит за плашку —
  * текст реплики не закрывает. Высота на экране (исходник 320×480).
@@ -117,7 +119,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   // Затемнение ловит все касания: экран под диалогом недоступен (бой не стартует, кнопки не жмутся). BUG-064: фон заметно
   // темнее (0.62) — карта и бойцы не отвлекают от реплики.
   const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.62).setInteractive();
-  const box = panel(scene, GAME_W / 2, PANEL_Y, PANEL_W, PANEL_H, 'ui_panel');
+  const box = dialoguePanel(scene, PANEL_Y);
   const top = PANEL_Y - PANEL_H / 2;
   const left = GAME_W / 2 - PANEL_W / 2;
 
@@ -127,16 +129,16 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   const face = scene.add.container(px, py);
   // Слой иллюстрации — за плашкой (плашка закрывает её низ), портрет в рамке в это время скрыт.
   const art = scene.add.container(0, 0);
-  const nameText = text(scene, px + PORTRAIT / 2 + 40, top + 48, '', FS.h1, SKIN.goldLight, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
+  const nameText = speakerName(scene, px + PORTRAIT / 2 + 40, top + 52);
   const body = text(scene, left + 50, top + BODY_Y, '', BODY_FS, SKIN.cream, {
     wordWrap: { width: PANEL_W - 100, useAdvancedWrap: true },
-    lineSpacing: 12,
+    lineSpacing: BODY_LEADING,
     align: 'left',
   }).setOrigin(0, 0);
-  const more = text(scene, GAME_W / 2 + PANEL_W / 2 - 40, PANEL_Y + PANEL_H / 2 - 36, '', FS.caption, SKIN.creamDim, OUTLINE).setOrigin(1, 0.5);
-  const skip = button(scene, GAME_W / 2 + PANEL_W / 2 - 150, top - 70, 280, TOUCH, 'k:buttonLong_beige', 'Пропустить', () => close(), FS.h3);
+  const more = counterText(scene, GAME_W / 2 + PANEL_W / 2 - S.l, PANEL_Y + PANEL_H / 2 - S.l);
+  const skip = button(scene, GAME_W / 2 + PANEL_W / 2 - 140, top - 70, 260, BTN.m, '', 'Пропустить', () => close(), T.body, { variant: 'secondary' });
   // Имя говорящего — на золотой кромке (табличка), текст реплики ниже неё.
-  const nameTrim = scene.add.image(px + PORTRAIT / 2 + 40, top + 92, 'skin_trim').setOrigin(0, 0.5).setDisplaySize(PANEL_W - PORTRAIT - 150, 10);
+  const nameTrim = scene.add.image(px + PORTRAIT / 2 + 40, top + 96, 'skin_trim').setOrigin(0, 0.5).setDisplaySize(PANEL_W - PORTRAIT - 150, 8).setAlpha(0.7);
   // Вверху плашки — тёплый отсвет, как от портрета.
   const warm = scene.add.image(px + 60, top + 40, 'skin_glow').setDisplaySize(520, 260).setTint(0xffc870).setAlpha(0.14).setBlendMode(Phaser.BlendModes.ADD);
   layer.add([shade, art, box, warm, nameTrim, face, nameText, body, more, skip.container]);
@@ -183,7 +185,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   const placeName = (withFace: boolean) => {
     const x = withFace ? px + PORTRAIT / 2 + 40 : left + 50;
     nameText.setX(x);
-    nameTrim.setX(x).setDisplaySize(withFace ? PANEL_W - PORTRAIT - 150 : PANEL_W - 100, 10);
+    nameTrim.setX(x).setDisplaySize(withFace ? PANEL_W - PORTRAIT - 150 : PANEL_W - 100, 8);
   };
   const setArt = (id: string | null) => {
     if (id === artOf) return;
@@ -200,7 +202,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     img.setPosition(x - 60, top + ILLUST_UNDER).setAlpha(0);
     art.add(img);
     // Появление — выезд слева с проявлением.
-    scene.tweens.add({ targets: img, x, alpha: 1, duration: 220, ease: 'Cubic.easeOut' });
+    scene.tweens.add({ targets: img, x, alpha: 1, duration: M.base, ease: E.out });
   };
   const setFace = (sprite: string | null, gender?: 'm' | 'f', illust?: string) => {
     if (illust && scene.textures.exists(illustKey(illust))) return setArt(illust);
@@ -222,7 +224,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     face.add(fp);
     // Смена говорящего — лёгкий «вдох» портрета.
     fp.setScale(0.92);
-    scene.tweens.add({ targets: fp, scale: 1, duration: 160, ease: 'Back.easeOut' });
+    scene.tweens.add({ targets: fp, scale: 1, duration: M.fast, ease: E.pop });
   };
   const showLine = (i: number) => {
     line = i;
@@ -274,4 +276,22 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   });
   // Сцена выключилась (переход) — таймеры Phaser уберёт сам, диалог просто исчезает, не увиденным.
   showLine(0);
+}
+
+// ---------- вид плашки (общий с вечерами в таверне, TavernEveningScene.ts) ----------
+
+/** Плашка реплик: поднятая поверхность с бронзовой кромкой и мягким бликом (вместо 9-slice панели скина). */
+export function dialoguePanel(scene: Phaser.Scene, y: number): Phaser.GameObjects.NineSlice {
+  return plate(scene, GAME_W / 2, y, PANEL_W, PANEL_H, { ...SURFACE.raised, alpha: 0.97, border: mixHex(COLOR.border, COLOR.accent, 0.35), r: R.xl });
+}
+
+/** Имя говорящего: заголовочная гарнитура, золото, мягкая тень (по левому краю, центр по высоте). */
+export function speakerName(scene: Phaser.Scene, x: number, y: number): Phaser.GameObjects.Text {
+  const t = text(scene, x, y, '', T.heading + 4, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
+  return t.setShadow(0, 2, 'rgba(0,0,0,0.7)', 4, false, true);
+}
+
+/** Тихий счётчик «2/5 ›» в правом нижнем углу плашки. */
+export function counterText(scene: Phaser.Scene, x: number, y: number): Phaser.GameObjects.Text {
+  return text(scene, x, y, '', T.caption, COLOR.textTertiary, { fontStyle: 'bold' }).setOrigin(1, 0.5);
 }
