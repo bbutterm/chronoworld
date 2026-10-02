@@ -9,35 +9,47 @@ import {
   pendingExpeditionEvents,
   startExpedition,
   type ActiveExpeditionView,
+  type ExpectedLoot,
   type ExpeditionStoryLine,
   type ExpeditionView,
 } from '../../core';
 import { EVENT_MODAL, openExpeditionEvent, outcomeRewardText } from '../expeditionEventModal';
 import { GAME } from '../content';
 import { lootLines } from '../chestView';
-import { countdownText, describeEvents, expectedLootText, formatNumber, heroSprite } from '../flow';
+import { countdownText, describeEvents, expectedLootText, formatNumber, heroSprite, RARITY_COLORS } from '../flow';
 import { GAME_W } from '../layout';
-import { confirmOpen, CONTENT_TOP, contentBottom, noticeModal, portrait, screen, unitFigure, unitTint } from '../screen';
+import { bottomSheet, confirmOpen, CONTENT_TOP, contentBottom, dot, noticeModal, portrait, powerCompare, screen, unitFigure, unitTint } from '../screen';
 import { commit, now, session, today } from '../session';
-import { SKIN_TINT, skinIcon } from '../skin';
+import { skinIcon } from '../skin';
 import { portraitKey } from '../sprites';
-import { button, clampLines, ellipsize, panel, progressBar, ScrollArea, text, toast } from '../ui';
+import { BTN, button, chip, ellipsize, plate, pressable, progressBar, rewardRow, ScrollArea, segmented, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
 import { randomLine } from '../loreView';
-import { C, FS, TINT } from '../theme';
+import { C, COLOR, COLOR_N, FAMILY, R, S, T } from '../theme';
 import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
+import { heroCardIcon } from '../heroCard';
+import { rewardIcon } from '../rewardsView';
 
-const LIST_TOP = CONTENT_TOP + 170;
-/** MT-15: +20 — нижняя строка «Находки: …» уходила под рамку карточки. */
-const CARD_H = 500;
-const CARD_W = 1020;
-/** Левый край карточки и колонка текста (правее «картины» локации). */
-const LEFT = (GAME_W - CARD_W) / 2;
-const ART_W = 290;
-const COL_X = LEFT + ART_W + 40;
-const COL_W = LEFT + CARD_W - 24 - COL_X;
-const FACE = 68;
+/** Карточка локации: ширина — по полям экрана, высота и шаг списка. */
+const CARD_W = GAME_W - 2 * S.l;
+const CARD_H = 436;
+/** Закрытая локация — низкая карточка: название и замок с этапом. */
+const LOCKED_H = 216;
+const cardH = (v: ExpeditionView): number => (v.unlocked ? CARD_H : LOCKED_H);
+const LEFT = S.l;
+/** «Картина» места слева и колонка справа. */
+const ART_W = 264;
+const ART_PAD = S.xs;
+const COL_X = LEFT + ART_PAD + ART_W + S.m;
+const COL_R = LEFT + CARD_W - S.m;
+const COL_W = COL_R - COL_X;
+const FACE = 80;
+/** Ряды правой колонки (от верха карточки): название, состояние, отряд, действие, добыча. */
+const ROW = { name: 56, state: 134, squad: 218, action: 304, loot: 388 } as const;
+/** Полоса над списком: «Забрать всё» / счётчики и «Летопись». */
+const BAR_Y = CONTENT_TOP + 56;
+const LIST_TOP = CONTENT_TOP + 124;
 
-/** Выбранный срок (часы) — запоминается между заходами (localStorage; нет доступа — 8 ч). */
+/** Выбранный срок (часы) — запоминается между заходами (localStorage; нет доступа — самый долгий). */
 const HOURS_KEY = 'chronoworld.expeditionHours';
 function loadHours(): number {
   try {
@@ -57,15 +69,6 @@ function saveHours(h: number): void {
   }
 }
 
-/** Строки правой колонки карточки (y): статус, отряд, кнопки/полоса, две строки добычи. */
-interface Rows {
-  a: number;
-  b: number;
-  c: number;
-  d1: number;
-  d2: number;
-}
-
 interface Timer {
   e: ActiveExpeditionView;
   label: Phaser.GameObjects.Text;
@@ -73,13 +76,78 @@ interface Timer {
   barW: number;
 }
 
-const hexTint = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
+/** Ожидаемая добыча чипами: золото и опыт «≈», гемы «≈N». Прочие находки — значками без чисел (findIcons). */
+export function expectedChips(e: ExpectedLoot): ChipSpec[] {
+  const out: ChipSpec[] = [{ icon: 'gold', value: `≈${formatNumber(e.gold)}`, tone: 'gold' }, { icon: 'hero_exp', value: `≈${formatNumber(e.jobExp)}` }];
+  if (e.gems > 0) out.push({ icon: 'gems', value: `≈${Math.max(1, Math.round(e.gems))}`, tone: 'gem' });
+  return out;
+}
+
+type IconFactory = (s: Phaser.Scene, x: number, y: number, size: number) => Phaser.GameObjects.GameObject;
+/** Находки, которые «могут найтись» (карты героя, снаряжение, свитки): одни значки — число неизвестно до возвращения. */
+export function findIcons(e: Pick<ExpectedLoot, 'heroCards' | 'items' | 'scrolls'>): IconFactory[] {
+  const out: IconFactory[] = [];
+  if (e.heroCards > 0) out.push((s, x, y, size) => heroCardIcon(s, x, y, size, 'blue'));
+  if (e.items > 0) out.push((s, x, y, size) => s.add.image(x, y, skinIcon('helmet')).setDisplaySize(size, size).setTint(0xd890ff));
+  if (e.scrolls > 0) out.push((s, x, y, size) => rewardIcon(s, x, y, 'scrolls', size));
+  return out;
+}
+
+/** Добыча вернувшейся экспедиции чипами: золото, опыт, гемы, карты героя, свитки, предметы. */
+export function returnedChips(r: ActiveExpeditionView['rewards']): ChipSpec[] {
+  const out: ChipSpec[] = [{ icon: 'gold', value: `+${formatNumber(r.gold)}`, tone: 'gold' }, { icon: 'hero_exp', value: `+${formatNumber(r.jobExp)}` }];
+  if (r.gems) out.push({ icon: 'gems', value: `+${r.gems}`, tone: 'gem' });
+  for (const rar of ['purple', 'blue'] as const) if (r.heroCards[rar]) out.push({ icon: (s, x, y, size) => heroCardIcon(s, x, y, size, rar), value: `×${r.heroCards[rar]}`, tone: 'info' });
+  if (r.scrolls) out.push({ icon: (s, x, y, size) => rewardIcon(s, x, y, 'scrolls', size), value: `×${r.scrolls}` });
+  if (r.items.length) {
+    const id = r.items[0];
+    const rar = GAME.equipment.items[id]?.rarity ?? 'common';
+    out.push({ icon: (s, x, y, size) => s.add.image(x, y, skinIcon('helmet')).setDisplaySize(size, size).setTint(Phaser.Display.Color.HexStringToColor(RARITY_COLORS[rar]).color), value: `×${r.items.length}` });
+  }
+  return out;
+}
+
+/** Текстура «картины» места: скруглённый градиент цвета локации с виньеткой (одна на локацию, кэш на игру). */
+function artTexture(scene: Phaser.Scene, id: string, tintHex: string, w: number, h: number): string {
+  const key = `exp_art_${id}_${w}x${h}`;
+  if (scene.textures.exists(key)) return key;
+  const ct = scene.textures.createCanvas(key, w, h);
+  if (!ct) return '__DEFAULT';
+  const c = ct.getContext();
+  const base = Phaser.Display.Color.HexStringToColor(tintHex);
+  const dark = Phaser.Display.Color.IntegerToColor(base.color).darken(58);
+  const r = R.l;
+  c.beginPath();
+  c.moveTo(r, 0);
+  c.arcTo(w, 0, w, h, r);
+  c.arcTo(w, h, 0, h, r);
+  c.arcTo(0, h, 0, 0, r);
+  c.arcTo(0, 0, w, 0, r);
+  c.closePath();
+  const lg = c.createLinearGradient(0, 0, 0, h);
+  lg.addColorStop(0, `rgb(${base.red},${base.green},${base.blue})`);
+  lg.addColorStop(1, `rgb(${dark.red},${dark.green},${dark.blue})`);
+  c.fillStyle = lg;
+  c.fill();
+  c.save();
+  c.clip();
+  const rg = c.createRadialGradient(w / 2, h * 0.42, 10, w / 2, h * 0.5, h * 0.75);
+  rg.addColorStop(0, 'rgba(255,240,200,0.28)');
+  rg.addColorStop(0.55, 'rgba(255,240,200,0)');
+  rg.addColorStop(1, 'rgba(0,0,0,0.45)');
+  c.fillStyle = rg;
+  c.fillRect(0, 0, w, h);
+  c.restore();
+  ct.refresh();
+  return key;
+}
 
 /**
- * K9. Экспедиции по локациям (замена доски поручений): карточка на каждую локацию — «картина» (цвет места и его
- * монстр), описание, мощь отряда «N / нужно M», сроки 1 / 4 / 8 ч и одна кнопка «Отправить» (отряд собирает ядро,
- * autoParty). В пути — отсчёт и полоса, вернулись — «Забрать»; сверху — «Забрать всё». Закрытая локация — замок и
- * «Откроется на этапе …».
+ * K9. Экспедиции по локациям (в духе AFK Arena): карточка на локацию — «картина» места с его монстром, название и «i»
+ * (лор и находки — листом снизу), мощь отряда (галка или «Не хватает N»), портреты отряда, срок сегментом
+ * 1 / 4 / 8 ч и «Отправить», ожидаемая добыча чипами. В пути — отсчёт и полоса; событие в пути — тег с точкой (окно
+ * expeditionEventModal); вернулись — добыча чипами и «Забрать» (монеты летят в «таблетки»). Закрытая — замок и этап.
+ * Главная (золотая) кнопка на экране одна: «Забрать всё» → «Забрать» → первая «Отправить».
  */
 export class ExpeditionsScene extends Phaser.Scene {
   private area!: ScrollArea;
@@ -98,26 +166,22 @@ export class ExpeditionsScene extends Phaser.Scene {
     const save = session.save;
     this.pendingShown = pendingExpeditionEvents(save, now());
     const views = expeditionStatus(save, now(), GAME);
-
-    const ready = finishedExpeditions(save, now());
-    const claimAll = button(this, GAME_W / 2, CONTENT_TOP + 52, 560, 104, ready ? 'ui_btn_primary' : 'k:buttonLong_grey', ready > 1 ? `Забрать всё (${ready})` : 'Забрать всё', () => this.claimAll(), FS.h3);
-    claimAll.container.setName('claimAll');
-    if (!ready) claimAll.setEnabled(false);
-    else pulse(this, claimAll.container);
-    text(this, GAME_W / 2, CONTENT_TOP + 132, 'Отряд собирается сам · герои в экспедиции продолжают сражаться', FS.small, C.muted);
-    const chronicle = button(this, GAME_W - 120, CONTENT_TOP + 52, 200, 90, 'k:buttonLong_beige', 'Летопись', () => this.chronicle(), FS.small);
-    chronicle.container.setName('expChronicle');
+    this.topBar(views);
 
     this.area = new ScrollArea(this, LIST_TOP, contentBottom() + 10);
     this.timers = [];
+    // Порядок важен для золотой кнопки: вернувшиеся — первыми получают «Забрать», затем первая свободная — «Отправить».
     const rows: Phaser.GameObjects.GameObject[][] = [];
+    const ready = views.filter((v) => v.active?.done).length;
+    const primaryFor = this.pickPrimary(views, ready);
     let y = 0;
     for (const v of views) {
-      const cy = y + CARD_H / 2;
-      rows.push(collect(this.area.content, () => this.card(v, cy)));
-      y += CARD_H;
+      const h = cardH(v);
+      const cy = y + h / 2;
+      rows.push(collect(this.area.content, () => this.card(v, cy, v === primaryFor)));
+      y += h + S.s;
     }
-    this.area.setContentHeight(y + 20);
+    this.area.setContentHeight(y + S.s);
     if (data.scroll) this.area.offset = data.scroll;
     staggerIn(this, 'Expeditions', rows);
 
@@ -125,63 +189,75 @@ export class ExpeditionsScene extends Phaser.Scene {
     this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });
   }
 
+  /** Какая карточка получает золотую кнопку: одна вернувшаяся — её «Забрать»; ни одной — первая «Отправить». */
+  private pickPrimary(views: readonly ExpeditionView[], ready: number): ExpeditionView | undefined {
+    if (ready > 1) return undefined;
+    if (ready === 1) return views.find((v) => v.active?.done);
+    return views.find((v) => v.unlocked && !v.active && v.party?.ok);
+  }
+
+  /** Полоса над списком: несколько вернулись — «Забрать всё»; иначе счётчики чипами. Справа — «Летопись» значком. */
+  private topBar(views: readonly ExpeditionView[]): void {
+    const ready = views.filter((v) => v.active?.done).length;
+    const going = views.filter((v) => v.active && !v.active.done).length;
+    const chron = button(this, GAME_W - S.l - BTN.icon / 2, BAR_Y, BTN.icon, BTN.icon, '', '', () => this.chronicle(), T.body, { variant: 'icon' });
+    chron.container.add(this.add.image(0, -2, skinIcon('scroll')).setDisplaySize(56, 56).setTint(COLOR_N.title));
+    chron.container.setName('expChronicle');
+    if (ready > 1) {
+      const all = button(this, GAME_W / 2 - 40, BAR_Y, 600, BTN.l, 'ui_btn_primary', `Забрать всё (${ready})`, () => this.claimAll(), T.heading);
+      all.container.setName('claimAll');
+      pulse(this, all.container);
+      return;
+    }
+    let x = LEFT;
+    const add = (c: Phaser.GameObjects.Container) => {
+      x += c.width + S.xs;
+    };
+    if (going) add(chip(this, x, BAR_Y, 'hourglass', `В пути ${going}`, 'neutral', { size: 's', align: 'left' }).setName('expGoing'));
+    if (ready) add(chip(this, x, BAR_Y, 'flag', 'Вернулись', 'positive', { size: 's', align: 'left' }).setName('expReady'));
+    const free = views.filter((v) => v.unlocked && !v.active).length;
+    if (free) add(chip(this, x, BAR_Y, 'map', `Свободно ${free}`, 'neutral', { size: 's', align: 'left' }).setName('expFree'));
+  }
+
   // ---------- карточка локации ----------
 
-  private card(v: ExpeditionView, y: number): void {
+  private card(v: ExpeditionView, y: number, primary: boolean): void {
     const a = this.area;
     const loc = v.location;
-    const h = CARD_H - 20;
-    const done = !!v.active?.done;
-    a.add(panel(this, GAME_W / 2, y, CARD_W, h, done ? 'ui_panel_light' : 'ui_panel')).setName(`exp_${loc.id}`);
-    if (done && this.textures.exists('skin_glow')) {
-      a.add(this.add.image(GAME_W / 2 + 150, y, 'skin_glow').setDisplaySize(900, h).setTint(0xf0cf8a).setAlpha(0.12).setBlendMode(Phaser.BlendModes.ADD));
-    }
-    this.art(v, y, h);
-
+    const h = cardH(v);
     const top = y - h / 2;
-    a.add(ellipsize(text(this, COL_X, top + 44, loc.name, FS.h2, v.unlocked ? C.title : C.disabled, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 6 }).setOrigin(0, 0.5), COL_W));
-    // Описание — не больше двух строк: третья наезжала на «Откроется на этапе …» / мощь отряда.
-    a.add(clampLines(text(this, COL_X, top + 80, loc.description, FS.small, v.unlocked ? C.muted : C.disabled, { align: 'left', wordWrap: { width: COL_W } }).setOrigin(0, 0), 2));
+    const done = !!v.active?.done;
+    a.add(plate(this, GAME_W / 2, y, CARD_W, h, { ...SURFACE.raised, border: done ? COLOR.accent : COLOR.border, r: R.l })).setName(`exp_${loc.id}`);
+    this.art(v, top, h);
+    const name = a.add(text(this, COL_X, top + ROW.name, loc.name, T.heading, v.unlocked ? COLOR.title : COLOR.textTertiary, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5));
+    ellipsize(name, COL_W);
 
-    const r: Rows = { a: top + 196, b: top + 256, c: top + 334, d1: top + 402, d2: top + 440 };
     if (!v.unlocked) {
-      a.add(this.add.image(COL_X + 24, r.a, skinIcon('lock')).setDisplaySize(46, 46).setTint(SKIN_TINT.creamDim));
-      a.add(text(this, COL_X + 60, r.a, v.lockedText, FS.h3, C.dim, { fontStyle: 'bold' }).setOrigin(0, 0.5));
-      a.add(text(this, COL_X, r.b, `Нужна мощь отряда: ${formatNumber(loc.power)}`, FS.body, C.disabled).setOrigin(0, 0.5));
-      this.previewLines(v, r, true);
+      // Закрытая — замок с этапом; нужная мощь и находки — в листе по касанию «картины».
+      a.add(chip(this, COL_X, top + ROW.state - 10, 'lock', v.lockedText.replace(/^Откроется на этапе /, 'Этап '), 'neutral', { size: 's', align: 'left' }));
       return;
     }
     if (v.active) {
-      this.activeRows(v.active, r);
+      this.activeRows(v.active, top, primary);
       return;
     }
-    this.idleRows(v, r);
+    this.idleRows(v, top, primary);
   }
 
-  /** «Картина» локации: заливка цветом места, свечение и монстр места (пока нет арта локаций). */
-  private art(v: ExpeditionView, y: number, h: number): void {
+  /** «Картина» места: скруглённый градиент цвета локации, свечение, земля и монстр места; закрытая — силуэт. */
+  private art(v: ExpeditionView, top: number, h: number): void {
     const a = this.area;
     const loc = v.location;
-    const x0 = LEFT + 20;
-    const ah = h - 40;
-    const top = y - ah / 2;
-    const tint = hexTint(loc.tint);
-    const dark = Phaser.Display.Color.IntegerToColor(tint).darken(55).color;
-    const g = this.add.graphics();
-    g.fillGradientStyle(tint, tint, dark, dark, 1);
-    g.fillRect(x0, top, ART_W, ah);
-    g.lineStyle(4, TINT.frame, 0.9).strokeRect(x0, top, ART_W, ah);
-    a.add(g);
-    if (this.textures.exists('skin_glow')) {
-      a.add(this.add.image(x0 + ART_W / 2, top + ah * 0.45, 'skin_glow').setDisplaySize(ART_W * 1.3, ah).setTint(0xfff0c8).setAlpha(0.22).setBlendMode(Phaser.BlendModes.ADD));
-    }
-    // Земля под монстром.
-    a.add(this.add.ellipse(x0 + ART_W / 2, top + ah - 46, ART_W * 0.7, 36, 0x000000, 0.35));
+    const ah = h - 2 * ART_PAD;
+    const x0 = LEFT + ART_PAD;
+    const cx = x0 + ART_W / 2;
+    a.add(this.add.image(cx, top + ART_PAD + ah / 2, artTexture(this, loc.id, loc.tint, ART_W, ah)));
+    a.add(this.add.ellipse(cx, top + ART_PAD + ah - 40, ART_W * 0.66, 32, 0x000000, 0.35));
     const locked = !v.unlocked;
     const unit = loc.monster ? GAME.content.units[loc.monster] : undefined;
     if (unit) {
       const area = this.area;
-      unitFigure(this, unit.visual.sprite, x0 + ART_W / 2, top + ah - 44, ah * 0.6 * (loc.monsterScale ?? 1), {
+      unitFigure(this, unit.visual.sprite, cx, top + ART_PAD + ah - 38, ah * 0.62 * (loc.monsterScale ?? 1), {
         // Пиксель-арт — не крупнее ×1.8: широкие монстры (жук, мимик) остаются внутри «картины».
         maxScale: 1.8,
         onReady: (o) => {
@@ -196,129 +272,137 @@ export class ExpeditionsScene extends Phaser.Scene {
         },
       });
     }
-    if (locked) a.add(this.add.rectangle(x0 + ART_W / 2, y, ART_W, ah, 0x000000, 0.45));
+    const frame = a.add(plate(this, cx, top + ART_PAD + ah / 2, ART_W, ah, { fill: COLOR.bg, alpha: locked ? 0.45 : 0, border: COLOR.border, borderW: 3, r: R.l }).setName(`expArt_${loc.id}`));
+    // Лор места и находки — по касанию «картины» (лист снизу), на карточке их нет.
+    pressable(this, frame, ART_W, ah, a.tap(() => this.lore(v)));
   }
 
-  /** Две строки «чего ждать» для выбранного срока: золото и опыт, затем находки локации. */
-  private previewLines(v: ExpeditionView, r: Rows, dim = false): void {
-    const exp = expectedLootText(expectedExpeditionLoot(v.location, this.hours, GAME));
-    const line1 = `≈ ${exp.base} за ${this.hours} ч`;
-    this.area.add(ellipsize(text(this, COL_X, r.d1, line1, FS.small, dim ? C.disabled : C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: dim ? 0 : 4 }).setOrigin(0, 0.5), COL_W));
-    if (exp.finds) this.area.add(ellipsize(text(this, COL_X, r.d2, exp.finds, FS.small, dim ? C.disabled : C.info, { stroke: C.stroke, strokeThickness: dim ? 0 : 4 }).setOrigin(0, 0.5), COL_W));
+  /** Ряд чипов добычи от левого края колонки, за ним — значки возможных находок (без подложки и чисел). */
+  private lootRow(items: ChipSpec[], y: number, finds: IconFactory[] = []): void {
+    const row = rewardRow(this, 0, y, items, { maxW: COL_W, size: 's', gap: S.xxs });
+    row.setX(COL_X + row.width / 2);
+    this.area.add(row);
+    let x = COL_X + row.width + S.xs + 22;
+    for (const f of finds) {
+      if (x + 22 > COL_R) break;
+      this.area.add(f(this, x, y, 40) as Phaser.GameObjects.GameObject);
+      x += 40 + S.xs;
+    }
   }
 
-  /** Находки вернувшейся экспедиции: «гемы +3 · синие карты героя +1 · Нож». */
-  private findsText(e: ActiveExpeditionView): string {
-    const r = e.rewards;
-    const parts: string[] = [];
-    if (r.gems) parts.push(`гемы +${r.gems}`);
-    if (r.heroCards.blue) parts.push(`синие карты героя +${r.heroCards.blue}`);
-    if (r.heroCards.purple) parts.push(`фиолетовые карты героя +${r.heroCards.purple}`);
-    if (r.scrolls) parts.push(`свитки +${r.scrolls}`);
-    for (const id of r.items) parts.push(GAME.equipment.items[id]?.name ?? id);
-    return parts.length ? `Находки: ${parts.join(' · ')}` : 'Находок в этот раз нет';
-  }
-
-  private faces(ids: readonly string[], y: number): void {
+  private faces(ids: readonly string[], y: number): number {
     ids.forEach((id, i) => {
       const hero = session.save.heroes.find((h) => h.id === id);
-      const x = COL_X + FACE / 2 + i * (FACE + 10);
-      this.area.add(this.add.rectangle(x, y, FACE, FACE, 0x1a120a, 0.7).setStrokeStyle(2, TINT.frame, 0.8));
-      if (hero) this.area.add(portrait(this, x, y, portraitKey(heroSprite(hero, GAME)), FACE - 6));
+      const x = COL_X + FACE / 2 + i * (FACE + S.xxs);
+      this.area.add(plate(this, x, y, FACE, FACE, { ...SURFACE.sunken, r: R.s }));
+      if (hero) this.area.add(portrait(this, x, y, portraitKey(heroSprite(hero, GAME)), FACE - 10));
     });
+    return COL_X + ids.length * (FACE + S.xxs);
   }
 
   /**
-   * Почему не хватает мощи (BUG-161): герои вернувшихся, но не забранных экспедиций ещё числятся в пути. Если с ними
-   * мощи хватило бы — «сначала заберите добычу», иначе — «усильте отряд».
+   * Почему отряд не собирается (BUG-161): герои вернувшихся, но не забранных экспедиций ещё числятся в пути. Если с
+   * ними мощи хватило бы — «Сначала заберите вернувшихся»; иначе причину и так видно по «Не хватает N» мощи.
    */
-  private shortHint(locationId: string): string {
+  private shortHint(locationId: string): string | null {
     const save = session.save;
     const t = now();
     if (finishedExpeditions(save, t) > 0) {
       const freed = { ...save, bounties: { ...save.bounties, active: save.bounties.active.filter((e) => t < e.endsAt) } };
-      if (autoParty(freed, locationId, GAME).ok) return 'Сначала заберите добычу вернувшихся экспедиций';
+      if (autoParty(freed, locationId, GAME).ok) return 'Сначала заберите вернувшихся';
     }
-    return 'Не хватает свободных героев — усильте отряд';
+    return null;
   }
 
-  private idleRows(v: ExpeditionView, r: Rows): void {
+  private idleRows(v: ExpeditionView, top: number, primary: boolean): void {
     const a = this.area;
     const loc = v.location;
     const party = v.party!;
-    a.add(
-      text(this, COL_X, r.a, `Мощь ${formatNumber(party.power)} / нужно ${formatNumber(party.need)}`, FS.h3, party.ok ? C.success : C.danger, {
-        fontStyle: 'bold',
-        stroke: C.stroke,
-        strokeThickness: 5,
-      }).setOrigin(0, 0.5),
-    );
-    if (party.ok) this.faces(party.heroIds, r.b);
-    else a.add(ellipsize(text(this, COL_X, r.b, this.shortHint(loc.id), FS.small, C.warning).setOrigin(0, 0.5), COL_W));
-
-    // Сроки: 1 / 4 / 8 ч (выбор общий для всех локаций и запоминается).
+    a.add(powerCompare(this, COL_X, top + ROW.state, party.power, party.need, { align: 'left' }));
+    if (party.ok) this.faces(party.heroIds, top + ROW.squad);
+    else {
+      const why = this.shortHint(loc.id);
+      if (why) a.add(ellipsize(text(this, COL_X, top + ROW.squad, why, T.caption, COLOR.warning, { fontStyle: 'bold' }).setOrigin(0, 0.5), COL_W));
+    }
+    // Срок — сегмент 1 / 4 / 8 ч (выбор общий для всех локаций и запоминается), справа — «Отправить».
     const ds = GAME.meta.expeditions.durations;
-    const chipW = 118;
-    ds.forEach((d, i) => {
-      const x = COL_X + chipW / 2 + i * (chipW + 10);
-      const on = d.hours === this.hours;
-      const chip = button(this, x, r.c, chipW, 88, on ? 'k:buttonLong_brown' : 'k:buttonLong_beige', `${d.hours} ч`, a.tap(() => this.pickHours(d.hours)), FS.h3, { sound: 'ui_tab' });
-      chip.container.setName(`hours_${loc.id}_${d.hours}`);
-      if (on) chip.label.setColor('#f0cf8a');
-      a.add(chip.container);
-    });
-    const sendX = LEFT + CARD_W - 24 - 125;
-    const send = button(this, sendX, r.c, 250, 110, party.ok ? 'ui_btn_primary' : 'k:buttonLong_grey', 'Отправить', a.tap(() => this.send(v)), FS.h3);
+    const segW = 330;
+    const seg = segmented(this, COL_X + segW / 2, top + ROW.action, segW, ds.map((d) => `${d.hours} ч`), Math.max(0, ds.findIndex((d) => d.hours === this.hours)), (i) => a.tap(() => this.pickHours(ds[i].hours))(), { h: 84 });
+    seg.container.setName(`hours_${loc.id}`);
+    a.add(seg.container);
+    const sendW = COL_R - (COL_X + segW + S.s);
+    const sendX = COL_R - sendW / 2;
+    const send = button(this, sendX, top + ROW.action, sendW, BTN.m, primary ? 'ui_btn_primary' : '', 'Отправить', a.tap(() => this.send(v)), T.body, primary ? {} : { variant: 'secondary' });
     send.container.setName(`send_${loc.id}`);
     if (!party.ok) send.setEnabled(false);
     a.add(send.container);
-    this.previewLines(v, r);
+    const exp = expectedExpeditionLoot(loc, this.hours, GAME);
+    this.lootRow(expectedChips(exp), top + ROW.loot, findIcons(exp));
   }
 
-  private activeRows(e: ActiveExpeditionView, r: Rows): void {
+  private activeRows(e: ActiveExpeditionView, top: number, primary: boolean): void {
     const a = this.area;
-    this.faces(e.heroIds, r.b);
-    this.eventButton(e, r);
+    const facesEnd = this.faces(e.heroIds, top + ROW.squad);
+    this.eventTag(e, facesEnd + S.xs, top + ROW.squad);
     if (e.done) {
-      a.add(text(this, COL_X, r.a, 'Отряд вернулся!', FS.h3, C.inkSuccess, { fontStyle: 'bold' }).setOrigin(0, 0.5));
-      a.add(ellipsize(text(this, COL_X, r.d1, `Добыча: ${formatNumber(e.rewards.gold)} золота · ${formatNumber(e.rewards.jobExp)} опыта`, FS.small, C.inkGold, { fontStyle: 'bold' }).setOrigin(0, 0.5), COL_W));
-      a.add(ellipsize(text(this, COL_X, r.d2, this.findsText(e), FS.small, C.inkInfo).setOrigin(0, 0.5), COL_W));
-      const bx = LEFT + CARD_W - 24 - 130;
-      const btn = button(this, bx, r.c, 260, 112, 'ui_btn_primary', 'Забрать', a.tap(() => this.claim(e, { x: bx, y: this.area.content.y + r.c })), FS.h3);
+      a.add(tag(this, COL_X, top + ROW.state, 'Отряд вернулся', 'positive', { align: 'left' }));
+      const btnW = 260;
+      const bx = COL_R - btnW / 2;
+      const by = top + ROW.action + 34;
+      const btn = button(this, bx, by, btnW, BTN.l, primary ? 'ui_btn_primary' : '', 'Забрать', a.tap(() => this.claim(e, { x: bx, y: this.area.content.y + by })), T.heading, primary ? {} : { variant: 'secondary' });
       btn.container.setName(`claim_${e.location}`);
       a.add(btn.container);
-      pulse(this, btn.container);
+      if (primary) pulse(this, btn.container);
+      // Добыча — чипами в два ряда слева от кнопки.
+      const row = rewardRow(this, 0, top + ROW.action, returnedChips(e.rewards), { maxW: COL_W - btnW - S.s, size: 's', gap: S.xxs });
+      row.setX(COL_X + row.width / 2);
+      a.add(row.setName(`loot_${e.location}`));
       return;
     }
-    a.add(text(this, COL_X, r.a, `В пути · ${e.hours} ч`, FS.h3, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5));
-    const label = a.add(text(this, LEFT + CARD_W - 30, r.a, countdownText(e.remainingMs), FS.h3, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(1, 0.5));
-    const barW = COL_W;
-    const bar = a.add(progressBar(this, COL_X, r.c, barW, 26, 0, TINT.info));
+    a.add(tag(this, COL_X, top + ROW.state, `В пути · ${e.hours} ч`, 'neutral', { align: 'left' }));
+    const label = a.add(text(this, COL_R, top + ROW.state, countdownText(e.remainingMs), T.heading, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(1, 0.5));
+    const bar = a.add(progressBar(this, COL_X, top + ROW.action, COL_W, 24, 0, COLOR_N.info));
     const fill = bar.list[1] as Phaser.GameObjects.Rectangle;
-    a.add(ellipsize(text(this, COL_X, r.d1, `${formatNumber(e.rewards.gold)} золота · ${formatNumber(e.rewards.jobExp)} опыта`, FS.small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setOrigin(0, 0.5), COL_W));
-    a.add(text(this, COL_X, r.d2, 'Находки — по возвращении', FS.small, C.muted).setOrigin(0, 0.5));
-    const t: Timer = { e, label, fill, barW };
+    // Золото и опыт уже известны; находки — сундук без числа (откроются по возвращении).
+    const chest: IconFactory = (s, x, y, size) => s.add.image(x, y, skinIcon('chest')).setDisplaySize(size, size).setTint(COLOR_N.textSecondary);
+    this.lootRow([{ icon: 'gold', value: `+${formatNumber(e.rewards.gold)}`, tone: 'gold' }, { icon: 'hero_exp', value: `+${formatNumber(e.rewards.jobExp)}` }], top + ROW.loot, [chest]);
+    const t: Timer = { e, label, fill, barW: COL_W };
     this.updateTimer(t, now());
     this.timers.push(t);
   }
 
-  /** «Событие!» у отряда в пути: события, которые случились и ждут решения. */
-  private eventButton(e: ActiveExpeditionView, r: Rows): void {
+  /** Событие в пути, ждущее решения: тег «Событие» с красной точкой рядом с отрядом — касание открывает окно. */
+  private eventTag(e: ActiveExpeditionView, x: number, y: number): void {
     const n = (e.events ?? []).filter((ev) => ev.choice === undefined && now() >= ev.at).length;
     if (!n) return;
-    const w = 250;
-    const x = LEFT + CARD_W - 24 - w / 2;
-    // Вернулась — строка «Отряд вернулся!» (под ней «Забрать»), в пути — строка отряда (сверху отсчёт).
-    const y = e.done ? r.a : r.b;
-    const btn = button(this, x, y, w, 92, 'ui_btn_primary', n > 1 ? `Событие (${n})` : 'Событие!', this.area.tap(() => this.openEvent(e.location)), FS.small);
-    btn.container.setName(`event_${e.location}`);
-    this.area.add(btn.container);
-    pulse(this, btn.container);
+    const t = tag(this, x, y, n > 1 ? `Событие ×${n}` : 'Событие', 'warning', { align: 'left' }).setName(`event_${e.location}`);
+    this.area.add(t);
+    this.area.add(dot(this, t.x + t.width / 2 - 4, t.y - 22));
+    pressable(this, t, t.width, Math.max(t.height, 96), this.area.tap(() => this.openEvent(e.location)));
   }
 
   private openEvent(location: string): void {
     const scroll = this.area.offset;
     openExpeditionEvent(this, location, () => this.scene.restart({ scroll }));
+  }
+
+  /** Лор места и что там находят — лист снизу (на карточке — только название). */
+  private lore(v: ExpeditionView): void {
+    const loc = v.location;
+    bottomSheet(this, loc.name, (c, w) => {
+      let y = 0;
+      const add = (s: string, color: string, size: number) => {
+        const t = text(this, 0, y, s, size, color, { align: 'left', wordWrap: { width: w, useAdvancedWrap: true } }).setOrigin(0, 0);
+        c.add(t);
+        y += t.height + S.s;
+      };
+      add(loc.description, COLOR.textPrimary, T.body);
+      const exp = expectedLootText(expectedExpeditionLoot(loc, this.hours, GAME));
+      add(`За ${this.hours} ч: ≈ ${exp.base}`, COLOR.textSecondary, T.caption);
+      if (exp.finds) add(exp.finds, COLOR.textSecondary, T.caption);
+      add(`Нужна мощь отряда: ${formatNumber(loc.power)}${v.unlocked ? '' : ` · ${v.lockedText}`}`, COLOR.textSecondary, T.caption);
+      return y;
+    });
   }
 
   /** Летопись экспедиций: последние записи и кто с кем сблизился. */
@@ -332,7 +416,7 @@ export class ExpeditionsScene extends Phaser.Scene {
     const lines = [...(b.journal ?? [])].reverse().slice(0, 8).map((j) => `${loc(j.location)}: ${j.text}`);
     const bonds = [...(b.bonds ?? [])].reverse().slice(0, 4).map((x) => `${name(x.heroes[0])} и ${name(x.heroes[1])} сблизились (${loc(x.location)})`);
     const body = [...lines, ...bonds];
-    noticeModal(this, 'Летопись экспедиций', body.length ? body : ['Пока пусто. Решайте события в пути — отряд запомнит самое интересное.']);
+    noticeModal(this, 'Летопись экспедиций', body.length ? body : ['Пока пусто. События в пути попадут сюда.']);
   }
 
   private updateTimer(t: Timer, at: number): void {
@@ -344,7 +428,7 @@ export class ExpeditionsScene extends Phaser.Scene {
 
   private tick(): void {
     const at = now();
-    const modal = confirmOpen(this) || !!this.children.getByName(EVENT_MODAL) || !!this.children.getByName('noticeModal');
+    const modal = confirmOpen(this) || !!this.children.getByName(EVENT_MODAL) || !!this.children.getByName('noticeModal') || !!this.children.getByName('bottomSheet');
     const newEvent = pendingExpeditionEvents(session.save, at) !== this.pendingShown;
     if (!modal && (newEvent || this.timers.some((t) => at >= t.e.endsAt))) {
       this.scene.restart({ scroll: this.area.offset });
@@ -435,7 +519,7 @@ export class ExpeditionsScene extends Phaser.Scene {
         return;
       }
       commit(r.save);
-      queueRewardFly('Expeditions', { x: GAME_W / 2, y: CONTENT_TOP + 52 }, before);
+      queueRewardFly('Expeditions', { x: GAME_W / 2, y: BAR_Y }, before);
       const lines = [
         `Экспедиций: ${r.claimed.length} · ${formatNumber(r.rewards.gold)} золота · ${formatNumber(r.rewards.jobExp)} опыта в запас`,
         ...lootLines(r.rewards),
