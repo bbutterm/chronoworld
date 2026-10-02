@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import type { Slot } from '../core';
 import { assetUrl } from './assetUrl';
-import { C, FS, TINT } from './theme';
-import { text } from './ui';
+import { C, COLOR, FS, R, S as SP, T } from './theme';
+import { mixHex, plate, text } from './ui';
 
 /**
  * Иконки предметов Ragnarok Online (docs/RO_EXTRACT_LIST.md §4): `assets/ui/icons/item_<id>.png` — родные 24×24 из клиента
@@ -335,27 +335,72 @@ export function itemIconKey(scene: Phaser.Scene, slot: Slot, itemId?: string): s
   return key;
 }
 
+/** Цвет числом → #rrggbb (ячейки получают цвет редкости числом — для tint). */
+const hexOf = (n: number) => `#${(n & 0xffffff).toString(16).padStart(6, '0')}`;
+
 /**
- * Квадрат-ячейка с иконкой предмета: тёмная подложка, рамка и иконка цветом редкости (как ячейки в AFK Arena).
- * Возвращает объекты (подложка, иконка, значок заточки «+N» в левом верхнем углу) — вызывающий кладёт их в свой контейнер/список.
+ * Квадрат-ячейка с иконкой предмета (как ячейки в AFK Arena): утопленная скруглённая подложка с лёгким тоном редкости,
+ * рамка цвета редкости, иконка RO (целый масштаб) или силуэт цветом редкости. Возвращает объекты (подложка, иконка,
+ * значок заточки «+N» в левом верхнем углу) — вызывающий кладёт их в свой контейнер/список.
  */
 export function itemCell(scene: Phaser.Scene, x: number, y: number, size: number, slot: Slot | null, color: number, itemId?: string, refine = 0): Phaser.GameObjects.GameObject[] {
-  const bg = scene.add.rectangle(x, y, size, size, TINT.checkOff, 0.95).setStrokeStyle(4, color, 1);
+  const c = hexOf(color);
+  const bw = size >= 100 ? 4 : 3;
+  const bg = plate(scene, x, y, size, size, { fill: mixHex(COLOR.surfaceSunken, c, 0.16), alpha: 0.96, border: c, borderW: bw, r: size >= 100 ? R.m : R.s, hl: 0.1 });
   if (!slot) return [bg];
   const ro = roIcon(scene, itemId);
   const out: Phaser.GameObjects.GameObject[] = [bg];
-  if (ro) {
-    // Иконка RO как есть (целый масштаб, без tint), редкость — рамкой и подложкой её цвета.
-    out.push(scene.add.rectangle(x, y, size - 8, size - 8, color, 0.18));
-    out.push(scene.add.image(x, y, ro).setScale(Math.max(1, Math.floor((size * 0.86) / RO_ICON_PX))).setName('roItemIcon'));
-  } else out.push(scene.add.image(x, y, itemIconKey(scene, slot, itemId)).setDisplaySize(size * 0.78, size * 0.78).setTint(color));
-  if (refine > 0) out.push(refineBadge(scene, x - size / 2 + 6, y - size / 2 + 2, refine, size >= 100 ? FS.small : FS.caption));
+  // Иконка RO как есть (целый масштаб, без tint), редкость — рамкой и подложкой её цвета.
+  if (ro) out.push(scene.add.image(x, y, ro).setScale(Math.max(1, Math.floor((size * 0.86) / RO_ICON_PX))).setName('roItemIcon'));
+  else out.push(scene.add.image(x, y, itemIconKey(scene, slot, itemId)).setDisplaySize(size * 0.78, size * 0.78).setTint(color));
+  if (refine > 0) out.push(refineBadge(scene, x - size / 2 + bw + 4, y - size / 2 + bw + 2, refine, size >= 140 ? T.body : size >= 100 ? FS.small : FS.caption));
   return out;
 }
 
-/** Значок заточки «+N» (золотой, с обводкой); x, y — левый верхний угол. */
+/** Значок заточки «+N» (золотой; лёгкая обводка — он лежит на иконке); x, y — левый верхний угол. */
 export function refineBadge(scene: Phaser.Scene, x: number, y: number, refine: number, size: number = FS.caption): Phaser.GameObjects.Text {
-  return text(scene, x, y, `+${refine}`, size, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0).setName('refineBadge');
+  return text(scene, x, y, `+${refine}`, size, C.gold, { fontStyle: 'bold', stroke: '#1a1208', strokeThickness: 6 }).setOrigin(0, 0).setName('refineBadge');
+}
+
+/** Плитка предмета для сетки инвентаря: ячейка, «+N» заточки, «×N» стопки, мини-портрет того, кто носит. */
+export interface ItemTileSpec {
+  slot: Slot | null;
+  /** Цвет редкости (#rrggbb). */
+  color: string;
+  itemId?: string;
+  refine?: number;
+  /** Сколько одинаковых в стопке (≥ 2 — «×N» в правом нижнем углу). */
+  count?: number;
+  /** Предмет надет: зелёный кружок в правом нижнем углу, внутри — face (мини-портрет героя), если задан. */
+  worn?: boolean;
+  face?: (x: number, y: number, size: number) => Phaser.GameObjects.GameObject;
+  /** Есть карта MVP — золотая точка-«карта» в правом верхнем углу. */
+  card?: boolean;
+  /** Приглушить (нельзя выбрать). */
+  dim?: boolean;
+}
+
+/**
+ * Плитка предмета size×size с центром (x, y) — контейнер `invItem_<name>` (центр — 0,0). Меньше текста: число заточки и
+ * стопки — единственные подписи; кто носит — мини-портрет в кружке.
+ */
+export function itemTile(scene: Phaser.Scene, x: number, y: number, size: number, spec: ItemTileSpec): Phaser.GameObjects.Container {
+  const box = scene.add.container(x, y).setSize(size, size);
+  const color = parseInt(spec.color.slice(1, 7), 16);
+  box.add(itemCell(scene, 0, 0, size, spec.slot, color, spec.itemId, spec.refine ?? 0));
+  const r = Math.round(size * 0.2);
+  if (spec.worn) {
+    const cx = size / 2 - r + 6;
+    const cy = size / 2 - r + 6;
+    const ring = scene.add.graphics();
+    ring.fillStyle(0x14120f, 1).fillCircle(cx, cy, r).lineStyle(3, parseInt(COLOR.positive.slice(1), 16), 1).strokeCircle(cx, cy, r);
+    box.add(ring);
+    if (spec.face) box.add(spec.face(cx, cy, r * 1.7));
+  }
+  if ((spec.count ?? 1) > 1) box.add(text(scene, size / 2 - SP.xxs - 2, size / 2 - 2, `×${spec.count}`, FS.caption, COLOR.textPrimary, { fontStyle: 'bold', stroke: '#1a1208', strokeThickness: 6 }).setOrigin(1, 1));
+  if (spec.card) box.add(scene.add.rectangle(size / 2 - 16, -size / 2 + 18, 16, 22, parseInt(COLOR.gold.slice(1), 16)).setStrokeStyle(3, 0x1a1208).setAngle(12));
+  if (spec.dim) box.setAlpha(0.45);
+  return box;
 }
 
 /**
