@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { DEPTH } from './battleFx';
-import { text } from './ui';
+import { FAMILY } from './theme';
 
 /**
  * Поведение в бою на экране (docs/design/battle-behavior.md): знак провокации «!» над врагом и красная пунктирная линия
@@ -17,13 +17,35 @@ export interface FxAnchor {
 }
 
 const TAUNT_COLOR = '#ff4a3a';
+/** Знак провокации — картинка, нарисованная один раз (раньше свой Text на каждую провокацию). */
+function tauntTexture(scene: Phaser.Scene): string {
+  const key = 'battle_taunt_mark';
+  if (scene.textures.exists(key)) return key;
+  const w = 48;
+  const h = 76;
+  const tex = scene.textures.createCanvas(key, w, h);
+  if (!tex) return '__DEFAULT';
+  const c = tex.getContext();
+  c.font = `bold 60px ${FAMILY.body}`;
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+  c.lineJoin = 'round';
+  c.lineWidth = 8;
+  c.strokeStyle = '#2a0600';
+  c.strokeText('!', w / 2, h / 2 + 2);
+  c.fillStyle = TAUNT_COLOR;
+  c.fillText('!', w / 2, h / 2 + 2);
+  tex.refresh();
+  return key;
+}
+
 /** Круги на земле (удар мага, аура барда) — под живыми фигурами (их глубина — y ног, поле от 900), над павшими. */
 const GROUND_DEPTH = 850;
 const LINK_COLOR = 0xffd66b;
 const TAUNT_LINE = 0xff5a4a;
 
 export class BehaviorFx {
-  private readonly taunts = new Map<FxAnchor, { mark: Phaser.GameObjects.Text; source: FxAnchor; lineUntil: number }>();
+  private readonly taunts = new Map<FxAnchor, { mark: Phaser.GameObjects.Image; source: FxAnchor; lineUntil: number }>();
   private readonly links = new Map<FxAnchor, { guard: FxAnchor; phase: number }>();
   /** Круг удара мага: кастер → центр, радиус, цвет стихии, когда начат и сколько длится каст (мс). */
   private readonly areas = new Map<FxAnchor, { x: number; y: number; r: number; color: number; start: number; dur: number }>();
@@ -66,7 +88,7 @@ export class BehaviorFx {
       old.lineUntil = this.clock + 400;
       return;
     }
-    const mark = text(this.scene, target.node.x, target.node.y - target.look.height, '!', 56, TAUNT_COLOR, { fontStyle: 'bold', stroke: '#2a0600', strokeThickness: 8 }).setDepth(DEPTH.numbers - 5);
+    const mark = this.scene.add.image(target.node.x, target.node.y - target.look.height, tauntTexture(this.scene)).setDepth(DEPTH.numbers - 5);
     mark.setScale(0.2);
     this.scene.tweens.add({ targets: mark, scale: 1, duration: 180, ease: 'Back.easeOut' });
     this.taunts.set(target, { mark, source, lineUntil: this.clock + 400 });
