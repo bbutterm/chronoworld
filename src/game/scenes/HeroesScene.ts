@@ -1,39 +1,48 @@
 import Phaser from 'phaser';
-import { achievementStatus, ascendAll, ascendAllSummary, chooseBranch, heroCard, jobTitle, heroesWithGearUpgrades, heroPower, levelUpInfo, needsBranch, pendingPicks, squadPower, withGear, type CardRarity, type HeroState } from '../../core';
+import { ascendAll, ascendAllSummary, chooseBranch, heroCard, jobTitle, heroesWithGearUpgrades, heroPower, levelUpInfo, needsBranch, pendingPicks, squadPower, withGear, type CardRarity, type HeroState } from '../../core';
 import { GAME } from '../content';
-import { ascendReady, claimableAchievements, formatNumber, ROLE_NAMES } from '../flow';
+import { ascendReady, formatNumber, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
-import { confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, cornerBadge, screen } from '../screen';
-import { countUp, staggerIn } from '../juice';
+import { bottomSheet, confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, screen } from '../screen';
+import { countUp, pulse, staggerIn } from '../juice';
 import { commit, session } from '../session';
 import { sfx } from '../audio';
 import { haptic } from '../haptics';
 import { RARITY_CARD } from '../tavern';
-import { button, ellipsize, emptyState, pressable, ScrollArea, text, toast, tutorialHint } from '../ui';
+import { button, ellipsize, iconOf, mixHex, plate, pressable, ScrollArea, SURFACE, tag, text, toast, tutorialHint } from '../ui';
 import { hintDone } from '../hints';
-import { C, FS } from '../theme';
-import { cardIcon, drawHeroCard, GUILD_NAMES, heroCardIcon, heroCardSize, LINES, rarityColor, ROLES } from '../heroCard';
+import { C, COLOR, hexNum, M, R, S, T, TOUCH, Z } from '../theme';
+import { cardIcon, drawHeroCard, GUILD_NAMES, heroCardIcon, heroCardSize, LINES, rarityColor, rarityName, ROLES } from '../heroCard';
 import { collectionCount, collectionHeroes, groupCopies, heroesUi, inventoryUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
-import { pulse } from '../juice';
-import { heroStoryNew, storyDot } from '../heroStoryView';
+import { heroStoryNew, toastOpenedStories } from '../heroStoryView';
 import { lockLabel } from '../unlockBanner';
 import { openBranchPicker } from '../branchPicker';
-import { toastOpenedStories } from '../heroStoryView';
 
 const COLS = 3;
-const TILE_W = 300;
+/** Сетка на всю ширину контента (1080 − 2·S.l = 984): 3 × 304 + 2 × 36. */
+const TILE_W = 304;
 const GAP_X = 36;
-const GAP_Y = 30;
-const CHIP = 100;
+const GAP_Y = S.m;
+/** Поле экрана (§4.2). */
+const L = S.l;
+/** Высота строки управления (класс, фильтр, сортировка). */
+const CTRL_H = 88;
 
 /** Последняя показанная мощь отряда — отсчёт до нового значения при возвращении с карточки. */
 let lastSquadPower: number | null = null;
 
+/** Данные create: keep — перерисовка того же визита (фильтр, сортировка, «Коллекция»): подсказки обучения не повторять. */
+export interface HeroesData {
+  keep?: boolean;
+}
+
 /**
- * H4 «Герои» — коллекция карточек как в AFK Arena: сетка 3 в ряд (рамка цвета редкости с орнаментом, лицо, класс,
- * роль, имя, уровень, ромбы редкостей), метки «в отряде», «Новый!» (сияние), замок, стрелки «можно улучшить /
- * вознести». Фильтры линии, роли и редкости, сортировка «Сила / Уровень / Редкость», «Коллекция» — серые
- * неполученные карточки. Нажатие — карточка героя (HeroScene), листание — в порядке этого списка.
+ * H4 «Герои» — коллекция карточек как в AFK Arena: сетка 3 в ряд крупных карточек (рамка редкости, лицо, класс, имя,
+ * уровень, ромбы редкостей), не больше одного значка-повода на карточке (вознести > ветка > улучшить > вещь > история >
+ * новый), тихая галка «в отряде». Сверху — мощь отряда и запас опыта, «Коллекция» и инвентарь; строка фильтра класса
+ * (значки и «Все»; касание выбранного снимает фильтр), роль и редкость — в листе «Фильтр» (активные — чипы с «×»),
+ * сортировка по кругу. «Вознести всех» — плавающая главная кнопка, только когда есть кого. Нажатие — карточка героя
+ * (HeroScene), листание — в порядке этого списка.
  */
 export class HeroesScene extends Phaser.Scene {
   constructor() {
@@ -42,95 +51,119 @@ export class HeroesScene extends Phaser.Scene {
 
   private area!: ScrollArea;
 
-  create(): void {
+  /** Перерисовать экран тем же визитом (фильтр, сортировка): без повторных подсказок обучения. */
+  private redraw(): void {
+    this.scene.restart({ keep: true } satisfies HeroesData);
+  }
+
+  create(data: HeroesData = {}): void {
     screen(this, 'Герои', 'Heroes');
     const save = session.save;
     const gctx = withGear(GAME, save);
-    const barY = CONTENT_TOP + 50;
-    // Мощь отряда (K2) — отсчитывается от прошлого показа (поднимали уровень на карточке).
-    text(this, 30, barY - 24, 'Мощь отряда', FS.small, C.muted).setOrigin(0, 0.5);
+    const f = heroesUi.filter;
+
+    // Строка 1: мощь отряда (отсчёт от прошлого показа) и запас опыта слева; «Коллекция» и инвентарь справа.
+    const aY = CONTENT_TOP + 62;
     const sp = squadPower(save, GAME);
-    const spText = text(this, 30, barY + 22, formatNumber(sp), FS.h2, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 6 }).setOrigin(0, 0.5);
-    countUp(this, spText, lastSquadPower ?? sp, sp, formatNumber, { duration: 700 });
+    const spText = text(this, L, aY - 14, formatNumber(sp), T.title, COLOR.title, { fontStyle: 'bold' }).setOrigin(0, 0.5).setName('squadPower');
+    text(this, L, aY + 36, 'Мощь отряда', T.caption, COLOR.textSecondary).setOrigin(0, 0.5);
+    countUp(this, spText, lastSquadPower ?? sp, sp, formatNumber, { duration: M.count });
     if (lastSquadPower !== null && sp > lastSquadPower) {
-      const plus = text(this, 30 + spText.width + 16, barY + 22, `+${formatNumber(sp - lastSquadPower)}`, FS.body, C.positive, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
-      this.tweens.add({ targets: plus, y: barY - 10, alpha: 0, delay: 900, duration: 900, onComplete: () => plus.destroy() });
+      const plus = text(this, L + spText.width + S.xs, aY - 14, `+${formatNumber(sp - lastSquadPower)}`, T.body, COLOR.positive, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+      this.tweens.add({ targets: plus, y: aY - 50, alpha: 0, delay: M.count, duration: M.count, onComplete: () => plus.destroy() });
     }
     lastSquadPower = sp;
-    const free = save.inventory.items.filter((i) => i.equippedBy === null).length;
-    button(this, 500, barY, 280, 100, 'ui_btn_secondary', `Инвентарь${free ? ` (${free})` : ''}`, () => {
+    const ex = L + Math.max(spText.width, 210) + S.l;
+    const expIco = iconOf(this, ex + 20, aY - 12, 'hero_exp', 40);
+    const expVal = text(this, ex + (expIco ? 48 : 0), aY - 12, formatNumber(save.resources.heroExp), T.heading, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5).setName('heroExpPool');
+    text(this, ex, aY + 36, 'Опыт в запасе', T.caption, COLOR.textSecondary).setOrigin(0, 0.5);
+
+    const invX = GAME_W - L - TOUCH / 2;
+    const inv = button(this, invX, aY, TOUCH, TOUCH, '', '', () => {
       inventoryUi.template = null;
       this.scene.start('Inventory', {});
-    }, FS.h3);
-    // K10: достижения — отсюда и с главной.
-    button(this, 835, barY, 330, 100, 'ui_btn_secondary', 'Достижения', () => this.scene.start('Achievements', { from: 'Heroes' }), FS.h3);
-    cornerBadge(this, 835, barY, 330, 100, claimableAchievements(achievementStatus(save, GAME)));
-
-    // Запас опыта (тратится «Улучшить» на карточке) и «Коллекция» — серые неполученные карточки.
-    const rowY = CONTENT_TOP + 165;
-    ellipsize(text(this, 30, rowY, `Опыт в запасе: ${formatNumber(save.resources.heroExp)}`, FS.body, C.gold, { stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5).setName('heroExpPool'), 420);
-    // «Вознести всех»: всех, кому хватает свободных копий и золота (ascendAll; для красного — и лишних копий других), с подтверждением.
-    const plan = ascendAll(save, GAME);
-    const all = button(this, 590, rowY, 250, 96, plan.done.length ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вознести всех', () => this.ascendAllConfirm(), FS.small, { sound: 'ui_toggle' });
-    all.container.setName('ascendAllBtn');
-    if (!plan.done.length) all.setEnabled(false);
-    else pulse(this, all.container, 1.04);
+    }, T.caption, { variant: 'icon' });
+    inv.container.setName('inventoryBtn');
+    const bag = iconOf(this, 0, 0, 'bag', 56, COLOR.textPrimary);
+    if (bag) inv.container.add(bag);
     const cc = collectionCount(save, GAME);
-    const coll = button(this, 885, rowY, 310, 96, heroesUi.showMissing ? 'k:buttonLong_brown' : 'ui_btn_secondary', `Коллекция ${cc.owned}/${cc.total}`, () => {
+    const collW = 290;
+    const collX = invX - TOUCH / 2 - S.xs - collW / 2;
+    const coll = button(this, collX, aY, collW, TOUCH, heroesUi.showMissing ? 'skin_btn_active' : 'ui_btn_secondary', `Коллекция ${cc.owned}/${cc.total}`, () => {
       heroesUi.showMissing = !heroesUi.showMissing;
-      this.scene.restart();
-    }, FS.body, { sound: 'ui_toggle' });
+      this.redraw();
+    }, T.caption, { sound: 'ui_toggle' });
     coll.container.setName('collectionToggle');
+    // Длинный запас опыта не наезжает на «Коллекцию».
+    ellipsize(expVal, Math.max(120, collX - collW / 2 - S.s - expVal.x));
 
-    // Фильтры: линии (6) и сортировка; роли (4) и редкости (5). Повторное нажатие снимает фильтр.
-    const f = heroesUi.filter;
-    const r1 = CONTENT_TOP + 280;
-    LINES.forEach((line, i) => {
-      this.chip(50 + CHIP / 2 + i * (CHIP + 12), r1, f.line === line, () => (f.line = f.line === line ? null : line), (c) => {
-        c.add(this.add.image(0, -4, cardIcon(this, line)).setDisplaySize(62, 62).setTint(f.line === line ? 0xffe08a : 0xeadfc6));
-      }, `Линия: ${this.content.jobs[line]?.name ?? line} (${GUILD_NAMES[line] ?? ''})`);
-    });
-    const sortBtn = button(this, 880, r1, 300, CHIP, 'ui_btn_secondary', `${SORT_LABELS[heroesUi.sort]} ↕`, () => {
+    // Строка 2: класс (значки и «Все»), фильтр роли и редкости (лист), сортировка.
+    const bY = aY + 128;
+    const sortW = 220;
+    const sortX = GAME_W - L - sortW / 2;
+    const filtX = sortX - sortW / 2 - S.xs - TOUCH / 2;
+    const segW = filtX - TOUCH / 2 - S.xs - L;
+    this.classFilter(L + segW / 2, bY, segW);
+    const extra = !!(f.role || f.rarity);
+    const filt = button(this, filtX, bY, TOUCH, CTRL_H, extra ? 'skin_btn_active' : 'ui_btn_secondary', '', () => this.openFilters(), T.caption, { sound: null });
+    filt.container.setName('filterBtn');
+    filt.container.add(this.funnel(extra ? COLOR.title : COLOR.textSecondary));
+    // Сортировка по кругу: значок «по убыванию» и ключ («Сила» / «Уровень» / «Редкость»).
+    const sortBtn = button(this, sortX, bY, sortW, CTRL_H, 'ui_btn_secondary', SORT_LABELS[heroesUi.sort], () => {
       heroesUi.sort = SORT_ORDER[(SORT_ORDER.indexOf(heroesUi.sort) + 1) % SORT_ORDER.length];
-      this.scene.restart();
-    }, FS.h3, { sound: 'ui_toggle' });
+      this.redraw();
+    }, T.caption, { sound: 'ui_toggle' });
     sortBtn.container.setName('sortBtn');
-    const r2 = r1 + CHIP + 16;
-    ROLES.forEach((role, i) => {
-      this.chip(50 + CHIP / 2 + i * (CHIP + 12), r2, f.role === role, () => (f.role = f.role === role ? null : role), (c) => {
-        c.add(this.add.image(0, -4, cardIcon(this, role)).setDisplaySize(58, 58).setTint(f.role === role ? 0xffe08a : 0xeadfc6));
-      }, `Роль: ${ROLE_NAMES[role] ?? role}`);
-    });
-    RARITY_ORDER.forEach((r, i) => {
-      const x = 520 + CHIP / 2 + i * (CHIP + 2);
-      this.chip(x, r2, f.rarity === r, () => (f.rarity = f.rarity === r ? null : (r as CardRarity)), (c) => {
-        const col = Phaser.Display.Color.HexStringToColor(rarityColor(r)).color;
-        const d = 24;
-        c.add(this.add.polygon(0, -4, [d, 0, 2 * d, d, d, 2 * d, 0, d], col).setStrokeStyle(4, 0x000000));
-      }, `Редкость: ${GAME.cards.rarities.find((x) => x.id === r)?.name ?? r}`, CHIP - 4);
-    });
+    const lw = sortBtn.label.width;
+    const sx = -(lw + 34) / 2;
+    sortBtn.label.setX(sx + 34 + lw / 2);
+    sortBtn.container.add(this.sortGlyph(sx + 11, COLOR.textSecondary));
+
+    // Строка 3 — только при фильтре роли/редкости: чипы «Танк ×», «Синий ×»; касание снимает.
+    let rowBottom = bY + CTRL_H / 2;
+    if (extra) {
+      const cY = rowBottom + S.xs + 26;
+      let cx = L;
+      const chipOf = (label: string, name: string, clear: () => void) => {
+        const t = tag(this, cx, cY, `${label}  ×`, 'accent', { align: 'left' }).setName(name);
+        const hit = this.add.zone(t.x, cY, t.width, TOUCH);
+        pressable(this, hit, t.width, 52, () => {
+          clear();
+          this.redraw();
+        });
+        cx += t.width + S.xs;
+      };
+      if (f.role) chipOf(ROLE_NAMES[f.role] ?? f.role, 'roleChip', () => (f.role = null));
+      if (f.rarity) chipOf(rarityName(f.rarity), 'rarityChip', () => (f.rarity = null));
+      rowBottom = cY + 26;
+    }
 
     // Сетка карточек.
-    const listTop = r2 + CHIP / 2 + 20;
+    const listTop = rowBottom + S.s;
     this.area = new ScrollArea(this, listTop, contentBottom() + 10);
-    // Копии одного героя — одной плиткой (лучший экземпляр) с «×N»; все экземпляры — на карточке и в корме вознесения.
+    // Копии одного героя — одной плиткой (лучший экземпляр) с «+N»; все экземпляры — на карточке и в корме вознесения.
     const groups = groupCopies(collectionHeroes(save, f, heroesUi.sort, GAME, (h) => heroPower(h, gctx)));
     const heroes = groups.map((g) => g.hero);
     heroesUi.order = heroes.map((h) => h.id);
     const picks = pendingPicks(save);
     const missing = heroesUi.showMissing ? missingTemplates(save, f, GAME) : [];
     if (!save.heroes.length) {
-      this.area.add(emptyState(this, GAME_W / 2, 300, 'Героев пока нет.\nНачните новую игру: «Город» → настройки → «Начать заново».'));
+      this.area.add(text(this, GAME_W / 2, 200, 'Героев пока нет', T.body, COLOR.textPrimary, { stroke: C.stroke, strokeThickness: 3 }));
       return;
     }
     if (!heroes.length && !missing.length && !picks.length) {
-      this.area.add(emptyState(this, GAME_W / 2, 200, 'Под фильтр никто не подходит.\nНажмите выбранный значок ещё раз, чтобы снять фильтр.'));
+      this.area.add(text(this, GAME_W / 2, 140, 'Под фильтр никто не подходит', T.body, COLOR.textPrimary, { stroke: C.stroke, strokeThickness: 3 }).setName('emptyFilter'));
+      const reset = button(this, GAME_W / 2, 260, 400, TOUCH, 'ui_btn_secondary', 'Сбросить фильтры', this.area.tap(() => this.resetFilters()), T.body);
+      reset.container.setName('resetFilters');
+      this.area.add(reset.container);
       return;
     }
     const { h: tileH } = heroCardSize(TILE_W);
-    const x0 = GAME_W / 2 - (COLS - 1) * (TILE_W + GAP_X) / 2;
+    const x0 = GAME_W / 2 - ((COLS - 1) * (TILE_W + GAP_X)) / 2;
     const at = (i: number) => ({ x: x0 + (i % COLS) * (TILE_W + GAP_X), y: GAP_Y / 2 + tileH / 2 + Math.floor(i / COLS) * (tileH + GAP_Y) });
     const ready = new Set(ascendReady(save, GAME).map((h) => h.id));
+    // «Вещь получше» — только у отряда: у запаса из 40 героев иначе горела бы каждая плитка (§2.4 п. 8).
+    const gearUps = new Set(heroesWithGearUpgrades(save, GAME).filter((id) => save.squad.includes(id)));
     const tiles: Phaser.GameObjects.GameObject[][] = [];
     // «Контракт героя» — первой плиткой: герой на выбор (и ветка).
     const lead = picks.length ? 1 : 0;
@@ -140,7 +173,7 @@ export class HeroesScene extends Phaser.Scene {
     }
     groups.forEach((g, i) => {
       const p = at(lead + i);
-      tiles.push([this.tile(g.hero, p.x, p.y, ready.has(g.hero.id), g.copies)]);
+      tiles.push([this.tile(g.hero, p.x, p.y, ready.has(g.hero.id), gearUps.has(g.hero.id), g.copies)]);
     });
     missing.forEach((tid, k) => {
       const p = at(lead + heroes.length + k);
@@ -149,39 +182,182 @@ export class HeroesScene extends Phaser.Scene {
         drawHeroCard(this, p.x, p.y, tid, {
           w: TILE_W,
           greyed: true,
+          showRole: false,
           parent: this.area.content,
-          onTap: this.area.tap(() => toast(this, `${t.name}: ${t.source === 'story' ? 'присоединится по сюжету (и приходит из Таверны)' : 'призыв в Таверне'}. ${t.bio}`, C.title, 4000)),
+          onTap: this.area.tap(() => toast(this, `${t.name}: ${t.source === 'story' ? 'присоединится по сюжету (и приходит из Таверны)' : 'призыв в Таверне'}. ${t.bio}`, COLOR.title, 4000)),
         }),
       ]);
     });
     const n = lead + heroes.length + missing.length;
     let contentH = Math.ceil(n / COLS) * (tileH + GAP_Y) + GAP_Y;
-    // Героев мало (начало игры) — под сеткой подсказка, откуда берутся новые, а не пустой лес.
-    if (n <= COLS * 2 && !f.line && !f.role && !f.rarity) {
-      const lock = lockLabel('tavern');
-      const tip = lock
-        ? `Новые герои присоединяются по сюжету и приходят из Таверны («Город»). Таверна: ${lock.charAt(0).toLowerCase()}${lock.slice(1)}.`
-        : 'Новых героев нанимают в Таверне («Город»). Три одинаковые карты — вознесение на следующую редкость.';
-      this.area.add(text(this, GAME_W / 2, contentH + 40, tip, FS.body, C.muted, { align: 'center', wordWrap: { width: 900, useAdvancedWrap: true }, lineSpacing: 6 }).setOrigin(0.5, 0).setName('heroesTip'));
-      contentH += 200;
+    // Героев мало (начало игры) — под сеткой строка-вход в Таверну (или когда она откроется), а не пустой лес.
+    if (n <= COLS * 2 && !f.line && !f.role && !f.rarity) contentH += this.tavernRow(contentH + S.xs + 68) + S.l;
+    // «Вознести всех» — плавающая главная кнопка справа внизу, только когда есть кого (§3 п. 1 и 11).
+    if (ascendAll(save, GAME).done.length) {
+      const bw = 360;
+      const bh = 112;
+      const all = button(this, GAME_W - L - bw / 2, contentBottom() - bh / 2 - S.xs, bw, bh, 'ui_btn_primary', 'Вознести всех', () => this.ascendAllConfirm(), T.heading, { sound: 'ui_toggle' });
+      all.container.setName('ascendAllBtn').setDepth(Z.sticky);
+      pulse(this, all.container, 1.04);
+      contentH += bh + S.s;
     }
     this.area.setContentHeight(contentH);
-    // T1-08: один раз — подсказка «Наденьте трофеи» на первом герое, которому есть что надеть.
+    staggerIn(this, 'Heroes', tiles);
+
+    // Обучение — один раз за визит, не при каждой перерисовке фильтром: «наденьте трофеи», иначе «вознесите».
+    if (data.keep) return;
     const gearHero = heroesWithGearUpgrades(save, GAME)[0];
     const gi = heroes.findIndex((x) => x.id === gearHero);
     if (gi >= 0 && !hintDone('equip_gear')) {
       const p = at(lead + gi);
       const cy = listTop + p.y;
-      if (cy + tileH / 2 <= CONTENT_BOTTOM) tutorialHint(this, 'equip_gear', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Наденьте трофеи — откройте героя' });
+      if (cy + tileH / 2 <= CONTENT_BOTTOM) tutorialHint(this, 'equip_gear', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Наденьте трофеи' });
+      return;
     }
-    // Обучение (hints.ts, шаг ascend): три копии героя — указатель на его плитку (если «Трофеи» уже не показаны).
     const ai = heroes.findIndex((x) => ready.has(x.id));
-    if (ai >= 0 && !hintDone('ascend') && !(gi >= 0 && !hintDone('equip_gear'))) {
+    if (ai >= 0 && !hintDone('ascend')) {
       const p = at(lead + ai);
       const cy = listTop + p.y;
-      if (cy + tileH / 2 <= CONTENT_BOTTOM) tutorialHint(this, 'ascend', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Копий хватает — откройте героя и вознесите' });
+      if (cy + tileH / 2 <= CONTENT_BOTTOM) tutorialHint(this, 'ascend', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Копий хватает — вознесите' });
     }
-    staggerIn(this, 'Heroes', tiles);
+  }
+
+  private resetFilters(): void {
+    heroesUi.filter.line = null;
+    heroesUi.filter.role = null;
+    heroesUi.filter.rarity = null;
+    this.redraw();
+  }
+
+  /**
+   * Фильтр класса — утопленная дорожка: «Все» и значки шести линий (выбранный — поднятая плашка, золотой значок).
+   * Касание выбранного значка снимает фильтр (снова «Все»).
+   */
+  private classFilter(x: number, y: number, w: number): void {
+    const f = heroesUi.filter;
+    const h = CTRL_H;
+    const inset = 6;
+    const opts: (string | null)[] = [null, ...LINES];
+    const segW = (w - 2 * inset) / opts.length;
+    const c = this.add.container(x, y).setName('classFilter');
+    c.add(plate(this, 0, 0, w, h, { ...SURFACE.sunken, r: R.m }));
+    const sel = Math.max(0, opts.indexOf(f.line));
+    const xs = opts.map((_, i) => -w / 2 + inset + segW * (i + 0.5));
+    c.add(plate(this, xs[sel], 0, segW, h - 2 * inset, { fill: COLOR.surfaceRaised, border: mixHex(COLOR.border, COLOR.accent, 0.45), borderW: 2, r: R.m - 4, hl: 0.14 }));
+    opts.forEach((line, i) => {
+      const on = i === sel;
+      const color = on ? COLOR.title : COLOR.textSecondary;
+      if (line === null) c.add(text(this, xs[i], 0, 'Все', T.caption, color, { fontStyle: 'bold' }));
+      else c.add(this.add.image(xs[i], 0, cardIcon(this, line)).setDisplaySize(48, 48).setTint(hexNum(color)));
+      const zone = this.add.zone(xs[i], 0, segW, Math.max(h, TOUCH)).setName(line ? `Линия: ${GAME.content.jobs[line]?.name ?? line} (${GUILD_NAMES[line] ?? ''})` : 'Линия: все');
+      c.add(zone);
+      pressable(this, zone, segW, h - 2 * inset, () => {
+        const next = line === null || f.line === line ? null : line;
+        if (next === f.line) return;
+        sfx('ui_toggle');
+        f.line = next;
+        this.redraw();
+      });
+    });
+  }
+
+  /** Значок «воронка» (фильтр): своей иконки в скине нет — Graphics. */
+  private funnel(color: string): Phaser.GameObjects.Graphics {
+    const g = this.add.graphics();
+    const V = Phaser.Math.Vector2;
+    g.fillStyle(hexNum(color), 1);
+    g.fillPoints([new V(-22, -18), new V(22, -18), new V(5, 2), new V(-5, 2)], true);
+    g.fillRect(-5, 0, 10, 20);
+    return g;
+  }
+
+  /** Значок сортировки «по убыванию»: три полосы от длинной к короткой (в шрифте нет ↕ — Graphics). */
+  private sortGlyph(x: number, color: string): Phaser.GameObjects.Graphics {
+    const g = this.add.graphics({ x, y: 0 });
+    const n = hexNum(color);
+    g.fillStyle(n, 1);
+    g.fillRect(-11, -14, 22, 5).fillRect(-11, -3, 15, 5).fillRect(-11, 8, 8, 5);
+    return g;
+  }
+
+  /** Лист «Фильтр»: роль (4 значка с подписью) и редкость (5 ромбов). Касание выбирает или снимает и закрывает лист. */
+  private openFilters(): void {
+    const f = heroesUi.filter;
+    bottomSheet(this, 'Фильтр', (box, width, close) => {
+      const pick = (apply: () => void) => {
+        apply();
+        close();
+        this.time.delayedCall(M.fast, () => this.redraw());
+      };
+      const cell = (cx: number, cy: number, cw: number, on: boolean, name: string, onTap: () => void) => {
+        const bg = plate(this, cx, cy, cw, 140, on ? { fill: COLOR.surfaceRaised, border: COLOR.accent, borderW: 3, r: R.m, hl: 0.14 } : { ...SURFACE.sunken, r: R.m }).setName(name);
+        box.add(bg);
+        pressable(this, bg, cw, 140, onTap);
+      };
+      let y = 0;
+      box.add(text(this, 0, y + 20, 'Роль', T.caption, COLOR.textSecondary).setOrigin(0, 0.5));
+      y += 56;
+      const roleW = (width - 3 * S.xs) / 4;
+      ROLES.forEach((role, i) => {
+        const on = f.role === role;
+        const cx = i * (roleW + S.xs) + roleW / 2;
+        const cy = y + 70;
+        const color = on ? COLOR.title : COLOR.textPrimary;
+        cell(cx, cy, roleW, on, `Роль: ${ROLE_NAMES[role] ?? role}`, () => pick(() => (f.role = on ? null : role)));
+        box.add(this.add.image(cx, cy - 22, cardIcon(this, role)).setDisplaySize(56, 56).setTint(hexNum(color)));
+        box.add(ellipsize(text(this, cx, cy + 40, ROLE_NAMES[role] ?? role, T.caption, color, { fontStyle: 'bold' }), roleW - S.xs));
+      });
+      y += 140 + S.l;
+      box.add(text(this, 0, y + 20, 'Редкость', T.caption, COLOR.textSecondary).setOrigin(0, 0.5));
+      y += 56;
+      const rw = (width - 4 * S.xs) / 5;
+      RARITY_ORDER.forEach((r, i) => {
+        const rar = r as CardRarity;
+        const on = f.rarity === rar;
+        const cx = i * (rw + S.xs) + rw / 2;
+        const cy = y + 70;
+        cell(cx, cy, rw, on, `Редкость: ${rarityName(rar)}`, () => pick(() => (f.rarity = on ? null : rar)));
+        const d = 22;
+        box.add(this.add.polygon(cx, cy - 22, [d, 0, 2 * d, d, d, 2 * d, 0, d], hexNum(rarityColor(rar))).setStrokeStyle(3, hexNum(COLOR.bg)));
+        box.add(ellipsize(text(this, cx, cy + 40, rarityName(rar), T.caption, on ? COLOR.title : COLOR.textPrimary, { fontStyle: 'bold' }), rw - S.xxs));
+      });
+      y += 140 + S.l;
+      if (f.line || f.role || f.rarity) {
+        const reset = button(this, width / 2, y + TOUCH / 2, 420, TOUCH, '', 'Сбросить всё', () =>
+          pick(() => {
+            f.line = null;
+            f.role = null;
+            f.rarity = null;
+          }), T.body, { variant: 'ghost' });
+        reset.container.setName('resetFilters');
+        box.add(reset.container);
+        y += TOUCH + S.s;
+      }
+      return y;
+    });
+  }
+
+  /** Строка-вход «Таверна» под короткой сеткой (начало игры): открыта — касание ведёт туда; закрыта — когда откроется. Высота. */
+  private tavernRow(y: number): number {
+    const lock = lockLabel('tavern');
+    const w = GAME_W - 2 * L;
+    const h = 136;
+    const row = this.add.container(GAME_W / 2, y).setName('heroesTip');
+    this.area.add(row);
+    const bg = plate(this, 0, 0, w, h, { ...SURFACE.surface, r: R.m });
+    row.add(bg);
+    const ico = heroCardIcon(this, -w / 2 + S.s + 37, 0, 100, 'blue');
+    if (lock) ico.setAlpha(0.5);
+    row.add(ico);
+    const left = -w / 2 + S.s + 74 + S.s;
+    row.add(text(this, left, -22, 'Новые герои — в Таверне', T.body, lock ? COLOR.textSecondary : COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5));
+    const sub = lock ? `${lock.charAt(0).toUpperCase()}${lock.slice(1)}` : 'Три одинаковые карты — следующая редкость';
+    row.add(ellipsize(text(this, left, 26, sub, T.caption, COLOR.textSecondary).setOrigin(0, 0.5), w / 2 - left - S.xl));
+    if (!lock) {
+      row.add(text(this, w / 2 - S.m, 0, '›', T.title, COLOR.title, { fontStyle: 'bold' }).setOrigin(1, 0.5));
+      pressable(this, bg, w, h, this.area.tap(() => this.scene.start('Tavern', {})));
+    }
+    return h;
   }
 
   /** Подтверждение «Вознести всех»: список «Вика: синяя → фиолетовая», затем вознесение и итог тостом. */
@@ -214,7 +390,7 @@ export class HeroesScene extends Phaser.Scene {
       const msg = `Вознесено: ${res.map((x) => `${x.name} (${RARITY_CARD[x.to]})`).join(', ')}`;
       // RN-21: фиолетовые без ветки — сразу окно выбора ветки по очереди (иначе вторую профессию и истории 60+ не увидеть).
       const pending = res.filter((x) => x.branchPending).map((x) => x.heroId);
-      this.scene.restart();
+      this.redraw();
       this.events.once(Phaser.Scenes.Events.CREATE, () => {
         toast(this, msg, C.success, 4000);
         if (pending.length) this.time.delayedCall(500, () => pickBranchChain(this, pending));
@@ -226,49 +402,43 @@ export class HeroesScene extends Phaser.Scene {
     return GAME.content;
   }
 
-  /** Плитка «Контракт героя»: рубашка цвета редкости, «?», число контрактов; нажатие — выбор героя. */
+  /** Плитка «Контракт героя»: рубашка цвета редкости, «✦», число контрактов; нажатие — выбор героя. */
   private contractTile(x: number, y: number, count: number, rarity: CardRarity): Phaser.GameObjects.Container {
     const { h } = heroCardSize(TILE_W);
     const box = this.add.container(x, y).setName('contractTile');
     this.area.content.add(box);
-    box.add(heroCardIcon(this, 0, -30, h - 90, rarity, undefined, { pick: true }));
-    box.add(text(this, 0, h / 2 - 50, 'Контракт героя', FS.small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }));
-    box.add(text(this, 0, h / 2 - 14, `герой на выбор${count > 1 ? ` ×${count}` : ''}`, FS.caption, rarityColor(rarity), { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }));
+    box.add(heroCardIcon(this, 0, -36, h - 100, rarity, undefined, { pick: true }));
+    box.add(text(this, 0, h / 2 - 50, 'Контракт героя', T.caption, COLOR.title, { fontStyle: 'bold' }));
+    if (count > 1) box.add(text(this, 0, h / 2 - 12, `×${count}`, T.caption, rarityColor(rarity), { fontStyle: 'bold' }));
     const hit = this.add.rectangle(0, 0, TILE_W, h, 0x000000, 0.001);
     box.add(hit);
     pressable(this, hit, TILE_W, h, this.area.tap(() => this.scene.start('HeroPick', {})));
-    pulse(this, box, 1.03, 800);
+    pulse(this, box, 1.03, M.emphasis + M.base);
     return box;
   }
 
-  /** Плитка героя игрока: метки отряда, «Новый!», замок, «можно улучшить / вознести», копии «×N», «Выберите ветку!». */
-  private tile(hero: HeroState, x: number, y: number, canAscend: boolean, copies = 1): Phaser.GameObjects.Container {
+  /**
+   * Плитка героя игрока. Один угловой значок-повод (heroCardMark: вознести > ветка > улучшить > вещь > история > новый):
+   * «новая история» и «вещь получше» — туда же, а не отдельной красной точкой; «в отряде» — тихая галка.
+   */
+  private tile(hero: HeroState, x: number, y: number, canAscend: boolean, gearUpgrade: boolean, copies = 1): Phaser.GameObjects.Container {
     const save = session.save;
-    const card = drawHeroCard(this, x, y, hero, {
+    const inSquad = save.squad.includes(hero.id);
+    return drawHeroCard(this, x, y, hero, {
       w: TILE_W,
       copies,
+      showRole: false,
       needsBranch: needsBranch(hero, GAME),
-      inSquad: save.squad.includes(hero.id),
+      inSquad,
       isNew: !!hero.isNew,
       locked: !!hero.locked,
       canAscend,
-      canLevel: !canAscend && save.squad.includes(hero.id) && levelUpInfo(save, hero.id, GAME).canLevel,
+      canLevel: !canAscend && inSquad && levelUpInfo(save, hero.id, GAME).canLevel,
+      gearUpgrade,
+      storyNew: heroStoryNew(hero.templateId, save) > 0,
       parent: this.area.content,
       onTap: this.area.tap(() => this.scene.start('Hero', { heroId: hero.id })),
     });
-    // Открыт непрочитанный кусочек истории героя — отметка «новое» у левого края (ниже меток «в отряде», «Новый!», ветки).
-    if (heroStoryNew(hero.templateId, save)) card.add(storyDot(this, -TILE_W / 2 + 34, -heroCardSize(TILE_W).h / 2 + 190, 22));
-    return card;
-  }
-
-  /** Кнопка-фильтр со значком (выбранная — золотая рамка). */
-  private chip(x: number, y: number, on: boolean, toggle: () => void, draw: (c: Phaser.GameObjects.Container) => void, name: string, w = CHIP): void {
-    const b = button(this, x, y, w, CHIP, on ? 'k:buttonSquare_brown' : 'k:buttonSquare_beige', '', () => {
-      toggle();
-      this.scene.restart();
-    }, FS.body, { sound: 'ui_toggle' });
-    b.container.setName(name);
-    draw(b.container);
   }
 }
 
