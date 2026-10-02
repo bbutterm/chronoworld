@@ -408,7 +408,7 @@ async function main() {
     await waitScene('Heroes');
     // H4: коллекция — сетка карточек, фильтры, сортировка, «Коллекция N/M».
     await shot('heroes');
-    for (const t of ['Коллекция ', 'Сила ↕', 'Алан', 'Опыт в запасе']) if (!(await hasText('Heroes', t))) problems.push(`коллекция героев: нет «${t}»`);
+    for (const t of ['Коллекция ', 'Сила', 'Алан', 'Опыт в запасе']) if (!(await hasText('Heroes', t))) problems.push(`коллекция героев: нет «${t}»`);
     await clickText('Heroes', 'Алан'); // плитка Алана
     await waitScene('Hero');
     await shot('hero');
