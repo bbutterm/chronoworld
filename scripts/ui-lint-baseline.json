@@ -2,10 +2,10 @@
   "note": "Базовая линия scripts/ui-lint.ts: счётчики по файлам могут только уменьшаться. Опустить — npm run ui:lint -- --update. Руками не повышать.",
   "totals": {
     "instr": 1,
-    "color": 1708,
+    "color": 1700,
     "fontSize": 8,
     "primary": 55,
-    "toast": 117
+    "toast": 116
   },
   "files": {
     "src/game/ambient.ts": {
@@ -226,7 +226,7 @@
       "color": 1
     },
     "src/game/screen.ts": {
-      "color": 24,
+      "color": 16,
       "primary": 5,
       "toast": 2
     },
@@ -280,8 +280,7 @@
     },
     "src/game/ui.ts": {
       "color": 11,
-      "primary": 2,
-      "toast": 1
+      "primary": 2
     },
     "src/game/ultBadge.ts": {
       "color": 4

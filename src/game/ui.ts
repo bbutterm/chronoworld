@@ -1086,7 +1086,7 @@ export function segmented(
     const r = BADGE.dot / 2;
     const d = scene.add
       .circle(xs[i] + segW / 2 - S.xs - r + 4, -h / 2 + inset + r - 2, r, COLOR_N.badge)
-      .setStrokeStyle(3, 0x2a0c06, 0.9)
+      .setStrokeStyle(3, COLOR_N.bg, 0.9)
       .setName('segDot')
       .setVisible(i !== index);
     c.add(d);
