@@ -3,9 +3,9 @@
   "totals": {
     "instr": 1,
     "color": 1700,
-    "fontSize": 8,
-    "primary": 55,
-    "toast": 116
+    "fontSize": 9,
+    "primary": 56,
+    "toast": 115
   },
   "files": {
     "src/game/ambient.ts": {
@@ -45,6 +45,11 @@
     "src/game/branchPicker.ts": {
       "color": 5,
       "primary": 1
+    },
+    "src/game/codesView.ts": {
+      "fontSize": 1,
+      "primary": 1,
+      "toast": 1
     },
     "src/game/decor.ts": {
       "color": 4
@@ -274,9 +279,6 @@
     },
     "src/game/tavernEntry.ts": {
       "color": 5
-    },
-    "src/game/tester.ts": {
-      "toast": 2
     },
     "src/game/ui.ts": {
       "color": 11,

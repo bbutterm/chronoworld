@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CardsConfigSchema, DropsConfigSchema, EventsConfigSchema, ExpeditionsConfigSchema, ExpeditionEventsConfigSchema, TavernSchema, ChapterSchema, HuntConfigSchema, HeroTemplateSchema, JobSchema, SkillSchema, StorySchema, SummonConfigSchema, ShopConfigSchema, TowerConfigSchema, UnitSchema, UnlocksConfigSchema, MonstersLoreSchema, ItemsLoreSchema, HeroesLoreSchema, HeroStoriesLoreSchema, JobsLoreSchema, WorldLoreSchema, LinesLoreSchema } from '../../src/core';
+import { CardsConfigSchema, DropsConfigSchema, EventsConfigSchema, ExpeditionsConfigSchema, ExpeditionEventsConfigSchema, TavernSchema, ChapterSchema, HuntConfigSchema, HeroTemplateSchema, JobSchema, SkillSchema, StorySchema, SummonConfigSchema, ShopConfigSchema, CodesConfigSchema, TowerConfigSchema, UnitSchema, UnlocksConfigSchema, MonstersLoreSchema, ItemsLoreSchema, HeroesLoreSchema, HeroStoriesLoreSchema, JobsLoreSchema, WorldLoreSchema, LinesLoreSchema } from '../../src/core';
 import { MonsterSoundsSchema } from '../../src/game/monsterSounds';
 
 /** JSON Schema для подсказок и проверки в редакторе (VS Code подхватывает по полю $schema). */
@@ -20,6 +20,7 @@ export function generateSchemas(): Record<string, string> {
     'data/schema/events.schema.json': gen(EventsConfigSchema, 'События новичка и системные письма'),
     'data/schema/hunt.schema.json': gen(HuntConfigSchema, 'Охота на босса'),
     'data/schema/shop.schema.json': gen(ShopConfigSchema, 'Лавка (товары и обновление)'),
+    'data/schema/codes.schema.json': gen(CodesConfigSchema, 'Коды из настроек (алмазы, часы вперёд)'),
     'data/schema/drops.schema.json': gen(DropsConfigSchema, 'Выпадение предметов и трофеи сундука'),
     'data/schema/expeditions.schema.json': gen(ExpeditionsConfigSchema, 'Экспедиции по локациям и лимиты пресетов'),
     'data/schema/expedition_events.schema.json': gen(ExpeditionEventsConfigSchema, 'События экспедиций (текстовые приключения)'),

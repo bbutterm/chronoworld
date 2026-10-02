@@ -21,12 +21,15 @@ import type { HuntConfig } from './hunt/schema';
 import type { CombatConfig, Content } from './types';
 import { parseUnlocks, validateUnlocks } from './unlocks/unlocks';
 import { parseShopConfig, withShop, type ShopConfig } from './shop';
+import { parseCodesConfig, type CodesConfig } from './codes';
 
 /** Полный контекст игры: прогрессия и кампания + K-функции, экипировка, башня, пресеты / экспедиции / достижения. */
 export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext & EventsContext & {
   hunt: HuntConfig;
   /** Лавка (data/shop.json); нет файла — Лавки нет. */
   shop?: ShopConfig;
+  /** Коды из настроек (data/codes.json); нет файла — кодов нет. */
+  codes?: CodesConfig;
   /** События экспедиций (data/expedition_events.json); нет файла — экспедиции без событий. */
   expeditionEvents?: ExpeditionEventsConfig;
 };
@@ -61,6 +64,8 @@ export interface RawGameData {
   unlocks?: unknown;
   /** data/shop.json — Лавка (нет — Лавки нет). */
   shop?: unknown;
+  /** data/codes.json — коды из настроек (нет — кодов нет). */
+  codes?: unknown;
   /** data/story/*.json — сюжет глав (нет — без сюжета). */
   stories?: RawFile[];
   /** По умолчанию — data/combat.json (COMBAT). */
@@ -125,6 +130,7 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     stage('data/events.json', () => parseEventsConfig(raw.events));
     stage('data/hunt.json', () => parseHuntConfig(raw.hunt));
     if (raw.shop !== undefined) stage('data/shop.json', () => parseShopConfig(raw.shop));
+    if (raw.codes !== undefined) stage('data/codes.json', () => parseCodesConfig(raw.codes));
     if (raw.expeditionEvents !== undefined) stage('data/expedition_events.json', () => parseExpeditionEvents(raw.expeditionEvents));
     return { content, problems };
   }
@@ -152,10 +158,11 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
   const hunt = stage('data/hunt.json', () => parseHuntConfig(raw.hunt));
   if (hunt) validateHunt(hunt, content, problems);
   const shop = raw.shop === undefined || !equipment ? undefined : stage('data/shop.json', () => withShop({ ...base, equipment }, raw.shop).shop);
+  const codes = raw.codes === undefined ? undefined : stage('data/codes.json', () => parseCodesConfig(raw.codes));
 
   if (problems.length || !features || !equipment || !tower || !meta || !story || !events || !hunt) return { content, problems };
   return {
-    ctx: { ...base, features, equipment, tower, meta, story, events, hunt, ...(shop ? { shop } : {}), ...(expeditionEvents ? { expeditionEvents } : {}) },
+    ctx: { ...base, features, equipment, tower, meta, story, events, hunt, ...(shop ? { shop } : {}), ...(codes ? { codes } : {}), ...(expeditionEvents ? { expeditionEvents } : {}) },
     content,
     problems,
   };

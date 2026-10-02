@@ -14,7 +14,6 @@ import { SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { animateCurrency, heartbeat, juiceOn, type CurrencyPill } from './juice';
 import { sfx } from './audio';
 import { haptic } from './haptics';
-import { testerButtons } from './tester';
 import { setTgBack } from './telegram';
 import { isLeaving } from './transitions';
 import { BACK, BADGE, badgeLabel, compactNumber, GEAR, HEADER_CY, navTabCenter, parseGrouped, PILL, powerShortfall, titleLeft } from './frame';
@@ -115,7 +114,6 @@ export function screen(
   }
 
   if (active) navBar(scene, active, fullW);
-  testerButtons(scene, band, BAND_MIN);
   const warnings = takeWarnings();
   for (const w of warnings.filter((x) => !isHeroesNotice(x))) toast(scene, w, C.error, 6000);
   const notices = warnings.filter(isHeroesNotice);

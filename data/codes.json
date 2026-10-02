@@ -1,0 +1,21 @@
+{
+  "$schema": "schema/codes.schema.json",
+  "$comment": "Коды из раздела «Коды» в настройках (src/core/codes). code — нижний регистр (ввод игрока без учёта регистра и пробелов по краям); once — одноразовый на сохранение (save.codesUsed); gems — алмазы; hours — игровые часы вперёд (сдвигает интерфейс). Коды лежат в сохранениях игроков (codesUsed) — не переименовывать.",
+  "codes": [
+    {
+      "code": "helloworld",
+      "once": true,
+      "gems": 300
+    },
+    {
+      "code": "300",
+      "once": false,
+      "gems": 300
+    },
+    {
+      "code": "12",
+      "once": false,
+      "hours": 12
+    }
+  ]
+}
