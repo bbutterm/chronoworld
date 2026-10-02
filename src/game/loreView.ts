@@ -7,6 +7,7 @@ import { GAME_H, GAME_W } from './layout';
 import { popIn, unitFigure, unitTint } from './screen';
 import { session } from './session';
 import { SKIN_TINT } from './skin';
+import { goldDot, roundIcon, ROUND_ICON } from './homeBuildings';
 import { button, panel, ScrollArea, text } from './ui';
 import { C, FS, OUTLINE, TINT } from './theme';
 
@@ -89,17 +90,16 @@ export function bookIcon(scene: Phaser.Scene, x: number, y: number, size: number
   return g;
 }
 
-/** Кнопка «Летопись» с книгой и красным кружком новых записей (страница «Город»). */
-export function chronicleButton(scene: Phaser.Scene, x: number, y: number, w = 260, h = 100): Phaser.GameObjects.Container {
-  const b = button(scene, x, y, w, h, 'k:buttonLong_beige', 'Летопись', () => scene.scene.start('Chronicle'), FS.body);
-  b.label.setX(28);
-  b.container.add(bookIcon(scene, 28 - b.label.width / 2 - 34, -4, 50));
-  b.container.setName('chronicleBtn');
-  // Плюс новые вечера в «Двух колоколах» и открытые личные сцены (вход в «Вечера» — «Летопись» → «Мир»).
+/**
+ * «Летопись» на странице «Город»: круглая иконка-книга (как иконки шапки, homeBuildings.ts roundIcon), имя
+ * chronicleBtn. Есть новое для чтения (записи, вечера в «Двух колоколах», личные сцены) — тихая золотая точка без числа
+ * (красное — только «можно забрать», ui-polish-research §2.4).
+ */
+export function chronicleButton(scene: Phaser.Scene, x: number, y: number): Phaser.GameObjects.Container {
+  const b = roundIcon(scene, x, y, 'chronicleBtn', (s) => bookIcon(scene, 0, 0, s), () => scene.scene.start('Chronicle'));
   const n = loreUnseen().total + tavernNewCount(session.save, GAME);
-  // Новое для чтения — тихая золотая точка без числа (красные значки — только «можно забрать», ui-polish-research §2.4).
-  if (n > 0) scene.add.circle(x + w / 2 - 18, y - h / 2 + 4, 12, 0xe8b85a).setStrokeStyle(3, 0x2a1c08).setName('chronicleBadge');
-  return b.container;
+  if (n > 0) goldDot(scene, x + ROUND_ICON.size / 2 - 10, y - ROUND_ICON.size / 2 + 10).setName('chronicleBadge');
+  return b;
 }
 
 // ---------- окно записи ----------

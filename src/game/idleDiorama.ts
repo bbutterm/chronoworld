@@ -5,7 +5,7 @@ import { holdAnimatedFx, hasArt } from './assets';
 import { ensureAmbientTextures, SHADOW_TEX } from './ambient';
 import { setThemeBackground, themeOfChapter } from './backdrops';
 import { CONTENT, GAME } from './content';
-import { currentStage, formatNumber, stageNo } from './flow';
+import { currentStage, formatNumber } from './flow';
 import { roIcon } from './itemIcons';
 import { rewardIcon } from './rewardsView';
 import { unitTint } from './screen';
@@ -14,8 +14,8 @@ import { skinIcon } from './skin';
 import { anim, spriteView, SPRITES, whenSprites, type SpriteView } from './sprites';
 import { V2_SCALE, resolveAnim, type AnimName } from '../pipeline/sprites';
 import { motion } from './state';
-import { C, FS, OUTLINE } from './theme';
-import { pressable, text } from './ui';
+import { COLOR, COLOR_N, OUTLINE, R, S, T as TYPE } from './theme';
+import { plate, pressable, text } from './ui';
 import { squadDefs } from './scenes/BattleScene';
 import {
   animTimeScale,
@@ -50,16 +50,22 @@ import {
  * «Уменьшить анимацию» — статичная поза. Звука нет.
  */
 
-/** Верх фона поля боя (ед. поля 1080×1920), с которого начинается полоса: горизонт и край земли. */
-const BAND_Y = 150;
+/**
+ * Окно в фон поля боя: фон (720×1280 → 1080×1920) увеличен в ZOOM раз (фигуры в полосе крупнее, чем в бою на
+ * том же месте фона), BAND_Y — верх окна в единицах фона 1080×1920: сверху небо/стены, снизу земля под ногами.
+ */
+const BAND_Y = 70;
+const ZOOM = 1.25;
 /** Шаг таймера диорамы, мс (10 Гц). */
 const TICK_MS = 100;
-/** Высота верхней плашки с подписями. */
-const BAR_H = 96;
 /** Сундук в правом верхнем углу (центр, локально). */
-const CHEST = { x: DIORAMA_W - 52, y: 50, size: 78 };
+const CHEST = { x: DIORAMA_W - 96, y: 92, size: 116 };
+/** Высота мягкого затемнения сверху и снизу полосы (переход в шапку и в страницу). */
+const FADE = { top: 120, bottom: 150 };
 /** Самая высокая фигура в полосе (ед.): крупные монстры уменьшаются до неё. */
-const MAX_FIG = 190;
+const MAX_FIG = 250;
+/** Текстура вертикального градиента «прозрачно → чёрный» (затемнения краёв полосы). */
+const FADE_TEX = 'diorama_fade';
 
 type Fig = Phaser.GameObjects.Sprite;
 
@@ -87,6 +93,21 @@ function animOf(u: Unit, name: AnimName): { key: string | null; scale: number; m
   const frameMs = a?.ms[0] ?? 100;
   const scale = animTimeScale(frameMs);
   return { key, scale, ms: a ? (a.ms.reduce((s, v) => s + v, 0) / scale) : 0 };
+}
+
+/** Вертикальный градиент «прозрачно → чёрный» 4×128 (один на игру). */
+function fadeTexture(scene: Phaser.Scene): void {
+  if (scene.textures.exists(FADE_TEX)) return;
+  const ct = scene.textures.createCanvas(FADE_TEX, 4, 128);
+  if (!ct) return;
+  const c = ct.getContext();
+  const g = c.createLinearGradient(0, 0, 0, 128);
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(0.55, 'rgba(0,0,0,0.55)');
+  g.addColorStop(1, 'rgba(0,0,0,1)');
+  c.fillStyle = g;
+  c.fillRect(0, 0, 4, 128);
+  ct.refresh();
 }
 
 export interface IdleDioramaOpts {
@@ -119,6 +140,7 @@ class IdleDiorama {
   private kills = 0;
   private frozen = false;
   private chestImg?: Phaser.GameObjects.Image;
+  private pill?: Phaser.GameObjects.NineSlice;
   private counter?: Phaser.GameObjects.Text;
   private coin?: Phaser.GameObjects.GameObject;
   private rate?: Phaser.GameObjects.Text;
@@ -139,26 +161,27 @@ class IdleDiorama {
     this.bg = scene.add.image(0, 0, '__DEFAULT');
     setThemeBackground(this.bg, 'battle', themeOfChapter(cur?.chapter));
     this.layer.add(this.bg);
-    this.fitBand(x);
-    const shade = scene.add.rectangle(W / 2, BAR_H / 2, W, BAR_H, 0x0b0a08, 0.5);
-    const shadeLow = scene.add.rectangle(W / 2, BAR_H + 14, W, 28, 0x0b0a08, 0.22);
+    this.fitBand();
     this.units = scene.add.container(0, 0);
     this.fly = scene.add.container(0, 0);
-    const frame = scene.add.graphics();
-    frame.lineStyle(6, 0x0e0b07, 1).strokeRect(0, 0, W, H);
-    frame.lineStyle(2, 0xc9a24a, 0.85).strokeRect(4, 4, W - 8, H - 8);
-    this.layer.add([shade, shadeLow, this.units, frame]);
+    // Края полосы мягко уходят в шапку и в страницу — «окно в мир», без рамки; фигуры — поверх затемнения.
+    fadeTexture(scene);
+    const top = scene.add.image(W / 2, 0, FADE_TEX).setOrigin(0.5, 0).setFlipY(true).setDisplaySize(W + 2, FADE.top).setAlpha(0.75);
+    const bottom = scene.add.image(W / 2, H, FADE_TEX).setOrigin(0.5, 1).setDisplaySize(W + 2, FADE.bottom).setAlpha(0.7);
+    // Нижняя кромка «окна»: бронзовая линия и мягкая тень на страницу под ней.
+    const edge = scene.add.rectangle(W / 2, H - 1.5, W + 2, 3, COLOR_N.border);
+    const shadow = scene.add.image(W / 2, H, FADE_TEX).setOrigin(0.5, 0).setFlipY(true).setDisplaySize(W + 2, 48).setAlpha(0.6);
+    this.layer.add([top, bottom, this.units, edge, shadow]);
 
-    // Подписи: «Отряд в походе · глава N», ставка сундука; справа — сундук и накопленное золото (числа ядра).
-    const order = CONTENT.chapters.find((c) => c.id === cur?.chapter)?.order ?? 1;
-    const title = text(scene, 24, 30, `Отряд в походе · глава ${order}`, FS.small, C.title, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
-    this.rate = text(scene, 24, 70, '', FS.small, C.gold, OUTLINE).setOrigin(0, 0.5);
-    this.layer.add([title, this.rate]);
+    // Сундук (числа ядра): справа сверху, слева от него — накопленное золото, под ним — доход в час (тихо).
     if (hasArt('ui_chest_empty')) this.chestImg = scene.add.image(CHEST.x, CHEST.y, 'ui_chest_empty').setDisplaySize(CHEST.size, CHEST.size);
     else this.chestImg = scene.add.image(CHEST.x, CHEST.y, skinIcon('chest')).setDisplaySize(CHEST.size * 0.8, CHEST.size * 0.8).setTint(0xffd27a);
-    this.counter = text(scene, CHEST.x - CHEST.size / 2 - 6, 30, '', FS.small, C.gold, { fontStyle: 'bold', ...OUTLINE }).setOrigin(1, 0.5);
-    this.coin = rewardIcon(scene, 0, 30, 'gold', 34);
-    this.layer.add([this.chestImg, this.counter, this.coin, this.fly]);
+    // Подложка под золото и доход: тёмная «таблетка», с доходом — в две строки (читается на светлом небе).
+    this.pill = plate(scene, 0, CHEST.y - 14 - 30, 200, 60, { fill: COLOR.surfaceSunken, alpha: 0.8, border: COLOR.border, borderW: 2, r: R.l }).setOrigin(1, 0);
+    this.coin = rewardIcon(scene, 0, CHEST.y - 14, 'gold', 40);
+    this.counter = text(scene, CHEST.x - CHEST.size / 2 - S.s, CHEST.y - 14, '', TYPE.body, COLOR.gold, { fontStyle: 'bold' }).setOrigin(1, 0.5);
+    this.rate = text(scene, CHEST.x - CHEST.size / 2 - S.s, CHEST.y + 30, '', TYPE.caption, COLOR.textSecondary).setOrigin(1, 0.5);
+    this.layer.add([this.pill, this.chestImg, this.coin, this.counter, this.rate, this.fly]);
 
     // Касание — к сундуку (страница «Кампания»).
     const zone = scene.add.zone(W / 2, H / 2, W, H);
@@ -209,19 +232,22 @@ class IdleDiorama {
       this.heroes = [];
       this.enemies = [];
       this.timeline = [];
-      this.chestImg = this.counter = this.rate = this.coin = undefined;
+      this.chestImg = this.counter = this.rate = this.coin = this.pill = undefined;
     });
   }
 
-  /** Полоса фона: поле боя (720×1280 → 1080×1920) обрезано до полосы, которая под диорамой. */
-  private fitBand(x0: number): void {
+  /** Окно фона: поле боя (720×1280 → 1080×1920), увеличенное в ZOOM раз и обрезанное до полосы под диорамой. */
+  private fitBand(): void {
     const bg = this.bg;
     const fw = bg.frame.realWidth || 1;
     const fh = bg.frame.realHeight || 1;
-    const k = fw / 1080;
-    bg.setDisplaySize(1080, 1080 * (fh / fw));
-    bg.setOrigin(0, 0).setPosition(-x0, -BAND_Y);
-    bg.setCrop(x0 * k, BAND_Y * k, DIORAMA_W * k, DIORAMA_H * k);
+    const dw = 1080 * ZOOM;
+    const k = fw / dw;
+    const ox = (dw - DIORAMA_W) / 2;
+    const oy = BAND_Y * ZOOM;
+    bg.setDisplaySize(dw, dw * (fh / fw));
+    bg.setOrigin(0, 0).setPosition(-ox, -oy);
+    bg.setCrop(ox * k, oy * k, DIORAMA_W * k, DIORAMA_H * k);
   }
 
   private readChest(): ChestSnapshot | null {
@@ -234,20 +260,23 @@ class IdleDiorama {
   private updateLabels(): void {
     const save = session.save;
     const last = lastClearedStage(save, GAME);
+    // Доход в час — тихая подпись под золотом; сундук полон — она же предупреждает. Сундук ещё не копит — пусто.
     if (this.rate) {
-      if (!last) {
-        const cur = currentStage(save, GAME);
-        this.rate.setText(cur ? `Сундук начнёт копить после этапа ${stageNo(cur, GAME)}` : '').setColor(C.muted);
-      } else {
-        const full = offlineFullInMs(save, now(), GAME);
-        if (full !== null && full <= 0) this.rate.setText('Сундук полон — заберите!').setColor(C.warning);
-        else this.rate.setText(`+${formatNumber(idleIncome(last, 60, GAME).gold)} золота/ч`).setColor(C.gold);
-      }
+      const full = last ? offlineFullInMs(save, now(), GAME) : null;
+      if (!last) this.rate.setText('');
+      else if (full !== null && full <= 0) this.rate.setText('Сундук полон').setColor(COLOR.warning);
+      else this.rate.setText(`+${formatNumber(idleIncome(last, 60, GAME).gold)}/ч`).setColor(COLOR.textSecondary);
     }
     const c = this.chest;
     this.counter?.setText(c ? formatNumber(c.gold) : '').setVisible(!!c);
     const coin = this.coin as (Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Visible) | undefined;
-    if (coin && this.counter) coin.setVisible(!!c).setX(this.counter.x - this.counter.width - 24);
+    if (coin && this.counter) coin.setVisible(!!c).setX(this.counter.x - this.counter.width - 30);
+    if (this.pill && this.counter) {
+      const right = this.counter.x + S.s + 10;
+      const two = !!this.rate?.text;
+      const w = Math.max(this.counter.width + 40 + 30, two && this.rate ? this.rate.width : 0) + S.s + S.xs;
+      this.pill.setVisible(!!c).setSize(w, two ? 108 : 60).setX(right);
+    }
     if (this.chestImg && hasArt('ui_chest_empty') && c) {
       const capMin = GAME.progression.offline.capHours * 60;
       const minutes = offlineRewards(save, now(), GAME).minutes;
@@ -387,7 +416,7 @@ class IdleDiorama {
     const plan = planWave({ heroes: this.lineup, enemies: this.enemies.length, wave: this.wave, ult, enemyAtk: this.enemyAtk });
     const base = this.clock;
     // Фон мог смениться (догрузился файл владельца) — полоса по его размеру.
-    this.fitBand(this.layer.x);
+    this.fitBand();
     this.waveEnd = base + plan.end;
     this.timeline = [];
     if (this.enemies.length && this.heroes.length) {
@@ -414,7 +443,7 @@ class IdleDiorama {
           const h = this.heroes[ev.hero];
           if (!h || this.enemies[ev.enemy]?.dead) return;
           this.act(h, 'hurt');
-          this.number(h.spr.x, h.spr.y - this.figH(h) - 6, ev.dmg, '#ff8a7a', FS.caption);
+          this.number(h.spr.x, h.spr.y - this.figH(h) - 6, ev.dmg, COLOR.negative, TYPE.caption);
         },
       });
     }
@@ -442,7 +471,7 @@ class IdleDiorama {
     this.act(h, 'cast');
     const name = info.ult ? CONTENT.skills[info.ult]?.name : undefined;
     if (name) {
-      const t = text(this.scene, h.spr.x + 30, h.spr.y - this.figH(h) - 24, name, FS.small, C.gold, { fontStyle: 'bold', ...OUTLINE });
+      const t = text(this.scene, h.spr.x + 30, h.spr.y - this.figH(h) - 24, name, TYPE.caption, COLOR.gold, { fontStyle: 'bold', ...OUTLINE });
       this.fly.add(t);
       this.scene.tweens.add({ targets: t, y: t.y - 30, alpha: { from: 1, to: 0 }, delay: 500, duration: 700, onComplete: () => t.destroy() });
     }
@@ -468,7 +497,7 @@ class IdleDiorama {
     this.scene.time.delayedCall(70, () => {
       if (e.spr.scene) e.spr.setTint(e.tint);
     });
-    this.number(e.spr.x, top - 4, dmg, ult ? C.gold : '#ffffff', ult ? FS.h3 : FS.caption);
+    this.number(e.spr.x, top - 4, dmg, ult ? COLOR.gold : COLOR.textPrimary, ult ? TYPE.body : TYPE.caption);
     if (!kill) {
       this.act(e, 'hurt');
       return;

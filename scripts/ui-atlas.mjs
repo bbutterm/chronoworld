@@ -371,6 +371,8 @@ async function battleShots(page, meta, shoot, skip) {
         g.loop.wake();
       });
       await waitScene(page, 'Result', 30000);
+      // Итоги проявляются по одной (ResultScene.ready — кнопки на экране, сюжет уже открыт).
+      await page.waitForFunction(() => window.__game.scene.getScene('Result').ready, null, { timeout: 8000, polling: 100 }).catch(() => {});
       await sleep(400);
       await skipDialogues(page, 'Result');
       await sleep(1200);

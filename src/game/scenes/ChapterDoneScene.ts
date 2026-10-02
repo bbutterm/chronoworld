@@ -1,21 +1,22 @@
 import Phaser from 'phaser';
 import { GAME } from '../content';
-import { haptic } from '../haptics';
 import { applySceneSound } from '../audio';
 import { sceneSoundOf } from '../sceneAudio';
 import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
-import { GAME_H, GAME_W } from '../layout';
-import { card, confirm, popIn, unitFigure } from '../screen';
-import { arrangeSquad, pendingEvening, chapterChronicle, chroniclePageId, clearChapterDone, findingEntries, heroCard, heroName, heroPower, markPageSeen, pendingChronicle, type SaveState } from '../../core';
+import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from '../layout';
+import { confirm, cta, popIn, unitFigure } from '../screen';
+import { arrangeSquad, pendingEvening, chapterChronicle, chroniclePageId, clearChapterDone, findingEntries, heroCard, heroName, heroPower, markPageSeen, pendingChronicle, type HeroState, type SaveState } from '../../core';
 import { chroniclePage, showPages } from '../storyPage';
 import { startTavernEvening } from './TavernEveningScene';
-import { commit, now, session } from '../session';
-import { SKIN } from '../skin';
+import { commit, session } from '../session';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
-import { chapterSummary, playTimeText, sceneLabel, seenChapterScenes } from '../storyView';
-import { button, ellipsize, panel, ScrollArea, text, toast } from '../ui';
-import { C, FS, OUTLINE, TINT } from '../theme';
+import { chapterSummary, sceneLabel, seenChapterScenes } from '../storyView';
+import { BTN, button, clampLines, ellipsize, groupNum, panel, plate, rewardRow, ScrollArea, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
+import { C, COLOR, COLOR_N, E, FS, M, OUTLINE, R, S, T, TINT } from '../theme';
+import { countUp, juiceOn, moment, MOMENT_DEPTH } from '../juice';
+import { glow } from '../decor';
+import { Reveal } from '../rewardsView';
 
 export interface ChapterDoneData {
   chapterId: string;
@@ -34,9 +35,27 @@ export function startChapterDone(from: Phaser.Scene, data: ChapterDoneData): voi
 /** Имя слоя списка «История» (e2e). */
 const HISTORY = 'history';
 
+/** Раскладка (поле 1080×1920): заголовок момента, цитата, итоги главы, герой/«впереди», ряд «История…», CTA. */
+const L = {
+  titleY: 330,
+  quoteY: 570,
+  rewardsHeadY: 700,
+  rewardsY: 770,
+  cardY: 1090,
+  cardH: 500,
+  rowY: 1450,
+  ctaY: 1690,
+} as const;
+
+/** Затемнение арта главы после «удара» заголовка (арт проступает, текст читается). */
+const ART_DIM = 0.35;
+
+type Summary = ReturnType<typeof chapterSummary>;
+
 /**
- * T1-03. «Глава пройдена» — после финальной сцены главы (docs/design/chapter1.md §7.2): название главы, итоги
- * (этапы, время, награды), карточка нового героя, «История» (пересмотр увиденных сцен главы) и «Глава N ›».
+ * T1-03. «Глава пройдена» — момент (juice.ts moment('newChapter'), §5 «Итог боя» P1): полноэкранный арт главы
+ * (её карта), «Глава N пройдена!» и название, одна строка-крючок (цитата главы), итоги главы чипами,
+ * новый герой (или «Впереди — …»), тихий ряд «История / Летопись / Вечер» и одна главная кнопка «Глава N ›».
  */
 export class ChapterDoneScene extends Phaser.Scene {
   constructor() {
@@ -44,10 +63,7 @@ export class ChapterDoneScene extends Phaser.Scene {
   }
 
   create(data: ChapterDoneData): void {
-    const save = session.save;
-    const sum = chapterSummary(save, data.chapterId, GAME);
-    // Глава пройдена — открылась следующая.
-    haptic('unlock');
+    const sum = chapterSummary(session.save, data.chapterId, GAME);
     // Сцену добавляют при первом показе — хук звука экранов (installAudio) её не знает: музыка босса сменяется картой главы сама.
     try {
       applySceneSound(sceneSoundOf(this));
@@ -55,158 +71,211 @@ export class ChapterDoneScene extends Phaser.Scene {
       // Звук не должен ломать экран.
     }
     const cx = GAME_W / 2;
-    // Фон — карта пройденной главы (луг, топь, склеп), притемнённая.
+    // Арт пройденной главы во весь экран, ярко; низ притемнён под текст и кнопки. Не карта следующей главы: фон вида
+    // 'map' держится один на игру (backdrops.ts hold), а страница летописи поверх рисует карту этой главы — чужая
+    // выгрузила бы текстуру из-под экрана (glTexture null, чёрный экран).
     setThemeBackground(this.add.image(cx, GAME_H / 2, 'skin_bg_forest'), 'map', themeOfChapter(data.chapterId));
-    this.add.rectangle(cx, GAME_H / 2, GAME_W, GAME_H, 0x07060a, 0.55);
-    if (this.textures.exists('skin_rays')) {
-      const rays = this.add.image(cx, 300, 'skin_rays').setDisplaySize(1200, 1200).setAlpha(0.35);
-      this.tweens.add({ targets: rays, angle: 360, duration: 40000, repeat: -1 });
-      // Второй веер навстречу — светом, слабее: лучи переливаются.
-      const rays2 = this.add.image(cx, 300, 'skin_rays').setDisplaySize(820, 820).setAlpha(0).setBlendMode(Phaser.BlendModes.ADD);
-      this.tweens.add({ targets: rays2, alpha: 0.28, duration: 800 });
-      this.tweens.add({ targets: rays2, angle: -360, duration: 26000, repeat: -1 });
+    this.add.image(cx, GAME_H + BLEED_Y, fadeTexture(this)).setOrigin(0.5, 1).setDisplaySize(GAME_W + 2 * BLEED_X, GAME_H * 0.62 + BLEED_Y);
+
+    const name = sum.name.replace(/^Глава\s*\d+\.\s*/, '');
+    const before = this.children.list.length;
+    moment(this, 'newChapter', {
+      title: `Глава ${sum.number} пройдена!`,
+      subtitle: name,
+      at: { x: cx, y: L.titleY },
+      keep: true,
+      onSettled: () => this.body(data, sum),
+    });
+    // Слои момента — под содержимое экрана (окна «История», летопись, подтверждения — над ними); затемнение
+    // после «удара» заголовка отступает — арт новых земель проступает.
+    const layers = (this.children.list.slice(before) as (Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Depth)[]).filter((o) => o.depth >= MOMENT_DEPTH);
+    for (const o of layers) o.setDepth(1 + Math.max(0, o.depth - MOMENT_DEPTH));
+    const dim = layers.find((o): o is Phaser.GameObjects.Rectangle => o instanceof Phaser.GameObjects.Rectangle);
+    if (dim) this.time.delayedCall(M.base + M.slow, () => dim.scene && this.tweens.add({ targets: dim, alpha: ART_DIM, duration: M.slow, ease: E.out }));
+    if (!layers.length) {
+      // «Уменьшить анимацию»: заголовок сразу.
+      this.add.rectangle(cx, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, COLOR_N.bg, ART_DIM).setDepth(1);
+      const t = text(this, cx, L.titleY, `Глава ${sum.number} пройдена!`, T.display, COLOR.title, { fontStyle: 'bold', stroke: COLOR.onAccent, strokeThickness: 10 }).setDepth(3);
+      ellipsize(t, GAME_W - 2 * S.l);
+      text(this, cx, L.titleY + T.display * 0.5 + S.m, name, T.heading, COLOR.textPrimary).setOrigin(0.5, 0).setDepth(3);
     }
-    // Золотые искры медленно поднимаются по всему экрану (по кругу).
-    if (this.textures.exists('skin_spark')) {
-      for (let i = 0; i < 14; i++) {
-        const x0 = Phaser.Math.Between(60, GAME_W - 60);
-        const s = this.add.image(x0, GAME_H + 40, 'skin_spark').setTint(i % 3 ? 0xffd884 : 0xfff4d0).setScale(0.2 + Math.random() * 0.3).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0);
-        this.tweens.add({
-          targets: s,
-          y: Phaser.Math.Between(80, 700),
-          x: x0 + Phaser.Math.Between(-80, 80),
-          angle: 180,
-          alpha: { from: 0.85, to: 0 },
-          duration: 4200 + Math.random() * 2500,
-          delay: Math.random() * 4000,
-          repeat: -1,
-        });
+  }
+
+  /** Содержимое под заголовком — по одной (Reveal), кнопки последними; летопись главы (первый раз) — после них. */
+  private body(data: ChapterDoneData, sum: Summary): void {
+    const cx = GAME_W / 2;
+    const layer = this.add.container(0, 0).setDepth(10);
+    const reveal = new Reveal(this);
+
+    // Строка-крючок — цитата главы (episode.quote).
+    const quote = GAME.content.chapters.find((c) => c.id === data.chapterId)?.episode?.quote;
+    if (quote) {
+      const q = clampLines(text(this, cx, L.quoteY, `«${quote}»`, T.body, COLOR.textPrimary, { fontStyle: 'italic', wordWrap: { width: GAME_W - 2 * S.xl } }), 2).setName('chapterQuote');
+      q.setShadow(0, 3, '#000000', 8, true, true);
+      layer.add(q);
+      reveal.step([q]);
+    }
+
+    // Итоги главы чипами: этапы, золото, опыт (числа отсчитываются).
+    const head = text(this, cx, L.rewardsHeadY, 'Итоги главы', T.caption, COLOR.textPrimary, { fontStyle: 'bold' });
+    head.setShadow(0, 2, '#000000', 6, true, true);
+    layer.add(head);
+    reveal.step([head]);
+    const chips: ChipSpec[] = [
+      { icon: 'flag', value: `${sum.cleared} / ${sum.stages}`, tone: 'positive' },
+      { icon: 'gold', value: sum.gold, tone: 'gold' },
+      { icon: 'hero_exp', value: sum.jobExp, tone: 'positive' },
+    ];
+    const row = rewardRow(this, cx, L.rewardsY, chips, { maxW: GAME_W - 2 * S.l });
+    layer.add(row);
+    const amounts = [0, sum.gold, sum.jobExp];
+    (row.list as Phaser.GameObjects.Container[]).forEach((c, i) => {
+      const label = c.list.find((o): o is Phaser.GameObjects.Text => o instanceof Phaser.GameObjects.Text);
+      reveal.step([c], (instant) => {
+        if (!instant && amounts[i] && label) countUp(this, label, 0, amounts[i], groupNum);
+      });
+    });
+
+    // Новый герой — карточка с фигурой; без него — «Впереди — Глава N».
+    const card = this.add.container(0, 0);
+    layer.add(card);
+    if (sum.recruit) this.recruitCard(card, data, sum.recruit);
+    else this.aheadCard(card, sum);
+    reveal.step([card]);
+
+    reveal.play(() => {
+      for (const o of this.buttons(data, sum)) {
+        o.setDepth(20);
+        if (!juiceOn()) continue;
+        o.setAlpha(0);
+        this.tweens.add({ targets: o, alpha: 1, duration: M.base, ease: E.out });
       }
+      // «Летопись отряда» главы (lore-route §5.3) — в первый раз открывается сама, когда экран встал.
+      if (chapterChronicle(data.chapterId, GAME.content) && pendingChronicle(session.save, data.chapterId, GAME.content)) this.openChronicle(data, sum.number);
+    }, M.slow);
+  }
+
+  /** Карточка героя истории: фигура, имя, профессия; не в отряде — «Взять в отряд». */
+  private recruitCard(c: Phaser.GameObjects.Container, data: ChapterDoneData, hero: HeroState): void {
+    const save = session.save;
+    const cx = GAME_W / 2;
+    const top = L.cardY - L.cardH / 2;
+    const info = heroCard(hero, GAME);
+    // Герой мог прийти из Таверны раньше своей сцены (пул — все 12): тогда рекрут принёс копию, и «новый» — неправда.
+    const had = save.heroes.filter((h) => h.templateId === hero.templateId).length > 1;
+    // RN-02: герой истории, которого нет в отряде (отряд был полон), — явно зовём поставить его в бой.
+    const inSquad = save.squad.some((id) => id !== null && save.heroes.find((h) => h.id === id)?.templateId === hero.templateId);
+    c.add(plate(this, cx, L.cardY, GAME_W - 2 * S.l, L.cardH, { ...SURFACE.raised, r: R.l }));
+    const feet = top + 290;
+    c.add(glow(this, cx, feet - 110, 128, 0xffd27a, 0.4).setScale(2.4, 2.6));
+    c.add(this.add.ellipse(cx, feet, 220, 50, 0x000000, 0.35));
+    const figs = this.add.container(0, 0);
+    c.add(figs);
+    unitFigure(this, heroSprite(hero, GAME), cx, feet, 230, { maxScale: 2, onReady: (o) => (figs.scene ? figs.add(o) : o.destroy()) });
+    c.add(tag(this, cx, top, had ? 'Герой истории' : 'Новый герой', 'accent', { solid: true }));
+    const job = `${info.jobName} · ${ROLE_NAMES[info.role] ?? ''} · ${levelText(info.level)}`;
+    if (inSquad) {
+      c.add(text(this, cx, feet + 70, had ? `${info.name} присоединяется по сюжету` : `${info.name} присоединяется к отряду`, T.body, COLOR.title, { fontStyle: 'bold' }).setName('recruitName'));
+      c.add(text(this, cx, feet + 122, job, T.caption, COLOR.textSecondary));
+      return;
     }
+    c.add(text(this, cx, feet + 50, `${info.name} с вами — но не в отряде`, T.body, COLOR.title, { fontStyle: 'bold' }).setName('recruitName'));
+    c.add(text(this, cx, feet + 96, job, T.caption, COLOR.textSecondary));
+    const take = button(this, cx, top + L.cardH - BTN.m / 2 - S.xs, 480, BTN.m, '', 'Взять в отряд', () => {
+      const go = () => {
+        const r = takeIntoSquad(session.save, hero.id);
+        commit(r.save);
+        toast(this, r.replaced ? `${info.name} в отряде вместо: ${r.replaced}` : `${info.name} в отряде`);
+        this.scene.restart(data);
+      };
+      // RR-01: не менять молча героя сильнее рекрута — спросить.
+      const out = squadSwapCandidate(session.save, hero.id);
+      if (out?.stronger) confirm(this, `${out.name} сильнее: ${formatNumber(out.power)} мощи против ${formatNumber(out.recruitPower)}. Снять ${out.name} ради ${info.name}?`, 'Заменить', go);
+      else go();
+    }, T.body, { variant: 'secondary' });
+    take.container.setName('recruitTake');
+    c.add(take.container);
+  }
 
-    // --- Заголовок ---
-    const title = text(this, cx, 200, `Глава ${sum.number} пройдена!`, FS.hero + 8, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 });
-    ellipsize(title, 1000);
-    title.setScale(0.5).setAlpha(0);
-    this.tweens.add({ targets: title, scale: 1, alpha: 1, duration: 450, ease: 'Back.easeOut' });
-    const subtitle = sum.name.replace(/^Глава\s*\d+\.\s*/, '');
-    const sub = ellipsize(text(this, cx, 290, subtitle, FS.h2, SKIN.cream, { fontStyle: 'bold', ...OUTLINE }), 1000);
-    // Золотой разделитель под подзаголовком: две черты, гаснущие к краям, и ромб по центру.
-    const dy = 290 + sub.height / 2 + 18;
-    const g = this.add.graphics();
-    for (const d of [-1, 1]) {
-      for (let i = 0; i < 12; i++) {
-        g.fillStyle(TINT.gold, 1 - i / 12);
-        g.fillRect(cx + d * (26 + i * 16) - (d < 0 ? 16 : 0), dy - 2, 16, 4);
-      }
-    }
-    g.fillStyle(TINT.gold, 1).fillPoints([new Phaser.Math.Vector2(cx, dy - 12), new Phaser.Math.Vector2(cx + 12, dy), new Phaser.Math.Vector2(cx, dy + 12), new Phaser.Math.Vector2(cx - 12, dy)], true);
-    g.setAlpha(0);
-    this.tweens.add({ targets: g, alpha: 1, duration: 500, delay: 300 });
+  /** Без нового героя: куда дальше (после последней главы — «скоро» и чем заняться). */
+  private aheadCard(c: Phaser.GameObjects.Container, sum: Summary): void {
+    const cx = GAME_W / 2;
+    c.add(text(this, cx, L.cardY - 50, sum.next ? 'Впереди' : 'Новые главы — скоро', T.caption, COLOR.accent, { fontStyle: 'bold' }));
+    const line = sum.next ? sum.next.name : 'А пока — Башня испытаний и Охота в «Приключениях»';
+    const t = text(this, cx, L.cardY + 20, line, sum.next ? T.title : T.body, sum.next ? COLOR.title : COLOR.textPrimary, { fontStyle: 'bold', wordWrap: { width: GAME_W - 2 * S.xl } });
+    t.setShadow(0, 3, '#000000', 8, true, true);
+    c.add(t);
+  }
 
-    // --- Итоги ---
-    const sy = 480;
-    card(this, cx, sy, 1000, 250);
-    const row = (y: number, label: string, value: string, color: string = C.text) => {
-      text(this, 110, y, label, FS.body, C.muted).setOrigin(0, 0.5);
-      text(this, 970, y, value, FS.body, color, { fontStyle: 'bold' }).setOrigin(1, 0.5);
-    };
-    row(sy - 75, 'Этапы', `${sum.cleared} / ${sum.stages}`, C.success);
-    // LT-11: время считается с начала игры (своего счёта у главы нет) — так и подписано.
-    row(sy - 25, 'С начала игры', playTimeText(now() - save.createdAt));
-    row(sy + 25, 'Награды главы', `золото ${formatNumber(sum.gold)} · опыт ${formatNumber(sum.jobExp)}`, C.gold);
-    row(sy + 75, 'Трофеев в сумке', String(sum.items), '#6fb8ff');
-
-    // --- Новый герой ---
-    const ry = 1010;
-    if (sum.recruit) {
-      const hero = sum.recruit;
-      const c = heroCard(hero, GAME);
-      // Герой мог прийти из Таверны раньше своей сцены (пул — все 12): тогда рекрут принёс копию, и «новый» — неправда.
-      const had = save.heroes.filter((h) => h.templateId === hero.templateId).length > 1;
-      card(this, cx, ry, 1000, 620, true);
-      text(this, cx, ry - 260, had ? 'Герой истории с вами' : 'Новый герой в отряде!', FS.h2, C.inkGold, { fontStyle: 'bold' });
-      // Тёплый отсвет за новым героем и тень под ногами.
-      const halo = this.add.ellipse(cx, ry + 40, 420, 300, 0xffd27a, 0.1).setBlendMode(Phaser.BlendModes.ADD);
-      this.tweens.add({ targets: halo, fillAlpha: { from: 0.06, to: 0.16 }, yoyo: true, repeat: -1, duration: 1400, ease: 'Sine.easeInOut' });
-      this.add.ellipse(cx, ry + 110, 300, 60, 0x000000, 0.3);
-      unitFigure(this, heroSprite(hero, GAME), cx, ry + 110, 300, { maxScale: 2 });
-      // RN-02: герой истории, которого нет в отряде (отряд был полон), — явно зовём поставить его в бой.
-      const inSquad = save.squad.some((id) => id !== null && save.heroes.find((h) => h.id === id)?.templateId === hero.templateId);
-      if (inSquad) {
-        text(this, cx, ry + 180, had ? `${c.name} присоединяется по сюжету` : `${c.name} присоединяется к отряду`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
-        text(this, cx, ry + 240, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
-      } else {
-        text(this, cx, ry + 160, `${c.name} с вами — но не в отряде`, FS.h2, C.ink, { fontStyle: 'bold' }).setName('recruitName');
-        text(this, cx, ry + 212, `${c.jobName} · ${ROLE_NAMES[c.role] ?? ''} · ${levelText(c.level)}`, FS.body, C.inkMuted);
-        button(this, cx, ry + 280, 560, 96, 'ui_btn_primary', 'Взять в отряд', () => {
-          const take = () => {
-            const r = takeIntoSquad(session.save, hero.id);
-            commit(r.save);
-            toast(this, r.replaced ? `${c.name} в отряде вместо: ${r.replaced}` : `${c.name} в отряде`);
-            this.scene.restart(data);
-          };
-          // RR-01: не менять молча героя сильнее рекрута — спросить.
-          const out = squadSwapCandidate(session.save, hero.id);
-          if (out?.stronger) confirm(this, `${out.name} сильнее: ${formatNumber(out.power)} мощи против ${formatNumber(out.recruitPower)}. Снять ${out.name} ради ${c.name}?`, 'Заменить', take);
-          else take();
-        }, FS.h3).container.setName('recruitTake');
-      }
-    } else {
-      card(this, cx, ry, 1000, 300, true);
-      // BUG-159: вместо одной и той же «Отряд готов к новым землям» — цитата главы (episode.quote) и куда дальше.
-      const quote = GAME.content.chapters.find((c) => c.id === data.chapterId)?.episode?.quote;
-      if (quote) text(this, cx, ry - 50, `«${quote}»`, FS.h3, C.ink, { fontStyle: 'italic', align: 'center', wordWrap: { width: 900 } }).setName('chapterQuote');
-      // LT-11: после последней главы новых земель пока нет — куда идти дальше.
-      const where = sum.next ? `Дальше — ${sum.next.name}` : 'Новые главы — скоро';
-      text(this, cx, quote ? ry + 60 : ry - (sum.next ? 0 : 30), where, quote ? FS.body : FS.h2, C.ink, { fontStyle: 'bold', align: 'center', wordWrap: { width: 900 } });
-      if (!sum.next) text(this, cx, quote ? ry + 110 : ry + 40, 'А пока — Башня испытаний и Охота в «Приключениях»', FS.body, C.inkMuted, { wordWrap: { width: 900 } });
-    }
-
-    // --- Кнопки ---
+  /** Тихий ряд «История / Летопись / Вечер» и главная «Глава N ›». Возвращает показанные объекты. */
+  private buttons(data: ChapterDoneData, sum: Summary): (Phaser.GameObjects.Container | Phaser.GameObjects.Text)[] {
+    const save = session.save;
+    const cx = GAME_W / 2;
+    const out: (Phaser.GameObjects.Container | Phaser.GameObjects.Text)[] = [];
     const history = seenChapterScenes(save, data.chapterId, GAME);
     const chronicle = chapterChronicle(data.chapterId, GAME.content);
-    // «Летопись отряда» главы (lore-route §5.3) — рядом с «Историей»; в первый раз открывается сама, когда улёгся заголовок.
-    // Вечер в «Двух колоколах» (docs/design/tavern-evenings.md) — третья кнопка ряда; новый — с отметкой и приглашением.
+    // Вечер в «Двух колоколах» (docs/design/tavern-evenings.md) — новый с красной точкой.
     const evening = GAME.story.tavern?.evenings.find((e) => e.after === data.chapterId);
-    const btnRow = 1 + (chronicle ? 1 : 0) + (evening ? 1 : 0);
-    const rowW = btnRow === 3 ? 320 : btnRow === 2 ? 500 : 560;
-    const rowX = (i: number) => cx + (i - (btnRow - 1) / 2) * (btnRow === 3 ? 340 : 540);
-    const hx = rowX(0);
-    const hb = button(this, hx, 1480, rowW, 120, 'ui_btn_secondary', 'История', () => openStoryHistory(this, data.chapterId), FS.h2);
-    if (!history.length) hb.setEnabled(false).container.disableInteractive();
+    const items: { label: string; name: string; onTap: () => void; enabled: boolean; dot?: boolean }[] = [
+      { label: 'История', name: 'storyHistoryBtn', onTap: () => openStoryHistory(this, data.chapterId), enabled: history.length > 0 },
+    ];
+    if (chronicle) items.push({ label: 'Летопись', name: 'chronicleChapterBtn', onTap: () => this.openChronicle(data, sum.number), enabled: true });
     if (evening) {
-      const fresh = !!pendingEvening(save, data.chapterId, GAME);
-      const ex = rowX(btnRow - 1);
-      const eb = button(this, ex, 1480, rowW, 120, fresh ? 'ui_btn_primary' : 'ui_btn_secondary', 'Вечер', () => {
-        startTavernEvening(this, { mode: 'evening', id: evening.id, back: { to: CHAPTER_DONE, data } });
-      }, FS.h2);
-      eb.container.setName('tavernEveningBtn');
-      if (fresh) {
-        this.add.circle(ex + rowW / 2 - 16, 1480 - 52, 16, TINT.badge).setStrokeStyle(4, 0xffffff);
-        const invite = text(this, cx, 1392, 'Вечером в «Двух колоколах» ждут вас', FS.small, SKIN.goldLight, { fontStyle: 'italic', ...OUTLINE });
-        this.tweens.add({ targets: invite, alpha: { from: 1, to: 0.55 }, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-        this.tweens.add({ targets: eb.container, scale: { from: 1, to: 1.05 }, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-      }
+      items.push({
+        label: 'Вечер',
+        name: 'tavernEveningBtn',
+        onTap: () => startTavernEvening(this, { mode: 'evening', id: evening.id, back: { to: CHAPTER_DONE, data } }),
+        enabled: true,
+        dot: !!pendingEvening(save, data.chapterId, GAME),
+      });
     }
-    if (chronicle) {
-      const open = () => {
-        const found = findingEntries(session.save, GAME.content).filter((f) => f.chapterId === data.chapterId);
-        showPages(this, [chroniclePage(data.chapterId, sum.number, chronicle, { got: found.filter((f) => f.found).length, total: found.length })], () =>
-          commit(markPageSeen(session.save, chroniclePageId(data.chapterId))),
-        );
-      };
-      button(this, rowX(1), 1480, rowW, 120, 'ui_btn_secondary', 'Летопись', open, FS.h2).container.setName('chronicleChapterBtn');
-      if (pendingChronicle(save, data.chapterId, GAME.content)) this.time.delayedCall(1400, () => this.scene.isActive() && open());
-    }
+    const w = items.length === 3 ? 312 : 400;
+    items.forEach((it, i) => {
+      const x = cx + (i - (items.length - 1) / 2) * (w + S.s);
+      const b = button(this, x, L.rowY, w, BTN.m, '', it.label, it.onTap, T.body, { variant: 'secondary' });
+      b.container.setName(it.name);
+      if (!it.enabled) b.setEnabled(false).container.disableInteractive();
+      if (it.dot) b.container.add(this.add.circle(w / 2 - 14, -BTN.m / 2 + 14, 14, TINT.badge).setStrokeStyle(4, 0xffffff));
+      out.push(b.container);
+    });
     const next = sum.next;
-    button(this, cx, 1700, 760, 170, 'ui_btn_primary', next ? `Глава ${next.number} ›` : 'К кампании', () => {
+    const go = cta(this, cx, L.ctaY, next ? `Глава ${next.number} ›` : 'К кампании', () => {
       // Игрок ушёл с экрана — больше не показывать (метка в сохранении держала его на случай перезагрузки).
       commit(clearChapterDone(session.save));
       this.scene.start('Campaign', next ? { chapter: next.index } : {});
-    }, FS.hero);
-    if (next) ellipsize(text(this, cx, 1820, next.name.replace(/^Глава\s*\d+\.\s*/, ''), FS.small, SKIN.creamDim, OUTLINE), 900);
+    }, { w: 700 });
+    out.push(go.container);
+    // Название следующей главы под кнопкой — когда его не показала карточка «Впереди».
+    if (next && sum.recruit) out.push(ellipsize(text(this, cx, L.ctaY + BTN.cta / 2 + S.l, next.name.replace(/^Глава\s*\d+\.\s*/, ''), T.caption, COLOR.textSecondary), 900));
+    return out;
   }
+
+  /** «Летопись отряда» главы — страница поверх экрана; прочитана — отметка в сохранении. */
+  private openChronicle(data: ChapterDoneData, number: number): void {
+    const chronicle = chapterChronicle(data.chapterId, GAME.content);
+    if (!chronicle) return;
+    const found = findingEntries(session.save, GAME.content).filter((f) => f.chapterId === data.chapterId);
+    showPages(this, [chroniclePage(data.chapterId, number, chronicle, { got: found.filter((f) => f.found).length, total: found.length })], () =>
+      commit(markPageSeen(session.save, chroniclePageId(data.chapterId))),
+    );
+  }
+}
+
+/** Вертикальный градиент «прозрачно → фон» (низ экрана под текст и кнопки); одна текстура на игру. */
+function fadeTexture(scene: Phaser.Scene): string {
+  const key = 'chapter_done_fade';
+  if (scene.textures.exists(key)) return key;
+  const t = scene.textures.createCanvas(key, 4, 256);
+  if (!t) return '__WHITE';
+  const c = t.getContext();
+  const g = c.createLinearGradient(0, 0, 0, 256);
+  g.addColorStop(0, 'rgba(13,14,11,0)');
+  g.addColorStop(0.45, 'rgba(13,14,11,0.7)');
+  g.addColorStop(1, 'rgba(13,14,11,0.95)');
+  c.fillStyle = g;
+  c.fillRect(0, 0, 4, 256);
+  t.refresh();
+  return key;
 }
 
 /**

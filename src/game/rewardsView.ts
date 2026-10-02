@@ -5,14 +5,16 @@ import { GAME } from './content';
 import { formatNumber } from './flow';
 import { gemIcon } from './screen';
 import { SKIN_TINT, skinIcon } from './skin';
-import { C, FS, OUTLINE } from './theme';
+import { C, E, FS, M, OUTLINE } from './theme';
+import { juiceOn } from './juice';
 import { icon, text } from './ui';
 import { heroCardIcon, rarityName } from './heroCard';
 import { roIconImage } from './itemIcons';
 
 /**
  * Награды событий и писем (RewardBundle, src/core/events): строки «иконка + число» для плиток и текст для тостов.
- * Используют EventsScene и MailScene.
+ * Используют EventsScene и MailScene; ниже — награды итога боя чипами, плитки «как стать сильнее» и Reveal
+ * («по одной», §4.6) для ResultScene и ChapterDoneScene.
  */
 
 export interface RewardItem {
@@ -168,4 +170,162 @@ export function rewardRow(
     cx += size + 6 + t.width + gap;
   }
   return { objects: out, width: Math.max(0, cx - gap - x) };
+}
+
+// ---------- итог боя: награда чипами (ResultScene) ----------
+
+/** Одна награда итога боя — по порядку появления на экране «ПОБЕДА» (чип rewardRow из ui.ts). */
+export type BattleReward =
+  | { kind: 'gold' | 'exp' | 'gems'; amount: number }
+  | { kind: 'item'; itemId: string }
+  | { kind: 'heroCard'; templateId: string; rarity: CardRarity; name: string }
+  | { kind: 'ore'; amount: number };
+
+/** Событие итога, из которого берутся награды (StageOutcome / TowerOutcome events; прочие поля не нужны). */
+type RewardEvent = { type: string; gold?: number; heroExp?: number; amount?: number; count?: number; templateId?: string; rarity?: CardRarity; name?: string };
+
+/**
+ * Награды боя по порядку (§4.6: «награды по одной»): золото, опыт в запас, гемы, трофеи, карты героев, руда.
+ * Нулевые не попадают. Чистая функция (tests/rewards-view.test.ts).
+ */
+export function battleRewards(events: readonly RewardEvent[], drops: readonly { itemId: string }[] = []): BattleReward[] {
+  const out: BattleReward[] = [];
+  let gold = 0;
+  let exp = 0;
+  let gems = 0;
+  let ore = 0;
+  for (const e of events) {
+    if (e.type === 'rewards') {
+      gold += e.gold ?? 0;
+      exp += e.heroExp ?? 0;
+    } else if (e.type === 'gems') gems += e.amount ?? 0;
+    else if (e.type === 'blessedOre') ore += e.count ?? 0;
+  }
+  if (gold > 0) out.push({ kind: 'gold', amount: gold });
+  if (exp > 0) out.push({ kind: 'exp', amount: exp });
+  if (gems > 0) out.push({ kind: 'gems', amount: gems });
+  for (const d of drops) out.push({ kind: 'item', itemId: d.itemId });
+  for (const e of events) {
+    if (e.type === 'heroCard' && e.templateId && e.rarity) out.push({ kind: 'heroCard', templateId: e.templateId, rarity: e.rarity, name: e.name ?? e.templateId });
+  }
+  if (ore > 0) out.push({ kind: 'ore', amount: ore });
+  return out;
+}
+
+/**
+ * Строки событий под наградами: только то, что не показано чипом. Убраны «Карта героя», «Благословенная руда»,
+ * «Гемы +» (это чипы) и «Открыт этап …» (это видно на карте — §5 «Итог боя», P1).
+ */
+export function resultEventLines(lines: readonly string[]): string[] {
+  return lines.filter((l) => !/^(Карта героя:|Благословенная руда|Гемы \+|Открыт этап )/.test(l));
+}
+
+/** Ярлык «как стать сильнее» после поражения (большая плитка-иконка, как в AFK). */
+export interface DefeatShortcut {
+  id: 'heroes' | 'gear' | 'tavern' | 'squad';
+  /** Подпись плитки и строка под ней (2–3 слова). */
+  label: string;
+  sub: string;
+  /** Совет по делу (flow.ts defeatAdvice) — плитка выделена. */
+  advised: boolean;
+}
+
+/**
+ * Три плитки после поражения: «Герои» (уровень), «Снаряжение» (лучшее — сразу всему отряду), «Таверна» (призыв;
+ * пока закрыта — «Отряд»). advice — действие defeatAdvice, tavernOpen — Таверна открыта, gearReady — есть вещи получше.
+ */
+export function defeatShortcuts(advice: 'EquipBest' | 'Heroes' | 'Squad' | 'Campaign', tavernOpen: boolean, gearReady: boolean): DefeatShortcut[] {
+  const out: DefeatShortcut[] = [
+    { id: 'heroes', label: 'Герои', sub: 'Уровень', advised: advice === 'Heroes' || advice === 'Campaign' },
+    { id: 'gear', label: 'Снаряжение', sub: gearReady ? 'Надеть лучшее' : 'Сумка', advised: advice === 'EquipBest' },
+  ];
+  if (tavernOpen && advice !== 'Squad') out.push({ id: 'tavern', label: 'Таверна', sub: 'Новые герои', advised: false });
+  else out.push({ id: 'squad', label: 'Отряд', sub: 'Состав', advised: advice === 'Squad' });
+  return out;
+}
+
+// ---------- появление по одной (итог боя, «Глава пройдена») ----------
+
+/** Объект, который проявляется (масштаб и прозрачность). */
+export type RevealObj = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.AlphaSingle;
+type Obj = RevealObj;
+
+/** Шаг «наград по одной» (§4.6: по 120 мс). */
+export const REVEAL_STEP = M.release;
+
+/**
+ * Появление по одной (§4.6): шаги показываются через REVEAL_STEP (alpha 0 → 1, масштаб 0.86 → 1, E.pop), после
+ * последнего — пауза hold, затем onDone (кнопки). Касание в любом месте — всё сразу. Без анимации — сразу.
+ */
+export class Reveal {
+  private steps: { objs: Obj[]; fn?: (instant: boolean) => void; shown: boolean }[] = [];
+  private alpha = new Map<Obj, number>();
+  private tick: (() => void) | null = null;
+  private finished = false;
+  private onDone: () => void = () => undefined;
+
+  constructor(private scene: Phaser.Scene) {}
+
+  /** Шаг: объекты (скрыты до своей очереди) и что сделать в этот миг (отсчёт числа). */
+  step(objs: Obj[], fn?: (instant: boolean) => void): void {
+    for (const o of objs) {
+      this.alpha.set(o, o.alpha);
+      o.setAlpha(0);
+    }
+    this.steps.push({ objs, fn, shown: false });
+  }
+
+  play(onDone: () => void, hold: number = M.emphasis): void {
+    this.onDone = onDone;
+    if (!juiceOn()) return this.finish();
+    // Расписание — по реальному времени кадров (game.loop.time), не по часам сцены: на медленном устройстве часы
+    // сцены отстают (шаг кадра ограничен), и кнопки появлялись бы через десяток секунд.
+    const loop = this.scene.game.loop;
+    const t0 = loop.time;
+    const end = Math.max(0, this.steps.length - 1) * REVEAL_STEP + hold;
+    let next = 0;
+    this.tick = () => {
+      const t = loop.time - t0;
+      while (next < this.steps.length && t >= next * REVEAL_STEP) this.show(this.steps[next++], false);
+      if (t >= end) this.finish();
+    };
+    this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.tick);
+    this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.stop, this);
+    this.tick();
+    this.scene.input.once('pointerdown', this.finish, this);
+  }
+
+  /** Снять обработчики (готово или экран закрыт). */
+  private stop(): void {
+    if (this.tick) this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.tick);
+    this.tick = null;
+    this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.stop, this);
+    this.scene.input.off('pointerdown', this.finish, this);
+  }
+
+  private show(s: { objs: Obj[]; fn?: (instant: boolean) => void; shown: boolean }, instant: boolean): void {
+    if (s.shown) return;
+    s.shown = true;
+    for (const o of s.objs) {
+      if (!o.scene) continue;
+      const a = this.alpha.get(o) ?? 1;
+      if (instant) {
+        o.setAlpha(a);
+        continue;
+      }
+      const sc = o.scaleX;
+      o.setScale(sc * 0.86);
+      this.scene.tweens.add({ targets: o, alpha: a, scale: sc, duration: M.fast, ease: E.pop });
+    }
+    s.fn?.(instant);
+  }
+
+  /** Всё сразу и onDone (один раз). */
+  finish(): void {
+    if (this.finished) return;
+    this.finished = true;
+    this.stop();
+    for (const s of this.steps) this.show(s, true);
+    this.onDone();
+  }
 }

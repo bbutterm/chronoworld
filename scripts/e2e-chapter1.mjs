@@ -466,7 +466,7 @@ const chapterDone = async () => {
 
 /** После поражения: «Кампания» (бесплатные быстрые награды и сундук — на ней же) → «Улучшить» отряд. */
 const afterLoss = async () => {
-  await clickText('Result', 'Кампания');
+  await clickText('Result', 'К кампании');
   await waitScene('Campaign');
   await skipDialogues('Campaign');
   if (await findText('Campaign', 'Бесплатно')) {

@@ -533,6 +533,11 @@ export interface HeroCardOptions {
   showName?: boolean;
   /** Значки класса и роли в верхних углах (по умолчанию да). */
   showIcons?: boolean;
+  /**
+   * Значок роли в правом верхнем углу (по умолчанию да, если showIcons). Коллекция «Герои» его не показывает: роль —
+   * в фильтре, на плитке остаются класс, лицо, имя, уровень и ромбы (§5 «Герои (список)»), а угол занимает «+N» копий.
+   */
+  showRole?: boolean;
   /** Ромбы редкостей от базовой до максимальной (по умолчанию да). */
   showPips?: boolean;
   /** Метки: «в отряде» — маленькая зелёная галка слева, замок — там же. */
@@ -653,16 +658,17 @@ export function drawHeroCard(scene: Phaser.Scene, x: number, y: number, subject:
 
   const small = Math.max(FS.caption, Math.round(30 * s));
   // Значки класса (линии) и роли.
+  const showRole = opts.showIcons !== false && opts.showRole !== false;
   if (opts.showIcons !== false) {
     const ir = 27 * s;
     box.add(iconBadge(scene, -w / 2 + 36 * s, -h / 2 + 36 * s, r.line, ir, pal.tint, greyed ? 0x8a8a8a : 0xf0e6cf));
-    box.add(iconBadge(scene, w / 2 - 36 * s, -h / 2 + 36 * s, r.role, ir, pal.tint, greyed ? 0x8a8a8a : 0xf0e6cf));
+    if (showRole) box.add(iconBadge(scene, w / 2 - 36 * s, -h / 2 + 36 * s, r.role, ir, pal.tint, greyed ? 0x8a8a8a : 0xf0e6cf));
   }
   // Имя: целиком, если влезает, иначе первое слово (Сесиль Деймон → Сесиль), иначе многоточие.
   const maxW = w - 30 * s;
   if (opts.showName !== false) {
     const nameY = h / 2 - inset - bandH + 30 * s;
-    const t = text(scene, 0, nameY, r.template.name, small, greyed ? C.disabled : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
+    const t = text(scene, 0, nameY, r.template.name, small, greyed ? C.disabled : C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 });
     if (t.width > maxW) t.setText(r.template.name.split(' ')[0]);
     box.add(ellipsize(t, maxW));
   }
@@ -674,7 +680,7 @@ export function drawHeroCard(scene: Phaser.Scene, x: number, y: number, subject:
   let pipsW = pips.length ? (pips.length - 1) * pipStep + pipR * 2 : 0;
   let lvl: Phaser.GameObjects.Text | null = null;
   if (r.level !== null && !greyed) {
-    lvl = text(scene, 0, rowY, levelText(r.level), small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
+    lvl = text(scene, 0, rowY, levelText(r.level), small, C.gold, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 });
     box.add(lvl);
   }
   const gap = lvl && pips.length ? 12 * s : 0;
@@ -700,13 +706,11 @@ export function drawHeroCard(scene: Phaser.Scene, x: number, y: number, subject:
     box.add(tag(scene, 0, -h / 2 + 90 * s, label, 0x3a3a3a, small, s));
   }
   if (!greyed && (opts.copies ?? 0) >= 2) {
-    // NB-11: «+1» — столько запасных копий (как «Копий: 1» на карточке героя), а не всего карт героя.
-    const ct = text(scene, 0, 0, `+${(opts.copies ?? 1) - 1}`, small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
-    const cw = ct.width + 20 * s;
-    const cx = w / 2 - 36 * s;
-    const cy = -h / 2 + 88 * s;
-    const bg = scene.add.rectangle(0, 0, Math.max(cw, 56 * s), 40 * s, 0x1a120a, 0.92).setStrokeStyle(3 * s, pal.tint);
-    box.add(scene.add.container(cx - Math.max(0, cw - 56 * s) / 2, cy, [bg, ct]).setName('copies'));
+    // NB-11: «+1» — столько запасных копий (как «Копий: 1» на карточке героя), а не всего карт героя. Тихая подпись
+    // без плашки: это счёт, а не повод (повод «можно вознести» — угловой значок).
+    const top = !showRole;
+    const ct = text(scene, w / 2 - 22 * s, -h / 2 + (top ? 38 : 88) * s, `+${(opts.copies ?? 1) - 1}`, small, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 });
+    box.add(ct.setOrigin(1, 0.5).setName('copies'));
   }
   const markY = h / 2 - inset - bandH - 30 * s;
   let leftY = markY;
@@ -716,9 +720,10 @@ export function drawHeroCard(scene: Phaser.Scene, x: number, y: number, subject:
     leftY -= 56 * s;
   }
   if (opts.inSquad && !greyed) {
-    box.add(scene.add.container(-w / 2 + 38 * s, leftY, [
-      scene.add.circle(0, 0, 20 * s, 0x1f5a24, 0.95).setStrokeStyle(3 * s, 0xb6f0a0),
-      scene.add.image(0, 0, skinIcon('check')).setDisplaySize(28 * s, 28 * s).setTint(0xeaffe0),
+    // Тихая метка: маленькая галка (не повод — не прыгает и не красная).
+    box.add(scene.add.container(-w / 2 + 36 * s, leftY + 6 * s, [
+      scene.add.circle(0, 0, 17 * s, 0x1f5a24, 0.95).setStrokeStyle(2.5 * s, 0xb6f0a0),
+      scene.add.image(0, 0, skinIcon('check')).setDisplaySize(24 * s, 24 * s).setTint(0xeaffe0),
     ]).setName('inSquad'));
   }
   if (mark) {
