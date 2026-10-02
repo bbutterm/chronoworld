@@ -361,17 +361,17 @@ async function main() {
     if (!(lay.tableEnd <= lay.autoTop)) problems.push(`итог: таблица (низ ${lay.tableEnd}) наезжает на «Авто» (верх ${lay.autoTop})`);
 
     // R: «Авто: следующий этап» — включаем, ждём сам старт этапа 2, на его итоге отсчёт отменяем касанием.
-    await clickText('Result', 'Авто: следующий этап');
+    await clickText('Result', 'Авто: дальше');
     await waitScene('Battle', 10000);
     const autoFlag = await page.evaluate(() => localStorage.getItem('chronoworld.autoAdvance'));
     if (autoFlag !== '1') problems.push(`авто-прохождение не запомнилось: ${autoFlag}`);
     await skipBattle();
     await waitScene('Result');
-    // Отсчёт идёт 2 с: придерживаем его таймер, снимаем экран, отпускаем и отменяем касанием.
+    // Отсчёт идёт 2 с (кольцо на «Дальше»): придерживаем его таймер, снимаем экран, отпускаем и отменяем касанием.
     const counting = await page.evaluate(() => {
       const sc = window.__game.scene.getScene('Result');
-      const on = sc.children.list.some((o) => o.type === 'Text' && o.visible && o.text.startsWith('Этап 1-3 через'));
-      if (on && sc.autoTimer) sc.autoTimer.paused = true;
+      const on = !!sc.autoTimer;
+      if (on) sc.autoTimer.paused = true;
       return on;
     });
     if (counting) {
@@ -383,7 +383,7 @@ async function main() {
       await clickGame(540, 200); // касание по баннеру «Победа» — отмена
       await sleep(AUTO_WAIT_MS);
       if (!(await page.evaluate(() => window.__game.scene.isActive('Result')))) problems.push('касание не отменило авто-прохождение');
-      else if (!(await hasText('Result', 'Авто отменено'))) problems.push('нет подписи «Авто отменено»');
+      else if (await page.evaluate(() => !!window.__game.scene.getScene('Result').autoTimer)) problems.push('касание не остановило отсчёт авто');
     } else log('этап 2 не выигран — отсчёта авто нет');
     // 4. Итог → К кампании (после поражения кнопка — «Кампания», T1-07) → Герои → герой → назад.
     await clickText('Result', (await hasText('Result', 'К кампании')) ? 'К кампании' : 'Кампания');
