@@ -1,26 +1,43 @@
 import Phaser from 'phaser';
-import { buyShopSlot, heroGender, refreshShop, shopStatus, type ShopSlotView, type ShopStatus } from '../../core';
+import { buyShopSlot, refreshShop, shopStatus, type ShopSlotView, type ShopStatus } from '../../core';
 import { GAME } from '../content';
-import { glow, medallion } from '../decor';
-import { formatNumber, heroSprite, itemStatsText, RARITY_COLORS, RARITY_NAMES } from '../flow';
+import { formatNumber, itemStatsText, RARITY_COLORS, RARITY_NAMES } from '../flow';
+import { compactNumber } from '../frame';
+import { heroCardIcon, rarityName } from '../heroCard';
 import { itemCell } from '../itemIcons';
-import { collect, staggerIn } from '../juice';
+import { bump, burst, collect, juiceOn, queueRewardFly, staggerIn } from '../juice';
 import { GAME_W } from '../layout';
-import { framedPortrait } from '../portraitFrame';
 import { rewardIcon } from '../rewardsView';
-import { card, confirm, CONTENT_TOP, gemIcon, screen } from '../screen';
+import { bottomSheet, confirm, CONTENT_TOP, cta, screen } from '../screen';
 import { commit, now, restartOnNewDay, session, today } from '../session';
-import { shopCtx } from '../shopEntry';
-import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
-import { button, ellipsize, text, toast } from '../ui';
+import { shopBanner, shopCtx } from '../shopEntry';
+import { skinIcon } from '../skin';
+import { C, COLOR, E, FAMILY, M, R, RARITY, S, T } from '../theme';
+import { button, chip, clampLines, mixHex, plate, pressable, SURFACE, tag, text, toast, type Tone } from '../ui';
 import { lockedScreen } from '../unlockBanner';
 
-/** Карточки товаров: 2 столбца × 4 ряда. */
-const CARD_W = 510;
-const CARD_H = 310;
-const COL_X = [GAME_W / 2 - 260, GAME_W / 2 + 260];
-const GRID_TOP = CONTENT_TOP + 175 + CARD_H / 2;
-const ROW_STEP = CARD_H + 15;
+/**
+ * Раскладка (поле 1080): шапка-витрина с Кафрой, под ней сетка товаров 4 × 2. Плитка — иконка в рамке редкости,
+ * короткое название и цена-чип; нажатие — лист снизу с подробностями и одной главной «Купить» (§3 п. 1).
+ */
+export const SHOP_L = {
+  bannerW: GAME_W - 2 * S.l,
+  bannerH: 440,
+  bannerTop: CONTENT_TOP + S.xs,
+  cols: 4,
+  tileH: 400,
+  icon: 168,
+  gap: S.s,
+} as const;
+const TILE_W = (SHOP_L.bannerW - (SHOP_L.cols - 1) * SHOP_L.gap) / SHOP_L.cols;
+const GRID_TOP = SHOP_L.bannerTop + SHOP_L.bannerH + S.m;
+
+/** Центр плитки товара i. */
+export function tilePos(i: number): { x: number; y: number } {
+  const col = i % SHOP_L.cols;
+  const row = Math.floor(i / SHOP_L.cols);
+  return { x: S.l + TILE_W / 2 + col * (TILE_W + SHOP_L.gap), y: GRID_TOP + SHOP_L.tileH / 2 + row * (SHOP_L.tileH + SHOP_L.gap) };
+}
 
 /** Мс до следующей местной полуночи (новый ассортимент). */
 function msToMidnight(): number {
@@ -28,10 +45,11 @@ function msToMidnight(): number {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1).getTime() - d.getTime();
 }
 
-function timerText(ms: number): string {
+/** «21 ч 05 мин» / «7 мин» — до нового ассортимента. */
+export function timerText(ms: number): string {
   const m = Math.max(0, Math.ceil(ms / 60_000));
   const h = Math.floor(m / 60);
-  return h > 0 ? `${h} ч ${m % 60} мин` : `${m} мин`;
+  return h > 0 ? `${h} ч ${String(m % 60).padStart(2, '0')} мин` : `${m} мин`;
 }
 
 /** Название товара слота для игрока. */
@@ -50,161 +68,252 @@ export function slotTitle(s: ShopSlotView): string {
   }
 }
 
-/** Что именно даёт покупка: «×5», «+3 000 в запас», статы предмета. */
-function slotDetail(s: ShopSlotView): string {
+/** Что даёт покупка — одна строка для листа подробностей. */
+export function slotDetail(s: ShopSlotView): string {
   switch (s.kind) {
     case 'item': {
       const def = GAME.equipment.items[s.itemId ?? ''];
-      return def ? `${RARITY_NAMES[def.rarity]}\n${itemStatsText(def.stats)}` : '';
+      return def ? itemStatsText(def.stats) : '';
     }
     case 'heroCard':
-      return `${GAME.cards.rarities.find((r) => r.id === s.rarity)?.name ?? ''}\nкопия для вознесения`;
+      return 'Копия героя для вознесения';
     case 'heroExp':
-      return `+${formatNumber(s.count)}\nв запас опыта`;
+      return `+${formatNumber(s.count)} в запас опыта героев`;
     case 'scrolls':
-      return `×${s.count}\nдля Таверны`;
+      return `${s.count} — призыв в Таверне`;
     case 'gold':
-      return `+${formatNumber(s.count)}`;
+      return `+${formatNumber(s.count)} золота`;
   }
 }
 
-function priceText(s: Pick<ShopSlotView, 'currency' | 'price'>): string {
-  return `${formatNumber(s.price)} ${s.currency === 'gold' ? 'золота' : 'гемов'}`;
+/** Количество на иконке плитки («×2», «+18K»); у предметов и карт — нет. */
+export function slotAmount(s: Pick<ShopSlotView, 'kind' | 'count'>): string {
+  if (s.kind === 'item' || s.kind === 'heroCard') return '';
+  if (s.kind === 'scrolls') return `×${s.count}`;
+  return `+${compactNumber(s.count)}`;
+}
+
+/** Цена на плитке: длинные — коротко (900K), чтобы чип влез в плитку; в листе — полностью. */
+export function priceLabel(price: number, short: boolean): string {
+  return short && price >= 100_000 ? compactNumber(price) : formatNumber(price);
+}
+
+/** Цвет рамки товара: редкость предмета или карты; прочее — бронза. */
+function frameColor(s: ShopSlotView): string {
+  if (s.kind === 'item') {
+    const def = GAME.equipment.items[s.itemId ?? ''];
+    return def ? RARITY_COLORS[def.rarity] : COLOR.border;
+  }
+  if (s.kind === 'heroCard') return RARITY[s.rarity ?? 'blue'];
+  return COLOR.border;
+}
+
+const priceTone = (s: ShopSlotView): Tone => (!s.affordable ? 'negative' : s.currency === 'gold' ? 'gold' : 'gem');
+
+export interface ShopData {
+  /** Только что куплен товар этого слота — плитка отзывается «покупкой». */
+  bought?: number;
 }
 
 /**
- * Лавка (как магазин AFK Arena): 8 товаров дня, «Купить» за золото или гемы, запас в слоте, обновление за гемы
- * (первое за день бесплатно) и таймер до нового ассортимента. Правила — src/core/shop, числа — data/shop.json.
+ * Лавка (как рынок AFK Arena): витрина с Кафрой, таймер нового товара и «Обновить» (первое за день бесплатно);
+ * 8 товаров дня плитками без кнопок — касание открывает лист с подробностями и одной «Купить».
+ * Правила — src/core/shop, числа — data/shop.json.
  */
 export class ShopScene extends Phaser.Scene {
-  private timer?: Phaser.GameObjects.Text;
+  private timer?: Phaser.GameObjects.Container;
+  private timerLabel = '';
 
   constructor() {
     super('Shop');
   }
 
-  create(): void {
+  create(data: ShopData = {}): void {
+    this.timer = undefined;
     screen(this, 'Лавка', 'Home', { to: 'Home' });
     restartOnNewDay(this);
-    const ctx = shopCtx();
-    const st = shopStatus(session.save, today(), ctx);
+    const st = shopStatus(session.save, today(), shopCtx());
     if (!st.unlocked) {
       lockedScreen(this, 'shop');
       return;
     }
-    this.header(st);
-    const cards: Phaser.GameObjects.GameObject[][] = [];
-    st.slots.forEach((s) => cards.push(collect(this.children, () => this.slotCard(s))));
-    staggerIn(this, 'Shop', cards);
-    this.time.addEvent({ delay: 1000, loop: true, callback: () => this.timer?.setText(`Новый товар через ${timerText(msToMidnight())}`) });
+    this.banner(st);
+    const tiles: Phaser.GameObjects.GameObject[][] = [];
+    st.slots.forEach((s) => tiles.push(collect(this.children, () => this.tile(s))));
+    staggerIn(this, 'Shop', tiles);
+    if (data.bought !== undefined) this.boughtFx(data.bought);
+    this.time.addEvent({ delay: 1000, loop: true, callback: () => this.drawTimer() });
   }
 
-  /** Шапка: медальон, таймер до нового ассортимента и «Обновить». */
-  private header(st: ShopStatus): void {
-    const y = CONTENT_TOP + 80;
-    card(this, GAME_W / 2, y, 1040, 150);
-    glow(this, 110, y, 200, 0xffc860, 0.3, true);
-    medallion(this, 110, y, 116, 'bag');
-    text(this, 190, y - 28, 'Товары дня', FS.h2, C.title, TITLE_STYLE).setOrigin(0, 0.5);
-    this.timer = text(this, 190, y + 26, `Новый товар через ${timerText(msToMidnight())}`, FS.small, C.muted, OUTLINE).setOrigin(0, 0.5);
-    this.timer.setName('shopTimer');
+  /** Витрина: Кафра справа, слева — «Товары дня», таймер и «Обновить». */
+  private banner(st: ShopStatus): void {
+    const L = SHOP_L;
+    const cy = L.bannerTop + L.bannerH / 2;
+    shopBanner(this, GAME_W / 2, cy, L.bannerW, L.bannerH);
+    const left = S.l + S.m;
+    const title = text(this, left, L.bannerTop + S.m + T.title / 2, 'Товары дня', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
+    title.setShadow(0, 3, 'rgba(0,0,0,0.85)', 6, false, true);
+    this.drawTimer();
 
+    // «Обновить» — вторичная (главная на экране — «Купить» в листе товара); цена — рядом: бесплатно — золотой тег.
     const cost = st.nextRefreshCost;
-    const bx = GAME_W - 220;
-    const label = cost === null ? 'На сегодня всё' : 'Обновить';
-    const b = button(this, bx, y - 16, 330, 96, cost === null ? 'ui_btn_secondary' : 'ui_btn_primary', label, () => this.refresh(st), FS.h3);
+    const by = L.bannerTop + L.bannerH - S.m - 48;
+    const bw = 300;
+    const b = button(this, left + bw / 2, by, bw, 96, '', 'Обновить', () => this.refresh(st), T.heading, { variant: 'secondary' });
     b.container.setName('shopRefresh');
-    if (cost === null) b.container.setAlpha(0.6);
-    const sub = cost === null ? '' : cost === 0 ? 'бесплатно' : `${formatNumber(cost)}`;
-    if (sub) {
-      const t = text(this, bx + (cost ? -14 : 0), y + 48, sub, FS.caption, cost === 0 ? C.success : C.text, OUTLINE);
-      if (cost) gemIcon(this, t.x + t.width / 2 + 22, y + 48, 26);
-    }
+    if (cost === null) b.setEnabled(false);
+    const tx = left + bw + S.xs;
+    if (cost === 0) tag(this, tx, by, 'Бесплатно', 'accent', { solid: true, align: 'left' }).setName('shopRefreshFree');
+    else if (cost !== null) chip(this, tx, by, 'gems', cost, session.save.currency.gems >= cost ? 'gem' : 'negative', { size: 's', align: 'left' }).setName('shopRefreshCost');
+  }
+
+  /** Таймер нового ассортимента — чип с песочными часами; перерисовывается, только когда сменилась минута. */
+  private drawTimer(): void {
+    const label = timerText(msToMidnight());
+    if (this.timer?.scene && label === this.timerLabel) return;
+    this.timerLabel = label;
+    this.timer?.destroy();
+    const y = SHOP_L.bannerTop + S.m + T.title + S.s + 28;
+    this.timer = chip(this, S.l + S.m, y, 'hourglass', label, 'neutral', { size: 's', align: 'left' }).setName('shopTimer');
   }
 
   private refresh(st: ShopStatus): void {
     const cost = st.nextRefreshCost;
     if (cost === null) {
-      toast(this, `Обновлять лавку можно ${shopCtx().shop.refresh.maxPerDay} раз в день — новый товар в полночь`);
+      toast(this, `Новый товар в полночь — обновлений сегодня больше нет`);
       return;
     }
     const run = () => {
       try {
         commit(refreshShop(session.save, today(), shopCtx()));
-        this.restartWith('Ассортимент обновлён', C.success);
+        this.scene.restart({});
       } catch (e) {
         toast(this, e instanceof Error ? e.message : String(e), C.error);
       }
     };
     if (cost === 0) run();
-    else confirm(this, `Обновить весь товар за ${formatNumber(cost)} гемов?\nУ вас ${formatNumber(session.save.currency.gems)}.`, 'Обновить', run);
+    else confirm(this, `Обновить весь товар за ${formatNumber(cost)} гемов?`, 'Обновить', run);
   }
 
-  /** Карточка товара: иконка в рамке редкости, название, что даёт, цена и «Купить» (распродано — «Продано»). */
-  private slotCard(s: ShopSlotView): void {
-    const x = COL_X[s.index % 2];
-    const y = GRID_TOP + Math.floor(s.index / 2) * ROW_STEP;
-    const off = s.soldOut || s.dayLimited;
-    const bg = card(this, x, y, CARD_W, CARD_H);
-    bg.setName(`shopSlot${s.index}`);
-    const def = s.kind === 'item' ? GAME.equipment.items[s.itemId ?? ''] : undefined;
-    const color = def ? RARITY_COLORS[def.rarity] : s.kind === 'heroCard' ? '#d890ff' : s.kind === 'scrolls' ? '#f0d9a0' : C.title;
-    ellipsize(text(this, x, y - CARD_H / 2 + 40, slotTitle(s), FS.body, color, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 5 }), CARD_W - 40);
-
-    const ix = x - CARD_W / 2 + 100;
-    const iy = y - 22;
-    const size = 140;
-    const ic = Phaser.Display.Color.HexStringToColor(color).color;
-    if (s.kind === 'item') itemCell(this, ix, iy, size, def?.slot ?? null, ic, s.itemId);
-    else {
-      this.add.rectangle(ix, iy, size, size, 0x1a120a, 0.95).setStrokeStyle(4, ic, 1);
-      if (s.kind === 'heroCard') {
-        const hero = s.hero && GAME.content.heroes[s.hero] ? { id: 'shop', templateId: s.hero, rarity: s.rarity ?? 'blue', level: 1 } : undefined;
-        if (hero) framedPortrait(this, ix, iy, heroSprite(hero, GAME), size - 16, heroGender(hero, GAME));
-        else rewardIcon(this, ix, iy, 'hero', size * 0.6);
-      } else rewardIcon(this, ix, iy, s.kind === 'heroExp' ? 'exp' : s.kind, size * 0.62);
-    }
-    if (s.stock > 1 || !off) {
-      text(this, ix + size / 2 - 6, iy + size / 2 - 18, `${s.left}/${s.stock}`, FS.caption, C.text, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(1, 0.5);
-    }
-    text(this, x - CARD_W / 2 + 190, iy - 10, slotDetail(s), FS.small, C.text, { ...OUTLINE, wordWrap: { width: CARD_W - 210 }, align: 'left' }).setOrigin(0, 0.5);
-
-    // Цена и кнопка.
-    const by = y + CARD_H / 2 - 60;
-    if (off) {
-      text(this, x, by, s.soldOut ? 'Продано' : 'Завтра снова', FS.h3, C.dim, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 });
-      bg.setAlpha(0.7);
+  /** Иконка товара (центр x, y; size): предмет — ячейка в рамке редкости, карта — мини-карта, прочее — иконка RO. */
+  private goodIcon(s: ShopSlotView, x: number, y: number, size: number): void {
+    if (s.kind === 'item') {
+      const def = GAME.equipment.items[s.itemId ?? ''];
+      itemCell(this, x, y, size, def?.slot ?? null, Phaser.Display.Color.HexStringToColor(frameColor(s)).color, s.itemId);
       return;
     }
-    // Цена (иконка валюты и число) слева, «Купить» справа.
-    const px = x - CARD_W / 2 + 40;
-    s.currency === 'gold' ? rewardIcon(this, px + 20, by, 'gold', 44) : gemIcon(this, px + 20, by, 36);
-    text(this, px + 52, by, formatNumber(s.price), FS.h3, s.affordable ? C.gold : C.danger, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 5 }).setOrigin(0, 0.5);
-    const b = button(this, x + CARD_W / 2 - 130, by, 220, 84, s.affordable ? 'ui_btn_primary' : 'ui_btn_secondary', 'Купить', () => this.buy(s), FS.h3);
-    b.container.setName(`shopBuy${s.index}`);
+    plate(this, x, y, size, size, { ...SURFACE.sunken, border: mixHex(COLOR.surfaceSunken, frameColor(s), 0.8), borderW: 4, r: R.s });
+    if (s.kind === 'heroCard') heroCardIcon(this, x, y, size - 16, s.rarity ?? 'blue', s.hero && GAME.content.heroes[s.hero] ? s.hero : undefined);
+    else rewardIcon(this, x, y, s.kind === 'heroExp' ? 'exp' : s.kind, size * 0.62);
+  }
+
+  /** Плитка товара: иконка в рамке редкости, количество на ней, название в 2 строки, цена-чип. Продано — тускло с галкой. */
+  private tile(s: ShopSlotView): void {
+    const { x, y } = tilePos(s.index);
+    const w = TILE_W;
+    const h = SHOP_L.tileH;
+    const off = s.soldOut || s.dayLimited;
+    const parts: Phaser.GameObjects.GameObject[] = [];
+    const bg = plate(this, x, y, w, h, { ...SURFACE.raised, r: R.l }).setName(`shopSlot${s.index}`);
+    const iy = y - h / 2 + S.s + SHOP_L.icon / 2;
+    parts.push(...collect(this.children, () => this.goodIcon(s, x, iy, SHOP_L.icon)));
+    const amount = slotAmount(s);
+    if (amount) {
+      const a = text(this, x + SHOP_L.icon / 2 - S.xxs, iy + SHOP_L.icon / 2 - S.xxs, amount, T.caption, COLOR.textPrimary, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setOrigin(1, 1);
+      parts.push(a);
+    }
+    const name = text(this, x, iy + SHOP_L.icon / 2 + S.xs, slotTitle(s), T.caption, off ? COLOR.textTertiary : COLOR.textPrimary, {
+      align: 'center',
+      wordWrap: { width: w - 2 * S.xs },
+    }).setOrigin(0.5, 0);
+    clampLines(name, 2);
+    parts.push(name);
+    const py = y + h / 2 - S.s - 28;
+    if (off) {
+      parts.push(tag(this, x, py, s.soldOut ? 'Продано' : 'Завтра', 'neutral'));
+      // Продано: плитка тускнеет, поверх иконки — крупная галка.
+      for (const p of parts) (p as unknown as Phaser.GameObjects.Components.Alpha).setAlpha?.(0.45);
+      bg.setAlpha(0.6);
+      if (s.soldOut) this.add.image(x, iy, skinIcon('check')).setDisplaySize(96, 96).setTint(0x9fe0a6).setName(`shopSold${s.index}`);
+    } else {
+      chip(this, x, py, s.currency === 'gold' ? 'gold' : 'gems', priceLabel(s.price, true), priceTone(s), { size: 's' }).setName(`shopPrice${s.index}`);
+    }
+    pressable(this, bg, w, h, () => this.open(s));
+  }
+
+  /** Касание плитки: лист с подробностями и «Купить»; продано — короткий тост. */
+  private open(s: ShopSlotView): void {
+    if (s.soldOut) return toast(this, `Продано — новый товар через ${timerText(msToMidnight())}`);
+    if (s.dayLimited) return toast(this, 'Этот товар можно купить снова завтра');
+    const color = frameColor(s);
+    bottomSheet(this, slotTitle(s), (content, width, close) => {
+      const icon = 200;
+      const add = <O extends Phaser.GameObjects.GameObject>(o: O): O => (content.add(o), o);
+      collect(this.children, () => this.goodIcon(s, icon / 2, icon / 2, icon)).forEach((o) => add(o));
+      const amount = slotAmount(s);
+      if (amount) add(text(this, icon - S.xxs, icon - S.xxs, amount, T.body, COLOR.textPrimary, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setOrigin(1, 1));
+      const tx = icon + S.l;
+      let ty = S.s;
+      const def = s.kind === 'item' ? GAME.equipment.items[s.itemId ?? ''] : undefined;
+      const rarity = def ? RARITY_NAMES[def.rarity] : s.kind === 'heroCard' ? `${rarityName(s.rarity ?? 'blue')} карта` : '';
+      if (rarity) {
+        const tg = add(tag(this, tx, ty + 26, rarity, 'neutral', { align: 'left' }));
+        (tg.list[1] as Phaser.GameObjects.Text).setColor(color === COLOR.border ? COLOR.textSecondary : color);
+        ty += 52 + S.xs;
+      }
+      const detail = add(text(this, tx, ty, slotDetail(s), T.body, COLOR.textPrimary, { wordWrap: { width: width - tx } }).setOrigin(0, 0));
+      ty += detail.height + S.xs;
+      if (s.stock > 1) add(text(this, tx, ty, `Осталось ${s.left} из ${s.stock}`, T.caption, COLOR.textSecondary).setOrigin(0, 0));
+      // Цена и главная кнопка.
+      const py = icon + S.l + 36;
+      const price = add(chip(this, width / 2, py, s.currency === 'gold' ? 'gold' : 'gems', priceLabel(s.price, false), priceTone(s)));
+      price.setName('shopSheetPrice');
+      let by = py + 36 + S.m + 70;
+      if (!s.affordable) {
+        const have = s.currency === 'gold' ? session.save.resources.gold : session.save.currency.gems;
+        add(text(this, width / 2, py + 36 + S.s + T.caption / 2, `Не хватает ${formatNumber(s.price - have)} ${s.currency === 'gold' ? 'золота' : 'гемов'}`, T.caption, COLOR.negative));
+        by += T.caption + S.s;
+      }
+      const b = cta(this, width / 2, by, 'Купить', () => {
+        if (!s.affordable) return toast(this, `Не хватает ${s.currency === 'gold' ? 'золота' : 'гемов'}`, C.error);
+        close();
+        this.buy(s);
+      }, { w: 560, h: 128, enabled: s.affordable });
+      b.container.setName('shopBuy');
+      add(b.container);
+      return by + 64;
+    });
   }
 
   private buy(s: ShopSlotView): void {
-    const run = () => {
-      try {
-        const r = buyShopSlot(session.save, today(), s.index, shopCtx());
-        commit(r.save);
-        this.restartWith(`Куплено: ${slotTitle(s)}${s.kind === 'item' ? '' : ` ${slotDetail(s).split('\n')[0]}`}`, C.success);
-      } catch (e) {
-        toast(this, e instanceof Error ? e.message : String(e), C.error);
-      }
-    };
-    if (!s.affordable) {
-      toast(this, `Не хватает ${s.currency === 'gold' ? 'золота' : 'гемов'}: нужно ${formatNumber(s.price)}`, C.error);
-      return;
+    try {
+      const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
+      const r = buyShopSlot(session.save, today(), s.index, shopCtx());
+      commit(r.save);
+      // Монеты летят в «таблетку», только если валюта прибавилась (мешок золота); трата — отсчёт числа в шапке.
+      if (s.kind === 'gold') queueRewardFly('Shop', tilePos(s.index), before);
+      this.scene.restart({ bought: s.index } satisfies ShopData);
+      // Куда делась покупка (сумка, запас опыта, Таверна) — не видно на экране: короткий тост.
+      if (s.kind !== 'gold') this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, `Куплено: ${slotTitle(s)}`, C.success));
+    } catch (e) {
+      toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
-    // Гемы — редкая валюта: переспросить; золото — покупка сразу (как в AFK).
-    if (s.currency === 'gems') confirm(this, `Купить «${slotTitle(s)}» за ${priceText(s)}?`, 'Купить', run);
-    else run();
   }
 
-  private restartWith(msg: string, color: string): void {
-    this.scene.restart();
-    this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, msg, color));
+  /** Покупка: вспышка над плиткой и подскок её иконки (рутина — тихо, §3 п. 10). */
+  private boughtFx(index: number): void {
+    if (!juiceOn()) return;
+    const { x, y } = tilePos(index);
+    const iy = y - SHOP_L.tileH / 2 + S.s + SHOP_L.icon / 2;
+    burst(this, { x, y: iy });
+    const mark = this.children.getByName(`shopSold${index}`) as Phaser.GameObjects.Image | null;
+    if (mark) {
+      const sx = mark.scaleX;
+      mark.setScale(sx * 1.6).setAlpha(0);
+      this.tweens.add({ targets: mark, scale: sx, alpha: 1, duration: M.base, ease: E.pop });
+    } else {
+      const price = this.children.getByName(`shopPrice${index}`) as Phaser.GameObjects.Container | null;
+      if (price) bump(this, price);
+    }
   }
 }
