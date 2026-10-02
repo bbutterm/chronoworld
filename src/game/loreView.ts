@@ -8,8 +8,8 @@ import { popIn, unitFigure, unitTint } from './screen';
 import { session } from './session';
 import { SKIN_TINT } from './skin';
 import { goldDot, roundIcon, ROUND_ICON } from './homeBuildings';
-import { button, panel, ScrollArea, text } from './ui';
-import { C, FS, OUTLINE, TINT } from './theme';
+import { BTN, button, ellipsize, plate, ScrollArea, SURFACE, text } from './ui';
+import { C, COLOR, FAMILY, FS, M, R, S, T, TINT } from './theme';
 
 /**
  * Летопись (лор RO, data/lore): общие помощники экранов — прочитанные записи (localStorage), значок «новое»,
@@ -132,10 +132,14 @@ const BOX_W = 1040;
 const PAD = 56;
 const ART_H = 260;
 const MAX_H = 1840;
-/** Основной шрифт окна: крупнее FS.body (на 390×844 ≈ 14 px). */
-const BODY_FS = 38;
+/** Основной шрифт окна — T.body (≈ 14.4 px на 390×844), межстрочный 1.4 для чтения. */
+const BODY_FS = T.body;
+const BODY_LEADING = Math.round(T.body * 0.4);
 
-/** Модальное окно записи Летописи: заголовок, подзаголовок, картинка, абзацы (длинное — прокручивается). */
+/**
+ * Модальное окно записи Летописи: заголовок (заголовочная гарнитура), подзаголовок, картинка, абзацы (длинное —
+ * прокручивается); внизу — «Закрыть» (вторичная) и, если есть, главное действие (extra, золото).
+ */
 export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.GameObjects.Container {
   const cx = GAME_W / 2;
   const layer = scene.add.container(0, 0).setDepth(9000).setName('loreModal');
@@ -149,68 +153,69 @@ export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.Game
 
   const tw = BOX_W - 2 * PAD;
   const left = cx - BOX_W / 2 + PAD;
-  const title = text(scene, cx, 0, o.title, FS.h1, o.titleColor ?? C.title, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: tw } }).setOrigin(0.5, 0);
-  const sub = o.subtitle ? text(scene, cx, 0, o.subtitle, FS.body, C.muted, { wordWrap: { width: tw } }).setOrigin(0.5, 0) : null;
+  const title = text(scene, cx, 0, o.title, T.title, o.titleColor ?? COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold', wordWrap: { width: tw } }).setOrigin(0.5, 0);
+  const sub = o.subtitle ? text(scene, cx, 0, o.subtitle, T.caption, COLOR.textSecondary, { fontStyle: 'bold', wordWrap: { width: tw } }).setOrigin(0.5, 0) : null;
   const blocks = o.blocks
     .filter((b) => b.text)
     .map((b) => ({
       b,
-      t: text(scene, left, 0, b.text, b.size ?? BODY_FS, b.color ?? C.text, {
+      t: text(scene, left, 0, b.text, b.size ?? BODY_FS, b.color ?? COLOR.textPrimary, {
         align: 'left',
         wordWrap: { width: tw, useAdvancedWrap: true },
-        lineSpacing: 10,
+        lineSpacing: b.size && b.size < BODY_FS ? 8 : BODY_LEADING,
         fontStyle: [b.bold ? 'bold' : '', b.italic ? 'italic' : ''].join(' ').trim() || 'normal',
+        ...(b.bold && (b.size ?? 0) >= T.heading ? { fontFamily: FAMILY.heading } : {}),
       }).setOrigin(0, 0),
     }));
-  const bodyH = blocks.reduce((s, { b, t }) => s + t.height + (b.gap ?? 22), 0);
-  const headH = 50 + title.height + (sub ? sub.height + 12 : 0) + (o.art ? ART_H : 20);
+  const bodyH = blocks.reduce((s, { b, t }) => s + t.height + (b.gap ?? S.s), 0);
+  const headH = S.l + title.height + (sub ? sub.height + S.xxs : 0) + (o.art ? ART_H : S.s);
   const footH = 190;
   const viewH = Math.min(bodyH, MAX_H - headH - footH);
   const boxH = headH + viewH + footH;
   const top = GAME_H / 2 - boxH / 2;
   // Само окно тоже ловит нажатия — иначе касание по нему закрыло бы окно.
-  const bg = panel(scene, cx, GAME_H / 2, BOX_W, boxH, 'ui_panel').setInteractive();
+  const bg = plate(scene, cx, GAME_H / 2, BOX_W, boxH, { ...SURFACE.raised, alpha: 0.99, r: R.xl }).setInteractive();
   layer.add([shade, bg]);
-  title.setY(top + 50);
+  title.setY(top + S.l);
   layer.add(title);
-  let y = title.y + title.height + 12;
+  let y = title.y + title.height + S.xxs;
   if (sub) {
     sub.setY(y);
     layer.add(sub);
-    y += sub.height + 12;
+    y += sub.height + S.xxs;
   }
   if (o.art) {
     o.art((obj) => layer.add(obj), cx, y + ART_H / 2 - 10);
     y += ART_H;
-  } else y += 20;
+  } else y += S.s;
   const area = new ScrollArea(scene, y, y + viewH);
   let by = 0;
   for (const { b, t } of blocks) {
     t.setY(by);
     area.add(t);
-    by += t.height + (b.gap ?? 22);
+    by += t.height + (b.gap ?? S.s);
   }
   area.setContentHeight(bodyH);
+  const btnY = top + boxH - 100;
   if (o.extra) {
     const ex = o.extra;
-    const eb = button(scene, cx - 230, top + boxH - 100, 460, 110, 'ui_btn_primary', ex.label, () => {
+    const eb = button(scene, cx + 210, btnY, 520, BTN.l, 'ui_btn_primary', ex.label, () => {
       close();
       ex.onTap();
-    }, FS.h3);
+    }, T.body);
     eb.container.setName('loreModalExtra');
-    // Длинная подпись («История героя · 12 из 15») — ужать под кнопку, а не вылезать за края.
-    const lbl = eb.container.list.find((o): o is Phaser.GameObjects.Text => o instanceof Phaser.GameObjects.Text);
-    if (lbl && lbl.width > 420) lbl.setScale(420 / lbl.width);
-    if (ex.dot) eb.container.add(scene.add.circle(210, -44, 16, TINT.badge).setStrokeStyle(4, 0xffffff));
+    // Длинная подпись («История героя · 12/15») — ужать под кнопку, а не вылезать за края.
+    ellipsize(eb.label, 520 - 2 * S.m);
+    if (ex.dot) eb.container.add(goldDot(scene, 260 - 14, -BTN.l / 2 + 14));
     layer.add(eb.container);
-    layer.add(button(scene, cx + 250, top + boxH - 100, 380, 110, 'k:buttonLong_beige', 'Закрыть', close, FS.h3).container);
-  } else layer.add(button(scene, cx, top + boxH - 100, 400, 110, 'ui_btn_primary', 'Закрыть', close, FS.h3).container);
+    layer.add(button(scene, cx - 290, btnY, 340, BTN.l, '', 'Закрыть', close, T.body, { variant: 'secondary' }).container);
+  } else layer.add(button(scene, cx, btnY, 400, BTN.l, '', 'Закрыть', close, T.body, { variant: 'secondary' }).container);
   popIn(scene, layer, shade);
   // Текст с прокруткой — в слой ПОСЛЕ popIn: popIn переносит детей слоя во внутренний контейнер со сдвигом на центр
   // экрана, а ScrollArea считает границы прокрутки в координатах мира. Раньше первое же движение пальцем по длинной
   // истории героя (Летопись → Герои → окно героя) отбрасывало текст на полэкрана вниз — «история отображается криво».
   layer.add(area.parts);
-  scene.tweens.add({ targets: area.content, alpha: { from: 0, to: 1 }, duration: 160 });
+  scene.tweens.add({ targets: area.content, alpha: { from: 0, to: 1 }, duration: M.base });
   return layer;
 }
 
