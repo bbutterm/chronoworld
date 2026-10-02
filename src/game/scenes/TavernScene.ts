@@ -1,47 +1,43 @@
 import Phaser from 'phaser';
-import { actSummon, addHeroCard, grantTavernWelcome, heroCard, needsBranch, rarityDef, summonPool, summonStatus, type HeroState, type SummonResult, type SummonStatus } from '../../core';
+import { actSummon, addHeroCard, grantTavernWelcome, heroCard, rarityDef, summonPool, summonStatus, type CardRarity, type HeroState, type SummonResult, type SummonStatus } from '../../core';
 import { SUMMON_REVEAL } from '../audioCatalog';
 import { sfx, summonSound } from '../audio';
 import { haptic } from '../haptics';
 import { screenBackground } from '../backdrops';
 import { GAME } from '../content';
-import { describeEvents, formatNumber, heroSprite, stageNo } from '../flow';
-import { afterRewardFly, pulse, queueRewardFly } from '../juice';
+import { formatNumber, heroSprite, stageNo } from '../flow';
+import { bump, decorTween, MOMENT_DEPTH, moment, pulse, queueRewardFly } from '../juice';
 import { GAME_H, GAME_W, BLEED_X, BLEED_Y } from '../layout';
-import { card, CONTENT_TOP, gemIcon, popIn, screen, unitFigure } from '../screen';
+import { bottomSheet, cta, CONTENT_TOP, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
-import { SKIN_TINT, skinIcon } from '../skin';
 import { whenSprites } from '../sprites';
 import { motion } from '../state';
 import {
-  againOption,
   bestResult,
   cardSlots,
-  pityInfo,
-  pullOptions,
-  RARITY_CARD,
-  firstTenText,
-  RARITY_FEM,
-  ratesLines,
   copyTags,
+  firstTenTag,
+  firstTenText,
+  freeInLabel,
+  pityInfo,
+  RARITY_CARD,
+  RARITY_FEM,
+  resultTag,
   revealOrder,
   revealSchedule,
   SOUND_RARITY,
-  summaryLine,
+  summonButtons,
   tensionMs,
   type CardSlot,
+  type PullCost,
   type PullOption,
 } from '../tavern';
-import { BEAM, CARD_BACK, CIRCLE, GLOW, SPARK, setTavernBackground, TAVERN_BG, TAVERN_BG_FILE, TAVERN_LIGHTS } from '../tavernArt';
+import { BEAM, CARD_BACK, CIRCLE, FLOOR_SHADE, GLOW, SPARK, setTavernBackground, TAVERN_BG, TAVERN_BG_FILE, TAVERN_LIGHTS } from '../tavernArt';
 import { drawHeroCard, heroCardSize } from '../heroCard';
 import { markTavernSeen } from '../tavernEntry';
-import { C, FS, OUTLINE, TITLE_STYLE } from '../theme';
-import { button, ellipsize, panel, progressBar, text, toast, tutorialHint } from '../ui';
+import { COLOR, E, FAMILY, M, S, T, hexNum } from '../theme';
+import { button, chip, plate, progressBar, rewardRow, SURFACE, tag, text, toast, tutorialHint, infoButton, type ButtonView } from '../ui';
 import { hintDone, markHint } from '../hints';
-import { roIconImage } from '../itemIcons';
-
-/** Цвет редкости (#rrggbb) → число для tint и заливок. */
-const colorOf = (hex: string): number => Phaser.Display.Color.HexStringToColor(hex).color;
 
 /**
  * Лицо карты призыва — общая плитка карточки героя (heroCard.ts, тот же вид, что в «Героях»): рамка редкости,
@@ -56,22 +52,45 @@ function summonFace(scene: Phaser.Scene, x: number, y: number, w: number, h: num
 export interface TavernData {
   /** Показать призыв: результаты уже в сохранении (actSummon), экран только проигрывает показ. */
   reveal?: { results: SummonResult[]; count: number };
-  /** Строки тоста после перезапуска (подарок, ошибки). */
-  toast?: string[];
+  /** Только что забран подарок Гаррета: «таблетка» свитков подпрыгивает. */
+  gift?: boolean;
 }
 
+/** Раскладка зала (поле 1080×1920). */
+const L = {
+  /** Свитки и «i». */
+  topY: CONTENT_TOP + 66,
+  /** Подарок Гаррета. */
+  giftY: CONTENT_TOP + 250,
+  /** Ноги гостей дня, середина круга призыва. */
+  feetY: 1120,
+  /** Гаранты. */
+  pityY: 1390,
+  /** Кнопки ×1 / ×10. */
+  pullY: 1660,
+  pullH: 176,
+  /** Подпись «Бесплатно через …». */
+  freeY: 1790,
+} as const;
+
 /** Середина стола, куда ложатся карты при показе. */
-const TABLE_Y = 1000;
+const TABLE_Y = 960;
 /** Откуда вылетают карты (колода у края стола). */
 const DECK = { x: GAME_W / 2, y: 1720 };
 const DEPTH = 5000;
+/** Кнопки итога призыва; высота «Готово». */
+const DONE_Y = 1640;
+const BTN_H = 150;
 
+/** Фиолетовая и выше — «момент» (moment('summonRare')). */
+const isEpic = (r: CardRarity): boolean => tensionMs(r) >= tensionMs('purple');
 /** Вибрация переворота карты: фиолетовая и выше — тяжёлый удар, остальные — лёгкий. */
-const flipHaptic = (r: Parameters<typeof tensionMs>[0]) => haptic(tensionMs(r) >= tensionMs('purple') ? 'cardRare' : 'cardFlip');
-/** Строки прогресса призыва (гарант, первый ×10) — плашка обучения их не закрывает (MT-07). */
-const TAVERN_INFO = ['До синей', 'До фиолетовой', 'Первый призыв', 'Шансы', 'Гарант'];
+const flipHaptic = (r: CardRarity) => haptic(isEpic(r) ? 'cardRare' : 'cardFlip');
+/** Строки прогресса призыва — плашка обучения их не закрывает (MT-07). */
+const TAVERN_INFO = ['До синей', 'До фиолетовой', 'Гарант', 'Синяя', 'Фиолетовая'];
+const cap = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
 
-type Phase = 'deal' | 'pick' | 'flipping' | 'showcase' | 'done';
+type Phase = 'deal' | 'pick' | 'showcase' | 'done';
 
 interface CardView {
   i: number;
@@ -84,27 +103,32 @@ interface CardView {
   busy: boolean;
 }
 
-/** Состояние показа (читает и e2e: фаза и результаты). */
+/** Состояние показа (читает и e2e: фаза, результаты, карты). */
 interface RevealState {
   results: SummonResult[];
   count: number;
+  /** deal — карты летят на стол; pick — открываются (сами по очереди или касанием); showcase — момент редкой; done — итог. */
   phase: Phase;
   cards: CardView[];
   layer: Phaser.GameObjects.Container;
-  title: Phaser.GameObjects.Text;
+  /** Кнопки показа (пропуск) — убираются в итоге. */
   ui: Phaser.GameObjects.GameObject[];
-  /** Подписи «Новый герой!» / «копия · теперь ×N» по картам (тот же templateId уже был у игрока до призыва). */
+  /** «Новый» / копия по картам (тот же templateId уже был у игрока до призыва или раньше в серии). */
   tags: ReturnType<typeof copyTags>;
-  /** То же для крупного показа (×1 и витрина редкой карты). */
-  bigTags: ReturnType<typeof copyTags>;
+  /** Лучшая карта серии — её (фиолетовую и выше) показывает момент, один раз за призыв. */
+  best: number;
+  momentShown: boolean;
+  /** Ждут конца момента (очередные перевороты). */
+  waiters: (() => void)[];
 }
 
 /**
- * H5. Таверна: призыв карточек героев (docs/design/heroes-v2.md, раздел 4). Тёплый зал, круг призыва с «гостями дня»
- * (три героя пула), полосы гарантов «до синей / до фиолетовой», кнопки «Бесплатно» / свитки / ×1 / ×10, окно шансов, подарок открытия.
- * Показ как в AFK: карты рубашкой вверх вылетают на стол, нажатие — переворот (или «Открыть все»); перед редкой —
- * нарастание (summonSound задаёт время), фиолетовая — луч, вспышка и крупный показ; итог — «К героям» / «Ещё ×10».
- * «Уменьшить анимацию» — сразу итог.
+ * H5. Таверна: призыв карточек героев (docs/design/heroes-v2.md, раздел 4; полировка — ui-polish-research.md §5).
+ * Зал — арт с тремя «гостями дня» на круге призыва; свитки и «i» (шансы и гарант — листом снизу), гаранты двумя
+ * полосами, ровно две кнопки: ×1 (вторичная; бесплатный — золотая метка) и ×10 (главная), цена — чипом.
+ * Показ как в AFK: карты рубашкой вверх вылетают на стол и открываются по одной (дрожь → вспышка → разворот),
+ * синяя — лучи, лучшая фиолетовая и выше — момент (moment('summonRare')) с крупной картой; касание стола — пропуск.
+ * Итог — сетка карт с метками «Новый» / «+1 копия», «Ещё ×10» и «Готово». «Уменьшить анимацию» — сразу итог.
  */
 export class TavernScene extends Phaser.Scene {
   reveal: RevealState | null = null;
@@ -126,12 +150,11 @@ export class TavernScene extends Phaser.Scene {
       this.locked(st);
       return;
     }
-    this.topRow(st);
-    this.showcase();
+    this.banner();
+    this.topRow(st, !!data.gift);
     this.pity(st);
     this.buttons(st);
     if (!data.reveal?.results.length) this.tutorial(st);
-    if (data.toast?.length) afterRewardFly(this, () => toast(this, data.toast!.join('\n'), C.success, 5000));
     if (data.reveal?.results.length) this.startReveal(data.reveal.results, data.reveal.count);
   }
 
@@ -159,143 +182,155 @@ export class TavernScene extends Phaser.Scene {
 
   private locked(st: SummonStatus): void {
     const stage = GAME.content.stages.find((s) => s.id === st.unlockAfterStage);
-    card(this, GAME_W / 2, 800, 960, 360);
-    text(this, GAME_W / 2, 700, 'Таверна пока закрыта', FS.h1, C.title, TITLE_STYLE);
-    text(this, GAME_W / 2, 820, `Откроется после этапа ${stage ? `${stageNo(stage, GAME)} «${stage.name}»` : st.unlockAfterStage}`, FS.body, C.text, { ...OUTLINE, wordWrap: { width: 860 } });
-    button(this, GAME_W / 2, 1100, 520, 120, 'ui_btn_primary', 'В кампанию', () => this.scene.start('Campaign'), FS.h2);
+    const y = 860;
+    plate(this, GAME_W / 2, y, GAME_W - 2 * S.l, 300, { ...SURFACE.raised, r: 28 });
+    text(this, GAME_W / 2, y - 60, 'Таверна закрыта', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
+    text(this, GAME_W / 2, y + 40, `Откроется после этапа ${stage ? stageNo(stage, GAME) : st.unlockAfterStage}`, T.body, COLOR.textSecondary);
+    cta(this, GAME_W / 2, 1640, 'В кампанию', () => this.scene.start('Campaign'));
   }
 
-  /** Свитки и шансы; подарок открытия (если не забран) или вывеска. */
-  private topRow(st: SummonStatus): void {
-    const y = CONTENT_TOP + 50;
-    // Свитки призыва — «таблетка» как у валюты в шапке.
-    // Значок — слева, подпись — сразу правее него (раньше центрированная подпись заезжала на значок).
-    const pill = this.add.container(180, y, [panel(this, 0, 0, 290, 76, 'k:buttonLong_beige'), roIconImage(this, -104, 0, 'scrolls', 52) ?? this.add.image(-104, 0, skinIcon('scroll')).setDisplaySize(52, 52).setTint(SKIN_TINT.gold)]);
-    pill.add(ellipsize(text(this, -68, -2, `Свитки: ${formatNumber(st.scrolls)}`, FS.body, C.title, { fontStyle: 'bold' }).setOrigin(0, 0.5), 200));
-    pill.setName('scrollsPill');
-    text(this, 540, y, `Призывов: ${formatNumber(st.total)}`, FS.small, C.muted, OUTLINE);
-    button(this, 910, y, 240, 90, 'ui_btn_secondary', 'Шансы', () => this.openRates(), FS.h3, { sound: null });
-
-    const gy = y + 150;
-    if (!session.save.summon.welcomeGiven) {
-      const w = GAME.summon.welcome;
-      card(this, GAME_W / 2, gy, 1000, 190, true);
-      text(this, 70, gy - 42, 'Подарок Гаррета', FS.h2, C.title, TITLE_STYLE).setOrigin(0, 0.5);
-      text(this, 70, gy + 30, `Гемы +${formatNumber(w.gems)}, свитки призыва +${w.scrolls}`, FS.body, C.gem, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
-      const b = button(this, 820, gy, 330, 120, 'ui_btn_primary', 'Забрать подарок', () => this.claimWelcome({ x: 820, y: gy }), FS.h3);
-      pulse(this, b.container);
-    } else {
-      // Тёмная подложка: вывеска читается поверх бутылок на полках фона.
-      // Полки с бутылками рисуются позже — подложка и вывеска поверх них (глубина).
-      this.add.graphics().fillStyle(0x120b06, 0.7).fillRoundedRect(GAME_W / 2 - 470, gy - 70, 940, 150, 28).setDepth(2);
-      text(this, GAME_W / 2, gy - 20, 'Таверна «Два колокола»', FS.hero, C.title, { fontStyle: 'bold', stroke: C.titleStroke, strokeThickness: 10 }).setDepth(3);
-      text(this, GAME_W / 2, gy + 45, 'Наёмники ищут работу — кто сядет за ваш стол?', FS.small, C.muted, OUTLINE).setDepth(3);
-    }
-  }
-
-  /** Круг призыва на столе и три героя из пула (гости дня: сменяются по дате игрока), подпись — сколько героев в пуле. */
-  private showcase(): void {
-    const cy = 1040;
-    const ring = this.add.container(GAME_W / 2, cy).setScale(1.7, 0.62);
+  /**
+   * Баннер пула: круг призыва перед камином и три «гостя дня» (сменяются по дате игрока) — крупно, без подписей:
+   * арт говорит сам. Ниже — тень пола, на ней гаранты и кнопки читаются поверх арта.
+   */
+  private banner(): void {
+    const cy = L.feetY;
+    const ring = this.add.container(GAME_W / 2, cy).setScale(1.8, 0.62);
     const circle = this.add.image(0, 0, CIRCLE).setTint(0xc89bff).setAlpha(0.55).setBlendMode(Phaser.BlendModes.ADD);
     const inner = this.add.image(0, 0, CIRCLE).setTint(0xffc070).setAlpha(0.3).setScale(0.62).setBlendMode(Phaser.BlendModes.ADD);
     ring.add([circle, inner]);
-    this.add.image(GAME_W / 2, cy - 30, GLOW).setTint(0xa05cff).setAlpha(0.35).setDisplaySize(900, 520).setBlendMode(Phaser.BlendModes.ADD);
+    this.add.image(GAME_W / 2, cy - 60, GLOW).setTint(0xa05cff).setAlpha(0.35).setDisplaySize(980, 640).setBlendMode(Phaser.BlendModes.ADD);
     if (!motion.reduced) {
       this.tweens.add({ targets: circle, angle: 360, duration: 40000, repeat: -1 });
       this.tweens.add({ targets: inner, angle: -360, duration: 26000, repeat: -1 });
       this.tweens.add({ targets: circle, alpha: { from: 0.45, to: 0.7 }, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
-    // Пул Таверны — все герои (12); витрина — три «гостя дня» в форме первой профессии (ветку выбирают на фиолетовом).
+    const shadeTop = cy + 40;
+    this.add
+      .image(GAME_W / 2, shadeTop, FLOOR_SHADE)
+      .setOrigin(0.5, 0)
+      .setDisplaySize(GAME_W + 2 * BLEED_X, GAME_H + BLEED_Y - shadeTop);
+    // Пул Таверны — все герои; витрина — три «гостя дня» в форме первой профессии (ветку выбирают на фиолетовом).
     const pool = summonPool(GAME, 'green');
     if (!pool.length) return;
-    // Витрина меняется раз в день (по дате игрока).
     const day = today();
     let h = 0;
     for (const ch of day) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
     const picks = [0, 1, 2].map((k) => pool[(h + k * 5) % pool.length]).filter((t, i, a) => a.indexOf(t) === i);
     const spots = [
-      { x: 300, h: 250 },
-      { x: 540, h: 310 },
-      { x: 780, h: 250 },
+      { x: 290, h: 330, dy: -24 },
+      { x: 540, h: 410, dy: 18 },
+      { x: 790, h: 330, dy: -24 },
     ];
-    const heroes = picks.map((t) => addHeroCard(session.save, t, 'green').hero);
-    heroes.forEach((hero, i) => {
+    picks.forEach((t, i) => {
+      const hero = addHeroCard(session.save, t, 'green').hero;
       const s = spots[i];
-      const feet = cy + (i === 1 ? 30 : 0);
-      this.add.ellipse(s.x, feet + 4, 170, 34, 0x000000, 0.45);
-      unitFigure(this, heroSprite(hero, GAME), s.x, feet, s.h, { maxScale: 2.4 });
+      const feet = cy + s.dy;
+      this.add.ellipse(s.x, feet + 4, 190, 38, 0x000000, 0.45);
+      unitFigure(this, heroSprite(hero, GAME), s.x, feet, s.h, { maxScale: 2.8 });
     });
-    const names = heroes.map((x) => GAME.content.heroes[x.templateId]?.name ?? x.templateId);
-    text(this, GAME_W / 2, cy + 100, `За столом: ${names.join(', ')} · героев в Таверне: ${pool.length}`, FS.small, '#d8b8ff', { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: 980 } }).setName('tavernGuests');
   }
 
-  /** Гаранты: «До гарантированной синей: N» и «… фиолетовой: N» с полосами; заметка про первый ×10. */
+  /** Свитки (слева) и «i» (справа); подарок Гаррета (если не забран) — карточкой с наградой и «Забрать». */
+  private topRow(st: SummonStatus, gift: boolean): void {
+    const pill = chip(this, S.l, L.topY, 'scrolls', st.scrolls, 'neutral', { align: 'left' }).setName('scrollsPill');
+    if (gift) this.time.delayedCall(M.base, () => bump(this, pill));
+    infoButton(this, GAME_W - S.l - 32, L.topY, () => this.openRates()).setName('tavernInfo');
+
+    if (session.save.summon.welcomeGiven) return;
+    const w = GAME.summon.welcome;
+    const y = L.giftY;
+    const cw = GAME_W - 2 * S.l;
+    plate(this, GAME_W / 2, y, cw, 200, { ...SURFACE.raised, r: 28 });
+    const left = S.l + S.m;
+    text(this, left, y - 44, 'Подарок Гаррета', T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
+    const row = rewardRow(this, 0, y + 40, [
+      { icon: 'gems', value: `+${formatNumber(w.gems)}`, tone: 'gem' },
+      { icon: 'scrolls', value: `+${w.scrolls}` },
+    ], { size: 's' });
+    row.setX(left + row.width / 2);
+    const bx = GAME_W - S.l - S.m - 140;
+    const b = button(this, bx, y, 280, 120, '', 'Забрать', () => this.claimWelcome({ x: bx, y }), T.heading, { variant: 'primary' });
+    b.container.setName('giftClaim');
+    pulse(this, b.container);
+  }
+
+  /** Гаранты: «До синей: N» и «До фиолетовой: N» с тонкими полосами — одна поверхность без рамки. */
   private pity(st: SummonStatus): void {
     const rows = st.pities.length ? st.pities : [{ rarity: st.pityRarity, until: st.untilPity }];
-    const rowH = 58;
-    const h = 40 + rows.length * rowH + (st.firstTenBonus ? 52 : 0);
-    const y = 1275;
-    card(this, GAME_W / 2, y, 1000, h);
-    let ry = y - h / 2 + 20 + rowH / 2;
+    const rowH = 64;
+    const h = rows.length * rowH + 2 * S.s;
+    plate(this, GAME_W / 2, L.pityY, GAME_W - 2 * S.l, h, { ...SURFACE.surface, r: 28 });
+    let ry = L.pityY - h / 2 + S.s + rowH / 2;
+    const barX = 500;
+    const barW = GAME_W - S.l - S.m - barX;
     rows.forEach((p, i) => {
       const every = GAME.summon.pity.find((x) => x.rarity === p.rarity)?.every ?? p.until;
       const info = pityInfo({ untilPity: p.until, pityRarity: p.rarity }, every);
       const color = rarityDef(GAME, p.rarity).color;
-      text(this, 76, ry, `До ${RARITY_FEM[p.rarity]}: ${p.until}`, FS.h3, color, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5).setName(i === 0 ? 'pityLabel' : `pityLabel_${p.rarity}`);
-      progressBar(this, 480, ry, 520, 26, info.fraction, colorOf(color), { key: `tavern:pity:${p.rarity}` });
+      text(this, S.l + S.m, ry, `До ${RARITY_FEM[p.rarity]}: ${p.until}`, T.body, color, { fontStyle: 'bold' })
+        .setOrigin(0, 0.5)
+        .setName(i === 0 ? 'pityLabel' : `pityLabel_${p.rarity}`);
+      progressBar(this, barX, ry, barW, 20, info.fraction, hexNum(color), { key: `tavern:pity:${p.rarity}` });
       ry += rowH;
     });
-    if (st.firstTenBonus) {
-      text(this, GAME_W / 2, ry - 6, `Первый призыв ×10 — ${firstTenText(st.firstTenCount, st.firstTenRarity)}!`, FS.small, C.gold, { fontStyle: 'bold', ...OUTLINE }).setName('firstTenNote');
-    }
-  }
-
-  private buttons(st: SummonStatus): void {
-    const opts = pullOptions(st);
-    const by = (id: PullOption['id']) => opts.find((o) => o.id === id)!;
-    const small = (o: PullOption, x: number, y: number) => {
-      const primary = o.id === 'free' && o.enabled;
-      const b = button(this, x, y, 316, 116, primary ? 'ui_btn_primary' : 'ui_btn_secondary', o.label, () => this.pull(o), FS.h3, { sound: o.enabled ? 'ui_tap' : null });
-      if (!o.enabled) b.setEnabled(false);
-      if (primary) pulse(this, b.container);
-      return b;
-    };
-    const y1 = 1455;
-    small(by('free'), 200, y1);
-    small(by('scroll1'), 540, y1);
-    small(by('scroll10'), 880, y1);
-    const big = (o: PullOption, x: number, y: number) => {
-      const b = button(this, x, y, 490, 150, 'ui_btn_primary', o.label, () => this.pull(o), FS.h2, { sound: o.enabled ? 'ui_tap' : null });
-      b.label.setX(22);
-      b.container.add(gemIcon(this, 22 - b.label.width / 2 - 34, -6, 40));
-      if (!o.enabled) b.setEnabled(false);
-      return b;
-    };
-    const y2 = 1620;
-    big(by('gems1'), 280, y2);
-    big(by('gems10'), 800, y2);
-    const names = (r: Parameters<typeof rarityDef>[1]) => rarityDef(GAME, r).name.toLowerCase();
-    text(this, GAME_W / 2, 1765, `Шансы: ${ratesLines(GAME.summon.rates, names).join(' · ')}`, FS.small, C.muted, OUTLINE);
-    text(this, GAME_W / 2, 1815, `Гарант: ${GAME.summon.pity.map((p) => `${RARITY_CARD[p.rarity]} — на ${p.every}-м призыве`).join(', ')}`, FS.small, C.dim, { ...OUTLINE, wordWrap: { width: 1000 } });
   }
 
   /**
-   * Ведущее обучение (hints.ts, шаг tavern_summon): до первого ×10 — указатель на «Забрать подарок», затем на ×10
-   * (свитки или гемы — что доступно). Шаг выполнен первым ×10 (pull) или касанием плашки.
+   * Кнопка призыва: подпись сверху, цена чипом снизу (свитки или гемы); бесплатный ×1 — без цены, с золотой
+   * меткой «Бесплатно» на кромке. Не хватает — серая, нажатие объясняет тостом (pull).
+   */
+  private pullButton(x: number, y: number, w: number, h: number, primary: boolean, o: PullOption, cost: PullCost | null, free: boolean, label = o.label): ButtonView {
+    const b = button(this, x, y, w, h, '', label, () => this.pull(o), T.heading, { variant: primary ? 'primary' : 'secondary', sound: o.enabled ? 'ui_tap' : null });
+    if (cost) {
+      b.label.setY(-h * 0.19);
+      b.container.add(chip(this, 0, h * 0.2, cost.icon, cost.value, cost.icon === 'gems' ? 'gem' : 'neutral', { size: 's' }));
+    }
+    if (free) {
+      const t = tag(this, 0, -h / 2 + 10, 'Бесплатно', 'gold', { solid: true });
+      t.setX(w / 2 - t.width / 2 - S.xs);
+      b.container.add(t);
+    }
+    if (!o.enabled) b.setEnabled(false);
+    return b;
+  }
+
+  /** Ровно две кнопки: ×1 — вторичная, ×10 — главная (пока подарок не забран, главная — «Забрать»). */
+  private buttons(st: SummonStatus): void {
+    const { one, ten } = summonButtons(st);
+    const w1 = 420;
+    const w10 = GAME_W - 2 * S.l - S.s - w1;
+    const x1 = S.l + w1 / 2;
+    const x10 = GAME_W - S.l - w10 / 2;
+    const b1 = this.pullButton(x1, L.pullY, w1, L.pullH, false, one, one.cost, one.free);
+    b1.container.setName('pullOne');
+    if (one.free) pulse(this, b1.container, 1.03);
+    const b10 = this.pullButton(x10, L.pullY, w10, L.pullH, session.save.summon.welcomeGiven, ten, ten.cost, false);
+    b10.container.setName('pullTen');
+    if (st.firstTenBonus) {
+      tag(this, x10, L.pullY - L.pullH / 2 - 44, firstTenTag(st.firstTenCount, st.firstTenRarity), 'warning').setName('firstTenNote');
+    }
+    if (!st.freeLeft) {
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0);
+      text(this, x1, L.freeY, freeInLabel(midnight.getTime() - Date.now()), T.caption, COLOR.textSecondary).setName('freeIn');
+    }
+  }
+
+  /**
+   * Ведущее обучение (hints.ts, шаг tavern_summon): до первого ×10 — указатель на «Забрать» подарка, затем на ×10.
+   * Шаг выполнен первым ×10 (pull) или касанием плашки.
    */
   private tutorial(st: SummonStatus): void {
     if (session.save.summon.firstTenDone || hintDone('tavern_summon')) return;
     if (!session.save.summon.welcomeGiven) {
-      tutorialHint(this, 'tavern_summon', 820, CONTENT_TOP + 200, 'below', { w: 330, h: 120 }, { text: 'Заберите подарок Гаррета — свитки и гемы на призыв', avoidText: TAVERN_INFO });
+      tutorialHint(this, 'tavern_summon', GAME_W - S.l - S.m - 140, L.giftY, 'below', { w: 280, h: 120 }, { text: 'Подарок — свитки на призыв', avoidText: TAVERN_INFO });
       return;
     }
-    const opts = pullOptions(st);
-    const scroll = opts.find((o) => o.id === 'scroll10' && o.enabled);
-    const gems = opts.find((o) => o.id === 'gems10' && o.enabled);
-    const msg = `Призыв ×10 — ${firstTenText(st.firstTenCount, st.firstTenRarity)}!`;
-    if (scroll) tutorialHint(this, 'tavern_summon', 880, 1455, 'above', { w: 316, h: 116 }, { text: msg, avoidText: TAVERN_INFO });
-    else if (gems) tutorialHint(this, 'tavern_summon', 800, 1620, 'above', { w: 490, h: 150 }, { text: msg, avoidText: TAVERN_INFO });
+    const { ten } = summonButtons(st);
+    if (!ten.enabled) return;
+    const w10 = GAME_W - 2 * S.l - S.s - 420;
+    tutorialHint(this, 'tavern_summon', GAME_W - S.l - w10 / 2, L.pullY, 'above', { w: w10, h: L.pullH }, { avoidText: TAVERN_INFO });
   }
 
   // ---------- действия ----------
@@ -306,55 +341,49 @@ export class TavernScene extends Phaser.Scene {
     if (r.save === session.save) return;
     commit(r.save);
     queueRewardFly('Tavern', at, before);
-    this.scene.restart({ toast: describeEvents(r.events, r.save, GAME) } satisfies TavernData);
+    this.scene.restart({ gift: true } satisfies TavernData);
   }
 
   private pull(o: PullOption): void {
-    if (this.reveal) return;
+    if (this.reveal && this.reveal.phase !== 'done') return;
     try {
       const r = actSummon(session.save, today(), o.count, o.pay, GAME);
       commit(r.save);
       if (o.count === 10) markHint('tavern_summon');
+      this.reveal = null;
       this.scene.restart({ reveal: { results: r.results, count: o.count } } satisfies TavernData);
     } catch (e) {
-      toast(this, e instanceof Error ? e.message : String(e), C.error);
+      toast(this, e instanceof Error ? e.message : String(e), COLOR.negative);
     }
   }
 
+  /** «i»: шансы по редкостям и правила гаранта — листом снизу. */
   private openRates(): void {
-    const cx = GAME_W / 2;
-    const cy = GAME_H / 2;
-    const layer = this.add.container(0, 0).setDepth(8500).setName('ratesModal');
-    const close = () => layer.destroy();
-    const shade = this.add.rectangle(cx, cy, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x000000, 0.7).setInteractive();
-    shade.on('pointerup', close);
-    const box = panel(this, cx, cy, 900, 1060, 'ui_panel').setInteractive();
-    layer.add([shade, box]);
-    layer.add(text(this, cx, cy - 450, 'Шансы призыва', FS.h1, C.title, TITLE_STYLE));
-    let y = cy - 350;
-    for (const r of GAME.summon.rates) {
-      const def = rarityDef(GAME, r.rarity);
-      layer.add(this.add.rectangle(cx - 330, y, 44, 44, colorOf(def.color)).setStrokeStyle(3, 0x000000));
-      layer.add(text(this, cx - 280, y, def.name, FS.h3, def.color, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5));
-      layer.add(text(this, cx + 360, y, `${String(Math.round(r.chance * 1000) / 10).replace('.', ',')}%`, FS.h3, C.text, { fontStyle: 'bold', ...OUTLINE }).setOrigin(1, 0.5));
-      y += 80;
-    }
-    const s = GAME.summon;
-    const rules = [
-      ...s.pity.map((p) => `Гарант: ${p.every - 1} призывов подряд без ${RARITY_FEM[p.rarity]} — следующая карта ${RARITY_CARD[p.rarity]}.`),
-      `Первый призыв ×10 (один раз) — ${firstTenText(s.firstTen.count, s.firstTen.rarity, true)}.`,
-      `Бесплатно: ${s.freePerDay} призыв в день. Свиток — 1 призыв.`,
-      'Фиолетовая карта приходит без ветки — выберите её на карточке героя.',
-      'Повторные карты — корм для вознесения в «Героях».',
-    ];
-    y += 20;
-    for (const line of rules) {
-      const t = text(this, cx - 380, y, `• ${line}`, FS.small, C.muted, { align: 'left', wordWrap: { width: 760 } }).setOrigin(0, 0);
-      layer.add(t);
-      y += t.height + 18;
-    }
-    layer.add(button(this, cx, cy + 440, 400, 120, 'ui_btn_primary', 'Понятно', close, FS.h2).container);
-    popIn(this, layer, shade);
+    bottomSheet(this, 'Шансы и гарант', (content, width) => {
+      let y = S.xs;
+      for (const r of GAME.summon.rates) {
+        const def = rarityDef(GAME, r.rarity);
+        content.add(this.add.circle(14, y + 24, 14, hexNum(def.color)));
+        content.add(text(this, 48, y + 24, def.name, T.body, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5));
+        content.add(text(this, width, y + 24, `${String(Math.round(r.chance * 1000) / 10).replace('.', ',')}%`, T.body, def.color, { fontStyle: 'bold' }).setOrigin(1, 0.5));
+        y += 72;
+      }
+      y += S.s;
+      const s = GAME.summon;
+      const rules = [
+        ...s.pity.map((p) => `${p.every - 1} призывов подряд без ${RARITY_FEM[p.rarity]} — следующая карта ${RARITY_CARD[p.rarity]}.`),
+        `Первый ×10 (один раз) — ${firstTenText(s.firstTen.count, s.firstTen.rarity, true)}.`,
+        `Бесплатно: ${s.freePerDay} призыв в день. Свиток — 1 призыв.`,
+        'Фиолетовая приходит без ветки — её выбирают на карточке героя.',
+        'Копии — для вознесения в «Героях».',
+      ];
+      for (const line of rules) {
+        const t = text(this, 0, y, line, T.caption, COLOR.textSecondary, { align: 'left', wordWrap: { width } }).setOrigin(0, 0);
+        content.add(t);
+        y += t.height + S.xs;
+      }
+      return y;
+    });
   }
 
   // ---------- показ призыва ----------
@@ -367,15 +396,31 @@ export class TavernScene extends Phaser.Scene {
       if (!bgImage) (o as unknown as Phaser.GameObjects.Components.Visible).setVisible?.(false);
     }
     const layer = this.add.container(0, 0).setDepth(DEPTH);
-    const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x07040a, 0.93).setInteractive();
+    const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x07040a, 0.9).setInteractive();
     layer.add(shade);
     // Свет над столом.
     layer.add(this.add.image(GAME_W / 2, TABLE_Y, GLOW).setTint(0xffa050).setAlpha(0.25).setDisplaySize(1300, 1100).setBlendMode(Phaser.BlendModes.ADD));
-    const title = text(this, GAME_W / 2, 230, count > 1 ? `Призыв ×${count}` : 'Призыв', FS.h1, C.title, TITLE_STYLE);
-    layer.add(title);
-    const heroesNow = session.save.heroes;
-    const state: RevealState = { results, count, phase: 'deal', cards: [], layer, title, ui: [], tags: copyTags(results, heroesNow, count === 1), bigTags: copyTags(results, heroesNow, true) };
+    const best = bestResult(results);
+    const state: RevealState = {
+      results,
+      count,
+      phase: 'deal',
+      cards: [],
+      layer,
+      ui: [],
+      tags: copyTags(results, session.save.heroes, count === 1),
+      best: best ? results.indexOf(best) : -1,
+      momentShown: false,
+      waiters: [],
+    };
     this.reveal = state;
+    // Касание стола (мимо карт) — пропуск: все карты сразу лицом вверх.
+    shade.on('pointerup', () => {
+      if (state.phase === 'deal' || state.phase === 'pick') this.skip(state);
+    });
+    const skip = button(this, GAME_W - S.l - 120, CONTENT_TOP + 66, 240, 96, '', 'Пропустить', () => this.skip(state), T.body, { variant: 'ghost' });
+    layer.add(skip.container);
+    state.ui.push(skip.container);
 
     const heroes = results.map((r) => session.save.heroes.find((h) => h.id === r.heroId)).filter((h): h is HeroState => !!h);
     if (heroes.length !== results.length) {
@@ -389,13 +434,9 @@ export class TavernScene extends Phaser.Scene {
       if (this.reveal !== state) return;
       state.cards = results.map((_, i) => this.makeCard(state, i, slots[i], heroes[i], count === 1));
       if (motion.reduced) {
-        // Уменьшить анимацию: карты сразу лицом вверх, один звук лучшей карты, итог.
-        for (const cv of state.cards) this.showFace(state, cv, false);
-        const best = bestResult(results);
-        if (best) {
-          sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
-          flipHaptic(best.rarity);
-        }
+        // Уменьшить анимацию: карты сразу лицом вверх, звук и вибрация лучшей карты, итог.
+        for (const cv of state.cards) this.showFace(state, cv);
+        this.bestSound(state);
         this.finish(state);
         return;
       }
@@ -405,7 +446,7 @@ export class TavernScene extends Phaser.Scene {
 
   private makeCard(state: RevealState, i: number, slot: CardSlot, hero: HeroState, big: boolean): CardView {
     const r = state.results[i];
-    const col = colorOf(rarityDef(GAME, r.rarity).color);
+    const col = hexNum(rarityDef(GAME, r.rarity).color);
     const root = this.add.container(slot.x, slot.y);
     const glow = this.add.image(0, 0, GLOW).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(slot.w * 2, slot.h * 1.7).setAlpha(0);
     const face = summonFace(this, 0, 0, slot.w, slot.h, hero, big).setVisible(false);
@@ -434,11 +475,11 @@ export class TavernScene extends Phaser.Scene {
         x: slot.x,
         y: slot.y,
         scale: 1,
-        angle: Phaser.Math.Between(-2, 2),
+        angle: 0,
         alpha: 1,
-        delay: 80 * k,
-        duration: 460,
-        ease: 'Cubic.easeOut',
+        delay: 70 * k,
+        duration: M.slow + 100,
+        ease: E.out,
         onComplete: () => {
           if (k === 0 || k === n - 1) sfx('ui_tap', { rate: 0.8 });
           if (k === n - 1) this.readyToPick(state);
@@ -447,20 +488,57 @@ export class TavernScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Карты на столе. Без слов: первая карта один раз мягко «вздыхает» (её можно открыть касанием), затем карты
+   * открываются сами по очереди — простые раньше, самая редкая последней, с нарастанием. ×1 ждёт касания чуть дольше.
+   */
   private readyToPick(state: RevealState): void {
     if (this.reveal !== state || state.phase !== 'deal') return;
     state.phase = 'pick';
-    const hint = text(this, GAME_W / 2, 320, state.count > 1 ? 'Нажмите на карту, чтобы открыть' : 'Нажмите на карту', FS.body, C.muted, OUTLINE);
-    const all = button(this, GAME_W / 2, 1620, 520, 140, 'ui_btn_primary', state.count > 1 ? 'Открыть все' : 'Открыть', () => this.openAll(state), FS.h2);
-    const skip = button(this, 915, 230, 260, 96, 'ui_btn_secondary', 'Пропустить', () => this.skip(state), FS.h3);
-    pulse(this, all.container);
-    state.layer.add([hint, all.container, skip.container]);
-    state.ui.push(hint, all.container, skip.container);
+    const first = state.cards[revealOrder(state.results)[0]];
+    if (first) this.tweens.add({ targets: first.root, scale: 1.06, duration: M.slow, yoyo: true, ease: E.inOut });
+    this.later(state, state.count > 1 ? M.slow * 2 : 1400, () => void this.autoReveal(state));
+  }
+
+  private later(state: RevealState, ms: number, fn: () => void): void {
+    this.time.delayedCall(ms, () => {
+      if (this.reveal === state) fn();
+    });
+  }
+
+  private sleep(state: RevealState, ms: number): Promise<void> {
+    return new Promise((res) => (ms <= 0 ? res() : this.later(state, ms, res)));
+  }
+
+  /** Пока идёт момент редкой карты, очередные перевороты ждут. */
+  private free(state: RevealState): Promise<void> {
+    return state.phase === 'showcase' ? new Promise((res) => state.waiters.push(res)) : Promise.resolve();
+  }
+
+  /** Перевороты по очереди (revealSchedule): простые — с шагом, карта с нарастанием — после всех остальных. */
+  private async autoReveal(state: RevealState): Promise<void> {
+    const sched = revealSchedule(state.results);
+    let t = 0;
+    const flips: Promise<void>[] = [];
+    for (const s of sched) {
+      await this.sleep(state, s.at - t);
+      t = s.at;
+      await this.free(state);
+      if (this.reveal !== state || state.phase === 'done') return;
+      const cv = state.cards[s.index];
+      if (s.tension) {
+        await Promise.all(flips);
+        await this.flip(state, cv, 'tension');
+      } else flips.push(this.flip(state, cv, 'quick'));
+    }
+    await Promise.all(flips);
+    this.checkDone(state);
   }
 
   /**
-   * Переворот карты. mode: tap — нажатие игрока (у синей и выше — нарастание по summonSound); quick — «Открыть все»
-   * без нарастания; tension — «Открыть все», самая редкая карта серии.
+   * Переворот карты (§4.6): рубашка дрожит → вспышка → разворот. mode: tap — касание (у синей и выше — нарастание
+   * по summonSound); quick — очередь, без нарастания; tension — очередь, самая редкая карта серии.
+   * Синяя — лучи за картой; фиолетовая и выше — луч, стягивающиеся искры, вспышка экрана; лучшая — момент.
    */
   private flip(state: RevealState, cv: CardView, mode: 'tap' | 'quick' | 'tension'): Promise<void> {
     if (cv.flipped || cv.busy) return Promise.resolve();
@@ -468,25 +546,25 @@ export class TavernScene extends Phaser.Scene {
     const r = state.results[cv.i];
     const rarity = r.rarity;
     const tense = mode === 'tension' || (mode === 'tap' && tensionMs(rarity) > 0);
-    const wait = tense ? summonSound(SOUND_RARITY[rarity]) : 60;
-    const epic = tensionMs(rarity) >= tensionMs('purple');
-    const col = colorOf(rarityDef(GAME, r.rarity).color);
+    const wait = tense ? summonSound(SOUND_RARITY[rarity]) : mode === 'quick' ? 200 : 260;
+    const epic = isEpic(rarity);
+    const momentCard = epic && cv.i === state.best && !state.momentShown;
+    const col = hexNum(rarityDef(GAME, r.rarity).color);
     const { root, glow, slot } = cv;
-    this.children.bringToTop(state.layer);
     state.layer.bringToTop(root);
+    // Дрожь рубашки (поворот — не сдвиг: место карты не уплывает).
+    const amp = tense ? (epic ? 4 : 3) : 2;
+    const shake = this.tweens.add({ targets: root, angle: { from: -amp, to: amp }, duration: 50, yoyo: true, repeat: Math.max(1, Math.floor(wait / 100)), ease: E.inOut });
     let beam: Phaser.GameObjects.Image | null = null;
     if (tense) {
-      // Нарастание: свечение цвета редкости, дрожь, карта чуть растёт; у фиолетовой — луч и стягивающиеся искры.
-      this.tweens.add({ targets: glow, alpha: 0.95, duration: wait, ease: 'Quad.easeIn' });
-      this.tweens.add({ targets: root, scale: 1.08, duration: wait, ease: 'Quad.easeIn' });
-      const amp = epic ? 7 : 4;
-      this.tweens.add({ targets: root, x: slot.x + amp, duration: 45, yoyo: true, repeat: Math.max(1, Math.floor(wait / 90)), ease: 'Sine.easeInOut' });
+      this.tweens.add({ targets: glow, alpha: 0.95, duration: wait, ease: E.in });
+      this.tweens.add({ targets: root, scale: 1.08, duration: wait, ease: E.in });
       if (epic) {
         beam = this.add.image(slot.x, slot.y + slot.h / 2, BEAM).setOrigin(0.5, 1).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0);
         beam.setDisplaySize(slot.w * 1.2, slot.y + slot.h / 2 + 200);
         // Луч — за всеми картами (не красит соседние).
         state.layer.addAt(beam, 2);
-        this.tweens.add({ targets: beam, alpha: 0.85, duration: wait, ease: 'Quad.easeIn' });
+        this.tweens.add({ targets: beam, alpha: 0.85, duration: wait, ease: E.in });
         this.converge(state, slot, col, wait);
       }
     }
@@ -494,24 +572,33 @@ export class TavernScene extends Phaser.Scene {
       this.time.delayedCall(wait, () => {
         if (this.reveal !== state || !root.scene || cv.flipped) return resolve();
         if (!tense) sfx(SUMMON_REVEAL[SOUND_RARITY[rarity]]);
-        flipHaptic(rarity);
+        // Вибрацию лучшей фиолетовой даёт момент (один тяжёлый удар за призыв).
+        if (!momentCard) flipHaptic(rarity);
+        const fw = cv.face.getData('w') as number;
+        const fh = cv.face.getData('h') as number;
+        const flash = this.add.image(slot.x, slot.y, GLOW).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(fw * 1.5, fh * 1.3).setAlpha(0);
+        state.layer.add(flash);
+        this.tweens.add({ targets: flash, alpha: 1, duration: M.fast / 2, yoyo: true, hold: 40, ease: E.out, onComplete: () => flash.destroy() });
         this.tweens.add({
           targets: root,
           scaleX: 0,
           duration: 110,
-          ease: 'Quad.easeIn',
+          delay: M.fast / 2,
+          ease: E.in,
           onComplete: () => {
-            this.showFace(state, cv, true);
-            root.setX(slot.x);
-            this.tweens.add({ targets: root, scaleX: 1, scaleY: 1, duration: 200, ease: 'Back.easeOut' });
-            this.burst(state, slot, col, epic ? 28 : rarity === 'green' ? 8 : 16, epic);
+            shake.stop();
+            root.setAngle(0);
+            this.showFace(state, cv);
+            this.tweens.add({ targets: root, scaleX: 1, scaleY: 1, duration: M.fast, ease: E.pop });
+            this.burst(state, slot, col, epic ? 28 : rarity === 'green' ? 6 : 16, epic);
+            if (tensionMs(rarity) > 0) this.rays(state, cv, col, epic);
             if (epic) {
               this.cameras.main.flash(260, 200, 150, 255);
               this.cameras.main.shake(260, 0.006);
               if (beam) this.tweens.add({ targets: beam, alpha: 0, duration: 1100, delay: 250, onComplete: () => beam?.destroy() });
             }
-            this.time.delayedCall(220, () => {
-              if (epic && state.count > 1 && mode !== 'quick') this.showcaseCard(state, cv).then(resolve);
+            this.time.delayedCall(M.base, () => {
+              if (momentCard && this.reveal === state && state.phase === 'pick') this.showcase(state, cv).then(resolve);
               else resolve();
               this.checkDone(state);
             });
@@ -521,38 +608,29 @@ export class TavernScene extends Phaser.Scene {
     });
   }
 
-  /** Лицо вместо рубашки и метка под картой («Новый!» / «дубль → на слияние», в сетке ×10 — «на слияние»). */
-  private showFace(state: RevealState, cv: CardView, animated: boolean): void {
+  /** Лицо вместо рубашки; свечение по редкости; «Гарант» — меткой у верхнего края карты. */
+  private showFace(state: RevealState, cv: CardView): void {
     const r = state.results[cv.i];
     cv.back.setVisible(false);
     cv.face.setVisible(true);
     cv.flipped = true;
     cv.busy = false;
-    const def = rarityDef(GAME, r.rarity);
     const rare = tensionMs(r.rarity) > 0;
-    const epic = tensionMs(r.rarity) >= tensionMs('purple');
-    cv.glow.setAlpha(epic ? 0.9 : rare ? 0.5 : 0.2);
-    if (rare && !motion.reduced) this.tweens.add({ targets: cv.glow, alpha: epic ? { from: 1, to: 0.6 } : { from: 0.55, to: 0.3 }, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    const tag = state.tags[cv.i];
-    const big = state.count === 1;
-    // В сетке ×10 — одна короткая строка («Новый!» / «копия ×N»): длинные упирались в соседние карты (зазор 18 по
-    // ширине, 70 по высоте). Копия — корм для вознесения (строка под сеткой).
-    const t = text(this, cv.slot.x, cv.slot.y + cv.slot.h / 2 + (big ? 36 : 24), tag.text, FS.caption, tag.kind === 'new' ? C.gold : C.dim, {
-      fontStyle: 'bold',
-      ...OUTLINE,
-    }).setName(`summonTag_${cv.i}`);
+    cv.glow.setAlpha(isEpic(r.rarity) ? 0.85 : rare ? 0.45 : 0.15);
     if (r.guaranteed) {
-      // «Гарант» — лентой у верхнего края карты, между значками класса и роли (выше — подписи ряда над ней).
-      const gy = cv.slot.y - (cv.face.getData('h') as number) / 2 + 30;
-      const g = text(this, cv.slot.x, gy, 'гарант', FS.caption, C.text, { fontStyle: 'bold', ...OUTLINE });
-      const band = this.add.rectangle(cv.slot.x, gy, g.width + 24, 40, colorOf(def.color), 0.95).setStrokeStyle(2, 0xf0cf8a);
-      state.layer.add([band, g]);
+      const gy = cv.slot.y - (cv.face.getData('h') as number) / 2;
+      state.layer.add(tag(this, cv.slot.x, gy, 'Гарант', 'accent', { solid: true }).setName(`summonGuarantee_${cv.i}`));
     }
-    state.layer.add(t);
-    if (animated) {
-      t.setAlpha(0);
-      this.tweens.add({ targets: t, alpha: 1, duration: 200 });
-    }
+  }
+
+  /** Лучи за открытой синей (и выше) картой — медленно вращаются до конца показа. */
+  private rays(state: RevealState, cv: CardView, col: number, epic: boolean): void {
+    if (!this.textures.exists('skin_rays')) return;
+    const size = cv.slot.w * (epic ? 2.8 : 2.2);
+    const img = this.add.image(cv.slot.x, cv.slot.y, 'skin_rays').setTint(col).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(size, size).setAlpha(0);
+    state.layer.addAt(img, Math.max(2, state.layer.getIndex(cv.root)));
+    this.tweens.add({ targets: img, alpha: epic ? 0.7 : 0.5, duration: M.slow, ease: E.out });
+    decorTween(this, { targets: img, angle: 360, duration: 24000, repeat: -1 });
   }
 
   /** Искры цвета редкости разлетаются от карты; кольцо-волна. */
@@ -562,13 +640,13 @@ export class TavernScene extends Phaser.Scene {
       const d = (big ? 260 : 150) * (0.6 + Math.random() * 0.6);
       const s = this.add.image(slot.x, slot.y, SPARK).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setScale(big ? 1.1 : 0.8);
       state.layer.add(s);
-      this.tweens.add({ targets: s, x: slot.x + Math.cos(a) * d, y: slot.y + Math.sin(a) * d, alpha: 0, scale: 0.2, duration: 500 + Math.random() * 300, ease: 'Cubic.easeOut', onComplete: () => s.destroy() });
+      this.tweens.add({ targets: s, x: slot.x + Math.cos(a) * d, y: slot.y + Math.sin(a) * d, alpha: 0, scale: 0.2, duration: 500 + Math.random() * 300, ease: E.out, onComplete: () => s.destroy() });
     }
     const rings = big ? 2 : 1;
     for (let k = 0; k < rings; k++) {
       const ring = this.add.circle(slot.x, slot.y, slot.w * 0.4).setStrokeStyle(big ? 10 : 6, col, 1).setFillStyle(0, 0);
       state.layer.add(ring);
-      this.tweens.add({ targets: ring, scale: big ? 3.2 : 2, alpha: 0, duration: 600, delay: k * 150, ease: 'Cubic.easeOut', onComplete: () => ring.destroy() });
+      this.tweens.add({ targets: ring, scale: big ? 3.2 : 2, alpha: 0, duration: M.emphasis, delay: k * 150, ease: E.out, onComplete: () => ring.destroy() });
     }
   }
 
@@ -579,151 +657,159 @@ export class TavernScene extends Phaser.Scene {
       const d = 280 + Math.random() * 200;
       const s = this.add.image(slot.x + Math.cos(a) * d, slot.y + Math.sin(a) * d, SPARK).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setScale(0.7).setAlpha(0);
       state.layer.add(s);
-      this.tweens.add({ targets: s, x: slot.x, y: slot.y, alpha: { from: 0, to: 1 }, duration: ms * (0.6 + Math.random() * 0.4), delay: Math.random() * ms * 0.3, ease: 'Quad.easeIn', onComplete: () => s.destroy() });
+      this.tweens.add({ targets: s, x: slot.x, y: slot.y, alpha: { from: 0, to: 1 }, duration: ms * (0.6 + Math.random() * 0.4), delay: Math.random() * ms * 0.3, ease: E.in, onComplete: () => s.destroy() });
     }
   }
 
-  /** Крупный показ фиолетовой (и выше) карты серии: луч, большая карта, имя; нажатие — дальше. */
-  private showcaseCard(state: RevealState, cv: CardView): Promise<void> {
+  /**
+   * Момент лучшей фиолетовой (и выше) карты серии — один раз за призыв: moment('summonRare') (затемнение, заголовок,
+   * лучи, тяжёлая вибрация) и поверх — крупная карта с лучом, «Новый» / «+1 копия» и строкой героя.
+   * Касание — дальше (не раньше чем через 0,4 с); сам уходит через несколько секунд.
+   */
+  private showcase(state: RevealState, cv: CardView): Promise<void> {
     const r = state.results[cv.i];
     const hero = session.save.heroes.find((h) => h.id === r.heroId);
+    state.momentShown = true;
     if (!hero) return Promise.resolve();
-    const prev = state.phase;
     state.phase = 'showcase';
+    for (const o of state.ui) (o as unknown as Phaser.GameObjects.Components.Visible).setVisible(false);
     const def = rarityDef(GAME, r.rarity);
-    const col = colorOf(def.color);
-    const box = this.add.container(0, 0).setDepth(DEPTH + 100).setName('showcase');
-    const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x000000, 0.78).setInteractive();
-    const beam = this.add.image(GAME_W / 2, 1300, BEAM).setOrigin(0.5, 1).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(620, 1500).setAlpha(0.8);
-    const halo = this.add.image(GAME_W / 2, 900, GLOW).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(1100, 1100).setAlpha(0.7);
-    const ring = this.add.container(GAME_W / 2, 1180).setScale(1.3, 0.45);
+    const col = hexNum(def.color);
+    const tpl = GAME.content.heroes[hero.templateId];
+    const m = moment(this, 'summonRare', {
+      keep: true,
+      sound: false,
+      color: def.color,
+      title: `${cap(RARITY_CARD[r.rarity])} карта!`,
+      subtitle: `${tpl?.name ?? hero.templateId} · ${heroCard(hero, GAME).jobName}`,
+      at: { x: GAME_W / 2, y: 300 },
+    });
+    const D = MOMENT_DEPTH + 10;
+    const box = this.add.container(0, 0).setDepth(D).setName('showcase');
+    const cy = 960;
+    const beam = this.add.image(GAME_W / 2, cy + 380, BEAM).setOrigin(0.5, 1).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(620, 1300).setAlpha(0.7);
+    const ring = this.add.container(GAME_W / 2, cy + 330).setScale(1.3, 0.45);
     const circle = this.add.image(0, 0, CIRCLE).setTint(col).setAlpha(0.8).setBlendMode(Phaser.BlendModes.ADD);
     ring.add(circle);
-    const face = summonFace(this, GAME_W / 2, 880, 440, 620, hero, true);
-    const jobLine = text(this, GAME_W / 2, 530, `${heroCard(hero, GAME).jobName} · ${def.name}`, FS.h3, def.color, { fontStyle: 'bold', ...OUTLINE });
-    const kind = RARITY_CARD[r.rarity];
-    const head = text(this, GAME_W / 2, 440, `${kind.charAt(0).toUpperCase()}${kind.slice(1)} карта!`, FS.hero, def.color, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 10 });
-    const branchNote = needsBranch(hero, GAME) ? ' · ветку выберете на карточке' : '';
-    const tag = state.bigTags[cv.i];
-    const fresh = tag.kind === 'new';
-    const sub = text(this, GAME_W / 2, 1300, `${tag.text}${branchNote}`, fresh && !branchNote ? FS.h2 : FS.h3, fresh ? C.gold : C.dim, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: 1000 } });
-    // Строка героя (lore-route §5.8, поле героя tavernLine) — под подписью, курсивом.
-    const said = GAME.content.heroes[hero.templateId]?.tavernLine;
-    const line = said ? text(this, GAME_W / 2, sub.y + sub.height / 2 + 16, `«${said}»`, FS.small, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 960 }, align: 'center' }).setOrigin(0.5, 0).setName('tavernLine') : null;
-    const hint = text(this, GAME_W / 2, line ? Math.max(1420, line.y + line.height + 40) : 1420, 'Нажмите, чтобы продолжить', FS.small, C.muted, OUTLINE);
-    box.add([shade, beam, halo, ring, face, jobLine, head, sub, ...(line ? [line] : []), hint]);
+    const face = summonFace(this, GAME_W / 2, cy, 440, 620, hero, true);
+    const fh = face.getData('h') as number;
+    const t = resultTag(state.tags[cv.i]);
+    const mark = tag(this, GAME_W / 2, cy + fh / 2 + S.l, t.text, t.kind === 'new' ? 'gold' : 'neutral', { solid: t.kind === 'new' });
+    box.add([beam, ring, face, mark]);
+    const said = tpl?.tavernLine;
+    if (said) box.add(text(this, GAME_W / 2, mark.y + S.xl, `«${said}»`, T.body, COLOR.textSecondary, { fontStyle: 'italic', wordWrap: { width: GAME_W - 2 * S.xl }, align: 'center' }).setOrigin(0.5, 0).setName('tavernLine'));
     this.tweens.add({ targets: circle, angle: 360, duration: 9000, repeat: -1 });
-    this.tweens.add({ targets: halo, alpha: { from: 0.8, to: 0.45 }, duration: 800, yoyo: true, repeat: -1 });
     face.setScale(0.6).setAlpha(0);
-    this.tweens.add({ targets: face, scale: 1, alpha: 1, duration: 380, ease: 'Back.easeOut' });
-    head.setScale(1.6).setAlpha(0);
-    this.tweens.add({ targets: head, scale: 1, alpha: 1, duration: 320, delay: 120, ease: 'Back.easeOut' });
+    this.tweens.add({ targets: face, scale: 1, alpha: 1, duration: M.slow, delay: M.slow, ease: E.pop });
+    box.setAlpha(0);
+    this.tweens.add({ targets: box, alpha: 1, duration: M.base, delay: M.slow });
+    // Касания момента ловит своя зона поверх (затемнение момента после «встал» пропускает ввод).
+    const zone = this.add.zone(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y).setDepth(D + 1).setInteractive();
     return new Promise((resolve) => {
       let closed = false;
+      let armed = false;
       const close = () => {
         if (closed) return;
         closed = true;
+        zone.destroy();
+        m.close();
         this.tweens.add({
           targets: box,
           alpha: 0,
-          duration: 200,
+          duration: M.fast,
+          ease: E.in,
           onComplete: () => {
             box.destroy();
-            if (state.phase === 'showcase') state.phase = prev;
+            if (state.phase === 'showcase') state.phase = 'pick';
+            for (const o of state.ui) (o as unknown as Phaser.GameObjects.Components.Visible).setVisible?.(true);
+            for (const w of state.waiters.splice(0)) w();
             resolve();
             this.checkDone(state);
           },
         });
       };
-      // Касание — дальше (не раньше чем через 0,4 с, чтобы не пролистнуть случайно).
-      this.time.delayedCall(400, () => shade.once('pointerup', close));
-      this.time.delayedCall(3200, close);
+      this.time.delayedCall(400, () => (armed = true));
+      zone.on('pointerup', () => {
+        if (!armed) return;
+        if (!m.settled) m.skip();
+        else close();
+      });
+      this.time.delayedCall(4200, close);
     });
   }
 
-  /** «Открыть все»: простые карты быстро по очереди, самая редкая — последней, с нарастанием. */
-  private openAll(state: RevealState): void {
-    if (state.phase !== 'pick') return;
-    state.phase = 'flipping';
-    for (const o of state.ui) (o as unknown as Phaser.GameObjects.Components.Visible).setVisible(false);
-    const pending = revealOrder(state.results).filter((i) => !state.cards[i].flipped && !state.cards[i].busy);
-    const sched = revealSchedule(pending.map((i) => state.results[i]));
-    const flips: Promise<void>[] = [];
-    let chain = Promise.resolve();
-    for (const s of sched) {
-      const cv = state.cards[pending[s.index]];
-      const p = new Promise<void>((res) => this.time.delayedCall(s.at, () => res()));
-      // Нарастание ждёт, пока откроются предыдущие.
-      chain = s.tension ? chain.then(() => p).then(() => this.flip(state, cv, 'tension')) : chain;
-      if (!s.tension) flips.push(p.then(() => this.flip(state, cv, 'quick')));
-    }
-    void Promise.all([...flips, chain]).then(() => {
-      if (this.reveal === state && state.phase === 'flipping') state.phase = 'pick';
-      this.checkDone(state);
-    });
+  /** Звук и вибрация лучшей карты (пропуск, «Уменьшить анимацию»). */
+  private bestSound(state: RevealState): void {
+    const best = state.results[state.best];
+    if (!best) return;
+    sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
+    flipHaptic(best.rarity);
   }
 
-  /** «Пропустить»: все карты сразу лицом вверх, без эффектов. */
+  /** Пропуск: все карты сразу лицом вверх; лучшая фиолетовая (если момента ещё не было) — всё равно моментом. */
   private skip(state: RevealState): void {
-    if (state.phase === 'done') return;
+    if (state.phase !== 'deal' && state.phase !== 'pick') return;
     this.tweens.killTweensOf(state.cards.map((c) => c.root));
     for (const cv of state.cards) {
       cv.root.setPosition(cv.slot.x, cv.slot.y).setScale(1).setAngle(0).setAlpha(1);
-      if (!cv.flipped) this.showFace(state, cv, false);
+      if (!cv.flipped) {
+        this.showFace(state, cv);
+        const r = state.results[cv.i];
+        if (tensionMs(r.rarity) > 0) this.rays(state, cv, hexNum(rarityDef(GAME, r.rarity).color), isEpic(r.rarity));
+      }
     }
-    const best = bestResult(state.results);
-    if (best) {
+    const bestCard = state.cards[state.best];
+    const best = state.results[state.best];
+    if (best && bestCard && isEpic(best.rarity) && !state.momentShown) {
       sfx(SUMMON_REVEAL[SOUND_RARITY[best.rarity]]);
-      flipHaptic(best.rarity);
+      state.phase = 'pick';
+      void this.showcase(state, bestCard).then(() => this.finish(state));
+      return;
     }
+    this.bestSound(state);
     this.finish(state);
   }
 
   private checkDone(state: RevealState): void {
     if (this.reveal !== state || state.phase === 'done' || state.phase === 'showcase') return;
-    if (state.cards.length && state.cards.every((c) => c.flipped && !c.busy)) this.time.delayedCall(250, () => this.finish(state));
+    if (state.cards.length && state.cards.every((c) => c.flipped && !c.busy)) this.later(state, M.base, () => this.finish(state));
   }
 
-  /** Итог: строка по редкостям, осколки, «К героям» / «Ещё ×10» / «Готово». */
+  /** Итог: сетка карт с метками «Новый» / «+1 копия»; «Готово» и «Ещё ×10» (×1 — «Ещё ×1») с ценой. */
   private finish(state: RevealState): void {
-    if (this.reveal !== state || state.phase === 'done') return;
+    if (this.reveal !== state || state.phase === 'done' || state.phase === 'showcase') return;
     state.phase = 'done';
     for (const o of state.ui) o.destroy();
     state.ui = [];
-    const L = state.layer;
-    state.title.setText('Итог призыва');
-    L.add(ellipsize(text(this, GAME_W / 2, 310, summaryLine(state.results), FS.body, C.text, { fontStyle: 'bold', ...OUTLINE }), 1000).setName('summaryLine'));
-    const hasDup = state.tags.some((t) => t.kind === 'copy');
-    // Строка лучшего героя призыва (tavernLine) — над подсказкой.
-    const top = bestResult(state.results);
-    const topHero = top ? session.save.heroes.find((h) => h.id === top.heroId) : undefined;
-    const said = topHero ? GAME.content.heroes[topHero.templateId]?.tavernLine : undefined;
-    if (said && topHero) {
-      const who = GAME.content.heroes[topHero.templateId].name;
-      L.add(text(this, GAME_W / 2, 1395, `${who}: «${said}»`, FS.small, C.title, { fontStyle: 'italic', ...OUTLINE, wordWrap: { width: 980 }, align: 'center' }).setName('tavernLine'));
-    }
-    L.add(text(this, GAME_W / 2, 1480, hasDup ? 'Копии нужны для вознесения героя (все карты — в Инвентаре). Нажмите на карту — откроется герой.' : 'Нажмите на карту — откроется герой.', FS.small, C.muted, { ...OUTLINE, wordWrap: { width: 980 } }));
-
-    const best = bestResult(state.results);
-    const st = summonStatus(session.save, today(), GAME);
-    const again = againOption(st);
-    const y = 1640;
-    const toHeroes = button(this, 200, y, 320, 130, 'ui_btn_secondary', 'К героям', () => (best ? this.scene.start('Hero', { heroId: best.heroId }) : this.scene.start('Heroes')), FS.h3);
-    const more = button(this, 540, y, 320, 130, 'ui_btn_primary', 'Ещё ×10', () => {
-      if (!again) {
-        toast(this, `Нужно ${st.costs.ten} гемов (есть ${formatNumber(st.gems)}) или 10 свитков`, C.error);
-        return;
+    const L2 = state.layer;
+    state.cards.forEach((cv, k) => {
+      const t = resultTag(state.tags[cv.i]);
+      const fh = cv.face.getData('h') as number;
+      const y = cv.slot.y + fh / 2 + (state.count === 1 ? S.l : 34);
+      const mark = tag(this, cv.slot.x, y, t.text, t.kind === 'new' ? 'gold' : 'neutral', { solid: t.kind === 'new' }).setName(`summonTag_${cv.i}`);
+      if (t.kind === 'copy') mark.setScale(0.85);
+      L2.add(mark);
+      if (!motion.reduced) {
+        mark.setAlpha(0);
+        this.tweens.add({ targets: mark, alpha: 1, duration: M.base, delay: k * 24 });
       }
-      this.reveal = null;
-      this.pull(again);
-    }, FS.h3);
-    if (!again) more.setEnabled(false);
+    });
+
+    const st = summonStatus(session.save, today(), GAME);
+    const btns = summonButtons(st);
+    const again = state.count === 10 ? btns.ten : btns.one;
+    const wDone = 380;
+    const wMore = GAME_W - 2 * S.l - S.s - wDone;
+    const done = button(this, S.l + wDone / 2, DONE_Y, wDone, BTN_H, '', 'Готово', () => this.scene.restart({} satisfies TavernData), T.heading, { variant: 'secondary' });
     // {} обязательно: без данных Phaser перезапускает сцену с прошлыми (reveal) и показ повторяется.
-    const done = button(this, 880, y, 320, 130, 'ui_btn_secondary', 'Готово', () => this.scene.restart({} satisfies TavernData), FS.h3);
-    L.add([toHeroes.container, more.container, done.container]);
-    if (again) {
-      const price = again.pay === 'scroll' ? '10 свитков' : `${st.costs.ten} гемов`;
-      L.add(text(this, 540, y + 95, price, FS.caption, C.gem, OUTLINE));
+    const more = this.pullButton(GAME_W - S.l - wMore / 2, DONE_Y, wMore, L.pullH, true, again, again.cost, again.free, `Ещё ×${state.count}`);
+    more.container.setName('summonAgain');
+    L2.add([done.container, more.container]);
+    if (!motion.reduced) {
+      for (const b of [done.container, more.container]) {
+        b.setAlpha(0);
+        this.tweens.add({ targets: b, alpha: 1, duration: M.base, delay: M.slow });
+      }
     }
   }
 }

@@ -69,26 +69,28 @@ export function revealOrder(results: readonly Pick<SummonResult, 'rarity'>[]): n
 
 /**
  * Какая карта серии получает нарастание (docs/design/audio.md: «нарастание — перед самой редкой картой серии»):
- * самая редкая, если она синяя и выше; иначе null (все открываются быстро). При равенстве — последняя в revealOrder.
+ * лучшая (bestResult — её же показывает момент), если она синяя и выше; иначе null (все открываются быстро).
  */
-export function tensionIndex(results: readonly Pick<SummonResult, 'rarity'>[]): number | null {
-  const order = revealOrder(results);
-  const last = order[order.length - 1];
-  if (last === undefined) return null;
-  return tensionMs(results[last].rarity) > 0 ? last : null;
+export function tensionIndex(results: readonly Pick<SummonResult, 'rarity' | 'isNew'>[]): number | null {
+  const best = bestResult(results);
+  if (!best) return null;
+  return tensionMs(best.rarity) > 0 ? results.indexOf(best) : null;
 }
 
 /** Шаг между переворотами простых карт в «Открыть все», мс. */
-export const FLIP_STEP_MS = 180;
+export const FLIP_STEP_MS = 240;
 
 /**
  * Ритм «Открыть все»: когда (мс от нажатия) начать переворот каждой карты в порядке revealOrder. Простые — через
  * FLIP_STEP_MS; карта с нарастанием ждёт, пока предыдущие откроются, и ещё pause (её свою задержку даст summonSound).
  */
-export function revealSchedule(results: readonly Pick<SummonResult, 'rarity'>[], pause = 350): { index: number; at: number; tension: boolean }[] {
+export function revealSchedule(results: readonly Pick<SummonResult, 'rarity' | 'isNew'>[], pause = 350): { index: number; at: number; tension: boolean }[] {
   const t = tensionIndex(results);
+  const order = revealOrder(results);
+  // Карта с нарастанием — последней (при равной редкости лучшая может стоять раньше по месту на столе).
+  if (t !== null) order.push(...order.splice(order.indexOf(t), 1));
   let at = 0;
-  return revealOrder(results).map((index, n) => {
+  return order.map((index, n) => {
     const tension = index === t;
     if (n > 0) at += tension ? FLIP_STEP_MS + pause : FLIP_STEP_MS;
     return { index, at, tension };
@@ -127,9 +129,10 @@ export function cardSlots(count: number, centerY: number, width = 1080): CardSlo
   return out;
 }
 
-/** Подписи под картой: «Новый!» или «дубль → на слияние»; осколки сюжетного героя — отдельной строкой в итоге. */
-export function resultTag(r: Pick<SummonResult, 'isNew'>): { text: string; kind: 'new' | 'dup' } {
-  return r.isNew ? { text: 'Новый!', kind: 'new' } : { text: 'дубль → на слияние', kind: 'dup' };
+/** Метка под картой в итоге: новый герой — «Новый» (золото), копия — маленькое «+1 копия». */
+export function resultTag(r: Pick<SummonResult, 'isNew'> | { kind: 'new' | 'copy' }): { text: string; kind: 'new' | 'copy' } {
+  const fresh = 'kind' in r ? r.kind === 'new' : r.isNew;
+  return fresh ? { text: 'Новый', kind: 'new' } : { text: '+1 копия', kind: 'copy' };
 }
 
 /**
@@ -154,14 +157,14 @@ export function copyTags(results: readonly Pick<SummonResult, 'templateId'>[], h
   });
 }
 
-/** Лучшая карта серии (для «К героям»): самая редкая, при равенстве — новая, затем первая. */
+/** Лучшая карта серии (момент и нарастание): самая редкая, при равенстве — новая, затем последняя на столе. */
 export function bestResult<T extends Pick<SummonResult, 'rarity' | 'isNew'>>(results: readonly T[]): T | undefined {
   let best: T | undefined;
   for (const r of results) {
     if (!best) best = r;
     else {
       const d = rarityIndex(r.rarity) - rarityIndex(best.rarity);
-      if (d > 0 || (d === 0 && r.isNew && !best.isNew)) best = r;
+      if (d > 0 || (d === 0 && (r.isNew || !best.isNew))) best = r;
     }
   }
   return best;
@@ -206,10 +209,54 @@ export function pullOptions(st: SummonStatus): PullOption[] {
   ];
 }
 
+/** Цена кнопки призыва: иконка (id иконки RO) и число; null — бесплатно. */
+export interface PullCost {
+  icon: 'scrolls' | 'gems';
+  value: number;
+}
+
+/** Кнопка призыва экрана: что нажимаем (PullOption) и цена чипом. */
+export interface SummonButton extends PullOption {
+  cost: PullCost | null;
+  free: boolean;
+}
+
+/**
+ * Две кнопки призыва (как в AFK): ×1 и ×10, валюта выбирается сама — бесплатный (×1, раз в день), иначе свитки,
+ * если их хватает, иначе гемы. enabled — хватает ли на этот способ (гемы не хватает — кнопка серая, нажатие объясняет тост).
+ */
+export function summonButtons(st: SummonStatus): { one: SummonButton; ten: SummonButton } {
+  const by = Object.fromEntries(pullOptions(st).map((o) => [o.id, o])) as Record<PullOption['id'], PullOption>;
+  const one: SummonButton = by.free.enabled
+    ? { ...by.free, label: 'Призыв ×1', cost: null, free: true }
+    : by.scroll1.enabled
+      ? { ...by.scroll1, label: 'Призыв ×1', cost: { icon: 'scrolls', value: 1 }, free: false }
+      : { ...by.gems1, label: 'Призыв ×1', cost: { icon: 'gems', value: st.costs.single }, free: false };
+  const ten: SummonButton = by.scroll10.enabled
+    ? { ...by.scroll10, label: 'Призыв ×10', cost: { icon: 'scrolls', value: 10 }, free: false }
+    : { ...by.gems10, label: 'Призыв ×10', cost: { icon: 'gems', value: st.costs.ten }, free: false };
+  return { one, ten };
+}
+
 /** «Ещё ×10» в итоге: свитками, если их хватает, иначе за гемы; null — не на что (кнопка серая, тост с ценой). */
 export function againOption(st: SummonStatus): PullOption | null {
-  const opts = pullOptions(st);
-  return opts.find((o) => o.id === 'scroll10' && o.enabled) ?? opts.find((o) => o.id === 'gems10' && o.enabled) ?? null;
+  const ten = summonButtons(st).ten;
+  return ten.enabled ? ten : null;
+}
+
+/** Метка над ×10, пока не было первого ×10: «Синяя гарантирована» / «Гарант: 2 синих». */
+export function firstTenTag(count: number, rarity: CardRarity): string {
+  if (count === 1) {
+    const r = RARITY_CARD[rarity];
+    return `${r.charAt(0).toUpperCase()}${r.slice(1)} гарантирована`;
+  }
+  return `Гарант: ${count} ${RARITY_PLURAL[rarity]}`;
+}
+
+/** Сколько ждать следующего бесплатного призыва (до полуночи игрока): «Бесплатно через 5 ч» / «… через 40 мин». */
+export function freeInLabel(msLeft: number): string {
+  const min = Math.max(1, Math.ceil(msLeft / 60000));
+  return min >= 60 ? `Бесплатно через ${Math.ceil(min / 60)} ч` : `Бесплатно через ${min} мин`;
 }
 
 /**

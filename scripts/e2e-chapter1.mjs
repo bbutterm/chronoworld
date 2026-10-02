@@ -5,7 +5,7 @@
 // запаса тратится кнопкой «Улучшить» на карточке героя (по уровню самому низкому герою отряда). Сюжетные диалоги:
 // вступление главы пролистывается касаниями, остальные закрываются «Пропустить» (кнопка проверяется на перекрытие,
 // как и остальные). После ch1_s5 (6-й этап; подарок Таверны: гемы и 10 свитков) — как игрок: Город → Таверна → «Бесплатно»
-// и «Свитки ×10» → «Открыть все» → «Готово»; на экране этапа «Авто» ставит сильнейших (и перед каждым боем после Таверны).
+// и «Призыв ×10» (свитками) → карты открываются сами → «Готово»; на экране этапа «Авто» ставит сильнейших (и перед каждым боем после Таверны).
 // Ведущее обучение (src/game/hints.ts): каждая показанная подсказка записывается (id) и проверяется — плашка не закрывает
 // кнопки (hintOverlap 0); шаги выполняются, как их показывает указатель. В конце — реальное время главы (бои на «Пропустить»).
 // В журнале у каждой попытки — мощь отряда против рекомендуемой (stagePowerCheck). Падает при ошибках в консоли или если глава не пройдена. Нужен глобальный Playwright.
@@ -361,7 +361,8 @@ const powerLine = (stageId) =>
 
 /**
  * Таверна после этапа 5 (подарок открытия уже выдан кампанией): Кампания → вкладка «Город» → плитка «Таверна» →
- * «Бесплатно» (если есть) и «Свитки ×10» → «Открыть все» → итог (скриншот) → «Готово» → «‹ Назад» в «Город».
+ * «Бесплатно» (если есть) и «Призыв ×10» (свитки подарка) → карты открываются сами (момент редкой уходит сам) → итог
+ * (скриншот) → «Готово» → «‹ Назад» в «Город».
  */
 const visitTavern = async () => {
   await recordHint('Campaign');
@@ -378,7 +379,7 @@ const visitTavern = async () => {
   const before = (await save()).heroes.length;
   const pulls = [];
   if (await findText('Tavern', 'Бесплатно')) pulls.push('Бесплатно');
-  pulls.push('Свитки ×10');
+  pulls.push('Призыв ×10');
   const phase = () => page.evaluate(() => window.__game.scene.getScene('Tavern').reveal?.phase ?? null);
   for (const label of pulls) {
     const total = (await save()).summon.total;
@@ -386,11 +387,9 @@ const visitTavern = async () => {
     // Призыв записан в сохранение, сцена перезапущена с показом.
     await page.waitForFunction((n) => JSON.parse(localStorage.getItem('chronoworld.save.v1')).summon.total > n, total, { timeout: 10000 });
     await page.waitForFunction(() => ['pick', 'done'].includes(window.__game.scene.getScene('Tavern').reveal?.phase), null, { timeout: 20000 });
-    await sleep(300);
-    if ((await phase()) === 'pick') await clickText('Tavern', label === 'Свитки ×10' ? 'Открыть все' : 'Открыть', true);
-    await page.waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'done', null, { timeout: 30000 });
+    await page.waitForFunction(() => window.__game.scene.getScene('Tavern').reveal?.phase === 'done', null, { timeout: 60000 });
     await sleep(800);
-    if (label === 'Свитки ×10') await shot('tavern-x10');
+    if (label === 'Призыв ×10') await shot('tavern-x10');
     await clickText('Tavern', 'Готово', true);
     // «Готово» перезапускает зал: показ закрыт.
     await page.waitForFunction(() => window.__game.scene.isActive('Tavern') && window.__game.scene.getScene('Tavern').reveal === null, null, { timeout: 10000 });
@@ -400,7 +399,7 @@ const visitTavern = async () => {
   const s = await save();
   const got = s.heroes.slice(before).map((h) => `${h.templateId} ${h.rarity}`);
   log(`Таверна: +${got.length} карт (${got.join(', ')}), свитков ${s.currency.scrolls}, гемов ${s.currency.gems}`);
-  if (got.length < 10) throw new Error(`Таверна: после «Свитки ×10» новых карт ${got.length}, ждали не меньше 10`);
+  if (got.length < 10) throw new Error(`Таверна: после «Призыв ×10» новых карт ${got.length}, ждали не меньше 10`);
   await clickNamed('Tavern', 'backButton');
   await waitScene('Home');
   await clickText('Home', 'Кампания');

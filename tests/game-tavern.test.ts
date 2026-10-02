@@ -8,11 +8,14 @@ import {
   pityInfo,
   pullOptions,
   ratesLines,
+  firstTenTag,
   firstTenText,
+  freeInLabel,
   resultTag,
   revealOrder,
   revealSchedule,
   summaryLine,
+  summonButtons,
   tavernBadge,
   tensionIndex,
   tensionMs,
@@ -79,9 +82,23 @@ describe('Таверна: раскладка и итог', () => {
     expect((s[0].y + s[5].y) / 2).toBe(900);
   });
 
-  it('метки: новая — «Новый!», повтор — «дубль → на слияние»', () => {
-    expect(resultTag({ isNew: true })).toEqual({ text: 'Новый!', kind: 'new' });
-    expect(resultTag({ isNew: false }).text).toBe('дубль → на слияние');
+  it('метки итога: новая — «Новый», копия — «+1 копия»', () => {
+    expect(resultTag({ isNew: true })).toEqual({ text: 'Новый', kind: 'new' });
+    expect(resultTag({ isNew: false })).toEqual({ text: '+1 копия', kind: 'copy' });
+    expect(resultTag({ kind: 'copy' }).text).toBe('+1 копия');
+  });
+
+  it('нарастание у лучшей карты, и она открывается последней', () => {
+    // Две фиолетовые: лучшая — новая (первая по месту), она и получает нарастание — после второй фиолетовой.
+    const rs = [
+      { rarity: 'purple' as const, isNew: true },
+      { rarity: 'green' as const, isNew: false },
+      { rarity: 'purple' as const, isNew: false },
+    ];
+    expect(tensionIndex(rs)).toBe(0);
+    const s = revealSchedule(rs);
+    expect(s.map((x) => x.index)).toEqual([1, 2, 0]);
+    expect(s[2].tension).toBe(true);
   });
 
   it('bestResult: редкость важнее, при равенстве — новая', () => {
@@ -122,6 +139,28 @@ describe('Таверна: кнопки, гарант, значок', () => {
     expect(by.scroll1.enabled).toBe(false);
     expect(againOption(st)?.id).toBe('gems10');
     expect(againOption(summonStatus(opened(100), DAY, ctx))).toBeNull();
+  });
+
+  it('две кнопки: ×1 — бесплатный, иначе свиток, иначе гемы; ×10 — свитки, если хватает, иначе гемы', () => {
+    const st = summonStatus(opened(300), DAY, ctx);
+    const b = summonButtons(st);
+    expect(b.one).toMatchObject({ label: 'Призыв ×1', pay: 'free', free: true, cost: null, enabled: true });
+    expect(b.ten).toMatchObject({ label: 'Призыв ×10', pay: 'gems', count: 10, cost: { icon: 'gems', value: 270 }, enabled: true });
+    const after = actSummon(opened(10), DAY, 1, 'free', ctx).save;
+    const poor = summonButtons(summonStatus(after, DAY, ctx));
+    expect(poor.one).toMatchObject({ pay: 'gems', free: false, cost: { icon: 'gems', value: 30 }, enabled: false });
+    expect(poor.ten.enabled).toBe(false);
+    const scrolls = summonButtons(summonStatus({ ...after, currency: { ...after.currency, scrolls: 12 } }, DAY, ctx));
+    expect(scrolls.one).toMatchObject({ pay: 'scroll', cost: { icon: 'scrolls', value: 1 }, enabled: true });
+    expect(scrolls.ten).toMatchObject({ pay: 'scroll', cost: { icon: 'scrolls', value: 10 }, enabled: true });
+  });
+
+  it('метка первого ×10 и таймер бесплатного — коротко', () => {
+    expect(firstTenTag(1, 'blue')).toBe('Синяя гарантирована');
+    expect(firstTenTag(2, 'blue')).toBe('Гарант: 2 синих');
+    expect(freeInLabel(5 * 3600_000 + 1)).toBe('Бесплатно через 6 ч');
+    expect(freeInLabel(40 * 60_000)).toBe('Бесплатно через 40 мин');
+    expect(freeInLabel(0)).toBe('Бесплатно через 1 мин');
   });
 
   it('после бесплатного — «Бесплатно: завтра», значок гаснет', () => {
