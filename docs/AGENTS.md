@@ -690,7 +690,8 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
   (`chapter1-playthrough.test.ts`), генераторы контента (`content-new.test.ts`). Общие помощники — `tests/helpers.ts`, `invariants.ts`, `formation.ts`, `fixtures/`.
 - `tests/test_*.py` — проверки арт-пайплайна: `python3 -m unittest discover -s tests -p 'test_*.py'`.
 - Интерфейс: `tests/ui-lint.test.ts` — храповик линта дизайн-системы (§5а); `tests/game-features.test.ts` — шрифт не меньше `T.caption`.
-- Производительность: `tests/sim.test.ts` («1000 боёв» по CPU-времени), `npm run perf` (браузер).
+- Производительность: `tests/sim.test.ts` («1000 боёв» по CPU-времени), `npm run perf` (бой в браузере), `npm run perf:load`
+  (холодный старт), `npm run perf:ui` (экраны меню, раздел 14).
 - **e2e** (`scripts/e2e.mjs`, `e2e-chapter1.mjs`) кликают по тексту кнопок в активной сцене через `window.__game` (только dev-сборка);
   `e2e-chapter1` проверяет, что кнопка не перекрыта другим объектом (иначе ошибка «перекрыт»), падает на ошибках консоли.
   Переименовали кнопку — поправьте подпись в скрипте. Подробно — `docs/content/e2e.md`, `docs/content/testing.md`.
@@ -842,3 +843,29 @@ Vercel собирает `main` (`vercel.json`: `npm ci`, `npm run build`, `dist`
   экран, который сам ушёл на другую сцену, помечен «открылся …».
 - Полный прогон (3 сохранения × 2 размера, ≈180 снимков, ≈12 МБ) — около 3,5 минут здесь; `--only` и `--saves` для
   быстрых точечных прогонов. Новый экран — строка в `SCREENS` в `scripts/ui-atlas.mjs` (сцена, данные `create()`).
+
+---
+
+## 14. Замеры экранов меню (`npm run perf:ui`)
+
+    npm run perf:ui -- [--saves late] [--only Home,Stage] [--cpu 4] [--size 390x844] [--dpr 1] [--frames 5] [--units 8] [--strict]
+
+- Сохранения — те же, что у атласа (`scripts/ui-atlas-save.ts`, по умолчанию `late`). Сам поднимает vite (dev) на
+  `PERF_UI_PORT` (5470), CPU ×4 (CDP), окно 390×844. Экраны: Home, Campaign, Stage, Heroes, Hero, Tavern, Shop, Quests, Mail,
+  Tower, Hunt, Expeditions, Adventure, Inventory, Friends, Chronicle, Result (после боя этапа, «Пропустить»). Два прохода:
+  холодный (первый вход) и повторный.
+- Колонки: `build` — START → CREATE сцены (init + create, мс); `mark` — метки `transitions.ts` `scene:<ключ>:start/create`
+  (с ожиданием шага игры); `кадр мс` и `draws` — один шаг игры при усыплённом цикле (вызовы `gl.drawElements/drawArrays`,
+  обёртка в `addInitScript`); `текстур` — разные GPU-текстуры видимых объектов (`perf.ts textureCount`: кадры одного атласа —
+  одна); объекты/`Text`/контейнеры/9-slice — `perf.ts objectStats`; твины сцены и декоративные (`juice.ts decorStats`);
+  куча JS после GC и память текстур (w×h×4, общий источник считается один раз).
+- `--units 8` ограничивает `MAX_TEXTURE_IMAGE_UNITS` (Phaser кладёт в один батч столько текстур, сколько слотов; здесь 16, у
+  слабых GPU бывает 8) — так виден выигрыш от атласов. «!» — build > 120 мс или > 120 `Text`; `--strict` — тогда код 1.
+  `PERF_UI_JSON=файл` — сырые цифры (сравнение до/после). `ERR_INSUFFICIENT_RESOURCES` браузера (очередь/память контейнера) —
+  предупреждение, экран перемерить. В headless WebGL программный: смотреть JS-время и счётчики, не FPS. Прогон ≈ 6 мин.
+- Атлас скина (`skin.ts SKIN_ATLAS`, итерация 10): плитки `SKIN_TILES`, иконки `skin_ico_*`, кружки этапов и мелкие украшения
+  (≤ 512×256) рисуются при загрузке каждая в свой canvas и копируются 1:1 в один холст 1024×~1000 с полем 2 точки (кромка
+  растянута — фильтрация у края как у отдельной текстуры). Ключи прежние: это текстуры-псевдонимы над общим источником
+  (`packedTexture.ts addAtlasAliases`), `scene.add.image(x, y, 'skin_btn')` и nineslice работают как раньше, но в GPU одна
+  текстура. Фоны, лучи и баннеры — отдельно. Новая мелкая текстура скина через `canvas()` в `buildSkin` попадёт в атлас сама.
+

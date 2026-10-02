@@ -191,3 +191,65 @@ export class Scheduler {
     this.pending.length = 0;
   }
 }
+
+/** Что нужно от игрового объекта для подсчёта (утиная типизация — проверяется в тестах без Phaser). */
+export interface CountableObject {
+  type?: string;
+  visible?: boolean;
+  list?: readonly CountableObject[];
+  texture?: { key?: string };
+  frame?: { source?: { glTexture?: unknown; image?: unknown } };
+}
+
+export interface ObjectStats {
+  /** Все объекты, включая вложенные в контейнеры (и сами контейнеры). */
+  total: number;
+  text: number;
+  bitmapText: number;
+  containers: number;
+  nineslices: number;
+  images: number;
+  graphics: number;
+}
+
+/** Обойти дерево объектов сцены (children.list и Container.list) и посчитать по типам — для perf:ui и аудита. */
+export function objectStats(list: readonly CountableObject[]): ObjectStats {
+  const s: ObjectStats = { total: 0, text: 0, bitmapText: 0, containers: 0, nineslices: 0, images: 0, graphics: 0 };
+  const walk = (xs: readonly CountableObject[]) => {
+    for (const o of xs) {
+      s.total++;
+      if (o.type === 'Text') s.text++;
+      else if (o.type === 'BitmapText' || o.type === 'DynamicBitmapText') s.bitmapText++;
+      else if (o.type === 'Container') s.containers++;
+      else if (o.type === 'NineSlice') s.nineslices++;
+      else if (o.type === 'Image' || o.type === 'Sprite') s.images++;
+      else if (o.type === 'Graphics') s.graphics++;
+      if (o.list) walk(o.list);
+    }
+  };
+  walk(list);
+  return s;
+}
+
+/**
+ * Сколько разных GPU-текстур у видимых объектов: каждая занимает слот батча WebGL (их 8–16), лишние — новый draw call.
+ * Кадры одного атласа делят источник и считаются одной текстурой.
+ */
+export function textureCount(list: readonly CountableObject[]): number {
+  const seen = new Set<unknown>();
+  const walk = (xs: readonly CountableObject[]) => {
+    for (const o of xs) {
+      if (o.visible === false) continue;
+      if (o.list) {
+        walk(o.list);
+        continue;
+      }
+      const key = o.texture?.key;
+      if (key === undefined || key === '__DEFAULT' || key === '__MISSING' || key === '__WHITE') continue;
+      const src = o.frame?.source;
+      seen.add(src ? (src.glTexture ?? src.image ?? src) : key);
+    }
+  };
+  walk(list);
+  return seen.size;
+}
