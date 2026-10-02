@@ -41,6 +41,7 @@ function fakeObj(): Record<string, unknown> {
       if (k in t) return t[k];
       if (k === 'setScale') return (s: number) => ((t.scale = t.scaleX = s), p);
       if (k === 'setAlpha') return (a: number) => ((t.alpha = a), p);
+      if (k === 'setDepth') return (d: number) => ((t.depth = d), p);
       if (k === 'destroy') return () => ((t.scene = undefined), p);
       if (k === 'on') return (ev: string, fn: () => void) => (((t.handlers as Record<string, () => void>)[ev] = fn), p);
       if (k === 'getData') return (key: string) => t[`data:${key}`];
@@ -51,7 +52,17 @@ function fakeObj(): Record<string, unknown> {
   return p;
 }
 
+/** Часы моментов (realNow → performance.now) — двигает runTimers. */
+let clock = 0;
+
 function fakeScene() {
+  clock = 0;
+  vi.spyOn(performance, 'now').mockImplementation(() => clock);
+  const listeners = new Map<string, Set<() => void>>();
+  const on = (ev: string, fn: () => void) => {
+    if (!listeners.has(ev)) listeners.set(ev, new Set());
+    listeners.get(ev)?.add(fn);
+  };
   const tweens: FakeTween[] = [];
   const timers: { ms: number; fn: () => void; removed: boolean }[] = [];
   const shutdown: (() => void)[] = [];
@@ -77,7 +88,11 @@ function fakeScene() {
   };
   const scene = {
     sys: {},
-    events: { once: (ev: string, fn: () => void) => ev === 'shutdown' && shutdown.push(fn) },
+    events: {
+      once: (ev: string, fn: () => void) => (ev === 'shutdown' ? shutdown.push(fn) : on(ev, fn)),
+      on,
+      off: (ev: string, fn: () => void) => listeners.get(ev)?.delete(fn),
+    },
     tweens: { add: tween, addCounter: tween, killTweensOf: () => undefined },
     time: {
       delayedCall: (ms: number, fn: () => void) => {
@@ -89,11 +104,20 @@ function fakeScene() {
     textures: { exists: () => true },
     add: { rectangle: mk, image: mk, text: mk, circle: mk },
   } as unknown as Phaser.Scene;
-  /** Прогнать таймеры до t мс (по порядку). */
+  /** Прогнать таймеры сцены до t мс (по порядку) и кадр по настоящему времени t (realLater момента). */
   const runTimers = (upTo: number) => {
     for (const t of [...timers].sort((a, b) => a.ms - b.ms)) if (!t.removed && t.ms <= upTo) (t.removed = true), t.fn();
+    clock = upTo;
+    // Колбэк кадра может завести новый realLater — кадр повторяется, пока что-то срабатывает.
+    for (let i = 0; i < 10; i++) {
+      const before = [...(listeners.get('postupdate') ?? [])];
+      for (const fn of before) fn();
+      if ((listeners.get('postupdate')?.size ?? 0) === before.length && before.every((fn) => listeners.get('postupdate')?.has(fn))) break;
+    }
   };
-  return { scene, tweens, timers, runTimers, made, shutdown };
+  /** Подписчики кадра (realLater) — сколько ждут. */
+  const pending = () => listeners.get('postupdate')?.size ?? 0;
+  return { scene, tweens, timers, runTimers, pending, made, shutdown };
 }
 
 describe('juice: токены движения', () => {
@@ -213,6 +237,50 @@ describe('juice: моменты', () => {
     k.close();
     expect(k.closed).toBe(true);
     expect(kept).toHaveBeenCalledTimes(1);
+  });
+
+  it('«встал» и уход — по настоящему времени: часы сцены не идут, а момент всё равно встаёт и уходит', () => {
+    const f = fakeScene();
+    const onDone = vi.fn();
+    const h = moment(f.scene, 'victory', { onDone, sound: false });
+    // Ни одного delayedCall сцены: расписание — realLater (кадр + performance.now).
+    expect(f.timers).toHaveLength(0);
+    const tl = momentTimeline('victory');
+    f.runTimers(tl.settled - 1);
+    expect(h.settled).toBe(false);
+    f.runTimers(tl.settled);
+    expect(h.settled).toBe(true);
+    // Заголовок доведён до конца, даже если твин отстал.
+    const title = f.made[2] as { scale: number; alpha: number };
+    expect(title.alpha).toBe(1);
+    f.runTimers(tl.closeAt);
+    expect(h.closed).toBe(true);
+    expect(onDone).toHaveBeenCalledTimes(1);
+    // Подписки на кадр сняты.
+    expect(f.pending()).toBe(0);
+  });
+
+  it('depth: слои момента на заданной глубине; keep без анимации — неподвижное конечное состояние', () => {
+    const f = fakeScene();
+    moment(f.scene, 'newChapter', { keep: true, depth: 1, subtitle: 'Пайон', sound: false });
+    const depths = f.made.map((o) => (o as { depth: number }).depth);
+    // Затемнение 1, лучи 2, заголовок и подзаголовок 3 — под содержимым экрана (окна, подсказки — выше).
+    expect(depths.slice(0, 4)).toEqual([1, 2, 3, 3]);
+
+    setReducedMotion(true);
+    const g = fakeScene();
+    const onSettled = vi.fn();
+    const k = moment(g.scene, 'newChapter', { keep: true, depth: 1, dimAfter: 0.4, onSettled, sound: false });
+    expect(onSettled).toHaveBeenCalledTimes(1);
+    expect(g.tweens).toHaveLength(0);
+    // Затемнение (сразу на dimAfter) и заголовок — видимы.
+    const dim = g.made[0] as { alpha: number; scene: unknown };
+    expect(dim.alpha).toBe(0.4);
+    expect(g.made.some((o) => o !== dim && (o as { alpha: number }).alpha === 1)).toBe(true);
+    k.close();
+    expect(k.closed).toBe(true);
+    expect(dim.scene).toBeUndefined();
+    setReducedMotion(false);
   });
 });
 

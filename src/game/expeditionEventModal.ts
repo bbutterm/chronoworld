@@ -228,8 +228,7 @@ function choose(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, box: P
   box.add(body);
   let y = y0 + body.height + S.l;
   if (chips.length) {
-    const row = rewardRow(scene, 0, y + 36, chips, { maxW: INNER, size: 'm' });
-    row.setX(left + row.width / 2);
+    const row = rewardRow(scene, left, y + 36, chips, { maxW: INNER, size: 'm', align: 'left' });
     box.add(row.setName('eventReward'));
     y += 72 + S.s;
   }

@@ -200,5 +200,16 @@ export const SUMMON_REVEAL = {
 /** Длительность нарастания перед открытием, мс (редкий герой — дольше «барабанная дробь»). */
 export const SUMMON_TENSION_MS: Record<keyof typeof SUMMON_REVEAL, number> = { common: 0, rare: 500, epic: 900, legendary: 1400 };
 
+/**
+ * Звуки «моментов» (juice.ts MOMENTS, docs/design/ui-polish-research.md §3 п. 10). Своих файлов пока нет — момент
+ * берёт готовый звук каталога (файл RO или заглушку audioSynth.ts): новая глава — фанфара смены профессии RO,
+ * первая победа — «задание выполнено». Когда владелец пришлёт свои moment_chapter / moment_first_clear — завести их в
+ * SFX (и рецепт-заглушку) и поменять здесь.
+ */
+export const MOMENT_SFX = {
+  moment_chapter: 'job_change',
+  moment_first_clear: 'quest_done',
+} as const satisfies Record<string, SfxId>;
+
 /** Имя файла владельца для звука: id как есть (ui_tap.ogg, hit_sword.ogg…). */
 export const sfxFile = (id: SfxId): string => id;

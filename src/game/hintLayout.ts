@@ -143,3 +143,54 @@ export function placeBand(h: number, o: BandOptions): { y: number; overlap: numb
   }
   return { y: best.y, overlap: best.overlap };
 }
+
+/** Объект сцены — ровно то, что нужно обходу помех (без Phaser: проверяется в тестах заглушками). */
+export interface SceneNode {
+  name?: string;
+  type?: string;
+  visible?: boolean;
+  text?: string;
+  input?: { enabled?: boolean } | null;
+  list?: SceneNode[];
+  getBounds?: () => { x: number; y: number; width: number; height: number };
+}
+
+/** Помехи плашки: элементы управления и подписи-данные (числа, названия) — отдельно, их закрыть по-разному плохо. */
+export interface Obstacles {
+  controls: Rect[];
+  texts: Rect[];
+}
+
+/**
+ * Что плашка подсказки не должна закрывать (как obstacleRects() реплик firstTips.ts): интерактивные объекты и видимые
+ * подписи сцены. Не помеха: сама цель (контрол под точкой цели, подписи на прямоугольнике цели), слой подсказки
+ * ('hint', skipNames), затемнения и подложки во весь экран. Подписи внутри контрола не обходятся отдельно — их
+ * закрывает прямоугольник контрола.
+ */
+export function sceneObstacles(
+  list: readonly SceneNode[],
+  target: { x: number; y: number; w: number; h: number },
+  screen: { w: number; h: number },
+  skipNames: readonly string[] = ['hint'],
+): Obstacles {
+  const controls: Rect[] = [];
+  const texts: Rect[] = [];
+  const tgt: Rect = { x: target.x - target.w / 2, y: target.y - target.h / 2, w: target.w, h: target.h };
+  const inside = (r: Rect) => target.x >= r.x && target.x <= r.x + r.w && target.y >= r.y && target.y <= r.y + r.h;
+  const walk = (nodes: readonly SceneNode[], textsToo: boolean) => {
+    for (const o of nodes) {
+      if (o.visible === false || (o.name && skipNames.includes(o.name))) continue;
+      const isControl = !!o.input?.enabled;
+      const b = o.getBounds?.();
+      const r: Rect | null = b ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
+      if (isControl && r && r.w > 0 && r.h > 0 && !(r.w >= screen.w * 0.9 && r.h >= screen.h * 0.9) && !inside(r)) controls.push(r);
+      else if (textsToo && !isControl && o.type === 'Text' && o.text?.trim() && r && r.w > 0 && r.h > 0) {
+        if (r.w * r.h < screen.w * screen.h * 0.5 && overlapArea(r, tgt) === 0) texts.push(r);
+      }
+      // Внутрь контрола — только за вложенными контролами (его подписи закрыты им самим).
+      if (o.list) walk(o.list, textsToo && !isControl);
+    }
+  };
+  walk(list, true);
+  return { controls, texts };
+}
