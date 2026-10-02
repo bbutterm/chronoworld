@@ -6,7 +6,6 @@
  */
 const AUTO_KEY = 'chronoworld.battleAutoUlt';
 const HINT_KEY = 'chronoworld.hint.manualUlt';
-const CHARGE_HINT_KEY = 'chronoworld.hint.bossCharge';
 
 function load(key: string): string | null {
   try {
@@ -38,16 +37,6 @@ export const ultHint = {
   },
   mark(): void {
     store(HINT_KEY, '1');
-  },
-};
-
-/** Подсказка «заряд босса — сбейте ультой» — первые несколько раз. */
-export const chargeHint = {
-  get count(): number {
-    return Number(load(CHARGE_HINT_KEY)) || 0;
-  },
-  mark(): void {
-    store(CHARGE_HINT_KEY, String(this.count + 1));
   },
 };
 

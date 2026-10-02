@@ -1,160 +1,318 @@
 import Phaser from 'phaser';
-import { GAME_W } from './layout';
+import type { CardRarity } from '../core';
+import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
+import { decorTween, juiceOn } from './juice';
 import { portrait } from './screen';
 import { portraitKey } from './sprites';
-import { text } from './ui';
+import { COLOR_N, E, M, RARITY, hexNum } from './theme';
 import { chargeBreakBadge } from './ultBadge';
 
 /**
- * BUG-061 (T3-25). Панель героев в бою — как в AFK Arena: над ареной (там было пустое небо) по карточке на героя
- * отряда: портрет, имя, полоска здоровья и энергии ульты. Павший — тусклый. Данные приходят из BattleScene.redraw
- * (те же числа, что у полосок над головами), сама панель ничего не считает.
+ * Панель героев в бою (итерация 5 полировки, как в AFK Arena): внизу экрана по медальону на героя отряда —
+ * портрет на тёмном диске в ободе цвета редкости, вокруг — кольцо готовности ульты (дуга по часовой от 12 часов),
+ * под ним — тонкая полоска здоровья. Готовая ульта: кольцо золотое, за медальоном мягкое свечение (пульс);
+ * в ручном режиме касание медальона — ульта. Павший — обесцвечен и приглушён. Подписей нет: героя видно по портрету.
+ *
+ * Данные приходят из BattleScene.redraw/update (те же числа, что у полосок над головами), сама панель ничего не считает.
+ * Число объектов на героя постоянное (~8), кадр меняет только ширину полоски и угол дуги — и только при смене шага.
  */
 
 export interface PanelUnit {
   uid: string;
   name: string;
   sprite: string;
-  /** Есть ульта (копит энергию) — полоска энергии видна. */
+  /** Есть ульта (копит энергию) — кольцо видно. */
   hasUlt: boolean;
-  /** Ульта героя (docs/design/battle-decisions.md §1): полоска готовности вместо энергии, касание портрета — ульта. */
+  /** Ульта героя (docs/design/battle-decisions.md §1): кольцо готовности, касание портрета — ульта. */
   ult?: boolean;
-  /** Ульта оглушает / срывает каст — ею сбивают заряд босса: значок-молния в углу портрета (ultBadge.ts). */
+  /** Ульта оглушает / срывает каст — ею сбивают заряд босса: значок-молния у медальона (ultBadge.ts). */
   breaks?: boolean;
+  /** Редкость карточки героя — цвет обода (нет — бронза). */
+  rarity?: CardRarity;
 }
 
 interface Entry {
   node: Phaser.GameObjects.Container;
   hp: Phaser.GameObjects.Rectangle;
-  energy: Phaser.GameObjects.Rectangle | null;
+  arc: Phaser.GameObjects.Arc | null;
   face: Phaser.GameObjects.Image;
-  dead: boolean;
-  /** Свечение готовой ульты: ореол под портретом, рамка и ярлык «УЛЬТА» над ним (BUG-190); пульс — общий. */
-  glow: Phaser.GameObjects.Container[] | null;
+  rim: Phaser.GameObjects.Image;
+  glow: Phaser.GameObjects.Image | null;
+  bolt: Phaser.GameObjects.Image | null;
   pulse: Phaser.Tweens.Tween | null;
+  boltPulse: Phaser.Tweens.Tween | null;
+  dead: boolean;
   ready: boolean;
+  /** Показанный шаг кольца (0…RING_STEPS) и полоски HP (0…HP_STEPS); -1 — ещё не рисовали. */
+  ringStep: number;
+  hpStep: number;
+  hpTone: number;
 }
 
-/** Центр панели по высоте (между кнопками «1x / Пропустить» и макушками бойцов). */
-export const PANEL_Y = 610;
-const CARD_W = 184;
-const CARD_H = 196;
-/** Нижний край панели: плашки навыков и реплики боссов — ниже него (QA RN-05, RN-16). */
-export const PANEL_BOTTOM = PANEL_Y + CARD_H / 2;
-const GAP = 12;
-const FACE = 132;
-const BAR_W = CARD_W - 28;
+/** Шаг между медальонами и их размеры (ед. поля 1080). */
+export const CELL = 196;
+/** Радиус диска с портретом, обода редкости и кольца ульты. */
+const DISC_R = 64;
+const RIM_R = 68;
+export const RING_R = 80;
+const RING_W = 10;
+/** Портрет чуть больше диска: голова фигуры может выйти за обод — «живее», чем вписанный квадрат. */
+const FACE = 128;
+const HP_W = 136;
+const HP_H = 12;
+const HP_Y = RING_R + 22;
+/** Высота медальона с полоской: от верха кольца до низа полоски HP. */
+export const CELL_H = RING_R + RING_W / 2 + HP_Y + HP_H / 2 + 3;
+/** Центр медальонов на поле 9:16 (на вытянутых экранах — ниже на navShift, к низу безопасной области). */
+export const PANEL_Y = GAME_H - 130;
+/** Верх панели (верх кольца) при сдвиге 0: фигуры поля и их подписи держатся выше. */
+export const PANEL_TOP = PANEL_Y - RING_R - RING_W / 2;
+/** Кольцо делится на столько шагов: дуга перерисовывается только при смене шага (≈ 2.5 % заряда). */
+export const RING_STEPS = 40;
+const HP_STEPS = 100;
+const HP_OK = COLOR_N.positive;
+const HP_LOW = COLOR_N.warning;
+const HP_BAD = COLOR_N.negative;
+const RING_CHARGE = COLOR_N.info;
+const RING_READY = COLOR_N.gold;
+const BRONZE = COLOR_N.border;
+
+const DISC_TEX = 'hud_disc';
+const RIM_TEX = 'hud_rim';
+const GLOW_TEX = 'hud_glow';
+const SHADE_TEX = 'hud_shade';
+
+/** Шаг кольца для доли заряда 0…1 (полное — только когда правда 1). */
+export function ringStep(p: number): number {
+  const c = Math.min(1, Math.max(0, p));
+  return c >= 1 ? RING_STEPS : Math.min(RING_STEPS - 1, Math.floor(c * RING_STEPS));
+}
+
+/** x центров медальонов n героев (по центру поля). */
+export function cellXs(n: number): number[] {
+  const x0 = GAME_W / 2 - ((n - 1) * CELL) / 2;
+  return Array.from({ length: n }, (_, i) => x0 + i * CELL);
+}
+
+/** Цвет полоски HP по доле. */
+export function hpTone(p: number): number {
+  return p > 0.5 ? HP_OK : p > 0.25 ? HP_LOW : HP_BAD;
+}
+
+/** Текстуры панели — один раз на игру (canvas): диск с мягким градиентом, белый обод (тонируется), свечение, затемнение низа. */
+function ensureTextures(scene: Phaser.Scene): void {
+  const tm = scene.textures;
+  const canvas = (key: string, w: number, h: number, draw: (ctx: CanvasRenderingContext2D) => void) => {
+    if (tm.exists(key)) return;
+    const t = tm.createCanvas(key, w, h);
+    if (!t) return;
+    draw(t.getContext());
+    t.refresh();
+  };
+  const d = (RING_R + RING_W) * 2;
+  canvas(DISC_TEX, d, d, (ctx) => {
+    const c = d / 2;
+    // Дорожка кольца (тёмная) и диск под портретом: тёплый центр → тёмный край.
+    ctx.beginPath();
+    ctx.arc(c, c, RING_R, 0, Math.PI * 2);
+    ctx.lineWidth = RING_W + 4;
+    ctx.strokeStyle = 'rgba(8, 6, 4, 0.72)';
+    ctx.stroke();
+    const g = ctx.createRadialGradient(c, c - DISC_R * 0.35, DISC_R * 0.1, c, c, DISC_R);
+    g.addColorStop(0, '#3b3328');
+    g.addColorStop(1, '#14110d');
+    ctx.beginPath();
+    ctx.arc(c, c, DISC_R, 0, Math.PI * 2);
+    ctx.fillStyle = g;
+    ctx.fill();
+  });
+  const rd = (RIM_R + 4) * 2;
+  canvas(RIM_TEX, rd, rd, (ctx) => {
+    ctx.beginPath();
+    ctx.arc(rd / 2, rd / 2, RIM_R, 0, Math.PI * 2);
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+  });
+  canvas(GLOW_TEX, 128, 128, (ctx) => {
+    const g = ctx.createRadialGradient(64, 64, 20, 64, 64, 64);
+    g.addColorStop(0, 'rgba(255,255,255,0.9)');
+    g.addColorStop(0.55, 'rgba(255,255,255,0.35)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 128);
+  });
+  canvas(SHADE_TEX, 4, 64, (ctx) => {
+    const g = ctx.createLinearGradient(0, 0, 0, 64);
+    g.addColorStop(0, 'rgba(10,9,7,0)');
+    g.addColorStop(0.45, 'rgba(10,9,7,0.55)');
+    g.addColorStop(1, 'rgba(10,9,7,0.85)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 4, 64);
+  });
+}
+
+/**
+ * Затемнение края экрана полосой от top до bottom (на всю ширину с полями): прозрачно со стороны поля, темно у края.
+ * fromTop — тёмный край сверху (верхняя полоса боя), иначе снизу (панель героев). Одна картинка 4×64, растянутая.
+ */
+export function shadeBand(scene: Phaser.Scene, top: number, bottom: number, depth: number, fromTop = false): Phaser.GameObjects.Image {
+  ensureTextures(scene);
+  return scene.add
+    .image(GAME_W / 2, top, SHADE_TEX)
+    .setOrigin(0.5, 0)
+    .setDisplaySize(GAME_W + 2 * BLEED_X, bottom - top)
+    .setFlipY(fromTop)
+    .setDepth(depth);
+}
 
 export class HeroPanel {
   private entries = new Map<string, Entry>();
+  /** Центр медальонов по высоте (PANEL_Y + сдвиг к низу вытянутого экрана). */
+  readonly y: number;
 
   constructor(
     private readonly scene: Phaser.Scene,
     units: readonly PanelUnit[],
     depth: number,
     onTap?: (uid: string) => void,
+    shift = 0,
   ) {
-    const n = units.length;
-    const x0 = GAME_W / 2 - ((n - 1) * (CARD_W + GAP)) / 2;
+    ensureTextures(scene);
+    const y = (this.y = PANEL_Y + shift);
+    // Низ экрана темнеет к панели: медальоны читаются на любом фоне, фигуры у нижнего края не спорят с ними.
+    shadeBand(scene, y - RING_R - 80, GAME_H + BLEED_Y, depth - 1).setName('heroPanelShade');
+    const xs = cellXs(units.length);
     units.forEach((u, i) => {
-      const x = x0 + i * (CARD_W + GAP);
-      const back = scene.add.rectangle(0, 0, CARD_W, CARD_H, 0x140e09, 0.8).setStrokeStyle(3, 0xc9a45c, 0.7);
-      const face = portrait(scene, 0, -30, portraitKey(u.sprite), FACE);
-      const name = text(scene, 0, 42, u.name, 26, '#f3e3c0', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 });
-      if (name.width > CARD_W - 12) name.setScale((CARD_W - 12) / name.width);
-      const hpBack = scene.add.rectangle(0, 68, BAR_W + 4, 16, 0x2a2420, 0.95).setStrokeStyle(2, 0x000000, 0.8);
-      const hp = scene.add.rectangle(-BAR_W / 2, 68, BAR_W, 12, 0x5fd35f).setOrigin(0, 0.5);
-      const parts: Phaser.GameObjects.GameObject[] = [back, face, name, hpBack, hp];
-      // Молния у правого края портрета, ниже ярлыка «УЛЬТА» (он по центру сверху).
-      if (u.breaks) parts.push(chargeBreakBadge(scene, CARD_W / 2 - 26, -46, 42));
-      let energy: Phaser.GameObjects.Rectangle | null = null;
-      if (u.hasUlt || u.ult) {
-        const enBack = scene.add.rectangle(0, 84, BAR_W + 4, 10, 0x2a2420, 0.95).setStrokeStyle(2, 0x000000, 0.8);
-        energy = scene.add.rectangle(-BAR_W / 2, 84, 0, 6, 0x6fc8ff).setOrigin(0, 0.5);
-        parts.push(enBack, energy);
-      }
-      // Готовая ульта: ореол за портретом (под ним), рамка и ярлык «УЛЬТА» — над ним (BUG-190: голова спрайта не
-      // закрывает ярлык); пульс — пока не нажали.
-      let glow: Phaser.GameObjects.Container[] | null = null;
+      const parts: Phaser.GameObjects.GameObject[] = [];
+      let glow: Phaser.GameObjects.Image | null = null;
       if (u.ult) {
-        const halo = scene.add.rectangle(0, -30, FACE + 26, FACE + 26, 0xffd84a, 0.35);
-        const frame = scene.add.rectangle(0, 0, CARD_W + 8, CARD_H + 8).setStrokeStyle(8, 0xffe070, 1);
-        const tag = text(scene, 0, -CARD_H / 2 + 16, 'УЛЬТА', 24, '#3a2408', { fontStyle: 'bold', backgroundColor: '#ffd84a', padding: { x: 8, y: 0 } });
-        const under = scene.add.container(0, 0, [halo]).setVisible(false);
-        const over = scene.add.container(0, 0, [frame, tag]).setVisible(false);
-        glow = [under, over];
-        parts.splice(1, 0, under);
-        parts.push(over);
+        glow = scene.add.image(0, 0, GLOW_TEX).setDisplaySize((RING_R + 34) * 2, (RING_R + 34) * 2).setTint(RING_READY).setBlendMode(Phaser.BlendModes.ADD).setVisible(false);
+        parts.push(glow);
       }
-      const node = scene.add.container(x, PANEL_Y, parts).setDepth(depth).setName(`heroPanel_${i}`);
+      const disc = scene.add.image(0, 0, DISC_TEX);
+      const face = portrait(scene, 0, 0, portraitKey(u.sprite), FACE);
+      const rim = scene.add.image(0, 0, RIM_TEX).setTint(u.rarity ? hexNum(RARITY[u.rarity]) : BRONZE);
+      parts.push(disc, face, rim);
+      let arc: Phaser.GameObjects.Arc | null = null;
+      if (u.hasUlt || u.ult) {
+        arc = scene.add.arc(0, 0, RING_R, -90, -90, false).setClosePath(false).setIterations(1 / 48).setVisible(false);
+        arc.setFillStyle();
+        arc.setStrokeStyle(RING_W, RING_CHARGE, 1);
+        parts.push(arc);
+      }
+      const hpBack = scene.add.rectangle(0, HP_Y, HP_W + 6, HP_H + 6, 0x000000, 0.7);
+      const hp = scene.add.rectangle(-HP_W / 2, HP_Y, HP_W, HP_H, HP_OK).setOrigin(0, 0.5);
+      parts.push(hpBack, hp);
+      // Молния — справа сверху на кольце: эта ульта сбивает заряд босса.
+      const bolt = u.breaks ? chargeBreakBadge(scene, RING_R * 0.72, -RING_R * 0.72, 44) : null;
+      if (bolt) parts.push(bolt);
+      const node = scene.add.container(xs[i], y, parts).setDepth(depth).setName(`heroPanel_${i}`);
       if (u.ult && onTap) {
-        node.setSize(CARD_W, CARD_H).setInteractive({ useHandCursor: true });
+        const r = RING_R + RING_W;
+        node.setSize(r * 2, r * 2).setInteractive({ hitArea: new Phaser.Geom.Circle(r, r, r), hitAreaCallback: Phaser.Geom.Circle.Contains, useHandCursor: true });
         node.on('pointerdown', () => onTap(u.uid));
       }
-      this.entries.set(u.uid, { node, hp, energy, face, dead: false, glow, pulse: null, ready: false });
+      this.entries.set(u.uid, { node, hp, arc, face, rim, glow, bolt, pulse: null, boltPulse: null, dead: false, ready: false, ringStep: -1, hpStep: -1, hpTone: HP_OK });
     });
   }
 
-  /** Ульта готова и ждёт касания: свечение и пульс карточки. */
+  /** Ульта готова и ждёт касания (ручной режим): свечение за медальоном (пульс) и короткий «блик» масштабом. */
   setReady(uid: string, on: boolean): void {
     const e = this.entries.get(uid);
     if (!e?.glow || e.ready === on || (on && e.dead)) return;
     e.ready = on;
-    for (const g of e.glow) g.setVisible(on);
+    e.glow.setVisible(on).setAlpha(1);
     e.pulse?.stop();
     e.pulse = null;
     e.node.setScale(1);
-    if (on) {
-      for (const g of e.glow) g.setAlpha(1);
-      e.pulse = this.scene.tweens.add({ targets: e.glow, alpha: 0.45, duration: 480, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-      this.scene.tweens.add({ targets: e.node, scale: 1.06, duration: 160, yoyo: true, ease: 'Quad.easeOut' });
-    }
+    if (!on) return;
+    e.pulse = decorTween(this.scene, { targets: e.glow, alpha: 0.35, duration: M.emphasis, yoyo: true, repeat: -1, ease: E.inOut });
+    if (juiceOn()) this.scene.tweens.add({ targets: e.node, scale: 1.08, duration: M.fast, yoyo: true, ease: E.out });
   }
 
-  /** Полоска готовности ульты героя (0…1): доля прошедшей перезарядки; полная — золотая. */
+  /** Кольцо готовности ульты героя (0…1): полное — золотое. Дуга перерисовывается только при смене шага. */
   setCharge(uid: string, p: number): void {
     const e = this.entries.get(uid);
-    if (!e?.energy || e.dead) return;
-    const c = Phaser.Math.Clamp(p, 0, 1);
-    e.energy.width = BAR_W * c;
-    e.energy.fillColor = c >= 1 ? 0xffe08a : 0x6fc8ff;
+    if (!e?.arc || e.dead) return;
+    const k = ringStep(p);
+    if (k === e.ringStep) return;
+    e.ringStep = k;
+    if (k === 0) {
+      e.arc.setVisible(false);
+      return;
+    }
+    e.arc.setVisible(true).setEndAngle(-90 + (360 * k) / RING_STEPS);
+    e.arc.setStrokeStyle(RING_W, k === RING_STEPS ? RING_READY : RING_CHARGE, 1);
   }
 
-  /** Готова ли ульта героя (карточка светится). */
+  /** Готова ли ульта героя (медальон светится). */
   isReady(uid: string): boolean {
     return !!this.entries.get(uid)?.ready;
   }
 
-  /** Касание прошло: короткий «нажим» карточки. */
+  /** Касание прошло: короткий «нажим» медальона. */
   pressed(uid: string): void {
     const e = this.entries.get(uid);
     if (!e) return;
-    this.scene.tweens.add({ targets: e.node, scale: 0.92, duration: 90, yoyo: true, ease: 'Quad.easeOut' });
+    if (!juiceOn()) return;
+    this.scene.tweens.add({ targets: e.node, scale: 0.92, duration: M.press, yoyo: true, ease: E.out });
   }
 
-  /** Середина карточки героя (для подсказки «коснитесь»). */
+  /**
+   * Заряд босса идёт: молнии у героев, чья ульта его собьёт, пульсируют (кто ответит — видно без текста).
+   * Возвращает, есть ли живой герой с молнией.
+   */
+  alertBreakers(on: boolean): boolean {
+    let any = false;
+    for (const e of this.entries.values()) {
+      if (!e.bolt) continue;
+      e.boltPulse?.stop();
+      e.boltPulse = null;
+      e.bolt.setScale(1);
+      if (!on || e.dead) continue;
+      any = true;
+      e.boltPulse = juiceOn() ? this.scene.tweens.add({ targets: e.bolt, scale: 1.35, duration: M.slow, yoyo: true, repeat: -1, ease: E.inOut }) : null;
+    }
+    return any;
+  }
+
+  /** Медальон героя: центр и размер (для подсказки «коснитесь»). */
   cardAt(uid: string): { x: number; y: number; w: number; h: number } | null {
     const e = this.entries.get(uid);
-    return e ? { x: e.node.x, y: e.node.y, w: CARD_W, h: CARD_H } : null;
+    const r = RING_R + RING_W / 2;
+    return e ? { x: e.node.x, y: e.node.y, w: r * 2, h: r * 2 } : null;
   }
 
-  /** Полоски героя: здоровье и энергия (0…1), жив ли. */
+  /** Полоска здоровья и кольцо (0…1), жив ли. */
   set(uid: string, hp: number, energy: number, alive: boolean): void {
     const e = this.entries.get(uid);
     if (!e) return;
     const p = Phaser.Math.Clamp(hp, 0, 1);
-    e.hp.width = BAR_W * p;
-    e.hp.fillColor = p > 0.5 ? 0x5fd35f : p > 0.25 ? 0xe8c547 : 0xe0523a;
-    if (e.energy) {
-      const full = energy >= 1;
-      e.energy.width = BAR_W * Phaser.Math.Clamp(energy, 0, 1);
-      e.energy.fillColor = full ? 0xffe08a : 0x6fc8ff;
+    const k = Math.ceil(p * HP_STEPS);
+    if (k !== e.hpStep) {
+      e.hpStep = k;
+      e.hp.width = (HP_W * k) / HP_STEPS;
+      const tone = hpTone(p);
+      if (tone !== e.hpTone) {
+        e.hpTone = tone;
+        e.hp.fillColor = tone;
+      }
     }
+    this.setCharge(uid, energy);
     if (!alive && !e.dead) {
       this.setReady(uid, false);
       e.dead = true;
-      e.node.setAlpha(0.45);
-      e.face.setTint(0x777777);
+      e.arc?.setVisible(false);
+      e.boltPulse?.stop();
+      e.boltPulse = null;
+      e.bolt?.setVisible(false);
+      e.node.setAlpha(0.55);
+      e.rim.setTint(0x6b645a);
+      // Обесцвечен (WebGL: матрица цвета; Canvas — серый оттенок).
+      const fx = (e.face as Phaser.GameObjects.Image & { preFX?: Phaser.GameObjects.Components.FX | null }).preFX;
+      if (fx) fx.addColorMatrix().grayscale(1);
+      else e.face.setTint(0x777777);
     }
   }
 }
