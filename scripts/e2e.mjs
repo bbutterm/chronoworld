@@ -245,9 +245,12 @@ async function main() {
     if (!(await skipDialogues('Campaign'))) problems.push('нет вступления главы на карте кампании');
     await shot('campaign');
     // Навигация — 4 вкладки; на «Кампании» — «В бой · этап 1», сундук офлайн-наград и быстрые награды (закрыты до своего этапа, data/unlocks.json).
-    for (const t of ['Кампания', 'Герои', 'Город', 'Приключения', 'В бой · этап 1-1', 'Сундук офлайн-наград', 'Быстрые', 'Закрыто']) {
+    // Сундук новичка — под замком с подписью; быстрые награды — серая иконка-кнопка с замком (state 'locked'), без слов.
+    for (const t of ['Кампания', 'Герои', 'Город', 'Приключения', 'В бой · этап 1-1', 'Откроется после 1-1']) {
       if (!(await hasText('Campaign', t))) problems.push(`кампания новичка: нет «${t}»`);
     }
+    const fastState = await page.evaluate(() => window.__game.scene.getScene('Campaign').children.getByName('fastRewards')?.getData('state') ?? null);
+    if (fastState !== 'locked') problems.push(`кампания новичка: быстрые награды не под замком (${fastState})`);
     // Письмо «Добро пожаловать» и вход дня — красный кружок на вкладке «Город».
     if (!(await page.evaluate(() => !!window.__game.scene.getScene('Campaign').children.getByName('navBadge_Home')))) problems.push('нет значка на вкладке «Город» (письмо, вход дня)');
     // R: новичку показана подсказка на «В бой»; она не закрывает другие кнопки.
@@ -395,7 +398,9 @@ async function main() {
       // На «Кампании» сундук с «Собрать»; быстрые награды — «Бесплатно», если уже открыты, иначе «Закрыто».
       await waitScene('Campaign');
       const fastOpen = CH1_ORDER.indexOf(unlockOf('fast_rewards').stage) <= CH1_ORDER.indexOf('ch1_s2');
-      if (!(await hasText('Campaign', fastOpen ? 'Бесплатно' : 'Закрыто'))) problems.push(`кампания после этапа 2: быстрые награды не «${fastOpen ? 'Бесплатно' : 'Закрыто'}»`);
+      const fast = await page.evaluate(() => window.__game.scene.getScene('Campaign').children.getByName('fastRewards')?.getData('state') ?? null);
+      if (fast !== (fastOpen ? 'free' : 'locked')) problems.push(`кампания после этапа 2: быстрые награды «${fast}», ждали «${fastOpen ? 'free' : 'locked'}»`);
+      if (fastOpen && !(await hasText('Campaign', 'Бесплатно'))) problems.push('кампания после этапа 2: на быстрых наградах нет «Бесплатно»');
       if (!(await hasText('Campaign', 'Собрать'))) problems.push('кампания после этапа 2: нет «Собрать» у сундука');
       await shot('campaign-chest');
     }

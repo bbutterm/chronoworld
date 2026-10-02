@@ -1,21 +1,22 @@
 import Phaser from 'phaser';
-import { offlineFullInMs, offlineLoot, offlineRewards, RARITIES, type CardRarity, type ChestLoot, type OfflineRewards, type Rarity, type SaveState } from '../core';
-import { heroCardIcon, rarityColor } from './heroCard';
+import { offlineFullInMs, offlineLoot, offlineRewards, RARITIES, type ChestLoot, type OfflineRewards, type Rarity, type SaveState } from '../core';
+import { heroCardIcon } from './heroCard';
 import { GAME } from './content';
 import { formatNumber, RARITY_COLORS } from './flow';
+import { compactNumber } from './frame';
 import { rewardIcon } from './rewardsView';
 import { RO_ICON_PX, roIcon } from './itemIcons';
 import { skinIcon } from './skin';
-import { C, FS, OUTLINE } from './theme';
-import { text } from './ui';
+import { COLOR, COLOR_N, S, T } from './theme';
+import { rewardRow, text, type ChipSpec } from './ui';
+import { chestFill, type ChestFill } from './campaignView';
 
 /**
- * Карточка сундука на странице «Кампания»: что накопилось (золото, опыт, трофеи — предметы, карты героя, гемы, свитки) иконками
- * и таймер «Полон через Ч:ММ» / «Сундук полон»; строки итогов сбора и быстрых наград. CampaignScene только создаёт
- * ChestCardView и зовёт update раз в секунду — раскладка сундука и «Собрать» живут в сцене.
+ * Содержимое карточки сундука на странице «Кампания» (как сундук AFK Arena): полоса наполнения «1ч 05м / 12ч»
+ * («Полон» — золотом) и под ней накопленное чипами «иконка + число» (золото, опыт, трофеи — предметы, карты героя, гемы,
+ * свитки). Слов нет: что это сундук, видно по картинке, когда полон — по полосе. CampaignScene создаёт ChestCardView
+ * и зовёт update раз в секунду; картинка сундука, «Собрать» и полёт наград живут в сцене.
  */
-
-type Obj = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Visible;
 
 function plural(n: number, one: string, few: string, many: string): string {
   const m10 = n % 10;
@@ -25,19 +26,6 @@ function plural(n: number, one: string, few: string, many: string): string {
   return many;
 }
 
-/** «Ч:ММ» до заполнения (минуты — вверх, чтобы «0:00» не висело, пока сундук ещё не полон). */
-export function fullInText(ms: number): string {
-  const min = Math.ceil(ms / 60_000);
-  return `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`;
-}
-
-/** Заголовок карточки: состояние сундука и сколько накоплено по времени. */
-export function chestHeadline(r: OfflineRewards, cleared: number): string {
-  if (cleared === 0) return 'Пройдите первый этап кампании,\nчтобы сундук начал наполняться';
-  if (r.gold === 0 && r.jobExp === 0) return 'Сундук пуст — награды\nкопятся каждую минуту';
-  return `Накоплено за ${Math.floor(r.minutes / 60)} ч ${r.minutes % 60} мин`;
-}
-
 /** Лучшая редкость среди предметов (для цвета иконки). */
 function bestRarity(items: readonly string[]): Rarity | null {
   let best = -1;
@@ -45,113 +33,106 @@ function bestRarity(items: readonly string[]): Rarity | null {
   return best >= 0 ? RARITIES[best] : null;
 }
 
-
 /** Трофеи: иконка RO лучшего предмета (рамка цветом его редкости), без иконки — мешок цветом редкости. */
-function itemsIcon(scene: Phaser.Scene, x: number, y: number, size: number, items: readonly string[]): Obj {
+function itemsIcon(scene: Phaser.Scene, x: number, y: number, size: number, items: readonly string[]): Phaser.GameObjects.GameObject {
   const rarity = bestRarity(items);
   const color = Phaser.Display.Color.HexStringToColor(RARITY_COLORS[rarity ?? 'common']).color;
   const best = items.find((id) => (GAME.equipment.items[id]?.rarity ?? 'common') === (rarity ?? 'common'));
   const key = roIcon(scene, best);
   if (!key) return scene.add.image(x, y, skinIcon('bag')).setDisplaySize(size, size).setTint(color);
-  // Контейнер: строка ячеек двигает иконку по x (setX) — рамка и иконка едут вместе.
-  const cell = scene.add.rectangle(0, 0, size + 4, size + 4, color, 0.2).setStrokeStyle(3, color, 1);
+  // Контейнер: чип двигает иконку (setPosition) — рамка и иконка едут вместе.
+  const cell = scene.add.rectangle(0, 0, size, size, color, 0.2).setStrokeStyle(2, color, 1);
   const ico = scene.add.image(0, 0, key).setScale(Math.max(1, Math.floor(size / RO_ICON_PX)));
   return scene.add.container(x, y, [cell, ico]);
 }
 
-type Cell = { kind: 'gold' | 'exp' | 'gems' | 'scrolls' | 'items' | 'cards'; value: string; rarity?: CardRarity; templateId?: string };
-
-/** Трофеи одной строкой ячеек (только ненулевые). */
-function lootCells(loot: Pick<ChestLoot, 'items' | 'cards' | 'gems' | 'scrolls'>): Cell[] {
-  const cells: Cell[] = [];
-  if (loot.items.length) cells.push({ kind: 'items', value: `×${loot.items.length}` });
-  // Карты героя: по редкости (старшая первой) — мини-карта с лицом первого героя в рамке редкости.
+/** Накопленное чипами: золото и опыт, затем трофеи (только ненулевые; карты героя — по редкости, старшая первой). */
+export function chestChips(r: Pick<OfflineRewards, 'gold' | 'jobExp'>, loot: Pick<ChestLoot, 'items' | 'cards' | 'gems' | 'scrolls'>): ChipSpec[] {
+  const out: ChipSpec[] = [];
+  if (r.gold > 0) out.push({ icon: (s, x, y, size) => rewardIcon(s, x, y, 'gold', size), value: `+${compactNumber(r.gold)}`, tone: 'gold' });
+  if (r.jobExp > 0) out.push({ icon: (s, x, y, size) => rewardIcon(s, x, y, 'exp', size), value: `+${compactNumber(r.jobExp)}` });
+  if (loot.items.length) out.push({ icon: (s, x, y, size) => itemsIcon(s, x, y, size, loot.items), value: `×${loot.items.length}` });
   for (const rarity of ['red', 'gold', 'purple', 'blue', 'green'] as const) {
     const cards = loot.cards.filter((c) => c.rarity === rarity);
-    if (cards.length) cells.push({ kind: 'cards', value: `×${cards.length}`, rarity, templateId: cards[0].templateId });
+    if (cards.length) out.push({ icon: (s, x, y, size) => heroCardIcon(s, x, y, size * 1.2, rarity, cards[0].templateId), value: `×${cards.length}`, tone: 'info' });
   }
-  if (loot.gems) cells.push({ kind: 'gems', value: formatNumber(loot.gems) });
-  if (loot.scrolls) cells.push({ kind: 'scrolls', value: `×${loot.scrolls}` });
-  return cells;
-}
-
-/** Нарисовать строку ячеек с центром (x, y). */
-function drawRow(scene: Phaser.Scene, x: number, y: number, cells: Cell[], items: readonly string[], size = 44, gap = 30): Obj[] {
-  const out: Obj[] = [];
-  let cx = 0;
-  const parts: { icon: Obj; label: Phaser.GameObjects.Text; at: number }[] = [];
-  for (const c of cells) {
-    const icon =
-      c.kind === 'items'
-        ? itemsIcon(scene, 0, y, size, items)
-        : c.kind === 'cards'
-          ? (heroCardIcon(scene, 0, y, size * 1.25, c.rarity ?? 'blue', c.templateId) as unknown as Obj)
-          : (rewardIcon(scene, 0, y, c.kind, size) as Obj);
-    const color = c.kind === 'gold' ? C.gold : c.kind === 'gems' ? C.gem : c.kind === 'cards' ? rarityColor(c.rarity ?? 'blue') : C.text;
-    const label = text(scene, 0, y, c.value, FS.small, color, { fontStyle: 'bold', ...OUTLINE }).setOrigin(0, 0.5);
-    parts.push({ icon, label, at: cx });
-    cx += size + 8 + label.width + gap;
-  }
-  const left = x - (cx - gap) / 2;
-  for (const p of parts) {
-    p.icon.setX(left + p.at + size / 2);
-    p.label.setX(left + p.at + size + 8);
-    out.push(p.icon, p.label);
-  }
+  if (loot.gems) out.push({ icon: (s, x, y, size) => rewardIcon(s, x, y, 'gems', size), value: compactNumber(loot.gems), tone: 'gem' });
+  if (loot.scrolls) out.push({ icon: (s, x, y, size) => rewardIcon(s, x, y, 'scrolls', size), value: `×${loot.scrolls}` });
   return out;
 }
 
 export interface ChestCardLayout {
-  /** Строка «золото + опыт» (центр). */
-  incomeX: number;
-  incomeY: number;
-  /** Строка трофеев (центр). */
-  lootX: number;
-  lootY: number;
-  /** Таймер (центр). */
-  timerX: number;
-  timerY: number;
+  /** Левый край полосы и чипов. */
+  x: number;
+  /** Ширина полосы. */
+  w: number;
+  /** Ширина ряда чипов (справа от него — «Собрать»). */
+  chipsW: number;
+  /** Центр полосы наполнения. */
+  barY: number;
+  /** Центр ряда чипов. */
+  chipsY: number;
 }
 
-/** Содержимое карточки сундука: строки иконок и таймер. update — раз в секунду из CampaignScene.refresh. */
+/** Что показывает сундук сейчас: накопленное, наполнение, есть ли что собрать. */
+export interface ChestState {
+  rewards: OfflineRewards;
+  fill: ChestFill;
+  hasIncome: boolean;
+}
+
+const BAR_H = 40;
+
+/** Полоса наполнения и чипы накопленного. update — раз в секунду из CampaignScene.refresh. */
 export class ChestCardView {
-  private rows: Obj[] = [];
+  private chips: Phaser.GameObjects.Container | null = null;
   private key = '';
-  private readonly timer: Phaser.GameObjects.Text;
+  private readonly fill: Phaser.GameObjects.Rectangle;
+  private readonly label: Phaser.GameObjects.Text;
 
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly at: ChestCardLayout,
   ) {
-    this.timer = text(scene, at.timerX, at.timerY, '', FS.small, C.muted, OUTLINE);
+    const { x, w, barY } = at;
+    // Утопленный жёлоб и золотая заливка с бликом; подпись — поверх, по центру.
+    scene.add.rectangle(x + w / 2, barY, w, BAR_H, COLOR_N.surfaceSunken).setStrokeStyle(2, COLOR_N.border);
+    this.fill = scene.add.rectangle(x + 3, barY, 0, BAR_H - 8, COLOR_N.accent).setOrigin(0, 0.5);
+    this.label = text(scene, x + w / 2, barY, '', T.caption, COLOR.textPrimary, { fontStyle: 'bold' }).setName('chestFill');
+    this.label.setShadow(0, 2, 'rgba(0,0,0,0.85)', 3, false, true);
   }
 
-  /** Пересчитать на момент now. Возвращает накопленное золото/опыт (для кнопки и подсказки). */
-  update(save: SaveState, now: number): OfflineRewards {
+  /** Пересчитать на момент now. */
+  update(save: SaveState, now: number): ChestState {
     const r = offlineRewards(save, now, GAME);
-    const loot = offlineLoot(save, now, GAME);
-    const income = r.gold > 0 || r.jobExp > 0;
-    // Иконки перестраиваются только когда что-то изменилось (раз в минуту / тик), таймер — каждую секунду.
-    const key = income ? JSON.stringify([r.gold, r.jobExp, loot.items, loot.cards, loot.gems, loot.scrolls]) : '';
+    const fill = chestFill(r.minutes, GAME.progression.offline.capHours, offlineFullInMs(save, now, GAME));
+    const hasIncome = r.gold > 0 || r.jobExp > 0;
+    this.fill.width = Math.max(0, (this.at.w - 6) * fill.frac);
+    this.fill.setFillStyle(fill.full ? COLOR_N.gold : COLOR_N.accent);
+    this.label.setText(fill.label).setColor(fill.full ? COLOR.gold : COLOR.textPrimary);
+    // Чипы перестраиваются только когда что-то изменилось (раз в минуту / тик), полоса — каждую секунду.
+    const loot = hasIncome ? offlineLoot(save, now, GAME) : null;
+    const key = loot ? JSON.stringify([r.gold, r.jobExp, loot.items, loot.cards, loot.gems, loot.scrolls]) : '';
     if (key !== this.key) {
       this.key = key;
-      for (const o of this.rows) o.destroy();
-      this.rows = [];
-      if (income) {
-        const a = this.at;
-        this.rows.push(...drawRow(this.scene, a.incomeX, a.incomeY, [
-          { kind: 'gold', value: `+${formatNumber(r.gold)}` },
-          { kind: 'exp', value: `+${formatNumber(r.jobExp)}` },
-        ], []));
-        const cells = lootCells(loot);
-        if (cells.length) this.rows.push(...drawRow(this.scene, a.lootX, a.lootY, cells, loot.items, 40, 26));
-        else this.rows.push(text(this.scene, a.lootX, a.lootY, 'Трофеи копятся…', FS.small, C.disabled, OUTLINE));
+      this.chips?.destroy();
+      this.chips = null;
+      if (loot) {
+        // Один ряд: не влезает — последние трофеи сворачиваются в «+N».
+        const all = chestChips(r, loot);
+        const build = (n: number) =>
+          rewardRow(this.scene, 0, this.at.chipsY, n >= all.length ? all : [...all.slice(0, n), { value: `+${all.length - n}` }], { size: 's', gap: S.s, bg: false, maxW: this.at.chipsW });
+        let n = all.length;
+        let row = build(n);
+        while (row.height > 64 && n > 1) {
+          row.destroy();
+          row = build(--n);
+        }
+        // Ряд — от левого края (§3 п. 6), не по центру.
+        this.chips = row.setX(this.at.x + row.width / 2).setName('chestChips');
       }
     }
-    const full = offlineFullInMs(save, now, GAME);
-    this.timer.setText(full === null ? '' : full <= 0 ? 'Полон — заберите!' : `Полон через ${fullInText(full)}`);
-    this.timer.setColor(full !== null && full <= 0 ? C.warning : C.muted);
-    return r;
+    return { rewards: r, fill, hasIncome };
   }
 }
 
