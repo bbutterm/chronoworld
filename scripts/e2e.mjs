@@ -467,7 +467,7 @@ async function main() {
     await clickText('Heroes', 'Город');
     await waitScene('Home');
     await clickNamed('Home', 'settings');
-    await sleep(200);
+    await sleep(450);
     if (!(await hasText('Home', 'Версия '))) problems.push('в настройках нет версии');
     if (!(await hasText('Home', 'Начать заново'))) problems.push('в настройках нет «Начать заново»');
     await shot('settings');
@@ -569,7 +569,8 @@ async function main() {
     }
     // Скорость ×2 открыта: в настройках 1x → 2x, выбор запоминается.
     await clickNamed('Home', 'settings');
-    await sleep(200);
+    // Окно настроек появляется с анимацией popIn (M.base 220 мс, масштаб 0.92 → 1) — ждём, пока встанет на место.
+    await sleep(450);
     await clickText('Home', '1x');
     await sleep(150);
     const speed2 = await page.evaluate(() => localStorage.getItem('chronoworld.battleSpeed'));
@@ -715,7 +716,7 @@ async function main() {
     await page.evaluate(() => window.__game.scene.getScene('Tavern').scene.start('Home'));
     await waitScene('Home');
     await clickNamed('Home', 'settings');
-    await sleep(200);
+    await sleep(450);
     await clickText('Home', 'Начать заново');
     await sleep(300);
     await shot('start-over-confirm');
