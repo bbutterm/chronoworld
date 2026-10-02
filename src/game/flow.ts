@@ -459,6 +459,34 @@ export function recommendText(rec: Pick<StageRecommend, 'level' | 'rarity' | 'ow
   return `${r.charAt(0).toUpperCase()}${r.slice(1)} герои ур. ${rec.level}`;
 }
 
+/**
+ * Что этап требует от отряда — для экрана этапа (итерация 4 полировки, правило 11: требования — только при нехватке).
+ * power — нужная мощь, own — мощь отряда, enemyLevel — типичный враг этапа в уровнях героев отряда (одно число вместо
+ * «ур. N» у каждого врага: у врагов разброс по hp·atk в десятки уровней, после сдвига к отряду слабые упирались в
+ * «ур. 1» рядом с «ур. 17» у танка — выглядело случайным). short — только когда мощи не хватает: до какого уровня
+ * поднять героев отряда (capped — и пределов редкостей не хватит).
+ */
+export interface StageNeeds {
+  power: number;
+  own: number;
+  enemyLevel: number;
+  short?: { level: number; capped?: boolean };
+}
+
+export function stageNeeds(save: SaveState, stageId: string, ctx: FeatureContext & EquipmentContext): StageNeeds {
+  const own = squadPower(save, ctx);
+  const power = recommendedPower(stageId, ctx);
+  const lv = stageLevelsFor(save, stageId, ctx);
+  const rec = lv.recommended;
+  const short = own < power && rec.own ? { level: rec.level, ...(rec.capped ? { capped: true } : {}) } : undefined;
+  return { power, own, enemyLevel: lv.typical, ...(short ? { short } : {}) };
+}
+
+/** Подпись под мощью при нехватке (коротко, ≤ 26 символов): «Героям нужен ур. 30» / «Нужны копии и «Вознести»». */
+export function shortfallHint(short: { level: number; capped?: boolean }): string {
+  return short.capped ? 'Нужны копии и «Вознести»' : `Героям нужен ур. ${short.level}`;
+}
+
 /** Мощь текущего отряда против рекомендуемой мощи этапа: числа, тон (цвет) и подпись для плашек. */
 export interface PowerCheck {
   squad: number;
