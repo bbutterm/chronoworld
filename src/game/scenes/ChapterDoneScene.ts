@@ -13,8 +13,8 @@ import { commit, session } from '../session';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
 import { chapterSummary, sceneLabel, seenChapterScenes } from '../storyView';
 import { BTN, button, clampLines, ellipsize, groupNum, panel, plate, rewardRow, ScrollArea, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
-import { C, COLOR, COLOR_N, E, FS, M, OUTLINE, R, S, T, TINT } from '../theme';
-import { countUp, juiceOn, moment, MOMENT_DEPTH } from '../juice';
+import { C, COLOR, E, FS, M, OUTLINE, R, S, T, TINT } from '../theme';
+import { countUp, juiceOn, moment } from '../juice';
 import { glow } from '../decor';
 import { Reveal } from '../rewardsView';
 
@@ -78,27 +78,17 @@ export class ChapterDoneScene extends Phaser.Scene {
     this.add.image(cx, GAME_H + BLEED_Y, fadeTexture(this)).setOrigin(0.5, 1).setDisplaySize(GAME_W + 2 * BLEED_X, GAME_H * 0.62 + BLEED_Y);
 
     const name = sum.name.replace(/^Глава\s*\d+\.\s*/, '');
-    const before = this.children.list.length;
+    // Слои момента — на глубине 1–3, под содержимым экрана (окна «История», летопись, подтверждения — над ними);
+    // затемнение после «удара» заголовка отступает до ART_DIM — арт новых земель проступает.
     moment(this, 'newChapter', {
       title: `Глава ${sum.number} пройдена!`,
       subtitle: name,
       at: { x: cx, y: L.titleY },
       keep: true,
+      depth: 1,
+      dimAfter: ART_DIM,
       onSettled: () => this.body(data, sum),
     });
-    // Слои момента — под содержимое экрана (окна «История», летопись, подтверждения — над ними); затемнение
-    // после «удара» заголовка отступает — арт новых земель проступает.
-    const layers = (this.children.list.slice(before) as (Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Depth)[]).filter((o) => o.depth >= MOMENT_DEPTH);
-    for (const o of layers) o.setDepth(1 + Math.max(0, o.depth - MOMENT_DEPTH));
-    const dim = layers.find((o): o is Phaser.GameObjects.Rectangle => o instanceof Phaser.GameObjects.Rectangle);
-    if (dim) this.time.delayedCall(M.base + M.slow, () => dim.scene && this.tweens.add({ targets: dim, alpha: ART_DIM, duration: M.slow, ease: E.out }));
-    if (!layers.length) {
-      // «Уменьшить анимацию»: заголовок сразу.
-      this.add.rectangle(cx, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, COLOR_N.bg, ART_DIM).setDepth(1);
-      const t = text(this, cx, L.titleY, `Глава ${sum.number} пройдена!`, T.display, COLOR.title, { fontStyle: 'bold', stroke: COLOR.onAccent, strokeThickness: 10 }).setDepth(3);
-      ellipsize(t, GAME_W - 2 * S.l);
-      text(this, cx, L.titleY + T.display * 0.5 + S.m, name, T.heading, COLOR.textPrimary).setOrigin(0.5, 0).setDepth(3);
-    }
   }
 
   /** Содержимое под заголовком — по одной (Reveal), кнопки последними; летопись главы (первый раз) — после них. */

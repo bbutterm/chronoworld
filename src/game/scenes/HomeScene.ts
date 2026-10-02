@@ -1,3 +1,4 @@
+import { openCodes } from '../codesView';
 import Phaser from 'phaser';
 import { resetHints } from '../hints';
 import { GAME_H, GAME_W, HEADER_H } from '../layout';
@@ -261,12 +262,21 @@ export class HomeScene extends Phaser.Scene {
       layer.add(button(this, cx, y, bw, 110, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'), FS.h2).container);
       y += 140;
     }
+    // Коды (data/codes.json): алмазы, часы вперёд — вместо кнопок тестировщика «+300 гемов» / «+12 ч». В ряд со сбросом
+    // подсказок: окно и так во весь экран 9:16.
+    const half = (bw - S.s) / 2;
+    const codesBtn = button(this, cx - (half + S.s) / 2, y, half, 110, 'k:buttonLong_beige', 'Коды', () => {
+      close();
+      openCodes(this, () => this.scene.restart());
+    }, FS.h2);
+    codesBtn.container.setName('codesBtn');
+    layer.add(codesBtn.container);
     layer.add(
-      button(this, cx, y, bw, 110, 'k:buttonLong_beige', 'Сбросить подсказки', () => {
+      button(this, cx + (half + S.s) / 2, y, half, 110, 'k:buttonLong_beige', 'Сброс подсказок', () => {
         resetHints();
         this.scene.restart();
         this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, 'Подсказки покажутся снова'));
-      }, FS.h2).container,
+      }, FS.h3).container,
     );
     y += 140;
     layer.add(

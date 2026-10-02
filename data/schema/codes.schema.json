@@ -1,0 +1,41 @@
+{
+  "title": "Коды из настроек (алмазы, часы вперёд)",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+$"
+          },
+          "once": {
+            "type": "boolean"
+          },
+          "gems": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "hours": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "code",
+          "once"
+        ]
+      }
+    }
+  },
+  "required": [
+    "codes"
+  ]
+}

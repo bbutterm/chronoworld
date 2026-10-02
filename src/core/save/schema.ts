@@ -423,6 +423,11 @@ export const SaveStateSchema = z.object({
       quests: z.array(z.string()).optional(),
     })
     .optional(),
+  /**
+   * Использованные одноразовые коды (src/core/codes, data/codes.json) — в нижнем регистре. Без смены версии: нет поля —
+   * ни один одноразовый код не вводили. Многоразовые коды сюда не пишутся.
+   */
+  codesUsed: z.array(z.string()).optional(),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;

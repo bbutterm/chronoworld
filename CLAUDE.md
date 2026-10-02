@@ -89,7 +89,8 @@ checkout (`ln -s /home/user/chronoworld/node_modules node_modules`). Не мен
 - Кампания — маршрут из 10 глав по классическому RO (`docs/design/lore-route.md`, библия `docs/design/story.md`): все 10 глав
   по 18 этапов, `data/campaign`. Слоты стабильны, содержимое переезжает; номер главы — `order`, фон и музыка — по теме главы
   (`theme`), не по месту. Монстры — на листах из клиента RO (`docs/RO_SCRO_IMPORT.md`), заплатки остались у немногих.
-  Режим тестировщика (`src/game/tester.ts`: «+300 гемов», «+12 ч») пока включён для всех.
+  Кнопок тестировщика больше нет: «Настройки → Коды» (`data/codes.json`, `src/core/codes`): `helloworld` — один раз
+  +300 алмазов, `300` — +300 алмазов (многоразовый), `12` — часы игры на 12 ч вперёд (многоразовый).
 - Мета: экспедиции (`src/core/meta/expeditions.ts`), события/почта (`src/core/events`), открытия по этапам (`data/unlocks.json`),
   охота (`src/core/hunt`), лавка (`src/core/shop`), заточка снаряжения +1…+10 (поломка 0%…90%, надёжная ×5 цены ÷5 шанса, Благословенная руда с боссов — 100%) — сток золота (`src/core/equipment/refine.ts`,
   `data/drops.json → refine`), сундук с трофеями (`src/core/equipment/chest.ts`), предметы по главам (`minChapter`).

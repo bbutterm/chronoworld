@@ -221,14 +221,11 @@ export class EventsScene extends Phaser.Scene {
   /** Вкладки «Вход / Новичок» одного вида (segmented); есть что забрать — красная точка в углу вкладки. */
   private tabs(tabs: EventsTab[], y: number, ready: Record<EventsTab, boolean>): void {
     const names: Record<EventsTab, string> = { login: 'Вход', newbie: 'Новичок' };
-    const seg = segmented(this, GAME_W / 2, y, EV_L.w, tabs.map((t) => names[t]), tabs.indexOf(this.tab), (i) => {
+    const specs = tabs.map((t) => ({ label: names[t], dot: ready[t] }));
+    const seg = segmented(this, GAME_W / 2, y, EV_L.w, specs, tabs.indexOf(this.tab), (i) => {
       this.scene.restart({ tab: tabs[i], day: this.day });
     });
     seg.container.setName('eventsTabs');
-    const segW = EV_L.w / tabs.length;
-    tabs.forEach((t, i) => {
-      if (ready[t] && t !== this.tab) dot(this, S.l + segW * (i + 1) - S.s, y - EV_L.segH / 2 + 10).setName(`tabDot_${t}`);
-    });
   }
 
   // ---------- «Вход 7 дней» ----------
@@ -316,14 +313,9 @@ export class EventsScene extends Phaser.Scene {
 
     // Дни заданий: вкладки 1…7; в дне есть что забрать — точка.
     const segY = barY + EV_L.node / 2 + S.s + 56 + S.m + EV_L.segH / 2;
-    const n = st.days.length;
-    const seg = segmented(this, GAME_W / 2, segY, EV_L.w, st.days.map((d) => `${d.day}`), this.day - 1, (i) => this.scene.restart({ tab: 'newbie', day: i + 1 }));
+    const days = st.days.map((d) => ({ label: `${d.day}`, dot: d.tasks.some((t) => t.ready), lock: d.locked }));
+    const seg = segmented(this, GAME_W / 2, segY, EV_L.w, days, this.day - 1, (i) => this.scene.restart({ tab: 'newbie', day: i + 1 }));
     seg.container.setName('nbDays');
-    const segW = EV_L.w / n;
-    st.days.forEach((d, i) => {
-      if (d.tasks.some((t) => t.ready) && d.day !== this.day) dot(this, S.l + segW * (i + 1) - 16, segY - EV_L.segH / 2 + 10);
-      if (d.locked) this.add.image(S.l + segW * (i + 1) - 22, segY - EV_L.segH / 2 + 22, skinIcon('lock')).setDisplaySize(22, 22).setTint(COLOR_N.textTertiary);
-    });
 
     const day = st.days[this.day - 1];
     const listTop = segY + EV_L.segH / 2 + S.m;

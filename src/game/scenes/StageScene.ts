@@ -36,8 +36,6 @@ const L = {
   fightY: GAME_H - 110,
 } as const;
 
-/** Подписи-инструкции редактора отряда, которых на экране этапа нет (§3 правило 3: ноль инструкций). */
-const INSTRUCTIONS = new Set(['Нажмите на героя или перетащите его на место', 'Слот выбран — нажмите на героя в списке']);
 
 /** Шанс карты героя: «6%», «×1», «≈1.5» (как dropText ядра, только число). */
 function dropValue(x: number): string {
@@ -180,8 +178,6 @@ export class StageScene extends Phaser.Scene {
     const save = session.save;
     const ready = save.squad.some(Boolean);
     for (const b of this.fightBtns) b.setEnabled(ready);
-    const tip = (this.editor as unknown as { tip?: Phaser.GameObjects.Text } | undefined)?.tip;
-    if (tip && INSTRUCTIONS.has(tip.text)) tip.setText('');
     if (!this.power?.scene) return;
     const needs: StageNeeds = stageNeeds(save, this.stageId, GAME);
     updatePowerCompare(this.power, needs.own, needs.power);

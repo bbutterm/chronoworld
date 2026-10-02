@@ -3,10 +3,11 @@ import { skinKey, sliceOf, tex } from './assets';
 import { SKIN_DARK_LABEL } from './skin';
 import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { worldPoint } from './viewport';
-import { C, COLOR, E, FAMILY, familyFor, FS, leading, M, R, S, T, TINT, TOUCH } from './theme';
-import { arrowRect, HINT_GEOM, overlapArea, placeCallout, type CalloutPlan, type HintSide, type Rect } from './hintLayout';
-import { HINT_TEXT, markHint, type HintId } from './hints';
-import { barFrom, juiceOn } from './juice';
+import { C, COLOR, COLOR_N, E, FAMILY, familyFor, FS, leading, M, R, S, T, TINT, TOUCH } from './theme';
+import { BADGE } from './frame';
+import { arrowRect, HINT_GEOM, overlapArea, placeCallout, sceneObstacles, type CalloutPlan, type HintSide, type Rect, type SceneNode } from './hintLayout';
+import { HINT_TEXT, hintNagged, markHint, noteHintVisit, type HintId } from './hints';
+import { barFrom, heartbeat, juiceOn } from './juice';
 import { roIconImage } from './itemIcons';
 import { sfx } from './audio';
 import { haptic } from './haptics';
@@ -810,14 +811,16 @@ export function chip(
 /**
  * Ряд наград-чипов по центру x (§3 п. 4: иконка + число вместо фразы). Не влезает в maxW — чипы мельче (s), потом
  * перенос на следующую строку. Контейнер; размер — container.width/height, y — центр первой строки.
+ * opts.align = 'left' — x — левый край, каждая строка (и перенесённая) начинается от него (§3 п. 6).
  */
 export function rewardRow(
   scene: Phaser.Scene,
   x: number,
   y: number,
   items: ChipSpec[],
-  opts: { maxW?: number; size?: 's' | 'm'; gap?: number; bg?: boolean } = {},
+  opts: { maxW?: number; size?: 's' | 'm'; gap?: number; bg?: boolean; align?: 'center' | 'left' } = {},
 ): Phaser.GameObjects.Container {
+  const left = opts.align === 'left';
   const maxW = opts.maxW ?? 1080 - 2 * S.l;
   const gap = opts.gap ?? S.xs;
   const row = scene.add.container(x, y);
@@ -833,7 +836,7 @@ export function rewardRow(
     size = 's';
     chips = build(size);
   }
-  // Раскладка по строкам (жадно), каждая строка — по центру.
+  // Раскладка по строкам (жадно), каждая строка — по центру (или от левого края).
   const lines: Phaser.GameObjects.Container[][] = [[]];
   let lw = 0;
   for (const c of chips) {
@@ -850,7 +853,7 @@ export function rewardRow(
   lines.forEach((line, i) => {
     const lwid = total(line);
     width = Math.max(width, lwid);
-    let cx = -lwid / 2;
+    let cx = left ? 0 : -lwid / 2;
     for (const c of line) {
       c.setPosition(cx + c.width / 2, i * (h + S.xs));
       cx += c.width + gap;
@@ -1015,37 +1018,87 @@ export interface SegmentedView {
   select: (i: number, emit?: boolean) => void;
 }
 
+/** Вкладка segmented: подпись, значок слева от неё, точка «есть что забрать», замок «ещё закрыто». */
+export interface SegmentSpec {
+  label: string;
+  /** Значок слева от подписи (IconSpec: контурные иконки скина красятся цветом подписи). */
+  icon?: IconSpec;
+  /** Красная точка в правом верхнем углу вкладки (§2.4: точка, не число). */
+  dot?: boolean;
+  /** Замок в правом верхнем углу и приглушённая подпись (вкладку всё равно можно открыть — посмотреть, что там). */
+  lock?: boolean;
+}
+
+/** Размер значка в подписи вкладки и замка в углу. */
+const SEG_ICON = 40;
+const SEG_LOCK = 26;
+
 /**
  * Вкладки внутри экрана одного вида (§4.7, вместо четырёх разных): утопленная дорожка, выбранная вкладка —
  * поднятая плашка с золотой подписью, которая переезжает за M.base. Центр (x, y), ширина w. Цель нажатия ≥ TOUCH.
- * onChange — только при смене вкладки (повторное нажатие на выбранную ничего не делает).
+ * Вкладка — строка или SegmentSpec (значок, точка, замок). onChange — только при смене вкладки (повторное нажатие на
+ * выбранную ничего не делает). Точка выбранной вкладки гаснет (её содержимое уже на экране).
  */
 export function segmented(
   scene: Phaser.Scene,
   x: number,
   y: number,
   w: number,
-  options: string[],
+  options: (string | SegmentSpec)[],
   selected: number,
   onChange: (i: number) => void,
   opts: { h?: number } = {},
 ): SegmentedView {
   const h = opts.h ?? 88;
   const inset = 6;
-  const n = Math.max(1, options.length);
+  const specs: SegmentSpec[] = options.map((o) => (typeof o === 'string' ? { label: o } : o));
+  const n = Math.max(1, specs.length);
   const segW = (w - 2 * inset) / n;
   const c = scene.add.container(x, y).setSize(w, Math.max(h, TOUCH));
   c.add(plate(scene, 0, 0, w, h, { ...SURFACE.sunken, r: R.m }));
-  const xs = options.map((_, i) => -w / 2 + inset + segW * (i + 0.5));
+  const xs = specs.map((_, i) => -w / 2 + inset + segW * (i + 0.5));
   let index = Phaser.Math.Clamp(selected, 0, n - 1);
   const ind = plate(scene, xs[index], 0, segW, h - 2 * inset, { fill: COLOR.surfaceRaised, border: mixHex(COLOR.border, COLOR.accent, 0.45), borderW: 2, r: R.m - 4, hl: 0.14 });
   c.add(ind);
-  const labels = options.map((o, i) => {
-    const t = text(scene, xs[i], 0, o, T.caption, i === index ? COLOR.title : COLOR.textSecondary, { fontStyle: 'bold' });
-    ellipsize(t, segW - S.xs);
+  const colorOf = (i: number) => (i === index ? COLOR.title : specs[i].lock ? COLOR.textTertiary : COLOR.textSecondary);
+  const icons: (Placed | null)[] = [];
+  const labels = specs.map((sp, i) => {
+    const t = text(scene, xs[i], 0, sp.label, T.caption, colorOf(i), { fontStyle: 'bold' });
+    const ic = sp.icon ? iconOf(scene, 0, 0, sp.icon, SEG_ICON, colorOf(i)) : null;
+    icons.push(ic);
+    ellipsize(t, segW - S.xs - (ic ? SEG_ICON + S.xxs : 0));
+    if (ic) {
+      // Значок и подпись — одной группой по центру вкладки.
+      const gw = SEG_ICON + S.xxs + t.width;
+      ic.setPosition(xs[i] - gw / 2 + SEG_ICON / 2, 0);
+      t.setX(xs[i] + (SEG_ICON + S.xxs) / 2);
+      c.add(ic);
+    }
     c.add(t);
+    if (sp.lock) {
+      const lk = iconOf(scene, xs[i] + segW / 2 - S.xs - SEG_LOCK / 2 + 4, -h / 2 + inset + SEG_LOCK / 2 + 4, 'lock', SEG_LOCK, COLOR.textTertiary);
+      if (lk) c.add(lk.setName('segLock'));
+    }
     return t;
   });
+  const dots = specs.map((sp, i) => {
+    if (!sp.dot) return null;
+    const r = BADGE.dot / 2;
+    const d = scene.add
+      .circle(xs[i] + segW / 2 - S.xs - r + 4, -h / 2 + inset + r - 2, r, COLOR_N.badge)
+      .setStrokeStyle(3, COLOR_N.bg, 0.9)
+      .setName('segDot')
+      .setVisible(i !== index);
+    c.add(d);
+    heartbeat(scene, d);
+    return d;
+  });
+  const recolor = () =>
+    labels.forEach((t, k) => {
+      t.setColor(colorOf(k));
+      const ic = icons[k] as (Placed & { setTint?: (c: number) => unknown }) | null;
+      if (ic?.setTint && typeof specs[k].icon === 'string' && scene.textures.exists(`skin_ico_${specs[k].icon}`)) ic.setTint(parseInt(colorOf(k).slice(1, 7), 16));
+    });
   const view: SegmentedView = {
     container: c,
     get index() {
@@ -1054,7 +1107,8 @@ export function segmented(
     select: (i, emit = false) => {
       if (i === index || i < 0 || i >= n || !c.scene) return;
       index = i;
-      labels.forEach((t, k) => t.setColor(k === i ? COLOR.title : COLOR.textSecondary));
+      recolor();
+      dots[i]?.setVisible(false);
       scene.tweens.killTweensOf(ind);
       if (juiceOn()) scene.tweens.add({ targets: ind, x: xs[i], duration: M.base, ease: E.out });
       else ind.setX(xs[i]);
@@ -1062,7 +1116,7 @@ export function segmented(
     },
   };
   const ready = debounce();
-  options.forEach((_, i) => {
+  specs.forEach((_, i) => {
     const zone = scene.add.zone(xs[i], 0, segW, Math.max(h, TOUCH)).setInteractive({ useHandCursor: true });
     let armed = false;
     const release = () => (armed = false);
@@ -1122,19 +1176,19 @@ export function infoButton(scene: Phaser.Scene, x: number, y: number, onTap: () 
 }
 
 /**
- * R/S. Указатель подсказки на цель (x, y): пульсирующее кольцо, прыгающая стрелка и плашка с одной строкой.
+ * R/S. Указатель подсказки на цель (x, y): рамка (один пульс), стрелка (один кивок) и плашка с одной строкой.
  * side — предпочтительная сторона плашки ('auto' — без предпочтения). Сторону и сдвиг вбок выбирает placeCallout
- * (hintLayout.ts), чтобы плашка не закрывала другие элементы управления сцены: все интерактивные объекты,
- * кроме самой цели, плюс opts.avoid и видимые подписи, начинающиеся с opts.avoidText. target — размер цели.
- * Рамка и стрелка ничего не перехватывают: нажатия проходят к кнопке под ними. opts.skip — плашку можно коснуться
- * (в углу «✕»): подсказка скрывается и больше не показывается (обучение пропускаемое).
+ * (hintLayout.ts), чтобы плашка не закрывала ни элементы управления сцены (все интерактивные объекты, кроме самой цели,
+ * плюс opts.avoid и подписи, начинающиеся с opts.avoidText), ни данные — видимые подписи и числа (sceneObstacles).
+ * target — размер цели. Рамка и стрелка ничего не перехватывают: нажатия проходят к кнопке под ними. opts.skip —
+ * плашку можно коснуться (в углу «✕»): подсказка скрывается и больше не показывается (обучение пропускаемое).
  *
- * Правила (отчёты тестировщиков NB-03/04, MT-07, LT-10, NB-13):
+ * Правила (отчёты тестировщиков NB-03/04, MT-07, LT-10, NB-13; ui-polish-research §3 п. 3 — «пульс цели один раз»):
  * - одна подсказка на экране: новая убирает прежнюю;
  * - раскладка считается на следующем кадре, когда сцена достроена (вкладки и кнопки, созданные после вызова, тоже
  *   обходятся), и ждёт, пока закроются сюжетный диалог и баннер «Новая функция!» — под ними подсказку не видно;
- * - плашка никогда не закрывает кнопки: не влезает в строку — переносится уже; нигде нет места — остаются рамка
- *   (и стрелка, если она ничего не закрывает), а текст показывается всплывающим сообщением.
+ * - плашка никогда не закрывает кнопки: не влезает в строку — переносится уже; нет места и с данными — может лечь на
+ *   подписи (но не на кнопки); нигде нет места — остаются рамка и стрелка (если она ничего не закрывает), без текста.
  */
 export function hintPointer(
   scene: Phaser.Scene,
@@ -1178,55 +1232,65 @@ function drawHint(
   const pad = Math.min(24, Math.max(8, room * 2 - 6));
   const grow = Math.max(0, Math.min(40, room * 2 - pad - 8));
   const ring = scene.add.rectangle(x, y, target.w + pad, target.h + pad).setStrokeStyle(8, TINT.gold, 1);
-  if (juiceOn()) scene.tweens.add({ targets: ring, scaleX: 1 + grow / (target.w + pad), scaleY: 1 + grow / (target.h + pad), alpha: grow > 0 ? 0.15 : 0.35, yoyo: grow <= 0, duration: 800, repeat: -1 });
+  // Один пульс (§3 п. 3): рамка вздыхает и остаётся на месте; у края, где расти некуда, — мигает.
+  if (juiceOn()) {
+    scene.tweens.add(
+      grow > 0
+        ? { targets: ring, scaleX: 1 + grow / (target.w + pad), scaleY: 1 + grow / (target.h + pad), yoyo: true, duration: M.emphasis, ease: E.inOut }
+        : { targets: ring, alpha: 0.35, yoyo: true, duration: M.emphasis, ease: E.inOut },
+    );
+  }
   c.add(ring);
   const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
   const closeW = opts.skip ? 44 : 0;
-  const avoid = [...controlRects(scene, x, y), ...textRects(scene, opts.avoidText ?? []), ...(opts.avoid ?? [])];
   const tgt = { x, y, ...target };
+  const obstacles = sceneObstacles(scene.children.list as unknown as SceneNode[], tgt, { w, h });
+  const controls = [...obstacles.controls, ...textRects(scene, opts.avoidText ?? []), ...(opts.avoid ?? [])];
   // Плашка в одну строку не везде помещается между кнопками (итоги: «Дальше» у правого края, слева — «Авто»):
-  // тогда та же строка переносится уже — узкая плашка встаёт рядом с целью, ничего не закрывая.
-  let best: CalloutPlan | null = null;
+  // тогда та же строка переносится уже — узкая плашка встаёт рядом с целью, ничего не закрывая. Сначала — не закрывая
+  // и данные (подписи, числа); не вышло — хотя бы не кнопки.
+  let plan: CalloutPlan | null = null;
   let wrap = w - 200;
-  for (const ww of [w - 200, 640, 520, 420, 340]) {
-    t.setWordWrapWidth(ww);
-    const p = placeCallout(tgt, { w: Math.min(w - 60, t.width + 60 + closeW), h: t.height + 22 }, {
-      prefer: side === 'auto' ? undefined : side,
-      avoid,
-      top: HEADER_H + 8,
-      bottom: h,
-      width: w,
-    });
-    if (!best || p.overlap < best.overlap) {
-      best = p;
-      wrap = ww;
+  for (const avoid of [[...controls, ...obstacles.texts], controls]) {
+    for (const ww of [w - 200, 640, 520, 420, 340]) {
+      t.setWordWrapWidth(ww);
+      const p = placeCallout(tgt, { w: Math.min(w - 60, t.width + 60 + closeW), h: t.height + 22 }, {
+        prefer: side === 'auto' ? undefined : side,
+        avoid,
+        top: HEADER_H + 8,
+        bottom: h,
+        width: w,
+      });
+      if (p.overlap === 0) {
+        plan = p;
+        wrap = ww;
+        break;
+      }
     }
-    if (p.overlap === 0) break;
+    if (plan) break;
   }
   t.setWordWrapWidth(wrap);
-  const plan = best!;
   const g = HINT_GEOM;
   const arrowAt = (sd: HintSide) => {
     const ay = arrowRect(tgt, sd).y + g.arrowH / 2;
     const dir = sd === 'above' ? -1 : 1;
-    // Стрелка остриём к цели: над целью — вниз, под целью — вверх.
+    // Стрелка остриём к цели: над целью — вниз, под целью — вверх; один кивок к цели.
     const arrow =
       sd === 'above'
         ? scene.add.triangle(x, ay, 0, 0, g.arrowW, 0, g.arrowW / 2, g.arrowH, TINT.gold)
         : scene.add.triangle(x, ay, 0, g.arrowH, g.arrowW, g.arrowH, g.arrowW / 2, 0, TINT.gold);
     arrow.setStrokeStyle(4, TINT.header);
-    if (juiceOn()) scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, repeat: -1, duration: 450, ease: 'Sine.easeInOut' });
+    if (juiceOn()) scene.tweens.add({ targets: arrow, y: ay - dir * 10, yoyo: true, duration: M.slow, ease: E.inOut });
     c.add(arrow);
   };
-  if (plan.overlap > 0) {
-    // Места для плашки нет — рамка, стрелка (где она ничего не закрывает) и текст всплывающим сообщением.
+  if (!plan) {
+    // Места для плашки нет — только рамка и стрелка (где она ничего не закрывает); без всплывающего текста.
     t.destroy();
     const free = (['above', 'below'] as HintSide[]).find((sd) => {
       const a = arrowRect(tgt, sd);
-      return a.y >= HEADER_H && a.y + a.h <= h && avoid.every((r) => overlapArea(a, r) === 0);
+      return a.y >= HEADER_H && a.y + a.h <= h && controls.every((r) => overlapArea(a, r) === 0);
     });
     if (free) arrowAt(free);
-    toast(scene, message, C.title, 4500, 'middle');
     c.setData('hintBox', { x, y, w: 0, h: 0 }).setData('hintOverlap', 0).setData('hintSide', free ?? 'none').setData('hintMode', 'ring');
     return;
   }
@@ -1243,12 +1307,31 @@ function drawHint(
       c.destroy();
     });
   }
-  // Для e2e и отладки: где оказалась плашка и что она закрыла.
-  c.setData('hintBox', b).setData('hintOverlap', plan.overlap).setData('hintSide', plan.side).setData('hintMode', 'box');
+  // Для e2e и отладки: где оказалась плашка и что она закрыла (кнопки — всегда 0; данные — hintOverText).
+  const overText = obstacles.texts.reduce((n, r) => n + overlapArea(b, r), 0);
+  c.setData('hintBox', b).setData('hintOverlap', plan.overlap).setData('hintOverText', overText).setData('hintSide', plan.side).setData('hintMode', 'box');
+}
+
+/** Подсказки, уже показанные в этом визите экрана (от create до shutdown): одна подсказка за визит. */
+const visitHints = new WeakMap<Phaser.Scene, Set<HintId>>();
+
+function visitOf(scene: Phaser.Scene): Set<HintId> {
+  let set = visitHints.get(scene);
+  if (!set) {
+    const fresh = new Set<HintId>();
+    set = fresh;
+    visitHints.set(scene, fresh);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (visitHints.get(scene) === fresh) visitHints.delete(scene);
+    });
+  }
+  return set;
 }
 
 /**
  * Подсказка обучения id (hints.ts): текст HINT_TEXT[id] (или opts.text), касание плашки — пропустить (markHint).
+ * Одна подсказка за визит экрана; повторяющиеся (NAG_HINTS) — не больше NAG_LIMIT визитов подряд. Заглушённая —
+ * невидимый контейнер с data hintMuted (вызывающему не нужно проверять).
  */
 export function tutorialHint(
   scene: Phaser.Scene,
@@ -1259,6 +1342,17 @@ export function tutorialHint(
   target: { w: number; h: number },
   opts: { avoid?: Rect[]; avoidText?: string[]; text?: string } = {},
 ): Phaser.GameObjects.Container {
+  const visit = visitOf(scene);
+  const where = scene.scene.key;
+  // Одна подсказка за визит: шаг выполнен или пропущен — следующий шаг цепочки ждёт следующего захода на экран.
+  // Повторная подсказка, висящая главами (вкладка «Герои»: опыт, трофеи), — не больше NAG_LIMIT заходов (hints.ts).
+  if ((visit.size && !visit.has(id)) || (!visit.has(id) && hintNagged(id, where))) {
+    return scene.add.container(0, 0).setVisible(false).setData('hintId', id).setData('hintMuted', true);
+  }
+  if (!visit.has(id)) {
+    visit.add(id);
+    noteHintVisit(id, where);
+  }
   return hintPointer(scene, x, y, opts.text ?? HINT_TEXT[id], side, target, { avoid: opts.avoid, avoidText: opts.avoidText, skip: () => markHint(id) }).setData('hintId', id);
 }
 
@@ -1277,30 +1371,6 @@ function textRects(scene: Phaser.Scene, prefixes: string[]): Rect[] {
     }
   };
   walk(scene.children.list, true);
-  return out;
-}
-
-/**
- * Прямоугольники всех интерактивных объектов сцены (кнопки, карточки, вкладки), кроме того, что под точкой
- * (x, y) — это сама цель подсказки, — и полноэкранных затемнений модальных окон.
- */
-function controlRects(scene: Phaser.Scene, x: number, y: number): Rect[] {
-  const sw = GAME_W;
-  const sh = GAME_H;
-  const out: Rect[] = [];
-  const walk = (list: Phaser.GameObjects.GameObject[]) => {
-    for (const o of list) {
-      if (o instanceof Phaser.GameObjects.Container) walk(o.list);
-      if (!o.input?.enabled) continue;
-      const any = o as unknown as { getBounds?: () => Phaser.Geom.Rectangle; visible?: boolean };
-      if (!any.getBounds || any.visible === false) continue;
-      const r = any.getBounds();
-      if (r.width >= sw * 0.9 && r.height >= sh * 0.9) continue;
-      if (r.contains(x, y)) continue;
-      out.push({ x: r.x, y: r.y, w: r.width, h: r.height });
-    }
-  };
-  walk(scene.children.list);
   return out;
 }
 

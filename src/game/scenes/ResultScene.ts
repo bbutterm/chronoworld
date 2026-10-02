@@ -14,7 +14,7 @@ import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { COLOR, COLOR_N, E, M, R, S, T, TINT } from '../theme';
 import type { ResultData } from './BattleScene';
 import { bottomSheet, cta, portrait, powerCompare, unitFigure, unitTint } from '../screen';
-import { countUp, juiceOn, moment, MOMENT_DEPTH, MOMENT_DIM } from '../juice';
+import { countUp, juiceOn, moment } from '../juice';
 import { playStory, startStageBattle } from '../dialogue';
 import { chapterLastStage } from '../storyView';
 import { startChapterDone } from './ChapterDoneScene';
@@ -110,31 +110,24 @@ export class ResultScene extends Phaser.Scene {
     const bannerKey = this.textures.exists('skin_banner_victory') ? 'skin_banner_victory' : 'ui_victory';
     // Стингер — свой (у «первой победы» в MOMENTS — другой звук; здесь всегда джингл победы), вибрация — момента.
     sfx('victory');
-    const before = this.children.list.length;
     let started = false;
     const start = () => {
       if (started) return;
       started = true;
       this.victoryBody(data, firstClear);
     };
+    // Слои момента (затемнение, лучи, плашка) — на глубине 1–3, под содержимым экрана: награды и кнопки — над ними,
+    // а сюжет, баннеры «Новая функция», лист «Статистика» и подсказки — над всем. Без анимации keep рисует
+    // затемнение и плашку сразу.
     moment(this, firstClear ? 'firstClear' : 'victory', {
       image: bannerKey,
       imageWidth: L.bannerW,
       at: { x: GAME_W / 2, y: L.bannerY },
       keep: true,
+      depth: 1,
       sound: false,
       onSettled: start,
     });
-    // Слои момента (затемнение, лучи, плашка) опускаем под содержимое экрана: награды и кнопки — над ними, а
-    // сюжет, баннеры «Новая функция», лист «Статистика» и подсказки (их глубины ниже MOMENT_DEPTH) — над всем.
-    const layers = (this.children.list.slice(before) as (Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Depth)[]).filter((o) => o.depth >= MOMENT_DEPTH);
-    for (const o of layers) o.setDepth(1 + Math.max(0, o.depth - MOMENT_DEPTH));
-    if (!layers.length) {
-      // «Уменьшить анимацию»: момента нет — затемнение и плашка сразу.
-      this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, COLOR_N.bg, MOMENT_DIM).setDepth(1);
-      const b = this.add.image(GAME_W / 2, L.bannerY, bannerKey).setDepth(3);
-      b.setDisplaySize(L.bannerW, (L.bannerW * b.height) / Math.max(1, b.width));
-    }
   }
 
   private victoryBody(data: ResultData, firstClear: boolean): void {

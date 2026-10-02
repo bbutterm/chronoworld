@@ -477,19 +477,32 @@ const afterLoss = async () => {
     await skipDialogues('Campaign');
     log('после поражения: бесплатные быстрые награды');
   }
-  // Как живой игрок: подождать сундук офлайн-наград (режим тестировщика «+12 ч»), собрать и улучшить героев.
-  if (await findText('Campaign', '+12 ч')) {
-    await clickText('Campaign', '+12 ч');
+  // Как живой игрок: подождать сундук офлайн-наград (код «12» в «Настройки → Коды»: часы игры на 12 ч вперёд), собрать
+  // и улучшить героев.
+  await clickText('Campaign', 'Город');
+  await waitScene('Home');
+  await clickNamed('Home', 'settings');
+  await sleep(450);
+  await clickText('Home', 'Коды');
+  await sleep(450);
+  await page.evaluate(() => {
+    const input = document.querySelector('input[name="cwCode"]');
+    input.value = '12';
+    input.dispatchEvent(new Event('input'));
+  });
+  await clickText('Home', 'Ввести');
+  await sleep(900);
+  await waitScene('Home');
+  log('после поражения: код «12» — часы на 12 ч вперёд');
+  await clickText('Home', 'Кампания');
+  await waitScene('Campaign');
+  await skipDialogues('Campaign');
+  if (await findText('Campaign', 'Собрать')) {
+    await clickText('Campaign', 'Собрать');
     await sleep(900);
     await waitScene('Campaign');
     await skipDialogues('Campaign');
-    if (await findText('Campaign', 'Собрать')) {
-      await clickText('Campaign', 'Собрать');
-      await sleep(900);
-      await waitScene('Campaign');
-      await skipDialogues('Campaign');
-      log('после поражения: +12 ч, сундук собран');
-    }
+    log('после поражения: сундук собран');
   }
   const levels = await levelUpSquad();
   log(`после поражения: «Улучшить» +${levels} ур.`);
@@ -497,8 +510,7 @@ const afterLoss = async () => {
 
 let ok = false;
 try {
-  // Кнопки тестировщика («+12 ч» после поражения) спрятаны по умолчанию — включаем режим адресом (tester.ts).
-  await page.goto(`${URL}?tester=1`);
+  await page.goto(URL);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   // Игра открывается на странице «Кампания» (вступление главы — там же).

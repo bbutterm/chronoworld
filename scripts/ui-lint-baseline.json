@@ -1,0 +1,299 @@
+{
+  "note": "Базовая линия scripts/ui-lint.ts: счётчики по файлам могут только уменьшаться. Опустить — npm run ui:lint -- --update. Руками не повышать.",
+  "totals": {
+    "instr": 1,
+    "color": 1700,
+    "fontSize": 9,
+    "primary": 56,
+    "toast": 115
+  },
+  "files": {
+    "src/game/ambient.ts": {
+      "color": 14
+    },
+    "src/game/assets.ts": {
+      "color": 1
+    },
+    "src/game/audioSynth.ts": {
+      "color": 1
+    },
+    "src/game/backdrops.ts": {
+      "color": 52
+    },
+    "src/game/backdropsExtra.ts": {
+      "color": 152
+    },
+    "src/game/backdropsRoute.ts": {
+      "color": 86
+    },
+    "src/game/battleBehaviorFx.ts": {
+      "color": 13
+    },
+    "src/game/battleElements.ts": {
+      "color": 6
+    },
+    "src/game/battleFx.ts": {
+      "color": 37,
+      "fontSize": 1
+    },
+    "src/game/battlePanel.ts": {
+      "color": 6
+    },
+    "src/game/bootLook.ts": {
+      "color": 24
+    },
+    "src/game/branchPicker.ts": {
+      "color": 5,
+      "primary": 1
+    },
+    "src/game/codesView.ts": {
+      "fontSize": 1,
+      "primary": 1,
+      "toast": 1
+    },
+    "src/game/decor.ts": {
+      "color": 4
+    },
+    "src/game/dialogue.ts": {
+      "color": 2
+    },
+    "src/game/expeditionEventModal.ts": {
+      "color": 5,
+      "primary": 1,
+      "toast": 1
+    },
+    "src/game/featureTiles.ts": {
+      "color": 11
+    },
+    "src/game/flow.ts": {
+      "color": 10
+    },
+    "src/game/heroCard.ts": {
+      "color": 77
+    },
+    "src/game/heroStoryView.ts": {
+      "color": 2,
+      "toast": 1
+    },
+    "src/game/homeBuildings.ts": {
+      "color": 1
+    },
+    "src/game/huntBattle.ts": {
+      "color": 1
+    },
+    "src/game/huntEntry.ts": {
+      "color": 4
+    },
+    "src/game/idleDiorama.ts": {
+      "color": 5
+    },
+    "src/game/idleDioramaPlan.ts": {
+      "color": 3
+    },
+    "src/game/inboxRows.ts": {
+      "primary": 1,
+      "toast": 1
+    },
+    "src/game/itemIcons.ts": {
+      "color": 42
+    },
+    "src/game/juice.ts": {
+      "color": 3
+    },
+    "src/game/loreView.ts": {
+      "color": 4,
+      "primary": 1
+    },
+    "src/game/portraitFrame.ts": {
+      "color": 6
+    },
+    "src/game/rewardsView.ts": {
+      "color": 4
+    },
+    "src/game/scenes/AchievementsScene.ts": {
+      "toast": 2
+    },
+    "src/game/scenes/AscendScene.ts": {
+      "color": 1,
+      "primary": 2,
+      "toast": 6
+    },
+    "src/game/scenes/BattleScene.ts": {
+      "instr": 1,
+      "color": 107,
+      "fontSize": 5,
+      "toast": 1
+    },
+    "src/game/scenes/BootScene.ts": {
+      "color": 2,
+      "fontSize": 1
+    },
+    "src/game/scenes/CampaignScene.ts": {
+      "color": 8,
+      "primary": 1,
+      "toast": 3
+    },
+    "src/game/scenes/ChapterDoneScene.ts": {
+      "color": 7,
+      "primary": 2,
+      "toast": 1
+    },
+    "src/game/scenes/ChronicleScene.ts": {
+      "color": 7
+    },
+    "src/game/scenes/EventsScene.ts": {
+      "color": 12,
+      "toast": 10
+    },
+    "src/game/scenes/ExpeditionsScene.ts": {
+      "color": 3,
+      "primary": 3,
+      "toast": 7
+    },
+    "src/game/scenes/FriendsScene.ts": {
+      "color": 12,
+      "primary": 2,
+      "toast": 6
+    },
+    "src/game/scenes/HeroPickScene.ts": {
+      "primary": 3,
+      "toast": 1
+    },
+    "src/game/scenes/HeroScene.ts": {
+      "color": 4,
+      "primary": 1,
+      "toast": 9
+    },
+    "src/game/scenes/HeroesScene.ts": {
+      "color": 1,
+      "primary": 1,
+      "toast": 6
+    },
+    "src/game/scenes/HomeScene.ts": {
+      "color": 1,
+      "primary": 1,
+      "toast": 2
+    },
+    "src/game/scenes/HuntScene.ts": {
+      "color": 26,
+      "primary": 2,
+      "toast": 2
+    },
+    "src/game/scenes/InventoryScene.ts": {
+      "color": 4,
+      "primary": 2,
+      "toast": 13
+    },
+    "src/game/scenes/MailScene.ts": {
+      "primary": 1,
+      "toast": 2
+    },
+    "src/game/scenes/PrepScene.ts": {
+      "color": 1,
+      "primary": 1
+    },
+    "src/game/scenes/QuestsScene.ts": {
+      "toast": 3
+    },
+    "src/game/scenes/ResultScene.ts": {
+      "color": 7,
+      "primary": 6,
+      "toast": 1
+    },
+    "src/game/scenes/ShopScene.ts": {
+      "color": 3,
+      "primary": 1,
+      "toast": 7
+    },
+    "src/game/scenes/SquadScene.ts": {
+      "primary": 1
+    },
+    "src/game/scenes/StageScene.ts": {
+      "primary": 2,
+      "toast": 4
+    },
+    "src/game/scenes/TavernEveningScene.ts": {
+      "color": 9,
+      "primary": 3,
+      "toast": 3
+    },
+    "src/game/scenes/TavernScene.ts": {
+      "color": 7,
+      "primary": 2,
+      "toast": 1
+    },
+    "src/game/scenes/TowerScene.ts": {
+      "color": 1,
+      "primary": 4,
+      "toast": 10
+    },
+    "src/game/scoutView.ts": {
+      "color": 1
+    },
+    "src/game/screen.ts": {
+      "color": 16,
+      "primary": 5,
+      "toast": 2
+    },
+    "src/game/session.ts": {
+      "color": 1
+    },
+    "src/game/shopEntry.ts": {
+      "color": 15
+    },
+    "src/game/skillDetail.ts": {
+      "color": 1
+    },
+    "src/game/skillFx.ts": {
+      "color": 199
+    },
+    "src/game/skillIcons.ts": {
+      "color": 54
+    },
+    "src/game/skillLook.ts": {
+      "color": 41
+    },
+    "src/game/skillSigs.ts": {
+      "color": 293
+    },
+    "src/game/skillVisuals.ts": {
+      "color": 151
+    },
+    "src/game/sprites.ts": {
+      "color": 18,
+      "fontSize": 1
+    },
+    "src/game/squadEditor.ts": {
+      "color": 22,
+      "toast": 4
+    },
+    "src/game/squadPresets.ts": {
+      "toast": 4
+    },
+    "src/game/storyPage.ts": {
+      "color": 15,
+      "primary": 1
+    },
+    "src/game/tavernArt.ts": {
+      "color": 42
+    },
+    "src/game/tavernEntry.ts": {
+      "color": 5
+    },
+    "src/game/ui.ts": {
+      "color": 11,
+      "primary": 2
+    },
+    "src/game/ultBadge.ts": {
+      "color": 4
+    },
+    "src/game/unlockBanner.ts": {
+      "color": 4,
+      "primary": 2,
+      "toast": 1
+    },
+    "src/game/viewport.ts": {
+      "color": 3
+    }
+  }
+}

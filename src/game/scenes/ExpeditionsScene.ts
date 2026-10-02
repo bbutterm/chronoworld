@@ -279,8 +279,7 @@ export class ExpeditionsScene extends Phaser.Scene {
 
   /** Ряд чипов добычи от левого края колонки, за ним — значки возможных находок (без подложки и чисел). */
   private lootRow(items: ChipSpec[], y: number, finds: IconFactory[] = []): void {
-    const row = rewardRow(this, 0, y, items, { maxW: COL_W, size: 's', gap: S.xxs });
-    row.setX(COL_X + row.width / 2);
+    const row = rewardRow(this, COL_X, y, items, { maxW: COL_W, size: 's', gap: S.xxs, align: 'left' });
     this.area.add(row);
     let x = COL_X + row.width + S.xs + 22;
     for (const f of finds) {
@@ -354,8 +353,7 @@ export class ExpeditionsScene extends Phaser.Scene {
       a.add(btn.container);
       if (primary) pulse(this, btn.container);
       // Добыча — чипами в два ряда слева от кнопки.
-      const row = rewardRow(this, 0, top + ROW.action, returnedChips(e.rewards), { maxW: COL_W - btnW - S.s, size: 's', gap: S.xxs });
-      row.setX(COL_X + row.width / 2);
+      const row = rewardRow(this, COL_X, top + ROW.action, returnedChips(e.rewards), { maxW: COL_W - btnW - S.s, size: 's', gap: S.xxs, align: 'left' });
       a.add(row.setName(`loot_${e.location}`));
       return;
     }

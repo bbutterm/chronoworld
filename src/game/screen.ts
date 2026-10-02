@@ -4,19 +4,16 @@ import { now, session, takeWarnings, today } from './session';
 import { adventureBadge, campaignBadge, cityBadge } from './navBadges';
 import { GAME } from './content';
 import { anim, lazyPortrait, portraitKey, spriteView, whenSprites } from './sprites';
-import { campLevel, formatNumber, heroesNavBadge, heroSprite, leadHero, POWER_COLORS, POWER_TINTS, type PowerCheck, type PowerTone } from './flow';
-import { framedPortrait } from './portraitFrame';
+import { formatNumber, heroesNavBadge, POWER_COLORS, POWER_TINTS, type PowerCheck, type PowerTone } from './flow';
 import { view } from './viewport';
-import { heroGender } from '../core';
 import { button, ellipsize, emptyState, icon, panel, ScrollArea, shieldTaps, text, toast, type ButtonView } from './ui';
 import { hasArt } from './assets';
 import { RO_ICON_TINT, roIcon } from './itemIcons';
 import { C, COLOR, COLOR_N, E, FAMILY, FS, M, R, S, T, TOUCH, Z } from './theme';
-import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
+import { SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { animateCurrency, heartbeat, juiceOn, type CurrencyPill } from './juice';
 import { sfx } from './audio';
 import { haptic } from './haptics';
-import { testerButtons } from './tester';
 import { setTgBack } from './telegram';
 import { isLeaving } from './transitions';
 import { BACK, BADGE, badgeLabel, compactNumber, GEAR, HEADER_CY, navTabCenter, parseGrouped, PILL, powerShortfall, titleLeft } from './frame';
@@ -66,6 +63,8 @@ const MODAL_NAMES = ['confirmModal', 'noticeModal', 'bottomSheet'] as const;
  * кампании и т. д.), а не «куда-то на главную». Та же функция — у кнопки «назад» Telegram (и аппаратной «назад»
  * Android); корневые вкладки без back её прячут. back.label — подсказка для чтения с экрана, на кнопке не пишется.
  * opts.settings — шестерёнка в шапке слева от валюты (S: настройки и редкие действия главной).
+ * title '' — без названия (Город: на его месте своя плашка игрока). Вкладки навигации (Кампания, Герои, Приключения)
+ * держат компактное название T.title слева: без него полоса шапки пустая (итерация 10A).
  */
 export function screen(
   scene: Phaser.Scene,
@@ -74,8 +73,6 @@ export function screen(
   back?: BackTarget,
   opts: {
     settings?: () => void;
-    /** Главная: вместо названия — плашка игрока (аватар-лидер отряда, уровень лагеря, полоска опыта); title — её имя. */
-    player?: boolean;
   } = {},
 ): void {
   // Фон 1080×1920 сам продолжается на поля вытянутых экранов (viewport.ts); шапка и навигация — тоже до краёв.
@@ -108,9 +105,7 @@ export function screen(
     titleRight = gx - GEAR.hit / 2 - S.xs;
   }
   const left = titleLeft(!!back);
-  // Справа от плашки игрока HomeScene ставит иконки «События» и «Почта» (homeEvents.ts, по 92 + 14) — место под них.
-  if (opts.player) playerPlate(scene, title, left - 20, titleRight - (opts.settings ? 2 * 106 : 0));
-  else {
+  if (title) {
     // Название — слева, заголовочной гарнитурой; длинное сначала мельчает, потом переносится на две строки.
     const t = text(scene, left, HEADER_CY, title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold', align: 'left' }).setOrigin(0, 0.5);
     t.setShadow(0, 3, 'rgba(0,0,0,0.75)', 6, false, true);
@@ -119,7 +114,6 @@ export function screen(
   }
 
   if (active) navBar(scene, active, fullW);
-  testerButtons(scene, band, BAND_MIN);
   const warnings = takeWarnings();
   for (const w of warnings.filter((x) => !isHeroesNotice(x))) toast(scene, w, C.error, 6000);
   const notices = warnings.filter(isHeroesNotice);
@@ -275,10 +269,8 @@ function navBar(scene: Phaser.Scene, active: NavTab, fullW: number): void {
     const dx = bx + size / 2 + 2;
     const dy = iconY - size / 2 + 6 - (on ? 8 : 0);
     if (t.scene === 'Heroes') {
-      // «Герои»: точка — можно вознести или надеть вещь получше (P10, T1-08); иначе зелёная стрелка «Улучшить».
-      const b = heroesNavBadge(session.save, GAME);
-      if (b?.kind === 'count') dot(scene, dx, dy)?.setDepth(Z.nav + 1).setName('navBadge_Heroes');
-      else if (b?.kind === 'levelUp') levelUpBadge(scene, dx, dy).setScale(0.75).setDepth(Z.nav + 1);
+      // «Герои»: точка — можно вознести, улучшить или надеть вещь получше (P10, T1-08; §2.4 — на вкладке только точка).
+      if (heroesNavBadge(session.save, GAME)) dot(scene, dx, dy)?.setDepth(Z.nav + 1).setName('navBadge_Heroes');
     } else {
       // Остальные вкладки — сумма значков своей страницы (navBadges.ts); на вкладке — точка (§2.4).
       const n = t.scene === 'Campaign' ? campaignBadge(session.save, now(), today()) : t.scene === 'Home' ? cityBadge(session.save, today()) : adventureBadge(session.save, now(), today());
@@ -402,41 +394,6 @@ function bandStrip(scene: Phaser.Scene, band: number): void {
 }
 
 /**
- * Плашка игрока в шапке главной (как в AFK Arena): лидер отряда в рамке, уровень лагеря на медальоне у портрета,
- * имя лагеря и полоска опыта до следующего уровня (flow.ts campLevel). Места — от left до right.
- */
-function playerPlate(scene: Phaser.Scene, name: string, left: number, right: number): void {
-  const save = session.save;
-  const lead = leadHero(save);
-  const cy = HEADER_H / 2;
-  const size = 124;
-  const ax = left + size / 2;
-  scene.add.image(ax, cy, 'skin_glow').setDisplaySize(size * 1.5, size * 1.5).setTint(0xf0cf8a).setAlpha(0.18).setBlendMode(Phaser.BlendModes.ADD);
-  framedPortrait(scene, ax, cy - 2, lead ? heroSprite(lead, GAME) : null, size, lead ? heroGender(lead, GAME) : undefined).setName('playerAvatar');
-  const lv = campLevel(save);
-  // Уровень — на медальоне в правом нижнем углу портрета.
-  const mx = ax + size / 2 - 12;
-  const my = cy + size / 2 - 16;
-  scene.add.circle(mx, my, 27, 0x120d08).setStrokeStyle(4, SKIN_TINT.gold);
-  text(scene, mx, my - 1, String(lv.level), lv.level >= 100 ? FS.caption - 8 : FS.caption, SKIN.goldLight, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4 }).setName('campLevel');
-  const tx = ax + size / 2 + 26;
-  const w = Math.max(160, Math.min(330, right - tx));
-  const nm = text(scene, tx, cy - 38, name, T.body, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
-  nm.setShadow(0, 3, 'rgba(0,0,0,0.7)', 3, true, true);
-  ellipsize(nm, w);
-  text(scene, tx, cy + 4, `Уровень лагеря ${lv.level}`, FS.caption, COLOR.textSecondary).setOrigin(0, 0.5).setShadow(0, 2, 'rgba(0,0,0,0.8)', 3, false, true);
-  // Полоска опыта лагеря: утопленный жёлоб, золотая заливка с бликом.
-  const by = cy + 42;
-  const bh = 18;
-  const frac = Phaser.Math.Clamp(lv.exp / lv.need, 0, 1);
-  scene.add.rectangle(tx + w / 2, by, w + 6, bh + 6, 0x000000, 0.9).setStrokeStyle(2, SKIN_TINT.bronze);
-  if (frac > 0) {
-    scene.add.rectangle(tx, by, w * frac, bh, 0xd9a54c).setOrigin(0, 0.5);
-    scene.add.rectangle(tx, by - bh / 4, w * frac, bh / 3, 0xfff0b0, 0.55).setOrigin(0, 0.5);
-  }
-}
-
-/**
  * Плашка «мощь отряда против рекомендуемой» (главная, этап): тёмная капсула с обводкой цвета тона — зелёный «сил хватает»,
  * жёлтый «чуть не хватает», красный «слабее». label — свой текст (по умолчанию «⚔ 1 224 / 1 067 · вердикт»).
  * Возвращает контейнер (data `tone`); setPowerChip — обновить на месте.
@@ -466,17 +423,6 @@ export function setPowerChip(box: Phaser.GameObjects.Container, pc: PowerCheck, 
   bg.fillStyle(0x0d0a07, 0.92).fillRoundedRect(-w / 2, -h / 2, w, h, h / 2);
   bg.lineStyle(3, POWER_TINTS[tone], 1).strokeRoundedRect(-w / 2, -h / 2, w, h, h / 2);
   box.setData('tone', tone).setSize(w, h);
-}
-
-/** Зелёная стрелка «можно улучшить» (вкладка «Герои»): тот же вид, что метка canLevel на плитке карточки. */
-function levelUpBadge(scene: Phaser.Scene, x: number, y: number): Phaser.GameObjects.Container {
-  const disc = scene.add.circle(0, 0, 26, 0x1f6a28).setStrokeStyle(4, 0xb6f0a0);
-  const g = scene.add.graphics();
-  g.fillStyle(0xd8ffd0, 1).fillTriangle(0, -15, 13, 2, -13, 2);
-  g.fillRect(-6, 1, 12, 13);
-  const box = scene.add.container(x, y, [disc, g]).setDepth(50).setName('levelUpBadge');
-  heartbeat(scene, box);
-  return box;
 }
 
 /**

@@ -30,5 +30,6 @@ export * from './context';
 export * from './story';
 export * from './unlocks';
 export * from './shop';
+export * from './codes';
 export * from './lore';
 export * from './tavern';

@@ -178,6 +178,7 @@ export function markHint(id: HintId): void {
 export function resetHints(): void {
   done = new Set();
   shown = new Set();
+  nags.clear();
   try {
     globalThis.localStorage?.removeItem(HINT_KEY);
     globalThis.localStorage?.removeItem(HINT_SHOWN_KEY);
@@ -190,6 +191,35 @@ export function resetHints(): void {
 export function reloadHints(): void {
   done = null;
   shown = null;
+}
+
+/**
+ * Подсказки, которые висят, пока держится состояние (опыт на уровень, трофеи лучше надетых, копии на вознесение,
+ * ветка не выбрана), — указатель на вкладку «Герои» со страницы «Кампания». Без лимита он стоял на каждом заходе
+ * (e2e-chapter1: equip_gear ×174). Показываем не больше NAG_LIMIT заходов на экран, потом молчим, пока состояние не
+ * сменится (флаг входа pickHomeHint стал false — счёт с нуля). Счёт — в памяти сессии: после перезапуска игры
+ * напомнит ещё раз.
+ */
+export const NAG_LIMIT = 3;
+export const NAG_HINTS: ReadonlySet<HintId> = new Set<HintId>(['level_up', 'equip_gear', 'ascend', 'branch_pick']);
+/** «экран:id» → сколько заходов подсказка уже была на экране. */
+const nags = new Map<string, number>();
+
+/** Повторяющаяся подсказка id исчерпала заходы на экране where (ключ сцены). */
+export function hintNagged(id: HintId, where: string): boolean {
+  return NAG_HINTS.has(id) && (nags.get(`${where}:${id}`) ?? 0) >= NAG_LIMIT;
+}
+
+/** Подсказка id показана в новом заходе на экран where (tutorialHint в ui.ts зовёт раз за визит). */
+export function noteHintVisit(id: HintId, where: string): void {
+  if (!NAG_HINTS.has(id)) return;
+  const k = `${where}:${id}`;
+  nags.set(k, (nags.get(k) ?? 0) + 1);
+}
+
+/** Состояние подсказки сменилось (опыта на уровень больше нет и т. п.) — снова NAG_LIMIT заходов на всех экранах. */
+export function resetHintNag(id: HintId): void {
+  for (const k of [...nags.keys()]) if (k.endsWith(`:${id}`)) nags.delete(k);
 }
 
 export interface HomeHintInput {
@@ -219,7 +249,16 @@ export interface HomeHintInput {
  * главная). Порядок — цепочка обучения: новичок → «В бой»; сундук, «Улучшить» (вкладка «Герои»), Таверна (вкладка
  * «Город»), быстрые награды, задания («Город»), вознесение («Герои»); по событию — трофеи и Башня («Приключения»).
  */
-export function pickHomeHint(s: HomeHintInput, isDone: (id: HintId) => boolean = hintDone): HintId | null {
+export function pickHomeHint(s: HomeHintInput, doneFn: (id: HintId) => boolean = hintDone, where = 'Campaign'): HintId | null {
+  // Повторяющиеся: состояние ушло — счёт заходов с нуля; исчерпали заходы — шаг пропускается (цепочка идёт дальше).
+  const held: [HintId, boolean | undefined][] = [
+    ['level_up', s.levelUpReady],
+    ['equip_gear', s.gearUpgrade],
+    ['ascend', s.ascendReady],
+    ['branch_pick', s.branchPending],
+  ];
+  for (const [id, on] of held) if (!on) resetHintNag(id);
+  const isDone = (id: HintId) => doneFn(id) || hintNagged(id, where);
   if (s.cleared === 0 && !isDone('home_campaign')) return 'home_campaign';
   if (s.chestHasIncome && !isDone('chest_claim')) return 'chest_claim';
   if (s.levelUpReady && !isDone('level_up')) return 'level_up';
