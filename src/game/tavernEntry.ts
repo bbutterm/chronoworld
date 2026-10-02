@@ -1,19 +1,19 @@
 import Phaser from 'phaser';
 import { summonStatus } from '../core';
 import { GAME } from './content';
-import { pulse } from './juice';
+import { artCardTexture, artEntry, type EntryView } from './homeBuildings';
+import { decorTween, pulse } from './juice';
+import { ensureTavernTextures, TAVERN_BG, TAVERN_BG_FILE } from './tavernArt';
 import { card, cornerBadge } from './screen';
 import { session, today } from './session';
 import { SKIN_TINT, skinIcon } from './skin';
-import { tavernBadge } from './tavern';
-import { C, FS, OUTLINE, TITLE_STYLE } from './theme';
+import { C, E, FS, M, OUTLINE, TITLE_STYLE } from './theme';
 import { pressable, text } from './ui';
 import { lockedToast, lockLabel } from './unlockBanner';
 
 /**
- * Вход в Таверну со страницы «Город» (H5): плитка-«здание» (buildingTile — общий вид плиток «Города» и «Приключений»),
- * её ставит HomeScene одной строкой (tavernTile). Значок — бесплатный призыв и незабранный подарок; только что
- * открылась и ещё не заходили — пульс и «Новое!».
+ * Вход в Таверну со страницы «Город» (H5): витрина-картинка (artEntry, homeBuildings.ts), её ставит HomeScene одной
+ * строкой (tavernTile). Здесь же — buildingTile, общий вид плиток страницы «Приключения».
  */
 
 const SEEN_KEY = 'chronoworld.tavernSeen';
@@ -140,33 +140,54 @@ export function buildingTile(
 }
 
 /**
- * Плитка Таверны (центр x, y; размер w×h) — «здание» главной (buildingTile). Закрыта — тусклая с замком, нажатие — когда
- * откроется; открыта — переход в Таверну. Значок — бесплатный призыв и незабранный подарок; только что открылась и ещё
- * не заходили — пульс и лента «Новое!».
+ * Картинка витрины Таверны: камин зала «Два колокола» (нарисованный фон tavernArt.ts или файл владельца bg_tavern),
+ * вырезанный под размер карточки. Возвращает ключ текстуры и где на карточке огонь (доля ширины/высоты).
  */
-export function tavernTile(scene: Phaser.Scene, x: number, y: number, w: number, h: number): BuildingTile {
+function tavernArt(scene: Phaser.Scene, w: number, h: number): { key: string; fire: { x: number; y: number } } {
+  ensureTavernTextures(scene);
+  const srcKey = scene.textures.exists(TAVERN_BG_FILE) ? TAVERN_BG_FILE : TAVERN_BG;
+  const src = scene.textures.get(srcKey).getSourceImage() as CanvasImageSource & { width: number; height: number };
+  // Координаты канваса 720×1280: камин — (360, 470), полки с бутылками и фонари вокруг. Файл владельца — тот же кадр.
+  const k = src.width / 720;
+  const ch = Math.min(src.height, 600 * k);
+  const cw = Math.min(src.width, (ch * w) / h);
+  const cx0 = (src.width - cw) / 2;
+  const cy0 = Math.max(0, 470 * k - ch * 0.5);
+  const fire = { x: (360 * k - cx0) / cw, y: (490 * k - cy0) / ch };
+  const key = artCardTexture(scene, `tavern_${srcKey}`, w, h, (c, W, H) => c.drawImage(src, cx0, cy0, cw, ch, 0, 0, W, H));
+  return { key, fire };
+}
+
+/**
+ * Витрина Таверны на странице «Город» (центр x, y; размер w×h): камин зала, «Таверна» крупно. Состояние — тег сверху:
+ * «Подарок» (подарок открытия не забран), «Бесплатный призыв», только что открылась и ещё не заходили — «Новое» и
+ * пульс. Закрыта — приглушённая с замком и «Откроется на этапе …», касание — тост.
+ */
+export function tavernTile(scene: Phaser.Scene, x: number, y: number, w: number, h: number): EntryView {
   const save = session.save;
   const st = summonStatus(save, today(), GAME);
-  const n = st.unlocked ? tavernBadge(st, save.summon.welcomeGiven) : 0;
   const fresh = st.unlocked && !flag(SEEN_KEY);
-  const t = buildingTile(scene, x, y, w, h, {
+  const gift = st.unlocked && !save.summon.welcomeGiven;
+  const art = tavernArt(scene, w, h);
+  const state = fresh ? { label: 'Новое', tone: 'accent' as const } : gift ? { label: 'Подарок', tone: 'accent' as const } : st.freeLeft > 0 ? { label: 'Бесплатный призыв', tone: 'accent' as const } : undefined;
+  const t = artEntry(scene, x, y, w, h, art.key, {
     name: 'tavernTile',
     title: 'Таверна',
-    art: (size, tint) => mugIcon(scene, 2, 4, size * 0.62, tint),
     open: st.unlocked,
-    // Только что открылась и ещё не заходили — вместо состояния лента «Новое!».
-    status: fresh ? undefined : { text: n > 0 ? 'Есть бесплатный призыв' : 'Призыв героев', color: n > 0 ? C.success : C.muted },
-    note: 'Наём героев за свитки и гемы',
     lockId: 'tavern',
     onOpen: () => scene.scene.start('Tavern'),
-    badge: n,
+    state: st.unlocked ? state : undefined,
+    // Огонь в камине дышит (украшение: без «Уменьшить анимацию», в общем лимите твинов).
+    extra: (root) => {
+      if (!st.unlocked) return;
+      const fx = (art.fire.x - 0.5) * w;
+      const fy = (art.fire.y - 0.5) * h;
+      const glow = scene.add.image(fx, fy, 'skin_glow').setDisplaySize(w * 0.62, w * 0.62).setTint(0xff9a40).setAlpha(0.32).setBlendMode(Phaser.BlendModes.ADD);
+      root.add(glow);
+      decorTween(scene, { targets: glow, alpha: { from: 0.22, to: 0.42 }, duration: M.emphasis * 1.5, yoyo: true, repeat: -1, ease: E.inOut });
+    },
   });
-  if (!fresh) return t;
-  pulse(scene, t.bg, 1.04);
-  pulse(scene, t.art, 1.08);
-  pulse(scene, t.label, 1.04);
-  const label = text(scene, 0, -1, 'Новое!', FS.caption, C.text, { fontStyle: 'bold' });
-  scene.add.container(x, t.statusY, [scene.add.rectangle(0, 0, label.width + 24, 40, 0xb83a2a).setStrokeStyle(3, 0xffd84a), label]).setDepth(40);
-  // Об открытии Таверны говорит баннер «Новая функция!» (unlockBanner.ts), отдельный тост не нужен.
+  // Только что открылась — карточка один раз «вздыхает» (об открытии говорит баннер «Новая функция!»).
+  if (fresh) pulse(scene, t.root, 1.03);
   return t;
 }
