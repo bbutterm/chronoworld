@@ -147,9 +147,11 @@ const CD_FRAME_READY = 1;
 const CD_CELL = 32;
 const CD_RES = 2;
 /** Значки статусов над полоской HP: размер и сколько видно (остальные — счётчиком «+N» справа от значков). */
-const STATUS_ICON = 24;
-const STATUS_MAX = 2;
+const STATUS_ICON = 32;
+const STATUS_MAX = 3;
 const STATUS_GAP = 3;
+/** Значок навыка у полосы каста. */
+const CAST_ICON = 30;
 /** Имена над юнитами (T2-15, T3-02): мелко, видны первые секунды боя, потом гаснут; касание юнита — показать снова. */
 /** NB-19: 20 → 26 (≈ 9 css px на 360×640 — не читалось). */
 const NAME_SIZE = 26;
@@ -272,8 +274,8 @@ interface UnitView extends SpreadUnit, GaitState {
   castBack: Phaser.GameObjects.Image;
   /** Идёт каст: начало и длительность в секундах боя. */
   cast: { start: number; dur: number } | null;
-  /** Название навыка над полосой каста. */
-  castLabel: Phaser.GameObjects.Text;
+  /** Значок навыка слева от полосы каста (вместо названия; у заряда — молния castBolt). */
+  castIcon: Phaser.GameObjects.Image;
   nameText: Phaser.GameObjects.Text;
   /** Круг каста и аура (создаются при первом касте). */
   castRig?: CastRig;
@@ -472,8 +474,6 @@ export class BattleScene extends Phaser.Scene {
   private focus: { uid: string; until: number } | null = null;
   /** Герои, чью ульту игрок только что нажал: её удар — с затемнением и баннером, как ульта монстра. */
   private readonly tapped = new Set<string>();
-  /** Когда над целью последний раз писали «Слабость!» / «Стойкость» (секунды боя). */
-  private readonly elemShown = new Map<string, number>();
   private modeBtn: ReturnType<typeof button> | null = null;
   private ultHintNode: Phaser.GameObjects.GameObject | null = null;
   /** Указатель «Скорость ×2» (обучение), пока висит. */
@@ -524,7 +524,6 @@ export class BattleScene extends Phaser.Scene {
     this.ultUsedAt.clear();
     this.focus = null;
     this.tapped.clear();
-    this.elemShown.clear();
     this.modeBtn = null;
     this.ultHintNode = null;
     this.speedHint = null;
@@ -994,8 +993,8 @@ export class BattleScene extends Phaser.Scene {
     const castW = BAR_W + 20;
     const castBack = this.add.image(ox, nameY + 4, 'ui_bar_back').setDisplaySize(castW + 6, 18).setVisible(false);
     const castBar = this.add.image(ox - castW / 2, nameY + 4, 'ui_bar_energy').setOrigin(0, 0.5).setDisplaySize(castW, 12).setVisible(false);
-    // Название навыка — на груди кастера, не над головой: в заднем ряду над головой уже полоски соседа сверху (T2-15).
-    const castLabel = text(this, ox, -look.height * 0.58, '', 25, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setVisible(false);
+    // Итерация 5: у полосы каста — значок навыка, не название («Метеоритный дождь» над головой — лишний текст).
+    const castIcon = this.add.image(ox - castW / 2 - 22, nameY + 4, '__DEFAULT').setDisplaySize(CAST_ICON, CAST_ICON).setVisible(false);
     // NB-19: имя — под своими полосками (у ног), а не над макушкой: над головой заднего ряда висят полоски соседа
     // сверху, и подпись читалась как чужая.
     // У героев под полоской — значки перезарядки навыков: имя ниже них.
@@ -1036,7 +1035,7 @@ export class BattleScene extends Phaser.Scene {
         parts.push(icon, sweep);
       }
     }
-    const node = this.add.container(fieldX(snap.x), snap.y - this.dy, [...parts, castBack, castBar, castLabel]).setDepth(snap.y - this.dy);
+    const node = this.add.container(fieldX(snap.x), snap.y - this.dy, [...parts, castBack, castBar, castIcon]).setDepth(snap.y - this.dy);
 
     const v: UnitView = {
       snap,
@@ -1061,7 +1060,7 @@ export class BattleScene extends Phaser.Scene {
       castBar,
       castBack,
       cast: null,
-      castLabel,
+      castIcon,
       charging: false,
       nameText: name,
       hitPlan: new Map(),
@@ -1377,7 +1376,6 @@ export class BattleScene extends Phaser.Scene {
   /** След HP и красный оттенок попадания (раньше — твин и таймер на каждый удар). */
   private animateUnit(v: UnitView, dt: number): void {
     if (v.cast) {
-      this.clampLabel(v, v.castLabel);
       const p = Phaser.Math.Clamp((this.clock - v.cast.start) / v.cast.dur, 0, 1);
       cropBar(v.castBar, p);
       v.castRig?.step(dt, p);
@@ -1681,7 +1679,6 @@ export class BattleScene extends Phaser.Scene {
           // каст — серым «нет цели»; Развеивание контрмага — «Сбито!».
           if (e.reason === 'noTarget') {
             this.endCast(v);
-            if (animate) this.headline(v, 'нет цели', '#c8c0b0');
             return;
           }
           // Свой каст оборван ультой по касанию — молча.
@@ -1706,16 +1703,14 @@ export class BattleScene extends Phaser.Scene {
         const col = ELEMENT_COLORS[sk ? lookOf(sk).element : 'neutral'];
         v.castBack.setVisible(true);
         v.castBar.setVisible(true).setTintFill(col.main);
-        // Название каста — только у босса и у заряда (§5 «Бой»: у обычных навыков подписи нет, хватает полосы).
-        const named = !!e.charge || v.def.kind === 'boss';
-        v.castLabel.setText(e.name).setColor(col.light).setVisible(named);
+        // Название каста не пишем (§5 «Бой»): значок навыка у полосы; у заряда вместо значка — молния.
+        if (sk && !e.charge) v.castIcon.setTexture(skillIcon(this, sk)).setDisplaySize(CAST_ICON, CAST_ICON).setVisible(true);
         v.nameText.setVisible(false);
         cropBar(v.castBar, 0);
         // Заряд босса: красная полоса с молнией над бойцом (и под полоской босса); у героев, чья ульта собьёт заряд,
         // пульсируют молнии на медальонах — кто ответит, видно без текста.
         if (e.charge) {
           v.castBar.setTintFill(0xff4a2a);
-          v.castLabel.setColor('#ffb09a');
           v.charging = true;
           (v.castBolt ??= this.castBolt(v)).setVisible(true);
           if (this.bossBar?.uid === v.snap.uid) this.bossCharge?.node.setVisible(true);
@@ -1745,7 +1740,6 @@ export class BattleScene extends Phaser.Scene {
         // RR-14: в первую секунду боя пассивки и ауры всего поля срабатывают разом — их подписи не выводим (8–9 штук
         // лежали пачкой на отряде); подпись выйдет при следующем срабатывании, по очереди ходов.
         const opening = e.t < OPENING_QUIET_S;
-        if (animate && !opening && !this.shownPassives.has(key)) this.headline(v, e.name, '#c9a0ff');
         if (!opening) this.shownPassives.add(key);
         v.proc = { skill: e.skill, t: e.t };
         // Своя вспышка пассивки на кастере (сокол к цели, колба к союзнику, сферы…) — в момент срабатывания.
@@ -1756,12 +1750,9 @@ export class BattleScene extends Phaser.Scene {
         if (animate && pv?.proc && v.alive && !this.skipping && !auraRepeat) playProc(this.sfx, pv.proc, this.point(v), this.eventTargets(v, e.t).map((u) => this.point(u)), pv.tint ?? 0xffffff);
         return;
       }
-      case 'skip': {
-        const v = this.views.get(e.unit)!;
-        // Оглушение уже видно значком над HP — подпись только если значка нет.
-        if (animate && v.statusIcons.size === 0) this.headline(v, 'оглушён', '#ffcf6b');
+      case 'skip':
+        // Оглушение видно значком над HP и звёздами над головой — без подписи.
         return;
-      }
       case 'damage': {
         this.hunt?.hud?.hit(e);
         const v = this.views.get(e.target)!;
@@ -1776,30 +1767,19 @@ export class BattleScene extends Phaser.Scene {
           v.energyT = e.t;
           this.redraw(v, animate);
           if (!animate) return;
-          // Стихия: «Слабость!» / «Стойкость» — не чаще раза в popupSeconds над одной целью.
-          if (e.elem) {
-            const last = this.elemShown.get(e.target) ?? -Infinity;
-            if (e.t - last >= (COMBAT.elements?.popupSeconds ?? 6)) {
-              this.elemShown.set(e.target, e.t);
-              this.headline(v, e.elem === 'weak' ? 'Слабость!' : 'Стойкость', e.elem === 'weak' ? '#ffd84a' : '#a8b8c8');
-            }
-          }
+          // Стихия (слабость/стойкость) — цветом и размером цифры (battleFx ELEM_LOOK), без подписи.
           const hpPart = e.amount - e.absorbed;
           const src = this.views.get(e.source);
           const sk = dmgSkill ? CONTENT.skills[dmgSkill] : undefined;
           // Цифры RO: белые — по монстрам, красные — по героям, жёлтые крупные — удар ульты, голубые — ушло в щит.
           const roTint = hpPart <= 0 ? RO_TINT.shield : big ? RO_TINT.ult : v.snap.side === 'A' ? RO_TINT.hero : RO_TINT.enemy;
-          if (!this.popRo(v, hpPart > 0 ? hpPart : e.absorbed, roTint, big && hpPart > 0 ? 1.6 : e.dot ? 0.9 : 1.15, RO_HIT)) {
+          if (!this.popRo(v, hpPart > 0 ? hpPart : e.absorbed, roTint, big && hpPart > 0 ? 1.6 : e.dot ? 0.9 : 1.15, RO_HIT, hpPart > 0 ? e.elem : undefined)) {
             const style = numberStyle(sk, src);
             const color = e.dot ? '#9be36b' : big && hpPart > 0 ? '#ffd84a' : hpPart > 0 ? style.color : '#bcd6ff';
             this.popNumber(v, hpPart > 0 ? `-${hpPart}${big ? '!' : ''}` : `(${e.absorbed})`, color, big && hpPart > 0, style.size);
           }
           this.hurt(v);
-          // Урон, принятый за союзника по связи (Самопожертвование), — серая «↪» над защитником (не чаще раза в 1,5 с).
-          if (e.redirect && this.time.now - (this.redirectShown.get(v.snap.uid) ?? -Infinity) > 1500) {
-            this.redirectShown.set(v.snap.uid, this.time.now);
-            this.headline(v, '↪ защита', '#d8d0c0');
-          }
+          // Урон, принятый за союзника по связи (Самопожертвование), виден золотой нитью связи (battleBehaviorFx) — без подписи.
           if (e.dot) return;
           const hit = hitFxOf(src, dmgSkill);
           if (hit === 'fx_magic') this.fx(v, hit, 1.7, 450, 0.95);
@@ -1891,12 +1871,12 @@ export class BattleScene extends Phaser.Scene {
           }
           // Бафф на весь отряд (Ускорение, Благословение): подпись не пишем над каждым — хватает искр и значка у HP.
           const srcSkill = srcSkillId ? CONTENT.skills[srcSkillId] : undefined;
-          // RR-07: подпись статуса — при первом наложении на юнита за бой (дальше хватает значка у полоски ОЗ), и не в
-          // первую секунду боя (RR-14).
+          // Итерация 5: статус — значком над юнитом с «хлопком» (не словом), дальше — маленький значок у полоски ОЗ.
+          // Не в первую секунду боя (RR-14); бафф союзника — при первом наложении (RR-07), дебафф — каждый раз.
           const statusKey = `${e.target}:${e.status}`;
-          if (!(ally && srcSkill?.target.pick === 'all') && e.t >= OPENING_QUIET_S && !this.shownStatuses.has(statusKey)) {
+          if (def && v.alive && !(ally && srcSkill?.target.pick === 'all') && e.t >= OPENING_QUIET_S && !(ally && this.shownStatuses.has(statusKey))) {
             this.shownStatuses.add(statusKey);
-            this.headline(v, e.name, '#ffcf6b');
+            this.floats.statusPop(v.node.x, v.node.y - v.look.height - 30, statusIcon(this, def), v.snap.uid);
           }
           if (ally) {
             const sheet = skillFx(srcSkillId)?.buff;
@@ -2100,7 +2080,7 @@ export class BattleScene extends Phaser.Scene {
     v.cast = null;
     v.castBack.setVisible(false);
     v.castBar.setVisible(false);
-    v.castLabel.setVisible(false);
+    v.castIcon.setVisible(false);
     v.nameText.setVisible(v.alive);
     v.castRig?.hide();
     if (v.charging) {
@@ -2298,7 +2278,7 @@ export class BattleScene extends Phaser.Scene {
    * Цифра RO над юнитом (атлас numbers, только число): то же место в столбике, что у popNumber; урон (RO_HIT) летит
    * дугой к тылу юнита, лечение и щит (RO_RISE) — вверх. false — атлас не загрузился (рисует popNumber).
    */
-  private popRo(v: UnitView, amount: number, tint: number, scale: number, mode: number): boolean {
+  private popRo(v: UnitView, amount: number, tint: number, scale: number, mode: number, elem?: 'weak' | 'resist'): boolean {
     const now = this.time.now;
     let slot = v.floatSlots.findIndex((t) => t <= now);
     if (slot < 0) {
@@ -2312,7 +2292,7 @@ export class BattleScene extends Phaser.Scene {
     // Соседние места столбика — на высоту цифры ниже и чуть к тылу: одновременные удары не сливаются в одно число.
     const x = v.node.x + dir * (30 + slot * 22) + rnd(10);
     const y = top + slot * Math.max(FLOAT_STEP, h * 0.9);
-    if (!this.floats.roNumber(x, y, String(Math.round(amount)), tint, scale, DEPTH.numbers + slot, mode, dir, v.snap.uid)) return false;
+    if (!this.floats.roNumber(x, y, String(Math.round(amount)), tint, scale, DEPTH.numbers + slot, mode, dir, v.snap.uid, elem)) return false;
     v.floatSlots[slot] = now + FLOAT_SLOT_MS;
     return true;
   }
