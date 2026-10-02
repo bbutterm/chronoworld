@@ -284,7 +284,7 @@ async function main() {
     await clickText('Home', 'Приключения');
     await waitScene('Adventure');
     await shot('adventure');
-    for (const t of ['Башня испытаний', 'Экспедиции', 'Охота на босса', `Откроется на этапе ${ch1Label(unlockOf('tower').stage)}`]) if (!(await hasText('Adventure', t))) problems.push(`приключения новичка: нет «${t}»`);
+    for (const t of ['Башня испытаний', 'Экспедиции', 'Охота на MVP', `Откроется на этапе ${ch1Label(unlockOf('tower').stage)}`]) if (!(await hasText('Adventure', t))) problems.push(`приключения новичка: нет «${t}»`);
 
     // 2. Кампания → этап 1 → В бой.
     await clickText('Adventure', 'Кампания');
