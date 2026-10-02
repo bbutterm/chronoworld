@@ -22,6 +22,7 @@
     "check": "npm run content:check && npm run typecheck && npm test",
     "e2e": "node scripts/e2e.mjs",
     "perf": "node scripts/perf.mjs",
+    "perf:ui": "node scripts/perf-ui.mjs",
     "e2e:chapter1": "node scripts/e2e-chapter1.mjs",
     "playthrough": "tsx scripts/playthrough.ts"
   },

@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { addAtlasAliases, blitExtruded, shelfPack } from './packedTexture';
 import { R } from './theme';
 
 /**
@@ -92,8 +93,36 @@ function rr(ctx: Ctx, x: number, y: number, w: number, h: number, r: number): vo
   ctx.closePath();
 }
 
+/**
+ * Общий атлас скина (§7.2 п. 3): плитки SKIN_TILES, контурные иконки, кружки этапов и мелкие украшения рисуются
+ * каждая в свой canvas, как раньше, а затем копируются 1:1 в один холст. Ключи (`skin_btn`, `skin_ico_*`…) остаются —
+ * это текстуры-псевдонимы над атласом (packedTexture.ts addAtlasAliases), а в GPU одна текстура: кнопки, панели и
+ * иконки экрана рисуются одним батчем WebGL. Большие текстуры (фоны, лучи, баннеры) — отдельно, как были.
+ */
+export const SKIN_ATLAS = 'skin_atlas';
+/** В атлас — текстуры не выше PACK_MAX_H и не шире PACK_MAX_W. */
+const PACK_MAX_H = 256;
+const PACK_MAX_W = 512;
+/** Ширина атласа: 1024 — плотнее полки (≈ 3,8 МБ против 3,1 МБ отдельных текстур; при 2048 — 4,5 МБ). */
+const PACK_W = 1024;
+/** Поле вокруг кадра (кромка кадра растянута на него — линейная фильтрация у края как у отдельной текстуры). */
+const PACK_GUTTER = 2;
+
+interface PendingTexture {
+  key: string;
+  w: number;
+  h: number;
+  draw: (ctx: Ctx) => void;
+}
+/** Пока идёт buildSkin — очередь текстур в атлас; вне его canvas() создаёт текстуру сразу. */
+let packing: PendingTexture[] | null = null;
+
 function canvas(scene: Phaser.Scene, key: string, w: number, h: number, draw: (ctx: Ctx) => void): void {
   if (scene.textures.exists(key)) return;
+  if (packing && w <= PACK_MAX_W && h <= PACK_MAX_H) {
+    if (!packing.some((p) => p.key === key)) packing.push({ key, w, h, draw });
+    return;
+  }
   const t = scene.textures.createCanvas(key, w, h);
   if (!t) return;
   draw(t.getContext());
@@ -481,6 +510,51 @@ export const skinIcon = (name: SkinIcon) => `skin_ico_${name}`;
 
 /** Сгенерировать все текстуры скина (один раз, в BootScene). */
 export function buildSkin(scene: Phaser.Scene): void {
+  packing = [];
+  try {
+    buildSkinTextures(scene);
+  } finally {
+    const list = packing;
+    packing = null;
+    packSkin(scene, list);
+  }
+}
+
+/** Нарисовать отложенные текстуры в один атлас и завести ключи-псевдонимы. Без document/2d — по отдельности, как раньше. */
+function packSkin(scene: Phaser.Scene, items: PendingTexture[]): void {
+  if (!items.length) return;
+  const separately = () => {
+    for (const it of items) canvas(scene, it.key, it.w, it.h, it.draw);
+  };
+  if (typeof document === 'undefined' || scene.textures.exists(SKIN_ATLAS)) return separately();
+  const { width, height, slots } = shelfPack(items, PACK_W, PACK_GUTTER);
+  const atlasCanvas = document.createElement('canvas');
+  atlasCanvas.width = width;
+  atlasCanvas.height = height;
+  const ctx = atlasCanvas.getContext('2d');
+  const tmp = document.createElement('canvas');
+  if (!ctx) return separately();
+  const byKey = new Map(items.map((it) => [it.key, it]));
+  for (const s of slots) {
+    // Новый размер — чистый холст и сброшенное состояние контекста, как у отдельного canvas.
+    tmp.width = s.w;
+    tmp.height = s.h;
+    const c = tmp.getContext('2d');
+    if (!c) return separately();
+    byKey.get(s.key)!.draw(c);
+    blitExtruded(ctx, tmp, s, PACK_GUTTER);
+  }
+  tmp.width = 0;
+  tmp.height = 0;
+  // create, а не createCanvas: CanvasTexture держала бы ещё и копию пикселей (getImageData).
+  const atlas = scene.textures.create(SKIN_ATLAS, atlasCanvas, width, height);
+  if (!atlas) return separately();
+  atlas.add('__BASE', 0, 0, 0, width, height);
+  for (const s of slots) atlas.add(s.key, 0, s.x, s.y, s.w, s.h);
+  addAtlasAliases(scene.textures, atlas, slots);
+}
+
+function buildSkinTextures(scene: Phaser.Scene): void {
   for (const [key, spec] of Object.entries(SKIN_TILES)) canvas(scene, key, TILE, TILE, (c) => tile(c, TILE, spec));
   buildDecor(scene);
 
