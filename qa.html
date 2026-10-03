@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chronoworld — synthetic expedition and Monk QA</title><style>body{max-width:760px;margin:24px auto;padding:0 18px;background:#151827;color:#f4efd9;font:17px/1.5 system-ui}h1{font-size:24px}button,a{font:inherit}button{display:block;width:100%;text-align:left;padding:14px;margin:12px 0;border:2px solid #ad9258;border-radius:8px;color:#fff;background:#343046;cursor:pointer}button:disabled{opacity:.45}a{color:#a9d7ff}pre{white-space:pre-wrap;word-break:break-word;border:1px solid #888;padding:12px}label{display:block;padding:16px;background:#452f25}</style></head><body>
+<h1>SYNTHETIC EXPEDITION AND MONK QA ONLY</h1>
+<p>Isolated QA branch based on 58df659c. Never merge this loader into main or the shared game preview. The real game code and normal entry remain unchanged.</p>
+<p>This is a synthetic rendering fixture, not natural player progress or balance evidence. It loads explicit expedition or Monk scenarios through the game's ordinary deserialize and commit functions. No online account is used.</p>
+<label><input id="qa-consent" type="checkbox"> I am on the isolated QA origin and approve replacing only its disposable synthetic save. No valuable progress exists here.</label>
+<div id="qa-scenarios"></div>
+<p id="qa-status" role="status" aria-live="polite">No fixture loaded.</p>
+<p><a id="qa-open-game" href="./">Open game → Приключения / Герои</a></p>
+<p>Expedition checks: first entry; leave and re-enter; change 8 ч to 4 ч; send one expedition; scroll through all cards. Monk checks: purple Teo49 upgrade unlock, Vika1 ultimate; gold rarity values; blue branch preview. Do not reload the fixture during a persistence check.</p>
+<button id="qa-inspect">Inspect synthetic save summary</button><pre id="qa-summary">—</pre>
+<script type="module" src="/qa/main.js"></script></body></html>
