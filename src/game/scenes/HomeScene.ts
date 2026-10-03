@@ -2,12 +2,12 @@ import { openCodes } from '../codesView';
 import Phaser from 'phaser';
 import { resetHints } from '../hints';
 import { GAME_H, GAME_W, HEADER_H } from '../layout';
-import { confirm, contentBottom, popIn, screen } from '../screen';
+import { confirm, confirmOpen, contentBottom, popIn, screen } from '../screen';
 import { collect, staggerIn } from '../juice';
 import { restartOnNewDay, session, startOver, today } from '../session';
-import { button, dangerButton, ellipsize, panel, text, toast, tutorialHint } from '../ui';
+import { button, dangerButton, ellipsize, panel, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { cityHint } from '../tutorial';
-import { C, COLOR, COLOR_N, FAMILY, FS, OUTLINE, S, T, TOUCH } from '../theme';
+import { C, COLOR, COLOR_N, FAMILY, OUTLINE, S, T } from '../theme';
 import { ribbon } from '../decor';
 import { fps, motion, nextFpsCap, nextPlaybackSpeed, playback, setFpsCap, setPlaybackSpeed, setReducedMotion } from '../state';
 import { lifecycle } from '../lifecycle';
@@ -28,6 +28,7 @@ import { achievementStatus, heroGender, questStatus } from '../../core';
 import { GAME } from '../content';
 import { campLevel, claimableAchievements, claimableCount, heroSprite, leadHero } from '../flow';
 import { framedPortrait } from '../portraitFrame';
+import { SETTINGS_LAYOUT as SL, settingsRowLayout } from '../settingsLayout';
 
 /**
  * Страница «Город» (вкладка нижней навигации, сцена Home) — живой лагерь, как главная AFK Arena:
@@ -182,125 +183,110 @@ export class HomeScene extends Phaser.Scene {
 
   // ---------- S. Настройки (шестерёнка в шапке) ----------
 
-  /** Модальное окно: скорость боя, тестовый бой, сброс подсказок и прогресса, версия. Касание мимо окна — закрыть. */
+  /** Fixed header/footer; readable settings remain reachable on the smallest supported screen. */
   private openSettings(): void {
+    if (this.children.getByName('settingsModal')) return;
     const cx = GAME_W / 2;
     const cy = GAME_H / 2;
-    const bw = 720;
+    const bw = SL.contentW;
     const layer = this.add.container(0, 0).setDepth(8500).setName('settingsModal');
-    const close = () => layer.destroy();
+    const close = () => { if (!confirmOpen(this) && !area.locked) layer.destroy(); };
+    layer.setData('close', close);
     const shade = this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
     shade.on('pointerup', close);
-    // Само окно тоже ловит нажатия — иначе касание по фону окна закрыло бы его.
-    const box = panel(this, cx, cy, 880, 1240, 'ui_panel').setInteractive();
+    const box = panel(this, cx, cy, SL.panelW, SL.panelH, 'ui_panel').setInteractive();
     layer.add([shade, box]);
-    layer.add(ribbon(this, cx, cy - 545, 'Настройки', { size: FS.h1, minW: 460 }));
+    layer.add(ribbon(this, cx, SL.titleY, 'Настройки', { size: T.heading, minW: 460 }));
 
-    let y = cy - 430;
-    layer.add(text(this, cx - bw / 2, y, 'Скорость боя', FS.h3, C.text, OUTLINE).setOrigin(0, 0.5));
-    const speed = button(this, cx + bw / 2 - 110, y, 220, TOUCH, 'ui_btn_secondary', `${playback.speed}x`, () => {
-      setPlaybackSpeed(nextPlaybackSpeed());
-      speed.setLabel(`${playback.speed}x`);
-    }, FS.h2, { repeat: true });
-    layer.add(speed.container);
-    y += 70;
-    layer.add(text(this, cx, y, 'Запоминается; меняется и прямо в бою', FS.small, C.muted));
-
-    // U: ограничение кадров — на слабых телефонах 30 вдвое снижает нагрузку и нагрев; бой не замедляется.
-    y += 90;
-    layer.add(text(this, cx - bw / 2, y, 'Частота кадров', FS.h3, C.text, OUTLINE).setOrigin(0, 0.5));
-    const fpsBtn = button(this, cx + bw / 2 - 110, y, 220, TOUCH, 'ui_btn_secondary', `${fps.cap} FPS`, () => {
-      setFpsCap(nextFpsCap());
-      lifecycle()?.setFpsCap(fps.cap);
-      fpsBtn.setLabel(`${fps.cap} FPS`);
-    }, FS.h3, { repeat: true });
-    fpsBtn.container.setName('fpsCap');
-    layer.add(fpsBtn.container);
-    y += 70;
-    layer.add(text(this, cx, y, '30 — меньше нагрев и расход батареи', FS.small, C.muted));
-
-    // «Уменьшить анимацию»: без полёта наград, отсчёта чисел, пульса и «выезда» списков (juice.ts).
-    y += 90;
-    layer.add(text(this, cx - bw / 2, y, 'Уменьшить анимацию', FS.h3, C.text, OUTLINE).setOrigin(0, 0.5));
-    const motionBtn = button(this, cx + bw / 2 - 110, y, 220, TOUCH, 'ui_btn_secondary', motion.reduced ? 'Вкл' : 'Выкл', () => {
-      setReducedMotion(!motion.reduced);
-      motionBtn.setLabel(motion.reduced ? 'Вкл' : 'Выкл');
-    }, FS.h3, { repeat: true });
-    motionBtn.container.setName('reduceMotion');
-    layer.add(motionBtn.container);
-    y += 70;
-    layer.add(text(this, cx, y, 'Без полёта наград, пульса и «выезда» списков', FS.small, C.muted));
-
-    // Звук (issue #26): громкость музыки и звуков шагами по кругу, «Звуки боя» вкл/выкл, «Без звука» — всё молчит (громкости помнятся).
-    const volumeRow = (label: string, name: string, get: () => string, change: () => void) => {
-      y += 100;
-      layer.add(text(this, cx - bw / 2, y, label, FS.h3, C.text, OUTLINE).setOrigin(0, 0.5));
-      const btn = button(this, cx + bw / 2 - 110, y, 220, TOUCH, 'ui_btn_secondary', get(), () => {
+    const area = new ScrollArea(this, SL.bodyTop, SL.bodyBottom);
+    area.content.setName('settingsContent');
+    // Input listeners are scene-wide: the confirmation shade alone cannot stop wheel/drag scrolling.
+    let confirmation: Phaser.GameObjects.GameObject | null = null;
+    const syncLock = () => {
+      confirmation = this.children.getByName('confirmModal') ?? confirmation;
+      area.locked = !!confirmation?.scene;
+    };
+    this.events.on(Phaser.Scenes.Events.PRE_UPDATE, syncLock);
+    layer.once(Phaser.GameObjects.Events.DESTROY, () => this.events.off(Phaser.Scenes.Events.PRE_UPDATE, syncLock));
+    const tap = (fn: () => void) => area.tap(() => { if (!confirmOpen(this)) fn(); });
+    let y = S.xs as number;
+    const row = (label: string, name: string, get: () => string, change: () => void, explanation?: string, toggleSound = false) => {
+      const labelText = text(this, cx - bw / 2, 0, label, T.body, C.text, {
+        ...OUTLINE, align: 'left', wordWrap: { width: bw - SL.valueW - S.s, useAdvancedWrap: true },
+      }).setOrigin(0, 0.5);
+      const detail = explanation ? text(this, cx - bw / 2, 0, explanation, T.body, C.muted, {
+        align: 'left', wordWrap: { width: bw, useAdvancedWrap: true },
+      }).setOrigin(0, 0) : null;
+      const layout = settingsRowLayout(labelText.height, detail?.height);
+      labelText.setY(y + layout.centerY);
+      area.add(labelText);
+      const btn = button(this, cx + bw / 2 - SL.valueW / 2, y + layout.centerY, SL.valueW, SL.hitH, 'ui_btn_secondary', get(), tap(() => {
         change();
         btn.setLabel(get());
-        sfx('ui_toggle');
-      }, FS.h3, { repeat: true, sound: null });
+        if (toggleSound) sfx('ui_toggle');
+      }), T.body, { repeat: true, ...(toggleSound ? { sound: null } : {}) });
       btn.container.setName(name);
-      layer.add(btn.container);
+      area.add(btn.container);
+      if (detail) area.add(detail.setY(y + layout.explanationY));
+      y += layout.height;
     };
-    // «Своя музыка»: игрок слушает Spotify / Яндекс Музыку — музыка игры не играет и не забирает у них звук (audio.ts).
+    row('Скорость боя', 'battleSpeed', () => `${playback.speed}x`, () => setPlaybackSpeed(nextPlaybackSpeed()),
+      'Запоминается; меняется и прямо в бою');
+    row('Частота кадров', 'fpsCap', () => `${fps.cap} FPS`, () => {
+      setFpsCap(nextFpsCap());
+      lifecycle()?.setFpsCap(fps.cap);
+    }, '30 — меньше нагрев и расход батареи');
+    row('Уменьшить анимацию', 'reduceMotion', () => motion.reduced ? 'Вкл' : 'Выкл', () => setReducedMotion(!motion.reduced),
+      'Без полёта наград, пульса и «выезда» списков');
+
+    const volumeRow = (label: string, name: string, get: () => string, change: () => void) => row(label, name, get, change, undefined, true);
     volumeRow('Своя музыка', 'ownMusic', () => ownMusicLabel(audioSettings), () => {
       setAudioSettings({ ownMusic: !audioSettings.ownMusic, ownMusicHint: true });
       toast(this, ownMusicToast(audioSettings), undefined, 3000);
     });
     volumeRow('Музыка', 'musicVolume', () => volumeLabel(audioSettings.music), () => setAudioSettings({ music: nextVolume(audioSettings.music) }));
     volumeRow('Звуки', 'sfxVolume', () => volumeLabel(audioSettings.sfx), () => setAudioSettings({ sfx: nextVolume(audioSettings.sfx) }));
-    // Та же настройка, что значок динамика в верхней панели боя: удары, навыки и смерти (музыка и интерфейс звучат).
     volumeRow('Звуки боя', 'battleSfx', () => battleSfxLabel(audioSettings), () => setAudioSettings({ battleSfx: !audioSettings.battleSfx }));
     volumeRow('Без звука', 'muteAll', () => (audioSettings.muted ? 'Вкл' : 'Выкл'), () => setAudioSettings({ muted: !audioSettings.muted }));
-    // Вибрация (Telegram HapticFeedback, на Android вне Telegram — vibrate; haptics.ts).
     volumeRow('Вибрация', 'haptics', () => (hapticSettings.on ? 'Вкл' : 'Выкл'), () => setHapticsOn(!hapticSettings.on));
 
-    y += 110;
-    // T3-24/T5-26: тестовый бой — инструмент разработчика (dev-сборка или ?dev=1 в адресе), игроку не показываем.
-    if (devTools()) {
-      layer.add(button(this, cx, y, bw, 110, 'k:buttonLong_beige', 'Тестовый бой', () => this.scene.start('Prep'), FS.h2).container);
-      y += 140;
-    }
-    // Коды (data/codes.json): алмазы, часы вперёд — вместо кнопок тестировщика «+300 гемов» / «+12 ч». В ряд со сбросом
-    // подсказок: окно и так во весь экран 9:16.
-    const half = (bw - S.s) / 2;
-    const codesBtn = button(this, cx - (half + S.s) / 2, y, half, 110, 'k:buttonLong_beige', 'Коды', () => {
+    const action = (label: string, name: string, fn: () => void, danger = false) => {
+      const by = y + SL.hitH / 2;
+      const btn = danger
+        ? dangerButton(this, cx, by, bw, SL.hitH, label, tap(fn), T.body)
+        : button(this, cx, by, bw, SL.hitH, 'ui_btn_secondary', label, tap(fn), T.body);
+      btn.container.setName(name);
+      area.add(btn.container);
+      y += SL.hitH + SL.rowGap;
+    };
+    if (devTools()) action('Тестовый бой', 'testBattle', () => this.scene.start('Prep'));
+    action('Коды', 'codesBtn', () => {
       close();
       openCodes(this, () => this.scene.restart());
-    }, FS.h2);
-    codesBtn.container.setName('codesBtn');
-    layer.add(codesBtn.container);
-    layer.add(
-      button(this, cx + (half + S.s) / 2, y, half, 110, 'k:buttonLong_beige', 'Сброс подсказок', () => {
-        resetHints();
-        this.scene.restart();
-        this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, 'Подсказки покажутся снова'));
-      }, FS.h3).container,
-    );
-    y += 140;
-    layer.add(
-      dangerButton(this, cx, y, bw, 110, 'Начать заново', () =>
-        confirm(this, 'Весь прогресс будет удалён: герои, этапы, золото и предметы. Настройки звука, вибрации и скорости боя останутся. Начать игру с самого начала?', 'Удалить', () =>
-          confirm(this, 'Точно? Отменить будет нельзя.', 'Да, заново', () => {
-            // Чистое сохранение, сдвиг часов тестировщика и ключи прогресса — в ноль (настройки звука, вибрации и скорости остаются); перезагрузка → вступление главы 1.
-            startOver();
-          }, { danger: true }),
-        { danger: true }),
-      FS.h2).container,
-    );
-    y += 130;
-    layer.add(text(this, cx, y, devTools() ? `Версия ${version} · сборка ${import.meta.env.MODE}` : `Chronoworld · версия ${version}`, FS.small, C.dim));
-    y += 120;
-    layer.add(button(this, cx, y, 460, 120, 'ui_btn_primary', 'Закрыть', close, FS.h2).container);
-    // Окно — по содержимому (без тестового боя оно ниже).
-    const boxTop = cy - 620;
-    const boxH = y + 100 - boxTop;
-    box.setSize(880, boxH);
-    box.input?.hitArea.setSize(880, boxH);
-    const shift = (1240 - boxH) / 2;
-    for (const o of layer.list) if (o !== shade && o !== box) (o as unknown as Phaser.GameObjects.Components.Transform).y += shift;
-    box.setY(cy);
+    });
+    action('Сброс подсказок', 'resetHints', () => {
+      resetHints();
+      this.scene.restart();
+      this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, 'Подсказки покажутся снова'));
+    });
+    action('Начать заново', 'resetProgress', () => {
+      area.locked = true;
+      confirm(this, 'Весь прогресс будет удалён: герои, этапы, золото и предметы. Настройки звука, вибрации и скорости боя останутся. Начать игру с самого начала?', 'Удалить', () =>
+        confirm(this, 'Точно? Отменить будет нельзя.', 'Да, заново', () => {
+          // Reset only progress; audio, haptics and speed preferences survive.
+          startOver();
+        }, { danger: true }),
+      { danger: true });
+      syncLock();
+    }, true);
+    area.setContentHeight(y);
+    layer.add(text(this, cx, SL.hintY, 'Листайте ↕', T.caption, C.muted));
+    layer.add(text(this, cx, SL.versionY, devTools() ? `Версия ${version} · сборка ${import.meta.env.MODE}` : `Chronoworld · версия ${version}`, T.caption, C.dim));
+    const closeBtn = button(this, cx, SL.closeY, 460, SL.hitH, 'ui_btn_primary', 'Закрыть', close, T.body);
+    closeBtn.container.setName('settingsClose');
+    layer.add(closeBtn.container);
     popIn(this, layer, shade);
+    // After popIn: keep mask, content and scroll bounds in world coordinates.
+    layer.add(area.parts);
   }
 }

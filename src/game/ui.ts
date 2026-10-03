@@ -517,7 +517,8 @@ export class ScrollArea {
     // списка получают проверку попадания «указатель внутри полосы» — вне полосы их для ввода как будто нет.
     const guard = () => this.guardInput(this.content);
     scene.events.on(Phaser.Scenes.Events.PRE_UPDATE, guard);
-    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard));
+    const shutdown = () => scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, shutdown);
     // Список в модальном окне закрывается раньше сцены — снять обработчики вместе с содержимым.
     this.content.once(Phaser.GameObjects.Events.DESTROY, () => {
       scene.input.off('pointerdown', down);
@@ -525,6 +526,7 @@ export class ScrollArea {
       scene.input.off('pointerup', up);
       scene.input.off('wheel', wheel);
       scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard);
+      scene.events.off(Phaser.Scenes.Events.SHUTDOWN, shutdown);
       if (this.thumb.scene) this.thumb.destroy();
     });
   }
