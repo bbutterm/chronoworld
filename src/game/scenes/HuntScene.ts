@@ -8,7 +8,7 @@ import { formatNumber, heroSprite, RARITY_COLORS, RARITY_NAMES } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { bottomSheet, CONTENT_TOP, contentBottom, cta, popIn, portrait, screen, unitFigure, unitTint } from '../screen';
 import { cardArtId, showCardArt } from '../cardArt';
-import { commit, session, today } from '../session';
+import { commit, restartOnNewDay, session, today } from '../session';
 import { BTN, button, chip, ellipsize, infoButton, plate, progressBar, rewardRow, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
 import { ctaShine, glow, ribbon, slowRays } from '../decor';
 import { skinIcon } from '../skin';
@@ -138,6 +138,9 @@ export class HuntScene extends Phaser.Scene {
   }
 
   create(data: HuntSceneData = {}): void {
+    // Итог попытки одноразовый: Phaser сохраняет старые данные при входе без data.
+    this.sys.settings.data = {};
+    restartOnNewDay(this);
     screen(this, 'Охота на MVP', 'Adventure', { to: 'Adventure' });
     const st = huntStatus(session.save, today(), GAME);
     if (!st.unlocked) {
