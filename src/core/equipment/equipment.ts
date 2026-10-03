@@ -42,17 +42,21 @@ export function equipmentStats(items: readonly ItemDef[]): StatBonus {
   return sum;
 }
 
+/** Статы экземпляра для конкретного получателя: заточка + карта от базы героя без экипировки. */
+export function heroItemStats(hero: HeroState | undefined, def: ItemDef, instance: ItemInstance, ctx: EquipmentContext & CardsLookup): StatBonus {
+  const stats = refinedStats(def, refineLevel(instance), ctx);
+  const card = hero ? heroCardStats(hero, [instance], ctx) : { hp: 0, atk: 0, def: 0, spd: 0 };
+  return { hp: (stats.hp ?? 0) + card.hp, atk: (stats.atk ?? 0) + card.atk, def: (stats.def ?? 0) + card.def, spd: (stats.spd ?? 0) + card.spd };
+}
+
 /**
  * Прибавка экипировки героя с заточкой и вставленными картами MVP (cards.ts; неизвестные контенту предметы в сохранении
  * не считаются).
  */
 export function heroGearStats(save: SaveState, heroId: string, ctx: EquipmentContext & CardsLookup): StatBonus {
   const slots = Object.values(heroSlots(save, heroId, ctx));
-  const sum = equipmentStats(slots.map((s) => ({ ...s.def, stats: refinedStats(s.def, refineLevel(s.instance), ctx) })));
   const hero = save.heroes.find((h) => h.id === heroId);
-  if (!hero || !slots.some((s) => s.instance.card)) return sum;
-  const c = heroCardStats(hero, slots.map((s) => s.instance), ctx);
-  return { hp: sum.hp + c.hp, atk: sum.atk + c.atk, def: sum.def + c.def, spd: sum.spd + c.spd };
+  return equipmentStats(slots.map((s) => ({ ...s.def, stats: heroItemStats(hero, s.def, s.instance, ctx) })));
 }
 
 /**

@@ -1061,6 +1061,8 @@ export interface ListRowSpec {
   title: string;
   /** Вторая строка (вторичный текст, одна строка, многоточие). */
   subtitle?: string;
+  /** Полноширинный переносимый текст под заголовком/иконкой/действием (для сравнений снаряжения). */
+  subtitleFullWidth?: boolean;
   /** Справа: строка (жирная, цвет trailingTone) или объект (кнопка, чип, тег — по его width). */
   trailing?: string | Placed;
   trailingTone?: Tone;
@@ -1080,19 +1082,20 @@ export interface ListRowSpec {
  * Нажатие — pressable() по подложке (затемнение), если задан onTap.
  */
 export function listRow(scene: Phaser.Scene, x: number, y: number, w: number, spec: ListRowSpec): Phaser.GameObjects.Container {
-  const h = spec.h ?? (spec.subtitle ? 136 : 112);
+  const h = spec.h ?? (spec.subtitleFullWidth ? 256 : spec.subtitle ? 136 : 112);
   const c = scene.add.container(x, y).setSize(w, h);
   const bg = plate(scene, 0, 0, w, h, { ...(spec.raised ? SURFACE.raised : SURFACE.surface), r: R.m });
   c.add(bg);
+  const headerY = spec.subtitleFullWidth ? -h / 2 + 64 : 0;
   let left = -w / 2 + S.s;
   const box = Math.min(h - 2 * S.xs, 104);
   if (spec.icon) {
     const ix = left + box / 2;
-    c.add(plate(scene, ix, 0, box, box, { ...SURFACE.sunken, r: R.s }));
+    c.add(plate(scene, ix, headerY, box, box, { ...SURFACE.sunken, r: R.s }));
     const ic =
       typeof spec.icon === 'object' && spec.icon !== null
-        ? (spec.icon as Placed).setPosition(ix, 0)
-        : iconOf(scene, ix, 0, spec.icon as IconSpec, Math.round(box * 0.7), COLOR.textSecondary);
+        ? (spec.icon as Placed).setPosition(ix, headerY)
+        : iconOf(scene, ix, headerY, spec.icon as IconSpec, Math.round(box * 0.7), COLOR.textSecondary);
     if (ic) {
       if (spec.dim && 'setAlpha' in ic) (ic as unknown as Phaser.GameObjects.Image).setAlpha(0.5);
       c.add(ic);
@@ -1103,24 +1106,26 @@ export function listRow(scene: Phaser.Scene, x: number, y: number, w: number, sp
   if (spec.trailing !== undefined) {
     if (typeof spec.trailing === 'string') {
       const tone = spec.trailingTone ?? 'neutral';
-      const tt = text(scene, right, 0, spec.trailing, T.body, tone === 'neutral' ? COLOR.textPrimary : TONE_COLOR[tone], { fontStyle: 'bold' }).setOrigin(1, 0.5);
+      const tt = text(scene, right, headerY, spec.trailing, T.body, tone === 'neutral' ? COLOR.textPrimary : TONE_COLOR[tone], { fontStyle: 'bold' }).setOrigin(1, 0.5);
       c.add(tt);
       right -= tt.width + S.s;
     } else {
       const o = spec.trailing;
       const ow = ((o as unknown as { width?: number }).width ?? 0) * Math.abs(o.scaleX || 1);
-      o.setPosition(right - ow / 2, 0);
+      o.setPosition(right - ow / 2, headerY);
       c.add(o);
       right -= ow + S.s;
     }
   }
   const maxW = Math.max(60, right - left);
-  const title = text(scene, left, spec.subtitle ? -T.caption * 0.62 : 0, spec.title, T.body, spec.dim ? COLOR.textTertiary : COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+  const title = text(scene, left, spec.subtitleFullWidth ? headerY : spec.subtitle ? -T.caption * 0.62 : 0, spec.title, T.body, spec.dim ? COLOR.textTertiary : COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5);
   ellipsize(title, maxW);
   c.add(title);
   if (spec.subtitle) {
-    const sub = text(scene, left, T.body * 0.62, spec.subtitle, T.caption, spec.dim ? COLOR.textTertiary : COLOR.textSecondary).setOrigin(0, 0.5);
-    ellipsize(sub, maxW);
+    const sub = spec.subtitleFullWidth
+      ? text(scene, -w / 2 + S.s, headerY + 64, spec.subtitle, T.caption, spec.dim ? COLOR.textTertiary : COLOR.textSecondary, { align: 'left', wordWrap: { width: w - 2 * S.s }, lineSpacing: 0 }).setOrigin(0, 0)
+      : text(scene, left, T.body * 0.62, spec.subtitle, T.caption, spec.dim ? COLOR.textTertiary : COLOR.textSecondary).setOrigin(0, 0.5);
+    if (!spec.subtitleFullWidth) ellipsize(sub, maxW);
     c.add(sub);
   }
   if (spec.onTap) pressable(scene, bg, w, h, spec.onTap);

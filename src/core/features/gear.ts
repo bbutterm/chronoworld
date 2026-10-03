@@ -1,8 +1,8 @@
-import { canEquip } from '../equipment/equipment';
+import { canEquip, heroItemStats } from '../equipment/equipment';
 import type { EquipmentContext } from '../equipment/load';
-import { refinedStats, refineLevel } from '../equipment/refine';
+import type { CardsLookup } from '../equipment/cards';
 import { RARITIES, SLOTS, type ItemDef, type Slot } from '../equipment/schema';
-import type { SaveState } from '../save/schema';
+import type { ItemInstance, SaveState } from '../save/schema';
 import { actEquip } from './actions';
 import type { FeatureContext, PowerConfig } from './config';
 
@@ -29,7 +29,7 @@ export interface GearUpgrade {
   gain: number;
 }
 
-export type GearContext = FeatureContext & EquipmentContext;
+export type GearContext = FeatureContext & EquipmentContext & CardsLookup;
 
 /**
  * Лучший свободный предмет для каждого слота героя, если он лучше надетого (по одному на слот, по порядку SLOTS).
@@ -43,8 +43,8 @@ export function gearUpgrades(save: SaveState, heroId: string, ctx: GearContext):
   for (const slot of SLOTS) {
     const worn = save.inventory.items.find((i) => i.equippedBy === heroId && ctx.equipment.items[i.itemId]?.slot === slot);
     const wornDef = worn ? ctx.equipment.items[worn.itemId] : undefined;
-    // Заточка считается: +10 обычный меч может быть лучше голого эпика.
-    const score = (def: ItemDef, i: { refine?: number }) => itemScore({ stats: refinedStats(def, refineLevel(i), ctx) }, k);
+    // Учитываем заточку и карту именно для этого героя.
+    const score = (def: ItemDef, i: ItemInstance) => itemScore({ stats: heroItemStats(hero, def, i, ctx) }, k);
     const base = wornDef && worn ? score(wornDef, worn) : 0;
     let best: { id: string; itemId: string; score: number; rarity: number } | null = null;
     for (const i of save.inventory.items) {

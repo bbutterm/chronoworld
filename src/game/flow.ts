@@ -13,6 +13,8 @@ import {
   heroesWithGearUpgrades,
   groupDigits,
   heroPower,
+  itemScore,
+  type PowerConfig,
   needsBranch,
   pendingPicks,
   heroGender,
@@ -600,6 +602,17 @@ export function statDiff(current: ItemStats | undefined, candidate: ItemStats): 
 export function diffText(diff: { stat: string; delta: number }[]): string {
   if (!diff.length) return 'без изменений';
   return diff.map((d) => `${d.delta > 0 ? '+' : '−'}${Math.abs(d.delta)} ${d.stat}`).join('  ');
+}
+
+/** Веса мощи совпадают с «Надеть лучшее»; смешанные изменения статов не красим как однозначный выигрыш. */
+export function equipmentComparison(current: ItemStats | undefined, candidate: ItemStats, power: PowerConfig): { text: string; tone: 'positive' | 'negative' | 'neutral'; gain: number } {
+  const diff = statDiff(current, candidate);
+  const gain = itemScore({ stats: candidate }, power) - itemScore({ stats: current ?? {} }, power);
+  const up = diff.some((d) => d.delta > 0);
+  const down = diff.some((d) => d.delta < 0);
+  const tone = gain > 0 && up && !down ? 'positive' : gain < 0 && down && !up ? 'negative' : 'neutral';
+  const powerText = `${gain > 0 ? '+' : gain < 0 ? '−' : ''}${decimal(Number(Math.abs(gain).toFixed(2)))} мощь`;
+  return { text: `${powerText} · ${diffText(diff)}`, tone, gain };
 }
 
 export interface InventoryRow {
