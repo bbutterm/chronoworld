@@ -295,7 +295,7 @@ function shadeRect(scene: Phaser.Scene): Phaser.GameObjects.Rectangle {
 
 /**
  * Окно-сообщение: заголовок, абзацы, «Понятно» (и кнопка перехода). Возвращает слой (name `noticeModal`).
- * lead — итог крупно над абзацами (виден всегда). Длинный текст не обрезается: абзацы прокручиваются пальцем
+ * lead — короткий итог закреплён над абзацами; длинный прокручивается вместе с ними. Текст не обрезается: прокрутка пальцем
  * и колёсиком в своей полосе (BUG-184: рассказ «Забрать всё» на 12 событий), справа — полоса прокрутки.
  */
 export function noticeModal(
@@ -309,34 +309,47 @@ export function noticeModal(
   const shade = shadeRect(scene);
   const w = 940;
   const leadText = lead
-    ? text(scene, 0, 0, lead, FS.h3, C.gold, { align: 'center', wordWrap: { width: w - 120 }, lineSpacing: 6, fontStyle: 'bold', stroke: C.stroke, strokeThickness: 3 }).setOrigin(0.5, 0)
+    ? text(scene, 0, 0, lead, T.body, C.gold, { align: 'center', wordWrap: { width: w - 120 }, lineSpacing: 6, fontStyle: 'bold', stroke: C.stroke, strokeThickness: 3 }).setOrigin(0.5, 0)
     : null;
   const leadH = leadText ? leadText.height + 30 : 0;
-  const body = text(scene, 0, 0, paragraphs.join('\n\n'), FS.body, C.text, { align: 'left', wordWrap: { width: w - 120 }, lineSpacing: 8 }).setOrigin(0.5, 0);
-  const maxBody = GAME_H - 700 - leadH;
-  const scroll = body.height > maxBody;
-  if (scroll) body.setFontSize(FS.small);
-  const bodyH = Math.min(body.height, maxBody);
-  const h = Math.min(GAME_H - 300, bodyH + leadH + 360);
+  const body = text(scene, 0, 0, paragraphs.join('\n\n'), T.body, C.text, { align: 'left', wordWrap: { width: w - 120 }, lineSpacing: 8 }).setOrigin(0.5, 0);
+  const maxContent = GAME_H - 700;
+  // Большая добыча тоже бывает длинным списком: не отнимаем у рассказа всю видимую полосу.
+  const scrollLead = leadH > maxContent / 3;
+  const fixedLeadH = scrollLead ? 0 : leadH;
+  const flowLeadH = scrollLead ? leadH : 0;
+  const contentH = flowLeadH + body.height;
+  const maxBody = maxContent - fixedLeadH;
+  const scroll = contentH > maxBody;
+  const bodyH = Math.min(contentH, maxBody);
+  const h = Math.min(GAME_H - 300, bodyH + fixedLeadH + 360);
   const top = GAME_H / 2 - h / 2;
   const box = panel(scene, GAME_W / 2, GAME_H / 2, w, h, 'ui_panel').setInteractive();
   const head = text(scene, GAME_W / 2, top + 80, title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
   head.setShadow(0, 3, 'rgba(0,0,0,0.7)', 6, false, true);
   layer.add([shade, box, head]);
-  if (leadText) {
+  if (leadText && !scrollLead) {
     leadText.setPosition(GAME_W / 2, top + 140);
     layer.add(leadText);
   }
-  const bodyTop = top + 150 + leadH;
+  const bodyTop = top + 150 + fixedLeadH;
   let area: ScrollArea | null = null;
   if (scroll) {
-    area = new ScrollArea(scene, bodyTop, bodyTop + bodyH);
-    body.setPosition(GAME_W / 2, 0);
+    area = new ScrollArea(scene, bodyTop, bodyTop + bodyH, { left: (GAME_W - w) / 2 + 24, right: (GAME_W + w) / 2 - 24 });
+    if (leadText && scrollLead) {
+      leadText.setPosition(GAME_W / 2, 0);
+      area.add(leadText);
+    }
+    body.setPosition(GAME_W / 2, flowLeadH);
     area.add(body);
-    area.setContentHeight(body.height + 24);
-    layer.add(text(scene, GAME_W / 2, bodyTop + bodyH + 22, 'листайте ↕', FS.caption, C.muted));
+    area.setContentHeight(contentH + 24);
+    layer.add(text(scene, GAME_W / 2, bodyTop + bodyH + 22, 'листайте ↕', T.caption, C.muted));
   } else {
-    body.setPosition(GAME_W / 2, bodyTop);
+    if (leadText && scrollLead) {
+      leadText.setPosition(GAME_W / 2, bodyTop);
+      layer.add(leadText);
+    }
+    body.setPosition(GAME_W / 2, bodyTop + flowLeadH);
     layer.add(body);
   }
   const close = () => layer.destroy();

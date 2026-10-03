@@ -148,6 +148,37 @@ async function main() {
       if (!pos) throw new Error(`В сцене ${sceneKey} нет объекта «${name}»`);
       await clickGame(pos[0], pos[1]);
     };
+    /** Reveal a named settings control with real wheel input, then click its measured center. */
+    const clickSetting = async (name) => {
+      let previousY = null;
+      for (let step = 0; step < 30; step++) {
+        const target = await page.evaluate((name) => {
+          const layer = window.__game.scene.getScene('Home').children.getByName('settingsModal');
+          const all = (list) => list.flatMap((o) => o.list ? [o, ...all(o.list)] : [o]);
+          const nodes = all(layer?.list ?? []);
+          const content = nodes.find((o) => o.name === 'settingsContent');
+          const control = nodes.find((o) => o.name === name);
+          if (!content || !control) return null;
+          const bounds = control.getBounds();
+          const [top, bottom] = content.getData('clip');
+          return { x: bounds.centerX, y: bounds.centerY, top, bottom,
+            visible: bounds.top >= top && bounds.bottom <= bottom,
+            direction: bounds.top < top ? -1 : 1 };
+        }, name);
+        if (!target) throw new Error(`В настройках нет «${name}»`);
+        if (target.visible) { await clickGame(target.x, target.y); return; }
+        if (previousY === target.y) throw new Error(`Прокрутка не открыла настройку «${name}»`);
+        previousY = target.y;
+        const box = await page.locator('canvas').boundingBox();
+        const v = (await page.evaluate(() => window.__view?.())) ?? { worldX: 0, worldY: 0, worldW: GAME_W };
+        const scale = box.width / v.worldW;
+        await page.mouse.move(box.x + (GAME_W / 2 - v.worldX) * scale,
+          box.y + ((target.top + target.bottom) / 2 - v.worldY) * scale);
+        await page.mouse.wheel(0, target.direction * 300);
+        await sleep(120);
+      }
+      throw new Error(`Не удалось показать настройку «${name}»`);
+    };
     /** Есть ли в сцене видимый текст, начинающийся с prefix (во вложенных контейнерах тоже). */
     /**
      * «Пропустить» боя — только пока активна сцена Battle. Проверка и нажатие — одним вызовом в странице (кнопка вызывает
@@ -477,14 +508,14 @@ async function main() {
     if (!(await hasText('Home', 'Начать заново'))) problems.push('в настройках нет «Начать заново»');
     await shot('settings');
     // U: ограничение FPS — 30 запоминается и включает ограничитель цикла Phaser; возвращаем 60.
-    await clickText('Home', '60 FPS');
+    await clickSetting('fpsCap');
     await sleep(150);
     const cap = await page.evaluate(() => ({ saved: localStorage.getItem('chronoworld.fpsCap'), limit: window.__game.loop.hasFpsLimit }));
     if (cap.saved !== '30' || !cap.limit) problems.push(`30 FPS не включился: ${JSON.stringify(cap)}`);
-    await clickText('Home', '30 FPS');
+    await clickSetting('fpsCap');
     await sleep(150);
     if (await page.evaluate(() => window.__game.loop.hasFpsLimit)) problems.push('60 FPS: ограничитель не снялся');
-    await clickText('Home', 'Тестовый бой');
+    await clickSetting('testBattle');
     await waitScene('Prep');
     // Тестовый бой (отряды из data/phase0.json, seed 7) — там бой длинный: ждём баннер ульты для скриншота.
     await page.evaluate(() => window.__game.scene.getScene('Prep').scene.start('Battle', { mode: 'test', seed: 7 }));
@@ -576,7 +607,7 @@ async function main() {
     await clickNamed('Home', 'settings');
     // Окно настроек появляется с анимацией popIn (M.base 220 мс, масштаб 0.92 → 1) — ждём, пока встанет на место.
     await sleep(450);
-    await clickText('Home', '1x');
+    await clickSetting('battleSpeed');
     await sleep(150);
     const speed2 = await page.evaluate(() => localStorage.getItem('chronoworld.battleSpeed'));
     if (speed2 !== '2') problems.push(`скорость ×2 не запомнилась после открытия: ${speed2}`);
@@ -725,10 +756,22 @@ async function main() {
     await waitScene('Home');
     await clickNamed('Home', 'settings');
     await sleep(450);
-    await clickText('Home', 'Начать заново');
+    await clickSetting('resetProgress');
     await sleep(300);
     await shot('start-over-confirm');
     if (!(await hasText('Home', 'Весь прогресс будет удалён'))) problems.push('«Начать заново»: нет первого подтверждения');
+    const beforeCancel = await page.evaluate(() => localStorage.getItem('chronoworld.save.v1'));
+    const scrollBeforeCancel = await page.evaluate(() => window.__game.scene.getScene('Home').children.getByName('settingsModal').getByName('settingsContent').y);
+    await page.mouse.wheel(0, 300);
+    await sleep(120);
+    const scrollDuringConfirm = await page.evaluate(() => window.__game.scene.getScene('Home').children.getByName('settingsModal').getByName('settingsContent').y);
+    if (scrollDuringConfirm !== scrollBeforeCancel) problems.push('настройки прокрутились под подтверждением');
+    await clickText('Home', 'Отмена');
+    await sleep(600);
+    if (await hasText('Home', 'Весь прогресс будет удалён')) problems.push('отмена сброса не закрыла подтверждение');
+    if (await page.evaluate(() => localStorage.getItem('chronoworld.save.v1')) !== beforeCancel) problems.push('отмена сброса изменила сохранение');
+    await clickSetting('resetProgress');
+    await sleep(300);
     await clickText('Home', 'Удалить');
     await sleep(300);
     if (!(await hasText('Home', 'Точно?'))) problems.push('«Начать заново»: нет второго подтверждения');
