@@ -3253,5 +3253,45 @@
   "sha1": "12f3cf667e76c8d0a873e2cbb297eeb8a7ea0052",
   "png": 123953,
   "webp": 29720
+ },
+ "sprites/heroes/hero_kai_magician_details_v2.png": {
+  "sha1": "01ff6e47f141eb7eb331f0456191243560b8ae42",
+  "png": 146924,
+  "webp": 37014
+ },
+ "sprites/portraits/hero_kai_magician_details_v2.png": {
+  "sha1": "2385e9e8350ecbbb2b52cc5a2e21335361445d72",
+  "png": 5481,
+  "webp": 1880
+ },
+ "sprites/heroes/hero_bran_first_profession_detail_v1.png": {
+  "sha1": "dade2dcdecc72733b1bd11e9ff6a7928549e4d11",
+  "png": 143408,
+  "webp": 36838
+ },
+ "sprites/portraits/hero_bran_first_profession_detail_v1.png": {
+  "sha1": "c1dbe62d9ec3b056ef0f7d664fbe668648420d42",
+  "png": 6324,
+  "webp": 2270
+ },
+ "sprites/heroes/hero_greta_merchant_detail_v2.png": {
+  "sha1": "45ab8ecd918d5b3b6aab8a053fe45f83129df6a6",
+  "png": 133146,
+  "webp": 38056
+ },
+ "sprites/portraits/hero_greta_merchant_detail_v2.png": {
+  "sha1": "3c143157792a8b60fce34140f08985e911c3a9b4",
+  "png": 6046,
+  "webp": 2480
+ },
+ "sprites/heroes/hero_alan_first_profession_detail_v1.png": {
+  "sha1": "d1e752518d9fc2678afe58139446f059c8f9dde7",
+  "png": 148885,
+  "webp": 35520
+ },
+ "sprites/portraits/hero_alan_first_profession_detail_v1.png": {
+  "sha1": "75b0bf074eb37e5cd9b23089c528fcae4af8b773",
+  "png": 6561,
+  "webp": 2380
  }
 }

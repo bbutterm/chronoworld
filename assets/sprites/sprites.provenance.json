@@ -45332,6 +45332,1142 @@
      "reason": "frame exceeds cell at x1"
     }
    }
+  },
+  "hero_kai_magician_details_v2": {
+   "source": {
+    "gender": "male",
+    "renderer": "QA-approved current detail atlas, copied byte-for-byte",
+    "sheetSha256": "4d6cbe76cbf98f91dfc7b653bbd0b064224fa3684e71a47b1caa31b9a92c0f8e",
+    "sourceSpriteId": "magician_m",
+    "heroId": "kai",
+    "stage": "first"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -18,
+      -80,
+      26,
+      11
+     ],
+     [
+      -18,
+      -82,
+      26,
+      11
+     ],
+     [
+      -16,
+      -82,
+      26,
+      10
+     ],
+     [
+      -18,
+      -80,
+      26,
+      11
+     ]
+    ],
+    "walk": [
+     [
+      -16,
+      -79,
+      22,
+      12
+     ],
+     [
+      -17,
+      -78,
+      23,
+      12
+     ],
+     [
+      -20,
+      -76,
+      25,
+      13
+     ],
+     [
+      -17,
+      -77,
+      24,
+      12
+     ],
+     [
+      -14,
+      -79,
+      24,
+      12
+     ],
+     [
+      -13,
+      -78,
+      18,
+      12
+     ],
+     [
+      -17,
+      -76,
+      22,
+      12
+     ],
+     [
+      -15,
+      -77,
+      19,
+      12
+     ]
+    ],
+    "attack": [
+     [
+      -17,
+      -97,
+      24,
+      11
+     ],
+     [
+      -19,
+      -99,
+      24,
+      7
+     ],
+     [
+      -19,
+      -99,
+      24,
+      7
+     ],
+     [
+      -15,
+      -64,
+      51,
+      11
+     ],
+     [
+      -11,
+      -62,
+      50,
+      14
+     ],
+     [
+      -12,
+      -61,
+      49,
+      14
+     ]
+    ],
+    "cast": [
+     [
+      -15,
+      -80,
+      26,
+      10
+     ],
+     [
+      -14,
+      -79,
+      27,
+      10
+     ],
+     [
+      -13,
+      -79,
+      28,
+      10
+     ],
+     [
+      -15,
+      -78,
+      26,
+      11
+     ],
+     [
+      -18,
+      -75,
+      40,
+      11
+     ],
+     [
+      -17,
+      -72,
+      33,
+      12
+     ]
+    ],
+    "hurt": [
+     [
+      -20,
+      -68,
+      21,
+      10
+     ],
+     [
+      -25,
+      -70,
+      20,
+      7
+     ],
+     [
+      -20,
+      -68,
+      21,
+      10
+     ]
+    ],
+    "death": [
+     [
+      -40,
+      -39,
+      26,
+      12
+     ],
+     [
+      -40,
+      -39,
+      26,
+      12
+     ],
+     [
+      -40,
+      -39,
+      26,
+      12
+     ],
+     [
+      -40,
+      -39,
+      26,
+      12
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     1,
+     2,
+     3
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 4,
+    "walk": 8,
+    "attack": 6,
+    "cast": 6,
+    "hurt": 3,
+    "death": 4
+   },
+   "sourceAlphaValues": [],
+   "portraitSource": {
+    "frame": 0,
+    "crop": [
+     72,
+     56,
+     136,
+     120
+    ],
+    "size": [
+     256,
+     256
+    ],
+    "resample": "nearest",
+    "sha256": "2952b70fa91dafa8bbda4172dc6bdbd64bdcfbd24ef506e0d2d08dd70cd0bb1b"
+   },
+   "integration": {
+    "priorFirstProfessionSprite": null,
+    "genericSourceRetained": true,
+    "promotedFormsUnchanged": true
+   }
+  },
+  "hero_bran_first_profession_detail_v1": {
+   "source": {
+    "gender": "male",
+    "renderer": "QA-approved current detail atlas, copied byte-for-byte",
+    "sheetSha256": "98d3358ec8c09698c72ff31fac25b3b44762790d2f782849d50eaed79b381e09",
+    "sourceSpriteId": "hero_bran_archer",
+    "heroId": "bran",
+    "stage": "first"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -22,
+      -82,
+      29,
+      8
+     ],
+     [
+      -20,
+      -86,
+      30,
+      8
+     ],
+     [
+      -19,
+      -86,
+      31,
+      8
+     ],
+     [
+      -22,
+      -83,
+      31,
+      8
+     ]
+    ],
+    "walk": [
+     [
+      -11,
+      -83,
+      15,
+      10
+     ],
+     [
+      -11,
+      -82,
+      23,
+      11
+     ],
+     [
+      -18,
+      -80,
+      28,
+      11
+     ],
+     [
+      -15,
+      -81,
+      21,
+      10
+     ],
+     [
+      -11,
+      -83,
+      16,
+      8
+     ],
+     [
+      -11,
+      -82,
+      22,
+      7
+     ],
+     [
+      -18,
+      -80,
+      29,
+      11
+     ],
+     [
+      -15,
+      -81,
+      22,
+      10
+     ]
+    ],
+    "attack": [
+     [
+      -14,
+      -81,
+      42,
+      8
+     ],
+     [
+      -16,
+      -87,
+      31,
+      10
+     ],
+     [
+      -19,
+      -78,
+      31,
+      10
+     ],
+     [
+      -21,
+      -78,
+      28,
+      10
+     ],
+     [
+      -21,
+      -78,
+      28,
+      10
+     ],
+     [
+      -21,
+      -79,
+      25,
+      10
+     ]
+    ],
+    "cast": [
+     [
+      -16,
+      -82,
+      15,
+      7
+     ],
+     [
+      -17,
+      -85,
+      15,
+      7
+     ],
+     [
+      -17,
+      -86,
+      17,
+      7
+     ],
+     [
+      -17,
+      -86,
+      19,
+      7
+     ],
+     [
+      -15,
+      -81,
+      17,
+      6
+     ],
+     [
+      -14,
+      -79,
+      16,
+      7
+     ]
+    ],
+    "hurt": [
+     [
+      -19,
+      -78,
+      15,
+      2
+     ],
+     [
+      -22,
+      -82,
+      14,
+      -2
+     ],
+     [
+      -19,
+      -78,
+      15,
+      2
+     ]
+    ],
+    "death": [
+     [
+      -42,
+      -37,
+      23,
+      11
+     ],
+     [
+      -42,
+      -37,
+      23,
+      11
+     ],
+     [
+      -42,
+      -37,
+      23,
+      11
+     ],
+     [
+      -42,
+      -37,
+      23,
+      11
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     1,
+     2,
+     3
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 4,
+    "walk": 8,
+    "attack": 6,
+    "cast": 6,
+    "hurt": 3,
+    "death": 4
+   },
+   "sourceAlphaValues": [],
+   "portraitSource": {
+    "frame": 0,
+    "crop": [
+     72,
+     56,
+     136,
+     120
+    ],
+    "size": [
+     256,
+     256
+    ],
+    "resample": "nearest",
+    "sha256": "cc6540c9217f445b7e450359f904b34ec2f6b891f9827aa4f70ec081d1776fd7"
+   },
+   "integration": {
+    "priorFirstProfessionSprite": "hero_bran_archer",
+    "genericSourceRetained": true,
+    "promotedFormsUnchanged": true
+   }
+  },
+  "hero_greta_merchant_detail_v2": {
+   "source": {
+    "gender": "female",
+    "renderer": "QA-approved current detail atlas, copied byte-for-byte",
+    "sheetSha256": "7296830bc2e832d303cfcf3464b8814266543f18bf145806c3e72b20558725c5",
+    "sourceSpriteId": "merchant_f",
+    "heroId": "greta",
+    "stage": "first"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -18,
+      -81,
+      33,
+      6
+     ],
+     [
+      -18,
+      -83,
+      28,
+      6
+     ],
+     [
+      -18,
+      -84,
+      24,
+      6
+     ],
+     [
+      -18,
+      -83,
+      21,
+      6
+     ]
+    ],
+    "walk": [
+     [
+      -12,
+      -81,
+      18,
+      3
+     ],
+     [
+      -14,
+      -79,
+      25,
+      3
+     ],
+     [
+      -12,
+      -81,
+      24,
+      2
+     ],
+     [
+      -11,
+      -82,
+      15,
+      1
+     ],
+     [
+      -16,
+      -81,
+      16,
+      1
+     ],
+     [
+      -14,
+      -79,
+      25,
+      3
+     ],
+     [
+      -13,
+      -80,
+      20,
+      3
+     ],
+     [
+      -9,
+      -82,
+      15,
+      3
+     ]
+    ],
+    "attack": [
+     [
+      -17,
+      -81,
+      21,
+      5
+     ],
+     [
+      -34,
+      -83,
+      17,
+      -2
+     ],
+     [
+      -29,
+      -82,
+      24,
+      -1
+     ],
+     [
+      -17,
+      -66,
+      48,
+      5
+     ],
+     [
+      -14,
+      -65,
+      49,
+      5
+     ],
+     [
+      -15,
+      -65,
+      49,
+      5
+     ]
+    ],
+    "cast": [
+     [
+      -15,
+      -80,
+      17,
+      9
+     ],
+     [
+      -18,
+      -81,
+      21,
+      7
+     ],
+     [
+      -18,
+      -79,
+      21,
+      7
+     ],
+     [
+      -18,
+      -78,
+      21,
+      7
+     ],
+     [
+      -18,
+      -79,
+      21,
+      7
+     ],
+     [
+      -18,
+      -79,
+      21,
+      7
+     ]
+    ],
+    "hurt": [
+     [
+      -28,
+      -74,
+      20,
+      10
+     ],
+     [
+      -30,
+      -75,
+      18,
+      7
+     ],
+     [
+      -28,
+      -74,
+      20,
+      10
+     ]
+    ],
+    "death": [
+     [
+      -37,
+      -34,
+      25,
+      15
+     ],
+     [
+      -37,
+      -34,
+      25,
+      15
+     ],
+     [
+      -37,
+      -34,
+      25,
+      15
+     ],
+     [
+      -37,
+      -34,
+      25,
+      15
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     1,
+     2,
+     3
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 4,
+    "walk": 8,
+    "attack": 6,
+    "cast": 6,
+    "hurt": 3,
+    "death": 4
+   },
+   "sourceAlphaValues": [],
+   "portraitSource": {
+    "frame": 0,
+    "crop": [
+     72,
+     56,
+     136,
+     120
+    ],
+    "size": [
+     256,
+     256
+    ],
+    "resample": "nearest",
+    "sha256": "9c69a0d7b41271e5088e76251ec0ebb4a0c8e3970dd80fe65bb6f750baf0f5e1"
+   },
+   "integration": {
+    "priorFirstProfessionSprite": null,
+    "genericSourceRetained": true,
+    "promotedFormsUnchanged": true
+   }
+  },
+  "hero_alan_first_profession_detail_v1": {
+   "source": {
+    "gender": "male",
+    "renderer": "QA-approved current detail atlas, copied byte-for-byte",
+    "sheetSha256": "5fd5feded2d540b849eed613e54b008f86aab1268317f2bb5407a798903d5d26",
+    "sourceSpriteId": "hero_alan_swordman",
+    "heroId": "alan",
+    "stage": "first"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -50,
+      -78,
+      31,
+      6
+     ],
+     [
+      -52,
+      -82,
+      31,
+      6
+     ],
+     [
+      -51,
+      -82,
+      31,
+      6
+     ],
+     [
+      -50,
+      -79,
+      31,
+      5
+     ]
+    ],
+    "walk": [
+     [
+      -9,
+      -80,
+      18,
+      11
+     ],
+     [
+      -10,
+      -79,
+      22,
+      10
+     ],
+     [
+      -16,
+      -77,
+      28,
+      11
+     ],
+     [
+      -14,
+      -78,
+      22,
+      11
+     ],
+     [
+      -9,
+      -80,
+      19,
+      10
+     ],
+     [
+      -10,
+      -79,
+      22,
+      8
+     ],
+     [
+      -15,
+      -77,
+      28,
+      11
+     ],
+     [
+      -14,
+      -78,
+      23,
+      12
+     ]
+    ],
+    "attack": [
+     [
+      -32,
+      -89,
+      15,
+      -7
+     ],
+     [
+      -31,
+      -93,
+      12,
+      -6
+     ],
+     [
+      -31,
+      -93,
+      12,
+      -6
+     ],
+     [
+      -55,
+      -120,
+      50,
+      1
+     ],
+     [
+      -20,
+      -90,
+      47,
+      1
+     ],
+     [
+      -21,
+      -70,
+      48,
+      -1
+     ]
+    ],
+    "cast": [
+     [
+      -21,
+      -79,
+      30,
+      6
+     ],
+     [
+      -22,
+      -81,
+      18,
+      6
+     ],
+     [
+      -23,
+      -83,
+      18,
+      6
+     ],
+     [
+      -23,
+      -83,
+      18,
+      6
+     ],
+     [
+      -21,
+      -76,
+      32,
+      8
+     ],
+     [
+      -22,
+      -74,
+      32,
+      8
+     ]
+    ],
+    "hurt": [
+     [
+      -16,
+      -70,
+      17,
+      8
+     ],
+     [
+      -19,
+      -71,
+      13,
+      5
+     ],
+     [
+      -16,
+      -70,
+      17,
+      8
+     ]
+    ],
+    "death": [
+     [
+      -41,
+      -36,
+      33,
+      15
+     ],
+     [
+      -41,
+      -36,
+      33,
+      15
+     ],
+     [
+      -41,
+      -36,
+      33,
+      15
+     ],
+     [
+      -41,
+      -36,
+      33,
+      15
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     1,
+     2,
+     3
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 4,
+    "walk": 8,
+    "attack": 6,
+    "cast": 6,
+    "hurt": 3,
+    "death": 4
+   },
+   "sourceAlphaValues": [],
+   "portraitSource": {
+    "frame": 0,
+    "crop": [
+     72,
+     56,
+     136,
+     120
+    ],
+    "size": [
+     256,
+     256
+    ],
+    "resample": "nearest",
+    "sha256": "263a14cfdc42420dde06ea9b55cc2d40dcc7f113c284f763cbdb5cd2ad7c8c55"
+   },
+   "integration": {
+    "priorFirstProfessionSprite": "hero_alan_swordman",
+    "genericSourceRetained": true,
+    "promotedFormsUnchanged": true
+   }
   }
  }
 }
