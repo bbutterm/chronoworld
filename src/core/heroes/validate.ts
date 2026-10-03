@@ -1,4 +1,4 @@
-import type { Content } from '../types';
+import type { Content, SkillDef } from '../types';
 import { lineOf } from './card';
 import { rarityIndex, type CardSkill } from './schema';
 
@@ -16,11 +16,13 @@ const GENDER_ONLY: Record<string, 'm' | 'f'> = { bard: 'm', dancer: 'f' };
  * - навыки 1-го уровня различны у всех героев (первая профессия) и у всех форм веток между собой;
  * - имена уникальны;
  * - ульта формы (ult): существует, не пассивка, не среди навыков формы; ⚠ одна ульта у двух форм;
+ * - разные навыки героев с одним именем не скрывают разные эффекты или способ применения;
  * - ⚠ навык не своей линии; ⚠ у двух героев одного класса (или двух форм одной ветки) общих навыков > 2 или одинаковый
  *   «фирменный» (последний) навык.
  */
 export function validateHeroes(content: Content, problems: string[], warnings: string[] = []): void {
   const heroes = Object.values(content.heroes);
+  checkSkillNames(content, problems);
   const names = new Map<string, string>();
   for (const t of heroes) {
     const where = `карточка ${t.id}`;
@@ -93,6 +95,40 @@ export function validateHeroes(content: Content, problems: string[], warnings: s
         const shared = a.skills.filter((s) => b.skills.some((x) => x.skill === s.skill)).length;
         if (shared > 2) warnings.push(`${a.who} и ${b.who} (${key}): общих навыков ${shared} > 2 — должны различаться`);
         if (sig(a.skills) === sig(b.skills)) warnings.push(`${a.who} и ${b.who} (${key}): одинаковый фирменный навык ${sig(a.skills)}`);
+      }
+    }
+  }
+}
+
+/**
+ * Одно имя не должно обозначать, например, рывок по перезарядке и другую атаку на энергии.
+ * Общий id и равноценные определения допустимы; сравниваем только используемые героями навыки,
+ * без обычных атак, старых юнитов и монстров. Разная косметика не делает навык другим.
+ */
+function checkSkillNames(content: Content, problems: string[]): void {
+  const byName = new Map<string, { id: string; signature: string }[]>();
+  const seen = new Set<string>();
+  const mechanics = (sk: SkillDef, mode: string): string => {
+    const { id: _id, name: _name, description: _description, icon: _icon, $schema: _schema, ...rules } = sk;
+    return JSON.stringify({ mode, ...rules });
+  };
+  for (const hero of Object.values(content.heroes)) {
+    for (const form of [hero, ...hero.branches]) {
+      const uses = [
+        ...form.skills.map(({ skill }) => ({ id: skill, mode: content.skills[skill]?.trigger ? 'passive' : 'active' })),
+        ...(form.ult ? [{ id: form.ult, mode: 'ult' }] : []),
+      ];
+      for (const use of uses) {
+        const sk = content.skills[use.id];
+        const key = `${use.id}/${use.mode}`;
+        if (!sk || seen.has(key)) continue;
+        seen.add(key);
+        const name = sk.name.trim().toLowerCase().replace(/\s+/g, ' ');
+        const signature = mechanics(sk, use.mode);
+        const previous = byName.get(name) ?? [];
+        const conflict = previous.find((p) => p.id !== use.id && p.signature !== signature);
+        if (conflict) problems.push(`навыки героев ${conflict.id} и ${use.id}: одинаковое имя «${sk.name}», но разные эффекты или способ применения — нужны разные названия`);
+        byName.set(name, [...previous, { id: use.id, signature }]);
       }
     }
   }

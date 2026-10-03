@@ -24,6 +24,11 @@ export interface SkillFactsOptions {
 const pct = (x: number): string => `${Math.round(x * 100)}%`;
 const signed = (x: number): string => `${x > 0 ? '+' : '−'}${pct(Math.abs(x))}`;
 
+/** Название способа применения: обычные активные навыки герой применяет сам. */
+export function skillKind(sk: SkillDef, o: Pick<SkillFactsOptions, 'basic' | 'ult'> = {}): string {
+  return o.basic ? 'Обычная атака' : o.ult ? 'Ульта' : sk.trigger ? 'Пассивный' : 'Автонавык';
+}
+
 /** 1 удар, 2 удара, 5 ударов. */
 export function plural(n: number, one: string, few: string, many: string): string {
   const m10 = n % 10;

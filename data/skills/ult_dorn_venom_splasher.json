@@ -1,8 +1,8 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "ult_dorn_venom_splasher",
-  "name": "Ядовитый взрыв",
-  "description": "Ядовитая бомба на цели взрывается: ×1,8 всем врагам.",
+  "name": "Ядовитая бомба",
+  "description": "Дорн взрывает ядовитую бомбу, мгновенно поражая всех врагов.",
   "icon": "icon_ult_assassin",
   "range": "melee",
   "target": {

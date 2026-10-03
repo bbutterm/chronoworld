@@ -1,8 +1,8 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "ult_zara_sonic_blow",
-  "name": "Звуковой удар",
-  "description": "Восемь молниеносных ударов катаром: 8 × ×0,5.",
+  "name": "Звуковой шквал",
+  "description": "Зара обрушивает на ближайшего врага шквал молниеносных ударов катаром.",
   "icon": "icon_ult_assassin",
   "range": "melee",
   "target": {

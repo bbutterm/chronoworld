@@ -805,10 +805,10 @@ export class HeroScene extends Phaser.Scene {
 
     // Плитки формы: обычная атака, ульта, навыки по уровню открытия.
     const tiles: SkillTile[] = [{ id: job0?.basic ?? '', basic: true }];
-    if (c.ult) tiles.push({ id: c.ult, ult: true });
+    if (c.ult) tiles.push({ id: c.ult, ult: true, note: c.branch ? 'Доступна после выбора этой ветки' : 'Доступна с первого уровня' });
     for (const sk of heroSkillList(hero, GAME)) {
       const gate = sk.unlocked ? null : skillRarityGate(sk.level, hero.rarity, GAME);
-      tiles.push(sk.unlocked ? { id: sk.skill } : { id: sk.skill, locked: sk.level, gate: gate?.name });
+      tiles.push(sk.unlocked ? { id: sk.skill, note: `Открыто с ур. ${sk.level}` } : { id: sk.skill, locked: sk.level, gate: gate?.name });
     }
     y = this.skillGrid(tiles, y, power);
 
@@ -863,11 +863,10 @@ export class HeroScene extends Phaser.Scene {
     const name = text(this, x, y + SK_BOX / 2 + 32, sk?.name ?? r.id, T.caption, locked ? COLOR.textTertiary : r.ult ? COLOR.title : COLOR.textPrimary, { fontStyle: r.ult ? 'bold' : 'normal' });
     a.add(ellipsize(name, cellW - S.xxs));
     if (!sk) return;
-    const kind = r.basic ? 'Обычная атака' : r.ult ? 'Ульта' : sk.trigger ? 'Пассивный' : 'Активный';
     const lockNote = locked ? (r.note ?? `Откроется на ур. ${r.locked}${r.gate ? ` · нужен ${r.gate}` : ''}`) : undefined;
     pressable(this, bg, SK_BOX, SK_BOX + 40, a.tap(() => {
       a.locked = true;
-      openSkillDetail(this, r.id, { kind, lockNote, power, basic: r.basic, ult: r.ult, onClose: () => (a.locked = false) });
+      openSkillDetail(this, r.id, { lockNote, note: r.note, power, basic: r.basic, ult: r.ult, onClose: () => (a.locked = false) });
     }));
   }
 
