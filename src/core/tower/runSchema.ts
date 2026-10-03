@@ -234,6 +234,8 @@ export const TowerRunSchema = z.object({
         options: z.array(z.string()),
         source: z.enum(['floor', 'elite', 'boss', 'event', 'start', 'upgrade']),
         rolls: z.number().int().nonnegative(),
+        /** Гарантия исходного выбора; отсутствует в старых сохранениях. */
+        minRarity: BlessingRaritySchema.optional(),
       }),
       z.object({ kind: z.literal('event'), event: z.string() }),
     ])
