@@ -240,10 +240,10 @@ function rollOptions(save: SaveState, run: TowerRun, source: Source, key: number
   return out;
 }
 
-function setBlessing(save: SaveState, run: TowerRun, source: Source, cfg: TowerRunConfig, min?: BlessingRarity): TowerRun {
+function setBlessing(save: SaveState, run: TowerRun, source: Source, cfg: TowerRunConfig, min: BlessingRarity = 'common'): TowerRun {
   const options = rollOptions(save, run, source, run.floor, 0, cfg, min);
   if (!options.length) return run;
-  return { ...run, pending: { kind: 'blessing', options, source, rolls: 0 } };
+  return { ...run, pending: { kind: 'blessing', options, source, rolls: 0, minRarity: min } };
 }
 
 // ---------- статус для экрана ----------
@@ -533,7 +533,8 @@ export function rerollTowerBlessing(save: SaveState, ctx: TowerContext): SaveSta
   const p = run.pending;
   if (p?.kind !== 'blessing') throw new TowerError('bad_choice', 'Сейчас нет выбора карты');
   if (run.rerolls <= 0) throw new TowerError('bad_choice', 'Перетасовок не осталось');
-  const min = p.source === 'elite' || p.source === 'boss' || p.source === 'upgrade' ? 'rare' : 'common';
+  // Старые сохранения не хранят гарантию события: для них остаются прежние правила источника.
+  const min = p.minRarity ?? (p.source === 'elite' || p.source === 'boss' || p.source === 'upgrade' ? 'rare' : 'common');
   const options = rollOptions(save, run, p.source, run.floor, p.rolls + 1, cfg, min);
   return withRun(save, { ...run, rerolls: run.rerolls - 1, pending: { ...p, options: options.length ? options : p.options, rolls: p.rolls + 1 } });
 }

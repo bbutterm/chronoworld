@@ -28,6 +28,7 @@ import { C, COLOR, COLOR_N, FAMILY, R, S, T } from '../theme';
 import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
 import { heroCardIcon } from '../heroCard';
 import { rewardIcon } from '../rewardsView';
+import { expeditionRewardPreview } from '../expeditionRewards';
 
 /** Карточка локации: ширина — по полям экрана, высота и шаг списка. */
 const CARD_W = GAME_W - 2 * S.l;
@@ -341,6 +342,7 @@ export class ExpeditionsScene extends Phaser.Scene {
 
   private activeRows(e: ActiveExpeditionView, top: number, primary: boolean): void {
     const a = this.area;
+    const rewards = expeditionRewardPreview(session.save, e, GAME);
     const facesEnd = this.faces(e.heroIds, top + ROW.squad);
     this.eventTag(e, facesEnd + S.xs, top + ROW.squad);
     if (e.done) {
@@ -353,7 +355,7 @@ export class ExpeditionsScene extends Phaser.Scene {
       a.add(btn.container);
       if (primary) pulse(this, btn.container);
       // Добыча — чипами в два ряда слева от кнопки.
-      const row = rewardRow(this, COL_X, top + ROW.action, returnedChips(e.rewards), { maxW: COL_W - btnW - S.s, size: 's', gap: S.xxs, align: 'left' });
+      const row = rewardRow(this, COL_X, top + ROW.action, returnedChips(rewards), { maxW: COL_W - btnW - S.s, size: 's', gap: S.xxs, align: 'left' });
       a.add(row.setName(`loot_${e.location}`));
       return;
     }
@@ -361,9 +363,9 @@ export class ExpeditionsScene extends Phaser.Scene {
     const label = a.add(text(this, COL_R, top + ROW.state, countdownText(e.remainingMs), T.heading, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(1, 0.5));
     const bar = a.add(progressBar(this, COL_X, top + ROW.action, COL_W, 24, 0, COLOR_N.info));
     const fill = bar.list[1] as Phaser.GameObjects.Rectangle;
-    // Золото и опыт уже известны; находки — сундук без числа (откроются по возвращении).
+    // Текущая добыча с исходами событий (нерешённые — по умолчанию); находки откроются по возвращении.
     const chest: IconFactory = (s, x, y, size) => s.add.image(x, y, skinIcon('chest')).setDisplaySize(size, size).setTint(COLOR_N.textSecondary);
-    this.lootRow([{ icon: 'gold', value: `+${formatNumber(e.rewards.gold)}`, tone: 'gold' }, { icon: 'hero_exp', value: `+${formatNumber(e.rewards.jobExp)}` }], top + ROW.loot, [chest]);
+    this.lootRow([{ icon: 'gold', value: `+${formatNumber(rewards.gold)}`, tone: 'gold' }, { icon: 'hero_exp', value: `+${formatNumber(rewards.jobExp)}` }], top + ROW.loot, [chest]);
     const t: Timer = { e, label, fill, barW: COL_W };
     this.updateTimer(t, now());
     this.timers.push(t);
