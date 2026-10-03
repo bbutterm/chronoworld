@@ -95,6 +95,19 @@ describe('размеры и подписи', () => {
   it('комфортная цель даёт 44 CSS px на телефоне шириной 360 px', () => {
     expect(TOUCH_COMFORT * 360 / 1080).toBeGreaterThanOrEqual(44);
   });
+  it.each([{ width: 260, variant: 'ghost' as const, size: 40 }, { width: 240, variant: 'ghost' as const, size: 38 }, { width: 260, variant: 'secondary' as const, size: 40 }])('«Пропустить»: $variant шириной $width сохраняет слово и размер $size', ({ width, variant, size: expectedSize }) => {
+    // Rubik Bold: полное слово при 40 px занимает 242.92 ед.; сцена главы выделяет 260, Таверна — 240.
+    const label = {
+      text: 'Пропустить', size: 40,
+      get width() { return this.text.length / 10 * this.size / 40 * 242.92; },
+      setFontSize(size: number) { this.size = size; return this; },
+      setText(value: string) { this.text = value; return this; },
+    };
+    fitButtonLabel(label as unknown as Phaser.GameObjects.Text, width, 40, variant);
+    expect(label.text).toBe('Пропустить');
+    expect(label.size).toBe(expectedSize);
+    expect(label.width).toBeLessThanOrEqual(width);
+  });
   it('длинная подпись умещается, а новая короткая возвращает исходный размер', () => {
     const label = {
       text: 'Очень длинная подпись кнопки', size: 48,
@@ -103,7 +116,7 @@ describe('размеры и подписи', () => {
       setText(value: string) { this.text = value; return this; },
     };
     fitButtonLabel(label as unknown as Phaser.GameObjects.Text, 240, 48);
-    expect(label.width).toBeLessThanOrEqual(240 - 2 * 28.8);
+    expect(label.width).toBeLessThanOrEqual(240 - 2 * 8);
     expect(label.size).toBeGreaterThanOrEqual(34);
     label.setText('В бой');
     fitButtonLabel(label as unknown as Phaser.GameObjects.Text, 240, 48);

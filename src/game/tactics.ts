@@ -14,14 +14,14 @@ export function encounterThreat(enemies: readonly (UnitDef | null)[], allies: re
   const charging = foes.find((u) => u.charge);
   if (charging) return {
     text: `${charging.name}: готовит мощный удар`,
-    advice: interrupter ? `${interrupter.name}: ульта сбивает заряд. «Авто» можно выключить.` : 'Красная полоса — заряд. В разведке проверьте, чем его сбить.',
+    advice: interrupter ? `${interrupter.name}: ульта сбивает заряд. В бою можно выключить «Авто».` : 'Красная полоса — заряд. В разведке проверьте, чем его сбить.',
   };
   const diver = foes.find((u) => enemyTraits(u, ctx.content, ctx.combat).includes('прыгает в тыл'));
   if (diver) {
     const guard = allies.find((u) => resolveBehavior(u, ctx.content.skills[u.skills.basic]?.range !== 'melee', ctx.combat).profile.intercept);
     return {
       text: `${diver.name}: прыгает к героям в тылу`,
-      advice: guard ? `${guard.name}: перехват рядом с союзником. Проверьте расстановку.` : stunner ? `${stunner.name}: ульта оглушает. Момент можно выбрать без «Авто».` : 'Тыл не всегда безопасен. Проверьте расстановку и навыки.',
+      advice: guard ? `${guard.name}: перехват рядом с союзником. Проверьте расстановку.` : stunner ? `${stunner.name} оглушает. Без «Авто» в бою вы выбираете момент.` : 'Тыл не всегда безопасен. Проверьте расстановку и навыки.',
     };
   }
   const healer = foes.find((u) => enemyTraits(u, ctx.content, ctx.combat).includes('лечит'));
@@ -68,7 +68,7 @@ export function tacticalDefeat(result: BattleResult, defs: Record<string, UnitDe
   const { released } = chargeFacts(result);
   if (released) return {
     text: `Враг выполнил заряженных атак: ${released}.`,
-    advice: interrupter ? `Попробуйте выключить «Авто» и сохранить ульту героя «${interrupter.name}» до красного заряда.` : 'Проверьте в разведке, есть ли в вашем отряде оглушение или срыв каста.',
+    advice: interrupter ? `Попробуйте выключить «Авто» в бою и сохранить ульту героя «${interrupter.name}» до красного заряда.` : 'Проверьте в разведке, есть ли в вашем отряде оглушение или срыв каста.',
   };
   const firstDeath = result.log.find((e) => e.type === 'death' && own.some((u) => u.uid === e.unit));
   if (firstDeath?.type === 'death') {

@@ -296,8 +296,11 @@ export interface ButtonView {
 }
 
 /** Длинная подпись остаётся внутри кнопки; размер не опускается ниже caption. */
-export function fitButtonLabel(label: Phaser.GameObjects.Text, width: number, preferred: number): void {
-  const maxWidth = Math.max(1, width - 2 * Math.min(S.m, width * 0.12));
+export function fitButtonLabel(label: Phaser.GameObjects.Text, width: number, preferred: number, variant: ButtonVariant = 'secondary'): void {
+  // У ghost нет рамки; компактной плитке достаточно 8 ед. с каждой стороны.
+  // Широкое поле 32 ед. оставляем большим CTA, иначе «Пропустить» не влезает даже при caption.
+  const padding = variant === 'ghost' ? 0 : Math.min(width <= 320 ? S.xxs : S.m, width * 0.12);
+  const maxWidth = Math.max(1, width - 2 * padding);
   const minimum = Math.min(preferred, T.caption);
   label.setFontSize(preferred);
   for (let size = preferred - 2; label.width > maxWidth && size >= minimum; size -= 2) label.setFontSize(size);
@@ -358,7 +361,7 @@ export function button(
     strokeThickness: plain ? 0 : 5,
   });
   if (skin || ghost) labelShadow(t, dark);
-  const fitLabel = () => fitButtonLabel(t, w, fontSize);
+  const fitLabel = () => fitButtonLabel(t, w, fontSize, variant);
   fitLabel();
   const container = scene.add.container(x, y, [bg, t]);
   // Цель нажатия не ниже TOUCH, даже если кнопка нарисована ниже.

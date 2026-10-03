@@ -30,7 +30,7 @@ describe('разведка и факты боя', () => {
     expect(threat?.text).toContain('Люнатик');
     expect(threat?.text).toContain('тыл');
     expect(threat?.advice).toContain('Алан');
-    expect(threat?.advice).toContain('без «Авто»');
+    expect(threat?.advice).toContain('Без «Авто» в бою');
     expect(threat?.advice).not.toContain('перехватывает');
   });
   it('срыв каста не выдаётся за оглушение прыгуна', () => {
@@ -41,6 +41,7 @@ describe('разведка и факты боя', () => {
     const boss = enemySquad('ch1_s10', ctx);
     expect(boss.some((u) => u?.charge)).toBe(true);
     expect(encounterThreat(boss, allies, ctx)?.advice).toContain('Алан');
+    expect(encounterThreat(boss, allies, ctx)?.advice).toContain('В бою можно выключить «Авто»');
     expect(encounterThreat(boss, [], ctx)?.advice).not.toContain('Алан');
   });
   it('начало заряда не означает удар; отмена без цели и смерть не считаются успешным контролем', () => {
