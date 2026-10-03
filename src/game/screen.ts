@@ -53,8 +53,8 @@ export const CONTENT_BOTTOM = GAME_H - NAV_H - 20;
 /** Куда ведёт «‹» в шапке (и кнопка «назад» Telegram). */
 export type BackTarget = { label?: string; to: string; data?: object };
 
-/** Имена модальных слоёв, которые «назад» закрывает первым (как касание мимо окна). */
-const MODAL_NAMES = ['confirmModal', 'noticeModal', 'bottomSheet'] as const;
+/** Стабильный признак модального слоя: name экран может менять для поиска и QA. */
+const MODAL_DATA = 'screenModal';
 
 /**
  * Общий каркас экрана: фон, шапка (одна полоса: «‹», название, валюта), нижняя навигация (если active задан)
@@ -135,12 +135,19 @@ function backAction(scene: Phaser.Scene, back: BackTarget): () => void {
   };
 }
 
-/** Закрыть верхнее модальное окно сцены (confirm, noticeModal, bottomSheet). true — было что закрыть. */
+/** Зарегистрировать окно для Back независимо от его имени; close сохраняет очистку самого окна. */
+export function registerModal(layer: Phaser.GameObjects.Container, close: () => void): void {
+  layer.setData(MODAL_DATA, true).setData('close', close);
+}
+
+/** Закрыть верхнее зарегистрированное окно. Закрывающийся слой тоже перехватывает Back. */
 export function closeTopModal(scene: Phaser.Scene): boolean {
   const list = scene.children.list;
   for (let i = list.length - 1; i >= 0; i--) {
     const o = list[i];
-    if (!(MODAL_NAMES as readonly string[]).includes(o.name)) continue;
+    if (!o.getData?.(MODAL_DATA)) continue;
+    // Анимация закрытия ещё перекрывает экран: повторный Back не уводит под неё.
+    if (o.getData('closing')) return true;
     const close = o.getData?.('close') as (() => void) | undefined;
     if (close) close();
     else o.destroy();
@@ -353,7 +360,7 @@ export function noticeModal(
     layer.add(body);
   }
   const close = () => layer.destroy();
-  layer.setData('close', close);
+  registerModal(layer, close);
   const by = top + h - 100;
   const ok = button(scene, GAME_W / 2 + (go ? 210 : 0), by, 380, 120, 'ui_btn_primary', 'Понятно', close, FS.h2);
   ok.container.setName('noticeOk');
@@ -546,7 +553,7 @@ export function bottomSheet(
   const close = () => {
     if (closed) return;
     closed = true;
-    layer.setName('');
+    layer.setData('closing', true).setName('');
     shade.disableInteractive();
     sfx('ui_back');
     const done = () => {
@@ -557,7 +564,7 @@ export function bottomSheet(
     scene.tweens.add({ targets: shade, alpha: 0, duration: M.fast, ease: E.in });
     scene.tweens.add({ targets: [sheet, ...(area ? [area.content] : [])], y: '+=120', alpha: 0, duration: M.fast, ease: E.in, onComplete: done });
   };
-  layer.setData('close', close);
+  registerModal(layer, close);
   const contentH = Math.max(0, build(content, width, close));
   const headH = 136;
   const maxH = Math.round(GAME_H * 0.8);
@@ -794,7 +801,7 @@ export function confirm(scene: Phaser.Scene, question: string, yes: string, onYe
   // Окно само ловит касания, чтобы не закрываться от нажатия по нему.
   box.setInteractive();
   shade.on('pointerup', cancel);
-  layer.setData('close', cancel);
+  registerModal(layer, cancel);
   layer.add([shade, box, q, ok.container, no.container]);
   popIn(scene, layer, shade);
 }
