@@ -4,7 +4,7 @@ import { GAME, LORE } from './content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, ROLE_NAMES, SLOT_NAMES } from './flow';
 import { hasCollectionArt, itemCell, itemIconKey, loadCollectionArt, refineBadge, roIconImage } from './itemIcons';
 import { GAME_H, GAME_W } from './layout';
-import { popIn, unitFigure, unitTint } from './screen';
+import { popIn, registerModal, unitFigure, unitTint } from './screen';
 import { session } from './session';
 import { SKIN_TINT } from './skin';
 import { goldDot, roundIcon, ROUND_ICON } from './homeBuildings';
@@ -149,6 +149,7 @@ export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.Game
     if (o.lock) o.lock.locked = false;
     layer.destroy();
   };
+  registerModal(layer, close);
   shade.on('pointerup', close);
 
   const tw = BOX_W - 2 * PAD;

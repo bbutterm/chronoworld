@@ -191,6 +191,35 @@ describe('выбор снаряжения для карты MVP', () => {
     }
   });
 
+  it('wear sheet: отмена не превращается в экипировку во время закрытия', () => {
+    storage.session.save.squad = [null, null, null, null, null];
+    const instance = { id: 'shirt', itemId: 'cotton_shirt', equippedBy: null };
+    const equip = vi.spyOn(scene as unknown as { equip: (...args: unknown[]) => void }, 'equip').mockImplementation(() => {});
+    scene['wearSheet']({ instance, def: GAME.equipment.items.cotton_shirt, wornBy: null, count: 1 });
+    close();
+    rows[0].spec.onTap!();
+    finishClose();
+    expect(equip).not.toHaveBeenCalled();
+    expect(list.locked).toBe(false);
+  });
+
+  it('wear sheet: первый выбор окончателен, повторное касание не меняет героя', () => {
+    storage.session.save.heroes = [
+      { id: 'first', templateId: 'alan', rarity: 'green', level: 1 },
+      { id: 'second', templateId: 'bran', rarity: 'green', level: 1 },
+    ];
+    storage.session.save.squad = [null, null, null, null, null];
+    const instance = { id: 'shirt', itemId: 'cotton_shirt', equippedBy: null };
+    const equip = vi.spyOn(scene as unknown as { equip: (...args: unknown[]) => void }, 'equip').mockImplementation(() => {});
+    scene['wearSheet']({ instance, def: GAME.equipment.items.cotton_shirt, wornBy: null, count: 1 });
+    rows[0].spec.onTap!();
+    rows[1].spec.onTap!();
+    expect(close).toHaveBeenCalledOnce();
+    finishClose();
+    expect(equip).toHaveBeenCalledExactlyOnceWith(storage.session.save.heroes[0], expect.anything(), null);
+    expect(list.locked).toBe(false);
+  });
+
   it('slot picker includes the worn card in its comparison and uses a neutral mixed-stat color', () => {
     const hero = { id: 'alan', templateId: 'alan', rarity: 'green' as const, level: 20 };
     storage.session.save = { ...storage.session.save, heroes: [hero], inventory: { items: [

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('phaser', () => ({ default: {
   Scene: class {},
+  Geom: { Rectangle: class { static Contains = () => true; } },
   GameObjects: { Events: { DESTROY: 'destroy' }, Container: class {} },
   Scenes: { Events: { PRE_UPDATE: 'preupdate', SHUTDOWN: 'shutdown' } },
   Math: { Clamp: (n: number, min: number, max: number) => Math.min(max, Math.max(min, n)) },
@@ -12,7 +13,9 @@ vi.mock('phaser', () => ({ default: {
 vi.mock('../src/game/audio', () => ({ sfx: vi.fn() }));
 vi.mock('../src/game/haptics', () => ({ haptic: vi.fn() }));
 
-const { noticeModal } = await import('../src/game/screen');
+const { noticeModal, bottomSheet, closeTopModal, confirm } = await import('../src/game/screen');
+const juice = await import('../src/game/juice');
+const { loreModal } = await import('../src/game/loreView');
 const ui = await import('../src/game/ui');
 const { GAME_H, GAME_W } = await import('../src/game/layout');
 const { T } = await import('../src/game/theme');
@@ -32,6 +35,15 @@ class Node extends EventEmitter {
   setName(n: string) { this.name = n; return this; }
   setDepth() { return this; }
   setInteractive() { return this; }
+  disableInteractive() { return this; }
+  clear() { return this; }
+  fillStyle() { return this; }
+  lineStyle() { return this; }
+  fillCircle() { return this; }
+  lineBetween() { return this; }
+  fillRoundedRect() { return this; }
+  strokeRoundedRect() { return this; }
+  getByName(name: string) { return this.list.find((n) => n.name === name); }
   setOrigin() { return this; }
   setShadow() { return this; }
   setMask() { return this; }
@@ -66,7 +78,8 @@ function setup() {
     fillRect(x: number, y: number, width: number, height: number) { masks.push({ x, y, width, height }); return this; },
     createGeometryMask() { return {}; } };
   const scene = {
-    add: { container: make, rectangle: make },
+    add: { container: make, rectangle: make, graphics: () => make() },
+    children: { get list() { return nodes.filter((n) => n.scene && !n.parentContainer); } },
     make: { graphics: () => graphics },
     input: new EventEmitter(), events: new EventEmitter(),
     sys: { game: undefined }, tweens: { add: vi.fn() },
@@ -245,5 +258,94 @@ describe('noticeModal: читаемый текст без уменьшения �
       expect(h.scene.events.eventNames()).toEqual([]);
       expect(h.clip()).toBeUndefined();
     }
+  });
+});
+
+
+describe('Back: стабильная идентичность модальных слоёв', () => {
+  beforeEach(() => vi.spyOn(ui, 'ellipsize').mockImplementation((node) => node));
+  it.each(['itemSheet', 'wearPicker', 'refineSheet', 'cardTargetPicker'])('закрывает %s, повторный Back ждёт конца анимации', (name) => {
+    const h = setup();
+    vi.spyOn(juice, 'juiceOn').mockReturnValue(true);
+    const onClose = vi.fn();
+    const scene = h.scene as unknown as Parameters<typeof bottomSheet>[0];
+    const sheet = bottomSheet(scene, 'Предмет', () => 200, { onClose });
+    sheet.layer.setName(name);
+    expect(closeTopModal(scene)).toBe(true);
+    expect(sheet.layer.name).toBe('');
+    expect(onClose).not.toHaveBeenCalled();
+    const calls = h.scene.tweens.add.mock.calls.length;
+    expect(closeTopModal(scene)).toBe(true);
+    expect(h.scene.tweens.add.mock.calls).toHaveLength(calls);
+    const finish = h.scene.tweens.add.mock.calls.at(-1)![0].onComplete;
+    finish();
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(closeTopModal(scene)).toBe(false);
+  });
+
+  it('вложенное подтверждение закрывается первым; повторный Back не закрывает лист под ним', () => {
+    const h = setup();
+    vi.spyOn(juice, 'juiceOn').mockReturnValue(true);
+    const scene = h.scene as unknown as Parameters<typeof bottomSheet>[0];
+    const onClose = vi.fn();
+    const onYes = vi.fn();
+    bottomSheet(scene, 'Заточка', () => 200, { onClose }).layer.setName('refineSheet');
+    confirm(scene, 'Точить?', 'Да', onYes);
+    expect(closeTopModal(scene)).toBe(true);
+    const finish = h.scene.tweens.add.mock.calls.at(-1)![0].onComplete;
+    expect(closeTopModal(scene)).toBe(true);
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onYes).not.toHaveBeenCalled();
+    finish();
+    expect(closeTopModal(scene)).toBe(true);
+    h.scene.tweens.add.mock.calls.at(-1)![0].onComplete();
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(closeTopModal(scene)).toBe(false);
+  });
+
+  it('Летопись поверх листа закрывается первой, сохраняя блокировку инвентаря', () => {
+    const h = setup();
+    vi.spyOn(juice, 'juiceOn').mockReturnValue(true);
+    vi.spyOn(ui, 'plate').mockImplementation((_sc, x, y, w, height) => new Node(x, y, w, height) as unknown as ReturnType<typeof ui.plate>);
+    const scene = h.scene as unknown as Parameters<typeof bottomSheet>[0];
+    const inventory = { locked: true };
+    const onClose = vi.fn(() => { inventory.locked = false; });
+    const sheet = bottomSheet(scene, 'Предмет', () => 200, { onClose });
+    sheet.layer.setName('itemSheet');
+    const lore = loreModal(scene, { title: 'Предмет', blocks: [{ text: 'История предмета.' }] });
+    expect(closeTopModal(scene)).toBe(true);
+    expect(lore.scene).toBeUndefined();
+    expect(sheet.layer.scene).toBeDefined();
+    expect(inventory.locked).toBe(true);
+    expect(onClose).not.toHaveBeenCalled();
+    expect(closeTopModal(scene)).toBe(true);
+    expect(closeTopModal(scene)).toBe(true);
+    h.scene.tweens.add.mock.calls.at(-1)![0].onComplete();
+    expect(inventory.locked).toBe(false);
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(closeTopModal(scene)).toBe(false);
+  });
+
+  it('Back Летописи вызывает её очистку отдельной блокировки списка', () => {
+    const h = setup();
+    vi.spyOn(ui, 'plate').mockImplementation((_sc, x, y, w, height) => new Node(x, y, w, height) as unknown as ReturnType<typeof ui.plate>);
+    const scene = h.scene as unknown as Parameters<typeof loreModal>[0];
+    const lock = { locked: false } as unknown as import('../src/game/ui').ScrollArea;
+    loreModal(scene, { title: 'Предмет', blocks: [{ text: 'История предмета.' }], lock });
+    expect(lock.locked).toBe(true);
+    expect(closeTopModal(scene)).toBe(true);
+    expect(lock.locked).toBe(false);
+    expect(h.scene.input.eventNames()).toEqual([]);
+    expect(h.scene.events.eventNames()).toEqual([]);
+  });
+
+  it('сообщение закрывается по метаданным; случайное имя окна не считается модальным', () => {
+    const h = setup();
+    const scene = h.scene as unknown as Parameters<typeof closeTopModal>[0];
+    h.open(['Готово']).setName('customNotice');
+    expect(closeTopModal(scene)).toBe(true);
+    const ordinary = h.scene.add.container().setName('noticeModal');
+    expect(closeTopModal(scene)).toBe(false);
+    expect(ordinary.scene).toBeDefined();
   });
 });

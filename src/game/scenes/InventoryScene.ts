@@ -621,6 +621,8 @@ export class InventoryScene extends Phaser.Scene {
             dim: !!blocker,
             ...(save.squad.includes(hero.id) ? { trailing: tag(this, 0, 0, 'в отряде', 'positive') } : {}),
             onTap: () => {
+              // Отмена и первый выбор окончательны, даже пока лист ещё уезжает.
+              if (chosen || sheet.layer.name !== 'wearPicker') return;
               if (blocker) {
                 toast(this, `Нельзя надеть: ${blocker}`, C.error);
                 return;
