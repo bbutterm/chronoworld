@@ -3243,5 +3243,15 @@
   "sha1": "c93b26ef85f5ad4f98294f9fcd782750b7b4c9cf",
   "png": 241381,
   "webp": 171786
+ },
+ "sprites/heroes/hero_alan_swordman_style_v07.png": {
+  "sha1": "7014e7f533b1f1acf46890a08d94a4720d285add",
+  "png": 148766,
+  "webp": 35230
+ },
+ "sprites/heroes/hero_vika_acolyte_style_v07.png": {
+  "sha1": "12f3cf667e76c8d0a873e2cbb297eeb8a7ea0052",
+  "png": 123953,
+  "webp": 29720
  }
 }
