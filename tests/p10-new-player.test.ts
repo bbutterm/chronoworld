@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   actEquipBest,
+  ascendPlan,
   addItems,
   arrangeSquad,
   equip,
@@ -9,9 +10,11 @@ import {
   itemScore,
   misplacedInFront,
   newGame,
+  levelUpCost,
+  maxLevelOf,
   type SaveState,
 } from '../src/core';
-import { decimal, defeatAdvice, equipBestSquad, squadGearUpgrades, heroesBadgeCount, keyEventsFirst, levelText } from '../src/game/flow';
+import { ascendReady, decimal, defeatAdvice, equipBestSquad, squadGearUpgrades, squadAtLevelCap, heroesBadgeCount, keyEventsFirst, levelText } from '../src/game/flow';
 import { pickHomeHint } from '../src/game/hints';
 import { chapterSummary, isChapterFinale, playTimeText, sceneLabel, seenChapterScenes } from '../src/game/storyView';
 import { loadFullContext } from '../scripts/lib/content-node';
@@ -99,6 +102,82 @@ describe('P10 T1-20: расстановка по ролям', () => {
 });
 
 describe('P10 T1-07: совет после поражения', () => {
+  it('совет уровня требует и опыт, и золото: ровно на уровень хватает, на единицу меньше — нет', () => {
+    const save = fresh();
+    const cost = levelUpCost(1, ctx);
+    for (const resources of [{ gold: cost.gold - 1, heroExp: cost.exp }, { gold: cost.gold, heroExp: cost.exp - 1 }]) {
+      expect(defeatAdvice({ ...save, resources }, ctx).action).toBe('Campaign');
+    }
+    expect(defeatAdvice({ ...save, resources: { gold: cost.gold, heroExp: cost.exp } }, ctx).text).toContain('Опыта хватает');
+  });
+
+  it('вознесение только запасных не подменяет помощь отряду и не убирает метки в списке героев', () => {
+    const save = fresh();
+    const bench: SaveState = {
+      ...save, resources: { gold: 5000, heroExp: 0 },
+      heroes: [...save.heroes, ...[1, 2, 3].map((i) => ({ id: `reserve${i}`, templateId: 'iris', rarity: 'green' as const, level: 1 }))],
+    };
+    expect(ascendReady(bench, ctx).map((h) => h.id)).toEqual(['reserve1', 'reserve2', 'reserve3']);
+    expect(defeatAdvice(bench, ctx)).toMatchObject({ action: 'Squad' });
+    expect(defeatAdvice(bench, ctx).text).toContain('пустые места');
+  });
+
+  it('копии под замком или в отряде и нехватка золота не дают ложного совета вознесения', () => {
+    const save = fresh();
+    const copies: SaveState = {
+      ...save, resources: { gold: 5000, heroExp: 0 },
+      heroes: [...save.heroes, ...[1, 2].map((i) => ({ id: `copy${i}`, templateId: 'alan', rarity: 'green' as const, level: 1 }))],
+    };
+    expect(defeatAdvice(copies, ctx).text).toContain('вознесению');
+    const locked = { ...copies, heroes: copies.heroes.map((h) => h.id === 'copy1' ? { ...h, locked: true } : h) };
+    const assigned = { ...copies, squad: copies.squad.map((id, i) => i === 1 ? 'copy1' : id) };
+    const poor = { ...copies, resources: { gold: 0, heroExp: 0 } };
+    for (const blocked of [locked, assigned, poor]) expect(defeatAdvice(blocked, ctx).text).not.toContain('вознесению');
+  });
+
+  it('большинство на пределе не означает, что опыт больше никому не поможет', () => {
+    const save = fresh();
+    const partial: SaveState = { ...save, resources: { gold: 0, heroExp: 0 }, heroes: save.heroes.map((h, i) => ({ ...h, level: i < 2 ? maxLevelOf(ctx, h.rarity) : 1 })) };
+    expect(squadAtLevelCap(partial, ctx)).toBe(false);
+    expect(defeatAdvice(partial, ctx).action).toBe('Campaign');
+    expect(defeatAdvice(partial, ctx).text).not.toContain('на пределе');
+    expect(squadAtLevelCap({ ...partial, squad: [null, null, null, null, null] }, ctx)).toBe(false);
+  });
+
+  it('золотой → красный: одна копия не закрывает одновременно слоты «та же» и «любая»', () => {
+    const save = fresh();
+    const targetId = save.heroes[0].id;
+    const two: SaveState = {
+      ...save, resources: { gold: 60000, heroExp: 0 },
+      heroes: [
+        ...save.heroes.map((h) => h.id === targetId ? { ...h, rarity: 'gold' as const, level: maxLevelOf(ctx, 'gold') } : h),
+        { id: 'same', templateId: 'alan', rarity: 'purple', level: 1 },
+        { id: 'any1', templateId: 'iris', rarity: 'purple', level: 1 },
+      ],
+    };
+    expect(ascendPlan(two, targetId, ctx)).toMatchObject({ complete: false, missing: 1 });
+    expect(ascendReady(two, ctx).some((h) => h.id === targetId)).toBe(false);
+    expect(defeatAdvice(two, ctx).text).not.toContain('готов к вознесению');
+    const three: SaveState = { ...two, heroes: [...two.heroes, { id: 'any2', templateId: 'bran', rarity: 'purple', level: 1 }] };
+    expect(ascendPlan(three, targetId, ctx)).toMatchObject({ complete: true, missing: 0 });
+    expect(ascendReady(three, ctx).some((h) => h.id === targetId)).toBe(true);
+    expect(defeatAdvice(three, ctx).text).toContain('готов к вознесению');
+    const locked = { ...three, heroes: three.heroes.map((h) => h.id === 'any2' ? { ...h, locked: true } : h) };
+    const assigned = { ...three, squad: three.squad.map((id, i) => i === 1 ? 'any2' : id) };
+    for (const blocked of [locked, assigned]) {
+      expect(ascendReady(blocked, ctx).some((h) => h.id === targetId)).toBe(false);
+      expect(defeatAdvice(blocked, ctx).text).not.toContain('готов к вознесению');
+    }
+  });
+
+  it('на максимальной редкости и уровне не предлагает невозможное вознесение', () => {
+    const save = fresh();
+    const capped: SaveState = { ...save, resources: { gold: 1e7, heroExp: 1e8 }, heroes: save.heroes.map((h) => ({ ...h, rarity: 'red', level: maxLevelOf(ctx, 'red') })) };
+    expect(squadAtLevelCap(capped, ctx)).toBe(true);
+    expect(defeatAdvice(capped, ctx)).toMatchObject({ action: 'Squad' });
+    expect(defeatAdvice(capped, ctx).text).not.toMatch(/копии|Вознести|Улучшить/);
+  });
+
   it('«Улучшить» советуется, только когда опыта хватает; вознесение — когда хватает копий', () => {
     const save = fresh();
     expect(defeatAdvice(save, ctx).text).not.toMatch(/Опыта хватает/);

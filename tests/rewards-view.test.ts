@@ -51,4 +51,12 @@ describe('поражение: три плитки «как стать сильн
     expect(rv.defeatShortcuts('Heroes', false, false).map((t) => t.id)).toEqual(['heroes', 'gear', 'squad']);
     expect(rv.defeatShortcuts('Squad', true, false).find((t) => t.id === 'squad')?.advised).toBe(true);
   });
+
+  it('совет вернуться в кампанию не помечает плитку, ведущую в Герои', () => {
+    for (const tavern of [true, false]) expect(rv.defeatShortcuts('Campaign', tavern, false).some((t) => t.advised)).toBe(false);
+    const expected = { EquipBest: 'gear', Heroes: 'heroes', Squad: 'squad' } as const;
+    for (const advice of ['EquipBest', 'Heroes', 'Squad'] as const) {
+      for (const tavern of [true, false]) expect(rv.defeatShortcuts(advice, tavern, false).filter((t) => t.advised).map((t) => t.id)).toEqual([expected[advice]]);
+    }
+  });
 });
