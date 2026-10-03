@@ -236,7 +236,7 @@ export interface DefeatShortcut {
  */
 export function defeatShortcuts(advice: 'EquipBest' | 'Heroes' | 'Squad' | 'Campaign', tavernOpen: boolean, gearReady: boolean): DefeatShortcut[] {
   const out: DefeatShortcut[] = [
-    { id: 'heroes', label: 'Герои', sub: 'Уровень', advised: advice === 'Heroes' || advice === 'Campaign' },
+    { id: 'heroes', label: 'Герои', sub: 'Уровень', advised: advice === 'Heroes' },
     { id: 'gear', label: 'Снаряжение', sub: gearReady ? 'Надеть лучшее' : 'Сумка', advised: advice === 'EquipBest' },
   ];
   if (tavernOpen && advice !== 'Squad') out.push({ id: 'tavern', label: 'Таверна', sub: 'Новые герои', advised: false });
