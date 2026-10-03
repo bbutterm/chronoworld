@@ -31,6 +31,21 @@ LINES = [
  ('blacksmith',4058,'mechanic','Mechanic',4253,'meister','Meister','both'),
  ('alchemist',4071,'genetic','Genetic',4259,'biolo','Biolo','both'),
 ]
+ADVANCED_LINES = [
+ ('knight',4008,'lord_knight','Lord Knight','both'),
+ ('crusader',4015,'paladin','Paladin','both'),
+ ('hunter',4012,'sniper','Sniper','both'),
+ ('bard',4020,'clown','Clown','male'),
+ ('dancer',4021,'gypsy','Gypsy','female'),
+ ('wizard',4010,'high_wizard','High Wizard','both'),
+ ('sage',4017,'professor','Professor','both'),
+ ('assassin',4013,'assassin_cross','Assassin Cross','both'),
+ ('rogue',4018,'stalker','Stalker','both'),
+ ('priest',4009,'high_priest','High Priest','both'),
+ ('monk',4016,'champion','Champion','both'),
+ ('blacksmith',4011,'whitesmith','Whitesmith','both'),
+ ('alchemist',4019,'creator','Creator','both'),
+]
 FAMILIES = {
  'knight':('alan','iris'), 'crusader':('alan','iris'),
  'hunter':('bran','meilin'), 'bard':('bran','meilin'), 'dancer':('bran','meilin'),
@@ -47,24 +62,27 @@ IDENTITY = {'alan':'hero_alan_swordman','iris':'knight_f','bran':'hero_bran_arch
  'zara':'assassin_f','teo':'priest_m','vika':'hero_vika_acolyte','otto':'blacksmith_m','greta':'blacksmith_f'}
 
 
-def roster():
+def roster(advanced=False):
     old = base.sprites_manifest.load(base.OUT/'sprites.json')
     entries = {x['id']:x for x in old['sprites']}
     result = []
-    for parent,j3,s3,n3,j4,s4,n4,legal in LINES:
+    lines = [(parent,job,stem,name,0,'','',legal) for parent,job,stem,name,legal in ADVANCED_LINES] if advanced else LINES
+    for parent,j3,s3,n3,j4,s4,n4,legal in lines:
         for suffix,gender,idx in [('m','male',0),('f','female',1)]:
             if legal not in ('both',gender): continue
             hero = FAMILIES[parent][idx]
             previous = entries[f'{parent}_{suffix}']['source']
             identity_source = IDENTITY[hero]
             hair = entries[identity_source]['source']['hair']
-            for stage,job,stem,name in [(3,j3,s3,n3),(4,j4,s4,n4)]:
+            stages = [('advanced',j3,s3,n3)] if advanced else [(3,j3,s3,n3),(4,j4,s4,n4)]
+            for stage,job,stem,name in stages:
                 result.append(dict(id=f'{stem}_{suffix}',stage=stage,job=job,name=name,gender=gender,
                     hero=hero,heroName=NAMES[hero],parent=f'{parent}_{suffix}',identitySource=identity_source,
                     head=hair['style'],palette=hair['palette'],weapon=previous['weaponView'],
                     shield=previous['shieldView'],item=previous['itemId'],shieldItem=previous['shieldItemId'],
                     weaponName=previous.get('weaponItemName')))
-    assert len(result)==48 and len({x['id'] for x in result})==48
+    expected = 24 if advanced else 48
+    assert len(result)==expected and len({x['id'] for x in result})==expected
     return result
 
 
@@ -100,9 +118,14 @@ def get_source(task):
 
 
 def main():
+    global CACHE, QA
     p=argparse.ArgumentParser();p.add_argument('--workers',type=int,default=3)
-    args=p.parse_args();CACHE.mkdir(parents=True,exist_ok=True);QA.mkdir(parents=True,exist_ok=True)
-    items=roster();configure(items)
+    p.add_argument('--advanced',action='store_true',help='Extract only the 24 transcendent second-job forms')
+    args=p.parse_args()
+    if args.advanced:
+        CACHE=CACHE.parent/'jobs-advanced';QA=QA.parent/'chronoworld-jobs-advanced'
+    CACHE.mkdir(parents=True,exist_ok=True);QA.mkdir(parents=True,exist_ok=True)
+    items=roster(advanced=args.advanced);configure(items)
     (QA/'roster.json').write_text(json.dumps(items,ensure_ascii=False,indent=2)+'\n')
     sources=fetcher.sources();errors=[]
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as ex:
@@ -143,7 +166,8 @@ def main():
             if portrait.exists():portrait.unlink()
     report={'requested':len(items),'completed':complete,'blocked':blocked,'sourceErrors':errors}
     (QA/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
-    md=['# Третьи и четвёртые профессии — запас ассетов','',
+    title = '# Адвансы (перерождённые вторые профессии) — запас ассетов' if args.advanced else '# Третьи и четвёртые профессии — запас ассетов'
+    md=[title,'',
         'Исходные RO-кадры, без AI-перерисовки. Только 12 героев текущего ростера и обе их ветки.',
         'Мужские и женские формы; музыкальная ветка сохраняет ограничения пола оригинального RO.',
         'Расширенные классы Ninja/Taekwon/Gunslinger/Summoner не входят в текущий ростер.',
@@ -161,9 +185,10 @@ def main():
     if blocked:
         md.extend(['','## Не собраны']+[f"- `{b['id']}`: {b['reason']}" for b in blocked])
     (ROOT/'docs/art').mkdir(parents=True,exist_ok=True)
-    (ROOT/'docs/art/RO_JOBS_3_4.md').write_text('\n'.join(md)+'\n')
+    doc_name='RO_JOBS_ADVANCED.md' if args.advanced else 'RO_JOBS_3_4.md'
+    (ROOT/'docs/art'/doc_name).write_text('\n'.join(md)+'\n')
     font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
-    for stage in (3,4):
+    for stage in (('advanced',) if args.advanced else (3,4)):
         subset=[x for x in items if x['stage']==stage]
         canvas=Image.new('RGB',(960,6*255),(32,38,48));draw=ImageDraw.Draw(canvas)
         for i,x in enumerate(subset):
