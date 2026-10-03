@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chronoworld — SYNTHETIC TOWER QA ONLY</title><style>body{max-width:760px;margin:24px auto;padding:0 18px;background:#151827;color:#f4efd9;font:17px/1.5 system-ui}h1{font-size:24px}button,a{font:inherit}button{display:block;width:100%;text-align:left;padding:14px;margin:12px 0;border:2px solid #ad9258;border-radius:8px;color:#fff;background:#343046;cursor:pointer}button:disabled{opacity:.45;cursor:default}a{color:#a9d7ff}pre{white-space:pre-wrap;word-break:break-word;border:1px solid #888;padding:12px}label{display:block;padding:16px;background:#452f25}small{display:block}</style></head><body>
+<h1>SYNTHETIC TOWER QA ONLY / Синтетические сценарии Башни</h1>
+<p>Только отдельный тестовый preview ветки QA. Основа: PR #132, commit 74744a6df40b6784769a95ea94e2b91ffc2f550d. Не публиковать и не сливать в main.</p>
+<p>Кнопки записывают искусственное сохранение через обычный API игры. Это проверка интерфейса, а не естественного прохождения или баланса. Исходные файлы игры не изменены.</p>
+<label><input id="qa-consent" type="checkbox"> Я использую отдельный QA preview и разрешаю заменить его локальное тестовое сохранение. Здесь нет ценного прогресса. В онлайн-аккаунт входить не нужно.</label>
+<div id="qa-scenarios"></div>
+<p id="qa-status" role="status" aria-live="polite">Выберите сценарий. Ничего не загружено.</p>
+<p><a id="qa-open-game" href="./">Открыть игру → Приключения → Башня</a></p>
+<p>После проверки вернитесь на qa.html. Reload игры сохраняет тестовый выбор. Для нового сценария закройте другие вкладки этого preview и снова нажмите нужную кнопку.</p>
+<h2>Текущее сохранение: только показатели QA</h2><button id="qa-inspect">Обновить видимые показатели</button><pre id="qa-summary">—</pre>
+<script type="module" src="/qa/main.js"></script></body></html>
