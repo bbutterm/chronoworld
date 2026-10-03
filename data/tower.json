@@ -36,6 +36,36 @@
     "bossMult": 1.15,
     "bossEvery": 10,
     "blessingEvery": 3,
+    "newRunDraftRules": {
+      "version": 1,
+      "blessingEvery": 5,
+      "legendaryCap": 3,
+      "rarity": {
+        "floor": {
+          "common": 72,
+          "rare": 27,
+          "legendary": 1
+        },
+        "elite": {
+          "rare": 94,
+          "legendary": 6
+        },
+        "boss": {
+          "rare": 80,
+          "legendary": 20
+        },
+        "event": {
+          "common": 64,
+          "rare": 35,
+          "legendary": 1
+        },
+        "start": {
+          "common": 64,
+          "rare": 35,
+          "legendary": 1
+        }
+      }
+    },
     "choices": 3,
     "afterBattleHeal": 0.3,
     "restHeal": 0.5,

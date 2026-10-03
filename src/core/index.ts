@@ -15,6 +15,8 @@ export { getJob, statsAt } from './progression/stats';
 export * from './heroes';
 export * from './campaign/schema';
 export * from './campaign/campaign';
+export * from './campaign/choices';
+export * from './story/choices';
 export * from './campaign/offline';
 export * from './save/schema';
 export * from './save/save';

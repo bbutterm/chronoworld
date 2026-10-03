@@ -13,6 +13,8 @@ import {
   markTowerSummarySeen,
   NODE_NAMES,
   pickTowerBlessing,
+  previewTowerBlessingChoice,
+  skipTowerBlessing,
   rerollTowerBlessing,
   resolveTowerEvent,
   runConfig,
@@ -116,6 +118,8 @@ export class TowerScene extends Phaser.Scene {
   private sel = 0;
   /** Карта-благословение уже выбрана (идёт вспышка) — повторные касания не считаются. */
   private picking = false;
+  /** Старые обработчики карточек не переживают смену режима/перезапуск сцены. */
+  private draftRevision = 0;
 
   constructor() {
     super('Tower');
@@ -128,6 +132,7 @@ export class TowerScene extends Phaser.Scene {
     screen(this, 'Башня испытаний', 'Adventure', { to: 'Adventure' });
     markHint('tower_open');
     this.picking = false;
+    this.draftRevision++;
     const st = towerRunStatus(session.save, GAME, today());
     this.backdrop(st.run ? st.run.floor + 1 : Math.max(1, st.best));
     if (!st.unlocked) return this.locked(st.unlockAfterStage);
@@ -277,6 +282,8 @@ export class TowerScene extends Phaser.Scene {
       row.setX(GAME_W - S.l - row.width / 2).setName('towerLast');
     }
 
+    const draftRules = runConfig(GAME).newRunDraftRules;
+    if (draftRules) text(this, GAME_W / 2, L.lastY + 76, `Новый забег: карта каждые ${draftRules.blessingEvery} этажей · MVP до ${draftRules.legendaryCap}`, T.caption, COLOR.info).setName('towerNewDraftRules');
     this.squadRow();
     this.lootRow(st.lootFloorToday);
 
@@ -371,6 +378,7 @@ export class TowerScene extends Phaser.Scene {
     const giveW = 200;
     button(this, right - S.xs - giveW / 2, L.barY, giveW, BTN.m, '', 'Сдаться', () => this.surrender(), T.body, { variant: 'secondary' }).container.setName('towerGiveUp');
 
+    if (run.draftRules) chip(this, S.l, L.barY + 80, 'hero_card', this.mvpLabel(run), 'gold', { size: 's', align: 'left' }).setName('towerMvpCount');
     this.runMap(run);
     this.ladderTags(next + 1, save.tower.floor);
     const kind = run.paths[this.sel];
@@ -545,13 +553,18 @@ export class TowerScene extends Phaser.Scene {
   /** «i»: как устроен забег — пять строк с иконками (вместо постоянного блока правил). */
   private rulesSheet(): void {
     const cfg = runConfig(GAME);
+    const run = session.save.tower.run;
+    // Активный старый забег никогда не заимствует правила будущих забегов.
+    const draftRules = run ? run.draftRules : cfg.newRunDraftRules;
+    const every = draftRules?.blessingEvery ?? cfg.blessingEvery;
     const rules: [string, string][] = [
       ['red_potion', 'После победы — частичное лечение, на отдыхе — ещё. Павших могут вернуть особые благословения и события.'],
-      ['hero_card', `Каждые ${cfg.blessingEvery} этажа и после элиты — карта на выбор: она меняет правила боя.`],
+      ['hero_card', `Каждые ${every} ${plural(every, 'этаж', 'этажа', 'этажей')} и после элиты — карта на выбор: она меняет правила боя.`],
       ['trophy', `Каждый ${cfg.bossEvery}-й этаж — босс. Рекордные этажи приносят гемы.`],
       ['flag', 'Поражение или «Сдаться» — конец забега.'],
       ['tower', 'Осколки — за каждый забег, на улучшения. Добыча — раз в день за новые этажи.'],
     ];
+    if (draftRules) rules.splice(2, 0, ['hero_card', `MVP-карт одновременно: ${draftRules.legendaryCap}. Новую можно обменять на действующую или оставить сборку. Воскрешение при получении Осириса — один раз за забег; боевое воскрешение сохраняется.`]);
     bottomSheet(this, 'Как устроен забег', (c, width) => {
       let y = 0;
       for (const [icon, line] of rules) {
@@ -571,19 +584,23 @@ export class TowerScene extends Phaser.Scene {
   private cardsSheet(run: TowerRun): void {
     const cfg = runConfig(GAME);
     if (!run.cards.length) {
-      toast(this, `Первая карта — после ${cfg.blessingEvery}-го этажа`, C.muted);
+      toast(this, `Первая карта — после ${run.draftRules?.blessingEvery ?? cfg.blessingEvery}-го этажа`, C.muted);
       return;
     }
     bottomSheet(this, 'Карты забега', (c, width) => {
       c.setName('towerCardsList');
       let y = 0;
+      if (run.draftRules) {
+        c.add(text(this, 0, y, this.mvpLabel(run), T.body, COLOR.gold).setOrigin(0, 0));
+        y += 72;
+      }
       for (const id of run.cards) {
         const b = cfg.blessings.find((x) => x.id === id);
         if (!b) continue;
         const thumb = this.cardThumb(b, 56, y + 56, 112, c);
         c.add(thumb);
         const name = text(this, 112 + S.s, y + 10, b.name, T.body, RARITY_COLOR[b.rarity], { fontStyle: 'bold' }).setOrigin(0, 0);
-        const body = text(this, 112 + S.s, y + 10 + name.height + 4, b.text, T.caption, COLOR.textSecondary, { wordWrap: { width: width - 112 - S.s }, align: 'left' }).setOrigin(0, 0);
+        const body = text(this, 112 + S.s, y + 10 + name.height + 4, this.blessingText(b, run), T.caption, COLOR.textSecondary, { wordWrap: { width: width - 112 - S.s }, align: 'left' }).setOrigin(0, 0);
         c.add([name, body]);
         y += Math.max(112, name.height + body.height + 14) + S.s;
       }
@@ -684,7 +701,7 @@ export class TowerScene extends Phaser.Scene {
     const u = b.monster ? GAME.content.units[b.monster] : undefined;
     if (u) box.add(portrait(this, 0, 0, portraitKey(u.visual.sprite), size * 0.8).setTint(unitTint(u.visual)));
     else box.add(this.add.image(0, 0, skinIcon((b.icon ?? 'star') as SkinIcon)).setDisplaySize(size * 0.6, size * 0.6).setTint(COLOR_N.title));
-    showCardArt(this, b.id, 0, 0, size - 10, (img) => box.add(img), owner);
+    showCardArt(this, b.id, 0, 0, size - 10, (img) => { if (box.scene) box.add(img); else img.destroy(); }, owner);
     return box;
   }
 
@@ -693,6 +710,7 @@ export class TowerScene extends Phaser.Scene {
     const cfg = runConfig(GAME);
     const p = run.pending;
     if (p?.kind !== 'blessing') return;
+    if (run.draftRules) return this.draftOverlay();
     const layer = this.overlay().setName('towerBlessing');
     const add = <O extends Phaser.GameObjects.GameObject>(o: O) => (layer.add(o), o);
     add(text(this, GAME_W / 2, 250, 'Выберите карту', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' })).setShadow(0, 3, 'rgba(0,0,0,0.8)', 6, false, true);
@@ -779,6 +797,183 @@ export class TowerScene extends Phaser.Scene {
     popIn(this, layer, layer.list[0]);
   }
 
+  /** Подпись временных MVP-карт: предел относится только к текущему забегу. */
+  private mvpLabel(run: TowerRun): string {
+    const cfg = runConfig(GAME);
+    const count = run.cards.filter((id) => cfg.blessings.find((b) => b.id === id)?.rarity === 'legendary').length;
+    return `MVP ${count}/${run.draftRules!.legendaryCap}`;
+  }
+
+  /** Осирис: честная подпись разового получения, отдельная от воскрешения в бою. */
+  private blessingText(b: Blessing, run: TowerRun): string {
+    const immediate = b.effects.find((e) => e.kind === 'reviveRun');
+    if (!run.draftRules || !immediate || immediate.kind !== 'reviveRun') return b.text;
+    const used = run.consumedImmediateCards?.includes(b.id);
+    const acquire = used ? 'Воскрешение при получении уже использовано.' : `Первое получение: павшие встают с ${Math.round(immediate.hpPct * 100)}% ОЗ (раз за забег).`;
+    const battle = b.effects.find((e) => e.kind === 'reviveOnce');
+    return `${acquire}${battle?.kind === 'reviveOnce' ? ` Раз за бой павший встаёт с ${Math.round(battle.hpPct * 100)}% ОЗ${battle.healer ? ' при живом лекаре' : ''}.` : ''}`;
+  }
+
+  /** Одна оболочка выбора: сравнение заменяет содержимое, не создавая второе модальное окно. */
+  private draftOverlay(): void {
+    const layer = this.overlay().setName('towerBlessing');
+    const content = this.add.container(0, 0).setName('towerDraftContent');
+    layer.add(content);
+    this.draftChoices(content);
+    popIn(this, layer, layer.list[0]);
+  }
+
+  /** Защита от касания старого выбора после перетасовки, смены режима или обновления сохранения. */
+  private draftGuard(run: TowerRun): () => boolean {
+    const revision = ++this.draftRevision;
+    const offer = JSON.stringify(run.pending);
+    return () => {
+      const fresh = session.save.tower.run;
+      return !this.picking && revision === this.draftRevision && !!fresh?.draftRules && fresh.seed === run.seed && fresh.floor === run.floor && JSON.stringify(fresh.pending) === offer;
+    };
+  }
+
+  /** Все изменения берут актуальное сохранение; блокировка охватывает commit и последующую анимацию. */
+  private finishDraft(work: () => TowerRunEvent[], content: Phaser.GameObjects.Container, card?: Panel): void {
+    if (this.picking) return;
+    this.picking = true;
+    let events: TowerRunEvent[] = [];
+    if (!this.act(() => { events = work(); })) { this.picking = false; return; }
+    const disable = (o: Phaser.GameObjects.GameObject): void => {
+      if (o.input) o.disableInteractive();
+      if (o instanceof Phaser.GameObjects.Container) o.list.forEach(disable);
+    };
+    disable(content);
+    if (card) { sfx('bless_pick'); haptic('blessPick'); }
+    const ms = card ? this.flashCard(content, card, COLOR_N.accent) : 0;
+    this.time.delayedCall(ms, () => this.scene.restart({ fight: { floor: 0, win: false, events } } satisfies TowerSceneData));
+  }
+
+  private keepDraft(content: Phaser.GameObjects.Container): void {
+    this.finishDraft(() => { commit(skipTowerBlessing(session.save, GAME)); return []; }, content);
+  }
+
+  /** Три/четыре полных предложения и оплаченные перетасовки остаются доступны до подтверждения. */
+  private draftChoices(content: Phaser.GameObjects.Container): void {
+    const run = session.save.tower.run;
+    if (!run?.draftRules || run.pending?.kind !== 'blessing') return;
+    const cfg = runConfig(GAME), p = run.pending;
+    const ready = this.draftGuard(run);
+    content.removeAll(true);
+    const add = <O extends Phaser.GameObjects.GameObject>(o: O) => (content.add(o), o);
+    add(text(this, GAME_W / 2, 150, 'Выберите карту', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }));
+    add(text(this, GAME_W / 2, 222, SOURCE[p.source] ?? '', T.body, COLOR.textSecondary));
+    add(text(this, GAME_W / 2, 282, `${this.mvpLabel(run)} · карты только на этот забег`, T.caption, COLOR.gold)).setName('towerDraftMvp');
+    if (p.exhausted || !p.options.length) {
+      add(text(this, GAME_W / 2, 740, 'Все подходящие карты уже действуют.\nСборка останется прежней.', T.heading, COLOR.textPrimary, { wordWrap: { width: W - S.l }, align: 'center' })).setName('towerDraftExhausted');
+      if (p.exchange) add(text(this, GAME_W / 2, 920, 'Карта для обмена не потрачена.', T.body, COLOR.positive));
+    }
+    const n = p.options.length, h = n > 3 ? 268 : 340, gap = S.xs;
+    p.options.forEach((id, i) => {
+      const b = cfg.blessings.find((x) => x.id === id)!;
+      const preview = previewTowerBlessingChoice(session.save, id, GAME);
+      const top = 336 + i * (h + gap), cy = top + h / 2;
+      const rc = RARITY_COLOR[b.rarity];
+      const box = add(plate(this, GAME_W / 2, cy, W, h, { fill: COLOR.surfaceRaised, border: rc, borderW: 5, r: R.l }));
+      const thumb = this.cardThumb(b, S.l + 96, cy, 148, content);
+      add(thumb);
+      const tx = S.l + 196, tw = W - 220;
+      const title = add(text(this, tx, top + 20, b.name, T.body, rc, { fontStyle: 'bold' }).setOrigin(0, 0));
+      ellipsize(title, tw);
+      const body = add(text(this, tx, top + 72, this.blessingText(b, run), T.caption, COLOR.textPrimary, { wordWrap: { width: tw }, align: 'left', lineSpacing: 4 }).setOrigin(0, 0));
+      clampLines(body, n > 3 ? 4 : 5);
+      const family = cfg.families.find((f) => f.id === b.family)!;
+      const action = preview.requiresReplacement ? 'выбор замены MVP' : p.exchange ? 'сравнить обмен' : family.name;
+      add(text(this, tx, top + h - 30, action, T.caption, preview.requiresReplacement ? COLOR.gold : family.color).setOrigin(0, 0.5));
+      if (b.effects.some((e) => e.kind === 'reviveOnce' && e.healer) && !this.hasHealer(run)) add(tag(this, S.l + 96, cy + 102, 'нет лекаря', 'negative').setName('towerNoHealer'));
+      else if (b.cost) add(tag(this, S.l + 96, cy + 102, 'с ценой', 'negative'));
+      pressable(this, box, W, h, () => {
+        if (!ready()) return;
+        if (preview.requiresReplacement || p.exchange) { this.draftComparison(content, id); return; }
+        this.finishDraft(() => {
+          const out = pickTowerBlessing(session.save, id, GAME);
+          commit(out.save);
+          return out.events;
+        }, content, box);
+      }).setName(`towerCard${i}`);
+    });
+    if (run.rerolls > 0 && !p.exhausted && p.options.length) {
+      const reroll = button(this, GAME_W / 2, 1570, 720, BTN.l, '', `Перетасовать (${run.rerolls})`, () => {
+        if (!ready()) return;
+        this.finishDraft(() => { commit(rerollTowerBlessing(session.save, GAME)); return []; }, content);
+      }, T.body, { variant: 'secondary' });
+      add(reroll.container.setName('towerReroll'));
+    }
+    const keep = button(this, GAME_W / 2, 1750, 840, BTN.l, '', 'Оставить текущую сборку', () => { if (ready()) this.keepDraft(content); }, T.body, { variant: 'secondary' });
+    add(keep.container.setName('towerDraftKeep'));
+  }
+
+  /** Сравнение входящей и явно выбранной уходящей карты с итоговыми бонусами видов. */
+  private draftComparison(content: Phaser.GameObjects.Container, incomingId: string, replaceCardId?: string): void {
+    const run = session.save.tower.run;
+    if (!run?.draftRules || run.pending?.kind !== 'blessing') return;
+    const cfg = runConfig(GAME), p = run.pending;
+    const preview = previewTowerBlessingChoice(session.save, incomingId, GAME, { replaceCardId });
+    const ready = this.draftGuard(run);
+    content.removeAll(true);
+    const add = <O extends Phaser.GameObjects.GameObject>(o: O) => (content.add(o), o);
+    add(text(this, GAME_W / 2, 128, 'Сравнение карт', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' })).setName('towerDraftCompare');
+    add(text(this, GAME_W / 2, 198, this.mvpLabel(run), T.body, COLOR.gold));
+    const incoming = cfg.blessings.find((b) => b.id === incomingId)!;
+    const card = (b: Blessing, top: number, heading: string, tint: string): Panel => {
+      const panel = add(plate(this, GAME_W / 2, top + 155, W, 310, { fill: COLOR.surfaceRaised, border: tint, borderW: 4, r: R.l }));
+      add(this.cardThumb(b, S.l + 104, top + 160, 160, content));
+      const tx = S.l + 216, tw = W - 248;
+      add(text(this, tx, top + 16, heading, T.caption, tint).setOrigin(0, 0));
+      const name = add(text(this, tx, top + 62, b.name, T.body, RARITY_COLOR[b.rarity], { fontStyle: 'bold' }).setOrigin(0, 0));
+      ellipsize(name, tw);
+      add(text(this, tx, top + 118, this.blessingText(b, run), T.caption, COLOR.textPrimary, { wordWrap: { width: tw }, align: 'left', lineSpacing: 4 }).setOrigin(0, 0));
+      return panel;
+    };
+    const incomingBox = card(incoming, 246, 'Войдёт в сборку', COLOR.positive);
+    const candidates = preview.replacementCandidates;
+    if (candidates.length) {
+      add(text(this, GAME_W / 2, 606, 'Какую действующую MVP-карту заменить?', T.body, COLOR.title));
+      const bw = (W - (candidates.length - 1) * S.xs) / candidates.length;
+      candidates.forEach((id, i) => {
+        const b = cfg.blessings.find((x) => x.id === id)!;
+        const buttonView = button(this, S.l + bw / 2 + i * (bw + S.xs), 690, bw, BTN.l, '', `${id === replaceCardId ? '✓ ' : ''}${b.name.replace(/^Карта /, '')}`, () => {
+          if (ready()) this.draftComparison(content, incomingId, id);
+        }, T.caption, { variant: 'secondary' });
+        add(buttonView.container.setName(`towerReplace${i}`));
+      });
+    }
+    const outgoing = cfg.blessings.find((b) => b.id === preview.outgoingCardId);
+    if (outgoing) {
+      card(outgoing, 794, 'Уйдёт из сборки', COLOR.negative);
+      add(text(this, GAME_W / 2, 1146, 'Все действующие эффекты уходящей карты исчезнут.', T.caption, COLOR.negative, { wordWrap: { width: W }, align: 'center' })).setName('towerDraftEffectsRemoved');
+    } else add(text(this, GAME_W / 2, 920, 'Выберите уходящую карту для сравнения.', T.body, COLOR.textSecondary, { wordWrap: { width: W }, align: 'center' }));
+    const familyNames = (ids: string[]) => ids.map((id) => cfg.families.find((f) => f.id === id)?.name ?? id).join(', ');
+    const changes = preview.requiresReplacement ? 'Бонусы видов появятся после выбора замены.' : [
+      preview.familiesGained.length ? `Включится бонус вида: ${familyNames(preview.familiesGained)}` : '',
+      preview.familiesLost.length ? `Отключится бонус вида: ${familyNames(preview.familiesLost)}` : '',
+    ].filter(Boolean).join('\n') || 'Бонусы видов не изменятся.';
+    add(text(this, GAME_W / 2, 1240, changes, T.caption, COLOR.textPrimary, { wordWrap: { width: W }, align: 'center' })).setName('towerDraftFamilies');
+    if (preview.exchangeSourcePreserved && p.exchange) {
+      const source = cfg.blessings.find((b) => b.id === p.exchange!.sourceCardId)!;
+      add(text(this, GAME_W / 2, 1360, `${source.name} остаётся.\nОбменяется только выбранная MVP-карта.`, T.caption, COLOR.positive, { wordWrap: { width: W }, align: 'center' })).setName('towerDraftSourcePreserved');
+    }
+    const accept = button(this, GAME_W / 2, 1510, 840, BTN.l, '', 'Заменить', () => {
+      if (!ready() || preview.requiresReplacement) return;
+      this.finishDraft(() => {
+        const out = pickTowerBlessing(session.save, incomingId, GAME, { replaceCardId });
+        commit(out.save);
+        return out.events;
+      }, content, incomingBox);
+    }, T.body, { variant: 'secondary' });
+    accept.setEnabled(!preview.requiresReplacement);
+    add(accept.container.setName('towerDraftConfirm'));
+    const back = button(this, GAME_W / 2, 1670, 840, BTN.l, '', 'Назад к картам', () => { if (ready()) this.draftChoices(content); }, T.body, { variant: 'secondary' });
+    add(back.container.setName('towerDraftBack'));
+    const keep = button(this, GAME_W / 2, 1830, 840, BTN.l, '', 'Оставить текущую сборку', () => { if (ready()) this.keepDraft(content); }, T.body, { variant: 'secondary' });
+    add(keep.container.setName('towerDraftKeep'));
+  }
+
   /**
    * Вспышка рамки выбранной карты: белая рамка поверх и светлый отблеск, гаснут за ~0.3 с. «Меньше движения» — только
    * рамка, без анимации. Возвращает, сколько мс ждать перед переходом.
@@ -797,14 +992,26 @@ export class TowerScene extends Phaser.Scene {
   private eventOverlay(run: TowerRun): void {
     const ev = towerEventDef(session.save, GAME);
     if (!ev) return;
+    const ready = run.draftRules ? this.draftGuard(run) : () => true;
     const layer = this.overlay().setName('towerEvent');
     const parts: Phaser.GameObjects.GameObject[] = [];
     const add = <O extends Phaser.GameObjects.GameObject>(o: O) => (parts.push(o), o);
     const inner = W - 2 * S.l;
-    const body = add(text(this, GAME_W / 2, 0, ev.text, T.body, COLOR.textPrimary, { wordWrap: { width: inner }, align: 'center', lineSpacing: 10 }));
+    const cfg = runConfig(GAME);
+    const last = cfg.blessings.find((b) => b.id === run.cards.at(-1));
+    const exchange = !!run.draftRules && ev.options.some((o) => o.outcomes.some((x) => x.kind === 'upgradeCard')) && !!last;
+    const full = !!run.draftRules && run.cards.filter((id) => cfg.blessings.find((b) => b.id === id)?.rarity === 'legendary').length >= run.draftRules.legendaryCap;
+    const mvpExchange = exchange && full && last!.rarity === 'rare';
+    const exchangeText = mvpExchange
+      ? `Писарь предложит MVP-карту. Обменяется одна действующая MVP-карта; ${last!.name} останется. После сравнения можно отказаться.`
+      : exchange && full && last!.rarity === 'common'
+        ? `За редкую карту уйдёт ${last!.name}. За MVP уйдёт выбранная MVP-карта, а ${last!.name} останется. Обмен — только после сравнения.`
+        : exchange ? `${last!.name} обменяется на ${last!.rarity === 'legendary' ? 'другую MVP-карту' : 'карту на ступень выше'}. До подтверждения карта остаётся в сборке; можно отказаться.` : ev.text;
+    const body = add(text(this, GAME_W / 2, 0, exchangeText, T.body, COLOR.textPrimary, { wordWrap: { width: inner }, align: 'center', lineSpacing: 10 }));
     const optH = BTN.l;
     const optGap = S.s;
-    const hints = ev.options.map((o) => (o.hint ? 44 : 0));
+    const optionHints = ev.options.map((o) => exchange && o.outcomes.some((x) => x.kind === 'upgradeCard') ? 'Карта спишется только после подтверждения' : o.hint);
+    const hints = optionHints.map((hint) => hint ? 44 : 0);
     const optsH = ev.options.reduce((n, _o, i) => n + optH + hints[i] + optGap, 0) - optGap;
     const artH = 200;
     const h = S.l + artH + S.s + 70 + S.s + body.height + S.l + optsH + S.l;
@@ -825,11 +1032,14 @@ export class TowerScene extends Phaser.Scene {
     ev.options.forEach((o, i) => {
       const ok = eventOptionAllowed(run, o);
       const by = y + optH / 2;
-      const b = button(this, GAME_W / 2, by, inner, optH, '', o.label, () => {
+      const label = mvpExchange && o.outcomes.some((x) => x.kind === 'upgradeCard') ? 'Заменить MVP-карту' : o.label;
+      const b = button(this, GAME_W / 2, by, inner, optH, '', label, () => {
+        if (!ready()) return;
         if (!ok) {
           toast(this, 'Не хватает условий для этого варианта', C.warning);
           return;
         }
+        if (run.draftRules) this.picking = true;
         let msg = '';
         let events: TowerRunEvent[] = [];
         if (
@@ -840,7 +1050,7 @@ export class TowerScene extends Phaser.Scene {
             commit(out.save);
           })
         )
-          return;
+          { this.picking = false; return; }
         toast(this, msg, C.success, 3500);
         this.scene.restart({ fight: { floor: 0, win: false, events } } satisfies TowerSceneData);
       }, T.heading, { variant: i === 0 && ok ? 'primary' : 'secondary' });
@@ -849,8 +1059,8 @@ export class TowerScene extends Phaser.Scene {
       b.container.setName(`towerEventOpt${i}`);
       add(b.container);
       y += optH;
-      if (o.hint) {
-        add(text(this, GAME_W / 2, y + 26, o.hint, T.caption, ok ? COLOR.textSecondary : COLOR.textTertiary));
+      if (optionHints[i]) {
+        add(text(this, GAME_W / 2, y + 26, optionHints[i], T.caption, ok ? COLOR.textSecondary : COLOR.textTertiary));
         y += hints[i];
       }
       y += optGap;

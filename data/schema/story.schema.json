@@ -87,6 +87,23 @@
                   "type": "string",
                   "minLength": 1
                 },
+                "when": {
+                  "type": "object",
+                  "properties": {
+                    "choice": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    },
+                    "is": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "choice",
+                    "is"
+                  ]
+                },
                 "text": {
                   "type": "string",
                   "minLength": 1,
@@ -98,6 +115,89 @@
                 "text"
               ]
             }
+          },
+          "choice": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "prompt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "options": {
+                "minItems": 2,
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80
+                    },
+                    "reply": {
+                      "minItems": 1,
+                      "maxItems": 3,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "speaker": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "when": {
+                            "type": "object",
+                            "properties": {
+                              "choice": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*$"
+                              },
+                              "is": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*$"
+                              }
+                            },
+                            "required": [
+                              "choice",
+                              "is"
+                            ]
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          }
+                        },
+                        "required": [
+                          "speaker",
+                          "text"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "text",
+                    "reply"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "id",
+              "prompt",
+              "options"
+            ]
           }
         },
         "required": [

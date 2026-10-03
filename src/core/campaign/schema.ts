@@ -66,6 +66,8 @@ export const ChapterChronicleSchema = z.object({
   text: line(PAGE_LIMITS.chronicle, 'текст летописи'),
 });
 
+const StageEnemiesSchema = z.array(z.object({ unit: id, mult: z.number().positive().default(1) }).nullable()).length(5);
+
 export const StageSchema = z.object({
   id,
   name: z.string(),
@@ -77,9 +79,12 @@ export const StageSchema = z.object({
    */
   inserted: z.boolean().optional(),
   /** 5 слотов (0–1 фронт, 2–4 тыл): id юнита из data/units (kind monster/boss) или null. */
-  enemies: z
-    .array(z.object({ unit: id, mult: z.number().positive().default(1) }).nullable())
-    .length(5),
+  enemies: StageEnemiesSchema,
+  /** Одно решение перед этапом; база остаётся fallback для старых сохранений и других режимов. */
+  campaignChoice: z.object({
+    id, sceneId: id, afterStageId: id,
+    variants: z.array(z.object({ optionId: id, enemies: StageEnemiesSchema, recommendedFactor: z.number().positive().optional() })).min(2).max(3),
+  }).optional(),
   /** Награда за победу (jobExp — в общий пул опыта героев, v4). */
   rewards: Reward,
   /** Доход офлайн-сундука в минуту, пока это последний пройденный этап. */
