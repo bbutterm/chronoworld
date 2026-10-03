@@ -105,6 +105,24 @@ export function towerTier(save: SaveState, ctx: TowerContext): number {
   return ctx.content.chapters.find((c) => c.id === st.chapter)?.order ?? 1;
 }
 
+/**
+ * Сила нового забега плавно растёт в первой половине главы от предыдущей ступени к текущей.
+ * Геометрическая интерполяция даёт одинаковый относительный прирост за этап; середина главы
+ * сохраняет прежнюю силу эталонного отряда (scripts/balance-tower.ts). Значение фиксируется
+ * при старте: прогресс кампании не меняет текущий забег.
+ */
+export function towerEnemyMult(save: SaveState, ctx: TowerContext): number {
+  const multipliers = runConfig(ctx).tierMult;
+  const tier = towerTier(save, ctx);
+  const current = multipliers[Math.min(tier, multipliers.length) - 1];
+  const stage = frontierStage(save, ctx);
+  if (!stage || tier <= 1) return current;
+  const previous = multipliers[Math.min(tier - 1, multipliers.length) - 1];
+  const stages = ctx.content.stages.filter((s) => s.chapter === stage.chapter);
+  const progress = Math.min(1, (stage.index + 1) / Math.ceil(stages.length / 2));
+  return progress >= 1 ? current : previous * Math.pow(current / previous, progress);
+}
+
 function bandIndex(cfg: TowerConfig, floor: number): number {
   let idx = 0;
   cfg.bands.forEach((b, i) => {
@@ -119,16 +137,16 @@ function enemyGreed(run: TowerRun, cfg: TowerRunConfig): number {
 }
 
 /**
- * Враги этажа n забега: состав полосы data/tower.json (случайный от seed забега и этажа), сила = mult слота × tierMult
- * ступени × (1 + growthPerFloor)^(n − 1) × элита/босс × (1 + greed). id — `trun_f<n>_<слот>`.
+ * Враги этажа n забега: состав полосы data/tower.json (случайный от seed забега и этажа), сила = mult слота × enemyMult
+ * (или tierMult ступени для старого забега) × (1 + growthPerFloor)^(n − 1) × элита/босс × (1 + greed). id — `trun_f<n>_<слот>`.
  */
-export function runFloorEnemies(run: Pick<TowerRun, 'seed' | 'tier' | 'cards'>, n: number, kind: TowerNodeKind, ctx: TowerContext): (UnitDef | null)[] {
+export function runFloorEnemies(run: Pick<TowerRun, 'seed' | 'tier' | 'cards' | 'enemyMult'>, n: number, kind: TowerNodeKind, ctx: TowerContext): (UnitDef | null)[] {
   const cfg = runConfig(ctx);
   const band = ctx.tower.bands[bandIndex(ctx.tower, n)];
   const boss = kind === 'boss';
   const pool = boss ? band.bossLayouts : band.layouts;
   const layout = pool[rngOf(run, n, 'layout').int(pool.length)];
-  const tier = cfg.tierMult[Math.min(run.tier, cfg.tierMult.length) - 1];
+  const tier = run.enemyMult ?? cfg.tierMult[Math.min(run.tier, cfg.tierMult.length) - 1];
   const greed = enemyGreed(run as TowerRun, cfg);
   const k0 = tier * Math.pow(1 + cfg.growthPerFloor, n - 1) * (kind === 'elite' ? cfg.eliteMult : boss ? cfg.bossMult : 1) * (1 + greed);
   return layout.map((e, slot): UnitDef | null => {
@@ -338,6 +356,7 @@ export function startTowerRun(save: SaveState, heroIds: readonly (string | null)
   let run: TowerRun = {
     seed: runSeed('tower', save.createdAt, save.battleSeq, runs),
     tier: towerTier(save, ctx),
+    enemyMult: towerEnemyMult(save, ctx),
     floor: 0,
     squad,
     hp: Object.fromEntries(ids.map((id) => [id, 1000])),

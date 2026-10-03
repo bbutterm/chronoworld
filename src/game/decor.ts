@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { juiceOn } from './juice';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
-import { text } from './ui';
+import { slicedPanel, text } from './ui';
 import { FS } from './theme';
 
 /**
@@ -25,7 +25,7 @@ export function ribbon(
   if (t.width > maxW - 120) t.setScale((maxW - 120) / t.width);
   const w = Phaser.Math.Clamp(t.displayWidth + 140, opts.minW ?? 360, maxW);
   const h = Math.round(size * 2.1);
-  const band = scene.add.nineslice(0, 0, 'skin_ribbon', undefined, w, h, 48, 48, 0, 0);
+  const band = slicedPanel(scene, 0, 0, 'skin_ribbon', undefined, w, h, 48, 48, 0, 0);
   return scene.add.container(x, y, [band, t]);
 }
 

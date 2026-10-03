@@ -110,9 +110,9 @@ export function hintShown(id: HintId): boolean {
   return ONE_SHOT_HINTS.has(id) && shownSet().has(id);
 }
 
-/** Запомнить показ одноразовой подсказки. */
-export function markHintShown(id: HintId): void {
-  if (!ONE_SHOT_HINTS.has(id)) return;
+/** Запомнить реальный показ; подавленная модальным окном подсказка остаётся доступной. */
+export function markHintShown(id: HintId, displayed = true): void {
+  if (!displayed || !ONE_SHOT_HINTS.has(id)) return;
   const set = shownSet();
   if (set.has(id)) return;
   set.add(id);

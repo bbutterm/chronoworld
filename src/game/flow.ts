@@ -1,3 +1,7 @@
+import { tacticalDefeat } from './tactics';
+import type { BattleResult, UnitDef } from '../core/types';
+import { COMBAT } from '../core/config';
+
 /**
  * Чистые помощники экранов (без Phaser) — их проверяют тесты tests/game-flow.test.ts.
  */
@@ -302,7 +306,9 @@ export function equipBestSquad(save: SaveState, ctx: GearContext): { save: SaveS
  * вещи получше в инвентаре → «Улучшить» (хватает опыта) → вознесение → стрелки во фронте → свободные слоты при
  * запасных героях → прокачка. action — куда ведёт кнопка совета.
  */
-export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext): { text: string; action: 'EquipBest' | 'Heroes' | 'Squad' | 'Campaign' } {
+export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext, battle?: { result: BattleResult; defs: Record<string, UnitDef> }): { text: string; action: 'EquipBest' | 'Heroes' | 'Squad' | 'Campaign' } {
+  const tactic = battle ? tacticalDefeat(battle.result, battle.defs, { content: ctx.content, combat: ctx.combat ?? COMBAT }) : null;
+  if (tactic) return { text: `${tactic.text} ${tactic.advice}`, action: 'Squad' };
   // RN-10: только герои отряда (вещи «получше» для запасных ур. 1 в бою не помогут); кнопка «Надеть лучшее» — прямо на итогах.
   if (squadGearUpgrades(save, ctx).length) return { text: 'В сумке есть вещи получше для отряда — «Надеть лучшее» ниже.', action: 'EquipBest' };
   if (levelUpReady(save, ctx).length) return { text: 'Опыта хватает на новый уровень — «Герои» → герой → «Улучшить».', action: 'Heroes' };

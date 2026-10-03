@@ -18,7 +18,7 @@
     "bossGems": 10
   },
   "run": {
-    "$comment": "Забег-рогалик (docs/design/tower-roguelite.md). tierMult — сила врагов по ступени игрока (глава последнего пройденного этапа), подбирается scripts/balance-tower.ts.",
+    "$comment": "Забег-рогалик (docs/design/tower-roguelite.md). tierMult — сила врагов к середине главы; новые забеги плавно растут по этапам от предыдущей ступени, подбирается scripts/balance-tower.ts.",
     "tierMult": [
       1.496,
       1.735,

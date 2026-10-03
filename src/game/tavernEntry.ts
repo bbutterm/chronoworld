@@ -8,7 +8,7 @@ import { card, cornerBadge } from './screen';
 import { session, today } from './session';
 import { SKIN_TINT, skinIcon } from './skin';
 import { C, E, FS, M, OUTLINE, TITLE_STYLE } from './theme';
-import { pressable, text } from './ui';
+import { type Panel, pressable, text } from './ui';
 import { lockedToast, lockLabel } from './unlockBanner';
 
 /**
@@ -74,7 +74,7 @@ export function mugIcon(scene: Phaser.Scene, x: number, y: number, size: number,
  * касание — тост. Возвращает фон (имя — для e2e), медальон и подпись (для пульса «Новое!»).
  */
 export interface BuildingTile {
-  bg: Phaser.GameObjects.NineSlice;
+  bg: Panel;
   art: Phaser.GameObjects.Container;
   label: Phaser.GameObjects.Text;
   /** Центр строки состояния. */

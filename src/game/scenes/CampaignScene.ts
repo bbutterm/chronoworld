@@ -529,8 +529,9 @@ export class CampaignScene extends Phaser.Scene {
     if (id === 'tavern_summon' || id === 'quests_open') this.hintView = tutorialHint(this, id, navTabX('Home'), tabY, 'above', tab);
     if (id === 'ascend') this.hintView = tutorialHint(this, id, navTabX('Heroes'), tabY, 'above', tab);
     if (id === 'branch_pick') this.hintView = tutorialHint(this, id, navTabX('Heroes'), tabY, 'above', tab);
-    markHintShown(id);
     if (id === 'fast_rewards') this.hintView = tutorialHint(this, id, L.fastX, L.rowY, 'above', { w: L.fastW, h: BTN.cta });
+    markHintShown(id, !!this.hintView);
+    if (!this.hintView) this.hintId = null; // Подавленную подсказку попробуем снова после закрытия окна.
     this.hintView?.once(Phaser.GameObjects.Events.DESTROY, () => {
       // Плашку пропустили касанием — на следующем тике покажется следующий шаг цепочки.
       if (this.hintId === id && hintDone(id)) this.hintId = null;
