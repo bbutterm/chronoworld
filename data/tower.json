@@ -533,6 +533,54 @@
         ]
       },
       {
+        "id": "side_winder",
+        "name": "Карта Сайдвиндера",
+        "rarity": "common",
+        "family": "wild",
+        "monster": "maze_side_winder",
+        "text": "15% обычных атак бьют дважды. Навыки не усиливаются.",
+        "effects": [
+          {
+            "kind": "doubleHit",
+            "chance": 0.15
+          }
+        ]
+      },
+      {
+        "id": "marse",
+        "name": "Карта Марса",
+        "rarity": "common",
+        "family": "guard",
+        "monster": "mob6_ranged",
+        "text": "Задний ряд получает на 15% меньше урона. Передний ряд — без защиты.",
+        "effects": [
+          {
+            "kind": "rowGuard",
+            "row": "back",
+            "pct": 0.15
+          }
+        ]
+      },
+      {
+        "id": "sohee",
+        "name": "Карта Сохи",
+        "rarity": "rare",
+        "family": "life",
+        "monster": "mob5_support",
+        "text": "Получаемое лечение +25%, щиты карт +25%. Цена: атака отряда −10%.",
+        "cost": true,
+        "effects": [
+          {
+            "kind": "healTaken",
+            "pct": 0.25
+          },
+          {
+            "kind": "atk",
+            "pct": -0.1
+          }
+        ]
+      },
+      {
         "id": "osiris",
         "name": "Карта Осириса",
         "rarity": "legendary",

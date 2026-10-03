@@ -79,7 +79,8 @@ describe('Башня-рогалик: данные', () => {
     validateTower(ctx.tower, ctx.content, problems);
     expect(problems).toEqual([]);
     expect(cfg.blessings.length).toBeGreaterThanOrEqual(24);
-    expect(cfg.blessings.length).toBeLessThanOrEqual(30);
+    // Three build-specific cards extend the original 29-card pool; cadence and rarity stay unchanged.
+    expect(cfg.blessings.length).toBe(32);
     for (const r of ['common', 'rare', 'legendary']) expect(cfg.blessings.filter((b) => b.rarity === r).length).toBeGreaterThanOrEqual(5);
     // Вид карты даёт бонус только если карт этого вида хотя бы need.
     for (const f of cfg.families) expect(cfg.blessings.filter((b) => b.family === f.id).length).toBeGreaterThanOrEqual(f.need);

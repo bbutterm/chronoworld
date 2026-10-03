@@ -364,7 +364,6 @@ export class TowerScene extends Phaser.Scene {
   // ---------- забег ----------
 
   private runView(run: TowerRun): void {
-    const save = session.save;
     const next = run.floor + 1;
     const alive = run.squad.filter((x): x is string => !!x);
     const hp = alive.length ? alive.reduce((n, id) => n + (run.hp[id] ?? 1000), 0) / alive.length / 1000 : 0;
@@ -380,7 +379,7 @@ export class TowerScene extends Phaser.Scene {
 
     if (run.draftRules) chip(this, S.l, L.barY + 80, 'hero_card', this.mvpLabel(run), 'gold', { size: 's', align: 'left' }).setName('towerMvpCount');
     this.runMap(run);
-    this.ladderTags(next + 1, save.tower.floor);
+
     const kind = run.paths[this.sel];
     this.preview(run, kind);
     this.runSquad(run);
@@ -391,56 +390,53 @@ export class TowerScene extends Phaser.Scene {
     ctaShine(this, go.container, 640, 140);
   }
 
-  /** Лестница забега: пройденный этаж внизу, развилка этажа N (номер — крупно между путями), выше — следующие. */
+  /** Компактный маршрут: текущая цель и две карточки с последствиями до подтверждения. */
   private runMap(run: TowerRun): void {
     const n = run.floor + 1;
-    const xs = run.paths.length === 1 ? [GAME_W / 2] : [270, GAME_W - 270];
-    const g = this.add.graphics();
-    g.lineStyle(8, COLOR_N.border, 0.9);
-    for (const x of xs) {
-      g.lineBetween(GAME_W / 2, L.passedY, x, L.forkY);
-      g.lineBetween(x, L.forkY, GAME_W / 2, L.near);
-    }
-    this.floorsAhead(n + 1, L.near);
-    // Номер этажа — крупно (между путями; один путь — левее).
-    const lx = xs.length > 1 ? GAME_W / 2 : GAME_W / 2 - 250;
-    text(this, lx, L.forkY - 58, 'Этаж', T.caption, COLOR.textSecondary).setShadow(0, 2, 'rgba(0,0,0,0.8)', 4, false, true);
-    text(this, lx, L.forkY + 14, String(n), T.display, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' })
-      .setShadow(0, 3, 'rgba(0,0,0,0.8)', 6, false, true)
-      .setName('towerFloor');
+    const cfg = runConfig(GAME);
+    text(this, GAME_W / 2, 440, `Этаж ${n}`, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setName('towerFloor');
+    const bossAt = Math.ceil(n / cfg.bossEvery) * cfg.bossEvery;
+    text(this, GAME_W / 2, 506, bossAt === n ? 'На этом этаже — босс' : `Ближайший босс · этаж ${bossAt}`, T.caption, COLOR.textSecondary);
+    const cardW = (W - S.s) / 2;
+    const cardH = 340;
+    const cy = 738;
+    const xs = run.paths.length === 1 ? [GAME_W / 2] : [S.l + cardW / 2, GAME_W - S.l - cardW / 2];
     run.paths.forEach((k, i) => {
       const x = xs[i];
       const on = i === this.sel;
       const locked = !!run.node && run.node !== k;
-      const a = locked ? 0.4 : 1;
-      const r = on ? 104 : 88;
-      if (on) glow(this, x, L.forkY, r * 3.2, hexNum(NODE_TONE[k]), 0.35, true);
-      this.add
-        .circle(x, L.forkY, r, on ? COLOR_N.surfaceRaised : COLOR_N.surfaceSunken, 0.95 * a)
-        .setStrokeStyle(on ? 10 : 5, on ? COLOR_N.accent : hexNum(NODE_TONE[k]), a);
-      this.add
-        .image(x, L.forkY, skinIcon(NODE_ICON[k]))
-        .setDisplaySize(r * 0.9, r * 0.9)
-        .setTint(hexNum(NODE_TONE[k]))
-        .setAlpha(a);
-      const name = text(this, x, L.forkY + r + 36, NODE_NAMES[k], T.body, on ? COLOR.title : COLOR.textSecondary, { fontStyle: 'bold' }).setAlpha(a);
-      name.setShadow(0, 2, 'rgba(0,0,0,0.9)', 4, false, true);
+      const box = plate(this, x, cy, cardW, cardH, { ...SURFACE.raised, r: R.l,
+        border: on ? COLOR.accent : COLOR.border, borderW: on ? 6 : 3 });
+      box.setAlpha(locked ? 0.4 : 1);
+      this.add.image(x, cy - 108, skinIcon(NODE_ICON[k])).setDisplaySize(64, 64).setTint(hexNum(NODE_TONE[k]));
+      text(this, x, cy - 40, NODE_NAMES[k], T.heading, on ? COLOR.title : COLOR.textPrimary, { fontStyle: 'bold' });
+      const heal = Math.round((cfg.restHeal + upgradeValue(session.save, cfg, 'restHeal')) * 100);
+      const shards = cfg.shards.floor + (k === 'elite' ? cfg.shards.elite : k === 'boss' ? cfg.shards.boss : 0);
+      // Финальная победа завершает забег без выбора. У события свой draft заменяет периодический,
+      // а не добавляется к нему: обещаем один выбор, без второго бонуса за тот же этаж.
+      const finished = isBattleNode(k) && n >= GAME.tower.maxFloor;
+      const card = !finished && (k === 'elite' || k === 'boss' || n % (run.draftRules?.blessingEvery ?? cfg.blessingEvery) === 0);
+      const after = finished ? '\nЗавершение забега' : card ? '\nВыбор карты' : '';
+      const consequence = (isBattleNode(k) ? `Победа: +${shards} осколков`
+        : k === 'rest' ? `Живым героям +${heal}% ОЗ` : 'Событие с выбором') + after;
+      text(this, x, cy + 34, consequence, T.caption, COLOR.textSecondary, {
+        wordWrap: { width: cardW - 2 * S.s }, align: 'center',
+      }).setName(`towerPathConsequence${i}`);
+      text(this, x, cy + 126, on ? 'Выбран' : 'Другой путь', T.caption, on ? COLOR.title : COLOR.textSecondary);
       if (!locked && !run.node)
-        pressable(this, this.add.zone(x, L.forkY + 20, 280, 300), 280, 300, () => {
+        pressable(this, this.add.zone(x, cy, cardW, cardH), cardW, cardH, () => {
           if (this.sel === i) return;
           this.sel = i;
           this.scene.restart();
         }).setName(`towerPath${i}`);
     });
-    // Пройденный этаж.
-    this.add.circle(GAME_W / 2, L.passedY, 40, COLOR_N.surfaceSunken, 0.95).setStrokeStyle(5, COLOR_N.positive);
-    this.add.image(GAME_W / 2, L.passedY, skinIcon('check')).setDisplaySize(40, 40).setTint(COLOR_N.positive);
   }
 
   /** Превью выбранного пути: враги и мощь (с разведкой) / отдых / событие — одна карточка. */
   private preview(run: TowerRun, kind: TowerNodeKind): void {
     const save = session.save;
     const y = L.previewY;
+    text(this, S.l, y - 184, 'Выбранный путь', T.caption, COLOR.textSecondary).setOrigin(0, 0.5).setName('towerPreviewLabel');
     if (isBattleNode(kind)) {
       const h = 300;
       plate(this, GAME_W / 2, y, W, h, { ...SURFACE.raised, r: R.l, ...(kind !== 'battle' ? { border: COLOR.negative } : {}) });
@@ -496,6 +492,7 @@ export class TowerScene extends Phaser.Scene {
   private runSquad(run: TowerRun): void {
     const save = session.save;
     const y = L.runSquadY;
+    text(this, S.l, y - 90, run.fallen.length ? `Отряд · павших ${run.fallen.length}` : 'Отряд · здоровье перед следующим этажом', T.caption, COLOR.textSecondary).setOrigin(0, 0.5).setName('towerSquadLabel');
     const heroes = [...run.squad.filter((x): x is string => !!x).map((id) => ({ id, dead: false })), ...run.fallen.map((id) => ({ id, dead: true }))].slice(0, 5);
     const size = 128;
     const step = 176;
