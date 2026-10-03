@@ -53,10 +53,14 @@ function sceneHarness() {
   const settings: { data: HuntSceneData } = { data: {} };
   let queued = false;
   let modal: HuntOutcome | undefined;
-  const restart = vi.fn(() => { queued = true; });
+  const restart = vi.fn((data?: HuntSceneData) => {
+    if (data) settings.data = data;
+    queued = true;
+  });
+  const battleStart = vi.fn();
   Object.assign(scene, {
     sys: { settings, events, game: { loop: { time: 0 } } },
-    children: {}, add: { image: harness.node }, scene: { restart },
+    children: {}, add: { image: harness.node }, scene: { restart, start: battleStart },
   });
   const clock = new Clock(scene);
   const timers = () => (clock as unknown as { _active: unknown[] })._active;
@@ -77,7 +81,7 @@ function sceneHarness() {
     events.emit('update', 0, delta);
     if (queued) { queued = false; stop(); start(); }
   };
-  return { scene, clock, timers, events, settings, restart, banner, showOutcome, stop, start, tick, dismiss: () => { modal = undefined; }, modal: () => modal };
+  return { scene, battleStart, clock, timers, events, settings, restart, banner, showOutcome, stop, start, tick, dismiss: () => { modal = undefined; }, modal: () => modal };
 }
 
 beforeEach(() => {
@@ -155,5 +159,142 @@ describe('жизненный цикл экрана охоты', () => {
     vi.setSystemTime(new Date(2026, 9, 4, 0, 0, 1));
     h.tick();
     expect(h.restart).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('выбор уровня охоты', () => {
+  beforeEach(() => {
+    // Сброс выбора тем же путём, что новая игра/нулевой доступный уровень.
+    const h = sceneHarness();
+    h.start();
+    h.stop();
+    session.save.hunt = { day: today(), used: 0, best: {}, level: 2 };
+  });
+
+  const fight = (h: ReturnType<typeof sceneHarness>, rank: number) => {
+    (h.scene as any).fight();
+    expect(h.battleStart).toHaveBeenLastCalledWith('Battle', { mode: 'hunt', rank });
+  };
+  const pick = (h: ReturnType<typeof sceneHarness>, rank: number) => {
+    (h.scene as any).pick(rank, huntStatus(session.save, today(), GAME));
+    h.tick();
+  };
+  const setRank = (rank: number) => {
+    session.save = { ...session.save, hunt: { ...session.save.hunt!, level: rank } };
+  };
+
+  it.each([3, 5])('после победы на верхнем уровне следует за новым уровнем %i', (rank) => {
+    const h = sceneHarness();
+    h.start();
+    fight(h, 2);
+    setRank(rank);
+    h.stop();
+    h.start({ outcome: { killed: true, rank: 2, levelBefore: 2, levelAfter: rank } as HuntOutcome });
+    fight(h, rank);
+    setRank(rank + 1);
+    h.stop();
+    h.start();
+    fight(h, rank + 1);
+    h.stop();
+  });
+
+  it('после поражения следует за пониженным верхним уровнем и последующей победой', () => {
+    const h = sceneHarness();
+    h.start();
+    setRank(1);
+    h.stop();
+    h.start({ outcome: { killed: false, rank: 2, levelBefore: 2, levelAfter: 1 } as HuntOutcome });
+    fight(h, 1);
+    setRank(2);
+    h.stop();
+    h.start();
+    fight(h, 2);
+    h.stop();
+  });
+
+  it('сохраняет намеренный фарм при победе, возврате из отряда и смене дня', () => {
+    const h = sceneHarness();
+    h.start();
+    pick(h, 1);
+    fight(h, 1);
+    h.stop();
+    h.start({ outcome: { killed: true, rank: 1, levelBefore: 2, levelAfter: 2 } as HuntOutcome });
+    fight(h, 1);
+    h.stop();
+    h.start();
+    fight(h, 1);
+    vi.setSystemTime(new Date(2026, 9, 4, 0, 0, 1));
+    h.tick();
+    fight(h, 1);
+    h.stop();
+  });
+
+  it('выбор верхнего уровня вновь включает следование за прогрессом', () => {
+    const h = sceneHarness();
+    h.start();
+    pick(h, 0);
+    fight(h, 0);
+    pick(h, 2);
+    setRank(3);
+    h.stop();
+    h.start();
+    fight(h, 3);
+    h.stop();
+  });
+
+  it.each([0, 1])('недоступный фарм сбрасывается, когда верхний уровень стал %i', (rank) => {
+    const h = sceneHarness();
+    h.start();
+    pick(h, 1);
+    setRank(rank);
+    h.stop();
+    h.start();
+    fight(h, rank);
+    setRank(2);
+    h.stop();
+    h.start();
+    fight(h, 2);
+    h.stop();
+  });
+
+  it('клик боя берёт актуальный уровень из сохранения, а не снимок экрана', () => {
+    const h = sceneHarness();
+    h.start();
+    setRank(4);
+    fight(h, 4);
+    pick(h, 3);
+    setRank(1);
+    fight(h, 1);
+    h.stop();
+  });
+
+  it('новое сохранение не наследует фарм предыдущего игрока', () => {
+    const h = sceneHarness();
+    h.start();
+    pick(h, 1);
+    session.save = { ...session.save, createdAt: session.save.createdAt + 1 };
+    setRank(4);
+    h.stop();
+    h.start();
+    fight(h, 4);
+    h.stop();
+  });
+
+  it.each([null, 1])('зачистка сохраняет выбор %s и не останавливает следование за верхним уровнем', (selected) => {
+    const h = sceneHarness();
+    h.start();
+    if (selected !== null) pick(h, selected);
+    const st = huntStatus(session.save, today(), GAME);
+    session.save.hunt!.best[st.boss.unit] = st.tiers[0].damage;
+    (h.scene as any).sweep();
+    expect(h.restart).toHaveBeenLastCalledWith({ outcome: expect.objectContaining({ sweep: true }) });
+    h.tick();
+    fight(h, selected ?? 2);
+    setRank(3);
+    h.stop();
+    h.start();
+    fight(h, selected ?? 3);
+    h.stop();
   });
 });
