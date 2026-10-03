@@ -1,0 +1,23 @@
+{
+  "head": "07077487777bf5ad99a9fa3d712eb2a9ae598e2d",
+  "validated": [
+    "cap3-four-choices.json",
+    "chapter3-pilot-choice.json",
+    "empty-exchange-pool.json",
+    "hunt-max-rank.json",
+    "hunt-rank5.json",
+    "legacy-over-cap.json",
+    "osiris-already-spent.json",
+    "osiris-first-acquisition.json",
+    "scribe-event-cap3.json",
+    "scribe-pending-cap3.json",
+    "tower-new-card-art.json"
+  ],
+  "storyQueue": true,
+  "choicePersists": true,
+  "choiceImmutable": true,
+  "skipFallback": true,
+  "actualVariantEnemies": true,
+  "huntRanks": true,
+  "synthetic": true
+}

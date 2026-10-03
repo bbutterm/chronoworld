@@ -221,6 +221,7 @@ export default defineConfig(({ command }) => ({
     // качает только код игры (≈ 0.6 МБ), а Phaser берёт из кэша (хэшированные assets/ кэшируются навсегда, vercel.json).
     chunkSizeWarningLimit: 1000,
     rolldownOptions: {
+      input: { game: join(import.meta.dirname, 'index.html'), qa: join(import.meta.dirname, 'qa.html') },
       output: { codeSplitting: { groups: [{ name: 'phaser', test: /[\\/]node_modules[\\/]phaser[\\/]|[\\/]src[\\/]vendor[\\/]phaser-lite/ }] } },
     },
   },
