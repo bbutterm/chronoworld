@@ -9,7 +9,7 @@ import { GAME_H, GAME_W } from '../layout';
 import { bottomSheet, CONTENT_TOP, contentBottom, cta, popIn, portrait, screen, unitFigure, unitTint } from '../screen';
 import { cardArtId, showCardArt } from '../cardArt';
 import { commit, restartOnNewDay, session, today } from '../session';
-import { BTN, button, chip, ellipsize, infoButton, plate, progressBar, rewardRow, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
+import { BTN, button, chip, clampLines, ellipsize, infoButton, plate, progressBar, rewardRow, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
 import { ctaShine, glow, ribbon, slowRays } from '../decor';
 import { skinIcon } from '../skin';
 import { portraitKey } from '../sprites';
@@ -111,12 +111,12 @@ export function phasePips(phases: readonly { atHpPct?: number }[] | undefined): 
 /** Геометрия экрана (единицы поля 1080×1920). */
 const L = {
   /** Баннер MVP: высота — от свободного места, в этих пределах. */
-  bannerMin: 560,
+  bannerMin: 500,
   bannerMax: 760,
   /** Ряд «кого взять» под баннером. */
   squadH: 128,
   /** Блок уровня и награды. */
-  levelH: 400,
+  levelH: 480,
   /** Главная кнопка: высота и отступ от низа области. */
   ctaH: BTN.cta,
 } as const;
@@ -208,7 +208,7 @@ export class HuntScene extends Phaser.Scene {
 
     const tx = LEFT + S.l;
     const ty = top + S.l;
-    if (st.mvp) tag(this, tx, ty + 6, st.kills > 0 ? `MVP дня · побед ${st.kills}` : 'MVP дня', 'accent', { align: 'left' }).setName('huntKills');
+    if (st.mvp) tag(this, tx, ty + 6, `MVP дня · ур. ${(pickedRank ?? st.rank) + 1}`, 'accent', { align: 'left' }).setName('huntKills');
     const name = text(this, tx, ty + 44, def.name, T.display, COLOR.title, {
       fontFamily: FAMILY.heading,
       fontStyle: 'bold',
@@ -228,6 +228,12 @@ export class HuntScene extends Phaser.Scene {
       chip(this, tx, below + S.s + 28, (s, x, y, size) => elementBadge(s, x, y, boss.element, size), elementTitle(boss.element), 'neutral', { size: 's', align: 'left' }).setName('huntElement');
     }
     infoButton(this, LEFT + W - S.l, ty + 6, () => this.rules(st)).setName('huntInfo');
+    if (boss.mechanics[0]) {
+      const mechanic = text(this, tx, top + h - 228, boss.mechanics[0], T.caption, COLOR.textPrimary, {
+        wordWrap: { width: W - 2 * S.l }, align: 'left',
+      }).setOrigin(0, 0).setName('huntMechanic');
+      clampLines(mechanic, 2).setShadow(0, 2, 'rgba(0,0,0,0.9)', 4, false, true);
+    }
 
     // Низ баннера: слабость чипами (зелёным) и полоса ОЗ MVP с засечками фаз.
     const barY = top + h - S.l;
@@ -304,28 +310,33 @@ export class HuntScene extends Phaser.Scene {
       // BUG-193: ▶ выше своего уровня не молчит — объясняет, как подняться.
       const right = button(this, LEFT + W - S.s - 50, y, 100, BTN.m, '', '', () => {
         if (rank < st.rank) this.pick(rank + 1, st);
-        else toast(this, `Победите MVP уровня ${rank + 1} — откроется ${rank + 2}-й`, C.warning);
+        else toast(this, rank + 1 >= st.ranks ? 'Выбран последний уровень MVP' : `Победите MVP уровня ${rank + 1} — откроются уровни выше`, C.warning);
       }, T.heading, { variant: 'icon' });
       arrow(right, 'next');
       right.container.setName('huntNext');
       if (rank >= st.rank) right.container.setAlpha(0.45);
       text(this, GAME_W / 2, y, `Уровень ${rank + 1} / ${st.ranks}`, T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setName('huntRank');
-      if (rank < st.rank) tag(this, GAME_W / 2, y + 56, 'ниже вашего', 'neutral').setScale(0.85);
+      const objective = rank < st.rank ? `Фарм · для продвижения — уровень ${st.rank + 1}`
+        : rank + 1 >= st.ranks ? 'Последний уровень · цель — победить MVP'
+        : 'Победите MVP — откроются уровни выше';
+      text(this, GAME_W / 2, y + 64, objective, T.caption, COLOR.textSecondary).setName('huntObjective');
       // Здоровье на баннере — для выбранного уровня (баннер рисует MVP своего уровня).
       const hp = this.children.getByName('huntHp') as Phaser.GameObjects.Text | null;
       hp?.setText(formatNumber(boss.def.stats.hp));
       tier = Math.min(rank, st.tiers.length - 1);
-      y += rank < st.rank ? 130 : 108;
+      y += 132;
     } else y += 40;
     // Награда победы на этом уровне (без MVP — высший порог): чипы, карта MVP — последней.
     const cardDef = st.boss.card;
     const mvpCard = cardDef && GAME.hunt.mvp ? { id: cardDef.id, chance: GAME.hunt.mvp.cardChance } : undefined;
     const ore = st.attemptsLeft === st.attemptsPerDay && st.attemptsLeft > 0;
     // Шкала порогов: заливка — лучший результат по этому MVP; справа — кубок «8/10».
-    const by = top + h - 50;
+    const by = top + h - 40;
+    text(this, LEFT + S.m, y, st.mvp ? 'Награда за победу' : 'Награда высшего порога', T.caption, COLOR.textSecondary).setOrigin(0, 0.5).setName('huntRewardLabel');
+    text(this, LEFT + S.m, by - 48, 'Лучший результат · пороги наград', T.caption, COLOR.textSecondary).setOrigin(0, 0.5).setName('huntHistoryLabel');
     // Ряд наград — посередине между уровнем и шкалой (одна строка или две).
     const row = rewardRow(this, GAME_W / 2, 0, huntRewardChips(st.tiers[tier].rewards, { ore, mvpCard }), { maxW: W - 2 * S.s, size: 's', gap: S.xxs }).setName('huntReward');
-    const band = { top: y - 28, bottom: by - 40 };
+    const band = { top: y + 34, bottom: by - 80 };
     row.setY(band.top + Math.max(0, (band.bottom - band.top - row.height) / 2) + 28);
     const best = chip(this, LEFT + W - S.s, by, 'trophy', st.best > 0 ? `${st.bestTier + 1}/${st.tiers.length}` : '—', st.best > 0 ? 'gold' : 'neutral', { size: 's', align: 'right' }).setName('huntBest');
     const bx = LEFT + S.m;

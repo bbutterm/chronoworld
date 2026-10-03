@@ -357,6 +357,8 @@ export const SaveStateSchema = z.object({
    * в старых сохранениях его нет — по умолчанию пусто.
    */
   seenScenes: z.array(z.string()).default([]),
+  /** Кампанийные решения; default — пропуск, без морального ответа за игрока. */
+  campaignChoices: z.record(z.string(), z.string()).optional(),
   /**
    * Показанные баннеры «Новая функция!» (id из data/unlocks.json) — каждый один раз. Поле добавлено без смены версии и
    * намеренно без default: нет поля — сохранение старше таблицы открытий, sanitizeSave (initSeenUnlocks) отмечает

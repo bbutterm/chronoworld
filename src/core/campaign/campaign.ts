@@ -1,3 +1,4 @@
+import { beginCampaignStage, resolveStageEnemies, type CampaignChoices } from './choices';
 import type { BattleResult } from '../types';
 import { simulateBattle } from '../battle';
 import type { UnitDef } from '../content/schema';
@@ -55,10 +56,10 @@ export function growthStep(stage: StageInfo, ctx: GameContext): number {
  * (growthStep: сквозной номер без вставных этапов; growth = progression.campaign.enemyStatGrowthPerStage; spd не растёт),
  * округление до целых. id юнита — `${stage.id}_${slot}` (у разных слотов разные id), остальное — из data/units.
  */
-export function enemySquad(stageId: string, ctx: GameContext): (UnitDef | null)[] {
+export function enemySquad(stageId: string, ctx: GameContext, choices?: CampaignChoices): (UnitDef | null)[] {
   const stage = getStage(ctx, stageId);
   const growth = Math.pow(1 + ctx.progression.campaign.enemyStatGrowthPerStage, growthStep(stage, ctx));
-  return stage.enemies.map((e, slot) => {
+  return resolveStageEnemies(stage, choices).map((e, slot) => {
     if (!e) return null;
     const base = ctx.content.units[e.unit];
     if (!base) throw new Error(`Этап ${stage.id}: враг ${e.unit} не найден`);
@@ -126,7 +127,8 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   if (stageStatus(save, stageId, ctx) === 'locked') throw new GameRuleError('stage_locked', `Этап ${stage.name} ещё закрыт`);
   const { squad } = squadUnits(save, ctx);
 
-  const result = simulateBattle(ctx.content, squad, enemySquad(stageId, ctx), seed, { combat: ctx.combat });
+  save = beginCampaignStage(save, stageId, ctx);
+  const result = simulateBattle(ctx.content, squad, enemySquad(stageId, ctx, save.campaignChoices), seed, { combat: ctx.combat });
   let next: SaveState = { ...save, battleSeq: save.battleSeq + 1 };
   const events: ProgressEvent[] = [];
   if (result.winner !== 'A') return { save: next, result, events };

@@ -87,6 +87,28 @@ export function buildStory(files: readonly RawFile[], content: Content, problems
       out.scenes.push({ ...s, chapter: story.chapter });
     });
   }
+  const choices = new Map<string, StoryScene>();
+  for (const scene of out.scenes) {
+    const choice = scene.choice;
+    if (!choice) continue;
+    if (choices.has(choice.id)) problems.push(`сцена ${scene.id}: выбор ${choice.id} уже занят`);
+    choices.set(choice.id, scene);
+    const options = choice.options.map((o) => o.id);
+    if (new Set(options).size !== options.length || options.includes('default')) problems.push(`сцена ${scene.id}: неверные варианты выбора`);
+    const target = content.stages.find((s) => s.campaignChoice?.id === choice.id);
+    const binding = target?.campaignChoice;
+    if (!binding || binding.sceneId !== scene.id || binding.afterStageId !== scene.stageId || scene.trigger !== 'afterStage' || target?.chapter !== scene.chapter) problems.push(`сцена ${scene.id}: выбор не связан с этапом своей главы`);
+    else if (JSON.stringify([...options].sort()) !== JSON.stringify(binding.variants.map((v) => v.optionId).sort())) problems.push(`сцена ${scene.id}: варианты выбора не совпадают с этапом`);
+    for (const option of choice.options) for (const line of option.reply) {
+      if (!out.chapters[scene.chapter]?.speakers[line.speaker]) problems.push(`сцена ${scene.id}: спикер ответа ${line.speaker} не объявлен`);
+      if (line.when) problems.push(`сцена ${scene.id}: ответ выбора не должен иметь условие`);
+    }
+  }
+  for (const stage of content.stages) if (stage.campaignChoice && !choices.has(stage.campaignChoice.id)) problems.push(`этап ${stage.id}: выбор ${stage.campaignChoice.id} не найден в сюжете`);
+  for (const scene of out.scenes) for (const line of scene.lines) if (line.when) {
+    const source = choices.get(line.when.choice);
+    if (!source || source.chapter !== scene.chapter || (line.when.is !== 'default' && !source.choice!.options.some((o) => o.id === line.when!.is))) problems.push(`сцена ${scene.id}: неизвестное условие ${line.when.choice}/${line.when.is}`);
+  }
   return out;
 }
 
