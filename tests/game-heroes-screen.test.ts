@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { T, TOUCH, leading } from '../src/game/theme';
 
 /**
  * Экран «Герои» (итерация полировки 7A, docs/design/ui-polish-research.md §5 «Герои (список)»): один значок на
@@ -29,6 +30,17 @@ describe('экран «Герои»', () => {
     expect(keepAt).toBeGreaterThan(0);
     expect(create.indexOf("tutorialHint(this, 'equip_gear'")).toBeGreaterThan(keepAt);
     expect(create.indexOf("tutorialHint(this, 'ascend'")).toBeGreaterThan(keepAt);
+  });
+
+  it('полный счётчик коллекции отдельной строкой; размер кнопки и отступ от сумки сохранены', () => {
+    expect(SRC).toContain('`Коллекция\\n${cc.owned}/${cc.total}`');
+    expect(SRC).toContain('const collW = 290;');
+    expect(SRC).toContain('const collX = invX - TOUCH / 2 - S.xs - collW / 2;');
+    expect(SRC).toContain('button(this, collX, aY, collW, TOUCH,');
+    expect(SRC).toContain('collX - collW / 2 - S.s - expVal.x');
+    // Две строки caption укладываются по высоте; самый длинный текущий счётчик короче заголовка.
+    expect(2 * T.caption + leading(T.caption)).toBeLessThan(TOUCH);
+    for (const owned of [0, 3, 12]) expect(`${owned}/12`.length).toBeLessThan('Коллекция'.length);
   });
 
   it('одна главная кнопка: «Вознести всех» — только когда есть кого', () => {

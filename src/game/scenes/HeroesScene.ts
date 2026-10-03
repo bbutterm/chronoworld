@@ -87,9 +87,10 @@ export class HeroesScene extends Phaser.Scene {
     const bag = iconOf(this, 0, 0, 'bag', 56, COLOR.textPrimary);
     if (bag) inv.container.add(bag);
     const cc = collectionCount(save, GAME);
+    // Две строки сохраняют полный счётчик (включая 12/12), не забирая ширину у опыта.
     const collW = 290;
     const collX = invX - TOUCH / 2 - S.xs - collW / 2;
-    const coll = button(this, collX, aY, collW, TOUCH, heroesUi.showMissing ? 'skin_btn_active' : 'ui_btn_secondary', `Коллекция ${cc.owned}/${cc.total}`, () => {
+    const coll = button(this, collX, aY, collW, TOUCH, heroesUi.showMissing ? 'skin_btn_active' : 'ui_btn_secondary', `Коллекция\n${cc.owned}/${cc.total}`, () => {
       heroesUi.showMissing = !heroesUi.showMissing;
       this.redraw();
     }, T.caption, { sound: 'ui_toggle' });
