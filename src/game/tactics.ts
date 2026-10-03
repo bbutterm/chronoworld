@@ -30,24 +30,29 @@ export function encounterThreat(enemies: readonly (UnitDef | null)[], allies: re
 }
 
 /** Считаем только подтверждённые атаки после начала заряда; прерванный/оборванный бой — не попадание. */
-export function chargeFacts(result: BattleResult): { released: number; interrupted: number } {
+function chargeTimeline(result: BattleResult): { releasedStarts: number[]; interrupted: number } {
   const enemies = new Set([...result.units, ...(result.spawned ?? [])].filter((u) => u.side === 'B').map((u) => u.uid));
-  const pending = new Map<string, string>();
-  let released = 0;
+  const pending = new Map<string, { skill: string; start: number }>();
+  const releasedStarts: number[] = [];
   let interrupted = 0;
-  for (const e of result.log) {
+  for (const [index, e] of result.log.entries()) {
     if (e.type === 'cast' && enemies.has(e.unit)) {
-      if (e.action === 'start' && e.charge) pending.set(e.unit, e.skill);
-      else if (e.action === 'interrupt' && pending.get(e.unit) === e.skill) {
+      if (e.action === 'start' && e.charge) pending.set(e.unit, { skill: e.skill, start: index });
+      else if (e.action === 'interrupt' && pending.get(e.unit)?.skill === e.skill) {
         if (e.reason === 'break' || e.reason === 'stun' || e.reason === 'dispel') interrupted++;
         pending.delete(e.unit);
       }
-    } else if (e.type === 'attack' && pending.get(e.unit) === e.skill) {
-      released++;
+    } else if (e.type === 'attack' && pending.get(e.unit)?.skill === e.skill) {
+      releasedStarts.push(pending.get(e.unit)!.start);
       pending.delete(e.unit);
     } else if (e.type === 'death') pending.delete(e.unit);
   }
-  return { released, interrupted };
+  return { releasedStarts, interrupted };
+}
+
+export function chargeFacts(result: BattleResult): { released: number; interrupted: number } {
+  const { releasedStarts, interrupted } = chargeTimeline(result);
+  return { released: releasedStarts.length, interrupted };
 }
 
 /** Позитивная обратная связь — наблюдаемое действие, без выдуманного «спасено N здоровья». */
@@ -64,12 +69,36 @@ export function tacticalDefeat(result: BattleResult, defs: Record<string, UnitDe
   if (result.winner === 'A') return null;
   const units = [...result.units, ...(result.spawned ?? [])];
   const own = units.filter((u) => u.side === 'A');
-  const interrupter = own.map((u) => defs[u.unitId]).find((u) => u?.skills.ult && ctx.content.skills[u.skills.ult] && breaksCharge(ctx.content.skills[u.skills.ult]));
-  const { released } = chargeFacts(result);
-  if (released) return {
-    text: `Враг выполнил заряженных атак: ${released}.`,
-    advice: interrupter ? `Попробуйте выключить «Авто» в бою и сохранить ульту героя «${interrupter.name}» до красного заряда.` : 'Проверьте в разведке, есть ли в вашем отряде оглушение или срыв каста.',
-  };
+  const { releasedStarts } = chargeTimeline(result);
+  if (releasedStarts.length) {
+    const breakers = own.filter((u) => {
+      const ult = defs[u.unitId]?.skills.ult;
+      return ult && ctx.content.skills[ult] && breaksCharge(ctx.content.skills[ult]);
+    });
+    // Снимки — начало боя/призыв, report.alive — конец. Нужен порядок событий у начала
+    // именно выпущенного заряда; одинаковое t не отменяет порядок смерти и каста в журнале.
+    const arrivals = new Map(result.units.map((u) => [u.uid, -1]));
+    const deaths = new Map<string, number>();
+    result.log.forEach((e, index) => {
+      if (e.type === 'spawn') arrivals.set(e.unit, index);
+      if (e.type === 'death') deaths.set(e.unit, index);
+    });
+    const interrupter = breakers.find((u) => releasedStarts.some((start) =>
+      arrivals.has(u.uid) && arrivals.get(u.uid)! < start && (deaths.get(u.uid) ?? Infinity) > start));
+    const fallen = breakers.find((u) => {
+      const arrival = arrivals.get(u.uid);
+      const death = deaths.get(u.uid);
+      return arrival !== undefined && death !== undefined && arrival < death && releasedStarts.some((start) => death < start);
+    });
+    return {
+      text: `Враг выполнил заряженных атак: ${releasedStarts.length}.`,
+      advice: interrupter
+        ? `Попробуйте выключить «Авто» в бою и сохранить ульту героя «${defs[interrupter.unitId].name}» до красного заряда.`
+        : fallen
+          ? `Герой «${defs[fallen.unitId].name}» выбыл до начала заряда. Сначала попробуйте защитить его расстановкой.`
+          : 'Проверьте в разведке, есть ли в вашем отряде оглушение или срыв каста.',
+    };
+  }
   const firstDeath = result.log.find((e) => e.type === 'death' && own.some((u) => u.uid === e.unit));
   if (firstDeath?.type === 'death') {
     const victim = units.find((u) => u.uid === firstDeath.unit);
