@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { actSkipStage, autoFormation, enemySquad, getStage, stageCardDrop, stageStatus } from '../../core';
+import { actSkipStage, autoFormation, enemySquad, resolveStageEnemies, getStage, stageCardDrop, stageStatus } from '../../core';
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
 import { shortfallHint, stageNeeds, stageNo, stageSeed, type StageNeeds } from '../flow';
@@ -84,7 +84,7 @@ export class StageScene extends Phaser.Scene {
 
     // --- Поле (отряд против противника) и список героев ---
     // Уровни врагов поштучно не показываем (см. flow.ts stageNeeds): одно число — в листе разведки.
-    const enemies = enemySquad(this.stageId, GAME);
+    const enemies = enemySquad(this.stageId, GAME, session.save.campaignChoices);
     this.editor = new FormationEditor(this, {
       // Ряд мощи и «Героям нужен ур. N» рисует сцена (powerCompare и строка нехватки).
       chrome: false,
@@ -130,7 +130,7 @@ export class StageScene extends Phaser.Scene {
       this.fightBtns = [skip, again];
     }
     this.editor.draw();
-    this.enemyTaps(stage.enemies.map((e) => e?.unit ?? null));
+    this.enemyTaps(resolveStageEnemies(stage, session.save.campaignChoices).map((e) => e?.unit ?? null));
     // R: подсказка новичку — первый бой. После отряда: hintPointer обходит все кнопки, слоты и карточки сцены.
     // Обучение: после Таверны сильнейшие герои вне отряда — сначала «Авто» (prep_auto), иначе «В бой».
     const ids = (sq: readonly (string | null)[]) => JSON.stringify(sq.filter(Boolean).sort());
@@ -143,7 +143,7 @@ export class StageScene extends Phaser.Scene {
   /** Лист разведки: нужная мощь, уровень врагов (и нужный уровень героев при нехватке), враги по видам. */
   private openScout(): void {
     const needs = stageNeeds(session.save, this.stageId, GAME);
-    scoutSheet(this, enemySquad(this.stageId, GAME), Object.values(squadDefs(session.save)), needs);
+    scoutSheet(this, enemySquad(this.stageId, GAME, session.save.campaignChoices), Object.values(squadDefs(session.save)), needs);
   }
 
   /**
@@ -183,7 +183,7 @@ export class StageScene extends Phaser.Scene {
     const short = needs.own < needs.power;
     if (this.wasShort !== null && this.wasShort !== short) bump(this, this.power, 1.08);
     this.wasShort = short;
-    const threat = encounterThreat(enemySquad(this.stageId, GAME), Object.values(squadDefs(save)), GAME);
+    const threat = encounterThreat(enemySquad(this.stageId, GAME, session.save.campaignChoices), Object.values(squadDefs(save)), GAME);
     this.threatText?.setText(threat?.text ?? '');
     this.tacticText?.setText(threat?.advice ?? '');
     if (this.threatText) ellipsize(this.threatText, GAME_W - 2 * S.l);
@@ -219,7 +219,7 @@ export class StageScene extends Phaser.Scene {
     try {
       const outcome = actSkipStage(save, today(), this.stageId, stageSeed(save), GAME);
       const defs = squadDefs(save);
-      for (const u of enemySquad(this.stageId, GAME)) if (u) defs[u.id] = u;
+      for (const u of enemySquad(this.stageId, GAME, outcome.save.campaignChoices)) if (u) defs[u.id] = u;
       commit(outcome.save);
       markHint('stage_fight');
       this.scene.start('Result', { result: outcome.result, defs, stage: { stageId: this.stageId, outcome, skipped: true } } satisfies ResultData);

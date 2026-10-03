@@ -86,6 +86,7 @@ describe('сюжет: данные', () => {
       'ch3o_s14_after',
       'ch3o_s15_before',
       'ch3o_s15_after',
+      'ch3o_s6_after',
       'ch3o_s16_after',
       'ch3o_s7_before',
       'ch3o_s18_after',

@@ -196,6 +196,19 @@ export function sanitizeSave(
 ): { save: SaveState; warnings: string[] } {
   const warnings: string[] = [...(save.notices ?? [])];
   let changed = save.notices !== undefined;
+  if (save.campaignChoices !== undefined) {
+    const bindings = new Map(ctx.content.stages.flatMap((s) => s.campaignChoice ? [[s.campaignChoice.id, s.campaignChoice] as const] : []));
+    const entries = Object.entries(save.campaignChoices).filter(([id, option]) => {
+      const binding = bindings.get(id);
+      const ok = !!binding && (option === 'default' || binding.variants.some((v) => v.optionId === option));
+      if (!ok) warnings.push(`Неизвестное решение кампании ${id}/${option} удалено.`);
+      return ok;
+    });
+    if (entries.length !== Object.keys(save.campaignChoices).length) {
+      save = { ...save, campaignChoices: Object.fromEntries(entries) };
+      changed = true;
+    }
+  }
   // Вставленные в выпущенную главу этапы (глава 1: ch1_s11…s18) перед самым дальним пройденным — пройдены (campaign-gaps.ts).
   // До initSeenUnlocks: функции этих этапов у старого игрока уже открыты.
   const gaps = fillClearedGaps(save, ctx);
@@ -323,11 +336,29 @@ export function deserialize(text: string): SaveState {
       throw new SaveError(`Не удалось обновить сохранение с версии ${v}: ${e instanceof Error ? e.message : String(e)}.`);
     }
   }
+  // Повреждённое необязательное поле не должно уничтожать остальное сохранение.
+  if (isRecord(cur) && cur.campaignChoices !== undefined) {
+    const raw = cur.campaignChoices;
+    const valid = isRecord(raw) ? Object.fromEntries(Object.entries(raw).filter(([, v]) => typeof v === 'string')) : {};
+    if (!isRecord(raw) || Object.keys(valid).length !== Object.keys(raw).length) {
+      cur = { ...cur, campaignChoices: valid, notices: [...(Array.isArray(cur.notices) ? cur.notices : []), 'Повреждённые решения кампании удалены.'] };
+    }
+  }
   const parsed = SaveStateSchema.safeParse(cur);
   if (!parsed.success) throw new SaveError(`Сохранение повреждено: ${describeIssues(parsed.error)}.`);
   // P11 (T4-15): поля, которых эта сборка не знает (добавлены более новой), возвращаются на место —
   // схема их отбрасывает, а следующая запись иначе стёрла бы их навсегда.
-  const save = keepUnknownFields(parsed.data, cur) as SaveState;
+  let save = keepUnknownFields(parsed.data, cur) as SaveState;
+  // Решение добавляется в любой момент игры, поэтому его место среди необязательных полей
+  // задаёт исходная запись, а не порядок полей Zod (инвариант serialize/deserialize).
+  if (isRecord(cur) && cur.campaignChoices !== undefined && save.campaignChoices !== undefined) {
+    const entries = Object.entries(save).filter(([key]) => key !== 'campaignChoices');
+    const keys = Object.keys(cur);
+    const following = keys.slice(keys.indexOf('campaignChoices') + 1).find((key) => key in save);
+    const at = following === undefined ? entries.length : entries.findIndex(([key]) => key === following);
+    entries.splice(at, 0, ['campaignChoices', save.campaignChoices]);
+    save = Object.fromEntries(entries) as SaveState;
+  }
   const ids = new Set<string>();
   for (const h of save.heroes) {
     if (ids.has(h.id)) throw new SaveError(`Сохранение повреждено: герой ${h.id} встречается дважды.`);

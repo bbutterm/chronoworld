@@ -8,6 +8,7 @@ import {
   buildUnit,
   COMBAT,
   enemySquad,
+  beginCampaignStage,
   fightHunt,
   bondView,
   fightBondQuest,
@@ -435,7 +436,7 @@ export class BattleScene extends Phaser.Scene {
   /** Осталось паузы «hit stop», мс реального времени (0 — бой идёт). */
   private stopLeft = 0;
   /** Уровни врагов (core/features/levels.ts): редкость полосы и поправка босс-этапа; null — тестовый бой (без уровней). */
-  private levels: { rarity: CardRarity; bossFactor: number; shift?: number } | null = null;
+  private levels: { rarity: CardRarity; bossFactor: number; shift?: number; choices?: Record<string, string> } | null = null;
   /** BUG-061: панель героев отряда над ареной (портрет, здоровье, энергия). */
   private heroPanel: HeroPanel | null = null;
   /** Полоска HP босса наверху (только на босс-этапе). */
@@ -539,7 +540,8 @@ export class BattleScene extends Phaser.Scene {
     if (data.mode === 'stage') {
       // Бой считает ядро (actPlayStage: экипировка, выпадение, задания); сцена только проигрывает лог.
       // Сохраняем, когда бой закончится.
-      const save = session.save;
+      const save = beginCampaignStage(session.save, data.stageId, GAME);
+      if (save !== session.save) commit(save);
       let outcome: StageOutcomeWithDrops;
       // Тот же бой с вводами игрока: seed, день и время — как у первого расчёта (итог этапа — по показанному бою).
       const day = today();
@@ -564,11 +566,11 @@ export class BattleScene extends Phaser.Scene {
         return o.result;
       };
       this.defs = squadDefs(save);
-      for (const u of enemySquad(data.stageId, GAME)) if (u) this.defs[u.id] = u;
+      for (const u of enemySquad(data.stageId, GAME, save.campaignChoices)) if (u) this.defs[u.id] = u;
       const st = getStage(GAME, data.stageId);
       // RR-16: та же шкала, что на экране этапа (редкость отряда, типичный враг = рекомендуемый уровень).
       const lv = stageLevelsFor(save, data.stageId, GAME);
-      this.levels = { rarity: lv.rarity, bossFactor: recommendedFactor(data.stageId, GAME), shift: lv.shift };
+      this.levels = { rarity: lv.rarity, bossFactor: recommendedFactor(data.stageId, GAME, save.campaignChoices), shift: lv.shift, choices: save.campaignChoices };
       title = `${stageNo(st, GAME)} · ${st.name}`;
       this.theme = themeOfBattle({ stageId: data.stageId });
     } else if (data.mode === 'tower') {
@@ -1139,7 +1141,7 @@ export class BattleScene extends Phaser.Scene {
   private enemyLevel(def: UnitDef): number | null {
     // BUG-192: в Башне и на охоте статы врагов не по шкале уровней героев («ур. 267», «ур. 300») — уровень не пишем.
     if (this.towerRun || this.hunt) return null;
-    return this.levels ? Math.max(1, unitLevel(def, this.levels.rarity, GAME, this.levels.bossFactor) + (this.levels.shift ?? 0)) : null;
+    return this.levels ? Math.max(1, unitLevel(def, this.levels.rarity, GAME, this.levels.bossFactor, this.levels.choices) + (this.levels.shift ?? 0)) : null;
   }
 
   /** Подпись (имя, название каста) — целиком внутри экрана, даже у юнита у самого края (T3-02). */

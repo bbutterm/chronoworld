@@ -343,7 +343,7 @@ export function openStoryHistory(sc: Phaser.Scene, chapterId: string): void {
   scenes.forEach((s, i) => {
     const b = button(sc, GAME_W / 2, rowH / 2 + i * rowH, 800, 100, 'k:buttonLong_beige', `▶  ${sceneLabel(s, GAME)}`, area.tap(() => {
       close();
-      playScenes(sc, [s], () => {});
+      playScenes(sc, [s], () => {}, { readOnly: true });
     }), FS.h3);
     area.add(b.container);
   });

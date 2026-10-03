@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { sfx } from './audio';
 import { lineChimes } from './audioCore';
-import { episodePageId, markPageSeen, markScenesSeen, pendingIntro, pendingScenes, type StoryScene, type StoryTrigger } from '../core';
+import { beginCampaignStage, campaignSceneLines, canChooseCampaignOption, chooseCampaignOption, episodePageId, finishCampaignScene, markPageSeen, pendingIntro, pendingScenes, type StoryScene, type StoryTrigger } from '../core';
 import { GAME } from './content';
 import { illustKey, loadIllust } from './illust';
 import { GAME_H, GAME_W } from './layout';
@@ -53,6 +53,8 @@ const ILLUST_UNDER = 150;
 export interface DialogueOptions {
   /** Строки листаются сами (авто-прохождение не должно ждать игрока). Касание по-прежнему листает. */
   auto?: boolean;
+  /** Пересмотр истории: никакой записи, выбора или фиксации default, даже при пропуске. */
+  readOnly?: boolean;
 }
 
 /** Подпись в углу плашки: «2/5 ›» (дальше есть реплики) или «5/5» (последняя); одна реплика — без счётчика. */
@@ -67,7 +69,7 @@ export const dialogueOpen = (scene: Phaser.Scene) => !!scene.children.getByName(
 /**
  * Показать сцены сюжета по очереди поверх экрана: плашка снизу — портрет, имя, текст по буквам.
  * Касание дописывает строку, второе — следующая; «Пропустить» закрывает текущую сцену. Каждая сцена
- * помечается увиденной (save.seenScenes), когда закрыта. После последней — onDone.
+ * помечается увиденной (save.seenScenes), когда закрыта, кроме readOnly. После последней — onDone.
  */
 export function playScenes(scene: Phaser.Scene, scenes: readonly StoryScene[], onDone: () => void, opts: DialogueOptions = {}): void {
   const queue = [...scenes];
@@ -78,7 +80,7 @@ export function playScenes(scene: Phaser.Scene, scenes: readonly StoryScene[], o
       return;
     }
     showScene(scene, s, () => {
-      commit(markScenesSeen(session.save, [s.id]));
+      if (!opts.readOnly) commit(finishCampaignScene(session.save, s.id, GAME));
       next();
     }, opts);
   };
@@ -98,7 +100,12 @@ export function playStory(scene: Phaser.Scene, trigger: StoryTrigger, onDone: ()
 /** Начать бой на этапе: сначала сюжет «перед этапом» (и начала главы), потом бой. */
 export function startStageBattle(scene: Phaser.Scene, stageId: string, opts: DialogueOptions = {}): void {
   const go = () => {
-    playStory(scene, { type: 'beforeStage', stageId }, () => scene.scene.start('Battle', { mode: 'stage', stageId }), opts);
+    playStory(scene, { type: 'beforeStage', stageId }, () => {
+      // Фиксируем fallback до создания Battle: симуляция, повтор и показ врагов читают одно решение.
+      const next = beginCampaignStage(session.save, stageId, GAME);
+      if (next !== session.save) commit(next);
+      scene.scene.start('Battle', { mode: 'stage', stageId });
+    }, opts);
   };
   // Первый этап главы, а «Эпизод N» ещё не показан (в главу вошли не с карты) — сначала он. В авто-режиме не ждём
   // игрока: страница останется в «Летописи».
@@ -113,6 +120,7 @@ export function startStageBattle(scene: Phaser.Scene, stageId: string, opts: Dia
 
 function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts: DialogueOptions): void {
   const story = GAME.story.chapters[s.chapter];
+  let lines = campaignSceneLines(session.save, s);
   // Финал главы и сцена босса — кульминация: в авто-режиме их не листаем сами.
   const auto = !!opts.auto && !s.bossIntro && !isChapterFinale(s, GAME);
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName(DIALOGUE_NAME);
@@ -134,16 +142,17 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     wordWrap: { width: PANEL_W - 100, useAdvancedWrap: true },
     lineSpacing: BODY_LEADING,
     align: 'left',
-  }).setOrigin(0, 0);
+  }).setOrigin(0, 0).setName('dialogueBody');
   const more = counterText(scene, GAME_W / 2 + PANEL_W / 2 - S.l, PANEL_Y + PANEL_H / 2 - S.l);
   const skip = button(scene, GAME_W / 2 + PANEL_W / 2 - 140, top - 70, 260, BTN.m, '', 'Пропустить', () => close(), T.body, { variant: 'secondary' });
   // Имя говорящего — на золотой кромке (табличка), текст реплики ниже неё.
   const nameTrim = scene.add.image(px + PORTRAIT / 2 + 40, top + 96, 'skin_trim').setOrigin(0, 0.5).setDisplaySize(PANEL_W - PORTRAIT - 150, 8).setAlpha(0.7);
   // Вверху плашки — тёплый отсвет, как от портрета.
   const warm = scene.add.image(px + 60, top + 40, 'skin_glow').setDisplaySize(520, 260).setTint(0xffc870).setAlpha(0.14).setBlendMode(Phaser.BlendModes.ADD);
-  layer.add([shade, art, box, warm, nameTrim, face, nameText, body, more, skip.container]);
+  const choiceLayer = scene.add.container(0, 0);
+  layer.add([shade, art, box, warm, nameTrim, face, nameText, body, more, skip.container, choiceLayer]);
   // Иллюстрации спикеров сцены — загрузить заранее (к их первой реплике обычно уже готовы).
-  for (const l of s.lines) {
+  for (const l of [...s.lines, ...(s.choice?.options.flatMap((o) => o.reply) ?? [])]) {
     const ill = story?.speakers[l.speaker]?.illust;
     if (ill) void loadIllust(scene.game, ill);
   }
@@ -154,6 +163,10 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   let typer: Phaser.Time.TimerEvent | null = null;
   let autoNext: Phaser.Time.TimerEvent | null = null;
   let closed = false;
+  let choosing = false;
+  let choiceHandled = false;
+  let pickedLabel = '';
+  let viewVersion = 0;
   /** Когда появилась текущая строка (performance.now) и засчитано ли касание, начатое на затемнении. */
   let lineAt = performance.now();
   let armed = false;
@@ -167,16 +180,24 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     if (closed) return;
     closed = true;
     stopTimers();
+    scene.events.off('shutdown', shutdown);
     layer.destroy();
     onClose();
   };
+  const shutdown = () => {
+    // Уход с экрана не завершает сцену. Уже записанный ответ переживёт возврат/перезагрузку.
+    closed = true;
+    choosing = false;
+    stopTimers();
+  };
+  scene.events.once('shutdown', shutdown);
   const finishLine = () => {
     typer?.remove();
     typer = null;
     shown = full.length;
     body.setText(full);
     // Счётчик реплик и «›» — без инструкции «коснитесь…» (§3 п. 3): листание касанием — привычный жест.
-    more.setText(dialogueCounter(line, s.lines.length));
+    more.setText(pickedLabel || dialogueCounter(line, lines.length));
     if (auto) autoNext = scene.time.delayedCall(AUTO_LINE_MS + full.length * AUTO_CHAR_MS, advance);
   };
   let faceOf: string | null | undefined;
@@ -209,9 +230,9 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     setArt(null);
     if (illust) {
       // Иллюстрация ещё грузится — пока портрет, по готовности подменим (если эта реплика ещё на экране).
-      const lineNow = line;
+      const version = viewVersion;
       void loadIllust(scene.game, illust).then((ok) => {
-        if (ok && !closed && line === lineNow) setArt(illust);
+        if (ok && !closed && viewVersion === version) setArt(illust);
       });
     }
     // Тот же говорящий — портрет не пересобираем (бюст уже на месте, без мигания).
@@ -228,11 +249,15 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   };
   const showLine = (i: number) => {
     line = i;
+    viewVersion++;
     lineAt = performance.now();
-    const l = s.lines[i];
+    armed = false;
+    const l = lines[i];
     const who = speakerView(story, l.speaker, session.save, GAME);
     nameText.setText(who.name);
     setFace(who.sprite, who.gender, who.illust);
+    face.setVisible(!artOf);
+    placeName(!artOf);
     full = l.text;
     // Колокольчик Греты звенит в реплике — слышно (ограничитель не даст звенеть чаще раза в 1.5 с).
     if (lineChimes(full)) sfx('bell_chime', { delay: 0.2 });
@@ -246,20 +271,76 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
       delay: TYPE_MS,
       loop: true,
       callback: () => {
+        if (closed) return;
         shown = Math.max(shown + 1, Math.floor((scene.time.now - start) / TYPE_MS));
         body.setText(full.slice(0, shown));
         if (shown >= full.length) finishLine();
       },
     });
   };
+  const savedReply = () => {
+    choosing = false;
+    choiceLayer.removeAll(true);
+    const choice = s.choice;
+    const selected = choice?.options.find((o) => o.id === session.save.campaignChoices?.[choice.id]);
+    if (!selected) return close();
+    // При возврате/пересмотре показываем именно сохранённый ответ; альтернативных кнопок нет.
+    pickedLabel = selected.text;
+    more.setOrigin(1, 1).setWordWrapWidth(PANEL_W - 100, true);
+    lines = campaignSceneLines(session.save, { ...s, lines: selected.reply });
+    if (lines.length) showLine(0);
+    else close();
+  };
+  const afterLines = () => {
+    const choice = s.choice;
+    if (!choice || choiceHandled) return close();
+    choiceHandled = true;
+    if (session.save.campaignChoices?.[choice.id]) return savedReply();
+    // Авто/старое сохранение/пересмотр не принимают моральное решение за игрока.
+    if (opts.readOnly || opts.auto || !canChooseCampaignOption(session.save, s.id, GAME)) return close();
+    stopTimers();
+    choosing = true;
+    viewVersion++;
+    armed = false;
+    lineAt = performance.now();
+    setArt(null);
+    face.setVisible(false);
+    placeName(false);
+    nameText.setText('Ваш ответ');
+    full = choice.prompt;
+    shown = full.length;
+    body.setText(full);
+    more.setText('');
+    choice.options.forEach((option, i) => {
+      let optionArmed = false;
+      const y = top - 200 - (choice.options.length - 1 - i) * (BTN.l + S.s);
+      const b = button(scene, GAME_W / 2, y, PANEL_W - 2 * S.l, BTN.l, '', option.text, () => {
+        if (closed || !choosing || !optionArmed) return;
+        optionArmed = false;
+        choosing = false;
+        // Устаревшее событие не может изменить ответ после фиксации на другом пути UI.
+        if (!canChooseCampaignOption(session.save, s.id, GAME)) return savedReply();
+        const next = chooseCampaignOption(session.save, s.id, option.id, GAME);
+        if (next !== session.save) commit(next);
+        // Читаем принятый commit: при отклонении устаревшей вкладки нельзя показать незаписанный ответ.
+        savedReply();
+      }, T.body, { variant: 'secondary' });
+      b.container.setName(`campaignChoice_${option.id}`);
+      b.container.on('pointerdown', (p: Phaser.Input.Pointer) => {
+        optionArmed = choosing && !closed && eventTime(p) - lineAt >= LINE_GUARD_MS;
+      });
+      b.container.on('pointerout', () => { optionArmed = false; });
+      choiceLayer.add(b.container);
+    });
+  };
   const advance = () => {
-    if (closed) return;
+    if (closed || choosing) return;
     if (shown < full.length) {
       finishLine();
       return;
     }
-    if (line + 1 < s.lines.length) showLine(line + 1);
-    else close();
+    if (line + 1 < lines.length) showLine(line + 1);
+    else afterLines();
   };
   // Листает только касание, которое и началось на затемнении после появления строки (+ LINE_GUARD_MS).
   const eventTime = (p: Phaser.Input.Pointer) => {
@@ -267,7 +348,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     return typeof t === 'number' && t > 0 ? t : performance.now();
   };
   shade.on('pointerdown', (p: Phaser.Input.Pointer) => {
-    armed = eventTime(p) - lineAt >= LINE_GUARD_MS;
+    armed = !closed && !choosing && eventTime(p) - lineAt >= LINE_GUARD_MS;
   });
   shade.on('pointerup', () => {
     if (!armed) return;
@@ -275,7 +356,8 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     advance();
   });
   // Сцена выключилась (переход) — таймеры Phaser уберёт сам, диалог просто исчезает, не увиденным.
-  showLine(0);
+  if (lines.length) showLine(0);
+  else afterLines();
 }
 
 // ---------- вид плашки (общий с вечерами в таверне, TavernEveningScene.ts) ----------
