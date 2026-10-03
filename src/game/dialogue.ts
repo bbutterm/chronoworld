@@ -10,7 +10,7 @@ import { commit, session } from './session';
 import { SKIN } from './skin';
 import { isChapterFinale, speakerView } from './storyView';
 import { introPages, showPages } from './storyPage';
-import { BTN, button, mixHex, plate, SURFACE, text } from './ui';
+import { type Panel, BTN, button, mixHex, plate, SURFACE, text } from './ui';
 import { COLOR, E, FAMILY, M, R, S, T } from './theme';
 
 /** Имя слоя диалога (e2e ищет его, чтобы пролистать сцену). */
@@ -281,7 +281,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
 // ---------- вид плашки (общий с вечерами в таверне, TavernEveningScene.ts) ----------
 
 /** Плашка реплик: поднятая поверхность с бронзовой кромкой и мягким бликом (вместо 9-slice панели скина). */
-export function dialoguePanel(scene: Phaser.Scene, y: number): Phaser.GameObjects.NineSlice {
+export function dialoguePanel(scene: Phaser.Scene, y: number): Panel {
   return plate(scene, GAME_W / 2, y, PANEL_W, PANEL_H, { ...SURFACE.raised, alpha: 0.97, border: mixHex(COLOR.border, COLOR.accent, 0.35), r: R.xl });
 }
 

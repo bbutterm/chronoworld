@@ -44,7 +44,7 @@ import { showCardArt } from '../cardArt';
 import { framedPortrait } from '../portraitFrame';
 import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
-import { BTN, button, chip, clampLines, ellipsize, iconOf, infoButton, plate, pressable, rewardRow, SURFACE, tag, text, toast, type ButtonView, type ChipSpec, type Tone } from '../ui';
+import { type Panel, BTN, button, chip, clampLines, ellipsize, iconOf, infoButton, plate, pressable, rewardRow, SURFACE, tag, text, toast, type ButtonView, type ChipSpec, type Tone } from '../ui';
 import { ctaShine, glow } from '../decor';
 import { skinIcon, type SkinIcon } from '../skin';
 import { C, COLOR, COLOR_N, FAMILY, hexNum, R, RARITY, S, T, TOUCH, Z } from '../theme';
@@ -783,7 +783,7 @@ export class TowerScene extends Phaser.Scene {
    * Вспышка рамки выбранной карты: белая рамка поверх и светлый отблеск, гаснут за ~0.3 с. «Меньше движения» — только
    * рамка, без анимации. Возвращает, сколько мс ждать перед переходом.
    */
-  private flashCard(layer: Phaser.GameObjects.Container, box: Phaser.GameObjects.NineSlice, tint: number): number {
+  private flashCard(layer: Phaser.GameObjects.Container, box: Panel, tint: number): number {
     const frame = this.add.rectangle(box.x, box.y, box.width + 16, box.height + 16).setStrokeStyle(14, 0xffffff, 1);
     const shine = this.add.rectangle(box.x, box.y, box.width, box.height, tint, 0.35);
     (box.parentContainer ?? layer).add([shine, frame]);

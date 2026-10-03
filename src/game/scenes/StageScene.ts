@@ -3,11 +3,11 @@ import { actSkipStage, autoFormation, enemySquad, getStage, stageCardDrop, stage
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
 import { shortfallHint, stageNeeds, stageNo, stageSeed, type StageNeeds } from '../flow';
-import { GAME_H, GAME_W } from '../layout';
+import { GAME_W } from '../layout';
 import { COMBAT as COMBAT_CFG } from '../../core';
 import { cta, powerCompare, screen, updatePowerCompare } from '../screen';
 import { commit, session, today } from '../session';
-import { BTN, button, infoButton, pressable, rewardRow, tag, text, toast, tutorialHint, type ButtonView, type ChipSpec } from '../ui';
+import { BTN, button, ellipsize, infoButton, pressable, rewardRow, tag, text, toast, tutorialHint, type ButtonView, type ChipSpec } from '../ui';
 import { monsterTeaser, roleName } from '../loreView';
 import { ctaShine } from '../decor';
 import { markHint, pickPrepHint } from '../hints';
@@ -21,21 +21,9 @@ import { defenseElement, ELEMENT_NAMES } from '../../core/elements';
 import { elementBadge } from '../battleElements';
 import { scoutSheet } from '../scoutView';
 import type { HeroCardDrop } from '../../core';
+import { encounterThreat } from '../tactics';
 
-/** Геометрия экрана этапа (игровые единицы 1080×1920). */
-const L = {
-  /** Награды — один ряд чипов под шапкой. */
-  rewardY: 212,
-  field: { top: 270, bottom: 1010 },
-  /** Полоса над слотами поля: мощь слева, «БОСС» и «i» справа. */
-  powerY: 270 + 40,
-  /** Подпись нехватки («Героям нужен ур. N») — под мощью, только когда сил не хватает. */
-  shortY: 270 + 80,
-  rosterHeadY: 1132,
-  roster: { top: 1188, bottom: 1704 },
-  fightY: GAME_H - 110,
-} as const;
-
+import { STAGE_LAYOUT as L } from '../stageLayout';
 
 /** Шанс карты героя: «6%», «×1», «≈1.5» (как dropText ядра, только число). */
 function dropValue(x: number): string {
@@ -68,6 +56,8 @@ export class StageScene extends Phaser.Scene {
   private power: Phaser.GameObjects.Container | null = null;
   private shortText: Phaser.GameObjects.Text | null = null;
   private wasShort: boolean | null = null;
+  private threatText: Phaser.GameObjects.Text | null = null;
+  private tacticText: Phaser.GameObjects.Text | null = null;
 
   constructor() {
     super('Stage');
@@ -79,6 +69,8 @@ export class StageScene extends Phaser.Scene {
     this.power = null;
     this.shortText = null;
     this.wasShort = null;
+    this.threatText = null;
+    this.tacticText = null;
     const stage = getStage(GAME, this.stageId);
     // «Назад» — в главу этого этапа, а не в текущую главу игрока.
     const chapter = Math.max(0, CONTENT.chapters.findIndex((c) => c.id === stage.chapter));
@@ -112,6 +104,12 @@ export class StageScene extends Phaser.Scene {
     pressable(this, pz, 480, 96, () => this.openScout());
     const info = infoButton(this, GAME_W - 76, L.powerY, () => this.openScout()).setName('stageScoutInfo');
     if (stage.boss) tag(this, info.x - 48 - S.xs, L.powerY, 'БОСС', 'negative', { solid: true, align: 'right' }).setName('stageBoss');
+
+    // Угроза видна без открытия разведки; спокойная строка не перекрывает сюжет и обучение.
+    this.threatText = text(this, GAME_W / 2, L.threat.titleY, '', T.caption, COLOR.title, { fontStyle: 'bold' }).setName('stageThreat');
+    this.tacticText = text(this, GAME_W / 2, L.threat.adviceY, '', T.caption - 6, COLOR.textSecondary).setName('stageTactic');
+    const threatZone = this.add.zone(GAME_W / 2, L.threat.zoneY, GAME_W - 2 * S.l, L.threat.zoneH).setName('stageThreatZone');
+    pressable(this, threatZone, GAME_W - 2 * S.l, L.threat.zoneH, () => this.openScout());
 
     // --- Список героев: заголовок, «Авто» и «Пресеты» — вторичные ---
     text(this, S.l, L.rosterHeadY, 'Герои', T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
@@ -185,6 +183,11 @@ export class StageScene extends Phaser.Scene {
     const short = needs.own < needs.power;
     if (this.wasShort !== null && this.wasShort !== short) bump(this, this.power, 1.08);
     this.wasShort = short;
+    const threat = encounterThreat(enemySquad(this.stageId, GAME), Object.values(squadDefs(save)), GAME);
+    this.threatText?.setText(threat?.text ?? '');
+    this.tacticText?.setText(threat?.advice ?? '');
+    if (this.threatText) ellipsize(this.threatText, GAME_W - 2 * S.l);
+    if (this.tacticText) ellipsize(this.tacticText, GAME_W - 2 * S.l);
   }
 
   /** K8: авто-расстановка сильнейших героев. */

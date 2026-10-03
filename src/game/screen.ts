@@ -6,10 +6,10 @@ import { GAME } from './content';
 import { anim, lazyPortrait, portraitKey, spriteView, whenSprites } from './sprites';
 import { formatNumber, heroesNavBadge, POWER_COLORS, POWER_TINTS, type PowerCheck, type PowerTone } from './flow';
 import { view } from './viewport';
-import { button, ellipsize, emptyState, icon, panel, ScrollArea, shieldTaps, text, toast, type ButtonView } from './ui';
+import { button, ellipsize, emptyState, icon, panel, ScrollArea, shieldTaps, text, toast, type ButtonView, type Panel } from './ui';
 import { hasArt } from './assets';
 import { RO_ICON_TINT, roIcon } from './itemIcons';
-import { C, COLOR, COLOR_N, E, FAMILY, FS, M, R, S, T, TOUCH, Z } from './theme';
+import { C, COLOR, COLOR_N, E, FAMILY, FS, M, R, S, T, TOUCH, TOUCH_COMFORT, Z } from './theme';
 import { SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { animateCurrency, heartbeat, juiceOn, type CurrencyPill } from './juice';
 import { sfx } from './audio';
@@ -99,10 +99,11 @@ export function screen(
   } else currencyLeft = currencyLabels(scene);
   let titleRight = currencyLeft - S.s;
   if (opts.settings) {
-    const gx = currencyLeft - S.xs - GEAR.hit / 2;
-    const gear = iconButton(scene, gx, HEADER_CY, GEAR.size, GEAR.hit, 'gear', opts.settings, null);
+    const gearHit = Math.max(GEAR.hit, TOUCH_COMFORT);
+    const gx = currencyLeft - S.xs - gearHit / 2;
+    const gear = iconButton(scene, gx, HEADER_CY, GEAR.size, gearHit, 'gear', opts.settings, null);
     gear.setName('settings');
-    titleRight = gx - GEAR.hit / 2 - S.xs;
+    titleRight = gx - gearHit / 2 - S.xs;
   }
   const left = titleLeft(!!back);
   if (title) {
@@ -226,7 +227,7 @@ function tappable(
 /** «‹» в шапке: иконка-шеврон в диске (имя `backButton`; цель нажатия 120). label — для e2e/чтения, не рисуется. */
 function backButton(scene: Phaser.Scene, goBack: () => void, label?: string): void {
   // Звук и вибрацию даёт сам переход (backAction) — у кнопки свои выключены, чтобы не звучало дважды.
-  const b = iconButton(scene, BACK.x, HEADER_CY, BACK.size, BACK.hit, 'back', goBack, null);
+  const b = iconButton(scene, BACK.x, HEADER_CY, BACK.size, Math.max(BACK.hit, TOUCH_COMFORT), 'back', goBack, null);
   b.setName('backButton').setData('label', label ?? 'Назад');
 }
 
@@ -596,8 +597,8 @@ function closeButton(scene: Phaser.Scene, x: number, y: number, onTap: () => voi
     g.lineBetween(-11, -11, 11, 11).lineBetween(-11, 11, 11, -11);
   };
   draw(false);
-  const box = scene.add.container(x, y, [g]).setSize(TOUCH, TOUCH).setName('sheetClose');
-  tappable(scene, box, TOUCH, TOUCH, onTap, null, draw);
+  const box = scene.add.container(x, y, [g]).setSize(TOUCH_COMFORT, TOUCH_COMFORT).setName('sheetClose');
+  tappable(scene, box, TOUCH_COMFORT, TOUCH_COMFORT, onTap, null, draw);
   return box;
 }
 
@@ -653,7 +654,10 @@ function currencyLabels(scene: Phaser.Scene, rowY?: number): number {
     const halo = scene.add.image(ix, 0, 'skin_glow').setDisplaySize(72, 72).setTint(gem ? 0x6fd8ff : 0xffc83a).setAlpha(0.25).setBlendMode(Phaser.BlendModes.ADD);
     const box = scene.add.container(cx, y, [bg, halo, ico, t]).setName(`pill_${kind}`);
     // Точное число — по нажатию (сокращённое не всегда хватает для решения «хватит ли на покупку»).
-    tappable(scene, box, w, Math.max(PILL.h, TOUCH), () => {
+    // В двух строках цели ограничены межстрочным шагом, иначе золото и гемы перехватывают тапы друг друга.
+    const hitH = rowY === undefined ? PILL.h + 8 : Math.max(PILL.h, TOUCH);
+    box.setSize(w, hitH);
+    tappable(scene, box, w, hitH, () => {
       const v = gem ? session.save.currency.gems : session.save.resources.gold;
       toast(scene, `${gem ? 'Гемы' : 'Золото'}: ${formatNumber(v)}`, gem ? C.gem : C.gold, 2000);
     }, null);
@@ -740,7 +744,7 @@ export function cornerBadge(scene: Phaser.Scene, cx: number, cy: number, w: numb
 }
 
 /** Карточка-панель с рамкой из атласа. */
-export function card(scene: Phaser.Scene, x: number, y: number, w: number, h: number, light = false): Phaser.GameObjects.NineSlice {
+export function card(scene: Phaser.Scene, x: number, y: number, w: number, h: number, light = false): Panel {
   return panel(scene, x, y, w, h, light ? 'ui_panel_light' : 'ui_panel');
 }
 

@@ -22,6 +22,20 @@ describe('R: подсказки первой сессии', () => {
     expect(pickHomeHint({ ...base, cleared: 9, towerUnlocked: true }, none)).toBe('tower_open');
   });
 
+  it('одноразовая подсказка подавлена окном: не расходуется и доступна после закрытия', () => {
+    resetHints();
+    const state = { ...base, cleared: 9, towerUnlocked: true };
+    const done = (id: HintId) => hintDone(id) || hintShown(id);
+    expect(pickHomeHint(state, done)).toBe('tower_open');
+    markHintShown('tower_open', false);
+    expect(hintShown('tower_open')).toBe(false);
+    expect(pickHomeHint(state, done)).toBe('tower_open');
+    markHintShown('tower_open', true);
+    expect(hintShown('tower_open')).toBe(true);
+    expect(pickHomeHint(state, done)).toBeNull();
+    resetHints();
+  });
+
   it('тексты подсказок: одна строка ≤ HINT_MAX знаков, голосом игры — без «нажмите», «коснитесь», «чтобы»', () => {
     expect(HINT_MAX).toBeLessThanOrEqual(40);
     for (const [id, t] of Object.entries(HINT_TEXT)) {

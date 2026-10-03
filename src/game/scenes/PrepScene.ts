@@ -7,7 +7,7 @@ import { anim, portraitKey, spriteView, whenSprites } from '../sprites';
 import { ARENA_TOP, GAME_W, slotPos } from '../layout';
 import { portrait } from '../screen';
 import { squads } from '../state';
-import { button, ellipsize, panel, pressable, text } from '../ui';
+import { type Panel, button, ellipsize, panel, pressable, text } from '../ui';
 import { C, FS, TOUCH } from '../theme';
 
 const SLOT_SIZE = 160;
@@ -17,7 +17,7 @@ const DY = -80;
 interface SlotView {
   side: Side;
   slot: number;
-  bg: Phaser.GameObjects.NineSlice;
+  bg: Panel;
   hero: Phaser.GameObjects.Sprite;
   label: Phaser.GameObjects.Text;
 }

@@ -15,7 +15,7 @@ import { anim, spriteView, SPRITES, whenSprites, type SpriteView } from './sprit
 import { V2_SCALE, resolveAnim, type AnimName } from '../pipeline/sprites';
 import { motion } from './state';
 import { COLOR, COLOR_N, OUTLINE, R, S, T as TYPE } from './theme';
-import { plate, pressable, text } from './ui';
+import { type Panel, plate, pressable, text } from './ui';
 import { squadDefs } from './scenes/BattleScene';
 import {
   animTimeScale,
@@ -140,7 +140,7 @@ class IdleDiorama {
   private kills = 0;
   private frozen = false;
   private chestImg?: Phaser.GameObjects.Image;
-  private pill?: Phaser.GameObjects.NineSlice;
+  private pill?: Panel;
   private counter?: Phaser.GameObjects.Text;
   private coin?: Phaser.GameObjects.GameObject;
   private rate?: Phaser.GameObjects.Text;

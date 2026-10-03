@@ -219,6 +219,8 @@ describe('Башня-рогалик: ход забега', () => {
     if (!run(s).node) s = chooseTowerPath(s, 0, hard);
     const gold0 = s.resources.gold;
     const floor = run(s).floor;
+    // Сила теперь зафиксирована в забеге: для сценария поражения меняем именно снимок.
+    s = { ...s, tower: { ...s.tower, run: { ...run(s), enemyMult: 1000 } } };
     const out = fightTowerFloor(s, DAY, hard);
     expect(out.result.winner).toBe('B');
     expect(out.ended).toBeTruthy();

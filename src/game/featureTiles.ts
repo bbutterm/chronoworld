@@ -10,7 +10,7 @@ import { dot, unitFigure, unitTint } from './screen';
 import { slowRays } from './decor';
 import { buildingTile, type BuildingTile } from './tavernEntry';
 import { C, COLOR, FAMILY, R, S, T } from './theme';
-import { chip, ellipsize, plate, pressable, text, type IconSpec, type Tone } from './ui';
+import { type Panel, chip, ellipsize, plate, pressable, text, type IconSpec, type Tone } from './ui';
 import { isUnlocked, lockedToast, lockLabel } from './unlockBanner';
 
 /**
@@ -93,7 +93,7 @@ export interface ModeBannerSpec {
 }
 
 export interface ModeBanner {
-  frame: Phaser.GameObjects.NineSlice;
+  frame: Panel;
   /** Центр фигуры — для указателя подсказки. */
   focusX: number;
   focusY: number;

@@ -13,6 +13,7 @@ import { markHint, pickResultHint } from '../hints';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { COLOR, COLOR_N, E, M, R, S, T, TINT } from '../theme';
 import type { ResultData } from './BattleScene';
+import { tacticalSuccess } from '../tactics';
 import { bottomSheet, cta, portrait, powerCompare, unitFigure, unitTint } from '../screen';
 import { countUp, juiceOn, moment } from '../juice';
 import { playStory, startStageBattle } from '../dialogue';
@@ -172,6 +173,8 @@ export class ResultScene extends Phaser.Scene {
     /** Строка: рисует свои объекты на высоте ly, кладёт их put (в слой или прокрутку) — затем вешает нажатие. */
     type Put = <O extends Obj>(o: O) => O;
     const rows: { draw: (ly: number, put: Put) => Obj[] }[] = [];
+    const tactic = tacticalSuccess(data.result);
+    if (tactic) rows.push({ draw: (ly, put) => [put(text(this, GAME_W / 2, ly, tactic, T.caption, COLOR.positive).setName('resultTactic'))] });
     const found = stage && firstClear ? stageFinding(stage.stageId, GAME.content) : undefined;
     if (stage && found) {
       rows.push({
@@ -464,10 +467,10 @@ export class ResultScene extends Phaser.Scene {
     }
 
     // Как стать сильнее: три плитки-иконки.
-    const head = text(this, GAME_W / 2, y, 'Как стать сильнее', T.heading, COLOR.title, { fontStyle: 'bold' });
+    const head = text(this, GAME_W / 2, y, 'Следующая попытка', T.heading, COLOR.title, { fontStyle: 'bold' });
     layer.add(head);
     reveal.step([head]);
-    const tip = defeatAdvice(session.save, GAME);
+    const tip = defeatAdvice(session.save, GAME, { result: r, defs: data.defs });
     const gearReady = squadGearUpgrades(session.save, GAME).length > 0;
     const tiles = defeatShortcuts(tip.action, featureUnlocked(session.save, 'tavern', GAME), gearReady);
     const tw = 312;
@@ -476,9 +479,14 @@ export class ResultScene extends Phaser.Scene {
     tiles.forEach((t, i) => reveal.step([this.defeatTile(layer, t, GAME_W / 2 + (i - 1) * (tw + S.s), ty, tw, th, stage?.stageId)]));
     y = ty + th / 2 + S.l;
 
+    const advice = clampLines(text(this, GAME_W / 2, y, tip.text, T.caption, COLOR.textPrimary, { wordWrap: { width: L.contentW - 64 } }), 3).setOrigin(0.5, 0).setName('defeatAdvice');
+    layer.add(advice);
+    reveal.step([advice]);
+    y += advice.height + S.s;
+
     // Строка Гаррета вместо сухого «Поражение» (lore-route §5.8, data/lore/lines.json → defeat) — одна-две строки.
     const said = randomLine('defeat');
-    if (said) {
+    if (said && y + S.l + 2 * T.caption < BUTTONS_TOP) {
       const q = clampLines(text(this, GAME_W / 2, y + S.l, said, T.caption, COLOR.textSecondary, { fontStyle: 'italic', wordWrap: { width: L.contentW - 80 } }), 2).setOrigin(0.5, 0).setName('resultLine');
       layer.add(q);
       reveal.step([q]);

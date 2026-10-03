@@ -3,7 +3,7 @@ import { skinKey, sliceOf, tex } from './assets';
 import { SKIN_DARK_LABEL } from './skin';
 import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { worldPoint } from './viewport';
-import { C, COLOR, COLOR_N, E, FAMILY, familyFor, FS, leading, M, R, S, T, TINT, TOUCH } from './theme';
+import { C, COLOR, COLOR_N, E, FAMILY, familyFor, FS, leading, M, R, S, T, TINT, TOUCH, TOUCH_COMFORT } from './theme';
 import { BADGE } from './frame';
 import { arrowRect, HINT_GEOM, overlapArea, placeCallout, sceneObstacles, type CalloutPlan, type HintSide, type Rect, type SceneNode } from './hintLayout';
 import { HINT_TEXT, hintNagged, markHint, noteHintVisit, type HintId } from './hints';
@@ -86,16 +86,112 @@ export function text(
   return t;
 }
 
+/** Поверхность сохраняет API текстуры, прозрачности и tint в обоих рендерах. */
+export type Panel = Phaser.GameObjects.NineSlice | Phaser.GameObjects.Image;
+
+interface CanvasPanelTexture { key: string; refs: number }
+const canvasPanels = new WeakMap<Phaser.Textures.TextureManager, Map<string, CanvasPanelTexture>>();
+let canvasPanelId = 0;
+
+/**
+ * NineSlice у Phaser рисуется только в WebGL. В Canvas собираем те же девять участков в обычную Image.
+ * Кэш делится между одинаковыми панелями, освобождается после последнего владельца и при смене состояния.
+ * Исходные координаты учитывают кадр атласа; углы не растягиваются вместе с серединой.
+ */
+export function slicedPanel(
+  scene: Phaser.Scene, x: number, y: number, key: string, frame: string | number | undefined,
+  w: number, h: number, left: number, right: number, top: number, bottom: number,
+): Panel {
+  if (!scene.sys?.game?.renderer || scene.sys.game.renderer.type !== Phaser.CANVAS) {
+    return scene.add.nineslice(x, y, key, frame, w, h, left, right, top, bottom);
+  }
+  const textures = scene.textures;
+  let cache = canvasPanels.get(textures);
+  if (!cache) canvasPanels.set(textures, cache = new Map());
+  const entries = cache;
+  let logicalW = w, logicalH = h;
+  let width = Math.max(1, Math.ceil(w));
+  let height = Math.max(1, Math.ceil(h));
+  let sourceKey = key, sourceFrame = frame;
+  let current: { id: string; value: CanvasPanelTexture } | undefined;
+  const release = () => {
+    if (!current) return;
+    if (--current.value.refs === 0) {
+      textures.remove(current.value.key);
+      entries.delete(current.id);
+    }
+    current = undefined;
+  };
+  const acquire = (sourceKey: string, sourceFrame?: string | number) => {
+    const id = JSON.stringify([sourceKey, sourceFrame, width, height, left, right, top, bottom]);
+    if (current?.id === id) return current.value.key;
+    let value = entries.get(id);
+    if (!value) {
+      const source = textures.getFrame(sourceKey, sourceFrame);
+      const bakedKey = `__canvas_panel_${++canvasPanelId}`;
+      const canvas = textures.createCanvas(bakedKey, width, height);
+      if (!canvas) throw new Error('Не удалось создать поверхность интерфейса');
+      const ctx = canvas.getContext();
+      // Слишком узкая панель: симметрично уменьшаем углы, без отрицательного размера центра.
+      const sx = Math.min(1, source.cutWidth / Math.max(1, left + right));
+      const sy = Math.min(1, source.cutHeight / Math.max(1, top + bottom));
+      const dx = Math.min(1, width / Math.max(1, left + right));
+      const dy = Math.min(1, height / Math.max(1, top + bottom));
+      const xs = [0, left * sx, source.cutWidth - right * sx, source.cutWidth];
+      const ys = [0, top * sy, source.cutHeight - bottom * sy, source.cutHeight];
+      const xd = [0, left * dx, width - right * dx, width];
+      const yd = [0, top * dy, height - bottom * dy, height];
+      for (let row = 0; row < 3; row++) for (let col = 0; col < 3; col++) {
+        const sw = xs[col + 1] - xs[col], sh = ys[row + 1] - ys[row];
+        const dw = xd[col + 1] - xd[col], dh = yd[row + 1] - yd[row];
+        if (sw > 0 && sh > 0 && dw > 0 && dh > 0) {
+          ctx.drawImage(source.source.image as CanvasImageSource,
+            source.cutX + xs[col], source.cutY + ys[row], sw, sh, xd[col], yd[row], dw, dh);
+        }
+      }
+      canvas.refresh();
+      value = { key: bakedKey, refs: 0 };
+      entries.set(id, value);
+    }
+    value.refs++;
+    release();
+    current = { id, value };
+    return value.key;
+  };
+  const img = scene.add.image(x, y, acquire(key, frame)).setDisplaySize(w, h);
+  const setTexture = img.setTexture.bind(img);
+  img.setTexture = (nextKey: string | Phaser.Textures.Texture, nextFrame?: string | number) => {
+    sourceKey = typeof nextKey === 'string' ? nextKey : nextKey.key;
+    sourceFrame = nextFrame;
+    setTexture(acquire(sourceKey, sourceFrame));
+    return img;
+  };
+  // Image.setSize обычно меняет лишь hitbox. Панель должна, как NineSlice, перерисоваться (счётчик сундука).
+  img.setSize = (nextWidth: number, nextHeight: number) => {
+    if (logicalW === nextWidth && logicalH === nextHeight) return img;
+    const sx = img.scaleX * width / logicalW, sy = img.scaleY * height / logicalH;
+    logicalW = Math.max(1, nextWidth);
+    logicalH = Math.max(1, nextHeight);
+    width = Math.ceil(logicalW);
+    height = Math.ceil(logicalH);
+    setTexture(acquire(sourceKey, sourceFrame));
+    img.setScale(sx * logicalW / width, sy * logicalH / height);
+    return img;
+  };
+  img.once(Phaser.GameObjects.Events.DESTROY, release);
+  return img;
+}
+
 /** 9-slice панель из манифеста (кадр атласа или картинка). */
-export function panel(scene: Phaser.Scene, x: number, y: number, w: number, h: number, id: string, scale = UI_SCALE): Phaser.GameObjects.NineSlice {
+export function panel(scene: Phaser.Scene, x: number, y: number, w: number, h: number, id: string, scale = UI_SCALE): Panel {
   const t = tex(scene, id);
   const [l, r, tp, b] = sliceOf(id);
   // Текстуры скина нарисованы в игровых единицах — без увеличения; углы не больше половины размера.
   if (skinKey(scene, id)) {
     const k = Math.min(l, w / 2 - 1, h / 2 - 1);
-    return scene.add.nineslice(x, y, t.key, t.frame, w, h, k, k, k, k);
+    return slicedPanel(scene, x, y, t.key, t.frame, w, h, k, k, k, k);
   }
-  return scene.add.nineslice(x, y, t.key, t.frame, w / scale, h / scale, l, r, tp, b).setScale(scale);
+  return slicedPanel(scene, x, y, t.key, t.frame, w / scale, h / scale, l, r, tp, b).setScale(scale);
 }
 
 // ———————————————————————————————————————— Кнопки ————————————————————————————————————————
@@ -199,6 +295,21 @@ export interface ButtonView {
   variant: ButtonVariant;
 }
 
+/** Длинная подпись остаётся внутри кнопки; размер не опускается ниже caption. */
+export function fitButtonLabel(label: Phaser.GameObjects.Text, width: number, preferred: number, variant: ButtonVariant = 'secondary'): void {
+  // У ghost нет рамки; компактной плитке достаточно 8 ед. с каждой стороны.
+  // Широкое поле 32 ед. оставляем большим CTA, иначе «Пропустить» не влезает даже при caption.
+  const padding = variant === 'ghost' ? 0 : Math.min(width <= 320 ? S.xxs : S.m, width * 0.12);
+  const maxWidth = Math.max(1, width - 2 * padding);
+  const minimum = Math.min(preferred, T.caption);
+  label.setFontSize(preferred);
+  for (let size = preferred - 2; label.width > maxWidth && size >= minimum; size -= 2) label.setFontSize(size);
+  if (label.width > maxWidth) {
+    label.setFontSize(minimum);
+    ellipsize(label, maxWidth);
+  }
+}
+
 /** Текстура недоступной кнопки (skin.ts); нет скина — серый tint. */
 export const DISABLED_BTN = 'skin_btn_disabled';
 const DISABLED_TINT = 0x8a8a8a;
@@ -250,9 +361,11 @@ export function button(
     strokeThickness: plain ? 0 : 5,
   });
   if (skin || ghost) labelShadow(t, dark);
+  const fitLabel = () => fitButtonLabel(t, w, fontSize, variant);
+  fitLabel();
   const container = scene.add.container(x, y, [bg, t]);
   // Цель нажатия не ниже TOUCH, даже если кнопка нарисована ниже.
-  const hitH = Math.max(h, TOUCH);
+  const hitH = Math.max(h, h >= BTN.l ? TOUCH_COMFORT : TOUCH);
   container.setSize(w, hitH).setInteractive({
     useHandCursor: true,
     hitArea: new Phaser.Geom.Rectangle(0, 0, w, hitH),
@@ -297,7 +410,7 @@ export function button(
   const view: ButtonView = {
     container,
     variant,
-    setLabel: (s) => t.setText(s),
+    setLabel: (s) => { t.setText(s); fitLabel(); },
     label: t,
     setEnabled: (on) => {
       if (on === enabled || !bg.scene) return view;
@@ -711,10 +824,10 @@ function plateTexture(scene: Phaser.Scene, spec: PlateSpec): { key: string; k: n
 }
 
 /** Плашка w×h с центром (x, y) — 9-slice из кэшированной canvas-текстуры (один объект, батчится). */
-export function plate(scene: Phaser.Scene, x: number, y: number, w: number, h: number, spec: PlateSpec): Phaser.GameObjects.NineSlice {
+export function plate(scene: Phaser.Scene, x: number, y: number, w: number, h: number, spec: PlateSpec): Panel {
   const r = plateRadius(w, h, spec.r);
   const { key, k } = plateTexture(scene, { ...spec, r });
-  return scene.add.nineslice(x, y, key, undefined, w, h, k, k, k, k);
+  return slicedPanel(scene, x, y, key, undefined, w, h, k, k, k, k);
 }
 
 /**
@@ -1331,7 +1444,7 @@ function visitOf(scene: Phaser.Scene): Set<HintId> {
 /**
  * Подсказка обучения id (hints.ts): текст HINT_TEXT[id] (или opts.text), касание плашки — пропустить (markHint).
  * Одна подсказка за визит экрана; повторяющиеся (NAG_HINTS) — не больше NAG_LIMIT визитов подряд. Заглушённая —
- * невидимый контейнер с data hintMuted (вызывающему не нужно проверять).
+ * null: вызывающий отмечает показ только для действительно видимой подсказки.
  */
 export function tutorialHint(
   scene: Phaser.Scene,
@@ -1341,13 +1454,13 @@ export function tutorialHint(
   side: HintSide | 'auto',
   target: { w: number; h: number },
   opts: { avoid?: Rect[]; avoidText?: string[]; text?: string } = {},
-): Phaser.GameObjects.Container {
+): Phaser.GameObjects.Container | null {
   const visit = visitOf(scene);
   const where = scene.scene.key;
   // Одна подсказка за визит: шаг выполнен или пропущен — следующий шаг цепочки ждёт следующего захода на экран.
   // Повторная подсказка, висящая главами (вкладка «Герои»: опыт, трофеи), — не больше NAG_LIMIT заходов (hints.ts).
   if ((visit.size && !visit.has(id)) || (!visit.has(id) && hintNagged(id, where))) {
-    return scene.add.container(0, 0).setVisible(false).setData('hintId', id).setData('hintMuted', true);
+    return null;
   }
   if (!visit.has(id)) {
     visit.add(id);

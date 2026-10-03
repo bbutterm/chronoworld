@@ -177,7 +177,7 @@ const Weights = z.partialRecord(BlessingRaritySchema, z.number().nonnegative());
 
 export const TowerRunConfigSchema = z.object({
   $comment: z.string().optional(),
-  /** Сила врагов по ступени игрока (номер главы фронта кампании, с 1): tierMult[ступень − 1], дальше — последняя. */
+  /** Сила врагов к середине главы фронта кампании (с 1); новые забеги плавно приближаются к ней по этапам. */
   tierMult: z.array(z.number().positive()).min(1),
   /** Рост силы врагов от этажа к этажу (сложный процент). */
   growthPerFloor: z.number().nonnegative(),
@@ -215,6 +215,8 @@ export type TowerRunConfig = z.infer<typeof TowerRunConfigSchema>;
 export const TowerRunSchema = z.object({
   seed: z.number().int().nonnegative(),
   tier: z.number().int().positive(),
+  /** Сила, зафиксированная при старте; старые забеги без поля используют tierMult[tier − 1]. */
+  enemyMult: z.number().positive().optional(),
   /** Пройдено этажей в забеге. */
   floor: z.number().int().nonnegative(),
   squad: z.array(z.string().nullable()).length(5),
