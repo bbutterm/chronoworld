@@ -21,7 +21,7 @@ import { ctaShine, glow, motes, ribbon, slowRays } from '../decor';
 import { afterRewardFly, decorTween, juiceOn, queueRewardFly } from '../juice';
 import { isUnlocked, lockedToast, showUnlockBanners, UNLOCK_BANNER_NAME } from '../unlockBanner';
 import { ChestCardView, lootLines, lootSummary, type ChestState } from '../chestView';
-import { chestArt, nodeLabeled } from '../campaignView';
+import { campaignObjective, chestArt, nodeLabeled } from '../campaignView';
 import { rewardIcon } from '../rewardsView';
 import { touchToday } from '../homeEvents';
 
@@ -218,7 +218,13 @@ export class CampaignScene extends Phaser.Scene {
     if (page > 0) toPage(page - 1, false, CONTENT_TOP + (page < pages.length - 1 ? 150 + BTN.m + S.xs : 150), 'mapPageDown');
     // Участком — ниже кнопок участков и «Истории» (верхний узел не под ними).
     const top = paged ? L.mapTop + 80 : L.mapTop;
-    const bottom = L.mapBottom;
+    const objective = campaignObjective(chapterId, session.save.campaign.cleared);
+    const bottom = objective ? 1120 : L.mapBottom;
+    if (objective) {
+      const goal = text(this, GAME_W / 2, 1210, objective, T.caption, COLOR.title, { fontStyle: 'bold' }).setName('campaignObjective');
+      goal.setShadow(0, 2, 'rgba(0,0,0,0.9)', 4, false, true);
+      ellipsize(goal, GAME_W - 2 * S.l);
+    }
     const step = stages.length > 1 ? (bottom - top) / (stages.length - 1) : 0;
     // Тропа змейкой снизу вверх (как в референсе владельца), подпись — с той стороны, где больше места.
     const pos = stages.map((_, i) => ({ x: GAME_W / 2 + Math.sin(i * 1.05 + 0.4) * 250, y: bottom - step * i }));

@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { chestArt, chestFill, nodeLabeled } from '../src/game/campaignView';
+import { campaignObjective, chestArt, chestFill, nodeLabeled } from '../src/game/campaignView';
 
 describe('Кампания: подписи узлов и сундук', () => {
+  it('цель следует сюжету и не раскрывает Грету до встречи с Бруно', () => {
+    expect(campaignObjective('chapter1', [])).toContain('порингов');
+    expect(campaignObjective('chapter1', [])).not.toContain('Грет');
+    expect(campaignObjective('chapter1', ['ch1_s4'])).toContain('Двух колоколов');
+    expect(campaignObjective('chapter1', ['ch1_s4', 'ch1_s5'])).toContain('найти Грету');
+    expect(campaignObjective('chapter1', ['ch1_s15'])).toContain('вызволить Грету');
+    expect(campaignObjective('chapter1', ['ch1_s15', 'ch1_s10'])).toBeNull();
+    expect(campaignObjective('chapter2', ['ch1_s5'])).toBeNull();
+  });
   it('название подписано только у текущего этапа и у босса', () => {
     expect(nodeLabeled('open', false)).toBe(true);
     expect(nodeLabeled('cleared', false)).toBe(false);

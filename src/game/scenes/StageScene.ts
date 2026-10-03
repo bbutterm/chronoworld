@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { actSkipStage, autoFormation, enemySquad, resolveStageEnemies, getStage, stageCardDrop, stageStatus } from '../../core';
+import { actSkipStage, autoFormation, enemySquad, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus } from '../../core';
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
 import { shortfallHint, stageNeeds, stageNo, stageSeed, type StageNeeds } from '../flow';
@@ -22,6 +22,8 @@ import { elementBadge } from '../battleElements';
 import { scoutSheet } from '../scoutView';
 import type { HeroCardDrop } from '../../core';
 import { encounterThreat } from '../tactics';
+import { squadChoices } from '../squadChoice';
+import { showSquadChoices } from '../squadChoiceView';
 
 import { STAGE_LAYOUT as L } from '../stageLayout';
 
@@ -58,6 +60,7 @@ export class StageScene extends Phaser.Scene {
   private wasShort: boolean | null = null;
   private threatText: Phaser.GameObjects.Text | null = null;
   private tacticText: Phaser.GameObjects.Text | null = null;
+  private choosingSquad = false;
 
   constructor() {
     super('Stage');
@@ -71,6 +74,7 @@ export class StageScene extends Phaser.Scene {
     this.wasShort = null;
     this.threatText = null;
     this.tacticText = null;
+    this.choosingSquad = false;
     const stage = getStage(GAME, this.stageId);
     // «Назад» — в главу этого этапа, а не в текущую главу игрока.
     const chapter = Math.max(0, CONTENT.chapters.findIndex((c) => c.id === stage.chapter));
@@ -190,8 +194,25 @@ export class StageScene extends Phaser.Scene {
     if (this.tacticText) ellipsize(this.tacticText, GAME_W - 2 * S.l);
   }
 
-  /** K8: авто-расстановка сильнейших героев. */
+  /** A real fifth-slot trade-off after summoning; smaller rosters keep the one-tap auto setup. */
   private auto(): void {
+    if (this.choosingSquad) return;
+    const options = squadChoices(session.save, GAME);
+    if (options.length) {
+      this.choosingSquad = true;
+      this.editor.locked = true;
+      showSquadChoices(this, options, (option) => {
+        markHint('prep_auto');
+        this.autoHint?.destroy();
+        this.autoHint = null;
+        commit(setSquad(session.save, option.squad));
+        this.editor.replaced();
+      }, () => {
+        this.choosingSquad = false;
+        this.editor.locked = false;
+      });
+      return;
+    }
     markHint('prep_auto');
     this.autoHint?.destroy();
     this.autoHint = null;
