@@ -9,6 +9,7 @@ import {
   RARITIES,
   heroName,
   heroSlots,
+  heroItemStats,
   needsBranch,
   refineConfig,
   blessedOre,
@@ -30,7 +31,7 @@ import {
   type Slot,
 } from '../../core';
 import { GAME } from '../content';
-import { diffText, equipBlocker, formatNumber, heroSprite, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS, statDiff, type InventoryRow } from '../flow';
+import { equipmentComparison, equipBlocker, formatNumber, heroSprite, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS, type InventoryRow } from '../flow';
 import { GAME_W } from '../layout';
 import { bottomSheet, confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, cta, emptyCard, screen, type BottomSheet } from '../screen';
 import { cardArtId, showCardArt } from '../cardArt';
@@ -78,7 +79,7 @@ const TILE = 168;
 const GAP = (CW - COLS * TILE) / (COLS - 1);
 const TILE_ROW = TILE + S.s;
 /** Строка списка в выборе предмета для слота героя. */
-const ROW_H = 152;
+const ROW_H = 256;
 const CELL = 112;
 /** Сколько строк сверх видимых держать построенными выше и ниже окна прокрутки. */
 const ROW_BUFFER = 2;
@@ -232,14 +233,13 @@ export class InventoryScene extends Phaser.Scene {
     this.list(rows.length, ROW_H, listTop, (i, y, a) => {
       const row = rows[i];
       const blocker = equipBlocker(row, hero, GAME);
-      const diff = row.def ? statDiff(cur ? statsOf(cur.def, cur.instance) : undefined, statsOf(row.def, row.instance)) : [];
-      const sum = diff.reduce((s, d) => s + d.delta, 0);
+      const comparison = equipmentComparison(cur ? heroItemStats(hero, cur.def, cur.instance, GAME) : undefined, row.def ? heroItemStats(hero, row.def, row.instance, GAME) : {}, GAME.features.power);
       const other = row.instance.equippedBy !== null;
-      const note = blocker ?? `${diffText(diff)}${row.wornBy ? ` · у ${row.wornBy}` : ''}`;
-      const noteColor = blocker ? COLOR.negative : sum > 0 ? COLOR.positive : sum < 0 ? COLOR.negative : COLOR.textSecondary;
+      const note = blocker ?? `${comparison.text}${row.wornBy ? ` · у ${row.wornBy}` : ''}`;
+      const noteColor = blocker ? COLOR.negative : comparison.tone === 'positive' ? COLOR.positive : comparison.tone === 'negative' ? COLOR.negative : COLOR.textSecondary;
       const box = this.itemRow(a, row, y, note, noteColor, !blocker);
       if (!blocker) {
-        const b = button(this, CW / 2 - S.m - 110, 0, 220, BTN.m, '', other ? 'Забрать' : 'Надеть', a.tap(() => this.equip(hero, row, blocker)), T.body, { variant: 'secondary' });
+        const b = button(this, CW / 2 - S.m - 110, -56, 220, BTN.m, '', other ? 'Забрать' : 'Надеть', a.tap(() => this.equip(hero, row, blocker)), T.body, { variant: 'secondary' });
         b.container.setName(`equip_${row.instance.id}`);
         box.add(b.container);
       } else box.setAlpha(0.6);
@@ -606,17 +606,17 @@ export class InventoryScene extends Phaser.Scene {
       this,
       `Кому: ${def.name}`,
       (content, width, close) => {
-        const rh = 128;
+        const rh = 256;
         heroes.forEach((hero, i) => {
           const blocker = equipBlocker(row, hero, GAME);
           const cur = heroSlots(save, hero.id, GAME)[def.slot];
-          const diff = statDiff(cur ? statsOf(cur.def, cur.instance) : undefined, statsOf(def, row.instance));
-          const sum = diff.reduce((n, d) => n + d.delta, 0);
+          const comparison = equipmentComparison(cur ? heroItemStats(hero, cur.def, cur.instance, GAME) : undefined, heroItemStats(hero, def, row.instance, GAME), GAME.features.power);
           const face = heroFace(this, heroSprite(hero, GAME), 80, GAME.content.heroes[hero.templateId]?.gender);
           const r = listRow(this, width / 2, i * (rh + S.xs) + rh / 2, width, {
             icon: face,
             title: `${heroName(hero, GAME)} · ур. ${hero.level}`,
-            subtitle: blocker ?? diffText(diff),
+            subtitle: blocker ?? comparison.text,
+            subtitleFullWidth: true,
             h: rh,
             dim: !!blocker,
             ...(save.squad.includes(hero.id) ? { trailing: tag(this, 0, 0, 'в отряде', 'positive') } : {}),
@@ -629,9 +629,9 @@ export class InventoryScene extends Phaser.Scene {
               close();
             },
           });
-          // Цвет второй строки — по смыслу: лучше — зелёный, хуже/нельзя — красный.
+          // Смешанный обмен статами — нейтральный; запрет — красный.
           const texts = r.list.filter((o): o is Phaser.GameObjects.Text => o.type === 'Text');
-          texts[texts.length - 1]?.setColor(blocker ? COLOR.negative : sum > 0 ? COLOR.positive : sum < 0 ? COLOR.negative : COLOR.textSecondary);
+          texts[texts.length - 1]?.setColor(blocker ? COLOR.negative : comparison.tone === 'positive' ? COLOR.positive : comparison.tone === 'negative' ? COLOR.negative : COLOR.textSecondary);
           r.setName(`wear_${hero.id}`);
           content.add(r);
         });
@@ -943,13 +943,14 @@ export class InventoryScene extends Phaser.Scene {
     const def = row.def;
     const lvl = refineLevel(row.instance);
     const cx = -CW / 2 + S.s + CELL / 2;
-    box.add(itemCell(this, cx, 0, CELL, def?.slot ?? null, rarityNum(def), row.instance.itemId, lvl));
-    if (row.count > 1) box.add(text(this, cx + CELL / 2 - 4, CELL / 2 - 2, `×${row.count}`, T.caption, COLOR.textPrimary, { fontStyle: 'bold', stroke: '#1a1208', strokeThickness: 6 }).setOrigin(1, 1));
+    box.add(itemCell(this, cx, -56, CELL, def?.slot ?? null, rarityNum(def), row.instance.itemId, lvl));
+    if (row.count > 1) box.add(text(this, cx + CELL / 2 - 4, -56 + CELL / 2 - 2, `×${row.count}`, T.caption, COLOR.textPrimary, { fontStyle: 'bold', stroke: '#1a1208', strokeThickness: 6 }).setOrigin(1, 1));
     const tx = cx + CELL / 2 + S.s;
     const tw = CW / 2 - tx - (withButton ? 220 + S.m + S.s : S.m);
     const name = def ? refinedName(def, lvl) : row.instance.itemId;
-    box.add(ellipsize(text(this, tx, -24, name, T.body, def ? RARITY_COLORS[def.rarity] : COLOR.textTertiary, { fontStyle: 'bold' }).setOrigin(0, 0.5), tw));
-    box.add(ellipsize(text(this, tx, 26, note, T.caption, noteColor, { fontStyle: 'bold' }).setOrigin(0, 0.5), tw));
+    box.add(ellipsize(text(this, tx, -56, name, T.body, def ? RARITY_COLORS[def.rarity] : COLOR.textTertiary, { fontStyle: 'bold' }).setOrigin(0, 0.5), tw));
+    // Полная ширина под иконкой и кнопкой: ни мощь, ни потеря стата не скрываются многоточием.
+    box.add(text(this, -CW / 2 + S.s, 16, note, T.caption, noteColor, { fontStyle: 'bold', align: 'left', wordWrap: { width: CW - 2 * S.s }, lineSpacing: 0 }).setOrigin(0, 0));
     // Касание по ячейке и имени — окно предмета (статы, кому подходит, легенда из Летописи).
     if (def) {
       const zw = tx + tw - (-CW / 2);

@@ -10,13 +10,17 @@ vi.mock('phaser', () => ({ default: {
 } }));
 vi.mock('../src/game/audio', () => ({ sfx: vi.fn() }));
 vi.mock('../src/game/haptics', () => ({ haptic: vi.fn() }));
+vi.mock('../src/game/portraitFrame', () => ({ heroFace: vi.fn(() => ({})) }));
 
 const { InventoryScene } = await import('../src/game/scenes/InventoryScene');
 const { GAME } = await import('../src/game/content');
-const { newGame, heroName } = await import('../src/core');
+const core = await import('../src/core');
+const { newGame, heroName } = core;
+const { COLOR } = await import('../src/game/theme');
 const storage = await import('../src/game/session');
 const screen = await import('../src/game/screen');
 const ui = await import('../src/game/ui');
+const itemIcons = await import('../src/game/itemIcons');
 
 /** Minimal canvas view double: exercise real picker callbacks and core insertion, without a DOM. */
 function object() {
@@ -59,6 +63,7 @@ describe('выбор снаряжения для карты MVP', () => {
     });
     vi.spyOn(ui, 'listRow').mockImplementation((_scene, _x, _y, _w, spec) => {
       const row = object();
+      row.list.push(object());
       rows.push({ spec, row });
       return row as unknown as ReturnType<typeof ui.listRow>;
     });
@@ -159,4 +164,59 @@ describe('выбор снаряжения для карты MVP', () => {
     expect(storage.commit).not.toHaveBeenCalled();
     expect(storage.session.save.hunt?.cards?.[card.id]).toBe(2);
   });
+  it('wear sheet compares card-bearing items for each recipient and keeps mixed tradeoffs neutral', () => {
+    const heroes = [
+      { id: 'low', templateId: 'alan', rarity: 'green' as const, level: 1 },
+      { id: 'high', templateId: 'bran', rarity: 'green' as const, level: 20 },
+    ];
+    const instance = { id: 'candidate', itemId: 'cotton_shirt', equippedBy: null, card: 'card_osiris' };
+    storage.session.save = { ...storage.session.save, heroes, squad: [null, null, null, null, null], inventory: { items: [instance] } };
+    scene['wearSheet']({ instance, def: GAME.equipment.items.cotton_shirt, wornBy: null, count: 1 });
+    expect(rows).toHaveLength(2);
+    const { heroItemStats } = core;
+    for (const hero of heroes) {
+      const actual = rows.find((r) => r.row.name === `wear_${hero.id}`)!;
+      const stats = heroItemStats(hero, GAME.equipment.items.cotton_shirt, instance, GAME);
+      expect(actual.spec.subtitle).toContain(`+${stats.hp} ОЗ`);
+      expect(actual.spec.subtitle).toContain('мощь');
+    }
+    expect(rows[0].spec.subtitle).not.toBe(rows[1].spec.subtitle);
+    finishClose();
+    rows = [];
+    storage.session.save.inventory.items.push(...heroes.map((h) => ({ id: `worn_${h.id}`, itemId: 'adventurers_suit', equippedBy: h.id })));
+    scene['wearSheet']({ instance, def: GAME.equipment.items.cotton_shirt, wornBy: null, count: 1 });
+    for (const row of rows) {
+      expect(row.spec.subtitle).toContain('−3 ЗАЩ');
+      expect((row.row.list[0] as ReturnType<typeof object>).setColor).toHaveBeenCalledWith(COLOR.textSecondary);
+    }
+  });
+
+  it('slot picker includes the worn card in its comparison and uses a neutral mixed-stat color', () => {
+    const hero = { id: 'alan', templateId: 'alan', rarity: 'green' as const, level: 20 };
+    storage.session.save = { ...storage.session.save, heroes: [hero], inventory: { items: [
+      { id: 'worn', itemId: 'cotton_shirt', equippedBy: hero.id, card: 'card_osiris' },
+      { id: 'free', itemId: 'adventurers_suit', equippedBy: null },
+    ] } };
+    vi.spyOn(screen, 'screen').mockImplementation(() => {});
+    vi.spyOn(ui, 'plate').mockReturnValue(object() as unknown as ReturnType<typeof ui.plate>);
+    vi.spyOn(ui, 'pressable').mockReturnValue({} as ReturnType<typeof ui.pressable>);
+    vi.spyOn(ui, 'ellipsize').mockImplementation((o) => o);
+    vi.spyOn(ui, 'button').mockReturnValue({ container: object() } as unknown as ReturnType<typeof ui.button>);
+    vi.spyOn(itemIcons, 'itemCell').mockReturnValue([]);
+    scene.add = { zone: () => object() } as unknown as typeof scene.add;
+    scene['canRefine'] = vi.fn(() => false);
+    scene['cardSlotRow'] = vi.fn();
+    scene['itemRow'] = vi.fn(() => object() as unknown as ReturnType<typeof scene['itemRow']>);
+    scene['list'] = vi.fn((count, _rowH, _top, draw) => {
+      for (let i = 0; i < count; i++) draw(i, 0, { tap: (fn: () => void) => fn } as unknown as ScrollArea);
+    });
+    scene['picker'](hero, 'armor');
+    const call = vi.mocked(scene['itemRow']).mock.calls[0];
+    expect(call[3]).toContain('−');
+    expect(call[3]).toContain('мощь');
+    expect(call[3]).toContain('+3 ЗАЩ');
+    expect(call[4]).toBe(COLOR.textSecondary);
+    expect(call[3]).not.toContain('+3,5 мощь');
+  });
+
 });
