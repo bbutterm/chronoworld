@@ -546,7 +546,7 @@ export class TowerScene extends Phaser.Scene {
   private rulesSheet(): void {
     const cfg = runConfig(GAME);
     const rules: [string, string][] = [
-      ['red_potion', 'Раны между этажами не заживают — лечит только костёр. Павший выбывает до конца забега.'],
+      ['red_potion', 'После победы — частичное лечение, на отдыхе — ещё. Павших могут вернуть особые благословения и события.'],
       ['hero_card', `Каждые ${cfg.blessingEvery} этажа и после элиты — карта на выбор: она меняет правила боя.`],
       ['trophy', `Каждый ${cfg.bossEvery}-й этаж — босс. Рекордные этажи приносят гемы.`],
       ['flag', 'Поражение или «Сдаться» — конец забега.'],

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { TIP_MAX, TIPS, unlockTagline, type TipId } from '../src/game/tipTexts';
 import { HINT_TEXT, type HintId } from '../src/game/hints';
 import { placeBand } from '../src/game/hintLayout';
-import { breaksCharge } from '../src/core';
+import { breaksCharge, runConfig } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
 
 const ctx = loadFullContext();
@@ -22,6 +22,18 @@ describe('подсказки первого входа (firstTips.ts)', () => {
       // Запоминается в общем списке подсказок обучения (hints.ts).
       expect(HINT_TEXT[id as HintId], id).toBeTruthy();
     }
+  });
+
+  it('числа в описаниях режимов соответствуют действующему конфигу', () => {
+    const description = (id: string) => ctx.unlocks!.features.find((f) => f.id === id)!.description;
+    // В legacy tower.bossEvery осталось 5; экран Tower использует именно runConfig.
+    // Число берём из самого текста: тест ловит изменение как копирайта, так и баланса.
+    const bossEvery = /каждый (\d+)-й этаж/i.exec(description('tower'));
+    expect(bossEvery, 'В описании Башни указан интервал боссов').not.toBeNull();
+    expect(Number(bossEvery![1])).toBe(runConfig(ctx).bossEvery);
+    const attempts = /(\d+) попытки в день/i.exec(description('hunt'));
+    expect(attempts, 'В описании Охоты указан дневной лимит').not.toBeNull();
+    expect(Number(attempts![1])).toBe(ctx.hunt.attemptsPerDay);
   });
 
   it('значок «сбивает заряд» — из данных навыка: есть у контрольных ульт героев и нет у ульт только с уроном', () => {
