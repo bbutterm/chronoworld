@@ -93,3 +93,94 @@ describe('разведка и факты боя', () => {
   });
 
 });
+
+describe('совет о заряде учитывает выживание по журналу', () => {
+  const alan = buildUnit({ id: 'breaker_alan', templateId: 'alan', rarity: 'green', level: 1 }, ctx);
+  const kai = buildUnit({ id: 'breaker_kai', templateId: 'kai', rarity: 'purple', level: 35, branch: 'sage' }, ctx);
+  const breakerDefs = { [alan.id]: alan, [kai.id]: kai };
+  const snapshot = (uid: string, unitId: string): BattleResult['units'][number] => ({
+    uid, unitId, side: 'A', slot: 0, maxHp: 100, x: 0, y: 0,
+  });
+  const alanUnit = snapshot('A0', alan.id);
+  const kaiUnit = snapshot('A1', kai.id);
+  const bossUnit = { ...snapshot('B0', 'boss'), side: 'B' as const };
+  const start = { ...charge, t: 14 };
+  const attack: BattleEvent = { t: 17, type: 'attack', unit: 'B0', skill: 'charge', targets: ['A0'], kind: 'melee', energy: 0 };
+  const death = (t: number, unit = 'A0'): BattleEvent => ({ t, type: 'death', unit, killer: 'B0' });
+  const advice = (log: BattleEvent[], units = [alanUnit, bossUnit], extra: Partial<BattleResult> = {}) =>
+    tacticalDefeat(result(log, { units, ...extra }), breakerDefs, ctx);
+
+  it('павший до заряда: предлагает сначала защитить, а не сохранить недоступную ульту', () => {
+    const tip = advice([death(9), start, attack]);
+    expect(tip?.text).toBe('Враг выполнил заряженных атак: 1.');
+    expect(tip?.advice).toContain('«Алан» выбыл до начала заряда');
+    expect(tip?.advice).toContain('Сначала попробуйте защитить');
+    expect(tip?.advice).not.toContain('сохранить ульту');
+  });
+
+  it.each([15, 18])('смерть в %s после начала заряда не отменяет возможность выбора момента', (t) => {
+    const log = t < attack.t ? [start, death(t), attack] : [start, attack, death(t)];
+    const tip = advice(log);
+    expect(tip?.advice).toContain('сохранить ульту героя «Алан»');
+    expect(tip?.advice).not.toContain('выбыл до');
+  });
+
+  it('выбирает живого запасного со срывом каста вместо павшего первого героя', () => {
+    const tip = advice([death(9), start, attack, death(18, 'A1')], [alanUnit, kaiUnit, bossUnit]);
+    expect(tip?.advice).toContain('сохранить ульту героя «Кай»');
+    expect(tip?.advice).not.toContain('Алан');
+  });
+
+  it('при одинаковом времени учитывает порядок смерти и начала заряда', () => {
+    expect(advice([death(14), start, attack])?.advice).toContain('выбыл до начала заряда');
+    expect(advice([start, death(14), attack])?.advice).toContain('сохранить ульту героя «Алан»');
+  });
+
+  it('не использует жизнь у отменённого заряда как возможность сбить другой, выпущенный', () => {
+    const cancelled = { ...charge, t: 2, action: 'interrupt', reason: 'noTarget' } as const;
+    const tip = advice([charge, cancelled, death(9), start, attack]);
+    expect(tip?.advice).toContain('выбыл до начала заряда');
+    expect(chargeFacts(result([charge, cancelled, death(9), start, attack]))).toEqual({ released: 1, interrupted: 0 });
+  });
+
+  it('может предложить момент у раннего выпущенного заряда, даже если до позднего герой не дожил', () => {
+    const tip = advice([charge, { ...attack, t: 4 }, death(9), start, attack]);
+    expect(tip?.text).toContain('заряженных атак: 2');
+    expect(tip?.advice).toContain('сохранить ульту героя «Алан»');
+  });
+
+  it('без выпущенного заряда не добавляет совет о выживании', () => {
+    expect(advice([death(9)])).toBeNull();
+    expect(advice([death(9), start])).toBeNull();
+    expect(advice([])).toBeNull();
+  });
+
+  it('без известной контрольной ульты остаётся общий совет разведки', () => {
+    const tip = advice([start, attack], [{ ...alanUnit, unitId: 'unknown' }, bossUnit]);
+    expect(tip?.advice).toBe('Проверьте в разведке, есть ли в вашем отряде оглушение или срыв каста.');
+  });
+
+  it('урон без контроля и неизвестный навык не становятся срывом каста', () => {
+    const log = [start, attack];
+    for (const ult of ['ult_kai_fire_wall', 'missing_skill', undefined]) {
+      const noBreaker = { ...alan, skills: { ...alan.skills, ult } };
+      const tip = tacticalDefeat(result(log, { units: [alanUnit, bossUnit] }), { [alan.id]: noBreaker }, ctx);
+      expect(tip?.advice).toBe('Проверьте в разведке, есть ли в вашем отряде оглушение или срыв каста.');
+    }
+  });
+
+  it('итоговый alive не подменяет состояние героя в момент заряда', () => {
+    const report = { ...actual.report, A0: { ...actual.report.A0, alive: false } };
+    expect(advice([start, attack, death(18)], [alanUnit, bossUnit], { report })?.advice)
+      .toContain('сохранить ульту героя «Алан»');
+  });
+
+  it('призванный после начала заряда не считается уже присутствовавшим', () => {
+    const spawn: BattleEvent = { t: 15, type: 'spawn', unit: 'A1', unitId: kai.id, source: 'A0', x: 0, y: 0, maxHp: 100 };
+    const tip = advice([death(9), start, spawn, attack], [alanUnit, bossUnit], { spawned: [{ ...kaiUnit, t: 15 }] });
+    expect(tip?.advice).toContain('«Алан» выбыл до начала заряда');
+    expect(tip?.advice).not.toContain('Кай');
+    expect(advice([{ ...spawn, t: 13 }, start, attack], [bossUnit], { spawned: [{ ...kaiUnit, t: 13 }] })?.advice)
+      .toContain('сохранить ульту героя «Кай»');
+  });
+});
