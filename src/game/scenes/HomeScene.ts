@@ -198,7 +198,9 @@ export class HomeScene extends Phaser.Scene {
     layer.add([shade, box]);
     layer.add(ribbon(this, cx, SL.titleY, 'Настройки', { size: T.heading, minW: 460 }));
 
-    const area = new ScrollArea(this, SL.bodyTop, SL.bodyBottom);
+    const area = new ScrollArea(this, SL.bodyTop, SL.bodyBottom, {
+      left: cx - bw / 2 - S.s, right: cx + bw / 2 + S.s,
+    });
     area.content.setName('settingsContent');
     // Input listeners are scene-wide: the confirmation shade alone cannot stop wheel/drag scrolling.
     let confirmation: Phaser.GameObjects.GameObject | null = null;

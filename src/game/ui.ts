@@ -480,15 +480,17 @@ export class ScrollArea {
     private readonly scene: Phaser.Scene,
     private readonly top: number,
     private readonly bottom: number,
+    /** Границы модальной полосы в координатах мира; обычные списки сохраняют прежнюю полную ширину. */
+    private readonly horizontal?: { left: number; right: number },
   ) {
     this.content = scene.add.container(0, top);
-    const w = GAME_W;
+    const { left, right } = horizontal ?? { left: 0, right: GAME_W };
     const g = scene.make.graphics({}, false);
-    g.fillStyle(0xffffff).fillRect(0, top, w, bottom - top);
+    g.fillStyle(0xffffff).fillRect(left, top, right - left, bottom - top);
     this.content.setMask(g.createGeometryMask());
     // Видимая полоса списка (для e2e-проверки «кнопку ничто не перекрывает»: вне полосы содержимое скрыто маской).
     this.content.setData('clip', [top, bottom]);
-    this.thumb = scene.add.rectangle(w - 6, top, 8, 40, TINT.frame, 0.8).setOrigin(0.5, 0).setDepth(20).setVisible(false);
+    this.thumb = scene.add.rectangle(right - 6, top, 8, 40, TINT.frame, 0.8).setOrigin(0.5, 0).setDepth(20).setVisible(false);
     const down = (p: Phaser.Input.Pointer) => {
       this.dragged = false;
       this.dragFrom = this.inside(p) && !this.locked ? { y: this.wy(p), scroll: this.content.y } : null;
@@ -596,8 +598,9 @@ export class ScrollArea {
   }
 
   private inside(p: Phaser.Input.Pointer): boolean {
-    const y = this.wy(p);
-    return y >= this.top && y <= this.bottom;
+    const { x, y } = worldPoint(this.scene, p);
+    return y >= this.top && y <= this.bottom
+      && (!this.horizontal || (x >= this.horizontal.left && x <= this.horizontal.right));
   }
 
   /** Обработчик нажатия для объекта в списке: игнорирует протяжку и нажатия вне видимой полосы. */

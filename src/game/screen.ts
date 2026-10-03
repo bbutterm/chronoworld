@@ -335,7 +335,7 @@ export function noticeModal(
   const bodyTop = top + 150 + fixedLeadH;
   let area: ScrollArea | null = null;
   if (scroll) {
-    area = new ScrollArea(scene, bodyTop, bodyTop + bodyH);
+    area = new ScrollArea(scene, bodyTop, bodyTop + bodyH, { left: (GAME_W - w) / 2 + 24, right: (GAME_W + w) / 2 - 24 });
     if (leadText && scrollLead) {
       leadText.setPosition(GAME_W / 2, 0);
       area.add(leadText);

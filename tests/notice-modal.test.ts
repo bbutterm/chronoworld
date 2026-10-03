@@ -61,7 +61,10 @@ class Node extends EventEmitter {
 function setup() {
   const nodes: Node[] = [];
   const make = (x = 0, y = 0, w = 0, h = 0) => { const n = new Node(x, y, w, h); nodes.push(n); return n; };
-  const graphics = { fillStyle() { return this; }, fillRect() { return this; }, createGeometryMask() { return {}; } };
+  const masks: { x: number; y: number; width: number; height: number }[] = [];
+  const graphics = { fillStyle() { return this; },
+    fillRect(x: number, y: number, width: number, height: number) { masks.push({ x, y, width, height }); return this; },
+    createGeometryMask() { return {}; } };
   const scene = {
     add: { container: make, rectangle: make },
     make: { graphics: () => graphics },
@@ -87,7 +90,7 @@ function setup() {
     noticeModal(scene as unknown as Parameters<typeof noticeModal>[0], 'Сообщение', paragraphs, go, lead) as unknown as Node;
   const worldY = (n: Node): number => n.y + (n.parentContainer ? worldY(n.parentContainer) : 0);
   const clip = () => nodes.find((n) => n.scene && n.getData('clip'));
-  return { nodes, scene, buttons, open, worldY, clip };
+  return { nodes, scene, buttons, open, worldY, clip, masks };
 }
 
 const longParagraphs = Array.from({ length: 12 }, (_, i) => `Событие ${i + 1}. ${'Герои вернулись из дальнего похода с наградами. '.repeat(5)}`);
@@ -189,6 +192,41 @@ describe('noticeModal: читаемый текст без уменьшения �
     expect(h.worldY(body) + body.height).toBe(bottom - 24); // Final story line can be read too.
     expect(h.worldY(h.buttons[0].node)).toBe(footer);
     h.buttons[0].tap();
+    expect(h.scene.input.eventNames()).toEqual([]);
+    expect(h.scene.events.eventNames()).toEqual([]);
+  });
+
+  it('маска и ползунок внутри панели; ввод за боковыми границами не прокручивает окно', () => {
+    const h = setup();
+    h.open(longParagraphs);
+    const content = h.clip()!;
+    const [top, bottom] = content.getData('clip') as [number, number];
+    const mask = h.masks[0];
+    expect(mask).toEqual({ x: 94, y: top, width: 892, height: bottom - top });
+    const thumb = h.nodes.find((n) => n.width === 8)!;
+    expect(thumb.x).toBe(980);
+    expect(thumb.x + thumb.width / 2).toBeLessThan(mask.x + mask.width);
+    for (const x of [mask.x - 1, mask.x + mask.width + 1]) {
+      h.scene.input.emit('wheel', { x, y: top + 100 }, [], 0, 500);
+      h.scene.input.emit('pointerdown', { x, y: bottom - 10 });
+      h.scene.input.emit('pointermove', { x, y: top + 10, isDown: true });
+      h.scene.input.emit('pointerup');
+      expect(content.y).toBe(top);
+    }
+    h.scene.input.emit('wheel', { x: mask.x + mask.width / 2, y: top + 100 }, [], 0, 500);
+    expect(content.y).toBe(top - 500);
+    h.buttons[0].tap();
+  });
+
+  it('обычная ScrollArea без новых границ сохраняет маску, ползунок и прежний ввод', () => {
+    const h = setup();
+    const area = new ui.ScrollArea(h.scene as unknown as Parameters<typeof noticeModal>[0], 100, 500);
+    area.setContentHeight(1000);
+    expect(h.masks).toEqual([{ x: 0, y: 100, width: GAME_W, height: 400 }]);
+    expect((area.parts[1] as unknown as Node).x).toBe(GAME_W - 6);
+    h.scene.input.emit('wheel', { x: -10, y: 200 }, [], 0, 50);
+    expect(area.offset).toBe(50); // Existing full-width lists do not gain a new horizontal hit filter.
+    area.content.destroy();
     expect(h.scene.input.eventNames()).toEqual([]);
     expect(h.scene.events.eventNames()).toEqual([]);
   });

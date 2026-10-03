@@ -22,7 +22,7 @@ const { playback, fps, motion } = await import('../src/game/state');
 const decor = await import('../src/game/decor');
 const ui = await import('../src/game/ui');
 const { GAME_H, GAME_W } = await import('../src/game/layout');
-const { T } = await import('../src/game/theme');
+const { S, T } = await import('../src/game/theme');
 
 /** Geometry/event double only: real openSettings, confirm, popIn and ScrollArea execute below.
  * Text metrics approximate wrapping; actual font rendering is covered by browser QA. */
@@ -67,7 +67,7 @@ class Node extends EventEmitter {
 function setup() {
   const nodes: Node[] = [];
   const make = (x = 0, y = 0, w = 0, h = 0) => { const n = new Node(x, y, w, h); nodes.push(n); return n; };
-  const graphics = { fillStyle() { return this; }, fillRect() { return this; }, createGeometryMask() { return {}; } };
+  const graphics = { fillStyle() { return this; }, fillRect: vi.fn(() => graphics), createGeometryMask() { return {}; } };
   const scene = {
     add: { container: make, rectangle: make },
     make: { graphics: () => graphics },
@@ -100,7 +100,7 @@ function setup() {
   const clip = () => nodes.find((n) => n.scene && n.getData('clip'));
   const pointer = { x: GAME_W / 2, y: SL.bodyTop + 50, isDown: true };
   Object.assign(scene.input, { activePointer: pointer });
-  return { nodes, scene, buttons, open, worldY, clip, pointer };
+  return { nodes, scene, buttons, open, worldY, clip, pointer, graphics };
 }
 
 beforeEach(() => { vi.restoreAllMocks(); vi.clearAllMocks(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
@@ -137,6 +137,33 @@ describe('Настройки: ограниченная прокрутка и ч�
     expect(h.worldY(close.node)).toBe(fixed);
     h.scene.input.emit('wheel', h.pointer, [], 0, -100000);
     expect(content.y).toBe(SL.bodyTop);
+  });
+
+  it('полоса и маска внутри панели; колесо, протяжка и кнопки вне её ширины не действуют', () => {
+    const h = setup(); const layer = h.open();
+    const left = GAME_W / 2 - SL.contentW / 2 - S.s;
+    const right = GAME_W / 2 + SL.contentW / 2 + S.s;
+    const thumb = layer.list.find((n) => n.width === 8)!;
+    expect(thumb).toBeDefined();
+    expect(thumb.x + thumb.width / 2).toBeLessThan(right);
+    expect(thumb.x - thumb.width / 2).toBeGreaterThan(GAME_W / 2 + SL.contentW / 2);
+    expect(right).toBeLessThan(GAME_W / 2 + SL.panelW / 2);
+    expect(h.graphics.fillRect).toHaveBeenCalledWith(left, SL.bodyTop, right - left, SL.bodyBottom - SL.bodyTop);
+    const before = fps.cap;
+    for (const x of [left - 1, right + 1, 0, GAME_W]) {
+      h.pointer.x = x; h.pointer.y = SL.bodyTop + 300;
+      h.scene.input.emit('wheel', h.pointer, [], 0, 500);
+      h.scene.input.emit('pointerdown', h.pointer);
+      h.pointer.y -= 150;
+      h.scene.input.emit('pointermove', h.pointer);
+      h.scene.input.emit('pointerup', h.pointer);
+      h.buttons.find((b) => b.node.name === 'fpsCap')!.tap();
+      expect(h.clip()!.y).toBe(SL.bodyTop);
+      expect(fps.cap).toBe(before);
+    }
+    h.pointer.x = GAME_W / 2;
+    h.scene.input.emit('wheel', h.pointer, [], 0, 300);
+    expect(h.clip()!.y).toBe(SL.bodyTop - 300);
   });
 
   it('обычный тап меняет скорость/FPS/анимацию и обновляет подписи', () => {
