@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { finishedExpeditions, towerStatus } from '../../core';
+import { finishedExpeditions, pendingExpeditionEvents, towerStatus } from '../../core';
 import { GAME } from '../content';
 import { expeditionsTile, towerTile, type ModeBanner } from '../featureTiles';
 import { hintDone } from '../hints';
@@ -27,6 +27,7 @@ type Tile = (scene: Phaser.Scene, x: number, y: number, w: number, h: number) =>
 export class AdventureScene extends Phaser.Scene {
   /** Сколько экспедиций вернулось при отрисовке баннера (раз в секунду сверяем — чип и точка не отстают). */
   private expeditionsDone = 0;
+  private expeditionDecisions = 0;
 
   constructor() {
     super('Adventure');
@@ -48,19 +49,21 @@ export class AdventureScene extends Phaser.Scene {
       }),
     );
     this.expeditionsDone = finishedExpeditions(session.save, now());
+    this.expeditionDecisions = pendingExpeditionEvents(session.save, now());
     // R: Башня только что открылась — указатель на фигуру баннера.
     const tower = made[tiles.indexOf(towerTile)];
     if (tower && towerStatus(session.save, GAME).unlocked && !hintDone('tower_open')) {
       tutorialHint(this, 'tower_open', tower.focusX, tower.focusY, 'above', { w: 240, h: 240 });
     }
     staggerIn(this, 'Adventure', rows);
-    // Экспедиция вернулась, пока игрок на странице, — обновить баннер (не при открытом окне).
+    // Отряд вернулся или наступил выбор события — обновить состояние (не при открытом окне).
     this.time.addEvent({
       delay: 1000,
       loop: true,
       callback: () => {
         const modal = !!this.children.getByName(UNLOCK_BANNER_NAME) || confirmOpen(this);
-        if (!modal && finishedExpeditions(session.save, now()) !== this.expeditionsDone) this.scene.restart();
+        if (!modal && (finishedExpeditions(session.save, now()) !== this.expeditionsDone
+          || pendingExpeditionEvents(session.save, now()) !== this.expeditionDecisions)) this.scene.restart();
       },
     });
     showUnlockBanners(this);
