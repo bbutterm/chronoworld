@@ -8,6 +8,8 @@ import { loadFullContext } from '../scripts/lib/content-node';
 import { playerSave, TOWER_SQUADS } from '../scripts/balance-tower';
 
 const ctx = loadFullContext();
+// Legacy regression fixture: existing runs retain the pre-experiment policy.
+delete ctx.tower.run!.newRunDraftRules;
 const cfg = runConfig(ctx);
 type BlessingPending = Extract<NonNullable<TowerRun['pending']>, { kind: 'blessing' }>;
 

@@ -24,6 +24,7 @@ import {
   type TowerSave,
   type TowerUpgrade,
   TowerSaveSchema,
+  TowerDraftRulesSchema,
 } from './runSchema';
 import type { TowerConfig } from './schema';
 import { TowerError, towerUnlocked, type TowerContext } from './tower';
@@ -212,7 +213,7 @@ type Source = NonNullable<TowerRun['pending']> extends infer P ? (P extends { ki
 /** Варианты карт: редкость по весам источника (не ниже min), без повторов. */
 function rollOptions(save: SaveState, run: TowerRun, source: Source, key: number, rolls: number, cfg: TowerRunConfig, min: BlessingRarity = 'common'): string[] {
   const r = rngOf(run, key, `bless:${source}:${rolls}`);
-  const weights = cfg.rarity[source === 'upgrade' ? 'start' : source];
+  const weights = (run.draftRules?.rarity ?? cfg.rarity)[source === 'upgrade' ? 'start' : source];
   const minIdx = BLESSING_RARITIES.indexOf(min);
   let pool = cfg.blessings.filter((b) => offerable(b, run, save) && BLESSING_RARITIES.indexOf(b.rarity) >= minIdx);
   const out: string[] = [];
@@ -242,8 +243,8 @@ function rollOptions(save: SaveState, run: TowerRun, source: Source, key: number
 
 function setBlessing(save: SaveState, run: TowerRun, source: Source, cfg: TowerRunConfig, min: BlessingRarity = 'common'): TowerRun {
   const options = rollOptions(save, run, source, run.floor, 0, cfg, min);
-  if (!options.length) return run;
-  return { ...run, pending: { kind: 'blessing', options, source, rolls: 0, minRarity: min } };
+  if (!options.length && !run.draftRules) return run;
+  return { ...run, pending: { ...(options.length ? {} : { exhausted: true }), kind: 'blessing', options, source, rolls: 0, minRarity: min } };
 }
 
 // ---------- статус для экрана ----------
@@ -362,6 +363,7 @@ export function startTowerRun(save: SaveState, heroIds: readonly (string | null)
     hp: Object.fromEntries(ids.map((id) => [id, 1000])),
     fallen: [],
     cards: [],
+    ...(cfg.newRunDraftRules ? { draftRules: TowerDraftRulesSchema.parse(cfg.newRunDraftRules), consumedImmediateCards: [] } : {}),
     paths: genPaths({ seed: 0 }, 1, cfg),
     shards: 0,
     rerolls: Math.floor(upgradeValue(save, cfg, 'reroll')),
@@ -384,7 +386,7 @@ function advance(save: SaveState, run: TowerRun, kind: TowerNodeKind, cfg: Tower
   if (!next.pending) {
     if (kind === 'boss') next = setBlessing(save, next, 'boss', cfg, 'rare');
     else if (kind === 'elite') next = setBlessing(save, next, 'elite', cfg, 'rare');
-    else if (floor % cfg.blessingEvery === 0) next = setBlessing(save, next, 'floor', cfg);
+    else if (floor % (run.draftRules?.blessingEvery ?? cfg.blessingEvery) === 0) next = setBlessing(save, next, 'floor', cfg);
   }
   return next;
 }
@@ -482,7 +484,15 @@ export function resolveTowerEvent(save: SaveState, option: number, ctx: TowerCon
         const b = last ? blessingById(cfg, last) : undefined;
         if (!b) return;
         const idx = Math.min(BLESSING_RARITIES.length - 1, BLESSING_RARITIES.indexOf(b.rarity) + 1);
-        run = setBlessing(save, { ...run, cards: run.cards.slice(0, -1) }, 'event', cfg, BLESSING_RARITIES[idx]);
+        if (run.draftRules) {
+          const capFull = run.cards.filter((id) => blessingById(cfg, id)?.rarity === 'legendary').length >= run.draftRules.legendaryCap;
+          const mode = capFull && b.rarity !== 'legendary' && BLESSING_RARITIES[idx] === 'legendary' ? 'mvpReplacement' : 'last';
+          run = setBlessing(save, run, 'event', cfg, BLESSING_RARITIES[idx]);
+          if (run.pending?.kind === 'blessing') run = { ...run, pending: { ...run.pending, exchange: { sourceCardId: last, mode } } };
+          text = mode === 'mvpReplacement' ? 'Выберите активную MVP-карту для замены. Последняя обычная или редкая карта останется.' : 'Выберите новую карту: последняя карта уйдёт только после подтверждения обмена.';
+        } else {
+          run = setBlessing(save, { ...run, cards: run.cards.slice(0, -1) }, 'event', cfg, BLESSING_RARITIES[idx]);
+        }
         return;
       }
       case 'gamble': {
@@ -498,17 +508,63 @@ export function resolveTowerEvent(save: SaveState, option: number, ctx: TowerCon
   return { save: withRun(save, run), text, events };
 }
 
-/** Выбрать карту из предложенных. Забеговые эффекты (воскрешение, новобранец) — сразу. */
-export function pickTowerBlessing(save: SaveState, cardId: string, ctx: TowerContext): { save: SaveState; events: TowerRunEvent[] } {
+export interface TowerBlessingChoiceOptions { replaceCardId?: string }
+
+export interface TowerBlessingChoicePreview {
+  incomingCardId: string;
+  outgoingCardId?: string;
+  requiresReplacement: boolean;
+  replacementCandidates: string[];
+  cards: string[];
+  familiesGained: string[];
+  familiesLost: string[];
+  immediateRevivalSpent: boolean;
+  exchangeSourcePreserved: boolean;
+}
+
+/** Чистое сравнение. Без выбранной замены возвращает requiresReplacement, ничего не списывая. */
+export function previewTowerBlessingChoice(save: SaveState, cardId: string, ctx: TowerContext, choice: TowerBlessingChoiceOptions = {}): TowerBlessingChoicePreview {
+  const cfg = runConfig(ctx);
+  const run = need(save);
+  const p = run.pending;
+  const card = blessingById(cfg, cardId);
+  if (p?.kind !== 'blessing' || !p.options.includes(cardId) || !card || run.cards.includes(cardId)) throw new TowerError('bad_choice', 'Этой карты нет в выборе');
+  if (p.minRarity && BLESSING_RARITIES.indexOf(card.rarity) < BLESSING_RARITIES.indexOf(p.minRarity)) throw new TowerError('bad_choice', 'Карта не соответствует гарантии выбора');
+  const exchange = run.draftRules ? p.exchange : undefined;
+  if (exchange && !run.cards.includes(exchange.sourceCardId)) throw new TowerError('bad_choice', 'Карта для обмена больше не активна');
+  const legends = run.cards.filter((id) => blessingById(cfg, id)?.rarity === 'legendary');
+  const sourceLegend = exchange && blessingById(cfg, exchange.sourceCardId)?.rarity === 'legendary';
+  const needsMvp = !!run.draftRules && card.rarity === 'legendary' && legends.length >= run.draftRules.legendaryCap && !sourceLegend;
+  if (choice.replaceCardId && (!needsMvp || !legends.includes(choice.replaceCardId))) throw new TowerError('bad_choice', 'Выберите активную MVP-карту для замены');
+  const outgoingCardId = needsMvp ? choice.replaceCardId : exchange?.sourceCardId;
+  const requiresReplacement = needsMvp && !outgoingCardId;
+  const cards = requiresReplacement ? [...run.cards] : [...run.cards.filter((id) => id !== outgoingCardId), cardId];
+  if (!requiresReplacement && run.draftRules && cards.filter((id) => blessingById(cfg, id)?.rarity === 'legendary').length > run.draftRules.legendaryCap) throw new TowerError('bad_choice', 'Превышен лимит активных MVP-карт');
+  const before = familyStates(run.cards, cfg).filter((f) => f.active).map((f) => f.family.id);
+  const after = familyStates(cards, cfg).filter((f) => f.active).map((f) => f.family.id);
+  return {
+    incomingCardId: cardId, outgoingCardId, requiresReplacement,
+    replacementCandidates: needsMvp ? legends : [], cards,
+    familiesGained: after.filter((id) => !before.includes(id)),
+    familiesLost: before.filter((id) => !after.includes(id)),
+    immediateRevivalSpent: !!run.draftRules && (run.consumedImmediateCards ?? []).includes(cardId),
+    exchangeSourcePreserved: !!exchange && needsMvp,
+  };
+}
+
+/** Атомарно принять карту и ровно одну явно выбранную замену. */
+export function pickTowerBlessing(save: SaveState, cardId: string, ctx: TowerContext, choice: TowerBlessingChoiceOptions = {}): { save: SaveState; events: TowerRunEvent[] } {
   const cfg = runConfig(ctx);
   let run = need(save);
-  const p = run.pending;
-  if (p?.kind !== 'blessing' || !p.options.includes(cardId)) throw new TowerError('bad_choice', 'Этой карты нет в выборе');
+  const preview = previewTowerBlessingChoice(save, cardId, ctx, choice);
+  if (preview.requiresReplacement) throw new TowerError('bad_choice', 'Сначала выберите MVP-карту для замены');
   const card = blessingById(cfg, cardId)!;
-  run = { ...run, pending: undefined, cards: [...run.cards, cardId] };
+  run = { ...run, pending: undefined, cards: preview.cards };
   const events: TowerRunEvent[] = [];
+  const hasImmediateRevival = card.effects.some((e) => e.kind === 'reviveRun');
+  if (run.draftRules && hasImmediateRevival && !preview.immediateRevivalSpent) run = { ...run, consumedImmediateCards: [...(run.consumedImmediateCards ?? []), cardId] };
   for (const e of card.effects) {
-    if (e.kind === 'reviveRun') {
+    if (e.kind === 'reviveRun' && !preview.immediateRevivalSpent) {
       const out = reviveRun(run, e.hpPct);
       run = out.run;
       if (out.revived.length) events.push({ type: 'towerRevived', heroes: out.revived });
@@ -526,6 +582,14 @@ export function pickTowerBlessing(save: SaveState, cardId: string, ctx: TowerCon
   return { save: withRun(save, run), events };
 }
 
+/** Явно сохранить сборку: награда завершена, обмен не списывается, перетасовки не возвращаются. */
+export function skipTowerBlessing(save: SaveState, ctx: TowerContext): SaveState {
+  runConfig(ctx);
+  const run = need(save);
+  if (!run.draftRules || run.pending?.kind !== 'blessing') throw new TowerError('bad_choice', 'Сейчас нельзя пропустить выбор карты');
+  return withRun(save, { ...run, pending: undefined, note: 'Вы сохранили текущую сборку.' });
+}
+
 /** Перетасовать предложенные карты (улучшение «Перетасовка»: rerolls за забег). */
 export function rerollTowerBlessing(save: SaveState, ctx: TowerContext): SaveState {
   const cfg = runConfig(ctx);
@@ -536,7 +600,7 @@ export function rerollTowerBlessing(save: SaveState, ctx: TowerContext): SaveSta
   // Старые сохранения не хранят гарантию события: для них остаются прежние правила источника.
   const min = p.minRarity ?? (p.source === 'elite' || p.source === 'boss' || p.source === 'upgrade' ? 'rare' : 'common');
   const options = rollOptions(save, run, p.source, run.floor, p.rolls + 1, cfg, min);
-  return withRun(save, { ...run, rerolls: run.rerolls - 1, pending: { ...p, options: options.length ? options : p.options, rolls: p.rolls + 1 } });
+  return withRun(save, { ...run, rerolls: run.rerolls - 1, pending: { ...p, options: run.draftRules ? options : options.length ? options : p.options, ...(run.draftRules ? { exhausted: options.length === 0 } : {}), rolls: p.rolls + 1 } });
 }
 
 /** Описание врагов выбранного боя (превью и сцена боя). */
