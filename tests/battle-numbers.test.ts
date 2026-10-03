@@ -7,6 +7,7 @@ vi.mock('phaser', () => {
     y = 0;
     alpha = 1;
     scale = 1;
+    scaleY = 1;
     visible = true;
     active = true;
     text = '';
@@ -22,8 +23,9 @@ vi.mock('phaser', () => {
       this.x = x;
       return this;
     }
-    setScale(s: number) {
+    setScale(s: number, sy = s) {
       this.scale = s;
+      this.scaleY = sy;
       return this;
     }
     setAlpha(a: number) {
@@ -56,6 +58,8 @@ vi.mock('phaser', () => {
     setOrigin() {
       return this;
     }
+    setRotation() { return this; }
+    setFrame() { return this; }
     setTint() {
       return this;
     }
@@ -306,5 +310,52 @@ describe('цифры боя: траектории и границы', () => {
         expect(n.obj.x + n.nw / 2).toBeLessThanOrEqual(1072);
       }
     }
+  });
+});
+
+describe('лечение: столб не выбеливает героя', () => {
+  it.each([false, true])('атлас на союзнике приглушён, полный срок 17 кадров сохранён (ульта=%s)', (ult) => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.ult = ult;
+    layer.flash(500, 900, 'fx_heal', 182, 0.8, 250, fx.DEPTH.fx, 1100, undefined, undefined, true);
+    const live = (layer as unknown as { live: { dur: number; obj: { alpha: number; displayWidth: number; visible: boolean } }[] }).live;
+    const effect = live[0];
+    expect(effect.obj.alpha).toBeCloseTo(0.8 * 0.45 * (ult ? 0.8 : fx.ALLY_FX_ALPHA));
+    expect(effect.obj.displayWidth).toBeCloseTo(182 * 0.8 / (ult ? 1 : fx.SKILL_FX_SIZE));
+    expect(effect.dur).toBeCloseTo(17 * 83.33);
+    layer.step(effect.dur - 1);
+    expect(effect.obj.visible).toBe(true);
+    layer.step(1);
+    expect(effect.obj.visible).toBe(false);
+  });
+
+  it.each([[false, false, 1], [true, false, 1.15], [false, true, 0.6]] as const)('процедурные ядра тонкие, кольцо и 760-мс анимация сохранены (big=%s, small=%s)', async (big, small, k) => {
+    const { SkillFx, FX_TEX } = await import('../src/game/skillFx');
+    const images: { tex: string; tint: number; node: any }[] = [];
+    const runs: { obj: any; dur: number; fn: (q: number, obj: any) => void }[] = [];
+    const stub = {
+      img: (tex: string, _x: number, _y: number, tint: number) => {
+        const node = new Phaser.GameObjects.Image(); images.push({ tex, tint, node }); return node;
+      },
+      glow: vi.fn(), rise: vi.fn(), n: () => 0,
+      crosses: { setParticleTint: vi.fn(), emitParticleAt: vi.fn() },
+      run: (obj: any, dur: number, fn: (q: number, obj: any) => void) => runs.push({ obj, dur, fn }),
+    };
+    SkillFx.prototype.heal.call(stub as never, { x: 400, y: 850, feet: 1000 }, big, small);
+    const columns = images.filter((i) => i.tex === FX_TEX.beam);
+    expect(columns).toHaveLength(2);
+    for (const col of columns) {
+      const r = runs.find((r) => r.obj === col.node)!;
+      expect(r.dur).toBe(760);
+      const white = col.tint === 0xffffff;
+      expect(col.node.scaleY * 32).toBeCloseTo((white ? 24 : 100) * k);
+      expect(col.node.alpha).toBeCloseTo(white ? 0.22 : 0.35);
+      r.fn(0.3, col.node);
+      expect(col.node.alpha).toBeCloseTo(white ? 0.22 : 0.35);
+      r.fn(1, col.node);
+      expect(col.node.alpha).toBeCloseTo(0);
+    }
+    expect(stub.glow.mock.calls.some((a) => a[8] === FX_TEX.ring && a[5] === 620)).toBe(true);
+    expect(stub.rise).toHaveBeenCalledTimes(2);
   });
 });

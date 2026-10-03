@@ -791,6 +791,12 @@ export class FloatLayer {
    */
   flash(x: number, y: number, texId: string, size: number, alpha: number, duration: number, depth: number, feetY = y, key?: string, fromX?: number, onAlly = false): void {
     const effect = selectedAnimatedEffect(texId, 'flash', this.scene.textures.exists(animatedFxKey(texId)));
+    // На лечении уже есть кольцо, частицы и процедурный столб. Яркое ядро RO не должно белить фигуру,
+    // в том числе во время своей ульты; кадры и полный срок атласа остаются прежними.
+    if (texId === 'fx_heal' && onAlly) {
+      size *= 0.8;
+      alpha *= 0.45;
+    }
     // RR-15: на своих героях — меньше и прозрачнее; при толпе крупных эффектов — бледнее, а на героях не рисуем вовсе.
     // Ульта героя — всегда видна целиком: не прозрачнее на своих, не бледнее в толпе, крупнее. Её бафф на своих
     // (Защита строя, Адреналин) — без укрупнения и чуть прозрачнее: белый лист во весь рост закрывал отряд целиком.

@@ -1602,10 +1602,10 @@ export class SkillFx {
     const k = big ? 1.15 : small ? 0.6 : 1;
     const reduced = motion.reduced;
     this.glow(p.x, p.feet, HEAL_MAIN, 0.4, 2.6 * Math.max(k, 0.8), 620, 0, 0.95, TEX.ring, 0.35);
-    this.glow(p.x, p.y, HEAL_MAIN, 1, 2.8 * k, 520, 0, 0.6);
+    this.glow(p.x, p.y, HEAL_MAIN, 1, 2.8 * k, 520, 0, 0.25);
     const h = 350 * k;
-    // Столб: широкий зеленоватый и узкое белое ядро (текстура луча мягкая поперёк), растут от земли вверх.
-    for (const [w, tint, a] of [[150 * k, HEAL_MAIN, 0.75], [56 * k, 0xffffff, 0.9]] as const) {
+    // Мягкий зелёный столб и тонкое приглушённое ядро: вместе с атласом Heal не выбеливают тело.
+    for (const [w, tint, a] of [[100 * k, HEAL_MAIN, 0.35], [24 * k, 0xffffff, 0.22]] as const) {
       const col = this.img(TEX.beam, p.x, p.feet, tint, SFX_DEPTH + 1);
       col.setOrigin(0, 0.5).setRotation(-Math.PI / 2).setScale(reduced ? h / 64 : 0, w / 32).setAlpha(a);
       this.run(col, 760, (q, im) => {
