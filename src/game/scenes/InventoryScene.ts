@@ -664,9 +664,7 @@ export class InventoryScene extends Phaser.Scene {
     defs.forEach((c, i) => {
       const y = i * (rowH + S.xs) + rowH / 2;
       const free = this.cardTargets(c.slot);
-      const trailing = free.length
-        ? button(this, 0, 0, 240, BTN.m, '', 'Вставить', area.tap(() => this.cardTargetSheet(c.id)), T.body, { variant: 'secondary' }).container.setSize(240, BTN.m).setName(`mvpCardInsert_${c.id}`)
-        : tag(this, 0, 0, 'нет предмета', 'neutral');
+      const trailing = button(this, 0, 0, 240, BTN.m, '', free.length ? 'Вставить' : 'Предметы', area.tap(() => this.cardTargetSheet(c.id)), T.body, { variant: 'secondary' }).container.setSize(240, BTN.m).setName(`mvpCardInsert_${c.id}`);
       const r = listRow(this, GAME_W / 2, y, CW, {
         icon: (s, x, iy, size) => s.add.image(x, iy, itemIconKey(s, c.slot)).setDisplaySize(size, size).setTint(COLOR_N.textSecondary),
         title: own[c.id] > 1 ? `${c.name} ×${own[c.id]}` : c.name,
@@ -692,46 +690,67 @@ export class InventoryScene extends Phaser.Scene {
       .sort((a, b) => Number(!!b.wornBy) - Number(!!a.wornBy) || order.indexOf(b.def.rarity) - order.indexOf(a.def.rarity) || refineLevel(b.instance) - refineLevel(a.instance));
   }
 
-  /** Лист «Куда вставить?»: до 6 предметов слота без карты, подтверждение — карту не вынуть. */
+  /** Все экземпляры слота без карты. Длинный список прокручивает и ограничивает bottomSheet. */
   private cardTargetSheet(cardId: string): void {
     const c = GAME.hunt.cards.find((x) => x.id === cardId);
     if (!c) return;
-    const items = this.cardTargets(c.slot).slice(0, 6);
+    const items = this.cardTargets(c.slot);
+    let chosen: { item: (typeof items)[number]; number: number } | null = null;
     this.lockList(true);
     const sheet = bottomSheet(
       this,
       `Куда: ${c.name}`,
       (content, width, close) => {
-        const rh = 128;
+        if (!items.length) {
+          content.add(text(this, width / 2, 48, 'Подходящих предметов нет', T.heading, COLOR.textPrimary).setName('cardTargetEmpty'));
+          content.add(text(this, width / 2, 132, `${SLOT_NAMES[c.slot]} без вставленной карты.\nСнаряжение можно получить в кампании.`, T.body, COLOR.textSecondary, { wordWrap: { width }, align: 'center' }));
+          return 224;
+        }
+        const introH = 80;
+        content.add(text(this, 0, 32, `${SLOT_NAMES[c.slot]} · Доступно: ${items.length}`, T.caption, COLOR.textSecondary).setOrigin(0, 0.5).setName('cardTargetCount'));
+        const rh = 144;
         items.forEach((it, i) => {
           const lvl = refineLevel(it.instance);
-          const r = listRow(this, width / 2, i * (rh + S.xs) + rh / 2, width, {
-            icon: it.instance.itemId,
+          const status = it.wornBy ? `Надет: ${it.wornBy}` : it.instance.equippedBy ? 'Надет' : 'Свободен';
+          const r = listRow(this, width / 2, introH + i * (rh + S.xs) + rh / 2, width, {
+            icon: (s, x, y, size) => s.add.image(x, y, itemIconKey(s, it.def.slot, it.instance.itemId)).setDisplaySize(size, size),
             title: refinedName(it.def, lvl),
-            subtitle: it.wornBy ? `надет: ${it.wornBy}` : 'свободен',
+            subtitle: `Экз. ${i + 1} · ${status}`,
+            trailing: '›',
             h: rh,
             onTap: () => {
+              // Не менять выбранный экземпляр повторным касанием во время закрытия.
+              if (chosen || sheet.layer.name !== 'cardTargetPicker') return;
+              chosen = { item: it, number: i + 1 };
               close();
-              confirm(this, `Вставить «${c.name}» в «${refinedName(it.def, lvl)}»?\nКарту нельзя вынуть.`, 'Вставить', () => {
-                try {
-                  commit(insertCard(session.save, it.instance.id, c.id, GAME));
-                  sfx('refine_success');
-                  haptic('refineOk');
-                  this.scene.restart({});
-                  this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, `${c.name} — в «${refinedName(it.def, lvl)}»`, C.success));
-                } catch (e) {
-                  toast(this, e instanceof Error ? e.message : String(e), C.error);
-                }
-              });
             },
-          });
+          }).setName(`cardTarget_${it.instance.id}`);
           const texts = r.list.filter((o): o is Phaser.GameObjects.Text => o.type === 'Text');
-          texts[0]?.setColor(RARITY_COLORS[it.def.rarity]);
+          // trailing создаётся раньше заголовка.
+          texts[1]?.setColor(RARITY_COLORS[it.def.rarity]);
           content.add(r);
         });
-        return items.length * (rh + S.xs) - S.xs;
+        return introH + items.length * (rh + S.xs) - S.xs;
       },
-      { onClose: () => this.lockList(false) },
+      { onClose: () => {
+        this.lockList(false);
+        if (!chosen) return;
+        const { item: it, number } = chosen;
+        const name = refinedName(it.def, refineLevel(it.instance));
+        const status = it.wornBy ? `Надет: ${it.wornBy}` : it.instance.equippedBy ? 'Надет' : 'Свободен';
+        // Подтверждение открывается после завершения анимации листа, без двух конкурирующих слоёв.
+        confirm(this, `Вставить «${c.name}» в «${name}»?\nЭкз. ${number} · ${status}\nКарту нельзя вынуть.`, 'Вставить', () => {
+          try {
+            commit(insertCard(session.save, it.instance.id, c.id, GAME));
+            sfx('refine_success');
+            haptic('refineOk');
+            this.scene.restart({});
+            this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, `${c.name} — в «${name}»`, C.success));
+          } catch (e) {
+            toast(this, e instanceof Error ? e.message : String(e), C.error);
+          }
+        });
+      } },
     );
     sheet.layer.setName('cardTargetPicker');
   }

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { heroBrowseLayout } from '../heroBrowseLayout';
 import { hintDone, markHint } from '../hints';
 import {
   actEquipBest,
@@ -293,14 +294,15 @@ export class HeroScene extends Phaser.Scene {
     }
     // Листание ‹ › по списку «Героев» (и свайпом по витрине).
     const nb = this.neighbours(hero);
+    const nav = heroBrowseLayout(COL_X, TOP);
     const arrow = (x: number, id: string | null, ico: 'back' | 'next', name: string) => {
       if (!id) return;
-      const b = button(this, x, TOP + 330, 80, 136, '', '', () => this.reopen({ heroId: id, tab: this.tab }), T.caption, { sound: 'ui_tab', variant: 'icon' });
+      const b = button(this, x, nav.y, nav.w, nav.h, '', '', () => this.reopen({ heroId: id, tab: this.tab }), T.caption, { sound: 'ui_tab', variant: 'icon' });
       b.container.add(this.add.image(0, 0, skinIcon(ico)).setDisplaySize(48, 48).setTint(COLOR_N.title));
       b.container.setName(name).setAlpha(0.9);
     };
-    arrow(S.l + 12, nb.prev, 'back', 'prevHero');
-    arrow(GAME_W - S.l - 12, nb.next, 'next', 'nextHero');
+    arrow(nav.prevX, nb.prev, 'back', 'prevHero');
+    arrow(nav.nextX, nb.next, 'next', 'nextHero');
   }
 
   private neighbours(hero: HeroState): { prev: string | null; next: string | null } {

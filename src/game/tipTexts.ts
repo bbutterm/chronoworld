@@ -20,11 +20,11 @@ export const TIP_MAX = 70;
 export const TIPS: Record<TipId, TipDef> = {
   tip_tower: {
     speaker: 'garret',
-    text: 'Башня каждый раз другая. Павшие не встанут до конца забега.',
+    text: 'Выбирай путь и благословения. Береги раненых для следующих этажей.',
   },
   tip_hunt: {
     speaker: 'garret',
-    text: 'Бей MVP его слабой стихией — вдвое больнее. Две попытки в день.',
+    text: 'Бей MVP его слабой стихией. Ульта с молнией собьёт заряд.',
   },
   tip_evening: {
     speaker: 'bruno',
@@ -32,7 +32,7 @@ export const TIPS: Record<TipId, TipDef> = {
   },
   tip_expedition: {
     speaker: 'greta',
-    text: 'Ой, в пути что-то стряслось! Нужный класс справится наверняка.',
+    text: 'Решай, как поступить в пути. Подходящий герой повышает шанс успеха.',
   },
   tip_boss_charge: {
     speaker: 'garret',

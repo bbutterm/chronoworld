@@ -9,10 +9,10 @@ import { commit, session } from '../session';
 import { sfx } from '../audio';
 import { haptic } from '../haptics';
 import { RARITY_CARD } from '../tavern';
-import { button, ellipsize, iconOf, mixHex, plate, pressable, ScrollArea, SURFACE, tag, text, toast, tutorialHint } from '../ui';
+import { button, ellipsize, iconOf, plate, pressable, ScrollArea, SURFACE, tag, text, toast, tutorialHint } from '../ui';
 import { hintDone } from '../hints';
-import { C, COLOR, hexNum, M, R, S, T, TOUCH, Z } from '../theme';
-import { cardIcon, drawHeroCard, GUILD_NAMES, heroCardIcon, heroCardSize, LINES, rarityColor, rarityName, ROLES } from '../heroCard';
+import { C, COLOR, hexNum, M, R, S, T, TOUCH, TOUCH_COMFORT, Z } from '../theme';
+import { cardIcon, drawHeroCard, heroCardIcon, heroCardSize, LINES, rarityColor, rarityName, ROLES } from '../heroCard';
 import { collectionCount, collectionHeroes, groupCopies, heroesUi, inventoryUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
 import { heroStoryNew, toastOpenedStories } from '../heroStoryView';
 import { lockLabel } from '../unlockBanner';
@@ -26,7 +26,7 @@ const GAP_Y = S.m;
 /** Поле экрана (§4.2). */
 const L = S.l;
 /** Высота строки управления (класс, фильтр, сортировка). */
-const CTRL_H = 88;
+const CTRL_H = TOUCH_COMFORT;
 
 /** Последняя показанная мощь отряда — отсчёт до нового значения при возвращении с карточки. */
 let lastSquadPower: number | null = null;
@@ -40,8 +40,8 @@ export interface HeroesData {
  * H4 «Герои» — коллекция карточек как в AFK Arena: сетка 3 в ряд крупных карточек (рамка редкости, лицо, класс, имя,
  * уровень, ромбы редкостей), не больше одного значка-повода на карточке (вознести > ветка > улучшить > вещь > история >
  * новый), тихая галка «в отряде». Сверху — мощь отряда и запас опыта, «Коллекция» и инвентарь; строка фильтра класса
- * (значки и «Все»; касание выбранного снимает фильтр), роль и редкость — в листе «Фильтр» (активные — чипы с «×»),
- * сортировка по кругу. «Вознести всех» — плавающая главная кнопка, только когда есть кого. Нажатие — карточка героя
+ * (подписанный выбор в листе), роль и редкость — в листе «Фильтр» (активные — чипы с «×»),
+ * явный выбор сортировки. «Вознести всех» — плавающая главная кнопка, только когда есть кого. Нажатие — карточка героя
  * (HeroScene), листание — в порядке этого списка.
  */
 export class HeroesScene extends Phaser.Scene {
@@ -87,9 +87,10 @@ export class HeroesScene extends Phaser.Scene {
     const bag = iconOf(this, 0, 0, 'bag', 56, COLOR.textPrimary);
     if (bag) inv.container.add(bag);
     const cc = collectionCount(save, GAME);
+    // Две строки сохраняют полный счётчик (включая 12/12), не забирая ширину у опыта.
     const collW = 290;
     const collX = invX - TOUCH / 2 - S.xs - collW / 2;
-    const coll = button(this, collX, aY, collW, TOUCH, heroesUi.showMissing ? 'skin_btn_active' : 'ui_btn_secondary', `Коллекция ${cc.owned}/${cc.total}`, () => {
+    const coll = button(this, collX, aY, collW, TOUCH, heroesUi.showMissing ? 'skin_btn_active' : 'ui_btn_secondary', `Коллекция\n${cc.owned}/${cc.total}`, () => {
       heroesUi.showMissing = !heroesUi.showMissing;
       this.redraw();
     }, T.caption, { sound: 'ui_toggle' });
@@ -97,22 +98,23 @@ export class HeroesScene extends Phaser.Scene {
     // Длинный запас опыта не наезжает на «Коллекцию».
     ellipsize(expVal, Math.max(120, collX - collW / 2 - S.s - expVal.x));
 
-    // Строка 2: класс (значки и «Все»), фильтр роли и редкости (лист), сортировка.
-    const bY = aY + 128;
-    const sortW = 220;
-    const sortX = GAME_W - L - sortW / 2;
-    const filtX = sortX - sortW / 2 - S.xs - TOUCH / 2;
-    const segW = filtX - TOUCH / 2 - S.xs - L;
-    this.classFilter(L + segW / 2, bY, segW);
+    // Строка 2: подписанные цели вместо семи тесных значков класса.
+    const bY = aY + TOUCH / 2 + S.s + CTRL_H / 2;
+    const classW = 388;
+    const filterW = 248;
+    const sortW = GAME_W - 2 * L - classW - filterW - 2 * S.xs;
+    const classBtn = button(this, L + classW / 2, bY, classW, CTRL_H, f.line ? 'skin_btn_active' : 'ui_btn_secondary',
+      f.line ? GAME.content.jobs[f.line]?.name ?? f.line : 'Все классы', () => this.openClasses(), T.caption, { sound: null });
+    classBtn.container.setName('classFilter');
+    ellipsize(classBtn.label, classW - S.l);
     const extra = !!(f.role || f.rarity);
-    const filt = button(this, filtX, bY, TOUCH, CTRL_H, extra ? 'skin_btn_active' : 'ui_btn_secondary', '', () => this.openFilters(), T.caption, { sound: null });
+    const filtX = L + classW + S.xs + filterW / 2;
+    const filt = button(this, filtX, bY, filterW, CTRL_H, extra ? 'skin_btn_active' : 'ui_btn_secondary',
+      `Фильтр${extra ? ` · ${Number(!!f.role) + Number(!!f.rarity)}` : ''}`, () => this.openFilters(), T.caption, { sound: null });
     filt.container.setName('filterBtn');
-    filt.container.add(this.funnel(extra ? COLOR.title : COLOR.textSecondary));
-    // Сортировка по кругу: значок «по убыванию» и ключ («Сила» / «Уровень» / «Редкость»).
-    const sortBtn = button(this, sortX, bY, sortW, CTRL_H, 'ui_btn_secondary', SORT_LABELS[heroesUi.sort], () => {
-      heroesUi.sort = SORT_ORDER[(SORT_ORDER.indexOf(heroesUi.sort) + 1) % SORT_ORDER.length];
-      this.redraw();
-    }, T.caption, { sound: 'ui_toggle' });
+    const sortX = GAME_W - L - sortW / 2;
+    const sortBtn = button(this, sortX, bY, sortW, CTRL_H, 'ui_btn_secondary', SORT_LABELS[heroesUi.sort],
+      () => this.openSort(), T.caption, { sound: null });
     sortBtn.container.setName('sortBtn');
     const lw = sortBtn.label.width;
     const sx = -(lw + 34) / 2;
@@ -122,7 +124,7 @@ export class HeroesScene extends Phaser.Scene {
     // Строка 3 — только при фильтре роли/редкости: чипы «Танк ×», «Синий ×»; касание снимает.
     let rowBottom = bY + CTRL_H / 2;
     if (extra) {
-      const cY = rowBottom + S.xs + 26;
+      const cY = rowBottom + S.xs + TOUCH / 2;
       let cx = L;
       const chipOf = (label: string, name: string, clear: () => void) => {
         const t = tag(this, cx, cY, `${label}  ×`, 'accent', { align: 'left' }).setName(name);
@@ -135,7 +137,7 @@ export class HeroesScene extends Phaser.Scene {
       };
       if (f.role) chipOf(ROLE_NAMES[f.role] ?? f.role, 'roleChip', () => (f.role = null));
       if (f.rarity) chipOf(rarityName(f.rarity), 'rarityChip', () => (f.rarity = null));
-      rowBottom = cY + 26;
+      rowBottom = cY + TOUCH / 2;
     }
 
     // Сетка карточек.
@@ -229,46 +231,48 @@ export class HeroesScene extends Phaser.Scene {
     this.redraw();
   }
 
-  /**
-   * Фильтр класса — утопленная дорожка: «Все» и значки шести линий (выбранный — поднятая плашка, золотой значок).
-   * Касание выбранного значка снимает фильтр (снова «Все»).
-   */
-  private classFilter(x: number, y: number, w: number): void {
-    const f = heroesUi.filter;
-    const h = CTRL_H;
-    const inset = 6;
-    const opts: (string | null)[] = [null, ...LINES];
-    const segW = (w - 2 * inset) / opts.length;
-    const c = this.add.container(x, y).setName('classFilter');
-    c.add(plate(this, 0, 0, w, h, { ...SURFACE.sunken, r: R.m }));
-    const sel = Math.max(0, opts.indexOf(f.line));
-    const xs = opts.map((_, i) => -w / 2 + inset + segW * (i + 0.5));
-    c.add(plate(this, xs[sel], 0, segW, h - 2 * inset, { fill: COLOR.surfaceRaised, border: mixHex(COLOR.border, COLOR.accent, 0.45), borderW: 2, r: R.m - 4, hl: 0.14 }));
-    opts.forEach((line, i) => {
-      const on = i === sel;
-      const color = on ? COLOR.title : COLOR.textSecondary;
-      if (line === null) c.add(text(this, xs[i], 0, 'Все', T.caption, color, { fontStyle: 'bold' }));
-      else c.add(this.add.image(xs[i], 0, cardIcon(this, line)).setDisplaySize(48, 48).setTint(hexNum(color)));
-      const zone = this.add.zone(xs[i], 0, segW, Math.max(h, TOUCH)).setName(line ? `Линия: ${GAME.content.jobs[line]?.name ?? line} (${GUILD_NAMES[line] ?? ''})` : 'Линия: все');
-      c.add(zone);
-      pressable(this, zone, segW, h - 2 * inset, () => {
-        const next = line === null || f.line === line ? null : line;
-        if (next === f.line) return;
-        sfx('ui_toggle');
-        f.line = next;
-        this.redraw();
+  /** Классы с полными подписями; открытие и отмена не меняют выбор. */
+  private openClasses(): void {
+    const sheet = bottomSheet(this, 'Класс героя', (box, width, close) => {
+      const options = [null, ...LINES];
+      const gap = S.xs;
+      const w = (width - gap) / 2;
+      options.forEach((line, i) => {
+        const on = heroesUi.filter.line === line;
+        const label = line ? GAME.content.jobs[line]?.name ?? line : 'Все классы';
+        const b = button(this, (i % 2) * (w + gap) + w / 2, Math.floor(i / 2) * (CTRL_H + gap) + CTRL_H / 2,
+          w, CTRL_H, on ? 'skin_btn_active' : 'ui_btn_secondary', `${on ? '✓ ' : ''}${label}`, () => {
+            if (sheet.layer.name !== 'bottomSheet') return;
+            heroesUi.filter.line = line;
+            close();
+            this.time.delayedCall(M.fast, () => this.redraw());
+          }, T.body, { sound: 'ui_toggle' });
+        b.container.setName(line ? `Линия: ${label}` : 'Линия: все');
+        ellipsize(b.label, w - S.l);
+        box.add(b.container);
       });
+      return Math.ceil(options.length / 2) * (CTRL_H + gap);
     });
   }
 
-  /** Значок «воронка» (фильтр): своей иконки в скине нет — Graphics. */
-  private funnel(color: string): Phaser.GameObjects.Graphics {
-    const g = this.add.graphics();
-    const V = Phaser.Math.Vector2;
-    g.fillStyle(hexNum(color), 1);
-    g.fillPoints([new V(-22, -18), new V(22, -18), new V(5, 2), new V(-5, 2)], true);
-    g.fillRect(-5, 0, 10, 20);
-    return g;
+  /** Сортировка выбирается явно, направление показано до выбора. */
+  private openSort(): void {
+    const sheet = bottomSheet(this, 'Сначала в списке', (box, width, close) => {
+      const labels = { power: 'Самые сильные', level: 'Высокий уровень', rarity: 'Редкие герои' };
+      SORT_ORDER.forEach((sort, i) => {
+        const on = heroesUi.sort === sort;
+        const b = button(this, width / 2, i * (CTRL_H + S.xs) + CTRL_H / 2, width, CTRL_H,
+          on ? 'skin_btn_active' : 'ui_btn_secondary', `${on ? '✓ ' : ''}${labels[sort]}`, () => {
+            if (sheet.layer.name !== 'bottomSheet') return;
+            heroesUi.sort = sort;
+            close();
+            this.time.delayedCall(M.fast, () => this.redraw());
+          }, T.body, { sound: 'ui_toggle' });
+        b.container.setName(`sort_${sort}`);
+        box.add(b.container);
+      });
+      return SORT_ORDER.length * (CTRL_H + S.xs);
+    });
   }
 
   /** Значок сортировки «по убыванию»: три полосы от длинной к короткой (в шрифте нет ↕ — Graphics). */
@@ -283,8 +287,9 @@ export class HeroesScene extends Phaser.Scene {
   /** Лист «Фильтр»: роль (4 значка с подписью) и редкость (5 ромбов). Касание выбирает или снимает и закрывает лист. */
   private openFilters(): void {
     const f = heroesUi.filter;
-    bottomSheet(this, 'Фильтр', (box, width, close) => {
+    const sheet = bottomSheet(this, 'Фильтр', (box, width, close) => {
       const pick = (apply: () => void) => {
+        if (sheet.layer.name !== 'bottomSheet') return;
         apply();
         close();
         this.time.delayedCall(M.fast, () => this.redraw());
