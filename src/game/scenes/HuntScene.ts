@@ -123,8 +123,18 @@ const L = {
 const W = GAME_W - 2 * S.l;
 const LEFT = S.l;
 
-/** Выбранный уровень MVP (между заходами на экран; выше доступного — сбрасывается). */
+/** null — следовать за верхним уровнем; число — намеренно выбранный фарм ниже него. */
 let pickedRank: number | null = null;
+let pickedSaveCreatedAt: number | undefined;
+
+/** Новая игра и понижение уровня не должны оставлять недоступный выбор. */
+function syncRankSelection(rank: number): void {
+  if (pickedSaveCreatedAt !== session.save.createdAt) {
+    pickedSaveCreatedAt = session.save.createdAt;
+    pickedRank = null;
+  }
+  if (pickedRank !== null && pickedRank >= rank) pickedRank = null;
+}
 
 /**
  * «Охота на MVP» (docs/design/mvp-hunt.md; как MVP в Ragnarok Online + гильдейская охота AFK Arena). Экран в духе AFK:
@@ -143,11 +153,11 @@ export class HuntScene extends Phaser.Scene {
     restartOnNewDay(this);
     screen(this, 'Охота на MVP', 'Adventure', { to: 'Adventure' });
     const st = huntStatus(session.save, today(), GAME);
+    syncRankSelection(st.rank);
     if (!st.unlocked) {
       lockedScreen(this, 'hunt');
       return;
     }
-    if (pickedRank === null || pickedRank > st.rank) pickedRank = st.rank;
     // Раскладка сверху вниз по видимой области: баннер растёт на вытянутых экранах, кнопки — у низа.
     const bottom = contentBottom();
     const ctaY = bottom - S.xs - L.ctaH / 2;
@@ -366,7 +376,8 @@ export class HuntScene extends Phaser.Scene {
   }
 
   private pick(rank: number, st: HuntStatus): void {
-    pickedRank = Math.max(0, Math.min(st.rank, rank));
+    const selected = Math.max(0, Math.min(st.rank, rank));
+    pickedRank = selected < st.rank ? selected : null;
     this.scene.restart({});
   }
 
@@ -394,7 +405,9 @@ export class HuntScene extends Phaser.Scene {
       this.scene.start('Squad', { back: { to: 'Hunt' } });
       return;
     }
-    this.scene.start('Battle', { mode: 'hunt', ...(pickedRank !== null ? { rank: pickedRank } : {}) });
+    const st = huntStatus(session.save, today(), GAME);
+    syncRankSelection(st.rank);
+    this.scene.start('Battle', { mode: 'hunt', rank: pickedRank ?? st.rank });
   }
 
   private sweep(): void {
