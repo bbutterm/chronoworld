@@ -26,6 +26,9 @@ export function addPackedTexture(
   if (!tex) return null;
   tex.add('__BASE', 0, 0, 0, pack.width, pack.height);
   for (const f of pack.frames) tex.add(f.name, 0, f.x, f.y, f.w, f.h)?.setTrim(cell[0], cell[1], f.dx, f.dy, f.w, f.h);
+  // Phaser treats numeric frame 0 as the texture default. Packing is height-sorted,
+  // so the first frame added may be an attack pose instead of idle frame 0.
+  if (pack.frames.some((f) => f.name === 0)) tex.firstFrame = '0';
   return tex;
 }
 

@@ -1,3 +1,4 @@
+import { ensurePortraitFile } from './portraitFile';
 import Phaser from 'phaser';
 import { packSheet } from '../pipeline/sheetPack';
 import { buildRegistry, resolveAnim, type AnimName, type LegacySprites, type SpriteDef, type SpriteFixes, type SpritesV2 } from '../pipeline/sprites';
@@ -79,12 +80,12 @@ function loadImage(url: string): Promise<HTMLImageElement | null> {
  * Не загрузился — плейсхолдер (как раньше в BootScene).
  */
 function loadSheet(game: Phaser.Game, id: string): Promise<void> {
-  if (sheetLoaded(game, id)) return Promise.resolve();
+  // The sheet texture can exist while its portrait/fallback is still loading.
   const running = inflight.get(id);
   if (running) return running;
+  if (sheetLoaded(game, id)) return Promise.resolve();
   const s = SPRITES[id];
-  const p = loadImage(s.file).then((img) => {
-    inflight.delete(id);
+  const p = loadImage(s.file).then(async (img) => {
     const tm = game.textures;
     if (sheetLoaded(game, id)) return;
     if (!img) {
@@ -109,14 +110,14 @@ function loadSheet(game: Phaser.Game, id: string): Promise<void> {
       });
     }
     const pk = portraitKey(id);
-    if (!tm.exists(pk)) {
+    if (!(await ensurePortraitFile(tm, pk, s.portrait, loadImage, Phaser.Textures.FilterMode.NEAREST))) {
       // Портрета нет — берём кадр стойки, обрезанный по фигуре (в клетке листа много пустоты). Один раз и навсегда.
-      const frame = tm.getFrame(key, (s.anims.idle?.row ?? 0) * s.columns);
+      const frame = tm.getFrame(key, String((s.anims.idle?.row ?? 0) * s.columns));
       if (frame) portraitFromFrame(tm, pk, key, frame);
     }
     const src = tex.source[0];
     lru.add(id, textureBytes(src.width, src.height));
-  });
+  }).finally(() => inflight.delete(id));
   inflight.set(id, p);
   return p;
 }
@@ -218,8 +219,8 @@ let portraitChain: Promise<void> = Promise.resolve();
 const portraitWaits = new Map<string, Promise<void>>();
 
 /**
- * Портрет спрайта (portrait_<id>): есть — сразу; нет — загрузить лист, вырезать портрет и, если лист больше
- * никому не нужен, сразу выгрузить (спискам героев листы не нужны).
+ * Портрет спрайта (portrait_<id>): есть — сразу; иначе сначала файл портрета.
+ * Если файла нет/он не загрузился — вырезать стойку из листа и выгрузить ненужный лист.
  */
 export function requestPortrait(game: Phaser.Game, id: string): Promise<void> {
   const pk = portraitKey(id);
@@ -232,7 +233,7 @@ export function requestPortrait(game: Phaser.Game, id: string): Promise<void> {
   if (running) return running;
   const p = portraitChain
     .then(async () => {
-      if (game.textures.exists(pk)) return;
+      if (await ensurePortraitFile(game.textures, pk, SPRITES[id]?.portrait, loadImage, Phaser.Textures.FilterMode.NEAREST)) return;
       const had = sheetLoaded(game, id);
       await loadSheet(game, id);
       if (!had && !lru.isHeld(id)) {
