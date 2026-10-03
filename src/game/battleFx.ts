@@ -293,6 +293,9 @@ interface Transient {
   popMs: number;
   /** Вытеснена (лимит цифр, новый значок статуса): с этого t быстро гаснет за EVICT_MS. −1 — живёт свой срок. */
   die: number;
+  /** Габариты цифры в пике появления, для разведения соседних надписей. */
+  nw: number;
+  nh: number;
 }
 
 /** Кривые твинов, которые раньше делали то же самое (время — мс на 1x). */
@@ -317,6 +320,8 @@ export const BEHAVIOR_LABEL_SIZE = 36;
 export const BEHAVIOR_LABEL_DEPTH = 5100;
 /** Отступ надписи от края экрана. */
 const EDGE = 8;
+/** Зазор между цифрами (единицы поля, включая максимальный масштаб появления). */
+const NUMBER_GAP = 10;
 
 /**
  * Цифры RO (roBrowser Renderer/Effects/Damage.js): урон вылетает над целью, по дуге подпрыгивает вверх и в сторону,
@@ -478,6 +483,8 @@ export class FloatLayer {
     r.a = fadeDelay;
     r.s = big ? 1 : 0;
     if (big) t.setScale(1.6);
+    const bounds = t instanceof Phaser.GameObjects.BitmapText ? t.getTextBounds(true).local : t;
+    this.placeNumber(r, bounds.width * (big ? 1.6 : 1), (size + thick * 2) * (big ? 1.6 : 1));
     return t;
   }
 
@@ -509,11 +516,6 @@ export class FloatLayer {
     t.setPosition(x0, y);
     this.scene.children.bringToTop(t);
     const crit = kind === 'crit' || kind === 'ouch';
-    // Прежние крупные цифры той же цели уходят вверх на высоту новой: удары ульты подряд не ложатся друг на друга.
-    if (crit && key) {
-      const lift = RO_DIGIT_H * look.scale * 0.95;
-      for (const o of this.live) if (o.kind === Kind.Number && o.key === key && o.mode === RO_CRIT && o.die < 0) o.y0 -= lift;
-    }
     const r = this.start(Kind.Number, t, crit ? CRIT_MS : mode === RO_HIT ? RO_HIT_MS : RO_RISE_MS);
     r.key = key;
     r.mode = crit ? RO_CRIT : mode;
@@ -526,6 +528,7 @@ export class FloatLayer {
     r.v = amount;
     this.popIn(r, NUMBER_LOOK[kind].pop, NUMBER_LOOK[kind].popMs);
     t.setScale(look.scale * r.pop);
+    this.placeNumber(r, w * r.pop, RO_DIGIT_H * look.scale * r.pop);
     return true;
   }
 
@@ -540,9 +543,77 @@ export class FloatLayer {
       // Движение начинается заново с того же места; хлопок — чуть слабее первого.
       r.t = 0;
       this.popIn(r, 1 + (NUMBER_LOOK[kind].pop - 1) * 0.7, NUMBER_LOOK[kind].popMs);
+      t.setScale(r.s * r.pop);
+      this.placeNumber(r, t.getTextBounds(true).local.width * r.s * r.pop, RO_DIGIT_H * r.s * r.pop);
       return true;
     }
     return false;
+  }
+
+  /**
+   * Место освобождается вместе с самой цифрой, а не через независимые 420 мс сцены.
+   * Проверяем все соседние цели и реальный пик «хлопка», в том числе после роста суммы.
+   * Новая цифра уходит выше занятого места, не вниз на тело; dt/пауза/скорость остаются у FloatLayer.
+   */
+  private placeNumber(r: Transient, width: number, height: number): void {
+    r.nw = width;
+    r.nh = height;
+    const travel = (n: Transient): { rise: number; fall: number; drift: number } =>
+      n.mode === RO_HIT ? { rise: RO_ARC, fall: RO_ARC, drift: n.x1 } :
+      n.mode === RO_RISE ? { rise: RO_RISE_H, fall: 0, drift: 0 } :
+      n.mode === RO_CRIT ? { rise: CRIT_RISE, fall: 0, drift: n.x1 * 0.35 } :
+      { rise: Math.max(0, n.y0 - n.y1), fall: 0, drift: 0 };
+    const move = travel(r);
+    const minY = BANNER_Y + BANNER_H / 2 + 24 + height / 2 + move.rise;
+    const maxY = GAME_H - 270 - height / 2 - move.fall;
+    const preferredX = clampX(r.x0, width);
+    const preferredY = Math.min(maxY, Math.max(minY, r.y0));
+    // Резервируем всю дугу/подъём: цифры разных видов не встретятся через несколько кадров.
+    const boxes = this.live.filter((n) => n !== r && n.kind === Kind.Number && n.die < 0 && n.obj.alpha >= 0.2).map((n) => {
+      const m = travel(n);
+      const endX = clampX(n.x0 + m.drift, n.nw);
+      return { n, left: Math.min(n.x0, endX) - n.nw / 2, right: Math.max(n.x0, endX) + n.nw / 2,
+        top: n.y0 - m.rise - n.nh / 2, bottom: n.y0 + m.fall + n.nh / 2 };
+    });
+    let y = preferredY;
+    let x = preferredX;
+    const overlaps = (b: typeof boxes[number], px: number, py: number): boolean => {
+      const endX = clampX(px + move.drift, width);
+      return Math.min(px, endX) - width / 2 < b.right + NUMBER_GAP && Math.max(px, endX) + width / 2 > b.left - NUMBER_GAP &&
+        py - move.rise - height / 2 < b.bottom + NUMBER_GAP && py + move.fall + height / 2 > b.top - NUMBER_GAP;
+    };
+    let placed = false;
+    // Сначала столбик у цели; если над ним уже HUD, пробуем соседние столбики.
+    const candidates = [preferredX, ...boxes.flatMap((b) => [
+      b.left - width / 2 - NUMBER_GAP - Math.max(0, move.drift),
+      b.right + width / 2 + NUMBER_GAP - Math.min(0, move.drift),
+    ])].map((px) => clampX(px, width)).sort((a, b) => Math.abs(a - preferredX) - Math.abs(b - preferredX));
+    for (const candidate of candidates) {
+      x = candidate;
+      y = preferredY;
+      for (let pass = 0; pass <= boxes.length; pass++) {
+        let next = y;
+        for (const b of boxes) if (overlaps(b, x, y)) next = Math.min(next, b.top - move.fall - height / 2 - NUMBER_GAP);
+        if (next === y) { placed = true; break; }
+        if (next < minY) break;
+        y = next;
+      }
+      if (placed) break;
+    }
+    // Очень плотная очередь: новая остаётся у цели, старые конфликтующие цифры штатно гаснут.
+    if (!placed) {
+      x = preferredX;
+      y = preferredY;
+      const conflicts = boxes.filter((b) => overlaps(b, x, y));
+      const priority = r.nk ? NUMBER_LOOK[r.nk].prio : 1;
+      if (conflicts.some((b) => (b.n.nk ? NUMBER_LOOK[b.n.nk].prio : 1) > priority)) r.die = r.t;
+      else for (const b of conflicts) b.n.die = b.n.t;
+    }
+    r.x0 = x;
+    // Запасной шрифт использует y1 для подъёма; смещаем всю траекторию, сохраняя её длительность.
+    r.y1 += y - r.y0;
+    r.y0 = y;
+    r.obj.setPosition(r.x0, y);
   }
 
   /** «Хлопок» появления (без него при «Меньше движения»). */
@@ -801,6 +872,7 @@ export class FloatLayer {
               o.y = r.y0 - RO_RISE_H * ease.quadOut(p);
               o.setScale(k * r.s);
             }
+            o.x = clampX(o.x, r.nw);
             break;
           }
           o.y = r.y0 + (r.y1 - r.y0) * ease.quadOut(clamp01(r.t / NUM_RISE_MS));
@@ -890,7 +962,7 @@ export class FloatLayer {
   }
 
   private start(kind: Kind, obj: Transient['obj'], dur: number): Transient {
-    const r = this.spare.pop() ?? { kind, obj, seq: 0, t: 0, dur, x0: 0, y0: 0, x1: 0, y1: 0, a: 0, s: 0, mode: 0, m: 1, v: 0, pop: 1, popMs: 0, die: -1 };
+    const r = this.spare.pop() ?? { kind, obj, seq: 0, t: 0, dur, x0: 0, y0: 0, x1: 0, y1: 0, a: 0, s: 0, mode: 0, m: 1, v: 0, pop: 1, popMs: 0, die: -1, nw: 0, nh: 0 };
     r.kind = kind;
     r.seq = this.seq++;
     r.obj = obj;
@@ -908,6 +980,8 @@ export class FloatLayer {
     r.pop = 1;
     r.popMs = 0;
     r.die = -1;
+    r.nw = 0;
+    r.nh = 0;
     // Вспышки (Kind.Fx) приглушает flash() сам; цифры и подписи — множителем в step.
     r.m = this.mute && !this.ult && kind !== Kind.Fx ? FOCUS_MUTE_ALPHA : 1;
     if (r.m < 1) obj.setAlpha(r.m);

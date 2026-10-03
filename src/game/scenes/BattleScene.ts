@@ -45,7 +45,6 @@ import { anim, hitDelay, lazyPortrait, portraitKey, spriteView, whenSprites, typ
 import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
 import { BarkLayer, BEHAVIOR_LABEL_DEPTH, BEHAVIOR_LABEL_SIZE, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, ULT_FX_BOOST, UltPresenter } from '../battleFx';
-import { RO_DIGIT_H } from '../numberFont';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
 import { BehaviorFx } from '../battleBehaviorFx';
@@ -87,12 +86,8 @@ const HP_BAR_H = 10;
 const EN_BAR_Y = 25;
 /** Полоски и имя сдвинуты к «своему тылу» (A — влево, B — вправо), чтобы у пары в ближнем бою не наезжали. */
 const UI_SHIFT = 18;
-/** Цифры урона: не больше стольких в столбике над одним юнитом, шаг столбика, подъём. */
-const FLOAT_SLOTS = 3;
-const FLOAT_STEP = 46;
+/** Подъём запасных цифр; размещение и занятость теперь считает сам FloatLayer по живым надписям. */
 const FLOAT_RISE = 36;
-/** Сколько мс место в столбике считается занятым. */
-const FLOAT_SLOT_MS = 420;
 /** Белый «след» полоски HP: пауза и время догоняющего сжатия. */
 const TRAIL_DELAY = 250;
 const TRAIL_MS = 450;
@@ -102,12 +97,12 @@ const PROJECTILE_MS = Math.round((COMBAT.projectileSeconds ?? 0.3) * 1000);
 const HURT_COOLDOWN = 500;
 /** Красная вспышка при попадании, мс на 1x (перед ней HIT_FLASH_MS — белая заливка). */
 const HURT_TINT_MS = 90;
-const HIT_FLASH_MS = 45;
+const HIT_FLASH_MS = 30;
 /**
  * RR-15 / BUG-158: белая заливка попадания — не чаще раза в HIT_FLASH_EVERY мс на юнита (по боссу бьют все пятеро и
  * он был белым силуэтом весь бой); у босса белой заливки нет вовсе — только короткий светло-красный оттенок.
  */
-const HIT_FLASH_EVERY = 400;
+const HIT_FLASH_EVERY = 600;
 /** RR-14: первые секунды боя (ауры, пассивки «на начало боя») — без подписей пассивок и статусов. */
 const OPENING_QUIET_S = 1;
 /** Фокус на ульте героя (мс сцены): столько остальные бойцы приглушены после начала ульты… */
@@ -264,8 +259,6 @@ interface UnitView extends SpreadUnit, GaitState {
   tintLeft: number;
   /** Смещение подписи с именем от точки ног (y). */
   nameY: number;
-  /** Столбик цифр: до какого времени занято каждое место. */
-  floatSlots: number[];
   /** Юнит кастует ульту (до своей следующей обычной атаки) — его удары подсвечиваются. */
   inUlt: boolean;
   shieldBar: Phaser.GameObjects.Image;
@@ -1055,7 +1048,6 @@ export class BattleScene extends Phaser.Scene {
       trailT: -1,
       tintLeft: 0,
       nameY,
-      floatSlots: new Array<number>(FLOAT_SLOTS).fill(0),
       inUlt: false,
       shieldBar,
       energyBar,
@@ -1544,17 +1536,19 @@ export class BattleScene extends Phaser.Scene {
   private fxMode(src: string | undefined, ult: boolean, fn: () => void, onAlly = false): void {
     const f = this.floats;
     const s = this.sfx;
-    const was = [f.ult, f.mute, s.boost, s.mute] as const;
+    const was = [f.ult, f.mute, s.boost, s.mute, s.soft] as const;
     const mute = !ult && this.muted(src);
     f.ult = ult;
     f.mute = mute;
     // Лечение и баффы ульты на своих — в полную яркость, но не крупнее (иначе лист закрывает фигуры отряда).
     s.boost = ult && !onAlly ? ULT_FX_BOOST : 1;
     s.mute = mute;
+    // Попадания по отряду проходят тем же мягким режимом, что лечение и баффы.
+    s.soft = onAlly && !ult;
     try {
       fn();
     } finally {
-      [f.ult, f.mute, s.boost, s.mute] = was;
+      [f.ult, f.mute, s.boost, s.mute, s.soft] = was;
     }
   }
 
@@ -1784,7 +1778,7 @@ export class BattleScene extends Phaser.Scene {
           // Урон, принятый за союзника по связи (Самопожертвование), виден золотой нитью связи (battleBehaviorFx) — без подписи.
           if (e.dot) return;
           const hit = hitFxOf(src, dmgSkill);
-          if (hit === 'fx_magic') this.fx(v, hit, 1.7, 450, 0.95);
+          if (hit === 'fx_magic') this.fx(v, hit, 1.15, 450, 0.62);
           else this.fx(v, hit, 0.45, 200, 0.5, src?.node.x);
           if (src) this.hitVisual(src, v, sk, hpPart, big);
         }, { plan: e.dot ? undefined : e.target, on: v });
@@ -2110,9 +2104,9 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private hurt(v: UnitView): void {
-    // Белая вспышка, затем красный оттенок; у босса и при частых ударах — только оттенок (RR-15, BUG-158).
+    // Свои герои сохраняют детали спрайта: только оттенок. Короткая белая вспышка — у рядового врага.
     const boss = v.def.kind === 'boss';
-    if (!boss && this.time.now - v.lastFlash >= HIT_FLASH_EVERY) {
+    if (!boss && v.snap.side === 'B' && !motion.reduced && this.time.now - v.lastFlash >= HIT_FLASH_EVERY) {
       v.sprite.setTintFill(0xffffff);
       v.flashFill = true;
       v.lastFlash = this.time.now;
@@ -2252,51 +2246,18 @@ export class BattleScene extends Phaser.Scene {
     this.floats.flash(v.node.x, bodyY(v), texId, 140 * scale, alpha, duration, DEPTH.fx, v.node.y, undefined, fromX, v.snap.side === 'A');
   }
 
-  /**
-   * Цифра урона/лечения над юнитом. Цифры встают в небольшой столбик (FLOAT_SLOTS мест сверху вниз),
-   * сдвинуты к тылу юнита и поднимаются ровно до подписи с именем — не заезжая на неё.
-   * big — удар ульты: крупнее, золотом, с «хлопком».
-   */
+  /** Цифры сбоку от тела, к своему тылу; FloatLayer разводит их по реальным живым границам. */
   private popNumber(v: UnitView, value: string, color: string, big = false, size = 40, stroke = '#000000'): void {
-    const now = this.time.now;
-    let slot = v.floatSlots.findIndex((t) => t <= now);
-    if (slot < 0) {
-      slot = 0;
-      for (let i = 1; i < v.floatSlots.length; i++) if (v.floatSlots[i] < v.floatSlots[slot]) slot = i;
-    }
-    v.floatSlots[slot] = now + FLOAT_SLOT_MS;
     const fs = big ? Math.round(size * 1.3) : size;
-    const cx = v.node.x;
-    const cy = bodyY(v);
-    const nameBottom = v.node.y + v.nameY + 14;
-    const top = Math.max(cy - 30, nameBottom + fs / 2 + FLOAT_RISE + 4);
-    const x = cx + (v.snap.side === 'A' ? -34 : 34) + rnd(14);
-    const y = top + slot * FLOAT_STEP;
-    // Пул надписей: не больше MAX_FLOATS на экране, цифры — растровым шрифтом стиля; у края экрана цифра не обрезается.
-    this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : stroke, big ? 8 : 6, DEPTH.numbers + slot, FLOAT_RISE, big ? 650 : 450, big, v.snap.uid);
+    const x = v.node.x + (v.snap.side === 'A' ? -64 : 64);
+    const y = bodyY(v) - 42;
+    this.floats.number(x, y, value, fs, color, big ? '#5a2a00' : stroke, big ? 8 : 6, DEPTH.numbers, FLOAT_RISE, big ? 650 : 450, big, v.snap.uid);
   }
 
-  /**
-   * Цифра RO над юнитом (атлас numbers, только число): то же место в столбике, что у popNumber; урон (RO_HIT) летит
-   * дугой к тылу юнита, лечение и щит (RO_RISE) — вверх. false — атлас не загрузился (рисует popNumber).
-   */
+  /** Цифра RO: урон — дугой к тылу, лечение/щит — вверх; при отсутствии атласа используется popNumber. */
   private popRo(v: UnitView, amount: number, tint: number, scale: number, mode: number, elem?: 'weak' | 'resist'): boolean {
-    const now = this.time.now;
-    let slot = v.floatSlots.findIndex((t) => t <= now);
-    if (slot < 0) {
-      slot = 0;
-      for (let i = 1; i < v.floatSlots.length; i++) if (v.floatSlots[i] < v.floatSlots[slot]) slot = i;
-    }
-    const h = RO_DIGIT_H * scale;
     const dir = v.snap.side === 'A' ? -1 : 1;
-    const nameBottom = v.node.y + v.nameY + 14;
-    const top = Math.max(bodyY(v) - 30, nameBottom + h / 2 + (mode === RO_HIT ? 40 : 60));
-    // Соседние места столбика — на высоту цифры ниже и чуть к тылу: одновременные удары не сливаются в одно число.
-    const x = v.node.x + dir * (30 + slot * 22) + rnd(10);
-    const y = top + slot * Math.max(FLOAT_STEP, h * 0.9);
-    if (!this.floats.roNumber(x, y, String(Math.round(amount)), tint, scale, DEPTH.numbers + slot, mode, dir, v.snap.uid, elem)) return false;
-    v.floatSlots[slot] = now + FLOAT_SLOT_MS;
-    return true;
+    return this.floats.roNumber(v.node.x + dir * 64, bodyY(v) - 42, String(Math.round(amount)), tint, scale, DEPTH.numbers, mode, dir, v.snap.uid, elem);
   }
 
   /**
@@ -2883,7 +2844,6 @@ const fmt = (s: number) => {
 };
 /** Центр тела над точкой ног (y) — туда летят снаряды и всплывают цифры; x — это node.x. */
 const bodyY = (v: UnitView) => v.node.y - v.look.height * 0.5;
-const rnd = (spread: number) => (Math.random() - 0.5) * spread;
 
 /**
  * Чёткий пиксель-арт у юнитов с visual.scale (боссы ×1.3 и т. п.): итоговый масштаб листа округляется до шага 0.5

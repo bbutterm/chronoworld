@@ -205,3 +205,106 @@ describe('значки статусов над юнитом', () => {
     expect(b!.visible).toBe(false);
   });
 });
+
+type LiveNumber = { kind: number; t: number; dur: number; die: number; nw: number; nh: number; obj: { x: number; y: number; text: string; visible: boolean; scale: number }; };
+const numbers = (layer: InstanceType<typeof fx.FloatLayer>) => (layer as unknown as { live: LiveNumber[] }).live.filter((r) => r.kind === 0 && r.die < 0);
+const overlap = (a: LiveNumber, b: LiveNumber) => Math.abs(a.obj.x - b.obj.x) < (a.nw + b.nw) / 2 && Math.abs(a.obj.y - b.obj.y) < (a.nh + b.nh) / 2;
+
+describe('цифры боя: место занято весь видимый срок', () => {
+  it('после прежних 420 мс новая цифра не занимает место ещё видимой, даже у соседней цели', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.roNumber(500, 900, '80', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u1');
+    layer.step(440);
+    const old = numbers(layer)[0];
+    layer.roNumber(old.obj.x, old.obj.y, '32', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u2');
+    const live = numbers(layer);
+    expect(live).toHaveLength(2);
+    expect(live[0].t).toBe(440);
+    expect(overlap(live[0], live[1])).toBe(false);
+    expect(live[1].obj.y).toBeLessThan(live[0].obj.y);
+    // Длительность самой цифры не меняется: место освобождается при её завершении.
+    layer.step(660);
+    expect(numbers(layer)).toHaveLength(1);
+    layer.step(440);
+    expect(numbers(layer)).toHaveLength(0);
+    layer.roNumber(500, 900, '9', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u1');
+    expect(numbers(layer)[0].obj.y).toBe(900);
+  });
+
+  it('одновременные урон, лечение и крит разводятся с учётом пика масштаба', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.roNumber(500, 900, '123', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u1');
+    layer.roNumber(500, 900, '80', 0x5cff6a, 1.15, 5000, RO_RISE, 1, 'u1');
+    layer.roNumber(500, 900, '1234', 0xffd23a, 1.6, 5000, RO_HIT, 1, 'u2');
+    const live = numbers(layer);
+    for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) expect(overlap(live[i], live[j])).toBe(false);
+    layer.step(0); // Пауза не освобождает место и не меняет таймер.
+    expect(numbers(layer).map((r) => r.t)).toEqual([0, 0, 0]);
+  });
+
+  it('увеличение суммы при слиянии не обрезает пик цифры на краю экрана', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.roNumber(5, 900, '9', 0xffd23a, 1.6, 5000, RO_HIT, -1, 'u1');
+    layer.roNumber(5, 900, '991', 0xffd23a, 1.6, 5000, RO_HIT, -1, 'u1');
+    const [n] = numbers(layer);
+    expect(n.obj.text).toBe('1000');
+    expect(n.obj.x - n.nw / 2).toBeGreaterThanOrEqual(8);
+    expect(n.obj.x - n.obj.text.length * 20 * n.obj.scale / 2).toBeGreaterThanOrEqual(8);
+  });
+
+  it('запасной шрифт тоже занимает место; отмена очищает размещение и пулы переиспользуются', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.number(500, 900, '42', 40, '#ffffff', '#000000', 6, 5000, 36, 450, false, 'u1');
+    layer.roNumber(500, 900, '80', 0x5cff6a, 1.15, 5000, RO_RISE, 1, 'u2');
+    const live = numbers(layer);
+    expect(overlap(live[0], live[1])).toBe(false);
+    const created = layer.created;
+    layer.cancel();
+    expect(layer.activeTexts).toBe(0);
+    layer.roNumber(500, 900, '10', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u1');
+    expect(numbers(layer)[0].obj.y).toBe(900);
+    expect(layer.created).toBe(created);
+  });
+});
+
+describe('белое ядро обычного попадания', () => {
+  it('короткое и компактное, при этом цветной рисунок оружия остаётся', async () => {
+    const { SkillFx, FX_TEX } = await import('../src/game/skillFx');
+    const stub = { glow: vi.fn(), slash: vi.fn(), burst: vi.fn() };
+    SkillFx.prototype.strike.call(stub as never, 'slash', { x: 400, y: 850, feet: 1000 }, 1, false, 0xffc0a0);
+    const spark = stub.glow.mock.calls.find((args) => args[8] === FX_TEX.spark)!;
+    expect(spark).toBeDefined();
+    expect(spark[4]).toBeLessThanOrEqual(1.6);
+    expect(spark[5]).toBeLessThanOrEqual(100);
+    expect(spark[7]).toBeLessThanOrEqual(0.55);
+    expect(stub.slash).toHaveBeenCalledOnce();
+    expect(stub.burst).toHaveBeenCalledOnce();
+  });
+});
+
+describe('цифры боя: траектории и границы', () => {
+  it('поздний удар не пересекает поднимающееся лечение спустя 700 мс', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.roNumber(500, 900, '1000', 0x5cff6a, 1.15, 5000, RO_RISE, 1, 'u1');
+    layer.step(400);
+    layer.roNumber(500, 900, '1000', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u2');
+    for (let i = 0; i < 7; i++) {
+      layer.step(100);
+      const live = numbers(layer);
+      expect(overlap(live[0], live[1])).toBe(false);
+    }
+  });
+
+  it('плотные криты остаются ниже HUD и внутри экрана на всей траектории', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    for (let i = 0; i < 8; i++) layer.roNumber(1040, 520, '9999', 0xffd23a, 1.6, 5000, RO_HIT, 1, `u${i}`);
+    for (let i = 0; i < 10; i++) {
+      layer.step(100);
+      for (const n of numbers(layer)) {
+        expect(n.obj.y - n.nh / 2).toBeGreaterThanOrEqual(382);
+        expect(n.obj.x - n.nw / 2).toBeGreaterThanOrEqual(8);
+        expect(n.obj.x + n.nw / 2).toBeLessThanOrEqual(1072);
+      }
+    }
+  });
+});
