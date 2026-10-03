@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { achievementStatus, finishedExpeditions, questStatus, towerFloor, towerStatus } from '../core';
+import { achievementStatus, finishedExpeditions, pendingExpeditionEvents, questStatus, towerFloor, towerStatus, type SaveState } from '../core';
 import { setThemeBackground, themeOfChapter, themeOfTowerFloor, type Theme } from './backdrops';
 import { GAME } from './content';
 import { claimableAchievements, claimableCount, currentStage, expeditionsBadgeCount, heroSprite, towerBadgeCount } from './flow';
@@ -9,7 +9,7 @@ import { skinIcon, type SkinIcon } from './skin';
 import { dot, unitFigure, unitTint } from './screen';
 import { slowRays } from './decor';
 import { buildingTile, type BuildingTile } from './tavernEntry';
-import { C, COLOR, FAMILY, R, S, T } from './theme';
+import { C, COLOR, COLOR_N, FAMILY, R, S, T } from './theme';
 import { type Panel, chip, ellipsize, plate, pressable, text, type IconSpec, type Tone } from './ui';
 import { isUnlocked, lockedToast, lockLabel } from './unlockBanner';
 
@@ -88,6 +88,8 @@ export interface ModeBannerSpec {
   /** Медленные лучи за фигурой (цвет) — «момент» без фона темы (MVP дня). */
   rays?: number;
   status?: { icon?: IconSpec; text: string; tone: Tone };
+  /** Спокойный двухстрочный подвал: название, состояние и стрелка перехода. */
+  actionFooter?: boolean;
   /** Красная точка: есть что сделать сейчас (событие, не постоянное состояние). */
   dot?: boolean;
 }
@@ -97,6 +99,12 @@ export interface ModeBanner {
   /** Центр фигуры — для указателя подсказки. */
   focusX: number;
   focusY: number;
+}
+
+/** Same readable footer at both compact and tall viewport sizes; art keeps the remaining space. */
+export function modeBannerFooterLayout(w: number, h: number) {
+  const height = S.m * 2 + T.title + S.xs + T.body;
+  return { top: h - height, height, titleY: h - height + S.m, statusY: h - S.m - T.body, textW: w - 2 * S.l - S.xl };
 }
 
 export function modeBanner(scene: Phaser.Scene, x: number, y: number, w: number, h: number, o: ModeBannerSpec): ModeBanner {
@@ -118,8 +126,9 @@ export function modeBanner(scene: Phaser.Scene, x: number, y: number, w: number,
   }
   const figs = o.figures ?? [];
   const fx = left + w * (figs.length > 1 ? 0.7 : 0.74);
-  const feet = top + h - S.xl;
-  const fh = h * (o.figureH ?? 0.66);
+  const footer = o.actionFooter ? modeBannerFooterLayout(w, h) : undefined;
+  const feet = top + (footer ? footer.top + S.s : h - S.xl);
+  const fh = Math.min(h * (o.figureH ?? 0.66), footer ? footer.top + S.xxs : h);
   if (o.rays !== undefined && o.open && figs.length) clip(slowRays(scene, fx, feet - fh * 0.5, h * 1.5, 0.22, o.rays));
   if (o.glow !== undefined && o.open && figs.length) {
     clip(scene.add.image(fx, feet - fh * 0.45, 'skin_glow').setDisplaySize(fh * 1.6, fh * 1.4).setTint(o.glow).setAlpha(0.5).setBlendMode(Phaser.BlendModes.ADD));
@@ -149,20 +158,39 @@ export function modeBanner(scene: Phaser.Scene, x: number, y: number, w: number,
   });
   const frame = plate(scene, x, y, w, h, { fill: COLOR.bg, alpha: 0, border: o.open ? COLOR.border : '#3a3226', borderW: 4, r: R.l, hl: o.open ? 0.18 : 0 }).setName(o.name);
   const tx = left + S.l;
-  const lineY = top + h - S.l - 28;
-  const title = text(scene, tx, lineY - 28 - S.xs, o.title, T.title, o.open ? COLOR.title : COLOR.textTertiary, {
-    fontFamily: FAMILY.heading,
-    fontStyle: 'bold',
-    shadow: { offsetX: 0, offsetY: 3, color: '#000000', blur: 8, fill: true },
-  }).setOrigin(0, 1);
-  ellipsize(title, w - 2 * S.l);
-  if (!o.open) {
-    chip(scene, tx, lineY, 'lock', lockLabel(o.lockId), 'neutral', { size: 's', align: 'left' }).setAlpha(0.9);
-    pressable(scene, frame, w, h, () => lockedToast(scene, o.lockId));
+  if (footer) {
+    // No nested badge frames: a solid, quiet surface makes both lines independent of the artwork.
+    clip(scene.add.graphics().fillStyle(COLOR_N.surfaceSunken, 0.96).fillRect(left + 2, top + footer.top, w - 4, footer.height - 2));
+    text(scene, tx, top + footer.titleY, o.title, T.title, o.open ? COLOR.title : COLOR.textSecondary, {
+      fontFamily: FAMILY.heading, fontStyle: 'bold',
+    }).setOrigin(0, 0).setName(`${o.name}Title`);
+    const label = o.open ? o.status?.text ?? '' : lockLabel(o.lockId);
+    const color = !o.open ? COLOR.textSecondary : o.status?.tone === 'positive' ? COLOR.positive : o.status?.tone === 'accent' ? COLOR.accent : COLOR.textSecondary;
+    text(scene, tx, top + footer.statusY, label, T.body, color).setOrigin(0, 0).setName(`${o.name}Status`);
+    if (o.open) {
+      const cx = left + w - S.l;
+      const cy = top + footer.top + footer.height / 2;
+      scene.add.graphics().lineStyle(4, COLOR_N.textSecondary, 0.9).beginPath()
+        .moveTo(cx - S.xs, cy - S.xs).lineTo(cx, cy).lineTo(cx - S.xs, cy + S.xs).strokePath();
+    }
+    // The whole original banner remains the single hit target, including locked-state help.
+    pressable(scene, frame, w, h, o.open ? o.onOpen : () => lockedToast(scene, o.lockId));
   } else {
-    if (o.status) chip(scene, tx, lineY, o.status.icon, o.status.text, o.status.tone, { size: 's', align: 'left' });
-    pressable(scene, frame, w, h, o.onOpen);
-    if (o.dot) dot(scene, left + w - S.m, top + S.m);
+    const lineY = top + h - S.l - 28;
+    const title = text(scene, tx, lineY - 28 - S.xs, o.title, T.title, o.open ? COLOR.title : COLOR.textTertiary, {
+      fontFamily: FAMILY.heading,
+      fontStyle: 'bold',
+      shadow: { offsetX: 0, offsetY: 3, color: '#000000', blur: 8, fill: true },
+    }).setOrigin(0, 1);
+    ellipsize(title, w - 2 * S.l);
+    if (!o.open) {
+      chip(scene, tx, lineY, 'lock', lockLabel(o.lockId), 'neutral', { size: 's', align: 'left' }).setAlpha(0.9);
+      pressable(scene, frame, w, h, () => lockedToast(scene, o.lockId));
+    } else {
+      if (o.status) chip(scene, tx, lineY, o.status.icon, o.status.text, o.status.tone, { size: 's', align: 'left' });
+      pressable(scene, frame, w, h, o.onOpen);
+      if (o.dot) dot(scene, left + w - S.m, top + S.m);
+    }
   }
   return { frame, focusX: figs.length ? fx : x, focusY: figs.length ? feet - fh / 2 : y };
 }
@@ -178,7 +206,7 @@ function towerFigure(floor: number): { sprite: string; tint?: number } | undefin
   }
 }
 
-/** Башня испытаний: этаж забега или рекорд; точка — в забеге ждёт выбор. Нажатие гасит подсказку «Башня открыта». */
+/** Башня: ожидающий выбор, продолжение забега или новый старт. Нажатие гасит подсказку «Башня открыта». */
 export function towerTile(scene: Phaser.Scene, x: number, y: number, w: number, h: number): ModeBanner {
   const save = session.save;
   const ts = towerStatus(save, GAME);
@@ -189,13 +217,14 @@ export function towerTile(scene: Phaser.Scene, x: number, y: number, w: number, 
   return modeBanner(scene, x, y, w, h, {
     name: 'towerTile',
     title: 'Башня испытаний',
+    actionFooter: true,
     open: ts.unlocked,
     lockId: 'tower',
     colors: [0x2a2340, 0x0c0a12],
     backdrop: { kind: 'battle', theme: themeOfTowerFloor(next), focusY: h * 0.5 + 40 },
     figures: fig ? [fig] : [],
     glow: 0xb48cff,
-    status: { icon: 'tower', text: run ? `Этаж ${next}` : ts.floor ? `Рекорд ${ts.floor}` : 'Этаж 1', tone: run ? 'accent' : 'neutral' },
+    status: towerEntryStatus(run, ts.floor),
     dot: towerBadgeCount(save, GAME) > 0,
     onOpen: () => {
       markHint('tower_open');
@@ -204,7 +233,7 @@ export function towerTile(scene: Phaser.Scene, x: number, y: number, w: number, 
   });
 }
 
-/** Экспедиции: вернувшиеся / в пути; точка — вернулись (забрать) или ждёт решение. На картине — отряд. */
+/** Экспедиции: награда → решение → путь → новый выход. На картине — отряд. */
 export function expeditionsTile(scene: Phaser.Scene, x: number, y: number, w: number, h: number): ModeBanner {
   const save = session.save;
   const open = isUnlocked('bounties');
@@ -217,6 +246,7 @@ export function expeditionsTile(scene: Phaser.Scene, x: number, y: number, w: nu
   return modeBanner(scene, x, y, w, h, {
     name: 'expeditionsTile',
     title: 'Экспедиции',
+    actionFooter: true,
     open,
     lockId: 'bounties',
     colors: [0x2c3a22, 0x0e120a],
@@ -224,13 +254,23 @@ export function expeditionsTile(scene: Phaser.Scene, x: number, y: number, w: nu
     figures: heroes.map((hh) => ({ sprite: heroSprite(hh, GAME) })),
     figureH: 0.62,
     glow: 0xfff0c8,
-    status: done
-      ? { icon: 'flag', text: done > 1 ? `Вернулись: ${done}` : 'Отряд вернулся', tone: 'positive' }
-      : active
-        ? { icon: 'hourglass', text: `В пути: ${active}`, tone: 'neutral' }
-        : { icon: 'flag', text: 'Отряд свободен', tone: 'neutral' },
+    status: expeditionEntryStatus(done, pendingExpeditionEvents(save, now()), active),
     dot: expeditionsBadgeCount(save, now(), GAME) > 0,
     onOpen: () => scene.scene.start('Expeditions'),
   });
 }
 
+
+/** Prioritize the next real action over passive records or travel counts. */
+export function towerEntryStatus(run: SaveState['tower']['run'], record: number): NonNullable<ModeBannerSpec['status']> {
+  if (run?.pending) return { text: run.pending.kind === 'event' ? 'Принять решение' : 'Выбрать усиление', tone: 'accent' };
+  if (run) return { text: `Продолжить · этаж ${run.floor + 1}`, tone: 'accent' };
+  return { text: record ? `Начать забег · рекорд ${record}` : 'Начать забег · этаж 1', tone: 'neutral' };
+}
+
+export function expeditionEntryStatus(done: number, pending: number, active: number): NonNullable<ModeBannerSpec['status']> {
+  if (done) return { text: `Забрать награды · отрядов ${done}`, tone: 'positive' };
+  if (pending) return { text: 'Принять решение', tone: 'accent' };
+  if (active) return { text: `В пути · отрядов ${active}`, tone: 'neutral' };
+  return { text: 'Выбрать экспедицию', tone: 'neutral' };
+}
