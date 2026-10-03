@@ -262,8 +262,9 @@ export class ExpeditionsScene extends Phaser.Scene {
         // Пиксель-арт — не крупнее ×1.8: широкие монстры (жук, мимик) остаются внутри «картины».
         maxScale: 1.8,
         onReady: (o) => {
-          // Лист догрузился после перезапуска экрана — объект уже не нужен.
-          if (!this.sys.isActive() || area !== this.area) {
+          // Кэшированный лист готов уже внутри create(), когда сцена ещё не RUNNING.
+          // Живой список принимает готовый спрайт и при повторном входе.
+          if (!area.content.scene || area !== this.area) {
             o.destroy();
             return;
           }
