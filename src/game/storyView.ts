@@ -40,6 +40,7 @@ export function portraitSprite(portrait: string, ctx: GameContext, hero?: SaveSt
     return start ? genderedSpriteId(start, gender, hasSprite) : null;
   }
   if (portrait.startsWith('unit:')) return ctx.content.units[portrait.slice(5)]?.visual.sprite ?? null;
+  if (portrait === 'novice_m' || portrait === 'novice_f') return genderedSpriteId(portrait, gender, hasSprite);
   const job = ctx.content.jobs[portrait]?.visual.sprite;
   return job ? genderedSpriteId(job, gender, hasSprite) : portrait;
 }

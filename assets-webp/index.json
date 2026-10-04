@@ -3223,5 +3223,365 @@
   "sha1": "ec635ec06e37187e3b752d24973d8a750229b31c",
   "png": 1243,
   "webp": 386
+ },
+ "sprites/heroes/hero_meilin_first_profession_detail_v1.png": {
+  "sha1": "c7cdf5a56377819c111a06242453c0bab7fa72fe",
+  "png": 140408,
+  "webp": 34974
+ },
+ "sprites/portraits/hero_meilin_first_profession_detail_v1.png": {
+  "sha1": "bb587d2de35f7c8da2e805995bfa51566680bbb0",
+  "png": 5959,
+  "webp": 2280
+ },
+ "sprites/heroes/hero_meilin_hunter_detail_v2.png": {
+  "sha1": "75204da623ecaf31a8cf0fd610c09053c5638184",
+  "png": 141854,
+  "webp": 33016
+ },
+ "sprites/portraits/hero_meilin_hunter_detail_v2.png": {
+  "sha1": "ce889b8f09bd2c2c2fb5d793dd917913aea225b8",
+  "png": 5475,
+  "webp": 1930
+ },
+ "sprites/heroes/hero_iris_first_profession_detail_v1.png": {
+  "sha1": "42ddee2ae3c56c6f24567925f245d65b09d26fa9",
+  "png": 133231,
+  "webp": 32232
+ },
+ "sprites/portraits/hero_iris_first_profession_detail_v1.png": {
+  "sha1": "efc850edf2bf95504a127efd9d8cf0bb08aa97f7",
+  "png": 5605,
+  "webp": 1912
+ },
+ "sprites/heroes/hero_iris_knight_detail_v2.png": {
+  "sha1": "c483d8f21e9b6dae6384e8d65382bafa7adb282a",
+  "png": 129311,
+  "webp": 29412
+ },
+ "sprites/portraits/hero_iris_knight_detail_v2.png": {
+  "sha1": "84788239e039b6a681cdcc76f33c2c37e5d1a3cb",
+  "png": 6960,
+  "webp": 2390
+ },
+ "sprites/heroes/hero_iris_crusader_detail_v2.png": {
+  "sha1": "82a085387399ed8b4cee29422c4cb4b0fd0a1c77",
+  "png": 168718,
+  "webp": 40442
+ },
+ "sprites/portraits/hero_iris_crusader_detail_v2.png": {
+  "sha1": "c0bd845d01d6996dee88e5afaf4f0edb1e6490af",
+  "png": 6631,
+  "webp": 2280
+ },
+ "sprites/heroes/hero_zara_thief_detail_v2.png": {
+  "sha1": "d723d3acc9ce5954d507c139f37809def4f0c26e",
+  "png": 156562,
+  "webp": 42086
+ },
+ "sprites/portraits/hero_zara_thief_detail_v2.png": {
+  "sha1": "6992f4e6c4cc4aeff9ee69ed1bcf72401c1dd2b5",
+  "png": 7050,
+  "webp": 2900
+ },
+ "sprites/heroes/hero_zara_assassin_detail_v2.png": {
+  "sha1": "f93a1d099b2e1ef3eabf8d1c8dcf63d037b387d0",
+  "png": 168308,
+  "webp": 41394
+ },
+ "sprites/portraits/hero_zara_assassin_detail_v2.png": {
+  "sha1": "080a6298ebc035874114c4600f67f20c6421bb4c",
+  "png": 6952,
+  "webp": 2484
+ },
+ "sprites/heroes/hero_zara_rogue_detail_v2.png": {
+  "sha1": "2239b74297717d5917a1f57d37e2f84d3d40d71b",
+  "png": 166178,
+  "webp": 40378
+ },
+ "sprites/portraits/hero_zara_rogue_detail_v2.png": {
+  "sha1": "dd684a3e34810bdbd2c00a5f0c309c429904c570",
+  "png": 5672,
+  "webp": 2008
+ },
+ "sprites/heroes/hero_lira_magician_details_v2.png": {
+  "sha1": "bf1060ccbb00bf9bdaf2c603b5e77c54b73db248",
+  "png": 130758,
+  "webp": 31162
+ },
+ "sprites/portraits/hero_lira_magician_details_v2.png": {
+  "sha1": "a2ec87c0234cfec1a6aac1be4dae9600e696199e",
+  "png": 6117,
+  "webp": 2182
+ },
+ "sprites/heroes/hero_lira_wizard_detail_v2.png": {
+  "sha1": "5482bd6337eb8790d30daff82e6910e0571ad8fa",
+  "png": 172145,
+  "webp": 44332
+ },
+ "sprites/portraits/hero_lira_wizard_detail_v2.png": {
+  "sha1": "3b89750b2d3c38eb79996687ea8487ee85d7a8c9",
+  "png": 6654,
+  "webp": 2456
+ },
+ "sprites/heroes/hero_kai_magician_details_v2.png": {
+  "sha1": "01ff6e47f141eb7eb331f0456191243560b8ae42",
+  "png": 146924,
+  "webp": 37014
+ },
+ "sprites/portraits/hero_kai_magician_details_v2.png": {
+  "sha1": "2385e9e8350ecbbb2b52cc5a2e21335361445d72",
+  "png": 5481,
+  "webp": 1880
+ },
+ "sprites/heroes/hero_kai_wizard_detail_v2.png": {
+  "sha1": "b817f4a927df765f38898714d5af0bd8d825eb60",
+  "png": 163745,
+  "webp": 42294
+ },
+ "sprites/portraits/hero_kai_wizard_detail_v2.png": {
+  "sha1": "71c9e2a969995a28563816929a3a71d0cdd04b9f",
+  "png": 6005,
+  "webp": 2126
+ },
+ "sprites/heroes/hero_kai_sage_detail_v2.png": {
+  "sha1": "859df696ca85bdd914a25c92182f3e264417f7fd",
+  "png": 176127,
+  "webp": 44440
+ },
+ "sprites/portraits/hero_kai_sage_detail_v2.png": {
+  "sha1": "4da3d518e923c36809c4b2374083123382399d28",
+  "png": 6707,
+  "webp": 2346
+ },
+ "sprites/heroes/hero_otto_merchant_detail_v2.png": {
+  "sha1": "293c3815b287ed59da8eb4c7c0b61471b5f5d231",
+  "png": 141519,
+  "webp": 34934
+ },
+ "sprites/portraits/hero_otto_merchant_detail_v2.png": {
+  "sha1": "da556fe44b6df0e1b4703ff7a3d85def74ee751a",
+  "png": 6021,
+  "webp": 2236
+ },
+ "sprites/heroes/hero_otto_blacksmith_detail_v2.png": {
+  "sha1": "6ea4f7ee353344d0520e36a5d3c0043df4e7179f",
+  "png": 157480,
+  "webp": 37932
+ },
+ "sprites/portraits/hero_otto_blacksmith_detail_v2.png": {
+  "sha1": "294dcee6fb8de646dd283dd921886ba15aee2e5e",
+  "png": 5882,
+  "webp": 2050
+ },
+ "sprites/heroes/hero_otto_alchemist_detail_v2.png": {
+  "sha1": "273bbb3119e3d2e4e7a6dacf81ec5ac859ea9c18",
+  "png": 162919,
+  "webp": 38440
+ },
+ "sprites/portraits/hero_otto_alchemist_detail_v2.png": {
+  "sha1": "eaac19a048b439b565a71c43e4f0d1e8e341c35d",
+  "png": 5324,
+  "webp": 1824
+ },
+ "sprites/heroes/hero_bran_first_profession_detail_v1.png": {
+  "sha1": "dade2dcdecc72733b1bd11e9ff6a7928549e4d11",
+  "png": 143408,
+  "webp": 36838
+ },
+ "sprites/portraits/hero_bran_first_profession_detail_v1.png": {
+  "sha1": "c1dbe62d9ec3b056ef0f7d664fbe668648420d42",
+  "png": 6324,
+  "webp": 2270
+ },
+ "sprites/heroes/hero_bran_hunter_detail_v2.png": {
+  "sha1": "3c5f69e2fe982968ba584bfd71b3d95d7a91e11a",
+  "png": 141099,
+  "webp": 32874
+ },
+ "sprites/portraits/hero_bran_hunter_detail_v2.png": {
+  "sha1": "81ed8c8fd04e1926b8a18780a13a3a02fdaeb341",
+  "png": 6141,
+  "webp": 2040
+ },
+ "sprites/heroes/hero_bran_bard_detail_v2.png": {
+  "sha1": "55e7081664734dbdce63b30abc03d8d006b260cb",
+  "png": 151941,
+  "webp": 34558
+ },
+ "sprites/portraits/hero_bran_bard_detail_v2.png": {
+  "sha1": "e82fdcfc0f2e8cb87c6042cebae9e063c04338ed",
+  "png": 6930,
+  "webp": 2390
+ },
+ "sprites/heroes/hero_teo_acolyte_details_v2.png": {
+  "sha1": "1d36c4ee6f38838ea5d2cf586541a5e33f3cf7a4",
+  "png": 144492,
+  "webp": 34888
+ },
+ "sprites/portraits/hero_teo_acolyte_details_v2.png": {
+  "sha1": "616ada8df7ba7de8d1024787d745746d6ef288a6",
+  "png": 6690,
+  "webp": 2308
+ },
+ "sprites/heroes/hero_teo_priest_detail_v2.png": {
+  "sha1": "3b1bfd46ee8a56f511524fe805e447d292b919dc",
+  "png": 165576,
+  "webp": 41426
+ },
+ "sprites/portraits/hero_teo_priest_detail_v2.png": {
+  "sha1": "256e441d7abf37a3cc456945ad96b9b30fd1d083",
+  "png": 6959,
+  "webp": 2496
+ },
+ "sprites/heroes/hero_teo_monk_detail_v2.png": {
+  "sha1": "95a47c4f26bbccf0df9fefcf32eac60cb5919436",
+  "png": 183849,
+  "webp": 45276
+ },
+ "sprites/portraits/hero_teo_monk_detail_v2.png": {
+  "sha1": "7bc254ac107d2f7446a75bf621dce13046a7557e",
+  "png": 6214,
+  "webp": 2154
+ },
+ "sprites/heroes/hero_greta_merchant_detail_v2.png": {
+  "sha1": "45ab8ecd918d5b3b6aab8a053fe45f83129df6a6",
+  "png": 133146,
+  "webp": 38056
+ },
+ "sprites/portraits/hero_greta_merchant_detail_v2.png": {
+  "sha1": "3c143157792a8b60fce34140f08985e911c3a9b4",
+  "png": 6046,
+  "webp": 2480
+ },
+ "sprites/heroes/hero_greta_blacksmith_detail_v2.png": {
+  "sha1": "798908a89324d32e3ad32b0c67d59081bed6ff57",
+  "png": 149408,
+  "webp": 35788
+ },
+ "sprites/portraits/hero_greta_blacksmith_detail_v2.png": {
+  "sha1": "7ac0baa6137a65918acaca9b6ee1c7ca07353795",
+  "png": 6733,
+  "webp": 2282
+ },
+ "sprites/heroes/hero_greta_alchemist_detail_v2.png": {
+  "sha1": "5cebf4a58cc86eb9e1bb4ce97a6d6d3b3af5aa41",
+  "png": 169359,
+  "webp": 40866
+ },
+ "sprites/portraits/hero_greta_alchemist_detail_v2.png": {
+  "sha1": "25441f62ea57e0420d9cd7653151c09c908adce8",
+  "png": 6451,
+  "webp": 2226
+ },
+ "sprites/heroes/hero_dorn_thief_detail_v2.png": {
+  "sha1": "306521503aaa8a478a3f3ff49bea20432caabe59",
+  "png": 155848,
+  "webp": 40198
+ },
+ "sprites/portraits/hero_dorn_thief_detail_v2.png": {
+  "sha1": "28a0b7e9e2ebe10ae15750424e7f8e4fa67df82a",
+  "png": 5869,
+  "webp": 2208
+ },
+ "sprites/heroes/hero_dorn_assassin_detail_v2.png": {
+  "sha1": "c5ac66dfefb70d53caf62aa8039d10c25fdc0802",
+  "png": 163430,
+  "webp": 40058
+ },
+ "sprites/portraits/hero_dorn_assassin_detail_v2.png": {
+  "sha1": "4e7b67f83b7b84e32ef674b0fd484a97e4a69696",
+  "png": 5737,
+  "webp": 2018
+ },
+ "sprites/heroes/hero_dorn_rogue_detail_v2.png": {
+  "sha1": "c0a0fe6bbdf69e739d74e520be237cf73294e509",
+  "png": 162078,
+  "webp": 39798
+ },
+ "sprites/portraits/hero_dorn_rogue_detail_v2.png": {
+  "sha1": "3fbae715a7a43534b283f4b49cc92a3d8f8bde19",
+  "png": 5390,
+  "webp": 1790
+ },
+ "sprites/heroes/hero_vika_acolyte_details_v2.png": {
+  "sha1": "7d631cd20e1b72fd572483b4081ac455af2896cf",
+  "png": 127381,
+  "webp": 30428
+ },
+ "sprites/portraits/hero_vika_acolyte_details_v2.png": {
+  "sha1": "be000223d6724f8b2fbb820d5796ca49db5f83a7",
+  "png": 5411,
+  "webp": 1832
+ },
+ "sprites/heroes/hero_vika_priest_detail_v2.png": {
+  "sha1": "c349c0e1cdd0ed8250647b958399703a8b9f9b07",
+  "png": 162572,
+  "webp": 41822
+ },
+ "sprites/portraits/hero_vika_priest_detail_v2.png": {
+  "sha1": "6e5bd61ec91b53e5a73b2faed32ecfcf645d0079",
+  "png": 5728,
+  "webp": 2004
+ },
+ "sprites/heroes/hero_vika_monk_detail_v2.png": {
+  "sha1": "89f85dbec192776ccda5418de9dd9528fa05ba9f",
+  "png": 183668,
+  "webp": 45332
+ },
+ "sprites/portraits/hero_vika_monk_detail_v2.png": {
+  "sha1": "c3df5dc7a7b610f82b3b0eaf6f9202bc9edea8da",
+  "png": 6666,
+  "webp": 2314
+ },
+ "sprites/heroes/hero_alan_first_profession_detail_v1.png": {
+  "sha1": "d1e752518d9fc2678afe58139446f059c8f9dde7",
+  "png": 148885,
+  "webp": 35520
+ },
+ "sprites/portraits/hero_alan_first_profession_detail_v1.png": {
+  "sha1": "75b0bf074eb37e5cd9b23089c528fcae4af8b773",
+  "png": 6561,
+  "webp": 2380
+ },
+ "sprites/heroes/hero_alan_knight_detail_v2.png": {
+  "sha1": "5b4fa0c2fd34a551538ca5cf715acbd1c96a8b71",
+  "png": 130104,
+  "webp": 30272
+ },
+ "sprites/portraits/hero_alan_knight_detail_v2.png": {
+  "sha1": "c0c2ee95c12a41508fc90474b25aacc57ca04c38",
+  "png": 5578,
+  "webp": 1900
+ },
+ "sprites/heroes/hero_alan_crusader_detail_v2.png": {
+  "sha1": "8d5675295f09e6db6138176387409566dd74b556",
+  "png": 186066,
+  "webp": 39140
+ },
+ "sprites/portraits/hero_alan_crusader_detail_v2.png": {
+  "sha1": "170a8fe47b8fa768151680cbc4fa0c470aa32c73",
+  "png": 7473,
+  "webp": 2582
+ },
+ "sprites/heroes/profession_novice_m_detail_v1.png": {
+  "sha1": "48fc95c0a06e3671d2e685ae6372a4e2cef0d2cb",
+  "png": 168285,
+  "webp": 37502
+ },
+ "sprites/portraits/profession_novice_m_detail_v1.png": {
+  "sha1": "0dcee780d140174f3e02f90213afc9b6666fc3a4",
+  "png": 5603,
+  "webp": 1994
+ },
+ "sprites/heroes/profession_novice_f_detail_v1.png": {
+  "sha1": "13a3fdd99f15af7da63f719150304c59d821c58b",
+  "png": 159999,
+  "webp": 41698
+ },
+ "sprites/portraits/profession_novice_f_detail_v1.png": {
+  "sha1": "0085a51d5848d80b3349a758e00993f6adf9a27c",
+  "png": 6135,
+  "webp": 2258
  }
 }
