@@ -1,7 +1,7 @@
 {
   "id": "ro_high_priest_assumptio",
-  "name": "Assumptio · Transcendent",
-  "description": "RO-сигнатура · адаптация: Высшее Ассумптио: действительно снижает входящий урон на 50%, вместо прибавки ЗАЩ второй профессии. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "name": "Высшее Ассумптио",
+  "description": "На 3 с снижает входящий урон всего отряда на 50%. Школа RO: Assumptio · Transcendent. Совместимые общие эффекты RO; точная оригинальная анимация этого приёма ещё не подключена.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {
@@ -14,7 +14,7 @@
       "type": "status",
       "status": {
         "id": "transcendent_assumptio",
-        "name": "transcendent assumptio",
+        "name": "Высшее Ассумптио",
         "turns": 3,
         "damageReduction": 0.5
       }

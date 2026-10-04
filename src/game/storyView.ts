@@ -19,8 +19,9 @@ export interface SpeakerView {
 /** hero1..heroN → карточка сюжетного героя N-го по порядку сюжета (progression.heroes: start, затем recruits), если она у игрока есть. */
 export function speakerHero(key: string, save: SaveState, ctx: GameContext) {
   const m = /^hero(\d+)$/.exec(key);
-  const templateId = m ? storyOrder(ctx)[Number(m[1]) - 1] : undefined;
-  return templateId ? save.heroes.find((h) => h.templateId === templateId) : undefined;
+  const templateId = m ? storyOrder(ctx)[Number(m[1]) - 1] : /^hero_([a-z][a-z0-9_]*)$/.exec(key)?.[1];
+  // Портрет личного спикера появляется только после встречи с ним; неизвестные шаблоны не раскрываем.
+  return templateId && ctx.content.heroes[templateId] ? storyHero(save, templateId) : undefined;
 }
 
 /** Пол сюжетной карточки по имени спикера (рекрут до вступления: «Грета» → f). */

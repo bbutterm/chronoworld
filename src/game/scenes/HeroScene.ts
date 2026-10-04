@@ -15,10 +15,12 @@ import {
   refineUnlocked,
   ascendRequirement,
   branchStatus,
+  branchPreview,
   changeBranch,
   chooseBranch,
   gearUpgrades,
   heroCard,
+  heroJourney,
   heroGearStats,
   heroPower,
   heroSkillList,
@@ -43,7 +45,7 @@ import { GAME_W } from '../layout';
 import { confirm, CONTENT_TOP, contentBottom, screen, unitFigure } from '../screen';
 import { commit, session, today } from '../session';
 import { BTN, button, chip, ellipsize, plate, pressable, ScrollArea, SURFACE, tag, text, toast, tutorialHint, type ButtonView } from '../ui';
-import { C, COLOR, COLOR_N, E, FAMILY, M, R, S, T, TOUCH } from '../theme';
+import { C, COLOR, COLOR_N, E, FAMILY, M, R, S, T, TOUCH_COMFORT } from '../theme';
 import { skillIcon } from '../skillIcons';
 import { sfx } from '../audio';
 import { haptic } from '../haptics';
@@ -52,6 +54,8 @@ import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, rarityPalette, rarityPips } from '../heroCard';
 import { browseNeighbours, copyCounter, heroesUi, inventoryUi, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
 import { openBranchPicker } from '../branchPicker';
+import { openHeroJourney } from '../heroJourneyView';
+import { openHeroTraining } from '../heroTrainingView';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
 import { roIconImage } from '../itemIcons';
@@ -77,7 +81,7 @@ export interface HeroData {
 const TABS: { id: Tab; label: string }[] = [
   { id: 'skills', label: 'Навыки' },
   { id: 'gear', label: 'Снаряжение' },
-  { id: 'story', label: 'История' },
+  { id: 'story', label: 'Путь' },
 ];
 
 /** Геометрия экрана (игровые единицы): витрина → статы → вкладки с прокруткой; «Улучшить» закреплено над навигацией. */
@@ -95,8 +99,8 @@ const STATS_H = 152;
 const STATS_Y = TOP + SHOW_H + S.xs + STATS_H / 2;
 const ACT_H = 184;
 
-const TABS_Y = STATS_Y + STATS_H / 2 + S.s + 44;
-const TAB_TOP = TABS_Y + 44 + S.xs;
+const TABS_Y = STATS_Y + STATS_H / 2 + S.s + TOUCH_COMFORT / 2;
+const TAB_TOP = TABS_Y + TOUCH_COMFORT / 2 + S.xs;
 /** Главная кнопка «Улучшить» / «Вознести» — справа в блоке действий. */
 const UP_W = 400;
 const UP_X = GAME_W - S.l - S.s - UP_W / 2;
@@ -106,7 +110,7 @@ const ACT_L = S.l + S.s;
 /** Плитки навыков: две читаемые карточки в ряд. */
 const SK_COLS = 2;
 const SK_BOX = 136;
-const SK_ROW = 280;
+const SK_ROW = 232;
 /** Высота слота снаряжения. */
 const GEAR_H = 160;
 
@@ -256,7 +260,7 @@ export class HeroScene extends Phaser.Scene {
       const more = cc.others > 0;
       const box = chip(this, cx, BOTTOM_ROW_Y, null, `Копии: ${cc.others}${more ? ' ›' : ''}`, 'neutral', { size: 's', align: 'left' }).setName('copyCounter').setDepth(5);
       if (more) {
-        pressable(this, box, Math.max(box.width, TOUCH), TOUCH, () => {
+        pressable(this, box, Math.max(box.width, TOUCH_COMFORT), TOUCH_COMFORT, () => {
           inventoryUi.tab = 'cards';
           inventoryUi.rarity = null;
           inventoryUi.template = hero.templateId;
@@ -315,6 +319,8 @@ export class HeroScene extends Phaser.Scene {
     openBranchPicker(this, {
       templateId: hero.templateId,
       title: `${c.name}: ветки второй профессии`,
+      heroId: hero.id,
+      save: session.save,
       subtitle: `Выбор — при вознесении в «${rn}». Первая смена ветки — бесплатно.`,
       viewOnly: true,
     });
@@ -323,7 +329,7 @@ export class HeroScene extends Phaser.Scene {
   /** «Выбрать ветку» (бесплатно) или «Сменить ветку» (первая смена бесплатно, дальше гемы). */
   private pickBranch(hero: HeroState, c: HeroCard): void {
     const st = branchStatus(session.save, hero.id, GAME);
-    const jobName = (job: string) => jobTitle(GAME, job, c.gender);
+    const jobName = (job: string) => branchPreview(hero.templateId, job, GAME, hero).card.jobName;
     const change = st.canChange;
     const other = change ? c.branches.find((b) => b.job !== st.branch)?.job : undefined;
     const gems = session.save.currency.gems;
@@ -366,7 +372,7 @@ export class HeroScene extends Phaser.Scene {
     const hero = this.hero();
     if (!hero) return;
     commit(setHeroLocked(session.save, hero.id, !hero.locked));
-    toast(this, hero.locked ? 'Замок снят — карточку можно отдать в корм' : 'Закреплено — не уйдёт в корм', C.success, 2500);
+    toast(this, hero.locked ? 'Замок снят' : 'Карточка защищена', C.success, 2500);
     this.reopen({ heroId: hero.id, tab: this.tab });
   }
 
@@ -697,14 +703,14 @@ export class HeroScene extends Phaser.Scene {
     TABS.forEach((tab, i) => {
       const w = CONTENT_W / TABS.length;
       const x = S.l + w * (i + 0.5);
-      const b = button(this, x, TABS_Y, w - 8, 112, '', tab.label, () => {
+      const b = button(this, x, TABS_Y, w - 8, TOUCH_COMFORT, '', tab.label, () => {
         this.tab = tab.id;
         heroesUi.tab = tab.id;
         this.reopen({ heroId: this.heroId, tab: tab.id });
       }, T.caption, { variant: 'secondary' });
       b.label.setColor(i === index ? COLOR.title : COLOR.textSecondary);
       tabs.add(b.container);
-      if (i === index) tabs.add(this.add.rectangle(x, TABS_Y + 54, w - 8, 5, COLOR_N.accent));
+      if (i === index) tabs.add(this.add.rectangle(x, TABS_Y + TOUCH_COMFORT / 2 - 2, w - 8, 5, COLOR_N.accent));
     });
     // Есть вещи получше — зелёная стрелка на «Снаряжении» (не точка: это не «красное» событие).
     if (gearUpgrades(session.save, this.heroId, GAME).length) {
@@ -796,8 +802,8 @@ export class HeroScene extends Phaser.Scene {
     for (const [title, group] of [
       ['Атака и личная ульта', tiles.filter(t => t.basic || t.ult)],
       ['Унаследованные навыки', tiles.filter(t => !t.basic && !t.ult && !t.id.startsWith('adv_') && !t.id.startsWith('ro_'))],
-      ['RO-сигнатуры · адаптации · ур. 70', tiles.filter(t => t.id.startsWith('ro_'))],
-      ['Авторское развитие · 70 / 80 · красный 90 / 100', tiles.filter(t => t.id.startsWith('adv_'))],
+      ['Мастерство профессии · ур. 70', tiles.filter(t => t.id.startsWith('ro_'))],
+      ['Ветеранские навыки', tiles.filter(t => t.id.startsWith('adv_'))],
     ] as [string, SkillTile[]][]) {
       if (!group.length) continue;
       a.add(text(this, S.l + S.s, y + 22, title, T.caption, COLOR.title).setOrigin(0, 0.5));
@@ -865,9 +871,9 @@ export class HeroScene extends Phaser.Scene {
     if (r.ult && ultBreaksCharge(r.id)) a.add(chargeBreakBadge(this, ix - 28, cy - 34, 32));
     const tx = ix + 58;
     const tw = w - 136;
-    a.add(text(this, tx, cy - 112, sk?.name ?? r.id, T.caption, COLOR.textPrimary, { align: 'left', fontStyle: 'bold', wordWrap: { width: tw } }).setOrigin(0, 0));
+    a.add(text(this, tx, cy - 88, sk?.name ?? r.id, T.caption, COLOR.textPrimary, { align: 'left', fontStyle: 'bold', wordWrap: { width: tw } }).setOrigin(0, 0).setMaxLines(2));
     const status = skillTileStatus(r);
-    a.add(text(this, tx, cy + 40, status, T.caption, COLOR.textSecondary, { align: 'left', wordWrap: { width: tw } }).setOrigin(0, 0));
+    a.add(text(this, tx, cy + 20, status, T.caption, COLOR.textSecondary, { align: 'left', wordWrap: { width: tw } }).setOrigin(0, 0).setMaxLines(2));
     if (!sk) return;
     const lockNote = locked ? (r.note ?? `Откроется на ур. ${r.locked}${r.gate ? ` · нужен ${r.gate}` : ''}`) : undefined;
     pressable(this, bg, w, h, a.tap(() => {
@@ -1029,6 +1035,21 @@ export class HeroScene extends Phaser.Scene {
     const left = S.l + S.m;
     const wrapW = CONTENT_W - 2 * S.m;
     let y: number = S.s;
+    const journey = heroJourney(session.save, hero.id, { ...GAME, lore: LORE });
+    const goal = ellipsize(text(this, left, y, journey.nextGoal.text, T.body, COLOR.title, { align: 'left' }).setOrigin(0, 0), wrapW).setName('heroNextGoal');
+    a.add(goal);
+    y += goal.height + S.s;
+    const actionW = (wrapW - S.s) / 2;
+    const entries = [
+      { label: 'Вехи пути', name: 'heroJourneyBtn', open: () => openHeroJourney(this, hero.id, { lock: a, onChange: () => this.reopen({ heroId: hero.id, tab: 'story' }) }) },
+      { label: 'Тренировка', name: 'heroTrainingBtn', open: () => openHeroTraining(this, hero.id, { lock: a, onChange: () => this.reopen({ heroId: hero.id, tab: 'story' }) }) },
+    ];
+    entries.forEach((entry, i) => {
+      const b = button(this, left + actionW / 2 + i * (actionW + S.s), y + 66, actionW, 132, '', entry.label, a.tap(entry.open), T.body, { variant: 'secondary' });
+      b.container.setName(entry.name);
+      a.add(b.container);
+    });
+    y += 132 + S.m;
     // История героя кусочками (каждые 10 уровней) — страница во весь экран (heroStoryView).
     if (hasHeroStory(hero.templateId)) {
       const pr = heroStoryProgress(hero.templateId);
@@ -1052,6 +1073,7 @@ export class HeroScene extends Phaser.Scene {
     const bond = bondView(session.save, hero.templateId, GAME);
     if (bond) {
       head(`Близость · ${bond.points} из ${bond.max}`);
+      para(`Вечера ${bond.tavernPoints} · общий путь ${bond.journeyPoints}`, COLOR.textSecondary, T.caption);
       for (let i = 0; i < bond.max; i++) a.add(this.add.circle(left + 22 + i * 64, y + 22, 20, i < bond.points ? COLOR_N.badge : COLOR_N.surfaceSunken, 1).setStrokeStyle(3, COLOR_N.border));
       y += 64;
       para(
@@ -1114,7 +1136,7 @@ export class HeroScene extends Phaser.Scene {
     }
     y += S.xs;
     para(`${c.gender === 'f' ? 'Героиня' : 'Герой'} гильдии ${GUILD_NAMES[c.line] ?? '—'} · ${c.source === 'story' ? 'сюжет' : 'Таверна'} · растёт до ${RARITY_GEN[c.maxRarity] ?? rarityDef(GAME, c.maxRarity).name.toLowerCase()}`, COLOR.textSecondary, T.caption);
-    para('Растёт копиями: копии этого героя (и любых — на красный) уходят в корм при вознесении.', COLOR.textSecondary, T.caption);
+    para('Копии повышают редкость и предел уровня. Ваш герой сохраняет имя, профессию, снаряжение и отношения.', COLOR.textSecondary, T.caption);
     for (const s of copySources(session.save, hero.templateId, GAME)) para(`• ${s}`, COLOR.textSecondary, T.caption);
     a.setContentHeight(y + S.s);
   }

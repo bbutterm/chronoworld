@@ -131,6 +131,54 @@
         "spd": 15
       },
       "minChapter": 9
+    },
+    {
+      "id": "vidar_boots",
+      "name": "Сапоги Видара",
+      "slot": "boots",
+      "rarity": "rare",
+      "stats": {
+        "hp": 297,
+        "def": 7,
+        "spd": 7
+      },
+      "minChapter": 7
+    },
+    {
+      "id": "fricco_shoes",
+      "name": "Туфли Фрикко",
+      "slot": "boots",
+      "rarity": "rare",
+      "stats": {
+        "hp": 327,
+        "def": 8,
+        "spd": 7
+      },
+      "minChapter": 8
+    },
+    {
+      "id": "black_leather_boots",
+      "name": "Чёрные кожаные сапоги",
+      "slot": "boots",
+      "rarity": "rare",
+      "stats": {
+        "hp": 360,
+        "def": 9,
+        "spd": 7
+      },
+      "minChapter": 9
+    },
+    {
+      "id": "diabolus_boots",
+      "name": "Сапоги Диаболуса",
+      "slot": "boots",
+      "rarity": "rare",
+      "stats": {
+        "hp": 396,
+        "def": 10,
+        "spd": 7
+      },
+      "minChapter": 10
     }
   ]
 }

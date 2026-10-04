@@ -361,12 +361,12 @@ export function powerTone(squad: number, enemy: number): PowerTone {
 export const POWER_COLORS: Record<PowerTone, string> = { ahead: C.positive, close: C.gold, behind: C.dangerStrong };
 /** Числовые цвета тех же тонов (обводки, подложки плашек). */
 export const POWER_TINTS: Record<PowerTone, number> = { ahead: 0x3fae4f, close: 0xd6a92a, behind: 0xc2402f };
-/** Короткий вердикт на плашке «мощь отряда против этапа» («крючок»: вот-вот хватит). */
-export const POWER_VERDICT: Record<PowerTone, string> = { ahead: 'Сил хватает', close: 'Чуть не хватает', behind: 'Слабее' };
+/** Мощь сравнивает характеристики; роли и контригра определяют исход боя отдельно. */
+export const POWER_VERDICT: Record<PowerTone, string> = { ahead: 'Выше ориентира', close: 'Близко к ориентиру', behind: 'Ниже ориентира' };
 
 /**
  * Рекомендуемая мощь этапа — из баланса (`recommendedPower` ядра, `data/progression.json` → power.recommended):
- * отряд с такой мощью проходит этап с первых попыток; модель игрока не проигрывает ниже 0,85 от неё.
+ * ориентир развития характеристик. Не является прогнозом победы конкретного состава.
  */
 export function recommendedPower(stageId: string, ctx: FeatureContext, choices?: SaveState['campaignChoices']): number {
   return coreRecommendedPower(stageId, ctx, choices);

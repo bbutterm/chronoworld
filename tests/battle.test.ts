@@ -62,7 +62,7 @@ describe('шкала действий и энергия', () => {
     expect(first).toEqual(new Set(['A0', 'B0']));
   });
 
-  it('+25 за обычную атаку, +10 за полученный удар, ульта на 100 и сброс', () => {
+  it('+18 за обычную атаку, +5 за полученный удар, ульта на 100 и сброс', () => {
     const c = content(
       [
         unitDef('h', { skills: { basic: 'shot', ult: 'boom', passives: [] } }, { hp: 1_000_000, atk: 10 }),
@@ -71,8 +71,8 @@ describe('шкала действий и энергия', () => {
       [skill('boom', { target: { side: 'enemy', pick: 'all' } })],
     );
     const r = simulateBattle(c, ['h'], ['slow'], 1);
-    expect(of(r.log, 'attack').filter((e) => e.unit === 'A0').slice(0, 3).map((e) => e.energy)).toEqual([25, 60, 95]);
-    expect(of(r.log, 'damage').find((e) => e.target === 'A0')?.energy).toBe(35);
+    expect(of(r.log, 'attack').filter((e) => e.unit === 'A0').slice(0, 3).map((e) => e.energy)).toEqual([18, 41, 64]);
+    expect(of(r.log, 'damage').find((e) => e.target === 'A0')?.energy).toBe(23);
     const ult = of(r.log, 'ult').find((e) => e.unit === 'A0');
     expect(ult).toMatchObject({ skill: 'boom', targets: ['B0'] });
   });

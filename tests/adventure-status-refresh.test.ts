@@ -9,6 +9,7 @@ vi.mock('../src/core', () => ({
 vi.mock('../src/game/content', () => ({ GAME: {} }));
 vi.mock('../src/game/featureTiles', () => ({ expeditionsTile: () => ({}), towerTile: () => ({}) }));
 vi.mock('../src/game/huntEntry', () => ({ huntTile: () => ({}) }));
+vi.mock('../src/game/autobattlerEntry', () => ({ autobattlerTile: () => ({}) }));
 vi.mock('../src/game/hints', () => ({ hintDone: () => true }));
 vi.mock('../src/game/juice', () => ({ collect: (_: unknown, fn: () => void) => { fn(); return []; }, staggerIn: () => {} }));
 vi.mock('../src/game/layout', () => ({ GAME_W: 1080 }));

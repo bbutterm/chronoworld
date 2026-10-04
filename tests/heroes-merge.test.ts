@@ -22,6 +22,7 @@ import {
   heroCard,
   HeroError,
   levelRangeCost,
+  resetHeroLevel,
   newGame,
   pickOptions,
   playStage,
@@ -74,14 +75,19 @@ describe('вознесение: одна дорожка, копии того ж�
     s = { ...s, inventory: { items: [{ id: 'it1', itemId: 'knife', equippedBy: 'h5' }] } };
     const req = ascendRequirement(s, 'h4', ctx)!;
     expect(req).toMatchObject({ from: 'green', to: 'blue', gold: gold('green'), branch: false, blockers: [] });
-    expect(req.fodder).toEqual([{ kind: 'same', rarity: 'green', count: 2, candidates: ['h6', 'h5'] }]);
-    expect(autoFodder(s, 'h4', ctx)).toEqual(['h6', 'h5']);
+    expect(req.fodder).toEqual([{ kind: 'same', rarity: 'green', count: 2, candidates: ['h6'] }]);
+    expect(autoFodder(s, 'h4', ctx)).toBeNull();
+    expect(canAscend(s, 'h4', ctx)).toBe(false);
+    expect(codeOf(() => ascendHero(s, 'h4', ['h5', 'h6'], ctx))).toBe('fodder_busy');
+    const reset = resetHeroLevel(s, 'h5', ctx);
+    expect(reset.refund).toEqual(levelRangeCost(1, 5, ctx));
+    s = reset.save;
     expect(canAscend(s, 'h4', ctx)).toBe(true);
     const r = ascendHero(s, 'h4', ['h5', 'h6'], ctx);
     expect(r.save.heroes.find((h) => h.id === 'h4')).toMatchObject({ rarity: 'blue', level: 12 });
     expect(r.save.heroes.some((h) => h.id === 'h5' || h.id === 'h6')).toBe(false);
-    expect(r.refund).toEqual(levelRangeCost(1, 5, ctx));
-    expect(r.save.resources).toEqual({ gold: 1_000_000 - gold('green') + r.refund.gold, heroExp: r.refund.exp });
+    expect(r.refund).toEqual({ exp: 0, gold: 0 });
+    expect(r.save.resources).toEqual({ gold: 1_000_000 - gold('green') + reset.refund.gold, heroExp: reset.refund.exp });
     expect(r.save.inventory.items[0].equippedBy).toBeNull();
     expect(r.events).toEqual([{ type: 'ascended', heroId: 'h4', from: 'green', to: 'blue', job: 'swordman', jobChanged: false }]);
     expect(r.consumed.sort()).toEqual(['h5', 'h6']);
@@ -93,8 +99,11 @@ describe('вознесение: одна дорожка, копии того ж�
     expect(gift.hero).toMatchObject({ level: 8, grantedLevel: 8 });
     // Дар подкачали до 10 — вернётся только оплаченное 8 → 10.
     s = { ...gift.save, heroes: gift.save.heroes.map((h) => (h.id === gift.hero.id ? { ...h, level: 10 } : h)) };
-    const r = ascendHero(s, 'h4', ['h5', gift.hero.id], ctx);
-    expect(r.refund).toEqual(levelRangeCost(8, 10, ctx));
+    expect(codeOf(() => ascendHero(s, 'h4', ['h5', gift.hero.id], ctx))).toBe('fodder_busy');
+    const reset = resetHeroLevel(s, gift.hero.id, ctx);
+    expect(reset.refund).toEqual(levelRangeCost(8, 10, ctx));
+    const r = ascendHero(reset.save, 'h4', ['h5', gift.hero.id], ctx);
+    expect(r.refund).toEqual({ exp: 0, gold: 0 });
   });
 
   it('RN-02: catchUpLevel — средний уровень отряда в пределах редкости', () => {
@@ -107,7 +116,7 @@ describe('вознесение: одна дорожка, копии того ж�
   });
 
   it('сюжетный герой — как все: копия Алана — корм, цель (Алан из отряда) не тратится', () => {
-    const s = withCards([['alan', 'green'], ['alan', 'green', 3]]);
+    const s = resetHeroLevel(withCards([['alan', 'green'], ['alan', 'green', 3]]), 'h5', ctx).save;
     // Копии в отряде нет — корм; h1 (Алан в отряде) — цель.
     expect(fodderBlocker(s, 'h4', ctx)).toBeNull();
     expect(fodderBlocker(s, 'h1', ctx)).toMatch(/в отряде/);
@@ -118,7 +127,7 @@ describe('вознесение: одна дорожка, копии того ж�
   });
 
   it('синий → фиолетовый: 2 синие копии + выбор ветки (branch_required, чужая ветка — bad_branch); навыки ветки — сразу', () => {
-    const s = withCards([['kai', 'blue', 35], ['kai', 'blue'], ['kai', 'blue', 2], ['lira', 'blue']]);
+    const s = resetHeroLevel(withCards([['kai', 'blue', 35], ['kai', 'blue'], ['kai', 'blue', 2], ['lira', 'blue']]), 'h6', ctx).save;
     const req = ascendRequirement(s, 'h4', ctx)!;
     expect(req.branch).toBe(true);
     expect(req.branches!.map((b) => b.job)).toEqual(['wizard', 'sage']);
@@ -152,7 +161,8 @@ describe('вознесение: одна дорожка, копии того ж�
   });
 
   it('золотой → красный: 1 своя фиолетовая + 2 фиолетовые любых героев («любая» — сначала другие герои)', () => {
-    const s = withCards([['otto', 'gold', 80, 'blacksmith'], ['otto', 'purple'], ['greta', 'purple'], ['kai', 'purple'], ['otto', 'purple']]);
+    // Первые Грета и Кай — спутники, в корм подходят дополнительные копии.
+    const s = withCards([['otto', 'gold', 80, 'blacksmith'], ['otto', 'purple'], ['greta', 'purple'], ['kai', 'purple'], ['otto', 'purple'], ['greta', 'purple'], ['kai', 'purple']]);
     const req = ascendRequirement(s, 'h4', ctx)!;
     expect(req.fodder.map((f) => [f.kind, f.rarity, f.count])).toEqual([
       ['same', 'purple', 1],
@@ -164,6 +174,8 @@ describe('вознесение: одна дорожка, копии того ж�
     expect(pick.filter((id) => s.heroes.find((h) => h.id === id)!.templateId === 'otto')).toHaveLength(1);
     const r = ascendHero(s, 'h4', pick, ctx);
     expect(r.save.heroes.find((h) => h.id === 'h4')!.rarity).toBe('red');
+    expect(r.save.heroes.find((h) => h.id === 'h6')?.companion).toBe(true);
+    expect(r.save.heroes.find((h) => h.id === 'h7')?.companion).toBe(true);
     // Не хватает «той же» — любые три фиолетовые не подходят.
     const noSame = withCards([['otto', 'gold', 80, 'alchemist'], ['greta', 'purple'], ['kai', 'purple'], ['lira', 'purple']]);
     expect(autoFodder(noSame, 'h4', ctx)).toBeNull();
@@ -189,11 +201,13 @@ describe('вознесение: одна дорожка, копии того ж�
 
   it('«Авто» с цепочкой: 3 зелёные копии сливаются в синюю, чтобы закрыть слот синей копии', () => {
     // Мэйлин синяя (цель) + синяя копия + 3 зелёные копии: на второй синий слот — цепочка.
-    const s = withCards([['meilin', 'blue', 30], ['meilin', 'blue'], ['meilin', 'green'], ['meilin', 'green'], ['meilin', 'green', 4]]);
+    const raw = withCards([['meilin', 'blue', 30], ['meilin', 'blue'], ['meilin', 'green'], ['meilin', 'green'], ['meilin', 'green', 4]]);
+    expect(autoChain(raw, 'h4', ctx)).toEqual([]); // обученная копия не тратится автоматически
+    const s = resetHeroLevel(raw, 'h8', ctx).save;
     expect(ascendPlan(s, 'h4', ctx)).toMatchObject({ complete: false, missing: 1 });
     const steps = autoChain(s, 'h4', ctx);
     expect(steps).toHaveLength(1);
-    expect(steps[0].targetId).toBe('h8'); // сильнейшая зелёная копия — цель цепочки
+    expect(steps[0].targetId).toBe('h6'); // первая свободная копия одинакового уровня — цель цепочки
     let cur = s;
     for (const st of steps) cur = ascendHero(cur, st.targetId, st.fodderIds, ctx).save;
     expect(ascendPlan(cur, 'h4', ctx)).toMatchObject({ complete: true, missing: 0 });

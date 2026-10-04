@@ -397,8 +397,8 @@ export class HeroesScene extends Phaser.Scene {
       const pending = res.filter((x) => x.branchPending).map((x) => x.heroId);
       this.redraw();
       this.events.once(Phaser.Scenes.Events.CREATE, () => {
-        toast(this, msg, C.success, 4000);
-        if (pending.length) this.time.delayedCall(500, () => pickBranchChain(this, pending));
+        if (pending.length) pickBranchChain(this, pending);
+        else toast(this, msg, C.success, 4000);
       });
     });
   }
@@ -467,10 +467,12 @@ export function pickBranchChain(sc: Phaser.Scene, heroIds: readonly string[]): v
     confirmLabel: (job) => (job ? `Выбрать: ${jobTitle(GAME, job, c.gender)}` : 'Выберите ветку'),
     onConfirm: (job) => {
       let say = (target: Phaser.Scene) => toast(target, `${c.name} — теперь ${jobTitle(GAME, job, c.gender)}!`, C.success, 2500);
+      let success = false;
       try {
         const before = session.save;
         const r = chooseBranch(session.save, hero.id, job, GAME);
         commit(r.save);
+        success = true;
         sfx('job_change');
         haptic('levelUp');
         const first = say;
@@ -481,8 +483,7 @@ export function pickBranchChain(sc: Phaser.Scene, heroIds: readonly string[]): v
       } catch (e) {
         say = (target) => toast(target, e instanceof Error ? e.message : String(e), C.error, 3000);
       }
-      if (rest.length) {
-        say(sc);
+      if (success && rest.length) {
         sc.time.delayedCall(400, () => pickBranchChain(sc, rest));
       } else {
         // Плитки перерисовать (ушла плашка «Выберите ветку!»), тост — уже на новом экземпляре сцены.

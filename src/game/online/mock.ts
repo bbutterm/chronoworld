@@ -18,6 +18,9 @@ const state = {
   sent: new Set<number>(),
   claimedBells: false,
   refClaimed: false,
+  writeRevision: 0,
+  save: null as Record<string, unknown> | null,
+  grants: [] as { id: string; kind: string; units: number; gems: number }[],
 };
 
 const me = { id: 100, name: 'Алекс', chapter: 3, stage: 7, power: 18_420, towerBest: 18 };
@@ -69,10 +72,11 @@ export async function mockCall(action: string, payload: Record<string, unknown>)
     case 'hello':
       return {
         ok: true,
+        protocol: 2,
         id: me.id,
         name: me.name,
         fresh: false,
-        cloudSave: cloud ? { chapter: 4, save_version: 7, updated_at: new Date(Date.now() - 3 * 3600_000).toISOString() } : null,
+        cloudSave: state.save ?? (cloud ? { chapter: 4, save_version: 7, write_revision: 1, updated_at: new Date(Date.now() - 3 * 3600_000).toISOString() } : null),
         giftsWaiting: state.claimedBells ? 0 : FRIENDS.filter((f) => f.giftWaiting).length,
         refBonus: state.refClaimed ? 0 : 1,
       };
@@ -84,24 +88,33 @@ export async function mockCall(action: string, payload: Record<string, unknown>)
     case 'gift_send':
       state.sent.add(Number(payload.to));
       return { ok: true };
-    case 'gift_claim': {
-      const n = state.claimedBells ? 0 : FRIENDS.filter((f) => f.giftWaiting).length;
-      state.claimedBells = true;
-      return { ok: true, claimed: n };
-    }
-    case 'ref_claim': {
-      const n = state.refClaimed ? 0 : 1;
-      state.refClaimed = true;
-      return { ok: true, claimed: n };
+    case 'gift_claim':
+    case 'ref_claim':
+    case 'reward_claim': {
+      if (action !== 'ref_claim' && !state.claimedBells) {
+        state.grants.push({ id: '00000000-0000-4000-8000-000000000001', kind: 'gift', units: 3, gems: 60 });
+        state.claimedBells = true;
+      }
+      if (action !== 'gift_claim' && !state.refClaimed) {
+        state.grants.push({ id: '00000000-0000-4000-8000-000000000002', kind: 'ref', units: 1, gems: 200 });
+        state.refClaimed = true;
+      }
+      return { ok: true, grants: state.grants.filter((g) => action === 'reward_claim' || g.kind === (action === 'gift_claim' ? 'gift' : 'ref')) };
     }
     case 'board':
       return board(String(payload.board), String(payload.scope));
     case 'sync':
       return { ok: true, refRewarded: false };
-    case 'save_put':
-      return { ok: true };
+    case 'save_put': {
+      if (payload.expectedRevision !== state.writeRevision) return { error: 'save_conflict', cloudSave: state.save };
+      state.writeRevision++;
+      state.save = { data: payload.data, save_version: payload.saveVersion, chapter: payload.chapter, write_revision: state.writeRevision, updated_at: new Date().toISOString() };
+      const applied = (payload.data as { online?: { appliedGrantIds?: string[] } })?.online?.appliedGrantIds ?? [];
+      state.grants = state.grants.filter((g) => !applied.includes(g.id));
+      return { ok: true, writeRevision: state.writeRevision };
+    }
     case 'save_get':
-      return { ok: true, save: null };
+      return { ok: true, save: state.save };
     default:
       return { error: 'unknown_action' };
   }

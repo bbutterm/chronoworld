@@ -15,7 +15,12 @@ export type HeroErrorCode =
   | 'bad_count'
   | 'not_enough_gems'
   | 'not_enough_scrolls'
-  | 'free_used';
+  | 'free_used'
+  | 'base_level'
+  | 'hero_busy'
+  | 'training_locked'
+  | 'bad_focus'
+  | 'hero_limit';
 
 export class HeroError extends Error {
   override name = 'HeroError';

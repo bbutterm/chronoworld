@@ -52,9 +52,10 @@ const V3_DEFAULTS = {
 function played() {
   const s = newGame(ctx, 1000);
   s.heroes[0] = { ...s.heroes[0], rarity: 'blue', level: 24, locked: true };
-  s.heroes.push({ id: 'h4', templateId: 'iris', rarity: 'green', level: 3, isNew: true });
+  s.heroes.push({ id: 'h4', templateId: 'iris', rarity: 'green', level: 3, isNew: true, companion: true });
   s.resources.heroExp = 1234;
   s.heroes.push({ id: 'h5', templateId: 'alan', rarity: 'purple', level: 41, branch: 'crusader', branchChanges: 1 });
+  s.heroSeq = 5;
   s.pendingPicks = [{ rarity: 'purple', source: 'login_7' }];
   s.currency.scrolls = 3;
   s.summon = { seq: 2, total: 11, sincePurple: 5, sinceBlue: 3, firstTenDone: true, freeDay: '2026-09-26', freeUsed: 1, welcomeGiven: true, discovered: ['alan', 'bran', 'vika', 'iris'] };

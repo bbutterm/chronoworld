@@ -502,23 +502,23 @@
       "enemies": [
         {
           "unit": "maze_stem_worm",
-          "mult": 0.071
+          "mult": 0.0611
         },
         {
           "unit": "maze_vagabond_wolf",
-          "mult": 0.071
+          "mult": 0.0611
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.071
+          "mult": 0.0611
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.071
+          "mult": 0.0611
         },
         {
           "unit": "maze_deviruchi",
-          "mult": 0.071
+          "mult": 0.0611
         }
       ],
       "rewards": {
@@ -655,23 +655,23 @@
       "enemies": [
         {
           "unit": "maze_baphomet_jr",
-          "mult": 0.05
+          "mult": 0.046
         },
         {
           "unit": "maze_baphomet",
-          "mult": 0.0251
+          "mult": 0.0231
         },
         {
           "unit": "maze_whisper",
-          "mult": 0.05
+          "mult": 0.046
         },
         {
           "unit": "maze_deviruchi",
-          "mult": 0.05
+          "mult": 0.046
         },
         {
           "unit": "maze_baphomet_jr",
-          "mult": 0.05
+          "mult": 0.046
         }
       ],
       "rewards": {

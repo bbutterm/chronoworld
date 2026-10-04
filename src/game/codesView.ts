@@ -10,6 +10,7 @@ import { plate, pressable, SURFACE, text, toast } from './ui';
 /** Сколько символов можно ввести (коды короткие; длиннее — опечатка). */
 const MAX_LEN = 24;
 const FIELD_H = 120;
+const LAB_CODES_ENABLED = import.meta.env.DEV || import.meta.env.VITE_ADVANCE_LAB === '1';
 
 /** Текст результата для игрока. */
 export function codeMessage(r: RedeemResult): string {
@@ -50,6 +51,7 @@ export function openCodes(scene: Phaser.Scene, onDone: () => void): void {
   let result: Phaser.GameObjects.Text;
   let caret: Phaser.GameObjects.Rectangle;
   let done = false;
+  let applying = false;
 
   const cleanup = () => {
     input.remove();
@@ -68,9 +70,24 @@ export function openCodes(scene: Phaser.Scene, onDone: () => void): void {
       result = text(scene, width / 2, y + 24, '', T.body, COLOR.textSecondary).setOrigin(0.5).setName('codeResult');
       content.add(result);
       y += 48 + S.s;
-      const apply = () => {
-        if (done) return;
-        const r = redeemCode(session.save, input.value, GAME.codes ?? { codes: [] });
+      const apply = async () => {
+        if (done || applying) return;
+        applying = true;
+        const submitted = input.value;
+        let cfg = GAME.codes ?? { codes: [] };
+        try {
+          if (LAB_CODES_ENABLED) {
+            const { withLabCodes } = await import('../core/codes/lab');
+            cfg = withLabCodes(cfg);
+          }
+        } catch {
+          if (input.isConnected) result.setText('Не удалось открыть тестовые коды').setColor(COLOR.negative);
+          return;
+        } finally {
+          applying = false;
+        }
+        if (!input.isConnected) return;
+        const r = redeemCode(session.save, submitted, cfg, { allowLab: LAB_CODES_ENABLED });
         result.setText(codeMessage(r)).setColor(r.ok ? COLOR.positive : COLOR.negative);
         if (!r.ok) {
           haptic('error');

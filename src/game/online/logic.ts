@@ -3,7 +3,7 @@
  * cw-api, «какое сохранение новее», реферальная ссылка, данные для `sync`, недельный зачёт MVP, «N ч назад».
  * Проверяются в tests/online-client.test.ts. Сеть — api.ts, связка с игрой — online.ts, экран — FriendsScene.
  */
-import { offlineFullInMs, stageStatus, type GameContext, type SaveState } from '../../core';
+import { grantRewards, offlineFullInMs, sendMail, stageStatus, type GameContext, type SaveState } from '../../core';
 
 // ---------- ответы сервера ----------
 
@@ -12,6 +12,8 @@ export interface CloudSaveInfo {
   /** Время записи на сервере, мс (Date.parse updated_at). */
   updatedAt: number;
   saveVersion: number;
+  /** CAS-ревизия записи, не версия схемы игры. Отсутствует у сервера первого протокола. */
+  writeRevision?: number;
 }
 
 export interface HelloResp {
@@ -21,6 +23,7 @@ export interface HelloResp {
   cloudSave: CloudSaveInfo | null;
   giftsWaiting: number;
   refBonus: number;
+  protocol?: number;
 }
 
 export interface FriendInfo {
@@ -80,6 +83,9 @@ export interface CloudSaveData {
   saveVersion: number;
   chapter: number;
   updatedAt: number;
+  writeRevision?: number;
+  /** Подтверждённые IDs из серверного журнала: восстановление работает и при повреждённом JSON.online. */
+  appliedGrantIds?: string[];
 }
 
 type Obj = Record<string, unknown>;
@@ -105,9 +111,10 @@ export function parseHello(v: unknown): HelloResp | null {
     id: int(o.id),
     name: str(o.name) || 'Герой',
     fresh: o.fresh === true,
-    cloudSave: cs ? { chapter: int(cs.chapter), updatedAt: time(cs.updated_at), saveVersion: int(cs.save_version) } : null,
+    cloudSave: cs ? parseCloudInfo(cs) : null,
     giftsWaiting: int(o.giftsWaiting),
     refBonus: int(o.refBonus),
+    ...(int(o.protocol) >= 2 ? { protocol: int(o.protocol) } : {}),
   };
 }
 
@@ -115,7 +122,89 @@ export function parseSaveGet(v: unknown): CloudSaveData | null {
   const o = okObj(v);
   if (!o || !isObj(o.save) || !isObj(o.save.data)) return null;
   const s = o.save;
-  return { data: s.data, saveVersion: int(s.save_version), chapter: int(s.chapter), updatedAt: time(s.updated_at) };
+  return { data: s.data, ...parseCloudInfo(s),
+    ...(Array.isArray(s.applied_grant_ids) ? { appliedGrantIds: s.applied_grant_ids.filter((id): id is string => typeof id === 'string' && /^[0-9a-f-]{36}$/i.test(id)).map((id) => id.toLowerCase()) } : {}) };
+}
+
+function parseCloudInfo(o: Obj): CloudSaveInfo {
+  return { chapter: int(o.chapter), updatedAt: time(o.updated_at), saveVersion: int(o.save_version),
+    ...(Number.isSafeInteger(o.write_revision) && Number(o.write_revision) > 0 ? { writeRevision: Number(o.write_revision) } : {}) };
+}
+
+export type SavePutResp = { status: 'saved'; writeRevision: number }
+  | { status: 'conflict'; cloudSave: CloudSaveInfo | null }
+  | { status: 'upgrade_required' | 'reward_history_conflict' };
+
+export function parseSavePut(v: unknown): SavePutResp | null {
+  if (!isObj(v)) return null;
+  if (v.error === 'save_conflict') return { status: 'conflict', cloudSave: isObj(v.cloudSave) ? parseCloudInfo(v.cloudSave) : null };
+  if (v.error === 'upgrade_required' || v.error === 'reward_history_conflict') return { status: v.error };
+  if (v.ok === true && Number.isSafeInteger(v.writeRevision) && Number(v.writeRevision) > 0) return { status: 'saved', writeRevision: Number(v.writeRevision) };
+  return null;
+}
+
+export interface RewardGrant {
+  id: string;
+  kind: 'gift' | 'ref' | 'ref_welcome';
+  units: number;
+  gems: number;
+}
+
+/** Недостоверный список целиком отклоняем: частично применённый ответ трудно надёжно подтвердить. */
+export function parseGrants(v: unknown): RewardGrant[] | null {
+  const o = okObj(v);
+  if (!o || !Array.isArray(o.grants)) return null;
+  const out: RewardGrant[] = [];
+  const ids = new Map<string, RewardGrant>();
+  for (const raw of o.grants) {
+    if (!isObj(raw) || typeof raw.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw.id)) return null;
+    if (raw.kind !== 'gift' && raw.kind !== 'ref' && raw.kind !== 'ref_welcome') return null;
+    if (!Number.isSafeInteger(raw.units) || Number(raw.units) < 1 || !Number.isSafeInteger(raw.gems) || Number(raw.gems) < 1) return null;
+    const unitGems = raw.kind === 'gift' ? BELL_GEMS : raw.kind === 'ref' ? REF_INVITER_GEMS : REF_WELCOME_GEMS;
+    if (Number(raw.gems) !== Number(raw.units) * unitGems || (raw.kind === 'ref_welcome' && raw.units !== 1)) return null;
+    const id = raw.id.toLowerCase();
+    const grant: RewardGrant = { id, kind: raw.kind, units: Number(raw.units), gems: Number(raw.gems) };
+    const previous = ids.get(id);
+    if (previous && (previous.kind !== grant.kind || previous.units !== grant.units || previous.gems !== grant.gems)) return null;
+    if (!previous) out.push(grant);
+    ids.set(id, grant);
+  }
+  return out;
+}
+
+/** Optional field is provided by the save schema; shape is kept here to read pre-protocol saves too. */
+export interface OnlineProgress { appliedGrantIds: string[]; mvpWeek?: WeekBest; towerWeek?: WeekBest }
+type OnlineSave = SaveState & { online?: OnlineProgress };
+
+/** Применяем grant и его маркер одним сохранением. Ответ с тем же ID безопасен после любого retry. */
+export function applyRewardGrants(save: SaveState, grants: readonly RewardGrant[], day: string, ctx: GameContext): { save: SaveState; bells: number; refs: number } {
+  let s: OnlineSave = save;
+  const originalIds = s.online?.appliedGrantIds ?? [];
+  const ids = new Set(originalIds.map((id) => id.toLowerCase()));
+  let bells = 0;
+  let refs = 0;
+  for (const grant of grants) {
+    if (ids.has(grant.id)) continue;
+    if (grant.kind === 'gift') {
+      s = grantRewards(s, { gems: grant.gems }, ctx, 'online_bells').save;
+      bells += grant.units;
+    } else if (grant.kind === 'ref_welcome') {
+      // Совместимость: старый клиент уже доставил welcome-письмо, а сервер создал grant при миграции.
+      if (!s.mail?.delivered.includes(REF_WELCOME_SOURCE)) s = sendMail(s, day, {
+        from: 'Друг', title: 'Друг рад, что ты с нами', body: `Ты прошёл первую главу по приглашению друга — держи ${grant.gems} гемов на дорогу.`,
+        rewards: { gems: grant.gems }, source: REF_WELCOME_SOURCE,
+      });
+    } else {
+      s = sendMail(s, day, {
+        from: 'Гильдия искателей', title: grant.units > 1 ? `${grant.units} друга прошли первую главу` : 'Ваш друг прошёл первую главу',
+        body: `Гильдия благодарит за приглашение друзей: ${grant.gems} гемов.`, rewards: { gems: grant.gems }, source: `online_grant_${grant.id}`,
+      });
+      refs += grant.units;
+    }
+    ids.add(grant.id);
+  }
+  if (ids.size === originalIds.length && originalIds.every((id) => ids.has(id)) && s === save) return { save, bells, refs };
+  return { save: { ...s, online: { ...s.online, appliedGrantIds: [...ids] } } as SaveState, bells, refs };
 }
 
 export function parseFriends(v: unknown): FriendInfo[] | null {
@@ -337,15 +426,12 @@ export interface WeekBest {
 }
 
 /**
- * Лучший зачёт MVP этой недели. В сохранении нет результата каждой попытки — только рекорд по каждому MVP
- * (`hunt.best`, «зачёт» в единицах порогов). Новый рекорд по MVP на этой неделе — кандидат в недельный зачёт;
- * с новой неделей зачёт начинается заново. Возвращает тот же объект, если ничего не изменилось.
+ * Лучший зачёт недели по результату каждой попытки, независимо от пожизненного рекорда MVP.
+ * Возвращает тот же объект, если результат не улучшил текущую неделю.
  */
-export function nextMvpWeek(cur: WeekBest | null, week: string, prev: Pick<SaveState, 'hunt'>, next: Pick<SaveState, 'hunt'>): WeekBest {
+export function nextMvpWeek(cur: WeekBest | null, week: string, score: number): WeekBest {
   const base: WeekBest = cur && cur.week === week ? cur : { week, value: 0 };
-  const before = prev.hunt?.best ?? {};
-  let value = base.value;
-  for (const [unit, v] of Object.entries(next.hunt?.best ?? {})) if (v > (before[unit] ?? 0) && v > value) value = v;
+  const value = Number.isFinite(score) ? Math.max(base.value, Math.max(0, Math.round(score))) : base.value;
   return value === base.value && base === cur ? cur : { week, value };
 }
 

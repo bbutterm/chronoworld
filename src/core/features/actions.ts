@@ -53,7 +53,7 @@ export function actPlayStage(
   ctx: GameContext & { equipment?: EquipmentConfig } & Partial<StoryContext>,
   now?: number,
 ): StageOutcomeWithDrops {
-  return queueStory(recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => playStage(save, stageId, seed, c, now)), day), ctx);
+  return queueStory(recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => playStage(save, stageId, seed, c, now, day)), day), ctx);
 }
 
 /** P11 (T4-05): сцена «после этапа» при первой победе встаёт в очередь сохранения вместе с самой победой. */
@@ -70,7 +70,7 @@ function queueStory<O extends StageOutcome>(out: O, ctx: GameContext & Partial<S
 
 /** skipStage (K7) + те же события и выпадение K6, что у actPlayStage: пропущенный бой засчитывается как сыгранный. */
 export function actSkipStage(save: SaveState, day: string, stageId: string, seed: number, ctx: GameContext & { equipment?: EquipmentConfig } & Partial<StoryContext>): StageOutcomeWithDrops {
-  return queueStory(recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => skipStage(save, stageId, seed, c)), day), ctx);
+  return queueStory(recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => skipStage(save, stageId, seed, c, day)), day), ctx);
 }
 
 /** claimOffline (с трофеями при ctx.equipment) + offline_claim (только если получены золото или опыт). */

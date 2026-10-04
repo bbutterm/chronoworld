@@ -94,6 +94,30 @@ describe('K9 экспедиции: конфиг', () => {
     expect(ok).toEqual([]);
   });
 
+  it('BUG-199: первая локация следует главе 1 и не отправляет новичка в ещё не открытую пустыню', () => {
+    expect(LOCS[0].id).toBe('ant_hell');
+    expect(LOCS[0].description).toContain('Пронтеры');
+    expect(LOCS[0].description).not.toMatch(/Сограт|пустын/);
+  });
+
+  it('BUG-199: общая встреча не повторяется у отрядов, отправленных в один час', () => {
+    let s0 = clearedTo(ctx.content.stages.at(-1)!.id);
+    s0 = withBench(s0, Object.keys(ctx.content.heroes).map((id) => [id, 'red', 100]));
+    s0 = { ...s0, heroes: s0.heroes.map((h) => ({ ...h, rarity: 'red', level: 100 })) };
+    const common = new Set(ctx.expeditionEvents!.events.filter((e) => !e.locations.length).map((e) => e.id));
+    let observed = 0;
+    for (let k = 0; k < 48; k++) {
+      let s = s0;
+      for (const [i, l] of LOCS.slice(0, 4).entries()) s = startExpedition(s, l.id, 1, T0 + k * H + i * 1000, ctx);
+      const events = s.bounties.active.flatMap((e) => e.events ?? []).filter((e) => common.has(e.id)).map((e) => e.id);
+      expect(new Set(events).size).toBe(events.length);
+      observed += events.length;
+      expect(s.bounties.active.every((e) => e.events?.length === 1)).toBe(true);
+      expect(s).toEqual(LOCS.slice(0, 4).reduce((acc, l, i) => startExpedition(acc, l.id, 1, T0 + k * H + i * 1000, ctx), s0));
+    }
+    expect(observed).toBeGreaterThan(0);
+  });
+
   it('длинные экспедиции выгоднее в час; за сутки (3 × 4 ч + 8 ч) четыре локации глав 1–3 дают ≈ бюджет доски поручений', () => {
     for (const l of LOCS) {
       const perHour = (h: number) => expectedExpeditionLoot(l, h, ctx).gold / h;

@@ -1,6 +1,7 @@
 // Chronoworld: онлайн фаза 1 (docs/design/online.md). Один POST-эндпоинт { action, initData, ... }.
 // Игрок — по подписи initData (секрет CHRONOWORLD_BOT_TOKEN). Таблицы cw_* закрыты RLS — пишем service role.
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient } from 'npm:@supabase/supabase-js@2.99.2';
+import { checkedDatabase } from '../_shared/database.ts';
 import { isoWeek, refFromStartParam, verifyInitData } from './tg.ts';
 import { clientNotifyFields } from '../_shared/bot.ts';
 import {
@@ -28,13 +29,19 @@ const CORS = {
 };
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
+const rpcJson = (body: unknown, errorStatus = 400) => {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('Invalid database RPC response');
+  const value = body as { ok?: boolean; error?: string };
+  if (value.ok === true) return json(body);
+  if (typeof value.error === 'string') return json(body, value.error === 'save_size' ? 413 : errorStatus);
+  throw new Error('Invalid database RPC result');
+};
 
-const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
+const db = checkedDatabase(createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { persistSession: false },
-});
+}));
 
 const SAVE_MAX = 512 * 1024;
-const GIFTS_PER_DAY = 5;
 const CAPS = { chapter: 10, stage: 18, power: 50_000_000, tower: 2000, mvp: 5_000_000_000 };
 const clampInt = (v: unknown, max: number) => {
   const n = Math.floor(Number(v));
@@ -56,7 +63,9 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') return json({ error: 'method' }, 405);
   let body: Record<string, unknown>;
   try {
-    body = await req.json();
+    const value: unknown = await req.json();
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return json({ error: 'bad_json' }, 400);
+    body = value as Record<string, unknown>;
   } catch {
     return json({ error: 'bad_json' }, 400);
   }
@@ -89,9 +98,11 @@ Deno.serve(async (req) => {
           const { data: inviter } = ref ? await db.from('cw_player').select('tg_id').eq('tg_id', ref).maybeSingle() : { data: null };
           // Нажал Start в боте раньше, чем открыл игру (cw_bot_start пишет cw-bot).
           const { data: started } = await db.from('cw_bot_start').select('tg_id').eq('tg_id', me).maybeSingle();
-          await db.from('cw_player').insert({ ...profile, ...(started ? { bot_started: true } : {}), ref_by: inviter ? ref : null });
+          // Два одновременных hello не конфликтуют по PK и не меняют уже назначенного пригласившего.
+          const { data: inserted } = await db.from('cw_player').upsert({ ...profile, ...(started ? { bot_started: true } : {}), ref_by: inviter ? ref : null }, { onConflict: 'tg_id', ignoreDuplicates: true }).select('tg_id');
+          fresh = !!inserted?.length;
+          if (!fresh) await db.from('cw_player').update(profile).eq('tg_id', me);
           if (inviter && ref) await addFriends(me, ref);
-          fresh = true;
         } else {
           await db.from('cw_player').update(profile).eq('tg_id', me);
           // Повторный вход по ссылке друга — просто дружба (без реферальной награды).
@@ -101,28 +112,29 @@ Deno.serve(async (req) => {
             if (other) await addFriends(me, ref);
           }
         }
-        const { data: save } = await db.from('cw_save').select('chapter, updated_at, save_version').eq('tg_id', me).maybeSingle();
+        const { data: save } = await db.from('cw_save').select('chapter, updated_at, save_version, write_revision').eq('tg_id', me).maybeSingle();
         const { count: gifts } = await db.from('cw_gift').select('*', { count: 'exact', head: true }).eq('to_id', me).eq('claimed', false);
         const { data: p } = await db.from('cw_player').select('ref_bonus_pending').eq('tg_id', me).single();
-        return json({ ok: true, id: me, name: profile.first_name, fresh, cloudSave: save ?? null, giftsWaiting: gifts ?? 0, refBonus: p?.ref_bonus_pending ?? 0 });
+        return json({ ok: true, protocol: 2, id: me, name: profile.first_name, fresh, cloudSave: save ?? null, giftsWaiting: gifts ?? 0, refBonus: p?.ref_bonus_pending ?? 0 });
       }
 
       case 'save_get': {
-        const { data } = await db.from('cw_save').select('data, save_version, chapter, updated_at').eq('tg_id', me).maybeSingle();
-        return json({ ok: true, save: data ?? null });
+        const { data } = await db.rpc('cw_save_get', { p_tg_id: me });
+        return rpcJson(data);
       }
 
       case 'save_put': {
         const raw = JSON.stringify(body.data ?? null);
-        if (!body.data || raw.length > SAVE_MAX) return json({ error: 'save_size' }, 413);
-        await db.from('cw_save').upsert({
-          tg_id: me,
-          data: body.data,
-          save_version: clampInt(body.saveVersion, 1000),
-          chapter: clampInt(body.chapter, CAPS.chapter),
-          updated_at: new Date().toISOString(),
+        if (!body.data || typeof body.data !== 'object' || Array.isArray(body.data) || new TextEncoder().encode(raw).length > SAVE_MAX) return json({ error: 'save_size' }, 413);
+        const revision = body.expectedRevision;
+        if (revision !== undefined && (!Number.isSafeInteger(revision) || Number(revision) < 0)) return json({ error: 'bad_revision' }, 400);
+        const writeId = body.writeId;
+        if (writeId !== undefined && (typeof writeId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(writeId))) return json({ error: 'bad_write_id' }, 400);
+        const { data } = await db.rpc('cw_save_put', {
+          p_tg_id: me, p_data: body.data, p_save_version: clampInt(body.saveVersion, 1000),
+          p_chapter: clampInt(body.chapter, CAPS.chapter), p_expected_revision: revision ?? null, p_write_id: writeId ?? null,
         });
-        return json({ ok: true });
+        return rpcJson(data, 409);
       }
 
       case 'sync': {
@@ -130,32 +142,16 @@ Deno.serve(async (req) => {
         const stage = clampInt(body.stage, CAPS.stage);
         const power = clampInt(body.power, CAPS.power);
         const tower = clampInt(body.towerBest, CAPS.tower);
-        const mvp = clampInt(body.mvpWeek, CAPS.mvp);
-        const { data: p } = await db.from('cw_player').select('chapter, stage, power, tower_best, ref_by, ref_rewarded').eq('tg_id', me).single();
-        if (!p) return json({ error: 'no_player' }, 400);
-        const upd: Record<string, unknown> = {
-          chapter: Math.max(p.chapter, chapter),
-          stage: chapter > p.chapter ? stage : Math.max(p.stage, stage),
-          power: Math.max(p.power, power),
-          tower_best: Math.max(p.tower_best, tower),
-          last_seen: new Date().toISOString(),
-          ...clientNotifyFields(body, Date.now()),
-          comeback_stage: 0,
-        };
-        // Приглашённый прошёл главу 1 — награда пригласившему (забирает при следующем hello/ref_claim).
-        if (p.ref_by && !p.ref_rewarded && (upd.chapter as number) >= 2) {
-          upd.ref_rewarded = true;
-          const { data: inv } = await db.from('cw_player').select('ref_bonus_pending').eq('tg_id', p.ref_by).maybeSingle();
-          if (inv) await db.from('cw_player').update({ ref_bonus_pending: inv.ref_bonus_pending + 1 }).eq('tg_id', p.ref_by);
-        }
-        await db.from('cw_player').update(upd).eq('tg_id', me);
         const week = isoWeek(new Date());
-        for (const [board, value] of [['tower', tower], ['mvp', mvp]] as const) {
-          if (value <= 0) continue;
-          const { data: cur } = await db.from('cw_score').select('value').match({ week, board, tg_id: me }).maybeSingle();
-          if (!cur || value > Number(cur.value)) await db.from('cw_score').upsert({ week, board, tg_id: me, value, updated_at: new Date().toISOString() });
-        }
-        return json({ ok: true, refRewarded: upd.ref_rewarded === true });
+        // Пожизненный towerBest — профиль. Без фактического результата текущей недели доска не заполняется.
+        const towerWeek = body.towerWeekId === week ? clampInt(body.towerWeek, CAPS.tower) : 0;
+        // Новый клиент сообщает неделю результата; устаревший отложенный запрос не переносит рекорд в новую неделю.
+        const mvp = body.mvpWeekId === undefined || body.mvpWeekId === week ? clampInt(body.mvpWeek, CAPS.mvp) : 0;
+        const { data } = await db.rpc('cw_sync_player', {
+          p_tg_id: me, p_chapter: chapter, p_stage: stage, p_power: power, p_tower: tower,
+          p_tower_week: towerWeek, p_mvp: mvp, p_week: week, p_notify: clientNotifyFields(body, Date.now()),
+        });
+        return rpcJson(data);
       }
 
       case 'board': {
@@ -242,22 +238,14 @@ Deno.serve(async (req) => {
         return json({ ok: true });
       }
 
-      case 'gift_claim': {
-        // Забрать колокольчики: не больше GIFTS_PER_DAY за день (остальные ждут завтра).
-        const day = today();
-        const { count: already } = await db.from('cw_gift').select('*', { count: 'exact', head: true }).eq('to_id', me).eq('claimed_on', day);
-        const room = Math.max(0, GIFTS_PER_DAY - (already ?? 0));
-        if (!room) return json({ ok: true, claimed: 0 });
-        const { data: waiting } = await db.from('cw_gift').select('day, from_id').eq('to_id', me).eq('claimed', false).order('day', { ascending: false }).limit(room);
-        for (const g of waiting ?? []) await db.from('cw_gift').update({ claimed: true, claimed_on: day }).match({ day: g.day, from_id: g.from_id, to_id: me });
-        return json({ ok: true, claimed: (waiting ?? []).length });
-      }
-
-      case 'ref_claim': {
-        const { data: p } = await db.from('cw_player').select('ref_bonus_pending').eq('tg_id', me).single();
-        const n = p?.ref_bonus_pending ?? 0;
-        if (n > 0) await db.from('cw_player').update({ ref_bonus_pending: 0 }).eq('tg_id', me);
-        return json({ ok: true, claimed: n });
+      case 'gift_claim':
+      case 'ref_claim':
+      case 'reward_claim': {
+        // Старый клиент не умеет сохранять ID grant: повторный ответ мог бы удвоить выдачу.
+        if (body.protocol !== 2) return json({ error: 'upgrade_required' }, 409);
+        const kind = action === 'gift_claim' ? 'gift' : action === 'ref_claim' ? 'ref' : 'all';
+        const { data } = await db.rpc('cw_claim_rewards', { p_tg_id: me, p_kind: kind });
+        return rpcJson(data);
       }
 
       default:

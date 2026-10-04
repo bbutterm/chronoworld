@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, cardStats, heroCard, heroTemplate, jobTitle, levelUpInfo, newGame, type SaveState } from '../src/core';
+import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, cardStats, heroCard, heroTemplate, jobTitle, levelUpHero, levelUpInfo, newGame, resetHeroLevel, type SaveState } from '../src/core';
 import {
   ascendButtonState,
   ascendHint,
@@ -33,7 +33,8 @@ const ctx = loadGameContext();
 function rich(): SaveState {
   let s = newGame(ctx, 1_700_000_000_000);
   const add = (t: string, r: 'green' | 'blue' | 'purple' | 'gold' | 'red', level: number) => {
-    s = addHeroCard(s, t, r, { level }).save;
+    // Уровни в этом наборе подарены: оплаченная тренировка защищает копию до явного возврата ресурсов.
+    s = addHeroCard(s, t, r, { level, granted: true }).save;
   };
   add('iris', 'green', 12);
   add('iris', 'green', 1);
@@ -184,7 +185,7 @@ describe('H4 «Вознесение»', () => {
   it('вознесение на фиолетовый: без выбранной ветки кнопка ждёт ветку; мощь «было → станет» растёт', () => {
     let s = newGame(ctx, 0);
     const add = (lv: number) => {
-      const r = addHeroCard(s, 'alan', 'blue', { level: lv });
+      const r = addHeroCard(s, 'alan', 'blue', { level: lv, granted: true });
       s = r.save;
       return r.hero;
     };
@@ -256,6 +257,33 @@ describe('Герои v2 (V2): копии одной плиткой, счётчи
     expect(copyCounter(s, lira.id, ctx).text).toBe('Копий: 0');
   });
 
+  it('обученная копия остаётся в счётчике коллекции, но доступна для вознесения только после возврата ресурсов', () => {
+    let s = rich();
+    const target = s.heroes.find(h => h.templateId === 'iris' && h.level === 12)!;
+    const copy = s.heroes.find(h => h.templateId === 'iris' && h.level === 1)!;
+    s = addHeroExp(s, 10_000);
+    s = levelUpHero(s, copy.id, ctx).save;
+    expect(copyCounter(s, target.id, ctx)).toMatchObject({ others: 2, need: 2, have: 1 });
+    expect(autoFodder(s, target.id, ctx)).toBeNull();
+    s = resetHeroLevel(s, copy.id, ctx).save;
+    expect(copyCounter(s, target.id, ctx)).toMatchObject({ others: 2, need: 2, have: 2 });
+    expect(autoFodder(s, target.id, ctx)).toHaveLength(2);
+  });
+
+  it('своя плитка спутника сохраняется после возврата уровня, даже если его копия сильнее', () => {
+    const s = rich();
+    const personal = s.heroes.find(h => h.templateId === 'iris' && h.companion)!;
+    const copy = s.heroes.find(h => h.templateId === 'iris' && h.level === 3)!;
+    const heroes = [
+      { ...copy, rarity: 'red' as const, level: 100 },
+      { ...personal, level: 1, journey: { peakLevel: 12 } },
+    ];
+    const grouped = groupCopies(heroes);
+    expect(grouped).toHaveLength(1);
+    expect(grouped[0]).toMatchObject({ hero: { id: personal.id, companion: true, level: 1 }, copies: 2 });
+    expect(grouped[0].ids).toEqual([copy.id, personal.id]);
+  });
+
   it('ascendPreview: выбранная ветка на переходе синий → фиолетовый', () => {
     let s = rich();
     s = addHeroCard(s, 'alan', 'blue', { level: 40 }).save;
@@ -288,4 +316,3 @@ describe('названия профессий по полу героя (MT-10)',
     expect(branchOptions('bran', ctx).map((b) => b.jobName)).toContain('Охотник');
   });
 });
-

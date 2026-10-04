@@ -7,6 +7,7 @@ import { HeroError } from './errors';
 import { findHero } from './level';
 import { BRANCH_RARITY, rarityIndex } from './schema';
 import { groupDigits } from '../format';
+import { rememberHeroJourney } from './training';
 
 /**
  * Ветка второй профессии (docs/design/heroes-v2.md, раздел 3). Выбирается на фиолетовом: при вознесении синий →
@@ -74,8 +75,8 @@ function setBranch(save: SaveState, heroId: string, job: string, changes?: numbe
     ...save,
     heroes: save.heroes.map((h) => {
       if (h.id !== heroId) return h;
-      const { branch: _b, branchChanges: _c, ...rest } = h;
-      return { ...rest, branch: job, ...(changes ? { branchChanges: changes } : {}) };
+      const { branch: _b, branchChanges: _c, ...rest } = rememberHeroJourney(h);
+      return rememberHeroJourney({ ...rest, branch: job, ...(changes ? { branchChanges: changes } : {}) });
     }),
   };
 }

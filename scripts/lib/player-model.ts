@@ -12,7 +12,8 @@ import {
   campaignSceneLines,
   actAscend,
   actClaimOffline,
-  actClimbTower,
+  actTowerFight,
+  buyTowerUpgrade,
   fightHunt,
   huntStatus,
   sweepHunt,
@@ -22,7 +23,8 @@ import {
   actSummon,
   ascendRequirement,
   ascendAll,
-  heroRole,
+  heroSustain,
+  reserveSustain,
   withGear,
   autoFodder,
   autoChain,
@@ -104,6 +106,7 @@ import {
   type SaveState,
 } from '../../src/core';
 import { loadFullContext } from './content-node';
+import { prepareModelTower } from './tower-player';
 
 /** Полный контекст (тип из ядра) и его сборка из data/ — переэкспорт для scripts/balance.ts и тестов. */
 export type { FullContext };
@@ -116,7 +119,7 @@ export interface PlayerModel {
   firstSessionHour: number;
   /** Часов между сессиями внутри дня (ночь — остаток суток). */
   hoursBetweenSessions: number;
-  /** Длительность самой первой сессии (день 1, сессия 1), минут: новичок играет долго. */
+  /** Длительность первого знакомства (день 1, сессия 1), минут. */
   firstSessionMinutes: number;
   /** Длительность остальных сессий, минут (время кончилось — сессия заканчивается, даже если игрок не застрял). */
   sessionMinutes: number;
@@ -197,11 +200,11 @@ export interface PlayerModel {
 }
 
 export const PLAYER_MODEL: PlayerModel = {
-  sessionsPerDay: 4,
+  sessionsPerDay: 3,
   firstSessionHour: 8,
-  hoursBetweenSessions: 4,
-  firstSessionMinutes: 45,
-  sessionMinutes: 15,
+  hoursBetweenSessions: 6,
+  firstSessionMinutes: 10,
+  sessionMinutes: 7,
   battleSpeed: 1.5,
   battleOverheadSec: 30,
   storySecPerLine: 5,
@@ -414,7 +417,7 @@ export interface BalanceResult {
   /** Шагов заточки (всего) и уровни заточки надетого на отряд на конец каждого дня (средний, максимум). */
   refines: number;
   /** Сломано вещей при заточке. */
-  refineBreaks: number;
+  refineFailures: number;
   /** Шаги заточки по режимам: обычный, надёжный, рудой. */
   refineModes: Record<RefineMode, number>;
   /** «Благословенная руда»: добыто по источникам, потрачено, осталось. */
@@ -464,7 +467,7 @@ class Sim {
   eventClaims: BalanceResult['eventClaims'] = [];
   shopBuys: Record<string, number> = {};
   refines = 0;
-  refineBreaks = 0;
+  refineFailures = 0;
   refineModes: Record<RefineMode, number> = { normal: 0, safe: 0, ore: 0 };
   oreIn: BalanceResult['oreIn'] = {};
   oreSpent = 0;
@@ -653,7 +656,7 @@ class Sim {
       const pick = this.save.pendingPicks![0];
       const opts = pickOptions(pick, this.ctx);
       const squad = this.save.squad.map((id) => this.save.heroes.find((h) => h.id === id)).filter((h): h is SaveState['heroes'][number] => !!h);
-      const healer = squad.some((h) => heroTemplate(this.ctx, h.templateId).role === 'healer' || (h.branch && heroTemplate(this.ctx, h.templateId).branches.find((b) => b.job === h.branch)?.role === 'healer'));
+      const healer = squad.some((h) => heroSustain(h, this.ctx).heals);
       const farthest = [...squad].sort((a, b) => rarityIndex(a.rarity) - rarityIndex(b.rarity) || a.level - b.level)[0]?.templateId;
       const templateId = !healer && opts.includes('vika') ? 'vika' : farthest && opts.includes(farthest) ? farthest : opts[0];
       const withBranch = rarityIndex(pick.rarity) >= rarityIndex(BRANCH_RARITY);
@@ -672,14 +675,14 @@ class Sim {
    * Без этого модель годами держала фиолетовых на скамейке (autoFormation смотрит только на нынешнюю мощь).
    */
   formation(): (string | null)[] {
-    const base = autoFormation(this.save, this.ctx);
+    const base = autoFormation(this.save, this.ctx, { sustain: this.model.healer });
     const members = base.flatMap((id) => this.save.heroes.filter((h) => h.id === id));
     if (members.length === 0) return base;
     const floor = Math.min(...members.map((h) => h.level));
     // Контекст с экипировкой — один на вызов (withGear на каждого героя был треть времени модели).
     const gear = withGear(this.ctx, this.save);
     const pot = (h: SaveState['heroes'][number]) => heroPower({ ...h, level: Math.max(h.level, Math.min(floor, maxLevelOf(this.ctx, h.rarity))) }, gear);
-    const squad = members.map((h) => ({ hero: h, pot: pot(h) }));
+    let squad = members.map((h) => ({ hero: h, pot: pot(h) }));
     const inSquad = new Set(members.map((h) => h.templateId));
     const bench = [...new Set(this.save.heroes.map((h) => h.templateId))]
       .filter((t) => !inSquad.has(t))
@@ -697,28 +700,16 @@ class Sim {
       squad[squad.indexOf(weakest)] = c;
       changed = true;
     }
-    // Лекарь (как «Авто» и живой игрок): нет в отряде — лучший лекарь вместо самого слабого не-танка, если он не
-    // слабее по редкости и почти не слабее по потенциалу (≥ 0.9 заменяемого): зелёного лекаря вместо фиолетового
-    // бойца игрок не ставит — такой отряд проигрывает (замер: стена ch3_s10 12 → 40 ч).
-    const healer = (h: SaveState['heroes'][number]) => heroRole(h, this.ctx) === 'healer';
-    if (this.model.healer && squad.length >= 3 && !squad.some((x) => healer(x.hero)) && this.save.heroes.some(healer)) {
-      const used = new Set(squad.map((x) => x.hero.templateId));
-      // По одному кандидату на героя (старшая редкость, затем уровень) — мощь с экипировкой считается дорого.
-      const top = new Map<string, SaveState['heroes'][number]>();
-      for (const h of this.save.heroes) {
-        if (!healer(h) || used.has(h.templateId)) continue;
-        const cur = top.get(h.templateId);
-        if (!cur || rarityIndex(h.rarity) > rarityIndex(cur.rarity) || (h.rarity === cur.rarity && h.level > cur.level)) top.set(h.templateId, h);
-      }
-      const best = [...top.values()].map((h) => ({ hero: h, pot: pot(h) })).sort((a, b) => b.pot - a.pot || (a.hero.id < b.hero.id ? -1 : 1))[0];
-      const tanks = squad.filter((x) => heroRole(x.hero, this.ctx) === 'tank').length;
-      const out = squad
-        .filter((x) => heroRole(x.hero, this.ctx) !== 'tank' || tanks > 1)
-        .reduce<(typeof squad)[number] | null>((w, x) => (!w || x.pot < w.pot ? x : w), null);
-      if (best && out && rarityIndex(best.hero.rarity) >= rarityIndex(out.hero.rarity) && best.pot >= out.pot * 0.9) {
-        squad[squad.indexOf(out)] = best;
-        changed = true;
-      }
+    // Общая политика с кнопкой «Авто»: настоящее доступное лечение/щит, включая Тео-support.
+    // Потенциал только выбирает кандидата; уровни ниже оплачиваются обычным actLevelUp.
+    if (this.model.healer) {
+      const supported = reserveSustain(
+        squad.map((candidate) => ({ ...candidate, power: candidate.pot })),
+        this.save.heroes.map((hero) => { const power = pot(hero); return { hero, pot: power, power }; }),
+        this.ctx,
+      );
+      changed ||= supported.some((candidate, index) => candidate.hero.id !== squad[index]?.hero.id);
+      squad = supported.map(({ hero, pot }) => ({ hero, pot }));
     }
     if (!changed) return base;
     const ids: (string | null)[] = squad.map((x) => x.hero.id);
@@ -834,8 +825,8 @@ class Sim {
       this.step('refine', r.save);
       this.refines++;
       this.refineModes[best.mode]++;
-      if (r.events.some((e) => e.type === 'refineBroken')) {
-        this.refineBreaks++;
+      if (r.events.some((e) => e.type === 'refineFailed')) {
+        this.refineFailures++;
         this.autoEquip();
       }
       this.spendTime(this.model.refineSec * 1000);
@@ -1107,12 +1098,14 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
       sim.prepare();
 
       // Кампания: бой → победа — дальше; поражение — сундук/быстрые награды/уровни и повтор, до maxLosses.
+      // Игрок оставляет часть короткой сессии для уже открытых режимов, как в реальном интерфейсе.
+      const campaignEnd = towerUnlocked(sim.save, ctx) ? end - Math.min((end - start) * 0.35, 3 * MINUTE) : end;
       let wins = 0;
       let losses = 0;
       let stageLosses = 0;
       for (;;) {
         const stageId = nextOpenStage(sim.save, ctx);
-        if (!stageId || stageLosses >= model.maxLossesPerSession || sim.now >= end) break;
+        if (!stageId || stageLosses >= model.maxLossesPerSession || sim.now >= campaignEnd) break;
         const power = squadPower(sim.save, ctx);
         if (!stageAttempts.has(stageId)) sim.spendTime((storyLines.get(stageId) ?? 0) * model.storySecPerLine * 1000);
         const out = actPlayStage(sim.save, sim.day, stageId, model.seedBase + sim.save.battleSeq, ctx, sim.now);
@@ -1147,15 +1140,30 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
       // Башня.
       let towerAttempts = 0;
       let towerLosses = 0;
+      const hunt = model.hunt ? huntStatus(sim.save, sim.day, ctx) : null;
+      const towerEnd = hunt?.unlocked && hunt.attemptsLeft > 0 ? end - Math.min((end - start) * 0.2, 90_000) : end;
       while (
         towerUnlocked(sim.save, ctx) &&
         sim.save.tower.floor < ctx.tower.maxFloor &&
         towerAttempts < model.towerMaxAttemptsPerSession &&
         towerLosses < model.towerMaxLossesPerSession &&
-        sim.now < end
+        sim.now < towerEnd
       ) {
+        if (!sim.save.tower.run) {
+          for (const upgrade of ctx.tower.run?.upgrades ?? []) {
+            const level = sim.save.tower.upgrades?.[upgrade.id] ?? 0;
+            const price = upgrade.costs[level];
+            if (price !== undefined && (sim.save.tower.shards ?? 0) >= price) sim.step('tower', buyTowerUpgrade(sim.save, upgrade.id, ctx));
+          }
+        }
+        if (!sim.save.tower.run?.node) {
+          const prepared = prepareModelTower(sim.save, ctx);
+          sim.step('tower', prepared);
+          sim.spendTime(Math.max(3, model.battleOverheadSec / 5) * 1000);
+          continue;
+        }
         const power = squadPower(sim.save, ctx);
-        const out = actClimbTower(sim.save, sim.day, model.seedBase + sim.save.battleSeq, ctx);
+        const out = actTowerFight(sim.save, sim.day, ctx);
         sim.spendTime(battleMs(out.result.duration));
         sim.step('tower', out.save);
         towerByFloor.set(out.floor, (towerByFloor.get(out.floor) ?? 0) + 1);
@@ -1260,7 +1268,7 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     eventClaims: sim.eventClaims,
     shopBuys: sim.shopBuys,
     refines: sim.refines,
-    refineBreaks: sim.refineBreaks,
+    refineFailures: sim.refineFailures,
     refineModes: sim.refineModes,
     oreIn: sim.oreIn,
     oreSpent: sim.oreSpent,

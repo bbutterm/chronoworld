@@ -15,6 +15,7 @@ import type { EquipmentConfig } from '../equipment/load';
 import { grantBlessedOre } from '../equipment/refine';
 import { bankOffline, lastClearedStage } from './offline';
 import { withBondLinks } from '../tavern/tavern';
+import { assertDay } from '../features/daily';
 
 export type StageStatus = 'locked' | 'open' | 'cleared';
 
@@ -81,6 +82,26 @@ export interface StageOutcome {
   save: SaveState;
   result: BattleResult;
   events: ProgressEvent[];
+  /** Повтор: награда ограничена общим суточным бюджетом; тренировка всегда доступна. */
+  replay?: { rewarded: boolean; used: number; limit: number };
+}
+
+/** Число победных повторов с добычей за день. Первые прохождения бюджет не расходуют. */
+export function replayRewardLimit(ctx: GameContext): number {
+  return ctx.progression.campaign.replayDailyWins ?? 6;
+}
+
+/**
+ * Остаток наград повторов. UI передаёт день явно; без дня повтор — тренировка без добычи.
+ * Дата раньше уже использованной не сбрасывает бюджет (перевод часов назад не даёт новых наград).
+ */
+export function replayAllowance(save: SaveState, day: string | undefined, ctx: GameContext): { used: number; limit: number; remaining: number } {
+  const limit = replayRewardLimit(ctx);
+  if (day === undefined) return { used: limit, limit, remaining: 0 };
+  assertDay(day);
+  const farm = save.campaignFarm;
+  const used = farm && day <= farm.day ? (day === farm.day ? farm.wins : limit) : 0;
+  return { used, limit, remaining: Math.max(0, limit - used) };
 }
 
 /**
@@ -120,21 +141,23 @@ export function squadUnits(save: SaveState, ctx: GameContext): { squad: (UnitDef
  * - P11 (T4-10): первая победа на этапе новее последнего пройденного при переданном now — bankOffline:
  *   накопленное в сундуке фиксируется по прежней ставке.
  */
-export function playStage(save: SaveState, stageId: string, seed: number, ctx: GameContext, now?: number): StageOutcome {
+export function playStage(save: SaveState, stageId: string, seed: number, ctx: GameContext, now?: number, day?: string): StageOutcome {
   // Экипировка героев из сохранения (если в контексте есть предметы).
   ctx = withGear(ctx, save);
   const stage = getStage(ctx, stageId);
   if (stageStatus(save, stageId, ctx) === 'locked') throw new GameRuleError('stage_locked', `Этап ${stage.name} ещё закрыт`);
   const { squad } = squadUnits(save, ctx);
+  const firstTime = !save.campaign.cleared.includes(stage.id);
+  const allowance = firstTime ? undefined : replayAllowance(save, day, ctx);
 
   save = beginCampaignStage(save, stageId, ctx);
   const result = simulateBattle(ctx.content, squad, enemySquad(stageId, ctx, save.campaignChoices), seed, { combat: ctx.combat });
   let next: SaveState = { ...save, battleSeq: save.battleSeq + 1 };
   const events: ProgressEvent[] = [];
-  if (result.winner !== 'A') return { save: next, result, events };
+  if (result.winner !== 'A') return { save: next, result, events, ...(allowance ? { replay: { rewarded: false, used: allowance.used, limit: allowance.limit } } : {}) };
 
-  const firstTime = !save.campaign.cleared.includes(stage.id);
-  const mult = firstTime ? 1 : ctx.progression.campaign.replayRewardMultiplier;
+  const rewarded = firstTime || allowance!.remaining > 0;
+  const mult = firstTime ? 1 : rewarded ? ctx.progression.campaign.replayRewardMultiplier : 0;
   const gold = Math.floor(stage.rewards.gold * mult);
   const heroExp = Math.floor(stage.rewards.jobExp * mult);
 
@@ -144,14 +167,17 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   if (firstTime && prevLast && stage.globalIndex > prevLast.globalIndex && now !== undefined) next.offline = bankOffline(save, now, ctx).offline;
   next.resources = { ...save.resources, gold: save.resources.gold + gold };
   next = addHeroExp(next, heroExp);
+  if (!firstTime && rewarded) next.campaignFarm = { day: day!, wins: allowance!.used + 1 };
   if (firstTime) next.campaign = { ...save.campaign, cleared: [...save.campaign.cleared, stage.id] };
   if (firstTime && save.campaign.cleared.length === 0 && now !== undefined) next.offline = { ...save.offline, lastClaimAt: now };
 
   events.push({ type: 'rewards', gold, heroExp });
   // Карты случайных героев: первое прохождение (босс главы — больше) и повтор — по шансам (от seed боя).
-  const cards = grantHeroCards(next, stageHeroCards(stage, firstTime, seed, ctx), ctx);
-  next = cards.save;
-  events.push(...cards.events);
+  if (rewarded) {
+    const cards = grantHeroCards(next, stageHeroCards(stage, firstTime, seed, ctx), ctx);
+    next = cards.save;
+    events.push(...cards.events);
+  }
   if (firstTime && stage.boss) {
     const ore = grantBlessedOre(next, seed, ctx as { equipment?: EquipmentConfig });
     next = ore.save;
@@ -192,5 +218,5 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
     next = w.save;
     events.push(...w.events);
   }
-  return { save: next, result, events };
+  return { save: next, result, events, ...(allowance ? { replay: { rewarded, used: allowance.used + (rewarded ? 1 : 0), limit: allowance.limit } } : {}) };
 }

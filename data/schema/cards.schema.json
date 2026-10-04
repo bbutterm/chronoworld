@@ -193,6 +193,68 @@
         "firstFree"
       ]
     },
+    "training": {
+      "type": "object",
+      "properties": {
+        "unlockLevel": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "focuses": {
+          "minItems": 3,
+          "maxItems": 3,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "enum": [
+                  "resolve",
+                  "precision",
+                  "guard"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 180
+              },
+              "stat": {
+                "type": "string",
+                "enum": [
+                  "hp",
+                  "atk",
+                  "def"
+                ]
+              },
+              "pct": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "text",
+              "stat",
+              "pct"
+            ]
+          }
+        }
+      },
+      "required": [
+        "unlockLevel",
+        "focuses"
+      ]
+    },
     "heroCards": {
       "type": "object",
       "properties": {

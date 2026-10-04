@@ -99,7 +99,7 @@
         "rare": 0,
         "epic": 100
       },
-      "itemsFromChapter": 6
+      "itemsFromChapter": 7
     },
     {
       "chapter": "chapter8",
@@ -120,7 +120,7 @@
         "rare": 0,
         "epic": 100
       },
-      "itemsFromChapter": 6
+      "itemsFromChapter": 8
     },
     {
       "chapter": "chapter9",
@@ -141,7 +141,7 @@
         "rare": 0,
         "epic": 100
       },
-      "itemsFromChapter": 6
+      "itemsFromChapter": 9
     },
     {
       "chapter": "chapter10",
@@ -162,7 +162,7 @@
         "rare": 0,
         "epic": 100
       },
-      "itemsFromChapter": 6
+      "itemsFromChapter": 10
     },
     {
       "chance": 0.35,
@@ -268,7 +268,7 @@
           "rare": 75,
           "epic": 25
         },
-        "itemsFromChapter": 6,
+        "itemsFromChapter": 7,
         "heroCards": {
           "blue": 0.0018,
           "purple": 0.00012
@@ -290,7 +290,7 @@
           "rare": 75,
           "epic": 25
         },
-        "itemsFromChapter": 6,
+        "itemsFromChapter": 8,
         "heroCards": {
           "blue": 0.0018,
           "purple": 0.00012
@@ -312,7 +312,7 @@
           "rare": 75,
           "epic": 25
         },
-        "itemsFromChapter": 6,
+        "itemsFromChapter": 9,
         "heroCards": {
           "blue": 0.0018,
           "purple": 0.00012
@@ -334,7 +334,7 @@
           "rare": 75,
           "epic": 25
         },
-        "itemsFromChapter": 6,
+        "itemsFromChapter": 10,
         "heroCards": {
           "blue": 0.0018,
           "purple": 0.00012
@@ -405,6 +405,13 @@
     "blessedOre": {
       "min": 1,
       "max": 3
+    }
+  },
+  "salvage": {
+    "goldByRarity": {
+      "common": 100,
+      "rare": 500,
+      "epic": 2000
     }
   }
 }

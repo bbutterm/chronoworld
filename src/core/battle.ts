@@ -164,6 +164,18 @@ const round2 = (v: number) => Math.round(v * 100) / 100;
  */
 export const reach = (u: Unit, target: Unit): number => u.range + target.body + u.body;
 
+/** Радиус неотрицателен; для проверки круга корень расстояния не нужен. */
+const withinRadius = (x1: number, y1: number, x2: number, y2: number, radius: number): boolean => {
+  const dx = x1 - x2;
+  const dy = y1 - y2;
+  return dx * dx + dy * dy <= radius * radius;
+};
+
+/** Проверка досягаемости без корня в горячем цикле; длина нужна только при реальном перемещении. */
+const withinReach = (u: Unit, target: Unit, padding = 0): boolean => {
+  return withinRadius(u.x, u.y, target.x, target.y, reach(u, target) + padding);
+};
+
 /**
  * Детерминированный авто-бой. A — атакующая сторона (игрок), B — защищающаяся.
  * Одинаковые контент, отряды, конфиг и seed дают одинаковый лог.
@@ -281,7 +293,9 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
    */
   const gain = (u: Unit, key: 'perBasicAction' | 'perHitTaken') => (on && u.def.energy ? u.def.energy[key] : cfg.energy[key]);
   /** Бойцы с энергией от времени (ульта героя копится ровно, а не только от частоты ходов). */
-  const timeEnergy = on ? all.filter((u) => u.def.energy?.perSecond) : [];
+  const timeEnergy = on ? all.filter((u) => u.def.energy?.perSecond).map((u) => ({ u, step: u.def.energy!.perSecond * cfg.tickSeconds })) : [];
+  /** Авто использует готовую ульту героя без дополнительного ожидания шкалы обычной атаки. */
+  const promptUlts = on ? all.filter((u) => u.def.kind === 'hero' && u.def.energy && u.ult) : [];
 
   const checkEnd = () => {
     const aAlive = a.some((u) => u.alive);
@@ -310,7 +324,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
 
   const applyDamage = (src: Unit | null, srcUid: string, target: Unit, dmg: number, dot = false, redirect?: string, elem?: 'weak' | 'resist') => {
     let reduction = 0;
-    for (const status of target.statuses) reduction = Math.max(reduction, status.def.damageReduction ?? 0);
+    for (const status of target.statuses) if (status.until > t + 1e-9) reduction = Math.max(reduction, status.def.damageReduction ?? 0);
     dmg = Math.round(dmg * (1 - reduction));
     // Трус на бегу подставляет спину: урон больше (бой не затягивается от побега).
     if (fleeing.size > 0 && redirect === undefined && fleeing.has(target)) dmg = Math.round(dmg * (1 + target.bh.coward!.damageTaken));
@@ -334,7 +348,13 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     report[target.uid].damageTaken += absorbed + hpLoss;
     // Энергия за полученный удар — только за урон по ОЗ (как в AFK: энергия от потерянного здоровья). Удар, целиком
     // принятый щитом, ульту не заряжает — иначе щит-ульта («Песчаная стена») перезаряжала сама себя (LT-01).
-    if (target.hp > 0 && !dot && hpLoss > 0) addEnergy(target, gain(target, 'perHitTaken'));
+    if (target.hp > 0 && !dot && hpLoss > 0) {
+      const interval = on ? (cfg.energy.hitIntervalSeconds ?? 0) : 0;
+      if (t + 1e-9 >= (target.energyHitAt ?? -Infinity) + interval) {
+        addEnergy(target, gain(target, 'perHitTaken'));
+        target.energyHitAt = t;
+      }
+    }
     emit({
       t,
       type: 'damage',
@@ -516,7 +536,12 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         emit({ t, type: 'energy', unit: target.uid, energy: target.energy });
         return;
       case 'dispel': {
-        const removed = target.statuses.filter(s => !!s.def.damageReduction || Object.values(s.def.stats ?? {}).some(v => v > 0));
+        // Снять усиления, сохранив яд, контроль и смешанные ослабления вроде «Надлома разума».
+        const removed = target.statuses.filter(({ def }) => {
+          const mods = Object.values(def.stats ?? {});
+          const harmful = def.stun || def.interrupt || def.taunt || def.dot || mods.some((v) => v < 0);
+          return !harmful && (!!def.damageReduction || mods.some((v) => v > 0));
+        });
         target.statuses = target.statuses.filter(s => !removed.includes(s));
         for (const s of removed) emit({ t, type: 'status', source: u.uid, target: target.uid, status: s.def.id, name: s.def.name, turns: 0, action: 'expire' });
         return;
@@ -844,11 +869,11 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     if (!target?.alive) return;
     // Оглушённый стоит не по своей воле — это не застревание.
     if (stunned(u)) return;
-    const d = dist(u, target);
-    if (d <= reach(u, target) + 0.5) {
+    if (withinReach(u, target, 0.5)) {
       stuck.delete(u);
       return;
     }
+    const d = dist(u, target);
     const s = stuck.get(u) ?? { time: 0, lastDist: Infinity };
     // Идёт к цели и расстояние сокращается — не застрял.
     if (d < s.lastDist - 1) s.lastDist = d;
@@ -874,12 +899,18 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const standX = (o: Unit) => (o.moving ? o.moving.toX : o.x);
   const standY = (o: Unit) => (o.moving ? o.moving.toY : o.y);
 
-  /** Расстояние от точки до ближайшего чужого места стоянки (кроме самого юнита и его цели). */
-  const clearance = (u: Unit, target: Unit | null, x: number, y: number) => {
+  /**
+   * Расстояние от точки до ближайшего чужого места стоянки (кроме самого юнита и его цели).
+   * С stopBelow можно вернуть верхнюю оценку не выше порога: точный минимум больше не влияет на выбор.
+   */
+  const clearance = (u: Unit, target: Unit | null, x: number, y: number, stopBelow = -Infinity) => {
     let best = Infinity;
     for (const o of all) {
       if (o === u || o === target || !o.alive) continue;
       best = Math.min(best, Math.hypot(standX(o) - x, standY(o) - y) - o.body - u.body);
+      // У поиска точки после такого зазора кандидат уже не может обойти прежний fallback.
+      // Без порога все расстояния, как и прежде, вычисляются полностью.
+      if (best <= stopBelow) return best;
     }
     return best;
   };
@@ -891,41 +922,45 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
    * Берётся первая точка в пределах поля и не ближе minSeparation к другим бойцам;
    * если таких нет — самая свободная в пределах поля; если и таких нет — прижатая к краю.
    */
+  const readSpotAngles = () => (cfg.movement.stackAngles.length > 0 ? cfg.movement.stackAngles : [0]).map((angle) => {
+    const radians = (angle * Math.PI) / 180;
+    return { cos: Math.cos(radians), sin: Math.sin(radians) };
+  });
+  // Без хуков конфиг постоянен в синхронном бою. Хуки видят combat через API: для них читаем свежие углы.
+  const fixedSpotAngles = hooks ? null : readSpotAngles();
   const findSpot = (u: Unit, ax: number, ay: number, dirX: number, dirY: number, r: number, target: Unit | null, prefer: number, sep = minSep) => {
-    const angles = cfg.movement.stackAngles.length > 0 ? cfg.movement.stackAngles : [0];
-    const squash = cfg.movement.crowdSquash ?? 1;
-    const order = angles.map((_, i) => i);
-    const first = Math.max(0, prefer) % angles.length;
-    order.splice(order.indexOf(first), 1);
-    order.unshift(first);
-    const cands: { x: number; y: number }[] = [];
-    for (const side of [1, -1])
-      for (const i of order) {
-        const ang = (angles[i] * Math.PI) / 180;
-        const dx = side * dirX;
-        const dy = side * dirY;
-        cands.push({
-          x: round2(ax + (dx * Math.cos(ang) - dy * Math.sin(ang)) * r),
-          y: round2(ay + (dx * Math.sin(ang) + dy * Math.cos(ang)) * r * squash),
-        });
-      }
+    const spotAngles = fixedSpotAngles ?? readSpotAngles();
+    const crowdSquash = cfg.movement.crowdSquash ?? 1;
+    const first = Math.max(0, prefer) % spotAngles.length;
+    let firstX = 0;
+    let firstY = 0;
     let fallback: { x: number; y: number } | null = null;
     let fallbackGap = -1;
-    for (const c of cands) {
-      if (!inBounds(c.x, c.y)) continue;
-      const gap = clearance(u, target, c.x, c.y);
-      if (gap >= sep) return c;
-      if (gap > fallbackGap) {
-        fallbackGap = gap;
-        fallback = c;
+    // Тот же порядок: предпочтительный угол, остальные по порядку, затем противоположная сторона.
+    // После первой подходящей точки остальные координаты и расстояния уже не нужны.
+    for (let side = 1; side >= -1; side -= 2) {
+      const dx = side * dirX;
+      const dy = side * dirY;
+      for (let at = -1; at < spotAngles.length; at++) {
+        if (at === first) continue;
+        const angle = spotAngles[at < 0 ? first : at];
+        const x = round2(ax + (dx * angle.cos - dy * angle.sin) * r);
+        const y = round2(ay + (dx * angle.sin + dy * angle.cos) * r * crowdSquash);
+        if (side === 1 && at === -1) {
+          firstX = x;
+          firstY = y;
+        }
+        if (!inBounds(x, y)) continue;
+        // Пока fallbackGap ниже sep, gap <= fallbackGap не годится ни как свободная точка, ни как fallback.
+        const gap = clearance(u, target, x, y, fallbackGap < sep ? fallbackGap : -Infinity);
+        if (gap >= sep) return { x, y };
+        if (gap > fallbackGap) {
+          fallbackGap = gap;
+          fallback = { x, y };
+        }
       }
     }
-    return (
-      fallback ?? {
-        x: round2(clampX(cands[0].x)),
-        y: round2(clampY(cands[0].y)),
-      }
-    );
+    return fallback ?? { x: round2(clampX(firstX)), y: round2(clampY(firstY)) };
   };
 
   /** К какой цели и точке стоянки идёт боец (для перепланирования, если цель ушла). */
@@ -939,7 +974,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     if (tickNo % 3 !== 0) return false;
     const p = plans.get(u);
     if (!p) return false;
-    return p.target !== target || Math.hypot(standX(target) - p.x, standY(target) - p.y) > Math.max(minSep, 1);
+    return p.target !== target || !withinRadius(standX(target), standY(target), p.x, p.y, Math.max(minSep, 1));
   };
 
   const planMove = (u: Unit) => {
@@ -969,7 +1004,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
 
   const planStep = (u: Unit, target: Unit) => {
     plans.delete(u);
-    if (dist(u, target) <= reach(u, target)) {
+    if (withinReach(u, target)) {
       // Проверка наложения — раз в 3 тика (0.3 с): незаметно глазу, дешевле для массовых прогонов.
       if (tickNo % 3 === 0) separate(u, target);
       return;
@@ -1281,7 +1316,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     const y = home.y + (standY(an) - home.y) * A.yShare;
     // Вперёд (к врагу) от своего слота — не дальше maxDrift.
     x = u.side === 'A' ? Math.min(x, home.x + A.maxDrift) : Math.max(x, home.x - A.maxDrift);
-    if (Math.hypot(x - u.x, y - u.y) <= A.followSlack) return;
+    if (withinRadius(x, y, u.x, u.y, A.followSlack)) return;
     const spot = clearance(u, null, x, y) >= minSep ? { x: round2(clampX(x)), y: round2(clampY(y)) } : findSpot(u, x, y, backDir(u), 0, minSep, null, 0);
     if (Math.hypot(spot.x - u.x, spot.y - u.y) < A.followSlack / 2) return;
     startMove(u, spot.x, spot.y, 'follow');
@@ -1289,8 +1324,8 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
 
   /** Движение дальних бойцов с профилем: отход от ближнего, иначе — за якорем. */
   const planRanged = (u: Unit) => {
-    if (!u.alive || u.casting || stunned(u)) return;
     if ((tickNo + u.slot) % 3 !== 0) return;
+    if (!u.alive || u.casting || stunned(u)) return;
     if (u.bh.kite && tryKite(u)) return;
     // За танком встаёт лекарь заднего ряда; поставленный во фронт держит своё место (его туда поставил игрок).
     if (u.bh.anchor && !u.moving && !inRow(u, 'front', cfg)) followAnchor(u);
@@ -1330,7 +1365,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   /** Сколько живых бойцов стороны x (включая x) стоят не дальше radius от места x. */
   const neighbours = (x: Unit, radius: number) => {
     let n = 0;
-    for (const o of allies(x)) if (o.alive && Math.hypot(standX(o) - standX(x), standY(o) - standY(x)) <= radius + o.body) n++;
+    for (const o of allies(x)) if (o.alive && withinRadius(standX(o), standY(o), standX(x), standY(x), radius + o.body)) n++;
     return n;
   };
 
@@ -1359,7 +1394,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     let sy = 0;
     let k = 0;
     for (const o of enemies(u)) {
-      if (!o.alive || Math.hypot(standX(o) - bx, standY(o) - by) > radius + o.body) continue;
+      if (!o.alive || !withinRadius(standX(o), standY(o), bx, by, radius + o.body)) continue;
       sx += standX(o);
       sy += standY(o);
       k++;
@@ -1367,7 +1402,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     let x = sx / k;
     let y = sy / k;
     let m = 0;
-    for (const o of enemies(u)) if (o.alive && Math.hypot(standX(o) - x, standY(o) - y) <= radius + o.body) m++;
+    for (const o of enemies(u)) if (o.alive && withinRadius(standX(o), standY(o), x, y, radius + o.body)) m++;
     if (m < bn) {
       x = bx;
       y = by;
@@ -1378,7 +1413,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   /** Цели удара по кругу — враги в круге сейчас (вышедший не задет); pick random — случайный из них на каждый удар. */
   const areaTargets = (u: Unit, skill: SkillDef, a: Area): Unit[] => {
     const inside: Unit[] = [];
-    for (const o of enemies(u)) if (o.alive && Math.hypot(o.x - a.x, o.y - a.y) <= a.r + o.body) inside.push(o);
+    for (const o of enemies(u)) if (o.alive && withinRadius(o.x, o.y, a.x, a.y, a.r + o.body)) inside.push(o);
     if (inside.length === 0 || skill.target.pick !== 'random') return inside;
     return selectTargets(u, { ...skill.target, row: 'any' }, allies(u), inside, rng, cfg);
   };
@@ -1452,7 +1487,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     if (n === 0) return;
     const x = sx / n + backDir(u) * C.backOffset;
     const y = sy / n;
-    if (Math.hypot(x - u.x, y - u.y) <= C.followSlack) return;
+    if (withinRadius(x, y, u.x, u.y, C.followSlack)) return;
     const spot = clearance(u, null, x, y) >= minSep ? { x: round2(clampX(x)), y: round2(clampY(y)) } : findSpot(u, x, y, backDir(u), 0, minSep, null, 0);
     if (Math.hypot(spot.x - u.x, spot.y - u.y) < C.followSlack / 2) return;
     startMove(u, spot.x, spot.y, 'follow');
@@ -1728,7 +1763,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   /** Приземление после рывка назад (diveBack): до него ближний удар не наносится (с профилями; без них — как раньше). */
   const landsAt = new Map<Unit, number>();
   const skillReady = (u: Unit, skill: SkillDef) =>
-    !u.moving && (skill.range === 'ranged' || (!!u.engage?.alive && dist(u, u.engage) <= reach(u, u.engage) + 0.5 && !(t + 1e-9 < (landsAt.get(u) ?? 0))));
+    !u.moving && (skill.range === 'ranged' || (!!u.engage?.alive && withinReach(u, u.engage, 0.5) && !(t + 1e-9 < (landsAt.get(u) ?? 0))));
 
   /** true — юнит походил; false — не может сейчас (бежит или не дошёл), ждёт с полной шкалой. */
   const act = (u: Unit): boolean => {
@@ -1808,7 +1843,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     if (s.range === 'melee' && s.target.side === 'enemy' && breaksCharge(s)) {
       const ch = chargingFoe(u);
       if (ch) {
-        if (dist(u, ch) > reach(u, ch) + 0.5) applyEffect(u, { type: 'dash' }, ch, s);
+        if (!withinReach(u, ch, 0.5)) applyEffect(u, { type: 'dash' }, ch, s);
         setEngage(u, ch);
         u.moving = null;
         landsAt.delete(u);
@@ -1881,7 +1916,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
 
   const chargers = on ? all.filter((u) => u.def.charge && content.skills[u.def.charge.skill]) : [];
   /** Когда начать следующий заряд (Infinity — заряд идёт). */
-  const nextCharge = new Map<Unit, number>(chargers.map((u) => [u, u.def.charge!.first]));
+  const nextCharge = new Map<Unit, number>(chargers.map((u) => [u, u.def.charge!.first + (cfg.charge?.firstDelaySeconds ?? 0)]));
   const brokenStatus = { id: 'charge_broken', name: 'Сбит', turns: cfg.charge?.stunTurns ?? 3, stun: true };
 
   /** Враг, который сейчас заряжает удар (босс раньше, равенство — меньший слот). */
@@ -1930,7 +1965,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     const heal = healOnly(skill);
     if (skill.range === 'melee') {
       const e = u.engage;
-      if (!e?.alive || dist(u, e) > reach(u, e) + 0.5) return [];
+      if (!e?.alive || !withinReach(u, e, 0.5)) return [];
       // Одиночный удар — по цели сражения; удар по площади (pick all, count > 1) — по селектору среди врагов
       // рядом с целью сражения (T2-07: не через всё поле), цель сражения — всегда среди задетых.
       const aoe = skill.target.pick === 'all' || skill.target.count > 1;
@@ -1972,7 +2007,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       cooldown: cd,
     });
     // Удар по кругу сбивает заряд любого, кто в круге (случайные метеоры могли не выбрать его первым).
-    if (manualFiring) breakCharges(u, skill, area ? enemies(u).filter((o) => o.alive && Math.hypot(o.x - area.x, o.y - area.y) <= area.r + o.body) : targets);
+    if (manualFiring) breakCharges(u, skill, area ? enemies(u).filter((o) => o.alive && withinRadius(o.x, o.y, area.x, area.y, area.r + o.body)) : targets);
     launch(u, skill, targets, area);
     hooks?.skill?.(api!, u, skill);
   };
@@ -2147,10 +2182,11 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         if (phaseQueue.length > 0) runPhases();
       }
       if (inputAt < inputs.length) takeInputs();
-      landProjectiles();
+      // Бафф истекает в свой срок до попаданий этого тика; иначе последний снаряд получает лишнюю защиту.
       tickStatuses();
+      landProjectiles();
       if (hooks?.tick) hooks.tick(api!);
-      for (const u of all) if (u.alive && !stunned(u)) stepMove(u);
+      for (const u of all) if (u.alive && u.moving && !stunned(u)) stepMove(u);
       diveBack();
       if (cowards.length > 0 && tickNo % 3 === 0) cowardice();
       const melee = all.filter((u) => u.alive && u.range !== Infinity && !(fleeing.size > 0 && fleeing.has(u)));
@@ -2166,7 +2202,15 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       if (armed.size > 0) for (const u of a) if (armed.has(u)) fireManual(u);
 
       // Энергия от времени (UnitDef.energy.perSecond): ульта героя копится ровно, а не только от частоты ходов.
-      for (const u of timeEnergy) if (u.alive) u.energy = Math.min(cfg.energy.max, round2(u.energy + u.def.energy!.perSecond * cfg.tickSeconds));
+      for (const { u, step } of timeEnergy) if (u.alive) u.energy = Math.min(cfg.energy.max, round2(u.energy + step));
+
+      // Как и касание, авто-ульта тратит накопленный ресурс отдельным решением, вне очереди обычных ударов.
+      // Вручную сохраняется возможность держать её на заряд босса или прервать собственный каст.
+      for (const u of promptUlts) {
+        if (!u.alive || u.energy < cfg.energy.max || u.casting || manualOn(u) || stunned(u) || !skillReady(u, u.ult!) || !ultUseful(u, u.ult!)) continue;
+        fireUlt(u, u.ult!);
+        u.gauge = 0;
+      }
 
       const ready: Unit[] = [];
       for (const u of all) {

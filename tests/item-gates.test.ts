@@ -101,14 +101,18 @@ describe('ворота предметов: выпадение с этапов', 
 describe('трофеи глав 4+ (LT-06): свои вещи главы, босс — эпик', () => {
   // Маршрут из 10 глав: главы 7 (Альдебаран), 8 (Гласт Хейм), 9 (Лабиринтный лес) и 10 (Нифльхейм) — со своими вещами.
   const late = ['chapter4', 'chapter5', 'chapter6', 'chapter7', 'chapter8', 'chapter9', 'chapter10'];
-  // Главы 7+ берут вещи с главы 6 до своей (редких вещей у них нет — редкие из главы 6).
-  const from = (chapter: string) => Math.min(chapterNumber(chapter, ctx), 6);
+  const from = (chapter: string) => chapterNumber(chapter, ctx);
 
-  it('у каждой главы 4+ — 4 новые вещи (оружие, доспех, шлем, обувь) с minChapter этой главы', () => {
+  it('у каждой главы 4+ свои четыре слота; у глав 7+ четыре эпика и редкие шлем/обувь', () => {
     for (const chapter of late) {
       const n = chapterNumber(chapter, ctx);
       const own = Object.values(items).filter((d) => d.minChapter === n);
-      expect(own.map((d) => d.slot).sort(), chapter).toEqual(['armor', 'boots', 'helmet', 'weapon']);
+      if (n < 7) {
+        expect(own.map((d) => d.slot).sort(), chapter).toEqual(['armor', 'boots', 'helmet', 'weapon']);
+      } else {
+        expect(own.filter((d) => d.rarity === 'epic').map((d) => d.slot).sort(), chapter).toEqual(['armor', 'boots', 'helmet', 'weapon']);
+        expect(own.filter((d) => d.rarity === 'rare').map((d) => d.slot).sort(), chapter).toEqual(['boots', 'helmet']);
+      }
     }
   });
 

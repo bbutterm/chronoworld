@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { CardRaritySchema } from '../heroes/schema';
 import { TowerSaveSchema } from '../tower/runSchema';
+import { AutobattlerSaveSchema } from '../autobattler/schema';
 
 export const SAVE_VERSION = 7;
 
@@ -31,6 +32,19 @@ export const HeroStateSchema = z.object({
    * Нет поля — 1.
    */
   grantedLevel: z.number().int().positive().optional(),
+  /** Личная копия персонажа: сохраняет идентичность при развитии профессии. */
+  companion: z.boolean().optional(),
+  /** Фактически оплаченная тренировка; выданные уровни не создают возврат ресурсов. */
+  training: z.object({
+    exp: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    gold: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+  }).optional(),
+  /** Достигнутые вехи сохраняются при бесплатном сбросе тренировки. */
+  journey: z.object({
+    peakLevel: z.number().int().min(1).max(100).optional(),
+    branchLevels: z.record(z.string(), z.number().int().min(1).max(100)).optional(),
+    focus: z.enum(['resolve', 'precision', 'guard']).optional(),
+  }).optional(),
 });
 
 /** v4. Состояние Таверны. */
@@ -90,6 +104,8 @@ export const ItemInstanceSchema = z.object({
   refine: z.number().int().min(0).max(20).optional(),
   /** Вставленная карта MVP (id из data/hunt.json → cards; equipment/cards.ts). Без смены версии: нет поля — слот пуст. */
   card: z.string().optional(),
+  /** Защита от пакетного разбора и продажи. */
+  locked: z.boolean().optional(),
 });
 
 /** v3 (K8). Сохранённая расстановка отряда: 5 слотов, id героя или null. */
@@ -295,9 +311,13 @@ export const SaveStateSchema = z.object({
   version: z.literal(SAVE_VERSION),
   createdAt: z.number(),
   heroes: z.array(HeroStateSchema).min(1),
+  /** Последний выданный hN: удалённые копии не освобождают идентификатор персонажа. */
+  heroSeq: z.number().int().nonnegative().optional(),
   /** 5 слотов отряда: id героя или null. */
   squad: z.array(z.string().nullable()).length(5),
   campaign: z.object({ cleared: z.array(z.string()) }),
+  /** Суточный бюджет наград за повторные победы; тренировка остаётся доступной. */
+  campaignFarm: z.object({ day: DayStringSchema, wins: z.number().int().nonnegative() }).optional(),
   /** v4: heroExp — общий пул опыта героев (тратится кнопкой «Улучшить», heroes/level.ts). */
   resources: z.object({ gold: z.number().int().nonnegative(), heroExp: z.number().int().nonnegative() }),
   offline: z.object({
@@ -330,6 +350,8 @@ export const SaveStateSchema = z.object({
   }),
   /** v2. Башня (K4): floor — лучший этаж; забег-рогалик и осколки — необязательные поля (tower/runSchema.ts, без смены версии). */
   tower: TowerSaveSchema,
+  /** Самостоятельный матч с нормализованными героями и собственной экономикой. */
+  autobattler: AutobattlerSaveSchema.optional(),
   /** v2. Резерв под экипировку (K6): экземпляры предметов, equippedBy — id героя или null. */
   inventory: z.object({
     items: z.array(ItemInstanceSchema),
@@ -338,6 +360,8 @@ export const SaveStateSchema = z.object({
      * попыткой, поэтому перезагрузка страницы не даёт «перебросить» исход. Без смены версии: нет поля — 0.
      */
     refineSeq: z.number().int().nonnegative().optional(),
+    /** Не переиспользовать ID удалённых предметов при следующей выдаче. */
+    itemSeq: z.number().int().nonnegative().optional(),
   }),
   /** v3 (K8). Пресеты отряда. */
   presets: z.array(PresetSchema),
@@ -430,6 +454,18 @@ export const SaveStateSchema = z.object({
    * ни один одноразовый код не вводили. Многоразовые коды сюда не пишутся.
    */
   codesUsed: z.array(z.string()).optional(),
+  /** Облачные квитанции и независимый недельный зачёт, совместимые со старыми сохранениями. */
+  online: z.object({
+    appliedGrantIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)).default([]),
+    mvpWeek: z.object({
+      week: z.string().regex(/^\d{4}-W\d{2}$/),
+      value: z.number().finite().nonnegative(),
+    }).optional(),
+    towerWeek: z.object({
+      week: z.string().regex(/^\d{4}-W\d{2}$/),
+      value: z.number().finite().nonnegative(),
+    }).optional(),
+  }).optional(),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;

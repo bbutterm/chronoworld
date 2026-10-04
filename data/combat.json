@@ -1,5 +1,5 @@
 {
-  "actionThreshold": 1000,
+  "actionThreshold": 1500,
   "tickSeconds": 0.1,
   "timeLimitSeconds": 90,
   "damage": {
@@ -10,14 +10,15 @@
   },
   "energy": {
     "max": 100,
-    "perBasicAction": 25,
-    "perHitTaken": 10,
+    "perBasicAction": 18,
+    "perHitTaken": 5,
     "hero": {
-      "$comment": "Ульта героя (docs/design/battle-decisions.md §1): энергия за секунду боя, за ход (обычная атака или навык) и за удар по ОЗ: ульта копится ровно (≈ 10–14 с), а не от частоты ходов, — первая примерно к середине обычного боя кампании.",
-      "perSecond": 5,
-      "perBasicAction": 3,
-      "perHitTaken": 2
-    }
+      "$comment": "Более спокойный автобой: 3.5 энергии/с, 2 за ход, 1 за урон по ОЗ; первая ульта обычно после 16–23 с. Один полученный залп заряжает шкалу не чаще раза в 0.5 с, независимо от числа его попаданий.",
+      "perSecond": 3.5,
+      "perBasicAction": 2,
+      "perHitTaken": 1
+    },
+    "hitIntervalSeconds": 0.5
   },
   "skills": {
     "defaultCooldown": 8
@@ -299,6 +300,7 @@
     "minCooldown": 10
   },
   "charge": {
-    "stunTurns": 6
+    "stunTurns": 6,
+    "firstDelaySeconds": 6
   }
 }

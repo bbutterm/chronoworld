@@ -286,7 +286,16 @@ export function startExpedition(
     rewards: rollExpeditionLoot(loc, hours, expeditionSeed(save, loc.id, now), ctx),
   };
   if (ctx.expeditionEvents) {
-    const events = rollExpeditionEvents(loc.id, now, endsAt, hours, expeditionEventsSeed(save, loc.id, now), ctx.expeditionEvents);
+    // Общая встреча не дублируется в разных отрядах, отправленных в тот же час.
+    // Своих событий у каждой локации ≥ 3 — полный срок всегда остаётся заполнен событиями.
+    const cfg = ctx.expeditionEvents;
+    const common = new Set(cfg.events.filter((e) => !e.locations.length).map((e) => e.id));
+    const excluded = save.bounties.active
+      .filter((e) => Math.floor(e.startedAt / HOUR_MS) === Math.floor(now / HOUR_MS))
+      .flatMap((e) => e.events ?? [])
+      .filter((ev) => common.has(ev.id))
+      .map((ev) => ev.id);
+    const events = rollExpeditionEvents(loc.id, now, endsAt, hours, expeditionEventsSeed(save, loc.id, now), cfg, excluded);
     if (events.length) entry.events = events;
   }
   return { ...save, bounties: { ...save.bounties, active: [...save.bounties.active, entry] } };

@@ -137,7 +137,7 @@ export const REFINE_HARD_MAX = 20;
 /**
  * «Заточка» снаряжения (кузнец RO, +1…+maxLevel) — главный сток золота. Статы предмета: база × (1 + bonusByLevel[N]).
  * Цена шага +N → +N+1: cost.base[редкость] × cost.growth^N (округление до 2 значащих цифр). Шаг на +N ломает вещь
- * с шансом breakChance[N−1] (бросок Rng по seed из сохранения); золото списывается в любом случае.
+ * с шансом breakChance[N−1] не удаётся (бросок Rng по seed); вещь и прежняя заточка сохраняются, золото списано.
  */
 export const RefineConfigSchema = z
   .object({
@@ -193,6 +193,10 @@ export const DropsConfigSchema = z.object({
   chest: ChestDropsSchema.optional(),
   /** Заточка снаряжения; нет поля — заточки нет. */
   refine: RefineConfigSchema.optional(),
+  /** Продажа ненужных экземпляров: фиксированное золото по редкости, без новой валюты. */
+  salvage: z.object({
+    goldByRarity: z.object({ common: z.number().int().positive(), rare: z.number().int().positive(), epic: z.number().int().positive() }),
+  }).optional(),
 });
 
 export type Slot = z.infer<typeof SlotSchema>;

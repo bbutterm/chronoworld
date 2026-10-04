@@ -34,4 +34,13 @@ describe('онлайн: проверка Telegram initData (cw-api)', () => {
     expect(isoWeek(new Date(Date.UTC(2026, 9, 1)))).toBe('2026-W40');
     expect(isoWeek(new Date(Date.UTC(2027, 0, 1)))).toBe('2026-W53');
   });
+
+  it('подписанные, но некорректные id/time отвергаются до запросов к БД', async () => {
+    for (const id of [-1, 0, 42.5, Number.MAX_SAFE_INTEGER + 1]) {
+      const init = await makeInit({ auth_date: '1000', user: JSON.stringify({ id }) });
+      expect(await verifyInitData(init, TOKEN, 1500)).toBeNull();
+    }
+    const future = await makeInit({ auth_date: '1600', user });
+    expect(await verifyInitData(future, TOKEN, 1500)).toBeNull();
+  });
 });

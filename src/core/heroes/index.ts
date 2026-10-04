@@ -3,6 +3,8 @@ export * from './card';
 export * from './config';
 export * from './errors';
 export * from './level';
+export * from './training';
+export * from './journey';
 export * from './roster';
 export * from './cardDrops';
 export * from './branch';

@@ -10,15 +10,43 @@ import { compSquad, scenarioHashes } from './behavior-scenarios';
 import { SMOOTH_SQUADS, smoothSquads } from '../scripts/lib/player-model';
 
 const ctx = loadFullContext();
+const zeroReference = JSON.parse(readFileSync(join(ROOT, 'tests/fixtures/behavior-zero-reference.json'), 'utf8')) as {
+  scenarioCount: number;
+  seeds: number;
+  config: unknown;
+  traces: Record<string, Pick<BattleResult, 'winner' | 'reason' | 'duration' | 'log'>>;
+};
 
 describe('каркас профилей', () => {
-  it('нулевой профиль (behavior: false): лог боёв тот же, что до каркаса (292 боя, снимок 30.09)', () => {
-    // Снимок снят кодом до профилей (tests/fixtures/behavior-zero-hashes.json). Меняется только осознанно: правка
-    // юнитов/навыков из сценариев (tests/behavior-scenarios.ts) — с объяснением в коммите.
+  it('нулевой профиль: 292 полных лога совпадают с эталоном актуального темпа 04.10', () => {
+    // Эталон обновлён осознанно при изменении общего темпа, энергии и истечения статусов, действующих и без профилей.
+    // Составы и seeds прежние. Обновление: npx tsx scripts/behavior-zero-fixture.ts --write; причина — в reference JSON.
     const want = JSON.parse(readFileSync(join(ROOT, 'tests/fixtures/behavior-zero-hashes.json'), 'utf8')) as Record<string, string>;
-    const got = scenarioHashes(ctx, 4, { behavior: false });
+    expect(zeroReference.scenarioCount).toBe(292);
+    expect(zeroReference.seeds).toBe(4);
+    expect(zeroReference.config).toEqual({
+      tickSeconds: ctx.combat.tickSeconds, actionThreshold: ctx.combat.actionThreshold,
+      timeLimitSeconds: ctx.combat.timeLimitSeconds, statusTurnSeconds: ctx.combat.statusTurnSeconds,
+      energy: { max: ctx.combat.energy.max, perBasicAction: ctx.combat.energy.perBasicAction, perHitTaken: ctx.combat.energy.perHitTaken },
+    });
+    const traces: typeof zeroReference.traces = {};
+    const got = scenarioHashes(ctx, zeroReference.seeds, { behavior: false }, (key, r) => {
+      if (key in zeroReference.traces) traces[key] = { winner: r.winner, reason: r.reason, duration: r.duration, log: r.log.slice(0, 40) };
+      // Off выключает каркас, даже если данные юнита содержат профиль, заряд, фазу, связь, ауру или стихию.
+      const framework = r.log.filter(e =>
+        ['link', 'phase', 'spawn', 'enrage', 'aura'].includes(e.type) ||
+        (e.type === 'move' && e.reason !== undefined) ||
+        (e.type === 'cast' && (e.charge || e.at !== undefined)) ||
+        (e.type === 'damage' && (e.redirect !== undefined || e.elem !== undefined)));
+      expect(framework, key).toEqual([]);
+    });
+    expect(Object.keys(got)).toHaveLength(292);
+    expect(Object.keys(got).sort()).toEqual(Object.keys(want).sort());
     const diff = Object.keys(want).filter((k) => want[k] !== got[k]);
     expect(diff, diff.slice(0, 5).join(', ')).toEqual([]);
+    expect(Object.keys(traces)).toHaveLength(3);
+    expect(traces).toEqual(zeroReference.traces);
+    expect(scenarioHashes(ctx, zeroReference.seeds, { behavior: false })).toEqual(got);
   });
 
   it('все профили из библиотеки и ссылки на них целы', () => {

@@ -65,6 +65,7 @@ export function readRawGameData(root: string = ROOT): RawGameData {
     quests: readJsonFile('data/quests.json', root),
     drops: readJsonFile('data/drops.json', root),
     tower: readJsonFile('data/tower.json', root),
+    autobattler: readJsonFile('data/autobattler.json', root),
     expeditions: readJsonFile('data/expeditions.json', root),
     expeditionEvents: readJsonFile('data/expedition_events.json', root),
     achievements: readJsonFile('data/achievements.json', root),

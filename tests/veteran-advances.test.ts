@@ -35,9 +35,10 @@ describe('ветеранские профессии: стабильные вет
       expect(canEquip(hero, item, ctx), item.id).toBe(canEquip({ ...hero, level: 69 }, item, ctx));
     }
     const save = newGame(ctx, 0);
-    save.heroes[0] = hero;
+    save.heroes = [hero];
+    save.squad = [hero.id, null, null, null, null];
     const loaded = sanitizeSave(save, ctx).save.heroes.find(h => h.id === hero.id)!;
-    expect(loaded).toEqual(hero);
+    expect(loaded).toEqual({ ...hero, companion: true });
     expect(heroJobId(loaded, ctx)).toBe(jobs[b.job]);
     expect(hero).toEqual(copy);
   });
@@ -77,7 +78,9 @@ describe('ветеранские профессии: стабильные вет
 
   it.each(forms)('$t.id/$b.job: воспроизводимый бой с реальным новым навыком', ({ t, b }) => {
     const u = buildUnit({ id: 'veteran', templateId: t.id, branch: b.job, rarity: 'red', level: 100 }, ctx);
-    const enemy = { ...u, id: 'target', stats: { ...u.stats, hp: u.stats.hp * 15 }, skills: { basic: u.skills.basic, actives: [], passives: [] } };
+    // Показ навыков, а не дуэль равной атаки: Кай раньше погибал в 13,9 с при готовности ульты около 20,6 с.
+    // Противник держит длинный бой и наносит малый урон; реальные навыки, энергия, касты и выборы героя сохранены.
+    const enemy = { ...u, id: 'target', stats: { ...u.stats, hp: u.stats.hp * 15, atk: Math.max(1, Math.floor(u.stats.atk * 0.08)) }, skills: { basic: u.skills.basic, actives: [], passives: [] } };
     const run = () => simulateBattle(ctx.content, [u, null, null, null, null], [enemy, null, null, null, null], 73, { combat: ctx.combat });
     const result = run();
     expect(result).toEqual(run());

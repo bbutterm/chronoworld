@@ -7,6 +7,23 @@ import { ASSETS_DIR, bootFiles, collectUsedAssets } from './scripts/lib/used-ass
 import { SKIN_REPLACED } from './src/pipeline/bootAssets.ts';
 import { trimEffectsJson } from './scripts/lib/trim-effects.ts';
 import { SPRITE_RUNTIME_KEYS } from './src/pipeline/sprites.ts';
+import { compileGameContentFromDisk } from './scripts/lib/compiled-content.ts';
+
+/** Production validates content during the build; phones decode the same graph with native JSON.parse. */
+function compiledGameContent(): Plugin {
+  return {
+    name: 'chronoworld:compiled-content',
+    apply: 'build',
+    enforce: 'pre',
+    transform(code, id) {
+      if (id.replaceAll('\\', '/') !== join(import.meta.dirname, 'src/game/content.ts').replaceAll('\\', '/')) return null;
+      const tail = code.indexOf('const ROLE_ORDER =');
+      if (tail < 0) throw new Error('content.ts: отсутствует список ролей для heroIds');
+      const content = compileGameContentFromDisk(import.meta.dirname);
+      return { code: `${content.code}\n${code.slice(tail)}`, map: null };
+    },
+  };
+}
 
 /** WebP-копии PNG без потерь (tools/build_webp.py, `npm run assets:webp`). */
 const WEBP_DIR = 'assets-webp';
@@ -215,7 +232,7 @@ export default defineConfig(({ command }) => ({
   // В dev отдаём всю папку; при сборке копирует только нужное usedAssetsPlugin.
   publicDir: command === 'build' ? false : 'assets',
   base: './',
-  plugins: [phaserLiteDev(), phaserFlags(), trimSpritesJson(), trimEffectsJson(), assetPackPlugin(), previewCacheHeaders()],
+  plugins: [phaserLiteDev(), phaserFlags(), trimSpritesJson(), trimEffectsJson(), compiledGameContent(), assetPackPlugin(), previewCacheHeaders()],
   resolve: { alias: command === 'build' ? [{ find: /^phaser$/, replacement: PHASER_LITE }] : [] },
   build: {
     // Phaser (≈ 0.9 МБ без физики) — отдельным файлом: он меняется редко, и после обновления игры повторный визит

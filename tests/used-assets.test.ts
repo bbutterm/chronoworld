@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { buildRegistry } from '../src/pipeline/sprites';
 import { loadFullContext, ROOT } from '../scripts/lib/content-node';
 import { collectUsedAssets, listAssetFiles, usedAssets } from '../scripts/lib/used-assets';
+import { roItemArtId } from '../src/game/itemArt';
 
 const json = (rel: string) => JSON.parse(readFileSync(join(ROOT, rel), 'utf8'));
 
@@ -20,10 +21,11 @@ describe('O: used assets (что попадает в dist)', () => {
     }
   });
 
-  it('включает все 106 анимированных FX (93 прежних и 13 оригинальных ветеранских атласов) в сборку при наличии статических fallback в манифесте', () => {
+  it('включает 114 FX: прежние, ветеранские и восемь стихийных cast-sheet, включая fallback', () => {
     const catalog = json('assets/effects/effects.json') as { effects: { id: string; file: string }[] };
     expect(catalog.effects.map((effect) => effect.id).sort()).toEqual([
-      'fx_arrow', 'fx_death', 'fx_heal', 'fx_hit', 'fx_job_acolyte_angelus', 'fx_job_acolyte_blessing',
+      'fx_arrow', 'fx_cast_dark', 'fx_cast_earth', 'fx_cast_fire', 'fx_cast_holy', 'fx_cast_neutral',
+      'fx_cast_poison', 'fx_cast_water', 'fx_cast_wind', 'fx_death', 'fx_heal', 'fx_hit', 'fx_job_acolyte_angelus', 'fx_job_acolyte_blessing',
       'fx_job_acolyte_holy_light', 'fx_job_acolyte_increase_agi', 'fx_job_acolyte_signum_crucis',
       'fx_job_alchemist_acid_terror_projectile', 'fx_job_alchemist_demonstration', 'fx_job_alchemist_marine_sphere',
       'fx_job_alchemist_potion_red', 'fx_job_archer_arrow_shower_source', 'fx_job_archer_improve_concentration',
@@ -97,8 +99,12 @@ describe('O: used assets (что попадает в dist)', () => {
   });
 
   it('включает иконки и картинки предметов RO и атлас цифр урона', () => {
-    // У каждого предмета игры есть иконка RO (иначе в ячейке — запасной силуэт).
-    for (const id of Object.keys(loadFullContext().equipment.items)) expect(files).toContain(`ui/icons/item_${id}.png`);
+    // Поздние вещи явно переиспользуют существующий арт, остальные — собственный.
+    for (const id of Object.keys(loadFullContext().equipment.items)) {
+      const art = roItemArtId(id);
+      expect(files, id).toContain(`ui/icons/item_${art}.png`);
+      expect(files, id).toContain(`ui/collection/item_${art}.png`);
+    }
     for (const f of ['ui/icons/item_knife.png', 'ui/icons/item_gold.png', 'ui/collection/item_knife.png', 'fx/damage/numbers.png']) expect(files).toContain(f);
   });
 

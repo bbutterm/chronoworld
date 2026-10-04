@@ -3,7 +3,7 @@
  * Числа — data/drops.json → refine (RefineConfigSchema):
  *   статы предмета:  база × (1 + bonusByLevel[N]), округление до целого (ступени: +1…+4 скромно, +8…+10 огромно);
  *   цена шага +N → +N+1:  cost.base[редкость] × cost.growth^N (2 значащие цифры);
- *   шаг на +N ломает (уничтожает) вещь с шансом breakChance[N−1], золото списывается в любом случае;
+ *   шаг на +N может не удаться с шансом breakChance[N−1]: золото списано, вещь и прежняя заточка сохранены;
  *   режимы шага: обычный, «надёжный» (цена × safeGoldMult, шанс ÷ safeBreakDiv), «рудой» (1 Благословенная руда,
  *   золото как за обычный, поломки нет). Руда падает с боссов — grantBlessedOre.
  * Бросок — Rng с seed refineSeed(createdAt, inventory.refineSeq); счётчик растёт с каждой попыткой, поэтому
@@ -91,11 +91,11 @@ export type RefineMode = 'normal' | 'safe' | 'ore';
 
 export type RefineEvent =
   | { type: 'refined'; ok: true; instanceId: string; itemId: string; from: number; to: number; gold: number; chance: number; mode: RefineMode }
-  /** Вещь сломалась при шаге с level на level+1 и удалена из инвентаря (надетая — снята с героя). */
-  | { type: 'refineBroken'; instanceId: string; itemId: string; level: number; heroId: string | null; gold: number; chance: number; mode: RefineMode };
+  /** Шаг не удался: потрачено только золото; предмет, карта, экипировка и прежний уровень сохранены. */
+  | { type: 'refineFailed'; instanceId: string; itemId: string; level: number; heroId: string | null; gold: number; chance: number; mode: RefineMode };
 
 /**
- * Шанс сломать вещь при шаге с уровня from на from+1 в режиме mode (0 — безопасно; максимум / нет конфига — 0).
+ * Шанс неудачи при шаге с уровня from на from+1 (историческое имя API сохранено).
  * «Надёжная» — breakChance ÷ safeBreakDiv (30% → 6%), «рудой» — 0.
  */
 export function refineBreakChance(from: number, ctx: RefineCtx, mode: RefineMode = 'normal'): number {
@@ -163,7 +163,7 @@ export interface RefineOptions {
 /**
  * Заточить предмет на +1 (надетый или лежащий). Чистая функция.
  * Шаг с шансом поломки бросает Rng(seed); seed по умолчанию — refineSeed(createdAt, inventory.refineSeq), счётчик
- * растёт на 1 с каждой попыткой (и безопасной тоже). Поломка — вещь удаляется из инвентаря, золото списано.
+ * растёт на 1 с каждой попыткой (и безопасной тоже). Неудача — потрачено золото, все вложения в вещь сохранены.
  * mode 'safe' — цена × safeGoldMult, шанс ÷ safeBreakDiv; 'ore' — тратит 1 руду, золото как за обычный, поломки нет.
  * Ошибки EquipmentError: unknown_item, unknown_item_def, refine_unavailable (нет конфига / режима), refine_locked (не открыта),
  * refine_max (уже максимум), not_enough_gold, not_enough_ore.
@@ -184,16 +184,16 @@ export function refineItem(save: SaveState, instanceId: string, ctx: EquipmentCo
   if (save.resources.gold < cost.gold) throw new EquipmentError('not_enough_gold', `Не хватает золота: нужно ${groupDigits(cost.gold)}, есть ${groupDigits(save.resources.gold)}`);
   const seq = save.inventory.refineSeq ?? 0;
   const chance = refineBreakChance(from, ctx, mode);
-  const broken = chance > 0 && new Rng(opts.seed ?? refineSeed(save.createdAt, seq)).next() < chance;
-  const items = broken ? save.inventory.items.filter((i) => i.id !== item.id) : save.inventory.items.map((i): ItemInstance => (i.id === item.id ? { ...i, refine: from + 1 } : i));
+  const failed = chance > 0 && new Rng(opts.seed ?? refineSeed(save.createdAt, seq)).next() < chance;
+  const items = failed ? save.inventory.items : save.inventory.items.map((i): ItemInstance => (i.id === item.id ? { ...i, refine: from + 1 } : i));
   const next: SaveState = {
     ...save,
     resources: { ...save.resources, gold: save.resources.gold - cost.gold },
     inventory: { ...save.inventory, items, refineSeq: seq + 1 },
     ...(mode === 'ore' ? { currency: { ...save.currency, blessedOre: blessedOre(save) - 1 } } : {}),
   };
-  const event: RefineEvent = broken
-    ? { type: 'refineBroken', instanceId: item.id, itemId: item.itemId, level: from, heroId: item.equippedBy, gold: cost.gold, chance, mode }
+  const event: RefineEvent = failed
+    ? { type: 'refineFailed', instanceId: item.id, itemId: item.itemId, level: from, heroId: item.equippedBy, gold: cost.gold, chance, mode }
     : { type: 'refined', ok: true, instanceId: item.id, itemId: item.itemId, from, to: from + 1, gold: cost.gold, chance, mode };
   return { save: next, events: [event] };
 }

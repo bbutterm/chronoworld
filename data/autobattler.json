@@ -1,0 +1,256 @@
+{
+  "$schema": "./schema/autobattler.schema.json",
+  "$comment": "Доступный каждому состав матча, нормализованный уровень, свой бюджет и ограниченная награда дня. Копии и ресурсы кампании не тратятся.",
+  "version": 1,
+  "name": "Арена товарищей",
+  "unlockAfterStage": "ch1_s10",
+  "rounds": 7,
+  "lives": 3,
+  "starterPool": [
+    "alan",
+    "vika",
+    "bran",
+    "kai",
+    "dorn",
+    "teo"
+  ],
+  "startingTeam": [
+    "alan",
+    "vika",
+    "bran"
+  ],
+  "startingGold": 10,
+  "heroCost": 3,
+  "rerollCost": 2,
+  "shopSize": 3,
+  "reserveLimit": 12,
+  "sellRefund": 0.5,
+  "income": 6,
+  "winIncome": 1,
+  "interestEvery": 5,
+  "interestCap": 3,
+  "training": [
+    {
+      "cost": 0,
+      "level": 35,
+      "capacity": 3,
+      "rarity": "blue"
+    },
+    {
+      "cost": 6,
+      "level": 41,
+      "capacity": 4,
+      "rarity": "blue"
+    },
+    {
+      "cost": 10,
+      "level": 47,
+      "capacity": 5,
+      "rarity": "purple"
+    },
+    {
+      "cost": 16,
+      "level": 53,
+      "capacity": 5,
+      "rarity": "purple"
+    }
+  ],
+  "starMultiplier": [
+    1,
+    1.3,
+    1.65
+  ],
+  "opponents": [
+    {
+      "id": "bastion",
+      "name": "Стражи ворот",
+      "hint": "Два защитника и лекарь. Урон в тыл помогает обойти фронт.",
+      "team": [
+        "alan",
+        "otto",
+        "vika",
+        "bran",
+        "kai"
+      ],
+      "branches": {
+        "alan": "crusader",
+        "otto": "blacksmith",
+        "vika": "priest",
+        "bran": "hunter",
+        "kai": "wizard"
+      }
+    },
+    {
+      "id": "ambush",
+      "name": "Ночной дозор",
+      "hint": "Быстрый натиск. Защитите лекаря и хрупких стрелков.",
+      "team": [
+        "iris",
+        "dorn",
+        "teo",
+        "zara",
+        "meilin"
+      ],
+      "branches": {
+        "iris": "knight",
+        "dorn": "assassin",
+        "teo": "priest",
+        "zara": "assassin",
+        "meilin": "hunter"
+      }
+    },
+    {
+      "id": "ritual",
+      "name": "Круг заклинателей",
+      "hint": "Маги с поддержкой. Контроль и рывки мешают их заклинаниям.",
+      "team": [
+        "alan",
+        "greta",
+        "vika",
+        "kai",
+        "lira"
+      ],
+      "branches": {
+        "alan": "knight",
+        "greta": "alchemist",
+        "vika": "priest",
+        "kai": "wizard",
+        "lira": "sage"
+      }
+    },
+    {
+      "id": "marksmen",
+      "name": "Лесные разведчики",
+      "hint": "Стрелки за плотным фронтом. Перестановка бойцов меняет цели первых атак.",
+      "team": [
+        "otto",
+        "iris",
+        "teo",
+        "bran",
+        "meilin"
+      ],
+      "branches": {
+        "otto": "blacksmith",
+        "iris": "crusader",
+        "teo": "priest",
+        "bran": "hunter",
+        "meilin": "dancer"
+      }
+    }
+  ],
+  "difficulty": [
+    {
+      "level": 30,
+      "count": 3,
+      "mult": 0.9,
+      "rarity": "blue"
+    },
+    {
+      "level": 35,
+      "count": 3,
+      "mult": 0.95,
+      "rarity": "blue"
+    },
+    {
+      "level": 39,
+      "count": 4,
+      "mult": 0.95,
+      "rarity": "blue"
+    },
+    {
+      "level": 42,
+      "count": 4,
+      "mult": 1,
+      "rarity": "purple"
+    },
+    {
+      "level": 46,
+      "count": 5,
+      "mult": 1,
+      "rarity": "purple"
+    },
+    {
+      "level": 49,
+      "count": 5,
+      "mult": 1.05,
+      "rarity": "purple"
+    },
+    {
+      "level": 53,
+      "count": 5,
+      "mult": 1.1,
+      "rarity": "purple"
+    }
+  ],
+  "synergies": [
+    {
+      "id": "vanguard",
+      "name": "Оплот",
+      "description": "Два бойца фронта: всему отряду +10% ОЗ и +8% защиты.",
+      "need": 2,
+      "lines": [
+        "swordman",
+        "merchant"
+      ],
+      "bonuses": {
+        "hp": 0.1,
+        "def": 0.08
+      }
+    },
+    {
+      "id": "arcane",
+      "name": "Чародеи",
+      "description": "Два мага: всему отряду +12% атаки.",
+      "need": 2,
+      "lines": [
+        "mage"
+      ],
+      "bonuses": {
+        "atk": 0.12
+      }
+    },
+    {
+      "id": "hunters",
+      "name": "Охотники",
+      "description": "Два лучника или вора: всему отряду +8% атаки и +6% скорости.",
+      "need": 2,
+      "lines": [
+        "archer",
+        "thief"
+      ],
+      "bonuses": {
+        "atk": 0.08,
+        "spd": 0.06
+      }
+    },
+    {
+      "id": "devotion",
+      "name": "Забота",
+      "description": "Два служителя: всему отряду +12% ОЗ.",
+      "need": 2,
+      "lines": [
+        "acolyte"
+      ],
+      "bonuses": {
+        "hp": 0.12
+      }
+    },
+    {
+      "id": "companions",
+      "name": "Товарищи",
+      "description": "Три разные роли: всему отряду +5% атаки и защиты.",
+      "need": 3,
+      "distinctRoles": true,
+      "bonuses": {
+        "atk": 0.05,
+        "def": 0.05
+      }
+    }
+  ],
+  "rewards": {
+    "gold": 1500,
+    "heroExp": 2000,
+    "gems": 35,
+    "minWins": 2
+  }
+}

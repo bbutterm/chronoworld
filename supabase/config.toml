@@ -1,0 +1,10 @@
+project_id = "chronoworld"
+
+# cw-api проверяет HMAC initData Telegram, бот/cron — собственные секреты.
+# JWT Supabase не является методом входа игроков в Mini App.
+[functions.cw-api]
+verify_jwt = false
+[functions.cw-bot]
+verify_jwt = false
+[functions.cw-cron]
+verify_jwt = false

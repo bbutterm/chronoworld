@@ -8,3 +8,4 @@ export * from './gates';
 export * from './lint';
 export * from './refine';
 export * from './cards';
+export * from './salvage';

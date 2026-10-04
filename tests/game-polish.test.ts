@@ -18,7 +18,7 @@ describe('«Почти готово»: мощь отряда против рек
     expect(powerTone(1000, 1000)).toBe('ahead');
     expect(powerTone(850, 1000)).toBe('close');
     expect(powerTone(700, 1000)).toBe('behind');
-    expect(POWER_VERDICT.close).toBe('Чуть не хватает');
+    expect(POWER_VERDICT.close).toBe('Близко к ориентиру');
   });
 
   it('новичок на этапе 1 сильнее рекомендуемой; на боссе главы 1 — нет', () => {

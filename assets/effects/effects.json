@@ -3850,32 +3850,20 @@
       "debuff": "fx_job_veteran_stalker"
     },
     "ro_lord_knight_spiral_pierce": {},
-    "ro_paladin_pressure": {
-      "hit": "fx_job_crusader_holy_cross"
-    },
+    "ro_paladin_pressure": {},
     "ro_sniper_focused_arrow_strike": {},
     "ro_clown_marionette_control": {},
     "ro_gypsy_marionette_control": {},
-    "ro_high_wizard_mystical_amplification": {
-      "cast": "fx_job_wizard_soul_drain"
-    },
-    "ro_professor_mind_breaker": {
-      "debuff": "fx_job_sage_dispell"
-    },
-    "ro_assassin_cross_soul_breaker": {
-      "hit": "fx_job_assassin_sonic_blow"
-    },
+    "ro_high_wizard_mystical_amplification": {},
+    "ro_professor_mind_breaker": {},
+    "ro_assassin_cross_soul_breaker": {},
     "ro_stalker_chase_walk": {},
     "ro_high_priest_assumptio": {
       "buff": "fx_job_priest_assumptio"
     },
     "ro_champion_chain_combo": {},
-    "ro_whitesmith_cart_termination": {
-      "ground": "fx_job_blacksmith_hammer_fall"
-    },
-    "ro_creator_acid_demonstration": {
-      "projectile": "fx_job_alchemist_acid_terror_projectile"
-    }
+    "ro_whitesmith_cart_termination": {},
+    "ro_creator_acid_demonstration": {}
   },
   "rejected": {
     "fx_job_sage_heavens_drive": "Небесный удар: захват — неподвижная плоская стена камней (3D-движение клиента не снято); в бою закрывала отряд бежевой плитой. Нужен арт: ряд шипов, вырастающих из земли."

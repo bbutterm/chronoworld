@@ -18,7 +18,10 @@ export type EquipmentErrorCode =
   /** Карты MVP (cards.ts): нет в запасе / другой слот / слот занят. */
   | 'card_unknown'
   | 'card_slot'
-  | 'card_taken';
+  | 'card_taken'
+  /** Продажа: вещь надета, улучшена, с картой MVP или защищена замком. */
+  | 'item_protected'
+  | 'salvage_unavailable';
 
 /** Нарушение правил экипировки. message — русский текст для игрока. */
 export class EquipmentError extends Error {

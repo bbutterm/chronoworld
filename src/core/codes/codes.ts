@@ -14,11 +14,14 @@ export type RedeemResult =
  * Ввести код: алмазы — сразу на счёт, одноразовый — в save.codesUsed. Часы (hours) возвращаются вызывающему: игровые
  * часы двигает интерфейс. Неизвестный, пустой или уже введённый одноразовый код — ok: false, сохранение не меняется.
  */
-export function redeemCode(save: SaveState, input: string, cfg: CodesConfig): RedeemResult {
+export function redeemCode(save: SaveState, input: string, cfg: CodesConfig, opts: { allowLab?: boolean } = {}): RedeemResult {
   const key = normalizeCode(input);
   if (!key) return { ok: false, reason: 'empty' };
   const code = cfg.codes.find((c) => c.code === key);
   if (!code) return { ok: false, reason: 'unknown' };
+  // Время и повторяемая валюта предназначены только для изолированной песочницы.
+  // Передача такого конфига в обычный API сама по себе не включает тестовые награды.
+  if ((!code.once || code.hours > 0) && !opts.allowLab) return { ok: false, reason: 'unknown' };
   const used = save.codesUsed ?? [];
   if (code.once && used.includes(code.code)) return { ok: false, reason: 'used' };
   const next: SaveState = {

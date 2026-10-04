@@ -1,20 +1,21 @@
 import Phaser from 'phaser';
-import { BRANCH_RARITY, branchOptions, branchPreview, heroCard, heroTemplate, type BranchView, type CardRarity, type HeroState, type SaveState } from '../core';
+import { BRANCH_RARITY, branchOptions, branchPreview, heroCard, heroTemplate, type BranchView, type HeroState, type SaveState } from '../core';
 import { CONTENT, GAME } from './content';
 import { formatNumber, heroSprite, ROLE_NAMES, STAT_KEYS, STAT_LABELS } from './flow';
-import { glowTexture, iconBadge, rarityPalette } from './heroCard';
-import { juiceOn, pulse } from './juice';
+import { rarityPalette } from './heroCard';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
-import { card, popIn, unitFigure } from './screen';
+import { bottomSheet, popIn, popOut, registerModal, unitFigure } from './screen';
 import { openSkillDetail } from './skillDetail';
 import { skillIcon } from './skillIcons';
-import { BTN, button, ellipsize, pressable, tag, text } from './ui';
-import { C, COLOR, COLOR_N, FAMILY, FS, OUTLINE, S, T } from './theme';
+import { spriteView } from './sprites';
+import { skillSummary } from './skillFacts';
+import { BTN, button, ellipsize, plate, pressable, SURFACE, tag, text } from './ui';
+import { C, COLOR, COLOR_N, FAMILY, R, S, T, TOUCH_COMFORT } from './theme';
 
 /**
  * Выбор ветки второй профессии (docs/design/heroes-v2.md, разделы 3 и 5) — общий компонент вознесения синий →
  * фиолетовый, «Выбрать ветку» / «Сменить ветку» на карточке и «Контракта героя»: окно на весь экран, две большие
- * панели веток (фигура формы в стойке, класс, роль, строка возвышения, 4 навыка с иконками и описанием). Нажатие по
+ * панели веток (фигура, роль, статы, ключевой навык и ульта). Лор и полный путь открываются отдельно. Нажатие по
  * панели — выбор (золотая рамка), внизу — «Отмена» и кнопка подтверждения. viewOnly — только посмотреть (превью веток
  * на синем): одна кнопка «Закрыть».
  */
@@ -48,7 +49,7 @@ const DEPTH = 9200;
 const PANEL_W = 504;
 const PANEL_GAP = 24;
 const TOP = 340;
-const PANEL_H = 1330;
+const PANEL_H = 1280;
 const BTN_Y = GAME_H - 120;
 
 /** Роль в родительном падеже — «не останется лекаря». */
@@ -81,186 +82,182 @@ export function branchRoleWarning(save: SaveState, heroId: string, job: string):
 export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions): Phaser.GameObjects.Container {
   const branches = branchOptions(opts.templateId, GAME);
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName('branchPicker');
-  const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x07040c, 0.94).setInteractive();
+  const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, COLOR_N.bg, 0.96).setInteractive();
   layer.add(shade);
+  let finished = false;
   const close = () => {
-    layer.destroy();
-    opts.onCancel?.();
+    if (finished || !layer.scene) return;
+    finished = true;
+    popOut(scene, layer, opts.onCancel);
   };
-  const t = GAME.content.heroes[opts.templateId];
+  registerModal(layer, close);
   layer.add(text(scene, GAME_W / 2, 200, opts.title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setName('branchTitle'));
   if (opts.subtitle) layer.add(text(scene, GAME_W / 2, 272, opts.subtitle, T.caption, COLOR.textSecondary, { wordWrap: { width: GAME_W - 2 * S.l } }).setMaxLines(2));
 
   let selected: string | null = opts.selected && opts.selected !== opts.current ? opts.selected : null;
-  const highlights: { job: string; frame: Phaser.GameObjects.Rectangle; glow: Phaser.GameObjects.Image; mark: Phaser.GameObjects.Container }[] = [];
-  const warn = text(scene, GAME_W / 2, BTN_Y - 110, '', T.caption, COLOR.warning, { fontStyle: 'bold', ...OUTLINE, wordWrap: { width: GAME_W - 2 * S.l } }).setName('branchWarning');
+  const highlights: { job: string; frame: Phaser.GameObjects.Rectangle; mark: Phaser.GameObjects.Container }[] = [];
+  const warn = text(scene, GAME_W / 2, BTN_Y - 118, '', T.caption, COLOR.warning, { wordWrap: { width: GAME_W - 2 * S.l } }).setName('branchWarning');
   layer.add(warn);
   let confirmBtn: ReturnType<typeof button> | null = null;
   const refresh = () => {
     for (const h of highlights) {
       const on = h.job === selected;
-      h.frame.setStrokeStyle(on ? 8 : 3, on ? COLOR_N.gold : COLOR_N.border, on ? 1 : 0.8);
-      h.glow.setAlpha(on ? 0.5 : 0);
+      h.frame.setStrokeStyle(on ? 6 : 2, on ? COLOR_N.accent : COLOR_N.border, 1);
       h.mark.setVisible(on);
     }
     const why = selected ? (opts.blocked?.(selected) ?? null) : null;
     const w = why ?? (selected && opts.heroId && opts.save ? branchRoleWarning(opts.save, opts.heroId, selected) : null);
     warn.setText(w ?? '');
     if (confirmBtn) {
-      confirmBtn.setLabel(opts.confirmLabel?.(selected) ?? 'Выбрать');
+      confirmBtn.setLabel(opts.confirmLabel?.(selected) ?? 'Выбрать профессию');
       confirmBtn.setEnabled(!!selected && !why);
     }
   };
 
+  const recipient = opts.save?.heroes.find(h => h.id === opts.heroId);
   branches.forEach((b, i) => {
     const x = GAME_W / 2 + (i === 0 ? -1 : 1) * (PANEL_W / 2 + PANEL_GAP / 2);
-    const preview = branchPreview(opts.templateId, b.job, GAME, opts.save?.heroes.find(h => h.id === opts.heroId));
+    const preview = branchPreview(opts.templateId, b.job, GAME, recipient);
     const shown = preview.card.advanced ? b.advanced! : b;
-    const h = branchPanel(scene, layer, x, { ...shown, job: b.job, jobName: preview.card.jobName }, t?.gender ?? 'm', opts.templateId, b.job === opts.current, branchStats(opts, b.job), preview.hero, b);
-    highlights.push({ job: b.job, frame: h.frame, glow: h.glow, mark: h.mark });
+    const h = branchPanel(scene, layer, x, { ...shown, job: b.job, jobName: preview.card.jobName }, b.job === opts.current, branchStats(opts, b.job), preview.hero);
+    highlights.push({ job: b.job, frame: h.frame, mark: h.mark });
     const pick = !opts.viewOnly && b.job !== opts.current;
-    if (pick) {
-      pressable(scene, h.frame, PANEL_W, PANEL_H, () => {
-        selected = b.job;
-        refresh();
-      });
-    }
-    // Навык ветки: подробности поверх окна (и выбор этой ветки, как касание панели).
-    for (const s of h.skillHits) {
-      pressable(scene, s.hit, PANEL_W - 20, s.hit.height, () => {
-        if (pick) {
-          selected = b.job;
-          refresh();
-        }
-        openSkillDetail(scene, s.skill, { note: `Ветка ${b.jobName} · ур. ${s.level}`, depth: DEPTH + 100 });
-      });
-    }
+    if (pick) pressable(scene, h.frame, PANEL_W, PANEL_H, () => {
+      if (finished) return;
+      selected = b.job;
+      refresh();
+    });
+    for (const s of h.skillHits) pressable(scene, s.hit, PANEL_W - 2 * S.s, s.hit.height, () => {
+      if (finished) return;
+      openSkillDetail(scene, s.skill, { note: `${preview.card.jobName} · ур. ${s.level}`, ...(!s.ult && preview.hero.level < s.level ? { lockNote: `Откроется на ур. ${s.level}` } : {}), power: preview.card.rarity.skillPower, ult: s.ult, depth: DEPTH + 100 });
+    });
+    pressable(scene, h.details, PANEL_W - 2 * S.s, TOUCH_COMFORT, () => {
+      if (!finished) branchDetails(scene, b, { ...shown, jobName: preview.card.jobName }, branchStats(opts, b.job), preview.hero);
+    });
   });
 
   if (opts.viewOnly) {
     layer.add(button(scene, GAME_W / 2, BTN_Y, 460, BTN.l, '', 'Закрыть', close, T.heading, { sound: 'ui_back', variant: 'secondary' }).container.setName('branchClose'));
   } else {
     layer.add(button(scene, S.l + 170, BTN_Y, 340, BTN.l, '', 'Отмена', close, T.heading, { sound: 'ui_back', variant: 'secondary' }).container.setName('branchCancel'));
-    confirmBtn = button(scene, GAME_W - S.l - 300, BTN_Y, 600, BTN.cta, '', 'Выбрать', () => {
-      if (!selected || opts.blocked?.(selected)) return;
+    confirmBtn = button(scene, GAME_W - S.l - 300, BTN_Y, 600, BTN.cta, '', 'Выбрать профессию', () => {
+      if (finished || !selected || opts.blocked?.(selected)) return;
+      finished = true;
       const job = selected;
-      layer.destroy();
-      opts.onConfirm?.(job);
+      popOut(scene, layer, () => opts.onConfirm?.(job));
     }, T.heading, { variant: 'primary' });
     confirmBtn.container.setName('branchConfirm');
     layer.add(confirmBtn.container);
-    if (!selected || !opts.blocked?.(selected)) pulse(scene, confirmBtn.container, 1.03);
   }
   refresh();
   popIn(scene, layer, shade);
   return layer;
 }
 
-/** Большая панель ветки: фигура, класс, роль, возвышение, навыки. Возвращает рамку (для нажатия и подсветки). */
+/** Сравнение без плавающего текста: фигура, роль, четыре стата и два ключевых навыка. */
 function branchPanel(
   scene: Phaser.Scene,
   layer: Phaser.GameObjects.Container,
   x: number,
   b: BranchView,
-  gender: 'm' | 'f',
-  templateId: string,
   isCurrent: boolean,
-  stats: BranchStats | null = null,
-  recipient?: HeroState,
-  lineage?: BranchView,
-): { frame: Phaser.GameObjects.Rectangle; glow: Phaser.GameObjects.Image; mark: Phaser.GameObjects.Container; skillHits: { skill: string; hit: Phaser.GameObjects.Rectangle; level: number }[] } {
-  const rarity: CardRarity = recipient?.rarity ?? BRANCH_RARITY;
-  const pal = rarityPalette(rarity);
+  stats: BranchStats | null,
+  recipient: HeroState,
+) {
+  const pal = rarityPalette(recipient.rarity);
   const cy = TOP + PANEL_H / 2;
-  const glow = scene.add.image(x, cy, glowTexture(scene)).setDisplaySize(PANEL_W * 1.3, PANEL_H * 1.1).setTint(0xffd84a).setAlpha(0).setBlendMode(Phaser.BlendModes.ADD);
-  layer.add(glow);
-  if (juiceOn()) scene.tweens.add({ targets: glow, scale: glow.scale * 1.04, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-  layer.add(card(scene, x, cy, PANEL_W, PANEL_H));
-  // Витрина цвета редкости под фигурой: длинная строка возвышения — витрина ниже, чтобы цитата влезла целиком.
-  const quoteLines = b.promotion ? wrappedLines(scene, `«${b.promotion}»`, FS.caption, PANEL_W - 50, 'italic').length : 0;
-  const showH = 380 - Math.max(0, Math.min(3, quoteLines - 2)) * 40;
-  const showY = TOP + 20 + showH / 2;
-  layer.add(scene.add.rectangle(x, showY, PANEL_W - 40, showH, pal.tint, 0.18));
-  layer.add(scene.add.image(x, showY + 40, glowTexture(scene)).setDisplaySize(420, 360).setTint(pal.glow).setAlpha(0.35).setBlendMode(Phaser.BlendModes.ADD));
-  const feet = TOP + showH - 10;
-  layer.add(scene.add.ellipse(x, feet + 4, 170, 34, 0x000000, 0.45));
-  const sprite = heroSprite(recipient ?? { id: `branch_${b.job}`, templateId, rarity, level: 1, branch: b.job }, GAME);
-  unitFigure(scene, sprite, x, feet, 320, {
-    maxScale: 3,
+  layer.add(plate(scene, x, cy, PANEL_W, PANEL_H, { ...SURFACE.surface, border: COLOR.border, borderW: 2, r: R.l }));
+  const frame = scene.add.rectangle(x, cy, PANEL_W, PANEL_H).setStrokeStyle(2, COLOR_N.border).setName(`branchPanel_${b.job}`);
+  layer.add(frame);
+
+  // Сразу в контейнер: асинхронный спрайт сохраняет локальные координаты после popIn.
+  const figure = scene.add.container(x, TOP + 366).setName(`branchFigure_${b.job}`);
+  layer.add(figure);
+  figure.add(scene.add.ellipse(0, 0, 150, 28, COLOR_N.bg, 0.45));
+  const spriteId = heroSprite(recipient, GAME);
+  unitFigure(scene, spriteId, 0, 0, 264, {
+    maxScale: 2.5,
     onReady: (o) => {
-      if (!layer.scene) {
-        o.destroy();
-        return;
+      if (!figure.scene || !layer.scene) { o.destroy(); return; }
+      // Union bbox стойки включает оружие всех кадров; прозрачные поля клетки не уменьшают героя.
+      const bbox = spriteView(scene, spriteId).def?.boxes?.idle;
+      if (bbox) {
+        const [x0, y0, x1, y1] = bbox;
+        const k = Math.min(1, (PANEL_W - 2 * S.l) / Math.max(1, (x1 - x0) * o.scaleX), 264 / Math.max(1, (y1 - y0) * o.scaleY));
+        o.setScale(o.scaleX * k);
+        o.setPosition((o.displayOriginX - (x0 + x1) / 2) * o.scaleX, (o.displayOriginY - y1) * o.scaleY);
+      } else {
+        o.setScale(o.scaleX * Math.min(1, (PANEL_W - 2 * S.l) / Math.max(1, o.displayWidth), 264 / Math.max(1, o.displayHeight)));
+        const bounds = o.getBounds();
+        o.setPosition(o.x - bounds.centerX, o.y - bounds.bottom);
       }
-      // Фигура грузится позже — встаёт под отметки «Сейчас»/«Выбрано» (иначе закрывает их).
-      layer.add(o);
-      for (const m of layer.list.filter((x) => x.name === 'branchMark')) layer.bringToTop(m);
+      figure.add(o);
     },
   });
-  void gender;
-  // Класс и роль.
-  let y = TOP + showH + 60;
-  layer.add(ellipsize(text(scene, x, y, b.jobName, FS.h1, pal.light, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 7 }), PANEL_W - 40).setName(`branchName_${b.job}`));
-  y += 62;
-  const job = CONTENT.jobs[b.job];
-  const range = CONTENT.skills[job?.basic ?? '']?.range === 'melee' ? 'ближний бой' : 'дальний бой';
-  const roleText = text(scene, x + 24, y, `${ROLE_NAMES[b.role] ?? b.role} · ${range}`, FS.small, C.text, { fontStyle: 'bold', ...OUTLINE });
-  layer.add(iconBadge(scene, roleText.x - roleText.width / 2 - 30, y, b.role, 24, pal.tint));
-  layer.add(roleText);
-  y += 50;
-  // BUG-065: статы героя в этой ветке (при смене ветки — разница с нынешней).
+  layer.add(ellipsize(text(scene, x, TOP + 414, b.jobName, T.heading, pal.light, { fontStyle: 'bold' }), PANEL_W - 2 * S.s).setName(`branchName_${b.job}`));
+  layer.add(text(scene, x, TOP + 476, ROLE_NAMES[b.role] ?? b.role, T.body, COLOR.textPrimary).setName(`branchRole_${b.job}`));
+  const job = CONTENT.jobs[heroCard(recipient, GAME).job];
+  const range = CONTENT.skills[job?.basic ?? '']?.range === 'melee' ? 'Ближний бой' : 'Дальний бой';
+  layer.add(text(scene, x, TOP + 526, range, T.caption, COLOR.textSecondary));
   if (stats) {
-    const parts = STAT_KEYS.map((k) => {
-      const d = stats.now ? stats.next[k] - stats.now[k] : 0;
-      return `${STAT_LABELS[k]} ${formatNumber(stats.next[k])}${d ? ` (${d > 0 ? '+' : '−'}${formatNumber(Math.abs(d))})` : ''}`;
-    });
-    const st = text(scene, x, y - 6, `${parts[0]} · ${parts[1]}\n${parts[2]} · ${parts[3]}`, FS.caption, C.text, { ...OUTLINE, align: 'center', lineSpacing: -2 }).setOrigin(0.5, 0).setName(`branchStats_${b.job}`);
-    if (st.width > PANEL_W - 30) st.setScale((PANEL_W - 30) / st.width);
-    layer.add(st);
-    y += st.displayHeight + 12;
+    const values = STAT_KEYS.map(k => `${STAT_LABELS[k]} ${formatNumber(stats.next[k])}`);
+    layer.add(text(scene, x, TOP + 580, `${values[0]} · ${values[1]}\n${values[2]} · ${values[3]}`, T.caption, COLOR.textPrimary, { lineSpacing: 10 }).setOrigin(0.5, 0).setName(`branchStats_${b.job}`));
   }
-  if (b.promotion) {
-    const p = text(scene, x, y, fitLines(scene, `«${b.promotion}»`, FS.caption, PANEL_W - 50, 5, 'italic'), FS.caption, C.title, { fontStyle: 'italic', ...OUTLINE, lineSpacing: 2 }).setOrigin(0.5, 0);
-    layer.add(p);
-    y += p.height + 18;
-  }
-  // Навыки формы (по уровню открытия).
-  const left = x - PANEL_W / 2 + 26;
-  const signature = (lineage?.advanced?.skills ?? b.skills).find(s => s.skill.startsWith('ro_'));
-  const skills = [...(signature ? [signature] : b.skills.slice(-1)), ...(b.ult ? [{ skill: b.ult, level: 1 }] : [])];
-  if (lineage?.advanced) {
-    layer.add(text(scene, x, y, `${lineage.jobName} → ${lineage.advanced.jobName}\nЗолото · ур. 70 · далее 80 / красный 90, 100\n${b.skills.length} навыков · коснитесь навыка: подробнее`, FS.caption, C.text, { wordWrap: { width: PANEL_W - 45 } }).setOrigin(0.5, 0));
-    y += 145;
-  }
-  const room = TOP + PANEL_H - 20 - y;
-  const rowH = Math.min(170, Math.floor(room / Math.max(1, skills.length)));
-  const rows: { skill: string; y: number; level: number }[] = [];
-  for (const s of skills) {
-    rows.push({ skill: s.skill, y: y + rowH / 2, level: s.level });
+  const signature = b.skills.find(s => s.skill.startsWith('ro_')) ?? b.skills.at(-1);
+  const skills = [...(signature ? [{ ...signature, ult: false }] : []), ...(b.ult ? [{ skill: b.ult, level: 1, ult: true }] : [])];
+  const skillHits: { skill: string; hit: Phaser.GameObjects.Rectangle; level: number; ult: boolean }[] = [];
+  const left = x - PANEL_W / 2 + S.s;
+  skills.forEach((s, i) => {
+    const top = TOP + 708 + i * 212;
     const sk = CONTENT.skills[s.skill];
-    const iy = y + 38;
-    layer.add(scene.add.image(left + 38, iy, skillIcon(scene, sk)).setDisplaySize(68, 68));
-    layer.add(text(scene, left + 38, iy + 54, `ур. ${s.level}`, T.caption, COLOR.textSecondary));
-    layer.add(ellipsize(text(scene, left + 96, iy - 18, sk?.name ?? s.skill, T.caption, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5), PANEL_W - 126));
-    if (sk?.description) {
-      const lines = Math.max(1, Math.floor((rowH - 46) / 37));
-      layer.add(text(scene, left + 96, iy + 4, fitLines(scene, sk.description, FS.caption, PANEL_W - 136, lines, 'normal', ' ›'), FS.caption, C.muted, { align: 'left', lineSpacing: 0 }).setOrigin(0, 0));
-    }
-    y += rowH;
-  }
-  // Рамка поверх (для нажатия и подсветки) и отметки.
-  const frame = scene.add.rectangle(x, cy, PANEL_W, PANEL_H).setStrokeStyle(3, 0x5a4a30, 0.8).setName(`branchPanel_${b.job}`);
-  layer.add(frame);
-  // Строки навыков — поверх рамки: касание открывает полное описание (в панели оно обрезано).
-  const skillHits = rows.map((r) => {
-    const hit = scene.add.rectangle(x, r.y, PANEL_W - 20, rowH - 4, 0x000000, 0.001).setName(`branchSkill_${r.skill}`);
+    layer.add(text(scene, left, top, s.ult ? 'Ульта · полная энергия' : `Ключевой · ур. ${s.level}`, T.caption, s.ult ? COLOR.title : COLOR.textSecondary).setOrigin(0, 0));
+    const locked = !s.ult && recipient.level < s.level;
+    layer.add(scene.add.image(left + 42, top + 89, skillIcon(scene, sk)).setDisplaySize(76, 76).setAlpha(locked ? 0.5 : 1));
+    const tx = left + 96;
+    layer.add(text(scene, tx, top + 53, fitLines(scene, sk?.name ?? s.skill, T.caption, PANEL_W - 2 * S.s - 96, 2), T.caption, COLOR.textPrimary, { align: 'left', fontStyle: 'bold', lineSpacing: 2 }).setOrigin(0, 0).setName(`branchSkillName_${s.skill}`));
+    layer.add(ellipsize(text(scene, left, top + 140, locked ? `Откроется на ур. ${s.level}` : skillSummary(sk, heroCard(recipient, GAME).rarity.skillPower), T.caption, COLOR.textSecondary).setOrigin(0, 0), PANEL_W - 2 * S.s).setName(`branchSkillSummary_${s.skill}`));
+    layer.add(text(scene, x + PANEL_W / 2 - S.s, top + 88, '›', T.heading, COLOR.title));
+    const hit = scene.add.rectangle(x, top + 96, PANEL_W - 2 * S.s, 192, COLOR_N.bg, 0.001).setName(`branchSkill_${s.skill}`);
     layer.add(hit);
-    return { skill: r.skill, hit, level: r.level };
+    skillHits.push({ skill: s.skill, hit, level: s.level, ult: s.ult });
   });
-  const mark = tag(scene, x, TOP + 30, 'Выбрано', 'accent', { solid: true }).setVisible(false).setName('branchMark');
+  const details = scene.add.rectangle(x, TOP + 1198, PANEL_W - 2 * S.s, TOUCH_COMFORT, COLOR_N.surfaceRaised).setName(`branchDetails_${b.job}`);
+  layer.add(details);
+  layer.add(text(scene, x, TOP + 1198, 'Путь и все навыки ›', T.caption, COLOR.title));
+  const mark = tag(scene, x, TOP + 38, 'Выбрано', 'accent', { solid: true }).setVisible(false).setName('branchMark');
   layer.add(mark);
-  if (isCurrent) layer.add(tag(scene, x, TOP + 30, 'Сейчас', 'positive', { solid: true }).setName('branchMark'));
-  return { frame, glow, mark, skillHits };
+  if (isCurrent) layer.add(tag(scene, x, TOP + 38, 'Сейчас', 'positive', { solid: true }).setName('branchMark'));
+  return { frame, mark, skillHits, details };
+}
+
+/** Полный лор, изменения статов и будущий ранг доступны без обрезки в прокручиваемом листе. */
+function branchDetails(scene: Phaser.Scene, lineage: BranchView, shown: BranchView, stats: BranchStats | null, recipient: HeroState): void {
+  const sheet = bottomSheet(scene, shown.jobName, (box, width) => {
+    let y = 0;
+    const para = (value: string, color: string = COLOR.textSecondary) => {
+      const row = text(scene, 0, y, value, T.body, color, { align: 'left', wordWrap: { width }, lineSpacing: 10 }).setOrigin(0, 0);
+      box.add(row); y += row.height + S.m;
+    };
+    if (shown.promotion) para(shown.promotion, COLOR.title);
+    if (shown.bio) para(shown.bio);
+    if (stats) para('Базовые характеристики', COLOR.title);
+    if (stats) para(STAT_KEYS.map(k => {
+      const diff = stats.now ? stats.next[k] - stats.now[k] : 0;
+      return `${STAT_LABELS[k]}: ${formatNumber(stats.next[k])}${diff ? ` (${diff > 0 ? '+' : '−'}${formatNumber(Math.abs(diff))})` : ''}`;
+    }).join('\n'), COLOR.textPrimary);
+    if (lineage.advanced) para(`${lineage.jobName} → ${lineage.advanced.jobName}\n${GAME.cards.rarities.find(r => r.id === lineage.advanced!.minRarity)?.name ?? lineage.advanced.minRarity} · уровень ${lineage.advanced.minLevel}`);
+    para('Навыки профессии', COLOR.title);
+    const all = [...(shown.ult ? [{ skill: shown.ult, level: 1, ult: true }] : []), ...shown.skills.map(s => ({ ...s, ult: false }))];
+    for (const sk of all) {
+      const label = CONTENT.skills[sk.skill]?.name ?? sk.skill;
+      const btn = button(scene, width / 2, y + TOUCH_COMFORT / 2, width, TOUCH_COMFORT, '', `${sk.ult ? 'Ульта' : `Ур. ${sk.level}`} · ${label}`, () => openSkillDetail(scene, sk.skill, { ult: sk.ult, power: heroCard(recipient, GAME).rarity.skillPower, ...(!sk.ult && recipient.level < sk.level ? { lockNote: `Откроется на ур. ${sk.level}` } : {}), depth: DEPTH + 200 }), T.caption, { variant: 'secondary' });
+      btn.container.setName(`branchDetailSkill_${sk.skill}`);
+      ellipsize(btn.label, width - 2 * S.m);
+      box.add(btn.container); y += TOUCH_COMFORT + S.xs;
+    }
+    return y;
+  });
+  sheet.layer.setDepth(DEPTH + 100).setName('branchDetailsSheet');
 }
 
 type StatsOf = ReturnType<typeof heroCard>['stats'];

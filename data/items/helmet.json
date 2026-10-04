@@ -130,6 +130,50 @@
         "def": 51
       },
       "minChapter": 10
+    },
+    {
+      "id": "magni_cap",
+      "name": "Шапка Магни",
+      "slot": "helmet",
+      "rarity": "rare",
+      "stats": {
+        "hp": 440,
+        "def": 21
+      },
+      "minChapter": 7
+    },
+    {
+      "id": "bone_helm",
+      "name": "Костяной шлем",
+      "slot": "helmet",
+      "rarity": "rare",
+      "stats": {
+        "hp": 484,
+        "def": 23
+      },
+      "minChapter": 8
+    },
+    {
+      "id": "morrigane_helm",
+      "name": "Шлем Морриган",
+      "slot": "helmet",
+      "rarity": "rare",
+      "stats": {
+        "hp": 532,
+        "def": 25
+      },
+      "minChapter": 9
+    },
+    {
+      "id": "fricca_circlet",
+      "name": "Диадема Фрикки",
+      "slot": "helmet",
+      "rarity": "rare",
+      "stats": {
+        "hp": 585,
+        "def": 28
+      },
+      "minChapter": 10
     }
   ]
 }

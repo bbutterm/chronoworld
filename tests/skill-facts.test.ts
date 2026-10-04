@@ -31,6 +31,16 @@ describe('цифры навыка для окна подробностей', () 
     expect(f.some((l) => l.startsWith('Если целей нет — «'))).toBe(true);
   });
 
+  it('связь защиты переводит шаги статуса в секунды', () => {
+    const skill = ctx.content.skills.job_crusader_devotion;
+    const link = skill.effects.find((effect) => effect.type === 'link');
+    if (!link || link.type !== 'link') throw new Error('У защиты крестоносца нет связи');
+    const facts = skillFacts(skill, { ...opts, turnSeconds: 0.5 });
+    const duration = String(link.turns * 0.5).replace('.', ',');
+    expect(facts.find((fact) => fact.startsWith('Связь:'))).toContain(`, ${duration} с (`);
+    expect(facts.join('\n')).not.toContain('ход');
+  });
+
   it('строки листа: подпись и значение по первому «: », статус — без кавычек, длинное — целиком', () => {
     expect(factRows(['Урон: 105% АТК × 3 удара'])).toEqual([{ label: 'Урон', value: '105% АТК × 3 удара' }]);
     expect(factRows(['«Оглушение»: оглушение на 2 с'])).toEqual([{ label: 'Оглушение', value: 'оглушение на 2 с' }]);

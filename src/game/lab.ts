@@ -1,4 +1,5 @@
 import { addHeroCard, chooseBranch, heroJobId, newGame, placeInSquad, type FullContext, type SaveState } from '../core';
+import { COLOR } from './theme';
 
 /** Prepared sandbox; all forms, IDs and combat remain core-owned. */
 export function prepareAdvanceLab(ctx: FullContext, now: number, day: string): SaveState {
@@ -26,7 +27,7 @@ export function prepareAdvanceLab(ctx: FullContext, now: number, day: string): S
 export function installAdvanceLab(reset: () => void, summary: () => unknown, game: unknown): void {
   document.title = 'Chronoworld — тест адвансов';
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);z-index:10000;font:11px sans-serif;color:#fff;background:#231d16dd;border-radius:0 0 6px 6px;padding:2px 6px;white-space:nowrap';
+  overlay.style.cssText = `position:fixed;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);z-index:10000;font:11px sans-serif;color:${COLOR.textPrimary};background:${COLOR.surfaceRaised};border-radius:0 0 6px 6px;padding:2px 6px;white-space:nowrap`;
   overlay.append('Тест адвансов ');
   const button = document.createElement('button');
   button.textContent = 'Сброс теста';

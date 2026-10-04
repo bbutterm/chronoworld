@@ -301,6 +301,39 @@
         "bonusByLevel",
         "cost"
       ]
+    },
+    "salvage": {
+      "type": "object",
+      "properties": {
+        "goldByRarity": {
+          "type": "object",
+          "properties": {
+            "common": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "rare": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "epic": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "common",
+            "rare",
+            "epic"
+          ]
+        }
+      },
+      "required": [
+        "goldByRarity"
+      ]
     }
   },
   "required": [

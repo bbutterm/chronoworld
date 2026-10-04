@@ -3,6 +3,8 @@ import type { Gender, JobDef } from '../progression/schema';
 import { GameRuleError, type GameContext } from '../progression/types';
 import type { HeroState } from '../save/schema';
 import { BRANCH_RARITY, rarityIndex, CARD_RARITIES, type CardRarity, type CardSkill, type CardStatMods, type HeroBranch, type HeroTemplate, type RarityDef } from './schema';
+import { withHeroFocus } from './training';
+import { HeroError } from './errors';
 
 /**
  * Карточка героя: шаблон + экземпляр → имя, класс, роль, статы, навыки, юнит боя.
@@ -72,7 +74,7 @@ export interface ActiveForm {
 }
 
 /** Что нужно знать об экземпляре для формы: редкость и выбранная ветка. */
-export type FormKey = Pick<HeroState, 'rarity'> & { branch?: string; level?: number };
+export type FormKey = Pick<HeroState, 'rarity'> & { branch?: string; level?: number; journey?: HeroState['journey'] };
 
 /** Ветка шаблона по id профессии (нет такой — undefined). */
 export function branchOf(t: HeroTemplate, job: string | undefined): HeroBranch | undefined {
@@ -109,7 +111,8 @@ export function activeForm(t: HeroTemplate, hero: FormKey): ActiveForm {
   const b = activeBranch(t, hero);
   if (!b) return baseForm(t);
   const a = b.advanced;
-  if (a && hero.level !== undefined && hero.level >= a.minLevel && rarityIndex(hero.rarity) >= rarityIndex(a.minRarity)) {
+  const earnedLevel = Math.max(hero.level ?? 0, hero.journey?.branchLevels?.[b.job] ?? 0);
+  if (a && earnedLevel >= a.minLevel && rarityIndex(hero.rarity) >= rarityIndex(a.minRarity)) {
     return { ...branchForm(a), branch: b.job, advanced: true };
   }
   return branchForm(b);
@@ -148,9 +151,9 @@ function jobOf(ctx: GameContext, jobId: string): JobDef {
 }
 
 /** Статы героя шаблона t на уровне level, редкости rarity и ветке branch (без экипировки), округление до целых. */
-export function cardStats(t: HeroTemplate, level: number, rarity: CardRarity, ctx: GameContext, branch?: string): Stats {
+export function cardStats(t: HeroTemplate, level: number, rarity: CardRarity, ctx: GameContext, branch?: string, journey?: HeroState['journey']): Stats {
   const line = jobOf(ctx, t.line);
-  const mods = activeForm(t, { rarity, branch, level }).statMods;
+  const mods = activeForm(t, { rarity, branch, level, journey }).statMods;
   const mult = rarityDef(ctx, rarity).statMult;
   const k = Math.max(0, level - 1);
   const b = line.baseStats;
@@ -160,7 +163,7 @@ export function cardStats(t: HeroTemplate, level: number, rarity: CardRarity, ct
 
 /** Статы экземпляра (без экипировки). */
 export function heroStats(hero: HeroState, ctx: GameContext): Stats {
-  return cardStats(tmpl(hero, ctx), hero.level, hero.rarity, ctx, hero.branch);
+  return withHeroFocus(cardStats(tmpl(hero, ctx), hero.level, hero.rarity, ctx, hero.branch, hero.journey), hero, ctx);
 }
 
 export interface CardSkillView {
@@ -361,12 +364,14 @@ export function storyOrder(ctx: GameContext): string[] {
   return [...ctx.progression.heroes.start, ...ctx.progression.heroes.recruits.map((r) => r.template)];
 }
 
-/** id нового экземпляра: h<наибольший номер + 1> (номера съеденных кормом карточек не переиспользуются, пока есть старшие). */
-export function newHeroId(heroes: readonly Pick<HeroState, 'id'>[]): string {
-  let max = 0;
+/** Монотонный id: удалённая копия не передаёт свою историю новому персонажу. */
+export function newHeroId(heroes: readonly Pick<HeroState, 'id'>[], issued = 0): string {
+  if (!Number.isSafeInteger(issued) || issued < 0) throw new HeroError('bad_count', 'Некорректный счётчик героев');
+  let max = issued;
   for (const h of heroes) {
     const m = /^h(\d+)$/.exec(h.id);
     if (m) max = Math.max(max, Number(m[1]));
   }
+  if (!Number.isSafeInteger(max + 1)) throw new HeroError('hero_limit', 'Достигнут предел идентификаторов героев');
   return `h${max + 1}`;
 }

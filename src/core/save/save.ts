@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { sanitizeAutobattlerSave, type AutobattlerContext } from '../autobattler/run';
+import { recoverAutobattlerState } from '../autobattler/recovery';
 import { heroName, heroRole } from '../heroes/card';
 import { BRANCH_RARITY } from '../heroes/schema';
 import { migrateV3toV4 } from '../heroes/migrate';
@@ -25,6 +27,7 @@ export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY
     version: SAVE_VERSION,
     createdAt: now,
     heroes: [],
+    heroSeq: 0,
     squad: [null, null, null, null, null],
     campaign: { cleared: [] },
     resources: { gold: ctx.progression.newGame.gold, heroExp: 0 },
@@ -43,15 +46,19 @@ export function newGame(ctx: GameContext, now: number, day: string = DEFAULT_DAY
     mail: emptyMail(),
   };
   for (const templateId of ctx.progression.heroes.start) save = addHeroCard(save, templateId, ctx.content.heroes[templateId]?.baseRarity ?? 'green').save;
+  save = { ...save, heroes: save.heroes.map((hero) => ({ ...hero, companion: true })) };
   // В отряд: передние — с первого слота, задние — с последнего, лекари — в самый тыл (как авто-расстановка).
   const healersFirst = [...save.heroes].sort((a, b) => Number(heroRole(b, ctx) === 'healer') - Number(heroRole(a, ctx) === 'healer'));
   for (const hero of healersFirst) save = { ...save, squad: placeInSquad(save.squad, hero, save, ctx) };
   return save;
 }
 
-/** В строку JSON (стабильный порядок ключей не обязателен). */
+/** Канонический JSON: порядок добавления полей не меняет снимок и проверку сохранения. */
 export function serialize(save: SaveState): string {
-  return JSON.stringify(save);
+  return JSON.stringify(save, (_key, value: unknown) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+    return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0));
+  });
 }
 
 /**
@@ -192,10 +199,16 @@ export function saveRevision(text: string | null | undefined): number {
  */
 export function sanitizeSave(
   save: SaveState,
-  ctx: GameContext & { equipment?: { items: Record<string, unknown>; drops?: { refine?: { maxLevel: number } } }; unlocks?: UnlocksConfig },
+  ctx: AutobattlerContext & { equipment?: { items: Record<string, unknown>; drops?: { refine?: { maxLevel: number } } }; unlocks?: UnlocksConfig },
 ): { save: SaveState; warnings: string[] } {
   const warnings: string[] = [...(save.notices ?? [])];
   let changed = save.notices !== undefined;
+  const arena = sanitizeAutobattlerSave(save, ctx);
+  if (arena.save !== save) {
+    save = arena.save;
+    changed = true;
+  }
+  warnings.push(...arena.warnings);
   if (save.campaignChoices !== undefined) {
     const bindings = new Map(ctx.content.stages.flatMap((s) => s.campaignChoice ? [[s.campaignChoice.id, s.campaignChoice] as const] : []));
     const entries = Object.entries(save.campaignChoices).filter(([id, option]) => {
@@ -225,7 +238,7 @@ export function sanitizeSave(
   const templates = ctx.content.heroes;
   const rarities = ctx.cards.rarities.map((r) => r.id);
   const gone = new Set<string>();
-  const heroes = save.heroes.flatMap((h) => {
+  let heroes = save.heroes.flatMap((h) => {
     const t = templates[h.templateId];
     if (!t) {
       changed = true;
@@ -238,13 +251,48 @@ export function sanitizeSave(
     const cap = ctx.cards.rarities[rarities.indexOf(rarity)].maxLevel;
     if (level > cap) level = cap;
     const badBranch = h.branch !== undefined && (rarities.indexOf(rarity) < rarities.indexOf(BRANCH_RARITY) || !t.branches.some((b) => b.job === h.branch));
-    if (rarity === h.rarity && level === h.level && !badBranch) return [h];
+    const validJourney = h.journey?.branchLevels
+      ? Object.fromEntries(Object.entries(h.journey.branchLevels).filter(([job]) => t.branches.some((b) => b.job === job)))
+      : undefined;
+    const badJourney = validJourney !== undefined && Object.keys(validJourney).length !== Object.keys(h.journey!.branchLevels!).length;
+    if (rarity === h.rarity && level === h.level && !badBranch && !badJourney) return [h];
     changed = true;
     if (rarity !== h.rarity || level !== h.level) warnings.push(`${t.name}: редкость и уровень приведены к правилам карточки.`);
     if (badBranch) warnings.push(`${t.name}: ветка второй профессии сброшена — выберите её заново.`);
+    if (badJourney) warnings.push(`${t.name}: неизвестные профессии в личной истории удалены.`);
     const { branch: _b, ...rest } = h;
-    return [{ ...(badBranch ? rest : h), rarity, level }];
+    return [{ ...(badBranch ? rest : h), rarity, level,
+      ...(badJourney ? { journey: { ...h.journey, branchLevels: validJourney } } : {}) }];
   });
+  // Старые карточки получают устойчивого личного героя без изменения ID, экипировки или профессии.
+  const companions = new Map<string, typeof heroes[number]>();
+  const inSquad = new Set(save.squad.filter((id): id is string => id !== null));
+  const identityPriority = (hero: typeof heroes[number]) =>
+    Number(!!hero.companion) * 1_000_000_000 + Number(!!hero.locked) * 100_000_000
+    + Number(inSquad.has(hero.id)) * 10_000_000 + Number(!!hero.training?.gold || !!hero.training?.exp) * 1_000_000
+    + hero.level * 1000 + rarities.indexOf(hero.rarity) * 100;
+  for (const hero of heroes) {
+    const current = companions.get(hero.templateId);
+    if (!current || identityPriority(hero) > identityPriority(current)) companions.set(hero.templateId, hero);
+  }
+  heroes = heroes.map((hero) => {
+    const personal = companions.get(hero.templateId)?.id === hero.id;
+    if (!!hero.companion === personal) return hero;
+    changed = true;
+    return { ...hero, companion: personal };
+  });
+  const issuedIds = [...heroes.map((hero) => hero.id),
+    ...save.bounties.active.flatMap((expedition) => expedition.heroIds),
+    ...(save.bounties.bonds ?? []).flatMap((bond) => bond.heroes)];
+  const heroSeq = issuedIds.reduce((highest, id) => {
+    const match = /^h(\d+)$/.exec(id);
+    const issued = match ? Number(match[1]) : 0;
+    return Number.isSafeInteger(issued) ? Math.max(highest, issued) : highest;
+  }, save.heroSeq ?? 0);
+  if (heroSeq !== save.heroSeq) {
+    save = { ...save, heroSeq };
+    changed = true;
+  }
   const drop = (id: string | null) => (id !== null && gone.has(id) ? null : id);
   let squad = save.squad.map(drop);
   const dups = duplicateCardsInSquad({ heroes }, squad);
@@ -308,7 +356,7 @@ function describeIssues(error: z.ZodError): string {
  * → SaveStateSchema.parse → проверка ссылок (id героев и предметов уникальны; отряд, надетые предметы и экспедиции ссылаются на существующих героев; герой в отряде один раз).
  * Любая проблема → SaveError с понятным русским текстом.
  */
-export function deserialize(text: string): SaveState {
+export function deserialize(text: string, recoveryDay?: string): SaveState {
   let data: unknown;
   try {
     data = JSON.parse(text);
@@ -344,21 +392,15 @@ export function deserialize(text: string): SaveState {
       cur = { ...cur, campaignChoices: valid, notices: [...(Array.isArray(cur.notices) ? cur.notices : []), 'Повреждённые решения кампании удалены.'] };
     }
   }
+  if (isRecord(cur) && cur.autobattler !== undefined) {
+    const recovered = recoverAutobattlerState(cur.autobattler, recoveryDay);
+    if (recovered.warning) cur = { ...cur, autobattler: recovered.state, notices: [...(Array.isArray(cur.notices) ? cur.notices : []), recovered.warning] };
+  }
   const parsed = SaveStateSchema.safeParse(cur);
   if (!parsed.success) throw new SaveError(`Сохранение повреждено: ${describeIssues(parsed.error)}.`);
   // P11 (T4-15): поля, которых эта сборка не знает (добавлены более новой), возвращаются на место —
   // схема их отбрасывает, а следующая запись иначе стёрла бы их навсегда.
-  let save = keepUnknownFields(parsed.data, cur) as SaveState;
-  // Решение добавляется в любой момент игры, поэтому его место среди необязательных полей
-  // задаёт исходная запись, а не порядок полей Zod (инвариант serialize/deserialize).
-  if (isRecord(cur) && cur.campaignChoices !== undefined && save.campaignChoices !== undefined) {
-    const entries = Object.entries(save).filter(([key]) => key !== 'campaignChoices');
-    const keys = Object.keys(cur);
-    const following = keys.slice(keys.indexOf('campaignChoices') + 1).find((key) => key in save);
-    const at = following === undefined ? entries.length : entries.findIndex(([key]) => key === following);
-    entries.splice(at, 0, ['campaignChoices', save.campaignChoices]);
-    save = Object.fromEntries(entries) as SaveState;
-  }
+  const save = keepUnknownFields(parsed.data, cur) as SaveState;
   const ids = new Set<string>();
   for (const h of save.heroes) {
     if (ids.has(h.id)) throw new SaveError(`Сохранение повреждено: герой ${h.id} встречается дважды.`);
@@ -414,7 +456,7 @@ export function loadOrNew(storage: SaveStorage, ctx: GameContext, now: number, d
   if (text === null) return { save: newGame(ctx, now, day), source: 'new' };
   let save: SaveState;
   try {
-    save = deserialize(text);
+    save = deserialize(text, day);
   } catch (e) {
     const error = e instanceof SaveError ? e : new SaveError(`Сохранение не читается: ${e instanceof Error ? e.message : String(e)}.`);
     return { save: newGame(ctx, now, day), source: 'reset', error, raw: text };

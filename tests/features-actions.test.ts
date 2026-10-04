@@ -63,8 +63,8 @@ describe('K7 пропуск и повтор', () => {
   it('skipStage = playStage без лога (тот же итог, награды за повтор)', () => {
     const s = cleared();
     const seed = winningSeed(s, s1);
-    const full = playStage(s, s1, seed, ctx);
-    const skip = skipStage(s, s1, seed, ctx);
+    const full = playStage(s, s1, seed, ctx, undefined, D1);
+    const skip = skipStage(s, s1, seed, ctx, D1);
     expect(full.result.log.length).toBeGreaterThan(0);
     expect(skip.result.log).toEqual([]);
     expect(skip.save).toEqual(full.save);

@@ -83,7 +83,7 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
     const when = sk.trigger ? TRIGGER[sk.trigger] ?? sk.trigger : 'всегда';
     out.push(`Срабатывает: ${when}${sk.chance < 1 ? ` · шанс ${pct(sk.chance)}` : ''}`);
   } else if (o.ult) {
-    out.push('Ульта: срабатывает на полной энергии (копится в бою ≈ 10–12 с); вручную — касанием портрета');
+    out.push('Ульта: срабатывает на полной энергии; энергия растёт со временем, от атак и полученного урона. Вручную — через портрет');
     if (breaksCharge(sk)) out.push('Сбивает заряд босса: оглушает или срывает каст (ульта вручную)');
   } else if (!o.basic) {
     const cd = sk.cooldown ?? o.defaultCooldown;
@@ -127,7 +127,7 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
         out.push('Рывок к цели');
         break;
       case 'link': {
-        const dur = `${e.turns} ${plural(e.turns, 'ход', 'хода', 'ходов')}`;
+        const dur = `${Math.round(e.turns * (o.turnSeconds > 0 ? o.turnSeconds : 1) * 10) / 10}`.replace('.', ',') + ' с';
         out.push(`Связь: ${pct(e.pct)} урона по цели — на себя, ${dur} (рвётся ниже ${pct(e.breakAtHpPct)} своих ОЗ)`);
         break;
       }
@@ -157,4 +157,24 @@ export function factRows(facts: readonly string[]): FactRow[] {
     if (i <= 0 || i > 24) return { label: '', value: f };
     return { label: f.slice(0, i).replace(/^«(.*)»$/, '$1'), value: f.slice(i + 2) };
   });
+}
+
+/** Короткий смысл навыка для сравнения профессий; подробные цифры остаются в skillFacts. */
+export function skillSummary(sk: SkillDef | undefined, power = 1): string {
+  if (!sk) return 'Подробности навыка';
+  const effects = sk.effects;
+  const damage = effects.find(e => e.type === 'damage');
+  const heal = effects.find(e => e.type === 'heal');
+  const shield = effects.find(e => e.type === 'shield');
+  const control = effects.some(e => e.type === 'status' && e.status.stun);
+  if (damage?.type === 'damage') return `Урон ${pct(damage.k * power)} АТК${sk.hits > 1 ? ` × ${sk.hits}` : ''}${control ? ' · контроль' : damage.bypassDefense ? ' · без ЗАЩ' : ''}`;
+  if (heal?.type === 'heal') return `Лечение ${pct(heal.k * power)} АТК${shield ? ' · щит' : ''}`;
+  if (shield?.type === 'shield') return `Щит ${pct(shield.pctMaxHp * power)} ОЗ`;
+  if (effects.some(e => e.type === 'link')) return 'Принимает урон союзника';
+  if (effects.some(e => e.type === 'dispel')) return 'Снимает усиления врага';
+  if (control) return 'Контроль противника';
+  if (effects.some(e => e.type === 'energy')) return 'Меняет запас энергии';
+  const status = effects.find(e => e.type === 'status');
+  if (status?.type === 'status' && status.status.taunt) return 'Провоцирует противника';
+  return sk.target.side === 'enemy' ? 'Ослабляет противника' : sk.target.pick === 'self' ? 'Усиливает себя' : 'Усиливает союзников';
 }

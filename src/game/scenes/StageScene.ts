@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { actSkipStage, autoFormation, enemySquad, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus } from '../../core';
+import { actSkipStage, autoFormation, enemySquad, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus, replayAllowance } from '../../core';
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
 import { shortfallHint, stageNeeds, stageNo, stageSeed, type StageNeeds } from '../flow';
@@ -82,9 +82,14 @@ export class StageScene extends Phaser.Scene {
 
     // --- Награда: один ряд чипов (повтор — уже с множителем повтора) ---
     const first = stageStatus(session.save, this.stageId, GAME) !== 'cleared';
-    const k = first ? 1 : GAME.progression.campaign.replayRewardMultiplier;
-    const drop = stageCardDrop(stage, first, GAME);
+    const replay = replayAllowance(session.save, today(), GAME);
+    const k = first ? 1 : replay.remaining > 0 ? GAME.progression.campaign.replayRewardMultiplier : 0;
+    const drop = first || replay.remaining > 0 ? stageCardDrop(stage, first, GAME) : undefined;
     rewardRow(this, GAME_W / 2, L.rewardY, stageRewardChips(Math.floor(stage.rewards.gold * k), Math.floor(stage.rewards.jobExp * k), drop), { size: 's' }).setName('stageRewards');
+    if (!first) {
+      if (!replay.remaining) text(this, GAME_W / 2, L.rewardY, 'Тренировка · без добычи', T.caption, COLOR.textSecondary).setName('stagePractice');
+      text(this, GAME_W / 2, L.rewardY + 40, replay.remaining > 0 ? `Добыча за повторы: ещё ${replay.remaining} из ${replay.limit} побед сегодня` : `Сегодня получены все ${replay.limit} наград за повторы`, T.caption, COLOR.textSecondary).setName('stageReplayBudget');
+    }
 
     // --- Поле (отряд против противника) и список героев ---
     // Уровни врагов поштучно не показываем (см. flow.ts stageNeeds): одно число — в листе разведки.
@@ -129,8 +134,8 @@ export class StageScene extends Phaser.Scene {
       this.fightBtns = [fight];
     } else {
       // K7: пройденный этап можно повторить с просмотром боя или сразу получить итог.
-      const skip = button(this, GAME_W / 2 - 260, L.fightY, 460, BTN.cta, '', 'Пропустить бой', () => this.skipBattle(), T.body, { variant: 'secondary' });
-      const again = cta(this, GAME_W / 2 + 250, L.fightY, 'Повторить', () => this.fight(), { w: 480, h: BTN.cta });
+      const skip = button(this, GAME_W / 2 - 260, L.fightY, 460, BTN.cta, '', 'Быстрый бой', () => this.skipBattle(), T.body, { variant: 'secondary' });
+      const again = cta(this, GAME_W / 2 + 250, L.fightY, replay.remaining > 0 ? 'Повторить' : 'Тренировка', () => this.fight(), { w: 480, h: BTN.cta });
       this.fightBtns = [skip, again];
     }
     this.editor.draw();

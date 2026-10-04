@@ -119,7 +119,7 @@ describe('кампания', () => {
   it('playStage: повтор пройденного — награда × replayRewardMultiplier, без stageUnlocked', () => {
     const save = clearedUpTo(1);
     const seed = winningSeed(save, s1);
-    const { save: next, events } = playStage(save, s1, seed, ctx);
+    const { save: next, events } = playStage(save, s1, seed, ctx, undefined, '2026-10-04');
     const m = ctx.progression.campaign.replayRewardMultiplier;
     const r = stages[0].rewards;
     expect(next.resources.gold).toBe(Math.floor(r.gold * m));

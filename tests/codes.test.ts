@@ -1,16 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { deserialize, newGame, normalizeCode, parseCodesConfig, redeemCode, serialize } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
+import { withLabCodes } from '../src/core/codes/lab';
 
 const ctx = loadFullContext();
 const cfg = ctx.codes!;
 
 describe('коды (Настройки → Коды, data/codes.json)', () => {
-  it('в data/codes.json — helloworld (раз, +300), 300 (многоразовый, +300), 12 (многоразовый, +12 ч)', () => {
+  it('production-контент содержит только одноразовый подарок без перевода часов', () => {
     expect(cfg.codes).toEqual([
       { code: 'helloworld', once: true, gems: 300, hours: 0 },
-      { code: '300', once: false, gems: 300, hours: 0 },
-      { code: '12', once: false, gems: 0, hours: 12 },
     ]);
   });
 
@@ -32,11 +31,19 @@ describe('коды (Настройки → Коды, data/codes.json)', () => {
     expect(redeemCode(back, 'helloworld', cfg)).toEqual({ ok: false, reason: 'used' });
   });
 
-  it('300 — многоразовый: +300 каждый раз, в codesUsed не пишется', () => {
+  it('тестовые 300/12 недоступны обычному API даже при переданном тестовом конфиге', () => {
+    const s = newGame(ctx, 0);
+    for (const code of ['300', '12']) {
+      expect(redeemCode(s, code, cfg)).toEqual({ ok: false, reason: 'unknown' });
+      expect(redeemCode(s, code, withLabCodes(cfg))).toEqual({ ok: false, reason: 'unknown' });
+    }
+  });
+
+  it('300 — многоразовый только в явно включённой песочнице', () => {
     let s = newGame(ctx, 0);
     const g0 = s.currency.gems;
     for (let i = 0; i < 3; i++) {
-      const r = redeemCode(s, '300', cfg);
+      const r = redeemCode(s, '300', withLabCodes(cfg), { allowLab: true });
       expect(r.ok).toBe(true);
       if (r.ok) s = r.save;
     }
@@ -44,12 +51,12 @@ describe('коды (Настройки → Коды, data/codes.json)', () => {
     expect(s.codesUsed).toBeUndefined();
   });
 
-  it('12 — многоразовый: 12 часов вперёд (часы двигает интерфейс), алмазы не меняются', () => {
+  it('12 — перевод часов только в явно включённой песочнице', () => {
     const s0 = newGame(ctx, 0);
-    const r = redeemCode(s0, '12', cfg);
+    const r = redeemCode(s0, '12', withLabCodes(cfg), { allowLab: true });
     expect(r.ok && r.hours).toBe(12);
     expect(r.ok && r.save.currency.gems).toBe(s0.currency.gems);
-    expect(redeemCode(r.ok ? r.save : s0, '12', cfg).ok).toBe(true);
+    expect(redeemCode(r.ok ? r.save : s0, '12', withLabCodes(cfg), { allowLab: true }).ok).toBe(true);
   });
 
   it('неизвестный и пустой код — отказ', () => {

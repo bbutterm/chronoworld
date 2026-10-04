@@ -3,7 +3,8 @@
 // - Оркестратор → POST с заголовком X-CW-Admin = adminKey(токен), { action: 'setup' | 'info' }: setWebhook,
 //   setMyCommands, getWebhookInfo (токен в ответе не возвращается).
 // Чистая логика и тексты — ../_shared/bot.ts (тесты в tests/online-bot.test.ts).
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient } from 'npm:@supabase/supabase-js@2.99.2';
+import { checkedDatabase } from '../_shared/database.ts';
 import {
   adminKey,
   COMMANDS,
@@ -27,7 +28,7 @@ import { isoWeek } from '../cw-api/tg.ts';
 
 const TOKEN = Deno.env.get('CHRONOWORLD_BOT_TOKEN') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
-const db = createClient(SUPABASE_URL, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
+const db = checkedDatabase(createClient(SUPABASE_URL, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } }));
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
@@ -172,7 +173,8 @@ Deno.serve(async (req) => {
     else if (upd.callback_query) await onCallback(upd.callback_query);
   } catch (e) {
     console.error('cw-bot', e);
+    // Временная ошибка записи — Telegram должен повторить update; профиль/notify обновляются идемпотентно.
+    return json({ error: 'server' }, 503);
   }
-  // Telegram всегда получает 200 — иначе будет повторять обновление.
   return json({ ok: true });
 });

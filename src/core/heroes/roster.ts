@@ -16,15 +16,16 @@ export function addHeroCard(
 ): { save: SaveState; hero: HeroState } {
   const level = opts.level ?? 1;
   const hero: HeroState = {
-    id: newHeroId(save.heroes),
+    id: newHeroId(save.heroes, save.heroSeq ?? 0),
     templateId,
     rarity,
     level,
+    ...(!save.heroes.some((h) => h.templateId === templateId) ? { companion: true } : {}),
     ...(opts.isNew ? { isNew: true } : {}),
     ...(opts.granted && level > 1 ? { grantedLevel: level } : {}),
   };
   const discovered = save.summon.discovered.includes(templateId) ? save.summon.discovered : [...save.summon.discovered, templateId];
-  return { save: { ...save, heroes: [...save.heroes, hero], summon: { ...save.summon, discovered } }, hero };
+  return { save: { ...save, heroSeq: Number(hero.id.slice(1)), heroes: [...save.heroes, hero], summon: { ...save.summon, discovered } }, hero };
 }
 
 /**

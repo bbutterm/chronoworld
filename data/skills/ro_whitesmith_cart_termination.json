@@ -1,7 +1,7 @@
 {
   "id": "ro_whitesmith_cart_termination",
-  "name": "Cart Termination",
-  "description": "RO-сигнатура · адаптация: Тяжёлый удар телегой и оглушение на 3 хода статуса. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "name": "Удар телегой",
+  "description": "Тяжёлый удар телегой оглушает цель на 3 с. Школа RO: Cart Termination. Совместимые общие эффекты RO; точная оригинальная анимация этого приёма ещё не подключена.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {
@@ -17,7 +17,7 @@
       "type": "status",
       "status": {
         "id": "cart_crash",
-        "name": "cart crash",
+        "name": "Оглушение телегой",
         "turns": 3,
         "stun": true
       }

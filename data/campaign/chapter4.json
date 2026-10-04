@@ -499,23 +499,23 @@
       "enemies": [
         {
           "unit": "mob4_elite",
-          "mult": 0.4435
+          "mult": 0.4169
         },
         {
           "unit": "mob4_elite",
-          "mult": 0.4435
+          "mult": 0.4169
         },
         {
           "unit": "mob4_fast",
-          "mult": 0.4435
+          "mult": 0.4169
         },
         {
           "unit": "mob4_fast",
-          "mult": 0.4435
+          "mult": 0.4169
         },
         {
           "unit": "mob4_elite",
-          "mult": 0.4435
+          "mult": 0.4169
         }
       ],
       "rewards": {
@@ -652,23 +652,23 @@
       "enemies": [
         {
           "unit": "mob4_elite",
-          "mult": 0.3881
+          "mult": 0.326
         },
         {
           "unit": "mob4_boss",
-          "mult": 0.4857
+          "mult": 0.408
         },
         {
           "unit": "mob4_ranged",
-          "mult": 0.3881
+          "mult": 0.326
         },
         {
           "unit": "mob4_elite",
-          "mult": 0.3881
+          "mult": 0.326
         },
         {
           "unit": "mob4_ranged",
-          "mult": 0.3881
+          "mult": 0.326
         }
       ],
       "rewards": {

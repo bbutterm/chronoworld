@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import {
   bondHeroes,
-  bondOf,
   bondUnlocks,
   bondView,
   chooseOption,
@@ -29,14 +28,14 @@ import { GAME } from '../content';
 import { heroSprite } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { framedPortrait } from '../portraitFrame';
-import { bottomSheet, CONTENT_TOP, contentBottom, popIn, screen } from '../screen';
+import { bottomSheet, CONTENT_TOP, contentBottom, popIn, registerModal, screen } from '../screen';
 import { commit, session } from '../session';
 import { SKIN } from '../skin';
 import { speakerView } from '../storyView';
 import { GLOW, SPARK, setTavernBackground, TAVERN_LIGHTS } from '../tavernArt';
 import { screenBackground } from '../backdrops';
 import { motion } from '../state';
-import { BTN, button, ellipsize, infoButton, listRow, mixHex, plate, pressable, rewardRow, ScrollArea, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
+import { BTN, button, infoButton, listRow, mixHex, plate, pressable, rewardRow, ScrollArea, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
 import { C, COLOR, COLOR_N, E, FAMILY, hexNum, M, R, S, T } from '../theme';
 import { firstTip } from '../firstTips';
 import { counterText, dialogueCounter, dialoguePanel, speakerName } from '../dialogue';
@@ -144,7 +143,7 @@ export class TavernEveningScene extends Phaser.Scene {
       if (e) return this.playEvening(e);
     } else if (data.mode === 'scene') {
       const v = bondView(session.save, data.hero, GAME);
-      if (v) return this.playPersonal(v);
+      if (v?.scene.open) return this.playPersonal(v);
     }
     this.hub();
     // BUG-188: вернулись из боя задания — итог здесь же; данные сцены одноразовые (restart без данных их не повторит).
@@ -205,7 +204,7 @@ export class TavernEveningScene extends Phaser.Scene {
   }
 
   private bondsNow(): Record<string, number> {
-    return Object.fromEntries(bondHeroes(GAME).map((h) => [h, bondOf(session.save, h)]));
+    return Object.fromEntries(bondHeroes(GAME).map((h) => [h, bondView(session.save, h, GAME)?.points ?? 0]));
   }
 
   /**
@@ -462,21 +461,33 @@ export class TavernEveningScene extends Phaser.Scene {
       // BUG-194: откуда близость — ответ в вечере и/или «прошли главу вместе в отряде».
       const fromSquad = squad[h] ?? 0;
       const why = [d - fromSquad > 0 ? `ответ +${d - fromSquad}` : '', fromSquad > 0 ? `в отряде +${fromSquad}` : ''].filter(Boolean).join(' · ');
-      rows.push({ hero: h, title: heroName(h), sub: `${v?.points ?? '?'} из ${v?.max ?? '?'}${why ? ` · ${why}` : ''}`, gain: d });
+      const actual = Math.max(0, (v?.points ?? 0) - (before[h] ?? 0));
+      const source = actual > 0 ? why : 'Близость достигла максимума';
+      rows.push({ hero: h, title: heroName(h), sub: `${v?.points ?? '?'} из ${v?.max ?? '?'}${source ? ` · ${source}` : ''}`, gain: actual });
       for (const u of bondUnlocks(before[h] ?? 0, v?.points ?? 0, GAME)) {
         if (!v) continue;
         rows.push({ title: u === 'scene' ? 'Личная сцена' : 'Личное задание', sub: quoted(u === 'scene' ? v.scene.title : v.quest.title), unlock: true });
       }
     }
     const listH = rows.length ? rows.length * (ROW + S.xs) - S.xs : 60;
-    const h = 150 + listH + S.l + BTN.l + S.l;
+    const h = Math.min(GAME_H - 240, 150 + listH + S.l + BTN.l + S.l);
     const y0 = GAME_H / 2 - h / 2;
     const box = plate(this, GAME_W / 2, GAME_H / 2, W, h, { ...SURFACE.raised, alpha: 0.99, r: R.xl });
     const head = text(this, GAME_W / 2, y0 + 80, title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
     layer.add([shade, box, head]);
-    if (!rows.length) layer.add(text(this, GAME_W / 2, y0 + 180, 'Близость не изменилась', T.body, COLOR.textSecondary));
+    let completed = false;
+    const done = (toHub = false) => {
+      if (completed) return;
+      completed = true;
+      if (toHub) this.scene.restart({ mode: 'hub', back: this.back } satisfies TavernEveningData);
+      else this.leave();
+    };
+    registerModal(layer, () => done());
+    const btnY = y0 + h - S.l - BTN.l / 2;
+    const area = new ScrollArea(this, y0 + 150, btnY - BTN.l / 2 - S.s, { left: GAME_W / 2 - W / 2 + S.l, right: GAME_W / 2 + W / 2 - S.l });
+    if (!rows.length) area.add(text(this, GAME_W / 2, 30, 'Близость не изменилась', T.body, COLOR.textSecondary));
     rows.forEach((r, i) => {
-      const y = y0 + 150 + i * (ROW + S.xs) + ROW / 2;
+      const y = i * (ROW + S.xs) + ROW / 2;
       const hero = r.hero ? storyHero(session.save, r.hero) : undefined;
       const row = listRow(this, GAME_W / 2, y, RW, {
         icon: r.unlock ? 'star' : (sc, x, iy, size) => framedPortrait(sc, x, iy, hero ? heroSprite(hero, GAME) : null, size + 12),
@@ -485,19 +496,20 @@ export class TavernEveningScene extends Phaser.Scene {
         ...(r.gain ? { trailing: heartChip(this, 0, 0, `+${r.gain}`) } : r.unlock ? { trailing: tag(this, 0, 0, 'открыто', 'accent', { solid: true }) } : {}),
         h: ROW,
       });
-      layer.add(row);
+      area.add(row);
     });
-    const btnY = y0 + h - S.l - BTN.l / 2;
+    area.setContentHeight(listH);
     const toHub = this.back.to !== TAVERN_EVENING;
-    const go = button(this, toHub ? GAME_W / 2 + 200 : GAME_W / 2, btnY, toHub ? 380 : 480, BTN.l, 'ui_btn_primary', 'Дальше', () => this.leave(), T.heading);
+    const go = button(this, toHub ? GAME_W / 2 + 200 : GAME_W / 2, btnY, toHub ? 380 : 480, BTN.l, 'ui_btn_primary', 'Дальше', () => done(), T.heading);
     go.container.setName('eveningDone');
     layer.add(go.container);
     if (toHub) {
-      const hub = button(this, GAME_W / 2 - 200, btnY, 380, BTN.l, '', 'Близость', () => this.scene.restart({ mode: 'hub', back: this.back } satisfies TavernEveningData), T.body, { variant: 'secondary' });
+      const hub = button(this, GAME_W / 2 - 200, btnY, 380, BTN.l, '', 'Близость', () => done(true), T.body, { variant: 'secondary' });
       layer.add(hub.container);
     }
     if (Object.keys(gains).length) sfx('quest_done');
     popIn(this, layer, shade);
+    layer.add(area.parts);
   }
 
   private leave(): void {
@@ -547,7 +559,7 @@ export class TavernEveningScene extends Phaser.Scene {
       title: 'Близость',
       text: `Растёт от ответов в вечерах и на ${t.bond.squadGain} за главу, пройденную вместе в отряде. На ${t.bond.sceneAt} — личная сцена, на ${t.bond.questAt} — личное задание, после задания — связка в бою.`,
     });
-    for (const h of bondHeroes(GAME)) {
+    for (const h of bondHeroes(GAME).filter(id => session.save.heroes.some(hero => hero.templateId === id))) {
       const v = bondView(session.save, h, GAME);
       if (!v) continue;
       const before = area.content.list.length;
@@ -606,8 +618,7 @@ export class TavernEveningScene extends Phaser.Scene {
               ? { s: `Задание ${quoted(v.quest.title)} выполнено`, c: COLOR.positive }
               : { s: met(v.link.partner) ? `${v.quest.goal} · связка с ${withName(v.link.partner)}` : v.quest.goal, c: COLOR.textPrimary };
     const tw = CW_ - 2 * S.m;
-    const st = text(this, S.l + S.m, top + 190, status.s, T.caption, status.c, { align: 'left', wordWrap: { width: tw, useAdvancedWrap: true }, lineSpacing: 6 }).setOrigin(0, 0);
-    if (st.height > 100) ellipsize(st.setWordWrapWidth(null), tw);
+    const st = text(this, S.l + S.m, top + 190, `Вечера ${v.tavernPoints} · общий путь ${v.journeyPoints}\n${status.s}`, T.caption, status.c, { align: 'left', wordWrap: { width: tw, useAdvancedWrap: true }, lineSpacing: 6 }).setOrigin(0, 0);
     objs.push(st);
     let y = top + 190 + st.height + S.s;
     const by = y + BTN.m / 2;

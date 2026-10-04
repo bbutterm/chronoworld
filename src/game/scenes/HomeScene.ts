@@ -5,7 +5,7 @@ import { GAME_H, GAME_W, HEADER_H } from '../layout';
 import { confirm, confirmOpen, contentBottom, popIn, screen } from '../screen';
 import { collect, staggerIn } from '../juice';
 import { restartOnNewDay, session, startOver, today } from '../session';
-import { button, dangerButton, ellipsize, panel, ScrollArea, text, toast, tutorialHint } from '../ui';
+import { clearToasts, button, dangerButton, ellipsize, panel, ScrollArea, text, toast, tutorialHint } from '../ui';
 import { cityHint } from '../tutorial';
 import { C, COLOR, COLOR_N, FAMILY, OUTLINE, S, T } from '../theme';
 import { ribbon } from '../decor';
@@ -14,11 +14,11 @@ import { lifecycle } from '../lifecycle';
 import { version } from '../../../package.json';
 import { audioSettings, setAudioSettings, sfx } from '../audio';
 import { hapticSettings, setHapticsOn } from '../haptics';
-import { battleSfxLabel, nextVolume, ownMusicLabel, ownMusicToast, volumeLabel } from '../audioCore';
+import { battleSfxLabel, nextVolume, ownMusicLabel, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
 import { shopTile } from '../shopEntry';
 import { compactEntry, ROUND_ICON } from '../homeBuildings';
-import { isUnlocked, showUnlockBanners } from '../unlockBanner';
+import { isUnlocked, lockLabel, showUnlockBanners } from '../unlockBanner';
 import { homeEventIcons, touchToday } from '../homeEvents';
 import { chronicleButton } from '../loreView';
 import { friendsButton } from '../online/entry';
@@ -186,6 +186,7 @@ export class HomeScene extends Phaser.Scene {
   /** Fixed header/footer; readable settings remain reachable on the smallest supported screen. */
   private openSettings(): void {
     if (this.children.getByName('settingsModal')) return;
+    clearToasts(this);
     const cx = GAME_W / 2;
     const cy = GAME_H / 2;
     const bw = SL.contentW;
@@ -212,7 +213,7 @@ export class HomeScene extends Phaser.Scene {
     layer.once(Phaser.GameObjects.Events.DESTROY, () => this.events.off(Phaser.Scenes.Events.PRE_UPDATE, syncLock));
     const tap = (fn: () => void) => area.tap(() => { if (!confirmOpen(this)) fn(); });
     let y = S.xs as number;
-    const row = (label: string, name: string, get: () => string, change: () => void, explanation?: string, toggleSound = false) => {
+    const row = (label: string, name: string, get: () => string, change: () => void, explanation?: string, toggleSound = false, enabled = true) => {
       const labelText = text(this, cx - bw / 2, 0, label, T.body, C.text, {
         ...OUTLINE, align: 'left', wordWrap: { width: bw - SL.valueW - S.s, useAdvancedWrap: true },
       }).setOrigin(0, 0.5);
@@ -223,17 +224,19 @@ export class HomeScene extends Phaser.Scene {
       labelText.setY(y + layout.centerY);
       area.add(labelText);
       const btn = button(this, cx + bw / 2 - SL.valueW / 2, y + layout.centerY, SL.valueW, SL.hitH, 'ui_btn_secondary', get(), tap(() => {
+        if (!enabled) return;
         change();
         btn.setLabel(get());
         if (toggleSound) sfx('ui_toggle');
       }), T.body, { repeat: true, ...(toggleSound ? { sound: null } : {}) });
       btn.container.setName(name);
+      btn.setEnabled(enabled);
       area.add(btn.container);
       if (detail) area.add(detail.setY(y + layout.explanationY));
       y += layout.height;
     };
     row('Скорость боя', 'battleSpeed', () => `${playback.speed}x`, () => setPlaybackSpeed(nextPlaybackSpeed()),
-      'Запоминается; меняется и прямо в бою');
+      isUnlocked('speed_x2') ? 'Запоминается; меняется и прямо в бою' : lockLabel('speed_x2'), false, isUnlocked('speed_x2'));
     row('Частота кадров', 'fpsCap', () => `${fps.cap} FPS`, () => {
       setFpsCap(nextFpsCap());
       lifecycle()?.setFpsCap(fps.cap);
@@ -242,10 +245,9 @@ export class HomeScene extends Phaser.Scene {
       'Без полёта наград, пульса и «выезда» списков');
 
     const volumeRow = (label: string, name: string, get: () => string, change: () => void) => row(label, name, get, change, undefined, true);
-    volumeRow('Своя музыка', 'ownMusic', () => ownMusicLabel(audioSettings), () => {
+    row('Своя музыка', 'ownMusic', () => ownMusicLabel(audioSettings), () => {
       setAudioSettings({ ownMusic: !audioSettings.ownMusic, ownMusicHint: true });
-      toast(this, ownMusicToast(audioSettings), undefined, 3000);
-    });
+    }, 'Режим оставляет только звуки игры. Свою музыку можно слушать отдельно', true);
     volumeRow('Музыка', 'musicVolume', () => volumeLabel(audioSettings.music), () => setAudioSettings({ music: nextVolume(audioSettings.music) }));
     volumeRow('Звуки', 'sfxVolume', () => volumeLabel(audioSettings.sfx), () => setAudioSettings({ sfx: nextVolume(audioSettings.sfx) }));
     volumeRow('Звуки боя', 'battleSfx', () => battleSfxLabel(audioSettings), () => setAudioSettings({ battleSfx: !audioSettings.battleSfx }));

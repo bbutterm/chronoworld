@@ -1,0 +1,389 @@
+{
+  "title": "Гильдейский автобатлер: матч, составы и экономика",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "unlockAfterStage": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rounds": {
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 12
+    },
+    "lives": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "starterPool": {
+      "minItems": 5,
+      "maxItems": 12,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$"
+      }
+    },
+    "startingTeam": {
+      "minItems": 3,
+      "maxItems": 3,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$"
+      }
+    },
+    "startingGold": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "heroCost": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "rerollCost": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "shopSize": {
+      "type": "number",
+      "const": 3
+    },
+    "reserveLimit": {
+      "type": "integer",
+      "minimum": 5,
+      "maximum": 12
+    },
+    "sellRefund": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 0.75
+    },
+    "income": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "winIncome": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "interestEvery": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "interestCap": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "training": {
+      "minItems": 2,
+      "maxItems": 5,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "cost": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 10,
+            "maximum": 65
+          },
+          "capacity": {
+            "type": "integer",
+            "minimum": 3,
+            "maximum": 5
+          },
+          "rarity": {
+            "type": "string",
+            "enum": [
+              "blue",
+              "purple"
+            ]
+          }
+        },
+        "required": [
+          "cost",
+          "level",
+          "capacity",
+          "rarity"
+        ]
+      }
+    },
+    "starMultiplier": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number",
+          "const": 1
+        },
+        {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 2
+        },
+        {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 3
+        }
+      ],
+      "items": false,
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "opponents": {
+      "minItems": 3,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hint": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 140
+          },
+          "team": {
+            "minItems": 5,
+            "maxItems": 5,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "branches": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "hint",
+          "team"
+        ]
+      }
+    },
+    "difficulty": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 3,
+            "maximum": 5
+          },
+          "mult": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 2
+          },
+          "rarity": {
+            "type": "string",
+            "enum": [
+              "blue",
+              "purple"
+            ]
+          }
+        },
+        "required": [
+          "level",
+          "count",
+          "mult",
+          "rarity"
+        ]
+      }
+    },
+    "synergies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "need": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 5
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "tank",
+                "damage",
+                "healer",
+                "support"
+              ]
+            }
+          },
+          "distinctRoles": {
+            "type": "boolean"
+          },
+          "bonuses": {
+            "type": "object",
+            "properties": {
+              "hp": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "atk": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "def": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "spd": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 0.3
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "need",
+          "bonuses"
+        ]
+      }
+    },
+    "rewards": {
+      "type": "object",
+      "properties": {
+        "gold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "heroExp": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "gems": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "minWins": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        }
+      },
+      "required": [
+        "gold",
+        "heroExp",
+        "gems",
+        "minWins"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "name",
+    "unlockAfterStage",
+    "rounds",
+    "lives",
+    "starterPool",
+    "startingTeam",
+    "startingGold",
+    "heroCost",
+    "rerollCost",
+    "shopSize",
+    "reserveLimit",
+    "sellRefund",
+    "income",
+    "winIncome",
+    "interestEvery",
+    "interestCap",
+    "training",
+    "starMultiplier",
+    "opponents",
+    "difficulty",
+    "synergies",
+    "rewards"
+  ]
+}

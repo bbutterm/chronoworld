@@ -18,6 +18,32 @@
     { "from": "purple", "to": "gold", "gold": 20000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 2 }] },
     { "from": "gold", "to": "red", "gold": 60000, "fodder": [{ "kind": "same", "rarity": "purple", "count": 1 }, { "kind": "any", "rarity": "purple", "count": 2 }] }
   ],
+  "training": {
+    "unlockLevel": 10,
+    "focuses": [
+      {
+        "id": "resolve",
+        "name": "Стойкость",
+        "text": "Держаться в строю дольше: подготовка для героев, которые принимают удары.",
+        "stat": "hp",
+        "pct": 4
+      },
+      {
+        "id": "precision",
+        "name": "Точность",
+        "text": "Использовать каждое открытое окно: подготовка для урона и лечения, зависящего от атаки.",
+        "stat": "atk",
+        "pct": 3
+      },
+      {
+        "id": "guard",
+        "name": "Прикрытие",
+        "text": "Беречь строй: подготовка для сдерживания прямых ударов.",
+        "stat": "def",
+        "pct": 6
+      }
+    ]
+  },
   "branchChange": { "gems": 300, "firstFree": true },
   "heroCards": {
     "firstClear": { "blue": 0.06 },

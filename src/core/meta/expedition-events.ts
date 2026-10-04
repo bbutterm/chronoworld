@@ -50,9 +50,10 @@ export function eventsForLocation(locationId: string, cfg: ExpeditionEventsConfi
  * События новой экспедиции: count штук без повторов (своя локация — вес localWeight, общие — 1), время каждого — внутри
  * своей доли срока: startedAt + срок × (k + 0.2 + 0.6·r) / count.
  */
-export function rollExpeditionEvents(locationId: string, startedAt: number, endsAt: number, hours: number, seed: number, cfg: ExpeditionEventsConfig): ExpeditionEventState[] {
+export function rollExpeditionEvents(locationId: string, startedAt: number, endsAt: number, hours: number, seed: number, cfg: ExpeditionEventsConfig, excludedCommon: readonly string[] = []): ExpeditionEventState[] {
   const n = expeditionEventCount(hours, cfg);
-  const pool = eventsForLocation(locationId, cfg).map((e) => ({ e, w: e.locations.length ? cfg.localWeight : 1 }));
+  const excluded = new Set(excludedCommon);
+  const pool = eventsForLocation(locationId, cfg).filter((e) => e.locations.length || !excluded.has(e.id)).map((e) => ({ e, w: e.locations.length ? cfg.localWeight : 1 }));
   const rng = new Rng(seed);
   const out: ExpeditionEventState[] = [];
   const span = endsAt - startedAt;

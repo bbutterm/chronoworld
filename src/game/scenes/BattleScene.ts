@@ -10,6 +10,8 @@ import {
   enemySquad,
   beginCampaignStage,
   fightHunt,
+  fightAutobattlerRound,
+  type AutobattlerOutcome,
   bondView,
   fightBondQuest,
   type BondQuestOutcome,
@@ -77,6 +79,8 @@ import { battleMode, nextTick, setBattleAuto, ultHint } from '../battleMode';
 import { elementBadge } from '../battleElements';
 import { attackElement, defenseElement } from '../../core/elements';
 import { autoAdvance } from '../state';
+import { recordMvpAttempt, recordTowerProgress } from '../online/online';
+import type { AutobattlerSceneData } from './AutobattlerScene';
 
 /** Полоски компактные: у сошедшихся в ближнем бою пар они не должны касаться. */
 const BAR_W = 124;
@@ -149,8 +153,11 @@ const STATUS_GAP = 3;
 /** Значок навыка у полосы каста. */
 const CAST_ICON = 30;
 /** Имена над юнитами (T2-15, T3-02): мелко, видны первые секунды боя, потом гаснут; касание юнита — показать снова. */
-/** NB-19: 20 → 26 (≈ 9 css px на 360×640 — не читалось). */
-const NAME_SIZE = 26;
+/** Подпись на телефоне остаётся читаемой, даже когда бойцы сходятся вплотную. */
+const NAME_SIZE = T.caption;
+/** Подписи выше фигур и эффектов; их область ограничена полем между двумя панелями HUD. */
+const UNIT_LABEL_DEPTH = DEPTH.numbers + 80;
+const UNIT_LABEL_GAP = 10;
 const NAME_SHOW_S = 3;
 const NAME_FADE_MS = 500;
 const NAME_TAP_MS = 1800;
@@ -172,6 +179,10 @@ function statusDef(id: string): StatusDef | undefined {
   if (!statusDefs) {
     statusDefs = new Map();
     for (const sk of Object.values(CONTENT.skills)) for (const e of sk.effects) if (e.type === 'status' && !statusDefs.has(e.status.id)) statusDefs.set(e.status.id, e.status);
+    for (const unit of Object.values(CONTENT.units)) for (const phase of unit.phases ?? []) for (const action of phase.actions) {
+      if (action.type === 'status' && !statusDefs.has(action.status.id)) statusDefs.set(action.status.id, action.status);
+    }
+    statusDefs.set('charge_broken', { id: 'charge_broken', name: 'Сбит', turns: COMBAT.charge?.stunTurns ?? 3, stun: true });
   }
   return statusDefs.get(id);
 }
@@ -271,6 +282,11 @@ interface UnitView extends SpreadUnit, GaitState {
   /** Значок навыка слева от полосы каста (вместо названия; у заряда — молния castBolt). */
   castIcon: Phaser.GameObjects.Image;
   nameText: Phaser.GameObjects.Text;
+  /** Отдельный слой подписи/каста: фигура соседа не может закрыть имя или готовящийся навык. */
+  labels: Phaser.GameObjects.Container;
+  namePlate: Phaser.GameObjects.Rectangle;
+  labelLeader: Phaser.GameObjects.Rectangle;
+  nameUnder: number;
   /** Круг каста и аура (создаются при первом касте). */
   castRig?: CastRig;
   /** Идёт заряд (каст с charge): молния у полосы каста; создаётся при первом заряде. */
@@ -360,6 +376,7 @@ export type BattleData =
   | { mode: 'stage'; stageId: string }
   | { mode: 'tower' }
   | { mode: 'hunt'; rank?: number }
+  | { mode: 'autobattler' }
   /** Личное задание героя (вечера, BUG-188): бой ядра fightBondQuest, после — «Вечера» с итогом. back — куда вела «Назад» вечеров. */
   | { mode: 'bond'; templateId: string; back?: TavernEveningData['back'] };
 
@@ -396,18 +413,26 @@ export class BattleScene extends Phaser.Scene {
   private towerRun?: { outcome: TowerFightOutcome };
   /** Охота на босса: итог ядра и счётчик урона (huntBattle.ts); после боя — экран охоты, а не итоги. */
   private hunt?: { outcome: HuntOutcome; hud?: HuntHud };
+  private autobattler?: AutobattlerOutcome;
   /** Личное задание (режим bond): итог ядра и куда вернуться. */
   private bond?: { templateId: string; outcome: BondQuestOutcome; back?: TavernEveningData['back'] };
   private committed = false;
   private views = new Map<string, UnitView>();
   /** Те же юниты массивом — обход в update() каждый кадр без итератора Map. */
   private viewList: UnitView[] = [];
+  /** Повторно используемые очереди разведения только видимых подписей (обычно 1–5). */
+  private labelViews: UnitView[] = [];
+  private labelRects: { x: number; y: number; w: number; h: number }[] = [];
   private cursor = 0;
   private clock = 0;
   /** Какие пассивки уже подписывали в этом бою (unit:skill). */
   private shownPassives = new Set<string>();
   /** RR-07: какие статусы уже подписывали над юнитом (unit:status) — подпись только при первом наложении. */
   private shownStatuses = new Set<string>();
+  /** Версия статуса не дает отложенному эффекту вновь показать уже снятый бафф. */
+  private statusVersions = new Map<string, number>();
+  /** Несколько оглушений могут перекрываться: истечение одного не снимает остальные. */
+  private activeStatuses = new Map<string, { def: StatusDef; frozen: boolean }>();
   private finished = false;
   private timeText!: Phaser.GameObjects.Text;
   /** Последняя показанная секунда таймера — текст перерисовываем раз в секунду, а не каждый кадр. */
@@ -495,6 +520,8 @@ export class BattleScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
     this.views.clear();
     this.viewList.length = 0;
+    this.labelViews.length = 0;
+    this.labelRects.length = 0;
     this.later.clear();
     this.shownSec = -1;
     this.cursor = 0;
@@ -514,6 +541,8 @@ export class BattleScene extends Phaser.Scene {
     this.manual = false;
     this.startManual = false;
     this.inputs = [];
+    this.statusVersions.clear();
+    this.activeStatuses.clear();
     this.ultSkill.clear();
     this.ultUsedAt.clear();
     this.focus = null;
@@ -528,6 +557,7 @@ export class BattleScene extends Phaser.Scene {
     this.tower = undefined;
     this.towerRun = undefined;
     this.hunt = undefined;
+    this.autobattler = undefined;
     this.bond = undefined;
     this.levels = null;
     if (data.mode === 'stage') {
@@ -626,6 +656,30 @@ export class BattleScene extends Phaser.Scene {
       this.levels = { rarity: progressLevelBand(save, GAME).rarity, bossFactor: 1 };
       title = outcome.boss.rank !== undefined ? `Охота на MVP · ур. ${outcome.boss.rank + 1}` : 'Охота на босса';
       this.theme = 'swamp';
+    } else if (data.mode === 'autobattler') {
+      const save = session.save;
+      const day = today();
+      const run = (ctl: PlayerControl) => fightAutobattlerRound(save, day, GAME, ctl);
+      let outcome: AutobattlerOutcome;
+      try {
+        outcome = run({ manualUlt: wantManual, inputs: [] });
+      } catch (error) {
+        console.warn(error);
+        this.finished = true;
+        this.scene.start('Autobattler');
+        return;
+      }
+      this.result = outcome.result;
+      this.autobattler = outcome;
+      this.manual = this.startManual = wantManual;
+      this.rerun = (ctl) => {
+        const next = run(ctl);
+        this.autobattler = next;
+        return next.result;
+      };
+      this.defs = Object.fromEntries([...outcome.squad, ...outcome.enemies].filter((u): u is UnitDef => !!u).map((u) => [u.id, u]));
+      title = `Арена · раунд ${outcome.round} · ${outcome.cohort.name}`;
+      this.theme = 'meadow';
     } else if (data.mode === 'bond') {
       // Личное задание (tavern-evenings.md «Что осталось» п. 2): бой ядра с ульта вручную, как в кампании.
       const save = session.save;
@@ -720,6 +774,8 @@ export class BattleScene extends Phaser.Scene {
     this.barked.clear();
     this.behaviorFx = new BehaviorFx(this);
     this.tauntIds.clear();
+    this.statusVersions.clear();
+    this.activeStatuses.clear();
     this.redirectShown.clear();
     for (const u of this.result.units) {
       const def = this.defs[u.unitId];
@@ -987,21 +1043,25 @@ export class BattleScene extends Phaser.Scene {
     const nameY = -look.height - 22;
     // Полоса каста — на месте имени (имя на время каста прячется).
     const castW = BAR_W + 20;
-    const castBack = this.add.image(ox, nameY + 4, 'ui_bar_back').setDisplaySize(castW + 6, 18).setVisible(false);
-    const castBar = this.add.image(ox - castW / 2, nameY + 4, 'ui_bar_energy').setOrigin(0, 0.5).setDisplaySize(castW, 12).setVisible(false);
+    const castX = (CAST_ICON + 10) / 2;
+    const castBack = this.add.image(castX, 0, 'ui_bar_back').setDisplaySize(castW + 6, 22).setVisible(false);
+    const castBar = this.add.image(castX - castW / 2, 0, 'ui_bar_energy').setOrigin(0, 0.5).setDisplaySize(castW, 16).setVisible(false);
     // Итерация 5: у полосы каста — значок навыка, не название («Метеоритный дождь» над головой — лишний текст).
-    const castIcon = this.add.image(ox - castW / 2 - 22, nameY + 4, '__DEFAULT').setDisplaySize(CAST_ICON, CAST_ICON).setVisible(false);
+    const castIcon = this.add.image(castX - castW / 2 - 22, 0, '__DEFAULT').setDisplaySize(CAST_ICON, CAST_ICON).setVisible(false);
     // NB-19: имя — под своими полосками (у ног), а не над макушкой: над головой заднего ряда висят полоски соседа
     // сверху, и подпись читалась как чужая.
     // У героев под полоской — значки перезарядки навыков: имя ниже них.
     const cdRow = snap.side === 'A' && def.skills.actives.length > 0 ? CD_ICON + 2 : 0;
     const belowBars = hasUlt ? EN_BAR_Y + 5 : HP_BAR_Y + HP_BAR_H / 2 + 2;
     const nameUnder = belowBars + 4 + cdRow + NAME_SIZE / 2;
-    const name = text(this, ox, nameUnder, def.name, NAME_SIZE, '#ffffff', { fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 });
+    const name = text(this, 0, 0, def.name, NAME_SIZE, COLOR.textPrimary, { fontStyle: 'bold', stroke: COLOR.bg, strokeThickness: 3 });
+    const namePlate = this.add.rectangle(0, 0, name.width + 16, name.height + 8, COLOR_N.surfaceSunken, 0.94);
+    const labelLeader = this.add.rectangle(0, 0, 1, 2, snap.side === 'A' ? COLOR_N.positive : COLOR_N.negative, 0.85).setOrigin(0, 0.5);
+    const labels = this.add.container(0, 0, [labelLeader, namePlate, name, castBack, castBar, castIcon]).setDepth(UNIT_LABEL_DEPTH).setVisible(false).setName(`unitLabels_${snap.uid}`);
     // §5 «Бой»: имена своих не пишем (их видно по медальонам внизу), касание фигуры — показать на миг.
     if (snap.side === 'A') name.setAlpha(0);
     const bars: Phaser.GameObjects.Components.Visible[] = [barBack, trailBar, hpBar, shieldBar, ...(hasUlt ? [energyBack, energyBar] : []), name];
-    const parts: Phaser.GameObjects.GameObject[] = [shadow, sprite, barBack, trailBar, hpBar, shieldBar, energyBack, energyBar, name];
+    const parts: Phaser.GameObjects.GameObject[] = [shadow, sprite, barBack, trailBar, hpBar, shieldBar, energyBack, energyBar];
     // Уровни рядовых врагов не пишем: на шкале отряда слабые упирались в «ур. 1» рядом с «ур. 16» — путало.
     // Уровень босса — в его полоске наверху (bossIntro).
     // Стихия (docs/design/battle-decisions.md §3): у врага — защита, у героя — атака; нейтраль без значка.
@@ -1031,7 +1091,7 @@ export class BattleScene extends Phaser.Scene {
         parts.push(icon, sweep);
       }
     }
-    const node = this.add.container(fieldX(snap.x), snap.y - this.dy, [...parts, castBack, castBar, castIcon]).setDepth(snap.y - this.dy);
+    const node = this.add.container(fieldX(snap.x), snap.y - this.dy, parts).setDepth(snap.y - this.dy);
 
     const v: UnitView = {
       snap,
@@ -1058,6 +1118,10 @@ export class BattleScene extends Phaser.Scene {
       castIcon,
       charging: false,
       nameText: name,
+      labels,
+      namePlate,
+      labelLeader,
+      nameUnder,
       hitPlan: new Map(),
       statusIcons: new Map(),
       // Над подложкой полоски HP (её верх — y 4) с зазором 2.
@@ -1118,7 +1182,6 @@ export class BattleScene extends Phaser.Scene {
     });
     this.loop(v, 'idle');
     this.redraw(v);
-    this.clampLabel(v, name);
     // Касание юнита — ненадолго показать имя (после начала боя имена гаснут).
     // Зона касания — только тело (кадр листа намного больше фигуры и заходил бы на кнопки и соседей).
     const fw = sprite.frame.realWidth;
@@ -1137,15 +1200,9 @@ export class BattleScene extends Phaser.Scene {
     return this.levels ? Math.max(1, unitLevel(def, this.levels.rarity, GAME, this.levels.bossFactor, this.levels.choices) + (this.levels.shift ?? 0)) : null;
   }
 
-  /** Подпись (имя, название каста) — целиком внутри экрана, даже у юнита у самого края (T3-02). */
-  private clampLabel(v: UnitView, t: Phaser.GameObjects.Text): void {
-    t.x = clampX(v.node.x + v.labelX, t.width) - v.node.x;
-  }
-
   private flashName(v: UnitView): void {
     if (!v.alive || !this.namesHidden) return;
     this.tweens.killTweensOf(v.nameText);
-    this.clampLabel(v, v.nameText);
     v.nameText.setAlpha(1);
     this.tweens.add({ targets: v.nameText, alpha: 0, delay: NAME_TAP_MS, duration: NAME_FADE_MS });
   }
@@ -1192,10 +1249,9 @@ export class BattleScene extends Phaser.Scene {
     }
     this.showTime(Math.min(this.clock, this.result.duration));
     if (this.heroPanel) for (const uid of this.ultSkill.keys()) this.heroPanel.setCharge(uid, this.ultCharge(uid));
-    // Полоска энергии над героем растёт плавно (энергия от времени между событиями лога).
-    for (const uid of this.ultSkill.keys()) {
-      const v = this.views.get(uid);
-      if (v?.alive && v.def.energy?.perSecond) cropBar(v.energyBar, this.shownEnergy(v) / COMBAT.energy.max);
+    // Обе команды Арены: энергия от времени должна отображаться и между событиями лога.
+    for (const v of views) {
+      if (v.alive && v.def.skills.ult && v.def.energy?.perSecond) cropBar(v.energyBar, this.shownEnergy(v) / COMBAT.energy.max);
     }
   }
 
@@ -1260,7 +1316,7 @@ export class BattleScene extends Phaser.Scene {
   /** Молния у полосы каста бойца: идёт заряд, его сбивает ульта с молнией (ultBadge.ts). */
   private castBolt(v: UnitView): Phaser.GameObjects.Image {
     const bolt = chargeBreakBadge(this, v.castBar.x - 22, v.castBar.y, 36);
-    v.node.add(bolt);
+    v.labels.add(bolt);
     return bolt;
   }
 
@@ -1299,13 +1355,59 @@ export class BattleScene extends Phaser.Scene {
 
   /**
    * Показанные позиции: позиция ядра + сглаженное смещение, чтобы близкие бойцы не сливались в кучу;
-   * глубина — по y (нижний рисуется поверх). Подписи, полоски и статусы — в node и едут вместе с ним.
+   * глубина фигур — по y; полоски/статусы едут с ними, видимые подписи разводятся отдельным слоем.
    */
   private layoutUnits(dt: number): void {
     const views = this.viewList;
     spreadUnits(views, dt, SPREAD_BOUNDS);
     for (let i = 0; i < views.length; i++) this.placeUnit(views[i]);
     if (dt > 0) for (let i = 0; i < views.length; i++) this.gait(views[i], dt);
+    this.layoutLabels();
+  }
+
+  /** Имена и касты не заслоняются фигурами и друг другом. Короткая линия сохраняет связь с бойцом. */
+  private layoutLabels(): void {
+    const queue = this.labelViews;
+    const occupied = this.labelRects;
+    queue.length = 0;
+    occupied.length = 0;
+    for (const v of this.viewList) {
+      const cast = !!v.cast && v.castBack.visible;
+      const name = v.nameText.visible && v.nameText.alpha > 0.01;
+      v.labels.setVisible(v.alive && !v.shownDead && (cast || name)).setAlpha(v.node.alpha);
+      v.namePlate.setVisible(!cast && name).setAlpha(v.nameText.alpha);
+      if (v.labels.visible) queue.push(v);
+    }
+    // Заряд, затем обычный каст, затем имя: важная подготовка удара занимает ближайшее к юниту место.
+    queue.sort((a, b) => Number(b.charging) * 2 + Number(!!b.cast) - Number(a.charging) * 2 - Number(!!a.cast));
+    const top = Math.max(this.hudY + 130, this.bossBarY + 150);
+    const bottom = PANEL_TOP + this.panelShift - UNIT_LABEL_GAP;
+    for (const v of queue) {
+      const cast = !!v.cast && v.castBack.visible;
+      const w = cast ? BAR_W + 20 + CAST_ICON + 30 : v.namePlate.width;
+      const h = cast ? CAST_ICON + 12 : v.namePlate.height;
+      const x = clampX(v.node.x + v.labelX, w + UNIT_LABEL_GAP * 2);
+      const preferred = Phaser.Math.Clamp(v.node.y + (cast ? v.nameY + 4 : v.nameUnder) * v.node.scaleY, top + h / 2, bottom - h / 2);
+      let y = preferred;
+      const free = (cy: number) => cy - h / 2 >= top && cy + h / 2 <= bottom && occupied.every((r) =>
+        Math.abs(x - r.x) >= (w + r.w) / 2 + UNIT_LABEL_GAP || Math.abs(cy - r.y) >= (h + r.h) / 2 + UNIT_LABEL_GAP);
+      if (!free(y)) {
+        for (let step = 1; step <= this.viewList.length * 2; step++) {
+          const offset = Math.ceil(step / 2) * (h + UNIT_LABEL_GAP) * (step % 2 ? -1 : 1);
+          if (free(preferred + offset)) { y = preferred + offset; break; }
+        }
+      }
+      v.labels.setPosition(x, y);
+      occupied.push({ x, y, w, h });
+      // Линия идёт к стопам имени или к макушке каста; обе её точки остаются вне верхнего/нижнего HUD.
+      const ax = v.node.x;
+      const ay = Phaser.Math.Clamp(v.node.y + (cast ? -v.look.height * v.node.scaleY : HP_BAR_Y), top, bottom);
+      const ex = Phaser.Math.Clamp(ax, x - w / 2, x + w / 2);
+      const ey = Phaser.Math.Clamp(ay, y - h / 2, y + h / 2);
+      const dx = ex - ax;
+      const dy = ey - ay;
+      v.labelLeader.setPosition(ax - x, ay - y).setDisplaySize(Math.hypot(dx, dy), 2).setRotation(Math.atan2(dy, dx)).setAlpha(cast ? 1 : v.nameText.alpha);
+    }
   }
 
   /**
@@ -1400,8 +1502,11 @@ export class BattleScene extends Phaser.Scene {
 
   private shutdown(): void {
     this.createSeq++;
+    for (const v of this.views.values()) this.endCast(v, false);
     this.views.clear();
     this.viewList.length = 0;
+    this.labelViews.length = 0;
+    this.labelRects.length = 0;
     this.ambient = null;
     this.bossBar = null;
     this.heroPanel = null;
@@ -1841,24 +1946,33 @@ export class BattleScene extends Phaser.Scene {
         const v = this.views.get(e.target)!;
         // Аура продлила статус (каждый ход барда) — значок уже висит, заново не рисуем.
         if (e.action === 'refresh') return;
+        const statusKey = `${e.target}:${e.status}`;
         if (e.action === 'expire') {
-          if (this.tauntIds.has(e.status)) this.behaviorFx?.untaunt(v);
+          this.statusVersions.set(statusKey, (this.statusVersions.get(statusKey) ?? 0) + 1);
+          this.activeStatuses.delete(statusKey);
+          const remaining = [...this.activeStatuses].filter(([key]) => key.startsWith(`${e.target}:`)).map(([, status]) => status);
+          if (this.tauntIds.has(e.status) && !remaining.some((status) => status.def.taunt)) this.behaviorFx?.untaunt(v);
           this.setStatusIcon(v, e.status, undefined);
-          if (statusDef(e.status)?.stun) this.setStun(v, false, false);
+          if (statusDef(e.status)?.stun) this.setStun(v, remaining.some((status) => status.def.stun), remaining.some((status) => status.frozen));
           return;
         }
+        const version = (this.statusVersions.get(statusKey) ?? 0) + 1;
+        this.statusVersions.set(statusKey, version);
         const def = statusDef(e.status);
         const src = this.views.get(e.source);
         // Бафф союзнику (не свой яд/оглушение по врагу) — вспышка защиты из эффектов RO и столб искр.
         const ally = !!src && src.snap.side === v.snap.side;
         v.lastStatusSrc = e.source;
         const srcSkillId = this.skillOf(src, e.t);
+        const frozen = !!def?.stun && (/замороз/i.test(e.name) || /frost|storm_gust/.test(srcSkillId ?? ''));
+        if (def) this.activeStatuses.set(statusKey, { def, frozen });
         if (e.taunt) this.tauntIds.add(e.status);
         this.atImpact(e.source, animate, (animate) => {
+          if (this.statusVersions.get(statusKey) !== version || !v.alive || v.shownDead) return;
           if (v.alive && !v.shownDead) {
             if (e.taunt && src) this.behaviorFx?.taunt(v, src);
             this.setStatusIcon(v, e.status, def);
-            if (def?.stun) this.setStun(v, true, /замороз/i.test(e.name) || /frost|storm_gust/.test(srcSkillId ?? ''));
+            if (def?.stun) this.setStun(v, true, frozen);
           }
           if (!animate) return;
           if (!ally && v.alive && !this.floats.catalogFlash(v.node.x, v.node.y, skillFx(srcSkillId)?.debuff, 220, undefined, undefined, v.snap.side === 'A')) {
@@ -1870,7 +1984,6 @@ export class BattleScene extends Phaser.Scene {
           const srcSkill = srcSkillId ? CONTENT.skills[srcSkillId] : undefined;
           // Итерация 5: статус — значком над юнитом с «хлопком» (не словом), дальше — маленький значок у полоски ОЗ.
           // Не в первую секунду боя (RR-14); бафф союзника — при первом наложении (RR-07), дебафф — каждый раз.
-          const statusKey = `${e.target}:${e.status}`;
           if (def && v.alive && !(ally && srcSkill?.target.pick === 'all') && e.t >= OPENING_QUIET_S && !(ally && this.shownStatuses.has(statusKey))) {
             this.shownStatuses.add(statusKey);
             this.floats.statusPop(v.node.x, v.node.y - v.look.height - 30, statusIcon(this, def), v.snap.uid);
@@ -1963,7 +2076,17 @@ export class BattleScene extends Phaser.Scene {
         this.commitStage();
         if (this.hunt) this.hunt.hud?.finish(this.hunt.outcome);
         this.time.delayedCall(animate ? 1200 : 150, () =>
-          this.bond
+          this.autobattler
+            ? this.scene.start('Autobattler', { fight: {
+                round: this.autobattler.round,
+                won: this.autobattler.won,
+                wins: this.autobattler.wins,
+                lives: this.autobattler.lives,
+                ended: this.autobattler.ended,
+                rewards: this.autobattler.rewards,
+                income: this.autobattler.income,
+              } } satisfies AutobattlerSceneData)
+            : this.bond
             ? startTavernEvening(this, {
                 mode: 'hub',
                 back: this.bond.back,
@@ -2062,16 +2185,18 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private commitStage(): void {
-    const out = this.stage?.outcome ?? this.tower?.outcome ?? this.towerRun?.outcome ?? this.hunt?.outcome ?? this.bond?.outcome;
+    const out = this.stage?.outcome ?? this.tower?.outcome ?? this.towerRun?.outcome ?? this.hunt?.outcome ?? this.bond?.outcome ?? this.autobattler;
     if (!out || this.committed) return;
     this.committed = true;
     commit(out.save);
+    if (this.hunt && !this.hunt.outcome.sweep) recordMvpAttempt(this.hunt.outcome.score);
+    if (this.towerRun && this.towerRun.outcome.result.winner === 'A') recordTowerProgress(this.towerRun.outcome.floor);
   }
 
   // ---------- анимации ----------
 
   /** Каст закончился или сбит: спрятать полосу, вернуть стойку. */
-  private endCast(v: UnitView): void {
+  private endCast(v: UnitView, returnToStance = true): void {
     if (!v.cast) return;
     this.floats.cancelFx(`cast:${v.snap.uid}`);
     v.cast = null;
@@ -2086,7 +2211,7 @@ export class BattleScene extends Phaser.Scene {
       if (this.bossBar?.uid === v.snap.uid) this.bossCharge?.node.setVisible(false);
       if (!this.viewList.some((o) => o.charging)) this.heroPanel?.alertBreakers(false);
     }
-    if (v.alive && this.time.now >= v.busyUntil) this.loop(v, this.stance(v));
+    if (returnToStance && v.alive && this.time.now >= v.busyUntil) this.loop(v, this.stance(v));
   }
 
   private loop(v: UnitView, name: 'idle' | 'walk' | 'cast'): void {
@@ -2164,6 +2289,7 @@ export class BattleScene extends Phaser.Scene {
   private die(v: UnitView, animate: boolean): void {
     if (v.shownDead) return;
     v.shownDead = true;
+    for (const key of this.activeStatuses.keys()) if (key.startsWith(`${v.snap.uid}:`)) this.activeStatuses.delete(key);
     v.hp = 0;
     v.shield = 0;
     this.redraw(v);
@@ -2174,6 +2300,7 @@ export class BattleScene extends Phaser.Scene {
     v.walking = false;
     this.endCast(v);
     for (const b of v.bars) b.setVisible(false);
+    v.labels.setVisible(false);
     // Павший — без вспышки попадания.
     v.tintLeft = 0;
     v.flashFill = false;

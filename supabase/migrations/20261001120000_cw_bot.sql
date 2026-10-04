@@ -38,8 +38,16 @@ create table if not exists public.cw_config (
 alter table public.cw_config enable row level security;
 
 -- 4. Расписание: каждые 15 минут дёргать cw-cron (pg_cron + pg_net). Нет cron_key — запрос не уходит.
-select cron.unschedule('cw-cron') where exists (select 1 from cron.job where jobname = 'cw-cron');
-select cron.schedule(
+-- Vanilla PostgreSQL (локальные тесты) не содержит pg_cron/pg_net. Не блокируем полную схему.
+-- В Supabase расширения включаются в Dashboard; после включения повторить этот безопасный блок.
+do $migration$
+begin
+if to_regnamespace('cron') is null or to_regnamespace('net') is null then
+  raise notice 'cw-cron schedule omitted: enable pg_cron and pg_net before scheduling notifications';
+  return;
+end if;
+perform cron.unschedule('cw-cron') where exists (select 1 from cron.job where jobname = 'cw-cron');
+perform cron.schedule(
   'cw-cron',
   '*/15 * * * *',
   $$
@@ -55,3 +63,7 @@ select cron.schedule(
   where exists (select 1 from public.cw_config where key = 'cron_key');
   $$
 );
+end $migration$;
+
+revoke all on public.cw_bot_start, public.cw_config from anon, authenticated;
+grant all on public.cw_bot_start, public.cw_config to service_role;

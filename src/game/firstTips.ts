@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import type { StoryDef } from '../core';
 import { GAME } from './content';
 import { hintDone, markHint, type HintId } from './hints';
-import { placeBand, type Rect } from './hintLayout';
+import { placeBand, sceneObstacles, type Rect } from './hintLayout';
 import { GAME_H, GAME_W, HEADER_H } from './layout';
 import { framedPortrait } from './portraitFrame';
 import { NAV_H, navY } from './screen';
@@ -76,27 +76,8 @@ export function firstTip(scene: Phaser.Scene, id: TipId, y: number, depth = DEPT
 
 /** Видимые подписи и интерактивные объекты сцены (что реплика не должна закрывать), кроме слоя самой реплики. */
 export function obstacleRects(scene: Phaser.Scene, skip: Phaser.GameObjects.GameObject): Rect[] {
-  const out: Rect[] = [];
-  const big = GAME_W * GAME_H * 0.5;
-  const walk = (list: Phaser.GameObjects.GameObject[]) => {
-    for (const o of list) {
-      if (o === skip || o.name === 'hint' || o.name === TIP_NAME) continue;
-      const v = o as Phaser.GameObjects.GameObject & { visible?: boolean; list?: Phaser.GameObjects.GameObject[]; text?: string };
-      if (v.visible === false) continue;
-      const getBounds = (o as unknown as { getBounds?: () => Phaser.Geom.Rectangle }).getBounds;
-      const isText = o.type === 'Text' && !!v.text?.trim();
-      const isControl = !!o.input?.enabled;
-      if ((isText || isControl) && getBounds) {
-        const b = getBounds.call(o);
-        const r = { x: b.x, y: b.y, w: b.width, h: b.height };
-        // Затемнения и подложки во весь экран — не помеха (одинаково закрыты при любом месте).
-        if (r.w > 0 && r.h > 0 && r.w * r.h < big) out.push(r);
-      }
-      if (v.list && !isControl) walk(v.list);
-    }
-  };
-  walk(scene.children.list);
-  return out;
+  const { controls, texts } = sceneObstacles(scene.children.list, { x: -GAME_W, y: -GAME_H, w: 0, h: 0 }, { w: GAME_W, h: GAME_H }, ['hint', TIP_NAME, skip.name]);
+  return [...controls, ...texts];
 }
 
 function draw(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, def: TipDef, prefer: number): void {

@@ -1,7 +1,8 @@
 import type { EquipmentConfig } from '../equipment/load';
+import { withGear } from '../equipment/equipment';
 import type { FeatureContext } from '../features/config';
 import { heroPower } from '../features/power';
-import { heroJobId, heroRole } from '../heroes/card';
+import { activeForm, heroRole, heroSkills, heroTemplate } from '../heroes/card';
 import { duplicateCardsInSquad } from '../heroes/roster';
 import type { GameContext } from '../progression/types';
 import type { HeroState, Preset, SaveState } from '../save/schema';
@@ -12,6 +13,113 @@ import { MetaError } from './errors';
 export const FRONT_SLOTS = [0, 1] as const;
 export const BACK_SLOTS = [2, 3, 4] as const;
 const SQUAD_SIZE = 5;
+
+/** These ratios guide automatic selection; they do not modify combat or guarantee a win. */
+export interface AutoFormationOptions {
+  /** Reserve ally healing/shields by default; false supports the model's explicit --no-healer mode. */
+  sustain?: boolean;
+  healRatio?: number;
+  shieldRatio?: number;
+  frontRatio?: number;
+}
+
+const DEFAULT_FORMATION: Required<AutoFormationOptions> = { sustain: true, healRatio: 0.45, shieldRatio: 0.65, frontRatio: 0.65 };
+
+export interface HeroSustain {
+  /** An unlocked skill can restore an ally's HP. Self-healing does not qualify. */
+  heals: boolean;
+  /** An unlocked skill can shield an ally. Self-only shields do not qualify. */
+  shields: boolean;
+  /** The skills that actually provide the above support, including basic attacks and ultimates. */
+  skills: string[];
+}
+
+export interface FormationCandidate {
+  hero: HeroState;
+  /** Current power for the game; reachable, honestly funded potential may be used by the player model. */
+  power: number;
+}
+
+/** Sustain comes from the current skill set, not a role name or a future profession. */
+export function heroSustain(hero: HeroState, ctx: GameContext): HeroSustain {
+  const open = heroSkills(hero, ctx);
+  const ult = activeForm(heroTemplate(ctx, hero.templateId), hero).ult;
+  const ids = new Set([open.basic, ...open.actives, ...open.passives, ...(ult ? [ult] : [])]);
+  const result: HeroSustain = { heals: false, shields: false, skills: [] };
+  for (const id of ids) {
+    const skill = ctx.content.skills[id];
+    if (!skill || skill.target.side !== 'ally' || skill.target.pick === 'self' || (skill.trigger && skill.chance <= 0)) continue;
+    const heals = skill.effects.some((effect) => effect.type === 'heal');
+    const shields = skill.effects.some((effect) => effect.type === 'shield');
+    if (heals || shields) result.skills.push(id);
+    result.heals ||= heals;
+    result.shields ||= shields;
+  }
+  return result;
+}
+
+const byCandidatePower = <T extends FormationCandidate>(a: T, b: T): number =>
+  b.power - a.power || (a.hero.id < b.hero.id ? -1 : a.hero.id > b.hero.id ? 1 : 0);
+
+/** Replace the same template's copy if necessary, and never remove the only tank for a non-tank. */
+function replacementFor<T extends FormationCandidate>(chosen: readonly T[], incoming: T, ctx: GameContext, protectedMember?: (candidate: T) => boolean): T | undefined {
+  const tanks = chosen.filter((candidate) => heroRole(candidate.hero, ctx) === 'tank').length;
+  const allowed = (candidate: T) => !protectedMember?.(candidate) && (tanks !== 1 || heroRole(candidate.hero, ctx) !== 'tank' || heroRole(incoming.hero, ctx) === 'tank');
+  const sameTemplate = chosen.find((candidate) => candidate.hero.templateId === incoming.hero.templateId);
+  if (sameTemplate) return allowed(sameTemplate) ? sameTemplate : undefined;
+  return [...chosen].filter(allowed).sort((a, b) => byCandidatePower(b, a))[0];
+}
+
+/**
+ * Reserve one viable source of ally healing, or an ally shield when healing is unavailable.
+ * The default 45% healing / 65% shielding floor is relative to the member being replaced, independent of rarity.
+ * A modest loss of displayed power can be worthwhile for support; an untrained level-1 recruit in a veteran team
+ * remains far below the floor. Keep the last tank, individual IDs, one copy per template and the caller's objects.
+ * The player model can pass its already-computed potential as power; this helper never grants levels or gear.
+ */
+export function reserveSustain<T extends FormationCandidate>(
+  chosen: readonly T[],
+  candidates: readonly T[],
+  ctx: GameContext,
+  options: AutoFormationOptions = {},
+): T[] {
+  if (options.sustain === false || chosen.length < 3) return [...chosen];
+  const profiles = new Map<HeroState, HeroSustain>();
+  const profile = (candidate: T) => {
+    let support = profiles.get(candidate.hero);
+    if (!support) {
+      support = heroSustain(candidate.hero, ctx);
+      profiles.set(candidate.hero, support);
+    }
+    return support;
+  };
+  const priority = (candidate: T) => profile(candidate).heals ? 2 : profile(candidate).shields ? 1 : 0;
+  const current = Math.max(...chosen.map(priority));
+  if (current === 2) return [...chosen];
+  const selectedIds = new Set(chosen.map((candidate) => candidate.hero.id));
+  const eligible = [...candidates]
+    .filter((candidate) => !selectedIds.has(candidate.hero.id) && Number.isFinite(candidate.power) && candidate.power > 0 && priority(candidate) > current)
+    .sort((a, b) => priority(b) - priority(a) || byCandidatePower(a, b));
+  for (const incoming of eligible) {
+    const outgoing = replacementFor(chosen, incoming, ctx);
+    const ratio = profile(incoming).heals ? options.healRatio ?? DEFAULT_FORMATION.healRatio : options.shieldRatio ?? DEFAULT_FORMATION.shieldRatio;
+    if (outgoing && incoming.power >= outgoing.power * ratio) return chosen.map((candidate) => candidate === outgoing ? incoming : candidate);
+  }
+  return [...chosen];
+}
+
+/** Reserve a viable tank when the strongest five otherwise provide no tank at all. */
+function reserveFrontline<T extends FormationCandidate>(chosen: readonly T[], candidates: readonly T[], ctx: GameContext, ratio: number): T[] {
+  if (chosen.length < 3 || chosen.some((candidate) => heroRole(candidate.hero, ctx) === 'tank')) return [...chosen];
+  const selected = new Set(chosen.map((candidate) => candidate.hero.id));
+  const healers = chosen.filter((candidate) => heroSustain(candidate.hero, ctx).heals);
+  const tanks = [...candidates].filter((candidate) => !selected.has(candidate.hero.id) && heroRole(candidate.hero, ctx) === 'tank').sort(byCandidatePower);
+  for (const incoming of tanks) {
+    const outgoing = replacementFor(chosen, incoming, ctx, (candidate) => healers.length === 1 && candidate === healers[0] && !heroSustain(incoming.hero, ctx).heals);
+    if (outgoing && incoming.power >= outgoing.power * ratio) return chosen.map((candidate) => candidate === outgoing ? incoming : candidate);
+  }
+  return [...chosen];
+}
 
 /**
  * Проверить расстановку: 5 слотов, герои существуют и не повторяются, одна копия каждой карточки.
@@ -112,40 +220,45 @@ export function formationRank(hero: HeroState, ctx: GameContext): number {
   const role = heroRole(hero, ctx);
   if (role === 'tank') return 0;
   if (role === 'healer') return 3;
-  return ctx.content.skills[ctx.content.jobs[heroJobId(hero, ctx)]?.basic ?? '']?.range === 'melee' ? 1 : 2;
+  const basic = ctx.content.skills[heroSkills(hero, ctx).basic];
+  if (basic?.target.side === 'ally' && basic.target.pick !== 'self' && basic.effects.some((effect) => effect.type === 'heal')) return 3;
+  return basic?.range === 'melee' ? 1 : 2;
 }
 
 /**
  * K8. Авто-расстановка. Возвращает новый squad (save не меняет).
- * 1. Берутся 5 самых сильных героев по heroPower (с экипировкой, если есть ctx.equipment); при равной мощи —
- *    по id героя по возрастанию. Одна копия каждой карточки (сильнейшая).
- * 2. «Передние» (танки, затем ближний бой; внутри — мощь ↓, id ↑) занимают слоты 0, 1, 2, 3, 4 по порядку
+ * 1. Берутся 5 самых сильных разных карточек по heroPower (с экипировкой); при равной мощи — id по возрастанию.
+ * 2. Если нет танка или поддержки, резервируется жизнеспособный танк и источник лечения союзников (иначе — щита).
+ *    Это эвристика состава: мощь может немного снизиться, уровень/экипировка не меняются, победа не гарантирована.
+ * 3. «Передние» (танки, затем ближний бой; внутри — мощь ↓, id ↑) занимают слоты 0, 1, 2, 3, 4 по порядку
  *    первого свободного; «задние» (лекари, затем дальний бой; внутри — мощь ↓, id ↑) — с конца: 4, 3, 2, 1, 0.
  *    Так танки всегда в 0–1, лекари — в самом тылу, а при нехватке одной из групп другая занимает её слоты.
  * Героев меньше 5 — лишние слоты null. Герои в экспедиции участвуют (экспедиция не мешает сражаться).
  */
-export function autoFormation(save: SaveState, ctx: FeatureContext & { equipment?: EquipmentConfig }): (string | null)[] {
-  const rated = save.heroes.map((h) => ({ id: h.id, power: heroPower(h, ctx, save), rank: formationRank(h, ctx) }));
-  const byPower = (a: (typeof rated)[number], b: (typeof rated)[number]) => b.power - a.power || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+export function autoFormation(save: SaveState, ctx: FeatureContext & { equipment?: EquipmentConfig }, options: AutoFormationOptions = {}): (string | null)[] {
+  const gear = withGear(ctx, save);
+  const rated = save.heroes.map((hero) => ({ hero, power: heroPower(hero, gear), rank: formationRank(hero, ctx) }));
   const templates = new Set<string>();
-  const chosen = [...rated]
-    .sort(byPower)
+  const strongest = [...rated]
+    .sort(byCandidatePower)
     .filter((r) => {
-      const t = save.heroes.find((h) => h.id === r.id)!.templateId;
+      const t = r.hero.templateId;
       if (templates.has(t)) return false;
       templates.add(t);
       return true;
     })
     .slice(0, SQUAD_SIZE);
+  const front = reserveFrontline(strongest, rated, ctx, options.frontRatio ?? DEFAULT_FORMATION.frontRatio);
+  const chosen = options.sustain === false ? front : reserveSustain(front, rated, ctx, options);
   const squad: (string | null)[] = Array(SQUAD_SIZE).fill(null);
   const place = (id: string, order: readonly number[]) => {
     const slot = order.find((i) => squad[i] === null)!;
     squad[slot] = id;
   };
-  const front = chosen.filter((h) => h.rank <= 1).sort((a, b) => a.rank - b.rank || byPower(a, b));
-  const back = chosen.filter((h) => h.rank >= 2).sort((a, b) => b.rank - a.rank || byPower(a, b));
-  for (const h of front) place(h.id, [0, 1, 2, 3, 4]);
-  for (const h of back) place(h.id, [4, 3, 2, 1, 0]);
+  const frontline = chosen.filter((h) => h.rank <= 1).sort((a, b) => a.rank - b.rank || byCandidatePower(a, b));
+  const back = chosen.filter((h) => h.rank >= 2).sort((a, b) => b.rank - a.rank || byCandidatePower(a, b));
+  for (const h of frontline) place(h.hero.id, [0, 1, 2, 3, 4]);
+  for (const h of back) place(h.hero.id, [4, 3, 2, 1, 0]);
   return squad;
 }
 
