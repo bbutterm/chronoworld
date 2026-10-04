@@ -7,6 +7,7 @@ vi.mock('phaser', () => {
     y = 0;
     alpha = 1;
     scale = 1;
+    scaleY = 1;
     visible = true;
     active = true;
     text = '';
@@ -22,8 +23,9 @@ vi.mock('phaser', () => {
       this.x = x;
       return this;
     }
-    setScale(s: number) {
+    setScale(s: number, sy = s) {
       this.scale = s;
+      this.scaleY = sy;
       return this;
     }
     setAlpha(a: number) {
@@ -56,6 +58,8 @@ vi.mock('phaser', () => {
     setOrigin() {
       return this;
     }
+    setRotation() { return this; }
+    setFrame() { return this; }
     setTint() {
       return this;
     }
@@ -203,5 +207,155 @@ describe('значки статусов над юнитом', () => {
     expect(layer.statusPop(300, 800, 'missing', 'u1')).toBeNull();
     layer.step(2000);
     expect(b!.visible).toBe(false);
+  });
+});
+
+type LiveNumber = { kind: number; t: number; dur: number; die: number; nw: number; nh: number; obj: { x: number; y: number; text: string; visible: boolean; scale: number }; };
+const numbers = (layer: InstanceType<typeof fx.FloatLayer>) => (layer as unknown as { live: LiveNumber[] }).live.filter((r) => r.kind === 0 && r.die < 0);
+const overlap = (a: LiveNumber, b: LiveNumber) => Math.abs(a.obj.x - b.obj.x) < (a.nw + b.nw) / 2 && Math.abs(a.obj.y - b.obj.y) < (a.nh + b.nh) / 2;
+
+describe('цифры боя: место занято весь видимый срок', () => {
+  it('после прежних 420 мс новая цифра не занимает место ещё видимой, даже у соседней цели', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.roNumber(500, 900, '80', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u1');
+    layer.step(440);
+    const old = numbers(layer)[0];
+    layer.roNumber(old.obj.x, old.obj.y, '32', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u2');
+    const live = numbers(layer);
+    expect(live).toHaveLength(2);
+    expect(live[0].t).toBe(440);
+    expect(overlap(live[0], live[1])).toBe(false);
+    expect(live[1].obj.y).toBeLessThan(live[0].obj.y);
+    // Длительность самой цифры не меняется: место освобождается при её завершении.
+    layer.step(660);
+    expect(numbers(layer)).toHaveLength(1);
+    layer.step(440);
+    expect(numbers(layer)).toHaveLength(0);
+    layer.roNumber(500, 900, '9', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u1');
+    expect(numbers(layer)[0].obj.y).toBe(900);
+  });
+
+  it('одновременные урон, лечение и крит разводятся с учётом пика масштаба', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.roNumber(500, 900, '123', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u1');
+    layer.roNumber(500, 900, '80', 0x5cff6a, 1.15, 5000, RO_RISE, 1, 'u1');
+    layer.roNumber(500, 900, '1234', 0xffd23a, 1.6, 5000, RO_HIT, 1, 'u2');
+    const live = numbers(layer);
+    for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) expect(overlap(live[i], live[j])).toBe(false);
+    layer.step(0); // Пауза не освобождает место и не меняет таймер.
+    expect(numbers(layer).map((r) => r.t)).toEqual([0, 0, 0]);
+  });
+
+  it('увеличение суммы при слиянии не обрезает пик цифры на краю экрана', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.roNumber(5, 900, '9', 0xffd23a, 1.6, 5000, RO_HIT, -1, 'u1');
+    layer.roNumber(5, 900, '991', 0xffd23a, 1.6, 5000, RO_HIT, -1, 'u1');
+    const [n] = numbers(layer);
+    expect(n.obj.text).toBe('1000');
+    expect(n.obj.x - n.nw / 2).toBeGreaterThanOrEqual(8);
+    expect(n.obj.x - n.obj.text.length * 20 * n.obj.scale / 2).toBeGreaterThanOrEqual(8);
+  });
+
+  it('запасной шрифт тоже занимает место; отмена очищает размещение и пулы переиспользуются', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.number(500, 900, '42', 40, '#ffffff', '#000000', 6, 5000, 36, 450, false, 'u1');
+    layer.roNumber(500, 900, '80', 0x5cff6a, 1.15, 5000, RO_RISE, 1, 'u2');
+    const live = numbers(layer);
+    expect(overlap(live[0], live[1])).toBe(false);
+    const created = layer.created;
+    layer.cancel();
+    expect(layer.activeTexts).toBe(0);
+    layer.roNumber(500, 900, '10', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u1');
+    expect(numbers(layer)[0].obj.y).toBe(900);
+    expect(layer.created).toBe(created);
+  });
+});
+
+describe('белое ядро обычного попадания', () => {
+  it('короткое и компактное, при этом цветной рисунок оружия остаётся', async () => {
+    const { SkillFx, FX_TEX } = await import('../src/game/skillFx');
+    const stub = { glow: vi.fn(), slash: vi.fn(), burst: vi.fn() };
+    SkillFx.prototype.strike.call(stub as never, 'slash', { x: 400, y: 850, feet: 1000 }, 1, false, 0xffc0a0);
+    const spark = stub.glow.mock.calls.find((args) => args[8] === FX_TEX.spark)!;
+    expect(spark).toBeDefined();
+    expect(spark[4]).toBeLessThanOrEqual(1.6);
+    expect(spark[5]).toBeLessThanOrEqual(100);
+    expect(spark[7]).toBeLessThanOrEqual(0.55);
+    expect(stub.slash).toHaveBeenCalledOnce();
+    expect(stub.burst).toHaveBeenCalledOnce();
+  });
+});
+
+describe('цифры боя: траектории и границы', () => {
+  it('поздний удар не пересекает поднимающееся лечение спустя 700 мс', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.roNumber(500, 900, '1000', 0x5cff6a, 1.15, 5000, RO_RISE, 1, 'u1');
+    layer.step(400);
+    layer.roNumber(500, 900, '1000', 0xffffff, 1.15, 5000, RO_HIT, 1, 'u2');
+    for (let i = 0; i < 7; i++) {
+      layer.step(100);
+      const live = numbers(layer);
+      expect(overlap(live[0], live[1])).toBe(false);
+    }
+  });
+
+  it('плотные криты остаются ниже HUD и внутри экрана на всей траектории', () => {
+    const layer = new fx.FloatLayer(fakeScene());
+    for (let i = 0; i < 8; i++) layer.roNumber(1040, 520, '9999', 0xffd23a, 1.6, 5000, RO_HIT, 1, `u${i}`);
+    for (let i = 0; i < 10; i++) {
+      layer.step(100);
+      for (const n of numbers(layer)) {
+        expect(n.obj.y - n.nh / 2).toBeGreaterThanOrEqual(382);
+        expect(n.obj.x - n.nw / 2).toBeGreaterThanOrEqual(8);
+        expect(n.obj.x + n.nw / 2).toBeLessThanOrEqual(1072);
+      }
+    }
+  });
+});
+
+describe('лечение: столб не выбеливает героя', () => {
+  it.each([false, true])('атлас на союзнике приглушён, полный срок 17 кадров сохранён (ульта=%s)', (ult) => {
+    const layer = new fx.FloatLayer(fakeScene());
+    layer.ult = ult;
+    layer.flash(500, 900, 'fx_heal', 182, 0.8, 250, fx.DEPTH.fx, 1100, undefined, undefined, true);
+    const live = (layer as unknown as { live: { dur: number; obj: { alpha: number; displayWidth: number; visible: boolean } }[] }).live;
+    const effect = live[0];
+    expect(effect.obj.alpha).toBeCloseTo(0.8 * 0.45 * (ult ? 0.8 : fx.ALLY_FX_ALPHA));
+    expect(effect.obj.displayWidth).toBeCloseTo(182 * 0.8 / (ult ? 1 : fx.SKILL_FX_SIZE));
+    expect(effect.dur).toBeCloseTo(17 * 83.33);
+    layer.step(effect.dur - 1);
+    expect(effect.obj.visible).toBe(true);
+    layer.step(1);
+    expect(effect.obj.visible).toBe(false);
+  });
+
+  it.each([[false, false, 1], [true, false, 1.15], [false, true, 0.6]] as const)('процедурные ядра тонкие, кольцо и 760-мс анимация сохранены (big=%s, small=%s)', async (big, small, k) => {
+    const { SkillFx, FX_TEX } = await import('../src/game/skillFx');
+    const images: { tex: string; tint: number; node: any }[] = [];
+    const runs: { obj: any; dur: number; fn: (q: number, obj: any) => void }[] = [];
+    const stub = {
+      img: (tex: string, _x: number, _y: number, tint: number) => {
+        const node = new Phaser.GameObjects.Image(); images.push({ tex, tint, node }); return node;
+      },
+      glow: vi.fn(), rise: vi.fn(), n: () => 0,
+      crosses: { setParticleTint: vi.fn(), emitParticleAt: vi.fn() },
+      run: (obj: any, dur: number, fn: (q: number, obj: any) => void) => runs.push({ obj, dur, fn }),
+    };
+    SkillFx.prototype.heal.call(stub as never, { x: 400, y: 850, feet: 1000 }, big, small);
+    const columns = images.filter((i) => i.tex === FX_TEX.beam);
+    expect(columns).toHaveLength(2);
+    for (const col of columns) {
+      const r = runs.find((r) => r.obj === col.node)!;
+      expect(r.dur).toBe(760);
+      const white = col.tint === 0xffffff;
+      expect(col.node.scaleY * 32).toBeCloseTo((white ? 24 : 100) * k);
+      expect(col.node.alpha).toBeCloseTo(white ? 0.22 : 0.35);
+      r.fn(0.3, col.node);
+      expect(col.node.alpha).toBeCloseTo(white ? 0.22 : 0.35);
+      r.fn(1, col.node);
+      expect(col.node.alpha).toBeCloseTo(0);
+    }
+    expect(stub.glow.mock.calls.some((a) => a[8] === FX_TEX.ring && a[5] === 620)).toBe(true);
+    expect(stub.rise).toHaveBeenCalledTimes(2);
   });
 });

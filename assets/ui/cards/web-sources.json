@@ -1,0 +1,80 @@
+{
+  "description": "Официальные источники трёх добавленных карт Башни. Публичное скачивание не подтверждает права на распространение.",
+  "cards": [
+    {
+      "name": "Sidewinder",
+      "itemId": 4117,
+      "sourcePage": "https://ro.gnjoy.com/guide/runemidgarts/itemview.asp?ID=4117&itemSeq=5",
+      "sourceImage": "https://imgc1.gnjoy.com/games/ro1/object/201306/4117.png?v=2310231155",
+      "bytes": 59532,
+      "width": 300,
+      "height": 400,
+      "sha256": "3511bac1ee6e7014f74b1ffc6f000001784725ff01296956a9baeace175f4cf5",
+      "copyright": "Copyright © Gravity Co., LTD & Lee MyoungJin(studio DTDS). All Rights Reserved.",
+      "license": "No open-use license identified; rights reserved. Download success is not permission for redistribution.",
+      "verification": "Official item page names matching card and visibly links exact asset URL; local original pixels manually inspected with view_image.",
+      "verifiedUTC": "2026-10-03T13:15:10.845640+00:00",
+      "blessingId": "side_winder",
+      "originalFormat": "PNG",
+      "asset": {
+        "file": "assets/ui/cards/side_winder.webp",
+        "format": "WEBP",
+        "width": 180,
+        "height": 240,
+        "bytes": 11774,
+        "sha256": "d28a5fad696035552493c4d17d8574f3314ce020aace80b8f70dc6e88a1c43e0",
+        "conversion": "RGB, Lanczos resize to 180×240, WebP quality=85, method=6; no repainting/cropping"
+      }
+    },
+    {
+      "name": "Marse",
+      "itemId": 4095,
+      "sourcePage": "https://ro.gnjoy.com/guide/runemidgarts/itemview.asp?ID=4095&itemSeq=5",
+      "sourceImage": "https://imgc1.gnjoy.com/games/ro1/object/201306/4095.png?v=2310231155",
+      "bytes": 47958,
+      "width": 300,
+      "height": 400,
+      "sha256": "1e3b4d87f74377c940fe4422a68d9d106a997beed5c571da3a3c35dd7e6509b0",
+      "copyright": "Copyright © Gravity Co., LTD & Lee MyoungJin(studio DTDS). All Rights Reserved.",
+      "license": "No open-use license identified; rights reserved. Download success is not permission for redistribution.",
+      "verification": "Official item page names matching card and visibly links exact asset URL; local original pixels manually inspected with view_image.",
+      "verifiedUTC": "2026-10-03T13:15:10.845942+00:00",
+      "blessingId": "marse",
+      "originalFormat": "PNG",
+      "asset": {
+        "file": "assets/ui/cards/marse.webp",
+        "format": "WEBP",
+        "width": 180,
+        "height": 240,
+        "bytes": 7686,
+        "sha256": "e650a979d3597925be19565b280c0717d2a7db2f71abf6d2da284d355ecb94d2",
+        "conversion": "RGB, Lanczos resize to 180×240, WebP quality=85, method=6; no repainting/cropping"
+      }
+    },
+    {
+      "name": "Sohee",
+      "itemId": 4100,
+      "sourcePage": "https://ro.gnjoy.com/guide/runemidgarts/itemview.asp?ID=4100&itemSeq=5",
+      "sourceImage": "https://imgc1.gnjoy.com/games/ro1/object/201306/4100.png?v=2310231155",
+      "bytes": 66320,
+      "width": 300,
+      "height": 400,
+      "sha256": "deb7a47aa91f4e0b56299681ea5e16a79c6dfcc1336b717c23ae07e50eb5016e",
+      "copyright": "Copyright © Gravity Co., LTD & Lee MyoungJin(studio DTDS). All Rights Reserved.",
+      "license": "No open-use license identified; rights reserved. Download success is not permission for redistribution.",
+      "verification": "Official item page names matching card and visibly links exact asset URL; local original pixels manually inspected with view_image.",
+      "verifiedUTC": "2026-10-03T13:15:10.846178+00:00",
+      "blessingId": "sohee",
+      "originalFormat": "PNG",
+      "asset": {
+        "file": "assets/ui/cards/sohee.webp",
+        "format": "WEBP",
+        "width": 180,
+        "height": 240,
+        "bytes": 9016,
+        "sha256": "0ec078206dd1aee94d9d6165c8cd7a12a2d602f9d9147f3835461362b050073a",
+        "conversion": "RGB, Lanczos resize to 180×240, WebP quality=85, method=6; no repainting/cropping"
+      }
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 {
   "$schema": "../schema/skill.schema.json",
   "id": "ult_alan_grand_cross",
-  "name": "Великий крест",
-  "description": "Святой крест вокруг Алана: ×1,7 святостью всем врагам.",
+  "name": "Крест воздаяния",
+  "description": "Алан призывает святой крест, поражающий всех врагов.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { COMBAT } from '../core';
 import { CONTENT } from './content';
 import { bottomSheet } from './screen';
-import { factRows, skillFacts } from './skillFacts';
+import { factRows, skillFacts, skillKind } from './skillFacts';
 import { skillIcon } from './skillIcons';
 import { skinIcon } from './skin';
 import { COLOR, COLOR_N, R, S, T, Z } from './theme';
@@ -10,12 +10,12 @@ import { plate, SURFACE, tag, text, type Tone } from './ui';
 
 /**
  * Подробности навыка (касание плитки на карточке героя, навыка в выборе ветки, на вознесении) — лист снизу
- * (screen.ts bottomSheet): заголовок — название; иконка, вид тегом («Активный» / «Пассивный» / «Ульта» /
+ * (screen.ts bottomSheet): заголовок — название; иконка, вид тегом («Автонавык» / «Пассивный» / «Ульта» /
  * «Обычная атака»), условие открытия; полное описание; цифры строками «подпись — значение» (skillFacts → factRows).
  * Закрывается «×», касанием мимо листа и «назад».
  */
 export interface SkillDetailOptions {
-  /** Вид: «Обычная атака», «Активный», «Пассивный» (по умолчанию — по навыку). */
+  /** Вид: «Обычная атака», «Автонавык», «Пассивный» (по умолчанию — по навыку). */
   kind?: string;
   /** Навык закрыт: подпись «Откроется на ур. 30 · нужен Золотой». */
   lockNote?: string;
@@ -52,7 +52,7 @@ export function openSkillDetail(scene: Phaser.Scene, skillId: string, o: SkillDe
     if (c.getData?.(SKILL_DETAIL)) (c.getData('close') as (() => void) | undefined)?.();
   }
   const passive = !!sk.trigger;
-  const kind = o.kind ?? (o.basic ? 'Обычная атака' : o.ult ? 'Ульта' : passive ? 'Пассивный' : 'Активный');
+  const kind = o.kind ?? skillKind(sk, o);
   const sheet = bottomSheet(
     scene,
     sk.name,

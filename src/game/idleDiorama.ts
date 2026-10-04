@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { enemySquad, idleIncome, lastClearedStage, offlineFullInMs, offlineLoot, offlineRewards } from '../core';
+import { resolveStageEnemies, enemySquad, idleIncome, lastClearedStage, offlineFullInMs, offlineLoot, offlineRewards } from '../core';
 import { animatedEffect, animatedFxKey, skillFx } from './animatedFx';
 import { holdAnimatedFx, hasArt } from './assets';
 import { ensureAmbientTextures, SHADOW_TEX } from './ambient';
@@ -197,12 +197,12 @@ class IdleDiorama {
     this.lineup = squadLineup(session.save.squad, defs);
     if (cur) {
       this.pool = enemyPool(
-        CONTENT.stages,
+        CONTENT.stages.map((stage) => ({ ...stage, enemies: resolveStageEnemies(stage, session.save.campaignChoices) })),
         cur.id,
         (u) => CONTENT.units[u]?.visual.sprite,
         (sp) => SPRITES[sp]?.cell[1],
       );
-      const atk = enemySquad(cur.id, GAME).reduce((m, d) => Math.max(m, d?.stats.atk ?? 0), 0);
+      const atk = enemySquad(cur.id, GAME, session.save.campaignChoices).reduce((m, d) => Math.max(m, d?.stats.atk ?? 0), 0);
       if (atk > 0) this.enemyAtk = atk;
     }
     ensureAmbientTextures(scene);
