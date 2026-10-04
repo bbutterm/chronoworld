@@ -1,5 +1,13 @@
 # Справочник для агентов
 
+> Текущий проход 04.10.2026: [аудит](qa/overhaul-audit.md), [прогрессия](qa/rpg-progression.md),
+> [автобатлер](qa/autobattler-mode.md), [сохранения/онлайн](qa/backend-reliability.md).
+> Формат сохранения v7, поля новых систем optional. `HeroState.training/journey/companion`, `heroSeq`,
+> `campaignFarm`, `inventory.itemSeq/locked`, `online` и `autobattler` описаны в этих документах.
+> Production-контент проходит прежние валидаторы при сборке и загружается из скомпилированного снимка;
+> dev/тесты по-прежнему используют runtime buildGameContext. Прямой `climbTower` не описывает актуальный забег:
+> модель использует `actTowerFight` + `scripts/lib/tower-player.ts`. Неудачная заточка больше не удаляет вещь.
+
 Всё, что нужно, чтобы продолжить работу без истории чата. Сверено с кодом (ветка `claude/idle-hero-rpg-gdd-rolicg`, 27.09.2026).
 Короткая памятка — `CLAUDE.md` в корне; «как добавить X» — [`CONTENT_RECIPES.md`](CONTENT_RECIPES.md); состояние — [`PROGRESS.md`](PROGRESS.md).
 Если что-то здесь разошлось с кодом — прав код, исправьте документ в том же коммите.
@@ -868,4 +876,3 @@ Vercel собирает `main` (`vercel.json`: `npm ci`, `npm run build`, `dist`
   растянута — фильтрация у края как у отдельной текстуры). Ключи прежние: это текстуры-псевдонимы над общим источником
   (`packedTexture.ts addAtlasAliases`), `scene.add.image(x, y, 'skin_btn')` и nineslice работают как раньше, но в GPU одна
   текстура. Фоны, лучи и баннеры — отдельно. Новая мелкая текстура скина через `canvas()` в `buildSkin` попадёт в атлас сама.
-

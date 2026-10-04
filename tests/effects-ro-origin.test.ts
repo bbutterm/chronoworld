@@ -77,6 +77,8 @@ const RO_ORIGIN: Record<string, { ro: string; fx: string[] }> = {
   job_priest_kyrie_eleison: { ro: 'PR_KYRIE', fx: ['112'] },
   job_priest_magnificat: { ro: 'PR_MAGNIFICAT', fx: ['76'] },
   job_priest_assumptio: { ro: 'HP_ASSUMPTIO', fx: ['440'] },
+  // Та же HP_ASSUMPTIO: продвинутая форма использует существующий подтверждённый EF440.
+  ro_high_priest_assumptio: { ro: 'HP_ASSUMPTIO', fx: ['440'] },
   job_priest_magnus_exorcismus: { ro: 'PR_MAGNUS', fx: ['113', '152', '318'] },
   // Торговец, Кузнец, Алхимик
   job_merchant_mammonite: { ro: 'MC_MAMMONITE', fx: ['10'] },
@@ -194,6 +196,14 @@ const roOf = new Map(catalog.effects.map((e) => [e.id, e.source?.roEffectId]));
 const original = new Set(catalog.effects.filter((e) => e.source?.kind === 'original').map((e) => e.id));
 
 describe('эффекты навыков — только оригинальные эффекты RO (без подстановок)', () => {
+  it('сигнатуры без подтверждённого атласа используют процедурный эффект, без чужих RO захватов', () => {
+    for (const id of ['ro_paladin_pressure', 'ro_high_wizard_mystical_amplification',
+      'ro_professor_mind_breaker', 'ro_assassin_cross_soul_breaker',
+      'ro_whitesmith_cart_termination', 'ro_creator_acid_demonstration']) {
+      expect(catalog.skills[id], id).toEqual({});
+    }
+    expect(catalog.skills.ro_high_priest_assumptio).toEqual({ buff: 'fx_job_priest_assumptio' });
+  });
   it('каждая привязка effects.json → skills есть в белом списке и атлас — эффект этого навыка RO', () => {
     const bad: string[] = [];
     for (const [skill, roles] of Object.entries(catalog.skills)) {

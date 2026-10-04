@@ -1,7 +1,7 @@
 {
   "id": "ro_high_wizard_mystical_amplification",
-  "name": "Mystical Amplification",
-  "description": "RO-сигнатура · адаптация: Усиливает последующие заклинания на 65% АТК на 3 хода статуса; адаптация магической силы к общей АТК. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "name": "Мистическое усиление",
+  "description": "На 3 с повышает атаку на 65%, усиливая последующие заклинания. Школа RO: Mystical Amplification. Совместимые общие эффекты RO; точная оригинальная анимация этого приёма ещё не подключена.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {
@@ -13,7 +13,7 @@
       "type": "status",
       "status": {
         "id": "mystical_amplification",
-        "name": "mystical amplification",
+        "name": "Мистическое усиление",
         "turns": 3,
         "stats": {
           "atk": 0.65

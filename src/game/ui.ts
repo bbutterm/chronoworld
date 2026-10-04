@@ -1522,6 +1522,18 @@ interface ToastEntry {
 
 /** Стопки тостов сцены (сверху и посреди экрана). Сцена перезапустилась — стопки новые (объекты уничтожены). */
 const toastStacks = new WeakMap<Phaser.Scene, Record<ToastAt, ToastEntry[]>>();
+/** A new modal owns the screen; previous transient messages must not cover its title or controls. */
+export function clearToasts(scene: Phaser.Scene): void {
+  const stacks = toastStacks.get(scene);
+  if (!stacks) return;
+  for (const stack of Object.values(stacks)) for (const entry of stack) {
+    entry.gone = true;
+    entry.hide.remove();
+    scene.tweens.killTweensOf(entry.c);
+    entry.c.destroy();
+  }
+  toastStacks.delete(scene);
+}
 /** Где стопка тостов: под шапкой, посреди экрана или в бою — под плашками ульт (их низ ≈ 844), над полем (BUG-191). */
 export type ToastAt = 'top' | 'middle' | 'battle';
 const BATTLE_TOAST_Y = 862;

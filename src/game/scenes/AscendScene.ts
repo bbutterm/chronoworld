@@ -325,7 +325,7 @@ export class AscendScene extends Phaser.Scene {
     const { h: sh } = heroCardSize(slotW);
     const filled = placed.filter(Boolean).length;
     const hy = top + FODDER_HEAD_H / 2 - S.xs;
-    text(this, LEFT, hy, `Корм ${filled}/${slots.length}`, T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
+    text(this, LEFT, hy, `Копии ${filled}/${slots.length}`, T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
     const need = filled < slots.length;
     const auto = button(this, GAME_W - LEFT - 110, hy, 220, 96, '', 'Авто', () => this.autoFill(hero), T.heading, { variant: 'secondary' });
     auto.container.setName('autoFodder');
@@ -372,7 +372,7 @@ export class AscendScene extends Phaser.Scene {
     noticeModal(this, 'Где взять копии', [
       `Карты этого героя (${name}) и любых других героев:`,
       ...copySources(session.save, hero.templateId, GAME).map((s) => `• ${s}`),
-      'Опыт и золото, вложенные в корм, вернутся в запас.',
+      'Опыт и золото, вложенные в выбранные копии, вернутся в запас.',
     ]);
   }
 
@@ -467,7 +467,7 @@ export class AscendScene extends Phaser.Scene {
         });
         c.setName(`fodderOption_${o.id}`);
         if (busy) c.setAlpha(0.45);
-        const label = o.chosen ? 'в корме' : (o.tag ?? `ур. ${o.level}`);
+        const label = o.chosen ? 'выбрана' : (o.tag ?? `ур. ${o.level}`);
         content.add(text(this, x, y + h / 2 + 30, label, T.caption, o.tag ? COLOR.warning : o.chosen ? COLOR.textTertiary : COLOR.textSecondary, { fontStyle: 'bold' }));
       });
       return Math.ceil(opts.length / cols) * rowH - S.xs;
@@ -505,15 +505,15 @@ export class AscendScene extends Phaser.Scene {
   private confirmAscend(hero: HeroState, req: AscendRequirement): void {
     const st = ascendButtonState(session.save, hero.id, this.chosen, GAME, { branchChosen: !!this.branch });
     if (!st.ready) {
-      toast(this, shortReason(st.reason)?.text ?? (this.chosen.length ? 'Пока нельзя' : 'Заполните корм — «Авто»'), C.error, 2500);
+      toast(this, shortReason(st.reason)?.text ?? (this.chosen.length ? 'Пока нельзя' : 'Выберите копии или используйте «Авто»'), C.error, 2500);
       return;
     }
     const name = heroCard(hero, GAME).name;
     const lines = [`${name}: ${rarityName(req.from)} → ${rarityName(req.to)}`];
     const choose = needsBranchPick(hero, req.to) && this.branch;
     if (choose) lines.push(`Ветка: ${(req.branches ?? []).find((b) => b.job === this.branch)?.jobName ?? this.branch}`);
-    if (this.chosen.length) lines.push(`В корм: ${this.chosen.length} ${this.chosen.length === 1 ? 'карта' : 'карты'} · ${formatNumber(req.gold)} золота`);
-    if (valuableFodder(session.save, this.chosen).length) lines.push('В корме синие карточки и выше!');
+    if (this.chosen.length) lines.push(`Будет использовано: ${this.chosen.length} ${this.chosen.length === 1 ? 'карта' : 'карты'} · ${formatNumber(req.gold)} золота`);
+    if (valuableFodder(session.save, this.chosen).length) lines.push('Выбраны синие карточки и выше');
     confirm(this, lines.join('\n'), 'Вознести', () => this.doAscend(hero, choose ? this.branch : undefined));
   }
 

@@ -1,7 +1,7 @@
 {
   "id": "ro_lord_knight_spiral_pierce",
-  "name": "Spiral Pierce",
-  "description": "RO-сигнатура · адаптация: Пять пробивающих ударов; замедление цели. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "name": "Спиральное копьё",
+  "description": "Пять ударов копьём по одной цели и замедление её действий. Школа RO: Spiral Pierce. Совместимые общие эффекты RO; точная оригинальная анимация этого приёма ещё не подключена.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {
@@ -17,7 +17,7 @@
       "type": "status",
       "status": {
         "id": "spiral_pin",
-        "name": "spiral pin",
+        "name": "Пригвождение",
         "turns": 3,
         "stats": {
           "spd": -0.25

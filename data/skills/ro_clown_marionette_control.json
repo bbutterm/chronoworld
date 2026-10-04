@@ -1,7 +1,7 @@
 {
   "id": "ro_clown_marionette_control",
-  "name": "Marionette Control · Clown",
-  "description": "RO-сигнатура · адаптация: Поддерживает раненого союзника: атака, темп и 20 энергии. Адаптация передачи характеристик. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "name": "Нити вдохновения",
+  "description": "Усиливает атаку и скорость раненого союзника, передаёт ему 20 энергии. Школа RO: Marionette Control · Clown. Совместимые общие эффекты RO; точная оригинальная анимация этого приёма ещё не подключена.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {
@@ -14,7 +14,7 @@
       "type": "status",
       "status": {
         "id": "marionette_lead",
-        "name": "marionette lead",
+        "name": "Вдохновение",
         "turns": 3,
         "stats": {
           "atk": 0.4,

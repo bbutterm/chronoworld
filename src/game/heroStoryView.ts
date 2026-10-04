@@ -180,7 +180,7 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
     const closed = list.filter((p) => !p.open);
     const levels = `ур. ${list[0].level}–${list[list.length - 1].level}`;
     if (mine) section(`Путь: ${branchName(b)}`, `вторая профессия героя · ${levels}`, `heroStoryBranch_${b}`);
-    else if (opened.length) section(`Другой путь: ${branchName(b)}`, 'прочитано раньше, на этой ветке', `heroStoryBranch_${b}`);
+    else if (opened.length) section(`Другой путь: ${branchName(b)}`, 'записи ранее освоенного пути', `heroStoryBranch_${b}`);
     if (mine) {
       for (const p of list) (p.open ? openPiece(p) : lockedLine(p));
       continue;

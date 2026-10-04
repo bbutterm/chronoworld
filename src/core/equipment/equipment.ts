@@ -140,12 +140,12 @@ export function unequip(save: SaveState, itemInstanceId: string): SaveState {
  * id экземпляра — `it<N>`, N = максимальный существующий N + 1 (детерминированно, без случайности).
  */
 export function addItems(save: SaveState, itemIds: readonly string[]): { save: SaveState; added: ItemInstance[] } {
-  let n = 0;
+  let n = save.inventory.itemSeq ?? 0;
   for (const i of save.inventory.items) {
     const m = /^it(\d+)$/.exec(i.id);
     if (m) n = Math.max(n, Number(m[1]));
   }
   const added = itemIds.map((itemId): ItemInstance => ({ id: `it${++n}`, itemId, equippedBy: null }));
   if (added.length === 0) return { save, added };
-  return { save: { ...save, inventory: { ...save.inventory, items: [...save.inventory.items, ...added] } }, added };
+  return { save: { ...save, inventory: { ...save.inventory, items: [...save.inventory.items, ...added], itemSeq: n } }, added };
 }

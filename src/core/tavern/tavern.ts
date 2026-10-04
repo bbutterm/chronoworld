@@ -11,6 +11,7 @@ import { withGear } from '../equipment/equipment';
 import type { GameContext } from '../progression/types';
 import type { SaveState } from '../save/schema';
 import type { BattleResult, Content, UnitDef } from '../types';
+import { rarityIndex } from '../heroes/schema';
 import {
   EVENING_LINES_MAX,
   EVENING_LINES_MIN,
@@ -46,7 +47,7 @@ const mainLines = (steps: readonly TavernStep[]): TavernLine[] => steps.filter((
  * объявлены, id вечеров/сцен/выборов/заданий уникальны, у вечера 8–16 реплик и не больше одного выбора, when ссылается на
  * существующий выбор и вариант (выбор — в этом же или более раннем вечере), партнёр связки — другой сюжетный герой.
  */
-export function buildTavern(f: RawFile, content: Content, problems: string[], storyHeroes: readonly string[] = []): TavernDef | undefined {
+export function buildTavern(f: RawFile, content: Content, problems: string[], _storyHeroes: readonly string[] = []): TavernDef | undefined {
   const r = (TavernSchema as z.ZodType<TavernDef>).safeParse(f.data);
   if (!r.success) {
     for (const i of r.error.issues) problems.push(`${f.file}: ${i.path.map(String).join('.') || '(корень)'} — ${i.message}`);
@@ -59,7 +60,7 @@ export function buildTavern(f: RawFile, content: Content, problems: string[], st
     if (ids.has(x)) p(`${where}: id ${x} уже занят`);
     ids.add(x);
   };
-  const isStoryHero = (h: string) => (storyHeroes.length ? storyHeroes.includes(h) : !!content.heroes[h]);
+  const isHero = (h: string) => !!content.heroes[h];
   /** Выборы, объявленные до текущего места: id → варианты. */
   const choices = new Map<string, Set<string>>();
   const checkLines = (where: string, lines: readonly TavernLine[]) => {
@@ -84,7 +85,7 @@ export function buildTavern(f: RawFile, content: Content, problems: string[], st
       for (const o of c.options) {
         if (opts.has(o.id)) p(`${where}: выбор ${c.id} — вариант ${o.id} повторяется`);
         opts.add(o.id);
-        for (const h of Object.keys(o.bond)) if (!isStoryHero(h)) p(`${where}: выбор ${c.id}.${o.id} — близость с ${h}, а это не сюжетный герой`);
+        for (const h of Object.keys(o.bond)) if (!isHero(h)) p(`${where}: выбор ${c.id}.${o.id} — герой ${h} не найден в data/heroes`);
       }
       choices.set(c.id, opts);
       checkLines(`${where}: выбор ${c.id}`, c.options.flatMap((o) => o.reply));
@@ -105,7 +106,7 @@ export function buildTavern(f: RawFile, content: Content, problems: string[], st
   }
   for (const [heroId, h] of Object.entries(t.heroes)) {
     const where = `герой ${heroId}`;
-    if (!isStoryHero(heroId)) p(`${where}: не сюжетный герой (progression.heroes)`);
+    if (!isHero(heroId)) p(`${where}: не найден в data/heroes`);
     unique(h.scene.id, `${where}: сцена`);
     unique(h.quest.id, `${where}: задание`);
     unique(h.link.id, `${where}: связка`);
@@ -113,7 +114,7 @@ export function buildTavern(f: RawFile, content: Content, problems: string[], st
     checkSteps(`${where}: сцена ${h.scene.id}`, h.scene.steps);
     if (!content.stages.some((s) => s.id === h.quest.stage)) p(`${where}: задание ${h.quest.id} — этап ${h.quest.stage} не найден`);
     if (h.quest.after) checkLines(`${where}: задание ${h.quest.id}`, [h.quest.after]);
-    if (h.link.partner === heroId || !isStoryHero(h.link.partner)) p(`${where}: связка ${h.link.id} — партнёр ${h.link.partner} должен быть другим сюжетным героем`);
+    if (h.link.partner === heroId || !isHero(h.link.partner)) p(`${where}: связка ${h.link.id} — партнёр ${h.link.partner} должен быть другим героем`);
   }
   if (t.bond.sceneAt > t.bond.questAt || t.bond.questAt > t.bond.max) p('bond: нужно sceneAt ≤ questAt ≤ max');
   return t;
@@ -146,6 +147,18 @@ function withTavern(save: SaveState, next: TavernState): SaveState {
 /** Близость с героем (id карточки). */
 export function bondOf(save: Pick<SaveState, 'tavern'>, templateId: string): number {
   return tavernOf(save).bond[templateId] ?? 0;
+}
+
+/** Доверие за совместный путь: каждая веха считается один раз, сколько бы ни было копий и сбросов. */
+export function journeyTrustOf(save: Pick<SaveState, 'heroes'>, templateId: string, ctx: Partial<TavernContext>): number {
+  const cfg = tavernOfCtx(ctx)?.bond.journey;
+  const heroes = save.heroes.filter((h) => h.templateId === templateId);
+  if (!cfg || !heroes.length) return 0;
+  const peak = Math.max(...heroes.map((h) => Math.max(h.level, h.journey?.peakLevel ?? 1)));
+  const levels = new Set(cfg.levels.filter((l) => peak >= l)).size;
+  const profession = heroes.some((h) => h.branch || Object.keys(h.journey?.branchLevels ?? {}).length) ? cfg.profession : 0;
+  const rarity = heroes.some((h) => rarityIndex(h.rarity) >= rarityIndex(cfg.rarity)) ? cfg.rarityPoints : 0;
+  return Math.min(cfg.max, levels + profession + rarity);
 }
 
 /** Прибавить близость (с потолком). Возвращает новое состояние и фактические прибавки. */
@@ -201,7 +214,8 @@ export function tavernNewCount(save: SaveState, ctx: Ctx): number {
   const t = tavernOfCtx(ctx);
   if (!t) return 0;
   const st = tavernOf(save);
-  const scenes = Object.entries(t.heroes).filter(([id, h]) => (st.bond[id] ?? 0) >= t.bond.sceneAt && !st.seen.includes(h.scene.id)).length;
+  const owned = new Set(save.heroes.map((h) => h.templateId));
+  const scenes = Object.entries(t.heroes).filter(([id, h]) => owned.has(id) && Math.min(t.bond.max, (st.bond[id] ?? 0) + journeyTrustOf(save, id, ctx)) >= t.bond.sceneAt && !st.seen.includes(h.scene.id)).length;
   return newEvenings(save, ctx).length + scenes;
 }
 
@@ -278,6 +292,8 @@ export function finishPersonalScene(save: SaveState, sceneId: string): SaveState
 export interface BondView {
   templateId: string;
   points: number;
+  tavernPoints: number;
+  journeyPoints: number;
   max: number;
   scene: PersonalSceneDef & { at: number; open: boolean; seen: boolean };
   quest: BondQuestDef & { at: number; open: boolean; done: boolean; stageCleared: boolean };
@@ -290,15 +306,20 @@ export function bondView(save: SaveState, templateId: string, ctx: Ctx): BondVie
   const h: BondHeroDef | undefined = t?.heroes[templateId];
   if (!t || !h) return undefined;
   const st = tavernOf(save);
-  const points = st.bond[templateId] ?? 0;
+  const tavernPoints = Math.min(t.bond.max, st.bond[templateId] ?? 0);
+  const journeyPoints = journeyTrustOf(save, templateId, ctx);
+  const points = Math.min(t.bond.max, tavernPoints + journeyPoints);
+  const owned = save.heroes.some((hero) => hero.templateId === templateId);
   const done = st.quests.includes(h.quest.id);
   return {
     templateId,
     points,
+    tavernPoints,
+    journeyPoints,
     max: t.bond.max,
-    scene: { ...h.scene, at: t.bond.sceneAt, open: points >= t.bond.sceneAt, seen: st.seen.includes(h.scene.id) },
-    quest: { ...h.quest, at: t.bond.questAt, open: points >= t.bond.questAt, done, stageCleared: save.campaign.cleared.includes(h.quest.stage) },
-    link: { ...h.link, open: done },
+    scene: { ...h.scene, at: t.bond.sceneAt, open: owned && points >= t.bond.sceneAt, seen: st.seen.includes(h.scene.id) },
+    quest: { ...h.quest, at: t.bond.questAt, open: owned && points >= t.bond.questAt, done, stageCleared: save.campaign.cleared.includes(h.quest.stage) },
+    link: { ...h.link, open: owned && done },
   };
 }
 

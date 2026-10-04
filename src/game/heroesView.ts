@@ -118,6 +118,7 @@ export function groupCopies(heroes: readonly HeroState[]): { hero: HeroState; co
     if (g) {
       g.copies++;
       g.ids.push(h.id);
+      if (h.companion && !g.hero.companion) g.hero = h;
     } else out.set(h.templateId, { hero: h, copies: 1, ids: [h.id] });
   }
   return [...out.values()];

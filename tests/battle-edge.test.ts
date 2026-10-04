@@ -137,7 +137,8 @@ describe('крайние случаи боя', () => {
       ],
       [skill('mend', { target: { side: 'ally', pick: 'lowestHp', includeSelf: true }, effects: [{ type: 'heal', k: 1 }] })],
     );
-    const r = run(c, ['weak', 'healer', 'weakmelee'], ['weak', 'weakmelee'], 1);
+    // Минимум формулы отдельно от последующего множителя ярости долгого боя.
+    const r = run(c, ['weak', 'healer', 'weakmelee'], ['weak', 'weakmelee'], 1, { ...cfg, enrage: undefined });
     for (const e of of(r.log, 'damage')) expect(e.amount).toBe(cfg.damage.minDamage);
     for (const e of of(r.log, 'heal')) expect(e.amount).toBe(0);
     expect(of(r.log, 'damage').length).toBeGreaterThan(0);

@@ -82,8 +82,8 @@ describe('вечера в таверне: данные', () => {
     expect(withChoice).toBeLessThan(T.evenings.length);
   });
 
-  it('у каждого из пяти сюжетных героев — личная сцена, задание и связка с другим сюжетным героем', () => {
-    expect(Object.keys(T.heroes).sort()).toEqual([...storyOrder(ctx)].sort());
+  it('у всех 12 героев — личная сцена, задание и связка с другим героем', () => {
+    expect(Object.keys(T.heroes).sort()).toEqual(Object.keys(ctx.content.heroes).sort());
     for (const [id, h] of Object.entries(T.heroes)) {
       expect(h.link.partner).not.toBe(id);
       expect(ctx.content.stages.some((s) => s.id === h.quest.stage)).toBe(true);
@@ -97,7 +97,7 @@ describe('вечера в таверне: данные', () => {
     expect(problemsWith((t) => (t.evenings[0].steps[0].when = { choice: 'c_nope', is: 'x' })).join('\n')).toMatch(/when ссылается на выбор c_nope/);
     expect(problemsWith((t) => t.evenings[0].steps.push(structuredClone(t.evenings[1].steps.find((s: any) => s.choice)))).join('\n')).toMatch(/больше одного выбора/);
     expect(problemsWith((t) => t.evenings[0].steps.push(...Array(10).fill({ speaker: 'hero1', text: 'Ещё.' }))).join('\n')).toMatch(/реплик \d+, нужно 8–16/);
-    expect(problemsWith((t) => (t.evenings[0].steps.find((s: any) => s.choice).choice.options[0].bond = { otto: 1 })).join('\n')).toMatch(/не сюжетный герой/);
+    expect(problemsWith((t) => (t.evenings[0].steps.find((s: any) => s.choice).choice.options[0].bond = { unknown_hero: 1 })).join('\n')).toMatch(/герой unknown_hero не найден/);
     expect(problemsWith((t) => (t.evenings[1].id = 'tav_ch1')).join('\n')).toMatch(/id tav_ch1 уже занят/);
   });
 });

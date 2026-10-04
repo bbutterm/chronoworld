@@ -1,0 +1,111 @@
+{
+  "fixture": {
+    "stageId": "ch9_s18",
+    "seed": 2654277761,
+    "durationSeconds": 45.8,
+    "speed": 1,
+    "heroLevel": 90,
+    "heroRarity": "red",
+    "equipment": false
+  },
+  "source": {
+    "battleSceneSha256": "a8bbaf5324aa95c1cde4dc95010a3dd146030ddcf369177623fda3a997672747",
+    "snapshotMatch": {
+      "snapshot": "/workspace/chronoworld-battle-qa",
+      "comparedFiles": 959,
+      "mismatches": [],
+      "assetsSymlink": "/workspace/chronoworld/assets",
+      "assetsRoot": "/workspace/chronoworld/assets"
+    }
+  },
+  "viewports": [
+    {
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "samples": 133,
+      "firstClock": 0,
+      "lastClock": 36.458439999999946,
+      "collisions": 0,
+      "ghosts": [],
+      "bossWhiteFillFrames": 0
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "samples": 133,
+      "firstClock": 0,
+      "lastClock": 35.69857000000006,
+      "collisions": 0,
+      "ghosts": [],
+      "bossWhiteFillFrames": 0,
+      "paused": 23.522370000000013,
+      "still": 23.522370000000013,
+      "gone": {
+        "views": 0,
+        "labels": 0,
+        "queued": 0
+      },
+      "restarted": {
+        "views": 10,
+        "labels": 10,
+        "uids": [
+          "A0",
+          "A1",
+          "A2",
+          "A3",
+          "A4",
+          "B0",
+          "B1",
+          "B2",
+          "B3",
+          "B4"
+        ],
+        "clock": 0
+      }
+    }
+  ],
+  "lifecycle360": {
+    "first": {
+      "active": true,
+      "clock": 0,
+      "duration": 45.8,
+      "views": 10,
+      "labels": 10,
+      "queue": 5,
+      "uidCount": 10,
+      "ghosts": 0
+    },
+    "gone": {
+      "active": false,
+      "clock": 0,
+      "duration": 45.8,
+      "views": 0,
+      "labels": 0,
+      "queue": 0,
+      "uidCount": 0,
+      "ghosts": 0
+    },
+    "restarted": {
+      "active": true,
+      "clock": 0,
+      "duration": 45.8,
+      "views": 10,
+      "labels": 10,
+      "queue": 5,
+      "uidCount": 10,
+      "ghosts": 0
+    },
+    "errors": []
+  },
+  "pageErrors": [],
+  "smoke": {
+    "script": "scripts/e2e.mjs",
+    "result": "OK",
+    "screenshots": 29
+  },
+  "scopeLimit": "Lord of the Dead was not rechecked in this focused late-battle QA; BUG-158 remains partial."
+}

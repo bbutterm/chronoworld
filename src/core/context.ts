@@ -22,10 +22,13 @@ import type { CombatConfig, Content } from './types';
 import { parseUnlocks, validateUnlocks } from './unlocks/unlocks';
 import { parseShopConfig, withShop, type ShopConfig } from './shop';
 import { parseCodesConfig, type CodesConfig } from './codes';
+import { parseAutobattlerConfig, validateAutobattlerConfig, type AutobattlerConfig } from './autobattler';
 
 /** Полный контекст игры: прогрессия и кампания + K-функции, экипировка, башня, пресеты / экспедиции / достижения. */
 export type FullContext = FeatureContext & EquipmentContext & TowerContext & MetaContext & StoryContext & EventsContext & {
   hunt: HuntConfig;
+  /** Гильдейский автобатлер; отсутствует в старых/минимальных наборах контента. */
+  autobattler?: AutobattlerConfig;
   /** Лавка (data/shop.json); нет файла — Лавки нет. */
   shop?: ShopConfig;
   /** Коды из настроек (data/codes.json); нет файла — кодов нет. */
@@ -51,6 +54,7 @@ export interface RawGameData {
   quests: unknown;
   drops: unknown;
   tower: unknown;
+  autobattler?: unknown;
   /** data/expeditions.json — экспедиции (K9) и лимиты пресетов (K8). */
   expeditions: unknown;
   achievements: unknown;
@@ -159,10 +163,12 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
   if (hunt) validateHunt(hunt, content, problems);
   const shop = raw.shop === undefined || !equipment ? undefined : stage('data/shop.json', () => withShop({ ...base, equipment }, raw.shop).shop);
   const codes = raw.codes === undefined ? undefined : stage('data/codes.json', () => parseCodesConfig(raw.codes));
+  const autobattler = raw.autobattler === undefined ? undefined : stage('data/autobattler.json', () => parseAutobattlerConfig(raw.autobattler));
+  if (autobattler) validateAutobattlerConfig(autobattler, base, problems);
 
   if (problems.length || !features || !equipment || !tower || !meta || !story || !events || !hunt) return { content, problems };
   return {
-    ctx: { ...base, features, equipment, tower, meta, story, events, hunt, ...(shop ? { shop } : {}), ...(codes ? { codes } : {}), ...(expeditionEvents ? { expeditionEvents } : {}) },
+    ctx: { ...base, features, equipment, tower, meta, story, events, hunt, ...(shop ? { shop } : {}), ...(codes ? { codes } : {}), ...(expeditionEvents ? { expeditionEvents } : {}), ...(autobattler ? { autobattler } : {}) },
     content,
     problems,
   };

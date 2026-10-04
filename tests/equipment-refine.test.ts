@@ -164,28 +164,39 @@ describe('Заточка: refineItem', () => {
 });
 
 describe('Заточка: поломка', () => {
-  it('seed решает исход: ниже шанса — вещь сломана и удалена, золото списано; иначе +1', () => {
+  it('неудача не уничтожает карту MVP, замок, надетую вещь или её прежнее улучшение', () => {
+    const { save, weapon } = setup();
+    const s = { ...save, inventory: { ...save.inventory, items: save.inventory.items.map((i) => i.id === weapon ? { ...i, refine: 9, card: 'baphomet_card', locked: true } : i) } };
+    const out = refineItem(deserialize(serialize(s)), weapon, ctx, { seed: seedWhere((x) => new Rng(x).next() < 0.9) });
+    expect(out.events[0].type).toBe('refineFailed');
+    expect(inst(out.save, weapon)).toEqual(inst(s, weapon));
+    expect(out.save.inventory.refineSeq).toBe(1);
+    expect(out.save.resources.gold).toBeLessThan(s.resources.gold);
+    expect(inst(deserialize(serialize(out.save)), weapon)).toEqual(inst(s, weapon));
+  });
+
+  it('seed решает исход: ниже шанса — прежняя вещь сохранена, золото списано; иначе +1', () => {
     const { save, weapon } = setup();
     const s = withRefine(save, weapon, 3); // шаг +3 → +4: 30%
     const cost = refineCost({ refine: 3 }, ctx.equipment.items.claymore, ctx)!.gold;
     const bad = seedWhere((x) => new Rng(x).next() < 0.3);
     const good = seedWhere((x) => new Rng(x).next() >= 0.3);
     const broken = refineItem(s, weapon, ctx, { seed: bad });
-    expect(broken.events).toEqual([{ type: 'refineBroken', instanceId: weapon, itemId: 'claymore', level: 3, heroId: save.heroes[0].id, gold: cost, chance: 0.3, mode: 'normal' }]);
-    expect(broken.save.inventory.items.some((i) => i.id === weapon)).toBe(false);
+    expect(broken.events).toEqual([{ type: 'refineFailed', instanceId: weapon, itemId: 'claymore', level: 3, heroId: save.heroes[0].id, gold: cost, chance: 0.3, mode: 'normal' }]);
+    expect(inst(broken.save, weapon)).toEqual(inst(s, weapon));
     expect(broken.save.resources.gold).toBe(s.resources.gold - cost);
     const ok = refineItem(s, weapon, ctx, { seed: good });
     expect(ok.events[0]).toMatchObject({ type: 'refined', ok: true, from: 3, to: 4, chance: 0.3 });
     expect(refineLevel(inst(ok.save, weapon))).toBe(4);
   });
 
-  it('сломанная надетая вещь снимается: слот пуст, статы героя без неё', () => {
+  it('неудача сохраняет надетую вещь и все статы героя', () => {
     const { save, heroId, weapon } = setup();
     const s = withRefine(save, weapon, 9); // 90%
     const r = refineItem(s, weapon, ctx, { seed: seedWhere((x) => new Rng(x).next() < 0.9) });
-    expect(r.events[0].type).toBe('refineBroken');
-    expect(heroSlots(r.save, heroId, ctx).weapon).toBeUndefined();
-    expect(heroGearStats(r.save, heroId, ctx).atk).toBe(0);
+    expect(r.events[0].type).toBe('refineFailed');
+    expect(heroSlots(r.save, heroId, ctx).weapon).toEqual(heroSlots(s, heroId, ctx).weapon);
+    expect(heroGearStats(r.save, heroId, ctx)).toEqual(heroGearStats(s, heroId, ctx));
   });
 
   it('без seed — бросок по счётчику сохранения: перезагрузка не даёт переброса, следующая попытка — новый бросок', () => {
@@ -194,11 +205,11 @@ describe('Заточка: поломка', () => {
     const a = refineItem(s, weapon, ctx);
     // «Перезагрузка»: то же сохранение — тот же исход.
     expect(refineItem(deserialize(serialize(s)), weapon, ctx).events).toEqual(a.events);
-    expect(a.events[0].type === 'refineBroken').toBe(new Rng(refineSeed(s.createdAt, 0)).next() < 0.5);
+    expect(a.events[0].type === 'refineFailed').toBe(new Rng(refineSeed(s.createdAt, 0)).next() < 0.5);
     // Исходы по счётчику различаются (за 40 попыток на 50% есть и поломки, и успехи).
     const kinds = new Set<string>();
     for (let seq = 0; seq < 40; seq++) kinds.add(refineItem({ ...s, inventory: { ...s.inventory, refineSeq: seq } }, weapon, ctx).events[0].type);
-    expect(kinds).toEqual(new Set(['refined', 'refineBroken']));
+    expect(kinds).toEqual(new Set(['refined', 'refineFailed']));
   });
 });
 
@@ -206,7 +217,7 @@ describe('Заточка: бой и мощь', () => {
   it('статы экипировки, юнит боя и мощь растут с заточкой', () => {
     const { save, heroId, weapon, armor } = setup();
     const hero = save.heroes.find((h) => h.id === heroId)!;
-    // +5 выставляем напрямую: шаги выше +1 могут сломать вещь.
+    // +5 выставляем напрямую: шаги выше +1 могут не удаться.
     const s = withRefine(withRefine(save, weapon, 5), armor, 5);
     const g0 = heroGearStats(save, heroId, ctx);
     const g5 = heroGearStats(s, heroId, ctx);
@@ -308,17 +319,17 @@ describe('Заточка: надёжная', () => {
     const { save, weapon } = setup();
     const s = withRefine(save, weapon, 3);
     const cost = refineModeCost({ refine: 3 }, ctx.equipment.items.claymore, ctx, 'safe')!.gold;
-    // Бросок 0.1: обычный шаг (30%) сломал бы вещь, надёжный (6%) — нет.
+    // Бросок 0.1: обычный шаг (30%) не удался бы, надёжный (6%) — нет.
     const seed = seedWhere((x) => {
       const v = new Rng(x).next();
       return v >= 0.06 && v < 0.3;
     });
-    expect(refineItem(s, weapon, ctx, { seed }).events[0].type).toBe('refineBroken');
+    expect(refineItem(s, weapon, ctx, { seed }).events[0].type).toBe('refineFailed');
     const r = refineItem(s, weapon, ctx, { seed, mode: 'safe' });
     expect(r.events[0]).toMatchObject({ type: 'refined', mode: 'safe', from: 3, to: 4, gold: cost, chance: 0.06 });
     expect(r.save.resources.gold).toBe(s.resources.gold - cost);
     const bad = seedWhere((x) => new Rng(x).next() < 0.06);
-    expect(refineItem(s, weapon, ctx, { seed: bad, mode: 'safe' }).events[0].type).toBe('refineBroken');
+    expect(refineItem(s, weapon, ctx, { seed: bad, mode: 'safe' }).events[0].type).toBe('refineFailed');
   });
 });
 

@@ -56,7 +56,7 @@ describe('ульты героев: бой', () => {
       return buildUnit({ id: `h${i}`, templateId, rarity, level, ...(branch ? { branch } : {}) }, ctx);
     });
 
-  it('ульта на энергии: в авто срабатывает сама (событие ult), не раньше полной энергии, первая — около 8–16 с боя', () => {
+  it('ульта на энергии: в авто срабатывает сама, расходует ресурс, первая — в осмысленном окне 15–22 с боя', () => {
     const sq = squad(['alan', 'bran', 'vika', 'greta', 'dorn'], 'green', 15);
     const firsts: number[] = [];
     for (let seed = 1; seed <= 6; seed++) {
@@ -71,10 +71,13 @@ describe('ульты героев: бой', () => {
         if (next && next.type === 'attack') expect(next.energy).toBeLessThan(ctx.combat.energy.max);
       }
     }
-    expect(firsts.length).toBeGreaterThan(0);
-    const first = Math.min(...firsts);
-    expect(first).toBeGreaterThanOrEqual(6);
-    expect(first).toBeLessThanOrEqual(16);
+    // 04.10: шкала 1500 и энергия 3,5/с + 2 за действие + 1 за удар; измерено по всем шести seed: 19,2 с.
+    // Проверяется каждое повторение, чтобы один удачный seed не скрывал раннюю ульту или отсутствующую готовность.
+    expect(firsts).toHaveLength(6);
+    for (const first of firsts) {
+      expect(first).toBeGreaterThanOrEqual(15);
+      expect(first).toBeLessThanOrEqual(22);
+    }
   });
 
   it('детерминизм: тот же seed — тот же бой с ультами, в авто и вручную с вводом', () => {

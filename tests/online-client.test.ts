@@ -5,6 +5,7 @@ import { isoWeek as serverWeek } from '../supabase/functions/cw-api/tg';
 import { api, call, initData, onlineAvailable, type Fetcher } from '../src/game/online/api';
 import {
   agoText,
+  applyRewardGrants,
   cloudSaveDelay,
   groupDigits,
   isFreshSave,
@@ -15,6 +16,8 @@ import {
   parseFriends,
   parseHello,
   parseSaveGet,
+  parseSavePut,
+  parseGrants,
   progressOf,
   refLink,
   shareUrl,
@@ -85,6 +88,47 @@ describe('онлайн-клиент: разбор ответов', () => {
     expect(parseHello({ error: 'unauthorized' })).toBeNull();
     expect(parseHello(null)).toBeNull();
     expect(parseHello({ ok: true })).toBeNull();
+  });
+
+  it('CAS отличается от версии схемы; 409 — конфликт, {error} при 200 не является записью', () => {
+    expect(parseHello({ ok: true, protocol: 2, id: 42, cloudSave: { chapter: 3, save_version: 7, write_revision: 25 } })?.cloudSave?.writeRevision).toBe(25);
+    expect(parseSavePut({ ok: true, writeRevision: 26 })).toEqual({ status: 'saved', writeRevision: 26 });
+    expect(parseSavePut({ ok: true })).toBeNull();
+    expect(parseSavePut({ error: 'server' })).toBeNull();
+    expect(parseSavePut({ error: 'save_conflict', cloudSave: { chapter: 4, save_version: 7, write_revision: 27 } })).toMatchObject({ status: 'conflict', cloudSave: { writeRevision: 27 } });
+    expect(parseSavePut({ error: 'upgrade_required' })).toEqual({ status: 'upgrade_required' });
+  });
+
+  it('недостоверная grant-выдача отвергается; повторы одного ID объединяются', () => {
+    const gift = { id: '00000000-0000-4000-8000-000000000001', kind: 'gift', units: 1, gems: 20 };
+    expect(parseGrants({ ok: true, grants: [gift, gift] })).toEqual([gift]);
+    expect(parseGrants({ ok: true, grants: [gift, { ...gift, id: 'bad' }] })).toBeNull();
+    expect(parseGrants({ ok: true, grants: [{ ...gift, gems: 999 }] })).toBeNull();
+    expect(parseGrants({ ok: true, grants: [{ ...gift, units: 0 }] })).toBeNull();
+    expect(parseGrants({ ok: true, grants: [] })).toEqual([]);
+    expect(parseGrants({ claimed: 3 })).toBeNull();
+  });
+
+  it('повтор ответа после обрыва связи не удваивает гемы и письма; старое welcome-письмо учитывается', () => {
+    const s = newGame(ctx, 0, D);
+    const grants = parseGrants({ ok: true, grants: [
+      { id: '00000000-0000-4000-8000-000000000001', kind: 'gift', units: 1, gems: 20 },
+      { id: '00000000-0000-4000-8000-000000000002', kind: 'ref', units: 2, gems: 400 },
+      { id: '00000000-0000-4000-8000-000000000003', kind: 'ref_welcome', units: 1, gems: 100 },
+    ] })!;
+    const first = applyRewardGrants(s, grants, D, ctx);
+    expect(first.bells).toBe(1);
+    expect(first.refs).toBe(2);
+    expect(first.save.currency.gems).toBe(s.currency.gems + 20);
+    expect(first.save.mail?.letters.filter((l) => l.source?.startsWith('online_'))).toHaveLength(2);
+    const second = applyRewardGrants(first.save, grants, D, ctx);
+    expect(second.save).toBe(first.save);
+    expect(second.bells).toBe(0);
+    expect(second.refs).toBe(0);
+    const old = { ...s, mail: { seq: 0, letters: [], delivered: ['online_ref_welcome'] } };
+    const migrated = applyRewardGrants(old, grants.slice(2), D, ctx);
+    expect(migrated.save.mail?.letters).toHaveLength(0);
+    expect(migrated.save.currency.gems).toBe(s.currency.gems);
   });
 
   it('друзья, доска, облачное сохранение — мусор отбрасывается', () => {
@@ -168,17 +212,13 @@ describe('онлайн-клиент: прогресс, победы, зачёт 
     expect(victoryOf(s, { ...s, resources: { ...s.resources, gold: 999 } })).toBeNull();
   });
 
-  it('недельный зачёт MVP: новый рекорд по MVP на этой неделе; новая неделя — заново', () => {
-    const prev = { hunt: { day: D, used: 0, best: { mvp_a: 500 } } };
-    const next = { hunt: { day: D, used: 1, best: { mvp_a: 800 } } };
-    const w = nextMvpWeek(null, '2026-W40', prev, next);
+  it('недельный зачёт MVP: учитывается каждая попытка, в том числе ниже пожизненного рекорда', () => {
+    const w = nextMvpWeek(null, '2026-W40', 800);
     expect(w).toEqual({ week: '2026-W40', value: 800 });
-    // Бой без рекорда — ничего не меняется (тот же объект).
-    expect(nextMvpWeek(w, '2026-W40', next, { hunt: { ...next.hunt, used: 2 } })).toBe(w);
-    // Рекорд ниже недельного зачёта не уменьшает его.
-    expect(nextMvpWeek(w, '2026-W40', { hunt: { day: D, used: 0, best: {} } }, { hunt: { day: D, used: 1, best: { mvp_b: 300 } } }).value).toBe(800);
-    // Новая неделя.
-    expect(nextMvpWeek(w, '2026-W41', next, { hunt: { ...next.hunt, used: 2 } })).toEqual({ week: '2026-W41', value: 0 });
+    expect(nextMvpWeek(w, '2026-W40', 300)).toBe(w);
+    // На следующей неделе результат 600 учитывается, хотя 800 за всё время остаётся непобитым.
+    expect(nextMvpWeek(w, '2026-W41', 600)).toEqual({ week: '2026-W41', value: 600 });
+    expect(nextMvpWeek(w, '2026-W41', NaN)).toEqual({ week: '2026-W41', value: 0 });
   });
 
   it('ISO-неделя совпадает с серверной', () => {

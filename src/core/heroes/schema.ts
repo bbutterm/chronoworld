@@ -184,6 +184,17 @@ export const CardsConfigSchema = z
     merge: z.array(MergeRuleSchema),
     /** Смена ветки второй профессии: цена в гемах; firstFree — первая смена у экземпляра бесплатно. */
     branchChange: z.object({ gems: z.number().int().nonnegative(), firstFree: z.boolean() }),
+    /** Осмысленная тренировка: одна специализация героя, бесплатно меняется без нового ресурса. */
+    training: z.object({
+      unlockLevel: z.number().int().min(1).max(100),
+      focuses: z.array(z.object({
+        id: z.enum(['resolve', 'precision', 'guard']),
+        name: z.string().min(1).max(40),
+        text: z.string().min(1).max(180),
+        stat: z.enum(['hp', 'atk', 'def']),
+        pct: z.number().int().min(1).max(10),
+      })).length(3),
+    }).optional(),
     /** Карты случайных героев за этапы кампании (ожидаемое число, см. HeroCardDropSchema). */
     heroCards: z.object({
       /** Первое прохождение обычного этапа. */
@@ -196,6 +207,9 @@ export const CardsConfigSchema = z
   })
   .superRefine((cfg, c) => {
     const ids = cfg.rarities.map((r) => r.id);
+    if (cfg.training && new Set(cfg.training.focuses.map((f) => f.id)).size !== cfg.training.focuses.length) {
+      c.addIssue({ code: 'custom', path: ['training', 'focuses'], message: 'специализации тренировки не должны повторяться' });
+    }
     if (ids.join() !== CARD_RARITIES.join()) c.addIssue({ code: 'custom', path: ['rarities'], message: `редкости по порядку: ${CARD_RARITIES.join(', ')}` });
     cfg.rarities.forEach((r, i) => {
       const prev = cfg.rarities[i - 1];

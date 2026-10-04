@@ -90,6 +90,8 @@ export const ProgressionConfigSchema = z.object({
     enemyStatGrowthPerStage: z.number().nonnegative(),
     /** Давать ли награду за повтор пройденного этапа и какую долю. */
     replayRewardMultiplier: z.number().min(0).max(1),
+    /** После этого числа повторных побед в день остаются тренировочные бои без наград. */
+    replayDailyWins: z.number().int().min(0).max(100).optional(),
   }),
   offline: z.object({
     capHours: z.number().positive(),

@@ -14,7 +14,7 @@ import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { browserOptions, loadPlaywright } from './lib/perf-browser.mjs';
 
 const PORT = Number(process.env.E2E_PORT ?? 5174);
 const URL = `http://localhost:${PORT}/`;
@@ -24,8 +24,7 @@ const MAX_TRIES = 5;
 const log = (...a) => console.log('[ch1]', ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const root = execSync('npm root -g', { encoding: 'utf8' }).trim();
-const { chromium } = await import(pathToFileURL(join(root, 'playwright', 'index.mjs')).href);
+const { chromium } = await loadPlaywright();
 
 mkdirSync(SHOTS, { recursive: true });
 const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
@@ -35,7 +34,7 @@ for (let i = 0; i < 150; i++) {
   } catch {}
   await sleep(200);
 }
-const browser = await chromium.launch();
+const browser = await chromium.launch(browserOptions());
 // E2E_VIEWPORT=390x844 — прогон на другом экране телефона (раскладка подсказок и кнопок); по умолчанию 540×960.
 const [VW, VH] = (process.env.E2E_VIEWPORT ?? '540x960').split('x').map(Number);
 const page = await browser.newPage({ viewport: { width: VW, height: VH } });
@@ -138,17 +137,20 @@ const clickText = async (sceneKey, label, last = false) => {
   if (cover) throw new Error(`В сцене ${sceneKey} «${label}» перекрыт: ${cover} — игрок его не видит`);
   await clickGame(pos[0], pos[1]);
 };
-/** Кликнуть по объекту с именем (setName) — кнопки без подписи, например «‹» в шапке (`backButton`). */
-const clickNamed = async (sceneKey, name) => {
-  const pos = await page.evaluate(
+/** Именованные кнопки встречаются и в дочерних модальных контейнерах. */
+const namedPosition = (sceneKey, name) => page.evaluate(
     ([k, n]) => {
-      const o = window.__game.scene.getScene(k).children.getByName(n);
+      const all = (list) => list.flatMap((o) => o.list ? [o, ...all(o.list)] : [o]);
+      const o = all(window.__game.scene.getScene(k).children.list).find((o) => o.name === n);
       if (!o) return null;
       const b = o.getBounds();
       return [b.centerX, b.centerY];
     },
     [sceneKey, name],
   );
+/** Кликнуть по объекту с именем (setName), включая «‹» в шапке и варианты состава. */
+const clickNamed = async (sceneKey, name) => {
+  const pos = await namedPosition(sceneKey, name);
   if (!pos) throw new Error(`В сцене ${sceneKey} нет объекта «${name}»`);
   await clickGame(pos[0], pos[1]);
 };
@@ -337,6 +339,17 @@ const ascendStep = async () => {
   if (!after || after.rarity === before.rarity) throw new Error(`вознесение ${before.templateId} ${before.rarity} не прошло`);
   log(`обучение: вознесение ${before.templateId} ${before.rarity} → ${after.rarity}`);
   if (await findText('Ascend', 'Отлично!', true)) {
+    // Подпись существует раньше кнопки: анимация хранит её в прозрачном родительском контейнере.
+    await page.waitForFunction(() => {
+      const game = window.__game;
+      const sc = game?.scene.getScene('Ascend');
+      const done = sc?.children.getByName('ascendReveal')?.getByName('revealDone');
+      if (!sc?.sys.isActive() || !sc.input.enabled || !game.input.enabled || !done?.input?.enabled) return false;
+      for (let p = done; p; p = p.parentContainer) {
+        if (!p.visible || (p.alpha ?? 1) < 0.99 || !p.willRender(sc.cameras.main)) return false;
+      }
+      return true;
+    }, null, { timeout: 10000 });
     await clickText('Ascend', 'Отлично!', true);
     await waitScene('Hero');
   }
@@ -407,13 +420,31 @@ const visitTavern = async () => {
   await skipDialogues('Campaign');
 };
 
+/** Применить «Авто», явно подтвердив предложенный вариант состава, как это делает игрок. */
+const applyAutoSquad = async () => {
+  await clickText('Stage', 'Авто');
+  // Новый состав может потребовать загрузку личных спрайтов; дождаться завершения перезапуска сцены.
+  await waitScene('Stage');
+  // После первого ×10 «Авто» предлагает настоящие альтернативы. Открытие листа ещё не меняет отряд.
+  if (await namedPosition('Stage', 'chooseSquad_healing')) {
+    await clickNamed('Stage', 'chooseSquad_healing');
+    log('Авто: выбран состав с лечением');
+  }
+  // Имя листа снимается в начале анимации закрытия. Дождаться её конца и защиты от сквозного тапа.
+  await page.waitForFunction(() => {
+    const game = window.__game;
+    const sc = game.scene.getScene('Stage');
+    return !sc.choosingSquad && game.input.enabled &&
+      !sc.children.list.some((o) => o.name === 'bottomSheet' || o.getData?.('closing'));
+  });
+  await waitScene('Stage');
+};
 /** Экран этапа → «Авто» (сильнейшие герои по ролям) → «‹ Назад» на карту. */
 const autoSquad = async (stage, shotName) => {
   await clickText('Campaign', `1-${stage}`);
   await waitScene('Stage');
   if ((await recordHint('Stage')) !== 'prep_auto') problems.push('после Таверны на расстановке нет подсказки «Авто»');
-  await clickText('Stage', 'Авто');
-  await sleep(500);
+  await applyAutoSquad();
   if (shotName) await shot(shotName);
   await clickNamed('Stage', 'backButton');
   await waitScene('Campaign');
@@ -575,8 +606,7 @@ try {
         if (prepHint === 'prep_auto' && stage <= TAVERN) problems.push(`этап ${stage}: подсказка «Авто» до первого призыва в Таверне`);
         // Как игрок с новыми героями из Таверны: перед боем — «Авто» (сильнейшие по ролям).
         if (stage > TAVERN || prepHint === 'prep_auto') {
-          await clickText('Stage', 'Авто');
-          await sleep(400);
+          await applyAutoSquad();
         }
         if (stage === 1 || stage === TAVERN || stage === LAST) await shot(`stage${stage}`);
         await clickText('Stage', 'В бой');

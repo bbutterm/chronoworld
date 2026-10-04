@@ -84,7 +84,7 @@ async function main() {
   let page;
   const problems = [];
   try {
-    browser = await chromium.launch({ headless: HEADLESS });
+    browser = await chromium.launch({ headless: HEADLESS, ...(process.env.CHROME_EXECUTABLE_PATH ? { executablePath: process.env.CHROME_EXECUTABLE_PATH } : {}) });
     page = await browser.newPage({ viewport: { width: 540, height: 960 } });
     page.on('console', (m) => {
       if (m.type() !== 'error') return;
@@ -439,12 +439,12 @@ async function main() {
     await waitScene('Heroes');
     // H4: коллекция — сетка карточек, фильтры, сортировка, «Коллекция N/M».
     await shot('heroes');
-    for (const t of ['Коллекция ', 'Сила', 'Алан', 'Опыт в запасе']) if (!(await hasText('Heroes', t))) problems.push(`коллекция героев: нет «${t}»`);
+    for (const t of ['Коллекция\n', 'Сила', 'Алан', 'Опыт в запасе']) if (!(await hasText('Heroes', t))) problems.push(`коллекция героев: нет «${t}»`);
     await clickText('Heroes', 'Алан'); // плитка Алана
     await waitScene('Hero');
     await shot('hero');
     // Карточка героя (H4): класс, редкость, мощь, «Улучшить» за опыт из общего запаса, вкладки.
-    for (const t of ['Мечник', 'Зелёный', 'Улучшить', 'Мощь', 'Навыки', 'Снаряжение', 'История']) if (!(await hasText('Hero', t))) problems.push(`карточка героя: нет «${t}»`);
+    for (const t of ['Мечник', 'Зелёный', 'Улучшить', 'Мощь', 'Навыки', 'Снаряжение', 'Путь']) if (!(await hasText('Hero', t))) problems.push(`карточка героя: нет «${t}»`);
     const before = await page.evaluate(() => JSON.parse(localStorage.getItem('chronoworld.save.v1')));
     const h1 = before.heroes.find((h) => h.templateId === 'alan');
     await clickText('Hero', 'Улучшить');
@@ -458,9 +458,11 @@ async function main() {
     log(`«Улучшить»: ${h1.level} → ${h1after.level}, запас ${before.resources.heroExp} → ${after.resources.heroExp}`);
     await shot('hero-levelup');
     // Вкладка «История»: био и откуда брать копии героя (герои v2).
-    await clickText('Hero', 'История');
+    await clickText('Hero', 'Путь');
     await waitScene('Hero');
-    if (!(await hasText('Hero', 'Растёт копиями'))) problems.push('карточка героя: во вкладке «История» нет «Растёт копиями»');
+    for (const label of ['Вехи пути', 'Тренировка', 'Близость']) {
+      if (!(await hasText('Hero', label))) problems.push(`карточка героя: во вкладке «Путь» нет «${label}»`);
+    }
     // История героя кусочками (каждые 10 уровней): кнопка во вкладке «История» открывает страницу во весь экран.
     {
       const pos = await page.evaluate(() => {

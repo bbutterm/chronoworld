@@ -54,14 +54,14 @@ export async function verifyInitData(initData: string, botToken: string, nowSec:
   for (let i = 0; i < hash.length; i++) diff |= expected.charCodeAt(i) ^ hash.charCodeAt(i);
   if (diff !== 0) return null;
   const authDate = Number(params.get('auth_date'));
-  if (!Number.isFinite(authDate) || nowSec - authDate > maxAgeSec) return null;
+  if (!Number.isSafeInteger(authDate) || authDate <= 0 || authDate - nowSec > 30 || nowSec - authDate > maxAgeSec) return null;
   let user: TgUser;
   try {
     user = JSON.parse(params.get('user') ?? '');
   } catch {
     return null;
   }
-  if (!user || typeof user.id !== 'number') return null;
+  if (!user || !Number.isSafeInteger(user.id) || user.id <= 0) return null;
   return { user, authDate, startParam: params.get('start_param') ?? undefined };
 }
 

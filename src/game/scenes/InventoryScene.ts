@@ -23,6 +23,11 @@ import {
   refineItem,
   refineLevel,
   refineUnlocked,
+  salvagePlan,
+  salvageProtection,
+  salvageValue,
+  salvageItems,
+  lockItem,
   SLOTS,
   type CardRarity,
   type HeroState,
@@ -36,7 +41,7 @@ import { GAME_W } from '../layout';
 import { bottomSheet, confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, cta, emptyCard, screen, type BottomSheet } from '../screen';
 import { cardArtId, showCardArt } from '../cardArt';
 import { commit, session } from '../session';
-import { BTN, button, chip, ellipsize, listRow, mixHex, plate, pressable, ScrollArea, segmented, stat, SURFACE, tag, text, toast, type Tone } from '../ui';
+import { BTN, button, chip, ellipsize, icon, listRow, mixHex, plate, pressable, ScrollArea, segmented, stat, SURFACE, tag, text, toast, type Tone } from '../ui';
 import { randomLine } from '../loreView';
 import { itemLegend, itemModal } from '../loreView';
 import { C, COLOR, COLOR_N, FAMILY, R, S, T, TOUCH } from '../theme';
@@ -92,9 +97,9 @@ const TBL_X0 = 400;
 const TBL_CELL = (GAME_W - S.xs - TBL_X0) / 5;
 const colX = (i: number) => TBL_X0 + TBL_CELL * (i + 0.5);
 
-/** «30%» — шанс поломки. */
+/** «30%» — шанс неудачи. */
 const pct = (p: number) => `${Math.round(p * 100)}%`;
-/** Тон риска поломки: нет — зелёный, до 30% — жёлтый, выше — красный. */
+/** Тон риска неудачи: нет — зелёный, до 30% — жёлтый, выше — красный. */
 export const riskTone = (p: number): Tone => (p <= 0 ? 'positive' : p <= 0.3 ? 'warning' : 'negative');
 /** Подписи способов заточки (сегмент). */
 export const REFINE_MODE_LABEL: Record<RefineMode, string> = { normal: 'Обычная', safe: 'Надёжная', ore: 'Рудой' };
@@ -108,26 +113,6 @@ const rarityNum = (def: ItemDef | undefined) => parseInt((def ? RARITY_COLORS[de
 export function refineModes(from: number): RefineMode[] {
   if (refineBreakChance(from, GAME) <= 0) return ['normal'];
   return refineSafeAvailable(GAME) ? ['normal', 'safe', 'ore'] : ['normal', 'ore'];
-}
-
-/** Поломка при заточке: тряска экрана и осколки цвета редкости, разлетающиеся из точки at. */
-function shatter(scene: Phaser.Scene, at: { x: number; y: number }, color: number): void {
-  scene.cameras.main.shake(260, 0.012);
-  for (let i = 0; i < 14; i++) {
-    const a = (i / 14) * Math.PI * 2 + (i % 3) * 0.2;
-    const shard = scene.add.triangle(at.x, at.y, 0, 0, 22, 6, 6, 26, i % 2 ? color : 0x9a9a9a).setDepth(8000).setRotation(a);
-    const r = 110 + (i % 4) * 35;
-    scene.tweens.add({
-      targets: shard,
-      x: at.x + Math.cos(a) * r,
-      y: at.y + Math.sin(a) * r + 90,
-      angle: shard.angle + 240,
-      alpha: 0,
-      duration: 650,
-      ease: 'Cubic.easeOut',
-      onComplete: () => shard.destroy(),
-    });
-  }
 }
 
 /** Строка списка: предмет и сколько таких же свободных в стопке (T4-11). */
@@ -147,7 +132,7 @@ export function stackRows(rows: InventoryRow[]): StackRow[] {
       out.push({ ...r, count: 1 });
       continue;
     }
-    const key = `${r.instance.itemId}+${r.instance.refine ?? 0}+${r.instance.card ?? ''}`;
+    const key = `${r.instance.itemId}+${r.instance.refine ?? 0}+${r.instance.card ?? ''}+${!!r.instance.locked}`;
     const same = free.get(key);
     if (same) same.count++;
     else {
@@ -183,6 +168,11 @@ export class InventoryScene extends Phaser.Scene {
     const hero = data.heroId ? save.heroes.find((h) => h.id === data.heroId) : undefined;
     if (hero && data.slot) this.picker(hero, data.slot);
     else this.all(data.filter ?? null);
+  }
+
+  /** Одинаковое объяснение ошибок снаряжения во всех листах. */
+  private reportError(error: unknown): void {
+    toast(this, error instanceof Error ? error.message : String(error), C.error);
   }
 
   // ---------- выбор предмета для слота героя ----------
@@ -274,7 +264,7 @@ export class InventoryScene extends Phaser.Scene {
           sfx('refine_success');
           this.scene.restart({ heroId: hero.id, slot, heroBack: this.heroBack });
         } catch (e) {
-          toast(this, e instanceof Error ? e.message : String(e), C.error);
+          this.reportError(e);
         }
       }),
     T.body, { variant: 'secondary' });
@@ -294,7 +284,7 @@ export class InventoryScene extends Phaser.Scene {
       markHint('equip_gear');
       this.backToHero(hero.id, `${heroName(hero, GAME)}: надет «${row.def?.name ?? row.instance.itemId}»${row.wornBy ? ` (снят с ${row.wornBy})` : ''}`);
     } catch (e) {
-      toast(this, e instanceof Error ? e.message : String(e), C.error);
+      this.reportError(e);
     }
   }
 
@@ -365,15 +355,17 @@ export class InventoryScene extends Phaser.Scene {
         const bonus1 = refineBonus(lvl + 1, GAME);
         content.add(stat(this, width / 2, y + 30, 'Бонус заточки', bonus0 > 0 ? `+${pb(bonus0)} → +${pb(bonus1)}` : `+${pb(bonus1)}`, { w: width }));
         y += 60 + S.s;
-        // Риск — чипом с процентом; рудой — без поломки, тратит руду.
+        // Риск — чипом с процентом; рудой — с гарантией улучшения, тратит руду.
         const chance = refineBreakChance(lvl, GAME, mode);
         const cost = refineModeCost(instance, def, GAME, mode)!;
         const noOre = mode === 'ore' && ore < 1;
-        const risk = chance > 0 ? chip(this, 0, y + 36, 'lock', `Поломка ${pct(chance)}`, riskTone(chance), { align: 'left' }) : chip(this, 0, y + 36, 'check', 'Без поломки', 'positive', { align: 'left' });
+        const risk = chance > 0 ? chip(this, 0, y + 36, 'lock', `Неудача ${pct(chance)}`, riskTone(chance), { align: 'left' }) : chip(this, 0, y + 36, 'check', 'Гарантия улучшения', 'positive', { align: 'left' });
         risk.setName('refineRisk');
         content.add(risk);
         if (mode === 'ore') content.add(chip(this, risk.width + S.xs, y + 36, (s, x, cy, size) => oreIcon(s, x, cy, size), '−1', noOre ? 'negative' : 'neutral', { align: 'left' }));
         y += 72 + S.l;
+        content.add(text(this, 0, y, 'При неудаче предмет и прежняя заточка сохраняются.', T.caption, COLOR.textSecondary, { align: 'left', wordWrap: { width } }).setOrigin(0, 0).setName('refineProtection'));
+        y += 92;
         const gold = session.save.resources.gold;
         const short = noOre ? 'Нет руды — она падает с боссов' : gold < cost.gold ? `Не хватает ${formatNumber(cost.gold - gold)} золота` : null;
         if (short) {
@@ -390,7 +382,7 @@ export class InventoryScene extends Phaser.Scene {
             this.refine(instanceId, mode);
           };
           if (chance <= 0) return run();
-          confirm(this, `Шанс поломки ${pct(chance)}.\nСломанная вещь исчезнет, золото не вернётся.`, 'Точить', run, { danger: chance > 0.3 });
+          confirm(this, `Шанс неудачи ${pct(chance)}.\nЗолото будет потрачено. Предмет, карта и прежняя заточка сохранятся.`, 'Точить', run, { danger: chance > 0.3 });
         }, { w: 640, enabled: !short });
         go.container.setName('refineGo');
         priceIn(this, go, cost.gold, !short && gold >= cost.gold);
@@ -409,16 +401,13 @@ export class InventoryScene extends Phaser.Scene {
       const e = r.events[0];
       const def = GAME.equipment.items[e.itemId];
       const data = { ...this.data0 };
-      if (e.type === 'refineBroken') {
-        // Поломка: глухой удар, тряска экрана и осколки из ячейки предмета.
+      if (e.type === 'refineFailed') {
         sfx('refine_fail');
         haptic('refineFail');
         this.scene.restart(data);
         this.events.once(Phaser.Scenes.Events.CREATE, () => {
-          shatter(this, this.fxAt, rarityNum(def));
-          // Строка кузнеца (lore-route §5.8, data/lore/lines.json → refineBreak).
           const said = randomLine('refineBreak');
-          toast(this, `«${def ? refinedName(def, e.level) : e.itemId}» сломалась${said ? `\n${said}` : ''}`, C.error, said ? 5000 : 3500);
+          toast(this, `Неудача. Предмет и заточка сохранены${said ? `\n${said}` : ''}`, C.error, said ? 5000 : 3500);
         });
         return;
       }
@@ -432,7 +421,7 @@ export class InventoryScene extends Phaser.Scene {
       });
     } catch (e) {
       sfx('ui_error');
-      toast(this, e instanceof Error ? e.message : String(e), C.error);
+      this.reportError(e);
     }
   }
 
@@ -484,7 +473,18 @@ export class InventoryScene extends Phaser.Scene {
 
     const flat = inventoryRows(session.save, GAME, filter ?? undefined).filter((r) => !freeOnly || r.instance.equippedBy === null);
     const rows = stackRows(flat);
-    const gridTop = fy + 44 + S.s;
+    const sale = salvagePlan(session.save, GAME);
+    const itemDefs = new Map(session.save.inventory.items.map((item) => [item.id, GAME.equipment.items[item.itemId]]));
+    const saleIds = sale.instanceIds.filter((id) => !filter || itemDefs.get(id)?.slot === filter);
+    let gridTop = fy + 44 + S.s;
+    if (saleIds.length) {
+      const saleY = gridTop + 44;
+      const plan = salvagePlan(session.save, GAME, saleIds);
+      text(this, LEFT, saleY, `Лишние копии: ${plan.instanceIds.length}`, T.caption, COLOR.textSecondary).setOrigin(0, 0.5).setName('invSaleCount');
+      const sell = button(this, GAME_W - LEFT - 210, saleY, 420, 88, '', 'Продать повторы', () => this.sell(plan.instanceIds, true), T.caption, { variant: 'secondary' });
+      sell.container.setName('invSellDuplicates');
+      gridTop += 88 + S.s;
+    }
     if (!rows.length) {
       emptyCard(this, gridTop + 300, filter || freeOnly ? 'Здесь пусто' : 'Пока пусто', 'bag', filter || freeOnly ? undefined : { label: 'В кампанию', onClick: () => this.scene.start('Campaign') });
       return;
@@ -507,6 +507,7 @@ export class InventoryScene extends Phaser.Scene {
           ...(hero ? { face: (fx2: number, fy2: number, size: number) => heroFace(this, heroSprite(hero, GAME), size * 0.82, GAME.content.heroes[hero.templateId]?.gender).setPosition(fx2, fy2) } : {}),
         });
         tile.setName(`invItem_${row.instance.id}`);
+        if (row.instance.locked) tile.add(icon(this, -TILE / 2 + 30, TILE / 2 - 30, 'lock', 40).setName('invItemLocked'));
         a.add(tile);
         pressable(this, tile, TILE, TILE, a.tap(() => this.itemSheet(row)));
       }
@@ -541,10 +542,14 @@ export class InventoryScene extends Phaser.Scene {
           content.add(tag(this, tx, ty, `Надет: ${row.wornBy}`, 'positive', { align: 'left' }));
           ty += 60;
         }
+        if (row.instance.locked) {
+          content.add(tag(this, tx, ty, 'Защищён от продажи', 'info', { align: 'left' }));
+          ty += 60;
+        }
         if (def.jobs?.length) {
           content.add(ellipsize(text(this, tx, ty, `Только: ${def.jobs.map((j) => GAME.content.jobs[j]?.name ?? j).join(', ')}`, T.caption, COLOR.textSecondary).setOrigin(0, 0.5), width - tx));
         }
-        let y = 160 + S.s;
+        let y = Math.max(160 + S.s, ty + (def.jobs?.length ? 64 : 32));
         // Статы: значение с заточкой и прирост от неё.
         const now = statsOf(def, row.instance);
         for (const k of STAT_KEYS) {
@@ -568,6 +573,19 @@ export class InventoryScene extends Phaser.Scene {
           y += l.height + S.xs;
         }
         y += S.l;
+        const controlW = (width - S.s) / 2;
+        const protect = button(this, controlW / 2, y + 48, controlW, 96, '', row.instance.locked ? 'Снять защиту' : row.count > 1 ? 'Защитить одну' : 'Защитить', go(() => {
+          commit(lockItem(session.save, row.instance.id, !row.instance.locked));
+          this.scene.restart({ ...this.data0 });
+        }), T.caption, { variant: 'secondary' });
+        protect.container.setName('itemLock');
+        content.add(protect.container);
+        if (!salvageProtection(row.instance) && salvageValue(def, GAME) > 0) {
+          const sell = button(this, controlW + S.s + controlW / 2, y + 48, controlW, 96, '', `Продать · ${formatNumber(salvageValue(def, GAME))}`, go(() => this.sell([row.instance.id])), T.caption, { variant: 'secondary' });
+          sell.container.setName('itemSell');
+          content.add(sell.container);
+        }
+        y += 96 + S.s;
         // Действия: свободный — «Надеть» (главная) и «Заточить»; надетый — «Заточить» (главная) и «К герою».
         type Act = { label: string; fn: () => void; name: string };
         const wear: Act = { label: 'Надеть', fn: go(() => this.wearSheet(row)), name: 'itemWear' };
@@ -587,6 +605,29 @@ export class InventoryScene extends Phaser.Scene {
       { onClose: () => (next ? next() : this.lockList(false)) },
     );
     sheet.layer.setName('itemSheet');
+  }
+
+  /** Подтверждение фиксирует конкретные id; ядро перепроверяет защиту перед списанием. */
+  private sell(instanceIds: readonly string[], duplicates = false): void {
+    const plan = salvagePlan(session.save, GAME, instanceIds);
+    if (!plan.instanceIds.length) {
+      toast(this, 'Эти предметы защищены или уже проданы', C.muted);
+      this.lockList(false);
+      return;
+    }
+    const question = `Продать ${plan.instanceIds.length} предм. за ${formatNumber(plan.gold)} золота?${duplicates ? '\nОдна запасная вещь каждого вида останется. Надетые, заточенные, с картой и защищённые вещи сохранятся.' : ''}`;
+    confirm(this, question, 'Продать', () => {
+      try {
+        const result = salvageItems(session.save, plan.instanceIds, GAME);
+        commit(result.save);
+        this.scene.restart({ ...this.data0 });
+        this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, `Продано: ${result.sold} · +${formatNumber(result.gold)} золота`, C.success));
+      } catch (e) {
+        this.reportError(e);
+        this.lockList(false);
+      }
+    });
+    this.lockList(false);
   }
 
   /** MT-12: лист «Кому надеть?»: до 6 героев (кому можно и отряд — первыми; копии — одной строкой) с разницей статов. */
@@ -749,7 +790,7 @@ export class InventoryScene extends Phaser.Scene {
             this.scene.restart({});
             this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, `${c.name} — в «${name}»`, C.success));
           } catch (e) {
-            toast(this, e instanceof Error ? e.message : String(e), C.error);
+            this.reportError(e);
           }
         });
       } },

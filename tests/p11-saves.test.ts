@@ -226,8 +226,8 @@ describe('T4-04: неизвестная карточка героя (v4)', () =>
     const fixed = sanitizeSave(odd, ctx);
     expect(fixed.save.heroes[0].level).toBe(20);
     expect(fixed.save.heroes.find((h) => h.id === 'h4')).toMatchObject({ rarity: 'red', branch: 'crusader' });
-    expect(fixed.save.heroes.find((h) => h.id === 'h6')).toEqual({ id: 'h6', templateId: 'kai', rarity: 'blue', level: 3 });
-    expect(fixed.save.heroes.find((h) => h.id === 'h7')).toEqual({ id: 'h7', templateId: 'lira', rarity: 'purple', level: 45, branchChanges: 1 });
+    expect(fixed.save.heroes.find((h) => h.id === 'h6')).toEqual({ id: 'h6', templateId: 'kai', rarity: 'blue', level: 3, companion: true });
+    expect(fixed.save.heroes.find((h) => h.id === 'h7')).toEqual({ id: 'h7', templateId: 'lira', rarity: 'purple', level: 45, branchChanges: 1, companion: true });
     // Вторая по слотам копия Брана (h2 в слоте 3) уходит из отряда.
     expect(fixed.save.squad).toEqual(['h1', 'h4', 'h5', null, 'h3']);
     expect(fixed.warnings).toHaveLength(4);

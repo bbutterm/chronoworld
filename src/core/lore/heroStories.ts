@@ -46,7 +46,13 @@ type StorySave = Pick<SaveState, 'heroes'> & Partial<Pick<SaveState, 'heroStoryR
 /** Самый высокий уровень среди копий героя у игрока (0 — героя нет); с branch — только среди копий на этой ветке. */
 export function heroPeakLevel(save: Pick<SaveState, 'heroes'>, templateId: string, branch?: string): number {
   let best = 0;
-  for (const h of save.heroes) if (h.templateId === templateId && (!branch || h.branch === branch) && h.level > best) best = h.level;
+  for (const h of save.heroes) {
+    if (h.templateId !== templateId) continue;
+    const reached = branch
+      ? Math.max(h.branch === branch ? h.level : 0, h.journey?.branchLevels?.[branch] ?? 0)
+      : Math.max(h.level, h.journey?.peakLevel ?? 0);
+    best = Math.max(best, reached);
+  }
   return best;
 }
 

@@ -1,0 +1,1391 @@
+{
+  "label": "5x7-s2-final",
+  "elapsedSec": 54.967762409,
+  "model": {
+    "sessionsPerDay": 5,
+    "firstSessionHour": 8,
+    "hoursBetweenSessions": 3,
+    "firstSessionMinutes": 10,
+    "sessionMinutes": 7,
+    "battleSpeed": 1.5,
+    "battleOverheadSec": 30,
+    "storySecPerLine": 5,
+    "levelUpSec": 2,
+    "summonSec": 20,
+    "ascendSec": 20,
+    "ascendAll": true,
+    "healer": true,
+    "maxLossesPerSession": 3,
+    "towerMaxAttemptsPerSession": 10,
+    "towerMaxLossesPerSession": 2,
+    "fastRewardsPerDay": 1,
+    "midSessionClaimMinutes": 10,
+    "expeditions": true,
+    "summonWithGems": true,
+    "hunt": true,
+    "events": true,
+    "shop": true,
+    "refine": true,
+    "refineReserveLevels": 5,
+    "refineSec": 1,
+    "refineMaxRisk": 0.3,
+    "refineOreFromRisk": 0.5,
+    "branch": "keep",
+    "seedBase": 2,
+    "startDate": "2026-01-01"
+  },
+  "requestedMinutes": 738,
+  "actualActiveMinutes": 758,
+  "dayMilestones": [
+    {
+      "day": 1,
+      "date": "2026-01-01",
+      "tower_floor": 8,
+      "cleared_count": 23,
+      "gold": 11664,
+      "gems": 62,
+      "stage_reached": "ch2_s13",
+      "rarities": "2g3b",
+      "avg_level": 9.2,
+      "summons": 23,
+      "squad_power": 3464
+    },
+    {
+      "day": 3,
+      "date": "2026-01-03",
+      "tower_floor": 29,
+      "cleared_count": 35,
+      "gold": 20754,
+      "gems": 1,
+      "stage_reached": "ch2_s10",
+      "rarities": "2b3p",
+      "avg_level": 15.8,
+      "summons": 50,
+      "squad_power": 5128
+    },
+    {
+      "day": 7,
+      "date": "2026-01-07",
+      "tower_floor": 34,
+      "cleared_count": 85,
+      "gold": 16757,
+      "gems": 267,
+      "stage_reached": "ch5_s9",
+      "rarities": "1b4p",
+      "avg_level": 40.2,
+      "summons": 81,
+      "squad_power": 9563
+    },
+    {
+      "day": 14,
+      "date": "2026-01-14",
+      "tower_floor": 34,
+      "cleared_count": 130,
+      "gold": 20769,
+      "gems": 152,
+      "stage_reached": "ch8_s5",
+      "rarities": "3p2o",
+      "avg_level": 68,
+      "summons": 133,
+      "squad_power": 18759
+    },
+    {
+      "day": 21,
+      "date": "2026-01-21",
+      "tower_floor": 34,
+      "cleared_count": 165,
+      "gold": 354161,
+      "gems": 178,
+      "stage_reached": "ch10_s4",
+      "rarities": "3p2r",
+      "avg_level": 76,
+      "summons": 174,
+      "squad_power": 31039
+    }
+  ],
+  "chapters": [
+    {
+      "chapter": "chapter1",
+      "order": 1,
+      "hours": 6,
+      "activeMin": 20
+    },
+    {
+      "chapter": "chapter2",
+      "order": 2,
+      "hours": 72,
+      "activeMin": 110
+    },
+    {
+      "chapter": "chapter3",
+      "order": 3,
+      "hours": 99,
+      "activeMin": 151
+    },
+    {
+      "chapter": "chapter4",
+      "order": 4,
+      "hours": 129.1,
+      "activeMin": 202
+    },
+    {
+      "chapter": "chapter5",
+      "order": 5,
+      "hours": 222.1,
+      "activeMin": 338
+    },
+    {
+      "chapter": "chapter6",
+      "order": 6,
+      "hours": 294.1,
+      "activeMin": 449
+    },
+    {
+      "chapter": "chapter7",
+      "order": 7,
+      "hours": 321.1,
+      "activeMin": 490
+    },
+    {
+      "chapter": "chapter8",
+      "order": 8,
+      "hours": 360.1,
+      "activeMin": 546
+    },
+    {
+      "chapter": "chapter9",
+      "order": 9,
+      "hours": 411,
+      "activeMin": 622
+    },
+    {
+      "chapter": "chapter10",
+      "order": 10,
+      "hours": null,
+      "activeMin": null
+    }
+  ],
+  "finalCleared": 165,
+  "totalStages": 180,
+  "campaignBattles": 348,
+  "campaignLosses": 183,
+  "campaignLossRatio": 0.5258620689655172,
+  "lossesAboveRecommendation": 142,
+  "lossesBelow85Pct": 0,
+  "worstLossPowerRatio": 1.4504205607476635,
+  "genuineWalls": [
+    {
+      "stageId": "ch10_s1",
+      "hours": 81,
+      "attempts": 53,
+      "cleared": true
+    },
+    {
+      "stageId": "ch5_s10",
+      "hours": 30,
+      "attempts": 21,
+      "cleared": true
+    },
+    {
+      "stageId": "ch2_s14",
+      "hours": 24,
+      "attempts": 15,
+      "cleared": true
+    },
+    {
+      "stageId": "ch5_s9",
+      "hours": 24,
+      "attempts": 15,
+      "cleared": true
+    },
+    {
+      "stageId": "ch9_s10",
+      "hours": 24,
+      "attempts": 14,
+      "cleared": true
+    },
+    {
+      "stageId": "ch6_s1",
+      "hours": 24,
+      "attempts": 13,
+      "cleared": true
+    },
+    {
+      "stageId": "ch6_s12",
+      "hours": 21,
+      "attempts": 12,
+      "cleared": true
+    },
+    {
+      "stageId": "ch6_s2",
+      "hours": 18,
+      "attempts": 10,
+      "cleared": true
+    },
+    {
+      "stageId": "ch2_s10",
+      "hours": 18,
+      "attempts": 8,
+      "cleared": true
+    },
+    {
+      "stageId": "ch5_s17",
+      "hours": 18,
+      "attempts": 8,
+      "cleared": true
+    },
+    {
+      "stageId": "ch3_s10",
+      "hours": 18,
+      "attempts": 7,
+      "cleared": true
+    },
+    {
+      "stageId": "ch2_s13",
+      "hours": 17.9,
+      "attempts": 7,
+      "cleared": true
+    },
+    {
+      "stageId": "ch8_s18",
+      "hours": 15,
+      "attempts": 4,
+      "cleared": true
+    },
+    {
+      "stageId": "ch4_s10",
+      "hours": 6,
+      "attempts": 6,
+      "cleared": true
+    }
+  ],
+  "walls": [
+    {
+      "stageId": "ch10_s1",
+      "hours": 81,
+      "attempts": 53,
+      "cleared": true
+    },
+    {
+      "stageId": "ch5_s10",
+      "hours": 30,
+      "attempts": 21,
+      "cleared": true
+    },
+    {
+      "stageId": "ch2_s14",
+      "hours": 24,
+      "attempts": 15,
+      "cleared": true
+    },
+    {
+      "stageId": "ch5_s9",
+      "hours": 24,
+      "attempts": 15,
+      "cleared": true
+    },
+    {
+      "stageId": "ch9_s10",
+      "hours": 24,
+      "attempts": 14,
+      "cleared": true
+    },
+    {
+      "stageId": "ch6_s1",
+      "hours": 24,
+      "attempts": 13,
+      "cleared": true
+    },
+    {
+      "stageId": "ch6_s12",
+      "hours": 21,
+      "attempts": 12,
+      "cleared": true
+    },
+    {
+      "stageId": "ch6_s2",
+      "hours": 18,
+      "attempts": 10,
+      "cleared": true
+    },
+    {
+      "stageId": "ch2_s10",
+      "hours": 18,
+      "attempts": 8,
+      "cleared": true
+    },
+    {
+      "stageId": "ch5_s17",
+      "hours": 18,
+      "attempts": 8,
+      "cleared": true
+    },
+    {
+      "stageId": "ch3_s10",
+      "hours": 18,
+      "attempts": 7,
+      "cleared": true
+    },
+    {
+      "stageId": "ch2_s13",
+      "hours": 17.9,
+      "attempts": 7,
+      "cleared": true
+    },
+    {
+      "stageId": "ch8_s18",
+      "hours": 15,
+      "attempts": 4,
+      "cleared": true
+    },
+    {
+      "stageId": "ch4_s15",
+      "hours": 12,
+      "attempts": 3,
+      "cleared": true
+    },
+    {
+      "stageId": "ch5_s5",
+      "hours": 12,
+      "attempts": 1,
+      "cleared": true
+    }
+  ],
+  "idleCampaignSessions": 0,
+  "overshoot": {
+    "sessions": 0,
+    "maxSessionMinutes": 10,
+    "worst": []
+  },
+  "towerBattles": 171,
+  "towerWins": 155,
+  "towerAttemptsByFloor": {
+    "1": 17,
+    "3": 12,
+    "4": 8,
+    "5": 11,
+    "6": 11,
+    "7": 12,
+    "8": 12,
+    "9": 11,
+    "10": 15,
+    "11": 4,
+    "12": 4,
+    "13": 7,
+    "14": 9,
+    "15": 3,
+    "16": 5,
+    "17": 3,
+    "18": 4,
+    "19": 3,
+    "20": 4,
+    "21": 1,
+    "24": 1,
+    "25": 2,
+    "26": 3,
+    "27": 1,
+    "28": 2,
+    "29": 2,
+    "30": 2,
+    "31": 1,
+    "35": 1
+  },
+  "finalTower": {
+    "floor": 34,
+    "run": {
+      "seed": 3066949340,
+      "tier": 9,
+      "enemyMult": 32.855,
+      "floor": 9,
+      "squad": [
+        "h29",
+        "h18",
+        "h32",
+        "h2",
+        "h3"
+      ],
+      "hp": {
+        "h29": 1000,
+        "h18": 1000,
+        "h32": 1000,
+        "h2": 1000,
+        "h3": 1000
+      },
+      "fallen": [],
+      "cards": [
+        "archangeling",
+        "dark_lord",
+        "angeling"
+      ],
+      "draftRules": {
+        "version": 1,
+        "blessingEvery": 5,
+        "legendaryCap": 3,
+        "rarity": {
+          "floor": {
+            "common": 72,
+            "rare": 27,
+            "legendary": 1
+          },
+          "elite": {
+            "rare": 94,
+            "legendary": 6
+          },
+          "boss": {
+            "rare": 80,
+            "legendary": 20
+          },
+          "event": {
+            "common": 64,
+            "rare": 35,
+            "legendary": 1
+          },
+          "start": {
+            "common": 64,
+            "rare": 35,
+            "legendary": 1
+          }
+        }
+      },
+      "consumedImmediateCards": [],
+      "paths": [
+        "boss"
+      ],
+      "shards": 12,
+      "rerolls": 2,
+      "lives": 0,
+      "loot": {
+        "gold": 13034,
+        "jobExp": 18558
+      },
+      "battles": 8,
+      "best": 34,
+      "gems": 0,
+      "seenEvents": [
+        "mimic"
+      ]
+    },
+    "shards": 12,
+    "upgrades": {
+      "start_card": 2,
+      "hearth": 2,
+      "wide_choice": 1,
+      "bandage": 2,
+      "shuffle": 2,
+      "greed": 2
+    },
+    "runs": 17,
+    "lootDay": "2026-01-20",
+    "lootFloor": 14,
+    "last": {
+      "floor": 14,
+      "shards": 16,
+      "gold": 182476,
+      "jobExp": 259812,
+      "gems": 0,
+      "record": false,
+      "won": false,
+      "seen": true,
+      "end": "defeat"
+    }
+  },
+  "huntAttempts": 42,
+  "income": {
+    "gold": 36551791,
+    "gems": 3553,
+    "exp": 53764728
+  },
+  "spend": {
+    "gold": 36197630,
+    "gems": 3375,
+    "exp": 12119776
+  },
+  "incomeBySource": {
+    "offline": {
+      "gold": 28681315,
+      "gems": 160,
+      "exp": 40828762
+    },
+    "fast_rewards": {
+      "gold": 2533080,
+      "gems": 20,
+      "exp": 3606120
+    },
+    "campaign": {
+      "gold": 3504329,
+      "gems": 150,
+      "exp": 4991874
+    },
+    "tower": {
+      "gold": 754806,
+      "gems": 90,
+      "exp": 1074562
+    },
+    "hunt": {
+      "gold": 866000,
+      "gems": 308,
+      "exp": 1216000
+    },
+    "expeditions": {
+      "gold": 184561,
+      "gems": 445,
+      "exp": 254610
+    },
+    "quests": {
+      "gold": 14700,
+      "gems": 1770,
+      "exp": 6300
+    },
+    "achievements": {
+      "gold": 1700,
+      "gems": 340,
+      "exp": 0
+    },
+    "events": {
+      "gold": 5500,
+      "gems": 270,
+      "exp": 13500
+    },
+    "mail": {
+      "gold": 5800,
+      "gems": 0,
+      "exp": 5000
+    },
+    "heroes": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "summon": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "shop": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 1768000
+    },
+    "refine": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    }
+  },
+  "spendBySource": {
+    "offline": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "fast_rewards": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "campaign": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "tower": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "hunt": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "expeditions": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "quests": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "achievements": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "events": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "mail": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "heroes": {
+      "gold": 13986130,
+      "gems": 0,
+      "exp": 12119776
+    },
+    "summon": {
+      "gold": 0,
+      "gems": 3240,
+      "exp": 0
+    },
+    "shop": {
+      "gold": 2219000,
+      "gems": 135,
+      "exp": 0
+    },
+    "refine": {
+      "gold": 19992500,
+      "gems": 0,
+      "exp": 0
+    }
+  },
+  "resources": {
+    "gold": 354161,
+    "heroExp": 41644952
+  },
+  "currency": {
+    "gems": 178,
+    "scrolls": 0,
+    "blessedOre": 0
+  },
+  "refines": 235,
+  "refineFailures": 4,
+  "refineModes": {
+    "normal": 39,
+    "safe": 125,
+    "ore": 71
+  },
+  "refineGoldShare": 0.5523151653851371,
+  "refineByDay": [
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 0,
+      "max": 0
+    },
+    {
+      "avg": 2.5,
+      "max": 4
+    },
+    {
+      "avg": 4.5,
+      "max": 8
+    },
+    {
+      "avg": 4.7,
+      "max": 8
+    },
+    {
+      "avg": 6.2,
+      "max": 9
+    },
+    {
+      "avg": 7.4,
+      "max": 9
+    },
+    {
+      "avg": 8.4,
+      "max": 10
+    },
+    {
+      "avg": 8.7,
+      "max": 10
+    },
+    {
+      "avg": 8.9,
+      "max": 10
+    }
+  ],
+  "oreIn": {
+    "campaign": 21,
+    "hunt": 45,
+    "tower": 5
+  },
+  "oreSpent": 71,
+  "firstPurple": {
+    "day": 2,
+    "hours": 24,
+    "templateId": "kai",
+    "via": "branch"
+  },
+  "secondPurple": {
+    "day": 3,
+    "hours": 48,
+    "templateId": "alan"
+  },
+  "purplesByDay": [
+    0,
+    0,
+    3,
+    3,
+    3,
+    4,
+    4,
+    4,
+    4,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+  ],
+  "spareByDay": [
+    17,
+    20,
+    25,
+    26,
+    31,
+    36,
+    36,
+    39,
+    41,
+    39,
+    33,
+    37,
+    45,
+    45,
+    47,
+    37,
+    35,
+    35,
+    37,
+    38,
+    39
+  ],
+  "summons": 174,
+  "eventClaims": [
+    {
+      "kind": "login",
+      "id": "1",
+      "day": 1,
+      "t": 8
+    },
+    {
+      "kind": "mail",
+      "id": "1",
+      "day": 1,
+      "t": 8
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb1_stages",
+      "day": 1,
+      "t": 8.0505925
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb1_summons",
+      "day": 1,
+      "t": 8.138981388888888
+    },
+    {
+      "kind": "mail",
+      "id": "1",
+      "day": 1,
+      "t": 14.030463055555556
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb1_level",
+      "day": 1,
+      "t": 20.10520361111111
+    },
+    {
+      "kind": "newbie_chest",
+      "id": "30",
+      "day": 1,
+      "t": 20.10520361111111
+    },
+    {
+      "kind": "login",
+      "id": "2",
+      "day": 2,
+      "t": 32
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb2_stages",
+      "day": 2,
+      "t": 32
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb2_tower",
+      "day": 2,
+      "t": 32
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb2_bounties",
+      "day": 2,
+      "t": 32
+    },
+    {
+      "kind": "newbie_chest",
+      "id": "60",
+      "day": 2,
+      "t": 32
+    },
+    {
+      "kind": "login",
+      "id": "3",
+      "day": 3,
+      "t": 56
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb3_stages",
+      "day": 3,
+      "t": 56
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb3_level",
+      "day": 3,
+      "t": 56.04
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb3_ascend",
+      "day": 3,
+      "t": 59.02798138888889
+    },
+    {
+      "kind": "login",
+      "id": "4",
+      "day": 4,
+      "t": 80
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb4_stages",
+      "day": 4,
+      "t": 80
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb4_tower",
+      "day": 4,
+      "t": 80
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb4_summons",
+      "day": 4,
+      "t": 80
+    },
+    {
+      "kind": "newbie_chest",
+      "id": "100",
+      "day": 4,
+      "t": 80
+    },
+    {
+      "kind": "mail",
+      "id": "1",
+      "day": 4,
+      "t": 80.02918527777778
+    },
+    {
+      "kind": "login",
+      "id": "5",
+      "day": 5,
+      "t": 104
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb5_stages",
+      "day": 5,
+      "t": 104
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb5_level",
+      "day": 5,
+      "t": 104
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb5_bounties",
+      "day": 5,
+      "t": 104
+    },
+    {
+      "kind": "newbie_chest",
+      "id": "140",
+      "day": 5,
+      "t": 104
+    },
+    {
+      "kind": "mail",
+      "id": "1",
+      "day": 5,
+      "t": 107.037185
+    },
+    {
+      "kind": "login",
+      "id": "6",
+      "day": 6,
+      "t": 128
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb6_stages",
+      "day": 6,
+      "t": 128
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb6_tower",
+      "day": 6,
+      "t": 128
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb6_equip",
+      "day": 6,
+      "t": 128
+    },
+    {
+      "kind": "newbie_chest",
+      "id": "180",
+      "day": 6,
+      "t": 128
+    },
+    {
+      "kind": "mail",
+      "id": "1",
+      "day": 6,
+      "t": 137.06544444444444
+    },
+    {
+      "kind": "login",
+      "id": "7",
+      "day": 7,
+      "t": 152
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb7_stages",
+      "day": 7,
+      "t": 152
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb7_level",
+      "day": 7,
+      "t": 152
+    },
+    {
+      "kind": "newbie_task",
+      "id": "nb7_battles",
+      "day": 8,
+      "t": 182.05935194444444
+    }
+  ],
+  "farm": null,
+  "targetStages": [
+    {
+      "stageId": "ch4_s10",
+      "firstClear": {
+        "stageId": "ch4_s10",
+        "day": 6,
+        "session": 4,
+        "time_h": 137.07,
+        "attempts": 6,
+        "active_min": 202,
+        "squadLevels": [
+          32,
+          31,
+          31,
+          31,
+          31
+        ],
+        "squadRarities": [
+          "blue",
+          "purple",
+          "purple",
+          "purple",
+          "purple"
+        ]
+      },
+      "wall": {
+        "stageId": "ch4_s10",
+        "hours": 6,
+        "attempts": 6,
+        "cleared": true
+      },
+      "attempts": 6
+    },
+    {
+      "stageId": "ch6_s2",
+      "firstClear": {
+        "stageId": "ch6_s2",
+        "day": 12,
+        "session": 1,
+        "time_h": 272.03,
+        "attempts": 10,
+        "active_min": 394,
+        "squadLevels": [
+          59,
+          59,
+          59,
+          58,
+          58
+        ],
+        "squadRarities": [
+          "gold",
+          "gold",
+          "purple",
+          "purple",
+          "purple"
+        ]
+      },
+      "wall": {
+        "stageId": "ch6_s2",
+        "hours": 18,
+        "attempts": 10,
+        "cleared": true
+      },
+      "attempts": 10
+    },
+    {
+      "stageId": "ch9_s10",
+      "firstClear": {
+        "stageId": "ch9_s10",
+        "day": 17,
+        "session": 4,
+        "time_h": 401.03,
+        "attempts": 14,
+        "active_min": 599,
+        "squadLevels": [
+          80,
+          100,
+          60,
+          60,
+          60
+        ],
+        "squadRarities": [
+          "gold",
+          "red",
+          "purple",
+          "purple",
+          "purple"
+        ]
+      },
+      "wall": {
+        "stageId": "ch9_s10",
+        "hours": 24,
+        "attempts": 14,
+        "cleared": true
+      },
+      "attempts": 14
+    },
+    {
+      "stageId": "ch10_s13",
+      "firstClear": null,
+      "wall": null,
+      "attempts": 0
+    }
+  ],
+  "shopBuys": {
+    "item_common": 5,
+    "scroll": 5,
+    "exp_small": 37,
+    "exp_large": 11,
+    "item_rare": 4,
+    "card_blue": 1
+  },
+  "questClaims": {
+    "win_stages": 14,
+    "fight": 21,
+    "offline_chest": 21,
+    "level_ups": 17,
+    "summon": 21,
+    "fast_rewards": 21,
+    "tower": 21
+  },
+  "resourceLedgerBalances": {
+    "gold": true,
+    "exp": true,
+    "gems": true
+  },
+  "signals": [
+    "Опыт копится в пуле: 41644952 не потрачено (не хватает золота или все на пределе редкости).",
+    "Стена на ch10_s1: 81 ч, 53 боёв.",
+    "Стена на ch5_s10: 30 ч, 21 боёв.",
+    "Стена на ch2_s14: 24 ч, 15 боёв.",
+    "Скачки мощи врагов между соседними этапами (≥ ×1.3): ch1_s2 ×2.70, ch1_s3 ×1.38, ch1_s4 ×1.64, ch1_s12 ×1.80, ch2_s13 ×1.35, ch4_s3 ×1.32, ch6_s12 ×1.43, ch6_s13 ×1.37, ch8_s11 ×1.32, ch9_s8 ×1.35, ch9_s16 ×1.36.",
+    "Башня стоит на 34 этаже с 5-го дня.",
+    "Трудные этажи башни (штурмов): 1 (17), 10 (15), 3 (12), 7 (12), 8 (12).",
+    "Лишние предметы копятся: 137 в инвентаре не надеты (разбора/продажи нет).",
+    "Золото на 78% из одного источника: offline.",
+    "Карточки: наибольший уровень 100, призвано 174, вознесений 76, опыт в запасе 41644952; сюжетные: alan purple, bran purple, vika purple, greta purple, dorn purple, alan purple, dorn blue, bran purple, vika purple, greta purple, bran blue, greta blue, bran blue, dorn green, greta green, dorn blue, dorn green, alan blue, bran green, alan blue.",
+    "Достижений получено: 16 из 16."
+  ],
+  "source": {
+    "snapshotAtUTC": "2026-10-04T16:40:26.217496+00:00",
+    "combinedSha256": "b1bd709559943fa55652e71aa90fcd0415c57ddc4c36219f94fbbe497a4118a8",
+    "fileCount": 806,
+    "rootHead": "651031913944ca0451b9cb52e16f5de038faf813",
+    "node": "v24.19.0",
+    "days": 21,
+    "allInputsMatchRoot": true
+  },
+  "quotaChecks": {
+    "uniqueFirstClears": 165,
+    "replayedCampaignWins": 0,
+    "fastRewardsPerDayModelCap": 1,
+    "fastRewardQuestDays": 21,
+    "fastRewardsUsedFinalDay": 1,
+    "huntAttemptsPerDay": {
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2,
+      "6": 2,
+      "7": 2,
+      "8": 2,
+      "9": 2,
+      "10": 2,
+      "11": 2,
+      "12": 2,
+      "13": 2,
+      "14": 2,
+      "15": 2,
+      "16": 2,
+      "17": 2,
+      "18": 2,
+      "19": 2,
+      "20": 2,
+      "21": 2
+    },
+    "maxHuntAttemptsPerDay": 2,
+    "towerQuestDays": 21,
+    "oreLedgerBalances": true,
+    "correctSessionCalendar": true,
+    "sourceUnchangedDuringRuns": true
+  },
+  "finalState": {
+    "day": 21,
+    "session": 5,
+    "stage_reached": "ch10_s4",
+    "cleared_count": 165,
+    "heroes": "iris:red:100|meilin:red:100|kai:purple:60|bran:purple:60|vika:purple:60",
+    "avg_level": 76,
+    "rarities": "3p2r",
+    "squad_power": 31039,
+    "gold": 354161,
+    "hero_exp": 41644952,
+    "gems": 178
+  },
+  "campaignCompletedAt": null,
+  "modelLimitations": [
+    "No free level reset/respec is used; investments in previous squads remain spent.",
+    "autoEquip selects free items and does not transfer equipment off a replaced squad member.",
+    "Candidate potential only selects the squad; level gains are paid core actions and battles use actual save.",
+    "Started battles and preparation may overrun a session budget.",
+    "No campaign replays or new autobattler matches; only three selected 21-day profiles.",
+    "Session-end rows are not exact saves before a battle; wipe/timeout detail is not recorded."
+  ],
+  "wallDiagnostics": [
+    {
+      "label": "5x7-s2-final",
+      "stageId": "ch10_s1",
+      "attempts": 53,
+      "losses": 52,
+      "wall": {
+        "hours": 81.0,
+        "attempts": 53,
+        "cleared": true
+      },
+      "defeatType": null,
+      "defeatTypeReason": "The model records win/power/time only, no wipe/timeout detail. No battle replay performed.",
+      "firstLosingBattle": {
+        "t": 419.08194444444445,
+        "active_min": 624,
+        "kind": "stage",
+        "target": "ch10_s1",
+        "win": false,
+        "squadPower": 27630,
+        "recommended": 21400
+      },
+      "lastLosingBattle": {
+        "t": 500.0252777777778,
+        "active_min": 752,
+        "kind": "stage",
+        "target": "ch10_s1",
+        "win": false,
+        "squadPower": 31039,
+        "recommended": 21400
+      },
+      "firstLosingSessionEnd": {
+        "day": 18,
+        "session": 2,
+        "time_h": 419,
+        "stage_reached": "ch10_s1",
+        "heroes": "iris:red:100|meilin:red:100|kai:purple:60|bran:purple:60|vika:purple:60",
+        "avg_level": 76,
+        "rarities": "3p2r",
+        "gold": 42548,
+        "hero_exp": 21175784,
+        "gems": 147,
+        "squad_power": 27736,
+        "recommended_power": 21400,
+        "power_ratio": 1.3,
+        "attempts": 2,
+        "wins": 1,
+        "losses": 1,
+        "active_min": 7
+      },
+      "lastLosingSessionEnd": {
+        "day": 21,
+        "session": 5,
+        "time_h": 500,
+        "stage_reached": "ch10_s4",
+        "heroes": "iris:red:100|meilin:red:100|kai:purple:60|bran:purple:60|vika:purple:60",
+        "avg_level": 76,
+        "rarities": "3p2r",
+        "gold": 354161,
+        "hero_exp": 41644952,
+        "gems": 178,
+        "squad_power": 31039,
+        "recommended_power": 21600,
+        "power_ratio": 1.44,
+        "attempts": 4,
+        "wins": 3,
+        "losses": 1,
+        "active_min": 8
+      },
+      "firstClear": {
+        "stageId": "ch10_s1",
+        "day": 21,
+        "session": 5,
+        "time_h": 500.05,
+        "attempts": 53,
+        "active_min": 753,
+        "squadLevels": [
+          100,
+          100,
+          60,
+          60,
+          60
+        ],
+        "squadRarities": [
+          "red",
+          "red",
+          "purple",
+          "purple",
+          "purple"
+        ]
+      },
+      "sessionSnapshotLimit": "Session rows describe actual state AFTER that session, not exact save before a battle. Composition or resources may change after the losing battle within that session.",
+      "winningBattle": {
+        "t": 500.05018527777776,
+        "active_min": 753,
+        "kind": "stage",
+        "target": "ch10_s1",
+        "win": true,
+        "squadPower": 31039,
+        "recommended": 21400
+      },
+      "winningSessionEnd": {
+        "day": 21,
+        "session": 5,
+        "heroes": "iris:red:100|meilin:red:100|kai:purple:60|bran:purple:60|vika:purple:60",
+        "avg_level": 76,
+        "rarities": "3p2r",
+        "gold": 354161,
+        "hero_exp": 41644952,
+        "gems": 178,
+        "squad_power": 31039,
+        "active_min": 8
+      },
+      "rarityLevelCaps": {
+        "green": 20,
+        "blue": 40,
+        "purple": 60,
+        "gold": 80,
+        "red": 100
+      }
+    }
+  ],
+  "cpuParity": {
+    "label": "5x7-s2-final",
+    "comparisonAtUTC": "2026-10-04T16:43:03.149725+00:00",
+    "baselineSnapshotAtUTC": "2026-10-04T16:00:05.816461+00:00",
+    "baselineCombinedSha256": "5eb62d7050e0423e40efbb03e6c75bebcc5077167d923dc3a33cf4b6e55ef114",
+    "afterSnapshotAtUTC": "2026-10-04T16:40:26.217496+00:00",
+    "afterCombinedSha256": "b1bd709559943fa55652e71aa90fcd0415c57ddc4c36219f94fbbe497a4118a8",
+    "resultBytes": 290113,
+    "beforeResultSha256": "baef51b62bb58b46b9a1c20e5f7224deef1ee21ec5dc6d2f0abe1c87d06a27ee",
+    "afterResultSha256": "baef51b62bb58b46b9a1c20e5f7224deef1ee21ec5dc6d2f0abe1c87d06a27ee",
+    "fullBalanceResultByteIdentical": true,
+    "fullBalanceResultJsonIdentical": true,
+    "csvByteIdentical": true,
+    "nativeSummaryEqualExceptElapsedSec": true,
+    "excludedResultFields": [],
+    "ignoredExternalSummaryFields": [
+      "elapsedSec"
+    ]
+  }
+}

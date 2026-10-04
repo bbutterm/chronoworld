@@ -2,15 +2,14 @@
  * Онлайн фаза 1 — связка с игрой (docs/design/online.md, раздел «Клиент»). Непринуждённо: вне Telegram и без сети
  * ничего не происходит и ничего не показывается; ошибки сети молчат.
  *
- * - Вход (startOnline, из main.ts): `hello` → награда пригласившему (`ref_claim`, письмо) → облачное сохранение
- *   («Найдено облачное сохранение…» — Да / Нет, оставить это) → `sync`.
+ * - Вход: `hello` → выбор облачного сохранения → доставка наград по постоянным ID → `sync`.
  * - Каждая запись игры (session.onCommit): победа на этапе, новый этаж Башни, бой охоты — `sync` (через 2 с, пачкой) и
  *   облачное сохранение `save_put` не чаще раза в минуту; при сворачивании (lifecycle.onAppHidden) — тоже.
  *   Пока не решён вопрос с облачным сохранением (не было удачного `hello`), в облако ничего не пишется.
  * - Награды — существующими механизмами ядра: письмо с гемами (sendMail) и grantRewards (колокольчики).
  */
 import Phaser from 'phaser';
-import { deserialize, grantRewards, sendMail, serialize, squadPower } from '../../core';
+import { deserialize, serialize, squadPower } from '../../core';
 import { GAME } from '../content';
 import { GAME_H, GAME_W } from '../layout';
 import { popIn } from '../screen';
@@ -23,6 +22,7 @@ import { haptic } from '../haptics';
 import { api, onlineAvailable } from './api';
 import {
   agoText,
+  applyRewardGrants,
   BELL_GEMS,
   cloudSaveDelay,
   isFreshSave,
@@ -30,9 +30,6 @@ import {
   nextMvpWeek,
   notifyTimersOf,
   progressOf,
-  REF_INVITER_GEMS,
-  REF_WELCOME_GEMS,
-  REF_WELCOME_SOURCE,
   shouldOfferCloud,
   syncDelay,
   syncPower,
@@ -42,12 +39,14 @@ import {
   type HelloResp,
   type NotifyTimers,
   type WeekBest,
+  type OnlineProgress,
 } from './logic';
 
 /** Ключи localStorage онлайна («Начать заново» их тоже очищает — префикс chronoworld.). */
 const KEY_LOCAL_AT = 'chronoworld.online.localAt';
 const KEY_DECLINED = 'chronoworld.online.declinedAt';
 const KEY_MVP = 'chronoworld.online.mvpWeek';
+const KEY_CLOUD_REVISION = 'chronoworld.online.cloudRevision';
 
 const SYNC_DEBOUNCE_MS = 2000;
 
@@ -76,6 +75,8 @@ export const onlineState = {
   giftsWaiting: 0,
   /** Вопрос «какое сохранение» решён — можно писать в облако. */
   cloudReady: false,
+  /** Другая копия игры записала облако: локальное продолжает сохраняться, облако ждёт выбора игрока. */
+  cloudConflict: false,
 };
 
 const listeners = new Set<() => void>();
@@ -108,6 +109,11 @@ let sentTimers: NotifyTimers | null = null;
 /** Сила отряда, ушедшая с последним sync (-1 — ещё не было), и когда был sync (Date.now). */
 let sentPower = -1;
 let lastSync = 0;
+let cloudRevision = 0;
+let putting = false;
+let claiming: Promise<{ bells: number; refs: number } | null> | null = null;
+let pendingPut: { save: typeof session.save; data: unknown; expectedRevision: number; writeId: string } | null = null;
+let rewardTimer: ReturnType<typeof setTimeout> | null = null;
 
 /**
  * Для уведомлений бота (docs/design/online.md, «Бот и уведомления»): часовой пояс устройства (как getTimezoneOffset —
@@ -155,60 +161,82 @@ function login(): Promise<HelloResp | null> {
     onlineState.profile = h;
     onlineState.giftsWaiting = h.giftsWaiting;
     emit();
-    if (h.refBonus > 0) void claimRef();
-    resolveCloud(h.cloudSave);
+    // Старый сервер может прочесть игру, но ещё не обеспечивает CAS/долговечные grants.
+    if (h.protocol === 2) resolveCloud(h.cloudSave);
     return h;
   })();
   return helloing;
 }
 
-/** Пригласившему: друзья прошли главу 1 — письмо с гемами за каждого. */
-async function claimRef(): Promise<void> {
-  const n = await api.refClaim();
-  if (!n) return;
-  const many = n > 1;
-  commit(
-    sendMail(session.save, today(), {
-      from: 'Гильдия искателей',
-      title: many ? `${n} друга прошли первую главу` : 'Ваш друг прошёл первую главу',
-      body: many
-        ? `Друзья, которых вы позвали, прошли первую главу. Гильдия благодарит: ${REF_INVITER_GEMS} гемов за каждого. Зовите ещё — вместе веселее!`
-        : `Друг, которого вы позвали, прошёл первую главу. Гильдия благодарит: ${REF_INVITER_GEMS} гемов. Зовите ещё — вместе веселее!`,
-      rewards: { gems: REF_INVITER_GEMS * n },
-    }),
-  );
-  onScene((s) => toast(s, many ? `Друзья прошли первую главу — ${REF_INVITER_GEMS * n} гемов в почте` : `Друг прошёл первую главу — ${REF_INVITER_GEMS} гемов в почте`, C.gem, 4500));
+/** Grants остаются на сервере до CAS-записи снимка с appliedGrantIds. */
+function receiveRewards(notify = true): Promise<{ bells: number; refs: number } | null> {
+  if (!onlineState.cloudReady || onlineState.profile?.protocol !== 2) return Promise.resolve(null);
+  if (battleActive()) { scheduleRewards(); return Promise.resolve(null); }
+  claiming ??= (async () => {
+    try {
+      const grants = await api.rewardClaim();
+      if (!grants || !onlineState.cloudReady) return null;
+      // Бой уже посчитан из снимка при входе. Его итог не должен затереть фоновую выдачу во время анимации.
+      if (battleActive()) { scheduleRewards(); return null; }
+      const out = applyRewardGrants(session.save, grants, today(), GAME);
+      if (out.save !== session.save) {
+        commit(out.save);
+        // Если устаревшая вкладка отклонила запись, grant остаётся неполученным и не подтверждается.
+        const persisted = onlineProgress().appliedGrantIds;
+        if (!grants.every((g) => persisted.includes(g.id))) return null;
+      }
+      if (out.refs) onScene((s) => toast(s, 'Подарок за приглашение друзей — в почте', C.gem, 4500));
+      if (out.bells) {
+        onlineState.giftsWaiting = Math.max(0, onlineState.giftsWaiting - out.bells);
+        emit();
+        if (notify) onScene((s) => toast(s, `Колокольчики друзей: +${out.bells * BELL_GEMS} гемов`, C.gem, 4500));
+      }
+      return { bells: out.bells, refs: out.refs };
+    } finally { claiming = null; }
+  })();
+  return claiming;
 }
 
-/** Приглашённому (sync → refRewarded): письмо «Друг рад, что ты с нами» с гемами — один раз. */
-function grantWelcome(): void {
-  if (session.save.mail?.delivered.includes(REF_WELCOME_SOURCE)) return;
-  commit(
-    sendMail(session.save, today(), {
-      from: 'Друг',
-      title: 'Друг рад, что ты с нами',
-      body: `Ты прошёл первую главу по приглашению друга — держи ${REF_WELCOME_GEMS} гемов на дорогу. Не забывай звонить друг другу в колокольчик!`,
-      rewards: { gems: REF_WELCOME_GEMS },
-      source: REF_WELCOME_SOURCE,
-    }),
-  );
-  onScene((s) => toast(s, `Подарок от друга — ${REF_WELCOME_GEMS} гемов в почте`, C.gem, 4500));
+function battleActive(): boolean {
+  return game?.scene.getScenes(true).some((scene) => scene.scene.key === 'Battle') ?? false;
+}
+
+function scheduleRewards(): void {
+  if (rewardTimer) return;
+  rewardTimer = setTimeout(() => { rewardTimer = null; void receiveRewards(); }, 500);
+}
+
+async function waitForBattle(): Promise<void> {
+  while (battleActive()) await new Promise<void>((done) => setTimeout(done, 500));
+}
+
+function showCloudChoice(cloud: CloudSaveInfo): void {
+  // Медленный/ручной бой может идти дольше 30 секунд. Выбор остаётся ожидающим до безопасного экрана.
+  onScene((scene) => askCloud(scene, cloud), Number.POSITIVE_INFINITY);
 }
 
 // ---------- облачное сохранение: выбор ----------
 
-function resolveCloud(cloud: CloudSaveInfo | null): void {
+function resolveCloud(cloud: CloudSaveInfo | null, force = false): void {
+  cloudRevision = cloud?.writeRevision ?? 0;
+  const previous = readCloudRevision();
   const local = { chapter: progressOf(session.save, GAME).chapter, fresh: isFreshSave(session.save), changedAt: Number(ls.get(KEY_LOCAL_AT)) || 0 };
-  if (!shouldOfferCloud(local, cloud, Number(ls.get(KEY_DECLINED)) || 0)) {
+  // Первое обновление протокола и изменение серверной ревизии требуют явного выбора вместо тихого overwrite.
+  const changedRemote = cloud !== null && (previous === null || previous !== cloudRevision);
+  if (!force && !changedRemote && !shouldOfferCloud(local, cloud, Number(ls.get(KEY_DECLINED)) || 0)) {
     cloudDecided();
     return;
   }
-  onScene((s) => askCloud(s, cloud!));
+  showCloudChoice(cloud!);
 }
 
 function cloudDecided(): void {
   onlineState.cloudReady = true;
+  onlineState.cloudConflict = false;
+  rememberCloudRevision();
+  pendingPut = null;
   dirty = true;
+  void receiveRewards();
   scheduleSync();
   scheduleCloud();
 }
@@ -239,16 +267,46 @@ function askCloud(scene: Phaser.Scene, cloud: CloudSaveInfo): void {
   const no = button(scene, cx + 210, by, 380, 120, 'k:buttonLong_beige', 'Нет, оставить это', () => {
     answered = true;
     layer.destroy();
-    ls.set(KEY_DECLINED, String(cloud.updatedAt));
-    cloudDecided();
+    void keepLocal(cloud);
   }, FS.h3);
   yes.container.setName('cloudYes');
   no.container.setName('cloudNo');
   layer.add([shade, box, title, q, note, yes.container, no.container]);
   layer.once(Phaser.GameObjects.Events.DESTROY, () => {
-    if (!answered) setTimeout(() => onScene((s) => askCloud(s, cloud)), 300);
+    if (!answered) setTimeout(() => showCloudChoice(cloud), 300);
   });
   popIn(scene, layer, shade);
+}
+
+/** Осознанно оставили локальную игру: сохраняем общую историю выдачи, не восстанавливая уже потраченные награды. */
+async function keepLocal(offered: CloudSaveInfo): Promise<void> {
+  const cloud = await api.saveGet();
+  if (!cloud) {
+    onScene((s) => { toast(s, 'Не удалось связаться с облаком. Прогресс остаётся здесь.', C.error, 5000); askCloud(s, offered); });
+    return;
+  }
+  await waitForBattle(); // После нажатия игрок успел войти в бой, пока шёл сетевой запрос.
+  if (cloud.writeRevision !== offered.writeRevision) {
+    resolveCloud(cloud, true);
+    return;
+  }
+  const remote = (cloud.data as { online?: OnlineProgress }).online;
+  const history = cloud.appliedGrantIds ?? (Array.isArray(remote?.appliedGrantIds) ? remote.appliedGrantIds.filter((id) => typeof id === 'string') : []);
+  const appliedGrantIds = [...new Set([...onlineProgress().appliedGrantIds, ...history])];
+  commit({ ...session.save, online: { ...onlineProgress(), appliedGrantIds } } as typeof session.save);
+  ls.set(KEY_DECLINED, String(cloud.updatedAt));
+  cloudDecided();
+}
+
+function readCloudRevision(): number | null {
+  try {
+    const o = JSON.parse(ls.get(KEY_CLOUD_REVISION) ?? 'null');
+    return o?.id === onlineState.profile?.id && Number.isSafeInteger(o?.revision) ? o.revision : null;
+  } catch { return null; }
+}
+
+function rememberCloudRevision(): void {
+  ls.set(KEY_CLOUD_REVISION, JSON.stringify({ id: onlineState.profile?.id, revision: cloudRevision }));
 }
 
 /** Загрузить облачное сохранение, проверить, заменить им локальное (локальное — в резервную копию) и перезапустить игру. */
@@ -260,19 +318,28 @@ async function applyCloud(): Promise<void> {
     fail('Не удалось загрузить облачное сохранение. Попробуйте позже — эта игра пока остаётся.');
     return;
   }
-  const data = { ...(d.data as Record<string, unknown>), revision: (session.save.revision ?? 0) + 1 };
+  await waitForBattle(); // Резервируем уже завершённый локальный бой, затем меняем выбранную игру.
+  const cloudData = d.data as Record<string, unknown>;
+  const data = { ...cloudData, revision: (session.save.revision ?? 0) + 1,
+    ...(d.appliedGrantIds ? { online: { ...(cloudData.online as Record<string, unknown> ?? {}), appliedGrantIds: d.appliedGrantIds } } : {}) };
   const textData = JSON.stringify(data);
   try {
     deserialize(textData);
   } catch (e) {
     const newer = (e as { kind?: string }).kind === 'newer_version';
     fail(newer ? 'Облачное сохранение — из более новой версии игры. Перезапустите игру, чтобы обновиться.' : 'Облачное сохранение повреждено — эта игра остаётся.');
-    if (!newer) cloudDecided();
+    // Повреждённое/новое облако не затираем автоматически: локальная игра и резервная копия остаются.
     return;
   }
   const storage = new LocalStorageAdapter(SAVE_KEY);
   storage.backup(serialize(session.save), now());
   storage.save(textData);
+  if (!storage.writable) {
+    fail('Не удалось записать облачную игру на устройство. Текущая игра остаётся; освободите место и попробуйте снова.');
+    return;
+  }
+  cloudRevision = d.writeRevision ?? cloudRevision;
+  rememberCloudRevision();
   ls.set(KEY_LOCAL_AT, String(Date.now()));
   ls.set(KEY_DECLINED, String(d.updatedAt));
   if (typeof location !== 'undefined') location.reload();
@@ -283,6 +350,7 @@ async function applyCloud(): Promise<void> {
 function handleCommit(next: typeof session.save, prev: typeof session.save): void {
   dirty = true;
   ls.set(KEY_LOCAL_AT, String(Date.now()));
+  scheduleCloud(); // Любая запись: письмо, прокачка и колокольчик тоже должны попасть в облако.
   const v = victoryOf(prev, next);
   if (!v) {
     // Улучшили героя или снаряжение (сила отряда изменилась), забрали сундук, отряд ушёл или вернулся — sync,
@@ -291,22 +359,41 @@ function handleCommit(next: typeof session.save, prev: typeof session.save): voi
     if (syncPower(squadPower(next, GAME)) !== sentPower || timersChanged(sentTimers, notifyTimersOf(next, now(), GAME))) scheduleSync(true);
     return;
   }
-  if (v === 'hunt') {
-    const cur = readMvp();
-    const upd = nextMvpWeek(cur, isoWeek(new Date(now())), prev, next);
-    if (upd !== cur) ls.set(KEY_MVP, JSON.stringify(upd));
-  }
   scheduleSync();
   scheduleCloud();
 }
 
 function readMvp(): WeekBest | null {
+  if (onlineProgress().mvpWeek) return onlineProgress().mvpWeek!;
   try {
     const o = JSON.parse(ls.get(KEY_MVP) ?? 'null');
     return o && typeof o.week === 'string' && Number.isFinite(o.value) ? { week: o.week, value: o.value } : null;
   } catch {
     return null;
   }
+}
+
+function onlineProgress(): OnlineProgress {
+  return (session.save as typeof session.save & { online?: OnlineProgress }).online ?? { appliedGrantIds: [] };
+}
+
+/** Вызывается после commit каждого результата охоты, включая зачёт ниже рекорда за всё время. */
+export function recordMvpAttempt(score: number): void {
+  const cur = readMvp();
+  const next = nextMvpWeek(cur, isoWeek(new Date()), score);
+  if (next === onlineProgress().mvpWeek) return;
+  commit({ ...session.save, online: { ...onlineProgress(), mvpWeek: next } } as typeof session.save);
+  scheduleSync();
+}
+
+/** Только после успешного сыгранного боя Башни. Resume/чтение run.floor само по себе зачётом не является. */
+export function recordTowerProgress(floor: number): void {
+  if (!Number.isFinite(floor) || floor <= 0) return;
+  const progress = onlineProgress();
+  const next = nextMvpWeek(progress.towerWeek ?? null, isoWeek(new Date()), Math.floor(floor));
+  if (next === progress.towerWeek) return;
+  commit({ ...session.save, online: { ...progress, towerWeek: next } } as typeof session.save);
+  scheduleSync();
 }
 
 /** sync пачкой: после победы — через 2 с; не по победе (slow) — не раньше минуты после прошлого sync. */
@@ -321,11 +408,12 @@ function scheduleSync(slow = false): void {
 }
 
 async function doSync(keepalive = false): Promise<void> {
-  if (!(await login())) return;
+  if (!(await login()) || !onlineState.cloudReady) return;
   const save = session.save;
   const p = progressOf(save, GAME);
   const mvp = readMvp();
-  const week = isoWeek(new Date(now()));
+  const tower = onlineProgress().towerWeek;
+  const week = isoWeek(new Date());
   // Та же «Мощь отряда», что на экране героев и на карте кампании (squadPower ядра, с экипировкой).
   const power = syncPower(squadPower(save, GAME));
   sentPower = power;
@@ -335,10 +423,14 @@ async function doSync(keepalive = false): Promise<void> {
     stage: p.stage,
     power,
     towerBest: save.tower.floor,
+    towerWeek: tower?.week === week ? Math.floor(tower.value) : 0,
+    towerWeekId: week,
     mvpWeek: mvp && mvp.week === week ? Math.round(mvp.value) : 0,
+    mvpWeekId: week,
     ...notifyFields(),
   }, keepalive);
-  if (r?.refRewarded) grantWelcome();
+  if (r?.refRewarded) void receiveRewards();
+  if (!r) { sentPower = -1; sentTimers = null; }
 }
 
 function scheduleCloud(): void {
@@ -359,31 +451,60 @@ function scheduleCloud(): void {
 /** Свернули: отправить, если минутное окно позволяет (иначе — по таймеру, когда вернутся). */
 function flushCloud(keepalive: boolean): void {
   if (!onlineState.cloudReady || !dirty) return;
-  if (cloudSaveDelay(Date.now(), lastPut) === 0) void putCloud(keepalive);
-  else scheduleCloud();
+  void putCloud(keepalive); // Сворачивание обходит минутную задержку: это последняя возможность записать прогресс.
+}
+
+/** randomUUID появился позже getRandomValues (старые iOS WebView). ID — ключ retry, не авторизация. */
+function cloudWriteId(): string {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  const bytes = new Uint8Array(16);
+  if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes);
+  else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 async function putCloud(keepalive: boolean): Promise<void> {
-  if (!dirty || !onlineState.cloudReady) return;
-  dirty = false;
+  if ((!dirty && !pendingPut) || !onlineState.cloudReady || putting) return;
+  putting = true;
   lastPut = Date.now();
-  const save = session.save;
-  const ok = await api.savePut(JSON.parse(serialize(save)), save.version, progressOf(save, GAME).chapter, keepalive);
-  if (!ok) dirty = true;
+  try {
+    const snapshot = pendingPut ?? { save: session.save, data: JSON.parse(serialize(session.save)), expectedRevision: cloudRevision, writeId: cloudWriteId() };
+    pendingPut = snapshot;
+    const result = await api.savePut(snapshot.data, snapshot.save.version, progressOf(snapshot.save, GAME).chapter, { expectedRevision: snapshot.expectedRevision, writeId: snapshot.writeId, keepalive });
+    if (result?.status === 'saved') {
+      cloudRevision = result.writeRevision;
+      rememberCloudRevision();
+      pendingPut = null;
+      dirty = session.save !== snapshot.save;
+    } else if (result) {
+      // Локальный SaveSlot не трогаем. Новые действия продолжают писаться здесь; overwrite требует выбора.
+      onlineState.cloudReady = false;
+      onlineState.cloudConflict = true;
+      pendingPut = null;
+      emit();
+      const latest = result.status === 'conflict' ? result.cloudSave : result.status === 'reward_history_conflict' ? await api.saveGet() : null;
+      if (latest) resolveCloud(latest, true);
+      onScene((s) => toast(s, result.status === 'upgrade_required'
+        ? 'Для облака нужна новая версия игры. Перезапустите игру; прогресс сохраняется на этом устройстве.'
+        : 'Облачная игра изменилась. Выберите, какой прогресс продолжить.', C.gold, 5000));
+    }
+  } finally {
+    putting = false;
+    if ((dirty || pendingPut) && onlineState.cloudReady) scheduleCloud();
+  }
 }
 
 // ---------- колокольчики ----------
 
-/** «Забрать колокольчики»: gift_claim → 20 гемов за каждый (grantRewards). null — нет связи. */
+/** «Забрать колокольчики»: grants → ресурс + маркер одним commit. null — сеть/выбор облака ещё не готовы. */
 export async function claimBells(): Promise<number | null> {
-  const n = await api.giftClaim();
-  if (n === null) return null;
-  if (n > 0) {
-    commit(grantRewards(session.save, { gems: BELL_GEMS * n }, GAME, 'online_bells').save);
-    haptic('reward');
-  }
-  onlineState.giftsWaiting = Math.max(0, onlineState.giftsWaiting - n);
-  emit();
+  const out = await receiveRewards(false);
+  if (!out) return null;
+  const n = out.bells;
+  if (n > 0) haptic('reward');
   return n;
 }
 
@@ -398,7 +519,7 @@ export function setGiftsWaiting(n: number): void {
 
 /** Выполнить на текущем экране (не на экране загрузки); экрана ещё нет — подождать. */
 function onScene(fn: (s: Phaser.Scene) => void, tries = 60): void {
-  const s = game?.scene.getScenes(true).filter((x) => x.scene.key !== 'Boot').pop();
+  const s = game?.scene.getScenes(true).filter((x) => x.scene.key !== 'Boot' && x.scene.key !== 'Battle').pop();
   if (s && s.sys.settings.active) {
     fn(s);
     return;
@@ -415,11 +536,20 @@ export function resetOnlineForTests(): void {
   lastPut = 0;
   sentTimers = null;
   sentPower = -1;
+  cloudRevision = 0;
+  putting = false;
+  claiming = null;
+  pendingPut = null;
+  if (rewardTimer) clearTimeout(rewardTimer);
+  rewardTimer = null;
   lastSync = 0;
   if (syncTimer) clearTimeout(syncTimer);
   syncTimer = null;
+  if (putTimer) clearTimeout(putTimer);
+  putTimer = null;
   onlineState.profile = null;
   onlineState.giftsWaiting = 0;
   onlineState.cloudReady = false;
+  onlineState.cloudConflict = false;
   listeners.clear();
 }

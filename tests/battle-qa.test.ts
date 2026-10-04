@@ -355,7 +355,8 @@ describe('QA T2 (бой) — регрессии пакета P1', () => {
       unitDef('killer', { skills: { basic: 'shot', passives: [] } }, { hp: 100_000, atk: 100_000, spd: 125 }),
       unitDef('victim', {}, { hp: 10, atk: 1, spd: 1 }),
     ]);
-    const s = simulateBattle(c, ['archer', 'killer'], ['victim'], 1);
+    // Изолируем исходную шкалу, чтобы сохранять точный сценарий смерти между вылетом и прилётом.
+    const s = simulateBattle(c, ['archer', 'killer'], ['victim'], 1, { combat: { ...COMBAT, actionThreshold: 1000 } });
     expect(of(s.log, 'attack').find((e) => e.unit === 'A0')?.t).toBe(1);
     // Выстрел убийцы (0.8 с) долетает в 1.1 — раньше стрелы лучника (1.0 → 1.3).
     expect(of(s.log, 'death').find((e) => e.unit === 'B0')?.t).toBe(1.1);

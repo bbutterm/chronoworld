@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { BootScene } from './game/scenes/BootScene';
 import { HomeScene } from './game/scenes/HomeScene';
 import { AdventureScene } from './game/scenes/AdventureScene';
+import { AutobattlerScene } from './game/scenes/AutobattlerScene';
 import { CampaignScene } from './game/scenes/CampaignScene';
 import { StageScene } from './game/scenes/StageScene';
 import { HeroesScene } from './game/scenes/HeroesScene';
@@ -68,7 +69,7 @@ const game = new Phaser.Game({
   },
   // U: 30 FPS по настройке — ограничитель ставит installLifecycle ниже (его можно менять на лету).
   fps: { target: 60 },
-  scene: [BootScene, HomeScene, AdventureScene, CampaignScene, StageScene, HeroesScene, HeroScene, AscendScene, HeroPickScene, PrepScene, BattleScene, ResultScene, QuestsScene, TowerScene, HuntScene, InventoryScene, SquadScene, ExpeditionsScene, AchievementsScene, TavernScene, EventsScene, MailScene, ShopScene, ChronicleScene, FriendsScene],
+  scene: [BootScene, HomeScene, AdventureScene, AutobattlerScene, CampaignScene, StageScene, HeroesScene, HeroScene, AscendScene, HeroPickScene, PrepScene, BattleScene, ResultScene, QuestsScene, TowerScene, HuntScene, InventoryScene, SquadScene, ExpeditionsScene, AchievementsScene, TavernScene, EventsScene, MailScene, ShopScene, ChronicleScene, FriendsScene],
 });
 
 installViewport(game);
@@ -96,7 +97,7 @@ game.events.once(Phaser.Core.Events.READY, () => {
 // T4-12: общие анимированные эффекты боя (удар, магия, смерть…) — по дороге к бою, а не при старте. Эффекты навыков
 // грузит сам бой (только своих юнитов): все листы каталога вместе — ≈ 100 МБ видеопамяти.
 game.events.once(Phaser.Core.Events.READY, () => {
-  for (const key of ['Stage', 'Tower', 'Hunt', 'Prep']) {
+  for (const key of ['Stage', 'Tower', 'Hunt', 'Prep', 'Autobattler']) {
     game.scene.getScene(key)?.sys.events.on(Phaser.Scenes.Events.START, (sys: Phaser.Scenes.Systems) => void holdAnimatedFx(sys.scene, battleFxIds([])));
   }
 });

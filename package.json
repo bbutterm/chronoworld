@@ -25,7 +25,9 @@
     "perf": "node scripts/perf.mjs",
     "perf:ui": "node scripts/perf-ui.mjs",
     "e2e:chapter1": "node scripts/e2e-chapter1.mjs",
-    "playthrough": "tsx scripts/playthrough.ts"
+    "playthrough": "tsx scripts/playthrough.ts",
+    "backend:check": "node scripts/backend-check.mjs",
+    "backend:sql": "node scripts/backend-sql.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0",
@@ -39,6 +41,6 @@
     "vitest": "^5.0.2"
   },
   "engines": {
-    "node": ">=20.11"
+    "node": ">=22.13"
   }
 }

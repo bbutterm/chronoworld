@@ -117,6 +117,14 @@ export const TavernSchema = z.object({
     /** Порог личной сцены и личного задания. */
     sceneAt: z.number().int().positive(),
     questAt: z.number().int().positive(),
+    /** Доверие за рост героя; максимум среди копий, без повторного начисления при сбросе. */
+    journey: z.object({
+      levels: z.array(z.number().int().min(1).max(100)),
+      profession: z.number().int().nonnegative(),
+      rarity: z.enum(['green', 'blue', 'purple', 'gold', 'red']),
+      rarityPoints: z.number().int().nonnegative(),
+      max: z.number().int().nonnegative(),
+    }).optional(),
   }),
   evenings: z.array(EveningSchema),
   /** id карточки сюжетного героя → личная сцена, задание, связка. */

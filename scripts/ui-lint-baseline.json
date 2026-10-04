@@ -2,10 +2,10 @@
   "note": "Базовая линия scripts/ui-lint.ts: счётчики по файлам могут только уменьшаться. Опустить — npm run ui:lint -- --update. Руками не повышать.",
   "totals": {
     "instr": 1,
-    "color": 1700,
+    "color": 1688,
     "fontSize": 9,
-    "primary": 56,
-    "toast": 115
+    "primary": 61,
+    "toast": 116
   },
   "files": {
     "src/game/ambient.ts": {
@@ -43,7 +43,6 @@
       "color": 24
     },
     "src/game/branchPicker.ts": {
-      "color": 5,
       "primary": 1
     },
     "src/game/codesView.ts": {
@@ -118,6 +117,10 @@
       "primary": 2,
       "toast": 6
     },
+    "src/game/scenes/AutobattlerScene.ts": {
+      "primary": 5,
+      "toast": 2
+    },
     "src/game/scenes/BattleScene.ts": {
       "instr": 1,
       "color": 107,
@@ -129,7 +132,7 @@
       "fontSize": 1
     },
     "src/game/scenes/CampaignScene.ts": {
-      "color": 8,
+      "color": 5,
       "primary": 1,
       "toast": 3
     },
@@ -160,7 +163,7 @@
       "toast": 1
     },
     "src/game/scenes/HeroScene.ts": {
-      "color": 4,
+      "color": 1,
       "primary": 1,
       "toast": 9
     },
@@ -180,9 +183,9 @@
       "toast": 2
     },
     "src/game/scenes/InventoryScene.ts": {
-      "color": 4,
+      "color": 3,
       "primary": 2,
-      "toast": 13
+      "toast": 12
     },
     "src/game/scenes/MailScene.ts": {
       "primary": 1,

@@ -14,9 +14,9 @@ function requireCleared(save: SaveState, stageId: string, ctx: GameContext): voi
  * Бой может быть и проигран (итог честный, не автопобеда).
  * FeatureError('stage_not_cleared') — этап не пройден; ошибки playStage (unknown_stage, empty_squad) — как есть.
  */
-export function skipStage(save: SaveState, stageId: string, seed: number, ctx: GameContext): StageOutcome {
+export function skipStage(save: SaveState, stageId: string, seed: number, ctx: GameContext, day?: string): StageOutcome {
   requireCleared(save, stageId, ctx);
-  const out = playStage(save, stageId, seed, ctx);
+  const out = playStage(save, stageId, seed, ctx, undefined, day);
   return { ...out, result: { ...out.result, log: [] } };
 }
 
@@ -24,7 +24,7 @@ export function skipStage(save: SaveState, stageId: string, seed: number, ctx: G
  * K7. Повторить пройденный этап с просмотром боя: то же, что playStage, но только для пройденных этапов
  * (лог сохраняется для воспроизведения). Для «открытого» этапа используйте playStage.
  */
-export function repeatStage(save: SaveState, stageId: string, seed: number, ctx: GameContext): StageOutcome {
+export function repeatStage(save: SaveState, stageId: string, seed: number, ctx: GameContext, day?: string): StageOutcome {
   requireCleared(save, stageId, ctx);
-  return playStage(save, stageId, seed, ctx);
+  return playStage(save, stageId, seed, ctx, undefined, day);
 }

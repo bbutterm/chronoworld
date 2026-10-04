@@ -25,6 +25,7 @@ export * from './save/campaign-gaps';
 export * from './features';
 export * from './equipment';
 export * from './tower';
+export * from './autobattler';
 export * from './hunt';
 export * from './meta';
 export * from './events';

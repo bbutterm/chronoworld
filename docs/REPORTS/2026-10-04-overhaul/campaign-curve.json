@@ -1,0 +1,1629 @@
+{
+  "source": "/workspace/chronoworld-worktrees/combat",
+  "files": [
+    "data/campaign/chapter4.json",
+    "data/campaign/chapter6.json",
+    "data/campaign/chapter8.json",
+    "data/campaign/chapter9.json"
+  ],
+  "allowedScope": "43 enemy multiplier values in 9 stages only; all other campaign fields unchanged against current root",
+  "contracts": {
+    "src/core/battle.ts": {
+      "root": "5736bdbcf9919ec5e0fb6399ab92617deeaeb97d5f34e15f5a56474be64db69c",
+      "bench": "5736bdbcf9919ec5e0fb6399ab92617deeaeb97d5f34e15f5a56474be64db69c",
+      "equal": true
+    },
+    "src/core/types.ts": {
+      "root": "4c20251d198b88ba6afc632df05e3d264439d62e6d3f838fb8ffb8ce60e43ad2",
+      "bench": "4c20251d198b88ba6afc632df05e3d264439d62e6d3f838fb8ffb8ce60e43ad2",
+      "equal": true
+    },
+    "src/core/config.ts": {
+      "root": "81c884f0195e8b7c98e53cd46905743190889599eb2627ecd5cd60121791dd48",
+      "bench": "81c884f0195e8b7c98e53cd46905743190889599eb2627ecd5cd60121791dd48",
+      "equal": true
+    },
+    "src/core/combatSchema.ts": {
+      "root": "75c26cb8a4ff61337b57783a319f839b6be0fb70ae8fba9e7246cd1bd51aa852",
+      "bench": "75c26cb8a4ff61337b57783a319f839b6be0fb70ae8fba9e7246cd1bd51aa852",
+      "equal": true
+    },
+    "data/combat.json": {
+      "root": "8104f67220fb6f8046fb34bdf12456739f43262da11b0c41226ab88b893f95e2",
+      "bench": "8104f67220fb6f8046fb34bdf12456739f43262da11b0c41226ab88b893f95e2",
+      "equal": true
+    },
+    "tests/chapters.test.ts": {
+      "root": "3baf6881fd2ef2e87e6c6ada016cab6d3888d43ed725630608af331849a31834",
+      "bench": "3baf6881fd2ef2e87e6c6ada016cab6d3888d43ed725630608af331849a31834",
+      "equal": true
+    }
+  },
+  "validation": {
+    "command": "npx vitest run tests/chapters.test.ts --maxWorkers=1",
+    "cwd": "/tmp/chronoworld-combat-smooth-bench",
+    "passed": 17,
+    "failed": 0,
+    "durationSeconds": 68.19,
+    "log": "/tmp/chronoworld-combat-chapters-final.log",
+    "sameRootTest": true,
+    "sameRootCombat": true,
+    "unchangedThresholds": true
+  },
+  "smoothMethod": {
+    "chapters": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "squads": 5,
+    "seeds": 6,
+    "binarySearchSteps": 8,
+    "ordinaryRange": [
+      0.85,
+      1.15
+    ],
+    "bossRange": [
+      1,
+      1.35
+    ]
+  },
+  "stages": [
+    {
+      "stage": "ch4_s9",
+      "name": "Преддверие гробницы",
+      "boss": false,
+      "factor": 0.94,
+      "before": [
+        0.4435,
+        0.4435,
+        0.4435,
+        0.4435,
+        0.4435
+      ],
+      "after": [
+        0.4169,
+        0.4169,
+        0.4169,
+        0.4169,
+        0.4169
+      ],
+      "ratioBefore": 1.1898553358258463,
+      "ratioAfter": 1.1085196236168298
+    },
+    {
+      "stage": "ch4_s10",
+      "name": "Гробница Осириса",
+      "boss": true,
+      "factor": 0.84,
+      "before": [
+        0.3881,
+        0.4857,
+        0.3881,
+        0.3881,
+        0.3881
+      ],
+      "after": [
+        0.326,
+        0.408,
+        0.326,
+        0.326,
+        0.326
+      ],
+      "ratioBefore": 1.5226236399445248,
+      "ratioAfter": 1.3110348406723378
+    },
+    {
+      "stage": "ch6_s5",
+      "name": "Логово гидры",
+      "boss": false,
+      "factor": 1.08,
+      "before": [
+        0.3968,
+        0.3968,
+        0.3968,
+        0.3968,
+        null
+      ],
+      "after": [
+        0.4285,
+        0.4285,
+        0.4285,
+        0.4285,
+        null
+      ],
+      "ratioBefore": 0.8196560779035981,
+      "ratioAfter": 0.8676718703487121
+    },
+    {
+      "stage": "ch6_s13",
+      "name": "Свисток боцмана",
+      "boss": false,
+      "factor": 0.93,
+      "before": [
+        0.5574,
+        0.5574,
+        null,
+        0.5574,
+        0.5574
+      ],
+      "after": [
+        0.5184,
+        0.5184,
+        null,
+        0.5184,
+        0.5184
+      ],
+      "ratioBefore": 1.2060457858928733,
+      "ratioAfter": 1.1177833191857645
+    },
+    {
+      "stage": "ch6_s14",
+      "name": "Пороховой погреб",
+      "boss": false,
+      "factor": 0.965,
+      "before": [
+        0.4133,
+        0.4133,
+        0.4133,
+        0.4133,
+        0.4133
+      ],
+      "after": [
+        0.3988,
+        0.3988,
+        0.3988,
+        0.3988,
+        0.3988
+      ],
+      "ratioBefore": 1.1617589325302726,
+      "ratioAfter": 1.1078919872151305
+    },
+    {
+      "stage": "ch8_s8",
+      "name": "Темницы Гласт Хейма",
+      "boss": false,
+      "factor": 0.95,
+      "before": [
+        0.1634,
+        0.1634,
+        0.1634,
+        0.162,
+        0.162
+      ],
+      "after": [
+        0.1552,
+        0.1552,
+        0.1552,
+        0.1539,
+        0.1539
+      ],
+      "ratioBefore": 1.1793602804779841,
+      "ratioAfter": 1.1258419500899612
+    },
+    {
+      "stage": "ch8_s11",
+      "name": "Катакомбы",
+      "boss": false,
+      "factor": 0.925,
+      "before": [
+        0.0717,
+        0.0717,
+        0.2132,
+        0.2132,
+        0.2132
+      ],
+      "after": [
+        0.0663,
+        0.0663,
+        0.1972,
+        0.1972,
+        0.1972
+      ],
+      "ratioBefore": 1.1997773274232402,
+      "ratioAfter": 1.1157926249249537
+    },
+    {
+      "stage": "ch9_s14",
+      "name": "Кольцо камней",
+      "boss": false,
+      "factor": 0.86,
+      "before": [
+        0.071,
+        0.071,
+        0.071,
+        0.071,
+        0.071
+      ],
+      "after": [
+        0.0611,
+        0.0611,
+        0.0611,
+        0.0611,
+        0.0611
+      ],
+      "ratioBefore": 1.2644534274110364,
+      "ratioAfter": 1.122625337677224
+    },
+    {
+      "stage": "ch9_s18",
+      "name": "Поляна Бафомета",
+      "boss": true,
+      "factor": 0.92,
+      "before": [
+        0.05,
+        0.0251,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "after": [
+        0.046,
+        0.0231,
+        0.046,
+        0.046,
+        0.046
+      ],
+      "ratioBefore": 1.3817512618562882,
+      "ratioAfter": 1.2665544410016631
+    }
+  ],
+  "chapters": [
+    {
+      "chapter": "chapter4",
+      "before": {
+        "growth": 1.0411922771641116,
+        "min": 0.8940757171455155,
+        "max": 1.1898553358258463,
+        "boss": 1.5226236399445248,
+        "fail": [
+          {
+            "id": "ch4_s9",
+            "name": "Преддверие гробницы",
+            "boss": false,
+            "ratio": 1.1898553358258463,
+            "mult": [
+              0.4435,
+              0.4435,
+              0.4435,
+              0.4435,
+              0.4435
+            ]
+          },
+          {
+            "id": "ch4_s10",
+            "name": "Гробница Осириса",
+            "boss": true,
+            "ratio": 1.5226236399445248,
+            "mult": [
+              0.3881,
+              0.4857,
+              0.3881,
+              0.3881,
+              0.3881
+            ]
+          }
+        ]
+      },
+      "after": {
+        "growth": 1.0401533360026916,
+        "min": 0.8984366289862097,
+        "max": 1.1289646653898113,
+        "boss": 1.3110348406723378,
+        "fail": []
+      }
+    },
+    {
+      "chapter": "chapter5",
+      "before": {
+        "growth": 1.0538707967016654,
+        "min": 0.8835472795072667,
+        "max": 1.1018595128897082,
+        "boss": 1.0952399917355002,
+        "fail": []
+      },
+      "after": {
+        "growth": 1.053845904631022,
+        "min": 0.8839007375671338,
+        "max": 1.1011483691003257,
+        "boss": 1.0948951193439933,
+        "fail": []
+      }
+    },
+    {
+      "chapter": "chapter6",
+      "before": {
+        "growth": 1.0061970491847807,
+        "min": 0.8196560779035981,
+        "max": 1.2060457858928733,
+        "boss": 1.1697256260789453,
+        "fail": [
+          {
+            "id": "ch6_s5",
+            "name": "Логово гидры",
+            "boss": false,
+            "ratio": 0.8196560779035981,
+            "mult": [
+              0.3968,
+              0.3968,
+              0.3968,
+              0.3968
+            ]
+          },
+          {
+            "id": "ch6_s13",
+            "name": "Свисток боцмана",
+            "boss": false,
+            "ratio": 1.2060457858928733,
+            "mult": [
+              0.5574,
+              0.5574,
+              0.5574,
+              0.5574
+            ]
+          },
+          {
+            "id": "ch6_s14",
+            "name": "Пороховой погреб",
+            "boss": false,
+            "ratio": 1.1617589325302726,
+            "mult": [
+              0.4133,
+              0.4133,
+              0.4133,
+              0.4133,
+              0.4133
+            ]
+          }
+        ]
+      },
+      "after": {
+        "growth": 1.0055302290365928,
+        "min": 0.8599937896653718,
+        "max": 1.1328462000744968,
+        "boss": 1.1810229319879695,
+        "fail": []
+      }
+    },
+    {
+      "chapter": "chapter7",
+      "before": {
+        "growth": 1.0219826513520003,
+        "min": 0.9018071745042948,
+        "max": 1.122464483389702,
+        "boss": 1.1627081576980163,
+        "fail": []
+      },
+      "after": {
+        "growth": 1.0219810420753639,
+        "min": 0.9014948193561094,
+        "max": 1.1220721663241202,
+        "boss": 1.162327398451379,
+        "fail": []
+      }
+    },
+    {
+      "chapter": "chapter8",
+      "before": {
+        "growth": 1.0307190008679872,
+        "min": 0.8566225881549697,
+        "max": 1.1997773274232402,
+        "boss": 1.1764445380621749,
+        "fail": [
+          {
+            "id": "ch8_s8",
+            "name": "Темницы Гласт Хейма",
+            "boss": false,
+            "ratio": 1.1793602804779841,
+            "mult": [
+              0.1634,
+              0.1634,
+              0.1634,
+              0.162,
+              0.162
+            ]
+          },
+          {
+            "id": "ch8_s11",
+            "name": "Катакомбы",
+            "boss": false,
+            "ratio": 1.1997773274232402,
+            "mult": [
+              0.0717,
+              0.0717,
+              0.2132,
+              0.2132,
+              0.2132
+            ]
+          }
+        ]
+      },
+      "after": {
+        "growth": 1.0304258143038256,
+        "min": 0.8648142079798383,
+        "max": 1.1258419500899612,
+        "boss": 1.188370481839395,
+        "fail": []
+      }
+    },
+    {
+      "chapter": "chapter9",
+      "before": {
+        "growth": 1.0117583629615023,
+        "min": 0.8682062544182042,
+        "max": 1.2644534274110364,
+        "boss": 1.3817512618562882,
+        "fail": [
+          {
+            "id": "ch9_s14",
+            "name": "Кольцо камней",
+            "boss": false,
+            "ratio": 1.2644534274110364,
+            "mult": [
+              0.071,
+              0.071,
+              0.071,
+              0.071,
+              0.071
+            ]
+          },
+          {
+            "id": "ch9_s18",
+            "name": "Поляна Бафомета",
+            "boss": true,
+            "ratio": 1.3817512618562882,
+            "mult": [
+              0.05,
+              0.0251,
+              0.05,
+              0.05,
+              0.05
+            ]
+          }
+        ]
+      },
+      "after": {
+        "growth": 1.010095391075429,
+        "min": 0.8836149914946189,
+        "max": 1.1332874917161893,
+        "boss": 1.2665544410016631,
+        "fail": []
+      }
+    },
+    {
+      "chapter": "chapter10",
+      "before": {
+        "growth": 1.0137517968070024,
+        "min": 0.896506649024898,
+        "max": 1.1032797039858737,
+        "boss": 1.2457514511022225,
+        "fail": []
+      },
+      "after": {
+        "growth": 1.0137821272853222,
+        "min": 0.8964544178118696,
+        "max": 1.1029357735241674,
+        "boss": 1.2448415833784345,
+        "fail": []
+      }
+    }
+  ],
+  "numericDiffs": {
+    "data/campaign/chapter4.json": [
+      {
+        "path": "/stages/13/enemies/0/mult",
+        "old": 0.4435,
+        "new": 0.4169
+      },
+      {
+        "path": "/stages/13/enemies/1/mult",
+        "old": 0.4435,
+        "new": 0.4169
+      },
+      {
+        "path": "/stages/13/enemies/2/mult",
+        "old": 0.4435,
+        "new": 0.4169
+      },
+      {
+        "path": "/stages/13/enemies/3/mult",
+        "old": 0.4435,
+        "new": 0.4169
+      },
+      {
+        "path": "/stages/13/enemies/4/mult",
+        "old": 0.4435,
+        "new": 0.4169
+      },
+      {
+        "path": "/stages/17/enemies/0/mult",
+        "old": 0.3881,
+        "new": 0.326
+      },
+      {
+        "path": "/stages/17/enemies/1/mult",
+        "old": 0.4857,
+        "new": 0.408
+      },
+      {
+        "path": "/stages/17/enemies/2/mult",
+        "old": 0.3881,
+        "new": 0.326
+      },
+      {
+        "path": "/stages/17/enemies/3/mult",
+        "old": 0.3881,
+        "new": 0.326
+      },
+      {
+        "path": "/stages/17/enemies/4/mult",
+        "old": 0.3881,
+        "new": 0.326
+      }
+    ],
+    "data/campaign/chapter6.json": [
+      {
+        "path": "/stages/5/enemies/0/mult",
+        "old": 0.3968,
+        "new": 0.4285
+      },
+      {
+        "path": "/stages/5/enemies/1/mult",
+        "old": 0.3968,
+        "new": 0.4285
+      },
+      {
+        "path": "/stages/5/enemies/2/mult",
+        "old": 0.3968,
+        "new": 0.4285
+      },
+      {
+        "path": "/stages/5/enemies/3/mult",
+        "old": 0.3968,
+        "new": 0.4285
+      },
+      {
+        "path": "/stages/8/enemies/0/mult",
+        "old": 0.5574,
+        "new": 0.5184
+      },
+      {
+        "path": "/stages/8/enemies/1/mult",
+        "old": 0.5574,
+        "new": 0.5184
+      },
+      {
+        "path": "/stages/8/enemies/3/mult",
+        "old": 0.5574,
+        "new": 0.5184
+      },
+      {
+        "path": "/stages/8/enemies/4/mult",
+        "old": 0.5574,
+        "new": 0.5184
+      },
+      {
+        "path": "/stages/10/enemies/0/mult",
+        "old": 0.4133,
+        "new": 0.3988
+      },
+      {
+        "path": "/stages/10/enemies/1/mult",
+        "old": 0.4133,
+        "new": 0.3988
+      },
+      {
+        "path": "/stages/10/enemies/2/mult",
+        "old": 0.4133,
+        "new": 0.3988
+      },
+      {
+        "path": "/stages/10/enemies/3/mult",
+        "old": 0.4133,
+        "new": 0.3988
+      },
+      {
+        "path": "/stages/10/enemies/4/mult",
+        "old": 0.4133,
+        "new": 0.3988
+      }
+    ],
+    "data/campaign/chapter8.json": [
+      {
+        "path": "/stages/7/enemies/0/mult",
+        "old": 0.1634,
+        "new": 0.1552
+      },
+      {
+        "path": "/stages/7/enemies/1/mult",
+        "old": 0.1634,
+        "new": 0.1552
+      },
+      {
+        "path": "/stages/7/enemies/2/mult",
+        "old": 0.1634,
+        "new": 0.1552
+      },
+      {
+        "path": "/stages/7/enemies/3/mult",
+        "old": 0.162,
+        "new": 0.1539
+      },
+      {
+        "path": "/stages/7/enemies/4/mult",
+        "old": 0.162,
+        "new": 0.1539
+      },
+      {
+        "path": "/stages/10/enemies/0/mult",
+        "old": 0.0717,
+        "new": 0.0663
+      },
+      {
+        "path": "/stages/10/enemies/1/mult",
+        "old": 0.0717,
+        "new": 0.0663
+      },
+      {
+        "path": "/stages/10/enemies/2/mult",
+        "old": 0.2132,
+        "new": 0.1972
+      },
+      {
+        "path": "/stages/10/enemies/3/mult",
+        "old": 0.2132,
+        "new": 0.1972
+      },
+      {
+        "path": "/stages/10/enemies/4/mult",
+        "old": 0.2132,
+        "new": 0.1972
+      }
+    ],
+    "data/campaign/chapter9.json": [
+      {
+        "path": "/stages/13/enemies/0/mult",
+        "old": 0.071,
+        "new": 0.0611
+      },
+      {
+        "path": "/stages/13/enemies/1/mult",
+        "old": 0.071,
+        "new": 0.0611
+      },
+      {
+        "path": "/stages/13/enemies/2/mult",
+        "old": 0.071,
+        "new": 0.0611
+      },
+      {
+        "path": "/stages/13/enemies/3/mult",
+        "old": 0.071,
+        "new": 0.0611
+      },
+      {
+        "path": "/stages/13/enemies/4/mult",
+        "old": 0.071,
+        "new": 0.0611
+      },
+      {
+        "path": "/stages/17/enemies/0/mult",
+        "old": 0.05,
+        "new": 0.046
+      },
+      {
+        "path": "/stages/17/enemies/1/mult",
+        "old": 0.0251,
+        "new": 0.0231
+      },
+      {
+        "path": "/stages/17/enemies/2/mult",
+        "old": 0.05,
+        "new": 0.046
+      },
+      {
+        "path": "/stages/17/enemies/3/mult",
+        "old": 0.05,
+        "new": 0.046
+      },
+      {
+        "path": "/stages/17/enemies/4/mult",
+        "old": 0.05,
+        "new": 0.046
+      }
+    ]
+  },
+  "bossDirectCohort": {
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "mode": "auto",
+    "equipment": false,
+    "heroTraining": false,
+    "journey": false,
+    "rows": [
+      {
+        "stage": "ch4_s10",
+        "level": 45,
+        "rarity": "purple",
+        "squad": 0,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "kai",
+          "zara"
+        ],
+        "old": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 70.8,
+          "medianFirstHeroUlt": 18.1,
+          "medianHeroUlts": 12
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 57.5,
+          "medianFirstHeroUlt": 18.1,
+          "medianHeroUlts": 13
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 45,
+        "rarity": "purple",
+        "squad": 1,
+        "heroes": [
+          "otto",
+          "teo",
+          "meilin",
+          "iris",
+          "lira"
+        ],
+        "old": {
+          "wins": 7,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 77.4,
+          "medianFirstHeroUlt": 18.3,
+          "medianHeroUlts": 16
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 66.7,
+          "medianFirstHeroUlt": 18.3,
+          "medianHeroUlts": 15
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 45,
+        "rarity": "purple",
+        "squad": 2,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "dorn",
+          "greta"
+        ],
+        "old": {
+          "wins": 7,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 70.9,
+          "medianFirstHeroUlt": 18.5,
+          "medianHeroUlts": 16
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 59.7,
+          "medianFirstHeroUlt": 18.3,
+          "medianHeroUlts": 15
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 45,
+        "rarity": "purple",
+        "squad": 3,
+        "heroes": [
+          "alan",
+          "iris",
+          "otto",
+          "zara",
+          "vika"
+        ],
+        "old": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 72.6,
+          "medianFirstHeroUlt": 17.8,
+          "medianHeroUlts": 15
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 66.2,
+          "medianFirstHeroUlt": 17.8,
+          "medianHeroUlts": 15
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 45,
+        "rarity": "purple",
+        "squad": 4,
+        "heroes": [
+          "bran",
+          "kai",
+          "lira",
+          "meilin",
+          "teo"
+        ],
+        "old": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 67.9,
+          "medianFirstHeroUlt": 18,
+          "medianHeroUlts": 7
+        },
+        "new": {
+          "wins": 3,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 74.8,
+          "medianFirstHeroUlt": 18,
+          "medianHeroUlts": 12
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 50,
+        "rarity": "purple",
+        "squad": 0,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "kai",
+          "zara"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 64.1,
+          "medianFirstHeroUlt": 18.3,
+          "medianHeroUlts": 15
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 47.3,
+          "medianFirstHeroUlt": 18.3,
+          "medianHeroUlts": 10
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 50,
+        "rarity": "purple",
+        "squad": 1,
+        "heroes": [
+          "otto",
+          "teo",
+          "meilin",
+          "iris",
+          "lira"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 74.1,
+          "medianFirstHeroUlt": 18,
+          "medianHeroUlts": 16
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 62,
+          "medianFirstHeroUlt": 18,
+          "medianHeroUlts": 14
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 50,
+        "rarity": "purple",
+        "squad": 2,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "dorn",
+          "greta"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 67.3,
+          "medianFirstHeroUlt": 18.1,
+          "medianHeroUlts": 15
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 48.1,
+          "medianFirstHeroUlt": 18,
+          "medianHeroUlts": 10
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 50,
+        "rarity": "purple",
+        "squad": 3,
+        "heroes": [
+          "alan",
+          "iris",
+          "otto",
+          "zara",
+          "vika"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 70.3,
+          "medianFirstHeroUlt": 17.9,
+          "medianHeroUlts": 15
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 57.1,
+          "medianFirstHeroUlt": 18,
+          "medianHeroUlts": 13
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 50,
+        "rarity": "purple",
+        "squad": 4,
+        "heroes": [
+          "bran",
+          "kai",
+          "lira",
+          "meilin",
+          "teo"
+        ],
+        "old": {
+          "wins": 1,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 76,
+          "medianFirstHeroUlt": 18,
+          "medianHeroUlts": 10
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 45.7,
+          "medianFirstHeroUlt": 18,
+          "medianHeroUlts": 10
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 60,
+        "rarity": "gold",
+        "squad": 0,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "kai",
+          "zara"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 30.1,
+          "medianFirstHeroUlt": 17.2,
+          "medianHeroUlts": 5
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 20.9,
+          "medianFirstHeroUlt": 17.2,
+          "medianHeroUlts": 5
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 60,
+        "rarity": "gold",
+        "squad": 1,
+        "heroes": [
+          "otto",
+          "teo",
+          "meilin",
+          "iris",
+          "lira"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 33.7,
+          "medianFirstHeroUlt": 16.5,
+          "medianHeroUlts": 6
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 23.5,
+          "medianFirstHeroUlt": 16.5,
+          "medianHeroUlts": 4
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 60,
+        "rarity": "gold",
+        "squad": 2,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "dorn",
+          "greta"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 27.5,
+          "medianFirstHeroUlt": 16,
+          "medianHeroUlts": 5
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 20.3,
+          "medianFirstHeroUlt": 16.1,
+          "medianHeroUlts": 5
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 60,
+        "rarity": "gold",
+        "squad": 3,
+        "heroes": [
+          "alan",
+          "iris",
+          "otto",
+          "zara",
+          "vika"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 35.6,
+          "medianFirstHeroUlt": 16.8,
+          "medianHeroUlts": 7
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 24.5,
+          "medianFirstHeroUlt": 16.6,
+          "medianHeroUlts": 5
+        }
+      },
+      {
+        "stage": "ch4_s10",
+        "level": 60,
+        "rarity": "gold",
+        "squad": 4,
+        "heroes": [
+          "bran",
+          "kai",
+          "lira",
+          "meilin",
+          "teo"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 25.2,
+          "medianFirstHeroUlt": 16.8,
+          "medianHeroUlts": 5
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 20.2,
+          "medianFirstHeroUlt": 16.8,
+          "medianHeroUlts": 5
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 70,
+        "rarity": "gold",
+        "squad": 0,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "kai",
+          "zara"
+        ],
+        "old": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 48.4,
+          "medianFirstHeroUlt": 15.2,
+          "medianHeroUlts": 5
+        },
+        "new": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 76.3,
+          "medianFirstHeroUlt": 15.2,
+          "medianHeroUlts": 16
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 70,
+        "rarity": "gold",
+        "squad": 1,
+        "heroes": [
+          "otto",
+          "teo",
+          "meilin",
+          "iris",
+          "lira"
+        ],
+        "old": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 46.9,
+          "medianFirstHeroUlt": 16.3,
+          "medianHeroUlts": 7
+        },
+        "new": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 51.8,
+          "medianFirstHeroUlt": 16.3,
+          "medianHeroUlts": 7
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 70,
+        "rarity": "gold",
+        "squad": 2,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "dorn",
+          "greta"
+        ],
+        "old": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 78.2,
+          "medianFirstHeroUlt": 16,
+          "medianHeroUlts": 19
+        },
+        "new": {
+          "wins": 2,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 80.7,
+          "medianFirstHeroUlt": 16.5,
+          "medianHeroUlts": 20
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 70,
+        "rarity": "gold",
+        "squad": 3,
+        "heroes": [
+          "alan",
+          "iris",
+          "otto",
+          "zara",
+          "vika"
+        ],
+        "old": {
+          "wins": 7,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 85.4,
+          "medianFirstHeroUlt": 15.8,
+          "medianHeroUlts": 22
+        },
+        "new": {
+          "wins": 5,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 82,
+          "medianFirstHeroUlt": 15.8,
+          "medianHeroUlts": 21
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 70,
+        "rarity": "gold",
+        "squad": 4,
+        "heroes": [
+          "bran",
+          "kai",
+          "lira",
+          "meilin",
+          "teo"
+        ],
+        "old": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 36.4,
+          "medianFirstHeroUlt": 16.2,
+          "medianHeroUlts": 4
+        },
+        "new": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 44,
+          "medianFirstHeroUlt": 16.2,
+          "medianHeroUlts": 5
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 85,
+        "rarity": "gold",
+        "squad": 0,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "kai",
+          "zara"
+        ],
+        "old": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 7,
+          "medianDuration": 90,
+          "medianFirstHeroUlt": 15.8,
+          "medianHeroUlts": 18
+        },
+        "new": {
+          "wins": 1,
+          "n": 8,
+          "timeouts": 2,
+          "medianDuration": 86,
+          "medianFirstHeroUlt": 15.8,
+          "medianHeroUlts": 17
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 85,
+        "rarity": "gold",
+        "squad": 1,
+        "heroes": [
+          "otto",
+          "teo",
+          "meilin",
+          "iris",
+          "lira"
+        ],
+        "old": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 2,
+          "medianDuration": 89.4,
+          "medianFirstHeroUlt": 16,
+          "medianHeroUlts": 18
+        },
+        "new": {
+          "wins": 3,
+          "n": 8,
+          "timeouts": 5,
+          "medianDuration": 90,
+          "medianFirstHeroUlt": 16,
+          "medianHeroUlts": 21
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 85,
+        "rarity": "gold",
+        "squad": 2,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "dorn",
+          "greta"
+        ],
+        "old": {
+          "wins": 6,
+          "n": 8,
+          "timeouts": 2,
+          "medianDuration": 84.8,
+          "medianFirstHeroUlt": 16.6,
+          "medianHeroUlts": 21
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 80.9,
+          "medianFirstHeroUlt": 17,
+          "medianHeroUlts": 20
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 85,
+        "rarity": "gold",
+        "squad": 3,
+        "heroes": [
+          "alan",
+          "iris",
+          "otto",
+          "zara",
+          "vika"
+        ],
+        "old": {
+          "wins": 1,
+          "n": 8,
+          "timeouts": 5,
+          "medianDuration": 90,
+          "medianFirstHeroUlt": 16.2,
+          "medianHeroUlts": 21
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 83.6,
+          "medianFirstHeroUlt": 16.2,
+          "medianHeroUlts": 20
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 85,
+        "rarity": "gold",
+        "squad": 4,
+        "heroes": [
+          "bran",
+          "kai",
+          "lira",
+          "meilin",
+          "teo"
+        ],
+        "old": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 68,
+          "medianFirstHeroUlt": 13.5,
+          "medianHeroUlts": 13
+        },
+        "new": {
+          "wins": 0,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 72.9,
+          "medianFirstHeroUlt": 13.5,
+          "medianHeroUlts": 14
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 100,
+        "rarity": "red",
+        "squad": 0,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "kai",
+          "zara"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 51.7,
+          "medianFirstHeroUlt": 12,
+          "medianHeroUlts": 15
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 43.5,
+          "medianFirstHeroUlt": 12.9,
+          "medianHeroUlts": 11
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 100,
+        "rarity": "red",
+        "squad": 1,
+        "heroes": [
+          "otto",
+          "teo",
+          "meilin",
+          "iris",
+          "lira"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 51.8,
+          "medianFirstHeroUlt": 9.9,
+          "medianHeroUlts": 17
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 50.2,
+          "medianFirstHeroUlt": 9.9,
+          "medianHeroUlts": 17
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 100,
+        "rarity": "red",
+        "squad": 2,
+        "heroes": [
+          "alan",
+          "vika",
+          "bran",
+          "dorn",
+          "greta"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 56.5,
+          "medianFirstHeroUlt": 12,
+          "medianHeroUlts": 17
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 46.6,
+          "medianFirstHeroUlt": 12,
+          "medianHeroUlts": 13
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 100,
+        "rarity": "red",
+        "squad": 3,
+        "heroes": [
+          "alan",
+          "iris",
+          "otto",
+          "zara",
+          "vika"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 56.6,
+          "medianFirstHeroUlt": 15.9,
+          "medianHeroUlts": 16
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 48.1,
+          "medianFirstHeroUlt": 14.9,
+          "medianHeroUlts": 13
+        }
+      },
+      {
+        "stage": "ch9_s18",
+        "level": 100,
+        "rarity": "red",
+        "squad": 4,
+        "heroes": [
+          "bran",
+          "kai",
+          "lira",
+          "meilin",
+          "teo"
+        ],
+        "old": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 49,
+          "medianFirstHeroUlt": 9.5,
+          "medianHeroUlts": 17
+        },
+        "new": {
+          "wins": 8,
+          "n": 8,
+          "timeouts": 0,
+          "medianDuration": 42.7,
+          "medianFirstHeroUlt": 10.3,
+          "medianHeroUlts": 14
+        }
+      }
+    ]
+  },
+  "limitation": "Baphomet gold70 cohort4 (alan, iris, otto, zara, vika) drops 7/8 to 5/8 while aggregate gold70 remains 7/40; no guarantee of monotonically improved outcomes for every composition/seed. Global campaign progression re-evaluation belongs to root/economy."
+}

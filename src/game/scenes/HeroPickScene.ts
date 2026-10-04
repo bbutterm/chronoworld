@@ -31,7 +31,7 @@ const CTA_Y = CONTENT_BOTTOM - 80;
 /**
  * «Контракт героя» (docs/design/heroes-v2.md, раздел 4.2): награда события — герой на выбор нужной редкости. Сетка всех
  * 12 героев (pickOptions): касание выделяет героя (золотая рамка), одна главная кнопка «Забрать» внизу (повторное касание
- * выделенного — то же); у фиолетового — окно выбора ветки (общий branchPicker) → claimHeroPick: новый экземпляр
+ * только сохраняет выбор); у фиолетового — окно выбора ветки (общий branchPicker) → claimHeroPick: новый экземпляр
  * с выбранной веткой, момент «Контракт исполнен!». «‹» в шапке — позже (контракт остаётся: плитка в «Героях»).
  */
 export class HeroPickScene extends Phaser.Scene {
@@ -41,10 +41,14 @@ export class HeroPickScene extends Phaser.Scene {
 
   private back: { to: string; data?: object } = { to: 'Heroes' };
   private selected: string | null = null;
+  private choosing = false;
+  private claiming = false;
 
   create(data: HeroPickData = {}): void {
     this.back = data.back ?? { to: 'Heroes' };
     this.selected = null;
+    this.choosing = false;
+    this.claiming = false;
     screen(this, 'Контракт героя', 'Heroes', this.back);
     const picks = pendingPicks(session.save);
     const index = Math.min(Math.max(0, data.index ?? 0), Math.max(0, picks.length - 1));
@@ -57,7 +61,7 @@ export class HeroPickScene extends Phaser.Scene {
     this.head(pick, picks.length);
     const go = cta(this, GAME_W / 2, CTA_Y, 'Забрать', () => this.selected && this.choose(pick, index, this.selected), { w: 640, enabled: false });
     go.container.setName('pickClaim');
-    this.grid(pick, index, go);
+    this.grid(pick, go);
   }
 
   /** Заголовок: «Фиолетовый герой на выбор» и число контрактов; как выбрать — видно по самой сетке (без инструкции). */
@@ -67,7 +71,7 @@ export class HeroPickScene extends Phaser.Scene {
     if (count > 1) tag(this, t.x + t.width / 2 + S.s, y, `×${count}`, 'accent', { align: 'left' });
   }
 
-  private grid(pick: HeroPick, index: number, go: ButtonView): void {
+  private grid(pick: HeroPick, go: ButtonView): void {
     const ids = pickOptions(pick, GAME);
     const { h } = heroCardSize(TILE_W);
     const rowH = h + CAP_H + GAP_Y;
@@ -86,10 +90,7 @@ export class HeroPickScene extends Phaser.Scene {
       const y = top + h / 2 + Math.floor(i / COLS) * rowH;
       const n = owned(tid);
       const select = () => {
-        if (this.selected === tid) {
-          this.choose(pick, index, tid);
-          return;
-        }
+        if (this.choosing || this.claiming) return;
         this.selected = tid;
         ring.setPosition(x, y).setVisible(true);
         glow.setPosition(x, y).setVisible(true);
@@ -114,26 +115,34 @@ export class HeroPickScene extends Phaser.Scene {
   /** Герой выбран: у фиолетового — окно ветки, иначе сразу забрать. */
   private choose(pick: HeroPick, index: number, templateId: string): void {
     const t = GAME.content.heroes[templateId];
-    if (!t) return;
+    if (!t || this.choosing || this.claiming) return;
     if (rarityIndex(pick.rarity) < rarityIndex(BRANCH_RARITY)) {
       this.claim(index, templateId, undefined);
       return;
     }
+    this.choosing = true;
     openBranchPicker(this, {
       templateId,
       title: `${t.name}: ветка`,
-      subtitle: `${rarityName(pick.rarity)} · ур. 1. Первая смена ветки — бесплатно.`,
+      subtitle: `${rarityName(pick.rarity)} · первая смена ветки бесплатно`,
       confirmLabel: (job) => (job ? `Забрать: ${jobTitle(GAME, job, t.gender)}` : 'Выберите ветку'),
-      onConfirm: (job) => this.claim(index, templateId, job),
+      onCancel: () => { this.choosing = false; },
+      onConfirm: (job) => {
+        this.choosing = false;
+        this.claim(index, templateId, job);
+      },
     });
   }
 
   private claim(index: number, templateId: string, branch: string | undefined): void {
+    if (this.claiming) return;
+    this.claiming = true;
     try {
       const r = claimHeroPick(session.save, index, templateId, branch, GAME);
       commit(r.save);
       this.reveal(r.heroId);
     } catch (e) {
+      this.claiming = false;
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
   }

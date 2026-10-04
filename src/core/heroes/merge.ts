@@ -3,9 +3,10 @@ import type { HeroState, SaveState } from '../save/schema';
 import { assertBranch } from './branch';
 import { activeForm, branchOf, branchOptions, heroName, heroTemplate, nextRarity, type BranchView } from './card';
 import { HeroError } from './errors';
-import { findHero, levelRangeCost, type LevelCost } from './level';
+import { findHero, paidHeroTraining, type LevelCost } from './level';
 import { BRANCH_RARITY, rarityIndex, type CardRarity, type FodderSlot, type MergeRule } from './schema';
 import { groupDigits } from '../format';
+import { rememberHeroJourney } from './training';
 
 /**
  * Вознесение героя на следующую редкость (docs/design/heroes-v2.md, раздел 2.2; правила — data/cards.json → merge):
@@ -62,6 +63,10 @@ export function fodderBlocker(save: SaveState, fodderId: string, ctx: GameContex
   if (save.squad.includes(h.id)) return `${name} стоит в отряде`;
   if (save.presets.some((p) => p.squad.includes(h.id))) return `${name} есть в пресете отряда`;
   if (save.bounties.active.some((b) => b.heroIds.includes(h.id))) return `${name} в экспедиции`;
+  if (h.companion) return `${name} — ваш спутник: повышайте профессию этого героя, используя его копии`;
+  const paid = paidHeroTraining(h, ctx);
+  if (paid.exp > 0 || paid.gold > 0) return `${name} обучен: сначала верните вложенные ресурсы`;
+  if (h.journey?.focus) return `${name} выбрал специализацию тренировки`;
   return null;
 }
 
@@ -231,21 +236,25 @@ export function ascendHero(
   if (rule.branch && !branch && !opts.deferBranch) throw new HeroError('branch_required', `${name}: выберите ветку — ${t.branches.map((b) => ctx.content.jobs[b.job]?.name ?? b.job).join(' или ')}`);
   for (const id of fodderIds) {
     if (id === heroId) throw new HeroError('bad_fodder', `${name}: герой не может быть кормом сам себе`);
-    const why = fodderBlocker(save, id, ctx);
-    if (why && save.heroes.some((h) => h.id === id)) throw new HeroError('fodder_busy', why);
   }
   const consumed = assignFodder(save, hero, rule, fodderIds);
   if (!consumed) {
     const rn = (r: CardRarity) => ctx.cards.rarities.find((x) => x.id === r)?.name.toLowerCase() ?? r;
     throw new HeroError('bad_fodder', `${name}: корм не подходит — нужно ${rule.fodder.map((f) => `${f.count} × ${f.kind === 'same' ? name : 'любой герой'} (${rn(f.rarity)})`).join(' + ')}`);
   }
+  for (const fodder of consumed) {
+    const why = fodderBlocker(save, fodder.id, ctx);
+    if (why) throw new HeroError('fodder_busy', why);
+  }
   const refund = consumed.reduce((sum, f) => {
-    const c = levelRangeCost(f.grantedLevel ?? 1, f.level, ctx);
+    const c = paidHeroTraining(f, ctx);
     return { exp: sum.exp + c.exp, gold: sum.gold + c.gold };
   }, { exp: 0, gold: 0 });
   const gone = new Set(consumed.map((h) => h.id));
   const before = activeForm(t, hero);
-  const upgraded: HeroState = { ...hero, rarity: to, ...(branch ? { branch } : {}) };
+  const upgraded: HeroState = branch && !keepBranch
+    ? rememberHeroJourney({ ...hero, rarity: to, branch })
+    : { ...hero, rarity: to };
   const after = activeForm(t, upgraded);
   const next: SaveState = {
     ...save,
@@ -270,6 +279,9 @@ export function ascendHero(
 export function keeperIds(save: Pick<SaveState, 'heroes' | 'squad'>): Set<string> {
   const best = new Map<string, HeroState>();
   const better = (a: HeroState, b: HeroState) =>
+    Number(!!a.companion) - Number(!!b.companion) ||
+    Number(!!a.locked) - Number(!!b.locked) ||
+    Number(!!a.journey?.focus) - Number(!!b.journey?.focus) ||
     rarityIndex(a.rarity) - rarityIndex(b.rarity) ||
     Number(save.squad.includes(a.id)) - Number(save.squad.includes(b.id)) ||
     a.level - b.level ||
@@ -310,6 +322,7 @@ export function ascendAll(save: SaveState, ctx: GameContext): { save: SaveState;
   const done: AscendAllStep[] = [];
   const order = (s: SaveState) => (a: HeroState, b: HeroState) =>
     rarityIndex(a.rarity) - rarityIndex(b.rarity) ||
+    Number(!!b.companion) - Number(!!a.companion) ||
     Number(s.squad.includes(b.id)) - Number(s.squad.includes(a.id)) ||
     b.level - a.level ||
     (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);

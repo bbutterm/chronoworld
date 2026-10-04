@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { CardsConfigSchema, DropsConfigSchema, EventsConfigSchema, ExpeditionsConfigSchema, ExpeditionEventsConfigSchema, TavernSchema, ChapterSchema, HuntConfigSchema, HeroTemplateSchema, JobSchema, SkillSchema, StorySchema, SummonConfigSchema, ShopConfigSchema, CodesConfigSchema, TowerConfigSchema, UnitSchema, UnlocksConfigSchema, MonstersLoreSchema, ItemsLoreSchema, HeroesLoreSchema, HeroStoriesLoreSchema, JobsLoreSchema, WorldLoreSchema, LinesLoreSchema } from '../../src/core';
 import { MonsterSoundsSchema } from '../../src/game/monsterSounds';
+import { AutobattlerConfigSchema } from '../../src/core/autobattler/schema';
 
 /** JSON Schema для подсказок и проверки в редакторе (VS Code подхватывает по полю $schema). */
 export function generateSchemas(): Record<string, string> {
@@ -12,6 +13,7 @@ export function generateSchemas(): Record<string, string> {
     'data/schema/job.schema.json': gen(JobSchema, 'Профессия (джоб)'),
     'data/schema/chapter.schema.json': gen(ChapterSchema, 'Глава кампании'),
     'data/schema/tower.schema.json': gen(TowerConfigSchema, 'Башня испытаний'),
+    'data/schema/autobattler.schema.json': gen(AutobattlerConfigSchema, 'Гильдейский автобатлер: матч, составы и экономика'),
     'data/schema/story.schema.json': gen(StorySchema, 'Сюжет главы'),
     'data/schema/hero.schema.json': gen(HeroTemplateSchema, 'Карточка героя (шаблон)'),
     'data/schema/cards.schema.json': gen(CardsConfigSchema, 'Редкости, уровень и вознесение карточек'),

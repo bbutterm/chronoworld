@@ -7,10 +7,11 @@
  */
 import {
   parseBoard,
-  parseClaimed,
+  parseGrants,
   parseFriends,
   parseHello,
   parseSaveGet,
+  parseSavePut,
   parseSync,
   type BoardKind,
   type BoardResp,
@@ -81,7 +82,7 @@ export type Fetcher = (url: string, init: RequestInit) => Promise<{ ok: boolean;
  * Вызов действия. Ответ — разобранный JSON при HTTP 2xx, иначе null. keepalive — при сворачивании (запрос
  * переживает выгрузку страницы; браузер берёт с keepalive только тела до 64 КБ).
  */
-export async function call(action: string, payload: Record<string, unknown> = {}, opts: { keepalive?: boolean; fetcher?: Fetcher; timeoutMs?: number } = {}): Promise<unknown | null> {
+export async function call(action: string, payload: Record<string, unknown> = {}, opts: { keepalive?: boolean; fetcher?: Fetcher; timeoutMs?: number; allowConflict?: boolean } = {}): Promise<unknown | null> {
   const init = initData();
   if (!init) return null;
   if (init === 'mock' && !opts.fetcher) return mockCall(action, payload);
@@ -98,7 +99,7 @@ export async function call(action: string, payload: Record<string, unknown> = {}
       ...(ctrl ? { signal: ctrl.signal } : {}),
       ...(opts.keepalive && body.length < 60_000 ? { keepalive: true } : {}),
     });
-    if (!res.ok) return null;
+    if (!res.ok && !(opts.allowConflict && res.status === 409)) return null;
     return await res.json();
   } catch {
     return null;
@@ -111,16 +112,17 @@ export const api = {
   /** extra — для уведомлений бота: tzOffset, chestFullAt, expeditionsDoneAt. */
   hello: async (extra: Record<string, unknown> = {}): Promise<HelloResp | null> => parseHello(await call('hello', extra)),
   saveGet: async (): Promise<CloudSaveData | null> => parseSaveGet(await call('save_get')),
-  /** data — объект сохранения (как в localStorage, JSON.parse(serialize(save))). true — записано. */
-  savePut: async (data: unknown, saveVersion: number, chapter: number, keepalive = false): Promise<boolean> =>
-    (await call('save_put', { data, saveVersion, chapter }, { keepalive })) !== null,
+  /** Один writeId на снимок: повтор после разрыва связи возвращает прежнюю принятую ревизию. */
+  savePut: async (data: unknown, saveVersion: number, chapter: number, opts: { expectedRevision: number; writeId: string; keepalive?: boolean }) =>
+    parseSavePut(await call('save_put', { data, saveVersion, chapter, expectedRevision: opts.expectedRevision, writeId: opts.writeId }, { keepalive: opts.keepalive, allowConflict: true })),
   sync: async (
-    p: { chapter: number; stage: number; power: number; towerBest: number; mvpWeek: number; tzOffset?: number; chestFullAt?: number | null; expeditionsDoneAt?: number | null },
+    p: { chapter: number; stage: number; power: number; towerBest: number; towerWeek?: number; towerWeekId?: string; mvpWeek: number; mvpWeekId?: string; tzOffset?: number; chestFullAt?: number | null; expeditionsDoneAt?: number | null },
     keepalive = false,
   ) => parseSync(await call('sync', p, { keepalive })),
   board: async (board: BoardKind, scope: BoardScope): Promise<BoardResp | null> => parseBoard(await call('board', { board, scope })),
   friends: async (): Promise<FriendInfo[] | null> => parseFriends(await call('friends')),
-  giftSend: async (to: number): Promise<boolean> => (await call('gift_send', { to })) !== null,
-  giftClaim: async (): Promise<number | null> => parseClaimed(await call('gift_claim')),
-  refClaim: async (): Promise<number | null> => parseClaimed(await call('ref_claim')),
+  giftSend: async (to: number): Promise<boolean> => (await call('gift_send', { to }) as { ok?: unknown } | null)?.ok === true,
+  giftClaim: async () => parseGrants(await call('gift_claim', { protocol: 2 })),
+  refClaim: async () => parseGrants(await call('ref_claim', { protocol: 2 })),
+  rewardClaim: async () => parseGrants(await call('reward_claim', { protocol: 2 })),
 };

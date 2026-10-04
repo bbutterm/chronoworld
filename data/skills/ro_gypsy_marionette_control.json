@@ -1,7 +1,7 @@
 {
   "id": "ro_gypsy_marionette_control",
-  "name": "Marionette Control · Gypsy",
-  "description": "RO-сигнатура · адаптация: Ансамбль ускоряет весь отряд и передаёт по 10 энергии. Адаптация передачи характеристик. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "name": "Танец марионеток",
+  "description": "Ускоряет весь отряд и передаёт союзникам по 10 энергии. Школа RO: Marionette Control · Gypsy. Совместимые общие эффекты RO; точная оригинальная анимация этого приёма ещё не подключена.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {
@@ -14,7 +14,7 @@
       "type": "status",
       "status": {
         "id": "marionette_ensemble",
-        "name": "marionette ensemble",
+        "name": "Ритм ансамбля",
         "turns": 3,
         "stats": {
           "spd": 0.25

@@ -21,6 +21,7 @@ const { setHapticsOn } = await import('../src/game/haptics');
 const { playback, fps, motion } = await import('../src/game/state');
 const decor = await import('../src/game/decor');
 const ui = await import('../src/game/ui');
+const unlocks = await import('../src/game/unlockBanner');
 const { GAME_H, GAME_W } = await import('../src/game/layout');
 const { S, T } = await import('../src/game/theme');
 
@@ -88,8 +89,13 @@ function setup() {
     return node as unknown as ReturnType<typeof ui.text>;
   });
   vi.spyOn(ui, 'button').mockImplementation((_sc, x, y, w, h, _key, label, tap) => {
-    const node = make(x, y, w, h); buttons.push({ label, node, tap });
-    return { container: node, setLabel: (label: string) => { node.text = label; } } as unknown as ButtonView;
+    const node = make(x, y, w, h);
+    // ButtonView.setEnabled changes appearance; callers still receive taps to explain a lock.
+    buttons.push({ label, node, tap });
+    return {
+      container: node, setLabel: (label: string) => { node.text = label; },
+      setEnabled: (on: boolean) => { node.setData('enabled', on); },
+    } as unknown as ButtonView;
   });
   vi.spyOn(ui, 'dangerButton').mockImplementation((sc, x, y, w, h, label, tap, size) => ui.button(sc, x, y, w, h, 'danger', label, tap, size));
   const open = () => {
@@ -103,7 +109,11 @@ function setup() {
   return { nodes, scene, buttons, open, worldY, clip, pointer, graphics };
 }
 
-beforeEach(() => { vi.restoreAllMocks(); vi.clearAllMocks(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
+beforeEach(() => {
+  vi.restoreAllMocks(); vi.clearAllMocks(); vi.unstubAllEnvs(); vi.unstubAllGlobals();
+  vi.spyOn(unlocks, 'isUnlocked').mockReturnValue(true);
+  vi.spyOn(unlocks, 'lockLabel').mockReturnValue('Откроется на этапе 1-4');
+});
 
 describe('Настройки: ограниченная прокрутка и читаемые строки', () => {
   it('длинная подпись/пояснение увеличивают ряд; обычные цели ≥44 px на 360 px', () => {
@@ -174,6 +184,19 @@ describe('Настройки: ограниченная прокрутка и ч�
       const expected = name === 'battleSpeed' ? `${playback.speed}x` : name === 'fpsCap' ? `${fps.cap} FPS` : motion.reduced ? 'Вкл' : 'Выкл';
       expect(b.node.text).toBe(expected);
     }
+  });
+
+  it('закрытая скорость объясняет условие открытия и не создаёт тост поверх настроек', () => {
+    vi.mocked(unlocks.isUnlocked).mockReturnValue(false);
+    const say = vi.spyOn(ui, 'toast').mockImplementation(() => undefined);
+    const h = setup(); h.open();
+    const speed = h.buttons.find((b) => b.node.name === 'battleSpeed')!;
+    const before = playback.speed;
+    expect(speed.node.getData('enabled')).toBe(false);
+    expect(h.nodes.some((n) => n.text === 'Откроется на этапе 1-4')).toBe(true);
+    speed.tap();
+    expect(playback.speed).toBe(before);
+    expect(say).not.toHaveBeenCalled();
   });
 
   it('звук и вибрация используют прежние настройки устройства', () => {

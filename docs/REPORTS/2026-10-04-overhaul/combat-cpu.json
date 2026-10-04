@@ -1,0 +1,210 @@
+{
+  "scope": [
+    "src/core/battle.ts"
+  ],
+  "source": "/workspace/chronoworld-worktrees/combat/src/core/battle.ts",
+  "oldSha256": "5736bdbcf9919ec5e0fb6399ab92617deeaeb97d5f34e15f5a56474be64db69c",
+  "newSha256": "0c8bc74acb6a9d02e8d42d5cac0e3a06efb57740535a0226282b160bdb6cae00",
+  "frozenBench": "/tmp/chronoworld-combat-cpu-bench",
+  "allDataJsonSha256": "d0202acaa1848e0a0fde4128675f3177ab3e2538881f90b44ce678ea7f3e9986",
+  "contracts": {
+    "data/combat.json": "8104f67220fb6f8046fb34bdf12456739f43262da11b0c41226ab88b893f95e2",
+    "src/core/types.ts": "4c20251d198b88ba6afc632df05e3d264439d62e6d3f838fb8ffb8ce60e43ad2",
+    "src/core/config.ts": "81c884f0195e8b7c98e53cd46905743190889599eb2627ecd5cd60121791dd48",
+    "src/core/combatSchema.ts": "75c26cb8a4ff61337b57783a319f839b6be0fb70ae8fba9e7246cd1bd51aa852",
+    "scripts/lib/player-model.ts": "51e99cf981226d516b6ad629accce436b8225694415a5cdc80e0ff2e1eee3aa6",
+    "scripts/lib/content-node.ts": "614d5630c5feff29d9d6b76d1d757ffb5d13db21f90aeb6cefd79df32cda7c36",
+    "tests/sim.test.ts": "0280862978bd2ffcb780eebd235cd749886db10742b2361551146be25cff8d64",
+    "tests/behavior.test.ts": "bc7d40998a643defe52aa7d99a5bc4cece934cb770982137ea8ac94cebade038",
+    "tests/battle-lifecycle.test.ts": "c66aff54f03093b116c25353cbf101ec25ba46163d18fe2353cd11bd15053457"
+  },
+  "changes": [
+    "precompute exact Math.sin/Math.cos values once per synchronous battle without hooks",
+    "read current angles and squash at every findSpot when API hooks can modify cfg",
+    "calculate candidate coordinates in unchanged preferred-angle/other-angle/opposite-side order; allocate only useful points",
+    "clearance stops only after a bound proves candidate cannot be free or replace the current fallback; unchanged exact distance for other callers"
+  ],
+  "preserved": [
+    "tick order",
+    "target order",
+    "RNG calls",
+    "angle/coordinate arithmetic",
+    "rounding",
+    "skills",
+    "phases",
+    "energy",
+    "input interpretation",
+    "full result/log bytes"
+  ],
+  "parity": {
+    "completeResultAndLogComparisons": 240,
+    "identical": 240,
+    "cases": [
+      "hero-vs-hero",
+      "ch1_s1",
+      "ch1_s10",
+      "ch4_s10",
+      "ch10_s18"
+    ],
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "behavior": [
+      true,
+      false
+    ],
+    "manualUlt": [
+      true,
+      false
+    ],
+    "log": "/tmp/chronoworld-combat-cpu-parity-final.log",
+    "hashes": "/tmp/chronoworld-combat-cpu-parity.json",
+    "mutableCombatHookComparisons": 12,
+    "hookIdentical": 12,
+    "hookLog": "/tmp/chronoworld-combat-cpu-hook-parity.log"
+  },
+  "tests": {
+    "sim": {
+      "command": "npx vitest run tests/sim.test.ts --maxWorkers=1",
+      "passed": 4,
+      "failed": 0,
+      "seconds": 7.56,
+      "quiet": true,
+      "log": "/tmp/chronoworld-combat-cpu-strict-sim.log",
+      "budgetUnchanged": 1.25
+    },
+    "behaviorBattleDecisionsHero": {
+      "passed": 140,
+      "failed": 0,
+      "files": 9,
+      "log": "/tmp/chronoworld-combat-cpu-regressions.log"
+    },
+    "lifecycle": {
+      "passed": 11,
+      "failed": 0,
+      "log": "/tmp/chronoworld-combat-cpu-lifecycle.log"
+    },
+    "typecheck": {
+      "command": "npx tsc --noEmit",
+      "exit": 0,
+      "log": "/tmp/chronoworld-combat-cpu-typecheck-final.log"
+    },
+    "diffCheck": {
+      "exit": 0
+    }
+  },
+  "cpuPairs": {
+    "workload": "same authored heroes+foes as tests/sim.test.ts; 500 fights; thread CPU; 3 repeats with alternating old/new order",
+    "samples": [
+      {
+        "repeat": 0,
+        "label": "old",
+        "behavior": true,
+        "ms": 1267.292
+      },
+      {
+        "repeat": 0,
+        "label": "new",
+        "behavior": true,
+        "ms": 1146.399
+      },
+      {
+        "repeat": 0,
+        "label": "old",
+        "behavior": false,
+        "ms": 1051.653
+      },
+      {
+        "repeat": 0,
+        "label": "new",
+        "behavior": false,
+        "ms": 995.699
+      },
+      {
+        "repeat": 1,
+        "label": "new",
+        "behavior": true,
+        "ms": 1103.951
+      },
+      {
+        "repeat": 1,
+        "label": "old",
+        "behavior": true,
+        "ms": 1191.396
+      },
+      {
+        "repeat": 1,
+        "label": "new",
+        "behavior": false,
+        "ms": 991.685
+      },
+      {
+        "repeat": 1,
+        "label": "old",
+        "behavior": false,
+        "ms": 995.762
+      },
+      {
+        "repeat": 2,
+        "label": "old",
+        "behavior": true,
+        "ms": 1175.804
+      },
+      {
+        "repeat": 2,
+        "label": "new",
+        "behavior": true,
+        "ms": 1159.727
+      },
+      {
+        "repeat": 2,
+        "label": "old",
+        "behavior": false,
+        "ms": 979.864
+      },
+      {
+        "repeat": 2,
+        "label": "new",
+        "behavior": false,
+        "ms": 963.897
+      },
+      {
+        "label": "old",
+        "on": 1175.804,
+        "off": 979.864,
+        "ratio": 1.1999665259668688
+      },
+      {
+        "label": "new",
+        "on": 1103.951,
+        "off": 963.897,
+        "ratio": 1.1452997571317267
+      }
+    ],
+    "bestBaseline": {
+      "label": "old",
+      "on": 1175.804,
+      "off": 979.864,
+      "ratio": 1.1999665259668688
+    },
+    "bestCandidate": {
+      "label": "new",
+      "on": 1103.951,
+      "off": 963.897,
+      "ratio": 1.1452997571317267
+    },
+    "log": "/tmp/chronoworld-combat-cpu-compare2.log"
+  },
+  "note": "Pair measurement preceded final defensive cutoff guard (which only affects exceptional sep<=initial fallback) and documentation; final unchanged strict test and full parity validated final logic. Root integrated full-suite CPU test remains final check."
+}

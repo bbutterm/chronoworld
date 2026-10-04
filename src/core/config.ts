@@ -1,4 +1,4 @@
 import combatJson from '../../data/combat.json';
-import type { CombatConfig } from './types';
+import { parseCombatConfig } from './combatSchema';
 
-export const COMBAT = combatJson as unknown as CombatConfig;
+export const COMBAT = parseCombatConfig(combatJson);

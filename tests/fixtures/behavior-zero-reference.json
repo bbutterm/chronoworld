@@ -1,0 +1,1244 @@
+{
+  "revision": "combat-tempo-2026-10-04",
+  "reason": "04.10: actionThreshold 1000 → 1500, общая энергия 25/10 → 18/5 и корректное истечение статусов. Глобальные изменения действуют и с behavior:false; составы, seeds и полный hash-контроль сохранены.",
+  "scenarioCount": 292,
+  "seeds": 4,
+  "config": {
+    "tickSeconds": 0.1,
+    "actionThreshold": 1500,
+    "timeLimitSeconds": 90,
+    "statusTurnSeconds": 1,
+    "energy": {
+      "max": 100,
+      "perBasicAction": 18,
+      "perHitTaken": 5
+    }
+  },
+  "traces": {
+    "ch1_s10/sq0#1": {
+      "winner": "A",
+      "reason": "wipe",
+      "duration": 81.4,
+      "log": [
+        {
+          "t": 0,
+          "type": "passive",
+          "unit": "A2",
+          "skill": "job_hunter_beast_bane",
+          "name": "Гроза зверей"
+        },
+        {
+          "t": 0,
+          "type": "status",
+          "source": "A2",
+          "target": "A2",
+          "status": "beast_bane",
+          "name": "Гроза зверей",
+          "turns": 5,
+          "action": "apply",
+          "seconds": 5
+        },
+        {
+          "t": 0,
+          "type": "passive",
+          "unit": "A3",
+          "skill": "job_wizard_mystical_amplification",
+          "name": "Усиление магии"
+        },
+        {
+          "t": 0,
+          "type": "status",
+          "source": "A3",
+          "target": "A3",
+          "status": "mystical_amplification",
+          "name": "Усиление магии",
+          "turns": 3,
+          "action": "apply",
+          "seconds": 3
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "A0",
+          "from": [
+            400,
+            1250
+          ],
+          "to": [
+            481.5,
+            1250
+          ],
+          "duration": 0.25,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "B0",
+          "from": [
+            680,
+            1250
+          ],
+          "to": [
+            598.5,
+            1250
+          ],
+          "duration": 0.25,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "A4",
+          "from": [
+            170,
+            1730
+          ],
+          "to": [
+            482,
+            1570
+          ],
+          "duration": 1.1,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "B1",
+          "from": [
+            680,
+            1570
+          ],
+          "to": [
+            202,
+            1570
+          ],
+          "duration": 1.49,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "B2",
+          "from": [
+            910,
+            1090
+          ],
+          "to": [
+            530.95,
+            1334.83
+          ],
+          "duration": 1.41,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "B3",
+          "from": [
+            910,
+            1410
+          ],
+          "to": [
+            449.45,
+            1654.83
+          ],
+          "duration": 1.63,
+          "kind": "walk"
+        },
+        {
+          "t": 0.3,
+          "type": "move",
+          "unit": "A4",
+          "from": [
+            226.95,
+            1700.8
+          ],
+          "to": [
+            118.32,
+            1713.56
+          ],
+          "duration": 0.34,
+          "kind": "walk"
+        },
+        {
+          "t": 1,
+          "type": "turn",
+          "unit": "A4"
+        },
+        {
+          "t": 1,
+          "type": "attack",
+          "unit": "A4",
+          "skill": "job_thief_venom_knife",
+          "targets": [
+            "B2"
+          ],
+          "kind": "ranged",
+          "energy": 18,
+          "name": "Ядовитый нож",
+          "cooldown": 8
+        },
+        {
+          "t": 1.2,
+          "type": "turn",
+          "unit": "A1"
+        },
+        {
+          "t": 1.2,
+          "type": "attack",
+          "unit": "A1",
+          "skill": "job_priest_kyrie_eleison",
+          "targets": [
+            "A0"
+          ],
+          "kind": "ranged",
+          "energy": 18,
+          "name": "Кирие Элейсон",
+          "cooldown": 10
+        },
+        {
+          "t": 1.2,
+          "type": "buff",
+          "source": "A1",
+          "target": "A0",
+          "kind": "shield",
+          "amount": 1680,
+          "shield": 1680
+        },
+        {
+          "t": 1.2,
+          "type": "turn",
+          "unit": "A2"
+        },
+        {
+          "t": 1.2,
+          "type": "attack",
+          "unit": "A2",
+          "skill": "job_hunter_blitz_beat",
+          "targets": [
+            "B2"
+          ],
+          "kind": "ranged",
+          "energy": 18,
+          "name": "Удар сокола",
+          "cooldown": 6
+        },
+        {
+          "t": 1.2,
+          "type": "turn",
+          "unit": "B0"
+        },
+        {
+          "t": 1.2,
+          "type": "attack",
+          "unit": "B0",
+          "skill": "basic_melee",
+          "targets": [
+            "A0"
+          ],
+          "kind": "melee",
+          "energy": 18
+        },
+        {
+          "t": 1.2,
+          "type": "damage",
+          "source": "B0",
+          "target": "A0",
+          "amount": 161,
+          "absorbed": 161,
+          "hp": 6720,
+          "shield": 1519,
+          "energy": 0
+        },
+        {
+          "t": 1.2,
+          "type": "turn",
+          "unit": "A3"
+        },
+        {
+          "t": 1.2,
+          "type": "cast",
+          "unit": "A3",
+          "skill": "job_wizard_jupitel_thunder",
+          "name": "Гром Юпитера",
+          "duration": 1.5,
+          "action": "start"
+        },
+        {
+          "t": 1.3,
+          "type": "damage",
+          "source": "A4",
+          "target": "B2",
+          "amount": 277,
+          "absorbed": 0,
+          "hp": 5669,
+          "shield": 0,
+          "energy": 5
+        },
+        {
+          "t": 1.3,
+          "type": "status",
+          "source": "A4",
+          "target": "B2",
+          "status": "poison",
+          "name": "Яд",
+          "turns": 3,
+          "action": "apply",
+          "seconds": 3
+        },
+        {
+          "t": 1.3,
+          "type": "turn",
+          "unit": "A0"
+        },
+        {
+          "t": 1.3,
+          "type": "attack",
+          "unit": "A0",
+          "skill": "job_swordman_provoke",
+          "targets": [
+            "B0"
+          ],
+          "kind": "ranged",
+          "energy": 18,
+          "name": "Провокация",
+          "cooldown": 10
+        },
+        {
+          "t": 1.5,
+          "type": "damage",
+          "source": "A2",
+          "target": "B2",
+          "amount": 278,
+          "absorbed": 0,
+          "hp": 5391,
+          "shield": 0,
+          "energy": 10
+        },
+        {
+          "t": 1.5,
+          "type": "damage",
+          "source": "A2",
+          "target": "B0",
+          "amount": 300,
+          "absorbed": 0,
+          "hp": 4954,
+          "shield": 0,
+          "energy": 23
+        },
+        {
+          "t": 1.5,
+          "type": "damage",
+          "source": "A2",
+          "target": "B3",
+          "amount": 251,
+          "absorbed": 0,
+          "hp": 6248,
+          "shield": 0,
+          "energy": 5
+        },
+        {
+          "t": 1.6,
+          "type": "status",
+          "source": "A0",
+          "target": "B0",
+          "status": "provoke",
+          "name": "Провокация",
+          "turns": 3,
+          "action": "apply",
+          "seconds": 3
+        },
+        {
+          "t": 1.6,
+          "type": "turn",
+          "unit": "B1"
+        },
+        {
+          "t": 1.6,
+          "type": "cast",
+          "unit": "B1",
+          "skill": "mob_mastering_jelly_armor",
+          "name": "Желейная броня",
+          "duration": 1.5,
+          "action": "start"
+        },
+        {
+          "t": 1.6,
+          "type": "turn",
+          "unit": "B2"
+        },
+        {
+          "t": 1.6,
+          "type": "attack",
+          "unit": "B2",
+          "skill": "basic_melee",
+          "targets": [
+            "A0"
+          ],
+          "kind": "melee",
+          "energy": 28
+        },
+        {
+          "t": 1.6,
+          "type": "damage",
+          "source": "B2",
+          "target": "A0",
+          "amount": 176,
+          "absorbed": 176,
+          "hp": 6720,
+          "shield": 1343,
+          "energy": 18
+        },
+        {
+          "t": 1.6,
+          "type": "passive",
+          "unit": "A0",
+          "skill": "job_knight_auto_counter",
+          "name": "Контратака"
+        },
+        {
+          "t": 1.6,
+          "type": "damage",
+          "source": "A0",
+          "target": "B0",
+          "amount": 302,
+          "absorbed": 0,
+          "hp": 4652,
+          "shield": 0,
+          "energy": 28
+        },
+        {
+          "t": 1.8,
+          "type": "turn",
+          "unit": "B3"
+        },
+        {
+          "t": 1.8,
+          "type": "attack",
+          "unit": "B3",
+          "skill": "basic_melee",
+          "targets": [
+            "A1"
+          ],
+          "kind": "melee",
+          "energy": 23
+        }
+      ]
+    },
+    "ch9_s18/sq3#2": {
+      "winner": "A",
+      "reason": "wipe",
+      "duration": 45.2,
+      "log": [
+        {
+          "t": 0,
+          "type": "passive",
+          "unit": "A1",
+          "skill": "job_knight_two_hand_quicken",
+          "name": "Двуручная спешка"
+        },
+        {
+          "t": 0,
+          "type": "status",
+          "source": "A1",
+          "target": "A1",
+          "status": "two_hand_quicken",
+          "name": "Двуручная спешка",
+          "turns": 4,
+          "action": "apply",
+          "seconds": 4
+        },
+        {
+          "t": 0,
+          "type": "passive",
+          "unit": "A1",
+          "skill": "job_knight_two_hand_mastery",
+          "name": "Владение двуручным мечом"
+        },
+        {
+          "t": 0,
+          "type": "status",
+          "source": "A1",
+          "target": "A1",
+          "status": "two_hand_mastery",
+          "name": "Владение двуручным мечом",
+          "turns": 99,
+          "action": "apply",
+          "seconds": 99
+        },
+        {
+          "t": 0,
+          "type": "passive",
+          "unit": "A2",
+          "skill": "job_blacksmith_adrenaline_rush",
+          "name": "Выброс адреналина"
+        },
+        {
+          "t": 0,
+          "type": "status",
+          "source": "A2",
+          "target": "A0",
+          "status": "adrenaline_rush",
+          "name": "Выброс адреналина",
+          "turns": 3,
+          "action": "apply",
+          "seconds": 3
+        },
+        {
+          "t": 0,
+          "type": "status",
+          "source": "A2",
+          "target": "A1",
+          "status": "adrenaline_rush",
+          "name": "Выброс адреналина",
+          "turns": 3,
+          "action": "apply",
+          "seconds": 3
+        },
+        {
+          "t": 0,
+          "type": "status",
+          "source": "A2",
+          "target": "A2",
+          "status": "adrenaline_rush",
+          "name": "Выброс адреналина",
+          "turns": 3,
+          "action": "apply",
+          "seconds": 3
+        },
+        {
+          "t": 0,
+          "type": "status",
+          "source": "A2",
+          "target": "A3",
+          "status": "adrenaline_rush",
+          "name": "Выброс адреналина",
+          "turns": 3,
+          "action": "apply",
+          "seconds": 3
+        },
+        {
+          "t": 0,
+          "type": "status",
+          "source": "A2",
+          "target": "A4",
+          "status": "adrenaline_rush",
+          "name": "Выброс адреналина",
+          "turns": 3,
+          "action": "apply",
+          "seconds": 3
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "A0",
+          "from": [
+            400,
+            1250
+          ],
+          "to": [
+            481.5,
+            1250
+          ],
+          "duration": 0.25,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "B0",
+          "from": [
+            680,
+            1250
+          ],
+          "to": [
+            598.5,
+            1250
+          ],
+          "duration": 0.25,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "A1",
+          "from": [
+            400,
+            1570
+          ],
+          "to": [
+            441,
+            1570
+          ],
+          "duration": 0.13,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "B1",
+          "from": [
+            680,
+            1570
+          ],
+          "to": [
+            639,
+            1570
+          ],
+          "duration": 0.13,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "A2",
+          "from": [
+            170,
+            1090
+          ],
+          "to": [
+            549.05,
+            1165.17
+          ],
+          "duration": 1.21,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "A3",
+          "from": [
+            170,
+            1410
+          ],
+          "to": [
+            476.81,
+            1479.15
+          ],
+          "duration": 0.98,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "B4",
+          "from": [
+            910,
+            1730
+          ],
+          "to": [
+            490.45,
+            1654.83
+          ],
+          "duration": 1.33,
+          "kind": "walk"
+        },
+        {
+          "t": 0.9,
+          "type": "turn",
+          "unit": "A1"
+        },
+        {
+          "t": 0.9,
+          "type": "attack",
+          "unit": "A1",
+          "skill": "job_knight_charge_attack",
+          "targets": [
+            "B1"
+          ],
+          "kind": "ranged",
+          "energy": 18,
+          "name": "Атака с разбега",
+          "cooldown": 6
+        },
+        {
+          "t": 0.9,
+          "type": "move",
+          "unit": "A1",
+          "from": [
+            441,
+            1570
+          ],
+          "to": [
+            445,
+            1570
+          ],
+          "duration": 0.25,
+          "kind": "dash"
+        },
+        {
+          "t": 0.9,
+          "type": "damage",
+          "source": "A1",
+          "target": "B1",
+          "amount": 734,
+          "absorbed": 0,
+          "hp": 15704,
+          "shield": 0,
+          "energy": 5
+        },
+        {
+          "t": 1.1,
+          "type": "turn",
+          "unit": "A4"
+        },
+        {
+          "t": 1.1,
+          "type": "attack",
+          "unit": "A4",
+          "skill": "job_priest_kyrie_eleison",
+          "targets": [
+            "A0"
+          ],
+          "kind": "ranged",
+          "energy": 18,
+          "name": "Кирие Элейсон",
+          "cooldown": 10
+        },
+        {
+          "t": 1.1,
+          "type": "buff",
+          "source": "A4",
+          "target": "A0",
+          "kind": "shield",
+          "amount": 1680,
+          "shield": 1680
+        },
+        {
+          "t": 1.1,
+          "type": "turn",
+          "unit": "A0"
+        },
+        {
+          "t": 1.1,
+          "type": "attack",
+          "unit": "A0",
+          "skill": "job_swordman_provoke",
+          "targets": [
+            "B0"
+          ],
+          "kind": "ranged",
+          "energy": 18,
+          "name": "Провокация",
+          "cooldown": 10
+        },
+        {
+          "t": 1.1,
+          "type": "turn",
+          "unit": "A3"
+        },
+        {
+          "t": 1.1,
+          "type": "attack",
+          "unit": "A3",
+          "skill": "job_thief_venom_knife",
+          "targets": [
+            "B2"
+          ],
+          "kind": "ranged",
+          "energy": 18,
+          "name": "Ядовитый нож",
+          "cooldown": 8
+        },
+        {
+          "t": 1.4,
+          "type": "status",
+          "source": "A0",
+          "target": "B0",
+          "status": "provoke",
+          "name": "Провокация",
+          "turns": 3,
+          "action": "apply",
+          "seconds": 3
+        },
+        {
+          "t": 1.4,
+          "type": "damage",
+          "source": "A3",
+          "target": "B2",
+          "amount": 353,
+          "absorbed": 0,
+          "hp": 2627,
+          "shield": 0,
+          "energy": 5
+        },
+        {
+          "t": 1.4,
+          "type": "status",
+          "source": "A3",
+          "target": "B2",
+          "status": "poison",
+          "name": "Яд",
+          "turns": 3,
+          "action": "apply",
+          "seconds": 3
+        },
+        {
+          "t": 1.4,
+          "type": "turn",
+          "unit": "A2"
+        },
+        {
+          "t": 1.4,
+          "type": "attack",
+          "unit": "A2",
+          "skill": "job_blacksmith_hammer_fall",
+          "targets": [
+            "B0"
+          ],
+          "kind": "melee",
+          "energy": 18,
+          "name": "Удар молота",
+          "cooldown": 10
+        },
+        {
+          "t": 1.4,
+          "type": "damage",
+          "source": "A2",
+          "target": "B0",
+          "amount": 196,
+          "absorbed": 0,
+          "hp": 8372,
+          "shield": 0,
+          "energy": 5
+        },
+        {
+          "t": 1.4,
+          "type": "turn",
+          "unit": "B0"
+        },
+        {
+          "t": 1.4,
+          "type": "attack",
+          "unit": "B0",
+          "skill": "basic_melee",
+          "targets": [
+            "A0"
+          ],
+          "kind": "melee",
+          "energy": 23
+        },
+        {
+          "t": 1.4,
+          "type": "damage",
+          "source": "B0",
+          "target": "A0",
+          "amount": 144,
+          "absorbed": 144,
+          "hp": 6720,
+          "shield": 1536,
+          "energy": 18
+        },
+        {
+          "t": 1.4,
+          "type": "passive",
+          "unit": "A0",
+          "skill": "job_knight_auto_counter",
+          "name": "Контратака"
+        },
+        {
+          "t": 1.4,
+          "type": "damage",
+          "source": "A0",
+          "target": "B0",
+          "amount": 243,
+          "absorbed": 0,
+          "hp": 8129,
+          "shield": 0,
+          "energy": 28
+        },
+        {
+          "t": 1.5,
+          "type": "turn",
+          "unit": "B3"
+        }
+      ]
+    },
+    "guard,warrior,archer,mage,priest|guard,warrior,archer,mage,priest#1": {
+      "winner": "A",
+      "reason": "wipe",
+      "duration": 43.5,
+      "log": [
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "A0",
+          "from": [
+            400,
+            1250
+          ],
+          "to": [
+            481.5,
+            1250
+          ],
+          "duration": 0.25,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "B0",
+          "from": [
+            680,
+            1250
+          ],
+          "to": [
+            598.5,
+            1250
+          ],
+          "duration": 0.25,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "A1",
+          "from": [
+            400,
+            1570
+          ],
+          "to": [
+            481.5,
+            1570
+          ],
+          "duration": 0.25,
+          "kind": "walk"
+        },
+        {
+          "t": 0.1,
+          "type": "move",
+          "unit": "B1",
+          "from": [
+            680,
+            1570
+          ],
+          "to": [
+            598.5,
+            1570
+          ],
+          "duration": 0.25,
+          "kind": "walk"
+        },
+        {
+          "t": 1.2,
+          "type": "turn",
+          "unit": "B2"
+        },
+        {
+          "t": 1.2,
+          "type": "attack",
+          "unit": "B2",
+          "skill": "basic_ranged",
+          "targets": [
+            "A0"
+          ],
+          "kind": "ranged",
+          "energy": 18
+        },
+        {
+          "t": 1.2,
+          "type": "turn",
+          "unit": "A2"
+        },
+        {
+          "t": 1.2,
+          "type": "attack",
+          "unit": "A2",
+          "skill": "basic_ranged",
+          "targets": [
+            "B0"
+          ],
+          "kind": "ranged",
+          "energy": 18
+        },
+        {
+          "t": 1.4,
+          "type": "turn",
+          "unit": "A1"
+        },
+        {
+          "t": 1.4,
+          "type": "attack",
+          "unit": "A1",
+          "skill": "basic_melee",
+          "targets": [
+            "B1"
+          ],
+          "kind": "melee",
+          "energy": 18
+        },
+        {
+          "t": 1.4,
+          "type": "damage",
+          "source": "A1",
+          "target": "B1",
+          "amount": 85,
+          "absorbed": 0,
+          "hp": 1215,
+          "shield": 0,
+          "energy": 5
+        },
+        {
+          "t": 1.4,
+          "type": "turn",
+          "unit": "B1"
+        },
+        {
+          "t": 1.4,
+          "type": "attack",
+          "unit": "B1",
+          "skill": "basic_melee",
+          "targets": [
+            "A1"
+          ],
+          "kind": "melee",
+          "energy": 23
+        },
+        {
+          "t": 1.4,
+          "type": "damage",
+          "source": "B1",
+          "target": "A1",
+          "amount": 79,
+          "absorbed": 0,
+          "hp": 1221,
+          "shield": 0,
+          "energy": 23
+        },
+        {
+          "t": 1.5,
+          "type": "damage",
+          "source": "B2",
+          "target": "A0",
+          "amount": 75,
+          "absorbed": 0,
+          "hp": 1475,
+          "shield": 0,
+          "energy": 5
+        },
+        {
+          "t": 1.5,
+          "type": "damage",
+          "source": "A2",
+          "target": "B0",
+          "amount": 76,
+          "absorbed": 0,
+          "hp": 1474,
+          "shield": 0,
+          "energy": 5
+        },
+        {
+          "t": 1.5,
+          "type": "turn",
+          "unit": "A4"
+        },
+        {
+          "t": 1.5,
+          "type": "attack",
+          "unit": "A4",
+          "skill": "basic_heal",
+          "targets": [
+            "A1"
+          ],
+          "kind": "heal",
+          "energy": 18
+        },
+        {
+          "t": 1.5,
+          "type": "heal",
+          "source": "A4",
+          "target": "A1",
+          "amount": 70,
+          "hp": 1291
+        },
+        {
+          "t": 1.5,
+          "type": "turn",
+          "unit": "B4"
+        },
+        {
+          "t": 1.5,
+          "type": "attack",
+          "unit": "B4",
+          "skill": "basic_heal",
+          "targets": [
+            "B1"
+          ],
+          "kind": "heal",
+          "energy": 18
+        },
+        {
+          "t": 1.5,
+          "type": "heal",
+          "source": "B4",
+          "target": "B1",
+          "amount": 70,
+          "hp": 1285
+        },
+        {
+          "t": 1.6,
+          "type": "turn",
+          "unit": "B0"
+        },
+        {
+          "t": 1.6,
+          "type": "attack",
+          "unit": "B0",
+          "skill": "basic_melee",
+          "targets": [
+            "A0"
+          ],
+          "kind": "melee",
+          "energy": 23
+        },
+        {
+          "t": 1.6,
+          "type": "damage",
+          "source": "B0",
+          "target": "A0",
+          "amount": 36,
+          "absorbed": 0,
+          "hp": 1439,
+          "shield": 0,
+          "energy": 10
+        },
+        {
+          "t": 1.6,
+          "type": "turn",
+          "unit": "B3"
+        },
+        {
+          "t": 1.6,
+          "type": "attack",
+          "unit": "B3",
+          "skill": "basic_ranged",
+          "targets": [
+            "A0"
+          ],
+          "kind": "ranged",
+          "energy": 18
+        },
+        {
+          "t": 1.6,
+          "type": "turn",
+          "unit": "A0"
+        },
+        {
+          "t": 1.6,
+          "type": "attack",
+          "unit": "A0",
+          "skill": "basic_melee",
+          "targets": [
+            "B0"
+          ],
+          "kind": "melee",
+          "energy": 28
+        },
+        {
+          "t": 1.6,
+          "type": "damage",
+          "source": "A0",
+          "target": "B0",
+          "amount": 36,
+          "absorbed": 0,
+          "hp": 1438,
+          "shield": 0,
+          "energy": 28
+        },
+        {
+          "t": 1.6,
+          "type": "turn",
+          "unit": "A3"
+        },
+        {
+          "t": 1.6,
+          "type": "attack",
+          "unit": "A3",
+          "skill": "basic_ranged",
+          "targets": [
+            "B0"
+          ],
+          "kind": "ranged",
+          "energy": 18
+        },
+        {
+          "t": 1.9,
+          "type": "damage",
+          "source": "B3",
+          "target": "A0",
+          "amount": 93,
+          "absorbed": 0,
+          "hp": 1346,
+          "shield": 0,
+          "energy": 33
+        },
+        {
+          "t": 1.9,
+          "type": "damage",
+          "source": "A3",
+          "target": "B0",
+          "amount": 89,
+          "absorbed": 0,
+          "hp": 1349,
+          "shield": 0,
+          "energy": 33
+        },
+        {
+          "t": 2.4,
+          "type": "turn",
+          "unit": "A2"
+        },
+        {
+          "t": 2.4,
+          "type": "attack",
+          "unit": "A2",
+          "skill": "basic_ranged",
+          "targets": [
+            "B0"
+          ],
+          "kind": "ranged",
+          "energy": 36
+        },
+        {
+          "t": 2.4,
+          "type": "turn",
+          "unit": "B2"
+        },
+        {
+          "t": 2.4,
+          "type": "attack",
+          "unit": "B2",
+          "skill": "basic_ranged",
+          "targets": [
+            "A0"
+          ],
+          "kind": "ranged",
+          "energy": 36
+        },
+        {
+          "t": 2.7,
+          "type": "damage",
+          "source": "A2",
+          "target": "B0",
+          "amount": 73,
+          "absorbed": 0,
+          "hp": 1276,
+          "shield": 0,
+          "energy": 38
+        },
+        {
+          "t": 2.7,
+          "type": "damage",
+          "source": "B2",
+          "target": "A0",
+          "amount": 72,
+          "absorbed": 0,
+          "hp": 1274,
+          "shield": 0,
+          "energy": 38
+        }
+      ]
+    }
+  }
+}

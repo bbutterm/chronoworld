@@ -77,7 +77,7 @@ describe('инвентарь (InventoryScene, itemIcons)', () => {
 
   it('подробности и заточка — листы снизу; риск — чип с процентом; одна главная кнопка в листе', () => {
     expect(inv.match(/bottomSheet\(/g)?.length).toBeGreaterThanOrEqual(4);
-    expect(inv).toMatch(/`Поломка \$\{pct\(chance\)\}`, riskTone\(chance\)/);
+    expect(inv).toMatch(/`Неудача \$\{pct\(chance\)\}`, riskTone\(chance\)/);
     expect(inv).toMatch(/cta\(this, width \/ 2, y \+ 70, 'Заточить'/);
     expect(inv).toMatch(/variant: 'secondary'/);
     expect(inv).toMatch(/\bstat\(this, width \/ 2/);

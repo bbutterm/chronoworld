@@ -11,6 +11,7 @@ import shopJson from '../../data/shop.json';
 import codesJson from '../../data/codes.json';
 import summonJson from '../../data/summon.json';
 import towerJson from '../../data/tower.json';
+import autobattlerJson from '../../data/autobattler.json';
 import unlocksJson from '../../data/unlocks.json';
 import { buildGameContext, parseLore, type FullContext, type Lore, type RawFile } from '../core';
 
@@ -39,6 +40,7 @@ export const GAME: FullContext = buildGameContext({
   quests: questsJson,
   drops: dropsJson,
   tower: towerJson,
+  autobattler: autobattlerJson,
   expeditions: expeditionsJson,
   expeditionEvents: expeditionEventsJson,
   achievements: achievementsJson,

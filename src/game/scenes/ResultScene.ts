@@ -173,6 +173,12 @@ export class ResultScene extends Phaser.Scene {
     /** Строка: рисует свои объекты на высоте ly, кладёт их put (в слой или прокрутку) — затем вешает нажатие. */
     type Put = <O extends Obj>(o: O) => O;
     const rows: { draw: (ly: number, put: Put) => Obj[] }[] = [];
+    // Повтор этапа после дневной пачки остается доступной тренировкой, без ожидания наград.
+    const replay = (stage?.outcome as { replay?: { rewarded: boolean; used: number; limit: number } } | undefined)?.replay;
+    if (replay) {
+      const label = replay.rewarded ? `Повтор: наград осталось ${Math.max(0, replay.limit - replay.used)} из ${replay.limit}` : 'Тренировка · награды на сегодня получены';
+      rows.push({ draw: (ly, put) => [put(ellipsize(text(this, GAME_W / 2, ly, label, T.caption, COLOR.textSecondary).setName('resultReplay'), L.contentW))] });
+    }
     const tactic = tacticalSuccess(data.result);
     if (tactic) rows.push({ draw: (ly, put) => [put(text(this, GAME_W / 2, ly, tactic, T.caption, COLOR.positive).setName('resultTactic'))] });
     const found = stage && firstClear ? stageFinding(stage.stageId, GAME.content) : undefined;

@@ -244,11 +244,10 @@ export class TavernScene extends Phaser.Scene {
     plate(this, GAME_W / 2, y, cw, 200, { ...SURFACE.raised, r: 28 });
     const left = S.l + S.m;
     text(this, left, y - 44, 'Подарок Гаррета', T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
-    const row = rewardRow(this, 0, y + 40, [
+    rewardRow(this, left, y + 40, [
       { icon: 'gems', value: `+${formatNumber(w.gems)}`, tone: 'gem' },
       { icon: 'scrolls', value: `+${w.scrolls}` },
-    ], { size: 's' });
-    row.setX(left + row.width / 2);
+    ], { size: 's', align: 'left' });
     const bx = GAME_W - S.l - S.m - 140;
     const b = button(this, bx, y, 280, 120, '', 'Забрать', () => this.claimWelcome({ x: bx, y }), T.heading, { variant: 'primary' });
     b.container.setName('giftClaim');

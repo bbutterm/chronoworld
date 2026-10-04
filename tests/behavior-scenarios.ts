@@ -4,7 +4,7 @@
  * чтобы бой был на грани: отряд 0 побеждает примерно в половине боёв), плюс зеркальные бои юнитов data/units.
  * Множители здесь заморожены: правка data/campaign не меняет сценарии (лог меняет только правка боя или юнитов/навыков).
  */
-import { simulateBattle, type BattleOptions, type FullContext, type Squad, type UnitDef } from '../src/core';
+import { simulateBattle, type BattleOptions, type BattleResult, type FullContext, type Squad, type UnitDef } from '../src/core';
 import { SMOOTH_SQUADS, smoothSquads } from '../scripts/lib/player-model';
 
 export const BEHAVIOR_COMPS: [string, ([string, number] | null)[]][] = [
@@ -26,7 +26,7 @@ export const BEHAVIOR_COMPS: [string, ([string, number] | null)[]][] = [
 
 /**
  * Базовые статы, замороженные вместе с множителями: правка баланса юнита в data/units не должна менять сценарии
- * (снимок «нулевого профиля» сравнивает логи с кодом до профилей). RR-02 (30.09): ОЗ Тёмного лорда ×0.62 и Владыки
+ * (снимок «нулевого профиля» использует актуальный глобальный темп без правил профилей). RR-02 (30.09): ОЗ Тёмного лорда ×0.62 и Владыки
  * мёртвых ×0.6 — в сценариях прежние 4200 и 4600.
  */
 const FROZEN_STATS: Record<string, Partial<UnitDef['stats']>> = {
@@ -68,16 +68,18 @@ export function withoutUlt(u: UnitDef): UnitDef {
   return { ...u, skills };
 }
 
-/** Хэши логов всех сценариев: имя → хэш (seed'ы 1…seeds). */
-export function scenarioHashes(ctx: FullContext, seeds: number, opts: BattleOptions = {}): Record<string, string> {
+/** Хэши полных логов всех сценариев: имя → хэш; callback позволяет проверить читаемый trace и отсутствие правил. */
+export function scenarioHashes(ctx: FullContext, seeds: number, opts: BattleOptions = {}, onResult?: (key: string, result: BattleResult) => void): Record<string, string> {
   const out: Record<string, string> = {};
   // Ульты героев (01.10, поле ult формы) — правка контента героев: сценарии замораживают отряды без них, как
-  // множители и FROZEN_STATS (снимок сравнивает логи с кодом до профилей).
+  // множители и FROZEN_STATS. Глобальный темп 04.10 меняется для обеих версий; behavior:false выключает правила.
   const squads = smoothSquads(ctx, 45, SMOOTH_SQUADS).map((sq) => sq.map(withoutUlt));
   const run = (key: string, a: Squad, b: Squad) => {
     for (let seed = 1; seed <= seeds; seed++) {
       const r = simulateBattle(ctx.content, a, b, seed, { combat: ctx.combat, ...opts });
-      out[`${key}#${seed}`] = fnv(JSON.stringify(r.log));
+      const id = `${key}#${seed}`;
+      out[id] = fnv(JSON.stringify(r.log));
+      onResult?.(id, r);
     }
   };
   for (const [name] of BEHAVIOR_COMPS) squads.forEach((sq, i) => run(`${name}/sq${i}`, [...sq], compSquad(ctx, name)));

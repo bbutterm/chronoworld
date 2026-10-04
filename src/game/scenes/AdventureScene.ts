@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { finishedExpeditions, pendingExpeditionEvents, towerStatus } from '../../core';
 import { GAME } from '../content';
 import { expeditionsTile, towerTile, type ModeBanner } from '../featureTiles';
+import { autobattlerTile } from '../autobattlerEntry';
 import { hintDone } from '../hints';
 import { huntTile } from '../huntEntry';
 import { collect, staggerIn } from '../juice';
@@ -36,7 +37,7 @@ export class AdventureScene extends Phaser.Scene {
   create(): void {
     restartOnNewDay(this);
     screen(this, 'Приключения', 'Adventure');
-    const tiles: Tile[] = [expeditionsTile, towerTile, huntTile];
+    const tiles: Tile[] = [expeditionsTile, towerTile, huntTile, autobattlerTile];
     const top = CONTENT_TOP + S.xs;
     const avail = contentBottom() - S.xs - top;
     const h = Math.min(BANNER_MAX_H, Math.floor((avail - S.s * (tiles.length - 1)) / tiles.length));

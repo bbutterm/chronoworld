@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { Slot } from '../core';
 import { assetUrl } from './assetUrl';
+import { roItemArtId as artId } from './itemArt';
 import { C, COLOR, FS, R, S as SP, T } from './theme';
 import { mixHex, plate, text } from './ui';
 
@@ -22,8 +23,8 @@ const COLLECTION_IDS = new Set(COLLECTION_FILES.map(fileId));
 /** Сторона иконки RO в пикселях. */
 export const RO_ICON_PX = 24;
 /** Ключ текстуры иконки RO предмета или ресурса. */
-export const roIconKey = (id: string) => `item_${id}`;
-const collectionKey = (id: string) => `item_col_${id}`;
+export const roIconKey = (id: string) => `item_${artId(id)}`;
+const collectionKey = (id: string) => `item_col_${artId(id)}`;
 
 /** Экран загрузки: поставить в очередь все иконки RO (≈ 17 КБ в WebP). Путь — от корня assets, как в манифесте. */
 export function queueItemIconFiles(scene: Phaser.Scene): void {
@@ -37,7 +38,7 @@ export function setupItemIconFilters(scene: Phaser.Scene): void {
 
 /** Ключ загруженной иконки RO для id (или undefined — рисуем запасной вариант). */
 export function roIcon(scene: Phaser.Scene, id: string | undefined): string | undefined {
-  if (!id || !ICON_IDS.has(id)) return undefined;
+  if (!id || !ICON_IDS.has(artId(id))) return undefined;
   const key = roIconKey(id);
   return scene.textures.exists(key) ? key : undefined;
 }
@@ -65,12 +66,13 @@ export function roIconImage(scene: Phaser.Scene, x: number, y: number, id: strin
 }
 
 /** Есть ли большая картинка RO для окна предмета. */
-export const hasCollectionArt = (id: string): boolean => COLLECTION_IDS.has(id);
+export const hasCollectionArt = (id: string): boolean => COLLECTION_IDS.has(artId(id));
 
 const pendingCollection = new Map<string, Promise<string | undefined>>();
 
 /** Загрузить большую картинку предмета (один раз на игру); ключ текстуры или undefined (нет файла, ошибка сети). */
 export function loadCollectionArt(game: Phaser.Game, id: string): Promise<string | undefined> {
+  id = artId(id);
   const key = collectionKey(id);
   if (!COLLECTION_IDS.has(id)) return Promise.resolve(undefined);
   if (game.textures.exists(key)) return Promise.resolve(key);

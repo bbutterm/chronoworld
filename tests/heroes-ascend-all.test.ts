@@ -4,7 +4,7 @@
  * слоты «любой» (золотой → красный) и только лишние копии: лучший экземпляр каждого героя остаётся (BUG-168).
  */
 import { describe, expect, it } from 'vitest';
-import { addHeroCard, ascendAll, keeperIds, ascendAllSummary, ascendHero, HeroError, needsBranch, newGame, type CardRarity, type SaveState } from '../src/core';
+import { addHeroCard, ascendAll, keeperIds, ascendAllSummary, ascendHero, HeroError, needsBranch, newGame, resetHeroLevel, type CardRarity, type SaveState } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
 
 const ctx = loadFullContext();
@@ -27,23 +27,26 @@ describe('ascendAll', () => {
   });
 
   it('цепочка: 6 зелёных Ирис → 2 синие → с третьей синей — фиолетовая без ветки', () => {
-    const s = withCards([['iris', 'green', 10], ['iris', 'green'], ['iris', 'green'], ['iris', 'green', 5], ['iris', 'green'], ['iris', 'green'], ['iris', 'blue', 20]]);
+    const raw = withCards([['iris', 'green', 10], ['iris', 'green'], ['iris', 'green'], ['iris', 'green', 5], ['iris', 'green'], ['iris', 'green'], ['iris', 'blue', 20]]);
+    // Обученные копии защищены: прежде чем использовать, явно возвращаем ресурсы.
+    const s = resetHeroLevel(resetHeroLevel(raw, 'h7', ctx).save, 'h10', ctx).save;
     const r = ascendAll(s, ctx);
     const iris = r.save.heroes.filter((h) => h.templateId === 'iris');
-    expect(iris.map((h) => [h.id, h.rarity, h.level])).toEqual([['h10', 'purple', 20]]);
+    // Первая Ирис остаётся тем же спутником, даже когда новая копия сильнее.
+    expect(iris.map((h) => [h.id, h.rarity, h.level])).toEqual([['h4', 'purple', 10]]);
     expect(needsBranch(iris[0], ctx)).toBe(true);
-    // Сильнейшая зелёная (h4, ур. 10) — цель, слабые — корм; потом h7 (ур. 5).
+    // Спутник (h4, ур. 10) — цель, слабые свободные копии — корм.
     expect(r.done.map((d) => [d.heroId, d.from, d.to])).toEqual([
       ['h4', 'green', 'blue'],
-      ['h7', 'green', 'blue'],
-      ['h10', 'blue', 'purple'],
+      ['h5', 'green', 'blue'],
+      ['h4', 'blue', 'purple'],
     ]);
     expect(r.done.at(-1)!.branchPending).toBe(true);
     // В итоге — только выжившие: промежуточные синие съедены.
-    expect(ascendAllSummary(r.done)).toEqual([{ heroId: 'h10', name: 'Ирис', from: 'blue', to: 'purple', branchPending: true }]);
-    // Золото: два перехода зелёный → синий и один синий → фиолетовый; вложенное в корм (h4, h7) вернулось.
+    expect(ascendAllSummary(r.done)).toEqual([{ heroId: 'h4', name: 'Ирис', from: 'green', to: 'purple', branchPending: true }]);
+    // Золото: два перехода зелёный → синий и один синий → фиолетовый; возврат был сделан до вознесения.
     const refund = r.save.resources.gold - (s.resources.gold - mergeGold('green') * 2 - mergeGold('blue'));
-    expect(refund).toBeGreaterThan(0);
+    expect(refund).toBe(0);
     expect(r.save.resources.heroExp).toBeGreaterThan(0);
     // Детерминированно.
     expect(ascendAll(s, ctx)).toEqual(r);

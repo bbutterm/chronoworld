@@ -2,12 +2,13 @@
 // Вызывает pg_cron каждые 15 минут: net.http_post с заголовком X-CW-Cron = cw_config.cron_key.
 // Ненавязчиво: только тем, кто запустил бота и не выключил уведомления; не ночью (22–9 местного), не больше 2 в сутки,
 // не чаще раза в 3 часа, не пока игрок в игре. Выбор — planNotice (../_shared/bot.ts, тесты в tests/online-bot.test.ts).
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient } from 'npm:@supabase/supabase-js@2.99.2';
+import { checkedDatabase } from '../_shared/database.ts';
 import { localDay, noticeReply, noticeSeed, planNotice, prevWeek, safeEqual, sendErrorPatch, tzOf, type NotifyRow } from '../_shared/bot.ts';
 import { tgCall } from '../_shared/telegram.ts';
 
 const TOKEN = Deno.env.get('CHRONOWORLD_BOT_TOKEN') ?? '';
-const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
+const db = checkedDatabase(createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } }));
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
 /** За один проход не больше (Telegram: ~30 сообщений в секунду на бота — держимся далеко ниже). */

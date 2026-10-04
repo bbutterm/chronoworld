@@ -3,6 +3,7 @@ import type { HeroState, SaveState } from '../save/schema';
 import { activeForm, heroName, heroTemplate, maxLevelOf } from './card';
 import { HeroError } from './errors';
 import { groupDigits } from '../format';
+import { rememberHeroJourney } from './training';
 
 /**
  * Уровень карточки (AFK): опыт героев — общий пул save.resources.heroExp (награды этапов, сундука, башни, поручений…),
@@ -33,6 +34,50 @@ export function levelRangeCost(from: number, to: number, ctx: GameContext): Leve
     sum.gold += c.gold;
   }
   return sum;
+}
+
+/** Точная сумма оплаченного после обновления; старые сохранения учитывают подаренный уровень. */
+export function paidHeroTraining(hero: HeroState, ctx: GameContext): LevelCost {
+  return hero.training ?? levelRangeCost(hero.grantedLevel ?? 1, hero.level, ctx);
+}
+
+export interface HeroResetInfo {
+  heroId: string;
+  fromLevel: number;
+  /** Подаренные уровни сохраняются и никогда не превращаются в ресурсы. */
+  level: number;
+  refund: LevelCost;
+  canReset: boolean;
+  blocker: 'base_level' | 'expedition' | null;
+}
+
+export function heroResetInfo(save: SaveState, heroId: string, ctx: GameContext): HeroResetInfo {
+  const hero = findHero(save, heroId);
+  const level = Math.min(hero.level, Math.max(1, hero.grantedLevel ?? 1));
+  const refund = paidHeroTraining(hero, ctx);
+  const blocker = save.bounties.active.some((b) => b.heroIds.includes(heroId)) ? 'expedition' : hero.level <= level && refund.exp === 0 && refund.gold === 0 ? 'base_level' : null;
+  return { heroId, fromLevel: hero.level, level, refund, canReset: blocker === null, blocker };
+}
+
+/** Бесплатно перераспределить опыт и золото. Личность, профессия, экипировка и дневник остаются. */
+export function resetHeroLevel(save: SaveState, heroId: string, ctx: GameContext): { save: SaveState; refund: LevelCost; fromLevel: number; level: number } {
+  const hero = findHero(save, heroId);
+  const info = heroResetInfo(save, heroId, ctx);
+  if (!info.canReset) {
+    if (info.blocker === 'expedition') throw new HeroError('hero_busy', 'Герой в экспедиции — дождитесь возвращения');
+    throw new HeroError('base_level', 'У героя нет оплаченных уровней для возврата');
+  }
+  const remembered = rememberHeroJourney(hero);
+  return {
+    save: {
+      ...save,
+      heroes: save.heroes.map((h) => h.id === heroId ? { ...remembered, level: info.level, training: { exp: 0, gold: 0 } } : h),
+      resources: { ...save.resources, heroExp: save.resources.heroExp + info.refund.exp, gold: save.resources.gold + info.refund.gold },
+    },
+    refund: info.refund,
+    fromLevel: info.fromLevel,
+    level: info.level,
+  };
 }
 
 /** Положить опыт в общий пул (amount ≤ 0 — тот же save). */
@@ -92,6 +137,7 @@ export function levelUpInfo(save: SaveState, heroId: string, ctx: GameContext): 
  * События levelUp и skillUnlocked (навыки формы на новых уровнях). Чистая функция.
  */
 export function levelUpHero(save: SaveState, heroId: string, ctx: GameContext, times = 1): { save: SaveState; levels: number; spent: LevelCost; events: ProgressEvent[] } {
+  if (!Number.isFinite(times)) throw new HeroError('bad_count', 'Количество уровней должно быть конечным числом');
   const hero = findHero(save, heroId);
   const info = levelUpInfo(save, heroId, ctx);
   if (!info.canLevel) {
@@ -102,6 +148,7 @@ export function levelUpHero(save: SaveState, heroId: string, ctx: GameContext, t
   }
   const n = Math.max(1, Math.min(Math.floor(times), info.affordable));
   const spent = levelRangeCost(hero.level, hero.level + n, ctx);
+  const paid = paidHeroTraining(hero, ctx);
   const level = hero.level + n;
   const events: ProgressEvent[] = [];
   const template = heroTemplate(ctx, hero.templateId);
@@ -112,7 +159,7 @@ export function levelUpHero(save: SaveState, heroId: string, ctx: GameContext, t
   }
   const next: SaveState = {
     ...save,
-    heroes: save.heroes.map((h) => (h.id === heroId ? { ...h, level } : h)),
+    heroes: save.heroes.map((h) => (h.id === heroId ? rememberHeroJourney({ ...h, level, training: { exp: paid.exp + spent.exp, gold: paid.gold + spent.gold } }) : h)),
     resources: { ...save.resources, heroExp: save.resources.heroExp - spent.exp, gold: save.resources.gold - spent.gold },
   };
   return { save: next, levels: n, spent, events };

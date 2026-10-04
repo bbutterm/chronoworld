@@ -68,7 +68,7 @@ export function playWithEquipment<C extends GameContext>(
   play: (ctx: C & GearLookup) => StageOutcome,
 ): StageOutcomeWithDrops {
   const out = play(withGear(ctx, save));
-  if (!ctx.equipment || out.result.winner !== 'A') return { ...out, drops: [] };
+  if (!ctx.equipment || out.result.winner !== 'A' || out.replay?.rewarded === false) return { ...out, drops: [] };
   const firstClear = !save.campaign.cleared.includes(stageId);
   const r = addItems(out.save, rollDrops(stageId, seed, firstClear, ctx as C & EquipmentContext));
   return { ...out, save: r.save, drops: r.added };

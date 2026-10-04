@@ -26,7 +26,8 @@
               "tower",
               "hunt",
               "shop",
-              "refine"
+              "refine",
+              "autobattler"
             ]
           },
           "stage": {

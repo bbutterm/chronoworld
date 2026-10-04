@@ -38,6 +38,8 @@ export interface CombatConfig {
     max: number;
     perBasicAction: number;
     perHitTaken: number;
+    /** Минимальный интервал энергии от урона: несколько попаданий одного залпа не ускоряют ульту. Нет — каждый удар. */
+    hitIntervalSeconds?: number;
     /**
      * Энергия героев (ульта героя — docs/design/battle-decisions.md §1): за секунду боя (живой герой), за ход и за удар
      * по ОЗ. Нет — общие числа (без энергии от времени).
@@ -91,7 +93,7 @@ export interface CombatConfig {
   /** Ульта вручную: ульта героя — активный навык с самой долгой перезарядкой, не короче minCooldown секунд. */
   manual?: { minCooldown: number };
   /** Заряд босса: сбитый ультой или оглушением босс оглушён на stunTurns «ходов» статуса. */
-  charge?: { stunTurns: number };
+  charge?: { stunTurns: number; firstDelaySeconds?: number };
   /**
    * Управление игроком для этого боя (не из combat.json — подставляет экран боя, чтобы ввод дошёл через actPlayStage):
    * то же, что BattleOptions.manualUlt / inputs (опции боя важнее).
@@ -151,6 +153,8 @@ export interface Unit {
   hp: number;
   base: { atk: number; def: number; spd: number };
   energy: number;
+  /** Последний момент получения энергии от урона; ограничение действует только при hitIntervalSeconds. */
+  energyHitAt?: number;
   gauge: number;
   shield: number;
   alive: boolean;
