@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Validate native-resolution v2 RO sheets; --source-cache adds pixel-perfect source proof."""
+"""Validate v2 sheet geometry and provenance: native RO source proof or generated frame contracts.
+
+Generated art is checked against its own PNG hash and per-frame bounds, not claimed as original RO pixels.
+--source-cache adds pixel-perfect source proof only for native sheets with cached source frames.
+"""
 from __future__ import annotations
-import argparse,json,subprocess,sys
+import argparse,hashlib,json,re,subprocess,sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -89,8 +93,44 @@ def count_and_bbox(rgba):
  y,x=np.nonzero(a)
  return (int(x.min()),int(y.min()),int(x.max())+1,int(y.max())+1) if len(x) else None
 
+def generated_provenance_errors(sprite,png,cfg,configs):
+ """Check the authored sheet contract; the reference digest is a source identifier, not native pixel proof."""
+ sid=sprite['id'];errors=[];source=sprite.get('source')
+ if not isinstance(source,dict) or source.get('kind')!='generated':
+  return [f'{sid} generated source must be an object with kind=generated']
+ for field in ('method','version'):
+  value=source.get(field)
+  if not isinstance(value,str) or not value.strip():errors.append(f'{sid} generated source.{field} must be a nonempty string')
+ for field in ('referenceSheetSha256','sheetSha256'):
+  value=source.get(field)
+  if not isinstance(value,str) or re.fullmatch(r'[0-9a-f]{64}',value) is None:
+   errors.append(f'{sid} generated source.{field} must be a SHA-256 digest')
+  elif field=='sheetSha256' and value!=hashlib.sha256(png.read_bytes()).hexdigest():
+   errors.append(f'{sid} generated sheet SHA-256 mismatch')
+ expected_count=sum(a['frames'] for a in configs.values())
+ count=sprite.get('contractFrameCount')
+ if type(count) is not int or count!=expected_count:
+  errors.append(f'{sid} generated contractFrameCount must equal {expected_count}')
+ boxes=sprite.get('generatedFrameBboxes')
+ if not isinstance(boxes,dict):
+  errors.append(f'{sid} generatedFrameBboxes must be an object');return errors
+ if set(boxes)!=set(cfg['anims']):errors.append(f'{sid} generatedFrameBboxes animation names mismatch')
+ cw,ch=cfg['cell'];columns=cfg.get('columns',8)
+ for anim,conf in configs.items():
+  frames=conf['frames'];row=boxes.get(anim)
+  if type(frames) is not int or not 1<=frames<=columns:
+   errors.append(f'{sid}:{anim} invalid generated frame count');continue
+  if not isinstance(row,list) or len(row)!=frames:
+   errors.append(f'{sid}:{anim} generated bbox count must equal {frames}');continue
+  for col,box in enumerate(row):
+   if not isinstance(box,list) or len(box)!=4 or any(type(v) is not int for v in box):
+    errors.append(f'{sid}:{anim} generated bbox {col} must contain four integers');continue
+   if not (0<box[0]<box[2]<cw and 0<box[1]<box[3]<ch):
+    errors.append(f'{sid}:{anim} generated bbox {col} is outside the cell interior: {box}')
+ return errors
+
 def check(path=DEFAULT,source_cache=None,only=None):
- data=sprites_manifest.load(Path(path));errors=[]
+ data=sprites_manifest.load(Path(path));errors=[];generated_count=0;native_cache_frames=0
  def fail(msg):errors.append(msg)
  if data.get('schema')!=2 or data.get('columns')!=8:fail('schema=2 and columns=8 required')
  sprites=data.get('sprites',[])
@@ -115,14 +155,21 @@ def check(path=DEFAULT,source_cache=None,only=None):
    if raw.size!=(cw*columns,ch*len(anims)):fail(f'{sid} wrong sheet size {raw.size} expected {(cw*columns,ch*len(anims))}');continue
    if max(raw.size)>2048:fail(f'{sid} exceeds 2048')
    img=raw.convert('RGBA')
+  source=s.get('source');generated=isinstance(source,dict) and source.get('kind')=='generated'
+  configs={anim:{**data['anims'][anim],**data.get('animOverrides',{}).get(kind,{}).get(anim,{})} for anim in anims}
+  if generated:
+   proof_errors=generated_provenance_errors(s,png,cfg,configs)
+   if proof_errors:
+    errors.extend(proof_errors);continue
+   generated_count+=1
   used_alpha=set()
   for row,anim in enumerate(anims):
-   conf=dict(data['anims'][anim]);conf.update(data.get('animOverrides',{}).get(kind,{}).get(anim,{}));n=conf['frames']
+   conf=configs[anim];n=conf['frames']
    if n>8 or n<1 or conf['ms']<=0:fail(f'{sid}:{anim} invalid frames/ms');continue
    bboxes=[]
-   src_boxes=s.get('sourceFrameBboxes',{}).get(anim,[])
-   chosen=s.get('sourceFrameIndices',{}).get(anim,[])
-   if kind in NO_PROOF:total=None
+   src_boxes=[] if generated else s.get('sourceFrameBboxes',{}).get(anim,[])
+   chosen=[] if generated else s.get('sourceFrameIndices',{}).get(anim,[])
+   if generated or kind in NO_PROOF:total=None
    else:
     if len(src_boxes)!=n or len(chosen)!=n:fail(f'{sid}:{anim} source proof length != {n}')
     total=s.get('sourceFrameCounts',{}).get(anim,0)
@@ -141,10 +188,13 @@ def check(path=DEFAULT,source_cache=None,only=None):
      if b is None:fail(f'{sid}:{anim} frame {c} is empty');continue
      bboxes.append(b)
      if b[0]<=0 or b[1]<=0 or b[2]>=cw or b[3]>=ch:fail(f'{sid}:{anim} frame {c} touches cell edge: {b}')
-     if c<len(src_boxes):
+     if generated:
+      expected=tuple(s['generatedFrameBboxes'][anim][c])
+      if b!=expected:fail(f'{sid}:{anim} frame {c} generated bbox mismatch: {b} vs {expected}')
+     elif c<len(src_boxes):
       expected=(src_boxes[c][0]+ax,src_boxes[c][1]+ay,src_boxes[c][2]+ax,src_boxes[c][3]+ay)
       if b!=expected:fail(f'{sid}:{anim} frame {c} ACT origin/native bbox mismatch: {b} vs {expected}')
-     used_alpha.update(int(v) for v in np.unique(np.asarray(frame)[:,:,3]) if 0<int(v)<255)
+     if not generated:used_alpha.update(int(v) for v in np.unique(np.asarray(frame)[:,:,3]) if 0<int(v)<255)
      if source_cache and c<len(chosen) and 'sourceCacheFiles' in s:  # v1-converted sheets have no APNG cache
       source_file=Path(source_cache)/s['sourceCacheFiles'][anim]
       if not source_file.is_file():fail(f'{sid}:{anim} source missing {source_file}')
@@ -156,6 +206,7 @@ def check(path=DEFAULT,source_cache=None,only=None):
          # Source diagnostic canvas has fixed ACT origin (256,480).
          ox,oy=256-ax,480-ay
          original=full.crop((ox,oy,ox+cw,oy+ch))
+         native_cache_frames+=1
          if not np.array_equal(np.asarray(original),np.asarray(frame)):
           fail(f'{sid}:{anim} frame {c} pixels differ from original x1 source')
     elif b is not None:fail(f'{sid}:{anim} extra nonempty cell {c}')
@@ -164,7 +215,7 @@ def check(path=DEFAULT,source_cache=None,only=None):
     if s.get('bbox',{}).get(anim)!=union:fail(f'{sid}:{anim} bbox metadata mismatch')
    hit=s.get('hitFrames',{}).get(anim,conf.get('hitFrame'))
    if anim in ('attack','cast') and (not isinstance(hit,int) or hit<0 or hit>=n):fail(f'{sid}:{anim} invalid hitFrame')
-  if kind not in NO_PROOF and used_alpha-set(s.get('sourceAlphaValues',[])):fail(f'{sid} new semi-transparent alpha not present in source: {used_alpha-set(s.get("sourceAlphaValues",[]))}')
+  if not generated and kind not in NO_PROOF and used_alpha-set(s.get('sourceAlphaValues',[])):fail(f'{sid} new semi-transparent alpha not present in source: {used_alpha-set(s.get("sourceAlphaValues",[]))}')
   if portrait:
    p=ROOT/'assets'/portrait
    if not p.is_file():fail(f'{sid} missing portrait')
@@ -181,10 +232,10 @@ def check(path=DEFAULT,source_cache=None,only=None):
   return p.stat().st_size
  size,total,scope=delivered_payload(delivered_bytes)
  if size>BUDGET:fail(f'assets/sprites delivered payload {size} bytes exceeds 3 MB (WebP/PNG of sheets in dist + bundled sprites.json)')
- print(f'v2 sprites: {len(sprites)} entries; {size} delivered bytes ({scope}; all assets/sprites on disk: {total}); source pixel check: {bool(source_cache)}')
+ print(f'v2 sprites: {len(sprites)} entries; {size} delivered bytes ({scope}; all assets/sprites on disk: {total}); generated contracts: {generated_count}; native cached frames checked: {native_cache_frames}')
  for e in errors:print('FAIL',e)
  if errors:raise SystemExit(1)
- print('PASS all sprite dimensions, frames, edges, ACT origin/native pixels, alpha and size')
+ print('PASS sprite grids, frames, bounds, bbox and size; native RO sampling/origin/alpha proof; generated PNG hashes/frame contracts')
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,default=DEFAULT);p.add_argument('--source-cache',type=Path)

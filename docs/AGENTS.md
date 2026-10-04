@@ -629,7 +629,8 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 
 ## 5. Отрисовка
 
-- **Спрайты v2** — `docs/SPRITE_SPEC.md`: родной масштаб RO ×1, лицом вправо, точка ног — anchor клетки. Сетки: герой 224×192
+- **Спрайты v2** — `docs/SPRITE_SPEC.md`: исходные RO-листы в родном масштабе ×1; авторские dark-fantasy листы
+  отмечены `source.kind: generated` в provenance и сохраняют прежние сетки/анимации. Лицом вправо, точка ног — anchor клетки. Сетки: герой 224×192
   (anchor 104,144; 6 рядов idle/walk/attack/cast/hurt/death), монстр 240×224 (100,120; 5 рядов без cast), босс 256×256 (112,216).
   8 колонок, лист ≤ 2048 px. Реестр — `assets/sprites/sprites.json` (schema 2, только поля игры; доказательства конвейера —
   `sprites.provenance.json`, `tools/sprites_manifest.py`); `assets/sprites/fixes.json` — пропуск битых кадров (`skip`).
@@ -740,16 +741,22 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 - **Спрайты:** лист + запись в `assets/sprites/sprites.json` и `sprites.provenance.json` (обычно пишет `tools/build_sprites_v2.py`; старые листы `assets/ro` →
   `python3 tools/build_sprites_v2.py --from-v1`; правки прозрачности — `--alpha-fixes`); проверка `python3 tools/check_sprites.py`
   и python-тесты. Игра и сборка подхватывают реестр сами; юниту/профессии — `visual.sprite = <id>`.
+  Для generated-листов checker проверяет SHA-256, каждый bbox и контракт кадров; исходные RO-листы сохраняют
+  проверки ACT-origin, sampling и alpha, с `--source-cache PATH` — сравнение пикселей с источником.
 - **Клиент scRO (29.09):** `raw/ro/` — файлы клиента побайтно, `raw/ro-build/` — готовые листы, манифест и рендер SPR/ACT
   (`raw/ro-build/tools/build_sheets.py`, пути `ROOT/RAW/OUT` в начале файла — поправить на свои). Подключено 43 листа монстров
   (34 юнитам, 9 — глава 9 заранее) и NPC Кафры, см. `docs/RO_SCRO_IMPORT.md` и статус в `docs/ART_REQUEST_CHAPTERS.md`.
   Крупные классы сетки: `boss_xl` 296×296 и `boss_xxl` 340×376 (по 6 колонок; колонки берутся из класса —
   `normalizeV2`), `npc` — листы NPC для спикеров сюжета (`portrait: "npc_<имя>"` в `data/story`, лист попадает в dist через
-  `scripts/lib/used-assets.ts`). Бюджет `check_sprites.py` (3 МБ доставляемых спрайтов) после импорта превышен — 4.1 МБ.
+  `scripts/lib/used-assets.ts`). Бюджет `check_sprites.py` (3 МБ доставляемых спрайтов) превышен:
+  на базе `9b8da67` — 5 762 840 байт, с ready25 — 6 337 211. Это накопленный долг, порог не повышен;
+  подробная приёмка — `qa/graphics-integration-2026-10-04.md`.
 - **Иконки навыков RO:** `python3 tools/extract_ro_skill_icons.py` (список `SKILLS` в скрипте) → `assets/ui/icons/skill_<ro>.png`,
   затем строка в `RO_SKILL_ICONS` (`src/game/skillLook.ts`). Своя иконка навыка — просто `assets/ui/icons/skill_<id навыка>.png`.
 - **Эффекты:** атлас в `assets/effects/` + запись в `effects.json → effects`; привязка к навыку — `effects.json → skills`
   (роли hit/buff/debuff/cast/ground/projectile), WebP — `npm run assets:webp`; пошагово — `docs/CONTENT_RECIPES.md`, раздел 12а.
+  Инвентаризация: `python3 tools/ro_effect_inventory.py --ro-browser PATH`; путь к RO Browser задаётся явно.
+  Тестовые декларации парсера синтетические и не являются доказательством происхождения арта.
 - **Фоны:** `assets/backgrounds/bg_battle_ch<N>.jpg` / `bg_map_ch<N>.jpg` (720×1280 или 1080×1920, JPEG ради веса) — подхватываются glob'ом.
 - **UI:** PNG в `assets/ui/` + запись в `assets/manifest.json` с id скина — файл побеждает нарисованный.
 - После любого арта: `npm run content:check`, `npm run assets:report` (вес, листы > 2048), глазами — `npm run dev` или скриншоты e2e.

@@ -1,0 +1,324 @@
+{
+  "date": "2026-10-04",
+  "baseCommit": "9b8da67c921dc151e9321542cb5f1a02dff0d7da",
+  "artSourceCommit": "57feda1afe22427f3455f7e5fb591b29b13b29bf",
+  "sprites": [
+    {
+      "id": "melee",
+      "png": "sprites/monsters/melee.png",
+      "sha256": "2f79bb07a07dc55581acb63d243d7c75f4c2d8d1f558e1511bca14e153cd1ae9",
+      "webpBeforeBytes": 13972,
+      "webpAfterBytes": 34976,
+      "units": [
+        "mob_melee",
+        "mob2_melee"
+      ]
+    },
+    {
+      "id": "ranged",
+      "png": "sprites/monsters/ranged.png",
+      "sha256": "1c59543d1c3e8d5db17846f81d20b25545a8d1a0de87e995f3de3578676304f3",
+      "webpBeforeBytes": 18890,
+      "webpAfterBytes": 42846,
+      "units": [
+        "mob_ranged",
+        "mob2_ranged"
+      ]
+    },
+    {
+      "id": "tank",
+      "png": "sprites/monsters/tank.png",
+      "sha256": "908dae388794c44ec97c0d0b89cf8f8f5e5743d8f5d24b4d5c7a8100f3ef97b7",
+      "webpBeforeBytes": 24734,
+      "webpAfterBytes": 61766,
+      "units": [
+        "mob2_tank",
+        "mob_tank"
+      ]
+    },
+    {
+      "id": "fast",
+      "png": "sprites/monsters/fast.png",
+      "sha256": "b511322881bc7bae302dc53f4a45cd9852d7c8f1d60ba08cfba89239c181bb6f",
+      "webpBeforeBytes": 7852,
+      "webpAfterBytes": 14458,
+      "units": [
+        "mob_fast"
+      ]
+    },
+    {
+      "id": "elite",
+      "png": "sprites/monsters/elite.png",
+      "sha256": "0ce21cb17fcb457f1b50e493d0496a4b66ba9c8e047a5616d8ba614fd2f21534",
+      "webpBeforeBytes": 7048,
+      "webpAfterBytes": 12690,
+      "units": [
+        "mob_elite",
+        "sewer_golden_bug"
+      ]
+    },
+    {
+      "id": "drops",
+      "png": "sprites/monsters/drops.png",
+      "sha256": "5b8632f7eba4139a4846172ca211de36919c443bb341a83560ca726116d3ece6",
+      "webpBeforeBytes": 7790,
+      "webpAfterBytes": 13184,
+      "units": [
+        "mob_drops"
+      ]
+    },
+    {
+      "id": "poporing",
+      "png": "sprites/monsters/poporing.png",
+      "sha256": "42c996f073be7e5eae11c5e7b1c3becd93320b8b131203aa46587809bb4adcab",
+      "webpBeforeBytes": 7848,
+      "webpAfterBytes": 13102,
+      "units": [
+        "mob_poporing",
+        "mob2_giant"
+      ]
+    },
+    {
+      "id": "fabre",
+      "png": "sprites/monsters/fabre.png",
+      "sha256": "659bb3fb9811d57810adf7871ec4d241a37c9b93ae961d1b07f75cee30d5562e",
+      "webpBeforeBytes": 5824,
+      "webpAfterBytes": 8868,
+      "units": [
+        "mob_fabre"
+      ]
+    },
+    {
+      "id": "lunatic",
+      "png": "sprites/monsters/lunatic.png",
+      "sha256": "be9ab39f83c4ba18565b467c8c1071b8c7b664c93186cb1d9138a059c7dab952",
+      "webpBeforeBytes": 4574,
+      "webpAfterBytes": 10074,
+      "units": [
+        "mob_lunatic"
+      ]
+    },
+    {
+      "id": "rocker",
+      "png": "sprites/bosses/rocker.png",
+      "sha256": "023930dba10d046da3c7822123937137af9af2ce2215b94303594980da731f57",
+      "webpBeforeBytes": 20532,
+      "webpAfterBytes": 47046,
+      "units": [
+        "mob2_fast",
+        "mob_rocker"
+      ]
+    },
+    {
+      "id": "raydric",
+      "png": "sprites/monsters/raydric.png",
+      "sha256": "63f0aeded6bddae4639e69d46867ea43060f337dbc267ca7084e6924a651004d",
+      "webpBeforeBytes": 12824,
+      "webpAfterBytes": 37182,
+      "units": [
+        "mob3_tank"
+      ]
+    },
+    {
+      "id": "dark_priest",
+      "png": "sprites/monsters/dark_priest.png",
+      "sha256": "c241dc48862de3a1c6d03ca9761efa05bd67ce1f3f2f2517096f00d79aa59ec2",
+      "webpBeforeBytes": 17612,
+      "webpAfterBytes": 46278,
+      "units": [
+        "mob3_ranged"
+      ]
+    },
+    {
+      "id": "mummy",
+      "png": "sprites/monsters/mummy.png",
+      "sha256": "0340759cac17ff814e33aa0754739567f5b42d34d5ec0e2746312ce0fe7fca7d",
+      "webpBeforeBytes": 16100,
+      "webpAfterBytes": 45678,
+      "units": [
+        "mob4_melee"
+      ]
+    },
+    {
+      "id": "pirate_skel",
+      "png": "sprites/monsters/pirate_skel.png",
+      "sha256": "756ae7d83364640a0ef6dd89920018868ec67e39d9cbae688735078e639f0de9",
+      "webpBeforeBytes": 13050,
+      "webpAfterBytes": 30658,
+      "units": [
+        "mob6_bosun",
+        "mob6_melee"
+      ]
+    },
+    {
+      "id": "marin",
+      "png": "sprites/monsters/marin.png",
+      "sha256": "4a5b0363741fce76e42271d0687725a2f717935d2d8f571c267f4dc0cec57e8e",
+      "webpBeforeBytes": 7712,
+      "webpAfterBytes": 13592,
+      "units": [
+        "mob_marin"
+      ]
+    },
+    {
+      "id": "owl_duke",
+      "png": "sprites/monsters_xl/owl_duke.png",
+      "sha256": "e34c6fab13b44b08bcf322c8da3575deeba475e3862f250c0058242c8f70e53f",
+      "webpBeforeBytes": 21292,
+      "webpAfterBytes": 67596,
+      "units": [
+        "alde_owl_duke"
+      ]
+    },
+    {
+      "id": "ghoul",
+      "png": "sprites/monsters/ghoul.png",
+      "sha256": "a8a305567bbd0911f92ff1e412fe28db94332fd84e5774327ea7b914526880b5",
+      "webpBeforeBytes": 14138,
+      "webpAfterBytes": 38972,
+      "units": [
+        "mob3_melee"
+      ]
+    },
+    {
+      "id": "verit",
+      "png": "sprites/monsters/verit.png",
+      "sha256": "fa893831be7d56f69a94697990966bfac9ca3ed4ad4ec72b4268d992ad7b21d1",
+      "webpBeforeBytes": 13006,
+      "webpAfterBytes": 32852,
+      "units": [
+        "mob4_elite"
+      ]
+    },
+    {
+      "id": "mandragora",
+      "png": "sprites/monsters/mandragora.png",
+      "sha256": "ebbf2af5bf0c0a275523d40a23eeac773d9fb7f8de52d1a95392fad7231fb57d",
+      "webpBeforeBytes": 17292,
+      "webpAfterBytes": 30918,
+      "units": [
+        "mob_mandragora"
+      ]
+    },
+    {
+      "id": "sandman",
+      "png": "sprites/monsters/sandman.png",
+      "sha256": "c87848353c243f0ddf838f355b0ada4335e57d1a1122a8dfbc43bfe3d48ed2c5",
+      "webpBeforeBytes": 14044,
+      "webpAfterBytes": 38690,
+      "units": [
+        "mob4_tank"
+      ]
+    },
+    {
+      "id": "pupa",
+      "png": "sprites/monsters/pupa.png",
+      "sha256": "86651f3e4bbfe028b3ec0f60eb6338a1b2d14ce9fa5648b6889479e342f40767",
+      "webpBeforeBytes": 7392,
+      "webpAfterBytes": 13220,
+      "units": [
+        "mob_pupa"
+      ]
+    },
+    {
+      "id": "boss1",
+      "png": "sprites/bosses/boss1.png",
+      "sha256": "5f6ff14e9b5dc2e2889c236c2f66d1fdb60a86aed8cd43a34aefc89955ab0363",
+      "webpBeforeBytes": 33488,
+      "webpAfterBytes": 143946,
+      "units": [
+        "mob_boss1",
+        "orc_hero"
+      ]
+    },
+    {
+      "id": "thief_bug_male",
+      "png": "sprites/monsters/thief_bug_male.png",
+      "sha256": "c81f9824527e9ac24b0e97b90370a86a1c3ebb860cbd1bbcf2508471609d6996",
+      "webpBeforeBytes": 5194,
+      "webpAfterBytes": 8452,
+      "units": [
+        "sewer_bug_leader",
+        "sewer_bug_male"
+      ]
+    },
+    {
+      "id": "thief_bug_female",
+      "png": "sprites/monsters/thief_bug_female.png",
+      "sha256": "039022b5dfa5eebe7c1af24a96a8f0782a6857242b3cda07cf36904ecac27fc8",
+      "webpBeforeBytes": 5180,
+      "webpAfterBytes": 10170,
+      "units": [
+        "sewer_bug_female"
+      ]
+    },
+    {
+      "id": "marduk",
+      "png": "sprites/monsters/marduk.png",
+      "sha256": "4a5abd9ed6e80d95c6fc545b9c849cf87d4526a8e552019ab13df1e4cda97682",
+      "webpBeforeBytes": 25710,
+      "webpAfterBytes": 100260,
+      "units": [
+        "mob4_ranged"
+      ]
+    }
+  ],
+  "spriteCount": 25,
+  "referencingUnitCount": 34,
+  "sourceVerification": {
+    "browserSnapshotSha256": "5fdae16d2e2c331057386aab18302c2646a2cdfbdf2734ce6512d939a784c1f8",
+    "comparedFiles": 2352,
+    "changedSinceBrowser": [
+      "assets/sprites/sprites.json",
+      "assets/sprites/sprites.provenance.json"
+    ],
+    "otherWebpIndexEntriesUnchanged": true,
+    "referenceDigestsMatchBase": true,
+    "allReady25PngDigestsMatchFixture": true,
+    "changesAreProvenanceNotesAndJsonEofOnly": true,
+    "parsedRuntimeRegistryMatchesArtSource": true
+  },
+  "ready25WebpBytes": {
+    "before": 343098,
+    "after": 917474,
+    "delta": 574376
+  },
+  "legacyChecker": {
+    "beforeFailures": 66,
+    "afterFailures": 66,
+    "nonBudgetFailuresIdentical": true,
+    "beforeDeliveredBytes": 5762840,
+    "afterDeliveredBytes": 6337211,
+    "budgetBytes": 3000000,
+    "status": "existing debt remains"
+  },
+  "checks": {
+    "npmCheck": {
+      "exitCode": 0,
+      "vitestFiles": 183,
+      "vitestTests": 2068,
+      "nodeTests": 3
+    },
+    "python": {
+      "exitCode": 0,
+      "tests": 39
+    },
+    "build": {
+      "exitCode": 0,
+      "mainJsKb": 2904.78,
+      "mainJsGzipKb": 769.32
+    },
+    "browser": {
+      "status": "pass",
+      "widths": [
+        360,
+        390
+      ],
+      "renderedAnimationSeries": 500,
+      "playableFramesPerWidth": 598,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "failedRequests": 0
+    }
+  }
+}

@@ -12,6 +12,8 @@
 Переработка из `codex/rpg-autobattler` слита в main через PR #141 по прямому распоряжению владельца;
 клиент, четыре SQL-миграции и три Edge Function опубликованы. Актуальная точка входа — `docs/qa/overhaul-audit.md`,
 отчёт о production — `docs/qa/production-deployment-2026-10-04.md`.
+Дополнительный проход новой графики — `codex/graphics-integration`,
+приёмка и ограничения — `docs/qa/graphics-integration-2026-10-04.md`.
 Следующие изменения облачного протокола требуют согласованной публикации SQL/Edge Functions и клиента.
 
 Истории чата нет — всё нужное лежит в репозитории. Начинать отсюда:
@@ -39,7 +41,8 @@
 
 ## Git: как работает владелец
 
-- В текущем проходе рабочая ветка — `codex/rpg-autobattler`; `claude/idle-hero-rpg-gdd-rolicg` — историческая. Прод — `main` (Vercel собирает каждый пуш в main).
+- Рабочая ветка графики — `codex/graphics-integration`; `codex/rpg-autobattler` уже слита,
+  `claude/idle-hero-rpg-gdd-rolicg` — историческая. Прод — `main` (Vercel собирает каждый пуш в main).
 - Готовая работа → PR из рабочей ветки в `main` → слить, когда CI (`.github/workflows/check.yml`: check + build) зелёный →
   после слияния сбросить рабочую ветку на `origin/main` (`git fetch origin && git reset --hard origin/main`, затем push).
 - Владелец иногда сам кладёт арт прямо в `main` — перед работой подтянуть: `git fetch origin && git merge origin/main`.

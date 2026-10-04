@@ -1,0 +1,1439 @@
+{
+  "runs": [
+    {
+      "mode": "test",
+      "before": [
+        {
+          "id": "guard",
+          "def": {
+            "id": "guard",
+            "file": "sprites/heroes/guard.png",
+            "cell": [
+              224,
+              192
+            ],
+            "anchor": [
+              104,
+              144
+            ],
+            "columns": 8,
+            "scale": 3.2,
+            "anims": {
+              "idle": {
+                "row": 0,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ],
+                "loop": true
+              },
+              "walk": {
+                "row": 1,
+                "frames": 8,
+                "ms": [
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90
+                ],
+                "loop": true
+              },
+              "attack": {
+                "row": 2,
+                "frames": 6,
+                "ms": [
+                  80,
+                  80,
+                  80,
+                  80,
+                  80,
+                  80
+                ],
+                "hitFrame": 3
+              },
+              "cast": {
+                "row": 3,
+                "frames": 6,
+                "ms": [
+                  100,
+                  100,
+                  100,
+                  100,
+                  100,
+                  100
+                ],
+                "hitFrame": 4
+              },
+              "hurt": {
+                "row": 4,
+                "frames": 3,
+                "ms": [
+                  100,
+                  100,
+                  100
+                ]
+              },
+              "death": {
+                "row": 5,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ]
+              }
+            },
+            "portrait": "sprites/portraits/guard.png",
+            "top": 85,
+            "width": 83,
+            "boxes": {
+              "idle": [
+                78,
+                59,
+                161,
+                152
+              ],
+              "walk": [
+                82,
+                63,
+                130,
+                153
+              ],
+              "attack": [
+                56,
+                62,
+                213,
+                184
+              ],
+              "cast": [
+                56,
+                63,
+                213,
+                184
+              ],
+              "hurt": [
+                67,
+                72,
+                117,
+                150
+              ],
+              "death": [
+                68,
+                109,
+                136,
+                172
+              ]
+            },
+            "source": "v2"
+          },
+          "portraitExists": false
+        },
+        {
+          "id": "warrior",
+          "def": {
+            "id": "warrior",
+            "file": "sprites/heroes/warrior.png",
+            "cell": [
+              224,
+              192
+            ],
+            "anchor": [
+              104,
+              144
+            ],
+            "columns": 8,
+            "scale": 3.2,
+            "anims": {
+              "idle": {
+                "row": 0,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ],
+                "loop": true
+              },
+              "walk": {
+                "row": 1,
+                "frames": 8,
+                "ms": [
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90
+                ],
+                "loop": true
+              },
+              "attack": {
+                "row": 2,
+                "frames": 6,
+                "ms": [
+                  80,
+                  80,
+                  80,
+                  80,
+                  80,
+                  80
+                ],
+                "hitFrame": 3
+              },
+              "cast": {
+                "row": 3,
+                "frames": 6,
+                "ms": [
+                  100,
+                  100,
+                  100,
+                  100,
+                  100,
+                  100
+                ],
+                "hitFrame": 4
+              },
+              "hurt": {
+                "row": 4,
+                "frames": 3,
+                "ms": [
+                  100,
+                  100,
+                  100
+                ]
+              },
+              "death": {
+                "row": 5,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ]
+              }
+            },
+            "portrait": "sprites/portraits/warrior.png",
+            "top": 83,
+            "width": 64,
+            "boxes": {
+              "idle": [
+                89,
+                61,
+                153,
+                152
+              ],
+              "walk": [
+                81,
+                59,
+                134,
+                151
+              ],
+              "attack": [
+                54,
+                57,
+                198,
+                173
+              ],
+              "cast": [
+                78,
+                62,
+                132,
+                154
+              ],
+              "hurt": [
+                69,
+                67,
+                126,
+                150
+              ],
+              "death": [
+                64,
+                98,
+                137,
+                152
+              ]
+            },
+            "source": "v2"
+          },
+          "portraitExists": false
+        },
+        {
+          "id": "archer",
+          "def": {
+            "id": "archer",
+            "file": "sprites/heroes/archer.png",
+            "cell": [
+              224,
+              192
+            ],
+            "anchor": [
+              104,
+              144
+            ],
+            "columns": 8,
+            "scale": 3.2,
+            "anims": {
+              "idle": {
+                "row": 0,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ],
+                "loop": true
+              },
+              "walk": {
+                "row": 1,
+                "frames": 8,
+                "ms": [
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90
+                ],
+                "loop": true
+              },
+              "attack": {
+                "row": 2,
+                "frames": 6,
+                "ms": [
+                  80,
+                  80,
+                  80,
+                  80,
+                  80,
+                  80
+                ],
+                "hitFrame": 3
+              },
+              "cast": {
+                "row": 3,
+                "frames": 6,
+                "ms": [
+                  100,
+                  100,
+                  100,
+                  100,
+                  100,
+                  100
+                ],
+                "hitFrame": 4
+              },
+              "hurt": {
+                "row": 4,
+                "frames": 3,
+                "ms": [
+                  100,
+                  100,
+                  100
+                ]
+              },
+              "death": {
+                "row": 5,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ]
+              }
+            },
+            "portrait": "sprites/portraits/archer.png",
+            "top": 85,
+            "width": 48,
+            "boxes": {
+              "idle": [
+                89,
+                59,
+                137,
+                152
+              ],
+              "walk": [
+                84,
+                63,
+                130,
+                150
+              ],
+              "attack": [
+                82,
+                62,
+                138,
+                153
+              ],
+              "cast": [
+                82,
+                58,
+                144,
+                150
+              ],
+              "hurt": [
+                82,
+                75,
+                125,
+                152
+              ],
+              "death": [
+                67,
+                108,
+                135,
+                160
+              ]
+            },
+            "source": "v2"
+          },
+          "portraitExists": false
+        },
+        {
+          "id": "mage",
+          "def": {
+            "id": "mage",
+            "file": "sprites/heroes/mage.png",
+            "cell": [
+              224,
+              192
+            ],
+            "anchor": [
+              104,
+              144
+            ],
+            "columns": 8,
+            "scale": 3.2,
+            "anims": {
+              "idle": {
+                "row": 0,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ],
+                "loop": true
+              },
+              "walk": {
+                "row": 1,
+                "frames": 8,
+                "ms": [
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90
+                ],
+                "loop": true
+              },
+              "attack": {
+                "row": 2,
+                "frames": 6,
+                "ms": [
+                  80,
+                  80,
+                  80,
+                  80,
+                  80,
+                  80
+                ],
+                "hitFrame": 3
+              },
+              "cast": {
+                "row": 3,
+                "frames": 6,
+                "ms": [
+                  100,
+                  100,
+                  100,
+                  100,
+                  100,
+                  100
+                ],
+                "hitFrame": 4
+              },
+              "hurt": {
+                "row": 4,
+                "frames": 3,
+                "ms": [
+                  100,
+                  100,
+                  100
+                ]
+              },
+              "death": {
+                "row": 5,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ]
+              }
+            },
+            "portrait": "sprites/portraits/mage.png",
+            "top": 83,
+            "width": 38,
+            "boxes": {
+              "idle": [
+                86,
+                61,
+                124,
+                152
+              ],
+              "walk": [
+                84,
+                61,
+                130,
+                152
+              ],
+              "attack": [
+                54,
+                50,
+                152,
+                153
+              ],
+              "cast": [
+                73,
+                57,
+                131,
+                151
+              ],
+              "hurt": [
+                76,
+                74,
+                122,
+                149
+              ],
+              "death": [
+                65,
+                106,
+                140,
+                158
+              ]
+            },
+            "source": "v2"
+          },
+          "portraitExists": false
+        },
+        {
+          "id": "priest",
+          "def": {
+            "id": "priest",
+            "file": "sprites/heroes/priest.png",
+            "cell": [
+              224,
+              192
+            ],
+            "anchor": [
+              104,
+              144
+            ],
+            "columns": 8,
+            "scale": 3.2,
+            "anims": {
+              "idle": {
+                "row": 0,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ],
+                "loop": true
+              },
+              "walk": {
+                "row": 1,
+                "frames": 8,
+                "ms": [
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90
+                ],
+                "loop": true
+              },
+              "attack": {
+                "row": 2,
+                "frames": 6,
+                "ms": [
+                  80,
+                  80,
+                  80,
+                  80,
+                  80,
+                  80
+                ],
+                "hitFrame": 3
+              },
+              "cast": {
+                "row": 3,
+                "frames": 6,
+                "ms": [
+                  100,
+                  100,
+                  100,
+                  100,
+                  100,
+                  100
+                ],
+                "hitFrame": 4
+              },
+              "hurt": {
+                "row": 4,
+                "frames": 3,
+                "ms": [
+                  100,
+                  100,
+                  100
+                ]
+              },
+              "death": {
+                "row": 5,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ]
+              }
+            },
+            "portrait": "sprites/portraits/priest.png",
+            "top": 83,
+            "width": 37,
+            "boxes": {
+              "idle": [
+                86,
+                61,
+                123,
+                153
+              ],
+              "walk": [
+                86,
+                61,
+                132,
+                151
+              ],
+              "attack": [
+                68,
+                60,
+                152,
+                153
+              ],
+              "cast": [
+                88,
+                58,
+                123,
+                152
+              ],
+              "hurt": [
+                73,
+                71,
+                121,
+                154
+              ],
+              "death": [
+                57,
+                107,
+                128,
+                161
+              ]
+            },
+            "source": "v2"
+          },
+          "portraitExists": false
+        }
+      ],
+      "trigger": "fresh context; Campaign stopped; test roster guard/warrior/archer/mage/priest vs mob_fabre/mob_lunatic/mob_drops/mob_rocker; Battle mode test seed20261004",
+      "after": {
+        "clock": 0.3632666666666665,
+        "roster": [
+          {
+            "unit": "guard",
+            "sprite": "guard"
+          },
+          {
+            "unit": "warrior",
+            "sprite": "warrior"
+          },
+          {
+            "unit": "archer",
+            "sprite": "archer"
+          },
+          {
+            "unit": "mage",
+            "sprite": "mage"
+          },
+          {
+            "unit": "priest",
+            "sprite": "priest"
+          },
+          {
+            "unit": "mob_fabre",
+            "sprite": "fabre"
+          },
+          {
+            "unit": "mob_lunatic",
+            "sprite": "lunatic"
+          },
+          {
+            "unit": "mob_drops",
+            "sprite": "drops"
+          },
+          {
+            "unit": "mob_rocker",
+            "sprite": "rocker"
+          }
+        ],
+        "errors": [
+          {
+            "message": "Texture key already in use: portrait_guard",
+            "stack": "Error: console.error capture\n    at console.error (<anonymous>:5:119)\n    at console.<computed> [as error] (http://127.0.0.1:5296/@vite/client:299:4)\n    at TextureManager.checkKey (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:76814:39)\n    at TextureManager.addImage (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:76954:13)\n    at ImageFile.addToCache (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131678:22)\n    at LoaderPlugin.fileProcessComplete (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:138811:11)\n    at ImageFile.onProcessComplete (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131077:16)\n    at data.onload (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131621:11)"
+          },
+          {
+            "message": "Texture key already in use: portrait_archer",
+            "stack": "Error: console.error capture\n    at console.error (<anonymous>:5:119)\n    at console.<computed> [as error] (http://127.0.0.1:5296/@vite/client:299:4)\n    at TextureManager.checkKey (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:76814:39)\n    at TextureManager.addImage (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:76954:13)\n    at ImageFile.addToCache (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131678:22)\n    at LoaderPlugin.fileProcessComplete (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:138811:11)\n    at ImageFile.onProcessComplete (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131077:16)\n    at data.onload (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131621:11)"
+          },
+          {
+            "message": "Texture key already in use: portrait_warrior",
+            "stack": "Error: console.error capture\n    at console.error (<anonymous>:5:119)\n    at console.<computed> [as error] (http://127.0.0.1:5296/@vite/client:299:4)\n    at TextureManager.checkKey (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:76814:39)\n    at TextureManager.addImage (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:76954:13)\n    at ImageFile.addToCache (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131678:22)\n    at LoaderPlugin.fileProcessComplete (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:138811:11)\n    at ImageFile.onProcessComplete (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131077:16)\n    at data.onload (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131621:11)"
+          },
+          {
+            "message": "Texture key already in use: portrait_priest",
+            "stack": "Error: console.error capture\n    at console.error (<anonymous>:5:119)\n    at console.<computed> [as error] (http://127.0.0.1:5296/@vite/client:299:4)\n    at TextureManager.checkKey (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:76814:39)\n    at TextureManager.addImage (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:76954:13)\n    at ImageFile.addToCache (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131678:22)\n    at LoaderPlugin.fileProcessComplete (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:138811:11)\n    at ImageFile.onProcessComplete (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131077:16)\n    at data.onload (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131621:11)"
+          },
+          {
+            "message": "Texture key already in use: portrait_mage",
+            "stack": "Error: console.error capture\n    at console.error (<anonymous>:5:119)\n    at console.<computed> [as error] (http://127.0.0.1:5296/@vite/client:299:4)\n    at TextureManager.checkKey (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:76814:39)\n    at TextureManager.addImage (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:76954:13)\n    at ImageFile.addToCache (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131678:22)\n    at LoaderPlugin.fileProcessComplete (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:138811:11)\n    at ImageFile.onProcessComplete (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131077:16)\n    at data.onload (http://127.0.0.1:5296/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=ce943e4d:131621:11)"
+          }
+        ]
+      }
+    },
+    {
+      "mode": "campaign",
+      "before": [
+        {
+          "id": "guard",
+          "def": {
+            "id": "guard",
+            "file": "sprites/heroes/guard.png",
+            "cell": [
+              224,
+              192
+            ],
+            "anchor": [
+              104,
+              144
+            ],
+            "columns": 8,
+            "scale": 3.2,
+            "anims": {
+              "idle": {
+                "row": 0,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ],
+                "loop": true
+              },
+              "walk": {
+                "row": 1,
+                "frames": 8,
+                "ms": [
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90
+                ],
+                "loop": true
+              },
+              "attack": {
+                "row": 2,
+                "frames": 6,
+                "ms": [
+                  80,
+                  80,
+                  80,
+                  80,
+                  80,
+                  80
+                ],
+                "hitFrame": 3
+              },
+              "cast": {
+                "row": 3,
+                "frames": 6,
+                "ms": [
+                  100,
+                  100,
+                  100,
+                  100,
+                  100,
+                  100
+                ],
+                "hitFrame": 4
+              },
+              "hurt": {
+                "row": 4,
+                "frames": 3,
+                "ms": [
+                  100,
+                  100,
+                  100
+                ]
+              },
+              "death": {
+                "row": 5,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ]
+              }
+            },
+            "portrait": "sprites/portraits/guard.png",
+            "top": 85,
+            "width": 83,
+            "boxes": {
+              "idle": [
+                78,
+                59,
+                161,
+                152
+              ],
+              "walk": [
+                82,
+                63,
+                130,
+                153
+              ],
+              "attack": [
+                56,
+                62,
+                213,
+                184
+              ],
+              "cast": [
+                56,
+                63,
+                213,
+                184
+              ],
+              "hurt": [
+                67,
+                72,
+                117,
+                150
+              ],
+              "death": [
+                68,
+                109,
+                136,
+                172
+              ]
+            },
+            "source": "v2"
+          },
+          "portraitExists": false
+        },
+        {
+          "id": "warrior",
+          "def": {
+            "id": "warrior",
+            "file": "sprites/heroes/warrior.png",
+            "cell": [
+              224,
+              192
+            ],
+            "anchor": [
+              104,
+              144
+            ],
+            "columns": 8,
+            "scale": 3.2,
+            "anims": {
+              "idle": {
+                "row": 0,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ],
+                "loop": true
+              },
+              "walk": {
+                "row": 1,
+                "frames": 8,
+                "ms": [
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90
+                ],
+                "loop": true
+              },
+              "attack": {
+                "row": 2,
+                "frames": 6,
+                "ms": [
+                  80,
+                  80,
+                  80,
+                  80,
+                  80,
+                  80
+                ],
+                "hitFrame": 3
+              },
+              "cast": {
+                "row": 3,
+                "frames": 6,
+                "ms": [
+                  100,
+                  100,
+                  100,
+                  100,
+                  100,
+                  100
+                ],
+                "hitFrame": 4
+              },
+              "hurt": {
+                "row": 4,
+                "frames": 3,
+                "ms": [
+                  100,
+                  100,
+                  100
+                ]
+              },
+              "death": {
+                "row": 5,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ]
+              }
+            },
+            "portrait": "sprites/portraits/warrior.png",
+            "top": 83,
+            "width": 64,
+            "boxes": {
+              "idle": [
+                89,
+                61,
+                153,
+                152
+              ],
+              "walk": [
+                81,
+                59,
+                134,
+                151
+              ],
+              "attack": [
+                54,
+                57,
+                198,
+                173
+              ],
+              "cast": [
+                78,
+                62,
+                132,
+                154
+              ],
+              "hurt": [
+                69,
+                67,
+                126,
+                150
+              ],
+              "death": [
+                64,
+                98,
+                137,
+                152
+              ]
+            },
+            "source": "v2"
+          },
+          "portraitExists": false
+        },
+        {
+          "id": "archer",
+          "def": {
+            "id": "archer",
+            "file": "sprites/heroes/archer.png",
+            "cell": [
+              224,
+              192
+            ],
+            "anchor": [
+              104,
+              144
+            ],
+            "columns": 8,
+            "scale": 3.2,
+            "anims": {
+              "idle": {
+                "row": 0,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ],
+                "loop": true
+              },
+              "walk": {
+                "row": 1,
+                "frames": 8,
+                "ms": [
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90
+                ],
+                "loop": true
+              },
+              "attack": {
+                "row": 2,
+                "frames": 6,
+                "ms": [
+                  80,
+                  80,
+                  80,
+                  80,
+                  80,
+                  80
+                ],
+                "hitFrame": 3
+              },
+              "cast": {
+                "row": 3,
+                "frames": 6,
+                "ms": [
+                  100,
+                  100,
+                  100,
+                  100,
+                  100,
+                  100
+                ],
+                "hitFrame": 4
+              },
+              "hurt": {
+                "row": 4,
+                "frames": 3,
+                "ms": [
+                  100,
+                  100,
+                  100
+                ]
+              },
+              "death": {
+                "row": 5,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ]
+              }
+            },
+            "portrait": "sprites/portraits/archer.png",
+            "top": 85,
+            "width": 48,
+            "boxes": {
+              "idle": [
+                89,
+                59,
+                137,
+                152
+              ],
+              "walk": [
+                84,
+                63,
+                130,
+                150
+              ],
+              "attack": [
+                82,
+                62,
+                138,
+                153
+              ],
+              "cast": [
+                82,
+                58,
+                144,
+                150
+              ],
+              "hurt": [
+                82,
+                75,
+                125,
+                152
+              ],
+              "death": [
+                67,
+                108,
+                135,
+                160
+              ]
+            },
+            "source": "v2"
+          },
+          "portraitExists": false
+        },
+        {
+          "id": "mage",
+          "def": {
+            "id": "mage",
+            "file": "sprites/heroes/mage.png",
+            "cell": [
+              224,
+              192
+            ],
+            "anchor": [
+              104,
+              144
+            ],
+            "columns": 8,
+            "scale": 3.2,
+            "anims": {
+              "idle": {
+                "row": 0,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ],
+                "loop": true
+              },
+              "walk": {
+                "row": 1,
+                "frames": 8,
+                "ms": [
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90
+                ],
+                "loop": true
+              },
+              "attack": {
+                "row": 2,
+                "frames": 6,
+                "ms": [
+                  80,
+                  80,
+                  80,
+                  80,
+                  80,
+                  80
+                ],
+                "hitFrame": 3
+              },
+              "cast": {
+                "row": 3,
+                "frames": 6,
+                "ms": [
+                  100,
+                  100,
+                  100,
+                  100,
+                  100,
+                  100
+                ],
+                "hitFrame": 4
+              },
+              "hurt": {
+                "row": 4,
+                "frames": 3,
+                "ms": [
+                  100,
+                  100,
+                  100
+                ]
+              },
+              "death": {
+                "row": 5,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ]
+              }
+            },
+            "portrait": "sprites/portraits/mage.png",
+            "top": 83,
+            "width": 38,
+            "boxes": {
+              "idle": [
+                86,
+                61,
+                124,
+                152
+              ],
+              "walk": [
+                84,
+                61,
+                130,
+                152
+              ],
+              "attack": [
+                54,
+                50,
+                152,
+                153
+              ],
+              "cast": [
+                73,
+                57,
+                131,
+                151
+              ],
+              "hurt": [
+                76,
+                74,
+                122,
+                149
+              ],
+              "death": [
+                65,
+                106,
+                140,
+                158
+              ]
+            },
+            "source": "v2"
+          },
+          "portraitExists": false
+        },
+        {
+          "id": "priest",
+          "def": {
+            "id": "priest",
+            "file": "sprites/heroes/priest.png",
+            "cell": [
+              224,
+              192
+            ],
+            "anchor": [
+              104,
+              144
+            ],
+            "columns": 8,
+            "scale": 3.2,
+            "anims": {
+              "idle": {
+                "row": 0,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ],
+                "loop": true
+              },
+              "walk": {
+                "row": 1,
+                "frames": 8,
+                "ms": [
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90,
+                  90
+                ],
+                "loop": true
+              },
+              "attack": {
+                "row": 2,
+                "frames": 6,
+                "ms": [
+                  80,
+                  80,
+                  80,
+                  80,
+                  80,
+                  80
+                ],
+                "hitFrame": 3
+              },
+              "cast": {
+                "row": 3,
+                "frames": 6,
+                "ms": [
+                  100,
+                  100,
+                  100,
+                  100,
+                  100,
+                  100
+                ],
+                "hitFrame": 4
+              },
+              "hurt": {
+                "row": 4,
+                "frames": 3,
+                "ms": [
+                  100,
+                  100,
+                  100
+                ]
+              },
+              "death": {
+                "row": 5,
+                "frames": 4,
+                "ms": [
+                  150,
+                  150,
+                  150,
+                  150
+                ]
+              }
+            },
+            "portrait": "sprites/portraits/priest.png",
+            "top": 83,
+            "width": 37,
+            "boxes": {
+              "idle": [
+                86,
+                61,
+                123,
+                153
+              ],
+              "walk": [
+                86,
+                61,
+                132,
+                151
+              ],
+              "attack": [
+                68,
+                60,
+                152,
+                153
+              ],
+              "cast": [
+                88,
+                58,
+                123,
+                152
+              ],
+              "hurt": [
+                73,
+                71,
+                121,
+                154
+              ],
+              "death": [
+                57,
+                107,
+                128,
+                161
+              ]
+            },
+            "source": "v2"
+          },
+          "portraitExists": false
+        }
+      ],
+      "stage": {
+        "objects": 56,
+        "errors": 0
+      },
+      "trigger": "normal save starter squad; chapter1 intro already seen in browser-only fixture; Stage(ch1_s1).fight() actual production handler → startStageBattle → Battle mode stage",
+      "after": {
+        "clock": 0.33319999999999894,
+        "roster": [
+          {
+            "unit": "h1",
+            "sprite": "hero_alan_first_profession_detail_v1"
+          },
+          {
+            "unit": "h2",
+            "sprite": "hero_bran_first_profession_detail_v1"
+          },
+          {
+            "unit": "h3",
+            "sprite": "hero_vika_acolyte_details_v2"
+          },
+          {
+            "unit": "ch1_s1_0",
+            "sprite": "fabre"
+          },
+          {
+            "unit": "ch1_s1_1",
+            "sprite": "fabre"
+          }
+        ],
+        "errors": []
+      }
+    }
+  ]
+}

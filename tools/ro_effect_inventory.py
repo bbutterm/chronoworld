@@ -14,8 +14,9 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RB = Path('/root/roBrowserLegacy')
 COMPONENTS = ('cast', 'projectile', 'hit', 'area', 'buff', 'debuff')
+SOURCE_FILES = ('src/DB/Skills/SkillEffect.js', 'src/DB/Effects/EffectConst.js',
+                'src/DB/Effects/EffectTable.js')
 SOURCE_FIELDS = {
     'beginCastEffectId': 'cast', 'effectIdOnCaster': 'cast',
     'releaseEffectId': 'projectile', 'beforeHitEffectId': 'projectile',
@@ -99,9 +100,16 @@ def brief_rows(path: Path) -> list[dict]:
 
 
 def source_index(rb: Path) -> tuple[dict, set[str]]:
-    src = (rb / 'src/DB/Skills/SkillEffect.js').read_text(encoding='utf-8')
-    constants = (rb / 'src/DB/Effects/EffectConst.js').read_text(encoding='utf-8')
-    table = (rb / 'src/DB/Effects/EffectTable.js').read_text(encoding='utf-8')
+    sources = []
+    for relative in SOURCE_FILES:
+        path = rb / relative
+        try:
+            sources.append(path.read_text(encoding='utf-8'))
+        except OSError as exc:
+            raise ValueError(f'Cannot read RO Browser source {path}: {exc.strerror}. '
+                             'Pass --ro-browser PATH to a checkout containing '
+                             'SkillEffect.js, EffectConst.js and EffectTable.js.') from exc
+    src, constants, table = sources
     ids = set(re.findall(r'\bEF_[A-Z0-9_]+\s*:\s*(-?\d+)', constants))
     entries = {}
     # Deliberately parse only declarative single-line literals. Dynamic callbacks,
@@ -164,7 +172,7 @@ def inventory(brief: Path, manifest: Path, rb: Path) -> dict:
             # The manifest uses `ground` for the brief's requested area role.
             # No projectile travel or success-only hook is claimed by a hit mapping.
             event = 'ground' if role == 'area' else role
-            fx_id = mapped.get(event) if event in ('hit', 'buff', 'cast', 'ground', 'debuff') else None
+            fx_id = mapped.get(event) if event in ('hit', 'buff', 'cast', 'ground', 'debuff', 'projectile') else None
             present = fx_id in row['atlases'] if fx_id else False
             possible = [c for c in row['source_candidates'] if c['role'] in (role, 'contextual')]
             # An unrelated sheet under the same skill prefix cannot close a gap.
@@ -213,11 +221,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--brief', type=Path, default=ROOT / 'docs/ART_REQUEST_SKILLS.md')
     parser.add_argument('--manifest', type=Path, default=ROOT / 'assets/effects/effects.json')
-    parser.add_argument('--ro-browser', type=Path, default=RB)
+    parser.add_argument('--ro-browser', type=Path, required=True,
+                        help='Path to an RO Browser checkout containing src/DB/Skills and src/DB/Effects')
     parser.add_argument('--json-out', type=Path, default=Path('/tmp/ro-effect-inventory.json'))
     parser.add_argument('--csv-out', type=Path, default=Path('/tmp/ro-effect-inventory.csv'))
     args = parser.parse_args()
-    ledger = inventory(args.brief, args.manifest, args.ro_browser)
+    try:
+        ledger = inventory(args.brief, args.manifest, args.ro_browser)
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
     write_ledger(ledger, args.json_out, args.csv_out)
     print(json.dumps(ledger['summary'], ensure_ascii=False, sort_keys=True))
     print(f'JSON: {args.json_out}\nCSV: {args.csv_out}')
