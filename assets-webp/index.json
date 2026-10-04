@@ -595,9 +595,9 @@
   "webp": 36522
  },
  "sprites/bosses/boss1.png": {
-  "sha1": "f3c1faea0d82e8ec4871f1ee2025fe6e0237d9f6",
-  "png": 76447,
-  "webp": 33488
+  "sha1": "37729a04c889f6400b78c94aced7e6a20d6bd77a",
+  "png": 531761,
+  "webp": 143946
  },
  "sprites/bosses/boss2.png": {
   "sha1": "3f6c214c8620864ca793a7943c56ce09cedb9847",
@@ -690,9 +690,9 @@
   "webp": 15964
  },
  "sprites/bosses/rocker.png": {
-  "sha1": "26f4129f0c0ea3faf897fba40f5707618d2394c3",
-  "png": 30061,
-  "webp": 20532
+  "sha1": "aa6eb69c268af87c15eceddeaa802e8d9c826299",
+  "png": 242342,
+  "webp": 47046
  },
  "sprites/bosses/smokie.png": {
   "sha1": "ae0a13fac4773a24fdabe0f469f457391f321cd3",
@@ -1085,9 +1085,9 @@
   "webp": 21874
  },
  "sprites/monsters/dark_priest.png": {
-  "sha1": "ada533b3196805a6f9d43c99727d63dc5ea6f512",
-  "png": 28997,
-  "webp": 17612
+  "sha1": "66e670512245ce39989c55fffe1391ff463697e8",
+  "png": 209533,
+  "webp": 46278
  },
  "sprites/monsters/doppelganger.png": {
   "sha1": "ea5f8c58d04789a7902560cd731304c356b558ee",
@@ -1095,9 +1095,9 @@
   "webp": 13534
  },
  "sprites/monsters/drops.png": {
-  "sha1": "a92d560a789b8292d22dc26779fe6527fb4aaec2",
-  "png": 11847,
-  "webp": 7790
+  "sha1": "f5ddf7c0fc911f2eba54d5eaf403f02c8bb5d158",
+  "png": 72438,
+  "webp": 13184
  },
  "sprites/monsters/eclipse.png": {
   "sha1": "8b86dba779f27782cde289de8fcf281a1089f090",
@@ -1105,19 +1105,19 @@
   "webp": 5900
  },
  "sprites/monsters/elite.png": {
-  "sha1": "90898543984bebb4a44d71c4aa76521db6797e36",
-  "png": 11205,
-  "webp": 7048
+  "sha1": "59606295130e2819aded626366f81a3e3a9ebe02",
+  "png": 84009,
+  "webp": 12690
  },
  "sprites/monsters/fabre.png": {
-  "sha1": "b7b42ed6a9422a50054f3360d5b07a89fbdd3b40",
-  "png": 10430,
-  "webp": 5824
+  "sha1": "6f6fcdd414a29b08027a0102ffe9dfb4cb42c845",
+  "png": 52664,
+  "webp": 8868
  },
  "sprites/monsters/fast.png": {
-  "sha1": "b68e2760817cb2c7391f0c1267299a0c7f0aadf9",
-  "png": 11842,
-  "webp": 7852
+  "sha1": "df8f5cd8f234b7caf99b28125782dfea9478aed3",
+  "png": 81149,
+  "webp": 14458
  },
  "sprites/monsters/gargoyle.png": {
   "sha1": "ed48aff54e2db3cd63932289ed585c972e8950fc",
@@ -1125,9 +1125,9 @@
   "webp": 20646
  },
  "sprites/monsters/ghoul.png": {
-  "sha1": "285c7907b35babfd6f1750415e9cdfff4c5705ae",
-  "png": 23573,
-  "webp": 14138
+  "sha1": "deb52f9c4af9aaf6bd39e049135afd5a49134326",
+  "png": 166066,
+  "webp": 38972
  },
  "sprites/monsters/gibbet.png": {
   "sha1": "27d643c36d2d49ccae0ee0944cd47fdc00148b62",
@@ -1160,14 +1160,14 @@
   "webp": 35334
  },
  "sprites/monsters/lunatic.png": {
-  "sha1": "be351e6e2a0441633260b6497017cb80a75b5a5f",
-  "png": 6643,
-  "webp": 4574
+  "sha1": "8b44647f6b4a3e5b2a99b9e60fb3d00d80e5eebd",
+  "png": 62451,
+  "webp": 10074
  },
  "sprites/monsters/mandragora.png": {
-  "sha1": "8f77ec68e93418c99b18b0d06333611c65208185",
-  "png": 30138,
-  "webp": 17292
+  "sha1": "0508defd73681a1c14a562ab4ac16cde2b749de6",
+  "png": 180065,
+  "webp": 30918
  },
  "sprites/monsters/mantis.png": {
   "sha1": "fcdeee14b382784d4f53526a1a40fb4faede07f7",
@@ -1175,14 +1175,14 @@
   "webp": 9930
  },
  "sprites/monsters/marduk.png": {
-  "sha1": "0bc1f95583b1290bd4706cd149f4a4168ced24ba",
-  "png": 54265,
-  "webp": 25710
+  "sha1": "501df31deb007daf789cad68f96251db231f31e2",
+  "png": 391995,
+  "webp": 100260
  },
  "sprites/monsters/marin.png": {
-  "sha1": "ce48a61ec889b8be4d84044520c80e12db41c900",
-  "png": 13395,
-  "webp": 7712
+  "sha1": "6d4f8e08fccafe59efadd4f1e9aab2304427f1e6",
+  "png": 72778,
+  "webp": 13592
  },
  "sprites/monsters/marse.png": {
   "sha1": "54fdfa97e440ba4b9b98463517c1b25c6e0977d5",
@@ -1190,9 +1190,9 @@
   "webp": 6596
  },
  "sprites/monsters/melee.png": {
-  "sha1": "41663fbc6ccf6d1a92f52be0cd28074abcf6e10d",
-  "png": 19838,
-  "webp": 13972
+  "sha1": "bf484fa982e8a8fdddf651d603fb39b5b8bd1fc0",
+  "png": 146285,
+  "webp": 34976
  },
  "sprites/monsters/mimic.png": {
   "sha1": "c126adf560b7e2eb20fa43cba746a4d07a19db47",
@@ -1200,9 +1200,9 @@
   "webp": 13556
  },
  "sprites/monsters/mummy.png": {
-  "sha1": "a13a7df3685f19b8c806f3f32fe17bb29dfa19e3",
-  "png": 19439,
-  "webp": 16100
+  "sha1": "faed2031970c5032c9fab0ad33974aaf053b870e",
+  "png": 205060,
+  "webp": 45678
  },
  "sprites/monsters/munak.png": {
   "sha1": "4d4b50d2866ff06352611fb3878ec1990abc8d94",
@@ -1235,9 +1235,9 @@
   "webp": 11606
  },
  "sprites/monsters/pirate_skel.png": {
-  "sha1": "db8b016602a19ff0aa64af4047a1a1032b98d6ad",
-  "png": 17690,
-  "webp": 13050
+  "sha1": "d85a7da400ab6faa66317d34013f63de2d101f15",
+  "png": 147390,
+  "webp": 30658
  },
  "sprites/monsters/plankton.png": {
   "sha1": "d593b93b8c5aa852070f2e634e2fe4746e7fe6af",
@@ -1245,9 +1245,9 @@
   "webp": 4008
  },
  "sprites/monsters/poporing.png": {
-  "sha1": "6808b812460c446e4a8a3c57049c233296f07d62",
-  "png": 11849,
-  "webp": 7848
+  "sha1": "2d65f31aabd6aceb23017c54a3109bf01fd709ad",
+  "png": 69010,
+  "webp": 13102
  },
  "sprites/monsters/punk.png": {
   "sha1": "c0ca57fe3436e7555261758121bbe9475c059827",
@@ -1255,9 +1255,9 @@
   "webp": 11340
  },
  "sprites/monsters/pupa.png": {
-  "sha1": "8b6f0eae19f9d08e68d959ac9c34ce42cf846bac",
-  "png": 11512,
-  "webp": 7392
+  "sha1": "6fe0bbd448d0364d61e7bec0a0d3d29b65ac8e59",
+  "png": 67667,
+  "webp": 13220
  },
  "sprites/monsters/quve.png": {
   "sha1": "5a4022369656ae531bf143aa7528ccfd1a11c2e9",
@@ -1265,14 +1265,14 @@
   "webp": 4932
  },
  "sprites/monsters/ranged.png": {
-  "sha1": "a5fba430cffa4e810e04fe535324f8bd589af2c1",
-  "png": 25980,
-  "webp": 18890
+  "sha1": "454417c10b64ed260ce630584ed863bb97eee346",
+  "png": 187260,
+  "webp": 42846
  },
  "sprites/monsters/raydric.png": {
-  "sha1": "adeab631c81b4cba3ce9a4e4db84466f724e6407",
-  "png": 19905,
-  "webp": 12824
+  "sha1": "acfdd31462884b1ff062c1b88e3ea8f26dcc834c",
+  "png": 164012,
+  "webp": 37182
  },
  "sprites/monsters/rideword.png": {
   "sha1": "60819aea0a2663af6e7173c125bf0510f3354e99",
@@ -1280,9 +1280,9 @@
   "webp": 7898
  },
  "sprites/monsters/sandman.png": {
-  "sha1": "4fa0606b4e22c8ce73347af52fbb1306268756a7",
-  "png": 17452,
-  "webp": 14044
+  "sha1": "0ea08674c71ae99a77dace2c988ac3b0394355a5",
+  "png": 196517,
+  "webp": 38690
  },
  "sprites/monsters/scorpion.png": {
   "sha1": "70786299c841b59a5a626807ee6ec81c8e8f7f65",
@@ -1305,9 +1305,9 @@
   "webp": 7388
  },
  "sprites/monsters/tank.png": {
-  "sha1": "704cb163b78f5db665c004df95ef427c0c26ca22",
-  "png": 46191,
-  "webp": 24734
+  "sha1": "5fc6ab2f86ce9d5c67e597cc26b6c70269466ecc",
+  "png": 258112,
+  "webp": 61766
  },
  "sprites/monsters/tarou.png": {
   "sha1": "f1fe4243a97540556e0cfe2c392a370a9cf9d3d9",
@@ -1325,14 +1325,14 @@
   "webp": 1610
  },
  "sprites/monsters/thief_bug_female.png": {
-  "sha1": "9f3b2bc038103fdae013c814f1b6d2287025bc04",
-  "png": 10110,
-  "webp": 5180
+  "sha1": "31867b58bba45518f7366033e0b54063f7974d16",
+  "png": 67332,
+  "webp": 10170
  },
  "sprites/monsters/thief_bug_male.png": {
-  "sha1": "0ff1e7b922bd848689b6e722c92c4ed473e74e0f",
-  "png": 10110,
-  "webp": 5194
+  "sha1": "20f06fada4af55cf4d21dd2aa269aef4fa620d80",
+  "png": 52338,
+  "webp": 8452
  },
  "sprites/monsters/turtle_general.png": {
   "sha1": "ea9a012b4e57dd21dc6c48a4a4ceb20e8f4222db",
@@ -1340,9 +1340,9 @@
   "webp": 54014
  },
  "sprites/monsters/verit.png": {
-  "sha1": "5efff27b2d74bb1a753d4b046b4dcbb9122ef234",
-  "png": 19379,
-  "webp": 13006
+  "sha1": "a112a5e1047250b11d61bb1d0a5b8f58440ec268",
+  "png": 166188,
+  "webp": 32852
  },
  "sprites/monsters/whisper.png": {
   "sha1": "1fdb4a7b73323ae39fbac733ffe64c73207efe0a",
@@ -1385,9 +1385,9 @@
   "webp": 48738
  },
  "sprites/monsters_xl/owl_duke.png": {
-  "sha1": "c3738e523ffaa30c02c46ed0521c92a9b401832c",
-  "png": 34962,
-  "webp": 21292
+  "sha1": "5472a2a879bd4482d6493cbafbb885c11f56f153",
+  "png": 291063,
+  "webp": 67596
  },
  "sprites/monsters_xl/pharaoh.png": {
   "sha1": "6d6089cc1271cad92fd31fed013a99eb24ebb2f0",
