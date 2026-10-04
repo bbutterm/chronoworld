@@ -5,7 +5,7 @@ import { adventureBadge, campaignBadge, cityBadge } from './navBadges';
 import { GAME } from './content';
 import { anim, lazyPortrait, portraitKey, spriteView, whenSprites } from './sprites';
 import { formatNumber, heroesNavBadge, POWER_COLORS, POWER_TINTS, type PowerCheck, type PowerTone } from './flow';
-import { view } from './viewport';
+import { onViewChange, view } from './viewport';
 import { button, ellipsize, emptyState, icon, panel, ScrollArea, shieldTaps, text, toast, type ButtonView, type Panel } from './ui';
 import { hasArt } from './assets';
 import { RO_ICON_TINT, roIcon } from './itemIcons';
@@ -78,43 +78,53 @@ export function screen(
   // Фон 1080×1920 сам продолжается на поля вытянутых экранов (viewport.ts); шапка и навигация — тоже до краёв.
   scene.add.image(GAME_W / 2, GAME_H / 2, 'skin_bg_forest').setDisplaySize(GAME_W, GAME_H);
   const fullW = GAME_W + 2 * BLEED_X;
-  // Шапка — одна тёмная полоса без орнамента: градиент к бронзе и тонкая кромка по низу (бронза + золотой блик).
-  scene.add.image(GAME_W / 2, (HEADER_H - BLEED_Y) / 2, 'skin_header_grad').setDisplaySize(fullW, HEADER_H + BLEED_Y).setAlpha(0.97);
-  edge(scene, HEADER_H, fullW, false);
-
   const goBack = back ? backAction(scene, back) : null;
-  if (goBack) backButton(scene, goBack, back?.label);
-  // Telegram BackButton = «‹» экрана; уходя с экрана, снимаем (если её ещё не занял следующий экран).
   const off = setTgBack(goBack);
   scene.events.once(Phaser.Scenes.Events.SHUTDOWN, off);
+  let frame: Phaser.GameObjects.GameObject[] = [];
+  const frameIndex = scene.children.length;
+  const drawFrame = () => {
+    for (const o of frame) if (o.scene) o.destroy();
+    const before = new Set(scene.children.list);
+    // Шапка — одна тёмная полоса без орнамента: градиент к бронзе и тонкая кромка по низу (бронза + золотой блик).
+    scene.add.image(GAME_W / 2, (HEADER_H - BLEED_Y) / 2, 'skin_header_grad').setDisplaySize(fullW, HEADER_H + BLEED_Y).setAlpha(0.97);
+    edge(scene, HEADER_H, fullW, false);
 
-  // Вытянутый телефон: над шапкой видна полоса поля (до ~130–200 ед.). Валюта уходит туда одной строкой — верхняя
-  // полоса ресурсов AFK Arena, — названию и плашке игрока в шапке достаётся вся ширина. На 9:16 — две строки справа.
-  const band = topBand();
-  let currencyLeft: number;
-  if (band >= BAND_MIN) {
-    bandStrip(scene, band);
-    currencyLabels(scene, -band / 2);
-    currencyLeft = GAME_W - S.xs;
-  } else currencyLeft = currencyLabels(scene);
-  let titleRight = currencyLeft - S.s;
-  if (opts.settings) {
-    const gearHit = Math.max(GEAR.hit, TOUCH_COMFORT);
-    const gx = currencyLeft - S.xs - gearHit / 2;
-    const gear = iconButton(scene, gx, HEADER_CY, GEAR.size, gearHit, 'gear', opts.settings, null);
-    gear.setName('settings');
-    titleRight = gx - gearHit / 2 - S.xs;
-  }
-  const left = titleLeft(!!back);
-  if (title) {
-    // Название — слева, заголовочной гарнитурой; длинное сначала мельчает, потом переносится на две строки.
-    const t = text(scene, left, HEADER_CY, title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold', align: 'left' }).setOrigin(0, 0.5);
-    t.setShadow(0, 3, 'rgba(0,0,0,0.75)', 6, false, true);
-    t.setName('screenTitle');
-    fitTitle(t, titleRight - left);
-  }
+    if (goBack) backButton(scene, goBack, back?.label);
 
-  if (active) navBar(scene, active, fullW);
+    // Вытянутый телефон: над шапкой видна полоса поля (до ~130–200 ед.). Валюта уходит туда одной строкой — верхняя
+    // полоса ресурсов AFK Arena, — названию и плашке игрока в шапке достаётся вся ширина. На 9:16 — две строки справа.
+    const band = topBand();
+    let currencyLeft: number;
+    if (band >= BAND_MIN) {
+      bandStrip(scene, band);
+      currencyLabels(scene, -band / 2);
+      currencyLeft = GAME_W - S.xs;
+    } else currencyLeft = currencyLabels(scene);
+    let titleRight = currencyLeft - S.s;
+    if (opts.settings) {
+      const gearHit = Math.max(GEAR.hit, TOUCH_COMFORT);
+      const gx = currencyLeft - S.xs - gearHit / 2;
+      const gear = iconButton(scene, gx, HEADER_CY, GEAR.size, gearHit, 'gear', opts.settings, null);
+      gear.setName('settings');
+      titleRight = gx - gearHit / 2 - S.xs;
+    }
+    const left = titleLeft(!!back);
+    if (title) {
+      // Название — слева, заголовочной гарнитурой; длинное сначала мельчает, потом переносится на две строки.
+      const t = text(scene, left, HEADER_CY, title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold', align: 'left' }).setOrigin(0, 0.5);
+      t.setShadow(0, 3, 'rgba(0,0,0,0.75)', 6, false, true);
+      t.setName('screenTitle');
+      fitTitle(t, titleRight - left);
+    }
+
+    if (active) navBar(scene, active, fullW);
+    frame = scene.children.list.filter((o) => !before.has(o));
+    // Шапка остаётся под дополнениями сцены (например, портретом лагеря Home), как при первом create.
+    frame.forEach((o, i) => scene.children.moveTo(o, frameIndex + i));
+  };
+  drawFrame();
+  onViewChange(scene, drawFrame);
   const warnings = takeWarnings();
   for (const w of warnings.filter((x) => !isHeroesNotice(x))) toast(scene, w, C.error, 6000);
   const notices = warnings.filter(isHeroesNotice);
@@ -320,7 +330,8 @@ export function noticeModal(
     : null;
   const leadH = leadText ? leadText.height + 30 : 0;
   const body = text(scene, 0, 0, paragraphs.join('\n\n'), T.body, C.text, { align: 'left', wordWrap: { width: w - 120 }, lineSpacing: 8 }).setOrigin(0.5, 0);
-  const maxContent = GAME_H - 700;
+  const uiHeight = view().uiHeight;
+  const maxContent = Math.max(180, uiHeight - 700);
   // Большая добыча тоже бывает длинным списком: не отнимаем у рассказа всю видимую полосу.
   const scrollLead = leadH > maxContent / 3;
   const fixedLeadH = scrollLead ? 0 : leadH;
@@ -329,9 +340,9 @@ export function noticeModal(
   const maxBody = maxContent - fixedLeadH;
   const scroll = contentH > maxBody;
   const bodyH = Math.min(contentH, maxBody);
-  const h = Math.min(GAME_H - 300, bodyH + fixedLeadH + 360);
-  const top = GAME_H / 2 - h / 2;
-  const box = panel(scene, GAME_W / 2, GAME_H / 2, w, h, 'ui_panel').setInteractive();
+  const h = Math.min(uiHeight - 150, bodyH + fixedLeadH + 360);
+  const top = uiHeight / 2 - h / 2;
+  const box = panel(scene, GAME_W / 2, uiHeight / 2, w, h, 'ui_panel').setInteractive();
   const head = text(scene, GAME_W / 2, top + 80, title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
   head.setShadow(0, 3, 'rgba(0,0,0,0.7)', 6, false, true);
   layer.add([shade, box, head]);
@@ -387,7 +398,7 @@ const BAND_MIN = 84;
  * (как в AFK Arena), чтобы под ней не оставалась пустая полоса. 0 — на 9:16.
  */
 export function navShift(): number {
-  return Math.max(0, Math.min(BLEED_Y, view().safeBottom - GAME_H));
+  return Math.min(BLEED_Y, view().safeBottom - GAME_H);
 }
 
 /**
@@ -543,7 +554,6 @@ export function bottomSheet(
 ): BottomSheet {
   const fullW = GAME_W + 2 * BLEED_X;
   const width = GAME_W - 2 * S.l;
-  const bottom = GAME_H + navShift();
   const layer = scene.add.container(0, 0).setDepth(Z.modal).setName('bottomSheet');
   const shade = shadeRect(scene);
   const sheet = scene.add.container(0, 0);
@@ -567,7 +577,8 @@ export function bottomSheet(
   registerModal(layer, close);
   const contentH = Math.max(0, build(content, width, close));
   const headH = 136;
-  const maxH = Math.round(GAME_H * 0.8);
+  const bottom = GAME_H + navShift();
+  const maxH = Math.round(view().uiHeight * 0.8);
   const h = Math.min(maxH, headH + contentH + S.xl);
   const top = bottom - h;
   // Поверхность: скруглённые верхние углы, бронзовая кромка сверху, тянется за края поля и под нижний край.
@@ -581,21 +592,30 @@ export function bottomSheet(
   const x = closeButton(scene, GAME_W - S.l - 36, top + 80, close);
   sheet.add([bg, grip, head, x]);
   const contentTop = top + headH;
-  if (headH + contentH + S.xl > maxH) {
-    area = new ScrollArea(scene, contentTop, bottom - S.m);
-    content.setPosition(S.l, 0);
-    area.add(content);
-    area.setContentHeight(contentH + S.m);
-  } else {
-    content.setY(contentTop);
-    sheet.add(content);
-  }
+  area = new ScrollArea(scene, contentTop, bottom - S.m);
+  content.setPosition(S.l, 0);
+  area.add(content);
+  area.setContentHeight(contentH + S.m);
   layer.add([shade, sheet]);
   if (area) layer.add(area.parts);
   shade.on('pointerup', close);
   sfx('ui_open');
   const game = scene.sys.game;
   layer.once(Phaser.GameObjects.Events.DESTROY, () => shieldTaps(game));
+  const offView = onViewChange(scene, () => {
+    if (closed) return;
+    const bottom = GAME_H + navShift();
+    const h = Math.min(Math.round(view().uiHeight * 0.8), headH + contentH + S.xl);
+    const top = bottom - h;
+    bg.clear().fillStyle(COLOR_N.surface, 0.98).fillRoundedRect(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y, { tl: R.xl, tr: R.xl, bl: 0, br: 0 });
+    bg.lineStyle(3, COLOR_N.border, 1).strokeRoundedRect(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y, { tl: R.xl, tr: R.xl, bl: 0, br: 0 });
+    bg.setInteractive(new Phaser.Geom.Rectangle(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y), Phaser.Geom.Rectangle.Contains);
+    grip.setY(top + S.s);
+    head.setY(top + 80);
+    x.setY(top + 80);
+    area?.setBounds(top + headH, bottom - S.m);
+  });
+  layer.once(Phaser.GameObjects.Events.DESTROY, offView);
   if (juiceOn()) {
     scene.tweens.add({ targets: shade, alpha: { from: 0, to: 1 }, duration: M.base, ease: E.out });
     for (const o of [sheet, ...(area ? [area.content] : [])]) {
@@ -786,8 +806,9 @@ export function confirm(scene: Phaser.Scene, question: string, yes: string, onYe
   const q = text(scene, GAME_W / 2, 0, question, FS.h2, C.text, { wordWrap: { width: 780 }, lineSpacing: 8 });
   // Высота окна — по тексту вопроса: без пустого провала между вопросом и кнопками.
   const boxH = Math.max(400, q.height + 330);
-  const top = GAME_H / 2 - boxH / 2;
-  const box = panel(scene, GAME_W / 2, GAME_H / 2, 900, boxH, 'ui_panel');
+  const cy = view().uiHeight / 2;
+  const top = cy - boxH / 2;
+  const box = panel(scene, GAME_W / 2, cy, 900, boxH, 'ui_panel');
   q.setY(top + 90 + q.height / 2);
   const btnY = top + boxH - 110;
   const cancel = () => popOut(scene, layer);
@@ -821,10 +842,11 @@ export function popIn(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, 
   const rest = layer.list.filter((o) => o !== shade) as unknown as (Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Alpha)[];
   if (shade) scene.tweens.add({ targets: shade, alpha: { from: 0, to: 1 }, duration: M.base, ease: E.out });
   // Масштаб контейнера — от центра экрана: сдвигаем начало координат в центр.
-  const inner = scene.add.container(GAME_W / 2, GAME_H / 2).setName('popInner');
+  const cy = view().uiHeight / 2;
+  const inner = scene.add.container(GAME_W / 2, cy).setName('popInner');
   for (const o of rest) {
     layer.remove(o as unknown as Phaser.GameObjects.GameObject);
-    o.setPosition(o.x - GAME_W / 2, o.y - GAME_H / 2);
+    o.setPosition(o.x - GAME_W / 2, o.y - cy);
     inner.add(o as unknown as Phaser.GameObjects.GameObject);
   }
   layer.add(inner);

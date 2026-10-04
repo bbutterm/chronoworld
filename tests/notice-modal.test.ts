@@ -76,7 +76,7 @@ function setup() {
   const masks: { x: number; y: number; width: number; height: number }[] = [];
   const graphics = { fillStyle() { return this; },
     fillRect(x: number, y: number, width: number, height: number) { masks.push({ x, y, width, height }); return this; },
-    createGeometryMask() { return {}; } };
+    createGeometryMask() { return {}; }, destroy: vi.fn() };
   const scene = {
     add: { container: make, rectangle: make, graphics: () => make() },
     children: { get list() { return nodes.filter((n) => n.scene && !n.parentContainer); } },

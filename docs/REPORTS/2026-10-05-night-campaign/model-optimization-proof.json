@@ -1,0 +1,51 @@
+{
+  "status": "exact_identity",
+  "baseline": "/tmp/chronoworld-night-baseline",
+  "optimized": "/tmp/chronoworld-night-naive-optimized",
+  "attempts": 992,
+  "files": {
+    "final-save.json": "f71dfed8bd52d2b1a76de9f690b4711404fe983e951cac33ef6e5ff49819d499",
+    "final-clock.json": "85b32db7100eb9de2e8c40e18f89001127ab91ac7d7e864cfed601070e2bb5fc",
+    "stages.csv": "75c7fec09ea7bef6c8a918f2ba525436c1fe5c4c13bfde69ef7c5da4c0f7bde5"
+  },
+  "optimizedCpuSeconds": 152.522,
+  "optimizedWallSeconds": 146.499,
+  "comparedSummaryFields": [
+    "status",
+    "cleared",
+    "campaignStages",
+    "elapsedHours",
+    "activeMinutes",
+    "totalWaits",
+    "campaignAttempts",
+    "campaignLosses",
+    "stages",
+    "actionCounts",
+    "income",
+    "spend",
+    "finalResources",
+    "finalSquad",
+    "heroPowers"
+  ],
+  "allOriginalAttemptFieldsIdentical": true,
+  "rational": {
+    "status": "exact_identity",
+    "baseline": "/tmp/chronoworld-night-smart-baseline",
+    "optimized": "/tmp/chronoworld-night-rational-optimized",
+    "attempts": 783,
+    "optimizedCpuSeconds": 106.952,
+    "optimizedWallSeconds": 107.549,
+    "allOriginalAttemptFieldsIdentical": true,
+    "finalSaveClockStagesIdentical": true
+  },
+  "publicHeroPower": {
+    "status": "exact_identity",
+    "baseline": "/tmp/chronoworld-night-smart-baseline",
+    "optimized": "/tmp/chronoworld-night-public-power-baseline",
+    "attempts": 783,
+    "optimizedCpuSeconds": 108.441,
+    "optimizedWallSeconds": 142.515,
+    "allOriginalAttemptFieldsIdentical": true,
+    "finalSaveClockStagesIdentical": true
+  }
+}

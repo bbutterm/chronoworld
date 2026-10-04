@@ -48,6 +48,7 @@ import { clampDelta } from '../lifecycle';
 import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state';
 import { BarkLayer, BEHAVIOR_LABEL_DEPTH, BEHAVIOR_LABEL_SIZE, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, ULT_FX_BOOST, UltPresenter } from '../battleFx';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
+import { battleSpriteHitArea, battleSpritePresentation, separateBattleSprites, type BattlePresentationBounds, type BattleSpritePresentation } from '../battlePresentation';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
 import { BehaviorFx } from '../battleBehaviorFx';
 import { button, ellipsize, panel, text, toast, tutorialHint, type ButtonView } from '../ui';
@@ -256,6 +257,10 @@ interface UnitView extends SpreadUnit, GaitState {
   look: SpriteView;
   node: Phaser.GameObjects.Container;
   sprite: Phaser.GameObjects.Sprite;
+  presentation: BattleSpritePresentation;
+  /** Screen projection only: core pos and formation offX/offY stay unchanged. */
+  displayX: number;
+  displayY: number;
   /** Тень под ногами (гаснет вместе с павшим). */
   shadow: Phaser.GameObjects.Image;
   hpBar: Phaser.GameObjects.Image;
@@ -365,7 +370,6 @@ interface UnitView extends SpreadUnit, GaitState {
   kiteShown: boolean;
   /** Зона касания тела (при развороте едет вместе с origin). */
   hitRect: Phaser.Geom.Rectangle;
-  bodyW: number;
   /** Ключи зацикленных анимаций (считаются один раз — gait() зовёт loop() каждый кадр). */
   loopKeys: Record<'idle' | 'walk' | 'cast', string | null>;
 }
@@ -506,6 +510,7 @@ export class BattleScene extends Phaser.Scene {
   private bossBarY = HUD_Y + BOSS_BAR_DY;
   private panelShift = 0;
   private dy = 0;
+  private presentationBounds: BattlePresentationBounds = { minX: TOP_MARGIN, maxX: GAME_W - TOP_MARGIN, minY: 400, maxY: PANEL_TOP - UNDER_FEET };
   private speedBtn: ButtonView | null = null;
   /** Полоска HP босса: засечки фаз (доля HP) и полоса заряда под ней. */
   private bossPips: { pct: number; pip: Phaser.GameObjects.Rectangle }[] = [];
@@ -749,6 +754,12 @@ export class BattleScene extends Phaser.Scene {
     this.bossBarY = this.hudY + BOSS_BAR_DY;
     this.panelShift = navShift();
     this.dy = Math.max(0, SPREAD_BOUNDS.maxY + UNDER_FEET - (PANEL_TOP + this.panelShift));
+    this.presentationBounds = {
+      minX: TOP_MARGIN,
+      maxX: GAME_W - TOP_MARGIN,
+      minY: Math.max(this.hudY + 130, this.bossBarY + 150),
+      maxY: PANEL_TOP + this.panelShift - UNDER_FEET,
+    };
     this.bossPips = [];
     this.bossCharge = null;
     // Фон по главе/ярусу (луг, топь, склеп) и частицы под юнитами (светлячки, туман, пыль).
@@ -783,6 +794,7 @@ export class BattleScene extends Phaser.Scene {
       if (s) this.ultSkill.set(u.uid, s);
     }
     for (const u of this.result.units) this.buildUnit(u);
+    this.layoutUnits(0);
     const fromSave = !!(this.stage || this.towerRun || this.hunt || this.bond);
     const rarityOf = (unitId: string): CardRarity | undefined => (fromSave ? session.save.heroes.find((h) => h.id === unitId)?.rarity : undefined);
     this.heroPanel = new HeroPanel(
@@ -1011,13 +1023,18 @@ export class BattleScene extends Phaser.Scene {
     const spriteId = def.visual.sprite;
     // visual.scale — крупнее фигура (и выше подпись/полоски): босс на листе обычного монстра.
     const base = spriteView(this, spriteId);
-    const k = crispScale(base, def.visual.scale ?? 1);
+    const requested = crispScale(base, def.visual.scale ?? 1);
+    const presentation = base.art && base.def
+      ? battleSpritePresentation(base.def, base.def.scale * requested, this.presentationBounds)
+      : { scale: requested, animated: { left: -90 * requested, top: -base.height * requested, right: 90 * requested, bottom: 0 }, body: { left: -90 * requested, top: -base.height * requested, right: 90 * requested, bottom: 0 }, large: false };
+    const k = base.art && base.def ? presentation.scale / base.def.scale : requested;
     const look = k === 1 ? base : { ...base, size: base.size * k, height: base.height * k };
     // Отражение идёт от середины клетки, а якорь ног не в середине: у отражённого — зеркальный origin, иначе фигура
     // уезжает от своих полосок (у поринга ×2 — заметно).
     const flip = snap.side === 'B' && look.art;
     const sprite = this.add.sprite(0, 0, look.key, 0).setOrigin(flip ? 1 - look.originX : look.originX, look.originY);
     sprite.setScale(look.size / sprite.frame.realHeight).setFlipX(flip).setTint(unitTint(def.visual));
+    presentation.scale = sprite.scaleX;
     sprite.anims.timeScale = playback.speed;
     // Мягкая тень под ногами: у листов RO своей тени нет, без неё фигуры «висят» над полем.
     const footW = look.def?.width ? look.def.width * look.def.scale * k : look.height * 0.7;
@@ -1100,6 +1117,9 @@ export class BattleScene extends Phaser.Scene {
       look,
       node,
       sprite,
+      presentation,
+      displayX: fieldX(snap.x),
+      displayY: snap.y - this.dy,
       shadow,
       hpBar,
       trailBar,
@@ -1162,7 +1182,6 @@ export class BattleScene extends Phaser.Scene {
       backpedal: false,
       kiteShown: false,
       hitRect: new Phaser.Geom.Rectangle(0, 0, 0, 0),
-      bodyW: 0,
       loopKeys: { idle: anim(look, spriteId, 'idle'), walk: anim(look, spriteId, 'walk'), cast: anim(look, spriteId, 'cast') },
       pos: { x: snap.x, y: snap.y },
       offX: 0,
@@ -1184,13 +1203,8 @@ export class BattleScene extends Phaser.Scene {
     this.redraw(v);
     // Касание юнита — ненадолго показать имя (после начала боя имена гаснут).
     // Зона касания — только тело (кадр листа намного больше фигуры и заходил бы на кнопки и соседей).
-    const fw = sprite.frame.realWidth;
-    const fh = sprite.frame.realHeight;
-    const bodyW = Math.min(fw, (look.size * 0.45) / sprite.scaleX);
-    const bodyH = Math.min(fh, look.height / sprite.scaleY);
-    const hit = v.hitRect.setTo(sprite.originX * fw - bodyW / 2, sprite.originY * fh - bodyH, bodyW, bodyH);
-    v.bodyW = bodyW;
-    sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains).on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, () => this.flashName(v));
+    this.bodyHitArea(v);
+    sprite.setInteractive(v.hitRect, Phaser.Geom.Rectangle.Contains).on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, () => this.flashName(v));
   }
 
   /** Уровень врага в этом бою (null — тестовый бой). */
@@ -1360,6 +1374,7 @@ export class BattleScene extends Phaser.Scene {
   private layoutUnits(dt: number): void {
     const views = this.viewList;
     spreadUnits(views, dt, SPREAD_BOUNDS);
+    this.projectUnits();
     for (let i = 0; i < views.length; i++) this.placeUnit(views[i]);
     if (dt > 0) for (let i = 0; i < views.length; i++) this.gait(views[i], dt);
     this.layoutLabels();
@@ -1462,12 +1477,26 @@ export class BattleScene extends Phaser.Scene {
     if (!v.look.art) return;
     const flip = dir < 0;
     v.sprite.setFlipX(flip).setOrigin(flip ? 1 - v.look.originX : v.look.originX, v.look.originY);
-    v.hitRect.x = v.sprite.originX * v.sprite.frame.realWidth - v.bodyW / 2;
+    this.bodyHitArea(v);
+  }
+
+  private bodyHitArea(v: UnitView): void {
+    const s = v.sprite;
+    const h = battleSpriteHitArea(v.presentation, s.frame.realWidth, s.frame.realHeight, s.originX, s.originY, s.flipX);
+    v.hitRect.setTo(h.x, h.y, h.width, h.height);
   }
 
   private placeUnit(v: UnitView): void {
-    v.node.setPosition(fieldX(v.pos.x + v.offX), v.pos.y + v.offY - this.dy);
+    v.node.setPosition(v.displayX, v.displayY);
     if (!v.shownDead && !v.spot) v.node.setDepth(v.node.y);
+  }
+
+  private projectUnits(): void {
+    for (const v of this.viewList) if (v.active) {
+      v.displayX = fieldX(v.pos.x + v.offX);
+      v.displayY = v.pos.y + v.offY - this.dy;
+    }
+    separateBattleSprites(this.viewList, this.presentationBounds);
   }
 
   /** След HP и красный оттенок попадания (раньше — твин и таймер на каждый удар). */
@@ -1572,6 +1601,7 @@ export class BattleScene extends Phaser.Scene {
     while (this.cursor < log.length) this.play(log[this.cursor++], false);
     for (const v of this.views.values()) this.endCast(v);
     settleSpread(this.viewList, SPREAD_BOUNDS);
+    this.projectUnits();
     for (const v of this.viewList) {
       this.placeUnit(v);
       gaitReset(v, v.node.x, v.node.y);

@@ -1,6 +1,6 @@
 import type { GameContext, ProgressEvent } from '../progression/types';
 import type { HeroState, SaveState } from '../save/schema';
-import { assertBranch } from './branch';
+import { assertBranch, heroProfessionBlocker } from './branch';
 import { activeForm, branchOf, branchOptions, heroName, heroTemplate, nextRarity, type BranchView } from './card';
 import { HeroError } from './errors';
 import { findHero, paidHeroTraining, type LevelCost } from './level';
@@ -99,6 +99,8 @@ export function ascendRequirement(save: SaveState, heroId: string, ctx: GameCont
   const to = nextRarity(hero.rarity);
   if (!rule || !to) return null;
   const blockers: string[] = [];
+  const busy = heroProfessionBlocker(save, heroId);
+  if (busy) blockers.push(busy);
   if (save.resources.gold < rule.gold) blockers.push(`Не хватает золота: нужно ${groupDigits(rule.gold)}, есть ${groupDigits(save.resources.gold)}`);
   const free = freeHeroes(save, heroId, ctx);
   const fodder = rule.fodder.map((f) => ({ kind: f.kind, rarity: f.rarity, count: f.count, candidates: free.filter((h) => fits(hero, h, f)).map((h) => h.id) }));
@@ -222,6 +224,8 @@ export function ascendHero(
   opts: AscendOptions = {},
 ): { save: SaveState; events: ProgressEvent[]; refund: LevelCost; consumed: string[] } {
   const hero = findHero(save, heroId);
+  const busy = heroProfessionBlocker(save, heroId);
+  if (busy) throw new HeroError('hero_busy', busy);
   const t = heroTemplate(ctx, hero.templateId);
   const name = t.name;
   const rule = mergeRule(hero, ctx);
@@ -231,7 +235,8 @@ export function ascendHero(
   if (opts.branch !== undefined) assertBranch(hero, opts.branch, ctx);
   // Выбранная ветка не меняется вознесением (смена — branch.ts changeBranch); opts.branch действует, только если ветки
   // ещё нет и новая редкость — фиолетовая или выше.
-  const keepBranch = branchOf(t, hero.branch)?.job;
+  const keepBranch = branchOf(t, hero.branch)?.job
+    ?? (rarityIndex(to) >= rarityIndex(BRANCH_RARITY) ? branchOf(t, hero.journey?.lastBranch)?.job : undefined);
   const branch = keepBranch ?? (rarityIndex(to) >= rarityIndex(BRANCH_RARITY) ? opts.branch : undefined);
   if (rule.branch && !branch && !opts.deferBranch) throw new HeroError('branch_required', `${name}: выберите ветку — ${t.branches.map((b) => ctx.content.jobs[b.job]?.name ?? b.job).join(' или ')}`);
   for (const id of fodderIds) {
@@ -252,7 +257,7 @@ export function ascendHero(
   }, { exp: 0, gold: 0 });
   const gone = new Set(consumed.map((h) => h.id));
   const before = activeForm(t, hero);
-  const upgraded: HeroState = branch && !keepBranch
+  const upgraded: HeroState = branch && branch !== hero.branch
     ? rememberHeroJourney({ ...hero, rarity: to, branch })
     : { ...hero, rarity: to };
   const after = activeForm(t, upgraded);
@@ -264,7 +269,7 @@ export function ascendHero(
   };
   const jobChanged = after.job !== before.job;
   const events: ProgressEvent[] = [{ type: 'ascended', heroId, from: hero.rarity, to, job: after.job, jobChanged }];
-  if (branch && !keepBranch && after.branch) events.push({ type: 'branchChosen', heroId, branch, changed: false, gems: 0 });
+  if (branch && !hero.branch && after.branch) events.push({ type: 'branchChosen', heroId, branch, changed: false, gems: 0 });
   if (jobChanged) {
     // Навыки новой формы, уже открытые на текущем уровне.
     for (const s of after.skills) if (s.level <= hero.level) events.push({ type: 'skillUnlocked', heroId, skill: s.skill, level: s.level });
@@ -331,6 +336,7 @@ export function ascendAll(save: SaveState, ctx: GameContext): { save: SaveState;
     const s = cur;
     let step: { hero: HeroState; fodder: string[]; to: CardRarity } | null = null;
     for (const hero of [...s.heroes].filter((h) => ctx.content.heroes[h.templateId]).sort(order(s))) {
+      if (heroProfessionBlocker(s, hero.id)) continue;
       const rule = mergeRule(hero, ctx);
       const to = nextRarity(hero.rarity);
       if (!rule || !to || s.resources.gold < rule.gold) continue;

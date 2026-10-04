@@ -1,0 +1,38 @@
+{
+  "saveSha256": "eeff1e52040e288c2129b5130f85b6eb4179734e27786c92bb28a3dbaa501464",
+  "heroes": 42,
+  "items": 225,
+  "equippedItems": 168,
+  "iterations": 3000,
+  "samples": [
+    {
+      "wholeRosterMs": 998.5546430000002,
+      "recipientMs": 49.14795400000003,
+      "checksum": 4561722
+    },
+    {
+      "wholeRosterMs": 964.1510090000002,
+      "recipientMs": 33.33013800000026,
+      "checksum": 4561722
+    },
+    {
+      "wholeRosterMs": 746.6716880000004,
+      "recipientMs": 41.474694000000454,
+      "checksum": 4561722
+    },
+    {
+      "wholeRosterMs": 760.7651069999993,
+      "recipientMs": 19.035094000000754,
+      "checksum": 4561722
+    },
+    {
+      "wholeRosterMs": 955.2428749999999,
+      "recipientMs": 28.843234999999368,
+      "checksum": 4561722
+    }
+  ],
+  "medianWholeRosterMs": 955.2428749999999,
+  "medianRecipientMs": 33.33013800000026,
+  "speedup": 28.660033600820746,
+  "exactPowerAndChecksum": true
+}

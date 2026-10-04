@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { skinKey, sliceOf, tex } from './assets';
 import { SKIN_DARK_LABEL } from './skin';
-import { GAME_H, GAME_W, HEADER_H } from './layout';
-import { worldPoint } from './viewport';
+import { GAME_W, HEADER_H } from './layout';
+import { minimumFontSize, minimumTouchSize, view, worldPoint } from './viewport';
 import { C, COLOR, COLOR_N, E, FAMILY, familyFor, FS, leading, M, R, S, T, TINT, TOUCH, TOUCH_COMFORT } from './theme';
 import { BADGE } from './frame';
 import { arrowRect, HINT_GEOM, overlapArea, placeCallout, sceneObstacles, type CalloutPlan, type HintSide, type Rect, type SceneNode } from './hintLayout';
@@ -12,6 +12,7 @@ import { roIconImage } from './itemIcons';
 import { sfx } from './audio';
 import { haptic } from './haptics';
 import type { SfxId } from './audioCatalog';
+import { scrollLayout } from './scroll';
 
 /**
  * Событие «отменить нажатие» (на scene.input — его слушатели снимаются при остановке сцены):
@@ -297,11 +298,12 @@ export interface ButtonView {
 
 /** Длинная подпись остаётся внутри кнопки; размер не опускается ниже caption. */
 export function fitButtonLabel(label: Phaser.GameObjects.Text, width: number, preferred: number, variant: ButtonVariant = 'secondary'): void {
+  preferred = Math.max(preferred, minimumFontSize());
   // У ghost нет рамки; компактной плитке достаточно 8 ед. с каждой стороны.
   // Широкое поле 32 ед. оставляем большим CTA, иначе «Пропустить» не влезает даже при caption.
   const padding = variant === 'ghost' ? 0 : Math.min(width <= 320 ? S.xxs : S.m, width * 0.12);
   const maxWidth = Math.max(1, width - 2 * padding);
-  const minimum = Math.min(preferred, T.caption);
+  const minimum = Math.max(minimumFontSize(), Math.min(preferred, T.caption));
   label.setFontSize(preferred);
   for (let size = preferred - 2; label.width > maxWidth && size >= minimum; size -= 2) label.setFontSize(size);
   if (label.width > maxWidth) {
@@ -365,10 +367,11 @@ export function button(
   fitLabel();
   const container = scene.add.container(x, y, [bg, t]);
   // Цель нажатия не ниже TOUCH, даже если кнопка нарисована ниже.
-  const hitH = Math.max(h, h >= BTN.l ? TOUCH_COMFORT : TOUCH);
-  container.setSize(w, hitH).setInteractive({
+  const hitH = Math.max(h, h >= BTN.l ? TOUCH_COMFORT : minimumTouchSize());
+  const hitW = Math.max(w, minimumTouchSize());
+  container.setSize(hitW, hitH).setInteractive({
     useHandCursor: true,
-    hitArea: new Phaser.Geom.Rectangle(0, 0, w, hitH),
+    hitArea: new Phaser.Geom.Rectangle(0, 0, hitW, hitH),
     hitAreaCallback: Phaser.Geom.Rectangle.Contains,
   });
   // armed: палец опустился именно на эту кнопку; отпускание без него (или после протяжки списка) — не клик.
@@ -473,20 +476,21 @@ export class ScrollArea {
   private dragFrom: { y: number; scroll: number } | null = null;
   private dragged = false;
   private readonly thumb: Phaser.GameObjects.Rectangle;
+  private readonly maskShape: Phaser.GameObjects.Graphics;
   /** Открыто модальное окно поверх списка — прокрутка и нажатия в списке выключены. */
   locked = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly top: number,
-    private readonly bottom: number,
+    private top: number,
+    private bottom: number,
     /** Границы модальной полосы в координатах мира; обычные списки сохраняют прежнюю полную ширину. */
     private readonly horizontal?: { left: number; right: number },
   ) {
     this.content = scene.add.container(0, top);
-    const { left, right } = horizontal ?? { left: 0, right: GAME_W };
-    const g = scene.make.graphics({}, false);
-    g.fillStyle(0xffffff).fillRect(left, top, right - left, bottom - top);
+    const right = horizontal?.right ?? GAME_W;
+    const g = this.maskShape = scene.make.graphics({}, false);
+    this.drawMask();
     this.content.setMask(g.createGeometryMask());
     // Видимая полоса списка (для e2e-проверки «кнопку ничто не перекрывает»: вне полосы содержимое скрыто маской).
     this.content.setData('clip', [top, bottom]);
@@ -530,6 +534,7 @@ export class ScrollArea {
       scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard);
       scene.events.off(Phaser.Scenes.Events.SHUTDOWN, shutdown);
       if (this.thumb.scene) this.thumb.destroy();
+      g.destroy();
     });
   }
 
@@ -565,6 +570,27 @@ export class ScrollArea {
     this.scrollTo(this.content.y);
   }
 
+  /** Новая безопасная полоса при раскрытии Telegram: сохраняет прокрутку, обновляет маску и ввод. */
+  setBounds(top: number, bottom: number): void {
+    const offset = this.offset;
+    const bounds = scrollLayout(this.height, top, bottom, offset);
+    this.top = top;
+    this.bottom = bounds.bottom;
+    this.dragFrom = null;
+    this.dragged = false;
+    this.scene.input.emit(CANCEL_PRESS);
+    this.maskShape.clear();
+    this.drawMask();
+    this.content.setData('clip', [top, this.bottom]);
+    this.scrollTo(bounds.y);
+  }
+
+  /** Одна геометрия маски при создании и изменении безопасной полосы. */
+  private drawMask(): void {
+    const { left, right } = this.horizontal ?? { left: 0, right: GAME_W };
+    this.maskShape.fillStyle(0xffffff).fillRect(left, this.top, right - left, this.bottom - this.top);
+  }
+
   /** Убрать всё содержимое и вернуться наверх (перерисовка списка без перезапуска сцены). */
   clear(): void {
     this.content.removeAll(true);
@@ -582,14 +608,11 @@ export class ScrollArea {
   }
 
   private scrollTo(y: number): void {
-    const view = this.bottom - this.top;
-    const min = this.top - Math.max(0, this.height - view);
-    this.content.y = Phaser.Math.Clamp(y, min, this.top);
+    const layout = scrollLayout(this.height, this.top, this.bottom, this.top - y);
+    this.content.y = layout.y;
     this.thumb.setVisible(this.scrollable);
     if (!this.scrollable) return;
-    const th = Math.max(60, (view * view) / this.height);
-    const pct = this.offset / (this.height - view);
-    this.thumb.setSize(8, th).setY(this.top + (view - th) * pct);
+    this.thumb.setSize(8, layout.thumbHeight).setY(layout.thumbY);
   }
 
   /** Указатель — в пикселях холста; список живёт в координатах мира (камера масштабирует). */
@@ -643,6 +666,15 @@ export function pressable<T extends Tappable>(scene: Phaser.Scene, target: T, w:
     if (armed) set(false);
   };
   target.setInteractive({ useHandCursor: true });
+  const area = target.input?.hitArea;
+  if (minimumTouchSize() > TOUCH && area instanceof Phaser.Geom.Rectangle) {
+    const oldW = area.width;
+    const oldH = area.height;
+    area.width = Math.max(oldW, minimumTouchSize() / Math.max(0.001, Math.abs(target.scaleX)));
+    area.height = Math.max(oldH, minimumTouchSize() / Math.max(0.001, Math.abs(target.scaleY)));
+    area.x -= (area.width - oldW) / 2;
+    area.y -= (area.height - oldH) / 2;
+  }
   target.on('pointerdown', () => set(true));
   target.on('pointerout', release);
   target.on('pointerup', () => {
@@ -1177,7 +1209,7 @@ export function segmented(
   const specs: SegmentSpec[] = options.map((o) => (typeof o === 'string' ? { label: o } : o));
   const n = Math.max(1, specs.length);
   const segW = (w - 2 * inset) / n;
-  const c = scene.add.container(x, y).setSize(w, Math.max(h, TOUCH));
+  const c = scene.add.container(x, y).setSize(w, Math.max(h, minimumTouchSize()));
   c.add(plate(scene, 0, 0, w, h, { ...SURFACE.sunken, r: R.m }));
   const xs = specs.map((_, i) => -w / 2 + inset + segW * (i + 0.5));
   let index = Phaser.Math.Clamp(selected, 0, n - 1);
@@ -1240,7 +1272,7 @@ export function segmented(
   };
   const ready = debounce();
   specs.forEach((_, i) => {
-    const zone = scene.add.zone(xs[i], 0, segW, Math.max(h, TOUCH)).setInteractive({ useHandCursor: true });
+    const zone = scene.add.zone(xs[i], 0, segW, Math.max(h, minimumTouchSize())).setInteractive({ useHandCursor: true });
     let armed = false;
     const release = () => (armed = false);
     zone.on('pointerdown', () => (armed = true));
@@ -1268,8 +1300,9 @@ export function infoButton(scene: Phaser.Scene, x: number, y: number, onTap: () 
   const size = opts.size ?? 64;
   const bg = plate(scene, 0, 0, size, size, { fill: COLOR.surfaceRaised, border: mixHex(COLOR.border, COLOR.accent, 0.35), borderW: 3, r: R.pill, hl: 0.12 });
   const t = text(scene, 0, 1, 'i', Math.round(size * 0.66), COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
-  const c = scene.add.container(x, y, [bg, t]).setSize(TOUCH, TOUCH).setName('infoButton');
-  c.setInteractive({ useHandCursor: true, hitArea: new Phaser.Geom.Rectangle(0, 0, TOUCH, TOUCH), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
+  const hit = minimumTouchSize();
+  const c = scene.add.container(x, y, [bg, t]).setSize(hit, hit).setName('infoButton');
+  c.setInteractive({ useHandCursor: true, hitArea: new Phaser.Geom.Rectangle(0, 0, hit, hit), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
   let armed = false;
   const ready = debounce();
   const set = (p: boolean) => {
@@ -1349,7 +1382,7 @@ function drawHint(
   opts: { avoid?: Rect[]; avoidText?: string[]; skip?: () => void },
 ): void {
   const w = GAME_W;
-  const h = GAME_H;
+  const h = view().safeBottom;
   // T3-13: рамка (и её пульс) не выходит за поле и не уходит под нижний край: у края цель обводится плотнее.
   const room = Math.max(0, Math.min(x - target.w / 2, w - x - target.w / 2, y - target.h / 2 - HEADER_H, h - y - target.h / 2));
   const pad = Math.min(24, Math.max(8, room * 2 - 6));
@@ -1580,7 +1613,7 @@ export function toast(scene: Phaser.Scene, message: string, color: string = C.ti
     if (e.c.scene) scene.tweens.add({ targets: e.c, alpha: 0, y: e.c.y - S.xs, duration: M.base, ease: E.in, onComplete: () => e.c.destroy() });
     layout();
   };
-  const top = at === 'middle' ? GAME_H * 0.46 : at === 'battle' ? BATTLE_TOAST_Y : HEADER_H + S.xs;
+  const top = at === 'middle' ? view().uiHeight * 0.46 : at === 'battle' ? BATTLE_TOAST_Y : HEADER_H + S.xs;
   const layout = () => {
     // Сверху — от шапки вниз; посреди экрана — стопка по центру вокруг 46 % высоты.
     const total = stack.reduce((n, e) => n + e.h, 0) + TOAST_GAP * Math.max(0, stack.length - 1);

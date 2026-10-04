@@ -441,7 +441,9 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
           until: round2(t + seconds),
           nextTick: prev ? prev.nextTick : round2(t + turnSeconds),
           seq: prev ? prev.seq : statusSeq++,
-          sourceAtk: stat(u, 'atk'),
+          // Периодический урон навыка получает ту же силу редкости, что и прямой урон.
+          // Для прочих статусов и обычной атаки снимок АТК остаётся прежним.
+          sourceAtk: stat(u, 'atk') * (e.status.dot ? sp : 1),
           source: u.uid,
         });
         emit({
@@ -590,11 +592,13 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     }
   };
 
-  /** Применяет навык: цели выбираются заново на каждый удар при pick=random. */
+  /** Применяет навык: только pick=random выбирает новую цель каждого удара; остальные сохраняют цели залпа. */
   const useSkill = (u: Unit, skill: SkillDef, preset?: Unit[], area?: Area): Unit[] => {
     const hit: Unit[] = [];
     for (let i = 0; i < skill.hits && u.alive; i++) {
-      const targets = preset && i === 0 ? preset : area ? areaTargets(u, skill, area) : pickFor(u, skill);
+      // Серия по одной цели не перескакивает через поле после её смерти и не перенаводится в полёте.
+      // Случайный залп (например, метеоры) по-прежнему выбирает отдельную цель каждого попадания.
+      const targets = preset && (i === 0 || skill.target.pick !== 'random') ? preset : area ? areaTargets(u, skill, area) : pickFor(u, skill);
       for (const target of targets) {
         if (!hit.includes(target)) hit.push(target);
         for (const e of skill.effects) applyEffect(u, e, target, skill);

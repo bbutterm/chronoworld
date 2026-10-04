@@ -18,6 +18,12 @@ import { rememberHeroJourney } from './training';
 
 type BranchCtx = GameContext & { equipment?: { items: Record<string, ItemDef> } };
 
+/** Личная память не действует ниже фиолетового, а при возвращении редкости сохраняет прежний выбор. */
+function chosenBranch(hero: HeroState, ctx: GameContext) {
+  const t = heroTemplate(ctx, hero.templateId);
+  return activeBranch(t, hero) ?? (rarityIndex(hero.rarity) >= rarityIndex(BRANCH_RARITY) ? branchOf(t, hero.journey?.lastBranch) : undefined);
+}
+
 export interface BranchStatus {
   heroId: string;
   /** Выбранная ветка (id профессии) или undefined. */
@@ -30,6 +36,16 @@ export interface BranchStatus {
   changeCost: number;
   /** Смена бесплатная (первая). */
   changeFree: boolean;
+  /** Тип действия остаётся видимым в интерфейсе; выполнять его можно только без blocker. */
+  blocker: 'expedition' | null;
+  blockerText: string | null;
+}
+
+/** Профессия героя фиксирована до получения наград его активной экспедиции. */
+export function heroProfessionBlocker(save: Pick<SaveState, 'bounties'>, heroId: string): string | null {
+  return save.bounties.active.some((e) => e.heroIds.includes(heroId))
+    ? 'Герой в экспедиции. Дождитесь возвращения и заберите награды, чтобы менять профессию.'
+    : null;
 }
 
 /** Цена следующей смены ветки: первая бесплатно (если firstFree), дальше branchChange.gems. */
@@ -41,11 +57,11 @@ export function branchChangeCost(hero: Pick<HeroState, 'branchChanges'>, ctx: Ga
 /** Всё для кнопок «Выбрать ветку» / «Сменить ветку» на карточке. */
 export function branchStatus(save: SaveState, heroId: string, ctx: GameContext): BranchStatus {
   const hero = findHero(save, heroId);
-  const t = heroTemplate(ctx, hero.templateId);
   const purple = rarityIndex(hero.rarity) >= rarityIndex(BRANCH_RARITY);
-  const current = activeBranch(t, hero)?.job;
+  const current = chosenBranch(hero, ctx)?.job;
   const cost = branchChangeCost(hero, ctx);
-  return { heroId, ...(current ? { branch: current } : {}), canChoose: purple && !current, canChange: purple && !!current, changeCost: cost, changeFree: cost === 0 };
+  const blockerText = heroProfessionBlocker(save, heroId);
+  return { heroId, ...(current ? { branch: current } : {}), canChoose: purple && !current, canChange: purple && !!current, changeCost: cost, changeFree: cost === 0, blocker: blockerText ? 'expedition' : null, blockerText };
 }
 
 /** Проверить, что job — ветка героя; иначе HeroError bad_branch. */
@@ -88,8 +104,10 @@ function setBranch(save: SaveState, heroId: string, job: string, changes?: numbe
 export function chooseBranch(save: SaveState, heroId: string, job: string, ctx: BranchCtx): { save: SaveState; events: ProgressEvent[] } {
   const hero = findHero(save, heroId);
   const t = heroTemplate(ctx, hero.templateId);
+  const blocker = heroProfessionBlocker(save, heroId);
+  if (blocker) throw new HeroError('hero_busy', blocker);
   if (rarityIndex(hero.rarity) < rarityIndex(BRANCH_RARITY)) throw new HeroError('branch_locked', `${t.name}: ветка выбирается на фиолетовой редкости`);
-  if (activeBranch(t, hero)) throw new HeroError('branch_locked', `${t.name}: ветка уже выбрана — её можно сменить`);
+  if (chosenBranch(hero, ctx)) throw new HeroError('branch_locked', `${t.name}: ветка уже выбрана — её можно сменить`);
   assertBranch(hero, job, ctx);
   const next = dropUnwearable(setBranch(save, heroId, job, hero.branchChanges), heroId, ctx);
   return { save: next, events: [{ type: 'branchChosen', heroId, branch: job, changed: false, gems: 0 }] };
@@ -103,7 +121,9 @@ export function chooseBranch(save: SaveState, heroId: string, job: string, ctx: 
 export function changeBranch(save: SaveState, heroId: string, job: string, ctx: BranchCtx): { save: SaveState; events: ProgressEvent[]; gems: number } {
   const hero = findHero(save, heroId);
   const t = heroTemplate(ctx, hero.templateId);
-  const current = activeBranch(t, hero);
+  const blocker = heroProfessionBlocker(save, heroId);
+  if (blocker) throw new HeroError('hero_busy', blocker);
+  const current = chosenBranch(hero, ctx);
   if (!current) throw new HeroError('branch_locked', `${t.name}: ветка ещё не выбрана`);
   assertBranch(hero, job, ctx);
   if (current.job === job) throw new HeroError('bad_branch', `${t.name}: эта ветка уже выбрана`);

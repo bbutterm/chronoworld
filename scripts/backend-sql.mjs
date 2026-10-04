@@ -7,10 +7,12 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const container = `cw-sql-${process.pid}`;
+const postgresHost = '127.0.0.1';
+const postgresPassword = 'cw-local-tests';
 const localDockerEnv = { ...process.env };
 for (const key of ['DOCKER_HOST', 'DOCKER_CONTEXT', 'DOCKER_TLS', 'DOCKER_TLS_VERIFY', 'DOCKER_CERT_PATH']) delete localDockerEnv[key];
 const docker = (...args) => run('docker', ['--host=unix:///var/run/docker.sock', ...args]);
-function run(command, args, input) {
+function run(command, args, input, includeStderr = false) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, { cwd: root, env: command === 'docker' ? localDockerEnv : process.env, stdio: ['pipe', 'pipe', 'pipe'] });
     let out = '';
@@ -18,11 +20,11 @@ function run(command, args, input) {
     child.stdout.on('data', (d) => { out += d; });
     child.stderr.on('data', (d) => { err += d; });
     child.on('error', reject);
-    child.on('exit', (code) => code === 0 ? resolve(out.trim()) : reject(new Error(`${command} exited ${code}: ${err.slice(-4000)}`)));
+    child.on('exit', (code) => code === 0 ? resolve((includeStderr ? `${out}\n${err}` : out).trim()) : reject(new Error(`${command} exited ${code}: ${err.slice(-4000)}`)));
     child.stdin.end(input ?? '');
   });
 }
-const sql = (text) => run('docker', ['--host=unix:///var/run/docker.sock', 'exec', '-i', container, 'psql', '-XAt', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres'], text);
+const sql = (text) => run('docker', ['--host=unix:///var/run/docker.sock', 'exec', '-i', '-e', `PGPASSWORD=${postgresPassword}`, container, 'psql', '-h', postgresHost, '-w', '-XAt', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres'], text);
 const literal = (value) => `'${String(value).replaceAll("'", "''")}'`;
 const query = async (text) => JSON.parse(await sql(text));
 const write = (data, revision, id = randomUUID(), player = 1) => query(`select public.cw_save_put(${player}, ${literal(JSON.stringify(data))}::jsonb, 7, 2, ${revision === null ? 'null' : revision}, '${id}'::uuid);`);
@@ -31,11 +33,24 @@ const sync = (player, power, tower, mvp, chapter = 2, stage = 1) => query(`selec
 let launched = false;
 try {
   // Контейнеру не нужен исходящий HTTP; нет опубликованных портов и постоянного диска.
-  await docker('run', '--rm', '-d', '--name', container, '--tmpfs', '/var/lib/postgresql/data', '-e', 'POSTGRES_PASSWORD=cw-local-tests', process.env.CW_POSTGRES_IMAGE ?? 'postgres:17-alpine');
+  // До finally сохраняем контейнер и его логи, даже если initdb аварийно завершится.
+  await docker('run', '-d', '--name', container, '--tmpfs', '/var/lib/postgresql/data', '-e', `POSTGRES_PASSWORD=${postgresPassword}`, process.env.CW_POSTGRES_IMAGE ?? 'postgres:17-alpine');
   launched = true;
-  for (let attempt = 0; ; attempt++) {
-    try { await docker('exec', container, 'pg_isready', '-U', 'postgres'); break; }
-    catch (error) { if (attempt >= 60) throw error; await new Promise((resolve) => setTimeout(resolve, 500)); }
+  const readyUntil = Date.now() + 30_000;
+  for (;;) {
+    // Временный сервер initdb принимает Unix-сокет, но не TCP. Ждём только окончательный postmaster.
+    try { await docker('exec', container, 'pg_isready', '-h', postgresHost, '-t', '1', '-U', 'postgres'); break; }
+    catch (error) {
+      if (Date.now() >= readyUntil) {
+        const diagnostics = await Promise.allSettled([
+          docker('inspect', '--format', '{{json .State}}', container),
+          run('docker', ['--host=unix:///var/run/docker.sock', 'logs', '--tail', '60', container], undefined, true),
+        ]);
+        const detail = diagnostics.map((r) => r.status === 'fulfilled' ? r.value : r.reason.message).join('\n');
+        throw new Error(`PostgreSQL did not accept TCP connections within 30 s: ${error.message}\n${detail.slice(-6000)}`);
+      }
+      await new Promise((resolve) => setTimeout(resolve, Math.min(500, Math.max(1, readyUntil - Date.now()))));
+    }
   }
   await sql('create role anon; create role authenticated; create role service_role bypassrls;');
   const migrations = (await readdir(new URL('../supabase/migrations/', import.meta.url))).filter((f) => f.endsWith('.sql')).sort();
@@ -108,5 +123,8 @@ try {
   assert.equal(privileges, 'f|f|f|t');
   console.log(`Backend SQL integration passed: ${migrations.length} safe migrations, CAS/retry, ${claims.length} concurrent gift claims, ${referralClaims.length} referral claims, quota, durable ACK, concurrent sync, private RPCs.`);
 } finally {
-  if (launched) await docker('stop', container).catch(() => {});
+  if (launched) {
+    await docker('stop', container).catch(() => {});
+    await docker('rm', '-f', container).catch(() => {});
+  }
 }

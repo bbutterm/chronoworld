@@ -24,6 +24,22 @@ describe('цифры навыка для окна подробностей', () 
     expect(basic.some((l) => l.includes('Сила навыков'))).toBe(false);
   });
 
+  it.each([1.3, 1.5])('периодический урон навыка в карточке тоже учитывает силу ×%s', power => {
+    const signature = ctx.content.skills.ro_creator_acid_demonstration;
+    const facts = skillFacts(signature, { ...opts, power });
+    expect(facts).toContain(`Урон: ${Math.round(190 * power)}% АТК`);
+    expect(facts.find(fact => fact.startsWith('«Кислотная коррозия»'))).toContain(`урон ${Math.round(35 * power)}% АТК каждую секунду`);
+    const basic = skillFacts(signature, { ...opts, power, basic: true });
+    expect(basic.find(fact => fact.startsWith('«Кислотная коррозия»'))).toContain('урон 35% АТК каждую секунду');
+  });
+
+  it('ульта на энергии не обещает прерываемый каст, автонавык показывает настоящее время каста', () => {
+    const signature = ctx.content.skills.ult_adv_kai_high_wizard;
+    expect(signature.castTime).toBeGreaterThan(0);
+    expect(skillFacts(signature, { ...opts, ult: true }).some(fact => fact.startsWith('Каст:'))).toBe(false);
+    expect(skillFacts(signature, opts)).toContain(`Каст: ${signature.castTime} с (оглушение сбивает)`);
+  });
+
   it('лечение с запасным навыком: цель — раненый союзник, «если целей нет»', () => {
     const f = skillFacts(ctx.content.skills.basic_heal, { ...opts, basic: true });
     expect(targetText(ctx.content.skills.basic_heal)).toContain('союзник с наименьшим % ОЗ');

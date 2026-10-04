@@ -9,6 +9,7 @@ import {
   activeForm,
   autoFodder,
   BRANCH_RARITY,
+  branchOf,
   CARD_RARITIES,
   cardStats,
   heroLine,
@@ -160,7 +161,7 @@ const KEYS: StatKey[] = ['hp', 'atk', 'def', 'spd'];
 
 /** Статы карточки на уровне level и редкости rarity (без экипировки). */
 export function statsAt(hero: HeroState, level: number, rarity: CardRarity, ctx: GameContext, branch: string | undefined = hero.branch): Stats {
-  return cardStats(heroTemplate(ctx, hero.templateId), level, rarity, ctx, branch);
+  return cardStats(heroTemplate(ctx, hero.templateId), level, rarity, ctx, branch, hero.journey);
 }
 
 /** Разница статов b − a по четырём ключам. */
@@ -206,19 +207,26 @@ export interface AscendPreview {
   newSkills: { skill: string; level: number; now: boolean }[];
 }
 
+/** Вознесение сохраняет собственную ветку героя, в том числе временно ушедшую в память пути. */
+export function ascendedBranch(hero: HeroState, to: CardRarity, ctx: GameContext, choice?: string): string | undefined {
+  const t = heroTemplate(ctx, hero.templateId);
+  const unlocked = rarityIndex(to) >= rarityIndex(BRANCH_RARITY);
+  return branchOf(t, hero.branch)?.job
+    ?? (unlocked ? branchOf(t, hero.journey?.lastBranch)?.job ?? branchOf(t, choice)?.job : undefined);
+}
+
 /**
  * Превью вознесения: что станет с карточкой на следующей редкости (null — максимум). choice — ветка, выбранная на
  * экране вознесения (переход на фиолетовый и выше, если у героя ещё нет ветки); не выбрана — превью без ветки, как
- * реально получится (LT-08: фиолетовый без ветки станет золотым без ветки, профессию не меняет).
+ * реально получится. Своя запомненная ветка восстанавливается; без неё фиолетовый станет золотым без ветки.
  */
 export function ascendPreview(hero: HeroState, ctx: GameContext, choice?: string): AscendPreview | null {
   const t = heroTemplate(ctx, hero.templateId);
   const to = nextRarity(hero.rarity);
   if (!to || rarityIndex(hero.rarity) >= rarityIndex(t.maxRarity)) return null;
-  const pick = choice && t.branches.some((b) => b.job === choice) ? choice : undefined;
-  const branch = hero.branch ?? (rarityIndex(to) >= rarityIndex(BRANCH_RARITY) ? pick : undefined);
+  const branch = ascendedBranch(hero, to, ctx, choice);
   const f0 = activeForm(t, hero);
-  const f1 = activeForm(t, { rarity: to, branch, level: hero.level });
+  const f1 = activeForm(t, { ...hero, rarity: to, branch });
   const cap0 = maxLevelOf(ctx, hero.rarity);
   const cap1 = maxLevelOf(ctx, to);
   // Новая профессия — все её навыки до нового предела (открытые уровнем — сразу); иначе — навыки, которые станут
@@ -344,9 +352,7 @@ export function fodderOptions(save: SaveState, req: { heroId: string; fodder: re
 export function ascendPower(hero: HeroState, ctx: GameContext, powerOf: (h: HeroState) => number, branch?: string): { from: number; to: number } | null {
   const prev = ascendPreview(hero, ctx, branch);
   if (!prev) return null;
-  const t = heroTemplate(ctx, hero.templateId);
-  const pick = branch && t.branches.some((b) => b.job === branch) ? branch : undefined;
-  const nextBranch = hero.branch ?? (rarityIndex(prev.to) >= rarityIndex(BRANCH_RARITY) ? pick : undefined);
+  const nextBranch = ascendedBranch(hero, prev.to, ctx, branch);
   const after: HeroState = { ...hero, rarity: prev.to, ...(nextBranch ? { branch: nextBranch } : {}) };
   return { from: powerOf(hero), to: powerOf(after) };
 }
@@ -365,6 +371,8 @@ export function ascendButtonState(
   const hero = save.heroes.find((h) => h.id === heroId);
   const req = ascendRequirement(save, heroId, ctx);
   if (!hero || !req) return { ready: false, reason: 'Максимальная редкость' };
+  const busy = req.blockers.find(reason => /экспедици/i.test(reason));
+  if (busy) return { ready: false, reason: busy };
   const slots = fodderSlots(req);
   const placed = placeFodder(req, chosen);
   const empty = slots.filter((_, i) => placed[i] === null);
@@ -381,7 +389,7 @@ export function ascendButtonState(
   }
   if (empty.length) return { ready: false, reason: `Положите в корм ещё ${empty.length} ${empty.length === 1 ? 'карту' : 'карты'} — или «Авто»` };
   if (save.resources.gold < req.gold) return { ready: false, reason: `Не хватает золота: ${formatNumber(req.gold - save.resources.gold)}` };
-  if (needsBranchPick(hero, req.to) && !opts.branchChosen) return { ready: false, reason: 'Выберите ветку второй профессии' };
+  if (needsBranchPick(hero, req.to, ctx) && !opts.branchChosen) return { ready: false, reason: 'Выберите ветку второй профессии' };
   return { ready: true, reason: null };
 }
 
@@ -399,10 +407,12 @@ export function ascendHint(save: SaveState, heroId: string, ctx: GameContext): {
 
 /**
  * Выбирать ли ветку на экране вознесения: у героя ещё нет ветки, а новая редкость — фиолетовая или выше (синий →
- * фиолетовый и фиолетовый без ветки после «Вознести всех» → золотой; ядро примет её в actAscend opts.branch).
+ * фиолетовый и фиолетовый без ветки после «Вознести всех» → золотой). Свой прежний выбор восстанавливается,
+ * если ctx подтверждает, что запомненная профессия принадлежит этому герою.
  */
-export function needsBranchPick(hero: Pick<HeroState, 'branch'>, to: CardRarity): boolean {
-  return !hero.branch && rarityIndex(to) >= rarityIndex(BRANCH_RARITY);
+export function needsBranchPick(hero: Pick<HeroState, 'branch' | 'journey'> & Partial<Pick<HeroState, 'templateId'>>, to: CardRarity, ctx?: GameContext): boolean {
+  const ownPath = ctx && hero.templateId ? branchOf(heroTemplate(ctx, hero.templateId), hero.journey?.lastBranch) : undefined;
+  return !hero.branch && !ownPath && rarityIndex(to) >= rarityIndex(BRANCH_RARITY);
 }
 
 /** Есть ли в корме ценные карточки (синие и выше) — перед вознесением спросить подтверждение. */

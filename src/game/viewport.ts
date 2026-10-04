@@ -1,9 +1,22 @@
 import Phaser from 'phaser';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
 import { inTelegram, installTelegram, onTgEvent, tgInsets } from './telegram';
-import { computeView, MAX_DPR, type Insets, type View } from './viewLayout';
+import { computeView, MAX_DPR, supportsAdaptiveLayout, type Insets, type View } from './viewLayout';
 
 export { computeView, MAX_DPR, type View };
+/** Сцены меняют раскладку, сохраняя выбранного героя, модальное окно и положение списка. */
+export const VIEW_CHANGED = 'ui-view-changed';
+
+/** Подписка живёт столько же, сколько запуск сцены; повторный вход не копит обработчики. */
+export function onViewChange(scene: Phaser.Scene, fn: (next: View, previous: View) => void): () => void {
+  const off = () => {
+    scene.events.off(VIEW_CHANGED, fn);
+    scene.events.off(Phaser.Scenes.Events.SHUTDOWN, off);
+  };
+  scene.events.on(VIEW_CHANGED, fn);
+  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, off);
+  return off;
+}
 
 /**
  * P8. Вывод игры на экран телефона.
@@ -43,11 +56,25 @@ function maxDprSetting(): number {
   return q > 0 && q <= 4 ? q : MAX_DPR;
 }
 
+/** Production включает только проверенные сцены. В dev можно проверить новую раскладку до её регистрации. */
+function adaptiveSetting(scene = ''): boolean {
+  return supportsAdaptiveLayout(scene) || (import.meta.env.DEV && new URLSearchParams(location.search).get('compact') === '1');
+}
+
 let current: View = computeView(GAME_W, GAME_H, 1);
 
 /** Текущая раскладка (для отладки и e2e: window.__view). */
 export function view(): View {
   return current;
+}
+
+/** Размеры в мире для читаемого текста и цели44CSSpx в адаптивной раскладке. */
+export function minimumFontSize(): number {
+  return current.adaptive ? Math.max(36, Math.ceil(12 * current.worldW / current.cssW)) : 0;
+}
+
+export function minimumTouchSize(): number {
+  return current.adaptive ? Math.max(132, Math.ceil(44 * current.worldW / current.cssW)) : 96;
 }
 
 /** Цвет фона игры (index.html, конфиг Phaser в main.ts) — им же красим шапку, фон и нижнюю полосу Telegram. */
@@ -65,7 +92,7 @@ export function initialView(): View {
     /* по умолчанию — полный экран */
   }
   installTelegram({ color: APP_BG, fullscreen });
-  current = computeView(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1, readInsets(), maxDprSetting());
+  current = computeView(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1, readInsets(), maxDprSetting(), adaptiveSetting());
   return current;
 }
 
@@ -295,7 +322,12 @@ export function installViewport(game: Phaser.Game): void {
   };
   const addText = factory.text as Fn;
   factory.text = function (this: unknown, x: number, y: number, t: unknown, style?: Phaser.Types.GameObjects.Text.TextStyle) {
-    return addText.call(this, x, y, t, { resolution: textResolution(), ...style });
+    const options = { resolution: textResolution(), ...style };
+    if (current.adaptive) {
+      const size = parseFloat(String(options.fontSize ?? 16));
+      options.fontSize = Math.max(size, minimumFontSize());
+    }
+    return addText.call(this, x, y, t, options);
   };
 
   const bleed = (scene: Phaser.Scene) => {
@@ -303,23 +335,10 @@ export function installViewport(game: Phaser.Game): void {
       if (o instanceof Phaser.GameObjects.Image && isFullScreen(o)) bleedImage(scene, o);
     }
   };
-  // Сцены подхватываем перед каждым кадром: камера подгоняется, как только появилась или поменялась раскладка,
-  // фоны растягиваются после create. Порядок загрузки сцен и плагинов Phaser тут не важен.
-  const hooked = new WeakSet<Phaser.Scene>();
-  game.events.on(Phaser.Core.Events.PRE_RENDER, () => {
-    for (const scene of game.scene.scenes as Phaser.Scene[]) {
-      if (!hooked.has(scene)) {
-        hooked.add(scene);
-        scene.sys.events.on(Phaser.Scenes.Events.CREATE, () => bleed(scene));
-        if (scene.sys.settings.status === Phaser.Scenes.RUNNING) bleed(scene);
-      }
-      const cam = scene.cameras?.main;
-      if (cam && fitted.get(cam) !== current) fitCamera(scene);
-    }
-  });
-
+  let activeSceneKey = game.scene.getScenes(true).at(-1)?.scene.key ?? '';
   const apply = () => {
-    const v = (current = computeView(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1, readInsets(), maxDprSetting()));
+    const previous = current;
+    const v = (current = computeView(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1, readInsets(), maxDprSetting(), adaptiveSetting(activeSceneKey)));
     const sm = game.scale;
     sm.zoom = 1 / v.density;
     if (sm.width !== v.backW || sm.height !== v.backH) sm.resize(v.backW, v.backH);
@@ -332,7 +351,35 @@ export function installViewport(game: Phaser.Game): void {
     // MT-01: resize() выше пересчитал displayScale по СТАРОМУ css-размеру холста; после смены стиля — заново,
     // иначе координаты тапов остаются от прошлого размера окна (поворот, раскрытие Telegram) до перезагрузки.
     sm.refresh();
+    if (previous.safeTop !== v.safeTop || previous.safeBottom !== v.safeBottom || previous.uiHeight !== v.uiHeight) {
+      for (const scene of game.scene.getScenes(true)) scene.events.emit(VIEW_CHANGED, v, previous);
+    }
   };
+  // START приходит до create: размеры доступны экрану при его первом построении, включая production.
+  const hooked = new WeakSet<Phaser.Scene>();
+  const hook = (scene: Phaser.Scene) => {
+    if (hooked.has(scene)) return;
+    hooked.add(scene);
+    scene.sys.events.on(Phaser.Scenes.Events.START, () => {
+      activeSceneKey = scene.scene.key;
+      apply();
+      fitCamera(scene);
+    });
+    scene.sys.events.on(Phaser.Scenes.Events.CREATE, () => bleed(scene));
+    if (scene.sys.settings.status === Phaser.Scenes.RUNNING) bleed(scene);
+  };
+  const hookAll = () => {
+    for (const scene of game.scene.scenes as Phaser.Scene[]) hook(scene);
+  };
+  game.events.once(Phaser.Core.Events.READY, hookAll);
+  hookAll();
+  game.events.on(Phaser.Core.Events.PRE_RENDER, () => {
+    hookAll();
+    for (const scene of game.scene.scenes as Phaser.Scene[]) {
+      const cam = scene.cameras?.main;
+      if (cam && fitted.get(cam) !== current) fitCamera(scene);
+    }
+  });
   let pending = 0;
   const schedule = () => {
     cancelAnimationFrame(pending);

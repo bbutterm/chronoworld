@@ -1,0 +1,4910 @@
+{
+  "privateFixtures": true,
+  "source": "Local Chromium canvas UI, real clicks; injected fixtures do not establish campaign balance",
+  "runs": [
+    {
+      "rawReport": "/tmp/chronoworld-night-heroes-ui/rpg-ui.json",
+      "errors": [],
+      "flowCount": 10,
+      "clickCount": 54,
+      "flows": [
+        {
+          "size": {
+            "width": 360,
+            "height": 640
+          },
+          "case": "explicit-free-copy-doubletap-cancel-back",
+          "before": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "preview": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradeConfirmSheet"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "cancelled": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "after": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "confirmHit": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "heightCss": 44.07812499999999
+          }
+        },
+        {
+          "size": {
+            "width": 360,
+            "height": 640
+          },
+          "case": "trained-copy-inspect-reset-clear-exchange",
+          "blocked": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradePicker"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 76,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  },
+                  "focus": "guard"
+                },
+                "branch": "knight",
+                "training": {
+                  "exp": 1981105,
+                  "gold": 2151750
+                }
+              }
+            ],
+            "resources": {
+              "gold": 97812800,
+              "heroExp": 97957907
+            }
+          },
+          "inspected": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h7",
+            "tab": "story",
+            "back": {
+              "to": "Hero",
+              "data": {
+                "heroId": "h1",
+                "tab": "story",
+                "back": {
+                  "to": "Inventory",
+                  "data": {
+                    "filter": "weapon",
+                    "tab": "gear"
+                  }
+                }
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 76,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  },
+                  "focus": "guard"
+                },
+                "branch": "knight",
+                "training": {
+                  "exp": 1981105,
+                  "gold": 2151750
+                }
+              }
+            ],
+            "resources": {
+              "gold": 97812800,
+              "heroExp": 97957907
+            }
+          },
+          "returned": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "branch": "knight",
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "after": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          }
+        },
+        {
+          "size": {
+            "width": 360,
+            "height": 640
+          },
+          "case": "copy-protection-added-during-confirm",
+          "rejected": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradeConfirmSheet"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight",
+                "locked": true
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          }
+        },
+        {
+          "size": {
+            "width": 360,
+            "height": 640
+          },
+          "case": "own-path-ordinary-ascend-real-confirm",
+          "before": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Ascend"
+            ],
+            "modals": [],
+            "heroId": "h7",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                }
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h9",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1
+              },
+              {
+                "id": "h10",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "confirm": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Ascend"
+            ],
+            "modals": [
+              "confirmModal"
+            ],
+            "heroId": "h7",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                }
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h9",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1
+              },
+              {
+                "id": "h10",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "applied": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Ascend"
+            ],
+            "modals": [],
+            "heroId": "h7",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "purple",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99959550,
+              "heroExp": 99939012
+            }
+          },
+          "returned": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h7",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "purple",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99959550,
+              "heroExp": 99939012
+            }
+          }
+        },
+        {
+          "size": {
+            "width": 360,
+            "height": 640
+          },
+          "case": "branch-stale-expedition-blocker-refresh-claim",
+          "rejected": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "branchPicker"
+            ],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "skills",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 20
+                  }
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "card": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "skills",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 20
+                  }
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "after": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "skills",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20,
+                  "lastBranch": "crusader",
+                  "branchLevels": {
+                    "knight": 20,
+                    "crusader": 20
+                  }
+                },
+                "branch": "crusader",
+                "branchChanges": 1
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964595,
+              "heroExp": 99939072
+            }
+          }
+        },
+        {
+          "size": {
+            "width": 390,
+            "height": 844
+          },
+          "case": "explicit-free-copy-doubletap-cancel-back",
+          "before": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "preview": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradeConfirmSheet"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "cancelled": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "after": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "confirmHit": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "heightCss": 47.666666666666664
+          }
+        },
+        {
+          "size": {
+            "width": 390,
+            "height": 844
+          },
+          "case": "trained-copy-inspect-reset-clear-exchange",
+          "blocked": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradePicker"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 76,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  },
+                  "focus": "guard"
+                },
+                "branch": "knight",
+                "training": {
+                  "exp": 1981105,
+                  "gold": 2151750
+                }
+              }
+            ],
+            "resources": {
+              "gold": 97812800,
+              "heroExp": 97957907
+            }
+          },
+          "inspected": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h7",
+            "tab": "story",
+            "back": {
+              "to": "Hero",
+              "data": {
+                "heroId": "h1",
+                "tab": "story",
+                "back": {
+                  "to": "Inventory",
+                  "data": {
+                    "filter": "weapon",
+                    "tab": "gear"
+                  }
+                }
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 76,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  },
+                  "focus": "guard"
+                },
+                "branch": "knight",
+                "training": {
+                  "exp": 1981105,
+                  "gold": 2151750
+                }
+              }
+            ],
+            "resources": {
+              "gold": 97812800,
+              "heroExp": 97957907
+            }
+          },
+          "returned": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "branch": "knight",
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "after": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          }
+        },
+        {
+          "size": {
+            "width": 390,
+            "height": 844
+          },
+          "case": "copy-protection-added-during-confirm",
+          "rejected": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradeConfirmSheet"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight",
+                "locked": true
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          }
+        },
+        {
+          "size": {
+            "width": 390,
+            "height": 844
+          },
+          "case": "own-path-ordinary-ascend-real-confirm",
+          "before": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Ascend"
+            ],
+            "modals": [],
+            "heroId": "h7",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                }
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h9",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1
+              },
+              {
+                "id": "h10",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "confirm": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Ascend"
+            ],
+            "modals": [
+              "confirmModal"
+            ],
+            "heroId": "h7",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                }
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h9",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1
+              },
+              {
+                "id": "h10",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "applied": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Ascend"
+            ],
+            "modals": [],
+            "heroId": "h7",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "purple",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99959550,
+              "heroExp": 99939012
+            }
+          },
+          "returned": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h7",
+            "tab": "story",
+            "back": {
+              "to": "Inventory",
+              "data": {
+                "filter": "weapon",
+                "tab": "gear"
+              }
+            },
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "purple",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 76,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 76
+                  }
+                },
+                "training": {
+                  "exp": 0,
+                  "gold": 0
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99959550,
+              "heroExp": 99939012
+            }
+          }
+        },
+        {
+          "size": {
+            "width": 390,
+            "height": 844
+          },
+          "case": "branch-stale-expedition-blocker-refresh-claim",
+          "rejected": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "branchPicker"
+            ],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "skills",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 20
+                  }
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "card": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "skills",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 20
+                  }
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "after": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "skills",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20,
+                  "lastBranch": "crusader",
+                  "branchLevels": {
+                    "knight": 20,
+                    "crusader": 20
+                  }
+                },
+                "branch": "crusader",
+                "branchChanges": 1
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "gold": 99964595,
+              "heroExp": 99939072
+            }
+          }
+        }
+      ],
+      "clicks": [
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 180,
+          "y": 461.4796875,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 180,
+          "y": 576.9359374999999,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 180,
+          "y": 461.4796875,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 180,
+          "y": 576.9359374999999,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 180,
+          "y": 461.4796875,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 180,
+          "y": 576.9359374999999,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroTrainingBtn",
+          "x": 247.11249999999998,
+          "y": 458.20937499999997,
+          "heightCss": 37.537499999999994
+        },
+        {
+          "key": "Hero",
+          "name": "heroResetLevel",
+          "x": 180,
+          "y": 586.4625000000001,
+          "heightCss": 37.537499999999994
+        },
+        {
+          "key": "Hero",
+          "name": "Вернуть",
+          "x": 120.28125,
+          "y": 379.721875,
+          "heightCss": 12.796874999999998
+        },
+        {
+          "key": "Hero",
+          "name": "heroTrainingBtn",
+          "x": 247.11249999999998,
+          "y": 458.20937499999997,
+          "heightCss": 37.537499999999994
+        },
+        {
+          "key": "Hero",
+          "name": "heroClearFocus",
+          "x": 180,
+          "y": 502.003125,
+          "heightCss": 37.537499999999994
+        },
+        {
+          "key": "Hero",
+          "name": "backButton",
+          "x": 50.325,
+          "y": 99.32812500000003,
+          "heightCss": 14.3325
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 180,
+          "y": 461.4796875,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 180,
+          "y": 576.9359374999999,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopyUpgradeConfirm",
+          "x": 180,
+          "y": 591.4390625000001,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 180,
+          "y": 461.4796875,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 180,
+          "y": 576.9359374999999,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopyUpgradeConfirm",
+          "x": 180,
+          "y": 591.4390625000001,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "ascendBtn",
+          "x": 92.4125,
+          "y": 297.5375,
+          "heightCss": 23.8875
+        },
+        {
+          "key": "Ascend",
+          "name": "autoFodder",
+          "x": 288.63125,
+          "y": 391.38125,
+          "heightCss": 27.299999999999997
+        },
+        {
+          "key": "Ascend",
+          "name": "ascendConfirm",
+          "x": 180,
+          "y": 547.21875,
+          "heightCss": 39.8125
+        },
+        {
+          "key": "Ascend",
+          "name": "Вознести",
+          "x": 120.28125,
+          "y": 409.865625,
+          "heightCss": 12.796874999999998
+        },
+        {
+          "key": "Ascend",
+          "name": "revealDone",
+          "x": 180,
+          "y": 579.2109375,
+          "heightCss": 39.8125
+        },
+        {
+          "key": "Hero",
+          "name": "changeBranchBtn",
+          "x": 95.25625000000001,
+          "y": 433.46875000000006,
+          "heightCss": 27.299999999999997
+        },
+        {
+          "key": "Hero",
+          "name": "branchConfirm",
+          "x": 234.6,
+          "y": 589.875,
+          "heightCss": 40.949999999999996
+        },
+        {
+          "key": "Hero",
+          "name": "changeBranchBtn",
+          "x": 95.25625000000001,
+          "y": 433.46875000000006,
+          "heightCss": 27.299999999999997
+        },
+        {
+          "key": "Hero",
+          "name": "branchConfirm",
+          "x": 234.6,
+          "y": 589.875,
+          "heightCss": 40.949999999999996
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 195,
+          "y": 589.1388888888889,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 195,
+          "y": 772.388892279731,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 195,
+          "y": 589.1388888888889,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 195,
+          "y": 772.388892279731,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 195,
+          "y": 589.1388888888889,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 195,
+          "y": 772.388892279731,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroTrainingBtn",
+          "x": 280.22222222222223,
+          "y": 589.1388888888889,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroResetLevel",
+          "x": 195,
+          "y": 780.3333367241753,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "Вернуть",
+          "x": 119.16666666666667,
+          "y": 489.4722222222222,
+          "heightCss": 16.25
+        },
+        {
+          "key": "Hero",
+          "name": "heroTrainingBtn",
+          "x": 280.22222222222223,
+          "y": 589.1388888888889,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroClearFocus",
+          "x": 195,
+          "y": 673.0833367241753,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "backButton",
+          "x": 30.333333333333332,
+          "y": 133.41666666666666,
+          "heightCss": 18.200000000000003
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 195,
+          "y": 589.1388888888889,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 195,
+          "y": 772.388892279731,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopyUpgradeConfirm",
+          "x": 195,
+          "y": 724.7222256130642,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 195,
+          "y": 589.1388888888889,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 195,
+          "y": 772.388892279731,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopyUpgradeConfirm",
+          "x": 195,
+          "y": 724.7222256130642,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "ascendBtn",
+          "x": 83.77777777777779,
+          "y": 385.1111111111111,
+          "heightCss": 30.333333333333336
+        },
+        {
+          "key": "Ascend",
+          "name": "autoFodder",
+          "x": 332.94444444444446,
+          "y": 504.2777777777777,
+          "heightCss": 34.66666666666667
+        },
+        {
+          "key": "Ascend",
+          "name": "ascendConfirm",
+          "x": 195,
+          "y": 702.1666666666667,
+          "heightCss": 50.55555555555556
+        },
+        {
+          "key": "Ascend",
+          "name": "Вознести",
+          "x": 119.16666666666667,
+          "y": 527.75,
+          "heightCss": 16.25
+        },
+        {
+          "key": "Ascend",
+          "name": "revealDone",
+          "x": 195,
+          "y": 742.7916666666665,
+          "heightCss": 50.55555555555556
+        },
+        {
+          "key": "Hero",
+          "name": "changeBranchBtn",
+          "x": 87.38888888888889,
+          "y": 557.7222222222222,
+          "heightCss": 34.66666666666667
+        },
+        {
+          "key": "Hero",
+          "name": "branchConfirm",
+          "x": 264.33333333333337,
+          "y": 756.3333333333333,
+          "heightCss": 52
+        },
+        {
+          "key": "Hero",
+          "name": "changeBranchBtn",
+          "x": 87.38888888888889,
+          "y": 557.7222222222222,
+          "heightCss": 34.66666666666667
+        },
+        {
+          "key": "Hero",
+          "name": "branchConfirm",
+          "x": 264.33333333333337,
+          "y": 756.3333333333333,
+          "heightCss": 52
+        }
+      ]
+    },
+    {
+      "rawReport": "/tmp/chronoworld-night-heroes-ui/rpg-extra.json",
+      "errors": [],
+      "flowCount": 2,
+      "clickCount": 12,
+      "flows": [
+        {
+          "size": {
+            "width": 360,
+            "height": 640
+          },
+          "case": "stale-list-scroll21-drag-cancel-listeners-shutdown",
+          "before": {
+            "press": 18,
+            "down": 1,
+            "up": 28,
+            "wheel": 1,
+            "pre": 4,
+            "shutdown": 16
+          },
+          "after": {
+            "press": 18,
+            "down": 1,
+            "up": 28,
+            "wheel": 1,
+            "pre": 4,
+            "shutdown": 16
+          },
+          "stale": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradePicker"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight",
+                "locked": true
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "dragged": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradePicker"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h9",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h10",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h11",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h12",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h13",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h14",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h15",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h16",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h17",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h18",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h19",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h20",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h21",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h22",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h23",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h24",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h25",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h26",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h27",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "preview": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradeConfirmSheet"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h9",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h10",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h11",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h12",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h13",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h14",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h15",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h16",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h17",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h18",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h19",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h20",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h21",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h22",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h23",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h24",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h25",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h26",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h27",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "stopped": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": 5.684341886080802e-14,
+              "cssW": 360,
+              "cssH": 640,
+              "backW": 360,
+              "backH": 640,
+              "density": 1,
+              "zoom": 0.284375,
+              "worldX": -92.96703296703299,
+              "worldY": -274.2857142857142,
+              "worldW": 1265.934065934066,
+              "worldH": 2250.5494505494507,
+              "safeTop": 0,
+              "safeBottom": 1920
+            },
+            "active": [
+              "Heroes"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h9",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h10",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h11",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h12",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h13",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h14",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h15",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h16",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h17",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h18",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h19",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h20",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h21",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h22",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h23",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h24",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h25",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h26",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h27",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          }
+        },
+        {
+          "size": {
+            "width": 390,
+            "height": 844
+          },
+          "case": "stale-list-scroll21-drag-cancel-listeners-shutdown",
+          "before": {
+            "press": 18,
+            "down": 1,
+            "up": 28,
+            "wheel": 1,
+            "pre": 4,
+            "shutdown": 16
+          },
+          "after": {
+            "press": 18,
+            "down": 1,
+            "up": 28,
+            "wheel": 1,
+            "pre": 4,
+            "shutdown": 16
+          },
+          "stale": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradePicker"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight",
+                "locked": true
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "dragged": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradePicker"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h9",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h10",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h11",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h12",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h13",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h14",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h15",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h16",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h17",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h18",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h19",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h20",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h21",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h22",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h23",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h24",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h25",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h26",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h27",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "preview": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Hero"
+            ],
+            "modals": [
+              "heroCopyUpgradeConfirmSheet"
+            ],
+            "tabLocked": true,
+            "heroId": "h1",
+            "tab": "story",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h9",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h10",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h11",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h12",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h13",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h14",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h15",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h16",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h17",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h18",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h19",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h20",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h21",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h22",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h23",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h24",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h25",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h26",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h27",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          },
+          "stopped": {
+            "view": {
+              "cssLeft": 0,
+              "cssTop": -5.684341886080802e-14,
+              "cssW": 390,
+              "cssH": 844.0000000000001,
+              "backW": 390,
+              "backH": 844,
+              "density": 1,
+              "zoom": 0.3611111111111111,
+              "worldX": 0,
+              "worldY": -294.46153846153857,
+              "worldW": 1080,
+              "worldH": 2337.2307692307695,
+              "safeTop": -78.46153846153857,
+              "safeBottom": 1998.4615384615386
+            },
+            "active": [
+              "Heroes"
+            ],
+            "modals": [],
+            "tabLocked": false,
+            "heroId": "h1",
+            "tab": "story",
+            "heroes": [
+              {
+                "id": "h1",
+                "templateId": "alan",
+                "rarity": "blue",
+                "level": 20,
+                "companion": true,
+                "training": {
+                  "exp": 67128,
+                  "gold": 37050
+                },
+                "journey": {
+                  "peakLevel": 20
+                }
+              },
+              {
+                "id": "h2",
+                "templateId": "bran",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h3",
+                "templateId": "vika",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h4",
+                "templateId": "lira",
+                "rarity": "green",
+                "level": 8,
+                "companion": true
+              },
+              {
+                "id": "h7",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1,
+                "journey": {
+                  "peakLevel": 1,
+                  "lastBranch": "knight",
+                  "branchLevels": {
+                    "knight": 1
+                  }
+                },
+                "branch": "knight"
+              },
+              {
+                "id": "h8",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h9",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h10",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h11",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h12",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h13",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h14",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h15",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h16",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h17",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h18",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h19",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h20",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h21",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h22",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h23",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h24",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h25",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h26",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              },
+              {
+                "id": "h27",
+                "templateId": "alan",
+                "rarity": "gold",
+                "level": 1
+              }
+            ],
+            "resources": {
+              "gold": 99964550,
+              "heroExp": 99939012
+            }
+          }
+        }
+      ],
+      "clicks": [
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 180,
+          "y": 461.4796875,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 180,
+          "y": 576.9359374999999,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 180,
+          "y": 461.4796875,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h9",
+          "x": 180,
+          "y": 584.9048248291015,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopyUpgradeCancel",
+          "x": 180,
+          "y": 583.7609375,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 180,
+          "y": 461.4796875,
+          "heightCss": 44.07812499999999
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 195,
+          "y": 589.1388888888889,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h7",
+          "x": 195,
+          "y": 772.388892279731,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 195,
+          "y": 589.1388888888889,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopySelect_h9",
+          "x": 195,
+          "y": 772.3888481987847,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroCopyUpgradeCancel",
+          "x": 195,
+          "y": 781.0555589463975,
+          "heightCss": 47.666666666666664
+        },
+        {
+          "key": "Hero",
+          "name": "heroDevelopCompanion",
+          "x": 195,
+          "y": 589.1388888888889,
+          "heightCss": 47.666666666666664
+        }
+      ]
+    }
+  ]
+}

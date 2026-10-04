@@ -26,6 +26,7 @@ import { burst, countUp, juiceOn, moment, MOMENT_DEPTH, pulse } from '../juice';
 import { drawHeroCard, glowTexture, heroCardSize, raysTexture, rarityName, rarityPalette, rarityPips } from '../heroCard';
 import {
   ascendButtonState,
+  ascendedBranch,
   ascendPower,
   ascendPreview,
   copySources,
@@ -89,6 +90,7 @@ export function gainRows(prev: AscendPreview): GainRow[] {
  */
 export function shortReason(reason: string | null): { text: string; tone: 'negative' | 'warning' } | null {
   if (!reason) return null;
+  if (/экспедици/i.test(reason)) return { text: 'Экспедиция: дождитесь и заберите награды', tone: 'warning' };
   if (reason.startsWith('Положите')) return null;
   if (reason.startsWith('Выберите ветку')) return { text: 'Выберите ветку', tone: 'warning' };
   if (reason.startsWith('Не хватает золота')) return { text: `${reason.replace(/^Не хватает золота:\s*/, 'Не хватает ')} золота`, tone: 'negative' };
@@ -125,7 +127,7 @@ export class AscendScene extends Phaser.Scene {
     screen(this, 'Вознесение', 'Heroes', { to: 'Hero', data: this.heroReturn });
     if (!hero || !GAME.content.heroes[hero.templateId]) return;
     const req = ascendRequirement(session.save, hero.id, GAME);
-    this.branch = req && needsBranchPick(hero, req.to) && branchFor?.heroId === hero.id && req.branches?.some((b) => b.job === branchFor!.job) ? branchFor.job : undefined;
+    this.branch = req && needsBranchPick(hero, req.to, GAME) && branchFor?.heroId === hero.id && req.branches?.some((b) => b.job === branchFor!.job) ? branchFor.job : undefined;
     const prev = ascendPreview(hero, GAME, this.branch);
     if (!req || !prev) {
       emptyState(this, GAME_W / 2, GAME_H / 2, 'Максимальная редкость');
@@ -136,7 +138,7 @@ export class AscendScene extends Phaser.Scene {
     this.chosen = chosenFor?.heroId === hero.id ? chosenFor.ids.filter((id) => valid.has(id)) : [];
     chosenFor = { heroId: hero.id, ids: this.chosen };
 
-    const choosing = !!needsBranchPick(hero, req.to);
+    const choosing = needsBranchPick(hero, req.to, GAME);
     const lay = this.layout(prev, req, choosing);
     let y = this.compare(hero, req, lay.cardW);
     y = this.gains(hero, req, prev, y + S.s, choosing);
@@ -187,7 +189,8 @@ export class AscendScene extends Phaser.Scene {
       this.tweens.add({ targets: glow, alpha: 0.22, duration: M.count, yoyo: true, repeat: -1, ease: E.inOut });
     }
     drawHeroCard(this, lx, cy, hero, { w: cardW, figure: 'sprite', showIcons: false }).setAlpha(0.92);
-    const after = drawHeroCard(this, rx, cy, hero, { w: cardW, figure: 'sprite', showIcons: false, rarity: req.to, level: hero.level, ...(this.branch ? { branch: this.branch } : {}) });
+    const futureBranch = ascendedBranch(hero, req.to, GAME, this.branch);
+    const after = drawHeroCard(this, rx, cy, hero, { w: cardW, figure: 'sprite', showIcons: false, rarity: req.to, level: hero.level, ...(futureBranch ? { branch: futureBranch } : {}) });
     after.setName('ascendAfter');
     // Ромбы редкостей под карточками (слово не нужно — цвет рамки и ромбы).
     const t = heroTemplate(GAME, hero.templateId);
@@ -513,13 +516,15 @@ export class AscendScene extends Phaser.Scene {
   private confirmAscend(hero: HeroState, req: AscendRequirement): void {
     const st = ascendButtonState(session.save, hero.id, this.chosen, GAME, { branchChosen: !!this.branch });
     if (!st.ready) {
-      toast(this, shortReason(st.reason)?.text ?? (this.chosen.length ? 'Пока нельзя' : 'Выберите копии или используйте «Авто»'), C.error, 2500);
+      toast(this, st.reason && /экспедици/i.test(st.reason) ? st.reason : shortReason(st.reason)?.text ?? (this.chosen.length ? 'Пока нельзя' : 'Выберите копии или используйте «Авто»'), C.error, 3500);
       return;
     }
     const name = heroCard(hero, GAME).name;
     const lines = [`${name}: ${rarityName(req.from)} → ${rarityName(req.to)}`];
-    const choose = needsBranchPick(hero, req.to) && this.branch;
+    const choose = needsBranchPick(hero, req.to, GAME) && this.branch;
     if (choose) lines.push(`Ветка: ${(req.branches ?? []).find((b) => b.job === this.branch)?.jobName ?? this.branch}`);
+    const restored = ascendedBranch(hero, req.to, GAME);
+    if (!hero.branch && restored) lines.push(`Восстановится прежняя профессия: ${heroCard({ ...hero, rarity: req.to, branch: restored }, GAME).jobName}`);
     if (this.chosen.length) lines.push(`Будет использовано: ${this.chosen.length} ${this.chosen.length === 1 ? 'карта' : 'карты'} · ${formatNumber(req.gold)} золота`);
     if (valuableFodder(session.save, this.chosen).length) lines.push('Выбраны синие карточки и выше');
     confirm(this, lines.join('\n'), 'Вознести', () => this.doAscend(hero, choose ? this.branch : undefined));

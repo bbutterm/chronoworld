@@ -169,6 +169,8 @@ export interface PlayerModel {
    * если он усиливает отряд, карта героя — с большим запасом), свиток — за гемы (не больше 1 в день), бесплатное обновление.
    */
   shop: boolean;
+  /** false — не покупать опыт, когда все герои отряда уже упёрлись в пределы редкости. */
+  shopExpWhenCapped?: boolean;
   /**
    * Заточка снаряжения (data/drops.json → refine): после подготовки — самый дешёвый шаг среди надетого на отряд, пока
    * золото сверх резерва (refineReserve: refineReserveLevels уровней на героя + золото на опыт пула). false — не точить.
@@ -447,8 +449,13 @@ function emptyLedger(): Ledger {
 
 const RARITY_LETTER: Record<CardRarity, string> = { green: 'g', blue: 'b', purple: 'p', gold: 'o', red: 'r' };
 
+/** Мощь одного героя: не пересчитывать снаряжение всей коллекции ради одного кандидата. */
+export function modelHeroPower(hero: HeroState, ctx: FullContext, save: SaveState): number {
+  return heroPower(hero, ctx, save);
+}
+
 /** Одна симуляция: состояние + учёт. Все шаги — через функции ядра. */
-class Sim {
+export class BalancePlayer {
   save: SaveState;
   income = emptyLedger();
   spend = emptyLedger();
@@ -558,7 +565,7 @@ class Sim {
       // Цель — прокачанный экземпляр героя: из отряда, иначе самый сильный (heroPower); копии — корм.
       const tops = [...new Set(this.save.heroes.map((h) => h.templateId))].map((t) => {
         const copies = heroCopies(this.save, t);
-        return copies.find((h) => squad.has(h.id)) ?? [...copies].sort((a, b) => heroPower(b, this.ctx, this.save) - heroPower(a, this.ctx, this.save))[0];
+        return copies.find((h) => squad.has(h.id)) ?? [...copies].sort((a, b) => modelHeroPower(b, this.ctx, this.save) - modelHeroPower(a, this.ctx, this.save))[0];
       });
       const ok = (h: SaveState['heroes'][number]) => {
         const req = ascendRequirement(this.save, h.id, this.ctx);
@@ -729,11 +736,11 @@ class Sim {
           .sort((a, b) => a.level - b.level);
         if (!ready.length) break;
         const hero = ready[0];
-        const before = heroPower(hero, this.ctx, this.save);
+        const before = modelHeroPower(hero, this.ctx, this.save);
         const sb = heroStats(hero, this.ctx);
         this.step('heroes', actLevelUp(this.save, this.day, hero.id, this.ctx).save);
         const leveled = this.save.heroes.find((h) => h.id === hero.id)!;
-        const after = heroPower(leveled, this.ctx, this.save);
+        const after = modelHeroPower(leveled, this.ctx, this.save);
         const sa = heroStats(leveled, this.ctx);
         this.levels.push({ t: this.t, active_min: this.activeMin, heroId: hero.id, level: hero.level + 1, before, after, effBefore: sb.hp * sb.atk, effAfter: sa.hp * sa.atk });
         this.sessionLevelUps++;
@@ -753,7 +760,7 @@ class Sim {
     for (const heroId of new Set(order)) {
       for (let guard = 0; guard < 16; guard++) {
         const hero = this.save.heroes.find((h) => h.id === heroId)!;
-        const base = heroPower(hero, this.ctx, this.save);
+        const base = modelHeroPower(hero, this.ctx, this.save);
         let best: { id: string; gain: number } | null = null;
         const tried = new Set<string>();
         for (const it of this.save.inventory.items) {
@@ -762,7 +769,7 @@ class Sim {
           tried.add(key);
           const def = this.ctx.equipment.items[it.itemId];
           if (!def || !canEquip(hero, def, this.ctx)) continue;
-          const gain = heroPower(hero, this.ctx, equip(this.save, heroId, it.id, this.ctx)) - base;
+          const gain = modelHeroPower(hero, this.ctx, equip(this.save, heroId, it.id, this.ctx)) - base;
           if (gain > 0 && (!best || gain > best.gain)) best = { id: it.id, gain };
         }
         if (!best) break;
@@ -906,7 +913,10 @@ class Sim {
           const spare = gold - x.price;
           // Опыт — только если золота хватит и на уровни, которые он откроет, и ещё на 2 уровня каждому сверху:
           // без запаса (проверено) опыт мид-гейма съедает золото, которого потом не хватает в главе 3.
-          if (x.kind === 'heroExp') return spare >= this.goldForExp(x.count) + this.goldReserve(2);
+          if (x.kind === 'heroExp') {
+            const levelsAvailable = this.model.shopExpWhenCapped !== false || this.save.squad.some((id) => id && levelUpInfo(this.save, id, this.ctx).blocker !== 'max_level');
+            return levelsAvailable && spare >= this.goldForExp(x.count) + this.goldReserve(2);
+          }
           if (x.kind === 'item') return spare >= reserve && this.itemGain(x.itemId!) > 0;
           if (x.kind === 'heroCard') return spare >= 2 * reserve;
           return false;
@@ -1051,7 +1061,7 @@ class Sim {
 
 /** Прогнать модель игрока на days дней. Детерминирована: одинаковые входы — одинаковый результат. */
 export function runBalance(ctx: FullContext, days: number, model: PlayerModel = PLAYER_MODEL): BalanceResult {
-  const sim = new Sim(ctx, model);
+  const sim = new BalancePlayer(ctx, model);
   const rows: SessionRow[] = [];
   const firstClears: FirstClear[] = [];
   const battles: BattleLog[] = [];

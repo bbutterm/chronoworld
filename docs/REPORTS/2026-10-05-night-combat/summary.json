@@ -1,0 +1,2576 @@
+{
+  "baselineCommit": "d71207a90c677b74089c12159b367d24bd99da98",
+  "methodology": "Контрольный классовый benchmark, не экономическое прохождение: одинаковые legal уровень/редкость, без экипировки, близости и фокуса; support заменяет damage-слот и сохраняет основного лекаря. У каждого шаблона/ветки legal состав без дублей. Пары с/без сигнатуры используют одинаковые seeds. Малый набор предназначен для диагностики роли; доля побед не обязательная норма DPS или доказательство PvP баланса.",
+  "sourceDigest": {
+    "baseline": "b9fd6437c8f717db27c9137b51282be4a382fa87ddf7f5033bed7788e7cfd18e",
+    "combatFixes": "96c1dcf50738dbfc977bfb34e0dab87597fe4462edc7d968e860b0385b92f002"
+  },
+  "benchmark": {
+    "forms": 24,
+    "advancedJobs": 13,
+    "levels": [
+      70,
+      80,
+      90,
+      100
+    ],
+    "seeds": 8,
+    "seedBase": 440000,
+    "foeTeams": 3,
+    "pairedBattleCallsPerRevision": 4608,
+    "determinismReplaysPerRevision": 288,
+    "all96SignatureKitsDispatched": true,
+    "timeLimitSeconds": 90
+  },
+  "golden": {
+    "total": 292,
+    "unchanged": 224,
+    "changed": 68,
+    "changedOnly": "Итог: multihit + cap100; 50 и23 изменений с5 пересечениями",
+    "seeds": 4,
+    "squadsChanged": false,
+    "perfThresholdChanged": false,
+    "fixesOnlyAt90": {
+      "total": 292,
+      "changed": 50,
+      "unchanged": 242,
+      "changedOnly": "sq2 с Зарой"
+    },
+    "revision": "combat-target-integrity-and-pve-timer-2026-10-05",
+    "referenceProtocolChanged": false
+  },
+  "earlyActualLegalRun": [
+    {
+      "chapter": 1,
+      "attempts": 18,
+      "wins": 18,
+      "medianDuration": 20.25,
+      "medianUltsA": 2.5,
+      "medianFirstUltA": 18.05,
+      "withoutUltA": 6,
+      "timeouts": 0
+    },
+    {
+      "chapter": 2,
+      "attempts": 65,
+      "wins": 18,
+      "medianDuration": 31,
+      "medianUltsA": 3,
+      "medianFirstUltA": 18.6,
+      "withoutUltA": 2,
+      "timeouts": 0
+    }
+  ],
+  "firstStageActual": {
+    "stage": "ch1_s1",
+    "duration": 4.8,
+    "ultsA": 0,
+    "ultsB": 0,
+    "squadLevel": 2
+  },
+  "firstStageProposal": {
+    "twoFabreMult": 1.8,
+    "firstChapterCohorts": [
+      {
+        "mult": 0.8085,
+        "seeds": 32,
+        "completed": 32,
+        "cleared": 576,
+        "attempts": 576,
+        "losses": 0,
+        "firstDurationMin": 4.8,
+        "firstDurationMedian": 4.8,
+        "firstDurationMax": 4.8
+      },
+      {
+        "mult": 1.8,
+        "seeds": 32,
+        "completed": 32,
+        "cleared": 576,
+        "attempts": 576,
+        "losses": 0,
+        "firstDurationMin": 8,
+        "firstDurationMedian": 8,
+        "firstDurationMax": 8
+      }
+    ],
+    "level1And2Seeds": 256,
+    "level1And2WinRate": 1,
+    "level1DurationMinMedianMax": [
+      8,
+      9.3,
+      9.3
+    ],
+    "level2DurationMinMedianMax": [
+      8,
+      8,
+      9.3
+    ],
+    "script": "scripts/first-stage-combat-audit.ts",
+    "sourceDigest": "d01348c6822603185e068b2fcfc0c21f2d418a8c87498b24982655a08c1fca2c",
+    "unitCombats": [
+      {
+        "level": 1,
+        "mult": 0.8085,
+        "seeds": 256,
+        "wins": 256,
+        "alanAlive": 256,
+        "ultsA": 0,
+        "duration": {
+          "min": 4.8,
+          "median": 4.8,
+          "max": 4.8,
+          "mean": 4.799999999999977
+        }
+      },
+      {
+        "level": 1,
+        "mult": 1.8,
+        "seeds": 256,
+        "wins": 256,
+        "alanAlive": 256,
+        "ultsA": 0,
+        "duration": {
+          "min": 8,
+          "median": 9.3,
+          "max": 9.3,
+          "mean": 9.289843749999998
+        }
+      },
+      {
+        "level": 2,
+        "mult": 0.8085,
+        "seeds": 256,
+        "wins": 256,
+        "alanAlive": 256,
+        "ultsA": 0,
+        "duration": {
+          "min": 4.8,
+          "median": 4.8,
+          "max": 4.8,
+          "mean": 4.799999999999977
+        }
+      },
+      {
+        "level": 2,
+        "mult": 1.8,
+        "seeds": 256,
+        "wins": 256,
+        "alanAlive": 256,
+        "ultsA": 0,
+        "duration": {
+          "min": 8,
+          "median": 8,
+          "max": 9.3,
+          "mean": 8.005078125
+        }
+      }
+    ],
+    "chapterDriver": "runNightCampaign, baseline combat implementation, rational NIGHT_MODEL",
+    "chapterDriverBattleSeedBases": "1…32; full first chapter, zero +12h waits",
+    "nowApplied": true,
+    "proofCandidateOnlyInMemory": true
+  },
+  "classes": [
+    {
+      "job": "assassin_cross",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "damage"
+      ],
+      "forms": [
+        "dorn/assassin",
+        "zara/assassin"
+      ],
+      "win": 0.833,
+      "duration": 58.061,
+      "damage": 22177.291,
+      "healing": 0,
+      "shield": 0,
+      "controlSeconds": 0.5,
+      "signatureUses": 2.146,
+      "ults": 0.855,
+      "teamHpPct": 0.581,
+      "baselineWin": 0.834,
+      "winWithoutSignature": 0.604,
+      "firstUltMean": 21.142
+    },
+    {
+      "job": "champion",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "damage",
+        "tank"
+      ],
+      "forms": [
+        "teo/monk",
+        "vika/monk"
+      ],
+      "win": 0.334,
+      "duration": 51.708,
+      "damage": 7231.917,
+      "healing": 9404.166,
+      "shield": 2162.584,
+      "controlSeconds": 3.946,
+      "signatureUses": 2.667,
+      "ults": 1.125,
+      "teamHpPct": 0.176,
+      "baselineWin": 0.291,
+      "winWithoutSignature": 0.438,
+      "firstUltMean": 21.227
+    },
+    {
+      "job": "clown",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "support"
+      ],
+      "forms": [
+        "bran/bard"
+      ],
+      "win": 0.417,
+      "duration": 62.417,
+      "damage": 25034.25,
+      "healing": 24392.542,
+      "shield": 0,
+      "controlSeconds": 0,
+      "signatureUses": 4.458,
+      "ults": 3.292,
+      "teamHpPct": 0.337,
+      "baselineWin": 0.333,
+      "winWithoutSignature": 0.5,
+      "firstUltMean": 16.588
+    },
+    {
+      "job": "creator",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "damage",
+        "healer"
+      ],
+      "forms": [
+        "greta/alchemist",
+        "otto/alchemist"
+      ],
+      "win": 0.395,
+      "duration": 56.527,
+      "damage": 23405.896,
+      "healing": 18596.271,
+      "shield": 16884.27,
+      "controlSeconds": 0,
+      "signatureUses": 4.042,
+      "ults": 2.167,
+      "teamHpPct": 0.237,
+      "baselineWin": 0.396,
+      "winWithoutSignature": 0.229,
+      "firstUltMean": 19.5
+    },
+    {
+      "job": "gypsy",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "support"
+      ],
+      "forms": [
+        "meilin/dancer"
+      ],
+      "win": 0.542,
+      "duration": 62.454,
+      "damage": 73024.708,
+      "healing": 0,
+      "shield": 0,
+      "controlSeconds": 3.417,
+      "signatureUses": 4.292,
+      "ults": 3.25,
+      "teamHpPct": 0.356,
+      "baselineWin": 0.5,
+      "winWithoutSignature": 0.458,
+      "firstUltMean": 14.938
+    },
+    {
+      "job": "high_priest",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "healer",
+        "support"
+      ],
+      "forms": [
+        "teo/priest",
+        "vika/priest"
+      ],
+      "win": 0.583,
+      "duration": 65.739,
+      "damage": 5784.604,
+      "healing": 40042.959,
+      "shield": 31398.312,
+      "controlSeconds": 0,
+      "signatureUses": 4.667,
+      "ults": 3.042,
+      "teamHpPct": 0.405,
+      "baselineWin": 0.562,
+      "winWithoutSignature": 0.416,
+      "firstUltMean": 19.263
+    },
+    {
+      "job": "high_wizard",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "damage"
+      ],
+      "forms": [
+        "kai/wizard",
+        "lira/wizard"
+      ],
+      "win": 0.916,
+      "duration": 63.698,
+      "damage": 35057.625,
+      "healing": 135.375,
+      "shield": 5682.875,
+      "controlSeconds": 1.688,
+      "signatureUses": 4.167,
+      "ults": 1.938,
+      "teamHpPct": 0.572,
+      "baselineWin": 0.834,
+      "winWithoutSignature": 0.708,
+      "firstUltMean": 23.037
+    },
+    {
+      "job": "lord_knight",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "damage",
+        "tank"
+      ],
+      "forms": [
+        "alan/knight",
+        "iris/knight"
+      ],
+      "win": 0.854,
+      "duration": 63.971,
+      "damage": 33357.208,
+      "healing": 4503.333,
+      "shield": 0,
+      "controlSeconds": 2.421,
+      "signatureUses": 4.354,
+      "ults": 2.396,
+      "teamHpPct": 0.563,
+      "baselineWin": 0.855,
+      "winWithoutSignature": 0.917,
+      "firstUltMean": 20.523
+    },
+    {
+      "job": "paladin",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "tank"
+      ],
+      "forms": [
+        "alan/crusader",
+        "iris/crusader"
+      ],
+      "win": 0.771,
+      "duration": 62.171,
+      "damage": 23165.5,
+      "healing": 231.312,
+      "shield": 41291.916,
+      "controlSeconds": 0.873,
+      "signatureUses": 4.271,
+      "ults": 2.021,
+      "teamHpPct": 0.587,
+      "baselineWin": 0.812,
+      "winWithoutSignature": 0.75,
+      "firstUltMean": 26.447
+    },
+    {
+      "job": "professor",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "damage",
+        "support"
+      ],
+      "forms": [
+        "kai/sage",
+        "lira/sage"
+      ],
+      "win": 0.792,
+      "duration": 65.489,
+      "damage": 23146.438,
+      "healing": 0,
+      "shield": 20006.541,
+      "controlSeconds": 2.031,
+      "signatureUses": 3.875,
+      "ults": 2.188,
+      "teamHpPct": 0.501,
+      "baselineWin": 0.75,
+      "winWithoutSignature": 0.709,
+      "firstUltMean": 24.431
+    },
+    {
+      "job": "sniper",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "damage"
+      ],
+      "forms": [
+        "bran/hunter",
+        "meilin/hunter"
+      ],
+      "win": 0.688,
+      "duration": 64.418,
+      "damage": 71798.917,
+      "healing": 0,
+      "shield": 0,
+      "controlSeconds": 3,
+      "signatureUses": 4.562,
+      "ults": 3.042,
+      "teamHpPct": 0.443,
+      "baselineWin": 0.709,
+      "winWithoutSignature": 0.542,
+      "firstUltMean": 17.263
+    },
+    {
+      "job": "stalker",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "support",
+        "tank"
+      ],
+      "forms": [
+        "dorn/rogue",
+        "zara/rogue"
+      ],
+      "win": 0.646,
+      "duration": 43.819,
+      "damage": 21299.291,
+      "healing": 0,
+      "shield": 0,
+      "controlSeconds": 1.071,
+      "signatureUses": 2.688,
+      "ults": 1.083,
+      "teamHpPct": 0.501,
+      "baselineWin": 0.688,
+      "winWithoutSignature": 0.646,
+      "firstUltMean": 22.145
+    },
+    {
+      "job": "whitesmith",
+      "level": 70,
+      "rarity": "gold",
+      "roles": [
+        "damage",
+        "tank"
+      ],
+      "forms": [
+        "greta/blacksmith",
+        "otto/blacksmith"
+      ],
+      "win": 0.479,
+      "duration": 63.034,
+      "damage": 15491.542,
+      "healing": 0,
+      "shield": 33161.166,
+      "controlSeconds": 15.104,
+      "signatureUses": 4.188,
+      "ults": 1.896,
+      "teamHpPct": 0.313,
+      "baselineWin": 0.542,
+      "winWithoutSignature": 0.583,
+      "firstUltMean": 26.338
+    },
+    {
+      "job": "assassin_cross",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "damage"
+      ],
+      "forms": [
+        "dorn/assassin",
+        "zara/assassin"
+      ],
+      "win": 0.729,
+      "duration": 69.171,
+      "damage": 110149.084,
+      "healing": 0,
+      "shield": 0,
+      "controlSeconds": 0.75,
+      "signatureUses": 4.188,
+      "ults": 2.833,
+      "teamHpPct": 0.517,
+      "baselineWin": 0.562,
+      "winWithoutSignature": 0.729,
+      "firstUltMean": 17.076
+    },
+    {
+      "job": "champion",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "damage",
+        "tank"
+      ],
+      "forms": [
+        "teo/monk",
+        "vika/monk"
+      ],
+      "win": 0.334,
+      "duration": 65.44,
+      "damage": 23111.042,
+      "healing": 36769.812,
+      "shield": 30027.604,
+      "controlSeconds": 6.838,
+      "signatureUses": 4.375,
+      "ults": 3.583,
+      "teamHpPct": 0.217,
+      "baselineWin": 0.334,
+      "winWithoutSignature": 0.354,
+      "firstUltMean": 15.104
+    },
+    {
+      "job": "clown",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "support"
+      ],
+      "forms": [
+        "bran/bard"
+      ],
+      "win": 0.375,
+      "duration": 72.033,
+      "damage": 60104.375,
+      "healing": 46248.542,
+      "shield": 8641,
+      "controlSeconds": 0,
+      "signatureUses": 4.958,
+      "ults": 5.5,
+      "teamHpPct": 0.358,
+      "baselineWin": 0.417,
+      "winWithoutSignature": 0.375,
+      "firstUltMean": 12.629
+    },
+    {
+      "job": "creator",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "damage",
+        "healer"
+      ],
+      "forms": [
+        "greta/alchemist",
+        "otto/alchemist"
+      ],
+      "win": 0.396,
+      "duration": 76.583,
+      "damage": 65483.584,
+      "healing": 58875.312,
+      "shield": 48442.729,
+      "controlSeconds": 0,
+      "signatureUses": 4.75,
+      "ults": 3.292,
+      "teamHpPct": 0.206,
+      "baselineWin": 0.375,
+      "winWithoutSignature": 0.271,
+      "firstUltMean": 19.226
+    },
+    {
+      "job": "gypsy",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "support"
+      ],
+      "forms": [
+        "meilin/dancer"
+      ],
+      "win": 0.708,
+      "duration": 68.6,
+      "damage": 171210.083,
+      "healing": 0,
+      "shield": 0,
+      "controlSeconds": 4.221,
+      "signatureUses": 4.625,
+      "ults": 4.375,
+      "teamHpPct": 0.476,
+      "baselineWin": 0.625,
+      "winWithoutSignature": 0.75,
+      "firstUltMean": 13.108
+    },
+    {
+      "job": "high_priest",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "healer",
+        "support"
+      ],
+      "forms": [
+        "teo/priest",
+        "vika/priest"
+      ],
+      "win": 0.625,
+      "duration": 78.181,
+      "damage": 11566.292,
+      "healing": 101084.896,
+      "shield": 83390.771,
+      "controlSeconds": 0,
+      "signatureUses": 5.312,
+      "ults": 3.917,
+      "teamHpPct": 0.43,
+      "baselineWin": 0.438,
+      "winWithoutSignature": 0.312,
+      "firstUltMean": 18.653
+    },
+    {
+      "job": "high_wizard",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "damage"
+      ],
+      "forms": [
+        "kai/wizard",
+        "lira/wizard"
+      ],
+      "win": 0.75,
+      "duration": 75.963,
+      "damage": 83127.688,
+      "healing": 122.229,
+      "shield": 12510.416,
+      "controlSeconds": 1.911,
+      "signatureUses": 4.25,
+      "ults": 2.625,
+      "teamHpPct": 0.515,
+      "baselineWin": 0.667,
+      "winWithoutSignature": 0.625,
+      "firstUltMean": 19.227
+    },
+    {
+      "job": "lord_knight",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "damage",
+        "tank"
+      ],
+      "forms": [
+        "alan/knight",
+        "iris/knight"
+      ],
+      "win": 0.77,
+      "duration": 78.471,
+      "damage": 67523.875,
+      "healing": 1486.688,
+      "shield": 34346.771,
+      "controlSeconds": 3.904,
+      "signatureUses": 5.417,
+      "ults": 3.208,
+      "teamHpPct": 0.502,
+      "baselineWin": 0.709,
+      "winWithoutSignature": 0.75,
+      "firstUltMean": 20.944
+    },
+    {
+      "job": "paladin",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "tank"
+      ],
+      "forms": [
+        "alan/crusader",
+        "iris/crusader"
+      ],
+      "win": 0.833,
+      "duration": 71.215,
+      "damage": 57077.459,
+      "healing": 1870.812,
+      "shield": 98554.104,
+      "controlSeconds": 0.875,
+      "signatureUses": 5.042,
+      "ults": 2.938,
+      "teamHpPct": 0.603,
+      "baselineWin": 0.812,
+      "winWithoutSignature": 0.584,
+      "firstUltMean": 21.767
+    },
+    {
+      "job": "professor",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "damage",
+        "support"
+      ],
+      "forms": [
+        "kai/sage",
+        "lira/sage"
+      ],
+      "win": 0.708,
+      "duration": 73.434,
+      "damage": 35786.688,
+      "healing": 0,
+      "shield": 56417.709,
+      "controlSeconds": 2.229,
+      "signatureUses": 4.333,
+      "ults": 2.583,
+      "teamHpPct": 0.538,
+      "baselineWin": 0.625,
+      "winWithoutSignature": 0.604,
+      "firstUltMean": 23.288
+    },
+    {
+      "job": "sniper",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "damage"
+      ],
+      "forms": [
+        "bran/hunter",
+        "meilin/hunter"
+      ],
+      "win": 0.52,
+      "duration": 79.096,
+      "damage": 141660.271,
+      "healing": 0,
+      "shield": 0,
+      "controlSeconds": 4.316,
+      "signatureUses": 4.792,
+      "ults": 5.292,
+      "teamHpPct": 0.328,
+      "baselineWin": 0.459,
+      "winWithoutSignature": 0.48,
+      "firstUltMean": 11.947
+    },
+    {
+      "job": "stalker",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "support",
+        "tank"
+      ],
+      "forms": [
+        "dorn/rogue",
+        "zara/rogue"
+      ],
+      "win": 0.812,
+      "duration": 57.477,
+      "damage": 59322.291,
+      "healing": 0,
+      "shield": 2350,
+      "controlSeconds": 1.777,
+      "signatureUses": 3.979,
+      "ults": 2.458,
+      "teamHpPct": 0.661,
+      "baselineWin": 0.812,
+      "winWithoutSignature": 0.708,
+      "firstUltMean": 18.123
+    },
+    {
+      "job": "whitesmith",
+      "level": 100,
+      "rarity": "red",
+      "roles": [
+        "damage",
+        "tank"
+      ],
+      "forms": [
+        "greta/blacksmith",
+        "otto/blacksmith"
+      ],
+      "win": 0.604,
+      "duration": 68.562,
+      "damage": 27430.396,
+      "healing": 0,
+      "shield": 109736.709,
+      "controlSeconds": 16.393,
+      "signatureUses": 4.625,
+      "ults": 3.375,
+      "teamHpPct": 0.48,
+      "baselineWin": 0.542,
+      "winWithoutSignature": 0.605,
+      "firstUltMean": 16.716
+    }
+  ],
+  "timerCandidate": {
+    "limits": [
+      90,
+      100
+    ],
+    "seeds": 64,
+    "sourceDigest": {
+      "baseline": "226cb01a8a1615a96f0562041d77b0fe0602e1e27694acf563f428abec9fe25b",
+      "combatFixes": "7cfb04e40c6760590f2510900e6e141e993c87f0b93e4947ef91df2783f87352"
+    },
+    "methodology": "Тот же десериализованный легальный save и сохранённые now/day, seedBase=battleSeq+1; только combat.timeLimitSeconds заменён в памяти. lossWipes считает только поражения от уничтожения отряда, а не победное уничтожение врага.",
+    "snapshots": [
+      {
+        "name": "first-wall-7",
+        "basename": "before-wall-ch7_s10.json",
+        "stages": [
+          "ch7_s10"
+        ]
+      },
+      {
+        "name": "first-wall-9",
+        "basename": "before-wall-ch9_s10.json",
+        "stages": [
+          "ch9_s10"
+        ]
+      },
+      {
+        "name": "after-chapter-9",
+        "basename": "after-ch9_s18.json",
+        "stages": [
+          "ch7_s10",
+          "ch9_s10"
+        ]
+      }
+    ],
+    "cohorts": [
+      {
+        "source": "baseline",
+        "snapshot": "first-wall-7",
+        "saveSha256": "25d5c2b0cb896c35f1c532b4d2aec7817aaaa250cf13a3e4d56b81d5f26ea938",
+        "stage": "ch7_s10",
+        "limit": 90,
+        "seedBase": 832,
+        "seeds": 64,
+        "wins": 0,
+        "lossWipes": 4,
+        "timeouts": 60,
+        "meanDuration": 89.94375,
+        "meanEnemyHpRemaining": 0.240889,
+        "meanPlayerHpRemaining": 0.106044,
+        "winningDurationMin": null,
+        "winningDurationMax": null
+      },
+      {
+        "source": "baseline",
+        "snapshot": "first-wall-7",
+        "saveSha256": "25d5c2b0cb896c35f1c532b4d2aec7817aaaa250cf13a3e4d56b81d5f26ea938",
+        "stage": "ch7_s10",
+        "limit": 100,
+        "seedBase": 832,
+        "seeds": 64,
+        "wins": 0,
+        "lossWipes": 64,
+        "timeouts": 0,
+        "meanDuration": 93.221875,
+        "meanEnemyHpRemaining": 0.18048,
+        "meanPlayerHpRemaining": 0,
+        "winningDurationMin": null,
+        "winningDurationMax": null
+      },
+      {
+        "source": "baseline",
+        "snapshot": "first-wall-9",
+        "saveSha256": "6a4cd053570cdcfb3e578d09b99169d6114c12b173f1844d80ecb905f18fca1e",
+        "stage": "ch9_s10",
+        "limit": 90,
+        "seedBase": 1305,
+        "seeds": 64,
+        "wins": 0,
+        "lossWipes": 0,
+        "timeouts": 64,
+        "meanDuration": 90,
+        "meanEnemyHpRemaining": 0.269897,
+        "meanPlayerHpRemaining": 0.141584,
+        "winningDurationMin": null,
+        "winningDurationMax": null
+      },
+      {
+        "source": "baseline",
+        "snapshot": "first-wall-9",
+        "saveSha256": "6a4cd053570cdcfb3e578d09b99169d6114c12b173f1844d80ecb905f18fca1e",
+        "stage": "ch9_s10",
+        "limit": 100,
+        "seedBase": 1305,
+        "seeds": 64,
+        "wins": 0,
+        "lossWipes": 64,
+        "timeouts": 0,
+        "meanDuration": 94.817188,
+        "meanEnemyHpRemaining": 0.247636,
+        "meanPlayerHpRemaining": 0,
+        "winningDurationMin": null,
+        "winningDurationMax": null
+      },
+      {
+        "source": "baseline",
+        "snapshot": "after-chapter-9",
+        "saveSha256": "eeff1e52040e288c2129b5130f85b6eb4179734e27786c92bb28a3dbaa501464",
+        "stage": "ch7_s10",
+        "limit": 90,
+        "seedBase": 1644,
+        "seeds": 64,
+        "wins": 64,
+        "lossWipes": 0,
+        "timeouts": 0,
+        "meanDuration": 63.3375,
+        "meanEnemyHpRemaining": 0,
+        "meanPlayerHpRemaining": 0.994717,
+        "winningDurationMin": 57.2,
+        "winningDurationMax": 67.9
+      },
+      {
+        "source": "baseline",
+        "snapshot": "after-chapter-9",
+        "saveSha256": "eeff1e52040e288c2129b5130f85b6eb4179734e27786c92bb28a3dbaa501464",
+        "stage": "ch7_s10",
+        "limit": 100,
+        "seedBase": 1644,
+        "seeds": 64,
+        "wins": 64,
+        "lossWipes": 0,
+        "timeouts": 0,
+        "meanDuration": 63.3375,
+        "meanEnemyHpRemaining": 0,
+        "meanPlayerHpRemaining": 0.994717,
+        "winningDurationMin": 57.2,
+        "winningDurationMax": 67.9
+      },
+      {
+        "source": "baseline",
+        "snapshot": "after-chapter-9",
+        "saveSha256": "eeff1e52040e288c2129b5130f85b6eb4179734e27786c92bb28a3dbaa501464",
+        "stage": "ch9_s10",
+        "limit": 90,
+        "seedBase": 1644,
+        "seeds": 64,
+        "wins": 39,
+        "lossWipes": 0,
+        "timeouts": 25,
+        "meanDuration": 88.789063,
+        "meanEnemyHpRemaining": 0.018084,
+        "meanPlayerHpRemaining": 0.41953,
+        "winningDurationMin": 84.5,
+        "winningDurationMax": 90
+      },
+      {
+        "source": "baseline",
+        "snapshot": "after-chapter-9",
+        "saveSha256": "eeff1e52040e288c2129b5130f85b6eb4179734e27786c92bb28a3dbaa501464",
+        "stage": "ch9_s10",
+        "limit": 100,
+        "seedBase": 1644,
+        "seeds": 64,
+        "wins": 64,
+        "lossWipes": 0,
+        "timeouts": 0,
+        "meanDuration": 89.720313,
+        "meanEnemyHpRemaining": 0,
+        "meanPlayerHpRemaining": 0.403277,
+        "winningDurationMin": 84.5,
+        "winningDurationMax": 96.3
+      },
+      {
+        "source": "combatFixes",
+        "snapshot": "first-wall-7",
+        "saveSha256": "25d5c2b0cb896c35f1c532b4d2aec7817aaaa250cf13a3e4d56b81d5f26ea938",
+        "stage": "ch7_s10",
+        "limit": 90,
+        "seedBase": 832,
+        "seeds": 64,
+        "wins": 0,
+        "lossWipes": 2,
+        "timeouts": 62,
+        "meanDuration": 89.982812,
+        "meanEnemyHpRemaining": 0.237204,
+        "meanPlayerHpRemaining": 0.11463,
+        "winningDurationMin": null,
+        "winningDurationMax": null
+      },
+      {
+        "source": "combatFixes",
+        "snapshot": "first-wall-7",
+        "saveSha256": "25d5c2b0cb896c35f1c532b4d2aec7817aaaa250cf13a3e4d56b81d5f26ea938",
+        "stage": "ch7_s10",
+        "limit": 100,
+        "seedBase": 832,
+        "seeds": 64,
+        "wins": 0,
+        "lossWipes": 64,
+        "timeouts": 0,
+        "meanDuration": 93.432813,
+        "meanEnemyHpRemaining": 0.169468,
+        "meanPlayerHpRemaining": 0,
+        "winningDurationMin": null,
+        "winningDurationMax": null
+      },
+      {
+        "source": "combatFixes",
+        "snapshot": "first-wall-9",
+        "saveSha256": "6a4cd053570cdcfb3e578d09b99169d6114c12b173f1844d80ecb905f18fca1e",
+        "stage": "ch9_s10",
+        "limit": 90,
+        "seedBase": 1305,
+        "seeds": 64,
+        "wins": 0,
+        "lossWipes": 0,
+        "timeouts": 64,
+        "meanDuration": 90,
+        "meanEnemyHpRemaining": 0.265816,
+        "meanPlayerHpRemaining": 0.143769,
+        "winningDurationMin": null,
+        "winningDurationMax": null
+      },
+      {
+        "source": "combatFixes",
+        "snapshot": "first-wall-9",
+        "saveSha256": "6a4cd053570cdcfb3e578d09b99169d6114c12b173f1844d80ecb905f18fca1e",
+        "stage": "ch9_s10",
+        "limit": 100,
+        "seedBase": 1305,
+        "seeds": 64,
+        "wins": 0,
+        "lossWipes": 64,
+        "timeouts": 0,
+        "meanDuration": 94.80625,
+        "meanEnemyHpRemaining": 0.244557,
+        "meanPlayerHpRemaining": 0,
+        "winningDurationMin": null,
+        "winningDurationMax": null
+      },
+      {
+        "source": "combatFixes",
+        "snapshot": "after-chapter-9",
+        "saveSha256": "eeff1e52040e288c2129b5130f85b6eb4179734e27786c92bb28a3dbaa501464",
+        "stage": "ch7_s10",
+        "limit": 90,
+        "seedBase": 1644,
+        "seeds": 64,
+        "wins": 64,
+        "lossWipes": 0,
+        "timeouts": 0,
+        "meanDuration": 63.63125,
+        "meanEnemyHpRemaining": 0,
+        "meanPlayerHpRemaining": 0.992402,
+        "winningDurationMin": 51.1,
+        "winningDurationMax": 67.5
+      },
+      {
+        "source": "combatFixes",
+        "snapshot": "after-chapter-9",
+        "saveSha256": "eeff1e52040e288c2129b5130f85b6eb4179734e27786c92bb28a3dbaa501464",
+        "stage": "ch7_s10",
+        "limit": 100,
+        "seedBase": 1644,
+        "seeds": 64,
+        "wins": 64,
+        "lossWipes": 0,
+        "timeouts": 0,
+        "meanDuration": 63.63125,
+        "meanEnemyHpRemaining": 0,
+        "meanPlayerHpRemaining": 0.992402,
+        "winningDurationMin": 51.1,
+        "winningDurationMax": 67.5
+      },
+      {
+        "source": "combatFixes",
+        "snapshot": "after-chapter-9",
+        "saveSha256": "eeff1e52040e288c2129b5130f85b6eb4179734e27786c92bb28a3dbaa501464",
+        "stage": "ch9_s10",
+        "limit": 90,
+        "seedBase": 1644,
+        "seeds": 64,
+        "wins": 34,
+        "lossWipes": 0,
+        "timeouts": 30,
+        "meanDuration": 88.935938,
+        "meanEnemyHpRemaining": 0.022617,
+        "meanPlayerHpRemaining": 0.411932,
+        "winningDurationMin": 84.5,
+        "winningDurationMax": 90
+      },
+      {
+        "source": "combatFixes",
+        "snapshot": "after-chapter-9",
+        "saveSha256": "eeff1e52040e288c2129b5130f85b6eb4179734e27786c92bb28a3dbaa501464",
+        "stage": "ch9_s10",
+        "limit": 100,
+        "seedBase": 1644,
+        "seeds": 64,
+        "wins": 64,
+        "lossWipes": 0,
+        "timeouts": 0,
+        "meanDuration": 90.071875,
+        "meanEnemyHpRemaining": 0,
+        "meanPlayerHpRemaining": 0.39182,
+        "winningDurationMin": 84.5,
+        "winningDurationMax": 96.3
+      }
+    ],
+    "golden": {
+      "behavior": false,
+      "seeds": 4,
+      "squadsChanged": false,
+      "perfThresholdChanged": false,
+      "fixesAtOriginalLimit": {
+        "total": 292,
+        "unchanged": 242,
+        "changed": 50,
+        "changedKeys": [
+          "ch10_s18/sq2#1",
+          "ch10_s18/sq2#2",
+          "ch10_s18/sq2#3",
+          "ch10_s18/sq2#4",
+          "ch1_s10/sq2#1",
+          "ch1_s10/sq2#2",
+          "ch1_s10/sq2#3",
+          "ch1_s10/sq2#4",
+          "ch2_s10/sq2#1",
+          "ch2_s10/sq2#2",
+          "ch2_s10/sq2#3",
+          "ch2_s10/sq2#4",
+          "ch3_s10/sq2#1",
+          "ch3_s10/sq2#2",
+          "ch3_s10/sq2#3",
+          "ch3_s10/sq2#4",
+          "ch3_s15/sq2#1",
+          "ch3_s15/sq2#2",
+          "ch3_s15/sq2#3",
+          "ch3_s15/sq2#4",
+          "ch4_s10/sq2#1",
+          "ch4_s10/sq2#2",
+          "ch4_s10/sq2#3",
+          "ch4_s10/sq2#4",
+          "ch5_s10/sq2#1",
+          "ch5_s10/sq2#2",
+          "ch5_s10/sq2#3",
+          "ch5_s10/sq2#4",
+          "ch6_s10/sq2#1",
+          "ch6_s10/sq2#2",
+          "ch6_s10/sq2#3",
+          "ch6_s10/sq2#4",
+          "ch7_s10/sq2#1",
+          "ch7_s10/sq2#2",
+          "ch7_s10/sq2#3",
+          "ch7_s10/sq2#4",
+          "ch8_s15/sq2#1",
+          "ch8_s15/sq2#2",
+          "ch8_s15/sq2#3",
+          "ch8_s15/sq2#4",
+          "ch8_s18/sq2#1",
+          "ch8_s18/sq2#2",
+          "ch8_s18/sq2#3",
+          "ch8_s18/sq2#4",
+          "ch9_s10/sq2#2",
+          "ch9_s10/sq2#4",
+          "ch9_s18/sq2#1",
+          "ch9_s18/sq2#2",
+          "ch9_s18/sq2#3",
+          "ch9_s18/sq2#4"
+        ]
+      },
+      "limits": [
+        {
+          "limit": 100,
+          "baselineLimitOnly": {
+            "total": 292,
+            "unchanged": 268,
+            "changed": 24,
+            "changedKeys": [
+              "ch10_s18/sq4#1",
+              "ch10_s18/sq4#3",
+              "ch10_s18/sq4#4",
+              "ch1_s10/sq1#2",
+              "ch1_s10/sq2#1",
+              "ch1_s10/sq2#2",
+              "ch1_s10/sq2#3",
+              "ch1_s10/sq2#4",
+              "ch1_s10/sq3#1",
+              "ch1_s10/sq3#3",
+              "ch3_s10/sq1#1",
+              "ch3_s10/sq1#3",
+              "ch3_s10/sq1#4",
+              "ch4_s10/sq1#1",
+              "ch4_s10/sq1#2",
+              "ch4_s10/sq1#3",
+              "ch5_s10/sq1#1",
+              "ch5_s10/sq1#2",
+              "ch5_s10/sq1#3",
+              "ch5_s10/sq1#4",
+              "ch5_s10/sq2#3",
+              "ch8_s15/sq1#3",
+              "ch9_s10/sq2#4",
+              "ch9_s18/sq4#3"
+            ]
+          },
+          "afterLimitOnly": {
+            "total": 292,
+            "unchanged": 269,
+            "changed": 23,
+            "changedKeys": [
+              "ch10_s18/sq4#1",
+              "ch10_s18/sq4#3",
+              "ch10_s18/sq4#4",
+              "ch1_s10/sq1#2",
+              "ch1_s10/sq2#1",
+              "ch1_s10/sq2#2",
+              "ch1_s10/sq2#3",
+              "ch1_s10/sq2#4",
+              "ch1_s10/sq3#1",
+              "ch1_s10/sq3#3",
+              "ch3_s10/sq1#1",
+              "ch3_s10/sq1#3",
+              "ch3_s10/sq1#4",
+              "ch4_s10/sq1#1",
+              "ch4_s10/sq1#2",
+              "ch4_s10/sq1#3",
+              "ch5_s10/sq1#1",
+              "ch5_s10/sq1#2",
+              "ch5_s10/sq1#3",
+              "ch5_s10/sq1#4",
+              "ch5_s10/sq2#3",
+              "ch8_s15/sq1#3",
+              "ch9_s18/sq4#3"
+            ]
+          },
+          "fixesAtCandidateLimit": {
+            "total": 292,
+            "unchanged": 242,
+            "changed": 50,
+            "changedKeys": [
+              "ch10_s18/sq2#1",
+              "ch10_s18/sq2#2",
+              "ch10_s18/sq2#3",
+              "ch10_s18/sq2#4",
+              "ch1_s10/sq2#1",
+              "ch1_s10/sq2#2",
+              "ch1_s10/sq2#3",
+              "ch1_s10/sq2#4",
+              "ch2_s10/sq2#1",
+              "ch2_s10/sq2#2",
+              "ch2_s10/sq2#3",
+              "ch2_s10/sq2#4",
+              "ch3_s10/sq2#1",
+              "ch3_s10/sq2#2",
+              "ch3_s10/sq2#3",
+              "ch3_s10/sq2#4",
+              "ch3_s15/sq2#1",
+              "ch3_s15/sq2#2",
+              "ch3_s15/sq2#3",
+              "ch3_s15/sq2#4",
+              "ch4_s10/sq2#1",
+              "ch4_s10/sq2#2",
+              "ch4_s10/sq2#3",
+              "ch4_s10/sq2#4",
+              "ch5_s10/sq2#1",
+              "ch5_s10/sq2#2",
+              "ch5_s10/sq2#3",
+              "ch5_s10/sq2#4",
+              "ch6_s10/sq2#1",
+              "ch6_s10/sq2#2",
+              "ch6_s10/sq2#3",
+              "ch6_s10/sq2#4",
+              "ch7_s10/sq2#1",
+              "ch7_s10/sq2#2",
+              "ch7_s10/sq2#3",
+              "ch7_s10/sq2#4",
+              "ch8_s15/sq2#1",
+              "ch8_s15/sq2#2",
+              "ch8_s15/sq2#3",
+              "ch8_s15/sq2#4",
+              "ch8_s18/sq2#1",
+              "ch8_s18/sq2#2",
+              "ch8_s18/sq2#3",
+              "ch8_s18/sq2#4",
+              "ch9_s10/sq2#2",
+              "ch9_s10/sq2#4",
+              "ch9_s18/sq2#1",
+              "ch9_s18/sq2#2",
+              "ch9_s18/sq2#3",
+              "ch9_s18/sq2#4"
+            ]
+          },
+          "combined": {
+            "total": 292,
+            "unchanged": 224,
+            "changed": 68,
+            "changedKeys": [
+              "ch10_s18/sq2#1",
+              "ch10_s18/sq2#2",
+              "ch10_s18/sq2#3",
+              "ch10_s18/sq2#4",
+              "ch10_s18/sq4#1",
+              "ch10_s18/sq4#3",
+              "ch10_s18/sq4#4",
+              "ch1_s10/sq1#2",
+              "ch1_s10/sq2#1",
+              "ch1_s10/sq2#2",
+              "ch1_s10/sq2#3",
+              "ch1_s10/sq2#4",
+              "ch1_s10/sq3#1",
+              "ch1_s10/sq3#3",
+              "ch2_s10/sq2#1",
+              "ch2_s10/sq2#2",
+              "ch2_s10/sq2#3",
+              "ch2_s10/sq2#4",
+              "ch3_s10/sq1#1",
+              "ch3_s10/sq1#3",
+              "ch3_s10/sq1#4",
+              "ch3_s10/sq2#1",
+              "ch3_s10/sq2#2",
+              "ch3_s10/sq2#3",
+              "ch3_s10/sq2#4",
+              "ch3_s15/sq2#1",
+              "ch3_s15/sq2#2",
+              "ch3_s15/sq2#3",
+              "ch3_s15/sq2#4",
+              "ch4_s10/sq1#1",
+              "ch4_s10/sq1#2",
+              "ch4_s10/sq1#3",
+              "ch4_s10/sq2#1",
+              "ch4_s10/sq2#2",
+              "ch4_s10/sq2#3",
+              "ch4_s10/sq2#4",
+              "ch5_s10/sq1#1",
+              "ch5_s10/sq1#2",
+              "ch5_s10/sq1#3",
+              "ch5_s10/sq1#4",
+              "ch5_s10/sq2#1",
+              "ch5_s10/sq2#2",
+              "ch5_s10/sq2#3",
+              "ch5_s10/sq2#4",
+              "ch6_s10/sq2#1",
+              "ch6_s10/sq2#2",
+              "ch6_s10/sq2#3",
+              "ch6_s10/sq2#4",
+              "ch7_s10/sq2#1",
+              "ch7_s10/sq2#2",
+              "ch7_s10/sq2#3",
+              "ch7_s10/sq2#4",
+              "ch8_s15/sq1#3",
+              "ch8_s15/sq2#1",
+              "ch8_s15/sq2#2",
+              "ch8_s15/sq2#3",
+              "ch8_s15/sq2#4",
+              "ch8_s18/sq2#1",
+              "ch8_s18/sq2#2",
+              "ch8_s18/sq2#3",
+              "ch8_s18/sq2#4",
+              "ch9_s10/sq2#2",
+              "ch9_s10/sq2#4",
+              "ch9_s18/sq2#1",
+              "ch9_s18/sq2#2",
+              "ch9_s18/sq2#3",
+              "ch9_s18/sq2#4",
+              "ch9_s18/sq4#3"
+            ]
+          }
+        }
+      ]
+    },
+    "recommendation": "Минимальное доказанное увеличение до100с применено. Первый полный rational after100 уже завершил180/180; расширенные профили проверяются отдельно.",
+    "nowApplied": true,
+    "proofCandidateOnlyInMemory": true
+  },
+  "appliedChanges": {
+    "timeLimitSeconds": 100,
+    "ch1_s1TwoFabreMult": 1.8,
+    "classStatsChanged": false,
+    "energyChanged": false,
+    "economyChanged": false,
+    "recommendedCoefficientsChanged": false
+  },
+  "powerHintAudit": {
+    "script": "scripts/power-hint-audit.ts",
+    "sourceDigest": "79fa056ae3b80008ba5372ed2f9cf20d71946683245bb7d7161410d9abd33523",
+    "timeLimitSeconds": 100,
+    "seeds": 64,
+    "replayBattleCalls": 704,
+    "dataChanged": false,
+    "snapshotTiming": "First-wall saves сохраняются после поиска кандидатов; after-chapter saves после наград и prepare. FirstWinPower в журналах — мощь ДО победы/награды/auto-upgrade. Нельзя выдавать after-chapter replay за replay первого победного состава.",
+    "runs": [
+      {
+        "name": "naive-baseline",
+        "attemptsSha256": "a9edd8573fb7cc68a895e030ac491101fce4a365c804defc485a07fe3b6e21af",
+        "total": {
+          "attempts": 992,
+          "wins": 180,
+          "losses": 812,
+          "firstPower": 1425,
+          "firstWinPower": 1425,
+          "minWinPower": 1425,
+          "maxLossPower": 38016,
+          "medianRatio": 1.2417796610169491,
+          "medianWinRatio": 1.2123855835240276,
+          "lossesWithEasyVerdict": 555,
+          "lossReasons": {
+            "unrecorded": 812
+          }
+        },
+        "chapters": [
+          {
+            "chapter": "chapter5",
+            "attempts": 86,
+            "wins": 18,
+            "losses": 68,
+            "firstPower": 8237,
+            "firstWinPower": 8237,
+            "minWinPower": 8237,
+            "maxLossPower": 11837,
+            "medianRatio": 1.1610041515308769,
+            "medianWinRatio": 1.2958101045296166,
+            "lossesWithEasyVerdict": 66,
+            "lossReasons": {
+              "unrecorded": 68
+            }
+          },
+          {
+            "chapter": "chapter7",
+            "attempts": 140,
+            "wins": 18,
+            "losses": 122,
+            "firstPower": 13985,
+            "firstWinPower": 13985,
+            "minWinPower": 13985,
+            "maxLossPower": 19024,
+            "medianRatio": 1.073685776942356,
+            "medianWinRatio": 1.1442338022837677,
+            "lossesWithEasyVerdict": 36,
+            "lossReasons": {
+              "unrecorded": 122
+            }
+          },
+          {
+            "chapter": "chapter9",
+            "attempts": 227,
+            "wins": 18,
+            "losses": 209,
+            "firstPower": 21683,
+            "firstWinPower": 22190,
+            "minWinPower": 22190,
+            "maxLossPower": 25881,
+            "medianRatio": 1.3769306930693068,
+            "medianWinRatio": 1.328929564411492,
+            "lossesWithEasyVerdict": 209,
+            "lossReasons": {
+              "unrecorded": 209
+            }
+          },
+          {
+            "chapter": "chapter10",
+            "attempts": 232,
+            "wins": 18,
+            "losses": 214,
+            "firstPower": 27814,
+            "firstWinPower": 28928,
+            "minWinPower": 28928,
+            "maxLossPower": 38016,
+            "medianRatio": 1.4476063063063063,
+            "medianWinRatio": 1.3853074933244325,
+            "lossesWithEasyVerdict": 214,
+            "lossReasons": {
+              "unrecorded": 214
+            }
+          }
+        ],
+        "stages": [
+          {
+            "stage": "ch5_s10",
+            "recommended": 10400,
+            "factor": 0.5593,
+            "attempts": 1,
+            "wins": 1,
+            "losses": 0,
+            "firstPower": 11700,
+            "firstWinPower": 11700,
+            "minWinPower": 11700,
+            "maxLossPower": null,
+            "medianRatio": 1.125,
+            "medianWinRatio": 1.125,
+            "lossesWithEasyVerdict": 0,
+            "lossReasons": {}
+          },
+          {
+            "stage": "ch7_s10",
+            "recommended": 16800,
+            "factor": 0.5235,
+            "attempts": 101,
+            "wins": 1,
+            "losses": 100,
+            "firstPower": 16378,
+            "firstWinPower": 18844,
+            "minWinPower": 18844,
+            "maxLossPower": 19024,
+            "medianRatio": 1.057797619047619,
+            "medianWinRatio": 1.1216666666666666,
+            "lossesWithEasyVerdict": 15,
+            "lossReasons": {
+              "unrecorded": 100
+            }
+          },
+          {
+            "stage": "ch9_s10",
+            "recommended": 17200,
+            "factor": 0.3593,
+            "attempts": 159,
+            "wins": 1,
+            "losses": 158,
+            "firstPower": 22651,
+            "firstWinPower": 27575,
+            "minWinPower": 27575,
+            "maxLossPower": 25881,
+            "medianRatio": 1.4117441860465116,
+            "medianWinRatio": 1.6031976744186047,
+            "lossesWithEasyVerdict": 158,
+            "lossReasons": {
+              "unrecorded": 158
+            }
+          },
+          {
+            "stage": "ch10_s13",
+            "recommended": 22200,
+            "factor": 0.3066,
+            "attempts": 130,
+            "wins": 1,
+            "losses": 129,
+            "firstPower": 31958,
+            "firstWinPower": 41425,
+            "minWinPower": 41425,
+            "maxLossPower": 38016,
+            "medianRatio": 1.569481981981982,
+            "medianWinRatio": 1.865990990990991,
+            "lossesWithEasyVerdict": 129,
+            "lossReasons": {
+              "unrecorded": 129
+            }
+          }
+        ]
+      },
+      {
+        "name": "rational-baseline",
+        "attemptsSha256": "78084ff00b130a98cb4276d118c2db00a161afc0066807cbf5e43e8e9590aac6",
+        "total": {
+          "attempts": 783,
+          "wins": 180,
+          "losses": 603,
+          "firstPower": 1425,
+          "firstWinPower": 1425,
+          "minWinPower": 1425,
+          "maxLossPower": 33269,
+          "medianRatio": 1.206595744680851,
+          "medianWinRatio": 1.2390769230769232,
+          "lossesWithEasyVerdict": 365,
+          "lossReasons": {
+            "wipe": 252,
+            "timeout": 351
+          }
+        },
+        "chapters": [
+          {
+            "chapter": "chapter5",
+            "attempts": 86,
+            "wins": 18,
+            "losses": 68,
+            "firstPower": 8237,
+            "firstWinPower": 8237,
+            "minWinPower": 8237,
+            "maxLossPower": 11837,
+            "medianRatio": 1.1610041515308769,
+            "medianWinRatio": 1.2958101045296166,
+            "lossesWithEasyVerdict": 66,
+            "lossReasons": {
+              "wipe": 68
+            }
+          },
+          {
+            "chapter": "chapter7",
+            "attempts": 117,
+            "wins": 18,
+            "losses": 99,
+            "firstPower": 13985,
+            "firstWinPower": 13985,
+            "minWinPower": 13985,
+            "maxLossPower": 18207,
+            "medianRatio": 1.0532142857142857,
+            "medianWinRatio": 1.171093244699964,
+            "lossesWithEasyVerdict": 21,
+            "lossReasons": {
+              "wipe": 26,
+              "timeout": 73
+            }
+          },
+          {
+            "chapter": "chapter9",
+            "attempts": 194,
+            "wins": 18,
+            "losses": 176,
+            "firstPower": 21805,
+            "firstWinPower": 22495,
+            "minWinPower": 22344,
+            "maxLossPower": 28497,
+            "medianRatio": 1.4421511627906978,
+            "medianWinRatio": 1.336917373636558,
+            "lossesWithEasyVerdict": 176,
+            "lossReasons": {
+              "timeout": 176
+            }
+          },
+          {
+            "chapter": "chapter10",
+            "attempts": 108,
+            "wins": 18,
+            "losses": 90,
+            "firstPower": 28607,
+            "firstWinPower": 29513,
+            "minWinPower": 29513,
+            "maxLossPower": 33269,
+            "medianRatio": 1.3531775700934578,
+            "medianWinRatio": 1.3736026849358467,
+            "lossesWithEasyVerdict": 90,
+            "lossReasons": {
+              "timeout": 90
+            }
+          }
+        ],
+        "stages": [
+          {
+            "stage": "ch5_s10",
+            "recommended": 10400,
+            "factor": 0.5593,
+            "attempts": 1,
+            "wins": 1,
+            "losses": 0,
+            "firstPower": 11700,
+            "firstWinPower": 11700,
+            "minWinPower": 11700,
+            "maxLossPower": null,
+            "medianRatio": 1.125,
+            "medianWinRatio": 1.125,
+            "lossesWithEasyVerdict": 0,
+            "lossReasons": {}
+          },
+          {
+            "stage": "ch7_s10",
+            "recommended": 16800,
+            "factor": 0.5235,
+            "attempts": 78,
+            "wins": 1,
+            "losses": 77,
+            "firstPower": 16378,
+            "firstWinPower": 20288,
+            "minWinPower": 20288,
+            "maxLossPower": 18207,
+            "medianRatio": 1.040922619047619,
+            "medianWinRatio": 1.2076190476190476,
+            "lossesWithEasyVerdict": 0,
+            "lossReasons": {
+              "timeout": 69,
+              "wipe": 8
+            }
+          },
+          {
+            "stage": "ch9_s10",
+            "recommended": 17200,
+            "factor": 0.3593,
+            "attempts": 151,
+            "wins": 1,
+            "losses": 150,
+            "firstPower": 22588,
+            "firstWinPower": 28446,
+            "minWinPower": 28446,
+            "maxLossPower": 27273,
+            "medianRatio": 1.4704651162790698,
+            "medianWinRatio": 1.6538372093023255,
+            "lossesWithEasyVerdict": 150,
+            "lossReasons": {
+              "timeout": 150
+            }
+          },
+          {
+            "stage": "ch10_s13",
+            "recommended": 22200,
+            "factor": 0.3066,
+            "attempts": 16,
+            "wins": 1,
+            "losses": 15,
+            "firstPower": 32287,
+            "firstWinPower": 34175,
+            "minWinPower": 34175,
+            "maxLossPower": 33269,
+            "medianRatio": 1.4516216216216216,
+            "medianWinRatio": 1.5394144144144144,
+            "lossesWithEasyVerdict": 15,
+            "lossReasons": {
+              "timeout": 15
+            }
+          }
+        ]
+      },
+      {
+        "name": "rational-after100-seed1",
+        "attemptsSha256": "c7b8b2d65c5f4c0e2030c7a342b04224612af14ca064190de22c1c1860f52494",
+        "total": {
+          "attempts": 689,
+          "wins": 180,
+          "losses": 509,
+          "firstPower": 1425,
+          "firstWinPower": 1425,
+          "minWinPower": 1425,
+          "maxLossPower": 31271,
+          "medianRatio": 1.1605063291139242,
+          "medianWinRatio": 1.2414038418583875,
+          "lossesWithEasyVerdict": 286,
+          "lossReasons": {
+            "wipe": 495,
+            "timeout": 14
+          }
+        },
+        "chapters": [
+          {
+            "chapter": "chapter5",
+            "attempts": 78,
+            "wins": 18,
+            "losses": 60,
+            "firstPower": 7698,
+            "firstWinPower": 7698,
+            "minWinPower": 7698,
+            "maxLossPower": 11254,
+            "medianRatio": 1.1236298421807747,
+            "medianWinRatio": 1.3072707749766574,
+            "lossesWithEasyVerdict": 27,
+            "lossReasons": {
+              "wipe": 60
+            }
+          },
+          {
+            "chapter": "chapter7",
+            "attempts": 78,
+            "wins": 18,
+            "losses": 60,
+            "firstPower": 15051,
+            "firstWinPower": 15051,
+            "minWinPower": 15051,
+            "maxLossPower": 17384,
+            "medianRatio": 1.0239880952380953,
+            "medianWinRatio": 1.2143867106176267,
+            "lossesWithEasyVerdict": 15,
+            "lossReasons": {
+              "wipe": 60
+            }
+          },
+          {
+            "chapter": "chapter9",
+            "attempts": 115,
+            "wins": 18,
+            "losses": 97,
+            "firstPower": 22467,
+            "firstWinPower": 22467,
+            "minWinPower": 22467,
+            "maxLossPower": 25690,
+            "medianRatio": 1.3110227272727273,
+            "medianWinRatio": 1.3818758465815928,
+            "lossesWithEasyVerdict": 97,
+            "lossReasons": {
+              "wipe": 95,
+              "timeout": 2
+            }
+          },
+          {
+            "chapter": "chapter10",
+            "attempts": 79,
+            "wins": 18,
+            "losses": 61,
+            "firstPower": 26950,
+            "firstWinPower": 26950,
+            "minWinPower": 26950,
+            "maxLossPower": 31271,
+            "medianRatio": 1.3359009009009009,
+            "medianWinRatio": 1.2584045148433205,
+            "lossesWithEasyVerdict": 61,
+            "lossReasons": {
+              "timeout": 12,
+              "wipe": 49
+            }
+          }
+        ],
+        "stages": [
+          {
+            "stage": "ch5_s10",
+            "recommended": 10400,
+            "factor": 0.5593,
+            "attempts": 13,
+            "wins": 1,
+            "losses": 12,
+            "firstPower": 11063,
+            "firstWinPower": 11372,
+            "minWinPower": 11372,
+            "maxLossPower": 11254,
+            "medianRatio": 1.0659615384615384,
+            "medianWinRatio": 1.0934615384615385,
+            "lossesWithEasyVerdict": 0,
+            "lossReasons": {
+              "wipe": 12
+            }
+          },
+          {
+            "stage": "ch7_s10",
+            "recommended": 16800,
+            "factor": 0.5235,
+            "attempts": 46,
+            "wins": 1,
+            "losses": 45,
+            "firstPower": 16346,
+            "firstWinPower": 17193,
+            "minWinPower": 17193,
+            "maxLossPower": 17384,
+            "medianRatio": 1.010565476190476,
+            "medianWinRatio": 1.0233928571428572,
+            "lossesWithEasyVerdict": 0,
+            "lossReasons": {
+              "wipe": 45
+            }
+          },
+          {
+            "stage": "ch9_s10",
+            "recommended": 17200,
+            "factor": 0.3593,
+            "attempts": 1,
+            "wins": 1,
+            "losses": 0,
+            "firstPower": 26547,
+            "firstWinPower": 26547,
+            "minWinPower": 26547,
+            "maxLossPower": null,
+            "medianRatio": 1.5434302325581395,
+            "medianWinRatio": 1.5434302325581395,
+            "lossesWithEasyVerdict": 0,
+            "lossReasons": {}
+          },
+          {
+            "stage": "ch10_s13",
+            "recommended": 22200,
+            "factor": 0.3066,
+            "attempts": 50,
+            "wins": 1,
+            "losses": 49,
+            "firstPower": 29242,
+            "firstWinPower": 32609,
+            "minWinPower": 32609,
+            "maxLossPower": 31271,
+            "medianRatio": 1.3548198198198198,
+            "medianWinRatio": 1.4688738738738738,
+            "lossesWithEasyVerdict": 49,
+            "lossReasons": {
+              "wipe": 42,
+              "timeout": 7
+            }
+          }
+        ]
+      }
+    ],
+    "profiles": [
+      {
+        "name": "naive-first-wall-9",
+        "saveSha256": "6a4cd053570cdcfb3e578d09b99169d6114c12b173f1844d80ecb905f18fca1e",
+        "stage": "ch9_s10",
+        "seedBase": 1305,
+        "seeds": 64,
+        "power": 22666,
+        "recommended": 17200,
+        "ratio": 1.3177906976744187,
+        "verdict": "easy",
+        "factor": 0.3593,
+        "stagePower": 47833,
+        "wins": 0,
+        "winRate": 0,
+        "timeouts": 0,
+        "lossWipes": 64,
+        "medianDuration": 94.8,
+        "winningDurationMin": null,
+        "winningDurationMax": null,
+        "meanPlayerHpRemaining": 0,
+        "meanEnemyHpRemaining": 0.24455689623792143,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "resolve"
+          },
+          {
+            "template": "zara",
+            "branch": "assassin",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "lira",
+            "branch": "sage",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "precision"
+          },
+          {
+            "template": "dorn",
+            "branch": "assassin",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          }
+        ]
+      },
+      {
+        "name": "rational-first-wall-9",
+        "saveSha256": "efb545133ea80a30d4b6a27398f2527d097f9f0fc6c3a51b29109171b4b63db1",
+        "stage": "ch9_s10",
+        "seedBase": 1124,
+        "seeds": 64,
+        "power": 22612,
+        "recommended": 17200,
+        "ratio": 1.3146511627906976,
+        "verdict": "easy",
+        "factor": 0.3593,
+        "stagePower": 47833,
+        "wins": 0,
+        "winRate": 0,
+        "timeouts": 64,
+        "lossWipes": 0,
+        "medianDuration": 100,
+        "winningDurationMin": null,
+        "winningDurationMax": null,
+        "meanPlayerHpRemaining": 0.2326658105144745,
+        "meanEnemyHpRemaining": 0.22212677928162175,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 100,
+            "rarity": "red",
+            "focus": "resolve"
+          },
+          {
+            "template": "iris",
+            "branch": "knight",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "kai",
+            "branch": "wizard",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "zara",
+            "branch": "assassin",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          }
+        ]
+      },
+      {
+        "name": "naive-after-9",
+        "saveSha256": "eeff1e52040e288c2129b5130f85b6eb4179734e27786c92bb28a3dbaa501464",
+        "stage": "ch9_s10",
+        "seedBase": 1644,
+        "seeds": 64,
+        "power": 27814,
+        "recommended": 17200,
+        "ratio": 1.617093023255814,
+        "verdict": "easy",
+        "factor": 0.3593,
+        "stagePower": 47833,
+        "wins": 64,
+        "winRate": 1,
+        "timeouts": 0,
+        "lossWipes": 0,
+        "medianDuration": 89.75,
+        "winningDurationMin": 84.5,
+        "winningDurationMax": 96.3,
+        "meanPlayerHpRemaining": 0.3918204478282016,
+        "meanEnemyHpRemaining": 0,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "resolve"
+          },
+          {
+            "template": "zara",
+            "branch": "assassin",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "dorn",
+            "branch": "assassin",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "lira",
+            "branch": "sage",
+            "level": 100,
+            "rarity": "red",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          }
+        ]
+      },
+      {
+        "name": "rational-after-9",
+        "saveSha256": "4213df7e53b4b9fb93f566c49c475233603a73700de8653159847c4b1ed97743",
+        "stage": "ch9_s10",
+        "seedBase": 1513,
+        "seeds": 64,
+        "power": 28607,
+        "recommended": 17200,
+        "ratio": 1.6631976744186046,
+        "verdict": "easy",
+        "factor": 0.3593,
+        "stagePower": 47833,
+        "wins": 64,
+        "winRate": 1,
+        "timeouts": 0,
+        "lossWipes": 0,
+        "medianDuration": 87.95,
+        "winningDurationMin": 86.5,
+        "winningDurationMax": 91.7,
+        "meanPlayerHpRemaining": 0.6117120169585768,
+        "meanEnemyHpRemaining": 0,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 100,
+            "rarity": "red",
+            "focus": "resolve"
+          },
+          {
+            "template": "iris",
+            "branch": "knight",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "zara",
+            "branch": "assassin",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "lira",
+            "branch": "sage",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "precision"
+          }
+        ]
+      },
+      {
+        "name": "naive-first-wall-10",
+        "saveSha256": "300d600c7483d99b07868658d2aa38ee362d67107ae57da88d762587f3192b5f",
+        "stage": "ch10_s13",
+        "seedBase": 1912,
+        "seeds": 64,
+        "power": 31956,
+        "recommended": 22200,
+        "ratio": 1.4394594594594594,
+        "verdict": "easy",
+        "factor": 0.3066,
+        "stagePower": 72318,
+        "wins": 9,
+        "winRate": 0.140625,
+        "timeouts": 55,
+        "lossWipes": 0,
+        "medianDuration": 100,
+        "winningDurationMin": 97.4,
+        "winningDurationMax": 100,
+        "meanPlayerHpRemaining": 0.3959002597910497,
+        "meanEnemyHpRemaining": 0.047601580576574334,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "resolve"
+          },
+          {
+            "template": "lira",
+            "branch": "sage",
+            "level": 100,
+            "rarity": "red",
+            "focus": "precision"
+          },
+          {
+            "template": "kai",
+            "branch": "wizard",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "precision"
+          },
+          {
+            "template": "bran",
+            "branch": "hunter",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          }
+        ]
+      },
+      {
+        "name": "rational-first-wall-10",
+        "saveSha256": "906c96a962bf8e8c2b16f1d7052d016fa405af137f1dd2166e9751ef62fb41e0",
+        "stage": "ch10_s13",
+        "seedBase": 1734,
+        "seeds": 64,
+        "power": 31872,
+        "recommended": 22200,
+        "ratio": 1.4356756756756757,
+        "verdict": "easy",
+        "factor": 0.3066,
+        "stagePower": 72318,
+        "wins": 64,
+        "winRate": 1,
+        "timeouts": 0,
+        "lossWipes": 0,
+        "medianDuration": 95.1,
+        "winningDurationMin": 92.9,
+        "winningDurationMax": 98.3,
+        "meanPlayerHpRemaining": 0.726510676965016,
+        "meanEnemyHpRemaining": 0,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 100,
+            "rarity": "red",
+            "focus": "resolve"
+          },
+          {
+            "template": "greta",
+            "branch": "blacksmith",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "zara",
+            "branch": "assassin",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "kai",
+            "branch": "wizard",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "precision"
+          }
+        ]
+      },
+      {
+        "name": "naive-after-10",
+        "saveSha256": "f71dfed8bd52d2b1a76de9f690b4711404fe983e951cac33ef6e5ff49819d499",
+        "stage": "ch10_s13",
+        "seedBase": 2215,
+        "seeds": 64,
+        "power": 41755,
+        "recommended": 22200,
+        "ratio": 1.880855855855856,
+        "verdict": "easy",
+        "factor": 0.3066,
+        "stagePower": 72318,
+        "wins": 64,
+        "winRate": 1,
+        "timeouts": 0,
+        "lossWipes": 0,
+        "medianDuration": 82.4,
+        "winningDurationMin": 81.3,
+        "winningDurationMax": 85.2,
+        "meanPlayerHpRemaining": 0.9780243667400881,
+        "meanEnemyHpRemaining": 0,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 91,
+            "rarity": "red",
+            "focus": "resolve"
+          },
+          {
+            "template": "kai",
+            "branch": "wizard",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "precision"
+          },
+          {
+            "template": "meilin",
+            "branch": "hunter",
+            "level": 91,
+            "rarity": "red",
+            "focus": "precision"
+          },
+          {
+            "template": "lira",
+            "branch": "sage",
+            "level": 100,
+            "rarity": "red",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          }
+        ]
+      },
+      {
+        "name": "rational-after-10",
+        "saveSha256": "86525c1988dc5313a155323d427621f907518e398a802f830b808ebadacededa",
+        "stage": "ch10_s13",
+        "seedBase": 1766,
+        "seeds": 64,
+        "power": 35316,
+        "recommended": 22200,
+        "ratio": 1.5908108108108108,
+        "verdict": "easy",
+        "factor": 0.3066,
+        "stagePower": 72318,
+        "wins": 64,
+        "winRate": 1,
+        "timeouts": 0,
+        "lossWipes": 0,
+        "medianDuration": 73.85,
+        "winningDurationMin": 72.1,
+        "winningDurationMax": 75.4,
+        "meanPlayerHpRemaining": 1,
+        "meanEnemyHpRemaining": 0,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 100,
+            "rarity": "red",
+            "focus": "resolve"
+          },
+          {
+            "template": "zara",
+            "branch": "assassin",
+            "level": 75,
+            "rarity": "red",
+            "focus": "precision"
+          },
+          {
+            "template": "greta",
+            "branch": "blacksmith",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "kai",
+            "branch": "wizard",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "precision"
+          }
+        ]
+      },
+      {
+        "name": "after100-first-wall-10",
+        "saveSha256": "b0084f4bf8637777f1ec66c668af0417acc68f71719ad70a77600b32093733b8",
+        "stage": "ch10_s13",
+        "seedBase": 1391,
+        "seeds": 64,
+        "power": 29240,
+        "recommended": 22200,
+        "ratio": 1.3171171171171172,
+        "verdict": "easy",
+        "factor": 0.3066,
+        "stagePower": 72318,
+        "wins": 0,
+        "winRate": 0,
+        "timeouts": 16,
+        "lossWipes": 48,
+        "medianDuration": 98.65,
+        "winningDurationMin": null,
+        "winningDurationMax": null,
+        "meanPlayerHpRemaining": 0.02142579173805201,
+        "meanEnemyHpRemaining": 0.23755354574448126,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "resolve"
+          },
+          {
+            "template": "lira",
+            "branch": "sage",
+            "level": 100,
+            "rarity": "red",
+            "focus": "precision"
+          },
+          {
+            "template": "kai",
+            "branch": "wizard",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "precision"
+          },
+          {
+            "template": "bran",
+            "branch": "hunter",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          }
+        ]
+      },
+      {
+        "name": "after100-after-9",
+        "saveSha256": "c7c1947eae8d26f0d3056debc0c320354d213414c24f7b3847770123dad6f99d",
+        "stage": "ch9_s10",
+        "seedBase": 1305,
+        "seeds": 64,
+        "power": 26950,
+        "recommended": 17200,
+        "ratio": 1.566860465116279,
+        "verdict": "easy",
+        "factor": 0.3593,
+        "stagePower": 47833,
+        "wins": 53,
+        "winRate": 0.828125,
+        "timeouts": 10,
+        "lossWipes": 1,
+        "medianDuration": 96.55,
+        "winningDurationMin": 88.2,
+        "winningDurationMax": 99.7,
+        "meanPlayerHpRemaining": 0.17328806298223576,
+        "meanEnemyHpRemaining": 0.007935191247659928,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "resolve"
+          },
+          {
+            "template": "iris",
+            "branch": "knight",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "zara",
+            "branch": "assassin",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          },
+          {
+            "template": "lira",
+            "branch": "sage",
+            "level": 100,
+            "rarity": "red",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          }
+        ]
+      },
+      {
+        "name": "after100-after-10",
+        "saveSha256": "b5a4edd45f1fea02533e153ce07f2449a274cfba81d58238699d9670fd4f7652",
+        "stage": "ch10_s13",
+        "seedBase": 1481,
+        "seeds": 64,
+        "power": 34367,
+        "recommended": 22200,
+        "ratio": 1.548063063063063,
+        "verdict": "easy",
+        "factor": 0.3066,
+        "stagePower": 72318,
+        "wins": 64,
+        "winRate": 1,
+        "timeouts": 0,
+        "lossWipes": 0,
+        "medianDuration": 91.2,
+        "winningDurationMin": 87.5,
+        "winningDurationMax": 94,
+        "meanPlayerHpRemaining": 0.8249857400992571,
+        "meanEnemyHpRemaining": 0,
+        "squad": [
+          {
+            "template": "alan",
+            "branch": "knight",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "resolve"
+          },
+          {
+            "template": "lira",
+            "branch": "sage",
+            "level": 100,
+            "rarity": "red",
+            "focus": "precision"
+          },
+          {
+            "template": "kai",
+            "branch": "wizard",
+            "level": 80,
+            "rarity": "red",
+            "focus": "precision"
+          },
+          {
+            "template": "bran",
+            "branch": "hunter",
+            "level": 80,
+            "rarity": "gold",
+            "focus": "precision"
+          },
+          {
+            "template": "vika",
+            "branch": "priest",
+            "level": 60,
+            "rarity": "purple",
+            "focus": "precision"
+          }
+        ]
+      }
+    ],
+    "diagnosticCandidates": [
+      {
+        "stage": "ch9_s10",
+        "currentFactor": 0.3593,
+        "currentRecommended": 17200,
+        "strongestMostlyLosingPower": 22666,
+        "weakestReliableWinningPower": 26950,
+        "bracketedAcrossObservedCompositions": true,
+        "proposedPower": 25552.24,
+        "proposedFactor": 0.5342,
+        "caveat": "Диагностическая узкая гипотеза, не изменение данных: выборка конкретных составов и таймера. Если нет границы или диапазоны пересекаются, единый порог не установлен. Проверить на свежем полном after100 и соседних составах."
+      },
+      {
+        "stage": "ch10_s13",
+        "currentFactor": 0.3066,
+        "currentRecommended": 22200,
+        "strongestMostlyLosingPower": 31956,
+        "weakestReliableWinningPower": 31872,
+        "bracketedAcrossObservedCompositions": false,
+        "proposedPower": null,
+        "proposedFactor": null,
+        "caveat": "Диагностическая узкая гипотеза, не изменение данных: выборка конкретных составов и таймера. Если нет границы или диапазоны пересекаются, единый порог не установлен. Проверить на свежем полном after100 и соседних составах."
+      }
+    ],
+    "majorWallDrops": [
+      {
+        "previous": "ch9_s9",
+        "stage": "ch9_s10",
+        "previousRecommended": 20800,
+        "recommended": 17200,
+        "drop": 0.17307692307692313,
+        "sameChapter": true
+      },
+      {
+        "previous": "ch10_s12",
+        "stage": "ch10_s13",
+        "previousRecommended": 25500,
+        "recommended": 22200,
+        "drop": 0.12941176470588234,
+        "sameChapter": true
+      }
+    ],
+    "totalDropsGreaterThan10Percent": 30,
+    "recommendation": "После additional fresh profiles проверить только ch9_s10 recommendedStages .3593→примерно.53–.54 (25.4–25.8k). Для ch10_s13 единый победный порог не установлен:31956 даёт9/64,31872 даёт64/64; coefficients пока не менять. Не применять monotonic clamp."
+  }
+}

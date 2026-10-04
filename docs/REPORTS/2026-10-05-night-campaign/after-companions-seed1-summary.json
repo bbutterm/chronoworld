@@ -1,0 +1,941 @@
+{
+  "gitHead": "d71207a90c677b74089c12159b367d24bd99da98",
+  "scriptSha256": "52744cb38224f1a8640dffb29e2c89b6daba7e169cb01e051f023e645572d666",
+  "sourceSha256": "ccd3e8e54dbdcb7403604c19a870c4bf4526e220f4f3e8b3420be248d396fbd7",
+  "seedBase": 1,
+  "maxWaits": 180,
+  "maxStages": 180,
+  "naiveMaxFarm": false,
+  "preserveCompanions": true,
+  "waitHours": 12,
+  "artificialResources": false,
+  "status": "complete",
+  "cleared": 180,
+  "campaignStages": 180,
+  "elapsedHours": 300.795,
+  "activeMinutes": 768,
+  "totalWaits": 24,
+  "campaignAttempts": 564,
+  "campaignLosses": 384,
+  "wallTimeSeconds": 50.776,
+  "cpuTimeSeconds": 56.036,
+  "walls": [
+    {
+      "stage": "ch2_s6",
+      "hour": 0.623,
+      "waitNumber": 1,
+      "willWait": true,
+      "power": 3746,
+      "recommended": 4000,
+      "blockers": {
+        "not_enough_exp": 5
+      },
+      "resources": {
+        "gold": 1022,
+        "exp": 3010,
+        "gems": 138,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch2_s10",
+      "hour": 13.025,
+      "waitNumber": 2,
+      "willWait": true,
+      "power": 4026,
+      "recommended": 5100,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 1821,
+        "exp": 5691,
+        "gems": 61,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch3_s15",
+      "hour": 25.474,
+      "waitNumber": 3,
+      "willWait": true,
+      "power": 4739,
+      "recommended": 5300,
+      "blockers": {
+        "not_enough_gold": 4,
+        "max_level": 1
+      },
+      "resources": {
+        "gold": 3604,
+        "exp": 13291,
+        "gems": 6,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch3_s15",
+      "hour": 37.64,
+      "waitNumber": 4,
+      "willWait": true,
+      "power": 4887,
+      "recommended": 5300,
+      "blockers": {
+        "max_level": 2,
+        "not_enough_gold": 3
+      },
+      "resources": {
+        "gold": 6115,
+        "exp": 12930,
+        "gems": 26,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch3_s10",
+      "hour": 50.093,
+      "waitNumber": 5,
+      "willWait": true,
+      "power": 5183,
+      "recommended": 5100,
+      "blockers": {
+        "not_enough_gold": 4,
+        "max_level": 1
+      },
+      "resources": {
+        "gold": 3754,
+        "exp": 30792,
+        "gems": 44,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch4_s9",
+      "hour": 62.489,
+      "waitNumber": 6,
+      "willWait": true,
+      "power": 6972,
+      "recommended": 6800,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 29,
+        "exp": 40954,
+        "gems": 159,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch4_s10",
+      "hour": 74.836,
+      "waitNumber": 7,
+      "willWait": true,
+      "power": 8376,
+      "recommended": 6900,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 12959,
+        "exp": 137200,
+        "gems": 105,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch5_s18",
+      "hour": 87.564,
+      "waitNumber": 8,
+      "willWait": true,
+      "power": 9952,
+      "recommended": 11800,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 15274,
+        "exp": 292316,
+        "gems": 100,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch5_s10",
+      "hour": 100.003,
+      "waitNumber": 9,
+      "willWait": true,
+      "power": 10770,
+      "recommended": 10400,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 21540,
+        "exp": 570506,
+        "gems": 196,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch6_s1",
+      "hour": 112.303,
+      "waitNumber": 10,
+      "willWait": true,
+      "power": 11131,
+      "recommended": 10900,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 20729,
+        "exp": 718152,
+        "gems": 226,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch6_s12",
+      "hour": 124.956,
+      "waitNumber": 11,
+      "willWait": true,
+      "power": 12258,
+      "recommended": 13500,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 9512,
+        "exp": 1125135,
+        "gems": 131,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch6_s12",
+      "hour": 137.253,
+      "waitNumber": 12,
+      "willWait": true,
+      "power": 12687,
+      "recommended": 13500,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 13742,
+        "exp": 1348977,
+        "gems": 168,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch7_s10",
+      "hour": 150.105,
+      "waitNumber": 13,
+      "willWait": true,
+      "power": 15437,
+      "recommended": 16800,
+      "blockers": {
+        "max_level": 3,
+        "not_enough_gold": 2
+      },
+      "resources": {
+        "gold": 37691,
+        "exp": 2369752,
+        "gems": 80,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch7_s10",
+      "hour": 162.474,
+      "waitNumber": 14,
+      "willWait": true,
+      "power": 16592,
+      "recommended": 16800,
+      "blockers": {
+        "max_level": 3,
+        "not_enough_gold": 2
+      },
+      "resources": {
+        "gold": 36196,
+        "exp": 2862563,
+        "gems": 83,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch8_s16",
+      "hour": 175.312,
+      "waitNumber": 15,
+      "willWait": true,
+      "power": 18055,
+      "recommended": 18700,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 19260,
+        "exp": 5204165,
+        "gems": 226,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch8_s18",
+      "hour": 187.787,
+      "waitNumber": 16,
+      "willWait": true,
+      "power": 18518,
+      "recommended": 20400,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 39373,
+        "exp": 7035179,
+        "gems": 249,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch8_s18",
+      "hour": 200.166,
+      "waitNumber": 17,
+      "willWait": true,
+      "power": 18957,
+      "recommended": 20400,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 55890,
+        "exp": 9112764,
+        "gems": 53,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch8_s18",
+      "hour": 212.509,
+      "waitNumber": 18,
+      "willWait": true,
+      "power": 19712,
+      "recommended": 20400,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 65238,
+        "exp": 10951324,
+        "gems": 150,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch8_s18",
+      "hour": 224.954,
+      "waitNumber": 19,
+      "willWait": true,
+      "power": 20219,
+      "recommended": 20400,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 63903,
+        "exp": 13306817,
+        "gems": 7,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch8_s18",
+      "hour": 237.251,
+      "waitNumber": 20,
+      "willWait": true,
+      "power": 20851,
+      "recommended": 20400,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 85203,
+        "exp": 14971073,
+        "gems": 36,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch8_s18",
+      "hour": 249.74,
+      "waitNumber": 21,
+      "willWait": true,
+      "power": 21446,
+      "recommended": 20400,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 129268,
+        "exp": 17288764,
+        "gems": 183,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch8_s18",
+      "hour": 262.036,
+      "waitNumber": 22,
+      "willWait": true,
+      "power": 21406,
+      "recommended": 20400,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 198068,
+        "exp": 18953020,
+        "gems": 211,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch8_s18",
+      "hour": 274.501,
+      "waitNumber": 23,
+      "willWait": true,
+      "power": 21681,
+      "recommended": 20400,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 167718,
+        "exp": 21312081,
+        "gems": 73,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch9_s10",
+      "hour": 287.558,
+      "waitNumber": 24,
+      "willWait": true,
+      "power": 22060,
+      "recommended": 17200,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 77906,
+        "exp": 23933322,
+        "gems": 205,
+        "scrolls": 0
+      }
+    }
+  ],
+  "actionCounts": {
+    "reset_training": 304,
+    "copy_rarity_upgrade": 4,
+    "tavern_evening": 10,
+    "tower": 462,
+    "hunt": 26,
+    "arena_round": 77,
+    "replay": 83,
+    "training_focus": 15,
+    "wait_12h": 24,
+    "campaign_choice": 1,
+    "bond_quest": 9,
+    "salvage": 50,
+    "mvp_card": 1
+  },
+  "income": {
+    "offline": {
+      "gold": 16348780,
+      "gems": 115,
+      "exp": 23278320
+    },
+    "fast_rewards": {
+      "gold": 2623440,
+      "gems": 10,
+      "exp": 3735000
+    },
+    "campaign": {
+      "gold": 6321414,
+      "gems": 150,
+      "exp": 9001420
+    },
+    "tower": {
+      "gold": 742406,
+      "gems": 66,
+      "exp": 1056438
+    },
+    "hunt": {
+      "gold": 502000,
+      "gems": 200,
+      "exp": 705200
+    },
+    "expeditions": {
+      "gold": 96624,
+      "gems": 381,
+      "exp": 132144
+    },
+    "quests": {
+      "gold": 9100,
+      "gems": 1170,
+      "exp": 3900
+    },
+    "achievements": {
+      "gold": 1700,
+      "gems": 340,
+      "exp": 0
+    },
+    "events": {
+      "gold": 13632,
+      "gems": 1360,
+      "exp": 24355
+    },
+    "mail": {
+      "gold": 5800,
+      "gems": 0,
+      "exp": 5000
+    },
+    "heroes": {
+      "gold": 185436450,
+      "gems": 0,
+      "exp": 198572820
+    },
+    "summon": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "shop": {
+      "gold": 28800,
+      "gems": 0,
+      "exp": 0
+    },
+    "refine": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    }
+  },
+  "spend": {
+    "offline": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "fast_rewards": {
+      "gold": 0,
+      "gems": 1655,
+      "exp": 0
+    },
+    "campaign": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "tower": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "hunt": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "expeditions": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "quests": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "achievements": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "events": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "mail": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "heroes": {
+      "gold": 196062025,
+      "gems": 0,
+      "exp": 207980976
+    },
+    "summon": {
+      "gold": 0,
+      "gems": 1890,
+      "exp": 0
+    },
+    "shop": {
+      "gold": 637000,
+      "gems": 108,
+      "exp": 0
+    },
+    "refine": {
+      "gold": 15421000,
+      "gems": 0,
+      "exp": 0
+    }
+  },
+  "finalResources": {
+    "gold": 10121,
+    "exp": 28533621,
+    "gems": 139,
+    "scrolls": 0
+  },
+  "finalSquad": [
+    "h1:alan:purple:60:knight:resolve",
+    "h9:iris:red:95:knight:precision",
+    "h24:kai:gold:68:wizard:precision",
+    "h2:bran:gold:80:hunter:precision",
+    "h3:vika:purple:60:priest:precision"
+  ],
+  "heroPowers": [
+    {
+      "id": "h1",
+      "power": 4359
+    },
+    {
+      "id": "h9",
+      "power": 9503
+    },
+    {
+      "id": "h24",
+      "power": 5177
+    },
+    {
+      "id": "h2",
+      "power": 5986
+    },
+    {
+      "id": "h3",
+      "power": 3363
+    }
+  ],
+  "policy": "free_fast_rewards_when_rarity_capped_and_original_companions",
+  "rawArtifactDirectory": "/tmp/chronoworld-night-after-companions-seed1",
+  "originalMetadata": {
+    "gitHead": "d71207a90c677b74089c12159b367d24bd99da98",
+    "scriptSha256": "52744cb38224f1a8640dffb29e2c89b6daba7e169cb01e051f023e645572d666",
+    "sourceSha256": "ccd3e8e54dbdcb7403604c19a870c4bf4526e220f4f3e8b3420be248d396fbd7",
+    "seedBase": 1,
+    "maxWaits": 180,
+    "maxStages": 180,
+    "naiveMaxFarm": false,
+    "preserveCompanions": true,
+    "waitHours": 12,
+    "artificialResources": false
+  },
+  "notes": [
+    "The optional companion policy is a separate strategy comparison; its gain must not be attributed solely to combat fixes.",
+    "This process was launched before the development counters and before-first-win snapshots were added. No such fields are backfilled."
+  ],
+  "chapters": [
+    {
+      "chapter": 1,
+      "cleared": 18,
+      "clearedHour": 0.082,
+      "attempts": 18,
+      "losses": 0,
+      "waits": 0,
+      "lossReasons": {}
+    },
+    {
+      "chapter": 2,
+      "cleared": 18,
+      "clearedHour": 25.289,
+      "attempts": 58,
+      "losses": 40,
+      "waits": 2,
+      "lossReasons": {
+        "wipe": 40
+      }
+    },
+    {
+      "chapter": 3,
+      "cleared": 18,
+      "clearedHour": 62.117,
+      "attempts": 65,
+      "losses": 47,
+      "waits": 3,
+      "lossReasons": {
+        "wipe": 47
+      }
+    },
+    {
+      "chapter": 4,
+      "cleared": 18,
+      "clearedHour": 86.931,
+      "attempts": 50,
+      "losses": 32,
+      "waits": 2,
+      "lossReasons": {
+        "wipe": 32
+      }
+    },
+    {
+      "chapter": 5,
+      "cleared": 18,
+      "clearedHour": 112.027,
+      "attempts": 54,
+      "losses": 36,
+      "waits": 2,
+      "lossReasons": {
+        "wipe": 36
+      }
+    },
+    {
+      "chapter": 6,
+      "cleared": 18,
+      "clearedHour": 149.39,
+      "attempts": 60,
+      "losses": 42,
+      "waits": 3,
+      "lossReasons": {
+        "wipe": 42
+      }
+    },
+    {
+      "chapter": 7,
+      "cleared": 18,
+      "clearedHour": 174.491,
+      "attempts": 46,
+      "losses": 28,
+      "waits": 2,
+      "lossReasons": {
+        "wipe": 28
+      }
+    },
+    {
+      "chapter": 8,
+      "cleared": 18,
+      "clearedHour": 286.823,
+      "attempts": 141,
+      "losses": 123,
+      "waits": 9,
+      "lossReasons": {
+        "wipe": 123
+      }
+    },
+    {
+      "chapter": 9,
+      "cleared": 18,
+      "clearedHour": 299.698,
+      "attempts": 37,
+      "losses": 19,
+      "waits": 1,
+      "lossReasons": {
+        "wipe": 19
+      }
+    },
+    {
+      "chapter": 10,
+      "cleared": 18,
+      "clearedHour": 300.794,
+      "attempts": 35,
+      "losses": 17,
+      "waits": 0,
+      "lossReasons": {
+        "timeout": 3,
+        "wipe": 14
+      }
+    }
+  ],
+  "finalCompanions": [
+    {
+      "id": "h1",
+      "templateId": "alan",
+      "rarity": "purple",
+      "level": 60,
+      "branch": "knight",
+      "journey": {
+        "branchLevels": {
+          "knight": 60
+        },
+        "focus": "resolve",
+        "lastBranch": "knight",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h2",
+      "templateId": "bran",
+      "rarity": "gold",
+      "level": 80,
+      "branch": "hunter",
+      "journey": {
+        "branchLevels": {
+          "hunter": 80
+        },
+        "focus": "precision",
+        "lastBranch": "hunter",
+        "peakLevel": 80
+      }
+    },
+    {
+      "id": "h3",
+      "templateId": "vika",
+      "rarity": "purple",
+      "level": 60,
+      "branch": "priest",
+      "journey": {
+        "branchLevels": {
+          "priest": 60
+        },
+        "focus": "precision",
+        "lastBranch": "priest",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h4",
+      "templateId": "teo",
+      "rarity": "purple",
+      "level": 1,
+      "branch": "priest",
+      "journey": {
+        "branchLevels": {
+          "priest": 1
+        },
+        "focus": "precision",
+        "lastBranch": "priest",
+        "peakLevel": 35
+      }
+    },
+    {
+      "id": "h8",
+      "templateId": "dorn",
+      "rarity": "purple",
+      "level": 16,
+      "branch": "assassin",
+      "journey": {
+        "branchLevels": {
+          "assassin": 60
+        },
+        "focus": "precision",
+        "lastBranch": "assassin",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h9",
+      "templateId": "iris",
+      "rarity": "red",
+      "level": 95,
+      "branch": "knight",
+      "journey": {
+        "branchLevels": {
+          "knight": 95
+        },
+        "focus": "precision",
+        "lastBranch": "knight",
+        "peakLevel": 95
+      }
+    },
+    {
+      "id": "h11",
+      "templateId": "lira",
+      "rarity": "purple",
+      "level": 1,
+      "branch": "sage",
+      "journey": {
+        "branchLevels": {
+          "sage": 1
+        },
+        "lastBranch": "sage",
+        "peakLevel": 1
+      }
+    },
+    {
+      "id": "h13",
+      "templateId": "greta",
+      "rarity": "purple",
+      "level": 5,
+      "branch": "blacksmith",
+      "journey": {
+        "branchLevels": {
+          "blacksmith": 60
+        },
+        "focus": "precision",
+        "lastBranch": "blacksmith",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h19",
+      "templateId": "otto",
+      "rarity": "purple",
+      "level": 1,
+      "branch": "blacksmith",
+      "journey": {
+        "branchLevels": {
+          "blacksmith": 1
+        },
+        "focus": "resolve",
+        "lastBranch": "blacksmith",
+        "peakLevel": 27
+      }
+    },
+    {
+      "id": "h20",
+      "templateId": "zara",
+      "rarity": "purple",
+      "level": 1,
+      "branch": "assassin",
+      "journey": {
+        "branchLevels": {
+          "assassin": 60
+        },
+        "focus": "precision",
+        "lastBranch": "assassin",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h21",
+      "templateId": "meilin",
+      "rarity": "purple",
+      "level": 1,
+      "branch": "hunter",
+      "journey": {
+        "branchLevels": {
+          "hunter": 60
+        },
+        "focus": "precision",
+        "lastBranch": "hunter",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h24",
+      "templateId": "kai",
+      "rarity": "gold",
+      "level": 68,
+      "branch": "wizard",
+      "journey": {
+        "branchLevels": {
+          "wizard": 68
+        },
+        "focus": "precision",
+        "lastBranch": "wizard",
+        "peakLevel": 68
+      }
+    }
+  ]
+}

@@ -11,7 +11,7 @@ export function rememberHeroJourney(hero: HeroState): HeroState {
   const peakLevel = Math.max(hero.level, journey.peakLevel ?? 1);
   const branchLevels = { ...journey.branchLevels };
   if (hero.branch) branchLevels[hero.branch] = Math.max(hero.level, branchLevels[hero.branch] ?? 1);
-  return { ...hero, journey: { ...journey, peakLevel, ...(Object.keys(branchLevels).length ? { branchLevels } : {}) } };
+  return { ...hero, journey: { ...journey, peakLevel, ...(hero.branch ? { lastBranch: hero.branch } : {}), ...(Object.keys(branchLevels).length ? { branchLevels } : {}) } };
 }
 
 export interface HeroFocusOption {

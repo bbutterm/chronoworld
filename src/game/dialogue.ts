@@ -12,6 +12,7 @@ import { isChapterFinale, speakerView } from './storyView';
 import { introPages, showPages } from './storyPage';
 import { type Panel, BTN, button, mixHex, plate, SURFACE, text } from './ui';
 import { COLOR, E, FAMILY, M, R, S, T } from './theme';
+import { onViewChange, view } from './viewport';
 
 /** Имя слоя диалога (e2e ищет его, чтобы пролистать сцену). */
 export const DIALOGUE_NAME = 'dialogue';
@@ -37,7 +38,6 @@ export const LINE_GUARD_MS = 250;
  */
 const PANEL_W = 1040;
 const PANEL_H = 460;
-const PANEL_Y = GAME_H - 30 - PANEL_H / 2;
 const PORTRAIT = 250;
 /** Текст реплики — чуть крупнее T.body (читается с вытянутой руки), межстрочный 1.4. */
 const BODY_FS = 42;
@@ -127,8 +127,11 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   // Затемнение ловит все касания: экран под диалогом недоступен (бой не стартует, кнопки не жмутся). BUG-064: фон заметно
   // темнее (0.62) — карта и бойцы не отвлекают от реплики.
   const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.62).setInteractive();
-  const box = dialoguePanel(scene, PANEL_Y);
-  const top = PANEL_Y - PANEL_H / 2;
+  const initialBottom = view().safeBottom;
+  const panelY = initialBottom - 30 - PANEL_H / 2;
+  const chrome = scene.add.container(0, 0);
+  const box = dialoguePanel(scene, panelY);
+  const top = panelY - PANEL_H / 2;
   const left = GAME_W / 2 - PANEL_W / 2;
 
   // Портрет в золотой рамке — наполовину над плашкой, слева.
@@ -143,14 +146,17 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     lineSpacing: BODY_LEADING,
     align: 'left',
   }).setOrigin(0, 0).setName('dialogueBody');
-  const more = counterText(scene, GAME_W / 2 + PANEL_W / 2 - S.l, PANEL_Y + PANEL_H / 2 - S.l);
+  const more = counterText(scene, GAME_W / 2 + PANEL_W / 2 - S.l, panelY + PANEL_H / 2 - S.l);
   const skip = button(scene, GAME_W / 2 + PANEL_W / 2 - 140, top - 70, 260, BTN.m, '', 'Пропустить', () => close(), T.body, { variant: 'secondary' });
   // Имя говорящего — на золотой кромке (табличка), текст реплики ниже неё.
   const nameTrim = scene.add.image(px + PORTRAIT / 2 + 40, top + 96, 'skin_trim').setOrigin(0, 0.5).setDisplaySize(PANEL_W - PORTRAIT - 150, 8).setAlpha(0.7);
   // Вверху плашки — тёплый отсвет, как от портрета.
   const warm = scene.add.image(px + 60, top + 40, 'skin_glow').setDisplaySize(520, 260).setTint(0xffc870).setAlpha(0.14).setBlendMode(Phaser.BlendModes.ADD);
   const choiceLayer = scene.add.container(0, 0);
-  layer.add([shade, art, box, warm, nameTrim, face, nameText, body, more, skip.container, choiceLayer]);
+  chrome.add([art, box, warm, nameTrim, face, nameText, body, more, skip.container, choiceLayer]);
+  layer.add([shade, chrome]);
+  const offView = onViewChange(scene, () => chrome.setY(view().safeBottom - initialBottom));
+  layer.once(Phaser.GameObjects.Events.DESTROY, offView);
   // Иллюстрации спикеров сцены — загрузить заранее (к их первой реплике обычно уже готовы).
   for (const l of [...s.lines, ...(s.choice?.options.flatMap((o) => o.reply) ?? [])]) {
     const ill = story?.speakers[l.speaker]?.illust;
@@ -217,7 +223,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     placeName(!on);
     if (!on || !id) return;
     const img = scene.add.image(0, 0, illustKey(id)).setOrigin(0.5, 1);
-    const k = ILLUST_H / img.height;
+    const k = Math.min(ILLUST_H, Math.max(300, top + ILLUST_UNDER - S.l)) / img.height;
     img.setScale(k);
     const x = left + 20 + (img.width * k) / 2;
     img.setPosition(x - 60, top + ILLUST_UNDER).setAlpha(0);
