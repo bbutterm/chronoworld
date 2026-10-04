@@ -480,7 +480,7 @@ export class HeroScene extends Phaser.Scene {
   }
 
   private openAscend(): void {
-    this.scene.start('Ascend', { heroId: this.heroId });
+    this.scene.start('Ascend', { heroId: this.heroId, tab: this.tab, back: this.back } satisfies HeroData);
   }
 
   /**

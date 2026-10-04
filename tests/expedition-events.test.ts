@@ -372,4 +372,27 @@ describe('события экспедиций: баланс', () => {
     const s = game('ch1_s8');
     expect(eventParty(s, [s.heroes[0].id, 'ghost'], ctx).map((h) => h.id)).toEqual([s.heroes[0].id]);
   });
+
+  it('шанс помощи раненому учитывает лекаря выбранной профессии, а не стартовую роль', () => {
+    let s = game('ch2_s1', ['greta', 'vika']);
+    const greta = s.heroes.find((h) => h.templateId === 'greta')!;
+    const vika = s.heroes.find((h) => h.templateId === 'vika' && h.rarity === 'purple')!;
+    s = { ...s, heroes: s.heroes.map((h) => h.id === greta.id ? { ...h, branch: 'alchemist' } : h.id === vika.id ? { ...h, branch: 'monk' } : h) };
+    const choice = cfg.events.find((e) => e.id === 'road_wounded_stranger')!.choices.find((c) => c.id === 'heal')!;
+    const alchemist = eventParty(s, [greta.id], ctx);
+    const monk = eventParty(s, [vika.id], ctx);
+    expect(choiceOdds(choice, alchemist)).toMatchObject({ chance: choice.chanceWith, fits: [{ id: greta.id, role: 'healer' }] });
+    expect(choiceOdds(choice, monk)).toEqual({ chance: choice.chance, fits: [] });
+    expect(noFitLead(choice.requires, alchemist[0], (id) => ctx.content.heroes[id].name)).toBe('');
+    expect(noFitLead(choice.requires, monk[0], (id) => ctx.content.heroes[id].name)).toMatch(/^Лекаря в отряде нет/);
+  });
+
+  it('защита от мародёров доступна танку новой ветки; без фиолетовой редкости действует первая профессия', () => {
+    const s = game('ch2_s1', ['iris']);
+    const iris = s.heroes.find((h) => h.templateId === 'iris')!;
+    const choice = cfg.events.find((e) => e.id === 'road_marauders')!.choices.find((c) => c.id === 'storm')!;
+    const withIris = (rarity: 'blue' | 'purple') => eventParty({ ...s, heroes: [{ ...iris, rarity, branch: 'crusader' }] }, [iris.id], ctx);
+    expect(choiceOdds(choice, withIris('purple'))).toMatchObject({ chance: choice.chanceWith, fits: [{ id: iris.id, role: 'tank' }] });
+    expect(choiceOdds(choice, withIris('blue'))).toEqual({ chance: choice.chance, fits: [] });
+  });
 });

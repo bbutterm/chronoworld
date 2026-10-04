@@ -40,6 +40,7 @@ import {
 import { openBranchPicker } from '../branchPicker';
 import { skillIcon } from '../skillIcons';
 import { openSkillDetail } from '../skillDetail';
+import type { HeroData } from './HeroScene';
 
 const TOP = CONTENT_TOP;
 /** Главная кнопка «Вознести» и строка причины над ней. */
@@ -109,16 +110,19 @@ export class AscendScene extends Phaser.Scene {
   }
 
   private heroId = '';
+  /** После выбора копий и показа вознесения вернуться на ту же вкладку и к тому же родителю карточки. */
+  private heroReturn!: HeroData;
   private chosen: string[] = [];
   /** Выбранная ветка (переход с выбором ветки, у героя ветки ещё нет). */
   private branch: string | undefined;
   private slotPos: { x: number; y: number }[] = [];
 
-  create(data: { heroId: string }): void {
+  create(data: HeroData): void {
     this.heroId = data.heroId;
+    this.heroReturn = { heroId: data.heroId, tab: data.tab, back: data.back };
     this.slotPos = [];
     const hero = session.save.heroes.find((h) => h.id === data.heroId);
-    screen(this, 'Вознесение', 'Heroes', { to: 'Hero', data: { heroId: data.heroId } });
+    screen(this, 'Вознесение', 'Heroes', { to: 'Hero', data: this.heroReturn });
     if (!hero || !GAME.content.heroes[hero.templateId]) return;
     const req = ascendRequirement(session.save, hero.id, GAME);
     this.branch = req && needsBranchPick(hero, req.to) && branchFor?.heroId === hero.id && req.branches?.some((b) => b.job === branchFor!.job) ? branchFor.job : undefined;
@@ -138,6 +142,10 @@ export class AscendScene extends Phaser.Scene {
     y = this.gains(hero, req, prev, y + S.s, choosing);
     this.fodderBlock(hero, req, y + S.l, lay.slotW);
     this.footer(hero, req);
+  }
+
+  private reopen(): void {
+    this.scene.restart(this.heroReturn);
   }
 
   /** Размеры карточек и слотов: всё влезает над строкой причины (на фиолетовом добавляются ветки). */
@@ -290,7 +298,7 @@ export class AscendScene extends Phaser.Scene {
       if (b.job === this.branch) return;
       branchFor = { heroId: hero.id, job: b.job };
       sfx('equip');
-      this.scene.restart({ heroId: hero.id });
+      this.reopen();
     });
     // «i» — подробности обеих веток (там же можно выбрать).
     if (!on) infoButton(this, x + w / 2 - S.m - 18, y - h / 2 + 46, () => this.openBranches(hero, b.job), { size: 52 }).setName(`branchMore_${b.job}`);
@@ -307,7 +315,7 @@ export class AscendScene extends Phaser.Scene {
       confirmLabel: (job) => (job ? `Выбрать: ${(ascendRequirement(session.save, hero.id, GAME)?.branches ?? []).find((x) => x.job === job)?.jobName ?? job}` : 'Выберите ветку'),
       onConfirm: (job) => {
         branchFor = { heroId: hero.id, job };
-        this.scene.restart({ heroId: hero.id });
+        this.reopen();
       },
     });
   }
@@ -396,7 +404,7 @@ export class AscendScene extends Phaser.Scene {
     }
     chosenFor = { heroId: hero.id, ids };
     sfx('equip');
-    this.scene.restart({ heroId: hero.id });
+    this.reopen();
   }
 
   /** Выполнить цепочку слияний (autoChain) по шагам, затем заполнить корм «Авто». */
@@ -417,7 +425,7 @@ export class AscendScene extends Phaser.Scene {
     if (done) sfx('equip');
     const ids = autoFodder(session.save, hero.id, GAME);
     chosenFor = { heroId: hero.id, ids: ids ?? [] };
-    this.scene.restart({ heroId: hero.id });
+    this.reopen();
     const sc = this.scene.get('Ascend');
     sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, `Слито копий: ${done}`, C.success, 2000));
   }
@@ -425,7 +433,7 @@ export class AscendScene extends Phaser.Scene {
   private unchoose(id: string): void {
     chosenFor = { heroId: this.heroId, ids: this.chosen.filter((x) => x !== id) };
     sfx('ui_back');
-    this.scene.restart({ heroId: this.heroId });
+    this.reopen();
   }
 
   /** Лист выбора корма для слота group: подходящие копии с уровнями, свободные первыми; занятые — бледные с меткой. */
@@ -462,7 +470,7 @@ export class AscendScene extends Phaser.Scene {
             close();
             chosenFor = { heroId: this.heroId, ids: [...this.chosen, o.id] };
             sfx('equip');
-            this.scene.restart({ heroId: this.heroId });
+            this.reopen();
           },
         });
         c.setName(`fodderOption_${o.id}`);
@@ -612,7 +620,7 @@ export class AscendScene extends Phaser.Scene {
       y += q.height + S.s;
     }
     const doneY = Math.min(GAME_H - 130, Math.max(y + 90, CONTENT_BOTTOM - 70));
-    const done = cta(this, GAME_W / 2, doneY, 'Отлично!', () => this.scene.start('Hero', { heroId }), { w: 520 });
+    const done = cta(this, GAME_W / 2, doneY, 'Отлично!', () => this.scene.start('Hero', this.heroReturn), { w: 520 });
     done.container.setName('revealDone').setAlpha(motion ? 0 : 1);
     layer.add(done.container);
 

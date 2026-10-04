@@ -12,6 +12,7 @@
  * (now) передаёт UI.
  */
 import { lootSeed } from '../equipment/chest';
+import { heroRole } from '../heroes/card';
 import type { GameContext } from '../progression/types';
 import { Rng } from '../rng';
 import type { ActiveExpedition, ExpeditionBond, ExpeditionEventState, ExpeditionJournalEntry, ExpeditionRewards, SaveState } from '../save/schema';
@@ -88,7 +89,7 @@ export function eventParty(save: Pick<SaveState, 'heroes'>, heroIds: readonly st
     const h = save.heroes.find((x) => x.id === id);
     const t = h && ctx.content.heroes[h.templateId];
     if (!h || !t) continue;
-    out.push({ id: h.id, templateId: h.templateId, name: t.name, line: t.line, role: t.role, gender: t.gender === 'f' ? 'f' : 'm' });
+    out.push({ id: h.id, templateId: h.templateId, name: t.name, line: t.line, role: heroRole(h, ctx), gender: t.gender === 'f' ? 'f' : 'm' });
   }
   return out;
 }
